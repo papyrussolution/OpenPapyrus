@@ -1,5 +1,5 @@
 // V_PSNEV.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev, A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 // @ModuleDef(PPViewPersonEvent)
 //
 #include <pp.h>
@@ -183,7 +183,6 @@ int PPViewPersonEvent::Init_(const PPBaseFilt * pFilt)
 			for(InitIteration(); NextIteration(&item) > 0;) {
 				TempPersonEventTbl::Rec temp_rec;
 				MEMSZERO(k0);
-				// @v10.7.5 @ctr MEMSZERO(temp_rec);
 				temp_rec.Count = 1;
 				if(save_filt.Sgd != sgdNone) {
 					LTIME tm = ZEROTIME;

@@ -368,7 +368,6 @@ PPSmsAccPacket::PPSmsAccPacket()
 void PPSmsAccPacket::Init()
 {
 	ExtStr.Z();
-	// @v10.6.5 @ctr MEMSZERO(Rec);
 }
 
 int FASTCALL PPSmsAccPacket::IsEq(const PPSmsAccPacket & rS) const

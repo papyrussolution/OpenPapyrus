@@ -1,5 +1,5 @@
 // V_ARTCL.CPP
-// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 // Реализация контроллера анализ данных PPViewArticle
 //
@@ -48,7 +48,6 @@ int PPViewArticle::UpdateTempTable(PPID arID)
 	int    ok = -1, r = -1;
 	if(P_TempTbl) {
 		TempArAgtTbl::Rec rec;
-		// @v10.6.4 MEMSZERO(rec);
 		PPClientAgreement cli_agt;
 		PPSupplAgreement suppl_agt;
 		PPTransaction tra(ppDbDependTransaction, 1);
@@ -180,7 +179,6 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 							PPClientAgreement cli_agt;
 							if(ArObj.GetClientAgreement(_id, cli_agt) > 0) {
 								TempArAgtTbl::Rec rec;
-								// @v10.7.9 @ctr MEMSZERO(rec);
 								rec.ArID        = cli_agt.ClientID;
 								rec.Beg = cli_agt.BegDt;
 								rec.Expiry      = cli_agt.Expiry;
@@ -210,7 +208,6 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 						THROW(tra);
 						for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 							TempArAgtTbl::Rec rec;
-							// @v10.7.9 @ctr MEMSZERO(rec);
 							PPClientAgreement cli_agt;
 							PPObjArticle::PropToClientAgt(&r_pt.data, &cli_agt, 1);
 							rec.ArID        = cli_agt.ClientID;
@@ -268,7 +265,6 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 							const  PPID ar_id = ar_agt_list.get(i);
 							if(ArObj.GetSupplAgreement(ar_id, &suppl_agt, 0) > 0) {
 								TempArAgtTbl::Rec rec;
-								// @v10.7.9 @ctr MEMSZERO(rec);
 								rec.ArID        = suppl_agt.SupplID;
 								rec.Beg = suppl_agt.BegDt;
 								rec.Expiry      = suppl_agt.Expiry;

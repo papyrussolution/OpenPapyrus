@@ -55,8 +55,7 @@ void** RepeatedPtrFieldBase::InternalExtend(int extend_amount) {
 #endif
 	total_size_ = new_size;
 	if(old_rep && old_rep->allocated_size > 0) {
-		memcpy(rep_->elements, old_rep->elements,
-		    old_rep->allocated_size * sizeof(rep_->elements[0]));
+		memcpy(rep_->elements, old_rep->elements, old_rep->allocated_size * sizeof(rep_->elements[0]));
 		rep_->allocated_size = old_rep->allocated_size;
 	}
 	else {

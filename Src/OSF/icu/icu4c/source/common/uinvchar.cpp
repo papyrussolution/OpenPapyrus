@@ -343,7 +343,7 @@ U_CFUNC int32_t uprv_copyAscii(const UDataSwapper * ds,
 	}
 
 	if(length>0 && inData!=outData) {
-		uprv_memcpy(outData, inData, length);
+		memcpy(outData, inData, length);
 	}
 
 	return length;
@@ -418,7 +418,7 @@ U_CFUNC int32_t uprv_copyEbcdic(const UDataSwapper * ds,
 	}
 
 	if(length>0 && inData!=outData) {
-		uprv_memcpy(outData, inData, length);
+		memcpy(outData, inData, length);
 	}
 
 	return length;

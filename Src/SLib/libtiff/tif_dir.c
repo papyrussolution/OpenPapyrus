@@ -431,8 +431,7 @@ static int _TIFFVSetField(TIFF * tif, uint32 tag, va_list ap)
 		    for(iCustom = 0; iCustom < td->td_customValueCount; iCustom++) {
 			    if(td->td_customValues[iCustom].info->field_tag == tag) {
 				    tv = td->td_customValues + iCustom;
-				    SAlloc::F(tv->value);
-				    tv->value = NULL;
+				    ZFREE(tv->value);
 				    break;
 			    }
 		    }

@@ -1,5 +1,5 @@
 // CSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -264,7 +264,6 @@ int CSessionCore::CheckUniqueDateTime(PPID cashNodeID, LDATE * pDt, LTIME * pTm)
 int CSessionCore::CreateSess(PPID * pID, PPID cashNodeID, long cashN, long sessN, LDATETIME dtm, int temporary)
 {
 	CSessionTbl::Rec rec;
-	// @v10.6.4 MEMSZERO(rec);
 	rec.CashNodeID = cashNodeID;
 	rec.CashNumber = cashN;
 	rec.SessNumber = sessN;
@@ -325,7 +324,6 @@ int CSessionCore::CreateSuperSess(PPID * pID, PPID cashNodeID, const PPIDArray &
 			CSessionTbl::Rec super_rec;
 			long   last_number = 0;
 			GetLastNumber(cashNodeID, 0, &last_number);
-			// @v10.6.4 MEMSZERO(super_rec);
 			super_rec.CashNodeID = cashNodeID;
 			super_rec.CashNumber = 0;
 			super_rec.Incomplete = CSESSINCMPL_CHECKS;

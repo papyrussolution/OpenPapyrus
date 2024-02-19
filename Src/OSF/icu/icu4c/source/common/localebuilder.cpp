@@ -71,7 +71,7 @@ static void setField(StringPiece input, char * dest, UErrorCode & errorCode,
 		dest[0] = '\0';
 	}
 	else if(test(input.data(), input.length())) {
-		uprv_memcpy(dest, input.data(), input.length());
+		memcpy(dest, input.data(), input.length());
 		dest[input.length()] = '\0';
 	}
 	else {

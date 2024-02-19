@@ -17,7 +17,6 @@ PPObjBill::SelectLotParam::SelectLotParam(PPID goodsID, PPID locID, PPID exclude
 {
 	GoodsList.addnz(goodsID);
 	Period.Z();
-	// @v10.6.4 MEMSZERO(RetLotRec);
 }
 
 PPObjBill::ReckonParam::ReckonParam(int automat, int dontConfirm) : Flags(0), ForceBillID(0), ForceBillDate(ZERODATE)
@@ -2133,9 +2132,7 @@ int PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, PPID o
 		PPObjSCard sc_obj;
 		SCardTbl::Rec sc_rec;
 		if(op_type == PPOPT_DRAFTEXPEND && pChkRec && pChkRec->ID) {
-			// @v10.4.2 CCheckCore cc_core;
 			CCheckLineTbl::Rec cc_line;
-			// @v10.6.4 MEMSZERO(cc_line);
 			pack.Rec.Dt = pChkRec->Dt;
 			for(int i = 0; sc_obj.P_CcTbl->EnumLines(pChkRec->ID, &i, &cc_line) > 0;) {
 				ReceiptTbl::Rec lot_rec;
@@ -3502,13 +3499,13 @@ struct __PPBillConfig {    // @persistent @store(PropertyTbl)
 			THROW_SL(ser_buf.Write(PTR8C(p_temp)+fix_size, sz - fix_size));
 			if(!pCfg->TagIndFilt.Read(ser_buf, 0)) {
 				pCfg->TagIndFilt.Init(1, 0);
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 			}
 			// @v10.4.3 {
 			if(pCfg->Ver.IsGt(10, 4, 2)) {
 				if(!pCfg->LotTagIndFilt.Read(ser_buf, 0)) {
 					pCfg->LotTagIndFilt.Init(1, 0);
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 				}
 			}
 			// } @v10.4.3
@@ -3964,7 +3961,6 @@ int PPObjBill::GetComplete(PPID lotID, long flags, CompleteArray * pList)
 				for(uint p = 0; pack.EnumTItems(&p, &p_ti);) {
 					if(p_ti->Flags & PPTFR_PLUS) {
 						CompleteItem item;
-						// @v10.8.4 @ctr MEMSZERO(item);
 						item.Flags  |= CompleteItem::fBranch;
 						item.LotID   = p_ti->LotID;
 						item.GoodsID = p_ti->GoodsID;
@@ -4565,7 +4561,7 @@ int PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 				}
 				if(oneof6(op_code, ASSTOPC_MOV, ASSTOPC_RCPT, ASSTOPC_RCPTEXPL, ASSTOPC_EXPEND, ASSTOPC_EXPL, ASSTOPC_EXPLOUT)) {
 					if(pCard->P_MovList == 0)
-						THROW_MEM(pCard->P_MovList = new SVector(sizeof(AssetCard::MovItem))); // @v10.7.11 SArray-->SVector
+						THROW_MEM(pCard->P_MovList = new SVector(sizeof(AssetCard::MovItem)));
 					AssetCard::MovItem item;
 					item.BillID    = rec.BillID;
 					item.LotID     = rec.LotID;
@@ -5076,7 +5072,7 @@ int PPObjBill::SelectQuotKind(PPBillPacket * pPack, const PPTransferItem * pTi, 
 		else if(ql.getCount() > 1) {
 			uint   i;
 			QuotKindSelItem * p_item;
-			SVector qks_list(sizeof(QuotKindSelItem)); // @v10.0.02 SArray-->SVector
+			SVector qks_list(sizeof(QuotKindSelItem));
 			for(i = 0; i < ql.getCount(); i++) {
 				QuotKindSelItem item;
 				MEMSZERO(item);
@@ -6348,7 +6344,7 @@ int PPObjBill::Helper_GetExpendedPartOfReceipt(PPID lotID, const DateIter & rDi,
 							//PPERR_LOTERR_RECURINTROP "Обнаружена рекурсивная петля во внутренних перемещениях Transfer: %s"
 							added_msg_buf.Z().CatEq("LotID", rec.LotID).CatDiv(';', 2).CatEq("Date", rec.Dt).CatDiv(';', 2).CatEq("OprNo", rec.OprNo);
 							PPSetError(PPERR_LOTERR_RECURINTROP, added_msg_buf);
-							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 						}
 						else {
 							DateIter di2 = di;
@@ -9220,7 +9216,7 @@ int PPObjBill::UniteReceiptBill(PPID destBillID, const PPIDArray & rSrcList, int
 	// Если этот вызов завершится с ошибкой, то остатки по
 	// счетам останутся неправильными.
 	if(!atobj->P_Tbl->LockingFRR(0, &frrl_tag, use_ta))
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 	if(ok == 0)
 		PPRestoreErrContext();
 	return ok;
@@ -10297,7 +10293,6 @@ SLTEST_R(PPBillFormula)
 							if(row.Get(3, temp_buf.Z())) {
 								PPID id = 0;
 								BillTbl::Rec bill_rec;
-								// @v10.6.4 MEMSZERO(bill_rec);
 								temp_buf.CopyTo(bill_rec.Code, sizeof(bill_rec.Code));
 								bill_rec.OpID = op_id;
 								bill_rec.Dt   = bill_dt;

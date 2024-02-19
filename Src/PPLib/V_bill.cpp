@@ -12,7 +12,8 @@ BillFilt::FiltExtraParam::FiltExtraParam(long setupValues, BrowseBillsType bbt) 
 {
 }
 
-IMPLEMENT_PPFILT_FACTORY(Bill); BillFilt::BillFilt() : PPBaseFilt(PPFILT_BILL, 0, 4), P_SjF(0), P_TagF(0) // @v8.2.9 ver 2-->3 // @v11.7.4 ver 3-->4
+IMPLEMENT_PPFILT_FACTORY(Bill); BillFilt::BillFilt() : PPBaseFilt(PPFILT_BILL, 0, 5), P_SjF(0), P_TagF(0), P_ContractorPsnTagF(0)
+	// @v8.2.9 ver 2-->3 // @v11.7.4 ver 3-->4 // @v11.9.6 ver 4-->5
 {
 	SetFlatChunk(offsetof(BillFilt, ReserveStart),
 		offsetof(BillFilt, ReserveEnd)-offsetof(BillFilt, ReserveStart)+sizeof(ReserveEnd));
@@ -27,6 +28,7 @@ IMPLEMENT_PPFILT_FACTORY(Bill); BillFilt::BillFilt() : PPBaseFilt(PPFILT_BILL, 0
 	SetBranchObjIdListFilt(offsetof(BillFilt, Obj2List));     // @v11.7.4 @reserve 
 	SetBranchObjIdListFilt(offsetof(BillFilt, AgentList));    // @v11.7.4 @reserve
 	SetBranchObjIdListFilt(offsetof(BillFilt, ReservedList)); // @v11.7.4 @reserve
+	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(BillFilt, P_ContractorPsnTagF)); // @v11.9.6
 	//
 	Init(1, 0);
 	Bbt = bbtUndef; // @v10.9.1
@@ -35,7 +37,141 @@ IMPLEMENT_PPFILT_FACTORY(Bill); BillFilt::BillFilt() : PPBaseFilt(PPFILT_BILL, 0
 int BillFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
-	if(ver == 3) {
+	if(ver == 4) {
+		class BillFilt_v4 : public PPBaseFilt, public PPExtStrContainer {
+		public:
+			BillFilt_v4() : PPBaseFilt(PPFILT_BILL, 0, 4), P_SjF(0), P_TagF(0)
+			{
+				SetFlatChunk(offsetof(BillFilt_v4, ReserveStart),
+					offsetof(BillFilt_v4, ReserveEnd)-offsetof(BillFilt_v4, ReserveStart)+sizeof(ReserveEnd));
+				SetBranchObjIdListFilt(offsetof(BillFilt_v4, List));
+				SetBranchObjIdListFilt(offsetof(BillFilt_v4, LocList));
+				SetBranchBaseFiltPtr(PPFILT_SYSJOURNAL, offsetof(BillFilt_v4, P_SjF));
+				SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(BillFilt_v4, P_TagF));
+				SetBranchDisplayExtList(offsetof(BillFilt_v4, Dl));
+				SetBranchSString(offsetof(BillFilt_v4, ExtString));
+				SetBranchObjIdListFilt(offsetof(BillFilt_v4, ObjList));
+				SetBranchObjIdListFilt(offsetof(BillFilt_v4, Obj2List));
+				SetBranchObjIdListFilt(offsetof(BillFilt_v4, AgentList));
+				SetBranchObjIdListFilt(offsetof(BillFilt_v4, ReservedList));
+				Init(1, 0);
+				Bbt = bbtUndef;
+			}
+			char   ReserveStart[20];
+			PPID   FreightPortOfDischarge;
+			PPID   CliPsnCategoryID;
+			PPID   GoodsGroupID;
+			long   Tag;
+			DateRange DuePeriod;
+			uint32 Count;
+			int16  Ft_Declined;
+			int16  Ft_CheckPrintStatus;
+			PPID   StorageLocID;
+			int16  EdiRecadvStatus;
+			int16  EdiRecadvConfStatus;
+			int16  OrderFulfillmentStatus;
+			uint8  Reserve[6];
+			BrowseBillsType Bbt;
+			DateRange Period;
+			DateRange PaymPeriod;
+			PPID   MainOrgID;
+			PPID   PoolOpID;
+			PPID   OpID;
+			PPID   CurID;
+			PPID   AccSheetID;
+			PPID   ObjectID;
+			PPID   Object2ID;
+			PPID   PayerID;
+			PPID   AgentID;
+			PPID   CreatorID;
+			PPID   StatusID;
+			PPID   AssocID;
+			PPID   PoolBillID;
+			long   Flags;
+			uint   DenyFlags;
+			int16  ClientCardMode;
+			int16  Ft_STax;
+			int16  Ft_ClosedOrder;
+			int16  SortOrder;
+			PPID   Sel;
+			RealRange AmtRange;
+			long   ReserveEnd;
+			SysJournalFilt * P_SjF;
+			ObjIdListFilt List;
+			ObjIdListFilt LocList;
+			ObjIdListFilt ObjList;
+			ObjIdListFilt Obj2List;
+			ObjIdListFilt AgentList;
+			ObjIdListFilt ReservedList;
+			TagFilt * P_TagF;
+			PPViewDisplayExtList Dl;
+		};
+		BillFilt_v4 fv4;
+		THROW(fv4.Read(rBuf, 0));
+		memzero(ReserveStart, sizeof(ReserveStart));
+		memzero(Reserve, sizeof(Reserve));
+#define CPYFLD(f) f = fv4.f
+			CPYFLD(FreightPortOfDischarge);
+			CPYFLD(CliPsnCategoryID);
+			CPYFLD(GoodsGroupID);
+			CPYFLD(Tag);
+			CPYFLD(DuePeriod);
+			CPYFLD(Count);
+			CPYFLD(Ft_Declined);
+			CPYFLD(Ft_CheckPrintStatus);
+			CPYFLD(StorageLocID);
+			CPYFLD(EdiRecadvStatus);
+			CPYFLD(EdiRecadvConfStatus);
+			CPYFLD(OrderFulfillmentStatus);
+			CPYFLD(Bbt);
+			CPYFLD(Period);
+			CPYFLD(PaymPeriod);
+			CPYFLD(MainOrgID);
+			CPYFLD(PoolOpID);
+			CPYFLD(OpID);
+			CPYFLD(CurID);
+			CPYFLD(AccSheetID);
+			CPYFLD(ObjectID);
+			CPYFLD(Object2ID);
+			CPYFLD(PayerID);
+			CPYFLD(AgentID);
+			CPYFLD(CreatorID);
+			CPYFLD(StatusID);
+			CPYFLD(AssocID);
+			CPYFLD(PoolBillID);
+			CPYFLD(Flags);
+			CPYFLD(DenyFlags);
+			CPYFLD(ClientCardMode);
+			CPYFLD(Ft_STax);
+			CPYFLD(Ft_ClosedOrder);
+			CPYFLD(SortOrder);
+			CPYFLD(Sel);
+			CPYFLD(AmtRange);
+			CPYFLD(ReserveEnd);
+			CPYFLD(List);
+			CPYFLD(LocList);
+			CPYFLD(ObjList);
+			CPYFLD(Obj2List);
+			CPYFLD(AgentList);
+			CPYFLD(ReservedList);
+			CPYFLD(Dl);
+#undef CPYFLD
+		if(fv4.P_SjF) {
+			THROW_MEM(P_SjF = new SysJournalFilt);
+			*P_SjF = *fv4.P_SjF;
+		}
+		else
+			ZDELETE(P_SjF);
+		if(fv4.P_TagF) {
+			THROW_MEM(P_TagF = new TagFilt);
+			*P_TagF = *fv4.P_TagF;
+		}
+		else
+			ZDELETE(P_TagF);
+		P_ContractorPsnTagF = 0; // new field
+		ok = 1;
+	}
+	else if(ver == 3) {
 		class BillFilt_v3 : public PPBaseFilt {
 		public:
 			BillFilt_v3() : PPBaseFilt(PPFILT_BILL, 0, 3), P_SjF(0), P_TagF(0) // @v8.2.9 ver 2-->3
@@ -508,14 +644,23 @@ IMPL_HANDLE_EVENT(BillFiltDialog)
 {
 	WLDialog::handleEvent(event);
 	if(event.isCmd(cmTags)) {
-		SETIFZ(Data.P_TagF, new TagFilt());
-		if(!Data.P_TagF)
+		if(!SETIFZ(Data.P_TagF, new TagFilt()))
 			PPError(PPERR_NOMEM);
 		else if(!EditTagFilt(PPOBJ_BILL, Data.P_TagF))
 			PPError();
 		if(Data.P_TagF->IsEmpty())
 			ZDELETE(Data.P_TagF);
 	}
+	// @v11.9.6 {
+	else if(event.isCmd(cmContractorTags)) {
+		if(!SETIFZ(Data.P_ContractorPsnTagF, new TagFilt()))
+			PPError(PPERR_NOMEM);
+		else if(!EditTagFilt(PPOBJ_PERSON, Data.P_ContractorPsnTagF))
+			PPError();
+		if(Data.P_ContractorPsnTagF->IsEmpty())
+			ZDELETE(Data.P_ContractorPsnTagF);
+	}
+	// } @v11.9.6 
 	else if(event.isCbSelected(CTLSEL_BILLFLT_OPRKIND)) {
 		const  PPID prev_op_id = Data.OpID;
 		getCtrlData(CTLSEL_BILLFLT_OPRKIND, &Data.OpID);
@@ -989,6 +1134,18 @@ void BillFiltDialog::setupAccSheet(PPID sheet, PPID accSheet2ID)
 //
 //
 //
+PPViewBill::ArFilterBlock::ArFilterBlock() : IsActual(false)
+{
+}
+		
+PPViewBill::ArFilterBlock & PPViewBill::ArFilterBlock::Z()
+{
+	IsActual = false;
+	InclList.Z();
+	ExclList.Z();
+	return *this;
+}
+
 PPViewBill::PoolInsertionParam::PoolInsertionParam() : Verb(2), AddedBillKind(bbtGoodsBills)
 {
 }
@@ -1028,6 +1185,7 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 	Filt.PaymPeriod.Actualize(ZERODATE);
 	Filt.DuePeriod.Actualize(ZERODATE);
 	GoodsList.Z(); // @v11.0.11
+	ArFBlk.Z(); // @v11.9.6
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_TempOrd);
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -1101,6 +1259,40 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 		THROW_MEM(P_BPOX = new PPBillPoolOpEx);
 		opk_obj.GetPoolExData(Filt.PoolOpID, P_BPOX);
 	}
+	// @v11.9.6 {
+	if(Filt.HasMultiArRestriction()) {
+		bool do_intersect = false;
+		if(Filt.ObjList.GetCount()) {
+			Filt.ObjList.Get(ArFBlk.InclList);
+			do_intersect = true;
+			ArFBlk.IsActual = true;
+		}
+		if(Filt.P_ContractorPsnTagF && !Filt.P_ContractorPsnTagF->IsEmpty()) {
+			PPObjTag tag_obj;
+			UintHashTable selection_list;
+			UintHashTable exclude_list;
+			tag_obj.GetObjListByFilt(PPOBJ_PERSON, Filt.P_ContractorPsnTagF, selection_list, exclude_list);
+			{
+				if(do_intersect) {
+					ArFBlk.InclList.intersect(&selection_list);
+				}
+				else {
+					for(ulong iter_id = 0; selection_list.Enum(&iter_id) > 0;) {
+						ArFBlk.InclList.add(static_cast<long>(iter_id));
+					}
+				}
+			}
+			{
+				for(ulong iter_id = 0; exclude_list.Enum(&iter_id) > 0;) {
+					ArFBlk.ExclList.add(static_cast<long>(iter_id));
+				}
+			}
+			ArFBlk.IsActual = true;
+		}
+		ArFBlk.InclList.sortAndUndup();
+		ArFBlk.ExclList.sortAndUndup();
+	}
+	// } @v11.9.6 
 	{
 		SysJournalFilt * p_sjf = Filt.P_SjF;
 		if(p_sjf && !p_sjf->IsEmpty()) {
@@ -1277,7 +1469,8 @@ bool PPViewBill::IsTempTblNeeded() const
 		(Filt.PoolBillID && Filt.AssocID) || Filt.PayerID || Filt.AgentID || Filt.FreightPortOfDischarge ||
 		(Filt.ObjectID && Filt.Flags & BillFilt::fDebtsWithPayments) ||
 		!Filt.PaymPeriod.IsZero() || Filt.SortOrder || Filt.Flags & BillFilt::fShowWoAgent || P_Arp || Filt.StatusID || Filt.GoodsGroupID ||
-		(Filt.Bbt == bbtOrderBills && Filt.OrderFulfillmentStatus > 0)) { // @v11.0.11 Filt.GoodsGroupID // @v11.1.8 OrderFulfillmentStatus // @v11.9.4 Filt.FreightPortOfDischarge
+		(Filt.Bbt == bbtOrderBills && Filt.OrderFulfillmentStatus > 0) || ArFBlk.IsActual) { 
+		// @v11.0.11 Filt.GoodsGroupID // @v11.1.8 OrderFulfillmentStatus // @v11.9.4 Filt.FreightPortOfDischarge // @v11.9.6 ArFBlk.IsActual
 		return true;
 	}
 	else
@@ -1470,6 +1663,17 @@ int PPViewBill::Helper_CheckIDForFilt(uint flags, PPID id, const BillTbl::Rec * 
 		return 0;
 	if(!Filt.AmtRange.CheckVal(pRec->Amount))
 		return 0;
+	// @v11.9.6 {
+	if(ArFBlk.IsActual) {
+		if(!pRec->Object)
+			return 0;
+		else {
+			const PPID psn_id = ObjectToPerson(pRec->Object, 0);
+			if(!psn_id || !ArFBlk.CheckID(psn_id))
+				return 0;
+		}
+	}
+	// } @v11.9.6 
 	if(Filt.CreatorID) {
 		if(Filt.CreatorID & PPObjSecur::maskUserGroup) {
 			PPObjSecur sec_obj(PPOBJ_USR, 0);
@@ -1709,7 +1913,6 @@ int PPViewBill::Helper_EnumProc(PPID billID, const BillTbl::Rec * pRec, int chec
 	SETIFZ(pRec, ((P_BObj->Search(billID, &rec) > 0) ? &rec : 0));
 	if(pRec && (!checkForFilt || Helper_CheckIDForFilt(flags, billID, pRec) > 0)) {
 		BillViewItem item;
-		// @v10.7.9 @ctr MEMSZERO(item);
 		memcpy(&item, pRec, sizeof(BillTbl::Rec));
 		if(!Filt.PaymPeriod.IsZero()) {
 			if(!P_BObj->P_Tbl->CalcPayment(item.ID, 1, &Filt.PaymPeriod, Filt.CurID, &item.Credit))
@@ -1851,17 +2054,25 @@ int PPViewBill::Enumerator(uint flags, BillViewEnumProc proc, void * pExtraPtr)
 				}
 				else if(PPObjTag::CheckForTagFilt(PPOBJ_BILL, bill_rec.ID, Filt.P_TagF) <= 0)
 					continue;
-				// @v11.1.9 {
-				if(Filt.CliPsnCategoryID) {
+				if(Filt.CliPsnCategoryID || ArFBlk.IsActual) {
 					if(!bill_rec.Object)
 						continue;
 					else {
 						const  PPID psn_id = ObjectToPerson(bill_rec.Object, 0);
-						if(!(psn_id && PsnObj.Fetch(psn_id, &psn_rec) > 0 && psn_rec.CatID == Filt.CliPsnCategoryID))
+						if(!psn_id)
 							continue;
+						else {
+							// @v11.1.9 {
+							if(Filt.CliPsnCategoryID && (!(PsnObj.Fetch(psn_id, &psn_rec) > 0 && psn_rec.CatID == Filt.CliPsnCategoryID)))
+								continue;
+							// } @v11.1.9 
+							// @v11.9.6 {
+							if(ArFBlk.IsActual && !ArFBlk.CheckID(psn_id))
+								continue;
+							// } @v11.9.6
+						}
 					}
 				}
-				// } @v11.1.9 
 				// @v11.7.4 {
 				if(!(flags & enfSkipExtssMemo) && memo_pattern.NotEmpty()) {
 					P_BObj->P_Tbl->GetItemMemo(bill_rec.ID, memo_buf);
@@ -5641,9 +5852,7 @@ static int SCardNumDlg(PPSCardPacket & rScPack, CCheckTbl::Rec * pChkRec, int is
 	PPObjSCard sc_obj;
 	CCheckTbl::Rec cc_rec;
 	TDialog * p_dlg = new TDialog(isDraft ? DLG_SCARDCHK : DLG_SCARDNUM);
-	// @v10.4.2 CCheckCore cc_core;
 	LDATE  dt = ZERODATE;
-	// @v10.6.4 MEMSZERO(cc_rec);
 	THROW(CheckDialogPtr(&p_dlg));
 	if(isDraft) {
 		p_dlg->SetupCalDate(CTLCAL_SCARDNUM_CHKDT, CTL_SCARDNUM_CHKDT);
@@ -5679,7 +5888,6 @@ static int SCardNumDlg(PPSCardPacket & rScPack, CCheckTbl::Rec * pChkRec, int is
 							LDATETIME dttm;
 							PPIDArray chk_ary;
 							CCheckTbl::Rec tmp_cc_rec;
-							// @v10.6.4 MEMSZERO(tmp_cc_rec);
 							dttm.Set(dt, ZEROTIME);
 							if(sc_obj.P_CcTbl->GetListByCard(sc_rec_.ID, &dttm, &chk_ary) > 0) {
 								for(uint i = 0; i < chk_ary.getCount(); i++) {
@@ -5810,7 +6018,6 @@ int PPViewBill::AddBySCard(PPID * pID)
 	PPObjSCard sc_obj;
 	PPSCardPacket sc_pack;
 	CCheckTbl::Rec cc_rec;
-	// @v10.6.4 MEMSZERO(cc_rec);
 	THROW((sc_num_ret = SCardNumDlg(sc_pack, &cc_rec, is_draft)));
 	if(sc_num_ret > 0) {
 		int    without_psn = BIN(!sc_pack.Rec.PersonID && CONFIRM(PPCFM_SCARDWITHOUTPSN));
@@ -6092,7 +6299,6 @@ int PPViewBill::UpdateTempTable(PPID id)
 		if(id) {
 			if(id_found) {
 				TempOrderTbl::Rec ord_rec;
-				// @v10.6.4 MEMSZERO(ord_rec);
 				InitOrderRec(TempOrder, &rec, &ord_rec);
 				if(SearchByID(P_TempOrd, 0, id, 0) > 0)
 					UpdateByID(P_TempOrd, 0, id, &ord_rec, 0);
@@ -7560,7 +7766,6 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 struct DL600_BillExt {
 	DL600_BillExt(BillCore * pT) : P_Bill(pT), CrEventSurID(0)
 	{
-		// @v10.6.4 MEMSZERO(Rec);
 	}
 	BillCore * P_Bill;
 	long   CrEventSurID;
@@ -7607,7 +7812,6 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 			PPObjAmountType amtt_obj;
 			PPAmountType amtt_rec;
 			TaxAmountIDs tai;
-
 			p_ext->Rec = rec;
 			H.ID = rec.ID;
 			H.ArticleID  = rec.Object;
@@ -7617,10 +7821,8 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 			H.LinkBillID = rec.LinkBillID;
 			H.UserID     = rec.UserID;
 			STRNSCPY(H.Code, rec.Code);
-			// @v11.1.12 p_billcore->GetCode(H.Code);
-			// @v11.1.12 STRNSCPY(H.Memo, rec.Memo);
-			p_billcore->GetItemMemo(rec.ID, p_ext->SMemo); // @v11.1.12
-			STRNSCPY(H.Memo, p_ext->SMemo); // @v11.1.12
+			p_billcore->GetItemMemo(rec.ID, p_ext->SMemo);
+			STRNSCPY(H.Memo, p_ext->SMemo);
 			H.Dt       = rec.Dt;
 			H.CurID    = rec.CurID;
 			H.StatusID = rec.StatusID;

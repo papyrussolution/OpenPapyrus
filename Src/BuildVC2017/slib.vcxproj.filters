@@ -995,6 +995,9 @@
     <ClInclude Include="..\SLib\EDLIB\edlib.h">
       <Filter>EdLib</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\imgui-support.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Osf\Asmlib\cachesize32.asm">

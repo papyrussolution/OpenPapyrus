@@ -1,5 +1,5 @@
 // TSESSDLG.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -833,7 +833,6 @@ void TSessionDialog::SetupSCard()
 				scard_no = 0;
 			}
 		else {
-			// @v10.6.4 MEMSZERO(scard_rec);
 			if(TSesObj.SetSCardID(&Data.Rec, 0) == 2) {
 				setCtrlLong(CTLSEL_TSESS_OBJ,  Data.Rec.ArID);
 				setCtrlLong(CTLSEL_TSESS_OBJ2, Data.Rec.Ar2ID);
@@ -1421,7 +1420,6 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 	setCtrlLong(CTL_TSESS_NUMBER, Data.Rec.Num);
 	setCtrlLong(CTL_TSESS_ID, Data.Rec.ID);
 	PrcTechCtrlGroup::Rec ptcg_rec;
-	// @v10.6.10 @ctr MEMSZERO(ptcg_rec);
 	ptcg_rec.PrcID = Data.Rec.PrcID;
 	if(Data.Rec.Flags & TSESF_PLAN) {
 		if(Data.Rec.PrcID == 0)
@@ -1539,7 +1537,6 @@ int TSessionDialog::getDTS(TSessionPacket * pData)
 	}
 	else {
 		PrcTechCtrlGroup::Rec ptcg_rec;
-		// @v10.8.12 @ctr MEMSZERO(ptcg_rec);
 		if(getGroupData(ctlgroupPrcTech, &ptcg_rec)) {
 			Data.Rec.PrcID = ptcg_rec.PrcID;
 			sel = CTLSEL_TSESS_PRC;
@@ -1630,13 +1627,8 @@ public:
 		TSessionTbl::Rec tses_rec;
 		ProcessorTbl::Rec prc_rec;
 		SString sess_title;
-		// @v10.6.4 MEMSZERO(prc_rec);
 		THROW(TSesObj.Search(Data.TSessID, &tses_rec) > 0);
-		THROW(Data.OprNo || TSesObj.CheckPossibilityToInsertLine(tses_rec)); // @v10.9.0
-		/* @v10.9.0
-		if(!Data.OprNo && !(tses_rec.Flags & TSESF_PLAN) && !(TSesObj.GetConfig().Flags & PPTSessConfig::fAllowLinesInPendingSessions))
-			THROW_PP(oneof2(tses_rec.Status, TSESST_INPROCESS, TSESST_CLOSED), PPERR_ADDTOINACTSESS);
-		*/
+		THROW(Data.OprNo || TSesObj.CheckPossibilityToInsertLine(tses_rec));
 		sess_title.Cat(tses_rec.Num);
 		{
 			SCardTbl::Rec sc_rec;

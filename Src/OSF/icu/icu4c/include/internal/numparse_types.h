@@ -66,7 +66,7 @@ public:
 		if(U_FAILURE(status)) {
 			return;
 		}
-		uprv_memcpy(fBuffer.getAlias(), text.getBuffer(), sizeof(char16_t) * text.length());
+		memcpy(fBuffer.getAlias(), text.getBuffer(), sizeof(char16_t) * text.length());
 		fBuffer[text.length()] = 0;
 	}
 	inline UnicodeString toAliasedUnicodeString() const { return UnicodeString(true, fBuffer.getAlias(), -1); }

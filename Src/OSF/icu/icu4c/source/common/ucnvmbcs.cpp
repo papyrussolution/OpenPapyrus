@@ -1197,14 +1197,14 @@ static bool _EBCDICSwapLFNL(UConverterSharedData * sharedData, UErrorCode * pErr
 	}
 	/* copy and modify the to-Unicode state table */
 	newStateTable = (int32_t(*)[256])p;
-	uprv_memcpy(newStateTable, mbcsTable->stateTable, mbcsTable->countStates*1024);
+	memcpy(newStateTable, mbcsTable->stateTable, mbcsTable->countStates*1024);
 
 	newStateTable[0][EBCDIC_LF] = MBCS_ENTRY_FINAL(0, MBCS_STATE_VALID_DIRECT_16, U_NL);
 	newStateTable[0][EBCDIC_NL] = MBCS_ENTRY_FINAL(0, MBCS_STATE_VALID_DIRECT_16, U_LF);
 
 	/* copy and modify the from-Unicode result table */
 	newResults = (uint16*)newStateTable[mbcsTable->countStates];
-	uprv_memcpy(newResults, bytes, sizeofFromUBytes);
+	memcpy(newResults, bytes, sizeofFromUBytes);
 
 	/* conveniently, the table access macros work on the left side of expressions */
 	if(mbcsTable->outputType==MBCS_OUTPUT_1) {
@@ -1331,9 +1331,9 @@ static void reconstituteData(UConverterMBCSTable * mbcsTable, uint32_t stage1Len
 	memzero(mbcsTable->reconstitutedData, dataLength);
 	/* copy existing data and reroute the pointers */
 	stage1 = (uint16*)mbcsTable->reconstitutedData;
-	uprv_memcpy(stage1, mbcsTable->fromUnicodeTable, stage1Length*2);
+	memcpy(stage1, mbcsTable->fromUnicodeTable, stage1Length*2);
 	stage2 = (uint32_t*)(stage1+stage1Length);
-	uprv_memcpy(stage2+(fullStage2Length-stage2Length), mbcsTable->fromUnicodeTable+stage1Length, stage2Length*4);
+	memcpy(stage2+(fullStage2Length-stage2Length), mbcsTable->fromUnicodeTable+stage1Length, stage2Length*4);
 
 	mbcsTable->fromUnicodeTable = stage1;
 	mbcsTable->fromUnicodeBytes = (uint8 *)(stage2+fullStage2Length);
@@ -1461,7 +1461,7 @@ static void U_CALLCONV ucnv_MBCSLoad(UConverterSharedData * sharedData, UConvert
 			return;
 		}
 		/* copy the base table data */
-		uprv_memcpy(mbcsTable, &baseSharedData->mbcs, sizeof(UConverterMBCSTable));
+		memcpy(mbcsTable, &baseSharedData->mbcs, sizeof(UConverterMBCSTable));
 		/* overwrite values with relevant ones for the extension converter */
 		mbcsTable->baseSharedData = baseSharedData;
 		mbcsTable->extIndexes = extIndexes;
@@ -1509,7 +1509,7 @@ static void U_CALLCONV ucnv_MBCSLoad(UConverterSharedData * sharedData, UConvert
 					*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 					return;
 				}
-				uprv_memcpy(newStateTable, mbcsTable->stateTable, count*1024);
+				memcpy(newStateTable, mbcsTable->stateTable, count*1024);
 				/* change all final single-byte entries to go to a new all-illegal state */
 				state = newStateTable[0];
 				for(i = 0; i<256; ++i) {
@@ -2614,7 +2614,7 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErr
 						/* Back out bytes from the previous buffer: Need to replay them. */
 						cnv->preToULength = (int8)(bytesFromThisBuffer-backOutDistance);
 						/* preToULength is negative! */
-						uprv_memcpy(cnv->preToU, bytes+i, -cnv->preToULength);
+						memcpy(cnv->preToU, bytes+i, -cnv->preToULength);
 						source = (const uint8 *)pArgs->source;
 					}
 				}

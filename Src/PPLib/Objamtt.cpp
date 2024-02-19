@@ -1,5 +1,5 @@
 // OBJAMTT.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -17,7 +17,6 @@ bool PPAmountType2::IsComplementary() const { return LOGIC(Flags & (PPAmountType
 
 PPAmountTypePacket::PPAmountTypePacket()
 {
-	// @v10.7.4 @ctr MEMSZERO(Rec);
 }
 
 int FASTCALL PPAmountTypePacket::IsEq(const PPAmountTypePacket & rS) const
@@ -462,7 +461,6 @@ int PPObjAmountType::ProcessReservedItem(TVRez & rez)
 	THROW(r = Search(id));
 	if(r < 0) {
 		PPAmountType rec;
-		// @v10.7.4 @ctr MEMSZERO(rec);
 		rec.ID = id;
 		STRNSCPY(rec.Name, name);
 		STRNSCPY(rec.Symb, symb);

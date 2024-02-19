@@ -1,5 +1,5 @@
 // BILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -621,7 +621,6 @@ int BillCore::Extract(PPID id, PPBill * pInfo)
 	}
 	if(pInfo->Rec.Flags & BILLF_BANKING) {
 		PPBankingOrder paym_order;
-		// @v10.6.4 MEMSZERO(paym_order);
 		if(p_ref->GetProperty(PPOBJ_BILL, id, BILLPRP_PAYMORDER, &paym_order, sizeof(paym_order)) > 0) {
 			THROW_MEM(pInfo->P_PaymOrder = new PPBankingOrder);
 			memcpy(pInfo->P_PaymOrder, &paym_order, sizeof(paym_order));
@@ -774,7 +773,6 @@ int BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 		THROW(PutExtraData(*pID, ((pInfo->Rec.Flags & BILLF_EXTRA) ? &pInfo->Ext : 0), 0));
 		if(pInfo->Rec.Flags & BILLF_RENT) {
 			PropertyTbl::Rec prp_rec;
-			// @v10.6.4 MEMSZERO(prp_rec);
 			memcpy(&prp_rec.Text, &pInfo->Rent, sizeof(pInfo->Rent));
 			THROW(p_ref->PutProp(PPOBJ_BILL, *pID, BILLPRP_RENT, &prp_rec));
 			pInfo->Amounts.Put(PPAMT_RENTPRD, pInfo->Rec.CurID, pInfo->Rent.PartAmount, 1, 1);
@@ -801,7 +799,6 @@ int BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 				BExtInsert bei(&AmtT);
 				for(i = 0; pInfo->Amounts.enumItems(&i, (void **)&p_ae);) {
 					BillAmountTbl::Rec amt_rec;
-					// @v10.6.4 MEMSZERO(amt_rec);
 					amt_rec.BillID    = *pID;
 					amt_rec.AmtTypeID = p_ae->AmtTypeID;
 					amt_rec.CurID     = p_ae->CurID;
@@ -1190,7 +1187,6 @@ int BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID,
 	} k;
 	int    idx = 2;
 	STRNSCPY(scode, pSample->Code);
-	// @v11.1.12 GetCode(scode);
 	MEMSZERO(k);
 	if(flags & safIgnoreDate) { // @v11.4.2
 		STRNSCPY(k.k7.Code, scode);

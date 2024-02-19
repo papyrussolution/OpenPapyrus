@@ -41,7 +41,7 @@ void SortKeyByteSink::Append(const char * bytes, int32_t n) {
 	}
 	int32_t available = capacity_ - length;
 	if(n <= available) {
-		uprv_memcpy(buffer_ + length, bytes, n);
+		memcpy(buffer_ + length, bytes, n);
 	}
 	else {
 		AppendBeyondCapacity(bytes, n, length);

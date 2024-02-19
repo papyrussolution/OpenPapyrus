@@ -752,7 +752,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 												}
 												{
 													double _p = fabs(intmnytodbl(r_item.Price) - r_item.Dscnt);
-													temp_buf.Z().Cat(_p, MKSFMTD(0, 2, 0));
+													temp_buf.Z().Cat(_p, MKSFMTD_020);
 													n_b.PutInner(SXml::nst("ck", "Price"), temp_buf);
 												}
 												//<ck:Barcode>22N000008XSG44YI5IC0P7T8091700102571956QFBDLJ8NXQXV7NU55ANSSPYCRAUET</ck:Barcode>
@@ -789,7 +789,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 														}
 														{
 															double _p = fabs(intmnytodbl(r_item.Price) - r_item.Dscnt);
-															temp_buf.Z().Cat(_p, MKSFMTD(0, 2, 0));
+															temp_buf.Z().Cat(_p, MKSFMTD_020);
 															n_nm.PutInner(SXml::nst("ck", "Price"), temp_buf);
 														}
 													}
@@ -844,7 +844,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 									double _p = intmnytodbl(r_item.Price) - r_item.Dscnt;
 									if(rPack.Rec.Flags & CCHKF_RETURN)
 										_p = -_p;
-									temp_buf.Z().Cat(_p, MKSFMTD(0, 2, 0));
+									temp_buf.Z().Cat(_p, MKSFMTD_020);
 									n_item.PutAttrib("price", EncText(temp_buf));
 								}
 								n_item.PutAttrib("barcode", EncText(mark_buf));
@@ -882,7 +882,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 								n_item.PutAttrib("alc", EncText(temp_buf.Z().Cat(agi.Proof, MKSFMTD(0, 1, 0))));
 								{
 									const double _p = intmnytodbl(r_item.Price) - r_item.Dscnt;
-									temp_buf.Z().Cat(_p, MKSFMTD(0, 2, 0));
+									temp_buf.Z().Cat(_p, MKSFMTD_020);
 									n_item.PutAttrib("price", EncText(temp_buf));
 								}
 								{
@@ -1292,7 +1292,7 @@ void PPEgaisProcessor::LogLastError()
 	if(P_Logger)
 		P_Logger->LogLastError();
 	else if(State & stDirectFileLogging)
-		PPLogMessage(PPFILNAM_EGAIS_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+		PPLogMessage(PPFILNAM_EGAIS_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 }
 #endif // } 0 @v10.6.5
 
@@ -2455,7 +2455,6 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 										price = (price / mult);
 										qtty_fmt = MKSFMTD(0, 6, 0); // @v9.7.10 // @v11.2.10 MKSFMTD(0, 3, 0)-->MKSFMTD(0, 6, 0)
 									}
-									// @v10.6.7 @ctr MEMSZERO(lot_rec);
 									P_BObj->trfr->Rcpt.Search(r_ti.LotID, &lot_rec);
 									P_BObj->MakeLotText(&lot_rec, PPObjBill::ltfGoodsName, temp_buf);
 									lot_text.Z().CatChar('[').Cat(r_ti.RByBill).CatChar(']').Space().Cat(temp_buf);
@@ -2505,7 +2504,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 									w_p.PutInnerSkipEmpty(SXml::nst("wb", "Pack_ID"), "");
 									{
 										w_p.PutInner(SXml::nst("wb", "Quantity"), EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
-										w_p.PutInner(SXml::nst("wb", "Price"), EncText(temp_buf.Z().Cat(price, MKSFMTD(0, 2, 0))));
+										w_p.PutInner(SXml::nst("wb", "Price"), EncText(temp_buf.Z().Cat(price, MKSFMTD_020)));
 									}
 									p_bp->LTagL.GetNumber(PPTAG_LOT_SN, tidx, temp_buf);
 									w_p.PutInnerSkipEmpty(SXml::nst("wb", "Party"), EncText(temp_buf));
@@ -3215,12 +3214,11 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 										}
 										w_p.PutInner(SXml::nst("awr", "Quantity"), EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
 										if(doc_type == PPEDIOP_EGAIS_ACTWRITEOFF_V3) { // @v10.5.4
-											w_p.PutInner(SXml::nst("awr", "SumSale"), EncText(temp_buf.Z().Cat(item_amount, MKSFMTD(0, 2, 0)))); // @v10.3.10
+											w_p.PutInner(SXml::nst("awr", "SumSale"), EncText(temp_buf.Z().Cat(item_amount, MKSFMTD_020))); // @v10.3.10
 										}
 									}
 									{
 										ReceiptTbl::Rec lot_rec;
-										// @v10.6.7 @ctr MEMSZERO(lot_rec);
 										P_BObj->trfr->Rcpt.Search(r_ti.LotID, &lot_rec);
 										P_BObj->MakeLotText(&lot_rec, PPObjBill::ltfGoodsName, temp_buf);
 										lot_text.Z().CatChar('[').Cat(r_ti.RByBill).CatChar(']').Space().Cat(temp_buf);
@@ -4424,7 +4422,6 @@ int PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Packet *
     SString temp_buf;
     PPObjOprKind op_obj;
     BillTbl::Rec bhdr;
-    // @v10.6.4 MEMSZERO(bhdr);
     TSVector <WayBillActRecadvItem> items;
     for(const xmlNode * p_n = pFirstNode; p_n; p_n = p_n->next) {
 		if(SXml::IsName(p_n, "Header")) {
@@ -6375,7 +6372,6 @@ int PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const DateRan
 	PPGoodsPacket goods_pack;
 	GoodsItem alc_ext;
     BillTbl::Rec bhdr;
-    // @v10.6.4 MEMSZERO(bhdr);
     TSVector <EgaisRestItem> items;
 	const  PPID manuf_tag_id = Cfg.LotManufTagList.getCount() ? Cfg.LotManufTagList.get(0) : 0;
     for(const xmlNode * p_n = pFirstNode; ok > 0 && p_n; p_n = p_n->next) {
@@ -6410,7 +6406,6 @@ int PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const DateRan
 					}
 					if(pRefC) {
 						EgaisRefATbl::Rec refai;
-						// @v10.6.4 MEMSZERO(refai);
 						STRNSCPY(refai.RefACode, rest_item.InformAIdent);
 						if(product_refc_pos >= 0) {
 							const EgaisProductCore::Item * p_product = pRefC->ProductList.at(product_refc_pos);
@@ -9578,7 +9573,6 @@ int EgaisPersonCore::Put(PPID * pID, EgaisPersonCore::Item * pItem, long * pConf
 			}
 			else {
 				EgaisPersonTbl::Rec rec;
-				// @v10.6.4 MEMSZERO(rec);
 				rec.ID = *pID;
 				STRNSCPY(rec.RarIdent, pItem->RarIdent);
 				STRNSCPY(rec.INN, pItem->INN);
@@ -9731,7 +9725,6 @@ int EgaisPersonCore::Put(PPID * pID, EgaisPersonCore::Item * pItem, long * pConf
 				}
 			}
 			else {
-				// @v10.6.5 @ctr MEMSZERO(rec);
 				STRNSCPY(rec.RarIdent, pItem->RarIdent);
 				STRNSCPY(rec.INN, pItem->INN);
 				STRNSCPY(rec.KPP, pItem->KPP);
@@ -10178,7 +10171,7 @@ int EgaisProductCore::Export(long fmt, const char * pFileName)
 					f_out.WriteLine(line_buf);
 				}
 				line_buf.Z().Cat(item.ID).Tab().Cat(item.AlcoCode).Tab().Cat(item.ManufRarIdent).Tab().Cat(item.ImporterRarIdent).Tab().
-					Cat(item.CategoryCode).Tab().Cat(item.Proof, MKSFMTD(0, 2, 0)).Tab().Cat(item.Volume, MKSFMTD(0, 3, 0)).Tab().
+					Cat(item.CategoryCode).Tab().Cat(item.Proof, MKSFMTD_020).Tab().Cat(item.Volume, MKSFMTD(0, 3, 0)).Tab().
 					Cat(item.Name.Transf(CTRANSF_INNER_TO_OUTER)).Tab().Cat(item.FullName.Transf(CTRANSF_INNER_TO_OUTER)).CR();
 				f_out.WriteLine(line_buf);
 				rec_no++;

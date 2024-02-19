@@ -1,5 +1,5 @@
 // V_SYSJ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -249,9 +249,6 @@ int PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 						if(CheckRecForFilt(&r_rec) > 0) {
 							TempSysJournalTbl::Key0 k0;
 							TempSysJournalTbl::Rec temp_rec;
-							// @v10.7.5 @ctr MEMSZERO(temp_rec);
-							// temp_rec.ID  = r_rec.Dt.v;
-							// temp_rec.ID2 = r_rec.Tm.v;
 							P_Tbl->Subst(Filt.Sgsj, r_rec.Action, r_rec.UserID, r_rec.ObjType, &temp_rec.ID);
 					 		if(Filt.Sgd != sgdNone) {
 								LTIME tm = ZEROTIME;

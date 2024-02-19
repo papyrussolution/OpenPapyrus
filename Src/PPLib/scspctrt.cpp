@@ -491,7 +491,7 @@ int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, T
 							THROW_SL(p_item->InsertString("barcode", barcode));
 							THROW_SL(p_item->Insert("count", json_new_number(temp_buf.Z().Cat(r_line.Qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)))));
 							const double net_price = r_line.InPrice; //fdiv100i(r_line.Price) - r_line.Dscnt;
-							THROW_SL(p_item->Insert("price", json_new_number(temp_buf.Z().Cat(net_price, MKSFMTD(0, 2, 0)))));
+							THROW_SL(p_item->Insert("price", json_new_number(temp_buf.Z().Cat(net_price, MKSFMTD_020))));
 							THROW_SL(p_item->InsertString("any_data", temp_buf.Z().Cat(i+1)));
 							THROW_SL(json_insert_child(p_array, p_item));
 						}
@@ -1308,11 +1308,11 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 		}
 		{
 			SJson * p_js_receipt = SJson::CreateObj();
-			p_js_receipt->InsertDouble("total", rT.Total, MKSFMTD(0, 2, 0));
-			p_js_receipt->InsertDouble("cash", rT.Cash, MKSFMTD(0, 2, 0));
-			p_js_receipt->InsertDouble("points", rT.Points, MKSFMTD(0, 2, 0));
+			p_js_receipt->InsertDouble("total", rT.Total, MKSFMTD_020);
+			p_js_receipt->InsertDouble("cash", rT.Cash, MKSFMTD_020);
+			p_js_receipt->InsertDouble("points", rT.Points, MKSFMTD_020);
 			p_js_receipt->InsertString("number", rT.BillNumber);
-			p_js_receipt->InsertDouble("skipLoyaltyTotal", rT.SkipLoyaltyTotal, MKSFMTD(0, 2, 0));
+			p_js_receipt->InsertDouble("skipLoyaltyTotal", rT.SkipLoyaltyTotal, MKSFMTD_020);
 			p_json_req->Insert("receipt", p_js_receipt);
 		}
 		THROW_SL(p_json_req->ToStr(json_buf));
@@ -1515,7 +1515,7 @@ int UdsGameInterface::CreatePriceItem(const GoodsItem & rItem, GoodsItem & rRetI
 			if(rItem.Description.NotEmpty())
 				p_json_data->InsertString("description", rItem.Description);
 			if(oneof2(rItem.Type, rItem.typItem, rItem.typVaryingItem))
-				p_json_data->InsertDouble("price", rItem.Price, MKSFMTD(0, 2, 0));
+				p_json_data->InsertDouble("price", rItem.Price, MKSFMTD_020);
 			p_json_req->Insert("data", p_json_data);
 		}
 		p_json_req->InsertBool("hidden", LOGIC(rItem.Flags & rItem.fHidden));
@@ -1603,7 +1603,7 @@ int UdsGameInterface::UpdatePriceItem(const GoodsItem & rItem, GoodsItem & rRetI
 			if(rItem.Description.NotEmpty())
 				p_json_data->InsertString("description", rItem.Description);
 			if(oneof2(rItem.Type, rItem.typItem, rItem.typVaryingItem))
-				p_json_data->InsertDouble("price", rItem.Price, MKSFMTD(0, 2, 0));
+				p_json_data->InsertDouble("price", rItem.Price, MKSFMTD_020);
 			p_json_req->Insert("data", p_json_data);
 		}
 		p_json_req->InsertBool("hidden", LOGIC(rItem.Flags & rItem.fHidden));

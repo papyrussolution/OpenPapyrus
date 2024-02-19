@@ -2111,7 +2111,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucurr_openISOCurrencies(uint32_t currType, UErro
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
-	uprv_memcpy(myEnum, &gEnumCurrencyList, sizeof(UEnumeration));
+	memcpy(myEnum, &gEnumCurrencyList, sizeof(UEnumeration));
 	myContext = (UCurrencyContext*)uprv_malloc(sizeof(UCurrencyContext));
 	if(myContext == NULL) {
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
@@ -2471,7 +2471,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucurr_getKeywordValuesForLocale(const char * key
 			while((value = (char *)ulist_getNext(otherValues)) != NULL) {
 				if(!ulist_containsString(values, value, (int32_t)strlen(value))) {
 					char * tmpValue = (char *)uprv_malloc(sizeof(char) * ULOC_KEYWORDS_CAPACITY);
-					uprv_memcpy(tmpValue, value, strlen(value) + 1);
+					memcpy(tmpValue, value, strlen(value) + 1);
 					ulist_addItemEndList(values, tmpValue, TRUE, status);
 					if(U_FAILURE(*status)) {
 						break;

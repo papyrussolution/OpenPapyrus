@@ -1,5 +1,5 @@
 // PPWTM.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -982,7 +982,6 @@ WhatmanObjectProcessor::WhatmanObjectProcessor() : WhatmanObjectDrawFigure("Proc
 	AdvCookie(0), BusyDtm(ZERODATETIME)
 {
 	Options |= oSelectable;
-	// @v10.7.9 @ctr MEMSZERO(PrcRec);
 	TextParam tp;
 	tp.Side = SIDE_BOTTOM;
 	tp.AlongSize = -1.0f;

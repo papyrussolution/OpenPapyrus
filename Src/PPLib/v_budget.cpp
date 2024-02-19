@@ -1,5 +1,5 @@
 // V_BUDGET.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 // @codepage UTF-8
 // PPViewBudget
 //
@@ -140,7 +140,6 @@ int BudgetItemCore::PutItem(PPID * pID, BudgetItemTbl::Rec * pRec, int useTa)
 	if(pID) {
 		int    del = BIN(*pID && pRec == 0);
 		BudgetItemTbl::Rec prev_rec;
-		// @v10.6.4 MEMSZERO(prev_rec);
 		if(*pID)
 			Search(*pID, &prev_rec);
 		{
@@ -161,7 +160,6 @@ int BudgetItemCore::PutItem(PPID * pID, BudgetItemTbl::Rec * pRec, int useTa)
 						PPID   id = 0;
 						PPID   parent_acc = acc_list.Get(i).Id;
 						BudgetItemTbl::Rec parent_bi_rec;
-						// @v10.6.4 MEMSZERO(parent_bi_rec);
 						if(Search(p_cur_rec->BudgetID, parent_acc, p_cur_rec->Kind, p_cur_rec->Dt, &parent_bi_rec) > 0) {
 							double new_amt = parent_bi_rec.Amount - prev_rec.Amount;
 							parent_bi_rec.Amount = (pRec) ? new_amt + pRec->Amount : new_amt;
@@ -263,7 +261,6 @@ int PPObjBudget::GetPacket(PPID id, PPBudgetPacket * pPack)
 		if(GetChildBudgets(pPack->Rec.ID, &scen_list) > 0)
 			for(uint i = 0; i < scen_list.getCount(); i++) {
 				PPBudget rec;
-				// @v10.7.9 @ctr MEMSZERO(rec);
 				if(Search(scen_list.at(i), &rec) > 0)
 					pPack->ScenList.insert(&rec);
 			}
@@ -333,7 +330,6 @@ int PPObjBudget::PutPacket(PPID * pID, PPBudgetPacket * pPack, int use_ta)
 		if(*pID && pPack != 0) {
 			PPID item_id = 0;
 			BudgetItemTbl::Rec item;
-			// @v10.7.9 @ctr MEMSZERO(item);
 			for(uint i = 0; pPack->EnumItems(&i, &item) > 0;) {
 				item.BudgetID = *pID;
 				THROW(ItemsTbl.PutItem_(&item.ID, &item, 0));
@@ -400,7 +396,6 @@ int BudgetScenDialog::addItem(long * pPos, long * pID)
 	PPInputStringDialogParam isd_param(BudgTitle, BudgTitle);
 	if(InputStringDialog(&isd_param, name) > 0) {
 		PPBudget rec;
-		// @v10.7.9 @ctr MEMSZERO(rec);
 		rec    = Data.Rec;
 		rec.ID = 0;
 		name.CopyTo(rec.Name, sizeof(rec.Name));
@@ -554,7 +549,6 @@ int PPObjBudget::AddLineBySample(PPID * pID, PPID sampleID)
 {
 	int  ok = -1, ta = 0;
 	BudgetItemTbl::Rec rec;
-	// @v10.6.4 MEMSZERO(rec);
 	if(ItemsTbl.Search(sampleID, &rec) > 0) {
 		rec.ID = 0;
 		rec.Dt = ZERODATE;
@@ -798,7 +792,6 @@ int BudgetItemsDialog::setDTS(const BudgetItemsList * pData)
 		Data.copy(*pData);
 	else
 		Data.freeAll();
-	// @v10.6.4 MEMSZERO(rec);
 	if(Data.lsearch(&InitID, &pos, CMPF_LONG))
 		rec = Data.at(pos);
 	for(uint i = 0; rec.ID == 0 && i < Data.getCount(); i++) {
@@ -832,7 +825,6 @@ int BudgetItemsDialog::getDTS(BudgetItemsList * pData)
 	int  ok = 1;
 	uint sel = 0;
 	BudgetItemTbl::Rec rec;
-	// @v10.6.4 MEMSZERO(rec);
 	getCtrlData(sel = CTLSEL_BUDGITEM_BUDGET, &rec.BudgetID);
 	THROW_PP(rec.BudgetID, PPERR_INVBUDGET);
 	getCtrlData(sel = CTLSEL_BUDGITEM_ACCT,   &rec.Acc);
@@ -944,7 +936,6 @@ int PPObjBudget::EditLine(PPID * pID, PPIDArray * pIdList, PPID budgetID, LDATE 
 	BudgetItemTbl::Rec rec;
 	BudgetItemDialog * p_dlg = 0;
 	THROW_INVARG(pIdList);
-	// @v10.6.4 MEMSZERO(rec);
 	if(pID && *pID) {
 		THROW(ItemsTbl.Search(*pID, &rec) > 0);
 	}
@@ -989,7 +980,6 @@ int PPObjBudget::FormatDate(PPID budgetID, int16 cycle, LDATE dt, SString & rTex
 	rText.Z();
 	if(cycle == 0 && budgetID) {
 		PPBudget budg_rec;
-		// @v10.7.9 @ctr MEMSZERO(budg_rec);
 		if(Search(budgetID, &budg_rec) > 0)
 			cycle = budg_rec.Cycle;
 	}
@@ -1152,9 +1142,7 @@ void PPViewBudget::MakeTempRec(const void * pRec, void * pTempRec)
 	if(Filt.Kind == BudgetFilt::kBudget) {
 		const PPBudget * p_rec = static_cast<const PPBudget *>(pRec);
 		TempBudgetTbl::Rec temp_rec;
-		// @v10.6.4 MEMSZERO(temp_rec);
 		if(p_rec) {
-			// @v10.6.4 MEMSZERO(temp_rec);
 			temp_rec.ID       = p_rec->ID;
 			temp_rec.ParentID = p_rec->ParentID;
 			STRNSCPY(temp_rec.Code, p_rec->Code);
@@ -1170,7 +1158,6 @@ void PPViewBudget::MakeTempRec(const void * pRec, void * pTempRec)
 		if(p_rec) {
 			SString buf;
 			PPAccount acc_rec;
-			// @v10.6.4 MEMSZERO(temp_rec);
 			temp_rec.ID       = p_rec->ID;
 			temp_rec.BudgetID = p_rec->BudgetID;
 			temp_rec.Acc      = p_rec->Acc;
@@ -1226,8 +1213,6 @@ int PPViewBudget::UpdateTempTable(const PPIDArray & rIdList)
 		TempBudgetTbl::Key0 k0;
 		TempBudgetTbl::Rec  temp_rec;
 		k0.ID = id;
-		// @v10.6.4 MEMSZERO(temp_rec);
-		// @v10.7.9 @ctr MEMSZERO(budg_rec);
 		if(id) {
 			if(ObjBudg.Search(id, &budg_rec) > 0 && CheckForFilt(&budg_rec) > 0) {
 				MakeTempRec(&budg_rec, &temp_rec);
@@ -1250,8 +1235,6 @@ int PPViewBudget::UpdateTempTable(const PPIDArray & rIdList)
 			BudgetItemTbl::Rec rec;
 			TempBudgItemTbl::Rec  temp_rec;
 			TempBudgItemTbl::Key0 k0;
-			// @v10.6.4 MEMSZERO(temp_rec);
-			// @v10.6.4 MEMSZERO(rec);
 			k0.ID = id;
 			if(ObjBudg.ItemsTbl.Search(id, &rec) > 0 && CheckForFilt(&rec) > 0) {
 				MakeTempRec(&rec, &temp_rec);
@@ -1270,7 +1253,6 @@ int PPViewBudget::UpdateTempTable(const PPIDArray & rIdList)
 			//
 			{
 				PPAccount acc_rec;
-				MEMSZERO(acc_rec);
 				if(rec.Acc && ObjAcct.Search(rec.Acc, &acc_rec) > 0 && acc_rec.ParentID != Filt.ParentAcctID) {
 					StrAssocArray list;
 					if(ObjAcct.GetParentList(rec.Acc, &list) > 0) {
@@ -1279,7 +1261,6 @@ int PPViewBudget::UpdateTempTable(const PPIDArray & rIdList)
 							StrAssocArray::Item _item = list.Get(i);
 							if(_item.ParentId == Filt.ParentAcctID) {
 								BudgetItemTbl::Rec par_rec;
-								// @v10.6.4 MEMSZERO(par_rec);
 								stop = 1;
 								if(ObjBudg.ItemsTbl.Search(rec.BudgetID, _item.Id, rec.Kind, rec.Dt, &par_rec) > 0) {
 									idlist.clear();
@@ -1325,7 +1306,6 @@ void PPViewBudget::GetTabTitle(long tabID, SString & rBuf)
 			for(ObjBudg.P_Ref->InitEnum(PPOBJ_BUDGET, 0, &h); ObjBudg.P_Ref->NextEnum(h, &budget) > 0;) {
 				if(CheckForFilt(&budget) > 0) {
 					TempBudgetTbl::Rec temp_rec;
-					// @v10.6.4 MEMSZERO(temp_rec);
 					MakeTempRec(&budget, &temp_rec);
 					THROW_DB(bei.insert(&temp_rec));
 				}
@@ -1342,13 +1322,11 @@ void PPViewBudget::GetTabTitle(long tabID, SString & rBuf)
 			BExtQuery q(t, 0);
 			BudgetItemTbl::Rec k0;
 			PPTransaction tra(ppDbDependTransaction, 1);
-
 			MEMSZERO(k0);
 			q.selectAll();
 			for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 				if(CheckForFilt(&ObjBudg.ItemsTbl.data) > 0) {
 					TempBudgItemTbl::Rec temp_rec;
-					// @v10.6.4 MEMSZERO(temp_rec);
 					MakeTempRec(&ObjBudg.ItemsTbl.data, &temp_rec);
 					THROW_DB(bei.insert(&temp_rec));
 				}
@@ -1634,7 +1612,6 @@ void PPViewBudget::GetEditIds(const void * pRow, Hdr * pHdr, long col)
 				int r = P_Ct->GetTab(tab_idx, &dt.v);
 				if(r > 0) {
 					BudgetItemTbl::Rec rec;
-					// @v10.6.4 MEMSZERO(rec);
 					P_Ct->GetIdxFieldVal(0, pRow, &acct, sizeof(acct));
 					if(ObjBudg.ItemsTbl.Search(Filt.BudgetID, acct, kind, dt, &rec) > 0) {
 						hdr.ID    = rec.ID;

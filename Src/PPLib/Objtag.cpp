@@ -1,5 +1,5 @@
 // OBJTAG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Теги объектов
 //
@@ -326,7 +326,6 @@ int FASTCALL TagFilt::Check(const ObjTagList * pList) const
 //
 PPObjTagPacket::PPObjTagPacket()
 {
-	// @v10.6.5 @ctr MEMSZERO(Rec);
 }
 
 PPObjTagPacket & PPObjTagPacket::Z()
@@ -1495,7 +1494,6 @@ int PPObjTag::GetWarnList(const ObjTagList * pTagList, StrAssocArray * pResultLi
 			int    invalid = 0;
 			const  PPID tag_id = warn_tag_list.get(i);
 			PPObjectTag tag_rec;
-			// @v10.6.5 @ctr MEMSZERO(tag_rec);
 			Fetch(tag_id, &tag_rec);
 			if(pTagList == 0) {
 				msg_buf.Printf(PPLoadTextS(PPTXT_TAGABSENT, fmt_buf), tag_rec.Name);
@@ -2497,7 +2495,6 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 	TagValDialog * dlg = 0;
 	uint   dlg_id = 0;
 	TagDlgParam param;
-	// @v10.9.4 @ctr MEMSZERO(param);
 	param.ObjType = objType;
 	param.ObjID   = objID;
 	param.BoolDlgID  = DLG_TAGVLOG;

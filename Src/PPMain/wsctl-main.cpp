@@ -4,25 +4,11 @@
 //
 #include <pp.h>
 #pragma hdrstop
+#include <imgui-support.h>
 #include <wsctl.h>
-#include "imgui.h"
-#include "imgui_internal.h"
-#include "backends\imgui_impl_dx9.h"
-#include "backends\imgui_impl_dx11.h"
-#include "backends\imgui_impl_win32.h"
-#define HMONITOR_DECLARED
-#include <d3d9.h>
-#include <d3d11.h>
-#include <..\OSF\DirectXTex\SRC\DirectXTex.h>
-#include <..\OSF\DirectXTex\SRC\WICTextureLoader11.h>
 
 ImVec2 FPointToImVec2(const SPoint2F & rP) { return ImVec2(rP.x, rP.y); }
 ImRect FRectToImRect(const FRect & rR) { return ImRect(FPointToImVec2(rR.a), FPointToImVec2(rR.b)); }
-
-class WsCtlConst {
-public:
-	static constexpr uint IconSize = 32;
-};
 
 namespace ImGui {
 	bool ScrollbarEx(const ImRect & bb_frame, ImGuiID id, ImGuiAxis axis, int64* p_scroll_v, int64 size_avail_v, int64 size_contents_v, ImDrawFlags flags);
@@ -70,7 +56,7 @@ namespace ImGui {
 	ColorNavWindowingDimBg
 	ColorModalWindowDimBg
 */
-static FORCEINLINE float ColorComponentBlendOverlay(float sa, float s, float da, float d)
+/*static FORCEINLINE float ColorComponentBlendOverlay(float sa, float s, float da, float d)
 {
 	return ((2 * d) < da) ? (2 * s * d) : (sa * da - 2 * (da - d) * (sa - s));
 }
@@ -79,229 +65,15 @@ FORCEINLINE ImVec4 __ColorBlendOverlay(const ImVec4 & rS, const ImVec4 & rD, flo
 {
 	return ImVec4(ColorComponentBlendOverlay(1.0f, rS.x, alpha, rD.x),
 		ColorComponentBlendOverlay(1.0f, rS.y, alpha, rD.y), ColorComponentBlendOverlay(1.0f, rS.z, alpha, rD.z), rS.w);
-}
+}*/
 
 static const ImVec4 MainBackgroundColor(SColor(0x1E, 0x22, 0x28));
 static const ImVec2 ButtonSize_Std(64.0f, 24.0f);
 static const ImVec2 ButtonSize_Double(128.0f, 24.0f);
 
-class ImGuiObjStack {
-public:
-	enum {
-		objUndef = 0,
-		objFont,
-		objStyleColor,
-		objStyleVar,
-		objTabStop,
-		objButtonRepeat,
-		objItemWidth,
-		objTextWrapPos,
-		objID,
-		objAllowKeyboardFocus, // PushAllowKeyboardFocus
-	};
-	ImGuiObjStack()
-	{
-	}
-	~ImGuiObjStack()
-	{
-		int obj_type = 0;
-		while(St.pop(obj_type)) {
-			switch(obj_type) {
-				case objFont: ImGui::PopFont(); break;
-				case objStyleColor: ImGui::PopStyleColor(); break;
-				case objStyleVar: ImGui::PopStyleVar(); break;
-				case objTabStop: ImGui::PopTabStop(); break;
-				case objButtonRepeat: ImGui::PopButtonRepeat(); break;
-				case objItemWidth: ImGui::PopItemWidth(); break;
-				case objTextWrapPos: ImGui::PopTextWrapPos(); break;
-				case objID: ImGui::PopID(); break;
-				case objAllowKeyboardFocus: ImGui::PopAllowKeyboardFocus(); break;
-			}
-		}
-	}
-	void PushFont(ImFont * pFont)
-	{
-		if(pFont) {
-			ImGui::PushFont(pFont);
-			St.push(objFont);
-		}
-	}
-	void PushStyleColor(ImGuiCol idx, ImU32 col)
-	{
-		ImGui::PushStyleColor(idx, col);
-		St.push(objStyleColor);
-	}
-	void PushStyleColor(ImGuiCol idx, const ImVec4 & rColor)
-	{
-		ImGui::PushStyleColor(idx, rColor);
-		St.push(objStyleColor);
-	}
-	void PushStyleVar(ImGuiStyleVar idx, float val)
-	{
-		ImGui::PushStyleVar(idx, val);
-		St.push(objStyleVar);
-	}
-	void PushStyleVar(ImGuiStyleVar idx, const ImVec2 & rVal)
-	{
-		ImGui::PushStyleVar(idx, rVal);
-		St.push(objStyleVar);
-	}
-	void PushTabStop(bool tabSstop)
-	{
-		ImGui::PushTabStop(tabSstop);
-		St.push(objTabStop);
-	}
-	void PushButtonrepeat(bool repeat)
-	{
-		ImGui::PushButtonRepeat(repeat);
-		St.push(objButtonRepeat);
-	}
-	void PushItemWidth(float itemWidth)
-	{
-		ImGui::PushItemWidth(itemWidth);
-		St.push(objItemWidth);
-	}
-	void PushTextWrapPos(float wrapLocalPos)
-	{
-		ImGui::PushTextWrapPos(wrapLocalPos);
-		St.push(objTextWrapPos);
-	}
-	void PushID(const char * pStrIdent)
-	{
-		ImGui::PushID(pStrIdent);
-		St.push(objID);
-	}
-	void PushID(const char* pStrIdBegin, const char * pStrIdEnd)
-	{
-		ImGui::PushID(pStrIdBegin, pStrIdEnd);
-		St.push(objID);
-	}
-	void PushID(const void * pIdent)
-	{
-		ImGui::PushID(pIdent);
-		St.push(objID);
-	}
-	void PushID(int id)
-	{
-		ImGui::PushID(id);
-		St.push(objID);
-	}
-	void PushAllowKeyboardFocus(bool tabStop)
-	{
-		ImGui::PushAllowKeyboardFocus(tabStop);
-		St.push(objAllowKeyboardFocus);
-	}
-private:
-	TSStack <int> St;
-};
-
 static void * P_TestImgTexture = 0; // @debug
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam); // Forward declare message handler from imgui_impl_win32.cpp
-
-class ImGuiRuntimeBlock {
-public:
-	ImGuiRuntimeBlock() : g_pd3dDevice(0), g_pd3dDeviceContext(0), g_pSwapChain(0), g_mainRenderTargetView(0)
-	{
-	}
-	bool CreateDeviceD3D(HWND hWnd)
-	{
-		// Setup swap chain
-		DXGI_SWAP_CHAIN_DESC sd;
-		// @sobolev ZeroMemory(&sd, sizeof(sd));
-		MEMSZERO(sd); // @sobolev
-		sd.BufferCount = 2;
-		sd.BufferDesc.Width = 0;
-		sd.BufferDesc.Height = 0;
-		sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		sd.BufferDesc.RefreshRate.Numerator = 60;
-		sd.BufferDesc.RefreshRate.Denominator = 1;
-		sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		sd.OutputWindow = hWnd;
-		sd.SampleDesc.Count = 1;
-		sd.SampleDesc.Quality = 0;
-		sd.Windowed = TRUE;
-		sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-		UINT createDeviceFlags = 0;
-		//createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-		D3D_FEATURE_LEVEL featureLevel;
-		const D3D_FEATURE_LEVEL featureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0, };
-		HRESULT res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevelArray,
-			2, D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_pd3dDevice, &featureLevel, &g_pd3dDeviceContext);
-		if(res == DXGI_ERROR_UNSUPPORTED) // Try high-performance WARP software driver if hardware is not available.
-			res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, createDeviceFlags, featureLevelArray,
-				2, D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_pd3dDevice, &featureLevel, &g_pd3dDeviceContext);
-		if(res != S_OK)
-			return false;
-		CreateRenderTarget();
-		return true;
-	}
-	void CreateRenderTarget()
-	{
-		ID3D11Texture2D * p_back_buffer;
-		g_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&p_back_buffer));
-		g_pd3dDevice->CreateRenderTargetView(p_back_buffer, nullptr, &g_mainRenderTargetView);
-		p_back_buffer->Release();
-	}
-	void CleanupRenderTarget()
-	{
-		SCOMOBJRELEASE(g_mainRenderTargetView); 
-	}
-	void CleanupDeviceD3D()
-	{
-		CleanupRenderTarget();
-		SCOMOBJRELEASE(g_pSwapChain); 
-		SCOMOBJRELEASE(g_pd3dDeviceContext); 
-		SCOMOBJRELEASE(g_pd3dDevice); 
-	}
-	void * LoadTexture(const char * pFileName)
-	{
-		void * p_result = 0;
-		ID3D11Resource * p_texture = 0;
-		ID3D11ShaderResourceView * p_texture_view = 0;
-		SStringU & r_fn = SLS.AcquireRvlStrU();
-		r_fn.CopyFromUtf8R(pFileName, sstrlen(pFileName), 0);
-		HRESULT hr = DirectX::CreateWICTextureFromFile(g_pd3dDevice, g_pd3dDeviceContext, _In_z_ r_fn.ucptr(), &p_texture, &p_texture_view, /*maxsize*/0);
-		if(SUCCEEDED(hr)) {
-			//p_result = p_texture;
-			p_result = p_texture_view;
-		}
-		return p_result;
-	}
-	void * MakeIconTexture(uint iconId) // @v11.9.2
-	{
-		void * p_result = 0;
-		SPaintToolBox & r_tb = DS.GetUiToolBox();
-		const TWhatmanToolArray & r_vt = DS.GetVectorTools();
-		TWhatmanToolArray::Item vt_item;
-		const SDrawFigure * p_fig = r_vt.GetFigById(1, iconId, &vt_item);
-		if(p_fig) {
-			SBuffer bmp_buf;
-			if(TCanvas2::TransformDrawFigureToBitmap(&r_tb, p_fig, SPoint2S(WsCtlConst::IconSize), vt_item.ReplacedColor, SColor(0, 0, 0, 0), bmp_buf)) {
-				ID3D11Resource * p_texture = 0;
-				ID3D11ShaderResourceView * p_texture_view = 0;
-				HRESULT hr = DirectX::CreateWICTextureFromMemory(g_pd3dDevice, g_pd3dDeviceContext, 
-					reinterpret_cast<const uint8 *>(bmp_buf.GetBufC()), bmp_buf.GetAvailableSize(), &p_texture, &p_texture_view, /*maxsize*/0);
-				if(SUCCEEDED(hr)) {
-					p_result = p_texture_view;
-				}
-			}
-		}
-		return p_result;
-	}
-	void ReleaseTexture(void * pTextureView)
-	{
-		if(pTextureView) {
-			static_cast<IUnknown *>(pTextureView)->Release();
-		}
-	}
-	// Data
-	ID3D11Device           * g_pd3dDevice;
-	ID3D11DeviceContext    * g_pd3dDeviceContext;
-	IDXGISwapChain         * g_pSwapChain;
-	ID3D11RenderTargetView * g_mainRenderTargetView;
-};
 
 static ImGuiRuntimeBlock ImgRtb;
 //
@@ -388,19 +160,7 @@ private:
 //
 //
 //
-class ImGuiWindowByLayout {
-public:
-	ImGuiWindowByLayout(const SUiLayout * pLoParent, int loId, const char * pWindowId, ImGuiWindowFlags viewFlags);
-	ImGuiWindowByLayout(const SUiLayout * pLo, const char * pWindowId, ImGuiWindowFlags viewFlags);
-	ImGuiWindowByLayout(const SUiLayout * pLo, SPoint2F & rOffset, const char * pWindowId, ImGuiWindowFlags viewFlags);
-	~ImGuiWindowByLayout();
-	bool IsValid() const { return (P_Lo != 0); }
-private:
-	void   Helper_Ctr(const SUiLayout * pLo, const SPoint2F * pOffset, const char * pWindowId, ImGuiWindowFlags viewFlags);
-	const SUiLayout * P_Lo;
-};
-
-class WsCtl_ImGuiSceneBlock {
+class WsCtl_ImGuiSceneBlock : public ImGuiSceneBase {
 public:
 	//
 	// Descr: Вариант экранов приложения //
@@ -761,7 +521,6 @@ private:
 	bool   ShowDemoWindow; // @sobolev true-->false
 	bool   ShowAnotherWindow;
 	int    Screen; // screenXXX
-	ImVec4 ClearColor;
 	//SUiLayout Lo01; // = new SUiLayout(SUiLayoutParam(DIREC_VERT, 0, SUiLayoutParam::alignStretch));
 
 	class CommonTextureCacheEntry {
@@ -899,7 +658,6 @@ private:
 			ok = false;
 		return ok;
 	}
-	void   Render();
 	void   MakeLayout(SJson ** ppJsList);
 	SUiLayout * MakePgmListLayout(const WsCtl_ProgramCollection & rPgmL);
 	void   PreprocessProgramList();
@@ -954,7 +712,7 @@ public:
 	WsCtl_ImGuiSceneBlock();
 	~WsCtl_ImGuiSceneBlock();
 	int  LoadUiDescription();
-	int  Init(ImGuiIO & rIo);
+	virtual int  Init(ImGuiIO & rIo);
 	//int  LoadProgramList();
 	int  ExecuteProgram(const WsCtl_ProgramEntry * pPe);
 	void EmitEvents();
@@ -1023,53 +781,6 @@ const void * SImFontDescription::GetHashKey(const void * pCtx, uint * pKeyLen) c
 {
 	ASSIGN_PTR(pKeyLen, Symbol.Len());
 	return Symbol.cptr();
-}
-//
-//
-//
-ImGuiWindowByLayout::ImGuiWindowByLayout(const SUiLayout * pLoParent, int loId, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(0)
-{
-	Helper_Ctr((pLoParent ? pLoParent->FindByIdC(loId) : 0), 0, pWindowId, viewFlags);
-}
-
-ImGuiWindowByLayout::ImGuiWindowByLayout(const SUiLayout * pLo, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(pLo)
-{
-	Helper_Ctr(pLo, 0, pWindowId, viewFlags);
-}
-	
-ImGuiWindowByLayout::ImGuiWindowByLayout(const SUiLayout * pLo, SPoint2F & rOffset, const char * pWindowId, ImGuiWindowFlags viewFlags) : P_Lo(pLo)
-{
-	Helper_Ctr(pLo, &rOffset, pWindowId, viewFlags);
-}
-
-ImGuiWindowByLayout::~ImGuiWindowByLayout()
-{
-	if(P_Lo) {
-		ImGui::End();
-		P_Lo = 0;
-	}
-}
-
-void ImGuiWindowByLayout::Helper_Ctr(const SUiLayout * pLo, const SPoint2F * pOffset, const char * pWindowId, ImGuiWindowFlags viewFlags)
-{
-	P_Lo = pLo;
-	if(P_Lo) {
-		FRect r = P_Lo->GetFrameAdjustedToParent();
-		if(pOffset) {
-			r.Move__(pOffset->x, pOffset->y);
-		}
-		SPoint2F s = r.GetSize();
-		ImVec2 lu(r.a.x, r.a.y);
-		ImVec2 sz(s.x, s.y);
-		ImGui::SetNextWindowPos(lu);
-		ImGui::SetNextWindowSize(sz);
-		SString & r_symb = SLS.AcquireRvlStr();
-		if(pWindowId)
-			r_symb = pWindowId;
-		else
-			r_symb.Cat(pLo->GetID());
-		ImGui::Begin(r_symb, 0, viewFlags);
-	}
 }
 //
 //
@@ -2110,7 +1821,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 					js_param.InsertInt("techid", rReq.P.TechID);
 				}
 				if(rReq.P.Amount > 0.0) {
-					js_param.InsertDouble("amt", rReq.P.Amount, MKSFMTD(0, 2, 0));
+					js_param.InsertDouble("amt", rReq.P.Amount, MKSFMTD_020);
 				}
 				PPJobSrvCmd cmd;
 				cmd.StartWriting(PPSCMD_WSCTL_BEGIN_SESS);
@@ -2144,9 +1855,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 	}
 }
 
-WsCtl_ImGuiSceneBlock::WsCtl_ImGuiSceneBlock() : ShowDemoWindow(false), ShowAnotherWindow(false), Screen(screenUndef),
-	//ClearColor(0.45f, 0.55f, 0.60f, 1.00f), 
-	ClearColor(SColor(0x1E, 0x22, 0x28)),
+WsCtl_ImGuiSceneBlock::WsCtl_ImGuiSceneBlock() : ImGuiSceneBase(), ShowDemoWindow(false), ShowAnotherWindow(false), Screen(screenUndef),
 	P_CmdQ(new WsCtlReqQueue),
 	Cache_Layout(512, 0), Cache_Texture(1024, 0), Cache_Font(101, 0), Cache_Icon(),
 	P_Dlg_Cfg(0)
@@ -2347,7 +2056,7 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 	return ok;
 }
 
-int WsCtl_ImGuiSceneBlock::Init(ImGuiIO & rIo)
+/*virtual*/int WsCtl_ImGuiSceneBlock::Init(ImGuiIO & rIo)
 {
 	int    ok = 0;
 	SString temp_buf;
@@ -2585,22 +2294,6 @@ void WsCtl_ImGuiSceneBlock::EmitEvents()
 //
 //
 //
-void WsCtl_ImGuiSceneBlock::Render()
-{
-	ImGui::Render();
-	const float clear_color_with_alpha[4] = { 
-		ClearColor.x * ClearColor.w, 
-		ClearColor.y * ClearColor.w, 
-		ClearColor.z * ClearColor.w, 
-		ClearColor.w 
-	};
-	ImgRtb.g_pd3dDeviceContext->OMSetRenderTargets(1, &ImgRtb.g_mainRenderTargetView, nullptr);
-	ImgRtb.g_pd3dDeviceContext->ClearRenderTargetView(ImgRtb.g_mainRenderTargetView, clear_color_with_alpha);
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-	ImgRtb.g_pSwapChain->Present(1, 0); // Present with vsync
-	//g_pSwapChain->Present(0, 0); // Present without vsync
-}
-
 /*static*/int WsCtl_ImGuiSceneBlock::CbInput(ImGuiInputTextCallbackData * pInputData)
 {
 	bool debug_mark = false;
@@ -3387,7 +3080,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						if(wbl.IsValid()) {
 							void * p_icon_back = Cache_Icon.Get(PPDV_ARROWBACK);
 							if(p_icon_back) {
-								if(ImGui::ImageButton(p_icon_back, ImVec2(WsCtlConst::IconSize, WsCtlConst::IconSize))) {
+								if(ImGui::ImageButton(p_icon_back, ImVec2(ImGuiRuntimeBlock::IconSize, ImGuiRuntimeBlock::IconSize))) {
 									SetScreen(screenIntro);
 								}
 								//ImGui::Image(p_icon_back, ImVec2(WsCtlConst::IconSize, WsCtlConst::IconSize));
@@ -3484,7 +3177,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						ImGuiWindowByLayout wbl(p_tl, loidToolbar, "##Toolbar", view_flags);
 						void * p_icon_back = Cache_Icon.Get(PPDV_ARROWBACK);
 						if(p_icon_back) {
-							if(ImGui::ImageButton(p_icon_back, ImVec2(WsCtlConst::IconSize, WsCtlConst::IconSize))) {
+							if(ImGui::ImageButton(p_icon_back, ImVec2(ImGuiRuntimeBlock::IconSize, ImGuiRuntimeBlock::IconSize))) {
 								SetScreen(screenIntro);
 							}
 							//ImGui::Image(p_icon_back, ImVec2(WsCtlConst::IconSize, WsCtlConst::IconSize));
@@ -3675,7 +3368,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							ImGuiWindowByLayout wbl(p_tl, loidToolbar, "##Toolbar", view_flags);
 							void * p_icon_back = Cache_Icon.Get(PPDV_ARROWBACK);
 							if(p_icon_back) {
-								if(ImGui::ImageButton(p_icon_back, ImVec2(WsCtlConst::IconSize, WsCtlConst::IconSize))) {
+								if(ImGui::ImageButton(p_icon_back, ImVec2(ImGuiRuntimeBlock::IconSize, ImGuiRuntimeBlock::IconSize))) {
 									DAuth data_auth;
 									St.D_Auth.SetData(data_auth);
 									SetScreen(screenLogin);
@@ -3703,7 +3396,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							if(wbl.IsValid()) {
 								SString & r_text_buf = SLS.AcquireRvlStr();
 								ImGui::Text(PPLoadStringUtf8S("account_lw", r_text_buf).CatDiv(':', 2).Cat(st_data_acc.SCardCode));
-								ImGui::Text(PPLoadStringUtf8S("rest", r_text_buf).CatDiv(':', 2).Cat(st_data_acc.ScRest, MKSFMTD(0, 2, 0)));
+								ImGui::Text(PPLoadStringUtf8S("rest", r_text_buf).CatDiv(':', 2).Cat(st_data_acc.ScRest, MKSFMTD_020));
 							}
 						}
 						{
@@ -3724,7 +3417,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 														//ImGui::RadioButton(
 														ImGui::TableNextColumn();
 														SString & r_temp_buf = SLS.AcquireRvlStr();
-														r_temp_buf.Cat(p_entry->NameUtf8).CatDiv('|', 1).Cat(price, MKSFMTD(0, 2, 0));
+														r_temp_buf.Cat(p_entry->NameUtf8).CatDiv('|', 1).Cat(price, MKSFMTD_020);
 														if(ImGui::/*RadioButton*/Selectable(r_temp_buf, (p_entry->ID == selected_tec_goods_id)))
 															St.SetSelectedTecGoodsID(p_entry->ID);
 															//new_selected_tec_goods_id = p_entry->ID;
@@ -3859,7 +3552,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								PPLoadStringUtf8S("account_lw", r_temp_buf).CatDiv(':', 2).Cat(data_acc.SCardCode);
 								ImGui::Text(r_temp_buf);
 								ImGui::Text(r_temp_buf.Z().Cat(data_acc.PersonName));
-								PPLoadStringUtf8S("rest", r_temp_buf).CatDiv(':', 2).Cat(data_acc.ScRest, MKSFMTD(0, 2, 0));
+								PPLoadStringUtf8S("rest", r_temp_buf).CatDiv(':', 2).Cat(data_acc.ScRest, MKSFMTD_020);
 								ImGui::Text(r_temp_buf);
 							}
 							else {
@@ -3998,7 +3691,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 		ImGui::End();
 	}
 	*/
-	Render(); // Rendering
+	Render(ImgRtb); // Rendering
 }
 //
 // Win32 message handler
@@ -4112,7 +3805,6 @@ int main(int, char**)
 		//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		WsCtl_ImGuiSceneBlock scene_blk;
 		scene_blk.Init(io);
-		//scene_blk.LoadProgramList(); // @v11.7.12
 		scene_blk.SetScreen(WsCtl_ImGuiSceneBlock::screenConstruction);
 		{
 			const char * p_img_path = "/Papyrus/Src/PPTEST/DATA/test-gif.gif";

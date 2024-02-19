@@ -7242,7 +7242,7 @@ namespace ReadDirectoryChangesPrivate { // Copyright (c) 2010 James E Beveridge
 ///		const HANDLE handles[] = { hStopEvent, changes.GetWaitHandle() };
 ///
 ///		while(!bTerminate) {
-///			::MsgWaitForMultipleObjectsEx(_countof(handles), handles, INFINITE, QS_ALLINPUT,
+///			::MsgWaitForMultipleObjectsEx(SIZEOFARRAY(handles), handles, INFINITE, QS_ALLINPUT,
 ///				MWMO_INPUTAVAILABLE | MWMO_ALERTABLE);
 ///			switch (rc) {
 ///			case WAIT_OBJECT_0 + 0:
@@ -7257,7 +7257,7 @@ namespace ReadDirectoryChangesPrivate { // Copyright (c) 2010 James E Beveridge
 ///						wprintf(L"%s %s\n", ExplainAction(dwAction), wstrFilename);
 ///				}
 ///				break;
-///			case WAIT_OBJECT_0 + _countof(handles):
+///			case WAIT_OBJECT_0 + SIZEOFARRAY(handles):
 ///				// Get and dispatch message
 ///				break;
 ///			case WAIT_IO_COMPLETION:

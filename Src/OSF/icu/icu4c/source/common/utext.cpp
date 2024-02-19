@@ -686,11 +686,11 @@ static UText * U_CALLCONV shallowTextClone(UText * dest, const UText * src, UErr
 	if(sizeToCopy > dest->sizeOfStruct) {
 		sizeToCopy = dest->sizeOfStruct;
 	}
-	uprv_memcpy(dest, src, sizeToCopy);
+	memcpy(dest, src, sizeToCopy);
 	dest->pExtra = destExtra;
 	dest->flags  = flags;
 	if(srcExtraSize > 0) {
-		uprv_memcpy(dest->pExtra, src->pExtra, srcExtraSize);
+		memcpy(dest->pExtra, src->pExtra, srcExtraSize);
 	}
 
 	//
@@ -1434,7 +1434,7 @@ static UText * U_CALLCONV utf8TextClone(UText * dest, const UText * src, bool de
 			*status = U_MEMORY_ALLOCATION_ERROR;
 		}
 		else {
-			uprv_memcpy(copyStr, src->context, len+1);
+			memcpy(copyStr, src->context, len+1);
 			dest->context = copyStr;
 			dest->providerProperties |= I32_FLAG(UTEXT_PROVIDER_OWNS_TEXT);
 		}

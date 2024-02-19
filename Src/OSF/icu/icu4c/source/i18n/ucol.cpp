@@ -213,7 +213,7 @@ U_CAPI int32_t U_EXPORT2 ucol_getBound(const uint8 * source, int32_t sourceLengt
 	// corresponds to the number of extra bytes each bound type
 	// needs.
 	if(result != NULL && resultLength >= sourceIndex+boundType) {
-		uprv_memcpy(result, source, sourceIndex);
+		memcpy(result, source, sourceIndex);
 		switch(boundType) {
 			// Lower bound just gets terminated. No extra bytes
 			case UCOL_BOUND_LOWER: // = 0

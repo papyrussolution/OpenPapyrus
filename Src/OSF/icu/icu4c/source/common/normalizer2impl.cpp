@@ -2814,7 +2814,7 @@ U_CAPI int32_t U_EXPORT2 unorm2_swap(const UDataSwapper * ds,
 		}
 		/* copy the data for inaccessible bytes */
 		if(inBytes!=outBytes) {
-			uprv_memcpy(outBytes, inBytes, size);
+			memcpy(outBytes, inBytes, size);
 		}
 		offset = 0;
 		/* swap the int32_t indexes[] */

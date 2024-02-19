@@ -1,5 +1,5 @@
 // GDS2OBJA.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 // Список соответствий Товар(Группа товаров) - Объект
@@ -13,7 +13,6 @@
 GoodsToObjAssoc::GoodsToObjAssoc(PPID asscTyp, PPID objType, int dupAllowing) : AsscType(asscTyp), ObjType(objType), Flags(0)
 {
 	SETFLAG(Flags, fDup, dupAllowing);
-	// @v10.7.1 @ctr MEMSZERO(NoaRec);
 	if(asscTyp > 1000) {
 		PPObjNamedObjAssoc noa_obj;
 		THROW(noa_obj.Search(asscTyp, &NoaRec) > 0);
@@ -704,7 +703,6 @@ int PPObjNamedObjAssoc::Edit(PPID * pID, void * extraPtr)
 	if(*pID) {
 		THROW(Search(*pID, &rec) > 0);
 	}
-	// @v10.7.1 @ctr else {  MEMSZERO(rec); }
 	dlg->setDTS(&rec);
 	while(ok == cmCancel && ExecView(dlg) == cmOK) {
 		if(dlg->getDTS(&rec)) {

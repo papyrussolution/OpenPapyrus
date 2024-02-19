@@ -160,16 +160,16 @@ MutableCodePointTrie::MutableCodePointTrie(const MutableCodePointTrie &other, UE
 	}
 	indexCapacity = iCapacity;
 	dataCapacity = other.dataCapacity;
-
 	int32_t iLimit = highStart >> UCPTRIE_SHIFT_3;
-	uprv_memcpy(flags, other.flags, iLimit);
-	uprv_memcpy(index, other.index, iLimit * 4);
-	uprv_memcpy(data, other.data, (size_t)other.dataLength * 4);
+	memcpy(flags, other.flags, iLimit);
+	memcpy(index, other.index, iLimit * 4);
+	memcpy(data, other.data, (size_t)other.dataLength * 4);
 	dataLength = other.dataLength;
 	U_ASSERT(other.index16 == nullptr);
 }
 
-MutableCodePointTrie::~MutableCodePointTrie() {
+MutableCodePointTrie::~MutableCodePointTrie() 
+{
 	uprv_free(index);
 	uprv_free(data);
 	uprv_free(index16);
@@ -397,7 +397,7 @@ bool MutableCodePointTrie::ensureHighStart(UChar32 c) {
 			if(newIndex == nullptr) {
 				return false;
 			}
-			uprv_memcpy(newIndex, index, i * 4);
+			memcpy(newIndex, index, i * 4);
 			uprv_free(index);
 			index = newIndex;
 			indexCapacity = I_LIMIT;
@@ -432,7 +432,7 @@ int32_t MutableCodePointTrie::allocDataBlock(int32_t blockLength) {
 		if(newData == nullptr) {
 			return -1;
 		}
-		uprv_memcpy(newData, data, (size_t)dataLength * 4);
+		memcpy(newData, data, (size_t)dataLength * 4);
 		uprv_free(data);
 		data = newData;
 		dataCapacity = capacity;
@@ -1350,7 +1350,7 @@ int32_t MutableCodePointTrie::compactIndex(int32_t fastILimit, MixedBlocks &mixe
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		return 0;
 	}
-	uprv_memcpy(index16, fastIndex, fastIndexLength * 2);
+	memcpy(index16, fastIndex, fastIndexLength * 2);
 
 	if(!mixedBlocks.init(index16Capacity, UCPTRIE_INDEX_3_BLOCK_LENGTH)) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
@@ -1594,7 +1594,7 @@ int32_t MutableCodePointTrie::compactTrie(int32_t fastILimit, UErrorCode & error
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		return 0;
 	}
-	uprv_memcpy(newData, asciiData, sizeof(asciiData));
+	memcpy(newData, asciiData, sizeof(asciiData));
 
 	int32_t dataNullIndex = allSameBlocks.findMostUsed();
 
@@ -1754,7 +1754,7 @@ UCPTrie * MutableCodePointTrie::build(UCPTrieType type, UCPTrieValueWidth valueW
 		}
 	}
 	else {
-		uprv_memcpy(dest16, index16, indexLength * 2);
+		memcpy(dest16, index16, indexLength * 2);
 		dest16 += indexLength;
 	}
 	bytes += indexLength * 2;
@@ -1772,7 +1772,7 @@ UCPTrie * MutableCodePointTrie::build(UCPTrieType type, UCPTrieValueWidth valueW
 		case UCPTRIE_VALUE_BITS_32:
 		    // Write 32-bit data values.
 		    trie->data.ptr32 = (uint32_t*)bytes;
-		    uprv_memcpy(bytes, p, (size_t)dataLength * 4);
+		    memcpy(bytes, p, (size_t)dataLength * 4);
 		    break;
 		case UCPTRIE_VALUE_BITS_8:
 		    // Write 8-bit data values.

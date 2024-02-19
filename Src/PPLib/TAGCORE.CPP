@@ -1047,7 +1047,7 @@ int ObjTagContainerHelper::SetGuid(const S_GUID & rGuid)
 	}
 	CATCH
 		ok = 0;
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 	ENDCATCH
 	return ok;
 }

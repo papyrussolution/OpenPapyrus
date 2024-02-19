@@ -1,5 +1,5 @@
 // ALCODECL-RU.CPP
-// Copyright (c) A.Sobolev 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Алкогольная декларация (Россия)
 //
@@ -1539,14 +1539,14 @@ int PPViewAlcoDeclRu::Export()
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(13), temp_buf.Z().Cat(suppl_bill_rec.Dt, DATF_GERMANCENT));
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(14), bill_code_buf);
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(15), "");
-														n6.PutAttrib(g.GetToken_Ansi_Pe0(16), temp_buf.Z().Cat(fabs(r_entry.Qtty), MKSFMTD(0, 5, 0)));
+														n6.PutAttrib(g.GetToken_Ansi_Pe0(16), temp_buf.Z().Cat(fabs(r_entry.Qtty), MKSFMTD_050));
 													}
 													else if(r_entry.ItemKind == 1) {
 														SXml::WNode n6(g.P_X, g.GetToken_Ansi(PPHSC_RU_RETURN));
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(13), temp_buf.Z().Cat(suppl_bill_rec.Dt, DATF_GERMANCENT));
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(14), bill_code_buf);
 														n6.PutAttrib(g.GetToken_Ansi_Pe0(15), "");
-														n6.PutAttrib(g.GetToken_Ansi_Pe0(16), temp_buf.Z().Cat(fabs(r_entry.Qtty), MKSFMTD(0, 5, 0)));
+														n6.PutAttrib(g.GetToken_Ansi_Pe0(16), temp_buf.Z().Cat(fabs(r_entry.Qtty), MKSFMTD_050));
 													}
 												}
 											}
@@ -1564,10 +1564,10 @@ int PPViewAlcoDeclRu::Export()
 											SXml::WNode n5(g.P_X, g.GetToken_Ansi(PPHSC_RU_MOVING));
 											// Первые 4 атрибута общие и для пива и для алкашки
 											n5.PutAttrib(g.GetToken_Ansi(PPHSC_RU_SEQUENCE), temp_buf.Z().Cat(seq));
-											n5.PutAttrib(g.GetToken_Ansi_Pe1(6), temp_buf.Z().Cat(r_entry.StockBeg, MKSFMTD(0, 5, 0)));
-											n5.PutAttrib(g.GetToken_Ansi_Pe1(7), temp_buf.Z().Cat(r_entry.RcptManuf, MKSFMTD(0, 5, 0)));
+											n5.PutAttrib(g.GetToken_Ansi_Pe1(6), temp_buf.Z().Cat(r_entry.StockBeg, MKSFMTD_050));
+											n5.PutAttrib(g.GetToken_Ansi_Pe1(7), temp_buf.Z().Cat(r_entry.RcptManuf, MKSFMTD_050));
 											sub_total += r_entry.RcptManuf;
-											n5.PutAttrib(g.GetToken_Ansi_Pe1(8), temp_buf.Z().Cat(r_entry.RcptWhs, MKSFMTD(0, 5, 0)));
+											n5.PutAttrib(g.GetToken_Ansi_Pe1(8), temp_buf.Z().Cat(r_entry.RcptWhs, MKSFMTD_050));
 											sub_total += r_entry.RcptWhs;
 											if(Filt.Flags & Filt.fOnlyBeer) {
 												/* 08
@@ -1589,28 +1589,28 @@ int PPViewAlcoDeclRu::Export()
 													П100000000019 Расход всего (дал)
 													П100000000020 Остаток на конец отчетного периода (дал)
 												*/
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(9), temp_buf.Z().Cat(r_entry.RcptImp, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(9), temp_buf.Z().Cat(r_entry.RcptImp, MKSFMTD_050));
 												sub_total += r_entry.RcptImp;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(10), temp_buf.Z().Cat(sub_total, MKSFMTD(0, 5, 0)));
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(11), temp_buf.Z().Cat(r_entry.SaleRet, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(10), temp_buf.Z().Cat(sub_total, MKSFMTD_050));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(11), temp_buf.Z().Cat(r_entry.SaleRet, MKSFMTD_050));
 												sub_total += r_entry.SaleRet;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(12), temp_buf.Z().Cat(r_entry.RcptEtc, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(12), temp_buf.Z().Cat(r_entry.RcptEtc, MKSFMTD_050));
 												sub_total += r_entry.RcptEtc;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(13), temp_buf.Z().Cat(r_entry.RcptIntr, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(13), temp_buf.Z().Cat(r_entry.RcptIntr, MKSFMTD_050));
 												sub_total += r_entry.RcptIntr;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(14), temp_buf.Z().Cat(sub_total, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(14), temp_buf.Z().Cat(sub_total, MKSFMTD_050));
 												sub_total = 0.0;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(15), temp_buf.Z().Cat(r_entry.ExpRetail, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(15), temp_buf.Z().Cat(r_entry.ExpRetail, MKSFMTD_050));
 												sub_total += r_entry.ExpRetail;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(16), temp_buf.Z().Cat(r_entry.ExpEtc, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(16), temp_buf.Z().Cat(r_entry.ExpEtc, MKSFMTD_050));
 												sub_total += r_entry.ExpEtc;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(17), temp_buf.Z().Cat(r_entry.SupplRet, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(17), temp_buf.Z().Cat(r_entry.SupplRet, MKSFMTD_050));
 												sub_total += r_entry.SupplRet;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(18), temp_buf.Z().Cat(r_entry.ExpIntr, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(18), temp_buf.Z().Cat(r_entry.ExpIntr, MKSFMTD_050));
 												sub_total += r_entry.ExpIntr;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(19), temp_buf.Z().Cat(sub_total, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(19), temp_buf.Z().Cat(sub_total, MKSFMTD_050));
 												sub_total = 0.0;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(20), temp_buf.Z().Cat(r_entry.StockEnd, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(20), temp_buf.Z().Cat(r_entry.StockEnd, MKSFMTD_050));
 											}
 											else if(Filt.Flags & Filt.fOnlyNonBeerAlco) {
 												/* 07
@@ -1632,27 +1632,27 @@ int PPViewAlcoDeclRu::Export()
 													П100000000019 Остаток продукции на конец отчетного периода - всего (дал)
 													П100000000020 В том числе остаток продукции, маркированной федеральными специальными и (или) акцизными марками, требования к которым утрачивают силу (дал)
 												*/
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(9), temp_buf.Z().Cat(sub_total, MKSFMTD(0, 5, 0)));
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(10), temp_buf.Z().Cat(r_entry.SaleRet, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(9), temp_buf.Z().Cat(sub_total, MKSFMTD_050));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(10), temp_buf.Z().Cat(r_entry.SaleRet, MKSFMTD_050));
 												sub_total += r_entry.SaleRet;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(11), temp_buf.Z().Cat(r_entry.RcptEtc, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(11), temp_buf.Z().Cat(r_entry.RcptEtc, MKSFMTD_050));
 												sub_total += r_entry.RcptEtc;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(12), temp_buf.Z().Cat(r_entry.RcptIntr, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(12), temp_buf.Z().Cat(r_entry.RcptIntr, MKSFMTD_050));
 												sub_total += r_entry.RcptIntr;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(13), temp_buf.Z().Cat(sub_total, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(13), temp_buf.Z().Cat(sub_total, MKSFMTD_050));
 												sub_total = 0.0;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(14), temp_buf.Z().Cat(r_entry.ExpRetail, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(14), temp_buf.Z().Cat(r_entry.ExpRetail, MKSFMTD_050));
 												sub_total += r_entry.ExpRetail;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(15), temp_buf.Z().Cat(r_entry.ExpEtc, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(15), temp_buf.Z().Cat(r_entry.ExpEtc, MKSFMTD_050));
 												sub_total += r_entry.ExpEtc;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(16), temp_buf.Z().Cat(r_entry.SupplRet, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(16), temp_buf.Z().Cat(r_entry.SupplRet, MKSFMTD_050));
 												sub_total += r_entry.SupplRet;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(17), temp_buf.Z().Cat(r_entry.ExpIntr, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(17), temp_buf.Z().Cat(r_entry.ExpIntr, MKSFMTD_050));
 												sub_total += r_entry.ExpIntr;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(18), temp_buf.Z().Cat(sub_total, MKSFMTD(0, 5, 0)));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(18), temp_buf.Z().Cat(sub_total, MKSFMTD_050));
 												sub_total = 0.0;
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(19), temp_buf.Z().Cat(r_entry.StockEnd, MKSFMTD(0, 5, 0)));
-												n5.PutAttrib(g.GetToken_Ansi_Pe1(20), temp_buf.Z().Cat(0.0, MKSFMTD(0, 5, 0))); // В том числе остаток продукции, маркированной федеральными специальными и (или) акцизными марками, требования к которым утрачивают силу (дал)
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(19), temp_buf.Z().Cat(r_entry.StockEnd, MKSFMTD_050));
+												n5.PutAttrib(g.GetToken_Ansi_Pe1(20), temp_buf.Z().Cat(0.0, MKSFMTD_050)); // В том числе остаток продукции, маркированной федеральными специальными и (или) акцизными марками, требования к которым утрачивают силу (дал)
 											}
 										}
 									}

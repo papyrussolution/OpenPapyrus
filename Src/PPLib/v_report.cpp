@@ -1,5 +1,5 @@
 // V_REPORT.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -103,7 +103,6 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempReport);
 			for(uint i = 0; i < list.getCount(); i++) {
 				if(CheckForFilt(&list.at(i))) {
 					TempReportTbl::Rec temp_rec;
-					// @v10.7.3 @ctr MEMSZERO(temp_rec);
 					MakeTempRec(&list.at(i), &temp_rec);
 					temp_rec.ID = 0;
 					THROW_DB(bei.insert(&temp_rec));
@@ -555,7 +554,6 @@ int PPViewReport::CreateStdRptList(ReportViewItemArray * pList)
 				data = 0;
 			if(data.NotEmptyS()) {
 				ReportViewItem item;
-				// @v10.7.3 @ctr MEMSZERO(item);
 				p_file->GetParam(sect, ModifDtParam, dt);
 				p_file->GetParam(sect, DescrParam,   descr);
 				if(dt.C(0) == ';')
@@ -588,7 +586,6 @@ int PPViewReport::SplitLocalRptStr(PPIniFile * pFile, int codepage, const SStrin
 	uint   k = 0;
 	SString par, val;
 	StringSet ss("=");
-	// @v10.7.3 @ctr MEMSZERO(item);
 	THROW_INVARG(pFile);
 	ss.setBuf(rBuf, rBuf.Len() + 1);
 	ss.get(&k, par);
@@ -797,7 +794,6 @@ int PPViewReport::EditItem(PPID * pID)
 	}
 	else {
 		id = 0;
-		// @v10.7.3 @ctr MEMSZERO(item);
 		item.Type = ReportFilt::rpttLocal;
 	}
 	THROW(CheckDialogPtr(&(p_dlg = new ReportDlg(this))));
@@ -811,7 +807,6 @@ int PPViewReport::EditItem(PPID * pID)
 	if(ok > 0 && item.Type == ReportFilt::rpttLocal && P_RptFile) {
 		SString val;
 		TempReportTbl::Rec temp_rec;
-		// @v10.7.3 @ctr MEMSZERO(temp_rec);
 		(val = item.Descr).Semicol().Cat(item.StrucName);
 		if(LocalRptCodepage != 866)
 			val.Transf(CTRANSF_INNER_TO_OUTER);

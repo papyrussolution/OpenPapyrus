@@ -30,7 +30,7 @@ inline static void putLeadCodePoint(const UnicodeString & input, UnicodeSet* out
 
 inline static void copyCurrencyCode(char16_t * dest, const char16_t * src) 
 {
-	uprv_memcpy(dest, src, sizeof(char16_t) * 3);
+	memcpy(dest, src, sizeof(char16_t) * 3);
 	dest[3] = 0;
 }
 } // namespace utils

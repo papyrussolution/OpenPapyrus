@@ -1,5 +1,5 @@
 // PROCESSR.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -480,7 +480,6 @@ int PPProcessorPacket::ExtBlock::PutPlaceDescription(uint pos, const PPProcessor
 
 PPProcessorPacket::PPProcessorPacket()
 {
-	// @v10.7.1 destroy();
 }
 
 PPProcessorPacket & PPProcessorPacket::Z()
@@ -1190,7 +1189,6 @@ PrcCtrlGroup::Rec::Rec(PPID prcID) : PrcID(prcID)
 
 PrcCtrlGroup::PrcCtrlGroup(uint ctlSelPrc) : CtrlGroup(), CtlSelPrc(ctlSelPrc)
 {
-	// @v10.6.4 MEMSZERO(Data);
 }
 
 int PrcCtrlGroup::setData(TDialog * pDlg, void * pData)
@@ -1823,7 +1821,7 @@ int PPObjProcessor::AddListItem(StrAssocArray * pList, ProcessorTbl::Rec * pRec,
 		ProcessorTbl::Rec par_rec;
 		if(par_id && par_id == pRec->ID) {
 			PPSetError(PPERR_PROCESSORSELFPAR, pRec->Name);
-			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 			par_id = 0;
 		}
 		else {
@@ -1835,7 +1833,7 @@ int PPObjProcessor::AddListItem(StrAssocArray * pList, ProcessorTbl::Rec * pRec,
 				}
 				else {
 					PPSetError(PPERR_PROCESSORRECUR, pRec->Name);
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 					par_id = 0;
 				}
 			}

@@ -1,5 +1,5 @@
 // V_SPCSER.CPP
-// Copyright (c) A.Starodub 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -137,7 +137,6 @@ static IMPL_DBE_PROC(dbqf_spcsn_textfld_iisi)
 		temp_buf = params[2].sptr;
 		int   fld_id = params[3].lval;
 		SpecSeries2Tbl::Rec ss_rec;
-		// @v10.7.9 @ctr MEMSZERO(ss_rec);
 		temp_buf.CopyTo(ss_rec.Tail, sizeof(ss_rec.Tail));
 		temp_buf.Z();
 		if(fld_id == SPCSNEXSTR_GOODSNAME && goods_id) {
@@ -321,7 +320,6 @@ int PPViewSpecSeries::AddItem()
 	int    ok = -1;
 	PPID   id = 0;
 	SpecSeries2Tbl::Rec rec;
-	// @v10.7.9 @ctr MEMSZERO(rec);
 	SpecSerDlg * p_dlg = new SpecSerDlg();
 	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(&rec);

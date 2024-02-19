@@ -1,5 +1,5 @@
 // V_LIKENS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2018, 2019, 2022
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2018, 2019, 2022, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -243,11 +243,7 @@ int PPViewObjLikeness::CreateLikenessTable()
 		StrAssocArray list;
 		PPObjGoods gobj;
 		GoodsIterator gi;
-
 		MEMSZERO(k0);
-		// @v10.6.4 MEMSZERO(grec1);
-		// @v10.6.4 MEMSZERO(grec2);
-		// @v10.6.4 MEMSZERO(lkns_rec);
 		lkns_rec.ObjType = obj_type;
 		PPWaitStart();
 		PROFILE_START
@@ -281,7 +277,6 @@ int PPViewObjLikeness::CreateLikenessTable()
 #else
 		list.SortByLength(1 /* descend */);
 		ApproxStrSrchParam asc_param;
-		// @v10.6.5 @ctr MEMSZERO(asc_param);
 		asc_param.method = 1;
 		asc_param.weight = 1.0;
 		asc_param.no_case = 1;

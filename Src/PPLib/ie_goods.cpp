@@ -393,7 +393,6 @@ int PPQuotImporter::Run(const char * pCfgName, int use_ta)
 					long   qf = 0;
 					PPID   temp_id = 0;
 					Sdr_QuotVal sdr_rec;
-					// @v10.7.9 @ctr MEMSZERO(sdr_rec);
 					THROW(P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec)));
 					P_IE->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
 					if(sdr_rec.QuotKindID && qk_obj.Search(sdr_rec.QuotKindID, &qk_rec) > 0) {
@@ -955,7 +954,6 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 	}
 	else {
 		Sdr_Goods2 sdr_goods;
-		// @v10.7.9 @ctr MEMSZERO(sdr_goods);
 		PreprocessGoodsExtText(temp_buf = pPack->Rec.Name, sdr_goods.Name, sizeof(sdr_goods.Name));
 		PreprocessGoodsExtText(temp_buf = pPack->Rec.Abbr, sdr_goods.Abbr, sizeof(sdr_goods.Abbr));
 		//
@@ -987,7 +985,6 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 		{
 			PPObjBill * p_bobj = BillObj;
 			ReceiptTbl::Rec rcpt_rec;
-			// @v10.6.4 MEMSZERO(rcpt_rec);
 			// @v10.7.5 {
 			{
 				GoodsRestParam rp;
@@ -1012,7 +1009,6 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 				temp_buf.CopyTo(sdr_goods.Serial, sizeof(sdr_goods.Serial));
 				sdr_goods.UnitsPerPack = rcpt_rec.UnitPerPack;
 				sdr_goods.Expiry = rcpt_rec.Expiry;
-				// @v10.6.4 MEMSZERO(qcert_rec);
 				if(rcpt_rec.QCertID && P_QcObj->Search(rcpt_rec.QCertID, &qcert_rec) > 0) {
 					STRNSCPY(sdr_goods.QCNumber, qcert_rec.Code);
 					STRNSCPY(sdr_goods.QCBlank,  qcert_rec.BlankCode);
@@ -1589,7 +1585,6 @@ int PPGoodsImporter::LoadHierList(HierArray * pList)
 		P_IE->GetNumRecs(&numrecs);
 		for(uint i = 0; i < static_cast<uint>(numrecs); i++) {
 			Sdr_Goods2 sdr_rec;
-			// @v10.7.9 @ctr MEMSZERO(sdr_rec);
 			P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec));
 			pList->Add(strip(sdr_rec.HierObjCode), strip(sdr_rec.HierParentCode));
 		}
@@ -1615,7 +1610,6 @@ int PPGoodsImporter::Helper_ImportHier(PPID defUnitID, HierArray * pHierList)
 		for(i = 0; i < static_cast<uint>(numrecs); i++) {
 			PPID   id = 0;
 			Sdr_Goods2 sdr_rec;
-			// @v10.7.9 @ctr MEMSZERO(sdr_rec);
 			P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec));
 			if(strip(sdr_rec.HierObjCode) && pHierList->IsThereChildOf(sdr_rec.HierObjCode)) {
 				THROW(GGObj.AddSimple(&id, gpkndOrdinaryGroup, 0, strip(sdr_rec.Name), sdr_rec.HierObjCode, defUnitID, 0));
@@ -1662,7 +1656,6 @@ int PPGoodsImporter::PutQCert(Sdr_Goods2 * pRec, PPID * pQcertID)
 	PPID   qcert_id = 0;
 	if(pRec && *strip(pRec->QCNumber) && QcObj.SearchByCode(pRec->QCNumber, &qcert_id, 0) <= 0) {
 		QualityCertTbl::Rec qc_rec;
-		// @v10.6.4 MEMSZERO(qc_rec);
 		STRNSCPY(qc_rec.Code,      strip(pRec->QCNumber));
 		STRNSCPY(qc_rec.BlankCode, strip(pRec->QCBlank));
 		if(checkdate(pRec->QCDate, 1))
@@ -2250,7 +2243,6 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 					cntr.SetTotal(numrecs);
 					for(uint i = 0; i < static_cast<uint>(numrecs); i++) {
 						Sdr_Goods2 sdr_rec;
-						// @v10.7.9 @ctr MEMSZERO(sdr_rec);
 						THROW(P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec)));
 						P_IE->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
 						(temp_buf2 = Param.FileName).CatChar('#').Cat(i+1);
@@ -2351,7 +2343,6 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 						Goods2Tbl::Rec par_rec;
 						PPGoodsPacket pack;
 						ObjTagList tag_list;
-						// @v10.7.9 @ctr MEMSZERO(sdr_rec);
 						THROW(P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec), &dyn_rec));
 						P_IE->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
 						if(dyn_rec.GetCount()) {
@@ -2589,7 +2580,6 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										do_update = 1;
 									if(ar_code.NotEmpty()) {
 										ArGoodsCodeTbl::Rec ar_code_rec;
-										// @v10.6.4 MEMSZERO(ar_code_rec);
 										ar_code_rec.GoodsID = pack.Rec.ID;
 										ar_code_rec.ArID = Param.SupplID;
 										ar_code_rec.Pack = 1000; // 1.0
@@ -2755,7 +2745,6 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 											ArGoodsCodeArray arcode_list;
 											ArGoodsCodeTbl::Rec ar_code_rec;
 											arcode_list = pack.ArCodes;
-											// @v10.6.4 MEMSZERO(ar_code_rec);
 											ar_code_rec.GoodsID = goods_id;
 											ar_code_rec.ArID = suppl_id; //
 											ar_code_rec.Pack = 1000; // 1.0

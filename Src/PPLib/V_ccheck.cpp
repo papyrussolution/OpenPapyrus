@@ -973,7 +973,6 @@ int PPViewCCheck::ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert * pBei
 	if(CheckForFilt(&_rec, &_ext_rec)) {
 		if(DoProcessLines()) {
 			TempCCheckQttyTbl::Rec rec;
-			// @v10.6.4 MEMSZERO(rec);
 			CCheckRec_To_TempCCheckQttyRec(_rec, rec);
 			double qtty = 0.0;
 			double amt = 0.0;
@@ -1104,9 +1103,9 @@ IMPL_CMPFUNC(CCheckGrpItem, p1, p2)
 	return si;
 }
 
-class CCheckGrpCache : SVector { // @v9.8.4 SArray-->SVector
+class CCheckGrpCache : SVector {
 public:
-	CCheckGrpCache(size_t maxItems, TempCCheckGrpTbl * pTbl) : SVector(sizeof(CCheckGrpItem)), P_Tbl(pTbl), MaxItems((maxItems > 0) ? maxItems : 1024) // @v9.8.4 SArray-->SVector
+	CCheckGrpCache(size_t maxItems, TempCCheckGrpTbl * pTbl) : SVector(sizeof(CCheckGrpItem)), P_Tbl(pTbl), MaxItems((maxItems > 0) ? maxItems : 1024)
 	{
 	}
 	int    FASTCALL AddItem(const CCheckGrpItem *);
@@ -1162,7 +1161,6 @@ int CCheckGrpCache::FlashItem(const CCheckGrpItem * pItem)
 {
 	int    ok = 1;
 	TempCCheckGrpTbl::Rec rec;
-	// @v10.6.4 MEMSZERO(rec);
 	rec.Dt       = pItem->Dt;
 	rec.Tm       = pItem->Tm;
 	rec.CashID   = pItem->CashID;
@@ -3411,12 +3409,12 @@ int PPViewCCheck::Recover()
 							if(inner_idx == (i+1)) {
 								cc_buf.CatChar('[').Cat(r_entry.ID).CatDiv('-', 1).Cat(r_entry.PosId).CatDiv('-', 1).
 									Cat(r_entry.Code).CatDiv('-', 1).Cat(r_entry.Dtm, DATF_DMY, TIMF_HMS).CatDiv('-', 1).
-									Cat(r_entry.Amount, MKSFMTD(0, 2, 0)).CatChar(']');
+									Cat(r_entry.Amount, MKSFMTD_020).CatChar(']');
 							}
 							cc_buf.CatDiv(':', 1);
 							cc_buf.CatChar('[').Cat(r_inner_entry.ID).CatDiv('-', 1).Cat(r_inner_entry.PosId).CatDiv('-', 1).
 								Cat(r_inner_entry.Code).CatDiv('-', 1).Cat(r_inner_entry.Dtm, DATF_DMY, TIMF_HMS).CatDiv('-', 1).
-								Cat(r_inner_entry.Amount, MKSFMTD(0, 2, 0)).CatChar(']');
+								Cat(r_inner_entry.Amount, MKSFMTD_020).CatChar(']');
 							list_to_remove.add(r_inner_entry.ID);
 						}
 					}
@@ -4433,7 +4431,6 @@ int PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 			// @todo Добавить вывод в окно журнала сообщения о процессе и не создавать дубликаты документов (искать таковые по косвенным признакам: вид операции, дата и пр.)
 			while(!select_all || pV->NextIteration(&chk_rec) > 0) {
 				CCheckLineTbl::Rec cc_line;
-				// @v10.6.4 MEMSZERO(cc_line);
 				if(diffdate(chk_rec.Dt, pack.Rec.Dt) > 0)
 					pack.Rec.Dt = chk_rec.Dt;
 				for(int i = 0; pV->P_CC->EnumLines(chk_rec.ID, &i, &cc_line) > 0;) {

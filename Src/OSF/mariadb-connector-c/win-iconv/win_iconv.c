@@ -1478,10 +1478,8 @@ static int utf32_wctomb(csconv_t * cv, ushort * wbuf, int wbufsize, uchar * buf,
 #define ISO2022_SI  0
 #define ISO2022_SO  1
 
-/* shift in */
-static const char iso2022_SI_seq[] = "\x0F";
-/* shift out */
-static const char iso2022_SO_seq[] = "\x0E";
+static const char iso2022_SI_seq[] = "\x0F"; /* shift in */
+static const char iso2022_SO_seq[] = "\x0E"; /* shift out */
 
 typedef struct iso2022_esc_t iso2022_esc_t;
 struct iso2022_esc_t {
@@ -1549,16 +1547,13 @@ static int iso2022jp_mbtowc(csconv_t * cv, const uchar * buf, int bufsize, ushor
 		*wbufsize = 0;
 		return 1;
 	}
-
 	cs = ISO2022_MODE_CS(cv->mode);
 	shift = ISO2022_MODE_SHIFT(cv->mode);
-
 	/* reset the mode for informal sequence */
 	if(buf[0] < 0x20) {
 		cs = ISO2022JP_CS_ASCII;
 		shift = ISO2022_SI;
 	}
-
 	len = iesc[cs].len;
 	if(bufsize < len)
 		return seterror(EINVAL);
@@ -1572,22 +1567,16 @@ static int iso2022jp_mbtowc(csconv_t * cv, const uchar * buf, int bufsize, ushor
 		esc_len += 1;
 	}
 	memcpy(tmp + esc_len, buf, len);
-
-	if((cv->codepage == 50220 || cv->codepage == 50221
-	   || cv->codepage == 50222) && shift == ISO2022_SO) {
-		/* XXX: shift-out cannot be used for mbtowc (both kernel and
-		 * mlang) */
+	if((cv->codepage == 50220 || cv->codepage == 50221 || cv->codepage == 50222) && shift == ISO2022_SO) {
+		/* XXX: shift-out cannot be used for mbtowc (both kernel and mlang) */
 		esc_len = iesc[ISO2022JP_CS_JISX0201_KANA].esc_len;
 		memcpy(tmp, iesc[ISO2022JP_CS_JISX0201_KANA].esc, esc_len);
 		memcpy(tmp + esc_len, buf, len);
 	}
-
 	insize = len + esc_len;
-	hr = ConvertINetMultiByteToUnicode(&dummy, cv->codepage,
-		(const char *)tmp, &insize, (wchar_t *)wbuf, wbufsize);
+	hr = ConvertINetMultiByteToUnicode(&dummy, cv->codepage, (const char *)tmp, &insize, (wchar_t *)wbuf, wbufsize);
 	if(hr != S_OK || insize != len + esc_len)
 		return seterror(EILSEQ);
-
 	/* Check for conversion error.  Assuming defaultChar is 0x3F. */
 	/* ascii should be converted from ascii */
 	if(wbuf[0] == buf[0]

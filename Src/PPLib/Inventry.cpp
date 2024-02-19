@@ -1,5 +1,5 @@
 // INVENTRY.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 // @codepage UTF-8
 //
 // Инвентаризация //
@@ -346,7 +346,6 @@ int PPObjBill::AcceptInventoryItem(const InvBlock & rBlk, InvItem * pItem, int u
 	ReceiptTbl::Rec lot_rec;
 	GoodsRestParam p;
 	InventoryTbl::Rec inv_rec, sg_rec;
-	// @v10.6.4 MEMSZERO(inv_rec);
 	THROW(GetInventoryStockRest(rBlk, pItem, &p));
 	if(rBlk.Flags & InvBlock::fPriceByLastLot &&
 		trfr->Rcpt.GetGoodsPrice(pItem->GoodsID, rBlk.BillRec.LocID, rBlk.BillRec.Dt, GPRET_INDEF, 0, &lot_rec) > 0)
@@ -640,7 +639,6 @@ int PPObjBill::RecalcInventoryDeficit(const BillTbl::Rec * pRec, int use_ta)
 			for(SEnum en = r_inv_tbl.Enum(pRec->ID); en.Next(&rec) > 0;) {
 				double price = 0.0, qtty = 0.0;
 				CSessDfctGoodsItem item;
-				// @v11.0.4 @ctr MEMSZERO(item);
 				if(dfct_list.Search(rec.GoodsID, &item) > 0) {
 					qtty = item.Qtty;
 					price = item.GetPrice();
@@ -734,7 +732,6 @@ int PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/long f
 						}
 						else {
 							WrOffPriceBlock wopb;
-							// @v11.0.4 @ctr MEMSZERO(wopb);
 							wopb.Dt = p_ti->Date;
 							wopb.OprNo = trfr_rec.OprNo;
 							wopb.InvR = rec.OprNo;
@@ -1126,7 +1123,6 @@ int InventoryConversion::Run(PPID billID)
 				is_inv_exists = BIN(r > 0);
 				if(!is_inv_exists) {
 					InventoryTbl::Rec ir;
-					// @v10.6.10 @ctr MEMSZERO(ir);
 					inv_list.insert(&ir);
 					if(GObj.IsAsset(goods_id))
 						is_asset = 1;
@@ -1243,7 +1239,6 @@ int InventoryConversion::Run(PPID billID)
 									ir = r_ir;
 								if(is_writed_off) {
 									if(!is_inv_exists) {
-										// @v10.6.10 @ctr MEMSZERO(ir);
 										ir.BillID   = invID;
 										ir.GoodsID  = goods_id;
 										ir.Flags   |= INVENTF_GENWROFFLINE;
@@ -1504,7 +1499,6 @@ int PrcssrInvImport::Run()
 				Sdr_InventoryItem rec;
 				THROW(P_BObj->InitInventoryBlock(pack.Rec.ID, blk));
 				cntr.Init(numrecs);
-				// @v10.7.9 @ctr MEMSZERO(rec);
 				while((r = ie.ReadRecord(&rec, sizeof(rec))) > 0) {
 					serial.Z();
 					int    r2 = 0;
@@ -1824,7 +1818,6 @@ int TestGenerateInventory()
 					THROW(ie.OpenFileForWriting(0, 1));
 					while((ulong)cntr < cntr.GetTotal() && gen.Next(&goods_id, &goods_rec) > 0) {
 						Sdr_InventoryItem item;
-						// @v10.7.9 @ctr MEMSZERO(item);
 						item.GoodsID = goods_rec.ID;
 						STRNSCPY(item.GoodsName, goods_rec.Name);
 						SOemToChar(item.GoodsName);

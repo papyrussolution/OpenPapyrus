@@ -173,7 +173,7 @@ static UDataInfo dataInfo = {
 void setUnicodeVersion(const char * v) {
 	UVersionInfo version;
 	u_versionFromString(version, v);
-	uprv_memcpy(dataInfo.dataVersion, version, 4);
+	memcpy(dataInfo.dataVersion, version, 4);
 }
 
 void setUnicodeVersionNC(UVersionInfo version) {

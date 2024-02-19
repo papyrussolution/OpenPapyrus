@@ -1179,7 +1179,7 @@ void MessageFormat::copyObjects(const MessageFormat& that, UErrorCode & ec) {
 		if(!allocateArgTypes(argTypeCount, ec)) {
 			return;
 		}
-		uprv_memcpy(argTypes, that.argTypes, argTypeCount * sizeof(argTypes[0]));
+		memcpy(argTypes, that.argTypes, argTypeCount * sizeof(argTypes[0]));
 	}
 	if(cachedFormatters) {
 		uhash_removeAll(cachedFormatters);

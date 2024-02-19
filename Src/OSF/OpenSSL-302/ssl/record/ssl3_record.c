@@ -38,11 +38,9 @@ static const unsigned char ssl3_pad_2[48] = {
  */
 void SSL3_RECORD_clear(SSL3_RECORD * r, size_t num_recs)
 {
-	uchar * comp;
-	size_t i;
-	for(i = 0; i < num_recs; i++) {
-		comp = r[i].comp;
-		memset(&r[i], 0, sizeof(*r));
+	for(size_t i = 0; i < num_recs; i++) {
+		uchar * comp = r[i].comp;
+		memzero(&r[i], sizeof(*r));
 		r[i].comp = comp;
 	}
 }
@@ -804,7 +802,7 @@ int ssl3_enc(SSL * s, SSL3_RECORD * inrecs, size_t n_recs, int sending,
 			 * the last of these zero bytes will be overwritten with the
 			 * padding length.
 			 */
-			memset(&rec->input[rec->length], 0, i);
+			memzero(&rec->input[rec->length], i);
 			rec->length += i;
 			rec->input[l - 1] = (unsigned char)(i - 1);
 		}
@@ -1832,10 +1830,8 @@ again:
 int dtls_buffer_listen_record(SSL * s, size_t len, uchar * seq, size_t off)
 {
 	SSL3_RECORD * rr;
-
 	rr = RECORD_LAYER_get_rrec(&s->rlayer);
-	memset(rr, 0, sizeof(SSL3_RECORD));
-
+	memzero(rr, sizeof(SSL3_RECORD));
 	rr->length = len;
 	rr->type = SSL3_RT_HANDSHAKE;
 	memcpy(rr->seq_num, seq, sizeof(rr->seq_num));

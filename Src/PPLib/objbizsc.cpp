@@ -1,5 +1,5 @@
 // OBJBIZSC.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1228,11 +1228,9 @@ int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket *
 						GlobalBizScoreVal * p_bizsc_rec = new GlobalBizScoreVal;
 						THROW_MEM(p_bizsc_rec);
 						memzero(p_bizsc_rec, sizeof(GlobalBizScoreVal));
-						// @v10.7.9 @ctr MEMSZERO(xml_rec);
 						THROW(ie.ReadRecord(&xml_rec, sizeof(xml_rec)));
 						xml_guid.FromStr(xml_rec.DbUuid);
 						// THROW_PP(xml_guid == user_acc.LocalDbUuid, PPERR_INVDBGUIDINFILE);
-
 						p_bizsc_rec->LocalDbUuid     = xml_guid;
 						p_bizsc_rec->LocalUserID     = xml_rec.UserID;
 						p_bizsc_rec->ActualDate      = xml_rec.ActualDate;
@@ -1745,7 +1743,6 @@ int PrcssrBizScore::Param::Write(SBuffer & rBuf, long)
 
 PrcssrBizScore::PrcssrBizScore() : P_Resolver(0)
 {
-	// @v10.9.0 @ctr MEMSZERO(P);
 }
 
 PrcssrBizScore::~PrcssrBizScore()
@@ -2302,7 +2299,6 @@ struct GlobalUserAccBlock {
 	};
 	GlobalUserAccBlock() : State(stFetch)
 	{
-		// @v10.6.5 Clear();
 	}
 	void Clear()
 	{

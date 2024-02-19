@@ -51,7 +51,7 @@ struct Sync_BillTaxEntry { // @flat
 	double Amount;
 };
 
-class Sync_BillTaxArray : public SVector { // @v9.8.4 SArray-->SVector
+class Sync_BillTaxArray : public SVector {
 public:
 	Sync_BillTaxArray() : SVector(sizeof(Sync_BillTaxEntry))
 	{
@@ -76,7 +76,7 @@ int Sync_BillTaxArray::Search(long VAT, long salesTax, uint * p)
 int Sync_BillTaxArray::Insert(const Sync_BillTaxEntry * pEntry, uint * p)
 	{ return ordInsert(pEntry, p, PTR_CMPFUNC(Sync_BillTaxEnKey)) ? 1 : PPSetErrorSLib(); }
 Sync_BillTaxEntry & Sync_BillTaxArray::at(uint p)
-	{ return *static_cast<Sync_BillTaxEntry *>(SVector::at(p)); } // @v9.8.4 SArray-->SVector
+	{ return *static_cast<Sync_BillTaxEntry *>(SVector::at(p)); }
 
 int Sync_BillTaxArray::Add(Sync_BillTaxEntry * e)
 {
@@ -1983,7 +1983,7 @@ int SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 		}
 	}
 	CATCH
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP|LOGMSGF_DBINFO);
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO|LOGMSGF_COMP);
 		ok = 0;
 	ENDCATCH
 	return ok;

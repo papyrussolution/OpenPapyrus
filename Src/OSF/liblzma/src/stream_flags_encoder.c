@@ -46,10 +46,7 @@ lzma_ret lzma_stream_footer_encode(const lzma_stream_flags *options, uint8 *out)
 	// CRC32
 	const uint32_t crc = lzma_crc32(out + 4, 4 + LZMA_STREAM_FLAGS_SIZE, 0);
 	write32le(out, crc);
-
 	// Magic
-	memcpy(out + 2 * 4 + LZMA_STREAM_FLAGS_SIZE,
-	    lzma_footer_magic, sizeof(lzma_footer_magic));
-
+	memcpy(out + 2 * 4 + LZMA_STREAM_FLAGS_SIZE, lzma_footer_magic, sizeof(lzma_footer_magic));
 	return LZMA_OK;
 }

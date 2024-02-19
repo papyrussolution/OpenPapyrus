@@ -1,5 +1,5 @@
 // PRCPAN.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2011, 2013, 2015, 2016, 2017, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2011, 2013, 2015, 2016, 2017, 2019, 2020, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -217,8 +217,6 @@ PrcPaneDialog::PrcPaneDialog() : TDialog(DLG_PRCPAN), State(sUNDEF), NewGoodsGrp
 	CanSwitch(0), LastPrcStatusCheckTime(ZERODATETIME)
 {
 	SString font_face;
-	// @v10.7.7 @ctr MEMSZERO(H);
-	// @v10.7.7 @ctr MEMSZERO(E);
 	PPGetSubStr(PPTXT_FONTFACE, PPFONT_IMPACT, font_face);
 	SetCtrlFont(CTL_PRCPAN_QTTY,      font_face, 32);
 	SetCtrlFont(CTL_PRCPAN_QTTYPACK,  font_face, 32);

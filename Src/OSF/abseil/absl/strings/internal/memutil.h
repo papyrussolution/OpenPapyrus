@@ -60,8 +60,8 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace strings_internal {
-inline char* memcat(char* dest, size_t destlen, const char* src,
-    size_t srclen) {
+inline char* memcat(char* dest, size_t destlen, const char* src, size_t srclen) 
+{
 	return reinterpret_cast<char*>(memcpy(dest + destlen, src, srclen));
 }
 

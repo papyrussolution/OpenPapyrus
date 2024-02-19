@@ -241,7 +241,7 @@ U_CAPI UEnumeration* U_EXPORT2 uenum_openFromStringEnumeration(icu::StringEnumer
 			*ec = U_MEMORY_ALLOCATION_ERROR;
 		}
 		else {
-			uprv_memcpy(result, &USTRENUM_VT, sizeof(USTRENUM_VT));
+			memcpy(result, &USTRENUM_VT, sizeof(USTRENUM_VT));
 			result->context = adopted;
 		}
 	}
@@ -319,7 +319,7 @@ U_CAPI UEnumeration* U_EXPORT2 uenum_openCharStringsEnumeration(const char * con
 		}
 		else {
 			U_ASSERT((char *)result==(char *)(&result->uenum));
-			uprv_memcpy(result, &UCHARSTRENUM_VT, sizeof(UCHARSTRENUM_VT));
+			memcpy(result, &UCHARSTRENUM_VT, sizeof(UCHARSTRENUM_VT));
 			result->uenum.context = (void *)strings;
 			result->index = 0;
 			result->count = count;
@@ -338,7 +338,7 @@ U_CAPI UEnumeration* U_EXPORT2 uenum_openUCharStringsEnumeration(const char16_t 
 		}
 		else {
 			U_ASSERT((char *)result==(char *)(&result->uenum));
-			uprv_memcpy(result, &UCHARSTRENUM_U_VT, sizeof(UCHARSTRENUM_U_VT));
+			memcpy(result, &UCHARSTRENUM_U_VT, sizeof(UCHARSTRENUM_U_VT));
 			result->uenum.context = (void *)strings;
 			result->index = 0;
 			result->count = count;

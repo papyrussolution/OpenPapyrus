@@ -1,5 +1,5 @@
 // OBJGGRP.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -55,7 +55,6 @@ int PPObjGoodsGroup::GetLevel(PPID grpID, long * pLevel)
 int PPObjGoodsGroup::CalcTotal(GoodsGroupTotal * pTotal)
 {
 	GoodsGroupTotal total;
-	// @v10.8.1 @ctr MEMSZERO(total);
 	PPIDArray id_list;
 	Goods2Tbl::Key1 k1;
 	BExtQuery q(P_Tbl, 1);
@@ -582,7 +581,6 @@ int PPObjGoodsGroup::AssignImages(ListBoxDef * pDef)
 		p_def->ClearImageAssocList();
 		if(p_def->getIdList(list) > 0) {
 			Goods2Tbl::Rec ggrec;
-			// @v10.9.4 @ctr MEMSZERO(ggrec);
 			for(uint i = 0; i < list.getCount(); i++) {
 				const  PPID id = list.at(i);
 				long img_id = ICON_GGROUP;
@@ -1512,10 +1510,9 @@ int PPObjTransport::Get(PPID id, PPTransportPacket * pPack)
 	pRawRec->DefBCodeStrucID = pRec->CountryID;
 	pRawRec->RspnsPersonID = pRec->CaptainID;
 	pRawRec->PhUPerU = pRec->Capacity;
-	pRawRec->VanType = pRec->VanType; // @v10.2.0
-	SETFLAG(pRawRec->Flags, GF_PASSIV, pRec->Flags & GF_PASSIV); // @v10.2.4
+	pRawRec->VanType = pRec->VanType;
+	SETFLAG(pRawRec->Flags, GF_PASSIV, pRec->Flags & GF_PASSIV);
 	if(pBcList) {
-		BarcodeTbl::Rec bc_rec;
 		SString temp_buf;
 		pBcList->freeAll();
 		//
@@ -1523,7 +1520,7 @@ int PPObjTransport::Get(PPID id, PPTransportPacket * pPack)
 		//
 		temp_buf = pRec->Code;
 		if(temp_buf.NotEmptyS()) {
-			MEMSZERO(bc_rec);
+			BarcodeTbl::Rec bc_rec;
 			bc_rec.GoodsID = id;
 			bc_rec.Qtty = 1.0;
 			temp_buf.PadLeft(1, '^').CopyTo(bc_rec.Code, sizeof(bc_rec.Code));
@@ -1534,7 +1531,7 @@ int PPObjTransport::Get(PPID id, PPTransportPacket * pPack)
 		//
 		temp_buf = pRec->TrailerCode;
 		if(temp_buf.NotEmptyS()) {
-			MEMSZERO(bc_rec);
+			BarcodeTbl::Rec bc_rec;
 			bc_rec.GoodsID = id;
 			bc_rec.Qtty = 2.0;
 			temp_buf.PadLeft(1, '^').CopyTo(bc_rec.Code, sizeof(bc_rec.Code));
@@ -1936,7 +1933,6 @@ PPBrandPacket::~PPBrandPacket()
 
 void PPBrandPacket::Init()
 {
-	// @v10.6.4 MEMSZERO(Rec);
 	LinkFiles.Clear();
 	TagL.Destroy(); // @v11.2.12
 }
@@ -2371,7 +2367,7 @@ int PPObjBrand::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext
 	}
 	CATCH
 		ok = 0;
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 	ENDCATCH
 	return ok;
 }
@@ -2444,7 +2440,7 @@ int PPObjBrand::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext
 	}
 	CATCH
 		ok = 0;
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 	ENDCATCH
 	return ok;
 }
@@ -2611,7 +2607,6 @@ int PPObjSuprWare::Get(PPID id, PPSuprWarePacket * pPack)
 		SString temp_buf(pRec->Code);
 		if(temp_buf.NotEmptyS()) {
 			BarcodeTbl::Rec bc_rec;
-			// @v10.7.2 @ctr MEMSZERO(bc_rec);
 			bc_rec.GoodsID = id;
 			bc_rec.Qtty = 1.0;
 			temp_buf.PadLeft(1, '~').CopyTo(bc_rec.Code, sizeof(bc_rec.Code));
@@ -2837,7 +2832,6 @@ int SuprWareListDialog::setupList()
 				str.Z().Cat(P_SuprWarePack.Items.at(i).Qtty);
 				ss.add(str);
 				PPUnit unit_rec;
-				// @v10.6.8 @ctr MEMSZERO(unit);
 				if(goods_o.FetchUnit(P_SuprWarePack.Items.at(i).UnitID, &unit_rec))
 					ss.add(unit_rec.Name);
 			}

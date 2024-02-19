@@ -353,7 +353,7 @@ TimeZoneFormat::TimeZoneFormat(const Locale & locale, UErrorCode & status) : fLo
 		useDefDigits = !toCodePoints(digits, fGMTOffsetDigits, 10);
 	}
 	if(useDefDigits) {
-		uprv_memcpy(fGMTOffsetDigits, DEFAULT_GMT_DIGITS, sizeof(UChar32) * 10);
+		memcpy(fGMTOffsetDigits, DEFAULT_GMT_DIGITS, sizeof(UChar32) * 10);
 	}
 	delete ns;
 }
@@ -385,7 +385,7 @@ TimeZoneFormat&TimeZoneFormat::operator = (const TimeZoneFormat& other)
 	ZDELETE(fTimeZoneGenericNames);
 	ZDELETE(fTZDBTimeZoneNames);
 	fLocale = other.fLocale;
-	uprv_memcpy(fTargetRegion, other.fTargetRegion, sizeof(fTargetRegion));
+	memcpy(fTargetRegion, other.fTargetRegion, sizeof(fTargetRegion));
 	fTimeZoneNames = other.fTimeZoneNames->clone();
 	if(other.fTimeZoneGenericNames) {
 		// TODO: this test has dubious thread safety.
@@ -402,7 +402,7 @@ TimeZoneFormat&TimeZoneFormat::operator = (const TimeZoneFormat& other)
 	initGMTOffsetPatterns(status);
 	U_ASSERT(U_SUCCESS(status));
 	fGMTZeroFormat = other.fGMTZeroFormat;
-	uprv_memcpy(fGMTOffsetDigits, other.fGMTOffsetDigits, sizeof(fGMTOffsetDigits));
+	memcpy(fGMTOffsetDigits, other.fGMTOffsetDigits, sizeof(fGMTOffsetDigits));
 	fDefParseOptionFlags = other.fDefParseOptionFlags;
 	return *this;
 }
@@ -515,7 +515,7 @@ void TimeZoneFormat::setGMTOffsetDigits(const UnicodeString & digits, UErrorCode
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-	uprv_memcpy(fGMTOffsetDigits, digitArray, sizeof(UChar32)*10);
+	memcpy(fGMTOffsetDigits, digitArray, sizeof(UChar32)*10);
 }
 
 UnicodeString &TimeZoneFormat::getGMTZeroFormat(UnicodeString & gmtZeroFormat) const { return gmtZeroFormat.setTo(fGMTZeroFormat); }

@@ -1721,19 +1721,19 @@ Locale & Locale::init(const char * localeID, bool canonicalize)
 		variantField = 1; /* Usually the 2nd one, except when a script or country is also used. */
 		if(fieldLen[0] > 0) {
 			/* We have a language */
-			uprv_memcpy(language, fullName, fieldLen[0]);
+			memcpy(language, fullName, fieldLen[0]);
 			language[fieldLen[0]] = 0;
 		}
 		if(fieldLen[1] == 4 && uprv_isASCIILetter(field[1][0]) && uprv_isASCIILetter(field[1][1]) && uprv_isASCIILetter(field[1][2]) && uprv_isASCIILetter(field[1][3])) {
 			/* We have at least a script */
-			uprv_memcpy(script, field[1], fieldLen[1]);
+			memcpy(script, field[1], fieldLen[1]);
 			script[fieldLen[1]] = 0;
 			variantField++;
 		}
 
 		if(fieldLen[variantField] == 2 || fieldLen[variantField] == 3) {
 			/* We have a country */
-			uprv_memcpy(country, field[variantField], fieldLen[variantField]);
+			memcpy(country, field[variantField], fieldLen[variantField]);
 			country[fieldLen[variantField]] = 0;
 			variantField++;
 		}
@@ -2072,7 +2072,7 @@ public:
 					status = U_MEMORY_ALLOCATION_ERROR;
 				}
 				else {
-					uprv_memcpy(keywords, keys, keywordLen);
+					memcpy(keywords, keys, keywordLen);
 					keywords[keywordLen] = 0;
 					current = keywords + currentIndex;
 					length = keywordLen;

@@ -1626,7 +1626,7 @@ int PPApp::SetDatetimeByServer(PPIniFile * pIniFile, int force)
 		}
 	}
 	CATCH
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_LASTERR);
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
 		ok = 0;
 	ENDCATCH
 	delete p_ini_file;

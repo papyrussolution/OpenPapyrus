@@ -220,7 +220,7 @@ int  main(int argc, char ** argv)
 	outData = new uint8_t[outDataSize];
 	uspoof_serialize(sc, outData, outDataSize, &status);
 	// Copy the data format version numbers from the spoof data header into the UDataMemory header.
-	uprv_memcpy(dh.info.formatVersion, reinterpret_cast<SpoofDataHeader *>(outData)->fFormatVersion, sizeof(dh.info.formatVersion));
+	memcpy(dh.info.formatVersion, reinterpret_cast<SpoofDataHeader *>(outData)->fFormatVersion, sizeof(dh.info.formatVersion));
 	//
 	//  Create the output file
 	//

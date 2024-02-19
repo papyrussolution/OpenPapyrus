@@ -260,10 +260,8 @@ int PayPlanArray::GetLast(LDATE * pDt, double * pAmount, double * pInterest) con
 	PayPlanTbl::Rec item;
 	if(getCount())
 		item = at(getCount()-1);
-	else {
-		// @v10.6.10 @ctr MEMSZERO(item);
+	else
 		ok = -1;
-	}
 	ASSIGN_PTR(pDt, item.PayDate);
 	ASSIGN_PTR(pAmount, item.Amount);
 	ASSIGN_PTR(pInterest, item.Interest);
@@ -354,7 +352,6 @@ int PayPlanArray::AutoBuild(const PPBillPacket * pPack)
 				double total = 0.0;
 				for(i = 0; i < cycle_list.getCount(); i++) {
 					PayPlanTbl::Rec item;
-					// @v10.6.4 MEMSZERO(item);
 					pPack->Rent.GetChargeDate(&cycle_list, i, &item.PayDate);
 					if(i == cycle_list.getCount()-1) {
 						//
@@ -376,7 +373,6 @@ int PayPlanArray::AutoBuild(const PPBillPacket * pPack)
 			int    paym_period = 0;
 			if(GetDefaultPaymPeriod(pPack, &paym_period) > 0) {
 				PayPlanTbl::Rec item;
-				// @v10.6.4 MEMSZERO(item);
 				item.PayDate = plusdate(pPack->Rec.Dt, paym_period);
 				item.Amount  = pPack->Rec.Amount;
 				THROW(Update(&item, 0));
@@ -427,7 +423,6 @@ int PayPlanArray::AutoBuild(const PPBillPacket * pPack)
 				if(r > 0 && amount != 0) {
 					uint pos = 0;
 					PayPlanTbl::Rec item;
-					// @v10.6.4 MEMSZERO(item);
 					SearchDate(charge_dt, 0, &item);
 					item.PayDate  = charge_dt;
 					item.Interest = BR2(amount);
@@ -631,8 +626,6 @@ bool FASTCALL PPBill::Agreement::IsEq(const Agreement & rS) const
 
 PPBill::PPBill() : P_PaymOrder(0), P_Freight(0), P_AdvRep(0), P_Agt(0), Ver(DS.GetVersion()), ObjTagContainerHelper(BTagL, PPOBJ_BILL, PPTAG_BILL_UUID)
 {
-	// @v10.6.4 MEMSZERO(Rec);
-	MEMSZERO(Rent);
 }
 
 PPBill::PPBill(const PPBill & rS) : P_PaymOrder(0), P_Freight(0), P_AdvRep(0), P_Agt(0), Ver(DS.GetVersion()), ObjTagContainerHelper(BTagL, PPOBJ_BILL, PPTAG_BILL_UUID) 
@@ -790,7 +783,6 @@ int PPBill::AddPayDate(LDATE dt, double amount)
 	int    ok = 1;
 	if(checkdate(dt)) {
 		PayPlanTbl::Rec rec;
-		// @v10.6.4 MEMSZERO(rec);
 		rec.BillID  = Rec.ID;
 		rec.PayDate = dt;
 		rec.Amount  = BR2(amount);
@@ -824,7 +816,7 @@ int PPBill::SetGuid(const S_GUID & rGuid)
 	}
 	CATCH
 		ok = 0;
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER); // @v10.0.0
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER); // @v10.0.0
 	ENDCATCH
 	return ok;
 }
@@ -1331,25 +1323,6 @@ void PPLotExtCodeContainer::Release()
 	SStrGroup::ClearS();
 }
 
-/* @v10.2.9 int PPLotExtCodeContainer::Add(int rowIdx, const char * pCode, uint * pIdx)
-{
-	int    ok = 1;
-    THROW(rowIdx >= 0 && !isempty(pCode));
-	THROW_PP_S(!Search(pCode, 0), PPERR_DUPLOTEXTCODE, pCode);
-	{
-        Item new_item;
-        MEMSZERO(new_item);
-        new_item.RowIdx = rowIdx;
-        new_item.Flags = 0; // @v10.2.9 Sign-->Flags
-        AddS(pCode, &new_item.CodeP);
-		THROW_SL(insert(&new_item));
-		ASSIGN_PTR(pIdx, getCount()-1);
-		ok = 1;
-    }
-	CATCHZOK
-	return ok;
-}*/
-
 int PPLotExtCodeContainer::Helper_Add(int rowIdx, long boxId, int16 flags, const char * pCode, int doVerifyUniq, uint * pIdx)
 {
 	int    ok = 1;
@@ -1692,130 +1665,6 @@ int PPLotExtCodeContainer::Serialize(int dir, SBuffer & rBuf, SSerializeContext 
 	CATCHZOK
 	return ok;
 }
-
-//static
-/* @v10.2.9 (moved to LotExtCodeCore) int PPLotExtCodeContainer::RemoveAllByBill(LotExtCodeTbl * pTbl, PPID billID, int use_ta)
-{
-	int    ok = -1;
-	if(pTbl) {
-		LotExtCodeTbl::Key2 k2;
-		{
-			PPTransaction tra(use_ta);
-			THROW(tra);
-			MEMSZERO(k2);
-			k2.BillID = billID;
-			if(pTbl->search(2, &k2, spGe) && pTbl->data.BillID == billID) do {
-				THROW_DB(pTbl->rereadForUpdate(2, &k2));
-				THROW_DB(pTbl->deleteRec());
-				ok = 1;
-			} while(pTbl->search(2, &k2, spNext) && pTbl->data.BillID == billID);
-			THROW(tra.Commit());
-		}
-	}
-	else
-		ok = -2;
-	CATCHZOK
-	return ok;
-}*/
-
-/* @v10.2.9 (moved to LotExtCodeCore) int PPLotExtCodeContainer::Store(LotExtCodeTbl * pTbl, PPID billID, int use_ta)
-{
-	int    ok = -1;
-	if(pTbl) {
-		LongArray found_idx_list;
-		SString code_buf;
-		LotExtCodeTbl::Key2 k2;
-		{
-			PPTransaction tra(use_ta);
-			THROW(tra);
-			MEMSZERO(k2);
-			k2.BillID = billID;
-			if(pTbl->search(2, &k2, spGe) && pTbl->data.BillID == billID) do {
-				int    is_found = 0;
-				for(uint i = 0; !is_found && i < getCount(); i++) {
-					InnerItem & r_item = *static_cast<InnerItem *>(at(i));
-					// @v10.2.9 if(r_item.RowIdx == pTbl->data.RByBill && r_item.Sign == pTbl->data.Sign) {
-					if(r_item.RowIdx == pTbl->data.RByBill && r_item.Flags == pTbl->data.Flags && r_item.BoxId == pTbl->data.BoxNo) { // @v10.2.9
-						GetS(r_item.CodeP, code_buf);
-						if(code_buf == pTbl->data.Code) {
-							is_found = 1;
-							found_idx_list.add(i+1);
-						}
-
-					}
-				}
-				if(!is_found) {
-					THROW_DB(pTbl->rereadForUpdate(2, &k2));
-					THROW_DB(pTbl->deleteRec());
-					ok = 1;
-				}
-			} while(pTbl->search(2, &k2, spNext) && pTbl->data.BillID == billID);
-			{
-				found_idx_list.sortAndUndup();
-				if(found_idx_list.getCount() < getCount()) {
-					BExtInsert bei(pTbl);
-					for(uint i = 0; i < getCount(); i++) {
-						if(!found_idx_list.bsearch(i+1)) {
-							InnerItem & r_item = *static_cast<InnerItem *>(at(i));
-							GetS(r_item.CodeP, code_buf);
-							LotExtCodeTbl::Rec rec;
-							MEMSZERO(rec);
-							rec.BillID = billID;
-							rec.RByBill = r_item.RowIdx;
-							// @v10.2.9 rec.Sign = r_item.Sign;
-							rec.Flags = r_item.Flags; // @v10.2.9
-							rec.BoxNo = r_item.BoxId; // @v10.2.9
-							STRNSCPY(rec.Code, code_buf);
-							THROW_DB(bei.insert(&rec));
-							ok = 1;
-						}
-					}
-					THROW_DB(bei.flash());
-				}
-			}
-			THROW(tra.Commit());
-		}
-	}
-	else
-		ok = -2;
-	CATCHZOK
-	return ok;
-}*/
-
-/* @v10.2.9 (moved to LotExtCodeCore) int PPLotExtCodeContainer::Load(LotExtCodeTbl * pTbl, PPID billID)
-{
-	int    ok = -1;
-	Release();
-	if(pTbl) {
-		SString code_buf;
-		LotExtCodeTbl::Key2 k2;
-		MEMSZERO(k2);
-		k2.BillID = billID;
-		BExtQuery q(pTbl, 2);
-		q.selectAll().where(pTbl->BillID == billID);
-		for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
-			//Add(pTbl->data.RByBill, pTbl->data.)
-			LotExtCodeTbl::Rec rec;
-			pTbl->copyBufTo(&rec);
-			code_buf = rec.Code;
-			if(rec.BillID == billID && code_buf.NotEmptyS()) {
-				InnerItem new_item;
-				MEMSZERO(new_item);
-				new_item.RowIdx = rec.RByBill;
-				// @v10.2.9 new_item.Sign = rec.Sign;
-				new_item.Flags = rec.Flags; // @v10.2.9
-				new_item.BoxId = rec.BoxNo; // @v10.2.9
-				AddS(code_buf, &new_item.CodeP);
-				THROW_SL(insert(&new_item));
-				ok = 1;
-			}
-		}
-	}
-	else
-		ok = -2;
-	CATCHZOK
-	return ok;
-}*/
 //
 //
 //
@@ -2557,7 +2406,6 @@ static double FASTCALL setsign(double v, int minus)
 //
 PPBillPacket::TiItemExt::TiItemExt()
 {
-	// @v10.6.4 MEMSZERO(LctRec);
 }
 
 void PPBillPacket::TiItemExt::Clear()
@@ -2877,7 +2725,6 @@ int PPBillPacket::CreateBlankBySample(PPID sampleBillID, int use_ta)
 			Rec.Amount = BR2(rec.Amount);
 			if(rec.Flags & BILLF_BANKING) {
 				PPBankingOrder paym_order;
-				// @v10.6.10 @ctr MEMSZERO(paym_order);
 				if(p_ref->GetProperty(PPOBJ_BILL, sampleBillID, BILLPRP_PAYMORDER, &paym_order, sizeof(paym_order)) > 0) {
 					THROW_MEM(P_PaymOrder = new PPBankingOrder);
 					*P_PaymOrder = paym_order;
@@ -4798,7 +4645,6 @@ int PPBillPacket::GetComplete(PPID lotID, CompleteArray * pList)
 				if(p_ti->Flags & PPTFR_MINUS) {
 					if(!pList->IsExcludedLot(p_ti->LotID)) {
 						CompleteItem item;
-						// @v10.8.4 @ctr MEMSZERO(item);
 						item.LotID   = p_ti->LotID;
 						item.BillID  = p_ti->BillID;
 						item.GoodsID = p_ti->GoodsID;
@@ -4817,7 +4663,6 @@ int PPBillPacket::GetComplete(PPID lotID, CompleteArray * pList)
 				}
 				else if(p_ti->Flags & PPTFR_PLUS && !(p_ti->Flags & PPTFR_RECEIPT) && p_ti->LotID) {
 					CompleteItem item;
-					// @v10.8.4 @ctr MEMSZERO(item);
 					item.LotID   = p_ti->LotID;
 					item.GoodsID = p_ti->GoodsID;
 					item.Dt      = p_ti->Date;
@@ -4875,7 +4720,7 @@ int TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 			long   DispPos;
 		};
 		Ext    ext;
-		SVector ext_list(sizeof(Ext)); // @v10.7.9 SArray-->SVector
+		SVector ext_list(sizeof(Ext));
 		PPTransferItem * p_ti;
 		PPIDArray scale_alt_grp_list;
 		PPIDArray skip_list;

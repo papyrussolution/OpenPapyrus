@@ -418,11 +418,11 @@ struct SnipExGlobals {
 		}
 		if(AlreadyReplaced) {
 			ReplaceCommand = SYSCMD_RESTORE;
-			wcscpy_s(ReplacementText, _countof(ReplacementText), L"Restore Windows Snipping Tool");
+			wcscpy_s(ReplacementText, SIZEOFARRAY(ReplacementText), L"Restore Windows Snipping Tool");
 		}
 		else {
 			ReplaceCommand = SYSCMD_REPLACE;
-			wcscpy_s(ReplacementText, _countof(ReplacementText), L"Replace Windows Snipping Tool with SnipEx");
+			wcscpy_s(ReplacementText, SIZEOFARRAY(ReplacementText), L"Replace Windows Snipping Tool with SnipEx");
 		}
 		AppendMenuW(SystemMenu, MF_STRING, ReplaceCommand, ReplacementText);
 		// Only works with 8bpp bitmaps
@@ -453,8 +453,8 @@ struct SnipExGlobals {
 		GetClientRect(gMainWindowHandle, &ClientRect);
 		const int AdjustedHeight = (WindowRect.bottom - WindowRect.top) - (ClientRect.bottom - ClientRect.top);
 		const int AdjustedWidth = (WindowRect.right - WindowRect.left) - (ClientRect.right - ClientRect.left);
-		SetWindowPos(gMainWindowHandle, HWND_TOP, 0, 0, gButtons[_countof(gButtons) - 1]->Rectangle.right + AdjustedWidth + 2,
-			gButtons[_countof(gButtons) - 1]->Rectangle.bottom + AdjustedHeight + 2, SWP_NOMOVE | SWP_NOOWNERZORDER);
+		SetWindowPos(gMainWindowHandle, HWND_TOP, 0, 0, gButtons[SIZEOFARRAY(gButtons) - 1]->Rectangle.right + AdjustedWidth + 2,
+			gButtons[SIZEOFARRAY(gButtons) - 1]->Rectangle.bottom + AdjustedHeight + 2, SWP_NOMOVE | SWP_NOOWNERZORDER);
 	}
 	void CaptureWindow_OnLeftButtonUp()
 	{
@@ -556,7 +556,7 @@ struct SnipExGlobals {
 			}
 			DeleteDC(BigDC);
 			DeleteDC(SnipDC);
-			for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
+			for(UINT8 Counter = 0; Counter < SIZEOFARRAY(gButtons); Counter++) {
 				gButtons[Counter]->Enabled = TRUE;
 			}
 			if(gRememberLastTool) {
@@ -572,7 +572,7 @@ struct SnipExGlobals {
 				}
 			}
 			wchar_t TitleBuffer[128] = { 0 };
-			(void)_snwprintf_s(TitleBuffer, _countof(TitleBuffer), _TRUNCATE, L"SnipEx - Current Snip: %dx%d", gCaptureWidth, gCaptureHeight);
+			(void)_snwprintf_s(TitleBuffer, SIZEOFARRAY(TitleBuffer), _TRUNCATE, L"SnipEx - Current Snip: %dx%d", gCaptureWidth, gCaptureHeight);
 			SetWindowTextW(gMainWindowHandle, TitleBuffer);
 			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 			gNewButton.SelectedTool = FALSE;
@@ -712,13 +712,13 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	}
 	#if _DEBUG
 	wchar_t TitleBarBuffer[64] = { 0 };
-	GetWindowTextW(SnExG.gMainWindowHandle, TitleBarBuffer, _countof(TitleBarBuffer));
-	wcscat_s(TitleBarBuffer, _countof(TitleBarBuffer), L" - *DEBUG BUILD*");
+	GetWindowTextW(SnExG.gMainWindowHandle, TitleBarBuffer, SIZEOFARRAY(TitleBarBuffer));
+	wcscat_s(TitleBarBuffer, SIZEOFARRAY(TitleBarBuffer), L" - *DEBUG BUILD*");
 	SetWindowTextW(SnExG.gMainWindowHandle, TitleBarBuffer);
 	MyOutputDebugStringW(L"[%s] Line %d: Setting window text for *DEBUG BUILD*.\n", __FUNCTIONW__, __LINE__);
 	#endif
 	// Create all the buttons.
-	for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
+	for(UINT8 Counter = 0; Counter < SIZEOFARRAY(gButtons); Counter++) {
 		const uint _idx = Counter;
 		BUTTON * p_button = gButtons[_idx];
 		HWND ButtonHandle = CreateWindowExW(0, L"BUTTON", p_button->Caption, BS_OWNERDRAW | WS_VISIBLE | WS_CHILD, 
@@ -846,7 +846,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 	    }
 		case WM_KEYUP:
 	    {
-		    for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
+		    for(UINT8 Counter = 0; Counter < SIZEOFARRAY(gButtons); Counter++) {
 			    if(WParam == gButtons[Counter]->Hotkey && gButtons[Counter]->Enabled == TRUE) {
 				    MyOutputDebugStringW(L"[%s] Line %d: Hotkey released, executing button '%s'\n", __FUNCTIONW__, __LINE__, gButtons[Counter]->Caption);
 				    SendMessageW(SnExG.gMainWindowHandle, WM_COMMAND, static_cast<WPARAM>(gButtons[Counter]->Id), 0);
@@ -861,7 +861,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		    SnExG.gLeftMouseButtonIsDown = TRUE;
 		    if(CurrentlyDrawing == FALSE && SnExG.gAppState == APPSTATE_AFTERCAPTURE) {
 			    BOOL DrawingToolSelected = FALSE;
-			    for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
+			    for(UINT8 Counter = 0; Counter < SIZEOFARRAY(gButtons); Counter++) {
 				    if(gButtons[Counter]->SelectedTool == TRUE) {
 					    DrawingToolSelected = TRUE;
 				    }
@@ -874,7 +874,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 			    GetCursorPos(&Mouse);
 			    ScreenToClient(SnExG.gMainWindowHandle, &Mouse);
 			    MousePosWhenDrawingStarted = Mouse;
-			    if(SnExG.gCurrentSnipState >= _countof(SnExG.gSnipStates) - 1) {
+			    if(SnExG.gCurrentSnipState >= SIZEOFARRAY(SnExG.gSnipStates) - 1) {
 				    SnExG.PopupMessageErr(L"Maximum number of changes exceeded. Ctrl+Z to undo a change first.");
 				    break;
 			    }
@@ -1008,7 +1008,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    for(UINT8 XPixel = 0; XPixel < 10; XPixel++) {
 					    for(UINT8 YPixel = 0; YPixel < 20; YPixel++) {
 						    BOOL PixelAlreadyDrawn = FALSE;
-						    for(UINT16 Counter = 0; Counter < _countof(HilighterPixelsAlreadyDrawn); Counter++) {
+						    for(UINT16 Counter = 0; Counter < SIZEOFARRAY(HilighterPixelsAlreadyDrawn); Counter++) {
 							    if((HilighterPixelsAlreadyDrawn[Counter].x == Mouse.x + XPixel) && (HilighterPixelsAlreadyDrawn[Counter].y == Mouse.y + YPixel))
 								    PixelAlreadyDrawn = TRUE;
 						    }
@@ -1021,7 +1021,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 							    HilighterPixelsAlreadyDrawn[HilighterPixelsAlreadyDrawnCounter].x = (UINT16)(Mouse.x + XPixel);
 							    HilighterPixelsAlreadyDrawn[HilighterPixelsAlreadyDrawnCounter].y = (UINT16)(Mouse.y + YPixel);
 							    HilighterPixelsAlreadyDrawnCounter++;
-							    if(HilighterPixelsAlreadyDrawnCounter >= _countof(HilighterPixelsAlreadyDrawn) - 1)
+							    if(HilighterPixelsAlreadyDrawnCounter >= SIZEOFARRAY(HilighterPixelsAlreadyDrawn) - 1)
 								    HilighterPixelsAlreadyDrawnCounter = 0;
 						    }
 					    }
@@ -1182,7 +1182,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		    // We only receive this message when the mouse is not over a button. So if we get this message, no
 		    // button should be pressed.
 		    // Unless it's a selected tool which should stay pressed.
-		    for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
+		    for(UINT8 Counter = 0; Counter < SIZEOFARRAY(gButtons); Counter++) {
 			    if(gButtons[Counter]->State != BUTTONSTATE_NORMAL && gButtons[Counter]->SelectedTool == FALSE) {
 				    gButtons[Counter]->State = BUTTONSTATE_NORMAL;
 				    InvalidateRect(Window, NULL, FALSE);
@@ -1210,7 +1210,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 					Mouse.x = GET_X_LPARAM(LParam);
 					Mouse.y = GET_Y_LPARAM(LParam);
 					const HWND Control = ChildWindowFromPoint(Window, Mouse);
-					for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
+					for(UINT8 Counter = 0; Counter < SIZEOFARRAY(gButtons); Counter++) {
 						BUTTON * p_button = gButtons[Counter];
 						if(Control == p_button->Handle) {
 							if(LOWORD(WParam) == WM_LBUTTONDOWN) {
@@ -1308,7 +1308,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 	    }
 		case WM_DRAWITEM:
 	    {
-		    for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
+		    for(UINT8 Counter = 0; Counter < SIZEOFARRAY(gButtons); Counter++) {
 			    if(LOWORD(WParam) == gButtons[Counter]->Id) {
 				    DrawButton((DRAWITEMSTRUCT*)LParam, *gButtons[Counter]);
 				    return TRUE;
@@ -1321,7 +1321,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		    MyOutputDebugStringW(L"[%s] Line %d: Mouse button released over '%s' button.\n", __FUNCTIONW__, __LINE__,
 			gButtons[LOWORD(WParam) - 10001]->Caption);
 		    // User clicked a button - return all buttons to non-pressed state.
-		    for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
+		    for(UINT8 Counter = 0; Counter < SIZEOFARRAY(gButtons); Counter++) {
 			    if(gButtons[Counter]->SelectedTool == FALSE) {
 				    gButtons[Counter]->State = BUTTONSTATE_NORMAL;
 			    }
@@ -1334,7 +1334,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 		    // We just left-clicked a button, but we need to set focus back on the main window or else
 		    // the main window will stop receiving window messages such as WM_KEYDOWN.
 		    SetFocus(SnExG.gMainWindowHandle);
-		    for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
+		    for(UINT8 Counter = 0; Counter < SIZEOFARRAY(gButtons); Counter++) {
 				BUTTON * p_button = gButtons[Counter];
 			    if(p_button->Id == LOWORD(WParam)) {
 				    if(p_button->Enabled == TRUE) {
@@ -1361,7 +1361,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 			    case BUTTON_DELAY:
 					{
 						wchar_t TitleBuffer[64] = { 0 };
-						_snwprintf_s(TitleBuffer, _countof(TitleBuffer), _TRUNCATE, L"SnipEx");
+						_snwprintf_s(TitleBuffer, SIZEOFARRAY(TitleBuffer), _TRUNCATE, L"SnipEx");
 						SetWindowTextW(SnExG.gMainWindowHandle, TitleBuffer);
 						SnExG.gAppState = APPSTATE_DELAYCOOKING;
 						SnExG.AdjustWindowSizeForThickTitleBars(); // @20201025
@@ -1430,7 +1430,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 					    DWORD Error = RegCreateKeyExW(IFEOKey, L"SnippingTool.exe", 0, NULL, 0, KEY_WRITE, NULL, &SnippingToolKey, &SnippingToolKeyDisposition);
 					    if(Error == ERROR_SUCCESS) {
 						    wchar_t ModulePath[MAX_PATH] = { 0 };
-						    GetModuleFileNameW(NULL, ModulePath, _countof(ModulePath));
+						    GetModuleFileNameW(NULL, ModulePath, SIZEOFARRAY(ModulePath));
 						    Error = RegSetValueExW(SnippingToolKey, L"Debugger", 0, REG_SZ, (const BYTE*)ModulePath, (DWORD)wcslen(ModulePath) * 2);
 						    if(Error == ERROR_SUCCESS) {
 							    HMENU SystemMenu = GetSystemMenu(SnExG.gMainWindowHandle, FALSE);
@@ -1458,7 +1458,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    MessageBoxW(SnExG.gMainWindowHandle, L"This action requires UAC elevation. After clicking OK, you will be prompted to elevate. Then retry the operation.",
 						L"UAC Elevation Required", MB_OK | MB_ICONINFORMATION);
 				    wchar_t ModulePath[MAX_PATH] = { 0 };
-				    GetModuleFileNameW(NULL, ModulePath, _countof(ModulePath));
+				    GetModuleFileNameW(NULL, ModulePath, SIZEOFARRAY(ModulePath));
 				    SHELLEXECUTEINFOW ShellExecuteInfo = { sizeof(SHELLEXECUTEINFOW) };
 				    ShellExecuteInfo.lpVerb = L"runas";
 				    ShellExecuteInfo.lpFile = ModulePath;
@@ -1513,7 +1513,7 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    MessageBoxW(SnExG.gMainWindowHandle, L"This action requires UAC elevation. After clicking OK, you will be prompted to elevate. Then, retry the operation.",
 						L"UAC Elevation Required", MB_OK | MB_ICONINFORMATION);
 				    wchar_t ModulePath[MAX_PATH] = { 0 };
-				    GetModuleFileNameW(NULL, ModulePath, _countof(ModulePath));
+				    GetModuleFileNameW(NULL, ModulePath, SIZEOFARRAY(ModulePath));
 				    SHELLEXECUTEINFOW ShellExecuteInfo = { sizeof(SHELLEXECUTEINFOW) };
 				    ShellExecuteInfo.lpVerb = L"runas";
 				    ShellExecuteInfo.lpFile = ModulePath;
@@ -1692,7 +1692,7 @@ void DrawButton(_In_ DRAWITEMSTRUCT* DrawItemStruct, _In_ BUTTON Button)
 	}
 	if(SnExG.gAppState == APPSTATE_DELAYCOOKING && Button.Id == BUTTON_DELAY) {
 		wchar_t CountdownBuffer[4] = { 0 };
-		_itow_s(SnExG.gCurrentDelayCountdown, CountdownBuffer, _countof(CountdownBuffer), 10);
+		_itow_s(SnExG.gCurrentDelayCountdown, CountdownBuffer, SIZEOFARRAY(CountdownBuffer), 10);
 		TextOutW(DrawItemStruct->hDC, TextX + StringSizeInPixels.cx + 4, TextY, CountdownBuffer, (int)wcslen(CountdownBuffer));
 	}
 	if(Button.Enabled == TRUE) {
@@ -1721,7 +1721,7 @@ LRESULT CALLBACK CaptureWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_
 		    if(WParam == VK_ESCAPE) {
 			    MyOutputDebugStringW(L"[%s] Line %d: Escape pressed during capture. Reverting to pre-capture state.\n", __FUNCTIONW__, __LINE__);
 			    SnExG.gAppState = APPSTATE_BEFORECAPTURE;
-			    for(UINT8 Counter = 0; Counter < _countof(gButtons); Counter++) {
+			    for(UINT8 Counter = 0; Counter < SIZEOFARRAY(gButtons); Counter++) {
 				    if(gButtons[Counter]->Id == BUTTON_NEW || gButtons[Counter]->Id == BUTTON_DELAY) {
 					    continue;
 				    }
@@ -1851,7 +1851,7 @@ BOOL NewButton_Click(void)
 	// desktop, and then allow the user to select a subsection of the screenshot with the mouse.
 	KillTimer(SnExG.gMainWindowHandle, DELAY_TIMER);
 	SnExG.gCurrentDelayCountdown = SnExG.gStartingDelayCountdown;
-	(void)_snwprintf_s(TitleBuffer, _countof(TitleBuffer), _TRUNCATE, L"SnipEx");
+	(void)_snwprintf_s(TitleBuffer, SIZEOFARRAY(TitleBuffer), _TRUNCATE, L"SnipEx");
 	SetWindowTextW(SnExG.gMainWindowHandle, TitleBuffer);
 	GetWindowRect(SnExG.gMainWindowHandle, &CurrentWindowPos);
 	SetWindowPos(SnExG.gMainWindowHandle, HWND_TOP, CurrentWindowPos.left, CurrentWindowPos.top, SnExG.gStartingMainWindowWidth, SnExG.gStartingMainWindowHeight, 0);
@@ -1872,7 +1872,7 @@ BOOL NewButton_Click(void)
 		}
 		SnExG.gScratchBitmap = NULL;
 	}
-	for(INT8 SnipState = 0; SnipState < _countof(SnExG.gSnipStates) - 1; SnipState++) {
+	for(INT8 SnipState = 0; SnipState < SIZEOFARRAY(SnExG.gSnipStates) - 1; SnipState++) {
 		if(SnExG.gSnipStates[SnipState]) {
 			if(DeleteObject(SnExG.gSnipStates[SnipState]) == 0) {
 				MyOutputDebugStringW(L"[%s] Line %d: Failed to DeleteObject(gSnipStates[%d]!)!\n", __FUNCTIONW__, __LINE__, SnipState);
@@ -1936,7 +1936,7 @@ BOOL SaveButton_Click(void)
 		SnExG.PopupMessageErr_ZP(L"Failed to create COM instance of IFileDialog!");
 		goto Cleanup;
 	}
-	DialogInterface->/*lpVtbl->*/SetFileTypes(_countof(FileTypeFilters), FileTypeFilters);
+	DialogInterface->/*lpVtbl->*/SetFileTypes(SIZEOFARRAY(FileTypeFilters), FileTypeFilters);
 	DialogInterface->/*lpVtbl->*/SetFileTypeIndex(1); // 1-based array, does not start at 0
 	DialogInterface->/*lpVtbl->*/Show(SnExG.gMainWindowHandle);
 	DialogInterface->/*lpVtbl->*/GetResult(&ResultItem);
@@ -2268,7 +2268,7 @@ void MyOutputDebugStringW(_In_ const wchar_t * Message, _In_ ...)
 	wchar_t Buffer[512] = { 0 };
 	va_list VarArgPointer = NULL;
 	va_start(VarArgPointer, Message);
-	_vsnwprintf_s(Buffer, _countof(Buffer), _TRUNCATE, Message, VarArgPointer);
+	_vsnwprintf_s(Buffer, SIZEOFARRAY(Buffer), _TRUNCATE, Message, VarArgPointer);
 	va_end(VarArgPointer);
 	OutputDebugStringW(Buffer);
 	#else
@@ -2599,7 +2599,7 @@ BOOL CALLBACK TextEditCallback(_In_ HWND Dialog, _In_ UINT Message, _In_ WPARAM 
 		case WM_COMMAND:
 		    switch(LOWORD(WParam)) {
 			    case IDOK: 
-					GetDlgItemTextW(Dialog, IDC_EDIT1, SnExG.gTextBuffer, _countof(SnExG.gTextBuffer));
+					GetDlgItemTextW(Dialog, IDC_EDIT1, SnExG.gTextBuffer, SIZEOFARRAY(SnExG.gTextBuffer));
 					EndDialog(Dialog, WParam);
 					break;
 		    }

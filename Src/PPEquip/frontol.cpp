@@ -191,7 +191,7 @@ int ACS_FRONTOL::ExportMarketingActions_XPos(int updOnly, StringSet & rSsResult)
 						Cat("Card Discount").Semicol().
 						Cat(1).Semicol(). // Скидка на документ
 						Cat(1).Semicol(). // Процент
-						Cat(fdiv100i(scs_pack.Rec.PDis), MKSFMTD(0, 2, 0)); // Скидка
+						Cat(fdiv100i(scs_pack.Rec.PDis), MKSFMTD_020); // Скидка
 					rSsResult.add(f_str);
 					for(uint pridx = 0; pridx < prefix_ranges.getCount(); pridx++) {
 						const SCardCore::PrefixRange * p_pr = prefix_ranges.at(pridx);
@@ -486,6 +486,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
 					size_t bclen;
 	   				if(gds_info.ID != prev_goods_id) {
 						long   level = 0;
+						int    unit_id = 0; // @v11.9.6 Мера количества предмета расчета
 						PPID   dscnt_scheme_id = 0;
 						if(prev_goods_id) {
 							f_str.Transf(CTRANSF_INNER_TO_OUTER).Semicol().Cat(tail);
@@ -504,22 +505,14 @@ int ACS_FRONTOL::ExportData(int updOnly)
 								if(qk_id) {
 									const double quot = gds_info.QuotList.Get(qk_id);
 									if(quot > 0.0 && quot != gds_info.Price) {
-										AtolGoodsDiscountEntry ent(gds_info.ID, qk_id, gds_info.Price - quot); // @v10.8.2 
-										// @v10.8.2 MEMSZERO(ent);
-										// @v10.8.2 ent.GoodsID = gds_info.ID;
-										// @v10.8.2 ent.QuotKindID = qk_id;
-										// @v10.8.2 ent.SCardSerID = scard_quot_list.at(i).Key;
-										// @v10.8.2 ent.AbsDiscount = gds_info.Price - quot;
+										AtolGoodsDiscountEntry ent(gds_info.ID, qk_id, gds_info.Price - quot);
 										goods_dis_list.insert(&ent);
 										used_retail_quot.set(i, 1);
 									}
 								}
 							}
 							if(gds_info.ExtQuot > 0.0) {
-								AtolGoodsDiscountEntry ent(gds_info.ID, 0, gds_info.Price - gds_info.ExtQuot); // @v10.8.2
-								// @v10.8.2 MEMSZERO(ent);
-								// @v10.8.2 ent.GoodsID = gds_info.ID;
-								// @v10.8.2 ent.AbsDiscount = gds_info.Price - gds_info.ExtQuot;
+								AtolGoodsDiscountEntry ent(gds_info.ID, 0, gds_info.Price - gds_info.ExtQuot);
 								goods_dis_list.insert(&ent);
 							}
 						}
@@ -686,7 +679,43 @@ int ACS_FRONTOL::ExportData(int updOnly)
 					tail.Semicol();               // #63 Наименование лотереи
 					tail.Semicol();               // #64 Код вида номенклатурной классификации (EAN-13)
 					tail.Semicol();               // #65 Проверка соответствия товара штрихкоду маркировки: 0 – по штрихкодам товара; 1 – по штрихкоду регистрации (def=0)
-					tail.Semicol();               // #66 Мера количества предмета расчета
+					{
+						// @v11.9.6 {
+						/*
+							Мера количества предмета расчета:
+							• 0 – штука;
+							• 1 – грамм;
+							• 2 – килограмм;
+							• 3 – тонна;
+							• 4 – сантиметр;
+							• 5 – дециметр;
+							• 6 – метр;
+							• 7 – квадратный сантиметр;
+							• 8 – квадратный дециметр;
+							• 9 – квадратный метр;
+							• 10 – миллилитр;
+							• 11 – литр;
+							• 12 – кубический метр;
+							• 13 – киловатт час;
+							• 14 – гигакалория;
+							• 15 – сутки (день);
+							• 16 – час;
+							• 17 – минута;
+							• 18 – секунда;
+							• 19 – килобайт;
+							• 20 – мегабайт;
+							• 21 – гигабайт;
+							• 22 – терабайт;
+							• 23 – иная единица измерения.
+							Значение по умолчанию: 0.
+						*/
+						int measure = 0;
+						if(goods_iter.IsSimplifiedDraftBeer(gds_info.ID)) {
+							measure = 11; // LITER
+						}
+						// } @v11.9.6 
+						tail.Cat(measure).Semicol(); // #66 Мера количества предмета расчета
+					}
 					tail.Semicol();               // #67 Признак рецептурности лекарственного препарата
 					// } @v11.9.5 
 					bclen = sstrlen(gds_info.BarCode);
@@ -900,7 +929,6 @@ int ACS_FRONTOL::ImportFiles()
 		THROW(obj_acct.Get(r_eq_cfg.FtpAcctID, &acct));
 	{
 		PPAlbatrossConfig alb_cfg;
-		//@v10.7.12 @ctr MEMSZERO(mac_rec);
 		if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0 && alb_cfg.Hdr.MailAccID)
 			THROW_PP(obj_acct.Get(alb_cfg.Hdr.MailAccID, &mac_rec) > 0, PPERR_UNDEFMAILACC);
 	}

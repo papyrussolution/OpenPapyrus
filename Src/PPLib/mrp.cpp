@@ -1,5 +1,5 @@
 // MRP.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -87,7 +87,6 @@ int MrpTabCore::Create(PPID * pID, const MrpTabTbl::Rec * pRec, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(r = SearchByLink(pRec->LinkObjType, pRec->LinkObjID, pRec->LocID, pRec->Dt, 0));
-		// @v10.6.4 MEMSZERO(rec);
 		STRNSCPY(rec.Name, pRec->Name);
 		rec.ParentID = pRec->ParentID;
 		rec.LinkObjType = pRec->LinkObjType;
@@ -210,7 +209,6 @@ int MrpTabCore::AddCTab(const CMrpTab * pTab, int use_ta)
 		THROW(tra);
 		for(uint i = 0; pTab->enumItems(&i, (void **)&p_row);) {
 			MrpLineTbl::Rec rec;
-			// @v10.6.4 MEMSZERO(rec);
 			rec.TabID = p_row->TabID;
 			rec.DestID = p_row->DestID;
 			rec.SrcID = p_row->SrcID;
@@ -402,7 +400,7 @@ int MrpTabCore::GetDeficitList_(PPID tabID, PPID srcID, int terminal, int replac
 			q.where(Lines.TabID == tabID && Lines.SrcID == srcID);
 			MEMSZERO(k2);
 			k2.TabID = tabID;
-			k2.SrcID = srcID; // @v9.1.8 MRPSRCV_TOTAL-->srcID
+			k2.SrcID = srcID;
 			PPIDArray dest_list;
 			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 				Lines.copyBufTo(&rec);
@@ -422,7 +420,7 @@ int MrpTabCore::GetDeficitList_(PPID tabID, PPID srcID, int terminal, int replac
 			q.where(Lines.TabID == tabID && Lines.SrcID == srcID && Lines.DestDfct > 0.0);
 			MEMSZERO(k2);
 			k2.TabID = tabID;
-			k2.SrcID = srcID; // @v9.1.8 MRPSRCV_TOTAL-->srcID
+			k2.SrcID = srcID;
 			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 				Lines.copyBufTo(&rec);
 				int    gdr = 0;
@@ -743,6 +741,10 @@ int CMrpTab::Aggregate(PPID destTabID)
 //
 //
 //
+MrpTabLeaf::MrpTabLeaf(PPID tabID, PPID locID, LDATE dt) : TabID(tabID), LocID(locID), Dt(dt)
+{
+}
+
 MrpTabPacket::MrpTabPacket() : TSVector <MrpTabLeaf>()
 {
 	ObjType  = 0;
@@ -819,11 +821,7 @@ int MrpTabPacket::GetTabID(PPID locID, LDATE dt, PPID * pTabID) const
 
 int FASTCALL MrpTabPacket::AddLeaf(const MrpTabTbl::Rec * pRec)
 {
-	MrpTabLeaf leaf;
-	MEMSZERO(leaf);
-	leaf.TabID = pRec->ID;
-	leaf.Dt    = pRec->Dt;
-	leaf.LocID = pRec->LocID;
+	MrpTabLeaf leaf(pRec->ID, pRec->LocID, pRec->Dt);
 	return insert(&leaf) ? 1 : PPSetErrorSLib();
 }
 
@@ -1060,7 +1058,6 @@ int PPObjMrpTab::Edit(PPID * pID, void * extraPtr)
 		THROW(Search(*pID, &rec) > 0);
 	}
 	else {
-		// @v10.6.11 @ctr MEMSZERO(rec);
 		rec.Dt = r_cfg.OperDate;
 		rec.LocID = r_cfg.Location;
 	}
@@ -1385,10 +1382,7 @@ int PPObjMrpTab::FinishPacket(MrpTabPacket * pTree, long cflags, int use_ta)
 {
 	int    ok = -1;
 	MrpTabTbl::Rec base_rec;
-	MrpTabLeaf base_leaf;
-	base_leaf.TabID = pTree->GetBaseID(); // const
-	base_leaf.LocID = 0;
-	base_leaf.Dt = ZERODATE;
+	MrpTabLeaf base_leaf(pTree->GetBaseID(), 0, ZERODATE);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1557,7 +1551,6 @@ int PPObjMrpTab::GetDeficitList(const MrpTabPacket * pPack, PPID srcID, int term
 int PPObjMrpTab::CreateByGoods(PPID * pID, const char * pName, PPID goodsID, PPID locID, LDATE dt, int use_ta)
 {
 	MrpTabTbl::Rec rec;
-	// @v10.6.4 MEMSZERO(rec);
 	STRNSCPY(rec.Name, pName);
 	rec.LinkObjType = PPOBJ_GOODS;
 	rec.LinkObjID = goodsID;
@@ -1573,7 +1566,6 @@ int PPObjMrpTab::CreateByBill(PPID * pID, const char * pName, PPID billID, int u
 	BillTbl::Rec bill_rec;
 	MrpTabTbl::Rec rec;
 	THROW(BillObj->Search(billID, &bill_rec) > 0);
-	// @v10.6.4 MEMSZERO(rec);
 	STRNSCPY(rec.Name, NZOR(pName, bill_rec.Code));
 	rec.LinkObjType = PPOBJ_BILL;
 	rec.LinkObjID   = billID;
@@ -1594,7 +1586,6 @@ int PPObjMrpTab::CreateByDraftWrOff(PPID * pID, const char * pName, PPID dwoID, 
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		// @v10.6.4 MEMSZERO(rec);
 		STRNSCPY(rec.Name, NZOR(pName, dwo_rec.Name));
 		rec.LinkObjType = PPOBJ_DRAFTWROFF;
 		rec.LinkObjID   = dwoID;

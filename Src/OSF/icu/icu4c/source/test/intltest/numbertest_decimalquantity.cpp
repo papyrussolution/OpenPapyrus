@@ -292,7 +292,7 @@ void DecimalQuantityTest::testConvertToAccurateDouble() {
 			bytes[j] = static_cast<uint8_t>(rand() % 256);
 		}
 		double d;
-		uprv_memcpy(&d, bytes, 8);
+		memcpy(&d, bytes, 8);
 		if(std::isnan(d) || !std::isfinite(d)) {
 			continue;
 		}

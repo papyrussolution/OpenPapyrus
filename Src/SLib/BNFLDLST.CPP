@@ -1,5 +1,5 @@
 // BNFLDLST.CPP
-// Copyright (c) Sobolev A. 1995, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2021, 2022
+// Copyright (c) Sobolev A. 1995, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2021, 2022, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -23,16 +23,7 @@ int BNField::getValue(const void * pDataBuf, void * pBuf, size_t * pSize) const
 {
 	if(pDataBuf && pBuf) {
 		const size_t sz = stsize(T);
-		if(sz == sizeof(uint32))
-			PTR32(pBuf)[0] = PTR32C(PTR8C(pDataBuf)+Offs)[0];
-		else if(sz == sizeof(uint32) * 2) {
-			PTR32(pBuf)[0] = PTR32C(PTR8C(pDataBuf)+Offs)[0];
-			PTR32(pBuf)[1] = PTR32C(PTR8C(pDataBuf)+Offs)[1];
-		}
-		else if(sz == sizeof(uint16))
-			PTR16(pBuf)[0] = PTR16C(PTR8C(pDataBuf)+Offs)[0];
-		else
-			memcpy(pBuf, PTR8C(pDataBuf)+Offs, sz);
+		memcpy(pBuf, PTR8C(pDataBuf)+Offs, sz);
 		ASSIGN_PTR(pSize, sz);
 		return 1;
 	}

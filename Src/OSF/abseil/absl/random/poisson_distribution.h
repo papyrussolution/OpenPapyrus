@@ -179,22 +179,16 @@ typename poisson_distribution<IntType>::result_type poisson_distribution<IntType
 	for(;;) {
 		const double u = GenerateRealFromBits<double, GeneratePositiveTag, false>(
 			fast_u64_(g)); // U(0, 1)
-		const double v = GenerateRealFromBits<double, GenerateSignedTag, false>(
-			fast_u64_(g)); // U(-1, 1)
-
+		const double v = GenerateRealFromBits<double, GenerateSignedTag, false>(fast_u64_(g)); // U(-1, 1)
 		const double x = std::floor(p.s_ * v / u + a);
 		if(x < 0) continue; // f(negative) = 0
 		const double rhs = x * p.lmu_;
 		// clang-format off
-		double s = (x <= 1.0) ? 0.0
-		    : (x == 2.0) ? 0.693147180559945
-		    : absl::random_internal::StirlingLogFactorial(x);
+		double s = (x <= 1.0) ? 0.0 : (x == 2.0) ? SMathConst::Ln2 : absl::random_internal::StirlingLogFactorial(x);
 		// clang-format on
 		const double lhs = 2.0 * std::log(u) + p.log_k_ + s;
 		if(lhs < rhs) {
-			return x > static_cast<double>((max)())
-			       ? (max)()
-			       : static_cast<result_type>(x); // f(x)/k >= u^2
+			return x > static_cast<double>((max)()) ? (max)() : static_cast<result_type>(x); // f(x)/k >= u^2
 		}
 	}
 }

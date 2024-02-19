@@ -269,7 +269,7 @@ int Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList)
 						_FZEROINV(data.CurPrice);
 						if(!fpok) {
 							PPSetError(PPERR_INVFPVAL, fp_err_var);
-							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 						}
 						// @v9.5.1 if(data.CurID != rPack.Rec.CurID)
 							data.CurID = rPack.Rec.CurID;
@@ -317,7 +317,7 @@ int Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList)
 					r = 0;
 				if(!r) {
 					PPSaveErrContext();
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 					{
 						SString fmt_buf, msg_buf, bill_buf, err_buf, goods_name;
 						GetGoodsName(p_ti->GoodsID, goods_name);

@@ -98,7 +98,6 @@ public:
 			P_IEParam[i] = 0;
 		{
 			PPAsyncCashNode acn;
-			// @v10.6.4 MEMSZERO(acn);
 			GetNodeData(&acn);
 			ModuleVer = acn.DrvVerMajor;
 			ModuleSubVer = acn.DrvVerMinor;
@@ -815,7 +814,6 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 						p_writer->StartElement("group", "id", grp_code);
 						GetObjectName(PPOBJ_GOODSGROUP, r_cur_entry.ParentID, temp_buf);
 						p_writer->PutElement("name", temp_buf);
-						// @v10.6.4 MEMSZERO(ggrec);
 						{
 							PPID   parent_id = r_cur_entry.ParentID;
 							uint   parents_count = 0;
@@ -837,7 +835,6 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					}
 					{
 						PPUnit2 unit_rec;
-						// @v10.8.2 @ctr MEMSZERO(unit_rec);
 						unit_obj.Fetch(r_cur_entry.UnitID, &unit_rec);
 						p_writer->StartElement("measure-type");
 						p_writer->AddAttrib("id", unit_rec.ID);
@@ -969,7 +966,6 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 		}
 		if(rGoodsInfo.BarCode[0]) {
 			BarcodeTbl::Rec bc;
-			// @v10.6.4 MEMSZERO(bc);
 			bc.GoodsID = rGoodsInfo.ID;
 			STRNSCPY(bc.Code, rGoodsInfo.BarCode);
 			bc.Qtty = rGoodsInfo.UnitPerPack;
@@ -1079,8 +1075,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	AsyncCashGoodsInfo gds_info;
 	AsyncCashGoodsGroupInfo grp_info;
 	AsyncCashGoodsGroupIterator * p_grp_iter = 0;
-	SVector sales_grp_list(sizeof(_SalesGrpEntry)); // @v10.6.3 SArray-->SVector
-	//SVector max_dis_list(sizeof(_MaxDisEntry)); // @v10.6.3 SArray-->SVector
+	SVector sales_grp_list(sizeof(_SalesGrpEntry));
 	PPObjGoodsGroup ggobj;
 	//
 	// Список ассоциаций {Серия карты; Вид котировки} => Key - серия карты, Val - вид котировки
@@ -1691,7 +1686,6 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 		PPObjSCardSeries scs_obj;
 		AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, StatID);
 		scard_quot_ary.freeAll();
-		// @v10.6.4 MEMSZERO(ser_rec);
 		PPLoadText(PPTXT_EXPSCARD, fmt_buf);
 		for(PPID ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
 			if(!(ser_rec.Flags & SCRDSF_CREDIT)) {
@@ -2247,7 +2241,6 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 			PPObjSCardSeries scs_obj;
 			AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, StatID);
 			scard_quot_ary.freeAll();
-			// @v10.6.4 MEMSZERO(ser_rec);
 			for(PPID ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
 				if(!(ser_rec.Flags & SCRDSF_CREDIT)) {
 					AsyncCashSCardInfo info;
@@ -2662,7 +2655,7 @@ int ACS_CRCSHSRV::PrepareImpFileNameV10(int filTyp, const char * pName, const ch
 static void ConvertCrystalRightsSetToCashierRights(long crystCshrRights, long * pCshrRights)
 {
 	int    i;
-	char   correspondance[] = {3,18,4,5,6,20,12,22,8,9,30,1,10,31,7,23,19,24,25,26,27,17,28,21,29,0,2,0,11,0,0,0}; // 32 items
+	const  char correspondance[] = {3,18,4,5,6,20,12,22,8,9,30,1,10,31,7,23,19,24,25,26,27,17,28,21,29,0,2,0,11,0,0,0}; // 32 items
 	char   rights_buf[SIZEOFARRAY(correspondance)];
 	SBitArray  cryst_righst_ary, rights_ary;
 	cryst_righst_ary.Init(&crystCshrRights, 32);
@@ -2767,7 +2760,6 @@ int ACS_CRCSHSRV::GetCashiersList()
 					THROW_SL(psn_pack.Kinds.add(r_eq_cfg.CshrsPsnKindID));
 				}
 				if(!is_reg) {
-					// @v10.9.5 (PPObjRegister::InitPacket willdoit) MEMSZERO(reg_rec);
 					THROW(PPObjRegister::InitPacket(&reg_rec, tabnum_reg_id, PPObjID(PPOBJ_PERSON, psn_id), cshr_tabnum_));
 					THROW_SL(psn_pack.Regs.insert(&reg_rec));
 				}
@@ -2968,7 +2960,6 @@ int ACS_CRCSHSRV::CreateSCardPaymTbl()
 			p_ie_csd->GetNumRecs(&count);
 			for(c = 0; c < count; c++) {
 				Sdr_CS_Dscnt  cs_dscnt;
-				// @v10.7.9 @ctr MEMSZERO(cs_dscnt);
 				THROW(p_ie_csd->ReadRecord(&cs_dscnt, sizeof(cs_dscnt)));
 				if(cs_dscnt.DscntType == CRCSHSRV_DISCCARD_DEFTYPE) {
 					MEMSZERO(k0);
@@ -3157,7 +3148,6 @@ public:
 		}
 		Packet & FASTCALL operator = (const Packet & rPack)
 		{
-			// @v11.4.0 (useless) MEMSZERO(Head);
 			Items.freeAll();
 			Head = rPack.Head;
 			Items.copy(rPack.Items);
@@ -3299,7 +3289,6 @@ int XmlReader::Next(Packet * pPack)
 	do {
 		if(P_CurRec) {
 			Header hdr;
-			// @v11.4.0 @ctr MEMSZERO(hdr);
 			// Read header
 			tag_name.Set(P_CurRec->name).ToLower();
 			if(P_CurRec->properties) {
@@ -3491,7 +3480,6 @@ int XmlReader::Next(Packet * pPack)
 					//const char * p_items_attr = "amount;typeClass";
 					CcAmountList ccpl;
 					Header head;
-					// @v11.4.0 @ctr MEMSZERO(head);
 					pack.GetHead(&head);
 					for(const xmlNode * p_paym_fld = p_fld->children; p_paym_fld; p_paym_fld = p_paym_fld->next) {
 						if(p_paym_fld->type == XML_ELEMENT_NODE) {
@@ -3547,7 +3535,6 @@ int XmlReader::Next(Packet * pPack)
 				if(sstreqi_ascii((const char *)p_fld->name, "discounts")) {
 					const char * p_items_attr = "positionOrder;amount";
 					Header head;
-					// @v11.4.0 @ctr MEMSZERO(head);
 					pack.GetHead(&head);
 					for(const xmlNode * p_dis_fld = p_fld->children; p_dis_fld; p_dis_fld = p_dis_fld->next) {
 						int16  banking = -1;
@@ -3591,7 +3578,6 @@ int XmlReader::Next(Packet * pPack)
 						p_dis_fld = p_fld;
 				if(p_dis_fld && p_dis_fld->children && p_dis_fld->children->content) {
 					Header head;
-					// @v11.4.0 @ctr MEMSZERO(head);
 					pack.GetHead(&head);
 					STRNSCPY(head.SCardNum, p_dis_fld->children->content);
 					pack.PutHead(&head);
@@ -3700,7 +3686,6 @@ int ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char * pPa
 				}
 				if(pZRepList) {
 					ZRep zrep_key;
-					// @v11.4.0 @ctr MEMSZERO(zrep_key);
 					zrep_key.CashCode = hdr.CashNum;
 					zrep_key.ZRepCode = hdr.SmenaNum;
 					if(!pZRepList->lsearch(&zrep_key, 0, PTR_CMPFUNC(_2long)))
@@ -3901,7 +3886,6 @@ int ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * pWaitM
 					double sum = 0.0, dscnt = 0.0;
 					if(pZRepList) {
 						ZRep zrep_key;
-						// @v11.4.0 @ctr MEMSZERO(zrep_key);
 						zrep_key.CashCode = csh;
 						zrep_key.ZRepCode = nsmena;
 						if(!pZRepList->lsearch(&zrep_key, 0, PTR_CMPFUNC(_2long)))
@@ -4030,7 +4014,6 @@ int ACS_CRCSHSRV::ConvertCheckHeads(const SVector * pZRepList, const char * pWai
 				long   cshr_id;
 				LDATETIME  dttm;
 				Sdr_CS_Chkhd  cs_chkhd;
-				// @v10.7.9 @ctr MEMSZERO(cs_chkhd);
 				THROW(p_ie_csh->ReadRecord(&cs_chkhd, sizeof(cs_chkhd)));
 				GetCrCshSrvDateTime(cs_chkhd.OperDate, cs_chkhd.CheckNumber, &dttm);
 				cshr_id = CshrList.GetCshrID(cs_chkhd.CashierNo, dttm.d);
@@ -4040,7 +4023,6 @@ int ACS_CRCSHSRV::ConvertCheckHeads(const SVector * pZRepList, const char * pWai
 					long   fl  = (cs_chkhd.Operation == 'R') ? CCHKF_RETURN : 0;
 					if(pZRepList) {
 						ZRep zrep_key;
-						// @v11.4.0 @ctr MEMSZERO(zrep_key);
 						zrep_key.CashCode = cs_chkhd.CashNumber;
 						zrep_key.ZRepCode = cs_chkhd.SessNumber;
 						if(!pZRepList->lsearch(&zrep_key, 0, PTR_CMPFUNC(_2long)))
@@ -4097,7 +4079,6 @@ int ACS_CRCSHSRV::ConvertCheckRows(const char * pWaitMsg)
 			for(c = 0; c < count; c++) {
 				int    r;
 				Sdr_CS_ChkLn cs_chkln;
-				// @v10.7.9 @ctr MEMSZERO(cs_chkln);
 				THROW(p_ie_csl->ReadRecord(&cs_chkln, sizeof(cs_chkln)));
 				THROW(r = SearchTempCheckByCode(cs_chkln.CashNumber, cs_chkln.CheckNumber, cs_chkln.SessNumber));
 				if(r > 0) {
@@ -4384,7 +4365,6 @@ int XmlZRepReader::Next(ZRep * pItem)
 		SString val;
 		xmlNode * p_fld = P_CurRec->children;
 		ZRep item;
-		// @v11.4.0 @ctr MEMSZERO(item);
 		for(; p_fld; p_fld = p_fld->next) {
 			if(p_fld->children && p_fld->children->content) {
 				int idx = 0;
@@ -4467,8 +4447,6 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 				for(long c = 0; c < count; c++) {
 					Sdr_CS_ZRep  cs_zrep;
 					ZRep   zrep;
-					// @v10.7.9 @ctr MEMSZERO(cs_zrep);
-					// @v11.4.0 @ctr MEMSZERO(zrep);
 					THROW(p_ie_csz->ReadRecord(&cs_zrep, sizeof(cs_zrep)));
 					zrep.CashCode = cs_zrep.CashNumber;
 					zrep.ZRepCode = cs_zrep.SessNumber;
@@ -4510,7 +4488,6 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 					do {
 						char   buf[64];
 						ZRep   zrep;
-						// @v11.4.0 @ctr MEMSZERO(zrep);
 						DbfRecord dbfrz(p_dbftz);
 						if(p_dbftz->getRec(&dbfrz) <= 0)
 							break;

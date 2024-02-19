@@ -1,5 +1,5 @@
 // GDSGRPNG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 // @Kernel
 // Группировка операций по товару
@@ -745,7 +745,6 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 	int    ok = 1, r;
 	BillCore * p_bc = P_BObj->P_Tbl;
 	AddEntryBlock blk;
-	// @v10.6.8 @ctr MEMSZERO(blk);
 	blk.Part = 1.0;
 	blk.TrfrRec = *pTrfrRec;
 	if(rF.Flags & OPG_SETCOSTWOTAXES)
@@ -767,7 +766,7 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 		if(P_Logger)
 			P_Logger->LogLastError();
 		else
-			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_USER|LOGMSGF_TIME);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 		++ErrDetected;
 	}
 	else {
@@ -1199,7 +1198,6 @@ int GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 		GoodsRestFilt   gr_flt;
 		PPViewGoodsRest gr_view;
 		PPOprKind       r_op_rec;
-		// @v10.6.4 MEMSZERO(r_op_rec);
 		if(pFilt->Flags & OPG_CALCINREST) {
 			r_op_rec.ID = -1;
 			entry.SetOp(r_op_rec);
@@ -1321,7 +1319,6 @@ int GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const AdjGdsGrp
 			double tax_factor = 1.0;
 			Goods2Tbl::Rec goods_rec;
 			PPGoodsTaxEntry gtx;
-			// @v10.2.5 (ctr) MEMSZERO(gtx);
 			if(filt.GoodsID && GObj.Fetch(filt.GoodsID, &goods_rec) > 0) {
 				PPUnit urec;
 				GoodsExtTbl::Rec gext_rec;

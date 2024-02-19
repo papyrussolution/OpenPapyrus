@@ -1,5 +1,5 @@
 // ELINKDLG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
 // @codepage UTF-8
 // Диалоги редактирования электронных адресов
 //
@@ -149,7 +149,6 @@ int ELinkListDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	PPELink link;
-	// @v10.6.12 @ctr MEMSZERO(link);
 	if(EditELink(&link) == cmOK) {
 		if(!Data.insert(&link))
 			ok = PPSetErrorSLib();

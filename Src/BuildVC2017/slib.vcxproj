@@ -4464,6 +4464,7 @@
     <ClInclude Include="..\Include\dirent.h" />
     <ClInclude Include="..\Include\fann2.h" />
     <ClInclude Include="..\Include\getopt.h" />
+    <ClInclude Include="..\Include\imgui-support.h" />
     <ClInclude Include="..\Include\json.h" />
     <ClInclude Include="..\Include\SLCONFIG.H" />
     <ClInclude Include="..\Include\slib-internal.h" />

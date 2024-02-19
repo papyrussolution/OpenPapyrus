@@ -1,5 +1,5 @@
 // ATOLDRV.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Starodub, A.Sobolev 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Интерфейс с драйвером оборудования АТОЛ 
 //
@@ -1704,9 +1704,9 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 							(temp_buf = sl_param.Text).Strip().SetIfEmpty("WARE").Transf(CTRANSF_INNER_TO_UTF8).Escape();
 							p_js_item->InsertString("name", temp_buf);
 						}
-						p_js_item->InsertDouble("price", pp, MKSFMTD(0, 2, 0));
+						p_js_item->InsertDouble("price", pp, MKSFMTD_020);
 						p_js_item->InsertDouble("quantity", pq, MKSFMTD(0, 6, NMBF_OMITEPS));
-						p_js_item->InsertDouble("amount", pp * pq, MKSFMTD(0, 2, 0));
+						p_js_item->InsertDouble("amount", pp * pq, MKSFMTD_020);
 						p_js_item->InsertDouble("infoDiscountAmount", 0.0, MKSFMTD(0, 1, 0));
 						p_js_item->InsertInt("department", inrangeordefault(sl_param.DivID, 0, 16, 0));
 						p_js_item->InsertString("measurementUnit", "piece"); // @v11.9.1
@@ -1913,19 +1913,19 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 						if(__amt_cash > 0.0) {
 							SJson * p_paym_item = SJson::CreateObj();
 							p_paym_item->InsertString("type", "cash");
-							p_paym_item->InsertDouble("sum", __amt_cash, MKSFMTD(0, 2, 0));
+							p_paym_item->InsertDouble("sum", __amt_cash, MKSFMTD_020);
 							p_paym_list->InsertChild(p_paym_item);
 						}
 						if(__amt_bnk > 0.0) {
 							SJson * p_paym_item = SJson::CreateObj();
 							p_paym_item->InsertString("type", "electronically");
-							p_paym_item->InsertDouble("sum", __amt_bnk, MKSFMTD(0, 2, 0));
+							p_paym_item->InsertDouble("sum", __amt_bnk, MKSFMTD_020);
 							p_paym_list->InsertChild(p_paym_item);
 						}
 						if(__amt_ccrd > 0.0) {
 							SJson * p_paym_item = SJson::CreateObj();
 							p_paym_item->InsertString("type", "other");
-							p_paym_item->InsertDouble("sum", __amt_ccrd, MKSFMTD(0, 2, 0));
+							p_paym_item->InsertDouble("sum", __amt_ccrd, MKSFMTD_020);
 							p_paym_list->InsertChild(p_paym_item);
 						}
 					}
@@ -2473,7 +2473,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			DoBeep();
 			if(Flags & sfOpenCheck)
 				ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
-			PPLogMessage(PPFILNAM_ATOLDRV_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+			PPLogMessage(PPFILNAM_ATOLDRV_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 			ok = 0;
 		}
 		if(P_Fptr10) {
@@ -2732,7 +2732,7 @@ int SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 		}
 	}
 	CATCH
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP|LOGMSGF_DBINFO);
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO|LOGMSGF_COMP);
 		ok = 0;
 	ENDCATCH
 	return ok;

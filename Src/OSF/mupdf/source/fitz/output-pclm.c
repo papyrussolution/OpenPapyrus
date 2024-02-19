@@ -220,9 +220,7 @@ static void pclm_write_band(fz_context * ctx,
 
 	for(line = 0; line < band_height; line++) {
 		int dstline = (band_start+line) % sh;
-		memcpy(writer->stripbuf + (size_t)w*n*dstline,
-		    sp + (size_t)line * w * n,
-		    (size_t)w * n);
+		memcpy(writer->stripbuf + (size_t)w*n*dstline, sp + (size_t)line * w * n, (size_t)w * n);
 		if(dstline+1 == sh)
 			flush_strip(ctx, writer, dstline+1);
 	}

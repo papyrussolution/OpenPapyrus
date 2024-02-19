@@ -95,7 +95,7 @@ void CollationLoader::loadRules(const char * localeID, const char * collationTyp
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-	uprv_memcpy(type, collationType, typeLength + 1);
+	memcpy(type, collationType, typeLength + 1);
 	T_CString_toLowerCase(type);
 
 	LocalUResourceBundlePointer bundle(ures_open(U_ICUDATA_COLL, localeID, &errorCode));

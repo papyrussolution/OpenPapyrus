@@ -51,10 +51,7 @@ static int ccm_tls_iv_set_fixed(PROV_CCM_CTX * ctx, unsigned char * fixed, size_
 	return 1;
 }
 
-static size_t ccm_get_ivlen(PROV_CCM_CTX * ctx)
-{
-	return 15 - ctx->l;
-}
+static size_t ccm_get_ivlen(PROV_CCM_CTX * ctx) { return 15 - ctx->l; }
 
 int ossl_ccm_set_ctx_params(void * vctx, const OSSL_PARAM params[])
 {

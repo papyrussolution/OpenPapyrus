@@ -113,7 +113,7 @@ static ns1__ArrayOfDeliveryPosition * FASTCALL CreateDeliveryPositions(const TSC
 		p_item->Count = GetDynamicParamString(temp_buf, rArgStrPool);
 		temp_buf.Z().Cat(p_src_item->Volume, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 		p_item->Volume = GetDynamicParamString(temp_buf, rArgStrPool);
-		temp_buf.Z().Cat(p_src_item->Amount, MKSFMTD(0, 2, 0));
+		temp_buf.Z().Cat(p_src_item->Amount, MKSFMTD_020);
 		p_item->Rubles = GetDynamicParamString(temp_buf, rArgStrPool);
 		p_item->Comments = GetDynamicParamString(p_src_item->Comments, rArgStrPool);
 	}

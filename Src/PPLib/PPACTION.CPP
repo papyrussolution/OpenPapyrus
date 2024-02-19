@@ -1,5 +1,5 @@
 // PPACTION.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -729,7 +729,6 @@ int GtaJournalCore::CheckInOp(PPGta & rGta, int use_ta)
 		CALLPTRMEMB(p_bobj, InitGtaBlock());
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		// @v10.6.4 MEMSZERO(rec);
 		rec.Op = rGta.Op;
 		rec.GlobalAccID = rGta.GlobalUserID;
 		rec.Dt = rGta.Dtm.d;
@@ -847,7 +846,6 @@ int ObjVersioningCore::Add(PPID * pID, PPObjID oid, SBuffer * pBuf, int use_ta)
 	int    ok = 1;
 	ObjVerTbl::Rec rec;
 	ObjVerTbl::Rec last_ver_rec;
-	// @v10.6.4 MEMSZERO(rec);
     rec.ObjType = oid.Obj;
     rec.ObjID = oid.Id;
 	rec.SysVer = DS.GetMinCompatVersion();

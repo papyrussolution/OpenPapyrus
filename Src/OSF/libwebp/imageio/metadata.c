@@ -41,7 +41,8 @@ int MetadataCopy(const char* metadata, size_t metadata_len, MetadataPayload* con
 	if(metadata == NULL || metadata_len == 0 || payload == NULL) 
 		return 0;
 	payload->bytes = (uint8*)SAlloc::M(metadata_len);
-	if(payload->bytes == NULL) return 0;
+	if(payload->bytes == NULL) 
+		return 0;
 	payload->size = metadata_len;
 	memcpy(payload->bytes, metadata, metadata_len);
 	return 1;

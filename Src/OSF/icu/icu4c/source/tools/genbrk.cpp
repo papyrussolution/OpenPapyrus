@@ -252,7 +252,7 @@ int  main(int argc, char ** argv)
 	uint32_t outDataSize;
 	const uint8_t * outData = bi->getBinaryRules(outDataSize);
 	// Copy the data format version numbers from the RBBI data header into the UDataMemory header.
-	uprv_memcpy(dh.info.formatVersion, ((RBBIDataHeader*)outData)->fFormatVersion, sizeof(dh.info.formatVersion));
+	memcpy(dh.info.formatVersion, ((RBBIDataHeader*)outData)->fFormatVersion, sizeof(dh.info.formatVersion));
 	//
 	//  Create the output file
 	//

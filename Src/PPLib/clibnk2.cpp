@@ -1,5 +1,5 @@
 // CLIBNK2.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Модуль формирования данных для передачи в системы клиент-банк
 //
@@ -257,7 +257,6 @@ public:
 		if(P_ImEx) {
 			if(!Period.IsZero()) {
 				Sdr_ImpExpHeader hdr_data;
-				// @v10.7.9 @ctr MEMSZERO(hdr_data);
 				hdr_data.PeriodLow = Period.low;
 				hdr_data.PeriodUpp = Period.upp;
 				P_ImEx->SetHeaderData(&hdr_data);
@@ -555,7 +554,7 @@ static int IsOurINN(const char * pINN)
 	return ok;
 }
 
-/*static*/int ClientBankImportDef::WriteAssocList(const SVector * pList, int use_ta) // @v9.8.8 SArray-->SVector
+/*static*/int ClientBankImportDef::WriteAssocList(const SVector * pList, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -613,7 +612,7 @@ int ClientBankImportDef::ImportAll()
 				}
 			}
 			uint   i, j;
-			SVector best_assoc(sizeof(Assoc)); // @v11.4.12 SArray-->SVector
+			SVector best_assoc(sizeof(Assoc));
 			PPIDArray psn_list, ar_list;
 			PPID * p_psn_id;
 			PPWaitMsg(item.MakeDescrText(wait_msg));
@@ -634,7 +633,6 @@ int ClientBankImportDef::ImportAll()
 			for(i = 0; i < ar_list.getCount(); i++) {
 				const  PPID ar_id = ar_list.get(i);
 				ArticleTbl::Rec ar_rec;
-				// @v10.6.4 MEMSZERO(ar_rec);
 				if(ar_id)
 					THROW(ar_obj.Fetch(ar_id, &ar_rec) > 0);
 				//for(j = 0; cfg.enumItems(&j, (void **)&p_assoc_item);) {
@@ -656,7 +654,6 @@ int ClientBankImportDef::ImportAll()
 				for(i = 0; i < ar_list.getCount(); i++) {
 					const  PPID ar_id = ar_list.get(i);
 					ArticleTbl::Rec ar_rec;
-					// @v10.6.4 MEMSZERO(ar_rec);
 					if(ar_id)
 						THROW(ar_obj.Fetch(ar_id, &ar_rec) > 0);
 					//for(j = 0; cfg.enumItems(&j, (void **)&p_assoc_item);) {
@@ -1344,7 +1341,6 @@ int ConvertRbcBnk(const char * pPath)
 			Sdr_RbcBnkReg rec;
 			THROW(in_file.OpenFileForReading(0));
 			THROW(out_file.OpenFileForWriting(0, 1));
-			// @v10.7.9 @ctr MEMSZERO(rec);
 			while((r = in_file.ReadRecord(&rec, sizeof(rec))) > 0) {
 				THROW(out_file.AppendRecord(&rec, sizeof(rec)));
 				MEMSZERO(rec);
@@ -1372,7 +1368,6 @@ int ConvertRbcBnk(const char * pPath)
 			Sdr_RbcBnkSeek rec;
 			THROW(in_file.OpenFileForReading(0));
 			THROW(out_file.OpenFileForWriting(0, 1));
-			// @v10.7.9 @ctr MEMSZERO(rec);
 			while((r = in_file.ReadRecord(&rec, sizeof(rec))) > 0) {
 				THROW(out_file.AppendRecord(&rec, sizeof(rec)));
 				MEMSZERO(rec);

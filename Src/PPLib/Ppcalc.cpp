@@ -1,5 +1,5 @@
 // PPCALC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -807,12 +807,10 @@ int CalcTaxPrice(PPID goodsID, PPID opID, LDATE dt, double price, int /*= 0*/)
 {
 	int    ok = -1;
 	CalcTaxPriceParam param;
-	// @v10.8.3 @ctr MEMSZERO(param);
 	param.GoodsID = goodsID;
 	param.OpID = opID;
 	param.Dt   = dt;
 	param.PriceWoTaxes = price;
-	// @v10.8.3 @ctr param.CalcWotaxByWtax = 0;
 	CalcTaxPriceDialog * dlg = new CalcTaxPriceDialog;
 	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(&param);
@@ -1308,7 +1306,7 @@ int PosPaymentBlock::EditDialog2()
 						if(oneof2(scst, scstCredit, scstBonus)) {
 							double sc_rest = GetCrdCardRest(sc_rec.ID);
 							PPLoadString("rest", temp_buf);
-                            info_buf.CR().Cat(temp_buf).CatDiv(':', 2).Cat(sc_rest, MKSFMTD(0, 2, 0));
+                            info_buf.CR().Cat(temp_buf).CatDiv(':', 2).Cat(sc_rest, MKSFMTD_020);
                             dlg->setStaticText(CTL_EDITCCAMT_INFO, info_buf);
                             dlg->setCtrlReal(CTL_EDITCCAMT_AMT, pData->Amount);
                             while(ok < 0 && ExecView(dlg) == cmOK) {
@@ -1321,7 +1319,7 @@ int PosPaymentBlock::EditDialog2()
 									PPErrorByDialog(dlg, CTL_EDITCCAMT_AMT);
                                 }
                                 else if(new_value > TotalConst) {
-									PPSetError(PPERR_OVERPAYMENT, temp_buf.Z().Cat(TotalConst, MKSFMTD(0, 2, 0)));
+									PPSetError(PPERR_OVERPAYMENT, temp_buf.Z().Cat(TotalConst, MKSFMTD_020));
 									PPErrorByDialog(dlg, CTL_EDITCCAMT_AMT);
                                 }
                                 else {

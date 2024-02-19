@@ -2626,7 +2626,7 @@ static int PThr4wTest_Timeouts()
 				FILETIME abs;
 				LONGLONG now;
 				if(!epoch) {
-					memset(&local, 0, sizeof(SYSTEMTIME));
+					memzero(&local, sizeof(SYSTEMTIME));
 					local.wYear = 1970;
 					local.wMonth = 1;
 					local.wDay = 1;

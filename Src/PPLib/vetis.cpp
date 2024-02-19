@@ -1,5 +1,5 @@
 // VETIS.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Модуль для взаимодействия с системой Меркурий (интерфейс ВЕТИС)
 //
@@ -1532,7 +1532,6 @@ class VetisPrepareOutgoingConsignmentRequest : public VetisApplicationData {
 public:
 	VetisPrepareOutgoingConsignmentRequest() : VetisApplicationData(signProcessOutgoingConsignment), P_RegionRules(0)
 	{
-		// @v10.6.4 MEMSZERO(VdRec);
 	}
 	VetisDocumentTbl::Rec VdRec;
 	VetisVetDocument OrgDoc; // Документ, в соответствии с которым товар оказался у нас
@@ -2156,7 +2155,6 @@ int VetisEntityCore::SetEntity(Entity & rE, TSVector <UnresolvedEntity> * pUreLi
 	else {
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		// @v10.6.4 MEMSZERO(rec);
 		THROW(UrT.GetUuid(rE.Guid, &rec.GuidRef, 0, 0));
 		THROW(UrT.GetUuid(rE.Uuid, &rec.UuidRef, 0, 0));
 		rE.GuidRef = rec.GuidRef;
@@ -2239,7 +2237,6 @@ int VetisEntityCore::MatchDocument(PPID docEntityID, PPID billID, int rowN, int 
 		THROW(tra);
 		if(rowN <= 0) {
 			row_n = -1;
-			// @v10.6.4 MEMSZERO(trfr_rec);
 		}
 		else {
 			row_n = rowN;
@@ -2577,7 +2574,6 @@ int VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & 
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(SetEntity(entity, pUreList, &result_id, 0));
-		// @v10.6.4 MEMSZERO(rec);
 		{
 			const VetisBatch & r_bat = rItem.Batch;
 			VetisBusinessEntity bent;
@@ -2746,7 +2742,6 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(SetEntity(entity, pUreList, &result_id, 0));
-		// @v10.6.4 MEMSZERO(rec);
 		{
 			const VetisCertifiedConsignment & r_crtc = rItem.CertifiedConsignment;
 			const VetisBatch & r_bat = r_crtc.Batch;
@@ -3001,7 +2996,6 @@ int VetisEntityCore::Put(PPID * pID, const VetisBusinessEntity & rItem, TSVector
 	SStringU temp_buf_u;
 	VetisPersonTbl::Rec rec;
 	Entity entity(kBusinessEntity, rItem);
-	// @v10.6.4 MEMSZERO(rec);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -3096,7 +3090,6 @@ int VetisEntityCore::Put(PPID * pID, const VetisEnterprise & rItem, TSVector <Un
 	SStringU temp_buf_u;
 	VetisPersonTbl::Rec rec;
 	Entity entity(kEnterprise, rItem);
-	// @v10.6.4 MEMSZERO(rec);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -3186,7 +3179,6 @@ int VetisEntityCore::Put(PPID * pID, int kind, const VetisProductItem & rItem, T
 	SStringU temp_buf_u;
 	VetisProductTbl::Rec rec;
 	Entity entity(kind, rItem);
-	// @v10.6.4 MEMSZERO(rec);
 	assert(oneof3(kind, kProductItem, kProduct, kSubProduct));
 	THROW_PP(oneof3(kind, kProductItem, kProduct, kSubProduct), PPERR_INVPARAM);
 	{
@@ -9158,13 +9150,9 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 			else
 				skip = true;
 		}
-		else {
-			// @v10.6.4 MEMSZERO(src_rec);
-		}
 		if(!skip) {
 			VetisDocumentTbl::Rec rec;
 			{
-				// @v10.6.4 MEMSZERO(rec);
 				// @v11.1.12 BillCore::GetCode(temp_buf = rBp.Rec.Code);
 				temp_buf = rBp.Rec.Code; // @v11.1.12 
 				rec.IssueDate = getcurdate_();

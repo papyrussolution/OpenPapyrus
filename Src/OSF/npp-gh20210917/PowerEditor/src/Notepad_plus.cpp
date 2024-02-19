@@ -5986,7 +5986,7 @@ void Notepad_plus::checkProjectMenuItem()
 			for(int j = 0; j < subMenuCount; j++) {
 				UINT const ids [] = {IDM_VIEW_PROJECT_PANEL_1, IDM_VIEW_PROJECT_PANEL_2, IDM_VIEW_PROJECT_PANEL_3};
 				UINT id = GetMenuItemID(subMenu, j);
-				for(int k = 0; k < _countof(ids); k++) {
+				for(int k = 0; k < SIZEOFARRAY(ids); k++) {
 					if(id == ids [k]) {
 						found = true;
 						UINT s = GetMenuState(subMenu, j, MF_BYPOSITION);
@@ -7325,7 +7325,7 @@ void Notepad_plus::updateCommandShortcuts()
 		generic_string shortcutName = _nativeLangSpeaker.getShortcutNameString(id);
 		if(menuName.length() == 0) {
 			TCHAR szMenuName[64];
-			if(::GetMenuString(_mainMenuHandle, csc.getID(), szMenuName, _countof(szMenuName), MF_BYCOMMAND))
+			if(::GetMenuString(_mainMenuHandle, csc.getID(), szMenuName, SIZEOFARRAY(szMenuName), MF_BYCOMMAND))
 				menuName = purgeMenuItemString(szMenuName, true);
 			else
 				menuName = csc.getShortcutName();

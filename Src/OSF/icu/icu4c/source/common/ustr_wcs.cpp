@@ -29,7 +29,7 @@ static inline bool u_growAnyBufferFromStatic(void * context, void ** pBuffer, in
 	char * newBuffer = (char *)uprv_malloc(reqCapacity*size);
 	if(newBuffer) {
 		if(length > 0) {
-			uprv_memcpy(newBuffer, *pBuffer, (size_t)length*size);
+			memcpy(newBuffer, *pBuffer, (size_t)length*size);
 		}
 		*pCapacity = reqCapacity;
 	}
@@ -172,7 +172,7 @@ static wchar_t * _strToWCS(wchar_t * dest, int32_t destCapacity, int32_t * pDest
 		count = (int32_t)(pIntTarget-intTarget);
 
 		if(0 < count && count <= destCapacity) {
-			uprv_memcpy(dest, intTarget, (size_t)count*sizeof(wchar_t));
+			memcpy(dest, intTarget, (size_t)count*sizeof(wchar_t));
 		}
 		ASSIGN_PTR(pDestLength, count);
 		/* free the allocated memory */
@@ -339,7 +339,7 @@ static char16_t * _strFromWCS(char16_t * dest,
 				}
 				if(nulLen>0) {
 					/* copy the contents to tempStack */
-					uprv_memcpy(pWStack, pSrc, (size_t)nulLen*sizeof(wchar_t));
+					memcpy(pWStack, pSrc, (size_t)nulLen*sizeof(wchar_t));
 				}
 
 				/* null terminate the tempBuffer */

@@ -468,9 +468,10 @@ U_CAPI UChar32 U_EXPORT2 u_forDigit(int32_t digit, int8 radix) {
 
 /* miscellaneous, and support for uprops.cpp -------------------------------- */
 
-U_CAPI void U_EXPORT2 u_getUnicodeVersion(UVersionInfo versionArray) {
-	if(versionArray != NULL) {
-		uprv_memcpy(versionArray, dataVersion, U_MAX_VERSION_LENGTH);
+U_CAPI void U_EXPORT2 u_getUnicodeVersion(UVersionInfo versionArray) 
+{
+	if(versionArray) {
+		memcpy(versionArray, dataVersion, U_MAX_VERSION_LENGTH);
 	}
 }
 

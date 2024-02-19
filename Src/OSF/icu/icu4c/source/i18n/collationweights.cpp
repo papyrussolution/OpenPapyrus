@@ -349,17 +349,17 @@ bool CollationWeights::getWeightRanges(uint32_t lowerLimit, uint32_t upperLimit)
 	/* copy the ranges, shortest first, into the result array */
 	rangeCount = 0;
 	if(middle.count>0) {
-		uprv_memcpy(ranges, &middle, sizeof(WeightRange));
+		memcpy(ranges, &middle, sizeof(WeightRange));
 		rangeCount = 1;
 	}
 	for(int32_t length = middleLength+1; length<=4; ++length) {
 		/* copy upper first so that later the middle range is more likely the first one to use */
 		if(upper[length].count>0) {
-			uprv_memcpy(ranges+rangeCount, upper+length, sizeof(WeightRange));
+			memcpy(ranges+rangeCount, upper+length, sizeof(WeightRange));
 			++rangeCount;
 		}
 		if(lower[length].count>0) {
-			uprv_memcpy(ranges+rangeCount, lower+length, sizeof(WeightRange));
+			memcpy(ranges+rangeCount, lower+length, sizeof(WeightRange));
 			++rangeCount;
 		}
 	}

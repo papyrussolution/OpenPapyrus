@@ -81,7 +81,8 @@ U_CAPI int32_t U_EXPORT2 getCurrentYear() {
 	return currentYear;
 }
 
-U_CAPI const char * U_EXPORT2 getLongPathname(const char * pathname) {
+U_CAPI const char * U_EXPORT2 getLongPathname(const char * pathname) 
+{
 #if U_PLATFORM_USES_ONLY_WIN32_API
 	/* anticipate problems with "short" pathnames */
 	static WIN32_FIND_DATAA info;
@@ -92,8 +93,8 @@ U_CAPI const char * U_EXPORT2 getLongPathname(const char * pathname) {
 			const char * basename = findBasename(pathname);
 			if(basename!=pathname) {
 				/* prepend the long filename with the original path */
-				uprv_memmove(info.cFileName+(basename-pathname), info.cFileName, strlen(info.cFileName)+1);
-				uprv_memcpy(info.cFileName, pathname, basename-pathname);
+				memmove(info.cFileName+(basename-pathname), info.cFileName, strlen(info.cFileName)+1);
+				memcpy(info.cFileName, pathname, basename-pathname);
 			}
 			pathname = info.cFileName;
 		}
@@ -103,11 +104,11 @@ U_CAPI const char * U_EXPORT2 getLongPathname(const char * pathname) {
 	return pathname;
 }
 
-U_CAPI const char * U_EXPORT2 findDirname(const char * path, char * buffer, int32_t bufLen, UErrorCode * status) {
+U_CAPI const char * U_EXPORT2 findDirname(const char * path, char * buffer, int32_t bufLen, UErrorCode * status) 
+{
 	if(U_FAILURE(*status)) return NULL;
 	const char * resultPtr = NULL;
 	int32_t resultLen = 0;
-
 	const char * basename = uprv_strrchr(path, U_FILE_SEP_CHAR);
 #if U_FILE_ALT_SEP_CHAR!=U_FILE_SEP_CHAR
 	const char * basenameAlt = uprv_strrchr(path, U_FILE_ALT_SEP_CHAR);
@@ -313,7 +314,7 @@ static bool utm_hasCapacity(UToolMemory * mem, int32_t capacity) {
 		if(mem->array==mem->staticArray) {
 			mem->array = uprv_malloc(newCapacity*mem->size);
 			if(mem->array!=NULL) {
-				uprv_memcpy(mem->array, mem->staticArray, (size_t)mem->idx*mem->size);
+				memcpy(mem->array, mem->staticArray, (size_t)mem->idx*mem->size);
 			}
 		}
 		else {

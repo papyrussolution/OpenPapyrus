@@ -1,5 +1,5 @@
 // OBJSCALE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -4055,7 +4055,7 @@ $$$RPL
 		(temp_buf = pScalePLU->GoodsName).Transf(CTRANSF_INNER_TO_OUTER);
         line_buf.Cat(temp_buf).Semicol();                  // #3
         line_buf.CatChar(pScalePLU->fCountable ? '1' : '0').Semicol(); // #4
-		line_buf.Cat(pScalePLU->Price, MKSFMTD(0, 2, 0)).Semicol();    // #5
+		line_buf.Cat(pScalePLU->Price, MKSFMTD_020).Semicol();    // #5
 		line_buf.CatCharN(';', 6);                                     // #6-#11
 		const long   numdays = diffdate(pScalePLU->Expiry, getcurdate_());
 		if(checkirange(numdays, 1L, 366L))
@@ -4738,7 +4738,7 @@ int PPObjScale::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
 	if(msg == DBMSG_OBJDELETE && oneof3(_obj, PPOBJ_GOODSGROUP, PPOBJ_QUOTKIND, PPOBJ_LOCATION)) {
-		SVector list(sizeof(PPScale)); // @v10.6.8 SArray-->SVector
+		SVector list(sizeof(PPScale));
 		int  r = P_Ref->LoadItems(Obj, list);
 		if(r > 0) {
 			PPScale * p_scale;
@@ -5016,7 +5016,7 @@ int PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 							plu.Flags |= plu.fCountable;
 					}
 					if(r2 == 0)
-						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 					THROW(rpe.GetPrice(gr_item.GoodsID, 0, 0.0, &rtl_ext_item));
 					if(pack.Rec.Flags & SCALF_CHKINVPAR) {
 						if(barcode_kind == 0 && !is_wp) {
@@ -5559,7 +5559,6 @@ int GetScaleData(PPID scaleID, TIDlgInitData * pData)
 			THROW(r = p_scale->GetData(&gds_no, &weight));
 			if(r > 0) {
 				ObjAssocTbl::Rec assoc_rec;
-				// @v10.9.0 @ctr MEMSZERO(assoc_rec);
 				if(gds_no) {
 					THROW(r = PPRef->Assc.SearchNum(PPASS_ALTGOODSGRP, pack.Rec.AltGoodsGrp, gds_no, &assoc_rec));
 					tidi.GoodsGrpID = pack.Rec.AltGoodsGrp;

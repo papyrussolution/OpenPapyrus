@@ -1120,7 +1120,7 @@ int PPObjEventSubscription::Run()
 						detected_id_list.Add(p_pack->EvSubscrID, ev_id);
 					}
 					else
-						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 				}
 			}
 			for(uint dlidx = 0; dlidx < detected_id_list.getCount(); dlidx++) {

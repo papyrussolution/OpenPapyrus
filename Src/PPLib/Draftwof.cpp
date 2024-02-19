@@ -1,5 +1,5 @@
 // DRAFTWOF.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2019, 2020, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -889,7 +889,6 @@ int PrcssrWrOffDraft::UniteToPool(PPID poolOpID, const PPIDArray * pBillList, in
 				BillTbl::Rec bill_rec;
 				if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 					ObjAssocTbl::Rec assc_rec;
-					// @v10.6.4 MEMSZERO(assc_rec);
 					assc_rec.ScndObjID = bill_id;
 					THROW_SL(pool_list.insert(&assc_rec));
 					if(bill_rec.Dt > pool_pack.Rec.Dt)

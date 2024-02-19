@@ -638,7 +638,7 @@ static uint32_t getFromUBytesValue(CnvExtData * extData, UCMTable * table, UCMap
 		    /* store the bytes in fromUBytes[] and the index in the value word */
 		    value = (uint32_t)utm_countItems(extData->fromUBytes);
 		    resultBytes = static_cast<uint8_t *>(utm_allocN(extData->fromUBytes, m->bLen));
-		    uprv_memcpy(resultBytes, bytes, m->bLen);
+		    memcpy(resultBytes, bytes, m->bLen);
 		    break;
 	}
 	value |= (uint32_t)m->bLen<<UCNV_EXT_FROM_U_LENGTH_SHIFT;

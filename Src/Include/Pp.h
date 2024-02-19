@@ -2031,6 +2031,7 @@ private:
 #define LOGMSGF_NODUPFORJOB 0x0200L // Сообщение не следует дублировать в спец журнале для рассылки результатов выполнения задач
 #define LOGMSGF_SLSSESSGUID 0x0400L // Выводить GUID сессии
 #define LOGMSGF_UTF8        0x0800L // @v11.6.11 Текст в файле журнала сохранять в кодировке utf-8
+#define LOGMSGF_LASTERR_TIME_USER (LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER) // @v11.9.6
 
 int STDCALL PPLogMessage(const char * pFileName, const char * pStr, long options);
 int STDCALL PPLogMessage(uint fileNameId, const char * pMsg, long options);
@@ -2603,7 +2604,7 @@ class PPViewDisplayExtList : private SStrGroup {
 public:
 	PPViewDisplayExtList();
 	PPViewDisplayExtList & Z();
-	int    FASTCALL IsEq(const PPViewDisplayExtList & rS) const;
+	bool   FASTCALL IsEq(const PPViewDisplayExtList & rS) const;
 	int    SetItem(int dataId, int position, const char * pTitle);
 	int    GetItemByPos(uint pos, PPViewDisplayExtItem * pItem) const;
 	int    GetItemByDataId(int dataId, PPViewDisplayExtItem * pItem) const;
@@ -3776,7 +3777,7 @@ public:
 	//   <0 - нет ни одного элемента
 	//   >0 - в массив pList загружено 1 или более элементов
 	//
-	int    LoadItems(PPID objType, SVector & rList); // @v10.6.8 SArray-->SVector
+	int    LoadItems(PPID objType, SVector & rList);
 	int    SearchName(PPID obj, PPID * pID, const char * pName, void * pRec = 0);
 	int    SearchSymb(PPID, PPID *, const char * pSymb, size_t offs);
 	int    CheckUniqueSymb(PPID objType, PPID objID, const char * pSymb, size_t offs);
@@ -11068,6 +11069,7 @@ protected:
 // @v10.8.5 (replaced with PPRentCondition::fPercent) #define RENTF_PERCENT   0x0010L // Процентные начисления по ренте.
 
 struct PPRentCondition {   // @size=48 @persistent @store(PropertyTbl[PPOBJ_BILL, @id, BILLPRP_RENT])
+	PPRentCondition(); // @v11.9.6
 	bool   IsEmpty() const;
 	int    FASTCALL IsEq(const PPRentCondition & rS) const;
 	int    GetCycleList(PPCycleArray *) const;
@@ -19155,6 +19157,7 @@ private:
 #define AWOGT_INDIRCOST   3L // Списание непрямых издержек как прямых
 
 struct PPAssetWrOffGrp2 {  // @persistent @store(Reference2Tbl+)
+	PPAssetWrOffGrp2(); // @v11.9.6
 	PPID   Tag;            // Const=PPOBJ_ASSTWROFFGRP
 	PPID   ID;             // @id
 	char   Name[48];       // @name @!refname
@@ -19683,6 +19686,7 @@ private:
 // Descr: Размерность расчета долгов
 //
 struct PPDebtDim {
+	PPDebtDim(); // @v11.9.6
 	long   Tag;            // Const=PPOBJ_DEBTDIM
 	long   ID;             // @id
 	char   Name[48];       // @name
@@ -20866,6 +20870,8 @@ public:
 	int16  DrvVerMinor;      //
 	uint16 DisRoundPrec;     // .01 @#{0..50000} Точность округления скидки //
 	uint16 AmtRoundPrec;     // .01 @#{0..50000} Точность округления результирующей суммы чека
+	uint16 Speciality;       // @v11.9.6 PPCashNode::spXXX 
+	uint64 Reserve;          // @v11.9.6 @alignment
 	PPID   LocID;            //
 	PPID   ExtQuotID;        // ->Ref(PPOBJ_QUOTKIND) Дополнительная котировка
 	long   Flags;            //
@@ -20942,7 +20948,8 @@ public:
 	uint16 ClearCDYTimeout;  // Таймаут очистки дисплея покупателя после печати чека
 	uint16 SleepTimeout;     //
 	PPID   LocalTouchScrID;  // Локальный (по отношению к компютеру) идентификатор записи PPObjTouchScreen
-	uint16 Speciality;       // PPCashNode::spXXX
+	// @v11.9.6 (moved to PPGenCashNode) uint16 Speciality;       // PPCashNode::spXXX
+	uint16 Reserve;          // @v11.9.6 @alignment
 	uint16 BonusMaxPart;     // Максимальная часть чека, которая может быть оплачена бонусом
 		// Ограничение хранится в промилле. Example: 152 = 15.2% от суммы чека
 	PPID   PhnSvcID;         // Телефонный сервис (для обслуживания заказов столов и доставки)
@@ -22920,7 +22927,7 @@ struct PhnSvcChannelStatus {
 	SString IdentifiedCallerName; // @v10.0.01
 };
 
-class PhnSvcChannelStatusPool : SVector, SStrGroup { // @v9.8.11 SArray-->SVector
+class PhnSvcChannelStatusPool : SVector, SStrGroup {
 public:
 	PhnSvcChannelStatusPool();
 	uint   GetCount() const;
@@ -23878,20 +23885,21 @@ private:
 #define GTF_EXCISEPROFORMA 0x00010000L // @v11.7.10 Товары этого типа формально подакцизные (предприятие, ведущее учет, акциз не рассчитывает, 
 	// но передает специальную информацию о продаже таких товаров в надзорные органы)
 
-#define GTCHZNPT_UNKN       -1 // @v11.5.0 Специальное интерфейсное значение, используемое для обозначения того, что товар маркируемый, но категория в терминах честного знака не ясна
-#define GTCHZNPT_UNDEF       0
-#define GTCHZNPT_FUR         1
-#define GTCHZNPT_TOBACCO     2
-#define GTCHZNPT_SHOE        3
-#define GTCHZNPT_MEDICINE    4
-#define GTCHZNPT_CARTIRE     5 // @v10.9.7  Автомобильные шины
-#define GTCHZNPT_TEXTILE     6 // @v10.9.11 Текстиль
-#define GTCHZNPT_PERFUMERY   7 // @v10.9.11 Парфюмерия
-#define GTCHZNPT_MILK        8 // @v10.9.11 Молоко
-#define GTCHZNPT_JEWELRY     9 // @v11.4.9 Ювелирные изделия //
-#define GTCHZNPT_WATER      10 // @v11.5.4 Вода питьевая //
-#define GTCHZNPT_ALTTOBACCO 11 // @v11.9.0 Альтернативная табачная продукция. Марки очень похожи на табак, но есть нюансы в обработке.
-#define GTCHZNPT_DRAFTBEER  12 // @v11.9.2 Пиво разливное
+#define GTCHZNPT_UNKN              -1 // @v11.5.0 Специальное интерфейсное значение, используемое для обозначения того, что товар маркируемый, но категория в терминах честного знака не ясна
+#define GTCHZNPT_UNDEF              0
+#define GTCHZNPT_FUR                1
+#define GTCHZNPT_TOBACCO            2
+#define GTCHZNPT_SHOE               3
+#define GTCHZNPT_MEDICINE           4
+#define GTCHZNPT_CARTIRE            5 // @v10.9.7  Автомобильные шины
+#define GTCHZNPT_TEXTILE            6 // @v10.9.11 Текстиль
+#define GTCHZNPT_PERFUMERY          7 // @v10.9.11 Парфюмерия
+#define GTCHZNPT_MILK               8 // @v10.9.11 Молоко
+#define GTCHZNPT_JEWELRY            9 // @v11.4.9 Ювелирные изделия //
+#define GTCHZNPT_WATER             10 // @v11.5.4 Вода питьевая //
+#define GTCHZNPT_ALTTOBACCO        11 // @v11.9.0 Альтернативная табачная продукция. Марки очень похожи на табак, но есть нюансы в обработке.
+#define GTCHZNPT_DRAFTBEER         12 // @v11.9.2 Пиво разливное
+#define GTCHZNPT_DIETARYSUPPLEMENT 13 // @v11.9.6 БАДы
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -24532,7 +24540,7 @@ struct PPGoodsTax2 {       // @persistent @store(Reference2Tbl+)
 	long   UnionVect;      //
 };
 
-class PPGoodsTaxPacket : private SVector { // @v10.1.6 SArray-->SVector
+class PPGoodsTaxPacket : private SVector {
 public:
 	PPGoodsTaxPacket();
 	PPGoodsTaxPacket & FASTCALL operator = (const PPGoodsTaxPacket &);
@@ -25298,9 +25306,9 @@ public:
 	int    SearchByName(int kind, const char * pName, WorldTbl::Rec * pRec);
 		// @>>PPObjWorld::GetListByName
 	int    SearchByCode(const char * pCode, WorldTbl::Rec * pRec);
-	int    GetListByName(int kind, const char * pName, SVector * pList); // @v10.6.7 SArray-->SVector
-	int    GetListByCode(int kind, const char * pCode, SVector * pList); // @v10.6.7 SArray-->SVector
-	int    GetListByFilt(const SelFilt & rFilt, SVector * pList); // @v10.6.7 SArray-->SVector
+	int    GetListByName(int kind, const char * pName, SVector * pList);
+	int    GetListByCode(int kind, const char * pCode, SVector * pList);
+	int    GetListByFilt(const SelFilt & rFilt, SVector * pList);
 	//
 	// Descr: Ищет государство (Kind == WORLDOBJ_COUNTRY) по следующему алгоритму:
 	//   - Если !isempty(pName), тогда точное соответствие по наименованию.
@@ -31834,8 +31842,8 @@ private:
 	PPID   StatID;         // Текущая обрабатываемая сессия //
 	long   StartClock;
 	RAssocArray SCardList;
-	SVector GoodsList; // @v9.8.11 SArray-->SVector
-	SVector StatCache; // @v9.8.11 SArray-->SVector
+	SVector GoodsList;
+	SVector StatCache;
 	PPIDArray UpdatedBillList; // @v10.2.11
 };
 //
@@ -31976,6 +31984,7 @@ public:
 	PPID   GetTobaccoGoodsCls() const;
 	PPID   GetGiftCardGoodsCls() const;
 	int    GetAlcoGoodsExtension(PPID goodsID, PPID lotID, PrcssrAlcReport::GoodsItem & rExt);
+	bool   IsSimplifiedDraftBeer(PPID goodsID) const; // @v11.9.6
 	//
 	// Descr: Возвращает список идентификаторов объектов типа refType,
 	//   на которые ссылаются товары из выборки.
@@ -32901,7 +32910,7 @@ struct AssetCard {
 	double OrgPrice;    // Начальная остаточная стоимость
 	AcctID AssetAcctID;
 	PPID   ExplBillID;
-	SVector * P_MovList; // @v10.7.11 SArray-->SVector
+	SVector * P_MovList;
 };
 //
 // @ModuleDecl(PPViewInventory)
@@ -33065,7 +33074,7 @@ private:
 //   на товары, имеющиеся на остатках. Используется при списании кассовых сессий,
 //   драфт-документов и технологических сессий, а также при формировании MRP-таблиц.
 //
-class GRI : public SVector { // @v10.6.4 SArray-->SVector
+class GRI : public SVector {
 public:
 	explicit GRI(PPID destID);
 	int    Add(PPID srcID, double qtty, double ratio);
@@ -36295,7 +36304,7 @@ private:
 // Descr: Класс, управляющий списком товаров, которые могут быть обработаны технологической
 //   сессией, использующей заданную технологию.
 //
-class TGSArray : private SVector, private SStrGroup { // @defined(Tech.cpp) // @v9.8.12 SArray-->SVector
+class TGSArray : private SVector, private SStrGroup { // @defined(Tech.cpp)
 public:
 	TGSArray();
 	uint   GetItemsCount() const;
@@ -36983,7 +36992,7 @@ public:
 		char   Serial[32];
 		char   Text[48];
 	};
-	int    GetSerialListByGoodsID(PPID goodsID, PPID locID, SVector * pList); // @v10.7.7 SArray-->SVector
+	int    GetSerialListByGoodsID(PPID goodsID, PPID locID, SVector * pList);
 	int    SelectSerialByGoods(PPID goodsID, PPID locID, SerialByGoodsListItem * pItem);
 	int    GetTagList(PPID id, ObjTagList * pTagList);
 	int    SetTagList(PPID id, const ObjTagList * pTagList, int use_ta);
@@ -37163,7 +37172,7 @@ private:
 	int    PutTimingLine(const TSessionTbl::Rec * pPack); // @<<PPObjTSession::PutPacket
 	int    CompleteStruc(PPID sessID, PPID tecGoodsID, PPID tecStrucID,
 		double tecQtty, const PPIDArray * pGoodsIdList, int tooling); // @<<PPObjTSession::Complete
-	void   Helper_SetupDiscount(SVector & rList, int pct, double discount); // @v10.0.07 SArray-->SVector
+	void   Helper_SetupDiscount(SVector & rList, int pct, double discount);
 		// @<<PPObjTSession::SetupDiscount
 	enum {
 		hploInner = 0x0001
@@ -38541,6 +38550,13 @@ public:
 	//
 	// int    Init(int setupValues, long extraParam);
 	void   FASTCALL SetupBrowseBillsType(BrowseBillsType);
+	//
+	// Descr: Возвращает true если фильтр предусматривает множественное органичение по контрагенту документа.
+	//
+	bool   HasMultiArRestriction() const
+	{
+		return (ObjList.IsExists() || (P_ContractorPsnTagF && !P_ContractorPsnTagF->IsEmpty()));
+	}
 	enum bff_tag {
 		fShowDebt          = 0x00000001, // Показывать долг
 		fDebtOnly          = 0x00000002, // Выводить только неоплаченные документы
@@ -38650,6 +38666,7 @@ public:
 	ObjIdListFilt AgentList;    // @v11.7.4 @reserve Список агентов (не используем пока не понадобится)
 	ObjIdListFilt ReservedList; // @v11.7.4 @reserve Резервируем еще один список на будущее.
 	TagFilt * P_TagF;        // Теги документов
+	TagFilt * P_ContractorPsnTagF; // @v11.9.6 Теги персоналий, соответствующих основной статье документов
 	PPViewDisplayExtList Dl; // Список дополнительных полей для отображения //
 };
 
@@ -38815,19 +38832,25 @@ private:
 	PPIDArray OpList;         //
 	PPIDArray LocList_;       //
 	PPIDArray GoodsList;      // @v11.0.11 Список идентификаторов товаров, которые должны содержаться в документах выборки (в каждом документе хотя бы один из товаров)
+	struct ArFilterBlock { // @v11.9.6 Блок фильтрации по полю BillTbl::Object
+		// Важно: Списки InclList и ExclList содержат идентификаторы персоналий, а не аналитических статей!
+		ArFilterBlock();
+		ArFilterBlock & Z();
+		bool   CheckID(PPID arID) const { return (!IsActual || (InclList.bsearch(arID) && !ExclList.bsearch(arID))); }
+		bool   IsActual; // Если false, то фильтрация блоком не применяется //
+		PPIDArray InclList; 
+		PPIDArray ExclList;
+	};
+	ArFilterBlock ArFBlk;     // @v11.9.6
 	ObjIdListFilt IdList;     // Список идентификаторов документов, которые должны быть в выборке
 	PPBillPoolOpEx * P_BPOX;  // @# {(!Filt.PoolBillID && !Filt.PoolOpID) => P_BPOX==0}
 	PoolInsertionParam Pip;   //
 	PrcssrAlcReport * P_Arp;  //
-	// @v10.9.0 int    CtrlX;             //
-	// @v10.9.0 (unused) int    UseOrderTblForIteration; // 0 - use TempBillTbl, else use TempOrderTbl
-	// @v10.9.0 {
 	enum {
 		stNoTempTbl = 0x0001, // Экземпляр не будет создавать временную таблицу, даже если условия фильтрации этого требуют.
 		stCtrlX     = 0x0002,
 	};
 	long   State;
-	// } @v10.9.0
 	friend int IterProc_CrTmpTbl(const BillViewItem *, void * pExtraPtr);
 };
 //
@@ -40571,7 +40594,7 @@ private:
 	int    InitProcessLotBlock(ProcessLotBlock & rBlk, const PPIDArray * pGrpGoodsList);
 	int    Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl::Rec & rRec);
 	int    MakeLotQuery(LotQueryBlock & rBlk, int lcr, long lowId, long uppId);
-	int    SelectLcrLots(const PPIDArray & rIdList, const UintHashTable & rLcrList, SVector & rList); // @v9.8.8 SArray-->SVector
+	int    SelectLcrLots(const PPIDArray & rIdList, const UintHashTable & rLcrList, SVector & rList);
 	int    UpdateGoods(PPID goodsID);
 	int    SetContractPrices();
 	static BExtQuery & FASTCALL MakeLotSelectFldList(BExtQuery & rQ, const ReceiptTbl & rT);
@@ -45014,6 +45037,7 @@ public:
 };
 
 struct MrpTabLeaf { // @flat
+	MrpTabLeaf(PPID tabID, PPID locID, LDATE dt);
 	PPID   TabID;
 	PPID   LocID;
 	LDATE  Dt;
@@ -55681,8 +55705,8 @@ private:
 
 class ClientBankImportDef {
 public:
-	static int WriteAssocList(const SVector * pList, int use_ta); // @v9.8.8 SArray-->SVector
-	static int ReadAssocList(SVector * pList); // @v9.8.8 SArray-->SVector
+	static int WriteAssocList(const SVector * pList, int use_ta);
+	static int ReadAssocList(SVector * pList);
 
 	ClientBankImportDef();
 	~ClientBankImportDef();

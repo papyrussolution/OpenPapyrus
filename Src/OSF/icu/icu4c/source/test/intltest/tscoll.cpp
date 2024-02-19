@@ -498,7 +498,7 @@ IntlTestCollator::Order * IntlTestCollator::getOrders(CollationElementIterator &
 			maxSize *= 2;
 			Order * temp = new Order[maxSize];
 
-			uprv_memcpy(temp, orders.getAlias(), size * sizeof(Order));
+			memcpy(temp, orders.getAlias(), size * sizeof(Order));
 			orders.adoptInstead(temp);
 		}
 
@@ -516,7 +516,7 @@ IntlTestCollator::Order * IntlTestCollator::getOrders(CollationElementIterator &
 	if(maxSize > size) {
 		Order * temp = new Order[size];
 
-		uprv_memcpy(temp, orders.getAlias(), size * sizeof(Order));
+		memcpy(temp, orders.getAlias(), size * sizeof(Order));
 		orders.adoptInstead(temp);
 	}
 	orderLength = size;

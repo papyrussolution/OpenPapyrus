@@ -80,9 +80,7 @@ int RSA_padding_check_X931(uchar * to, int tlen,
 		ERR_raise(ERR_LIB_RSA, RSA_R_INVALID_TRAILER);
 		return -1;
 	}
-
 	memcpy(to, p, (unsigned int)j);
-
 	return j;
 }
 

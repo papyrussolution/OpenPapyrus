@@ -1,5 +1,5 @@
 // V_TSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1865,7 +1865,6 @@ int PPViewTSessLine::AddItemExt(PPID tsesID, PPViewBrowser * pBrw)
 				TGSArray tgs_list;
 				TSessionTbl::Rec tses_rec;
 				ProcessorTbl::Rec prc_rec;
-				// @v10.7.8 @ctr MEMSZERO(prc_rec);
 				if(TSesObj.Search(tsesID, &tses_rec) > 0) {
 					if(TSesObj.GetPrc(tses_rec.PrcID, &prc_rec, 1, 1) > 0)
 						dlg->setLocation(prc_rec.LocID);

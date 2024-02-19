@@ -198,7 +198,7 @@ U_CAPI void U_EXPORT2 upvec_setValue(UPropsVectors * pv, UChar32 start, UChar32 
 				*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 				return;
 			}
-			uprv_memcpy(newVectors, pv->v, (size_t)rows*columns*4);
+			memcpy(newVectors, pv->v, (size_t)rows*columns*4);
 			firstRow = newVectors+(firstRow-pv->v);
 			lastRow = newVectors+(lastRow-pv->v);
 			uprv_free(pv->v);
@@ -208,14 +208,14 @@ U_CAPI void U_EXPORT2 upvec_setValue(UPropsVectors * pv, UChar32 start, UChar32 
 		/* count the number of row cells to move after the last row, and move them */
 		count = (int32_t)((pv->v+rows*columns)-(lastRow+columns));
 		if(count>0) {
-			uprv_memmove(lastRow+(1+splitFirstRow+splitLastRow)*columns, lastRow+columns, count*4);
+			memmove(lastRow+(1+splitFirstRow+splitLastRow)*columns, lastRow+columns, count*4);
 		}
 		pv->rows = rows+splitFirstRow+splitLastRow;
 		/* split the first row, and move the firstRow pointer to the second part */
 		if(splitFirstRow) {
 			/* copy all affected rows up one and move the lastRow pointer */
 			count = (int32_t)((lastRow-firstRow)+columns);
-			uprv_memmove(firstRow+columns, firstRow, (size_t)count*4);
+			memmove(firstRow+columns, firstRow, (size_t)count*4);
 			lastRow += columns;
 			/* split the range and move the firstRow pointer */
 			firstRow[1] = firstRow[columns] = (uint32_t)start;
@@ -225,7 +225,7 @@ U_CAPI void U_EXPORT2 upvec_setValue(UPropsVectors * pv, UChar32 start, UChar32 
 		/* split the last row */
 		if(splitLastRow) {
 			/* copy the last row data */
-			uprv_memcpy(lastRow+columns, lastRow, (size_t)columns*4);
+			memcpy(lastRow+columns, lastRow, (size_t)columns*4);
 
 			/* split the range and move the firstRow pointer */
 			lastRow[1] = lastRow[columns] = (uint32_t)limit;
@@ -383,7 +383,7 @@ U_CAPI void U_EXPORT2 upvec_compact(UPropsVectors * pv, UPVecCompactHandler * ha
 		/* add a new values vector if it is different from the current one */
 		if(count<0 || 0!=memcmp(row+2, pv->v+count, valueColumns*4)) {
 			count += valueColumns;
-			uprv_memmove(pv->v+count, row+2, (size_t)valueColumns*4);
+			memmove(pv->v+count, row+2, (size_t)valueColumns*4);
 		}
 
 		if(start<UPVEC_FIRST_SPECIAL_CP) {
@@ -432,7 +432,7 @@ U_CAPI uint32_t * U_EXPORT2 upvec_cloneArray(const UPropsVectors * pv,
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
-	uprv_memcpy(clonedArray, pv->v, byteLength);
+	memcpy(clonedArray, pv->v, byteLength);
 	if(pRows) {
 		*pRows = pv->rows;
 	}

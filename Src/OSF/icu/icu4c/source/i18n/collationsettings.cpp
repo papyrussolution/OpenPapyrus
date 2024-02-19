@@ -20,7 +20,7 @@ CollationSettings::CollationSettings(const CollationSettings &other) : SharedObj
 	UErrorCode errorCode = U_ZERO_ERROR;
 	copyReorderingFrom(other, errorCode);
 	if(fastLatinOptions >= 0) {
-		uprv_memcpy(fastLatinPrimaries, other.fastLatinPrimaries, sizeof(fastLatinPrimaries));
+		memcpy(fastLatinPrimaries, other.fastLatinPrimaries, sizeof(fastLatinPrimaries));
 	}
 }
 
@@ -211,9 +211,9 @@ void CollationSettings::setReorderArrays(const int32_t * codes, int32_t codesLen
 		reorderCodes = ownedCodes;
 		reorderCodesCapacity = capacity;
 	}
-	uprv_memcpy(ownedCodes + reorderCodesCapacity, table, 256);
-	uprv_memcpy(ownedCodes, codes, codesLength * 4);
-	uprv_memcpy(ownedCodes + codesLength, ranges, rangesLength * 4);
+	memcpy(ownedCodes + reorderCodesCapacity, table, 256);
+	memcpy(ownedCodes, codes, codesLength * 4);
+	memcpy(ownedCodes + codesLength, ranges, rangesLength * 4);
 	reorderTable = reinterpret_cast<const uint8 *>(reorderCodes + reorderCodesCapacity);
 	reorderCodesLength = codesLength;
 	reorderRanges = reinterpret_cast<uint32_t *>(ownedCodes) + codesLength;

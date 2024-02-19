@@ -1,5 +1,5 @@
 // OBJGTAX.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -82,7 +82,7 @@ void FASTCALL PPGoodsTax::FromEntry(const PPGoodsTaxEntry * pEntry)
 	UnionVect = pEntry->UnionVect;
 }
 
-PPGoodsTaxPacket::PPGoodsTaxPacket() : SVector(sizeof(PPGoodsTaxEntry)) // @v10.1.6 SArray-->SVector
+PPGoodsTaxPacket::PPGoodsTaxPacket() : SVector(sizeof(PPGoodsTaxEntry))
 {
 }
 
@@ -456,7 +456,6 @@ int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long excl
 			const int  re = BIN(rTi.Flags & PPTFR_RMVEXCISE);
 			if((r_ccfg.Flags & CCFLG_PRICEWOEXCISE) ? !re : re)
 				exclFlags |= GTAXVF_SALESTAX;
-			// @v10.2.5 (ctr) MEMSZERO(gtx);
 			gobj.GTxObj.Fetch(tax_grp_id, rTi.Date, opID, &gtx);
 			if(!is_exclvat)
 				amount = rTi.NetPrice();
@@ -464,7 +463,6 @@ int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long excl
 		else {
 			if(!(exclFlags & GTAXVF_NOMINAL) && rTi.LotTaxGrpID)
 				tax_grp_id = rTi.LotTaxGrpID;
-			// @v10.2.5 (ctr) MEMSZERO(gtx);
 			gobj.GTxObj.Fetch(tax_grp_id, date_of_relevance, 0, &gtx);
 			if(rTi.Flags & PPTFR_COSTWOVAT) {
 				amt_flags &= ~GTAXVF_VAT;
@@ -1035,7 +1033,6 @@ int GTaxCache::GetFromBase(PPID id)
 		PPGoodsTaxEntry item;
 		for(uint i = 0; i < gt_pack.GetCount(); i++)
 			P_Ary->insert(&gt_pack.Get(i));
-		// @v10.2.5 (ctr) MEMSZERO(item);
 		gt_pack.Rec.ToEntry(&item);
 		item.Flags &= ~GTAXF_USELIST;
 		P_Ary->insert(&item);

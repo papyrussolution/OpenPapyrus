@@ -176,7 +176,6 @@ int TCanvas2::GetCapability(Capability * pCaps) const
 {
 	int    ok = 1;
 	Capability c;
-	// @v10.9.3 @ctr MEMSZERO(c);
 	HDC h_dc = static_cast<HDC>(*this);
 	if(h_dc) {
 		const float  mm_h = static_cast<float>(GetDeviceCaps(h_dc, HORZSIZE));

@@ -141,7 +141,7 @@ int32_t swapFormatVersion3(const UDataSwapper * ds,
 	if(length>=0) {
 		/* copy everything, takes care of data that needs no swapping */
 		if(inBytes!=outBytes) {
-			uprv_memcpy(outBytes, inBytes, header.size);
+			memcpy(outBytes, inBytes, header.size);
 		}
 
 		/* swap the necessary pieces in the order of their occurrence in the data */
@@ -348,7 +348,7 @@ int32_t swapFormatVersion4(const UDataSwapper * ds,
 
 	// Copy the data for inaccessible bytes and arrays of bytes.
 	if(inBytes!=outBytes) {
-		uprv_memcpy(outBytes, inBytes, size);
+		memcpy(outBytes, inBytes, size);
 	}
 
 	// Swap the int32_t indexes[].
@@ -579,7 +579,7 @@ U_CAPI int32_t U_EXPORT2 ucol_swapInverseUCA(const UDataSwapper * ds,
 	if(length>=0) {
 		/* copy everything, takes care of data that needs no swapping */
 		if(inBytes!=outBytes) {
-			uprv_memcpy(outBytes, inBytes, header.byteSize);
+			memcpy(outBytes, inBytes, header.byteSize);
 		}
 
 		/* swap the necessary pieces in the order of their occurrence in the data */

@@ -1,5 +1,5 @@
 // OBJQUOTK.CPP
-// Copyright (c) A.Sobolev 1998-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 1998-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -322,7 +322,7 @@ int PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 	PPObjGoods goods_obj;
 	const  int  intrexpnd = IsIntrExpndOp(opID);
 	const  PPID matrix_qk_id = goods_obj.GetConfig().MtxQkID;
-	SVector list(sizeof(PPQuotKind)); // @v10.6.8 SArray-->SVector
+	SVector list(sizeof(PPQuotKind));
 	P_Ref->LoadItems(Obj, list);
 	for(uint qkidx = 0; qkidx < list.getCount(); qkidx++) {
 		const PPQuotKind * p_item = static_cast<const PPQuotKind *>(list.at(qkidx));
@@ -722,11 +722,10 @@ QuotKindFilt::QuotKindFilt()
 int PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 {
 	int    ok = -1, i;
-	// @v10.3.0 (never used) SArray * p_ary = 0;
 	SString temp_buf;
 	PPIDArray id_list;
 	PPQuotKind qk_rec;
-	SVector rec_list(sizeof(PPQuotKind)); // @v10.6.8 SArray-->SVector
+	SVector rec_list(sizeof(PPQuotKind));
 	const PPObjQuotKind::Special spc(PPObjQuotKind::Special::ctrInitializeWithCache);
 	if(pFilt->Flags & QuotKindFilt::fSupplDeal) {
 		const  PPID spc_qk_list[] = { spc.SupplDealID, spc.SupplDevUpID, spc.SupplDevDnID };

@@ -1768,7 +1768,7 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 
 		/* copy the data for inaccessible bytes */
 		if(inBytes!=outBytes) {
-			uprv_memcpy(outBytes, inBytes, length);
+			memcpy(outBytes, inBytes, length);
 		}
 
 		/* the initial 4 offsets first */
@@ -1832,7 +1832,7 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 		}
 
 		/* copy the result into the output and free the temporary array */
-		uprv_memcpy(q, temp, tokenCount*2);
+		memcpy(q, temp, tokenCount*2);
 		uprv_free(temp);
 
 		/*

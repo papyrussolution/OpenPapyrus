@@ -3675,11 +3675,11 @@ SJson * PPStyloQInterchange::Document::ToJsonObject() const
 							is_empty = false;
 						}
 						if(p_ti->Set.Cost != 0.0) {
-							p_js_ti_set->InsertDouble("cost", p_ti->Set.Cost, MKSFMTD(0, 2, 0));
+							p_js_ti_set->InsertDouble("cost", p_ti->Set.Cost, MKSFMTD_020);
 							is_empty = false;
 						}
 						if(p_ti->Set.Price != 0.0) {
-							p_js_ti_set->InsertDouble("price", p_ti->Set.Price, MKSFMTD(0, 2, 0));
+							p_js_ti_set->InsertDouble("price", p_ti->Set.Price, MKSFMTD_020);
 							is_empty = false;
 						}
 						if(p_ti->Set.Discount != 0.0) {
@@ -3701,11 +3701,11 @@ SJson * PPStyloQInterchange::Document::ToJsonObject() const
 							is_empty = false;
 						}
 						if(p_ti->SetAccepted.Cost != 0.0) {
-							p_js_ti_set->InsertDouble("cost", p_ti->SetAccepted.Cost, MKSFMTD(0, 2, 0));
+							p_js_ti_set->InsertDouble("cost", p_ti->SetAccepted.Cost, MKSFMTD_020);
 							is_empty = false;
 						}
 						if(p_ti->SetAccepted.Price != 0.0) {
-							p_js_ti_set->InsertDouble("price", p_ti->SetAccepted.Price, MKSFMTD(0, 2, 0));
+							p_js_ti_set->InsertDouble("price", p_ti->SetAccepted.Price, MKSFMTD_020);
 							is_empty = false;
 						}
 						if(p_ti->SetAccepted.Discount != 0.0) {
@@ -3786,11 +3786,11 @@ SJson * PPStyloQInterchange::Document::ToJsonObject() const
 						is_empty = false;
 					}
 					if(p_bi->Set.Cost > 0.0) {
-						p_js_set->InsertDouble("cost", p_bi->Set.Cost, MKSFMTD(0, 2, 0));
+						p_js_set->InsertDouble("cost", p_bi->Set.Cost, MKSFMTD_020);
 						is_empty = false;
 					}
 					if(p_bi->Set.Price > 0.0) {
-						p_js_set->InsertDouble("price", p_bi->Set.Price, MKSFMTD(0, 2, 0));
+						p_js_set->InsertDouble("price", p_bi->Set.Price, MKSFMTD_020);
 						is_empty = false;
 					}
 					if(is_empty) {
@@ -8350,7 +8350,7 @@ SJson * PPStyloQInterchange::MakeRsrvAttendancePrereqResponse_Prc(const SBinaryC
 							}
 						}
 						if(price > 0.0) {
-							p_js_goods_item->InsertDouble("price", price, MKSFMTD(0, 2, 0));
+							p_js_goods_item->InsertDouble("price", price, MKSFMTD_020);
 						}
 					}
 					p_js_prcgoodslist->InsertChild(p_js_goods_item);
@@ -11375,7 +11375,7 @@ public:
 					do_process_loop = true; // OK
 				}
 				else {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO|LOGMSGF_THREADID);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO|LOGMSGF_THREADID);
 				}
 				break;
 			case PPSCMD_SQ_SESSION: // Команда инициации соединения по значению сессии, которая была установлена на предыдущем сеансе обмена
@@ -11384,7 +11384,7 @@ public:
 					do_process_loop = true; // OK
 				}
 				else {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO|LOGMSGF_THREADID);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO|LOGMSGF_THREADID);
 				}
 				break;
 			case PPSCMD_SQ_SRPAUTH: // Команда инициации соединения методом SRP-авторизации по параметрам, установленным ранее 
@@ -11393,7 +11393,7 @@ public:
 					do_process_loop = true; // OK
 				}
 				else {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO|LOGMSGF_THREADID);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO|LOGMSGF_THREADID);
 				}
 				break;
 			default:
@@ -11670,7 +11670,7 @@ int StyloQCore::IndexingContent()
 							}
 						}
 						if(is_local_fault) {
-							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER);
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 						}
 					}
 				}
@@ -11988,14 +11988,14 @@ void RunStyloQMqbServer()
 				StyloQCore::StoragePacket sp;
 				PPSession::LimitedDatabaseBlock * p_ldb = DS.LimitedOpenDatabase(p_map_entry->DbSymb, PPSession::lodfReference|PPSession::lodfStyloQCore|PPSession::lodfSysJournal);
 				if(!p_ldb) {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP|LOGMSGF_TIME);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
 				}
 				else if(p_ldb->P_Sqc->GetOwnPeerEntry(&sp) <= 0) {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP|LOGMSGF_TIME);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
 				}
 				else if(!sp.Pool.Get(SSecretTagPool::tagSvcIdent, &bc)) {
 					PPSetError(PPERR_SQ_UNDEFOWNSVCID);
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP|LOGMSGF_TIME);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
 				}
 				else {
 					bool svc_id_reckoned = false;

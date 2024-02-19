@@ -594,25 +594,25 @@ PPViewDisplayExtList & PPViewDisplayExtList::Z()
 	return *this;
 }
 
-int FASTCALL PPViewDisplayExtList::IsEq(const PPViewDisplayExtList & rS) const
+bool FASTCALL PPViewDisplayExtList::IsEq(const PPViewDisplayExtList & rS) const
 {
-	int    ok = 0;
+	bool   ok = false;
 	uint   c = L.getCount();
 	if(c == rS.L.getCount()) {
-		ok = 1;
+		ok = true;
 		SString t1, t2;
 		for(uint i = 0; ok && i < c; i++) {
 			const InnerItem & r1 = L.at(i);
 			const InnerItem & r2 = rS.L.at(i);
 			if(r1.DataId != r2.DataId)
-				ok = 0;
+				ok = false;
 			else if(r1.Position != r2.Position)
-				ok = 0;
+				ok = false;
 			else {
 				GetS(r1.TitleP, t1);
 				GetS(r2.TitleP, t2);
 				if(t1 != t2)
-					ok = 0;
+					ok = false;
 			}
 		}
 	}
@@ -1685,7 +1685,7 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 			THROW(p_rtm->ExportJson(ep, result_json_file_name)); 
 			// } @debug 
 			if(!PublishNfViewToMqb(pNf, rResultFileName)) {
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 			}
 		}
 	}

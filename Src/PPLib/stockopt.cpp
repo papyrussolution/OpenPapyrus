@@ -1,5 +1,5 @@
 // STOCKOPT.CPP
-// Copirught (c) A.Sobolev 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copirught (c) A.Sobolev 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -685,7 +685,6 @@ public:
 		int    ok = 1;
 		Data = *pData;
 		GoodsCtrlGroup::Rec grp_rec;
-		// @v10.6.4 MEMSZERO(grp_rec);
 		grp_rec.GoodsID = Data.GoodsID;
 		grp_rec.Flags   = (GoodsCtrlGroup::enableSelUpLevel|GoodsCtrlGroup::disableEmptyGoods);
 		setGroupData(CTLGRP_GOODS, &grp_rec);

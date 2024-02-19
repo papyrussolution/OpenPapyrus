@@ -1,5 +1,5 @@
 // V_DEBT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Implementation of PPViewDebtTrnovr
 //
@@ -783,7 +783,6 @@ int PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 								int    r;
 								const  long tab_id = tab_list.get(j);
 								TempSellTrnovrTbl::Rec rec;
-								// @v10.6.4 MEMSZERO(rec);
 								rec.ID    = r_entry.ID;
 								rec.TabID = tab_id;
 								rec.NotStop = stop ? 0 : 1;
@@ -3217,7 +3216,6 @@ int DebtStatCore::SetList(PPID accSheetID, LDATE date, const PPDebtorStatArray &
 				THROW_DB(updateRecBuf(&rec));
 			}
 			else {
-				// @v10.6.4 MEMSZERO(rec);
 				rec.AccSheetID = accSheetID;
 				rec.ArID = p_item->ArID;
 				rec.RelArID = p_item->RelArID;

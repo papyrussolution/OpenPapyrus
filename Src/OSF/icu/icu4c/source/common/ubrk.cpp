@@ -244,7 +244,7 @@ U_CAPI int32_t U_EXPORT2 ubrk_getBinaryRules(UBreakIterator * bi, uint8 *       
 			*status = U_BUFFER_OVERFLOW_ERROR;
 		}
 		else {
-			uprv_memcpy(binaryRules, returnedRules, rulesLength);
+			memcpy(binaryRules, returnedRules, rulesLength);
 		}
 	}
 	return (int32_t)rulesLength;

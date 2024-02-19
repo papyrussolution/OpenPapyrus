@@ -370,7 +370,7 @@ void U_CALLCONV initUnitExtras(UErrorCode & status)
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
-	uprv_memcpy(gSerializedUnitCategoriesTrie, resultQuantities.data(), numBytesQuantities);
+	memcpy(gSerializedUnitCategoriesTrie, resultQuantities.data(), numBytesQuantities);
 
 	// Build the BytesTrie that Parser needs for parsing unit identifiers.
 
@@ -453,7 +453,7 @@ void U_CALLCONV initUnitExtras(UErrorCode & status)
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
-	uprv_memcpy(gSerializedUnitExtrasStemTrie, result.data(), numBytes);
+	memcpy(gSerializedUnitExtrasStemTrie, result.data(), numBytes);
 }
 
 class Token {

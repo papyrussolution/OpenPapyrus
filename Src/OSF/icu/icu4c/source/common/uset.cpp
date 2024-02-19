@@ -453,7 +453,7 @@ U_CAPI bool U_EXPORT2 uset_getSerializedRange(const USerializedSet* set, int32_t
 //                 /* the previous range collapsed, remove it */
 //                 set->length=length-=2;
 //                 if(i<length) {
-//                     uprv_memmove(set->array+i, set->array+i+2, (length-i)*4);
+//                     memmove(set->array+i, set->array+i+2, (length-i)*4);
 //                 }
 //             }
 //         }
@@ -467,7 +467,7 @@ U_CAPI bool U_EXPORT2 uset_getSerializedRange(const USerializedSet* set, int32_t
 //                 --i;
 //                 set->length=length-=2;
 //                 if(i<length) {
-//                     uprv_memmove(set->array+i, set->array+i+2, (length-i)*4);
+//                     memmove(set->array+i, set->array+i+2, (length-i)*4);
 //                 }
 //             }
 //         } else {
@@ -492,7 +492,7 @@ U_CAPI bool U_EXPORT2 uset_getSerializedRange(const USerializedSet* set, int32_t
 //             return FALSE;
 //         }
 //         set->capacity=newCapacity;
-//         uprv_memcpy(newArray, set->array, length*4);
+//         memcpy(newArray, set->array, length*4);
 //
 //         if(set->array!=set->staticBuffer) {
 //             uprv_free(set->array);
@@ -501,7 +501,7 @@ U_CAPI bool U_EXPORT2 uset_getSerializedRange(const USerializedSet* set, int32_t
 //     }
 //
 //     if(i<length) {
-//         uprv_memmove(set->array+i+more, set->array+i, (length-i)*4);
+//         memmove(set->array+i+more, set->array+i, (length-i)*4);
 //     }
 //     set->array[i]=c;
 //     if(more==2) {

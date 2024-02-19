@@ -469,8 +469,7 @@ void* xmlNanoFTPNewCtxt(const char * URL) {
 		xmlFTPErrMemory("allocating FTP context");
 		return NULL;
 	}
-
-	memset(ret, 0, sizeof(xmlNanoFTPCtxt));
+	memzero(ret, sizeof(xmlNanoFTPCtxt));
 	ret->port = 21;
 	ret->passive = 1;
 	ret->returnValue = 0;
@@ -852,15 +851,13 @@ int xmlNanoFTPConnect(void * ctx) {
 	else {
 		port = ctxt->port;
 	}
-	if(port == 0)
-		port = 21;
-	memset(&ctxt->ftpAddr, 0, sizeof(ctxt->ftpAddr));
+	SETIFZQ(port, 21);
+	memzero(&ctxt->ftpAddr, sizeof(ctxt->ftpAddr));
 #ifdef SUPPORT_IP6
 	if(have_ipv6()) {
 		struct addrinfo hints, * tmp, * result;
-
 		result = NULL;
-		memset(&hints, 0, sizeof(hints));
+		memzero(&hints, sizeof(hints));
 		hints.ai_socktype = SOCK_STREAM;
 
 		if(proxy) {
@@ -1362,10 +1359,8 @@ SOCKET xmlNanoFTPGetConnection(void * ctx) {
 
 #endif
 	XML_SOCKLEN_T dataAddrLen;
-
 	if(ctxt == NULL) return INVALID_SOCKET;
-
-	memset(&dataAddr, 0, sizeof(dataAddr));
+	memzero(&dataAddr, sizeof(dataAddr));
 #ifdef SUPPORT_IP6
 	if((ctxt->ftpAddr).ss_family == AF_INET6) {
 		ctxt->dataFd = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);

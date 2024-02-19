@@ -1,5 +1,5 @@
 // PREDICT.CPP
-// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023
+// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024
 // @codepage UTF-8 // @v10.6.8
 //
 #include <pp.h>
@@ -1200,7 +1200,6 @@ int PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, LDATE c
 				}
 				if(p_stat_entry) {
 					PredictSalesItem item;
-					// @v10.6.6 @ctr MEMSZERO(item);
 					T.ExpandDate(T.data.Dt, &item.Dt);
 					item.Qtty = T.data.Quantity;
 					item.Amount = T.data.Amount;
@@ -1272,7 +1271,6 @@ int PrcssrPrediction::StoreStatByGoodsList(const PPIDArray & rGoodsList, LDATE c
 			for(i = 0; !break_process && i < c; i++) {
 				const PredictSalesStat * p_pss = &(p_stat_list[i]);
 				GoodsStatTbl::Rec new_rec;
-				// @v10.6.4 MEMSZERO(new_rec);
 				T.ShrinkLoc(p_pss->LocID, &new_rec.Loc);
 				T.ShrinkDate(p_pss->LastDate, &new_rec.LastDate);
 				new_rec.GoodsID   = p_pss->GoodsID;
@@ -1341,7 +1339,6 @@ int PrcssrPrediction::FlashStat(PredictSalesStat * pList, uint count, PredictSal
 			}
 			else {
 				GoodsStatTbl::Rec new_rec;
-				// @v10.6.4 MEMSZERO(new_rec);
 				new_rec.Loc = loc_idx;
 				T.ShrinkDate(p_pss->LastDate, &new_rec.LastDate);
 				new_rec.GoodsID   = p_pss->GoodsID;
@@ -1423,7 +1420,6 @@ int PrcssrPrediction::RecalcStat(LDATE commonLastDate, PredictSalesCore::StatSto
 				}
 				{
 					PredictSalesItem item;
-					// @v10.6.6 @ctr MEMSZERO(item);
 					item.Dt = item_dt;
 					item.Qtty = item_qtty;
 					item.Amount = item_amt;
@@ -1830,7 +1826,6 @@ int PrcssrPrediction::SetupGoodsSaleByLoc(LocValEntry & rLvEntry, PPID goodsID, 
 			if(!rHa.Is(loc_idx, last_date)) {
 				PredictSalesTbl::Rec rec;
 				int16  dt_idx = 0;
-				// @v10.6.4 MEMSZERO(rec);
 				T.ShrinkDate(last_date, &dt_idx);
 				rec.RType = PSRECTYPE_DAY;
 				rec.GoodsID = goodsID;
@@ -1851,7 +1846,6 @@ int PrcssrPrediction::SetupGoodsSaleByLoc(LocValEntry & rLvEntry, PPID goodsID, 
 				if(!rHa.Is(loc_idx, dt)) {
 					PredictSalesTbl::Rec rec;
 					int16  dt_idx = 0;
-					// @v10.7.9 @ctr MEMSZERO(rec);
 					T.ShrinkDate(dt, &dt_idx);
 					rec.RType = PSRECTYPE_DAY;
 					rec.GoodsID = goodsID;

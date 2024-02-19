@@ -14,22 +14,18 @@
 
 using namespace std;
 
-#ifndef _countof
-#define _countof(x) (sizeof(x)/sizeof((x)[0]))
-#endif
-
 #ifndef LVS_EX_DOUBLEBUFFER
-#define LVS_EX_DOUBLEBUFFER     0x00010000
+	#define LVS_EX_DOUBLEBUFFER     0x00010000
 #endif
 
-#define WD_ROOTNODE                                     "WindowsDlg"
-#define WD_CLMNNAME                                     "ColumnName"
-#define WD_CLMNPATH                                     "ColumnPath"
-#define WD_CLMNTYPE                                     "ColumnType"
-#define WD_CLMNSIZE                                     "ColumnSize"
-#define WD_NBDOCSTOTAL                          "NbDocsTotal"
-#define WD_MENUCOPYNAME                         "MenuCopyName"
-#define WD_MENUCOPYPATH                         "MenuCopyPath"
+#define WD_ROOTNODE     "WindowsDlg"
+#define WD_CLMNNAME     "ColumnName"
+#define WD_CLMNPATH     "ColumnPath"
+#define WD_CLMNTYPE     "ColumnType"
+#define WD_CLMNSIZE     "ColumnSize"
+#define WD_NBDOCSTOTAL  "NbDocsTotal"
+#define WD_MENUCOPYNAME "MenuCopyName"
+#define WD_MENUCOPYPATH "MenuCopyPath"
 
 static const TCHAR * readonlyString = TEXT(" [Read Only]");
 const UINT WDN_NOTIFY = RegisterWindowMessage(TEXT("WDN_NOTIFY"));

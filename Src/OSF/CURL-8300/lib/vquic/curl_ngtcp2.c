@@ -928,7 +928,7 @@ static void cb_rand(uint8_t * dest, size_t destlen,
 	if(result) {
 		/* cb_rand is only used for non-cryptographic context.  If Curl_rand
 		   failed, just fill 0 and call it *random*. */
-		memset(dest, 0, destlen);
+		memzero(dest, destlen);
 	}
 }
 
@@ -2331,8 +2331,7 @@ static void cf_ngtcp2_ctx_clear(struct cf_ngtcp2_ctx * ctx)
 	if(ctx->qconn)
 		ngtcp2_conn_del(ctx->qconn);
 	Curl_bufcp_free(&ctx->stream_bufcp);
-
-	memset(ctx, 0, sizeof(*ctx));
+	memzero(ctx, sizeof(*ctx));
 	ctx->qlogfd = -1;
 	ctx->call_data = save;
 }

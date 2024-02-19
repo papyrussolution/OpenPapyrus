@@ -121,8 +121,8 @@ U_CAPI UNewTrie * U_EXPORT2 utrie_clone(UNewTrie * fillIn, const UNewTrie * othe
 		uprv_free(aliasData);
 	}
 	else {
-		uprv_memcpy(trie->index, other->index, sizeof(trie->index));
-		uprv_memcpy(trie->data, other->data, (size_t)other->dataLength*4);
+		memcpy(trie->index, other->index, sizeof(trie->index));
+		memcpy(trie->data, other->data, (size_t)other->dataLength*4);
 		trie->dataLength = other->dataLength;
 		trie->isDataAllocated = isDataAllocated;
 	}
@@ -187,7 +187,7 @@ static int32_t utrie_getDataBlock(UNewTrie * trie, UChar32 c) {
 	trie->index[c] = newBlock;
 
 	/* copy-on-write for a block from a setRange() */
-	uprv_memcpy(trie->data+newBlock, trie->data-indexValue, 4*UTRIE_DATA_BLOCK_LENGTH);
+	memcpy(trie->data+newBlock, trie->data-indexValue, 4*UTRIE_DATA_BLOCK_LENGTH);
 	return newBlock;
 }
 
@@ -364,7 +364,7 @@ static void utrie_fold(UNewTrie * trie, UNewTrieGetFoldedValue * getFoldedValue,
 	idx = trie->index;
 
 	/* copy the lead surrogate indexes into a temporary array */
-	uprv_memcpy(leadIndexes, idx+(0xd800>>UTRIE_SHIFT), 4*UTRIE_SURROGATE_BLOCK_COUNT);
+	memcpy(leadIndexes, idx+(0xd800>>UTRIE_SHIFT), 4*UTRIE_SURROGATE_BLOCK_COUNT);
 
 	/*
 	 * set all values for lead surrogate code *units* to leadUnitValue
@@ -433,7 +433,7 @@ static void utrie_fold(UNewTrie * trie, UNewTrieGetFoldedValue * getFoldedValue,
 				if(block==indexLength) {
 					/* move the actual index (stage 1) entries from the supplementary position to
 					   the new one */
-					uprv_memmove(idx+indexLength, idx+(c>>UTRIE_SHIFT), 4*UTRIE_SURROGATE_BLOCK_COUNT);
+					memmove(idx+indexLength, idx+(c>>UTRIE_SHIFT), 4*UTRIE_SURROGATE_BLOCK_COUNT);
 					indexLength += UTRIE_SURROGATE_BLOCK_COUNT;
 				}
 			}
@@ -465,8 +465,8 @@ static void utrie_fold(UNewTrie * trie, UNewTrieGetFoldedValue * getFoldedValue,
 	 * make space for the lead surrogate index block and
 	 * insert it between the BMP indexes and the folded ones
 	 */
-	uprv_memmove(idx+UTRIE_BMP_INDEX_LENGTH+UTRIE_SURROGATE_BLOCK_COUNT, idx+UTRIE_BMP_INDEX_LENGTH, 4*(indexLength-UTRIE_BMP_INDEX_LENGTH));
-	uprv_memcpy(idx+UTRIE_BMP_INDEX_LENGTH, leadIndexes, 4*UTRIE_SURROGATE_BLOCK_COUNT);
+	memmove(idx+UTRIE_BMP_INDEX_LENGTH+UTRIE_SURROGATE_BLOCK_COUNT, idx+UTRIE_BMP_INDEX_LENGTH, 4*(indexLength-UTRIE_BMP_INDEX_LENGTH));
+	memcpy(idx+UTRIE_BMP_INDEX_LENGTH, leadIndexes, 4*UTRIE_SURROGATE_BLOCK_COUNT);
 	indexLength += UTRIE_SURROGATE_BLOCK_COUNT;
 #ifdef UTRIE_DEBUG
 	printf("trie index count: BMP %ld  all Unicode %ld  folded %ld\n", UTRIE_BMP_INDEX_LENGTH, (long)UTRIE_MAX_INDEX_LENGTH, indexLength);
@@ -781,7 +781,7 @@ U_CAPI int32_t U_EXPORT2 utrie_serialize(UNewTrie * trie, void * dt, int32_t cap
 		}
 
 		/* write 32-bit data values */
-		uprv_memcpy(dest16, trie->data, 4*(size_t)trie->dataLength);
+		memcpy(dest16, trie->data, 4*(size_t)trie->dataLength);
 	}
 
 	return length;

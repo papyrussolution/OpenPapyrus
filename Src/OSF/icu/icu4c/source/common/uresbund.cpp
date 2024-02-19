@@ -1269,7 +1269,7 @@ UResourceBundle * ures_copyResb(UResourceBundle * r, const UResourceBundle * ori
 			isStackObject = ures_isStackObject(r);
 			ures_closeBundle(r, FALSE);
 		}
-		uprv_memcpy(r, original, sizeof(UResourceBundle));
+		memcpy(r, original, sizeof(UResourceBundle));
 		r->fResPath = NULL;
 		r->fResPathLen = 0;
 		if(original->fResPath) {
@@ -1712,7 +1712,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_findResource(const char * path, UResourc
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return result;
 	}
-	uprv_memcpy(pathToResource, path, length);
+	memcpy(pathToResource, path, length);
 	locale = pathToResource;
 	if(*pathToResource == RES_PATH_SEPARATOR) { /* there is a path specification */
 		pathToResource++;
@@ -2638,7 +2638,7 @@ U_CAPI UEnumeration* U_EXPORT2 ures_openAvailableLocales(const char * path, UErr
 		uprv_free(myContext);
 		return NULL;
 	}
-	uprv_memcpy(en, &gLocalesEnum, sizeof(UEnumeration));
+	memcpy(en, &gLocalesEnum, sizeof(UEnumeration));
 
 	ures_initStackObject(&myContext->installed);
 	ures_initStackObject(&myContext->curr);

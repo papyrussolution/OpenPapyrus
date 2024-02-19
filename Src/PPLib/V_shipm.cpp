@@ -1,5 +1,5 @@
 // V_SHIPM.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2024
 // @codepage UTF-8
 // Анализ отгрузки товаров
 //
@@ -137,7 +137,7 @@ int PPViewShipmAnalyze::EditBaseFilt(PPBaseFilt * pFilt)
 }
 
 
-class ShipmAnalyzeCache : public SVector { // @v10.1.12 SArray-->SVector
+class ShipmAnalyzeCache : public SVector {
 public:
 	struct Entry { // @flat
 		PPID   GoodsID;
@@ -321,7 +321,6 @@ int PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 					for(i = 0; i < cache.getCount(); i++) {
 						TempShipmentAnlzTbl::Rec rec;
 						const ShipmAnalyzeCache::Entry * p_entry = static_cast<const ShipmAnalyzeCache::Entry *>(cache.at(i));
-						// @v10.7.9 @ctr MEMSZERO(rec);
 						STRNSCPY(rec.GoodsName, GetGoodsName(p_entry->GoodsID, goods_name));
 						rec.GoodsID = p_entry->GoodsID;
 						rec.BillID  = p_entry->BillID;

@@ -52,7 +52,7 @@ CollationKey::CollationKey(const uint8 * newValues, int32_t count) : UObject(), 
 	}
 
 	if(count > 0) {
-		uprv_memcpy(getBytes(), newValues, count);
+		memcpy(getBytes(), newValues, count);
 	}
 }
 
@@ -72,7 +72,7 @@ CollationKey::CollationKey(const CollationKey& other)
 	}
 
 	if(length > 0) {
-		uprv_memcpy(getBytes(), other.getBytes(), length);
+		memcpy(getBytes(), other.getBytes(), length);
 	}
 }
 
@@ -89,7 +89,7 @@ uint8 * CollationKey::reallocate(int32_t newCapacity, int32_t length) {
 		return NULL;
 	}
 	if(length > 0) {
-		uprv_memcpy(newBytes, getBytes(), length);
+		memcpy(newBytes, getBytes(), length);
 	}
 	if(fFlagAndLength < 0) {
 		uprv_free(fUnion.fFields.fBytes);
@@ -143,7 +143,7 @@ const CollationKey&CollationKey::operator = (const CollationKey& other)
 			return setToBogus();
 		}
 		if(length > 0) {
-			uprv_memcpy(getBytes(), other.getBytes(), length);
+			memcpy(getBytes(), other.getBytes(), length);
 		}
 		fFlagAndLength = (fFlagAndLength & 0x80000000) | length;
 		fHashCode = other.fHashCode;
@@ -209,7 +209,7 @@ uint8 * CollationKey::toByteArray(int32_t& count) const
 	else {
 		count = fCount;
 		if(count > 0) {
-			uprv_memcpy(result, fBytes, fCount);
+			memcpy(result, fBytes, fCount);
 		}
 	}
 	return result;

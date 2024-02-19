@@ -1,5 +1,5 @@
 // PPTEX2HTML.CPP
-// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2213,7 +2213,6 @@ PPID PPVer2HtmlPrcssr::AttachEntryToWorkbook(const VersionEntry * pEntry, const 
 	if(parent_wb_id) {
 		THROW(rWbObj.Search(parent_wb_id, &parent_wb_rec) > 0);
 	}
-	// @v10.6.4 else { MEMSZERO(parent_wb_rec); }
 	int r = rWbObj.SearchBySymb(wb_symb, &wb_id, &wb_rec);
 	if(r > 0) {
 		// wb_id известен

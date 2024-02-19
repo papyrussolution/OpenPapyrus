@@ -880,7 +880,7 @@ void GnuPlot::F_Log10(union argument * /*arg*/)
 		Push(&a);
 	}
 	else
-		Push(Gcomplex(&a, log(Magnitude(&a)) / M_LN10, Angle(&a) / M_LN10));
+		Push(Gcomplex(&a, log(Magnitude(&a)) / SMathConst::Ln10, Angle(&a) / SMathConst::Ln10));
 }
 
 //void f_log(union argument * /*arg*/)

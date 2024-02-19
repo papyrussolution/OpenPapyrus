@@ -54,8 +54,7 @@ int HMAC_Init_ex(HMAC_CTX * ctx, const void * key, int len, const EVP_MD * md, E
 			keytmp_length = len;
 		}
 		if(keytmp_length != HMAC_MAX_MD_CBLOCK_SIZE)
-			memset(&keytmp[keytmp_length], 0, HMAC_MAX_MD_CBLOCK_SIZE - keytmp_length);
-
+			memzero(&keytmp[keytmp_length], HMAC_MAX_MD_CBLOCK_SIZE - keytmp_length);
 		for(i = 0; i < HMAC_MAX_MD_CBLOCK_SIZE; i++)
 			pad[i] = 0x36 ^ keytmp[i];
 		if(!EVP_DigestInit_ex(ctx->i_ctx, md, impl) || !EVP_DigestUpdate(ctx->i_ctx, pad, EVP_MD_get_block_size(md)))

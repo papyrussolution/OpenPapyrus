@@ -1,5 +1,5 @@
 // OBJSECUR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2005, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2005, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -147,7 +147,6 @@ int PPObjSecur::AssignImages(ListBoxDef * pDef)
 		p_def->ClearImageAssocList();
 		if(p_def->getIdList(list) > 0) {
 			PPSecur2 rec;
-			// @v10.9.3 @ctr MEMSZERO(rec);
 			for(uint i = 0; i < list.getCount(); i++) {
 				const  PPID id = list.get(i);
 				long   img_id = 0;
@@ -749,7 +748,6 @@ int PPObjSecur::ProcessReservedItem(TVRez & rez)
 	}
 	if(r < 0) {
 		PPSecur secur;
-		// @v10.9.3 @ctr MEMSZERO(secur);
 		secur.Tag = Obj;
 		secur.ID  = id;
 		STRNSCPY(secur.Name, name);

@@ -1,5 +1,5 @@
 // CLIAGT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Соглашения с клиентами об условиях торговли
 //
@@ -409,12 +409,10 @@ int PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement & rAgt, int use_
 	int    is_default = 0;
 	int    r2 = 0;
 	Reference * p_ref = PPRef;
-	//PropertyTbl::Rec prop_rec, def_prop_rec;
 	PPClientAgreement _agt;
 	PPClientAgreement def_agt;
 	PPPersonRelTypePacket rt_pack;
 	PPIDArray rel_list;
-	// @v10.6.4 MEMSZERO(prop_rec);
 	SSerializeContext sctx;
 	SBuffer sbuf;
 	SBuffer sbuf_def; // буфер для соглашения по умолчанию
@@ -485,7 +483,6 @@ int PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement * pAgt, int use_
 	PPClientAgreement def_agt;
 	PPPersonRelTypePacket rt_pack;
 	PPIDArray rel_list;
-	// @v10.6.4 MEMSZERO(prop_rec);
 	THROW(r = p_ref->GetProperty(PPOBJ_ARTICLE, id, ARTPRP_CLIAGT, &prop_rec, sizeof(prop_rec)));
 	if(r < 0 && id) {
 		PPID   mainorg_arid = 0;
@@ -1872,7 +1869,6 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 				PPIDArray op_list_rcptret;
 				PPIDArray op_list_movout;
 				PPIDArray op_list_movin;
-				// @v10.6.4 MEMSZERO(op_kind);
 				for(PPID op_id = 0; EnumOperations(0, &op_id, &op_kind) > 0;) {
 					if(oneof2(op_kind.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GENERIC)) { // Расход товара
 						op_list_exp.addUnique(op_id);
@@ -2036,8 +2032,7 @@ int SupplAgtDialog::EditExchangeCfg()
 			if(!RVALUEPTR(Data, pData))
 				Data.Z();
 			SetupPPObjCombo(this, CTLSEL_SUPLEXCHCFG_GGRP,  PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANSELUPLEVEL, 0);
-			SetupPPObjCombo(this, CTLSEL_SUPLEXCHCFG_STYLO, PPOBJ_STYLOPALM,  Data.Fb.StyloPalmID, OLW_CANSELUPLEVEL, 0); // @v9.5.5
-			// @v10.6.4 MEMSZERO(op_kind);
+			SetupPPObjCombo(this, CTLSEL_SUPLEXCHCFG_STYLO, PPOBJ_STYLOPALM,  Data.Fb.StyloPalmID, OLW_CANSELUPLEVEL, 0);
 			for(PPID op_id = 0; EnumOperations(0, &op_id, &op_kind) > 0;)
 				if(oneof2(op_kind.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GENERIC))
 					op_list.add(op_id);

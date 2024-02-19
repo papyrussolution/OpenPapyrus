@@ -660,7 +660,7 @@ static UConverter * U_CALLCONV _LMBCSSafeClone(const UConverter * cnv, void * st
 	extraInfo = (UConverterDataLMBCS*)cnv->extraInfo;
 	newLMBCS = (LMBCSClone*)stackBuffer;
 	/* ucnv.c/ucnv_safeClone() copied the main UConverter already */
-	uprv_memcpy(&newLMBCS->lmbcs, extraInfo, sizeof(UConverterDataLMBCS));
+	memcpy(&newLMBCS->lmbcs, extraInfo, sizeof(UConverterDataLMBCS));
 	/* share the subconverters */
 	for(i = 0; i <= ULMBCS_GRP_LAST; ++i) {
 		if(extraInfo->OptGrpConverter[i] != NULL) {
@@ -1140,8 +1140,8 @@ static void U_CALLCONV _LMBCSToUnicodeWithOffsets(UConverterToUnicodeArgs*    ar
 			size_t size_new_maybe_2 = args->sourceLimit - args->source;
 			size_t size_new = (size_new_maybe_1 < size_new_maybe_2) ? size_new_maybe_1 : size_new_maybe_2;
 
-			uprv_memcpy(LMBCS, args->converter->toUBytes, size_old);
-			uprv_memcpy(LMBCS + size_old, args->source, size_new);
+			memcpy(LMBCS, args->converter->toUBytes, size_old);
+			memcpy(LMBCS + size_old, args->source, size_new);
 			saveSourceLimit = args->sourceLimit;
 			args->source = errSource = LMBCS;
 			args->sourceLimit = LMBCS+size_old+size_new;
@@ -1153,7 +1153,7 @@ static void U_CALLCONV _LMBCSToUnicodeWithOffsets(UConverterToUnicodeArgs*    ar
 			if(*err == U_TRUNCATED_CHAR_FOUND) {
 				/* evil special case: source buffers so small a char spans more than 2 buffers */
 				args->converter->toULength = savebytes;
-				uprv_memcpy(args->converter->toUBytes, LMBCS, savebytes);
+				memcpy(args->converter->toUBytes, LMBCS, savebytes);
 				args->source = args->sourceLimit;
 				*err = U_ZERO_ERROR;
 				return;
@@ -1191,7 +1191,7 @@ static void U_CALLCONV _LMBCSToUnicodeWithOffsets(UConverterToUnicodeArgs*    ar
 		/* If character incomplete or unmappable/illegal, store it in toUBytes[] */
 		args->converter->toULength = savebytes;
 		if(savebytes > 0) {
-			uprv_memcpy(args->converter->toUBytes, errSource, savebytes);
+			memcpy(args->converter->toUBytes, errSource, savebytes);
 		}
 		if(*err == U_TRUNCATED_CHAR_FOUND) {
 			*err = U_ZERO_ERROR;

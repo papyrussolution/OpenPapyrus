@@ -1,5 +1,5 @@
 // PSNOPK.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 // @codepage UTF-8
 // Виды персональных операций
 //
@@ -328,7 +328,6 @@ PPPsnOpKindPacket::PsnConstr & PPPsnOpKindPacket::PsnConstr::Z()
 
 PPPsnOpKindPacket::PPPsnOpKindPacket()
 {
-	// @v10.6.6 @ctr MEMSZERO(Rec);
 }
 
 void PPPsnOpKindPacket::destroy()

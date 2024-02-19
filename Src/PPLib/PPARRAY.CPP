@@ -1,5 +1,5 @@
 // PPARRAY.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8 // @v10.4.5
 // @Kernel
 //
@@ -240,7 +240,7 @@ void PPCycleArray::formatCycle(LDATE dt, char * pBuf, size_t bufLen) const
 int PPCycleArray::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
-	THROW_SL(pCtx->Serialize(dir, reinterpret_cast<SVector *>(this), rBuf)); // @v10.3.9 @fix (SArray-->SVector)
+	THROW_SL(pCtx->Serialize(dir, reinterpret_cast<SVector *>(this), rBuf));
 	THROW_SL(pCtx->Serialize(dir, Period.low, rBuf));
 	THROW_SL(pCtx->Serialize(dir, Period.upp, rBuf));
 	THROW_SL(pCtx->Serialize(dir, Cycle, rBuf));

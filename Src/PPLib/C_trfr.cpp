@@ -1,5 +1,5 @@
 // C_TRFR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 // Процедуры корректировки товарных проводок
 //
@@ -727,13 +727,13 @@ int CorrectZeroQCertRefs()
 //
 //
 //
-PPLotFaultArray::PPLotFaultArray(PPID lotID, PPLogger & rLogger) : SVector(sizeof(PPLotFault)), LotID(lotID), P_Logger(&rLogger) // @v9.8.10 SArray-->SVector
+PPLotFaultArray::PPLotFaultArray(PPID lotID, PPLogger & rLogger) : SVector(sizeof(PPLotFault)), LotID(lotID), P_Logger(&rLogger)
 {
 }
 
 PPLotFault & FASTCALL PPLotFaultArray::at(uint p) const
 {
-	return *static_cast<PPLotFault *>(SVector::at(p)); // @v9.8.10 SArray-->SVector
+	return *static_cast<PPLotFault *>(SVector::at(p));
 }
 
 int PPLotFaultArray::AddFault(int fault, const ReceiptTbl::Rec * pRec, PPID childID, PPID parentID)
@@ -875,7 +875,6 @@ SString & PPLotFaultArray::Message(uint p, SString & rBuf)
 		if(PPLoadString(PPMSG_ERROR, msg_id, b)) {
 			char   dtbuf[32];
 			ReceiptTbl::Rec lot_rec;
-			// @v10.6.4 MEMSZERO(lot_rec);
 			lot_str.Cat(LotID).Space();
 			if(BillObj->trfr->Rcpt.Search(LotID, &lot_rec) > 0) {
 				lot_str.CatChar('[').Cat(lot_rec.Dt).CatDiv('-', 1);
@@ -1058,7 +1057,6 @@ int Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flags, PPL
 		SString serial_buf;
 		SString egais_code;
 		PPObjGoods goods_obj;
-		// @v10.6.4 MEMSZERO(goods_rec);
 		if(!RVALUEPTR(rec, pRec)) {
 			THROW(Rcpt.Search(lotID, &rec) > 0);
 		}
@@ -2073,8 +2071,6 @@ int PrcssrAbsentGoods::ProcessGoods(PPID goodsID, PPID lotID, PPID billID, PPLog
 		BillTbl::Rec bill_rec;
 		SString fmt_buf, bill_buf, log_buf;
 		PPLoadString(PPMSG_ERROR, PPERR_ABSGOODS, fmt_buf);
-		// @v10.6.4 MEMSZERO(lot_rec);
-		// @v10.6.4 MEMSZERO(bill_rec);
 		if(lotID && P_BObj->trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
 			if(P_BObj->Search(lot_rec.BillID, &bill_rec) > 0)
 				PPObjBill::MakeCodeString(&bill_rec, 0, bill_buf);
@@ -2088,7 +2084,6 @@ int PrcssrAbsentGoods::ProcessGoods(PPID goodsID, PPID lotID, PPID billID, PPLog
 			Goods2Tbl::Rec goods_rec;
 			if(P.DefGroupID == 0)
 				THROW(GgObj.AddSimple(&P.DefGroupID, gpkndOrdinaryGroup, 0, "Average", 0, P.DefUnitID, 0));
-			// @v10.6.4 MEMSZERO(goods_rec);
 			goods_rec.ID = goodsID;
 			goods_rec.Kind = PPGDSK_GOODS;
 			(log_buf = "Goods Stub").Space().CatChar('#').CatLongZ(goodsID, 5).CopyTo(goods_rec.Name, sizeof(goods_rec.Name));
@@ -2200,7 +2195,7 @@ struct BadTrfrEntry { // @flat
 
 class BadTrfrEntryListDialog : public PPListDialog {
 public:
-	BadTrfrEntryListDialog(SVector * pList) : PPListDialog(DLG_R_TFR_A, CTL_R_TFR_A_LIST), P_List(pList) // @v9.8.8 SArray-->SVector
+	BadTrfrEntryListDialog(SVector * pList) : PPListDialog(DLG_R_TFR_A, CTL_R_TFR_A_LIST), P_List(pList)
 	{
 		updateList(-1);
 	}
@@ -2217,7 +2212,7 @@ private:
 		return 1;
 	}
 	virtual int delItem(long pos, long id);
-	SVector * P_List; // @v9.8.8 SArray-->SVector
+	SVector * P_List;
 };
 
 int BadTrfrEntryListDialog::delItem(long pos, long id)
@@ -2250,7 +2245,7 @@ int RecoverTransfer()
 	TransferTbl::Key1 k1;
 	IterCounter cntr;
 	PPInitIterCounter(cntr, p_trfr);
-	SVector bad_list(sizeof(BadTrfrEntry)); // @v9.8.8 SArray-->SVector
+	SVector bad_list(sizeof(BadTrfrEntry));
 	BExtQuery q(p_trfr, 1);
 	PPWaitStart();
 	q.selectAll();

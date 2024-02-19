@@ -1,5 +1,5 @@
 // OBJGS.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -29,7 +29,6 @@ PPGoodsStruc::Ident::Ident(PPID goodsID, long andF, long notF, LDATE dt) : Goods
 
 PPGoodsStruc::PPGoodsStruc() : GoodsID(0), P_Cb(0)
 {
-	// @v10.7.10 @ctr Init();
 }
 
 PPGoodsStruc::PPGoodsStruc(const PPGoodsStruc & rS) : GoodsID(0), P_Cb(0)
@@ -321,7 +320,6 @@ int PPGoodsStruc::GetEstimationPrice(uint itemIdx, PPID locID, double * pPrice, 
 	double p = 0.0;
 	double t = 0.0;
 	ReceiptTbl::Rec rec;
-	// @v10.7.5 @ctr MEMSZERO(rec);
 	if(itemIdx < Items.getCount()) {
 		const PPGoodsStrucItem & r_item = Items.at(itemIdx);
 		const  PPID loc_id = LConfig.Location;
@@ -329,17 +327,13 @@ int PPGoodsStruc::GetEstimationPrice(uint itemIdx, PPID locID, double * pPrice, 
 			int    r = 0;
 			PPObjGoods goods_obj;
 			const PPGoodsConfig & r_cfg = goods_obj.GetConfig();
-			Goods2Tbl::Rec grec;
-			// @v10.7.5 @ctr MEMSZERO(grec);
-			goods_obj.Fetch(r_item.GoodsID, &grec);
-			if(grec.Flags & GF_UNLIM) {
+			Goods2Tbl::Rec goods_rec;
+			goods_obj.Fetch(r_item.GoodsID, &goods_rec);
+			if(goods_rec.Flags & GF_UNLIM) {
 				r = goods_obj.GetQuot(r_item.GoodsID, QuotIdent(loc_id, PPQUOTK_BASE), 0, 0, &p, 1);
 			}
 			else if(::GetCurGoodsPrice(r_item.GoodsID, loc_id, GPRET_MOSTRECENT, &p, &rec) > 0) {
-				if(r_cfg.Flags & GCF_SHOWGSTRUCPRICE)
-					p = rec.Price;
-				else
-					p = rec.Cost;
+				p = (r_cfg.Flags & GCF_SHOWGSTRUCPRICE) ? rec.Price : rec.Cost;
 				r = 1;
 			}
 			else {
@@ -1026,7 +1020,6 @@ class GSDialog : public PPListDialog {
 public:
 	GSDialog() : PPListDialog(DLG_GSTRUC, CTL_GSTRUC_LIST), NewGoodsGrpID(0), Changed(0)
 	{
-		// @v10.7.5 @ctr MEMSZERO(GscParam);
 		SetupCalPeriod(CTLCAL_GSTRUC_PERIOD, CTL_GSTRUC_PERIOD);
 		if(SmartListBox::IsValidS(P_Box))
 			P_Box->P_Def->SetOption(lbtFocNotify, 1);

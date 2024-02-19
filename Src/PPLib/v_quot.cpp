@@ -1,5 +1,5 @@
 // V_QUOT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -578,7 +578,6 @@ int PPViewQuot::Init_(const PPBaseFilt * pFilt)
 					for(uint i = 0; i < QList_.getCount(); i++) {
 						const PPQuotItem_ & r_item = QList_.at(i);
 						TempQuotSerialTbl::Rec ts_rec;
-						// @v10.7.9 @ctr MEMSZERO(ts_rec);
 						ts_rec.GoodsID = r_item.GoodsID;
 						ts_rec.QuotKindID = r_item.KindID;
 						ts_rec.LocID = r_item.LocID;
@@ -675,7 +674,6 @@ int PPViewQuot::Init_(const PPBaseFilt * pFilt)
 				for(uint i = 0; i < QList_.getCount(); i++) {
 					const PPQuotItem_ & r_item = QList_.at(i);
 					TempQuotTbl::Rec rec;
-					// @v10.7.9 @ctr MEMSZERO(rec);
 					rec.GoodsID  = r_item.GoodsID;
 					if(rec.GoodsID) {
 						STRNSCPY(rec.GoodsName, GetGoodsName(rec.GoodsID, temp_buf));
@@ -1176,7 +1174,6 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 			SString last_goods_name;
 			PPIDArray temp_goods_list;
 			TempQuotTbl::Rec rec;
-			// @v10.7.9 @ctr MEMSZERO(rec);
 			pQList->sort(PTR_CMPFUNC(PPQuotItem_GLA));
 			const uint qlc = pQList->getCount();
 			PPLoadText(PPTXT_WAIT_QUOTTMPTBUILDING, msg_buf);

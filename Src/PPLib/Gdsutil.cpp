@@ -351,12 +351,11 @@ static int BarcodeList(BarcodeArray * pCodes, int * pSelection)
 
 GoodsCodeSrchBlock::GoodsCodeSrchBlock() : ArID(0), Flags(0), GoodsID(0), ScaleID(0), Qtty(0.0), P_List(0)
 {
-	PTR32(Code)[0] = 0;
-	PTR32(RetCode)[0] = 0;
-	PTR32(ChZnCode)[0] = 0; // @v10.6.9
-	PTR32(ChZnGtin)[0] = 0;
-	PTR32(ChZnSerial)[0] = 0;
-	// @v10.6.4 MEMSZERO(Rec);
+	Code[0] = 0;
+	RetCode[0] = 0;
+	ChZnCode[0] = 0; // @v10.6.9
+	ChZnGtin[0] = 0;
+	ChZnSerial[0] = 0;
 }
 
 GoodsCodeSrchBlock::~GoodsCodeSrchBlock()
@@ -901,7 +900,7 @@ int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * p
 					THROW_SL(ser_buf.Write(temp_buf.cptr()+offs, sz - offs));
 					if(!pCfg->TagIndFilt.Read(ser_buf, 0)) {
 						pCfg->TagIndFilt.Init(1, 0);
-						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 					}
 				}
 			}
@@ -1003,7 +1002,7 @@ int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * p
 						THROW(goods_obj.P_Tbl->SetQuot(q, 0));
 						{
 							//PPTXT_SETBOMESTVALUE
-							temp_buf.Z().Cat(goods_rec.Name).CatDiv('-', 1).Cat(bom_value, MKSFMTD(0, 2, 0));
+							temp_buf.Z().Cat(goods_rec.Name).CatDiv('-', 1).Cat(bom_value, MKSFMTD_020);
 							msg_buf.Printf(fmt_buf, temp_buf.cptr());
 							logger.Log(msg_buf);
 						}
@@ -2517,7 +2516,8 @@ int PPObjGoods::CheckMatrixRestrict(PPID goodsID, PPID locID, long restrict)
 		}
 	}
 	CATCH
-		ok = (PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR|LOGMSGF_DBINFO), 0);
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
+		ok = 0;
 	ENDCATCH
 	return ok;
 }
@@ -2930,7 +2930,6 @@ int RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, double qtt
 	double quot = 0.0;
 	double base_price = 0.0;
 	ReceiptTbl::Rec lot_rec;
-	// @v10.6.4 MEMSZERO(lot_rec);
 	PROFILE_START
 	THROW_INVARG(pItem);
 	pItem->QuotKindUsedForPrice = 0;
@@ -2948,7 +2947,6 @@ int RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, double qtt
 			used_quot_list.addUnique(PPQUOTK_BASE);
 			SETFLAG(pItem->Flags, pItem->fDisabledQuot, r == 2);
 		}
-		// @v10.6.4 MEMSZERO(lot_rec);
 		ok = GPRET_PRESENT;
 	}
 	else {

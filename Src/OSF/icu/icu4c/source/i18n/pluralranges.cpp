@@ -110,9 +110,7 @@ StandardPluralRanges StandardPluralRanges::copy(UErrorCode & status) const {
 			return result;
 		}
 	}
-	uprv_memcpy(result.fTriples.getAlias(),
-	    fTriples.getAlias(),
-	    fTriplesLen * sizeof(fTriples[0]));
+	memcpy(result.fTriples.getAlias(), fTriples.getAlias(), fTriplesLen * sizeof(fTriples[0]));
 	result.fTriplesLen = fTriplesLen;
 	return result;
 }

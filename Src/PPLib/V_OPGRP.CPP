@@ -1,5 +1,5 @@
 // V_OPGRP.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -167,7 +167,6 @@ int PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 					if(!skip) {
 						int    sign = 0;
 						TempOpGrpngTbl::Rec rec;
-						// @v10.6.4 MEMSZERO(rec);
 						rec.Dt   = r_period.low;
 						rec.OpID = p_entry->OpID;
 						STRNSCPY(rec.OpName, p_entry->OpName);
@@ -231,9 +230,7 @@ int PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 					const  PPID op_id = op_list.at(i).Key;
 					const int sign = op_list.at(i).Val;
 					TempOpGrpngTbl::Rec rec;
-					// @v10.6.4 MEMSZERO(rec);
 					OpGroupingViewItem item;
-					// @v10.7.12 @ctr MEMSZERO(item);
 					rec.OpID = op_id;
 					rec.Sign = sign;
 					rec.Dt = Filt.Period.low;
@@ -489,7 +486,6 @@ int PPViewOpGrouping::CreateStatList(LAssocArray * pOpList, TSVector <OpGrouping
 				}
 				if(!found) {
 					OpGroupingViewItem new_item;
-					// @v10.7.12 @ctr MEMSZERO(new_item);
 					new_item.Dt = dt;
 					new_item.OpID = r_op.Key;
 					new_item.Sign = (short)r_op.Val;
@@ -585,7 +581,6 @@ public:
 		getCtrlData(CTLSEL_GTO_SUPPL,  &Data.SupplID);
 		getCtrlData(CTLSEL_GTO_OPR,    &Data.OpID);
 		getCtrlData(CTLSEL_GTO_OBJECT, &Data.ArID);
-		// @v10.7.12 @ctr MEMSZERO(gf_rec);
 		THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
 		Data.GoodsGrpID = gf_rec.GoodsGrpID;
 		Data.GoodsID    = gf_rec.GoodsID;
@@ -935,7 +930,6 @@ int PPViewOpGrouping::EnumBillList(uint * pPos, OpGroupingViewItem * pItem)
 	int    ok = -1;
 	uint   pos = DEREFPTRORZ(pPos);
 	OpGroupingViewItem item;
-	// @v10.7.12 @ctr MEMSZERO(item);
 	if(Filt.GoodsGrpID || Filt.GoodsID) {
 		TrfrAnlzViewItem  trf_item;
 		if(P_ViewTrfrAnlz && P_ViewTrfrAnlz->NextIteration(&trf_item) > 0) {

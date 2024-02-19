@@ -1,5 +1,5 @@
 // OBJARTCL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -452,7 +452,6 @@ static int EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 			RVALUEPTR(Data, pData);
 			{
 				AcctCtrlGroup::Rec acc_rec;
-				// @v10.7.3 @ctr MEMSZERO(acc_rec);
 				acc_rec.AcctId.ac = Data.Key;
 				acc_rec.AccSheetID = P_Pack->Rec.AccSheetID;
 				acc_rec.AccSelParam = ACY_SEL_ALIAS;
@@ -460,7 +459,6 @@ static int EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 			}
 			{
 				AcctCtrlGroup::Rec acc_rec;
-				// @v10.7.3 @ctr MEMSZERO(acc_rec);
 				acc_rec.AcctId.ac = Data.Val;
 				acc_rec.AccSheetID = P_Pack->Rec.AccSheetID;
 				//
@@ -510,7 +508,6 @@ public:
 			AcctCtrlGroup::Rec acc_rec;
 			AcctCtrlGroup * p_ac_grp = new AcctCtrlGroup(CTL_ARTICLE_ACC, 0, CTLSEL_ARTICLE_ACCNAME, 0);
 			addGroup(GRP_ASSCACC, p_ac_grp);
-			// @v10.7.3 @ctr MEMSZERO(acc_rec);
 			acc_rec.AcctId.ac   = P_Data->Rec.ObjID;
 			setGroupData(GRP_ASSCACC, &acc_rec);
 		}
@@ -710,7 +707,6 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 	public:
 		GrpArticleDialog() : TDialog(DLG_ARTICLEGROUP), Data(0L, (void *)0, 0)
 		{
-			// @v10.6.4 MEMSZERO(Rec);
 		}
 		~GrpArticleDialog()
 		{
@@ -794,7 +790,6 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 	THROW_INVARG(pID);
 	THROW(CheckRightsModByID(pID));
 	if(*pID == 0) {
-		// @v10.6.4 MEMSZERO(ar_rec);
 		THROW(GetFreeArticle(&ar_rec.Article, sheetID));
 		ar_rec.AccSheetID = sheetID;
 		ar_rec.ObjID = ar_rec.Article;
@@ -1654,7 +1649,6 @@ int PPObjArticle::AddSimple(PPID * pID, PPID accSheetID, const char * pName, lon
 	ArticleTbl::Rec rec;
 	PPObjAccSheet acs_obj;
 	PPAccSheet acs_rec;
-	// @v10.6.4 MEMSZERO(rec);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1682,7 +1676,6 @@ int PPObjArticle::CreateObjRef(PPID * pID, PPID accSheetID, PPID objID, long ar,
 	ArticleTbl::Rec rec;
 	PPObjAccSheet acs_obj;
 	PPAccSheet acs_rec;
-	// @v10.6.4 MEMSZERO(rec);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -2219,9 +2212,13 @@ void PPObjArticle::SetCurrFilt(const ArticleFilt * pFilt)
 //
 //
 //
+PPDebtDim::PPDebtDim() // @v11.9.6
+{
+	THISZERO();
+}
+
 PPDebtDimPacket::PPDebtDimPacket()
 {
-	MEMSZERO(Rec);
 }
 //
 // PPObjDebtLimit

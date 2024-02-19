@@ -156,7 +156,7 @@ int PPObjCSession::Edit(PPID * pID, void * extraPtr)
 					ss.Z();
 					PPLoadString(r_entry.P_TextSymb, sub);
 					ss.add(sub);
-					long fmt = (ffrac(r_entry.Value) == 0.0) ? MKSFMTD(0, 0, 0) : MKSFMTD(0, 2, 0);
+					long fmt = (ffrac(r_entry.Value) == 0.0) ? MKSFMTD(0, 0, 0) : MKSFMTD_020;
 					sub.Z().Cat(r_entry.Value, fmt);
 					ss.add(sub);
 					addStringToList(i+1, ss.getBuf());
@@ -183,7 +183,6 @@ int PPObjCSession::Edit(PPID * pID, void * extraPtr)
 			THROW(P_Cc->GetSessTotal(sess_id, 0, &total_blk, 0));
 		}
 	}
-	// @v10.6.8 @ctr else MEMSZERO(rec);
 	THROW(CheckDialogPtr(&(dlg = new CSessDialog(total_blk))));
 	dlg->setCtrlData(CTL_CSESS_ID, &rec.ID);
 	dlg->setCtrlData(CTL_CSESS_SUPERSESSID, &rec.SuperSessID);

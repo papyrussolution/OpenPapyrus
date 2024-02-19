@@ -1,5 +1,5 @@
 // RECEIPT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -342,7 +342,7 @@ int ReceiptCore::EnumLastLots(PPID goodsID, PPID locID, LDATE * pDt, long * pOpr
 	for(prev_k = k; search(2, &k, spLt) && data.GoodsID == goodsID; prev_k = k) {
 		if(memcmp(&k, &prev_k, sizeof(k)) == 0) {
 			PPSetError(PPERR_PROBDBINDEXFAULT, GetFileName());
-			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR | LOGMSGF_TIME | LOGMSGF_USER);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 			return 0;
 		}
 		else if(!locID || data.LocID == locID) {
@@ -927,7 +927,6 @@ int LotExtCodeCore::PutContainer(PPID billID, const PPLotExtCodeContainer * pC, 
 						//Item & r_item = *(Item *)at(i);
 						//GetS(r_item.CodeP, code_buf);
 						LotExtCodeTbl::Rec rec;
-						// @v10.6.4 MEMSZERO(rec);
 						rec.BillID = billID;
 						rec.RByBill = citem.RowIdx;
 						// @v10.2.9 rec.Sign = r_item.Sign;

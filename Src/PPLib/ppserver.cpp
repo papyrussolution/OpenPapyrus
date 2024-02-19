@@ -930,7 +930,7 @@ int PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 					}
 					else {
 						PPSetError(PPERR_JOBNEXTHANGED, p_job->Name);
-						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_LASTERR);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
 						p_job = 0;
 					}
 				}
@@ -939,7 +939,7 @@ int PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 			}
 			else {
 				PPSetError(PPERR_JOBRECURDETECTED, p_job->Name);
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_LASTERR);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
 				p_job = 0; // @loopexit
 			}
 		}
@@ -1106,7 +1106,7 @@ int PPJobServer::AddStat(PPID jobID, const LDATETIME & lastTime, long duration)
 		new_item.AvgDuration = duration;
 	}
 	if(!P_Stat) {
-		THROW_MEM(P_Stat = new SVector(sizeof(StatItem))); // @v9.9.4 SArray-->SVector
+		THROW_MEM(P_Stat = new SVector(sizeof(StatItem)));
 	}
 	THROW_SL(P_Stat->insert(&new_item));
 	CATCHZOK
@@ -1153,7 +1153,7 @@ int PPJobServer::LoadStat()
 				item.AvgDuration = field.ToLong();
 		}
 		if(!P_Stat)
-			THROW_MEM(P_Stat = new SVector(sizeof(StatItem))); // @v9.9.4 SArray-->SVector
+			THROW_MEM(P_Stat = new SVector(sizeof(StatItem)));
 		THROW_SL(P_Stat->insert(&item));
 	}
 	ok = 1;
@@ -1217,7 +1217,7 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 		msg_buf.Printf(fmt_buf, Mngr.GetFileName().cptr());
 		PPLogMessage(PPFILNAM_SERVER_LOG, msg_buf, LOGMSGF_TIME);
 		if(!r)
-			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_LASTERR);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
 	}
 	ASSIGN_PTR(pPlanDate, now_dtm.d);
 	return ok;
@@ -1833,7 +1833,6 @@ int CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply & rRepl
 					CTblList.freeAll();
 					for(i = 0; i < P_Prcssr->CTblList.getCount(); i++) {
 						Sdr_CPosTable sdr_ctbl;
-						// @v10.7.9 @ctr MEMSZERO(sdr_ctbl);
 						sdr_ctbl._id = P_Prcssr->CTblList.at(i);
 						PPLoadString("cafetable", temp_buf);
 						STRNSCPY(sdr_ctbl.Name, temp_buf.Space().Cat(sdr_ctbl._id));
@@ -2685,7 +2684,6 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			{
 				SString left, right;
 				Sdr_CPosAuth rec;
-				// @v10.7.9 @ctr MEMSZERO(rec);
 				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
 				temp_buf.Divide(' ', left, right);
 				memcpy(&rec, right.cptr(), sizeof(rec));
@@ -3582,7 +3580,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 							(temp_buf = psn_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape();
 							js_reply.InsertString("personnm", (temp_buf = psn_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
 						}
-						js_reply.InsertDouble("screst", rest, MKSFMTD(0, 2, 0));
+						js_reply.InsertDouble("screst", rest, MKSFMTD_020);
 						js_reply.ToStr(temp_buf);
 						rReply.SetString(temp_buf);
 						ok = cmdretOK;
@@ -3714,7 +3712,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 						js_reply.InsertString("tm_start", temp_buf.Z().Cat(_blk.SessTimeRange.Start, DATF_ISO8601CENT, 0));
 						js_reply.InsertString("tm_finish", temp_buf.Z().Cat(_blk.SessTimeRange.Finish, DATF_ISO8601CENT, 0));
 						js_reply.InsertInt("scardid", _blk.RetSCardID);
-						js_reply.InsertDouble("wroffamt", _blk.WrOffAmount, MKSFMTD(0, 2, 0));
+						js_reply.InsertDouble("wroffamt", _blk.WrOffAmount, MKSFMTD_020);
 						js_reply.InsertString("tm_scop", temp_buf.Z().Cat(_blk.ScOpDtm, DATF_ISO8601CENT, 0));
 						js_reply.ToStr(temp_buf);
 						rReply.SetString(temp_buf);
@@ -4176,7 +4174,7 @@ static const char * P_TestEndOfSeries = "END OF RANDOM SERIES";
 				if(rSo.Select(TcpSocket::mRead, 10000)) {
 					if(!rSo.RecvBuf(buf, 0, &actual_size)) {
 						PPSetErrorSLib();
-						PPLogMessage(PPFILNAM_DEBUG_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP|LOGMSGF_LASTERR);
+						PPLogMessage(PPFILNAM_DEBUG_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_COMP);
 						ok = 0;
 					}
 					else if(actual_size == 0)
@@ -4212,7 +4210,7 @@ static const char * P_TestEndOfSeries = "END OF RANDOM SERIES";
 	SString msg_buf;
 	if(!rSo.Send(pBuf, sz, &actual_size)) {
 		PPSetErrorSLib();
-		PPLogMessage(PPFILNAM_DEBUG_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP|LOGMSGF_LASTERR);
+		PPLogMessage(PPFILNAM_DEBUG_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_COMP);
 		ok = 0;
 	}
 	else if(actual_size != sz) {
@@ -4231,7 +4229,7 @@ static const char * P_TestEndOfSeries = "END OF RANDOM SERIES";
 	SString msg_buf;
 	if(!rSo.Recv(pBuf, sz, &actual_size)) {
 		PPSetErrorSLib();
-		PPLogMessage(PPFILNAM_DEBUG_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP|LOGMSGF_LASTERR);
+		PPLogMessage(PPFILNAM_DEBUG_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_COMP);
 		ok = 0;
 	}
 	else if(actual_size != sz) {
@@ -4250,7 +4248,7 @@ static const char * P_TestEndOfSeries = "END OF RANDOM SERIES";
 	SString msg_buf;
 	if(!rSo.RecvBlock(pBuf, sz, &actual_size)) {
 		PPSetErrorSLib();
-		PPLogMessage(PPFILNAM_DEBUG_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP|LOGMSGF_LASTERR);
+		PPLogMessage(PPFILNAM_DEBUG_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_COMP);
 		ok = 0;
 	}
 	else if(actual_size != sz) {
@@ -4314,7 +4312,7 @@ PPServerSession::CmdRet PPServerSession::Testing()
 			if(So.Select(TcpSocket::mRead, 10000)) {
 				if(!So.RecvBuf(str_pool_buf, 0, &actual_size)) {
 					PPSetErrorSLib();
-					PPLogMessage(PPFILNAM_DEBUG_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP|LOGMSGF_LASTERR);
+					PPLogMessage(PPFILNAM_DEBUG_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_COMP);
 					r = 0;
 				}
 				else if(actual_size == 0)
@@ -4799,7 +4797,7 @@ void PPServerSession::Run()
 										}
 									}
 									else {
-										PPLogMessage(log_file_name, 0, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_LASTERR|LOGMSGF_THREADINFO);
+										PPLogMessage(log_file_name, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO|LOGMSGF_THREADINFO);
 										reply.SetError();
 										reply.FinishWriting();
 									}
@@ -4833,7 +4831,7 @@ void PPServerSession::Run()
 						if(cmdret != cmdretResume && So.IsValid()) {
 							if(!SendReply(reply)) {
 								waiting_mode = wmodActiveSession_TransportError;
-								PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_LASTERR|LOGMSGF_THREADINFO);
+								PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_THREADINFO);
 							}
 						}
 						if(cmdret == cmdretSuspend) {
@@ -4857,7 +4855,7 @@ void PPServerSession::Run()
 					}
 					else {
 						waiting_mode = wmodActiveSession_TransportError;
-						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_LASTERR|LOGMSGF_THREADINFO);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_THREADINFO);
 					}
 				}
 				else if(nwev.lNetworkEvents & FD_CLOSE) {
@@ -4877,7 +4875,7 @@ void PPServerSession::Run()
 				int    wsa_err = WSAGetLastError();
 				SLS.SetError(SLERR_SOCK_WINSOCK, 0);
 				PPSetErrorSLib();
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_LASTERR|LOGMSGF_THREADINFO);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_THREADINFO);
 			}
 			ResetEvent(sock_event);
 		}

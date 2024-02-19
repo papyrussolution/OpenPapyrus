@@ -158,7 +158,7 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openFromSerialized(UTrie2ValueBits valueBits,
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 		return 0;
 	}
-	uprv_memcpy(trie, &tempTrie, sizeof(tempTrie));
+	memcpy(trie, &tempTrie, sizeof(tempTrie));
 	trie->memory = (uint32_t*)data;
 	trie->length = actualLength;
 	trie->isMemoryOwned = FALSE;
@@ -346,7 +346,7 @@ U_CAPI int32_t U_EXPORT2 utrie2_serialize(const UTrie2 * trie, void * data, int3
 		return 0;
 	}
 	if(capacity>=trie->length) {
-		uprv_memcpy(data, trie->memory, trie->length);
+		memcpy(data, trie->memory, trie->length);
 	}
 	else {
 		*pErrorCode = U_BUFFER_OVERFLOW_ERROR;

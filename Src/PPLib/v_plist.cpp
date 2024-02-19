@@ -1,5 +1,5 @@
 // V_PLIST.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage windows-1251
 //
 // @todo Убрать вкладку "Дополнительно" из фильтра (она полностью дублирует опции товарного фильтра)
@@ -492,8 +492,6 @@ int PPPriceListImporter::Run()
 		BarcodeTbl::Rec bcrec;
 		ArGoodsCodeTbl::Rec code_rec;
 		MEMSZERO(pl_rec);
-		// @v10.7.9 @ctr MEMSZERO(bcrec);
-		// @v10.7.9 @ctr MEMSZERO(code_rec);
 		THROW(ie.ReadRecord(&pl_rec, sizeof(pl_rec)));
 		(temp_buf = pl_rec.Barcode).Transf(CTRANSF_OUTER_TO_INNER);
 		STRNSCPY(pl_rec.Barcode, temp_buf);
@@ -658,7 +656,6 @@ int PPViewPriceList::UpdatePriceList(LDATE date, const Sdr_PriceListArray * pLis
 			GoodsIterator iter;
 			Goods2Tbl::Rec goods_grp_rec;
 			PriceLineIdent pl_ident, pl_iter;
-			// @v10.7.9 @ctr MEMSZERO(goods_grp_rec);
 			pl_ident.PListID = Filt.PListID;
 			pl_iter = pl_ident;
 			while(Tbl.EnumLines(&pl_ident, &pl_iter) > 0)
@@ -1856,7 +1853,6 @@ int PPViewPriceList::AddLine(PriceLineIdent * pIdent)
 	PLineDialog * dlg = 0;
 	Gsl.Clear(); // AHTOXA
 	THROW(CheckDialogPtr(&(dlg = new PLineDialog(this))));
-	// @v10.7.9 @ctr MEMSZERO(rec);
 	rec.ListID  = pIdent->PListID;
 	rec.GoodsID = pIdent->GoodsID;
 	rec.QuotKindID = Filt.QuotKindID;
@@ -1956,7 +1952,6 @@ int PPPriceListExporter::Export(const PriceListViewItem * pItem)
 	SString temp_buf;
 	Goods2Tbl::Rec goods_rec;
 	Sdr_PriceList sdr;
-	// @v10.7.9 @ctr MEMSZERO(sdr);
 	THROW_INVARG(pItem && P_IE);
 	sdr.GoodsID = pItem->GoodsID;
 	sdr.AltGrpPLU = pItem->GoodsCode;
@@ -2142,7 +2137,6 @@ int PPViewPriceList::ConvertLinesToBasket()
 		for(InitIteration(PPViewPriceList::OrdByGoodsName); NextIteration(&item) > 0;) {
 			ILTI   i_i;
 			ReceiptTbl::Rec lot_rec;
-			// @v10.7.0 @ctr MEMSZERO(lot_rec);
 			THROW(::GetCurGoodsPrice(item.GoodsID, Filt.LocID, GPRET_MOSTRECENT, 0, &lot_rec) != GPRET_ERROR);
 			i_i.GoodsID     = item.GoodsID;
 			i_i.UnitPerPack = item.UnitsPerPack;
@@ -2305,7 +2299,6 @@ int PPViewPriceList::SendPListInXmlFormat()
 	PPObjWorld w_obj;
 	WorldTbl::Rec w_rec;
 	MEMSZERO(s_i);
-	// @v10.7.9 @ctr MEMSZERO(psn_rec);
 	MEMSZERO(cfg);
 	THROW(ini_file.IsValid());
 	ReadPriceListConfig(&plist_cfg);

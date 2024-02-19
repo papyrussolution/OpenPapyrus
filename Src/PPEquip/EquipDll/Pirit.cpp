@@ -2494,25 +2494,31 @@ int PiritEquip::RunCheck(int opertype)
 			{
 				uint16 product_type_bytes = 0;
 				uint8  chzn_1162_bytes[128];
-				if(Check.DraftBeerSimplifiedCode.NotEmpty() && Check.PhQtty > 0.0) {
+				if(false /*@construction Пока не задействуем код - не работает*/ && (Check.DraftBeerSimplifiedCode.NotEmpty() && Check.PhQtty > 0.0)) { 
 					product_type_bytes = 0x444D;
 					int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, 0, chzn_1162_bytes, sizeof(chzn_1162_bytes));
 					if(rl > 0) {
 						str.Z();
 						// @v11.1.10 {
 						if(OfdVer.IsGe(1, 2, 0)) {
-							/*{
+							/*if(Check.ChZnPpStatus > 0)*/{
 								in_data.Z();
 								CreateStr(15, in_data);
-								CreateChZnCode(Check.ChZnGTIN, in_data); // (Строка)[0..128] Код маркировки
-								CreateStr(Check.ChZnPpStatus, in_data); // (Целое число) Присвоенный статус товара (ofdtag-2110)
+								CreateChZnCode(/*Check.ChZnCode*/Check.ChZnGTIN, in_data); // (Строка)[0..128] Код маркировки
+								CreateStr(/*Check.ChZnPpStatus*/2, in_data); // (Целое число) Присвоенный статус товара (ofdtag-2110)
 								CreateStr(0L, in_data); // (Целое число) Режим обработки кода маркировки (ofdtag-2102) = 0
 								CreateStr(Check.ChZnPpResult, in_data); // (Целое число) Результат проведенной проверки КМ (ofdtag-2106)
-								// @v11.2.3 CreateStr(static_cast<int>(fabs(Check.Quantity)), in_data); // (Целое число) Мера количества (ofdtag-2108)
-								CreateStr(0L, in_data); // (Целое число) Мера количества [единица измерения то есть; 0 - штуки] (ofdtag-2108) // @v11.2.3
+								{
+									int chzn_uom_id = 0;
+									switch(Check.UomId) {
+										case SUOM_LITER: chzn_uom_id = 41; break;
+										case SUOM_KILOGRAM: chzn_uom_id = 11; break;
+									}
+									CreateStr(chzn_uom_id, in_data); // uom
+								}
 								THROW(ExecCmd("79", in_data, out_data, r_error)); // query=15
-							}*/
-							{
+							}
+							if(false) {
 								in_data.Z(); // @v11.2.3 @fix
 								CreateStr(str.Z(), in_data); // #1 (tag 1162) Код товарной номенклатуры (для офд 1.2 - пустая строка)
 								CreateStr("[M]", in_data);
@@ -2529,8 +2535,11 @@ int PiritEquip::RunCheck(int opertype)
 								CreateStr("", in_data); // #13 (tag 1073) Телефон(ы) платежного агента (для пл.агента/субагента, иначе пустой) 
 								CreateStr("", in_data); // #14 (tag 1074) Телефон(ы) оператора по приему платежей (для пл.агента/субагента, иначе пустой) 
 								CreateStr("030"/*GTCHZNPT_DRAFTBEER*/, in_data); // #15 (tag 1262) Идентификатор ФОИВ. Значение определяется ФНС РФ. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
+								
 								// @v11.9.3 str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_DMY|DATF_NODIV|DATF_CENTURY); // @v11.2.3 // @v11.2.7
 								str.Z().Cat("26032022"); // @v11.9.3
+								//str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_DMY | DATF_NODIV | DATF_CENTURY);
+								//
 								CreateStr(str, in_data); // #16 (tag 1263) Дата документа основания. Допускается дата после 1999 года. 
 									// Должен содержать сведения об НПА отраслевого регулирования. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								/* @v11.9.3 if(Check.CheckNum > 0)
@@ -2640,7 +2649,7 @@ int PiritEquip::RunCheck(int opertype)
 										CreateStr(str, in_data); // #15 (tag 1262) Идентификатор ФОИВ. Значение определяется ФНС РФ. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 									}
 									// @v11.9.3 str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_DMY|DATF_NODIV|DATF_CENTURY); // @v11.2.3 // @v11.2.7
-									str.Z().Cat("26.03.2022"); // @v11.9.3
+									str.Z().Cat("26032022"); // @v11.9.3
 									CreateStr(str, in_data); // #16 (tag 1263) Дата документа основания. Допускается дата после 1999 года. 
 										// Должен содержать сведения об НПА отраслевого регулирования. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 									/* @v11.9.3 if(Check.CheckNum > 0)

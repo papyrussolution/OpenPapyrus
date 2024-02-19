@@ -604,7 +604,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				}
 			}
 			{
-				SLCHECK_EQ(str.Z().Cat(0.1, MKSFMTD(0, 2, 0)), "0.10");
+				SLCHECK_EQ(str.Z().Cat(0.1, MKSFMTD_020), "0.10");
 				SLCHECK_EQ(str.Z().Cat(17.1997, MKSFMTD(0, 3, NMBF_DECCOMMA)), "17,200");
 				SLCHECK_EQ(str.Z().Cat(135.1997, MKSFMTD(0, 0, 0)), "135");
 				SLCHECK_EQ(str.Z().Cat(3308.04, MKSFMTD(0, 8, NMBF_OMITEPS|NMBF_NOTRAILZ)), "3308.04");

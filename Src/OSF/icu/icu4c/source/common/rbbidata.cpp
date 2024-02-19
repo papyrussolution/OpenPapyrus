@@ -16,7 +16,8 @@ U_NAMESPACE_BEGIN
 //
 //    Constructors.
 //
-RBBIDataWrapper::RBBIDataWrapper(const RBBIDataHeader * data, UErrorCode & status) {
+RBBIDataWrapper::RBBIDataWrapper(const RBBIDataHeader * data, UErrorCode & status) 
+{
 	init0();
 	init(data, status);
 }
@@ -360,7 +361,7 @@ U_CAPI int32_t U_EXPORT2 ubrk_swap(const UDataSwapper * ds, const void * inData,
 		// Swap the state table if the table is in 16 bits.
 		if(use8Bits) {
 			if(outBytes != inBytes) {
-				uprv_memmove(outBytes+tableStartOffset+topSize, inBytes+tableStartOffset+topSize, tableLength-topSize);
+				memmove(outBytes+tableStartOffset+topSize, inBytes+tableStartOffset+topSize, tableLength-topSize);
 			}
 		}
 		else {
@@ -377,7 +378,7 @@ U_CAPI int32_t U_EXPORT2 ubrk_swap(const UDataSwapper * ds, const void * inData,
 		// Swap the state table if the table is in 16 bits.
 		if(use8Bits) {
 			if(outBytes != inBytes) {
-				uprv_memmove(outBytes+tableStartOffset+topSize, inBytes+tableStartOffset+topSize, tableLength-topSize);
+				memmove(outBytes+tableStartOffset+topSize, inBytes+tableStartOffset+topSize, tableLength-topSize);
 			}
 		}
 		else {
@@ -388,7 +389,7 @@ U_CAPI int32_t U_EXPORT2 ubrk_swap(const UDataSwapper * ds, const void * inData,
 	ucptrie_swap(ds, inBytes+ds->readUInt32(rbbiDH->fTrie), ds->readUInt32(rbbiDH->fTrieLen), outBytes+ds->readUInt32(rbbiDH->fTrie), status);
 	// Source Rules Text.  It's UTF8 data
 	if(outBytes != inBytes) {
-		uprv_memmove(outBytes+ds->readUInt32(rbbiDH->fRuleSource), inBytes+ds->readUInt32(rbbiDH->fRuleSource), ds->readUInt32(rbbiDH->fRuleSourceLen));
+		memmove(outBytes+ds->readUInt32(rbbiDH->fRuleSource), inBytes+ds->readUInt32(rbbiDH->fRuleSource), ds->readUInt32(rbbiDH->fRuleSourceLen));
 	}
 	// Table of rule status values.  It's all int_32 values
 	ds->swapArray32(ds, inBytes+ds->readUInt32(rbbiDH->fStatusTable), ds->readUInt32(rbbiDH->fStatusTableLen), outBytes+ds->readUInt32(rbbiDH->fStatusTable), status);

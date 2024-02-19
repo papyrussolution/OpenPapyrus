@@ -200,31 +200,25 @@ md5_start:
 	goto not_found;
 
 url_start:
-
 	len = last - p;
-
 	if(end - start != 32 || len == 0) {
 		goto not_found;
 	}
-
 	ngx_md5_init(&md5);
 	ngx_md5_update(&md5, p, len);
 	ngx_md5_update(&md5, conf->secret.data, conf->secret.len);
 	ngx_md5_final(hash, &md5);
-
 	for(i = 0; i < 16; i++) {
 		n = ngx_hextoi(&start[2 * i], 2);
 		if(n == NGX_ERROR || n != hash[i]) {
 			goto not_found;
 		}
 	}
-
 	v->len = len;
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
 	v->data = p;
-
 	return NGX_OK;
 
 not_found:

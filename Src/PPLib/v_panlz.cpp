@@ -1,5 +1,5 @@
 // V_PANLZ.CPP
-// Copyright (c) A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -173,7 +173,6 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 		SArray cost_ary(sizeof(_E));
 		SString ar_name;
 		const  PPID suppl_deal_qk_id = DS.GetTLA().SupplDealQuotKindID;
-		// @v10.6.4 MEMSZERO(goods_rec);
 		ZDELETE(P_TempTbl);
 		THROW(P_TempTbl = CreateTempFile());
 		{
@@ -197,7 +196,6 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 				if(!(goods_rec.Flags & GF_GENERIC) && (Filt.GoodsGrpID || !GObj.IsAsset(goods_rec.ID))) {
 					uint   pos = 0;
 					ReceiptTbl::Rec lot_rec;
-					// @v10.9.9 @ctr MEMSZERO(lot_rec);
 					cost_ary.clear();
 					suppl_list.clear();
 					ReceiptTbl & r_t = BillObj->trfr->Rcpt;
@@ -214,7 +212,8 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 					for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 						int    found = 0;
 						double base_cost = 0.0;
-						_E   * p_e = 0, _e;
+						_E   _e;
+						_E   * p_e = 0;
 						r_t.copyBufTo(&lot_rec);
 						MEMSZERO(_e);
 						LAssoc srch(lot_rec.LocID, (Filt.Flags & PriceAnlzFilt::fDivideBySuppl) ? lot_rec.SupplID : Filt.SupplID);
@@ -347,7 +346,6 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 					}
 					if(!skip) {
 						TempPriceAnlzTbl::Rec temp_rec;
-						// @v10.7.5 @ctr MEMSZERO(temp_rec);
 						temp_rec.GoodsID = goods_rec.ID;
 						STRNSCPY(temp_rec.GoodsName, goods_rec.Name);
 						for(j = 0; cost_ary.enumItems(&j, (void **)&p_e);) {

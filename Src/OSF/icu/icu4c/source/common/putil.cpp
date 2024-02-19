@@ -534,12 +534,12 @@ U_CAPI int32_t U_EXPORT2 uprv_timezone()
 	int32_t tdiff = 0;
 
 	time(&t);
-	uprv_memcpy(&tmrec, localtime(&t), sizeof(tmrec));
+	memcpy(&tmrec, localtime(&t), sizeof(tmrec));
 #if U_PLATFORM != U_PF_IPHONE
 	bool dst_checked = (tmrec.tm_isdst != 0); /* daylight savings time is checked*/
 #endif
 	t1 = mktime(&tmrec); /* local time in seconds*/
-	uprv_memcpy(&tmrec, gmtime(&t), sizeof(tmrec));
+	memcpy(&tmrec, gmtime(&t), sizeof(tmrec));
 	t2 = mktime(&tmrec); /* GMT (or UTC) in seconds*/
 	tdiff = t2 - t1;
 

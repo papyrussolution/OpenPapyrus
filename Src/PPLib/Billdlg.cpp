@@ -20,9 +20,6 @@ int EditPaymPlan(const PPBillPacket * pPack, PayPlanArray * pData);
 
 AccTurnDialog::AccTurnDialog(uint rezID, PPObjBill * pBObj) : TDialog(rezID), P_BObj(pBObj), P_Pack(0)
 {
-	// @v10.6.5 @ctr MEMSZERO(Data);
-	// @v11.3.2 @obsolete setCtrlOption(CTL_ATURN_DTEXT, ofFramed, 1);
-	// @v11.3.2 @obsolete setCtrlOption(CTL_ATURN_CTEXT, ofFramed, 1);
 	AcctCtrlGroup * p_ac_grp = new AcctCtrlGroup(CTL_ATURN_DACC, CTL_ATURN_DART, CTLSEL_ATURN_DACCNAME, CTLSEL_ATURN_DARTNAME);
 	addGroup(GRP_DBT, p_ac_grp);
 	p_ac_grp = new AcctCtrlGroup(CTL_ATURN_CACC, CTL_ATURN_CART, CTLSEL_ATURN_CACCNAME, CTLSEL_ATURN_CARTNAME);
@@ -982,7 +979,6 @@ int BillDialog::editPaymOrder(int forceUpdateRcvr)
 		PPBankingOrder order;
 		if(P_Pack->P_PaymOrder)
 			order = *P_Pack->P_PaymOrder;
-		// @v10.6.10 @ctr else MEMSZERO(order);
 		SETIFZ(order.Dt, P_Pack->Rec.Dt);
 		{
 			SString temp_buf;
@@ -2029,7 +2025,6 @@ IMPL_HANDLE_EVENT(BillDialog)
 				if(P_Pack->Pays.getCount() <= 1) {
 					P_Pack->Pays.freeAll();
 					PayPlanTbl::Rec paym;
-					// @v10.6.4 MEMSZERO(paym);
 					paym.PayDate = dt;
 					paym.Amount  = getCtrlReal(CTL_BILL_AMOUNT);
 					P_Pack->Pays.Update(&paym, 0);
@@ -2958,7 +2953,6 @@ int BillDialog::getCurGroupData()
 {
 	CurAmtCtrlGroup::Rec ca_cg_rec;
 	if(Flags & fExtMainCurAmount) {
-		// @v10.6.4 MEMSZERO(ca_cg_rec);
 		getGroupData(GRP_CURAMT, &ca_cg_rec);
 		if(!(P_Pack->Rec.Flags & BILLF_FIXEDAMOUNTS)) {
 			P_Pack->Rec.CurID  = ca_cg_rec.CurID;
@@ -3610,7 +3604,7 @@ int PPObjBill::EditBillStatus(PPID billID)
 			IsThereStatus = 0;
 			PPObjBillStatus bs_obj;
 			PPBillStatus bs_rec;
-			SVector temp_list(sizeof(PPBillStatus)); // @v10.7.5 SArray-->SVector
+			SVector temp_list(sizeof(PPBillStatus));
 			for(SEnum en = bs_obj.P_Ref->Enum(PPOBJ_BILLSTATUS, 0); en.Next(&bs_rec) > 0;) {
 				if(!Rec.OpID || !bs_rec.RestrictOpID || IsOpBelongTo(Rec.OpID, bs_rec.RestrictOpID)) {
 					THROW_SL(temp_list.insert(&bs_rec));
@@ -3762,7 +3756,6 @@ int PaymPlanDialog::addItem(long * pPos, long * pID)
 	int    ok = -1;
 	uint   pos = 0;
 	PayPlanTbl::Rec item;
-	// @v10.6.4 MEMSZERO(item);
 	if(EditPaymPlanItem(P_Pack, &item) > 0)
 		if(Data.Update(&item, &pos)) {
 			ASSIGN_PTR(pID, (long)item.PayDate);
@@ -3930,7 +3923,6 @@ int PPObjBill::EditBillExtData(PPID billID)
 						payplan.freeAll();
 						if(last_pay_date) {
 							PayPlanTbl::Rec rec;
-							// @v10.6.4 MEMSZERO(rec);
 							rec.BillID  = billID;
 							rec.PayDate = last_pay_date;
 							rec.Amount  = bill_rec.Amount;
@@ -3962,7 +3954,6 @@ int PPObjBill::EditBillExtData(PPID billID)
 LotQCertDialog::LotQCertDialog(PPObjBill * pBObj) : TDialog(DLG_LOTQCERT), P_BObj(pBObj)
 {
 	MEMSZERO(Data);
-	// @v11.3.2 @obsolete setCtrlOption(CTL_LOTQCERT_FRAME, ofFramed, 1);
 	QCertCtrlGroup * p_qc_grp = new QCertCtrlGroup(CTL_LOTQCERT_QCERT);
 	addGroup(GRP_QCERT, p_qc_grp);
 	SetupCalDate(CTLCAL_LOTQCERT_EXPIRY, CTL_LOTQCERT_EXPIRY);

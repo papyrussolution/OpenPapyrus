@@ -98,7 +98,6 @@ public:
 		int    ok = 1;
 		// @v10.3.0 (never used) long   rt_desk = 0;
 		PPAccessRestriction accsr;
-		// @v10.7.8 @ctr MEMSZERO(accsr);
 		getCtrlData(CTL_RTCOMM_PWMIN,    &accsr.PwMinLen);
 		getCtrlData(CTL_RTCOMM_PWPERIOD, &accsr.PwPeriod);
 		getCtrlData(CTL_RTCOMM_ACCESS,   &accsr.AccessLevel);
@@ -622,7 +621,6 @@ private:
 		if(P_ORList) {
 			uint   pos = 0;
 			ObjRestrictItem item;
-			// @v10.7.8 @ctr MEMSZERO(item);
 			if(editItemDialog(&item, 1) > 0)
 				if(Data.Add(item.ObjID, item.Flags, &pos)) {
 					ASSIGN_PTR(pID, item.ObjID);
@@ -756,7 +754,6 @@ private:
 		if(P_ORList) {
 			uint   pos = 0;
 			ObjRestrictItem item;
-			// @v10.7.8 @ctr MEMSZERO(item);
 			if(editItemDialog(&item, 1) > 0)
 				if(Data.Add(item.ObjID, item.Flags, &pos)) {
 					ASSIGN_PTR(pID, item.ObjID);
@@ -889,7 +886,6 @@ private:
 		if(P_ORList) {
 			uint   pos = 0;
 			ObjRestrictItem item;
-			// @v10.7.8 @ctr MEMSZERO(item);
 			if(editItemDialog(&item, 1) > 0)
 				if(Data.Add(item.ObjID, item.Flags, &pos)) {
 					ASSIGN_PTR(pID, item.ObjID);

@@ -209,7 +209,7 @@ int CreateByExample(const char * pPath)
 									p_src_tbl->putRecToString(rec_txt_buf, 1);
 									msg_buf.Cat(rec_txt_buf);
 									PPRestoreErrContext();
-									PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+									PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 									PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, 0);
 									//CALLEXCEPT_PP(PPERR_DBENGINE);
 								}
@@ -530,7 +530,7 @@ int MakeDatabase()
 						}
 						DS.Logout();
 						CATCH
-							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 						ENDCATCH
 						memzero(secret, sizeof(secret));
 					}

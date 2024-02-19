@@ -813,7 +813,6 @@ CCheckPacket & CCheckPacket::Z()
 	_OrdPrepay  = 0.0;
 	MEMSZERO(Ext);
 	MEMSZERO(Rec);
-	// @v10.9.0 UhttScHash.Z();
 	Items_.clear();
 	ExtList.clear();
 	LnTextList.Z();
@@ -1501,7 +1500,6 @@ int CCheckPacket::InsertItem(const CCheckItem & rItem)
 int CCheckPacket::InsertItem(PPID goodsID, double qtty, double price, double dscnt, short div /* =0 */, int isPrinted /* =0 */)
 {
 	CCheckLineTbl::Rec item;
-	// @v10.6.4 MEMSZERO(item);
 	item.DivID = static_cast<short>(div);
 	if(isPrinted)
 		item.DivID += CHECK_LINE_IS_PRINTED_BIAS;
@@ -2755,7 +2753,6 @@ int CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double
 				const  PPID sc_id = r_entry.AddedID;
 				if(!(flags & tscpfCorrection) && r_entry.Type != CCAMTTYP_CSCCHARGE) {
 					CCheckPaymTbl::Rec cp_rec;
-					// @v10.6.4 MEMSZERO(cp_rec);
 					cp_rec.CheckID = pPack->Rec.ID;
 					cp_rec.RByCheck = ++rbc;
 					cp_rec.PaymType = static_cast<int16>(r_entry.Type);
@@ -2770,7 +2767,6 @@ int CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double
 					int    scst = (scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
 					if(oneof2(scst, scstCredit, scstBonus)) {
 						SCardOpTbl::Rec scop_rec;
-						// @v10.6.4 MEMSZERO(scop_rec);
 						scop_rec.SCardID = sc_id;
 						scop_rec.Dt      = pPack->Rec.Dt;
 						scop_rec.Tm      = pPack->Rec.Tm;
@@ -2818,7 +2814,7 @@ int CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double
 				ufp_factor_uhtt += 1.0;
 				THROW_MEM(p_uhtt_cli = new PPUhttClient);
 				if(!p_uhtt_cli->Auth()) {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 					uhtt_err = 1;
 					ZDELETE(p_uhtt_cli);
 				}
@@ -2836,7 +2832,7 @@ int CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double
 								if(!p_u->IsCharge) { // @v11.9.0 изменено условие
 									if(!p_uhtt_cli->WithdrawSCardAmount(uhtt_sc_code, fabs(r_entry.Amount))) { // @v11.9.0 @fix (r_entry.Amount)-->fabs(r_entry.Amount)
 										PPSetError(PPERR_UHTT_SCWITHDRAW, p_uhtt_cli->GetLastMessage());
-										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 										uhtt_err = 1;
 									}
 									ufp_factor_uhtt += 1.0;
@@ -2844,7 +2840,7 @@ int CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, double
 								else { // @v11.9.0 // @v11.9.0 изменено условие
 									if(!p_uhtt_cli->DepositSCardAmount(uhtt_sc_code, fabs(r_entry.Amount))) { // @v11.9.0 @fix (-r_entry.Amount)-->fabs(r_entry.Amount)
 										PPSetError(PPERR_UHTT_SCDEPOSIT, p_uhtt_cli->GetLastMessage());
-										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 										uhtt_err = 1;
 									}
 									ufp_factor_uhtt += 1.0;
@@ -2944,7 +2940,6 @@ int CCheckCore::UpdateCheck(CCheckPacket * pPack, int use_ta)
 					pPack->GetLineExt(i, le);
 					if(le.Queue || (le.Flags & (le.fGroup|le.fModifier|le.fPartOfComplex|le.fQuotedByGift|le.fFixedPrice))) { // @v10.1.7 le.fFixedPrice
 						CCheckLineExtTbl::Rec lx_rec;
-						// @v10.6.4 MEMSZERO(lx_rec);
 						lx_rec.CheckID = ccl.CheckID;
 						lx_rec.RByCheck = ccl.RByCheck;
 						lx_rec.Queue = le.Queue;
@@ -3040,7 +3035,7 @@ int CCheckCore::PreprocessPacket(CCheckPacket * pPack)
 				SString ccheck_code;
 				CCheckCore::MakeCodeString(&pPack->Rec, 0, ccheck_code);
 				PPSetError(PPERR_INVAR_CCHECKPACKET, ccheck_code);
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 			}
 		}
 	}
@@ -3082,7 +3077,6 @@ int CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
 					pPack->GetLineExt(i, le);
 					if(le.Queue || (le.Flags & (le.fGroup|le.fModifier|le.fPartOfComplex|le.fQuotedByGift|le.fFixedPrice))) { // @v10.1.7 le.fFixedPrice
 						CCheckLineExtTbl::Rec lx_rec;
-						// @v10.6.4 MEMSZERO(lx_rec);
 						lx_rec.CheckID = ccl.CheckID;
 						lx_rec.RByCheck = ccl.RByCheck;
 						lx_rec.Queue = le.Queue;
@@ -4281,7 +4275,6 @@ int CCheckCore::UpdateSCardOpsBySess(PPID sessID, int use_ta)
 				if(!(data.Flags & (CCHKF_JUNK|CCHKF_SKIP))) {
 					if(data.SCardID && Cards.Search(data.SCardID, &sc_rec) > 0 && credit_card_series.lsearch(sc_rec.SeriesID)) {
 						SCardOpTbl::Rec scop_rec;
-						// @v10.6.4 MEMSZERO(scop_rec);
 						scop_rec.SCardID = data.SCardID;
 						scop_rec.Dt = data.Dt;
 						scop_rec.Tm = data.Tm;
@@ -4406,7 +4399,6 @@ int CGoodsLine::Add(PPID sessID, const CCheckGoodsArray * pList, int use_ta)
 			}
 			else {
 				CGoodsLineTbl::Rec rec;
-				// @v10.7.9 @ctr MEMSZERO(rec);
 				rec.SessID   = sessID;
 				rec.Dt       = p_entry->Dt;
 				rec.GoodsID  = p_entry->GoodsID;

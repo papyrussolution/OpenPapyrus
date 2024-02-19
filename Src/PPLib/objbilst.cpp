@@ -1,5 +1,5 @@
 // OBJBILST.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // PPObjBillStatus - Статусы документов
 //
@@ -35,7 +35,6 @@ int PPObjBillStatus::Edit(PPID * pID, void * extraPtr)
 	if(*pID) {
 		THROW(Search(*pID, &rec) > 0);
 	}
-	// @v10.7.5 @ctr else MEMSZERO(rec);
 	dlg->addGroup(ctlgroupColor, new ColorCtrlGroup(CTL_BILLSTATUS_COLOR, CTLSEL_BILLSTATUS_COLOR, cmSelColor, CTL_BILLSTATUS_SELCOLOR));
 	dlg->setCtrlData(CTL_BILLSTATUS_NAME, rec.Name);
 	dlg->setCtrlData(CTL_BILLSTATUS_SYMB, rec.Symb);

@@ -1288,8 +1288,7 @@ static int parse_hex_nibble(char c)
 	return -1;
 }
 
-static int parse_digest(ArchiveRead * a, ArchiveEntry * entry,
-    const char * digest, int type)
+static int parse_digest(ArchiveRead * a, ArchiveEntry * entry, const char * digest, int type)
 {
 	uchar digest_buf[64];
 	int high, low;

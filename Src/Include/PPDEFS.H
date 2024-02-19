@@ -2854,6 +2854,7 @@
 #define DLG_BILLFLT               131 // Фильтр реестра товарных документов
 #define DLG_BILLFLTEXT            275 // (@obsolete v3.6.4) Расширение фильтра документов
 #define DLG_BILLPREAMB            514 // Преамбула для ввода документа по коду операции и контрагента
+	#define cmContractorTags             101 // @v11.9.6
 	#define CTL_BILLFLT_PERIOD           (1 + WINDOWS_ID_BIAS)
 	#define CTL_BILLFLT_OPRKIND          (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BILLFLT_OPRKIND       (3 + WINDOWS_ID_BIAS)
@@ -2910,6 +2911,7 @@
 	#define CTL_BILLFLT_DUEPERIOD       (85 + WINDOWS_ID_BIAS)
 	#define CTLCAL_BILLFLT_DUEPERIOD    (86 + WINDOWS_ID_BIAS)
 	#define CTL_BILLFLT_MEMOTEXT        (87 + WINDOWS_ID_BIAS) // @v11.7.4
+	#define CTLBUT_BILLFLT_OBJPTAGS     (88 + WINDOWS_ID_BIAS) // @v11.9.6 Кнопка фильтра по тегам персоналий контрагентов
 #define DLG_GTO                   133 // Фильтр товарооборота
 	#define CTL_GTO_PERIOD               (1 + WINDOWS_ID_BIAS)
 	#define CTL_GTO_SUPPL                (3 + WINDOWS_ID_BIAS)

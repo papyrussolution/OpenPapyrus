@@ -1,5 +1,5 @@
 // V_INV.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 // @codepage UTF-8
 // PPViewInventory: отображение строк инвентаризации
 //
@@ -308,7 +308,6 @@ int PPViewInventory::UpdateTempTable(PPID billID, long oprno)
 				if(!is_extra_entry_found) {
 					ExtraEntry new_entry;
 					PPFreight freight;
-					// @v10.9.12 @ctr MEMSZERO(new_entry);
 					new_entry.SurrID = ++LastSurrID;
 					new_entry.BillID = rec.BillID;
 					new_entry.OprNo = rec.OprNo;
@@ -331,7 +330,6 @@ int PPViewInventory::UpdateTempTable(PPID billID, long oprno)
 			if(P_TempOrd) {
 				TempDoubleIDTbl::Rec ord_rec;
 				TempDoubleIDTbl::Key0 ko0;
-				// @v10.6.4 MEMSZERO(ord_rec);
 				MEMSZERO(ko0);
 				MakeTempOrdRec(&rec, &ord_rec);
 				ko0.PrmrID = ord_rec.PrmrID;
@@ -374,7 +372,6 @@ int PPViewInventory::MakeTempOrdRec(const InventoryTbl::Rec * pRec, TempDoubleID
 {
 	SString temp_buf;
 	TempDoubleIDTbl::Rec rec;
-	// @v10.6.4 MEMSZERO(rec);
 	if(pRec) {
 		rec.PrmrID = pRec->BillID;
 		rec.ScndID = pRec->OprNo;
@@ -445,7 +442,6 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 				}
 				if(!do_skip) {
 					ExtraEntry new_entry;
-					// @v10.9.12 @ctr MEMSZERO(new_entry);
 					PPID   final_goods_id = 0;
 					if(!!Filt.Sgb)
 						final_goods_id = subst_bill_val;
@@ -484,7 +480,6 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 							THROW_SL(ExtraList.insert(&new_entry));
 							{
 								TempInventorySubstTbl::Rec temp_rec;
-								// @v10.6.4 MEMSZERO(temp_rec);
 								temp_rec.GoodsID = final_goods_id;
 								temp_rec.Quantity = r_inv_rec.Quantity;
 								temp_rec.StockRest = r_inv_rec.StockRest;
@@ -610,7 +605,6 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 								// } @erik
 								if(!do_skip) {
 									ExtraEntry new_entry;
-									// @v10.9.12 @ctr MEMSZERO(new_entry);
 									PPID   final_goods_id = 0;
 									if(!!Filt.Sgb)
 										final_goods_id = subst_bill_val;
@@ -652,7 +646,6 @@ int PPViewInventory::Init_(const PPBaseFilt * pFilt)
 											THROW_SL(ExtraList.insert(&new_entry));
 											{
 												TempInventorySubstTbl::Rec temp_rec;
-												// @v10.6.4 MEMSZERO(temp_rec);
 												temp_rec.GoodsID = final_goods_id;
 												temp_rec.Quantity = inv_rec.Quantity;
 												temp_rec.StockRest = inv_rec.StockRest;
@@ -774,7 +767,6 @@ int FASTCALL PPViewInventory::NextIteration(InventoryViewItem * pItem)
 	Goods2Tbl::Rec goods_rec;
 	InventoryTbl::Rec inv_rec;
 	const  PPID single_bill_id = Filt.GetSingleBillID();
-	// @v10.6.4 MEMSZERO(inv_rec);
 	if(P_GIter) {
 		while(ok <= 0 && P_GIter->Next(&goods_rec) > 0) {
 			Counter.Increment();

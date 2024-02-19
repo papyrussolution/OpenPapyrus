@@ -733,7 +733,7 @@ static void compactToUnicode2(UCMStates * states,
 		slfprintf_stderr("cannot compact toUnicode: out of memory\n");
 		return;
 	}
-	uprv_memcpy(oldStateTable, states->stateTable, states->countStates*1024);
+	memcpy(oldStateTable, states->stateTable, states->countStates*1024);
 
 	/* add the new state */
 	/*
@@ -786,7 +786,7 @@ static void compactToUnicode2(UCMStates * states,
 		/* revert to the old state table */
 		*pUnicodeCodeUnits = oldUnicodeCodeUnits;
 		--states->countStates;
-		uprv_memcpy(states->stateTable, oldStateTable, states->countStates*1024);
+		memcpy(states->stateTable, oldStateTable, states->countStates*1024);
 		uprv_free(oldStateTable);
 		return;
 	}

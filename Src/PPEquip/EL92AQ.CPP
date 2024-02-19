@@ -1,5 +1,5 @@
 // EL92AQ.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2010, 2011, 2015, 2016, 2019, 2022
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2010, 2011, 2015, 2016, 2019, 2022, 2024
 // @codepage windows-1251
 // Интерфейс (асинхронный) с ККМ Електроника-92-Аквариус
 //
@@ -164,7 +164,6 @@ int ACS_EL92AQ::ConvertWareList(int num)
 					THROW_DB(p_bc_tbl->search(0, &bck, spEq) || BTRNFOUND);
 					THROW_PP(!BTRNFOUND, PPERR_BARCODENFOUND);
 					p_bc_tbl->copyBufTo(&bc_rec);
-					// @v10.6.4 MEMSZERO(rec);
 					rec.CheckID   = P_TmpCcTbl->data.ID;
 					rec.CheckCode = P_TmpCcTbl->data.Code;
 					rec.Dt        = P_TmpCcTbl->data.Dt;

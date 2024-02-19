@@ -1259,13 +1259,13 @@ U_CAPI UEnumeration* U_EXPORT2 uloc_openKeywordList(const char * keywordList, in
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return nullptr;
 	}
-	uprv_memcpy(result.getAlias(), &gKeywordsEnum, sizeof(UEnumeration));
+	memcpy(result.getAlias(), &gKeywordsEnum, sizeof(UEnumeration));
 	myContext->keywords = static_cast<char *>(uprv_malloc(keywordListSize+1));
 	if(myContext->keywords == nullptr) {
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return nullptr;
 	}
-	uprv_memcpy(myContext->keywords, keywordList, keywordListSize);
+	memcpy(myContext->keywords, keywordList, keywordListSize);
 	myContext->keywords[keywordListSize] = 0;
 	myContext->current = myContext->keywords;
 	result->context = myContext.orphan();
@@ -1523,10 +1523,10 @@ U_CAPI int32_t U_EXPORT2 uloc_getParent(const char * localeID, char * parent, in
 		if(uprv_strnicmp(localeID, "und_", 4) == 0) {
 			localeID += 3;
 			i -= 3;
-			uprv_memmove(parent, localeID, smin(i, parentCapacity));
+			memmove(parent, localeID, smin(i, parentCapacity));
 		}
 		else if(parent != localeID) {
-			uprv_memcpy(parent, localeID, smin(i, parentCapacity));
+			memcpy(parent, localeID, smin(i, parentCapacity));
 		}
 	}
 	return u_terminateChars(parent, parentCapacity, i, err);

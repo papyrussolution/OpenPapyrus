@@ -1,5 +1,5 @@
 // OBJACCT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -698,7 +698,6 @@ int GenAccountDialog::editItemDialog(ObjRestrictItem * pItem)
 		AcctCtrlGroup::Rec ag_rec;
 		AcctCtrlGroup * p_grp = new AcctCtrlGroup(CTL_ACCAGGRI_ACC, CTL_ACCAGGRI_ART, CTLSEL_ACCAGGRI_ACCNAME, CTLSEL_ACCAGGRI_ARTNAME);
 		dlg->addGroup(ACCT_GROUP, p_grp);
-		// @v10.7.3 @ctr MEMSZERO(ag_rec);
 		if(oneof2(aco, ACO_1, ACO_2))
 			ag_rec.AcctId.ac = pItem->ObjID;
 		else

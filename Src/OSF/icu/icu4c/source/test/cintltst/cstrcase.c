@@ -60,7 +60,7 @@ static void TestCaseLower() {
 	}
 
 	/* lowercase with turkish locale and in the same buffer */
-	uprv_memcpy(buffer, beforeLower, sizeof(beforeLower));
+	memcpy(buffer, beforeLower, sizeof(beforeLower));
 	buffer[SIZEOFARRAYi(beforeLower)] = 0;
 	errorCode = U_ZERO_ERROR;
 	length = u_strToLower(buffer, SIZEOFARRAYi(buffer),
@@ -136,7 +136,7 @@ static void TestCaseUpper() {
 	UErrorCode errorCode;
 
 	/* uppercase with root locale and in the same buffer */
-	uprv_memcpy(buffer, beforeUpper, sizeof(beforeUpper));
+	memcpy(buffer, beforeUpper, sizeof(beforeUpper));
 	errorCode = U_ZERO_ERROR;
 	length = u_strToUpper(buffer, SIZEOFARRAYi(buffer),
 		buffer, SIZEOFARRAYi(beforeUpper),
@@ -239,7 +239,7 @@ static void TestCaseTitle() {
 	}
 
 	/* titlecase with standard break iterator and in the same buffer */
-	uprv_memcpy(buffer, beforeTitle, sizeof(beforeTitle));
+	memcpy(buffer, beforeTitle, sizeof(beforeTitle));
 	errorCode = U_ZERO_ERROR;
 	length = u_strToTitle(buffer, SIZEOFARRAYi(buffer),
 		buffer, SIZEOFARRAYi(beforeTitle),
@@ -488,7 +488,7 @@ static void TestCaseFolding() {
 	}
 
 	/* test full string case folding with default option and in the same buffer */
-	uprv_memcpy(buffer, mixed, sizeof(mixed));
+	memcpy(buffer, mixed, sizeof(mixed));
 	buffer[SIZEOFARRAYi(mixed)] = 0;
 	errorCode = U_ZERO_ERROR;
 	length = u_strFoldCase(buffer, SIZEOFARRAYi(buffer),
@@ -508,7 +508,7 @@ static void TestCaseFolding() {
 
 	/* test full string case folding, exclude special i, in the same buffer */
 	if(isUnicode_3_1) {
-		uprv_memcpy(buffer, mixed, sizeof(mixed));
+		memcpy(buffer, mixed, sizeof(mixed));
 		errorCode = U_ZERO_ERROR;
 		length = u_strFoldCase(buffer, SIZEOFARRAYi(buffer),
 			buffer, SIZEOFARRAYi(mixed),

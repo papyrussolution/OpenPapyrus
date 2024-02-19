@@ -145,9 +145,8 @@ static bool SetupAlternateStackOnce() {
 	// Account for sanitizer instrumentation requiring additional stack space.
 	stack_size *= 5;
 #endif
-
 	stack_t sigstk;
-	memset(&sigstk, 0, sizeof(sigstk));
+	memzero(&sigstk, sizeof(sigstk));
 	sigstk.ss_size = stack_size;
 
 #ifdef ABSL_HAVE_MMAP
@@ -202,10 +201,10 @@ static int MaybeSetupAlternateStack() {
 #endif
 }
 
-static void InstallOneFailureHandler(FailureSignalData* data,
-    void (*handler)(int, siginfo_t*, void*)) {
+static void InstallOneFailureHandler(FailureSignalData* data, void (*handler)(int, siginfo_t*, void*)) 
+{
 	struct sigaction act;
-	memset(&act, 0, sizeof(act));
+	memzero(&act, sizeof(act));
 	sigemptyset(&act.sa_mask);
 	act.sa_flags |= SA_SIGINFO;
 	// SA_NODEFER is required to handle SIGABRT from

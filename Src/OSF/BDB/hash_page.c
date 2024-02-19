@@ -214,22 +214,15 @@ int __ham_item_prev(DBC * dbc, db_lockmode_t mode, db_pgno_t * pgnop)
 	 * to handle backing up through keys.
 	 */
 	if(!F_ISSET(hcp, H_NEXT_NODUP) && F_ISSET(hcp, H_ISDUP)) {
-		if(HPAGE_TYPE(dbp, hcp->page, H_DATAINDEX(hcp->indx)) ==
-		   H_OFFDUP) {
-			memcpy(pgnop,
-				HOFFDUP_PGNO(H_PAIRDATA(dbp, hcp->page, hcp->indx)),
-				sizeof(db_pgno_t));
+		if(HPAGE_TYPE(dbp, hcp->page, H_DATAINDEX(hcp->indx)) == H_OFFDUP) {
+			memcpy(pgnop, HOFFDUP_PGNO(H_PAIRDATA(dbp, hcp->page, hcp->indx)), sizeof(db_pgno_t));
 			F_SET(hcp, H_OK);
 			return 0;
 		}
 		/* Duplicates are on-page. */
 		if(hcp->dup_off != 0) {
-			memcpy(&hcp->dup_len, HKEYDATA_DATA(
-					H_PAIRDATA(dbp, hcp->page, hcp->indx))+
-				hcp->dup_off-sizeof(db_indx_t),
-				sizeof(db_indx_t));
-			hcp->dup_off -=
-			        DUP_SIZE(hcp->dup_len);
+			memcpy(&hcp->dup_len, HKEYDATA_DATA(H_PAIRDATA(dbp, hcp->page, hcp->indx))+hcp->dup_off-sizeof(db_indx_t), sizeof(db_indx_t));
+			hcp->dup_off -= DUP_SIZE(hcp->dup_len);
 			return __ham_item(dbc, mode, pgnop);
 		}
 	}
@@ -256,8 +249,7 @@ int __ham_item_prev(DBC * dbc, db_lockmode_t mode, db_pgno_t * pgnop)
 			F_SET(hcp, H_NOMORE);
 			return DB_NOTFOUND;
 		}
-		else if((ret =
-		                 __ham_next_cpage(dbc, hcp->pgno)) != 0)
+		else if((ret = __ham_next_cpage(dbc, hcp->pgno)) != 0)
 			return ret;
 		else
 			hcp->indx = NUM_ENT(hcp->page);
@@ -268,7 +260,6 @@ int __ham_item_prev(DBC * dbc, db_lockmode_t mode, db_pgno_t * pgnop)
 	 */
 	if(hcp->indx == NDX_INVALID) {
 		DB_ASSERT(dbp->env, hcp->page != NULL);
-
 		hcp->indx = NUM_ENT(hcp->page);
 		for(next_pgno = NEXT_PGNO(hcp->page);
 		    next_pgno != PGNO_INVALID;
@@ -319,8 +310,7 @@ int __ham_item_next(DBC * dbc, db_lockmode_t mode, db_pgno_t * pgnop)
 			F_SET(hcp, H_NOMORE);
 			return 0;
 		}
-		else if(F_ISSET(hcp, H_ISDUP) &&
-		        F_ISSET(hcp, H_NEXT_NODUP)) {
+		else if(F_ISSET(hcp, H_ISDUP) && F_ISSET(hcp, H_NEXT_NODUP)) {
 			F_CLR(hcp, H_ISDUP);
 			hcp->indx += 2;
 		}
@@ -335,8 +325,7 @@ int __ham_item_next(DBC * dbc, db_lockmode_t mode, db_pgno_t * pgnop)
 		F_CLR(hcp, H_ISDUP);
 	}
 	else if(F_ISSET(hcp, H_ISDUP) && hcp->dup_tlen != 0) {
-		if(hcp->dup_off+DUP_SIZE(hcp->dup_len) >=
-		   hcp->dup_tlen && F_ISSET(hcp, H_DUPONLY)) {
+		if(hcp->dup_off+DUP_SIZE(hcp->dup_len) >= hcp->dup_tlen && F_ISSET(hcp, H_DUPONLY)) {
 			F_CLR(hcp, H_OK);
 			F_SET(hcp, H_NOMORE);
 			return 0;

@@ -374,7 +374,7 @@ static bool checkParaCount(UBiDi * pBiDi)
 		if(!getInitialParasMemory(pBiDi, SIMPLE_PARAS_COUNT * 2))
 			return FALSE;
 		pBiDi->paras = pBiDi->parasMemory;
-		uprv_memcpy(pBiDi->parasMemory, pBiDi->simpleParas, SIMPLE_PARAS_COUNT * sizeof(Para));
+		memcpy(pBiDi->parasMemory, pBiDi->simpleParas, SIMPLE_PARAS_COUNT * sizeof(Para));
 		return TRUE;
 	}
 	if(!getInitialParasMemory(pBiDi, count * 2))
@@ -718,7 +718,7 @@ bracketAddOpening(BracketData * bd, char16_t match, int32_t position) {
 		if(!getInitialOpeningsMemory(pBiDi, pLastIsoRun->limit * 2))
 			return FALSE;
 		if(bd->openings==bd->simpleOpenings)
-			uprv_memcpy(pBiDi->openingsMemory, bd->simpleOpenings,
+			memcpy(pBiDi->openingsMemory, bd->simpleOpenings,
 			    SIMPLE_OPENINGS_COUNT * sizeof(Opening));
 		bd->openings = pBiDi->openingsMemory; /* may have changed */
 		bd->openingsCount = pBiDi->openingsSize / sizeof(Opening);
@@ -2315,7 +2315,7 @@ static void setParaRunsOnly(UBiDi * pBiDi, const char16_t * text, int32_t length
 	 * direction is not MIXED
 	 */
 	levels = ubidi_getLevels(pBiDi, pErrorCode);
-	uprv_memcpy(saveLevels, levels, (size_t)pBiDi->length*sizeof(UBiDiLevel));
+	memcpy(saveLevels, levels, (size_t)pBiDi->length*sizeof(UBiDiLevel));
 	saveTrailingWSStart = pBiDi->trailingWSStart;
 	saveLength = pBiDi->length;
 	saveDirection = pBiDi->direction;
@@ -2435,7 +2435,7 @@ cleanup2:
 	pBiDi->originalLength = length;
 	pBiDi->direction = saveDirection;
 	SETMIN(saveLength, pBiDi->levelsSize); // the saved levels should never excess levelsSize, but we check anyway
-	uprv_memcpy(pBiDi->levels, saveLevels, (size_t)saveLength*sizeof(UBiDiLevel));
+	memcpy(pBiDi->levels, saveLevels, (size_t)saveLength*sizeof(UBiDiLevel));
 	pBiDi->trailingWSStart = saveTrailingWSStart;
 	if(pBiDi->runCount>1) {
 		pBiDi->direction = UBIDI_MIXED;

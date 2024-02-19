@@ -2628,7 +2628,7 @@ int PPPosProtocol::EndElement(const char * pName)
 						}
 						else {
 							PPSetErrorSLib();
-							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_TIME);
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 						}
 					}
 				}
@@ -3737,7 +3737,7 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int a
 			if(use_ar_code && (/*goods_by_ar_id && */ex_goods_rec.ID != goods_by_ar_id)) {
 				THROW(GObj.ForceUndupName(goods_by_ar_id, temp_buf));
 				if(!GObj.UpdateName(ex_goods_rec.ID, temp_buf, 1))
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 			}
 			else if(!use_ar_code) // Для товара с внешним идентификатором аналог по наименованию не принимаем в расчет
 				pretend_obj_list.add(ex_goods_rec.ID);
@@ -3943,7 +3943,6 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int a
 					const LotBlock & r_blk = RdB.LotBlkList.at(k);
 					if(r_blk.GoodsBlkP == refPos) {
 						ReceiptTbl::Rec lot_rec;
-						// @v10.6.4 MEMSZERO(lot_rec);
 						lot_rec.GoodsID = native_id;
 						lot_rec.Dt = r_blk.Dt;
 						lot_rec.Expiry = r_blk.Expiry;
@@ -3965,7 +3964,6 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int a
 				}
 				if(lot_list.getCount() == 0 && rBlk.Rest > 0.0) {
 					ReceiptTbl::Rec lot_rec;
-					// @v10.6.4 MEMSZERO(lot_rec);
 					lot_rec.GoodsID = native_id;
 					lot_rec.Dt = getcurdate_();
 					lot_rec.Quantity = rBlk.Rest;
@@ -4171,7 +4169,6 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 				UnitBlock & r_blk = RdB.UnitBlkList.at(i);
 				if(!(r_blk.Flags_ & r_blk.fRefItem)) {
 					PPUnit unit_rec;
-					// @v10.6.8 @ctr MEMSZERO(unit_rec);
 					RdB.GetS(r_blk.NameP, name_buf);
 					name_buf.Transf(CTRANSF_UTF8_TO_INNER);
 					if(name_buf.NotEmptyS()) {
@@ -4468,7 +4465,6 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 							}
 							{
 								PPGoodsType gty_rec;
-								// @v10.6.9 @ctr MEMSZERO(gty_rec);
 								STRNSCPY(gty_rec.Name, name_buf);
 								STRNSCPY(gty_rec.Symb, code_buf);
 								gty_rec.Flags |= p_entry->Flags;
@@ -4770,7 +4766,6 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 									else {
 										if(reg_type_id && code_buf.NotEmptyS()) {
 											RegisterTbl::Rec reg_rec;
-											// @v10.6.4 MEMSZERO(reg_rec);
 											reg_rec.RegTypeID = reg_type_id;
 											STRNSCPY(reg_rec.Num, code_buf);
 										}
@@ -4870,7 +4865,6 @@ int PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess, int sile
 	if(!silent)
 		PPWaitStart();
 	xmlSAXHandler saxh;
-	// @v10.7.9 @ctr MEMSZERO(saxh);
 	saxh.startDocument = Scb_StartDocument;
 	saxh.endDocument = Scb_EndDocument;
 	saxh.startElement = Scb_StartElement;
@@ -5015,7 +5009,7 @@ int PPPosProtocol::BackupInputFile(const char * pFileName)
 		}
 	}
     CATCH
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 		ok = 0;
 	ENDCATCH
 	return ok;
@@ -5055,7 +5049,7 @@ static int FASTCALL AppendPosProtocolFileProcessedListEntry(const char * pPath, 
 		ok = 1;
 	}
 	CATCH
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 		ok = 0;
 	ENDCATCH
 	return ok;
@@ -5101,7 +5095,7 @@ static int FASTCALL ReadPosProtocolFileProcessedList(const char * pPath, TSVecto
 		}
 	}
 	CATCH
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 		ok = 0;
 	ENDCATCH
 	return ok;
@@ -5438,7 +5432,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 										do_backup_file = 1;
 									else {
 										err_on_accept_occured = 1;
-										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 									}
 								}
 								if(!err_on_accept_occured) {
@@ -5599,7 +5593,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		PPWaitStop();
 	CATCH
 		if(rPib.Flags & rPib.fSilent) {
-			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_TIME);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 		}
 		else
 			PPErrorZ();
@@ -6054,7 +6048,7 @@ int RunInputProcessThread(PPID posNodeID)
 				}
 			}
 			CATCH
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO|LOGMSGF_LASTERR);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 			ENDCATCH
 			delete p_dcn;
 			DS.Logout();

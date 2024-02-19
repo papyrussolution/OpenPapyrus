@@ -540,7 +540,6 @@ int SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHdr)
 	{
 		PPTransaction tra(1);
 		CCheckTbl::Rec cc_rec;
-		// @v10.6.4 MEMSZERO(cc_rec);
 		cc_rec.PosNodeID = rHdr.PosNodeID;
 		{
 			PPSecur sec_rec;
@@ -3013,7 +3012,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				PPID   new_id = 0;
 				PPObjGlobalUserAcc gua_obj;
 				PPGlobalUserAcc gua_rec;
-				// @v10.6.5 @ctr MEMSZERO(gua_rec);
 				THROW_PP(P_SetBlk, PPERR_EMPTYPPOBJECT);
 				gua_rec.Tag  = ObjType;
 				STRNSCPY(gua_rec.Name, P_SetBlk->U.GA.Name);
@@ -3271,7 +3269,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					use_filt = 0;
 				}
 				if(use_filt) {
-					SVector temp_list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
+					SVector temp_list(sizeof(WorldTbl::Rec));
 					if(!P_WrldF) {
 						P_WrldF = new PPObjWorld::SelFilt();
 						P_WrldF->KindFlags = (ObjTypeExt == WORLDOBJ_COUNTRY) ? WORLDOBJ_COUNTRY : WORLDOBJ_CITY;

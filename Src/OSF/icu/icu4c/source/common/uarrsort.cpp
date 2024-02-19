@@ -127,9 +127,9 @@ static void doInsertionSort(char * array, int32_t length, int32_t itemSize,
 		}
 		if(insertionPoint<j) {
 			char * dest = array+insertionPoint*itemSize;
-			uprv_memcpy(pv, item, itemSize); /* v=array[j] */
-			uprv_memmove(dest+itemSize, dest, (j-insertionPoint)*(size_t)itemSize);
-			uprv_memcpy(dest, pv, itemSize); /* array[insertionPoint]=v */
+			memcpy(pv, item, itemSize); /* v=array[j] */
+			memmove(dest+itemSize, dest, (j-insertionPoint)*(size_t)itemSize);
+			memcpy(dest, pv, itemSize); /* array[insertionPoint]=v */
 		}
 	}
 }
@@ -176,7 +176,7 @@ static void subQuickSort(char * array, int32_t start, int32_t limit, int32_t ite
 		right = limit;
 
 		/* x=array[middle] */
-		uprv_memcpy(px, array+(size_t)((start+limit)/2)*itemSize, itemSize);
+		memcpy(px, array+(size_t)((start+limit)/2)*itemSize, itemSize);
 
 		do {
 			while(/* array[left]<x */
@@ -195,9 +195,9 @@ static void subQuickSort(char * array, int32_t start, int32_t limit, int32_t ite
 				--right;
 
 				if(left<right) {
-					uprv_memcpy(pw, array+(size_t)left*itemSize, itemSize);
-					uprv_memcpy(array+(size_t)left*itemSize, array+(size_t)right*itemSize, itemSize);
-					uprv_memcpy(array+(size_t)right*itemSize, pw, itemSize);
+					memcpy(pw, array+(size_t)left*itemSize, itemSize);
+					memcpy(array+(size_t)left*itemSize, array+(size_t)right*itemSize, itemSize);
+					memcpy(array+(size_t)right*itemSize, pw, itemSize);
 				}
 
 				++left;

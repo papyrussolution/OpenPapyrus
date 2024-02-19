@@ -1,7 +1,7 @@
 // TWINDOW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
 // @codepage UTF-8
-// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -189,7 +189,7 @@ ToolbarItem::ToolbarItem() : Cmd(0), KeyCode(0), Flags(0), BitmapIndex(0)
 	PTR32(ToolTipText)[0] = 0;
 }
 
-ToolbarList::ToolbarList() : SVector(sizeof(ToolbarItem)), Bitmap(0) {} // @v9.8.4 SArray-->SVector
+ToolbarList::ToolbarList() : SVector(sizeof(ToolbarItem)), Bitmap(0) {}
 void  ToolbarList::setBitmap(uint b) { Bitmap = b; }
 uint  ToolbarList::getBitmap() const { return Bitmap; }
 uint  ToolbarList::getItemsCount() const { return getCount(); }
@@ -1815,7 +1815,6 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 				void * p_ret = 0;
 				PAINTSTRUCT ps;
 				PaintEvent pe;
-				// @v10.6.5 @ctr MEMSZERO(pe);
 				pe.PaintType = PaintEvent::tPaint;
 				BeginPaint(hWnd, &ps);
 				SETFLAG(pe.Flags, PaintEvent::fErase, ps.fErase);
@@ -1851,7 +1850,6 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 		case WM_NCPAINT:
 			{
 				PaintEvent pe;
-				// @v10.6.5 @ctr MEMSZERO(pe);
 				pe.PaintType = PaintEvent::tNcPaint;
 				HDC hdc = GetDCEx(hWnd, (HRGN)wParam, DCX_WINDOW|DCX_INTERSECTRGN);
 				pe.H_DeviceContext = hdc;
@@ -1864,7 +1862,6 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 		case WM_ERASEBKGND:
 			if(p_view) {
 				PaintEvent pe;
-				// @v10.6.5 @ctr MEMSZERO(pe);
 				pe.PaintType = PaintEvent::tEraseBackground;
 				pe.H_DeviceContext = reinterpret_cast<void *>(wParam);
 				pe.Rect = p_view->getClientRect();

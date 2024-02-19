@@ -18,9 +18,10 @@
 #include "unicode/localpointer.h"
 #include "uassert.h"
 
-// uprv_memcpy and uprv_memmove
+#if 0 // @sobolev {
+// uprv_memcpy_Removed and uprv_memmove_Removed
 #if defined(__clang__)
-#define uprv_memcpy(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { \
+#define uprv_memcpy_Removed(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { \
 		/* Suppress warnings about addresses that will never be NULL */ \
 		_Pragma("clang diagnostic push") \
 		_Pragma("clang diagnostic ignored \"-Waddress\"") \
@@ -29,7 +30,7 @@
 		_Pragma("clang diagnostic pop") \
 		U_STANDARD_CPP_NAMESPACE memcpy(dst, src, size); \
 } UPRV_BLOCK_MACRO_END
-#define uprv_memmove(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { \
+#define uprv_memmove_Removed(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { \
 		/* Suppress warnings about addresses that will never be NULL */ \
 		_Pragma("clang diagnostic push") \
 		_Pragma("clang diagnostic ignored \"-Waddress\"") \
@@ -39,7 +40,7 @@
 		U_STANDARD_CPP_NAMESPACE memmove(dst, src, size); \
 } UPRV_BLOCK_MACRO_END
 #elif defined(__GNUC__)
-#define uprv_memcpy(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { \
+#define uprv_memcpy_Removed(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { \
 		/* Suppress warnings about addresses that will never be NULL */ \
 		_Pragma("GCC diagnostic push") \
 		_Pragma("GCC diagnostic ignored \"-Waddress\"") \
@@ -48,7 +49,7 @@
 		_Pragma("GCC diagnostic pop") \
 		U_STANDARD_CPP_NAMESPACE memcpy(dst, src, size); \
 } UPRV_BLOCK_MACRO_END
-#define uprv_memmove(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { \
+#define uprv_memmove_Removed(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { \
 		/* Suppress warnings about addresses that will never be NULL */ \
 		_Pragma("GCC diagnostic push") \
 		_Pragma("GCC diagnostic ignored \"-Waddress\"") \
@@ -58,10 +59,10 @@
 		U_STANDARD_CPP_NAMESPACE memmove(dst, src, size); \
 } UPRV_BLOCK_MACRO_END
 #else
-#define uprv_memcpy(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { U_ASSERT(dst != NULL); U_ASSERT(src != NULL); U_STANDARD_CPP_NAMESPACE memcpy(dst, src, size); } UPRV_BLOCK_MACRO_END
-#define uprv_memmove(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { U_ASSERT(dst != NULL); U_ASSERT(src != NULL); U_STANDARD_CPP_NAMESPACE memmove(dst, src, size); } UPRV_BLOCK_MACRO_END
+	#define uprv_memcpy_Removed(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { U_ASSERT(dst != NULL); U_ASSERT(src != NULL); U_STANDARD_CPP_NAMESPACE memcpy(dst, src, size); } UPRV_BLOCK_MACRO_END
+	#define uprv_memmove_Removed(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { U_ASSERT(dst != NULL); U_ASSERT(src != NULL); U_STANDARD_CPP_NAMESPACE memmove(dst, src, size); } UPRV_BLOCK_MACRO_END
 #endif
-
+#endif // } 0  @sobolev
 /**
  * \def SIZEOFARRAYi
  * Convenience macro to determine the length of a fixed array at compile-time.
@@ -175,7 +176,8 @@ public:
 	 * @param src source smart pointer
 	 * @return *this
 	 */
-	LocalMemory<T> & operator = (LocalMemory<T> && src) U_NOEXCEPT {
+	LocalMemory<T> & operator = (LocalMemory<T> && src) U_NOEXCEPT 
+	{
 		uprv_free(LocalPointerBase<T>::ptr);
 		LocalPointerBase<T>::ptr = src.ptr;
 		src.ptr = NULL;
@@ -266,7 +268,7 @@ template <typename T> inline T * LocalMemory<T>::allocateInsteadAndCopy(int32_t 
 				if(length>newCapacity) {
 					length = newCapacity;
 				}
-				uprv_memcpy(p, LocalPointerBase<T>::ptr, (size_t)length*sizeof(T));
+				memcpy(p, LocalPointerBase<T>::ptr, (size_t)length*sizeof(T));
 			}
 			uprv_free(LocalPointerBase<T>::ptr);
 			LocalPointerBase<T>::ptr = p;
@@ -420,7 +422,7 @@ protected:
 			status = U_MEMORY_ALLOCATION_ERROR;
 			return;
 		}
-		uprv_memcpy(this->ptr, src.ptr, (size_t)capacity * sizeof(T));
+		memcpy(this->ptr, src.ptr, (size_t)capacity * sizeof(T));
 	}
 
 private:
@@ -453,7 +455,7 @@ template <typename T, int32_t stackCapacity> icu::MaybeStackArray<T, stackCapaci
 {
 	if(src.ptr == src.stackArray) {
 		ptr = stackArray;
-		uprv_memcpy(stackArray, src.stackArray, sizeof(T) * src.capacity);
+		memcpy(stackArray, src.stackArray, sizeof(T) * src.capacity);
 	}
 	else {
 		src.resetToStackArray(); // take ownership away from src
@@ -468,7 +470,7 @@ template <typename T, int32_t stackCapacity> inline MaybeStackArray <T, stackCap
 	needToRelease = src.needToRelease;
 	if(src.ptr == src.stackArray) {
 		ptr = stackArray;
-		uprv_memcpy(stackArray, src.stackArray, sizeof(T) * src.capacity);
+		memcpy(stackArray, src.stackArray, sizeof(T) * src.capacity);
 	}
 	else {
 		ptr = src.ptr;
@@ -492,7 +494,7 @@ inline T * MaybeStackArray<T, stackCapacity>::resize(int32_t newCapacity, int32_
 				if(length>newCapacity) {
 					length = newCapacity;
 				}
-				uprv_memcpy(p, ptr, (size_t)length*sizeof(T));
+				memcpy(p, ptr, (size_t)length*sizeof(T));
 			}
 			releaseArray();
 			ptr = p;
@@ -524,7 +526,7 @@ template <typename T, int32_t stackCapacity> inline T * MaybeStackArray<T, stack
 		if(!p) {
 			return NULL;
 		}
-		uprv_memcpy(p, ptr, (size_t)length*sizeof(T));
+		memcpy(p, ptr, (size_t)length*sizeof(T));
 	}
 	resultCapacity = length;
 	resetToStackArray();
@@ -675,7 +677,7 @@ inline H * MaybeStackHeaderAndArray<H, T, stackCapacity>::resize(int32_t newCapa
 					length = newCapacity;
 				}
 			}
-			uprv_memcpy(p, ptr, sizeof(H)+(size_t)length*sizeof(T));
+			memcpy(p, ptr, sizeof(H)+(size_t)length*sizeof(T));
 			releaseMemory();
 			ptr = p;
 			capacity = newCapacity;
@@ -702,7 +704,7 @@ template <typename H, typename T, int32_t stackCapacity> inline H * MaybeStackHe
 		p = (H*)uprv_malloc(sizeof(H)+length*sizeof(T));
 		if(!p)
 			return NULL;
-		uprv_memcpy(p, ptr, sizeof(H)+(size_t)length*sizeof(T));
+		memcpy(p, ptr, sizeof(H)+(size_t)length*sizeof(T));
 	}
 	resultCapacity = length;
 	ptr = &stackHeader;

@@ -6812,7 +6812,8 @@ static void libsais_compact_unique_and_nonunique_lms_suffixes_32s_omp(sa_sint_t 
 					fast_sint_t count             = ((fast_sint_t)m + ((fast_sint_t)n >> 1) + omp_block_end - thread_state[t].state.position);
 
 					if(count > 0) {
-						position -= count; memcpy(&SA[position], &SA[thread_state[t].state.position], (size_t)count * sizeof(sa_sint_t));
+						position -= count; 
+						memcpy(&SA[position], &SA[thread_state[t].state.position], (size_t)count * sizeof(sa_sint_t));
 					}
 				}
 
@@ -6821,7 +6822,8 @@ static void libsais_compact_unique_and_nonunique_lms_suffixes_32s_omp(sa_sint_t 
 					fast_sint_t count             = ((fast_sint_t)m + omp_block_end - thread_state[t].state.count);
 
 					if(count > 0) {
-						position -= count; memcpy(&SA[position], &SA[thread_state[t].state.count], (size_t)count * sizeof(sa_sint_t));
+						position -= count; 
+						memcpy(&SA[position], &SA[thread_state[t].state.count], (size_t)count * sizeof(sa_sint_t));
 					}
 				}
 			}

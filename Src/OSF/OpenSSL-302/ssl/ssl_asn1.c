@@ -128,21 +128,16 @@ int i2d_SSL_SESSION(const SSL_SESSION * in, uchar ** pp)
 
 	if((in == NULL) || ((in->cipher == NULL) && (in->cipher_id == 0)))
 		return 0;
-
-	memset(&as, 0, sizeof(as));
-
+	memzero(&as, sizeof(as));
 	as.version = SSL_SESSION_ASN1_VERSION;
 	as.ssl_version = in->ssl_version;
-
 	as.kex_group = in->kex_group;
-
 	if(in->cipher == NULL)
 		l = in->cipher_id;
 	else
 		l = in->cipher->id;
 	cipher_data[0] = ((unsigned char)(l >> 8L)) & 0xff;
 	cipher_data[1] = ((unsigned char)(l)) & 0xff;
-
 	ssl_session_oinit(&as.cipher, &cipher, cipher_data, 2);
 
 #ifndef OPENSSL_NO_COMP
@@ -151,27 +146,16 @@ int i2d_SSL_SESSION(const SSL_SESSION * in, uchar ** pp)
 		ssl_session_oinit(&as.comp_id, &comp_id, &comp_id_data, 1);
 	}
 #endif
-
-	ssl_session_oinit(&as.master_key, &master_key,
-	    in->master_key, in->master_key_length);
-
-	ssl_session_oinit(&as.session_id, &session_id,
-	    in->session_id, in->session_id_length);
-
-	ssl_session_oinit(&as.session_id_context, &sid_ctx,
-	    in->sid_ctx, in->sid_ctx_length);
-
+	ssl_session_oinit(&as.master_key, &master_key, in->master_key, in->master_key_length);
+	ssl_session_oinit(&as.session_id, &session_id, in->session_id, in->session_id_length);
+	ssl_session_oinit(&as.session_id_context, &sid_ctx, in->sid_ctx, in->sid_ctx_length);
 	as.time = (int64_t)in->time;
 	as.timeout = (int64_t)in->timeout;
 	as.verify_result = in->verify_result;
-
 	as.peer = in->peer;
-
-	ssl_session_sinit(&as.tlsext_hostname, &tlsext_hostname,
-	    in->ext.hostname);
+	ssl_session_sinit(&as.tlsext_hostname, &tlsext_hostname, in->ext.hostname);
 	if(in->ext.tick) {
-		ssl_session_oinit(&as.tlsext_tick, &tlsext_tick,
-		    in->ext.tick, in->ext.ticklen);
+		ssl_session_oinit(&as.tlsext_tick, &tlsext_tick, in->ext.tick, in->ext.ticklen);
 	}
 	if(in->ext.tick_lifetime_hint > 0)
 		as.tlsext_tick_lifetime_hint = in->ext.tick_lifetime_hint;

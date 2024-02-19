@@ -266,7 +266,7 @@ U_CAPI int32_t U_EXPORT2 ucnvsel_serialize(const UConverterSelector* sel, void *
 	header.dataHeader.headerSize = (uint16)((sizeof(header) + 15) & ~15);
 	header.dataHeader.magic1 = 0xda;
 	header.dataHeader.magic2 = 0x27;
-	uprv_memcpy(&header.info, &dataInfo, sizeof(dataInfo));
+	memcpy(&header.info, &dataInfo, sizeof(dataInfo));
 	int32_t indexes[UCNVSEL_INDEX_COUNT] = {
 		serializedTrieSize,
 		sel->pvCount,
@@ -287,22 +287,22 @@ U_CAPI int32_t U_EXPORT2 ucnvsel_serialize(const UConverterSelector* sel, void *
 	}
 	// ok, save!
 	int32_t length = header.dataHeader.headerSize;
-	uprv_memcpy(p, &header, sizeof(header));
+	memcpy(p, &header, sizeof(header));
 	memzero(p + sizeof(header), length - sizeof(header));
 	p += length;
 
 	length = (int32_t)sizeof(indexes);
-	uprv_memcpy(p, indexes, length);
+	memcpy(p, indexes, length);
 	p += length;
 
 	utrie2_serialize(sel->trie, p, serializedTrieSize, status);
 	p += serializedTrieSize;
 
 	length = sel->pvCount * 4;
-	uprv_memcpy(p, sel->pv, length);
+	memcpy(p, sel->pv, length);
 	p += length;
 
-	uprv_memcpy(p, sel->encodings[0], sel->encodingStrLength);
+	memcpy(p, sel->encodings[0], sel->encodingStrLength);
 	p += sel->encodingStrLength;
 
 	return totalSize;
@@ -384,7 +384,7 @@ static int32_t ucnvsel_swap(const UDataSwapper * ds,
 
 		/* copy the data for inaccessible bytes */
 		if(inBytes != outBytes) {
-			uprv_memcpy(outBytes, inBytes, size);
+			memcpy(outBytes, inBytes, size);
 		}
 
 		int32_t offset = 0, count;

@@ -364,7 +364,7 @@ void CompoundTransliteratorTest::TestTransliterate() {
 		    rsource2==expectedResult,
 		    expectedResult);
 		UTransPosition _index = {1, 3, 2, 3};
-		uprv_memcpy(&index, &_index, sizeof(index));
+		memcpy(&index, &_index, sizeof(index));
 		UnicodeString rsource3(s);
 		ct1->handleTransliterate(rsource3, index, TRUE);
 		expectAux(ct1->getID() + ":String, index(1,2,3), incremental=TRUE",

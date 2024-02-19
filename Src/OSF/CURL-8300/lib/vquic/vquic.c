@@ -333,7 +333,7 @@ static CURLcode recvmmsg_packets(struct Curl_cfilter * cf,
 	total_nread = 0;
 	while(pkts < max_pkts) {
 		n = (int)CURLMIN(MMSG_NUM, max_pkts);
-		memset(&mmsg, 0, sizeof(mmsg));
+		memzero(&mmsg, sizeof(mmsg));
 		for(i = 0; i < n; ++i) {
 			msg_iov[i].iov_base = bufs[i];
 			msg_iov[i].iov_len = (int)sizeof(bufs[i]);
@@ -402,14 +402,11 @@ static CURLcode recvmsg_packets(struct Curl_cfilter * cf,
 	ssize_t nread;
 	char errstr[STRERROR_LEN];
 	CURLcode result = CURLE_OK;
-
 	msg_iov.iov_base = buf;
 	msg_iov.iov_len = (int)sizeof(buf);
-
-	memset(&msg, 0, sizeof(msg));
+	memzero(&msg, sizeof(msg));
 	msg.msg_iov = &msg_iov;
 	msg.msg_iovlen = 1;
-
 	DEBUGASSERT(max_pkts > 0);
 	for(pkts = 0, total_nread = 0; pkts < max_pkts;) {
 		msg.msg_name = &remote_addr;

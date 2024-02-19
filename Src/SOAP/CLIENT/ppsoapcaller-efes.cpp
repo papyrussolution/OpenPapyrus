@@ -403,10 +403,10 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesBillStatus> * EfesSetDeliv
 								p_new_row->PosNum = GetDynamicParamString(p_src_row->PosN, arg_str_pool);
 								p_new_row->PosType = GetDynamicParamString((temp_buf = "").Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 								p_new_row->Currency = GetDynamicParamString((temp_buf = p_src_row->Currency).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
-								p_new_row->Qty = GetDynamicParamString_(p_src_row->Qtty, MKSFMTD(0, 2, 0), arg_str_pool);
+								p_new_row->Qty = GetDynamicParamString_(p_src_row->Qtty, MKSFMTD_020, arg_str_pool);
 								//p_new_row->Unit = GetDynamicParamString((temp_buf = p_src_row->UnitType).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 								p_new_row->Unit = EncodeEfesUnitType(p_src_row->UnitType, arg_str_pool);
-								p_new_row->Amnt = GetDynamicParamString_(p_src_row->Amount, MKSFMTD(0, 2, 0), arg_str_pool);
+								p_new_row->Amnt = GetDynamicParamString_(p_src_row->Amount, MKSFMTD_020, arg_str_pool);
 							}
 						}
 						p_new_item->Item = reinterpret_cast<ns2__SalesOrderItemType **>(PPSoapCreateArray(arg_items_list.getCount() - start_items_list_pos, p_new_item->__sizeItem));
@@ -704,8 +704,8 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetDebtSync(
 				_ns2__SetDebtsRequestType_OutletDebts & r_new_item = param.OutletDebts[i];
 				if(p_src_pack) {
 					r_new_item.EFRSoldTo = GetDynamicParamString((temp_buf = p_src_pack->BuyerCode).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
-					r_new_item.DebtAmnt = GetDynamicParamString_(p_src_pack->Debt, MKSFMTD(0, 2, 0), arg_str_pool);
-					r_new_item.DebtLimit = GetDynamicParamString_(p_src_pack->CreditLimit, MKSFMTD(0, 2, 0), arg_str_pool);
+					r_new_item.DebtAmnt = GetDynamicParamString_(p_src_pack->Debt, MKSFMTD_020, arg_str_pool);
+					r_new_item.DebtLimit = GetDynamicParamString_(p_src_pack->CreditLimit, MKSFMTD_020, arg_str_pool);
 					r_new_item.DebtLmtDays = GetDynamicParamString(p_src_pack->DebtDelayDays, arg_str_pool);
 					r_new_item.DebtDelayDays = GetDynamicParamString(0L, arg_str_pool);
 					r_new_item.Comment = GetDynamicParamString("", arg_str_pool);
@@ -803,8 +803,8 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetDebtDetai
 						const SapEfesDebtDetailReportEntry * p_src_pack = pItems->at(j);
 						if(p_src_pack->NativeArID == native_ar_id) {
 							_ns2__SetDebtsDetailedRequestType_Data_Row & r_row = r_outer_item.Row[item_no];
-							r_row.DebtAmnt = GetDynamicParamString_(p_src_pack->Debt, MKSFMTD(0, 2, 0), arg_str_pool);
-							r_row.DocAmnt = GetDynamicParamString_(p_src_pack->Amount, MKSFMTD(0, 2, 0), arg_str_pool);
+							r_row.DebtAmnt = GetDynamicParamString_(p_src_pack->Debt, MKSFMTD_020, arg_str_pool);
+							r_row.DocAmnt = GetDynamicParamString_(p_src_pack->Amount, MKSFMTD_020, arg_str_pool);
 							r_row.PRTDocNum = GetDynamicParamString((temp_buf = p_src_pack->NativeBillCode).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 							r_row.DelvDate = GetDynamicParamString(p_src_pack->BillDate, DATF_ISO8601CENT, arg_str_pool);
 							r_row.PaymDate = GetDynamicParamString(p_src_pack->PaymDate, DATF_ISO8601CENT, arg_str_pool);

@@ -37,19 +37,15 @@ absl::crc32c_t FallbackCrcMemcpyEngine::Compute(void* __restrict dst,
 	// then copy was found to be slightly more efficient in our test cases.
 	std::size_t offset = 0;
 	for(; offset + kBlockSize < length; offset += kBlockSize) {
-		crc = absl::ExtendCrc32c(crc,
-			absl::string_view(src_bytes + offset, kBlockSize));
+		crc = absl::ExtendCrc32c(crc, absl::string_view(src_bytes + offset, kBlockSize));
 		memcpy(dst_bytes + offset, src_bytes + offset, kBlockSize);
 	}
-
 	// Save some work if length is 0.
 	if(offset < length) {
 		std::size_t final_copy_size = length - offset;
-		crc = absl::ExtendCrc32c(
-			crc, absl::string_view(src_bytes + offset, final_copy_size));
+		crc = absl::ExtendCrc32c(crc, absl::string_view(src_bytes + offset, final_copy_size));
 		memcpy(dst_bytes + offset, src_bytes + offset, final_copy_size);
 	}
-
 	return crc;
 }
 

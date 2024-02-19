@@ -2563,7 +2563,7 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 			SETFLAG(sl_param.Flags, SlipLineParam::fRegRegular, flags & (PPSlipFormat::Entry::fRegRibbon|PPSlipFormat::Entry::fFiscal));
 			SETFLAG(sl_param.Flags, SlipLineParam::fRegJournal, flags & (PPSlipFormat::Entry::fJRibbon|PPSlipFormat::Entry::fFiscal));
 			SETFLAG(sl_param.Flags, SlipLineParam::fRegFiscal,  flags & PPSlipFormat::Entry::fFiscal);
-			sl_param.UomId = CurIter.UomFragm; // @v11.9.5
+			sl_param.UomId = CurIter.UomId; // @v11.9.5
 			sl_param.UomFragm = CurIter.UomFragm; // @v11.2.6
 			sl_param.Qtty  = CurIter.Qtty;
 			sl_param.PhQtty = CurIter.PhQtty; // @v11.9.3

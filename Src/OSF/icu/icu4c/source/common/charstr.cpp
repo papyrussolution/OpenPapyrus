@@ -34,7 +34,7 @@ char * CharString::cloneData(UErrorCode & errorCode) const {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		return nullptr;
 	}
-	uprv_memcpy(p, buffer.getAlias(), len + 1);
+	memcpy(p, buffer.getAlias(), len + 1);
 	return p;
 }
 
@@ -48,7 +48,7 @@ int32_t CharString::extract(char * dest, int32_t capacity, UErrorCode & errorCod
 	}
 	const char * src = buffer.getAlias();
 	if(0 < len && len <= capacity && src != dest) {
-		uprv_memcpy(dest, src, len);
+		memcpy(dest, src, len);
 	}
 	return u_terminateChars(dest, capacity, len, &errorCode);
 }
@@ -56,7 +56,7 @@ int32_t CharString::extract(char * dest, int32_t capacity, UErrorCode & errorCod
 CharString &CharString::copyFrom(const CharString &s, UErrorCode & errorCode) {
 	if(U_SUCCESS(errorCode) && this!=&s && ensureCapacity(s.len+1, 0, errorCode)) {
 		len = s.len;
-		uprv_memcpy(buffer.getAlias(), s.buffer.getAlias(), len+1);
+		memcpy(buffer.getAlias(), s.buffer.getAlias(), len+1);
 	}
 	return *this;
 }
@@ -131,7 +131,7 @@ CharString & CharString::append(const char * s, int32_t sLength, UErrorCode & er
 			return append(CharString(s, sLength, errorCode), errorCode);
 		}
 		else if(ensureCapacity(len+sLength+1, 0, errorCode)) {
-			uprv_memcpy(buffer.getAlias()+len, s, sLength);
+			memcpy(buffer.getAlias()+len, s, sLength);
 			buffer[len += sLength] = 0;
 		}
 	}

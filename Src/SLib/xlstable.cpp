@@ -1,5 +1,5 @@
 // XLSTABLE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -51,7 +51,6 @@ int ExcelDbFile::Param::Serialize(int dir, SBuffer & rBuf, SSerializeContext * p
 
 ExcelDbFile::ExcelDbFile() : P_WkBook(0), P_Sheet(0), P_App(0), P_Sheets(0), ReadOnly(0), CurRec(-1)
 {
-	// @v10.9.1 @ctr MEMSZERO(P);
 }
 
 ExcelDbFile::~ExcelDbFile()

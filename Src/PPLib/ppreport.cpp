@@ -445,7 +445,7 @@ int SReport::check()
 
 int SReport::calcAggr(int grp, int mode)
 {
-	double dd = 0;
+	double dd = 0.0;
 	for(int i = 0; i < agrCount; i++) {
 		Aggr  * agr = &agrs[i];
 		Field * df  = agr->dpnd ? &fields[agr->dpnd - 1] : 0;
@@ -483,10 +483,7 @@ int SReport::calcAggr(int grp, int mode)
 							}
 							break;
 						case 2:
-							if(agr->ptemp && agr->ptemp[0] != 0)
-								dd = agr->ptemp[1] / agr->ptemp[0];
-							else
-								dd = 0;
+							dd = (agr->ptemp && agr->ptemp[0] != 0.0) ? (agr->ptemp[1] / agr->ptemp[0]) : 0.0;
 							delete agr->ptemp;
 							agr->rtemp = dd;
 							break;
@@ -1731,8 +1728,80 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 	short  h_job = 0;
 	int    zero_print_device = 0;
 	SString msg_buf;
+	PEReportOptions ro;
+	ro.StructSize = sizeof(ro);
 	if(rBlk.Action == CrystalReportPrintParamBlock::actionExport) {
-		//
+		bool   silent = false;
+		bool   do_export = true;
+		const char * p__dest_fn = 0;
+		SString path;
+		SString temp_buf;
+		PEExportOptions eo;
+		h_job = PEOpenPrintJob(rBlk.ReportPath);
+		THROW_PP(h_job, PPERR_CRYSTAL_REPORT);
+		PEGetReportOptions(h_job, &ro);
+		ro.morePrintEngineErrorMessages = FALSE;
+		PESetReportOptions(h_job, &ro);
+		eo.StructSize = sizeof(eo);
+		eo.destinationOptions = 0;
+		eo.formatOptions      = 0;
+		THROW(LoadExportOptions(rBlk.ReportName, &eo, &silent, path));
+		if(silent) {
+			const char * p_dest_fn_2 = *reinterpret_cast<const char * const *>(PTR8C(eo.destinationOptions)+2);
+			p__dest_fn = p_dest_fn_2;
+		}
+		else if(PEGetExportOptions(h_job, &eo)) {
+			const char * p_dest_fn_1 = reinterpret_cast<const char *>(PTR8C(eo.destinationOptions)+2);
+			p__dest_fn = p_dest_fn_1;
+		}
+		else
+			do_export = false;
+		if(do_export) {
+			PEExportTo(h_job, &eo);
+			THROW(SetupReportLocations(h_job, rBlk.Dir, 0));
+			if(rBlk.Options & SPRN_SKIPGRPS)
+				SetupGroupSkipping(h_job);
+			THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
+			if(rBlk.EmailAddr.NotEmpty()) {
+				if(fileExists(p__dest_fn)) {
+					//
+					// Отправка на определенный почтовый адрес
+					//
+					PPAlbatrossConfig alb_cfg;
+					if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0) {
+						if(alb_cfg.Hdr.MailAccID) {
+							if(SendMailWithAttach(rBlk.ReportName, /*path*/p__dest_fn, rBlk.ReportName, rBlk.EmailAddr, alb_cfg.Hdr.MailAccID)) {
+								// Отправка отчета на электронную почту: success 
+								PPLoadString("reportsendmail", temp_buf);
+								temp_buf.CatDiv(':', 2).Cat("success").Space().Cat(rBlk.ReportName).Space().Cat(rBlk.EmailAddr);
+								PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
+							}
+							else {
+								// PPERR_REPORT_SENDMAIL_IMPL Ошибка отправки отчета на электронную почту"
+								PPGetLastErrorMessage(1, temp_buf); // last error text
+								PPGetMessage(mfError, PPERR_REPORT_SENDMAIL_IMPL, 0, 1, msg_buf);
+								PPLogMessage(PPFILNAM_ERR_LOG, msg_buf.CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
+							}
+						}
+						else {
+							// PPERR_REPORT_SENDMAIL_NOACC Отправка отчета на электронную почту: конфигурация глобального обмена не содержит ссылку на почтовую учетную запись
+							PPSetError(PPERR_REPORT_SENDMAIL_NOACC);
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
+						}
+					}
+					else {
+						// PPERR_REPORT_SENDMAIL_NOCFG Отправка отчета на электронную почту: не удалось получить конфигурацию глобального обмена
+						PPSetError(PPERR_REPORT_SENDMAIL_NOCFG);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
+					}
+				}
+				else {
+					// PPERR_REPORT_SENDMAIL_NOFILE Отправка отчета на электронную почту: результирующий файл '%s' не найден
+					PPSetError(PPERR_REPORT_SENDMAIL_NOFILE, p__dest_fn);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
+				}
+			}
+		}
 	}
 	else {
 		SString inner_printer_buf;
@@ -1745,14 +1814,10 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 				p_inner_printer = inner_printer_buf;
 			num_copies = (p_dev_mode->dmCopies > 0 && p_dev_mode->dmCopies <= 1000) ? p_dev_mode->dmCopies : 1;
 		}
-		else {
+		else
 			p_inner_printer = rBlk.Printer;
-		}
-		// } __@erik v10.4.10
 		h_job = PEOpenPrintJob(rBlk.ReportPath);
-		PEReportOptions ro;
 		THROW_PP(h_job, PPERR_CRYSTAL_REPORT);
-		ro.StructSize = sizeof(ro);
 		PEGetReportOptions(h_job, &ro);
 		ro.morePrintEngineErrorMessages = FALSE;
 		PESetReportOptions(h_job, &ro);
@@ -1762,7 +1827,7 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 		}
 		THROW(SetPrinterParam(h_job, p_inner_printer, rBlk.Options, p_dev_mode));
 		THROW(SetupReportLocations(h_job, rBlk.Dir, (rBlk.Options & SPRN_DONTRENAMEFILES) ? 0 : 1));
-		if(rBlk.Options & SPRN_PREVIEW) {
+		if(rBlk.Action == CrystalReportPrintParamBlock::actionPreview/*rBlk.Options & SPRN_PREVIEW*/) {
 			THROW_PP(PEOutputToWindow(h_job, "", CW_USEDEFAULT, CW_USEDEFAULT,
 				CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE | WS_VISIBLE | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
 		}
@@ -1771,7 +1836,7 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 		}
 		if(rBlk.Options & SPRN_SKIPGRPS)
 			SetupGroupSkipping(h_job);
-		if(rBlk.Options & SPRN_PREVIEW || rBlk.Action == CrystalReportPrintParamBlock::actionPreview) {
+		if(/**rBlk.Options & SPRN_PREVIEW ||*/rBlk.Action == CrystalReportPrintParamBlock::actionPreview) {
 			struct PreviewEventParam {
 				static BOOL CALLBACK EventCallback(short eventID, void * pParam, void * pUserData)
 				{
@@ -1814,12 +1879,19 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 			}
 		}
 	}
+	rReply.ErrCode = 0;
+	rReply.ErrMsg.Z();
 	CATCH
-		CrwError = PEGetErrorCode(h_job);
-		// @debug {
 		{
+			const short crw_err_code = PEGetErrorCode(h_job);
+			CrwError = crw_err_code;
+			rReply.ErrCode = crw_err_code;
+		}
+		// @debug {
+		if(rBlk.Action != CrystalReportPrintParamBlock::actionExport) {
 			PPLoadString("err_crpe", msg_buf);
 			msg_buf.CatDiv(':', 2).Cat(CrwError);
+			rReply.ErrMsg = msg_buf;
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_COMP|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 		}
 		// } @debug
@@ -2000,19 +2072,19 @@ int CrystalReportExport(const char * pReportPath, const char * pDir, const char 
 					else {
 						// PPERR_REPORT_SENDMAIL_NOACC Отправка отчета на электронную почту: конфигурация глобального обмена не содержит ссылку на почтовую учетную запись
 						PPSetError(PPERR_REPORT_SENDMAIL_NOACC);
-						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 					}
 				}
 				else {
 					// PPERR_REPORT_SENDMAIL_NOCFG Отправка отчета на электронную почту: не удалось получить конфигурацию глобального обмена
 					PPSetError(PPERR_REPORT_SENDMAIL_NOCFG);
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 				}
 			}
 			else {
 				// PPERR_REPORT_SENDMAIL_NOFILE Отправка отчета на электронную почту: результирующий файл '%s' не найден
 				PPSetError(PPERR_REPORT_SENDMAIL_NOFILE, p__dest_fn);
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 			}
 		}
 	}
@@ -2254,10 +2326,8 @@ int SReport::getFieldName(int i, char * buf, size_t buflen)
 struct SvdtStrDlgAns { // @{savereportdata}
 	int   SvDt;
 	int   EdRep;
-	// @v10.8.2 char  SvDtPath[MAX_PATH];
-	// @v10.8.2 char  EdRepPath[MAX_PATH];
-	SString SvDtPath_;  // @v10.8.12
-	SString EdRepPath_; // @v10.8.12
+	SString SvDtPath_;
+	SString EdRepPath_;
 };
 
 static int GetSvdtStrOpt(SvdtStrDlgAns * pSsda) 
@@ -2492,12 +2562,8 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 	SString temp_buf;
 	long   fl = 0;
 	const  uint sur_key_last_count = DS.GetTLA().SurIdList.getCount(); // См. коммент в конце функции
-	if(pEnv) {
-		if(pEnv->PrnFlags & SReport::Landscape)
-			fl |= INIREPF_FORCELANDSCAPE;
-		if(pEnv->PrnFlags & SReport::PrintingNoAsk)
-			fl |= INIREPF_NOSHOWDIALOG;
-	}
+	SETFLAG(fl, INIREPF_FORCELANDSCAPE, pEnv && pEnv->PrnFlags & SReport::Landscape);
+	SETFLAG(fl, INIREPF_NOSHOWDIALOG, pEnv && pEnv->PrnFlags & SReport::PrintingNoAsk);
 	SReport rpt(rptId, fl);
 	THROW(rpt.IsValid());
 	{
@@ -2652,52 +2718,119 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 				THROW(p_rtm->Export(ep));
 			}
 			PPWaitStop();
-			switch(rpt.PrnDest) { //@erik v10.4.10
-				case PrnDlgAns::aPrint:
-					ok = CrystalReportPrint(fn, ep.Path, printer_name, pans.NumCopies, rpt.PrnOptions, pans.P_DevMode);//@erik v10.4.10
-					break;
-				case PrnDlgAns::aPreview:
-					ok = CrystalReportPrint(fn, ep.Path, printer_name, 1, rpt.PrnOptions|SPRN_PREVIEW, pans.P_DevMode); //@erik v10.4.10
-					break;
-				case PrnDlgAns::aExport:
-					{
-						const char * p_mail_addr = (pans.Flags & pans.fEMail && pans.EmailAddr.NotEmptyS()) ? pans.EmailAddr.cptr() : 0;
-						ok = CrystalReportExport(fn, ep.Path, pans.ReportName, p_mail_addr, rpt.PrnOptions);
+			// @v11.9.6 @construction {
+			const bool do_v1196_process = true;
+			if(do_v1196_process) {
+				if(oneof3(rpt.PrnDest, PrnDlgAns::aPrint, PrnDlgAns::aPreview, PrnDlgAns::aExport)) {
+					CrystalReportPrintParamBlock req;
+					CrystalReportPrintReply rep;
+					req.Options = rpt.PrnOptions;
+					req.ReportPath = fn;
+					req.ReportName = pans.ReportName;
+					req.Dir = ep.Path;
+					req.Printer = printer_name;
+					if(rpt.PrnDest == PrnDlgAns::aExport) {
+						req.Action = CrystalReportPrintParamBlock::actionExport;
+						if(pans.Flags & pans.fEMail && pans.EmailAddr.NotEmptyS())
+							req.EmailAddr =  pans.EmailAddr;
 					}
-					break;
-				case PrnDlgAns::aExportXML:
-				case PrnDlgAns::aExportTDDO:
-				case PrnDlgAns::aPrepareData:
-					break;
-				case PrnDlgAns::aPrepareDataAndExecCR:
-					{
-						SString cr_path_;
-						int    is_there_cr = FindExeByExt2(".rpt", cr_path_, "CrystalReports.9.1");
-						if(is_there_cr) {
-							(temp_buf = cr_path_).Space().Cat(fn);
-							STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));
-							strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(temp_buf), cmd_line.GetSize() / sizeof(TCHAR));
-							STARTUPINFO si;
-							PROCESS_INFORMATION pi;
-							MEMSZERO(si);
-							si.cb = sizeof(si);
-							MEMSZERO(pi);
-							int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, 0, &si, &pi); // @unicodeproblem
-							if(!r) {
-								SLS.SetOsError(0);
-								PPSetErrorSLib();
-								CALLEXCEPT();
-							}
+					else {
+						if(pans.P_DevMode) {
+							req.DevMode = *pans.P_DevMode;
+							req.InternalFlags |= CrystalReportPrintParamBlock::intfDevModeValid;
+						}
+						if(rpt.PrnDest == PrnDlgAns::aPrint) {
+							req.Action = CrystalReportPrintParamBlock::actionPrint;
+							req.NumCopies = pans.NumCopies;
+						}
+						else if(rpt.PrnDest == PrnDlgAns::aPreview) {
+							req.Action = CrystalReportPrintParamBlock::actionPreview;
 						}
 					}
-					break;
-				default:
-					ok = -1;
-					break;
+					ok = CrystalReportPrint2(req, rep);
+				}
+				else {
+					switch(rpt.PrnDest) { //@erik v10.4.10
+						case PrnDlgAns::aExportXML:
+						case PrnDlgAns::aExportTDDO:
+						case PrnDlgAns::aPrepareData:
+							break;
+						case PrnDlgAns::aPrepareDataAndExecCR:
+							{
+								SString cr_path_;
+								int    is_there_cr = FindExeByExt2(".rpt", cr_path_, "CrystalReports.9.1");
+								if(is_there_cr) {
+									(temp_buf = cr_path_).Space().Cat(fn);
+									STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));
+									strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(temp_buf), cmd_line.GetSize() / sizeof(TCHAR));
+									STARTUPINFO si;
+									PROCESS_INFORMATION pi;
+									MEMSZERO(si);
+									si.cb = sizeof(si);
+									MEMSZERO(pi);
+									int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, 0, &si, &pi);
+									if(!r) {
+										SLS.SetOsError(0);
+										PPSetErrorSLib();
+										CALLEXCEPT();
+									}
+								}
+							}
+							break;
+						default:
+							ok = -1;
+							break;
+					}
+				}
 			}
-			if(!ok) {
+			// } @v11.9.6 @construction 
+			else {
+				switch(rpt.PrnDest) { //@erik v10.4.10
+					case PrnDlgAns::aPrint:
+						ok = CrystalReportPrint(fn, ep.Path, printer_name, pans.NumCopies, rpt.PrnOptions, pans.P_DevMode);//@erik v10.4.10
+						break;
+					case PrnDlgAns::aPreview:
+						ok = CrystalReportPrint(fn, ep.Path, printer_name, 1, rpt.PrnOptions|SPRN_PREVIEW, pans.P_DevMode); //@erik v10.4.10
+						break;
+					case PrnDlgAns::aExport:
+						{
+							const char * p_mail_addr = (pans.Flags & pans.fEMail && pans.EmailAddr.NotEmptyS()) ? pans.EmailAddr.cptr() : 0;
+							ok = CrystalReportExport(fn, ep.Path, pans.ReportName, p_mail_addr, rpt.PrnOptions);
+						}
+						break;
+					case PrnDlgAns::aExportXML:
+					case PrnDlgAns::aExportTDDO:
+					case PrnDlgAns::aPrepareData:
+						break;
+					case PrnDlgAns::aPrepareDataAndExecCR:
+						{
+							SString cr_path_;
+							int    is_there_cr = FindExeByExt2(".rpt", cr_path_, "CrystalReports.9.1");
+							if(is_there_cr) {
+								(temp_buf = cr_path_).Space().Cat(fn);
+								STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));
+								strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(temp_buf), cmd_line.GetSize() / sizeof(TCHAR));
+								STARTUPINFO si;
+								PROCESS_INFORMATION pi;
+								MEMSZERO(si);
+								si.cb = sizeof(si);
+								MEMSZERO(pi);
+								int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, 0, &si, &pi); // @unicodeproblem
+								if(!r) {
+									SLS.SetOsError(0);
+									PPSetErrorSLib();
+									CALLEXCEPT();
+								}
+							}
+						}
+						break;
+					default:
+						ok = -1;
+						break;
+				}
+			}
+			if(!ok)
 				PPError();
-			}
 		}
 	}
 	CATCH

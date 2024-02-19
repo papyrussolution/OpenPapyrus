@@ -39,8 +39,7 @@ static int null_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
 	return 1;
 }
 
-static int null_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
-    const uchar * in, size_t inl)
+static int null_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl)
 {
 	if(in != out)
 		memcpy(out, in, inl);

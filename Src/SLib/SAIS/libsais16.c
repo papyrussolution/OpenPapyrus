@@ -4212,8 +4212,7 @@ static void libsais16_induce_partial_order_16u_omp(const uint16 * _RESTRICT T,
     sa_sint_t threads,
     LIBSAIS_THREAD_STATE * _RESTRICT thread_state)
 {
-	memset(&buckets[2 * ALPHABET_SIZE], 0, 2 * ALPHABET_SIZE * sizeof(sa_sint_t));
-
+	memzero(&buckets[2 * ALPHABET_SIZE], 2 * ALPHABET_SIZE * sizeof(sa_sint_t));
 	sa_sint_t d = libsais16_partial_sorting_scan_left_to_right_16u_omp(T, SA, n, buckets, left_suffixes_count, 0, threads, thread_state);
 	libsais16_partial_sorting_shift_markers_16u_omp(SA, n, buckets, threads);
 	libsais16_partial_sorting_scan_right_to_left_16u_omp(T, SA, n, buckets, first_lms_suffix, left_suffixes_count, d, threads, thread_state);
@@ -6610,7 +6609,7 @@ static void libsais16_clear_lms_suffixes_omp(sa_sint_t * _RESTRICT SA,
 #endif
 	for(c = 0; c < k; ++c) {
 		if(bucket_end[c] > bucket_start[c]) {
-			memset(&SA[bucket_start[c]], 0, ((size_t)bucket_end[c] - (size_t)bucket_start[c]) * sizeof(sa_sint_t));
+			memzero(&SA[bucket_start[c]], ((size_t)bucket_end[c] - (size_t)bucket_start[c]) * sizeof(sa_sint_t));
 		}
 	}
 }
@@ -6910,7 +6909,8 @@ static void libsais16_compact_unique_and_nonunique_lms_suffixes_32s_omp(sa_sint_
 					fast_sint_t count             = ((fast_sint_t)m + ((fast_sint_t)n >> 1) + omp_block_end - thread_state[t].state.position);
 
 					if(count > 0) {
-						position -= count; memcpy(&SA[position], &SA[thread_state[t].state.position], (size_t)count * sizeof(sa_sint_t));
+						position -= count; 
+						memcpy(&SA[position], &SA[thread_state[t].state.position], (size_t)count * sizeof(sa_sint_t));
 					}
 				}
 
@@ -6919,7 +6919,8 @@ static void libsais16_compact_unique_and_nonunique_lms_suffixes_32s_omp(sa_sint_
 					fast_sint_t count             = ((fast_sint_t)m + omp_block_end - thread_state[t].state.count);
 
 					if(count > 0) {
-						position -= count; memcpy(&SA[position], &SA[thread_state[t].state.count], (size_t)count * sizeof(sa_sint_t));
+						position -= count; 
+						memcpy(&SA[position], &SA[thread_state[t].state.count], (size_t)count * sizeof(sa_sint_t));
 					}
 				}
 			}
@@ -7139,7 +7140,7 @@ static sa_sint_t libsais16_main_32s(sa_sint_t * _RESTRICT T, sa_sint_t * _RESTRI
 			libsais16_radix_sort_lms_suffixes_32s_6k_omp(T, SA, n, m, &buckets[4 * (fast_sint_t)k], threads, thread_state);
 			libsais16_radix_sort_set_markers_32s_6k_omp(SA, k, &buckets[4 * (fast_sint_t)k], threads);
 			if(threads > 1 && n >= 65536) {
-				memset(&SA[(fast_sint_t)n - (fast_sint_t)m], 0, (size_t)m * sizeof(sa_sint_t));
+				memzero(&SA[(fast_sint_t)n - (fast_sint_t)m], (size_t)m * sizeof(sa_sint_t));
 			}
 			libsais16_initialize_buckets_for_partial_sorting_32s_6k(T, k, buckets, first_lms_suffix, left_suffixes_count);
 			libsais16_induce_partial_order_32s_6k_omp(T, SA, n, k, buckets, first_lms_suffix, left_suffixes_count, threads, thread_state);
@@ -7304,7 +7305,7 @@ static sa_sint_t libsais16_main_16u(const uint16 * T,
 		}
 		libsais16_radix_sort_lms_suffixes_16u_omp(T, SA, n, m, buckets, threads, thread_state);
 		if(threads > 1 && n >= 65536) {
-			memset(&SA[(fast_sint_t)n - (fast_sint_t)m], 0, (size_t)m * sizeof(sa_sint_t));
+			memzero(&SA[(fast_sint_t)n - (fast_sint_t)m], (size_t)m * sizeof(sa_sint_t));
 		}
 
 		libsais16_initialize_buckets_for_partial_sorting_16u(T, buckets, first_lms_suffix, left_suffixes_count);
@@ -7769,10 +7770,9 @@ static void libsais16_unbwt_init_single(const uint16 * _RESTRICT T,
 		memcpy(bucket2, freq, ALPHABET_SIZE * sizeof(sa_uint_t));
 	}
 	else {
-		memset(bucket2, 0, ALPHABET_SIZE * sizeof(sa_uint_t));
+		memzero(bucket2, ALPHABET_SIZE * sizeof(sa_uint_t));
 		libsais16_unbwt_compute_histogram(T, n, bucket2);
 	}
-
 	libsais16_unbwt_calculate_fastbits(bucket2, fastbits, shift);
 	libsais16_unbwt_calculate_P(T, P, bucket2, index, 0, n);
 }
@@ -7808,8 +7808,7 @@ static void libsais16_unbwt_init_parallel(const uint16 * _RESTRICT T,
 				fast_sint_t omp_block_stride        = (n / omp_num_threads) & (-16);
 				fast_sint_t omp_block_start         = omp_thread_num * omp_block_stride;
 				fast_sint_t omp_block_size          = omp_thread_num < omp_num_threads - 1 ? omp_block_stride : n - omp_block_start;
-
-				memset(bucket2_local, 0, ALPHABET_SIZE * sizeof(sa_uint_t));
+				memzero(bucket2_local, ALPHABET_SIZE * sizeof(sa_uint_t));
 				libsais16_unbwt_compute_histogram(T + omp_block_start, omp_block_size, bucket2_local);
 			}
 
@@ -7821,7 +7820,7 @@ static void libsais16_unbwt_init_parallel(const uint16 * _RESTRICT T,
 				fast_sint_t omp_block_start         = omp_thread_num * omp_block_stride;
 				fast_sint_t omp_block_size          = omp_thread_num < omp_num_threads - 1 ? omp_block_stride : ALPHABET_SIZE - omp_block_start;
 
-				memset(bucket2 + omp_block_start, 0, (size_t)omp_block_size * sizeof(sa_uint_t));
+				memzero(bucket2 + omp_block_start, (size_t)omp_block_size * sizeof(sa_uint_t));
 
 				fast_sint_t t;
 				for(t = 0; t < omp_num_threads; ++t, bucket2_temp += ALPHABET_SIZE) {

@@ -16,34 +16,6 @@
 #else
 	#include <strings.h>
 #endif
-#ifdef HAVE_BCOPY
-	#ifndef HAVE_MEMCPY
-		#define memcpy(d, s, n) bcopy((s), (d), (n))
-	#endif
-	#ifndef HAVE_MEMMOVE
-		#define memmove(d, s, n) bcopy((s), (d), (n))
-	#endif
-#else
-	#ifndef HAVE_MEMCPY
-		char * memcpy(char *, char *, size_t);
-	#endif
-#endif
-#ifndef HAVE_STRCHR
-	#ifdef strchr
-		#undef strchr
-	#endif
-	#ifdef HAVE_INDEX
-		#define strchr index
-	#else
-		char * strchr(const char *, int);
-	#endif
-	#ifdef strrchr
-		#undef strrchr
-	#endif
-	#ifdef HAVE_RINDEX
-		#define strrchr rindex
-	#endif
-#endif
 #ifndef HAVE_STRCSPN
 	size_t gp_strcspn(const char *, const char *);
 	#define strcspn gp_strcspn
@@ -51,23 +23,6 @@
 #ifndef HAVE_STRSTR
 	char * strstr(const char *, const char *);
 #endif
-#ifndef HAVE_STDLIB_H
-	// @v11.7.1 #ifdef HAVE_MALLOC_H
-		// @v11.7.1 #include <malloc.h>
-	// @v11.7.1 #endif
-	char * getenv();
-	int system();
-	double atof();
-	int atoi();
-	long atol();
-	double strtod();
-	#ifndef EXIT_FAILURE
-		#define EXIT_FAILURE (1)
-	#endif
-	#ifndef EXIT_SUCCESS
-		#define EXIT_SUCCESS (0)
-	#endif
-#endif /* HAVE_STDLIB_H */
 /* Deal with varargs functions */
 #if defined(HAVE_VFPRINTF) || defined(HAVE_DOPRNT)
 	#ifdef STDC_HEADERS
@@ -196,15 +151,15 @@
 #ifdef HAVE_MATH_H
 	#include <math.h>
 #endif
-#ifndef M_LN10
-	#define M_LN10    2.3025850929940456840e0
-#endif
+//#ifndef M_LN10
+	//#define M_LN10    2.3025850929940456840e0
+//#endif
 // Use definitions from float.h and math.h if we found them 
 #if defined(DBL_MIN_10_EXP)
-	#define E_MINEXP (DBL_MIN_10_EXP * M_LN10)
+	#define E_MINEXP (DBL_MIN_10_EXP * SMathConst::Ln10)
 #endif
 #if defined(DBL_MAX_10_EXP)
-	#define E_MAXEXP (DBL_MAX_10_EXP * M_LN10)
+	#define E_MAXEXP (DBL_MAX_10_EXP * SMathConst::Ln10)
 #endif
 #ifndef HAVE_STRCASECMP
 	#ifdef HAVE_STRICMP

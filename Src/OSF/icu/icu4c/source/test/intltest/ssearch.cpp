@@ -413,7 +413,7 @@ void OrderList::add(int32_t order, int32_t low, int32_t high)
 
 		Order * newList = new Order[listMax];
 
-		uprv_memcpy(newList, list, listSize * sizeof(Order));
+		memcpy(newList, list, listSize * sizeof(Order));
 		delete[] list;
 		list = newList;
 	}

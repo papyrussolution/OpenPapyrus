@@ -1,5 +1,5 @@
 // CRUKM.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2024
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу ККМ "Кристалл-УКМ" (ООО Кристалл Сервис)
 //
@@ -139,7 +139,6 @@ int ACS_CRUKM::ExportOpByCrdCard(SCardCore * pSc, PPID cardID, const char * pCar
 				}
 			}
 			else {
-				// @v10.6.4 MEMSZERO(crp_rec);
 				ZStrToLStr(crp_rec.BarCode, pCardCode, sizeof(crp_rec.BarCode));
 				crp_rec.PayDate = scop_rec.Dt;
 				crp_rec.PayTime = scop_rec.Tm;
@@ -169,7 +168,6 @@ int ACS_CRUKM::ExportSCard(Cr_PosLoadTbl * pOutTbl, Cr_CredoPayTbl * pScCrdTbl, 
 	{
 		PPTransaction tra(1);
 		THROW(tra);
-		// @v10.6.4 MEMSZERO(ser_rec);
 		for(ser_id = 0; SCrdSObj.EnumItems(&ser_id, &ser_rec) > 0;) {
 			PPSCardSerPacket scs_pack;
 			THROW(SCrdSObj.GetPacket(ser_id, &scs_pack) > 0);
@@ -183,7 +181,6 @@ int ACS_CRUKM::ExportSCard(Cr_PosLoadTbl * pOutTbl, Cr_CredoPayTbl * pScCrdTbl, 
 					char   cardname[128], * p;
 					PPID   log_num = pLogNumList->at(i);
 					Cr_PosLoadTbl::Rec rec;
-					// @v10.6.4 MEMSZERO(rec);
 					ZStrToLStr(rec.Cash_Code, ltoa(log_num, tempbuf, 10), sizeof(rec.Cash_Code));
 					rec.DataType   = 11;
 					// 0 - discount card, -1 - credit card

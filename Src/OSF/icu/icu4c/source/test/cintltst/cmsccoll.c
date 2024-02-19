@@ -3879,7 +3879,7 @@ static void TestUCAPrecontext(void)
 		for(i = 0; i<rLen; i++) {
 			log_verbose(" %02X", resColl[i]);
 		}
-		uprv_memcpy(prevColl, resColl, sizeof(uint8_t)*(rLen+1));
+		memcpy(prevColl, resColl, sizeof(uint8_t)*(rLen+1));
 	}
 	ucol_close(coll);
 
@@ -3900,7 +3900,7 @@ static void TestUCAPrecontext(void)
 		for(i = 0; i<rLen; i++) {
 			log_verbose(" %02X", resColl[i]);
 		}
-		uprv_memcpy(prevColl, resColl, sizeof(uint8_t)*(rLen+1));
+		memcpy(prevColl, resColl, sizeof(uint8_t)*(rLen+1));
 	}
 	ucol_close(coll);
 
@@ -3922,7 +3922,7 @@ static void TestUCAPrecontext(void)
 		for(i = 0; i<rLen; i++) {
 			log_verbose(" %02X", resColl[i]);
 		}
-		uprv_memcpy(prevColl, resColl, sizeof(uint8_t)*(rLen+1));
+		memcpy(prevColl, resColl, sizeof(uint8_t)*(rLen+1));
 	}
 	ucol_close(coll);
 
@@ -3948,7 +3948,7 @@ static void TestUCAPrecontext(void)
 		for(i = 0; i<rLen; i++) {
 			log_verbose(" %02X", resColl[i]);
 		}
-		uprv_memcpy(prevColl, resColl, sizeof(uint8_t)*(rLen+1));
+		memcpy(prevColl, resColl, sizeof(uint8_t)*(rLen+1));
 	}
 	ucol_close(coll);
 }

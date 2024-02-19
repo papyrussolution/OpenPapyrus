@@ -1,5 +1,5 @@
 // ATRNTMPL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Шаблон бухгалтерской проводки
 //
@@ -730,7 +730,6 @@ int PPAccTurnTempl::CreateBaseProjectionAccturns(PPBillPacket * pPack)
 					at.Amount = R0(at.Amount);
 				{
 					ATBillParam param;
-					// @v10.7.4 @ctr MEMSZERO(param);
 					param.P_Pack = pPack;
 					param.AdvItemIdx = elb.SubstAr;
 					if(r == 2) {
@@ -786,7 +785,6 @@ int PPAccTurnTempl::CreateAccturns(PPBillPacket * pPack)
 						at.Amount = R0(at.Amount);
 					{
 						ATBillParam param;
-						// @v10.7.4 @ctr MEMSZERO(param);
 						param.P_Pack = pPack;
 						param.AdvItemIdx = elb.SubstAr;
 						if(r == 2) {

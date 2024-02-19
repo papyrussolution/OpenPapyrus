@@ -468,7 +468,7 @@ bool U_CALLCONV CollationDataReader::isAcceptable(void * context, const char * /
 		pInfo->formatVersion[0] == 5) {
 		UVersionInfo * version = static_cast<UVersionInfo *>(context);
 		if(version != NULL) {
-			uprv_memcpy(version, pInfo->dataVersion, 4);
+			memcpy(version, pInfo->dataVersion, 4);
 		}
 		return TRUE;
 	}

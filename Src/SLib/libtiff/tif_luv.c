@@ -662,13 +662,13 @@ static int LogLuvEncodeTile(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 	#define V_NEU           0.473684211
 	#define UVSCALE         410.
 #endif
-#ifndef M_LN2
-	#define M_LN2           0.69314718055994530942
-#endif
+//#ifndef M_LN2
+	//#define M_LN2           0.69314718055994530942
+//#endif
 #undef log2 /* Conflict with C'99 function */
-#define log2(x)         ((1.0/M_LN2)*log(x))
+#define log2(x)         ((1.0/SMathConst::Ln2)*log(x))
 #undef exp2  /* Conflict with C'99 function */
-#define exp2(x)         exp(M_LN2*(x))
+#define exp2(x)         exp(SMathConst::Ln2*(x))
 #define itrunc(x, m)     ((m)==SGILOGENCODE_NODITHER ? static_cast<int>(x) : static_cast<int>((x) + rand()*(1.0/RAND_MAX) - 0.5))
 
 #if LOGLUV_PUBLIC
@@ -683,7 +683,7 @@ LOGLUV_FUNC_QUALIF double LogL16toY(int p16)              /* compute luminance f
 	double Y;
 	if(!Le)
 		return 0.0;
-	Y = exp(M_LN2/256.*(Le+.5) - M_LN2*64.);
+	Y = exp(SMathConst::Ln2/256.0*(Le+0.5) - SMathConst::Ln2*64.0);
 	return (!(p16 & 0x8000) ? Y : -Y);
 }
 
@@ -734,16 +734,16 @@ LOGLUV_FUNC_QUALIF void XYZtoRGB24(float xyz[3], uint8 rgb[3])
 	double b =  0.061*xyz[0] + -0.224*xyz[1] +  1.163*xyz[2];
 	/* assume 2.0 gamma for speed */
 	/* could use integer sqrt approx., but this is probably faster */
-	rgb[0] = (uint8)((r<=0.0) ? 0 : (r >= 1.0) ? 255 : (int)(256.*sqrt(r)));
-	rgb[1] = (uint8)((g<=0.0) ? 0 : (g >= 1.0) ? 255 : (int)(256.*sqrt(g)));
-	rgb[2] = (uint8)((b<=0.0) ? 0 : (b >= 1.0) ? 255 : (int)(256.*sqrt(b)));
+	rgb[0] = (uint8)((r<=0.0) ? 0 : (r >= 1.0) ? 255 : (int)(256.0*sqrt(r)));
+	rgb[1] = (uint8)((g<=0.0) ? 0 : (g >= 1.0) ? 255 : (int)(256.0*sqrt(g)));
+	rgb[2] = (uint8)((b<=0.0) ? 0 : (b >= 1.0) ? 255 : (int)(256.0*sqrt(b)));
 }
 
 LOGLUV_FUNC_QUALIF double LogL10toY(int p10)              /* compute luminance from 10-bit LogL */
 {
 	if(p10 == 0)
 		return 0.0;
-	return (exp(M_LN2/64.0*(p10+0.5) - M_LN2*12.0));
+	return (exp(SMathConst::Ln2/64.0*(p10+0.5) - SMathConst::Ln2*12.0));
 }
 
 LOGLUV_FUNC_QUALIF int LogL10fromY(double Y, int em)   /* get 10-bit LogL from Y */

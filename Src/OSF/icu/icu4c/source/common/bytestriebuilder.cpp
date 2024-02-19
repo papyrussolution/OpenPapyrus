@@ -155,7 +155,7 @@ BytesTrieBuilder &BytesTrieBuilder::add(StringPiece s, int32_t value, UErrorCode
 			return *this; // error instead of dereferencing null
 		}
 		if(elementsLength>0) {
-			uprv_memcpy(newElements, elements, (size_t)elementsLength*sizeof(BytesTrieElement));
+			memcpy(newElements, elements, (size_t)elementsLength*sizeof(BytesTrieElement));
 		}
 		delete[] elements;
 		elements = newElements;
@@ -359,7 +359,7 @@ bool BytesTrieBuilder::ensureCapacity(int32_t length)
 			bytesCapacity = 0;
 			return FALSE;
 		}
-		uprv_memcpy(newBytes+(newCapacity-bytesLength), bytes+(bytesCapacity-bytesLength), bytesLength);
+		memcpy(newBytes+(newCapacity-bytesLength), bytes+(bytesCapacity-bytesLength), bytesLength);
 		uprv_free(bytes);
 		bytes = newBytes;
 		bytesCapacity = newCapacity;
@@ -382,7 +382,7 @@ int32_t BytesTrieBuilder::write(const char * b, int32_t length)
 	int32_t newLength = bytesLength+length;
 	if(ensureCapacity(newLength)) {
 		bytesLength = newLength;
-		uprv_memcpy(bytes+(bytesCapacity-bytesLength), b, length);
+		memcpy(bytes+(bytesCapacity-bytesLength), b, length);
 	}
 	return bytesLength;
 }

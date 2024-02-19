@@ -269,7 +269,7 @@ U_CAPI int32_t U_EXPORT2 ucptrie_swap(const UDataSwapper * ds,
 			    break;
 			case UCPTRIE_VALUE_BITS_8:
 			    if(inTrie!=outTrie) {
-				    uprv_memmove(outData, inData, dataLength);
+				    memmove(outData, inData, dataLength);
 			    }
 			    break;
 			default:

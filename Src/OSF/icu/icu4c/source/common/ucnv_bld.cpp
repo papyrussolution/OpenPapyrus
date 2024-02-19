@@ -289,7 +289,7 @@ static UConverterSharedData* ucnv_data_unFlattenClone(UConverterLoadArgs * pArgs
 	}
 
 	/* copy initial values from the static structure for this type */
-	uprv_memcpy(data, converterData[type], sizeof(UConverterSharedData));
+	memcpy(data, converterData[type], sizeof(UConverterSharedData));
 
 	data->staticData = source;
 
@@ -939,7 +939,7 @@ U_CFUNC UConverter * ucnv_createConverterFromSharedData(UConverter * myUConverte
 		myUConverter->subChar1 = mySharedConverterData->staticData->subChar1;
 		myUConverter->subCharLen = mySharedConverterData->staticData->subCharLen;
 		myUConverter->subChars = (uint8 *)myUConverter->subUChars;
-		uprv_memcpy(myUConverter->subChars, mySharedConverterData->staticData->subChar, myUConverter->subCharLen);
+		memcpy(myUConverter->subChars, mySharedConverterData->staticData->subChar, myUConverter->subCharLen);
 		myUConverter->toUCallbackReason = UCNV_ILLEGAL; /* default reason to invoke (*fromCharErrorBehaviour) */
 	}
 
@@ -1124,7 +1124,7 @@ static inline void internalSetName(const char * name, UErrorCode * status) {
 
 	gDefaultAlgorithmicSharedData = algorithmicSharedData;
 	gDefaultConverterContainsOption = containsOption;
-	uprv_memcpy(gDefaultConverterNameBuffer, name, length);
+	memcpy(gDefaultConverterNameBuffer, name, length);
 	gDefaultConverterNameBuffer[length] = 0;
 
 	/* gDefaultConverterName MUST be the last global var set by this function.  */
@@ -1329,7 +1329,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_swap(const UDataSwapper * ds,
 	if(length>=0) {
 		/* swap the static data */
 		if(inStaticData!=outStaticData) {
-			uprv_memcpy(outStaticData, inStaticData, staticDataSize);
+			memcpy(outStaticData, inStaticData, staticDataSize);
 		}
 
 		ds->swapArray32(ds, &inStaticData->structSize, 4,
@@ -1380,7 +1380,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_swap(const UDataSwapper * ds,
 			return 0;
 		}
 
-		uprv_memcpy(mbcsHeader.version, inMBCSHeader->version, 4);
+		memcpy(mbcsHeader.version, inMBCSHeader->version, 4);
 		mbcsHeader.countStates =         ds->readUInt32(inMBCSHeader->countStates);
 		mbcsHeader.countToUFallbacks =   ds->readUInt32(inMBCSHeader->countToUFallbacks);
 		mbcsHeader.offsetToUCodeUnits =  ds->readUInt32(inMBCSHeader->offsetToUCodeUnits);
@@ -1468,7 +1468,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_swap(const UDataSwapper * ds,
 
 			/* copy the data for inaccessible bytes */
 			if(inBytes!=outBytes) {
-				uprv_memcpy(outBytes, inBytes, size);
+				memcpy(outBytes, inBytes, size);
 			}
 
 			/* swap the MBCSHeader, except for the version field */

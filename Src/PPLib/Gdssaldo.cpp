@@ -1,5 +1,5 @@
 // GDSSALDO.CPP
-// Copyright (c) V.Nasonov 2003, 2005, 2007, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) V.Nasonov 2003, 2005, 2007, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2024
 // @codepage windows-1251
 //
 // Расчет сальдо по товарам
@@ -18,7 +18,6 @@ int GoodsSaldoCore::GetLastSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE 
 	int    ok = -1;
 	LDATE  dt = ZERODATE;
 	GoodsDebtTbl::Rec gd_rec;
-	// @v10.6.4 MEMSZERO(gd_rec);
 	if(goodsID) {
 		const LDATE base_date = (pDt == 0 || *pDt == ZERODATE) ? MAXDATE : *pDt;
 		GoodsDebtTbl::Key0 k0;
@@ -115,7 +114,7 @@ struct CalcSaldoEntry { // @flat
 	LDATE  Dt;
 };
 
-class CalcSaldoList : public SVector { // @v9.8.4 SArray-->SVector
+class CalcSaldoList : public SVector {
 public:
 	CalcSaldoList() : SVector(sizeof(CalcSaldoEntry))
 	{
@@ -188,7 +187,7 @@ public:
 	int    Test(PPID goodsID, PPID arID, PPID dlvrID, const DateRange * pPeriod);
 private:
 	int    SetUnworkingContragentsSaldo(LDATE dt, CalcSaldoList * pList);
-	int    SetupItem(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double qtty, double amt, TSVector <GArSEntry> & rList); // @v9.8.4 SArray-->SVector
+	int    SetupItem(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double qtty, double amt, TSVector <GArSEntry> & rList);
 
 	GoodsSaldoCore GSCore;
 	Param  Par;
@@ -224,7 +223,6 @@ int PrcssrGoodsSaldo::EditParam(Param * pPar)
 			GoodsCtrlGroup::Rec rec;
 			if(!RVALUEPTR(Data, pData))
 				MEMSZERO(Data);
-			// @v10.6.4 MEMSZERO(rec);
 			rec.GrpID   = Data.GoodsGrpID;
 			rec.GoodsID = Data.GoodsID;
 			rec.Flags   = GoodsCtrlGroup::enableSelUpLevel;
@@ -305,7 +303,7 @@ int PrcssrGoodsSaldo::Init(const Param * pPar)
 IMPL_CMPFUNC(GArSEntry, i1, i2)
 	{ RET_CMPCASCADE4(static_cast<const GArSEntry *>(i1), static_cast<const GArSEntry *>(i2), GoodsID, ArID, DlvrLocID, Dt); }
 
-int PrcssrGoodsSaldo::SetupItem(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double qtty, double amt, TSVector <GArSEntry> & rList) // @v9.8.4 SArray-->SVector
+int PrcssrGoodsSaldo::SetupItem(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE dt, double qtty, double amt, TSVector <GArSEntry> & rList)
 {
 	int    ok = 1;
 	if(checkdate(dt)) {
@@ -413,7 +411,7 @@ int PrcssrGoodsSaldo::Run()
 	PPIDArray actual_goods_list; // Список товаров, для которых надо удалить записи перед вставкой новых
 	SString goods_name, temp_buf;
 	IterCounter cntr;
-	TSVector <GArSEntry> list; // @v9.8.4 SArray-->SVector
+	TSVector <GArSEntry> list;
 	THROW_INVARG(Par.GoodsGrpID || Par.GoodsID);
 	PPWaitStart();
 	if(!Par.GoodsID) {
@@ -495,7 +493,6 @@ int PrcssrGoodsSaldo::Run()
 				const GArSEntry & r_entry = list.at(i);
 				if(r_entry.Dt) {
 					GoodsDebtTbl::Rec rec;
-					// @v10.6.4 MEMSZERO(rec);
 					rec.GoodsID = r_entry.GoodsID;
 					rec.ArID = r_entry.ArID;
 					rec.DlvrLocID = r_entry.DlvrLocID;

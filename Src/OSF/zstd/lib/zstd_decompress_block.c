@@ -30,9 +30,8 @@
  * ZSTD_decompressSequences implementations. You can't force in both directions
  * at the same time.
  */
-#if defined(ZSTD_FORCE_DECOMPRESS_SEQUENCES_SHORT) && \
-	defined(ZSTD_FORCE_DECOMPRESS_SEQUENCES_LONG)
-#error "Cannot force the use of the short and the long ZSTD_decompressSequences variants!"
+#if defined(ZSTD_FORCE_DECOMPRESS_SEQUENCES_SHORT) && defined(ZSTD_FORCE_DECOMPRESS_SEQUENCES_LONG)
+	#error "Cannot force the use of the short and the long ZSTD_decompressSequences variants!"
 #endif
 // 
 // Memory operations

@@ -56,7 +56,7 @@ static int32_t U_CALLCONV uprv_copyArray16(const UDataSwapper * ds,
 	}
 
 	if(length>0 && inData!=outData) {
-		uprv_memcpy(outData, inData, length);
+		memcpy(outData, inData, length);
 	}
 	return length;
 }
@@ -102,7 +102,7 @@ static int32_t U_CALLCONV uprv_copyArray32(const UDataSwapper * ds,
 	}
 
 	if(length>0 && inData!=outData) {
-		uprv_memcpy(outData, inData, length);
+		memcpy(outData, inData, length);
 	}
 	return length;
 }
@@ -148,7 +148,7 @@ static int32_t U_CALLCONV uprv_copyArray64(const UDataSwapper * ds,
 		return 0;
 	}
 	if(length>0 && inData!=outData) {
-		uprv_memcpy(outData, inData, length);
+		memcpy(outData, inData, length);
 	}
 	return length;
 }
@@ -192,7 +192,7 @@ U_CAPI int32_t U_EXPORT2 udata_swapInvStringBlock(const UDataSwapper * ds, const
 
 	/* copy the bytes after the last NUL */
 	if(inData!=outData && length>stringsLength) {
-		uprv_memcpy((char *)outData+stringsLength, inChars+stringsLength, length-stringsLength);
+		memcpy((char *)outData+stringsLength, inChars+stringsLength, length-stringsLength);
 	}
 
 	/* return the length including padding bytes */
@@ -262,7 +262,7 @@ U_CAPI int32_t U_EXPORT2 udata_swapDataHeader(const UDataSwapper * ds, const voi
 
 		/* Most of the fields are just bytes and need no swapping. */
 		if(inData!=outData) {
-			uprv_memcpy(outData, inData, headerSize);
+			memcpy(outData, inData, headerSize);
 		}
 		outHeader = (DataHeader*)outData;
 

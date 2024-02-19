@@ -2361,7 +2361,7 @@ int SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 				}
 			}
 			else {
-				CALLEXCEPT_S_S(p_f || (IH >= 0), SLERR_FILENOTOPENED, Name);
+				THROW_S_S(p_f || (IH >= 0), SLERR_FILENOTOPENED, Name);
 			}
 		}
 	}
@@ -2949,7 +2949,7 @@ int SFile::CalcCRC(long offs, uint32 * pCrc)
 //
 // Идентификация форматов файлов
 //
-class FileFormatRegBase : private SVector, public SStrGroup { // @v9.8.10 SArray-->SVector
+class FileFormatRegBase : private SVector, public SStrGroup {
 public:
 	FileFormatRegBase();
 	~FileFormatRegBase();

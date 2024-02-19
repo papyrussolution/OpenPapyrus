@@ -803,7 +803,6 @@ EVP_MD * EVP_MD_meth_dup(const EVP_MD * md)
 
 	if((to = EVP_MD_meth_new(md->type, md->pkey_type)) != NULL) {
 		CRYPTO_RWLOCK * lock = to->lock;
-
 		memcpy(to, md, sizeof(*to));
 		to->lock = lock;
 		to->origin = EVP_ORIG_METH;

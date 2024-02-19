@@ -1,5 +1,5 @@
 // PPJOB.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -1181,7 +1181,6 @@ public:
 	{
 		int    ok = -1, r = 0;
 		ScalePrepParam param;
-		// @v10.6.4 MEMSZERO(param);
 		const size_t sav_offs = pParam->GetRdOffs();
 		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
 			ok = ScalePrepDialog(DLG_SCALETRAN, &param.ScaleID, &param.Flags);
@@ -3136,7 +3135,6 @@ int RFIDDevPrcssr::Run()
 						double price = 0;
 						SString msg;
 						SCardTbl::Rec sc_rec;
-						// @v10.6.4 MEMSZERO(sc_rec);
 						cmd = DVCCMD_TOGGLE;
 						if(ScObj.SearchCode(0, temp_buf, &sc_rec) > 0) {
 							if(p_dvc->GetSessionPrice(&GObj, &price) > 0) {
@@ -3873,7 +3871,6 @@ int TSessAutoSmsFiltDialog::setDTS(const TSessionFilt * pData)
 	const uint grp_prctech = 2;
 	RVALUEPTR(Data, pData);
 	PrcTechCtrlGroup::Rec ptcg_rec;
-	// @v10.6.4 MEMSZERO(ptcg_rec);
 	ptcg_rec.PrcID = Data.PrcID;
 	if(Data.Flags & TSessionFilt::fManufPlan) {
  		addGroup(grp_prctech, new PrcTechCtrlGroup(CTLSEL_JTSASMSFILT_PRC, 0, 0, 0, 0, 0));

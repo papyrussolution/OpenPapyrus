@@ -70,8 +70,8 @@ static bool U_CALLCONV isSPrepAcceptable(void * /* context */,
 		pInfo->formatVersion[2]==UTRIE_SHIFT &&
 		pInfo->formatVersion[3]==UTRIE_INDEX_SHIFT
 		) {
-		//uprv_memcpy(formatVersion, pInfo->formatVersion, 4);
-		uprv_memcpy(dataVersion, pInfo->dataVersion, 4);
+		//memcpy(formatVersion, pInfo->formatVersion, 4);
+		memcpy(dataVersion, pInfo->dataVersion, 4);
 		return TRUE;
 	}
 	else {
@@ -229,8 +229,8 @@ static bool U_CALLCONV loadData(UStringPrepProfile* profile,
 	if(profile->sprepData==NULL) {
 		profile->sprepData = dataMemory;
 		dataMemory = NULL;
-		uprv_memcpy(&profile->indexes, p, sizeof(profile->indexes));
-		uprv_memcpy(&profile->sprepTrie, &_sprepTrie, sizeof(UTrie));
+		memcpy(&profile->indexes, p, sizeof(profile->indexes));
+		memcpy(&profile->sprepTrie, &_sprepTrie, sizeof(UTrie));
 	}
 	else {
 		p = (const int32_t*)udata_getMemory(profile->sprepData);
@@ -770,7 +770,7 @@ U_CAPI int32_t U_EXPORT2 usprep_swap(const UDataSwapper * ds,
 		}
 		/* copy the data for inaccessible bytes */
 		if(inBytes!=outBytes) {
-			uprv_memcpy(outBytes, inBytes, size);
+			memcpy(outBytes, inBytes, size);
 		}
 		offset = 0;
 		/* swap the int32_t indexes[] */

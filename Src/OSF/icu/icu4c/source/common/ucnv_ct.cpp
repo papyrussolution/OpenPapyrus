@@ -497,18 +497,15 @@ static void U_CALLCONV UConverter_toUnicode_CompoundText_OFFSETS(UConverterToUni
 	int32_t minArgsSize;
 
 	/* set up the subconverter arguments */
-	if(args->size<sizeof(UConverterToUnicodeArgs)) {
+	if(args->size < sizeof(UConverterToUnicodeArgs)) {
 		minArgsSize = args->size;
 	}
 	else {
 		minArgsSize = (int32_t)sizeof(UConverterToUnicodeArgs);
 	}
-
-	uprv_memcpy(&subArgs, args, minArgsSize);
+	memcpy(&subArgs, args, minArgsSize);
 	subArgs.size = (uint16)minArgsSize;
-
 	currentState = tmpState =  myConverterData->state;
-
 	while(mySource < mySourceLimit) {
 		if(myTarget < args->targetLimit) {
 			if(args->converter->toULength > 0) {
@@ -587,7 +584,7 @@ static void U_CALLCONV UConverter_toUnicode_CompoundText_OFFSETS(UConverterToUni
 				if(U_FAILURE(*err)) {
 					if(*err == U_BUFFER_OVERFLOW_ERROR) {
 						if(subArgs.converter->UCharErrorBufferLength > 0) {
-							uprv_memcpy(args->converter->UCharErrorBuffer, subArgs.converter->UCharErrorBuffer,
+							memcpy(args->converter->UCharErrorBuffer, subArgs.converter->UCharErrorBuffer,
 							    subArgs.converter->UCharErrorBufferLength);
 						}
 						args->converter->UCharErrorBufferLength = subArgs.converter->UCharErrorBufferLength;

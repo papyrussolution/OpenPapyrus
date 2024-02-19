@@ -1,5 +1,5 @@
 // V_GDSMOV.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev, A.Starodub 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -209,7 +209,6 @@ int PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 			THROW(PPCheckUserBreak());
 			if(!(gr.Flags & GF_GENERIC)) {
 				TempGoodsMovTbl::Rec rec;
-				// @v10.6.6 @ctr MEMSZERO(rec);
 				temp_filt.GoodsID = gr.ID;
 				ary.clear();
 				THROW(ary.ProcessGoodsGrouping(temp_filt, &agg));

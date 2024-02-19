@@ -659,7 +659,6 @@ int GoodsCore::MoveArCodes(PPID destArID, PPID srcArID, PPID grpID, uint flags, 
 			}
 			else if(PPObjGoods::GenerateOwnArCode(code_buf, 0) > 0) {
 				ArGoodsCodeTbl::Rec new_rec;
-				// @v10.6.4 MEMSZERO(new_rec);
 				new_rec.GoodsID = goods_id;
 				new_rec.ArID = destArID;
 				code_buf.CopyTo(new_rec.Code, sizeof(new_rec.Code));
@@ -1773,7 +1772,6 @@ int GoodsCore::SearchArCodeSubstr(PPID arID, const char * substr, BarcodeArray *
 	for(q.initIteration(false, &k, sp); q.nextIteration() > 0;) {
 		if(strstr(ACodT.data.Code, substr)) {
 			BarcodeTbl::Rec bc_rec;
-			// @v10.6.6 @ctr MEMSZERO(bc_rec);
 			bc_rec.GoodsID = ACodT.data.GoodsID;
 			bc_rec.Qtty = ACodT.data.Pack;
 			bc_rec.BarcodeType = NZOR(ACodT.data.ArID, -1);
@@ -1795,7 +1793,6 @@ int GoodsCore::SearchByArCode(PPID arID, const char * pBarcode, ArGoodsCodeTbl::
 	SString msg_buf;
 	ArGoodsCodeTbl::Key0 k0;
 	ArGoodsCodeTbl::Rec arcode_rec;
-	// @v10.6.6 @ctr MEMSZERO(arcode_rec);
 	k0.ArID = arID;
 	STRNSCPY(k0.Code, pBarcode);
 	ok = ACodT.search(0, &k0, spEq);
@@ -2554,7 +2551,6 @@ int GoodsCore::SetGenericList(PPID goodsID, const PPIDArray & rList, int use_ta)
 				PPID   _id = temp_list.get(i);
 				if(_id != goodsID && Fetch(_id, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GOODS) {
 					ObjAssocTbl::Rec assc_rec;
-					// @v10.7.9 @ctr MEMSZERO(assc_rec);
 					assc_rec.AsscType  = PPASS_GENGOODS;
 					assc_rec.PrmrObjID = goodsID;
 					assc_rec.ScndObjID = _id;
@@ -3906,7 +3902,7 @@ int GoodsCore::CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta)
 					if(pLogger)
 						pLogger->LogMsgCode(PPMSG_ERROR, PPErrCode, added_msg);
 					else
-						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 					THROW(r);
 					ok = 1;
 					break;

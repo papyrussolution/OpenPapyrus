@@ -1,5 +1,5 @@
 // PPMAIL.CPP
-// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1834,7 +1834,6 @@ int PPEmailAcctsImporter::Import(PPLogger * pLogger, int useTa)
 			SString buf;
 			Sdr_EmailAccount  account_rec;
 			PPInternetAccount account;
-			// @v10.7.9 @ctr MEMSZERO(account_rec);
 			THROW(ie.ReadRecord(&account_rec, sizeof(account_rec)));
 			STRNSCPY(account.Name, account_rec.Name);
 			account.Timeout = account_rec.Timeout;
@@ -1975,7 +1974,6 @@ int ExportEmailAccts(const PPIDArray * pMailAcctsList)
 			Sdr_EmailAccount account_rec;
 			SString smtp, smtp_port, pop3, pop3_port, user, from;
 			THROW(mobj.Get(id, &account));
-			// @v10.7.9 @ctr MEMSZERO(account_rec);
 			account.GetExtField(MAEXSTR_SENDSERVER,  smtp);
 			account.GetExtField(MAEXSTR_SENDPORT,    smtp_port);
 			account.GetExtField(MAEXSTR_RCVSERVER,   pop3);

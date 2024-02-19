@@ -1,5 +1,5 @@
 // BHISTCOR.CPP
-// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2020
+// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2020, 2024
 // @codepage windows-1251
 // @Kernel
 //
@@ -63,7 +63,6 @@ int HistBillCore::GetIdx(PPID billID, PPID * pVer, PPID * pInnerID)
 	int    r = 0;
 	PPID   ver = 1, id = 1;
 	HistBillTbl::Rec rec;
-	// @v10.6.4 MEMSZERO(rec);
 	if((r = SearchOpenBill(billID, &rec)) > 0) {
 		ver = data.Ver + 1;
 		id  = rec.InnerID;
@@ -194,7 +193,6 @@ int HistBillCore::Remove(PPID id, int useTa)
 //
 PPHistBillPacket::PPHistBillPacket()
 {
-	// @v10.6.4 MEMSZERO(Head);
 }
 
 PPHistBillPacket::~PPHistBillPacket()
@@ -230,7 +228,6 @@ int PPHistBillPacket::Init(const PPBillPacket * pPack)
 		Head.AgentID    = pPack->Ext.AgentID;
 		for(uint i = 0; pPack->EnumTItems(&i, &p_ti) > 0;) {
 			HistTrfrTbl::Rec h_item;
-			// @v10.6.4 MEMSZERO(h_item);
 			h_item.OprNo      = (long)i;
 			h_item.GoodsID    = p_ti->GoodsID;
 			h_item.Quantity   = p_ti->Quantity_;

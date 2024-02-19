@@ -149,7 +149,6 @@ int TSessAnlzList::CompletePlan(PPID prmrGoodsID, PPID prcID, const RAssocArray 
 	for(uint i = 0; i < pPlanList->getCount(); i++) {
 		const RAssoc & r_plan_item = pPlanList->at(i);
 		TSessAnlzEntry test;
-		// @v10.9.1 @ctr MEMSZERO(test);
 		test.PrcID = prcID;
 		test.PrmrGoodsID = prmrGoodsID;
 		test.GoodsID = r_plan_item.Key;
@@ -167,7 +166,6 @@ int TSessAnlzList::CompletePlan(PPID prmrGoodsID, PPID prcID, const RAssocArray 
 TSessAnlzEntry & FASTCALL TSessAnlzList::GetTotalRow(PPID goodsID)
 {
 	TSessAnlzEntry test;
-	// @v10.9.1 @ctr MEMSZERO(test);
 	test.DtVal = MAXLONG;
 	test.PrcID = MAXLONG;
 	test.PrmrGoodsID = MAXLONG;
@@ -232,7 +230,6 @@ int TSessAnlzList::SetRest(long dtVal, PPID prcID, PPID goodsID, double rest)
 	}
 	else {
 		TSessAnlzEntry entry;
-		// @v10.9.1 @ctr MEMSZERO(entry);
 		entry.DtVal   = dtVal;
 		entry.PrcID   = prcID;
 		entry.GoodsID = goods_id;
@@ -281,7 +278,6 @@ int TSessAnlzList::AddQtty(const AddQttyBlock & rBlk, int planned, int sign, dou
 		SetEntryVal(&at(pos), planned, sign, qtty, compPart, planPhUnit);
 	else {
 		TSessAnlzEntry entry;
-		// @v10.9.1 @ctr MEMSZERO(entry);
 		entry.DtVal       = rBlk.DtVal;
 		entry.PrcID       = rBlk.PrcID;
 		entry.PrmrGoodsID = prmr_goods_id;
@@ -885,7 +881,6 @@ int PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 			BExtInsert bei(P_TempTbl);
 			for(i = 0; result.enumItems(&i, reinterpret_cast<void**>(&p_entry));) {
 				TempTSessRepTbl::Rec rec;
-				// @v10.7.9 @ctr MEMSZERO(rec);
 				rec.DtVal       = p_entry->DtVal;
 				rec.PrcID       = p_entry->PrcID;
 				rec.PrmrGoodsID = p_entry->PrmrGoodsID;

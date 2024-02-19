@@ -681,7 +681,7 @@ void renderButton(HWND hwnd, HDC hdc, HTHEME hTheme, int iPartID, int iStateID)
 	}
 
 	GetClientRect(hwnd, &rcClient);
-	GetWindowText(hwnd, szText, _countof(szText));
+	GetWindowText(hwnd, szText, SIZEOFARRAY(szText));
 
 	SIZE szBox = { 13, 13 };
 	GetThemePartSize(hTheme, hdc, iPartID, iStateID, NULL, TS_DRAW, &szBox);
@@ -906,7 +906,7 @@ void paintGroupbox(HWND hwnd, HDC hdc, ButtonData& buttonData)
 	hOldFont = static_cast<HFONT>(::SelectObject(hdc, hFont));
 
 	WCHAR szText[256] = { 0 };
-	GetWindowText(hwnd, szText, _countof(szText));
+	GetWindowText(hwnd, szText, SIZEOFARRAY(szText));
 
 	auto style = static_cast<long>(::GetWindowLongPtr(hwnd, GWL_STYLE));
 	bool isCenter = (style & BS_CENTER) == BS_CENTER;
@@ -1103,7 +1103,7 @@ LRESULT CALLBACK TabSubclass(HWND hWnd,
 					    {rcItem.right - 1, rcItem.top},
 					    {rcItem.right - 1, rcItem.bottom}
 				    };
-				    Polyline(hdc, edges, _countof(edges));
+				    Polyline(hdc, edges, SIZEOFARRAY(edges));
 				    rcItem.right -= 1;
 
 				    HRGN hClip = CreateRectRgnIndirect(&rcItem);
@@ -1251,7 +1251,7 @@ LRESULT CALLBACK ComboBoxSubclass(HWND hWnd,
 			    {arrowRc.left - 1, arrowRc.top},
 			    {arrowRc.left - 1, arrowRc.bottom}
 		    };
-		    ::Polyline(hdc, edge, _countof(edge));
+		    ::Polyline(hdc, edge, SIZEOFARRAY(edge));
 
 		    ::SelectObject(hdc, holdPen);
 		    ::SelectObject(hdc, holdBrush);

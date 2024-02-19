@@ -61,7 +61,7 @@ void CheckedArrayByteSink::Append(const char * bytes, int32_t n)
 		overflowed_ = TRUE;
 	}
 	if(n > 0 && bytes != (outbuf_ + size_)) {
-		uprv_memcpy(outbuf_ + size_, bytes, n);
+		memcpy(outbuf_ + size_, bytes, n);
 	}
 	size_ += n;
 }

@@ -710,7 +710,7 @@ LRESULT TabBarPlus::runProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPara
 					    if(i != nSelTab && (i != nSelTab - 1)) {
 						    edges[0].x += topBarHeight;
 					    }
-					    Polyline(hdc, edges, _countof(edges));
+					    Polyline(hdc, edges, SIZEOFARRAY(edges));
 					    dis.rcItem.bottom -= 1;
 				    }
 				    else {
@@ -721,7 +721,7 @@ LRESULT TabBarPlus::runProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPara
 					    if(i != nSelTab && (i != nSelTab - 1)) {
 						    edges[0].y += topBarHeight;
 					    }
-					    Polyline(hdc, edges, _countof(edges));
+					    Polyline(hdc, edges, SIZEOFARRAY(edges));
 					    dis.rcItem.right -= 1;
 				    }
 				    HRGN hClip = CreateRectRgnIndirect(&dis.rcItem);

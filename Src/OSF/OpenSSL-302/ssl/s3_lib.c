@@ -3363,11 +3363,10 @@ void ssl3_free(SSL * s)
 	ssl3_free_digest_list(s);
 	OPENSSL_free(s->s3.alpn_selected);
 	OPENSSL_free(s->s3.alpn_proposed);
-
 #ifndef OPENSSL_NO_SRP
 	ssl_srp_ctx_free_intern(s);
 #endif
-	memset(&s->s3, 0, sizeof(s->s3));
+	memzero(&s->s3, sizeof(s->s3));
 }
 
 int ssl3_clear(SSL * s)
@@ -3387,15 +3386,11 @@ int ssl3_clear(SSL * s)
 
 	OPENSSL_free(s->s3.alpn_selected);
 	OPENSSL_free(s->s3.alpn_proposed);
-
 	/* NULL/zero-out everything in the s3 struct */
-	memset(&s->s3, 0, sizeof(s->s3));
-
+	memzero(&s->s3, sizeof(s->s3));
 	if(!ssl_free_wbio_buffer(s))
 		return 0;
-
 	s->version = SSL3_VERSION;
-
 #if !defined(OPENSSL_NO_NEXTPROTONEG)
 	OPENSSL_free(s->ext.npn);
 	s->ext.npn = NULL;
@@ -4535,7 +4530,7 @@ int ssl_generate_master_secret(SSL * s, uchar * pms, size_t pmslen,
 		t = pskpms;
 		s2n(pmslen, t);
 		if(alg_k & SSL_kPSK)
-			memset(t, 0, pmslen);
+			memzero(t, pmslen);
 		else
 			memcpy(t, pms, pmslen);
 		t += pmslen;

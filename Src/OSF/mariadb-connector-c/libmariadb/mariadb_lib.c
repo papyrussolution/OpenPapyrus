@@ -839,7 +839,8 @@ MYSQL_DATA * mthd_my_read_rows(MYSQL * mysql, MYSQL_FIELD * mysql_fields,
 					SET_CLIENT_ERROR(mysql, CR_UNKNOWN_ERROR, SQLSTATE_UNKNOWN, 0);
 					return 0;
 				}
-				memcpy(to, (char *)cp, len); to[len] = 0;
+				memcpy(to, (char *)cp, len); 
+				to[len] = 0;
 				to += len+1;
 				cp += len;
 				if(mysql_fields) {

@@ -91,7 +91,7 @@ UCharsTrieBuilder &UCharsTrieBuilder::add(const UnicodeString & s, int32_t value
 			return *this;
 		}
 		if(elementsLength>0) {
-			uprv_memcpy(newElements, elements, (size_t)elementsLength*sizeof(UCharsTrieElement));
+			memcpy(newElements, elements, (size_t)elementsLength*sizeof(UCharsTrieElement));
 		}
 		delete[] elements;
 		elements = newElements;

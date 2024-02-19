@@ -1,5 +1,5 @@
 // V_BCMP.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020, 2022, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -65,7 +65,6 @@ int PPViewGoodsBillCmp::GetBillCodes(const GoodsBillCmpFilt * pFilt, SString & r
 		}
 		else {
 			HistBillTbl::Rec hb_rec;
-			// @v10.6.4 MEMSZERO(hb_rec);
 			r = Hb_.Search(lh_bill_id, &hb_rec);
 			HistBillCore::HBRecToBRec(&hb_rec, &bill_rec);
 		}
@@ -96,7 +95,6 @@ int PPViewGoodsBillCmp::GetBillCodes(const GoodsBillCmpFilt * pFilt, SString & r
 		}
 		else {
 			HistBillTbl::Rec hb_rec;
-			// @v10.6.4 MEMSZERO(hb_rec);
 			r = Hb_.Search(rh_bill_id, &hb_rec);
 			HistBillCore::HBRecToBRec(&hb_rec, &bill_rec);
 		}
@@ -421,7 +419,6 @@ int PPViewGoodsBillCmp::AddToBasketAll(int diffSign)
 				const  double qtty = list.at(i).Val;
 				ILTI   i_i;
 				ReceiptTbl::Rec lot_rec;
-				// @v10.6.4 MEMSZERO(lot_rec);
 				THROW(::GetCurGoodsPrice(goods_id, bill_rec.LocID, GPRET_MOSTRECENT, 0, &lot_rec) != GPRET_ERROR);
 				i_i.GoodsID     = goods_id;
 				i_i.UnitPerPack = lot_rec.UnitPerPack;

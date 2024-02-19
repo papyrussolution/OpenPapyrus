@@ -434,10 +434,9 @@ int PPObject::SerializeSignature::Write(SBuffer & rBuf) const
 			THROW_PP(dest_id != 0 && src_id != 0, PPERR_REPLZEROOBJ);
 			THROW_PP(dest_id != src_id, PPERR_REPLSAMEOBJ);
 			if(ObjTypeID == PPOBJ_WORLD) {
-				WorldTbl::Rec wrec_src, wrec_dest;
+				WorldTbl::Rec wrec_src;
+				WorldTbl::Rec wrec_dest;
 				PPObjWorld objworld;
-				// @v10.7.9 @ctr MEMSZERO(wrec_src);
-				// @v10.7.9 @ctr MEMSZERO(wrec_dest);
 				objworld.Search(src_id, &wrec_src);
 				objworld.Search(dest_id, &wrec_dest);
 				THROW_PP(wrec_src.Kind == wrec_dest.Kind, PPERR_OBJKINDNOTEQUAL);
@@ -2027,7 +2026,7 @@ int ObjLinkFiles::Helper_Save(PPID objID, const char * pAddedStr, uint idx, SStr
 			}
 			else {
 				PPSetErrorSLib();
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 				CALLEXCEPT_PP(PPERR_SLIB);
 			}
 		}

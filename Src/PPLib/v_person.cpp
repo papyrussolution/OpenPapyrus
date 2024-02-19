@@ -1,5 +1,5 @@
 // V_PERSON.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -146,7 +146,6 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 						const  PPID loc_id = sj_id_list.get(i);
 						if(PsnObj.LocObj.Search(loc_id, &loc_rec) > 0 && loc_rec.Flags & LOCF_STANDALONE) {
 							PsnAttrViewItem vi;
-							// @v10.7.5 @ctr MEMSZERO(vi);
 							if(CreateAddrRec(loc_rec.ID, &loc_rec, "standalone", &vi) > 0) {
 								if(loc_rec.OwnerID && PsnObj.Fetch(loc_rec.OwnerID, &owner_rec) > 0)
 									STRNSCPY(vi.Name, owner_rec.Name);
@@ -171,7 +170,6 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 						}
 						if(do_insert) {
 							PsnAttrViewItem vi;
-							// @v10.7.5 @ctr MEMSZERO(vi);
 							if(CreateAddrRec(loc_rec.ID, &loc_rec, (loc_rec.Flags & LOCF_STANDALONE) ? "standalone" : "unknown", &vi) > 0) {
 								if(loc_rec.OwnerID && PsnObj.Fetch(loc_rec.OwnerID, &owner_rec) > 0) {
 									STRNSCPY(vi.Name, owner_rec.Name);
@@ -326,7 +324,6 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 						for(SEnum en = PsnObj.LocObj.P_Tbl->Enum(LOCTYP_ADDRESS, 0, LocationCore::eoIgnoreParent); en.Next(&loc_rec) > 0;) {
 							if(!p_used_loc_list->Has(static_cast<ulong>(loc_rec.ID))) {
 								PsnAttrViewItem vi;
-								// @v10.7.5 @ctr MEMSZERO(vi);
 								if(CreateAddrRec(loc_rec.ID, 0, "@haddress", &vi) > 0) {
 									THROW_DB(P_TempPsn->insertRecBuf(&vi));
 								}
@@ -398,7 +395,6 @@ int PPViewPerson::UpdateHungedAddr(PPID addrID)
 	{
 		PsnAttrViewItem vi;
 		PersonTbl::Rec owner_rec;
-		// @v10.7.5 @ctr MEMSZERO(vi);
 		PPTransaction tra(1);
 		THROW(tra);
 		if(PsnObj.LocObj.Search(addrID, &loc_rec) > 0 && CreateAddrRec(loc_rec.ID, &loc_rec, (loc_rec.Flags & LOCF_STANDALONE) ? "standalone" : "unknown", &vi) > 0) {
@@ -555,7 +551,6 @@ int PPViewPerson::EditDlvrAddrExtFlds(PPID id)
 {
 	int    ok = -1;
 	LocationTbl::Rec loc_rec;
-	// @v10.7.5 @ctr MEMSZERO(loc_rec);
 	THROW(PsnObj.LocObj.CheckRightsModByID(&id));
 	if(PsnObj.LocObj.Search(id, &loc_rec) > 0 && EditDlvrAddrExtFields(&loc_rec))
 		THROW(PsnObj.LocObj.PutRecord(&id, &loc_rec, 1));
@@ -923,7 +918,6 @@ int PPViewPerson::Transmit(PPID id, int transmitKind)
 				WorldTbl::Rec city_rec;
 				LocationTbl::Rec loc;
 				PPObjWorld obj_world;
-				// @v10.7.5 @ctr MEMSZERO(city_rec);
 				loc = pack.RLoc;
 				LocationCore::GetExField(&pack.RLoc, LOCEXSTR_FULLADDR, temp_buf.Z());
 				if(!temp_buf.Len())
@@ -1024,17 +1018,13 @@ int PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLocRec, c
 {
 	int    ok = -1;
 	LocationTbl::Rec loc_rec;
-	// @v10.7.5 @ctr MEMSZERO(loc_rec);
 	if(addrID) {
 		SString temp_buf;
 		pItem->TabID = addrID;
-		if(pAddrKindText && pAddrKindText[0] == '@') {
-			PPLoadString(pAddrKindText+1, temp_buf);
-			temp_buf.CopyTo(pItem->RegNumber, sizeof(pItem->RegNumber));
-		}
-		else {
+		if(pAddrKindText && pAddrKindText[0] == '@')
+			PPLoadStringS(pAddrKindText+1, temp_buf).CopyTo(pItem->RegNumber, sizeof(pItem->RegNumber));
+		else
 			STRNSCPY(pItem->RegNumber, pAddrKindText);
-		}
 		if(pLocRec || PsnObj.LocObj.Search(addrID, &loc_rec) > 0) {
 			const LocationTbl::Rec * p_loc_rec = NZOR(pLocRec, &loc_rec);
 			if(Filt.CityID && p_loc_rec->CityID != Filt.CityID) {
@@ -1094,7 +1084,6 @@ int PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrVie
 	int    ok = 1;
 	SString temp_buf;
 	PsnAttrViewItem item;
-	// @v10.7.5 @ctr MEMSZERO(item);
 	item.ID = pPsnRec->ID;
 	item.TabID = tabID;
 	STRNSCPY(item.Name, pPsnRec->Name);
@@ -1257,7 +1246,6 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 						CALLPTRMEMB(pUsedLocList, Add((ulong)psn_rec.MainLoc));
 						long   tab_id = psn_rec.MainLoc;
 						PsnAttrViewItem vi;
-						// @v10.7.5 @ctr MEMSZERO(vi);
 						vi.ID = id;
 						STRNSCPY(vi.Name, psn_rec.Name);
 						if(CreateAddrRec(tab_id, 0, "@jaddress", &vi) > 0) {
@@ -1268,7 +1256,6 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 						CALLPTRMEMB(pUsedLocList, Add((ulong)psn_rec.RLoc));
 						long   tab_id = psn_rec.RLoc;
 						PsnAttrViewItem vi;
-						// @v10.7.5 @ctr MEMSZERO(vi);
 						vi.ID = id;
 						STRNSCPY(vi.Name, psn_rec.Name);
 						if(CreateAddrRec(tab_id, 0, "@paddress", &vi) > 0) {
@@ -1282,7 +1269,6 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 					if(tab_id && pUsedLocList) {
 						pUsedLocList->Add((ulong)tab_id);
 					}
-					// @v10.7.5 @ctr MEMSZERO(vi);
 					vi.ID = id;
 					STRNSCPY(vi.Name, psn_rec.Name);
 					if(CreateAddrRec(tab_id, 0, "@daddress", &vi) > 0) {
@@ -1313,7 +1299,6 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 				if(rec_list.getCount() == 0) {
 					if(Filt.EmptyAttrib != EA_NOEMPTY && !Filt.CityID) {
 						PsnAttrViewItem vi;
-						// @v10.7.5 @ctr MEMSZERO(vi);
 						vi.ID = id;
 						STRNSCPY(vi.Name, psn_rec.Name);
 						THROW(ok = Helper_InsertTempRec(vi));
@@ -1333,7 +1318,6 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 				if(bac_ary.getCount() == 0) {
 					if(Filt.EmptyAttrib != EA_NOEMPTY) {
 						PsnAttrViewItem vi;
-						// @v10.7.5 @ctr MEMSZERO(vi);
 						vi.ID = id;
 						vi.TabID = 0;
 						STRNSCPY(vi.Name, psn_rec.Name);
@@ -1348,7 +1332,6 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 						for(uint pos = 0; pos < bac_ary.getCount(); pos++) {
 							const PPBankAccount & r_ba = bac_ary.at(pos);
 							PsnAttrViewItem vi;
-							// @v10.7.5 @ctr MEMSZERO(vi);
 							vi.ID = id;
 							vi.TabID = r_ba.ID;
 							STRNSCPY(vi.Name, psn_rec.Name);
@@ -1471,7 +1454,6 @@ int FASTCALL PPViewPerson::NextIteration(PersonViewItem * pItem)
 {
 	int    ok = -1;
 	PersonViewItem item;
-	// @v10.7.5 @ctr MEMSZERO(item);
 	if(P_IterQuery)
 		while(ok < 0 && P_IterQuery->nextIteration() > 0) {// AHTOXA
 			if(P_TempPsn) {
@@ -3030,7 +3012,6 @@ int PPViewPerson::CreateAuthFile(PPID psnId)
 	SString temp_buf;
 	SFile  file;
 	Sdr_CPosAuth rec;
-	// @v10.7.9 @ctr MEMSZERO(rec);
 	rec._id = 1;
 	p_dict->GetDbUUID(&guid);
 	guid.ToStr(S_GUID::fmtIDL, temp_buf);

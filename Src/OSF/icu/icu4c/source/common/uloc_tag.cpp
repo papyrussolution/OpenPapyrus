@@ -1448,7 +1448,7 @@ static void _appendLDMLExtensionAsKeywords(const char * ldmlext, ExtensionListEn
 				return;
 			}
 			if(len < (int32_t)sizeof(attrBuf) - attrBufIdx) {
-				uprv_memcpy(&attrBuf[attrBufIdx], pTag, len);
+				memcpy(&attrBuf[attrBufIdx], pTag, len);
 				attrBuf[attrBufIdx + len] = 0;
 				attr->attribute = &attrBuf[attrBufIdx];
 				attrBufIdx += (len + 1);
@@ -1836,7 +1836,7 @@ static void _appendPrivateuseToLanguageTag(const char * localeID, icu::ByteSink&
 							}
 							len = (int32_t)strlen(PRIVUSE_VARIANT_PREFIX);
 							if(reslen < capacity) {
-								uprv_memcpy(tmpAppend + reslen, PRIVUSE_VARIANT_PREFIX, smin(len, capacity - reslen));
+								memcpy(tmpAppend + reslen, PRIVUSE_VARIANT_PREFIX, smin(len, capacity - reslen));
 							}
 							reslen += len;
 							if(reslen < capacity) {
@@ -1846,7 +1846,7 @@ static void _appendPrivateuseToLanguageTag(const char * localeID, icu::ByteSink&
 						}
 						len = (int32_t)strlen(pPriv);
 						if(reslen < capacity) {
-							uprv_memcpy(tmpAppend + reslen, pPriv, smin(len, capacity - reslen));
+							memcpy(tmpAppend + reslen, pPriv, smin(len, capacity - reslen));
 						}
 						reslen += len;
 					}
@@ -1927,7 +1927,7 @@ static ULanguageTag* ultag_parse(const char * tag, int32_t tagLen, int32_t* pars
 	}
 
 	if(tagLen > 0) {
-		uprv_memcpy(tagBuf, tag, tagLen);
+		memcpy(tagBuf, tag, tagLen);
 	}
 	*(tagBuf + tagLen) = 0;
 
@@ -1981,8 +1981,7 @@ static ULanguageTag* ultag_parse(const char * tag, int32_t tagLen, int32_t* pars
 			parsedLenDelta = checkLegacyLen - replacementLen;
 			strcpy(t->buf, LEGACY[i + 1]);
 			if(checkLegacyLen != tagLen) {
-				uprv_memcpy(t->buf + replacementLen, tag + checkLegacyLen,
-				    oldTagLength - checkLegacyLen);
+				memcpy(t->buf + replacementLen, tag + checkLegacyLen, oldTagLength - checkLegacyLen);
 				// NUL-terminate after memcpy().
 				t->buf[replacementLen + oldTagLength - checkLegacyLen] = 0;
 			}
@@ -2004,9 +2003,7 @@ static ULanguageTag* ultag_parse(const char * tag, int32_t tagLen, int32_t* pars
 					size_t preferredTagLen = strlen(preferredTag);
 					uprv_strncpy(t->buf, preferredTag, preferredTagLen);
 					if(*redundantTagEnd == SEP) {
-						uprv_memmove(tagBuf + preferredTagLen,
-						    redundantTagEnd,
-						    tagLen - redundantTagLen + 1);
+						memmove(tagBuf + preferredTagLen, redundantTagEnd, tagLen - redundantTagLen + 1);
 					}
 					else {
 						tagBuf[preferredTagLen] = '\0';

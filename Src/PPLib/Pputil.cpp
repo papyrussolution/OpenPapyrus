@@ -1,5 +1,5 @@
 // PPUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -1592,7 +1592,6 @@ int PPChainDatabase(const char * pPassword)
 		PPObjBill * p_bobj = BillObj;
 		Reference * p_ref = PPRef;
 		// 2.
-		// @v10.6.4 MEMSZERO(bill_rec);
 		id_max = 0;
 		r = p_bobj->P_Tbl->search(0, &id_max, spLast);
 		if(!r) {

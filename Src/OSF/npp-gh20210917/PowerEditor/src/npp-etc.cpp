@@ -190,7 +190,7 @@ namespace ReadDirectoryChangesPrivate
 				// Convert to the long filename form. Unfortunately, this
 				// does not work for deletions, so it's an imperfect fix.
 				wchar_t wbuf[MAX_PATH];
-				if(::GetLongPathNameW(wstrFilename.c_str(), wbuf, _countof(wbuf)) > 0)
+				if(::GetLongPathNameW(wstrFilename.c_str(), wbuf, SIZEOFARRAY(wbuf)) > 0)
 					wstrFilename = wbuf;
 			}
 			m_pServer->m_pBase->Push(fni.Action, wstrFilename);

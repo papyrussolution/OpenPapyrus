@@ -1,5 +1,5 @@
 // RENT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -25,7 +25,7 @@ RentChrgFilt::RentChrgFilt() : CntrgntID(0)
 //
 //
 //
-PctChargeArray::PctChargeArray() : SVector(sizeof(PctChargeEntry)) // @v9.8.12 SArray-->SVector
+PctChargeArray::PctChargeArray() : SVector(sizeof(PctChargeEntry))
 {
 }
 
@@ -171,6 +171,11 @@ static int StrToRentPeriod(const char * pBuf, short * pPeriod, short * pNumPerio
 	return (prd == PRD_UNDEF) ? (PPSetError(PPERR_UNDEFRENTPERIOD), -1) : 1;
 }
 #endif // } 0
+
+PPRentCondition::PPRentCondition() // @v11.9.6
+{
+	THISZERO();
+}
 
 bool PPRentCondition::IsEmpty() const
 {
@@ -320,7 +325,6 @@ int PPObjBill::AutoCharge()
 	PPLogger logger;
 	PropertyTbl::Key0 k;
 	RentChrgFilt filt;
-	// @v10.8.5 @ctr MEMSZERO(filt);
 	if(RentChrgDialog(&filt) <= 0)
 		return -1;
 	BExtQuery q(&p_ref->Prop, 0);

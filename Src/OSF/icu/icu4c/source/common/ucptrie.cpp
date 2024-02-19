@@ -91,7 +91,7 @@ U_CAPI UCPTrie * U_EXPORT2 ucptrie_openFromBinary(UCPTrieType type, UCPTrieValue
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 		return nullptr;
 	}
-	uprv_memcpy(trie, &tempTrie, sizeof(tempTrie));
+	memcpy(trie, &tempTrie, sizeof(tempTrie));
 #ifdef UCPTRIE_DEBUG
 	trie->name = "fromSerialized";
 #endif
@@ -519,18 +519,18 @@ U_CAPI int32_t U_EXPORT2 ucptrie_toBinary(const UCPTrie * trie,
 	header->shiftedHighStart = trie->highStart >> UCPTRIE_SHIFT_2;
 	bytes += sizeof(UCPTrieHeader);
 
-	uprv_memcpy(bytes, trie->index, trie->indexLength * 2);
+	memcpy(bytes, trie->index, trie->indexLength * 2);
 	bytes += trie->indexLength * 2;
 
 	switch(valueWidth) {
 		case UCPTRIE_VALUE_BITS_16:
-		    uprv_memcpy(bytes, trie->data.ptr16, trie->dataLength * 2);
+		    memcpy(bytes, trie->data.ptr16, trie->dataLength * 2);
 		    break;
 		case UCPTRIE_VALUE_BITS_32:
-		    uprv_memcpy(bytes, trie->data.ptr32, trie->dataLength * 4);
+		    memcpy(bytes, trie->data.ptr32, trie->dataLength * 4);
 		    break;
 		case UCPTRIE_VALUE_BITS_8:
-		    uprv_memcpy(bytes, trie->data.ptr8, trie->dataLength);
+		    memcpy(bytes, trie->data.ptr8, trie->dataLength);
 		    break;
 		default:
 		    // unreachable

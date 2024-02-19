@@ -69,7 +69,7 @@ static const char * U_CALLCONV findLikelySubtags(const char * localeID, char * b
 			else {
 				u_UCharsToChars(s, buffer, resLen + 1);
 				if(resLen >= 3 && uprv_strnicmp(buffer, unknownLanguage, 3) == 0 && (resLen == 3 || buffer[3] == '_')) {
-					uprv_memmove(buffer, buffer + 3, resLen - 3 + 1);
+					memmove(buffer, buffer + 3, resLen - 3 + 1);
 				}
 				result = buffer;
 			}
@@ -96,7 +96,7 @@ static void U_CALLCONV appendTag(const char * tag, int32_t tagLength, char * buf
 		buffer[*bufferLength] = '_';
 		++(*bufferLength);
 	}
-	uprv_memmove(&buffer[*bufferLength], tag, tagLength);
+	memmove(&buffer[*bufferLength], tag, tagLength);
 	*bufferLength += tagLength;
 }
 

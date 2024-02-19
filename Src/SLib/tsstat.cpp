@@ -1,5 +1,5 @@
 // TSSTAT.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2010, 2013, 2016, 2018, 2019, 2020, 2023
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2010, 2013, 2016, 2018, 2019, 2020, 2023, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -595,7 +595,7 @@ long TimSerSpikes::GetMostCommonDistance()
 {
 	uint   i = 0;
 	_PRDINF prd, * p_prd;
-	SVector prd_ary(sizeof(_PRDINF)); // @v9.8.12 SArray-->SVector
+	SVector prd_ary(sizeof(_PRDINF));
 	for(i = 0; (int)i < GetNumSpikes() - 1; i++) {
 		long s, n;
 		uint idx = 0;

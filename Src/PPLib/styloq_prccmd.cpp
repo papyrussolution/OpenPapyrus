@@ -1,5 +1,5 @@
 // STYLOQ_PRCCMD.CPP
-// Copyright (c) A.Sobolev 2022, 2023
+// Copyright (c) A.Sobolev 2022, 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1477,8 +1477,8 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 		// @v11.6.11 В случае ошибки сохраним оригинальный json-документ для того, чтобы можно было разобраться пост-фактум с проблемой
 		if(pDocument) {
 			pDocument->ToStr(temp_buf);
-			PPLogMessage(PPFILNAM_STYLOQSVC_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_UTF8);
-			PPLogMessage(PPFILNAM_STYLOQSVC_LOG, temp_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_UTF8);
+			PPLogMessage(PPFILNAM_STYLOQSVC_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_UTF8);
+			PPLogMessage(PPFILNAM_STYLOQSVC_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_UTF8);
 		}
 	ENDCATCH
 	delete p_cmd_doc_filt;
@@ -1582,7 +1582,7 @@ int PPStyloQInterchange::MakePrcJsList(const MakePrcJsListParam & rParam, SJson 
 								}
 							}
 							if(price > 0.0) {
-								p_js_ware->InsertDouble("price", price, MKSFMTD(0, 2, 0));
+								p_js_ware->InsertDouble("price", price, MKSFMTD_020);
 							}
 						}
 						p_js_goodslist->InsertChild(p_js_ware);

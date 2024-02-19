@@ -1,6 +1,6 @@
 // STYLOCONDUIT.H
 // Part of StyloConduit project
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2020, 2023
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2009, 2010, 2011, 2020, 2023, 2024
 //
 #ifndef __STYLOCONDUIT_H
 #define __STYLOCONDUIT_H
@@ -270,11 +270,11 @@ public:
 	virtual int PutHdrRec(void * pRec) { return -1; }
 	virtual int PutLineRec(void * pRec) { return -1; }
 
-	int    ExportIndex(PROGRESSFN pFn, const char * pDbName, SVector * pAry, CompFunc cf); // @v9.8.4 SArray-->SVector
+	int    ExportIndex(PROGRESSFN pFn, const char * pDbName, SVector * pAry, CompFunc cf);
 	int    InitTable(SyncTable *);
 protected:
 	SyncTable * OpenTable();
-	int    ExportIndexes(PROGRESSFN pFn, SVector * pAry); // @v9.8.4 SArray-->SVector
+	int    ExportIndexes(PROGRESSFN pFn, SVector * pAry);
 	//static const PalmConfig * P_HostCfg;
 	//static const PalmConfig * P_PalmCfg;
 	SpiiExchgContext * P_Ctx;

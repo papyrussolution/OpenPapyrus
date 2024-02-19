@@ -10,19 +10,20 @@
 #include "unicode/unum.h" // for UNumberFormatFields literals
 
 namespace {
-// A version of uprv_memcpy that checks for length 0.
-// By default, uprv_memcpy requires a length of at least 1.
-inline void uprv_memcpy2(void * dest, const void * src, size_t len) {
+// A version of memcpy that checks for length 0.
+// By default, memcpy requires a length of at least 1.
+inline void uprv_memcpy2(void * dest, const void * src, size_t len) 
+{
 	if(len > 0) {
-		uprv_memcpy(dest, src, len);
+		memcpy(dest, src, len);
 	}
 }
 
-// A version of uprv_memmove that checks for length 0.
-// By default, uprv_memmove requires a length of at least 1.
+// A version of memmove that checks for length 0.
+// By default, memmove requires a length of at least 1.
 inline void uprv_memmove2(void * dest, const void * src, size_t len) {
 	if(len > 0) {
-		uprv_memmove(dest, src, len);
+		memmove(dest, src, len);
 	}
 }
 } // namespace

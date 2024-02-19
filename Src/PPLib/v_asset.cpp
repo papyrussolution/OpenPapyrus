@@ -123,7 +123,6 @@ int PPViewAsset::MakeItem(PPID lotID, BExtInsert * pBei, int use_ta)
 	lot_rec = org_lot_rec;
 	start_cost = R5(lot_rec.Cost) * qtty;
 	THROW(GObj.Search(labs(lot_rec.GoodsID), &goods_rec) > 0);
-	// @v10.6.4 MEMSZERO(asset_rec);
 	asset_rec.GoodsID = goods_rec.ID;
 	asset_rec.LotID   = lot_rec.ID;
 	asset_rec.GrpID   = goods_rec.ParentID;
@@ -132,7 +131,7 @@ int PPViewAsset::MakeItem(PPID lotID, BExtInsert * pBei, int use_ta)
 	P_BObj->GetSerialNumberByLot(lot_rec.ID, temp_buf, 1);
 	temp_buf.CopyTo(asset_rec.Serial, sizeof(asset_rec.Serial));
 	if(goods_rec.WrOffGrpID && awog_obj.Search(goods_rec.WrOffGrpID, &awog_rec) > 0)
-		asset_rec.WrOffTerm = (int16)awog_rec.WrOffTerm;
+		asset_rec.WrOffTerm = static_cast<int16>(awog_rec.WrOffTerm);
 	{
 		DateIter iter;
 		PPID   lot_id = lot_rec.ID;

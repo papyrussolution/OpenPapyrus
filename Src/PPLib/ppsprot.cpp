@@ -475,7 +475,7 @@ int PPJobSrvClient::ExecSrvCmd(PPJobSrvCmd & rCmd, const char * pTerminal, PPJob
 	CATCH
 #ifdef _PAPYRUS 
 		if(do_log_error)
-			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 #endif
 		ok = 0;
 	ENDCATCH

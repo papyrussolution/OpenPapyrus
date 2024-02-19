@@ -1,5 +1,5 @@
 // V_SCARD.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -716,7 +716,6 @@ int PPViewSCard::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 			for(InitIteration(); NextIteration(&item) > 0;) {
 				SCardTbl::Rec sc_rec;
 				TempOrderTbl::Rec ord_rec;
-				// @v10.7.9 @ctr MEMSZERO(sc_rec);
 				sc_rec.ID       = item.ID;
 				sc_rec.PersonID = item.PersonID;
 				sc_rec.PDis     = item.PDis;
@@ -743,7 +742,6 @@ int PPViewSCard::MakeTempOrdEntry(long ord, const SCardTbl::Rec * pRec, TempOrde
 		const double large_val = 1e12;
 		const char * p_fmt = "%030.8lf";
 		TempOrderTbl::Rec ord_rec;
-		// @v10.7.9 @ctr MEMSZERO(ord_rec);
 		ord_rec.ID = pRec->ID;
 		if(ord == OrdByPerson) {
 			GetPersonName(pRec->PersonID, temp_buf);
@@ -1239,7 +1237,6 @@ int PPViewSCard::RenameDup(PPIDArray * pIdList)
 				PPID   dest_scard = dupl_ary.at(i).Val;
 				long   code_postfx;
 				SCardTbl::Rec rec;
-				// @v10.7.9 @ctr MEMSZERO(rec);
 				MEMSZERO(k1);
 				THROW(SCObj.Search(dupl_scard, &rec) > 0);
 				code = rec.Code;
@@ -1382,7 +1379,6 @@ int PPViewSCard::ChargeCredit()
 				double amount = 0.0;
 				UhttSCardPacket scp;
 				SCardOpTbl::Rec scop_rec;
-				// @v10.7.9 @ctr MEMSZERO(scop_rec);
 				scop_rec.SCardID = item.ID;
 				scop_rec.Dt = param.Dt;
 				getcurtime(&scop_rec.Tm);
@@ -1565,8 +1561,8 @@ int PPViewSCard::ReplaceCardInChecks(PPID destCardID)
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
-	SCardTbl::Rec dest_card_rec, src_card_rec;
-	// @v10.7.9 @ctr MEMSZERO(src_card_rec);
+	SCardTbl::Rec dest_card_rec;
+	SCardTbl::Rec src_card_rec;
 	THROW(SCObj.CheckRights(SCRDRT_BINDING));
 	if(SCObj.Search(destCardID, &dest_card_rec) > 0 && !SCObj.IsCreditSeries(dest_card_rec.SeriesID)) {
 		CCheckCore & r_cc = *SCObj.P_CcTbl;
@@ -2280,7 +2276,7 @@ int PPViewSCard::ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger *
 							if(pLog)
 								pLog->LogLastError();
 							else
-								PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_USER|LOGMSGF_TIME);
+								PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 						}
 						else {
 							dirty_list.add(temp_id);

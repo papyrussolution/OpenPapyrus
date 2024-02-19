@@ -1,5 +1,5 @@
 // V_GDSOPR.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1405,7 +1405,6 @@ int FASTCALL PPViewGoodsOpAnalyze::NextIteration(GoodsOpAnalyzeViewItem * pItem)
 				}
 				if(P_Ct == 0 && Filt.CmpPeriod.IsZero() == 0) {
 					TempGoodsOprTbl::Rec rec2;
-					// @v10.6.4 MEMSZERO(rec2);
 					P_CmpView->GetByID(rec.ID__, &rec2);
 					pItem->Qtty.SetCm(rec2.Quantity);
 					pItem->SumCost.SetCm(rec2.SumCost);
@@ -2303,7 +2302,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 										continue;
 								}
 								else {
-									PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+									PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 									continue;
 								}
 							}

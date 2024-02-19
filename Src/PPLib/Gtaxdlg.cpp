@@ -1,5 +1,5 @@
 // GTAXDLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -123,7 +123,6 @@ int GoodsTaxDialog::getDTS(PPGoodsTaxPacket * pData)
 		GTxObj.GetDefaultName(&Data.Rec, Data.Rec.Name, sizeof(Data.Rec.Name));
 	if(Data.Rec.ID == 0)
 		getCtrlData(CTL_GDSTAX_ID, &Data.Rec.ID);
-	// @v10.2.5 (ctr) MEMSZERO(entry);
 	if(getEntry(&entry)) {
 		Data.Rec.FromEntry(&entry);
 		GetClusterData(CTL_GDSTAX_FLAGS, &Data.Rec.Flags);
@@ -244,7 +243,6 @@ int GoodsTaxListDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	PPGoodsTaxEntry item;
-	// @v10.2.5 (ctr) MEMSZERO(item);
 	Data.Rec.ToEntry(&item);
 	item.Flags |= GTAXF_ENTRY;
 	item.Flags &= ~GTAXF_USELIST;

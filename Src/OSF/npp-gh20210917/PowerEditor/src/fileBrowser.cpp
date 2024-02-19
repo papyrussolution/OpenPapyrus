@@ -1372,7 +1372,7 @@ DWORD WINAPI FolderUpdater::watching(void * params)
 	HANDLE changeHandles[] = { thisFolderUpdater->_EventHandle, changes.GetWaitHandle() };
 	bool toBeContinued = true;
 	while(toBeContinued) {
-		DWORD waitStatus = ::WaitForMultipleObjects(_countof(changeHandles), changeHandles, FALSE, INFINITE);
+		DWORD waitStatus = ::WaitForMultipleObjects(SIZEOFARRAY(changeHandles), changeHandles, FALSE, INFINITE);
 		switch(waitStatus) {
 			case WAIT_OBJECT_0 + 0:
 			    // Mutex was signaled. User removes this folder or file browser is closed

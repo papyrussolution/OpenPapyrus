@@ -33,14 +33,10 @@ static int DumpModeEncode(TIFF * tif, uint8 * pp, tmsize_t cc, uint16 s)
 {
 	(void)s;
 	while(cc > 0) {
-		tmsize_t n;
-
-		n = cc;
+		tmsize_t n = cc;
 		if(tif->tif_rawcc + n > tif->tif_rawdatasize)
 			n = tif->tif_rawdatasize - tif->tif_rawcc;
-
 		assert(n > 0);
-
 		/*
 		 * Avoid copy if client has setup raw
 		 * data buffer to avoid extra copy.
@@ -51,8 +47,7 @@ static int DumpModeEncode(TIFF * tif, uint8 * pp, tmsize_t cc, uint16 s)
 		tif->tif_rawcc += n;
 		pp += n;
 		cc -= n;
-		if(tif->tif_rawcc >= tif->tif_rawdatasize &&
-		    !TIFFFlushData1(tif))
+		if(tif->tif_rawcc >= tif->tif_rawdatasize && !TIFFFlushData1(tif))
 			return 0;
 	}
 	return 1;

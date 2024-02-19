@@ -1,5 +1,5 @@
 // OBJBSKT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -349,7 +349,7 @@ int PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
 	int    skip_items = 0;
 	long   action = 0;
 	uint   i;
-	SVector items(sizeof(ObjAssocTbl::Rec)); // @v10.7.3 SArray-->SVector
+	SVector items(sizeof(ObjAssocTbl::Rec));
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -419,7 +419,7 @@ int PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
 			else {
 				long   last_num = 0;
 				PPGoodsBasketItem gbi;
-				SVector prev_items(sizeof(ObjAssocTbl::Rec)); // @v10.7.3 SArray-->SVector
+				SVector prev_items(sizeof(ObjAssocTbl::Rec));
 				LongArray found_pos_list;
 				for(SEnum en = P_Ref->Assc.Enum(PPASS_GOODSBASKET, *pID, 0); en.Next(&gbi) > 0;) {
 					THROW_SL(prev_items.insert(&gbi));
@@ -759,7 +759,6 @@ int PPObjGoodsBasket::SelectBasket(PPBasketCombine & rBasket)
 	THROW(r = Search(id));
 	if(r < 0) {
 		ReferenceTbl::Rec rec;
-		// @v10.6.8 @ctr MEMSZERO(rec);
 		rec.ObjType = Obj;
 		rec.ObjID   = id;
 		STRNSCPY(rec.ObjName, name);
@@ -1340,8 +1339,6 @@ public:
 	GBItemDialog(PPBasketCombine & rCart, PPID defLocID, long flags) :
 		TDialog(DLG_GBITEM), R_Cart(rCart), DefLocID(NZOR(defLocID, LConfig.Location)), Flags(flags)
 	{
-		//EnableChangeBasket = enableChgBasket;
-		// @v10.7.3 @ctr MEMSZERO(Item);
 		SetupCalDate(CTLCAL_GBITEM_EXPIRY, CTL_GBITEM_EXPIRY);
 	}
 	DECL_DIALOG_SETDTS()
@@ -2174,7 +2171,6 @@ int PPObjBill::ConvertBasket(const PPBasketPacket & rBasket, PPBillPacket * pPac
 	BillTbl::Rec link_rec;
 	LongArray all_rows, one_goods_rows;
 	Basket2BillParam param;
-	// @v10.8.0 @ctr MEMSZERO(param);
 	param.Flags |= Basket2BillParam::fSilentOnDeficit;
 	if(pPack->Rec.LinkBillID && Search(pPack->Rec.LinkBillID, &link_rec) > 0 && IsDraftOp(link_rec.OpID)) {
 		param.Flags |= Basket2BillParam::fLinkBillExists;

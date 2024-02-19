@@ -254,15 +254,12 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 	uint64 raw_value = 0ULL;
 	uint   bits = GetRawDataBits(ued);
 	assert(oneof4(bits, 56, 48, 32, 0));
-	if(bits == 32) {
+	if(bits == 32)
 		raw_value = LoDWord(ued);	
-	}
-	else if(bits == 48) {
+	else if(bits == 48)
 		raw_value = ued & 0x0000ffffffffffffULL;
-	}
-	else if(bits == 56) {
+	else if(bits == 56)
 		raw_value = ued & 0x0000ffffffffffffULL;
-	}
 	else
 		ok = false;
 	ASSIGN_PTR(pRawValue, raw_value);
@@ -292,15 +289,12 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 	THROW((64 - SBits::Clz(rawValue)) <= bits)
 	{
 		const uint32 meta_lodw = LoDWord(meta);
-		if(meta_lodw & 0x80000000) {
+		if(meta_lodw & 0x80000000)
 			result = (static_cast<uint64>(meta_lodw) << 32) | (rawValue & 0x00ffffffffffffffULL);
-		}
-		else if(meta_lodw & 0x40000000) {
+		else if(meta_lodw & 0x40000000)
 			result = (static_cast<uint64>(meta_lodw) << 32) | (rawValue & 0x0000ffffffffffffULL);
-		}
-		else {
+		else
 			result = (static_cast<uint64>(meta_lodw) << 32) | (rawValue & 0x00000000ffffffffULL);
-		}
 	}
 	CATCH
 		result = 0ULL;
@@ -358,10 +352,6 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 	bool ok = false;
 	return ok;
 }
-
-#if(_MSC_VER >= 1900) // {
-//
-//
 //
 // Descr: Кодирует real-число в диапазоне [0..upp] в целочисленное представление
 //   шириной bits бит, гранулярностью granulation.
@@ -444,6 +434,8 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 	}
 	return ok;
 }
+
+#if(_MSC_VER >= 1900) // {
 
 /*static*/uint64 UED::Helper_SetRaw_PlanarAngleDeg(uint64 meta, double deg)
 {
@@ -1152,10 +1144,7 @@ SrUedContainer_Base::PropertySet::PropertySet() : UedSetBase()
 {
 }
 
-uint SrUedContainer_Base::PropertySet::GetCount() const
-{
-	return PosIdx.getCount();
-}
+uint SrUedContainer_Base::PropertySet::GetCount() const { return PosIdx.getCount(); }
 		
 int SrUedContainer_Base::PropertySet::Add(const uint64 * pPropChunk, uint count, uint * pPos)
 {
@@ -1362,6 +1351,14 @@ int SrUedContainer_Base::PropertyListParsingBlock::Do(SrUedContainer_Base & rC, 
 					CALLEXCEPT();
 				}
 				break;
+			case stColonAfterPropIdent:
+				if(ScanArg(rC, rScan, true)) {
+					State = stPropValue;
+				}
+				else {
+					CALLEXCEPT();
+				}
+				break;
 			case stPropValue:
 				if(rScan.Is(';')) {
 					rScan.Incr();
@@ -1480,9 +1477,8 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, PPLogger
 						else
 							scan_ok = false;
 					}
-					else if(scan.Is('{')) {
+					else if(scan.Is('{'))
 						curly_bracket_left = true;
-					}
 					else
 						scan_ok = false;
 					if(scan_ok) {
@@ -1631,9 +1627,8 @@ int SrUedContainer_Base::ProcessProperties()
 				scan.Skip();
 				if(ssidx == 0) { // property
 					uint64 ued_prop = Recognize(scan, UED_META_PROP, 0);
-					if(ued_prop && ued_prop != UED_PREDEFVALUE_MAYBE) {
+					if(ued_prop && ued_prop != UED_PREDEFVALUE_MAYBE)
 						raw_prop_list.insert(&ued_prop);
-					}
 					else
 						local_fault = true;
 				}
@@ -1648,16 +1643,30 @@ int SrUedContainer_Base::ProcessProperties()
 							// real
 							SDecimal dcml(temp_buf);
 							ued = dcml.ToUed_(UED_META_DECIMAL);
+							if(ued) {
+								raw_prop_list.insert(&ued);
+							}
+							else
+								local_fault = true;
 						}
 					}
 					else if(scan.GetQuotedString(SFileFormat::Json, temp_buf)) {
-						
+						uint   sp = 0;
+						AddS(temp_buf, &sp);
+						ued = UED::ApplyMetaToRawValue(UED_META_STRINGREF, sp);
+						if(ued) {
+							raw_prop_list.insert(&ued);
+						}
+						else
+							local_fault = true;
 					}
 					else {
 						ued = Recognize(scan, 0, 0);
 						if(ued && ued != UED_PREDEFVALUE_MAYBE) {
-							//
+							raw_prop_list.insert(&ued);
 						}
+						else
+							local_fault = true;
 					}
 				}
 			}
@@ -1775,36 +1784,51 @@ int SrUedContainer_Base::WriteProps(const char * pFileName, const SBinaryChunk *
 					const PropIdxEntry * p_entry = prop_list.at(i);
 					assert(p_entry);
 					if(p_entry) {
-						line_buf.Z();
-						if(SearchBaseId(p_entry->Ued, temp_buf)) {
-							line_buf.Cat(temp_buf);
-						}
-						else {
-							line_buf.CatChar('%').CatHex(p_entry->Ued); // @todo @err
-						}
-						if(p_entry->LocaleId) {
-							uint64 ued_locus = UED::ApplyMetaToRawValue32(LinguaLocusMeta, p_entry->LocaleId);
-							if(SearchBaseId(ued_locus, temp_buf)) {
-								line_buf.Space().Cat(temp_buf);
-							}
-							else
-								line_buf.Space().CatChar('%').CatHex(ued_locus); // @todo @err
-						}
-						line_buf.Colon();
 						for(uint refidx = 0; refidx < p_entry->RefList.getCount(); refidx++) {
 							const LAssoc & r_ref = p_entry->RefList.at(refidx);
 							if(PropS.Get(r_ref.Key, r_ref.Val, local_prop_set)) {
+								line_buf.Z();
+								if(SearchBaseId(p_entry->Ued, temp_buf)) {
+									line_buf.Cat(temp_buf);
+								}
+								else {
+									line_buf.CatChar('%').CatHex(p_entry->Ued); // @todo @err
+								}
+								if(p_entry->LocaleId) {
+									uint64 ued_locus = UED::ApplyMetaToRawValue32(LinguaLocusMeta, p_entry->LocaleId);
+									if(SearchBaseId(ued_locus, temp_buf)) {
+										line_buf.Space().Cat(temp_buf);
+									}
+									else
+										line_buf.Space().CatChar('%').CatHex(ued_locus); // @todo @err
+								}
+								line_buf.Colon();
+								//
 								for(uint j = 0; j < local_prop_set.GetLimbCount(); j++) {
 									uint64 ued_prop = local_prop_set.Get(j);
 									if(SearchBaseId(ued_prop, temp_buf)) {
+										line_buf.Space().Cat(temp_buf);
+									}
+									else if(UED::BelongToMeta(ued_prop, UED_META_STRINGREF)) {
+										uint64 raw_value = 0;
+										if(UED::GetRawValue(ued_prop, &raw_value)) {
+											GetS((uint)raw_value, temp_buf);
+											line_buf.Space().CatQStr(temp_buf);
+										}
+									}
+									else if(UED::BelongToMeta(ued_prop, UED_META_DECIMAL)) {
+										uint bits = UED::GetRawDataBits(ued_prop);
+										SDecimal dcml;
+										dcml.FromUed(ued_prop, bits);
+										dcml.ToStr(0, temp_buf);
 										line_buf.Space().Cat(temp_buf);
 									}
 									else
 										line_buf.Space().CatChar('%').CatHex(ued_prop); // @todo @err
 								}
 							}
+							f_out.WriteLine(line_buf.CR());
 						}
-						f_out.WriteLine(line_buf.CR());
 					}
 				}
 			}

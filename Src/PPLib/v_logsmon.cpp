@@ -1,5 +1,5 @@
 // V_LOGSMON.CPP
-// A. Kurilov 2008, 2009, 2015, 2016, 2018, 2019, 2020, 2023
+// A. Kurilov 2008, 2009, 2015, 2016, 2018, 2019, 2020, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -57,7 +57,6 @@ void LoadAllLogs(LogsArray *pLogsBuff)
 		for(uint i = 0; ss.get(&i, buff);) {
 			uint j = 0;
 			LogFileEntry e;
-			// @v10.7.8 @ctr MEMSZERO(e);
 			StringSet ss1(',', buff);
 			ss1.get(&j, buff.Z());
 			e.ID = buff.ToLong();

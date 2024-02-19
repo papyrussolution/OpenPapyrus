@@ -322,10 +322,10 @@ char *Curl_copy_header_value(const char * header)
 	/* get length of the type */
 	len = end - start + 1;
 	value = (char *)SAlloc::M(len + 1);
-	if(!value)
-		return NULL;
-	memcpy(value, start, len);
-	value[len] = 0; /* null-terminate */
+	if(value) {
+		memcpy(value, start, len);
+		value[len] = 0; /* null-terminate */
+	}
 	return value;
 }
 

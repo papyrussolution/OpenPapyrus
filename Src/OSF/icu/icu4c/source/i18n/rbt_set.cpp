@@ -177,7 +177,7 @@ TransliterationRuleSet::TransliterationRuleSet(const TransliterationRuleSet& oth
 	rules(0),
 	maxContextLength(other.maxContextLength) {
 	int32_t i, len;
-	uprv_memcpy(index, other.index, sizeof(index));
+	memcpy(index, other.index, sizeof(index));
 	UErrorCode status = U_ZERO_ERROR;
 	ruleVector = new UVector(&_deleteRule, NULL, status);
 	if(other.ruleVector != 0 && ruleVector != 0 && U_SUCCESS(status)) {

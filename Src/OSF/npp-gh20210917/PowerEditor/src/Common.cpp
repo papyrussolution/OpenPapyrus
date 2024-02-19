@@ -112,8 +112,8 @@ generic_string folderBrowser(HWND parent, const generic_string & title, int outp
 	// Get an initial directory from the edit control or from argument provided
 	TCHAR directory[MAX_PATH] = {};
 	if(outputCtrlID != 0)
-		::GetDlgItemText(parent, outputCtrlID, directory, _countof(directory));
-	directory[_countof(directory) - 1] = '\0';
+		::GetDlgItemText(parent, outputCtrlID, directory, SIZEOFARRAY(directory));
+	directory[SIZEOFARRAY(directory) - 1] = '\0';
 	if(!directory[0] && defaultStr)
 		dlg.setFolder(defaultStr);
 	else if(directory[0])

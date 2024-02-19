@@ -606,7 +606,7 @@ LRESULT DockingCont::runProcTab(HWND hwnd, UINT Message, WPARAM wParam, LPARAM l
 						    {dis.rcItem.left - 1, dis.rcItem.top},
 						    {dis.rcItem.left - 1, dis.rcItem.bottom}
 					    };
-					    Polyline(hdc, edges, _countof(edges));
+					    Polyline(hdc, edges, SIZEOFARRAY(edges));
 				    }
 
 				    {
@@ -614,7 +614,7 @@ LRESULT DockingCont::runProcTab(HWND hwnd, UINT Message, WPARAM wParam, LPARAM l
 						    {dis.rcItem.right, dis.rcItem.top},
 						    {dis.rcItem.right, dis.rcItem.bottom}
 					    };
-					    Polyline(hdc, edges, _countof(edges));
+					    Polyline(hdc, edges, SIZEOFARRAY(edges));
 				    }
 
 				    HRGN hClip = CreateRectRgnIndirect(&dis.rcItem);

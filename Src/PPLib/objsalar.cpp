@@ -1448,7 +1448,6 @@ int StaffCalDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	StaffCalendarTbl::Rec rec;
-	// @v10.9.3 @ctr MEMSZERO(rec);
 	rec.CalID = Data.Rec.ID;
 	while(StcObj.EditEntry(&Data, &rec) > 0) {
 		uint   new_pos = 0;
@@ -1467,11 +1466,9 @@ int StaffCalDialog::addItem(long * pPos, long * pID)
 int StaffCalDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
-	if(pos >= 0 && pos < (long)Data.GetList().getCount()) {
-		StaffCalendarTbl::Rec rec, sav_rec;
-		// @v10.9.3 @ctr MEMSZERO(rec);
-		rec = Data.GetList().at(pos);
-		sav_rec = rec;
+	if(pos >= 0 && pos < Data.GetList().getCountI()) {
+		StaffCalendarTbl::Rec rec = Data.GetList().at(pos);
+		const StaffCalendarTbl::Rec sav_rec = rec;
 		if(StcObj.EditEntry(&Data, &rec) > 0) {
 			uint   new_pos = 0;
 			Data.RemoveItem(pos);
@@ -1681,7 +1678,6 @@ int PPObjStaffCal::SetEntriesByDutySched(PPID baseCalID, PPDutySchedPacket * pDs
 				CALDATE cdt;
 				LTIME   tm;
 				THROW(CreateChild(&cal_id, baseCalID, PPObjID(PPOBJ_PERSON, ep.ObjID), 0) > 0);
-				// @v10.8.12 @ctr MEMSZERO(entry);
 				entry.CalID  = cal_id;
 				entry.ObjID  = pDsPack->Rec.ID;
 				entry.Flags |= STCALEF_BYDUTYSCHED;

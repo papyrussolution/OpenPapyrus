@@ -1927,7 +1927,9 @@ size_t ZSTD_decompressStream(ZSTD_DStream* zds, ZSTD_outBuffer* output, ZSTD_inB
 						return (MAX((size_t)ZSTD_FRAMEHEADERSIZE_MIN(zds->format), hSize) - zds->lhSize) + ZSTD_blockHeaderSize; // remaining header bytes + next block header
 					}
 					assert(ip != NULL);
-					memcpy(zds->headerBuffer + zds->lhSize, ip, toLoad); zds->lhSize = hSize; ip += toLoad;
+					memcpy(zds->headerBuffer + zds->lhSize, ip, toLoad); 
+					zds->lhSize = hSize; 
+					ip += toLoad;
 					break;
 				}
 			    }

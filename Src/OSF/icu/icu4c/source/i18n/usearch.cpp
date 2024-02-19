@@ -190,7 +190,7 @@ inline int32_t * addTouint32_tArray(int32_t * destination,
 		if(U_FAILURE(*status)) {
 			return nullptr;
 		}
-		uprv_memcpy(temp, destination, sizeof(int32_t) * (size_t)offset);
+		memcpy(temp, destination, sizeof(int32_t) * (size_t)offset);
 		*destinationlength = newlength;
 		destination        = temp;
 	}
@@ -223,7 +223,7 @@ static inline int64_t * addTouint64_tArray(int64_t    * destination, uint32_t of
 		if(U_FAILURE(*status)) {
 			return nullptr;
 		}
-		uprv_memcpy(temp, destination, sizeof(int64_t) * (size_t)offset);
+		memcpy(temp, destination, sizeof(int64_t) * (size_t)offset);
 		*destinationlength = newlength;
 		destination        = temp;
 	}
@@ -813,11 +813,9 @@ U_CAPI int32_t U_EXPORT2 usearch_getMatchedText(const UStringSearch * strsrch,
 		copylength = resultCapacity;
 	}
 	if(copylength > 0) {
-		uprv_memcpy(result, strsrch->search->text + copyindex,
-		    copylength * sizeof(char16_t));
+		memcpy(result, strsrch->search->text + copyindex, copylength * sizeof(char16_t));
 	}
-	return u_terminateUChars(result, resultCapacity,
-		   strsrch->search->matchedLength, status);
+	return u_terminateUChars(result, resultCapacity, strsrch->search->matchedLength, status);
 }
 
 U_CAPI int32_t U_EXPORT2 usearch_getMatchedLength(const UStringSearch * strsrch)
@@ -1366,7 +1364,8 @@ CEIBuffer::CEIBuffer(UStringSearch * ss, UErrorCode * status) {
 // TODO: add a reset or init function so that allocated
 //       buffers can be retained & reused.
 
-CEIBuffer::~CEIBuffer() {
+CEIBuffer::~CEIBuffer() 
+{
 	if(buf != defBuf) {
 		uprv_free(buf);
 	}
@@ -1378,15 +1377,14 @@ CEIBuffer::~CEIBuffer() {
 //   where n is the largest index to have been fetched by some previous call to this function.
 //   The CE value will be UCOL__PROCESSED_NULLORDER at end of input.
 //
-const CEI * CEIBuffer::get(int32_t index) {
+const CEI * CEIBuffer::get(int32_t index) 
+{
 	int i = index % bufSize;
-
 	if(index>=firstIx && index<limitIx) {
 		// The request was for an entry already in our buffer.
 		//  Just return it.
 		return &buf[i];
 	}
-
 	// Caller is requesting a new, never accessed before, CE.
 	//   Verify that it is the next one in sequence, which is all
 	//   that is allowed.
@@ -1399,19 +1397,14 @@ const CEI * CEIBuffer::get(int32_t index) {
 		// ICU-20792 tracks the follow-up work/further investigation on this.
 		return nullptr;
 	}
-
 	// Manage the circular CE buffer indexing
 	limitIx++;
-
 	if(limitIx - firstIx >= bufSize) {
 		// The buffer is full, knock out the lowest-indexed entry.
 		firstIx++;
 	}
-
 	UErrorCode status = U_ZERO_ERROR;
-
 	buf[i].ce = strSearch->textProcessedIter->nextProcessed(&buf[i].lowIndex, &buf[i].highIndex, &status);
-
 	return &buf[i];
 }
 
@@ -1421,15 +1414,14 @@ const CEI * CEIBuffer::get(int32_t index) {
 //   where n is the largest index to have been fetched by some previous call to this function.
 //   The CE value will be UCOL__PROCESSED_NULLORDER at end of input.
 //
-const CEI * CEIBuffer::getPrevious(int32_t index) {
+const CEI * CEIBuffer::getPrevious(int32_t index) 
+{
 	int i = index % bufSize;
-
 	if(index>=firstIx && index<limitIx) {
 		// The request was for an entry already in our buffer.
 		//  Just return it.
 		return &buf[i];
 	}
-
 	// Caller is requesting a new, never accessed before, CE.
 	//   Verify that it is the next one in sequence, which is all
 	//   that is allowed.
@@ -1442,10 +1434,8 @@ const CEI * CEIBuffer::getPrevious(int32_t index) {
 		// ICU-20792 tracks the follow-up work/further investigation on this.
 		return nullptr;
 	}
-
 	// Manage the circular CE buffer indexing
 	limitIx++;
-
 	if(limitIx - firstIx >= bufSize) {
 		// The buffer is full, knock out the lowest-indexed entry.
 		firstIx++;
@@ -1464,32 +1454,28 @@ U_NAMESPACE_END
  * has an external break iterator, use that. Otherwise use the internal character
  * break iterator.
  */
-static int32_t nextBoundaryAfter(UStringSearch * strsrch, int32_t startIndex, UErrorCode & status) {
+static int32_t nextBoundaryAfter(UStringSearch * strsrch, int32_t startIndex, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return startIndex;
 	}
 #if 0
 	const char16_t * text = strsrch->search->text;
 	int32_t textLen   = strsrch->search->textLength;
-
 	U_ASSERT(startIndex>=0);
 	U_ASSERT(startIndex<=textLen);
-
 	if(startIndex >= textLen) {
 		return startIndex;
 	}
-
 	UChar32 c;
 	int32_t i = startIndex;
 	U16_NEXT(text, i, textLen, c);
-
 	// If we are on a control character, stop without looking for combining marks.
 	//    Control characters do not combine.
 	int32_t gcProperty = u_getIntPropertyValue(c, UCHAR_GRAPHEME_CLUSTER_BREAK);
 	if(gcProperty==U_GCB_CONTROL || gcProperty==U_GCB_LF || gcProperty==U_GCB_CR) {
 		return i;
 	}
-
 	// The initial character was not a control, and can thus accept trailing
 	//   combining characters.  Advance over however many of them there are.
 	int32_t indexOfLastCharChecked;
@@ -1523,21 +1509,19 @@ static int32_t nextBoundaryAfter(UStringSearch * strsrch, int32_t startIndex, UE
  * has an external break iterator, test using that, otherwise test
  * using the internal character break iterator.
  */
-static bool isBreakBoundary(UStringSearch * strsrch, int32_t index, UErrorCode & status) {
+static bool isBreakBoundary(UStringSearch * strsrch, int32_t index, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return TRUE;
 	}
 #if 0
 	const char16_t * text = strsrch->search->text;
 	int32_t textLen   = strsrch->search->textLength;
-
 	U_ASSERT(index>=0);
 	U_ASSERT(index<=textLen);
-
 	if(index>=textLen || index<=0) {
 		return TRUE;
 	}
-
 	// If the character at the current index is not a GRAPHEME_EXTEND
 	//    then we can not be within a combining sequence.
 	UChar32 c;
@@ -1546,7 +1530,6 @@ static bool isBreakBoundary(UStringSearch * strsrch, int32_t index, UErrorCode &
 	if(gcProperty != U_GCB_EXTEND && gcProperty != U_GCB_SPACING_MARK) {
 		return TRUE;
 	}
-
 	// We are at a combining mark.  If the preceding character is anything
 	//   except a CONTROL, CR or LF, we are in a combining sequence.
 	U16_PREV(text, 0, index, c);
@@ -1572,7 +1555,6 @@ static bool onBreakBoundaries(const UStringSearch * strsrch, int32_t start, int3
 	if(U_FAILURE(status)) {
 		return TRUE;
 	}
-
 #if !UCONFIG_NO_BREAK_ITERATION
 	UBreakIterator * breakiterator = getBreakIterator(strsrch, status);
 	if(U_SUCCESS(status)) {
@@ -1584,12 +1566,9 @@ static bool onBreakBoundaries(const UStringSearch * strsrch, int32_t start, int3
 		    end < startindex || end > endindex) {
 			return FALSE;
 		}
-
-		return ubrk_isBoundary(breakiterator, start) &&
-		       ubrk_isBoundary(breakiterator, end);
+		return ubrk_isBoundary(breakiterator, start) && ubrk_isBoundary(breakiterator, end);
 	}
 #endif
-
 	return TRUE;
 }
 

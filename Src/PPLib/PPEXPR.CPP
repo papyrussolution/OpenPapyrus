@@ -1,5 +1,5 @@
 // PPEXPR.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 // @Kernel
 // Трансляция формул
@@ -1257,7 +1257,6 @@ int GoodsContext::ResolveRefQtty(PPID goodsID, int cbItemRef, int isPhQtty, doub
 		else if(P.TSessID) {
 			SETIFZ(P_TSesObj, new PPObjTSession);
 			TSessGoodsTotal tsgt;
-			// @v10.8.12 @ctr MEMSZERO(tsgt);
 			THROW(P_TSesObj->P_Tbl->CalcGoodsTotal(P.TSessID, goodsID, &tsgt));
 			v = isPhQtty ? tsgt.PhQtty : tsgt.Qtty;
 		}

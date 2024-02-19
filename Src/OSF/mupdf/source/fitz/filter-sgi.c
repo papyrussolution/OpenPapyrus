@@ -409,10 +409,8 @@ static int next_sgilog24(fz_context * ctx, fz_stream * stm, size_t max)
 	stm->rp = state->temp;
 	stm->wp = p;
 	stm->pos += p - stm->rp;
-
 	if(p == stm->rp)
 		return EOF;
-
 	return *stm->rp++;
 }
 
@@ -469,12 +467,10 @@ static inline void sgilog32val(fz_context * ctx, uint32_t p, uint8 * rgb)
 		s = 6*u - 16*v + 12;
 		x = 9 * u;
 		y = 4 * v;
-
 		/* convert to XYZ */
 		X = x/y * Y;
 		Z = (s-x-y)/y * Y;
 	}
-
 	/* assume CCIR-709 primaries */
 	r =  2.690f*X + -1.276f*Y + -0.414f*Z;
 	g = -1.022f*X +  1.978f*Y +  0.044f*Z;

@@ -1008,8 +1008,7 @@ tag_started:
 				    if(value == NULL) {
 					    return NGX_ERROR;
 				    }
-				    memcpy(value, ctx->param->value.data,
-				    ctx->param->value.len);
+				    memcpy(value, ctx->param->value.data, ctx->param->value.len);
 				    ctx->value_buf = ctx->param->value.data;
 				    ctx->param->value.data = value;
 			    }

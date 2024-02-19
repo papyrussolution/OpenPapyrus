@@ -792,8 +792,6 @@ private:
 		if(RObj.CheckRights(PPR_INS)) {
 			PPBankAccount ba_rec;
 			PersonTbl::Rec psn_rec;
-			// @v10.9.9 @ctr MEMSZERO(ba_rec);
-			// @v10.9.9 @ctr MEMSZERO(psn_rec);
 			ba_rec.AccType = PPBAC_CURRENT;
 			while(ok < 0 && RObj.EditBankAccount(&ba_rec, 0) > 0) {
 				if(P_Data->CheckDuplicateBankAccount(&ba_rec, -1)) {
@@ -1163,7 +1161,6 @@ int PPObjRegister::Fetch(PPID id, RegisterTbl::Rec * pRec)
 struct DlPersonRegisterBlock {
 	DlPersonRegisterBlock()
 	{
-		// @v10.6.4 MEMSZERO(Rec);
 	}
 	PPObjRegister RegObj;
     RegisterTbl::Rec Rec;

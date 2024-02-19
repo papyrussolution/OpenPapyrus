@@ -222,7 +222,7 @@ static void EmptyEnumerationTest()
 {
 	UErrorCode status = U_ZERO_ERROR;
 	UEnumeration * emptyEnum = (UEnumeration *)uprv_malloc(sizeof(UEnumeration));
-	uprv_memcpy(emptyEnum, &emptyEnumerator, sizeof(UEnumeration));
+	memcpy(emptyEnum, &emptyEnumerator, sizeof(UEnumeration));
 	if(uenum_count(emptyEnum, &status) != -1 || status != U_UNSUPPORTED_ERROR) {
 		log_err("uenum_count failed\n");
 	}
@@ -255,7 +255,7 @@ static void EmptyEnumerationTest()
 		log_err("uenum_reset(NULL) failed\n");
 	}
 	emptyEnum = (UEnumeration *)uprv_malloc(sizeof(UEnumeration));
-	uprv_memcpy(emptyEnum, &emptyPartialEnumerator, sizeof(UEnumeration));
+	memcpy(emptyEnum, &emptyPartialEnumerator, sizeof(UEnumeration));
 	status = U_ZERO_ERROR;
 	if(uenum_unext(emptyEnum, NULL, &status) != NULL || status != U_UNSUPPORTED_ERROR) {
 		log_err("partial uenum_unext failed\n");

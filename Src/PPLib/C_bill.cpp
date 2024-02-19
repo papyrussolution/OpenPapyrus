@@ -1,5 +1,5 @@
 // C_BILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 // @codepage UTF-8
 // Корректировка документов
 //
@@ -569,7 +569,6 @@ int PrcssrAbsentBill::Repair(const AbsentEntry * pEntry)
 			PPTransaction tra(1);
 			THROW(tra);
 			THROW(temp_pack.CreateBlank(rabd.OpID, 0, rabd.LocID, 0));
-			// @v10.6.4 MEMSZERO(bill_rec);
 			bill_rec.ID = rabd.BillID;
 			bill_rec.Dt = rabd.Dt;
 			bill_rec.LocID = NZOR(rabd.LocID, LConfig.Location);

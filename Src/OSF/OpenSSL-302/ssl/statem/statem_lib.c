@@ -187,19 +187,14 @@ int tls_setup_handshake(SSL * s)
 		if(SSL_IS_FIRST_HANDSHAKE(s))
 			ssl_tsan_counter(s->session_ctx, &s->session_ctx->stats.sess_connect);
 		else
-			ssl_tsan_counter(s->session_ctx,
-			    &s->session_ctx->stats.sess_connect_renegotiate);
-
+			ssl_tsan_counter(s->session_ctx, &s->session_ctx->stats.sess_connect_renegotiate);
 		/* mark client_random uninitialized */
-		memset(s->s3.client_random, 0, sizeof(s->s3.client_random));
+		memzero(s->s3.client_random, sizeof(s->s3.client_random));
 		s->hit = 0;
-
 		s->s3.tmp.cert_req = 0;
-
 		if(SSL_IS_DTLS(s))
 			s->statem.use_timer = 1;
 	}
-
 	return 1;
 }
 
@@ -210,8 +205,7 @@ int tls_setup_handshake(SSL * s)
 #define TLS13_TBS_START_SIZE            64
 #define TLS13_TBS_PREAMBLE_SIZE         (TLS13_TBS_START_SIZE + 33 + 1)
 
-static int get_cert_verify_tbs_data(SSL * s, uchar * tls13tbs,
-    void ** hdata, size_t * hdatalen)
+static int get_cert_verify_tbs_data(SSL * s, uchar * tls13tbs, void ** hdata, size_t * hdatalen)
 {
 #ifdef CHARSET_EBCDIC
 	static const char servercontext[] = { 0x54, 0x4c, 0x53, 0x20, 0x31, 0x2e,
@@ -228,12 +222,10 @@ static int get_cert_verify_tbs_data(SSL * s, uchar * tls13tbs,
 #endif
 	if(SSL_IS_TLS13(s)) {
 		size_t hashlen;
-
 		/* Set the first 64 bytes of to-be-signed data to octet 32 */
 		memset(tls13tbs, 32, TLS13_TBS_START_SIZE);
 		/* This copies the 33 bytes of context plus the 0 separator byte */
-		if(s->statem.hand_state == TLS_ST_CR_CERT_VRFY
-		    || s->statem.hand_state == TLS_ST_SW_CERT_VRFY)
+		if(s->statem.hand_state == TLS_ST_CR_CERT_VRFY || s->statem.hand_state == TLS_ST_SW_CERT_VRFY)
 			strcpy((char*)tls13tbs + TLS13_TBS_START_SIZE, servercontext);
 		else
 			strcpy((char*)tls13tbs + TLS13_TBS_START_SIZE, clientcontext);
@@ -243,14 +235,11 @@ static int get_cert_verify_tbs_data(SSL * s, uchar * tls13tbs,
 		 * hash value. We can't use the current handshake hash state because
 		 * that includes the CertVerify itself.
 		 */
-		if(s->statem.hand_state == TLS_ST_CR_CERT_VRFY
-		    || s->statem.hand_state == TLS_ST_SR_CERT_VRFY) {
-			memcpy(tls13tbs + TLS13_TBS_PREAMBLE_SIZE, s->cert_verify_hash,
-			    s->cert_verify_hash_len);
+		if(s->statem.hand_state == TLS_ST_CR_CERT_VRFY || s->statem.hand_state == TLS_ST_SR_CERT_VRFY) {
+			memcpy(tls13tbs + TLS13_TBS_PREAMBLE_SIZE, s->cert_verify_hash, s->cert_verify_hash_len);
 			hashlen = s->cert_verify_hash_len;
 		}
-		else if(!ssl_handshake_hash(s, tls13tbs + TLS13_TBS_PREAMBLE_SIZE,
-		    EVP_MAX_MD_SIZE, &hashlen)) {
+		else if(!ssl_handshake_hash(s, tls13tbs + TLS13_TBS_PREAMBLE_SIZE, EVP_MAX_MD_SIZE, &hashlen)) {
 			/* SSLfatal() already called */
 			return 0;
 		}

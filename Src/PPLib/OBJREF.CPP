@@ -472,7 +472,6 @@ int PPObjReference::Edit(PPID * pID, void * extraPtr)
 	int    is_new = 0;
 	ReferenceTbl::Rec rec;
 	THROW(EditPrereq(pID, 0, &is_new));
-	// @v10.6.8 @ctr MEMSZERO(rec);
 	if(!is_new) {
 		THROW(P_Ref->GetItem(Obj, *pID, &rec) > 0);
 	}
@@ -683,7 +682,6 @@ int PPObjReference::ProcessReservedItem(TVRez & rez)
 	THROW(r = Search(id));
 	if(r < 0) {
 		ReferenceTbl::Rec rec;
-		// @v10.6.8 @ctr MEMSZERO(rec);
 		rec.ObjType = Obj;
 		rec.ObjID   = id;
 		STRNSCPY(rec.ObjName, name);
@@ -903,7 +901,6 @@ int PPObjUnit::AddSimple(PPID * pID, const char * pName, long flags, int use_ta)
 			ok = 1;
 		else {
 			PPUnit unit_rec;
-			// @v10.6.8 @ctr MEMSZERO(unit_rec);
 			STRNSCPY(unit_rec.Name, pName);
 			if(flags)
 				unit_rec.Flags = flags;
@@ -1068,7 +1065,6 @@ int PPObjUnit::Edit(PPID * pID, void * extraPtr)
 		THROW(Search(*pID, &unit) > 0);
 	}
 	else {
-		// @v10.6.8 @ctr MEMSZERO(unit);
 		const long _extra = reinterpret_cast<long>(ExtraPtr);
 		unit.Flags |= (_extra ? (_extra & 0x0000ffffL) : PPUnit::Trade);
 	}
@@ -1131,7 +1127,6 @@ int PPObjUnit::ProcessReservedItem(TVRez & rez)
 	THROW(r = Search(id));
 	if(r < 0) {
 		PPUnit rec;
-		// @v10.6.8 @ctr MEMSZERO(rec);
 		rec.ID = id;
 		STRNSCPY(rec.Name, name);
 		STRNSCPY(rec.Abbr, abbr);
@@ -1609,7 +1604,6 @@ int PPObjFormula::Put(PPID * pID, const char * pName, const char * pExpr, int us
 	else {
 		PPID   tmpid = 0;
 		THROW_PP(SearchByName(pName, &tmpid) < 0, PPERR_DUPFORMSYMB);
-		// @v10.6.8 @ctr MEMSZERO(rec);
 	}
    	STRNSCPY(rec.ObjName, pName);
    	{
@@ -1875,7 +1869,6 @@ int PPObjDynamicObjs::Edit(PPID * pID, void * extraPtr)
 	if(!is_new) {
 		THROW(P_Ref->GetItem(Obj, *pID, &rec));
 	}
-	// @v10.6.8 @ctr else { MEMSZERO(rec); }
 	{
 		PPCommObjEntry param(Obj, rec.ObjID, rec.ObjName, rec.Symb, rec.Val1);
 		THROW(ok = PPObjReference::EditCommObjItem(&param));
@@ -2015,7 +2008,6 @@ PPGlobalUserAcc::PPGlobalUserAcc()
 
 PPGlobalUserAccPacket::PPGlobalUserAccPacket()
 {
-	// @v10.6.5 @ctr MEMSZERO(Rec);
 }
 
 PPGlobalUserAccPacket & PPGlobalUserAccPacket::Z()
@@ -2849,7 +2841,6 @@ int PPObjSysAction::Search(PPID id, void * pRec)
 		NameBuf = temp_buf;
 		if(pRec) {
 			ReferenceTbl::Rec rec;
-			// @v10.6.8 @ctr MEMSZERO(rec);
 			rec.ObjType = Obj;
 			rec.ObjID = id;
 			temp_buf.CopyTo(rec.ObjName, sizeof(rec.ObjName));
@@ -2909,7 +2900,6 @@ int PPObjGtaAction::Search(PPID id, void * pRec)
 		NameBuf = temp_buf;
 		if(pRec) {
 			ReferenceTbl::Rec rec;
-			// @v10.6.8 @ctr MEMSZERO(rec);
 			rec.ObjType = Obj;
 			rec.ObjID = id;
 			temp_buf.CopyTo(rec.ObjName, sizeof(rec.ObjName));
@@ -4224,7 +4214,6 @@ int PPObjTaxSystemKind::ProcessReservedItem(TVRez & rRez)
 	THROW(r = Search(id));
 	if(r < 0) {
 		ReferenceTbl::Rec rec;
-		// @v10.6.8 @ctr MEMSZERO(rec);
 		rec.ObjType = Obj;
 		rec.ObjID   = id;
 		STRNSCPY(rec.ObjName, name);

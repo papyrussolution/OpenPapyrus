@@ -50,7 +50,7 @@ bool U_CALLCONV LoadedNormalizer2Impl::isAcceptable(void * /*context*/,
 		pInfo->formatVersion[0]==4
 		) {
 		// Normalizer2Impl *me=(Normalizer2Impl *)context;
-		// uprv_memcpy(me->dataVersion, pInfo->dataVersion, 4);
+		// memcpy(me->dataVersion, pInfo->dataVersion, 4);
 		return TRUE;
 	}
 	else {
@@ -297,7 +297,7 @@ const Normalizer2 * Normalizer2::getInstance(const char * packageName,
 						errorCode = U_MEMORY_ALLOCATION_ERROR;
 						return NULL;
 					}
-					uprv_memcpy(nameCopy, name, keyLength);
+					memcpy(nameCopy, name, keyLength);
 					allModes = localAllModes.getAlias();
 					uhash_put(cache, nameCopy, localAllModes.orphan(), &errorCode);
 				}

@@ -84,7 +84,7 @@ static char16_t * copySpec(const char16_t * spec) {
 	char16_t * result = (char16_t *)uprv_malloc(len*sizeof(char16_t));
 	// Check for memory allocation error.
 	if(result) {
-		uprv_memcpy(result, spec, (size_t)len*sizeof(result[0]));
+		memcpy(result, spec, (size_t)len*sizeof(result[0]));
 	}
 	return result;
 }

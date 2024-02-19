@@ -185,7 +185,7 @@ U_CAPI int32_t U_EXPORT2 udict_swap(const UDataSwapper * ds, const void * inData
 			return 0;
 		}
 		if(inBytes != outBytes) {
-			uprv_memcpy(outBytes, inBytes, size);
+			memcpy(outBytes, inBytes, size);
 		}
 		offset = 0;
 		ds->swapArray32(ds, inBytes, sizeof(indexes), outBytes, pErrorCode);

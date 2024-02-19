@@ -47,8 +47,7 @@ namespace CFF {
 
 		uint get_size(uint num_glyphs) const
 		{
-			switch(format)
-			{
+			switch(format) {
 				case 0: return format.static_size + u.format0.get_size(num_glyphs);
 				case 3: return format.static_size + u.format3.get_size();
 				case 4: return format.static_size + u.format4.get_size();

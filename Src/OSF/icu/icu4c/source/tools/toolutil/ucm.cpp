@@ -281,7 +281,7 @@ U_CAPI void U_EXPORT2 ucm_moveMappings(UCMTable * base, UCMTable * ext) {
 
 			/* remove this mapping: move the last base mapping down and overwrite the current one */
 			if(mb<(mbLimit-1)) {
-				uprv_memcpy(mb, mbLimit-1, sizeof(UCMapping));
+				memcpy(mb, mbLimit-1, sizeof(UCMapping));
 			}
 			--mbLimit;
 			--base->mappingsLength;
@@ -790,7 +790,7 @@ U_CAPI bool U_EXPORT2 ucm_parseMappingLine(UCMapping * m,
 		return FALSE;
 	}
 	else if(bLen<=4) {
-		uprv_memcpy(m->b.bytes, bytes, bLen);
+		memcpy(m->b.bytes, bytes, bLen);
 	}
 
 	/* skip everything until the fallback indicator, even the start of a comment */
@@ -905,7 +905,7 @@ U_CAPI void U_EXPORT2 ucm_addMapping(UCMTable * table, UCMapping * m, UChar32 co
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 
-		uprv_memcpy(table->codePoints+idx, codePoints, (size_t)m->uLen*4);
+		memcpy(table->codePoints+idx, codePoints, (size_t)m->uLen*4);
 		m->u = idx;
 	}
 
@@ -917,7 +917,7 @@ U_CAPI void U_EXPORT2 ucm_addMapping(UCMTable * table, UCMapping * m, UChar32 co
 			exit(U_MEMORY_ALLOCATION_ERROR);
 		}
 
-		uprv_memcpy(table->bytes+idx, bytes, m->bLen);
+		memcpy(table->bytes+idx, bytes, m->bLen);
 		m->b.idx = idx;
 	}
 
@@ -940,7 +940,7 @@ U_CAPI void U_EXPORT2 ucm_addMapping(UCMTable * table, UCMapping * m, UChar32 co
 		table->flagsType |= UCM_FLAGS_EXPLICIT;
 	}
 	tm = table->mappings+table->mappingsLength++;
-	uprv_memcpy(tm, m, sizeof(UCMapping));
+	memcpy(tm, m, sizeof(UCMapping));
 	table->isSorted = FALSE;
 }
 

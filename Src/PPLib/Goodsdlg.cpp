@@ -1,5 +1,5 @@
 // GOODSDLG.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Диалог редактирования товара
 //
@@ -686,7 +686,6 @@ int BarcodeListDialog::addItem(long * pPos, long *)
 {
 	int    ok = -1;
 	BarcodeTbl::Rec rec;
-	// @v10.7.7 @ctr MEMSZERO(rec);
 	rec.GoodsID = GoodsID;
 	rec.Qtty = 1.0;
 	if(_EditBarcodeItem(&rec, GoodsGrpID) > 0) {
@@ -895,7 +894,6 @@ int ArGoodsCodeListDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	ArGoodsCodeTbl::Rec item;
-	// @v10.6.8 @ctr MEMSZERO(item);
 	item.GoodsID = GoodsID;
 	item.ArID = DefArID;
 	item.Pack = 1000;
@@ -967,7 +965,6 @@ int PPObjGoods::EditArCode(PPID goodsID, PPID arID, int ownCode)
 				code_rec = code_list.at(pos);
 			}
 			else {
-				// @v10.6.8 @ctr MEMSZERO(code_rec);
 				code_rec.GoodsID = goodsID;
 				code_rec.ArID = arID;
 				code_rec.Pack = 1000;
@@ -1347,10 +1344,10 @@ void GoodsDialog::SetupAddedInfo()
 							pr = 1;
 						(title_buf = "price restriction").CatDiv(':', 2);
 						if(range.low > 0.0)
-							title_buf.Cat(range.low, MKSFMTD(0, 2, 0));
+							title_buf.Cat(range.low, MKSFMTD_020);
 						title_buf.Dot().Dot();
 						if(range.upp > 0.0)
-							title_buf.Cat(range.upp, MKSFMTD(0, 2, 0));
+							title_buf.Cat(range.upp, MKSFMTD_020);
 					}
 				}
 			}

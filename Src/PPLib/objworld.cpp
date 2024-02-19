@@ -1,5 +1,5 @@
 // OBJWORLD.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -672,7 +672,6 @@ int PPObjWorld::Edit(PPID * pID, void * extraPtr /*parent*/)
 			int    is_parent = 0;
 			WorldTbl::Rec parent_rec;
 			pack.Rec.Kind = world_kind;
-			// @v10.7.9 @ctr MEMSZERO(parent_rec);
 			if(Fetch(filt.ParentID, &parent_rec) > 0)
 				is_parent = 1;
 			if(world_kind == WORLDOBJ_CITYAREA) {
@@ -789,7 +788,7 @@ int PPObjWorld::SearchCountry(const char * pName, const char * pCode, const char
 	PPID   id = 0;
 	if(!isempty(pName)) {
 		SearchByName(WORLDOBJ_COUNTRY, pName, pRec);
-		SVector list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
+		SVector list(sizeof(WorldTbl::Rec));
 		if(GetListByName(WORLDOBJ_COUNTRY, pName, &list) > 0) {
 			uint pos = 0;
 			if(list.getCount() > 1) {
@@ -837,7 +836,7 @@ int PPObjWorld::SearchCountry(const char * pName, const char * pCode, const char
 
 int PPObjWorld::SearchByName(int kind, const char * pName, WorldTbl::Rec * pRec)
 {
-	SVector list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
+	SVector list(sizeof(WorldTbl::Rec));
 	int    ok = GetListByName(kind, pName, &list);
 	if(ok > 0) {
 		if(list.getCount()) {
@@ -849,7 +848,7 @@ int PPObjWorld::SearchByName(int kind, const char * pName, WorldTbl::Rec * pRec)
 	return ok;
 }
 
-int PPObjWorld::GetListByName(int kind, const char * pName, SVector * pList) // @v10.6.7 SArray-->SVector
+int PPObjWorld::GetListByName(int kind, const char * pName, SVector * pList)
 {
 	int    ok = -1;
 	WorldTbl::Key3 k3;
@@ -866,7 +865,7 @@ int PPObjWorld::GetListByName(int kind, const char * pName, SVector * pList) // 
 }
 
 // @Muxa {
-int PPObjWorld::GetListByFilt(const SelFilt & rFilt, SVector * pList) // @v10.6.7 SArray-->SVector
+int PPObjWorld::GetListByFilt(const SelFilt & rFilt, SVector * pList)
 {
 	int    ok = -1;
 	WorldTbl::Rec * p_rec;
@@ -890,7 +889,7 @@ int PPObjWorld::GetListByFilt(const SelFilt & rFilt, SVector * pList) // @v10.6.
 }
 // } @Muxa
 
-int PPObjWorld::GetListByCode(int kind, const char * pCode, SVector * pList) // @v10.6.7 SArray-->SVector
+int PPObjWorld::GetListByCode(int kind, const char * pCode, SVector * pList)
 {
 	int    ok = -1;
 	size_t len = sstrlen(pCode);
@@ -936,7 +935,7 @@ bool PPObjWorld::Helper_IsChildOf(PPID id, PPID parentID, PPIDArray * pRecurTrac
 			else
 				ideqvalstr(id, added_buf);
 			PPSetError(PPERR_CYCLEWORLDOBJ, added_buf);
-			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 			ok = false;
 		}
 		else {
@@ -1023,7 +1022,7 @@ int PPObjWorld::AddSimple(PPID * pID, int kind, const char * pName, const char *
 	int    ok = 1;
 	PPID   id = 0, country_id = 0;
 	SString country_name;
-	SVector list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
+	SVector list(sizeof(WorldTbl::Rec));
 	THROW(GetListByName(kind, pName, &list));
 	if(pCountry) {
 		country_name = pCountry;
@@ -1116,7 +1115,7 @@ int PPObjWorld::GetChildList(PPID id, PPIDArray * pChildList, PPIDArray * pStack
 		else
 			ideqvalstr(id, added_buf);
 		PPSetError(PPERR_CYCLEWORLDOBJ, added_buf);
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 		CALLEXCEPT();
 	}
 	else {
@@ -1164,7 +1163,7 @@ int PPObjWorld::AddItemToSelectorList(const WorldTbl::Rec & rRec, AislBlock & rB
 					(added_buf = rRec.Name).CatChar('-').CatChar('>');
 					added_buf.Cat(parent_rec.Name);
 					PPSetError(PPERR_CYCLEWORLDOBJ, added_buf);
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 					parent_id = 0;
 				}
 				else {
@@ -1205,7 +1204,7 @@ int PPObjWorld::AddItemToSelectorList(PPID id, StrAssocArray * pList, int useHie
 					else
 						ideqvalstr(parent_id, added_buf);
 					PPSetError(PPERR_CYCLEWORLDOBJ, added_buf);
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 					parent_id = 0;
 				}
 				else {
@@ -1288,7 +1287,7 @@ int PPObjWorld::SearchMaxLike(const PPWorldPacket * pPack, long flags, PPID * pI
 	SETIFZ(flags, smlCode|smlName|smlCheckCountry);
 	excl_list.add(pPack->Rec.ID);
 	if(flags & smlCode) {
-		SVector list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
+		SVector list(sizeof(WorldTbl::Rec));
 		if(GetListByCode(pPack->Rec.Kind, pPack->Rec.Code, &list) > 0) {
 			uint count = list.getCount();
 			for(uint i = 0; ok < 0 && i < count; i++) {
@@ -1299,7 +1298,7 @@ int PPObjWorld::SearchMaxLike(const PPWorldPacket * pPack, long flags, PPID * pI
 		}
 	}
 	if(ok < 0 && flags & smlName) {
-		SVector list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
+		SVector list(sizeof(WorldTbl::Rec));
 		if(GetListByName(pPack->Rec.Kind, pPack->Rec.Name, &list) > 0) {
 			uint count = list.getCount();
 			for(uint i = 0; ok < 0 && i < count; i++) {
@@ -1507,28 +1506,28 @@ int PPObjWorld::CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta)
 						if(pLogger)
 							pLogger->LogMsgCode(PPMSG_ERROR, PPErrCode, added_msg);
 						else
-							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 					}
 					if(f & 0x0002) {
 						PPSetError(PPERR_CYCLELINKWORLDOBJ, added_msg);
 						if(pLogger)
 							pLogger->LogMsgCode(PPMSG_ERROR, PPErrCode, added_msg);
 						else
-							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 					}
 					if(f & 0x0004) {
 						PPSetError(PPERR_WORLDOBJSELFCOUNTRY, added_msg);
 						if(pLogger)
 							pLogger->LogMsgCode(PPMSG_ERROR, PPErrCode, added_msg);
 						else
-							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 					}
 					if(f & 0x0008) {
 						PPSetError(PPERR_CYCLELINKWORLDOBJ_COUNTRY, added_msg);
 						if(pLogger)
 							pLogger->LogMsgCode(PPMSG_ERROR, PPErrCode, added_msg);
 						else
-							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 					}
 					THROW(r);
 					ok = 1;

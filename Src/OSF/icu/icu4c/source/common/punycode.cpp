@@ -524,9 +524,9 @@ U_CAPI int32_t u_strFromPunycode(const char16_t * src, int32_t srcLength, char16
 
 			/* use the char16_t index codeUnitIndex instead of the code point index i */
 			if(codeUnitIndex<destLength) {
-				uprv_memmove(dest+codeUnitIndex+cpLength, dest+codeUnitIndex, (destLength-codeUnitIndex)*U_SIZEOF_UCHAR);
+				memmove(dest+codeUnitIndex+cpLength, dest+codeUnitIndex, (destLength-codeUnitIndex)*U_SIZEOF_UCHAR);
 				if(caseFlags) {
-					uprv_memmove(caseFlags+codeUnitIndex+cpLength, caseFlags+codeUnitIndex, destLength-codeUnitIndex);
+					memmove(caseFlags+codeUnitIndex+cpLength, caseFlags+codeUnitIndex, destLength-codeUnitIndex);
 				}
 			}
 			if(cpLength==1) {

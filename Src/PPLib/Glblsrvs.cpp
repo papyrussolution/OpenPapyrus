@@ -369,7 +369,7 @@ int VkInterface::PutWareToMarket(const MarketWareItem & rItem, MarketWareItem & 
 			AppendParamProtoVer(url).CatChar('&')
 			.CatEq("name", name).CatChar('&')
 			.CatEq("category_id", /*catId*/1100LL).CatChar('&')
-			.CatEq("price", rItem.Price, MKSFMTD(0, 2, 0)).CatChar('&')
+			.CatEq("price", rItem.Price, MKSFMTD_020).CatChar('&')
 			.CatEq("main_photo_id", photo_id).CatChar('&')
 			.CatEq("description", descr);
 		THROW(GetRequest(url, temp_buf, ScURL::mfDontVerifySslPeer));

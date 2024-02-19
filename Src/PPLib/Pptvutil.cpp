@@ -1854,7 +1854,6 @@ int SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
 			long   count = 0;
 			GoodsGroupTotal ggrp_total;
 			PPObjGoodsGroup ggobj;
-			// @v10.8.1 @ctr MEMSZERO(ggrp_total);
 			ggobj.CalcTotal(&ggrp_total);
 			count = ggrp_total.MaxLevel + sggGroupSecondLvl - 1;
 			PPLoadText(PPTXT_GROUPLEVELX, item_buf);
@@ -2141,7 +2140,6 @@ FileBrowseCtrlGroup::FileBrowseCtrlGroup(uint buttonId, uint inputId, const char
 		PPGetSubStr(PPTXT_FILE_OR_PATH_SELECTION, (Flags & fbcgfPath) ? PPFOPS_PATH : PPFOPS_FILE, Title);
 		Title.Transf(CTRANSF_INNER_TO_OUTER);
 	}
-	// @v10.8.1 @ctr MEMSZERO(Data);
 }
 
 int FileBrowseCtrlGroup::addPattern(uint strID)
@@ -6338,7 +6336,6 @@ void TimePickerDialog::Select(long x, long y)
 void TimePickerDialog::DrawMainRect(TCanvas * pCanv, RECT * pRect)
 {
 	TRect m_rect;
-	// @v10.6.5 @ctr MEMSZERO(m_rect);
 	if(TmRects.Minuts.getCount()) {
 		m_rect = TmRects.Minuts.at(TmRects.Minuts.getCount() - 1);
 		TRect draw_rect(pRect->left + 3, 3, pRect->right - 3, m_rect.b.y + 8);

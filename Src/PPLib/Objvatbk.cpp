@@ -1,5 +1,5 @@
 // OBJVATBK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage windows-1251
 // Книги продаж и покупок
 //
@@ -779,7 +779,6 @@ int PPObjVATBook::Edit(PPID * pID, void * extraPtr /*kind*/)
 		THROW(Search(*pID, &rec) > 0);
 	}
 	else {
-		// @v10.7.9 @ctr MEMSZERO(rec);
 		rec.Dt = getcurdate_(); // @v10.9.0 LConfig.OperDate-->getcurdate_()
 	}
 	THROW(_kind = SelectLineType(&res_id, NZOR(rec.LineType_, extra_kind)));

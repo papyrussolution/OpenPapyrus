@@ -4754,25 +4754,22 @@ start_select:
 	else
 		exceptfdsp = NULL;
 	res = amqp_time_tv_until(deadline, &tv, &tvp);
-	if(res != AMQP_STATUS_OK) {
+	if(res != AMQP_STATUS_OK)
 		return res;
-	}
-	if(event & AMQP_SF_POLLIN) {
-		res = select(fd + 1, &fds, NULL, exceptfdsp, tvp);
-	}
-	else if(event & AMQP_SF_POLLOUT) {
-		res = select(fd + 1, NULL, &fds, exceptfdsp, tvp);
-	}
-	if(0 < res) {
-		return AMQP_STATUS_OK;
-	}
-	else if(0 == res) {
-		return AMQP_STATUS_TIMEOUT;
-	}
 	else {
-		switch(amqp_os_socket_error()) {
-			case EINTR: goto start_select;
-			default: return AMQP_STATUS_SOCKET_ERROR;
+		if(event & AMQP_SF_POLLIN)
+			res = select(fd + 1, &fds, NULL, exceptfdsp, tvp);
+		else if(event & AMQP_SF_POLLOUT)
+			res = select(fd + 1, NULL, &fds, exceptfdsp, tvp);
+		if(res > 0)
+			return AMQP_STATUS_OK;
+		else if(res == 0)
+			return AMQP_STATUS_TIMEOUT;
+		else {
+			switch(amqp_os_socket_error()) {
+				case EINTR: goto start_select;
+				default: return AMQP_STATUS_SOCKET_ERROR;
+			}
 		}
 	}
 #else

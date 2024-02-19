@@ -304,7 +304,7 @@ typedef struct LEPoint LEPoint;
  *
  * @internal
  */
-#define LE_ARRAY_COPY(dst, src, count) uprv_memcpy((void*)(dst), (void*)(src), (count) * sizeof(src)[0])
+#define LE_ARRAY_COPY(dst, src, count) memcpy((void*)(dst), (void*)(src), (count) * sizeof(src)[0])
 
 /**
  * Allocate an array of basic types. This is used to isolate the rest of

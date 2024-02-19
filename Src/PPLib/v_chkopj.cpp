@@ -1,5 +1,5 @@
 // V_CHKOPJ.CPP
-// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2017, 2021, 2022
+// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2017, 2021, 2022, 2024
 // @codepage UTF-8
 // Журнал чековых операций
 //
@@ -23,7 +23,6 @@ int CheckOpJrnl::LogEvent(int16 action, const CCheckPacket * pPack, const CCheck
 	{
 		PPTransaction tra(useTa);
 		THROW(tra);
-		// @v10.6.4 MEMSZERO(log_rec);
 		log_rec.UserID    = LConfig.UserID;
 		log_rec.Action    = action + 1;
 		getcurdatetime(&log_rec.Dt, &log_rec.Tm);
@@ -324,7 +323,6 @@ int PPViewCheckOpJrnl::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 			case PPVCMD_VIEWGOODS:
 				if(P_Tbl) {
 					CheckOpJrnlTbl::Rec rec;
-					// @v10.6.4 MEMSZERO(rec);
 					if(P_Tbl->Search(hdr.Dt, hdr.Tm, &rec) > 0 && rec.GoodsID) {
 						GObj.Edit(&rec.GoodsID, 0);
 					}
@@ -333,7 +331,6 @@ int PPViewCheckOpJrnl::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 			case PPVCMD_VIEWCHECK:
 				if(P_Tbl) {
 					CheckOpJrnlTbl::Rec rec;
-					// @v10.6.4 MEMSZERO(rec);
 					if(P_Tbl->Search(hdr.Dt, hdr.Tm, &rec) > 0 && rec.CheckID) {
 						PPID   cn_id = 0;
 						CC.GetNodeID(rec.CheckID, &cn_id);

@@ -592,6 +592,11 @@ column_def : IDENTIFIER column_type opt_column_constraints {
   }
 };
 
+// @sobolev
+column_type_id_ : IDENTIFIER 
+| IDENTIFIER '(' INTVAL ')'
+| IDENTIFIER '(' INTVAL '.' INTVAL ')';
+
 column_type : BIGINT { $$ = ColumnType{hsql::DataType::BIGINT}; }
 | BOOLEAN { $$ = ColumnType{hsql::DataType::BOOLEAN}; }
 | CHAR '(' INTVAL ')' { $$ = ColumnType{hsql::DataType::CHAR, $3}; }

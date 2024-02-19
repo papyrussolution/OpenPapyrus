@@ -1,5 +1,5 @@
 // V_LOCTR.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -27,7 +27,6 @@ PalletCtrlGroup::PalletCtrlGroup(uint ctlselPalletType, uint ctlPallet, uint ctl
 	State(0), CtlselPalletType(ctlselPalletType), CtlPallet(ctlPallet), CtlPalletCount(ctlPalletCount),
 	CtlPckg(ctlPckg), CtlPckgCount(ctlPckgCount), CtlQtty(ctlQtty), CtlselGoods(ctlselGoods)
 {
-	// @v11.1.7 @ctr MEMSZERO(Data);
 }
 
 void PalletCtrlGroup::RecalcQtty(TDialog * pDlg, int cargoUnit)
@@ -586,7 +585,6 @@ int PPViewLocTransf::Init_(const PPBaseFilt * pFilt)
 				THROW(tra);
 				for(uint i = 0; i < list.getCount(); i++) {
 					TempLocTransfTbl::Rec temp_rec;
-					// @v10.7.5 @ctr MEMSZERO(temp_rec);
 					temp_rec.LocID = list.get(i);
 					THROW_DB(bei.insert(&temp_rec));
 				}
@@ -846,7 +844,6 @@ int PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 	int    ok = -1;
 	if(Filt.Mode == LocTransfFilt::modeGeneral) {
 		LocTransfTbl::Rec rec;
-		// @v10.6.4 MEMSZERO(rec);
 		rec.LocID = NZOR(curLocID, Filt.LocList.GetSingle());
 		ok = EditLocTransf(0, &rec);
 		if(ok > 0) {
@@ -880,7 +877,6 @@ int PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 	}
 	else if(Filt.Mode == LocTransfFilt::modeCurrent) {
 		LocTransfTbl::Rec rec;
-		// @v10.6.4 MEMSZERO(rec);
 		rec.LocID = NZOR(curLocID, Filt.LocList.GetSingle());
 		rec.Op = LOCTRFROP_GET;
 		if(curLocID && curRByLoc) {
@@ -901,7 +897,6 @@ int PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 	}
 	else if(Filt.Mode == LocTransfFilt::modeEmpty) {
 		LocTransfTbl::Rec rec;
-		// @v10.6.4 MEMSZERO(rec);
 		rec.LocID = NZOR(curLocID, Filt.LocList.GetSingle());
 		rec.Op = LOCTRFROP_PUT;
 		ok = EditLocTransf(0, &rec);

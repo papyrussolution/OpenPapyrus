@@ -1,5 +1,5 @@
 // LOCATION.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2019, 2020, 2022, 2023
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018, 2019, 2020, 2022, 2023, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -1036,8 +1036,8 @@ int EAddrCore::Put(PPID * pID, const PPEAddr * pAddr, const PPObjID * pObjId, in
 {
 	int    ok = 1, r = 0;
 	{
-		EAddrTbl::Rec rec, prev_rec;
-		// @v10.6.4 MEMSZERO(rec);
+		EAddrTbl::Rec rec;
+		EAddrTbl::Rec prev_rec;
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID) {

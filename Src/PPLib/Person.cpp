@@ -1,5 +1,5 @@
 // PERSON.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage windows-1251
 // @Kernel
 //
@@ -11,7 +11,6 @@
 //
 PPPerson::PPPerson()
 {
-	// @v10.6.4 MEMSZERO(Rec);
 }
 
 PPPerson::PPPerson(const PPPerson & rS) : Rec(rS.Rec), SMemo(rS.SMemo), Kinds(rS.Kinds), RelList(rS.RelList)
@@ -125,7 +124,6 @@ PPPersonRelType2::PPPersonRelType2()
 
 PPPersonRelTypePacket::PPPersonRelTypePacket()
 {
-	// @v10.6.12 Init();
 }
 
 void PPPersonRelTypePacket::Init()
@@ -214,7 +212,7 @@ int  PPObjPersonRelType::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int r
 int PPObjPersonRelType::GetGroupingList(PPIDArray * pList)
 {
 	int    ok = -1;
-	SVector list(sizeof(PPPersonRelType)); // @v10.6.8 SArray-->SVector
+	SVector list(sizeof(PPPersonRelType));
 	THROW(P_Ref->LoadItems(Obj, list));
 	for(uint i = 0; i < list.getCount(); i++) {
 		const PPPersonRelType * p_item = static_cast<const PPPersonRelType *>(list.at(i));
@@ -238,8 +236,7 @@ int PPObjPersonRelType::ProcessReservedItem(TVRez & rez)
 	rez.getString(symb, 2);
 	THROW(r = Search(id));
 	if(r < 0) {
-		PPPersonRelType rec;
-		// @v10.6.12 @ctr MEMSZERO(rec);
+		PPPersonRelType2 rec;
 		rec.Tag = Obj;
 		rec.ID  = id;
 		STRNSCPY(rec.Name, name);
@@ -587,7 +584,6 @@ int PPELinkArray::AddItem(PPID kindID, const char * pAddr)
 {
 	if(kindID && pAddr && pAddr[0]) {
 		PPELink item;
-		// @v10.6.12 @ctr MEMSZERO(item);
 		item.KindID = kindID;
 		STRNSCPY(item.Addr, pAddr);
 		return insert(&item) ? 1 : PPSetErrorSLib();
@@ -845,7 +841,6 @@ int PPPersonPacket::AddRegister(PPID regTypeID, const char * pNumber, int checkU
 	STRNSCPY(temp_buf, pNumber);
 	if(*strip(temp_buf)) {
 		int    reg_exists = 0;
-		// @v10.6.4 MEMSZERO(reg_rec);
 		reg_rec.RegTypeID = regTypeID;
 		STRNSCPY(reg_rec.Num, temp_buf);
 		PPObjRegisterType obj_regt;
@@ -1287,8 +1282,6 @@ int PersonCore::PutRelList(PPID id, const LAssocArray * pList, int use_ta)
 			uint  c = 0;
 			for(uint i = 0; list.enumItems(&i, (void **)&p_item);) {
 				PPID   assc_id = 0;
-				//ObjAssocTbl::Rec assc_rec;
-				//MEMSZERO(assc_rec);
 				RelationRecord rel_rec;
 				MEMSZERO(rel_rec);
 				rel_rec.AsscType = PPASS_PERSONREL;
@@ -1345,7 +1338,6 @@ int PersonCore::GetRelList(PPID id, LAssocArray * pList, int reverse)
 	if(pRec && pList) {
 		for(size_t i = PROPRECFIXSIZE; i < recLen;) {
 			PPELink entry;
-			// @v10.6.12 @ctr MEMSZERO(entry);
 			entry.KindID = *reinterpret_cast<const  PPID *>((PTR8C(pRec) + PROPRECFIXSIZE) + i - PROPRECFIXSIZE);
 			i += sizeof(entry.KindID);
 			STRNSCPY(entry.Addr, reinterpret_cast<const char *>((PTR8C(pRec) + PROPRECFIXSIZE) + i - PROPRECFIXSIZE));

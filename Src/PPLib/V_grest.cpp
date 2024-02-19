@@ -1,5 +1,5 @@
 // V_GREST.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -990,7 +990,6 @@ double PPViewGoodsRest::EnumDraftRcpt(PPID goodsID, uint * pIdx, DraftRcptItem *
 	int    ok = -1;
 	uint   pos = DEREFPTRORZ(pIdx);
 	DraftRcptItem item;
-	// @v10.8.0 @ctr MEMSZERO(item);
 	for(; ok < 0 && DraftRcptList.lsearch(&goodsID, &pos, CMPF_LONG); pos++) {
 		item = DraftRcptList.at(pos);
 		if(!ExclDraftRcptList.lsearch(&item, 0, PTR_CMPFUNC(_2long))) {
@@ -1008,7 +1007,6 @@ double PPViewGoodsRest::GetDraftReceipt(PPID goodsID, PPID locID, int addToExclL
 	double rest = 0.0;
 	if(goodsID && (Filt.Flags & GoodsRestFilt::fShowDraftReceipt)) {
 		DraftRcptItem srch_item;
-		// @v10.8.0 @ctr MEMSZERO(srch_item);
 		srch_item.GoodsID = goodsID;
 		srch_item.LocID   = locID;
 		if(!ExclDraftRcptList.lsearch(&srch_item, 0, PTR_CMPFUNC(_2long))) {
@@ -1040,7 +1038,6 @@ double PPViewGoodsRest::EnumUncompleteSessQtty(PPID goodsID, uint * pIdx, DraftR
 	int    ok = -1;
 	uint   pos = DEREFPTRORZ(pIdx);
 	DraftRcptItem item;
-	// @v10.8.0 @ctr MEMSZERO(item);
 	for(; ok < 0 && UncompleteSessQttyList.lsearch(&goodsID, &pos, CMPF_LONG); pos++) {
 		item = DraftRcptList.at(pos);
 		if(!ExclUncompleteSessQttyList.lsearch(&item, 0, PTR_CMPFUNC(_2long))) {
@@ -1058,7 +1055,6 @@ double PPViewGoodsRest::GetUncompleteSessQtty(PPID goodsID, PPID locID, int addT
 	double rest = 0.0;
 	if(goodsID && (Filt.Flags & GoodsRestFilt::fCalcUncompleteSess)) {
 		DraftRcptItem srch_item;
-		// @v10.8.0 @ctr MEMSZERO(srch_item);
 		srch_item.GoodsID = goodsID;
 		srch_item.LocID   = locID;
 		if(!ExclUncompleteSessQttyList.lsearch(&srch_item, 0, PTR_CMPFUNC(_2long))) {
@@ -1109,7 +1105,6 @@ int PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRest::Cac
 			SString temp_buf;
 			Goods2Tbl::Rec goods_rec;
 			TempGoodsRestTbl::Rec rec;
-			// @v10.6.4 MEMSZERO(rec);
 			rec.GoodsID = goods_id;
 			rec.LotID   = rItem.LotID;
 			rec.LocID   = rItem.LocID;
@@ -1770,7 +1765,6 @@ int PPViewGoodsRest::ProcessGoods(PPID goodsID, BExtInsert * pBei, const PPIDArr
 				}
 				else if((draft_rcpt || calc_uncompl_sess) && each_loc) {
 					DraftRcptItem item;
-					// @v10.8.0 @ctr MEMSZERO(item);
 					if(draft_rcpt) {
 						for(uint pos = 0; EnumDraftRcpt(goods_id, &pos, &item) > 0;) {
 							if(item.LocID != 0) {
@@ -2722,7 +2716,6 @@ int PPViewGoodsRest::CreateTempTable(int use_ta, double * pPrfMeasure)
 					double ph_u_per_u = 0.0;
 					GoodsRestVal grv;
 					ReceiptTbl::Rec lot_rec;
-					// @v10.6.4 MEMSZERO(lot_rec);
 					GObj.GetPhUPerU(goods_id, 0, &ph_u_per_u);
 					::GetCurGoodsPrice(goods_id, LocList.GetSingle(), GPRET_MOSTRECENT | GPRET_OTHERLOC, &grv.Price, &lot_rec);
 					grv.Rest    = 0.0;
@@ -2827,7 +2820,6 @@ int PPViewGoodsRest::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
 		MEMSZERO(k);
 		for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 			TempOrderTbl::Rec ord_rec;
-			// @v10.7.9 @ctr MEMSZERO(ord_rec);
 			ord_rec.ID = p_t->data.ID__;
 			if(ord == OrdByPrice)
 				sprintf(ord_rec.Name, "%055.8lf", p_t->data.Price);
@@ -3259,7 +3251,6 @@ int PPViewGoodsRest::ConvertLinesToBasket()
 					if(!fill_to_min_stock || qtty > 0.0) {
 						ILTI   i_i;
 						ReceiptTbl::Rec lot_rec;
-						// @v10.6.4 MEMSZERO(lot_rec);
 						THROW(::GetCurGoodsPrice(item.GoodsID, item.LocID, GPRET_MOSTRECENT, 0, &lot_rec) != GPRET_ERROR);
 						i_i.GoodsID     = item.GoodsID;
 						i_i.UnitPerPack = item.UnitPerPack;
@@ -4262,7 +4253,6 @@ int PPViewGoodsRest::SetContractPrices()
 		SVector suppl_cost_ary(sizeof(_E));
 		PPIDArray locs_ary;
 		PPWaitStart();
-		// @v10.8.2 @ctr MEMSZERO(item);
 		if(LocList.GetCount())
 			locs_ary.copy(LocList.Get());
 		else

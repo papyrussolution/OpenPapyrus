@@ -1,5 +1,5 @@
 // SARRAY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -298,15 +298,10 @@ uint FASTCALL SVectorBase::setPointer(uint p)
 uint FASTCALL SVectorBase::incPointerSafe(int incr)
 {
     const uint _prev = pointer;
-    if(incr > 0) {
+    if(incr > 0)
 		pointer = MIN((pointer + incr), count-1);
-    }
-    else if(incr < 0) {
-		if((-incr) > static_cast<int>(pointer))
-			pointer = 0;
-		else
-			pointer = pointer + incr;
-    }
+    else if(incr < 0)
+		pointer = ((-incr) > static_cast<int>(pointer)) ? 0 : (pointer + incr);
     return _prev;
 }
 
@@ -4283,7 +4278,7 @@ int FASTCALL FloatArray::dim(uint numItems)
 const SPoint2F & FASTCALL FloatArray::getPoint(uint i) const
 {
 	assert(i < (count-1));
-	return *static_cast<const SPoint2F *>(SVector::at(i)); // @v9.8.4 SArray-->SVector
+	return *static_cast<const SPoint2F *>(SVector::at(i));
 }
 
 bool FASTCALL FloatArray::IsEq(const FloatArray * pS) const

@@ -251,12 +251,12 @@ static UNewTrie2 * cloneBuilder(const UNewTrie2 * other) {
 	trie->dataCapacity = other->dataCapacity;
 
 	/* clone data */
-	uprv_memcpy(trie->index1, other->index1, sizeof(trie->index1));
-	uprv_memcpy(trie->index2, other->index2, (size_t)other->index2Length*4);
+	memcpy(trie->index1, other->index1, sizeof(trie->index1));
+	memcpy(trie->index2, other->index2, (size_t)other->index2Length*4);
 	trie->index2NullOffset = other->index2NullOffset;
 	trie->index2Length = other->index2Length;
 
-	uprv_memcpy(trie->data, other->data, (size_t)other->dataLength*4);
+	memcpy(trie->data, other->data, (size_t)other->dataLength*4);
 	trie->dataNullOffset = other->dataNullOffset;
 	trie->dataLength = other->dataLength;
 
@@ -265,7 +265,7 @@ static UNewTrie2 * cloneBuilder(const UNewTrie2 * other) {
 		trie->firstFreeBlock = 0;
 	}
 	else {
-		uprv_memcpy(trie->map, other->map, ((size_t)other->dataLength>>UTRIE2_SHIFT_2)*4);
+		memcpy(trie->map, other->map, ((size_t)other->dataLength>>UTRIE2_SHIFT_2)*4);
 		trie->firstFreeBlock = other->firstFreeBlock;
 	}
 
@@ -277,9 +277,9 @@ static UNewTrie2 * cloneBuilder(const UNewTrie2 * other) {
 	return trie;
 }
 
-U_CAPI UTrie2 * U_EXPORT2 utrie2_clone(const UTrie2 * other, UErrorCode * pErrorCode) {
+U_CAPI UTrie2 * U_EXPORT2 utrie2_clone(const UTrie2 * other, UErrorCode * pErrorCode) 
+{
 	UTrie2 * trie;
-
 	if(U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}
@@ -287,20 +287,17 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_clone(const UTrie2 * other, UErrorCode * pError
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
-
 	trie = (UTrie2*)uprv_malloc(sizeof(UTrie2));
 	if(!trie) {
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
-	uprv_memcpy(trie, other, sizeof(UTrie2));
-
+	memcpy(trie, other, sizeof(UTrie2));
 	if(other->memory != NULL) {
 		trie->memory = uprv_malloc(other->length);
 		if(trie->memory != NULL) {
 			trie->isMemoryOwned = TRUE;
-			uprv_memcpy(trie->memory, other->memory, other->length);
-
+			memcpy(trie->memory, other->memory, other->length);
 			/* make the clone's pointers point to its own memory */
 			trie->index = (uint16*)trie->memory+(other->index-(uint16*)other->memory);
 			if(other->data16 != NULL) {
@@ -510,7 +507,7 @@ static int32_t allocIndex2Block(UNewTrie2 * trie) {
 		return -1;
 	}
 	trie->index2Length = newTop;
-	uprv_memcpy(trie->index2+newBlock, trie->index2+trie->index2NullOffset, UTRIE2_INDEX_2_BLOCK_LENGTH*4);
+	memcpy(trie->index2+newBlock, trie->index2+trie->index2NullOffset, UTRIE2_INDEX_2_BLOCK_LENGTH*4);
 	return newBlock;
 }
 
@@ -568,14 +565,14 @@ static int32_t allocDataBlock(UNewTrie2 * trie, int32_t copyBlock) {
 			if(!data) {
 				return -1;
 			}
-			uprv_memcpy(data, trie->data, (size_t)trie->dataLength*4);
+			memcpy(data, trie->data, (size_t)trie->dataLength*4);
 			uprv_free(trie->data);
 			trie->data = data;
 			trie->dataCapacity = capacity;
 		}
 		trie->dataLength = newTop;
 	}
-	uprv_memcpy(trie->data+newBlock, trie->data+copyBlock, UTRIE2_DATA_BLOCK_LENGTH*4);
+	memcpy(trie->data+newBlock, trie->data+copyBlock, UTRIE2_DATA_BLOCK_LENGTH*4);
 	trie->map[newBlock>>UTRIE2_SHIFT_2] = 0;
 	return newBlock;
 }
@@ -1443,7 +1440,7 @@ U_CAPI void U_EXPORT2 utrie2_freeze(UTrie2 * trie, UTrie2ValueBits valueBits, UE
 		    /* write 32-bit data values */
 		    trie->data16 = NULL;
 		    trie->data32 = (uint32_t*)dest16;
-		    uprv_memcpy(dest16, newTrie->data, (size_t)newTrie->dataLength*4);
+		    memcpy(dest16, newTrie->data, (size_t)newTrie->dataLength*4);
 		    break;
 		default:
 		    *pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;

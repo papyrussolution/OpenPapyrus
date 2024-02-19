@@ -31,7 +31,6 @@ int PEM_def_callback(char * buf, int num, int rwflag, void * userdata)
 {
 	int i, min_len;
 	const char * prompt;
-
 	/* We assume that the user passes a default password as userdata */
 	if(userdata) {
 		i = strlen((const char *)userdata);
@@ -39,11 +38,8 @@ int PEM_def_callback(char * buf, int num, int rwflag, void * userdata)
 		memcpy(buf, userdata, i);
 		return i;
 	}
-
 	prompt = EVP_get_pw_prompt();
-	if(prompt == NULL)
-		prompt = "Enter PEM pass phrase:";
-
+	SETIFZQ(prompt, "Enter PEM pass phrase:");
 	/*
 	 * rwflag == 0 means decryption
 	 * rwflag == 1 means encryption
@@ -52,7 +48,6 @@ int PEM_def_callback(char * buf, int num, int rwflag, void * userdata)
 	 * decryption, we cannot know any minimum length, so we assume zero.
 	 */
 	min_len = rwflag ? MIN_LENGTH : 0;
-
 	i = EVP_read_pw_string_min(buf, min_len, num, prompt, rwflag);
 	if(i != 0) {
 		ERR_raise(ERR_LIB_PEM, PEM_R_PROBLEMS_GETTING_PASSWORD);

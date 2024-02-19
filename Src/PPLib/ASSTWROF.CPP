@@ -1,5 +1,5 @@
 // ASSTWROF.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2020, 2021, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -67,6 +67,11 @@ int Transfer::EnumAssetOp(PPID * pLotID, DateIter * pIter, int * pOpCode, Transf
 //
 //
 //
+PPAssetWrOffGrp2::PPAssetWrOffGrp2() // @v11.9.6
+{
+	THISZERO();
+}
+
 PPObjAssetWrOffGrp::PPObjAssetWrOffGrp(void * extraPtr) : PPObjReference(PPOBJ_ASSTWROFFGRP, extraPtr)
 {
 }
@@ -171,7 +176,6 @@ public:
 	};
 	PrcssrAssetDeprec() : P_BObj(BillObj)
 	{
-		// @v10.6.5 @ctr MEMSZERO(P);
 	}
 	int    InitParam(Param * pParam)
 	{
@@ -244,10 +248,8 @@ int PrcssrAssetDeprec::Run()
 	SString msg_buf, fmt_buf;
 	PPLogger logger;
 	SString serial;
-
 	flt.GoodsTypeID = P.GoodsTypeID;
 	flt.GrpID = P.GoodsGrpID;
-
 	PPWaitStart();
 	{
 		PPTransaction tra(1);

@@ -36,10 +36,10 @@ BMPSet::BMPSet(const int32_t * parentList, int32_t parentListLength) : list(pare
 BMPSet::BMPSet(const BMPSet &otherBMPSet, const int32_t * newParentList, int32_t newParentListLength) :
 	containsFFFD(otherBMPSet.containsFFFD), list(newParentList), listLength(newParentListLength) 
 {
-	uprv_memcpy(latin1Contains, otherBMPSet.latin1Contains, sizeof(latin1Contains));
-	uprv_memcpy(table7FF, otherBMPSet.table7FF, sizeof(table7FF));
-	uprv_memcpy(bmpBlockBits, otherBMPSet.bmpBlockBits, sizeof(bmpBlockBits));
-	uprv_memcpy(list4kStarts, otherBMPSet.list4kStarts, sizeof(list4kStarts));
+	memcpy(latin1Contains, otherBMPSet.latin1Contains, sizeof(latin1Contains));
+	memcpy(table7FF, otherBMPSet.table7FF, sizeof(table7FF));
+	memcpy(bmpBlockBits, otherBMPSet.bmpBlockBits, sizeof(bmpBlockBits));
+	memcpy(list4kStarts, otherBMPSet.list4kStarts, sizeof(list4kStarts));
 }
 
 BMPSet::~BMPSet() 

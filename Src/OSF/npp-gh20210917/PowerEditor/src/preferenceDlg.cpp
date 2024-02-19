@@ -1889,7 +1889,7 @@ INT_PTR CALLBACK DefaultDirectorySubDlg::run_dlgProc(UINT message, WPARAM wParam
 							TCHAR inputDir[MAX_PATH] = { '\0' };
 							::SendDlgItemMessage(_hSelf, IDC_OPENSAVEDIR_ALWAYSON_EDIT, WM_GETTEXT, MAX_PATH, reinterpret_cast<LPARAM>(inputDir));
 							wcscpy_s(nppGUI._defaultDir, inputDir);
-							::ExpandEnvironmentStrings(nppGUI._defaultDir, nppGUI._defaultDirExp, _countof(nppGUI._defaultDirExp));
+							::ExpandEnvironmentStrings(nppGUI._defaultDir, nppGUI._defaultDirExp, SIZEOFARRAY(nppGUI._defaultDirExp));
 							nppParam.setWorkingDir(nppGUI._defaultDirExp);
 							return TRUE;
 						}

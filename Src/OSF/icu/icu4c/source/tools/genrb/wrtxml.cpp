@@ -201,7 +201,7 @@ static char * parseFilename(const char * id, char * /*lang*/) {
 	else {
 		pos = idLen;
 	}
-	uprv_memcpy(localeID, id, pos);
+	memcpy(localeID, id, pos);
 	localeID[pos] = 0; /* NUL terminate the string */
 
 	canonCapacity = pos*3;
@@ -351,7 +351,7 @@ static char * convertAndEscape(char ** pDest, int32_t destCap, int32_t* destLeng
 				uprv_free(dest);
 				return NULL;
 			}
-			uprv_memmove(temp, dest, destLen);
+			memmove(temp, dest, destLen);
 			destLen = 0;
 			uprv_free(dest);
 			dest = temp;

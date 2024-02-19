@@ -390,8 +390,7 @@ static xmlNanoHTTPCtxtPtr xmlNanoHTTPNewCtxt(const char * URL) {
 		xmlHTTPErrMemory("allocating context");
 		return NULL;
 	}
-
-	memset(ret, 0, sizeof(xmlNanoHTTPCtxt));
+	memzero(ret, sizeof(xmlNanoHTTPCtxt));
 	ret->port = 80;
 	ret->returnValue = 0;
 	ret->fd = INVALID_SOCKET;
@@ -1052,12 +1051,10 @@ static SOCKET xmlNanoHTTPConnectHost(const char * host, int port)
 #endif
 	int i;
 	SOCKET s;
-
-	memset(&sockin, 0, sizeof(sockin));
+	memzero(&sockin, sizeof(sockin));
 #ifdef SUPPORT_IP6
-	memset(&sockin6, 0, sizeof(sockin6));
+	memzero(&sockin6, sizeof(sockin6));
 #endif
-
 #if !defined(HAVE_GETADDRINFO) && defined(SUPPORT_IP6) && defined(RES_USE_INET6)
 	if(have_ipv6()) {
 		if(!(_res.options & RES_INIT))
@@ -1073,11 +1070,9 @@ static SOCKET xmlNanoHTTPConnectHost(const char * host, int port)
 	{
 		int status;
 		struct addrinfo hints, * res, * result;
-
 		result = NULL;
-		memset(&hints, 0, sizeof(hints));
+		memzero(&hints, sizeof(hints));
 		hints.ai_socktype = SOCK_STREAM;
-
 		status = getaddrinfo(host, NULL, &hints, &result);
 		if(status) {
 			__xmlIOErr(XML_FROM_HTTP, 0, "getaddrinfo failed\n");

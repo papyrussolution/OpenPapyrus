@@ -276,7 +276,7 @@ U_CAPI char * U_EXPORT2 uprv_strdup(const char * src)
 	size_t len = strlen(src) + 1;
 	char * dup = (char *)uprv_malloc(len);
 	if(dup) {
-		uprv_memcpy(dup, src, len);
+		memcpy(dup, src, len);
 	}
 	return dup;
 }
@@ -290,7 +290,7 @@ U_CAPI char * U_EXPORT2 uprv_strndup(const char * src, int32_t n)
 	else {
 		dup = (char *)uprv_malloc(n+1);
 		if(dup) {
-			uprv_memcpy(dup, src, n);
+			memcpy(dup, src, n);
 			dup[n] = 0;
 		}
 	}

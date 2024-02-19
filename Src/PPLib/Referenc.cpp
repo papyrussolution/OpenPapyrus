@@ -1,5 +1,5 @@
 // REFERENC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -221,9 +221,7 @@ int Reference::AllocDynamicObj(PPID * pDynObjType, const char * pName, long flag
 		THROW(tra);
 		if((r = _GetFreeID(PPOBJ_DYNAMICOBJS, &id, PPOBJ_FIRSTDYN)) > 0) {
 			ReferenceTbl::Rec rec;
-			// @v10.6.4 MEMSZERO(rec);
-			if(pName)
-				STRNSCPY(rec.ObjName, pName);
+			STRNSCPY(rec.ObjName, pName);
 			rec.Val1 = flags;
 			THROW(AddItem(PPOBJ_DYNAMICOBJS, &id, &rec, 0));
 			*pDynObjType = id;
@@ -479,7 +477,7 @@ SEnum::Imp * Reference::EnumByIdxVal(PPID objType, int valN, long val)
 	return InitEnumByIdxVal(objType, valN, val, &h) ? new PPTblEnum<Reference>(this, h) : 0;
 }
 
-int Reference::LoadItems(PPID objType, SVector & rList) // @v10.6.8 SArray-->SVector
+int Reference::LoadItems(PPID objType, SVector & rList)
 {
 	int    ok = -1;
 	ReferenceTbl::Rec rec;
@@ -800,7 +798,7 @@ int FASTCALL Reference::GetPropSBuffer_Current(SBuffer & rBuf)
 		added_msg_buf.Cat("Oid, prop, size").CatDiv(':', 2).CatChar('[').Cat(pm->ObjType).CatDiv(',', 2).Cat(pm->ObjID).
 			CatDiv(',', 2).Cat(pm->PropID).CatDiv(',', 2).Cat(pm->Size).CatChar(']');
 		PPSetError(PPERR_READPROPBUFSIZE, added_msg_buf);
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 		ok = -1;
 	}
 	CATCHZOK
@@ -1849,7 +1847,7 @@ int PPRights::MaskOpRightsByTypes(const PPIDArray * pOpTypeList, PPIDArray * pRe
 		return 1;
 	}
 	else {
-		SVector op_rec_list(sizeof(PPOprKind)); // @v10.6.8 SArray-->SVector
+		SVector op_rec_list(sizeof(PPOprKind));
 		if(PPRef->LoadItems(PPOBJ_OPRKIND, op_rec_list)) {
 			PPOprKind * p_op_rec;
 			for(uint i = 0; op_rec_list.enumItems(&i, (void **)&p_op_rec);)
@@ -2032,7 +2030,6 @@ bool FASTCALL PPSecur2::IsEq(const PPSecur2 & rS) const
 
 PPSecurPacket::PPSecurPacket()
 {
-	// @v10.9.3 @ctr MEMSZERO(Secur);
 }
 
 PPSecurPacket::PPSecurPacket(const PPSecurPacket & rS) : Secur(rS.Secur), Config(rS.Config), Paths(rS.Paths), Rights(rS.Rights), PrivateDesktopUUID(rS.PrivateDesktopUUID)
@@ -2192,7 +2189,6 @@ int UuidRefCore::GetUuid(const S_GUID & rUuid, long * pID, int options, int use_
 			THROW(tra);
 			{
 				UuidRefTbl::Rec rec;
-				// @v10.6.4 MEMSZERO(rec);
                 memcpy(rec.UUID, &rUuid, sizeof(S_GUID));
                 r = insertRecBuf(&rec, 0, pID);
 				if(!r) {
@@ -2222,7 +2218,6 @@ int UuidRefCore::PutChunk(const TSVector <S_GUID> & rChunk, uint maxCount, int u
         	BExtInsert bei(this);
         	for(uint i = 0; i < cc; i++) {
 				UuidRefTbl::Rec rec;
-				// @v10.6.4 MEMSZERO(rec);
 				memcpy(rec.UUID, &rChunk.at(i), sizeof(S_GUID));
 				THROW_DB(bei.insert(&rec));
         	}
@@ -2525,7 +2520,6 @@ int TextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, int use
 		}
 		else {
 			TextRefTbl::Rec rec;
-			// @v10.6.4 MEMSZERO(rec);
 			rec.ObjType = static_cast<int16>(rI.O.Obj);
 			rec.ObjID = rI.O.Id;
 			rec.Prop = rI.P;

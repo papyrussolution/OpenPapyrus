@@ -1,5 +1,5 @@
 // REGISTER.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2019, 2020, 2022, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -83,11 +83,11 @@ int FASTCALL operator != (const RegisterTbl::Rec & r1, const RegisterTbl::Rec & 
 //
 // RegisterArray
 //
-RegisterArray::RegisterArray() : SVector(sizeof(RegisterTbl::Rec)) // @v9.8.4 SArray-->SVector
+RegisterArray::RegisterArray() : SVector(sizeof(RegisterTbl::Rec))
 {
 }
 
-RegisterArray::RegisterArray(const RegisterArray & s) : SVector(s) // @v9.8.4 SArray-->SVector
+RegisterArray::RegisterArray(const RegisterArray & s) : SVector(s)
 {
 }
 
@@ -131,7 +131,7 @@ int FASTCALL RegisterArray::HasEqual(const RegisterTbl::Rec & rRec) const
 
 RegisterTbl::Rec & FASTCALL RegisterArray::at(uint pos) const
 {
-	return *static_cast<RegisterTbl::Rec *>(SVector::at(pos)); // @v9.8.4 SArray-->SVector
+	return *static_cast<RegisterTbl::Rec *>(SVector::at(pos));
 }
 
 int RegisterArray::GetRegister(PPID regTyp, uint * pPos, RegisterTbl::Rec * pRec) const

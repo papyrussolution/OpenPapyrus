@@ -1,5 +1,5 @@
 // DLS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -98,7 +98,6 @@ int DeviceLoadingStat::StartLoading(PPID * pStatID, int deviceType, PPID deviceI
 	int    ok = 1;
 	PPID   id = 0;
 	DvcLoadingStatTbl::Rec rec;
-	// @v10.6.4 MEMSZERO(rec);
 	rec.DvcType = deviceType;
 	rec.DvcID   = deviceID;
 	getcurdatetime(&rec.Dt, &rec.Tm);
@@ -226,7 +225,7 @@ int DeviceLoadingStat::FinishLoading(PPID statID, int status, int use_ta)
 	}
 	CATCH
 		ok = 0;
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER);
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 	ENDCATCH
 	return ok;
 }

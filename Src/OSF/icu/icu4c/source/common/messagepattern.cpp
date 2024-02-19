@@ -101,7 +101,7 @@ template <typename T, int32_t stackCapacity> void MessagePatternList<T, stackCap
 			errorCode = U_MEMORY_ALLOCATION_ERROR;
 			return;
 		}
-		uprv_memcpy(a.getAlias(), other.a.getAlias(), (size_t)length*sizeof(T));
+		memcpy(a.getAlias(), other.a.getAlias(), (size_t)length*sizeof(T));
 	}
 }
 

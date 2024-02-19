@@ -26,16 +26,12 @@ DWORD WINAPI Notepad_plus::monitorFileOnChange(void * params)
 	HANDLE changeHandles[] = { buf->getMonitoringEvent(), dirChanges.GetWaitHandle() };
 	bool toBeContinued = true;
 	while(toBeContinued) {
-		DWORD waitStatus = ::WaitForMultipleObjects(_countof(changeHandles), changeHandles, FALSE, 250);
-		switch(waitStatus)
-		{
+		DWORD waitStatus = ::WaitForMultipleObjects(SIZEOFARRAY(changeHandles), changeHandles, FALSE, 250);
+		switch(waitStatus) {
 			case WAIT_OBJECT_0 + 0:
 			    // Mutex was signaled. User removes this folder or file browser is closed
-		    {
 			    toBeContinued = false;
-		    }
-		    break;
-
+			    break;
 			case WAIT_OBJECT_0 + 1:
 			    // We've received a notification in the queue.
 		    {

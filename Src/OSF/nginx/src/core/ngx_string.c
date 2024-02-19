@@ -814,17 +814,29 @@ ngx_int_t FASTCALL ngx_hextoi(const uchar * line, size_t n)
 		if(value > cutoff) {
 			return NGX_ERROR;
 		}
-		ch = *line;
-		if(isdec(ch)) {
-			value = value * 16 + (ch - '0');
-			continue;
+		else {
+			ch = *line;
+			// @v11.9.6 {
+			if(ishex(ch)) {
+				value = (value << 4) + hex(ch);
+			}
+			else {
+				return NGX_ERROR;
+			}
+			// } @v11.9.6
+			/* @v11.9.6
+			if(isdec(ch)) {
+				value = value * 16 + (ch - '0');
+				continue;
+			}
+			c = (uchar)(ch | 0x20);
+			if(c >= 'a' && c <= 'f') {
+				value = value * 16 + (c - 'a' + 10);
+				continue;
+			}
+			return NGX_ERROR;
+			*/
 		}
-		c = (uchar)(ch | 0x20);
-		if(c >= 'a' && c <= 'f') {
-			value = value * 16 + (c - 'a' + 10);
-			continue;
-		}
-		return NGX_ERROR;
 	}
 	return value;
 }

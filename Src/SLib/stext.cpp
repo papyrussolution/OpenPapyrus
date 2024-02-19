@@ -2983,7 +2983,6 @@ double FASTCALL ApproxStrComparator::Next(const char * b2)
 int ApproxStrCmp(const char * pStr1, const char * pStr2, int noCase, double * pScore)
 {
 	ApproxStrSrchParam param;
-	// @v10.6.5 @ctr MEMSZERO(param);
 	param.method = 1;
 	param.weight = 1.0;
 	ApproxStrComparator srch(pStr1, &param);

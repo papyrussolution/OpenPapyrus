@@ -1209,8 +1209,8 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 									SXml::WNode np(rX, "product");
 									XMLReplaceSpecSymb(mark_buf, "&<>\'");
 									np.PutInner("ki", mark_buf);
-									np.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD(0, 2, 0)));
-									np.PutInner("vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD(0, 2, 0)));
+									np.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
+									np.PutInner("vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
 								}
 							}
 						}
@@ -1323,8 +1323,8 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 												{
 													SXml::WNode dn(rX, "detail");
 													dn.PutInner("sgtin", mark_buf);
-													dn.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD(0, 2, 0)));
-													dn.PutInner("vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD(0, 2, 0)));
+													dn.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
+													dn.PutInner("vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
 												}
 												{
 													SXml::WNode sdn(rX, "sale_docs");
@@ -1383,8 +1383,8 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 												mark_buf.Cat(temp_buf);
 												SXml::WNode un(rX, "union");
 												un.PutInner("sgtin", mark_buf);
-												un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD(0, 2, 0)));
-												un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD(0, 2, 0)));
+												un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
+												un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
 											}
 										}
 									}
@@ -1449,8 +1449,8 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 												mark_buf.Cat(temp_buf);
 												SXml::WNode un(rX, "union");
 												un.PutInner("sgtin", mark_buf);
-												un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD(0, 2, 0)));
-												un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD(0, 2, 0)));
+												un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
+												un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
 											}
 										}
 									}

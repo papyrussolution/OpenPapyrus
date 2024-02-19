@@ -536,7 +536,7 @@ static void U_CALLCONV _ISO2022Open(UConverter * cnv, UConverterLoadArgs * pArgs
 
 				if(version==1) {
 					(void)strcpy(myConverterData->name, "ISO_2022,locale=ko,version=1");
-					uprv_memcpy(cnv->subChars, myConverterData->currentConverter->subChars, 4);
+					memcpy(cnv->subChars, myConverterData->currentConverter->subChars, 4);
 					cnv->subCharLen = myConverterData->currentConverter->subCharLen;
 				}
 				else {
@@ -1023,7 +1023,7 @@ DONE:
 				_this->preToULength = (int8)(bytesFromThisBuffer-backOutDistance);
 				/* same as -(initialToULength-1) */
 				/* preToULength is negative! */
-				uprv_memcpy(_this->preToU, _this->toUBytes+1, -_this->preToULength);
+				memcpy(_this->preToU, _this->toUBytes+1, -_this->preToULength);
 				*source -= bytesFromThisBuffer;
 			}
 			_this->toULength = 1;
@@ -1287,9 +1287,7 @@ static void U_CALLCONV T_UConverter_toUnicode_ISO_2022_OFFSETS_LOGIC(UConverterT
 					length = saveThis->UCharErrorBufferLength = myData->currentConverter->UCharErrorBufferLength;
 					myData->currentConverter->UCharErrorBufferLength = 0;
 					if(length > 0) {
-						uprv_memcpy(saveThis->UCharErrorBuffer,
-						    myData->currentConverter->UCharErrorBuffer,
-						    length*U_SIZEOF_UCHAR);
+						memcpy(saveThis->UCharErrorBuffer, myData->currentConverter->UCharErrorBuffer, length*U_SIZEOF_UCHAR);
 					}
 					return;
 				}
@@ -1312,18 +1310,15 @@ static void U_CALLCONV T_UConverter_toUnicode_ISO_2022_OFFSETS_LOGIC(UConverterT
 					if(U_FAILURE(*err)) {
 						length = saveThis->invalidCharLength = myData->currentConverter->invalidCharLength;
 						if(length > 0) {
-							uprv_memcpy(saveThis->invalidCharBuffer,
-							    myData->currentConverter->invalidCharBuffer,
-							    length);
+							memcpy(saveThis->invalidCharBuffer, myData->currentConverter->invalidCharBuffer, length);
 						}
 					}
 					else {
 						length = saveThis->toULength = myData->currentConverter->toULength;
 						if(length > 0) {
-							uprv_memcpy(saveThis->toUBytes, myData->currentConverter->toUBytes, length);
+							memcpy(saveThis->toUBytes, myData->currentConverter->toUBytes, length);
 							if(args->source < mySourceLimit) {
-								*err = U_TRUNCATED_CHAR_FOUND; /* truncated input before
-								                                  ESC */
+								*err = U_TRUNCATED_CHAR_FOUND; /* truncated input before ESC */
 							}
 						}
 					}
@@ -1934,7 +1929,7 @@ getTrail:
 				/* write the designation sequence if necessary */
 				if(cs != pFromU2022State->cs[g]) {
 					int32_t escLen = escSeqCharsLen[cs];
-					uprv_memcpy(buffer + outLen, escSeqChars[cs], escLen);
+					memcpy(buffer + outLen, escSeqChars[cs], escLen);
 					outLen += escLen;
 					pFromU2022State->cs[g] = cs;
 
@@ -2043,7 +2038,7 @@ getTrail:
 
 		if(pFromU2022State->cs[0] != ASCII) {
 			int32_t escLen = escSeqCharsLen[ASCII];
-			uprv_memcpy(buffer + outLen, escSeqChars[ASCII], escLen);
+			memcpy(buffer + outLen, escSeqChars[ASCII], escLen);
 			outLen += escLen;
 			pFromU2022State->cs[0] = (int8)ASCII;
 		}
@@ -2363,13 +2358,9 @@ static void U_CALLCONV UConverter_fromUnicode_ISO_2022_KR_OFFSETS_LOGIC_IBM(UCon
 	myConverterData->currentConverter->fromUChar32 = saveConv->fromUChar32;
 	ucnv_MBCSFromUnicodeWithOffsets(args, err);
 	saveConv->fromUChar32 = myConverterData->currentConverter->fromUChar32;
-
 	if(*err == U_BUFFER_OVERFLOW_ERROR) {
 		if(myConverterData->currentConverter->charErrorBufferLength > 0) {
-			uprv_memcpy(
-				saveConv->charErrorBuffer,
-				myConverterData->currentConverter->charErrorBuffer,
-				myConverterData->currentConverter->charErrorBufferLength);
+			memcpy(saveConv->charErrorBuffer, myConverterData->currentConverter->charErrorBuffer, myConverterData->currentConverter->charErrorBufferLength);
 		}
 		saveConv->charErrorBufferLength = myConverterData->currentConverter->charErrorBufferLength;
 		myConverterData->currentConverter->charErrorBufferLength = 0;
@@ -2618,7 +2609,7 @@ static void U_CALLCONV UConverter_toUnicode_ISO_2022_KR_OFFSETS_LOGIC_IBM(UConve
 		minArgsSize = (int32_t)sizeof(UConverterToUnicodeArgs);
 	}
 
-	uprv_memcpy(&subArgs, args, minArgsSize);
+	memcpy(&subArgs, args, minArgsSize);
 	subArgs.size = (uint16)minArgsSize;
 	subArgs.converter = myData->currentConverter;
 
@@ -2643,7 +2634,7 @@ static void U_CALLCONV UConverter_toUnicode_ISO_2022_KR_OFFSETS_LOGIC_IBM(UConve
 			 * converter, can handle truncated and illegal input etc.
 			 */
 			if(args->converter->toULength > 0) {
-				uprv_memcpy(subArgs.converter->toUBytes, args->converter->toUBytes, args->converter->toULength);
+				memcpy(subArgs.converter->toUBytes, args->converter->toUBytes, args->converter->toULength);
 			}
 			subArgs.converter->toULength = args->converter->toULength;
 
@@ -2673,30 +2664,22 @@ static void U_CALLCONV UConverter_toUnicode_ISO_2022_KR_OFFSETS_LOGIC_IBM(UConve
 
 			/* copy input/error/overflow buffers */
 			if(subArgs.converter->toULength > 0) {
-				uprv_memcpy(args->converter->toUBytes, subArgs.converter->toUBytes, subArgs.converter->toULength);
+				memcpy(args->converter->toUBytes, subArgs.converter->toUBytes, subArgs.converter->toULength);
 			}
 			args->converter->toULength = subArgs.converter->toULength;
-
 			if(*err == U_BUFFER_OVERFLOW_ERROR) {
 				if(subArgs.converter->UCharErrorBufferLength > 0) {
-					uprv_memcpy(args->converter->UCharErrorBuffer, subArgs.converter->UCharErrorBuffer,
-					    subArgs.converter->UCharErrorBufferLength);
+					memcpy(args->converter->UCharErrorBuffer, subArgs.converter->UCharErrorBuffer, subArgs.converter->UCharErrorBufferLength);
 				}
 				args->converter->UCharErrorBufferLength = subArgs.converter->UCharErrorBufferLength;
 				subArgs.converter->UCharErrorBufferLength = 0;
 			}
 		}
-
 		if(U_FAILURE(*err) || (args->source == args->sourceLimit)) {
 			return;
 		}
-
 escape:
-		changeState_2022(args->converter,
-		    &(args->source),
-		    args->sourceLimit,
-		    ISO_2022_KR,
-		    err);
+		changeState_2022(args->converter, &(args->source), args->sourceLimit, ISO_2022_KR, err);
 	}
 }
 
@@ -3183,11 +3166,11 @@ getTrail:
 					/* write the designation sequence if necessary */
 					if(cs != pFromU2022State->cs[g]) {
 						if(cs < CNS_11643) {
-							uprv_memcpy(buffer, escSeqCharsCN[cs], 4);
+							memcpy(buffer, escSeqCharsCN[cs], 4);
 						}
 						else {
 							U_ASSERT(cs >= CNS_11643_1);
-							uprv_memcpy(buffer, escSeqCharsCN[CNS_11643 + (cs - CNS_11643_1)], 4);
+							memcpy(buffer, escSeqCharsCN[CNS_11643 + (cs - CNS_11643_1)], 4);
 						}
 						len = 4;
 						pFromU2022State->cs[g] = cs;
@@ -3615,13 +3598,9 @@ static void U_CALLCONV _ISO_2022_WriteSub(UConverterFromUnicodeArgs * args, int3
 			    /* restore the subconverter's substitution string */
 			    myConverterData->currentConverter->subChars = currentSubChars;
 			    myConverterData->currentConverter->subCharLen = currentSubCharLen;
-
 			    if(*err == U_BUFFER_OVERFLOW_ERROR) {
 				    if(myConverterData->currentConverter->charErrorBufferLength > 0) {
-					    uprv_memcpy(
-						    cnv->charErrorBuffer,
-						    myConverterData->currentConverter->charErrorBuffer,
-						    myConverterData->currentConverter->charErrorBufferLength);
+					    memcpy(cnv->charErrorBuffer, myConverterData->currentConverter->charErrorBuffer, myConverterData->currentConverter->charErrorBufferLength);
 				    }
 				    cnv->charErrorBufferLength = myConverterData->currentConverter->charErrorBufferLength;
 				    myConverterData->currentConverter->charErrorBufferLength = 0;
@@ -3671,7 +3650,7 @@ static UConverter * U_CALLCONV _ISO_2022_SafeClone(const UConverter * cnv,
 
 	/* ucnv.c/ucnv_safeClone() copied the main UConverter already */
 
-	uprv_memcpy(&localClone->mydata, cnvData, sizeof(UConverterDataISO2022));
+	memcpy(&localClone->mydata, cnvData, sizeof(UConverterDataISO2022));
 	localClone->cnv.extraInfo = &localClone->mydata; /* set pointer to extra data */
 	localClone->cnv.isExtraLocal = TRUE;
 

@@ -103,7 +103,6 @@ int RSA_padding_check_PKCS1_type_1(uchar * to, int tlen,
 		return -1;
 	}
 	memcpy(to, p, (unsigned int)j);
-
 	return j;
 }
 

@@ -474,7 +474,7 @@ void DecimalQuantity::_setToDoubleFast(double n)
 
 	// To get the bits from the double, use memcpy, which takes care of endianness.
 	uint64_t ieeeBits;
-	uprv_memcpy(&ieeeBits, &n, sizeof(n));
+	memcpy(&ieeeBits, &n, sizeof(n));
 	int32_t exponent = static_cast<int32_t>((ieeeBits & 0x7ff0000000000000L) >> 52) - 0x3ff;
 
 	// Not all integers can be represented exactly for exponent > 52
@@ -1085,7 +1085,7 @@ void DecimalQuantity::shiftLeft(int32_t numDigits)
 	}
 	if(usingBytes) {
 		ensureCapacity(precision + numDigits);
-		uprv_memmove(fBCD.bcdBytes.ptr + numDigits, fBCD.bcdBytes.ptr, precision);
+		memmove(fBCD.bcdBytes.ptr + numDigits, fBCD.bcdBytes.ptr, precision);
 		memzero(fBCD.bcdBytes.ptr, numDigits);
 	}
 	else {
@@ -1287,7 +1287,7 @@ void DecimalQuantity::ensureCapacity(int32_t capacity)
 	}
 	else if(oldCapacity < capacity) {
 		auto bcd1 = static_cast<int8*>(uprv_malloc(capacity * 2 * sizeof(int8)));
-		uprv_memcpy(bcd1, fBCD.bcdBytes.ptr, oldCapacity * sizeof(int8));
+		memcpy(bcd1, fBCD.bcdBytes.ptr, oldCapacity * sizeof(int8));
 		// Initialize the rest of the byte array to zeros (this is done automatically in Java)
 		memzero(bcd1 + oldCapacity, (capacity - oldCapacity) * sizeof(int8));
 		uprv_free(fBCD.bcdBytes.ptr);
@@ -1327,7 +1327,7 @@ void DecimalQuantity::copyBcdFrom(const DecimalQuantity &other) {
 	setBcdToZero();
 	if(other.usingBytes) {
 		ensureCapacity(other.precision);
-		uprv_memcpy(fBCD.bcdBytes.ptr, other.fBCD.bcdBytes.ptr, other.precision * sizeof(int8));
+		memcpy(fBCD.bcdBytes.ptr, other.fBCD.bcdBytes.ptr, other.precision * sizeof(int8));
 	}
 	else {
 		fBCD.bcdLong = other.fBCD.bcdLong;

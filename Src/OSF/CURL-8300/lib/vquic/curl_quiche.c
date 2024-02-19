@@ -134,7 +134,7 @@ static void cf_quiche_ctx_clear(struct cf_quiche_ctx * ctx)
 		if(ctx->cfg)
 			quiche_config_free(ctx->cfg);
 		Curl_bufcp_free(&ctx->stream_bufcp);
-		memset(ctx, 0, sizeof(*ctx));
+		memzero(ctx, sizeof(*ctx));
 	}
 }
 
@@ -790,10 +790,9 @@ static CURLcode cf_flush_egress(struct Curl_cfilter * cf,
 		}
 		return result;
 	}
-
 	readx.cf = cf;
 	readx.data = data;
-	memset(&readx.send_info, 0, sizeof(readx.send_info));
+	memzero(&readx.send_info, sizeof(readx.send_info));
 	pkt_count = 0;
 	gsolen = quiche_conn_max_send_udp_payload_size(ctx->qconn);
 	for(;;) {

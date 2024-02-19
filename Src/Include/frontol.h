@@ -1,5 +1,5 @@
 // FRONTOL.H
-// Copyright (c) A.Sobolev 2016, 2020
+// Copyright (c) A.Sobolev 2016, 2020, 2024
 // @codepage UTF-8
 //
 // Определения, используемые кассовыми модулями, работающими с интерфейсом аналогичным ФРОНТОЛ
@@ -49,9 +49,6 @@ public:
 	int    Search(long posN, long zRepN, uint * pPos) const
 	{
 		const _FrontolZRepEntry key(posN, zRepN, 0);
-		// @v10.8.2 MEMSZERO(key);
-		// @v10.8.2 key.PosN = posN;
-		// @v10.8.2 key.ZRepN = zRepN;
 		return lsearch(&key, pPos, PTR_CMPFUNC(_2long));
 	}
 	int    Search(long sessID, uint * pPos) const

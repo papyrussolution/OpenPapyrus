@@ -1,5 +1,5 @@
 // V_PSNREL.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2009, 2010, 2016, 2017, 2019, 2020
+// Copyright (c) A.Starodub 2006, 2007, 2009, 2010, 2016, 2017, 2019, 2020, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -190,7 +190,6 @@ int PPViewPersonRel::Init_(const PPBaseFilt * pBaseFilt)
 TempPersonRelTbl::Rec & PPViewPersonRel::MakeTempEntry(const PersonCore::RelationRecord & rRec, TempPersonRelTbl::Rec & rTempRec)
 {
 	PPPersonRelType reltyp_rec;
-	// @v10.6.12 @ctr MEMSZERO(reltyp_rec);
 	memzero(&rTempRec, sizeof(TempPersonRelTbl::Rec));
 	rTempRec.PrmrPersonID   = rRec.PrmrObjID;
 	rTempRec.ScndPersonID   = rRec.ScndObjID & ~0xff000000;
@@ -230,7 +229,6 @@ int PPViewPersonRel::UpdateTempTable(PPID prmrID, const PPIDArray & rScndList, P
 			int found = 0;
 			PPID id = 0;
 			PPID scnd_id = (reverse) ? prmrID : rScndList.at(i), prmr_id = (reverse) ? rScndList.at(i) : prmrID;
-			//ObjAssocTbl::Rec oa_rec;
 			PersonCore::RelationRecord rel_rec;
 			TempPersonRelTbl::Key1 k1;
 			MEMSZERO(rel_rec);
@@ -252,8 +250,6 @@ int PPViewPersonRel::UpdateTempTable(PPID prmrID, const PPIDArray & rScndList, P
 			if(found && CheckForFilt(&rel_rec)) {
 				TempOrderTbl::Rec ord_rec;
 				TempPersonRelTbl::Rec temp_rec;
-				// @v10.6.8 @ctr MEMSZERO(ord_rec);
-				// @v10.6.8 @ctr MEMSZERO(temp_rec);
 				MakeTempEntry(rel_rec, temp_rec);
 				if(id && SearchByID(P_TempTbl, 0, id, 0) > 0) {
 					temp_rec.ID = id;

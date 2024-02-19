@@ -1,5 +1,5 @@
 // GDSPACK.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 // Пакет товара и сопутствующие объекты (PPGoodsPacket, PPGdsClsProp, PPGdsClsDim, PPGdsClsPacket, etc)
 //
@@ -83,7 +83,6 @@ int PPGoodsPacket::AddCode(const char * code, long codeType, double uPerP)
 {
 	if(code && code[0]) {
 	   	BarcodeTbl::Rec bcrec;
-		// @v10.6.4 MEMSZERO(bcrec);
 		strip(STRNSCPY(bcrec.Code, code));
 		bcrec.Qtty = uPerP;
 		bcrec.BarcodeType = codeType;
@@ -809,7 +808,6 @@ int PPGdsClsPacket::PropNameToID(int prop, const char * pName, PPID * pID, int f
 		}
 		else if(forceCreate) {
 			ReferenceTbl::Rec rec;
-			// @v10.6.4 MEMSZERO(rec);
 			STRNSCPY(rec.ObjName, pName);
 			THROW(p_ref->AddItem(obj_type, &(id = 0), &rec, use_ta));
 			ASSIGN_PTR(pID, id);

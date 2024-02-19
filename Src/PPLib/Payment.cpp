@@ -1,5 +1,5 @@
 // PAYMENT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -276,7 +276,6 @@ int PPViewLinkedBill::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		int    r = 0;
 		if(P_BObj->Fetch(bill_id, &bill_rec) > 0)
 			r = 1;
-		// @v10.7.4 @ctr else MEMSZERO(bill_rec);
 		switch(pBlk->ColumnN) {
 			case 0: pBlk->Set(bill_id); break; // @id
 			case 1: pBlk->Set(bill_rec.Dt); break; // @date
@@ -1045,7 +1044,6 @@ class CfmReckoningDialog : public TDialog {
 public:
 	CfmReckoningDialog(uint dlgID, PPObjBill * pBObj) : TDialog(dlgID), P_BObj(pBObj)
 	{
-		// @v10.6.5 @ctr MEMSZERO(Data);
 		P_List = static_cast<SmartListBox *>(getCtrlView(CTL_CFM_RECKONING_LIST));
 		if(!SetupStrListBox(P_List))
 			PPError();
@@ -1060,8 +1058,8 @@ public:
 		SString debt_buf, amt_buf;
 		SString temp_buf;
 		GetArticleName(Data.ArticleID, obj_name);
-		debt_buf.Z().Cat(Data.TotalDebt, MKSFMTD(0, 2, 0));
-		amt_buf.Z().Cat(Data.PaymAmount, MKSFMTD(0, 2, 0));
+		debt_buf.Z().Cat(Data.TotalDebt, MKSFMTD_020);
+		amt_buf.Z().Cat(Data.PaymAmount, MKSFMTD_020);
 		GetCurSymbText(Data.CurID, temp_buf);
 		if(Data.DebtOrPaym) {
 			//@cfmrcknparam_info_reverse "По контрагенту '@zstr' существуют документы на сумму @zstr, позволяющие зачесть заданный документ, долг по которому составляет @zstr"
@@ -1819,7 +1817,7 @@ int PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, int diff
 							long   Flags;
 							double Amount;
 						};
-						SVector bi_list(sizeof(_BI)); // @v9.8.12 SArray-->SVector
+						SVector bi_list(sizeof(_BI));
 						for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 							if(op_list.bsearch(p_t->data.OpID)) {
 								_BI bi_item;
@@ -1937,7 +1935,6 @@ int PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags, PPGP
 			P_Tbl->CalcPayment(bill_rec.ID, 1, 0, bill_rec.CurID, &paym);
 			if(paym < bill_rec.Amount) {
 				CBO_BillEntry entry;
-				// @v10.7.5 @ctr MEMSZERO(entry);
 				entry.ID = bill_rec.ID;
 				entry.Dt = bill_rec.Dt;
 				entry.ArID = bill_rec.Object;
@@ -1956,7 +1953,6 @@ int PPObjBill::CreateBankingOrders(const PPIDArray & rBillList, long flags, PPGP
 			// повторять функцию формирования баковского ордера после завершения цикла.
 			//
 			CBO_BillEntry entry;
-			// @v10.7.5 @ctr MEMSZERO(entry);
 			entry.ArID = MAXLONG;
 			list.insert(&entry);
 		}

@@ -1237,7 +1237,6 @@ int PrcssrDbDump::Helper_Dump(long tblID)
 				has_lob = 1;
 			}
 			PPInitIterCounter(cntr, &tbl);
-			// @v10.6.8 @ctr MEMSZERO(key);
 			tbl.clearDataBuf();
 			if(tbl.search(0, key_, spFirst)) do {
 				if(has_lob) {
@@ -1278,7 +1277,6 @@ int PrcssrDbDump::Helper_Dump(long tblID)
 			}
 			if(recs_count) {
 				TableEntry entry;
-				// @v10.6.12 @ctr MEMSZERO(entry);
 				entry.Id = tblID;
 				entry.Offs = start_offs;
 				entry.NumRecs = recs_count;
@@ -1300,7 +1298,6 @@ int PrcssrDbDump::Helper_Dump(long tblID)
 		THROW_SL(FDump.Write(buffer));
 		{
 			TableEntry entry;
-			// @v10.6.12 @ctr MEMSZERO(entry);
 			entry.Id = 0;
 			entry.Offs = start_offs;
 			entry.NumRecs = recs_count;
@@ -3547,7 +3544,6 @@ int PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec)
 {
 	int    ok = 1;
 	TestTa01Tbl::Rec rec;
-	// @v10.6.4 MEMSZERO(rec);
 	getcurdatetime(&rec.Dt, &rec.Tm);
 	//
 	// Вероятность нулевого значения Ref1ID =0.05
@@ -3720,7 +3716,6 @@ int PrcssrTestDb::GenRef01_Rec(TestRef01Tbl::Rec * pRec)
 {
 	int    ok = 1;
 	TestRef01Tbl::Rec rec;
-	// @v10.6.4 MEMSZERO(rec);
 	rec.L = G.GetUniformInt(100000);
 	rec.I16 = (int16)G.GetUniformInt(32000);
 	rec.UI16 = (uint16)labs(G.GetUniformInt(64000));
@@ -3810,7 +3805,6 @@ int PrcssrTestDb::GenRef02_Rec(TestRef02Tbl::Rec * pRec)
 {
 	int    ok = 1;
 	TestRef02Tbl::Rec rec;
-	// @v10.6.4 MEMSZERO(rec);
 	rec.L = G.GetPoisson(100.0);
 	rec.I16 = (int16)G.GetPoisson(10.0);
 	rec.UI16 = (uint16)G.GetPoisson(10.0);

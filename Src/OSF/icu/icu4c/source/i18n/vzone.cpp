@@ -41,17 +41,17 @@ U_CAPI bool U_EXPORT2 vzone_equals(const VZone* zone1, const VZone* zone2) {
 	return *(const VTimeZone*)zone1 == *(const VTimeZone*)zone2;
 }
 
-U_CAPI bool U_EXPORT2 vzone_getTZURL(VZone* zone, char16_t * & url, int32_t & urlLength) {
+U_CAPI bool U_EXPORT2 vzone_getTZURL(VZone* zone, char16_t * & url, int32_t & urlLength) 
+{
 	UnicodeString s;
 	bool b = ((VTimeZone*)zone)->VTimeZone::getTZURL(s);
-
 	urlLength = s.length();
 	memcpy(url, s.getBuffer(), urlLength);
-
 	return b;
 }
 
-U_CAPI void U_EXPORT2 vzone_setTZURL(VZone* zone, char16_t * url, int32_t urlLength) {
+U_CAPI void U_EXPORT2 vzone_setTZURL(VZone* zone, char16_t * url, int32_t urlLength) 
+{
 	UnicodeString s(urlLength==-1, url, urlLength);
 	((VTimeZone*)zone)->VTimeZone::setTZURL(s);
 }

@@ -1100,7 +1100,7 @@ U_CAPI int32_t uprv_convertToPosix(uint32_t hostid, char * posixID, int32_t posi
 	if(pPosixID) {
 		int32_t resLen = static_cast<int32_t>(strlen(pPosixID));
 		int32_t copyLen = resLen <= posixIDCapacity ? resLen : posixIDCapacity;
-		uprv_memcpy(posixID, pPosixID, copyLen);
+		memcpy(posixID, pPosixID, copyLen);
 		if(resLen < posixIDCapacity) {
 			posixID[resLen] = 0;
 			if(*status == U_STRING_NOT_TERMINATED_WARNING) {

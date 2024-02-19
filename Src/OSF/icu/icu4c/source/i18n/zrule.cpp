@@ -32,21 +32,16 @@ U_CAPI bool U_EXPORT2 zrule_equals(const ZRule* rule1, const ZRule* rule2) {
 	return *(const TimeZoneRule*)rule1 == *(const TimeZoneRule*)rule2;
 }
 
-U_CAPI void U_EXPORT2 zrule_getName(ZRule* rule, char16_t * name, int32_t nameLength) {
+U_CAPI void U_EXPORT2 zrule_getName(ZRule* rule, char16_t * name, int32_t nameLength) 
+{
 	UnicodeString s(nameLength==-1, name, nameLength);
 	s = ((TimeZoneRule*)rule)->TimeZoneRule::getName(s);
 	nameLength = s.length();
 	memcpy(name, s.getBuffer(), nameLength);
-	return;
 }
 
-U_CAPI int32_t U_EXPORT2 zrule_getRawOffset(ZRule* rule) {
-	return ((TimeZoneRule*)rule)->TimeZoneRule::getRawOffset();
-}
-
-U_CAPI int32_t U_EXPORT2 zrule_getDSTSavings(ZRule* rule) {
-	return ((TimeZoneRule*)rule)->TimeZoneRule::getDSTSavings();
-}
+U_CAPI int32_t U_EXPORT2 zrule_getRawOffset(ZRule* rule) { return ((TimeZoneRule*)rule)->TimeZoneRule::getRawOffset(); }
+U_CAPI int32_t U_EXPORT2 zrule_getDSTSavings(ZRule* rule) { return ((TimeZoneRule*)rule)->TimeZoneRule::getDSTSavings(); }
 
 U_CAPI bool U_EXPORT2 zrule_isEquivalentTo(ZRule* rule1,  ZRule* rule2) {
 	return ((TimeZoneRule*)rule1)->TimeZoneRule::isEquivalentTo(*(TimeZoneRule*)rule2);

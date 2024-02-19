@@ -34,10 +34,8 @@ static int crngt_get_entropy(PROV_CTX * provctx, const EVP_MD * digest,
     unsigned int * md_size)
 {
 	int r;
-	size_t n;
 	unsigned char * p;
-
-	n = ossl_prov_get_entropy(provctx, &p, 0, CRNGT_BUFSIZ, CRNGT_BUFSIZ);
+	size_t n = ossl_prov_get_entropy(provctx, &p, 0, CRNGT_BUFSIZ, CRNGT_BUFSIZ);
 	if(n == CRNGT_BUFSIZ) {
 		r = EVP_Digest(p, CRNGT_BUFSIZ, md, md_size, digest, NULL);
 		if(r != 0)
@@ -53,7 +51,6 @@ static int crngt_get_entropy(PROV_CTX * provctx, const EVP_MD * digest,
 static void rand_crng_ossl_ctx_free(void * vcrngt_glob)
 {
 	CRNG_TEST_GLOBAL * crngt_glob = (CRNG_TEST_GLOBAL *)vcrngt_glob;
-
 	CRYPTO_THREAD_lock_free(crngt_glob->lock);
 	EVP_MD_free(crngt_glob->md);
 	OPENSSL_free(crngt_glob);

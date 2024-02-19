@@ -1,5 +1,5 @@
 // IMPORT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage windows-1251
 // Функции импорта справочников
 //
@@ -305,7 +305,6 @@ int PPObjSCard::Import(int use_ta)
 					SCardTbl::Rec sc_rec;
 					DbfRecord rec(&in_tbl);
 					THROW(in_tbl.getRec(&rec));
-					// @v10.6.4 MEMSZERO(sc_rec);
 					sc_rec.SeriesID = scser_id;
 					rec.get(fldn_codenum, codenum);
 					if(codenum) {
@@ -359,7 +358,6 @@ int PPObjSCard::Import(int use_ta)
 						if(scard_id && turnover > 0) {
 							PPID cc_id = 0;
 							CCheckTbl::Rec cc_rec;
-							// @v10.6.4 MEMSZERO(cc_rec);
 							cc_rec.Code = ++cc_code;
 							encodedate(1, 1, 2001, &cc_rec.Dt);
 							cc_time.v++;
@@ -650,13 +648,13 @@ static int GetHierarchyFields(PPIniFile * pIniFile, DbfTable * pTbl, uint sectId
 	return ok;
 }
 
-HierArray::HierArray() : SVector(sizeof(HierArray::Item)) // @v9.9.3 SArray-->SVector
+HierArray::HierArray() : SVector(sizeof(HierArray::Item))
 {
 }
 
 const HierArray::Item & HierArray::at(uint i) const
 {
-	return *(HierArray::Item *)SVector::at(i); // @v9.9.3 SArray-->SVector
+	return *(HierArray::Item *)SVector::at(i);
 }
 
 int HierArray::Add(const char * pCode, const char * pParentCode)
@@ -1161,7 +1159,6 @@ int PPObjGoods::ImportOld(int use_ta)
 									do_update = 1;
 								if(ar_code.NotEmpty()) {
 									ArGoodsCodeTbl::Rec ar_code_rec;
-									// @v10.6.4 MEMSZERO(ar_code_rec);
 									ar_code_rec.GoodsID = pack.Rec.ID;
 									ar_code_rec.ArID = 0; // ?
 									ar_code_rec.Pack = 1000; // 1.0
@@ -1301,7 +1298,6 @@ int PPObjGoods::ImportOld(int use_ta)
 									ArGoodsCodeArray arcode_list;
 									ArGoodsCodeTbl::Rec ar_code_rec;
 									arcode_list = pack.ArCodes;
-									// @v10.6.4 MEMSZERO(ar_code_rec);
 									ar_code_rec.GoodsID = goods_id;
 									ar_code_rec.ArID = 0; // ?
 									ar_code_rec.Pack = 1000; // 1.0
@@ -1336,7 +1332,6 @@ int PPObjGoods::ImportOld(int use_ta)
 						rec.get(fldn_qc_number, temp_buf);
 						if(temp_buf.NotEmptyS() && qc_obj.SearchByCode(temp_buf, &qcert_id, 0) <= 0) {
 							QualityCertTbl::Rec qc_rec;
-							// @v10.6.4 MEMSZERO(qc_rec);
 							STRNSCPY(qc_rec.Code, temp_buf);
 							rec.get(fldn_qc_blank, temp_buf);
 							STRNSCPY(qc_rec.BlankCode, temp_buf.Strip());
@@ -1613,23 +1608,12 @@ int PPObjPerson::Import(int specKind, int use_ta)
 							rec.get(fldn_bankacc, accno);
 							if(bnk_rec.Name[0] && accno.NotEmptyS()) {
 								PPID   bnk_id = 0;
-								/* @v9.0.4
-								BankAccountTbl::Rec bnkacc_rec;
-								MEMSZERO(bnkacc_rec);
-								THROW(AddBankSimple(&bnk_id, &bnk_rec, 0));
-								bnkacc_rec.BankID  = bnk_id;
-								bnkacc_rec.AccType = PPBAC_CURRENT;
-								STRNSCPY(bnkacc_rec.Acct, accno);
-								THROW_SL(pack.BAA.insert(&bnkacc_rec));
-								*/
-								// @v9.0.4 {
 								PPBankAccount ba;
 								THROW(AddBankSimple(&bnk_id, &bnk_rec, 0));
 								ba.BankID = bnk_id;
 								ba.AccType = PPBAC_CURRENT;
 								STRNSCPY(ba.Acct, accno);
 								THROW(pack.Regs.SetBankAccount(&ba, static_cast<uint>(-1)));
-								// } @v9.0.4
 							}
 						}
 						if(SearchMaxLike(&pack, &psn_id, 0, key_reg_type_id /*PPREGT_TPID*/) > 0)
@@ -1784,11 +1768,9 @@ int ImportSpecSeries()
 					logger.LogString(PPTXT_IMPSPOIL_CLEAR, 0);
 					THROW(deleteFrom(&ss_tbl, 0, *reinterpret_cast<DBQ *>(0)));
 				}
-				// @v10.7.9 @ctr MEMSZERO(src_rec);
 				while((r = p_impexp->ReadRecord(&src_rec, sizeof(src_rec))) > 0) {
 					int    dup = 0;
 					SpecSeries2Tbl::Rec ss_rec;
-					// @v10.6.4 MEMSZERO(ss_rec);
 					ss_rec.InfoKind = SPCSERIK_SPOILAGE;
 					STRNSCPY(ss_rec.Serial, src_rec.Serial);
 					SpecSeriesCore::SetExField(&ss_rec, SPCSNEXSTR_GOODSNAME, (temp_buf = src_rec.GoodsName).Transf(CTRANSF_OUTER_TO_INNER));
@@ -2108,7 +2090,6 @@ int PrcssrPhoneListImport::Run()
 		{
 			cntr.Init(numrecs);
 			Sdr_PhoneList rec;
-			// @v10.7.9 @ctr MEMSZERO(rec);
 			while((r = ie.ReadRecord(&rec, sizeof(rec))) > 0) {
 				int    found = 0;
 				PPEAddr::Phone::NormalizeStr(rec.Phone, 0, phone);
@@ -2144,7 +2125,6 @@ int PrcssrPhoneListImport::Run()
 						if(!found) {
 							PPID   loc_id = 0;
 							LocationTbl::Rec loc_rec;
-							// @v10.6.4 MEMSZERO(loc_rec);
 							LocationCore::SetExField(&loc_rec, LOCEXSTR_PHONE, phone);
 							if(address.NotEmpty())
 								LocationCore::SetExField(&loc_rec, LOCEXSTR_SHORTADDR, address);
@@ -2651,7 +2631,6 @@ int PrcssrImportKLADR::PreImport()
 			while((r = p_impexp->ReadRecord(&src_rec, sizeof(src_rec))) > 0) {
 				char status_text[64];
 				TempKLADRTbl::Rec rec;
-				// @v10.6.4 MEMSZERO(rec);
 				(temp_buf = src_rec.Name).Transf(CTRANSF_OUTER_TO_INNER);
 				STRNSCPY(rec.Name, temp_buf);
 				(temp_buf = src_rec.StatusAbbr).Transf(CTRANSF_OUTER_TO_INNER);
@@ -2685,7 +2664,6 @@ int PrcssrImportKLADR::PreImport()
 			while((r = p_impexp->ReadRecord(&src_rec, sizeof(src_rec))) > 0) {
 				char status_text[64];
 				TempKLADRTbl::Rec rec;
-				// @v10.6.4 MEMSZERO(rec);
 				(temp_buf = src_rec.Name).Transf(CTRANSF_OUTER_TO_INNER);
 				STRNSCPY(rec.Name, temp_buf);
 				(temp_buf = src_rec.StatusAbbr).Transf(CTRANSF_OUTER_TO_INNER);
@@ -3308,7 +3286,6 @@ int PrcssrPersonImport::Run()
 		PPTransaction tra(1);
 		THROW(tra);
 		cntr.Init(numrecs);
-		// @v10.7.9 @ctr MEMSZERO(rec);
 		while(ie.ReadRecord(&rec, sizeof(rec), &dyn_rec) > 0) {
 			IeParam.InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &rec);
 			// @v10.9.1 {
@@ -3998,7 +3975,6 @@ int ImportSR25()
 							PPUnit unit_rec;
 							const char micro_prefix[] = {(char)181, 0};
 							uint pos = 0;
-							// @v10.6.8 @ctr MEMSZERO(unit_rec);
 							unit_rec.Tag = PPOBJ_UNIT;
 							if((temp_buf = r_comp.UnitAbbr).HasChr(181) || temp_buf.HasChr(-75)) // Если есть приставка "микро" (проверяем по двум кодам) // @[ru]
 								temp_buf.ReplaceStr(micro_prefix, "mk", 1);
@@ -4147,7 +4123,6 @@ int ImportCompGS()
 					PPUnit unit_rec;
 					char micro_prefix[] = {(char)181, 0};
 					uint pos = 0;
-					// @v10.6.8 @ctr MEMSZERO(unit_rec);
 					unit_rec.Tag = PPOBJ_UNIT;
 					if((buf = r_item.UnitAbbr).HasChr(181) || buf.HasChr(-75)) // Если есть приставка "микро" (проверяем по двум кодам) // @[ru]
 						buf.ReplaceStr(micro_prefix, "mk", 1);
@@ -4676,7 +4651,6 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 					}
 					else {
 						FiasAddrObjTbl::Rec rec, org_rec;
-						MEMSZERO(rec);
 						SStringU utext;
 						int    sr = 0;
 						if(r_state.Phase == phaseUUID) {
@@ -4827,7 +4801,6 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 					}
 					else {
 						FiasHouseObjTbl::Rec rec, org_rec;
-						MEMSZERO(rec);
 						SStringU utext;
 						int    sr = 0;
 						if(r_state.Phase == phaseUUID) {
@@ -4985,7 +4958,6 @@ int FiasImporter::Import(int inpObject)
 		}
 		if(file_name.NotEmpty() && checkdate(max_date)) {
 			xmlSAXHandler saxh_addr_obj;
-			// @v10.7.9 @ctr MEMSZERO(saxh_addr_obj);
 			saxh_addr_obj.startDocument = Scb_StartDocument;
 			saxh_addr_obj.endDocument = Scb_EndDocument;
 			saxh_addr_obj.startElement = Scb_StartElement;
@@ -6685,7 +6657,6 @@ int PrcssrOsm::Run()
 	if(P.Flags & PrcssrOsmFilt::fPreprocess) {
 		Phase = phasePreprocess;
 		xmlSAXHandler saxh_addr_obj;
-		// @v10.7.9 @ctr MEMSZERO(saxh_addr_obj);
 		saxh_addr_obj.startDocument = Scb_StartDocument;
 		saxh_addr_obj.endDocument = Scb_EndDocument;
 		saxh_addr_obj.startElement = Scb_StartElement;
@@ -6878,7 +6849,6 @@ int PrcssrOsm::Run()
 			THROW(O.OpenDatabase(p_db_path));
 			{
 				xmlSAXHandler saxh_addr_obj;
-				// @v10.7.9 @ctr MEMSZERO(saxh_addr_obj);
 				saxh_addr_obj.startDocument = Scb_StartDocument;
 				saxh_addr_obj.endDocument = Scb_EndDocument;
 				saxh_addr_obj.startElement = Scb_StartElement;

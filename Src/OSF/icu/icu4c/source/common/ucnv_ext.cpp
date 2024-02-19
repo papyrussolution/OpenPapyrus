@@ -381,7 +381,7 @@ U_CFUNC void ucnv_extContinueMatchToU(UConverter * cnv,
 		else {
 			/* the match did not use all of preToU[] - keep the rest for replay */
 			length = cnv->preToULength-match;
-			uprv_memmove(cnv->preToU, cnv->preToU+match, length);
+			memmove(cnv->preToU, cnv->preToU+match, length);
 			cnv->preToULength = (int8)-length;
 		}
 
@@ -426,13 +426,13 @@ U_CFUNC void ucnv_extContinueMatchToU(UConverter * cnv,
 		 */
 
 		/* move the first codepage character to the error field */
-		uprv_memcpy(cnv->toUBytes, cnv->preToU, cnv->preToUFirstLength);
+		memcpy(cnv->toUBytes, cnv->preToU, cnv->preToUFirstLength);
 		cnv->toULength = cnv->preToUFirstLength;
 
 		/* move the rest up inside the buffer */
 		length = cnv->preToULength-cnv->preToUFirstLength;
 		if(length > 0) {
-			uprv_memmove(cnv->preToU, cnv->preToU+cnv->preToUFirstLength, length);
+			memmove(cnv->preToU, cnv->preToU+cnv->preToUFirstLength, length);
 		}
 
 		/* mark preToU for replay */
@@ -727,7 +727,7 @@ static inline void ucnv_extWriteFromU(UConverter * cnv, const int32_t * cx,
 			/* prepend the shift byte to the result bytes */
 			buffer[0] = shiftByte;
 			if(result!=buffer+1) {
-				uprv_memcpy(buffer+1, result, length);
+				memcpy(buffer+1, result, length);
 			}
 			result = buffer;
 			++length;

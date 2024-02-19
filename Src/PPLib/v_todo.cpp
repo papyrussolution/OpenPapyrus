@@ -1,5 +1,5 @@
 // V_TODO.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -832,7 +832,6 @@ int CrosstabProcessor::Start()
 			DateIter dt_iter;
 			for(dt_iter.Init(&Filt.StartPeriod); !dt_iter.IsEnd(); plusdate(&dt, 1, 0), dt_iter.Advance(dt, 0)) {
 				PrjTaskTbl::Rec rec;
-				// @v10.7.9 @ctr MEMSZERO(rec);
 				rec.StartDt = dt;
 				for(int h = PrjCfg.WorkHoursBeg; h <= PrjCfg.WorkHoursEnd; h++)
 					THROW(AddRec(h, 0, 0, &rec));
@@ -963,7 +962,6 @@ int CrosstabProcessor::AddRec(PPID tabID, double tabParam, double addParam, PrjT
 		long   tab_type = Filt.TabType;
 		SString buf;
 		TempPrjTaskTbl::Rec temp_rec;
-		// @v10.7.5 @ctr MEMSZERO(temp_rec);
 		temp_rec.TabID       = tabID;
 		temp_rec.EmployerID  = pRec->EmployerID;
 		temp_rec.ClientID    = pRec->ClientID;

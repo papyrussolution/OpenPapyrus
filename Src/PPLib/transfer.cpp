@@ -173,7 +173,6 @@ int Transfer::AddLotItem(PPTransferItem * ti, PPID forceID)
 	}
 	if(ti->LotID == 0) {
 		ReceiptTbl::Rec lot_rec;
-		// @v10.6.10 @ctr MEMSZERO(lot_rec);
 		lot_rec.ID  = forceID;
 		lot_rec.BillID      = ti->BillID;
 		lot_rec.LocID       = ti->LocID;
@@ -1462,7 +1461,6 @@ int Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 		}
 		{
 			TransferTbl::Rec rec;
-			// @v10.6.10 @ctr MEMSZERO(rec);
 			rec.LocID    = ti->LocID;
 			rec.Dt       = ti->Date;
 			THROW(GetOprNo(rec.Dt, &rec.OprNo));
@@ -1724,7 +1722,6 @@ int Transfer::LcrBlock::FinishLot()
 				}
 				else if(r_item.Status == statusAddRec) {
 					LotCurRestTbl::Rec rec;
-					// @v10.6.4 MEMSZERO(rec);
 					rec.LotID = LotID;
 					rec.D = WorkDate::ShrinkDate(r_item.Dt);
 					rec.LDRest = r_item.ValidRest;
@@ -2010,7 +2007,6 @@ int Transfer::LcrBlock2::FinishLot()
 				}
 				else if(r_item.Status == statusAddRec) {
 					LotCurRest2Tbl::Rec rec;
-					// @v10.6.4 MEMSZERO(rec);
 					rec.LotID = LotID;
 					rec.D = WorkDate::ShrinkDate(r_item.Dt);
 					rec.LDRestF = r_item.ValidRestF;
@@ -2663,7 +2659,6 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 				// не генерирует собственный лот, а вливается в существующий
 				//
 				ReceiptTbl::Rec tmp_lot_rec;
-				// @v10.6.4 MEMSZERO(tmp_lot_rec);
 				tmp_lot_rec.ID = rec.LotID;
 				//
 				// Если цены изменились, то операция уже не может вливаться в

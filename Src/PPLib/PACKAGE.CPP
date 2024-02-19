@@ -1,5 +1,5 @@
 // PACKAGE.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2001, 2002, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2019, 2020, 2024
 // @Kernel
 //
 #include <pp.h>
@@ -13,14 +13,14 @@ struct LPII { // @flat
 	int32  ID;
 };
 
-LPackage::LPackage() : SVector(sizeof(LPII)) // @v9.8.11 SArray-->SVector
+LPackage::LPackage() : SVector(sizeof(LPII))
 {
 	Init();
 }
 
 int FASTCALL LPackage::Copy(const LPackage & s)
 {
-	SVector::copy(s); // @v9.8.11 SArray-->SVector
+	SVector::copy(s);
 	PckgIdx = s.PckgIdx;
 	ID = s.ID;
 	PrevID = s.PrevID;

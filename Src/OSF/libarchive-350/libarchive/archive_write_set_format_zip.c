@@ -1062,9 +1062,7 @@ static int archive_write_zip_finish_entry(struct archive_write * a)
 	}
 
 	/* Append Zip64 extra data to central directory information. */
-	if(zip->entry_compressed_written > ZIP_4GB_MAX
-	   || zip->entry_uncompressed_written > ZIP_4GB_MAX
-	   || zip->entry_offset > ZIP_4GB_MAX) {
+	if(zip->entry_compressed_written > ZIP_4GB_MAX || zip->entry_uncompressed_written > ZIP_4GB_MAX || zip->entry_offset > ZIP_4GB_MAX) {
 		uchar zip64[32];
 		uchar * z = zip64, * zd;
 		memcpy(z, "\001\000\000\000", 4);

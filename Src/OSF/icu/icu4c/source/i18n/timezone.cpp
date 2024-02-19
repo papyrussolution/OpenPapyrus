@@ -851,7 +851,7 @@ public:
 			localMap = (int32_t*)uprv_malloc(other.len * sizeof(int32_t));
 			if(localMap) {
 				len = other.len;
-				uprv_memcpy(localMap, other.localMap, len * sizeof(int32_t));
+				memcpy(localMap, other.localMap, len * sizeof(int32_t));
 				pos = other.pos;
 				map = localMap;
 			}

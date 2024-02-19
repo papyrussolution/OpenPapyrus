@@ -269,7 +269,6 @@ static void salsa208_word_specification(uint32_t inout[16])
 {
 	int i;
 	uint32_t x[16];
-
 	memcpy(x, inout, sizeof(x));
 	for(i = 8; i > 0; i -= 2) {
 		x[4] ^= R(x[0] + x[12], 7);
@@ -314,7 +313,6 @@ static void scryptBlockMix(uint32_t * B_, uint32_t * B, uint64_t r)
 {
 	uint64_t i, j;
 	uint32_t X[16], * pB;
-
 	memcpy(X, B + (r * 2 - 1) * 16, sizeof(X));
 	pB = B;
 	for(i = 0; i < r * 2; i++) {

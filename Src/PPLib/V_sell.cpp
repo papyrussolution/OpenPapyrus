@@ -1,5 +1,5 @@
 // V_SELL.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -94,7 +94,6 @@ int PPViewPredictSales::Init_(const PPBaseFilt * pBaseFilt)
 		THROW_MEM(p_bei = new BExtInsert(P_TempTbl));
 		for(i = 0; list.enumItems(&i, (void **)&p_item);) {
 			TempPredictSalesTbl::Rec rec;
-			// @v10.6.8 @ctr MEMSZERO(rec);
 			const LDATE this_date = p_item->Dt;
 			rec.Dt = this_date;
 			rec.Qtty = p_item->Qtty;

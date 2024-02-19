@@ -1,5 +1,5 @@
 // OBJG_ETC.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Дополнительные классы инфраструктуры управления товарами
 //
@@ -44,7 +44,6 @@ int PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 	if(!is_new) {
 		THROW(Search(*pID, &rec) > 0);
 	}
-	// @v10.7.5 @ctr else MEMSZERO(rec);
 	dlg->setCtrlData(CTL_GDSTYP_NAME, rec.Name);
 	dlg->setCtrlData(CTL_GDSTYP_SYMB, rec.Symb);
 	dlg->setCtrlData(CTL_GDSTYP_ID,   &rec.ID);
@@ -221,7 +220,6 @@ int PPObjBarCodeStruc::Edit(PPID * pID, void * extraPtr)
 	if(!is_new) {
 		THROW(Search(*pID, &rec) > 0);
 	}
-	// @v10.7.6 @ctr else MEMSZERO(rec);
 	dlg->setCtrlData(CTL_BCODESTR_NAME, rec.Name);
 	dlg->setCtrlData(CTL_BCODESTR_TEMPL, rec.Templ);
 	// @v10.7.6 {
@@ -477,7 +475,6 @@ int GoodsValRestrDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	ObjRestrictItem item;
-	// @v10.7.8 @ctr MEMSZERO(item);
 	while(ok < 0 && EditItem(item) > 0) {
 		if(!Data.SetBillArRestr(item.ObjID, item.Flags)) {
 			PPError();

@@ -1,5 +1,5 @@
 // OBJLOCTN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage Windows-1251
 //
 #include <pp.h>
@@ -663,7 +663,7 @@ int PPObjLocation::GetCityByName(const char * pName, PPID * pCityID)
 	ASSIGN_PTR(pCityID, 0);
 	if(pName) {
 		SETIFZ(P_WObj, new PPObjWorld);
-		SVector w_list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
+		SVector w_list(sizeof(WorldTbl::Rec));
 		P_WObj->GetListByName(WORLDOBJ_CITY, pName, &w_list);
 		if(w_list.getCount() == 1) {
 			ASSIGN_PTR(pCityID, static_cast<const WorldTbl::Rec *>(w_list.at(0))->ID);
@@ -787,7 +787,7 @@ int PPObjLocation::AddListItem(StrAssocArray * pList, const LocationTbl::Rec * p
 			}
 			else {
 				PPSetError(PPERR_LOCATIONRECUR, par_rec.Name);
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 				par_id = 0;
 			}
 		}
@@ -918,7 +918,6 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 	}
 	if(zeroParentId) {
 		LocationTbl::Rec loc_rec;
-		// @v10.6.8 @ctr MEMSZERO(loc_rec);
 		loc_rec.ID = zeroParentId;
 		PPLoadText(PPTXT_ALLWAREHOUSES, temp_buf.Z());
 		temp_buf.CopyTo(loc_rec.Name, sizeof(loc_rec.Name));
@@ -1015,7 +1014,6 @@ int PPObjLocation::GenerateWhCells(PPID whColumnID, const LocationTbl::Rec * pSa
 			for(int layer = 1; layer <= column_rec.NumLayers; layer++) {
 				PPID   id = 0;
 				LocationTbl::Rec cell_rec;
-				// @v10.6.8 @ctr MEMSZERO(cell_rec);
 				cell_rec.Type = LOCTYP_WHCELL;
 				cell_rec.ParentID = whColumnID;
 				cell_rec.NumRows = static_cast<int16>(row);
@@ -1419,13 +1417,11 @@ int LocationView::Restore()
 	PPObjArticle ar_obj;
 	PPObjLocation loc_obj;
 	PPLogger logger;
-	// @v10.6.8 @ctr MEMSZERO(rec);
 	const  PPID loc_acs_id = LConfig.LocAccSheetID;
 	while(ar_obj.P_Tbl->EnumBySheet(loc_acs_id, &art_no, &rec) > 0) {
 		int    r = loc_obj.Search(rec.ObjID, 0);
 		if(r < 0) {
 			LocationTbl::Rec loc_rec;
-			// @v10.6.8 @ctr MEMSZERO(loc_rec);
 			loc_rec.ID   = rec.ObjID;
 			loc_rec.Type = LOCTYP_WAREHOUSE;
 			STRNSCPY(loc_rec.Name, rec.Name);
@@ -1546,7 +1542,6 @@ int LocationExtFieldsDialog::Edit(SStringTag * pData)
 		DECL_DIALOG_SETDTS()
 		{
 			if(!RVALUEPTR(Data, pData)) {
-				//MEMSZERO(Data);
 				Data.Id = 0;
 				Data.Z();
 			}
@@ -2566,7 +2561,6 @@ int PPObjLocation::Edit(PPID * pID, void * extraPtr)
 	else {
 		uint   t = 0;
 		LocationTbl::Rec cur_rec;
-		// @v10.6.8 @ctr MEMSZERO(cur_rec);
 		if(extraPtr) {
 			LocationFilt flt = *static_cast<const LocationFilt *>(extraPtr);
 			loc_typ = NZOR(flt.LocType, LOCTYP_WAREHOUSE);
@@ -2590,7 +2584,6 @@ int PPObjLocation::Edit(PPID * pID, void * extraPtr)
 		}
 		else if(loc_typ == LOCTYP_WHZONE) {
 			CreateWhLocParam cwlp;
-			// @v10.6.8 @ctr MEMSZERO(cwlp);
 			cwlp.CellSample.ParentID = cur_rec.ID;
 			if(cur_rec.ID && cur_rec.Type == LOCTYP_WHCELL) {
 				loc_typ = pack.Type = LOCTYP_WHCELL;
@@ -2852,9 +2845,7 @@ int PPObjLocation::MakeReserved(long flags)
 			LocationTbl::Rec rec;
 			p_rez->getUINT();
 			p_rez->getString(name, 2);
-			PPExpandString(name, CTRANSF_UTF8_TO_INNER); // @v9.2.1
-			// @v10.6.8 @ctr MEMSZERO(rec);
-			// @v10.6.8 @ctr rec.ID = 0;
+			PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 			name.CopyTo(rec.Name, sizeof(rec.Name));
 			rec.Type = LOCTYP_WAREHOUSE;
 			THROW(P_Tbl->Add(&id, &rec, 1));
@@ -2875,7 +2866,6 @@ DivisionCtrlGroup::DivisionCtrlGroup(uint _ctlsel_org, uint _ctlsel_div, uint _c
 	CtrlGroup(), DivF(LOCTYP_DIVISION), CtlselOrg(_ctlsel_org), CtlselDiv(_ctlsel_div), CtlselStaff(_ctlsel_staff),
 	CtlselPost(_ctlsel_post), flags(0)
 {
-	// @v10.6.8 @ctr MEMSZERO(Data);
 }
 
 int DivisionCtrlGroup::setData(TDialog * dlg, void * data)
@@ -3107,7 +3097,7 @@ private:
 	FealArray FullEaList;
 	ReadWriteLock FealLock;
 	int    IsWhObjTabInited;
-	SVector WhObjList; // @v10.0.05 SArray-->SVector
+	SVector WhObjList;
 	TSCollection <WHCellEntry> WhCellList;
 	PPLocationConfig Cfg;
 	ReadWriteLock CfgLock;

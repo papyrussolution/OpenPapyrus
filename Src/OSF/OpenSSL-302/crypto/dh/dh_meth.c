@@ -40,14 +40,11 @@ void DH_meth_free(DH_METHOD * dhm)
 DH_METHOD * DH_meth_dup(const DH_METHOD * dhm)
 {
 	DH_METHOD * ret = (DH_METHOD*)OPENSSL_malloc(sizeof(*ret));
-
 	if(ret) {
 		memcpy(ret, dhm, sizeof(*dhm));
-
 		ret->name = OPENSSL_strdup(dhm->name);
 		if(ret->name != NULL)
 			return ret;
-
 		OPENSSL_free(ret);
 	}
 

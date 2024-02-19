@@ -50,7 +50,7 @@ void FixedSortKeyByteSink::AppendBeyondCapacity(const char * bytes, int32_t /*n*
 	// Fill the buffer completely.
 	int32_t available = capacity_ - length;
 	if(available > 0) {
-		uprv_memcpy(buffer_ + length, bytes, available);
+		memcpy(buffer_ + length, bytes, available);
 	}
 }
 
@@ -82,7 +82,7 @@ CollationKeyByteSink::~CollationKeyByteSink() {
 void CollationKeyByteSink::AppendBeyondCapacity(const char * bytes, int32_t n, int32_t length) {
 	// buffer_ != NULL && bytes != NULL && n > 0 && appended_ > capacity_
 	if(Resize(n, length)) {
-		uprv_memcpy(buffer_ + length, bytes, n);
+		memcpy(buffer_ + length, bytes, n);
 	}
 }
 
@@ -353,7 +353,7 @@ void RuleBasedCollator::getRules(UColRuleOption delta, UnicodeString & buffer) c
 }
 
 void RuleBasedCollator::getVersion(UVersionInfo version) const {
-	uprv_memcpy(version, tailoring->version, U_MAX_VERSION_LENGTH);
+	memcpy(version, tailoring->version, U_MAX_VERSION_LENGTH);
 	version[0] += (UCOL_RUNTIME_VERSION << 4) + (UCOL_RUNTIME_VERSION >> 4);
 }
 
@@ -661,7 +661,7 @@ int32_t RuleBasedCollator::getReorderCodes(int32_t * dest, int32_t capacity,
 		errorCode = U_BUFFER_OVERFLOW_ERROR;
 		return length;
 	}
-	uprv_memcpy(dest, settings->reorderCodes, length * 4);
+	memcpy(dest, settings->reorderCodes, length * 4);
 	return length;
 }
 

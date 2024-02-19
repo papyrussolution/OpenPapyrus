@@ -1,5 +1,5 @@
 // PPCMD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -1904,7 +1904,7 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 									}
 								}
 								else {
-									PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_DBINFO);
+									PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 								}
 							}
 							xmlFreeDoc(p_doc);
@@ -1912,7 +1912,7 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 						}
 						else {
 							PPSetLibXmlError(p_xml_parser);
-							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_DBINFO);
+							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 							// @v11.3.1 {
 							{
 								const SFsPath ps(src_file_name);
@@ -1948,7 +1948,7 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 		}
 	}
 	CATCH
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 		if(fileExists(lock_path)) // @v10.9.3 @fix !fileExists-->fileExists
 			SFile::Remove(lock_path);
 		ok = 0;
@@ -2333,7 +2333,6 @@ public:
 		PPPrjTaskPacket pack;
 		THROW_INVARG(pParam);
         sav_offs = pParam->GetRdOffs();
-		// @v10.6.4 MEMSZERO(rec);
 		if(pParam->GetAvailableSize() == 0)
 			TodoObj.InitPacket(&pack, TODOKIND_TASK, 0, 0, 0, 0);
 		else
@@ -2457,7 +2456,6 @@ void SelectPersonByCodeDialog::SetupCtrls()
 	PPID   psn_id = getCtrlLong(CTLSEL_SELPERSONC_PRSN);
 	if(psn_id) {
 		RegisterTbl::Rec reg_rec;
-		// @v10.6.4 MEMSZERO(reg_rec);
 		PsnObj.GetRegister(psn_id, PsnKindRec.CodeRegTypeID, &reg_rec);
 		code = reg_rec.Num;
 		showCtrl(CTLSEL_SELPERSONC_SCARD, 1); // @v9.1.3
@@ -2502,8 +2500,6 @@ int SelectPersonByCodeDialog::getDTS(Rec * pData)
 				Data.PrmrPsnID = psn_list.getCount() ? psn_list.at(0) : 0;
 			else {
 				PersonTbl::Rec psn_rec;
-				// @v10.6.4 MEMSZERO(psn_rec);
-				// @v10.6.4 MEMSZERO(sc_rec);
 				if(ScObj.P_Tbl->SearchCode(0, code, &sc_rec) > 0 && PsnObj.P_Tbl->IsBelongsToKind(sc_rec.PersonID, PsnKindRec.ID) > 0) {
 					Data.PrmrPsnID = sc_rec.PersonID;
 					Data.Sc = sc_rec;
@@ -2544,9 +2540,6 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 		PPObjSCard sc_obj;
 		SelectPersonByCodeDialog::Rec psn_data;
 		static_cast<PPApp *>(APPL)->LastCmd = D.MenuCm;
-		// @v10.6.6 @ctr MEMSZERO(pop_rec);
-		// @v10.6.6 @ctr MEMSZERO(pk_rec);
-		// @v10.6.6 @ctr MEMSZERO(scnd_pk_rec);
 		CALLPTRMEMB(pParam, Read(symb));
 		THROW(pop_obj.SearchBySymb(symb, 0, &pop_rec) > 0);
 		THROW(pop_obj.GetPacket(pop_rec.ID, &pop_pack) > 0);
@@ -2578,7 +2571,6 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 					SString info, warn, buf, reg_buf;
 					RegisterTbl::Rec reg_rec;
 					PPPersonPacket psn_pack;
-					// @v10.6.4 MEMSZERO(reg_rec);
 					THROW(psn_obj.GetPacket(prmr_psn_id, &psn_pack, 0));
 					info.Cat(psn_pack.Rec.Name);
 					PPLoadString("validuntil", buf);
@@ -2591,7 +2583,7 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 								double sc_rest = 0.0;
 								sc_obj.P_Tbl->GetRest(psn_data.Sc.ID, MAXDATE, &sc_rest);
 								PPLoadString("rest", symb);
-								prompt.Space().Cat(symb).CatDiv(':', 2).Cat(sc_rest, MKSFMTD(0, 2, 0));
+								prompt.Space().Cat(symb).CatDiv(':', 2).Cat(sc_rest, MKSFMTD_020);
 							}
 						}
 						if(psn_data.Sc.Expiry) {
@@ -2814,9 +2806,8 @@ IMPL_HANDLE_EVENT(CashNodeFiltDialog)
 int CashNodeFiltDialog::SetupCommands(PPID cashNodeID, long commandID)
 {
 	if(!PrevCashNodeID || PrevCashNodeID != cashNodeID) {
-		PPCashNode cnrec, prev_cnrec;
-		// @v10.7.9 @ctr MEMSZERO(cnrec);
-		// @v10.7.9 @ctr MEMSZERO(prev_cnrec);
+		PPCashNode cnrec;
+		PPCashNode prev_cnrec;
 		if(cashNodeID && CashNObj.Search(cashNodeID, &cnrec) > 0) {
 			SString commands;
 			if(PrevCashNodeID)
@@ -2840,7 +2831,6 @@ long CashNodeFiltDialog::ConvertCommand(PPID cashNodeID, long cmd, int toDlgCmd)
 	uint   out_cmd = 0;
 	if(cmd && cashNodeID) {
 		PPCashNode cn_rec;
-		// @v10.7.9 @ctr MEMSZERO(cn_rec);
 		if(CashNObj.Search(cashNodeID, &cn_rec) > 0) {
 			static const uint async_cmds[] = { cmCSOpen, cmACSUpdate, cmCSClose, cmCSViewCheckList,  cmACSViewExcess };
 			static const uint sync_cmds[] =  { cmCSOpen, cmCSClose, cmCSViewCheckList, cmSCSLock, cmSCSUnlock, cmSCSXReport, cmSCSZReportCopy, cmSCSIncasso };

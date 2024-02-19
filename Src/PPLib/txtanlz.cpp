@@ -1,5 +1,5 @@
 // TXTANLZ.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -31,7 +31,7 @@ PPTextAnalyzer::Replacer::Chain::Chain() : TSVector <PPTextAnalyzer::Replacer::T
 
 PPTextAnalyzer::Replacer::Chain & FASTCALL PPTextAnalyzer::Replacer::Chain::operator = (const PPTextAnalyzer::Replacer::Chain & rS)
 {
-	SVector::copy(rS); // @v9.8.4 SArray-->SVector
+	SVector::copy(rS);
 	return *this;
 }
 
@@ -220,7 +220,7 @@ const PPTextAnalyzer::FindItem * FASTCALL PPTextAnalyzer::FindBlock::GetGroupIte
 
 void PPTextAnalyzer::FindBlock::Sort()
 {
-	SVector::sort(CMPF_LONG); // @v9.8.6 SArray-->SVector
+	SVector::sort(CMPF_LONG);
 }
 
 struct TrT {
@@ -2347,7 +2347,7 @@ int PrcssrObjText::Init(const PPBaseFilt * pBaseFilt)
 	if(p_blk && oi.FromStr(pResource)) {
 		if(oi.Obj == PPOBJ_GOODS) {
 			if(!p_blk->GObj.SetupAttrByTextDescr(oi.Id, pSignalStr, !(p_blk->State & p_blk->stOuterTransaction))) {
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 			}
 		}
 	}
@@ -3481,7 +3481,7 @@ public:
 		SString line_buf;
 		for(uint i = 0; i < Series.getCount(); i++) {
 			const SerItem * p_item = Series.at(i);
-			line_buf.Z().Cat(p_item->P, MKSFMTD(0, 5, 0)).CatDiv(';', 2).Cat(p_item->S.GetExp(), MKSFMTD(0, 6, 0)).CatDiv(':', 2);
+			line_buf.Z().Cat(p_item->P, MKSFMTD_050).CatDiv(';', 2).Cat(p_item->S.GetExp(), MKSFMTD(0, 6, 0)).CatDiv(':', 2);
 			for(long j = 0; j < p_item->S.GetCount(); j++) {
 				double _p;
 				if(p_item->S.GetValue(j, &_p) > 0) {

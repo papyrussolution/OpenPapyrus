@@ -1,5 +1,5 @@
 // V_GTANLZ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2024
 // @codepage UTF-8
 // Налоговый анализ товарооборота
 //
@@ -345,7 +345,6 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 						if(rest_part != 0.0 || expend2 != 0.0 || c) {
 							TempGoodsTaxAnlzTbl::Rec rec;
 							Goods2Tbl::Rec goods_rec;
-							// @v10.6.4 MEMSZERO(rec);
 							rec.LotID = lot_item.ID;
 							rec.GoodsID = lot_item.GoodsID;
 							const int _gfr = GObj.Fetch(lot_item.GoodsID, &goods_rec);

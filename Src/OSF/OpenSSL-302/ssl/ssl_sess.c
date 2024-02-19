@@ -181,12 +181,10 @@ SSL_SESSION * ssl_session_dup(const SSL_SESSION * src, int ticket)
 	dest->peer_chain = NULL;
 	dest->peer = NULL;
 	dest->ticket_appdata = NULL;
-	memset(&dest->ex_data, 0, sizeof(dest->ex_data));
-
+	memzero(&dest->ex_data, sizeof(dest->ex_data));
 	/* We deliberately don't copy the prev and next pointers */
 	dest->prev = NULL;
 	dest->next = NULL;
-
 	dest->references = 1;
 
 	dest->lock = CRYPTO_THREAD_lock_new();
@@ -380,7 +378,7 @@ int ssl_generate_session_id(SSL * s, SSL_SESSION * ss)
 	CRYPTO_THREAD_unlock(s->session_ctx->lock);
 	CRYPTO_THREAD_unlock(s->lock);
 	/* Choose a session ID */
-	memset(ss->session_id, 0, ss->session_id_length);
+	memzero(ss->session_id, ss->session_id_length);
 	tmp = (int)ss->session_id_length;
 	if(!cb(s, ss->session_id, &tmp)) {
 		/* The callback failed */

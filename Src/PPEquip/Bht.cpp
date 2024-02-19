@@ -980,8 +980,9 @@ public:
 			setCtrlData(CTL_BHT_TIMEOUT,  &Data.Rec.BhtpTimeout);
 			setCtrlData(CTL_BHT_MAXTRIES, &Data.Rec.BhtpMaxTries);
 		}
-		else if(Data.Rec.BhtTypeID != PPObjBHT::btCom)
+		/* @v11.9.6 else if(Data.Rec.BhtTypeID != PPObjBHT::btCom)*/ {
 			setCtrlString(CTL_BHT_IMPEXPPATH, Data.ImpExpPath_);
+		}
 		SetupLocationCombo(this, CTLSEL_BHT_LOC, Data.Rec.LocID, 0, LOCTYP_WAREHOUSE, 0);
 		SetupPPObjCombo(this, CTLSEL_BHT_INVENTOP, PPOBJ_OPRKIND, Data.Rec.InventOpID, 0, reinterpret_cast<void *>(PPOPT_INVENTORY));
 		PPIDArray op_type_list;
@@ -1022,14 +1023,15 @@ public:
 			getCtrlData(CTL_BHT_TIMEOUT,  &Data.Rec.BhtpTimeout);
 			getCtrlData(CTL_BHT_MAXTRIES, &Data.Rec.BhtpMaxTries);
 		}
-		else if(Data.Rec.BhtTypeID != PPObjBHT::btCom) {
+		/* @v11.9.6 else if(Data.Rec.BhtTypeID != PPObjBHT::btCom)*/
+		{
 			getCtrlString(CTL_BHT_IMPEXPPATH, Data.ImpExpPath_);
 			if(Data.ImpExpPath_.NotEmptyS()) {
 				SFsPath ps(Data.ImpExpPath_);
 				if(ps.Drv.IsEmpty())
 					ok = PPSetError(PPERR_IMPEXPPATHNOTVALID);
 			}
-			else
+			else if(Data.Rec.BhtTypeID != PPObjBHT::btCom)
 				ok = PPSetError(PPERR_IMPEXPPATHNOTVALID);
 		}
 		THROW_PP(Data.Rec.BhtTypeID != PPObjBHT::btStyloBhtII || Data.P_SBIICfg && Data.P_SBIICfg->IsValid(), PPERR_SBII_CFGNOTVALID);
@@ -1070,7 +1072,7 @@ void BhtDialog::DisableCtrls()
 	GetClusterData(CTL_BHT_TYPE, &v);
 	getCtrlData(CTL_BHT_TYPE, &v);
 	disable_coms = oneof4(v, PPObjBHT::btWinCe, PPObjBHT::btPalm, PPObjBHT::btCom, PPObjBHT::btStyloBhtII) ? 1 : 0;
-	disable_path = oneof3(v, PPObjBHT::btWinCe, PPObjBHT::btPalm, PPObjBHT::btStyloBhtII) ? 0 : 1;
+	disable_path = oneof4(v, PPObjBHT::btDenso, PPObjBHT::btWinCe, PPObjBHT::btPalm, PPObjBHT::btStyloBhtII) ? 0 : 1; // @v11.9.6 PPObjBHT::btDenso
 	is_wince = (v == PPObjBHT::btWinCe) ? 1 : 0;
 	DisableClusterItem(CTL_BHT_FLAGS, 0, !is_wince);
 	if(!is_wince) {
@@ -1661,7 +1663,8 @@ int PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
 				}
 			}
 		}
-		if(oneof3(pPack->Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
+		/*@v11.9.6 if(oneof3(pPack->Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII))*/
+		{
 			P_Ref->GetPropVlrString(PPOBJ_BHT, id, BHTPRP_PATH, pPack->ImpExpPath_);
 		}
 	}
@@ -1732,7 +1735,7 @@ int PPObjBHT::PutPacket(PPID * pID, PPBhtTerminalPacket * pPack, int use_ta)
 	}
 	THROW(P_Ref->RemoveProperty(Obj, *pID, BHTPRP_SBIICFG, 0)); // Удаляем прежнюю версию записи
 	THROW(P_Ref->PutPropVlrString(PPOBJ_BHT, *pID, BHTPRP_PATH,
-		oneof3(pPack->Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII) ? pPack->ImpExpPath_ : static_cast<const char *>(0)));
+		/*oneof4(pPack->Rec.BhtTypeID, PPObjBHT::btDenso, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII) ?*/pPack->ImpExpPath_/*: static_cast<const char *>(0)*/));
 	THROW(tra.Commit());
 	CATCHZOK
 	SAlloc::F(p_buf);
@@ -2933,7 +2936,6 @@ int PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID bil
 		for(pack.InitExtTIter(0); pack.EnumTItemsExt(0, &ti) > 0; i++) {
 			double qtty = 0.0;
 			Sdr_SBIIBillRowWithCells sdr_brow;
-			// @v10.7.9 @ctr MEMSZERO(sdr_brow);
 			pack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial);
 			sdr_brow.BillID   = billID;
 			sdr_brow.GoodsID  = ti.GoodsID;
@@ -2957,7 +2959,6 @@ int PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID bil
 					{
 						LocTransfTbl::Rec loct_rec;
 						uint   j;
-						// @v10.6.4 MEMSZERO(loct_rec);
 						qtty = sdr_brow.Qtty;
 						loct_tbl.GetTransByBill(billID, ti.RByBill, &cell_list);
 						for(j = 0; j < cell_list.getCount(); j++)
@@ -3144,10 +3145,8 @@ int PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pG
 					const  QuotIdent suppl_deal_qi(item.Dt, item.LocID, 0, 0, item.Object);
 					PPBillPacket pack;
 					Sdr_SBIISampleBill sdr_bill;
-					// @v10.7.9 @ctr MEMSZERO(sdr_bill);
-					// @v9.4.11 SOemToChar(item.Code);
-					(temp_buf = item.Code).Transf(CTRANSF_INNER_TO_OUTER); // @v9.4.11
-					STRNSCPY(item.Code, temp_buf); // @v9.4.11
+					(temp_buf = item.Code).Transf(CTRANSF_INNER_TO_OUTER);
+					STRNSCPY(item.Code, temp_buf);
 					sdr_bill.ID      = item.ID;
 					sdr_bill.Date    = (r_entry.Flags & BHT_BillOpEntry::fUseDueDate && checkdate(item.DueDate)) ? item.DueDate : item.Dt;
 					sdr_bill.Article = item.Object;
@@ -3159,7 +3158,6 @@ int PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pG
 						PPTransferItem ti;
 						for(pack.InitExtTIter(uniteGoods ? ETIEF_UNITEBYGOODS : 0); pack.EnumTItemsExt(0, &ti) > 0; i++) {
 							Sdr_SBIISampleBillRow sdr_brow;
-							// @v10.7.9 @ctr MEMSZERO(sdr_brow);
 							pack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial);
 							sdr_brow.BillID  = item.ID;
 							sdr_brow.GoodsID = ti.GoodsID;
@@ -3234,7 +3232,6 @@ int PPObjBHT::PrepareLocCellData(const PPBhtTerminalPacket * pPack)
 				LocationTbl::Rec loc_rec;
 				if(loc_obj.Search(p_cell_list->Get(i).Id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WHCELL) {
 					Sdr_SBIILocCell sdr_loc;
-					// @v10.7.9 @ctr MEMSZERO(sdr_loc);
 					sdr_loc.ID = loc_rec.ID;
 					STRNSCPY(sdr_loc.Code, (temp_buf = loc_rec.Code).Transf(CTRANSF_INNER_TO_OUTER));
 					STRNSCPY(sdr_loc.Name, (temp_buf = loc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER));
@@ -3529,7 +3526,6 @@ int PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char * pPat
 			if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
 				double price = 0.0;
 				ReceiptTbl::Rec lot_rec;
-				// @v10.6.4 MEMSZERO(lot_rec);
 				if(goods_rec.Flags & GF_UNLIM) {
 					const QuotIdent qi(QIDATE(getcurdate_()), loc_id, PPQUOTK_BASE, 0L/*@curID*/);
 					goods_obj.GetQuot(goods_id, qi, 0L, 0L, &price);
@@ -4252,7 +4248,6 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 		ie_brow.GetNumRecs(&rows_count);
 		for(long j = 0; j < rows_count; j++) {
 			Sdr_SBIIBillRow sdr_brow;
-			// @v10.7.9 @ctr MEMSZERO(sdr_brow);
 			THROW(ie_brow.ReadRecord(&sdr_brow, sizeof(sdr_brow)));
 			//
 			// Поиск товара по серйному номеру, затем, если не найден, по штрихкоду
@@ -4347,8 +4342,6 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 			BillTbl::Rec bill_rec;
 			PPBillPacket pack, link_pack;
 			Sdr_SBIIBill sdr_bill;
-			// @v10.7.9 @ctr MEMSZERO(sdr_bill);
-			// @v10.6.4 MEMSZERO(bill_rec);
 			THROW(p_ie_bill->ReadRecord(&sdr_bill, sizeof(sdr_bill)));
 			uuid.FromStr(sdr_bill.Guid);
 			(bill_code = sdr_bill.Code).Strip();
@@ -4372,7 +4365,6 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 				accept_doc = (r > 0) ? 0 : 1;
 				if(accept_doc) {
 					BillTbl::Rec sample_bill_rec;
-					// @v10.6.4 MEMSZERO(sample_bill_rec);
 					if(sdr_bill.SampleID) {
 						if(p_bobj->Search(sdr_bill.SampleID, &sample_bill_rec) > 0)
 							op_id = pPack->P_SBIICfg->GetOpID(sample_bill_rec.OpID);
@@ -4528,7 +4520,6 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 									ilti.Cost = sdr_brow.Cost;
 								if(ilti.Cost == 0.0) {
 									ReceiptTbl::Rec lot_rec;
-									// @v10.6.4 MEMSZERO(lot_rec);
 									::GetCurGoodsPrice(sdr_brow.GoodsID, loc_id, GPRET_INDEF, 0, &lot_rec);
 									ilti.Cost = lot_rec.Cost;
 								}
@@ -4651,8 +4642,6 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 	if(pPack && pBarcode) {
 		Goods2Tbl::Rec goods_rec;
 		ReceiptTbl::Rec lot_rec;
-		// @v10.6.4 MEMSZERO(goods_rec);
-		// @v10.6.4 MEMSZERO(lot_rec);
 		if(g_obj.SearchByBarcode(pBarcode, 0, &goods_rec) > 0) {
 			ILTI ilti;
 			ilti.GoodsID  = goods_rec.ID;
@@ -4903,7 +4892,6 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 			PPObjBill * p_bobj = BillObj;
 			PPIDArray lot_list;
 			Goods2Tbl::Rec goods_rec;
-			// @v10.6.4 MEMSZERO(goods_rec);
 			rBarcode.ShiftLeft();
 			rBarcode.Trim(13);
 			if(p_bobj->SearchLotsBySerial(rBarcode, &lot_list) > 0 && lot_list.getCount()) {
@@ -5142,7 +5130,6 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 				br_line.GetDbl(2, &qtty);
 				if(stricmp(bid, lbid) == 0) {
 					Goods2Tbl::Rec goods_rec;
-					// @v10.6.4 MEMSZERO(goods_rec);
 					barcode = bcode;
 					IdentifyGoods(&g_obj, barcode, &goods_id, &goods_rec);
 					if(goods_id && qtty != 0.0) {
@@ -5419,7 +5406,7 @@ static int CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFiles, i
 	THROW(CheckDialogPtr(&dlg));
 	bht_id = bht_obj.GetSingle();
 	SetupPPObjCombo(dlg, CTLSEL_BHTRCV_BHT, PPOBJ_BHT, bht_id, 0);
-	SetupLocationCombo(dlg, CTLSEL_BHTRCV_DINTRLOC, dest_intr_loc_id, 0, LOCTYP_WAREHOUSE, 0); // @v9.4.12
+	SetupLocationCombo(dlg, CTLSEL_BHTRCV_DINTRLOC, dest_intr_loc_id, 0, LOCTYP_WAREHOUSE, 0);
 	for(valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 		dlg->getCtrlData(CTLSEL_BHTSEND_BHT, &bht_id);
 		dlg->getCtrlData(CTLSEL_BHTRCV_DINTRLOC, &dest_intr_loc_id);
@@ -5427,9 +5414,8 @@ static int CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFiles, i
 			valid_data = 1;
 	}
 	ZDELETE(dlg);
-	// @v9.4.9 if(valid_data && bht_obj.Search(bht_id, &bht_rec) > 0) {
-	if(valid_data && bht_obj.GetPacket(bht_id, &pack) > 0) { // @v9.4.9
-		bool   is_debug = true;
+	if(valid_data && bht_obj.GetPacket(bht_id, &pack) > 0) {
+		//bool   is_debug = true;
 		long   s = 1;
 		long   timeout = 30000L;
 		SString dir, path;
@@ -5462,14 +5448,14 @@ static int CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFiles, i
 			THROW(bht_obj.InitProtocol(bht_id, &cp));
 		}
 #ifdef NDEBUG
-	is_debug = false;
+		//is_debug = false;
 #endif
-		if(is_debug) {
-			PPGetPath(PPPATH_IN, dir);
-			(path = dir.SetLastSlash()).Cat("bht?????.dat");
+		if(bht_type == PPObjBHT::btDenso && pack.ImpExpPath_.NotEmpty() && SFile::IsDir(pack.ImpExpPath_)) {
+			//PPGetPath(PPPATH_IN, dir);
+			(path = pack.ImpExpPath_.SetLastSlash()).Cat("bht?????.dat");
 			SDirEntry sde;
 			for(SDirec sd(path); sd.Next(&sde) > 0;) {
-				sde.GetNameA(dir, path);
+				sde.GetNameA(pack.ImpExpPath_, path);
 				files.insert(newStr(path));
 			}
 		}

@@ -443,7 +443,6 @@ int PPAsyncCashSession::AddTempCheck(PPID * pID, long sessNumber, long flags,
 		const int is_temp_check_exists = BIN(SearchTempCheckByTime(cashID, &rDT) > 0);
 		if(!is_temp_check_exists) {
 			TempCCheckTbl::Rec new_rec;
-			// @v10.6.4 MEMSZERO(new_rec);
 			new_rec.SessID = sessNumber;
 			new_rec.CashID = cashID;
 			new_rec.Code   = code;
@@ -521,7 +520,6 @@ int PPAsyncCashSession::AddTempCheckPaym(long checkID, int paymType, double amou
 		k0.RByCheck = MAXSHORT;
 		int16  rbc = (P_TmpCpTbl->search(0, &k0, spLe) && P_TmpCpTbl->data.CheckID == checkID) ? P_TmpCpTbl->data.RByCheck : 0;
 		CCheckPaymTbl::Rec cp_rec;
-		// @v10.6.4 MEMSZERO(cp_rec);
 		cp_rec.CheckID = checkID;
 		cp_rec.RByCheck = ++rbc;
 		cp_rec.PaymType = paymType;
@@ -770,18 +768,17 @@ int PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pH
 		PPInitIterCounter(cntr, P_TmpCclTbl);
 		PPLoadText(PPTXT_FLASHTEMPCCLINES, wait_msg);
 		const int dbtidx = 2;
-		SBuffer sbuf; // @v10.7.3
-		PPExtStrContainer ext_strings; // @v10.7.3
+		SBuffer sbuf;
+		PPExtStrContainer ext_strings;
 		BExtInsert bei(&CC.Lines);
 		TempCCheckLineTbl * t = P_TmpCclTbl;
 		BExtQuery q(t, dbtidx, 64);
 		TempCCheckLineTbl::Key2 k2;
-		TSVector <CCheckLineExtTbl::Rec> ccext_items; // @v10.0.05 TSArray-->TSVector
+		TSVector <CCheckLineExtTbl::Rec> ccext_items;
 		TSCollection <CclExtTextItem> ccln_extt_list;
 
 		MEMSZERO(k2);
-		// @v10.7.3 q.select(t->CheckID, t->DivID, t->GoodsID, t->Quantity, t->Price, t->Dscnt/*t->Discount*/, t->Serial, 0L);
-		q.selectAll(); // @v10.7.3
+		q.selectAll();
 		PPID   last_temp_chk_id = 0;
 		uint   last_chk_pos = 0;
 		for(q.initIteration(false, &k2, spFirst); q.nextIteration() > 0;) {
@@ -791,7 +788,6 @@ int PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pH
 			CCheckLineExtTbl::Rec ext_rec;
 			DBRowId rec_pos;
 			q.getRecPosition(&rec_pos);
-			// @v10.6.4 MEMSZERO(ext_rec);
 			ext_strings.Z();
 			sbuf.Z(); // @v11.0.2 @fix
 			if(r_rec.ExtTextSize > 0) { // @v10.7.3
@@ -931,7 +927,6 @@ int PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rSessLis
 				PPID   sess_id = 0;
 				TotalLogCSessEntry * p_tl_entry = 0;
 				CCheckExtTbl::Rec ext_rec;
-				// @v10.6.4 MEMSZERO(ext_rec);
 				memcpy(&chk_rec, &temp_chk_rec, sizeof(chk_rec));
 				dtm.Set(chk_rec.Dt, chk_rec.Tm);
 				THROW(GetCashSessID(dtm, chk_rec.PosNodeID, chk_rec.SessID, forwardSess, BIN(chk_rec.Flags & CCHKF_TEMPSESS), &sess_id));
@@ -986,7 +981,6 @@ int PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rSessLis
 							const CcAmountEntry & r_entry = cp_list.at(i);
 							SCardTbl::Rec sc_rec;
 							CCheckPaymTbl::Rec cp_rec;
-							// @v10.6.4 MEMSZERO(cp_rec);
 							cp_rec.CheckID = check_id;
 							cp_rec.RByCheck = ++rbc;
 							cp_rec.PaymType = (int16)r_entry.Type;
@@ -999,7 +993,6 @@ int PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rSessLis
 								const int scst = (scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0) ? scs_rec.GetType() : scstUnkn;
 								if(oneof2(scst, scstCredit, scstBonus)) {
 									SCardOpTbl::Rec scop_rec;
-									// @v10.6.4 MEMSZERO(scop_rec);
 									scop_rec.SCardID = sc_rec.ID;
 									scop_rec.Dt      = chk_rec.Dt;
 									scop_rec.Tm      = chk_rec.Tm;
@@ -1106,7 +1099,7 @@ int PPAsyncCashSession::OpenSession(int updOnly, PPID sinceDlsID)
 		}
 		else {
 			ok = PPSetError(PPERR_ASCASHNREADYFOREXP, acn_rec.Name);
-			PPLogMessage(PPFILNAM_INFO_LOG, 0, lmf|LOGMSGF_LASTERR);
+			PPLogMessage(PPFILNAM_INFO_LOG, 0, LOGMSGF_LASTERR|lmf);
 		}
 	}
 	if(ready) {
@@ -1185,7 +1178,7 @@ int PPAsyncCashSession::CloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 			for(uint j = 0; j < total_log_data.getCount(); j++) {
 				const TotalLogCSessEntry & r_total_log_entry = total_log_data.at(j);
 				msg_buf.Z().Cat("Imported CSession").CatDiv(':', 2).CatEq("CSessID", r_total_log_entry.SessID).Space().CatEq("CcCount", r_total_log_entry.CcCount).Space().
-					CatEq("CcAmount", r_total_log_entry.CcAmount, MKSFMTD(0, 2, 0));
+					CatEq("CcAmount", r_total_log_entry.CcAmount, MKSFMTD_020);
 				PPLogMessage(PPFILNAM_ACS_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 			}
 		}
@@ -1353,7 +1346,6 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 		}
 		{
 			PPAlbatrossConfig alb_cfg;
-			// @v10.8.4 @ctr MEMSZERO(mac_rec);
 			if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0 && alb_cfg.Hdr.MailAccID)
 				THROW_PP(obj_acct.Get(alb_cfg.Hdr.MailAccID, &mac_rec) > 0, PPERR_UNDEFMAILACC);
 		}
@@ -1577,6 +1569,11 @@ int AsyncCashGoodsIterator::GetAlcoGoodsExtension(PPID goodsID, PPID lotID, Prcs
 	}
 	CATCHZOK
 	return ok;
+}
+
+bool AsyncCashGoodsIterator::IsSimplifiedDraftBeer(PPID goodsID) const // @v11.9.6
+{
+	return PPSyncCashSession::IsSimplifiedDraftBeerPosition(CashNodeID, goodsID);	
 }
 
 int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, DeviceLoadingStat * pDls)
@@ -2125,14 +2122,13 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 							int r2 = GObj.GenerateScaleBarcode(grec.ID, BcPrefixList.at(i).Key, temp_buf);
 							if(r2 > 0) {
 								BarcodeTbl::Rec bc_rec;
-								// @v10.6.4 MEMSZERO(bc_rec);
 								bc_rec.GoodsID = grec.ID;
 								bc_rec.Qtty = 1.0;
 								temp_buf.CopyTo(bc_rec.Code, sizeof(bc_rec.Code));
 								Codes.insert(&bc_rec);
 							}
 							else if(r2 == 0)
-								PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+								PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 						}
 					}
 					Rec.P_CodeList = &Codes;
@@ -2318,7 +2314,6 @@ AsyncCashSCardInfo & AsyncCashSCardInfo::Z()
 AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updOnly, DeviceLoadingStat * pDLS, PPID statID) :
 	P_IterQuery(0), UpdatedOnly(updOnly), P_DLS(pDLS), StatID(statID), Since(ZERODATETIME)
 {
-	// @v10.6.4 MEMSZERO(Rec);
 	DefSCardPersonID = SCObj.GetConfig().DefPersonID;
 	PersonTbl::Rec psn_rec;
 	if(PsnObj.Search(DefSCardPersonID, &psn_rec) > 0)

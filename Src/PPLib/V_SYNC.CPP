@@ -1,5 +1,5 @@
 // V_SYNC.CPP
-// Copyright (c) A.Sobolev 2001-2003, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2001-2003, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -303,7 +303,6 @@ int PPViewObjSync::AddItem()
 {
 	int    ok = -1;
 	ObjSyncTbl::Rec rec;
-	// @v10.6.8 @ctr MEMSZERO(rec);
 	while(ok <= 0 && EditRecord(&rec) > 0) {
 		if(P_Tbl->AddRawRecord(&rec, 1))
 			ok = 1;
@@ -966,12 +965,6 @@ int ViewObjSyncTab(PPObjID oid)
 			p_tbl->data.CommIdPfx == hdr_rec.CommIdPfx && p_tbl->data.CommID == hdr_rec.CommID) {
 			p_tbl->copyBufTo(&rec);
 			_ObjSyncEntry entry(rec);
-			// @v10.9.11 @ctr MEMSZERO(entry);
-			// @v10.9.11 @ctr entry.CommID = rec;
-			// @v10.9.11 @ctr entry.Flags = rec.Flags;
-			// @v10.9.11 @ctr entry.DBDivID = rec.DBID;
-			// @v10.9.11 @ctr entry.PrivID = rec.ObjID;
-			// @v10.9.11 @ctr entry.ModDtm.Set(rec.Dt, rec.Tm);
 			list.insert(&entry);
 		}
 		GetObjectName(oid.Obj, oid.Id, temp_buf);

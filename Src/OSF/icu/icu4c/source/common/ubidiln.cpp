@@ -284,7 +284,7 @@ U_CAPI const UBiDiLevel * U_EXPORT2 ubidi_getLevels(UBiDi * pBiDi, UErrorCode * 
 		UBiDiLevel * levels = pBiDi->levelsMemory;
 
 		if(start>0 && levels!=pBiDi->levels) {
-			uprv_memcpy(levels, pBiDi->levels, start);
+			memcpy(levels, pBiDi->levels, start);
 		}
 		/* pBiDi->paraLevel is ok even if contextual multiple paragraphs,
 		   since pBidi is a line object */

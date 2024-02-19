@@ -3201,7 +3201,7 @@ int PPEanComDocument::Write_MOA(SXml::WDoc & rDoc, int amtQ, double amount)
 	{
 		SXml::WNode n_i(rDoc, "C516");
 		n_i.PutInner("E5025", temp_buf.Z().Cat(amtQ)); // Квалификатор суммы товарной позиции
-		n_i.PutInner("E5004", temp_buf.Z().Cat(amount, MKSFMTD(0, 2, 0))); // Сумма (Число знаков после запятой - не больше 2)
+		n_i.PutInner("E5004", temp_buf.Z().Cat(amount, MKSFMTD_020)); // Сумма (Число знаков после запятой - не больше 2)
 	}
 	return ok;
 }
@@ -3341,7 +3341,7 @@ int PPEanComDocument::Write_PRI(SXml::WDoc & rDoc, int priceQ, double amount)
 		SXml::WNode n_i(rDoc, "C509");
 		THROW_PP_S(GetPriceqSymb(priceQ, temp_buf), PPERR_EDI_INVPRICEQ, (long)priceQ);
 		n_i.PutInner("E5125", temp_buf); // Квалификатор цены
-		n_i.PutInner("E5118", temp_buf.Z().Cat(amount, MKSFMTD(0, 2, 0)));
+		n_i.PutInner("E5118", temp_buf.Z().Cat(amount, MKSFMTD_020));
 	}
 	CATCHZOK
 	return ok;
@@ -4879,7 +4879,7 @@ public:
 	virtual int    ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
 	virtual int    SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
 private:
-	int    ReadDocument(const char * pFileName, TSCollection <PPEdiProcessor::Packet> & rList);
+	int    ProcessDocument(DocNalogRu_Reader::DocumentInfo * pNrDoc, TSCollection <PPEdiProcessor::Packet> & rList);
 	DocNalogRu_Reader Reader;
 	DocNalogRu_Generator Writer; 
 };
@@ -4946,61 +4946,108 @@ EdiProviderImplementation_SBIS::EdiProviderImplementation_SBIS(const PPEdiProvid
 	return ok;
 }
 
-int EdiProviderImplementation_SBIS::ReadDocument(const char * pFileName, TSCollection <PPEdiProcessor::Packet> & rList)
+int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentInfo * pNrDoc, TSCollection <PPEdiProcessor::Packet> & rList)
 {
-	/*
-		<?xml version='1.0' encoding='UTF-8'?>
-		<Файл ВерсияФормата="3.01" Имя="ON_ORDER___20240124_afcc6890-ba8a-11ee-bc53-005056b8b09c" Формат="&#x417;&#x430;&#x43A;&#x430;&#x437;">
-		  <Документ Дата="24.01.2024" Название="Заказ" Номер="45" СрокВремя="00:00">
-			<Поставщик>
-			  <Адрес АдрТекст="г. Петрозаводск">
-				<АдрРФ Город="г. Петрозаводск" КодРегион="10"/>
-			  </Адрес>
-			  <БанкРекв БИК="048602673" КСчет="30101810600000000673" НаимБанк="КАРЕЛЬСКОЕ ОТДЕЛЕНИЕ N8628 ПАО СБЕРБАНК ПЕТРОЗАВОДСК" РСчет="40802810225000105185"/>
-			  <СвФЛ ИНН="100100910817" Имя="Вера" Название="ИП Санникова Вера Ивановна" ОКПО="0136110185" Отчество="Ивановна" Фамилия="Санникова"/>
-			</Поставщик>
-			<Покупатель>
-			  <Адрес АдрТекст="Респ. Карелия, Костомукшский г.о., г. Костомукша">
-				<АдрИно АдрТекст="Респ. Карелия, Костомукшский г.о., г. Костомукша" КодСтр="643"/>
-			  </Адрес>
-			  <СвФЛ ИНН="100400537995" Имя="Татьяна" Название="ИП Панфилова Татьяна Васильевна" ОКПО="0124820239" Отчество="Васильевна" Фамилия="Панфилова"/>
-			</Покупатель>
-			<ТаблДок>
-			  <СтрТабл GTIN="4670005530015" ЕдИзм="упак" Идентификатор="X2010866" Код="X2010866" КодПокупателя="X2010866" КодПоставщика="4607035892394" Кол_во="2" Название="Кетчуп/томатная паста" ОКЕИ="778" ПорНомер="1" Примечание="томатная паста 2 упак,кетчуп без добавлений 20 пачек" Сумма="0.00">
-				<НДС Ставка="без НДС" ТипСтавки="текст"/>
-				<Характеристика Значение="Кетчуп/томатная паста" Имя="НазваниеПокупателя"/>
-				<Параметр Значение="упак" Имя="ЕдИзмПокупателя"/>
-				<Параметр Значение="778" Имя="ЕдКодПокупателя"/>
-				<Параметр Значение="Кетчуп/томатная паста" Имя="НазваниеПокупателя"/>
-				<Параметр Значение="X2010866" Имя="КодПокупателя"/>
-				<Параметр Значение="2" Имя="КолВоПокупателя"/>
-			  </СтрТабл>
-			  <СтрТабл GTIN="4640174750347" ЕдИзм="кг" Идентификатор="X603192" Код="X603192" КодПокупателя="X603192" КодПоставщика="4600699502821" Кол_во="20" Название="Майонез" ОКЕИ="166" ПорНомер="2" Сумма="0.00">
-				<НДС Ставка="без НДС" ТипСтавки="текст"/>
-				<Характеристика Значение="Майонез" Имя="НазваниеПокупателя"/>
-				<Параметр Значение="кг" Имя="ЕдИзмПокупателя"/>
-				<Параметр Значение="166" Имя="ЕдКодПокупателя"/>
-				<Параметр Значение="Майонез" Имя="НазваниеПокупателя"/>
-				<Параметр Значение="X603192" Имя="КодПокупателя"/>
-				<Параметр Значение="20" Имя="КолВоПокупателя"/>
-			  </СтрТабл>
-			  <ИтогТабл Кол_во="22" Сумма="0.00">
-				<Упаковка КолМест="0"/>
-			  </ИтогТабл>
-			</ТаблДок>
-		  </Документ>
-		</Файл>
-	*/
-	int    ok = -1;
-	xmlParserCtxt * p_ctx = 0;
-	xmlDoc * p_doc = 0;
-	//
-	THROW_SL(fileExists(pFileName));
-	THROW(p_ctx = xmlNewParserCtxt());
-
+	int    ok = 1;
+	PPEdiProcessor::Packet * p_pack = 0;
+	SString temp_buf;
+	if(pNrDoc && pNrDoc->EdiOp == PPEDIOP_ORDER) {
+		p_pack = new PPEdiProcessor::Packet(pNrDoc->EdiOp);
+		PPBillPacket * p_bp = static_cast<PPBillPacket *>(p_pack->P_Data);
+		if(p_bp) {
+			p_bp->CreateBlank_WithoutCode(ACfg.Hdr.OpID, 0, 0, 1);
+			p_bp->Rec.EdiOp = pNrDoc->EdiOp;
+			p_bp->Rec.Dt = pNrDoc->Dt;
+			STRNSCPY(p_bp->Rec.Code, pNrDoc->Code);
+			{
+				DocNalogRu_Reader::Participant * p_c = pNrDoc->GetParticipant(EDIPARTYQ_SELLER, false);
+				SETIFZ(p_c, pNrDoc->GetParticipant(EDIPARTYQ_SUPPLIER, false));
+				SETIFZ(p_c, pNrDoc->GetParticipant(EDIPARTYQ_CONSIGNOR, false));
+				if(p_c) {
+					OwnFormatContractor ofc;
+					ofc.GLN = p_c->GLN;
+					ofc.INN = p_c->INN;
+					ofc.KPP = p_c->KPP;
+					ofc.Name = p_c->Name_;
+					THROW(ResolveOwnFormatContractor(ofc, EDIPARTYQ_SELLER, p_bp));
+				}
+			}
+			{
+				DocNalogRu_Reader::Participant * p_c = pNrDoc->GetParticipant(EDIPARTYQ_BUYER, false);
+				SETIFZ(p_c, pNrDoc->GetParticipant(EDIPARTYQ_CONSIGNEE, false));
+				if(p_c) {
+					OwnFormatContractor ofc;
+					ofc.GLN = p_c->GLN;
+					ofc.INN = p_c->INN;
+					ofc.KPP = p_c->KPP;
+					ofc.Name = p_c->Name_;
+					THROW(ResolveOwnFormatContractor(ofc, EDIPARTYQ_BUYER, p_bp));
+				}
+			}
+			for(uint gitemidx = 0; gitemidx < pNrDoc->GoodsItemList.getCount(); gitemidx++) {
+				const DocNalogRu_Base::GoodsItem * p_gitem = pNrDoc->GoodsItemList.at(gitemidx);
+				if(p_gitem) {
+					PPID goods_id_by_gtin = 0;
+					PPID goods_id_by_buyer_code = 0;
+					PPID goods_id_by_suppl_code = 0;
+					Goods2Tbl::Rec goods_rec;
+					ArGoodsCodeTbl::Rec ar_code_rec;
+					BarcodeTbl::Rec bc_rec;
+					if(p_gitem->GTIN.NotEmpty()) {
+						if(GObj.SearchByBarcode(p_gitem->GTIN, &bc_rec, 0, 0) > 0) {
+							goods_id_by_gtin = bc_rec.GoodsID;
+						}
+						else if(p_gitem->GTIN.Len() == 14 && p_gitem->GTIN.C(0) == '0') {
+							(temp_buf = p_gitem->GTIN).ShiftLeft();
+							if(GObj.SearchByBarcode(temp_buf, &bc_rec, 0, 0) > 0) {
+								goods_id_by_gtin = bc_rec.GoodsID;
+							}
+						}
+					}
+					if(p_bp->Rec.Object && p_gitem->BuyerCode.NotEmpty()) {
+						if(GObj.P_Tbl->SearchByArCode(p_bp->Rec.Object, p_gitem->BuyerCode, &ar_code_rec, 0) > 0) {
+							goods_id_by_buyer_code = ar_code_rec.GoodsID;
+						}
+					}
+					if(p_gitem->SupplCode.NotEmpty()) {
+						// Код поставщика может быть задан как штрихкод. Причем, отличающийся от GTIN.
+						// Я черт его знает что это значит, но тем не менее сначала пытаемся трактовать
+						// код поставщика как штрихкод, а затем - как наш идентификатор товара.
+						if(GObj.SearchByBarcode(p_gitem->SupplCode, &bc_rec, 0, 0) > 0) {
+							goods_id_by_suppl_code = bc_rec.GoodsID;
+						}
+						else {
+							PPID _my_id = p_gitem->SupplCode.ToLong();
+							if(_my_id && GObj.Search(_my_id, &goods_rec) > 0) {
+								goods_id_by_suppl_code = goods_rec.ID;
+							}
+						}
+					}
+					{
+						PPTransferItem ti;
+						PPID   goods_id = 0;
+						if(goods_id_by_suppl_code)
+							goods_id = goods_id_by_suppl_code;
+						else if(goods_id_by_buyer_code)
+							goods_id = goods_id_by_buyer_code;
+						else 
+							goods_id = goods_id_by_gtin;
+						THROW(goods_id);
+						ti.Init(&p_bp->Rec, 0, 0);
+						ti.RByBill = static_cast<int16>(p_gitem->RowN);
+						ti.SetupGoods(goods_id);
+						ti.Quantity_ = fabs(p_gitem->Qtty);
+						ti.Price = p_gitem->Price;
+						p_bp->LoadTItem(&ti, 0, 0);
+					}
+				}
+			}
+			rList.insert(p_pack);
+			p_pack = 0; // Обнуляем указатель, поскольку владение им передано rList
+		}
+	}
 	CATCHZOK
-	xmlFreeDoc(p_doc);
-	xmlFreeParserCtxt(p_ctx);
+	delete p_pack; // Если что-то пошло не так и созданный пакет не был передан в rList, то удаляем этот пакет.
 	return ok;
 }
 
@@ -5055,57 +5102,8 @@ int EdiProviderImplementation_SBIS::ReadDocument(const char * pFileName, TSColle
 							TSCollection <DocNalogRu_Reader::DocumentInfo> temp_doc_list;
 							if(Reader.ReadFile(temp_buf, fi, temp_doc_list) > 0) {
 								for(uint i = 0; i < temp_doc_list.getCount(); i++) {
-									DocNalogRu_Reader::DocumentInfo * p_nr_doc = temp_doc_list.at(i);
-									if(p_nr_doc && p_nr_doc->EdiOp == PPEDIOP_ORDER) {
-										PPEdiProcessor::Packet * p_pack = new PPEdiProcessor::Packet(p_nr_doc->EdiOp);
-										PPBillPacket * p_bp = static_cast<PPBillPacket *>(p_pack->P_Data);
-										if(p_bp) {
-											p_bp->Rec.EdiOp = p_nr_doc->EdiOp;
-											p_bp->Rec.Dt = p_nr_doc->Dt;
-											STRNSCPY(p_bp->Rec.Code, p_nr_doc->Code);
-											{
-												DocNalogRu_Reader::Participant * p_c = p_nr_doc->GetParticipant(EDIPARTYQ_SELLER, false);
-												SETIFZ(p_c, p_nr_doc->GetParticipant(EDIPARTYQ_SUPPLIER, false));
-												SETIFZ(p_c, p_nr_doc->GetParticipant(EDIPARTYQ_CONSIGNOR, false));
-												if(p_c) {
-													OwnFormatContractor ofc;
-													ofc.GLN = p_c->GLN;
-													ofc.INN = p_c->INN;
-													ofc.KPP = p_c->KPP;
-													ofc.Name = p_c->Name_;
-													ResolveOwnFormatContractor(ofc, EDIPARTYQ_SELLER, p_bp);
-												}
-											}
-											{
-												DocNalogRu_Reader::Participant * p_c = p_nr_doc->GetParticipant(EDIPARTYQ_BUYER, false);
-												SETIFZ(p_c, p_nr_doc->GetParticipant(EDIPARTYQ_CONSIGNEE, false));
-												if(p_c) {
-													OwnFormatContractor ofc;
-													ofc.GLN = p_c->GLN;
-													ofc.INN = p_c->INN;
-													ofc.KPP = p_c->KPP;
-													ofc.Name = p_c->Name_;
-													ResolveOwnFormatContractor(ofc, EDIPARTYQ_BUYER, p_bp);
-												}
-											}
-											/*
-											struct ResolveBlock {
-												static PPID Resolve(PPBillImporter * pMaster, DocNalogRu_Reader::Participant * pParticipant, const SString & rInitBillCode, PPID acsID)
-												{
-													PPID   ar_id = 0;
-													if(pParticipant) {
-														if(pParticipant->GLN.NotEmpty())
-															pMaster->ResolveGLN(pParticipant->GLN, rInitBillCode, acsID, &ar_id, 0);
-														if(!ar_id)
-															pMaster->ResolveINN(pParticipant->INN, 0, 0, rInitBillCode, acsID, &ar_id, 0);
-													}
-													return ar_id;
-												}
-											};
-											PPID seller_ar_id = ResolveBlock::Resolve(this, p_seller, init_bill_code, contragent_acs_id);
-											PPID buyer_ar_id  = ResolveBlock::Resolve(this, p_buyer, init_bill_code, contragent_acs_id);
-											*/
-										}
+									if(ProcessDocument(temp_doc_list.at(i), rList)) {
+										;
 									}
 								}
 							}
@@ -5520,7 +5518,6 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter * pX,
 	}
 	{
 		BillTbl::Rec order_bill_rec;
-		// @v10.6.4 MEMSZERO(order_bill_rec);
 		SXml::WNode n_b(_doc, "despatchAdvice"); // <despatchAdvice number="DES003" date="2014-02-07" status="Original">
 		// @v11.1.12 n_b.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
 		n_b.PutAttrib("number", (temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12 
@@ -5985,8 +5982,8 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_RECADV(xmlTextWriter * pX,
 						Write_OwnFormat_Qtty(_doc, "despatchedQuantity", "PCE", dlvr_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
 						Write_OwnFormat_Qtty(_doc, "deliveredQuantity", "PCE", dlvr_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
 						Write_OwnFormat_Qtty(_doc, "acceptedQuantity", "PCE", acc_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
-						n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(fabs(r_ti.Cost), MKSFMTD(0, 2, 0)));
-						n_item.PutInner("amount", temp_buf.Z().Cat(fabs(r_ti.Cost * dlvr_qtty), MKSFMTD(0, 2, 0)));
+						n_item.PutInner("netPriceWithVAT", temp_buf.Z().Cat(fabs(r_ti.Cost), MKSFMTD_020));
+						n_item.PutInner("amount", temp_buf.Z().Cat(fabs(r_ti.Cost * dlvr_qtty), MKSFMTD_020));
 						/*
 							<gtin>2100000006991</gtin>
 							<internalBuyerCode>9392</internalBuyerCode>
@@ -7001,7 +6998,6 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 						}
 						// } @v11.2.11 
 					}*/
-
 				}
 				for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 					if(SXml::GetContentByName(p_n2, "originOrder", temp_buf)) {
@@ -7053,14 +7049,9 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 							}
 							else if(SXml::GetContentByName(p_n3, "lineItem", temp_buf)) {
 								DeferredPositionBlock pos_blk;
-								//PPTransferItem ti;
-								//goods_id_by_gtin = 0;
-								//goods_id_by_arcode = 0;
 								serial.Z();
 								goods_name.Z();
-								//ti.Init(&p_bpack->Rec);
 								pos_blk.Init(&p_bpack->Rec);
-								//"status" "Accepted" "Changed"
 								if(SXml::GetAttrib(p_n3, "status", temp_buf)) {
 									if(temp_buf.IsEqiAscii("Accepted")) {
 										;
@@ -7230,11 +7221,6 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 							}
 							else if(SXml::IsName(p_n3, "lineItem")) {
 								DeferredPositionBlock pos_blk;
-								//PPTransferItem ti;
-								//double price_wo_taxes = 0.0;
-								//double full_price = 0.0;
- 								//goods_id_by_gtin = 0;
-								//goods_id_by_arcode = 0;
 								serial.Z();
 								goods_name.Z();
 								//ti.Init(&p_bpack->Rec);
@@ -7257,18 +7243,14 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 									else if(SXml::GetContentByName(p_li, "description", temp_buf)) {
 										goods_name = temp_buf;
 									}
-									else if(SXml::GetContentByName(p_li, "orderedQuantity", temp_buf)) {
+									else if(SXml::GetContentByName(p_li, "orderedQuantity", temp_buf))
 										pos_blk.OrdQtty = temp_buf.ToReal();
-									}
-									else if(SXml::GetContentByName(p_li, "despatchedQuantity", temp_buf)) {
+									else if(SXml::GetContentByName(p_li, "despatchedQuantity", temp_buf))
 										pos_blk.DlvrQtty = R6(temp_buf.ToReal());
-									}
-									else if(SXml::GetContentByName(p_li, "onePlaceQuantity", temp_buf)) {
+									else if(SXml::GetContentByName(p_li, "onePlaceQuantity", temp_buf))
 										pos_blk.Ti.UnitPerPack = R6(temp_buf.ToReal());
-									}
-									else if(SXml::GetContentByName(p_li, "expireDate", temp_buf)) {
+									else if(SXml::GetContentByName(p_li, "expireDate", temp_buf))
 										pos_blk.Ti.Expiry = strtodate_(temp_buf, DATF_YMD);
-									}
 									else if(SXml::GetContentByName(p_li, "freshnessDate", temp_buf)) {
 									}
 									else if(SXml::GetContentByName(p_li, "netPrice", temp_buf)) {
@@ -7375,16 +7357,8 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 						for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
 							if(SXml::IsName(p_n3, "lineItem")) {
 								DeferredPositionBlock pos_blk;
-								//PPTransferItem ti;
-								//double price_wo_taxes = 0.0;
-								//double full_price = 0.0;
-								//double desadv_qtty = 0.0; // Отправленное количество
-								//double recadv_qtty = 0.0; // Принятое количество
- 								//goods_id_by_gtin = 0;
-								//goods_id_by_arcode = 0;
 								serial.Z();
 								goods_name.Z();
-								//ti.Init(&p_bpack->Rec);
 								pos_blk.Init(&p_bpack->Rec);
 								for(const xmlNode * p_li = p_n3->children; p_li; p_li = p_li->next) {
 									if(SXml::GetContentByName(p_li, "gtin", temp_buf)) {
@@ -9471,8 +9445,6 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter * pX, 
 	PPObjBill::MakeCodeString(&rRaPack.ABp.Rec, PPObjBill::mcsAddOpName, bill_text);
 	SXml::WDoc _doc(pX, cpUTF8);
 	SXml::WNode n_docs(_doc, "RECADV");
-	// @v10.6.4 MEMSZERO(order_bill_rec);
-	// @v10.6.4 MEMSZERO(wroff_bill_rec);
 	const  PPID contractor_psn_id = ObjectToPerson(rRaPack.ABp.Rec.Object, 0);
 	THROW(PsnObj.Search(contractor_psn_id, &contractor_psn_rec) > 0);
 	THROW(GetMainOrgGLN(main_org_gln));
@@ -9534,8 +9506,8 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter * pX, 
 				total_amount += amount_without_vat;
 				total_amount_with_vat += amount_with_vat;
 			}
-			n_docs.PutInner("TOTALAMOUNT", temp_buf.Z().Cat(total_amount, MKSFMTD(0, 2, 0)));
-			n_docs.PutInner("TOTALAMOUNTWITHVAT", temp_buf.Z().Cat(total_amount_with_vat, MKSFMTD(0, 2, 0)));
+			n_docs.PutInner("TOTALAMOUNT", temp_buf.Z().Cat(total_amount, MKSFMTD_020));
+			n_docs.PutInner("TOTALAMOUNTWITHVAT", temp_buf.Z().Cat(total_amount_with_vat, MKSFMTD_020));
 		}
 		n_docs.PutInner("DOCTYPE", "O");
 		// @v11.1.12 n_docs.PutInner("INFO", EncXmlText(rRaPack.RBp.Rec.Memo));
@@ -9604,11 +9576,11 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter * pX, 
 							n_inner2.PutInner("DELIVERQUANTITY", temp_buf.Z().Cat(dlvr_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
 							n_inner2.PutInner("ORDERQUANTITY", temp_buf.Z().Cat(ord_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS)));
 							//n_inner2.PutInner("DELTAQUANTITY", 0);
-							n_inner2.PutInner("PRICE", temp_buf.Z().Cat(price_without_vat, MKSFMTD(0, 2, 0)));
+							n_inner2.PutInner("PRICE", temp_buf.Z().Cat(price_without_vat, MKSFMTD_020));
 							//n_inner2.PutInner("PRICEUSD", 0);
 							//n_inner2.PutInner("PRICEWITHVATUSD", 0);
-							n_inner2.PutInner("AMOUNT", temp_buf.Z().Cat(amount_without_vat, MKSFMTD(0, 2, 0)));
-							n_inner2.PutInner("AMOUNTWITHVAT", temp_buf.Z().Cat(amount_with_vat, MKSFMTD(0, 2, 0)));
+							n_inner2.PutInner("AMOUNT", temp_buf.Z().Cat(amount_without_vat, MKSFMTD_020));
+							n_inner2.PutInner("AMOUNTWITHVAT", temp_buf.Z().Cat(amount_with_vat, MKSFMTD_020));
 							n_inner2.PutInner("TAXRATE", temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 1, NMBF_NOTRAILZ)));
 							//n_inner2.PutInner("CONDITIONSTATUS", 0);
 							n_inner2.PutInner("DESCRIPTION", EncXmlText(goods_rec.Name));

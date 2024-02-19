@@ -1101,8 +1101,7 @@ static void opj_dwt_fetch_cols_vertical_pass(const void * arrayIn, void * tmpOut
 	const int32_t* _RESTRICT array = (const int32_t * _RESTRICT)arrayIn;
 	int32_t* _RESTRICT tmp = (int32_t * _RESTRICT)tmpOut;
 	if(cols == NB_ELTS_V8) {
-		uint32_t k;
-		for(k = 0; k < height; ++k) {
+		for(uint32_t k = 0; k < height; ++k) {
 			memcpy(tmp + NB_ELTS_V8 * k, array + k * stride_width, NB_ELTS_V8 * sizeof(int32_t));
 		}
 	}

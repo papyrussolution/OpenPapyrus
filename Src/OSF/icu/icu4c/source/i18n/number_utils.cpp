@@ -98,8 +98,8 @@ DecNum::DecNum(const DecNum& other, UErrorCode & status)
 	}
 
 	// Copy the data from the old DecNum to the new one.
-	uprv_memcpy(fData.getAlias(), other.fData.getAlias(), sizeof(decNumber));
-	uprv_memcpy(fData.getArrayStart(),
+	memcpy(fData.getAlias(), other.fData.getAlias(), sizeof(decNumber));
+	memcpy(fData.getArrayStart(),
 	    other.fData.getArrayStart(),
 	    other.fData.getArrayLimit() - other.fData.getArrayStart());
 }

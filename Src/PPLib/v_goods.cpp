@@ -2703,14 +2703,14 @@ int PPViewGoods::RemoveAll()
 					if(agi.RefcProof > 0.0 && !feqeps(agi.Proof, agi.RefcProof, 1E-2)) {
 						// Содержание спирта товара отличается от внутренней базы данных ЕГАИС: %s
 						PPLoadText(PPTXT_ADJALCOGOODS_PROOF, fmt_buf);
-						temp_buf.Space().CatChar('[').Cat(agi.Proof, MKSFMTD(0, 2, 0)).CatDiv('-', 1).Cat(agi.RefcProof, MKSFMTD(0, 2, 0)).CatChar(']');
+						temp_buf.Space().CatChar('[').Cat(agi.Proof, MKSFMTD_020).CatDiv('-', 1).Cat(agi.RefcProof, MKSFMTD_020).CatChar(']');
 						logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
 						update_flags |= updfProof;
 					}
 					if(agi.RefcVolume > 0.0 && !feqeps(agi.Volume, agi.RefcVolume, 1E-3)) {
 						// Объем единицы товара отличается от внутренней базы данных ЕГАИС: %s
 						PPLoadText(PPTXT_ADJALCOGOODS_VOLUME, fmt_buf);
-						temp_buf.Space().CatChar('[').Cat(agi.Volume, MKSFMTD(0, 2, 0)).CatDiv('-', 1).Cat(agi.RefcVolume, MKSFMTD(0, 2, 0)).CatChar(']');
+						temp_buf.Space().CatChar('[').Cat(agi.Volume, MKSFMTD_020).CatDiv('-', 1).Cat(agi.RefcVolume, MKSFMTD_020).CatChar(']');
 						logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
 						update_flags |= updfVolume;
 					}

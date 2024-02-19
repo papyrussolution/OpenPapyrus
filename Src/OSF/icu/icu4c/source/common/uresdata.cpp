@@ -114,7 +114,7 @@ static int32_t _res_findTable32Item(const ResourceData * pResData, const int32_t
 // 
 static bool U_CALLCONV isAcceptable(void * context, const char * /*type*/, const char * /*name*/, const UDataInfo * pInfo) 
 {
-	uprv_memcpy(context, pInfo->formatVersion, 4);
+	memcpy(context, pInfo->formatVersion, 4);
 	return (bool)(pInfo->size>=20 && pInfo->isBigEndian==U_IS_BIG_ENDIAN && pInfo->charsetFamily==U_CHARSET_FAMILY &&
 		pInfo->sizeofUChar==U_SIZEOF_UCHAR && pInfo->dataFormat[0]==0x52 && /* dataFormat="ResB" */
 		pInfo->dataFormat[1]==0x65 && pInfo->dataFormat[2]==0x73 && pInfo->dataFormat[3]==0x42 && (1<=pInfo->formatVersion[0] && pInfo->formatVersion[0]<=3));
@@ -1212,7 +1212,7 @@ static void ures_swapResource(const UDataSwapper * ds,
 				    ds->swapArray16(ds, pKey16+oldIndex, 2, rKey16+i, pErrorCode);
 			    }
 			    if(qKey16!=rKey16) {
-				    uprv_memcpy(qKey16, rKey16, 2*count);
+				    memcpy(qKey16, rKey16, 2*count);
 			    }
 		    }
 		    else {
@@ -1229,7 +1229,7 @@ static void ures_swapResource(const UDataSwapper * ds,
 				    ds->swapArray32(ds, pKey32+oldIndex, 4, rKey32+i, pErrorCode);
 			    }
 			    if(qKey32!=rKey32) {
-				    uprv_memcpy(qKey32, rKey32, 4*count);
+				    memcpy(qKey32, rKey32, 4*count);
 			    }
 		    }
 		    /* resources */
@@ -1246,7 +1246,7 @@ static void ures_swapResource(const UDataSwapper * ds,
 				    ds->swapArray32(ds, p+oldIndex, 4, r+i, pErrorCode);
 			    }
 			    if(q!=r) {
-				    uprv_memcpy(q, r, 4*count);
+				    memcpy(q, r, 4*count);
 			    }
 		    }
 	    }
@@ -1385,7 +1385,7 @@ U_CAPI int32_t U_EXPORT2 ures_swap(const UDataSwapper * ds, const void * inData,
 		memzero(tempTable.resFlags, resFlagsLength);
 		/* copy the bundle for binary and inaccessible data */
 		if(inData!=outData) {
-			uprv_memcpy(outBundle, inBundle, 4*top);
+			memcpy(outBundle, inBundle, 4*top);
 		}
 		/* swap the key strings, but not the padding bytes (0xaa) after the last string and its NUL */
 		udata_swapInvStringBlock(ds, inBundle+keysBottom, 4*(keysTop-keysBottom), outBundle+keysBottom, pErrorCode);

@@ -1,5 +1,5 @@
 // SALARY.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -109,16 +109,6 @@ int SalaryCore::Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta)
 	CATCHZOK
 	return ok;
 }
-
-/* @v10.6.7 (unused) int SalaryCore::Get__(PPID postID, PPID salChargeID, const DateRange & rPeriod, SalaryTbl::Rec * pRec)
-{
-	SalaryTbl::Key1 k1;
-	MEMSZERO(k1);
-	k1.PostID = postID;
-	k1.SalChargeID = salChargeID;
-	k1.Beg = rPeriod.low;
-	return SearchByKey(this, 1, &k1, pRec);
-}*/
 
 int SalaryCore::Calc(PPID postID, PPID salChargeID, int avg, const DateRange & rPeriod, double * pAmount)
 {
@@ -816,7 +806,6 @@ int PPViewSalary::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 		SalaryTbl::Rec rec;
 		PersonPostTbl::Rec post_rec;
 		if(ppvCmd == PPVCMD_ADDITEM) {
-			// @v10.6.4 MEMSZERO(rec);
 			if(EditItemDialog(&rec) > 0)
 				ok = Tbl.Put(&(id = 0), &rec, 1) ? 1 : PPErrorZ();
 			else
@@ -2148,7 +2137,6 @@ int PrcssrSalary::ProcessPost(PPID postID, UintHashTable * pIdList, int use_ta)
 								PPID   sal_id = 0;
 								SalaryTbl::Rec sal_entry;
 								PPExprParser::CalcExpression(sc_pack.Formula, &value, 0, &expr_ctx);
-								// @v10.7.8 @ctr MEMSZERO(sal_entry);
 								sal_entry.Beg = P.NominalPeriod.low;
 								sal_entry.End = P.NominalPeriod.upp;
 								sal_entry.PostID = postID;
@@ -2168,7 +2156,6 @@ int PrcssrSalary::ProcessPost(PPID postID, UintHashTable * pIdList, int use_ta)
 						SalaryTbl::Rec sal_entry;
 						P_CurEv = 0;
 						PPExprParser::CalcExpression(sc_pack.Formula, &value, 0, &expr_ctx);
-						// @v10.7.8 @ctr MEMSZERO(sal_entry);
 						sal_entry.Beg = P.NominalPeriod.low;
 						sal_entry.End = P.NominalPeriod.upp;
 						sal_entry.PostID = postID;

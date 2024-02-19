@@ -131,7 +131,6 @@ int PPViewCurRate::AddItem(CurRateIdent * pIdent)
 {
 	int    ok = -1;
 	CurrencyRateTbl::Rec rec;
-	// @v10.6.4 MEMSZERO(rec);
 	rec.Dt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
 	rec.CurID = Filt.CurID;
 	rec.RelCurID = Filt.BaseCurID;

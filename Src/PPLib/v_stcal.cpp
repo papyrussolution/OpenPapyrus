@@ -1,5 +1,5 @@
 // V_STCAL.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -223,7 +223,6 @@ int PPViewStaffCal::CreateEntryByObj(PPID objType, PPID objID, StrAssocArray * p
 			for(uint j = 0; list.enumItems(&j, (void **)&p_chunk);) {
 				int    update = 0;
 				TempStaffCalTbl::Rec temp_rec;
-				// @v10.7.5 @ctr MEMSZERO(temp_rec);
 				temp_rec.CalID = cal_id;
 				temp_rec.LinkObjID = objID;
 				temp_rec.Count = 1;
@@ -538,7 +537,6 @@ int PPViewStaffCal::EditEntry(PPID calID, PPID objID, LDATETIME dtm, LTIME tmFin
 			PPStaffCalPacket pack;
 			if(Filt.LinkObjType && Obj.Fetch(calID, &par_rec) > 0) {
 				StaffCalendarTbl::Rec entry;
-				// @v10.8.12 @ctr MEMSZERO(entry);
 				PPObjID oid(Filt.LinkObjType, objID);
 				if(Obj.SearchByObj(calID, oid, &cal_rec) > 0) {
 					child_cal_id = cal_rec.ID;

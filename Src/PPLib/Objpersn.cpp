@@ -1,5 +1,5 @@
 // OBJPERSN.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -637,8 +637,7 @@ int ExtFieldsDialog::Edit(SStringTag * pItem)
 int ExtFieldsDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
-	SStringTag item; // @v10.7.11 TaggedString-->SStringTag
-	// @v10.6.8 @ctr MEMSZERO(item);
+	SStringTag item;
 	item.Id = 1 + LOCEXSTR_EXTFLDSOFFS;
 	for(uint i = 0; i < Data.getCount(); i++)
 		if(Data.Get(i).Id == item.Id)
@@ -840,7 +839,6 @@ int NewPersMarksDialog::addItem(long * pPos, long * pID)
 	int    ok = -1;
 	PPPersonConfig::NewClientDetectionItem item;
 	SString op_kind_name;
-	// @v10.8.12 @ctr MEMSZERO(item);
 	if(Edit(&item, op_kind_name) > 0) {
 		if(Data.insert(&item)) {
 			assert(Data.getCount() > 0);
@@ -885,7 +883,6 @@ int NewPersMarksDialog::setupList()
 		ss.add(temp_buf);
 		if(item.Obj == PPOBJ_PERSONOPKIND) {
 			PPPsnOpKind pok_rec;
-			// @v10.6.6 @ctr MEMSZERO(pok_rec);
 			pok_obj.Fetch(item.Id, &pok_rec);
 			ss.add(pok_rec.Name);
 		}
@@ -2093,7 +2090,6 @@ int PPObjPerson::AddToAddrBook(PPID personID, PPID userID, int use_ta)
 		{
 			PPTransaction tra(use_ta);
 			THROW(tra);
-			// @v10.6.4 MEMSZERO(rec);
 			rec.AsscType = PPASS_ADDRESSBOOK;
 			rec.PrmrObjID = usr_id;
 			rec.ScndObjID = personID;
@@ -6633,7 +6629,6 @@ int PPObjPersonKind::Edit(PPID * pID, void * extraPtr)
 	if(!is_new) {
 		THROW(Search(*pID, &psnk) > 0);
 	}
-	// @v10.6.6 @ctr else MEMSZERO(psnk);
 	dlg->setCtrlLong(CTL_PSNKIND_ID, psnk.ID);
 	dlg->setCtrlData(CTL_PSNKIND_NAME, psnk.Name);
 	dlg->setCtrlData(CTL_PSNKIND_SYMB, psnk.Symb);

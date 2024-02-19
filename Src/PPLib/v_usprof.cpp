@@ -1,5 +1,5 @@
 // V_USPROF.CPP
-// Copyright (c) A.Starodub 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 // @codepage UTF-8
 // Профиль пользовательских функций
 //
@@ -107,7 +107,6 @@ int FASTCALL PPViewUserProfile::NextIteration(UserProfileViewItem * pItem)
 {
 	int    ok = -1;
 	UserProfileViewItem item;
-	// @v10.7.8 @ctr MEMSZERO(item);
 	ASSIGN_PTR(pItem, item);
 	return ok;
 }

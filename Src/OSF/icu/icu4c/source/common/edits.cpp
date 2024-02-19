@@ -51,7 +51,7 @@ Edits &Edits::copyArray(const Edits &other) {
 		capacity = length;
 	}
 	if(length > 0) {
-		uprv_memcpy(array, other.array, (size_t)length * 2);
+		memcpy(array, other.array, (size_t)length * 2);
 	}
 	return *this;
 }
@@ -73,7 +73,7 @@ Edits &Edits::moveArray(Edits &src) U_NOEXCEPT {
 	array = stackArray;
 	capacity = STACK_CAPACITY;
 	if(length > 0) {
-		uprv_memcpy(array, src.array, (size_t)length * 2);
+		memcpy(array, src.array, (size_t)length * 2);
 	}
 	return *this;
 }
@@ -244,7 +244,7 @@ bool Edits::growArray() {
 		errorCode_ = U_MEMORY_ALLOCATION_ERROR;
 		return FALSE;
 	}
-	uprv_memcpy(newArray, array, (size_t)length * 2);
+	memcpy(newArray, array, (size_t)length * 2);
 	releaseArray();
 	array = newArray;
 	capacity = newCapacity;

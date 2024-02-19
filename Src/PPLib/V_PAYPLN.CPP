@@ -1,5 +1,5 @@
 // V_PAYPLN.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
 // @codepage UTF-8
 // Plan of Payments View
 //
@@ -127,7 +127,6 @@ int IterProc_PPViewPaymPlan_ProcessPeriod(PayPlanTbl::Rec * pRec, void * extraPt
 		if(debt > 0.0) {
 			TempPaymPlanTbl::Rec rec;
 			TempPaymPlanTbl::Key0 pk0;
-			// @v10.7.8 @ctr MEMSZERO(rec);
 			rec.Dt     = p->Period.low;
 			rec.PayPlanDt = pRec->PayDate;
 			rec.BillID = 0;

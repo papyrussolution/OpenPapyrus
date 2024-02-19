@@ -49,15 +49,11 @@ static int uint64_i2c(const ASN1_VALUE ** pval, uchar * cont, int * putype,
 	int neg = 0;
 	/* this exists to bypass broken gcc optimization */
 	char * cp = (char*)*pval;
-
 	/* use memcpy, because we may not be uint64_t aligned */
 	memcpy(&utmp, cp, sizeof(utmp));
-
-	if((it->size & INTxx_FLAG_ZERO_DEFAULT) == INTxx_FLAG_ZERO_DEFAULT
-	    && utmp == 0)
+	if((it->size & INTxx_FLAG_ZERO_DEFAULT) == INTxx_FLAG_ZERO_DEFAULT && utmp == 0)
 		return -1;
-	if((it->size & INTxx_FLAG_SIGNED) == INTxx_FLAG_SIGNED
-	    && (int64_t)utmp < 0) {
+	if((it->size & INTxx_FLAG_SIGNED) == INTxx_FLAG_SIGNED && (int64_t)utmp < 0) {
 		/* ossl_i2c_uint64_int() assumes positive values */
 		utmp = 0 - utmp;
 		neg = 1;

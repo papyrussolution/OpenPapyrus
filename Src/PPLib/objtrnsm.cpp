@@ -1,5 +1,5 @@
 // OBJTRNSM.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Передача объектов между разделами БД
 //
@@ -692,9 +692,8 @@ int PPObjectTransmit::PutSyncCmpToIndex(PPID objType, PPID id)
 				LDATETIME modif;
 				ObjSyncQueueTbl::Rec rec;
 				PPID   dest_id = (!comm_id.IsZero() && SyncTbl.SearchCommon(objType, comm_id, DestDbDivID, &sync_rec) > 0) ? sync_rec.ObjID : 0;
-				// @v10.6.8 @ctr MEMSZERO(rec);
-				rec.DBID    = (short)LConfig.DBDiv;
-				rec.ObjType = (short)objType;
+				rec.DBID    = static_cast<short>(LConfig.DBDiv);
+				rec.ObjType = static_cast<short>(objType);
 				comm_id.Get(&rec);
 				rec.ObjID   = id;
 				rec.FileId  = dest_id;
@@ -799,7 +798,6 @@ int PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updProtocol
 		ushort transmit_flags = PPObjPack::fNoObj;
 		ObjSyncQueueTbl::Rec rec;
 		ObjSyncTbl::Rec s_rec;
-		// @v10.6.8 @ctr MEMSZERO(rec);
 		THROW(r = SyncTbl.SearchSync(objType, objID, DestDbDivID, 0, &s_rec));
 		if(this_obj_upd_protocol == PPOTUP_FORCE)
 			transmit_flags |= PPObjPack::fForceUpdate;
@@ -866,7 +864,6 @@ int PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updProtocol
 		//
 		if(need_send && p_obj->GetName(objID, &obj_name) > 0) {
 			ObjSyncQueueTbl::Rec rec;
-			// @v10.6.8 @ctr MEMSZERO(rec);
 			rec.DBID     = static_cast<short>(r_cfg.DBDiv);
 			rec.ObjType  = static_cast<ushort>(objType);
 			rec.ObjID    = objID;
@@ -1312,7 +1309,6 @@ int PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * stream,
 				TempSyncCmpTbl::Key0 k0;
 				TempSyncCmpTbl::Key1 k1;
 				LDATETIME dtm;
-				// @v10.7.1 @ctr MEMSZERO(sct_rec);
 				THROW(SetupSyncCmpRec(&idx_rec, &sct_rec));
 				dtm.Set(sct_rec.SrcModDt, sct_rec.SrcModTm);
 				MEMSZERO(k0);
@@ -2514,7 +2510,7 @@ int PPObjectTransmit::Transmit(const PPIDArray * pDBDivAry, const PPObjIDArray *
 			int    r = Transmit(pDBDivAry->at(i), pObjAry, pParam);
 			if(!r) {
 				if(pDBDivAry->getCount() > 1) {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER); // @v10.4.1
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO); // @v10.4.1
 					// @v10.4.1 logger.LogLastError();
 					ok = 0;
 				}
@@ -3151,7 +3147,7 @@ int PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID commID, P
 		ok = -1;
 	CATCH
 		if(param.Flags & param.fNonInteractive) {
-			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR|LOGMSGF_DBINFO);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 		}
 		else
 			PPError();

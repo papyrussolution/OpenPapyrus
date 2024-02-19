@@ -983,7 +983,7 @@ struct DscntEntry { // @flat
 	double Dscnt;
 };
 
-void PPObjTSession::Helper_SetupDiscount(SVector & rList, int pct, double discount) // @v10.0.07 SArray-->SVector
+void PPObjTSession::Helper_SetupDiscount(SVector & rList, int pct, double discount)
 {
 	uint   i;
 	uint   last_index = 0;
@@ -1030,7 +1030,7 @@ int PPObjTSession::SetupDiscount(PPID sessID, int pct, double discount, int use_
 		TSessionTbl::Rec sess_rec;
 		TSessLineTbl::Rec line_rec;
 		double amount = 0.0;
-		SVector ln_list(sizeof(DscntEntry)); // @v10.0.07 SArray-->SVector
+		SVector ln_list(sizeof(DscntEntry));
 		DscntEntry * p_entry;
 		{
 			PPTransaction tra(use_ta);
@@ -2689,7 +2689,6 @@ int PPObjTSession::InitLinePacket(TSessLineTbl::Rec * pRec, PPID sessID)
 {
 	int    ok = -1;
 	TSessLineTbl::Rec rec;
-	// @v10.7.9 @ctr MEMSZERO(rec);
 	TSessionTbl::Rec tses_rec;
 	if(Search(sessID, &tses_rec) > 0) {
 		rec.TSessID = sessID;
@@ -3309,7 +3308,6 @@ int TSessionCore::SearchSerial(const char * pSerial, PPID sessID, int sign, long
 	int    ok = -1;
 	TSessLineTbl::Rec line_rec;
 	TSessLineTbl::Rec temp_line_rec;
-	// @v10.7.9 @ctr MEMSZERO(line_rec);
 	LDATETIME dtm = ZERODATETIME;
 	long   hdl_ln_enum = -1;
 	InitLineEnumBySerial(pSerial, sign, &hdl_ln_enum);
@@ -4888,7 +4886,7 @@ int PPObjTSession::SelectSerialByGoods(PPID goodsID, PPID locID, SerialByGoodsLi
 {
 	int    ok = -1;
 	PPListDialog * dlg = 0;
-	SVector list(sizeof(SerialByGoodsListItem)); // @v10.7.7 SArray-->SVector
+	SVector list(sizeof(SerialByGoodsListItem));
 	if(GetSerialListByGoodsID(goodsID, locID, &list) > 0) {
 		if(CheckDialogPtrErr(&(dlg = new PPListDialog(DLG_SELSERIAL, CTL_SELSERIAL_LIST, PPListDialog::fOnDblClkOk)))) {
 			SString goods_name;

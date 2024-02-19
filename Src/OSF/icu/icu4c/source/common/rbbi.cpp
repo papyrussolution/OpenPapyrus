@@ -258,7 +258,7 @@ void RuleBasedBreakIterator::init(UErrorCode & status)
 	// Note: IBM xlC is unable to assign or initialize member fText from UTEXT_INITIALIZER.
 	// fText         = UTEXT_INITIALIZER;
 	static const UText initializedUText = UTEXT_INITIALIZER;
-	uprv_memcpy(&fText, &initializedUText, sizeof(UText));
+	memcpy(&fText, &initializedUText, sizeof(UText));
 	if(U_FAILURE(status)) {
 		return;
 	}

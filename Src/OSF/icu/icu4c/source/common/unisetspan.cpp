@@ -420,7 +420,7 @@ UnicodeSetStringSpan::UnicodeSetStringSpan(const UnicodeSetStringSpan &otherStri
 	}
 	spanLengths = (uint8 *)(utf8Lengths+stringsLength);
 	utf8 = spanLengths+stringsLength*4;
-	uprv_memcpy(utf8Lengths, otherStringSpan.utf8Lengths, allocSize);
+	memcpy(utf8Lengths, otherStringSpan.utf8Lengths, allocSize);
 }
 
 UnicodeSetStringSpan::~UnicodeSetStringSpan() 

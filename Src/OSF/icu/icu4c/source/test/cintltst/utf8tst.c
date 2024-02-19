@@ -1134,7 +1134,7 @@ static void TestAppendChar() {
 /*    UChar32 c=0;*/
 	uint16_t size = SIZEOFARRAYi(s);
 	for(i = 0; i<SIZEOFARRAYi(test); i = (uint16_t)(i+2)) {
-		uprv_memcpy(str, s, size);
+		memcpy(str, s, size);
 		offset = test[i];
 		if(count<13) {
 			UTF8_APPEND_CHAR_UNSAFE(str, offset, test[i+1]);
@@ -1170,7 +1170,7 @@ static void TestAppendChar() {
 				log_err("\n");
 			}
 			/*call the API instead of MACRO
-			   uprv_memcpy(str, s, size);
+			   memcpy(str, s, size);
 			   offset=test[i];
 			   c=test[i+1];
 			   if((uint32_t)(c)<=0x7f) {

@@ -830,7 +830,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 						_target_idx = _colidx_discount+1;
 					}
 					if(_target_idx)
-						insertColumn(_target_idx, PPLoadStringS("extrachargepct", temp_buf), 36, MKSTYPE(S_FLOAT, 8), MKSFMTD(0, 2, 0), BCO_USERPROC);
+						insertColumn(_target_idx, PPLoadStringS("extrachargepct", temp_buf), 36, MKSTYPE(S_FLOAT, 8), MKSFMTD_020, BCO_USERPROC);
 				}
 			}
 		}
@@ -3669,7 +3669,6 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 			int    ok = -1;
 			PPLotExtCodeContainer::MarkSet set;
 			LotExtCodeTbl::Rec rec;
-			// @v10.6.4 MEMSZERO(rec);
 			rec.BillID = P_Pack->Rec.ID;
 			rec.RByBill = RowIdx;
 			Data.Get(RowIdx, 0, set); // @v10.6.6

@@ -1,5 +1,5 @@
 // WORKBOOK.CPP
-// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Модуль управления рабочими книгами (произвольный контент, как правило, предназначенный для отображения в web-browser'е
 //
@@ -1456,7 +1456,7 @@ int PPObjWorkbook::Helper_Export(PPID rootID, PPWorkbookExporter & rExporter, PP
 		if(rec.ParentID == rootID) { // @paranoic
 			if(rec.ID == rec.ParentID) {
 				PPSetError(PPERR_WORKBOOKSELFPAR, rec.Name);
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 			}
 			else {
 				SETIFZ(pRecurTrace, &local_recur_trace);
@@ -1470,7 +1470,7 @@ int PPObjWorkbook::Helper_Export(PPID rootID, PPWorkbookExporter & rExporter, PP
 				}
 				else {
 					PPSetError(PPERR_WORKBOOKRECUR, rec.Name);
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 				}
 			}
 		}
@@ -1502,7 +1502,7 @@ int PPObjWorkbook::Helper_Transmit(PPID rootID, PPIDArray & rResultList, PPIDArr
 		if(rec.ParentID == rootID) { // @paranoic
 			if(rec.ID == rec.ParentID) {
 				PPSetError(PPERR_WORKBOOKSELFPAR, rec.Name);
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 			}
 			else {
 				SETIFZ(pRecurTrace, &local_recur_trace);
@@ -1514,7 +1514,7 @@ int PPObjWorkbook::Helper_Transmit(PPID rootID, PPIDArray & rResultList, PPIDArr
 				}
 				else {
 					PPSetError(PPERR_WORKBOOKRECUR, rec.Name);
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 				}
 			}
 		}
@@ -1551,7 +1551,7 @@ int PPObjWorkbook::Helper_RemoveAll(PPID id, PPIDArray * pRecurTrace)
 		if(rec.ParentID == id) { // @paranoic
 			if(rec.ID == rec.ParentID) {
 				PPSetError(PPERR_WORKBOOKSELFPAR, rec.Name);
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 			}
 			else {
 				SETIFZ(pRecurTrace, &local_recur_trace);
@@ -1562,7 +1562,7 @@ int PPObjWorkbook::Helper_RemoveAll(PPID id, PPIDArray * pRecurTrace)
 				}
 				else {
 					PPSetError(PPERR_WORKBOOKRECUR, rec.Name);
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 				}
 			}
 		}
@@ -1714,7 +1714,7 @@ int PPObjWorkbook::AddListItem(StrAssocArray * pList, const WorkbookTbl::Rec * p
 		if(par_id) {
 			if(par_id == pRec->ID) {
 				PPSetError(PPERR_WORKBOOKSELFPAR, pRec->Name);
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 				par_id = 0;
 			}
 			else if(Fetch(par_id, &par_rec) > 0) {
@@ -1726,7 +1726,7 @@ int PPObjWorkbook::AddListItem(StrAssocArray * pList, const WorkbookTbl::Rec * p
 				}
 				else {
 					PPSetError(PPERR_WORKBOOKRECUR, par_rec.Name);
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 					par_id = 0;
 				}
 			}
@@ -1746,7 +1746,7 @@ int PPObjWorkbook::Helper_MakeStrAssocList(PPID parentID, StrAssocArray * pList,
 	PPIDArray added_id_list;
 	for(SEnum en = P_Tbl->EnumByParent(parentID, 0); en.Next(&rec) > 0;) {
 		if(rRecurTrace.Has((uint32)rec.ID)) {
-			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 			CALLEXCEPT_PP_S(PPERR_WORKBOOKRECUR, rec.Name);
 		}
 		else {
@@ -2792,7 +2792,6 @@ int PrcssrWorkbookImport::Run()
 		{
 			Sdr_Workbook sdr_rec;
 			cntr.Init(numrecs);
-			// @v10.7.9 @ctr MEMSZERO(sdr_rec);
 			while((r = ie.ReadRecord(&sdr_rec, sizeof(sdr_rec))) > 0) {
 				ie.GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
 				PPID   id = 0, same_id = 0;
@@ -2901,7 +2900,6 @@ int PPWorkbookExporter::ExportPacket(const PPWorkbookPacket * pPack)
 	WorkbookTbl::Rec inner_rec;
 	Sdr_Workbook sdr_rec;
 	THROW_INVARG(pPack);
-	// @v10.7.9 @ctr MEMSZERO(sdr_rec);
 	sdr_rec.ID = pPack->Rec.ID;
 	STRNSCPY(sdr_rec.Name, pPack->Rec.Name);
 	STRNSCPY(sdr_rec.Symb, pPack->Rec.Symb);

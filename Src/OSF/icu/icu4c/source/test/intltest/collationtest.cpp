@@ -1570,7 +1570,7 @@ bool CollationTest::getMergedCollationKey(const char16_t * s, int32_t length,
 		U_ASSERT(dest != NULL || mergedKeyCapacity == 0);
 		if(key1Length == 0) {
 			// key2 is the sort key for the first segment.
-			uprv_memcpy(dest, key2Bytes, key2Length);
+			memcpy(dest, key2Bytes, key2Length);
 			mergedKeyLength = key2Length;
 		}
 		else {

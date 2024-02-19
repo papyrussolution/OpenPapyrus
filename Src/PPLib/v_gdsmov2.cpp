@@ -1,5 +1,5 @@
 // V_GDSMOV2.CPP
-// Copyright (c) A.Starodub 2011, 2015, 2016, 2018, 2019, 2020, 2020, 2021
+// Copyright (c) A.Starodub 2011, 2015, 2016, 2018, 2019, 2020, 2020, 2021, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -113,7 +113,6 @@ int PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 			THROW(PPCheckUserBreak());
 			if(!(gr.Flags & GF_GENERIC)) {
 				TempGoodsMov2Tbl::Rec rec;
-				// @v10.6.6 @ctr MEMSZERO(rec);
 				temp_filt.GoodsID = gr.ID;
 				gds_op_list.clear();
 				ary.clear();

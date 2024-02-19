@@ -1,5 +1,5 @@
 // PPNGX.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Взаимодействие с NGINX
 //
@@ -440,7 +440,7 @@ private:
 			if(login_result)
 				State_PPws |= stLoggedIn;
 			else {
-				PPLogMessage(PPFILNAM_SERVER_LOG, 0, LOGMSGF_TIME|LOGMSGF_LASTERR);
+				PPLogMessage(PPFILNAM_SERVER_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
 			}
 		}
 		CATCHZOK
@@ -1092,7 +1092,7 @@ int PPSession::DispatchNgxRequest(void * pReq, const void * pCfg)
 				else {
 					// @v11.9.0 {
 					PPSetError(PPERR_NGNXSRV_PIPESESSOVERFLOW, max_threads);
-					PPLogMessage(PPFILNAM_SERVER_LOG, 0, LOGMSGF_TIME|LOGMSGF_LASTERR);
+					PPLogMessage(PPFILNAM_SERVER_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
 					// } @v11.9.0 
 					break;
 				}

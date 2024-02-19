@@ -1,5 +1,5 @@
 // V_CSESS.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -324,7 +324,6 @@ int PPViewCSess::CreateOrderTable(long ord, TempOrderTbl ** ppTbl)
 			for(InitIteration(ordByDefault); NextIteration(&item) > 0;) {
 				const double large_val = 1e12;
 				TempOrderTbl::Rec ord_rec;
-				// @v10.6.4 MEMSZERO(ord_rec);
 				ord_rec.ID = item.ID;
 				if(id_list.addUnique(ord_rec.ID) < 0) {
 					temp_buf = "debug";
@@ -856,7 +855,6 @@ int PPViewCSess::Add(BExtInsert * pBei, const CSessionTbl::Rec * pRec)
 {
 	int    ok = 1;
 	TempCSessChecksTbl::Rec csch_rec;
-	// @v10.6.4 MEMSZERO(csch_rec);
 	csch_rec.ID  = pRec->ID;
 	csch_rec.SuperSessID = pRec->SuperSessID;
 	csch_rec.CashNodeID  = pRec->CashNodeID;
@@ -1210,7 +1208,6 @@ void PPObjDraftCreateRule::GetRules(PPID ruleGrpID, PPIDArray * pRules)
 {
 	PPIDArray rules;
 	PPDraftCreateRule rule;
-	// @v10.6.8 @ctr MEMSZERO(rule);
 	for(PPID id = 0; EnumItems(&id, &rule) > 0;)
 		if(!ruleGrpID || rule.ParentID == ruleGrpID)
 			rules.add(id);
@@ -1512,7 +1509,6 @@ int PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, co
 							to_del = 1;
 						else if(rule.Rec.SCardSerID) {
 							SCardTbl::Rec sc_rec;
-							// @v10.3.6 {
 							if(CsObj.P_Cc->Cards.Search(chk_rec.SCardID, &sc_rec) > 0) {
 								if(sc_rec.SeriesID == rule.Rec.SCardSerID) {
 									if(rule.Rec.Flags & PPDraftCreateRule::fExcludeSCardSer)
@@ -1527,15 +1523,6 @@ int PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, co
 								if(!(rule.Rec.Flags & PPDraftCreateRule::fExcludeSCardSer))
 									to_del = 1;
 							}
-							// } @v10.3.6
-							/* @v10.3.6
-							MEMSZERO(sc_rec);
-							CC.Cards.Search(chk_rec.SCardID, &sc_rec);
-							if(chk_rec.SCardID == 0 || sc_rec.SeriesID != rule.Rec.SCardSerID)
-								to_del = 1;
-							else
-								to_del = (rule.Rec.Flags & PPDraftCreateRule::fExcludeSCardSer) ? !to_del : to_del;
-							*/
 						}
 						if((rule.Rec.Flags & PPDraftCreateRule::fOnlyBanking) && !(chk_rec.Flags & CCHKF_BANKING))
 							 to_del = 1;
@@ -1631,7 +1618,6 @@ int PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, co
 					PPID   loc_id = p_e->LocID;
 					PPTransferItem ti;
 					ReceiptTbl::Rec lot_rec;
-					// @v10.6.4 MEMSZERO(lot_rec);
 					THROW(ti.Init(&b_pack.Rec));
 					THROW(ti.SetupGoods(p_e->GoodsID) > 0);
 					ti.Quantity_ = p_e->Qtty;
@@ -2821,7 +2807,6 @@ int PPViewCSessExc::ConvertDeficitToBasket()
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			ILTI   i_i;
 			ReceiptTbl::Rec lot_rec;
-			// @v10.6.4 MEMSZERO(lot_rec);
 			THROW(::GetCurGoodsPrice(item.GoodsID, CommonLocID, GPRET_MOSTRECENT, 0, &lot_rec) != GPRET_ERROR);
 			i_i.GoodsID     = item.GoodsID;
 			i_i.UnitPerPack = lot_rec.UnitPerPack;

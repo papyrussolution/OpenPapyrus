@@ -1,5 +1,5 @@
 // ACCTURN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -372,10 +372,8 @@ int AccTurnCore::AccBelongToOrd(PPID accRelID, int ord, const Acct * pAcct, PPID
 		int    r;
 		if(accRelID)
 			r = useCache ? AccRel.Fetch(accRelID, &acr_rec) : AccRel.Search(accRelID, &acr_rec);
-		else {
-			// @v10.6.4 MEMSZERO(acr_rec);
+		else
 			r = 1;
-		}
 		if(r > 0) {
 			if(curID >= 0 && acr_rec.CurID != curID)
 				ok = -1;

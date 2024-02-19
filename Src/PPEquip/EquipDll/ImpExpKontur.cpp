@@ -1093,7 +1093,7 @@ int ExportCls::EndDoc()
 		{
 			SXml::WNode n2(P_XmlWriter, "C516");
 			{ SXml::WNode(P_XmlWriter, "E5025", "128"); } // Квалификатор суммы (Сумма документа с НДС)
-			{ SXml::WNode(P_XmlWriter, "E5004", str.Z().Cat(Bill.Amount, MKSFMTD(0, 2, 0))); } // Сумма
+			{ SXml::WNode(P_XmlWriter, "E5004", str.Z().Cat(Bill.Amount, MKSFMTD_020)); } // Сумма
 		}
 	}
 	{
@@ -1102,7 +1102,7 @@ int ExportCls::EndDoc()
 		{
 			SXml::WNode n2(P_XmlWriter, "C516");
 			{ SXml::WNode(P_XmlWriter, "E5025", "98"); } // Квалификатор суммы (Сумма документа без НДС)
-			{ SXml::WNode(P_XmlWriter, "E5004", str.Z().Cat(BillSumWithoutVat, MKSFMTD(0, 2, 0))); } // Сумма
+			{ SXml::WNode(P_XmlWriter, "E5004", str.Z().Cat(BillSumWithoutVat, MKSFMTD_020)); } // Сумма
 		}
 	}
 	{

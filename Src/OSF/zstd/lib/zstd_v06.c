@@ -3701,7 +3701,9 @@ size_t ZBUFFv06_decompressContinue(ZBUFFv06_DCtx* zbd, void* dst, size_t* dstCap
 					*dstCapacityPtr = 0;
 					return (hSize - zbd->lhSize) + ZSTDv06_blockHeaderSize; /* remaining header bytes + next block header */
 				}
-				memcpy(zbd->headerBuffer + zbd->lhSize, ip, toLoad); zbd->lhSize = hSize; ip += toLoad;
+				memcpy(zbd->headerBuffer + zbd->lhSize, ip, toLoad); 
+				zbd->lhSize = hSize; 
+				ip += toLoad;
 				break;
 			}
 		    }

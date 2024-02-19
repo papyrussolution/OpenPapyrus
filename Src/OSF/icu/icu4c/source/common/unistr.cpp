@@ -57,7 +57,7 @@ void print(const char16_t * s, int32_t len, const char * name)
 static inline void us_arrayCopy(const char16_t * src, int32_t srcStart, char16_t * dst, int32_t dstStart, int32_t count)
 {
 	if(count>0) {
-		uprv_memmove(dst+dstStart, src+srcStart, (size_t)count*sizeof(*src));
+		memmove(dst+dstStart, src+srcStart, (size_t)count*sizeof(*src));
 	}
 }
 
@@ -473,7 +473,7 @@ UnicodeString & UnicodeString::copyFrom(const UnicodeString & src, bool fastCopy
 	switch(src.fUnion.fFields.fLengthAndFlags & kAllStorageFlags) {
 		case kShortString:
 		    // short string using the stack buffer, do the same
-		    uprv_memcpy(fUnion.fStackFields.fBuffer, src.fUnion.fStackFields.fBuffer,
+		    memcpy(fUnion.fStackFields.fBuffer, src.fUnion.fStackFields.fBuffer,
 			getShortLength() * U_SIZEOF_UCHAR);
 		    break;
 		case kLongString:
@@ -540,7 +540,7 @@ void UnicodeString::copyFieldsFrom(UnicodeString & src, bool setSrcToBogus) U_NO
 		// Check for self assignment to prevent "overlap in memcpy" warnings,
 		// although it should be harmless to copy a buffer to itself exactly.
 		if(this != &src) {
-			uprv_memcpy(fUnion.fStackFields.fBuffer, src.fUnion.fStackFields.fBuffer,
+			memcpy(fUnion.fStackFields.fBuffer, src.fUnion.fStackFields.fBuffer,
 			    getShortLength() * U_SIZEOF_UCHAR);
 		}
 	}

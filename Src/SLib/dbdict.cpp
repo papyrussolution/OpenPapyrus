@@ -1,5 +1,5 @@
 // DBDICT.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -626,7 +626,6 @@ int DBTablePartitionList::Init(const char * pPath, const char * pFileName, long 
 					fb.GetNameA(path, temp_buf);
 					sp_n.Split(temp_buf.Strip());
 					_InnerEntry entry;
-					// @v10.7.3 @ctr MEMSZERO(entry);
 					if(sp_n.Ext == "^^^") {
 						assert(GetConEntry(test_entry) == 0);
 						entry.Id = ++counter;

@@ -669,7 +669,7 @@ int PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 					SString msg_buf;
 					msg_buf.Cat(pPack->Rec.Name).CatDiv(';', 2).CatEq("ID", id).CatDiv(';', 2).CatEq("StrucID", pPack->Rec.StrucID);
 					PPSetError(PPERR_STRUCBYGOODSNFOUND, msg_buf);
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_USER|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_LASTERR);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 					pPack->GS.GoodsID = 0;
 				}
 			}
@@ -754,7 +754,7 @@ int PPObjGoods::ForceUndupName(PPID id, SString & rBuf)
 		if(temp_buf.CmpNC(ex_goods_rec.Name) != 0) {
 			// PPERR_FALSEGOODSNAMDUPDET        "Сбойная ситуация: ложная идентификация дублирования наименования товара '%s'"
 			PPSetError(PPERR_FALSEGOODSNAMDUPDET, temp_buf);
-			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 			break;
 		}
 		else {
@@ -1944,7 +1944,6 @@ void PPObjGoods::GetSubstText(PPID id, SubstGrpGoods sgg, const GoodsSubstList *
 			if(gc_obj.Fetch(gsitem.ClsID, &gc_pack) > 0) {
 				double val = 0.0;
 				GoodsExtTbl::Rec gext_rec;
-				// @v10.9.0 @ctr MEMSZERO(gext_rec);
 				gext_rec.GoodsClsID = gsitem.ClsID;
 				if(sgg == sggDimX) {
 					gext_rec.X = gsitem.Par1;
@@ -2128,8 +2127,7 @@ int PPObjGoods::SearchByArticle(PPID article, BarcodeTbl::Rec * pRec)
 	int      is_found = 0;
 	SString  gds_code;
 	gds_code.CatChar('$');
-	BarcodeTbl::Rec  bc_rec;
-	MEMSZERO(bc_rec);
+	BarcodeTbl::Rec bc_rec;
 	gds_code.Cat(article).CopyTo(bc_rec.Code, sizeof(bc_rec.Code));
 	if(P_Tbl->SearchBarcode(bc_rec.Code, &bc_rec) > 0 && IsInnerBarcodeType(bc_rec.BarcodeType, BARCODE_TYPE_UNDEF))
 		is_found = 1;
@@ -2526,7 +2524,6 @@ int PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
 			CFF_RET;
 		else {
 			Goods2Tbl::Rec parent_rec;
-			MEMSZERO(parent_rec);
 			Fetch(rec.ParentID, &parent_rec);
 			if(parent_rec.TaxGrpID)
 				CFF_RET;
@@ -2587,7 +2584,6 @@ int PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
 			PPObjGoodsClass gc_obj;
 			PPGdsClsPacket gc_pack;
 			GoodsExtTbl::Rec ext_rec;
-			// @v10.8.3 @ctr MEMSZERO(ext_rec);
 			if(P_Tbl->GetExt(rec.ID, &ext_rec) > 0 && gc_obj.Fetch(ext_rec.GoodsClsID, &gc_pack) > 0) {
 				if(!pFilt->Ep.KindList.CheckID(ext_rec.KindID))
 					CFF_RET;
@@ -3472,7 +3468,6 @@ int PPObjGoods::AddDefaultBarcode(PPGoodsPacket * pPack)
 			if(SearchObject(PPOBJ_BCODESTRUC, grp_rec.DefBCodeStrucID, &bcs_rec) > 0) {
 				BarcodeTbl::Rec bc_rec;
 				SString code_buf;
-				// @v10.6.12 @ctr MEMSZERO(bc_rec);
 				if(GetBarcodeByTemplate(grp_rec.ID, bcs_rec.Templ, 0, code_buf)) {
 					STRNSCPY(bc_rec.Code, code_buf);
 					bc_rec.Qtty = 1;
@@ -4353,7 +4348,7 @@ int PPObjGoodsInfo::Edit(PPID * pID, void * extraPtr)
 	ushort v = 0;
 	int    is_new = (*pID == 0);
 	TDialog * dlg = 0;
-	PPGoodsInfo rec;
+	PPGoodsInfo2 rec;
 	MEMSZERO(rec);
 	THROW(CheckRights(PPR_READ));
 	if(!is_new) {

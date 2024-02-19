@@ -636,7 +636,6 @@ int PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrossConfig * pCfg)
 	AlbatrosConfigDialog * p_dlg = new AlbatrosConfigDialog();
 	PPAlbatrossConfig cfg;
 	THROW(CheckCfgRights(PPCFGOBJ_ALBATROS, PPR_READ, 0));
-	// @v11.1.10 @ctr MEMSZERO(cfg);
 	THROW(is_new = PPAlbatrosCfgMngr::Get(&cfg));
 	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(&cfg);

@@ -44,7 +44,7 @@ SimpleFwdCharIterator::SimpleFwdCharIterator(char16_t *s, int32_t len, bool adop
         if(fStart == NULL) {
             fBogus = TRUE;
         } else {
-            uprv_memcpy(fStart, s, fLen);
+            memcpy(fStart, s, fLen);
             fEnd = fStart+fLen;
             fCurrent = fStart;
             fBogus = FALSE;

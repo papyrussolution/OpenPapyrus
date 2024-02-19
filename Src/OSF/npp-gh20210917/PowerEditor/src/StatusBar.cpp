@@ -114,7 +114,7 @@ LRESULT CALLBACK StatusBarSubclass(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 					    {rcPart.right - 2, rcPart.top + 1},
 					    {rcPart.right - 2, rcPart.bottom - 3}
 				    };
-				    Polyline(hdc, edges, _countof(edges));
+				    Polyline(hdc, edges, SIZEOFARRAY(edges));
 			    }
 
 			    RECT rcDivider = { rcPart.right - borders.vertical, rcPart.top, rcPart.right, rcPart.bottom };

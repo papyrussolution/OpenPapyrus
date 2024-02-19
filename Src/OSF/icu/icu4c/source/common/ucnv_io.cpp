@@ -790,7 +790,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucnv_openStandardNames(const char * convName, co
 				*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 				return NULL;
 			}
-			uprv_memcpy(myEnum, &gEnumAliases, sizeof(UEnumeration));
+			memcpy(myEnum, &gEnumAliases, sizeof(UEnumeration));
 			myContext = static_cast<UAliasContext *>(uprv_malloc(sizeof(UAliasContext)));
 			if(myContext == NULL) {
 				*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
@@ -988,7 +988,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucnv_openAllNames(UErrorCode * pErrorCode)
 			*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 			return NULL;
 		}
-		uprv_memcpy(myEnum, &gEnumAllConverters, sizeof(UEnumeration));
+		memcpy(myEnum, &gEnumAllConverters, sizeof(UEnumeration));
 		myContext = static_cast<uint16 *>(uprv_malloc(sizeof(uint16)));
 		if(myContext == NULL) {
 			*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
@@ -1188,12 +1188,12 @@ U_CAPI int32_t U_EXPORT2 ucnv_swapAliases(const UDataSwapper * ds, const void * 
 						oldIndex = tempTable.rows[i].sortIndex;
 						ds->swapArray16(ds, p+oldIndex, 2, r+i, pErrorCode);
 					}
-					uprv_memcpy(q, r, 2*(size_t)count);
+					memcpy(q, r, 2*(size_t)count);
 					for(i = 0; i<count; ++i) {
 						oldIndex = tempTable.rows[i].sortIndex;
 						ds->swapArray16(ds, p2+oldIndex, 2, r+i, pErrorCode);
 					}
-					uprv_memcpy(q2, r, 2*(size_t)count);
+					memcpy(q2, r, 2*(size_t)count);
 				}
 			}
 			if(tempTable.rows!=rows) {

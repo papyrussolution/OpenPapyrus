@@ -478,7 +478,6 @@ int PPViewTrfrAnlz::FlashCacheItem(BExtInsert * pBei, const TagrCacheItem & rIte
 	}
 	else {
 		TempTrfrGrpngTbl::Rec rec;
-		// @v10.7.8 @ctr MEMSZERO(rec);
 #define CPY(f) rec.f = rItem.f
 		CPY(ID__);  //
 		CPY(Dt);
@@ -798,7 +797,6 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 						prf_measure += 1.0;
 						if(Filt.PsnCatID || Filt.CityID) {
 							PersonTbl::Rec p_rec;
-							// @v10.7.8 @ctr MEMSZERO(p_rec);
 							const  PPID psn_id = ObjectToPerson(bill_rec.Object);
 							if(psn_id && PsnObj.Fetch(psn_id, &p_rec) > 0) {
 								if(Filt.PsnCatID)
@@ -1306,7 +1304,6 @@ int PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTr
 		if(Filt.Grp) {
 			TempTrfrGrpngTbl::Key1 k;
 			TempTrfrGrpngTbl::Rec tg_rec;
-			// @v10.7.8 @ctr MEMSZERO(tg_rec);
 			double rest = 0.0;
 			tg_rec.Qtty      = pTrfrRec->Quantity;
 			if(GObj.GetPhUPerU(goods_id, 0, &phuperu) > 0)
@@ -1527,7 +1524,6 @@ int PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTr
 		}
 		else {
 			TempTrfrAnlzTbl::Rec rec;
-			// @v10.7.8 @ctr MEMSZERO(rec);
 			memcpy(rec.BillCode, pBillRec->Code, sizeof(rec.BillCode));
 			// @debug {
 			if(pBillRec->Dt != pTrfrRec->Dt) {
@@ -1655,7 +1651,6 @@ int PPViewTrfrAnlz::AddAbsentSaldo()
 		}
 		for(uint i = 0; i < ary.getCount(); i++) {
 			TempTrfrGrpngTbl::Rec tg_rec;
-			// @v10.7.8 @ctr MEMSZERO(tg_rec);
 			MEMSZERO(k);
 			if(Filt.Grp == TrfrAnlzFilt::gGoods)
 				k.GoodsID = tg_rec.GoodsID = goods_id = ary.at(i);
@@ -5230,7 +5225,6 @@ int PrcssrAlcReport::GetWkrRegisterListByPeriod(int wkr, PPID psnID, PPID locID,
 				// дополнительное поле локации.
 				//
 				RegisterTbl::Rec reg_rec;
-				// @v10.7.8 @ctr MEMSZERO(reg_rec);
 				reg_rec.ObjType = PPOBJ_LOCATION;
 				reg_rec.ObjID = locID;
 				temp_buf.CopyTo(reg_rec.Num, sizeof(reg_rec.Num));
@@ -5282,7 +5276,6 @@ int PrcssrAlcReport::GetWkrRegisterList(int wkr, PPID psnID, PPID locID, LDATE d
 				// дополнительное поле локации.
 				//
 				RegisterTbl::Rec reg_rec;
-				// @v10.7.8 @ctr MEMSZERO(reg_rec);
 				reg_rec.ObjType = PPOBJ_LOCATION;
 				reg_rec.ObjID = locID;
 				temp_buf.CopyTo(reg_rec.Num, sizeof(reg_rec.Num));
@@ -5320,7 +5313,6 @@ int PrcssrAlcReport::GetWkrRegister(int wkr, PPID psnID, PPID locID, LDATE dt, R
 	PPID   psn_id = psnID;
 	SString temp_buf;
 	RegisterTbl::Rec reg_rec;
-	// @v10.7.8 @ctr MEMSZERO(reg_rec);
 	RegisterArray reg_list;
 	LocationTbl::Rec loc_rec;
 	if(reg_type_id) {
@@ -5334,7 +5326,6 @@ int PrcssrAlcReport::GetWkrRegister(int wkr, PPID psnID, PPID locID, LDATE dt, R
 				// До ввода регистров по локациям для ввода КПП локации иногда использовалось специальное
 				// дополнительное поле локации.
 				//
-				// @v10.7.8 @ctr MEMSZERO(reg_rec);
 				reg_rec.ObjType = PPOBJ_LOCATION;
 				reg_rec.ObjID = locID;
 				temp_buf.CopyTo(reg_rec.Num, sizeof(reg_rec.Num));

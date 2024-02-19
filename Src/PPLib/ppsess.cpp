@@ -922,7 +922,6 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 					if(p_sj) {
 						LAssocArray id_list;
 						SysJournalTbl::Rec sysj_rec;
-						// @v10.6.4 MEMSZERO(sysj_rec);
 						LDATETIME prev_dtm = rPrevRunTime;
 						if(p_sj->GetLastEvent(PPACN_BIZSCOREUPDATED, 0/*extraVal*/, &prev_dtm, 2) > 0)
 							do_notify = 1;
@@ -3266,12 +3265,12 @@ private:
 					PhnSvcLocalScanChannelSymb = StartUp_PhnSvcPack.ScanChannelSymb;
 				}
 				else {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_USER);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_COMP);
 					ZDELETE(p_phnsvc_cli);
 				}
 			}
 			else {
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_USER);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_COMP);
 				ZDELETE(p_phnsvc_cli);
 			}
 			secret_buf.Obfuscate();
@@ -3421,7 +3420,7 @@ private:
 									}
 									if(!BTROKORNFOUND) {
 										PPSetErrorDB();
-										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 										PPLogMessage(PPFILNAM_INFO_LOG, PPSTR_TEXT, PPTXT_ASYNCEVQUEUESJFAULT, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 										BExtQuery::ZDelete(&p_q);
 									}
@@ -4496,7 +4495,6 @@ int PPSession::GetRegisteredSess(const S_GUID & rUuid, PPSession::RegSessData * 
 {
 	int    ok = -1;
 	RegSessData data;
-	// @v10.7.9 @ctr MEMSZERO(data);
 	SString uuid_buf;
 	rUuid.ToStr(S_GUID::fmtIDL, uuid_buf);
 	WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_Sessions, 1);
@@ -6196,7 +6194,7 @@ bool SysMaintenanceEventResponder::IsConsistent() const { return (Signature == P
 			PROFILE_START
 			PPObjEventSubscription es_obj(0);
 			if(!es_obj.Run())
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 			PROFILE_END 
 		}
 		// } @v10.8.12 

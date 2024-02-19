@@ -144,7 +144,7 @@ static void U_CALLCONV _SCSUReset(UConverter * cnv, UConverterResetChoice choice
 
 	if(choice<=UCNV_RESET_TO_UNICODE) {
 		/* reset toUnicode */
-		uprv_memcpy(scsu->toUDynamicOffsets, initialDynamicOffsets, 32);
+		memcpy(scsu->toUDynamicOffsets, initialDynamicOffsets, 32);
 
 		scsu->toUIsSingleByteMode = TRUE;
 		scsu->toUState = readCommand;
@@ -155,18 +155,16 @@ static void U_CALLCONV _SCSUReset(UConverter * cnv, UConverterResetChoice choice
 	}
 	if(choice!=UCNV_RESET_TO_UNICODE) {
 		/* reset fromUnicode */
-		uprv_memcpy(scsu->fromUDynamicOffsets, initialDynamicOffsets, 32);
-
+		memcpy(scsu->fromUDynamicOffsets, initialDynamicOffsets, 32);
 		scsu->fromUIsSingleByteMode = TRUE;
 		scsu->fromUDynamicWindow = 0;
-
 		scsu->nextWindowUseIndex = 0;
 		switch(scsu->locale) {
 			case l_ja:
-			    uprv_memcpy(scsu->windowUse, initialWindowUse_ja, 8);
+			    memcpy(scsu->windowUse, initialWindowUse_ja, 8);
 			    break;
 			default:
-			    uprv_memcpy(scsu->windowUse, initialWindowUse, 8);
+			    memcpy(scsu->windowUse, initialWindowUse, 8);
 			    break;
 		}
 
@@ -1973,7 +1971,7 @@ static UConverter * U_CALLCONV _SCSUSafeClone(const UConverter * cnv,
 	localClone = (struct cloneSCSUStruct *)stackBuffer;
 	/* ucnv.c/ucnv_safeClone() copied the main UConverter already */
 
-	uprv_memcpy(&localClone->mydata, cnv->extraInfo, sizeof(SCSUData));
+	memcpy(&localClone->mydata, cnv->extraInfo, sizeof(SCSUData));
 	localClone->cnv.extraInfo = &localClone->mydata;
 	localClone->cnv.isExtraLocal = TRUE;
 

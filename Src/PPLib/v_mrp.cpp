@@ -1,5 +1,5 @@
 // V_MRP.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -101,7 +101,6 @@ int PPViewMrpTab::Init_(const PPBaseFilt * pBaseFilt)
 	THROW(P_TempOrd = CreateTempOrderFile());
 	for(InitIteration(); NextIteration(&item) > 0;) {
 		TempOrderTbl::Rec temp_ord_rec;
-		// @v10.6.4 MEMSZERO(temp_ord_rec);
 		temp_ord_rec.ID = t->data.ID;
 		if(t->data.LinkObjType)
 			GetObjectName(t->data.LinkObjType, t->data.LinkObjID, temp_ord_rec.Name, sizeof(temp_ord_rec.Name));
@@ -432,7 +431,6 @@ int PPViewMrpLine::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
 		THROW_MEM(p_bei = new BExtInsert(p_o));
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			TempOrderTbl::Rec ord_rec;
-			// @v10.7.0 @ctr MEMSZERO(ord_rec);
 			ord_rec.ID = item.ID;
 			if(ord == OrdByGoodsName) {
 				STRNSCPY(ord_rec.Name, GetGoodsName(Filt.DestGoodsID ? item.SrcID : item.DestID, goods_name));
@@ -500,7 +498,6 @@ int FASTCALL PPViewMrpLine::NextIteration(MrpLineViewItem * pItem)
 				MrpLineTbl::Rec rec;
 				MrpLineTbl::Rec total;
 				r_lt.copyBufTo(&rec);
-				// @v10.7.0 @ctr MEMSZERO(total);
 				MrpObj.P_Tbl->GetTotalLine(Filt.TabID, Filt.DestGoodsID ? rec.SrcID : rec.DestID, &total);
 				rec.DestRest = total.DestRest;
 				rec.DestDfct = total.DestDfct;

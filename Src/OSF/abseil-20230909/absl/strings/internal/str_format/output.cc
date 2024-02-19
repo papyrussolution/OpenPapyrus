@@ -32,7 +32,8 @@ struct ClearErrnoGuard {
 };
 }  // namespace
 
-void BufferRawSink::Write(string_view v) {
+void BufferRawSink::Write(string_view v) 
+{
 	size_t to_write = std::min(v.size(), size_);
 	memcpy(buffer_, v.data(), to_write);
 	buffer_ += to_write;

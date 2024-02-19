@@ -852,7 +852,7 @@ FANN_EXTERNAL void FANN_API fann_scale_data_to_range(float ** data, uint num_dat
 //#define fann_min(x, y) (((x) < (y)) ? (x) : (y))
 //#define fann_safe_free(x) {if(x) { SAlloc::F(x); x = NULL; }}
 #define fann_clip(x, lo, hi) (((x) < (lo)) ? (lo) : (((x) > (hi)) ? (hi) : (x)))
-#define fann_exp2(x) exp(0.69314718055994530942*(x))
+#define fann_exp2(x) exp(SMathConst::Ln2 * (x))
 /*#define fann_clip(x, lo, hi) (x)*/
 #define fann_rand(min_value, max_value) (((float)(min_value))+(((float)(max_value)-((float)(min_value)))*rand()/(RAND_MAX+1.0f)))
 //#define fann_abs__Removed(value) (((value) > 0) ? (value) : -(value))

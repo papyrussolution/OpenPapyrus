@@ -1,5 +1,5 @@
 // WINCEXCH.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -224,7 +224,6 @@ int StyloBhtIIExchanger::SendCmd(TcpSocket & rSo, int16 cmd, int32 retcode, cons
 	int    ok = 1;
 	size_t snd_size = 0;
 	SBhtIICmdBuf cmd_buf;
-	// @v10.9.1 @ctr MEMSZERO(cmd_buf);
 	cmd_buf.Cmd     = cmd;
 	cmd_buf.RetCode = retcode;
 	cmd_buf.BufSize = bufSize;
@@ -241,7 +240,6 @@ int StyloBhtIIExchanger::RecvCommand(TcpSocket & rSo, void * pBuf, size_t bufSiz
 	int    ok = 1;
 	size_t rcvd_sz = 0;
 	SBhtIICmdBuf cmd_buf;
-	// @v10.9.1 @ctr MEMSZERO(cmd_buf);
 	THROW_SL(rSo.RecvBlock(&cmd_buf, sizeof(cmd_buf), &rcvd_sz));
 	THROW_PP_S(cmd_buf.RetCode == 1, PPERR_SBII_INVRETCODE, cmd_buf.RetCode);
 	if(pBuf && cmd_buf.BufSize > 0) {
@@ -477,7 +475,6 @@ int StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SBIIGood
 	Goods2Tbl::Rec goods_rec;
 	GoodsCodeSrchBlock srch_blk;
 	ReceiptCore & r_rcpt = BillObj->trfr->Rcpt;
-	// @v10.6.4 MEMSZERO(goods_rec);
 	if(pBarcode) {
 		STRNSCPY(srch_blk.Code, pBarcode);
 		srch_blk.Flags = GoodsCodeSrchBlock::fGoodsId;
@@ -497,7 +494,6 @@ int StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SBIIGood
 		GoodsStockExt gse;
 		ReceiptTbl::Rec lot_rec;
 		SBIIGoodsRec sbii_grec;
-		// @v10.6.4 MEMSZERO(lot_rec);
 		sbii_grec.ID = goods_id;
 		if(is_serial)
 			STRNSCPY(sbii_grec.Serial,  pBarcode);
@@ -547,7 +543,6 @@ int StyloBhtIIExchanger::FindLocCell(PPID locID, const char * pName, SBIILocCell
 		p_list = LocObj.MakeList_(&filt);
 	if(p_list && (count = p_list->getCount())) {
 		LocationTbl::Rec loc_rec;
-		// @v10.7.9 @ctr MEMSZERO(loc_rec);
 		for(uint i = 0; ok < 0 && i < count; i++ ) {
 			if(LocObj.Fetch(p_list->Get(i).Id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WHCELL && (!pName || stricmp866(pName, loc_rec.Name) == 0)) {
 				SBIILocCellRec sbii_lrec;
@@ -596,7 +591,6 @@ int StyloBhtIIExchanger::PrintBarcode(const char * pBarcode)
 	GoodsCodeSrchBlock srch_blk;
 	ReceiptCore & r_rcpt = BillObj->trfr->Rcpt;
 	THROW_PP(BhtPack.P_SBIICfg && BhtPack.P_SBIICfg->IsValid(), PPERR_SBII_UNDEFDEVICE);
-	// @v10.6.10 @ctr MEMSZERO(lot_rec);
 	STRNSCPY(srch_blk.Code, pBarcode);
 	srch_blk.Flags = GoodsCodeSrchBlock::fGoodsId;
 	if(GObj.SearchByCodeExt(&srch_blk) > 0)
@@ -687,7 +681,6 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 	long   recs_count = 0;
 	SBuffer in_buf;
 	SBuffer ret_buf;
-	// @v10.9.1 @ctr MEMSZERO(cmd_buf);
 	THROW_SL(rSo.RecvBlock(&cmd_buf, sizeof(cmd_buf), &rcvd_size));
 	// @v9.4.11 @debug {
 	{

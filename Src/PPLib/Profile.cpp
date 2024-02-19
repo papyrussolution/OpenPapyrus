@@ -1,5 +1,5 @@
 // PROFILE.CPP
-// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1082,7 +1082,6 @@ int PPUserProfileCore::SetupSessItem(long * pSessID, const UfpLine & rLine, long
 		else {
 			UserFuncPrfSessTbl::Key0 k0;
 			UserFuncPrfSessTbl::Rec rec;
-			// @v10.6.4 MEMSZERO(rec);
 			temp_buf.CopyTo(rec.SessUUID_s, sizeof(rec.SessUUID_s));
 			rec.ThreadId = DB_REC;
 			UfpSessT.copyBufFrom(&rec);
@@ -1104,7 +1103,6 @@ int PPUserProfileCore::SetupSessItem(long * pSessID, const UfpLine & rLine, long
 	else {
 		UserFuncPrfSessTbl::Key0 k0;
 		UserFuncPrfSessTbl::Rec rec;
-		// @v10.6.4 MEMSZERO(rec);
 		temp_buf.CopyTo(rec.SessUUID_s, sizeof(rec.SessUUID_s));
 		rLine.DbUuid.ToStr(S_GUID::fmtIDL, temp_buf);
 		temp_buf.CopyTo(rec.DbUUID_s, sizeof(rec.DbUUID_s));
@@ -1523,7 +1521,6 @@ int PPUserProfileCore::Load(const char * pPath)
 									}
 									else {
 										UserFuncPrfTbl::Rec rec;
-										// @v10.6.10 @ctr MEMSZERO(rec);
 										rec.SessID = r_entry.SessID;
 										rec.SeqID = r_entry.SeqID;
 										rec.FuncID = r_entry.FuncID;

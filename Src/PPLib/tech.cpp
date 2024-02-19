@@ -105,7 +105,6 @@ TGSArray & TGSArray::Z()
 //
 PPTechPacket::PPTechPacket()
 {
-	// @v10.6.4 MEMSZERO(Rec);
 }
 
 TLP_IMPL(PPObjTech, TechTbl, P_Tbl);
@@ -1249,7 +1248,6 @@ int PPObjTech::InitPacket(PPTechPacket * pPack, long extraData, int use_ta)
 	int    ok = 1;
 	SString temp_buf;
 	TechTbl::Rec rec;
-	// @v10.6.4 MEMSZERO(rec);
 	THROW(GenerateCode(BIN(extraData & TECEXDF_TOOLING), temp_buf, use_ta));
 	temp_buf.CopyTo(rec.Code, sizeof(rec.Code));
 	if(extraData & TECEXDF_TOOLING) {
@@ -2444,7 +2442,7 @@ bool ToolingSelector::IsSuited(const Entry * pEntry)
 			else {
 				is_suited = false;
 				if(is_cfg_debug)
-					PPLogMessage(PPFILNAM_DEBUG_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+					PPLogMessage(PPFILNAM_DEBUG_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 			}
 		}
 	}

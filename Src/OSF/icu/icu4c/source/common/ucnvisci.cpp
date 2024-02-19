@@ -1675,7 +1675,7 @@ static UConverter * U_CALLCONV _ISCII_SafeClone(const UConverter * cnv,
 	localClone = (struct cloneISCIIStruct *)stackBuffer;
 	/* ucnv.c/ucnv_safeClone() copied the main UConverter already */
 
-	uprv_memcpy(&localClone->mydata, cnv->extraInfo, sizeof(UConverterDataISCII));
+	memcpy(&localClone->mydata, cnv->extraInfo, sizeof(UConverterDataISCII));
 	localClone->cnv.extraInfo = &localClone->mydata;
 	localClone->cnv.isExtraLocal = TRUE;
 

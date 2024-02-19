@@ -65,7 +65,7 @@ generic_string AsciiListView::getAscii(uchar value)
 				char ascii[2];
 				ascii[0] = value;
 				ascii[1] = '\0';
-				MultiByteToWideChar(_codepage, 0, ascii, -1, charStr, _countof(charStr));
+				MultiByteToWideChar(_codepage, 0, ascii, -1, charStr, SIZEOFARRAY(charStr));
 				return charStr;
 			}
 	}

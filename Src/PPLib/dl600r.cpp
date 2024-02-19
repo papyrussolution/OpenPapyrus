@@ -1,5 +1,5 @@
 // DL600R.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Run-time DL600 modules
 //
@@ -1018,7 +1018,7 @@ int DlRtm::Export(ExportParam & rParam)
 int DlRtm::FillXmlBuf(const DlScope * pScope, xmlTextWriter * pWriter, StringSet * pDtd, SCodepageIdent cp) const
 {
 	SFormatParam fp;
-	fp.FReal  = MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_EXPLFLOAT); // @v9.5.5 MKSFMTD(0, 4, 0)-->MKSFMTD(0, 5, NMBF_NOTRAILZ)
+	fp.FReal  = MKSFMTD(0, 5, NMBF_NOTRAILZ|NMBF_EXPLFLOAT);
 	fp.FDate  = DATF_DMY|DATF_CENTURY;
 	fp.Flags |= SFormatParam::fFloatSize;
 	SString buf;

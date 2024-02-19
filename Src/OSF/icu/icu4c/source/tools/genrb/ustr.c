@@ -125,7 +125,7 @@ U_CFUNC void ustr_ncat(struct UString * dst,
 			return;
 	}
 
-	uprv_memcpy(dst->fChars + dst->fLength, src->fChars,
+	memcpy(dst->fChars + dst->fLength, src->fChars,
 	    sizeof(char16_t) * n);
 	dst->fLength += src->fLength;
 	dst->fChars[dst->fLength] = 0x0000;
@@ -144,7 +144,7 @@ U_CFUNC void ustr_ucat(struct UString * dst,
 			return;
 	}
 
-	uprv_memcpy(dst->fChars + dst->fLength, &c,
+	memcpy(dst->fChars + dst->fLength, &c,
 	    sizeof(char16_t) * 1);
 	dst->fLength += 1;
 	dst->fChars[dst->fLength] = 0x0000;
@@ -177,7 +177,7 @@ U_CFUNC void ustr_uscat(struct UString * dst,
 			return;
 	}
 
-	uprv_memcpy(dst->fChars + dst->fLength, src,
+	memcpy(dst->fChars + dst->fLength, src,
 	    sizeof(char16_t) * len);
 	dst->fLength += len;
 	dst->fChars[dst->fLength] = 0x0000;

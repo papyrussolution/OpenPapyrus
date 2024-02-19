@@ -27,7 +27,7 @@ ScriptSet::ScriptSet(const ScriptSet &other) {
 }
 
 ScriptSet & ScriptSet::operator = (const ScriptSet &other) {
-	uprv_memcpy(bits, other.bits, sizeof(bits));
+	memcpy(bits, other.bits, sizeof(bits));
 	return *this;
 }
 
@@ -81,17 +81,17 @@ ScriptSet &ScriptSet::reset(UScriptCode script, UErrorCode & status) {
 	return *this;
 }
 
-ScriptSet &ScriptSet::Union(const ScriptSet &other) {
-	for(uint32_t i = 0; i<SIZEOFARRAYi(bits); i++) {
+ScriptSet &ScriptSet::Union(const ScriptSet &other) 
+{
+	for(uint32_t i = 0; i<SIZEOFARRAYi(bits); i++)
 		bits[i] |= other.bits[i];
-	}
 	return *this;
 }
 
-ScriptSet &ScriptSet::intersect(const ScriptSet &other) {
-	for(uint32_t i = 0; i<SIZEOFARRAYi(bits); i++) {
+ScriptSet &ScriptSet::intersect(const ScriptSet &other) 
+{
+	for(uint32_t i = 0; i<SIZEOFARRAYi(bits); i++)
 		bits[i] &= other.bits[i];
-	}
 	return *this;
 }
 

@@ -119,7 +119,7 @@ static int32_t U_CALLCONV upname_swap(const UDataSwapper * ds,
 
 		// Copy the rest of the data.
 		if(inBytes!=outBytes) {
-			uprv_memcpy(outBytes+numBytesIndexesAndValueMaps,
+			memcpy(outBytes+numBytesIndexesAndValueMaps,
 			    inBytes+numBytesIndexesAndValueMaps,
 			    totalSize-numBytesIndexesAndValueMaps);
 		}
@@ -221,7 +221,7 @@ static int32_t U_CALLCONV uprops_swap(const UDataSwapper * ds,
 
 		/* copy everything for inaccessible data (padding) */
 		if(inData32!=outData32) {
-			uprv_memcpy(outData32, inData32, 4*(size_t)dataTop);
+			memcpy(outData32, inData32, 4*(size_t)dataTop);
 		}
 
 		/* swap the indexes[16] */
@@ -369,7 +369,7 @@ static int32_t U_CALLCONV ucase_swap(const UDataSwapper * ds,
 
 		/* copy the data for inaccessible bytes */
 		if(inBytes!=outBytes) {
-			uprv_memcpy(outBytes, inBytes, size);
+			memcpy(outBytes, inBytes, size);
 		}
 
 		offset = 0;
@@ -473,7 +473,7 @@ static int32_t U_CALLCONV ubidi_swap(const UDataSwapper * ds,
 
 		/* copy the data for inaccessible bytes */
 		if(inBytes!=outBytes) {
-			uprv_memcpy(outBytes, inBytes, size);
+			memcpy(outBytes, inBytes, size);
 		}
 
 		offset = 0;
@@ -586,7 +586,7 @@ static int32_t U_CALLCONV unorm_swap(const UDataSwapper * ds,
 
 		/* copy the data for inaccessible bytes */
 		if(inBytes!=outBytes) {
-			uprv_memcpy(outBytes, inBytes, size);
+			memcpy(outBytes, inBytes, size);
 		}
 
 		offset = 0;
@@ -704,7 +704,7 @@ static int32_t U_CALLCONV ulayout_swap(const UDataSwapper * ds,
 
 		// Copy the data for inaccessible bytes.
 		if(inBytes != outBytes) {
-			uprv_memcpy(outBytes, inBytes, size);
+			memcpy(outBytes, inBytes, size);
 		}
 
 		// Swap the int32_t indexes[].
@@ -807,7 +807,7 @@ static int32_t U_CALLCONV uemoji_swap(const UDataSwapper * ds,
 
 		// Copy the data for inaccessible bytes.
 		if(inBytes != outBytes) {
-			uprv_memcpy(outBytes, inBytes, size);
+			memcpy(outBytes, inBytes, size);
 		}
 
 		// Swap the int32_t indexes[].

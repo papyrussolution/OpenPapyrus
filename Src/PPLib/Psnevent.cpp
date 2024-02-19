@@ -761,7 +761,7 @@ int ExecuteGenericDeviceCommand(PPID dvcID, const char * pCmd, long options)
 						PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 					}
 					CATCH
-						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 						ok = 0;
 					ENDCATCH
 					CALLPTRMEMB(P_Mutex, Release());
@@ -800,7 +800,7 @@ int ExecuteGenericDeviceCommand(PPID dvcID, const char * pCmd, long options)
 	}
 	CATCH
 		ok = 0;
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER); // @v7.9.9
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER); // @v7.9.9
 	ENDCATCH
 	return ok;
 }
@@ -2136,7 +2136,6 @@ void PPObjPersonEvent::GetSubstName(SubstGrpPersonEvent sgpe, PPID id, char * pB
 	if(sgpe == sgpeOp) {
 		PPObjPsnOpKind pop_obj;
 		PPPsnOpKind rec;
-		// @v10.6.6 @ctr MEMSZERO(rec);
 		if(pop_obj.Fetch(id, &rec) > 0)
 			temp_buf = rec.Name;
 		else
@@ -2683,11 +2682,11 @@ int PPObjPersonEvent::Helper_ProcessDeviceInput(ProcessDeviceInputBlock & rBlk)
 						break;
 					}
 				}
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 				PPErrorTooltip(-1, 0);
 			}
 			else if(!PutPacket(&ev_id, &pack, 1)) {
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 				PPErrorTooltip(-1, 0);
 			}
 			else {

@@ -882,7 +882,7 @@ static void createOneAliasList(uint16_t * aliasArrLists, uint32_t tag, uint32_t 
 
 static void createNormalizedAliasStrings(char * normalizedStrings, const char * origStringBlock, int32_t stringBlockLength) {
 	int32_t currStrLen;
-	uprv_memcpy(normalizedStrings, origStringBlock, stringBlockLength);
+	memcpy(normalizedStrings, origStringBlock, stringBlockLength);
 	while((currStrLen = (int32_t)strlen(origStringBlock)) < stringBlockLength) {
 		int32_t currStrSize = currStrLen + 1;
 		if(currStrLen > 0) {
@@ -1018,7 +1018,7 @@ static char * allocString(StringBlock * block, const char * s, int32_t length)
 	}
 	/* get the pointer and copy the string */
 	p = block->store + block->top;
-	uprv_memcpy(p, s, length);
+	memcpy(p, s, length);
 	p[length] = 0; /* NUL-terminate it */
 	if((length & 1) == 0) {
 		p[length + 1] = 0; /* set the padding byte */

@@ -10401,7 +10401,7 @@ SOAP_FMAC1 const char * SOAP_FMAC2 soap_float2s(struct soap * soap, float n)
 	s = soap->tmpbuf;
  #if defined(HAVE_SPRINTF_L)
   #ifdef WIN32
-	_sprintf_s_l(s, _countof(soap->tmpbuf), soap->float_format, soap->c_locale, n);
+	_sprintf_s_l(s, SIZEOFARRAY(soap->tmpbuf), soap->float_format, soap->c_locale, n);
   #else
 	sprintf_l(s, soap->c_locale, soap->float_format, n);
   #endif
@@ -10524,7 +10524,7 @@ SOAP_FMAC1 const char * SOAP_FMAC2 soap_double2s(struct soap * soap, double n)
 	s = soap->tmpbuf;
  #if defined(HAVE_SPRINTF_L)
   #ifdef WIN32
-	_sprintf_s_l(s, _countof(soap->tmpbuf), soap->double_format, soap->c_locale, n);
+	_sprintf_s_l(s, SIZEOFARRAY(soap->tmpbuf), soap->double_format, soap->c_locale, n);
   #else
 	sprintf_l(s, soap->c_locale, soap->double_format, n);
   #endif

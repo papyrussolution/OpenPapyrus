@@ -18,13 +18,10 @@ int X509_NAME_get_text_by_NID(const X509_NAME * name, int nid, char * buf, int l
 	return X509_NAME_get_text_by_OBJ(name, obj, buf, len);
 }
 
-int X509_NAME_get_text_by_OBJ(const X509_NAME * name, const ASN1_OBJECT * obj,
-    char * buf, int len)
+int X509_NAME_get_text_by_OBJ(const X509_NAME * name, const ASN1_OBJECT * obj, char * buf, int len)
 {
-	int i;
 	const ASN1_STRING * data;
-
-	i = X509_NAME_get_index_by_OBJ(name, obj, -1);
+	int i = X509_NAME_get_index_by_OBJ(name, obj, -1);
 	if(i < 0)
 		return -1;
 	data = X509_NAME_ENTRY_get_data(X509_NAME_get_entry(name, i));

@@ -1,5 +1,5 @@
 // CHKINPSN.CPP
-// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -336,7 +336,7 @@ void FASTCALL PPCheckInPersonArray::InitItem(PPCheckInPersonItem & rItem) const
 PPCheckInPersonArray & PPCheckInPersonArray::Z()
 {
 	LastAnonymN = 0;
-	SVector::clear(); // @v9.8.6 SArray-->SVector
+	SVector::clear();
 	MemoPool.Z().add("$"); // zero index - is empty string
 	return *this;
 }

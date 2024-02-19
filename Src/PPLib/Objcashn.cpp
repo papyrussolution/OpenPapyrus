@@ -1,5 +1,5 @@
 // OBJCASHN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -24,7 +24,7 @@ int PPGenCashNode::PosIdentEntry::Serialize(int dir, SBuffer & rBuf, SSerializeC
     return ok;
 }
 
-PPGenCashNode::PPGenCashNode() : ID(0), CurRestBillID(0), CashType(0), DrvVerMajor(0), DrvVerMinor(0), DisRoundPrec(0), AmtRoundPrec(0),
+PPGenCashNode::PPGenCashNode() : ID(0), CurRestBillID(0), CashType(0), DrvVerMajor(0), DrvVerMinor(0), DisRoundPrec(0), AmtRoundPrec(0), Speciality(0),
 	P_DivGrpList(0), LocID(0), ExtQuotID(0), Flags(0), ExtFlags(0), GoodsLocAssocID(0), ParentID(0), GoodsGrpID(0)
 {
 	memzero(Name, sizeof(Name));
@@ -47,6 +47,7 @@ int FASTCALL PPGenCashNode::Copy(const PPGenCashNode & rS)
 	DrvVerMinor   = rS.DrvVerMinor;
 	DisRoundPrec  = rS.DisRoundPrec;
 	AmtRoundPrec  = rS.AmtRoundPrec;
+	Speciality    = rS.Speciality; // @v11.9.6
 	LocID = rS.LocID;
 	ExtQuotID     = rS.ExtQuotID;
 	Flags = rS.Flags;
@@ -667,6 +668,7 @@ int PPObjCashNode::Get(PPID id, PPGenCashNode * pGCN, PPCashNode * pCN)
 		pGCN->DrvVerMinor = cn_rec.DrvVerMinor;
 		pGCN->DisRoundPrec  = cn_rec.DisRoundPrec;
 		pGCN->AmtRoundPrec  = cn_rec.AmtRoundPrec;
+		pGCN->Speciality  = cn_rec.Speciality; // @v11.9.6
 		pGCN->LocID       = cn_rec.LocID;
 		pGCN->ExtQuotID   = cn_rec.ExtQuotID;
 		pGCN->Flags       = cn_rec.Flags;
@@ -701,7 +703,7 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 		pSCN->DownBill   = cn_rec.DownBill;
 		pSCN->CurDate    = cn_rec.CurDate;
 		pSCN->CurSessID  = cn_rec.CurSessID;
-		pSCN->Speciality = cn_rec.Speciality;
+		// @v11.9.6 (moved to PPGenCashNode) pSCN->Speciality = cn_rec.Speciality;
 		memcpy(pSCN->Port,  cn_rec.Port,  sizeof(pSCN->Port));
 		if(P_Ref->GetPropActualSize(Obj, id, CNPRP_EXTDEVICES, &ed_size) > 0) {
 			THROW_MEM(p_ed = static_cast<__PPExtDevices *>(SAlloc::M(ed_size)));
@@ -1006,6 +1008,7 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 		rec.DrvVerMinor = pCN->DrvVerMinor;
 		rec.DisRoundPrec = pCN->DisRoundPrec;
 		rec.AmtRoundPrec = pCN->AmtRoundPrec;
+		rec.Speciality   = pCN->Speciality; // @v11.9.6
 		rec.ParentID     = pCN->ParentID;
 		rec.GoodsGrpID   = pCN->GoodsGrpID;
 		if(f & CASHF_SYNC) {
@@ -1014,13 +1017,13 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 			rec.DownBill     = p_scn->DownBill;
 			rec.CurDate      = p_scn->CurDate;
 			rec.CurSessID    = p_scn->CurSessID;
-			rec.Speciality   = p_scn->Speciality;
+			// @v11.9.6 (moved to PPGenCashNode) rec.Speciality   = p_scn->Speciality;
 			memcpy(rec.Port,  p_scn->Port,  sizeof(rec.Port));
 		}
 		THROW(StoreItem(PPOBJ_CASHNODE, *pID, &rec, 0));
 		*pID = rec.ID;
 		THROW(P_Ref->PutPropArray(Obj, *pID, CNPRP_DIVGRPASSC, pCN->P_DivGrpList, 0));
-		THROW(P_Ref->Ot.PutList(Obj, *pID, &pCN->TagL, 0)); // @v9.6.5
+		THROW(P_Ref->Ot.PutList(Obj, *pID, &pCN->TagL, 0));
 		if(!oneof2(pCN->CashType, PPCMT_CASHNGROUP, PPCMT_DISTRIB)) {
 			if(f & CASHF_SYNC) {
 				p_scn = static_cast<PPSyncCashNode *>(pCN);
@@ -1451,8 +1454,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 				}
 				int    setDTS(const PPSyncCashNode * pData)
 				{
-					if(!RVALUEPTR(Data, pData))
-						MEMSZERO(Data);
+					RVALUEPTR(Data, pData);
 					SetupStringComboDevice(this, CTLSEL_CUSTDISP_DEVICE, DVCCLS_DISPLAY, Data.CustDispType, 0);
 					setCtrlData(CTL_CUSTDISP_PORT, Data.CustDispPort);
 					setCtrlUInt16(CTL_CUSTDISP_TIMEOUT, Data.ClearCDYTimeout);
@@ -2388,6 +2390,7 @@ int PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 	SetupStringComboDevice(dlg, CTLSEL_CASHN_DEVICE, DVCCLS_SYNCPOS, pACN->CashType, 0); // @vmiller
 	// @v10.0.03 dlg->setCtrlData(CTL_CASHN_DRVVERMAJOR, &pACN->DrvVerMajor);
 	// @v10.0.03 dlg->setCtrlData(CTL_CASHN_DRVVERMINOR, &pACN->DrvVerMinor);
+	SetupStringCombo(dlg, CTLSEL_CASHN_SPECIALITY, PPTXT_POSNODE_SPECIALITY, pACN->Speciality); // @v11.9.6
 	pACN->DrvVerToStr(temp_buf); // @v10.0.03
 	dlg->setCtrlString(CTL_CASHN_DRVVER, temp_buf); // @v10.0.03
 	dlg->setCtrlString(CTL_CASHN_IMPFILES, pACN->ImpFiles);
@@ -2454,6 +2457,7 @@ int PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 			PPErrorByDialog(dlg, CTL_CASHN_DRVVER);
 		}
 		else {
+			pACN->Speciality = static_cast<uint16>(dlg->getCtrlLong(CTLSEL_CASHN_SPECIALITY)); // @v11.9.6
 			dlg->getCtrlData(CTLSEL_CASHN_EXTQUOT, &pACN->ExtQuotID);
 			dlg->getCtrlData(CTLSEL_CASHN_LOC, &pACN->LocID);
 			dlg->getCtrlData(CTLSEL_CASHN_NOA, &pACN->GoodsLocAssocID);
@@ -2923,7 +2927,6 @@ int EquipConfigDialog::EditExtParams()
 			if(Data.SalesGoodsGrp) {
 				PPObjGoodsGroup ggobj;
 				Goods2Tbl::Rec ggrec;
-				// @v10.6.8 @ctr MEMSZERO(ggrec);
 				ggobj.Search(Data.SalesGoodsGrp, &ggrec);
 				//sel = CTL_EQCFG_SALESGRP;
 				THROW_PP(ggrec.Flags & GF_EXCLALTFOLD, PPERR_INVSALESGRP);

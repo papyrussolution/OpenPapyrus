@@ -171,8 +171,8 @@ int32_t CollationDataWriter::write(bool isBase, const UVersionInfo dataVersion,
 		DataHeader header;
 		header.dataHeader.magic1 = 0xda;
 		header.dataHeader.magic2 = 0x27;
-		uprv_memcpy(&header.info, &dataInfo, sizeof(UDataInfo));
-		uprv_memcpy(header.info.dataVersion, dataVersion, sizeof(UVersionInfo));
+		memcpy(&header.info, &dataInfo, sizeof(UDataInfo));
+		memcpy(header.info.dataVersion, dataVersion, sizeof(UVersionInfo));
 		headerSize = (int32_t)sizeof(header);
 		U_ASSERT((headerSize & 3) == 0); // multiple of 4 bytes
 		if(hasMappings && data.cesLength != 0) {
@@ -189,7 +189,7 @@ int32_t CollationDataWriter::write(bool isBase, const UVersionInfo dataVersion,
 		}
 		header.dataHeader.headerSize = (uint16)headerSize;
 		if(headerSize <= capacity) {
-			uprv_memcpy(dest, &header, sizeof(header));
+			memcpy(dest, &header, sizeof(header));
 			// Write 00 bytes so that the padding is not mistaken for a copyright string.
 			memzero(dest + sizeof(header), headerSize - (int32_t)sizeof(header));
 			dest += headerSize;
@@ -307,7 +307,7 @@ int32_t CollationDataWriter::write(bool isBase, const UVersionInfo dataVersion,
 		errorCode = U_BUFFER_OVERFLOW_ERROR;
 		return headerSize + totalSize;
 	}
-	uprv_memcpy(dest, indexes, indexesLength * 4);
+	memcpy(dest, indexes, indexesLength * 4);
 	copyData(indexes, CollationDataReader::IX_REORDER_CODES_OFFSET, reorderCodes, dest);
 	copyData(indexes, CollationDataReader::IX_REORDER_TABLE_OFFSET, settings.reorderTable, dest);
 	// The trie has already been serialized into the dest buffer.
@@ -327,7 +327,7 @@ void STDCALL CollationDataWriter::copyData(const int32_t indexes[], int32_t star
 	const int32_t start = indexes[startIndex];
 	const int32_t limit = indexes[startIndex + 1];
 	if(start < limit)
-		uprv_memcpy(dest + start, src, limit - start);
+		memcpy(dest + start, src, limit - start);
 }
 
 U_NAMESPACE_END

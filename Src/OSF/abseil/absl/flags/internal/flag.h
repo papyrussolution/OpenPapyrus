@@ -398,7 +398,8 @@ public:
 	    absl::enable_if_t<flags_internal::StorageKind<T>() ==
 	    FlagValueStorageKind::kOneWordAtomic,
 	    int> = 0>
-	void Read(T* value) const ABSL_LOCKS_EXCLUDED(*DataGuard()) {
+	void Read(T* value) const ABSL_LOCKS_EXCLUDED(*DataGuard()) 
+	{
 		int64_t v = ReadOneWord();
 		memcpy(value, static_cast<const void*>(&v), sizeof(T));
 	}

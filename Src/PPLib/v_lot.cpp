@@ -1,5 +1,5 @@
 // V_LOT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1234,7 +1234,7 @@ int PPViewLot::Init_(const PPBaseFilt * pFilt)
 			}
 			{
 				PPObjWorld w_obj;
-				SVector list(sizeof(WorldTbl::Rec)); // @v10.6.7 SArray-->SVector
+				SVector list(sizeof(WorldTbl::Rec));
 				w_obj.GetListByName(WORLDOBJ_COUNTRY, native_country_name, &list);
 				for(uint i = 0; i < list.getCount(); i++)
 					Itd.NativeCntryList.add(static_cast<const WorldTbl::Rec *>(list.at(i))->ID);
@@ -1801,7 +1801,6 @@ int PPViewLot::InsertTempRecsByIter(BExtInsert * pBei, long * pCounter, UintHash
 			if(!pHt || !pHt->Has(item.ID)) {
 				int    skip = 0;
 				TempLotTbl::Rec rec;
-				// @v10.7.5 @ctr MEMSZERO(rec);
 				rec.LotID   = item.ID;
 				rec.Dt      = item.Dt;
 				rec.OrgDt   = item.OrgLotDt;
@@ -2234,7 +2233,6 @@ int PPViewLot::AcceptViewItem(const ReceiptTbl::Rec & rLotRec, LotViewItem * pIt
 		}
 		if(Filt.Flags & (LotFilt::fInitOrgLot|LotFilt::fCheckOriginLotDate)) {
 			ReceiptTbl::Rec org_rec;
-			// @v10.6.4 MEMSZERO(org_rec);
 			if(item.PrevLotID)
 				P_Tbl->SearchOrigin(item.ID, 0, 0, &org_rec);
 			else {
@@ -3214,7 +3212,6 @@ int PPLotExporter::Export(const LotViewItem * pItem)
 	PPObjBill * p_bobj = BillObj;
 	SString temp_buf;
 	Sdr_Lot  sdr_lot;
-	// @v10.7.9 @ctr MEMSZERO(sdr_lot);
 	THROW_INVARG(pItem && P_IE);
 	sdr_lot.ID = pItem->ID;
 	sdr_lot.BillID = pItem->BillID;
@@ -3594,7 +3591,6 @@ int PPViewLotExtCode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 			case PPVCMD_ADDITEM:
 				if(Filt.LotID) {
 					LotExtCodeTbl::Rec rec;
-					// @v10.6.4 MEMSZERO(rec);
 					rec.LotID = Filt.LotID;
                 	if(EditLotExtCode(rec, 0) > 0) {
 						THROW(CheckDupCode(rec));
@@ -3614,7 +3610,6 @@ int PPViewLotExtCode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					const char uc = toupper(c);
 					if(isdec(c) || (uc >= 'A' && uc <= 'Z')) {
 						LotExtCodeTbl::Rec rec;
-						// @v10.6.4 MEMSZERO(rec);
 						rec.LotID = Filt.LotID;
                 		if(EditLotExtCode(rec, c) > 0) {
 							THROW(CheckDupCode(rec));

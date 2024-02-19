@@ -296,17 +296,12 @@ int FASTCALL SUsbDvcIfcData::Get(void * pHandle, SP_DEVICE_INTERFACE_DATA * pDvc
 int SUsbDvcIfcData::GetPropString(void * pHandle, int prop, SString & rBuf)
 {
 	rBuf.Z();
-
 	int    ok = 1;
 	uint8  __buffer[512];
 	uint8 * p_data = __buffer;
 	size_t allocated_size = 0;
 	DWORD  size = sizeof(__buffer);
 	DWORD  prop_type = 0;
-	//SP_DEVINFO_DATA dev_info;
-
-	//MEMSZERO(dev_info);
-	//dev_info.cbSize = sizeof(dev_info);
 	THROW(P_DvcInfo); // @todo error
 	THROW_S(pHandle != INVALID_HANDLE_VALUE, SLERR_USB);
 	{
@@ -314,8 +309,6 @@ int SUsbDvcIfcData::GetPropString(void * pHandle, int prop, SString & rBuf)
 		if(!ret && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
 			THROW(p_data = static_cast<uint8 *>(SAlloc::M(size)));
 			allocated_size = size;
-			//MEMSZERO(dev_info);
-			//dev_info.cbSize = sizeof(dev_info);
 			ret = SetupDiGetDeviceRegistryProperty(pHandle, static_cast<SP_DEVINFO_DATA *>(P_DvcInfo), (DWORD)prop, &prop_type, p_data, size, &size);
 		}
 		THROW(ret);

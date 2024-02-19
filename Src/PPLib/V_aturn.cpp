@@ -1,5 +1,5 @@
 // V_ATURN.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -347,7 +347,6 @@ int PPViewAccturn::CreateGrouping()
 		Acct   dbt_acct, crd_acct;
 		PPID   cur_id = item.CurID, temp_cur_id = 0;
 		TempAccturnGrpngTbl::Rec rec;
-		// @v10.6.4 MEMSZERO(rec);
 		if(Filt.Cycl.Cycle)
 			if(CycleList.searchDate(item.Date, &cycle_pos))
 				rec.Dt = CycleList.at(cycle_pos).low;
@@ -1003,7 +1002,6 @@ int PPViewAccturn::ConvertGenAccturnToExtAccBill()
 	public:
 		CvtAt2Ab_Dialog() : TDialog(DLG_CVTAT2AB), AccSheetID(0), AccSheet2ID(0)
 		{
-			// @v10.7.5 @ctr MEMSZERO(Data);
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -1099,7 +1097,6 @@ int PPViewAccturn::ConvertGenAccturnToExtAccBill()
 			{
 				int    valid_data = 0;
 				CvtAt2Ab_Param param;
-				// @v10.7.5 @ctr MEMSZERO(param);
 				param.P_OpList = &op_list;
 				THROW(CheckDialogPtr(&(dlg = new CvtAt2Ab_Dialog())));
 				dlg->setDTS(&param);

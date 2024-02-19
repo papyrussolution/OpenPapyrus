@@ -1,5 +1,5 @@
 // ILBPACK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -651,7 +651,6 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 	ReceiptTbl::Rec lot_rec;
 	Goods2Tbl::Rec goods_rec;
 	PPGoodsTaxEntry gtx;
-	// @v10.6.4 MEMSZERO(lotr);
 	SString temp_buf;
 	SString fmt_buf;
 	SString msg_buf;
@@ -1156,7 +1155,7 @@ struct GRII { // @flat
 	double Ratio;  // Отношение, в котором следует использовать товар SrcID для компенсации
 };
 
-GRI::GRI(PPID destID) : SVector(sizeof(GRII)), DestID(destID) // @v10.6.4 SArray-->SVector
+GRI::GRI(PPID destID) : SVector(sizeof(GRII)), DestID(destID)
 {
 }
 
@@ -2091,7 +2090,6 @@ void BillTransmDeficit::CalcReqSalesTax(const ILTI * pIlti, LDATE dt, PPID opID,
 int BillTransmDeficit::AddRec(ILTI * pIlti, const char * pClbNumber, BillTbl::Rec * pBillRec, PPID supplID, double qtty)
 {
 	TempDeficitTbl::Rec tdt_rec;
-	// @v10.6.4 MEMSZERO(tdt_rec);
 	tdt_rec.Location = pBillRec->LocID;
 	tdt_rec.GoodsID  = pIlti->GoodsID;
 	tdt_rec.SupplID  = supplID;
@@ -3085,7 +3083,6 @@ int PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransm
 	int    ok = -1, r;
 	uint   msg_id = 0;
 	BillTbl::Rec bill_rec, link_rec;
-	// @v10.6.4 MEMSZERO(bill_rec);
 	if(Search(id, &bill_rec) > 0 && bill_rec.OpID && !(bill_rec.Flags & BILLF_CASH) && bill_rec.OpID != PPOPK_EDI_STOCK) { // @v10.1.1 bill_rec.OpID != PPOPK_EDI_STOCK
 		if(!bill_rec.StatusID || !CheckStatusFlag(bill_rec.StatusID, BILSTF_DENY_TRANSM)) {
 			PPID   op_id = bill_rec.OpID;

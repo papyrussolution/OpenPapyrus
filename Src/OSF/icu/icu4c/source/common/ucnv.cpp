@@ -196,7 +196,7 @@ U_CAPI UConverter * U_EXPORT2 ucnv_safeClone(const UConverter * cnv, void * stac
 	}
 	memzero(localConverter, bufferSizeNeeded);
 	/* Copy initial state */
-	uprv_memcpy(localConverter, cnv, sizeof(UConverter));
+	memcpy(localConverter, cnv, sizeof(UConverter));
 	localConverter->isCopyLocal = localConverter->isExtraLocal = FALSE;
 
 	/* copy the substitution string */
@@ -210,7 +210,7 @@ U_CAPI UConverter * U_EXPORT2 ucnv_safeClone(const UConverter * cnv, void * stac
 			UTRACE_EXIT_STATUS(*status);
 			return NULL;
 		}
-		uprv_memcpy(localConverter->subChars, cnv->subChars, UCNV_ERROR_BUFFER_LENGTH * U_SIZEOF_UCHAR);
+		memcpy(localConverter->subChars, cnv->subChars, UCNV_ERROR_BUFFER_LENGTH * U_SIZEOF_UCHAR);
 	}
 	/* now either call the safeclone fcn or not */
 	if(cnv->sharedData->impl->safeClone) {
@@ -324,7 +324,7 @@ U_CAPI void U_EXPORT2 ucnv_getSubstChars(const UConverter * converter, char * my
 		*err = U_INDEX_OUTOFBOUNDS_ERROR;
 		return;
 	}
-	uprv_memcpy(mySubChar, converter->subChars, converter->subCharLen); /*fills in the subchars */
+	memcpy(mySubChar, converter->subChars, converter->subCharLen); /*fills in the subchars */
 	*len = converter->subCharLen; /*store # of bytes copied to buffer */
 }
 
@@ -337,7 +337,7 @@ U_CAPI void U_EXPORT2 ucnv_setSubstChars(UConverter * converter, const char * my
 		*err = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-	uprv_memcpy(converter->subChars, mySubChar, len); /*copies the subchars */
+	memcpy(converter->subChars, mySubChar, len); /*copies the subchars */
 	converter->subCharLen = len; /*sets the new len */
 	/*
 	 * There is currently (2001Feb) no separate API to set/get subChar1.
@@ -416,7 +416,7 @@ U_CAPI void U_EXPORT2 ucnv_setSubstString(UConverter * cnv, const char16_t * s, 
 		cnv->subCharLen = 0;
 	}
 	else {
-		uprv_memcpy(cnv->subChars, subChars, length8);
+		memcpy(cnv->subChars, subChars, length8);
 		if(subChars == (uint8 *)chars) {
 			cnv->subCharLen = (int8)length8;
 		}
@@ -667,7 +667,7 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 		realFlush = pArgs->flush;
 		realSourceIndex = sourceIndex;
 
-		uprv_memcpy(replay, cnv->preFromU, -cnv->preFromULength*U_SIZEOF_UCHAR);
+		memcpy(replay, cnv->preFromU, -cnv->preFromULength*U_SIZEOF_UCHAR);
 		pArgs->source = replay;
 		pArgs->sourceLimit = replay-cnv->preFromULength;
 		pArgs->flush = FALSE;
@@ -741,7 +741,7 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 					realSourceLimit = pArgs->sourceLimit;
 					realFlush = pArgs->flush;
 					realSourceIndex = sourceIndex;
-					uprv_memcpy(replay, cnv->preFromU, -cnv->preFromULength*U_SIZEOF_UCHAR);
+					memcpy(replay, cnv->preFromU, -cnv->preFromULength*U_SIZEOF_UCHAR);
 					pArgs->source = replay;
 					pArgs->sourceLimit = replay-cnv->preFromULength;
 					pArgs->flush = FALSE;
@@ -1062,7 +1062,7 @@ static void _toUnicodeWithCallback(UConverterToUnicodeArgs * pArgs, UErrorCode *
 		realFlush = pArgs->flush;
 		realSourceIndex = sourceIndex;
 
-		uprv_memcpy(replay, cnv->preToU, -cnv->preToULength);
+		memcpy(replay, cnv->preToU, -cnv->preToULength);
 		pArgs->source = replay;
 		pArgs->sourceLimit = replay-cnv->preToULength;
 		pArgs->flush = FALSE;
@@ -1152,7 +1152,7 @@ static void _toUnicodeWithCallback(UConverterToUnicodeArgs * pArgs, UErrorCode *
 					realFlush = pArgs->flush;
 					realSourceIndex = sourceIndex;
 
-					uprv_memcpy(replay, cnv->preToU, -cnv->preToULength);
+					memcpy(replay, cnv->preToU, -cnv->preToULength);
 					pArgs->source = replay;
 					pArgs->sourceLimit = replay-cnv->preToULength;
 					pArgs->flush = FALSE;
@@ -1242,7 +1242,7 @@ static void _toUnicodeWithCallback(UConverterToUnicodeArgs * pArgs, UErrorCode *
 
 						length = (int32_t)(pArgs->sourceLimit-pArgs->source);
 						if(length > 0) {
-							uprv_memcpy(cnv->preToU, pArgs->source, length);
+							memcpy(cnv->preToU, pArgs->source, length);
 							cnv->preToULength = (int8)-length;
 						}
 
@@ -1258,7 +1258,7 @@ static void _toUnicodeWithCallback(UConverterToUnicodeArgs * pArgs, UErrorCode *
 			/* copy toUBytes[] to invalidCharBuffer[] */
 			errorInputLength = cnv->invalidCharLength = cnv->toULength;
 			if(errorInputLength>0) {
-				uprv_memcpy(cnv->invalidCharBuffer, cnv->toUBytes, errorInputLength);
+				memcpy(cnv->invalidCharBuffer, cnv->toUBytes, errorInputLength);
 			}
 
 			/* set the converter state to deal with the next character */
@@ -1575,7 +1575,7 @@ U_CAPI UChar32 U_EXPORT2 ucnv_getNextUChar(UConverter * cnv, const char ** sourc
 		U16_NEXT(overflow, i, length, c);
 		/* move the remaining overflow contents up to the beginning */
 		if((cnv->UCharErrorBufferLength = (int8)(length-i))>0) {
-			uprv_memmove(cnv->UCharErrorBuffer, cnv->UCharErrorBuffer+i, cnv->UCharErrorBufferLength*U_SIZEOF_UCHAR);
+			memmove(cnv->UCharErrorBuffer, cnv->UCharErrorBuffer+i, cnv->UCharErrorBufferLength*U_SIZEOF_UCHAR);
 		}
 		if(!U16_IS_LEAD(c) || i<length) {
 			return c;
@@ -1672,7 +1672,7 @@ U_CAPI UChar32 U_EXPORT2 ucnv_getNextUChar(UConverter * cnv, const char ** sourc
 
 					/* move the remaining overflow contents up to the beginning */
 					if((--cnv->UCharErrorBufferLength)>0) {
-						uprv_memmove(cnv->UCharErrorBuffer, cnv->UCharErrorBuffer+1,
+						memmove(cnv->UCharErrorBuffer, cnv->UCharErrorBuffer+1,
 						    cnv->UCharErrorBufferLength*U_SIZEOF_UCHAR);
 					}
 				}
@@ -1705,7 +1705,7 @@ U_CAPI UChar32 U_EXPORT2 ucnv_getNextUChar(UConverter * cnv, const char ** sourc
 		/* move further overflow back */
 		int32_t delta = length-i;
 		if((length = cnv->UCharErrorBufferLength)>0) {
-			uprv_memmove(cnv->UCharErrorBuffer+delta, cnv->UCharErrorBuffer, length*U_SIZEOF_UCHAR);
+			memmove(cnv->UCharErrorBuffer+delta, cnv->UCharErrorBuffer, length*U_SIZEOF_UCHAR);
 		}
 		cnv->UCharErrorBufferLength = (int8)(length+delta);
 		cnv->UCharErrorBuffer[0] = buffer[i++];
@@ -2305,7 +2305,7 @@ U_CAPI void U_EXPORT2 ucnv_getInvalidChars(const UConverter * converter, char * 
 		return;
 	}
 	if((*len = converter->invalidCharLength) > 0) {
-		uprv_memcpy(errBytes, converter->invalidCharBuffer, *len);
+		memcpy(errBytes, converter->invalidCharBuffer, *len);
 	}
 }
 

@@ -483,7 +483,7 @@ static bool U_CALLCONV spoofDataIsAcceptable(void * context, const char * /* typ
 		) {
 		UVersionInfo * version = static_cast<UVersionInfo *>(context);
 		if(version != NULL) {
-			uprv_memcpy(version, pInfo->dataVersion, 4);
+			memcpy(version, pInfo->dataVersion, 4);
 		}
 		return TRUE;
 	}
@@ -710,7 +710,7 @@ int32_t SpoofData::serialize(void * buf, int32_t capacity, UErrorCode & status) 
 		status = U_BUFFER_OVERFLOW_ERROR;
 		return dataSize;
 	}
-	uprv_memcpy(buf, fRawData, dataSize);
+	memcpy(buf, fRawData, dataSize);
 	return dataSize;
 }
 
@@ -897,7 +897,7 @@ U_CAPI int32_t U_EXPORT2 uspoof_swap(const UDataSwapper * ds, const void * inDat
 	ds->writeUInt32((uint32_t*)&outputDH->fMagic, magic);
 
 	if(outputDH->fFormatVersion != spoofDH->fFormatVersion) {
-		uprv_memcpy(outputDH->fFormatVersion, spoofDH->fFormatVersion, sizeof(spoofDH->fFormatVersion));
+		memcpy(outputDH->fFormatVersion, spoofDH->fFormatVersion, sizeof(spoofDH->fFormatVersion));
 	}
 	// swap starting at fLength
 	ds->swapArray32(ds, &spoofDH->fLength, sizeof(SpoofDataHeader)-8 /* minus magic and fFormatVersion[4] */, &outputDH->fLength,

@@ -150,7 +150,7 @@ int dtls1_clear(SSL * s)
 		mtu = s->d1->mtu;
 		link_mtu = s->d1->link_mtu;
 		dtls1_clear_queues(s);
-		memset(s->d1, 0, sizeof(*s->d1));
+		memzero(s->d1, sizeof(*s->d1));
 		/* Restore the timer callback from previous state */
 		s->d1->timer_cb = timer_cb;
 		if(s->server) {
@@ -218,7 +218,7 @@ void dtls1_start_timer(SSL * s)
 #ifndef OPENSSL_NO_SCTP
 	/* Disable timer for SCTP */
 	if(BIO_dgram_is_sctp(SSL_get_wbio(s))) {
-		memset(&s->d1->next_timeout, 0, sizeof(s->d1->next_timeout));
+		memzero(&s->d1->next_timeout, sizeof(s->d1->next_timeout));
 		return;
 	}
 #endif
@@ -265,7 +265,7 @@ struct timeval * dtls1_get_timeout(SSL * s, struct timeval * timeleft)
 	get_current_time(&timenow);
 	/* If timer already expired, set remaining time to 0 */
 	if(s->d1->next_timeout.tv_sec < timenow.tv_sec || (s->d1->next_timeout.tv_sec == timenow.tv_sec && s->d1->next_timeout.tv_usec <= timenow.tv_usec)) {
-		memset(timeleft, 0, sizeof(*timeleft));
+		memzero(timeleft, sizeof(*timeleft));
 		return timeleft;
 	}
 	/* Calculate time left until timer expires */
@@ -281,7 +281,7 @@ struct timeval * dtls1_get_timeout(SSL * s, struct timeval * timeleft)
 	 * because of small divergences with socket timeouts.
 	 */
 	if(timeleft->tv_sec == 0 && timeleft->tv_usec < 15000) {
-		memset(timeleft, 0, sizeof(*timeleft));
+		memzero(timeleft, sizeof(*timeleft));
 	}
 	return timeleft;
 }
@@ -313,7 +313,7 @@ void dtls1_stop_timer(SSL * s)
 {
 	/* Reset everything */
 	s->d1->timeout_num_alerts = 0;
-	memset(&s->d1->next_timeout, 0, sizeof(s->d1->next_timeout));
+	memzero(&s->d1->next_timeout, sizeof(s->d1->next_timeout));
 	s->d1->timeout_duration_us = 1000000;
 	BIO_ctrl(SSL_get_rbio(s), BIO_CTRL_DGRAM_SET_NEXT_TIMEOUT, 0,
 	    &(s->d1->next_timeout));

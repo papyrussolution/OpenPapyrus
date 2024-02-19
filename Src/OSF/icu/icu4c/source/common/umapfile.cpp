@@ -387,7 +387,7 @@ static char * uprv_computeDirPath(const char * path, char * pathBuffer)
 	/* User supplied path did contain a directory portion.
 	 * Copy it to the output path buffer */
 	pathLen = (int32_t)(finalSlash - path + 1);
-	uprv_memcpy(pathBuffer, path, pathLen);
+	memcpy(pathBuffer, path, pathLen);
 	*(pathBuffer+pathLen) = 0;
 	return pathBuffer+pathLen;
 }

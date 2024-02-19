@@ -1217,7 +1217,7 @@ int PPObjSCardSeries::Helper_GetChildList(PPID id, PPIDArray & rList, PPIDArray 
 			SETIFZ(pStack, &inner_stack);
 			if(pStack->addUnique(id) < 0) {
 				PPSetError(PPERR_SCARDSERIESCYCLE, rec.Name);
-				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 				CALLEXCEPT();
 			}
 			else {
@@ -2385,7 +2385,7 @@ int PPObjSCard::FinishSCardUpdNotifyList(const TSVector <SCardCore::UpdateRestNo
 										if(gta_blk.Quot != 0.0) { // Для рассылки SMS кредит не применяется!
 											if((gta_blk.SCardRest/*+ gta_blk.SCardMaxCredit*/) <= 0.0) {
 												PPSetError(PPERR_GTAOVERDRAFT);
-												PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+												PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 												skip = 1;
 											}
 										}
@@ -2410,7 +2410,7 @@ int PPObjSCard::FinishSCardUpdNotifyList(const TSVector <SCardCore::UpdateRestNo
 												}
 											}
 											if(local_err)
-												PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+												PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 										}
 										if(gua_id && p_bobj) {
 											gta_blk.Count = 1;
@@ -2418,13 +2418,13 @@ int PPObjSCard::FinishSCardUpdNotifyList(const TSVector <SCardCore::UpdateRestNo
 											gta_blk.Dtm = getcurdatetime_();
 											if(p_gtaj) {
 												if(!p_gtaj->CheckInOp(gta_blk, 1)) {
-													PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+													PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 												}
 											}
 										}
 									}
 									else
-										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 								}
 							}
 						}
@@ -3520,7 +3520,6 @@ int PPObjSCard::SetFlags(PPID id, long flags, int use_ta)
 	int    ok = -1;
 	SCardTbl::Rec rec;
 	THROW(CheckRights(PPR_MOD));
-	// @v11.0.10 @ctr MEMSZERO(rec);
 	if(P_Tbl->Search(id, &rec) > 0) {
 		if(rec.Flags != flags) {
 			rec.Flags = flags;
@@ -5270,7 +5269,6 @@ int PPSCardImporter::Run(const char * pCfgName, int use_ta)
 					PPID   sc_id = 0;
 					PPID   temp_id = 0;
 					Sdr_SCard sdr_rec;
-					// @v10.7.9 @ctr MEMSZERO(sdr_rec);
 					sc_pack.Z();
 					THROW(P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec)));
 					P_IE->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);

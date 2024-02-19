@@ -383,7 +383,7 @@ void DateFormatSymbols::copyData(const DateFormatSymbols& other)
 	// fastCopyFrom() - see assignArray comments
 	fLocalPatternChars.fastCopyFrom(other.fLocalPatternChars);
 
-	uprv_memcpy(fCapitalization, other.fCapitalization, sizeof(fCapitalization));
+	memcpy(fCapitalization, other.fCapitalization, sizeof(fCapitalization));
 }
 
 /**

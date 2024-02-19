@@ -1,5 +1,5 @@
 // QUOT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -646,7 +646,7 @@ static int _SetQuot(PPQuotArray * pList, const QuotIdent & rQi, double v, long f
 		PPLogMessage(PPFILNAM_QUOTUPD_LOG, log_msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER);
     }
     else {
-		PPLogMessage(PPFILNAM_QUOTUPD_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER);
+		PPLogMessage(PPFILNAM_QUOTUPD_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
     }
     return ret;
 }
@@ -861,7 +861,7 @@ static int FinishUpdateQuots(TSCollection <PPBillPacket> & rRegPackList, int use
 			t++;
 		}
 		if(!local_ok) {
-			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 			ok = 100;
 		}
 		else if(t > 1) {

@@ -1,5 +1,5 @@
 // FILTRNSM.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Передача объектов между разделами БД
 //
@@ -719,7 +719,7 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 			if(fep.Get(i, 0, &file_path)) {
 				PPObjectTransmit::Header hdr;
 				if(!PPObjectTransmit::GetHeader(file_path, &hdr)) {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER); // @v10.6.8
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO); // @v10.6.8
 					to_remove_pos_list.add(/*i-1*/i);
 				}
 			}
@@ -1112,7 +1112,7 @@ int PPBackupOperationFile(const char * pFileName, const char * pFolderName, long
 		}
 	}
     CATCH
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 		ok = 0;
 	ENDCATCH
 	return ok;

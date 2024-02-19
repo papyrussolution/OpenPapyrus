@@ -850,8 +850,8 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 						ss.add(temp_buf);
 						GetLocationName(r_entry.LocID, temp_buf);
 						ss.add(temp_buf);
-						ss.add(temp_buf.Z().Cat(r_entry.Amount, MKSFMTD(0, 2, 0)));
-						ss.add(temp_buf.Z().Cat(r_entry.Debt, MKSFMTD(0, 2, 0)));
+						ss.add(temp_buf.Z().Cat(r_entry.Amount, MKSFMTD_020));
+						ss.add(temp_buf.Z().Cat(r_entry.Debt, MKSFMTD_020));
 						P_Box->addItem(r_entry.ID, ss.getBuf());
 					}
 				}

@@ -1,5 +1,5 @@
 // SHTRIHMF.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Штрих-М-ФР-К"
 //
@@ -87,7 +87,6 @@ int ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 	PPSCardSeries ser_rec;
 	PPObjSCard   s_crd_obj;
 	PPObjPerson  psn_obj;
-	// @v10.6.10 @ctr MEMSZERO(ser_rec);
 	for(ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
 		if(!(ser_rec.Flags & SCRDSF_CREDIT)) {
 			PPSCardSerPacket scs_pack;
@@ -328,7 +327,6 @@ int ACS_SHTRIHMFRK::ExportData(int updOnly)
 		SString  temp_buf, buf, psn_name;
 		AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, stat_id);
 		scard_quot_ary.freeAll();
-		// @v10.6.10 @ctr MEMSZERO(ser_rec);
 		for(PPID ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
 			if(!(ser_rec.Flags & SCRDSF_CREDIT)) {
 				PPSCardSerPacket scs_pack;
@@ -896,7 +894,6 @@ int ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 						}
 						for(uint chk_pos = 0; check_pack.EnumLines(&chk_pos, &cchkl_rec) > 0;) {
 							TempCCheckLineTbl::Rec ccl_rec;
-							// @v10.6.4 MEMSZERO(ccl_rec);
 							ccl_rec.CheckID   = chk_id;
 							ccl_rec.CheckCode = chk_no;
 							ccl_rec.Dt        = P_TmpCcTbl->data.Dt;

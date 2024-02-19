@@ -1003,6 +1003,7 @@ SLTEST_R(SDecimal)
 			const char * P_Txt;
 		};
 		const TestEntry entries[] = {
+			{ 89104LL, -5, "0.89104" },
 			{ 17171717171717LL, -7, "1717171.7171717" },
 			{ 1LL, 0, "1" },
 			{ 3LL, 0, "3" },
@@ -1034,6 +1035,22 @@ SLTEST_R(SDecimal)
 					r2.FromUed(ued, 48);
 					SLCHECK_NZ(r.IsEq(r2));
 				}
+			}
+			{
+				SDecimal r;
+				r.FromStr(r_te.P_Txt);
+				uint64 ued = r.ToUed_(UED_META_DECIMAL);
+				SDecimal r2;
+				uint bits = UED::GetRawDataBits(ued);
+				r2.FromUed(ued, bits);
+				r2.ToStr(0, temp_buf);
+				SLCHECK_NZ(r2 == r);
+			}
+			{
+				SDecimal r;
+				r.FromStr(r_te.P_Txt);
+				r.ToStr(0, temp_buf);
+				SLCHECK_NZ(temp_buf == r_te.P_Txt);
 			}
 		}
 		{
@@ -1195,7 +1212,7 @@ SLTEST_R(STimeSeries)
 					THROW(SLCHECK_NZ(dts.GetValue(i, vecidx_realvol, &real_vol)));
 					THROW(SLCHECK_NZ(dts.GetValue(i, vecidx_spread, &spread)));
 					line_buf.Z().Cat(dtm.d, DATF_ANSI|DATF_CENTURY).Comma().Cat(dtm.t, TIMF_HM).Comma().
-						Cat(open, MKSFMTD(0, 5, 0)).Comma().Cat(close, MKSFMTD(0, 5, 0)).Comma().Cat(tick_vol).Comma().Cat(real_vol).Comma().Cat(spread).CR();
+						Cat(open, MKSFMTD_050).Comma().Cat(close, MKSFMTD_050).Comma().Cat(tick_vol).Comma().Cat(real_vol).Comma().Cat(spread).CR();
 					THROW(SLCHECK_NZ(f_out.WriteLine(line_buf)));
 				}
 				f_out.Close();

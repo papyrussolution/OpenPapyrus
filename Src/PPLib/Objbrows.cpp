@@ -1,5 +1,5 @@
 // OBJBROWS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -601,7 +601,6 @@ int ObjRestrictListDialog::addItem(long * pPos, long * pID)
 	if(P_ORList) {
 		uint   pos = 0;
 		ObjRestrictItem item;
-		// @v10.7.8 @ctr MEMSZERO(item);
 		if(editItemDialog(&item) > 0)
 			if(P_ORList->Add(item.ObjID, item.Flags, &pos)) {
 				ASSIGN_PTR(pID, item.ObjID);

@@ -1280,6 +1280,8 @@ class  UiDescription; // @v11.9.2
 #define SFCOMMONMASK (static_cast<unsigned long>(SFALIGNMASK|COMF_FILLOVF))
 #define MKSFMT(l,f)           (((static_cast<long>(l))<<16)|(static_cast<long>(f)))
 #define MKSFMTD(l,p,f)        (((static_cast<long>(p))<<28)|((static_cast<long>(l))<<16)|(static_cast<long>(f)))
+#define MKSFMTD_020           MKSFMTD(0, 2, 0) // @v11.9.6 Очень часто применяемая конструкция //
+#define MKSFMTD_050           MKSFMTD(0, 5, 0) // @v11.9.6 Очень часто применяемая конструкция //
 #define SFMTFLAG(fmt)         (static_cast<unsigned>((fmt)&SFFLAGMASK))
 #define SFMTLEN(fmt)          (static_cast<uint16>(((fmt)&SFLENMASK)>>16))
 #define SFMTPRC(fmt)          (((fmt)&SFPRCMASK)>>28)
@@ -1416,6 +1418,7 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 #define DECL_INVARIANT_C()    int InvariantC(SInvariantParam * pInvP) const
 #define IMPL_INVARIANT_C(cls) int cls::InvariantC(SInvariantParam * pInvP) const
 //
+// @note: Вероятно, вместо SIZEOFARRAY будет правильнее использовать SIZEOFARRAY из stdlib.h
 #define SIZEOFARRAY(array)  (sizeof(array)/sizeof((array)[0]))
 #define SIZEOFARRAYi(array) static_cast<int>(sizeof(array)/sizeof((array)[0]))
 #define IS_ODD(n)          ((n) & 1)
@@ -13506,6 +13509,7 @@ public:
 	static constexpr double LnPi     = 1.14472988584940017414342735135; // ln(pi)
 	static constexpr double Ln2      = 0.69314718055994530941723212146; // ln(2)
 	static constexpr float  Ln2_f    = 0.69314718f; // ln(2) @v11.7.6 I'm not sure that it is an accurate value (borrowed from mupdf/fitz)!
+	static constexpr double Ln10     = 2.302585092994045684017991454684364208; // ln(10)
 	static constexpr double Epsilon  = 2.2204460492503131E-16;          // smallest such that 1.0+DBL_EPSILON != 1.0
 	static constexpr double Root4Epsilon = 1.2207031250000000E-04;
 	static constexpr double Root5Epsilon = 7.4009597974140505E-04;

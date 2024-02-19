@@ -1304,13 +1304,9 @@ int EC_GROUP_get_basis_type(const EC_GROUP * group)
 	if(EC_GROUP_get_field_type(group) != NID_X9_62_characteristic_two_field)
 		/* everything else is currently not supported */
 		return 0;
-
 	/* Find the last non-zero element of group->poly[] */
-	for(i = 0;
-	    i < SIZEOFARRAYi(group->poly) && group->poly[i] != 0;
-	    i++)
+	for(i = 0; i < SIZEOFARRAYi(group->poly) && group->poly[i] != 0; i++)
 		continue;
-
 	if(i == 4)
 		return NID_X9_62_ppBasis;
 	else if(i == 2)

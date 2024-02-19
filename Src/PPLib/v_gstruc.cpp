@@ -536,7 +536,7 @@ int FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 							temp_buf.CatChar('?');
 						}
 						else if(p_item->EstPrice > 0.0) {
-							temp_buf.Cat(p_item->EstPrice, MKSFMTD(0, 2, 0));
+							temp_buf.Cat(p_item->EstPrice, MKSFMTD_020);
 						}
 						pBlk->Set(temp_buf);
 					}

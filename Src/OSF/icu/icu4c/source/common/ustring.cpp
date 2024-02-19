@@ -1066,7 +1066,7 @@ U_CAPI bool U_EXPORT2 u_strHasMoreChar32Than(const char16_t * s, int32_t length,
 
 U_CAPI char16_t * U_EXPORT2 u_memcpy(char16_t * dest, const char16_t * src, int32_t count) {
 	if(count > 0) {
-		uprv_memcpy(dest, src, (size_t)count*U_SIZEOF_UCHAR);
+		memcpy(dest, src, (size_t)count*U_SIZEOF_UCHAR);
 	}
 	return dest;
 }
@@ -1074,7 +1074,7 @@ U_CAPI char16_t * U_EXPORT2 u_memcpy(char16_t * dest, const char16_t * src, int3
 U_CAPI char16_t * U_EXPORT2 u_memmove(char16_t * dest, const char16_t * src, int32_t count) 
 {
 	if(count > 0) {
-		uprv_memmove(dest, src, (size_t)count*U_SIZEOF_UCHAR);
+		memmove(dest, src, (size_t)count*U_SIZEOF_UCHAR);
 	}
 	return dest;
 }

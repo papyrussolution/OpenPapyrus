@@ -25,7 +25,7 @@ U_CFUNC void UDataMemory_init(UDataMemory * This)
 U_CFUNC void UDatamemory_assign(UDataMemory * dest, UDataMemory * source) {
 	/* UDataMemory Assignment.  Destination UDataMemory must be initialized first.  */
 	bool mallocedFlag = dest->heapAllocated;
-	uprv_memcpy(dest, source, sizeof(UDataMemory));
+	memcpy(dest, source, sizeof(UDataMemory));
 	dest->heapAllocated = mallocedFlag;
 }
 

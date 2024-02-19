@@ -769,10 +769,7 @@ int TuneToolsDialog::OnUpDownArrow(int up)
 		lvi.stateMask = lvi1.stateMask = LVIS_SELECTED | LVIS_FOCUSED;
 		lvi.pszText = buf;
 		lvi.cchTextMax = SIZEOFARRAY(buf);
-		if(up)
-			lvi1.iItem = lvi.iItem-1;
-		else
-			lvi1.iItem = lvi.iItem+1;
+		lvi1.iItem = up ? (lvi.iItem-1) : (lvi.iItem+1);
 		ListView_GetItem(H_List, &lvi);
 		ListView_GetItem(H_List, &lvi1);
 		if(up) {

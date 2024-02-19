@@ -1,5 +1,5 @@
 // OBJSTAFF.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
 // @codepage UTF-8
 // Штатное расписание
 //
@@ -166,7 +166,7 @@ static IMPL_CMPFUNC(PersonPost_Closed_Finish_Dt, i1, i2)
 
 void PersonPostArray::Sort()
 {
-	SVector::sort(PTR_CMPFUNC(PersonPost_Closed_Finish_Dt), 0); // @v9.8.4 SArray-->SVector
+	SVector::sort(PTR_CMPFUNC(PersonPost_Closed_Finish_Dt), 0);
 }
 
 uint PersonPostArray::GetBusyCount() const

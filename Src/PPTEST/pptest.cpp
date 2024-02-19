@@ -1,5 +1,5 @@
 // PPTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8 // @v11.4.1
 //
 #include <pp.h>
@@ -1061,8 +1061,6 @@ int GenerateGoodsBills()
 							GoodsRestParam rest_param;
 							Transfer trnsf;
 							double rest = 0;
-							// @v10.6.4 MEMSZERO(rcpt_rec);
-							// @v10.7.9 @ctr MEMSZERO(ilti);
 							//
 							// выбор ID товара с использованием генератора по экспон. з-ну
 							// и учетом остатка товара по данному ID

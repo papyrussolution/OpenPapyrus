@@ -417,7 +417,7 @@ bool Utf8_Iter::get(utf16* c)
 	if(m_out1st == m_outLst) 
 		return false;
 	*c = m_out [m_out1st];
-	m_out1st = (m_out1st + 1) % _countof(m_out);
+	m_out1st = (m_out1st + 1) % SIZEOFARRAY(m_out);
 	return true;
 }
 
@@ -482,7 +482,7 @@ void Utf8_Iter::toStart()
 void Utf8_Iter::pushout(utf16 c)
 {
 	m_out [m_outLst] = c;
-	m_outLst = (m_outLst + 1) % _countof(m_out);
+	m_outLst = (m_outLst + 1) % SIZEOFARRAY(m_out);
 }
 
 Utf16_Iter::Utf16_Iter()
@@ -506,7 +506,7 @@ bool Utf16_Iter::get(utf8 * c)
 {
 	if(m_out1st != m_outLst) {
 		*c = m_out [m_out1st];
-		m_out1st = (m_out1st + 1) % _countof(m_out);
+		m_out1st = (m_out1st + 1) % SIZEOFARRAY(m_out);
 		return true;
 	}
 	return false;
@@ -514,8 +514,8 @@ bool Utf16_Iter::get(utf8 * c)
 
 void Utf16_Iter::pushout(ubyte c)
 {
-	m_out [m_outLst] = c;
-	m_outLst = (m_outLst + 1) % _countof(m_out);
+	m_out[m_outLst] = c;
+	m_outLst = (m_outLst + 1) % SIZEOFARRAY(m_out);
 }
 
 void Utf16_Iter::set(const ubyte* pBuf, size_t nLen, UniMode eEncoding)

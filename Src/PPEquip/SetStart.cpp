@@ -1,5 +1,5 @@
 // SETSTART.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу SetStart (аналогичен ФРОНТОЛ'у)
 //
@@ -178,7 +178,6 @@ int ACS_SETSTART::ExportData(int updOnly)
 		//
 		AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, StatID);
 		scard_quot_list.freeAll();
-		// @v10.7.6 (no reason) MEMSZERO(ser_rec);
 		/* @v10.7.0 
 		if(!updOnly) {
 			fputs((f_str = "$$$DELETEALLCCARDDISCS").CR(), p_file);
@@ -425,11 +424,6 @@ int ACS_SETSTART::ExportData(int updOnly)
 									double quot = gds_info.QuotList.Get(qk_id);
 									if(quot > 0.0 && quot != gds_info.Price) {
 										AtolGoodsDiscountEntry ent(gds_info.ID, qk_id, gds_info.Price - quot); // @v10.8.2
-										// @v10.8.2 MEMSZERO(ent);
-										// @v10.8.2 ent.GoodsID = gds_info.ID;
-										// @v10.8.2 ent.QuotKindID = qk_id;
-										//ent.SCardSerID = scard_quot_list.at(i).Key;
-										// @v10.8.2 ent.AbsDiscount = gds_info.Price - quot;
 										goods_dis_list.insert(&ent);
 										used_retail_quot.set(i, 1);
 									}
@@ -437,9 +431,6 @@ int ACS_SETSTART::ExportData(int updOnly)
 							}
 							if(gds_info.ExtQuot > 0.0) {
 								AtolGoodsDiscountEntry ent(gds_info.ID, 0, gds_info.Price - gds_info.ExtQuot); // @v10.8.2
-								// @v10.8.2 MEMSZERO(ent);
-								// @v10.8.2 ent.GoodsID = gds_info.ID;
-								// @v10.8.2 ent.AbsDiscount = gds_info.Price - gds_info.ExtQuot;
 								goods_dis_list.insert(&ent);
 							}
 						}
@@ -870,7 +861,6 @@ int ACS_SETSTART::ImportFiles()
 		THROW(obj_acct.Get(r_eq_cfg.FtpAcctID, &acct));
 	{
 		PPAlbatrossConfig alb_cfg;
-		// @v10.9.9 @ctr MEMSZERO(mac_rec);
 		if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0 && alb_cfg.Hdr.MailAccID) {
 			THROW_PP(obj_acct.Get(alb_cfg.Hdr.MailAccID, &mac_rec) > 0, PPERR_UNDEFMAILACC);
 		}

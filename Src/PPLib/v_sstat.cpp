@@ -1,5 +1,5 @@
 // V_SSTAT.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -63,7 +63,6 @@ void SStatFilt::SetPckgRounding(int t)
 //
 PPViewSStat::PPViewSStat() : PPView(0, &Filt, PPVIEW_SSTAT, 0, 0), P_TempTbl(0), P_TempOrd(0), P_VGr(0)
 {
-	// @v10.9.1 @ctr MEMSZERO(PrCfg);
 	PrcssrPrediction::GetPredictCfg(&PrCfg);
 }
 
@@ -418,7 +417,6 @@ int PPViewSStat::CreateOrderTable(long ord, TempOrderTbl ** ppTbl, int use_ta)
 					(Filt.AmtAvgRange.IsZero() || Filt.AmtAvgRange.CheckX(p_t->data.AmtAvg)) &&
 					(Filt.QttyVarRange.IsZero() || Filt.QttyVarRange.CheckX(p_t->data.QttyVar))) {
 					TempOrderTbl::Rec ord_rec;
-					// @v10.7.9 @ctr MEMSZERO(ord_rec);
 					ord_rec.ID = p_t->data.GoodsID;
 					// Если установлены циклы, то допускается сортировка только по наименованию //
 					if(ord == OrdByGoodsName || CycleList.getCount()) {
@@ -654,7 +652,6 @@ int PPViewSStat::AddStat(PPID goodsID, LDATE dt, int setTotal, const PredictSale
 	if(pStat->Count || !(Filt.Flags & SStatFilt::fSkipZeroNhCount)) {
 		SString temp_buf;
 		TempGoodsStatTbl::Rec rec;
-		// @v10.7.9 @ctr MEMSZERO(rec);
 		rec.GoodsID  = goodsID;
 		rec.Dt = dt;
 		GObj.GetSubstText(goodsID, Filt.Sgg, &Gsl, temp_buf);
@@ -1367,7 +1364,6 @@ int PPViewSStat::ConvertLinesToBasket()
 			if(!goods_id_list.lsearch(goods_id) && ss_item.SupplOrder != 0.0 && GObj.CheckSpecQuot(Filt.SupplID, goods_id, loc_id, 0)) {
 				ILTI   i_i;
 				ReceiptTbl::Rec lot_rec;
-				// @v10.7.9 @ctr MEMSZERO(lot_rec);
 				THROW(::GetCurGoodsPrice(goods_id, loc_id, GPRET_MOSTRECENT, 0, &lot_rec) != GPRET_ERROR);
 				i_i.GoodsID     = goods_id;
 				//i_i.UnitPerPack = gr_item.UnitPerPack;
@@ -1441,7 +1437,6 @@ int PPViewSStat::CreatePurchaseBill(LDATE docDt, int autoOrder, PPBillPacket * p
 				if(accept) {
 					PPTransferItem ti;
 					ReceiptTbl::Rec lot_rec;
-					// @v10.7.9 @ctr MEMSZERO(lot_rec);
 					THROW(::GetCurGoodsPrice(goods_id, loc_id, GPRET_MOSTRECENT, 0, &lot_rec) != GPRET_ERROR);
 					THROW(ti.Init(&pPack->Rec));
 					ti.SetupGoods(goods_id);

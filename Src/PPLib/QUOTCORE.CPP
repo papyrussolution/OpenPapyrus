@@ -190,7 +190,7 @@ int PPQuotItemArray::Set(const PPQuot & rQ, long flags)
 
 void PPQuotItemArray::Sort()
 {
-	SVector::sort(PTR_CMPFUNC(PPQuotItem_)); // @v9.8.4 SArray-->SVector
+	SVector::sort(PTR_CMPFUNC(PPQuotItem_));
 }
 //
 // PPQuot
@@ -1871,7 +1871,6 @@ static long FASTCALL _AdviseQuotCacheUpdate(long acn, PPAdviseProc proc, void * 
 {
 	long   cookie = 0;
 	PPAdviseBlock adv_blk;
-	// @v10.8.12 @ctr MEMSZERO(adv_blk);
 	adv_blk.Kind = PPAdviseBlock::evDirtyCacheBySysJ;
 	adv_blk.Action = acn;
 	adv_blk.DbPathID = DBS.GetDbPathID();
@@ -2889,7 +2888,6 @@ int Quotation2Core::Implement_Set(const PPQuot & rQ, long qtaID, int logSj, bool
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		PROFILE(THROW(GetRel(&rQ, &rel_id, 1, 0) > 0));
-		// @v10.6.4 MEMSZERO(rec);
 		rec.RelID = rel_id;
 		rec.GoodsID = rQ.GoodsID;
 		rec.Actual = 1;

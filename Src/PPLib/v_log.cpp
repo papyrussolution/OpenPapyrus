@@ -1,10 +1,9 @@
 // V_LOG.CPP
-// Copyright (c) Starodub A. 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2016, 2017, 2020, 2021, 2022, 2023
+// Copyright (c) Starodub A. 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2016, 2017, 2020, 2021, 2022, 2023, 2024
 // @codepage windows-1251
 //
 #include <pp.h>
 #pragma hdrstop
-// @v10.9.3 #include <process.h>
 
 LogFileEntry::LogFileEntry() : ID(0)
 {
@@ -22,7 +21,6 @@ public:
 		for(uint i = 0; ss.get(&i, buf);) {
 			uint j = 0;
 			LogFileEntry e;
-			// @v10.7.8 @ctr MEMSZERO(e);
 			StringSet ss1(',', buf);
 			ss1.get(&j, buf.Z());
 			e.ID = buf.ToLong();

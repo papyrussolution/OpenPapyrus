@@ -143,7 +143,7 @@ UnicodeSet::UnicodeSet(const UnicodeSet & o, bool /* asThawed */) : UnicodeFilte
 	if(ensureCapacity(o.len)) {
 		// *this = o except for bmpSet and stringSpan
 		len = o.len;
-		uprv_memcpy(list, o.list, (size_t)len*sizeof(UChar32));
+		memcpy(list, o.list, (size_t)len*sizeof(UChar32));
 		if(o.hasStrings()) {
 			UErrorCode status = U_ZERO_ERROR;
 			if(!allocateStrings(status) ||
@@ -198,7 +198,7 @@ UnicodeSet & UnicodeSet::copyFrom(const UnicodeSet & o, bool asThawed)
 		return *this;
 	}
 	len = o.len;
-	uprv_memcpy(list, o.list, (size_t)len*sizeof(UChar32));
+	memcpy(list, o.list, (size_t)len*sizeof(UChar32));
 	if(o.bmpSet != nullptr && !asThawed) {
 		bmpSet = new BMPSet(*o.bmpSet, list, len);
 		if(bmpSet == NULL) { // Check for memory allocation error.
@@ -905,7 +905,7 @@ UnicodeSet & UnicodeSet::add(UChar32 c) {
 		}
 
 		UChar32 * p = list + i;
-		uprv_memmove(p + 2, p, (len - i) * sizeof(*p));
+		memmove(p + 2, p, (len - i) * sizeof(*p));
 		list[i] = c;
 		list[i+1] = c+1;
 		len += 2;
@@ -1219,14 +1219,14 @@ UnicodeSet & UnicodeSet::complement()
 		return *this;
 	}
 	if(list[0] == UNICODESET_LOW) {
-		uprv_memmove(list, list + 1, (size_t)(len-1)*sizeof(UChar32));
+		memmove(list, list + 1, (size_t)(len-1)*sizeof(UChar32));
 		--len;
 	}
 	else {
 		if(!ensureCapacity(len+1)) {
 			return *this;
 		}
-		uprv_memmove(list + 1, list, (size_t)len*sizeof(UChar32));
+		memmove(list + 1, list, (size_t)len*sizeof(UChar32));
 		list[0] = UNICODESET_LOW;
 		++len;
 	}
@@ -1425,7 +1425,7 @@ UnicodeSet & UnicodeSet::compact()
 		// pass
 	}
 	else if(len <= INITIAL_CAPACITY) {
-		uprv_memcpy(stackList, list, len * sizeof(UChar32));
+		memcpy(stackList, list, len * sizeof(UChar32));
 		uprv_free(list);
 		list = stackList;
 		capacity = INITIAL_CAPACITY;
@@ -1647,7 +1647,7 @@ bool UnicodeSet::ensureCapacity(int32_t newLen) {
 		return false;
 	}
 	// Copy only the actual contents.
-	uprv_memcpy(temp, list, len * sizeof(UChar32));
+	memcpy(temp, list, len * sizeof(UChar32));
 	if(list != stackList) {
 		uprv_free(list);
 	}

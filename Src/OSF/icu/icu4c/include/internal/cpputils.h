@@ -15,52 +15,52 @@
 // 
 static inline void uprv_arrayCopy(const double* src, double* dst, int32_t count)
 {
-	uprv_memcpy(dst, src, (size_t)count * sizeof(*src));
+	memcpy(dst, src, (size_t)count * sizeof(*src));
 }
 
 static inline void uprv_arrayCopy(const double* src, int32_t srcStart, double* dst, int32_t dstStart, int32_t count)
 {
-	uprv_memcpy(dst+dstStart, src+srcStart, (size_t)count * sizeof(*src));
+	memcpy(dst+dstStart, src+srcStart, (size_t)count * sizeof(*src));
 }
 
 static inline void uprv_arrayCopy(const int8* src, int8* dst, int32_t count) 
 {
-	uprv_memcpy(dst, src, (size_t)count * sizeof(*src));
+	memcpy(dst, src, (size_t)count * sizeof(*src));
 }
 
 static inline void uprv_arrayCopy(const bool * src, bool * dst, int32_t count) // @sobolev (because of UBool removed and replaced with bool)
 {
-	uprv_memcpy(dst, src, (size_t)count * sizeof(*src));
+	memcpy(dst, src, (size_t)count * sizeof(*src));
 }
 
 static inline void uprv_arrayCopy(const int8* src, int32_t srcStart, int8* dst, int32_t dstStart, int32_t count)
 {
-	uprv_memcpy(dst+dstStart, src+srcStart, (size_t)count * sizeof(*src));
+	memcpy(dst+dstStart, src+srcStart, (size_t)count * sizeof(*src));
 }
 
 static inline void uprv_arrayCopy(const int16* src, int16* dst, int32_t count)
 {
-	uprv_memcpy(dst, src, (size_t)count * sizeof(*src));
+	memcpy(dst, src, (size_t)count * sizeof(*src));
 }
 
 static inline void uprv_arrayCopy(const int16* src, int32_t srcStart, int16* dst, int32_t dstStart, int32_t count)
 {
-	uprv_memcpy(dst+dstStart, src+srcStart, (size_t)count * sizeof(*src));
+	memcpy(dst+dstStart, src+srcStart, (size_t)count * sizeof(*src));
 }
 
 static inline void uprv_arrayCopy(const int32_t* src, int32_t* dst, int32_t count)
 {
-	uprv_memcpy(dst, src, (size_t)count * sizeof(*src));
+	memcpy(dst, src, (size_t)count * sizeof(*src));
 }
 
 static inline void uprv_arrayCopy(const int32_t* src, int32_t srcStart, int32_t* dst, int32_t dstStart, int32_t count)
 {
-	uprv_memcpy(dst+dstStart, src+srcStart, (size_t)count * sizeof(*src));
+	memcpy(dst+dstStart, src+srcStart, (size_t)count * sizeof(*src));
 }
 
 static inline void uprv_arrayCopy(const char16_t * src, int32_t srcStart, char16_t * dst, int32_t dstStart, int32_t count)
 {
-	uprv_memcpy(dst+dstStart, src+srcStart, (size_t)count * sizeof(*src));
+	memcpy(dst+dstStart, src+srcStart, (size_t)count * sizeof(*src));
 }
 
 /**

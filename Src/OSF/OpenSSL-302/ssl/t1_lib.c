@@ -1146,11 +1146,9 @@ static const SIGALG_LOOKUP * tls1_lookup_sigalg(const SSL * s, uint16_t sigalg)
 {
 	size_t i;
 	const SIGALG_LOOKUP * lu;
-
 	for(i = 0, lu = s->ctx->sigalg_lookup_cache;
 	    /* cache should have the same number of elements as sigalg_lookup_tbl */
-	    i < SIZEOFARRAY(sigalg_lookup_tbl);
-	    lu++, i++) {
+	    i < SIZEOFARRAY(sigalg_lookup_tbl); lu++, i++) {
 		if(lu->sigalg == sigalg) {
 			if(!lu->enabled)
 				return NULL;

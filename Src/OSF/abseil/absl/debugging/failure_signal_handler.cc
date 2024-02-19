@@ -157,7 +157,7 @@ static int MaybeSetupAlternateStack() {
 static void InstallOneFailureHandler(FailureSignalData* data, void (*handler)(int, siginfo_t*, void*)) 
 {
 	struct sigaction act;
-	memset(&act, 0, sizeof(act));
+	memzero(&act, sizeof(act));
 	sigemptyset(&act.sa_mask);
 	act.sa_flags |= SA_SIGINFO;
 	// SA_NODEFER is required to handle SIGABRT from

@@ -348,7 +348,7 @@ inline void Regex8BitSet::init(const UnicodeSet * s) {
 }
 
 inline void Regex8BitSet::operator = (const Regex8BitSet &s) {
-	uprv_memcpy(d, s.d, sizeof(d));
+	memcpy(d, s.d, sizeof(d));
 }
 
 //  Case folded UText Iterator helper class.

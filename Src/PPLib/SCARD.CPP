@@ -1,5 +1,5 @@
 // SCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -624,7 +624,6 @@ int SCardCore::AutoFill(const PPSCardSerPacket & rScsPack, const char * pPattern
 			if(r < 0) {
 				PPID   id = 0;
 				SCardTbl::Rec rec;
-				// @v10.6.4 MEMSZERO(rec);
 				rec.SeriesID = rScsPack.Rec.ID;
 				code.CopyTo(rec.Code, sizeof(rec.Code));
 				rec.PDis      = rScsPack.Rec.PDis;
@@ -642,121 +641,6 @@ int SCardCore::AutoFill(const PPSCardSerPacket & rScsPack, const char * pPattern
 	CATCHZOK
 	return ok;
 }
-
-#if 0 // @obsolete {
-
-int SCardCore::AutoFill(const PPSCardSeries * pSerRec, const char * pPattern, int use_ta)
-{
-	int    ok = -1;
-	int    add_check_dig = 0;
-	int    check_dig_len = -1;
-	double low = 0.0, upp = 0.0;
-	char   pfx[32], t[32], pttrn[32];
-	char   templ[48];
-	char * c = pfx;
-	char * x, * p = 0;
-	{
-		PPTransaction tra(use_ta);
-		THROW(tra);
-		if(pPattern)
-			STRNSCPY(templ, pPattern);
-		else
-			STRNSCPY(templ, pSerRec->CodeTempl);
-		p = strip(templ);
-		memzero(pfx, sizeof(pfx));
-		{
-			size_t len = sstrlen(p);
-			if(p[len-1] == '^') {
-				p[len-1] = 0;
-				add_check_dig = 1;
-				if(len > 2 && p[len-2] == ')') {
-					uint i = len-3;
-					check_dig_len = 0;
-					SString temp_buf;
-					while(i && p[i] != '(') {
-						temp_buf.CatChar(p[i--]);
-					}
-					if(p[i] == '(') {
-						temp_buf.Reverse();
-						const char * tp = temp_buf;
-						while(*tp) {
-							if(isalnum(*tp))
-								*c++ = *tp++;
-							else if(*p == '%') {
-							}
-						}
-					}
-					else {
-						//
-						// Ошибка в шаблоне: закрывающая скобка без соответствующей открывающей
-						//
-						check_dig_len = -1;
-					}
-				}
-			}
-		}
-		while(ok < 0 && *p) {
-			if(isalnum(*p))
-				*c++ = *p++;
-			else if(*p == '%') {
-				size_t r_len = 0;
-				for(++p, x = t; isdec(*p);)
-					*x++ = *p++;
-				*x = 0;
-				r_len = satoi(t);
-				if(*p == '[') {
-					for(++p, x = t; *p && *p != ']';)
-						*x++ = *p++;
-					*x = 0;
-					strtorrng(t, &low, &upp);
-				}
-				if(low <= 0)
-					low = 1;
-				if(upp <= 0 || upp > (fpow10i(r_len) - 1))
-					upp = fpow10i(r_len) - 1;
-				for(long n = (long)low; n <= (long)upp; n++) {
-					int    r;
-					memzero(pttrn, sizeof(pttrn));
-					sprintf(pttrn, "%s%0*ld", pfx, (int)r_len, n);
-					if(add_check_dig) {
-						char * p_cb = pttrn;
-						if(check_dig_len > 0) {
-							int    pl = sstrleni(pttrn);
-							if(check_dig_len <= pl)
-								p_cb = pttrn+pl-check_dig_len;
-						}
-						AddBarcodeCheckDigit(p_cb);
-					}
-					PPWaitMsg(pttrn);
-					THROW(PPCheckUserBreak());
-					THROW(r = SearchCode(pSerRec->ID, pttrn, 0));
-					if(r < 0) {
-						PPID   id = 0;
-						SCardTbl::Rec rec;
-						// @v10.6.4 MEMSZERO(rec);
-						rec.SeriesID = pSerRec->ID;
-						STRNSCPY(rec.Code, pttrn);
-						rec.PDis      = pSerRec->PDis;
-						rec.MaxCredit = pSerRec->MaxCredit;
-						rec.Dt        = pSerRec->Issue;
-						rec.Expiry    = pSerRec->Expiry;
-						rec.Flags    |= SCRDF_INHERITED;
-						THROW(AddObjRecByID(this, PPOBJ_SCARD, &id, &rec, 0));
-						DS.LogAction(PPACN_OBJADD, PPOBJ_SCARD, id, 0, 0);
-						ok = 1;
-					}
-				}
-			}
-			else
-				p++;
-		}
-		THROW(tra.Commit());
-	}
-	CATCHZOK
-	return ok;
-}
-
-#endif // } 0 @obsolete
 
 int SCardCore::SearchOp(PPID cardID, LDATE dt, LTIME tm, SCardOpTbl::Rec * pRec)
 {
@@ -921,7 +805,6 @@ int SCardCore::PutOpByBill(PPID billID, PPID scardID, LDATE dt, double amount, i
 			}
 		}
 		else {
-			// @v10.6.4 MEMSZERO(rec);
 			rec.LinkObjType = PPOBJ_BILL;
 			rec.LinkObjID = billID;
 			rec.Dt = dt;

@@ -1,5 +1,5 @@
 // PPCONVRT.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 // Конвертация файлов данных при изменениях версий
 //
@@ -2008,7 +2008,6 @@ public:
 		pTbl->clearDataBuf();
 		SString temp_buf;
 		RegisterTbl::Rec tmp_rec;
-		// @v10.7.9 @ctr MEMSZERO(tmp_rec);
 		memcpy(&tmp_rec, pRec, sizeof(RegisterTbl::Rec));
 		tmp_rec.UniqCntr = 0;
 		tmp_rec.Flags = 0;
@@ -5121,7 +5120,6 @@ public:
 		int    ok = -1;
 		if(pNewTbl) {
 			PropertyTbl::Rec rec;
-			// @v10.6.4 MEMSZERO(rec);
 			rec.ObjType = PPOBJ_DBCONVERT;
 			rec.ObjID = 0x060407;
 			rec.Prop = 1;
@@ -6426,7 +6424,6 @@ static int ConvertStaffList9003()
 								// Создаем запись с эксклюзивным значением, сигнализирующую, что таблица уже отконвертирована
 								//
 								StaffList_Pre9003Tbl::Rec spec_rec;
-								// @v10.6.4 MEMSZERO(spec_rec);
 								spec_rec.ID = STAFFLIST_EXCL_ID;
 								spec_rec.OrgID = STAFFLIST_EXCL_ID;
 								spec_rec.DivisionID = STAFFLIST_EXCL_ID;
@@ -6567,7 +6564,6 @@ static int ConvertAccount9004()
 							// Создаем запись с эксклюзивным значением, сигнализирующую, что таблица уже отконвертирована
 							//
 							Account_Pre9004Tbl::Rec spec_rec;
-							// @v10.6.4 MEMSZERO(spec_rec);
 							spec_rec.ID = ACCOUNT_EXCL2_ID;
 							spec_rec.AccSheetID = ACCOUNT_EXCL2_ID;
 							THROW_DB(p_tbl->insertRecBuf(&spec_rec));
@@ -6646,7 +6642,6 @@ static int ConvertBankAccount9004()
 								// Создаем запись с эксклюзивным значением, сигнализирующую, что таблица уже отконвертирована
 								//
 								BankAccount_Pre9004Tbl::Rec spec_rec;
-								// @v10.6.4 MEMSZERO(spec_rec);
 								spec_rec.ID = BANKACCOUNT_EXCL_ID;
 								spec_rec.AccType = BANKACCOUNT_EXCL_ID;
 								THROW_DB(p_tbl->insertRecBuf(&spec_rec));
@@ -7434,7 +7429,7 @@ public:
 			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PRJTASK, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
 		CATCH
-			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_COMP|LOGMSGF_TIME);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 			ok = 0;
 		ENDCATCH
 		return ok;
@@ -7576,7 +7571,7 @@ public:
 			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PROJECT, id, PPTRPROP_MEMO), memo_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 		}
 		CATCH
-			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_COMP|LOGMSGF_TIME);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 			ok = 0;
 		ENDCATCH
 		return ok;
@@ -7935,7 +7930,7 @@ public:
 			THROW(PPObjTSession::Implement_PutExtention(p_ref, id, &ext, 0));
 		}
 		CATCH
-			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_COMP|LOGMSGF_TIME);
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 			ok = 0;
 		ENDCATCH
 		return ok;

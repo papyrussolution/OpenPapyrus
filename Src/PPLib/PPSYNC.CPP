@@ -1,5 +1,5 @@
 // PPSYNC.CPP
-// (c) Alexander Simanov, Anton Sobolev 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2020, 2021, 2022, 2023
+// (c) Alexander Simanov, Anton Sobolev 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2020, 2021, 2022, 2023, 2024
 // Database lock file implementation
 //
 #include <pp.h>
@@ -385,7 +385,7 @@ int PPSync::LoginUser(long userID, const char * pUserName, long * pSessID, const
 			ok = 0;
 	}
 	if(!ok)
-		PPLogMessage(PPFILNAM_INFO_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);// @debug turistti @v5.3.4
+		PPLogMessage(PPFILNAM_INFO_LOG, 0, LOGMSGF_LASTERR_TIME_USER);// @debug turistti @v5.3.4
 	return ok;
 }
 

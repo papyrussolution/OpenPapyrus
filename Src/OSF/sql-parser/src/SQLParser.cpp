@@ -1269,7 +1269,6 @@ namespace hsql {
 			{kOpConcat, "CONCAT"}, {kOpNot, "NOT"},
 			{kOpUnaryMinus, "-"},  {kOpIsNull, "IS NULL"},
 			{kOpExists, "EXISTS"}};
-
 		const auto found = operatorToToken.find(op);
 		if(found == operatorToToken.cend()) {
 			return os << static_cast<uint64_t>(op);
@@ -1301,16 +1300,13 @@ namespace hsql {
 
 	std::ostream& operator<<(std::ostream& os, const FrameBound& frame_bound) 
 	{
-		if(frame_bound.type == kCurrentRow) {
+		if(frame_bound.type == kCurrentRow)
 			os << "CURRENT ROW";
-		}
 		else {
-			if(frame_bound.unbounded) {
+			if(frame_bound.unbounded)
 				os << "UNBOUNDED";
-			}
-			else {
+			else
 				os << frame_bound.offset;
-			}
 			os << " " << (frame_bound.type == kPreceding) ? "PRECEDING" : "FOLLOWING";
 		}
 		return os;

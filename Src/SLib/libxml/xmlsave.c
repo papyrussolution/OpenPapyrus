@@ -2039,7 +2039,6 @@ void xmlNodeDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNode * cur, int l
 	if(buf && cur) {
 		xmlSaveCtxt ctxt;
 		SETIFZ(encoding, "UTF-8");
-		//@v10.7.9 @ctr MEMSZERO(ctxt);
 		ctxt.doc = doc;
 		ctxt.buf = buf;
 		ctxt.level = level;
@@ -2105,7 +2104,6 @@ void xmlDocDumpFormatMemoryEnc(xmlDoc * out_doc, xmlChar ** doc_txt_ptr, int * d
 			}
 			else {
 				xmlSaveCtxt ctxt;
-				//@v10.7.9 @ctr MEMSZERO(ctxt);
 				ctxt.doc = out_doc;
 				ctxt.buf = out_buff;
 				ctxt.level = 0;
@@ -2210,7 +2208,6 @@ int xmlDocFormatDump(FILE * f, xmlDoc * cur, int format)
 		return -1;
 	else {
 		xmlSaveCtxt ctxt;
-		//@v10.7.9 @ctr MEMSZERO(ctxt);
 		ctxt.doc = cur;
 		ctxt.buf = buf;
 		ctxt.level = 0;
@@ -2256,7 +2253,6 @@ int xmlSaveFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding)
 		}
 		else {
 			xmlSaveCtxt ctxt;
-			//@v10.7.9 @ctr MEMSZERO(ctxt);
 			ctxt.doc = cur;
 			ctxt.buf = buf;
 			ctxt.level = 0;
@@ -2292,7 +2288,6 @@ int xmlSaveFormatFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encodi
 		}
 		else {
 			xmlSaveCtxt ctxt;
-			//@v10.7.9 @ctr MEMSZERO(ctxt);
 			ctxt.doc = cur;
 			ctxt.buf = buf;
 			ctxt.level = 0;
@@ -2338,7 +2333,6 @@ int xmlSaveFormatFileEnc(const char * filename, xmlDoc * cur, const char * encod
 		buf = xmlOutputBufferCreateFilename(filename, handler, cur->compression);
 		if(buf) {
 			xmlSaveCtxt ctxt;
-			//@v10.7.9 @ctr MEMSZERO(ctxt);
 			ctxt.doc = cur;
 			ctxt.buf = buf;
 			ctxt.level = 0;

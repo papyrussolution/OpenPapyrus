@@ -21,7 +21,7 @@
 
 #define NEW_ARRAY(type, count) (type*)uprv_malloc((size_t)(count) * sizeof(type))
 #define DELETE_ARRAY(array) uprv_free((void *)(array))
-#define ARRAY_COPY(dst, src, count) uprv_memcpy((void *)(dst), (void *)(src), (size_t)(count) * sizeof(src)[0])
+#define ARRAY_COPY(dst, src, count) memcpy((void *)(dst), (void *)(src), (size_t)(count) * sizeof(src)[0])
 
 CEList::CEList(UCollator * coll, const UnicodeString & string, UErrorCode & status)
 	: ces(NULL), listMax(CELIST_BUFFER_SIZE), listSize(0)
@@ -104,7 +104,7 @@ void CEList::add(uint32_t ce, UErrorCode & status)
 			return;
 		}
 
-		uprv_memcpy(newCEs, ces, listSize * sizeof(uint32_t));
+		memcpy(newCEs, ces, listSize * sizeof(uint32_t));
 
 		if(ces != ceBuffer) {
 			DELETE_ARRAY(ces);

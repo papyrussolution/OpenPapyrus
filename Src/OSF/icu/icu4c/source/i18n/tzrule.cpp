@@ -555,7 +555,7 @@ bool TimeArrayTimeZoneRule::initStartTimes(const UDate source[], int32_t size, U
 	else {
 		fStartTimes = (UDate*)fLocalStartTimes;
 	}
-	uprv_memcpy(fStartTimes, source, sizeof(UDate)*size);
+	memcpy(fStartTimes, source, sizeof(UDate)*size);
 	fNumStartTimes = size;
 	// Sort dates
 	uprv_sortArray(fStartTimes, fNumStartTimes, (int32_t)sizeof(UDate), compareDates, NULL, TRUE, &status);

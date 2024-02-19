@@ -32,13 +32,12 @@ static const uint32_t kRandomTable[VP8_RANDOM_TABLE_SIZE] = {
 	0x27e5ed3c
 };
 
-void VP8InitRandom(VP8Random* const rg, float dithering) {
+void VP8InitRandom(VP8Random* const rg, float dithering) 
+{
 	memcpy(rg->tab_, kRandomTable, sizeof(rg->tab_));
 	rg->index1_ = 0;
 	rg->index2_ = 31;
-	rg->amp_ = (dithering < 0.0) ? 0
-	    : (dithering > 1.0) ? (1 << VP8_RANDOM_DITHER_FIX)
-	    : (uint32_t)((1 << VP8_RANDOM_DITHER_FIX) * dithering);
+	rg->amp_ = (dithering < 0.0) ? 0 : (dithering > 1.0) ? (1 << VP8_RANDOM_DITHER_FIX) : (uint32_t)((1 << VP8_RANDOM_DITHER_FIX) * dithering);
 }
 
 //------------------------------------------------------------------------------

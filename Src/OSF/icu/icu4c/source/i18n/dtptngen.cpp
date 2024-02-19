@@ -2604,8 +2604,8 @@ void SkeletonFields::clear()
 
 void SkeletonFields::copyFrom(const SkeletonFields& other) 
 {
-	uprv_memcpy(chars, other.chars, sizeof(chars));
-	uprv_memcpy(lengths, other.lengths, sizeof(lengths));
+	memcpy(chars, other.chars, sizeof(chars));
+	memcpy(lengths, other.lengths, sizeof(lengths));
 }
 
 void SkeletonFields::clearField(int32_t field) {
@@ -2669,7 +2669,7 @@ PtnSkeleton::PtnSkeleton(const PtnSkeleton& other) {
 }
 
 void PtnSkeleton::copyFrom(const PtnSkeleton& other) {
-	uprv_memcpy(type, other.type, sizeof(type));
+	memcpy(type, other.type, sizeof(type));
 	original.copyFrom(other.original);
 	baseOriginal.copyFrom(other.baseOriginal);
 	addedDefaultDayPeriod = other.addedDefaultDayPeriod;

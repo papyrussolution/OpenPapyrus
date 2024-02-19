@@ -1,5 +1,5 @@
 // OBJPHSVC.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -541,14 +541,14 @@ PhnSvcChannelStatus & PhnSvcChannelStatus::Z()
 	return *this;
 }
 
-PhnSvcChannelStatusPool::PhnSvcChannelStatusPool() : SVector(sizeof(Item_)), SStrGroup() // @v9.8.11 SArray-->SVector
+PhnSvcChannelStatusPool::PhnSvcChannelStatusPool() : SVector(sizeof(Item_)), SStrGroup()
 {
 }
 
 PhnSvcChannelStatusPool & PhnSvcChannelStatusPool::Z()
 {
 	ClearS();
-	SVector::clear(); // @v9.8.11 SArray-->SVector
+	SVector::clear();
 	return *this;
 }
 
@@ -937,7 +937,7 @@ int AsteriskAmiClient::GetChannelStatus(const char * pChannelName, PhnSvcChannel
 		} while(!(reply.GetTag("Event", temp_buf) && temp_buf.IsEqiAscii("StatusComplete")));
 	}
 	CATCH
-		PPLogMessage(PPFILNAM_PHNSVC_LOG, 0, LOGMSGF_TIME|LOGMSGF_LASTERR);
+		PPLogMessage(PPFILNAM_PHNSVC_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
 		ok = 0;
 	ENDCATCH
 	return ok;

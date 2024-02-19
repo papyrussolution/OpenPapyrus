@@ -1,5 +1,5 @@
 // SXML.CPP
-// Copyright (c) A.Sobolev, 2002, 2007, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev, 2002, 2007, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // ¬спомогательные механизмы дл€ работы с XML
 //
 #include <slib-internal.h>
@@ -458,7 +458,6 @@ int SXmlSaxParser::ParseFile(const char * pFileName)
 	THROW(fileExists(pFileName));
 	{
 		xmlSAXHandler saxh;
-		// @v10.7.9 @ctr MEMSZERO(saxh);
 		if(Flags & fStartDocument)
 			saxh.startDocument = Scb_StartDocument;
 		if(Flags & fEndDocument)

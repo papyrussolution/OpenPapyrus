@@ -1,5 +1,5 @@
 // PROJECT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2646,12 +2646,10 @@ public:
 			PPID   accsheet = 0;
 			PPID   billop = 0;
 			ProjectTbl::Rec prj_rec;
-			// @v10.6.4 MEMSZERO(prj_rec);
 			for(billop = 0, prj_id = Data.Rec.ProjectID; !billop && PrjObj.Search(prj_id, &prj_rec) > 0; prj_id = prj_rec.ParentID)
 				billop = prj_rec.BillOpID;
 			if(!billop) {
 				PPProjectConfig prj_cfg;
-				// @v10.7.8 @ctr MEMSZERO(prj_cfg);
 				PPObjProject::ReadConfig(&prj_cfg);
 				billop = prj_cfg.BillOpID;
 			}
@@ -2886,7 +2884,6 @@ int PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 		//
 		if(!task_finished && pack.Rec.TemplateID && pack.Rec.Status == TODOSTTS_COMPLETED && pack.Rec.FinishDt != ZERODATE) {
 			PrjTaskTbl::Rec templ_rec;
-			// @v10.6.4 MEMSZERO(templ_rec);
 			if(Search(pack.Rec.TemplateID, &templ_rec) > 0 && templ_rec.DrPrd == PRD_REPEATAFTERPRD) {
 				PPTransaction tra(1);
 				if(!!tra) {
@@ -2894,7 +2891,6 @@ int PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 					PPPrjTaskPacket new_task_packet;
 					DateRepeating dr = *reinterpret_cast<const DateRepeating *>(&templ_rec.DrPrd);
 					LDATE  dt = (dr.Dtl.RA.AfterStart == 0) ? pack.Rec.FinishDt : ((pack.Rec.StartDt == ZERODATE) ? pack.Rec.Dt : pack.Rec.StartDt);
-					// @v10.6.4 MEMSZERO(new_task);
 					plusperiod(&dt, dr.RepeatKind, dr.Dtl.RA.NumPrd, 0);
 					memzero(pack.Rec.Code, sizeof(pack.Rec.Code));
 					InitPacketByTemplate(&pack, dt, &new_task_packet, 0);
@@ -3247,7 +3243,6 @@ int PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int todoP
 			todo_list.add(P_Tbl->data.ID);
 		for(uint i = 0; i < todo_list.getCount(); i++) {
 			PPPrjTaskPacket prjt_pack;
-			// @v10.6.4 MEMSZERO(prjt_rec);
 			THROW(GetPacket(todo_list.at(i), &prjt_pack) > 0);
 			if(todoPerson == TODOPSN_CREATOR)
 				prjt_pack.Rec.CreatorID  = newID;

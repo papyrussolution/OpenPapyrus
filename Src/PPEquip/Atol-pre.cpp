@@ -1,5 +1,5 @@
 // ATOL.CPP
-// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Атол"
 //
@@ -472,7 +472,6 @@ int ACS_ATOL::ExportSCard(FILE *, int)
 		cat_code_ary.freeAll();
 		THROW(ac_intrf.ACGetIDsAry(cat_tbl_name, 2, &cat_code_ary));
 		THROW(ac_intrf.ACOpenTable(card_tbl_name));
-		// @v10.6.5 @ctr MEMSZERO(ser_rec);
 		for(ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
 			if(!(ser_rec.Flags & SCRDSF_CREDIT)) {
 				PPSCardSerPacket scs_pack;

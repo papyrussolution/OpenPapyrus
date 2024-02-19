@@ -1,5 +1,5 @@
 // PSALES.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -29,7 +29,7 @@ PredictSalesStat & FASTCALL PredictSalesStat::operator = (const PredictSalesStat
 	memcpy(this, &s, sizeof(*this));
 	P_List = 0;
 	if(s.P_List)
-		P_List = new SVector(*s.P_List); // @v9.9.4 SArray-->SVector
+		P_List = new SVector(*s.P_List);
 	return *this;
 }
 
@@ -62,7 +62,7 @@ int FASTCALL PredictSalesStat::Step(const PredictSalesItem * pItem)
 		AmtSum    += amt;
 		AmtSqSum  += amt * amt;
 		if(Flags & PSSF_USELSSLIN) {
-			SETIFZ(P_List, new SVector(sizeof(LsEntry))); // @v9.9.4 SArray-->SVector
+			SETIFZ(P_List, new SVector(sizeof(LsEntry)));
 			THROW_MEM(P_List);
 			LsEntry entry;
 			PredictSalesCore::ShrinkDate(pItem->Dt, &entry.Day);
@@ -454,7 +454,6 @@ int PredictSalesCore::WriteHolidays(int use_ta)
 		THROW_DB(deleteFrom(this, 0, this->RType == (long)PSRECTYPE_HOLIDAY));
 		for(uint i = 0; P_HldTab->enumItems(&i, (void **)&p_entry);) {
 			PredictSalesTbl::Rec rec;
-			// @v10.6.4 MEMSZERO(rec);
 			rec.RType = PSRECTYPE_HOLIDAY;
 			rec.Loc = p_entry->LocIdx;
 			rec.Dt = p_entry->Day;
@@ -533,7 +532,6 @@ int PredictSalesCore::WriteLocTab(int use_ta)
 			for(uint i = 0; i < LocTab.getCount(); i++) {
 				const LocTabEntry & r_entry = LocTab.at(i);
 				PredictSalesTbl::Rec rec;
-				// @v10.6.4 MEMSZERO(rec);
 				rec.RType = PSRECTYPE_LOCTAB;
 				rec.GoodsID = r_entry.LocID;
 				rec.Loc = r_entry.LocIdx;
@@ -864,7 +862,6 @@ int PredictSalesCore::Helper_Enumerate(PPID goodsID, PPID locID, const DateRange
 	long c = 0;
 	for(q.initIteration(dir, &k, dir ? spLe : spGe); q.nextIteration() > 0;) {
 		PredictSalesItem item;
-		// @v10.6.6 @ctr MEMSZERO(item);
 		ExpandDate(data.Dt, &item.Dt);
 		item.Qtty = data.Quantity;
 		item.Amount = data.Amount;
@@ -1054,7 +1051,6 @@ int PredictSalesCore::SearchStat(PPID goodsID, const ObjIdListFilt & rLocList, G
 {
 	int    ok = -1;
 	GoodsStatTbl::Rec rec, temp_rec;
-	// @v10.6.4 MEMSZERO(rec);
 	rec.GoodsID = goodsID;
 	if(rLocList.GetSingle()) {
 		ok = SearchStat(goodsID, rLocList.GetSingle(), &rec);

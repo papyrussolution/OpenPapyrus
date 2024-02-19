@@ -1839,7 +1839,7 @@ bool FindReplaceDlg::processFindNext(const TCHAR * txt2find, const FindOption * 
 		}
 
 		char szMsg [511] = "";
-		(*_ppEditView)->execute(SCI_GETBOOSTREGEXERRMSG, _countof(szMsg), reinterpret_cast<LPARAM>(szMsg));
+		(*_ppEditView)->execute(SCI_GETBOOSTREGEXERRMSG, SIZEOFARRAY(szMsg), reinterpret_cast<LPARAM>(szMsg));
 		setStatusbarMessage(msgGeneral, FSNotFound, szMsg);
 		return false;
 	}
@@ -4303,7 +4303,7 @@ HWND Progress::open(HWND hCallerWnd, const TCHAR * header)
 		_hCallerWnd = hCallerWnd;
 		for(HWND hwnd = _hCallerWnd; hwnd; hwnd = ::GetParent(hwnd))
 			::UpdateWindow(hwnd);
-		_tcscpy_s(_header, _countof(_header), NZOR(header, cDefaultHeader));
+		_tcscpy_s(_header, SIZEOFARRAY(_header), NZOR(header, cDefaultHeader));
 		_hThread = ::CreateThread(NULL, 0, threadFunc, this, 0, NULL);
 		if(!_hThread) {
 			::CloseHandle(_hActiveState);

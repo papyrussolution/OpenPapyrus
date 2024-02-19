@@ -348,7 +348,7 @@ void IntVectorResource::add(int32_t value, UErrorCode &errorCode) {
 			errorCode = U_MEMORY_ALLOCATION_ERROR;
 			return;
 		}
-		uprv_memcpy(tmp, fArray, fSize * sizeof(uint32_t));
+		memcpy(tmp, fArray, fSize * sizeof(uint32_t));
 		delete[] fArray;
 		fArray = tmp;
 		fSize *= 2;
@@ -380,7 +380,7 @@ BinaryResource::BinaryResource(SRBRoot * bundle, const char * tag,
 			errorCode = U_MEMORY_ALLOCATION_ERROR;
 			return;
 		}
-		uprv_memcpy(fData, data, length);
+		memcpy(fData, data, length);
 	}
 	else {
 		if(gFormatVersion > 1) {
@@ -964,7 +964,7 @@ void SRBRoot::write(const char * outputDir, const char * outputPkg,
 		strcpy(dataName, fLocale);
 	}
 
-	uprv_memcpy(dataInfo.formatVersion, gFormatVersions + formatVersion, sizeof(UVersionInfo));
+	memcpy(dataInfo.formatVersion, gFormatVersions + formatVersion, sizeof(UVersionInfo));
 
 	mem = udata_create(outputDir, "res", dataName,
 		&dataInfo, (gIncludeCopyright==TRUE) ? U_COPYRIGHT_STRING : NULL, &errorCode);
@@ -1243,7 +1243,7 @@ int32_t SRBRoot::addKeyBytes(const char * keyBytes, int32_t length, UErrorCode &
 		}
 	}
 
-	uprv_memcpy(fKeys + keypos, keyBytes, length);
+	memcpy(fKeys + keypos, keyBytes, length);
 
 	return keypos;
 }

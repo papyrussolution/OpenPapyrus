@@ -192,7 +192,7 @@ int main(int argc, char * argv[])
 	/* Set up the ICU version number */
 	UVersionInfo icuVersion;
 	u_getVersion(icuVersion);
-	uprv_memcpy(&dataInfo.dataVersion, &icuVersion, sizeof(UVersionInfo));
+	memcpy(&dataInfo.dataVersion, &icuVersion, sizeof(UVersionInfo));
 
 	/* preset then read command line options */
 	options[OPT_DESTDIR].value = u_getDataDirectory();
@@ -420,7 +420,7 @@ static void readHeader(ConvData * data, FileStream* convFile, UErrorCode * pErro
 			length = ucm_parseBytes(bytes, line, (const char **)&s);
 			if(1<=length && length<=4 && *s==0) {
 				staticData->subCharLen = length;
-				uprv_memcpy(staticData->subChar, bytes, length);
+				memcpy(staticData->subChar, bytes, length);
 			}
 			else {
 				slfprintf_stderr("error: illegal <subchar> %s\n", value);
@@ -484,7 +484,7 @@ static void readHeader(ConvData * data, FileStream* convFile, UErrorCode * pErro
 			if(staticData->subCharLen==0) {
 				staticData->subCharLen = prototype->subCharLen;
 				if(prototype->subCharLen>0) {
-					uprv_memcpy(staticData->subChar, prototype->subChar, prototype->subCharLen);
+					memcpy(staticData->subChar, prototype->subChar, prototype->subCharLen);
 				}
 			}
 		}
@@ -698,7 +698,7 @@ static void createConverter(ConvData * data, const char * converterName, UErrorC
 				}
 
 				if(staticData->subCharLen==0) {
-					uprv_memcpy(staticData->subChar, baseData.staticData.subChar, 4);
+					memcpy(staticData->subChar, baseData.staticData.subChar, 4);
 					staticData->subCharLen = baseData.staticData.subCharLen;
 				}
 				/*

@@ -267,7 +267,7 @@ bool TextTrieMap::growNodes()
 	if(newNodes == NULL) {
 		return FALSE;
 	}
-	uprv_memcpy(newNodes, fNodes, fNodesCount * sizeof(CharacterNode));
+	memcpy(newNodes, fNodes, fNodesCount * sizeof(CharacterNode));
 	uprv_free(fNodes);
 	fNodes = newNodes;
 	fNodesCapacity = newCapacity;
@@ -580,7 +580,7 @@ private:
 
 	ZNames(const char16_t * names[], const char16_t * locationName) : fDidAddIntoTrie(FALSE) 
 	{
-		uprv_memcpy(fNames, names, sizeof(fNames));
+		memcpy(fNames, names, sizeof(fNames));
 		if(locationName) {
 			fOwnsLocationName = TRUE;
 			fNames[UTZNM_INDEX_EXEMPLAR_LOCATION] = locationName;
@@ -646,7 +646,7 @@ private:
 					status = U_MEMORY_ALLOCATION_ERROR;
 					return NULL;
 				}
-				uprv_memcpy(locationName, buff, len);
+				memcpy(locationName, buff, len);
 			}
 		}
 
@@ -720,7 +720,7 @@ struct ZNames::ZNamesLoader : public ResourceSink {
 
 	/** Reset for loading another set of names. */
 	void clear() {
-		uprv_memcpy(names, EMPTY_NAMES, sizeof(names));
+		memcpy(names, EMPTY_NAMES, sizeof(names));
 	}
 
 	void loadMetaZone(const UResourceBundle * zoneStrings, const UnicodeString & mzID, UErrorCode & errorCode) {
@@ -1249,8 +1249,8 @@ static void mergeTimeZoneKey(const UnicodeString & mzID, char * result) {
 	int32_t keyLen;
 	int32_t prefixLen = static_cast<int32_t>(strlen(gMZPrefix));
 	keyLen = mzID.extract(0, mzID.length(), mzIdChar, ZID_KEY_MAX + 1, US_INV);
-	uprv_memcpy((void *)result, (void *)gMZPrefix, prefixLen);
-	uprv_memcpy((void *)(result + prefixLen), (void *)mzIdChar, keyLen);
+	memcpy((void *)result, (void *)gMZPrefix, prefixLen);
+	memcpy((void *)(result + prefixLen), (void *)mzIdChar, keyLen);
 	result[keyLen + prefixLen] = '\0';
 }
 
@@ -1441,7 +1441,7 @@ struct TimeZoneNamesImpl::ZoneStringsLoader : public ResourceSink {
 			status = U_MEMORY_ALLOCATION_ERROR;
 			return NULL;
 		}
-		uprv_memcpy(newKey, key, len);
+		memcpy(newKey, key, len);
 		newKey[len-1] = '\0';
 		return (void *)newKey;
 	}

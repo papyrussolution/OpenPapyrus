@@ -1,5 +1,5 @@
 // D_CHARRY.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -8,7 +8,6 @@
 
 PPDS_CrrAddress::PPDS_CrrAddress() : PPDeclStruc()
 {
-	// @v10.6.12 @ctr MEMSZERO(Data);
 }
 
 int PPDS_CrrAddress::InitData(Ido op, void * dataPtr, long /*addedParam*/)
@@ -377,7 +376,6 @@ int PPDS_CrrGoods::AcceptOuterData(int use_ta)
 			Data.Rec.UnitID = goods_cfg.DefUnitID;
 		else {
 			PPUnit u_rec;
-			// @v10.6.8 @ctr MEMSZERO(u_rec);
 			STRNSCPY(u_rec.Name, UnitName);
 			u_rec.Flags |= PPUnit::Trade;
 			THROW(u_obj.P_Ref->AddItem(PPOBJ_UNIT, &(id = 0), &u_rec, 0));
@@ -390,7 +388,6 @@ int PPDS_CrrGoods::AcceptOuterData(int use_ta)
 					Data.Rec.PhUnitID = id;
 				else {
 					PPUnit u_rec;
-					// @v10.6.8 @ctr MEMSZERO(u_rec);
 					STRNSCPY(u_rec.Name, PhUnitName);
 					u_rec.Flags |= PPUnit::Physical;
 					THROW(u_obj.P_Ref->AddItem(PPOBJ_UNIT, &(id = 0), &u_rec, 0));
@@ -655,7 +652,6 @@ int PPDS_CrrBillItem::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTransmC
 					goods_obj.RemoveDupBarcodes(p_data, pCtx);
 					if(ar_code.NotEmpty()) {
 						ArGoodsCodeTbl::Rec ar_code_rec;
-						// @v10.6.12 @ctr MEMSZERO(ar_code_rec);
 						ar_code_rec.ArID = ar_id;
 						ar_code.CopyTo(ar_code_rec.Code, sizeof(ar_code_rec.Code));
 						p_data->ArCodes.insert(&ar_code_rec);
@@ -1620,7 +1616,6 @@ int PPDS_CrrBarcodeStruc::InitData(Ido op, void * dataPtr, long addedParam)
 			if(UpdateProtocol == updForce) {
 				Data.ID = id;
 				PPBarcodeStruc rec;
-				// @v10.7.6 @ctr MEMSZERO(rec);
 				THROW(Obj.Search(id, &rec) > 0);
 				for(uint i = 0; i < AcceptedFields.getCount(); i++) {
 					switch(AcceptedFields.get(i)) {
@@ -1688,7 +1683,6 @@ int PPDS_CrrGoodsType::InitData(Ido op, void * dataPtr, long addedParam)
 			if(UpdateProtocol == updForce) {
 				Data.ID = id;
 				PPGoodsType rec;
-				// @v10.6.9 @ctr MEMSZERO(rec);
 				THROW(Obj.Search(id, &rec) > 0);
 				for(uint i = 0; i < AcceptedFields.getCount(); i++) {
 					switch(AcceptedFields.get(i)) {
@@ -1750,7 +1744,6 @@ int PPDS_CrrGoodsType::TransferAmtType(PPID * pAmttID, Tfd dir, SString & rBuf)
 	int    ok = -1;
 	SString buf;
 	PPAmountType amtt_rec;
-	// @v10.7.4 @ctr MEMSZERO(amtt_rec);
 	if(dir == tfdDataToBuf) {
 		if(AmtTypeObj.Search(*pAmttID, &amtt_rec) > 0)
 			buf.CopyFrom(amtt_rec.Symb);
@@ -1780,8 +1773,7 @@ int PPDS_CrrGoodsType::TransferField(long fldID, Tfd dir, uint * pIter, SString 
 			{
 				SString buf;
 				if(dir == tfdDataToBuf) {
-					PPAssetWrOffGrp wroffgrp_rec;
-					MEMSZERO(wroffgrp_rec);
+					PPAssetWrOffGrp2 wroffgrp_rec;
 					if(AsstWrOffObj.Search(Data.WrOffGrpID, &wroffgrp_rec) > 0)
 						buf.CopyFrom(wroffgrp_rec.Name);
 				}
@@ -1934,7 +1926,6 @@ int PPDS_CrrPersonKind::InitData(Ido op, void * dataPtr, long addedParam)
 				Data.ID = id;
 				if(UpdateProtocol == updForce) {
 					PPPersonKind rec;
-					// @v10.6.6 @ctr MEMSZERO(rec);
 					THROW(Obj.Search(id, &rec) > 0);
 					for(uint i = 0; i < AcceptedFields.getCount(); i++) {
 						switch(AcceptedFields.get(i)) {
@@ -2293,7 +2284,6 @@ int PPDS_CrrScale::TransferField(long fldID, Tfd dir, uint * pIter, SString & rB
 		case DSF_CRRSCALE_LOCATION:
 			if(dir == tfdDataToBuf) {
 				LocationTbl::Rec lrec;
-				// @v11.7.10 @ctr MEMSZERO(lrec);
 				if(LocObj.Search(Data.Rec.Location, &lrec) > 0)
 					ok = TransferData(lrec.Code, sizeof(lrec.Code), dir, rBuf);
 			}
@@ -2304,7 +2294,6 @@ int PPDS_CrrScale::TransferField(long fldID, Tfd dir, uint * pIter, SString & rB
 			{
 				SString buf;
 				Goods2Tbl::Rec ggrec;
-				// @v11.7.10 @ctr MEMSZERO(ggrec);
 				if(dir == tfdDataToBuf) {
 					if(GGObj.Search(Data.Rec.AltGoodsGrp, &ggrec) > 0)
 						buf.CopyFrom(ggrec.Name);
@@ -2431,7 +2420,6 @@ int PPDS_CrrRegisterType::TransferField(long fldID, Tfd dir, uint * pIter, SStri
 				SString buf;
 				if(dir == tfdDataToBuf) {
 					PPPersonKind psnk_rec;
-					// @v10.6.6 @ctr MEMSZERO(psnk_rec);
 					if(PsnKObj.Search((is_psnkid) ? Data.PersonKindID : Data.RegOrgKind, &psnk_rec) > 0)
 						buf.CopyFrom(psnk_rec.Name);
 				}
@@ -2687,7 +2675,6 @@ int PPDS_CrrAssetWrOffGrp::InitData(Ido op, void * dataPtr, long addedParam)
 			if(UpdateProtocol == updForce) {
 				Data.ID = id;
 				PPAssetWrOffGrp rec;
-				MEMSZERO(rec);
 				THROW(Obj.Search(id, &rec) > 0);
 				for(uint i = 0; i < AcceptedFields.getCount(); i++) {
 					switch(AcceptedFields.get(i)) {
@@ -3235,7 +3222,6 @@ int PPDS_CrrObjTag::TransferField(long fldID, Tfd dir, uint * pIter, SString & r
 				SString buf;
 				if(dir ==  tfdDataToBuf) {
 					PPObjectTag tag_rec;
-					// @v10.6.5 @ctr MEMSZERO(tag);
 					if(Data.Rec.TagGroupID && Obj.Search(Data.Rec.TagGroupID, &tag_rec) > 0)
 						buf = tag_rec.Name;
 				}
@@ -4652,7 +4638,6 @@ int PPDS_CrrOprKindEntry::TransferField(long fldID, Tfd dir, uint * pIter, SStri
 		case DSF_CRROPRKINDENTRY_LINKOPSYMB:
 			{
 				PPOprKind linkop_rec;
-				// @v10.6.4 MEMSZERO(linkop_rec);
 				if(dir == tfdDataToBuf) {
 					if(Obj.Search(Data.LinkOpID, &linkop_rec) > 0)
 						ok = TransferData(linkop_rec.Symb, sizeof(linkop_rec.Symb), dir, rBuf);
@@ -5670,7 +5655,6 @@ int PPDS_CrrBillStatus::InitData(Ido op, void * dataPtr, long addedParam)
 			if(UpdateProtocol == updForce) {
 				Data.ID = id;
 				PPBillStatus rec;
-				// @v10.7.5 @ctr MEMSZERO(rec);
 				THROW(Obj.Search(id, &rec) > 0);
 				for(uint i = 0; i < AcceptedFields.getCount(); i++) {
 					switch(AcceptedFields.get(i)) {
@@ -5789,7 +5773,6 @@ int PPDS_CrrBillStatus::TransferField(long fldID, Tfd dir, uint * pIter, SString
 				SString buf;
 				if(dir == tfdDataToBuf) {
 					PPOprKind opk_rec;
-					// @v10.6.4 MEMSZERO(opk_rec);
 					if(OpKObj.Search(Data.RestrictOpID, &opk_rec) > 0)
 						buf.CopyFrom(opk_rec.Name);
 				}
