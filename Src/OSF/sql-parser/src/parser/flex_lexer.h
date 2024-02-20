@@ -2,9 +2,9 @@
 #define hsql_HEADER_H 1
 #define hsql_IN_HEADER 1
 
-#line 5 "C:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.h"
+#line 5 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.h"
 
-#line 7 "C:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.h"
+#line 7 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.h"
 
 #define  YY_INT_ALIGNED short int
 
@@ -649,9 +649,9 @@ extern int yylex \
 #undef yyTABLES_NAME
 #endif
 
-#line 288 "C:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.l"
+#line 288 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.l"
 
 
-#line 655 "C:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.h"
+#line 655 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.h"
 #undef hsql_IN_HEADER
 #endif /* hsql_HEADER_H */

@@ -2101,7 +2101,7 @@ PPERR_VETISAPIKEYUNDEF              "Не определен ключ досту
 PPERR_VETISBUSENTGUIDUNDEF          "Не определен GUID главной организации '%s' для сервисов @{brand_vetis}"
 PPERR_VETISLOCGUIDUNDEF             "Не определен GUID склада '%s' для сервисов @{brand_vetis}"
 PPERR_VETISDOCRECDONTREFORGDOC      "Запись '%s' подготовки исходящего документа не содержит ссылки на оригинальный сертификат"
-PPERR_VETISHASNTSTOCKREF            "Ни одна запись складского журнала не ссылается на запись документа '%s'"
+PPERR_VETISHASNTSTOCKREF            "Ни одна запись складского журнала не ссылается на запись документа '%s' - обновите остатки с даты поступления ВСД"
 PPERR_VETISFROMBUSENTUNDEF          "Не удалось идентифицировать предприятие-отправитель"
 PPERR_VETISFROMENTERPRUNDEF         "Не удалось идентифицировать адресную точку отправителя"
 PPERR_VETISTOBUSENTUNDEF            "Не удалось идентифицировать предприятие-получатель"
