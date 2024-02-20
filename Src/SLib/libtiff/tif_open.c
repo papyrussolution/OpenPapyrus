@@ -63,14 +63,6 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 	/* The following are configuration checks. They should be redundant, but should not
 	 * compile to any actual code in an optimised release build anyway. If any of them
 	 * fail, (makefile-based or other) configuration is not correct */
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint8)==1);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int8)==1);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint16)==2);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int16)==2);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int32)==4);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int64)==8);
 	assert(sizeof(tmsize_t)==sizeof(void *));
 	{
 		union {

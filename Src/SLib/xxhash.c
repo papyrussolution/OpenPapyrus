@@ -106,12 +106,12 @@
 #ifndef DEBUGLEVEL
 	#define DEBUGLEVEL 0
 #endif
-#if(DEBUGLEVEL>=1)
+//#if(DEBUGLEVEL>=1)
 	//#include <assert.h>  // note : can still be disabled with NDEBUG 
-	#define XXH_ASSERT_Removed(c)   assert(c)
-#else
-	#define XXH_ASSERT_Removed(c)   ((void)0)
-#endif
+	//#define XXH_ASSERT_Removed(c)   assert(c)
+//#else
+	//#define XXH_ASSERT_Removed(c)   ((void)0)
+//#endif
 //#define XXH_STATIC_ASSERT_Removed(c) { enum { XXH_sa = 1/(int)(!!(c)) }; } // note : use after variable declarations 
 // 
 // Basic Types

@@ -63,7 +63,8 @@ uint32_t Collation::incThreeBytePrimaryByOffset(uint32_t basePrimary, bool isCom
 	return primary | ((basePrimary & 0xff000000) + (uint32_t)(offset << 24));
 }
 
-uint32_t Collation::decTwoBytePrimaryByOneStep(uint32_t basePrimary, bool isCompressible, int32_t step) {
+uint32_t Collation::decTwoBytePrimaryByOneStep(uint32_t basePrimary, bool isCompressible, int32_t step) 
+{
 	// Extract the second byte, minus the minimum byte value,
 	// minus the step, modulo the number of usable byte values, plus the minimum.
 	// Reserve the PRIMARY_COMPRESSION_LOW_BYTE and high byte if necessary.
@@ -85,7 +86,8 @@ uint32_t Collation::decTwoBytePrimaryByOneStep(uint32_t basePrimary, bool isComp
 	return (basePrimary & 0xff000000) | ((uint32_t)byte2 << 16);
 }
 
-uint32_t Collation::decThreeBytePrimaryByOneStep(uint32_t basePrimary, bool isCompressible, int32_t step) {
+uint32_t Collation::decThreeBytePrimaryByOneStep(uint32_t basePrimary, bool isCompressible, int32_t step) 
+{
 	// Extract the third byte, minus the minimum byte value,
 	// minus the step, modulo the number of usable byte values, plus the minimum.
 	U_ASSERT(0 < step && step <= 0x7f);

@@ -37,8 +37,8 @@ Appendable& FormattedValueFieldPositionIteratorImpl::appendTo(Appendable& append
 	return appendable;
 }
 
-bool FormattedValueFieldPositionIteratorImpl::nextPosition(ConstrainedFieldPosition& cfpos,
-    UErrorCode&) const {
+bool FormattedValueFieldPositionIteratorImpl::nextPosition(ConstrainedFieldPosition& cfpos, UErrorCode&) const 
+{
 	U_ASSERT(fFields.size() % 4 == 0);
 	int32_t numFields = fFields.size() / 4;
 	int32_t i = static_cast<int32_t>(cfpos.getInt64IterationContext());
@@ -60,16 +60,13 @@ FieldPositionIteratorHandler FormattedValueFieldPositionIteratorImpl::getHandler
 	return FieldPositionIteratorHandler(&fFields, status);
 }
 
-void FormattedValueFieldPositionIteratorImpl::appendString(UnicodeString string,
-    UErrorCode & status) {
-	if(U_FAILURE(status)) {
-		return;
-	}
-	fString.append(string);
-	// Make the string NUL-terminated
-	if(fString.getTerminatedBuffer() == nullptr) {
-		status = U_MEMORY_ALLOCATION_ERROR;
-		return;
+void FormattedValueFieldPositionIteratorImpl::appendString(UnicodeString string, UErrorCode & status) 
+{
+	if(U_SUCCESS(status)) {
+		fString.append(string);
+		// Make the string NUL-terminated
+		if(fString.getTerminatedBuffer() == nullptr)
+			status = U_MEMORY_ALLOCATION_ERROR;
 	}
 }
 

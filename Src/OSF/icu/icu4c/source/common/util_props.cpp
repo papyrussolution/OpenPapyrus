@@ -187,8 +187,8 @@ UnicodeString ICU_Utility::parseUnicodeIdentifier(const UnicodeString & str, int
  * point to a valid digit on entry, or if the number to be parsed
  * does not fit into a 31-bit unsigned integer.
  */
-int32_t ICU_Utility::parseNumber(const UnicodeString & text,
-    int32_t& pos, int8 radix) {
+int32_t ICU_Utility::parseNumber(const UnicodeString & text, int32_t& pos, int8 radix) 
+{
 	// assert(pos[0] >= 0);
 	// assert(radix >= 2);
 	// assert(radix <= 36);

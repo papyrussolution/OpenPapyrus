@@ -486,7 +486,6 @@ int ACS_FRONTOL::ExportData(int updOnly)
 					size_t bclen;
 	   				if(gds_info.ID != prev_goods_id) {
 						long   level = 0;
-						int    unit_id = 0; // @v11.9.6 Мера количества предмета расчета
 						PPID   dscnt_scheme_id = 0;
 						if(prev_goods_id) {
 							f_str.Transf(CTRANSF_INNER_TO_OUTER).Semicol().Cat(tail);
@@ -710,7 +709,8 @@ int ACS_FRONTOL::ExportData(int updOnly)
 							Значение по умолчанию: 0.
 						*/
 						int measure = 0;
-						if(goods_iter.IsSimplifiedDraftBeer(gds_info.ID)) {
+						//if(goods_iter.IsSimplifiedDraftBeer(gds_info.ID)) {
+						if(gds_info.ChZnProdType == GTCHZNPT_DRAFTBEER) {
 							measure = 11; // LITER
 						}
 						// } @v11.9.6 

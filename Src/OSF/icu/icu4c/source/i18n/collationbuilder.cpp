@@ -899,17 +899,16 @@ int32_t CollationBuilder::findOrInsertNodeForPrimary(uint32_t p, UErrorCode & er
 	}
 }
 
-int32_t CollationBuilder::findOrInsertWeakNode(int32_t index, uint32_t weight16, int32_t level, UErrorCode & errorCode) {
+int32_t CollationBuilder::findOrInsertWeakNode(int32_t index, uint32_t weight16, int32_t level, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
 	U_ASSERT(0 <= index && index < nodes.size());
 	U_ASSERT(UCOL_SECONDARY <= level && level <= UCOL_TERTIARY);
-
 	if(weight16 == Collation::COMMON_WEIGHT16) {
 		return findCommonNode(index, level);
 	}
-
 	// If this will be the first below-common weight for the parent node,
 	// then we will also need to insert a common weight after it.
 	int64_t node = nodes.elementAti(index);
@@ -918,8 +917,7 @@ int32_t CollationBuilder::findOrInsertWeakNode(int32_t index, uint32_t weight16,
 		int32_t hasThisLevelBefore = level == UCOL_SECONDARY ? HAS_BEFORE2 : HAS_BEFORE3;
 		if((node & hasThisLevelBefore) == 0) {
 			// The parent node has an implied level-common weight.
-			int64_t commonNode =
-			    nodeFromWeight16(Collation::COMMON_WEIGHT16) | nodeFromStrength(level);
+			int64_t commonNode = nodeFromWeight16(Collation::COMMON_WEIGHT16) | nodeFromStrength(level);
 			if(level == UCOL_SECONDARY) {
 				// Move the HAS_BEFORE3 flag from the parent node
 				// to the new secondary common node.
@@ -971,7 +969,8 @@ int32_t CollationBuilder::findOrInsertWeakNode(int32_t index, uint32_t weight16,
 	return insertNodeBetween(index, nextIndex, node, errorCode);
 }
 
-int32_t CollationBuilder::insertTailoredNodeAfter(int32_t index, int32_t strength, UErrorCode & errorCode) {
+int32_t CollationBuilder::insertTailoredNodeAfter(int32_t index, int32_t strength, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}

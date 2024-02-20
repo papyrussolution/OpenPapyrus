@@ -46,7 +46,6 @@ static bool getSystemTimeInformation(TimeZone * tz, SYSTEMTIME &daylightDate, SY
 		else {
 			U_ASSERT(std->getRule()->getDateRuleType() == DateTimeRule::DOW);
 			U_ASSERT(dst->getRule()->getDateRuleType() == DateTimeRule::DOW);
-
 			bias = -1 * (std->getRawOffset()/60000);
 			standardBias = 0;
 			daylightBias = -1 * (dst->getDSTSavings()/60000);

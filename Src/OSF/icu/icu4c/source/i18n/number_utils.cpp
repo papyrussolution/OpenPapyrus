@@ -85,8 +85,8 @@ DecNum::DecNum() {
 	fContext.traps = 0; // no traps, thank you (what does this even mean?)
 }
 
-DecNum::DecNum(const DecNum& other, UErrorCode & status)
-	: fContext(other.fContext) {
+DecNum::DecNum(const DecNum& other, UErrorCode & status) : fContext(other.fContext) 
+{
 	// Allocate memory for the new DecNum.
 	U_ASSERT(fContext.digits == other.fData.getCapacity());
 	if(fContext.digits > kDefaultDigits) {
@@ -96,24 +96,21 @@ DecNum::DecNum(const DecNum& other, UErrorCode & status)
 			return;
 		}
 	}
-
 	// Copy the data from the old DecNum to the new one.
 	memcpy(fData.getAlias(), other.fData.getAlias(), sizeof(decNumber));
-	memcpy(fData.getArrayStart(),
-	    other.fData.getArrayStart(),
-	    other.fData.getArrayLimit() - other.fData.getArrayStart());
+	memcpy(fData.getArrayStart(), other.fData.getArrayStart(), other.fData.getArrayLimit() - other.fData.getArrayStart());
 }
 
-void DecNum::setTo(StringPiece str, UErrorCode & status) {
+void DecNum::setTo(StringPiece str, UErrorCode & status) 
+{
 	// We need NUL-terminated for decNumber; CharString guarantees this, but not StringPiece.
 	CharString cstr(str, status);
-	if(U_FAILURE(status)) {
-		return;
-	}
-	_setTo(cstr.data(), str.length(), status);
+	if(U_SUCCESS(status))
+		_setTo(cstr.data(), str.length(), status);
 }
 
-void DecNum::setTo(const char * str, UErrorCode & status) {
+void DecNum::setTo(const char * str, UErrorCode & status) 
+{
 	_setTo(str, static_cast<int32_t>(strlen(str)), status);
 }
 
@@ -130,26 +127,17 @@ void DecNum::setTo(double d, UErrorCode & status) {
 	bool sign; // unused; always positive
 	int32_t length;
 	int32_t point;
-	DoubleToStringConverter::DoubleToAscii(
-		d,
-		DoubleToStringConverter::DtoaMode::SHORTEST,
-		0,
-		buffer,
-		sizeof(buffer),
-		&sign,
-		&length,
-		&point
-		);
-
+	DoubleToStringConverter::DoubleToAscii(d, DoubleToStringConverter::DtoaMode::SHORTEST, 0,
+		buffer, sizeof(buffer), &sign, &length, &point);
 	// Read initial result as a string.
 	_setTo(buffer, length, status);
-
 	// Set exponent and bitmask. Note that DoubleToStringConverter does not do negatives.
 	fData.getAlias()->exponent += point - length;
 	fData.getAlias()->bits |= static_cast<uint8>(std::signbit(d) ? DECNEG : 0);
 }
 
-void DecNum::_setTo(const char * str, int32_t maxDigits, UErrorCode & status) {
+void DecNum::_setTo(const char * str, int32_t maxDigits, UErrorCode & status) 
+{
 	if(maxDigits > kDefaultDigits) {
 		fData.resize(maxDigits, 0);
 		fContext.digits = maxDigits;
@@ -157,7 +145,6 @@ void DecNum::_setTo(const char * str, int32_t maxDigits, UErrorCode & status) {
 	else {
 		fContext.digits = kDefaultDigits;
 	}
-
 	static_assert(DECDPUN == 1, "Assumes that DECDPUN is set to 1");
 	uprv_decNumberFromString(fData.getAlias(), str, &fContext);
 

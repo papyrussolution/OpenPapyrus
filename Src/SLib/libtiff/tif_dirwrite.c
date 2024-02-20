@@ -1779,7 +1779,6 @@ static int TIFFWriteDirectoryTagCheckedSshortArray(TIFF * tif, uint32 * ndir, TI
 
 static int TIFFWriteDirectoryTagCheckedLong(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 value)
 {
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
 	uint32 m = value;
 	if(tif->tif_flags&TIFF_SWAB)
 		TIFFSwabLong(&m);
@@ -1789,7 +1788,6 @@ static int TIFFWriteDirectoryTagCheckedLong(TIFF * tif, uint32 * ndir, TIFFDirEn
 static int TIFFWriteDirectoryTagCheckedLongArray(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint32 * value)
 {
 	assert(count<0x40000000);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
 	if(tif->tif_flags&TIFF_SWAB)
 		TIFFSwabArrayOfLong(value, count);
 	return (TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_LONG, count, count*4, value));
@@ -1863,7 +1861,6 @@ static int TIFFWriteDirectoryTagCheckedSlong8(TIFF * tif, uint32 * ndir, TIFFDir
 static int TIFFWriteDirectoryTagCheckedSlong8Array(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, int64* value)
 {
 	assert(count<0x20000000);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int64)==8);
 	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "SLONG8 not allowed for ClassicTIFF");
 		return 0;

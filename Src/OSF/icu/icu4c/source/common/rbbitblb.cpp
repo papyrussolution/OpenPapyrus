@@ -1129,16 +1129,15 @@ bool RBBITableBuilder::findDuplicateSafeState(IntPair * states) {
 	return false;
 }
 
-void RBBITableBuilder::removeState(IntPair duplStates) {
+void RBBITableBuilder::removeState(IntPair duplStates) 
+{
 	const int32_t keepState = duplStates.first;
 	const int32_t duplState = duplStates.second;
 	U_ASSERT(keepState < duplState);
 	U_ASSERT(duplState < fDStates->size());
-
 	RBBIStateDescriptor * duplSD = (RBBIStateDescriptor*)fDStates->elementAt(duplState);
 	fDStates->removeElementAt(duplState);
 	delete duplSD;
-
 	int32_t numStates = fDStates->size();
 	int32_t numCols = fRB->fSetBuilder->getNumCharCategories();
 	for(int32_t state = 0; state<numStates; ++state) {
@@ -1157,7 +1156,8 @@ void RBBITableBuilder::removeState(IntPair duplStates) {
 	}
 }
 
-void RBBITableBuilder::removeSafeState(IntPair duplStates) {
+void RBBITableBuilder::removeSafeState(IntPair duplStates) 
+{
 	const int32_t keepState = duplStates.first;
 	const int32_t duplState = duplStates.second;
 	U_ASSERT(keepState < duplState);

@@ -4455,17 +4455,13 @@ static int TIFFFetchSubjectDistance(TIFF * tif, TIFFDirEntry* dir)
 	enum TIFFReadDirEntryErr err;
 	UInt64Aligned_t m;
 	m.l = 0;
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(double)==8);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
 	if(dir->tdir_count!=1)
 		err = TIFFReadDirEntryErrCount;
 	else if(dir->tdir_type!=TIFF_RATIONAL)
 		err = TIFFReadDirEntryErrType;
 	else {
 		if(!(tif->tif_flags&TIFF_BIGTIFF)) {
-			uint32 offset;
-			offset = *(uint32 *)(&dir->tdir_offset);
+			uint32 offset = *(uint32 *)(&dir->tdir_offset);
 			if(tif->tif_flags&TIFF_SWAB)
 				TIFFSwabLong(&offset);
 			err = TIFFReadDirEntryData(tif, offset, 8, m.i);

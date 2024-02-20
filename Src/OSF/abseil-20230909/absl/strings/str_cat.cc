@@ -15,12 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/str_cat.h"
-//#include <assert.h>
-//#include <cstddef>
-//#include <cstdint>
-//#include <cstring>
-//#include <initializer_list>
-//#include <string>
 #include "absl/base/config.h"
 #include "absl/strings/internal/resize_uninitialized.h"
 #include "absl/strings/string_view.h"
@@ -121,9 +115,7 @@ std::string CatPieces(std::initializer_list<absl::string_view> pieces) {
 // random. Therefore, check for this in debug mode.  Use unsigned math so we
 // only have to do one comparison. Note, there's an exception case: appending an
 // empty string is always allowed.
-#define ASSERT_NO_OVERLAP(dest, src) \
-	assert(((src).size() == 0) ||      \
-	    (uintptr_t((src).data() - (dest).data()) > uintptr_t((dest).size())))
+#define ASSERT_NO_OVERLAP(dest, src) assert(((src).size() == 0) || (uintptr_t((src).data() - (dest).data()) > uintptr_t((dest).size())))
 
 void AppendPieces(std::string* dest,
     std::initializer_list<absl::string_view> pieces) {

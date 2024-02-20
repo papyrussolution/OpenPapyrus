@@ -30,7 +30,6 @@
 #endif
 
 #include <ma_config.h>
-//#include <assert.h>
 #ifndef __GNUC__
 	#define __attribute(A)
 #endif
@@ -151,8 +150,6 @@
 	#define CONFIG_SMP
 	#include <asm/atomic.h>
 #endif
-//#include <errno.h>				/* Recommended by debian */
-//#include <assert.h>
 /* Go around some bugs in different OS and compilers */
 #if defined(_HPUX_SOURCE) && defined(HAVE_SYS_STREAM_H)
 	#include <sys/stream.h>		/* HPUX 10.20 defines ulong here. UGLY !!! */

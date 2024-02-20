@@ -262,20 +262,13 @@ void UnicodeSet::applyPattern(RuleCharacterIterator& chars,
 	char16_t op = 0;
 
 	bool invert = FALSE;
-
 	clear();
-
 	while(mode != 2 && !chars.atEnd()) {
-		U_ASSERT((lastItem == 0 && op == 0) ||
-		    (lastItem == 1 && (op == 0 || op == u'-')) ||
-		    (lastItem == 2 && (op == 0 || op == u'-' || op == u'&')));
-
+		U_ASSERT((lastItem == 0 && op == 0) || (lastItem == 1 && (op == 0 || op == u'-')) || (lastItem == 2 && (op == 0 || op == u'-' || op == u'&')));
 		UChar32 c = 0;
 		bool literal = FALSE;
 		UnicodeSet* nested = 0; // alias - do not delete
-
 		// -------- Check for property pattern
-
 		// setMode: 0=none, 1=unicodeset, 2=propertypat, 3=preparsed
 		int8 setMode = 0;
 		if(resemblesPropertyPattern(chars, opts)) {

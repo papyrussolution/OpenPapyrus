@@ -16,16 +16,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/flags/internal/flag.h"
-//#include <assert.h>
-//#include <stddef.h>
-//#include <stdint.h>
-//#include <string.h>
-//#include <array>
-//#include <atomic>
-//#include <memory>
-//#include <new>
-//#include <string>
-//#include <typeinfo>
 #include "absl/base/call_once.h"
 #include "absl/base/casts.h"
 #include "absl/base/config.h"

@@ -15,17 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/internal/str_format/parser.h"
-//#include <assert.h>
-//#include <string.h>
-//#include <wchar.h>
-//#include <cctype>
-//#include <cstdint>
-//#include <algorithm>
-//#include <initializer_list>
-//#include <limits>
-//#include <ostream>
-//#include <string>
-//#include <unordered_set>
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

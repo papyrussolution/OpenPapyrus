@@ -268,20 +268,16 @@ UCollationResult CollationCompare::compareUpToQuaternary(CollationIterator &left
 		do {
 			leftLower32 = (uint32_t)left.getCE(leftIndex++);
 			anyQuaternaries |= leftLower32;
-			U_ASSERT((leftLower32 & Collation::ONLY_TERTIARY_MASK) != 0 ||
-			    (leftLower32 & 0xc0c0) == 0);
+			U_ASSERT((leftLower32 & Collation::ONLY_TERTIARY_MASK) != 0 || (leftLower32 & 0xc0c0) == 0);
 			leftTertiary = leftLower32 & tertiaryMask;
 		} while(leftTertiary == 0);
-
 		uint32_t rightLower32, rightTertiary;
 		do {
 			rightLower32 = (uint32_t)right.getCE(rightIndex++);
 			anyQuaternaries |= rightLower32;
-			U_ASSERT((rightLower32 & Collation::ONLY_TERTIARY_MASK) != 0 ||
-			    (rightLower32 & 0xc0c0) == 0);
+			U_ASSERT((rightLower32 & Collation::ONLY_TERTIARY_MASK) != 0 || (rightLower32 & 0xc0c0) == 0);
 			rightTertiary = rightLower32 & tertiaryMask;
 		} while(rightTertiary == 0);
-
 		if(leftTertiary != rightTertiary) {
 			if(CollationSettings::sortsTertiaryUpperCaseFirst(options)) {
 				// Pass through NO_CE and keep real tertiary weights larger than that.

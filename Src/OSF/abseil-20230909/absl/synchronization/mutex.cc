@@ -26,18 +26,6 @@
 	#include <sched.h>
 	#include <sys/time.h>
 #endif
-//#include <assert.h>
-//#include <errno.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <time.h>
-//#include <algorithm>
-//#include <atomic>
-//#include <cstddef>
-//#include <cstdlib>
-//#include <cstring>
-//#include <thread>  // NOLINT(build/c++11)
 #include "absl/base/attributes.h"
 #include "absl/base/call_once.h"
 #include "absl/base/config.h"

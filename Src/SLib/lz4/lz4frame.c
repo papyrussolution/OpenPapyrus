@@ -54,13 +54,13 @@ You can contact the author at :
 // 
 // Debug
 // 
-#if defined(LZ4_DEBUG) && (LZ4_DEBUG>=1)
+//#if defined(LZ4_DEBUG) && (LZ4_DEBUG>=1)
 	//#include <assert.h>
-#else
-	#ifndef assert
-		#define assert(condition) ((void)0)
-	#endif
-#endif
+//#else
+	//#ifndef assert
+		//#define assert(condition) ((void)0)
+	//#endif
+//#endif
 #define LZ4F_STATIC_ASSERT(c)    { enum { LZ4F_static_assert = 1/(int)(!!(c)) }; }   /* use only *after* variable declarations */
 
 #if defined(LZ4_DEBUG) && (LZ4_DEBUG>=2) && !defined(DEBUGLOG)
