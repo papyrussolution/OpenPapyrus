@@ -55,9 +55,7 @@ CURLcode Curl_getworkingpath(struct Curl_easy * data, char * homedir/* when SFTP
 			return CURLE_OUT_OF_MEMORY;
 		}
 	}
-	else if((data->conn->handler->protocol & CURLPROTO_SFTP) &&
-	    (!strcmp("/~", working_path) ||
-	    ((working_path_len > 2) && !memcmp(working_path, "/~/", 3)))) {
+	else if((data->conn->handler->protocol & CURLPROTO_SFTP) && (sstreq("/~", working_path) || ((working_path_len > 2) && !memcmp(working_path, "/~/", 3)))) {
 		if(Curl_dyn_add(&npath, homedir)) {
 			SAlloc::F(working_path);
 			return CURLE_OUT_OF_MEMORY;
@@ -118,7 +116,7 @@ CURLcode Curl_get_pathname(const char ** cpp, char ** path, char * homedir)
 	bool relativePath = false;
 	static const char WHITESPACE[] = " \t\r\n";
 
-	DEBUGASSERT(homedir);
+	assert(homedir);
 	if(!*cp || !homedir) {
 		*cpp = NULL;
 		*path = NULL;

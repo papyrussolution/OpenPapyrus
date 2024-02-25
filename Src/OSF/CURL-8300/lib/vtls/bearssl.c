@@ -125,7 +125,7 @@ static CURLcode load_cafile(struct cafile_source * source,
 	const char * name;
 	size_t n, i, pushed;
 
-	DEBUGASSERT(source->type == CAFILE_SOURCE_PATH
+	assert(source->type == CAFILE_SOURCE_PATH
 	    || source->type == CAFILE_SOURCE_BLOB);
 
 	if(source->type == CAFILE_SOURCE_PATH) {
@@ -533,12 +533,12 @@ static CURLcode bearssl_set_selected_ciphers(struct Curl_easy * data,
 		   name starts with "TLS_" we do the lookup by IANA name. Otherwise, we try
 		   to match cipher name by an (OpenSSL) alias. */
 		if(strncasecompare(cipher_name, "TLS_", 4)) {
-			for(i = 0; i < NUM_OF_CIPHERS &&
-			    !strcasecompare(cipher_name, ciphertable[i].name); ++i);
+			for(i = 0; i < NUM_OF_CIPHERS && !sstreqi_ascii(cipher_name, ciphertable[i].name); ++i)
+				;
 		}
 		else {
-			for(i = 0; i < NUM_OF_CIPHERS &&
-			    !strcasecompare(cipher_name, ciphertable[i].alias_name); ++i);
+			for(i = 0; i < NUM_OF_CIPHERS && !sstreqi_ascii(cipher_name, ciphertable[i].alias_name); ++i)
+				;
 		}
 		if(i == NUM_OF_CIPHERS) {
 			infof(data, "BearSSL: unknown cipher in list: %s", cipher_name);
@@ -553,7 +553,7 @@ static CURLcode bearssl_set_selected_ciphers(struct Curl_easy * data,
 			continue;
 		}
 
-		DEBUGASSERT(selected_count < NUM_OF_CIPHERS);
+		assert(selected_count < NUM_OF_CIPHERS);
 		selected_ciphers[selected_count] = ciphertable[i].num;
 		++selected_count;
 	}
@@ -591,7 +591,7 @@ static CURLcode bearssl_connect_step1(struct Curl_cfilter * cf,
 	struct in_addr addr;
 #endif
 
-	DEBUGASSERT(backend);
+	assert(backend);
 	CURL_TRC_CF(data, cf, "connect_step1");
 
 	switch(conn_config->version) {
@@ -782,7 +782,7 @@ static CURLcode bearssl_run_until(struct Curl_cfilter * cf,
 	CURLcode result;
 	int err;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	for(;;) {
 		state = br_ssl_engine_current_state(&backend->ctx.eng);
@@ -849,7 +849,7 @@ static CURLcode bearssl_connect_step2(struct Curl_cfilter * cf,
 	    (struct bearssl_ssl_backend_data *)connssl->backend;
 	CURLcode ret;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 	CURL_TRC_CF(data, cf, "connect_step2");
 
 	ret = bearssl_run_until(cf, data, BR_SSL_SENDAPP | BR_SSL_RECVAPP);
@@ -883,8 +883,8 @@ static CURLcode bearssl_connect_step3(struct Curl_cfilter * cf,
 	struct ssl_config_data * ssl_config = Curl_ssl_cf_get_config(cf, data);
 	CURLcode ret;
 
-	DEBUGASSERT(ssl_connect_3 == connssl->connecting_state);
-	DEBUGASSERT(backend);
+	assert(ssl_connect_3 == connssl->connecting_state);
+	assert(backend);
 	CURL_TRC_CF(data, cf, "connect_step3");
 
 	if(connssl->alpn) {
@@ -932,7 +932,7 @@ static ssize_t bearssl_send(struct Curl_cfilter * cf, struct Curl_easy * data,
 	uchar * app;
 	size_t applen;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	for(;;) {
 		*err = bearssl_run_until(cf, data, BR_SSL_SENDAPP);
@@ -967,7 +967,7 @@ static ssize_t bearssl_recv(struct Curl_cfilter * cf, struct Curl_easy * data,
 	uchar * app;
 	size_t applen;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	*err = bearssl_run_until(cf, data, BR_SSL_RECVAPP);
 	if(*err != CURLE_OK)
@@ -1096,7 +1096,7 @@ static bool bearssl_data_pending(struct Curl_cfilter * cf,
 	struct bearssl_ssl_backend_data * backend;
 
 	(void)data;
-	DEBUGASSERT(ctx && ctx->backend);
+	assert(ctx && ctx->backend);
 	backend = (struct bearssl_ssl_backend_data *)ctx->backend;
 	return br_ssl_engine_current_state(&backend->ctx.eng) & BR_SSL_RECVAPP;
 }
@@ -1131,7 +1131,7 @@ static CURLcode bearssl_connect(struct Curl_cfilter * cf,
 	if(ret)
 		return ret;
 
-	DEBUGASSERT(done);
+	assert(done);
 
 	return CURLE_OK;
 }
@@ -1148,7 +1148,7 @@ static void *bearssl_get_internals(struct ssl_connect_data * connssl,
 {
 	struct bearssl_ssl_backend_data * backend =
 	    (struct bearssl_ssl_backend_data *)connssl->backend;
-	DEBUGASSERT(backend);
+	assert(backend);
 	return &backend->ctx;
 }
 
@@ -1159,7 +1159,7 @@ static void bearssl_close(struct Curl_cfilter * cf, struct Curl_easy * data)
 	    (struct bearssl_ssl_backend_data *)connssl->backend;
 	size_t i;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	if(backend->active) {
 		backend->active = FALSE;

@@ -280,20 +280,13 @@ static bool imap_endofresp(struct Curl_easy * data, struct connectdata * conn,
 			    if(!imap_matchresp(line, len, "CAPABILITY"))
 				    return FALSE;
 			    break;
-
 			case IMAP_LIST:
-			    if((!imap->custom && !imap_matchresp(line, len, "LIST")) ||
-				(imap->custom && !imap_matchresp(line, len, imap->custom) &&
-				(!strcasecompare(imap->custom, "STORE") ||
-				!imap_matchresp(line, len, "FETCH")) &&
-				!strcasecompare(imap->custom, "SELECT") &&
-				!strcasecompare(imap->custom, "EXAMINE") &&
-				!strcasecompare(imap->custom, "SEARCH") &&
-				!strcasecompare(imap->custom, "EXPUNGE") &&
-				!strcasecompare(imap->custom, "LSUB") &&
-				!strcasecompare(imap->custom, "UID") &&
-				!strcasecompare(imap->custom, "GETQUOTAROOT") &&
-				!strcasecompare(imap->custom, "NOOP")))
+			    if((!imap->custom && !imap_matchresp(line, len, "LIST")) || (imap->custom && !imap_matchresp(line, len, imap->custom) &&
+				(!sstreqi_ascii(imap->custom, "STORE") || !imap_matchresp(line, len, "FETCH")) &&
+				!sstreqi_ascii(imap->custom, "SELECT") && !sstreqi_ascii(imap->custom, "EXAMINE") &&
+				!sstreqi_ascii(imap->custom, "SEARCH") && !sstreqi_ascii(imap->custom, "EXPUNGE") &&
+				!sstreqi_ascii(imap->custom, "LSUB") && !sstreqi_ascii(imap->custom, "UID") &&
+				!sstreqi_ascii(imap->custom, "GETQUOTAROOT") && !sstreqi_ascii(imap->custom, "NOOP")))
 				    return FALSE;
 			    break;
 
@@ -301,12 +294,10 @@ static bool imap_endofresp(struct Curl_easy * data, struct connectdata * conn,
 			    /* SELECT is special in that its untagged responses do not have a
 			       common prefix so accept anything! */
 			    break;
-
 			case IMAP_FETCH:
 			    if(!imap_matchresp(line, len, "FETCH"))
 				    return FALSE;
 			    break;
-
 			case IMAP_SEARCH:
 			    if(!imap_matchresp(line, len, "SEARCH"))
 				    return FALSE;
@@ -1107,13 +1098,13 @@ static CURLcode imap_state_select_resp(struct Curl_easy * data, int imapcode,
 	else if(imapcode == IMAP_RESP_OK) {
 		/* Check if the UIDVALIDITY has been specified and matches */
 		if(imap->uidvalidity && imapc->mailbox_uidvalidity &&
-		    !strcasecompare(imap->uidvalidity, imapc->mailbox_uidvalidity)) {
+		    !sstreqi_ascii(imap->uidvalidity, imapc->mailbox_uidvalidity)) {
 			failf(data, "Mailbox UIDVALIDITY has changed");
 			result = CURLE_REMOTE_FILE_NOT_FOUND;
 		}
 		else {
 			/* Note the currently opened mailbox on this connection */
-			DEBUGASSERT(!imapc->mailbox);
+			assert(!imapc->mailbox);
 			imapc->mailbox = strdup(imap->mailbox);
 			if(!imapc->mailbox)
 				return CURLE_OUT_OF_MEMORY;
@@ -1577,9 +1568,9 @@ static CURLcode imap_perform(struct Curl_easy * data, bool * connected,
 	/* Determine if the requested mailbox (with the same UIDVALIDITY if set)
 	   has already been selected on this connection */
 	if(imap->mailbox && imapc->mailbox &&
-	    strcasecompare(imap->mailbox, imapc->mailbox) &&
+	    sstreqi_ascii(imap->mailbox, imapc->mailbox) &&
 	    (!imap->uidvalidity || !imapc->mailbox_uidvalidity ||
-	    strcasecompare(imap->uidvalidity, imapc->mailbox_uidvalidity)))
+	    sstreqi_ascii(imap->uidvalidity, imapc->mailbox_uidvalidity)))
 		selected = TRUE;
 
 	/* Start the first command in the DO phase */
@@ -1775,7 +1766,7 @@ static CURLcode imap_sendf(struct Curl_easy * data, const char * fmt, ...)
 	CURLcode result = CURLE_OK;
 	struct imap_conn * imapc = &data->conn->proto.imapc;
 
-	DEBUGASSERT(fmt);
+	assert(fmt);
 
 	/* Calculate the tag based on the connection ID and command ID */
 	msnprintf(imapc->resptag, sizeof(imapc->resptag), "%c%03d",
@@ -2009,35 +2000,35 @@ static CURLcode imap_parse_url_path(struct Curl_easy * data)
 		   PARTIAL) stripping of the trailing slash character if it is present.
 
 		   Note: Unknown parameters trigger a URL_MALFORMAT error. */
-		if(strcasecompare(name, "UIDVALIDITY") && !imap->uidvalidity) {
+		if(sstreqi_ascii(name, "UIDVALIDITY") && !imap->uidvalidity) {
 			if(valuelen > 0 && value[valuelen - 1] == '/')
 				value[valuelen - 1] = '\0';
 
 			imap->uidvalidity = value;
 			value = NULL;
 		}
-		else if(strcasecompare(name, "UID") && !imap->uid) {
+		else if(sstreqi_ascii(name, "UID") && !imap->uid) {
 			if(valuelen > 0 && value[valuelen - 1] == '/')
 				value[valuelen - 1] = '\0';
 
 			imap->uid = value;
 			value = NULL;
 		}
-		else if(strcasecompare(name, "MAILINDEX") && !imap->mindex) {
+		else if(sstreqi_ascii(name, "MAILINDEX") && !imap->mindex) {
 			if(valuelen > 0 && value[valuelen - 1] == '/')
 				value[valuelen - 1] = '\0';
 
 			imap->mindex = value;
 			value = NULL;
 		}
-		else if(strcasecompare(name, "SECTION") && !imap->section) {
+		else if(sstreqi_ascii(name, "SECTION") && !imap->section) {
 			if(valuelen > 0 && value[valuelen - 1] == '/')
 				value[valuelen - 1] = '\0';
 
 			imap->section = value;
 			value = NULL;
 		}
-		else if(strcasecompare(name, "PARTIAL") && !imap->partial) {
+		else if(sstreqi_ascii(name, "PARTIAL") && !imap->partial) {
 			if(valuelen > 0 && value[valuelen - 1] == '/')
 				value[valuelen - 1] = '\0';
 

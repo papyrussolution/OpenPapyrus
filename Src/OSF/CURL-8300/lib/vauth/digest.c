@@ -227,11 +227,11 @@ static CURLcode auth_digest_get_qop_values(const char * options, int * value)
 
 	token = strtok_r(tmp, ",", &tok_buf);
 	while(token) {
-		if(strcasecompare(token, DIGEST_QOP_VALUE_STRING_AUTH))
+		if(sstreqi_ascii(token, DIGEST_QOP_VALUE_STRING_AUTH))
 			*value |= DIGEST_QOP_VALUE_AUTH;
-		else if(strcasecompare(token, DIGEST_QOP_VALUE_STRING_AUTH_INT))
+		else if(sstreqi_ascii(token, DIGEST_QOP_VALUE_STRING_AUTH_INT))
 			*value |= DIGEST_QOP_VALUE_AUTH_INT;
-		else if(strcasecompare(token, DIGEST_QOP_VALUE_STRING_AUTH_CONF))
+		else if(sstreqi_ascii(token, DIGEST_QOP_VALUE_STRING_AUTH_CONF))
 			*value |= DIGEST_QOP_VALUE_AUTH_CONF;
 
 		token = strtok_r(NULL, ",", &tok_buf);
@@ -519,31 +519,31 @@ CURLcode Curl_auth_decode_digest_http_message(const char * chlg,
 
 		/* Extract a value=content pair */
 		if(Curl_auth_digest_get_pair(chlg, value, content, &chlg)) {
-			if(strcasecompare(value, "nonce")) {
+			if(sstreqi_ascii(value, "nonce")) {
 				SAlloc::F(digest->nonce);
 				digest->nonce = strdup(content);
 				if(!digest->nonce)
 					return CURLE_OUT_OF_MEMORY;
 			}
-			else if(strcasecompare(value, "stale")) {
-				if(strcasecompare(content, "true")) {
+			else if(sstreqi_ascii(value, "stale")) {
+				if(sstreqi_ascii(content, "true")) {
 					digest->stale = TRUE;
 					digest->nc = 1; /* we make a new nonce now */
 				}
 			}
-			else if(strcasecompare(value, "realm")) {
+			else if(sstreqi_ascii(value, "realm")) {
 				SAlloc::F(digest->realm);
 				digest->realm = strdup(content);
 				if(!digest->realm)
 					return CURLE_OUT_OF_MEMORY;
 			}
-			else if(strcasecompare(value, "opaque")) {
+			else if(sstreqi_ascii(value, "opaque")) {
 				SAlloc::F(digest->opaque);
 				digest->opaque = strdup(content);
 				if(!digest->opaque)
 					return CURLE_OUT_OF_MEMORY;
 			}
-			else if(strcasecompare(value, "qop")) {
+			else if(sstreqi_ascii(value, "qop")) {
 				char * tok_buf = NULL;
 				/* Tokenize the list and choose auth if possible, use a temporary
 				   clone of the buffer since strtok_r() ruins it */
@@ -556,10 +556,10 @@ CURLcode Curl_auth_decode_digest_http_message(const char * chlg,
 					/* Pass additional spaces here */
 					while(*token && ISBLANK(*token))
 						token++;
-					if(strcasecompare(token, DIGEST_QOP_VALUE_STRING_AUTH)) {
+					if(sstreqi_ascii(token, DIGEST_QOP_VALUE_STRING_AUTH)) {
 						foundAuth = TRUE;
 					}
-					else if(strcasecompare(token, DIGEST_QOP_VALUE_STRING_AUTH_INT)) {
+					else if(sstreqi_ascii(token, DIGEST_QOP_VALUE_STRING_AUTH_INT)) {
 						foundAuthInt = TRUE;
 					}
 					token = strtok_r(NULL, ",", &tok_buf);
@@ -581,29 +581,29 @@ CURLcode Curl_auth_decode_digest_http_message(const char * chlg,
 						return CURLE_OUT_OF_MEMORY;
 				}
 			}
-			else if(strcasecompare(value, "algorithm")) {
+			else if(sstreqi_ascii(value, "algorithm")) {
 				SAlloc::F(digest->algorithm);
 				digest->algorithm = strdup(content);
 				if(!digest->algorithm)
 					return CURLE_OUT_OF_MEMORY;
 
-				if(strcasecompare(content, "MD5-sess"))
+				if(sstreqi_ascii(content, "MD5-sess"))
 					digest->algo = ALGO_MD5SESS;
-				else if(strcasecompare(content, "MD5"))
+				else if(sstreqi_ascii(content, "MD5"))
 					digest->algo = ALGO_MD5;
-				else if(strcasecompare(content, "SHA-256"))
+				else if(sstreqi_ascii(content, "SHA-256"))
 					digest->algo = ALGO_SHA256;
-				else if(strcasecompare(content, "SHA-256-SESS"))
+				else if(sstreqi_ascii(content, "SHA-256-SESS"))
 					digest->algo = ALGO_SHA256SESS;
-				else if(strcasecompare(content, "SHA-512-256"))
+				else if(sstreqi_ascii(content, "SHA-512-256"))
 					digest->algo = ALGO_SHA512_256;
-				else if(strcasecompare(content, "SHA-512-256-SESS"))
+				else if(sstreqi_ascii(content, "SHA-512-256-SESS"))
 					digest->algo = ALGO_SHA512_256SESS;
 				else
 					return CURLE_BAD_CONTENT_ENCODING;
 			}
-			else if(strcasecompare(value, "userhash")) {
-				if(strcasecompare(content, "true")) {
+			else if(sstreqi_ascii(value, "userhash")) {
+				if(sstreqi_ascii(content, "true")) {
 					digest->userhash = TRUE;
 				}
 			}
@@ -759,7 +759,7 @@ static CURLcode auth_create_digest_http_message(struct Curl_easy * data,
 	if(!hashthis)
 		return CURLE_OUT_OF_MEMORY;
 
-	if(digest->qop && strcasecompare(digest->qop, "auth-int")) {
+	if(digest->qop && sstreqi_ascii(digest->qop, "auth-int")) {
 		/* We don't support auth-int for PUT or POST */
 		char hashed[65];
 		char * hashthis2;
@@ -943,7 +943,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 			   outptr, outlen,
 			   auth_digest_md5_to_ascii,
 			   Curl_md5it);
-	DEBUGASSERT(digest->algo <= ALGO_SHA512_256SESS);
+	assert(digest->algo <= ALGO_SHA512_256SESS);
 	return auth_create_digest_http_message(data, userp, passwdp,
 		   request, uripath, digest,
 		   outptr, outlen,

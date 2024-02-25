@@ -386,7 +386,7 @@ static CURLcode ldap_do(struct Curl_easy * data, bool * done)
 			/* Novell SDK supports DER or BASE64 files. */
 			int cert_type = LDAPSSL_CERT_FILETYPE_B64;
 			if((data->set.ssl.cert_type) &&
-			    (strcasecompare(data->set.ssl.cert_type, "DER")))
+			    (sstreqi_ascii(data->set.ssl.cert_type, "DER")))
 				cert_type = LDAPSSL_CERT_FILETYPE_DER;
 			if(!ldap_ca) {
 				failf(data, "LDAP local: ERROR %s CA cert not set",
@@ -426,8 +426,7 @@ static CURLcode ldap_do(struct Curl_easy * data, bool * done)
 #elif defined(LDAP_OPT_X_TLS)
 		if(conn->ssl_config.verifypeer) {
 			/* OpenLDAP SDK supports BASE64 files. */
-			if((data->set.ssl.cert_type) &&
-			    (!strcasecompare(data->set.ssl.cert_type, "PEM"))) {
+			if((data->set.ssl.cert_type) && (!sstreqi_ascii(data->set.ssl.cert_type, "PEM"))) {
 				failf(data, "LDAP local: ERROR OpenLDAP only supports PEM cert-type");
 				result = CURLE_SSL_CERTPROBLEM;
 				goto quit;
@@ -440,8 +439,7 @@ static CURLcode ldap_do(struct Curl_easy * data, bool * done)
 			infof(data, "LDAP local: using PEM CA cert: %s", ldap_ca);
 			rc = ldap_set_option(NULL, LDAP_OPT_X_TLS_CACERTFILE, ldap_ca);
 			if(rc != LDAP_SUCCESS) {
-				failf(data, "LDAP local: ERROR setting PEM CA cert: %s",
-				    ldap_err2string(rc));
+				failf(data, "LDAP local: ERROR setting PEM CA cert: %s", ldap_err2string(rc));
 				result = CURLE_SSL_CERTPROBLEM;
 				goto quit;
 			}
@@ -659,24 +657,19 @@ static CURLcode ldap_do(struct Curl_easy * data, bool * done)
 
 					dlsize += attr_len + 3;
 
-					if((attr_len > 7) &&
-					    (strcmp(";binary", attr + (attr_len - 7)) == 0)) {
+					if((attr_len > 7) && (strcmp(";binary", attr + (attr_len - 7)) == 0)) {
 						/* Binary attribute, encode to base64. */
-						result = Curl_base64_encode(vals[i]->bv_val, vals[i]->bv_len,
-							&val_b64, &val_b64_sz);
+						result = Curl_base64_encode(vals[i]->bv_val, vals[i]->bv_len, &val_b64, &val_b64_sz);
 						if(result) {
 							ldap_value_free_len(vals);
 							FREE_ON_WINLDAP(attr);
 							ldap_memfree(attribute);
 							if(ber)
 								ber_free(ber, 0);
-
 							goto quit;
 						}
-
 						if(val_b64_sz > 0) {
-							result = Curl_client_write(data, CLIENTWRITE_BODY, val_b64,
-								val_b64_sz);
+							result = Curl_client_write(data, CLIENTWRITE_BODY, val_b64, val_b64_sz);
 							SAlloc::F(val_b64);
 							if(result) {
 								ldap_value_free_len(vals);
@@ -792,15 +785,15 @@ static void _ldap_trace(const char * fmt, ...)
  */
 static int str2scope(const char * p)
 {
-	if(strcasecompare(p, "one"))
+	if(sstreqi_ascii(p, "one"))
 		return LDAP_SCOPE_ONELEVEL;
-	if(strcasecompare(p, "onetree"))
+	if(sstreqi_ascii(p, "onetree"))
 		return LDAP_SCOPE_ONELEVEL;
-	if(strcasecompare(p, "base"))
+	if(sstreqi_ascii(p, "base"))
 		return LDAP_SCOPE_BASE;
-	if(strcasecompare(p, "sub"))
+	if(sstreqi_ascii(p, "sub"))
 		return LDAP_SCOPE_SUBTREE;
-	if(strcasecompare(p, "subtree"))
+	if(sstreqi_ascii(p, "subtree"))
 		return LDAP_SCOPE_SUBTREE;
 	return (-1);
 }

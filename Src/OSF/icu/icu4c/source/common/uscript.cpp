@@ -105,12 +105,10 @@ U_CAPI int32_t U_EXPORT2 uscript_getCode(const char * nameOrAbbrOrLocale,
 	if(U_FAILURE(*err)) {
 		return 0;
 	}
-	if(nameOrAbbrOrLocale==NULL ||
-	    (fillIn == NULL ? capacity != 0 : capacity < 0)) {
+	if(nameOrAbbrOrLocale==NULL || (fillIn == NULL ? capacity != 0 : capacity < 0)) {
 		*err = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	triedCode = FALSE;
 	if(uprv_strchr(nameOrAbbrOrLocale, '-')==NULL && uprv_strchr(nameOrAbbrOrLocale, '_')==NULL) {
 		/* try long and abbreviated script names first */

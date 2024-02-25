@@ -284,7 +284,7 @@ struct stsentry *Curl_hsts(struct hsts * h, const char * hostname, bool subdomai
 						return sts;
 				}
 			}
-			if(strcasecompare(hostname, sts->host))
+			if(sstreqi_ascii(hostname, sts->host))
 				return sts;
 		}
 	}
@@ -459,7 +459,7 @@ static CURLcode hsts_pull(struct Curl_easy * data, struct hsts * h)
 	/* if the HSTS read callback is set, use it */
 	if(data->set.hsts_read) {
 		CURLSTScode sc;
-		DEBUGASSERT(h);
+		assert(h);
 		do {
 			char buffer[MAX_HSTS_HOSTLEN + 1];
 			struct curl_hstsentry e;
@@ -546,7 +546,7 @@ fail:
 CURLcode Curl_hsts_loadfile(struct Curl_easy * data,
     struct hsts * h, const char * file)
 {
-	DEBUGASSERT(h);
+	assert(h);
 	(void)data;
 	return hsts_load(h, file);
 }

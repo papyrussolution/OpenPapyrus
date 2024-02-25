@@ -837,7 +837,7 @@ CURLcode Curl_getformdata(struct Curl_easy * data,
 					clen = post->contentlen;
 
 				if(post->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE)) {
-					if(!strcmp(file->contents, "-")) {
+					if(sstreq(file->contents, "-")) {
 						/* There are a few cases where the code below won't work; in
 						   particular, freopen(stdin) by the caller is not guaranteed
 						   to result as expected. This feature has been kept for backward

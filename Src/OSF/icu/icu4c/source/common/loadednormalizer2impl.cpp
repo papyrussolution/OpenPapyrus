@@ -245,10 +245,8 @@ const Normalizer2 * Normalizer2::getNFKCCasefoldInstance(UErrorCode & errorCode)
 	return allModes ? &allModes->comp : NULL;
 }
 
-const Normalizer2 * Normalizer2::getInstance(const char * packageName,
-    const char * name,
-    UNormalization2Mode mode,
-    UErrorCode & errorCode) {
+const Normalizer2 * Normalizer2::getInstance(const char * packageName, const char * name, UNormalization2Mode mode, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return NULL;
 	}
@@ -258,13 +256,13 @@ const Normalizer2 * Normalizer2::getInstance(const char * packageName,
 	}
 	const Norm2AllModes * allModes = NULL;
 	if(packageName==NULL) {
-		if(0==strcmp(name, "nfc")) {
+		if(sstreq(name, "nfc")) {
 			allModes = Norm2AllModes::getNFCInstance(errorCode);
 		}
-		else if(0==strcmp(name, "nfkc")) {
+		else if(sstreq(name, "nfkc")) {
 			allModes = Norm2AllModes::getNFKCInstance(errorCode);
 		}
-		else if(0==strcmp(name, "nfkc_cf")) {
+		else if(sstreq(name, "nfkc_cf")) {
 			allModes = Norm2AllModes::getNFKC_CFInstance(errorCode);
 		}
 	}

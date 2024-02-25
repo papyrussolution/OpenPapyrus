@@ -101,18 +101,17 @@ int main(int argc, char ** argv) {
 	}
 	LIBXML_TEST_VERSION
 	for(i = 1; i < argc; i++) {
-		if((!strcmp(argv[i], "-debug")) || (!strcmp(argv[i], "--debug")))
+		if((sstreq(argv[i], "-debug")) || (sstreq(argv[i], "--debug")))
 			debug++;
-		else if((!strcmp(argv[i], "-dump")) || (!strcmp(argv[i], "--dump")))
+		else if((sstreq(argv[i], "-dump")) || (sstreq(argv[i], "--dump")))
 			dump++;
-		else if((!strcmp(argv[i], "-count")) || (!strcmp(argv[i], "--count")))
+		else if((sstreq(argv[i], "-count")) || (sstreq(argv[i], "--count")))
 			count++;
-		else if((!strcmp(argv[i], "-consumed")) || (!strcmp(argv[i], "--consumed")))
+		else if((sstreq(argv[i], "-consumed")) || (sstreq(argv[i], "--consumed")))
 			consumed++;
-		else if((!strcmp(argv[i], "-valid")) || (!strcmp(argv[i], "--valid")))
+		else if((sstreq(argv[i], "-valid")) || (sstreq(argv[i], "--valid")))
 			valid++;
-		else if((!strcmp(argv[i], "-noent")) ||
-		    (!strcmp(argv[i], "--noent")))
+		else if((sstreq(argv[i], "-noent")) || (sstreq(argv[i], "--noent")))
 			noent++;
 	}
 	if(noent != 0) xmlSubstituteEntitiesDefault(1);

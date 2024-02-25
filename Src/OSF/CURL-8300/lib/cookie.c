@@ -361,8 +361,8 @@ void Curl_cookie_loadfiles(struct Curl_easy * data)
  */
 static void strstore(char ** str, const char * newstr, size_t len)
 {
-	DEBUGASSERT(newstr);
-	DEBUGASSERT(str);
+	assert(newstr);
+	assert(str);
 	SAlloc::F(*str);
 	*str = (char *)Curl_memdup(newstr, len + 1);
 	if(*str)
@@ -497,8 +497,8 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 	bool badcookie = FALSE; /* cookies are good by default. mmmmm yummy */
 	size_t myhash;
 
-	DEBUGASSERT(data);
-	DEBUGASSERT(MAX_SET_COOKIE_AMOUNT <= 255); /* counter is an uchar */
+	assert(data);
+	assert(MAX_SET_COOKIE_AMOUNT <= 255); /* counter is an uchar */
 	if(data->req.setcookies >= MAX_SET_COOKIE_AMOUNT)
 		return NULL;
 	/* First, alloc and init a new struct for it */
@@ -905,7 +905,7 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 				     * domain can access the variable. Set TRUE when the cookie says
 				     * .domain.com and to false when the domain is complete www.domain.com
 				     */
-				    co->tailmatch = strcasecompare(ptr, "TRUE")?TRUE:FALSE;
+				    co->tailmatch = sstreqi_ascii(ptr, "TRUE")?TRUE:FALSE;
 				    break;
 				case 2:
 				    /* The file format allows the path field to remain not filled in */
@@ -933,7 +933,7 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 				/* FALLTHROUGH */
 				case 3:
 				    co->secure = FALSE;
-				    if(strcasecompare(ptr, "TRUE")) {
+				    if(sstreqi_ascii(ptr, "TRUE")) {
 					    if(secure || c->running)
 						    co->secure = TRUE;
 					    else
@@ -1052,12 +1052,12 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 	myhash = cookiehash(co->domain);
 	clist = c->cookies[myhash];
 	while(clist) {
-		if(strcasecompare(clist->name, co->name)) {
+		if(sstreqi_ascii(clist->name, co->name)) {
 			/* the names are identical */
 			bool matching_domains = FALSE;
 
 			if(clist->domain && co->domain) {
-				if(strcasecompare(clist->domain, co->domain))
+				if(sstreqi_ascii(clist->domain, co->domain))
 					/* The domains are identical */
 					matching_domains = TRUE;
 			}
@@ -1093,11 +1093,11 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 			}
 		}
 
-		if(!replace_co && strcasecompare(clist->name, co->name)) {
+		if(!replace_co && sstreqi_ascii(clist->name, co->name)) {
 			/* the names are identical */
 
 			if(clist->domain && co->domain) {
-				if(strcasecompare(clist->domain, co->domain) &&
+				if(sstreqi_ascii(clist->domain, co->domain) &&
 				    (clist->tailmatch == co->tailmatch))
 					/* The domains are identical */
 					replace_old = TRUE;
@@ -1107,9 +1107,7 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 
 			if(replace_old) {
 				/* the domains were identical */
-
-				if(clist->spath && co->spath &&
-				    !strcasecompare(clist->spath, co->spath))
+				if(clist->spath && co->spath && !sstreqi_ascii(clist->spath, co->spath))
 					replace_old = FALSE;
 				else if(!clist->spath != !co->spath)
 					replace_old = FALSE;
@@ -1225,7 +1223,7 @@ struct CookieInfo *Curl_cookie_init(struct Curl_easy * data, const char * file, 
 	if(data) {
 		FILE * fp = NULL;
 		if(file) {
-			if(!strcmp(file, "-"))
+			if(sstreq(file, "-"))
 				fp = stdin;
 			else {
 				fp = fopen(file, "rb");
@@ -1403,10 +1401,7 @@ struct Cookie *Curl_cookie_getlist(struct Curl_easy * data, struct CookieInfo * 
 		/* if the cookie requires we're secure we must only continue if we are! */
 		if(co->secure?secure:TRUE) {
 			/* now check if the domain is correct */
-			if(!co->domain ||
-			    (co->tailmatch && !is_ip &&
-			    cookie_tailmatch(co->domain, strlen(co->domain), host)) ||
-			    ((!co->tailmatch || is_ip) && strcasecompare(host, co->domain)) ) {
+			if(!co->domain || (co->tailmatch && !is_ip && cookie_tailmatch(co->domain, strlen(co->domain), host)) || ((!co->tailmatch || is_ip) && sstreqi_ascii(host, co->domain))) {
 				/*
 				 * the right part of the host matches the domain stuff in the
 				 * cookie data
@@ -1620,7 +1615,7 @@ static CURLcode cookie_output(struct Curl_easy * data,
 	/* at first, remove expired cookies */
 	remove_expired(c);
 
-	if(!strcmp("-", filename)) {
+	if(sstreq("-", filename)) {
 		/* use stdout */
 		out = stdout;
 		use_stdout = TRUE;

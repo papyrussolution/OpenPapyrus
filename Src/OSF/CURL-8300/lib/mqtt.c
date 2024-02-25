@@ -102,7 +102,7 @@ static CURLcode mqtt_setup_conn(struct Curl_easy * data, struct connectdata * co
 	/* allocate the HTTP-specific struct for the Curl_easy, only to survive during this request */
 	struct MQTT * mq;
 	(void)conn;
-	DEBUGASSERT(data->req.p.mqtt == NULL);
+	assert(data->req.p.mqtt == NULL);
 	mq = static_cast<MQTT *>(SAlloc::C(1, sizeof(struct MQTT)));
 	if(!mq)
 		return CURLE_OUT_OF_MEMORY;
@@ -674,7 +674,7 @@ MQTT_SUBACK_COMING:
 		    break;
 	    }
 		default:
-		    DEBUGASSERT(NULL); /* illegal state */
+		    assert(NULL); /* illegal state */
 		    result = CURLE_WEIRD_SERVER_REPLY;
 		    goto end;
 	}

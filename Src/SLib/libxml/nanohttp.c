@@ -346,30 +346,24 @@ void xmlNanoHTTPScanProxy(const char * URL) {
 		proxy = NULL;
 	}
 	proxyPort = 0;
-
 #ifdef DEBUG_HTTP
 	if(URL == NULL)
-		xmlGenericError(xmlGenericErrorContext,
-		    "Removing HTTP proxy info\n");
+		xmlGenericError(xmlGenericErrorContext, "Removing HTTP proxy info\n");
 	else
-		xmlGenericError(xmlGenericErrorContext,
-		    "Using HTTP proxy %s\n", URL);
+		xmlGenericError(xmlGenericErrorContext, "Using HTTP proxy %s\n", URL);
 #endif
 	if(URL == NULL) return;
 
 	uri = xmlParseURIRaw(URL, 1);
-	if((uri == NULL) || (uri->scheme == NULL) ||
-	    (strcmp(uri->scheme, "http")) || (uri->server == NULL)) {
+	if((uri == NULL) || (uri->scheme == NULL) || (strcmp(uri->scheme, "http")) || (uri->server == NULL)) {
 		__xmlIOErr(XML_FROM_HTTP, XML_HTTP_URL_SYNTAX, "Syntax Error\n");
 		if(uri != NULL)
 			xmlFreeURI(uri);
 		return;
 	}
-
 	proxy = xmlMemStrdup(uri->server);
 	if(uri->port != 0)
 		proxyPort = uri->port;
-
 	xmlFreeURI(uri);
 }
 
@@ -408,30 +402,31 @@ static xmlNanoHTTPCtxtPtr xmlNanoHTTPNewCtxt(const char * URL) {
  * Frees the context after closing the connection.
  */
 
-static void xmlNanoHTTPFreeCtxt(xmlNanoHTTPCtxtPtr ctxt) {
-	if(ctxt == NULL) return;
-	if(ctxt->hostname != NULL) xmlFree(ctxt->hostname);
-	if(ctxt->protocol != NULL) xmlFree(ctxt->protocol);
-	if(ctxt->path != NULL) xmlFree(ctxt->path);
-	if(ctxt->query != NULL) xmlFree(ctxt->query);
-	if(ctxt->out != NULL) xmlFree(ctxt->out);
-	if(ctxt->in != NULL) xmlFree(ctxt->in);
-	if(ctxt->contentType != NULL) xmlFree(ctxt->contentType);
-	if(ctxt->encoding != NULL) xmlFree(ctxt->encoding);
-	if(ctxt->mimeType != NULL) xmlFree(ctxt->mimeType);
-	if(ctxt->location != NULL) xmlFree(ctxt->location);
-	if(ctxt->authHeader != NULL) xmlFree(ctxt->authHeader);
-#ifdef HAVE_ZLIB_H
-	if(ctxt->strm != NULL) {
-		inflateEnd(ctxt->strm);
-		xmlFree(ctxt->strm);
+static void xmlNanoHTTPFreeCtxt(xmlNanoHTTPCtxtPtr ctxt) 
+{
+	if(ctxt) {
+		if(ctxt->hostname != NULL) xmlFree(ctxt->hostname);
+		if(ctxt->protocol != NULL) xmlFree(ctxt->protocol);
+		if(ctxt->path != NULL) xmlFree(ctxt->path);
+		if(ctxt->query != NULL) xmlFree(ctxt->query);
+		if(ctxt->out != NULL) xmlFree(ctxt->out);
+		if(ctxt->in != NULL) xmlFree(ctxt->in);
+		if(ctxt->contentType != NULL) xmlFree(ctxt->contentType);
+		if(ctxt->encoding != NULL) xmlFree(ctxt->encoding);
+		if(ctxt->mimeType != NULL) xmlFree(ctxt->mimeType);
+		if(ctxt->location != NULL) xmlFree(ctxt->location);
+		if(ctxt->authHeader != NULL) xmlFree(ctxt->authHeader);
+	#ifdef HAVE_ZLIB_H
+		if(ctxt->strm != NULL) {
+			inflateEnd(ctxt->strm);
+			xmlFree(ctxt->strm);
+		}
+	#endif
+		ctxt->state = XML_NANO_HTTP_NONE;
+		if(ctxt->fd != INVALID_SOCKET) closesocket(ctxt->fd);
+		ctxt->fd = INVALID_SOCKET;
+		xmlFree(ctxt);
 	}
-#endif
-
-	ctxt->state = XML_NANO_HTTP_NONE;
-	if(ctxt->fd != INVALID_SOCKET) closesocket(ctxt->fd);
-	ctxt->fd = INVALID_SOCKET;
-	xmlFree(ctxt);
 }
 
 /**
@@ -1305,7 +1300,6 @@ int xmlNanoHTTPRead(void * ctx, void * dest, int len) {
 	ctxt->inrptr += len;
 	return(len);
 }
-
 /**
  * xmlNanoHTTPClose:
  * @ctx:  the HTTP context
@@ -1313,14 +1307,10 @@ int xmlNanoHTTPRead(void * ctx, void * dest, int len) {
  * This function closes an HTTP context, it ends up the connection and
  * free all data related to it.
  */
-void xmlNanoHTTPClose(void * ctx) {
-	xmlNanoHTTPCtxtPtr ctxt = (xmlNanoHTTPCtxtPtr)ctx;
-
-	if(ctx == NULL) return;
-
-	xmlNanoHTTPFreeCtxt(ctxt);
+void xmlNanoHTTPClose(void * ctx) 
+{
+	xmlNanoHTTPFreeCtxt((xmlNanoHTTPCtxtPtr)ctx);
 }
-
 /**
  * xmlNanoHTTPMethodRedir:
  * @URL:  The URL to load
@@ -1626,7 +1616,7 @@ int xmlNanoHTTPFetch(const char * URL, const char * filename, char ** contentTyp
 	ctxt = xmlNanoHTTPOpen(URL, contentType);
 	if(ctxt == NULL) return(-1);
 
-	if(!strcmp(filename, "-"))
+	if(sstreq(filename, "-"))
 		fd = 0;
 	else {
 		fd = open(filename, O_CREAT | O_WRONLY, 00644);
@@ -1671,7 +1661,7 @@ int xmlNanoHTTPSave(void * ctxt, const char * filename) {
 
 	if((ctxt == NULL) || (filename == NULL)) return(-1);
 
-	if(!strcmp(filename, "-"))
+	if(sstreq(filename, "-"))
 		fd = 0;
 	else {
 		fd = open(filename, O_CREAT | O_WRONLY, 0666);

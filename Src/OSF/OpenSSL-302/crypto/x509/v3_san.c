@@ -297,14 +297,11 @@ int GENERAL_NAME_print(BIO * out, GENERAL_NAME * gen)
 	return 1;
 }
 
-static GENERAL_NAMES * v2i_issuer_alt(X509V3_EXT_METHOD * method,
-    X509V3_CTX * ctx,
-    STACK_OF(CONF_VALUE) * nval)
+static GENERAL_NAMES * v2i_issuer_alt(X509V3_EXT_METHOD * method, X509V3_CTX * ctx, STACK_OF(CONF_VALUE) * nval)
 {
 	const int num = sk_CONF_VALUE_num(nval);
 	GENERAL_NAMES * gens = sk_GENERAL_NAME_new_reserve(NULL, num);
 	int i;
-
 	if(gens == NULL) {
 		ERR_raise(ERR_LIB_X509V3, ERR_R_MALLOC_FAILURE);
 		sk_GENERAL_NAME_free(gens);
@@ -312,15 +309,12 @@ static GENERAL_NAMES * v2i_issuer_alt(X509V3_EXT_METHOD * method,
 	}
 	for(i = 0; i < num; i++) {
 		CONF_VALUE * cnf = sk_CONF_VALUE_value(nval, i);
-
-		if(!ossl_v3_name_cmp(cnf->name, "issuer")
-		    && cnf->value && strcmp(cnf->value, "copy") == 0) {
+		if(!ossl_v3_name_cmp(cnf->name, "issuer") && cnf->value && strcmp(cnf->value, "copy") == 0) {
 			if(!copy_issuer(ctx, gens))
 				goto err;
 		}
 		else {
 			GENERAL_NAME * gen = v2i_GENERAL_NAME(method, ctx, cnf);
-
 			if(gen == NULL)
 				goto err;
 			sk_GENERAL_NAME_push(gens, gen); /* no failure as it was reserved */
@@ -369,31 +363,24 @@ err:
 	return 0;
 }
 
-static GENERAL_NAMES * v2i_subject_alt(X509V3_EXT_METHOD * method,
-    X509V3_CTX * ctx,
-    STACK_OF(CONF_VALUE) * nval)
+static GENERAL_NAMES * v2i_subject_alt(X509V3_EXT_METHOD * method, X509V3_CTX * ctx, STACK_OF(CONF_VALUE) * nval)
 {
-	GENERAL_NAMES * gens;
 	CONF_VALUE * cnf;
 	const int num = sk_CONF_VALUE_num(nval);
 	int i;
-
-	gens = sk_GENERAL_NAME_new_reserve(NULL, num);
+	GENERAL_NAMES * gens = sk_GENERAL_NAME_new_reserve(NULL, num);
 	if(gens == NULL) {
 		ERR_raise(ERR_LIB_X509V3, ERR_R_MALLOC_FAILURE);
 		sk_GENERAL_NAME_free(gens);
 		return NULL;
 	}
-
 	for(i = 0; i < num; i++) {
 		cnf = sk_CONF_VALUE_value(nval, i);
-		if(ossl_v3_name_cmp(cnf->name, "email") == 0
-		    && cnf->value && strcmp(cnf->value, "copy") == 0) {
+		if(ossl_v3_name_cmp(cnf->name, "email") == 0 && cnf->value && strcmp(cnf->value, "copy") == 0) {
 			if(!copy_email(ctx, gens, 0))
 				goto err;
 		}
-		else if(ossl_v3_name_cmp(cnf->name, "email") == 0
-		    && cnf->value && strcmp(cnf->value, "move") == 0) {
+		else if(ossl_v3_name_cmp(cnf->name, "email") == 0 && cnf->value && strcmp(cnf->value, "move") == 0) {
 			if(!copy_email(ctx, gens, 1))
 				goto err;
 		}
@@ -409,11 +396,9 @@ err:
 	sk_GENERAL_NAME_pop_free(gens, GENERAL_NAME_free);
 	return NULL;
 }
-
 /*
  * Copy any email addresses in a certificate or request to GENERAL_NAMES
  */
-
 static int copy_email(X509V3_CTX * ctx, GENERAL_NAMES * gens, int move_p)
 {
 	X509_NAME * nm;

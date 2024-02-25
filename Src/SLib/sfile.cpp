@@ -7,24 +7,6 @@
 #include <AclAPI.h>
 // @v11.7.1 #include <sys/locking.h>
 
-#if 0 // @construction {
-/*static*/void * SIo::SCreateFile(int ioType, const char * pName, uint32 mode, uint32 secMode /*= 0*/)
-{
-	SString name = pName;
-	if(ioType) {
-		switch(ioType) {
-			case tPipe:
-				name = "\\\\.\\pipe\\";
-				break;
-			case tSerial:
-				name = "\\\\.\\pipe\\";
-				break;
-		}
-	}
-    return ::CreateFile()
-}
-#endif // } 0 @construction
-
 /* mimetypes.dict
 binary: application/binary
 binary: application/binary-data
@@ -1008,25 +990,9 @@ int SFile::Stat::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 		uint okf = 0;
 		if(GetFileInformationByHandleEx(h, FileBasicInfo, &fi_basic, sizeof(fi_basic))) {
 			okf |= okfFileBasicInfo;
-			//FILETIME ft;
-			{
-				pStat->CrtTm_ = fi_basic.ChangeTime.QuadPart;
-				//ft.dwHighDateTime = fi_basic.CreationTime.HighPart;
-				//ft.dwLowDateTime = fi_basic.CreationTime.LowPart;
-				//wftime_to_ldatetime(&ft, &pStat->CrtTime);
-			}
-			{
-				pStat->AccsTm_ = fi_basic.LastAccessTime.QuadPart;
-				//ft.dwHighDateTime = fi_basic.LastAccessTime.HighPart;
-				//ft.dwLowDateTime = fi_basic.LastAccessTime.LowPart;
-				//wftime_to_ldatetime(&ft, &pStat->AccsTime);
-			}
-			{
-				pStat->ModTm_ = fi_basic.LastWriteTime.QuadPart;
-				//ft.dwHighDateTime = fi_basic.LastWriteTime.HighPart;
-				//ft.dwLowDateTime = fi_basic.LastWriteTime.LowPart;
-				//wftime_to_ldatetime(&ft, &pStat->ModTime);
-			}
+			pStat->CrtTm_ = fi_basic.ChangeTime.QuadPart;
+			pStat->AccsTm_ = fi_basic.LastAccessTime.QuadPart;
+			pStat->ModTm_ = fi_basic.LastWriteTime.QuadPart;
 			pStat->Attr = fi_basic.FileAttributes;
 		}
 		if(GetFileInformationByHandleEx(h, FileAttributeTagInfo, &fi_attr, sizeof(fi_attr))) {
@@ -2153,14 +2119,6 @@ bool SFile::Seek64(int64 offs, int origin)
 	return ok;
 }
 
-/*bool SFile::Seek64(int64 offs, int origin)
-{
-	assert(InvariantC(0));
-	int   ok = (T == tFile) ? BIN(IH >= 0 && _lseeki64(IH, offs, origin) >= 0) : Seek((long)offs, origin);
-	BufR.Z();
-	return ok;
-}*/
-
 long SFile::Tell()
 {
 	assert(InvariantC(0));
@@ -2426,6 +2384,65 @@ SFile::ReadLineCsvContext::ReadLineCsvContext(char fieldDivider) : FieldDivider(
 {
 }
 
+uint SFile::ReadLineCsvContext::ImplementScan(const char * pLine, StringSet & rSs)
+{
+	rSs.Z();
+	uint  result = 0;
+	if(FieldDivider) {
+		if(pLine) {
+			Scan.Set(pLine, 0);
+		}
+		else {
+			Scan.Set(LineBuf, 0);
+		}
+		{
+			bool   last_divider = false;
+			while(!Scan.IsEnd()) {
+				FldBuf.Z();
+				if(Scan[0] == FieldDivider) {
+					Scan.Incr();
+					last_divider = true;
+				}
+				else {
+					last_divider = false;
+					if(Scan[0] == '\"') {
+						THROW(Scan.GetQuotedString(SFileFormat::Csv, FldBuf));
+						if(Scan.Skip(1)[0] == FieldDivider) {
+							Scan.Incr();
+							last_divider = true;
+						}
+					}
+					else {
+						Scan.GetUntil(FieldDivider, FldBuf);
+						if(Scan[0] == FieldDivider) {
+							Scan.Incr();
+							last_divider = true;
+						}
+					}
+				}
+				// ≈сли StringSet не имеет €вного разделител€, то придетс€ вместо пустых полей вставл€ть пробелы, иначе вызывающа€ сторона не
+				// сможет правильно обработать результат.
+				if(rSs.isZeroDelim() && FldBuf.IsEmpty()) 
+					FldBuf.Space();
+				rSs.add(FldBuf);
+				++result;
+			}
+			// ≈сли в конце строки сто€л разделитель, то мы имеем пустое поле в конце записи. ”чтем это.
+			if(last_divider) {
+				FldBuf.Z();
+				if(rSs.isZeroDelim()) 
+					FldBuf.Space();
+				rSs.add(FldBuf);
+				++result;
+			}
+		}
+	}
+	CATCH
+		result = 0;
+	ENDCATCH
+	return result;
+}
+
 int SFile::ReadLineCsv(ReadLineCsvContext & rCtx, StringSet & rSs)
 {
 	assert(InvariantC(0));
@@ -2433,50 +2450,13 @@ int SFile::ReadLineCsv(ReadLineCsvContext & rCtx, StringSet & rSs)
 	int    ok = 0;
 	if(rCtx.FieldDivider) {
 		rCtx.LineBuf.Z();
-		SString fld_buf;
 		if(ReadLine(rCtx.LineBuf, rlfChomp|rlfStrip)) {
-			rCtx.Scan.Set(rCtx.LineBuf, 0);
-			bool   last_divider = false;
-			while(!rCtx.Scan.IsEnd()) {
-				fld_buf.Z();
-				if(rCtx.Scan[0] == rCtx.FieldDivider) {
-					rCtx.Scan.Incr();
-					last_divider = true;
-				}
-				else {
-					last_divider = false;
-					if(rCtx.Scan[0] == '\"') {
-						THROW(rCtx.Scan.GetQuotedString(SFileFormat::Csv, fld_buf));
-						if(rCtx.Scan.Skip(1)[0] == rCtx.FieldDivider) {
-							rCtx.Scan.Incr();
-							last_divider = true;
-						}
-					}
-					else {
-						rCtx.Scan.GetUntil(rCtx.FieldDivider, fld_buf);
-						if(rCtx.Scan[0] == rCtx.FieldDivider) {
-							rCtx.Scan.Incr();
-							last_divider = true;
-						}
-					}
-				}
-				// ≈сли StringSet не имеет €вного разделител€, то придетс€ вместо пустых полей вставл€ть пробелы, иначе вызывающа€ сторона не
-				// сможет правильно обработать результат.
-				if(rSs.isZeroDelim() && fld_buf.IsEmpty()) 
-					fld_buf.Space();
-				rSs.add(fld_buf);
-			}
-			// ≈сли в конце строки сто€л разделитель, то мы имеем пустое поле в конце записи. ”чтем это.
-			if(last_divider) {
-				fld_buf.Z();
-				if(rSs.isZeroDelim()) 
-					fld_buf.Space();
-				rSs.add(fld_buf);
-			}
-			ok = 1;
+			if(rCtx.ImplementScan(0, rSs))
+				ok = 1;
+			else
+				ok = -1;
 		}
 	}
-	CATCHZOK
 	return ok;
 }
 
@@ -3891,6 +3871,128 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(CodeBlocks_Cbp,  mtApplication, "xml",   "cbp", "T<?xml"); // @v10.9.9 Code::Blocks Project File
 	Register(M4,              mtText,        "plain", "m4", 0); // @v10.9.9 m4 macroporcessor
 	Register(Webp,            mtImage,       "webp", "webp", "52494646 8:57454250"); // @v11.3.4 webp graphics
+	return ok;
+}
+
+class CsvSniffer {
+public:
+	CsvSniffer();
+	~CsvSniffer();
+	int    Run(const char * pFileName, SFileFormat::CsvSinffingResult & rR);
+};
+
+CsvSniffer::CsvSniffer()
+{
+}
+	
+CsvSniffer::~CsvSniffer()
+{
+}
+
+int CsvSniffer::Run(const char * pFileName, SFileFormat::CsvSinffingResult & rR) // @construction
+{
+	rR.FieldDivisor = 0;
+	int    ok = -1;
+	uint   max_lines = 100;
+	THROW(!isempty(pFileName));
+	{
+		SString line_buf;
+		SFile f_in(pFileName, SFile::mRead);
+		uint   line_no = 0;
+		uint   empty_line_count = 0;
+		uint32 common_seq = _FFFF32; // 
+		uint32 first_line_seq = _FFFF32;
+		STokenRecognizer tr;
+		SNaturalTokenArray nta;
+		TSCollection <SNaturalTokenStat> nts_list;
+		SStrCollection line_list;
+		while(line_no < max_lines && f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+			if(line_buf.IsEmpty())
+				empty_line_count++;
+			else {
+				line_no++;
+				line_list.insert(newStr(line_buf));
+				SNaturalTokenStat * p_nts = nts_list.CreateNewItem();
+				THROW(p_nts);
+				THROW(tr.Run(line_buf.ucptr(), line_buf.Len(), nta, p_nts));
+				common_seq &= p_nts->Seq;
+				if(line_no == 1)
+					first_line_seq = p_nts->Seq;
+			}
+		}
+		rR.SnTokSeq_Common = common_seq;
+		rR.SnTokSeq_First = first_line_seq;
+		{
+			struct PotentialDivisor {
+				PotentialDivisor(const char c) : C(c)
+				{
+				}
+				const char C;
+				StatBase S;
+			};
+			TSCollection <PotentialDivisor> potential_div_list;
+			potential_div_list.insert(new PotentialDivisor(','));
+			potential_div_list.insert(new PotentialDivisor(';'));
+			potential_div_list.insert(new PotentialDivisor('\t'));
+			potential_div_list.insert(new PotentialDivisor('|'));
+			{
+				// —обираем статистику по€влени€ потенциального символа-разделител€.
+				for(uint pdidx = 0; pdidx < potential_div_list.getCount(); pdidx++) {
+					PotentialDivisor * p_pd = potential_div_list.at(pdidx);
+					assert(p_pd);
+					if(p_pd) {
+						for(uint ntsidx = 0; ntsidx < nts_list.getCount(); ntsidx++) {
+							const SNaturalTokenStat * p_nts = nts_list.at(ntsidx);
+							assert(p_nts);
+							if(p_nts) {
+								uint cp = 0;
+								if(p_nts->ChrList.BSearch(p_pd->C, &cp)) {
+									p_pd->S.Step(p_nts->ChrList.at(cp).Val);
+								}
+							}
+						}
+						p_pd->S.Finish();
+					}
+				}
+			}
+			{
+				// јнализируем статистику по€влени€ потенциального символа-разделител€.
+				RAssoc max_exp_to_dev_rel;
+				max_exp_to_dev_rel.Key = -1;
+				max_exp_to_dev_rel.Val = 0.0;
+				for(uint pdidx = 0; pdidx < potential_div_list.getCount(); pdidx++) {
+					const PotentialDivisor * p_pd = potential_div_list.at(pdidx);
+					assert(p_pd);
+					if(p_pd && p_pd->S.GetCount()) {
+						//
+						// Ќаиболее веро€тным разделителем считаем тот, у которого отношение 
+						// среднего числа символом на строку к стандартному отклонению распределени€ //
+						// числа разделителей на строку максимальное.
+						// ¬ идеальном случае среднее равно числу полей минус один, а отклонение - нулю 
+						// но существуют девиации (пол€ в кавычках, содержащие разделитель; ошибки формировани€ файла и т.д.)
+						//
+						double exp = p_pd->S.GetExp();
+						double sd = p_pd->S.GetStdDev();
+						assert(exp > 0.0);
+						if(sd == 0.0) {
+							max_exp_to_dev_rel.Key = pdidx;
+							max_exp_to_dev_rel.Val = 1000000.0;
+						}
+						else {
+							if(max_exp_to_dev_rel.Val < (exp / sd)) {
+								max_exp_to_dev_rel.Key = pdidx;
+								max_exp_to_dev_rel.Val = (exp / sd);
+							}
+						}
+					}
+				}
+				if(max_exp_to_dev_rel.Key >= 0) {
+					rR.FieldDivisor = potential_div_list.at(max_exp_to_dev_rel.Key)->C;
+				}
+			}
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 //

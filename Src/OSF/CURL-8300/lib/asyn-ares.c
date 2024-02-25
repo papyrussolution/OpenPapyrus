@@ -155,7 +155,7 @@ static void sock_state_cb(void * data, ares_socket_t socket_fd,
 {
 	struct Curl_easy * easy = data;
 	if(!readable && !writable) {
-		DEBUGASSERT(easy);
+		assert(easy);
 		Curl_multi_closed(easy, socket_fd);
 	}
 }
@@ -226,7 +226,7 @@ static void destroy_async_data(struct Curl_async * async);
  */
 void Curl_resolver_cancel(struct Curl_easy * data)
 {
-	DEBUGASSERT(data);
+	assert(data);
 	if(data->state.async.resolver)
 		ares_cancel((ares_channel)data->state.async.resolver);
 	destroy_async_data(&data->state.async);
@@ -370,7 +370,7 @@ CURLcode Curl_resolver_is_resolved(struct Curl_easy * data,
 	struct thread_data * res = data->state.async.tdata;
 	CURLcode result = CURLE_OK;
 
-	DEBUGASSERT(dns);
+	assert(dns);
 	*dns = NULL;
 
 	if(waitperform(data, 0) < 0)
@@ -395,7 +395,7 @@ CURLcode Curl_resolver_is_resolved(struct Curl_easy * data,
 		   leave us with res->num_pending == 0, which is perfect for the next
 		   block. */
 		ares_cancel((ares_channel)data->state.async.resolver);
-		DEBUGASSERT(res->num_pending == 0);
+		assert(res->num_pending == 0);
 	}
 #endif
 
@@ -434,7 +434,7 @@ CURLcode Curl_resolver_wait_resolv(struct Curl_easy * data,
 	timediff_t timeout;
 	struct curltime now = Curl_now();
 
-	DEBUGASSERT(entry);
+	assert(entry);
 	*entry = NULL; /* clear on entry */
 
 	timeout = Curl_timeleft(data, &now, TRUE);
@@ -598,7 +598,7 @@ static void query_completed_cb(void * arg,  /* (struct connectdata *) */
 		    && (status == ARES_SUCCESS || status == ARES_ENOTFOUND)) {
 			/* Right now, there can only be up to two parallel queries, so don't
 			   bother handling any other cases. */
-			DEBUGASSERT(res->num_pending == 1);
+			assert(res->num_pending == 1);
 
 			/* It's possible that one of these parallel queries could succeed
 			   quickly, but the other could always fail or timeout (when we're

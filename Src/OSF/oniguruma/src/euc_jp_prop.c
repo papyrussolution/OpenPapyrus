@@ -138,7 +138,7 @@ struct PropertyNameCtype * onigenc_euc_jp_lookup_property_name(const char * str,
 		uint key = hash(str, len);
 		if(key <= MAX_HASH_VALUE) {
 			const char * s = wordlist[key].name;
-			if(*str == *s && !strcmp(str + 1, s + 1))
+			if(*str == *s && sstreq(str + 1, s + 1))
 				return &wordlist[key];
 		}
 	}

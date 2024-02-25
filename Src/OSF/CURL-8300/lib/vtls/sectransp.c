@@ -844,7 +844,7 @@ static OSStatus bio_cf_in_read(SSLConnectionRef connection,
 	CURLcode result;
 	OSStatus rtn = noErr;
 
-	DEBUGASSERT(data);
+	assert(data);
 	nread = Curl_conn_cf_recv(cf->next, data, buf, *dataLength, &result);
 	CURL_TRC_CF(data, cf, "bio_read(len=%zu) -> %zd, result=%d",
 	    *dataLength, nread, result);
@@ -884,7 +884,7 @@ static OSStatus bio_cf_out_write(SSLConnectionRef connection,
 	CURLcode result;
 	OSStatus rtn = noErr;
 
-	DEBUGASSERT(data);
+	assert(data);
 	nwritten = Curl_conn_cf_send(cf->next, data, buf, *dataLength, &result);
 	CURL_TRC_CF(data, cf, "bio_send(len=%zu) -> %zd, result=%d",
 	    *dataLength, nwritten, result);
@@ -1351,7 +1351,7 @@ static CURLcode set_ssl_version_min_max(struct Curl_cfilter * cf,
 	long ssl_version_max = conn_config->version_max;
 	long max_supported_version_by_os;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	/* macOS 10.5-10.7 supported TLS 1.0 only.
 	   macOS 10.8 and later, and iOS 5 and later, added TLS 1.1 and 1.2.
@@ -1661,7 +1661,7 @@ static CURLcode sectransp_connect_step1(struct Curl_cfilter * cf,
 #if CURL_BUILD_MAC
 	int darwinver_maj = 0, darwinver_min = 0;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	CURL_TRC_CF(data, cf, "connect_step1");
 	GetDarwinVersionNumber(&darwinver_maj, &darwinver_min);
@@ -1859,7 +1859,7 @@ static CURLcode sectransp_connect_step1(struct Curl_cfilter * cf,
 			if(!ssl_config->cert_type)
 				infof(data, "SSL: Certificate type not set, assuming "
 				    "PKCS#12 format.");
-			else if(!strcasecompare(ssl_config->cert_type, "P12")) {
+			else if(!sstreqi_ascii(ssl_config->cert_type, "P12")) {
 				failf(data, "SSL: The Security framework only supports "
 				    "loading identities that are in PKCS#12 format.");
 				return CURLE_SSL_CERTPROBLEM;
@@ -2530,10 +2530,10 @@ static CURLcode sectransp_connect_step2(struct Curl_cfilter * cf,
 	SSLCipherSuite cipher;
 	SSLProtocol protocol = 0;
 
-	DEBUGASSERT(ssl_connect_2 == connssl->connecting_state
+	assert(ssl_connect_2 == connssl->connecting_state
 	    || ssl_connect_2_reading == connssl->connecting_state
 	    || ssl_connect_2_writing == connssl->connecting_state);
-	DEBUGASSERT(backend);
+	assert(backend);
 	CURL_TRC_CF(data, cf, "connect_step2");
 
 	/* Here goes nothing: */
@@ -2911,7 +2911,7 @@ static CURLcode collect_server_cert(struct Curl_cfilter * cf,
 	CFIndex i, count;
 	SecTrustRef trust = NULL;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	if(!show_verbose_server_cert && !ssl_config->certinfo)
 		return CURLE_OK;
@@ -3134,7 +3134,7 @@ static CURLcode sectransp_connect(struct Curl_cfilter * cf,
 	if(result)
 		return result;
 
-	DEBUGASSERT(done);
+	assert(done);
 
 	return CURLE_OK;
 }
@@ -3147,7 +3147,7 @@ static void sectransp_close(struct Curl_cfilter * cf, struct Curl_easy * data)
 
 	(void)data;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	if(backend->ssl_ctx) {
 		CURL_TRC_CF(data, cf, "close");
@@ -3179,7 +3179,7 @@ static int sectransp_shutdown(struct Curl_cfilter * cf,
 	int loop = 10; /* avoid getting stuck */
 	CURLcode result;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	if(!backend->ssl_ctx)
 		return 0;
@@ -3255,7 +3255,7 @@ static bool sectransp_data_pending(struct Curl_cfilter * cf,
 	size_t buffer;
 
 	(void)data;
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	if(backend->ssl_ctx) { /* SSL is in use */
 		CURL_TRC_CF((struct Curl_easy *)data, cf, "data_pending");
@@ -3320,7 +3320,7 @@ static ssize_t sectransp_send(struct Curl_cfilter * cf,
 	size_t processed = 0UL;
 	OSStatus err;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	/* The SSLWrite() function works a little differently than expected. The
 	   fourth argument (processed) is currently documented in Apple's
@@ -3390,7 +3390,7 @@ static ssize_t sectransp_recv(struct Curl_cfilter * cf,
 	size_t processed = 0UL;
 	OSStatus err;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 again:
 	*curlcode = CURLE_OK;
@@ -3446,7 +3446,7 @@ static void *sectransp_get_internals(struct ssl_connect_data * connssl,
 	struct st_ssl_backend_data * backend =
 	    (struct st_ssl_backend_data *)connssl->backend;
 	(void)info;
-	DEBUGASSERT(backend);
+	assert(backend);
 	return backend->ssl_ctx;
 }
 

@@ -320,7 +320,7 @@ void jsV_resizearray(js_State * J, js_Object * obj, int newlen)
 			js_Object * it = jsV_newiterator(J, obj, 1);
 			while((s = jsV_nextiterator(J, it))) {
 				k = jsV_numbertointeger(jsV_stringtonumber(J, s));
-				if(k >= newlen && !strcmp(s, jsV_numbertostring(J, buf, k)))
+				if(k >= newlen && sstreq(s, jsV_numbertostring(J, buf, k)))
 					jsV_delproperty(J, obj, s);
 			}
 		}

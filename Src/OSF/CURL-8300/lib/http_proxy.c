@@ -114,7 +114,7 @@ connect_sub:
 		/* subchain connected and we had already installed the protocol filter.
 		 * This means the protocol tunnel is established, we are done.
 		 */
-		DEBUGASSERT(ctx->cf_protocol);
+		assert(ctx->cf_protocol);
 		result = CURLE_OK;
 	}
 

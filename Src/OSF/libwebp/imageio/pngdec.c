@@ -156,7 +156,7 @@ static int ExtractMetadataFromPNG(png_structp png, png_infop const head_info, pn
 		// Look for EXIF / XMP metadata.
 		for(uint32 i = 0; i < num; ++i, ++text) {
 			for(int j = 0; kPNGMetadataMap[j].name != NULL; ++j) {
-				if(!strcmp(text->key, kPNGMetadataMap[j].name)) {
+				if(sstreq(text->key, kPNGMetadataMap[j].name)) {
 					MetadataPayload* const payload = (MetadataPayload*)((uint8*)metadata + kPNGMetadataMap[j].storage_offset);
 					size_t text_length;
 					switch(text->compression) {

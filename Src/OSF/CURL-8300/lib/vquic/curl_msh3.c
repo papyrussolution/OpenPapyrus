@@ -318,7 +318,7 @@ static CURLcode write_resp_raw(struct Curl_easy * data,
 	if((size_t)nwritten < memlen) {
 		/* This MUST not happen. Our recbuf is dimensioned to hold the
 		 * full max_stream_window and then some for this very reason. */
-		DEBUGASSERT(0);
+		assert(0);
 		return CURLE_RECV_ERROR;
 	}
 	return result;
@@ -344,9 +344,9 @@ static void MSH3_CALL msh3_header_received(MSH3_REQUEST * Request,
 		char line[14]; /* status line is always 13 characters long */
 		size_t ncopy;
 
-		DEBUGASSERT(!stream->firstheader);
+		assert(!stream->firstheader);
 		stream->status_code = decode_status_code(hd->Value, hd->ValueLength);
-		DEBUGASSERT(stream->status_code != -1);
+		assert(stream->status_code != -1);
 		ncopy = msnprintf(line, sizeof(line), "HTTP/3 %03d \r\n",
 			stream->status_code);
 		result = write_resp_raw(data, line, ncopy);
@@ -356,7 +356,7 @@ static void MSH3_CALL msh3_header_received(MSH3_REQUEST * Request,
 	}
 	else {
 		/* store as an HTTP1-style header */
-		DEBUGASSERT(stream->firstheader);
+		assert(stream->firstheader);
 		result = write_resp_raw(data, hd->Name, hd->NameLength);
 		if(!result)
 			result = write_resp_raw(data, ": ", 2);
@@ -577,7 +577,7 @@ static ssize_t cf_msh3_send(struct Curl_cfilter * cf, struct Curl_easy * data,
 	Curl_dynhds_init(&h2_headers, 0, DYN_HTTP_REQUEST);
 
 	/* Sizes must match for cast below to work" */
-	DEBUGASSERT(stream);
+	assert(stream);
 	CURL_TRC_CF(data, cf, "req: send %zu bytes", len);
 
 	if(!stream->req) {
@@ -587,8 +587,8 @@ static ssize_t cf_msh3_send(struct Curl_cfilter * cf, struct Curl_easy * data,
 		nwritten = Curl_h1_req_parse_read(&h1, buf, len, NULL, 0, err);
 		if(nwritten < 0)
 			goto out;
-		DEBUGASSERT(h1.done);
-		DEBUGASSERT(h1.req);
+		assert(h1.done);
+		assert(h1.req);
 
 		*err = Curl_http_req_to_h2(&h2_headers, h1.req, data);
 		if(*err) {

@@ -2130,7 +2130,7 @@ read_header:                   /* for errorcode: 100 (continue) */
 		}
 		buffer[i+1] = '\0'; /* for strmp */
 		if(i > 3) {
-			if(!strcmp(&(buffer[i-1]), "\n\n") || !strcmp(&(buffer[i-2]), "\n\r\n"))
+			if(sstreq(&(buffer[i-1]), "\n\n") || sstreq(&(buffer[i-2]), "\n\r\n"))
 				break;
 		}
 		i++;
@@ -2150,7 +2150,7 @@ read_header:                   /* for errorcode: 100 (continue) */
 	/* Create input stream */
 	res->in = http_input_stream_new(sock, res->header);
 	/* Check for MIME message */
-	if((res->content_type && !strcmp(res->content_type->type, "multipart/related"))) {
+	if((res->content_type && sstreq(res->content_type->type, "multipart/related"))) {
 		status = mime_get_attachments(res->content_type, res->in, &mimeMessage);
 		if(status != H_OK) {
 			/* @todo (#1#): Handle error */

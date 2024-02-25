@@ -2653,7 +2653,7 @@ static int urip_rlen;
  * Returns 1 if yes and 0 if another Input module should be used
  */
 static int uripMatch(const char * URI) {
-	if((URI == NULL) || (!strcmp(URI, "file:///etc/xml/catalog")))
+	if((URI == NULL) || (sstreq(URI, "file:///etc/xml/catalog")))
 		return(0);
 	/* Verify we received the escaped URL */
 	if(strcmp(urip_rcvsURLs[urip_current], URI))
@@ -2671,7 +2671,7 @@ static int uripMatch(const char * URI) {
  * Returns an Input context or NULL in case or error
  */
 static void *uripOpen(const char * URI) {
-	if((URI == NULL) || (!strcmp(URI, "file:///etc/xml/catalog")))
+	if((URI == NULL) || (sstreq(URI, "file:///etc/xml/catalog")))
 		return NULL;
 	/* Verify we received the escaped URL */
 	if(strcmp(urip_rcvsURLs[urip_current], URI))
@@ -3165,8 +3165,7 @@ static int rngStreamTest(const char * filename,
 	 * strictly unifying the error messages is nearly impossible this
 	 * hack is also done in the Makefile
 	 */
-	if((!strcmp(prefix, "tutor10_1")) || (!strcmp(prefix, "tutor10_2")) || (!strcmp(prefix, "tutor3_2")) || (!strcmp(prefix, "307377")) ||
-	    (!strcmp(prefix, "tutor8_2")))
+	if((sstreq(prefix, "tutor10_1")) || (sstreq(prefix, "tutor10_2")) || (sstreq(prefix, "tutor3_2")) || (sstreq(prefix, "307377")) || (sstreq(prefix, "tutor8_2")))
 		disable_err = 1;
 	snprintf(pattern, 499, "./test/relaxng/%s_?.xml", prefix);
 	pattern[499] = 0;
@@ -3180,11 +3179,9 @@ static int rngStreamTest(const char * filename,
 		len = strlen(base2);
 		if((len > 6) && (base2[len - 6] == '_')) {
 			count = base2[len - 5];
-			snprintf(result, 499, "result/relaxng/%s_%c",
-			    prefix, count);
+			snprintf(result, 499, "result/relaxng/%s_%c", prefix, count);
 			result[499] = 0;
-			snprintf(err, 499, "result/relaxng/%s_%c.err",
-			    prefix, count);
+			snprintf(err, 499, "result/relaxng/%s_%c.err", prefix, count);
 			err[499] = 0;
 		}
 		else {
@@ -3196,11 +3193,9 @@ static int rngStreamTest(const char * filename,
 			fprintf(stderr, "Failed to build reder for %s\n", instance);
 		}
 		if(disable_err == 1)
-			ret = streamProcessTest(instance, result, NULL, reader, filename,
-				options);
+			ret = streamProcessTest(instance, result, NULL, reader, filename, options);
 		else
-			ret = streamProcessTest(instance, result, err, reader, filename,
-				options);
+			ret = streamProcessTest(instance, result, err, reader, filename, options);
 		xmlFreeTextReader(reader);
 		if(ret != 0) {
 			fprintf(stderr, "instance %s failed\n", instance);
@@ -3208,7 +3203,6 @@ static int rngStreamTest(const char * filename,
 		}
 	}
 	globfree(&globbuf);
-
 	return(res);
 }
 
@@ -3776,7 +3770,7 @@ static void *thread_specific_data(void * private_data)
 	const char * filename = (const char *)private_data;
 	int okay = 1;
 
-	if(!strcmp(filename, "test/threads/invalid.xml")) {
+	if(sstreq(filename, "test/threads/invalid.xml")) {
 		xmlDoValidityCheckingDefaultValue = 0;
 		xmlGenericErrorContext = stdout;
 	}
@@ -3792,7 +3786,7 @@ static void *thread_specific_data(void * private_data)
 		printf("parse failed\n");
 		okay = 0;
 	}
-	if(!strcmp(filename, "test/threads/invalid.xml")) {
+	if(sstreq(filename, "test/threads/invalid.xml")) {
 		if(xmlDoValidityCheckingDefaultValue != 0) {
 			printf("ValidityCheckingDefaultValue override failed\n");
 			okay = 0;
@@ -4310,9 +4304,9 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED)
 	int subset = 0;
 	initializeLibxml2();
 	for(a = 1; a < argc; a++) {
-		if(!strcmp(argv[a], "-v"))
+		if(sstreq(argv[a], "-v"))
 			verbose = 1;
-		else if(!strcmp(argv[a], "-quiet"))
+		else if(sstreq(argv[a], "-quiet"))
 			tests_quiet = 1;
 		else {
 			for(i = 0; testDescriptions[i].func != NULL; i++) {

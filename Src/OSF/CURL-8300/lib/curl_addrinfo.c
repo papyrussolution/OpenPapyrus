@@ -248,7 +248,7 @@ struct Curl_addrinfo *Curl_he2ai(const struct hostent * he, int port)           
 		/* no input == no output! */
 		return NULL;
 
-	DEBUGASSERT((he->h_name != NULL) && (he->h_addr_list != NULL));
+	assert((he->h_name != NULL) && (he->h_addr_list != NULL));
 
 	for(i = 0; (curr = he->h_addr_list[i]) != NULL; i++) {
 		size_t ss_size;
@@ -355,7 +355,7 @@ struct Curl_addrinfo *Curl_ip2addr(int af, const void * inaddr, const char * hos
 	char  * addrentry;
 	char  * hoststr;
 	size_t addrsize;
-	DEBUGASSERT(inaddr && hostname);
+	assert(inaddr && hostname);
 	buf = (namebuff *)SAlloc::M(sizeof(struct namebuff));
 	if(!buf)
 		return NULL;

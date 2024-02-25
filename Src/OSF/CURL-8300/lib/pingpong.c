@@ -140,7 +140,7 @@ CURLcode Curl_pp_statemach(struct Curl_easy * data,
 /* initialize stuff to prepare for reading a fresh new response */
 void Curl_pp_init(struct Curl_easy * data, struct pingpong * pp)
 {
-	DEBUGASSERT(data);
+	assert(data);
 	pp->nread_resp = 0;
 	pp->linestart_resp = data->state.buffer;
 	pp->pending_resp = TRUE;
@@ -178,9 +178,9 @@ CURLcode Curl_pp_vsendf(struct Curl_easy * data,
 	enum protection_level data_sec;
 #endif
 
-	DEBUGASSERT(pp->sendleft == 0);
-	DEBUGASSERT(pp->sendsize == 0);
-	DEBUGASSERT(pp->sendthis == NULL);
+	assert(pp->sendleft == 0);
+	assert(pp->sendsize == 0);
+	assert(pp->sendthis == NULL);
 
 	if(!conn)
 		/* can't send without a connection! */
@@ -208,7 +208,7 @@ CURLcode Curl_pp_vsendf(struct Curl_easy * data,
 		return result;
 #ifdef HAVE_GSSAPI
 	data_sec = conn->data_prot;
-	DEBUGASSERT(data_sec > PROT_NONE && data_sec < PROT_LAST);
+	assert(data_sec > PROT_NONE && data_sec < PROT_LAST);
 	conn->data_prot = (uchar)data_sec;
 #endif
 
@@ -305,13 +305,13 @@ CURLcode Curl_pp_readresp(struct Curl_easy * data,
 			enum protection_level prot = conn->data_prot;
 			conn->data_prot = PROT_CLEAR;
 #endif
-			DEBUGASSERT((ptr + data->set.buffer_size - pp->nread_resp) <=
+			assert((ptr + data->set.buffer_size - pp->nread_resp) <=
 			    (buf + data->set.buffer_size + 1));
 			result = Curl_read(data, sockfd, ptr,
 				data->set.buffer_size - pp->nread_resp,
 				&gotbytes);
 #ifdef HAVE_GSSAPI
-			DEBUGASSERT(prot  > PROT_NONE && prot < PROT_LAST);
+			assert(prot  > PROT_NONE && prot < PROT_LAST);
 			conn->data_prot = (uchar)prot;
 #endif
 			if(result == CURLE_AGAIN)

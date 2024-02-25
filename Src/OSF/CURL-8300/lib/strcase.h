@@ -34,8 +34,7 @@
  *
  * Result is 1 if text matches and 0 if not.
  */
-
-#define strcasecompare(a,b) curl_strequal(a,b)
+// @v11.9.7 (replaced with sstreqi_ascii) #define strcasecompare_Removed(a,b) curl_strequal(a,b)
 #define strncasecompare(a,b,c) curl_strnequal(a,b,c)
 
 char Curl_raw_toupper(char in);

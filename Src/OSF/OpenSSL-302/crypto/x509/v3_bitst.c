@@ -52,9 +52,7 @@ STACK_OF(CONF_VALUE) *i2v_ASN1_BIT_STRING(X509V3_EXT_METHOD *method,
 	return ret;
 }
 
-ASN1_BIT_STRING * v2i_ASN1_BIT_STRING(X509V3_EXT_METHOD * method,
-    X509V3_CTX * ctx,
-    STACK_OF(CONF_VALUE) * nval)
+ASN1_BIT_STRING * v2i_ASN1_BIT_STRING(X509V3_EXT_METHOD * method, X509V3_CTX * ctx, STACK_OF(CONF_VALUE) * nval)
 {
 	CONF_VALUE * val;
 	ASN1_BIT_STRING * bs;
@@ -67,8 +65,7 @@ ASN1_BIT_STRING * v2i_ASN1_BIT_STRING(X509V3_EXT_METHOD * method,
 	for(i = 0; i < sk_CONF_VALUE_num(nval); i++) {
 		val = sk_CONF_VALUE_value(nval, i);
 		for(bnam = (BIT_STRING_BITNAME *)method->usr_data; bnam->lname; bnam++) {
-			if(strcmp(bnam->sname, val->name) == 0
-			    || strcmp(bnam->lname, val->name) == 0) {
+			if(strcmp(bnam->sname, val->name) == 0 || strcmp(bnam->lname, val->name) == 0) {
 				if(!ASN1_BIT_STRING_set_bit(bs, bnam->bitnum, 1)) {
 					ERR_raise(ERR_LIB_X509V3, ERR_R_MALLOC_FAILURE);
 					ASN1_BIT_STRING_free(bs);

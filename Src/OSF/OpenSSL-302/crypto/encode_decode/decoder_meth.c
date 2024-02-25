@@ -167,10 +167,8 @@ static int put_decoder_in_store(void * store, void * method,
 	 */
 	if(names) {
 		const char * q = strchr(names, NAME_SEPARATOR);
-
 		l = (q == NULL ? strlen(names) : (size_t)(q - names));
 	}
-
 	if((namemap = ossl_namemap_stored(methdata->libctx)) == NULL
 	    || (id = ossl_namemap_name2num_n(namemap, names, l)) == 0)
 		return 0;

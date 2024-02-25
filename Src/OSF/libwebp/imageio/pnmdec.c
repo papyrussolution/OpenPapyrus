@@ -94,29 +94,30 @@ static size_t ReadPAMFields(PNMInfo* const info, size_t off) {
 			info->seen_flags |= MAXVAL_FLAG;
 			info->max_value = tmp;
 		}
-		else if(!strcmp(out, "TUPLTYPE RGB_ALPHA")) {
+		else if(sstreq(out, "TUPLTYPE RGB_ALPHA")) {
 			expected_depth = 4;
 			info->seen_flags |= TUPLE_FLAG;
 		}
-		else if(!strcmp(out, "TUPLTYPE RGB")) {
+		else if(sstreq(out, "TUPLTYPE RGB")) {
 			expected_depth = 3;
 			info->seen_flags |= TUPLE_FLAG;
 		}
-		else if(!strcmp(out, "TUPLTYPE GRAYSCALE_ALPHA")) {
+		else if(sstreq(out, "TUPLTYPE GRAYSCALE_ALPHA")) {
 			expected_depth = 2;
 			info->seen_flags |= TUPLE_FLAG;
 		}
-		else if(!strcmp(out, "TUPLTYPE GRAYSCALE")) {
+		else if(sstreq(out, "TUPLTYPE GRAYSCALE")) {
 			expected_depth = 1;
 			info->seen_flags |= TUPLE_FLAG;
 		}
-		else if(!strcmp(out, "ENDHDR")) {
+		else if(sstreq(out, "ENDHDR")) {
 			break;
 		}
 		else {
 			static const char kEllipsis[] = " ...";
 			int i;
-			if(out_size > 20) sprintf(out + 20 - strlen(kEllipsis), kEllipsis);
+			if(out_size > 20) 
+				sprintf(out + 20 - strlen(kEllipsis), kEllipsis);
 			for(i = 0; i < (int)strlen(out); ++i) {
 				// isprint() might trigger a "char-subscripts" warning if given a char.
 				if(!isprint((int)out[i])) out[i] = ' ';

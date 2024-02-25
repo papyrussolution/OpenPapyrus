@@ -223,7 +223,7 @@ static CURLcode http_setup_conn(struct Curl_easy * data, struct connectdata * co
 	/* allocate the HTTP-specific struct for the Curl_easy, only to survive
 	   during this request */
 	struct HTTP * http;
-	DEBUGASSERT(data->req.p.http == NULL);
+	assert(data->req.p.http == NULL);
 	http = (HTTP *)SAlloc::C(1, sizeof(struct HTTP));
 	if(!http)
 		return CURLE_OUT_OF_MEMORY;
@@ -862,7 +862,7 @@ CURLcode Curl_http_output_auth(struct Curl_easy * data,
 	struct auth * authhost;
 	struct auth * authproxy;
 
-	DEBUGASSERT(data);
+	assert(data);
 
 	authhost = &data->state.authhost;
 	authproxy = &data->state.authproxy;
@@ -1153,8 +1153,8 @@ CURLcode Curl_http_input_auth(struct Curl_easy * data, bool proxy,
 static bool http_should_fail(struct Curl_easy * data)
 {
 	int httpcode;
-	DEBUGASSERT(data);
-	DEBUGASSERT(data->conn);
+	assert(data);
+	assert(data->conn);
 
 	httpcode = data->req.httpcode;
 
@@ -1189,7 +1189,7 @@ static bool http_should_fail(struct Curl_easy * data)
 	/*
 	** All we have left to deal with is 401 and 407
 	*/
-	DEBUGASSERT((httpcode == 401) || (httpcode == 407));
+	assert((httpcode == 401) || (httpcode == 407));
 	/*
 	** Examine the current authentication state to see if this
 	** is an error.  The idea is for this function to get
@@ -1283,7 +1283,7 @@ CURLcode Curl_buffer_send(struct dynbuf * in,
 	size_t sendsize;
 	size_t headersize;
 
-	DEBUGASSERT(sockindex <= SECONDARYSOCKET && sockindex >= 0);
+	assert(sockindex <= SECONDARYSOCKET && sockindex >= 0);
 
 	/* The looping below is required since we use non-blocking sockets, but due
 	   to the circumstances we will just loop and try again and again etc */
@@ -1294,7 +1294,7 @@ CURLcode Curl_buffer_send(struct dynbuf * in,
 	headersize = size - (size_t)included_body_bytes; /* the initial part that
 	                                                    isn't body is header */
 
-	DEBUGASSERT(size > (size_t)included_body_bytes);
+	assert(size > (size_t)included_body_bytes);
 
 	if((conn->handler->flags & PROTOPT_SSL
 #ifndef CURL_DISABLE_PROXY
@@ -1308,7 +1308,7 @@ CURLcode Curl_buffer_send(struct dynbuf * in,
 		if(data->set.max_send_speed &&
 		    (included_body_bytes > data->set.max_send_speed)) {
 			curl_off_t overflow = included_body_bytes - data->set.max_send_speed;
-			DEBUGASSERT((size_t)overflow < size);
+			assert((size_t)overflow < size);
 			sendsize = size - (size_t)overflow;
 		}
 		else
@@ -1359,7 +1359,7 @@ CURLcode Curl_buffer_send(struct dynbuf * in,
 			if(data->set.max_send_speed &&
 			    (included_body_bytes > data->set.max_send_speed)) {
 				curl_off_t overflow = included_body_bytes - data->set.max_send_speed;
-				DEBUGASSERT((size_t)overflow < size);
+				assert((size_t)overflow < size);
 				sendsize = size - (size_t)overflow;
 			}
 			else
@@ -1487,10 +1487,10 @@ bool Curl_compareheader(const char * headerline, /* line to check */
 	size_t len;
 	const char * start;
 	const char * end;
-	DEBUGASSERT(hlen);
-	DEBUGASSERT(clen);
-	DEBUGASSERT(header);
-	DEBUGASSERT(content);
+	assert(hlen);
+	assert(clen);
+	assert(header);
+	assert(content);
 
 	if(!strncasecompare(headerline, header, hlen))
 		return FALSE; /* doesn't start with header */
@@ -1817,7 +1817,7 @@ CURLcode Curl_dynhds_add_custom(struct Curl_easy * data, bool is_connect, struct
 				}
 			}
 
-			DEBUGASSERT(name && value);
+			assert(name && value);
 			if(data->state.aptr.host &&
 			    /* a Host: header was sent already, don't pass on any custom Host:
 			       header as that will produce *two* in the same request! */
@@ -2123,7 +2123,7 @@ void Curl_http_method(struct Curl_easy * data, struct connectdata * conn,
 		if(data->req.no_body)
 			request = "HEAD";
 		else {
-			DEBUGASSERT((httpreq >= HTTPREQ_GET) && (httpreq <= HTTPREQ_HEAD));
+			assert((httpreq >= HTTPREQ_GET) && (httpreq <= HTTPREQ_HEAD));
 			switch(httpreq) {
 				case HTTPREQ_POST:
 				case HTTPREQ_POST_FORM:
@@ -2179,7 +2179,7 @@ CURLcode Curl_http_host(struct Curl_easy * data, struct connectdata * conn)
 
 	ptr = Curl_checkheaders(data, STRCONST("Host"));
 	if(ptr && (!data->state.this_is_a_follow ||
-	    strcasecompare(data->state.first_host, conn->host.name))) {
+	    sstreqi_ascii(data->state.first_host, conn->host.name))) {
 #if !defined(CURL_DISABLE_COOKIES)
 		/* If we have a given custom Host: header, we extract the host name in
 		   order to possibly use it for cookie reasons later on. We only allow the
@@ -2290,7 +2290,7 @@ CURLcode Curl_http_target(struct Curl_easy * data,
 			return CURLE_OUT_OF_MEMORY;
 		}
 
-		if(strcasecompare("http", data->state.up.scheme)) {
+		if(sstreqi_ascii("http", data->state.up.scheme)) {
 			/* when getting HTTP, we don't want the userinfo the URL */
 			uc = curl_url_set(h, CURLUPART_USER, NULL, 0);
 			if(uc) {
@@ -2317,7 +2317,7 @@ CURLcode Curl_http_target(struct Curl_easy * data,
 		SAlloc::F(url);
 		if(result)
 			return (result);
-		if(strcasecompare("ftp", data->state.up.scheme)) {
+		if(sstreqi_ascii("ftp", data->state.up.scheme)) {
 			if(data->set.proxy_transfer_mode) {
 				/* when doing ftp, append ;type=<a|i> if not present */
 				const char * type = strstr(path, ";type=");
@@ -2817,7 +2817,7 @@ CURLcode Curl_http_cookies(struct Curl_easy * data,
 		if(data->cookies && data->state.cookie_engine) {
 			const char * host = data->state.aptr.cookiehost ? data->state.aptr.cookiehost : conn->host.name;
 			const bool secure_context = conn->handler->protocol&(CURLPROTO_HTTPS|CURLPROTO_WSS) ||
-			    strcasecompare("localhost", host) || !strcmp(host, "127.0.0.1") || !strcmp(host, "::1") ? TRUE : FALSE;
+			    sstreqi_ascii("localhost", host) || sstreq(host, "127.0.0.1") || sstreq(host, "::1") ? TRUE : FALSE;
 			Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
 			co = Curl_cookie_getlist(data, data->cookies, host, data->state.up.path,
 				secure_context);
@@ -3128,7 +3128,7 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 
 	switch(conn->alpn) {
 		case CURL_HTTP_VERSION_3:
-		    DEBUGASSERT(Curl_conn_is_http3(data, conn, FIRSTSOCKET));
+		    assert(Curl_conn_is_http3(data, conn, FIRSTSOCKET));
 		    break;
 		case CURL_HTTP_VERSION_2:
 #ifndef CURL_DISABLE_PROXY
@@ -3141,7 +3141,7 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 		    }
 		    else
 #endif
-		    DEBUGASSERT(Curl_conn_is_http2(data, conn, FIRSTSOCKET));
+		    assert(Curl_conn_is_http2(data, conn, FIRSTSOCKET));
 		    break;
 		case CURL_HTTP_VERSION_1_1:
 		    /* continue with HTTP/1.1 when explicitly requested */
@@ -3158,7 +3158,7 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 	}
 
 	http = data->req.p.http;
-	DEBUGASSERT(http);
+	assert(http);
 
 	result = Curl_http_host(data, conn);
 	if(result)
@@ -3615,22 +3615,18 @@ CURLcode Curl_http_header(struct Curl_easy * data, struct connectdata * conn,
 		// If there is a custom-set Host: name, use it here, or else use real peer host name
 		const char * host = data->state.aptr.cookiehost ? data->state.aptr.cookiehost:conn->host.name;
 		const bool secure_context = conn->handler->protocol&(CURLPROTO_HTTPS|CURLPROTO_WSS) ||
-		    strcasecompare("localhost", host) || !strcmp(host, "127.0.0.1") || !strcmp(host, "::1") ? TRUE : FALSE;
+		    sstreqi_ascii("localhost", host) || sstreq(host, "127.0.0.1") || sstreq(host, "::1") ? TRUE : FALSE;
 		Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
 		Curl_cookie_add(data, data->cookies, TRUE, FALSE, headp + strlen("Set-Cookie:"), host, data->state.up.path, secure_context);
 		Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
 	}
 #endif
-	else if(!k->http_bodyless && checkprefix("Last-Modified:", headp) &&
-	    (data->set.timecondition || data->set.get_filetime) ) {
+	else if(!k->http_bodyless && checkprefix("Last-Modified:", headp) && (data->set.timecondition || data->set.get_filetime) ) {
 		k->timeofdoc = Curl_getdate_capped(headp + strlen("Last-Modified:"));
 		if(data->set.get_filetime)
 			data->info.filetime = k->timeofdoc;
 	}
-	else if((checkprefix("WWW-Authenticate:", headp) &&
-	    (401 == k->httpcode)) ||
-	    (checkprefix("Proxy-authenticate:", headp) &&
-	    (407 == k->httpcode))) {
+	else if((checkprefix("WWW-Authenticate:", headp) && (401 == k->httpcode)) || (checkprefix("Proxy-authenticate:", headp) && (407 == k->httpcode))) {
 		bool proxy = (k->httpcode == 407) ? TRUE : FALSE;
 		char * auth = Curl_copy_header_value(headp);
 		if(!auth)
@@ -3671,7 +3667,7 @@ CURLcode Curl_http_header(struct Curl_easy * data, struct connectdata * conn,
 			data->req.location = location;
 
 			if(data->set.http_follow_location) {
-				DEBUGASSERT(!data->req.newurl);
+				assert(!data->req.newurl);
 				data->req.newurl = strdup(data->req.location); /* clone */
 				if(!data->req.newurl)
 					return CURLE_OUT_OF_MEMORY;
@@ -4028,7 +4024,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 					    /* Switching Protocols */
 					    if(k->upgr101 == UPGR101_H2) {
 						    /* Switching to HTTP/2 */
-						    DEBUGASSERT(conn->httpversion < 20);
+						    assert(conn->httpversion < 20);
 						    infof(data, "Received 101, Switching to HTTP/2");
 						    k->upgr101 = UPGR101_RECEIVED;
 
@@ -4220,7 +4216,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 										    return result;
 								    }
 								    data->state.disableexpect = TRUE;
-								    DEBUGASSERT(!data->req.newurl);
+								    assert(!data->req.newurl);
 								    data->req.newurl = strdup(data->state.url);
 								    Curl_done_sending(data, k);
 							    }
@@ -4528,7 +4524,7 @@ CURLcode Curl_http_req_make(struct httpreq ** preq, const char * method, size_t 
 {
 	struct httpreq * req;
 	CURLcode result = CURLE_OUT_OF_MEMORY;
-	DEBUGASSERT(method);
+	assert(method);
 	if(m_len + 1 >= sizeof(req->method))
 		return CURLE_BAD_FUNCTION_ARGUMENT;
 	req = (httpreq *)SAlloc::C(1, sizeof(*req));
@@ -4680,7 +4676,7 @@ CURLcode Curl_http_req_make2(struct httpreq ** preq, const char * method, size_t
 	struct httpreq * req;
 	CURLcode result = CURLE_OUT_OF_MEMORY;
 	CURLUcode uc;
-	DEBUGASSERT(method);
+	assert(method);
 	if(m_len + 1 >= sizeof(req->method))
 		return CURLE_BAD_FUNCTION_ARGUMENT;
 	req = (httpreq *)SAlloc::C(1, sizeof(*req));
@@ -4746,7 +4742,7 @@ static bool h2_non_field(const char * name, size_t namelen)
 		if(namelen < H2_NON_FIELD[i].namelen)
 			return FALSE;
 		if(namelen == H2_NON_FIELD[i].namelen &&
-		    strcasecompare(H2_NON_FIELD[i].name, name))
+		    sstreqi_ascii(H2_NON_FIELD[i].name, name))
 			return TRUE;
 	}
 	return FALSE;
@@ -4760,8 +4756,8 @@ CURLcode Curl_http_req_to_h2(struct dynhds * h2_headers,
 	size_t i;
 	CURLcode result;
 
-	DEBUGASSERT(req);
-	DEBUGASSERT(h2_headers);
+	assert(req);
+	assert(h2_headers);
 
 	if(req->scheme) {
 		scheme = req->scheme;

@@ -201,16 +201,14 @@ char * ssh_find_all_matching(const char * available_list, const char * preferred
 		ZFREE(ret);
 		goto out;
 	}
-
 	for(i = 0; p_tok->tokens[i]; i++) {
 		for(j = 0; a_tok->tokens[j]; j++) {
-			match = !strcmp(a_tok->tokens[j], p_tok->tokens[i]);
+			match = sstreq(a_tok->tokens[j], p_tok->tokens[i]);
 			if(match) {
 				if(pos != 0) {
 					ret[pos] = ',';
 					pos++;
 				}
-
 				len = strlen(a_tok->tokens[j]);
 				memcpy(&ret[pos], a_tok->tokens[j], len);
 				pos += len;
@@ -218,11 +216,9 @@ char * ssh_find_all_matching(const char * available_list, const char * preferred
 			}
 		}
 	}
-
 	if(ret[0] == '\0') {
 		ZFREE(ret);
 	}
-
 out:
 	ssh_tokens_free(a_tok);
 	ssh_tokens_free(p_tok);

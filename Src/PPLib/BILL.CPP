@@ -989,14 +989,14 @@ int BillCore::_Enum(int idx, PPID id, DateIter * pDI, void * b)
 	return ok;
 }
 
-int BillCore::GetListOfOrdersByLading(PPID billID, PPIDArray * pOrderBillList)
+int BillCore::GetListOfOrdersByLading(PPID billID, PPIDArray & rOrderBillList)
 {
 	int    ok = -1;
 	DateIter diter;
 	BillTbl::Rec sh_bill_rec, ord_bill_rec;
 	while(EnumLinks(billID, &diter, BLNK_SHADOW, &sh_bill_rec) > 0) {
 		if(Search(sh_bill_rec.Object, &ord_bill_rec) > 0) {
-			pOrderBillList->addUnique(ord_bill_rec.ID);
+			rOrderBillList.addUnique(ord_bill_rec.ID);
 			ok = 1;
 		}
 	}

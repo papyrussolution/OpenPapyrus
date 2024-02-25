@@ -6063,7 +6063,7 @@ int PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * pBill)
 				}
 			}
 			else {
-				if(P_BObj->P_Tbl->GetListOfOrdersByLading(pPack->Rec.ID, &ord_bill_list) > 0) {
+				if(P_BObj->P_Tbl->GetListOfOrdersByLading(pPack->Rec.ID, ord_bill_list) > 0) {
 					for(uint j = 0; j < ord_bill_list.getCount(); j++) {
 						PPID  ord_bill_id = ord_bill_list.get(j);
 						ltoa(ord_bill_id, pBill->OrderBillID, 10);
@@ -6624,7 +6624,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 				n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WARENAME), EncText(temp_buf));
 				if(GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
 					// @v11.9.6 {
-					if(u_rec.BaseUnitID == SUOM_KILOGRAM)
+					if(u_rec.ID == SUOM_KILOGRAM || u_rec.BaseUnitID == SUOM_KILOGRAM)
 						is_weighted_ware = true;
 					// } @v11.9.6 
 					(unit_name = u_rec.Name).Transf(CTRANSF_INNER_TO_OUTER); // @v10.6.11
@@ -6856,9 +6856,15 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 				if(oneof2(chzn_prod_type, GTCHZNPT_MILK, GTCHZNPT_WATER) && !is_there_extcodes) {
 					if(barcode_for_marking.NotEmpty()) {
 						assert(barcode_for_marking.Len() < 14);
-						(temp_buf = barcode_for_marking).PadLeft(14-barcode_for_marking.Len(), '0').Insert(0, "02").Cat("37").Cat(R0i(qtty_local));
-						SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
-						n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+						if(chzn_prod_type == GTCHZNPT_MILK && is_weighted_ware) { // @v11.9.7
+							// Для весовой молочной продукции указывается количество упаковок - пока пишем фиксированную единицу
+							(temp_buf = barcode_for_marking).PadLeft(14-barcode_for_marking.Len(), '0').Insert(0, "02").Cat("37").Cat("1");
+						}
+						else {
+							(temp_buf = barcode_for_marking).PadLeft(14-barcode_for_marking.Len(), '0').Insert(0, "02").Cat("37").Cat(R0i(qtty_local));
+							SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
+							n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+						}
 					}
 				}
 				else { // } @v11.4.10 

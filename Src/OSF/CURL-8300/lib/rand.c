@@ -193,7 +193,7 @@ static CURLcode randit(struct Curl_easy * data, uint * rnd)
 CURLcode Curl_rand(struct Curl_easy * data, uchar * rnd, size_t num)
 {
 	CURLcode result = CURLE_BAD_FUNCTION_ARGUMENT;
-	DEBUGASSERT(num > 0);
+	assert(num > 0);
 	while(num) {
 		uint r;
 		size_t left = num < sizeof(uint) ? num : sizeof(uint);
@@ -224,7 +224,7 @@ CURLcode Curl_rand_hex(struct Curl_easy * data, uchar * rnd, size_t num)
 	//const char * hex = "0123456789abcdef";
 	uchar buffer[128];
 	uchar * bufp = buffer;
-	DEBUGASSERT(num > 1);
+	assert(num > 1);
 
 #ifdef __clang_analyzer__
 	/* This silences a scan-build warning about accessing this buffer with uninitialized memory. */

@@ -181,15 +181,15 @@ static cairo_status_t _cairo_quartz_font_face_create_for_toy(cairo_toy_font_face
 	family = toy_face->family;
 	full_name = SAlloc::M_zon0(strlen(family) + 64); // give us a bit of room to tack on Bold, Oblique, etc.
 	/* handle CSS-ish faces */
-	if(!strcmp(family, "serif") || !strcmp(family, "Times Roman"))
+	if(sstreq(family, "serif") || sstreq(family, "Times Roman"))
 		family = "Times";
-	else if(!strcmp(family, "sans-serif") || !strcmp(family, "sans"))
+	else if(sstreq(family, "sans-serif") || sstreq(family, "sans"))
 		family = "Helvetica";
-	else if(!strcmp(family, "cursive"))
+	else if(sstreq(family, "cursive"))
 		family = "Apple Chancery";
-	else if(!strcmp(family, "fantasy"))
+	else if(sstreq(family, "fantasy"))
 		family = "Papyrus";
-	else if(!strcmp(family, "monospace") || !strcmp(family, "mono"))
+	else if(sstreq(family, "monospace") || sstreq(family, "mono"))
 		family = "Courier";
 
 	/* Try to build up the full name, e.g. "Helvetica Bold Oblique" first,

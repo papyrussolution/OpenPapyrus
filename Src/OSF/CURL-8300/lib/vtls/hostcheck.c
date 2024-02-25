@@ -80,10 +80,10 @@ static bool pmatch(const char * hostname, size_t hostlen,
 static bool hostmatch(const char * hostname, size_t hostlen, const char * pattern, size_t patternlen)
 {
 	const char * pattern_label_end;
-	DEBUGASSERT(pattern);
-	DEBUGASSERT(patternlen);
-	DEBUGASSERT(hostname);
-	DEBUGASSERT(hostlen);
+	assert(pattern);
+	assert(patternlen);
+	assert(hostname);
+	assert(hostlen);
 	/* normalize pattern and hostname by stripping off trailing dots */
 	if(hostname[hostlen-1]=='.')
 		hostlen--;

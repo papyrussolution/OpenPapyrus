@@ -58,11 +58,11 @@ void Curl_hash_init(struct Curl_hash * h,
     comp_function comparator,
     Curl_hash_dtor dtor)
 {
-	DEBUGASSERT(h);
-	DEBUGASSERT(slots);
-	DEBUGASSERT(hfunc);
-	DEBUGASSERT(comparator);
-	DEBUGASSERT(dtor);
+	assert(h);
+	assert(slots);
+	assert(hfunc);
+	assert(comparator);
+	assert(dtor);
 
 	h->table = NULL;
 	h->hash_func = hfunc;
@@ -100,8 +100,8 @@ void *Curl_hash_add(struct Curl_hash * h, void * key, size_t key_len, void * p)
 	struct Curl_hash_element  * he;
 	struct Curl_llist_element * le;
 	struct Curl_llist * l;
-	DEBUGASSERT(h);
-	DEBUGASSERT(h->slots);
+	assert(h);
+	assert(h->slots);
 	if(!h->table) {
 		int i;
 		h->table = (Curl_llist *)SAlloc::M(h->slots * sizeof(struct Curl_llist));
@@ -141,8 +141,8 @@ int Curl_hash_delete(struct Curl_hash * h, void * key, size_t key_len)
 {
 	struct Curl_llist_element * le;
 	struct Curl_llist * l;
-	DEBUGASSERT(h);
-	DEBUGASSERT(h->slots);
+	assert(h);
+	assert(h->slots);
 	if(h->table) {
 		l = FETCH_LIST(h, key, key_len);
 		for(le = l->head; le; le = le->next) {
@@ -166,9 +166,9 @@ void *Curl_hash_pick(struct Curl_hash * h, void * key, size_t key_len)
 	struct Curl_llist_element * le;
 	struct Curl_llist * l;
 
-	DEBUGASSERT(h);
+	assert(h);
 	if(h->table) {
-		DEBUGASSERT(h->slots);
+		assert(h->slots);
 		l = FETCH_LIST(h, key, key_len);
 		for(le = l->head; le; le = le->next) {
 			struct Curl_hash_element * he = (Curl_hash_element *)le->ptr;

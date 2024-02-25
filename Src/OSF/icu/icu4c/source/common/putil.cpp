@@ -747,10 +747,8 @@ static const char * remapShortTimeZone(const char * stdID, const char * dstID, i
 	slfprintf_stderr("TZ=%s std=%s dst=%s daylight=%d offset=%d\n", getenv("TZ"), stdID, dstID, daylightType, offset);
 #endif
 	for(idx = 0; idx < SIZEOFARRAYi(OFFSET_ZONE_MAPPINGS); idx++) {
-		if(offset == OFFSET_ZONE_MAPPINGS[idx].offsetSeconds
-		 && daylightType == OFFSET_ZONE_MAPPINGS[idx].daylightType
-		 && strcmp(OFFSET_ZONE_MAPPINGS[idx].stdID, stdID) == 0
-		 && strcmp(OFFSET_ZONE_MAPPINGS[idx].dstID, dstID) == 0) {
+		if(offset == OFFSET_ZONE_MAPPINGS[idx].offsetSeconds && daylightType == OFFSET_ZONE_MAPPINGS[idx].daylightType && 
+			strcmp(OFFSET_ZONE_MAPPINGS[idx].stdID, stdID) == 0 && strcmp(OFFSET_ZONE_MAPPINGS[idx].dstID, dstID) == 0) {
 			return OFFSET_ZONE_MAPPINGS[idx].olsonID;
 		}
 	}
@@ -875,8 +873,7 @@ static char * searchForTZFile(const char * path, DefaultTZInfo* tzInfo) {
 	/* Check each entry in the directory. */
 	while((dirEntry = readdir(dirp)) != NULL) {
 		const char * dirName = dirEntry->d_name;
-		if(strcmp(dirName, SKIP1) != 0 && strcmp(dirName, SKIP2) != 0
-		 && strcmp(TZFILE_SKIP, dirName) != 0 && strcmp(TZFILE_SKIP2, dirName) != 0) {
+		if(strcmp(dirName, SKIP1) != 0 && strcmp(dirName, SKIP2) != 0 && strcmp(TZFILE_SKIP, dirName) != 0 && strcmp(TZFILE_SKIP2, dirName) != 0) {
 			/* Create a newpath with the new entry to test each entry in the directory. */
 			CharString newpath(curpath, status);
 			newpath.append(dirName, -1, status);
@@ -1225,9 +1222,8 @@ U_CAPI bool U_EXPORT2 uprv_pathIsAbsolute(const char * path)
 		return TRUE;
 	}
 #endif
-
 #if U_PLATFORM_USES_ONLY_WIN32_API
-	if((((path[0] >= 'A') && (path[0] <= 'Z')) || ((path[0] >= 'a') && (path[0] <= 'z'))) && path[1] == ':') {
+	if(isasciialpha(path[0]) && path[1] == ':') {
 		return TRUE;
 	}
 #endif
@@ -1348,17 +1344,16 @@ U_CAPI const char * U_EXPORT2 u_getDataDirectory(void)
 
 static void setTimeZoneFilesDir(const char * path, UErrorCode & status) 
 {
-	if(U_FAILURE(status)) {
-		return;
-	}
-	gTimeZoneFilesDirectory->clear();
-	gTimeZoneFilesDirectory->append(path, status);
+	if(U_SUCCESS(status)) {
+		gTimeZoneFilesDirectory->clear();
+		gTimeZoneFilesDirectory->append(path, status);
 #if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
-	char * p = gTimeZoneFilesDirectory->data();
-	while((p = uprv_strchr(p, U_FILE_ALT_SEP_CHAR)) != NULL) {
-		*p = U_FILE_SEP_CHAR;
-	}
+		char * p = gTimeZoneFilesDirectory->data();
+		while((p = uprv_strchr(p, U_FILE_ALT_SEP_CHAR)) != NULL) {
+			*p = U_FILE_SEP_CHAR;
+		}
 #endif
+	}
 }
 
 // @v11.4.4 #define TO_STRING(x) TO_STRING_2(x)
@@ -1721,14 +1716,11 @@ U_CAPI const char * U_EXPORT2 uprv_getDefaultLocaleID()
 	 * QLGPGCMA_4 means UTF-32
 	 * QLGPGCMA_8 means UTF-8
 	 */
-	if((strcmp("C", correctedLocale) == 0) ||
-	    (strcmp("POSIX", correctedLocale) == 0) ||
-	    (uprv_strncmp("QLGPGCMA", correctedLocale, 8) == 0)) {
+	if((strcmp("C", correctedLocale) == 0) || (strcmp("POSIX", correctedLocale) == 0) || (uprv_strncmp("QLGPGCMA", correctedLocale, 8) == 0)) {
 		strcpy(correctedLocale, "en_US_POSIX");
 	}
 	else {
 		int16 LocaleLen;
-
 		/* Lower case the lang portion. */
 		for(p = correctedLocale; *p != 0 && *p != '_'; p++) {
 			*p = uprv_tolower(*p);
@@ -1877,8 +1869,7 @@ static const char * remapPlatformDependentCodepage(const char * locale, const ch
 		 */
 		name = "eucjis";
 	}
-	else if(locale && strcmp(locale, "en_US_POSIX") != 0 &&
-	    (strcmp(name, "ANSI_X3.4-1968") == 0 || strcmp(name, "US-ASCII") == 0)) {
+	else if(locale && strcmp(locale, "en_US_POSIX") != 0 && (strcmp(name, "ANSI_X3.4-1968") == 0 || strcmp(name, "US-ASCII") == 0)) {
 		/*
 		 * For non C/POSIX locale, default the code page to UTF-8 instead of US-ASCII.
 		 */

@@ -7204,7 +7204,7 @@ int PPObjBill::ProcessShadowPacket(PPBillPacket * pPack, int doUpdate)
 	uint   pos;
 	ReceiptTbl::Rec lot_rec;
 	PPIDArray old_shadow_bills;
-	PPIDArray new_shadow_bills; // @v9.5.3
+	PPIDArray new_shadow_bills;
 	PPIDArray orders;
 	PPTransferItem ti;
 	if(pPack->Rec.ID) {
@@ -8054,7 +8054,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 			GetCorrectionBackChain(pPack->Rec, correction_exp_chain);
 		if(CcFlags & CCFLG_DEBUG) {
 			if(CheckOpFlags(pPack->Rec.OpID, OPKF_ONORDER)) {
-				P_Tbl->GetListOfOrdersByLading(pPack->Rec.ID, &_debug_org_ord_bill_list);
+				P_Tbl->GetListOfOrdersByLading(pPack->Rec.ID, _debug_org_ord_bill_list);
 				if(_debug_org_ord_bill_list.getCount() && (!pPack->P_ShLots || !pPack->P_ShLots->getCount())) {
 					PPLoadText(PPTXT_LOG_BILLHASLORDEMPTYSHL2, fmt_buf);
 					PPObjBill::MakeCodeString(&pPack->Rec, PPObjBill::mcsAddOpName, bill_code);
@@ -8375,7 +8375,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 			if(CcFlags & CCFLG_DEBUG) {
 				if(CheckOpFlags(pPack->Rec.OpID, OPKF_ONORDER)) {
 					PPIDArray _debug_new_ord_bill_list;
-					P_Tbl->GetListOfOrdersByLading(pPack->Rec.ID, &_debug_new_ord_bill_list);
+					P_Tbl->GetListOfOrdersByLading(pPack->Rec.ID, _debug_new_ord_bill_list);
 					_debug_org_ord_bill_list.sortAndUndup();
 					_debug_new_ord_bill_list.sortAndUndup();
 					if(!_debug_org_ord_bill_list.IsEq(&_debug_new_ord_bill_list)) {

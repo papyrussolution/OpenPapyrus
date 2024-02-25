@@ -384,8 +384,8 @@ CURLcode Curl_output_ntlm_wb(struct Curl_easy * data, struct connectdata * conn,
 
 	CURLcode res = CURLE_OK;
 
-	DEBUGASSERT(conn);
-	DEBUGASSERT(data);
+	assert(conn);
+	assert(data);
 
 	if(proxy) {
 #ifndef CURL_DISABLE_PROXY

@@ -190,8 +190,7 @@ static void U_CALLCONV initFromResourceBundle(UErrorCode & sts) {
 					// a timezone key uses a colon instead of a slash in the resource.
 					// e.g. America:Los_Angeles
 					if(uprv_strchr(legacyTypeId, ':') != NULL) {
-						icu::CharString* legacyTypeIdBuf =
-						    gKeyTypeStringPool->create(legacyTypeId, sts);
+						icu::CharString* legacyTypeIdBuf = gKeyTypeStringPool->create(legacyTypeId, sts);
 						if(legacyTypeIdBuf == NULL) {
 							sts = U_MEMORY_ALLOCATION_ERROR;
 							break;
@@ -267,8 +266,7 @@ static void U_CALLCONV initFromResourceBundle(UErrorCode & sts) {
 							if(isTZ) {
 								// replace colon with slash if necessary
 								if(uprv_strchr(from, ':') != NULL) {
-									icu::CharString* fromBuf =
-									    gKeyTypeStringPool->create(from, sts);
+									icu::CharString* fromBuf = gKeyTypeStringPool->create(from, sts);
 									if(fromBuf == NULL) {
 										sts = U_MEMORY_ALLOCATION_ERROR;
 										break;
@@ -276,10 +274,7 @@ static void U_CALLCONV initFromResourceBundle(UErrorCode & sts) {
 									if(U_FAILURE(sts)) {
 										break;
 									}
-									std::replace(
-										fromBuf->data(),
-										fromBuf->data() + fromBuf->length(),
-										':', '/');
+									std::replace(fromBuf->data(), fromBuf->data() + fromBuf->length(), ':', '/');
 									from = fromBuf->data();
 								}
 							}

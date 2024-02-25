@@ -59,7 +59,7 @@ struct curl_slist *Curl_slist_append_nodup(struct curl_slist * list, char * data
 {
 	struct curl_slist * last;
 	struct curl_slist * new_item;
-	DEBUGASSERT(data);
+	assert(data);
 	new_item = (curl_slist *)SAlloc::M(sizeof(struct curl_slist));
 	if(!new_item)
 		return NULL;

@@ -133,7 +133,7 @@ int main(int argc, char ** argv)
 #endif
 	LIBXML_TEST_VERSION xmlSetStructuredErrorFunc(NULL, structured_errors);
 	if(argc >= 2) {
-		if(!strcmp(argv[1], "-q")) {
+		if(sstreq(argv[1], "-q")) {
 			quiet = 1;
 			if(argc >= 3)
 				ret = test_module(argv[2]);
@@ -653,32 +653,11 @@ static void des_xmlBufferPtr(int no ATTRIBUTE_UNUSED, xmlBuffer * val, int nr AT
 }
 
 #define gen_nb_xmlListPtr 2
-static xmlList * gen_xmlListPtr(int no, int nr ATTRIBUTE_UNUSED) 
-{
-	if(no == 0) return(xmlListCreate(NULL, NULL));
-	return NULL;
-}
-
-static void des_xmlListPtr(int no ATTRIBUTE_UNUSED, xmlList * val, int nr ATTRIBUTE_UNUSED) 
-{
-	if(val != NULL) {
-		xmlListDelete(val);
-	}
-}
-
+static xmlList * gen_xmlListPtr(int no, int nr ATTRIBUTE_UNUSED) { return (no == 0) ? xmlListCreate(NULL, NULL) : NULL; }
+static void des_xmlListPtr(int no ATTRIBUTE_UNUSED, xmlList * val, int nr ATTRIBUTE_UNUSED) { xmlListDelete(val); }
 #define gen_nb_xmlHashTablePtr 2
-static xmlHashTable * gen_xmlHashTablePtr(int no, int nr ATTRIBUTE_UNUSED) 
-{
-	if(no == 0) return(xmlHashCreate(10));
-	return NULL;
-}
-
-static void des_xmlHashTablePtr(int no ATTRIBUTE_UNUSED, xmlHashTable * val, int nr ATTRIBUTE_UNUSED) 
-{
-	if(val != NULL) {
-		xmlHashFree(val, NULL);
-	}
-}
+static xmlHashTable * gen_xmlHashTablePtr(int no, int nr ATTRIBUTE_UNUSED)  { return (no == 0) ? xmlHashCreate(10) : NULL; }
+static void des_xmlHashTablePtr(int no ATTRIBUTE_UNUSED, xmlHashTable * val, int nr ATTRIBUTE_UNUSED) { xmlHashFree(val, NULL); }
 
 //#include <libxml/xpathInternals.h>
 
@@ -693,12 +672,7 @@ static xmlXPathObject * gen_xmlXPathObjectPtr(int no, int nr ATTRIBUTE_UNUSED)
 	return NULL;
 }
 
-static void des_xmlXPathObjectPtr(int no ATTRIBUTE_UNUSED, xmlXPathObject * val, int nr ATTRIBUTE_UNUSED) 
-{
-	if(val != NULL) {
-		xmlXPathFreeObject(val);
-	}
-}
+static void des_xmlXPathObjectPtr(int no ATTRIBUTE_UNUSED, xmlXPathObject * val, int nr ATTRIBUTE_UNUSED) { xmlXPathFreeObject(val); }
 
 #endif
 
@@ -706,16 +680,10 @@ static void des_xmlXPathObjectPtr(int no ATTRIBUTE_UNUSED, xmlXPathObject * val,
 #define gen_nb_xmlOutputBufferPtr 2
 static xmlOutputBuffer * gen_xmlOutputBufferPtr(int no, int nr ATTRIBUTE_UNUSED) 
 {
-	if(no == 0) return(xmlOutputBufferCreateFilename("test.out", NULL, 0));
-	return NULL;
+	return (no == 0) ? xmlOutputBufferCreateFilename("test.out", NULL, 0) : NULL;
 }
 
-static void des_xmlOutputBufferPtr(int no ATTRIBUTE_UNUSED, xmlOutputBuffer * val, int nr ATTRIBUTE_UNUSED) 
-{
-	if(val != NULL) {
-		xmlOutputBufferClose(val);
-	}
-}
+static void des_xmlOutputBufferPtr(int no ATTRIBUTE_UNUSED, xmlOutputBuffer * val, int nr ATTRIBUTE_UNUSED) { xmlOutputBufferClose(val); }
 
 #endif
 
@@ -728,28 +696,21 @@ static void * gen_xmlNanoFTPCtxtPtr(int no, int nr ATTRIBUTE_UNUSED) {
 	return NULL;
 }
 
-static void des_xmlNanoFTPCtxtPtr(int no ATTRIBUTE_UNUSED, void * val, int nr ATTRIBUTE_UNUSED) {
-	if(val != NULL) {
-		xmlNanoFTPFreeCtxt(val);
-	}
-}
+static void des_xmlNanoFTPCtxtPtr(int no ATTRIBUTE_UNUSED, void * val, int nr ATTRIBUTE_UNUSED) { xmlNanoFTPFreeCtxt(val); }
 
 #endif
 
 #ifdef LIBXML_HTTP_ENABLED
 #define gen_nb_xmlNanoHTTPCtxtPtr 1
-static void * gen_xmlNanoHTTPCtxtPtr(int no, int nr ATTRIBUTE_UNUSED) {
+static void * gen_xmlNanoHTTPCtxtPtr(int no, int nr ATTRIBUTE_UNUSED) 
+{
 	if(no == 0) return(xmlNanoHTTPOpen(REMOTE1GOOD, NULL));
 	if(no == 1) return(xmlNanoHTTPOpen(REMOTE2GOOD, NULL));
 	if(no == 2) return(xmlNanoHTTPOpen(REMOTE1BAD, NULL));
 	return NULL;
 }
 
-static void des_xmlNanoHTTPCtxtPtr(int no ATTRIBUTE_UNUSED, void * val, int nr ATTRIBUTE_UNUSED) {
-	if(val != NULL) {
-		xmlNanoHTTPClose(val);
-	}
-}
+static void des_xmlNanoHTTPCtxtPtr(int no ATTRIBUTE_UNUSED, void * val, int nr ATTRIBUTE_UNUSED) { xmlNanoHTTPClose(val); }
 
 #endif
 
@@ -767,90 +728,40 @@ static void des_xmlCharEncoding(int no ATTRIBUTE_UNUSED, xmlCharEncoding val ATT
 #if defined(LIBXML_REGEXP_ENABLED) && defined(LIBXML_EXPR_ENABLED)
 
 #define gen_nb_xmlExpCtxtPtr 1
-static xmlExpCtxtPtr gen_xmlExpCtxtPtr(int no ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {
-	return NULL;
-}
-
-static void des_xmlExpCtxtPtr(int no ATTRIBUTE_UNUSED, xmlExpCtxtPtr val ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {
-}
-
+static xmlExpCtxtPtr gen_xmlExpCtxtPtr(int no ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) { return NULL; }
+static void des_xmlExpCtxtPtr(int no ATTRIBUTE_UNUSED, xmlExpCtxtPtr val ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {}
 #define gen_nb_xmlExpNodePtr 1
-static xmlExpNodePtr gen_xmlExpNodePtr(int no ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {
-	return NULL;
-}
-
-static void des_xmlExpNodePtr(int no ATTRIBUTE_UNUSED, xmlExpNodePtr val ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {
-}
+static xmlExpNodePtr gen_xmlExpNodePtr(int no ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) { return NULL; }
+static void des_xmlExpNodePtr(int no ATTRIBUTE_UNUSED, xmlExpNodePtr val ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {}
 
 #endif
 
 #if defined(LIBXML_SCHEMAS_ENABLED)
 #define gen_nb_xmlSchemaPtr 1
-static xmlSchemaPtr gen_xmlSchemaPtr(int no ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {
-	return NULL;
-}
-
-static void des_xmlSchemaPtr(int no ATTRIBUTE_UNUSED, xmlSchemaPtr val ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {
-}
-
+static xmlSchemaPtr gen_xmlSchemaPtr(int no ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) { return NULL; }
+static void des_xmlSchemaPtr(int no ATTRIBUTE_UNUSED, xmlSchemaPtr val ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {}
 #define gen_nb_xmlSchemaValidCtxtPtr 1
-static xmlSchemaValidCtxt * gen_xmlSchemaValidCtxtPtr(int no ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {
-	return NULL;
-}
-
-static void des_xmlSchemaValidCtxtPtr(int no ATTRIBUTE_UNUSED, xmlSchemaValidCtxt * val ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {
-}
-
+static xmlSchemaValidCtxt * gen_xmlSchemaValidCtxtPtr(int no ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) { return NULL; }
+static void des_xmlSchemaValidCtxtPtr(int no ATTRIBUTE_UNUSED, xmlSchemaValidCtxt * val ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {}
 #endif /* LIBXML_SCHEMAS_ENABLED */
 
 #define gen_nb_xmlHashDeallocator 2
-static void test_xmlHashDeallocator(void * payload ATTRIBUTE_UNUSED, xmlChar * name ATTRIBUTE_UNUSED) {
-}
-
-static xmlHashDeallocator gen_xmlHashDeallocator(int no, int nr ATTRIBUTE_UNUSED) {
-	if(no == 0) return(test_xmlHashDeallocator);
-	return NULL;
-}
-
-static void des_xmlHashDeallocator(int no ATTRIBUTE_UNUSED, xmlHashDeallocator val ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {
-}
-
-static void desret_int(int val ATTRIBUTE_UNUSED) {
-}
-
-static void desret_xmlChar(xmlChar val ATTRIBUTE_UNUSED) {
-}
-
-static void desret_long(long val ATTRIBUTE_UNUSED) {
-}
-
-static void desret_unsigned_long(unsigned long val ATTRIBUTE_UNUSED) {
-}
-
-static void desret_double(double val ATTRIBUTE_UNUSED) {
-}
-
-static void desret_xmlCharEncoding(xmlCharEncoding val ATTRIBUTE_UNUSED) {
-}
-
+static void test_xmlHashDeallocator(void * payload ATTRIBUTE_UNUSED, xmlChar * name ATTRIBUTE_UNUSED) {}
+static xmlHashDeallocator gen_xmlHashDeallocator(int no, int nr ATTRIBUTE_UNUSED) { return (no == 0) ? test_xmlHashDeallocator : NULL; }
+static void des_xmlHashDeallocator(int no ATTRIBUTE_UNUSED, xmlHashDeallocator val ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {}
+static void desret_int(int val ATTRIBUTE_UNUSED) {}
+static void desret_xmlChar(xmlChar val ATTRIBUTE_UNUSED) {}
+static void desret_long(long val ATTRIBUTE_UNUSED) {}
+static void desret_unsigned_long(unsigned long val ATTRIBUTE_UNUSED) {}
+static void desret_double(double val ATTRIBUTE_UNUSED) {}
+static void desret_xmlCharEncoding(xmlCharEncoding val ATTRIBUTE_UNUSED) {}
 #if 0
-static void desret_const_void_ptr(void * val ATTRIBUTE_UNUSED) {
-}
-
+	static void desret_const_void_ptr(void * val ATTRIBUTE_UNUSED) {}
 #endif
-static void desret_void_ptr(void * val ATTRIBUTE_UNUSED) {
-}
-
-static void desret_const_char_ptr(const char * val ATTRIBUTE_UNUSED) {
-}
-
-static void desret_const_xmlChar_ptr(const xmlChar * val ATTRIBUTE_UNUSED) {
-}
-
-static void desret_xmlChar_ptr(xmlChar * val) 
-{
-	SAlloc::F(val);
-}
+static void desret_void_ptr(void * val ATTRIBUTE_UNUSED) {}
+static void desret_const_char_ptr(const char * val ATTRIBUTE_UNUSED) {}
+static void desret_const_xmlChar_ptr(const xmlChar * val ATTRIBUTE_UNUSED) {}
+static void desret_xmlChar_ptr(xmlChar * val) { SAlloc::F(val); }
 
 static void desret_xmlDocPtr(xmlDocPtr val) 
 {
@@ -49130,44 +49041,44 @@ static int test_xpointer()
 }
 
 static int test_module(const char * module) {
-	if(!strcmp(module, "HTMLparser")) return(test_HTMLparser());
-	if(!strcmp(module, "HTMLtree")) return(test_HTMLtree());
-	if(!strcmp(module, "SAX2")) return(test_SAX2());
-	if(!strcmp(module, "c14n")) return(test_c14n());
-	if(!strcmp(module, "catalog")) return(test_catalog());
-	if(!strcmp(module, "chvalid")) return(test_chvalid());
-	if(!strcmp(module, "debugXML")) return(test_debugXML());
-	if(!strcmp(module, "dict")) return(test_dict());
-	if(!strcmp(module, "encoding")) return(test_encoding());
-	if(!strcmp(module, "entities")) return(test_entities());
-	if(!strcmp(module, "hash")) return(test_hash());
-	if(!strcmp(module, "list")) return(test_list());
-	if(!strcmp(module, "nanoftp")) return(test_nanoftp());
-	if(!strcmp(module, "nanohttp")) return(test_nanohttp());
-	if(!strcmp(module, "parser")) return(test_parser());
-	if(!strcmp(module, "parserInternals")) return(test_parserInternals());
-	if(!strcmp(module, "pattern")) return(test_pattern());
-	if(!strcmp(module, "relaxng")) return(test_relaxng());
-	if(!strcmp(module, "schemasInternals")) return(test_schemasInternals());
-	if(!strcmp(module, "schematron")) return(test_schematron());
-	if(!strcmp(module, "tree")) return(test_tree());
-	if(!strcmp(module, "uri")) return(test_uri());
-	if(!strcmp(module, "valid")) return(test_valid());
-	if(!strcmp(module, "xinclude")) return(test_xinclude());
-	if(!strcmp(module, "xmlIO")) return(test_xmlIO());
-	if(!strcmp(module, "xmlautomata")) return(test_xmlautomata());
-	if(!strcmp(module, "xmlerror")) return(test_xmlerror());
-	if(!strcmp(module, "xmlmodule")) return(test_xmlmodule());
-	if(!strcmp(module, "xmlreader")) return(test_xmlreader());
-	if(!strcmp(module, "xmlregexp")) return(test_xmlregexp());
-	if(!strcmp(module, "xmlsave")) return(test_xmlsave());
-	if(!strcmp(module, "xmlschemas")) return(test_xmlschemas());
-	if(!strcmp(module, "xmlschemastypes")) return(test_xmlschemastypes());
-	if(!strcmp(module, "xmlstring")) return(test_xmlstring());
-	if(!strcmp(module, "xmlunicode")) return(test_xmlunicode());
-	if(!strcmp(module, "xmlwriter")) return(test_xmlwriter());
-	if(!strcmp(module, "xpath")) return(test_xpath());
-	if(!strcmp(module, "xpathInternals")) return(test_xpathInternals());
-	if(!strcmp(module, "xpointer")) return(test_xpointer());
+	if(sstreq(module, "HTMLparser")) return(test_HTMLparser());
+	if(sstreq(module, "HTMLtree")) return(test_HTMLtree());
+	if(sstreq(module, "SAX2")) return(test_SAX2());
+	if(sstreq(module, "c14n")) return(test_c14n());
+	if(sstreq(module, "catalog")) return(test_catalog());
+	if(sstreq(module, "chvalid")) return(test_chvalid());
+	if(sstreq(module, "debugXML")) return(test_debugXML());
+	if(sstreq(module, "dict")) return(test_dict());
+	if(sstreq(module, "encoding")) return(test_encoding());
+	if(sstreq(module, "entities")) return(test_entities());
+	if(sstreq(module, "hash")) return(test_hash());
+	if(sstreq(module, "list")) return(test_list());
+	if(sstreq(module, "nanoftp")) return(test_nanoftp());
+	if(sstreq(module, "nanohttp")) return(test_nanohttp());
+	if(sstreq(module, "parser")) return(test_parser());
+	if(sstreq(module, "parserInternals")) return(test_parserInternals());
+	if(sstreq(module, "pattern")) return(test_pattern());
+	if(sstreq(module, "relaxng")) return(test_relaxng());
+	if(sstreq(module, "schemasInternals")) return(test_schemasInternals());
+	if(sstreq(module, "schematron")) return(test_schematron());
+	if(sstreq(module, "tree")) return(test_tree());
+	if(sstreq(module, "uri")) return(test_uri());
+	if(sstreq(module, "valid")) return(test_valid());
+	if(sstreq(module, "xinclude")) return(test_xinclude());
+	if(sstreq(module, "xmlIO")) return(test_xmlIO());
+	if(sstreq(module, "xmlautomata")) return(test_xmlautomata());
+	if(sstreq(module, "xmlerror")) return(test_xmlerror());
+	if(sstreq(module, "xmlmodule")) return(test_xmlmodule());
+	if(sstreq(module, "xmlreader")) return(test_xmlreader());
+	if(sstreq(module, "xmlregexp")) return(test_xmlregexp());
+	if(sstreq(module, "xmlsave")) return(test_xmlsave());
+	if(sstreq(module, "xmlschemas")) return(test_xmlschemas());
+	if(sstreq(module, "xmlschemastypes")) return(test_xmlschemastypes());
+	if(sstreq(module, "xmlstring")) return(test_xmlstring());
+	if(sstreq(module, "xmlunicode")) return(test_xmlunicode());
+	if(sstreq(module, "xmlwriter")) return(test_xmlwriter());
+	if(sstreq(module, "xpath")) return(test_xpath());
+	if(sstreq(module, "xpathInternals")) return(test_xpathInternals());
+	if(sstreq(module, "xpointer")) return(test_xpointer());
 	return 0;
 }

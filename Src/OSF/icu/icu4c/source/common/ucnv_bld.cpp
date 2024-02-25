@@ -1101,13 +1101,13 @@ U_CFUNC const char * ucnv_bld_getAvailableConverter(uint16 n, UErrorCode * pErro
    Since the name is a returned via ucnv_getDefaultName without copying,
    you shouldn't be modifying or deleting the string from a separate thread.
  */
-static inline void internalSetName(const char * name, UErrorCode * status) {
+static inline void internalSetName(const char * name, UErrorCode * status) 
+{
 	UConverterNamePieces stackPieces;
 	UConverterLoadArgs stackArgs = UCNV_LOAD_ARGS_INITIALIZER;
-	int32_t length = (int32_t)(strlen(name));
-	bool containsOption = (bool)(uprv_strchr(name, UCNV_OPTION_SEP_CHAR) != NULL);
+	const size_t length = sstrlen(name);
+	const bool containsOption = (uprv_strchr(name, UCNV_OPTION_SEP_CHAR) != 0);
 	const UConverterSharedData * algorithmicSharedData;
-
 	stackArgs.name = name;
 	if(containsOption) {
 		stackPieces.cnvName[0] = 0;
@@ -1119,23 +1119,18 @@ static inline void internalSetName(const char * name, UErrorCode * status) {
 		}
 	}
 	algorithmicSharedData = getAlgorithmicTypeFromName(stackArgs.name);
-
 	umtx_lock(&cnvCacheMutex);
-
 	gDefaultAlgorithmicSharedData = algorithmicSharedData;
 	gDefaultConverterContainsOption = containsOption;
 	memcpy(gDefaultConverterNameBuffer, name, length);
 	gDefaultConverterNameBuffer[length] = 0;
-
 	/* gDefaultConverterName MUST be the last global var set by this function.  */
 	/* It is the variable checked in ucnv_getDefaultName() to see if initialization is required. */
 	//    But there is nothing here preventing that from being reordered, either by the compiler
 	//             or hardware. I'm adding the mutex to ucnv_getDefaultName for now. UMTX_CHECK is not enough.
 	//             -- Andy
 	gDefaultConverterName = gDefaultConverterNameBuffer;
-
 	ucnv_enableCleanup();
-
 	umtx_unlock(&cnvCacheMutex);
 }
 

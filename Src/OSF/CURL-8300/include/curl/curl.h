@@ -2359,9 +2359,8 @@ typedef enum {
 /* Special size_t value signaling a null-terminated string. */
 #define CURL_ZERO_TERMINATED ((size_t)-1)
 
-/* curl_strequal() and curl_strnequal() are subject for removal in a future
-   release */
-CURL_EXTERN int curl_strequal(const char * s1, const char * s2);
+// curl_strequal() and curl_strnequal() are subject for removal in a future release 
+// @v11.9.7 (replaced with sstreqi_ascii) CURL_EXTERN int curl_strequal(const char * s1, const char * s2);
 CURL_EXTERN int curl_strnequal(const char * s1, const char * s2, size_t n);
 
 /* Mime/form handling support. */

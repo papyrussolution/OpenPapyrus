@@ -861,23 +861,16 @@ int ssh_mkdirs(const char * pathname, mode_t mode)
 {
 	int rc = 0;
 	char * parent = NULL;
-
-	if(pathname == NULL ||
-	    pathname[0] == '\0' ||
-	    !strcmp(pathname, "/") ||
-	    !strcmp(pathname, ".")) {
+	if(pathname == NULL || pathname[0] == '\0' || sstreq(pathname, "/") || sstreq(pathname, ".")) {
 		errno = EINVAL;
 		return -1;
 	}
-
 	errno = 0;
-
 #ifdef _WIN32
 	rc = _mkdir(pathname);
 #else
 	rc = mkdir(pathname, mode);
 #endif
-
 	if(rc < 0) {
 		/* If a directory was missing, try to create the parent */
 		if(errno == ENOENT) {
@@ -1280,7 +1273,7 @@ int ssh_match_group(const char * group, const char * object)
 	do {
 		const char * a = strchr(z, ',');
 		if(!a) {
-			if(strcmp(z, object) == 0) {
+			if(sstreq(z, object)) {
 				return 1;
 			}
 			return 0;

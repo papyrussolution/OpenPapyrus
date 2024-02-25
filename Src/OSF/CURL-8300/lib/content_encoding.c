@@ -843,7 +843,7 @@ char *Curl_all_content_encodings(void)
 	char * ace;
 	for(cep = encodings; *cep; cep++) {
 		ce = *cep;
-		if(!strcasecompare(ce->name, CONTENT_ENCODING_DEFAULT))
+		if(!sstreqi_ascii(ce->name, CONTENT_ENCODING_DEFAULT))
 			len += strlen(ce->name) + 2;
 	}
 	if(!len)
@@ -853,7 +853,7 @@ char *Curl_all_content_encodings(void)
 		char * p = ace;
 		for(cep = encodings; *cep; cep++) {
 			ce = *cep;
-			if(!strcasecompare(ce->name, CONTENT_ENCODING_DEFAULT)) {
+			if(!sstreqi_ascii(ce->name, CONTENT_ENCODING_DEFAULT)) {
 				strcpy(p, ce->name);
 				p += strlen(p);
 				*p++ = ',';
@@ -941,7 +941,7 @@ static const struct content_encoding error_encoding = {
 static struct contenc_writer *new_unencoding_writer(struct Curl_easy * data, const struct content_encoding * handler, struct contenc_writer * downstream, int order) 
 {
 	struct contenc_writer * writer;
-	DEBUGASSERT(handler->writersize >= sizeof(struct contenc_writer));
+	assert(handler->writersize >= sizeof(struct contenc_writer));
 	writer = (struct contenc_writer *)SAlloc::C(1, handler->writersize);
 	if(writer) {
 		writer->handler = handler;

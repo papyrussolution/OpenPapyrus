@@ -138,24 +138,23 @@ int main(int argc, char ** argv) {
 
 	for(i = 1; i < argc; i++) {
 #if defined(LIBXML_XPTR_ENABLED)
-		if((!strcmp(argv[i], "-xptr")) || (!strcmp(argv[i], "--xptr")))
+		if((sstreq(argv[i], "-xptr")) || (sstreq(argv[i], "--xptr")))
 			xptr++;
 		else
 #endif
-		if((!strcmp(argv[i], "-debug")) || (!strcmp(argv[i], "--debug")))
+		if((sstreq(argv[i], "-debug")) || (sstreq(argv[i], "--debug")))
 			debug++;
-		else if((!strcmp(argv[i], "-valid")) || (!strcmp(argv[i], "--valid")))
+		else if((sstreq(argv[i], "-valid")) || (sstreq(argv[i], "--valid")))
 			valid++;
-		else if((!strcmp(argv[i], "-expr")) || (!strcmp(argv[i], "--expr")))
+		else if((sstreq(argv[i], "-expr")) || (sstreq(argv[i], "--expr")))
 			expr++;
-		else if((!strcmp(argv[i], "-tree")) || (!strcmp(argv[i], "--tree")))
+		else if((sstreq(argv[i], "-tree")) || (sstreq(argv[i], "--tree")))
 			tree++;
-		else if((!strcmp(argv[i], "-nocdata")) ||
-		    (!strcmp(argv[i], "--nocdata")))
+		else if((sstreq(argv[i], "-nocdata")) || (sstreq(argv[i], "--nocdata")))
 			nocdata++;
-		else if((!strcmp(argv[i], "-i")) || (!strcmp(argv[i], "--input")))
+		else if((sstreq(argv[i], "-i")) || (sstreq(argv[i], "--input")))
 			filename = argv[++i];
-		else if((!strcmp(argv[i], "-f")) || (!strcmp(argv[i], "--file")))
+		else if((sstreq(argv[i], "-f")) || (sstreq(argv[i], "--file")))
 			usefile++;
 	}
 	if(valid != 0) xmlDoValidityCheckingDefaultValue = 1;
@@ -175,7 +174,7 @@ int main(int argc, char ** argv) {
 			document = xmlReadFile(filename, NULL, XML_PARSE_COMPACT);
 	}
 	for(i = 1; i < argc; i++) {
-		if((!strcmp(argv[i], "-i")) || (!strcmp(argv[i], "--input"))) {
+		if((sstreq(argv[i], "-i")) || (sstreq(argv[i], "--input"))) {
 			i++; continue;
 		}
 		if(argv[i][0] != '-') {

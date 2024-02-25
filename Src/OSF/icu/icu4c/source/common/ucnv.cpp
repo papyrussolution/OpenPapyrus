@@ -499,8 +499,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_getCCSID(const UConverter * converter, UErrorCode 
 		return -1;
 	ccsid = converter->sharedData->staticData->codepage;
 	if(ccsid == 0) {
-		/* Rare case. This is for cases like gb18030,
-		   which doesn't have an IBM canonical name, but does have an IBM alias. */
+		/* Rare case. This is for cases like gb18030, which doesn't have an IBM canonical name, but does have an IBM alias. */
 		const char * standardName = ucnv_getStandardName(ucnv_getName(converter, err), "IBM", err);
 		if(U_SUCCESS(*err) && standardName) {
 			const char * ccsidStr = uprv_strchr(standardName, '-');

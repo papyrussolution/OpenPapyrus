@@ -201,7 +201,7 @@ void Curl_wildcard_dtor(struct WildcardData ** wcp)
 			wc->dtor = ZERO_NULL;
 			wc->ftpwc = NULL;
 		}
-		DEBUGASSERT(wc->ftpwc == NULL);
+		assert(wc->ftpwc == NULL);
 		Curl_llist_destroy(&wc->filelist, NULL);
 		ZFREE(wc->path);
 		ZFREE(wc->pattern);

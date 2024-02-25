@@ -95,7 +95,7 @@
  * us early warning on things only discovered by valgrind otherwise. */
 #define GOOD_MULTI_HANDLE(x) \
 	(((x) && (x)->magic == CURL_MULTI_HANDLE)? TRUE: \
-	(DEBUGASSERT(!(x)), FALSE))
+	(assert(!(x)), FALSE))
 #else
 #define GOOD_MULTI_HANDLE(x) \
 	((x) && (x)->magic == CURL_MULTI_HANDLE)
@@ -202,7 +202,7 @@ static void mstate(struct Curl_easy * data, CURLMstate state
 
 	if(state == MSTATE_COMPLETED) {
 		/* changing to COMPLETED means there's one less easy handle 'alive' */
-		DEBUGASSERT(data->multi->num_alive > 0);
+		assert(data->multi->num_alive > 0);
 		data->multi->num_alive--;
 	}
 
@@ -276,7 +276,7 @@ static void sockhash_destroy(struct Curl_hash * h)
 	struct Curl_hash_iterator iter;
 	struct Curl_hash_element * he;
 
-	DEBUGASSERT(h);
+	assert(h);
 	Curl_hash_start_iterate(h, &iter);
 	he = Curl_hash_next_element(&iter);
 	while(he) {
@@ -976,8 +976,8 @@ void Curl_detach_connection(struct Curl_easy * data)
 void Curl_attach_connection(struct Curl_easy * data,
     struct connectdata * conn)
 {
-	DEBUGASSERT(!data->conn);
-	DEBUGASSERT(conn);
+	assert(!data->conn);
+	assert(conn);
 	data->conn = conn;
 	Curl_llist_insert_next(&conn->easyq, conn->easyq.tail, data,
 	    &data->conn_queue);
@@ -1143,7 +1143,7 @@ static CURLMcode multi_wait(struct Curl_multi * multi,
 	bool ufds_malloc = FALSE;
 #ifdef USE_WINSOCK
 	WSANETWORKEVENTS wsa_events;
-	DEBUGASSERT(multi->wsa_event != WSA_INVALID_EVENT);
+	assert(multi->wsa_event != WSA_INVALID_EVENT);
 #endif
 #ifndef ENABLE_WAKEUP
 	(void)use_wakeup;
@@ -1552,8 +1552,8 @@ static CURLcode multi_do(struct Curl_easy * data, bool * done)
 	CURLcode result = CURLE_OK;
 	struct connectdata * conn = data->conn;
 
-	DEBUGASSERT(conn);
-	DEBUGASSERT(conn->handler);
+	assert(conn);
+	assert(conn->handler);
 
 	if(conn->handler->do_it)
 		result = conn->handler->do_it(data, done);
@@ -1686,8 +1686,8 @@ static CURLcode protocol_connect(struct Curl_easy * data,
 {
 	CURLcode result = CURLE_OK;
 	struct connectdata * conn = data->conn;
-	DEBUGASSERT(conn);
-	DEBUGASSERT(protocol_done);
+	assert(conn);
+	assert(protocol_done);
 
 	*protocol_done = FALSE;
 
@@ -1732,7 +1732,7 @@ static CURLcode protocol_connect(struct Curl_easy * data,
 static CURLcode readrewind(struct Curl_easy * data)
 {
 	curl_mimepart * mimepart = &data->set.mimepost;
-	DEBUGASSERT(data->conn);
+	assert(data->conn);
 
 	data->state.rewindbeforesend = FALSE; /* we rewind now */
 
@@ -1869,7 +1869,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 		if(data->mstate > MSTATE_CONNECT &&
 		    data->mstate < MSTATE_COMPLETED) {
 			/* Make sure we set the connection's current owner */
-			DEBUGASSERT(data->conn);
+			assert(data->conn);
 			if(!data->conn)
 				return CURLM_INTERNAL_ERROR;
 		}
@@ -1965,7 +1965,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 			    struct connectdata * conn = data->conn;
 			    const char * hostname;
 
-			    DEBUGASSERT(conn);
+			    assert(conn);
 #ifndef CURL_DISABLE_PROXY
 			    if(conn->bits.httpproxy)
 				    hostname = conn->http_proxy.host.name;
@@ -2032,7 +2032,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 #ifndef CURL_DISABLE_HTTP
 			case MSTATE_TUNNELING:
 			    /* this is HTTP-specific, but sending CONNECT to a proxy is HTTP... */
-			    DEBUGASSERT(data->conn);
+			    assert(data->conn);
 			    result = Curl_http_connect(data, &protocol_connected);
 #ifndef CURL_DISABLE_PROXY
 			    if(data->conn->bits.proxy_connect_closed) {
@@ -2056,7 +2056,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 
 			case MSTATE_CONNECTING:
 			    /* awaiting a completion of an asynch TCP connect */
-			    DEBUGASSERT(data->conn);
+			    assert(data->conn);
 			    result = Curl_conn_connect(data, FIRSTSOCKET, FALSE, &connected);
 			    if(connected && !result) {
 				    rc = CURLM_CALL_MULTI_PERFORM;
@@ -2248,7 +2248,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 
 			case MSTATE_DOING:
 			    /* we continue DOING until the DO phase is complete */
-			    DEBUGASSERT(data->conn);
+			    assert(data->conn);
 			    result = protocol_doing(data, &dophase_done);
 			    if(!result) {
 				    if(dophase_done) {
@@ -2270,7 +2270,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 			    /*
 			     * When we are connected, DOING MORE and then go DID
 			     */
-			    DEBUGASSERT(data->conn);
+			    assert(data->conn);
 			    result = multi_do_more(data, &control);
 
 			    if(!result) {
@@ -2293,7 +2293,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 			    break;
 
 			case MSTATE_DID:
-			    DEBUGASSERT(data->conn);
+			    assert(data->conn);
 			    if(data->conn->bits.multiplex)
 				    /* Check if we can move pending requests to send pipe */
 				    process_pending_handles(multi); /*  multiplexed */
@@ -2316,7 +2316,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 			    break;
 
 			case MSTATE_RATELIMITING: /* limit-rate exceeded in either direction */
-			    DEBUGASSERT(data->conn);
+			    assert(data->conn);
 			    /* if both rates are within spec, resume transfer */
 			    if(Curl_pgrsUpdate(data))
 				    result = CURLE_ABORTED_BY_CALLBACK;
@@ -2366,7 +2366,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 			    char * newurl = NULL;
 			    bool retry = FALSE;
 			    bool comeback = FALSE;
-			    DEBUGASSERT(data->state.buffer);
+			    assert(data->state.buffer);
 			    /* check if over send speed */
 			    send_timeout_ms = 0;
 			    if(data->set.max_send_speed)
@@ -2554,7 +2554,7 @@ static CURLMcode multi_runsingle(struct Curl_multi * multi,
 			case MSTATE_PENDING:
 			case MSTATE_MSGSENT:
 			    /* handles in these states should NOT be in this list */
-			    DEBUGASSERT(0);
+			    assert(0);
 			    break;
 
 			default:
@@ -2644,7 +2644,7 @@ statemachine_end:
 				msg->extmsg.data.result = result;
 
 				multi_addmsg(multi, msg);
-				DEBUGASSERT(!data->conn);
+				assert(!data->conn);
 			}
 			multistate(data, MSTATE_MSGSENT);
 
@@ -2731,7 +2731,7 @@ static void unlink_all_msgsent_handles(struct Curl_multi * multi)
 	struct Curl_llist_element * e = multi->msgsent.head;
 	if(e) {
 		struct Curl_easy * data = static_cast<Curl_easy *>(e->ptr);
-		DEBUGASSERT(data->mstate == MSTATE_MSGSENT);
+		assert(data->mstate == MSTATE_MSGSENT);
 		data->multi = NULL;
 	}
 }
@@ -2989,7 +2989,7 @@ static CURLMcode singlesocket(struct Curl_multi * multi, struct Curl_easy * data
 				/* still users, but remove this handle as a user of this socket */
 				if(Curl_hash_delete(&entry->transfers, (char *)&data,
 				    sizeof(struct Curl_easy *))) {
-					DEBUGASSERT(NULL);
+					assert(NULL);
 				}
 			}
 		}
@@ -3155,8 +3155,8 @@ static CURLMcode multi_socket(struct Curl_multi * multi,
 			for(he = Curl_hash_next_element(&iter); he;
 			    he = Curl_hash_next_element(&iter)) {
 				data = (struct Curl_easy *)he->ptr;
-				DEBUGASSERT(data);
-				DEBUGASSERT(data->magic == CURLEASY_MAGIC_NUMBER);
+				assert(data);
+				assert(data->magic == CURLEASY_MAGIC_NUMBER);
 
 				if(data->conn && !(data->conn->handler->flags & PROTOPT_DIRLOCK))
 					/* set socket event bitmask if they're not locked */
@@ -3529,7 +3529,7 @@ void Curl_expire(struct Curl_easy * data, timediff_t milli, expire_id id)
 	if(!multi)
 		return;
 
-	DEBUGASSERT(id < EXPIRE_LAST);
+	assert(id < EXPIRE_LAST);
 
 	set = Curl_now();
 	set.tv_sec += (time_t)(milli/1000); /* might be a 64 to 32 bit conversion */
@@ -3660,11 +3660,11 @@ void Curl_multiuse_state(struct Curl_easy * data,
     int bundlestate)                      /* use BUNDLE_* defines */
 {
 	struct connectdata * conn;
-	DEBUGASSERT(data);
-	DEBUGASSERT(data->multi);
+	assert(data);
+	assert(data->multi);
 	conn = data->conn;
-	DEBUGASSERT(conn);
-	DEBUGASSERT(conn->bundle);
+	assert(conn);
+	assert(conn->bundle);
 
 	conn->bundle->multiuse = bundlestate;
 	process_pending_handles(data->multi);
@@ -3677,7 +3677,7 @@ static void process_pending_handles(struct Curl_multi * multi)
 	struct Curl_llist_element * e = multi->pending.head;
 	if(e) {
 		struct Curl_easy * data = static_cast<Curl_easy *>(e->ptr);
-		DEBUGASSERT(data->mstate == MSTATE_PENDING);
+		assert(data->mstate == MSTATE_PENDING);
 		/* put it back into the main list */
 		link_easy(multi, data);
 		multistate(data, MSTATE_CONNECT);
@@ -3743,6 +3743,6 @@ void Curl_multi_dump(struct Curl_multi * multi)
 
 uint Curl_multi_max_concurrent_streams(struct Curl_multi * multi)
 {
-	DEBUGASSERT(multi);
+	assert(multi);
 	return multi->max_concurrent_streams;
 }

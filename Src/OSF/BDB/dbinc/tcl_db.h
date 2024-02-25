@@ -304,8 +304,7 @@ extern DBTCL_GLOBAL __dbtcl_global;
  * Tcl_GetIndexFromObj says, which lists all the valid options.  Otherwise
  * return TCL_ERROR.
  */
-#define	IS_HELP(s)						\
-    (strcmp(Tcl_GetStringFromObj(s,NULL), "-?") == 0) ? TCL_OK : TCL_ERROR
+#define	IS_HELP(s) (strcmp(Tcl_GetStringFromObj(s,NULL), "-?") == 0) ? TCL_OK : TCL_ERROR
 
 #if defined(__cplusplus)
 }

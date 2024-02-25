@@ -215,7 +215,7 @@ static CURLcode ws_dec_read_head(struct ws_decoder * dec,
 			}
 		}
 		/* got the complete frame head */
-		DEBUGASSERT(dec->head_len == dec->head_total);
+		assert(dec->head_len == dec->head_total);
 		switch(dec->head_total) {
 			case 2:
 			    dec->payload_len = dec->head[1];
@@ -235,7 +235,7 @@ static CURLcode ws_dec_read_head(struct ws_decoder * dec,
 			    break;
 			default:
 			    /* this should never happen */
-			    DEBUGASSERT(0);
+			    assert(0);
 			    failf(data, "WS: unexpected frame header length");
 			    return CURLE_RECV_ERROR;
 		}
@@ -304,7 +304,7 @@ static CURLcode ws_dec_pass(struct ws_decoder * dec,
 				    break; /* real error */
 			    }
 			    /* incomplete ws frame head */
-			    DEBUGASSERT(Curl_bufq_is_empty(inraw));
+			    assert(Curl_bufq_is_empty(inraw));
 			    break;
 		    }
 		    /* head parsing done */
@@ -483,7 +483,7 @@ static ssize_t ws_enc_write_head(struct Curl_easy * data,
 		return -1;
 	if((size_t)n != hlen) {
 		/* We use a bufq with SOFT_LIMIT, writing should always succeed */
-		DEBUGASSERT(0);
+		assert(0);
 		*err = CURLE_SEND_ERROR;
 		return -1;
 	}
@@ -573,7 +573,7 @@ CURLcode Curl_ws_request(struct Curl_easy * data, REQTYPE * req)
 	result = Curl_base64_encode((char *)rand, sizeof(rand), &randstr, &randlen);
 	if(result)
 		return result;
-	DEBUGASSERT(randlen < sizeof(keyval));
+	assert(randlen < sizeof(keyval));
 	if(randlen >= sizeof(keyval))
 		return CURLE_FAILED_INIT;
 	strcpy(keyval, randstr);
@@ -607,7 +607,7 @@ CURLcode Curl_ws_accept(struct Curl_easy * data,
 	struct websocket * ws;
 	CURLcode result;
 
-	DEBUGASSERT(data->conn);
+	assert(data->conn);
 	ws = data->conn->proto.ws;
 	if(!ws) {
 		ws = SAlloc::C(1, sizeof(*ws));
@@ -807,7 +807,7 @@ static ssize_t ws_client_collect(const uchar * buf, size_t buflen,
 	}
 	else {
 		ctx->written = TRUE;
-		DEBUGASSERT(ctx->buflen >= ctx->bufidx);
+		assert(ctx->buflen >= ctx->bufidx);
 		nwritten = CURLMIN(buflen, ctx->buflen - ctx->bufidx);
 		if(!nwritten) {
 			if(!buflen) { /* 0 length write, we accept that */

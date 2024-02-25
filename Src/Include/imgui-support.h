@@ -20,13 +20,17 @@ public:
 	static constexpr uint IconSize = 32;
 
 	ImGuiRuntimeBlock();
-	bool CreateDeviceD3D(HWND hWnd);
-	void CreateRenderTarget();
-	void CleanupRenderTarget();
-	void CleanupDeviceD3D();
+	bool   CreateDeviceD3D(HWND hWnd);
+	void   CreateRenderTarget();
+	void   CleanupRenderTarget();
+	void   CleanupDeviceD3D();
 	void * LoadTexture(const char * pFileName);
 	void * MakeIconTexture(uint iconId); // @v11.9.2
-	void ReleaseTexture(void * pTextureView);
+	void   ReleaseTexture(void * pTextureView);
+	//
+	// Descr: Общий метод, отрабатывающий Win-message WM_SIZE
+	//
+	void   OnWindowResize(WPARAM wParam, LPARAM lParam);
 
 	// Data
 	ID3D11Device           * g_pd3dDevice;
@@ -81,6 +85,24 @@ private:
 	const SUiLayout * P_Lo;
 };
 
+class SImFontDescription {
+public:
+	SImFontDescription(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr);
+	operator ImFont * () { return P_Font; };
+	bool   IsValid() const { return (P_Font != 0); }
+	bool   HasColor() const { return !Clr.IsEmpty(); }
+	SColor GetColor() const { return Clr; }
+	//
+	// Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
+	//
+	const void * GetHashKey(const void * pCtx, uint * pKeyLen) const;
+private:
+	SString Symbol;
+	uint   State;
+	SColor Clr; // 
+	ImFont * P_Font;
+};
+
 class ImGuiSceneBase {
 public:
 	ImGuiSceneBase();
@@ -88,8 +110,14 @@ public:
 	virtual int Init(ImGuiIO & rIo);
 protected:
 	void   Render(ImGuiRuntimeBlock & rRtb);
-
+	void   BuildSceneProlog();
+	int    LoadUiDescription();
+	int    CreateFontEntry(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr);
+	int    PushFontEntry(ImGuiObjStack & rStk, const char * pSymb);
+	
 	ImVec4 ClearColor;
+	TSHashCollection <SUiLayout> Cache_Layout;
+	TSHashCollection <SImFontDescription> Cache_Font;
 };
 
 #endif // !IMGUI_SUPPORT_H

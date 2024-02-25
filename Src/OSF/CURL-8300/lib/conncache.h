@@ -58,7 +58,7 @@ struct conncache {
 		if((x)->share) {                                                    \
 			Curl_share_lock((x), CURL_LOCK_DATA_CONNECT,                      \
 			    CURL_LOCK_ACCESS_SINGLE);                         \
-			DEBUGASSERT(!(x)->state.conncache_lock);                          \
+			assert(!(x)->state.conncache_lock);                          \
 			(x)->state.conncache_lock = TRUE;                                 \
 		}                                                                   \
 	} while(0)
@@ -66,7 +66,7 @@ struct conncache {
 #define CONNCACHE_UNLOCK(x)                                             \
 	do {                                                                  \
 		if((x)->share) {                                                    \
-			DEBUGASSERT((x)->state.conncache_lock);                           \
+			assert((x)->state.conncache_lock);                           \
 			(x)->state.conncache_lock = FALSE;                                \
 			Curl_share_unlock((x), CURL_LOCK_DATA_CONNECT);                   \
 		}                                                                   \

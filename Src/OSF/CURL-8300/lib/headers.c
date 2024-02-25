@@ -86,7 +86,7 @@ CURLHcode curl_easy_header(CURL * easy,
 	/* we need a first round to count amount of this header */
 	for(e = data->state.httphdrs.head; e; e = e->next) {
 		hs = (Curl_header_store *)e->ptr;
-		if(strcasecompare(hs->name, name) && (hs->type & type) && (hs->request == request)) {
+		if(sstreqi_ascii(hs->name, name) && (hs->type & type) && (hs->request == request)) {
 			amount++;
 			pick = hs;
 			e_pick = e;
@@ -103,7 +103,7 @@ CURLHcode curl_easy_header(CURL * easy,
 	else {
 		for(e = data->state.httphdrs.head; e; e = e->next) {
 			hs = (Curl_header_store *)e->ptr;
-			if(strcasecompare(hs->name, name) && (hs->type & type) && (hs->request == request) && (match++ == nameindex)) {
+			if(sstreqi_ascii(hs->name, name) && (hs->type & type) && (hs->request == request) && (match++ == nameindex)) {
 				e_pick = e;
 				break;
 			}
@@ -161,7 +161,7 @@ struct curl_header *curl_easy_nextheader(CURL * easy,
 	   the index for the currently selected entry */
 	for(e = data->state.httphdrs.head; e; e = e->next) {
 		struct Curl_header_store * check = (Curl_header_store *)e->ptr;
-		if(strcasecompare(hs->name, check->name) &&
+		if(sstreqi_ascii(hs->name, check->name) &&
 		    (check->request == request) &&
 		    (check->type & type))
 			amount++;
@@ -178,7 +178,7 @@ static CURLcode namevalue(char * header, size_t hlen, uint type,
     char ** name, char ** value)
 {
 	char * end = header + hlen - 1; /* point to the last byte */
-	DEBUGASSERT(hlen);
+	assert(hlen);
 	*name = header;
 
 	if(type == CURLH_PSEUDO) {
@@ -217,7 +217,7 @@ static CURLcode unfold_value(struct Curl_easy * data, const char * value,
 	size_t olen; /* length of the old value */
 	size_t oalloc; /* length of the old name + value + separator */
 	size_t offset;
-	DEBUGASSERT(data->state.prevhead);
+	assert(data->state.prevhead);
 	hs = data->state.prevhead;
 	olen = strlen(hs->value);
 	offset = hs->value - hs->buffer;

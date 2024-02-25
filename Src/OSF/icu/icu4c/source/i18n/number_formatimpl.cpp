@@ -437,9 +437,7 @@ const MicroPropsGenerator* NumberFormatterImpl::macrosToMicroGenerator(const Mac
 				// when perUnit became a backward-compatibility thing:
 				// unit/perUnit use case is only valid if both units are
 				// built-ins, or the product is a built-in.
-				if(strcmp(unit.getType(), "") == 0 &&
-				    (strcmp(macros.unit.getType(), "") == 0 ||
-				    strcmp(macros.perUnit.getType(), "") == 0)) {
+				if(strcmp(unit.getType(), "") == 0 && (strcmp(macros.unit.getType(), "") == 0 || strcmp(macros.perUnit.getType(), "") == 0)) {
 					status = U_UNSUPPORTED_ERROR;
 					return nullptr;
 				}

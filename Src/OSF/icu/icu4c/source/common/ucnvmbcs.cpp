@@ -1428,7 +1428,7 @@ static void U_CALLCONV ucnv_MBCSLoad(UConverterSharedData * sharedData, UConvert
 		}
 		/* load the base table */
 		baseName = (const char *)header+headerLength*4;
-		if(0==strcmp(baseName, sharedData->staticData->name)) {
+		if(sstreq(baseName, sharedData->staticData->name)) {
 			/* forbid loading this same extension-only file */
 			*pErrorCode = U_INVALID_TABLE_FORMAT;
 			return;

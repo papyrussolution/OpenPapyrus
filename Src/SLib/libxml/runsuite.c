@@ -121,7 +121,7 @@ static xmlParserInput * testExternalEntityLoader(const char * URL, const char * 
 	xmlParserInput * ret;
 	int i;
 	for(i = 0; i < nb_entities; i++) {
-		if(!strcmp(testEntitiesName[i], URL)) {
+		if(sstreq(testEntitiesName[i], URL)) {
 			ret = xmlNewStringInputStream(ctxt, (const xmlChar *)testEntitiesValue[i]);
 			if(ret) {
 				ret->filename = (const char *)xmlStrdup((xmlChar *)testEntitiesName[i]);
@@ -1005,7 +1005,7 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED)
 		verbose = 1;
 	}
 	initializeLibxml2();
-	if((argc >= 2) && (!strcmp(argv[1], "-v")))
+	if((argc >= 2) && (sstreq(argv[1], "-v")))
 		verbose = 1;
 	old_errors = nb_errors;
 	old_tests = nb_tests;

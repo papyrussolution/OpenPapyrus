@@ -205,7 +205,7 @@ static void state(struct Curl_easy * data, sshstate nowstate)
 	};
 
 	/* a precaution to make sure the lists are in sync */
-	DEBUGASSERT(sizeof(names)/sizeof(names[0]) == SSH_LAST);
+	assert(sizeof(names)/sizeof(names[0]) == SSH_LAST);
 
 	if(sshc->state != nowstate) {
 		infof(data, "wolfssh %p state change from %s to %s",
@@ -276,7 +276,7 @@ static ssize_t wsftp_send(struct Curl_easy * data, int sockindex,
 		failf(data, "wolfSSH_SFTP_SendWritePacket returned %d", rc);
 		return -1;
 	}
-	DEBUGASSERT(rc == (int)len);
+	assert(rc == (int)len);
 	infof(data, "sent %zu bytes SFTP from offset %" CURL_FORMAT_CURL_OFF_T,
 	    len, sshc->offset);
 	sshc->offset += len;
@@ -316,7 +316,7 @@ static ssize_t wsftp_recv(struct Curl_easy * data, int sockindex,
 		return -1;
 	}
 
-	DEBUGASSERT(rc <= (int)len);
+	assert(rc <= (int)len);
 
 	if(rc < 0) {
 		failf(data, "wolfSSH_SFTP_SendReadPacket returned %d", rc);

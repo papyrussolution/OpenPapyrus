@@ -1052,52 +1052,42 @@ static void parseAndPrintFile(char * filename)
 #endif
 }
 
-int main(int argc, char ** argv) {
+int main(int argc, char ** argv) 
+{
 	int i;
 	int files = 0;
-
 	LIBXML_TEST_VERSION /* be safe, plus calls xmlInitParser */
-
 	for(i = 1; i < argc; i++) {
-		if((!strcmp(argv[i], "-debug")) || (!strcmp(argv[i], "--debug")))
+		if((sstreq(argv[i], "-debug")) || (sstreq(argv[i], "--debug")))
 			debug++;
-		else if((!strcmp(argv[i], "-copy")) || (!strcmp(argv[i], "--copy")))
+		else if((sstreq(argv[i], "-copy")) || (sstreq(argv[i], "--copy")))
 			copy++;
-		else if((!strcmp(argv[i], "-recover")) ||
-		    (!strcmp(argv[i], "--recover")))
+		else if((sstreq(argv[i], "-recover")) || (sstreq(argv[i], "--recover")))
 			recovery++;
-		else if((!strcmp(argv[i], "-push")) ||
-		    (!strcmp(argv[i], "--push")))
+		else if((sstreq(argv[i], "-push")) || (sstreq(argv[i], "--push")))
 #ifdef LIBXML_PUSH_ENABLED
 			push++;
 #else
 			fprintf(stderr, "'push' not enabled in library - ignoring\n");
 #endif /* LIBXML_PUSH_ENABLED */
-		else if((!strcmp(argv[i], "-speed")) ||
-		    (!strcmp(argv[i], "--speed")))
+		else if((sstreq(argv[i], "-speed")) || (sstreq(argv[i], "--speed")))
 			speed++;
-		else if((!strcmp(argv[i], "-timing")) ||
-		    (!strcmp(argv[i], "--timing"))) {
+		else if((sstreq(argv[i], "-timing")) || (sstreq(argv[i], "--timing"))) {
 			nonull++;
 			timing++;
 			quiet++;
 		}
-		else if((!strcmp(argv[i], "-repeat")) ||
-		    (!strcmp(argv[i], "--repeat"))) {
+		else if((sstreq(argv[i], "-repeat")) || (sstreq(argv[i], "--repeat"))) {
 			repeat++;
 			quiet++;
 		}
-		else if((!strcmp(argv[i], "-noent")) ||
-		    (!strcmp(argv[i], "--noent")))
+		else if((sstreq(argv[i], "-noent")) || (sstreq(argv[i], "--noent")))
 			noent++;
-		else if((!strcmp(argv[i], "-quiet")) ||
-		    (!strcmp(argv[i], "--quiet")))
+		else if((sstreq(argv[i], "-quiet")) || (sstreq(argv[i], "--quiet")))
 			quiet++;
-		else if((!strcmp(argv[i], "-sax2")) ||
-		    (!strcmp(argv[i], "--sax2")))
+		else if((sstreq(argv[i], "-sax2")) || (sstreq(argv[i], "--sax2")))
 			sax2++;
-		else if((!strcmp(argv[i], "-nonull")) ||
-		    (!strcmp(argv[i], "--nonull")))
+		else if((sstreq(argv[i], "-nonull")) || (sstreq(argv[i], "--nonull")))
 			nonull++;
 	}
 	if(noent != 0) xmlSubstituteEntitiesDefault(1);
@@ -1115,12 +1105,12 @@ int main(int argc, char ** argv) {
 	}
 	xmlCleanupParser();
 	xmlMemoryDump();
-
 	return 0;
 }
 
 #else
-int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) {
+int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) 
+{
 	printf("%s : SAX1 parsing support not compiled in\n", argv[0]);
 	return 0;
 }

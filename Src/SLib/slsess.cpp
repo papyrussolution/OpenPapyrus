@@ -1158,6 +1158,7 @@ bool SlSession::LoadUiDescription(const char * pFileName) // @v11.9.3
 					ENTER_CRITICAL_SECTION
 						ZDELETE(P_Uid);
 						P_Uid = p_uid;
+						P_Uid->SetSourceFileName(final_file_name); // @v11.9.7
 					LEAVE_CRITICAL_SECTION
 				}
 				else {

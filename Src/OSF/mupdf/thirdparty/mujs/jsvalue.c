@@ -567,7 +567,7 @@ int js_equal(js_State * J)
 	js_Value * y = js_tovalue(J, -1);
 retry:
 	if(JSV_ISSTRING(x) && JSV_ISSTRING(y))
-		return !strcmp(JSV_TOSTRING(x), JSV_TOSTRING(y));
+		return sstreq(JSV_TOSTRING(x), JSV_TOSTRING(y));
 	if(x->type == y->type) {
 		if(x->type == JS_TUNDEFINED) return 1;
 		if(x->type == JS_TNULL) return 1;
@@ -613,7 +613,7 @@ int js_strictequal(js_State * J)
 	js_Value * y = js_tovalue(J, -1);
 
 	if(JSV_ISSTRING(x) && JSV_ISSTRING(y))
-		return !strcmp(JSV_TOSTRING(x), JSV_TOSTRING(y));
+		return sstreq(JSV_TOSTRING(x), JSV_TOSTRING(y));
 
 	if(x->type != y->type) return 0;
 	if(x->type == JS_TUNDEFINED) return 1;

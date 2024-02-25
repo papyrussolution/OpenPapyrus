@@ -84,14 +84,12 @@ void Curl_debug(struct Curl_easy * data, curl_infotype type,
  */
 void Curl_failf(struct Curl_easy * data, const char * fmt, ...)
 {
-	DEBUGASSERT(!strchr(fmt, '\n'));
+	assert(!strchr(fmt, '\n'));
 	if(data->set.verbose || data->set.errorbuffer) {
 		va_list ap;
-		int len;
 		char error[CURL_ERROR_SIZE + 2];
 		va_start(ap, fmt);
-		len = mvsnprintf(error, CURL_ERROR_SIZE, fmt, ap);
-
+		int len = mvsnprintf(error, CURL_ERROR_SIZE, fmt, ap);
 		if(data->set.errorbuffer && !data->state.errorbuf) {
 			strcpy(data->set.errorbuffer, error);
 			data->state.errorbuf = TRUE; /* wrote error string */
@@ -108,7 +106,7 @@ void Curl_failf(struct Curl_easy * data, const char * fmt, ...)
 
 void Curl_infof(struct Curl_easy * data, const char * fmt, ...)
 {
-	DEBUGASSERT(!strchr(fmt, '\n'));
+	assert(!strchr(fmt, '\n'));
 	if(data && data->set.verbose) {
 		va_list ap;
 		int len;
@@ -127,7 +125,7 @@ void Curl_infof(struct Curl_easy * data, const char * fmt, ...)
 void Curl_trc_cf_infof(struct Curl_easy * data, struct Curl_cfilter * cf,
     const char * fmt, ...)
 {
-	DEBUGASSERT(cf);
+	assert(cf);
 	if(data && Curl_trc_cf_is_verbose(cf, data)) {
 		va_list ap;
 		int len;
@@ -202,10 +200,10 @@ CURLcode Curl_trc_opt(const char * config)
 			    break;
 		}
 		for(i = 0; cf_types[i]; ++i) {
-			if(strcasecompare(token, "all")) {
+			if(sstreqi_ascii(token, "all")) {
 				cf_types[i]->log_level = lvl;
 			}
-			else if(strcasecompare(token, cf_types[i]->name)) {
+			else if(sstreqi_ascii(token, cf_types[i]->name)) {
 				cf_types[i]->log_level = lvl;
 				break;
 			}

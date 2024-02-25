@@ -210,7 +210,7 @@ typedef CURLcode (*Curl_datastream)(struct Curl_easy * data,
  * us early warning on things only discovered by valgrind otherwise. */
 #define GOOD_EASY_HANDLE(x) \
 	(((x) && ((x)->magic == CURLEASY_MAGIC_NUMBER))? TRUE: \
-	(DEBUGASSERT(!(x)), FALSE))
+	(assert(!(x)), FALSE))
 #else
 #define GOOD_EASY_HANDLE(x) \
 	((x) && ((x)->magic == CURLEASY_MAGIC_NUMBER))

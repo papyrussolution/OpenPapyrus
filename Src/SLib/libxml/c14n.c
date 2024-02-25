@@ -519,10 +519,7 @@ static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNode * cur, int vi
 	 * print out all elements from list
 	 */
 	xmlListWalk(list, (xmlListWalker)xmlC14NPrintNamespaces, ctx);
-	/*
-	 * Cleanup
-	 */
-	xmlListDelete(list);
+	xmlListDelete(list); // Cleanup
 	return 0;
 }
 
@@ -679,13 +676,9 @@ static int xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNode * cur, int
 	 * print out all elements from list
 	 */
 	xmlListWalk(list, (xmlListWalker)xmlC14NPrintNamespaces, (const void *)ctx);
-	/*
-	 * Cleanup
-	 */
-	xmlListDelete(list);
+	xmlListDelete(list); // Cleanup
 	return 0;
 }
-
 /**
  * xmlC14NIsXmlAttr:
  * @attr:		the attr to check
@@ -695,12 +688,8 @@ static int xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNode * cur, int
  *
  * Returns 1 if the node is default or 0 otherwise
  */
-
 /* todo: make it a define? */
-static int xmlC14NIsXmlAttr(xmlAttr * attr)
-{
-	return (attr->ns && (xmlC14NIsXmlNs(attr->ns) != 0));
-}
+static int xmlC14NIsXmlAttr(const xmlAttr * attr) { return (attr->ns && (xmlC14NIsXmlNs(attr->ns) != 0)); }
 /**
  * xmlC14NAttrsCompare:
  * @attr1:		the pointer tls o first attr
@@ -1099,9 +1088,7 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNode * cur, int parent_
 	 * print out all elements from list
 	 */
 	xmlListWalk(list, (xmlListWalker)xmlC14NPrintAttrs, (const void *)ctx);
-	/*
-	 * Cleanup
-	 */
+	// Cleanup
 	xmlFreePropList(attrs_to_delete);
 	xmlListDelete(list);
 	return 0;

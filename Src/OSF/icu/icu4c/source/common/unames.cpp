@@ -1071,7 +1071,7 @@ static UChar32 findAlgName(AlgorithmicRange * range, UCharNameChoice nameChoice,
 				/* initialize the suffix elements for enumeration; indexes should all be set to 0 */
 				writeFactorSuffix(factors, count, s, 0, indexes, elementBases, elements, buffer, sizeof(buffer));
 				/* compare the first suffix */
-				if(0==strcmp(otherName, buffer)) {
+				if(sstreq(otherName, buffer)) {
 					return start;
 				}
 				/* enumerate and compare the rest of the suffixes */

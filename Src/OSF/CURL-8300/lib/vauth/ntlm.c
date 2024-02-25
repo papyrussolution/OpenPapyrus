@@ -682,8 +682,8 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 
 		LONGQUARTET(ntlm->flags));
 
-	DEBUGASSERT(size == 64);
-	DEBUGASSERT(size == (size_t)lmrespoff);
+	assert(size == 64);
+	assert(size == (size_t)lmrespoff);
 
 	/* We append the binary hashes */
 	if(size < (NTLM_BUFSIZE - 0x18)) {
@@ -701,7 +701,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 		failf(data, "incoming NTLM message too big");
 		return CURLE_OUT_OF_MEMORY;
 	}
-	DEBUGASSERT(size == (size_t)ntrespoff);
+	assert(size == (size_t)ntrespoff);
 	memcpy(&ntlmbuf[size], ptr_ntresp, ntresplen);
 	size += ntresplen;
 
@@ -726,7 +726,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 		return CURLE_OUT_OF_MEMORY;
 	}
 
-	DEBUGASSERT(size == domoff);
+	assert(size == domoff);
 	if(unicode)
 		unicodecpy(&ntlmbuf[size], domain, domlen / 2);
 	else
@@ -734,7 +734,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 
 	size += domlen;
 
-	DEBUGASSERT(size == useroff);
+	assert(size == useroff);
 	if(unicode)
 		unicodecpy(&ntlmbuf[size], user, userlen / 2);
 	else
@@ -742,7 +742,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 
 	size += userlen;
 
-	DEBUGASSERT(size == hostoff);
+	assert(size == hostoff);
 	if(unicode)
 		unicodecpy(&ntlmbuf[size], host, hostlen / 2);
 	else

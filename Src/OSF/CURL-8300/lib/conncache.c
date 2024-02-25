@@ -46,7 +46,7 @@
 
 static CURLcode bundle_create(struct connectbundle ** bundlep)
 {
-	DEBUGASSERT(*bundlep == NULL);
+	assert(*bundlep == NULL);
 	*bundlep = (connectbundle *)SAlloc::M(sizeof(struct connectbundle));
 	if(!*bundlep)
 		return CURLE_OUT_OF_MEMORY;
@@ -89,7 +89,7 @@ static int bundle_remove_conn(struct connectbundle * bundle,
 		}
 		curr = curr->next;
 	}
-	DEBUGASSERT(0);
+	assert(0);
 	return 0;
 }
 
@@ -125,7 +125,7 @@ static void hashkey(struct connectdata * conn, char * buf, size_t len)
 {
 	const char * hostname;
 	long port = conn->remote_port;
-	DEBUGASSERT(len >= HASHKEY_SIZE);
+	assert(len >= HASHKEY_SIZE);
 #ifndef CURL_DISABLE_PROXY
 	if(conn->bits.httpproxy && !conn->bits.tunnel_proxy) {
 		hostname = conn->http_proxy.host.name;
@@ -213,7 +213,7 @@ CURLcode Curl_conncache_add_conn(struct Curl_easy * data)
 	struct connectbundle * bundle = NULL;
 	struct connectdata * conn = data->conn;
 	struct conncache * connc = data->state.conn_cache;
-	DEBUGASSERT(conn);
+	assert(conn);
 
 	/* *find_bundle() locks the connection cache */
 	bundle = Curl_conncache_find_bundle(data, conn, data->state.conn_cache);

@@ -491,7 +491,7 @@ static CURLcode quic_set_client_cert(struct Curl_cfilter * cf,
 	const struct ssl_config_data * ssl_config;
 
 	ssl_config = Curl_ssl_get_config(data, FIRSTSOCKET);
-	DEBUGASSERT(ssl_config);
+	assert(ssl_config);
 
 	if(ssl_config->primary.clientcert || ssl_config->primary.cert_blob
 	    || ssl_config->cert_type) {
@@ -515,7 +515,7 @@ static CURLcode quic_init_ssl(struct Curl_cfilter * cf,
 	size_t alpnlen = 0;
 	uchar checkip[16];
 
-	DEBUGASSERT(!ctx->ssl);
+	assert(!ctx->ssl);
 	ctx->ssl = SSL_new(ctx->sslctx);
 
 	SSL_set_app_data(ctx->ssl, &ctx->conn_ref);
@@ -556,7 +556,7 @@ static CURLcode quic_init_ssl(struct Curl_cfilter * cf,
 	long * const pverifyresult = &data->set.ssl.certverifyresult;
 	int rc;
 
-	DEBUGASSERT(ctx->gtls == NULL);
+	assert(ctx->gtls == NULL);
 	ctx->gtls = calloc(1, sizeof(*(ctx->gtls)));
 	if(!ctx->gtls)
 		return CURLE_OUT_OF_MEMORY;
@@ -705,7 +705,7 @@ static CURLcode quic_init_ssl(struct Curl_cfilter * cf,
 	const char * const hostname = cf->conn->host.name;
 
 	(void)data;
-	DEBUGASSERT(!ctx->ssl);
+	assert(!ctx->ssl);
 	ctx->ssl = wolfSSL_new(ctx->sslctx);
 
 	wolfSSL_set_app_data(ctx->ssl, &ctx->conn_ref);
@@ -1167,7 +1167,7 @@ static CURLcode write_resp_raw(struct Curl_cfilter * cf,
 	if((size_t)nwritten < memlen) {
 		/* This MUST not happen. Our recbuf is dimensioned to hold the
 		 * full max_stream_window and then some for this very reason. */
-		DEBUGASSERT(0);
+		assert(0);
 		return CURLE_RECV_ERROR;
 	}
 	return result;
@@ -1465,10 +1465,10 @@ static ssize_t cf_ngtcp2_recv(struct Curl_cfilter * cf, struct Curl_easy * data,
 	(void)ctx;
 
 	CF_DATA_SAVE(save, cf, data);
-	DEBUGASSERT(cf->connected);
-	DEBUGASSERT(ctx);
-	DEBUGASSERT(ctx->qconn);
-	DEBUGASSERT(ctx->h3conn);
+	assert(cf->connected);
+	assert(ctx);
+	assert(ctx->qconn);
+	assert(ctx->h3conn);
 	*err = CURLE_OK;
 
 	pktx_init(&pktx, cf, data);
@@ -1611,7 +1611,7 @@ static nghttp3_ssize cb_h3_read_req_body(nghttp3_conn * conn, int64_t stream_id,
 			nwritten += vec[nvecs].len;
 			++nvecs;
 		}
-		DEBUGASSERT(nvecs > 0); /* we SHOULD have been be able to peek */
+		assert(nvecs > 0); /* we SHOULD have been be able to peek */
 	}
 
 	if(nwritten > 0 && stream->upload_left != -1)
@@ -1666,7 +1666,7 @@ static ssize_t h3_stream_open(struct Curl_cfilter * cf,
 	if(*err)
 		goto out;
 	stream = H3_STREAM_CTX(data);
-	DEBUGASSERT(stream);
+	assert(stream);
 
 	nwritten = Curl_h1_req_parse_read(&stream->h1, buf, len, NULL, 0, err);
 	if(nwritten < 0)
@@ -1675,7 +1675,7 @@ static ssize_t h3_stream_open(struct Curl_cfilter * cf,
 		/* need more data */
 		goto out;
 	}
-	DEBUGASSERT(stream->h1.req);
+	assert(stream->h1.req);
 
 	*err = Curl_http_req_to_h2(&h2_headers, stream->h1.req, data);
 	if(*err) {
@@ -1778,9 +1778,9 @@ static ssize_t cf_ngtcp2_send(struct Curl_cfilter * cf, struct Curl_easy * data,
 	CURLcode result;
 
 	CF_DATA_SAVE(save, cf, data);
-	DEBUGASSERT(cf->connected);
-	DEBUGASSERT(ctx->qconn);
-	DEBUGASSERT(ctx->h3conn);
+	assert(cf->connected);
+	assert(ctx->qconn);
+	assert(ctx->h3conn);
 	pktx_init(&pktx, cf, data);
 	*err = CURLE_OK;
 
@@ -1801,7 +1801,7 @@ static ssize_t cf_ngtcp2_send(struct Curl_cfilter * cf, struct Curl_easy * data,
 	else if(stream->upload_blocked_len) {
 		/* the data in `buf` has already been submitted or added to the
 		 * buffers, but have been EAGAINed on the last invocation. */
-		DEBUGASSERT(len >= stream->upload_blocked_len);
+		assert(len >= stream->upload_blocked_len);
 		if(len < stream->upload_blocked_len) {
 			/* Did we get called again with a smaller `len`? This should not
 			 * happen. We are not prepared to handle that. */
@@ -2069,23 +2069,23 @@ static ssize_t read_pkt_to_send(void * userp, uchar * buf, size_t buflen, CURLco
 		else if(n < 0) {
 			switch(n) {
 				case NGTCP2_ERR_STREAM_DATA_BLOCKED:
-				    DEBUGASSERT(ndatalen == -1);
+				    assert(ndatalen == -1);
 				    nghttp3_conn_block_stream(ctx->h3conn, stream_id);
 				    n = 0;
 				    break;
 				case NGTCP2_ERR_STREAM_SHUT_WR:
-				    DEBUGASSERT(ndatalen == -1);
+				    assert(ndatalen == -1);
 				    nghttp3_conn_shutdown_stream_write(ctx->h3conn, stream_id);
 				    n = 0;
 				    break;
 				case NGTCP2_ERR_WRITE_MORE:
 				    /* ngtcp2 wants to send more. update the flow of the stream whose data
 				     * is in the buffer and continue */
-				    DEBUGASSERT(ndatalen >= 0);
+				    assert(ndatalen >= 0);
 				    n = 0;
 				    break;
 				default:
-				    DEBUGASSERT(ndatalen == -1);
+				    assert(ndatalen == -1);
 				    failf(x->data, "ngtcp2_conn_writev_stream returned error: %s",
 					ngtcp2_strerror((int)n));
 				    ngtcp2_ccerr_set_liberr(&ctx->last_error, (int)n, NULL, 0);
@@ -2182,7 +2182,7 @@ static CURLcode cf_progress_egress(struct Curl_cfilter * cf,
 			goto out;
 		}
 
-		DEBUGASSERT(nread > 0);
+		assert(nread > 0);
 		if(pktcnt == 0) {
 			/* first packet in buffer. This is either of a known, "good"
 			 * payload size or it is a PMTUD. We'll see. */
@@ -2598,7 +2598,7 @@ static CURLcode cf_ngtcp2_query(struct Curl_cfilter * cf,
 	switch(query) {
 		case CF_QUERY_MAX_CONCURRENT: {
 		    const ngtcp2_transport_params * rp;
-		    DEBUGASSERT(pres1);
+		    assert(pres1);
 
 		    CF_DATA_SAVE(save, cf, data);
 		    rp = ngtcp2_conn_get_remote_transport_params(ctx->qconn);

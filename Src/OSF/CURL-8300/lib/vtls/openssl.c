@@ -412,7 +412,7 @@ CURLcode Curl_ossl_certchain(struct Curl_easy * data, SSL * ssl)
 	numcert_t numcerts;
 	BIO * mem;
 
-	DEBUGASSERT(ssl);
+	assert(ssl);
 
 	sk = SSL_get_peer_cert_chain(ssl);
 	if(!sk) {
@@ -719,7 +719,7 @@ static int bio_cf_out_write(BIO * bio, const char * buf, int blen)
 	ssize_t nwritten;
 	CURLcode result = CURLE_SEND_ERROR;
 
-	DEBUGASSERT(data);
+	assert(data);
 	nwritten = Curl_conn_cf_send(cf->next, data, buf, blen, &result);
 	CURL_TRC_CF(data, cf, "bio_cf_out_write(len=%d) -> %d, err=%d",
 	    blen, (int)nwritten, result);
@@ -742,7 +742,7 @@ static int bio_cf_in_read(BIO * bio, char * buf, int blen)
 	ssize_t nread;
 	CURLcode result = CURLE_RECV_ERROR;
 
-	DEBUGASSERT(data);
+	assert(data);
 	/* OpenSSL catches this case, so should we. */
 	if(!buf)
 		return 0;
@@ -921,10 +921,10 @@ static size_t ossl_version(char * buffer, size_t size);
 static char *ossl_strerror(ulong error, char * buf, size_t size)
 {
 	size_t len;
-	DEBUGASSERT(size);
+	assert(size);
 	*buf = '\0';
 	len = ossl_version(buf, size);
-	DEBUGASSERT(len < (size - 2));
+	assert(len < (size - 2));
 	if(len < (size - 2)) {
 		buf += len;
 		size -= (len + 2);
@@ -946,7 +946,7 @@ static char *ossl_strerror(ulong error, char * buf, size_t size)
 
 static int passwd_callback(char * buf, int num, int encrypting, void * global_passwd)
 {
-	DEBUGASSERT(0 == encrypting);
+	assert(0 == encrypting);
 
 	if(!encrypting) {
 		int klen = curlx_uztosi(strlen((char *)global_passwd));
@@ -1041,13 +1041,13 @@ static int do_file_type(const char * type)
 {
 	if(!type || !type[0])
 		return SSL_FILETYPE_PEM;
-	if(strcasecompare(type, "PEM"))
+	if(sstreqi_ascii(type, "PEM"))
 		return SSL_FILETYPE_PEM;
-	if(strcasecompare(type, "DER"))
+	if(sstreqi_ascii(type, "DER"))
 		return SSL_FILETYPE_ASN1;
-	if(strcasecompare(type, "ENG"))
+	if(sstreqi_ascii(type, "ENG"))
 		return SSL_FILETYPE_ENGINE;
-	if(strcasecompare(type, "P12"))
+	if(sstreqi_ascii(type, "P12"))
 		return SSL_FILETYPE_PKCS12;
 	return -1;
 }
@@ -1746,7 +1746,7 @@ static CURLcode ossl_set_engine(struct Curl_easy * data, const char * engine)
 	/* avoid memory leak */
 	for(e = ENGINE_get_first(); e; e = ENGINE_get_next(e)) {
 		const char * e_id = ENGINE_get_id(e);
-		if(!strcmp(engine, e_id))
+		if(sstreq(engine, e_id))
 			break;
 	}
 #endif
@@ -1822,7 +1822,7 @@ static void ossl_close(struct Curl_cfilter * cf, struct Curl_easy * data)
 	    (struct ossl_ssl_backend_data *)connssl->backend;
 
 	(void)data;
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	if(backend->handle) {
 		if(cf->next && cf->next->connected) {
@@ -1867,7 +1867,7 @@ static int ossl_shutdown(struct Curl_cfilter * cf, struct Curl_easy * data)
 	bool done = FALSE;
 	struct ossl_ssl_backend_data * backend = (struct ossl_ssl_backend_data *)connssl->backend;
 	int loop = 10;
-	DEBUGASSERT(backend);
+	assert(backend);
 #ifndef CURL_DISABLE_FTP
 	/* This has only been tested on the proftpd server, and the mod_tls code
 	   sends a close notify alert without waiting for a close notify alert in
@@ -2266,7 +2266,7 @@ static CURLcode verifystatus(struct Curl_cfilter * cf, struct Curl_easy * data)
 	int ret;
 	long len;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	len = SSL_get_tlsext_status_ocsp_resp(backend->handle, &status);
 
@@ -2762,7 +2762,7 @@ static CURLcode ossl_set_ssl_version_min_max_legacy(ctx_option_t * ctx_options,
 		    struct ssl_connect_data * connssl = cf->ctx;
 		    struct ossl_ssl_backend_data * backend =
 			(struct ossl_ssl_backend_data *)connssl->backend;
-		    DEBUGASSERT(backend);
+		    assert(backend);
 		    SSL_CTX_set_max_proto_version(backend->ctx, TLS1_3_VERSION);
 		    *ctx_options |= SSL_OP_NO_TLSv1_2;
 	    }
@@ -3054,7 +3054,7 @@ static CURLcode populate_x509_store(struct Curl_cfilter * cf,
 								bool found = false;
 
 								for(i = 0; i < enhkey_usage->cUsageIdentifier; ++i) {
-									if(!strcmp("1.3.6.1.5.5.7.3.1" /* OID server auth */,
+									if(sstreq("1.3.6.1.5.5.7.3.1" /* OID server auth */,
 									    enhkey_usage->rgpszUsageIdentifier[i])) {
 										found = true;
 										break;
@@ -3362,8 +3362,8 @@ static CURLcode ossl_connect_step1(struct Curl_cfilter * cf,
 	const bool verifypeer = conn_config->verifypeer;
 	char error_buffer[256];
 	struct ossl_ssl_backend_data * backend = (struct ossl_ssl_backend_data *)connssl->backend;
-	DEBUGASSERT(ssl_connect_1 == connssl->connecting_state);
-	DEBUGASSERT(backend);
+	assert(ssl_connect_1 == connssl->connecting_state);
+	assert(backend);
 	/* Make funny stuff to get random input */
 	result = ossl_seed(data);
 	if(result)
@@ -3736,10 +3736,10 @@ static CURLcode ossl_connect_step2(struct Curl_cfilter * cf,
 	struct ossl_ssl_backend_data * backend =
 	    (struct ossl_ssl_backend_data *)connssl->backend;
 	struct ssl_config_data * ssl_config = Curl_ssl_cf_get_config(cf, data);
-	DEBUGASSERT(ssl_connect_2 == connssl->connecting_state
+	assert(ssl_connect_2 == connssl->connecting_state
 	    || ssl_connect_2_reading == connssl->connecting_state
 	    || ssl_connect_2_writing == connssl->connecting_state);
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	ERR_clear_error();
 
@@ -3976,7 +3976,7 @@ static CURLcode servercert(struct Curl_cfilter * cf,
 	const char * ptr;
 	BIO * mem = BIO_new(BIO_s_mem());
 	struct ossl_ssl_backend_data * backend = (struct ossl_ssl_backend_data *)connssl->backend;
-	DEBUGASSERT(backend);
+	assert(backend);
 	if(!mem) {
 		failf(data, "BIO_new return NULL, " OSSL_PACKAGE " error %s",
 		    ossl_strerror(ERR_get_error(), error_buffer, sizeof(error_buffer)) );
@@ -4170,7 +4170,7 @@ static CURLcode ossl_connect_step3(struct Curl_cfilter * cf, struct Curl_easy * 
 	CURLcode result = CURLE_OK;
 	struct ssl_connect_data * connssl = (ssl_connect_data *)cf->ctx;
 	struct ssl_primary_config * conn_config = Curl_ssl_cf_get_primary_config(cf);
-	DEBUGASSERT(ssl_connect_3 == connssl->connecting_state);
+	assert(ssl_connect_3 == connssl->connecting_state);
 	/*
 	 * We check certificates to authenticate the server; otherwise we risk
 	 * man-in-the-middle attack; NEVERTHELESS, if we're told explicitly not to
@@ -4305,7 +4305,7 @@ static CURLcode ossl_connect(struct Curl_cfilter * cf,
 	if(result)
 		return result;
 
-	DEBUGASSERT(done);
+	assert(done);
 
 	return CURLE_OK;
 }
@@ -4315,7 +4315,7 @@ static bool ossl_data_pending(struct Curl_cfilter * cf, const struct Curl_easy *
 	struct ssl_connect_data * connssl = (ssl_connect_data *)cf->ctx;
 	struct ossl_ssl_backend_data * backend = (struct ossl_ssl_backend_data *)connssl->backend;
 	(void)data;
-	DEBUGASSERT(connssl && backend);
+	assert(connssl && backend);
 	if(backend->handle && SSL_pending(backend->handle))
 		return TRUE;
 	return FALSE;
@@ -4333,7 +4333,7 @@ static ssize_t ossl_send(struct Curl_cfilter * cf, struct Curl_easy * data, cons
 	struct ssl_connect_data * connssl = (ssl_connect_data *)cf->ctx;
 	struct ossl_ssl_backend_data * backend = (struct ossl_ssl_backend_data *)connssl->backend;
 	(void)data;
-	DEBUGASSERT(backend);
+	assert(backend);
 	ERR_clear_error();
 	memlen = (len > (size_t)INT_MAX) ? INT_MAX : (int)len;
 	rc = SSL_write(backend->handle, mem, memlen);
@@ -4423,7 +4423,7 @@ static ssize_t ossl_recv(struct Curl_cfilter * cf, struct Curl_easy * data/* tra
 	    (struct ossl_ssl_backend_data *)connssl->backend;
 
 	(void)data;
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	ERR_clear_error();
 
@@ -4645,7 +4645,7 @@ static void *ossl_get_internals(struct ssl_connect_data * connssl,
 	/* Legacy: CURLINFO_TLS_SESSION must return an SSL_CTX pointer. */
 	struct ossl_ssl_backend_data * backend =
 	    (struct ossl_ssl_backend_data *)connssl->backend;
-	DEBUGASSERT(backend);
+	assert(backend);
 	return info == CURLINFO_TLS_SESSION ?
 	       (void *)backend->ctx : (void *)backend->handle;
 }

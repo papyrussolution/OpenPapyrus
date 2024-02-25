@@ -155,10 +155,10 @@ CURLcode Curl_nwrite(struct Curl_easy * data,
 	CURLcode result = CURLE_OK;
 	struct connectdata * conn;
 
-	DEBUGASSERT(sockindex >= 0 && sockindex < 2);
-	DEBUGASSERT(pnwritten);
-	DEBUGASSERT(data);
-	DEBUGASSERT(data->conn);
+	assert(sockindex >= 0 && sockindex < 2);
+	assert(pnwritten);
+	assert(data);
+	assert(data->conn);
 	conn = data->conn;
 #ifdef CURLDEBUG
 	{
@@ -181,7 +181,7 @@ CURLcode Curl_nwrite(struct Curl_easy * data,
 		nwritten = -1; /* make sure */
 	}
 	else {
-		DEBUGASSERT(nwritten >= 0);
+		assert(nwritten >= 0);
 	}
 
 	*pnwritten = nwritten;
@@ -204,8 +204,8 @@ CURLcode Curl_write(struct Curl_easy * data,
 	struct connectdata * conn;
 	int num;
 
-	DEBUGASSERT(data);
-	DEBUGASSERT(data->conn);
+	assert(data);
+	assert(data->conn);
 	conn = data->conn;
 	num = (sockfd != CURL_SOCKET_BAD && sockfd == conn->sock[SECONDARYSOCKET]);
 	return Curl_nwrite(data, num, mem, len, written);
@@ -234,7 +234,7 @@ static CURLcode pausewrite(struct Curl_easy * data,
 				break;
 			}
 		}
-		DEBUGASSERT(i < 3);
+		assert(i < 3);
 		if(i >= 3)
 			/* There are more types to store than what fits: very bad */
 			return CURLE_OUT_OF_MEMORY;

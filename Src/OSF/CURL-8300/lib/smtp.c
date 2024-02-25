@@ -555,37 +555,23 @@ static CURLcode smtp_perform_command(struct Curl_easy * data)
 
 			/* Send the VRFY command (Note: The host name part may be absent when the
 			   host is a local system) */
-			result = Curl_pp_sendf(data, &conn->proto.smtpc.pp, "VRFY %s%s%s%s",
-				address,
-				host.name ? "@" : "",
-				host.name ? host.name : "",
-				utf8 ? " SMTPUTF8" : "");
-
+			result = Curl_pp_sendf(data, &conn->proto.smtpc.pp, "VRFY %s%s%s%s", address, host.name ? "@" : "", host.name ? host.name : "", utf8 ? " SMTPUTF8" : "");
 			Curl_free_idnconverted_hostname(&host);
 			SAlloc::F(address);
 		}
 		else {
 			/* Establish whether we should report that we support SMTPUTF8 for EXPN
 			   commands to the server as per RFC-6531 sect. 3.1 point 6 */
-			utf8 = (conn->proto.smtpc.utf8_supported) &&
-			    (!strcmp(smtp->custom, "EXPN"));
-
+			utf8 = (conn->proto.smtpc.utf8_supported) && (sstreq(smtp->custom, "EXPN"));
 			/* Send the custom recipient based command such as the EXPN command */
-			result = Curl_pp_sendf(data, &conn->proto.smtpc.pp,
-				"%s %s%s", smtp->custom,
-				smtp->rcpt->data,
-				utf8 ? " SMTPUTF8" : "");
+			result = Curl_pp_sendf(data, &conn->proto.smtpc.pp, "%s %s%s", smtp->custom, smtp->rcpt->data, utf8 ? " SMTPUTF8" : "");
 		}
 	}
 	else
 		/* Send the non-recipient based command such as HELP */
-		result = Curl_pp_sendf(data, &conn->proto.smtpc.pp, "%s",
-			smtp->custom && smtp->custom[0] != '\0' ?
-			smtp->custom : "HELP");
-
+		result = Curl_pp_sendf(data, &conn->proto.smtpc.pp, "%s", smtp->custom && smtp->custom[0] != '\0' ? smtp->custom : "HELP");
 	if(!result)
 		smtp_state(data, SMTP_COMMAND);
-
 	return result;
 }
 
@@ -1846,7 +1832,7 @@ CURLcode Curl_smtp_escape_eob(struct Curl_easy * data,
 			return CURLE_OUT_OF_MEMORY;
 		}
 	}
-	DEBUGASSERT((size_t)data->set.upload_buffer_size >= (size_t)nread);
+	assert((size_t)data->set.upload_buffer_size >= (size_t)nread);
 
 	/* Have we already sent part of the EOB? */
 	eob_sent = smtp->eob;

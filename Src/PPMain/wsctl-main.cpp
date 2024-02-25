@@ -20,7 +20,7 @@ namespace ImGui {
 	ColorTextDisabled
 	ColorTextDarker // npp
 	ColorTextLink   // npp
-	Window (oneof: Genric | Popup | Child)
+	Winow (oneof: Genric | Popup | Child)
 		Color
 		ColorSofter // npp
 		ColorHot // npp
@@ -138,24 +138,6 @@ protected:
 	bool   Launched;
 	uint8  Reserve[3]; // @alignment
 	void * P_Ctx;
-};
-
-class SImFontDescription {
-public:
-	SImFontDescription(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr);
-	operator ImFont * () { return P_Font; };
-	bool   IsValid() const { return (P_Font != 0); }
-	bool   HasColor() const { return !Clr.IsEmpty(); }
-	SColor GetColor() const { return Clr; }
-	//
-	// Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
-	//
-	const void * GetHashKey(const void * pCtx, uint * pKeyLen) const;
-private:
-	SString Symbol;
-	uint   State;
-	SColor Clr; // 
-	ImFont * P_Font;
 };
 //
 //
@@ -472,8 +454,6 @@ public:
 	};
 	int GetScreen() const { return Screen; }
 	int SetScreen(int scr);
-	int CreateFontEntry(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr);
-	int PushFontEntry(ImGuiObjStack & rStk, const char * pSymb);
 	SString & InputLabelPrefix(const char * pLabel);
 
 	class ImDialog_WsCtlConfig : public ImDialogState {
@@ -609,8 +589,6 @@ private:
 
 	TextureCache Cache_Texture;
 	IconTextureCache Cache_Icon; // @v11.9.2
-	TSHashCollection <SUiLayout> Cache_Layout;
-	TSHashCollection <SImFontDescription> Cache_Font; // @v11.7.8
 	//
 	// Следующие 2 объекта загружаются при инициализации сеанса запросом к серверу или из кэша.
 	//
@@ -658,7 +636,7 @@ private:
 			ok = false;
 		return ok;
 	}
-	void   MakeLayout(SJson ** ppJsList);
+	// @v11.9.7 void   MakeLayout(SJson ** ppJsList);
 	SUiLayout * MakePgmListLayout(const WsCtl_ProgramCollection & rPgmL);
 	void   PreprocessProgramList();
 	static bool GetLocalCachePath(SString & rPath);
@@ -711,7 +689,6 @@ private:
 public:
 	WsCtl_ImGuiSceneBlock();
 	~WsCtl_ImGuiSceneBlock();
-	int  LoadUiDescription();
 	virtual int  Init(ImGuiIO & rIo);
 	//int  LoadProgramList();
 	int  ExecuteProgram(const WsCtl_ProgramEntry * pPe);
@@ -759,28 +736,6 @@ int FASTCALL WsCtlReqQueue::Pop(Req & rReq)
 	}
 	Lck.Unlock();
 	return ok;
-}
-//
-//
-//
-SImFontDescription::SImFontDescription(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr) : 
-	P_Font(0), Symbol(pSymb)
-{
-	assert(Symbol.NotEmptyS());
-	Clr.Z();
-	static const ImWchar ranges[] = {
-		0x0020, 0x00FF, // Basic Latin + Latin Supplement
-		0x0400, 0x044F, // Cyrillic
-		0,
-	};
-	P_Font = rIo.Fonts->AddFontFromFileTTF(/*"/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf"*/pPath, sizePx, pFontCfg, ranges);
-	RVALUEPTR(Clr, pClr);
-}
-
-const void * SImFontDescription::GetHashKey(const void * pCtx, uint * pKeyLen) const
-{
-	ASSIGN_PTR(pKeyLen, Symbol.Len());
-	return Symbol.cptr();
 }
 //
 //
@@ -1856,9 +1811,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 }
 
 WsCtl_ImGuiSceneBlock::WsCtl_ImGuiSceneBlock() : ImGuiSceneBase(), ShowDemoWindow(false), ShowAnotherWindow(false), Screen(screenUndef),
-	P_CmdQ(new WsCtlReqQueue),
-	Cache_Layout(512, 0), Cache_Texture(1024, 0), Cache_Font(101, 0), Cache_Icon(),
-	P_Dlg_Cfg(0)
+	P_CmdQ(new WsCtlReqQueue), Cache_Texture(1024, 0), Cache_Icon(), P_Dlg_Cfg(0)
 {
 	TestInput[0] = 0;
 	//LoginText[0] = 0;
@@ -1886,38 +1839,6 @@ int WsCtl_ImGuiSceneBlock::SetScreen(int scr)
 	return ok;
 }
 
-int WsCtl_ImGuiSceneBlock::CreateFontEntry(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr)
-{
-	static const ImWchar ranges[] = {
-		0x0020, 0x00FF, // Basic Latin + Latin Supplement
-		0x0400, 0x044F, // Cyrillic
-		0,
-	};
-	int    ok = 1;
-	SImFontDescription * p_fd = new SImFontDescription(rIo, pSymb, pPath, sizePx, pFontCfg, pClr);
-	if(p_fd) {
-		Cache_Font.Put(p_fd, true);
-	}
-	else
-		ok = 0;
-	return ok;
-}
-	
-int WsCtl_ImGuiSceneBlock::PushFontEntry(ImGuiObjStack & rStk, const char * pSymb)
-{
-	int    ok = 1;
-	SImFontDescription * p_fd = Cache_Font.Get(pSymb, sstrlen(pSymb));
-	if(p_fd && p_fd->IsValid()) {
-		rStk.PushFont(*p_fd);
-		if(p_fd->HasColor()) {
-			SColor clr = p_fd->GetColor();
-			rStk.PushStyleColor(ImGuiCol_Text, IM_COL32(clr.R, clr.G, clr.B, clr.Alpha));
-		}
-	}
-	else
-		ok = 0;
-	return ok;
-}
 
 SString & WsCtl_ImGuiSceneBlock::InputLabelPrefix(const char * pLabel)
 {
@@ -1930,73 +1851,6 @@ SString & WsCtl_ImGuiSceneBlock::InputLabelPrefix(const char * pLabel)
 	//ImGui::SetCursorPosX(x + width * 0.5f + ImGui::GetStyle().ItemInnerSpacing.x);
 	// @v11.7.8 ImGui::SetNextItemWidth(-1);
 	return SLS.AcquireRvlStr().CatCharN('#', 2).Cat(pLabel);
-}
-
-int WsCtl_ImGuiSceneBlock::LoadUiDescription()
-{
-	int    ok = 0;
-	SString temp_buf;
-	/*
-	SJson * p_js = 0;
-	PPGetPath(PPPATH_DD, temp_buf);
-	temp_buf.SetLastSlash().Cat("uid").SetLastSlash().Cat("uid-wsctl.json");
-	SFile f_in(temp_buf, SFile::mRead);
-	{
-		STempBuffer in_buf(8192);
-		size_t actual_size = 0;
-		THROW(in_buf.IsValid());
-		THROW(f_in.ReadAll(in_buf, 0, &actual_size));
-		temp_buf.Z().CatN(in_buf, actual_size);
-	}
-	{
-		p_js = SJson::Parse(temp_buf);
-		THROW(p_js);
-		THROW(Uid.FromJsonObj(p_js));
-	}
-	*/
-	const UiDescription * p_uid = SLS.GetUiDescription(); // @v11.9.3
-	if(p_uid) {
-		/* (это делает функция SlSession::LoadUiDescription) {
-			SColorSet * p_cs = p_uid->GetColorSet("imgui-style");
-			if(p_cs) {
-				p_cs->Resolve();
-			}
-		}*/
-		{
-			const bool use_outer_layout_description = true;
-			if(use_outer_layout_description) {
-				for(uint i = 0; i < p_uid->LoList.getCount(); i++) {
-					const SUiLayout * p_lo = p_uid->LoList.at(i);
-					if(p_lo) {
-						SUiLayout * p_new_lo = new SUiLayout(*p_lo);
-						Cache_Layout.Put(p_new_lo, true);
-					}
-				}
-			}
-			else {
-				SJson * p_js_lo_list = 0;
-				MakeLayout(&p_js_lo_list);
-				if(p_js_lo_list) {
-					SString temp_buf;
-					PPGetFilePath(PPPATH_OUT, "uid-wsctl.json", temp_buf);
-					SFile f_out(temp_buf, SFile::mWrite);
-					if(f_out.IsValid()) {
-						SJson js_ui(SJson::tOBJECT);
-						js_ui.Insert("layout_list", p_js_lo_list);
-						p_js_lo_list = 0;
-						SString js_fmt_buf;
-						js_ui.ToStr(temp_buf);
-						SJson::FormatText(temp_buf, js_fmt_buf);
-						f_out.Write(js_fmt_buf, js_fmt_buf.Len());
-					}
-					ZDELETE(p_js_lo_list);
-				}
-			}
-		}
-	}
-	CATCHZOK
-	//delete p_js;
-	return ok;
 }
 
 SUiLayout * WsCtl_ImGuiSceneBlock::MakePgmListLayout(const WsCtl_ProgramCollection & rPgmL)
@@ -2360,6 +2214,7 @@ void WsCtl_ImGuiSceneBlock::LastServerErrorPopup(bool isErr)
 	}
 }
 
+#if 0 // { // Эта функция была актуальна до использования механизма внешнего описания лейаутов {
 void WsCtl_ImGuiSceneBlock::MakeLayout(SJson ** ppJsList)
 {
 	const FRect margin_(2.0f, 1.0f, 2.0f, 1.0f);
@@ -2566,6 +2421,7 @@ void WsCtl_ImGuiSceneBlock::MakeLayout(SJson ** ppJsList)
 		*ppJsList = p_js_lo_list;
 	}
 }
+#endif // } 0 
 
 void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayout & rTl)
 {
@@ -3040,11 +2896,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 			TestBlk.QuerySentCount++;
 		}
 	}
-	//
-	// Start the Dear ImGui frame
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
+	BuildSceneProlog(); // Start the Dear ImGui frame
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	ShowDemoWindow = false; // @debug
 	if(ShowDemoWindow) {
@@ -3059,10 +2911,10 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 		if(p_vp) {
 			//PreprocessProgramList();
 			ImVec2 sz = p_vp->Size;
-			const int _screen = GetScreen();
 			SUiLayout::Param evp;
 			evp.ForceSize.x = sz.x;
 			evp.ForceSize.y = sz.y;
+			const int _screen = GetScreen();
 			if(0) {
 				SString & r_temp_buf = SLS.AcquireRvlStr();
 				GetFilePath(fnBackground, true, r_temp_buf);
@@ -3658,39 +3510,6 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 			}
 		}
 	}
-	/*
-	{
-		static float f = 0.0f;
-		static int counter = 0;
-		{
-			ImVec2 wp(0.0f, 0.0f);
-			ImGui::SetNextWindowPos(wp);
-		}
-		ImGui::Begin("Hello, world!", 0, ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove); // Create a window called "Hello, world!" and append into it.
-		ImGui::Text("This is some useful text.");   // Display some text (you can use a format strings too)
-		ImGui::Checkbox("Demo Window", &ShowDemoWindow); // Edit bools storing our window open/close state
-		ImGui::Checkbox("Another Window", &ShowAnotherWindow);
-		ImGui::SliderFloat("float", &f, 0.0f, 1.0f); // Edit 1 float using a slider from 0.0f to 1.0f
-		ImGui::ColorEdit3("clear color", (float *)&ClearColor); // Edit 3 floats representing a color
-		if(ImGui::Button("Button")) // Buttons return true when clicked (most widgets return true when edited/activated)
-			counter++;
-		ImGui::SameLine();
-		ImGui::Text("counter = %d", counter);
-		{
-			ImGuiIO & r_io = ImGui::GetIO(); 
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / r_io.Framerate, r_io.Framerate);
-		}
-		ImGui::End();
-	}
-	// 3. Show another simple window.
-	if(ShowAnotherWindow) {
-		ImGui::Begin("Another Window", &ShowAnotherWindow); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-		ImGui::Text("Hello from another window!");
-		if(ImGui::Button("Close Me"))
-			ShowAnotherWindow = false;
-		ImGui::End();
-	}
-	*/
 	Render(ImgRtb); // Rendering
 }
 //
@@ -3706,11 +3525,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return true;
 	switch(msg) {
 		case WM_SIZE:
-		    if(ImgRtb.g_pd3dDevice != nullptr && wParam != SIZE_MINIMIZED) {
-			    ImgRtb.CleanupRenderTarget();
-			    ImgRtb.g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
-			    ImgRtb.CreateRenderTarget();
-		    }
+			ImgRtb.OnWindowResize(wParam, lParam);
 		    return 0;
 		case WM_SYSCOMMAND:
 		    if((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu

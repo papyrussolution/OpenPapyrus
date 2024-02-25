@@ -213,7 +213,7 @@ static int init_thread_sync_data(struct thread_data * td, const char * hostname,
 	 */
 	tsd->done = 1;
 #ifdef HAVE_GETADDRINFO
-	DEBUGASSERT(hints);
+	assert(hints);
 	tsd->hints = *hints;
 #else
 	(void)hints;
@@ -468,10 +468,10 @@ static CURLcode thread_wait_resolv(struct Curl_easy * data,
 	struct thread_data * td;
 	CURLcode result = CURLE_OK;
 
-	DEBUGASSERT(data);
+	assert(data);
 	td = data->state.async.tdata;
-	DEBUGASSERT(td);
-	DEBUGASSERT(td->thread_hnd != curl_thread_t_null);
+	assert(td);
+	assert(td->thread_hnd != curl_thread_t_null);
 
 	/* wait for the thread to resolve the name */
 	if(Curl_thread_join(&td->thread_hnd)) {
@@ -479,7 +479,7 @@ static CURLcode thread_wait_resolv(struct Curl_easy * data,
 			result = getaddrinfo_complete(data);
 	}
 	else
-		DEBUGASSERT(0);
+		assert(0);
 
 	data->state.async.done = TRUE;
 
@@ -546,11 +546,11 @@ CURLcode Curl_resolver_is_resolved(struct Curl_easy * data,
 	struct thread_data * td = data->state.async.tdata;
 	int done = 0;
 
-	DEBUGASSERT(entry);
+	assert(entry);
 	*entry = NULL;
 
 	if(!td) {
-		DEBUGASSERT(td);
+		assert(td);
 		return CURLE_COULDNT_RESOLVE_HOST;
 	}
 

@@ -729,7 +729,7 @@ void gp_cairo_draw_text(PlotCairoStruct * plot, int x1, int y1, const char* stri
 	FPRINTF((stderr, "draw_text\n"));
 #ifdef MAP_SYMBOL
 	/* we have to treat Symbol font as a special case */
-	if(!strcmp(plot->fontname, "Symbol")) {
+	if(sstreq(plot->fontname, "Symbol")) {
 		FPRINTF((stderr, "Parsing a Symbol string\n"));
 		string_utf8 = gp_cairo_convert_symbol_to_unicode(plot, string);
 		safe_strncpy(plot->fontname, gp_cairo_default_font(), sizeof(plot->fontname));
@@ -1132,19 +1132,14 @@ void gp_cairo_enhanced_flush(PlotCairoStruct * plot)
 
 #ifdef MAP_SYMBOL
 	/* we have to treat Symbol font as a special case */
-	if(!strcmp(gp_cairo_enhanced_font, "Symbol")) {
+	if(sstreq(gp_cairo_enhanced_font, "Symbol")) {
 		FPRINTF((stderr, "Parsing a Symbol string\n"));
-
 		enhanced_text_utf8 = gp_cairo_convert_symbol_to_unicode(plot, gp_cairo_enhanced_string);
-
-		if(!strcmp(plot->fontname, "Symbol")) {
-			safe_strncpy(gp_cairo_enhanced_font,
-			    plot->fontname,
-			    sizeof(gp_cairo_enhanced_font));
+		if(sstreq(plot->fontname, "Symbol")) {
+			safe_strncpy(gp_cairo_enhanced_font, plot->fontname, sizeof(gp_cairo_enhanced_font));
 		}
 		else {
-			safe_strncpy(gp_cairo_enhanced_font,
-			    gp_cairo_default_font(), sizeof(gp_cairo_enhanced_font));
+			safe_strncpy(gp_cairo_enhanced_font, gp_cairo_default_font(), sizeof(gp_cairo_enhanced_font));
 		}
 		symbol_font_parsed = TRUE;
 	}

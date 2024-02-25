@@ -85,9 +85,7 @@ STACK_OF(X509_INFO) *PEM_X509_INFO_read_bio_ex(BIO *bp, STACK_OF(X509_INFO) *sk,
 		}
 		ERR_clear_last_mark();
 start:
-		if(strcmp(name, PEM_STRING_X509) == 0
-		    || strcmp(name, PEM_STRING_X509_OLD) == 0
-		    || strcmp(name, PEM_STRING_X509_TRUSTED) == 0) {
+		if(strcmp(name, PEM_STRING_X509) == 0 || strcmp(name, PEM_STRING_X509_OLD) == 0 || strcmp(name, PEM_STRING_X509_TRUSTED) == 0) {
 			if(xi->x509 != NULL) {
 				if(!sk_X509_INFO_push(ret, xi))
 					goto err;

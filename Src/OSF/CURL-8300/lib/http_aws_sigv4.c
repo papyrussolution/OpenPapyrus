@@ -381,7 +381,7 @@ static CURLcode calc_s3_payload_hash(struct Curl_easy * data,
 	else {
 		/* Fall back to s3's UNSIGNED-PAYLOAD */
 		size_t len = sizeof(S3_UNSIGNED_PAYLOAD) - 1;
-		DEBUGASSERT(len < SHA256_HEX_LENGTH); /* 16 < 65 */
+		assert(len < SHA256_HEX_LENGTH); /* 16 < 65 */
 		memcpy(sha_hex, S3_UNSIGNED_PAYLOAD, len);
 		sha_hex[len] = 0;
 	}
@@ -533,7 +533,7 @@ CURLcode Curl_output_aws_sigv4(struct Curl_easy * data, bool proxy)
 	uchar sign1[SHA256_DIGEST_LENGTH] = {0};
 	char * auth_headers = NULL;
 
-	DEBUGASSERT(!proxy);
+	assert(!proxy);
 	(void)proxy;
 
 	if(Curl_checkheaders(data, STRCONST("Authorization"))) {
@@ -615,8 +615,8 @@ CURLcode Curl_output_aws_sigv4(struct Curl_easy * data, bool proxy)
 
 	/* AWS S3 requires a x-amz-content-sha256 header, and supports special
 	 * values like UNSIGNED-PAYLOAD */
-	sign_as_s3 = (strcasecompare(provider0, "aws") &&
-	    strcasecompare(service, "s3"));
+	sign_as_s3 = (sstreqi_ascii(provider0, "aws") &&
+	    sstreqi_ascii(service, "s3"));
 
 	payload_hash = parse_content_sha_hdr(data, provider1, &payload_hash_len);
 
@@ -663,7 +663,7 @@ CURLcode Curl_output_aws_sigv4(struct Curl_easy * data, bool proxy)
 	if(*content_sha256_hdr) {
 		/* make_headers() needed this without the \r\n for canonicalization */
 		size_t hdrlen = strlen(content_sha256_hdr);
-		DEBUGASSERT(hdrlen + 3 < sizeof(content_sha256_hdr));
+		assert(hdrlen + 3 < sizeof(content_sha256_hdr));
 		memcpy(content_sha256_hdr + hdrlen, "\r\n", 3);
 	}
 

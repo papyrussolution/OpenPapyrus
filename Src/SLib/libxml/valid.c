@@ -2258,10 +2258,7 @@ static void xmlFreeRef(xmlLink * lk)
  *
  * Deallocate the memory used by a list of references
  */
-static void xmlFreeRefList(xmlList * list_ref)
-{
-	xmlListDelete(list_ref);
-}
+static void xmlFreeRefList(xmlList * list_ref) { xmlListDelete(list_ref); }
 /**
  * xmlWalkRemoveRef:
  * @data:  Contents of current link

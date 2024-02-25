@@ -246,8 +246,8 @@ static CURLcode socket_open(struct Curl_easy * data,
     struct Curl_sockaddr_ex * addr,
     curl_socket_t * sockfd)
 {
-	DEBUGASSERT(data);
-	DEBUGASSERT(data->conn);
+	assert(data);
+	assert(data->conn);
 	if(data->set.fopensocket) {
 		/*
 		 * If the opensocket callback is set, all the destination address
@@ -950,7 +950,7 @@ static CURLcode cf_socket_open(struct Curl_cfilter * cf, struct Curl_easy * data
 	CURLcode result = CURLE_COULDNT_CONNECT;
 	bool is_tcp;
 	(void)data;
-	DEBUGASSERT(ctx->sock == CURL_SOCKET_BAD);
+	assert(ctx->sock == CURL_SOCKET_BAD);
 	ctx->started_at = Curl_now();
 	result = socket_open(data, &ctx->addr, &ctx->sock);
 	if(result)
@@ -1465,7 +1465,7 @@ static CURLcode cf_socket_query(struct Curl_cfilter * cf, struct Curl_easy * dat
 	struct cf_socket_ctx * ctx = (cf_socket_ctx *)cf->ctx;
 	switch(query) {
 		case CF_QUERY_SOCKET:
-		    DEBUGASSERT(pres2);
+		    assert(pres2);
 		    *((curl_socket_t *)pres2) = ctx->sock;
 		    return CURLE_OK;
 		case CF_QUERY_CONNECT_REPLY_MS:
@@ -1532,7 +1532,7 @@ CURLcode Curl_cf_tcp_create(struct Curl_cfilter ** pcf,
 
 	(void)data;
 	(void)conn;
-	DEBUGASSERT(transport == TRNSPRT_TCP);
+	assert(transport == TRNSPRT_TCP);
 	ctx = (cf_socket_ctx *)SAlloc::C(sizeof(*ctx), 1);
 	if(!ctx) {
 		result = CURLE_OUT_OF_MEMORY;
@@ -1557,7 +1557,7 @@ static CURLcode cf_udp_setup_quic(struct Curl_cfilter * cf, struct Curl_easy * d
 	struct cf_socket_ctx * ctx = (cf_socket_ctx *)cf->ctx;
 	int rc;
 	/* QUIC needs a connected socket, nonblocking */
-	DEBUGASSERT(ctx->sock != CURL_SOCKET_BAD);
+	assert(ctx->sock != CURL_SOCKET_BAD);
 
 	rc = connect(ctx->sock, &ctx->addr.sa_addr, ctx->addr.addrlen);
 	if(-1 == rc) {
@@ -1657,7 +1657,7 @@ CURLcode Curl_cf_udp_create(struct Curl_cfilter ** pcf,
 
 	(void)data;
 	(void)conn;
-	DEBUGASSERT(transport == TRNSPRT_UDP || transport == TRNSPRT_QUIC);
+	assert(transport == TRNSPRT_UDP || transport == TRNSPRT_QUIC);
 	ctx = (cf_socket_ctx *)SAlloc::C(sizeof(*ctx), 1);
 	if(!ctx) {
 		result = CURLE_OUT_OF_MEMORY;
@@ -1708,7 +1708,7 @@ CURLcode Curl_cf_unix_create(struct Curl_cfilter ** pcf,
 
 	(void)data;
 	(void)conn;
-	DEBUGASSERT(transport == TRNSPRT_UNIX);
+	assert(transport == TRNSPRT_UNIX);
 	ctx = (cf_socket_ctx *)SAlloc::C(sizeof(*ctx), 1);
 	if(!ctx) {
 		result = CURLE_OUT_OF_MEMORY;
@@ -1770,7 +1770,7 @@ CURLcode Curl_conn_tcp_listen_set(struct Curl_easy * data,
 
 	/* replace any existing */
 	Curl_conn_cf_discard_all(data, conn, sockindex);
-	DEBUGASSERT(conn->sock[sockindex] == CURL_SOCKET_BAD);
+	assert(conn->sock[sockindex] == CURL_SOCKET_BAD);
 
 	ctx = (cf_socket_ctx *)SAlloc::C(sizeof(*ctx), 1);
 	if(!ctx) {

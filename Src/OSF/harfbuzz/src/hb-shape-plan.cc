@@ -60,7 +60,7 @@ bool hb_shape_plan_key_t::init(bool copy, hb_face_t * face, const hb_segment_pro
 			if(false)
 				;
 #define HB_SHAPER_IMPLEMENT(shaper) \
-	else if(0 == strcmp(*shaper_list, #shaper)) \
+	else if(sstreq(*shaper_list, #shaper)) \
 		HB_SHAPER_PLAN(shaper);
 #include "hb-shaper-list.hh"
 #undef HB_SHAPER_IMPLEMENT

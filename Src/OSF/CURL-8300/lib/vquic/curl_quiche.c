@@ -181,7 +181,7 @@ static CURLcode quic_ssl_setup(struct Curl_cfilter * cf, struct Curl_easy * data
 	struct cf_quiche_ctx * ctx = cf->ctx;
 	uchar checkip[16];
 
-	DEBUGASSERT(!ctx->sslctx);
+	assert(!ctx->sslctx);
 	ctx->sslctx = SSL_CTX_new(TLS_method());
 	if(!ctx->sslctx)
 		return CURLE_OUT_OF_MEMORY;
@@ -289,7 +289,7 @@ static void check_resumes(struct Curl_cfilter * cf,
 	struct Curl_easy * sdata;
 
 	if(ctx->sends_on_hold) {
-		DEBUGASSERT(data->multi);
+		assert(data->multi);
 		for(sdata = data->multi->easyp;
 		    sdata && ctx->sends_on_hold; sdata = sdata->next) {
 			if(stream_send_is_suspended(sdata)) {
@@ -365,7 +365,7 @@ static struct Curl_easy * get_stream_easy(struct Curl_cfilter * cf,
 		return data;
 	}
 	else {
-		DEBUGASSERT(data->multi);
+		assert(data->multi);
 		for(sdata = data->multi->easyp; sdata; sdata = sdata->next) {
 			if((sdata->conn == data->conn) && H3_STREAM_ID(sdata) == stream3_id) {
 				return sdata;
@@ -398,7 +398,7 @@ static CURLcode write_resp_raw(struct Curl_cfilter * cf,
 	if((size_t)nwritten < memlen) {
 		/* This MUST not happen. Our recbuf is dimensioned to hold the
 		 * full max_stream_window and then some for this very reason. */
-		DEBUGASSERT(0);
+		assert(0);
 		return CURLE_RECV_ERROR;
 	}
 	return result;
@@ -546,7 +546,7 @@ static CURLcode h3_process_event(struct Curl_cfilter * cf,
 
 	if(!stream)
 		return CURLE_OK;
-	DEBUGASSERT(stream3_id == stream->id);
+	assert(stream3_id == stream->id);
 	switch(quiche_h3_event_type(ev)) {
 		case QUICHE_H3_EVENT_HEADERS:
 		    stream->resp_got_header = TRUE;
@@ -708,7 +708,7 @@ static CURLcode cf_process_ingress(struct Curl_cfilter * cf,
 	struct recv_ctx rctx;
 	CURLcode result;
 
-	DEBUGASSERT(ctx->qconn);
+	assert(ctx->qconn);
 	result = quic_x509_store_setup(cf, data);
 	if(result)
 		return result;
@@ -844,7 +844,7 @@ static ssize_t recv_closed_stream(struct Curl_cfilter * cf,
 	struct stream_ctx * stream = H3_STREAM_CTX(data);
 	ssize_t nread = -1;
 
-	DEBUGASSERT(stream);
+	assert(stream);
 	if(stream->reset) {
 		failf(data,
 		    "HTTP/3 stream %" PRId64 " reset by server", stream->id);
@@ -965,12 +965,12 @@ static ssize_t h3_open_stream(struct Curl_cfilter * cf,
 			return -1;
 		}
 		stream = H3_STREAM_CTX(data);
-		DEBUGASSERT(stream);
+		assert(stream);
 	}
 
 	Curl_dynhds_init(&h2_headers, 0, DYN_HTTP_REQUEST);
 
-	DEBUGASSERT(stream);
+	assert(stream);
 	nwritten = Curl_h1_req_parse_read(&stream->h1, buf, len, NULL, 0, err);
 	if(nwritten < 0)
 		goto out;
@@ -978,7 +978,7 @@ static ssize_t h3_open_stream(struct Curl_cfilter * cf,
 		/* need more data */
 		goto out;
 	}
-	DEBUGASSERT(stream->h1.req);
+	assert(stream->h1.req);
 
 	*err = Curl_http_req_to_h2(&h2_headers, stream->h1.req, data);
 	if(*err) {
@@ -1045,7 +1045,7 @@ static ssize_t h3_open_stream(struct Curl_cfilter * cf,
 		goto out;
 	}
 
-	DEBUGASSERT(stream->id == -1);
+	assert(stream->id == -1);
 	*err = CURLE_OK;
 	stream->id = stream3_id;
 	stream->closed = FALSE;
@@ -1329,7 +1329,7 @@ static CURLcode cf_connect_start(struct Curl_cfilter * cf,
 	CURLcode result;
 	const struct Curl_sockaddr_ex * sockaddr;
 
-	DEBUGASSERT(ctx->q.sockfd != CURL_SOCKET_BAD);
+	assert(ctx->q.sockfd != CURL_SOCKET_BAD);
 
 #ifdef DEBUG_QUICHE
 	/* initialize debug log callback only once */
@@ -1375,8 +1375,8 @@ static CURLcode cf_connect_start(struct Curl_cfilter * cf,
 	    sizeof(QUICHE_H3_APPLICATION_PROTOCOL)
 	    - 1);
 
-	DEBUGASSERT(!ctx->ssl);
-	DEBUGASSERT(!ctx->sslctx);
+	assert(!ctx->ssl);
+	assert(!ctx->sslctx);
 	result = quic_ssl_setup(cf, data);
 	if(result)
 		return result;

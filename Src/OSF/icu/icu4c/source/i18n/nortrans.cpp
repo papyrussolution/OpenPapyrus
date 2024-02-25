@@ -42,8 +42,8 @@ void NormalizationTransliterator::registerIDs() {
 /**
  * Factory methods
  */
-Transliterator* NormalizationTransliterator::_create(const UnicodeString & ID,
-    Token context) {
+Transliterator* NormalizationTransliterator::_create(const UnicodeString & ID, Token context) 
+{
 	const char * name = (const char *)context.pointer;
 	UNormalization2Mode mode = (UNormalization2Mode)uprv_strchr(name, 0)[1];
 	UErrorCode errorCode = U_ZERO_ERROR;

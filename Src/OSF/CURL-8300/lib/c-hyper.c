@@ -73,7 +73,7 @@ size_t Curl_hyper_recv(void * userp, hyper_context * ctx,
 	struct connectdata * conn = data->conn;
 	CURLcode result;
 	ssize_t nread;
-	DEBUGASSERT(conn);
+	assert(conn);
 	(void)ctx;
 
 	DEBUGF(infof(data, "Curl_hyper_recv(%zu)", buflen));
@@ -455,7 +455,7 @@ CURLcode Curl_hyper_stream(struct Curl_easy * data,
 			}
 		}
 
-		DEBUGASSERT(HYPER_TASK_RESPONSE);
+		assert(HYPER_TASK_RESPONSE);
 
 		resp = hyper_task_value(task);
 		hyper_task_free(task);
@@ -1234,7 +1234,7 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 	ZFREE(data->state.aptr.proxyuserpwd);
 	return CURLE_OK;
 error:
-	DEBUGASSERT(result);
+	assert(result);
 	if(io)
 		hyper_io_free(io);
 

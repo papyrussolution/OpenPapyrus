@@ -165,7 +165,7 @@ static int bio_cf_write(void * bio, const uchar * buf, size_t blen)
 	ssize_t nwritten;
 	CURLcode result;
 
-	DEBUGASSERT(data);
+	assert(data);
 	nwritten = Curl_conn_cf_send(cf->next, data, (char *)buf, blen, &result);
 	CURL_TRC_CF(data, cf, "bio_cf_out_write(len=%zu) -> %zd, err=%d",
 	    blen, nwritten, result);
@@ -182,7 +182,7 @@ static int bio_cf_read(void * bio, uchar * buf, size_t blen)
 	ssize_t nread;
 	CURLcode result;
 
-	DEBUGASSERT(data);
+	assert(data);
 	/* OpenSSL catches this case, so should we. */
 	if(!buf)
 		return 0;
@@ -270,7 +270,7 @@ static CURLcode set_ssl_version_min_max(struct Curl_cfilter * cf, struct Curl_ea
 	long ssl_version_max = conn_config->version_max;
 	CURLcode result = CURLE_OK;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	switch(ssl_version) {
 		case CURL_SSLVERSION_DEFAULT:
@@ -325,7 +325,7 @@ static CURLcode mbed_connect_step1(struct Curl_cfilter * cf, struct Curl_easy * 
 	int ret = -1;
 	char errorbuf[128];
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	if((conn_config->version == CURL_SSLVERSION_SSLv2) ||
 	    (conn_config->version == CURL_SSLVERSION_SSLv3)) {
@@ -706,7 +706,7 @@ static CURLcode mbed_connect_step2(struct Curl_cfilter * cf, struct Curl_easy * 
 	    data->set.str[STRING_SSL_PINNEDPUBLICKEY_PROXY]:
 	    data->set.str[STRING_SSL_PINNEDPUBLICKEY];
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	ret = mbedtls_ssl_handshake(&backend->ssl);
 
@@ -865,8 +865,8 @@ static CURLcode mbed_connect_step3(struct Curl_cfilter * cf, struct Curl_easy * 
 	    (struct mbed_ssl_backend_data *)connssl->backend;
 	struct ssl_config_data * ssl_config = Curl_ssl_cf_get_config(cf, data);
 
-	DEBUGASSERT(ssl_connect_3 == connssl->connecting_state);
-	DEBUGASSERT(backend);
+	assert(ssl_connect_3 == connssl->connecting_state);
+	assert(backend);
 
 	if(ssl_config->primary.sessionid) {
 		int ret;
@@ -922,7 +922,7 @@ static ssize_t mbed_send(struct Curl_cfilter * cf, struct Curl_easy * data,
 	int ret = -1;
 
 	(void)data;
-	DEBUGASSERT(backend);
+	assert(backend);
 	ret = mbedtls_ssl_write(&backend->ssl, (uchar *)mem, len);
 
 	if(ret < 0) {
@@ -947,7 +947,7 @@ static void mbedtls_close(struct Curl_cfilter * cf, struct Curl_easy * data)
 	char buf[32];
 
 	(void)data;
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	/* Maybe the server has already sent a close notify alert.
 	   Read it to avoid an RST on the TCP connection. */
@@ -978,7 +978,7 @@ static ssize_t mbed_recv(struct Curl_cfilter * cf, struct Curl_easy * data,
 	ssize_t len = -1;
 
 	(void)data;
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	ret = mbedtls_ssl_read(&backend->ssl, (uchar *)buf,
 		buffersize);
@@ -1181,7 +1181,7 @@ static CURLcode mbedtls_connect(struct Curl_cfilter * cf,
 	if(retcode)
 		return retcode;
 
-	DEBUGASSERT(done);
+	assert(done);
 
 	return CURLE_OK;
 }
@@ -1207,7 +1207,7 @@ static bool mbedtls_data_pending(struct Curl_cfilter * cf,
 	struct mbed_ssl_backend_data * backend;
 
 	(void)data;
-	DEBUGASSERT(ctx && ctx->backend);
+	assert(ctx && ctx->backend);
 	backend = (struct mbed_ssl_backend_data *)ctx->backend;
 	return mbedtls_ssl_get_bytes_avail(&backend->ssl) != 0;
 }
@@ -1239,7 +1239,7 @@ static void *mbedtls_get_internals(struct ssl_connect_data * connssl,
 	struct mbed_ssl_backend_data * backend =
 	    (struct mbed_ssl_backend_data *)connssl->backend;
 	(void)info;
-	DEBUGASSERT(backend);
+	assert(backend);
 	return &backend->ssl;
 }
 

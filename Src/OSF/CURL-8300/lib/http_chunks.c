@@ -306,7 +306,7 @@ const char *Curl_chunked_strerror(CHUNKcode code)
 		case CHUNKE_BAD_CHUNK:
 		    return "Malformed encoding found";
 		case CHUNKE_PASSTHRU_ERROR:
-		    DEBUGASSERT(0); /* never used */
+		    assert(0); /* never used */
 		    return "";
 		case CHUNKE_BAD_ENCODING:
 		    return "Bad content-encoding found";

@@ -330,7 +330,7 @@ static CURLcode cf_h2_proxy_ctx_init(struct Curl_cfilter * cf, struct Curl_easy 
 	CURLcode result = CURLE_OUT_OF_MEMORY;
 	nghttp2_session_callbacks * cbs = NULL;
 	int rc;
-	DEBUGASSERT(!ctx->h2);
+	assert(!ctx->h2);
 	memzero(&ctx->tunnel, sizeof(ctx->tunnel));
 	Curl_bufq_init(&ctx->inbufq, PROXY_H2_CHUNK_SIZE, PROXY_H2_NW_RECV_CHUNKS);
 	Curl_bufq_init(&ctx->outbufq, PROXY_H2_CHUNK_SIZE, PROXY_H2_NW_SEND_CHUNKS);
@@ -544,7 +544,7 @@ static ssize_t on_session_send(nghttp2_session * h2,
 
 	(void)h2;
 	(void)flags;
-	DEBUGASSERT(data);
+	assert(data);
 
 	nwritten = Curl_bufq_write_pass(&ctx->outbufq, buf, blen,
 		proxy_h2_nw_out_writer, cf, &result);
@@ -641,7 +641,7 @@ static int on_frame_send(nghttp2_session * session, const nghttp2_frame * frame,
 	struct Curl_easy * data = CF_DATA_CURRENT(cf);
 
 	(void)session;
-	DEBUGASSERT(data);
+	assert(data);
 	if(data && Curl_trc_cf_is_verbose(cf, data)) {
 		char buffer[256];
 		int len;
@@ -664,7 +664,7 @@ static int proxy_h2_on_frame_recv(nghttp2_session * session,
 	int32_t stream_id = frame->hd.stream_id;
 
 	(void)session;
-	DEBUGASSERT(data);
+	assert(data);
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
 	if(Curl_trc_cf_is_verbose(cf, data)) {
 		char buffer[256];
@@ -677,7 +677,7 @@ static int proxy_h2_on_frame_recv(nghttp2_session * session,
 
 	if(!stream_id) {
 		/* stream ID zero is for connection-oriented stuff */
-		DEBUGASSERT(data);
+		assert(data);
 		switch(frame->hd.type) {
 			case NGHTTP2_SETTINGS:
 			    /* Since the initial stream window is 64K, a request might be on HOLD,
@@ -754,7 +754,7 @@ static int proxy_h2_on_header(nghttp2_session * session,
 	(void)flags;
 	(void)data;
 	(void)session;
-	DEBUGASSERT(stream_id); /* should never be a zero stream ID here */
+	assert(stream_id); /* should never be a zero stream ID here */
 	if(stream_id != ctx->tunnel.stream_id) {
 		CURL_TRC_CF(data, cf, "[%d] header for non-tunnel stream: "
 		    "%.*s: %.*s", stream_id,
@@ -830,7 +830,7 @@ static ssize_t tunnel_send_callback(nghttp2_session * session,
 	ts = nghttp2_session_get_stream_user_data(session, stream_id);
 	if(!ts)
 		return NGHTTP2_ERR_CALLBACK_FAILURE;
-	DEBUGASSERT(ts == &ctx->tunnel);
+	assert(ts == &ctx->tunnel);
 
 	nread = Curl_bufq_read(&ts->sendbuf, buf, length, &result);
 	if(nread < 0) {
@@ -857,7 +857,7 @@ static int tunnel_recv_callback(nghttp2_session * session, uint8_t flags,
 
 	(void)flags;
 	(void)session;
-	DEBUGASSERT(stream_id); /* should never be a zero stream ID here */
+	assert(stream_id); /* should never be a zero stream ID here */
 
 	if(stream_id != ctx->tunnel.stream_id)
 		return NGHTTP2_ERR_CALLBACK_FAILURE;
@@ -868,7 +868,7 @@ static int tunnel_recv_callback(nghttp2_session * session, uint8_t flags,
 			return NGHTTP2_ERR_CALLBACK_FAILURE;
 		nwritten = 0;
 	}
-	DEBUGASSERT((size_t)nwritten == len);
+	assert((size_t)nwritten == len);
 	return 0;
 }
 
@@ -1025,7 +1025,7 @@ static CURLcode inspect_response(struct Curl_cfilter * cf,
 	struct dynhds_entry * auth_reply = NULL;
 	(void)cf;
 
-	DEBUGASSERT(ts->resp);
+	assert(ts->resp);
 	if(ts->resp->status/100 == 2) {
 		infof(data, "CONNECT tunnel established, response %d", ts->resp->status);
 		h2_tunnel_go_state(cf, ts, H2_TUNNEL_ESTABLISHED, data);
@@ -1065,8 +1065,8 @@ static CURLcode H2_CONNECT(struct Curl_cfilter * cf,
 	struct cf_h2_proxy_ctx * ctx = cf->ctx;
 	CURLcode result = CURLE_OK;
 
-	DEBUGASSERT(ts);
-	DEBUGASSERT(ts->authority);
+	assert(ts);
+	assert(ts->authority);
 	do {
 		switch(ts->state) {
 			case H2_TUNNEL_INIT:
@@ -1098,7 +1098,7 @@ static CURLcode H2_CONNECT(struct Curl_cfilter * cf,
 			/* FALLTHROUGH */
 
 			case H2_TUNNEL_RESPONSE:
-			    DEBUGASSERT(ts->has_final_response);
+			    assert(ts->has_final_response);
 			    result = inspect_response(cf, data, ts);
 			    if(result)
 				    goto out;
@@ -1151,7 +1151,7 @@ static CURLcode cf_h2_proxy_connect(struct Curl_cfilter * cf,
 		if(result)
 			goto out;
 	}
-	DEBUGASSERT(ts->authority);
+	assert(ts->authority);
 
 	check = Curl_timeleft(data, NULL, TRUE);
 	if(check <= 0) {
@@ -1275,7 +1275,7 @@ static ssize_t tunnel_recv(struct Curl_cfilter * cf, struct Curl_easy * data,
 			(uchar *)buf, len, err);
 		if(nread < 0)
 			goto out;
-		DEBUGASSERT(nread > 0);
+		assert(nread > 0);
 	}
 
 	if(nread < 0) {
@@ -1382,7 +1382,7 @@ static ssize_t cf_h2_proxy_send(struct Curl_cfilter * cf,
 	else if(ctx->tunnel.upload_blocked_len) {
 		/* the data in `buf` has already been submitted or added to the
 		 * buffers, but have been EAGAINed on the last invocation. */
-		DEBUGASSERT(len >= ctx->tunnel.upload_blocked_len);
+		assert(len >= ctx->tunnel.upload_blocked_len);
 		if(len < ctx->tunnel.upload_blocked_len) {
 			/* Did we get called again with a smaller `len`? This should not
 			 * happen. We are not prepared to handle that. */

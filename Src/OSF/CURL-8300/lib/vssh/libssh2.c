@@ -366,7 +366,7 @@ static void state(struct Curl_easy * data, sshstate nowstate)
 	};
 
 	/* a precaution to make sure the lists are in sync */
-	DEBUGASSERT(sizeof(names)/sizeof(names[0]) == SSH_LAST);
+	assert(sizeof(names)/sizeof(names[0]) == SSH_LAST);
 
 	if(sshc->state != nowstate) {
 		infof(data, "SFTP %p state change from %s to %s",
@@ -739,7 +739,7 @@ static CURLcode ssh_check_fingerprint(struct Curl_easy * data)
 
 		/* This does NOT verify the length of 'pubkey_md5' separately, which will
 		   make the comparison below fail unless it is exactly 32 characters */
-		if(!fingerprint || !strcasecompare(md5buffer, pubkey_md5)) {
+		if(!fingerprint || !sstreqi_ascii(md5buffer, pubkey_md5)) {
 			if(fingerprint) {
 				failf(data,
 				    "Denied establishing ssh session: mismatch md5 fingerprint. "
@@ -1488,7 +1488,7 @@ static CURLcode ssh_statemach_act(struct Curl_easy * data, bool * block)
 				    sshc->acceptfail = TRUE;
 			    }
 
-			    if(strcasecompare("pwd", cmd)) {
+			    if(sstreqi_ascii("pwd", cmd)) {
 				    /* output debug output if that is requested */
 				    char * tmp = aprintf("257 \"%s\" is current directory.\n",
 					    sshp->path);
@@ -2961,15 +2961,15 @@ static CURLcode ssh_statemach_act(struct Curl_easy * data, bool * block)
 
 			    /* worst-case scenario cleanup */
 
-			    DEBUGASSERT(sshc->ssh_session == NULL);
-			    DEBUGASSERT(sshc->ssh_channel == NULL);
-			    DEBUGASSERT(sshc->sftp_session == NULL);
-			    DEBUGASSERT(sshc->sftp_handle == NULL);
+			    assert(sshc->ssh_session == NULL);
+			    assert(sshc->ssh_channel == NULL);
+			    assert(sshc->sftp_session == NULL);
+			    assert(sshc->sftp_handle == NULL);
 #ifdef HAVE_LIBSSH2_KNOWNHOST_API
-			    DEBUGASSERT(sshc->kh == NULL);
+			    assert(sshc->kh == NULL);
 #endif
 #ifdef HAVE_LIBSSH2_AGENT_API
-			    DEBUGASSERT(sshc->ssh_agent == NULL);
+			    assert(sshc->ssh_agent == NULL);
 #endif
 
 			    ZFREE(sshc->rsa_pub);
@@ -3753,8 +3753,8 @@ void Curl_ssh_version(char * buffer, size_t buflen)
  */
 static void ssh_attach(struct Curl_easy * data, struct connectdata * conn)
 {
-	DEBUGASSERT(data);
-	DEBUGASSERT(conn);
+	assert(data);
+	assert(conn);
 	if(conn->handler->protocol & PROTO_FAMILY_SSH) {
 		struct ssh_conn * sshc = &conn->proto.sshc;
 		if(sshc->ssh_session) {

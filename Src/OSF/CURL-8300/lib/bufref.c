@@ -36,7 +36,7 @@
  */
 void Curl_bufref_init(struct bufref * br)
 {
-	DEBUGASSERT(br);
+	assert(br);
 	br->dtor = NULL;
 	br->ptr = NULL;
 	br->len = 0;
@@ -53,9 +53,9 @@ void Curl_bufref_init(struct bufref * br)
 
 void Curl_bufref_free(struct bufref * br)
 {
-	DEBUGASSERT(br);
-	DEBUGASSERT(br->signature == SIGNATURE);
-	DEBUGASSERT(br->ptr || !br->len);
+	assert(br);
+	assert(br->signature == SIGNATURE);
+	assert(br->ptr || !br->len);
 
 	if(br->ptr && br->dtor)
 		br->dtor((void *)br->ptr);
@@ -72,8 +72,8 @@ void Curl_bufref_free(struct bufref * br)
 void Curl_bufref_set(struct bufref * br, const void * ptr, size_t len,
     void (*dtor)(void *))
 {
-	DEBUGASSERT(ptr || !len);
-	DEBUGASSERT(len <= CURL_MAX_INPUT_LENGTH);
+	assert(ptr || !len);
+	assert(len <= CURL_MAX_INPUT_LENGTH);
 
 	Curl_bufref_free(br);
 	br->ptr = (const uchar *)ptr;
@@ -86,9 +86,9 @@ void Curl_bufref_set(struct bufref * br, const void * ptr, size_t len,
  */
 const uchar *Curl_bufref_ptr(const struct bufref * br)
 {
-	DEBUGASSERT(br);
-	DEBUGASSERT(br->signature == SIGNATURE);
-	DEBUGASSERT(br->ptr || !br->len);
+	assert(br);
+	assert(br->signature == SIGNATURE);
+	assert(br->ptr || !br->len);
 
 	return br->ptr;
 }
@@ -98,9 +98,9 @@ const uchar *Curl_bufref_ptr(const struct bufref * br)
  */
 size_t Curl_bufref_len(const struct bufref * br)
 {
-	DEBUGASSERT(br);
-	DEBUGASSERT(br->signature == SIGNATURE);
-	DEBUGASSERT(br->ptr || !br->len);
+	assert(br);
+	assert(br->signature == SIGNATURE);
+	assert(br->ptr || !br->len);
 
 	return br->len;
 }
@@ -108,11 +108,11 @@ size_t Curl_bufref_len(const struct bufref * br)
 CURLcode Curl_bufref_memdup(struct bufref * br, const void * ptr, size_t len)
 {
 	uchar * cpy = NULL;
-	DEBUGASSERT(br);
-	DEBUGASSERT(br->signature == SIGNATURE);
-	DEBUGASSERT(br->ptr || !br->len);
-	DEBUGASSERT(ptr || !len);
-	DEBUGASSERT(len <= CURL_MAX_INPUT_LENGTH);
+	assert(br);
+	assert(br->signature == SIGNATURE);
+	assert(br->ptr || !br->len);
+	assert(ptr || !len);
+	assert(len <= CURL_MAX_INPUT_LENGTH);
 	if(ptr) {
 		cpy = (uchar *)SAlloc::M(len + 1);
 		if(!cpy)

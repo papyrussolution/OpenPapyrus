@@ -223,7 +223,7 @@ static CURLproxycode socks_state_send(struct Curl_cfilter * cf,
 		    curl_easy_strerror(result));
 		return failcode;
 	}
-	DEBUGASSERT(sx->outstanding >= nwritten);
+	assert(sx->outstanding >= nwritten);
 	/* not done, remain in state */
 	sx->outstanding -= nwritten;
 	sx->outp += nwritten;
@@ -255,7 +255,7 @@ static CURLproxycode socks_state_recv(struct Curl_cfilter * cf,
 		return failcode;
 	}
 	/* remain in reading state */
-	DEBUGASSERT(sx->outstanding >= nread);
+	assert(sx->outstanding >= nread);
 	sx->outstanding -= nread;
 	sx->outp += nread;
 	return CURLPX_OK;
@@ -285,7 +285,7 @@ static CURLproxycode do_SOCKS4(struct Curl_cfilter * cf,
 	struct Curl_dns_entry * dns = NULL;
 
 	/* make sure that the buffer is at least 600 bytes */
-	DEBUGASSERT(READBUFFER_MIN >= 600);
+	assert(READBUFFER_MIN >= 600);
 
 	switch(sx->state) {
 		case CONNECT_SOCKS_INIT:
@@ -579,7 +579,7 @@ static CURLproxycode do_SOCKS5(struct Curl_cfilter * cf,
 	bool allow_gssapi = FALSE;
 	struct Curl_dns_entry * dns = NULL;
 
-	DEBUGASSERT(auth & (CURLAUTH_BASIC | CURLAUTH_GSSAPI));
+	assert(auth & (CURLAUTH_BASIC | CURLAUTH_GSSAPI));
 	switch(sx->state) {
 		case CONNECT_SOCKS_INIT:
 		    if(conn->bits.httpproxy)
@@ -1180,7 +1180,7 @@ static int socks_cf_get_select_socks(struct Curl_cfilter * cf, struct Curl_easy 
 static void socks_proxy_cf_close(struct Curl_cfilter * cf,
     struct Curl_easy * data)
 {
-	DEBUGASSERT(cf->next);
+	assert(cf->next);
 	cf->connected = FALSE;
 	socks_proxy_cf_free(cf);
 	cf->next->cft->do_close(cf->next, data);

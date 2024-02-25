@@ -108,7 +108,7 @@ UNITTEST DOHcode doh_encode(const char * host,
 	 */
 
 	size_t expected_len;
-	DEBUGASSERT(hostlen);
+	assert(hostlen);
 	expected_len = 12 + 1 + hostlen + 4;
 	if(host[hostlen-1]!='.')
 		expected_len++;
@@ -168,7 +168,7 @@ UNITTEST DOHcode doh_encode(const char * host,
 
 	/* verify that our estimation of length is valid, since
 	 * this has led to buffer overflows in this function */
-	DEBUGASSERT(*olen == expected_len);
+	assert(*olen == expected_len);
 	return DOH_OK;
 }
 
@@ -338,7 +338,7 @@ static CURLcode dohprobe(struct Curl_easy * data,
 		/* DoH private_data must be null because the user must have a way to
 		   distinguish their transfer's handle from DoH handles in user
 		   callbacks (ie SSL CTX callback). */
-		DEBUGASSERT(!doh->set.private_data);
+		assert(!doh->set.private_data);
 
 		if(curl_multi_add_handle(multi, doh))
 			goto error;
@@ -366,8 +366,8 @@ struct Curl_addrinfo *Curl_doh(struct Curl_easy * data, const char * hostname, i
 	*waitp = TRUE; /* this never returns synchronously */
 	(void)hostname;
 	(void)port;
-	DEBUGASSERT(!data->req.doh);
-	DEBUGASSERT(conn);
+	assert(!data->req.doh);
+	assert(conn);
 	/* start clean, consider allocating this struct on demand */
 	dohp = data->req.doh = static_cast<dohdata *>(SAlloc::C(sizeof(struct dohdata), 1));
 	if(!dohp)
@@ -826,7 +826,7 @@ static struct Curl_addrinfo *doh2ai(const struct dohentry * de, const char * hos
 		switch(ai->ai_family) {
 			case AF_INET:
 			    addr = (sockaddr_in *)ai->ai_addr; /* storage area for this info */
-			    DEBUGASSERT(sizeof(struct in_addr) == sizeof(de->addr[i].ip.v4));
+			    assert(sizeof(struct in_addr) == sizeof(de->addr[i].ip.v4));
 			    memcpy(&addr->sin_addr, &de->addr[i].ip.v4, sizeof(struct in_addr));
 			    addr->sin_family = addrtype;
 			    addr->sin_port = htons((ushort)port);
@@ -835,7 +835,7 @@ static struct Curl_addrinfo *doh2ai(const struct dohentry * de, const char * hos
 #ifdef ENABLE_IPV6
 			case AF_INET6:
 			    addr6 = (void *)ai->ai_addr; /* storage area for this info */
-			    DEBUGASSERT(sizeof(struct in6_addr) == sizeof(de->addr[i].ip.v6));
+			    assert(sizeof(struct in6_addr) == sizeof(de->addr[i].ip.v6));
 			    memcpy(&addr6->sin6_addr, &de->addr[i].ip.v6, sizeof(struct in6_addr));
 			    addr6->sin6_family = addrtype;
 			    addr6->sin6_port = htons((ushort)port);

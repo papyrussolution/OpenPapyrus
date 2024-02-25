@@ -1174,7 +1174,7 @@ CURLcode Curl_mime_duppart(struct Curl_easy * data,
 	const curl_mimepart * s;
 	CURLcode res = CURLE_OK;
 
-	DEBUGASSERT(dst);
+	assert(dst);
 
 	/* Duplicate content. */
 	switch(src->kind) {
@@ -1443,7 +1443,7 @@ CURLcode curl_mime_encoder(curl_mimepart * part, const char * encoding)
 		return CURLE_OK; /* Removing current encoder. */
 
 	for(mep = encoders; mep->name; mep++)
-		if(strcasecompare(encoding, mep->name)) {
+		if(sstreqi_ascii(encoding, mep->name)) {
 			part->encoder = mep;
 			result = CURLE_OK;
 		}
@@ -1690,7 +1690,7 @@ const char *Curl_mime_contenttype(const char * filename)
 		for(i = 0; i < sizeof(ctts) / sizeof(ctts[0]); i++) {
 			size_t len2 = strlen(ctts[i].extension);
 
-			if(len1 >= len2 && strcasecompare(nameend - len2, ctts[i].extension))
+			if(len1 >= len2 && sstreqi_ascii(nameend - len2, ctts[i].extension))
 				return ctts[i].type;
 		}
 	}
@@ -1758,30 +1758,24 @@ CURLcode Curl_mime_prepare_headers(struct Curl_easy * data,
 			    break;
 		}
 	}
-
 	if(part->kind == MIMEKIND_MULTIPART) {
 		mime = (curl_mime *)part->arg;
 		if(mime)
 			boundary = mime->boundary;
 	}
-	else if(contenttype && !customct &&
-	    content_type_match(contenttype, STRCONST("text/plain")))
+	else if(contenttype && !customct && content_type_match(contenttype, STRCONST("text/plain")))
 		if(strategy == MIMESTRATEGY_MAIL || !part->filename)
 			contenttype = NULL;
-
 	/* Issue content-disposition header only if not already set by caller. */
 	if(!search_header(part->userheaders, STRCONST("Content-Disposition"))) {
 		if(!disposition)
-			if(part->filename || part->name ||
-			    (contenttype && !strncasecompare(contenttype, "multipart/", 10)))
+			if(part->filename || part->name || (contenttype && !strncasecompare(contenttype, "multipart/", 10)))
 				disposition = DISPOSITION_DEFAULT;
-		if(disposition && curl_strequal(disposition, "attachment") &&
-		    !part->name && !part->filename)
+		if(disposition && sstreqi_ascii(disposition, "attachment") && !part->name && !part->filename)
 			disposition = NULL;
 		if(disposition) {
 			char * name = NULL;
 			char * filename = NULL;
-
 			if(part->name) {
 				name = escape_string(data, part->name, strategy);
 				if(!name)

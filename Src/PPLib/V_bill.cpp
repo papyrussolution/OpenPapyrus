@@ -7998,7 +7998,7 @@ void PPALDD_Bill::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 		PPID   ord_id = 0;
 		if(p_billcore) {
 			PPIDArray ord_bill_list;
-			if(p_billcore->GetListOfOrdersByLading(H.ID, &ord_bill_list) > 0)
+			if(p_billcore->GetListOfOrdersByLading(H.ID, ord_bill_list) > 0)
 				if(ord_bill_list.getCount())
 					ord_id = ord_bill_list.get(0);
 		}

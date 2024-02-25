@@ -68,39 +68,33 @@ static void handleURI(const char * str)
 int main(int argc, char ** argv) 
 {
 	int i, arg = 1;
-	if((argc > arg) && (argv[arg] != NULL) && ((!strcmp(argv[arg], "-base")) || (!strcmp(argv[arg], "--base")))) {
+	if((argc > arg) && (argv[arg] != NULL) && ((sstreq(argv[arg], "-base")) || (sstreq(argv[arg], "--base")))) {
 		arg++;
 		base = argv[arg];
 		if(base != NULL)
 			arg++;
 	}
-	if((argc > arg) && (argv[arg] != NULL) &&
-	    ((!strcmp(argv[arg], "-escape")) || (!strcmp(argv[arg], "--escape")))) {
+	if((argc > arg) && (argv[arg] != NULL) && ((sstreq(argv[arg], "-escape")) || (sstreq(argv[arg], "--escape")))) {
 		arg++;
 		escape++;
 	}
-	if((argc > arg) && (argv[arg] != NULL) &&
-	    ((!strcmp(argv[arg], "-debug")) || (!strcmp(argv[arg], "--debug")))) {
+	if((argc > arg) && (argv[arg] != NULL) && ((sstreq(argv[arg], "-debug")) || (sstreq(argv[arg], "--debug")))) {
 		arg++;
 		debug++;
 	}
 	if(argv[arg] == NULL) {
 		char str[1024];
-
 		while(1) {
 			/*
 			 * read one line in string buffer.
 			 */
 			if(fgets(&str[0], sizeof(str) - 1, stdin) == NULL)
 				break;
-
 			/*
 			 * remove the ending spaces
 			 */
 			i = strlen(str);
-			while((i > 0) &&
-			    ((str[i - 1] == '\n') || (str[i - 1] == '\r') ||
-			    (str[i - 1] == ' ') || (str[i - 1] == '\t'))) {
+			while((i > 0) && ((str[i - 1] == '\n') || (str[i - 1] == '\r') || (str[i - 1] == ' ') || (str[i - 1] == '\t'))) {
 				i--;
 				str[i] = 0;
 			}

@@ -306,7 +306,7 @@ static int xmlconfTestItem(xmlDocPtr doc, xmlNodePtr cur) {
 		goto error;
 	}
 	for(i = 0; skipped_tests[i] != NULL; i++) {
-		if(!strcmp(skipped_tests[i], (char *)id)) {
+		if(sstreq(skipped_tests[i], (char *)id)) {
 			test_log("Skipping test %s from skipped list\n", (char *)id);
 			ret = 0;
 			nb_skipped++;
@@ -554,7 +554,7 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED)
 		verbose = 1;
 	}
 	initializeLibxml2();
-	if((argc >= 2) && (!strcmp(argv[1], "-v")))
+	if((argc >= 2) && (sstreq(argv[1], "-v")))
 		verbose = 1;
 	old_errors = nb_errors;
 	old_tests = nb_tests;

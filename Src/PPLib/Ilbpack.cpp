@@ -1450,7 +1450,7 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 			// Загружаем идентификаторы документов заказов, которые "закрываются" данным документом
 			//
 			if(!cvt_to_opid)
-				p_bobj->P_Tbl->GetListOfOrdersByLading(billID, &OrderBillList);
+				p_bobj->P_Tbl->GetListOfOrdersByLading(billID, OrderBillList);
 			THROW(bpack.InitAmounts((int)0));
 			if(Rec.Flags & BILLF_FIXEDAMOUNTS) {
 				if(cvt_to_opid) {

@@ -89,7 +89,7 @@ static ssize_t gtls_push(void * s, const void * buf, size_t blen)
 	ssize_t nwritten;
 	CURLcode result;
 
-	DEBUGASSERT(data);
+	assert(data);
 	nwritten = Curl_conn_cf_send(cf->next, data, buf, blen, &result);
 	if(nwritten < 0) {
 		struct gtls_ssl_backend_data * backend =
@@ -109,7 +109,7 @@ static ssize_t gtls_pull(void * s, void * buf, size_t blen)
 	ssize_t nread;
 	CURLcode result;
 
-	DEBUGASSERT(data);
+	assert(data);
 	nread = Curl_conn_cf_recv(cf->next, data, buf, blen, &result);
 	if(nread < 0) {
 		struct gtls_ssl_backend_data * backend =
@@ -222,7 +222,7 @@ static CURLcode handshake(struct Curl_cfilter * cf,
 	gnutls_session_t session;
 	curl_socket_t sockfd = Curl_conn_cf_get_socket(cf, data);
 
-	DEBUGASSERT(backend);
+	assert(backend);
 	session = backend->gtls.session;
 
 	for(;;) {
@@ -314,9 +314,9 @@ static gnutls_x509_crt_fmt_t do_file_type(const char * type)
 {
 	if(!type || !type[0])
 		return GNUTLS_X509_FMT_PEM;
-	if(strcasecompare(type, "PEM"))
+	if(sstreqi_ascii(type, "PEM"))
 		return GNUTLS_X509_FMT_PEM;
-	if(strcasecompare(type, "DER"))
+	if(sstreqi_ascii(type, "DER"))
 		return GNUTLS_X509_FMT_DER;
 	return GNUTLS_X509_FMT_PEM; /* default to PEM */
 }
@@ -691,7 +691,7 @@ static CURLcode gtls_connect_step1(struct Curl_cfilter * cf, struct Curl_easy * 
 	long * const pverifyresult = &ssl_config->certverifyresult;
 	CURLcode result;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	if(connssl->state == ssl_connection_complete)
 		/* to make us tolerant against being called more than once for the
@@ -1351,7 +1351,7 @@ static CURLcode gtls_connect_common(struct Curl_cfilter * cf,
 		struct gtls_ssl_backend_data * backend =
 		    (struct gtls_ssl_backend_data *)connssl->backend;
 		gnutls_session_t session;
-		DEBUGASSERT(backend);
+		assert(backend);
 		session = backend->gtls.session;
 		rc = gtls_verifyserver(cf, data, session);
 		if(rc) {
@@ -1384,7 +1384,7 @@ static CURLcode gtls_connect(struct Curl_cfilter * cf,
 	if(result)
 		return result;
 
-	DEBUGASSERT(done);
+	assert(done);
 
 	return CURLE_OK;
 }
@@ -1396,7 +1396,7 @@ static bool gtls_data_pending(struct Curl_cfilter * cf,
 	struct gtls_ssl_backend_data * backend;
 
 	(void)data;
-	DEBUGASSERT(ctx && ctx->backend);
+	assert(ctx && ctx->backend);
 	backend = (struct gtls_ssl_backend_data *)ctx->backend;
 	if(backend->gtls.session &&
 	    0 != gnutls_record_check_pending(backend->gtls.session))
@@ -1416,7 +1416,7 @@ static ssize_t gtls_send(struct Curl_cfilter * cf,
 	ssize_t rc;
 
 	(void)data;
-	DEBUGASSERT(backend);
+	assert(backend);
 	rc = gnutls_record_send(backend->gtls.session, mem, len);
 
 	if(rc < 0) {
@@ -1438,7 +1438,7 @@ static void gtls_close(struct Curl_cfilter * cf,
 	    (struct gtls_ssl_backend_data *)connssl->backend;
 
 	(void)data;
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	if(backend->gtls.session) {
 		char buf[32];
@@ -1474,7 +1474,7 @@ static int gtls_shutdown(struct Curl_cfilter * cf,
 	    (struct gtls_ssl_backend_data *)connssl->backend;
 	int retval = 0;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 #ifndef CURL_DISABLE_FTP
 	/* This has only been tested on the proftpd server, and the mod_tls code
@@ -1554,7 +1554,7 @@ static ssize_t gtls_recv(struct Curl_cfilter * cf,
 	ssize_t ret;
 
 	(void)data;
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	ret = gnutls_record_recv(backend->gtls.session, buf, buffersize);
 	if((ret == GNUTLS_E_AGAIN) || (ret == GNUTLS_E_INTERRUPTED)) {
@@ -1632,7 +1632,7 @@ static void *gtls_get_internals(struct ssl_connect_data * connssl,
 	struct gtls_ssl_backend_data * backend =
 	    (struct gtls_ssl_backend_data *)connssl->backend;
 	(void)info;
-	DEBUGASSERT(backend);
+	assert(backend);
 	return backend->gtls.session;
 }
 

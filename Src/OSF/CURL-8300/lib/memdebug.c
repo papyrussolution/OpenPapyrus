@@ -130,7 +130,7 @@ ALLOC_FUNC void *curl_dbg_malloc(size_t wantedsize,
 	struct memdebug * mem;
 	size_t size;
 
-	DEBUGASSERT(wantedsize != 0);
+	assert(wantedsize != 0);
 
 	if(countcheck("malloc", line, source))
 		return NULL;
@@ -157,8 +157,8 @@ ALLOC_FUNC void *curl_dbg_calloc(size_t wanted_elements, size_t wanted_size,
 	struct memdebug * mem;
 	size_t size, user_size;
 
-	DEBUGASSERT(wanted_elements != 0);
-	DEBUGASSERT(wanted_size != 0);
+	assert(wanted_elements != 0);
+	assert(wanted_size != 0);
 
 	if(countcheck("calloc", line, source))
 		return NULL;
@@ -185,7 +185,7 @@ ALLOC_FUNC char *curl_dbg_strdup(const char * str,
 	char * mem;
 	size_t len;
 
-	DEBUGASSERT(str != NULL);
+	assert(str != NULL);
 
 	if(countcheck("strdup", line, source))
 		return NULL;
@@ -210,7 +210,7 @@ ALLOC_FUNC wchar_t *curl_dbg_wcsdup(const wchar_t * str,
 	wchar_t * mem;
 	size_t wsiz, bsiz;
 
-	DEBUGASSERT(str != NULL);
+	assert(str != NULL);
 
 	if(countcheck("wcsdup", line, source))
 		return NULL;
@@ -240,7 +240,7 @@ void *curl_dbg_realloc(void * ptr, size_t wantedsize,
 
 	size_t size = sizeof(struct memdebug) + wantedsize;
 
-	DEBUGASSERT(wantedsize != 0);
+	assert(wantedsize != 0);
 
 	if(countcheck("realloc", line, source))
 		return NULL;
@@ -434,7 +434,7 @@ int curl_dbg_fclose(FILE * file, int line, const char * source)
 {
 	int res;
 
-	DEBUGASSERT(file != NULL);
+	assert(file != NULL);
 
 	if(source)
 		curl_dbg_log("FILE %s:%d fclose(%p)\n",

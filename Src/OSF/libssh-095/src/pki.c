@@ -399,16 +399,14 @@ const char * ssh_key_get_signature_algorithm(ssh_session session, enum ssh_keyty
  *
  * @return              The enum ssh key algorithm type.
  */
-enum ssh_keytypes_e ssh_key_type_from_signature_name(const char * name) {
+enum ssh_keytypes_e ssh_key_type_from_signature_name(const char * name) 
+{
 	if(!name) {
 		return SSH_KEYTYPE_UNKNOWN;
 	}
-
-	if((strcmp(name, "rsa-sha2-256") == 0) ||
-	    (strcmp(name, "rsa-sha2-512") == 0)) {
+	if((strcmp(name, "rsa-sha2-256") == 0) || (strcmp(name, "rsa-sha2-512") == 0)) {
 		return SSH_KEYTYPE_RSA;
 	}
-
 	/* Otherwise the key type matches the signature type */
 	return ssh_key_type_from_name(name);
 }
@@ -424,7 +422,6 @@ enum ssh_keytypes_e ssh_key_type_from_name(const char * name) {
 	if(!name) {
 		return SSH_KEYTYPE_UNKNOWN;
 	}
-
 	if(strcmp(name, "rsa") == 0) {
 		return SSH_KEYTYPE_RSA;
 	}
@@ -437,9 +434,7 @@ enum ssh_keytypes_e ssh_key_type_from_name(const char * name) {
 	else if(strcmp(name, "ssh-dss") == 0) {
 		return SSH_KEYTYPE_DSS;
 	}
-	else if(strcmp(name, "ssh-ecdsa") == 0
-	   || strcmp(name, "ecdsa") == 0
-	   || strcmp(name, "ecdsa-sha2-nistp256") == 0) {
+	else if(strcmp(name, "ssh-ecdsa") == 0 || strcmp(name, "ecdsa") == 0 || strcmp(name, "ecdsa-sha2-nistp256") == 0) {
 		return SSH_KEYTYPE_ECDSA_P256;
 	}
 	else if(strcmp(name, "ecdsa-sha2-nistp384") == 0) {

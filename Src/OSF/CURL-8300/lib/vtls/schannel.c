@@ -65,64 +65,51 @@
    https://technet.microsoft.com/en-us/library/hh831771%28v=ws.11%29.aspx
  */
 #if defined(_MSC_VER) && (_MSC_VER >= 1800) && !defined(_USING_V110_SDK71_)
-#define HAS_ALPN 1
+	#define HAS_ALPN 1
 #endif
-
 #ifndef UNISP_NAME_A
-#define UNISP_NAME_A "Microsoft Unified Security Protocol Provider"
+	#define UNISP_NAME_A "Microsoft Unified Security Protocol Provider"
 #endif
-
 #ifndef UNISP_NAME_W
-#define UNISP_NAME_W L"Microsoft Unified Security Protocol Provider"
+	#define UNISP_NAME_W L"Microsoft Unified Security Protocol Provider"
 #endif
-
 #ifndef UNISP_NAME
-#ifdef UNICODE
-#define UNISP_NAME  UNISP_NAME_W
-#else
-#define UNISP_NAME  UNISP_NAME_A
+	#ifdef UNICODE
+		#define UNISP_NAME  UNISP_NAME_W
+	#else
+		#define UNISP_NAME  UNISP_NAME_A
+	#endif
 #endif
-#endif
-
 #ifndef BCRYPT_CHACHA20_POLY1305_ALGORITHM
-#define BCRYPT_CHACHA20_POLY1305_ALGORITHM L"CHACHA20_POLY1305"
+	#define BCRYPT_CHACHA20_POLY1305_ALGORITHM L"CHACHA20_POLY1305"
 #endif
-
 #ifndef BCRYPT_CHAIN_MODE_CCM
-#define BCRYPT_CHAIN_MODE_CCM L"ChainingModeCCM"
+	#define BCRYPT_CHAIN_MODE_CCM L"ChainingModeCCM"
 #endif
-
 #ifndef BCRYPT_CHAIN_MODE_GCM
-#define BCRYPT_CHAIN_MODE_GCM L"ChainingModeGCM"
+	#define BCRYPT_CHAIN_MODE_GCM L"ChainingModeGCM"
 #endif
-
 #ifndef BCRYPT_AES_ALGORITHM
-#define BCRYPT_AES_ALGORITHM L"AES"
+	#define BCRYPT_AES_ALGORITHM L"AES"
 #endif
-
 #ifndef BCRYPT_SHA256_ALGORITHM
-#define BCRYPT_SHA256_ALGORITHM L"SHA256"
+	#define BCRYPT_SHA256_ALGORITHM L"SHA256"
 #endif
-
 #ifndef BCRYPT_SHA384_ALGORITHM
-#define BCRYPT_SHA384_ALGORITHM L"SHA384"
+	#define BCRYPT_SHA384_ALGORITHM L"SHA384"
 #endif
-
-/* Workaround broken compilers like MinGW.
-   Return the number of elements in a statically sized array.
- */
-#ifndef ARRAYSIZE
-#define ARRAYSIZE(A) (sizeof(A)/sizeof((A)[0]))
-#endif
-
+// Workaround broken compilers like MinGW.
+// Return the number of elements in a statically sized array.
+// @v11.9.7 (replaced with SIZEOFARRAY) #ifndef ARRAYSIZE
+	// @v11.9.7 (replaced with SIZEOFARRAY) #define ARRAYSIZE(A) (sizeof(A)/sizeof((A)[0]))
+// @v11.9.7 (replaced with SIZEOFARRAY) #endif
 #ifdef HAS_CLIENT_CERT_PATH
-#ifdef UNICODE
-#define CURL_CERT_STORE_PROV_SYSTEM CERT_STORE_PROV_SYSTEM_W
-#else
-#define CURL_CERT_STORE_PROV_SYSTEM CERT_STORE_PROV_SYSTEM_A
+	#ifdef UNICODE
+	#define CURL_CERT_STORE_PROV_SYSTEM CERT_STORE_PROV_SYSTEM_W
+	#else
+	#define CURL_CERT_STORE_PROV_SYSTEM CERT_STORE_PROV_SYSTEM_A
+	#endif
 #endif
-#endif
-
 #ifndef SP_PROT_SSL2_CLIENT
 #define SP_PROT_SSL2_CLIENT             0x00000008
 #endif
@@ -496,7 +483,7 @@ static CURLcode schannel_acquire_credential_handle(struct Curl_cfilter * cf,
 	struct schannel_ssl_backend_data * backend =
 	    (struct schannel_ssl_backend_data *)(connssl->backend);
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	if(conn_config->verifypeer) {
 #ifdef HAS_MANUAL_VERIFY_API
@@ -594,31 +581,21 @@ static CURLcode schannel_acquire_credential_handle(struct Curl_cfilter * cf,
 				data->set.ssl.primary.clientcert);
 			if(!cert_path)
 				return CURLE_OUT_OF_MEMORY;
-
-			result = get_cert_location(cert_path, &cert_store_name,
-				&cert_store_path, &cert_thumbprint_str);
-
+			result = get_cert_location(cert_path, &cert_store_name, &cert_store_path, &cert_thumbprint_str);
 			if(result && (data->set.ssl.primary.clientcert[0]!='\0'))
 				fInCert = fopen(data->set.ssl.primary.clientcert, "rb");
-
 			if(result && !fInCert) {
-				failf(data, "schannel: Failed to get certificate location"
-				    " or file for %s",
-				    data->set.ssl.primary.clientcert);
+				failf(data, "schannel: Failed to get certificate location or file for %s", data->set.ssl.primary.clientcert);
 				curlx_unicodefree(cert_path);
 				return result;
 			}
 		}
 
-		if((fInCert || blob) && (data->set.ssl.cert_type) &&
-		    (!strcasecompare(data->set.ssl.cert_type, "P12"))) {
-			failf(data, "schannel: certificate format compatibility error "
-			    " for %s",
-			    blob ? "(memory blob)" : data->set.ssl.primary.clientcert);
+		if((fInCert || blob) && (data->set.ssl.cert_type) && (!sstreqi_ascii(data->set.ssl.cert_type, "P12"))) {
+			failf(data, "schannel: certificate format compatibility error  for %s", blob ? "(memory blob)" : data->set.ssl.primary.clientcert);
 			curlx_unicodefree(cert_path);
 			return CURLE_SSL_CERTPROBLEM;
 		}
-
 		if(fInCert || blob) {
 			/* Reading a .P12 or .pfx file, like the example at bottom of
 			   https://social.msdn.microsoft.com/Forums/windowsdesktop/
@@ -628,8 +605,7 @@ static CURLcode schannel_acquire_credential_handle(struct Curl_cfilter * cf,
 			WCHAR* pszPassword;
 			size_t pwd_len = 0;
 			int str_w_len = 0;
-			const char * cert_showfilename_error = blob ?
-			    "(memory blob)" : data->set.ssl.primary.clientcert;
+			const char * cert_showfilename_error = blob ? "(memory blob)" : data->set.ssl.primary.clientcert;
 			curlx_unicodefree(cert_path);
 			if(fInCert) {
 				long cert_tell = 0;
@@ -845,47 +821,35 @@ static CURLcode schannel_acquire_credential_handle(struct Curl_cfilter * cf,
 
 				strncpy(tmp, startCur, n);
 				tmp[n] = 0;
-
-				if(disable_aes_gcm_sha384
-				    && !strcmp("TLS_AES_256_GCM_SHA384", tmp)) {
+				if(disable_aes_gcm_sha384 && sstreq("TLS_AES_256_GCM_SHA384", tmp)) {
 					disable_aes_gcm_sha384 = FALSE;
 				}
-				else if(disable_aes_gcm_sha256
-				    && !strcmp("TLS_AES_128_GCM_SHA256", tmp)) {
+				else if(disable_aes_gcm_sha256 && sstreq("TLS_AES_128_GCM_SHA256", tmp)) {
 					disable_aes_gcm_sha256 = FALSE;
 				}
-				else if(disable_chacha_poly
-				    && !strcmp("TLS_CHACHA20_POLY1305_SHA256", tmp)) {
+				else if(disable_chacha_poly && sstreq("TLS_CHACHA20_POLY1305_SHA256", tmp)) {
 					disable_chacha_poly = FALSE;
 				}
-				else if(disable_aes_ccm_8_sha256
-				    && !strcmp("TLS_AES_128_CCM_8_SHA256", tmp)) {
+				else if(disable_aes_ccm_8_sha256 && sstreq("TLS_AES_128_CCM_8_SHA256", tmp)) {
 					disable_aes_ccm_8_sha256 = FALSE;
 				}
-				else if(disable_aes_ccm_sha256
-				    && !strcmp("TLS_AES_128_CCM_SHA256", tmp)) {
+				else if(disable_aes_ccm_sha256 && sstreq("TLS_AES_128_CCM_SHA256", tmp)) {
 					disable_aes_ccm_sha256 = FALSE;
 				}
 				else {
 					failf(data, "schannel: Unknown TLS 1.3 cipher: %s", tmp);
 					return CURLE_SSL_CIPHER;
 				}
-
 				startCur = nameEnd;
 				if(startCur)
 					startCur++;
-
 				algCount++;
 			}
 		}
-
-		if(disable_aes_gcm_sha384 && disable_aes_gcm_sha256
-		    && disable_chacha_poly && disable_aes_ccm_8_sha256
-		    && disable_aes_ccm_sha256) {
+		if(disable_aes_gcm_sha384 && disable_aes_gcm_sha256 && disable_chacha_poly && disable_aes_ccm_8_sha256 && disable_aes_ccm_sha256) {
 			failf(data, "schannel: All available TLS 1.3 ciphers were disabled");
 			return CURLE_SSL_CIPHER;
 		}
-
 		/* Disable TLS_AES_128_CCM_8_SHA256 and/or TLS_AES_128_CCM_SHA256 */
 		if(disable_aes_ccm_8_sha256 || disable_aes_ccm_sha256) {
 			/*
@@ -894,20 +858,12 @@ static CURLcode schannel_acquire_credential_handle(struct Curl_cfilter * cf,
 			blocked_ccm_modes[0].Length = sizeof(BCRYPT_CHAIN_MODE_CCM);
 			blocked_ccm_modes[0].MaximumLength = sizeof(BCRYPT_CHAIN_MODE_CCM);
 			blocked_ccm_modes[0].Buffer = (PWSTR)BCRYPT_CHAIN_MODE_CCM;
-
-			crypto_settings[crypto_settings_idx].eAlgorithmUsage =
-			    TlsParametersCngAlgUsageCipher;
-			crypto_settings[crypto_settings_idx].rgstrChainingModes =
-			    blocked_ccm_modes;
-			crypto_settings[crypto_settings_idx].cChainingModes =
-			    ARRAYSIZE(blocked_ccm_modes);
-			crypto_settings[crypto_settings_idx].strCngAlgId.Length =
-			    sizeof(BCRYPT_AES_ALGORITHM);
-			crypto_settings[crypto_settings_idx].strCngAlgId.MaximumLength =
-			    sizeof(BCRYPT_AES_ALGORITHM);
-			crypto_settings[crypto_settings_idx].strCngAlgId.Buffer =
-			    (PWSTR)BCRYPT_AES_ALGORITHM;
-
+			crypto_settings[crypto_settings_idx].eAlgorithmUsage = TlsParametersCngAlgUsageCipher;
+			crypto_settings[crypto_settings_idx].rgstrChainingModes = blocked_ccm_modes;
+			crypto_settings[crypto_settings_idx].cChainingModes = SIZEOFARRAY(blocked_ccm_modes);
+			crypto_settings[crypto_settings_idx].strCngAlgId.Length = sizeof(BCRYPT_AES_ALGORITHM);
+			crypto_settings[crypto_settings_idx].strCngAlgId.MaximumLength = sizeof(BCRYPT_AES_ALGORITHM);
+			crypto_settings[crypto_settings_idx].strCngAlgId.Buffer = (PWSTR)BCRYPT_AES_ALGORITHM;
 			/* only disabling one of the CCM modes */
 			if(disable_aes_ccm_8_sha256 != disable_aes_ccm_sha256) {
 				if(disable_aes_ccm_8_sha256)
@@ -1101,7 +1057,7 @@ static CURLcode schannel_connect_step1(struct Curl_cfilter * cf, struct Curl_eas
 	CURLcode result;
 	const char * hostname = connssl->hostname;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 	DEBUGF(infof(data,
 	    "schannel: SSL/TLS connection with %s port %d (step 1/3)",
 	    hostname, connssl->port));
@@ -1364,7 +1320,7 @@ static CURLcode schannel_connect_step2(struct Curl_cfilter * cf, struct Curl_eas
 	bool doread;
 	const char * pubkey_ptr;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	doread = (connssl->connecting_state != ssl_connect_2_writing) ? TRUE : FALSE;
 
@@ -1713,8 +1669,8 @@ static CURLcode schannel_connect_step3(struct Curl_cfilter * cf, struct Curl_eas
 	SecPkgContext_ApplicationProtocol alpn_result;
 #endif
 
-	DEBUGASSERT(ssl_connect_3 == connssl->connecting_state);
-	DEBUGASSERT(backend);
+	assert(ssl_connect_3 == connssl->connecting_state);
+	assert(backend);
 
 	DEBUGF(infof(data,
 	    "schannel: SSL/TLS connection with %s port %d (step 3/3)",
@@ -1947,7 +1903,7 @@ static CURLcode schannel_connect_common(struct Curl_cfilter * cf,
 		{
 			struct schannel_ssl_backend_data * backend =
 			    (struct schannel_ssl_backend_data *)connssl->backend;
-			DEBUGASSERT(backend);
+			assert(backend);
 			cf->conn->sslContext = &backend->ctxt->ctxt_handle;
 		}
 #endif
@@ -1977,7 +1933,7 @@ static ssize_t schannel_send(struct Curl_cfilter * cf, struct Curl_easy * data,
 	struct schannel_ssl_backend_data * backend =
 	    (struct schannel_ssl_backend_data *)connssl->backend;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	/* check if the maximum stream sizes were queried */
 	if(backend->stream_sizes.cbMaximumMessage == 0) {
@@ -2127,7 +2083,7 @@ static ssize_t schannel_recv(struct Curl_cfilter * cf, struct Curl_easy * data,
 	struct schannel_ssl_backend_data * backend =
 	    (struct schannel_ssl_backend_data *)connssl->backend;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	/****************************************************************************
 	 * Don't return or set backend->recv_unrecoverable_err unless in the cleanup.
@@ -2448,7 +2404,7 @@ static CURLcode schannel_connect(struct Curl_cfilter * cf,
 	if(result)
 		return result;
 
-	DEBUGASSERT(done);
+	assert(done);
 
 	return CURLE_OK;
 }
@@ -2461,7 +2417,7 @@ static bool schannel_data_pending(struct Curl_cfilter * cf,
 	    (struct schannel_ssl_backend_data *)connssl->backend;
 
 	(void)data;
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	if(backend->ctxt) /* SSL/TLS is in use */
 		return (backend->decdata_offset > 0 ||
@@ -2504,8 +2460,8 @@ static int schannel_shutdown(struct Curl_cfilter * cf,
 	struct schannel_ssl_backend_data * backend =
 	    (struct schannel_ssl_backend_data *)connssl->backend;
 
-	DEBUGASSERT(data);
-	DEBUGASSERT(backend);
+	assert(data);
+	assert(backend);
 
 	if(backend->ctxt) {
 		infof(data, "schannel: shutting down SSL/TLS connection with %s port %d",
@@ -2639,7 +2595,7 @@ static CURLcode schannel_pkp_pin_peer_pubkey(struct Curl_cfilter * cf,
 	/* Result is returned to caller */
 	CURLcode result = CURLE_SSL_PINNEDPUBKEYNOTMATCH;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	/* if a path wasn't specified, don't pin */
 	if(!pinnedpubkey)
@@ -2756,7 +2712,7 @@ static void *schannel_get_internals(struct ssl_connect_data * connssl,
 	struct schannel_ssl_backend_data * backend =
 	    (struct schannel_ssl_backend_data *)connssl->backend;
 	(void)info;
-	DEBUGASSERT(backend);
+	assert(backend);
 	return &backend->ctxt->ctxt_handle;
 }
 

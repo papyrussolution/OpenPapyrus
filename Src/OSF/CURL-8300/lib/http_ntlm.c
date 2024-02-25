@@ -150,8 +150,8 @@ CURLcode Curl_output_ntlm(struct Curl_easy * data, bool proxy)
 	struct auth * authp;
 	struct connectdata * conn = data->conn;
 
-	DEBUGASSERT(conn);
-	DEBUGASSERT(data);
+	assert(conn);
+	assert(data);
 
 	if(proxy) {
 #ifndef CURL_DISABLE_PROXY
@@ -215,7 +215,7 @@ CURLcode Curl_output_ntlm(struct Curl_easy * data, bool proxy)
 			    service, hostname,
 			    ntlm, &ntlmmsg);
 		    if(!result) {
-			    DEBUGASSERT(Curl_bufref_len(&ntlmmsg) != 0);
+			    assert(Curl_bufref_len(&ntlmmsg) != 0);
 			    result = Curl_base64_encode((const char *)Curl_bufref_ptr(&ntlmmsg),
 				    Curl_bufref_len(&ntlmmsg), &base64, &len);
 			    if(!result) {

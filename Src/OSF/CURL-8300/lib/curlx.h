@@ -37,7 +37,7 @@
    private one day */
 
 //#include "strcase.h"
-/* "strcase.h" provides the strcasecompare protos */
+/* "strcase.h" provides the sstreqi_ascii protos */
 
 #include "strtoofft.h"
 /* "strtoofft.h" provides this function: curlx_strtoofft(), returns a

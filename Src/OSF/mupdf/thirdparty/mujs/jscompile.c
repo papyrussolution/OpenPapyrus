@@ -125,7 +125,7 @@ static int addstring(JF, const char * value)
 {
 	int i;
 	for(i = 0; i < F->strlen; ++i)
-		if(!strcmp(F->strtab[i], value))
+		if(sstreq(F->strtab[i], value))
 			return i;
 	if(F->strlen >= F->strcap) {
 		F->strcap = F->strcap ? F->strcap * 2 : 16;
@@ -139,19 +139,18 @@ static int addlocal(JF, js_Ast * ident, int reuse)
 {
 	const char * name = ident->string;
 	if(F->strict) {
-		if(!strcmp(name, "arguments"))
+		if(sstreq(name, "arguments"))
 			jsC_error(J, ident, "redefining 'arguments' is not allowed in strict mode");
-		if(!strcmp(name, "eval"))
+		if(sstreq(name, "eval"))
 			jsC_error(J, ident, "redefining 'eval' is not allowed in strict mode");
 	}
 	else {
-		if(!strcmp(name, "eval"))
+		if(sstreq(name, "eval"))
 			js_evalerror(J, "%s:%d: invalid use of 'eval'", J->filename, ident->line);
 	}
 	if(reuse || F->strict) {
-		int i;
-		for(i = 0; i < F->varlen; ++i) {
-			if(!strcmp(F->vartab[i], name)) {
+		for(int i = 0; i < F->varlen; ++i) {
+			if(sstreq(F->vartab[i], name)) {
 				if(reuse)
 					return i+1;
 				if(F->strict)
@@ -169,9 +168,8 @@ static int addlocal(JF, js_Ast * ident, int reuse)
 
 static int findlocal(JF, const char * name)
 {
-	int i;
-	for(i = F->varlen; i > 0; --i)
-		if(!strcmp(F->vartab[i-1], name))
+	for(int i = F->varlen; i > 0; --i)
+		if(sstreq(F->vartab[i-1], name))
 			return i;
 	return -1;
 }
@@ -209,8 +207,8 @@ static void emitstring(JF, int opcode, const char * str)
 
 static void emitlocal(JF, int oploc, int opvar, js_Ast * ident)
 {
-	int is_arguments = !strcmp(ident->string, "arguments");
-	int is_eval = !strcmp(ident->string, "eval");
+	int is_arguments = sstreq(ident->string, "arguments");
+	int is_eval = sstreq(ident->string, "eval");
 	int i;
 
 	if(is_arguments) {
@@ -337,7 +335,7 @@ static void checkdup(JF, js_Ast * list, js_Ast * end)
 				straw = jsV_numbertostring(J, sbuf, prop->number);
 			else
 				straw =  prop->string;
-			if(!strcmp(needle, straw))
+			if(sstreq(needle, straw))
 				jsC_error(J, list, "duplicate property '%s' in object literal", needle);
 		}
 		list = list->b;
@@ -583,7 +581,7 @@ static void ccall(JF, js_Ast * fun, js_Ast * args)
 		    emit(J, F, OP_ROT2);
 		    break;
 		case EXP_IDENTIFIER:
-		    if(!strcmp(fun->string, "eval")) {
+		    if(sstreq(fun->string, "eval")) {
 			    ceval(J, F, fun, args);
 			    return;
 		    }
@@ -849,7 +847,7 @@ static int isfun(enum js_AstType T)
 static int matchlabel(js_Ast * node, const char * label)
 {
 	while(node && node->type == STM_LABEL) {
-		if(!strcmp(node->a->string, label))
+		if(sstreq(node->a->string, label))
 			return 1;
 		node = node->parent;
 	}
@@ -987,9 +985,9 @@ static void ctrycatch(JF, js_Ast * trystm, js_Ast * catchvar, js_Ast * catchstm)
 		/* if we get here, we have caught an exception in the try block */
 		checkfutureword(J, F, catchvar);
 		if(F->strict) {
-			if(!strcmp(catchvar->string, "arguments"))
+			if(sstreq(catchvar->string, "arguments"))
 				jsC_error(J, catchvar, "redefining 'arguments' is not allowed in strict mode");
-			if(!strcmp(catchvar->string, "eval"))
+			if(sstreq(catchvar->string, "eval"))
 				jsC_error(J, catchvar, "redefining 'eval' is not allowed in strict mode");
 		}
 		emitline(J, F, catchvar);
@@ -1019,9 +1017,9 @@ static void ctrycatchfinally(JF, js_Ast * trystm, js_Ast * catchvar, js_Ast * ca
 		label(J, F, L2);
 		if(F->strict) {
 			checkfutureword(J, F, catchvar);
-			if(!strcmp(catchvar->string, "arguments"))
+			if(sstreq(catchvar->string, "arguments"))
 				jsC_error(J, catchvar, "redefining 'arguments' is not allowed in strict mode");
-			if(!strcmp(catchvar->string, "eval"))
+			if(sstreq(catchvar->string, "eval"))
 				jsC_error(J, catchvar, "redefining 'eval' is not allowed in strict mode");
 		}
 		emitline(J, F, catchvar);
@@ -1421,7 +1419,7 @@ static void cfunbody(JF, js_Ast * name, js_Ast * params, js_Ast * body)
 
 	/* Check if first statement is 'use strict': */
 	if(body && body->type == AST_LIST && body->a && body->a->type == EXP_STRING)
-		if(!strcmp(body->a->string, "use strict"))
+		if(sstreq(body->a->string, "use strict"))
 			F->strict = 1;
 
 	F->lastline = F->line;

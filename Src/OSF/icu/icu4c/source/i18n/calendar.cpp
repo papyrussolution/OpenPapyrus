@@ -1652,8 +1652,7 @@ void Calendar::roll(UCalendarDateFields field, int32_t amount, UErrorCode & stat
 		    int32_t era = get(UCAL_ERA, status);
 		    if(era == 0) {
 			    const char * calType = getType();
-			    if(strcmp(calType,
-				"gregorian")==0 || strcmp(calType, "roc")==0 || strcmp(calType, "coptic")==0) {
+			    if(strcmp(calType, "gregorian")==0 || strcmp(calType, "roc")==0 || strcmp(calType, "coptic")==0) {
 				    amount = -amount;
 				    era0WithYearsThatGoBackwards = TRUE;
 			    }

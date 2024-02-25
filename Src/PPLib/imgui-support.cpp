@@ -107,6 +107,15 @@ void ImGuiRuntimeBlock::ReleaseTexture(void * pTextureView)
 		static_cast<IUnknown *>(pTextureView)->Release();
 	}
 }
+
+void ImGuiRuntimeBlock::OnWindowResize(WPARAM wParam, LPARAM lParam)
+{
+	if(g_pd3dDevice && wParam != SIZE_MINIMIZED) {
+		CleanupRenderTarget();
+		g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
+		CreateRenderTarget();
+	}
+}
 //
 //
 //
@@ -267,7 +276,29 @@ void ImGuiWindowByLayout::Helper_Ctr(const SUiLayout * pLo, const SPoint2F * pOf
 //
 //
 //
-ImGuiSceneBase::ImGuiSceneBase() : ClearColor(SColor(0x1E, 0x22, 0x28))
+SImFontDescription::SImFontDescription(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr) : 
+	P_Font(0), Symbol(pSymb)
+{
+	assert(Symbol.NotEmptyS());
+	Clr.Z();
+	static const ImWchar ranges[] = {
+		0x0020, 0x00FF, // Basic Latin + Latin Supplement
+		0x0400, 0x044F, // Cyrillic
+		0,
+	};
+	P_Font = rIo.Fonts->AddFontFromFileTTF(/*"/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf"*/pPath, sizePx, pFontCfg, ranges);
+	RVALUEPTR(Clr, pClr);
+}
+
+const void * SImFontDescription::GetHashKey(const void * pCtx, uint * pKeyLen) const
+{
+	ASSIGN_PTR(pKeyLen, Symbol.Len());
+	return Symbol.cptr();
+}
+//
+//
+//
+ImGuiSceneBase::ImGuiSceneBase() : ClearColor(SColor(0x1E, 0x22, 0x28)), Cache_Layout(512, 0), Cache_Font(101, 0)
 {
 }
 	
@@ -278,6 +309,96 @@ ImGuiSceneBase::~ImGuiSceneBase()
 /*virtual*/int ImGuiSceneBase::Init(ImGuiIO & rIo)
 {
 	return -1;
+}
+
+int ImGuiSceneBase::LoadUiDescription()
+{
+	int    ok = 0;
+	SString temp_buf;
+	const UiDescription * p_uid = SLS.GetUiDescription(); // @v11.9.3
+	if(p_uid) {
+		{
+			const bool use_outer_layout_description = true;
+			if(use_outer_layout_description) {
+				for(uint i = 0; i < p_uid->LoList.getCount(); i++) {
+					const SUiLayout * p_lo = p_uid->LoList.at(i);
+					if(p_lo) {
+						SUiLayout * p_new_lo = new SUiLayout(*p_lo);
+						Cache_Layout.Put(p_new_lo, true);
+					}
+				}
+			}
+#if 0 // Этот участок кода был актуален в составе класса WsCtl_ImGuiSceneBlock до использования механизма внешнего описания лейаутов {
+			else {
+				SJson * p_js_lo_list = 0;
+				MakeLayout(&p_js_lo_list);
+				if(p_js_lo_list) {
+					SString temp_buf;
+					long fn_n = 0;
+					const char * p_fn = "layout";
+					SString fn;
+					do {
+						(fn = p_fn).CatLongZ(++fn_n, 5).Dot().Cat("json");
+						PPGetFilePath(PPPATH_OUT, fn, temp_buf);
+					} while(fileExists(temp_buf));
+					SFile f_out(temp_buf, SFile::mWrite);
+					if(f_out.IsValid()) {
+						SJson js_ui(SJson::tOBJECT);
+						js_ui.Insert("layout_list", p_js_lo_list);
+						p_js_lo_list = 0;
+						SString js_fmt_buf;
+						js_ui.ToStr(temp_buf);
+						SJson::FormatText(temp_buf, js_fmt_buf);
+						f_out.Write(js_fmt_buf, js_fmt_buf.Len());
+					}
+					ZDELETE(p_js_lo_list);
+				}
+			}
+#endif // } 0
+		}
+	}
+	//CATCHZOK
+	return ok;
+}
+
+int ImGuiSceneBase::CreateFontEntry(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr)
+{
+	static const ImWchar ranges[] = {
+		0x0020, 0x00FF, // Basic Latin + Latin Supplement
+		0x0400, 0x044F, // Cyrillic
+		0,
+	};
+	int    ok = 1;
+	SImFontDescription * p_fd = new SImFontDescription(rIo, pSymb, pPath, sizePx, pFontCfg, pClr);
+	if(p_fd) {
+		Cache_Font.Put(p_fd, true);
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int ImGuiSceneBase::PushFontEntry(ImGuiObjStack & rStk, const char * pSymb)
+{
+	int    ok = 1;
+	SImFontDescription * p_fd = Cache_Font.Get(pSymb, sstrlen(pSymb));
+	if(p_fd && p_fd->IsValid()) {
+		rStk.PushFont(*p_fd);
+		if(p_fd->HasColor()) {
+			SColor clr = p_fd->GetColor();
+			rStk.PushStyleColor(ImGuiCol_Text, IM_COL32(clr.R, clr.G, clr.B, clr.Alpha));
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+void ImGuiSceneBase::BuildSceneProlog()
+{
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
 }
 
 void ImGuiSceneBase::Render(ImGuiRuntimeBlock & rRtb)

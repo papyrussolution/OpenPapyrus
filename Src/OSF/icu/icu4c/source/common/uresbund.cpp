@@ -700,8 +700,7 @@ static UResourceDataEntry * entryOpen(const char * path, const char * localeID, 
 			goto finish;
 		}
 	}
-	else if(!isRoot && strcmp(t1->fName, kRootLocaleName) != 0 &&
-	    t1->fParent == NULL && !r->fData.noFallback) {
+	else if(!isRoot && strcmp(t1->fName, kRootLocaleName) != 0 && t1->fParent == NULL && !r->fData.noFallback) {
 		if(!insertRootBundle(t1, status)) {
 			goto finish;
 		}
@@ -953,7 +952,9 @@ UResourceBundle * getAliasTargetAsResourceBundle(const ResourceData &resData, Re
 	}
 
 	// We have an alias, now let's cut it up.
-	const char * path = nullptr, * locale = nullptr, * keyPath = nullptr;
+	const char * path = nullptr;
+	const char * locale = nullptr;
+	const char * keyPath = nullptr;
 	if(chAlias[0] == RES_PATH_SEPARATOR) {
 		// There is a path included.
 		char * chAliasData = chAlias.data();

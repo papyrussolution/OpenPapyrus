@@ -10841,6 +10841,18 @@ public:
 
 		FirstUser        = 10000
 	};
+	struct CsvSinffingResult {
+		CsvSinffingResult() : FieldDivisor(0), Flags(0), SnTokSeq_Common(0), SnTokSeq_First(0)
+		{
+		}
+		enum {
+			fTitleRow = 0x0001 // Первая строка - заголовки полей
+		};
+		uint   FieldDivisor;
+		uint   Flags;
+		uint32 SnTokSeq_Common; // flags SNTOKSEQ_FFFF общие для всех строк
+		uint32 SnTokSeq_First;  // flags SNTOKSEQ_FFFF для первой строки
+	};
 	static int FASTCALL Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign);
 	static int FASTCALL Register(int id, const char * pExt, const char * pSign);
 	static int Register();
@@ -11947,6 +11959,7 @@ struct SNaturalTokenStat {
 	SNaturalTokenStat & Z();
     uint32 Len;  // Длина токена в байтах
     uint32 Seq;
+	LAssocArray ChrList; // @v11.9.7
 };
 
 struct SNaturalToken { // @flat
@@ -11985,7 +11998,7 @@ protected:
 		uint   DecCount; // Количество десятичных цифр
 		SNaturalTokenStat Stat;
 		SString Temp;
-		LAssocArray ChrList;
+		// @v11.9.7 (moved to SNaturalTokenStat) LAssocArray ChrList;
 	};
 	int    Implement(ImplementBlock & rIb, const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
 	//
@@ -12009,65 +12022,6 @@ public:
 private:
 	void * H; // handle
 	void * P; // processor
-};
-//
-// Descr: Класс реализующий абстрактные методы для доступа к средствам ввода/вывода операционной системы
-//
-class SIo {
-public:
-	enum {
-		tDefault = 0,
-		tFile,
-		tPipe,
-		tSerial
-	};
-
-	enum {
-		crmCrAllways      = (1 << 6),
-		crmCrNew  = (2 << 6),
-		crmOpenAllways    = (3 << 6),
-		crmOpenExist      = (4 << 6),
-		crmTrancateExist  = (5 << 6)
-	};
-
-	enum {
-		mAccsRead = 0x00000001,
-		mAccsWrite        = 0x00000002,
-		mAccsExec = 0x00000004,
-		mShrRead  = 0x00000008,
-		mShrWrite = 0x00000010,
-		mShrDelete        = 0x00000020,
-		mCreationMask     = 0x00000040|0x00000080|0x00000100,
-		mAttrArch = 0x00000200,
-		mAttrEncrypt      = 0x00000400,
-		mAttrHidden       = 0x00000800,
-		mAttrNormal       = 0x00001000,
-		mAttrNoIndex      = 0x00002000,
-		mAttrOffline      = 0x00004000,
-		mAttrRO   = 0x00008000,
-		mAttrSys  = 0x00010000,
-		mAttrTemp = 0x00020000,
-		mFBackupSemantics = 0x00040000,
-		mFPosixSemantics  = 0x00080000,
-		mFDelOnClose      = 0x00100000,
-		mFNoBuff  = 0x00200000,
-		mFOpenNoRecall    = 0x00400000,
-		mFOpenReparsePt   = 0x00800000,
-		mFOverlapped      = 0x01000000,
-		mFRandomAccs      = 0x02000000,
-		mFSeqScan = 0x04000000,
-		mFWriteThrough    = 0x08000000
-	};
-	enum {
-		mSecAnonym        = 0x00000001,
-		mSecCtxTracking   = 0x00000002,
-		mSecDelegation    = 0x00000004,
-		mSecEffOnly       = 0x00000008,
-		mSecIdent = 0x00000010,
-		mSecImpersonation = 0x00000020
-	};
-
-	static void * SCreateFile(int ioType, const char * pName, uint32 mode, uint32 secMode = 0);
 };
 //
 //
@@ -12211,9 +12165,6 @@ public:
 		uint32 Attr;  // @v11.8.9
 		int64  Size;
 		uint32 ReparsePointTag; // @v11.8.9 if(Attr & attrReparsePoint) then this is additional tag of reparse point (wintn.h: IO_REPARSE_TAG_XXX).
-		//LDATETIME CrtTime;
-		//LDATETIME AccsTime;
-		//LDATETIME ModTime;
 		uint64 CrtTm_;
 		uint64 AccsTm_;
 		uint64 ModTm_;
@@ -12366,15 +12317,35 @@ public:
 		friend class SFile;
 
 		ReadLineCsvContext(char fieldDivider);
+		//
+		// Descr: Реализация извлечения массива полей из входящей строки.
+		// ARG(pLine IN): Если этот аргумент не нулевой, то он трактуется как
+		//   входящая строка для разбора. Если же pLine == 0, то в качестве 
+		//   таковой рассматривается внутренний буфер LineBuf.
+		// ARG(rSs OUT): Результат разбора - набор строк, каждая из которых 
+		//   представляет отдельное поле. Если rSs сконструирован с внутренними 
+		//   разделителями '\0', то пустые поля вставляются в него в виде строк,
+		//   состоящих из одного пробела (иначе невозможно).
+		// Returns:
+		//   >0 - число просканированных и помещенных в rSs значений.
+		//    0 - ошибка
+		//
+		uint   ImplementScan(const char * pLine, StringSet & rSs);
 	private:
 		const  char FieldDivider;
 		uint8  Reserve[3]; // @alignment
 		SString LineBuf;
+		SString FldBuf; // @reuse
 		SStrScan Scan;
 	};
 	//
 	// Descr: Высокоуровневая функция, считывающая строку текстового файла в предположении, что этот файл имеет csv-формат.
 	//   Результат чтения заносится в экземляр StringSet.
+	// Returns:
+	//   >0 - функция успешно считала строку из файла и разобрала ее на поля //
+	//    0 - либо в контексте rCtx не определен разделитель либо чтение из файла 
+	//        завершилось ошибкой (вполне возможно - конец файла)
+	//   -1 - строка была считана из файла, но разбор на поля не был успешным (например, из-за непарных ковычек)
 	//
 	int    ReadLineCsv(ReadLineCsvContext & rCtx, StringSet & rSs);
 	//
@@ -12558,36 +12529,6 @@ private:
 	TSVector <SFile::LckChunk> LckList;
 };
 //
-// File utilities
-//
-#if 0 // @v11.8.9 (moved to SFile) {
-class SFileUtil {
-public:
-	struct Stat {
-		uint32 Attr; // @v11.8.9
-		LDATETIME CrtTime;
-		LDATETIME AccsTime;
-		LDATETIME ModTime;
-		int64  Size;
-	};
-	static int GetStat(const char * pFileName, Stat * pStat);
-	static int GetDiskSpace(const char * pPath, int64 * pTotal, int64 * pAvail);
-	/* @v11.8.5 Упразднено в пользу GetKnownFolderPath()
-	enum {
-		sdSystem = 1,
-		sdProgramFiles,
-		sdProgramFilesCommon,
-		sdWindows,
-		sdAppData,
-		sdAppDataLocal,
-		sdCommonDocuments,
-		sdTemporary // @v11.0.3
-	};
-	static int GetSysDir(int pathId, SString & rPath);
-	*/
-};
-#endif // } 0 @v11.8.9 (moved to SFile)
-//
 //
 //
 struct SDirEntry : public SFile::Stat { // @flat
@@ -12613,13 +12554,6 @@ struct SDirEntry : public SFile::Stat { // @flat
 	//
 	bool   IsFile() const;
 
-	//uint32 Attr;
-	//LDATETIME CreateTime;
-	//LDATETIME AccessTime;
-	//LDATETIME WriteTime;
-	//int64  Size;
-	//uint32 ReparsePointTag; // @v11.8.9 if(Attr & attrReparsePoint) then this is additional tag of reparse point (wintn.h: IO_REPARSE_TAG_XXX).
-	//char   FileName[1024];
 	wchar_t Name[1024]; // @v11.6.0 char-->wchar_t
 };
 
@@ -12743,11 +12677,6 @@ public:
 		Entry & Z();
 		SString & GetFullPath(SString & rBuf) const;
 
-		//uint32 Attr; // SDirEntry::attrXXX
-		//LDATETIME CreateTime;
-		//LDATETIME AccessTime;
-		//LDATETIME WriteTime;
-		//int64  Size;
 		SString Name;
 		SString Path;
 		SString RemoteUrl; // @v10.8.2 Специальный "хвост" позволяющий сопоставить элемент пула с каким-либо серверным url-ом
@@ -13980,7 +13909,7 @@ public:
 class StatBase {
 public:
 	enum {
-		fExt  = 0x0001, // Рассчитывать дополнительные статистики
+		fExt          = 0x0001, // Рассчитывать дополнительные статистики
 		fGammaTest    = 0x0002, // Выполнить тест на гамма-распределение
 		fGaussianTest = 0x0004, // @unimplemented Выполнить тест на нормальное распределение
 		fStoreVals    = 0x0008  // Сохранять значения в Series

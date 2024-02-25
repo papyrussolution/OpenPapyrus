@@ -396,9 +396,8 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, A
 							                                     // min level
 						}
 					}
-					else if(((strcmp(s, "begin") == 0) && (sstreq(prevWord, "architecture"))) ||
-					    ((strcmp(s, "begin") == 0) && (sstreq(prevWord, "function"))) ||
-					    ((strcmp(s, "begin") == 0) && (sstreq(prevWord, "procedure")))) {
+					else if((sstreq(s, "begin") && (sstreq(prevWord, "architecture"))) || (sstreq(s, "begin") && (sstreq(prevWord, "function"))) ||
+					    (sstreq(s, "begin") && sstreq(prevWord, "procedure"))) {
 						levelMinCurrentBegin = levelNext - 1;
 					}
 					//Platform::DebugPrintf("Line[%04d] Prev[%20s] Cur[%20s] Level[%x]\n", lineCurrent+1, prevWord, s,
@@ -409,7 +408,6 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos, Sci_Position length, int, A
 		}
 		if(atEOL) {
 			int levelUse = levelCurrent;
-
 			if(foldAtElse && (levelMinCurrentElse < levelUse)) {
 				levelUse = levelMinCurrentElse;
 			}

@@ -615,23 +615,19 @@ xmlList * xmlListDup(const xmlList * old)
 	}
 	return cur;
 }
-/**
- * xmlListCopy:
- * @cur:  the new list
- * @old:  the old list
- *
- * Move all the element from the old list in the new list
- *
- * Returns 0 in case of success 1 in case of error
- */
+// 
+// @cur:  the new list
+// @old:  the old list
+// Move all the element from the old list in the new list
+// Returns 0 in case of success 1 in case of error
+// 
 int xmlListCopy(xmlList * cur, const xmlList * old)
 {
 	// Walk the old tree and insert the data into the new one 
-	xmlLink * lk;
-	if((old == NULL) || (cur == NULL))
+	if(!old || !cur)
 		return 1;
-	for(lk = old->sentinel->next; lk != old->sentinel; lk = lk->next) {
-		if(0 != xmlListInsert(cur, lk->data)) {
+	for(xmlLink * lk = old->sentinel->next; lk != old->sentinel; lk = lk->next) {
+		if(xmlListInsert(cur, lk->data) != 0) {
 			xmlListDelete(cur);
 			return 1;
 		}

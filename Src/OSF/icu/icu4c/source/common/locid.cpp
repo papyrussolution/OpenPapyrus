@@ -1318,11 +1318,10 @@ bool AliasReplacer::replaceSubdivision(StringPiece subdivision, CharString& outp
 		return false;
 	}
 	const char * replacement = data->subdivisionMap().get(subdivision.data());
-	if(replacement != nullptr) {
+	if(replacement) {
 		const char * firstSpace = uprv_strchr(replacement, ' ');
 		// Found replacement data for this subdivision.
-		size_t len = (firstSpace != nullptr) ?
-		    (firstSpace - replacement) : strlen(replacement);
+		size_t len = firstSpace ? (firstSpace - replacement) : strlen(replacement);
 		if(2 <= len && len <= 8) {
 			output.append(replacement, (int32_t)len, status);
 			if(2 == len) {
@@ -1345,13 +1344,10 @@ bool AliasReplacer::replaceTransformedExtensions(CharString& transformedExtensio
 	int32_t len = transformedExtensions.length();
 	const char * str = transformedExtensions.data();
 	const char * tkey = ultag_getTKeyStart(str);
-	int32_t tlangLen = (tkey == str) ? 0 :
-	    ((tkey == nullptr) ? len : static_cast<int32_t>((tkey - str - 1)));
+	int32_t tlangLen = (tkey == str) ? 0 : ((tkey == nullptr) ? len : static_cast<int32_t>((tkey - str - 1)));
 	CharStringByteSink sink(&output);
 	if(tlangLen > 0) {
-		Locale tlang = LocaleBuilder()
-		    .setLanguageTag(StringPiece(str, tlangLen))
-		    .build(status);
+		Locale tlang = LocaleBuilder().setLanguageTag(StringPiece(str, tlangLen)).build(status);
 		tlang.canonicalize(status);
 		tlang.toLanguageTag(sink, status);
 		if(U_FAILURE(status)) {
@@ -1473,8 +1469,7 @@ bool AliasReplacer::replace(const Locale & locale, CharString& out, UErrorCode &
 		char * start = variantsBuff.data();
 		T_CString_toLowerCase(start);
 		char * end;
-		while((end = uprv_strchr(start, SEP_CHAR)) != nullptr &&
-		    U_SUCCESS(status)) {
+		while((end = uprv_strchr(start, SEP_CHAR)) != nullptr && U_SUCCESS(status)) {
 			*end = NULL_CHAR; // null terminate inside variantsBuff
 			variants.addElementX(start, status);
 			start = end + 1;
@@ -1781,33 +1776,31 @@ Locale & Locale::init(const char * localeID, bool canonicalize)
  * If key words exist, it's the full name truncated at the '@' character.
  * Need to set up both at init() and after setting a keyword.
  */
-void Locale::initBaseName(UErrorCode & status) {
-	if(U_FAILURE(status)) {
-		return;
-	}
-	U_ASSERT(baseName==NULL || baseName==fullName);
-	const char * atPtr = uprv_strchr(fullName, '@');
-	const char * eqPtr = uprv_strchr(fullName, '=');
-	if(atPtr && eqPtr && atPtr < eqPtr) {
-		// Key words exist.
-		int32_t baseNameLength = (int32_t)(atPtr - fullName);
-		baseName = (char *)uprv_malloc(baseNameLength + 1);
-		if(baseName == NULL) {
-			status = U_MEMORY_ALLOCATION_ERROR;
-			return;
+void Locale::initBaseName(UErrorCode & status) 
+{
+	if(U_SUCCESS(status)) {
+		U_ASSERT(baseName==NULL || baseName==fullName);
+		const char * atPtr = uprv_strchr(fullName, '@');
+		const char * eqPtr = uprv_strchr(fullName, '=');
+		if(atPtr && eqPtr && atPtr < eqPtr) {
+			// Key words exist.
+			int32_t baseNameLength = (int32_t)(atPtr - fullName);
+			baseName = (char *)uprv_malloc(baseNameLength + 1);
+			if(baseName == NULL) {
+				status = U_MEMORY_ALLOCATION_ERROR;
+			}
+			else {
+				uprv_strncpy(baseName, fullName, baseNameLength);
+				baseName[baseNameLength] = 0;
+				// The original computation of variantBegin leaves it equal to the length
+				// of fullName if there is no variant.  It should instead be
+				// the length of the baseName.
+				SETMIN(variantBegin, baseNameLength);
+			}
 		}
-		uprv_strncpy(baseName, fullName, baseNameLength);
-		baseName[baseNameLength] = 0;
-
-		// The original computation of variantBegin leaves it equal to the length
-		// of fullName if there is no variant.  It should instead be
-		// the length of the baseName.
-		if(variantBegin > baseNameLength) {
-			variantBegin = baseNameLength;
+		else {
+			baseName = fullName;
 		}
-	}
-	else {
-		baseName = fullName;
 	}
 }
 

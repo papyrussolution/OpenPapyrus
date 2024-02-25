@@ -134,7 +134,7 @@ bool Curl_check_noproxy(const char * name, const char * no_proxy, bool * spacese
 		const char * p = no_proxy;
 		size_t namelen;
 		enum nametype type = TYPE_HOST;
-		if(!strcmp("*", no_proxy))
+		if(sstreq("*", no_proxy))
 			return TRUE;
 
 		/* NO_PROXY was specified and it wasn't just an asterisk */

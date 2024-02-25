@@ -676,9 +676,9 @@ UnicodeString &LocaleDisplayNamesImpl::localeIdName(const char * localeId,
 	return result;
 }
 
-UnicodeString &LocaleDisplayNamesImpl::languageDisplayName(const char * lang,
-    UnicodeString & result) const {
-	if(strcmp("root", lang) == 0 || uprv_strchr(lang, '_') != NULL) {
+UnicodeString &LocaleDisplayNamesImpl::languageDisplayName(const char * lang, UnicodeString & result) const 
+{
+	if(sstreq(lang, "root") || uprv_strchr(lang, '_') != NULL) {
 		return result = UnicodeString(lang, -1, US_INV);
 	}
 	if(nameLength == UDISPCTX_LENGTH_SHORT) {

@@ -63,12 +63,10 @@ static const uchar tolowermap[256] = {
 	240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255
 };
 
-/* Portable, consistent toupper. Do not use toupper() because its behavior is
-   altered by the current locale. */
+/* Portable, consistent toupper. Do not use toupper() because its behavior is altered by the current locale. */
 char Curl_raw_toupper(char in) { return touppermap[(uchar)in]; }
 
-/* Portable, consistent tolower. Do not use tolower() because its behavior is
-   altered by the current locale. */
+/* Portable, consistent tolower. Do not use tolower() because its behavior is altered by the current locale. */
 char Curl_raw_tolower(char in) { return tolowermap[(uchar)in]; }
 
 /*
@@ -94,14 +92,13 @@ static int casecompare(const char * first, const char * second)
 }
 
 /* --- public function --- */
-int curl_strequal(const char * first, const char * second)
+/* @v11.9.7 (replaced with sstreqi_ascii) int curl_strequal(const char * first, const char * second)
 {
 	if(first && second)
-		/* both pointers point to something then compare them */
-		return casecompare(first, second);
-	/* if both pointers are NULL then treat them as equal */
+		return casecompare(first, second); // both pointers point to something then compare them
+	// if both pointers are NULL then treat them as equal 
 	return (NULL == first && NULL == second);
-}
+}*/
 
 static int ncasecompare(const char * first, const char * second, size_t max)
 {
@@ -161,7 +158,7 @@ void Curl_strntolower(char * dest, const char * src, size_t n)
 bool Curl_safecmp(char * a, char * b)
 {
 	if(a && b)
-		return !strcmp(a, b);
+		return sstreq(a, b);
 	return !a && !b;
 }
 

@@ -15230,17 +15230,13 @@ static const char *(azHelp[]) = {
 **
 ** Return the number of matches.
 */
-static int showHelp(FILE * out, const char * zPattern){
+static int showHelp(FILE * out, const char * zPattern)
+{
 	int i = 0;
 	int j = 0;
 	int n = 0;
 	char * zPat;
-	if(zPattern==0
-	   || zPattern[0]=='0'
-	   || strcmp(zPattern, "-a")==0
-	   || strcmp(zPattern, "-all")==0
-	   || strcmp(zPattern, "--all")==0
-	    ) {
+	if(zPattern==0 || zPattern[0]=='0' || strcmp(zPattern, "-a")==0 || strcmp(zPattern, "-all")==0 || strcmp(zPattern, "--all")==0) {
 		/* Show all commands, but only one line per command */
 		if(zPattern==0) zPattern = "";
 		for(i = 0; i<ArraySize(azHelp); i++) {
@@ -19128,14 +19124,9 @@ static int do_meta_command(char * zLine, ShellState * p){
 		int n2, i;
 		const char * zCmd = 0;
 		const char * zSchema = 0;
-
 		open_db(p, 0);
 		zCmd = nArg>=2 ? azArg[1] : "help";
-
-		if(zCmd[0]=='-'
-		 && (strcmp(zCmd, "--schema")==0 || strcmp(zCmd, "-schema")==0)
-		 && nArg>=4
-		    ) {
+		if(zCmd[0]=='-' && (strcmp(zCmd, "--schema")==0 || strcmp(zCmd, "-schema")==0) && nArg>=4) {
 			zSchema = azArg[2];
 			for(i = 3; i<nArg; i++) azArg[i-2] = azArg[i];
 			nArg -= 2;
@@ -20036,10 +20027,7 @@ static int do_meta_command(char * zLine, ShellState * p){
 			open_db(p, 0);
 		}
 	}
-	else if((c=='o'
-	 && (strncmp(azArg[0], "output", n)==0||strncmp(azArg[0], "once", n)==0))
-	   || (c=='e' && n==5 && strcmp(azArg[0], "excel")==0)
-	    ) {
+	else if((c=='o' && (strncmp(azArg[0], "output", n)==0||strncmp(azArg[0], "once", n)==0)) || (c=='e' && n==5 && strcmp(azArg[0], "excel")==0)) {
 		char * zFile = 0;
 		int bTxtMode = 0;
 		int i;
@@ -20953,17 +20941,14 @@ session_syntax_error:
 				if(strcmp(z, "schema")==0) {
 					bSchema = 1;
 				}
-				else if(strcmp(z, "sha3-224")==0 || strcmp(z, "sha3-256")==0
-				   || strcmp(z, "sha3-384")==0 || strcmp(z, "sha3-512")==0
-				    ) {
+				else if(strcmp(z, "sha3-224")==0 || strcmp(z, "sha3-256")==0 || strcmp(z, "sha3-384")==0 || strcmp(z, "sha3-512")==0) {
 					iSize = atoi(&z[5]);
 				}
 				else if(strcmp(z, "debug")==0)       {
 					bDebug = 1;
 				}
 				else {
-					utf8_printf(stderr, "Unknown option \"%s\" on \"%s\"\n",
-					    azArg[i], azArg[0]);
+					utf8_printf(stderr, "Unknown option \"%s\" on \"%s\"\n", azArg[i], azArg[0]);
 					showHelp(p->out, azArg[0]);
 					rc = 1;
 					goto meta_command_exit;

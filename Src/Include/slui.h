@@ -1295,11 +1295,15 @@ public:
 	const SColorSet * GetColorSetC(const char * pCsSymb) const;
 	SColorSet * GetColorSet(const char * pCsSymb);
 	const SFontSource * GetFontSourceC(const char * pSymb) const;
+	void  SetSourceFileName(const char * pFileName);
+	const char * GetSourceFileName() const;
 
 	TSCollection <SFontSource> FontList;
 	TSCollection <SColorSet> ClrList;
 	TSCollection <SUiLayout> LoList;
 	UiValueList VList; // @v11.9.4
+private:
+	SString SourceFileName; // @v11.9.7 Исходный файл, из которого был загружен экземпляр. Устанавливается из-вне методом SetSourceFileName(const char *)
 };
 //
 // Descr: Определитель шрифта

@@ -607,7 +607,6 @@ static bool _isTransformedExtensionSubtag(int32_t& state, const char * s, int32_
 	const int32_t kGotVariant = 4; // Got unicode_variant_subtag, wait for unicode_variant_subtag tkey or end.
 	const int32_t kGotTKey = -1; // Got tkey, wait for tvalue. ERROR if stop here.
 	const int32_t kGotTValue = 6; // Got tvalue, wait for tkey, tvalue or end
-
 	if(len < 0) {
 		len = (int32_t)strlen(s);
 	}
@@ -670,7 +669,6 @@ static bool _isUnicodeExtensionSubtag(int32_t& state, const char * s, int32_t le
 	const int32_t kStart = 0;     // Start, wait for a key or attribute or end
 	const int32_t kGotKey = 1;    // Got a key, wait for type or key or end
 	const int32_t kGotType = 2;   // Got a type, wait for key or end
-
 	switch(state) {
 		case kStart:
 		    if(ultag_isUnicodeLocaleKey(s, len)) {
@@ -709,11 +707,8 @@ static bool _isStatefulSepListOf(bool (*test)(int32_t&, const char *, int32_t), 
 	const char * p;
 	const char * start = s;
 	int32_t subtagLen = 0;
-
-	if(len < 0) {
-		len = (int32_t)strlen(s);
-	}
-
+	if(len < 0)
+		len = sstrleni(s);
 	for(p = s; len > 0; p++, len--) {
 		if(*p == SEP) {
 			if(!test(state, start, subtagLen)) {

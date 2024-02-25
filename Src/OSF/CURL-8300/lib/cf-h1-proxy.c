@@ -89,7 +89,7 @@ static bool tunnel_is_failed(const struct h1_tunnel_state * ts) { return ts && (
 static CURLcode tunnel_reinit(struct h1_tunnel_state * ts, struct connectdata * conn, struct Curl_easy * data)
 {
 	(void)data;
-	DEBUGASSERT(ts);
+	assert(ts);
 	Curl_dyn_reset(&ts->rcvbuf);
 	Curl_dyn_reset(&ts->req);
 	ts->tunnel_state = H1_TUNNEL_INIT;
@@ -569,7 +569,7 @@ static CURLcode recv_CONNECT_resp(struct Curl_cfilter * cf, struct Curl_easy * d
 			else {
 				ts->keepon = h1_tunnel_state::KEEPON_DONE;
 			}
-			DEBUGASSERT(ts->keepon == h1_tunnel_state::KEEPON_IGNORE || ts->keepon == h1_tunnel_state::KEEPON_DONE);
+			assert(ts->keepon == h1_tunnel_state::KEEPON_IGNORE || ts->keepon == h1_tunnel_state::KEEPON_DONE);
 			continue;
 		}
 		result = on_resp_header(cf, data, ts, linep);
@@ -868,23 +868,17 @@ static CURLcode recv_CONNECT_resp(struct Curl_cfilter * cf,
 
 #endif /* USE_HYPER */
 
-static CURLcode H1_CONNECT(struct Curl_cfilter * cf,
-    struct Curl_easy * data,
-    struct h1_tunnel_state * ts)
+static CURLcode H1_CONNECT(struct Curl_cfilter * cf, struct Curl_easy * data, struct h1_tunnel_state * ts)
 {
 	struct connectdata * conn = cf->conn;
 	CURLcode result;
 	bool done;
-
 	if(tunnel_is_established(ts))
 		return CURLE_OK;
 	if(tunnel_is_failed(ts))
 		return CURLE_RECV_ERROR; /* Need a cfilter close and new bootstrap */
-
 	do {
-		timediff_t check;
-
-		check = Curl_timeleft(data, NULL, TRUE);
+		timediff_t check = Curl_timeleft(data, NULL, TRUE);
 		if(check <= 0) {
 			failf(data, "Proxy CONNECT aborted due to timeout");
 			result = CURLE_OPERATION_TIMEDOUT;
@@ -957,7 +951,7 @@ static CURLcode H1_CONNECT(struct Curl_cfilter * cf,
 		}
 	} while(data->req.newurl);
 
-	DEBUGASSERT(ts->tunnel_state == H1_TUNNEL_RESPONSE);
+	assert(ts->tunnel_state == H1_TUNNEL_RESPONSE);
 	if(data->info.httpproxycode/100 != 2) {
 		/* a non-2xx response and we have no next url to try. */
 		ZFREE(data->req.newurl);
@@ -1078,9 +1072,8 @@ struct Curl_cftype Curl_cft_h1_proxy = {
 CURLcode Curl_cf_h1_proxy_insert_after(struct Curl_cfilter * cf_at, struct Curl_easy * data)
 {
 	struct Curl_cfilter * cf;
-	CURLcode result;
 	(void)data;
-	result = Curl_cf_create(&cf, &Curl_cft_h1_proxy, NULL);
+	CURLcode result = Curl_cf_create(&cf, &Curl_cft_h1_proxy, NULL);
 	if(!result)
 		Curl_conn_cf_insert_after(cf_at, cf);
 	return result;

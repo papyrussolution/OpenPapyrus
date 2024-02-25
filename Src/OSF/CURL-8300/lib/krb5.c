@@ -94,7 +94,7 @@ static CURLcode ftpsend(struct Curl_easy * data, struct connectdata * conn,
 		result = Curl_nwrite(data, FIRSTSOCKET, sptr, write_len,
 			&bytes_written);
 #ifdef HAVE_GSSAPI
-		DEBUGASSERT(data_sec > PROT_NONE && data_sec < PROT_LAST);
+		assert(data_sec > PROT_NONE && data_sec < PROT_LAST);
 		conn->data_prot = data_sec;
 #endif
 
@@ -363,7 +363,7 @@ static void krb5_end(void * app_data)
 	if(*context != GSS_C_NO_CONTEXT) {
 		OM_uint32 maj = gss_delete_sec_context(&min, context, GSS_C_NO_BUFFER);
 		(void)maj;
-		DEBUGASSERT(maj == GSS_S_COMPLETE);
+		assert(maj == GSS_S_COMPLETE);
 	}
 }
 
@@ -391,9 +391,8 @@ static const struct {
 
 static uchar name_to_level(const char * name)
 {
-	int i;
-	for(i = 0; i < (int)sizeof(level_names)/(int)sizeof(level_names[0]); i++)
-		if(curl_strequal(name, level_names[i].name))
+	for(int i = 0; i < (int)sizeof(level_names)/(int)sizeof(level_names[0]); i++)
+		if(sstreqi_ascii(name, level_names[i].name))
 			return level_names[i].level;
 	return PROT_NONE;
 }
@@ -403,21 +402,17 @@ static uchar name_to_level(const char * name)
 static char level_to_char(int level)
 {
 	switch(level) {
-		case PROT_CLEAR:
-		    return 'C';
-		case PROT_SAFE:
-		    return 'S';
-		case PROT_CONFIDENTIAL:
-		    return 'E';
-		case PROT_PRIVATE:
-		    return 'P';
+		case PROT_CLEAR: return 'C';
+		case PROT_SAFE: return 'S';
+		case PROT_CONFIDENTIAL: return 'E';
+		case PROT_PRIVATE: return 'P';
 		case PROT_CMD:
 		/* Fall through */
 		default:
 		    /* Those 2 cases should not be reached! */
 		    break;
 	}
-	DEBUGASSERT(0);
+	assert(0);
 	/* Default to the most secure alternative. */
 	return 'P';
 }
@@ -430,11 +425,9 @@ static int ftp_send_command(struct Curl_easy * data, const char * message, ...)
 	ssize_t nread = 0;
 	va_list args;
 	char print_buffer[50];
-
 	va_start(args, message);
 	mvsnprintf(print_buffer, sizeof(print_buffer), message, args);
 	va_end(args);
-
 	if(ftpsend(data, data->conn, print_buffer)) {
 		ftp_code = -1;
 	}
@@ -592,7 +585,7 @@ static void do_sec_send(struct Curl_easy * data, struct connectdata * conn,
 	enum protection_level prot_level = conn->data_prot;
 	bool iscmd = (prot_level == PROT_CMD)?TRUE:FALSE;
 
-	DEBUGASSERT(prot_level > PROT_NONE && prot_level < PROT_LAST);
+	assert(prot_level > PROT_NONE && prot_level < PROT_LAST);
 
 	if(iscmd) {
 		if(!strncmp(from, "PASS ", 5) || !strncmp(from, "ACCT ", 5))
@@ -681,7 +674,7 @@ int Curl_sec_read_msg(struct Curl_easy * data, struct connectdata * conn,
 		/* not initialized, return error */
 		return -1;
 
-	DEBUGASSERT(level > PROT_NONE && level < PROT_LAST);
+	assert(level > PROT_NONE && level < PROT_LAST);
 
 	error = Curl_base64_decode(buffer + 4, (uchar **)&buf, &decoded_sz);
 	if(error || decoded_sz == 0)
@@ -726,7 +719,7 @@ static int sec_set_protection_level(struct Curl_easy * data)
 	struct connectdata * conn = data->conn;
 	uchar level = conn->request_data_prot;
 
-	DEBUGASSERT(level > PROT_NONE && level < PROT_LAST);
+	assert(level > PROT_NONE && level < PROT_LAST);
 
 	if(!conn->sec_complete) {
 		infof(data, "Trying to change the protection level after the"
@@ -785,7 +778,7 @@ int Curl_sec_request_prot(struct connectdata * conn, const char * level)
 	uchar l = name_to_level(level);
 	if(l == PROT_NONE)
 		return -1;
-	DEBUGASSERT(l > PROT_NONE && l < PROT_LAST);
+	assert(l > PROT_NONE && l < PROT_LAST);
 	conn->request_data_prot = l;
 	return 0;
 }
@@ -846,7 +839,7 @@ static CURLcode choose_mech(struct Curl_easy * data, struct connectdata * conn)
 			/* Mechanism has dumped the error to stderr, don't error here. */
 			return CURLE_USE_SSL_FAILED;
 		}
-		DEBUGASSERT(ret == AUTH_OK);
+		assert(ret == AUTH_OK);
 
 		conn->mech = mech;
 		conn->sec_complete = 1;

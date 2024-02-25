@@ -379,7 +379,7 @@ static int myssh_is_known(struct Curl_easy * data)
 
 		infof(data, "SSH MD5 fingerprint: %s", md5buffer);
 
-		if(!strcasecompare(md5buffer, pubkey_md5)) {
+		if(!sstreqi_ascii(md5buffer, pubkey_md5)) {
 			failf(data,
 			    "Denied establishing ssh session: mismatch md5 fingerprint. "
 			    "Remote %s is not equal to %s", md5buffer, pubkey_md5);
@@ -1980,8 +1980,8 @@ static CURLcode myssh_statemach_act(struct Curl_easy * data, bool * block)
 
 			    /* worst-case scenario cleanup */
 
-			    DEBUGASSERT(sshc->ssh_session == NULL);
-			    DEBUGASSERT(sshc->scp_session == NULL);
+			    assert(sshc->ssh_session == NULL);
+			    assert(sshc->scp_session == NULL);
 
 			    if(sshc->readdir_tmp) {
 				    ssh_string_free_char(sshc->readdir_tmp);
@@ -2586,7 +2586,7 @@ static ssize_t sftp_recv(struct Curl_easy * data, int sockindex,
 	struct connectdata * conn = data->conn;
 	(void)sockindex;
 
-	DEBUGASSERT(len < CURL_MAX_READ_SIZE);
+	assert(len < CURL_MAX_READ_SIZE);
 
 	switch(conn->proto.sshc.sftp_recv_state) {
 		case 0:
@@ -2650,7 +2650,7 @@ static void sftp_quote(struct Curl_easy * data)
 		sshc->acceptfail = TRUE;
 	}
 
-	if(strcasecompare("pwd", cmd)) {
+	if(sstreqi_ascii("pwd", cmd)) {
 		/* output debug output if that is requested */
 		char * tmp = aprintf("257 \"%s\" is current directory.\n",
 			protop->path);

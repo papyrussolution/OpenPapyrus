@@ -277,7 +277,7 @@ void BitTrace(const struct VP8BitReader* const br, const char label[])
 	}
 	if(br->range_ >= 0x7f) pos += kVP8Log2Range[br->range_ - 0x7f];
 	for(i = 0; i < last_label; ++i) {
-		if(!strcmp(label, kLabels[i].label)) break;
+		if(sstreq(label, kLabels[i].label)) break;
 	}
 	if(i == MAX_NUM_LABELS) abort(); // overflow!
 	kLabels[i].label = label;

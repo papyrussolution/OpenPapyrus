@@ -301,7 +301,7 @@ CURLcode vquic_send_tail_split(struct Curl_cfilter * cf, struct Curl_easy * data
     struct cf_quic_ctx * qctx, size_t gsolen,
     size_t tail_len, size_t tail_gsolen)
 {
-	DEBUGASSERT(Curl_bufq_len(&qctx->sendbuf) > tail_len);
+	assert(Curl_bufq_len(&qctx->sendbuf) > tail_len);
 	qctx->split_len = Curl_bufq_len(&qctx->sendbuf) - tail_len;
 	qctx->split_gsolen = gsolen;
 	qctx->gsolen = tail_gsolen;
@@ -328,7 +328,7 @@ static CURLcode recvmmsg_packets(struct Curl_cfilter * cf,
 	char errstr[STRERROR_LEN];
 	CURLcode result = CURLE_OK;
 
-	DEBUGASSERT(max_pkts > 0);
+	assert(max_pkts > 0);
 	pkts = 0;
 	total_nread = 0;
 	while(pkts < max_pkts) {
@@ -407,7 +407,7 @@ static CURLcode recvmsg_packets(struct Curl_cfilter * cf,
 	memzero(&msg, sizeof(msg));
 	msg.msg_iov = &msg_iov;
 	msg.msg_iovlen = 1;
-	DEBUGASSERT(max_pkts > 0);
+	assert(max_pkts > 0);
 	for(pkts = 0, total_nread = 0; pkts < max_pkts;) {
 		msg.msg_name = &remote_addr;
 		msg.msg_namelen = sizeof(remote_addr);
@@ -466,7 +466,7 @@ static CURLcode recvfrom_packets(struct Curl_cfilter * cf,
 	char errstr[STRERROR_LEN];
 	CURLcode result = CURLE_OK;
 
-	DEBUGASSERT(max_pkts > 0);
+	assert(max_pkts > 0);
 	for(pkts = 0, total_nread = 0; pkts < max_pkts;) {
 		while((nread = recvfrom(qctx->sockfd, (char*)buf, bufsize, 0,
 		    (struct sockaddr *)&remote_addr,
@@ -579,7 +579,7 @@ CURLcode Curl_cf_quic_create(struct Curl_cfilter ** pcf,
     int transport)
 {
 	(void)transport;
-	DEBUGASSERT(transport == TRNSPRT_QUIC);
+	assert(transport == TRNSPRT_QUIC);
 #if defined(USE_NGTCP2) && defined(USE_NGHTTP3)
 	return Curl_cf_ngtcp2_create(pcf, data, conn, ai);
 #elif defined(USE_QUICHE)

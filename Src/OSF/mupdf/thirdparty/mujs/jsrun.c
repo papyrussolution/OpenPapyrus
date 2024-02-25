@@ -248,7 +248,7 @@ int js_isuserdata(js_State * J, int idx, const char * tag)
 {
 	js_Value * v = stackidx(J, idx);
 	if(v->type == JS_TOBJECT && v->u.object->type == JS_CUSERDATA)
-		return !strcmp(tag, v->u.object->u.user.tag);
+		return sstreq(tag, v->u.object->u.user.tag);
 	return 0;
 }
 
@@ -339,7 +339,7 @@ void * js_touserdata(js_State * J, int idx, const char * tag)
 {
 	js_Value * v = stackidx(J, idx);
 	if(v->type == JS_TOBJECT && v->u.object->type == JS_CUSERDATA)
-		if(!strcmp(tag, v->u.object->u.user.tag))
+		if(sstreq(tag, v->u.object->u.user.tag))
 			return v->u.object->u.user.data;
 	js_typeerror(J, "not a %s", tag);
 }
@@ -512,14 +512,14 @@ static int jsR_hasproperty(js_State * J, js_Object * obj, const char * name)
 	int k;
 
 	if(obj->type == JS_CARRAY) {
-		if(!strcmp(name, "length")) {
+		if(sstreq(name, "length")) {
 			js_pushnumber(J, obj->u.a.length);
 			return 1;
 		}
 	}
 
 	else if(obj->type == JS_CSTRING) {
-		if(!strcmp(name, "length")) {
+		if(sstreq(name, "length")) {
 			js_pushnumber(J, obj->u.s.length);
 			return 1;
 		}
@@ -532,23 +532,23 @@ static int jsR_hasproperty(js_State * J, js_Object * obj, const char * name)
 	}
 
 	else if(obj->type == JS_CREGEXP) {
-		if(!strcmp(name, "source")) {
+		if(sstreq(name, "source")) {
 			js_pushliteral(J, obj->u.r.source);
 			return 1;
 		}
-		if(!strcmp(name, "global")) {
+		if(sstreq(name, "global")) {
 			js_pushboolean(J, obj->u.r.flags & JS_REGEXP_G);
 			return 1;
 		}
-		if(!strcmp(name, "ignoreCase")) {
+		if(sstreq(name, "ignoreCase")) {
 			js_pushboolean(J, obj->u.r.flags & JS_REGEXP_I);
 			return 1;
 		}
-		if(!strcmp(name, "multiline")) {
+		if(sstreq(name, "multiline")) {
 			js_pushboolean(J, obj->u.r.flags & JS_REGEXP_M);
 			return 1;
 		}
-		if(!strcmp(name, "lastIndex")) {
+		if(sstreq(name, "lastIndex")) {
 			js_pushnumber(J, obj->u.r.last);
 			return 1;
 		}
@@ -589,7 +589,7 @@ static void jsR_setproperty(js_State * J, js_Object * obj, const char * name)
 	int own;
 
 	if(obj->type == JS_CARRAY) {
-		if(!strcmp(name, "length")) {
+		if(sstreq(name, "length")) {
 			double rawlen = jsV_tonumber(J, value);
 			int newlen = jsV_numbertointeger(rawlen);
 			if(newlen != rawlen || newlen < 0)
@@ -603,7 +603,7 @@ static void jsR_setproperty(js_State * J, js_Object * obj, const char * name)
 	}
 
 	else if(obj->type == JS_CSTRING) {
-		if(!strcmp(name, "length"))
+		if(sstreq(name, "length"))
 			goto readonly;
 		if(js_isarrayindex(J, name, &k))
 			if(k >= 0 && k < obj->u.s.length)
@@ -611,11 +611,11 @@ static void jsR_setproperty(js_State * J, js_Object * obj, const char * name)
 	}
 
 	else if(obj->type == JS_CREGEXP) {
-		if(!strcmp(name, "source")) goto readonly;
-		if(!strcmp(name, "global")) goto readonly;
-		if(!strcmp(name, "ignoreCase")) goto readonly;
-		if(!strcmp(name, "multiline")) goto readonly;
-		if(!strcmp(name, "lastIndex")) {
+		if(sstreq(name, "source")) goto readonly;
+		if(sstreq(name, "global")) goto readonly;
+		if(sstreq(name, "ignoreCase")) goto readonly;
+		if(sstreq(name, "multiline")) goto readonly;
+		if(sstreq(name, "lastIndex")) {
 			obj->u.r.last = jsV_tointeger(J, value);
 			return;
 		}
@@ -671,12 +671,12 @@ static void jsR_defproperty(js_State * J, js_Object * obj, const char * name,
 	int k;
 
 	if(obj->type == JS_CARRAY) {
-		if(!strcmp(name, "length"))
+		if(sstreq(name, "length"))
 			goto readonly;
 	}
 
 	else if(obj->type == JS_CSTRING) {
-		if(!strcmp(name, "length"))
+		if(sstreq(name, "length"))
 			goto readonly;
 		if(js_isarrayindex(J, name, &k))
 			if(k >= 0 && k < obj->u.s.length)
@@ -684,11 +684,11 @@ static void jsR_defproperty(js_State * J, js_Object * obj, const char * name,
 	}
 
 	else if(obj->type == JS_CREGEXP) {
-		if(!strcmp(name, "source")) goto readonly;
-		if(!strcmp(name, "global")) goto readonly;
-		if(!strcmp(name, "ignoreCase")) goto readonly;
-		if(!strcmp(name, "multiline")) goto readonly;
-		if(!strcmp(name, "lastIndex")) goto readonly;
+		if(sstreq(name, "source")) goto readonly;
+		if(sstreq(name, "global")) goto readonly;
+		if(sstreq(name, "ignoreCase")) goto readonly;
+		if(sstreq(name, "multiline")) goto readonly;
+		if(sstreq(name, "lastIndex")) goto readonly;
 	}
 
 	else if(obj->type == JS_CUSERDATA) {
@@ -730,26 +730,23 @@ static int jsR_delproperty(js_State * J, js_Object * obj, const char * name)
 {
 	js_Property * ref;
 	int k;
-
 	if(obj->type == JS_CARRAY) {
-		if(!strcmp(name, "length"))
+		if(sstreq(name, "length"))
 			goto dontconf;
 	}
-
 	else if(obj->type == JS_CSTRING) {
-		if(!strcmp(name, "length"))
+		if(sstreq(name, "length"))
 			goto dontconf;
 		if(js_isarrayindex(J, name, &k))
 			if(k >= 0 && k < obj->u.s.length)
 				goto dontconf;
 	}
-
 	else if(obj->type == JS_CREGEXP) {
-		if(!strcmp(name, "source")) goto dontconf;
-		if(!strcmp(name, "global")) goto dontconf;
-		if(!strcmp(name, "ignoreCase")) goto dontconf;
-		if(!strcmp(name, "multiline")) goto dontconf;
-		if(!strcmp(name, "lastIndex")) goto dontconf;
+		if(sstreq(name, "source")) goto dontconf;
+		if(sstreq(name, "global")) goto dontconf;
+		if(sstreq(name, "ignoreCase")) goto dontconf;
+		if(sstreq(name, "multiline")) goto dontconf;
+		if(sstreq(name, "lastIndex")) goto dontconf;
 	}
 
 	else if(obj->type == JS_CUSERDATA) {

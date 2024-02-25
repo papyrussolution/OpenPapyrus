@@ -76,7 +76,7 @@ static int parsenetrc(const char * host,
 	int state_our_login = TRUE; /* With specific_login, found *our* login
 	                               name (or login-less line) */
 
-	DEBUGASSERT(netrcfile);
+	assert(netrcfile);
 
 	file = fopen(netrcfile, FOPEN_READTEXT);
 	if(file) {
@@ -161,20 +161,20 @@ static int parsenetrc(const char * host,
 
 				switch(state) {
 					case NOTHING:
-					    if(strcasecompare("macdef", tok)) {
+					    if(sstreqi_ascii("macdef", tok)) {
 						    /* Define a macro. A macro is defined with the specified name; its
 						       contents begin with the next .netrc line and continue until a
 						       null line (consecutive new-line characters) is encountered. */
 						    state = MACDEF;
 					    }
-					    else if(strcasecompare("machine", tok)) {
+					    else if(sstreqi_ascii("machine", tok)) {
 						    /* the next tok is the machine name, this is in itself the
 						       delimiter that starts the stuff entered for this machine,
 						       after this we need to search for 'login' and
 						       'password'. */
 						    state = HOSTFOUND;
 					    }
-					    else if(strcasecompare("default", tok)) {
+					    else if(sstreqi_ascii("default", tok)) {
 						    state = HOSTVALID;
 						    retcode = NETRC_SUCCESS; /* we did find our host */
 					    }
@@ -185,7 +185,7 @@ static int parsenetrc(const char * host,
 					    }
 					    break;
 					case HOSTFOUND:
-					    if(strcasecompare(host, tok)) {
+					    if(sstreqi_ascii(host, tok)) {
 						    /* and yes, this is our host! */
 						    state = HOSTVALID;
 						    retcode = NETRC_SUCCESS; /* we did find our host */
@@ -230,11 +230,11 @@ static int parsenetrc(const char * host,
 						    }
 						    state_password = 0;
 					    }
-					    else if(strcasecompare("login", tok))
+					    else if(sstreqi_ascii("login", tok))
 						    state_login = 1;
-					    else if(strcasecompare("password", tok))
+					    else if(sstreqi_ascii("password", tok))
 						    state_password = 1;
-					    else if(strcasecompare("machine", tok)) {
+					    else if(sstreqi_ascii("machine", tok)) {
 						    /* ok, there's machine here go => */
 						    state = HOSTFOUND;
 						    state_our_login = FALSE;

@@ -35,17 +35,10 @@ struct st_table_entry {
 static int numcmp(long, long);
 static int numhash(long);
 
-static struct st_hash_type type_numhash = {
-	(int (*)(void *, void *))numcmp,
-	(int (*)(void *))numhash,
-};
-
+static struct st_hash_type type_numhash = { (int (*)(void *, void *))numcmp, (int (*)(void *))numhash, };
 /* extern int strcmp(const char *, const char *); */
 static int strhash(const char *);
-static struct st_hash_type type_strhash = {
-	(int (*)(void *, void *))strcmp,
-	(int (*)(void *))strhash,
-};
+static struct st_hash_type type_strhash = { (int (*)(void *, void *))strcmp, (int (*)(void *))strhash, };
 
 static void rehash(st_table *);
 

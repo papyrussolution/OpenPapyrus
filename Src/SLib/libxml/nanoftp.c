@@ -372,37 +372,28 @@ int xmlNanoFTPUpdateURL(void * ctx, const char * URL) {
 		return(-1);
 	if(ctxt->hostname == NULL)
 		return(-1);
-
 	uri = xmlParseURIRaw(URL, 1);
 	if(uri == NULL)
 		return(-1);
-
 	if((uri->scheme == NULL) || (uri->server == NULL)) {
 		xmlFreeURI(uri);
 		return(-1);
 	}
-	if((strcmp(ctxt->protocol, uri->scheme)) ||
-	    (strcmp(ctxt->hostname, uri->server)) ||
-	    ((uri->port != 0) && (ctxt->port != uri->port))) {
+	if((strcmp(ctxt->protocol, uri->scheme)) || (strcmp(ctxt->hostname, uri->server)) || ((uri->port != 0) && (ctxt->port != uri->port))) {
 		xmlFreeURI(uri);
 		return(-1);
 	}
-
 	if(uri->port != 0)
 		ctxt->port = uri->port;
-
 	if(ctxt->path != NULL) {
 		xmlFree(ctxt->path);
 		ctxt->path = NULL;
 	}
-
 	if(uri->path == NULL)
 		ctxt->path = xmlMemStrdup("/");
 	else
 		ctxt->path = xmlMemStrdup(uri->path);
-
 	xmlFreeURI(uri);
-
 	return(0);
 }
 
@@ -427,27 +418,22 @@ void xmlNanoFTPScanProxy(const char * URL) {
 
 #ifdef DEBUG_FTP
 	if(URL == NULL)
-		xmlGenericError(xmlGenericErrorContext,
-		    "Removing FTP proxy info\n");
+		xmlGenericError(xmlGenericErrorContext, "Removing FTP proxy info\n");
 	else
-		xmlGenericError(xmlGenericErrorContext,
-		    "Using FTP proxy %s\n", URL);
+		xmlGenericError(xmlGenericErrorContext, "Using FTP proxy %s\n", URL);
 #endif
-	if(URL == NULL) return;
-
+	if(URL == NULL) 
+		return;
 	uri = xmlParseURIRaw(URL, 1);
-	if((uri == NULL) || (uri->scheme == NULL) ||
-	    (strcmp(uri->scheme, "ftp")) || (uri->server == NULL)) {
+	if((uri == NULL) || (uri->scheme == NULL) || (strcmp(uri->scheme, "ftp")) || (uri->server == NULL)) {
 		__xmlIOErr(XML_FROM_FTP, XML_FTP_URL_SYNTAX, "Syntax Error\n");
 		if(uri != NULL)
 			xmlFreeURI(uri);
 		return;
 	}
-
 	proxy = xmlMemStrdup(uri->server);
 	if(uri->port != 0)
 		proxyPort = uri->port;
-
 	xmlFreeURI(uri);
 }
 
@@ -495,16 +481,17 @@ void* xmlNanoFTPNewCtxt(const char * URL) {
 void xmlNanoFTPFreeCtxt(void * ctx) 
 {
 	xmlNanoFTPCtxtPtr ctxt = (xmlNanoFTPCtxtPtr)ctx;
-	if(ctxt == NULL) return;
-	if(ctxt->hostname != NULL) xmlFree(ctxt->hostname);
-	if(ctxt->protocol != NULL) xmlFree(ctxt->protocol);
-	if(ctxt->path != NULL) xmlFree(ctxt->path);
-	ctxt->passive = 1;
-	if(ctxt->controlFd != INVALID_SOCKET) closesocket(ctxt->controlFd);
-	ctxt->controlFd = INVALID_SOCKET;
-	ctxt->controlBufIndex = -1;
-	ctxt->controlBufUsed = -1;
-	xmlFree(ctxt);
+	if(ctxt) {
+		if(ctxt->hostname != NULL) xmlFree(ctxt->hostname);
+		if(ctxt->protocol != NULL) xmlFree(ctxt->protocol);
+		if(ctxt->path != NULL) xmlFree(ctxt->path);
+		ctxt->passive = 1;
+		if(ctxt->controlFd != INVALID_SOCKET) closesocket(ctxt->controlFd);
+		ctxt->controlFd = INVALID_SOCKET;
+		ctxt->controlBufIndex = -1;
+		ctxt->controlBufUsed = -1;
+		xmlFree(ctxt);
+	}
 }
 /**
  * xmlNanoFTPParseResponse:

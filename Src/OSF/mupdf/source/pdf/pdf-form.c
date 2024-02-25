@@ -1447,29 +1447,23 @@ static pdf_obj * get_locked_fields_from_xfa(fz_context * ctx, pdf_document * doc
 		return NULL;
 	if(*use == '#')
 		use++;
-
 	/* Now look for a variables entry in a subform that defines this. */
 	while(node) {
 		fz_xml * variables, * manifest, * ref;
 		pdf_obj * arr;
-
 		/* Find the enclosing subform */
 		do {
 			node = fz_xml_up(node);
 		} while(node && strcmp(fz_xml_tag(node), "subform"));
-
 		/* Look for a variables within that. */
 		variables = fz_xml_find_down(node, "variables");
 		if(variables == NULL)
 			continue;
-
 		manifest = fz_xml_find_down_match(variables, "manifest", "id", use);
 		if(manifest == NULL)
 			continue;
-
 		arr = pdf_new_array(ctx, doc, 16);
-		fz_try(ctx)
-		{
+		fz_try(ctx) {
 			ref = fz_xml_find_down(manifest, "ref");
 			while(ref) {
 				const char * s = fz_xml_text(fz_xml_down(ref));

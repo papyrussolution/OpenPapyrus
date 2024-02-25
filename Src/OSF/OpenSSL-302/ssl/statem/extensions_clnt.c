@@ -804,10 +804,7 @@ EXT_RETURN tls_construct_ctos_early_data(SSL * s, WPACKET * pkt,
 		}
 		s->psksession_id_len = idlen;
 	}
-
-	if(s->early_data_state != SSL_EARLY_DATA_CONNECTING
-	    || (s->session->ext.max_early_data == 0
-	    && (psksess == NULL || psksess->ext.max_early_data == 0))) {
+	if(s->early_data_state != SSL_EARLY_DATA_CONNECTING || (s->session->ext.max_early_data == 0 && (psksess == NULL || psksess->ext.max_early_data == 0))) {
 		s->max_early_data = 0;
 		return EXT_RETURN_NOT_SENT;
 	}
@@ -815,20 +812,15 @@ EXT_RETURN tls_construct_ctos_early_data(SSL * s, WPACKET * pkt,
 	s->max_early_data = edsess->ext.max_early_data;
 
 	if(edsess->ext.hostname != NULL) {
-		if(s->ext.hostname == NULL
-		    || (s->ext.hostname != NULL
-		    && strcmp(s->ext.hostname, edsess->ext.hostname) != 0)) {
-			SSLfatal(s, SSL_AD_INTERNAL_ERROR,
-			    SSL_R_INCONSISTENT_EARLY_DATA_SNI);
+		if(s->ext.hostname == NULL || (s->ext.hostname != NULL && strcmp(s->ext.hostname, edsess->ext.hostname) != 0)) {
+			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_R_INCONSISTENT_EARLY_DATA_SNI);
 			return EXT_RETURN_FAIL;
 		}
 	}
-
 	if((s->ext.alpn == NULL && edsess->ext.alpn_selected != NULL)) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_R_INCONSISTENT_EARLY_DATA_ALPN);
 		return EXT_RETURN_FAIL;
 	}
-
 	/*
 	 * Verify that we are offering an ALPN protocol consistent with the early
 	 * data.
@@ -836,7 +828,6 @@ EXT_RETURN tls_construct_ctos_early_data(SSL * s, WPACKET * pkt,
 	if(edsess->ext.alpn_selected != NULL) {
 		PACKET prots, alpnpkt;
 		int found = 0;
-
 		if(!PACKET_buf_init(&prots, s->ext.alpn, s->ext.alpn_len)) {
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
 			return EXT_RETURN_FAIL;

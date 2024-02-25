@@ -284,29 +284,24 @@ int main(int argc, char ** argv)
 		return(1);
 	}
 	for(i = 1; i < argc; i++) {
-		if(!strcmp(argv[i], "-"))
+		if(sstreq(argv[i], "-"))
 			break;
-
 		if(argv[i][0] != '-')
 			continue;
-		if(!strcmp(argv[i], "--"))
+		if(sstreq(argv[i], "--"))
 			break;
-
-		if((!strcmp(argv[i], "-debug")) || (!strcmp(argv[i], "--debug"))) {
+		if((sstreq(argv[i], "-debug")) || (sstreq(argv[i], "--debug"))) {
 			debug++;
 		}
-		else if((!strcmp(argv[i], "-repeat")) ||
-		    (!strcmp(argv[i], "--repeat"))) {
+		else if((sstreq(argv[i], "-repeat")) || (sstreq(argv[i], "--repeat"))) {
 			repeat++;
 #ifdef LIBXML_EXPR_ENABLED
 		}
-		else if((!strcmp(argv[i], "-expr")) ||
-		    (!strcmp(argv[i], "--expr"))) {
+		else if((sstreq(argv[i], "-expr")) || (sstreq(argv[i], "--expr"))) {
 			use_exp++;
 #endif
 		}
-		else if((!strcmp(argv[i], "-i")) || (!strcmp(argv[i], "-f")) ||
-		    (!strcmp(argv[i], "--input")))
+		else if((sstreq(argv[i], "-i")) || (sstreq(argv[i], "-f")) || (sstreq(argv[i], "--input")))
 			filename = argv[++i];
 		else {
 			fprintf(stderr, "Unknown option %s\n", argv[i]);
@@ -335,8 +330,7 @@ int main(int argc, char ** argv)
 			for(i = 1; i < argc; i++) {
 				if(strcmp(argv[i], "--") == 0)
 					data = 1;
-				else if((argv[i][0] != '-') || (strcmp(argv[i], "-") == 0) ||
-				    (data == 1)) {
+				else if((argv[i][0] != '-') || (strcmp(argv[i], "-") == 0) || (data == 1)) {
 					if(pattern == NULL) {
 						pattern = argv[i];
 						printf("Testing expr %s:\n", pattern);
@@ -365,8 +359,7 @@ int main(int argc, char ** argv)
 			for(i = 1; i < argc; i++) {
 				if(strcmp(argv[i], "--") == 0)
 					data = 1;
-				else if((argv[i][0] != '-') || (strcmp(argv[i], "-") == 0) ||
-				    (data == 1)) {
+				else if((argv[i][0] != '-') || (strcmp(argv[i], "-") == 0) || (data == 1)) {
 					if(pattern == NULL) {
 						pattern = argv[i];
 						printf("Testing %s:\n", pattern);

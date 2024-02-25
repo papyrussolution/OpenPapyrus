@@ -59,7 +59,7 @@ void Curl_h1_req_parse_free(struct h1_req_parser * parser)
 
 static CURLcode trim_line(struct h1_req_parser * parser, int options)
 {
-	DEBUGASSERT(parser->line);
+	assert(parser->line);
 	if(parser->line_len) {
 		if(parser->line[parser->line_len - 1] == '\n')
 			--parser->line_len;
@@ -84,7 +84,7 @@ static CURLcode trim_line(struct h1_req_parser * parser, int options)
 static ssize_t detect_line(struct h1_req_parser * parser, const char * buf, const size_t buflen, CURLcode * err)
 {
 	const char  * line_end;
-	DEBUGASSERT(!parser->line);
+	assert(!parser->line);
 	line_end = (const char *)smemchr(buf, '\n', buflen);
 	if(!line_end) {
 		*err = CURLE_AGAIN;
@@ -137,7 +137,7 @@ static CURLcode start_req(struct h1_req_parser * parser, const char * scheme_def
 	size_t i;
 	CURLU * url = NULL;
 	CURLcode result = CURLE_URL_MALFORMAT; /* Use this as default fail */
-	DEBUGASSERT(!parser->req);
+	assert(!parser->req);
 	/* line must match: "METHOD TARGET HTTP_VERSION" */
 	p = (const char *)smemchr(parser->line, ' ', parser->line_len);
 	if(!p || p == parser->line)

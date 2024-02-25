@@ -886,9 +886,9 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED)
 	int subset = 0;
 	initializeLibxml2();
 	for(a = 1; a < argc; a++) {
-		if(!strcmp(argv[a], "-v"))
+		if(sstreq(argv[a], "-v"))
 			verbose = 1;
-		else if(!strcmp(argv[a], "-quiet"))
+		else if(sstreq(argv[a], "-quiet"))
 			tests_quiet = 1;
 		else {
 			for(i = 0; testDescriptions[i].func != NULL; i++) {

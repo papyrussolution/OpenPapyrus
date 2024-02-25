@@ -155,7 +155,7 @@ static CURLcode baller_connected(struct Curl_cfilter * cf, struct Curl_easy * da
 	struct cf_hc_ctx * ctx = (cf_hc_ctx *)cf->ctx;
 	CURLcode result = CURLE_OK;
 
-	DEBUGASSERT(winner->cf);
+	assert(winner->cf);
 	if(winner != &ctx->h3_baller)
 		cf_hc_baller_reset(&ctx->h3_baller, data);
 	if(winner != &ctx->h21_baller)
@@ -241,9 +241,9 @@ static CURLcode cf_hc_connect(struct Curl_cfilter * cf, struct Curl_easy * data,
 	now = Curl_now();
 	switch(ctx->state) {
 		case CF_HC_INIT:
-		    DEBUGASSERT(!ctx->h3_baller.cf);
-		    DEBUGASSERT(!ctx->h21_baller.cf);
-		    DEBUGASSERT(!cf->next);
+		    assert(!ctx->h3_baller.cf);
+		    assert(!ctx->h21_baller.cf);
+		    assert(!cf->next);
 		    CURL_TRC_CF(data, cf, "connect, init");
 		    ctx->started = now;
 		    if(ctx->h3_baller.enabled) {
@@ -476,7 +476,7 @@ static CURLcode cf_http_connect_add(struct Curl_easy * data,
 	struct Curl_cfilter * cf;
 	CURLcode result = CURLE_OK;
 
-	DEBUGASSERT(data);
+	assert(data);
 	result = cf_hc_create(&cf, data, remotehost, try_h3, try_h21);
 	if(result)
 		goto out;

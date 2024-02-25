@@ -119,18 +119,15 @@ static CURLcode setstropt_userpwd(char * option, char ** userp, char ** passwdp)
 				if(!user)
 					result = CURLE_OUT_OF_MEMORY;
 			}
-
-			ZFREE(*userp);
+			SAlloc::F(*userp);
 			*userp = user;
 		}
-
 		/* Store the password part of option if required */
 		if(passwdp) {
-			ZFREE(*passwdp);
+			SAlloc::F(*passwdp);
 			*passwdp = passwd;
 		}
 	}
-
 	return result;
 }
 
@@ -141,33 +138,25 @@ static CURLcode protocol2num(const char * str, curl_prot_t * val)
 {
 	if(!str)
 		return CURLE_BAD_FUNCTION_ARGUMENT;
-
-	if(curl_strequal(str, "all")) {
+	if(sstreqi_ascii(str, "all")) {
 		*val = ~(curl_prot_t)0;
 		return CURLE_OK;
 	}
-
 	*val = 0;
-
 	do {
 		const char * token = str;
 		size_t tlen;
-
 		str = strchr(str, ',');
 		tlen = str? (size_t)(str - token): strlen(token);
 		if(tlen) {
 			const struct Curl_handler * h = Curl_builtin_scheme(token, tlen);
-
 			if(!h)
 				return CURLE_UNSUPPORTED_PROTOCOL;
-
 			*val |= h->protocol;
 		}
 	} while(str && str++);
-
 	if(!*val)
-		/* no protocol listed */
-		return CURLE_BAD_FUNCTION_ARGUMENT;
+		return CURLE_BAD_FUNCTION_ARGUMENT; /* no protocol listed */
 	return CURLE_OK;
 }
 
@@ -182,7 +171,6 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 	long arg;
 	unsigned long uarg;
 	curl_off_t bigsize;
-
 	switch(option) {
 		case CURLOPT_DNS_CACHE_TIMEOUT:
 		    arg = va_arg(param, long);
@@ -811,23 +799,23 @@ CURLcode Curl_vsetopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    if(!argptr)
 			    break;
 
-		    if(strcasecompare(argptr, "ALL")) {
+		    if(sstreqi_ascii(argptr, "ALL")) {
 			    /* clear all cookies */
 			    Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
 			    Curl_cookie_clearall(data->cookies);
 			    Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
 		    }
-		    else if(strcasecompare(argptr, "SESS")) {
+		    else if(sstreqi_ascii(argptr, "SESS")) {
 			    /* clear session cookies */
 			    Curl_share_lock(data, CURL_LOCK_DATA_COOKIE, CURL_LOCK_ACCESS_SINGLE);
 			    Curl_cookie_clearsess(data->cookies);
 			    Curl_share_unlock(data, CURL_LOCK_DATA_COOKIE);
 		    }
-		    else if(strcasecompare(argptr, "FLUSH")) {
+		    else if(sstreqi_ascii(argptr, "FLUSH")) {
 			    /* flush cookies to file, takes care of the locking */
 			    Curl_flush_cookies(data, FALSE);
 		    }
-		    else if(strcasecompare(argptr, "RELOAD")) {
+		    else if(sstreqi_ascii(argptr, "RELOAD")) {
 			    /* reload cookies from file */
 			    Curl_cookie_loadfiles(data);
 			    break;

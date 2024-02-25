@@ -28,14 +28,9 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_ALTSVC)
-//#include <curl/curl.h>
-//#include "urldata.h"
 #include "altsvc.h"
 #include "curl_get_line.h"
-//#include "strcase.h"
 #include "parsedate.h"
-//#include "sendf.h"
-//#include "warnless.h"
 #include "fopen.h"
 #include "rename.h"
 #include "strdup.h"
@@ -56,12 +51,13 @@
 
 #define H3VERSION "h3"
 
-static enum alpnid alpn2alpnid(char * name) {
-	if(strcasecompare(name, "h1"))
+static enum alpnid alpn2alpnid(char * name) 
+{
+	if(sstreqi_ascii(name, "h1"))
 		return ALPN_h1;
-	if(strcasecompare(name, "h2"))
+	if(sstreqi_ascii(name, "h2"))
 		return ALPN_h2;
-	if(strcasecompare(name, H3VERSION))
+	if(sstreqi_ascii(name, H3VERSION))
 		return ALPN_h3;
 	return ALPN_none; /* unknown, probably rubbish input */
 }
@@ -70,14 +66,10 @@ static enum alpnid alpn2alpnid(char * name) {
 const char *Curl_alpnid2str(enum alpnid id)
 {
 	switch(id) {
-		case ALPN_h1:
-		    return "h1";
-		case ALPN_h2:
-		    return "h2";
-		case ALPN_h3:
-		    return H3VERSION;
-		default:
-		    return ""; /* bad */
+		case ALPN_h1: return "h1";
+		case ALPN_h2: return "h2";
+		case ALPN_h3: return H3VERSION;
+		default: return ""; /* bad */
 	}
 }
 
@@ -98,8 +90,8 @@ static struct altsvc *altsvc_createid(const char * srchost, const char * dsthost
 		return NULL;
 	hlen = strlen(srchost);
 	dlen = strlen(dsthost);
-	DEBUGASSERT(hlen);
-	DEBUGASSERT(dlen);
+	assert(hlen);
+	assert(dlen);
 	if(!hlen || !dlen)
 		/* bad input */
 		return NULL;
@@ -311,9 +303,8 @@ struct altsvcinfo *Curl_altsvc_init(void)
  */
 CURLcode Curl_altsvc_load(struct altsvcinfo * asi, const char * file)
 {
-	CURLcode result;
-	DEBUGASSERT(asi);
-	result = altsvc_load(asi, file);
+	assert(asi);
+	CURLcode result = altsvc_load(asi, file);
 	return result;
 }
 
@@ -322,7 +313,7 @@ CURLcode Curl_altsvc_load(struct altsvcinfo * asi, const char * file)
  */
 CURLcode Curl_altsvc_ctrl(struct altsvcinfo * asi, const long ctrl)
 {
-	DEBUGASSERT(asi);
+	assert(asi);
 	if(!ctrl)
 		/* unexpected */
 		return CURLE_BAD_FUNCTION_ARGUMENT;
@@ -501,10 +492,10 @@ CURLcode Curl_altsvc_parse(struct Curl_easy * data,
 		return CURLE_OK;
 	}
 
-	DEBUGASSERT(asi);
+	assert(asi);
 
 	/* "clear" is a magic keyword */
-	if(strcasecompare(alpnbuf, "clear")) {
+	if(sstreqi_ascii(alpnbuf, "clear")) {
 		/* Flush cached alternatives for this source origin */
 		altsvc_flush(asi, srcalpnid, srchost, srcport);
 		return CURLE_OK;
@@ -619,9 +610,9 @@ CURLcode Curl_altsvc_parse(struct Curl_easy * data,
 					}
 					num = strtoul(value_ptr, &end_ptr, 10);
 					if((end_ptr != value_ptr) && (num < ULONG_MAX)) {
-						if(strcasecompare("ma", option))
+						if(sstreqi_ascii("ma", option))
 							maxage = num;
-						else if(strcasecompare("persist", option) && (num == 1))
+						else if(sstreqi_ascii("persist", option) && (num == 1))
 							persist = TRUE;
 					}
 				}
@@ -669,9 +660,9 @@ bool Curl_altsvc_lookup(struct altsvcinfo * asi, enum alpnid srcalpnid, const ch
 	struct Curl_llist_element * e;
 	struct Curl_llist_element * n;
 	time_t now = time(NULL);
-	DEBUGASSERT(asi);
-	DEBUGASSERT(srchost);
-	DEBUGASSERT(dstentry);
+	assert(asi);
+	assert(srchost);
+	assert(dstentry);
 	for(e = asi->list.head; e; e = n) {
 		struct altsvc * as = (altsvc *)e->ptr;
 		n = e->next;

@@ -96,8 +96,8 @@
 
 static CURLcode blobdup(struct curl_blob ** dest, struct curl_blob * src)
 {
-	DEBUGASSERT(dest);
-	DEBUGASSERT(!*dest);
+	assert(dest);
+	assert(!*dest);
 	if(src) {
 		/* only if there's data to dupe! */
 		struct curl_blob * d = (curl_blob *)SAlloc::M(sizeof(struct curl_blob) + src->len);
@@ -165,19 +165,17 @@ bool Curl_ssl_config_matches(struct ssl_primary_config * data,
 	    blobcmp(data->cert_blob, needle->cert_blob) &&
 	    blobcmp(data->ca_info_blob, needle->ca_info_blob) &&
 	    blobcmp(data->issuercert_blob, needle->issuercert_blob) &&
-	    Curl_safecmp(data->CApath, needle->CApath) &&
-	    Curl_safecmp(data->CAfile, needle->CAfile) &&
-	    Curl_safecmp(data->issuercert, needle->issuercert) &&
-	    Curl_safecmp(data->clientcert, needle->clientcert) &&
+	    Curl_safecmp(data->CApath, needle->CApath) && Curl_safecmp(data->CAfile, needle->CAfile) &&
+	    Curl_safecmp(data->issuercert, needle->issuercert) && Curl_safecmp(data->clientcert, needle->clientcert) &&
 #ifdef USE_TLS_SRP
 	    !Curl_timestrcmp(data->username, needle->username) &&
 	    !Curl_timestrcmp(data->password, needle->password) &&
 #endif
-	    strcasecompare(data->cipher_list, needle->cipher_list) &&
-	    strcasecompare(data->cipher_list13, needle->cipher_list13) &&
-	    strcasecompare(data->curves, needle->curves) &&
-	    strcasecompare(data->CRLfile, needle->CRLfile) &&
-	    strcasecompare(data->pinned_key, needle->pinned_key))
+	    sstreqi_ascii(data->cipher_list, needle->cipher_list) &&
+	    sstreqi_ascii(data->cipher_list13, needle->cipher_list13) &&
+	    sstreqi_ascii(data->curves, needle->curves) &&
+	    sstreqi_ascii(data->CRLfile, needle->CRLfile) &&
+	    sstreqi_ascii(data->pinned_key, needle->pinned_key))
 		return TRUE;
 
 	return FALSE;
@@ -344,7 +342,7 @@ static CURLcode ssl_connect(struct Curl_cfilter * cf, struct Curl_easy * data)
 	connssl->state = ssl_connection_negotiating;
 	result = Curl_ssl->connect_blocking(cf, data);
 	if(!result) {
-		DEBUGASSERT(connssl->state == ssl_connection_complete);
+		assert(connssl->state == ssl_connection_complete);
 	}
 	return result;
 }
@@ -395,7 +393,7 @@ bool Curl_ssl_getsessionid(struct Curl_cfilter * cf, struct Curl_easy * data, vo
 	if(!ssl_config)
 		return TRUE;
 
-	DEBUGASSERT(ssl_config->primary.sessionid);
+	assert(ssl_config->primary.sessionid);
 
 	if(!ssl_config->primary.sessionid || !data->state.session)
 		/* session ID reuse is disabled or the session cache has not been
@@ -413,15 +411,15 @@ bool Curl_ssl_getsessionid(struct Curl_cfilter * cf, struct Curl_easy * data, vo
 		if(!check->sessionid)
 			/* not session ID means blank entry */
 			continue;
-		if(strcasecompare(connssl->hostname, check->name) &&
+		if(sstreqi_ascii(connssl->hostname, check->name) &&
 		    ((!cf->conn->bits.conn_to_host && !check->conn_to_host) ||
 		    (cf->conn->bits.conn_to_host && check->conn_to_host &&
-		    strcasecompare(cf->conn->conn_to_host.name, check->conn_to_host))) &&
+		    sstreqi_ascii(cf->conn->conn_to_host.name, check->conn_to_host))) &&
 		    ((!cf->conn->bits.conn_to_port && check->conn_to_port == -1) ||
 		    (cf->conn->bits.conn_to_port && check->conn_to_port != -1 &&
 		    cf->conn->conn_to_port == check->conn_to_port)) &&
 		    (connssl->port == check->remote_port) &&
-		    strcasecompare(cf->conn->handler->scheme, check->scheme) &&
+		    sstreqi_ascii(cf->conn->handler->scheme, check->scheme) &&
 		    Curl_ssl_config_matches(conn_config, &check->ssl_config)) {
 			/* yes, we have a session ID! */
 			(*general_age)++; /* increase general age */
@@ -511,7 +509,7 @@ CURLcode Curl_ssl_addsessionid(struct Curl_cfilter * cf,
 	store = &data->state.session[0];
 	oldest_age = data->state.session[0].age; /* zero if unused */
 	(void)ssl_config;
-	DEBUGASSERT(ssl_config->primary.sessionid);
+	assert(ssl_config->primary.sessionid);
 
 	clone_host = strdup(connssl->hostname);
 	if(!clone_host)
@@ -1292,7 +1290,7 @@ static int multissl_setup(const struct Curl_ssl * backend)
 	if(env) {
 		int i;
 		for(i = 0; available_backends[i]; i++) {
-			if(strcasecompare(env, available_backends[i]->info.name)) {
+			if(sstreqi_ascii(env, available_backends[i]->info.name)) {
 				Curl_ssl = available_backends[i];
 				SAlloc::F(env_tmp);
 				return 0;
@@ -1308,38 +1306,29 @@ static int multissl_setup(const struct Curl_ssl * backend)
 
 /* This function is used to select the SSL backend to use. It is called by
    curl_global_sslset (easy.c) which uses the global init lock. */
-CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const char * name,
-    const curl_ssl_backend *** avail)
+CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const char * name, const curl_ssl_backend *** avail)
 {
 	int i;
-
 	if(avail)
 		*avail = (const curl_ssl_backend **)&available_backends;
-
 	if(Curl_ssl != &Curl_ssl_multi)
-		return id == Curl_ssl->info.id ||
-		       (name && strcasecompare(name, Curl_ssl->info.name)) ?
-		       CURLSSLSET_OK :
+		return id == Curl_ssl->info.id || (name && sstreqi_ascii(name, Curl_ssl->info.name)) ? CURLSSLSET_OK :
 #if defined(CURL_WITH_MULTI_SSL)
 		       CURLSSLSET_TOO_LATE;
 #else
 		       CURLSSLSET_UNKNOWN_BACKEND;
 #endif
-
 	for(i = 0; available_backends[i]; i++) {
-		if(available_backends[i]->info.id == id ||
-		    (name && strcasecompare(available_backends[i]->info.name, name))) {
+		if(available_backends[i]->info.id == id || (name && sstreqi_ascii(available_backends[i]->info.name, name))) {
 			multissl_setup(available_backends[i]);
 			return CURLSSLSET_OK;
 		}
 	}
-
 	return CURLSSLSET_UNKNOWN_BACKEND;
 }
 
 #else /* USE_SSL */
-CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const char * name,
-    const curl_ssl_backend *** avail)
+CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const char * name, const curl_ssl_backend *** avail)
 {
 	(void)id;
 	(void)name;
@@ -1394,17 +1383,15 @@ static CURLcode reinit_hostname(struct Curl_cfilter * cf)
 		edispname = cf->conn->host.dispname;
 		eport = cf->conn->remote_port;
 	}
-
 	/* change if ehostname changed */
-	if(ehostname && (!connssl->hostname
-	    || strcmp(ehostname, connssl->hostname))) {
+	if(ehostname && (!connssl->hostname || strcmp(ehostname, connssl->hostname))) {
 		free_hostname(connssl);
 		connssl->hostname = strdup(ehostname);
 		if(!connssl->hostname) {
 			free_hostname(connssl);
 			return CURLE_OUT_OF_MEMORY;
 		}
-		if(!edispname || !strcmp(ehostname, edispname))
+		if(!edispname || sstreq(ehostname, edispname))
 			connssl->dispname = connssl->hostname;
 		else {
 			connssl->dispname = strdup(edispname);
@@ -1449,10 +1436,10 @@ static CURLcode ssl_cf_connect(struct Curl_cfilter * cf, struct Curl_easy * data
 	CF_DATA_SAVE(save, cf, data);
 	CURL_TRC_CF(data, cf, "cf_connect()");
 	(void)connssl;
-	DEBUGASSERT(data->conn);
-	DEBUGASSERT(data->conn == cf->conn);
-	DEBUGASSERT(connssl);
-	DEBUGASSERT(cf->conn->host.name);
+	assert(data->conn);
+	assert(data->conn == cf->conn);
+	assert(connssl);
+	assert(cf->conn->host.name);
 
 	result = cf->next->cft->do_connect(cf->next, data, blocking, done);
 	if(result || !*done)
@@ -1474,7 +1461,7 @@ static CURLcode ssl_cf_connect(struct Curl_cfilter * cf, struct Curl_easy * data
 	if(!result && *done) {
 		cf->connected = TRUE;
 		connssl->handshake_done = Curl_now();
-		DEBUGASSERT(connssl->state == ssl_connection_complete);
+		assert(connssl->state == ssl_connection_complete);
 	}
 out:
 	CURL_TRC_CF(data, cf, "cf_connect() -> %d, done=%d", result, *done);
@@ -1522,7 +1509,7 @@ static ssize_t ssl_cf_recv(struct Curl_cfilter * cf,
 	*err = CURLE_OK;
 	nread = Curl_ssl->recv_plain(cf, data, buf, len, err);
 	if(nread > 0) {
-		DEBUGASSERT((size_t)nread <= len);
+		assert((size_t)nread <= len);
 	}
 	else if(nread == 0) {
 		/* eof */
@@ -1669,7 +1656,7 @@ static CURLcode cf_ssl_create(struct Curl_cfilter ** pcf,
 	struct ssl_connect_data * ctx;
 	CURLcode result;
 
-	DEBUGASSERT(data->conn);
+	assert(data->conn);
 
 	ctx = cf_ctx_new(data, alpn_get_spec(data->state.httpwant,
 		conn->bits.tls_enable_alpn));
@@ -1836,7 +1823,7 @@ struct ssl_config_data *Curl_ssl_get_config(struct Curl_easy * data, int sockind
 	struct Curl_cfilter * cf;
 
 	(void)data;
-	DEBUGASSERT(data->conn);
+	assert(data->conn);
 	cf = get_ssl_cf_engaged(data->conn, sockindex);
 	return cf? Curl_ssl_cf_get_config(cf, data) : &data->set.ssl;
 }

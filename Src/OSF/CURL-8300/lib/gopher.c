@@ -147,7 +147,7 @@ static CURLcode gopher_do(struct Curl_easy * data, bool * done)
 	*done = TRUE; /* unconditionally */
 
 	/* path is guaranteed non-NULL */
-	DEBUGASSERT(path);
+	assert(path);
 
 	if(query)
 		gopherpath = aprintf("%s?%s", path, query);

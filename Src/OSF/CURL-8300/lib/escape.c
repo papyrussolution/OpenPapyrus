@@ -147,8 +147,8 @@ CURLcode Curl_urldecode(const char * string, size_t length, char ** ostring, siz
 {
 	size_t alloc;
 	char * ns;
-	DEBUGASSERT(string);
-	DEBUGASSERT(ctrl >= REJECT_NADA); /* crash on TRUE/FALSE */
+	assert(string);
+	assert(ctrl >= REJECT_NADA); /* crash on TRUE/FALSE */
 	alloc = (length?length:strlen(string));
 	ns = (char *)SAlloc::M(alloc + 1);
 	if(!ns)

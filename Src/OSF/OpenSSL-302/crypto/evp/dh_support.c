@@ -28,8 +28,7 @@ typedef struct dh_name2id_st {
 #define TYPE_DHX   0
 #endif
 
-static const DH_GENTYPE_NAME2ID dhtype2id[] =
-{
+static const DH_GENTYPE_NAME2ID dhtype2id[] = {
 	{ "group", DH_PARAMGEN_TYPE_GROUP, TYPE_ANY },
 	{ "generator", DH_PARAMGEN_TYPE_GENERATOR, TYPE_DH },
 	{ "fips186_4", DH_PARAMGEN_TYPE_FIPS_186_4, TYPE_DHX },
@@ -38,8 +37,7 @@ static const DH_GENTYPE_NAME2ID dhtype2id[] =
 
 const char * ossl_dh_gen_type_id2name(int id)
 {
-	size_t i;
-	for(i = 0; i < SIZEOFARRAY(dhtype2id); ++i) {
+	for(size_t i = 0; i < SIZEOFARRAY(dhtype2id); ++i) {
 		if(dhtype2id[i].id == id)
 			return dhtype2id[i].name;
 	}
@@ -49,11 +47,8 @@ const char * ossl_dh_gen_type_id2name(int id)
 #ifndef OPENSSL_NO_DH
 int ossl_dh_gen_type_name2id(const char * name, int type)
 {
-	size_t i;
-	for(i = 0; i < SIZEOFARRAY(dhtype2id); ++i) {
-		if((dhtype2id[i].type == TYPE_ANY
-		    || type == dhtype2id[i].type)
-		    && strcmp(dhtype2id[i].name, name) == 0)
+	for(size_t i = 0; i < SIZEOFARRAY(dhtype2id); ++i) {
+		if((dhtype2id[i].type == TYPE_ANY || type == dhtype2id[i].type) && strcmp(dhtype2id[i].name, name) == 0)
 			return dhtype2id[i].id;
 	}
 	return -1;

@@ -1642,11 +1642,13 @@ UiDescription & UiDescription::Z()
 	FontList.clear();
 	ClrList.clear();
 	LoList.clear();
+	SourceFileName.Z(); // @v11.9.7
 	return *this;
 }
 
 bool FASTCALL UiDescription::IsEq(const UiDescription & rS) const
 {
+	// Поле SourceFileName не принимает участие в сравнении эквивалентности!
 	bool eq = true;
 	if(!TSCollection_IsEq(&FontList, &rS.FontList))
 		eq = false;
@@ -1662,8 +1664,12 @@ UiDescription & UiDescription::Copy(const UiDescription & rS)
 	TSCollection_Copy(FontList, rS.FontList);
 	TSCollection_Copy(ClrList, rS.ClrList);
 	TSCollection_Copy(LoList, rS.LoList);
+	SourceFileName = rS.SourceFileName; // @v11.9.7
 	return *this;
 }
+
+void  UiDescription::SetSourceFileName(const char * pFileName) { SourceFileName = pFileName; }
+const const char * UiDescription::GetSourceFileName() const { return SourceFileName; }
 
 SColorSet * UiDescription::GetColorSet(const char * pCsSymb)
 {

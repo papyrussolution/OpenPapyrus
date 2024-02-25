@@ -240,7 +240,7 @@ static int filterprop(js_State * J, const char * key)
 			js_getindex(J, 2, i);
 			if(js_isstring(J, -1) || js_isnumber(J, -1) ||
 			    js_isstringobject(J, -1) || js_isnumberobject(J, -1))
-				found = !strcmp(key, js_tostring(J, -1));
+				found = sstreq(key, js_tostring(J, -1));
 			js_pop(J, 1);
 		}
 		return found;

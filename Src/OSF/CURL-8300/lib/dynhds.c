@@ -36,8 +36,8 @@ static struct dynhds_entry *entry_new(const char * name, size_t namelen, const c
 {
 	struct dynhds_entry * e;
 	char * p;
-	DEBUGASSERT(name);
-	DEBUGASSERT(value);
+	assert(name);
+	assert(value);
 	e = (dynhds_entry *)SAlloc::C(1, sizeof(*e) + namelen + valuelen + 2);
 	if(!e)
 		return NULL;
@@ -57,7 +57,7 @@ static struct dynhds_entry *entry_append(struct dynhds_entry * e, const char * v
 	struct dynhds_entry * e2;
 	size_t valuelen2 = e->valuelen + 1 + valuelen;
 	char * p;
-	DEBUGASSERT(value);
+	assert(value);
 	e2 = (dynhds_entry *)SAlloc::C(1, sizeof(*e) + e->namelen + valuelen2 + 2);
 	if(!e2)
 		return NULL;
@@ -81,8 +81,8 @@ static void entry_free(struct dynhds_entry * e)
 void Curl_dynhds_init(struct dynhds * dynhds, size_t max_entries,
     size_t max_strs_size)
 {
-	DEBUGASSERT(dynhds);
-	DEBUGASSERT(max_strs_size);
+	assert(dynhds);
+	assert(max_strs_size);
 	dynhds->hds = NULL;
 	dynhds->hds_len = dynhds->hds_allc = dynhds->strs_len = 0;
 	dynhds->max_entries = max_entries;
@@ -92,10 +92,10 @@ void Curl_dynhds_init(struct dynhds * dynhds, size_t max_entries,
 
 void Curl_dynhds_free(struct dynhds * dynhds)
 {
-	DEBUGASSERT(dynhds);
+	assert(dynhds);
 	if(dynhds->hds && dynhds->hds_len) {
 		size_t i;
-		DEBUGASSERT(dynhds->hds);
+		assert(dynhds->hds);
 		for(i = 0; i < dynhds->hds_len; ++i) {
 			entry_free(dynhds->hds[i]);
 		}
@@ -106,10 +106,10 @@ void Curl_dynhds_free(struct dynhds * dynhds)
 
 void Curl_dynhds_reset(struct dynhds * dynhds)
 {
-	DEBUGASSERT(dynhds);
+	assert(dynhds);
 	if(dynhds->hds_len) {
 		size_t i;
-		DEBUGASSERT(dynhds->hds);
+		assert(dynhds->hds);
 		for(i = 0; i < dynhds->hds_len; ++i) {
 			entry_free(dynhds->hds[i]);
 			dynhds->hds[i] = NULL;
@@ -129,7 +129,7 @@ void Curl_dynhds_set_opts(struct dynhds * dynhds, int opts)
 }
 
 struct dynhds_entry *Curl_dynhds_getn(struct dynhds * dynhds, size_t n) {
-	DEBUGASSERT(dynhds);
+	assert(dynhds);
 	return (n < dynhds->hds_len)? dynhds->hds[n] : NULL;
 }
 
@@ -156,7 +156,7 @@ CURLcode Curl_dynhds_add(struct dynhds * dynhds,
 	struct dynhds_entry * entry = NULL;
 	CURLcode result = CURLE_OUT_OF_MEMORY;
 
-	DEBUGASSERT(dynhds);
+	assert(dynhds);
 	if(dynhds->max_entries && dynhds->hds_len >= dynhds->max_entries)
 		return CURLE_OUT_OF_MEMORY;
 	if(dynhds->strs_len + namelen + valuelen > dynhds->max_strs_size)

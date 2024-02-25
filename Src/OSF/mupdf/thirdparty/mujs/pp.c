@@ -75,11 +75,11 @@ int main(int argc, char ** argv)
 	int i;
 	J = js_newstate(NULL, NULL, 0);
 	for(i = 1; i < argc; ++i) {
-		if(!strcmp(argv[i], "-m"))
+		if(sstreq(argv[i], "-m"))
 			minify = 1;
-		else if(!strcmp(argv[i], "-mm"))
+		else if(sstreq(argv[i], "-mm"))
 			minify = 2;
-		else if(!strcmp(argv[i], "-s"))
+		else if(sstreq(argv[i], "-s"))
 			minify = 3;
 		else {
 			if(js_try(J)) {

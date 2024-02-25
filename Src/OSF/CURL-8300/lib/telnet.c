@@ -1095,7 +1095,7 @@ CURLcode telrcv(struct Curl_easy * data,
 
 			case CURL_TS_IAC:
 process_iac:
-			    DEBUGASSERT(startwrite < 0);
+			    assert(startwrite < 0);
 			    switch(c) {
 				    case CURL_WILL:
 					tn->telrcv_state = CURL_TS_WILL;

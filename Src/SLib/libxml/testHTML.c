@@ -744,32 +744,29 @@ int main(int argc, char ** argv) {
 
 	for(i = 1; i < argc; i++) {
 #ifdef LIBXML_DEBUG_ENABLED
-		if((!strcmp(argv[i], "-debug")) || (!strcmp(argv[i], "--debug")))
+		if((sstreq(argv[i], "-debug")) || (sstreq(argv[i], "--debug")))
 			debug++;
 		else
 #endif
-		if((!strcmp(argv[i], "-copy")) || (!strcmp(argv[i], "--copy")))
+		if((sstreq(argv[i], "-copy")) || (sstreq(argv[i], "--copy")))
 			copy++;
 #ifdef LIBXML_PUSH_ENABLED
-		else if((!strcmp(argv[i], "-push")) || (!strcmp(argv[i], "--push")))
+		else if((sstreq(argv[i], "-push")) || (sstreq(argv[i], "--push")))
 			push++;
 #endif /* LIBXML_PUSH_ENABLED */
-		else if((!strcmp(argv[i], "-sax")) || (!strcmp(argv[i], "--sax")))
+		else if((sstreq(argv[i], "-sax")) || (sstreq(argv[i], "--sax")))
 			sax++;
-		else if((!strcmp(argv[i], "-noout")) || (!strcmp(argv[i], "--noout")))
+		else if((sstreq(argv[i], "-noout")) || (sstreq(argv[i], "--noout")))
 			noout++;
-		else if((!strcmp(argv[i], "-repeat")) ||
-		    (!strcmp(argv[i], "--repeat")))
+		else if((sstreq(argv[i], "-repeat")) || (sstreq(argv[i], "--repeat")))
 			repeat++;
-		else if((!strcmp(argv[i], "-encode")) ||
-		    (!strcmp(argv[i], "--encode"))) {
+		else if((sstreq(argv[i], "-encode")) || (sstreq(argv[i], "--encode"))) {
 			i++;
 			encoding = argv[i];
 		}
 	}
 	for(i = 1; i < argc; i++) {
-		if((!strcmp(argv[i], "-encode")) ||
-		    (!strcmp(argv[i], "--encode"))) {
+		if((sstreq(argv[i], "-encode")) || (sstreq(argv[i], "--encode"))) {
 			i++;
 			continue;
 		}

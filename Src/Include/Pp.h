@@ -12655,7 +12655,7 @@ public:
 	//   <0 - не существует ни одного документа заказа, к которому был бы привязан документ billID
 	//    0 - error
 	//
-	int    GetListOfOrdersByLading(PPID billID, PPIDArray * pOrderBillList);
+	int    GetListOfOrdersByLading(PPID billID, PPIDArray & rOrderBillList);
 	int    GetListOfActualAgreemts(PPID arID, LDATE dt, int maxDays, int maxItems, PPIDArray & rList);
 	int    GetTrnovrBySCard(PPID cardID, const DateRange * pPeriod, PPID restrGoodsGrpID, double * pDbt, double * pCrd);
 	int    CreateSCardsTurnoverList(const DateRange *, RAssocArray *);

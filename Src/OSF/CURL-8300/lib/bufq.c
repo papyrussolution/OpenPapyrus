@@ -62,7 +62,7 @@ static size_t chunk_append(struct buf_chunk * chunk,
 {
 	uchar * p = &chunk->x.data[chunk->w_offset];
 	size_t n = chunk->dlen - chunk->w_offset;
-	DEBUGASSERT(chunk->dlen >= chunk->w_offset);
+	assert(chunk->dlen >= chunk->w_offset);
 	if(n) {
 		n = CURLMIN(n, len);
 		memcpy(p, buf, n);
@@ -76,7 +76,7 @@ static size_t chunk_read(struct buf_chunk * chunk,
 {
 	uchar * p = &chunk->x.data[chunk->r_offset];
 	size_t n = chunk->w_offset - chunk->r_offset;
-	DEBUGASSERT(chunk->w_offset >= chunk->r_offset);
+	assert(chunk->w_offset >= chunk->r_offset);
 	if(!n) {
 		return 0;
 	}
@@ -100,7 +100,7 @@ static ssize_t chunk_slurpn(struct buf_chunk * chunk, size_t max_len,
 	size_t n = chunk->dlen - chunk->w_offset; /* free amount */
 	ssize_t nread;
 
-	DEBUGASSERT(chunk->dlen >= chunk->w_offset);
+	assert(chunk->dlen >= chunk->w_offset);
 	if(!n) {
 		*err = CURLE_AGAIN;
 		return -1;
@@ -109,7 +109,7 @@ static ssize_t chunk_slurpn(struct buf_chunk * chunk, size_t max_len,
 		n = max_len;
 	nread = reader(reader_ctx, p, n, err);
 	if(nread > 0) {
-		DEBUGASSERT((size_t)nread <= n);
+		assert((size_t)nread <= n);
 		chunk->w_offset += nread;
 	}
 	return nread;
@@ -118,7 +118,7 @@ static ssize_t chunk_slurpn(struct buf_chunk * chunk, size_t max_len,
 static void chunk_peek(const struct buf_chunk * chunk,
     const uchar ** pbuf, size_t * plen)
 {
-	DEBUGASSERT(chunk->w_offset >= chunk->r_offset);
+	assert(chunk->w_offset >= chunk->r_offset);
 	*pbuf = &chunk->x.data[chunk->r_offset];
 	*plen = chunk->w_offset - chunk->r_offset;
 }
@@ -127,7 +127,7 @@ static void chunk_peek_at(const struct buf_chunk * chunk, size_t offset,
     const uchar ** pbuf, size_t * plen)
 {
 	offset += chunk->r_offset;
-	DEBUGASSERT(chunk->w_offset >= offset);
+	assert(chunk->w_offset >= offset);
 	*pbuf = &chunk->x.data[offset];
 	*plen = chunk->w_offset - offset;
 }
@@ -135,7 +135,7 @@ static void chunk_peek_at(const struct buf_chunk * chunk, size_t offset,
 static size_t chunk_skip(struct buf_chunk * chunk, size_t amount)
 {
 	size_t n = chunk->w_offset - chunk->r_offset;
-	DEBUGASSERT(chunk->w_offset >= chunk->r_offset);
+	assert(chunk->w_offset >= chunk->r_offset);
 	if(n) {
 		n = CURLMIN(n, amount);
 		chunk->r_offset += n;
@@ -172,8 +172,8 @@ static void chunk_list_free(struct buf_chunk ** anchor)
 
 void Curl_bufcp_init(struct bufc_pool * pool, size_t chunk_size, size_t spare_max)
 {
-	DEBUGASSERT(chunk_size > 0);
-	DEBUGASSERT(spare_max > 0);
+	assert(chunk_size > 0);
+	assert(spare_max > 0);
 	memzero(pool, sizeof(*pool));
 	pool->chunk_size = chunk_size;
 	pool->spare_max = spare_max;
@@ -225,8 +225,8 @@ void Curl_bufcp_free(struct bufc_pool * pool)
 
 static void bufq_init(struct bufq * q, struct bufc_pool * pool, size_t chunk_size, size_t max_chunks, int opts)
 {
-	DEBUGASSERT(chunk_size > 0);
-	DEBUGASSERT(max_chunks > 0);
+	assert(chunk_size > 0);
+	assert(max_chunks > 0);
 	memzero(q, sizeof(*q));
 	q->chunk_size = chunk_size;
 	q->max_chunks = max_chunks;
@@ -386,7 +386,7 @@ static struct buf_chunk *get_non_full_tail(struct bufq * q) {
 			q->tail = chunk;
 		}
 		else {
-			DEBUGASSERT(!q->head);
+			assert(!q->head);
 			q->head = q->tail = chunk;
 		}
 	}
@@ -401,7 +401,7 @@ ssize_t Curl_bufq_write(struct bufq * q,
 	ssize_t nwritten = 0;
 	size_t n;
 
-	DEBUGASSERT(q->max_chunks > 0);
+	assert(q->max_chunks > 0);
 	while(len) {
 		tail = get_non_full_tail(q);
 		if(!tail) {
@@ -652,7 +652,7 @@ static ssize_t bufq_slurpn(struct bufq * q, size_t max_len,
 		}
 		nread += (size_t)n;
 		if(max_len) {
-			DEBUGASSERT((size_t)n <= max_len);
+			assert((size_t)n <= max_len);
 			max_len -= (size_t)n;
 			if(!max_len)
 				break;

@@ -636,8 +636,8 @@ static int FASTCALL startswith(const char * a, const char * b)
 static const ushort * find_xml_encoding(char * s)
 {
 	const ushort * table = NULL;
-	char * end, * xml, * enc;
-	end = strchr(s, '>');
+	char * xml, * enc;
+	char * end = strchr(s, '>');
 	if(end) {
 		*end = 0;
 		xml = strstr(s, "<?xml");

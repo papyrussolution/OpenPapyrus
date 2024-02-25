@@ -7824,6 +7824,7 @@ SNaturalTokenStat & SNaturalTokenStat::Z()
 {
 	Len = 0;
 	Seq = 0;
+	ChrList.clear(); // @v11.9.7
 	return *this;
 }
 
@@ -7947,7 +7948,7 @@ STokenRecognizer::ImplementBlock & STokenRecognizer::ImplementBlock::Z()
 	F = 0;
 	DecCount = 0;
 	Temp.Z();
-	ChrList.clear();
+	//ChrList.clear();
 	Stat.Z();
 	return *this;
 }
@@ -7964,6 +7965,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 	uint32 h = 0;
 	rIb.Init(pToken, len);
 	const uint toklen = rIb.Stat.Len;
+	LAssocArray & r_chr_list = rIb.Stat.ChrList;
     if(toklen) {
 		uint   i;
 		uchar  num_potential_frac_delim = 0;
@@ -7989,13 +7991,13 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
                 if(!ul)
 					h &= ~SNTOKSEQ_UTF8;
 				uint  pos = 0;
-				if(rIb.ChrList.Search(static_cast<long>(c), &pos))
-					rIb.ChrList.at(pos).Val++;
+				if(r_chr_list.Search(static_cast<long>(c), &pos))
+					r_chr_list.at(pos).Val++;
 				else
-					rIb.ChrList.Add(static_cast<long>(c), 1, 0);
+					r_chr_list.Add(static_cast<long>(c), 1, 0);
 			}
 		}
-		rIb.ChrList.Sort();
+		r_chr_list.Sort();
 		if(rIb.F & ImplementBlock::fUtf8) {
 			h &= ~(SNTOKSEQ_DEC|SNTOKSEQ_HEX|SNTOKSEQ_LATLWR|SNTOKSEQ_LATUPR|SNTOKSEQ_LAT|SNTOKSEQ_DECLAT|
 				SNTOKSEQ_ASCII|SNTOKSEQ_866|SNTOKSEQ_1251|SNTOKSEQ_HEXHYPHEN|SNTOKSEQ_DECHYPHEN|SNTOKSEQ_HEXCOLON|
@@ -8015,10 +8017,10 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				h |= SNTOKSEQ_LEADDOLLAR;
 			else if(the_first_chr == '+')
 				is_lead_plus = 1;
-			const uint clc = rIb.ChrList.getCount();
+			const uint clc = r_chr_list.getCount();
 			for(; i < clc; i++) {
-				const uchar c = static_cast<uchar>(rIb.ChrList.at(i).Key);
-				const uint  ccnt = static_cast<uint>(rIb.ChrList.at(i).Val);
+				const uchar c = static_cast<uchar>(r_chr_list.at(i).Key);
+				const uint  ccnt = static_cast<uint>(r_chr_list.at(i).Val);
 				if(h & SNTOKSEQ_ASCII && !(c >= 1 && c <= 127))
 					h &= ~SNTOKSEQ_ASCII;
 				else {
@@ -8068,7 +8070,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						else if(the_first_chr == ' ')
 							h &= ~SNTOKSEQ_NUMERIC;
 						else if(oneof2(c, '+', '-')) {
-							if(rIb.ChrList.at(i).Val > 1)
+							if(r_chr_list.at(i).Val > 1)
 								h &= ~SNTOKSEQ_NUMERIC;
 							else if(c == '+' && !is_lead_plus)
 								h &= ~SNTOKSEQ_NUMERIC;
@@ -8118,11 +8120,11 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					if(h & SNTOKSEQ_HEX)
 						h &= ~tf;
 					else if(clc == 1) {
-						assert(rIb.ChrList.at(0).Key == '-');
+						assert(r_chr_list.at(0).Key == '-');
 						h &= ~tf;
 					}
 					else if(clc == 2 && h & SNTOKSEQ_LEADSHARP) {
-						assert(rIb.ChrList.at(1).Key == '-'); // '#' < '-'
+						assert(r_chr_list.at(1).Key == '-'); // '#' < '-'
 						h &= ~tf;
 					}
 				}
@@ -8133,11 +8135,11 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					if(h & SNTOKSEQ_DEC)
 						h &= ~tf;
 					else if(clc == 1) {
-						assert(rIb.ChrList.at(0).Key == '-');
+						assert(r_chr_list.at(0).Key == '-');
 						h &= ~tf;
 					}
 					else if(clc == 2 && h & SNTOKSEQ_LEADSHARP) {
-						assert(rIb.ChrList.at(1).Key == '-'); // '#' < '-'
+						assert(r_chr_list.at(1).Key == '-'); // '#' < '-'
 						h &= ~tf;
 					}
 				}
@@ -8148,11 +8150,11 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					if(h & SNTOKSEQ_HEX)
 						h &= ~tf;
 					else if(clc == 1) {
-						assert(rIb.ChrList.at(0).Key == ':');
+						assert(r_chr_list.at(0).Key == ':');
 						h &= ~tf;
 					}
 					else if(clc == 2 && h & SNTOKSEQ_LEADSHARP) {
-						assert(rIb.ChrList.at(1).Key == ':'); // '#' < ':'
+						assert(r_chr_list.at(1).Key == ':'); // '#' < ':'
 						h &= ~tf;
 					}
 				}
@@ -8163,11 +8165,11 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					if(h & SNTOKSEQ_DEC)
 						h &= ~tf;
 					else if(clc == 1) {
-						assert(rIb.ChrList.at(0).Key == ':');
+						assert(r_chr_list.at(0).Key == ':');
 						h &= ~tf;
 					}
 					else if(clc == 2 && h & SNTOKSEQ_LEADSHARP) {
-						assert(rIb.ChrList.at(1).Key == ':'); // '#' < ':'
+						assert(r_chr_list.at(1).Key == ':'); // '#' < ':'
 						h &= ~tf;
 					}
 				}
@@ -8178,11 +8180,11 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					if(h & SNTOKSEQ_HEX)
 						h &= ~tf;
 					else if(clc == 1) {
-						assert(rIb.ChrList.at(0).Key == '.');
+						assert(r_chr_list.at(0).Key == '.');
 						h &= ~tf;
 					}
 					else if(clc == 2 && h & SNTOKSEQ_LEADSHARP) {
-						assert(rIb.ChrList.at(1).Key == '.'); // '#' < '.'
+						assert(r_chr_list.at(1).Key == '.'); // '#' < '.'
 						h &= ~tf;
 					}
 				}
@@ -8193,11 +8195,11 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					if(h & SNTOKSEQ_DEC)
 						h &= ~tf;
 					else if(clc == 1) {
-						assert(rIb.ChrList.at(0).Key == '.');
+						assert(r_chr_list.at(0).Key == '.');
 						h &= ~tf;
 					}
 					else if(clc == 2 && h & SNTOKSEQ_LEADSHARP) {
-						assert(rIb.ChrList.at(1).Key == '.'); // '#' < '.'
+						assert(r_chr_list.at(1).Key == '.'); // '#' < '.'
 						h &= ~tf;
 					}
 				}
@@ -8208,11 +8210,11 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					if(h & SNTOKSEQ_DEC)
 						h &= ~tf;
 					else if(clc == 1) {
-						assert(rIb.ChrList.at(0).Key == '/');
+						assert(r_chr_list.at(0).Key == '/');
 						h &= ~tf;
 					}
 					else if(clc == 2 && h & SNTOKSEQ_LEADSHARP) {
-						assert(rIb.ChrList.at(1).Key == '/'); // '#' < '/'
+						assert(r_chr_list.at(1).Key == '/'); // '#' < '/'
 						h &= ~tf;
 					}
 				}
@@ -8225,7 +8227,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						h &= ~tf;
 					}
 					else if(clc == 1) {
-						assert(oneof2(rIb.ChrList.at(0).Key, '-', '_'));
+						assert(oneof2(r_chr_list.at(0).Key, '-', '_'));
 						h &= ~tf;
 					}
 					else {
@@ -8243,7 +8245,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						h &= ~tf;
 					else {
 						uint   comma_chr_pos = 0;
-						const  uint comma_count = rIb.ChrList.Search(static_cast<long>(','), (long *)0, &comma_chr_pos) ? rIb.ChrList.at(comma_chr_pos).Val : 0;
+						const  uint comma_count = r_chr_list.Search(static_cast<long>(','), (long *)0, &comma_chr_pos) ? r_chr_list.at(comma_chr_pos).Val : 0;
 						uint   last_dec_ser = 0;
 						uint   j = toklen;
 						if(j) do {
@@ -8478,7 +8480,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				if(toklen == 36) {
 					uint   pos = 0;
 					long   val = 0;
-					if(rIb.ChrList.BSearch((long)'-', &val, &pos) && val == 4) {
+					if(r_chr_list.BSearch((long)'-', &val, &pos) && val == 4) {
 						rResultList.Add(SNTOK_GUID, 1.0f);
 					}
 				}
@@ -8623,7 +8625,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 			if(h & SNTOKSEQ_ASCII) {
 				uint   pos = 0;
 				long   val = 0;
-				if(rIb.ChrList.BSearch(static_cast<long>('@'), &val, &pos) && val == 1 && InitReEmail()) {
+				if(r_chr_list.BSearch(static_cast<long>('@'), &val, &pos) && val == 1 && InitReEmail()) {
 					SRegExp2::FindResult reresult;
 					if(P_ReEMail->Find(reinterpret_cast<const char *>(pToken), toklen, 0, &reresult)) {
 						assert(reresult.getCount());
@@ -8659,7 +8661,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						}
 					}
 				}
-				else if(oneof5(toklen, 25, 35, 41, 52, 55) || (toklen == 43 && rIb.ChrList.BSearch(static_cast<long>('\x1D'), &val, &pos) && val == 2)) {
+				else if(oneof5(toklen, 25, 35, 41, 52, 55) || (toklen == 43 && r_chr_list.BSearch(static_cast<long>('\x1D'), &val, &pos) && val == 2)) {
 					int    sig_prefix = 0; // 0 - no, 1 - '0', 2 - '(01)'
 					size_t _offs = 0;
 					if(pToken[_offs] == '0') {

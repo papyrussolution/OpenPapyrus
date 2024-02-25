@@ -52,7 +52,7 @@ struct cf_haproxy_ctx {
 
 static void cf_haproxy_ctx_reset(struct cf_haproxy_ctx * ctx)
 {
-	DEBUGASSERT(ctx);
+	assert(ctx);
 	ctx->state = HAPROXY_INIT;
 	Curl_dyn_reset(&ctx->data_out);
 }
@@ -71,8 +71,8 @@ static CURLcode cf_haproxy_date_out_set(struct Curl_cfilter* cf, struct Curl_eas
 	CURLcode result;
 	const char * tcp_version;
 	const char * client_ip;
-	DEBUGASSERT(ctx);
-	DEBUGASSERT(ctx->state == HAPROXY_INIT);
+	assert(ctx);
+	assert(ctx->state == HAPROXY_INIT);
 #ifdef USE_UNIX_SOCKETS
 	if(cf->conn->unix_domain_socket)
 		/* the buffer is large enough to hold this! */
@@ -105,7 +105,7 @@ static CURLcode cf_haproxy_connect(struct Curl_cfilter * cf, struct Curl_easy * 
 	struct cf_haproxy_ctx * ctx = (cf_haproxy_ctx *)cf->ctx;
 	CURLcode result;
 	size_t len;
-	DEBUGASSERT(ctx);
+	assert(ctx);
 	if(cf->connected) {
 		*done = TRUE;
 		return CURLE_OK;

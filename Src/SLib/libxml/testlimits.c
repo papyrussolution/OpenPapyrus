@@ -108,7 +108,7 @@ static void * hugeOpen(const char * URI) {
 
 	for(currentTest = 0; currentTest < sizeof(hugeTests)/sizeof(hugeTests[0]);
 	    currentTest++)
-		if(!strcmp(hugeTests[currentTest].name, URI))
+		if(sstreq(hugeTests[currentTest].name, URI))
 			goto found;
 
 	return NULL;
@@ -1530,11 +1530,11 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED)
 	fillFilling();
 	initializeLibxml2();
 	for(a = 1; a < argc; a++) {
-		if(!strcmp(argv[a], "-v"))
+		if(sstreq(argv[a], "-v"))
 			verbose = 1;
-		else if(!strcmp(argv[a], "-quiet"))
+		else if(sstreq(argv[a], "-quiet"))
 			tests_quiet = 1;
-		else if(!strcmp(argv[a], "-crazy"))
+		else if(sstreq(argv[a], "-crazy"))
 			subset = 1;
 	}
 	if(subset == 0) {

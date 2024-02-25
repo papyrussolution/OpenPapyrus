@@ -202,9 +202,9 @@ static int do_file_type(const char * type)
 {
 	if(!type || !type[0])
 		return SSL_FILETYPE_PEM;
-	if(strcasecompare(type, "PEM"))
+	if(sstreqi_ascii(type, "PEM"))
 		return SSL_FILETYPE_PEM;
-	if(strcasecompare(type, "DER"))
+	if(sstreqi_ascii(type, "DER"))
 		return SSL_FILETYPE_ASN1;
 	return -1;
 }
@@ -287,7 +287,7 @@ static int bio_cf_out_write(WOLFSSL_BIO * bio, const char * buf, int blen)
 	ssize_t nwritten;
 	CURLcode result = CURLE_OK;
 
-	DEBUGASSERT(data);
+	assert(data);
 	nwritten = Curl_conn_cf_send(cf->next, data, buf, blen, &result);
 	backend->io_result = result;
 	CURL_TRC_CF(data, cf, "bio_write(len=%d) -> %zd, %d",
@@ -308,7 +308,7 @@ static int bio_cf_in_read(WOLFSSL_BIO * bio, char * buf, int blen)
 	ssize_t nread;
 	CURLcode result = CURLE_OK;
 
-	DEBUGASSERT(data);
+	assert(data);
 	/* OpenSSL catches this case, so should we. */
 	if(!buf)
 		return 0;
@@ -373,7 +373,7 @@ static CURLcode wolfssl_connect_step1(struct Curl_cfilter * cf, struct Curl_easy
 	bool imported_native_ca = false;
 	bool imported_ca_info_blob = false;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	if(connssl->state == ssl_connection_complete)
 		return CURLE_OK;
@@ -746,7 +746,7 @@ static CURLcode wolfssl_connect_step2(struct Curl_cfilter * cf, struct Curl_easy
 	    data->set.str[STRING_SSL_PINNEDPUBLICKEY_PROXY]:
 	    data->set.str[STRING_SSL_PINNEDPUBLICKEY];
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	wolfSSL_ERR_clear_error();
 
@@ -932,8 +932,8 @@ static CURLcode wolfssl_connect_step3(struct Curl_cfilter * cf, struct Curl_easy
 	    (struct wolfssl_ssl_backend_data *)connssl->backend;
 	const struct ssl_config_data * ssl_config = Curl_ssl_cf_get_config(cf, data);
 
-	DEBUGASSERT(ssl_connect_3 == connssl->connecting_state);
-	DEBUGASSERT(backend);
+	assert(ssl_connect_3 == connssl->connecting_state);
+	assert(backend);
 
 	if(ssl_config->primary.sessionid) {
 		bool incache;
@@ -992,7 +992,7 @@ static ssize_t wolfssl_send(struct Curl_cfilter * cf,
 	int memlen = (len > (size_t)INT_MAX) ? INT_MAX : (int)len;
 	int rc;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	wolfSSL_ERR_clear_error();
 
@@ -1033,7 +1033,7 @@ static void wolfssl_close(struct Curl_cfilter * cf, struct Curl_easy * data)
 
 	(void)data;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	if(backend->handle) {
 		char buf[32];
@@ -1062,7 +1062,7 @@ static ssize_t wolfssl_recv(struct Curl_cfilter * cf,
 	int buffsize = (blen > (size_t)INT_MAX) ? INT_MAX : (int)blen;
 	int nread;
 
-	DEBUGASSERT(backend);
+	assert(backend);
 
 	wolfSSL_ERR_clear_error();
 	*curlcode = CURLE_OK;
@@ -1144,7 +1144,7 @@ static bool wolfssl_data_pending(struct Curl_cfilter * cf,
 	struct wolfssl_ssl_backend_data * backend;
 
 	(void)data;
-	DEBUGASSERT(ctx && ctx->backend);
+	assert(ctx && ctx->backend);
 
 	backend = (struct wolfssl_ssl_backend_data *)ctx->backend;
 	if(backend->handle) /* SSL is in use */
@@ -1165,7 +1165,7 @@ static int wolfssl_shutdown(struct Curl_cfilter * cf,
 	int retval = 0;
 
 	(void)data;
-	DEBUGASSERT(ctx && ctx->backend);
+	assert(ctx && ctx->backend);
 
 	backend = (struct wolfssl_ssl_backend_data *)ctx->backend;
 	if(backend->handle) {
@@ -1299,7 +1299,7 @@ static CURLcode wolfssl_connect(struct Curl_cfilter * cf,
 	if(result)
 		return result;
 
-	DEBUGASSERT(done);
+	assert(done);
 
 	return CURLE_OK;
 }
@@ -1340,7 +1340,7 @@ static void *wolfssl_get_internals(struct ssl_connect_data * connssl,
 	struct wolfssl_ssl_backend_data * backend =
 	    (struct wolfssl_ssl_backend_data *)connssl->backend;
 	(void)info;
-	DEBUGASSERT(backend);
+	assert(backend);
 	return backend->handle;
 }
 

@@ -909,7 +909,7 @@ number:
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-			    DEBUGASSERT(strlen(work) <= sizeof(work));
+			    assert(strlen(work) <= sizeof(work));
 			    for(fptr = work; *fptr; fptr++)
 				    OUTCHAR(*fptr);
 		    }
@@ -966,7 +966,7 @@ int curl_mvsnprintf(char * buffer, size_t maxlength, const char * format, va_lis
 		if(info.max == info.length) {
 			/* we're at maximum, scrap the last letter */
 			info.buffer[-1] = 0;
-			DEBUGASSERT(retcode);
+			assert(retcode);
 			retcode--; /* don't count the nul byte */
 		}
 		else

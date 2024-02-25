@@ -155,9 +155,9 @@ error:
 }
 
 #define BLOCK(letter, n) do {ptr = strchr(p_basis, source[n]); \
-			     if(!ptr) return -1; \
-			     i = ptr - p_basis; \
-			     SET_ ## letter(*block, i); \
+	if(!ptr) return -1; \
+	i = ptr - p_basis; \
+	SET_ ## letter(*block, i); \
 } while(0)
 
 /* Returns 0 if ok, -1 if not (ie invalid char into the stuff) */

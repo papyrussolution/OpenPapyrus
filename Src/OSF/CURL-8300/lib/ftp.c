@@ -781,7 +781,7 @@ static CURLcode ftp_state_cwd(struct Curl_easy * data,
 		result = ftp_state_mdtm(data);
 	else {
 		/* FTPFILE_NOCWD with full path: expect ftpc->cwddone! */
-		DEBUGASSERT((data->set.ftp_filemethod != FTPFILE_NOCWD) ||
+		assert((data->set.ftp_filemethod != FTPFILE_NOCWD) ||
 		    !(ftpc->dirdepth && ftpc->dirs[0][0] == '/'));
 
 		ftpc->count2 = 0; /* count2 counts failed CWDs */
@@ -1827,7 +1827,7 @@ static CURLcode ftp_state_pasv_resp(struct Curl_easy * data, int ftpcode)
 #endif
 	{
 		/* normal, direct, ftp connection */
-		DEBUGASSERT(ftpc->newhost);
+		assert(ftpc->newhost);
 
 		/* postponed address resolution in case of tcp fastopen */
 		if(conn->bits.tcp_fastopen && !conn->bits.reuse && !ftpc->newhost[0]) {
@@ -2821,7 +2821,7 @@ static CURLcode ftp_statemachine(struct Curl_easy * data,
 
 				    /* Check for special servers here. */
 
-				    if(strcasecompare(os, "OS/400")) {
+				    if(sstreqi_ascii(os, "OS/400")) {
 					    /* Force OS400 name format 1. */
 					    result = Curl_pp_sendf(data, &ftpc->pp, "%s", "SITE NAMEFMT 1");
 					    if(result) {
@@ -4036,7 +4036,7 @@ CURLcode ftp_parse_url_path(struct Curl_easy * data)
 				    curPos = slashPos + 1;
 			    }
 		    }
-		    DEBUGASSERT((size_t)ftpc->dirdepth <= dirAlloc);
+		    assert((size_t)ftpc->dirdepth <= dirAlloc);
 		    fileName = curPos; /* the rest is the file name (or empty) */
 	    }
 	    break;

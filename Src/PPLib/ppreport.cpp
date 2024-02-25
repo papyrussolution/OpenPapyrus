@@ -1232,8 +1232,7 @@ int  SReport::getNumCopies() const { return NumCopies; }
 
 static SString & GetTempFileName_(const char * pFileName, SString & rDest)
 {
-	// @v11.8.5 SFileUtil::GetSysDir(SFileUtil::sdTemporary, rDest);
-	GetKnownFolderPath(UED_FSKNOWNFOLDER_TEMPORARY, rDest); // @v11.8.5
+	GetKnownFolderPath(UED_FSKNOWNFOLDER_TEMPORARY, rDest);
 	return rDest.SetLastSlash().Cat(pFileName);
 }
 

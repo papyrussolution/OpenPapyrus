@@ -1031,7 +1031,7 @@ public:
 				if(ps.Drv.IsEmpty())
 					ok = PPSetError(PPERR_IMPEXPPATHNOTVALID);
 			}
-			else if(Data.Rec.BhtTypeID != PPObjBHT::btCom)
+			else if(!oneof2(Data.Rec.BhtTypeID, PPObjBHT::btCom, PPObjBHT::btDenso))
 				ok = PPSetError(PPERR_IMPEXPPATHNOTVALID);
 		}
 		THROW_PP(Data.Rec.BhtTypeID != PPObjBHT::btStyloBhtII || Data.P_SBIICfg && Data.P_SBIICfg->IsValid(), PPERR_SBII_CFGNOTVALID);
@@ -2319,7 +2319,8 @@ int BhtProtocol::SendPrgmFile(const char * pFileName)
 	int    ok = 1;
 	const  size_t blk_size  = 128;
 	char   line_buf[256];
-	uint   numrecs = 0, recno = 0;
+	uint   numrecs = 0;
+	uint   recno = 0;
 	FILE * stream = 0;
 	THROW_PP_S(stream = fopen(pFileName, "r"), PPERR_CANTOPENFILE, pFileName);
 	while(fgets(line_buf, sizeof(line_buf), stream))
@@ -2397,7 +2398,8 @@ int BhtProtocol::ReceiveFile(const char * pFileName, long timeout)
 	FILE * out = fopen(pFileName, "w");
 	if(WaitOnConnection(0, timeout)) {
 		uint   numrecs = 0, recno = 0, j;
-		char   buf[512], fname[32];
+		char   buf[512];
+		char   fname[32];
 		size_t datalen = 0;
 		if(ReceiveBlock(&recno, &datalen, buf, sizeof(buf)) > 0) {
 			_StoreDataBlock(datalen, buf, out);

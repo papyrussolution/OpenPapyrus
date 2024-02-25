@@ -234,14 +234,14 @@ static js_Ast * propassign(js_State * J)
 	name = propname(J);
 
 	if(J->lookahead != ':' && name->type == AST_IDENTIFIER) {
-		if(!strcmp(name->string, "get")) {
+		if(sstreq(name->string, "get")) {
 			name = propname(J);
 			jsP_expect(J, '(');
 			jsP_expect(J, ')');
 			body = funbody(J);
 			return EXP3(PROP_GET, name, NULL, body);
 		}
-		if(!strcmp(name->string, "set")) {
+		if(sstreq(name->string, "set")) {
 			name = propname(J);
 			jsP_expect(J, '(');
 			arg = identifier(J);

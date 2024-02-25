@@ -248,23 +248,18 @@ typedef uint bit;
 #else
 #define DEBUGF(x) do { } while(0)
 #endif
-
-/*
- * Macro used to include assertion code only in debug builds.
- */
-
-#undef DEBUGASSERT
-#if defined(DEBUGBUILD)
-#define DEBUGASSERT(x) assert(x)
-#else
-#define DEBUGASSERT(x) do { } while(0)
-#endif
-
-/*
- * Macro SOCKERRNO / SET_SOCKERRNO() returns / sets the *socket-related* errno
- * (or equivalent) on this platform to hide platform details to code using it.
- */
-
+//
+// Macro used to include assertion code only in debug builds.
+//
+//#undef DEBUGASSERT_Removed
+//#if defined(DEBUGBUILD)
+	// @v11.9.7 (replaced with assert) #define DEBUGASSERT_Removed(x) assert(x)
+//#else
+	// @v11.9.7 (replaced with assert) #define DEBUGASSERT_Removed(x) do { } while(0)
+//#endif
+//
+// Macro SOCKERRNO / SET_SOCKERRNO() returns / sets the *socket-related* errno (or equivalent) on this platform to hide platform details to code using it.
+//
 #ifdef USE_WINSOCK
 #define SOCKERRNO         ((int)WSAGetLastError())
 #define SET_SOCKERRNO(x)  (WSASetLastError((int)(x)))

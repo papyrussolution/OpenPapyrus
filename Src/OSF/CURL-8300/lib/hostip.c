@@ -128,7 +128,7 @@ static void freednsentry(void * freethis);
  */
 void Curl_printable_address(const struct Curl_addrinfo * ai, char * buf, size_t bufsize)
 {
-	DEBUGASSERT(bufsize);
+	assert(bufsize);
 	buf[0] = 0;
 	switch(ai->ai_family) {
 		case AF_INET: {
@@ -160,7 +160,7 @@ static size_t create_hostcache_id(const char * name,
 {
 	size_t len = nlen ? nlen : strlen(name);
 	size_t olen = 0;
-	DEBUGASSERT(buflen >= MAX_HOSTCACHE_LEN);
+	assert(buflen >= MAX_HOSTCACHE_LEN);
 	if(len > (buflen - 7))
 		len = buflen - 7;
 	/* store and lower case the name */
@@ -581,8 +581,8 @@ bool Curl_ipv6works(struct Curl_easy * data)
 		/* the nature of most system is that IPv6 status doesn't come and go
 		   during a program's lifetime so we only probe the first time and then we
 		   have the info kept for fast reuse */
-		DEBUGASSERT(data);
-		DEBUGASSERT(data->multi);
+		assert(data);
+		assert(data->multi);
 		if(data->multi->ipv6_up == IPV6_UNKNOWN) {
 			bool works = Curl_ipv6works(NULL);
 			data->multi->ipv6_up = works ? IPV6_WORKS : IPV6_DEAD;
@@ -652,20 +652,15 @@ static bool tailmatch(const char * full, const char * part)
  * CURLRESOLV_PENDING  (1) = waiting for response, no pointer
  */
 
-enum resolve_t Curl_resolv(struct Curl_easy * data,
-    const char * hostname,
-    int port,
-    bool allowDOH,
-    struct Curl_dns_entry ** entry) {
+enum resolve_t Curl_resolv(struct Curl_easy * data, const char * hostname, int port, bool allowDOH, struct Curl_dns_entry ** entry) 
+{
 	struct Curl_dns_entry * dns = NULL;
 	CURLcode result;
 	enum resolve_t rc = CURLRESOLV_ERROR; /* default to failure */
 	struct connectdata * conn = data->conn;
 	/* We should intentionally error and not resolve .onion TLDs */
 	size_t hostname_len = strlen(hostname);
-	if(hostname_len >= 7 &&
-	    (curl_strequal(&hostname[hostname_len - 6], ".onion") ||
-	    curl_strequal(&hostname[hostname_len - 7], ".onion."))) {
+	if(hostname_len >= 7 && (sstreqi_ascii(&hostname[hostname_len - 6], ".onion") || sstreqi_ascii(&hostname[hostname_len - 7], ".onion."))) {
 		failf(data, "Not resolving .onion address (RFC 7686)");
 		return CURLRESOLV_ERROR;
 	}
@@ -675,18 +670,14 @@ enum resolve_t Curl_resolv(struct Curl_easy * data,
 #else
 	(void)allowDOH;
 #endif
-
 	if(data->share)
 		Curl_share_lock(data, CURL_LOCK_DATA_DNS, CURL_LOCK_ACCESS_SINGLE);
-
 	dns = fetch_addr(data, hostname, port);
-
 	if(dns) {
 		infof(data, "Hostname %s was found in DNS cache", hostname);
 		dns->inuse++; /* we use it! */
 		rc = CURLRESOLV_RESOLVED;
 	}
-
 	if(data->share)
 		Curl_share_unlock(data, CURL_LOCK_DATA_DNS);
 
@@ -760,7 +751,7 @@ enum resolve_t Curl_resolv(struct Curl_easy * data,
 			if(conn->ip_version == CURL_IPRESOLVE_V6 && !Curl_ipv6works(data))
 				return CURLRESOLV_ERROR;
 
-			if(strcasecompare(hostname, "localhost") ||
+			if(sstreqi_ascii(hostname, "localhost") ||
 			    tailmatch(hostname, ".localhost"))
 				addr = get_localhost(port, hostname);
 #ifndef CURL_DISABLE_DOH
@@ -1027,7 +1018,7 @@ void Curl_resolv_unlock(struct Curl_easy * data, struct Curl_dns_entry * dns)
 static void freednsentry(void * freethis)
 {
 	struct Curl_dns_entry * dns = (struct Curl_dns_entry *)freethis;
-	DEBUGASSERT(dns && (dns->inuse>0));
+	assert(dns && (dns->inuse>0));
 
 	dns->inuse--;
 	if(dns->inuse == 0) {

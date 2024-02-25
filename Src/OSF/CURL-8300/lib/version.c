@@ -269,7 +269,7 @@ char *curl_version(void)
 	}
 #endif
 
-	DEBUGASSERT(i <= VERSION_PARTS);
+	assert(i <= VERSION_PARTS);
 
 	outp = &out[0];
 	outlen = sizeof(out);

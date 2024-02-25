@@ -3480,6 +3480,7 @@ public:
 	static bool ToText(uint64 v, long fmt, char * pBuf, size_t bufSize);
 	static bool ToText(double v, long fmt, char * pBuf, size_t bufSize);
 	static bool ToText(float v, long fmt, char * pBuf, size_t bufSize);
+	static bool ToText(SColorBase v, long fmt, char * pBuf, size_t bufSize);
 	static bool ToText(const SUniTime_Internal & rV, long fmt, char * pBuf, size_t bufLen);
 	static bool ToText(const S_GUID & rV, long fmt, char * pBuf, size_t bufLen);
 	static bool FromText(const char * pText, size_t textLen, long flags, size_t * pScannedCount, int * pV);
@@ -3488,6 +3489,7 @@ public:
 	static bool FromText(const char * pText, size_t textLen, long flags, size_t * pScannedCount, uint64 * pV);
 	static bool FromText(const char * pText, size_t textLen, long flags, size_t * pScannedCount, double * pV);
 	static bool FromText(const char * pText, size_t textLen, long flags, size_t * pScannedCount, float * pV);
+	static bool FromText(const char * pText, size_t textLen, long flags, size_t * pScannedCount, SColorBase * pV);
 	static bool FromText(const char * pText, size_t textLen, long flags, size_t * pScannedCount, SUniTime_Internal * pV);
 	static bool FromText(const char * pText, size_t textLen, long flags, size_t * pScannedCount, S_GUID * pV);
 };

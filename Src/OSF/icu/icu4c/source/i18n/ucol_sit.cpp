@@ -166,8 +166,7 @@ static const char * U_CALLCONV _processLocaleElement(CollatorSpec * spec, uint32
 U_CDECL_END
 
 U_CDECL_BEGIN
-static const char * U_CALLCONV _processRFC3066Locale(CollatorSpec * spec, uint32_t, const char * string,
-    UErrorCode * status)
+static const char * U_CALLCONV _processRFC3066Locale(CollatorSpec * spec, uint32_t, const char * string, UErrorCode * status)
 {
 	char terminator = *string;
 	string++;

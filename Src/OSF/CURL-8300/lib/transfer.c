@@ -104,8 +104,8 @@ char *Curl_checkheaders(const struct Curl_easy * data,
     const size_t thislen)
 {
 	struct curl_slist * head;
-	DEBUGASSERT(thislen);
-	DEBUGASSERT(thisheader[thislen-1] != ':');
+	assert(thislen);
+	assert(thisheader[thislen-1] != ':');
 
 	for(head = data->set.headers; head; head = head->next) {
 		if(strncasecompare(head->data, thisheader, thislen) &&
@@ -422,7 +422,7 @@ static CURLcode readwrite_data(struct Curl_easy * data,
 	    data->set.max_recv_speed : CURL_OFF_T_MAX;
 	char * buf = data->state.buffer;
 	bool data_eof_handled = FALSE;
-	DEBUGASSERT(buf);
+	assert(buf);
 
 	*done = FALSE;
 	*comeback = FALSE;
@@ -1233,7 +1233,7 @@ int Curl_single_getsock(struct Curl_easy * data,
 
 	/* don't include HOLD and PAUSE connections */
 	if((data->req.keepon & KEEP_RECVBITS) == KEEP_RECV) {
-		DEBUGASSERT(conn->sockfd != CURL_SOCKET_BAD);
+		assert(conn->sockfd != CURL_SOCKET_BAD);
 
 		bitmap |= GETSOCK_READSOCK(sockindex);
 		sock[sockindex] = conn->sockfd;
@@ -1248,7 +1248,7 @@ int Curl_single_getsock(struct Curl_easy * data,
 			if(bitmap != GETSOCK_BLANK)
 				sockindex++; /* increase index if we need two entries */
 
-			DEBUGASSERT(conn->writesockfd != CURL_SOCKET_BAD);
+			assert(conn->writesockfd != CURL_SOCKET_BAD);
 
 			sock[sockindex] = conn->writesockfd;
 		}
@@ -1473,7 +1473,7 @@ CURLcode Curl_follow(struct Curl_easy * data,
 	bool reachedmax = FALSE;
 	CURLUcode uc;
 
-	DEBUGASSERT(type != FOLLOW_NONE);
+	assert(type != FOLLOW_NONE);
 
 	if(type != FOLLOW_FAKE)
 		data->state.requests++; /* count all real follows */
@@ -1535,7 +1535,7 @@ CURLcode Curl_follow(struct Curl_easy * data,
 		disallowport = TRUE;
 	}
 
-	DEBUGASSERT(data->state.uh);
+	assert(data->state.uh);
 	uc = curl_url_set(data->state.uh, CURLUPART_URL, newurl,
 		(type == FOLLOW_FAKE) ? CURLU_NON_SUPPORT_SCHEME :
 		((type == FOLLOW_REDIR) ? CURLU_URLENCODE : 0) |
@@ -1827,8 +1827,8 @@ void Curl_setup_transfer(struct Curl_easy * data,   /* transfer */
 	struct connectdata * conn = data->conn;
 	struct HTTP * http = data->req.p.http;
 	bool httpsending;
-	DEBUGASSERT(conn != NULL);
-	DEBUGASSERT((sockindex <= 1) && (sockindex >= -1));
+	assert(conn != NULL);
+	assert((sockindex <= 1) && (sockindex >= -1));
 	httpsending = ((conn->handler->protocol&PROTO_FAMILY_HTTP) && (http->sending == HTTP::HTTPSEND_REQUEST));
 	if(conn->bits.multiplex || conn->httpversion >= 20 || httpsending) {
 		/* when multiplexing, the read/write sockets need to be the same! */

@@ -43,7 +43,7 @@ static DWORD WINAPI thread_specific_data(void * private_data)
 	const char * filename = (const char*)private_data;
 	int okay = 1;
 
-	if(!strcmp(filename, "test/threads/invalid.xml")) {
+	if(sstreq(filename, "test/threads/invalid.xml")) {
 		xmlDoValidityCheckingDefaultValue = 0;
 		xmlGenericErrorContext = stdout;
 	}
@@ -59,7 +59,7 @@ static DWORD WINAPI thread_specific_data(void * private_data)
 		printf("parse failed\n");
 		okay = 0;
 	}
-	if(!strcmp(filename, "test/threads/invalid.xml")) {
+	if(sstreq(filename, "test/threads/invalid.xml")) {
 		if(xmlDoValidityCheckingDefaultValue != 0) {
 			printf("ValidityCheckingDefaultValue override failed\n");
 			okay = 0;

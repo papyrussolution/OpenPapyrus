@@ -62,7 +62,7 @@ static char *inet_ntop4(const uchar * src, char * dst, size_t size)
 	char tmp[sizeof("255.255.255.255")];
 	size_t len;
 
-	DEBUGASSERT(size >= 16);
+	assert(size >= 16);
 
 	tmp[0] = '\0';
 	(void)msnprintf(tmp, sizeof(tmp), "%d.%d.%d.%d",

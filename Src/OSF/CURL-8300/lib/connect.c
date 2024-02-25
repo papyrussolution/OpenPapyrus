@@ -273,7 +273,7 @@ static int conn_is_conn(struct Curl_easy * data,
 curl_socket_t Curl_getconnectinfo(struct Curl_easy * data,
     struct connectdata ** connp)
 {
-	DEBUGASSERT(data);
+	assert(data);
 
 	/* this works for an easy handle:
 	 * - that has been used for curl_easy_perform()
@@ -322,7 +322,7 @@ void Curl_conncontrol(struct connectdata * conn,
 	/* This function will be called both before and after this connection is
 	   associated with a transfer. */
 	bool closeit, is_multiplex;
-	DEBUGASSERT(conn);
+	assert(conn);
 #if defined(DEBUGBUILD) && !defined(CURL_DISABLE_VERBOSE_STRINGS)
 	(void)reason; /* useful for debugging */
 #endif
@@ -803,8 +803,8 @@ static void cf_he_ctx_clear(struct Curl_cfilter * cf, struct Curl_easy * data)
 {
 	struct cf_he_ctx * ctx = (cf_he_ctx *)cf->ctx;
 	size_t i;
-	DEBUGASSERT(ctx);
-	DEBUGASSERT(data);
+	assert(ctx);
+	assert(data);
 	for(i = 0; i < sizeof(ctx->baller)/sizeof(ctx->baller[0]); i++) {
 		baller_free(ctx->baller[i], data);
 		ctx->baller[i] = NULL;
@@ -851,12 +851,12 @@ static CURLcode cf_he_connect(struct Curl_cfilter * cf, struct Curl_easy * data,
 		return CURLE_OK;
 	}
 	(void)blocking; /* TODO: do we want to support this? */
-	DEBUGASSERT(ctx);
+	assert(ctx);
 	*done = FALSE;
 	switch(ctx->state) {
 		case SCFST_INIT:
-		    DEBUGASSERT(CURL_SOCKET_BAD == Curl_conn_cf_get_socket(cf, data));
-		    DEBUGASSERT(!cf->connected);
+		    assert(CURL_SOCKET_BAD == Curl_conn_cf_get_socket(cf, data));
+		    assert(!cf->connected);
 		    result = start_connect(cf, data, ctx->remotehost);
 		    if(result)
 			    return result;
@@ -865,9 +865,9 @@ static CURLcode cf_he_connect(struct Curl_cfilter * cf, struct Curl_easy * data,
 		case SCFST_WAITING:
 		    result = is_connected(cf, data, done);
 		    if(!result && *done) {
-			    DEBUGASSERT(ctx->winner);
-			    DEBUGASSERT(ctx->winner->cf);
-			    DEBUGASSERT(ctx->winner->cf->connected);
+			    assert(ctx->winner);
+			    assert(ctx->winner->cf);
+			    assert(ctx->winner->cf->connected);
 			    /* we have a winner. Install and activate it.
 			     * close/free all others. */
 			    ctx->state = SCFST_DONE;
@@ -1066,42 +1066,34 @@ struct transport_provider transport_providers[] = {
 	{ TRNSPRT_UNIX, Curl_cf_unix_create },
 };
 
-#ifndef ARRAYSIZE
-#define ARRAYSIZE(A) (sizeof(A)/sizeof((A)[0]))
-#endif
+// @v11.9.7 (replaced with SIZEOFARRAY) #ifndef ARRAYSIZE
+	// @v11.9.7 (replaced with SIZEOFARRAY) #define ARRAYSIZE(A) (sizeof(A)/sizeof((A)[0]))
+// @v11.9.7 (replaced with SIZEOFARRAY) #endif
 
-static cf_ip_connect_create *get_cf_create(int transport)
+static cf_ip_connect_create * get_cf_create(int transport)
 {
-	size_t i;
-	for(i = 0; i < ARRAYSIZE(transport_providers); ++i) {
+	for(size_t i = 0; i < SIZEOFARRAY(transport_providers); ++i) {
 		if(transport == transport_providers[i].transport)
 			return transport_providers[i].cf_create;
 	}
 	return NULL;
 }
 
-static CURLcode cf_he_insert_after(struct Curl_cfilter * cf_at,
-    struct Curl_easy * data,
-    const struct Curl_dns_entry * remotehost,
-    int transport)
+static CURLcode cf_he_insert_after(struct Curl_cfilter * cf_at, struct Curl_easy * data, const struct Curl_dns_entry * remotehost, int transport)
 {
 	cf_ip_connect_create * cf_create;
 	struct Curl_cfilter * cf;
 	CURLcode result;
-
 	/* Need to be first */
-	DEBUGASSERT(cf_at);
+	assert(cf_at);
 	cf_create = get_cf_create(transport);
 	if(!cf_create) {
 		CURL_TRC_CF(data, cf_at, "unsupported transport type %d", transport);
 		return CURLE_UNSUPPORTED_PROTOCOL;
 	}
-	result = cf_happy_eyeballs_create(&cf, data, cf_at->conn,
-		cf_create, remotehost,
-		transport);
+	result = cf_happy_eyeballs_create(&cf, data, cf_at->conn, cf_create, remotehost, transport);
 	if(result)
 		return result;
-
 	Curl_conn_cf_insert_after(cf_at, cf);
 	return CURLE_OK;
 }
@@ -1296,7 +1288,7 @@ static CURLcode cf_setup_add(struct Curl_easy * data,
 	struct Curl_cfilter * cf;
 	CURLcode result = CURLE_OK;
 
-	DEBUGASSERT(data);
+	assert(data);
 	result = cf_setup_create(&cf, data, remotehost, transport, ssl_mode);
 	if(result)
 		goto out;
@@ -1307,11 +1299,9 @@ out:
 
 #ifdef DEBUGBUILD
 /* used by unit2600.c */
-void Curl_debug_set_transport_provider(int transport,
-    cf_ip_connect_create * cf_create)
+void Curl_debug_set_transport_provider(int transport, cf_ip_connect_create * cf_create)
 {
-	size_t i;
-	for(i = 0; i < ARRAYSIZE(transport_providers); ++i) {
+	for(size_t i = 0; i < SIZEOFARRAY(transport_providers); ++i) {
 		if(transport == transport_providers[i].transport) {
 			transport_providers[i].cf_create = cf_create;
 			return;
@@ -1321,16 +1311,11 @@ void Curl_debug_set_transport_provider(int transport,
 
 #endif /* DEBUGBUILD */
 
-CURLcode Curl_cf_setup_insert_after(struct Curl_cfilter * cf_at,
-    struct Curl_easy * data,
-    const struct Curl_dns_entry * remotehost,
-    int transport,
-    int ssl_mode)
+CURLcode Curl_cf_setup_insert_after(struct Curl_cfilter * cf_at, struct Curl_easy * data, const struct Curl_dns_entry * remotehost, int transport, int ssl_mode)
 {
 	struct Curl_cfilter * cf;
 	CURLcode result;
-
-	DEBUGASSERT(data);
+	assert(data);
 	result = cf_setup_create(&cf, data, remotehost, transport, ssl_mode);
 	if(result)
 		goto out;
@@ -1347,13 +1332,13 @@ CURLcode Curl_conn_setup(struct Curl_easy * data,
 {
 	CURLcode result = CURLE_OK;
 
-	DEBUGASSERT(data);
-	DEBUGASSERT(conn->handler);
+	assert(data);
+	assert(conn->handler);
 
 #if !defined(CURL_DISABLE_HTTP) && !defined(USE_HYPER)
 	if(!conn->cfilter[sockindex] &&
 	    conn->handler->protocol == CURLPROTO_HTTPS) {
-		DEBUGASSERT(ssl_mode != CURL_CF_SSL_DISABLE);
+		assert(ssl_mode != CURL_CF_SSL_DISABLE);
 		result = Curl_cf_https_setup(data, conn, sockindex, remotehost);
 		if(result)
 			goto out;
@@ -1368,7 +1353,7 @@ CURLcode Curl_conn_setup(struct Curl_easy * data,
 			goto out;
 	}
 
-	DEBUGASSERT(conn->cfilter[sockindex]);
+	assert(conn->cfilter[sockindex]);
 out:
 	return result;
 }

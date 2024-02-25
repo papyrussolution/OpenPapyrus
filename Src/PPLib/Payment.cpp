@@ -64,7 +64,7 @@ SArray * PPObjBill::MakePaymentList(PPID id, int kind)
 	THROW(P_Tbl->Search(id, &bill_rec) > 0);
 	debt = BR2(bill_rec.Amount);
 	if(kind == LinkedBillFilt::lkOrdersByLading) { // @v10.8.4 Документы заказа, к которым привязана отгрузка
-		P_Tbl->GetListOfOrdersByLading(id, &ord_bill_list);
+		P_Tbl->GetListOfOrdersByLading(id, ord_bill_list);
 		ord_bill_list.setPointer(0);
 	}
 	else {
@@ -380,7 +380,7 @@ int PPViewLinkedBill::MakeList()
 		debt = (na < 0.0) ? -na : na; // @v10.3.3 na --> ((na < 0.0) ? -na : na)
 	}
 	if(Filt.Kind__ == LinkedBillFilt::lkOrdersByLading) { // @v10.8.4 Документы заказа, к которым привязана отгрузка
-		p_bt->GetListOfOrdersByLading(Filt.BillID, &ord_bill_list);
+		p_bt->GetListOfOrdersByLading(Filt.BillID, ord_bill_list);
 		ord_bill_list.setPointer(0);
 	}
 	else {

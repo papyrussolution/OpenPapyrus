@@ -572,7 +572,7 @@ CURLcode Curl_verify_certificate(struct Curl_cfilter * cf,
 	HCERTCHAINENGINE cert_chain_engine = NULL;
 	HCERTSTORE trust_store = NULL;
 
-	DEBUGASSERT(BACKEND);
+	assert(BACKEND);
 
 	sspi_status =
 	    s_pSecFn->QueryContextAttributes(&BACKEND->ctxt->ctxt_handle,

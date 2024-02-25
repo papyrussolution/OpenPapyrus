@@ -831,10 +831,10 @@ CURLcode rtsp_parse_transport(struct Curl_easy * data, char * transport)
 			start++;
 		end = strchr(start, ';');
 		if(checkprefix("interleaved=", start)) {
-			long chan1, chan2, chan;
+			long chan2, chan;
 			char * endp;
 			char * p = start + 12;
-			chan1 = strtol(p, &endp, 10);
+			long chan1 = strtol(p, &endp, 10);
 			if(p != endp && chan1 >= 0 && chan1 <= 255) {
 				uchar * rtp_channel_mask = data->state.rtp_channel_mask;
 				chan2 = chan1;
@@ -842,8 +842,7 @@ CURLcode rtsp_parse_transport(struct Curl_easy * data, char * transport)
 					p = endp + 1;
 					chan2 = strtol(p, &endp, 10);
 					if(p == endp || chan2 < 0 || chan2 > 255) {
-						infof(data, "Unable to read the interleaved parameter from "
-						    "Transport header: [%s]", transport);
+						infof(data, "Unable to read the interleaved parameter from Transport header: [%s]", transport);
 						chan2 = chan1;
 					}
 				}
@@ -854,8 +853,7 @@ CURLcode rtsp_parse_transport(struct Curl_easy * data, char * transport)
 				}
 			}
 			else {
-				infof(data, "Unable to read the interleaved parameter from "
-				    "Transport header: [%s]", transport);
+				infof(data, "Unable to read the interleaved parameter from Transport header: [%s]", transport);
 			}
 			break;
 		}

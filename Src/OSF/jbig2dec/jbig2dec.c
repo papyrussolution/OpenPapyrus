@@ -357,8 +357,7 @@ static void error_callback(void * error_callback_data, const char * message, Jbi
 		    type = "unknown message";
 		    break;
 	}
-
-	if(state->last_message && !strcmp(message, state->last_message) && state->severity == severity && state->type == type) {
+	if(state->last_message && sstreq(message, state->last_message) && state->severity == severity && state->type == type) {
 		state->repeats++;
 		if(state->repeats % 1000000 == 0) {
 			ret = slfprintf_stderr("jbig2dec %s last message repeated %ld times so far\n", state->type, state->repeats);

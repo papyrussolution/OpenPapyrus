@@ -50,20 +50,20 @@ int main(int argc, char ** argv)
 	xmlRelaxNGPtr schema = NULL;
 	for(i = 1; i < argc; i++) {
 #ifdef LIBXML_DEBUG_ENABLED
-		if((!strcmp(argv[i], "-debug")) || (!strcmp(argv[i], "--debug")))
+		if((sstreq(argv[i], "-debug")) || (sstreq(argv[i], "--debug")))
 			debug++;
 		else
 #endif
 #ifdef HAVE_MMAP
-		if((!strcmp(argv[i], "-memory")) || (!strcmp(argv[i], "--memory"))) {
+		if((sstreq(argv[i], "-memory")) || (sstreq(argv[i], "--memory"))) {
 			memory++;
 		}
 		else
 #endif
-		if((!strcmp(argv[i], "-noout")) || (!strcmp(argv[i], "--noout"))) {
+		if((sstreq(argv[i], "-noout")) || (sstreq(argv[i], "--noout"))) {
 			noout++;
 		}
-		else if((!strcmp(argv[i], "-tree")) || (!strcmp(argv[i], "--tree"))) {
+		else if((sstreq(argv[i], "-tree")) || (sstreq(argv[i], "--tree"))) {
 			tree++;
 		}
 	}
