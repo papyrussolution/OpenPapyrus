@@ -6,6 +6,7 @@
 #define IDI_ICON1                       523
 #define IDC_EDIT1                       1278
 #define IDC_BUTTON1                     1282
+#define CTLFRAME_POSPAYMBNK_PAPERLESS   1292
 
 // Next default values for new objects
 // 
@@ -13,7 +14,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        544
 #define _APS_NEXT_COMMAND_VALUE         40191
-#define _APS_NEXT_CONTROL_VALUE         1292
+#define _APS_NEXT_CONTROL_VALUE         1293
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

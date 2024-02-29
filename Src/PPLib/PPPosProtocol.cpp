@@ -1843,6 +1843,8 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 					case GTCHZNPT_PERFUMERY: p_chzn_type = "perfumery"; break; // @v11.3.1
 					case GTCHZNPT_MILK: p_chzn_type = "milk"; break; // @v11.3.1
 					case GTCHZNPT_WATER: p_chzn_type = "water"; break; // @v11.5.6
+					case GTCHZNPT_DRAFTBEER: p_chzn_type = "draftbeer"; break; // @v11.9.8
+					case GTCHZNPT_DIETARYSUPPLEMENT: p_chzn_type = "dietarysupplement"; break; // @v11.9.8
 				}
 				if(p_chzn_type)
 					w_s.PutInner("chznprodtype", p_chzn_type);
@@ -3208,6 +3210,10 @@ int PPPosProtocol::EndElement(const char * pName)
 						chznprodtype = GTCHZNPT_MILK;
 					else if(RdB.TagValue.IsEqiAscii("water")) // @v11.5.6
 						chznprodtype = GTCHZNPT_WATER;
+					else if(RdB.TagValue.IsEqiAscii("draftbeer")) // @v11.9.8
+						chznprodtype = GTCHZNPT_DRAFTBEER;
+					else if(RdB.TagValue.IsEqiAscii("dietarysupplement")) // @v11.9.8
+						chznprodtype = GTCHZNPT_DIETARYSUPPLEMENT;
 					if(chznprodtype)
 						static_cast<GoodsBlock *>(p_item)->ChZnProdType = chznprodtype;
 				}

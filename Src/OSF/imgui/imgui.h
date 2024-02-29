@@ -233,7 +233,7 @@ typedef unsigned int ImWchar32;     // A single decoded U32 character/code point
 // Callback and functions types
 typedef int (*ImGuiInputTextCallback)(ImGuiInputTextCallbackData* data); // Callback function for ImGui::InputText()
 typedef void (*ImGuiSizeCallback)(ImGuiSizeCallbackData* data);          // Callback function for ImGui::SetNextWindowSizeConstraints()
-typedef void*   (*ImGuiMemAllocFunc)(size_t sz, void* user_data);        // Function signature for ImGui::SetAllocatorFunctions()
+typedef void * (*ImGuiMemAllocFunc)(size_t sz, void* user_data);        // Function signature for ImGui::SetAllocatorFunctions()
 typedef void (*ImGuiMemFreeFunc)(void* ptr, void* user_data);            // Function signature for ImGui::SetAllocatorFunctions()
 
 // ImVec2: 2D vector used to store positions, sizes etc. [Compile-time configurable type]
@@ -2272,7 +2272,7 @@ struct ImGuiIO {
 // - ImGuiInputTextFlags_CallbackCharFilter:  Callback on character inputs to replace or discard them. Modify 'EventChar' to replace or discard, or return 1 in callback to discard.
 // - ImGuiInputTextFlags_CallbackResize:      Callback on buffer capacity changes request (beyond 'buf_size' parameter value), allowing the string to grow.
 struct ImGuiInputTextCallbackData {
-	ImGuiContext*       Ctx;        // Parent UI context
+	ImGuiContext * Ctx;             // Parent UI context
 	ImGuiInputTextFlags EventFlag;  // One ImGuiInputTextFlags_Callback*    // Read-only
 	ImGuiInputTextFlags Flags;      // What user passed to InputText()      // Read-only
 	void * UserData;   // What user passed to InputText()      // Read-only
@@ -2540,13 +2540,13 @@ struct ImGuiStorage {
 // - User code submit visible elements.
 // - The clipper also handles various subtleties related to keyboard/gamepad navigation, wrapping etc.
 struct ImGuiListClipper {
-	ImGuiContext*   Ctx;            // Parent UI context
-	int DisplayStart;               // First item to display, updated by each call to Step()
-	int DisplayEnd;                 // End of items to display (exclusive)
-	int ItemsCount;                 // [Internal] Number of items
-	float ItemsHeight;              // [Internal] Height of item after a first step and item submission can calculate it
-	float StartPosY;                // [Internal] Cursor position at the time of Begin() or after table frozen rows are all processed
-	void*           TempData;       // [Internal] Internal data
+	ImGuiContext * Ctx;    // Parent UI context
+	int DisplayStart;      // First item to display, updated by each call to Step()
+	int DisplayEnd;        // End of items to display (exclusive)
+	int ItemsCount;        // [Internal] Number of items
+	float ItemsHeight;     // [Internal] Height of item after a first step and item submission can calculate it
+	float StartPosY;       // [Internal] Cursor position at the time of Begin() or after table frozen rows are all processed
+	void * TempData;       // [Internal] Internal data
 
 	// items_count: Use INT_MAX if you don't know how many items you have (in which case the cursor won't be advanced in the final step)
 	// items_height: Use -1.0f to be calculated automatically on first step. Otherwise pass in the distance between your items, typically GetTextLineHeightWithSpacing() or GetFrameHeightWithSpacing().

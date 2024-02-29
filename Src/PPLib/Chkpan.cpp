@@ -381,7 +381,8 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack, con
 		SETFLAG(pPack->Rec.Flags, CCHKF_FIXEDPRICE, Eccd.Flags & Eccd.fFixedPrice);
 		SETFLAG(pPack->Rec.Flags, CCHKF_SPFINISHED, Eccd.Flags & Eccd.fSpFinished);
 		// @v11.3.6 {
-		/* @v11.8.11 if(!EAddr.IsEmpty()) {
+		// @v11.9.8 (похоже, я погорячился, закомментировав этот участок при перестройке работы блока строк расширеня чека) /* @v11.8.11 
+		if(!EAddr.IsEmpty()) {
 			if(EAddr.AddrType == SNTOK_EMAIL) {
 				pPack->PutExtStrData(CCheckPacket::extssBuyerEMail, EAddr.EAddr);
 				pPack->PutExtStrData(CCheckPacket::extssBuyerPhone, 0);
@@ -396,7 +397,8 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack, con
 			pPack->PutExtStrData(CCheckPacket::extssBuyerEMail, 0);
 			pPack->PutExtStrData(CCheckPacket::extssBuyerPhone, 0);
 			SETFLAG(pPack->Rec.Flags, CCHKF_PAPERLESS, 0);
-		}*/
+		}
+		// @v11.9.8 */
 		// } @v11.3.6 
 		// @v11.8.11 pPack->SetPrescription(Prescr); // @v11.7.12 
 		// @v11.8.8 {
@@ -3991,13 +3993,131 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 	return ok;
 }
 
-int CheckPaneDialog::ConfirmPosPaymBank(double amount)
+int CheckPaneDialog::ConfirmPosPaymBank(/*double amount*/PosPaymentBlock & rPpl)
 {
+	class ConfirmPosPaymBankDialog : public TDialog {
+		DECL_DIALOG_DATA(PosPaymentBlock);
+		enum {
+			dummyFirst = 1,
+			brushInvalid,
+			brushEAddrPhone,
+			brushEAddrEmail,
+		};
+	public:
+		ConfirmPosPaymBankDialog() : TDialog(DLG_POSPAYMBNK), Data(0, 0.0), EAddrInputState(0)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			Ptb.SetBrush(brushInvalid, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
+			Ptb.SetBrush(brushEAddrPhone, SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
+			Ptb.SetBrush(brushEAddrEmail, SPaintObj::bsSolid, GetColorRef(SClrCadetblue),  0);
+			if(!DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) {
+				showCtrl(CTL_POSPAYMBNK_EADDR, 0);
+				showCtrl(CTL_POSPAYMBNK_EADDRINF, 0);
+				showCtrl(CTL_POSPAYMBNK_PAPERLESS, 0);
+				showCtrl(CTLFRAME_POSPAYMBNK_PAPERLESS, 0);
+			}
+			setCtrlReal(CTL_POSPAYMBNK_AMOUNT, Data.AmtToPaym);
+			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) { // @v11.3.7
+				if(Data.EAddr.IsEmpty())
+					Data.EAddr.SetEMail(DS.GetConstTLA().PaperlessCheque_FakeEAddr);
+				setCtrlString(CTL_POSPAYMBNK_EADDR, Data.EAddr.EAddr);
+				setCtrlUInt16(CTL_POSPAYMBNK_PAPERLESS, BIN(Data.Flags & PosPaymentBlock::fPaperless));
+			}
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			uint16 v = 0;
+			Data.SetBuyersEAddr(0, 0);
+			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) {
+				SString eaddr_buf;
+				getCtrlString(CTL_POSPAYMBNK_EADDR, eaddr_buf);
+				const int eaddr_status = GetEAddrStatus(eaddr_buf);
+				if(oneof2(eaddr_status, SNTOK_EMAIL, SNTOK_PHONE)) {
+					if(eaddr_status == SNTOK_PHONE) {
+						SString normal_phone;
+						eaddr_buf = PPEAddr::Phone::NormalizeStr(eaddr_buf, 0, normal_phone);
+					}
+					Data.SetBuyersEAddr(eaddr_status, eaddr_buf);
+					v = getCtrlUInt16(CTL_POSPAYMBNK_PAPERLESS);
+					SETFLAG(Data.Flags, PosPaymentBlock::fPaperless, v);
+				}
+				else
+					Data.Flags &= ~PosPaymentBlock::fPaperless;
+			}
+			else
+				Data.Flags &= ~PosPaymentBlock::fPaperless;
+			ASSIGN_PTR(pData, Data);
+			return ok;
+
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(TVCMD == cmCtlColor) {
+				TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
+				if(p_dc && getCtrlHandle(CTL_POSPAYMBNK_EADDR) == p_dc->H_Ctl) {
+					int brush_ident = 0;
+					if(EAddrInputState == SNTOK_PHONE)
+						brush_ident = brushEAddrPhone;
+					else if(EAddrInputState == SNTOK_EMAIL)
+						brush_ident = brushEAddrEmail;
+					else if(EAddrInputState < 0)
+						brush_ident = brushInvalid;
+					if(brush_ident) {
+						::SetBkMode(p_dc->H_DC, TRANSPARENT);
+						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brush_ident));
+					}
+				}
+				else
+					return;
+			}
+			else if(event.isCmd(cmInputUpdated)) {
+				if(event.isCtlEvent(CTL_POSPAYMBNK_EADDR)) {
+					SString eaddr_buf;
+					getCtrlString(CTL_POSPAYMBNK_EADDR, eaddr_buf);
+					EAddrInputState = GetEAddrStatus(eaddr_buf);
+					drawCtrl(CTL_POSPAYMBNK_EADDR);
+				}
+			}
+		}
+		int    GetEAddrStatus(SString & rBuf)
+		{
+			int    status = 0;
+			if(rBuf.NotEmptyS()) {
+				SNaturalTokenArray nta;
+				Trgn.Run(rBuf.ucptr(), rBuf.Len(), nta, 0);
+				if(nta.Has(SNTOK_PHONE))
+					status = SNTOK_PHONE;
+				else if(nta.Has(SNTOK_EMAIL))
+					status = SNTOK_EMAIL;
+				else
+					status = -1;
+			}
+			else
+				status = 0;
+			return status;
+		}
+		SPaintToolBox Ptb;
+		PPTokenRecognizer Trgn;
+		int    EAddrInputState; // 0 - empty, -1 - invalid, SNTOK_PHONE, SNTOK_EMAIL
+	};
 	int    yes = 1;
-	if(amount != 0.0) {
+	if(/*amount*/rPpl.AmtToPaym != 0.0) {
 		TDialog * dlg = new TDialog(DLG_POSPAYMBNK);
 		if(CheckDialogPtrErr(&dlg)) {
-			dlg->setCtrlReal(CTL_POSPAYMBNK_AMOUNT, amount);
+			// @v11.9.8 {
+			if(!DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) {
+				dlg->showCtrl(CTL_POSPAYMBNK_EADDR, 0);
+				dlg->showCtrl(CTL_POSPAYMBNK_EADDRINF, 0);
+				dlg->showCtrl(CTL_POSPAYMBNK_PAPERLESS, 0);
+				dlg->showCtrl(CTLFRAME_POSPAYMBNK_PAPERLESS, 0);
+			}
+			// } @v11.9.8
+			dlg->setCtrlReal(CTL_POSPAYMBNK_AMOUNT, /*amount*/rPpl.AmtToPaym);
 			if(ExecViewAndDestroy(dlg) != cmOK)
 				yes = 0;
 		}
@@ -4375,9 +4495,19 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 							}
 							break;
 						case cpmBank:
-							if(ConfirmPosPaymBank(paym_blk2.AmtToPaym)) {
+							if(ConfirmPosPaymBank(/*paym_blk2.AmtToPaym*/paym_blk2)) {
 								SString bnk_slip_buf;
 								int    bnk_paym_result = 1;
+								// @v11.9.8 {
+								if(!paym_blk2.EAddr.IsEmpty()) {
+									P.EAddr = paym_blk2.EAddr;
+									P.Paperless = LOGIC(paym_blk2.Flags & PosPaymentBlock::fPaperless);
+								}
+								else {
+									P.EAddr.Z();
+									P.Paperless = false;
+								}
+								// } @v11.9.8 
 								if(P_BNKTERM) {
 									const int r = (paym_blk2.AmtToPaym < 0) ? P_BNKTERM->Refund(-paym_blk2.AmtToPaym, bnk_slip_buf) : P_BNKTERM->Pay(paym_blk2.AmtToPaym, bnk_slip_buf);
 									if(!r) {
@@ -4443,7 +4573,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 									}
 									// } @v11.3.6 
 									if(CsObj.GetEqCfg().Flags & PPEquipConfig::fUnifiedPaymentCfmBank &&
-										paym_blk2.CcPl.Get(CCAMTTYP_CASH) == 0.0 && !ConfirmPosPaymBank(paym_blk2.CcPl.Get(CCAMTTYP_BANK))) {
+										paym_blk2.CcPl.Get(CCAMTTYP_CASH) == 0.0 && !ConfirmPosPaymBank(/*paym_blk2.CcPl.Get(CCAMTTYP_BANK)*/paym_blk2)) {
 										_again = 1;
 									}
 									else {

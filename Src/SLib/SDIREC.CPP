@@ -414,7 +414,15 @@ int SFileEntryPool::Helper_Scan(const char * pPath, const char * pWildcard, long
 		if(!sisascii(fb.Name, sstrlen(fb.Name)))
 			non_ascii_count++;
 		// } @debug 
-		if(!fb.IsSelf() && !fb.IsUpFolder()) {
+		if(fb.IsUpFolder()) {
+			// @v11.9.7 {
+			if(flags & scanfReckonUpFolder) {
+				THROW(Add(pPath, fb, flags));
+				ok = 1;
+			}
+			// } @v11.9.7 
+		}
+		else if(!fb.IsSelf()) {
 			if(fb.IsFile()) {
 				THROW(Add(pPath, fb, flags));
 				ok = 1;
@@ -589,45 +597,52 @@ IMPL_CMPFUNC(SFileEntryPool_Entry, p1, p2)
     const SFileEntryPool::InnerEntry * p_entry1 = static_cast<const SFileEntryPool::InnerEntry *>(p1);
     const SFileEntryPool::InnerEntry * p_entry2 = static_cast<const SFileEntryPool::InnerEntry *>(p2);
     const int _desc = BIN(p_blk->Order & SFileEntryPool::scDesc);
-    switch(p_blk->Order & ~SFileEntryPool::scDesc) {
-    	case SFileEntryPool::scByName:
-    		{
-				p_blk->P_Pool->GetS(p_entry1->NameP, p_blk->TempBuf1);
-				p_blk->P_Pool->GetS(p_entry2->NameP, p_blk->TempBuf2);
-                si = p_blk->TempBuf1.CmpNC(p_blk->TempBuf2); // @todo @fixme Здесь должно быть сравнение utf8
-    		}
-			break;
-    	case SFileEntryPool::scByExt:
-    		{
-    			SString ext1, ext2;
-				p_blk->P_Pool->GetS(p_entry1->NameP, p_blk->TempBuf1);
-				p_blk->P_Pool->GetS(p_entry2->NameP, p_blk->TempBuf2);
-				SFsPath::GetExt(p_blk->TempBuf1, &ext1);
-				SFsPath::GetExt(p_blk->TempBuf2, &ext2);
-				si = ext1.CmpNC(ext2);
-				SETIFZ(si, p_blk->TempBuf1.CmpNC(p_blk->TempBuf2)); // @todo @fixme Здесь должно быть сравнение utf8
-    		}
-    		break;
-    	case SFileEntryPool::scByFullName:
-    		{
-    			SString fp1, fp2;
-				p_blk->P_Pool->GetS(p_entry1->PathP, fp1);
-				p_blk->P_Pool->GetS(p_entry2->PathP, fp2);
-				p_blk->P_Pool->GetS(p_entry1->NameP, p_blk->TempBuf1);
-				p_blk->P_Pool->GetS(p_entry2->NameP, p_blk->TempBuf2);
-				fp1.SetLastSlash().Cat(p_blk->TempBuf1);
-				fp2.SetLastSlash().Cat(p_blk->TempBuf2);
-				si = fp1.CmpNC(fp2); // @todo @fixme Здесь должно быть сравнение utf8
-    		}
-    		break;
-    	// @v11.8.11 case SFileEntryPool::scByCrTime: si = cmp(p_entry1->CrtTime, p_entry2->CrtTime); break;
-    	// @v11.8.11 case SFileEntryPool::scByAccsTime: si = cmp(p_entry1->AccsTime, p_entry2->AccsTime); break;
-    	// @v11.8.11 case SFileEntryPool::scByWrTime: si = cmp(p_entry1->ModTime, p_entry2->ModTime); break;
-    	case SFileEntryPool::scByCrTime: si = CMPSIGN(p_entry1->CrtTm_, p_entry2->CrtTm_); break; // @v11.8.11 
-    	case SFileEntryPool::scByAccsTime: si = CMPSIGN(p_entry1->AccsTm_, p_entry2->AccsTm_); break; // @v11.8.11 
-    	case SFileEntryPool::scByWrTime: si = CMPSIGN(p_entry1->ModTm_, p_entry2->ModTm_); break; // @v11.8.11 
-    	case SFileEntryPool::scBySize: si = CMPSIGN(p_entry1->Size, p_entry2->Size); break;
-    }
+	// @v11.9.7 {
+	const bool not_fold1 = !p_entry1->IsFolder();
+	const bool not_fold2 = !p_entry2->IsFolder();
+	si = CMPSIGN(not_fold1, not_fold2);
+	// } @v11.9.7 
+	if(si == 0) {
+		switch(p_blk->Order & ~SFileEntryPool::scDesc) {
+    		case SFileEntryPool::scByName:
+    			{
+					p_blk->P_Pool->GetS(p_entry1->NameP, p_blk->TempBuf1);
+					p_blk->P_Pool->GetS(p_entry2->NameP, p_blk->TempBuf2);
+					si = p_blk->TempBuf1.CmpNC(p_blk->TempBuf2); // @todo @fixme Здесь должно быть сравнение utf8
+    			}
+				break;
+    		case SFileEntryPool::scByExt:
+    			{
+    				SString ext1, ext2;
+					p_blk->P_Pool->GetS(p_entry1->NameP, p_blk->TempBuf1);
+					p_blk->P_Pool->GetS(p_entry2->NameP, p_blk->TempBuf2);
+					SFsPath::GetExt(p_blk->TempBuf1, &ext1);
+					SFsPath::GetExt(p_blk->TempBuf2, &ext2);
+					si = ext1.CmpNC(ext2);
+					SETIFZ(si, p_blk->TempBuf1.CmpNC(p_blk->TempBuf2)); // @todo @fixme Здесь должно быть сравнение utf8
+    			}
+    			break;
+    		case SFileEntryPool::scByFullName:
+    			{
+    				SString fp1, fp2;
+					p_blk->P_Pool->GetS(p_entry1->PathP, fp1);
+					p_blk->P_Pool->GetS(p_entry2->PathP, fp2);
+					p_blk->P_Pool->GetS(p_entry1->NameP, p_blk->TempBuf1);
+					p_blk->P_Pool->GetS(p_entry2->NameP, p_blk->TempBuf2);
+					fp1.SetLastSlash().Cat(p_blk->TempBuf1);
+					fp2.SetLastSlash().Cat(p_blk->TempBuf2);
+					si = fp1.CmpNC(fp2); // @todo @fixme Здесь должно быть сравнение utf8
+    			}
+    			break;
+    		// @v11.8.11 case SFileEntryPool::scByCrTime: si = cmp(p_entry1->CrtTime, p_entry2->CrtTime); break;
+    		// @v11.8.11 case SFileEntryPool::scByAccsTime: si = cmp(p_entry1->AccsTime, p_entry2->AccsTime); break;
+    		// @v11.8.11 case SFileEntryPool::scByWrTime: si = cmp(p_entry1->ModTime, p_entry2->ModTime); break;
+    		case SFileEntryPool::scByCrTime: si = CMPSIGN(p_entry1->CrtTm_, p_entry2->CrtTm_); break; // @v11.8.11 
+    		case SFileEntryPool::scByAccsTime: si = CMPSIGN(p_entry1->AccsTm_, p_entry2->AccsTm_); break; // @v11.8.11 
+    		case SFileEntryPool::scByWrTime: si = CMPSIGN(p_entry1->ModTm_, p_entry2->ModTm_); break; // @v11.8.11 
+    		case SFileEntryPool::scBySize: si = CMPSIGN(p_entry1->Size, p_entry2->Size); break;
+		}
+	}
     return (si && _desc) ? -si : si;
 }
 

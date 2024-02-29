@@ -320,8 +320,8 @@ static inline int  ImUpperPowerOfTwo(int v) { v--; v |= v >> 1; v |= v >> 2; v |
 // @sobolev int ImStricmp(const char* str1, const char* str2);
 int           ImStrnicmp(const char* str1, const char* str2, size_t count);
 void          ImStrncpy(char* dst, const char* src, size_t count);
-char*         ImStrdup(const char* str);
-char*         ImStrdupcpy(char* dst, size_t* p_dst_size, const char* str);
+// @v11.9.7 (replaced with sstrdup) char * ImStrdup(const char* str);
+char * ImStrdupcpy(char* dst, size_t* p_dst_size, const char* str);
 const char*   ImStrchrRange(const char* str_begin, const char* str_end, char c);
 int           ImStrlenW(const ImWchar* str);
 const char*   ImStreolRange(const char* str, const char* str_end);                // End end-of-line
@@ -431,14 +431,15 @@ static inline ImVec2 ImFloor(const ImVec2 & v)      { return ImVec2((float)(int)
 static inline ImVec2 ImFloorSigned(const ImVec2 & v) { return ImVec2(ImFloorSigned(v.x), ImFloorSigned(v.y)); }
 static inline int ImModPositive(int a, int b)        { return (a + b) % b; }
 static inline float ImDot(const ImVec2 & a, const ImVec2 & b) { return a.x * b.x + a.y * b.y; }
-static inline ImVec2 ImRotate(const ImVec2 & v, float cos_a, float sin_a)    { return ImVec2(v.x * cos_a - v.y * sin_a, v.x * sin_a + v.y * cos_a); }
+static inline ImVec2 ImRotate(const ImVec2 & v, float cos_a, float sin_a) { return ImVec2(v.x * cos_a - v.y * sin_a, v.x * sin_a + v.y * cos_a); }
 static inline float ImLinearSweep(float current, float target, float speed)    
 { 
 	if(current < target)   
 		return smin(current + speed, target); 
-	if(current > target)  
+	else if(current > target)  
 		return smax(current - speed, target); 
-	return current; 
+	else
+		return current; 
 }
 static inline ImVec2 ImMul(const ImVec2 & lhs, const ImVec2 & rhs) { return ImVec2(lhs.x * rhs.x, lhs.y * rhs.y); }
 static inline bool   ImIsFloatAboveGuaranteedIntegerPrecision(float f) { return f <= -16777216 || f >= 16777216; }
@@ -451,9 +452,9 @@ ImVec2 ImBezierCubicClosestPoint(const ImVec2 & p1, const ImVec2 & p2, const ImV
 ImVec2 ImBezierCubicClosestPointCasteljau(const ImVec2 & p1, const ImVec2 & p2, const ImVec2 & p3, const ImVec2 & p4, const ImVec2 & p, float tess_tol);    // For auto-tessellated curves you can use tess_tol = style.CurveTessellationTol
 ImVec2 ImBezierQuadraticCalc(const ImVec2 & p1, const ImVec2 & p2, const ImVec2 & p3, float t);
 ImVec2 ImLineClosestPoint(const ImVec2 & a, const ImVec2 & b, const ImVec2 & p);
-bool ImTriangleContainsPoint(const ImVec2 & a, const ImVec2 & b, const ImVec2 & c, const ImVec2 & p);
+bool   ImTriangleContainsPoint(const ImVec2 & a, const ImVec2 & b, const ImVec2 & c, const ImVec2 & p);
 ImVec2 ImTriangleClosestPoint(const ImVec2 & a, const ImVec2 & b, const ImVec2 & c, const ImVec2 & p);
-void ImTriangleBarycentricCoords(const ImVec2 & a, const ImVec2 & b, const ImVec2 & c, const ImVec2 & p, float& out_u, float& out_v, float& out_w);
+void   ImTriangleBarycentricCoords(const ImVec2 & a, const ImVec2 & b, const ImVec2 & c, const ImVec2 & p, float& out_u, float& out_v, float& out_w);
 inline float ImTriangleArea(const ImVec2 & a, const ImVec2 & b, const ImVec2 & c) { return ImFabs((a.x * (b.y - c.y)) + (b.x * (c.y - a.y)) + (c.x * (a.y - b.y))) * 0.5f; }
 ImGuiDir ImGetDirQuadrantFromDelta(float dx, float dy);
 
@@ -502,10 +503,10 @@ struct ImRect {
 	float  GetWidth() const { return Max.x - Min.x; }
 	float  GetHeight() const { return Max.y - Min.y; }
 	float  GetArea() const { return (Max.x - Min.x) * (Max.y - Min.y); }
-	ImVec2 GetTL() const { return Min; }                                     // Top-left
-	ImVec2 GetTR() const { return ImVec2(Max.x, Min.y); }                    // Top-right
-	ImVec2 GetBL() const { return ImVec2(Min.x, Max.y); }                    // Bottom-left
-	ImVec2 GetBR() const { return Max; }                                     // Bottom-right
+	ImVec2 GetTL() const { return Min; }                  // Top-left
+	ImVec2 GetTR() const { return ImVec2(Max.x, Min.y); } // Top-right
+	ImVec2 GetBL() const { return ImVec2(Min.x, Max.y); } // Bottom-left
+	ImVec2 GetBR() const { return Max; }                  // Bottom-right
 	bool Contains(const ImVec2 & p) const { return p.x     >= Min.x && p.y     >= Min.y && p.x     <  Max.x && p.y     <  Max.y; }
 	bool Contains(const ImRect& r) const { return r.Min.x >= Min.x && r.Min.y >= Min.y && r.Max.x <= Max.x && r.Max.y <= Max.y; }
 	bool Overlaps(const ImRect& r) const { return r.Min.y <  Max.y && r.Max.y >  Min.y && r.Min.x <  Max.x && r.Max.x >  Min.x; }
@@ -554,9 +555,9 @@ struct ImRect {
 #define IM_BITARRAY_CLEARBIT(_ARRAY, _N) ((_ARRAY[(_N) >> 5] &= ~((ImU32)1 << ((_N) & 31))))    // Macro version of ImBitArrayClearBit(): ensure args have side-effect or are costly!
 inline size_t ImBitArrayGetStorageSizeInBytes(int bitcount)   { return (size_t)((bitcount + 31) >> 5) << 2; }
 inline void ImBitArrayClearAllBits(ImU32* arr, int bitcount) { memzero(arr, ImBitArrayGetStorageSizeInBytes(bitcount)); }
-inline bool ImBitArrayTestBit(const ImU32* arr, int n)      { ImU32 mask = (ImU32)1 << (n & 31); return (arr[n >> 5] & mask) != 0; }
-inline void ImBitArrayClearBit(ImU32* arr, int n)           { ImU32 mask = (ImU32)1 << (n & 31); arr[n >> 5] &= ~mask; }
-inline void ImBitArraySetBit(ImU32* arr, int n)             { ImU32 mask = (ImU32)1 << (n & 31); arr[n >> 5] |= mask; }
+inline bool ImBitArrayTestBit(const ImU32* arr, int n) { ImU32 mask = (ImU32)1 << (n & 31); return (arr[n >> 5] & mask) != 0; }
+inline void ImBitArrayClearBit(ImU32* arr, int n)      { ImU32 mask = (ImU32)1 << (n & 31); arr[n >> 5] &= ~mask; }
+inline void ImBitArraySetBit(ImU32* arr, int n)        { ImU32 mask = (ImU32)1 << (n & 31); arr[n >> 5] |= mask; }
 inline void ImBitArraySetBitRange(ImU32* arr, int n, int n2)     // Works on range [n..n2)
 {
 	n2 --;
@@ -830,11 +831,9 @@ struct ImGuiTextIndex {
 	const char*     get_line_end(const char* base, int n)   { return base + (n + 1 < LineOffsets.Size ? (LineOffsets[n + 1] - 1) : EndOffset); }
 	void append(const char* base, int old_size, int new_size);
 };
-
-//-----------------------------------------------------------------------------
+//
 // [SECTION] ImDrawList support
-//-----------------------------------------------------------------------------
-
+//
 // ImDrawList: Helper function to calculate a circle's segment count given its radius and a "maximum error" value.
 // Estimation of number of circle segment based on error is derived using method described in https://stackoverflow.com/a/2244088/15194693
 // Number of segments (N) is calculated using equation:
@@ -1905,7 +1904,7 @@ struct ImGuiContextHook {
 //
 struct ImGuiContext {
 	bool   Initialized;
-	bool   FontAtlasOwnedByContext;                           // IO.Fonts-> is owned by the ImGuiContext and will be destructed along with it.
+	bool   FontAtlasOwnedByContext; // IO.Fonts-> is owned by the ImGuiContext and will be destructed along with it.
 	ImGuiIO IO;
 	ImGuiStyle Style;
 	ImFont * Font;                           // (Shortcut) == FontStack.empty() ? IO.Font : FontStack.back()

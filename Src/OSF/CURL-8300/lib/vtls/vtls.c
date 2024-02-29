@@ -118,11 +118,11 @@ static CURLcode blobdup(struct curl_blob ** dest, struct curl_blob * src)
 static bool blobcmp(struct curl_blob * first, struct curl_blob * second)
 {
 	if(!first && !second) /* both are NULL */
-		return TRUE;
+		return true;
 	if(!first || !second) /* one is NULL */
-		return FALSE;
+		return false;
 	if(first->len != second->len) /* different sizes */
-		return FALSE;
+		return false;
 	return !memcmp(first->data, second->data, first->len); /* same data */
 }
 
@@ -153,13 +153,10 @@ static const struct alpn_spec *alpn_get_spec(int httpwant, bool use_alpn) {
 
 #endif /* USE_SSL */
 
-bool Curl_ssl_config_matches(struct ssl_primary_config * data,
-    struct ssl_primary_config * needle)
+bool Curl_ssl_config_matches(const struct ssl_primary_config * data, const struct ssl_primary_config * needle)
 {
-	if((data->version == needle->version) &&
-	    (data->version_max == needle->version_max) &&
-	    (data->ssl_options == needle->ssl_options) &&
-	    (data->verifypeer == needle->verifypeer) &&
+	if((data->version == needle->version) && (data->version_max == needle->version_max) &&
+	    (data->ssl_options == needle->ssl_options) && (data->verifypeer == needle->verifypeer) &&
 	    (data->verifyhost == needle->verifyhost) &&
 	    (data->verifystatus == needle->verifystatus) &&
 	    blobcmp(data->cert_blob, needle->cert_blob) &&
@@ -394,18 +391,15 @@ bool Curl_ssl_getsessionid(struct Curl_cfilter * cf, struct Curl_easy * data, vo
 		return TRUE;
 
 	assert(ssl_config->primary.sessionid);
-
 	if(!ssl_config->primary.sessionid || !data->state.session)
 		/* session ID reuse is disabled or the session cache has not been
 		   setup */
 		return TRUE;
-
 	/* Lock if shared */
 	if(SSLSESSION_SHARED(data))
 		general_age = &data->share->sessionage;
 	else
 		general_age = &data->state.sessionage;
-
 	for(i = 0; i < data->set.general_ssl.max_ssl_sessions; i++) {
 		check = &data->state.session[i];
 		if(!check->sessionid)

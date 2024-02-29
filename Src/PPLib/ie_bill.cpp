@@ -6859,6 +6859,8 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 						if(chzn_prod_type == GTCHZNPT_MILK && is_weighted_ware) { // @v11.9.7
 							// Для весовой молочной продукции указывается количество упаковок - пока пишем фиксированную единицу
 							(temp_buf = barcode_for_marking).PadLeft(14-barcode_for_marking.Len(), '0').Insert(0, "02").Cat("37").Cat("1");
+							SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
+							n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
 						}
 						else {
 							(temp_buf = barcode_for_marking).PadLeft(14-barcode_for_marking.Len(), '0').Insert(0, "02").Cat("37").Cat(R0i(qtty_local));

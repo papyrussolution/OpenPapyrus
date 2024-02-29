@@ -3701,10 +3701,13 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 			//
 			gen.Wr_StartClassDecl(Generator_CPP::clsStruct, "Rec", 0, Generator_CPP::acsPublic, 0);
 			gen.IndentInc();
-			// @v10.6.4 {
 			gen.Wr_StartDeclFunc(Generator_CPP::fkConstr, 0, 0, "Rec");
 			gen.Wr_EndDeclFunc(1, 1);
-			// } @v10.6.4
+			// @v11.9.8 {
+			gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, 0, "Rec &", "Clear"); // Функция обнуления записи. Функция должны была называться Z() (ради унифицированной семантики), но 
+				// из-за того, что в существующих таблицах есть поля с именем Z пришлось использовать олдскульный Clear().
+			gen.Wr_EndDeclFunc(1, 1);
+			// } @v11.9.8 
 			for(uint fldidx = 0; p_ds->EnumFields(&fldidx, &fld);) {
 				THROW(Format_C_Type(0, fld.T, fld.Name, fctfSourceOutput, fld_buf));
 				if(fld.T.IsPure()) {
@@ -4518,10 +4521,7 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 	SString msg_buf;
 	LongArray scope_id_list;
 	Sc.GetChildList(DlScope::kDbTable, 1, &scope_id_list);
-
-	//SString sql_file_name;
-	//Generator_SQL * p_sqlgen = 0;
-	TSCollection <Generator_SQL> sqlgen_list; // @v10.9.1
+	TSCollection <Generator_SQL> sqlgen_list;
 	if(SVector::GetCount(pSqlServerTypeList)) {
 		PPIDArray sqlserver_type_list(*pSqlServerTypeList);
 		sqlserver_type_list.sortAndUndup();
@@ -4584,7 +4584,6 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 					uint j;
 					for(j = 0; j < tbl.GetIndices().getNumKeys(); j++) {
 						int   do_skip_index = 0;
-						// @v10.9.1 {
 						if(p_sqlgen->GetServerType() == sqlstMySQL && j == 0) {
 							const BNFieldList & r_fl = tbl.GetFields();
 							for(uint fi = 0; !do_skip_index && fi < r_fl.getCount(); fi++) {
@@ -4592,7 +4591,6 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 									do_skip_index = 1;
 							}
 						}
-						// } @v10.9.1 
 						if(!do_skip_index) {
 							p_sqlgen->CreateIndex(tbl, tbl.GetTableName(), j);
 							p_sqlgen->Eos();
@@ -4862,7 +4860,7 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 			//
 			if(cflags & cfDebug)
 				gen.WriteLine(line_buf.Z().Cat("#pragma pack(show)").CR().CR());
-			if(!Write_C_DeclFile(gen, Sc, cflags))
+			if(!Write_C_DeclFile(gen, Sc, cflags)) // Body of the header file
 				Error(LastError, 0, 0);
 			if(cflags & cfDebug)
 				gen.WriteLine(line_buf.Z().CR().Cat("#pragma pack(show)").CR());

@@ -1,5 +1,10 @@
 {
 	"symb": "ui",
+	"value_list": {
+		"button_std_height": 24,
+		"button_std_width": 64,
+		"button_double_width": 128
+	},
 	"fontsrc_list": [
 		{
 			"face": "Cousine",

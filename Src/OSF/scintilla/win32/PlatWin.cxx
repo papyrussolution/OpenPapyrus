@@ -344,8 +344,7 @@ FontID FontCached::FindOrCreate(const FontParameters &fp)
 	::EnterCriticalSection(&crPlatformLock);
 	int hashFind = HashFont(fp);
 	for(FontCached * cur = first; cur; cur = cur->next) {
-		if((cur->hash == hashFind) &&
-		    cur->SameAs(fp)) {
+		if((cur->hash == hashFind) && cur->SameAs(fp)) {
 			cur->usage++;
 			ret = cur->fid;
 		}

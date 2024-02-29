@@ -774,7 +774,6 @@ static void ShowDemoWindowWidgets()
 			ImGui::SameLine(); HelpMarker(
 				"Using the simplified one-liner ListBox API here.\nRefer to the \"List boxes\" section below for an explanation of how to use the more flexible and general BeginListBox/EndListBox API.");
 		}
-
 		ImGui::TreePop();
 	}
 
@@ -1224,7 +1223,6 @@ static void ShowDemoWindowWidgets()
 		IMGUI_DEMO_MARKER("Widgets/Selectables/In columns");
 		if(ImGui::TreeNode("In columns")) {
 			static bool selected[10] = {};
-
 			if(ImGui::BeginTable("split1", 3, ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_Borders)) {
 				for(int i = 0; i < 10; i++) {
 					char label[32];
@@ -2277,52 +2275,49 @@ static void ShowDemoWindowWidgets()
 			ImGui::BeginDisabled(true);
 		if(item_type == 0) {
 			ImGui::Text("ITEM: Text");
-		}                                                                                       // Testing text items with no identifier/interaction
+		} // Testing text items with no identifier/interaction
 		if(item_type == 1) {
 			ret = ImGui::Button("ITEM: Button");
-		}                                                                                       // Testing button
+		} // Testing button
 		if(item_type == 2) {
 			ImGui::PushButtonRepeat(true); ret = ImGui::Button("ITEM: Button"); ImGui::PopButtonRepeat();
-		}                                                                                                             // Testing button (with repeater)
+		} // Testing button (with repeater)
 		if(item_type == 3) {
 			ret = ImGui::Checkbox("ITEM: Checkbox", &b);
-		}                                                                                       // Testing checkbox
+		} // Testing checkbox
 		if(item_type == 4) {
 			ret = ImGui::SliderFloat("ITEM: SliderFloat", &col4f[0], 0.0f, 1.0f);
-		}                                                                                       // Testing basic item
+		} // Testing basic item
 		if(item_type == 5) {
 			ret = ImGui::InputText("ITEM: InputText", &str[0], SIZEOFARRAYi(str));
-		}                                                                                       // Testing input text (which handles tabbing)
+		} // Testing input text (which handles tabbing)
 		if(item_type == 6) {
 			ret = ImGui::InputTextMultiline("ITEM: InputTextMultiline", &str[0], SIZEOFARRAYi(str));
-		}                                                                                                        // Testing input text (which uses a child window)
+		} // Testing input text (which uses a child window)
 		if(item_type == 7) {
 			ret = ImGui::InputFloat("ITEM: InputFloat", col4f, 1.0f);
-		}                                                                                       // Testing +/- buttons on scalar input
+		} // Testing +/- buttons on scalar input
 		if(item_type == 8) {
 			ret = ImGui::InputFloat3("ITEM: InputFloat3", col4f);
-		}                                                                                       // Testing multi-component items (IsItemXXX flags are reported merged)
+		} // Testing multi-component items (IsItemXXX flags are reported merged)
 		if(item_type == 9) {
 			ret = ImGui::ColorEdit4("ITEM: ColorEdit4", col4f);
-		}                                                                                       // Testing multi-component items (IsItemXXX flags are reported merged)
+		} // Testing multi-component items (IsItemXXX flags are reported merged)
 		if(item_type == 10) {
 			ret = ImGui::Selectable("ITEM: Selectable");
-		}                                                                                       // Testing selectable item
+		} // Testing selectable item
 		if(item_type == 11) {
 			ret = ImGui::MenuItem("ITEM: MenuItem");
-		}                                                                                       // Testing menu item (they use ImGuiButtonFlags_PressedOnRelease button policy)
+		} // Testing menu item (they use ImGuiButtonFlags_PressedOnRelease button policy)
 		if(item_type == 12) {
 			ret = ImGui::TreeNode("ITEM: TreeNode"); if(ret)  ImGui::TreePop();
-		}                                                                                       // Testing tree node
+		} // Testing tree node
 		if(item_type == 13) {
-			ret =
-			    ImGui::TreeNodeEx("ITEM: TreeNode w/ ImGuiTreeNodeFlags_OpenOnDoubleClick", ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_NoTreePushOnOpen);
+			ret = ImGui::TreeNodeEx("ITEM: TreeNode w/ ImGuiTreeNodeFlags_OpenOnDoubleClick", ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_NoTreePushOnOpen);
 		}                                                                                                                                                                              // Testing tree node with ImGuiButtonFlags_PressedOnDoubleClick button policy.
 		if(item_type == 14) {
 			const char* items[] = { "Apple", "Banana", "Cherry", "Kiwi" }; static int current = 1; ret = ImGui::Combo("ITEM: Combo",
-				&current,
-				items,
-				SIZEOFARRAYi(items));
+				&current, items, SIZEOFARRAYi(items));
 		}
 		if(item_type == 15) {
 			const char* items[] = { "Apple", "Banana", "Cherry", "Kiwi" }; static int current = 1;

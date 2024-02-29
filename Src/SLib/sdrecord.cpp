@@ -728,7 +728,16 @@ int SdRecord::AddField(uint * pID, const SdbField * pFld)
 		if(Flags & fNamesToUpper)
 			temp_buf.ToUpper();
 		if(SearchName(temp_buf, 0) && !(Flags & fAllowDupName)) {
-			SLS.SetAddedMsgString(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)); // @v10.1.11 .Transf(CTRANSF_OUTER_TO_INNER)
+			// @v11.9.8 {
+			if(Name.NotEmpty())
+				msg_buf = Name;
+			else
+				StringPool.get(DescrPos, msg_buf);
+			if(msg_buf.NotEmptyS())
+				msg_buf.Dot();
+			// } @v11.9.8 
+			msg_buf.Cat(temp_buf.Transf(CTRANSF_OUTER_TO_INNER));
+			SLS.SetAddedMsgString(msg_buf); // @v10.1.11 .Transf(CTRANSF_OUTER_TO_INNER)
 			CALLEXCEPTV(SLERR_SDREC_DUPFLDNAME);
 		}
 		else {

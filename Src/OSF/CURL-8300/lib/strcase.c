@@ -131,11 +131,11 @@ int curl_strnequal(const char * first, const char * second, size_t max)
  */
 void Curl_strntoupper(char * dest, const char * src, size_t n)
 {
-	if(n < 1)
-		return;
-	do {
-		*dest++ = Curl_raw_toupper(*src);
-	} while(*src++ && --n);
+	if(n) {
+		do {
+			*dest++ = Curl_raw_toupper(*src);
+		} while(*src++ && --n);
+	}
 }
 
 /* Copy a lower case version of the string from src to dest.  The
@@ -145,21 +145,19 @@ void Curl_strntoupper(char * dest, const char * src, size_t n)
  */
 void Curl_strntolower(char * dest, const char * src, size_t n)
 {
-	if(n < 1)
-		return;
-	do {
-		*dest++ = Curl_raw_tolower(*src);
-	} while(*src++ && --n);
+	if(n) {
+		do {
+			*dest++ = Curl_raw_tolower(*src);
+		} while(*src++ && --n);
+	}
 }
 
 /* Compare case-sensitive NUL-terminated strings, taking care of possible
  * null pointers. Return true if arguments match.
  */
-bool Curl_safecmp(char * a, char * b)
+bool Curl_safecmp(const char * a, const char * b)
 {
-	if(a && b)
-		return sstreq(a, b);
-	return !a && !b;
+	return (a && b) ? sstreq(a, b) : (!a && !b);
 }
 
 /*

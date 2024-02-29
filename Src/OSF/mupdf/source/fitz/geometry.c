@@ -532,8 +532,7 @@ fz_rect fz_expand_rect(fz_rect a, float expand)
 	return a;
 }
 
-/* Adding a point to an invalid rectangle makes the zero area rectangle
- * that contains just that point. */
+/* Adding a point to an invalid rectangle makes the zero area rectangle that contains just that point. */
 fz_rect fz_include_point_in_rect(fz_rect r, SPoint2F p)
 {
 	if(fz_is_infinite_rect(r)) return r;
@@ -596,33 +595,24 @@ int fz_is_point_inside_irect(int x, int y, fz_irect r)
 
 static int fz_is_point_inside_triangle(SPoint2F p, SPoint2F a, SPoint2F b, SPoint2F c)
 {
-	float s, t, area;
-	s = a.y * c.x - a.x * c.y + (c.y - a.y) * p.x + (a.x - c.x) * p.y;
-	t = a.x * b.y - a.y * b.x + (a.y - b.y) * p.x + (b.x - a.x) * p.y;
-
-	if((s < 0) != (t < 0))
+	float area;
+	float s = a.y * c.x - a.x * c.y + (c.y - a.y) * p.x + (a.x - c.x) * p.y;
+	float t = a.x * b.y - a.y * b.x + (a.y - b.y) * p.x + (b.x - a.x) * p.y;
+	if((s < 0.0) != (t < 0.0))
 		return 0;
-
 	area = -b.y * c.x + a.y * (c.x - b.x) + a.x * (b.y - c.y) + b.x * c.y;
-
-	return area < 0 ?
-	       (s <= 0 && s + t >= area) :
-	       (s >= 0 && s + t <= area);
+	return area < 0 ? (s <= 0 && s + t >= area) : (s >= 0 && s + t <= area);
 }
 
 int fz_is_point_inside_quad(SPoint2F p, fz_quad q)
 {
-	return
-		fz_is_point_inside_triangle(p, q.ul, q.ur, q.lr) ||
-		fz_is_point_inside_triangle(p, q.ul, q.lr, q.ll);
+	return fz_is_point_inside_triangle(p, q.ul, q.ur, q.lr) || fz_is_point_inside_triangle(p, q.ul, q.lr, q.ll);
 }
 
 int fz_is_quad_inside_quad(fz_quad needle, fz_quad haystack)
 {
-	return
-		fz_is_point_inside_quad(needle.ul, haystack) &&
-		fz_is_point_inside_quad(needle.ur, haystack) &&
-		fz_is_point_inside_quad(needle.ll, haystack) &&
+	return fz_is_point_inside_quad(needle.ul, haystack) &&
+		fz_is_point_inside_quad(needle.ur, haystack) && fz_is_point_inside_quad(needle.ll, haystack) &&
 		fz_is_point_inside_quad(needle.lr, haystack);
 }
 

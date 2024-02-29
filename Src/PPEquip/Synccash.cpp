@@ -727,8 +727,12 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		GetOfdFactors(ofdf); // @v11.3.12
 		// @v11.3.6 {
 		{
+			pPack->GetExtStrData(CCheckPacket::extssBuyerPhone, temp_buf);
+			if(temp_buf.NotEmpty())
+				PPEAddr::Phone::NormalizeStr(temp_buf, PPEAddr::Phone::nsfPlus, buyers_phone);
+			else
+				buyers_phone.Z();
 			pPack->GetExtStrData(CCheckPacket::extssBuyerEMail, buyers_email);
-			pPack->GetExtStrData(CCheckPacket::extssBuyerPhone, buyers_phone);
 			paperless = (buyers_email.NotEmpty() || buyers_phone.NotEmpty()) ? LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS) : false;
 		}
 		// } @v11.3.6 

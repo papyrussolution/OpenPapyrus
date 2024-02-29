@@ -5329,6 +5329,7 @@ table TestTa01 {
 	uint16 UIVal;
 	double RVal1;
 	double RVal2;
+	clob   TextField; // @v11.9.8
 	guid   GuidVal;
 	string S[32];
 index:

@@ -2366,10 +2366,10 @@ int PiritEquip::RunCheck(int opertype)
 				CreateStr((Cfg.Flags & 0x08000000L) ? 1 : 0, in_data); // Чек не отрезаем (1) для сервисных документов, для остальных - отрезаем (0)
 				// Адрес покупателя {
 				// @v11.3.6 {
-				if(Check.BuyersPhone.NotEmptyS())
-					CreateStr(Check.BuyersPhone, in_data); 
-				else if(Check.BuyersEmail.NotEmptyS())
+				if(Check.BuyersEmail.NotEmptyS())
 					CreateStr(Check.BuyersEmail, in_data); 
+				else if(Check.BuyersPhone.NotEmptyS())
+					CreateStr(Check.BuyersPhone, in_data); 
 				else // } // @v11.3.6
 					CreateStr("", in_data); 
 				// } 

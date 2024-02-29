@@ -1013,7 +1013,7 @@ static void prune_dead_connections(struct Curl_easy * data)
 }
 
 #ifdef USE_SSH
-static bool ssh_config_matches(struct connectdata * one, struct connectdata * two)
+static bool ssh_config_matches(const struct connectdata * one, const struct connectdata * two)
 {
 	return (Curl_safecmp(one->proto.sshc.rsa, two->proto.sshc.rsa) &&
 	       Curl_safecmp(one->proto.sshc.rsa_pub, two->proto.sshc.rsa_pub));
@@ -1208,12 +1208,10 @@ static bool ConnectionExists(struct Curl_easy * data,
 						continue;
 					else if(needle->handler->flags&PROTOPT_SSL) {
 						/* use double layer ssl */
-						if(!Curl_ssl_config_matches(&needle->proxy_ssl_config,
-						    &check->proxy_ssl_config))
+						if(!Curl_ssl_config_matches(&needle->proxy_ssl_config, &check->proxy_ssl_config))
 							continue;
 					}
-					else if(!Curl_ssl_config_matches(&needle->ssl_config,
-					    &check->ssl_config))
+					else if(!Curl_ssl_config_matches(&needle->ssl_config, &check->ssl_config))
 						continue;
 				}
 			}
@@ -1322,8 +1320,7 @@ static bool ConnectionExists(struct Curl_easy * data,
 					if(needle->handler->flags & PROTOPT_SSL) {
 						/* This is a SSL connection so verify that we're using the same
 						   SSL options as well */
-						if(!Curl_ssl_config_matches(&needle->ssl_config,
-						    &check->ssl_config)) {
+						if(!Curl_ssl_config_matches(&needle->ssl_config, &check->ssl_config)) {
 							DEBUGF(infof(data, "Connection #%" CURL_FORMAT_CURL_OFF_T " has different SSL parameters, can't reuse", check->connection_id));
 							continue;
 						}

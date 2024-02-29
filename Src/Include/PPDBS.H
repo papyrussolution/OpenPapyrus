@@ -15,6 +15,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ObjType;
 		int32  ObjID;
 		char   ObjName[48];
@@ -57,6 +58,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ObjType;
 		int32  ObjID;
 		char   ObjName[48];
@@ -99,6 +101,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ObjType;
 		int32  ObjID;
 		int32  Prop;
@@ -135,6 +138,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		uint8  UUID[16];   // raw
 	} data;
@@ -157,6 +161,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ObjID;
 		int16  ObjType;
 		int16  Prop;
@@ -192,6 +197,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ObjID;
 		int16  ObjType;
 		int16  Prop;
@@ -222,6 +228,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ObjType;
 		int32  ID1;
 		int32  ID2;
@@ -256,6 +263,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int16  DBID;
 		int16  ObjType;
 		int32  ObjID;
@@ -295,6 +303,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int16  ObjType;
 		int32  ObjID;
 		int16  CommIdPfx;
@@ -330,6 +339,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int16  DBID;
 		int16  ObjType;
@@ -394,6 +404,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  AsscType;
 		int32  PrmrObjID;
@@ -436,6 +447,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ObjType;
 		int32  ObjID;
 		int32  TagID;
@@ -480,6 +492,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Name[30];
 		char   Abbr[10];
@@ -515,6 +528,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  Country;
 		char   Name[30];
@@ -552,6 +566,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  Country;
 		int32  Region;
@@ -597,6 +612,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  LinkObjType;
 		int32  LinkObjID;
@@ -630,6 +646,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  Kind;
 		int32  ParentID;
@@ -688,6 +705,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID__;
 		int32  ParentID;
 		int32  StatusCode;
@@ -722,6 +740,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  RecUuID;
 		int32  IdUuRef;
 		int32  ParentUuRef;
@@ -800,6 +819,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  IdUuRef;
 		int32  ParentUuRef;
 		int32  IntStart;
@@ -867,6 +887,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int16  ObjType;
 		int16  ExtObjType;
 		int32  ObjID;
@@ -915,6 +936,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Name[128];
 		int32  Status;
@@ -961,6 +983,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  PersonID;
 		int32  BankID;
@@ -999,6 +1022,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  KindID;
 		int32  PersonID;
 		char   Name[128];
@@ -1026,6 +1050,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  ObjType;
 		int32  ObjID;
@@ -1086,6 +1111,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		LDATE  Dt;
 		int32  OprNo;
@@ -1150,6 +1176,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  OrgID;
 		int32  DivisionID;
@@ -1200,6 +1227,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Code[16];
 		int32  StaffID;
@@ -1252,6 +1280,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  CalID;
 		int32  ObjID;
 		int16  Kind;
@@ -1297,6 +1326,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID__;
 		int32  CalID;
 		int32  LinkObjID;
@@ -1348,6 +1378,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		LDATE  Beg;
 		LDATE  End;
@@ -1412,6 +1443,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		LDATE  Beg;
 		LDATE  End;
@@ -1471,6 +1503,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  Kind;
 		char   Name[128];
@@ -1552,6 +1585,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  GoodsID;
 		int32  Ver;
@@ -1581,6 +1615,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  GoodsID;
 		double Qtty;
 		int32  BarcodeType;
@@ -1607,6 +1642,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  GoodsID;
 		int32  ArID;
 		int32  Pack;
@@ -1639,6 +1675,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  GoodsID;
 		int32  GoodsClsID;
 		int32  KindID;
@@ -1692,6 +1729,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  PrevID;
 		int32  PckgTypeID;
@@ -1735,6 +1773,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  PckgID;
 		int32  LotID;
 	} data;
@@ -1758,6 +1797,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		char   Serial[64];
 		char   Barcode[64];
 		char   GoodsName[128];
@@ -1820,6 +1860,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Serial[32];
 		char   Barcode[32];
@@ -1892,6 +1933,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  Counter;
 		int32  ParentID;
@@ -1972,6 +2014,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		LDATE  Dt;
 		int32  CurID;
 		int32  RelCurID;
@@ -2006,6 +2049,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Code[48];
 		LDATE  Dt;
@@ -2105,6 +2149,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  InnerID;
 		int32  BillID;
@@ -2163,6 +2208,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  HistBillID;
 		int32  OprNo;
 		int32  GoodsID;
@@ -2199,6 +2245,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  BillID;
 		int32  AmtTypeID;
 		int32  CurID;
@@ -2224,6 +2271,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  BillID;
 		LDATE  PayDate;
 		double Amount;
@@ -2248,6 +2296,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  BillID;
 		int32  LocID;
@@ -2346,6 +2395,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  LocID;
 		int32  GoodsID;
 		double Rest;
@@ -2372,6 +2422,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		double LDRest;
 		int32  LotID;
 		int16  D;
@@ -2398,6 +2449,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  LDRestF;
 		int32  LotID;
 		int16  D;
@@ -2424,6 +2476,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  LotID;
 		int32  BillID;
 		int16  RByBill;
@@ -2465,6 +2518,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   AlcCode[24];
 		char   ManufRarIdent[16];
@@ -2501,6 +2555,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   RarIdent[16];
 		char   INN[16];
@@ -2542,6 +2597,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   RefACode[20];
 		char   AlcCode[24];
@@ -2597,6 +2653,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  GuidRef;
 		int32  UuidRef;
@@ -2639,6 +2696,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  EntityID;
 		int32  LinkGoodsID;
 		int32  ProductType;
@@ -2686,6 +2744,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  EntityID;
 		int32  LinkPersonID;
 		int32  EnterpriseType;
@@ -2725,6 +2784,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  EntityID;
 		int32  LinkBillID;
 		int16  LinkBillRow;
@@ -2854,6 +2914,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  BillID;
 		int32  OprNo;
 		int32  GoodsID;
@@ -2912,6 +2973,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  GoodsID;
 		char   Name[128];
 		double Quantity;
@@ -2950,6 +3012,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		LDATE  Dt;
 		LTIME  Tm;
@@ -3003,6 +3066,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  QuotKindID;
 		int32  LocID;
@@ -3048,6 +3112,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  RelID;
 		int32  GoodsID;
 		LDATE  Dt;
@@ -3108,6 +3173,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  SupplID;
 		int32  LocID;
@@ -3150,6 +3216,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ListID;
 		int32  GoodsID;
 		int16  LineNo;
@@ -3217,6 +3284,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  LocID;
 		LDATE  Dt;
 		int32  OprNo;
@@ -3288,6 +3356,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  LocID;
 		int32  RByLoc;
 		LDATE  Dt;
@@ -3368,6 +3437,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID__;
 		int32  LocID;
 		int32  RByLoc;
@@ -3427,6 +3497,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  GoodsID;
 		int32  ArID;
 		int32  DlvrLocID;
@@ -3463,6 +3534,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  BillID;
 		int16  RByBill;
 		int16  Reserve1;
@@ -3521,6 +3593,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  BillID;
 		int16  RByBill;
 		int16  Reserve2;
@@ -3586,6 +3659,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Name[128];
 		char   Symb[20];
@@ -3655,6 +3729,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  Kind;
 		int32  ParentID;
@@ -3717,6 +3792,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  ProjectID;
 		int32  Kind;
@@ -3819,6 +3895,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Code[24];
 		int32  SeriesID;
@@ -3890,6 +3967,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Code[24];
 		int32  SeriesID;
@@ -3969,6 +4047,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  SCardID;
 		LDATE  Dt;
 		LTIME  Tm;
@@ -4019,6 +4098,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  SuperSessID;
 		int32  CashNodeID;
@@ -4092,6 +4172,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  SuperSessID;
 		int32  CashNodeID;
@@ -4168,6 +4249,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  Code;
 		int32  PosNodeID;
@@ -4227,6 +4309,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  CheckID;
 		int32  SalerID;
 		int32  TableNo;
@@ -4278,6 +4361,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  CheckID;
 		int16  RByCheck;
 		int16  PaymType;
@@ -4312,6 +4396,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  Code;
 		int32  CashID;
@@ -4383,6 +4468,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID__;
 		char   Text[128];
 		char   Serial[32];
@@ -4469,6 +4555,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID__;
 		int32  Goods1ID;
 		int32  Goods2ID;
@@ -4518,6 +4605,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  CheckID;
 		int32  CheckCode;
 		int16  DivID;
@@ -4562,6 +4650,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  CheckID;
 		int16  RByCheck;
 		int16  DivID;
@@ -4592,6 +4681,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  CheckID;
 		int16  RByCheck;
 		int8   Queue;
@@ -4618,6 +4708,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		LDATE  Dt;
 		int16  Sign;
 		int16  Flags;
@@ -4659,6 +4750,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  CashID;
 		int32  GoodsID;
 		char   Price[8];   // money[8.2]
@@ -4681,6 +4773,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int16  DvcType;
 		int32  DvcID;
@@ -4728,6 +4821,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  DlsID;
 		int16  ObjType;
 		int32  ObjID;
@@ -4760,6 +4854,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int16  Passive;
 		int16  Reserve1;
@@ -4821,6 +4916,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  AccSheetID;
 		int32  Article;
@@ -4866,6 +4962,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int16  Ac;
 		int16  Sb;
@@ -4924,6 +5021,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  AccID;
 		int32  ArticleID;
@@ -4982,6 +5080,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  Acc;
 		int32  Bal;
 		LDATE  Dt;
@@ -5033,6 +5132,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		LDATE  Dt;
 		int32  AccID;
 		char   DbtRest[10]; // money[10.2]
@@ -5061,6 +5161,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  BudgetID;
 		int32  Acc;
@@ -5100,6 +5201,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Code[24];
 		int16  LineType_;
@@ -5207,6 +5309,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  ParentID;
 		char   Name[48];
@@ -5258,6 +5361,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  TabID;
 		int32  DestID;
@@ -5305,6 +5409,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		LDATE  Dt;
 		LTIME  Tm;
 		int32  UserID;
@@ -5341,6 +5446,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		LDATE  Dt;
 		LTIME  Tm;
 		int32  UserID;
@@ -5371,6 +5477,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		LDATE  Dt;
 		LTIME  Tm;
 		int32  GlobalAccID;
@@ -5424,6 +5531,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  ObjType;
 		int32  ObjID;
@@ -5458,6 +5566,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		LDATE  StartDt;
 		LTIME  StartTm;
 		LDATE  FinDt;
@@ -5496,6 +5605,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		char   Cash_Code[21]; // lstring
 		int16  DataType;
 		int32  KeyLongint;
@@ -5610,6 +5720,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		char   BarCode[23]; // lstring
 		LDATE  PayDate;
 		LTIME  PayTime;
@@ -5663,6 +5774,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  CashNumber;
 		int32  ZNumber;
 		double ZSale;
@@ -5713,6 +5825,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		double Quant;
 		char   Operation[2]; // lstring
 		LDATE  DateOperation;
@@ -5831,6 +5944,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int16  ShopIndex;
 		int16  CashNumber;
 		int16  ZNumber;
@@ -5878,6 +5992,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int16  ShopIndex;
 		int16  CashNumber;
 		int16  ZNumber;
@@ -5929,6 +6044,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  GoodsID;
 		int16  Loc;
 		int16  Dt;
@@ -5961,6 +6077,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int16  Loc;
 		int16  LastDate;
 		int32  GoodsID;
@@ -5999,6 +6116,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  ParentID;
 		int32  Kind;
@@ -6065,6 +6183,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Code[48];
 		int32  PrcID;
@@ -6142,6 +6261,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  ParentID;
 		int32  Num;
@@ -6248,6 +6368,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  TSessID;
 		int32  OprNo;
 		int32  GoodsID;
@@ -6318,6 +6439,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		LDATE  ActualDate;
 		LDATE  Dt;
 		LTIME  Tm;
@@ -6373,6 +6495,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  UpdCounter;
 		LDATE  ActualDate;
 		LDATE  Dt;
@@ -6425,6 +6548,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  UserID;
 		int32  ScoreID;
@@ -6474,6 +6598,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  AccSheetID;
 		int32  ArID;
 		LDATE  Dt;
@@ -6537,6 +6662,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		LDATE  Dt;
 		LTIME  Tm;
 		int32  UserID;
@@ -6577,6 +6703,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   DbUUID_s[40];
 		char   SessUUID_s[40];
@@ -6631,6 +6758,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  SessID;
 		int64  SeqID;
 		int32  FuncID;
@@ -6692,6 +6820,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		LDATE  Dt;
 		LTIME  Tm;
@@ -6757,6 +6886,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  Kind;
 		int32  CorrespondID;
@@ -6812,6 +6942,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		uint8  Uid[16];    // raw
 		uint8  OtherBI[20]; // raw
 		int64  Amt;
@@ -6852,6 +6983,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		LDATE  NotifyDt;
 		LTIME  NotifyTm;
@@ -6928,6 +7060,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID__;
 		int32  DtVal;
 		int32  PrcID;
@@ -7002,6 +7135,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID__;
 		int32  PrcID;
 		LDATE  StDt;
@@ -7048,6 +7182,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		LDATE  Dt;
 		double Qtty;
 		double Amt;
@@ -7083,6 +7218,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  GoodsID;
 		LDATE  Dt;
 		char   GoodsName[128];
@@ -7135,6 +7271,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID__;
 		int32  GoodsID;
 		int32  GoodsGrp;
@@ -7227,6 +7364,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  OrgGoodsID;
 		int32  GoodsID;
 		int32  UnitID;
@@ -7285,6 +7423,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  Location;
 		int32  GoodsID;
 		int32  SupplID;
@@ -7329,6 +7468,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  BillID;
 		LDATE  Dt;
 		int32  GoodsID;
@@ -7376,6 +7516,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID__;
 		int32  LocID;
 		int16  InOutTag;
@@ -7462,6 +7603,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  Grp;
 		int32  GoodsID;
 		char   GoodsName[128];
@@ -7545,6 +7687,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID__;
 		int32  GoodsID;
 		int32  OpID;
@@ -7583,6 +7726,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  GoodsID;
 		char   GoodsName[64];
 		char   Barcode[24];
@@ -7629,6 +7773,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		LDATE  Dt;
 		int32  AccRelID;
 		int16  Ac;
@@ -7682,6 +7827,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  Ar;
 		int32  CurID;
@@ -7757,6 +7903,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID__;
 		LDATE  Dt;
 		int32  GoodsID;
@@ -7829,6 +7976,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID__;
 		LDATE  Dt;
 		int32  OprNo;
@@ -7904,6 +8052,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID__;
 		LDATE  Dt;
 		int32  ObjectID;
@@ -7977,6 +8126,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  TabID;
 		char   Name[128];
@@ -8028,6 +8178,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Name[252];
 	} data;
@@ -8050,6 +8201,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  PrmrID;
 		int32  ScndID;
 		char   Name[128];
@@ -8079,6 +8231,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  PrmrID;
 		int32  ScndID;
 	} data;
@@ -8099,6 +8252,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		LDATE  Dt;
 		int32  DbtAccID;
 		int16  DbtAc;
@@ -8173,6 +8327,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		LDATE  Dt;
 		int32  OprNo;
 		int32  BillID;
@@ -8224,6 +8379,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  BillID;
 		LDATE  Dt;
 		int32  BillNo;
@@ -8273,6 +8429,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  BillID;
 		LDATE  BillDate;
 		int32  ObjectID;
@@ -8344,6 +8501,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  LotID;
 		LDATE  Dt;
 		LDATE  OrgDt;
@@ -8396,6 +8554,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		LDATE  Dt;
 		char   BillNo[24];
 		int32  LotID;
@@ -8473,6 +8632,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		LDATE  Dt;
 		LDATE  PayPlanDt;
 		int32  BillID;
@@ -8512,6 +8672,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ObjType;
 		int16  CommIdPfx;
 		int32  CommID;
@@ -8580,6 +8741,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  LotID;
 		int32  GoodsID;
 		int32  GrpID;
@@ -8640,6 +8802,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  GoodsID;
 		int32  QuotKindID;
 		int32  LocID;
@@ -8674,6 +8837,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID__;
 		int32  GoodsID;
 		int32  LocID;
@@ -8771,6 +8935,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  GoodsID;
 		int32  Brutto;
 		int32  Length;
@@ -8802,6 +8967,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  TabID;
 		int32  EmployerID;
 		int32  ClientID;
@@ -8842,6 +9008,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  TabID;
 		int32  SupplID;
 		int32  GoodsID;
@@ -8875,6 +9042,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  ID2;
 		LDATE  Dt;
@@ -8910,6 +9078,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  PrmrPersonID;
 		int32  ScndPersonID;
@@ -8940,6 +9109,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ArID;
 		LDATE  Beg;
 		LDATE  Expiry;
@@ -9015,6 +9185,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Name[48];
 		char   Port[20];
@@ -9050,6 +9221,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID__;
 		int32  LogFileId;
 		int32  SubFile;
@@ -9084,6 +9256,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  ParentID;
 		char   Name[48];
@@ -9126,6 +9299,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  StrucID;
 		int32  Type;
@@ -9170,6 +9344,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Name[48];
 		char   Symb[20];
@@ -9214,6 +9389,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Name[192];
 	} data;
@@ -9233,6 +9409,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Name[64];
 		int32  TrType;
@@ -9273,6 +9450,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  ParentID;
 		char   Code[20];
@@ -9300,6 +9478,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  BudgetID;
 		int32  Acc;
@@ -9343,6 +9522,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Name[48];
 		char   Symb[20];
@@ -9366,6 +9546,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  Code;
 		int32  CashID;
@@ -9431,6 +9612,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  ID2;
 		LDATE  Dt;
@@ -9468,6 +9650,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Name[48];
 		int32  PersonID;
@@ -9493,6 +9676,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		char   Name[48];
 		char   Address[256];
@@ -9516,6 +9700,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int64  SeqID;
 		char   DbID[40];
@@ -9597,6 +9782,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  L;
 		int16  I16;
@@ -9659,6 +9845,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		int32  ID;
 		int32  L;
 		int16  I16;
@@ -9723,6 +9910,7 @@ public:
 
 	struct Rec {
 		Rec();
+		Rec & Clear();
 		LDATE  Dt;
 		LTIME  Tm;
 		int32  Ref1ID;
@@ -9733,6 +9921,7 @@ public:
 		uint16 UIVal;
 		double RVal1;
 		double RVal2;
+		SLob   TextField;
 		S_GUID GuidVal;
 		char   S[32];
 	} data;
@@ -9758,6 +9947,7 @@ public:
 	DBField UIVal;
 	DBField RVal1;
 	DBField RVal2;
+	DBField TextField;
 	DBField GuidVal;
 	DBField S;
 };

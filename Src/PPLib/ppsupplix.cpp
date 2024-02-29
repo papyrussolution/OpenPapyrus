@@ -10158,7 +10158,10 @@ public:
 		*/
 		//
 		temp_buf.Z().Cat("ACTREM").CatChar('_').Cat(own_inn_buf).CatChar('_').Cat(now_dtm.d, DATF_ISO8601CENT|DATF_NODIV).Dot().Cat("xml");
-		PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
+		PPGetPath(PPPATH_OUT, out_file_name);
+		out_file_name.SetLastSlash().Cat("ostankino");
+		SFile::CreateDir(out_file_name);
+		out_file_name.SetLastSlash().Cat(temp_buf);
 		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 		{
 			SXml::WDoc _doc(p_x, cpUTF8);
@@ -10247,7 +10250,10 @@ public:
 						MakeFileName("DESADV", own_inn_buf, local_gln_buf, p_pack->Code, temp_buf);
 					}
 					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-					PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
+					PPGetPath(PPPATH_OUT, out_file_name);
+					out_file_name.SetLastSlash().Cat("ostankino");
+					SFile::CreateDir(out_file_name);
+					out_file_name.SetLastSlash().Cat(temp_buf);
 					THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 					SXml::WDoc _doc(p_x, cpUTF8);
 					/*

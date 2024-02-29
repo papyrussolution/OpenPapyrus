@@ -54555,7 +54555,7 @@ private:
 	int    EditMemo(const char * pDlvrPhone, const char * pChannel);
 	int    EditPrescription();
 	void   ViewStoragePlaces(PPID goodsId);
-	int    ConfirmPosPaymBank(double amount);
+	int    ConfirmPosPaymBank(/*double amount*/PosPaymentBlock & rPpl);
 
 	ExtGoodsSelDialog * P_EGSDlg;
 	long   AutoInputTolerance; // Мин среднее время (ms) между вводом символом, ниже которого считается, что данные были введены автоматическим средством ввода (напр. сканером штрихкодов)

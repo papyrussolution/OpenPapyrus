@@ -1022,11 +1022,9 @@ namespace ImGui {
 	// Viewports
 	static void   UpdateViewportsNewFrame();
 }
-
-//-----------------------------------------------------------------------------
+//
 // [SECTION] CONTEXT AND MEMORY ALLOCATORS
-//-----------------------------------------------------------------------------
-
+//
 // DLL users:
 // - Heaps and globals are not shared across DLL boundaries!
 // - You will need to call SetCurrentContext() + SetAllocatorFunctions() for each static/DLL boundary you are calling from.
@@ -1055,16 +1053,16 @@ namespace ImGui {
 // - You probably don't want to modify that mid-program, and if you use global/static e.g. ImVector<> instances you may need to keep them accessible during program destruction.
 // - DLL users: read comments above.
 #ifndef IMGUI_DISABLE_DEFAULT_ALLOCATORS
-static void * MallocWrapper(size_t size, void* user_data)    
-{ 
-	IM_UNUSED(user_data); 
-	return SAlloc::M(size);//return malloc(size); 
-}
-static void   FreeWrapper(void* ptr, void* user_data)        
-{ 
-	IM_UNUSED(user_data); 
-	SAlloc::F(ptr);//free(ptr); 
-}
+	static void * MallocWrapper(size_t size, void* user_data)    
+	{ 
+		IM_UNUSED(user_data); 
+		return SAlloc::M(size);//return malloc(size); 
+	}
+	static void   FreeWrapper(void* ptr, void* user_data)        
+	{ 
+		IM_UNUSED(user_data); 
+		SAlloc::F(ptr);//free(ptr); 
+	}
 #else
 	static void * MallocWrapper(size_t size, void* user_data)    
 	{ 
@@ -1651,14 +1649,14 @@ void ImStrncpy(char* dst, const char* src, size_t count)
 	dst[count - 1] = 0;
 }
 
-char* ImStrdup(const char* str)
+/* @v11.9.7 (replaced with sstrdup) char * ImStrdup(const char* str)
 {
 	size_t len = strlen(str);
 	void * buf = IM_ALLOC(len + 1);
 	return (char*)memcpy(buf, (const void*)str, len + 1);
-}
+}*/
 
-char* ImStrdupcpy(char* dst, size_t* p_dst_size, const char* src)
+char * ImStrdupcpy(char* dst, size_t* p_dst_size, const char* src)
 {
 	size_t dst_buf_size = p_dst_size ? *p_dst_size : strlen(dst) + 1;
 	size_t src_size = strlen(src) + 1;
@@ -2721,7 +2719,7 @@ static bool ImGuiListClipper_StepInternal(ImGuiListClipper* clipper)
 		return false;
 	// While we are in frozen row state, keep displaying items one by one, unclipped
 	// FIXME: Could be stored as a table-agnostic state.
-	if(data->StepNo == 0 && table != NULL && !table->IsUnfrozenRows) {
+	if(data->StepNo == 0 && table && !table->IsUnfrozenRows) {
 		clipper->DisplayStart = data->ItemsFrozen;
 		clipper->DisplayEnd = smin(data->ItemsFrozen + 1, clipper->ItemsCount);
 		if(clipper->DisplayStart < clipper->DisplayEnd)
@@ -2810,12 +2808,10 @@ static bool ImGuiListClipper_StepInternal(ImGuiListClipper* clipper)
 		data->StepNo++;
 		return true;
 	}
-
 	// After the last step: Let the clipper validate that we have reached the expected Y position (corresponding to element DisplayEnd),
 	// Advance the cursor to the end of the list and then returns 'false' to end the loop.
 	if(clipper->ItemsCount < INT_MAX)
 		ImGuiListClipper_SeekCursorForItem(clipper, clipper->ItemsCount);
-
 	return false;
 }
 
@@ -3610,7 +3606,7 @@ ImGuiWindow::ImGuiWindow(ImGuiContext* ctx, const char* name) : DrawListInst(NUL
 {
 	THISZERO();
 	Ctx = ctx;
-	Name = ImStrdup(name);
+	Name = /*ImStrdup*/sstrdup(name);
 	NameBufLen = (int)strlen(name) + 1;
 	ID = ImHashStr(name);
 	IDStack.push_back(ID);
@@ -4910,9 +4906,8 @@ void ImGui::Render()
 	// Setup ImDrawData structures for end-user
 	g.IO.MetricsRenderVertices = g.IO.MetricsRenderIndices = 0;
 	for(int n = 0; n < g.Viewports.Size; n++) {
-		ImGuiViewportP* viewport = g.Viewports[n];
+		ImGuiViewportP * viewport = g.Viewports[n];
 		viewport->DrawDataBuilder.FlattenIntoSingleLayer();
-
 		// Add foreground ImDrawList (for each active viewport)
 		if(viewport->DrawLists[1] != NULL)
 			AddDrawListToDrawData(&viewport->DrawDataBuilder.Layers[0], GetForegroundDrawList(viewport));
@@ -4929,7 +4924,7 @@ void ImGui::Render()
 ImVec2 ImGui::CalcTextSize(const char* text, const char* text_end, bool hide_text_after_double_hash, float wrap_width)
 {
 	ImGuiContext & g = *GImGui;
-	const char* text_display_end;
+	const char * text_display_end;
 	if(hide_text_after_double_hash)
 		text_display_end = FindRenderedTextEnd(text, text_end); // Hide anything after a '##' string
 	else
@@ -4938,14 +4933,16 @@ ImVec2 ImGui::CalcTextSize(const char* text, const char* text_end, bool hide_tex
 	const float font_size = g.FontSize;
 	if(text == text_display_end)
 		return ImVec2(0.0f, font_size);
-	ImVec2 text_size = font->CalcTextSizeA(font_size, FLT_MAX, wrap_width, text, text_display_end, NULL);
-	// Round
-	// FIXME: This has been here since Dec 2015 (7b0bf230) but down the line we want this out.
-	// FIXME: Investigate using ceilf or e.g.
-	// - https://git.musl-libc.org/cgit/musl/tree/src/math/ceilf.c
-	// - https://embarkstudios.github.io/rust-gpu/api/src/libm/math/ceilf.rs.html
-	text_size.x = IM_FLOOR(text_size.x + 0.99999f);
-	return text_size;
+	else {
+		ImVec2 text_size = font->CalcTextSizeA(font_size, FLT_MAX, wrap_width, text, text_display_end, NULL);
+		// Round
+		// FIXME: This has been here since Dec 2015 (7b0bf230) but down the line we want this out.
+		// FIXME: Investigate using ceilf or e.g.
+		// - https://git.musl-libc.org/cgit/musl/tree/src/math/ceilf.c
+		// - https://embarkstudios.github.io/rust-gpu/api/src/libm/math/ceilf.rs.html
+		text_size.x = IM_FLOOR(text_size.x + 0.99999f);
+		return text_size;
+	}
 }
 
 // Find window given position, search front-to-back

@@ -5127,7 +5127,7 @@ wchar_t * FASTCALL sstrdup(const wchar_t * pStr);
 //
 // Descr: определяет эквивалентность строк pS1 и pS2.
 //   Если pS1 == pS2, то результат !0
-// Note: Если один из указателей нелевой, а другая строка имеет нулевую длину (например, pS1 == 0 and pS2 != 0 && pS2[0] == 0) то такие строки считаются равными!
+// Note: Если один из указателей нулевой, а другая строка имеет нулевую длину (например, pS1 == 0 and pS2 != 0 && pS2[0] == 0) то такие строки считаются равными!
 // Returns:
 //   true - строки эквивалентны
 //   false - строки не эквивалентны
@@ -11907,7 +11907,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_COLORHEX                  22 // #hhhhhh
 #define SNTOK_REALNUMBER                23 // 9.9 || .9 || 9. || 9,9
 #define SNTOK_INTNUMBER                 24 // 9 || -9
-#define SNTOK_PECENTAGE                 25 //
+#define SNTOK_PERCENTAGE                25 //
 #define SNTOK_NUMERIC_DOT               26 // Десятичное число с десятичным разделителем точка и опциональными разделителями триад [,'`\x20]
 	// Допускается лидирующий + или -. Экспоненциальная запись не допускается.
 #define SNTOK_NUMERIC_COM               27 // Десятичное число с десятичным разделителем запятая и опциональными разделителями триад ['`\x20]
@@ -11965,6 +11965,7 @@ struct SNaturalTokenStat {
 struct SNaturalToken { // @flat
 	uint32 ID;
 	float  Prob;
+	SString & GetSymb(SString & rBuf) const;
 };
 
 class SNaturalTokenArray : public TSVector <SNaturalToken> {
@@ -12697,9 +12698,10 @@ public:
 	// Descr: Флаги функции Scan()
 	//
 	enum {
-		scanfRecursive  = 0x0001, // Рекурсивно перебирать файлы в подкаталогах
-		scanfKeepCase   = 0x0002, // @v11.8.7 При нормализации имен файлов и каталогов сохранять оригинальный регистр символов
-		scanfReckonDirs = 0x0004  // @v11.8.10 сохранять в списке элементов каталоги (актуально, если не установлен scanfRecursive)
+		scanfRecursive      = 0x0001, // Рекурсивно перебирать файлы в подкаталогах
+		scanfKeepCase       = 0x0002, // @v11.8.7 При нормализации имен файлов и каталогов сохранять оригинальный регистр символов
+		scanfReckonDirs     = 0x0004, // @v11.8.10 сохранять в списке элементов каталоги (актуально, если не установлен scanfRecursive)
+		scanfReckonUpFolder = 0x0008, // @v11.9.7 сохранять в списке элемент ".." (каталог верхнего уровня)
 	};
 	//
 	// Descr: Сканирует файловую систему начиная с каталога pPath по шаблону pWildcard.
@@ -12745,7 +12747,7 @@ private:
 	struct InnerEntry : public SFile::Stat {
 		uint   NameP;
 		uint   PathP;
-		uint   RemoteUrlP; // @v10.8.2
+		uint   RemoteUrlP;
 	};
 
 	void   ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const;

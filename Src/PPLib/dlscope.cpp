@@ -1,5 +1,5 @@
 // DLSCOPE.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -223,6 +223,12 @@ int DlScope::Remove(DLSYMBID scopeID)
 			}
 		} while(c);
 	return ok;
+}
+
+bool DlScope::IsFlatDataStruct() const // @v11.9.8 @construction
+{
+	bool result = true;
+	return result;
 }
 
 DLSYMBID DlScope::GetId() const { return static_cast<DLSYMBID>(ID); }

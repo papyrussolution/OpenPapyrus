@@ -443,6 +443,13 @@ public:
 	//   >1 - найдено и удалено более одной дочерней области с ИД = scopeID
 	//
 	int    Remove(DLSYMBID scopeID);
+	//
+	// Descr: Возвращает true если структура имеет в своем составе только тривиальные поля, и false, если
+	//   в составе структуры есть сложные поля (SString etc).
+	//   Фактически, функция вводится из-за того, что я собираюсь ввести в состав структур записей таблиц
+	//   баз данных "хвостатые" поля переменной длинны. Для начала SString а дальше посмотрим.
+	//
+	bool   IsFlatDataStruct() const;
 	DLSYMBID GetId() const;
 	DLSYMBID GetBaseId() const;
 	const  SString & GetName() const;

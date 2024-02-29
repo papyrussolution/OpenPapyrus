@@ -922,13 +922,10 @@ static void _cairo_gl_composite_emit_point(cairo_gl_context_t * ctx, const cairo
 
 static void _cairo_gl_composite_emit_rect(cairo_gl_context_t * ctx, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 {
-	_cairo_gl_composite_prepare_buffer(ctx, 6,
-	    CAIRO_GL_PRIMITIVE_TYPE_TRIANGLES);
-
+	_cairo_gl_composite_prepare_buffer(ctx, 6, CAIRO_GL_PRIMITIVE_TYPE_TRIANGLES);
 	_cairo_gl_composite_emit_vertex(ctx, x1, y1);
 	_cairo_gl_composite_emit_vertex(ctx, x2, y1);
 	_cairo_gl_composite_emit_vertex(ctx, x1, y2);
-
 	_cairo_gl_composite_emit_vertex(ctx, x2, y1);
 	_cairo_gl_composite_emit_vertex(ctx, x2, y2);
 	_cairo_gl_composite_emit_vertex(ctx, x1, y2);
@@ -939,56 +936,40 @@ cairo_gl_emit_rect_t _cairo_gl_context_choose_emit_rect(cairo_gl_context_t * ctx
 	return _cairo_gl_composite_emit_rect;
 }
 
-void _cairo_gl_context_emit_rect(cairo_gl_context_t * ctx,
-    GLfloat x1, GLfloat y1,
-    GLfloat x2, GLfloat y2)
+void _cairo_gl_context_emit_rect(cairo_gl_context_t * ctx, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 {
 	_cairo_gl_composite_emit_rect(ctx, x1, y1, x2, y2);
 }
 
-static void _cairo_gl_composite_emit_span(cairo_gl_context_t * ctx,
-    GLfloat x1, GLfloat y1,
-    GLfloat x2, GLfloat y2,
-    uint8 alpha)
+static void _cairo_gl_composite_emit_span(cairo_gl_context_t * ctx, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, uint8 alpha)
 {
-	_cairo_gl_composite_prepare_buffer(ctx, 6,
-	    CAIRO_GL_PRIMITIVE_TYPE_TRIANGLES);
-
+	_cairo_gl_composite_prepare_buffer(ctx, 6, CAIRO_GL_PRIMITIVE_TYPE_TRIANGLES);
 	_cairo_gl_composite_emit_alpha_vertex(ctx, x1, y1, alpha);
 	_cairo_gl_composite_emit_alpha_vertex(ctx, x2, y1, alpha);
 	_cairo_gl_composite_emit_alpha_vertex(ctx, x1, y2, alpha);
-
 	_cairo_gl_composite_emit_alpha_vertex(ctx, x2, y1, alpha);
 	_cairo_gl_composite_emit_alpha_vertex(ctx, x2, y2, alpha);
 	_cairo_gl_composite_emit_alpha_vertex(ctx, x1, y2, alpha);
 }
 
-static void _cairo_gl_composite_emit_solid_span(cairo_gl_context_t * ctx,
-    GLfloat x1, GLfloat y1,
-    GLfloat x2, GLfloat y2,
-    uint8 alpha)
+static void _cairo_gl_composite_emit_solid_span(cairo_gl_context_t * ctx, GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2, uint8 alpha)
 {
 	GLfloat * v;
 	union fi {
 		float f;
 		GLbyte bytes[4];
 	} fi;
-
-	_cairo_gl_composite_prepare_buffer(ctx, 6,
-	    CAIRO_GL_PRIMITIVE_TYPE_TRIANGLES);
+	_cairo_gl_composite_prepare_buffer(ctx, 6, CAIRO_GL_PRIMITIVE_TYPE_TRIANGLES);
 	v = (GLfloat*)(void *)&ctx->vb[ctx->vb_offset];
-
 	v[15] = v[ 6] = v[0] = x1;
 	v[10] = v[ 4] = v[1] = y1;
 	v[12] = v[ 9] = v[3] = x2;
 	v[16] = v[13] = v[7] = y2;
-
 	fi.bytes[0] = 0;
 	fi.bytes[1] = 0;
 	fi.bytes[2] = 0;
 	fi.bytes[3] = alpha;
 	v[17] = v[14] = v[11] = v[8] = v[5] = v[2] = fi.f;
-
 	ctx->vb_offset += 6*3 * sizeof(GLfloat);
 }
 
@@ -1059,48 +1040,32 @@ static inline void _cairo_gl_composite_emit_glyph_vertex(cairo_gl_context_t * ct
 	ctx->vb_offset += ctx->vertex_size;
 }
 
-static void _cairo_gl_composite_emit_glyph(cairo_gl_context_t * ctx,
-    GLfloat x1, GLfloat y1,
-    GLfloat x2, GLfloat y2,
-    GLfloat glyph_x1, GLfloat glyph_y1,
-    GLfloat glyph_x2, GLfloat glyph_y2)
+static void _cairo_gl_composite_emit_glyph(cairo_gl_context_t * ctx, GLfloat x1, GLfloat y1,
+    GLfloat x2, GLfloat y2, GLfloat glyph_x1, GLfloat glyph_y1, GLfloat glyph_x2, GLfloat glyph_y2)
 {
-	_cairo_gl_composite_prepare_buffer(ctx, 6,
-	    CAIRO_GL_PRIMITIVE_TYPE_TRIANGLES);
-
+	_cairo_gl_composite_prepare_buffer(ctx, 6, CAIRO_GL_PRIMITIVE_TYPE_TRIANGLES);
 	_cairo_gl_composite_emit_glyph_vertex(ctx, x1, y1, glyph_x1, glyph_y1);
 	_cairo_gl_composite_emit_glyph_vertex(ctx, x2, y1, glyph_x2, glyph_y1);
 	_cairo_gl_composite_emit_glyph_vertex(ctx, x1, y2, glyph_x1, glyph_y2);
-
 	_cairo_gl_composite_emit_glyph_vertex(ctx, x2, y1, glyph_x2, glyph_y1);
 	_cairo_gl_composite_emit_glyph_vertex(ctx, x2, y2, glyph_x2, glyph_y2);
 	_cairo_gl_composite_emit_glyph_vertex(ctx, x1, y2, glyph_x1, glyph_y2);
 }
 
-static void _cairo_gl_composite_emit_solid_glyph(cairo_gl_context_t * ctx,
-    GLfloat x1, GLfloat y1,
-    GLfloat x2, GLfloat y2,
-    GLfloat glyph_x1, GLfloat glyph_y1,
-    GLfloat glyph_x2, GLfloat glyph_y2)
+static void _cairo_gl_composite_emit_solid_glyph(cairo_gl_context_t * ctx, GLfloat x1, GLfloat y1,
+    GLfloat x2, GLfloat y2, GLfloat glyph_x1, GLfloat glyph_y1, GLfloat glyph_x2, GLfloat glyph_y2)
 {
 	GLfloat * v;
-
-	_cairo_gl_composite_prepare_buffer(ctx, 6,
-	    CAIRO_GL_PRIMITIVE_TYPE_TRIANGLES);
-
+	_cairo_gl_composite_prepare_buffer(ctx, 6, CAIRO_GL_PRIMITIVE_TYPE_TRIANGLES);
 	v = (GLfloat*)(void *)&ctx->vb[ctx->vb_offset];
-
 	v[20] = v[ 8] = v[0] = x1;
 	v[13] = v[ 5] = v[1] = y1;
 	v[22] = v[10] = v[2] = glyph_x1;
 	v[15] = v[ 7] = v[3] = glyph_y1;
-
 	v[16] = v[12] = v[4] = x2;
 	v[18] = v[14] = v[6] = glyph_x2;
-
 	v[21] = v[17] = v[ 9] = y2;
 	v[23] = v[19] = v[11] = glyph_y2;
-
 	ctx->vb_offset += 4 * 6 * sizeof(GLfloat);
 }
 

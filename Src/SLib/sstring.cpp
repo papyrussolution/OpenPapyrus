@@ -5993,17 +5993,19 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 				while(rNormalizedPath.Search(dotdot_pattern, 0, 1, &p)) {
 					char next_chr = rNormalizedPath.C(p+3);
 					if(p > 3 && oneof2(next_chr, 0, divider) && rNormalizedPath.C(p-1) != divider) {
-						size_t start_pos = 0;
+						size_t start_pos = 0; 
 						size_t i = p-3;
 						if(i) {
 							do {
 								char c = rNormalizedPath.C(--i);
 								if(c == divider) {
-									start_pos = i;
+									// Намеренно инкрементируем значение дабы нулевая позиция отличалась от 0 для правильного выполнения условия if(start_pos) ниже
+									start_pos = i+1; 
 									break;
 								}
 							} while(i);
 							if(start_pos) {
+								--start_pos; // see comment above
 								rNormalizedPath.Excise(start_pos, p+3-start_pos);
 							}
 						}
@@ -7828,6 +7830,57 @@ SNaturalTokenStat & SNaturalTokenStat::Z()
 	return *this;
 }
 
+static const SIntToSymbTabEntry SNTokSymb_List[] = {
+	{ SNTOK_NATURALWORD, "natural-word" },
+	{ SNTOK_DIGITCODE, "digit-code" },
+	{ SNTOK_EAN13, "ean13" },
+	{ SNTOK_EAN8, "ean8" },
+	{ SNTOK_UPCA, "upca" },
+	{ SNTOK_UPCE, "upce" },
+	{ SNTOK_RU_INN, "ru-inn" },
+	{ SNTOK_EGAISWARECODE, "egai-ware-code" },
+	{ SNTOK_EGAISMARKCODE, "eags-mark-code" },
+	{ SNTOK_LUHN, "luhn" },
+	{ SNTOK_DIGLAT, "dig-lat" },
+	{ SNTOK_GUID, "guid" },
+	{ SNTOK_EMAIL, "email" },
+	{ SNTOK_PHONE, "phone" },
+	{ SNTOK_IMEI, "imei" },
+	{ SNTOK_IP4, "ip4" },
+	{ SNTOK_IP6, "ip6" },
+	{ SNTOK_MACADDR48, "macaddr48" },
+	{ SNTOK_DATE, "date" },
+	{ SNTOK_TIME, "time" },
+	{ SNTOK_SOFTWAREVER, "software-ver" },
+	{ SNTOK_COLORHEX, "color-hex" },
+	{ SNTOK_REALNUMBER, "real-number" },
+	{ SNTOK_INTNUMBER, "int-number" },
+	{ SNTOK_PERCENTAGE, "percentage" },
+	{ SNTOK_NUMERIC_DOT, "numeric-dot" },
+	{ SNTOK_NUMERIC_COM, "numeric-com" },
+	{ SNTOK_CHZN_GS1_GTIN, "chzn-gs1-gtin" },
+	{ SNTOK_CHZN_SIGN_SGTIN, "chzn-sign-sgtin" },
+	{ SNTOK_CHZN_SSCC, "chzn-sscc" },
+	{ SNTOK_CHZN_CIGITEM, "chzn-cigitem" },
+	{ SNTOK_CHZN_CIGBLOCK, "chzn-cigblock" },
+	{ SNTOK_RU_OKPO, "ru-okpo" },
+	{ SNTOK_RU_SNILS, "ru-snils" },
+	{ SNTOK_RU_BIC, "ru-bic" },
+	{ SNTOK_RU_KPP, "ru-kpp" },
+	{ SNTOK_LINGUACODE, "lingua-code" },
+	{ SNTOK_CHZN_SURROGATE_GTIN, "chzn-surrogate-gtin" },
+	{ SNTOK_CHZN_SURROGATE_GTINCOUNT, "chzn-surrogate-gtin-count" },
+	{ SNTOK_CL_RUT, "cl-rut" },
+	{ SNTOK_CHZN_ALTCIGITEM, "chzn-altcigitem" },
+	{ SNTOK_AR_DNI, "ar-dni" },
+};
+
+SString & SNaturalToken::GetSymb(SString & rBuf) const
+{
+	SIntToSymbTab_GetSymb(SNTokSymb_List, SIZEOFARRAY(SNTokSymb_List), ID, rBuf);
+	return rBuf;
+}
+
 SNaturalTokenArray & SNaturalTokenArray::Z()
 {
 	clear();
@@ -8457,23 +8510,19 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				}
 			}
 			if(h & SNTOKSEQ_DECLAT) {
-				if(toklen == 68)
-					rResultList.Add(SNTOK_EGAISMARKCODE, 1.0f);
-				else {
-					rResultList.Add(SNTOK_DIGLAT, 1.0f);
-					// @v10.8.2 {
-					if(toklen == 9) {
-						int   is_ru_kpp = 1;
-						for(i = 0; is_ru_kpp && i < toklen; i++) {
-							if(!isdec(pToken[i])) {
-								if(!(oneof2(i, 4, 5) && checkirange(pToken[i], static_cast<uchar>('A'), static_cast<uchar>('Z')))) // 5, 6 знаки в КПП могут быть прописной латинской буквой
-									is_ru_kpp = 0;
-							}
+				rResultList.Add(SNTOK_DIGLAT, 1.0f);
+				if(oneof2(toklen, 68, 150))
+					rResultList.Add(SNTOK_EGAISMARKCODE, 0.8f);
+				else if(toklen == 9) {
+					int   is_ru_kpp = 1;
+					for(i = 0; is_ru_kpp && i < toklen; i++) {
+						if(!isdec(pToken[i])) {
+							if(!(oneof2(i, 4, 5) && checkirange(pToken[i], static_cast<uchar>('A'), static_cast<uchar>('Z')))) // 5, 6 знаки в КПП могут быть прописной латинской буквой
+								is_ru_kpp = 0;
 						}
-						if(is_ru_kpp)
-							rResultList.Add(SNTOK_RU_KPP, 0.1f); 
 					}
-					// } @v10.8.2 
+					if(is_ru_kpp)
+						rResultList.Add(SNTOK_RU_KPP, 0.1f); 
 				}
 			}
 			if(h & SNTOKSEQ_HEXHYPHEN) {

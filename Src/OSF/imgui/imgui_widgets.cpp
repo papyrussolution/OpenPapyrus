@@ -162,9 +162,8 @@ void ImGui::TextEx(const char* text, const char* text_end, ImGuiTextFlags flags)
 			if(lines_skippable > 0) {
 				int lines_skipped = 0;
 				while(line < text_end && lines_skipped < lines_skippable) {
-					const char* line_end = (const char*)smemchr(line, '\n', text_end - line);
-					if(!line_end)
-						line_end = text_end;
+					const char * line_end = (const char*)smemchr(line, '\n', text_end - line);
+					SETIFZQ(line_end, text_end);
 					if((flags & ImGuiTextFlags_NoWidthForLargeClippedText) == 0)
 						text_size.x = smax(text_size.x, CalcTextSize(line, line_end).x);
 					line = line_end + 1;
@@ -180,8 +179,7 @@ void ImGui::TextEx(const char* text, const char* text_end, ImGuiTextFlags flags)
 				if(IsClippedEx(line_rect, 0))
 					break;
 				const char * line_end = (const char*)smemchr(line, '\n', text_end - line);
-				if(!line_end)
-					line_end = text_end;
+				SETIFZQ(line_end, text_end);
 				text_size.x = smax(text_size.x, CalcTextSize(line, line_end).x);
 				RenderText(pos, line, line_end, false);
 				line = line_end + 1;
@@ -192,9 +190,8 @@ void ImGui::TextEx(const char* text, const char* text_end, ImGuiTextFlags flags)
 			// Count remaining lines
 			int lines_skipped = 0;
 			while(line < text_end) {
-				const char* line_end = (const char*)smemchr(line, '\n', text_end - line);
-				if(!line_end)
-					line_end = text_end;
+				const char * line_end = (const char*)smemchr(line, '\n', text_end - line);
+				SETIFZQ(line_end, text_end);
 				if((flags & ImGuiTextFlags_NoWidthForLargeClippedText) == 0)
 					text_size.x = smax(text_size.x, CalcTextSize(line, line_end).x);
 				line = line_end + 1;
@@ -3829,12 +3826,12 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * pBuf, int bu
 	const bool input_requested_by_tabbing = (item_status_flags & ImGuiItemStatusFlags_FocusedByTabbing) != 0;
 	const bool input_requested_by_nav = (g.ActiveId != id) && ((g.NavActivateId == id) && ((g.NavActivateFlags & ImGuiActivateFlags_PreferInput) || (g.NavInputSource == ImGuiInputSource_Keyboard)));
 	const bool user_clicked = hovered && io.MouseClicked[0];
-	const bool user_scroll_finish = is_multiline && state != NULL && g.ActiveId == 0 && g.ActiveIdPreviousFrame == GetWindowScrollbarID(draw_window, ImGuiAxis_Y);
-	const bool user_scroll_active = is_multiline && state != NULL && g.ActiveId == GetWindowScrollbarID(draw_window, ImGuiAxis_Y);
+	const bool user_scroll_finish = (is_multiline && state && g.ActiveId == 0 && g.ActiveIdPreviousFrame == GetWindowScrollbarID(draw_window, ImGuiAxis_Y));
+	const bool user_scroll_active = (is_multiline && state && g.ActiveId == GetWindowScrollbarID(draw_window, ImGuiAxis_Y));
 	bool clear_active_id = false;
 	bool select_all = false;
 	float scroll_y = is_multiline ? draw_window->Scroll.y : FLT_MAX;
-	const bool init_changed_specs = (state != NULL && state->Stb.single_line != !is_multiline); // state != NULL means its our state.
+	const bool init_changed_specs = (state && state->Stb.single_line != !is_multiline); // state != NULL means its our state.
 	const bool init_make_active = (user_clicked || user_scroll_finish || input_requested_by_nav || input_requested_by_tabbing);
 	const bool init_state = (init_make_active || user_scroll_active);
 	if((init_state && g.ActiveId != id) || init_changed_specs) {
@@ -3920,7 +3917,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * pBuf, int bu
 	// When read-only we always use the live data passed to the function
 	// FIXME-OPT: Because our selection/cursor code currently needs the wide text we need to convert it when active, which is not ideal :(
 	if(is_readonly && state != NULL && (render_cursor || render_selection)) {
-		const char* buf_end = NULL;
+		const char * buf_end = NULL;
 		state->TextW.resize(bufSize + 1);
 		state->CurLenW = ImTextStrFromUtf8(state->TextW.Data, state->TextW.Size, pBuf, NULL, &buf_end);
 		state->CurLenA = (int)(buf_end - pBuf);
@@ -4030,12 +4027,10 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * pBuf, int bu
 					if(InputTextFilterCharacter(&c, flags, callback, callback_user_data, ImGuiInputSource_Keyboard))
 						state->OnKeyPressed((int)c);
 				}
-
 			// Consume characters
 			io.InputQueueCharacters.resize(0);
 		}
 	}
-
 	// Process other shortcuts/key-presses
 	bool revert_edit = false;
 	if(g.ActiveId == id && !g.ActiveIdIsJustActivated && !clear_active_id) {
@@ -4069,12 +4064,16 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * pBuf, int bu
 			state->OnKeyPressed((is_startend_key_down ? STB_TEXTEDIT_K_LINEEND : is_wordmove_key_down ? STB_TEXTEDIT_K_WORDRIGHT : STB_TEXTEDIT_K_RIGHT) | k_mask);
 		}
 		else if(IsKeyPressed(ImGuiKey_UpArrow) && is_multiline) {
-			if(io.KeyCtrl)  SetScrollY(draw_window, smax(draw_window->Scroll.y - g.FontSize, 0.0f));
-			else state->OnKeyPressed((is_startend_key_down ? STB_TEXTEDIT_K_TEXTSTART : STB_TEXTEDIT_K_UP) | k_mask);
+			if(io.KeyCtrl)
+				SetScrollY(draw_window, smax(draw_window->Scroll.y - g.FontSize, 0.0f));
+			else 
+				state->OnKeyPressed((is_startend_key_down ? STB_TEXTEDIT_K_TEXTSTART : STB_TEXTEDIT_K_UP) | k_mask);
 		}
 		else if(IsKeyPressed(ImGuiKey_DownArrow) && is_multiline) {
-			if(io.KeyCtrl)  SetScrollY(draw_window, smin(draw_window->Scroll.y + g.FontSize, GetScrollMaxY()));
-			else state->OnKeyPressed((is_startend_key_down ? STB_TEXTEDIT_K_TEXTEND : STB_TEXTEDIT_K_DOWN) | k_mask);
+			if(io.KeyCtrl)
+				SetScrollY(draw_window, smin(draw_window->Scroll.y + g.FontSize, GetScrollMaxY()));
+			else 
+				state->OnKeyPressed((is_startend_key_down ? STB_TEXTEDIT_K_TEXTEND : STB_TEXTEDIT_K_DOWN) | k_mask);
 		}
 		else if(IsKeyPressed(ImGuiKey_PageUp) && is_multiline) {
 			state->OnKeyPressed(STB_TEXTEDIT_K_PGUP | k_mask); scroll_y -= row_count_per_page * g.FontSize;
@@ -5195,51 +5194,36 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
 			    ImVec2(bar0_pos_x + bars_width, picker_pos.y + (i + 1) * (sv_picker_size / 6)), col_hues[i], col_hues[i], col_hues[i + 1], col_hues[i + 1]);
 		float bar0_line_y = IM_ROUND(picker_pos.y + H * sv_picker_size);
 		RenderFrameBorder(ImVec2(bar0_pos_x, picker_pos.y), ImVec2(bar0_pos_x + bars_width, picker_pos.y + sv_picker_size), 0.0f);
-		RenderArrowsForVerticalBar(draw_list,
-		    ImVec2(bar0_pos_x - 1, bar0_line_y),
-		    ImVec2(bars_triangles_half_sz + 1, bars_triangles_half_sz),
-		    bars_width + 2.0f,
-		    style.Alpha);
+		RenderArrowsForVerticalBar(draw_list, ImVec2(bar0_pos_x - 1, bar0_line_y), ImVec2(bars_triangles_half_sz + 1, bars_triangles_half_sz),
+		    bars_width + 2.0f, style.Alpha);
 	}
-
 	// Render cursor/preview circle (clamp S/V within 0..1 range because floating points colors may lead HSV values to be out of range)
 	float sv_cursor_rad = value_changed_sv ? 10.0f : 6.0f;
 	int sv_cursor_segments = draw_list->_CalcCircleAutoSegmentCount(sv_cursor_rad); // Lock segment count so the +1 one matches others.
 	draw_list->AddCircleFilled(sv_cursor_pos, sv_cursor_rad, user_col32_striped_of_alpha, sv_cursor_segments);
 	draw_list->AddCircle(sv_cursor_pos, sv_cursor_rad + 1, col_midgrey, sv_cursor_segments);
 	draw_list->AddCircle(sv_cursor_pos, sv_cursor_rad, col_white, sv_cursor_segments);
-
 	// Render alpha bar
 	if(alpha_bar) {
 		float alpha = ImSaturate(col[3]);
 		ImRect bar1_bb(bar1_pos_x, picker_pos.y, bar1_pos_x + bars_width, picker_pos.y + sv_picker_size);
 		RenderColorRectWithAlphaCheckerboard(draw_list, bar1_bb.Min, bar1_bb.Max, 0, bar1_bb.GetWidth() / 2.0f, ImVec2(0.0f, 0.0f));
-		draw_list->AddRectFilledMultiColor(bar1_bb.Min,
-		    bar1_bb.Max,
-		    user_col32_striped_of_alpha,
-		    user_col32_striped_of_alpha,
-		    user_col32_striped_of_alpha & ~IM_COL32_A_MASK,
-		    user_col32_striped_of_alpha & ~IM_COL32_A_MASK);
+		draw_list->AddRectFilledMultiColor(bar1_bb.Min, bar1_bb.Max,
+		    user_col32_striped_of_alpha, user_col32_striped_of_alpha,
+		    user_col32_striped_of_alpha & ~IM_COL32_A_MASK, user_col32_striped_of_alpha & ~IM_COL32_A_MASK);
 		float bar1_line_y = IM_ROUND(picker_pos.y + (1.0f - alpha) * sv_picker_size);
 		RenderFrameBorder(bar1_bb.Min, bar1_bb.Max, 0.0f);
-		RenderArrowsForVerticalBar(draw_list,
-		    ImVec2(bar1_pos_x - 1, bar1_line_y),
-		    ImVec2(bars_triangles_half_sz + 1, bars_triangles_half_sz),
-		    bars_width + 2.0f,
-		    style.Alpha);
+		RenderArrowsForVerticalBar(draw_list, ImVec2(bar1_pos_x - 1, bar1_line_y), ImVec2(bars_triangles_half_sz + 1, bars_triangles_half_sz),
+		    bars_width + 2.0f, style.Alpha);
 	}
-
 	EndGroup();
-
 	if(value_changed && memcmp(backup_initial_col, col, components * sizeof(float)) == 0)
 		value_changed = false;
 	if(value_changed && g.LastItemData.ID != 0) // In case of ID collision, the second EndGroup() won't catch g.ActiveId
 		MarkItemEdited(g.LastItemData.ID);
-
 	if(set_current_color_edit_id)
 		g.ColorEditCurrentID = 0;
 	PopID();
-
 	return value_changed;
 }
 
@@ -5252,7 +5236,6 @@ bool ImGui::ColorButton(const char* desc_id, const ImVec4 & col, ImGuiColorEditF
 	ImGuiWindow * window = GetCurrentWindow();
 	if(window->SkipItems)
 		return false;
-
 	ImGuiContext & g = *GImGui;
 	const ImGuiID id = window->GetID(desc_id);
 	const float default_size = GetFrameHeight();
@@ -5261,17 +5244,13 @@ bool ImGui::ColorButton(const char* desc_id, const ImVec4 & col, ImGuiColorEditF
 	ItemSize(bb, (size.y >= default_size) ? g.Style.FramePadding.y : 0.0f);
 	if(!ItemAdd(bb, id))
 		return false;
-
 	bool hovered, held;
 	bool pressed = ButtonBehavior(bb, id, &hovered, &held);
-
 	if(flags & ImGuiColorEditFlags_NoAlpha)
 		flags &= ~(ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaPreviewHalf);
-
 	ImVec4 col_rgb = col;
 	if(flags & ImGuiColorEditFlags_InputHSV)
 		ColorConvertHSVtoRGB(col_rgb.x, col_rgb.y, col_rgb.z, col_rgb.x, col_rgb.y, col_rgb.z);
-
 	ImVec4 col_rgb_without_alpha(col_rgb.x, col_rgb.y, col_rgb.z, 1.0f);
 	float grid_step = smin(size.x, size.y) / 2.99f;
 	float rounding = smin(g.Style.FrameRounding, grid_step * 0.5f);
@@ -5302,7 +5281,6 @@ bool ImGui::ColorButton(const char* desc_id, const ImVec4 & col, ImGuiColorEditF
 		else
 			window->DrawList->AddRect(bb.Min, bb.Max, GetColorU32(ImGuiCol_FrameBg), rounding); // Color button are often in need of some sort of border
 	}
-
 	// Drag and Drop Source
 	// NB: The ActiveId test is merely an optional micro-optimization, BeginDragDropSource() does the same test.
 	if(g.ActiveId == id && !(flags & ImGuiColorEditFlags_NoDragDrop) && BeginDragDropSource()) {
@@ -5315,12 +5293,10 @@ bool ImGui::ColorButton(const char* desc_id, const ImVec4 & col, ImGuiColorEditF
 		TextEx("Color");
 		EndDragDropSource();
 	}
-
 	// Tooltip
 	if(!(flags & ImGuiColorEditFlags_NoTooltip) && hovered)
 		ColorTooltip(desc_id, &col.x,
 		    flags & (ImGuiColorEditFlags_InputMask_ | ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaPreviewHalf));
-
 	return pressed;
 }
 
@@ -5347,7 +5323,6 @@ void ImGui::SetColorEditOptions(ImGuiColorEditFlags flags)
 void ImGui::ColorTooltip(const char* text, const float* col, ImGuiColorEditFlags flags)
 {
 	ImGuiContext & g = *GImGui;
-
 	if(!BeginTooltipEx(ImGuiTooltipFlags_OverridePreviousTooltip, ImGuiWindowFlags_None))
 		return;
 	const char* text_end = text ? FindRenderedTextEnd(text, NULL) : text;
@@ -5355,13 +5330,13 @@ void ImGui::ColorTooltip(const char* text, const float* col, ImGuiColorEditFlags
 		TextEx(text, text_end);
 		Separator();
 	}
-
 	ImVec2 sz(g.FontSize * 3 + g.Style.FramePadding.y * 2, g.FontSize * 3 + g.Style.FramePadding.y * 2);
 	ImVec4 cf(col[0], col[1], col[2], (flags & ImGuiColorEditFlags_NoAlpha) ? 1.0f : col[3]);
-	int cr = IM_F32_TO_INT8_SAT(col[0]), cg = IM_F32_TO_INT8_SAT(col[1]), cb = IM_F32_TO_INT8_SAT(col[2]),
-	    ca = (flags & ImGuiColorEditFlags_NoAlpha) ? 255 : IM_F32_TO_INT8_SAT(col[3]);
-	ColorButton("##preview",
-	    cf,
+	int cr = IM_F32_TO_INT8_SAT(col[0]);
+	int cg = IM_F32_TO_INT8_SAT(col[1]);
+	int cb = IM_F32_TO_INT8_SAT(col[2]);
+	int ca = (flags & ImGuiColorEditFlags_NoAlpha) ? 255 : IM_F32_TO_INT8_SAT(col[3]);
+	ColorButton("##preview", cf,
 	    (flags & (ImGuiColorEditFlags_InputMask_ | ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaPreviewHalf)) | ImGuiColorEditFlags_NoTooltip,
 	    sz);
 	SameLine();
@@ -5463,10 +5438,9 @@ void ImGui::ColorPickerOptionsPopup(const float* ref_col, ImGuiColorEditFlags fl
 	}
 	EndPopup();
 }
-
-//-------------------------------------------------------------------------
+//
 // [SECTION] Widgets: TreeNode, CollapsingHeader, etc.
-//-------------------------------------------------------------------------
+//
 // - TreeNode()
 // - TreeNodeV()
 // - TreeNodeEx()
@@ -5477,8 +5451,7 @@ void ImGui::ColorPickerOptionsPopup(const float* ref_col, ImGuiColorEditFlags fl
 // - GetTreeNodeToLabelSpacing()
 // - SetNextItemOpen()
 // - CollapsingHeader()
-//-------------------------------------------------------------------------
-
+//
 bool ImGui::TreeNode(const char* str_id, const char* fmt, ...)
 {
 	va_list args;
@@ -5547,7 +5520,6 @@ bool ImGui::TreeNodeExV(const char* str_id, ImGuiTreeNodeFlags flags, const char
 	ImGuiWindow * window = GetCurrentWindow();
 	if(window->SkipItems)
 		return false;
-
 	const char* label, * label_end;
 	ImFormatStringToTempBufferV(&label, &label_end, fmt, args);
 	return TreeNodeBehavior(window->GetID(str_id), flags, label, label_end);

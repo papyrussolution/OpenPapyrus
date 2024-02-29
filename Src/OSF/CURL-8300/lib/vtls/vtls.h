@@ -66,10 +66,8 @@ CURLsslset Curl_init_sslset_nolock(curl_sslbackend id, const char *name,
 #endif
 
 char *Curl_ssl_snihost(struct Curl_easy *data, const char *host, size_t *olen);
-bool Curl_ssl_config_matches(struct ssl_primary_config *data,
-                             struct ssl_primary_config *needle);
-bool Curl_clone_primary_ssl_config(struct ssl_primary_config *source,
-                                   struct ssl_primary_config *dest);
+bool Curl_ssl_config_matches(const struct ssl_primary_config *data, const struct ssl_primary_config *needle);
+bool Curl_clone_primary_ssl_config(struct ssl_primary_config *source, struct ssl_primary_config *dest);
 void Curl_free_primary_ssl_config(struct ssl_primary_config *sslc);
 
 curl_sslbackend Curl_ssl_backend(void);

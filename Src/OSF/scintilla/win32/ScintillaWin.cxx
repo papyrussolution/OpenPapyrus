@@ -2665,14 +2665,13 @@ void ScintillaWin::HorizontalScrollMessage(WPARAM wParam)
 	}
 	HorizontalScrollTo(xPos);
 }
-
 /**
  * Redraw all of text area.
  * This paint will not be abandoned.
  */
 void ScintillaWin::FullPaint()
 {
-	if((technology == SC_TECHNOLOGY_DEFAULT) || (technology == SC_TECHNOLOGY_DIRECTWRITEDC)) {
+	if(oneof2(technology, SC_TECHNOLOGY_DEFAULT, SC_TECHNOLOGY_DIRECTWRITEDC)) {
 		HDC hdc = ::GetDC(MainHWND());
 		FullPaintDC(hdc);
 		::ReleaseDC(MainHWND(), hdc);
@@ -2681,7 +2680,6 @@ void ScintillaWin::FullPaint()
 		FullPaintDC(0);
 	}
 }
-
 /**
  * Redraw all of text area on the specified DC.
  * This paint will not be abandoned.

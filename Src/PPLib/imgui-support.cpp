@@ -4,6 +4,7 @@
 #include <pp.h>
 #pragma hdrstop
 #include <imgui-support.h>
+#include <Scintilla.h>
 
 ImGuiRuntimeBlock::ImGuiRuntimeBlock() : g_pd3dDevice(0), g_pd3dDeviceContext(0), g_pSwapChain(0), g_mainRenderTargetView(0)
 {
@@ -415,3 +416,6 @@ void ImGuiSceneBase::Render(ImGuiRuntimeBlock & rRtb)
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	rRtb.g_pSwapChain->Present(1, 0); // Present with vsync
 }
+//
+//
+//
