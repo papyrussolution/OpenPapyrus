@@ -242,51 +242,47 @@ U_CAPI UConverter * U_EXPORT2 ucnv_safeClone(const UConverter * cnv, void * stac
 	cnv->fromCharErrorBehaviour(cnv->toUContext, &toUArgs, NULL, 0, UCNV_CLONE, &cbErr);
 	cbErr = U_ZERO_ERROR;
 	cnv->fromUCharErrorBehaviour(cnv->fromUContext, &fromUArgs, NULL, 0, 0, UCNV_CLONE, &cbErr);
-
 	UTRACE_EXIT_PTR_STATUS(localConverter, *status);
 	return localConverter;
 }
-
-/*Decreases the reference counter in the shared immutable section of the object
- * and frees the mutable part*/
-
+//
+// Decreases the reference counter in the shared immutable section of the object
+// and frees the mutable part
+//
 U_CAPI void U_EXPORT2 ucnv_close(UConverter * converter)
 {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	UTRACE_ENTRY_OC(UTRACE_UCNV_CLOSE);
-	if(converter == NULL) {
-		UTRACE_EXIT();
-		return;
-	}
-	UTRACE_DATA3(UTRACE_OPEN_CLOSE, "close converter %s at %p, isCopyLocal=%b",
-	    ucnv_getName(converter, &errorCode), converter, converter->isCopyLocal);
-	/* In order to speed up the close, only call the callbacks when they have been changed.
-	   This performance check will only work when the callbacks are set within a shared library
-	   or from user code that statically links this code. */
-	/* first, notify the callback functions that the converter is closed */
-	if(converter->fromCharErrorBehaviour != UCNV_TO_U_DEFAULT_CALLBACK) {
-		UConverterToUnicodeArgs toUArgs = { sizeof(UConverterToUnicodeArgs), TRUE, NULL, NULL, NULL, NULL, NULL, NULL };
-		toUArgs.converter = converter;
-		errorCode = U_ZERO_ERROR;
-		converter->fromCharErrorBehaviour(converter->toUContext, &toUArgs, NULL, 0, UCNV_CLOSE, &errorCode);
-	}
-	if(converter->fromUCharErrorBehaviour != UCNV_FROM_U_DEFAULT_CALLBACK) {
-		UConverterFromUnicodeArgs fromUArgs = { sizeof(UConverterFromUnicodeArgs), TRUE, NULL, NULL, NULL, NULL, NULL, NULL };
-		fromUArgs.converter = converter;
-		errorCode = U_ZERO_ERROR;
-		converter->fromUCharErrorBehaviour(converter->fromUContext, &fromUArgs, NULL, 0, 0, UCNV_CLOSE, &errorCode);
-	}
-	if(converter->sharedData->impl->close) {
-		converter->sharedData->impl->close(converter);
-	}
-	if(converter->subChars != (uint8 *)converter->subUChars) {
-		uprv_free(converter->subChars);
-	}
-	if(converter->sharedData->isReferenceCounted) {
-		ucnv_unloadSharedDataIfReady(converter->sharedData);
-	}
-	if(!converter->isCopyLocal) {
-		uprv_free(converter);
+	if(converter) {
+		UTRACE_DATA3(UTRACE_OPEN_CLOSE, "close converter %s at %p, isCopyLocal=%b", ucnv_getName(converter, &errorCode), converter, converter->isCopyLocal);
+		/* In order to speed up the close, only call the callbacks when they have been changed.
+		   This performance check will only work when the callbacks are set within a shared library
+		   or from user code that statically links this code. */
+		/* first, notify the callback functions that the converter is closed */
+		if(converter->fromCharErrorBehaviour != UCNV_TO_U_DEFAULT_CALLBACK) {
+			UConverterToUnicodeArgs toUArgs = { sizeof(UConverterToUnicodeArgs), TRUE, NULL, NULL, NULL, NULL, NULL, NULL };
+			toUArgs.converter = converter;
+			errorCode = U_ZERO_ERROR;
+			converter->fromCharErrorBehaviour(converter->toUContext, &toUArgs, NULL, 0, UCNV_CLOSE, &errorCode);
+		}
+		if(converter->fromUCharErrorBehaviour != UCNV_FROM_U_DEFAULT_CALLBACK) {
+			UConverterFromUnicodeArgs fromUArgs = { sizeof(UConverterFromUnicodeArgs), TRUE, NULL, NULL, NULL, NULL, NULL, NULL };
+			fromUArgs.converter = converter;
+			errorCode = U_ZERO_ERROR;
+			converter->fromUCharErrorBehaviour(converter->fromUContext, &fromUArgs, NULL, 0, 0, UCNV_CLOSE, &errorCode);
+		}
+		if(converter->sharedData->impl->close) {
+			converter->sharedData->impl->close(converter);
+		}
+		if(converter->subChars != (uint8 *)converter->subUChars) {
+			uprv_free(converter->subChars);
+		}
+		if(converter->sharedData->isReferenceCounted) {
+			ucnv_unloadSharedDataIfReady(converter->sharedData);
+		}
+		if(!converter->isCopyLocal) {
+			uprv_free(converter);
+		}
 	}
 	UTRACE_EXIT();
 }
@@ -2198,37 +2194,21 @@ static int32_t ucnv_convertAlgorithmic(bool convertToAlgorithmic,
 		from = algoConverter;
 		to = cnv;
 	}
-
-	targetLength = ucnv_internalConvert(to, from,
-		target, targetCapacity,
-		source, sourceLength,
-		pErrorCode);
-
+	targetLength = ucnv_internalConvert(to, from, target, targetCapacity, source, sourceLength, pErrorCode);
 	ucnv_close(algoConverter);
-
 	return targetLength;
 }
 
-U_CAPI int32_t U_EXPORT2 ucnv_toAlgorithmic(UConverterType algorithmicType,
-    UConverter * cnv,
-    char * target, int32_t targetCapacity,
-    const char * source, int32_t sourceLength,
-    UErrorCode * pErrorCode) {
-	return ucnv_convertAlgorithmic(TRUE, algorithmicType, cnv,
-		   target, targetCapacity,
-		   source, sourceLength,
-		   pErrorCode);
+U_CAPI int32_t U_EXPORT2 ucnv_toAlgorithmic(UConverterType algorithmicType, UConverter * cnv, char * target, int32_t targetCapacity,
+    const char * source, int32_t sourceLength, UErrorCode * pErrorCode) 
+{
+	return ucnv_convertAlgorithmic(TRUE, algorithmicType, cnv, target, targetCapacity, source, sourceLength, pErrorCode);
 }
 
-U_CAPI int32_t U_EXPORT2 ucnv_fromAlgorithmic(UConverter * cnv,
-    UConverterType algorithmicType,
-    char * target, int32_t targetCapacity,
-    const char * source, int32_t sourceLength,
-    UErrorCode * pErrorCode) {
-	return ucnv_convertAlgorithmic(FALSE, algorithmicType, cnv,
-		   target, targetCapacity,
-		   source, sourceLength,
-		   pErrorCode);
+U_CAPI int32_t U_EXPORT2 ucnv_fromAlgorithmic(UConverter * cnv, UConverterType algorithmicType,
+    char * target, int32_t targetCapacity, const char * source, int32_t sourceLength, UErrorCode * pErrorCode) 
+{
+	return ucnv_convertAlgorithmic(FALSE, algorithmicType, cnv, target, targetCapacity, source, sourceLength, pErrorCode);
 }
 
 U_CAPI UConverterType U_EXPORT2 ucnv_getType(const UConverter * converter)

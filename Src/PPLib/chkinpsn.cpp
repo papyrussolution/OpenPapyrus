@@ -434,14 +434,14 @@ int PPCheckInPersonArray::UpdateStatusForAll(long newStatus)
 {
 	int    ok = -1;
 	if(getCount() && oneof3(newStatus, PPCheckInPersonItem::statusRegistered, PPCheckInPersonItem::statusCheckedIn, PPCheckInPersonItem::statusCanceled)) {
-		const LDATETIME now = getcurdatetime_();
+		const LDATETIME now_dtm = getcurdatetime_();
 		for(uint i = 0; i < getCount(); i++) {
 			const PPCheckInPersonItem & r_item = Get(i);
 			if(r_item.GetStatus() != newStatus) {
 				PPCheckInPersonItem upd_item = r_item;
 				if(upd_item.SetStatus(newStatus) > 0) {
 					if(newStatus == PPCheckInPersonItem::statusCheckedIn)
-						upd_item.CiDtm = now;
+						upd_item.CiDtm = now_dtm;
 					else if(newStatus == PPCheckInPersonItem::statusRegistered)
 						upd_item.CiDtm.Z();
 					if(UpdateItem(i, upd_item, 0)) {

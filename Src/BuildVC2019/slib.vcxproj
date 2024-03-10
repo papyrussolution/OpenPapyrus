@@ -2086,6 +2086,7 @@
     <ClCompile Include="..\SLib\smemchr.cpp" />
     <ClCompile Include="..\SLib\soapdbt.cpp" />
     <ClCompile Include="..\SLib\sprocess.cpp" />
+    <ClCompile Include="..\SLib\sstrtransform.cpp" />
     <ClCompile Include="..\SLib\txttable.cpp" />
     <ClCompile Include="..\SLib\vslocate.c" />
     <ClCompile Include="..\SLib\winprofile.cpp" />
@@ -6689,6 +6690,9 @@
     </ProjectReference>
     <ProjectReference Include="pthreads4w.vcxproj">
       <Project>{6ee235a2-2941-44d4-bc0e-2d2ae9e7f0b0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="sqlite.vcxproj">
+      <Project>{d063e925-f6d0-4262-a3f9-d3f95b6f3e62}</Project>
     </ProjectReference>
     <ProjectReference Include="zstd-sl-lib.vcxproj">
       <Project>{901495e1-9cc5-40c4-aa96-edff1b260ce8}</Project>

@@ -803,7 +803,6 @@ static int get_header_and_data(BIO * bp, BIO ** header, BIO ** data, char * name
 			ERR_raise(ERR_LIB_PEM, PEM_R_BAD_END_LINE);
 			goto err;
 		}
-
 		/*
 		 * Check if line has been read completely or if only part of the line
 		 * has been read. Keep the previous value to ignore newlines that
@@ -811,9 +810,8 @@ static int get_header_and_data(BIO * bp, BIO ** header, BIO ** data, char * name
 		 */
 		prev_partial_line_read = partial_line_read;
 		partial_line_read = len == LINESIZE-1 && linebuf[LINESIZE-2] != '\n';
-
 		if(got_header == MAYBE_HEADER) {
-			if(memchr(linebuf, ':', len) != NULL)
+			if(smemchr(linebuf, ':', len) != NULL)
 				got_header = IN_HEADER;
 		}
 		if(!strncmp(linebuf, endstr, ENDLEN) || got_header == IN_HEADER)

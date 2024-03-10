@@ -961,39 +961,26 @@ out:
 	return result;
 }
 
-static CURLcode submit_CONNECT(struct Curl_cfilter * cf,
-    struct Curl_easy * data,
-    struct tunnel_stream * ts)
+static CURLcode submit_CONNECT(struct Curl_cfilter * cf, struct Curl_easy * data, struct tunnel_stream * ts)
 {
 	struct cf_h2_proxy_ctx * ctx = cf->ctx;
 	CURLcode result;
 	struct httpreq * req = NULL;
-
 	infof(data, "Establish HTTP/2 proxy tunnel to %s", ts->authority);
-
-	result = Curl_http_req_make(&req, "CONNECT", sizeof("CONNECT")-1,
-		NULL, 0, ts->authority, strlen(ts->authority),
-		NULL, 0);
+	result = Curl_http_req_make(&req, "CONNECT", sizeof("CONNECT")-1, NULL, 0, ts->authority, strlen(ts->authority), NULL, 0);
 	if(result)
 		goto out;
-
 	/* Setup the proxy-authorization header, if any */
-	result = Curl_http_output_auth(data, cf->conn, req->method, HTTPREQ_GET,
-		req->authority, TRUE);
+	result = Curl_http_output_auth(data, cf->conn, req->method, HTTPREQ_GET, req->authority, TRUE);
 	if(result)
 		goto out;
-
 	if(data->state.aptr.proxyuserpwd) {
-		result = Curl_dynhds_h1_cadd_line(&req->headers,
-			data->state.aptr.proxyuserpwd);
+		result = Curl_dynhds_h1_cadd_line(&req->headers, data->state.aptr.proxyuserpwd);
 		if(result)
 			goto out;
 	}
-
-	if(!Curl_checkProxyheaders(data, cf->conn, STRCONST("User-Agent"))
-	    && data->set.str[STRING_USERAGENT]) {
-		result = Curl_dynhds_cadd(&req->headers, "User-Agent",
-			data->set.str[STRING_USERAGENT]);
+	if(!Curl_checkProxyheaders(data, cf->conn, STRCONST("User-Agent")) && data->set.str[STRING_USERAGENT]) {
+		result = Curl_dynhds_cadd(&req->headers, "User-Agent", data->set.str[STRING_USERAGENT]);
 		if(result)
 			goto out;
 	}

@@ -3183,7 +3183,7 @@ int DebtStatCore::GetList(PPID accSheetID, PPDebtorStatArray & rList)
 int DebtStatCore::SetList(PPID accSheetID, LDATE date, const PPDebtorStatArray & rList, int use_ta)
 {
 	int    ok = 1;
-	const  LDATETIME cur = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -3192,14 +3192,14 @@ int DebtStatCore::SetList(PPID accSheetID, LDATE date, const PPDebtorStatArray &
 			DebtStatTbl::Key0 k0;
 			DebtStatTbl::Rec rec;
 			MEMSZERO(k0);
-			k0.Dt = NZOR(date, cur.d);
+			k0.Dt = NZOR(date, now_dtm.d);
 			k0.AccSheetID = accSheetID;
 			k0.ArID = p_item->ArID;
 			if(search(0, &k0, spEq)) {
 				copyBufTo(&rec);
 				rec.RelArID = p_item->RelArID;
 				if(!date)
-					rec.Tm = cur.t;
+					rec.Tm = now_dtm.t;
 				rec.Flags = p_item->Flags;
 				rec.DelayMean = p_item->DelayMean;
 				rec.DelaySd = sqrt(p_item->DelayVar);
@@ -3219,8 +3219,8 @@ int DebtStatCore::SetList(PPID accSheetID, LDATE date, const PPDebtorStatArray &
 				rec.AccSheetID = accSheetID;
 				rec.ArID = p_item->ArID;
 				rec.RelArID = p_item->RelArID;
-				rec.Dt = NZOR(date, cur.d);
-				rec.Tm = cur.t;
+				rec.Dt = NZOR(date, now_dtm.d);
+				rec.Tm = now_dtm.t;
 				rec.Flags = p_item->Flags;
 				rec.DelayMean = p_item->DelayMean;
 				rec.DelaySd = sqrt(p_item->DelayVar);

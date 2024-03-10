@@ -1629,7 +1629,7 @@ int PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, con
 										is_there_codes = 1;
 									}
 									w_w.PutInner("innerid", temp_buf.Z().Cat(goods_rec.ID));
-                                    GObj.GetSingleBarcode(r_item.GoodsID, temp_buf);
+                                    GObj.GetSingleBarcode(r_item.GoodsID, 0, temp_buf);
                                     if(temp_buf.NotEmptyS()) {
 										w_w.PutInner("code", CorrectAndEncText(temp_buf));
 										is_there_codes = 1;

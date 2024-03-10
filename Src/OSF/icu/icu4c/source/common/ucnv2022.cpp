@@ -617,21 +617,18 @@ static void U_CALLCONV _ISO2022Open(UConverter * cnv, UConverterLoadArgs * pArgs
 	}
 }
 
-static void U_CALLCONV _ISO2022Close(UConverter * converter) {
+static void U_CALLCONV _ISO2022Close(UConverter * converter) 
+{
 	UConverterDataISO2022* myData = (UConverterDataISO2022*)(converter->extraInfo);
 	UConverterSharedData ** array = myData->myConverterArray;
-	int32_t i;
-
-	if(converter->extraInfo != NULL) {
+	if(converter->extraInfo) {
 		/*close the array of converter pointers and free the memory*/
-		for(i = 0; i<UCNV_2022_MAX_CONVERTERS; i++) {
+		for(int32_t i = 0; i<UCNV_2022_MAX_CONVERTERS; i++) {
 			if(array[i] != NULL) {
 				ucnv_unloadSharedDataIfReady(array[i]);
 			}
 		}
-
 		ucnv_close(myData->currentConverter);
-
 		if(!converter->isExtraLocal) {
 			uprv_free(converter->extraInfo);
 			converter->extraInfo = NULL;

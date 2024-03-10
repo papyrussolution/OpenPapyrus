@@ -1,6 +1,6 @@
 // UED-ID.H
-// version: 30
-// sha256: 9f7dcf620981584c964e166378d2ac8cf70f0e6a496d9c2f6a85208597474555
+// version: 31
+// sha256: 59cf320d941a0bcd7a19ae576fa9c3b18f98248d46c373f772bff89846b62306
 //
 #ifndef __UED_ID_H
 #define __UED_ID_H
@@ -3610,6 +3610,7 @@
 #define UED_META_DATE_DAYBC                          0x100000079ULL
 #define UED_META_TIME_HR                             0x100000081ULL
 #define UED_META_TIME_TZHR                           0x100000082ULL
+#define UED_META_DAYTIME_MS                          0x100000083ULL
 #define UED_META_NLWCLS                              0x100000101ULL
 	#define UED_NLWCLS_ALPHA                             0x10100000001ULL
 	#define UED_NLWCLS_DIGIT                             0x10100000002ULL

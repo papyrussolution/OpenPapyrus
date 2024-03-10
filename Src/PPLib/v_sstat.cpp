@@ -1475,9 +1475,8 @@ int PPViewSStat::AddPurchaseBill()
 			/*
 			if(autoOrder) {
 				SString memo;
-				LDATETIME cur_dtm;
-				getcurdatetime(&cur_dtm);
-				(memo = "@autoorder").Space().Cat(cur_dtm).Dot().Space().CatEq("Период заказа дней", (long)Filt.OrdTerm);
+				const LDATETIME now_dtm = getcurdatetime_();
+				(memo = "@autoorder").Space().Cat(now_dtm).Dot().Space().CatEq("Период заказа дней", (long)Filt.OrdTerm);
 				memo.ToOem();
 				memo.CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
 			}

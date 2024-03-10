@@ -769,8 +769,8 @@ double FASTCALL satof(const char * pBuf)
 	if(isempty(pBuf))
 		return 0.0;
 	else {
-		const char * p_end = 0;
-		int   erange = 0;
+		const  char * p_end = 0;
+		int    erange = 0;
 		double val = 0.0;
 		return SIEEE754::Scan(pBuf, &p_end, &val, &erange) ? val : 0.0;
 	}
@@ -812,74 +812,10 @@ int FASTCALL strtouint(const char * pBuf, ulong * pVal)
 //
 // @construction fast int format
 //
-static const char fi_digits[] =
-	"0001020304050607080910111213141516171819"
-	"2021222324252627282930313233343536373839"
-	"4041424344454647484950515253545556575859"
-	"6061626364656667686970717273747576777879"
-	"8081828384858687888990919293949596979899";
-//
-// Integer division is slow so do it for a group of two digits instead
-// of for every digit. The idea comes from the talk by Alexandrescu
-// "Three Optimization Tips for C++". See speed-test for a comparison.
-//
-static char * FASTCALL format_decimal64(uint64 value, char * pBuf, size_t bufSize) 
-{
-	char * ptr = pBuf + (bufSize-1); // Parens to workaround MSVC bug.
-	while(value >= 100) {
-		uint index = static_cast<uint>((value % 100) * 2);
-		value /= 100;
-		*--ptr = fi_digits[index+1];
-		*--ptr = fi_digits[index];
-	}
-	if(value < 10) {
-		*--ptr = static_cast<char>('0' + value);
-	}
-	else {
-		uint index = static_cast<uint>(value * 2);
-		*--ptr = fi_digits[index+1];
-		*--ptr = fi_digits[index];
-	}
-	return ptr;
-}
-
-static char * FASTCALL format_decimal32(uint32 value, char * pBuf, size_t bufSize) 
-{
-	char * ptr = pBuf + (bufSize-1); // Parens to workaround MSVC bug.
-	while(value >= 100) {
-		uint index = static_cast<uint>((value % 100) * 2);
-		value /= 100;
-		*--ptr = fi_digits[index+1];
-		*--ptr = fi_digits[index];
-	}
-	if(value < 10) {
-		*--ptr = static_cast<char>('0' + value);
-	}
-	else {
-		uint index = static_cast<uint>(value * 2);
-		*--ptr = fi_digits[index+1];
-		*--ptr = fi_digits[index];
-	}
-	return ptr;
-}
-
-static char * FASTCALL format_signed64(int64 value, char * pBuf, size_t bufSize) 
-{
-	const bool is_negative = value < 0;
-	char * p_result = format_decimal64(is_negative ? (0ULL - static_cast<uint64>(value)) : static_cast<uint64>(value), pBuf, bufSize);
-	if(is_negative) 
-		*--p_result = '-';
-	return p_result;
-}
-
-static char * FASTCALL format_signed32(int32 value, char * pBuf, size_t bufSize) 
-{
-	const bool is_negative = value < 0;
-	char * p_result = format_decimal32(is_negative ? (0U - static_cast<uint32>(value)) : static_cast<uint32>(value), pBuf, bufSize);
-	if(is_negative) 
-		*--p_result = '-';
-	return p_result;
-}
+char * format_decimal64(uint64 value, char * pBuf, size_t bufSize);
+char * format_decimal32(uint32 value, char * pBuf, size_t bufSize);
+char * format_signed64(int64 value, char * pBuf, size_t bufSize);
+char * format_signed32(int32 value, char * pBuf, size_t bufSize);
 
 #ifndef NDEBUG
 	//#define FORMATINT_DO_TEST_SENTINEL

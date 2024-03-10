@@ -1315,18 +1315,13 @@ void gp_cairo_enhanced_flush(PlotCairoStruct * plot)
 
 	if(gp_cairo_enhanced_overprint==1) { /* save underprinted text with its attributes */
 		underprinted_start = strlen(gp_cairo_underprinted_utf8);
-		strncat(gp_cairo_underprinted_utf8,
-		    enhanced_text_utf8,
-		    sizeof(gp_cairo_underprinted_utf8)-strlen(gp_cairo_underprinted_utf8)-1);
+		strncat(gp_cairo_underprinted_utf8, enhanced_text_utf8, sizeof(gp_cairo_underprinted_utf8)-strlen(gp_cairo_underprinted_utf8)-1);
 		underprinted_end = strlen(gp_cairo_underprinted_utf8);
-
 		if(gp_cairo_enhanced_underprinted_AttrList)
 			pango_attr_list_unref(gp_cairo_enhanced_underprinted_AttrList);
 		gp_cairo_enhanced_underprinted_AttrList = pango_attr_list_new();
-
 		/* add text attributes to the underprinted list */
-		gp_cairo_add_attr(plot, gp_cairo_enhanced_underprinted_AttrList,
-		    underprinted_start, underprinted_end);
+		gp_cairo_add_attr(plot, gp_cairo_enhanced_underprinted_AttrList, underprinted_start, underprinted_end);
 	}
 
 #ifdef MAP_SYMBOL

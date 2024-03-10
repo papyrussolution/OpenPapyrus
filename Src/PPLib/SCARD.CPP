@@ -909,7 +909,7 @@ int SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, TSVector <UpdateRestNotify
 	SCardOpTbl::Rec exs_rec, rec = *pRec;
 	SCardOpTbl::Key0 k0;
 	SCardTbl::Rec sc_rec;
-	const  LDATETIME now_dtm = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	THROW_PP(rec.SCardID, PPERR_SCARDIDNEEDEDFOROP);
 	THROW(Search(rec.SCardID, &sc_rec));
 	if(rec.Dt == 0 || rec.Tm == 0)

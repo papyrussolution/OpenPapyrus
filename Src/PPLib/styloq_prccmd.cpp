@@ -748,7 +748,7 @@ int PPStyloQInterchange::ProcessCommand_PersonEvent(const StyloQCommandList::Ite
 	{
 		SSerializeContext sctx;
 		SString temp_buf;
-		const LDATETIME _now = getcurdatetime_();
+		const LDATETIME now_dtm = getcurdatetime_();
 		PPObjPersonEvent psnevobj;
 		//PPPsnEventPacket pe_pack;
 		StyloQPersonEventParam param;
@@ -758,8 +758,8 @@ int PPStyloQInterchange::ProcessCommand_PersonEvent(const StyloQCommandList::Ite
 			// @v11.6.2 THROW(psnevobj.SerializePacket(-1, &pe_pack, temp_non_const_buf, &sctx));
 			THROW(param.Serialize(-1, temp_non_const_buf, &sctx)); // @v11.6.2 
 		}
-		param.PePack.Rec.Dt = _now.d;
-		param.PePack.Rec.Tm = _now.t;
+		param.PePack.Rec.Dt = now_dtm.d;
+		param.PePack.Rec.Tm = now_dtm.t;
 		THROW(param.PePack.Rec.OpID);
 		if(param.PePack.Rec.PersonID == ROBJID_CONTEXT) {
 			THROW(FetchPersonFromClientPacket(rCliPack, &param.PePack.Rec.PersonID, true/*logResult*/) > 0);
@@ -1600,7 +1600,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 	SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
 	int    ok = 1;
-	const  LDATETIME dtm_now = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	/*
 		param
 
@@ -1628,7 +1628,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 	// @v11.6.2 {
 	if(!!rCmdItem.Uuid)
 		js.InsertString("orgcmduuid", temp_buf.Z().Cat(rCmdItem.Uuid, S_GUID::fmtIDL).Escape());
-	js.InsertString("time", temp_buf.Z().Cat(dtm_now, DATF_ISO8601CENT, 0));
+	js.InsertString("time", temp_buf.Z().Cat(now_dtm, DATF_ISO8601CENT, 0));
 	// } @v11.6.2 
 	StqInsertIntoJs_BaseCurrency(&js); // @v11.3.12
 	{
@@ -1689,7 +1689,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandL
 	SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
 	int    ok = 1;
-	const  LDATETIME dtm_now = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	PPObjIDArray bloboid_list;
 	Stq_CmdStat_MakeRsrv_Response stat;
 	PPUserFuncProfiler ufp(PPUPRF_STYLOQ_CMD_INDOORSVCPREREQ);
@@ -1726,7 +1726,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvIndoorSvcPrereq(const StyloQCommandL
 		// @v11.6.2 {
 		if(!!rCmdItem.Uuid)
 			js.InsertString("orgcmduuid", temp_buf.Z().Cat(rCmdItem.Uuid, S_GUID::fmtIDL).Escape());
-		js.InsertString("time", temp_buf.Z().Cat(dtm_now, DATF_ISO8601CENT, 0));
+		js.InsertString("time", temp_buf.Z().Cat(now_dtm, DATF_ISO8601CENT, 0));
 		// } @v11.6.2 
 		StqInsertIntoJs_BaseCurrency(&js);
 		js.InsertInt("posnodeid", posnode_id);
@@ -1762,7 +1762,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 		goods_list [ { id; nm; parid; uomid; code_list [ { cod; qty } ]; brandid; upp; price; stock; (ordqtymult|ordminqty); quot_list [ { id; val } ] ]
 	*/
 	int    ok = 1;
-	const  LDATETIME now_dtm = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	const bool hide_stock = LOGIC(rParam.Flags & StyloQDocumentPrereqParam::fHideStock); // @v11.6.4
 	PPObjBill * p_bobj = BillObj;
 	SString temp_buf;
@@ -2055,7 +2055,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 {
 	//StoreOidListWithBlob
 	int    ok = 1;
-	const  LDATETIME dtm_now = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	PPObjIDArray bloboid_list;
 	Stq_CmdStat_MakeRsrv_Response stat;
 	PPUserFuncProfiler ufp(PPUPRF_STYLOQ_CMD_ORDERPREREQ);
@@ -2118,7 +2118,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 		// @v11.6.2 {
 		if(!!rCmdItem.Uuid)
 			js.InsertString("orgcmduuid", temp_buf.Z().Cat(rCmdItem.Uuid, S_GUID::fmtIDL).Escape());
-		js.InsertString("time", temp_buf.Z().Cat(dtm_now, DATF_ISO8601CENT, 0));
+		js.InsertString("time", temp_buf.Z().Cat(now_dtm, DATF_ISO8601CENT, 0));
 		// } @v11.6.2 
 		StqInsertIntoJs_BaseCurrency(&js);
 		// @v11.4.9 {
@@ -2319,7 +2319,7 @@ int PPStyloQInterchange::GetPrcList(const StyloQCore::StoragePacket & rCliPack, 
 int PPStyloQInterchange::ProcessCommand_IncomingListTSess(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const LDATETIME * pIfChangedSince, SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
 	int    ok = 1;
-	const  LDATETIME dtm_now = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	LDATETIME _ifchangedsince = ZERODATETIME;
 	SJson * p_js_doc_list = 0;
 	SString temp_buf;
@@ -2346,9 +2346,9 @@ int PPStyloQInterchange::ProcessCommand_IncomingListTSess(const StyloQCommandLis
 			if(CConfig.Flags & CCFLG_DEBUG && !param.Period.IsZero())
 				_filt.StPeriod = param.Period;
 			else if(param.LookbackDays > 0)
-				_filt.StPeriod.Set(plusdate(dtm_now.d, -param.LookbackDays), ZERODATE);
+				_filt.StPeriod.Set(plusdate(now_dtm.d, -param.LookbackDays), ZERODATE);
 			else
-				_filt.StPeriod.Set(dtm_now.d, ZERODATE);
+				_filt.StPeriod.Set(now_dtm.d, ZERODATE);
 			//
 			if(!!_ifchangedsince) {
 				// @todo «десь надо вы€снить помен€лось что-нибудь или нет
@@ -2371,7 +2371,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListTSess(const StyloQCommandLis
 			{
 				if(!!rCmdItem.Uuid)
 					js.InsertString("orgcmduuid", temp_buf.Z().Cat(rCmdItem.Uuid, S_GUID::fmtIDL).Escape());
-				js.InsertString("time", temp_buf.Z().Cat(dtm_now, DATF_ISO8601CENT, 0));
+				js.InsertString("time", temp_buf.Z().Cat(now_dtm, DATF_ISO8601CENT, 0));
 				StqInsertIntoJs_BaseCurrency(&js); // @v11.5.8
 				//js.InsertInt("posnodeid", posnode_id); // @v11.5.8
 				if(param.ActionFlags) {
@@ -2437,7 +2437,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 	const LDATETIME * pIfChangedSince, SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
 	int    ok = 1;
-	const  LDATETIME dtm_now = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	LDATETIME _ifchangedsince = ZERODATETIME;
 	SJson * p_js_doc_list = 0;
 	SString temp_buf;
@@ -2497,7 +2497,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 				// @v11.6.2 {
 				if(!!rCmdItem.Uuid)
 					js.InsertString("orgcmduuid", temp_buf.Z().Cat(rCmdItem.Uuid, S_GUID::fmtIDL).Escape());
-				js.InsertString("time", temp_buf.Z().Cat(dtm_now, DATF_ISO8601CENT, 0));
+				js.InsertString("time", temp_buf.Z().Cat(now_dtm, DATF_ISO8601CENT, 0));
 				// } @v11.6.2 
 				StqInsertIntoJs_BaseCurrency(&js); // @v11.5.8
 				js.InsertInt("posnodeid", posnode_id); // @v11.5.8
@@ -2514,9 +2514,9 @@ int PPStyloQInterchange::ProcessCommand_IncomingListCCheck(const StyloQCommandLi
 				if(CConfig.Flags & CCFLG_DEBUG && !param.Period.IsZero())
 					period = param.Period;
 				else if(param.LookbackDays > 0)
-					period.Set(plusdate(dtm_now.d, -param.LookbackDays), ZERODATE);
+					period.Set(plusdate(now_dtm.d, -param.LookbackDays), ZERODATE);
 				else
-					period.Set(dtm_now.d, ZERODATE);
+					period.Set(now_dtm.d, ZERODATE);
 				cpp.Backend_GetCCheckList(&period, 0, cclist);
 				// StyloQCommandList::sqbdtCCheck
 				THROW_SL(p_js_doc_list = SJson::CreateArr());
@@ -2657,7 +2657,7 @@ int PPStyloQInterchange::ProcessCommand_RequestNotificationList(const StyloQComm
 								msg
 							}
 						*/
-						const LDATETIME dtm_now = getcurdatetime_();
+						const LDATETIME now_dtm = getcurdatetime_();
 						TSCollection <SvcNotification> nlist;
 						{
 							SString obj_text;
@@ -2668,7 +2668,7 @@ int PPStyloQInterchange::ProcessCommand_RequestNotificationList(const StyloQComm
 									SvcNotification * p_item = nlist.CreateNewItem();
 									p_item->CmdUuid = rCmdItem.Uuid; // @v11.5.11
 									p_item->EventOrgTime.Set(r_rec.Dt, r_rec.Tm);
-									p_item->EventIssueTime = dtm_now;
+									p_item->EventIssueTime = now_dtm;
 									p_item->ObjNominalTime.Set(bill_rec.Dt, ZEROTIME);
 									p_item->Oid.Set(r_rec.ObjType, r_rec.ObjID);
 									if(r_rec.Action == PPACN_TURNBILL) {
@@ -2721,7 +2721,7 @@ int PPStyloQInterchange::ProcessCommand_RequestNotificationList(const StyloQComm
 						act_list.addzlist(PPACN_OBJADD, 0L); // @?
 						p_sj->GetObjListByEventSince(PPOBJ_TSESSION, &act_list, since, obj_id_list, &rec_list);
 						//
-						const LDATETIME dtm_now = getcurdatetime_();
+						const LDATETIME now_dtm = getcurdatetime_();
 						TSCollection <SvcNotification> nlist;
 						if(rec_list.getCount()) {
 							PPObjTSession tses_obj;
@@ -2739,16 +2739,16 @@ int PPStyloQInterchange::ProcessCommand_RequestNotificationList(const StyloQComm
 							if(CConfig.Flags & CCFLG_DEBUG && !param.Period.IsZero())
 								_filt.StPeriod = param.Period;
 							else if(param.LookbackDays > 0)
-								_filt.StPeriod.Set(plusdate(dtm_now.d, -param.LookbackDays), ZERODATE);
+								_filt.StPeriod.Set(plusdate(now_dtm.d, -param.LookbackDays), ZERODATE);
 							else
-								_filt.StPeriod.Set(dtm_now.d, ZERODATE);
+								_filt.StPeriod.Set(now_dtm.d, ZERODATE);
 							for(uint i = 0; i < rec_list.getCount(); i++) {
 								const SysJournalTbl::Rec & r_rec = rec_list.at(i);
 								if(r_rec.ObjType && r_rec.ObjID && tses_obj.Search(r_rec.ObjID, &tses_rec) > 0 && tses_obj.CheckForFilt(&_filt, tses_rec.ID, &tses_rec)) {
 									SvcNotification * p_item = nlist.CreateNewItem();
 									p_item->CmdUuid = rCmdItem.Uuid; // @v11.5.11
 									p_item->EventOrgTime.Set(r_rec.Dt, r_rec.Tm);
-									p_item->EventIssueTime = dtm_now;
+									p_item->EventIssueTime = now_dtm;
 									p_item->ObjNominalTime.Set(tses_rec.StDt, ZEROTIME);
 									p_item->Oid.Set(r_rec.ObjType, r_rec.ObjID);
 									if(r_rec.Action == PPACN_OBJADD) {
@@ -2814,7 +2814,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 	const LDATETIME * pIfChangedSince, SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
 	int    ok = 1;
-	const  LDATETIME dtm_now = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	SJson * p_js_doc_list = 0;
 	SBinaryChunk bc_own_ident;
 	StyloQIncomingListParam param;
@@ -2860,11 +2860,11 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 				bill_filt.Period = param.Period;
 			}
 			else if(param.LookbackDays > 0) {
-				bill_filt.Period.low = plusdate(dtm_now.d, -param.LookbackDays);
+				bill_filt.Period.low = plusdate(now_dtm.d, -param.LookbackDays);
 				bill_filt.Period.upp = ZERODATE;
 			}
 			else {
-				bill_filt.Period.low = dtm_now.d;
+				bill_filt.Period.low = now_dtm.d;
 				bill_filt.Period.upp = ZERODATE;
 			}
 			bill_filt.OpID = param.P_BF->OpID;
@@ -2886,7 +2886,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 				// @v11.6.2 {
 				if(!!rCmdItem.Uuid)
 					js.InsertString("orgcmduuid", temp_buf.Z().Cat(rCmdItem.Uuid, S_GUID::fmtIDL).Escape());
-				js.InsertString("time", temp_buf.Z().Cat(dtm_now, DATF_ISO8601CENT, 0));
+				js.InsertString("time", temp_buf.Z().Cat(now_dtm, DATF_ISO8601CENT, 0));
 				// } @v11.6.2 
 				StqInsertIntoJs_BaseCurrency(&js);
 				if(param.ActionFlags) {
@@ -3033,13 +3033,18 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 								SJson * p_js_dlvrloc_list = 0;
 								for(uint locidx = 0; locidx < dlvr_loc_list.getCount(); locidx++) {
 									const  PPID dlvr_loc_id = dlvr_loc_list.at(locidx);
-									psn_obj.LocObj.GetAddress(dlvr_loc_id, 0, addr);
-									if(addr.NotEmptyS()) {
-										SJson * p_js_adr = SJson::CreateObj();
-										p_js_adr->InsertInt("id", dlvr_loc_id);
-										p_js_adr->InsertString("addr", (temp_buf = addr).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-										SETIFZ(p_js_dlvrloc_list, SJson::CreateArr());
-										p_js_dlvrloc_list->InsertChild(p_js_adr);
+									LocationTbl::Rec loc_rec; // @v11.9.9 
+									// @v11.9.9 ¬веден флаг пассивной локации. ѕассивные адреса доставки не передаютс€ на устройство.
+									if(psn_obj.LocObj.Fetch(dlvr_loc_id, &loc_rec) > 0 && !(loc_rec.Flags & LOCF_PASSIVE)) { // @v11.9.9 
+										LocationCore::GetAddress(loc_rec, 0, addr); // @v11.9.9 
+										// @v11.9.9 psn_obj.LocObj.GetAddress(dlvr_loc_id, 0, addr);
+										if(addr.NotEmptyS()) {
+											SJson * p_js_adr = SJson::CreateObj();
+											p_js_adr->InsertInt("id", dlvr_loc_id);
+											p_js_adr->InsertString("addr", (temp_buf = addr).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+											SETIFZ(p_js_dlvrloc_list, SJson::CreateArr());
+											p_js_dlvrloc_list->InsertChild(p_js_adr);
+										}
 									}
 								}
 								p_js_obj->InsertNz("dlvrloc_list", p_js_dlvrloc_list);
@@ -3071,7 +3076,7 @@ int PPStyloQInterchange::ProcessCommand_DebtList(const StyloQCommandList::Item &
 	SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
 	int    ok = -1;
-	const  LDATETIME dtm_now = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	const  bool use_omt_paym_amt = LOGIC(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
 	PPID   ar_id = 0;
 	SString temp_buf;
@@ -3140,7 +3145,7 @@ int PPStyloQInterchange::ProcessCommand_DebtList(const StyloQCommandList::Item &
 			if(!!rCmdItem.Uuid)
 				js.InsertString("orgcmduuid", temp_buf.Z().Cat(rCmdItem.Uuid, S_GUID::fmtIDL).Escape());
 			// } @v11.6.2 
-			js.InsertString("time", temp_buf.Z().Cat(dtm_now, DATF_ISO8601CENT, 0));
+			js.InsertString("time", temp_buf.Z().Cat(now_dtm, DATF_ISO8601CENT, 0));
 			js.InsertInt("arid", ar_id);
 			(temp_buf = ar_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape();
 			js.InsertString("arname", temp_buf);

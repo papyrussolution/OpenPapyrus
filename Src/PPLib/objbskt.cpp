@@ -2300,7 +2300,7 @@ int PPObjBill::ConvertBasket(const PPBasketPacket & rBasket, PPBillPacket * pPac
 			else if(ilti.HasDeficit()) {
 				PPLoadString("deficit", msg_buf);
 				msg_buf.CatDiv(':', 2);
-				GObj.GetSingleBarcode(goods_rec.ID, temp_buf.Z());
+				GObj.GetSingleBarcode(goods_rec.ID, 0, temp_buf);
 				if(temp_buf.NotEmptyS())
 					msg_buf.Cat(temp_buf).CatDiv('-', 1);
 				msg_buf.Cat(goods_rec.Name).CatDiv('=', 1).Cat(ilti.Rest, MKSFMTD(0, 6, 0));

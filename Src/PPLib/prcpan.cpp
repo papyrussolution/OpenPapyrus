@@ -416,8 +416,8 @@ int PrcPaneDialog::switchProcessor(PPID objType, PPID objID)
 		else {
 			for(i = 0; ok <= 0 && SwitchPrcList.enumItems(&i, (void **)&p_entry);) {
 				if(p_entry->BillID == 0) {
-					LDATETIME curdtm = getcurdatetime_();
-					if(TSesObj.IsProcessorBusy(p_entry->PrcID, 0, TSESK_SESSION, curdtm, 3600, &sess_id) < 0) {
+					const LDATETIME now_dtm = getcurdatetime_();
+					if(TSesObj.IsProcessorBusy(p_entry->PrcID, 0, TSESK_SESSION, now_dtm, 3600, &sess_id) < 0) {
 						int    r = TSesObj.IsProcessorInProcess(p_entry->PrcID, TSESK_SESSION, 0);
 						ProcessorTbl::Rec prc_rec;
 						THROW(r);
@@ -925,8 +925,8 @@ void PrcPaneDialog::setupGoods(PPID goodsID)
 void PrcPaneDialog::updateStatus(int forceUpdate)
 {
 	if(H.PrcID) {
-		LDATETIME curdtm = getcurdatetime_();
-		const long dif = diffdatetimesec(curdtm, LastPrcStatusCheckTime);
+		const LDATETIME now_dtm = getcurdatetime_();
+		const long dif = diffdatetimesec(now_dtm, LastPrcStatusCheckTime);
 		if(forceUpdate || dif > 3) {
 			const  PPID prev_sess_id = H.SessID;
 			TSessionTbl::Rec ses_rec;
@@ -1002,7 +1002,7 @@ void PrcPaneDialog::updateStatus(int forceUpdate)
 					LDATETIME idle_start;
 					idle_start.Set(ses_rec.StDt, ses_rec.StTm);
 					LTIME  idle_cont_tm;
-					idle_cont_tm.settotalsec(diffdatetimesec(curdtm, idle_start));
+					idle_cont_tm.settotalsec(diffdatetimesec(now_dtm, idle_start));
 					temp_buf = IdleContText;
 					temp_buf.Cat(idle_cont_tm);
 					setCtrlString(CTL_PRCPAN_INFO, temp_buf);
@@ -1010,7 +1010,7 @@ void PrcPaneDialog::updateStatus(int forceUpdate)
 			}
 			else if(State == sIDLE)
 				State = H.SessID ? sEMPTY_SESS : sEMPTY_NOSESS;
-			LastPrcStatusCheckTime = curdtm;
+			LastPrcStatusCheckTime = now_dtm;
 		}
 	}
 }

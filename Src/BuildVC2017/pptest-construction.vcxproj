@@ -224,6 +224,7 @@
     <ClCompile Include="..\PPTEST\UNIT\test-sarc.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-sarray.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-slui.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-sqlite.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-sqlparser.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-string.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-time.cpp" />
@@ -235,6 +236,9 @@
     </ProjectReference>
     <ProjectReference Include="sql-parser.vcxproj">
       <Project>{09b6c707-5b2f-48f9-8512-551046e3259c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="sqlite.vcxproj">
+      <Project>{d063e925-f6d0-4262-a3f9-d3f95b6f3e62}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1562,8 +1562,8 @@ int PPApp::SetDatetimeByServer(PPIniFile * pIniFile, int force)
 							ok = 0;
 						}
 						else if(r > 0) {
-							const  LDATETIME curdtm = getcurdatetime_();
-							const  long   diff = diffdatetimesec(dtm, curdtm);
+							const LDATETIME now_dtm = getcurdatetime_();
+							const  long   diff = diffdatetimesec(dtm, now_dtm);
 							if(labs(diff) >= 2) {
 								//LocalState |= lsLockSettingTimeByServer;
 								if(setcurdatetime(dtm)) {
@@ -1589,35 +1589,6 @@ int PPApp::SetDatetimeByServer(PPIniFile * pIniFile, int force)
 				LocalThread * p_thread = new LocalThread(server_name);
 				p_thread->Start();
 				// } @v11.4.2
-				/* @v11.4.2
-				int r = SGetTimeFromRemoteServer(server_name, &dtm);
-				if(!r) {
-					PPSetErrorSLib();
-					PPFormatT(PPTXT_LOG_TIMESERVERERR, &msg_buf, server_name.cptr(), PPErrCode);
-					PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_COMP);
-					ok = 0;
-				}
-				else if(r > 0) {
-					const  LDATETIME curdtm = getcurdatetime_();
-					const  long   diff = diffdatetimesec(dtm, curdtm);
-					if(labs(diff) >= 2) {
-						LocalState |= lsLockSettingTimeByServer;
-						if(setcurdatetime(dtm)) {
-							PPFormatT(PPTXT_LOG_TIMESERVERSET, &msg_buf, server_name.cptr(), diff);
-							PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_COMP);
-							ok = 1;
-						}
-						else {
-							PPSetErrorSLib();
-							PPFormatT(PPTXT_LOG_TIMESERVERSETERR, &msg_buf, server_name.cptr(), PPErrCode);
-							PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_COMP);
-							ok = 0;
-						}
-						LocalState &= ~lsLockSettingTimeByServer;
-					}
-					else
-						ok = -2;
-				}*/
 			}
 			else if(force) {
 				PPLogMessage(PPFILNAM_INFO_LOG, PPSTR_TEXT, PPTXT_LOG_TIMECHANGE_NOFORCE, LOGMSGF_TIME|LOGMSGF_COMP);
@@ -1647,7 +1618,7 @@ int PPBackupSystemFiles_Arc()
 	SFile::CreateDir(backup_dir);
 	const int  is_locked = BIN(fileExists(lock_path) && SFile::IsOpenedForWriting(lock_path)); // @v10.7.5 дополнительная проверка на то, чтоб файл был открыт для записи
 	if(!is_locked) {
-		const LDATETIME cur_dtm = getcurdatetime_();
+		const LDATETIME now_dtm = getcurdatetime_();
 		LDATE last_copy_dt;
 		SString buf, last_copy_path;
 		SFile f_lck(lock_path, SFile::mWrite);
@@ -1659,11 +1630,11 @@ int PPBackupSystemFiles_Arc()
 			f.ReadLine(buf);
 			f.Close();
 			strtodate(buf, DATF_DMY, &last_copy_dt);
-			if(last_copy_dt < cur_dtm.d) {
+			if(last_copy_dt < now_dtm.d) {
 				SArchive arc(SArchive::providerZip);
 				SString arc_file_name;
 				// NB: archive file name will be created without extention (this is a protection against crypto-viruses)
-				(arc_file_name = backup_dir).SetLastSlash().Cat("bu").CatChar('-').Cat(cur_dtm.d, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat(cur_dtm.t, TIMF_HMS|TIMF_NODIV);
+				(arc_file_name = backup_dir).SetLastSlash().Cat("bu").CatChar('-').Cat(now_dtm.d, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat(now_dtm.t, TIMF_HMS|TIMF_NODIV);
 				if(arc.Open(arc_file_name, SFile::mReadWrite, 0)) {
 					long start = 1;
 					SString path;
@@ -1757,7 +1728,7 @@ int PPBackupSystemFiles_Arc()
 					}
 					{
 						f.Open(last_copy_path, SFile::mWrite);
-						buf.Z().Cat(cur_dtm.d, DATF_DMY|DATF_CENTURY);
+						buf.Z().Cat(now_dtm.d, DATF_DMY|DATF_CENTURY);
 						f.WriteLine(buf);
 						ok = 1;
 					}

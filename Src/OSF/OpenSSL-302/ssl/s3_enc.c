@@ -475,14 +475,10 @@ int ssl3_generate_master_secret(SSL * s, uchar * out, uchar * p, size_t len, siz
 		return 0;
 	}
 	for(i = 0; i < 3; i++) {
-		if(EVP_DigestInit_ex(ctx, s->ctx->sha1, NULL) <= 0
-		    || EVP_DigestUpdate(ctx, salt[i],
-		    strlen((const char *)salt[i])) <= 0
+		if(EVP_DigestInit_ex(ctx, s->ctx->sha1, NULL) <= 0 || EVP_DigestUpdate(ctx, salt[i], strlen((const char *)salt[i])) <= 0
 		    || EVP_DigestUpdate(ctx, p, len) <= 0
-		    || EVP_DigestUpdate(ctx, &(s->s3.client_random[0]),
-		    SSL3_RANDOM_SIZE) <= 0
-		    || EVP_DigestUpdate(ctx, &(s->s3.server_random[0]),
-		    SSL3_RANDOM_SIZE) <= 0
+		    || EVP_DigestUpdate(ctx, &(s->s3.client_random[0]), SSL3_RANDOM_SIZE) <= 0
+		    || EVP_DigestUpdate(ctx, &(s->s3.server_random[0]), SSL3_RANDOM_SIZE) <= 0
 		    || EVP_DigestFinal_ex(ctx, buf, &n) <= 0
 		    || EVP_DigestInit_ex(ctx, s->ctx->md5, NULL) <= 0
 		    || EVP_DigestUpdate(ctx, p, len) <= 0

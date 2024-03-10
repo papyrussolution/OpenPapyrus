@@ -774,25 +774,36 @@ FORCEINLINE void implement_decodetime(int * h, int * m, int * s, int * ts, const
 	ASSIGN_PTR(ts, static_cast<const char *>(tm)[0]);
 }
 
+int STDCALL  checktime(int hr, int mn, int sc, int msec)
+{
+	int    err = SLERR_SUCCESS;
+	if(hr < 0 || hr > 23)
+		err = SLERR_INVHOUR;
+	else if(mn < 0 || mn > 59)
+		err = SLERR_INVMIN;
+	else if(sc < 0 || sc > 59)
+		err = SLERR_INVSEC;
+	else if(msec < 0 || msec > 999)
+		err = SLERR_INVTSEC;
+	if(err) {
+		//char   temp_buf[64];
+		//timefmt(tm, TIMF_HMS | TIMF_MSEC, temp_buf);
+		SLS.SetError(err);
+		return 0;
+	}
+	else
+		return 1;
+}
+
 int FASTCALL checktime(LTIME tm)
 {
 	int    err = SLERR_SUCCESS;
 	int    h, m, s, ts;
 	implement_decodetime(&h, &m, &s, &ts, &tm);
-	if(h < 0 || h > 23)
-		err = SLERR_INVHOUR;
-	else if(m < 0 || m > 59)
-		err = SLERR_INVMIN;
-	else if(s < 0 || s > 59)
-		err = SLERR_INVSEC;
-	else if(ts < 0 || ts > 99)
-		err = SLERR_INVTSEC;
-	if(err) {
-#ifndef _WIN32_WCE // {
+	if(!checktime(h, m, s, ts*10)) {
 		char   temp_buf[64];
 		timefmt(tm, TIMF_HMS | TIMF_MSEC, temp_buf);
 		SLS.SetError(err, temp_buf);
-#endif // } _WIN32_WCE
 		return 0;
 	}
 	else
@@ -2469,11 +2480,11 @@ int FASTCALL SCycleTimer::Check(LDATETIME * pLast)
 {
 	int    ok = 0;
 	if(Delay) {
-		const LDATETIME cur = getcurdatetime_();
+		const LDATETIME now_dtm = getcurdatetime_();
 		const LDATETIME next = plusdatetime(Last, Delay/10, 4);
 		ASSIGN_PTR(pLast, Last);
-		if(cmp(cur, next) >= 0) {
-			Last = cur;
+		if(cmp(now_dtm, next) >= 0) {
+			Last = now_dtm;
 			ok = 1;
 		}
 	}
@@ -2492,12 +2503,43 @@ SUniDate_Internal::SUniDate_Internal(int y, uint m, uint d) : Y(y), M(m), D(d)
 {
 }
 
+SUniDate_Internal::SUniDate_Internal(LDATE dt)
+{
+	SetDate(dt);
+}
+
 SUniDate_Internal & SUniDate_Internal::Z()
 {
 	Y = 0;
 	M = 0;
 	D = 0;
 	return *this;
+}
+
+bool SUniDate_Internal::SetDate(LDATE dt)
+{
+	bool ok = true;
+	if(checkdate(dt)) {
+		Y = dt.year();
+		M = dt.month();
+		D = dt.day();
+	}
+	else
+		ok = false;
+	return ok;
+}
+
+bool SUniDate_Internal::GetDate(LDATE * pDt) const
+{
+	bool   ok = true;
+	if(_checkdate(D, M, Y)) {
+		CALLPTRMEMB(pDt, encode(D, M, Y));
+	}
+	else {
+		CALLPTRMEMB(pDt, Z());
+		ok = false;
+	}
+	return ok;
 }
 
 bool SUniDate_Internal::SetDaysSinceChristmas(uint g)
@@ -2542,10 +2584,17 @@ bool SUniDate_Internal::SetDaysSinceChristmas(uint g)
 	return epochTimeSec * TICKSPERSEC + SlConst::Epoch1600_1970_Offs_100Ns;
 }
 
-SUniTime_Internal::SUniTime_Internal()
+SUniTime_Internal::SUniTime_Internal() : SUniDate_Internal(), Hr(0), Mn(0), Sc(0), MSc(0), Weekday(0), TimeZoneSc(Undef_TimeZone)
 {
-	THISZERO();
-	TimeZoneSc  = Undef_TimeZone;
+}
+
+SUniTime_Internal::SUniTime_Internal(LDATE dt) : SUniDate_Internal(dt), Hr(0), Mn(0), Sc(0), MSc(0), Weekday(0), TimeZoneSc(Undef_TimeZone)
+{
+}
+
+SUniTime_Internal::SUniTime_Internal(LTIME tm) : SUniDate_Internal(), Hr(0), Mn(0), Sc(0), MSc(0), Weekday(0), TimeZoneSc(Undef_TimeZone)
+{
+	SetTime(tm);
 }
 
 SUniTime_Internal & SUniTime_Internal::Z()
@@ -2835,6 +2884,43 @@ static void FASTCALL __TimeToTimeFields(uint64 time100ns, SUniTime_Internal * pT
 	pTimeFields->MkSc = static_cast<int>(milliseconds * 1000);
 }
 #endif // } 0
+
+bool FASTCALL SUniTime_Internal::SetDate(LDATE dt)
+{
+	return SUniDate_Internal::SetDate(dt);
+}
+
+bool FASTCALL SUniTime_Internal::GetDate(LDATE * pDt) const
+{
+	return SUniDate_Internal::GetDate(pDt);
+}
+
+bool FASTCALL SUniTime_Internal::SetTime(LTIME tm)
+{
+	bool    ok = true;
+	if(checktime(tm)) {
+		Hr = tm.hour();
+		Mn = tm.minut();
+		Sc = tm.sec();
+		MSc = tm.hs() * 10;
+	}
+	else
+		ok = false;
+	return ok;
+}
+
+bool FASTCALL SUniTime_Internal::GetTime(LTIME * pTm) const
+{
+	bool    ok = true;
+	if(checktime(Hr, Mn, Sc, MSc)) {
+		CALLPTRMEMB(pTm, encode(Hr, Mn, Sc, MSc));
+	}
+	else {
+		CALLPTRMEMB(pTm, Z());
+		ok = false;
+	}
+	return ok;
+}
 //
 // Descr: This routine converts an input 64-bit LARGE_INTEGER variable to its corresponding
 //   time field record.  It will tell the caller the year, month, day, hour,

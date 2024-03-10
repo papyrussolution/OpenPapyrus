@@ -3082,7 +3082,7 @@ int PPObjGoods::SetupPreferredBarcodeTags()
 				uint   pref_item_pos = 0, single_item_pos = 0;
 				const  BarcodeTbl::Rec * p_pref_item = bc_list.GetPreferredItem(&pref_item_pos);
 				if(!p_pref_item) {
-					const BarcodeTbl::Rec * p_single_item = bc_list.GetSingleItem(&single_item_pos);
+					const BarcodeTbl::Rec * p_single_item = bc_list.GetSingleItem(&single_item_pos, 0);
 					if(p_single_item) {
 						if(bc_list.SetPreferredItem(single_item_pos) > 0) {
 							THROW(P_Tbl->UpdateBarcodes(goods_rec.ID, &bc_list, 0));

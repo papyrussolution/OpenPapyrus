@@ -324,10 +324,24 @@ private:
 				SString line_buf;
 				line_buf.CatCurDateTime(DATF_DMY|DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("start");
 				line_buf.Tab();
+				/*@v11.9.9
 				if(Param.NotEmpty())
 					line_buf.Cat(Param);
+				*/
 				if(ExtMsg.NotEmpty())
 					line_buf.Tab().Cat(ExtMsg);
+				// @v11.9.9 {
+				{
+					line_buf.CatChar('|').Space().Cat(Op).Semicol();
+					if(Param.NotEmpty()) {
+						SString temp_buf;
+						StringSet ss(FS, Param);
+						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+							line_buf.Cat(temp_buf).Semicol();
+						}
+					}
+				}
+				// } @v11.9.9 
 				SLS.LogMessage(LogFileName, line_buf, 8192);
 			}
 		}
@@ -632,6 +646,7 @@ int PiritEquip::IdentifyTaxEntry(double vatRate, int isVatFree) const
 		}
 	}
 	// @debug {
+	/* @v11.9.0
 	if(LogFileName.NotEmpty()) {
 		SString temp_buf;
 		if(tax_entry_id_result < 0)
@@ -641,7 +656,7 @@ int PiritEquip::IdentifyTaxEntry(double vatRate, int isVatFree) const
 		else if(tax_entry_id_result > 0)
 			(temp_buf = "TaxEntry is found").CatDiv(':', 2).Cat(tax_entry_id_result-1).CatDiv(',', 2).Cat(_vat_rate);
 		SLS.LogMessage(LogFileName, temp_buf);
-	}
+	}*/
 	// } @debug
 	return tax_entry_n;
 }

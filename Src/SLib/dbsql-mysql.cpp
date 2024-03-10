@@ -240,7 +240,6 @@ int SMySqlDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTable
 	SSqlStmt stmt(this, (const SString &)SqlGen);
 	THROW(stmt.Exec(0, 0));
 	THROW(stmt.BindData(+1, 1, fld_list, &rec_buf, 0));
-	THROW(Binding(stmt, +1));
 	if(Fetch(stmt, 1, &actual) && actual) {
 		THROW(stmt.GetData(0));
 		ok = 1;
@@ -512,7 +511,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 					p_stmt->BL.insert(&b);
 				}
 				memcpy(p_stmt->Key, pKey, MIN(sizeof(p_stmt->Key), key_len));
-				THROW(Binding(*p_stmt, -1));
+				THROW(Binding(*p_stmt, +1));
 				THROW(p_stmt->SetData(0));
 			}
 			THROW(p_stmt->Exec(0, OCI_DEFAULT));

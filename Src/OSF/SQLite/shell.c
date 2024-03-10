@@ -926,9 +926,7 @@ static char * shellFakeSchema(sqlite3 * db,            /* The database connectio
 	char cQuote;
 	char * zDiv = "(";
 	int nRow = 0;
-
-	zSql = sqlite3_mprintf("PRAGMA \"%w\".table_info=%Q;",
-		zSchema ? zSchema : "main", zName);
+	zSql = sqlite3_mprintf("PRAGMA \"%w\".table_info=%Q;", zSchema ? zSchema : "main", zName);
 	sqlite3_prepare_v2(db, zSql, -1, &pStmt, 0);
 	sqlite3_free(zSql);
 	initText(&s);
@@ -1029,10 +1027,7 @@ static void shellAddSchemaName(sqlite3_context * pCtx,
 						z = sqlite3_mprintf("%.*s %s.%s", n+7, zIn, zSchema, zIn+n+8);
 					}
 				}
-				if(zName
-				 && aPrefix[i][0]=='V'
-				 && (zFake = shellFakeSchema(db, zSchema, zName))!=0
-				    ) {
+				if(zName && aPrefix[i][0]=='V' && (zFake = shellFakeSchema(db, zSchema, zName))!=0) {
 					if(z==0) {
 						z = sqlite3_mprintf("%s\n/* %s */", zIn, zFake);
 					}
@@ -1073,7 +1068,7 @@ static void shellAddSchemaName(sqlite3_context * pCtx,
 **    May you share freely, never taking more than you give.
 **
 *************************************************************************
-** This file contains declarations for most of the opendir() family of
+** This file contains declarations for most of the sqlite_slib_opendir() family of
 ** POSIX functions on Win32 using the MSVCRT.
 */
 
@@ -1197,8 +1192,8 @@ struct DIR {
 /*
 ** Provide a macro, for use by the implementation, to determine if a
 ** particular directory entry should be skipped over when searching for
-** the next directory entry that should be returned by the readdir() or
-** readdir_r() functions.
+** the next directory entry that should be returned by the sqlite_slib_readdir() or
+** sqlite_slib_readdir_r() functions.
 */
 
 #ifndef is_filtered
@@ -1213,14 +1208,14 @@ struct DIR {
 extern const char * windirent_getenv(const char * name);
 
 /*
-** Finally, we can provide the function prototypes for the opendir(),
-** readdir(), readdir_r(), and closedir() POSIX functions.
+** Finally, we can provide the function prototypes for the sqlite_slib_opendir(),
+** sqlite_slib_readdir(), sqlite_slib_readdir_r(), and sqlite_slib_closedir() POSIX functions.
 */
 
-extern LPDIR opendir(const char * dirname);
-extern LPDIRENT readdir(LPDIR dirp);
-extern INT readdir_r(LPDIR dirp, LPDIRENT entry, LPDIRENT * result);
-extern INT closedir(LPDIR dirp);
+extern LPDIR sqlite_slib_opendir(const char * dirname);
+extern LPDIRENT sqlite_slib_readdir(LPDIR dirp);
+extern INT sqlite_slib_readdir_r(LPDIR dirp, LPDIRENT entry, LPDIRENT * result);
+extern INT sqlite_slib_closedir(LPDIR dirp);
 
 #endif /* defined(WIN32) && defined(_MSC_VER) */
 
@@ -1237,7 +1232,7 @@ extern INT closedir(LPDIR dirp);
 **    May you share freely, never taking more than you give.
 **
 *************************************************************************
-** This file contains code to implement most of the opendir() family of
+** This file contains code to implement most of the sqlite_slib_opendir() family of
 ** POSIX functions on Win32 using the MSVCRT.
 */
 
@@ -1273,10 +1268,10 @@ const char * windirent_getenv(const char * name
 }
 
 /*
-** Implementation of the POSIX opendir() function using the MSVCRT.
+** Implementation of the POSIX sqlite_slib_opendir() function using the MSVCRT.
 */
-LPDIR opendir(const char * dirname
-    ){
+LPDIR sqlite_slib_opendir(const char * dirname)
+{
 	struct _finddata_t data;
 	LPDIR dirp = (LPDIR)sqlite3_malloc(sizeof(DIR));
 	SIZE_T namesize = sizeof(data.name) / sizeof(data.name[0]);
@@ -1294,7 +1289,7 @@ LPDIR opendir(const char * dirname
 	dirp->d_handle = _findfirst(data.name, &data);
 
 	if(dirp->d_handle==BAD_INTPTR_T) {
-		closedir(dirp);
+		sqlite_slib_closedir(dirp);
 		return NULL;
 	}
 
@@ -1304,7 +1299,7 @@ next:
 
 		memset(&data, 0, sizeof(struct _finddata_t));
 		if(_findnext(dirp->d_handle, &data) == -1) {
-			closedir(dirp);
+			sqlite_slib_closedir(dirp);
 			return NULL;
 		}
 
@@ -1320,12 +1315,11 @@ next:
 }
 
 /*
-** Implementation of the POSIX readdir() function using the MSVCRT.
+** Implementation of the POSIX sqlite_slib_readdir() function using the MSVCRT.
 */
-LPDIRENT readdir(LPDIR dirp
-    ){
+LPDIRENT sqlite_slib_readdir(LPDIR dirp)
+{
 	struct _finddata_t data;
-
 	if(dirp==NULL) return NULL;
 
 	if(dirp->d_first.d_ino==0) {
@@ -1352,9 +1346,9 @@ next:
 }
 
 /*
-** Implementation of the POSIX readdir_r() function using the MSVCRT.
+** Implementation of the POSIX sqlite_slib_readdir_r() function using the MSVCRT.
 */
-INT readdir_r(LPDIR dirp,
+INT sqlite_slib_readdir_r(LPDIR dirp,
     LPDIRENT entry,
     LPDIRENT * result
     ){
@@ -1396,9 +1390,9 @@ next:
 }
 
 /*
-** Implementation of the POSIX closedir() function using the MSVCRT.
+** Implementation of the POSIX sqlite_slib_closedir() function using the MSVCRT.
 */
-INT closedir(LPDIR dirp
+INT sqlite_slib_closedir(LPDIR dirp
     ){
 	INT result = 0;
 
@@ -2690,7 +2684,7 @@ typedef struct fsdir_cursor fsdir_cursor;
 typedef struct FsdirLevel FsdirLevel;
 
 struct FsdirLevel {
-	DIR * pDir; /* From opendir() */
+	DIR * pDir; /* From sqlite_slib_opendir() */
 	char * zDir;         /* Name of directory (nul-terminated) */
 };
 
@@ -2770,7 +2764,7 @@ static void fsdirResetCursor(fsdir_cursor * pCur){
 	int i;
 	for(i = 0; i<=pCur->iLvl; i++) {
 		FsdirLevel * pLvl = &pCur->aLvl[i];
-		if(pLvl->pDir) closedir(pLvl->pDir);
+		if(pLvl->pDir) sqlite_slib_closedir(pLvl->pDir);
 		sqlite3_free(pLvl->zDir);
 	}
 	sqlite3_free(pCur->zPath);
@@ -2809,10 +2803,10 @@ static void fsdirSetErrmsg(fsdir_cursor * pCur, const char * zFmt, ...){
 /*
 ** Advance an fsdir_cursor to its next row of output.
 */
-static int fsdirNext(sqlite3_vtab_cursor * cur){
+static int fsdirNext(sqlite3_vtab_cursor * cur)
+{
 	fsdir_cursor * pCur = (fsdir_cursor*)cur;
 	mode_t m = pCur->sStat.st_mode;
-
 	pCur->iRowid++;
 	if(S_ISDIR(m)) {
 		/* Descend into this directory */
@@ -2832,7 +2826,7 @@ static int fsdirNext(sqlite3_vtab_cursor * cur){
 
 		pLvl->zDir = pCur->zPath;
 		pCur->zPath = 0;
-		pLvl->pDir = opendir(pLvl->zDir);
+		pLvl->pDir = sqlite_slib_opendir(pLvl->zDir);
 		if(pLvl->pDir==0) {
 			fsdirSetErrmsg(pCur, "cannot read directory: %s", pCur->zPath);
 			return SQLITE_ERROR;
@@ -2841,7 +2835,7 @@ static int fsdirNext(sqlite3_vtab_cursor * cur){
 
 	while(pCur->iLvl>=0) {
 		FsdirLevel * pLvl = &pCur->aLvl[pCur->iLvl];
-		struct dirent * pEntry = readdir(pLvl->pDir);
+		struct dirent * pEntry = sqlite_slib_readdir(pLvl->pDir);
 		if(pEntry) {
 			if(pEntry->d_name[0]=='.') {
 				if(pEntry->d_name[1]=='.' && pEntry->d_name[2]=='\0') continue;
@@ -2856,7 +2850,7 @@ static int fsdirNext(sqlite3_vtab_cursor * cur){
 			}
 			return SQLITE_OK;
 		}
-		closedir(pLvl->pDir);
+		sqlite_slib_closedir(pLvl->pDir);
 		sqlite3_free(pLvl->zDir);
 		pLvl->pDir = 0;
 		pLvl->zDir = 0;
@@ -4652,7 +4646,7 @@ static Decimal * decimal_new(sqlite3_context * pCtx,
 	while(i<n && zIn[i]=='0') i++;
 	while(i<n) {
 		char c = zIn[i];
-		if(isdec(c)) {
+		if(c >= '0' && c <= '9') {
 			p->a[p->nDigit++] = c - '0';
 		}
 		else if(c=='.') {
@@ -6322,7 +6316,7 @@ static void re_copy(ReCompiled * p, int iStart, int N){
 */
 static int re_hex(int c, int * pV)
 {
-	if(isdec(c)) {
+	if(c >= '0' && c <= '9') {
 		c -= '0';
 	}
 	else if(c>='a' && c<='f') {
@@ -10760,13 +10754,9 @@ static int idxLargestIndex(sqlite3 * db, int * pnMax, char ** pzErr){
 	return rc;
 }
 
-static int idxPopulateOneStat1(sqlite3expert * p,
-    sqlite3_stmt * pIndexXInfo,
-    sqlite3_stmt * pWriteStat,
-    const char * zTab,
-    const char * zIdx,
-    char ** pzErr
-    ){
+static int idxPopulateOneStat1(sqlite3expert * p, sqlite3_stmt * pIndexXInfo, sqlite3_stmt * pWriteStat, const char * zTab,
+    const char * zIdx, char ** pzErr)
+{
 	char * zCols = 0;
 	char * zOrder = 0;
 	char * zQuery = 0;
@@ -10775,9 +10765,7 @@ static int idxPopulateOneStat1(sqlite3expert * p,
 	sqlite3_stmt * pQuery = 0;
 	int * aStat = 0;
 	int rc = SQLITE_OK;
-
 	assert(p->iSample>0);
-
 	/* Formulate the query text */
 	sqlite3_bind_text(pIndexXInfo, 1, zIdx, -1, SQLITE_STATIC);
 	while(SQLITE_OK==rc && SQLITE_ROW==sqlite3_step(pIndexXInfo)) {

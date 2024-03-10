@@ -288,83 +288,61 @@ static size_t tftp_strnlen(const char * string, size_t maxlen)
 
 static const char *tftp_option_get(const char * buf, size_t len, const char ** option, const char ** value)
 {
-	size_t loc;
-	loc = tftp_strnlen(buf, len);
+	size_t loc = tftp_strnlen(buf, len);
 	loc++; /* NULL term */
 	if(loc >= len)
 		return NULL;
 	*option = buf;
-
 	loc += tftp_strnlen(buf + loc, len-loc);
 	loc++; /* NULL term */
-
 	if(loc > len)
 		return NULL;
 	*value = &buf[strlen(*option) + 1];
-
 	return &buf[loc];
 }
 
-static CURLcode tftp_parse_option_ack(struct tftp_state_data * state,
-    const char * ptr, int len)
+static CURLcode tftp_parse_option_ack(struct tftp_state_data * state, const char * ptr, int len)
 {
 	const char * tmp = ptr;
 	struct Curl_easy * data = state->data;
-
 	/* if OACK doesn't contain blksize option, the default (512) must be used */
 	state->blksize = TFTP_BLKSIZE_DEFAULT;
-
 	while(tmp < ptr + len) {
 		const char * option, * value;
-
 		tmp = tftp_option_get(tmp, ptr + len - tmp, &option, &value);
 		if(!tmp) {
 			failf(data, "Malformed ACK packet, rejecting");
 			return CURLE_TFTP_ILLEGAL;
 		}
-
 		infof(data, "got option=(%s) value=(%s)", option, value);
-
 		if(checkprefix(TFTP_OPTION_BLKSIZE, option)) {
-			long blksize;
-
-			blksize = strtol(value, NULL, 10);
-
+			long blksize = strtol(value, NULL, 10);
 			if(!blksize) {
 				failf(data, "invalid blocksize value in OACK packet");
 				return CURLE_TFTP_ILLEGAL;
 			}
 			if(blksize > TFTP_BLKSIZE_MAX) {
-				failf(data, "%s (%d)", "blksize is larger than max supported",
-				    TFTP_BLKSIZE_MAX);
+				failf(data, "%s (%d)", "blksize is larger than max supported", TFTP_BLKSIZE_MAX);
 				return CURLE_TFTP_ILLEGAL;
 			}
 			else if(blksize < TFTP_BLKSIZE_MIN) {
-				failf(data, "%s (%d)", "blksize is smaller than min supported",
-				    TFTP_BLKSIZE_MIN);
+				failf(data, "%s (%d)", "blksize is smaller than min supported", TFTP_BLKSIZE_MIN);
 				return CURLE_TFTP_ILLEGAL;
 			}
 			else if(blksize > state->requested_blksize) {
 				/* could realloc pkt buffers here, but the spec doesn't call out
 				 * support for the server requesting a bigger blksize than the client
 				 * requests */
-				failf(data, "%s (%ld)",
-				    "server requested blksize larger than allocated", blksize);
+				failf(data, "%s (%ld)", "server requested blksize larger than allocated", blksize);
 				return CURLE_TFTP_ILLEGAL;
 			}
-
 			state->blksize = (int)blksize;
-			infof(data, "%s (%d) %s (%d)", "blksize parsed from OACK",
-			    state->blksize, "requested", state->requested_blksize);
+			infof(data, "%s (%d) %s (%d)", "blksize parsed from OACK", state->blksize, "requested", state->requested_blksize);
 		}
 		else if(checkprefix(TFTP_OPTION_TSIZE, option)) {
-			long tsize = 0;
-
-			tsize = strtol(value, NULL, 10);
+			long tsize = strtol(value, NULL, 10);
 			infof(data, "%s (%ld)", "tsize parsed from OACK", tsize);
-
-			/* tsize should be ignored on upload: Who cares about the size of the
-			   remote file? */
+			/* tsize should be ignored on upload: Who cares about the size of the remote file? */
 			if(!data->state.upload) {
 				if(!tsize) {
 					failf(data, "invalid tsize -:%s:- value in OACK packet", value);
@@ -374,54 +352,43 @@ static CURLcode tftp_parse_option_ack(struct tftp_state_data * state,
 			}
 		}
 	}
-
 	return CURLE_OK;
 }
 
-static CURLcode tftp_option_add(struct tftp_state_data * state, size_t * csize,
-    char * buf, const char * option)
+static CURLcode tftp_option_add(struct tftp_state_data * state, size_t * csize, char * buf, const char * option)
 {
-	if(( strlen(option) + *csize + 1) > (size_t)state->blksize)
+	if((strlen(option) + *csize + 1) > (size_t)state->blksize)
 		return CURLE_TFTP_ILLEGAL;
 	strcpy(buf, option);
 	*csize += strlen(option) + 1;
 	return CURLE_OK;
 }
 
-static CURLcode tftp_connect_for_tx(struct tftp_state_data * state,
-    tftp_event_t event)
+static CURLcode tftp_connect_for_tx(struct tftp_state_data * state, tftp_event_t event)
 {
 	CURLcode result;
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
 	struct Curl_easy * data = state->data;
-
 	infof(data, "%s", "Connected for transmit");
 #endif
 	state->state = TFTP_STATE_TX;
 	result = tftp_set_timeouts(state);
-	if(result)
-		return result;
-	return tftp_tx(state, event);
+	return result ? result : tftp_tx(state, event);
 }
 
-static CURLcode tftp_connect_for_rx(struct tftp_state_data * state,
-    tftp_event_t event)
+static CURLcode tftp_connect_for_rx(struct tftp_state_data * state, tftp_event_t event)
 {
 	CURLcode result;
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
 	struct Curl_easy * data = state->data;
-
 	infof(data, "%s", "Connected for receive");
 #endif
 	state->state = TFTP_STATE_RX;
 	result = tftp_set_timeouts(state);
-	if(result)
-		return result;
-	return tftp_rx(state, event);
+	return result ? result : tftp_rx(state, event);
 }
 
-static CURLcode tftp_send_first(struct tftp_state_data * state,
-    tftp_event_t event)
+static CURLcode tftp_send_first(struct tftp_state_data * state, tftp_event_t event)
 {
 	size_t sbytes;
 	ssize_t senddata;
@@ -429,11 +396,9 @@ static CURLcode tftp_send_first(struct tftp_state_data * state,
 	char * filename;
 	struct Curl_easy * data = state->data;
 	CURLcode result = CURLE_OK;
-
 	/* Set ascii mode if -B flag was used */
 	if(data->state.prefer_ascii)
 		mode = "netascii";
-
 	switch(event) {
 		case TFTP_EVENT_INIT: /* Send the first packet out */
 		case TFTP_EVENT_TIMEOUT: /* Resend the first packet out */
@@ -444,7 +409,6 @@ static CURLcode tftp_send_first(struct tftp_state_data * state,
 			    state->state = TFTP_STATE_FIN;
 			    return result;
 		    }
-
 		    if(data->state.upload) {
 			    /* If we are uploading, send an WRQ */
 			    setpacketevent(&state->spacket, TFTP_EVENT_WRQ);
@@ -470,60 +434,40 @@ static CURLcode tftp_send_first(struct tftp_state_data * state,
 			    SAlloc::F(filename);
 			    return CURLE_TFTP_ILLEGAL; /* too long file name field */
 		    }
-
-		    msnprintf((char *)state->spacket.data + 2,
-			state->blksize,
-			"%s%c%s%c", filename, '\0',  mode, '\0');
+		    msnprintf((char *)state->spacket.data + 2, state->blksize, "%s%c%s%c", filename, '\0',  mode, '\0');
 		    sbytes = 4 + strlen(filename) + strlen(mode);
-
 		    /* optional addition of TFTP options */
 		    if(!data->set.tftp_no_options) {
 			    char buf[64];
 			    /* add tsize option */
 			    if(data->state.upload && (data->state.infilesize != -1))
-				    msnprintf(buf, sizeof(buf), "%" CURL_FORMAT_CURL_OFF_T,
-					data->state.infilesize);
+				    msnprintf(buf, sizeof(buf), "%" CURL_FORMAT_CURL_OFF_T, data->state.infilesize);
 			    else
 				    strcpy(buf, "0"); /* the destination is large enough */
-
-			    result = tftp_option_add(state, &sbytes,
-				    (char *)state->spacket.data + sbytes,
-				    TFTP_OPTION_TSIZE);
+			    result = tftp_option_add(state, &sbytes, (char *)state->spacket.data + sbytes, TFTP_OPTION_TSIZE);
 			    if(result == CURLE_OK)
-				    result = tftp_option_add(state, &sbytes,
-					    (char *)state->spacket.data + sbytes, buf);
-
+				    result = tftp_option_add(state, &sbytes, (char *)state->spacket.data + sbytes, buf);
 			    /* add blksize option */
 			    msnprintf(buf, sizeof(buf), "%d", state->requested_blksize);
 			    if(result == CURLE_OK)
-				    result = tftp_option_add(state, &sbytes,
-					    (char *)state->spacket.data + sbytes,
-					    TFTP_OPTION_BLKSIZE);
+				    result = tftp_option_add(state, &sbytes, (char *)state->spacket.data + sbytes, TFTP_OPTION_BLKSIZE);
 			    if(result == CURLE_OK)
-				    result = tftp_option_add(state, &sbytes,
-					    (char *)state->spacket.data + sbytes, buf);
-
+				    result = tftp_option_add(state, &sbytes, (char *)state->spacket.data + sbytes, buf);
 			    /* add timeout option */
 			    msnprintf(buf, sizeof(buf), "%d", state->retry_time);
 			    if(result == CURLE_OK)
-				    result = tftp_option_add(state, &sbytes,
-					    (char *)state->spacket.data + sbytes,
-					    TFTP_OPTION_INTERVAL);
+				    result = tftp_option_add(state, &sbytes, (char *)state->spacket.data + sbytes, TFTP_OPTION_INTERVAL);
 			    if(result == CURLE_OK)
-				    result = tftp_option_add(state, &sbytes,
-					    (char *)state->spacket.data + sbytes, buf);
-
+				    result = tftp_option_add(state, &sbytes, (char *)state->spacket.data + sbytes, buf);
 			    if(result != CURLE_OK) {
 				    failf(data, "TFTP buffer too small for options");
 				    SAlloc::F(filename);
 				    return CURLE_TFTP_ILLEGAL;
 			    }
 		    }
-
 		    /* the typecase for the 3rd argument is mostly for systems that do
 		       not have a size_t argument, like older unixes that want an 'int' */
-		    senddata = sendto(state->sockfd, (const char *)state->spacket.data, (SEND_TYPE_ARG3)sbytes, 0,
-			    &data->conn->remote_addr->sa_addr, data->conn->remote_addr->addrlen);
+		    senddata = sendto(state->sockfd, (const char *)state->spacket.data, (SEND_TYPE_ARG3)sbytes, 0, &data->conn->remote_addr->sa_addr, data->conn->remote_addr->addrlen);
 		    if(senddata != (ssize_t)sbytes) {
 			    char buffer[STRERROR_LEN];
 			    failf(data, "%s", Curl_strerror(SOCKERRNO, buffer, sizeof(buffer)));
@@ -563,14 +507,12 @@ static CURLcode tftp_send_first(struct tftp_state_data * state,
 * Event handler for the RX state
 *
 **********************************************************/
-static CURLcode tftp_rx(struct tftp_state_data * state,
-    tftp_event_t event)
+static CURLcode tftp_rx(struct tftp_state_data * state, tftp_event_t event)
 {
 	ssize_t sbytes;
 	int rblock;
 	struct Curl_easy * data = state->data;
 	char buffer[STRERROR_LEN];
-
 	switch(event) {
 		case TFTP_EVENT_DATA:
 		    /* Is this the block we expect? */
@@ -1333,7 +1275,6 @@ static CURLcode tftp_setup_connection(struct Curl_easy * data,
 			    break;
 		}
 	}
-
 	return CURLE_OK;
 }
 

@@ -2167,7 +2167,7 @@ int CPosProcessor::GetRgi(PPID goodsID, double qtty, long extRgiFlags, RetailGoo
 	if(CnFlags & CASHF_USEQUOT)
 		rgi_flags |= PPObjGoods::rgifUseBaseQuotAsPrice;
 	bool   nodis = false;
-	const  LDATETIME actual_dtm = P.Eccd.InitDtm;
+	const LDATETIME actual_dtm = P.Eccd.InitDtm;
 	int    r = GObj.GetRetailGoodsInfo(goodsID, GetCnLocID(goodsID), GetCStEqb(goodsID, &nodis), P_EgPrc,
 		P.GetAgentID(), actual_dtm, fabs(qtty), &rRgi, rgi_flags|extRgiFlags);
 	SETFLAG(rRgi.Flags, RetailGoodsInfo::fNoDiscount, nodis);
@@ -2871,7 +2871,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 	SString uhtt_err_added_msg;
 	PPCheckInPersonMngr cip_mgr;
 	TSVector <SCardCore::UpdateRestNotifyEntry> urn_list;
-	const  LDATETIME dtm = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	assert(pPack);
 	THROW_INVARG(pPack != 0);
 	const  PPID  preserve_csess_id = pPack->Rec.SessID;
@@ -2907,8 +2907,8 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 			pPack->Ext.CreationDtm = P.Eccd.InitDtm;
 			pPack->Ext.CreationUserID = P.Eccd.InitUserID; // @v10.6.8
 			SETFLAG(pPack->Rec.Flags, CCHKF_EXT, pPack->HasExt());
-			SETIFZ(pPack->Rec.Dt, dtm.d);
-			SETIFZ(pPack->Rec.Tm, dtm.t);
+			SETIFZ(pPack->Rec.Dt, now_dtm.d);
+			SETIFZ(pPack->Rec.Tm, now_dtm.t);
 			{
 				if(mode == accmJunk) {
 					pPack->Rec.Flags |= (CCHKF_SUSPENDED|CCHKF_JUNK);
@@ -2952,8 +2952,8 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 		}
 		if(mode != accmJunk) {
 			if(pExtPack) {
-				SETIFZ(pExtPack->Rec.Dt, dtm.d);
-				SETIFZ(pExtPack->Rec.Tm, dtm.t);
+				SETIFZ(pExtPack->Rec.Dt, now_dtm.d);
+				SETIFZ(pExtPack->Rec.Tm, now_dtm.t);
 				THROW(r_cc.TurnCheck(pExtPack, 0));
 			}
 			if(OuterOi.Obj == PPOBJ_TSESSION && OuterOi.Id && P_TSesObj) {
@@ -5964,7 +5964,7 @@ public:
 		SString temp_buf;
 		const  PPID preserve_loc_id = CheckAddrModif(0) ? 0 : Data.Addr_.ID;
 		const  PPID preserve_init_user_id = Data.InitUserID; // @v10.6.8
-		const  LDATETIME preserve_init_dtm = Data.InitDtm;
+		const LDATETIME preserve_init_dtm = Data.InitDtm;
 		Data.Z();
 		Data.Addr_.ID = preserve_loc_id;
 		Data.InitUserID = preserve_init_user_id; // @v10.6.8
@@ -8042,7 +8042,8 @@ int CPosProcessor::RestoreSuspendedCheck(PPID ccID, CCheckPacket * pPack, int un
 {
 	int    ok = 1;
 	CCheckCore & r_cc = GetCc();
-	SString  msg_buf;
+	SString temp_buf;
+	SString msg_buf;
 	CCheckPacket cc_pack;
 	{
 		PPTransaction tra(1);
@@ -8073,7 +8074,8 @@ int CPosProcessor::RestoreSuspendedCheck(PPID ccID, CCheckPacket * pPack, int un
 		for(uint i = 0; cc_pack.EnumLines(&i, &chk_item);) {
 			if(GObj.Fetch(chk_item.GoodsID, &goods_rec) > 0) {
 				STRNSCPY(chk_item.GoodsName, goods_rec.Name);
-				GObj.GetSingleBarcode(chk_item.GoodsID, chk_item.BarCode, sizeof(chk_item.BarCode));
+				GObj.GetSingleBarcode(chk_item.GoodsID, 0, temp_buf);
+				STRNSCPY(chk_item.BarCode, temp_buf);
 			}
 			P.insert(&chk_item);
 		}
@@ -10077,7 +10079,7 @@ private:
 
 int SCardInfoDialog::SetupCard(PPID scardID, SCardSpecialTreatment::IdentifyReplyBlock * pStirb)
 {
-	const  LDATETIME cur_dtm = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	SString temp_buf;
 	SString card;
 	SString info_buf;
@@ -10137,7 +10139,7 @@ int SCardInfoDialog::SetupCard(PPID scardID, SCardSpecialTreatment::IdentifyRepl
 			// } @v10.1.4
 			if(r_sc_rec.Expiry) {
 				info_buf.CatDivIfNotEmpty(' ', 0).Cat(PPLoadStringS("validuntil_fem", temp_buf)).CatDiv(':', 2).Cat(r_sc_rec.Expiry, DATF_DMY);
-				if(r_sc_rec.Expiry < cur_dtm.d)
+				if(r_sc_rec.Expiry < now_dtm.d)
 					LocalState |= stWarnCardInfo;
 			}
 			{
@@ -10148,12 +10150,12 @@ int SCardInfoDialog::SetupCard(PPID scardID, SCardSpecialTreatment::IdentifyRepl
 					for(uint i = 0; i < frz_op_list.getCount(); i++) {
 						const SCardCore::OpBlock & r_ob = frz_op_list.at(i);
 						if(r_ob.CheckFreezingPeriod(ZERODATE)) {
-							if(r_ob.FreezingPeriod.CheckDate(cur_dtm.d)) {
+							if(r_ob.FreezingPeriod.CheckDate(now_dtm.d)) {
 								LocalState |= stWarnCardInfo;
 								info_pos = i+1;
 								break;
 							}
-							else if(!info_pos && r_ob.FreezingPeriod.low > cur_dtm.d)
+							else if(!info_pos && r_ob.FreezingPeriod.low > now_dtm.d)
 								info_pos = i+1;
 						}
 					}
@@ -10167,12 +10169,12 @@ int SCardInfoDialog::SetupCard(PPID scardID, SCardSpecialTreatment::IdentifyRepl
 				info_buf.CatDivIfNotEmpty(' ', 0).Cat(PPLoadStringS("time", temp_buf)).CatDiv(':', 2);
 				if(r_sc_rec.UsageTmStart) {
 					info_buf.Cat(r_sc_rec.UsageTmStart, TIMF_HM);
-					if(r_sc_rec.UsageTmStart > cur_dtm.t)
+					if(r_sc_rec.UsageTmStart > now_dtm.t)
 						LocalState |= stWarnCardInfo;
 				}
 				if(r_sc_rec.UsageTmEnd) {
 					info_buf.Dot().Dot().Cat(r_sc_rec.UsageTmEnd, TIMF_HM);
-					if(r_sc_rec.UsageTmEnd < cur_dtm.t)
+					if(r_sc_rec.UsageTmEnd < now_dtm.t)
 						LocalState |= stWarnCardInfo;
 				}
 			}
@@ -10210,7 +10212,7 @@ int SCardInfoDialog::SetupCard(PPID scardID, SCardSpecialTreatment::IdentifyRepl
 						LDATE  dob = ZERODATE;
 						p_dob_tag->GetDate(&dob);
 						if(checkdate(dob)) {
-							LDATE curdt = cur_dtm.d;
+							LDATE curdt = now_dtm.d;
 							int years = curdt.year() - dob.year();
 							curdt.setyear(dob.year());
 							if(curdt < dob)
@@ -12098,7 +12100,8 @@ int CheckPaneDialog::PrintCheckCopy()
 			int r1 = GetLastCheckPacket(P_CM->GetNodeData().ID, P_CM->GetCurSessID(), &pack);
 			int r2 = P_CM_EXT ? GetLastCheckPacket(P_CM_EXT->GetNodeData().ID, P_CM_EXT->GetCurSessID(), &ext_pack) : 1;
 			if(r1 > 0 && r2 > 0) {
-				LDATETIME  pack_dttm, ext_pack_dttm;
+				LDATETIME  pack_dttm;
+				LDATETIME  ext_pack_dttm;
 				pack_dttm.Set(pack.Rec.Dt, pack.Rec.Tm);
 				ext_pack_dttm.Set(ext_pack.Rec.Dt, ext_pack.Rec.Tm);
 				if(cmp(pack_dttm, ext_pack_dttm) >= 0)
@@ -13327,7 +13330,7 @@ int InfoKioskDialog::SetupGoods(PPID goodsID, double qtty)
 			pack.LinkFiles.Init(PPOBJ_GOODS);
 			pack.LinkFiles.Load(goodsID, 0L);
 			pack.LinkFiles.At(0, image);
-			pack.Codes.GetSingle(code);
+			pack.Codes.GetSingle(0, code);
 			cchk.CalcGoodsRest(goodsID, LConfig.OperDate, Rec.LocID, &St.Rest);
 			line_buf = pack.ExtString;
 			St.GoodsID = goodsID;

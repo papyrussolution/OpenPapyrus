@@ -4784,39 +4784,31 @@ CURLcode Curl_http_req_to_h2(struct dynhds * h2_headers,
 		if(e)
 			authority = e->value;
 	}
-
 	Curl_dynhds_reset(h2_headers);
 	Curl_dynhds_set_opts(h2_headers, DYNHDS_OPT_LOWERCASE);
-	result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_METHOD),
-		req->method, strlen(req->method));
+	result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_METHOD), req->method, strlen(req->method));
 	if(!result && scheme) {
-		result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_SCHEME),
-			scheme, strlen(scheme));
+		result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_SCHEME), scheme, strlen(scheme));
 	}
 	if(!result && authority) {
-		result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_AUTHORITY),
-			authority, strlen(authority));
+		result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_AUTHORITY), authority, strlen(authority));
 	}
 	if(!result && req->path) {
-		result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_PATH),
-			req->path, strlen(req->path));
+		result = Curl_dynhds_add(h2_headers, STRCONST(HTTP_PSEUDO_PATH), req->path, strlen(req->path));
 	}
 	for(i = 0; !result && i < Curl_dynhds_count(&req->headers); ++i) {
 		e = Curl_dynhds_getn(&req->headers, i);
 		if(!h2_non_field(e->name, e->namelen)) {
-			result = Curl_dynhds_add(h2_headers, e->name, e->namelen,
-				e->value, e->valuelen);
+			result = Curl_dynhds_add(h2_headers, e->name, e->namelen, e->value, e->valuelen);
 		}
 	}
-
 	return result;
 }
 
 CURLcode Curl_http_resp_make(struct http_resp ** presp, int status, const char * description)
 {
-	struct http_resp * resp;
 	CURLcode result = CURLE_OUT_OF_MEMORY;
-	resp = (http_resp *)SAlloc::C(1, sizeof(*resp));
+	struct http_resp * resp = (http_resp *)SAlloc::C(1, sizeof(*resp));
 	if(!resp)
 		goto out;
 	resp->status = status;

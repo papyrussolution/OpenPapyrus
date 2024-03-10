@@ -1467,10 +1467,10 @@ int PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta
 				PersonEventTbl::Rec pair_rec;
 				r = P_Tbl->SearchPair(&pi, 0 /* backward */, &pair_rec);
 				if(r == 2) {
-					const LDATETIME ct = getcurdatetime_();
+					const LDATETIME now_dtm = getcurdatetime_();
 					LDATETIME pt;
 					pt.Set(pair_rec.Dt, pair_rec.Tm);
-					long   diffsec = diffdatetimesec(ct, pt);
+					long   diffsec = diffdatetimesec(now_dtm, pt);
 					if(diffsec >= 0 && diffsec <= pok_pack.Rec.RedoTimeout) {
 						log_action_id = PPACN_PERSONEVENTREDO;
 						pPack->Rec = pair_rec;

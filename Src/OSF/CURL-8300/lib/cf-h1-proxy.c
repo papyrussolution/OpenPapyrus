@@ -367,12 +367,10 @@ static CURLcode on_resp_header(struct Curl_cfilter * cf,
 			/* A client MUST ignore any Content-Length or Transfer-Encoding
 			   header fields received in a successful response to CONNECT.
 			   "Successful" described as: 2xx (Successful). RFC 7231 4.3.6 */
-			infof(data, "Ignoring Content-Length in CONNECT %03d response",
-			    k->httpcode);
+			infof(data, "Ignoring Content-Length in CONNECT %03d response", k->httpcode);
 		}
 		else {
-			(void)curlx_strtoofft(header + strlen("Content-Length:"),
-			    NULL, 10, &ts->cl);
+			(void)curlx_strtoofft(header + strlen("Content-Length:"), NULL, 10, &ts->cl);
 		}
 	}
 	else if(Curl_compareheader(header,
@@ -383,8 +381,7 @@ static CURLcode on_resp_header(struct Curl_cfilter * cf,
 			/* A client MUST ignore any Content-Length or Transfer-Encoding
 			   header fields received in a successful response to CONNECT.
 			   "Successful" described as: 2xx (Successful). RFC 7231 4.3.6 */
-			infof(data, "Ignoring Transfer-Encoding in "
-			    "CONNECT %03d response", k->httpcode);
+			infof(data, "Ignoring Transfer-Encoding in CONNECT %03d response", k->httpcode);
 		}
 		else if(Curl_compareheader(header,
 		    STRCONST("Transfer-Encoding:"),
@@ -414,32 +411,25 @@ static CURLcode recv_CONNECT_resp(struct Curl_cfilter * cf, struct Curl_easy * d
 	int error;
 #define SELECT_OK      0
 #define SELECT_ERROR   1
-
 	error = SELECT_OK;
 	*done = FALSE;
-
 	if(!Curl_conn_data_pending(data, ts->sockindex))
 		return CURLE_OK;
-
 	while(ts->keepon) {
 		ssize_t gotbytes;
 		char byte;
-
 		/* Read one byte at a time to avoid a race condition. Wait at most one
 		   second before looping to ensure continuous pgrsUpdates. */
 		result = Curl_read(data, tunnelsocket, &byte, 1, &gotbytes);
 		if(result == CURLE_AGAIN)
 			/* socket buffer drained, return */
 			return CURLE_OK;
-
 		if(Curl_pgrsUpdate(data))
 			return CURLE_ABORTED_BY_CALLBACK;
-
 		if(result) {
 			ts->keepon = h1_tunnel_state::KEEPON_DONE;
 			break;
 		}
-
 		if(gotbytes <= 0) {
 			if(data->set.proxyauth && data->state.authproxy.avail && data->state.aptr.proxyuserpwd) {
 				/* proxy auth was requested and there was proxy auth available,
@@ -678,8 +668,7 @@ static CURLcode start_CONNECT(struct Curl_cfilter * cf, struct Curl_easy * data,
 		result = CURLE_OUT_OF_MEMORY;
 		goto error;
 	}
-	if(hyper_request_set_method(req, (uint8_t *)"CONNECT",
-	    strlen("CONNECT"))) {
+	if(hyper_request_set_method(req, (uint8_t *)"CONNECT", strlen("CONNECT"))) {
 		failf(data, "error setting method");
 		result = CURLE_OUT_OF_MEMORY;
 		goto error;
@@ -692,8 +681,7 @@ static CURLcode start_CONNECT(struct Curl_cfilter * cf, struct Curl_easy * data,
 	result = CONNECT_host(data, conn, ts->hostname, ts->remote_port, &hostheader, &host);
 	if(result)
 		goto error;
-	if(hyper_request_set_uri(req, (uint8_t *)hostheader,
-	    strlen(hostheader))) {
+	if(hyper_request_set_uri(req, (uint8_t *)hostheader, strlen(hostheader))) {
 		failf(data, "error setting path");
 		result = CURLE_OUT_OF_MEMORY;
 		goto error;

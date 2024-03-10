@@ -365,53 +365,39 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 	/* We only support md5 sessions */
 	if(strcmp(algorithm, "md5-sess") != 0)
 		return CURLE_BAD_CONTENT_ENCODING;
-
 	/* Get the qop-values from the qop-options */
 	result = auth_digest_get_qop_values(qop_options, &qop_values);
 	if(result)
 		return result;
-
 	/* We only support auth quality-of-protection */
 	if(!(qop_values & DIGEST_QOP_VALUE_AUTH))
 		return CURLE_BAD_CONTENT_ENCODING;
-
 	/* Generate 32 random hex chars, 32 bytes + 1 null-termination */
 	result = Curl_rand_hex(data, (uchar *)cnonce, sizeof(cnonce));
 	if(result)
 		return result;
-
 	/* So far so good, now calculate A1 and H(A1) according to RFC 2831 */
 	ctxt = Curl_MD5_init(Curl_DIGEST_MD5);
 	if(!ctxt)
 		return CURLE_OUT_OF_MEMORY;
-
-	Curl_MD5_update(ctxt, (const uchar *)userp,
-	    curlx_uztoui(strlen(userp)));
+	Curl_MD5_update(ctxt, (const uchar *)userp, curlx_uztoui(strlen(userp)));
 	Curl_MD5_update(ctxt, (const uchar *)":", 1);
-	Curl_MD5_update(ctxt, (const uchar *)realm,
-	    curlx_uztoui(strlen(realm)));
+	Curl_MD5_update(ctxt, (const uchar *)realm, curlx_uztoui(strlen(realm)));
 	Curl_MD5_update(ctxt, (const uchar *)":", 1);
-	Curl_MD5_update(ctxt, (const uchar *)passwdp,
-	    curlx_uztoui(strlen(passwdp)));
+	Curl_MD5_update(ctxt, (const uchar *)passwdp, curlx_uztoui(strlen(passwdp)));
 	Curl_MD5_final(ctxt, digest);
-
 	ctxt = Curl_MD5_init(Curl_DIGEST_MD5);
 	if(!ctxt)
 		return CURLE_OUT_OF_MEMORY;
-
 	Curl_MD5_update(ctxt, (const uchar *)digest, MD5_DIGEST_LEN);
 	Curl_MD5_update(ctxt, (const uchar *)":", 1);
-	Curl_MD5_update(ctxt, (const uchar *)nonce,
-	    curlx_uztoui(strlen(nonce)));
+	Curl_MD5_update(ctxt, (const uchar *)nonce, curlx_uztoui(strlen(nonce)));
 	Curl_MD5_update(ctxt, (const uchar *)":", 1);
-	Curl_MD5_update(ctxt, (const uchar *)cnonce,
-	    curlx_uztoui(strlen(cnonce)));
+	Curl_MD5_update(ctxt, (const uchar *)cnonce, curlx_uztoui(strlen(cnonce)));
 	Curl_MD5_final(ctxt, digest);
-
 	/* Convert calculated 16 octet hex into 32 bytes string */
 	for(i = 0; i < MD5_DIGEST_LEN; i++)
 		msnprintf(&HA1_hex[2 * i], 3, "%02x", digest[i]);
-
 	/* Generate our SPN */
 	spn = Curl_auth_build_spn(service, data->conn->host.name, NULL);
 	if(!spn)
@@ -421,20 +407,14 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 	ctxt = Curl_MD5_init(Curl_DIGEST_MD5);
 	if(!ctxt) {
 		SAlloc::F(spn);
-
 		return CURLE_OUT_OF_MEMORY;
 	}
-
-	Curl_MD5_update(ctxt, (const uchar *)method,
-	    curlx_uztoui(strlen(method)));
+	Curl_MD5_update(ctxt, (const uchar *)method, curlx_uztoui(strlen(method)));
 	Curl_MD5_update(ctxt, (const uchar *)":", 1);
-	Curl_MD5_update(ctxt, (const uchar *)spn,
-	    curlx_uztoui(strlen(spn)));
+	Curl_MD5_update(ctxt, (const uchar *)spn, curlx_uztoui(strlen(spn)));
 	Curl_MD5_final(ctxt, digest);
-
 	for(i = 0; i < MD5_DIGEST_LEN; i++)
 		msnprintf(&HA2_hex[2 * i], 3, "%02x", digest[i]);
-
 	/* Now calculate the response hash */
 	ctxt = Curl_MD5_init(Curl_DIGEST_MD5);
 	if(!ctxt) {

@@ -4010,6 +4010,11 @@ SLTEST_R(slprintf)
 	return CurrentStatus;
 }
 
+SLTEST_R(SStrTransform) // @v11.9.9 @construction
+{
+	return CurrentStatus;
+}
+
 SLTEST_R(FormatInt)
 {
 	SString result_buf;

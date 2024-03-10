@@ -65,6 +65,7 @@
     <ClCompile Include="..\OSF\sql-parser\test\tpc_h_tests.cpp">
       <Filter>sql-parser-pattern</Filter>
     </ClCompile>
+    <ClCompile Include="..\PPTEST\UNIT\test-sqlite.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\libdivide\constant_fast_div.h">

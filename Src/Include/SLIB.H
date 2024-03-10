@@ -1013,7 +1013,7 @@
 #define S_LOGICAL            8
 #define S_BOOL               S_LOGICAL
 #define S_NUMERIC            9
-#define S_BFLOAT            10
+// @v11.9.9 (unused) #define S_BFLOAT            10
 #define S_LSTRING           11
 #define S_ZSTRING           12
 #define S_NOTE              13      // Для BTRIEVE - символьное поле переменной длины (последнее в таблице), для SQL - VARCHAR. Максимальная бинарная (с завершающим нулем) длина специфицируется //
@@ -1210,6 +1210,17 @@ class  UiDescription; // @v11.9.2
 
 #define OMITEPSDIGITS  5
 //
+// Integer format flags
+// 
+#define INTF_DECIMAL   0x0000 // base=10
+#define INTF_BIN       0x0001 // base=2
+#define INTF_OCT       0x0002 // base=8
+#define INTF_HEX       0x0003 // base=16
+#define INTF_BASEMASK  0x0003 // Маска системы счисления (INTF_BIN|INTF_OCT|INTF_HEX|INTF_DECIMAL)
+#define INTF_FORCEPOS  0x0004 // Перед положительным значением указывать знак '+'
+#define INTF_NOZERO    0x0008 // В случае нулевого значения оставлять строку пустой
+#define INTF_UPPERCASE 0x0010 // Для INTF_HEX использовать прописные латинские буквы 
+//
 // Text number format flags
 //
 #define NTTF_FEMIN     0x0001  // В женском роде
@@ -1281,6 +1292,7 @@ class  UiDescription; // @v11.9.2
 #define MKSFMT(l,f)           (((static_cast<long>(l))<<16)|(static_cast<long>(f)))
 #define MKSFMTD(l,p,f)        (((static_cast<long>(p))<<28)|((static_cast<long>(l))<<16)|(static_cast<long>(f)))
 #define MKSFMTD_020           MKSFMTD(0, 2, 0) // @v11.9.6 Очень часто применяемая конструкция //
+#define MKSFMTD_030           MKSFMTD(0, 3, 0) // @v11.9.9 Очень часто применяемая конструкция //
 #define MKSFMTD_050           MKSFMTD(0, 5, 0) // @v11.9.6 Очень часто применяемая конструкция //
 #define SFMTFLAG(fmt)         (static_cast<unsigned>((fmt)&SFFLAGMASK))
 #define SFMTLEN(fmt)          (static_cast<uint16>(((fmt)&SFLENMASK)>>16))
@@ -3017,6 +3029,9 @@ struct SUniDate_Internal { // @v11.9.2
 
 	SUniDate_Internal();
 	SUniDate_Internal(int y, uint m, uint d);
+	explicit SUniDate_Internal(LDATE dt);
+	bool   SetDate(LDATE dt);
+	bool   GetDate(LDATE * pDt) const;
 	bool   SetDaysSinceChristmas(uint g);
 	int    GetDaysSinceChristmas() const { return DateToDaysSinceChristmas(Y, M, D); }
 	bool   SetSdnGregorian(uint g);
@@ -3043,6 +3058,8 @@ struct SUniTime_Internal : public SUniDate_Internal { // @internal
 	//
 	static int64 EpochToNs100(int64 epochTimeSec);
 	SUniTime_Internal();
+	explicit SUniTime_Internal(LDATE);
+	explicit SUniTime_Internal(LTIME);
 	SUniTime_Internal(SCtrGenerate); // for-testing-only
 	SUniTime_Internal & Z();
 	bool   IsValid() const;
@@ -3059,6 +3076,23 @@ struct SUniTime_Internal : public SUniDate_Internal { // @internal
 	uint64 Cmp(const SUniTime_Internal & rS, uint64 uedTimedMeta) const;
 	void   FASTCALL SetTime100ns(uint64 time100ns);
 	int    FASTCALL GetTime100ns(uint64 * pTime100ns) const;
+	//
+	// Descr: Устанавливает дату в соответствии со значением dt формата LDATE.
+	//   Не изменяет поля, отличные от Y, M, D.
+	// Returns:
+	//   true - переданный параметр dt представляет валидную дату - значение установлено
+	//   false - переданный параметр dt - не является валидным представлением даты
+	//
+	bool   FASTCALL SetDate(LDATE dt);
+	//
+	// Descr: Извлекает из экземпляра дату в формате LDATE.
+	// Returns:
+	//   true - экземпляр содержит валидное значение даты, которое установлено по указателю pDt.
+	//   false - экземпляр содержит инвалидное значение даты. Значение по указателю pDt обнулено.
+	//
+	bool   FASTCALL GetDate(LDATE * pDt) const;
+	bool   FASTCALL SetTime(LTIME tm);
+	bool   FASTCALL GetTime(LTIME * Tm) const;
 
 	uint   Hr;
 	uint   Mn;
@@ -5402,6 +5436,17 @@ int    FASTCALL checkdate(LDATE dt, int zeroIsOk);
 // Descr: Проверяет корректность даты dt. Если dt == ZERODATE то возвращает 0 (считает, что дата не валидна).
 //
 int    FASTCALL checkdate(LDATE dt);
+//
+// Descr: Проверяет валидность полей времени
+// ARG(hr IN): часы [0..23]
+// ARG(mn IN): минуты [0..59]
+// ARG(sc IN): секунды [0..59]
+// ARG(msc IN): миллисекунды [0..9999]
+// Return:
+//   0 - набор аргументов не соответствует правильному представлению времени
+//   !0 - набор аргументов соответствует правильному представлению времени
+//
+int    STDCALL  checktime(int hr, int mn, int sc, int msec);
 int    FASTCALL checktime(LTIME tm);
 //
 //

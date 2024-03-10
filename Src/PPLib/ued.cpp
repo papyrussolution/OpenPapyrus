@@ -797,6 +797,9 @@ static int GetTimeZoneOffsetSec(uint64 * pRaw, uint bits, int * pOffs)
 	THROW(bits);
 	THROW(rT.IsValid());
 	switch(meta) {
+		case UED_META_DAYTIME_MS: // @v11.9.9
+			raw = (rT.Hr * 3600000) + (rT.Mn * 60000) + (rT.Sc * 1000) + rT.MSc;
+			break;
 		case UED_META_TIME_MSEC:
 			THROW(rT.GetTime100ns(&raw));
 			raw /= 10000ULL;
@@ -879,6 +882,21 @@ static int GetTimeZoneOffsetSec(uint64 * pRaw, uint bits, int * pOffs)
 	const  uint   bits = GetRawDataBits(ued);
 	THROW(GetRawValue(ued, &raw));
 	switch(meta) {
+		case UED_META_DAYTIME_MS: // @v11.9.9
+			{
+				uint32 msecs = static_cast<uint32>(raw);
+				uint32 seconds = static_cast<int>(msecs / 1000);
+				msecs = msecs % 1000;
+				uint32 minutes = seconds / 60;
+				seconds = seconds % 60;
+				uint32 hours = minutes / 60;
+				minutes = minutes % 60;
+				rT.Hr = hours;
+				rT.Mn = minutes;
+				rT.Sc = seconds;
+				rT.MSc = msecs;
+			}
+			break;
 		case UED_META_TIME_MSEC:
 			rT.SetTime100ns(raw * 10000);
 			break;

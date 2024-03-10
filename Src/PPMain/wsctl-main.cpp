@@ -2887,7 +2887,7 @@ void WsCtl_ImGuiSceneBlock::PreprocessProgramList()
 void WsCtl_ImGuiSceneBlock::BuildScene()
 {
 	int    errstate = errstateNone;
-	const  LDATETIME now_dtm = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	if(!TestBlk.DtmLastQuerySent || diffdatetimesec(now_dtm, TestBlk.DtmLastQuerySent) > 5) {
 		if(P_CmdQ) {
 			WsCtlReqQueue::Req qr(PPSCMD_HELLO);

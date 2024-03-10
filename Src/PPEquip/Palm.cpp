@@ -2090,10 +2090,10 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 				}
 				local_pc.Read(path);
 				struct LSDTM {
-					PPID        FileID;
+					PPID   FileID;
 					LDATETIME * P_LocalDTMS;
-					LDATETIME   ServerDTMS;
-					long        CopyFile;
+					LDATETIME ServerDTMS;
+					long   CopyFile;
 				};
 				LSDTM files_dtms[] = {
 					{PPFILNAM_PALM_GOODS,    &local_pc.TmGoods,   server_pc.TmGoods,  1},

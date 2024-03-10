@@ -774,7 +774,7 @@ int WsCtlSrvBlock::GetQuotList(PPID goodsID, PPID locID, const PPIDArray & rRawQ
 int WsCtlSrvBlock::StartSess(StartSessBlock & rBlk)
 {
 	int    ok = 1;
-	const  LDATETIME now_dtm = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	PPID   tses_id = 0;
 	double screst = 0.0; // Остаток на счете клиента на момент начала сессии
 	SCardTbl::Rec sc_rec;

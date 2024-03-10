@@ -1965,7 +1965,7 @@ int PPPriceListExporter::Export(const PriceListViewItem * pItem)
 	STRNSCPY(sdr.Memo, pItem->Memo_);
 	if(GObj.Fetch(pItem->GoodsID, &goods_rec) > 0) {
 		STRNSCPY(sdr.GoodsName, goods_rec.Name);
-		GObj.GetSingleBarcode(goods_rec.ID, temp_buf);
+		GObj.GetSingleBarcode(goods_rec.ID, 0, temp_buf);
 		STRNSCPY(sdr.Barcode, temp_buf);
 		{
 			PPGoodsTaxEntry tax_entry;
@@ -2057,7 +2057,7 @@ int PPViewPriceList::SendPList()
 			plst_rec.put(8, temp_buf);              // UnitName
 			plst_rec.put(9, item.QuotKindID);   // "QUOTID\0", "N", 6, 0,
 			plst_rec.put(10, item.ManufID);     // "MANUFID\0", "N", 6, 0,
-			GObj.GetSingleBarcode(item.GoodsID, temp_buf);
+			GObj.GetSingleBarcode(item.GoodsID, 0, temp_buf);
 			temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 			plst_rec.put(12, temp_buf);             // "BARCODE\0", "C", 12, 0
 			(temp_buf = item.Memo_).Transf(CTRANSF_INNER_TO_OUTER);
@@ -2465,7 +2465,7 @@ int PPViewPriceList::SendPListInXmlFormat()
 		XmlWriteData(p_xml_file, "GroupID", item.GoodsGrpID, 0);
 		XMLReplaceSpecSymb((temp_buf = item.GoodsName_).Transf(CTRANSF_INNER_TO_OUTER), 0);
 		XmlWriteData(p_xml_file, "GoodsName", temp_buf, 0);
-		GObj.GetSingleBarcode(item.GoodsID, temp_buf);
+		GObj.GetSingleBarcode(item.GoodsID, 0, temp_buf);
 		XMLReplaceSpecSymb(temp_buf, 0);
 		XmlWriteData(p_xml_file, "Barcode", temp_buf, 0);
 		uobj.Fetch(item.UnitID, &unit_rec);
@@ -2728,7 +2728,7 @@ int PPViewPriceList::Export_Pre9302()
 					break;
 				case plevsBarcode:
 					sw.PutFormat("FG0L", 0, i, row_no);
-					GObj.GetSingleBarcode(item.GoodsID, temp_buf);
+					GObj.GetSingleBarcode(item.GoodsID, 0, temp_buf);
 					sw.PutVal(temp_buf, 1);
 					break;
 				case plevsUnit:

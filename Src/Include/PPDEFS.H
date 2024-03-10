@@ -2485,6 +2485,7 @@
 	#define CTL_LOCATION_EMAIL          (35 + WINDOWS_ID_BIAS)
 	#define CTL_LOCATION_ACN1           (36 + WINDOWS_ID_BIAS)
 	#define CTL_LOCATION_WHLIST         (37 + WINDOWS_ID_BIAS)
+	#define CTL_LOCATION_PASSIVE        (38 + WINDOWS_ID_BIAS)
 
 #define DLG_ATURN                  74 // Бух. проводка
 #define DLG_REGATURN               78 // Регистровая проводка

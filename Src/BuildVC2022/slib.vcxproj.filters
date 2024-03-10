@@ -861,6 +861,7 @@
     <ClCompile Include="..\SLib\EDLIB\edlib.cpp">
       <Filter>EdLib</Filter>
     </ClCompile>
+    <ClCompile Include="..\SLib\sstrtransform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

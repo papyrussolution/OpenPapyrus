@@ -722,14 +722,13 @@ private:
 					return SYMBOL_NOT_FOUND;
 				}
 				ABSL_RAW_CHECK(n_read <= out_size, "ReadFromOffset read too much data.");
-
 				// strtab->sh_offset points into .strtab-like section that contains
 				// NUL-terminated strings: '\0foo\0barbaz\0...".
 				//
 				// sh_offset+st_name points to the start of symbol name, but we don't know
 				// how long the symbol is, so we try to read as much as we have space for,
 				// and usually over-read (i.e. there is a NUL somewhere before n_read).
-				if(memchr(out, '\0', n_read) == nullptr) {
+				if(!smemchr(out, '\0', n_read)) {
 					// Either out_size was too small (n_read == out_size and no NUL), or
 					// we tried to read past the EOF (n_read < out_size) and .strtab is
 					// corrupt (missing terminating NUL; should never happen for valid ELF).
@@ -738,7 +737,6 @@ private:
 				}
 				return SYMBOL_FOUND;
 			}
-
 			return SYMBOL_NOT_FOUND;
 		}
 
@@ -871,24 +869,14 @@ public:
 						return false;
 					}
 					*eol_ = '\0'; // Replace '\n' with '\0'.
-
 					*bol = bol_;
 					*eol = eol_;
 					return true;
 				}
-
 private:
-				char * FindLineFeed() const {
-					return reinterpret_cast<char *>(memchr(bol_, '\n', eod_ - bol_));
-				}
-
-				bool BufferIsEmpty() const {
-					return buf_ == eod_;
-				}
-
-				bool HasCompleteLine() const {
-					return !BufferIsEmpty() && FindLineFeed() != nullptr;
-				}
+				char * FindLineFeed() const { return reinterpret_cast<char *>(smemchr(bol_, '\n', eod_ - bol_)); }
+				bool BufferIsEmpty() const { return buf_ == eod_; }
+				bool HasCompleteLine() const { return !BufferIsEmpty() && FindLineFeed() != nullptr; }
 
 				const int fd_;
 				const int buf_len_;

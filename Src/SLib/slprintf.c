@@ -154,19 +154,19 @@ static void _ntoa_long_long(SString & rBuf, uint64 value, bool negative, uint ba
 	_ntoa_format(rBuf, buf, sizeof(buf), len, negative, base, prec, width, flags);
 }
 
-static int FASTCALL sl_printf_implementation(SString & rBuf, const char * pFormat, va_list va)
+static int sl_printf_implementation(SString & rBuf, const char * pFormat, va_list va)
 {
 	const   uint org_len = rBuf.Len();
-	if(pFormat) {
+	const   size_t format_len = strlen(pFormat);
+	if(format_len) {
 		char    fout_buf[256];
-		const   size_t format_len = strlen(pFormat);
 		const   char * p_format_end = pFormat + format_len + 1;
 		while(*pFormat) {
 			// format specifier?  %[flags][width][.precision][length]
 			if(*pFormat != '%') {
 				//rBuf.CatChar(*pFormat);
 				//pFormat++;
-				const char * p_next_pct = static_cast<const char *>(memchr(pFormat, '%', p_format_end-pFormat));
+				const char * p_next_pct = static_cast<const char *>(smemchr(pFormat, '%', p_format_end-pFormat));
 				if(p_next_pct) {
 					const size_t next_pct_dist = p_next_pct-pFormat;
 					rBuf.Cat_Unsafe(reinterpret_cast<const uint8 *>(pFormat), next_pct_dist);
@@ -193,7 +193,7 @@ static int FASTCALL sl_printf_implementation(SString & rBuf, const char * pForma
 							case '+': flags |= FLAGS_PLUS;    pFormat++; n = 1U; break;
 							case ' ': flags |= FLAGS_SPACE;   pFormat++; n = 1U; break;
 							case '#': flags |= FLAGS_HASH;    pFormat++; n = 1U; break;
-							default:                                   n = 0U; break;
+							default: n = 0U; break;
 						}
 					} while(n);
 				}

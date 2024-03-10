@@ -1,22 +1,13 @@
+// ustr_cnv.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 1998-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  ustr_cnv.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2004aug24
- *   created by: Markus W. Scherer
- *
- *   Character conversion functions moved here from ustring.c
- */
+// Copyright (C) 1998-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2004aug24
+// created by: Markus W. Scherer
+// 
+// Character conversion functions moved here from ustring.c
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -33,34 +24,31 @@ static UConverter * gDefaultConverter = NULL;
 U_CAPI UConverter * U_EXPORT2 u_getDefaultConverter(UErrorCode * status)
 {
 	UConverter * converter = NULL;
-	if(gDefaultConverter != NULL) {
+	if(gDefaultConverter) {
 		icu::umtx_lock(NULL);
 		/* need to check to make sure it wasn't taken out from under us */
-		if(gDefaultConverter != NULL) {
+		if(gDefaultConverter) {
 			converter = gDefaultConverter;
 			gDefaultConverter = NULL;
 		}
 		icu::umtx_unlock(NULL);
 	}
-
 	/* if the cache was empty, create a converter */
-	if(converter == NULL) {
+	if(!converter) {
 		converter = ucnv_open(NULL, status);
 		if(U_FAILURE(*status)) {
 			ucnv_close(converter);
 			converter = NULL;
 		}
 	}
-
 	return converter;
 }
 
 U_CAPI void U_EXPORT2 u_releaseDefaultConverter(UConverter * converter)
 {
 	if(gDefaultConverter == NULL) {
-		if(converter != NULL) {
+		if(converter)
 			ucnv_reset(converter);
-		}
 		ucnv_enableCleanup();
 		icu::umtx_lock(NULL);
 		if(gDefaultConverter == NULL) {
@@ -69,19 +57,15 @@ U_CAPI void U_EXPORT2 u_releaseDefaultConverter(UConverter * converter)
 		}
 		icu::umtx_unlock(NULL);
 	}
-
-	if(converter != NULL) {
+	if(converter)
 		ucnv_close(converter);
-	}
 }
 
 U_CAPI void U_EXPORT2 u_flushDefaultConverter()
 {
 	UConverter * converter = NULL;
-
 	if(gDefaultConverter != NULL) {
 		icu::umtx_lock(NULL);
-
 		/* need to check to make sure it wasn't taken out from under us */
 		if(gDefaultConverter != NULL) {
 			converter = gDefaultConverter;
@@ -89,18 +73,13 @@ U_CAPI void U_EXPORT2 u_flushDefaultConverter()
 		}
 		icu::umtx_unlock(NULL);
 	}
-
-	/* if the cache was populated, flush it */
-	if(converter != NULL) {
-		ucnv_close(converter);
-	}
+	// if the cache was populated, flush it
+	ucnv_close(converter);
 }
 
 /* conversions between char * and char16_t * ------------------------------------- */
 
-/* maximum string length for u_uastrcpy() and u_austrcpy() implementations */
-#define MAX_STRLEN 0x0FFFFFFF
-
+#define MAX_STRLEN 0x0FFFFFFF // maximum string length for u_uastrcpy() and u_austrcpy() implementations
 /*
    returns the minimum of (the length of the null-terminated string) and n.
  */
@@ -122,14 +101,7 @@ U_CAPI char16_t * U_EXPORT2 u_uastrncpy(char16_t * ucs1, const char * s2, int32_
 	UConverter * cnv = u_getDefaultConverter(&err);
 	if(U_SUCCESS(err) && cnv != NULL) {
 		ucnv_reset(cnv);
-		ucnv_toUnicode(cnv,
-		    &target,
-		    ucs1+n,
-		    &s2,
-		    s2+u_astrnlen(s2, n),
-		    NULL,
-		    TRUE,
-		    &err);
+		ucnv_toUnicode(cnv, &target, ucs1+n, &s2, s2+u_astrnlen(s2, n), NULL, TRUE, &err);
 		ucnv_reset(cnv); /* be good citizens */
 		u_releaseDefaultConverter(cnv);
 		if(U_FAILURE(err) && (err != U_BUFFER_OVERFLOW_ERROR)) {
@@ -146,18 +118,12 @@ U_CAPI char16_t * U_EXPORT2 u_uastrncpy(char16_t * ucs1, const char * s2, int32_
 	return ucs1;
 }
 
-U_CAPI char16_t * U_EXPORT2 u_uastrcpy(char16_t * ucs1,
-    const char * s2)
+U_CAPI char16_t * U_EXPORT2 u_uastrcpy(char16_t * ucs1, const char * s2)
 {
 	UErrorCode err = U_ZERO_ERROR;
 	UConverter * cnv = u_getDefaultConverter(&err);
 	if(U_SUCCESS(err) && cnv != NULL) {
-		ucnv_toUChars(cnv,
-		    ucs1,
-		    MAX_STRLEN,
-		    s2,
-		    (int32_t)strlen(s2),
-		    &err);
+		ucnv_toUChars(cnv, ucs1, MAX_STRLEN, s2, (int32_t)strlen(s2), &err);
 		u_releaseDefaultConverter(cnv);
 		if(U_FAILURE(err)) {
 			*ucs1 = 0;
@@ -175,7 +141,6 @@ U_CAPI char16_t * U_EXPORT2 u_uastrcpy(char16_t * ucs1,
 static int32_t u_ustrnlen(const char16_t * ucs1, int32_t n)
 {
 	int32_t len = 0;
-
 	if(ucs1) {
 		while(n-- && *(ucs1++)) {
 			len++;
@@ -207,18 +172,12 @@ U_CAPI char * U_EXPORT2 u_austrncpy(char * s1, const char16_t * ucs2, int32_t n)
 	return s1;
 }
 
-U_CAPI char * U_EXPORT2 u_austrcpy(char * s1,
-    const char16_t * ucs2)
+U_CAPI char * U_EXPORT2 u_austrcpy(char * s1, const char16_t * ucs2)
 {
 	UErrorCode err = U_ZERO_ERROR;
 	UConverter * cnv = u_getDefaultConverter(&err);
 	if(U_SUCCESS(err) && cnv != NULL) {
-		int32_t len = ucnv_fromUChars(cnv,
-			s1,
-			MAX_STRLEN,
-			ucs2,
-			-1,
-			&err);
+		int32_t len = ucnv_fromUChars(cnv, s1, MAX_STRLEN, ucs2, -1, &err);
 		u_releaseDefaultConverter(cnv);
 		s1[len] = 0;
 	}

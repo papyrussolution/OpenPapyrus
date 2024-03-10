@@ -263,50 +263,40 @@ u_fclose(UFILE * file)
 	if(file) {
 		u_fflush(file);
 		ufile_close_translit(file);
-
 		if(file->fOwnFile)
 			fclose(file->fFile);
-
 #if !UCONFIG_NO_FORMATTING
 		u_locbund_close(&file->str.fBundle);
 #endif
-
 		ucnv_close(file->fConverter);
 		uprv_free(file);
 	}
 }
 
-U_CAPI FILE * U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_fgetfile(UFILE * f)
+U_CAPI FILE * U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */ u_fgetfile(UFILE * f)
 {
 	return f->fFile;
 }
 
 #if !UCONFIG_NO_FORMATTING
 
-U_CAPI const char * U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_fgetlocale(UFILE * file)
+U_CAPI const char * U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */ u_fgetlocale(UFILE * file)
 {
 	return file->str.fBundle.fLocale;
 }
 
-U_CAPI int32_t U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_fsetlocale(UFILE  * file,
-    const char * locale)
+U_CAPI int32_t U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */ u_fsetlocale(UFILE  * file, const char * locale)
 {
 	u_locbund_close(&file->str.fBundle);
-
 	return u_locbund_init(&file->str.fBundle, locale) == 0 ? -1 : 0;
 }
 
 #endif
 
-U_CAPI const char * U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_fgetcodepage(UFILE * file)
+U_CAPI const char * U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */ u_fgetcodepage(UFILE * file)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	const char * codepage = NULL;
-
 	if(file->fConverter) {
 		codepage = ucnv_getName(file->fConverter, &status);
 		if(U_FAILURE(status))
@@ -315,13 +305,10 @@ u_fgetcodepage(UFILE * file)
 	return codepage;
 }
 
-U_CAPI int32_t U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_fsetcodepage(const char * codepage,
-    UFILE * file)
+U_CAPI int32_t U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */ u_fsetcodepage(const char * codepage, UFILE * file)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t retVal = -1;
-
 	/* We use the normal default codepage for this system, and not the one for the locale. */
 	if((file->str.fPos == file->str.fBuffer) && (file->str.fLimit == file->str.fBuffer)) {
 		ucnv_close(file->fConverter);
@@ -333,8 +320,7 @@ u_fsetcodepage(const char * codepage,
 	return retVal;
 }
 
-U_CAPI UConverter * U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_fgetConverter(UFILE * file)
+U_CAPI UConverter * U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */ u_fgetConverter(UFILE * file)
 {
 	return file->fConverter;
 }
@@ -346,5 +332,4 @@ U_CAPI const UNumberFormat * U_EXPORT2 u_fgetNumberFormat(UFILE * file)
 }
 
 #endif
-
 #endif

@@ -142,7 +142,7 @@ template <typename Consumer> bool ParseFormatString(string_view src, Consumer co
 	const char* p = src.data();
 	const char* const end = p + src.size();
 	while(p != end) {
-		const char* percent = static_cast<const char*>(memchr(p, '%', static_cast<size_t>(end - p)));
+		const char* percent = static_cast<const char*>(smemchr(p, '%', static_cast<size_t>(end - p)));
 		if(!percent) {
 			// We found the last substring.
 			return consumer.Append(string_view(p, end - p));
@@ -151,8 +151,8 @@ template <typename Consumer> bool ParseFormatString(string_view src, Consumer co
 		if(ABSL_PREDICT_FALSE(!consumer.Append(string_view(p, percent - p)))) {
 			return false;
 		}
-		if(ABSL_PREDICT_FALSE(percent + 1 >= end)) return false;
-
+		if(ABSL_PREDICT_FALSE(percent + 1 >= end)) 
+			return false;
 		auto tag = GetTagForChar(percent[1]);
 		if(tag.is_conv()) {
 			if(ABSL_PREDICT_FALSE(next_arg < 0)) {

@@ -490,43 +490,30 @@ static CURLcode mbed_connect_step1(struct Curl_cfilter * cf, struct Curl_easy * 
 			    (const uchar *)ssl_key_blob->data;
 			const char * passwd = ssl_config->key_passwd;
 #if MBEDTLS_VERSION_NUMBER >= 0x03000000
-			ret = mbedtls_pk_parse_key(&backend->pk, key_data, ssl_key_blob->len,
-				(const uchar *)passwd,
-				passwd ? strlen(passwd) : 0,
-				mbedtls_ctr_drbg_random,
-				&backend->ctr_drbg);
+			ret = mbedtls_pk_parse_key(&backend->pk, key_data, ssl_key_blob->len, (const uchar *)passwd,
+				passwd ? strlen(passwd) : 0, mbedtls_ctr_drbg_random, &backend->ctr_drbg);
 #else
-			ret = mbedtls_pk_parse_key(&backend->pk, key_data, ssl_key_blob->len,
-				(const uchar *)passwd,
-				passwd ? strlen(passwd) : 0);
+			ret = mbedtls_pk_parse_key(&backend->pk, key_data, ssl_key_blob->len, (const uchar *)passwd, passwd ? strlen(passwd) : 0);
 #endif
 
 			if(ret) {
 				mbedtls_strerror(ret, errorbuf, sizeof(errorbuf));
-				failf(data, "Error parsing private key - mbedTLS: (-0x%04X) %s",
-				    -ret, errorbuf);
+				failf(data, "Error parsing private key - mbedTLS: (-0x%04X) %s", -ret, errorbuf);
 				return CURLE_SSL_CERTPROBLEM;
 			}
 		}
-
-		if(ret == 0 && !(mbedtls_pk_can_do(&backend->pk, MBEDTLS_PK_RSA) ||
-		    mbedtls_pk_can_do(&backend->pk, MBEDTLS_PK_ECKEY)))
+		if(ret == 0 && !(mbedtls_pk_can_do(&backend->pk, MBEDTLS_PK_RSA) || mbedtls_pk_can_do(&backend->pk, MBEDTLS_PK_ECKEY)))
 			ret = MBEDTLS_ERR_PK_TYPE_MISMATCH;
 	}
-
 	/* Load the CRL */
 #ifdef MBEDTLS_X509_CRL_PARSE_C
 	mbedtls_x509_crl_init(&backend->crl);
-
 	if(ssl_crlfile) {
 #ifdef MBEDTLS_FS_IO
 		ret = mbedtls_x509_crl_parse_file(&backend->crl, ssl_crlfile);
-
 		if(ret) {
 			mbedtls_strerror(ret, errorbuf, sizeof(errorbuf));
-			failf(data, "Error reading CRL file %s - mbedTLS: (-0x%04X) %s",
-			    ssl_crlfile, -ret, errorbuf);
-
+			failf(data, "Error reading CRL file %s - mbedTLS: (-0x%04X) %s", ssl_crlfile, -ret, errorbuf);
 			return CURLE_SSL_CRL_BADFILE;
 		}
 #else
@@ -540,19 +527,13 @@ static CURLcode mbed_connect_step1(struct Curl_cfilter * cf, struct Curl_easy * 
 		return CURLE_NOT_BUILT_IN;
 	}
 #endif
-
 	infof(data, "mbedTLS: Connecting to %s:%d", hostname, connssl->port);
-
 	mbedtls_ssl_config_init(&backend->config);
-	ret = mbedtls_ssl_config_defaults(&backend->config,
-		MBEDTLS_SSL_IS_CLIENT,
-		MBEDTLS_SSL_TRANSPORT_STREAM,
-		MBEDTLS_SSL_PRESET_DEFAULT);
+	ret = mbedtls_ssl_config_defaults(&backend->config, MBEDTLS_SSL_IS_CLIENT, MBEDTLS_SSL_TRANSPORT_STREAM, MBEDTLS_SSL_PRESET_DEFAULT);
 	if(ret) {
 		failf(data, "mbedTLS: ssl_config failed");
 		return CURLE_SSL_CONNECT_ERROR;
 	}
-
 	mbedtls_ssl_init(&backend->ssl);
 	if(mbedtls_ssl_setup(&backend->ssl, &backend->config)) {
 		failf(data, "mbedTLS: ssl_init failed");

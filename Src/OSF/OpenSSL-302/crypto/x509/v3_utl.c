@@ -39,8 +39,8 @@ static int x509v3_add_len_value(const char * name, const char * value, size_t va
 	if(name != NULL && (tname = OPENSSL_strdup(name)) == NULL)
 		goto err;
 	if(value) {
-		/* We don't allow embeded NUL characters */
-		if(memchr(value, 0, vallen) != NULL)
+		// We don't allow embeded NUL characters
+		if(smemchr(value, 0, vallen) != NULL)
 			goto err;
 		tvalue = OPENSSL_strndup(value, vallen);
 		if(tvalue == NULL)
@@ -475,30 +475,26 @@ static void str_free(OPENSSL_STRING str)
 	OPENSSL_free(str);
 }
 
-static int append_ia5(STACK_OF(OPENSSL_STRING) ** sk,
-    const ASN1_IA5STRING * email)
+static int append_ia5(STACK_OF(OPENSSL_STRING) ** sk, const ASN1_IA5STRING * email)
 {
 	char * emtmp;
-
 	/* First some sanity checks */
 	if(email->type != V_ASN1_IA5STRING)
 		return 1;
 	if(email->data == NULL || email->length == 0)
 		return 1;
-	if(memchr(email->data, 0, email->length) != NULL)
+	if(smemchr(email->data, 0, email->length) != NULL)
 		return 1;
 	if(*sk == NULL)
 		*sk = sk_OPENSSL_STRING_new(sk_strcmp);
 	if(*sk == NULL)
 		return 0;
-
 	emtmp = OPENSSL_strndup((char*)email->data, email->length);
 	if(emtmp == NULL) {
 		X509_email_free(*sk);
 		*sk = NULL;
 		return 0;
 	}
-
 	/* Don't add duplicates */
 	if(sk_OPENSSL_STRING_find(*sk, emtmp) != -1) {
 		OPENSSL_free(emtmp);
@@ -518,18 +514,13 @@ void X509_email_free(STACK_OF(OPENSSL_STRING) * sk)
 	sk_OPENSSL_STRING_pop_free(sk, str_free);
 }
 
-typedef int (* equal_fn) (const uchar * pattern, size_t pattern_len,
-    const uchar * subject, size_t subject_len,
-    unsigned int flags);
+typedef int (* equal_fn) (const uchar * pattern, size_t pattern_len, const uchar * subject, size_t subject_len, unsigned int flags);
 
 /* Skip pattern prefix to match "wildcard" subject */
-static void skip_prefix(const uchar ** p, size_t * plen,
-    size_t subject_len,
-    unsigned int flags)
+static void skip_prefix(const uchar ** p, size_t * plen, size_t subject_len, unsigned int flags)
 {
 	const uchar * pattern = *p;
 	size_t pattern_len = *plen;
-
 	/*
 	 * If subject starts with a leading '.' followed by more octets, and
 	 * pattern is longer, compare just an equal-length suffix with the
@@ -908,8 +899,7 @@ static int do_x509_check(X509 * x, const char * chk, size_t chklen,
 	return 0;
 }
 
-int X509_check_host(X509 * x, const char * chk, size_t chklen,
-    unsigned int flags, char ** peername)
+int X509_check_host(X509 * x, const char * chk, size_t chklen, unsigned int flags, char ** peername)
 {
 	if(chk == NULL)
 		return -2;
@@ -920,15 +910,14 @@ int X509_check_host(X509 * x, const char * chk, size_t chklen,
 	 */
 	if(chklen == 0)
 		chklen = strlen(chk);
-	else if(memchr(chk, '\0', chklen > 1 ? chklen - 1 : chklen))
+	else if(smemchr(chk, '\0', chklen > 1 ? chklen - 1 : chklen))
 		return -2;
 	if(chklen > 1 && chk[chklen - 1] == '\0')
 		--chklen;
 	return do_x509_check(x, chk, chklen, flags, GEN_DNS, peername);
 }
 
-int X509_check_email(X509 * x, const char * chk, size_t chklen,
-    unsigned int flags)
+int X509_check_email(X509 * x, const char * chk, size_t chklen, unsigned int flags)
 {
 	if(chk == NULL)
 		return -2;
@@ -939,15 +928,14 @@ int X509_check_email(X509 * x, const char * chk, size_t chklen,
 	 */
 	if(chklen == 0)
 		chklen = strlen((char*)chk);
-	else if(memchr(chk, '\0', chklen > 1 ? chklen - 1 : chklen))
+	else if(smemchr(chk, '\0', chklen > 1 ? chklen - 1 : chklen))
 		return -2;
 	if(chklen > 1 && chk[chklen - 1] == '\0')
 		--chklen;
 	return do_x509_check(x, chk, chklen, flags, GEN_EMAIL, NULL);
 }
 
-int X509_check_ip(X509 * x, const uchar * chk, size_t chklen,
-    unsigned int flags)
+int X509_check_ip(X509 * x, const uchar * chk, size_t chklen, unsigned int flags)
 {
 	if(chk == NULL)
 		return -2;
@@ -958,7 +946,6 @@ int X509_check_ip_asc(X509 * x, const char * ipasc, unsigned int flags)
 {
 	unsigned char ipout[16];
 	size_t iplen;
-
 	if(ipasc == NULL)
 		return -2;
 	iplen = (size_t)ossl_a2i_ipadd(ipout, ipasc);

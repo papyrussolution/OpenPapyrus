@@ -879,35 +879,27 @@ U_CFUNC UConverter * ucnv_createConverterFromPackage(const char * packageName, c
 	}
 	stackArgs.nestedLoads = 1;
 	stackArgs.pkg = packageName;
-
 	/* open the data, unflatten the shared structure */
 	mySharedConverterData = createConverterFromFile(&stackArgs, err);
-
 	if(U_FAILURE(*err)) {
 		UTRACE_EXIT_STATUS(*err);
 		return NULL;
 	}
-
 	/* create the actual converter */
 	myUConverter = ucnv_createConverterFromSharedData(NULL, mySharedConverterData, &stackArgs, err);
-
 	if(U_FAILURE(*err)) {
 		ucnv_close(myUConverter);
 		UTRACE_EXIT_STATUS(*err);
 		return NULL;
 	}
-
 	UTRACE_EXIT_PTR_STATUS(myUConverter, *err);
 	return myUConverter;
 }
 
-U_CFUNC UConverter * ucnv_createConverterFromSharedData(UConverter * myUConverter,
-    UConverterSharedData * mySharedConverterData,
-    UConverterLoadArgs * pArgs,
-    UErrorCode * err)
+U_CFUNC UConverter * ucnv_createConverterFromSharedData(UConverter * myUConverter, UConverterSharedData * mySharedConverterData,
+    UConverterLoadArgs * pArgs, UErrorCode * err)
 {
 	bool isCopyLocal;
-
 	if(U_FAILURE(*err)) {
 		ucnv_unloadSharedDataIfReady(mySharedConverterData);
 		return myUConverter;
@@ -1050,9 +1042,7 @@ static void U_CALLCONV initAvailableConvertersList(UErrorCode &errCode) {
 	UErrorCode localStatus = U_ZERO_ERROR;
 	UConverter tempConverter;
 	ucnv_close(ucnv_createConverter(&tempConverter, NULL, &localStatus));
-
 	gAvailableConverterCount = 0;
-
 	for(int32_t idx = 0; idx < allConverterCount; idx++) {
 		localStatus = U_ZERO_ERROR;
 		const char * converterName = uenum_next(allConvEnum, NULL, &localStatus);
@@ -1060,11 +1050,11 @@ static void U_CALLCONV initAvailableConvertersList(UErrorCode &errCode) {
 			gAvailableConverters[gAvailableConverterCount++] = converterName;
 		}
 	}
-
 	uenum_close(allConvEnum);
 }
 
-static bool haveAvailableConverterList(UErrorCode * pErrorCode) {
+static bool haveAvailableConverterList(UErrorCode * pErrorCode) 
+{
 	umtx_initOnce(gAvailableConvertersInitOnce, &initAvailableConvertersList, *pErrorCode);
 	return U_SUCCESS(*pErrorCode);
 }
@@ -1186,19 +1176,17 @@ U_CAPI const char * U_EXPORT2 ucnv_getDefaultName() {
 			name = "ibm-37_P100-1995";
 #endif
 		}
-
 		internalSetName(name, &errorCode);
-
 		/* The close may make the current name go away. */
 		ucnv_close(cnv);
 	}
-
 	return name;
 #endif
 }
 
 #if U_CHARSET_IS_UTF8
-U_CAPI void U_EXPORT2 ucnv_setDefaultName(const char *) {
+U_CAPI void U_EXPORT2 ucnv_setDefaultName(const char *) 
+{
 }
 
 #else
@@ -1206,30 +1194,26 @@ U_CAPI void U_EXPORT2 ucnv_setDefaultName(const char *) {
    This function is not thread safe, and it can't be thread safe.
    See internalSetName or the API reference for details.
  */
-U_CAPI void U_EXPORT2 ucnv_setDefaultName(const char * converterName) {
+U_CAPI void U_EXPORT2 ucnv_setDefaultName(const char * converterName) 
+{
 	if(converterName==NULL) {
 		/* reset to the default codepage */
 		gDefaultConverterName = NULL;
 	}
 	else {
 		UErrorCode errorCode = U_ZERO_ERROR;
-		UConverter * cnv = NULL;
 		const char * name = NULL;
-
 		/* if the name is there, test it out and get the canonical name with options */
-		cnv = ucnv_open(converterName, &errorCode);
+		UConverter * cnv = ucnv_open(converterName, &errorCode);
 		if(U_SUCCESS(errorCode) && cnv != NULL) {
 			name = ucnv_getName(cnv, &errorCode);
 		}
-
 		if(U_SUCCESS(errorCode) && name != NULL) {
 			internalSetName(name, &errorCode);
 		}
 		/* else this converter is bad to use. Don't change it to a bad value. */
-
 		/* The close may make the current name go away. */
 		ucnv_close(cnv);
-
 		/* reset the converter cache */
 		u_flushDefaultConverter();
 	}

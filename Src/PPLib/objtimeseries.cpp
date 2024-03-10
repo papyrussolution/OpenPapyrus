@@ -7754,7 +7754,7 @@ int PrcssrTsStrategyAnalyze::Run()
 {
 	const int force_fixed_maxduck_values = 1;
 	int    ok = 1;
-	const  LDATETIME now = getcurdatetime_();
+	//const LDATETIME now_dtm = getcurdatetime_();
 	SString temp_buf;
 	SString save_file_name;
 	SString msg_buf;

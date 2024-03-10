@@ -4787,7 +4787,7 @@ int TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 						else if(o == ordByGrpGoods)
 							goods_obj.P_Tbl->MakeFullName(goods_rec.ParentID, 0, grp_name);
 						else if(o == ordByBarcode)
-							goods_obj.GetSingleBarcode(goods_rec.ID, goods_name);
+							goods_obj.GetSingleBarcode(goods_rec.ID, 0, goods_name);
 						else if(o == ordBySuppl)
 							GetArticleName(suppl_id, grp_name);
 						else if(o == ordByLocation) {

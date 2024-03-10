@@ -1666,7 +1666,7 @@ SString & SString::ReplaceChar(int patternChr, int replaceChr)
 	if(L > 1) {
 		char * p = P_Buf;
 		size_t s = L-1;
-		while((p = memchr(p, patternChr, s)) != 0) {
+		while((p = smemchr(p, patternChr, s)) != 0) {
 			*p++ = replaceChr;
 			s -= (p - P_Buf);
 		}
@@ -3775,9 +3775,6 @@ uint64 FASTCALL satou64(const char * pT)
 					local_len++;
 				} while(ishex(_p[src_pos+local_len]));
 				result = _texttohex64(_p+src_pos, local_len);
-				/*do { 
-					result = result * 16 + hex(_p[src_pos]); 
-				} while(ishex(_p[++src_pos]));*/
 			}
 		}
 		else {
@@ -3787,9 +3784,6 @@ uint64 FASTCALL satou64(const char * pT)
 					local_len++;
 				} while(isdec(_p[src_pos+local_len]));
 				result = _texttodec64(_p+src_pos, local_len);
-				/*do { 
-					result = result * 10 + (_p[src_pos] - '0'); 
-				} while(isdec(_p[++src_pos]));*/
 			}
 		}
 		//if(is_neg && result)
@@ -3820,7 +3814,7 @@ uint64 FASTCALL sxtou64(const char * pT)
 		}
 		if(ishex(_p[src_pos])) { 
 			do { 
-				result = result * 16 + hex(_p[src_pos]); 
+				result = (result << 4) + hex(_p[src_pos]); 
 			} while(ishex(_p[++src_pos])); 
 		}
 		//if(is_neg && result)

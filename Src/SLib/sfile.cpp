@@ -1715,15 +1715,12 @@ static const SIntToSymbTabEntry SFileAccsfSymbList[] = {
 	else if(r < 0)
 		ok = 0;
 	else if(timeout > 0) {
-		//const  LDATETIME dtm_start = getcurdatetime_();
 		const  long c_start = clock();
 		long   msec = 0;
 		long   days = 0;
 		do {
 			SDelay(100);
 			r = IsOpenedForWriting(pFileName);
-			//LDATETIME dtm_cur = getcurdatetime_();
-			//msec = diffdatetime(dtm_cur, dtm_start, 4, &(days = 0));
 			const long c_cur = clock();
             msec = (c_cur - c_start);
 		} while(r > 0 && (/*days == 0 &&*/ msec < timeout));

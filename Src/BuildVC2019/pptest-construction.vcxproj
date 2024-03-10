@@ -270,6 +270,7 @@
     <ClCompile Include="..\PPTEST\UNIT\test-sarc.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-sarray.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-slui.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-sqlite.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-sqlparser.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-string.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-time.cpp" />

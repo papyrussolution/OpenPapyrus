@@ -18,9 +18,9 @@
 		char * s = start;                            \
 		while(s < limit) {                         \
 			fprintf(stderr, "\"%s\" ", s);          \
-			s += strlen(s) + 1;                     \
-		}                                           \
-		fputc('\n', stderr);                         \
+			s += strlen(s) + 1; \
+		} \
+		fputc('\n', stderr); \
 	} while(0)
 
 /*

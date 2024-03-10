@@ -3735,8 +3735,8 @@ int PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SString 
 		// Проверка истечения срока действия токена.
 		// Если время истекает, то повторяем авторизацию.
 		//
-		const LDATETIME ct = getcurdatetime_();
-        const long sec = diffdatetimesec(ct, AuthTime);
+		const LDATETIME now_dtm = getcurdatetime_();
+        const long sec = diffdatetimesec(now_dtm, AuthTime);
         if(sec > (ExpirySec * 9 / 10)) {
 			/* @v10.4.4 
 			//

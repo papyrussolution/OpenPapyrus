@@ -5015,7 +5015,7 @@ int sasl_mechanism_in_list(amqp_bytes_t mechanisms, amqp_sasl_method_enum method
 		// HACK: SASL states that we should be parsing this string as a UTF-8
 		// string, which we're plainly not doing here. At this point its not worth
 		// dragging an entire UTF-8 parser for this one case, and this should work most of the time 
-		current = static_cast<const uint8 *>(memchr(start, ' ', end - start));
+		current = static_cast<const uint8 *>(smemchr(start, ' ', end - start));
 		SETIFZ(current, end);
 		supported_mechanism.bytes = const_cast<uint8 *>(start); // @badcast
 		supported_mechanism.len = current - start;

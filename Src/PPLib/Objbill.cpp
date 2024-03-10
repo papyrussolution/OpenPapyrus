@@ -3191,7 +3191,7 @@ int PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID, const PPLot
 					*c++ = *p++;
 				else if(strnicmp(p, (const char *)&sGR, 3) == 0) {
 					if(GObj.Fetch(goodsID, &goods_rec) > 0) {
-						if(GObj.GetSingleBarcode(goods_rec.ParentID, code) > 0) {
+						if(GObj.GetSingleBarcode(goods_rec.ParentID, 0, code) > 0) {
 							code.ShiftLeftChr('@').Strip();
 							c += sstrlen(strcpy(c, code));
 						}
@@ -3199,7 +3199,7 @@ int PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID, const PPLot
 					}
 				}
 				else if(strnicmp(p, (const char *)&sGS, 3) == 0) {
-					if(GObj.GetSingleBarcode(goodsID, code) > 0)
+					if(GObj.GetSingleBarcode(goodsID, 0, code) > 0)
 						c += sstrlen(strcpy(c, code.Strip()));
 					p += 3;
 				}
@@ -7894,8 +7894,8 @@ int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 			const uint _c = SVectorBase::GetCount(p_cip_list);
 			if(_c && pPack->CipB.P_TSesObj) {
 				PPIDArray tses_list;
-				const  PPID cip_person_id = ObjectToPerson(pPack->Rec.Object);
-				const LDATETIME _curdtm = getcurdatetime_();
+				const PPID cip_person_id = ObjectToPerson(pPack->Rec.Object);
+				const LDATETIME now_dtm = getcurdatetime_();
 				for(i = 0; i < _c; i++) {
 					tses_list.addnz(p_cip_list->at(i).PrmrID);
 				}
@@ -7918,11 +7918,11 @@ int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 								else
 									temp_cip.SetAnonym();
 								if(temp_cip.Flags & PPCheckInPersonItem::fCheckedIn) {
-									SETIFZ(temp_cip.CiDtm, _curdtm);
+									SETIFZ(temp_cip.CiDtm, now_dtm);
 									SETIFZ(temp_cip.CiCount, 1);
 								}
 								else {
-									SETIFZ(temp_cip.RegDtm, _curdtm);
+									SETIFZ(temp_cip.RegDtm, now_dtm);
 									SETIFZ(temp_cip.RegCount, 1);
 								}
 								THROW(tses_pack.CiList.AddItem(temp_cip, &cipc, 0));

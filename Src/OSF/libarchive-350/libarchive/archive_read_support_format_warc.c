@@ -364,8 +364,7 @@ static void * deconst(const void * c)
 	return (char *)0x1 + (((const char *)c) - (const char *)0x1);
 }
 
-static char* xmemmem(const char * hay, const size_t haysize,
-    const char * needle, const size_t needlesize)
+static char* xmemmem(const char * hay, const size_t haysize, const char * needle, const size_t needlesize)
 {
 	const char * const eoh = hay + haysize;
 	const char * const eon = needle + needlesize;
@@ -375,7 +374,6 @@ static char* xmemmem(const char * hay, const size_t haysize,
 	uint hsum;
 	uint nsum;
 	uint eqp;
-
 	/* trivial checks first
 	 * a 0-sized needle is defined to be found anywhere in haystack
 	 * then run strchr() to find a candidate in HAYSTACK (i.e. a portion
@@ -391,16 +389,14 @@ static char* xmemmem(const char * hay, const size_t haysize,
 	 * guaranteed to be at least one character long.  Now computes the sum
 	 * of characters values of needle together with the sum of the first
 	 * needle_len characters of haystack. */
-	for(hp = hay + 1U, np = needle + 1U, hsum = *hay, nsum = *hay, eqp = 1U; hp < eoh && np < eon; hsum ^= *hp, nsum ^= *np, eqp &= *hp == *np, hp++, np++);
-
+	for(hp = hay + 1U, np = needle + 1U, hsum = *hay, nsum = *hay, eqp = 1U; hp < eoh && np < eon; hsum ^= *hp, nsum ^= *np, eqp &= *hp == *np, hp++, np++)
+		;
 	/* HP now references the (NEEDLESIZE + 1)-th character. */
 	if(np < eon) {
-		/* haystack is smaller than needle, :O */
-		return NULL;
+		return NULL; /* haystack is smaller than needle, :O */
 	}
 	else if(eqp) {
-		/* found a match */
-		return static_cast<char *>(deconst(hay));
+		return static_cast<char *>(deconst(hay)); /* found a match */
 	}
 	/* now loop through the rest of haystack,
 	 * updating the sum iteratively */

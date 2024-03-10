@@ -143,49 +143,28 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter * cf,
 		if(!service.value)
 			return CURLE_OUT_OF_MEMORY;
 		memcpy(service.value, serviceptr, service.length);
-
-		gss_major_status = gss_import_name(&gss_minor_status, &service,
-			(gss_OID)GSS_C_NULL_OID, &server);
+		gss_major_status = gss_import_name(&gss_minor_status, &service, (gss_OID)GSS_C_NULL_OID, &server);
 	}
 	else {
-		service.value = SAlloc::M(serviceptr_length +
-			strlen(conn->socks_proxy.host.name) + 2);
+		service.value = SAlloc::M(serviceptr_length + strlen(conn->socks_proxy.host.name) + 2);
 		if(!service.value)
 			return CURLE_OUT_OF_MEMORY;
-		service.length = serviceptr_length +
-		    strlen(conn->socks_proxy.host.name) + 1;
-		msnprintf(service.value, service.length + 1, "%s@%s",
-		    serviceptr, conn->socks_proxy.host.name);
-
-		gss_major_status = gss_import_name(&gss_minor_status, &service,
-			GSS_C_NT_HOSTBASED_SERVICE, &server);
+		service.length = serviceptr_length + strlen(conn->socks_proxy.host.name) + 1;
+		msnprintf(service.value, service.length + 1, "%s@%s", serviceptr, conn->socks_proxy.host.name);
+		gss_major_status = gss_import_name(&gss_minor_status, &service, GSS_C_NT_HOSTBASED_SERVICE, &server);
 	}
-
 	gss_release_buffer(&gss_status, &service); /* clear allocated memory */
-
-	if(check_gss_err(data, gss_major_status,
-	    gss_minor_status, "gss_import_name()")) {
+	if(check_gss_err(data, gss_major_status, gss_minor_status, "gss_import_name()")) {
 		failf(data, "Failed to create service name.");
 		gss_release_name(&gss_status, &server);
 		return CURLE_COULDNT_CONNECT;
 	}
-
 	(void)curlx_nonblock(sock, FALSE);
-
 	/* As long as we need to keep sending some context info, and there's no  */
 	/* errors, keep sending it...                                            */
 	for(;;) {
-		gss_major_status = Curl_gss_init_sec_context(data,
-			&gss_minor_status,
-			&gss_context,
-			server,
-			&Curl_krb5_mech_oid,
-			NULL,
-			gss_token,
-			&gss_send_token,
-			TRUE,
-			&gss_ret_flags);
-
+		gss_major_status = Curl_gss_init_sec_context(data, &gss_minor_status, &gss_context, server,
+			&Curl_krb5_mech_oid, NULL, gss_token, &gss_send_token, TRUE, &gss_ret_flags);
 		if(gss_token != GSS_C_NO_BUFFER)
 			gss_release_buffer(&gss_status, &gss_recv_token);
 		if(check_gss_err(data, gss_major_status,

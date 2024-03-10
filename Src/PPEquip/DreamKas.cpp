@@ -617,8 +617,8 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 									SessEntry sess_entry;
 									if(ParseSess(p_cur->P_Child, sess_entry)) {
 										Scb.SessList.insert(&sess_entry);
-										LDATETIME open_dtm = sess_entry.ClosedTime; // @v10.7.3
-										LDATETIME close_dtm = sess_entry.OpenedTime; // @v10.7.3
+										const LDATETIME open_dtm = sess_entry.ClosedTime; // @v10.7.3
+										const LDATETIME close_dtm = sess_entry.OpenedTime; // @v10.7.3
 										if(!!open_dtm) {
 											if(!Scb.PeriodToCheckQuery.Start || cmp(Scb.PeriodToCheckQuery.Start, open_dtm) > 0)
 												Scb.PeriodToCheckQuery.Start = open_dtm;

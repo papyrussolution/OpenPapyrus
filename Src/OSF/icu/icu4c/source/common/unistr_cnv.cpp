@@ -168,9 +168,7 @@ int32_t UnicodeString::extract(int32_t start, int32_t length, char * target, uin
 	else {
 		converter = ucnv_open(codepage, &status);
 	}
-
 	length = doExtract(start, length, target, capacity, converter, status);
-
 	// close the converter
 	if(codepage == 0) {
 		u_releaseDefaultConverter(converter);
@@ -178,7 +176,6 @@ int32_t UnicodeString::extract(int32_t start, int32_t length, char * target, uin
 	else {
 		ucnv_close(converter);
 	}
-
 	return length;
 }
 
@@ -331,56 +328,49 @@ void UnicodeString::doCodepageCreate(const char * codepageData,
 	}
 }
 
-void UnicodeString::doCodepageCreate(const char * codepageData,
-    int32_t dataLength,
-    UConverter * converter,
-    UErrorCode & status)
+void UnicodeString::doCodepageCreate(const char * codepageData, int32_t dataLength, UConverter * converter, UErrorCode & status)
 {
-	if(U_FAILURE(status)) {
-		return;
-	}
-
-	// set up the conversion parameters
-	const char * mySource     = codepageData;
-	const char * mySourceEnd  = mySource + dataLength;
-	char16_t * array, * myTarget;
-
-	// estimate the size needed:
-	int32_t arraySize;
-	if(dataLength <= US_STACKBUF_SIZE) {
-		// try to use the stack buffer
-		arraySize = US_STACKBUF_SIZE;
-	}
-	else {
-		// 1.25 char16_t's per source byte should cover most cases
-		arraySize = dataLength + (dataLength >> 2);
-	}
-
-	// we do not care about the current contents
-	bool doCopyArray = FALSE;
-	for(;;) {
-		if(!cloneArrayIfNeeded(arraySize, arraySize, doCopyArray)) {
-			setToBogus();
-			break;
-		}
-		// perform the conversion
-		array = getArrayStart();
-		myTarget = array + length();
-		ucnv_toUnicode(converter, &myTarget,  array + getCapacity(), &mySource, mySourceEnd, 0, TRUE, &status);
-		// update the conversion parameters
-		setLength((int32_t)(myTarget - array));
-		// allocate more space and copy data, if needed
-		if(status == U_BUFFER_OVERFLOW_ERROR) {
-			// reset the error code
-			status = U_ZERO_ERROR;
-			// keep the previous conversion results
-			doCopyArray = TRUE;
-			// estimate the new size needed, larger than before
-			// try 2 char16_t's per remaining source byte
-			arraySize = (int32_t)(length() + 2 * (mySourceEnd - mySource));
+	if(U_SUCCESS(status)) {
+		// set up the conversion parameters
+		const char * mySource     = codepageData;
+		const char * mySourceEnd  = mySource + dataLength;
+		char16_t * array, * myTarget;
+		// estimate the size needed:
+		int32_t arraySize;
+		if(dataLength <= US_STACKBUF_SIZE) {
+			// try to use the stack buffer
+			arraySize = US_STACKBUF_SIZE;
 		}
 		else {
-			break;
+			// 1.25 char16_t's per source byte should cover most cases
+			arraySize = dataLength + (dataLength >> 2);
+		}
+		// we do not care about the current contents
+		bool doCopyArray = FALSE;
+		for(;;) {
+			if(!cloneArrayIfNeeded(arraySize, arraySize, doCopyArray)) {
+				setToBogus();
+				break;
+			}
+			// perform the conversion
+			array = getArrayStart();
+			myTarget = array + length();
+			ucnv_toUnicode(converter, &myTarget,  array + getCapacity(), &mySource, mySourceEnd, 0, TRUE, &status);
+			// update the conversion parameters
+			setLength((int32_t)(myTarget - array));
+			// allocate more space and copy data, if needed
+			if(status == U_BUFFER_OVERFLOW_ERROR) {
+				// reset the error code
+				status = U_ZERO_ERROR;
+				// keep the previous conversion results
+				doCopyArray = TRUE;
+				// estimate the new size needed, larger than before
+				// try 2 char16_t's per remaining source byte
+				arraySize = (int32_t)(length() + 2 * (mySourceEnd - mySource));
+			}
+			else {
+				break;
+			}
 		}
 	}
 }

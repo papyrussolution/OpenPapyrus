@@ -847,6 +847,7 @@
     <ClCompile Include="..\SLib\libjpeg\wrtarga.c">
       <Filter>libjpeg</Filter>
     </ClCompile>
+    <ClCompile Include="..\SLib\sstrtransform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Slib.h">

@@ -321,12 +321,12 @@ static int memory_read_publickey(LIBSSH2_SESSION * session, uchar ** method, siz
 		LIBSSH2_FREE(session, pubkey);
 		return _libssh2_error(session, LIBSSH2_ERROR_FILE, "Missing public key data");
 	}
-	if((sp1 = (uchar *)memchr(pubkey, ' ', pubkey_len)) == NULL) {
+	if((sp1 = (uchar *)smemchr(pubkey, ' ', pubkey_len)) == NULL) {
 		LIBSSH2_FREE(session, pubkey);
 		return _libssh2_error(session, LIBSSH2_ERROR_FILE, "Invalid public key data");
 	}
 	sp1++;
-	if((sp2 = (uchar *)memchr(sp1, ' ', pubkey_len - (sp1 - pubkey - 1))) == NULL) {
+	if((sp2 = (uchar *)smemchr(sp1, ' ', pubkey_len - (sp1 - pubkey - 1))) == NULL) {
 		/* Assume that the id string is missing, but that it's okay */
 		sp2 = pubkey + pubkey_len;
 	}
@@ -398,13 +398,13 @@ static int file_read_publickey(LIBSSH2_SESSION * session, uchar ** method, size_
 		LIBSSH2_FREE(session, pubkey);
 		return _libssh2_error(session, LIBSSH2_ERROR_FILE, "Missing public key data");
 	}
-	if((sp1 = (uchar *)memchr(pubkey, ' ', pubkey_len)) == NULL) {
+	if((sp1 = (uchar *)smemchr(pubkey, ' ', pubkey_len)) == NULL) {
 		LIBSSH2_FREE(session, pubkey);
 		return _libssh2_error(session, LIBSSH2_ERROR_FILE, "Invalid public key data");
 	}
 	sp1++;
 	sp_len = sp1 > pubkey ? (sp1 - pubkey) - 1 : 0;
-	if((sp2 = (uchar *)memchr(sp1, ' ', pubkey_len - sp_len)) == NULL) {
+	if((sp2 = (uchar *)smemchr(sp1, ' ', pubkey_len - sp_len)) == NULL) {
 		/* Assume that the id string is missing, but that it's okay */
 		sp2 = pubkey + pubkey_len;
 	}

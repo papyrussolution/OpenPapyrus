@@ -1027,12 +1027,12 @@ int WhatmanObjectProcessor::RefreshBusyStatus(int force)
 			ok = -1;
 	}
 	else if(force || Tmr.Check(0)) {
-		LDATETIME curdtm = getcurdatetime_();
+		const LDATETIME now_dtm = getcurdatetime_();
 		PPID   tsess_id = 0;
-		if(TSesObj.IsProcessorBusy(PrcID, 0, TSESK_SESSION, curdtm, 60*60*24, &tsess_id) > 0) {
+		if(TSesObj.IsProcessorBusy(PrcID, 0, TSESK_SESSION, now_dtm, 60*60*24, &tsess_id) > 0) {
 			TSessionTbl::Rec tses_rec;
 			if(TSesObj.Search(tsess_id, &tses_rec) > 0) {
-				if(cmp(curdtm, tses_rec.StDt, tses_rec.StTm) < 0) {
+				if(cmp(now_dtm, tses_rec.StDt, tses_rec.StTm) < 0) {
 					//
 					// Сессия еще не началась.
 					//

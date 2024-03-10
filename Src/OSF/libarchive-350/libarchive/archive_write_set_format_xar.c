@@ -1401,19 +1401,15 @@ static int make_toc(struct archive_write * a)
 		goto exit_toc;
 	}
 #if DEBUG_PRINT_TOC
-	slfprintf_stderr("\n---TOC-- %d bytes --\n%s\n",
-	    strlen((const char *)bp->content), bp->content);
+	slfprintf_stderr("\n---TOC-- %d bytes --\n%s\n", strlen((const char *)bp->content), bp->content);
 #endif
-
 	/*
 	 * Compress the TOC and calculate the sum of the TOC.
 	 */
 	xar->toc.temp_offset = xar->temp_offset;
 	xar->toc.size = bp->use;
 	checksum_init(&(xar->a_sumwrk), xar->opt_toc_sumalg);
-
-	r = compression_init_encoder_gzip(&(a->archive),
-		&(xar->stream), 6, 1);
+	r = compression_init_encoder_gzip(&(a->archive), &(xar->stream), 6, 1);
 	if(r != ARCHIVE_OK)
 		goto exit_toc;
 	xar->stream.next_in = bp->content;

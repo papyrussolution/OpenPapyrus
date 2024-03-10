@@ -2220,22 +2220,17 @@ static CURLcode ftp_state_size_resp(struct Curl_easy * data,
 	return result;
 }
 
-static CURLcode ftp_state_rest_resp(struct Curl_easy * data,
-    struct connectdata * conn,
-    int ftpcode,
-    ftpstate instate)
+static CURLcode ftp_state_rest_resp(struct Curl_easy * data, struct connectdata * conn, int ftpcode, ftpstate instate)
 {
 	CURLcode result = CURLE_OK;
 	struct ftp_conn * ftpc = &conn->proto.ftpc;
-
 	switch(instate) {
 		case FTP_REST:
 		default:
 #ifdef CURL_FTP_HTTPSTYLE_HEAD
 		    if(ftpcode == 350) {
 			    char buffer[24] = { "Accept-ranges: bytes\r\n" };
-			    result = Curl_client_write(data, CLIENTWRITE_BOTH, buffer,
-				    strlen(buffer));
+			    result = Curl_client_write(data, CLIENTWRITE_BOTH, buffer, strlen(buffer));
 			    if(result)
 				    return result;
 		    }

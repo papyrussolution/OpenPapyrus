@@ -1,5 +1,5 @@
 // CALENDAR.CPP
-// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
+// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2851,10 +2851,10 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 			}
 		}
 		else if(event.isCmd(cmNow)) {
-			LDATETIME _now = getcurdatetime_();
+			const LDATETIME now_dtm = getcurdatetime_();
 			if(Kind == kDate || Kind == kPeriod) {
-				if(Data.Dtm.d != _now.d) {
-					Data.Dtm.d = _now.d;
+				if(Data.Dtm.d != now_dtm.d) {
+					Data.Dtm.d = now_dtm.d;
 					StartLoYear = Data.Dtm.d.year()-2;
 					CreateLayout(Data.Dtm.d);
 					if(P_Lfc) {
@@ -2865,8 +2865,8 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 				}
 			}
 			else if(Kind == kTime) {
-				if(Data.Dtm.t != _now.t) {
-					Data.Dtm.t = _now.t;
+				if(Data.Dtm.t != now_dtm.t) {
+					Data.Dtm.t = now_dtm.t;
 					invalidateAll(true);
 					::UpdateWindow(H());
 				}

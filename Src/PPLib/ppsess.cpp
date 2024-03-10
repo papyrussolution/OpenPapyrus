@@ -4636,8 +4636,8 @@ int PPSession::DirtyDbCache(long dbPathID, PPAdviseEventQueue::Client * pCli)
 				assert(p_ev_list && p_addendum_ev_list && p_comm_dirty_cache_ev_list);
 			}
 			const  uint64 tm_start = SLS.GetProfileTime();
-			const  LDATETIME cur = getcurdatetime_();
-			const  LDATETIME last_cache_update = CMng.GetLastUpdate(dbPathID);
+			const LDATETIME now_dtm = getcurdatetime_();
+			const LDATETIME last_cache_update = CMng.GetLastUpdate(dbPathID);
 			uint   dirty_call_count = 0;
 			PPAdviseList adv_list;
 			struct SjEntry { // @flat
@@ -4729,7 +4729,7 @@ int PPSession::DirtyDbCache(long dbPathID, PPAdviseEventQueue::Client * pCli)
 					CatEq("calls", dirty_call_count).Space().CatEq("time", (int64)(tm_finish-tm_start));
 				SetThreadNotification(PPSession::stntMessage, msg_buf);
 			}
-			CMng.SetLastUpdate(dbPathID, cur);
+			CMng.SetLastUpdate(dbPathID, now_dtm);
 			LEAVE_CRITICAL_SECTION
 		}
 		else {

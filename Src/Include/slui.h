@@ -1245,7 +1245,10 @@ public:
 		vStandaloneListWidth = 1,
 		vStandaloneListHeight,
 		vDesktopIconSize,
-		vDesktopIconGap
+		vDesktopIconGap,
+		vButtonStdHeight,
+		vButtonStdWidth,
+		vButtonDoubleWidth
 	};
 	union ValueUnion {
 		ValueUnion();

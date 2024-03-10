@@ -302,7 +302,7 @@ void RegisterBIST()
 	RegisterSType(S_VOID,        &SVoid());
 	RegisterSType(S_CHAR,     	 &SChar());
 	RegisterSType(S_INT,      	 &SInt(4)); // @v10.6.3 default(2)-->4
-	RegisterSType(S_BOOL,     	 &SBool());
+	// @v11.9.9 (S_BOOL is S_LOGICAL) RegisterSType(S_BOOL,     	 &SBool());
 	RegisterSType(S_UINT,     	 &SUInt());
 	RegisterSType(S_LOGICAL,  	 &SBool());
 	RegisterSType(S_FLOAT,    	 &SFloat());

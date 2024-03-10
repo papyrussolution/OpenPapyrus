@@ -480,49 +480,35 @@ pending:
 /** @internal
  * replies to an SSH_AUTH packet with a default (denied) response.
  */
-int ssh_auth_reply_default(ssh_session session, int partial) {
+int ssh_auth_reply_default(ssh_session session, int partial) 
+{
 	char methods_c[128] = {0};
 	int rc = SSH_ERROR;
-
 	if(session->auth.supported_methods == 0) {
 		session->auth.supported_methods = SSH_AUTH_METHOD_PUBLICKEY | SSH_AUTH_METHOD_PASSWORD;
 	}
 	if(session->auth.supported_methods & SSH_AUTH_METHOD_PUBLICKEY) {
-		strncat(methods_c, "publickey,",
-		    sizeof(methods_c) - strlen(methods_c) - 1);
+		strncat(methods_c, "publickey,", sizeof(methods_c) - strlen(methods_c) - 1);
 	}
 	if(session->auth.supported_methods & SSH_AUTH_METHOD_GSSAPI_MIC) {
-		strncat(methods_c, "gssapi-with-mic,",
-		    sizeof(methods_c) - strlen(methods_c) - 1);
+		strncat(methods_c, "gssapi-with-mic,", sizeof(methods_c) - strlen(methods_c) - 1);
 	}
 	if(session->auth.supported_methods & SSH_AUTH_METHOD_INTERACTIVE) {
-		strncat(methods_c, "keyboard-interactive,",
-		    sizeof(methods_c) - strlen(methods_c) - 1);
+		strncat(methods_c, "keyboard-interactive,", sizeof(methods_c) - strlen(methods_c) - 1);
 	}
 	if(session->auth.supported_methods & SSH_AUTH_METHOD_PASSWORD) {
-		strncat(methods_c, "password,",
-		    sizeof(methods_c) - strlen(methods_c) - 1);
+		strncat(methods_c, "password,", sizeof(methods_c) - strlen(methods_c) - 1);
 	}
 	if(session->auth.supported_methods & SSH_AUTH_METHOD_HOSTBASED) {
-		strncat(methods_c, "hostbased,",
-		    sizeof(methods_c) - strlen(methods_c) - 1);
+		strncat(methods_c, "hostbased,", sizeof(methods_c) - strlen(methods_c) - 1);
 	}
-
 	if(methods_c[0] == '\0' || methods_c[strlen(methods_c)-1] != ',') {
 		return SSH_ERROR;
 	}
-
 	/* Strip the comma. */
 	methods_c[strlen(methods_c) - 1] = '\0'; // strip the comma. We are sure there is at
-
-	SSH_LOG(SSH_LOG_PACKET,
-	    "Sending a auth failure. methods that can continue: %s", methods_c);
-
-	rc = ssh_buffer_pack(session->out_buffer,
-		"bsb",
-		SSH2_MSG_USERAUTH_FAILURE,
-		methods_c,
-		partial ? 1 : 0);
+	SSH_LOG(SSH_LOG_PACKET, "Sending a auth failure. methods that can continue: %s", methods_c);
+	rc = ssh_buffer_pack(session->out_buffer, "bsb", SSH2_MSG_USERAUTH_FAILURE, methods_c, partial ? 1 : 0);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(session);
 		return SSH_ERROR;

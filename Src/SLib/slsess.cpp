@@ -101,12 +101,12 @@ SlThreadLocalArea::SlThreadLocalArea() : Prf(1), Id(0), LastErr(0), LastOsErr(0)
 	BinDateFmt_(SlConst::DefaultBinDateFormat), TxtDateFmt_(SlConst::DefaultTxtDateFormat), CurrentCp(cpUndef), UiFlags(0), UiLanguageId(-1),
 	SAry_OrgFCMP(0), SAry_PtrContainer(0), SAry_SortExtraData(0), FontDc(0), P_Rez(0), RvlSStA(1024), RvlSStW(1024)
 {
-	const LDATETIME now_time = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	{
-		DefaultYear_  = now_time.d.year();
-		DefaultMonth_ = now_time.d.month();
+		DefaultYear_  = now_dtm.d.year();
+		DefaultMonth_ = now_dtm.d.month();
 	}
-	Rg.Set(now_time.d.v ^ now_time.t.v);
+	Rg.Set(now_dtm.d.v ^ now_dtm.t.v);
 	NextDialogLuPos.Set(-1, -1);
 }
 
@@ -533,14 +533,14 @@ static void InitTest()
 		//
 		// Проверка макроса SETIFZ для LDATETIME
 		//
-		const LDATETIME cdtm = getcurdatetime_();
+		const LDATETIME now_dtm = getcurdatetime_();
 		LDATETIME dtm = ZERODATETIME;
-		SETIFZ(dtm, cdtm);
-		assert(dtm == cdtm);
+		SETIFZ(dtm, now_dtm);
+		assert(dtm == now_dtm);
 		dtm.d = encodedate(7, 11, 2017);
 		dtm.t = encodetime(12, 25, 58, 9);
-		SETIFZ(dtm, cdtm);
-		assert(dtm != cdtm);
+		SETIFZ(dtm, now_dtm);
+		assert(dtm != now_dtm);
 	}
 	// @v10.7.9 {
 	{

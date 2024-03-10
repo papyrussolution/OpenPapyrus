@@ -1,5 +1,5 @@
 // STCHBRW.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // TimeChunkBrowser
 //
@@ -2379,7 +2379,7 @@ void STimeChunkBrowser::Paint()
 	uint   i, k;
 	TRect  rect;
 	SString temp_buf, dow_buf;
-	LDATETIME current = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	if(use_buffer) {
 		GetClientRect(H(), &cr);
 		h_dc_mem = CreateCompatibleDC(ps.hdc);
@@ -2703,11 +2703,11 @@ void STimeChunkBrowser::Paint()
 				canv.PopObject();
 			} while(i--);
 		}
-		if(view_time_bounds.Has(current)) {
+		if(view_time_bounds.Has(now_dtm)) {
 			//
 			// Отрисовка вертикальной красной черты, обозначающей текущий момент
 			//
-			const int x = left_edge + SecToPix(DiffTime(current, view_time_bounds.Start));
+			const int x = left_edge + SecToPix(DiffTime(now_dtm, view_time_bounds.Start));
 			canv.SelectObjectAndPush(Ptb.Get(penCurrent));
 			canv.LineVert(x, a2.RightHeader.a.y, a2.Right.b.y);
 			canv.PopObject();

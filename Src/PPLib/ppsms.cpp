@@ -1403,8 +1403,8 @@ int SmsClient::ReceiveToTimer()
 	int    ok = 1;
 	long   diff = 0;
 	if(USE_ENQUIRELINK) {
-		const LDATETIME cur_dtm = getcurdatetime_();
-		if(diffdatetime(cur_dtm, StartTime, 4, &diff) >= ENQUIRE_LINK_TIMEOUT) {
+		const LDATETIME now_dtm = getcurdatetime_();
+		if(diffdatetime(now_dtm, StartTime, 4, &diff) >= ENQUIRE_LINK_TIMEOUT) {
 			//THROW(SendEnquireLink(SequenceNumber++));
 			//int SmsClient::SendEnquireLink(int sequenceNumber)
 			{
@@ -2406,8 +2406,8 @@ int SmsClient::SendingSms_(PPID personID, const char * pPhone, const char * pTex
 				PPIDArray acn_list;
 				acn_list.add(PPACN_SMSSENDED);
 				if(p_sj->GetLastObjEvent(PPOBJ_PERSON, personID, &acn_list, &moment) > 0) {
-					const LDATETIME cdtm = getcurdatetime_();
-					long  diff_sec = diffdatetimesec(cdtm, moment);
+					const LDATETIME now_dtm = getcurdatetime_();
+					long  diff_sec = diffdatetimesec(now_dtm, moment);
 					if(diff_sec <= psn_cfg.SendSmsSamePersonTimeout) {
 						if(P_Logger) {
 							/* @v9.5.6

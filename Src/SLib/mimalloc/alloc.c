@@ -688,30 +688,32 @@ void* mi_recalloc(void* p, size_t count, size_t size) mi_attr_noexcept { return 
 // `strdup` using mi_malloc
 mi_decl_restrict char* mi_heap_strdup(mi_heap_t* heap, const char* s) mi_attr_noexcept 
 {
-	if(s == NULL) 
-		return NULL;
-	size_t n = strlen(s);
-	char * t = (char*)mi_heap_malloc(heap, n+1);
-	if(t) 
-		memcpy(t, s, n + 1);
+	char * t = NULL;
+	if(s) {
+		size_t n = strlen(s);
+		t = (char*)mi_heap_malloc(heap, n+1);
+		if(t) 
+			memcpy(t, s, n + 1);
+	}
 	return t;
 }
 
-mi_decl_restrict char* mi_strdup(const char* s) mi_attr_noexcept { return mi_heap_strdup(mi_get_default_heap(), s); }
+mi_decl_restrict char * mi_strdup(const char* s) mi_attr_noexcept { return mi_heap_strdup(mi_get_default_heap(), s); }
 
 // `strndup` using mi_malloc
-mi_decl_restrict char* mi_heap_strndup(mi_heap_t* heap, const char* s, size_t n) mi_attr_noexcept 
+mi_decl_restrict char * mi_heap_strndup(mi_heap_t* heap, const char* s, size_t n) mi_attr_noexcept 
 {
-	if(s == NULL) 
-		return NULL;
-	const char* end = (const char*)memchr(s, 0, n); // find end of string in the first `n` characters (returns NULL if not found)
-	const size_t m = (end ? (size_t)(end - s) : n); // `m` is the minimum of `n` or the end-of-string
-	mi_assert_internal(m <= n);
-	char* t = (char*)mi_heap_malloc(heap, m+1);
-	if(t == NULL) 
-		return NULL;
-	memcpy(t, s, m);
-	t[m] = 0;
+	char * t = NULL;
+	if(s) {
+		const char * end = (const char*)memchr(s, 0, n); // find end of string in the first `n` characters (returns NULL if not found)
+		const size_t m = (end ? (size_t)(end - s) : n); // `m` is the minimum of `n` or the end-of-string
+		mi_assert_internal(m <= n);
+		t = (char *)mi_heap_malloc(heap, m+1);
+		if(t) {
+			memcpy(t, s, m);
+			t[m] = 0;
+		}
+	}
 	return t;
 }
 

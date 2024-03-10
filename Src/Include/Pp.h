@@ -611,7 +611,18 @@ int    FASTCALL PPErrorTooltip(int errCode, const char * pAddedMsg);
 //
 int    FASTCALL PPSetError(int errCode, const char * pAddedMsg);
 int    FASTCALL PPSetError(int errCode, long val);
+//
+// Descr: Устанавливает текущую (относительно потока) ошибку.
+//   Очищает дополнительную информацию об ошибке.
+// Returns: 0
+//
 int    FASTCALL PPSetError(int errCode);
+//
+// Descr: Устанавливает текущую (относительно потока) ошибку.
+//   Не очищает дополнительную информацию об ошибке.
+// Returns: 0
+//
+int    FASTCALL PPSetErrorPreserveAddendum(int errCode);
 int    FASTCALL PPSetLibXmlError(const xmlParserCtxt * pCtx);
 int    PPSetErrorNoMem();
 int    PPSetErrorInvParam();
@@ -4528,6 +4539,12 @@ public:
 	int    Add(const char * pCode, long codeType, double qtty);
 	void   Arrange();
 	//
+	// Descr: Флаги функции GetSingleItem
+	//
+	enum {
+		sifValidEanUpcOnly = 0x0001 // @v11.9.9 Возвращает только строго валидный EAN или UPC код
+	};
+	//
 	// Descr: Возвращает единственный штрихкод из списка. Порядок предпочтения следующий:
 	//    1. Если в списке нет ни одного элемента, то rBuf = 0 и код возврата -1.
 	//    2. Если в списке единственный код, то возвращается он.
@@ -4540,10 +4557,10 @@ public:
 	//    3 - функция вернула приоритетный код, ассоциированный с количеством, отличным от 1.0
 	//    1 - функция вернула код по одному из критериев {2, 4, 5}
 	//
-	int    FASTCALL GetSingle(SString & rBuf) const;
+	int    GetSingle(uint sifFlags/*BarcodeArray::sifXXX*/, SString & rBuf) const;
 	int    SearchCode(const char * pCode, uint * pPos) const;
-	const BarcodeTbl::Rec * FASTCALL GetSingleItem(uint * pPos) const;
-	const BarcodeTbl::Rec * FASTCALL GetPreferredItem(uint * pPos) const;
+	const  BarcodeTbl::Rec * GetSingleItem(uint * pPos, uint sifFlags/*BarcodeArray::sifXXX*/) const;
+	const  BarcodeTbl::Rec * FASTCALL GetPreferredItem(uint * pPos) const;
 	int    FASTCALL SetPreferredItem(uint pos);
 	int    Replace(const char * pSearchCode, const char * pReplaceCode);
 };
@@ -4694,7 +4711,7 @@ public:
 	//   журнале.
 	//
 	int    MoveArCodes(PPID destArID, PPID srcArID, PPID grpID, uint flags, PPLogger * pLogger, int use_ta);
-	int    GetSingleBarcode(PPID id, SString & rBuf);
+	int    GetSingleBarcode(PPID id, uint sifFlags/*BarcodeArray::sifXXX*/, SString & rBuf);
 	int    FetchSingleBarcode(PPID id, SString & rBuf);
 	int    SearchGoodsAnalogs(PPID id, PPIDArray & rList, SString * pTransitComponentBuf);
 	//
@@ -9226,6 +9243,7 @@ protected:
 #define LOCF_DISPOSEBILLS      0x00000100L // Применять функции складского размещения для документов, принадлежащих этому складу
 #define LOCF_STANDALONE        0x00000200L // Автономный адрес. То есть, может быть не привязан ни к какому объекту.
 	// Одновременно, если такой адрес привязан к объекту, то удаление объекта не влечет удаление адреса.
+#define LOCF_PASSIVE           0x00000400L // @v11.9.9 Пассивная запись (не отображается в списках) 
 #define LOCF_INTERNAL_DISABLED 0x80000000L // @v10.0.05 @internal @transient Флаг, ассоциированный со складом, на который у пользователя нет прав
 
 struct LocationFilt : public PPBaseFilt {
@@ -20073,6 +20091,8 @@ struct PPGlobalUserAccConfig {
 #define PPGLS_UNIVERSEHTT   8 // @v10.9.4 Сервис Universe-HTT (бонусная система, интернет-магазин и др.)
 #define PPGLS_SHOPIFY       9 // @v10.9.4 @construction
 
+#define PPTRPROP_GUAEXT    (PPTRPROP_USER+1) // @v11.9.9 Суб-идентификатор записи текстовых расширений глобальной учетной записи
+
 struct PPGlobalUserAcc {
 	PPGlobalUserAcc();
 	enum {
@@ -20093,8 +20113,11 @@ struct PPGlobalUserAcc {
 //
 // Descr: Пакет глобальной учетной записи
 //
-class PPGlobalUserAccPacket {
+class PPGlobalUserAccPacket : public PPExtStrContainer { // @v11.9.9 (: PPExtStrContainer)
 public:
+	enum {
+		extssAccessKey = 1 // @v11.9.9 Это поле замещает тег PPTAG_GUA_ACCESSKEY из-за того, что ключ может не поместиться в 127 символов.
+	};
 	PPGlobalUserAccPacket();
 	int    FASTCALL IsEq(const PPGlobalUserAccPacket & rS) const;
 	PPGlobalUserAccPacket & Z();
@@ -26826,9 +26849,9 @@ protected:
 	PPObjPerson PsnObj;
 	PPID   TabNumRegID;
 	uint   ProsessUnworkedPos;
-	PPIDArray   Iterated;
-	PPIDArray   Unworked;
-	LDATETIME   Since;
+	PPIDArray Iterated;
+	PPIDArray Unworked;
+	LDATETIME Since;
 	BExtQuery * P_IterQuery;
 };
 //
@@ -29718,8 +29741,8 @@ public:
 	//   товара, или, если такого кода нет, то самый первый.
 	//   Если для товара нет штрих-кода, то barcode[0] = 0.
 	//
-	int    GetSingleBarcode(PPID id, char * barcode, size_t bufLen); // @obsolete
-	int    GetSingleBarcode(PPID id, SString & rBuf);
+	// @v11.9.9 int    GetSingleBarcode(PPID id, char * barcode, size_t bufLen); // @obsolete
+	int    GetSingleBarcode(PPID id, uint sifFlags/*BarcodeArray::sifXXX*/, SString & rBuf);
 	//
 	// Descr: Извлекает посредством кэша один штрихкод для товара с ИД = id.
 	//   Правила извлечение то же, что и в функции GetSingleBarcode().
@@ -40489,7 +40512,7 @@ public:
 	int    CalcOrder(PPID goodsID, GoodsRestParam * pOutData);
 	int    SetSupplOrderValues(PPID goodsID, PPID locID, double predict, double minStock, double order, int canTrust);
 	int    GetTableName(SString & rBuf) const;
-	int    GetGoodsBarcode(PPID goodsID, char * code, size_t buflen);
+	int    GetGoodsBarcode(PPID goodsID, SString & rBuf);
 	int    GetTotal(GoodsRestTotal *);
 	virtual int Print(const void *);
 	void   GetTabTitle(long tabID, SString & rBuf);
@@ -55259,7 +55282,7 @@ public:
 	struct FileInfo {
 		FileInfo();
 		FileInfo & Z();
-		bool   ParseFileName(const char * pFileName);
+		bool   ParseFileName(const char * pFileName, bool nonStrict);
 		PPID   SenderPersonID;
 		PPID   ReceiverPersonID;
 		PPID   ProviderPersonID;
@@ -55342,8 +55365,13 @@ public:
 		StringSet MarkList;
 	};
 	struct DocumentInfo {
+		enum {
+			fIndepFormatProvider = 0x0002  // @v11.9.9 Если формат является независимой кастомизацией "по мотивам" nalog.ru, то устанавливается этот флаг
+				// note: Значение флага должно совпадать с аналогичным флагом FileInfo::fIndepFormatProvider
+		};
 		DocumentInfo();
 		Participant * GetParticipant(int partQ, bool createIfNExists);
+		long   Flags; // @v11.9.9 @flags
 		int    EdiOp; // @v11.9.5 В случае, если формат используется для EDI, то это - тип EDI-операции 
 		SString KND; // КНД
 		SString Function; // Функция
@@ -55360,16 +55388,7 @@ public:
 		TSCollection <GoodsItem> GoodsItemList;
 	};
 	DocNalogRu_Base();
-	const  SString & FASTCALL GetToken_Ansi(long tokId);
 	const  SString & FASTCALL GetToken_Utf8(long tokId);
-	//
-	// Descr: Возвращает токен поля с префиксом П0 и последующим номером 10-значным n, набитым слева нулями.
-	//
-	const  SString & FASTCALL GetToken_Ansi_Pe0(long n);
-	//
-	// Descr: Возвращает токен поля с префиксом П1 и последующим номером 10-значным n, набитым слева нулями.
-	//
-	const  SString & FASTCALL GetToken_Ansi_Pe1(long n);
 protected:
 	SString & FASTCALL Helper_GetToken(long tokId);
 	// @v11.7.0 (заменено на револьверную строку) SString TokBuf;
@@ -55413,7 +55432,8 @@ public:
 	int    CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, FileInfo & rInfo);
 	int    MakeOutFileIdent(FileInfo & rHi);
 	int    MakeOutFileName(const char * pFileIdent, SString & rFileName);
-	int    StartDocument(const char * pFileName);
+	int    StartDocument(const char * pFileName, SCodepage cp);
+	int    StartDocument(xmlTextWriter * pOuterWriter, SCodepage cp); // @v11.9.9
 	void   EndDocument();
 	//
 	// ARG(correction IN): Если true, то формирование строк документа будет в варианте корректирующей счет-фактуры. 
@@ -55442,6 +55462,15 @@ public:
 	int    Underwriter(PPID psnID);
 	int    GetAgreementParams(/*PPID arID*/const PPBillPacket & rBillPack, SString & rAgtCode, LDATE & rAgtDate, LDATE & rAgtExpiry);
 	const  SString & FASTCALL EncText(const SString & rS);
+	const  SString & FASTCALL GetToken_Ansi(long tokId);
+	//
+	// Descr: Возвращает токен поля с префиксом П0 и последующим номером 10-значным n, набитым слева нулями.
+	//
+	const  SString & FASTCALL GetToken_Ansi_Pe0(long n);
+	//
+	// Descr: Возвращает токен поля с префиксом П1 и последующим номером 10-значным n, набитым слева нулями.
+	//
+	const  SString & FASTCALL GetToken_Ansi_Pe1(long n);
 //private:
 	PPObjGoods GObj;
 	PPObjPerson PsnObj;
@@ -55455,6 +55484,11 @@ private:
 		fExpPlainAddr        = 0x0002 // @v11.5.11 see pp.ini [config] ExpNalogRuPlainAddr
 	};
 	uint   Flags;
+	enum {
+		stOuterXmlTextWriter = 0x0001 
+	};
+	uint   State; // @v11.9.9
+	SCodepage Cp; // @v11.9.9
 	SString EncBuf;
 };
 //

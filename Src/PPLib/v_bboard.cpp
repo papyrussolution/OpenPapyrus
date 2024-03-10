@@ -1,5 +1,5 @@
 // V_BBOARD.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -87,9 +87,9 @@ int PPViewServerStat::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				break;
 			case 3: // Время работы
 				{
-					LDATETIME cur = getcurdatetime_();
+					const LDATETIME now_dtm = getcurdatetime_();
 					LTIME ctm;
-					ctm.settotalsec(diffdatetimesec(cur, p_item->StartMoment));
+					ctm.settotalsec(diffdatetimesec(now_dtm, p_item->StartMoment));
 					pBlk->Set(ctm);
 				}
 				break;

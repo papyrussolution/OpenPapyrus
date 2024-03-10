@@ -858,8 +858,8 @@ int DbLocalCacheMng::LogCacheStat()
 				f_out.WriteLine(PPLoadTextS(PPTXT_LOGCACHEHEADER, out_buf));
 			}
 			ObjCacheStat stat;
-			LDATETIME dtm = getcurdatetime_();
-			dtm_buf.Cat(dtm);
+			const LDATETIME now_dtm = getcurdatetime_();
+			dtm_buf.Cat(now_dtm);
 			for(uint i = 0; i < getCount(); i++) {
 				if(GetCacheStat(i, &stat) > 0) {
 					out_buf.Z();
@@ -875,8 +875,8 @@ int DbLocalCacheMng::LogCacheStat()
 					out_buf.Cat(stat.UnusedEntries).Semicol();
 					out_buf.Cat(fdivi(stat.UnusedEntries, stat.NumEntries), MKSFMTD(0, 6, NMBF_NOTRAILZ)).Semicol();
 					out_buf.Cat(stat.DirtyEntries).Semicol();
-					out_buf.Cat(stat.SsSize).Semicol(); // @v9.9.5
-					out_buf.Cat(stat.SsDataLen).Semicol(); // @v9.9.5
+					out_buf.Cat(stat.SsSize).Semicol();
+					out_buf.Cat(stat.SsDataLen).Semicol();
 					out_buf.CR();
 					f_out.WriteLine(out_buf);
 				}

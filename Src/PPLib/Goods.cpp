@@ -219,10 +219,10 @@ int BarcodeArray::SearchCode(const char * pCode, uint * pPos) const
 	return ok;
 }
 
-int FASTCALL BarcodeArray::GetSingle(SString & rBuf) const
+int BarcodeArray::GetSingle(uint sifFlags/*BarcodeArray::sifXXX*/, SString & rBuf) const
 {
 	int    ok = -1;
-	const BarcodeTbl::Rec * p_single_item = GetSingleItem(0);
+	const BarcodeTbl::Rec * p_single_item = GetSingleItem(0, sifFlags);
 	if(p_single_item) {
 		if(IsInnerBarcodeType(p_single_item->BarcodeType, BARCODE_TYPE_PREFERRED))
 			ok = (p_single_item->Qtty == 1.0) ? 2 : 3;
@@ -235,31 +235,66 @@ int FASTCALL BarcodeArray::GetSingle(SString & rBuf) const
 	return ok;
 }
 
-const BarcodeTbl::Rec * FASTCALL BarcodeArray::GetSingleItem(uint * pPos) const
+const BarcodeTbl::Rec * BarcodeArray::GetSingleItem(uint * pPos, uint sifFlags/*BarcodeArray::sifXXX*/) const
 {
 	const  BarcodeTbl::Rec * p_ret = 0;
 	const  uint c = getCount();
 	if(c) {
-		uint   i, p = 0;
+		uint   i;
+		uint   p = 0;
+		int    diag = 0;
+		int    std = 0;
+		SString norm_code;
 		if(c > 1) {
 			const BarcodeTbl::Rec * p_pref_item = GetPreferredItem(&i);
-			if(p_pref_item)
+			bool  is_pref_suitable = false;
+			if(p_pref_item) {
+				if(sifFlags & sifValidEanUpcOnly) {
+					const  int dbcr = PPObjGoods::DiagBarcode(p_pref_item->Code, &diag, &std, &norm_code);
+					if(dbcr > 0 && oneof4(std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE))
+						is_pref_suitable = true;
+				}
+				else
+					is_pref_suitable = true;
+			}
+			if(is_pref_suitable)
 				p = i;
 			else {
-				int    done = 0;
+				bool   done = false;
 				for(int get_any = 0; !done && get_any <= 1; get_any++) {
 					for(i = 0; !done && i < c; i++) {
 						const BarcodeTbl::Rec & r_item = at(i);
 						if((r_item.Qtty == 1.0 && sstrlen(r_item.Code) <= 13) || get_any) {
-							p = i;
-							done = 1;
+							if(sifFlags & sifValidEanUpcOnly) {
+								const  int dbcr = PPObjGoods::DiagBarcode(r_item.Code, &diag, &std, &norm_code);
+								if(dbcr > 0 && oneof4(std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
+									p = i;
+									done = true;
+								}
+							}
+							else {
+								p = i;
+								done = true;
+							}
 						}
 					}
 				}
 			}
 		}
-		p_ret = &at(p);
-		ASSIGN_PTR(pPos, p);
+		else {
+			const BarcodeTbl::Rec & r_item = at(0);
+			if(sifFlags & sifValidEanUpcOnly) {
+				const  int dbcr = PPObjGoods::DiagBarcode(r_item.Code, &diag, &std, &norm_code);
+				if(dbcr > 0 && oneof4(std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
+					p_ret = &r_item;
+					ASSIGN_PTR(pPos, 0);
+				}
+			}
+			else {
+				p_ret = &r_item;
+				ASSIGN_PTR(pPos, 0);
+			}
+		}
 	}
 	return p_ret;
 }
@@ -1662,11 +1697,11 @@ int GoodsCore::ReadArCodesByAr(PPID goodsID, PPID arID, ArGoodsCodeArray * pCode
 int GoodsCore::GetListByAr(PPID codeArID, PPIDArray * pList)
 	{ return Helper_ReadArCodes(0, codeArID, 0, pList); }
 
-int GoodsCore::GetSingleBarcode(PPID goodsID, SString & rBuf)
+int GoodsCore::GetSingleBarcode(PPID goodsID, uint sifFlags/*BarcodeArray::sifXXX*/, SString & rBuf)
 {
 	rBuf.Z();
 	BarcodeArray codes;
-	return ReadBarcodes(goodsID, codes) ? codes.GetSingle(rBuf) : 0;
+	return ReadBarcodes(goodsID, codes) ? codes.GetSingle(sifFlags, rBuf) : 0;
 }
 
 int GoodsCore::SearchBarcode(const char * pCode, BarcodeTbl::Rec * pBcRec)
@@ -1966,7 +2001,7 @@ int GoodsCore::ParseBarcodeTemplate(PPID grpID, const PPGoodsConfig & rCfg, cons
 			if(isdec(*p))
 				*c++ = *p++;
 			else if(strnicmp(p, p_meta_grp, 3) == 0 || strnicmp(p, p_meta_gr, 3) == 0) {
-				if(GetSingleBarcode(grpID, temp_buf) > 0) {
+				if(GetSingleBarcode(grpID, 0, temp_buf) > 0) {
 					temp_buf.ShiftLeftChr('@').Strip();
 					c += sstrlen(strcpy(c, temp_buf));
 				}
@@ -2863,7 +2898,7 @@ int GoodsCache::GetSingleBarcode(PPID goodsID, SString & rBuf)
 				PPObjGoods goods_obj(SConstructorLite); // @v10.0.0 SConstructorLite
 				SString temp_buf; // Рискованно пользоваться буфером rBuf: маловероятно, но он может быть
 					// одновременно использован другими потоками.
-				int    r = goods_obj.GetSingleBarcode(goodsID, temp_buf);
+				int    r = goods_obj.GetSingleBarcode(goodsID, 0, temp_buf);
 				const  ulong ugoodsid = static_cast<ulong>(goodsID);
 				if(r > 0) {
 					SbcList.Add(goodsID, temp_buf, 1);
@@ -3272,7 +3307,7 @@ int GoodsCore::FetchStockExt(PPID id, GoodsStockExt * pExt)
 int GoodsCore::FetchSingleBarcode(PPID id, SString & rBuf)
 {
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS, 1);
-	return p_cache ? p_cache->GetSingleBarcode(id, rBuf) : GetSingleBarcode(id, rBuf);
+	return p_cache ? p_cache->GetSingleBarcode(id, rBuf) : GetSingleBarcode(id, 0, rBuf);
 }
 
 int GoodsCore::SearchGoodsAnalogs(PPID id, PPIDArray & rList, SString * pTransitComponentBuf)

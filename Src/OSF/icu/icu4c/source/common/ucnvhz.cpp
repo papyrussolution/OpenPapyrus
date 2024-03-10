@@ -81,7 +81,8 @@ static void U_CALLCONV _HZOpen(UConverter * cnv, UConverterLoadArgs * pArgs, UEr
 	}
 }
 
-static void U_CALLCONV _HZClose(UConverter * cnv) {
+static void U_CALLCONV _HZClose(UConverter * cnv) 
+{
 	if(cnv->extraInfo) {
 		ucnv_close(((UConverterDataHZ*)(cnv->extraInfo))->gbConverter);
 		if(!cnv->isExtraLocal) {

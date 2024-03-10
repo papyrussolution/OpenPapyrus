@@ -668,12 +668,12 @@ int ActiveUserListDlg::GetDtm(PPID userID, PPID sessID, LDATETIME * pLoginDtm, S
 		long   sec = 0, dd = 0;
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
 		if(p_sj) {
-			const LDATETIME cur_dtm = getcurdatetime_();
+			const LDATETIME now_dtm = getcurdatetime_();
 			DateRange srch_prd;
 			srch_prd.Z();
-			plusperiod(&(srch_prd.low = cur_dtm.d), PRD_DAY, -2, 0);
+			plusperiod(&(srch_prd.low = now_dtm.d), PRD_DAY, -2, 0);
 			if((ok = p_sj->GetLastUserEvent(PPACN_LOGIN, userID, sessID, &srch_prd, &login_dtm)) > 0)
-				sec = diffdatetime(cur_dtm, login_dtm, 3, &dd);
+				sec = diffdatetime(now_dtm, login_dtm, 3, &dd);
 		}
 		{
 			int    h = 0, m = 0, s = 0;

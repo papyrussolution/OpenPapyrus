@@ -1200,7 +1200,7 @@ void PPViewAlcoDeclRu::PreprocessBrowser(PPViewBrowser * pBrw)
 int PPViewAlcoDeclRu::Export()
 {
 	int    ok = 1;
-	const  LDATETIME _now = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	PPLogger logger;
 	SString temp_buf;
 	SString fmt_buf;
@@ -1269,16 +1269,16 @@ int PPViewAlcoDeclRu::Export()
 			period_tag = "3";
 		}
 	}
-	temp_buf.CatChar('_').Cat(_now.d, DATF_DMY|DATF_CENTURY|DATF_NODIV);
+	temp_buf.CatChar('_').Cat(now_dtm.d, DATF_DMY|DATF_CENTURY|DATF_NODIV);
 	temp_buf.CatChar('_').Cat(S_GUID(SCtrGenerate()), S_GUID::fmtIDL);
 	PPGetPath(PPPATH_OUT, file_name);
 	file_name.SetLastSlash().Cat(temp_buf).DotCat("xml");
 	{
-		THROW(g.StartDocument(file_name));
+		THROW(g.StartDocument(file_name, cp1251));
 		//
 		{
 			SXml::WNode nf(g.P_X, g.GetToken_Ansi(PPHSC_RU_FILE));
-			nf.PutAttrib(g.GetToken_Ansi(PPHSC_RU_DOCDATE), temp_buf.Z().Cat(_now.d, DATF_GERMANCENT));
+			nf.PutAttrib(g.GetToken_Ansi(PPHSC_RU_DOCDATE), temp_buf.Z().Cat(now_dtm.d, DATF_GERMANCENT));
 			nf.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VERFORM), "4.4");
 			{
 				PPVersionInfo vi = DS.GetVersionInfo();

@@ -5975,7 +5975,7 @@ CTableStatus::CTableStatus(const CCheckViewItem * pCcItem)
 int FASTCALL CTableStatus::Displace(const CTableStatus & rNewItem)
 {
 	int    ok = -1;
-	LDATETIME cdtm = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	if(TableNo == rNewItem.TableNo) {
 		switch(Status) {
 			case sUnkn:
@@ -5999,7 +5999,7 @@ int FASTCALL CTableStatus::Displace(const CTableStatus & rNewItem)
 				if(rNewItem.Status == sBusy)
 					ok = 1;
 				else if(rNewItem.Status == sOrder) {
-					if(cmp(rNewItem.OrderTime.Start, OrderTime.Start) < 0 && cmp(rNewItem.OrderTime.Start, cdtm) > 0)
+					if(cmp(rNewItem.OrderTime.Start, OrderTime.Start) < 0 && cmp(rNewItem.OrderTime.Start, now_dtm) > 0)
 						ok = 1;
 				}
 				break;
@@ -6086,19 +6086,19 @@ int CCheckCache::RefreshCTableStatusList(int force)
 	int    ok = 1;
 	{
 		SRWLOCKER(CTableStatusRwl, SReadWriteLocker::Write);
-		const LDATETIME cdtm = getcurdatetime_();
-		if(force || CTableStatusTime.d == ZERODATE || diffdatetimesec(cdtm, CTableStatusTime) > CTableStatusRefreshTimeout) {
-			CTableStatusTime = cdtm;
+		const LDATETIME now_dtm = getcurdatetime_();
+		if(force || CTableStatusTime.d == ZERODATE || diffdatetimesec(now_dtm, CTableStatusTime) > CTableStatusRefreshTimeout) {
+			CTableStatusTime = now_dtm;
 			CTStList.clear();
 			PPViewCCheck cc_view;
 			CCheckFilt cc_filt;
 			CCheckViewItem cc_item;
-			const LDATE start = NZOR(FirstActualDate, plusdate(cdtm.d, -7));
+			const LDATE start = NZOR(FirstActualDate, plusdate(now_dtm.d, -7));
 			cc_filt.Period.Set(start, ZERODATE);
 			cc_filt.Flags |= CCheckFilt::fCTableStatus;
 			cc_view.Init_(&cc_filt);
 			for(cc_view.InitIteration(0); cc_view.NextIteration(&cc_item) > 0;) {
-				if(!FirstActualDate && cc_item.Flags & CCHKF_ORDER && cc_item.OrderTime.Start.d >= plusdate(cdtm.d, -1)) {
+				if(!FirstActualDate && cc_item.Flags & CCHKF_ORDER && cc_item.OrderTime.Start.d >= plusdate(now_dtm.d, -1)) {
 					FirstActualDate = cc_item.Dt;
 				}
 				const long table_no = cc_item.TableCode;

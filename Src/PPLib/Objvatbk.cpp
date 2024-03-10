@@ -3065,7 +3065,7 @@ int PPViewVatBook::Export()
 		}
 		out_file_name.Z().Cat(id_file).DotCat("xml");
 		PPGetFilePath(PPPATH_OUT, out_file_name, path);
-		g.StartDocument(path); // @v11.2.10
+		g.StartDocument(path, cp1251); // @v11.2.10
 		//THROW(p_writer = xmlNewTextWriterFilename(path, 0));
 		{
 			//xmlTextWriterSetIndent(p_writer, 1);

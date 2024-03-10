@@ -3905,7 +3905,7 @@ int32 DL6ICLS_PPObjGoods::SearchByArCode(long arID, SString & rBCode, SPpyO_Good
 SString & DL6ICLS_PPObjGoods::GetSingleBarcode(int32 goodsID)
 {
 	RetStrBuf.Z();
-	static_cast<PPObjGoods *>(ExtraPtr)->GetSingleBarcode(goodsID, RetStrBuf);
+	static_cast<PPObjGoods *>(ExtraPtr)->GetSingleBarcode(goodsID, 0, RetStrBuf);
 	return RetStrBuf;
 }
 

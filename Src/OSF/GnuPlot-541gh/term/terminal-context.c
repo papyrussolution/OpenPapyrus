@@ -711,14 +711,12 @@ TERM_PUBLIC void CONTEXT_init(GpTermEntry_Static * pThis)
 		/* for some reason setting \bodyfontenvironment is needed,
 		 * otherwise \switchtobodyfont[name] doesn't work OK */
 		if(!(CONTEXT_params.fontsize == CONTEXT_FONTSIZE))
-			fprintf(GPT.P_GpOutFile, "\\definebodyfontenvironment\n   [%gpt]\n",
-			    CONTEXT_params.fontsize);
+			fprintf(GPT.P_GpOutFile, "\\definebodyfontenvironment\n   [%gpt]\n", CONTEXT_params.fontsize);
 		/* set the proper font: \setupbodyfont[{fontname,}fontsize sizeunit] */
 		fprintf(GPT.P_GpOutFile, "\\setupbodyfont\n   [%s%s%gpt]\n",
 		    CONTEXT_params.font,
 		    /* write a comma only if the last string was non-empty */
-		    ((strlen(CONTEXT_params.font)>0) ? "," : ""),
-		    CONTEXT_params.fontsize);
+		    ((strlen(CONTEXT_params.font)>0) ? "," : ""), CONTEXT_params.fontsize);
 
 		/*---------*
 		* options *

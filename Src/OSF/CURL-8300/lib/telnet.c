@@ -946,11 +946,8 @@ static void suboption(struct Curl_easy * data)
 		    printsub(data, '>', &temp[2], len-2);
 		    break;
 		case CURL_TELOPT_NEW_ENVIRON:
-		    msnprintf((char *)temp, sizeof(temp),
-			"%c%c%c%c", CURL_IAC, CURL_SB, CURL_TELOPT_NEW_ENVIRON,
-			CURL_TELQUAL_IS);
+		    msnprintf((char *)temp, sizeof(temp), "%c%c%c%c", CURL_IAC, CURL_SB, CURL_TELOPT_NEW_ENVIRON, CURL_TELQUAL_IS);
 		    len = 4;
-
 		    for(v = tn->telnet_vars; v; v = v->next) {
 			    size_t tmplen = (strlen(v->data) + 1);
 			    /* Add the variable if it fits */

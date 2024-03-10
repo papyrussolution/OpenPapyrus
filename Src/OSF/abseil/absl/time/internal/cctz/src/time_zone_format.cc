@@ -26,59 +26,48 @@ namespace detail {
 namespace {
 #if !HAS_STRPTIME
 // Build a strptime() using C++11's std::get_time().
-char* strptime(const char* s, const char* fmt, std::tm* tm) {
+char* strptime(const char* s, const char* fmt, std::tm* tm) 
+{
 	std::istringstream input(s);
 	input >> std::get_time(tm, fmt);
 	if(input.fail()) return nullptr;
-	return const_cast<char*>(s) +
-	       (input.eof() ? strlen(s) : static_cast<std::size_t>(input.tellg()));
+	return const_cast<char*>(s) + (input.eof() ? strlen(s) : static_cast<std::size_t>(input.tellg()));
 }
 
 #endif
 
 // Convert a cctz::weekday to a tm_wday value (0-6, Sunday = 0).
-int ToTmWday(weekday wd) {
+int ToTmWday(weekday wd) 
+{
 	switch(wd) {
-		case weekday::sunday:
-		    return 0;
-		case weekday::monday:
-		    return 1;
-		case weekday::tuesday:
-		    return 2;
-		case weekday::wednesday:
-		    return 3;
-		case weekday::thursday:
-		    return 4;
-		case weekday::friday:
-		    return 5;
-		case weekday::saturday:
-		    return 6;
+		case weekday::sunday: return 0;
+		case weekday::monday: return 1;
+		case weekday::tuesday: return 2;
+		case weekday::wednesday: return 3;
+		case weekday::thursday: return 4;
+		case weekday::friday: return 5;
+		case weekday::saturday: return 6;
 	}
 	return 0; /*NOTREACHED*/
 }
 
 // Convert a tm_wday value (0-6, Sunday = 0) to a cctz::weekday.
-weekday FromTmWday(int tm_wday) {
+weekday FromTmWday(int tm_wday) 
+{
 	switch(tm_wday) {
-		case 0:
-		    return weekday::sunday;
-		case 1:
-		    return weekday::monday;
-		case 2:
-		    return weekday::tuesday;
-		case 3:
-		    return weekday::wednesday;
-		case 4:
-		    return weekday::thursday;
-		case 5:
-		    return weekday::friday;
-		case 6:
-		    return weekday::saturday;
+		case 0: return weekday::sunday;
+		case 1: return weekday::monday;
+		case 2: return weekday::tuesday;
+		case 3: return weekday::wednesday;
+		case 4: return weekday::thursday;
+		case 5: return weekday::friday;
+		case 6: return weekday::saturday;
 	}
 	return weekday::sunday; /*NOTREACHED*/
 }
 
-std::tm ToTM(const time_zone::absolute_lookup& al) {
+std::tm ToTM(const time_zone::absolute_lookup& al) 
+{
 	std::tm tm{};
 	tm.tm_sec = al.cs.second();
 	tm.tm_min = al.cs.minute();

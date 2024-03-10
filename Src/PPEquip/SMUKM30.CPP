@@ -178,14 +178,14 @@ int ACS_SMUKM30::ExportData(int updOnly)
 	PPUnit     unit_rec;
 	PPObjUnit  unit_obj;
 	PPID       prev_goods_id = 0;
-	LDATETIME  curdtm = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	PPObjCashNode cn_obj;
 	PPAsyncCashNode cn_data;
 	AsyncCashGoodsInfo       info;
 	AsyncCashGoodsIterator * p_iter = 0;
 
-	decodedate(&dy, &mn, &yr, &curdtm.d);
-	decodetime(&hr, &mi, &se, &ts, &curdtm.t);
+	decodedate(&dy, &mn, &yr, &now_dtm.d);
+	decodetime(&hr, &mi, &se, &ts, &now_dtm.t);
 	dbdt.year  = yr;
 	dbdt.month = mn;
 	dbdt.day   = dy;

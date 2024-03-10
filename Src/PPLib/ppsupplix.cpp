@@ -7225,7 +7225,7 @@ public:
 	int Init()
 	{
 		int    ok = 1;
-		const  LDATETIME now_time = getcurdatetime_();
+		const LDATETIME now_dtm = getcurdatetime_();
 		State = 0;
 		SvcUrl.Z();
 		UserName.Z();
@@ -7237,13 +7237,13 @@ public:
 			State |= stEpDefined;
 		}
 		if(P.ExpPeriod.IsZero()) {
-			P.ExpPeriod.SetDate(now_time.d);
+			P.ExpPeriod.SetDate(now_dtm.d);
 		}
 		else {
 			if(!P.ExpPeriod.low)
 				P.ExpPeriod.low.encode(1, 1, 2023);
 			if(!P.ExpPeriod.upp)
-				P.ExpPeriod.upp = now_time.d;
+				P.ExpPeriod.upp = now_dtm.d;
 		}
 		State |= stInited;
 		return ok;
@@ -8253,7 +8253,7 @@ int GazpromNeft::ParseReply(const SString & rReplyText, ReplyBlock & rBlk)
 int GazpromNeft::SendSellout_SingleDoc(const GazpromNeftBillPacket * pPack, const S_GUID & rWhUuid)
 {
 	int    ok = 1;
-	const  LDATETIME dtm_now = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	SString temp_buf;
 	SString msg_buf;
 	if(pPack && !!pPack->Client.Uuid) {
@@ -8293,7 +8293,7 @@ int GazpromNeft::SendSellout_SingleDoc(const GazpromNeftBillPacket * pPack, cons
 			{
 				// Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
 				// Но... они иногда передумывают, из-за этого - специальная "галка" (SupplInterchangeFilt::fExportTimeAsNominal).
-				//temp_buf.Z().Cat((P.Flags & SupplInterchangeFilt::fExportTimeAsNominal) ? dtm_now : p_item->Dtm, DATF_ISO8601CENT, 0).CatChar('Z'); 
+				//temp_buf.Z().Cat((P.Flags & SupplInterchangeFilt::fExportTimeAsNominal) ? now_dtm : p_item->Dtm, DATF_ISO8601CENT, 0).CatChar('Z'); 
 				temp_buf.Z().Cat(pPack->Dtm, DATF_ISO8601CENT, 0).CatChar('Z'); 
 				p_js_doc->InsertString("dateTime", temp_buf);
 			}
@@ -8397,7 +8397,7 @@ int GazpromNeft::SendSellout_SingleDoc(const GazpromNeftBillPacket * pPack, cons
 int GazpromNeft::SendSellout_ListDoc(const TSCollection <GazpromNeftBillPacket> & rList, uint startIdx, uint endIdx, const S_GUID & rWhUuid)
 {
 	int    ok = 1;
-	const  LDATETIME dtm_now = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	SString temp_buf;
 	SString msg_buf;
 	if(startIdx <= endIdx && endIdx < rList.getCount()) {
@@ -8454,7 +8454,7 @@ int GazpromNeft::SendSellout_ListDoc(const TSCollection <GazpromNeftBillPacket> 
 						{
 							// Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
 							// Но... они иногда передумывают, из-за этого - специальная "галка" (SupplInterchangeFilt::fExportTimeAsNominal).
-							//temp_buf.Z().Cat((P.Flags & SupplInterchangeFilt::fExportTimeAsNominal) ? dtm_now : p_item->Dtm, DATF_ISO8601CENT, 0).CatChar('Z'); 
+							//temp_buf.Z().Cat((P.Flags & SupplInterchangeFilt::fExportTimeAsNominal) ? now_dtm : p_item->Dtm, DATF_ISO8601CENT, 0).CatChar('Z'); 
 							temp_buf.Z().Cat(p_inner_doc->Dtm, DATF_ISO8601CENT, 0).CatChar('Z'); 
 							p_js_doc->InsertString("dateTime", temp_buf);
 						}
@@ -8613,14 +8613,14 @@ int GazpromNeft::SendSellout()
 int GazpromNeft::SendSellin_SingleDoc(const GazpromNeftBillPacket * pPack, const S_GUID & rWhUuid)
 {
 	int    ok = -1;
-	const  LDATETIME dtm_now = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	SString temp_buf;
 	SString msg_buf;
 	if(pPack) {
 		SJson js_result(SJson::tARRAY);
 		SJson * p_js_single_array_item = new SJson(SJson::tOBJECT);
-		//temp_buf.Z().Cat(dtm_now.d, DATF_ISO8601CENT)/*.CatChar('Z')*/;
-		//temp_buf.Z().Cat(dtm_now, DATF_ISO8601CENT, 0).Cat(".145Z");
+		//temp_buf.Z().Cat(now_dtm.d, DATF_ISO8601CENT)/*.CatChar('Z')*/;
+		//temp_buf.Z().Cat(now_dtm, DATF_ISO8601CENT, 0).Cat(".145Z");
 		temp_buf.Z().Cat(pPack->Dtm.d, DATF_ISO8601CENT);
 		p_js_single_array_item->InsertString("uploadDate", temp_buf);
 		p_js_single_array_item->InsertString("warehouseId", temp_buf.Z().Cat(rWhUuid, S_GUID::fmtIDL|S_GUID::fmtLower));
@@ -8658,7 +8658,7 @@ int GazpromNeft::SendSellin_SingleDoc(const GazpromNeftBillPacket * pPack, const
 			{
 				// Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
 				// Но... они иногда передумывают, из-за этого - специальная "галка" (SupplInterchangeFilt::fExportTimeAsNominal).
-				//temp_buf.Z().Cat((P.Flags & SupplInterchangeFilt::fExportTimeAsNominal) ? dtm_now : pPack->Dtm, DATF_ISO8601CENT, 0).Cat(".145Z"); 
+				//temp_buf.Z().Cat((P.Flags & SupplInterchangeFilt::fExportTimeAsNominal) ? now_dtm : pPack->Dtm, DATF_ISO8601CENT, 0).Cat(".145Z"); 
 				temp_buf.Z().Cat(pPack->Dtm, DATF_ISO8601CENT, 0).Cat(".145Z"); 
 				p_js_doc->InsertString("invoiceDate", temp_buf);
 			}
@@ -8742,7 +8742,7 @@ int GazpromNeft::SendSellin_SingleDoc(const GazpromNeftBillPacket * pPack, const
 int GazpromNeft::SendSellin_ListDoc(const TSCollection <GazpromNeftBillPacket> & rList, uint startIdx, uint endIdx, const S_GUID & rWhUuid)
 {
 	int    ok = 1;
-	const  LDATETIME dtm_now = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	SString temp_buf;
 	SString msg_buf;
 	if(startIdx <= endIdx && endIdx < rList.getCount()) {
@@ -8795,7 +8795,7 @@ int GazpromNeft::SendSellin_ListDoc(const TSCollection <GazpromNeftBillPacket> &
 					{
 						// Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
 						// Но... они иногда передумывают, из-за этого - специальная "галка" (SupplInterchangeFilt::fExportTimeAsNominal).
-						//temp_buf.Z().Cat((P.Flags & SupplInterchangeFilt::fExportTimeAsNominal) ? dtm_now : pPack->Dtm, DATF_ISO8601CENT, 0).Cat(".145Z"); 
+						//temp_buf.Z().Cat((P.Flags & SupplInterchangeFilt::fExportTimeAsNominal) ? now_dtm : pPack->Dtm, DATF_ISO8601CENT, 0).Cat(".145Z"); 
 						temp_buf.Z().Cat(p_doc->Dtm, DATF_ISO8601CENT, 0).Cat(".145Z"); 
 						p_js_doc->InsertString("invoiceDate", temp_buf);
 					}
@@ -8880,7 +8880,7 @@ int GazpromNeft::SendSellin()
 {
 	int    ok = -1;
 	// POST /sales-api/api/v2/Sales/sellin
-	const  LDATETIME dtm_now = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	PPIDArray loc_list;
 	P.LocList.Get(loc_list);
 	THROW(loc_list.getCount());
@@ -8972,7 +8972,7 @@ int GazpromNeft::SendRest()
 	PPIDArray loc_list;
 	LocationTbl::Rec loc_rec;
 	uint   result_loc_count = 0; // Счетчик, по нулевому значению которого мы поймем, что результат пустой и стало быть надо сообщить об ошибке
-	//const LDATETIME dtm_now = getcurdatetime_();
+	//const LDATETIME now_dtm = getcurdatetime_();
 	DateRange period = P.ExpPeriod;
 	if(!checkdate(period.low))
 		period.low = getcurdate_();
@@ -10132,7 +10132,7 @@ public:
 	}
 	int    SendRest(StringSet & rSsFileName)
 	{
-		const  LDATETIME now_dtm = getcurdatetime_();
+		const LDATETIME now_dtm = getcurdatetime_();
 		int    ok = 1;
 		SString temp_buf;
 		SString out_file_name;
@@ -10200,7 +10200,7 @@ public:
 	}
 	int    SendSales(StringSet & rSsFileName)
 	{
-		const  LDATETIME now_dtm = getcurdatetime_();
+		const LDATETIME now_dtm = getcurdatetime_();
 		int    ok = 1;
 		Reference * p_ref = PPRef;
 		SString temp_buf;
@@ -10508,7 +10508,7 @@ private:
 	int    Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, const TSVector <GoodsEntry> & rGoodsList, BillPacketCollection & rList)
 	{
 		int    ok = -1;
-		const  LDATETIME now_dtm = getcurdatetime_();
+		const LDATETIME now_dtm = getcurdatetime_();
 		Reference * p_ref = PPRef;
 		uint   new_pack_idx = 0;
 		SString temp_buf;
@@ -10918,7 +10918,7 @@ public:
 					n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_CODE), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 				}
 				else {
-					GObj.GetSingleBarcode(r_goods_entry.ID, temp_buf);
+					GObj.GetSingleBarcode(r_goods_entry.ID, 0, temp_buf);
 					if(temp_buf.NotEmpty()) {
 						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_CODE), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 					}
@@ -10942,7 +10942,7 @@ public:
 	}
 	int    SendRest(StringSet & rSsFileName)
 	{
-		const  LDATETIME now_dtm = getcurdatetime_();
+		const LDATETIME now_dtm = getcurdatetime_();
 		int    ok = 1;
 		SString temp_buf;
 		SString out_file_name;
@@ -11089,7 +11089,7 @@ public:
 	}
 	int    SendSales(StringSet & rSsFileName)
 	{
-		const  LDATETIME now_dtm = getcurdatetime_();
+		const LDATETIME now_dtm = getcurdatetime_();
 		int    ok = 1;
 		Reference * p_ref = PPRef;
 		SString temp_buf;

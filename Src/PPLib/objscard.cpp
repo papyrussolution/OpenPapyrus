@@ -4840,8 +4840,8 @@ int SCardCache::FetchUhttEntry(const char * pCode, PPObjSCard::UhttEntry * pEntr
 			}
 			if(strcmp(r_entry.Code, pCode) == 0) {
 				pos = (i+1);
-				LDATETIME c = getcurdatetime_();
-				if(diffdatetimesec(c, r_entry.ActualDtm) <= rest_actual_timeout) {
+				const LDATETIME now_dtm = getcurdatetime_();
+				if(diffdatetimesec(now_dtm, r_entry.ActualDtm) <= rest_actual_timeout) {
 					ASSIGN_PTR(pEntry, r_entry);
 					ok = 1;
 				}

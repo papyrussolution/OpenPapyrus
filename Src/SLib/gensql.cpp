@@ -165,7 +165,6 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 				case S_INT64:
 				case S_UINT64:   rBuf.Cat("BIGINT"); break; 
 				case S_UUID_:    rBuf.Cat("BINARY").CatParStr(16); break; 
-				case S_BFLOAT:
 				case S_FLOAT:    
 					if(_s == 4)
 						rBuf.Cat("FLOAT"); 
@@ -201,7 +200,6 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 				case S_INT64: // @v10.9.1
 				case S_UINT64:   rBuf.Cat("NUMERIC").CatParStr(19); break; // @v10.9.1
 				case S_UUID_:    rBuf.Cat("RAW").CatParStr(16); break; // @v10.9.1
-				case S_BFLOAT:
 				case S_FLOAT:    rBuf.Cat("NUMERIC").CatChar('(').Cat(38).Comma().Cat(12).CatChar(')'); break;
 				case S_DATE:     rBuf.Cat("DATE"); break;
 				case S_TIME:
@@ -231,7 +229,6 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 				case S_INT64:
 				case S_UINT64:   rBuf.Cat("INTEGER").CatParStr(8L); break; 
 				case S_UUID_:    rBuf.Cat("BLOB").CatParStr(16); break; 
-				case S_BFLOAT:
 				case S_FLOAT:    rBuf.Cat("REAL"); break;
 				case S_DATE:     rBuf.Cat("INTEGER").CatParStr(4L); break;
 				case S_TIME:     rBuf.Cat("INTEGER").CatParStr(4L); break; 

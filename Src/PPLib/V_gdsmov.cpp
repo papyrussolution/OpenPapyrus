@@ -341,7 +341,7 @@ int PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 					Total.OutRestCost   += rec.OutRest_Cost;
 					Total.OutRestPrice  += rec.OutRest_Price;
 					STRNSCPY(rec.GoodsName, gr.Name);
-					gobj.GetSingleBarcode(rec.GoodsID, temp_buf);
+					gobj.GetSingleBarcode(rec.GoodsID, 0, temp_buf);
 					temp_buf.CopyTo(rec.Barcode, sizeof(rec.Barcode));
 					THROW_DB(bei.insert(&rec));
 				}

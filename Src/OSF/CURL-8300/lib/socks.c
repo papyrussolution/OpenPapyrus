@@ -415,9 +415,7 @@ CONNECT_REQ_INIT:
 		     * Make connection
 		     */
 		    {
-			    size_t packetsize = 9 +
-				strlen((char *)socksreq + 8); /* size including NUL */
-
+			    size_t packetsize = 9 + strlen((char *)socksreq + 8); /* size including NUL */
 			    /* If SOCKS4a, set special invalid IP address 0.0.0.x */
 			    if(protocol4a) {
 				    size_t hostnamelen = 0;

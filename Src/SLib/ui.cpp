@@ -1579,6 +1579,9 @@ static const UiValueDescr UiValueDescrList[] = {
 	{ UiValueList::vStandaloneListHeight, "standalone_list_height", T_INT32 },
 	{ UiValueList::vDesktopIconSize, "desktop_icon_size", T_INT32 },
 	{ UiValueList::vDesktopIconGap, "desktop_icon_gap", T_INT32 },
+	{ UiValueList::vButtonStdHeight, "button_std_height", T_INT32 }, 
+	{ UiValueList::vButtonStdWidth, "button_std_width", T_INT32 },
+	{ UiValueList::vButtonDoubleWidth, "button_double_width", T_INT32 },
 };
 	
 SJson * UiValueList::ToJsonObj() const

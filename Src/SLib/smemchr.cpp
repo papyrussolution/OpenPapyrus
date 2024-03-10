@@ -77,7 +77,7 @@ const void * fast_memchr(const void * haystack, int n, size_t len)
 //
 // fast_memchr_sse2
 //
-static FORCEINLINE uintptr_t forward_pos(uint32 mask) 
+/* (replaced with SBits::Ctz) static FORCEINLINE uintptr_t forward_pos(uint32 mask) 
 {
 #if(_MSC_VER >= 1600) && !defined(LZ4_FORCE_SW_BITCOUNT)
 	ulong r;
@@ -89,13 +89,13 @@ static FORCEINLINE uintptr_t forward_pos(uint32 mask)
 	assert(0);
 	return 0;
 #endif
-}
+}*/
 
 static FORCEINLINE void * forward_search_sse2(const uint8 * ptr, __m128i vn1) 
 {
 	__m128i chunk = _mm_loadu_si128((__m128i *)ptr);
 	uint32 mask = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1));
-	return (mask != 0) ? (void *)(ptr + forward_pos(mask)) : NULL;
+	return (mask != 0) ? (void *)(ptr + /*forward_pos*/SBits::Ctz(mask)) : NULL;
 }
 
 const void * /*fast_memchr_sse2*/smemchr(const void * haystack, int n, size_t len) 
@@ -142,25 +142,25 @@ const void * /*fast_memchr_sse2*/smemchr(const void * haystack, int n, size_t le
 					const uint8 * at = ptr;
 					uint32 mask = _mm_movemask_epi8(eqa);
 					if(mask != 0) {
-						return (void *)(at + forward_pos(mask));
+						return (void *)(at + /*forward_pos*/SBits::Ctz(mask));
 					}
 					else {
 						at += _VECTOR_SIZE;
 						mask = _mm_movemask_epi8(eqb);
 						if(mask != 0) {
-							return (void *)(at + forward_pos(mask));
+							return (void *)(at + /*forward_pos*/SBits::Ctz(mask));
 						}
 						else {
 							at += _VECTOR_SIZE;
 							mask = _mm_movemask_epi8(eqc);
 							if(mask != 0) {
-								return (void *)(at + forward_pos(mask));
+								return (void *)(at + /*forward_pos*/SBits::Ctz(mask));
 							}
 							else {
 								at += _VECTOR_SIZE;
 								mask = _mm_movemask_epi8(eqd);
 								assert(mask != 0);
-								return (void *)(at + forward_pos(mask));
+								return (void *)(at + /*forward_pos*/SBits::Ctz(mask));
 							}
 						}
 					}

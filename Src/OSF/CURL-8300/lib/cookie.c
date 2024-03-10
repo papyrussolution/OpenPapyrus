@@ -684,18 +684,14 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 
 					is_ip = Curl_host_is_ipnum(domain ? domain : valuep);
 
-					if(!domain
-					    || (is_ip && !strncmp(valuep, domain, vlen) &&
-					    (vlen == strlen(domain)))
-					    || (!is_ip && cookie_tailmatch(valuep, vlen, domain))) {
+					if(!domain || (is_ip && !strncmp(valuep, domain, vlen) && (vlen == strlen(domain))) || (!is_ip && cookie_tailmatch(valuep, vlen, domain))) {
 						strstore(&co->domain, valuep, vlen);
 						if(!co->domain) {
 							badcookie = TRUE;
 							break;
 						}
 						if(!is_ip)
-							co->tailmatch = TRUE; /* we always do that if the domain name was
-						                                 given */
+							co->tailmatch = TRUE; /* we always do that if the domain name was given */
 					}
 					else {
 						/*
@@ -703,8 +699,7 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 						 * not a domain to which the current host belongs. Mark as bad.
 						 */
 						badcookie = TRUE;
-						infof(data, "skipped cookie with bad tailmatch domain: %s",
-						    valuep);
+						infof(data, "skipped cookie with bad tailmatch domain: %s", valuep);
 					}
 				}
 				else if((nlen == 7) && strncasecompare("version", namep, 7)) {

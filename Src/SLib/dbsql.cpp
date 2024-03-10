@@ -1532,7 +1532,6 @@ int SOraDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTableSt
 	SSqlStmt stmt(this, (const SString &)SqlGen);
 	THROW(stmt.Exec(0, OCI_DEFAULT));
 	THROW(stmt.BindData(+1, 1, fld_list, &rec_buf, 0));
-	THROW(Binding(stmt, +1));
 	if(Fetch(stmt, 1, &actual) && actual) {
 		THROW(stmt.GetData(0));
 		ok = 1;
@@ -1635,7 +1634,6 @@ int SOraDbProvider::DropFile(const char * pFileName)
 			SSqlStmt stmt(this, (const SString &)SqlGen);
 			THROW(stmt.Exec(0, OCI_DEFAULT));
 			THROW(stmt.BindData(+1, 1, fld_list, seq_name, 0));
-			THROW(Binding(stmt, +1));
 			while(Fetch(stmt, 1, &actual) && actual) {
 				THROW(stmt.GetData(0));
 				seq_list.Add(seq_list.getCount()+1, seq_name);

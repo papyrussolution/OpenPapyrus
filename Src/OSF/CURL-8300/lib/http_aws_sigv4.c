@@ -699,14 +699,10 @@ CURLcode Curl_output_aws_sigv4(struct Curl_easy * data, bool proxy)
 	request_type = curl_maprintf("%s4_request", provider0);
 	if(!request_type)
 		goto fail;
-
-	credential_scope = curl_maprintf("%s/%s/%s/%s",
-		date, region, service, request_type);
+	credential_scope = curl_maprintf("%s/%s/%s/%s", date, region, service, request_type);
 	if(!credential_scope)
 		goto fail;
-
-	if(Curl_sha256it(sha_hash, (uchar *)canonical_request,
-	    strlen(canonical_request)))
+	if(Curl_sha256it(sha_hash, (uchar *)canonical_request, strlen(canonical_request)))
 		goto fail;
 
 	sha256_to_hex(sha_hex, sha_hash);

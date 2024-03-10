@@ -78,19 +78,21 @@ string_view::size_type string_view::find(string_view s,
 	return result ? result - ptr_ : npos;
 }
 
-string_view::size_type string_view::find(char c, size_type pos) const noexcept {
+string_view::size_type string_view::find(char c, size_type pos) const noexcept 
+{
 	if(empty() || pos >= length_) {
 		return npos;
 	}
-	const char* result =
-	    static_cast<const char*>(memchr(ptr_ + pos, c, length_ - pos));
+	const char* result = static_cast<const char*>(smemchr(ptr_ + pos, c, length_ - pos));
 	return result != nullptr ? result - ptr_ : npos;
 }
 
-string_view::size_type string_view::rfind(string_view s,
-    size_type pos) const noexcept {
-	if(length_ < s.length_) return npos;
-	if(s.empty()) return std::min(length_, pos);
+string_view::size_type string_view::rfind(string_view s, size_type pos) const noexcept 
+{
+	if(length_ < s.length_) 
+		return npos;
+	if(s.empty()) 
+		return std::min(length_, pos);
 	const char* last = ptr_ + std::min(length_ - s.length_, pos) + s.length_;
 	const char* result = std::find_end(ptr_, last, s.ptr_, s.ptr_ + s.length_);
 	return result != last ? result - ptr_ : npos;

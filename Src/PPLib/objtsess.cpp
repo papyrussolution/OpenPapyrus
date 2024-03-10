@@ -1592,11 +1592,11 @@ static void SetSessCurTime(TSessionTbl::Rec * pRec, int finish, int update)
 		if(finish)
 			getcurdatetime(&pRec->FinDt, &pRec->FinTm);
 		else {
-			LDATETIME dtm = getcurdatetime_();
-			LDATETIME finish_dtm = dtm;
-			finish_dtm.settotalsec(dtm.t.totalsec() + pRec->PlannedTiming + pRec->ToolingTime);
-			pRec->StDt = dtm.d;
-			pRec->StTm = dtm.t;
+			const LDATETIME now_dtm = getcurdatetime_();
+			LDATETIME finish_dtm = now_dtm;
+			finish_dtm.settotalsec(now_dtm.t.totalsec() + pRec->PlannedTiming + pRec->ToolingTime);
+			pRec->StDt = now_dtm.d;
+			pRec->StTm = now_dtm.t;
 			pRec->FinDt = finish_dtm.d;
 			pRec->FinTm = finish_dtm.t;
 		}
@@ -2376,7 +2376,7 @@ int PPObjTSession::MakeSessionsByRepeating(const PPIDArray * pSrcSessList, const
 								if(checkdate(src_sess_pack.Rec.StDt) && checkdate(src_sess_pack.Rec.FinDt)) {
 									long _ds = diffdatetimesec(src_sess_pack.Rec.FinDt, src_sess_pack.Rec.FinTm, src_sess_pack.Rec.StDt, src_sess_pack.Rec.StTm);
 									if(_ds > 0) {
-										LDATETIME _fin_dtm = plusdatetime(_st_dtm, _ds, 3);
+										const LDATETIME _fin_dtm = plusdatetime(_st_dtm, _ds, 3);
 										new_sess_pack.Rec.FinDt = _fin_dtm.d;
 										new_sess_pack.Rec.FinTm = _fin_dtm.t;
 									}
@@ -5193,7 +5193,7 @@ int PrcssrTSessMaintenance::Init(const PrcssrTSessMaintenance::Param * pP)
 int PrcssrTSessMaintenance::Run()
 {
     int    ok = -1;
-    const  LDATETIME curdtm = getcurdatetime_();
+    const LDATETIME now_dtm = getcurdatetime_();
 	PPLogger logger;
 	SString temp_buf;
 	SString fmt_buf;
@@ -5231,13 +5231,13 @@ int PrcssrTSessMaintenance::Run()
 									long diffsec = 0;
 									if(cto > 0) {
 										if(rtm.d) {
-											diffsec = diffdatetimesec(curdtm, rtm);
+											diffsec = diffdatetimesec(now_dtm, rtm);
 											if(diffsec > cto)
 												do_cancel_reserve = 1;
 										}
 									}
 									if(lto > 0) {
-										diffsec = diffdatetimesec(stdtm, curdtm);
+										diffsec = diffdatetimesec(stdtm, now_dtm);
 										if(diffsec < lto)
 											do_cancel_reserve = 2;
 									}

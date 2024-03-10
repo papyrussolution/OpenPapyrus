@@ -6,7 +6,6 @@
 #define IDI_ICON1                       523
 #define IDC_EDIT1                       1278
 #define IDC_BUTTON1                     1282
-#define CTLFRAME_POSPAYMBNK_PAPERLESS   1292
 
 // Next default values for new objects
 // 

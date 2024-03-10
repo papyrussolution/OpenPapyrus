@@ -3121,24 +3121,50 @@ int PPChZnPrcssr::PrepareBillPacketForSending(PPID billID, void * pChZnPacket)
 	if(p_bobj->ExtractPacket(billID, p_bp) > 0) {
 		PPLotExtCodeContainer::MarkSet lotxcode_set;
 		PPLotExtCodeContainer::MarkSet::Entry msentry;
+		// @v11.9.9 {
+		bool  medcine_only = false;
+		{
+			const int mdlp_op_list[] = {
+				ChZnInterface::doctypMdlpResult, 
+				ChZnInterface::doctypMdlpQueryKizInfo, 
+				ChZnInterface::doctypMdlpKizInfo,
+				ChZnInterface::doctypMdlpRefusalReceiver, 
+				ChZnInterface::doctypMdlpMoveOrder, 
+				ChZnInterface::doctypMdlpReceiveOrder,
+				ChZnInterface::doctypMdlpMovePlace, 
+				ChZnInterface::doctypMdlpMoveUnregisteredOrder,
+				ChZnInterface::doctypMdlpRetailSale, 
+				ChZnInterface::doctypMdlpMoveOrderNotification,
+				ChZnInterface::doctypMdlpReceiveOrderNotification,
+				ChZnInterface::doctypMdlpAccept
+			};
+			for(uint i = 0; !medcine_only && i < SIZEOFARRAY(mdlp_op_list); i++) {
+				if(mdlp_op_list[i] == p_chzn_packet->DocType)
+					medcine_only = true;
+			}
+		}
+		// } @v11.9.9 
 		for(uint tidx = 0; !suited && tidx < p_bp->GetTCount(); tidx++) {
 			const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
+			long  local_chzn_prod_type = 0; // @v11.9.9
 			// @v11.1.11 {
-			if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
-				if(gt_rec.ChZnProdType) {
+			if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+				local_chzn_prod_type = gt_rec.ChZnProdType;
+			// } @v11.1.11 
+			if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
+				if(local_chzn_prod_type) {
 					if(!chzn_prod_type)
-						chzn_prod_type = gt_rec.ChZnProdType;
-					else if(chzn_prod_type != gt_rec.ChZnProdType)
+						chzn_prod_type = local_chzn_prod_type;
+					else if(chzn_prod_type != local_chzn_prod_type)
 						chzn_prod_type = -1;
 				}
-			}
-			// } @v11.1.11 
-			p_bp->XcL.Get(tidx+1, 0, lotxcode_set);
-			for(uint j = 0; !suited && j < lotxcode_set.GetCount(); j++) {
-				if(lotxcode_set.GetByIdx(j, msentry) /*&& !(msentry.Flags & PPLotExtCodeContainer::fBox)*/) {
-					GtinStruc gts;
-					if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(msentry.Num, gts, 0)) > 0)
-						suited = 1;
+				p_bp->XcL.Get(tidx+1, 0, lotxcode_set);
+				for(uint j = 0; !suited && j < lotxcode_set.GetCount(); j++) {
+					if(lotxcode_set.GetByIdx(j, msentry) /*&& !(msentry.Flags & PPLotExtCodeContainer::fBox)*/) {
+						GtinStruc gts;
+						if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(msentry.Num, gts, 0)) > 0)
+							suited = 1;
+					}
 				}
 			}
 		}

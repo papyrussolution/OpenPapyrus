@@ -94,7 +94,7 @@ int PPObjRegister::CheckUniqueNumber(const RegisterTbl::Rec * pRec, const Regist
 				else
 					PPSetAddedMsgObjName(out_rec.ObjType, out_rec.ObjID);
 			}
-			return PPSetError(PPERR_DUPREGNUMBER);
+			return PPSetErrorPreserveAddendum(PPERR_DUPREGNUMBER);
 		}
 	}
 	return 1;
@@ -423,7 +423,7 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 			DisableOKButton(dlg);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
 			if(dlg->getDTS(pRec)) {
-				if(CheckUniqueNumber(pRec, pRegList, PPOBJ_PERSON, 0))
+				if(CheckUniqueNumber(pRec, pRegList, /*NZOR(outerObjType, PPOBJ_PERSON)*/pRec->ObjType, pRec->ObjID))
 					ok = valid_data = 1;
 				else
 					PPError();

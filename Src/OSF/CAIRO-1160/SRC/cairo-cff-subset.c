@@ -1731,33 +1731,26 @@ static cairo_status_t cairo_cff_font_subset_strings(cairo_cff_font_t * font)
 static cairo_status_t cairo_cff_font_add_euro_charset_string(cairo_cff_font_t * font)
 {
 	cairo_status_t status;
-	uint i;
-	int ch;
 	const char * euro = "Euro";
-
-	for(i = 1; i < font->scaled_font_subset->num_glyphs; i++) {
-		ch = font->scaled_font_subset->to_latin_char[i];
+	for(uint i = 1; i < font->scaled_font_subset->num_glyphs; i++) {
+		const int ch = font->scaled_font_subset->to_latin_char[i];
 		if(ch == 128) {
 			font->euro_sid = NUM_STD_STRINGS + _cairo_array_num_elements(&font->strings_subset_index);
-			status = cff_index_append_copy(&font->strings_subset_index,
-				(uchar *)euro, strlen(euro));
+			status = cff_index_append_copy(&font->strings_subset_index, (uchar *)euro, strlen(euro));
 			return status;
 		}
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t cairo_cff_font_subset_font(cairo_cff_font_t * font)
 {
 	cairo_status_t status;
-
 	if(!font->scaled_font_subset->is_latin) {
 		status = cairo_cff_font_set_ros_strings(font);
 		if(UNLIKELY(status))
 			return status;
 	}
-
 	status = cairo_cff_font_subset_charstrings_and_subroutines(font);
 	if(UNLIKELY(status))
 		return status;

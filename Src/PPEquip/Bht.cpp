@@ -5604,15 +5604,15 @@ int PPBhtTerminalPacket::ConvertToConfig(int expKind, StyloBhtIIConfig * pCfg) c
 	int    ok = 1;
 	if(P_SBIICfg) {
 		SString db_symb;
-		LDATETIME cur_dtm = getcurdatetime_();
+		const LDATETIME now_dtm = getcurdatetime_();
 		StyloBhtIIConfig sbii_cfg;
 		CurDict->GetDbSymb(db_symb);
 		if(oneof2(expKind, 0, 1))
-			sbii_cfg.GoodsLastExch = cur_dtm;
+			sbii_cfg.GoodsLastExch = now_dtm;
 		if(oneof2(expKind, 0, 2))
-			sbii_cfg.ArticleLastExch = cur_dtm;
+			sbii_cfg.ArticleLastExch = now_dtm;
 		if(oneof2(expKind, 0, 4))
-			sbii_cfg.BillLastExch  = cur_dtm;
+			sbii_cfg.BillLastExch  = now_dtm;
 		P_SBIICfg->DeviceName.CopyTo(sbii_cfg.DeviceName, sizeof(sbii_cfg.DeviceName));
 		sbii_cfg.Flags = P_SBIICfg->Flags;
 		P_SBIICfg->WeightPrefix.CopyTo(sbii_cfg.WeightPrefix, sizeof(sbii_cfg.WeightPrefix));

@@ -739,7 +739,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 												SXml::WNode n_b(_doc, SXml::nst("ck", "Bottle"));
 												n_b.PutInner(SXml::nst("ck", "Barcode"), mark_buf);
 												{
-													GObj.GetSingleBarcode(r_item.GoodsID, temp_buf);
+													GObj.GetSingleBarcode(r_item.GoodsID, 0, temp_buf);
 													result_barcode.Z();
 													int    dbr = 0; // Результат диагностики штрихкода
 													if(temp_buf.NotEmptyS()) {
@@ -776,7 +776,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 														temp_buf.Z().Cat(fabs(r_item.Quantity), MKSFMTD(0, 0, 0));
 														n_nm.PutInner(SXml::nst("ck", "Quantity"), EncText(temp_buf));
 														{
-															GObj.GetSingleBarcode(r_item.GoodsID, temp_buf);
+															GObj.GetSingleBarcode(r_item.GoodsID, 0, temp_buf);
 															result_barcode.Z();
 															int    dbr = 0; // Результат диагностики штрихкода
 															if(temp_buf.NotEmptyS()) {
@@ -849,7 +849,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 								}
 								n_item.PutAttrib("barcode", EncText(mark_buf));
 								{
-									GObj.GetSingleBarcode(r_item.GoodsID, temp_buf);
+									GObj.GetSingleBarcode(r_item.GoodsID, 0, temp_buf);
 									result_barcode.Z();
 									int    dbr = 0; // Результат диагностики штрихкода
 									if(temp_buf.NotEmptyS()) {
@@ -886,9 +886,11 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 									n_item.PutAttrib("price", EncText(temp_buf));
 								}
 								{
-									GObj.GetSingleBarcode(r_item.GoodsID, temp_buf);
-									if(!oneof4(temp_buf.Len(), 8, 12, 13, 14))
+									GObj.GetSingleBarcode(r_item.GoodsID, BarcodeArray::sifValidEanUpcOnly, temp_buf); // @v11.9.9 BarcodeArray::sifValidEanUpcOnly
+									if(temp_buf.IsEmpty()) { // @v11.9.9 
+										// @v11.9.9 if(!oneof4(temp_buf.Len(), 8, 12, 13, 14)) {
 										temp_buf = "4600000000008"; // dummy ean
+									}
 									n_item.PutAttrib("ean", temp_buf);
 								}
 								temp_buf.Z().Cat(fabs(r_item.Quantity), MKSFMTD(0, 0, 0));
@@ -2628,9 +2630,9 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 					else if(doc_type == PPEDIOP_EGAIS_QUERYBARCODE) {
                         const TSCollection <QueryBarcode> * p_qbl = static_cast<const TSCollection <QueryBarcode> *>(rPack.P_Data);
                         if(p_qbl->getCount()) {
-							const LDATETIME cdtm = getcurdatetime_();
-							n_dt.PutInner(SXml::nst("bk", "QueryNumber"), temp_buf.Z().Cat((cdtm.d.v % 1000) * 1000 + (cdtm.t.v % 1000)));
-							n_dt.PutInner(SXml::nst("bk", "Date"), temp_buf.Z().Cat(cdtm, DATF_ISO8601CENT, 0));
+							const LDATETIME now_dtm = getcurdatetime_();
+							n_dt.PutInner(SXml::nst("bk", "QueryNumber"), temp_buf.Z().Cat((now_dtm.d.v % 1000) * 1000 + (now_dtm.t.v % 1000)));
+							n_dt.PutInner(SXml::nst("bk", "Date"), temp_buf.Z().Cat(now_dtm, DATF_ISO8601CENT, 0));
 							{
 								long   global_row_id = 0;
 								LongArray row_id_list;
@@ -7486,7 +7488,7 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 		PPIDArray bill_id_list;
 		SString edi_ident;
 		SString bill_text;
-		const LDATETIME _curdtm = getcurdatetime_();
+		const LDATETIME now_dtm = getcurdatetime_();
 		LongArray skip_packidx_list;
 		int    last_rest_pos = -1;
 		int    last_restshop_pos = -1;
@@ -7584,7 +7586,7 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 					// отправленных и ожищающих ответа запросов (DGQ).
 					//
 					THROW(FinishBillProcessingByTicket(p_tick, 1));
-					if(!(flags & rifOffline) && diffdate(_curdtm.d, p_tick->TicketTime.d) > 1)
+					if(!(flags & rifOffline) && diffdate(now_dtm.d, p_tick->TicketTime.d) > 1)
 						DeleteSrcPacket(p_pack, reply_list);
 				}
 				else if(oneof2(p_pack->DocType, PPEDIOP_EGAIS_REPLYFORMA, PPEDIOP_EGAIS_REPLYFORM1)) { // @v11.3.4 PPEDIOP_EGAIS_REPLYFORM1

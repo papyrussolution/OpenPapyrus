@@ -2114,6 +2114,7 @@
     <ClCompile Include="..\SLib\smemchr.cpp" />
     <ClCompile Include="..\SLib\soapdbt.cpp" />
     <ClCompile Include="..\SLib\sprocess.cpp" />
+    <ClCompile Include="..\SLib\sstrtransform.cpp" />
     <ClCompile Include="..\SLib\txttable.cpp" />
     <ClCompile Include="..\SLib\vslocate.c" />
     <ClCompile Include="..\SLib\winprofile.cpp" />

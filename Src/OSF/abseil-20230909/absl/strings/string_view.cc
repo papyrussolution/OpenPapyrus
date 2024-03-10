@@ -29,8 +29,8 @@ ABSL_NAMESPACE_BEGIN
 namespace {
 // This is significantly faster for case-sensitive matches with very
 // few possible matches.
-const char* memmatch(const char* phaystack, size_t haylen, const char* pneedle,
-    size_t neelen) {
+const char* memmatch(const char* phaystack, size_t haylen, const char* pneedle, size_t neelen) 
+{
 	if(0 == neelen) {
 		return phaystack; // even if haylen is 0
 	}
@@ -40,9 +40,7 @@ const char* memmatch(const char* phaystack, size_t haylen, const char* pneedle,
 	const char* hayend = phaystack + haylen - neelen + 1;
 	// A static cast is used here as memchr returns a const void *, and pointer
 	// arithmetic is not allowed on pointers to void.
-	while(
-		(match = static_cast<const char*>(memchr(
-			phaystack, pneedle[0], static_cast<size_t>(hayend - phaystack))))) {
+	while((match = static_cast<const char*>(smemchr(phaystack, pneedle[0], static_cast<size_t>(hayend - phaystack))))) {
 		if(memcmp(match, pneedle, neelen) == 0)
 			return match;
 		else
@@ -118,17 +116,17 @@ string_view::size_type string_view::find(string_view s,
 	return result ? static_cast<size_type>(result - ptr_) : npos;
 }
 
-string_view::size_type string_view::find(char c, size_type pos) const noexcept {
+string_view::size_type string_view::find(char c, size_type pos) const noexcept 
+{
 	if(empty() || pos >= length_) {
 		return npos;
 	}
-	const char* result =
-	    static_cast<const char*>(memchr(ptr_ + pos, c, length_ - pos));
+	const char* result = static_cast<const char*>(smemchr(ptr_ + pos, c, length_ - pos));
 	return result != nullptr ? static_cast<size_type>(result - ptr_) : npos;
 }
 
-string_view::size_type string_view::rfind(string_view s,
-    size_type pos) const noexcept {
+string_view::size_type string_view::rfind(string_view s, size_type pos) const noexcept 
+{
 	if(length_ < s.length_) return npos;
 	if(s.empty()) return std::min(length_, pos);
 	const char* last = ptr_ + std::min(length_ - s.length_, pos) + s.length_;

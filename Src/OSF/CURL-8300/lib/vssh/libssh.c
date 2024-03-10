@@ -1268,11 +1268,8 @@ static CURLcode myssh_statemach_act(struct Curl_easy * data, bool * block)
 				    flags, (mode_t)data->set.new_file_perms);
 			    if(!sshc->sftp_file) {
 				    err = sftp_get_error(sshc->sftp_session);
-
-				    if(((err == SSH_FX_NO_SUCH_FILE || err == SSH_FX_FAILURE ||
-					err == SSH_FX_NO_SUCH_PATH)) &&
-					(data->set.ftp_create_missing_dirs &&
-					(strlen(protop->path) > 1))) {
+				    if(((err == SSH_FX_NO_SUCH_FILE || err == SSH_FX_FAILURE || err == SSH_FX_NO_SUCH_PATH)) &&
+						(data->set.ftp_create_missing_dirs && (strlen(protop->path) > 1))) {
 					    /* try to create the path remotely */
 					    rc = 0;
 					    sshc->secondCreateDirs = 1;

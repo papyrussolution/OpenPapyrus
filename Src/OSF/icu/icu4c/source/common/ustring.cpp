@@ -24,12 +24,10 @@
 static inline bool isMatchAtCPBoundary(const char16_t * start, const char16_t * match, const char16_t * matchLimit, const char16_t * limit) 
 {
 	if(U16_IS_TRAIL(*match) && start!=match && U16_IS_LEAD(*(match-1))) {
-		/* the leading edge of the match is in the middle of a surrogate pair */
-		return FALSE;
+		return FALSE; /* the leading edge of the match is in the middle of a surrogate pair */
 	}
 	if(U16_IS_LEAD(*(matchLimit-1)) && matchLimit!=limit && U16_IS_TRAIL(*matchLimit)) {
-		/* the trailing edge of the match is in the middle of a surrogate pair */
-		return FALSE;
+		return FALSE; /* the trailing edge of the match is in the middle of a surrogate pair */
 	}
 	return TRUE;
 }
@@ -214,7 +212,8 @@ U_CAPI char16_t * U_EXPORT2 u_strchr32(const char16_t * s, UChar32 c) {
 	}
 }
 
-U_CAPI char16_t * U_EXPORT2 u_memchr(const char16_t * s, char16_t c, int32_t count) {
+U_CAPI char16_t * U_EXPORT2 u_memchr(const char16_t * s, char16_t c, int32_t count) 
+{
 	if(count<=0) {
 		return NULL; /* no string */
 	}
@@ -234,7 +233,8 @@ U_CAPI char16_t * U_EXPORT2 u_memchr(const char16_t * s, char16_t c, int32_t cou
 	}
 }
 
-U_CAPI char16_t * U_EXPORT2 u_memchr32(const char16_t * s, UChar32 c, int32_t count) {
+U_CAPI char16_t * U_EXPORT2 u_memchr32(const char16_t * s, UChar32 c, int32_t count) 
+{
 	if((uint32_t)c<=U_BMP_MAX) {
 		/* find BMP code point */
 		return u_memchr(s, (char16_t)c, count);

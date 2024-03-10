@@ -389,13 +389,13 @@ int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 		Filt.StPeriod.Actualize(ZERODATE);
 		Filt.FnPeriod.Actualize(ZERODATE);
 		if(Filt.Flags & TSessionFilt::fCurrent && Filt.PrcID) {
-			LDATETIME curdtm = getcurdatetime_();
+			const LDATETIME now_dtm = getcurdatetime_();
 			PPID   sess_id = 0;
-			if(TSesObj.IsProcessorBusy(Filt.PrcID, 0, TSESK_SUPERSESS, curdtm, 1, &sess_id) > 0) {
+			if(TSesObj.IsProcessorBusy(Filt.PrcID, 0, TSESK_SUPERSESS, now_dtm, 1, &sess_id) > 0) {
 				Filt.SuperSessID = sess_id;
 			}
 			else {
-				Filt.StPeriod.Set(plusdate(curdtm.d, -1), plusdate(curdtm.d, 1));
+				Filt.StPeriod.Set(plusdate(now_dtm.d, -1), plusdate(now_dtm.d, 1));
 				Filt.Flags |= TSessionFilt::fSuperSessOnly;
 			}
 		}

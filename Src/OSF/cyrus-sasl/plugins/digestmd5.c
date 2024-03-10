@@ -1723,7 +1723,6 @@ static char * create_response(context_t * text,
 	if(text->http_mode) {
 		/* per RFC 2617 */
 		Cyrus_MD5_CTX Md5Ctx;
-
 		utils->MD5Init(&Md5Ctx);
 		utils->MD5Update(&Md5Ctx, request->entity, request->elen);
 		utils->MD5Final(EntityHash, &Md5Ctx);

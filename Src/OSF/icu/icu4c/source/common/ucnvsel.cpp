@@ -66,32 +66,26 @@ static void generateSelectorData(UConverterSelector* result, UPropsVectors * upv
 		}
 		USet* unicode_point_set;
 		unicode_point_set = uset_open(1, 0); // empty set
-
-		ucnv_getUnicodeSet(test_converter, unicode_point_set,
-		    whichSet, status);
+		ucnv_getUnicodeSet(test_converter, unicode_point_set, whichSet, status);
 		if(U_FAILURE(*status)) {
 			ucnv_close(test_converter);
 			return;
 		}
-
 		column = i / 32;
 		mask = 1 << (i%32);
 		// now iterate over intervals on set i!
 		item_count = uset_getItemCount(unicode_point_set);
-
 		for(j = 0; j < item_count; ++j) {
 			UChar32 start_char;
 			UChar32 end_char;
 			UErrorCode smallStatus = U_ZERO_ERROR;
-			uset_getItem(unicode_point_set, j, &start_char, &end_char, NULL, 0,
-			    &smallStatus);
+			uset_getItem(unicode_point_set, j, &start_char, &end_char, NULL, 0, &smallStatus);
 			if(U_FAILURE(smallStatus)) {
 				// this will be reached for the converters that fill the set with
 				// strings. Those should be ignored by our system
 			}
 			else {
-				upvec_setValue(upvec, start_char, end_char, column, static_cast<uint32_t>(~0), mask,
-				    status);
+				upvec_setValue(upvec, start_char, end_char, column, static_cast<uint32_t>(~0), mask, status);
 			}
 		}
 		ucnv_close(test_converter);
@@ -107,9 +101,7 @@ static void generateSelectorData(UConverterSelector* result, UPropsVectors * upv
 		for(int32_t j = 0; j < item_count; ++j) {
 			UChar32 start_char;
 			UChar32 end_char;
-
-			uset_getItem(excludedCodePoints, j, &start_char, &end_char, NULL, 0,
-			    status);
+			uset_getItem(excludedCodePoints, j, &start_char, &end_char, NULL, 0, status);
 			for(int32_t col = 0; col < columns; col++) {
 				upvec_setValue(upvec, start_char, end_char, col, static_cast<uint32_t>(~0), static_cast<uint32_t>(~0), status);
 			}

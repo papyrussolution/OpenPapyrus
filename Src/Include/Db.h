@@ -33,6 +33,7 @@ struct st_mysql_stmt;
 typedef struct st_mysql_stmt MYSQL_STMT;
 struct st_mysql_time;
 typedef struct st_mysql_time MYSQL_TIME;
+struct sqlite3_stmt;
 
 #define THROW_D(expr,val)      {if(!(expr)){DBS.SetError(val);goto __scatch;}}
 #define THROW_D_S(expr,val,s) {if(!(expr)){DBS.SetError(val, s);goto __scatch;}}
@@ -1450,6 +1451,9 @@ public:
 	// Descr: Инициализирует подстановочные буферы для связывания переменных
 	//   SQL-оператора.
 	//   Функция должна быть вызвана до того, как возникнет...
+	// ARG(dir IN): 
+	//   >0 - привязка входящих значения (SELECT), 
+	//   <0 - привязка исходящих значений (INSERT, UPDATE)
 	//
 	int    SetupBindingSubstBuffer(int dir, uint count);
 	int    BindItem(int pos, uint count, TYPEID typ, void * pDataBuf);
@@ -1610,6 +1614,7 @@ public:
 	friend class DbDict_Btrieve;
 	friend class SOraDbProvider;
 	friend class SMySqlDbProvider;
+	friend class SSqliteDbProvider;
 	friend struct DBField;
 
 	static void   FASTCALL InitErrFileName(const char * pFileName);
@@ -2109,8 +2114,10 @@ public:
 	// Descr: Опции возможностей провайдера (Capability)
 	//
 	enum {
-		cSQL        = 0x0001, // Предоставляет SQL-доступ к данным
-		cDbDependTa = 0x0002  // Применять транзакции для всех операций изменения данных (для Oracle да, для Btrieve - нет).
+		cSQL                     = 0x0001, // Предоставляет SQL-доступ к данным
+		cDbDependTa              = 0x0002, // Применять транзакции для всех операций изменения данных (для Oracle да, для Btrieve - нет).
+		cDirectSelectDataMapping = 0x0004, // @v11.9.9 Для SQL-сервера при вызове оператора SELECT данные извлекаются прямыми вызовами
+			// api, а не посредством связывания (Binding)
 	};
 	//
 	// Descr: Флаги состояния объекта.
@@ -2181,6 +2188,13 @@ public:
 	//
 	virtual int CreateStmt(SSqlStmt * pS, const char * pText, long flags);
 	virtual int DestroyStmt(SSqlStmt * pS);
+	//
+	// Descr: Реализует привязку внутренних буферов к данным SQL-сервера.
+	// ARG(rS IN): SQL-оператор, для которого осуществляется привязка
+	// ARG(dir IN): направление привязки
+	//   +1 - связывает результат работы SQL-сервера c прикладными данными (SELECT)
+	//   -1 - связывает прикладные данные с параметрами SQL-запроса (INSERT, UPDATE)
+	//
 	virtual int Binding(SSqlStmt & rS, int dir);
 	//
 	// Descr: Реализует функционал связывания переменных, специфичный для данной СУБД.
@@ -2828,6 +2842,74 @@ private:
 //
 class SSqliteDbProvider : public DbProvider { // @construction
 public:
+	//
+	// Descr: типы данных SQLITE. 
+	//   Значения, определенные здесь не коррелируют с какими-либо константами SQLITE.
+	//   Each value stored in an SQLite database (or manipulated by the database engine) has one of the following storage classes.
+	//
+	/*
+		Type Affinity
+		-------------
+		TEXT:
+		NUMERIC:
+		INTEGER:
+		REAL:
+		BLOB:
+
+		The following table shows how many common datatype names from more traditional SQL implementations are converted into 
+		affinities by the five rules of the previous section. This table shows only a small subset of the datatype names that 
+		SQLite will accept. Note that numeric arguments in parentheses that following the type name (ex: "VARCHAR(255)") 
+		are ignored by SQLite - SQLite does not impose any length restrictions (other than the large global SQLITE_MAX_LENGTH limit) 
+		on the length of strings, BLOBs or numeric values.
+
+		Example Typenames From The
+		CREATE TABLE Statement
+		or CAST Expression          Resulting Affinity  Rule Used To Determine Affinity
+		-------------------------------------------------------------------------------
+		INT                         INTEGER 	        1  
+		INTEGER
+		TINYINT
+		SMALLINT
+		MEDIUMINT
+		BIGINT
+		UNSIGNED BIG INT
+		INT2
+		INT8                        
+		...............................................................................
+		CHARACTER(20)               TEXT                2
+		VARCHAR(255)
+		VARYING CHARACTER(255)
+		NCHAR(55)
+		NATIVE CHARACTER(70)
+		NVARCHAR(100)
+		TEXT
+		CLOB
+		...............................................................................
+		BLOB                        BLOB                3
+		no datatype specified
+		...............................................................................
+		REAL                        REAL                4
+		DOUBLE
+		DOUBLE PRECISION
+		FLOAT
+		...............................................................................
+		NUMERIC                     NUMERIC             5 
+		DECIMAL(10,5)
+		BOOLEAN
+		DATE
+		DATETIME
+	*/
+	/*
+		Представление даты и времени для SQLITE реализуется посредством UED 
+	*/
+	enum {
+		datatypeUndef = 0, // Undefined. Это значение не соотносится с SQLITE и используется для индикации факта, что тип данных не определен.
+		datatypeNull  = 1, // The value is a NULL value
+		datatypeInt   = 2, // INTEGER The value is a signed integer, stored in 0, 1, 2, 3, 4, 6, or 8 bytes depending on the magnitude of the value
+		datatypeReal  = 3, // REAL    The value is a floating point value, stored as an 8-byte IEEE floating point number.
+		datatypeText  = 4, // TEXT    The value is a text string, stored using the database encoding (UTF-8, UTF-16BE or UTF-16LE).
+		datatypeBlob  = 5  // BLOB    The value is a blob of data, stored exactly as it was input.
+	};
 	SSqliteDbProvider();
 	~SSqliteDbProvider();
 	virtual int Login(const DbLoginBlock * pBlk, long options);
@@ -2863,9 +2945,13 @@ public:
 	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
 private:
 	int    FASTCALL ProcessError(int status);
+	static sqlite3_stmt * FASTCALL StmtHandle(const SSqlStmt & rS);
+	int    GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat);
+	int    ProcessBinding_SimpleType(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType);
 	long   Flags;
 	void * H;
 	Generator_SQL SqlGen;
+	static bool IsInitialized;
 };
 //
 //

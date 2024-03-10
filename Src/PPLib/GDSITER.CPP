@@ -957,8 +957,9 @@ int GoodsGroupIterator::Init(PPID parentID, long flags)
 	int    ok = 1;
 	int    is_excl_alt_fold = 0;
 	const  size_t hs = sizeof(PPID);
-	const  size_t cs =(size_t)GRPCODESIZE;
+	constexpr size_t cs =(size_t)GRPCODESIZE;
 	char   code[cs];
+	SString temp_buf;
 	SString grp_name;
 	PPID   upper_parent_id = 0;
 	Goods2Tbl::Key1 k1;
@@ -985,8 +986,8 @@ int GoodsGroupIterator::Init(PPID parentID, long flags)
 		//if(!(grec.Flags & (GF_FOLDER | GF_ALTGROUP)) || (grec.Flags & GF_ALTGROUP && is_excl_alt_fold))
 			if(GObj.P_Tbl->MakeFullName(grec.ID, upper_parent_id, grp_name) > 0) {
 				char * ptr = 0;
-				code[0] = 0;
-				THROW(GObj.GetSingleBarcode(grec.ID, code, sizeof(code)));
+				THROW(GObj.GetSingleBarcode(grec.ID, 0, temp_buf));
+				STRNSCPY(code, temp_buf);
 				size_t s = hs + cs + grp_name.Len() + 1;
 				THROW_MEM(ptr = new char[s]);
 				*(PPID *)ptr = grec.ID;

@@ -366,9 +366,9 @@ void LogMessage(const char * pMsg)
 	SFile file(LogName, SFile::mAppend);
 	if(file.IsValid()) {
 		SString str;
-		const LDATETIME curdtm = getcurdatetime_();
-		str.Z().Cat(curdtm.d.day()).Dot().Cat(curdtm.d.month()).Dot().Cat(curdtm.d.year()).Space().Cat(curdtm.t.hour()).
-			Colon().Cat(curdtm.t.minut()).Colon().Cat(curdtm.t.sec()).Tab().Cat(pMsg).CR();
+		const LDATETIME now_dtm = getcurdatetime_();
+		str.Z().Cat(now_dtm.d.day()).Dot().Cat(now_dtm.d.month()).Dot().Cat(now_dtm.d.year()).Space().Cat(now_dtm.t.hour()).
+			Colon().Cat(now_dtm.t.minut()).Colon().Cat(now_dtm.t.sec()).Tab().Cat(pMsg).CR();
 		file.WriteLine(str);
 	}
 }
@@ -378,9 +378,9 @@ void SysLogMessage(const char * pMsg)
 	SFile file(SysLogName, SFile::mAppend);
 	if(file.IsValid()) {
 		SString str;
-		const LDATETIME curdtm = getcurdatetime_();
-		str.Z().Cat(curdtm.d.day()).Dot().Cat(curdtm.d.month()).Dot().Cat(curdtm.d.year()).Space().Cat(curdtm.t.hour()).
-			Colon().Cat(curdtm.t.minut()).Colon().Cat(curdtm.t.sec()).Tab().Cat(pMsg).CR();
+		const LDATETIME now_dtm = getcurdatetime_();
+		str.Z().Cat(now_dtm.d.day()).Dot().Cat(now_dtm.d.month()).Dot().Cat(now_dtm.d.year()).Space().Cat(now_dtm.t.hour()).
+			Colon().Cat(now_dtm.t.minut()).Colon().Cat(now_dtm.t.sec()).Tab().Cat(pMsg).CR();
 		file.WriteLine(str);
 	}
 }

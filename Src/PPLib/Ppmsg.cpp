@@ -224,6 +224,15 @@ int FASTCALL PPSetError(int errCode)
 	return 0;
 }
 
+int FASTCALL PPSetErrorPreserveAddendum(int errCode)
+{
+	PPThreadLocalArea & tla = DS.GetTLA();
+	if(&tla && tla.IsConsistent()) {
+		tla.LastErr = errCode;
+	}
+	return 0;
+}
+
 int FASTCALL PPSetLibXmlError(const xmlParserCtxt * pCtx)
 {
 	PPThreadLocalArea & tla = DS.GetTLA();

@@ -1,5 +1,5 @@
 // PPBulletinBoard.cpp
-// Copyright (c) A.Sobolev 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2022, 2024
 // @codepage UTF-8
 // Концепт доски объявлений, реализующей функционал общедоступных системных задач
 //
@@ -306,8 +306,8 @@ public:
 	{
 		TimeSeriesCache * p_this = static_cast<TimeSeriesCache *>(procExtPtr);
 		if(p_this) {
-			const LDATETIME cdtm = getcurdatetime_();
-			const long sec = diffdatetimesec(cdtm, p_this->LastFlashDtm);
+			const LDATETIME now_dtm = getcurdatetime_();
+			const long sec = diffdatetimesec(now_dtm, p_this->LastFlashDtm);
 			if(sec >= p_this->GetFlashTimeout())
 				p_this->Flash();
 		}
@@ -1484,7 +1484,7 @@ int TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rRes
 {
 	int    ok = -1;
 	PPUserFuncProfiler ufp(PPUPRF_TSEVALSTAKES); // @v10.3.3
-	const  LDATETIME now = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	SString temp_buf;
 	SString log_msg;
 	SString log_file_name;
@@ -1503,7 +1503,7 @@ int TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rRes
 		// -10800
 		LDATETIME tktime = r_tk.Dtm; // Время тика скорректированное на поправку из конфигурации
 		tktime.addsec(Cfg.E.TerminalTimeAdjustment);
-		const long cur_diff_sec = diffdatetimesec(now, tktime);
+		const long cur_diff_sec = diffdatetimesec(now_dtm, tktime);
 		uint  blk_idx = 0;
 		StkEnv.GetS(r_tk.SymbP, tk_symb);
 		//
@@ -1562,7 +1562,7 @@ int TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rRes
 			}
 			// } @v10.6.8 
 			if(abs(cur_diff_sec) <= max_diff_sec) { // @v10.6.8 cur_diff_sec-->abs(cur_diff_sec)
-				if(!p_blk->LastStakeTime || diffdatetimesec(now, p_blk->LastStakeTime) >= 20) { // @v10.7.6
+				if(!p_blk->LastStakeTime || diffdatetimesec(now_dtm, p_blk->LastStakeTime) >= 20) { // @v10.7.6
 					// @v10.4.10 {
 					/* @v10.6.8 if(0) {
 						log_msg.Z().Cat(tktime, DATF_ISO8601CENT, 0).Space().Cat(r_tk.Last, MKSFMTD_050);
@@ -1607,7 +1607,7 @@ int TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rRes
 					}
 					if(fosfsr > 0 && !is_there_stake && current_stake_count < Cfg.MaxStakeCount) {
 						potential_stake_list.insert(&pse);
-						p_blk->LastStakeTime = now; // @v10.7.6
+						p_blk->LastStakeTime = now_dtm; // @v10.7.6
 					}
 				}
 			}

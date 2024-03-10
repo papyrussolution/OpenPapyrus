@@ -1459,8 +1459,8 @@ bool StyloQCommandList::Load(const char * pDbSymb, const char * pFileName)
 	assert(!pParent || !isempty(pName));
 	SString temp_buf;
 	SJson * p_result = SJson::CreateObj();
-	//LDATETIME dtm_now = getcurdatetime_();
-	//temp_buf.Z().Cat(dtm_now, DATF_ISO8601CENT, 0);
+	//LDATETIME now_dtm = getcurdatetime_();
+	//temp_buf.Z().Cat(now_dtm, DATF_ISO8601CENT, 0);
 	p_result->InsertString("doctype", "commandlist");
 	p_result->InsertString("time", temp_buf.Z().Cat(time(0)));
 	if(expirationSec > 0) {
@@ -5547,7 +5547,7 @@ int PPStyloQInterchange::TestDatabase()
 			return ok;
 		}
 		const  time_t Timestamp;
-		const  LDATETIME Expiration;
+		const LDATETIME Expiration;
 		const  int Kind;
 		PPID   Id;
 		SBinaryChunk Ident;
@@ -6156,9 +6156,9 @@ int PPStyloQInterchange::InitRoundTripBlock(RoundTripBlock & rB)
 			StyloQCore::StoragePacket corr_pack;
 			if(P_T->GetPeerEntry(svc_pack.Rec.CorrespondID, &corr_pack) > 0) {
 				THROW_PP(corr_pack.Rec.Kind == StyloQCore::kSession, PPERR_SQ_WRONGDBITEMKIND); // Что-то не так с базой данных или с программой: такого быть не должно!
-				const LDATETIME _now = getcurdatetime_();
-				//if(!corr_pack.Rec.Expiration || cmp(corr_pack.Rec.Expiration, _now) > 0) {
-				if(!!corr_pack.Rec.Expiration && cmp(corr_pack.Rec.Expiration, _now) > 0) {
+				const LDATETIME now_dtm = getcurdatetime_();
+				//if(!corr_pack.Rec.Expiration || cmp(corr_pack.Rec.Expiration, now_dtm) > 0) {
+				if(!!corr_pack.Rec.Expiration && cmp(corr_pack.Rec.Expiration, now_dtm) > 0) {
 					LongArray cid_list;
 					svc_pack.Pool.Get(SSecretTagPool::tagClientIdent, &temp_bch);
 					rB.Sess.Put(SSecretTagPool::tagClientIdent, temp_bch);
@@ -13122,7 +13122,7 @@ int PPStyloQInterchange::Helper_ExecuteIndexingRequest(const StyloQCore::Storage
 int PPStyloQInterchange::Helper_PrepareAhed(const StyloQCommandList & rFullCmdList)
 {
 	int    ok = -1;
-	const  LDATETIME dtm_now = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	StyloQCore::StoragePacket fake_cli_pack;
 	SString temp_buf;
 	SString dtm_buf;
@@ -13155,7 +13155,7 @@ int PPStyloQInterchange::Helper_PrepareAhed(const StyloQCommandList & rFullCmdLi
 								const int doc_type = StyloQCore::doctypOrderPrereq;
 								bool  do_prepare = true;
 								THROW(P_T->MakeDocumentStorageIdent(own_ident, p_cmd_item->Uuid, doc_ident));
-								if(P_T->GetDocByType(+1, doc_type, &doc_ident, &sp) > 0 && cmp(sp.Rec.Expiration, dtm_now) > 0) {
+								if(P_T->GetDocByType(+1, doc_type, &doc_ident, &sp) > 0 && cmp(sp.Rec.Expiration, now_dtm) > 0) {
 									msg_to_log = 1;
 									do_prepare = false;
 								}
@@ -13179,7 +13179,7 @@ int PPStyloQInterchange::Helper_PrepareAhed(const StyloQCommandList & rFullCmdLi
 								const int doc_type = StyloQCore::doctypIndoorSvcPrereq;
 								bool  do_prepare = true;
 								THROW(P_T->MakeDocumentStorageIdent(own_ident, p_cmd_item->Uuid, doc_ident));
-								if(P_T->GetDocByType(+1, doc_type, &doc_ident, &sp) > 0 && cmp(sp.Rec.Expiration,  dtm_now) > 0) {
+								if(P_T->GetDocByType(+1, doc_type, &doc_ident, &sp) > 0 && cmp(sp.Rec.Expiration,  now_dtm) > 0) {
 									msg_to_log = 1;
 									do_prepare = false;
 								}

@@ -180,7 +180,7 @@ static int MergeUhttRestList(TSCollection <UhttGoodsRestListItem> & rDest, const
     for(uint i = 0; i < sc; i++) {
     	const UhttGoodsRestListItem * p_src_item = rSrc.at(i);
 		if(p_src_item) {
-			const  LDATETIME src_price_dtm = p_src_item->PriceDtm;
+			const LDATETIME src_price_dtm = p_src_item->PriceDtm;
 			int    found = 0;
 			for(uint j = 0; !found && j < rDest.getCount(); j++) {
                 UhttGoodsRestListItem * p_item = rDest.at(j);
@@ -1030,7 +1030,7 @@ void ClsdGoodsDialog::printLabel()
 		else {
 			SString temp_buf;
 			RetailGoodsInfo rgi;
-			Data.Codes.GetSingle(temp_buf);
+			Data.Codes.GetSingle(0, temp_buf);
 			temp_buf.CopyTo(rgi.BarCode, sizeof(rgi.BarCode));
 			STRNSCPY(rgi.Name, Data.Rec.Name);
 			BarcodeLabelPrinter::PrintGoodsLabel2(&rgi, 0, 0);

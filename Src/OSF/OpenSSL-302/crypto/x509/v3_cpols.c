@@ -189,8 +189,7 @@ static POLICYINFO * policy_section(X509V3_CTX * ctx,
 			}
 			if((qual->d.cpsuri = ASN1_IA5STRING_new()) == NULL)
 				goto merr;
-			if(!ASN1_STRING_set(qual->d.cpsuri, cnf->value,
-			    strlen(cnf->value)))
+			if(!ASN1_STRING_set(qual->d.cpsuri, cnf->value, strlen(cnf->value)))
 				goto merr;
 		}
 		else if(!ossl_v3_name_cmp(cnf->name, "userNotice")) {
@@ -203,7 +202,6 @@ static POLICYINFO * policy_section(X509V3_CTX * ctx,
 			unot = X509V3_get_section(ctx, cnf->value + 1);
 			if(!unot) {
 				ERR_raise(ERR_LIB_X509V3, X509V3_R_INVALID_SECTION);
-
 				X509V3_conf_err(cnf);
 				goto err;
 			}
@@ -300,7 +298,6 @@ static POLICYQUALINFO * notice_section(X509V3_CTX * ctx, STACK_OF(CONF_VALUE) * 
 		}
 		else if(strcmp(cnf->name, "organization") == 0) {
 			NOTICEREF * nref;
-
 			if(!not->noticeref) {
 				if((nref = NOTICEREF_new()) == NULL)
 					goto merr;
@@ -312,13 +309,11 @@ static POLICYQUALINFO * notice_section(X509V3_CTX * ctx, STACK_OF(CONF_VALUE) * 
 				nref->organization->type = V_ASN1_IA5STRING;
 			else
 				nref->organization->type = V_ASN1_VISIBLESTRING;
-			if(!ASN1_STRING_set(nref->organization, cnf->value,
-			    strlen(cnf->value)))
+			if(!ASN1_STRING_set(nref->organization, cnf->value, strlen(cnf->value)))
 				goto merr;
 		}
 		else if(strcmp(cnf->name, "noticeNumbers") == 0) {
 			NOTICEREF * nref;
-
 			STACK_OF(CONF_VALUE) *nos;
 			if(!not->noticeref) {
 				if((nref = NOTICEREF_new()) == NULL)

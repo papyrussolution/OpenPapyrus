@@ -3125,9 +3125,9 @@ int PPViewGoodsRest::SetSupplOrderValues(PPID goodsID, PPID locID, double predic
 	return ok;
 }
 
-int PPViewGoodsRest::GetGoodsBarcode(PPID goodsID, char * barcode, size_t buflen)
+int PPViewGoodsRest::GetGoodsBarcode(PPID goodsID, SString & rBuf)
 {
-	return GObj.GetSingleBarcode(goodsID, barcode, buflen);
+	return GObj.GetSingleBarcode(goodsID, 0, rBuf);
 }
 
 int PPViewGoodsRest::GetTotal(GoodsRestTotal * pTotal)

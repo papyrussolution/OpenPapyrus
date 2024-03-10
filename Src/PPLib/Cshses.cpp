@@ -1959,7 +1959,7 @@ int AsyncCashGoodsIterator::UpdateCPrice(PPID goodsID, double price)
 int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 {
 	int    ok = -1;
-	const  LDATETIME _now = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	Reference * p_ref = PPRef;
 	int    r;
 	PPIDArray acn_goodsnodisrmvd;
@@ -2006,7 +2006,7 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 							STRNSCPY(Rec.LocPrnSymb, lp_rec.Symb);
 					}
 				}
-				if(c == GPRET_CLOSEDLOTS && LotThreshold > 0 && diffdate(_now.d, rtl_ext_item.CurLotDate) > LotThreshold) { // @v10.8.10 LConfig.OperDate-->_now.d
+				if(c == GPRET_CLOSEDLOTS && LotThreshold > 0 && diffdate(now_dtm.d, rtl_ext_item.CurLotDate) > LotThreshold) { // @v10.8.10 LConfig.OperDate-->_now.d
 					updated = 0;
 				}
 				else if(Flags & ACGIF_UPDATEDONLY) {
@@ -2113,7 +2113,7 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 							STRNSCPY(Rec.AsscPosNodeSymb, cn_rec.Symb);
 						}
 					}
-					if(GObj.FetchTax(grec.ID, /*LConfig.OperDate*/_now.d, 0L, &gtx) > 0)
+					if(GObj.FetchTax(grec.ID, /*LConfig.OperDate*/now_dtm.d, 0L, &gtx) > 0)
 						Rec.VatRate = gtx.GetVatRate();
 					CodePos = 0;
 					GObj.ReadBarcodes(grec.ID, Codes);
@@ -2144,7 +2144,7 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					}
 					if(AcnPack.Flags & CASHF_EXPGOODSREST) {
 						GoodsRestParam param;
-						param.Date    = /*LConfig.OperDate*/_now.d;
+						param.Date    = /*LConfig.OperDate*/now_dtm.d;
 						param.LocID   = LocID;
 						param.GoodsID = Rec.ID;
 						THROW(BillObj->trfr->GetCurRest(param));
@@ -2332,11 +2332,11 @@ AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updOnly, D
 			int    is_event = 0;
 			SysJournal * p_sj = DS.GetTLA().P_SysJ;
 			if(P_DLS) {
-				const LDATETIME dtm = getcurdatetime_();
+				const LDATETIME now_dtm = getcurdatetime_();
 				PPID   last_loading = 0;
 				PPID   dls_id = 0;
 				DvcLoadingStatTbl::Rec dls_rec;
-				if(P_DLS->GetLast(dvctCashs, cashNodeID, dtm, &dls_id, &dls_rec) > 0) {
+				if(P_DLS->GetLast(dvctCashs, cashNodeID, now_dtm, &dls_id, &dls_rec) > 0) {
 					Since.Set(dls_rec.Dt, dls_rec.Tm);
 					is_event = 1;
 				}
@@ -2593,12 +2593,13 @@ AsyncCashGoodsGroupIterator::~AsyncCashGoodsGroupIterator()
 int AsyncCashGoodsGroupIterator::MakeGroupList(StrAssocArray * pTreeList, PPID parentID, uint level)
 {
 	int    ok = -1;
+	SString temp_buf;
 	for(uint i = 0; i < pTreeList->getCount(); i++) {
 		StrAssocArray::Item item = pTreeList->Get(i);
 		if(item.ParentId == parentID) {
 			Goods2Tbl::Rec goods_rec;
 			if(GObj.Fetch(item.Id, &goods_rec) > 0 && !(goods_rec.Flags & GF_ALTGROUP)) {
-				AsyncCashGoodsGroupInfo  info;
+				AsyncCashGoodsGroupInfo info;
 				PPGoodsTaxEntry  gtx;
 				info.ID = item.Id;
 				STRNSCPY(info.Name, goods_rec.Name);
@@ -2606,9 +2607,9 @@ int AsyncCashGoodsGroupIterator::MakeGroupList(StrAssocArray * pTreeList, PPID p
 				info.UnitID  = goods_rec.UnitID;
 				if(GObj.FetchTax(goods_rec.ID, getcurdate_(), 0L, &gtx) > 0) // @v10.8.10 LConfig.OperDate-->getcurdate_()
 					info.VatRate = gtx.GetVatRate();
-				GObj.GetSingleBarcode(goods_rec.ID, info.Code, sizeof(info.Code));
-				if(info.Code[0] == '@')
-					strcpy(info.Code, info.Code+1);
+				GObj.GetSingleBarcode(goods_rec.ID, 0, temp_buf);
+				temp_buf.ShiftLeftChr('@');
+				STRNSCPY(info.Code, temp_buf);
 				info.Level = level;
 				info.P_QuotByQttyList = 0;
 				THROW_SL(P_GrpList->insert(&info));

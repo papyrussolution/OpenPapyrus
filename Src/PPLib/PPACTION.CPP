@@ -19,13 +19,13 @@ SysJournal::~SysJournal()
 int SysJournal::LogEvent(PPID action, PPID obj, PPID id, long extData, int use_ta)
 {
 	int    ok = -1;
-	const LDATETIME dtm = getcurdatetime_();
-	const  PPID user_id = LConfig.UserID;
+	const LDATETIME now_dtm = getcurdatetime_();
+	const PPID user_id = LConfig.UserID;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		data.Dt      = dtm.d;
-		data.Tm      = dtm.t;
+		data.Dt      = now_dtm.d;
+		data.Tm      = now_dtm.t;
 		data.UserID  = user_id;
 		data.Action  = action;
 		data.ObjType = obj;
@@ -44,8 +44,8 @@ int SysJournal::LogEvent(PPID action, PPID obj, PPID id, long extData, int use_t
 					// Дата и время инициализируются тем же значением, с которым осуществлялась
 					// самая первая попытка добавления записи в регулярную таблицу.
 					//
-					P_RsrvT->data.Dt      = dtm.d;
-					P_RsrvT->data.Tm      = dtm.t;
+					P_RsrvT->data.Dt      = now_dtm.d;
+					P_RsrvT->data.Tm      = now_dtm.t;
 					P_RsrvT->data.UserID  = user_id;
 					P_RsrvT->data.Action  = action;
 					P_RsrvT->data.ObjType = obj;

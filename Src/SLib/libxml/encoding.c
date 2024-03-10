@@ -249,8 +249,7 @@ static uconv_t* openIcuConverter(const char * name, int toUnicode)
 	if(U_SUCCESS(status))
 		return conv;
 error:
-	if(conv->uconv)
-		ucnv_close(conv->uconv);
+	ucnv_close(conv->uconv);
 	SAlloc::F(conv);
 	return NULL;
 }

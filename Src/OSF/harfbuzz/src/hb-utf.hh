@@ -75,26 +75,18 @@ error:
 		return text;
 	}
 
-	static const codepoint_t * prev(const codepoint_t * text,
-	    const codepoint_t * start,
-	    hb_codepoint_t * unicode,
-	    hb_codepoint_t replacement)
+	static const codepoint_t * prev(const codepoint_t * text, const codepoint_t * start, hb_codepoint_t * unicode, hb_codepoint_t replacement)
 	{
 		const codepoint_t * end = text--;
 		while(start < text && (*text & 0xc0) == 0x80 && end - text < 4)
 			text--;
-
 		if(LIKELY(next(text, end, unicode, replacement) == end))
 			return text;
-
 		*unicode = replacement;
 		return end - 1;
 	}
 
-	static uint strlen(const codepoint_t * text)
-	{
-		return ::strlen((const char *)text);
-	}
+	static uint strlen(const codepoint_t * text) { return ::strlen((const char *)text); }
 
 	static uint encode_len(hb_codepoint_t unicode)
 	{
@@ -105,9 +97,7 @@ error:
 		return 3;
 	}
 
-	static codepoint_t * encode(codepoint_t * text,
-	    const codepoint_t * end,
-	    hb_codepoint_t unicode)
+	static codepoint_t * encode(codepoint_t * text, const codepoint_t * end, hb_codepoint_t unicode)
 	{
 		if(UNLIKELY(unicode >= 0xD800u && (unicode <= 0xDFFFu || unicode > 0x10FFFFu)))
 			unicode = 0xFFFDu;
@@ -342,12 +332,9 @@ struct hb_ascii_t {
 		return text;
 	}
 
-	static const codepoint_t * prev(const codepoint_t * text,
-	    const codepoint_t * start CXX_UNUSED_PARAM,
-	    hb_codepoint_t * unicode,
-	    hb_codepoint_t replacement)
+	static const codepoint_t * prev(const codepoint_t * text, const codepoint_t * start CXX_UNUSED_PARAM, hb_codepoint_t * unicode, hb_codepoint_t replacement)
 	{
-		* unicode = *--text;
+		*unicode = *--text;
 		if(*unicode >= 0x0080u)
 			*unicode = replacement;
 		return text;
@@ -356,18 +343,15 @@ struct hb_ascii_t {
 	static uint strlen(const codepoint_t * text)
 	{
 		uint l = 0;
-		while(*text++) l++;
+		while(*text++) 
+			l++;
 		return l;
 	}
-
 	static uint encode_len(hb_codepoint_t unicode CXX_UNUSED_PARAM)
 	{
 		return 1;
 	}
-
-	static codepoint_t * encode(codepoint_t * text,
-	    const codepoint_t * end CXX_UNUSED_PARAM,
-	    hb_codepoint_t unicode)
+	static codepoint_t * encode(codepoint_t * text, const codepoint_t * end CXX_UNUSED_PARAM, hb_codepoint_t unicode)
 	{
 		if(UNLIKELY(unicode >= 0x0080u))
 			unicode = '?';

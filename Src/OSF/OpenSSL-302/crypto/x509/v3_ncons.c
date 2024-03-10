@@ -44,10 +44,8 @@ ASN1_SEQUENCE(GENERAL_SUBTREE) = {
 } ASN1_SEQUENCE_END(GENERAL_SUBTREE)
 
 ASN1_SEQUENCE(NAME_CONSTRAINTS) = {
-	ASN1_IMP_SEQUENCE_OF_OPT(NAME_CONSTRAINTS, permittedSubtrees,
-	    GENERAL_SUBTREE, 0),
-	ASN1_IMP_SEQUENCE_OF_OPT(NAME_CONSTRAINTS, excludedSubtrees,
-	    GENERAL_SUBTREE, 1),
+	ASN1_IMP_SEQUENCE_OF_OPT(NAME_CONSTRAINTS, permittedSubtrees, GENERAL_SUBTREE, 0),
+	ASN1_IMP_SEQUENCE_OF_OPT(NAME_CONSTRAINTS, excludedSubtrees, GENERAL_SUBTREE, 1),
 } ASN1_SEQUENCE_END(NAME_CONSTRAINTS)
 
 IMPLEMENT_ASN1_ALLOC_FUNCTIONS(GENERAL_SUBTREE)
@@ -58,7 +56,7 @@ IMPLEMENT_ASN1_ALLOC_FUNCTIONS(NAME_CONSTRAINTS)
 /* Like memchr but for ASN1_IA5STRING. Additionally you can specify the
  * starting point to search from
  */
-#define ia5memchr(str, start, c) memchr(start, c, IA5_OFFSET_LEN(str, start))
+#define ia5memchr(str, start, c) smemchr(start, c, IA5_OFFSET_LEN(str, start))
 
 /* Like memrrchr but for ASN1_IA5STRING */
 static char * ia5memrchr(ASN1_IA5STRING *str, int c)
@@ -310,11 +308,10 @@ static int cn2dnsid(ASN1_STRING * cn, uchar ** dnsid, size_t * idlen)
 		--utf8_length;
 
 	/* Reject *embedded* NULs */
-	if(memchr(utf8_value, 0, utf8_length) != NULL) {
+	if(smemchr(utf8_value, 0, utf8_length) != NULL) {
 		OPENSSL_free(utf8_value);
 		return X509_V_ERR_UNSUPPORTED_NAME_SYNTAX;
 	}
-
 	/*
 	 * XXX: Deviation from strict DNS name syntax, also check names with '_'
 	 * Check DNS name syntax, any '-' or '.' must be internal,

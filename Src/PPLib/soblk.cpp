@@ -575,8 +575,8 @@ int SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHdr)
 			THROW(P_CsObj->P_Tbl->GetLastNumber(rHdr.PosNodeID, rHdr.LocID, &sess_number, &last_cs_rec));
 			if(!sess_number || last_cs_rec.Dt != cc_rec.Dt) {
 				sess_number++;
-				LDATETIME cs_dtm = getcurdatetime_();
-				THROW(P_CsObj->P_Tbl->CreateSess(&cs_id, rHdr.PosNodeID, rHdr.LocID, sess_number, cs_dtm, 0));
+				const LDATETIME now_dtm = getcurdatetime_();
+				THROW(P_CsObj->P_Tbl->CreateSess(&cs_id, rHdr.PosNodeID, rHdr.LocID, sess_number, now_dtm, 0));
 			}
 			else {
 				cs_id = last_cs_rec.ID;
@@ -1704,7 +1704,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 						StringSet ss_places_busy(";");
 						ProcessorTbl::Rec prc_rec;
 						PPCheckInPersonArray ci_list;
-						const LDATETIME _cdtm = getcurdatetime_();
+						const LDATETIME now_dtm = getcurdatetime_();
 						for(uint j = 0; j < ResultList.getCount(); j++) {
 							const  PPID tsess_id = ResultList.Get(j).Id;
 							if(P_TSesObj->Search(tsess_id, &tses_rec) > 0 && prc_obj.Fetch(tses_rec.PrcID, &prc_rec) > 0) {
@@ -1714,7 +1714,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 								if(prc_ext.GetCipLockTimeout() > 0 && checkdate(tses_rec.StDt)) {
 									LDATETIME stdtm;
 									stdtm.Set(tses_rec.StDt, tses_rec.StTm);
-									const long _d = diffdatetimesec(stdtm, _cdtm);
+									const long _d = diffdatetimesec(stdtm, now_dtm);
 									if(_d < prc_ext.GetCipLockTimeout())
 										tses_rec.Flags |= TSESF_CIPREGLOCKED;
 								}

@@ -1,5 +1,5 @@
 // DBBACKUP.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -471,7 +471,7 @@ int DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
 	const  int use_compression    = 0; //BIN(pData->Flags & BCOPYDF_USECOMPRESS); // @v10.8.3 unconditionally 0
 	const  int use_copycontinouos = BIN(pData->Flags & BCOPYDF_USECOPYCONT);
 	// @v10.9.5 int    do_release_cont = BIN(pData->Flags & BCOPYDF_RELEASECONT);
-	const  LDATETIME cur_dtm = getcurdatetime_();
+	const LDATETIME now_dtm = getcurdatetime_();
 	DbTableStat ts;
 	StrAssocArray tbl_list;
 	SString path;
@@ -576,7 +576,7 @@ int DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
 			P_Db->GetDataPath(data_path);
 			THROW(CopyLinkFiles(data_path, cp.Path, fnLog, extraPtr));
 			pData->DestSize = cp.TotalSize;
-			pData->Dtm = cur_dtm;
+			pData->Dtm = now_dtm;
 			THROW(InfoF->AddRecord(pData));
 		}
 		else {

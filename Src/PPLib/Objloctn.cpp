@@ -1918,6 +1918,10 @@ int LocationDialog::setDTS(const PPLocationPacket * pData)
 	if(LocTyp == LOCTYP_ADDRESS) {
 		AddClusterAssoc(CTL_LOCATION_FLAGS, 0, LOCF_MANUALADDR);
 		SetClusterData(CTL_LOCATION_FLAGS, Data.Flags);
+		// @v11.9.9 {
+		AddClusterAssoc(CTL_LOCATION_PASSIVE, 0, LOCF_PASSIVE);
+		SetClusterData(CTL_LOCATION_PASSIVE, Data.Flags);
+		// } @v11.9.9 
 		LocationCore::GetExField(&Data, LOCEXSTR_FULLADDR, temp_buf);
 		setCtrlString(CTL_LOCATION_FULLADDR, temp_buf);
 		SetGeoCoord();
@@ -1973,6 +1977,7 @@ int LocationDialog::setDTS(const PPLocationPacket * pData)
 		AddClusterAssoc(CTL_LOCATION_FLAGS, 4, LOCF_WHCODEPREFIX);
 		AddClusterAssoc(CTL_LOCATION_FLAGS, 5, LOCF_SEQCOLCODE);
 		AddClusterAssoc(CTL_LOCATION_FLAGS, 6, LOCF_DISPOSEBILLS);
+		AddClusterAssoc(CTL_LOCATION_FLAGS, 7, LOCF_PASSIVE); // @v11.9.9
 		SetClusterData(CTL_LOCATION_FLAGS, Data.Flags);
 	}
 	UpdateWarehouseList(-1, 1);
@@ -1997,6 +2002,7 @@ int LocationDialog::getDTS(PPLocationPacket * pData)
 	getCtrlData(CTLSEL_LOCATION_CITY,  &Data.CityID);
 	if(LocTyp == LOCTYP_ADDRESS) {
 		GetClusterData(CTL_LOCATION_FLAGS, &Data.Flags);
+		GetClusterData(CTL_LOCATION_PASSIVE, &Data.Flags); // @v11.9.9
 		getCtrlString(CTL_LOCATION_ZIP, temp_buf);
 		LocationCore::SetExField(&Data, LOCEXSTR_ZIP, temp_buf);
 		getCtrlString(CTL_LOCATION_ADDR, temp_buf);

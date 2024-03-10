@@ -110,11 +110,8 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter * cf,
 		service_name = SAlloc::M(service_length + strlen(conn->socks_proxy.host.name) + 2);
 		if(!service_name)
 			return CURLE_OUT_OF_MEMORY;
-		msnprintf(service_name, service_length +
-		    strlen(conn->socks_proxy.host.name) + 2, "%s/%s",
-		    service, conn->socks_proxy.host.name);
+		msnprintf(service_name, service_length + strlen(conn->socks_proxy.host.name) + 2, "%s/%s", service, conn->socks_proxy.host.name);
 	}
-
 	input_desc.cBuffers = 1;
 	input_desc.pBuffers = &sspi_recv_token;
 	input_desc.ulVersion = SECBUFFER_VERSION;

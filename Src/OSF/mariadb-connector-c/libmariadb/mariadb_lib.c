@@ -2975,8 +2975,7 @@ int mysql_get_optionv(MYSQL * mysql, enum mysql_option option, void * arg, ...)
 		    void * data = va_arg(ap, void *);
 		    char * key = (char *)arg;
 		    if(key && data && mysql->options.extension && hash_inited(&mysql->options.extension->userdata) &&
-			(p = (uchar *)hash_search(&mysql->options.extension->userdata, (uchar *)key,
-			(uint)strlen((char *)key)))) {
+				(p = (uchar *)hash_search(&mysql->options.extension->userdata, (uchar *)key, (uint)strlen((char *)key)))) {
 			    p += strlen(key) + 1;
 			    *((void **)data) = *((void **)p);
 			    break;

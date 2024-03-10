@@ -347,10 +347,8 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS * hosts,
 						    // the name hash length must be the sha1 size or we can't match it 
 						    break;
 					    }
-					    libssh2_hmac_sha1_init(&ctx, (uchar *)node->salt,
-					    node->salt_len);
-					    libssh2_hmac_update(ctx, (uchar *)host,
-					    strlen(host));
+					    libssh2_hmac_sha1_init(&ctx, (uchar *)node->salt, node->salt_len);
+					    libssh2_hmac_update(ctx, (uchar *)host, strlen(host));
 					    libssh2_hmac_final(ctx, hash);
 					    libssh2_hmac_cleanup(&ctx);
 					    if(!memcmp(hash, node->name, SHA_DIGEST_LENGTH))

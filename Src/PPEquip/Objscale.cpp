@@ -5010,7 +5010,8 @@ int PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 						is_wp = 1;
 					}
 					else {
-						grv->GetGoodsBarcode(gr_item.GoodsID, barcode, sizeof(barcode));
+						grv->GetGoodsBarcode(gr_item.GoodsID, temp_buf);
+						STRNSCPY(barcode, temp_buf);
 						is_wp = goods_obj.GetConfig().IsWghtPrefix(barcode);
 						if(is_wp == 2)
 							plu.Flags |= plu.fCountable;

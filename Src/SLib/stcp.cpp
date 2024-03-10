@@ -1,5 +1,5 @@
 // STCP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -2834,7 +2834,7 @@ int ParseFtpDirEntryLine(const SString & rLine, SFileEntryPool::Entry & rEntry)
 	scan.Skip().GetWord(" \t", temp_buf.Z());
 	rEntry.Size = temp_buf.ToInt64();
 	{ // time: mon day [year] time
-		LDATETIME now_dtm = getcurdatetime_();
+		const LDATETIME now_dtm = getcurdatetime_();
 		int    mon = 0;
 		int    day = 0;
 		int    year = 0;

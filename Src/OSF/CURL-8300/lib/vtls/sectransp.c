@@ -1195,24 +1195,15 @@ static OSStatus CopyIdentityFromPKCS12File(const char * cPath,
 	   raise linker errors when used on that cat for some reason. */
 #if CURL_BUILD_MAC_10_7 || CURL_BUILD_IOS
 	bool resource_imported;
-
 	if(blob) {
-		pkcs_data = CFDataCreate(kCFAllocatorDefault,
-			(const uchar *)blob->data, blob->len);
+		pkcs_data = CFDataCreate(kCFAllocatorDefault, (const uchar *)blob->data, blob->len);
 		status = (pkcs_data != NULL) ? errSecSuccess : errSecAllocate;
 		resource_imported = (pkcs_data != NULL);
 	}
 	else {
-		pkcs_url =
-		    CFURLCreateFromFileSystemRepresentation(NULL,
-			(const UInt8 *)cPath,
-			strlen(cPath), false);
-		resource_imported =
-		    CFURLCreateDataAndPropertiesFromResource(NULL,
-			pkcs_url, &pkcs_data,
-			NULL, NULL, &status);
+		pkcs_url = CFURLCreateFromFileSystemRepresentation(NULL, (const UInt8 *)cPath, strlen(cPath), false);
+		resource_imported = CFURLCreateDataAndPropertiesFromResource(NULL, pkcs_url, &pkcs_data, NULL, NULL, &status);
 	}
-
 	if(resource_imported) {
 		CFArrayRef items = NULL;
 

@@ -999,7 +999,7 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 				uint   pref_item_pos = 0, single_item_pos = 0;
 				const BarcodeTbl::Rec * p_pref_item = pPack->Codes.GetPreferredItem(&pref_item_pos);
 				if(!p_pref_item) {
-					const BarcodeTbl::Rec * p_single_item = pPack->Codes.GetSingleItem(&single_item_pos);
+					const BarcodeTbl::Rec * p_single_item = pPack->Codes.GetSingleItem(&single_item_pos, 0);
 					if(p_single_item) {
 						pPack->Codes.SetPreferredItem(single_item_pos);
 						pack_cmp_result_flags &= ~pefCodeEq;
@@ -2094,7 +2094,7 @@ int  PPObjGoods::AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int use_ta
 int  PPObjGoods::RemoveGoodsFromGen(PPID goodsID, PPID genID, int use_ta) { return P_Tbl->RemoveGoodsFromGen(goodsID, genID, use_ta); }
 int  PPObjGoods::AssignGoodsToAltGrp(PPID goodsID, PPID grp, long innerNum, int use_ta) { return P_Tbl->AssignGoodsToAltGrp(goodsID, grp, innerNum, use_ta); }
 int  PPObjGoods::ReadBarcodes(PPID id, BarcodeArray & rAry) { return P_Tbl->ReadBarcodes(id, rAry); }
-int  PPObjGoods::GetSingleBarcode(PPID id, SString & rBuf) { return P_Tbl->GetSingleBarcode(id, rBuf); }
+int  PPObjGoods::GetSingleBarcode(PPID id, uint sifFlags/*BarcodeArray::sifXXX*/, SString & rBuf) { return P_Tbl->GetSingleBarcode(id, sifFlags, rBuf); }
 int  PPObjGoods::FetchSingleBarcode(PPID id, SString & rBuf) { return P_Tbl->FetchSingleBarcode(id, rBuf); }
 bool PPObjGoods::IsAsset(PPID goodsID) { return CheckFlag(goodsID, GF_ASSETS); }
 bool PPObjGoods::IsGeneric(PPID goodsID) { return CheckFlag(goodsID, GF_GENERIC); }
@@ -2111,13 +2111,14 @@ int PPObjGoods::IsEqualOrBelongToGeneric(PPID goodsID, PPID otherGoodsID)
 	return ok;
 }
 
+/* @v11.9.9 
 int PPObjGoods::GetSingleBarcode(PPID id, char * pCode, size_t bufLen) // @obsolete
 {
 	SString temp_buf;
 	int ok = P_Tbl->GetSingleBarcode(id, temp_buf);
 	temp_buf.CopyTo(pCode, bufLen);
 	return ok;
-}
+}*/
 
 int PPObjGoods::GetBarcodeByTemplate(PPID grp, const char * pTempl, const BarcodeArray * pCurrentList, SString & rBuf)
 	{ return P_Tbl->GetBarcodeByTemplate(grp, GetConfig(), pTempl, pCurrentList, rBuf); }

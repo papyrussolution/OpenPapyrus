@@ -646,23 +646,17 @@ static CURLcode request_target(struct Curl_easy * data,
 {
 	CURLcode result;
 	struct dynbuf r;
-
 	Curl_dyn_init(&r, DYN_HTTP_REQUEST);
-
 	result = Curl_http_target(data, conn, &r);
 	if(result)
 		return result;
-
 	if(h2 && hyper_request_set_uri_parts(req,
 	    /* scheme */
-	    (uint8_t *)data->state.up.scheme,
-	    strlen(data->state.up.scheme),
+	    (uint8_t *)data->state.up.scheme, strlen(data->state.up.scheme),
 	    /* authority */
-	    (uint8_t *)conn->host.name,
-	    strlen(conn->host.name),
+	    (uint8_t *)conn->host.name, strlen(conn->host.name),
 	    /* path_and_query */
-	    (uint8_t *)Curl_dyn_uptr(&r),
-	    Curl_dyn_len(&r))) {
+	    (uint8_t *)Curl_dyn_uptr(&r), Curl_dyn_len(&r))) {
 		failf(data, "error setting uri parts to hyper");
 		result = CURLE_OUT_OF_MEMORY;
 	}
@@ -1067,16 +1061,13 @@ CURLcode Curl_http(struct Curl_easy * data, bool * done)
 		/* For HTTP/2, we show the Host: header as if we sent it, to make it look
 		   like for HTTP/1 but it isn't actually sent since :authority is then
 		   used. */
-		Curl_debug(data, CURLINFO_HEADER_OUT, data->state.aptr.host,
-		    strlen(data->state.aptr.host));
+		Curl_debug(data, CURLINFO_HEADER_OUT, data->state.aptr.host, strlen(data->state.aptr.host));
 	}
-
 	if(data->state.aptr.proxyuserpwd) {
 		result = Curl_hyper_header(data, headers, data->state.aptr.proxyuserpwd);
 		if(result)
 			goto error;
 	}
-
 	if(data->state.aptr.userpwd) {
 		result = Curl_hyper_header(data, headers, data->state.aptr.userpwd);
 		if(result)

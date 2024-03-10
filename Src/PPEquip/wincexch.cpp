@@ -471,6 +471,7 @@ int StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SBIIGood
 	double rest = 0;
 	PPID   goods_id = 0;
 	PPID   loc_id = 0;
+	SString temp_buf;
 	PPIDArray lot_list;
 	Goods2Tbl::Rec goods_rec;
 	GoodsCodeSrchBlock srch_blk;
@@ -499,8 +500,10 @@ int StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SBIIGood
 			STRNSCPY(sbii_grec.Serial,  pBarcode);
 		else
 			STRNSCPY(sbii_grec.Barcode, pBarcode);
-		if(sstrlen(sbii_grec.Barcode) == 0)
-			GObj.GetSingleBarcode(goods_id, sbii_grec.Barcode, sizeof(sbii_grec.Barcode));
+		if(isempty(sbii_grec.Barcode)) {
+			GObj.GetSingleBarcode(goods_id, 0, temp_buf);
+			STRNSCPY(sbii_grec.Barcode, temp_buf);
+		}
 		if(goods_rec.Flags & GF_UNLIM) {
 			GObj.GetQuot(goods_id, QuotIdent(loc_id, PPQUOTK_BASE, 0L/*@curID*/), 0L, 0L, &sbii_grec.Cost);
 		}
@@ -514,8 +517,7 @@ int StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SBIIGood
 		STRNSCPY(sbii_grec.Name, goods_rec.Name);
 		SOemToChar(sbii_grec.Name);
 		if(sstrlen(sbii_grec.Barcode) < 7) {
-			SString temp_buf(sbii_grec.Barcode);
-			temp_buf.PadLeft(12-temp_buf.Len(), '0');
+			(temp_buf = sbii_grec.Barcode).PadLeft(12-temp_buf.Len(), '0');
 			if(GObj.GetConfig().Flags & GCF_BCCHKDIG)
 				AddBarcodeCheckDigit(temp_buf);
 			temp_buf.CopyTo(sbii_grec.Barcode, sizeof(sbii_grec.Barcode));
@@ -583,8 +585,10 @@ int StyloBhtIIExchanger::AcceptLocOp(SBIILocOp * pRec)
 
 int StyloBhtIIExchanger::PrintBarcode(const char * pBarcode)
 {
-	int    ok = -1, is_serial = 0;
+	int    ok = -1;
+	bool   is_serial = false;
 	PPID   goods_id = 0;
+	SString temp_buf;
 	PPIDArray lot_list;
 	ReceiptTbl::Rec lot_rec;
 	RetailGoodsInfo rgi;
@@ -598,12 +602,13 @@ int StyloBhtIIExchanger::PrintBarcode(const char * pBarcode)
 	else if(BillObj->SearchLotsBySerial(pBarcode, &lot_list) > 0 && lot_list.getCount()) {
 		THROW(r_rcpt.Search(lot_list.at(0), &lot_rec) > 0);
 		goods_id = lot_rec.GoodsID;
-		is_serial = 1;
+		is_serial = true;
 	}
 	if(GObj.GetRetailGoodsInfo(goods_id, LConfig.Location, &rgi) > 0) {
 		if(is_serial) {
 			STRNSCPY(rgi.Serial, pBarcode);
-			GObj.GetSingleBarcode(goods_id, rgi.BarCode, sizeof(rgi.BarCode));
+			GObj.GetSingleBarcode(goods_id, 0, temp_buf);
+			STRNSCPY(rgi.BarCode, temp_buf);
 		}
 		else
 			STRNSCPY(rgi.BarCode, pBarcode);

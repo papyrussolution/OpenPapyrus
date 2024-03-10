@@ -1,5 +1,5 @@
 // V_GOODS.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -4766,7 +4766,11 @@ int PPALDD_GoodsGroup::InitData(PPFilt & rFilt, long rsrv)
 			}
 			else
 				STRNSCPY(H.FullName, rec.Name);
-			p_goods_obj->GetSingleBarcode(rec.ID, H.Code, sizeof(H.Code));
+			{
+				SString temp_buf;
+				p_goods_obj->GetSingleBarcode(rec.ID, 0, temp_buf);
+				STRNSCPY(H.Code, temp_buf);
+			}
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}
 	}
@@ -4845,7 +4849,8 @@ int PPALDD_Goods::InitData(PPFilt & rFilt, long rsrv)
 			H.Snl       = r_pack.Rec.ID;
 			H.Flags     = r_pack.Rec.Flags;
 			H.Kind      = r_pack.Rec.Kind;
-			r_pack.Codes.GetSingle(temp_buf); temp_buf.CopyTo(H.SingleBarCode, sizeof(H.SingleBarCode));
+			r_pack.Codes.GetSingle(0, temp_buf); 
+			temp_buf.CopyTo(H.SingleBarCode, sizeof(H.SingleBarCode));
 			STRNSCPY(H.Name, r_pack.Rec.Name);
 
 			H.Brutto = r_pack.Stock.Brutto;

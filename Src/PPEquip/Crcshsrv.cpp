@@ -1222,7 +1222,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		SString fmt_buf;
 		SString msg_buf;
 		SString ser_ident;
-		LDATETIME cur_dtm;
+		const LDATETIME now_dtm = getcurdatetime_();
 		SFsPath sp;
 		PPSCardSeries2 ser_rec;
 		PPObjSCardSeries scs_obj;
@@ -1232,9 +1232,8 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		PPLoadString("series", series_word); // @v10.7.11
 		scard_quot_ary.clear();
 		sp.Split(path_cards);
-		getcurdatetime(&cur_dtm);
-		(name = sp.Nam).CatChar('_').CatLongZ(cur_dtm.d.day(), 2).CatChar('-').CatLongZ(cur_dtm.d.month(), 2).CatChar('-').CatLongZ(cur_dtm.d.year(), 4).
-			CatChar('_').CatLongZ(cur_dtm.t.hour(), 2).CatChar('-').CatLongZ(cur_dtm.t.minut(), 2).CatChar('-').CatLongZ(cur_dtm.t.sec(), 2);
+		(name = sp.Nam).CatChar('_').CatLongZ(now_dtm.d.day(), 2).CatChar('-').CatLongZ(now_dtm.d.month(), 2).CatChar('-').CatLongZ(now_dtm.d.year(), 4).
+			CatChar('_').CatLongZ(now_dtm.t.hour(), 2).CatChar('-').CatLongZ(now_dtm.t.minut(), 2).CatChar('-').CatLongZ(now_dtm.t.sec(), 2);
 		sp.Nam = name;
 		sp.Merge(path_cards);
 		THROW_MEM(p_writer = new XmlWriter(path_cards, 1));

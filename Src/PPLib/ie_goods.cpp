@@ -1092,7 +1092,7 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 			if(!isempty(pBarcode))
 				STRNSCPY(sdr_goods.Code, pBarcode);
 			else {
-				pPack->Codes.GetSingle(temp_buf);
+				pPack->Codes.GetSingle(0, temp_buf);
 				temp_buf.CopyTo(sdr_goods.Code, sizeof(sdr_goods.Code));
 			}
 			{

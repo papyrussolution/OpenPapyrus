@@ -548,15 +548,13 @@ private:
 
 			for(int i = 0; i < elf_header.e_shnum; ++i) {
 				ElfW(Shdr) out;
-				off_t section_header_offset =
-				    static_cast<off_t>(elf_header.e_shoff) + elf_header.e_shentsize * i;
+				off_t section_header_offset = static_cast<off_t>(elf_header.e_shoff) + elf_header.e_shentsize * i;
 				if(!ReadFromOffsetExact(fd, &out, sizeof(out), section_header_offset)) {
 					return false;
 				}
 				off_t name_offset = static_cast<off_t>(shstrtab.sh_offset) + out.sh_name;
 				char header_name[kMaxSectionNameLen];
-				ssize_t n_read =
-				    ReadFromOffset(fd, &header_name, kMaxSectionNameLen, name_offset);
+				ssize_t n_read = ReadFromOffset(fd, &header_name, kMaxSectionNameLen, name_offset);
 				if(n_read < 0) {
 					return false;
 				}
@@ -564,9 +562,7 @@ private:
 					// Long read?
 					return false;
 				}
-
-				absl::string_view name(header_name,
-				    strnlen(header_name, static_cast<size_t>(n_read)));
+				absl::string_view name(header_name, sstrnlen(header_name, static_cast<size_t>(n_read)));
 				if(!callback(name, out)) {
 					break;
 				}
@@ -579,14 +575,10 @@ private:
 		    ElfW(Shdr) * out) {
 			char header_name[kMaxSectionNameLen];
 			if(sizeof(header_name) < name_len) {
-				ABSL_RAW_LOG(WARNING,
-				    "Section name '%s' is too long (%zu); "
-				    "section will not be found (even if present).",
-				    name, name_len);
+				ABSL_RAW_LOG(WARNING, "Section name '%s' is too long (%zu); section will not be found (even if present).", name, name_len);
 				// No point in even trying.
 				return false;
 			}
-
 			ElfW(Ehdr) elf_header;
 			if(!ReadFromOffsetExact(fd, &elf_header, sizeof(elf_header), 0)) {
 				return false;
@@ -596,17 +588,13 @@ private:
 			if(elf_header.e_shentsize != sizeof(ElfW(Shdr))) {
 				return false;
 			}
-
 			ElfW(Shdr) shstrtab;
-			off_t shstrtab_offset = static_cast<off_t>(elf_header.e_shoff) +
-			    elf_header.e_shentsize * elf_header.e_shstrndx;
+			off_t shstrtab_offset = static_cast<off_t>(elf_header.e_shoff) + elf_header.e_shentsize * elf_header.e_shstrndx;
 			if(!ReadFromOffsetExact(fd, &shstrtab, sizeof(shstrtab), shstrtab_offset)) {
 				return false;
 			}
-
 			for(int i = 0; i < elf_header.e_shnum; ++i) {
-				off_t section_header_offset =
-				    static_cast<off_t>(elf_header.e_shoff) + elf_header.e_shentsize * i;
+				off_t section_header_offset = static_cast<off_t>(elf_header.e_shoff) + elf_header.e_shentsize * i;
 				if(!ReadFromOffsetExact(fd, out, sizeof(*out), section_header_offset)) {
 					return false;
 				}
@@ -778,13 +766,10 @@ private:
 				const ssize_t n_read = ReadFromOffset(fd, out, out_size, off);
 				if(n_read <= 0) {
 					// This should never happen.
-					ABSL_RAW_LOG(WARNING,
-					    "Unable to read from fd %d at offset %lld: n_read = %zd", fd,
-					    static_cast<long long>(off), n_read);
+					ABSL_RAW_LOG(WARNING, "Unable to read from fd %d at offset %lld: n_read = %zd", fd, static_cast<long long>(off), n_read);
 					return SYMBOL_NOT_FOUND;
 				}
-				ABSL_RAW_CHECK(static_cast<size_t>(n_read) <= out_size,
-				    "ReadFromOffset read too much data.");
+				ABSL_RAW_CHECK(static_cast<size_t>(n_read) <= out_size, "ReadFromOffset read too much data.");
 
 				// strtab->sh_offset points into .strtab-like section that contains
 				// NUL-terminated strings: '\0foo\0barbaz\0...".
@@ -792,7 +777,7 @@ private:
 				// sh_offset+st_name points to the start of symbol name, but we don't know
 				// how long the symbol is, so we try to read as much as we have space for,
 				// and usually over-read (i.e. there is a NUL somewhere before n_read).
-				if(memchr(out, '\0', static_cast<size_t>(n_read)) == nullptr) {
+				if(smemchr(out, '\0', static_cast<size_t>(n_read)) == nullptr) {
 					// Either out_size was too small (n_read == out_size and no NUL), or
 					// we tried to read past the EOF (n_read < out_size) and .strtab is
 					// corrupt (missing terminating NUL; should never happen for valid ELF).
@@ -801,7 +786,6 @@ private:
 				}
 				return SYMBOL_FOUND;
 			}
-
 			return SYMBOL_NOT_FOUND;
 		}
 
@@ -809,7 +793,8 @@ private:
 // both regular and dynamic symbol tables if necessary.
 // See FindSymbol() comment for description of return value.
 		FindSymbolResult Symbolizer::GetSymbolFromObjectFile(const ObjFile &obj, const void *const pc, const ptrdiff_t relocation,
-		    char * out, size_t out_size, char * tmp_buf, size_t tmp_buf_size) {
+		    char * out, size_t out_size, char * tmp_buf, size_t tmp_buf_size) 
+		{
 			ElfW(Shdr) symtab;
 			ElfW(Shdr) strtab;
 			ElfW(Shdr) opd;
@@ -934,23 +919,14 @@ public:
 						return false;
 					}
 					*eol_ = '\0'; // Replace '\n' with '\0'.
-
 					*bol = bol_;
 					*eol = eol_;
 					return true;
 				}
-
 private:
-				char *FindLineFeed() const {
-					return reinterpret_cast<char *>(
-						memchr(bol_, '\n', static_cast<size_t>(eod_ - bol_)));
-				}
-
+				char *FindLineFeed() const { return reinterpret_cast<char *>(smemchr(bol_, '\n', static_cast<size_t>(eod_ - bol_))); }
 				bool BufferIsEmpty() const { return buf_ == eod_; }
-
-				bool HasCompleteLine() const {
-					return !BufferIsEmpty() && FindLineFeed() != nullptr;
-				}
+				bool HasCompleteLine() const { return !BufferIsEmpty() && FindLineFeed() != nullptr; }
 
 				const int fd_;
 				const size_t buf_len_;

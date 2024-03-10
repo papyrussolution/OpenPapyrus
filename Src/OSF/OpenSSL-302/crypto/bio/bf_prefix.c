@@ -88,38 +88,29 @@ static int prefix_write(BIO * b, const char * out, size_t outl, size_t * numwrit
 			ctx->linestart = (out[outl-1] == '\n');
 		return BIO_write_ex(BIO_next(b), out, outl, numwritten);
 	}
-
 	*numwritten = 0;
-
 	while(outl > 0) {
 		size_t i;
 		char c;
-
 		/*
 		 * If we know that we're at the start of the line, output prefix and
 		 * indentation.
 		 */
 		if(ctx->linestart) {
 			size_t dontcare;
-
-			if(ctx->prefix != NULL
-			    && !BIO_write_ex(BIO_next(b), ctx->prefix, strlen(ctx->prefix),
-			    &dontcare))
+			if(ctx->prefix != NULL && !BIO_write_ex(BIO_next(b), ctx->prefix, strlen(ctx->prefix), &dontcare))
 				return 0;
 			BIO_printf(BIO_next(b), "%*s", ctx->indent, "");
 			ctx->linestart = 0;
 		}
-
 		/* Now, go look for the next LF, or the end of the string */
 		for(i = 0, c = '\0'; i < outl && (c = out[i]) != '\n'; i++)
 			continue;
 		if(c == '\n')
 			i++;
-
 		/* Output what we found so far */
 		while(i > 0) {
 			size_t num = 0;
-
 			if(!BIO_write_ex(BIO_next(b), out, i, &num))
 				return 0;
 			out += num;

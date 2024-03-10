@@ -6,8 +6,8 @@
 #include <imgui-support.h>
 
 static ImGuiRuntimeBlock ImgRtb;
-static const ImVec2 ButtonSize_Std(64.0f, 24.0f);
-static const ImVec2 ButtonSize_Double(128.0f, 24.0f);
+//static const ImVec2 ButtonSize_Std(64.0f, 24.0f);
+//static const ImVec2 ButtonSize_Double(128.0f, 24.0f);
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam); // Forward declare message handler from imgui_impl_win32.cpp
 
@@ -112,9 +112,30 @@ public:
 	};
 	class InitializedConstData {
 	public:
+		InitializedConstData(const UiDescription * pUid) : ButtonStd_Height(0.0f),
+			ButtonStd_Width(0.0f), ButtonDouble_Width(0.0f)
+		{
+			int v;
+			ButtonStd_Height = (pUid && pUid->VList.Get(UiValueList::vButtonStdHeight, v) && v > 0) ? (float)v : 24.0f;
+			ButtonStd_Width = (pUid && pUid->VList.Get(UiValueList::vButtonStdWidth, v) && v > 0) ? (float)v : 64.0f;
+			ButtonDouble_Width = (pUid && pUid->VList.Get(UiValueList::vButtonDoubleWidth, v) && v > 0) ? (float)v : 128.0f;
+			ButtonSize_Std.x = ButtonStd_Width;
+			ButtonSize_Std.y = ButtonStd_Height;
+			ButtonSize_Double.x = ButtonDouble_Width;
+			ButtonSize_Double.y = ButtonStd_Height;
+		}
+		float ButtonStd_Height;
+		float ButtonStd_Width;
+		float ButtonDouble_Width;
+		ImVec2 ButtonSize_Std;
+		ImVec2 ButtonSize_Double;
 	};
-	Kabq_ImGuiSceneBlock() : ImGuiSceneBase()
+	Kabq_ImGuiSceneBlock() : ImGuiSceneBase(), P_ICD(0)
 	{
+	}
+	~Kabq_ImGuiSceneBlock()
+	{
+		ZDELETE(P_ICD);
 	}
 	virtual int Init(ImGuiIO & rIo);
 	void BuildScene();
@@ -123,6 +144,7 @@ private:
 	void    ProcessSearchInput(ImGuiContext * pImCtx);
 	void    View_FsDir();
 	State St;
+	const InitializedConstData * P_ICD;
 };
 
 /*virtual*/int Kabq_ImGuiSceneBlock::Init(ImGuiIO & rIo)
@@ -131,6 +153,7 @@ private:
 	SString temp_buf;
 	LoadUiDescription();
 	const UiDescription * p_uid = SLS.GetUiDescription();
+	P_ICD = new InitializedConstData(p_uid);
 	{
 		const bool use_ui_descripton = true;
 		ImGuiStyle * p_dest_style = 0;
@@ -356,19 +379,19 @@ void Kabq_ImGuiSceneBlock::BuildScene()
 			{
 				ImGuiWindowByLayout wbl(p_tl, loidTopicbar, "##Topicbar", view_flags);
 				if(wbl.IsValid()) {
-					if(ImGui::Button2("Computer", ButtonSize_Double)) {
+					if(ImGui::Button2("Computer", P_ICD->ButtonSize_Double)) {
 						St.Topic = topicComputer;
 					}
-					if(ImGui::Button2("Notes", ButtonSize_Double)) {
+					if(ImGui::Button2("Notes", P_ICD->ButtonSize_Double)) {
 						St.Topic = topicNotes;
 					}
-					if(ImGui::Button2("Finances", ButtonSize_Double)) {
+					if(ImGui::Button2("Finances", P_ICD->ButtonSize_Double)) {
 						St.Topic = topicFinance;
 					}
-					if(ImGui::Button2("Scores", ButtonSize_Double)) {
+					if(ImGui::Button2("Scores", P_ICD->ButtonSize_Double)) {
 						St.Topic = topicScores;
 					}
-					if(ImGui::Button2("Password Vault", ButtonSize_Double)) {
+					if(ImGui::Button2("Password Vault", P_ICD->ButtonSize_Double)) {
 						St.Topic = topicPasswordVault;
 					}
 				}
