@@ -7245,6 +7245,81 @@ int DocNalogRu_Generator::Underwriter(PPID psnID)
 	return ok;
 }
 
+int DocNalogRu_Generator::WriteAddress_SBIS(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString addr_text;
+	LocationCore::GetAddress(rP, 0, addr_text);
+	PPLocAddrStruc las;
+	las.Recognize((temp_buf = addr_text).Transf(CTRANSF_INNER_TO_OUTER));
+	//
+	SXml::WNode n__(P_X, GetToken_Ansi(hdrTag));
+	n__.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_TEXT), EncText((temp_buf = addr_text).Transf(CTRANSF_INNER_TO_UTF8)));
+	{
+		PPObjLocation loc_obj;
+		PPID   country_id = 0;
+		PPCountryBlock country_blk;
+		loc_obj.GetCountry(&rP, &country_id, &country_blk);
+		if(country_blk.IsNative) {
+			// PPHSC_RU_ADDR_RF 
+			/*
+				Кварт	А		Н	
+				Корпус	А		Н	
+				Дом	А		Н	
+				Улица	А		Н	
+				НаселПункт	А		Н	
+				Город	А		Н	
+				Район	А	T(0-50) 	Н	
+				КодРегион	А	T(=2) 	ОК	
+				Индекс	А	T(0-20) 	Н
+			*/
+			SXml::WNode n_adrrf_(P_X, GetToken_Ansi(PPHSC_RU_ADDR_RF));
+			if(regionCode > 0 && regionCode < 100) {
+				n_adrrf_.PutAttrib(GetToken_Ansi(PPHSC_RU_REGIONCODE), temp_buf.Z().CatLongZ(regionCode, 2));
+			}
+			{
+				las.GetText(PPLocAddrStruc::tZip, temp_buf);
+				if(temp_buf.IsEmpty())
+					LocationCore::GetExField(&rP, LOCEXSTR_ZIP, temp_buf);
+				n_adrrf_.PutAttribSkipEmpty(GetToken_Ansi(PPHSC_RU_INDEX), temp_buf);
+			}
+			if(rP.CityID && GetObjectName(PPOBJ_WORLD, rP.CityID, temp_buf) > 0 && temp_buf.NotEmpty()) {
+				n_adrrf_.PutAttrib(GetToken_Ansi(PPHSC_RU_CITY), EncText(temp_buf));
+			}
+			else if(las.GetText(PPLocAddrStruc::tCity, temp_buf)) {
+				n_adrrf_.PutAttrib(GetToken_Ansi(PPHSC_RU_CITY), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+			}
+			if(las.GetText(PPLocAddrStruc::tStreet, temp_buf)) {
+				SString street_buf;
+				if(las.GetText(PPLocAddrStruc::tStreetKind, street_buf) > 0) // @v11.5.10
+					street_buf.Space().Cat(temp_buf);
+				else
+					street_buf = temp_buf;
+				if(street_buf.NotEmpty())
+					n_adrrf_.PutAttrib(GetToken_Ansi(PPHSC_RU_STREET), EncText(street_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+			}
+			if(las.GetText(PPLocAddrStruc::tHouse, temp_buf)) {
+				n_adrrf_.PutAttrib(GetToken_Ansi(PPHSC_RU_HOUSE), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+			}
+			if(las.GetText(PPLocAddrStruc::tApart, temp_buf)) {
+				n_adrrf_.PutAttrib(GetToken_Ansi(PPHSC_RU_APARTM), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
+			}
+		}
+		else {
+			SXml::WNode n_adrforeign_(P_X, GetToken_Ansi(PPHSC_RU_ADDR_FOREIGN));
+			n_adrforeign_.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_COUNTRYCODE), country_blk.Code);
+			n_adrforeign_.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_TEXT), EncText(addr_text));
+			// PPHSC_RU_ADDR_FOREIGN
+			/*
+				КодСтр	А	T(=3) 	ОК	
+				АдрТекст	А	T(1-1000) 	О
+			*/
+		}
+	}
+	return ok;
+}
+
 int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/)
 {
 	int    ok = 1;
@@ -7461,7 +7536,7 @@ const SString & FASTCALL DocNalogRu_Generator::EncText(const SString & rS)
 	EncBuf = rS;
 	EncBuf.ReplaceChar('\x07', ' ');
 	XMLReplaceSpecSymb(EncBuf, "&<>\'");
-	return EncBuf.Transf(CTRANSF_INNER_TO_OUTER);
+	return EncBuf.Transf((Cp == cpUTF8) ? CTRANSF_INNER_TO_UTF8 : CTRANSF_INNER_TO_OUTER);
 }
 
 int DocNalogRu_Generator::GetAgreementParams(/*PPID arID*/const PPBillPacket & rBillPack, SString & rAgtCode, LDATE & rAgtDate, LDATE & rAgtExpiry)

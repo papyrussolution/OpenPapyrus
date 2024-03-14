@@ -235,19 +235,50 @@ int BarcodeArray::GetSingle(uint sifFlags/*BarcodeArray::sifXXX*/, SString & rBu
 	return ok;
 }
 
+/*
+const BarcodeTbl::Rec * FASTCALL BarcodeArray::GetSingleItem(uint * pPos) const
+{
+	const  BarcodeTbl::Rec * p_ret = 0;
+	const  uint c = getCount();
+	if(c) {
+		uint   i, p = 0;
+		if(c > 1) {
+			const BarcodeTbl::Rec * p_pref_item = GetPreferredItem(&i);
+			if(p_pref_item)
+				p = i;
+			else {
+				int    done = 0;
+				for(int get_any = 0; !done && get_any <= 1; get_any++) {
+					for(i = 0; !done && i < c; i++) {
+						const BarcodeTbl::Rec & r_item = at(i);
+						if((r_item.Qtty == 1.0 && sstrlen(r_item.Code) <= 13) || get_any) {
+							p = i;
+							done = 1;
+						}
+					}
+				}
+			}
+		}
+		p_ret = &at(p);
+		ASSIGN_PTR(pPos, p);
+	}
+	return p_ret;
+}
+*/
+
 const BarcodeTbl::Rec * BarcodeArray::GetSingleItem(uint * pPos, uint sifFlags/*BarcodeArray::sifXXX*/) const
 {
 	const  BarcodeTbl::Rec * p_ret = 0;
 	const  uint c = getCount();
 	if(c) {
 		uint   i;
-		uint   p = 0;
 		int    diag = 0;
 		int    std = 0;
 		SString norm_code;
 		if(c > 1) {
 			const BarcodeTbl::Rec * p_pref_item = GetPreferredItem(&i);
 			bool  is_pref_suitable = false;
+			uint   p = 0; // result index +1 (0 - suitable entry is not found)
 			if(p_pref_item) {
 				if(sifFlags & sifValidEanUpcOnly) {
 					const  int dbcr = PPObjGoods::DiagBarcode(p_pref_item->Code, &diag, &std, &norm_code);
@@ -257,28 +288,30 @@ const BarcodeTbl::Rec * BarcodeArray::GetSingleItem(uint * pPos, uint sifFlags/*
 				else
 					is_pref_suitable = true;
 			}
-			if(is_pref_suitable)
-				p = i;
+			if(is_pref_suitable) {
+				p = i+1;
+			}
 			else {
-				bool   done = false;
-				for(int get_any = 0; !done && get_any <= 1; get_any++) {
-					for(i = 0; !done && i < c; i++) {
+				for(int get_any = 0; !p && get_any <= 1; get_any++) {
+					for(i = 0; !p && i < c; i++) {
 						const BarcodeTbl::Rec & r_item = at(i);
 						if((r_item.Qtty == 1.0 && sstrlen(r_item.Code) <= 13) || get_any) {
 							if(sifFlags & sifValidEanUpcOnly) {
 								const  int dbcr = PPObjGoods::DiagBarcode(r_item.Code, &diag, &std, &norm_code);
 								if(dbcr > 0 && oneof4(std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE)) {
-									p = i;
-									done = true;
+									p = i+1;
 								}
 							}
 							else {
-								p = i;
-								done = true;
+								p = i+1;
 							}
 						}
 					}
 				}
+			}
+			if(p) {
+				p_ret = &at(p-1);
+				ASSIGN_PTR(pPos, p-1);
 			}
 		}
 		else {

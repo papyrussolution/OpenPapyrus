@@ -1488,12 +1488,7 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					}
 					break;
 				case 23: // Связанное количество
-					if(!is_total) {
-						real_val = GetLinkQtty(*p_ti);
-						pBlk->Set(real_val);
-					}
-					else
-						pBlk->Set(Total.LinkQtty);
+					pBlk->Set(is_total ? Total.LinkQtty : GetLinkQtty(*p_ti));
 					break;
 				case 24: // Остаток по заказу
 					if(is_total)
@@ -1505,10 +1500,7 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					}
 					break;
 				case 25: // Распределенная себестоимость
-					if(is_total)
-						pBlk->Set(Total.ExtCost);
-					else
-						pBlk->Set(p_ti->ExtCost);
+					pBlk->Set(is_total ? Total.ExtCost : p_ti->ExtCost);
 					break;
 				case 26: // Складская ячейка
 					if(is_total)

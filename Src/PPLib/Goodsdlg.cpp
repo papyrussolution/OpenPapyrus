@@ -660,6 +660,40 @@ public:
 		return pData->copy(Data) ? 1 : PPSetErrorSLib();
 	}
 private:
+	DECL_HANDLE_EVENT
+	{
+		PPListDialog::handleEvent(event);
+		if(event.isCmd(cmCopyToClipboard)) {
+			long  cur_pos = 0;
+			long  cur_id = 0;
+			SString text_buf;
+			if(getCurItem(&cur_pos, &cur_id)) {
+				if(cur_pos >= 0 && cur_pos < Data.getCountI()) {
+					const BarcodeTbl::Rec & r_rec = Data.at(static_cast<uint>(cur_pos));
+					text_buf.Cat(r_rec.Code).Tab().Cat(r_rec.Qtty).Tab();
+					if(oneof2(r_rec.BarcodeType, BARCODE_TYPE_PREFERRED, BARCODE_TYPE_PREFMARK))
+						text_buf.Cat("preferred");
+					SClipboard::Copy_Text(text_buf, text_buf.Len());
+				}
+			}			
+		}
+		else if(event.isCmd(cmCopyToClipboardAll)) {
+			if(Data.getCount()) {
+				SString text_buf;
+				for(uint i = 0; i < Data.getCount(); i++) {
+					const BarcodeTbl::Rec & r_rec = Data.at(static_cast<uint>(i));
+					text_buf.Cat(r_rec.Code).Tab().Cat(r_rec.Qtty).Tab();
+					if(oneof2(r_rec.BarcodeType, BARCODE_TYPE_PREFERRED, BARCODE_TYPE_PREFMARK))
+						text_buf.Cat("preferred");
+					text_buf.CR();
+				}
+				SClipboard::Copy_Text(text_buf, text_buf.Len());
+			}
+		}
+		else
+			return;
+		clearEvent(event);
+	}
 	virtual int  setupList();
 	virtual int  addItem(long * pPos, long * pID);
 	virtual int  editItem(long pos, long id);

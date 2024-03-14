@@ -72,9 +72,9 @@ static size_t FASTCALL CalcArrayDelta(uint itemSize)
 {
 	const uint min_delta = 8;
 	const uint align_bits = 8;
-    uint quant = Lcm(itemSize * min_delta, 1 << align_bits);
-    assert((quant % itemSize) == 0);
-    return quant / itemSize;
+	const uint quant = Lcm(itemSize * min_delta, 1 << align_bits);
+	assert((quant % itemSize) == 0);
+	return quant / itemSize;
 }
 
 static uint FASTCALL SnapUpCount(uint newCount, uint itemSize)

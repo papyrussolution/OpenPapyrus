@@ -7199,7 +7199,7 @@ public:
 	//     result = Fun(0, pData, dataSize)
 	//  -- если необходимо получить хэш в несколько итераций, то делаем так:
 	//     SlHash hs;
-	//     while(isThereMoreDate) {
+	//     while(isThereMoreData) {
 	//       Func(&hs, data_chunk_ptr, data_chunk_size);
 	//     }
 	//     result = Func(&hs, 0, 0); // final

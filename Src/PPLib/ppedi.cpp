@@ -4943,6 +4943,7 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 	PPPersonPacket buyer_psn_pack;
 	PPLocationPacket loc_pack;
 	PPLocationPacket dlvr_loc_pack;
+	LocationTbl::Rec loc_rec;
 	SString main_org_gln;
 	SString loc_gln;
 	SString buyer_gln;
@@ -4950,7 +4951,7 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 	SString main_org_inn;
 	SString buyer_inn;
 	ArticleTbl::Rec buyer_ar_rec;
-	const  PPID dlvr_loc_id = rBp.GetDlvrAddrID();
+	PPID   dlvr_loc_id = rBp.GetDlvrAddrID();
 	PPID   buyer_acs_id = 0;
 	PPID   buyer_psn_id = ObjectToPerson(rBp.Rec.Object, &buyer_acs_id);
 	THROW(rBp.Rec.Object && ArObj.Search(rBp.Rec.Object, &buyer_ar_rec) > 0); // @todo @err
@@ -4963,9 +4964,19 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 	buyer_psn_pack.Regs.GetRegNumber(PPREGT_TPID, rBp.Rec.Dt, buyer_inn);
 	THROW(buyer_inn.NotEmpty()); // @todo @err
 	buyer_psn_pack.Regs.GetRegNumber(PPREGT_GLN, rBp.Rec.Dt, buyer_gln);
-	if(dlvr_loc_id) {
-		THROW(PsnObj.LocObj.GetPacket(dlvr_loc_id, &dlvr_loc_pack) > 0); // @todo @err
-		dlvr_loc_pack.Regs.GetRegNumber(PPREGT_GLN, rBp.Rec.Dt, dlvr_loc_gln);
+	{
+		if(!dlvr_loc_id) {
+			if(buyer_psn_pack.Rec.RLoc && PsnObj.LocObj.Fetch(buyer_psn_pack.Rec.RLoc, &loc_rec) > 0) {
+				dlvr_loc_id = loc_rec.ID;
+			} 
+			else if(buyer_psn_pack.Rec.MainLoc && PsnObj.LocObj.Fetch(buyer_psn_pack.Rec.MainLoc, &loc_rec) > 0) {
+				dlvr_loc_id = loc_rec.ID;
+			}
+		}
+		if(dlvr_loc_id) {
+			THROW(PsnObj.LocObj.GetPacket(dlvr_loc_id, &dlvr_loc_pack) > 0); // @todo @err
+			dlvr_loc_pack.Regs.GetRegNumber(PPREGT_GLN, rBp.Rec.Dt, dlvr_loc_gln);
+		}
 	}
 	G.StartDocument(pX, cpUTF8);
 	{
@@ -5004,7 +5015,19 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 				n_.PutAttrib(G.GetToken_Ansi(PPHSC_RU_APPEL2), (temp_buf = main_org_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
 				// (not-mandatory) n_.PutAttrib(G.GetToken_Ansi(PPHSC_RU_ROLE), "");
 				{
-					SXml::WNode adr_(G.P_X, G.GetToken_Ansi(PPHSC_RU_ADDRESS));
+					PPID suppl_addr_id = 0;
+					PPLocationPacket suppl_addr_pack;
+					if(main_org_pack.Rec.RLoc && PsnObj.LocObj.Fetch(main_org_pack.Rec.RLoc, &loc_rec) > 0) {
+						suppl_addr_id = loc_rec.ID;
+					} 
+					else if(main_org_pack.Rec.MainLoc && PsnObj.LocObj.Fetch(main_org_pack.Rec.MainLoc, &loc_rec) > 0) {
+						suppl_addr_id = loc_rec.ID;
+					}
+					if(suppl_addr_id && PsnObj.LocObj.GetPacket(suppl_addr_id, &suppl_addr_pack) > 0) {
+						//SXml::WNode adr_(G.P_X, G.GetToken_Ansi(PPHSC_RU_ADDRESS));
+						G.WriteAddress_SBIS(suppl_addr_pack, 0, PPHSC_RU_ADDRESS);
+						//G.WriteAddress_SBIS()
+					}
 				}
 			}
 			{
@@ -5014,12 +5037,26 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 				n_.PutAttrib(G.GetToken_Ansi(PPHSC_RU_APPEL2), (temp_buf = buyer_psn_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
 				// (not-mandatory) n_.PutAttrib(G.GetToken_Ansi(PPHSC_RU_ROLE), "");
 				{
-					SXml::WNode adr_(G.P_X, G.GetToken_Ansi(PPHSC_RU_ADDRESS));
+					PPID buyer_addr_id = 0;
+					PPLocationPacket buyer_addr_pack;
+					if(buyer_psn_pack.Rec.RLoc && PsnObj.LocObj.Fetch(buyer_psn_pack.Rec.RLoc, &loc_rec) > 0) {
+						buyer_addr_id = loc_rec.ID;
+					} 
+					else if(buyer_psn_pack.Rec.MainLoc && PsnObj.LocObj.Fetch(buyer_psn_pack.Rec.MainLoc, &loc_rec) > 0) {
+						buyer_addr_id = loc_rec.ID;
+					}
+					if(buyer_addr_id && PsnObj.LocObj.GetPacket(buyer_addr_id, &buyer_addr_pack) > 0) {
+						//SXml::WNode adr_(G.P_X, G.GetToken_Ansi(PPHSC_RU_ADDRESS));
+						G.WriteAddress_SBIS(buyer_addr_pack, 0, PPHSC_RU_ADDRESS);
+					}
 				}
 			}
-			{
+			if(dlvr_loc_id) {
 				SXml::WNode n_(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNEE));
-				//
+				if(dlvr_loc_gln.NotEmpty()) {
+					n_.PutAttrib(G.GetToken_Ansi(PPHSC_RU_GLN), dlvr_loc_gln);
+				}
+				G.WriteAddress_SBIS(dlvr_loc_pack, 0, PPHSC_RU_ADDRESS);
 			}
 			{
 				SXml::WNode n_(G.P_X, G.GetToken_Ansi(PPHSC_RU_PARAMETER));

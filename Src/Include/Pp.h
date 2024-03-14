@@ -55441,6 +55441,10 @@ public:
 	//
 	int    WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp, bool correction = false);
 	int    WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/);
+	//
+	// Descr: Специализированная функция, реализующая запись адреса в формате EDI SBIS
+	//
+	int    WriteAddress_SBIS(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/);
 	// 
 	// Descr: Флаги функции WriteOrgInfo
 	//

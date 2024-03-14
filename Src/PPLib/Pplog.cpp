@@ -1,5 +1,5 @@
 // PPLOG.CPP
-// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -585,41 +585,39 @@ long PPMsgLog::Init()
 	AllCount = 0;
 	CurMsg   = 0;
 	P_Index = new SArray(sizeof(long));
-	if(!P_Index)
-		return 0;
-	{
-		SString fname;
-		PPMakeTempFileName("logl", 0, 0, FileName);
-		PPMakeTempFileName("logi", 0, 0, InFileName);
+	if(P_Index) {
+		{
+			SString fname;
+			PPMakeTempFileName("logl", 0, 0, FileName);
+			PPMakeTempFileName("logi", 0, 0, InFileName);
+		}
+		Stream = creat(FileName, S_IWRITE);
+		if(Stream < 0) {
+			FileName = 0;
+			ZDELETE(P_Index);
+		}
+		else {
+			close(Stream);
+			Stream = open(FileName, O_RDWR|O_BINARY);
+			InStream = creat(InFileName, S_IWRITE);
+			if(InStream < 0) {
+				InFileName = 0;
+				close(Stream);
+				Stream = -1;
+				SFile::Remove(FileName);
+				ZDELETE(P_Index);
+			}
+			else {
+				close(InStream);
+				InStream = open(InFileName, O_RDWR|O_BINARY);
+				PPLogIdx li;
+				li.flags = 0;
+				li.address = 0;
+				_write(InStream, &li, sizeof(PPLogIdx));
+				Valid = 1;
+			}
+		}
 	}
-	Stream = creat(FileName, S_IWRITE);
-	if(Stream < 0) {
-		FileName = 0;
-		ZDELETE(P_Index);
-		return 0;
-	}
-	else {
-		close(Stream);
-		Stream = open(FileName, O_RDWR|O_BINARY);
-	}
-	InStream = creat(InFileName, S_IWRITE);
-	if(InStream < 0) {
-		InFileName = 0;
-		close(Stream);
-		Stream = -1;
-		SFile::Remove(FileName);
-		ZDELETE(P_Index);
-		return 0;
-	}
-	else {
-		close(InStream);
-		InStream = open(InFileName, O_RDWR|O_BINARY);
-	}
-	PPLogIdx li;
-	li.flags = 0;
-	li.address = 0;
-	_write(InStream, &li, sizeof(PPLogIdx));
-	Valid = 1;
 	return Valid;
 }
 

@@ -1024,6 +1024,32 @@ static void _PutDocDateAndNum(const BillTbl::Rec & rBillRec, SXml::WNode & rN, S
 	rN.PutInner("doc_date", rTempBuf.Z().Cat(rBillRec.Dt, DATF_GERMANCENT));
 }
 
+static bool IsMedcineOnly(int docType)
+{
+	bool  medcine_only = false;
+	{
+		const int mdlp_op_list[] = {
+			ChZnInterface::doctypMdlpResult, 
+			ChZnInterface::doctypMdlpQueryKizInfo, 
+			ChZnInterface::doctypMdlpKizInfo,
+			ChZnInterface::doctypMdlpRefusalReceiver, 
+			ChZnInterface::doctypMdlpMoveOrder, 
+			ChZnInterface::doctypMdlpReceiveOrder,
+			ChZnInterface::doctypMdlpMovePlace, 
+			ChZnInterface::doctypMdlpMoveUnregisteredOrder,
+			ChZnInterface::doctypMdlpRetailSale, 
+			ChZnInterface::doctypMdlpMoveOrderNotification,
+			ChZnInterface::doctypMdlpReceiveOrderNotification,
+			ChZnInterface::doctypMdlpAccept
+		};
+		for(uint i = 0; !medcine_only && i < SIZEOFARRAY(mdlp_op_list); i++) {
+			if(mdlp_op_list[i] == docType)
+				medcine_only = true;
+		}
+	}
+	return medcine_only;
+}
+
 int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack)
 {
 	int    ok = 1;
@@ -1037,7 +1063,10 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 	GtinStruc gts;
 	PPObjPerson psn_obj;
 	PPObjGoods goods_obj;
+	Goods2Tbl::Rec goods_rec; // @v11.9.9
+	PPGoodsType2 gt_rec; // @v11.9.9
 	PPID   main_org_id = GetMainOrgID();
+	const  bool  medcine_only = IsMedcineOnly(pPack->DocType); // @v11.9.9 
 	if(pPack->DocType == doctGisMt_LkReceipt) {
 		const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
 		if(p_bp) {
@@ -1189,28 +1218,33 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 				SXml::WNode npl(rX, "products_list");
 				for(uint i = 0; i < p_bp->GetTCount(); i++) {
 					const PPTransferItem & r_ti = p_bp->ConstTI(i);
-					const  double cost = fabs(r_ti.NetPrice());
-					double vat_in_cost = 0.0;
-					{
-						GTaxVect vect;
-						vect.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE);
-						vat_in_cost = vect.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
-					}
-					p_bp->XcL.Get(i+1, 0, lotxcode_set);
-					lotxcode_set.GetByBoxID(0, ss);
-					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-						if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-							mark_buf.Z();
-							if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-								mark_buf.Cat("01").Cat(temp_buf);
-								if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-									mark_buf.Cat("21").Cat(temp_buf);
+					long  local_chzn_prod_type = 0; // @v11.9.9
+					if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+						local_chzn_prod_type = gt_rec.ChZnProdType;
+					if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
+						const  double cost = fabs(r_ti.NetPrice());
+						double vat_in_cost = 0.0;
+						{
+							GTaxVect vect;
+							vect.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE);
+							vat_in_cost = vect.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
+						}
+						p_bp->XcL.Get(i+1, 0, lotxcode_set);
+						lotxcode_set.GetByBoxID(0, ss);
+						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+							if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+								mark_buf.Z();
+								if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+									mark_buf.Cat("01").Cat(temp_buf);
+									if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+										mark_buf.Cat("21").Cat(temp_buf);
 
-									SXml::WNode np(rX, "product");
-									XMLReplaceSpecSymb(mark_buf, "&<>\'");
-									np.PutInner("ki", mark_buf);
-									np.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
-									np.PutInner("vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
+										SXml::WNode np(rX, "product");
+										XMLReplaceSpecSymb(mark_buf, "&<>\'");
+										np.PutInner("ki", mark_buf);
+										np.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
+										np.PutInner("vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
+									}
 								}
 							}
 						}
@@ -1246,16 +1280,22 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 						SXml::WNode dtl(rX, "order_details");
 						for(uint i = 0; i < p_bp->GetTCount(); i++) {
 							const PPTransferItem & r_ti = p_bp->ConstTI(i);
-							p_bp->XcL.Get(i+1, 0, lotxcode_set);
-							lotxcode_set.GetByBoxID(0, ss);
-							for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-								if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-									mark_buf.Z();
-									if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-										mark_buf.Cat(temp_buf);
-										if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+							// @v11.9.9 {
+							long  local_chzn_prod_type = 0;
+							if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+								local_chzn_prod_type = gt_rec.ChZnProdType;
+							if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
+								p_bp->XcL.Get(i+1, 0, lotxcode_set);
+								lotxcode_set.GetByBoxID(0, ss);
+								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+									if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+										mark_buf.Z();
+										if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 											mark_buf.Cat(temp_buf);
-											dtl.PutInner("sgtin", mark_buf);
+											if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+												mark_buf.Cat(temp_buf);
+												dtl.PutInner("sgtin", mark_buf);
+											}
 										}
 									}
 								}
@@ -1303,35 +1343,41 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 							SXml::WNode sn(rX, "sales");
 							CCheckItem ccitem;
 							for(uint i = 0; p_ccp->EnumLines(&i, &ccitem) > 0;) {
-								p_ccp->GetLineTextExt(i, CCheckPacket::lnextChZnMark, temp_buf);
-								if(temp_buf.NotEmptyS()) {
-									if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-										mark_buf.Z();
-										if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-											mark_buf.Cat(temp_buf);
-											if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+								// @v11.9.9 {
+								long  local_chzn_prod_type = 0;
+								if(goods_obj.Fetch(ccitem.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+									local_chzn_prod_type = gt_rec.ChZnProdType;
+								if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
+									p_ccp->GetLineTextExt(i, CCheckPacket::lnextChZnMark, temp_buf);
+									if(temp_buf.NotEmptyS()) {
+										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+											mark_buf.Z();
+											if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 												mark_buf.Cat(temp_buf);
-												double cost = R2(ccitem.Price - ccitem.Discount);
-												double vat_in_cost = 0.0;
-												PPGoodsTaxEntry gtx;
-												if(goods_obj.FetchTax(ccitem.GoodsID, p_ccp->Rec.Dt, 0, &gtx) > 0) {
-													GTaxVect vect;
-													vect.Calc_(&gtx, cost, 1.0, GTAXVF_BEFORETAXES, 0);
-													vat_in_cost = vect.GetValue(GTAXVF_VAT);
-												}
-												SXml::WNode un(rX, "union");
-												{
-													SXml::WNode dn(rX, "detail");
-													dn.PutInner("sgtin", mark_buf);
-													dn.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
-													dn.PutInner("vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
-												}
-												{
-													SXml::WNode sdn(rX, "sale_docs");
-													sdn.PutInner("doc_type", "1");
-													sdn.PutInner("doc_name", "cheque");
-													sdn.PutInner("doc_number", temp_buf.Z().Cat(p_ccp->Rec.Code));
-													sdn.PutInner("doc_date", temp_buf.Z().Cat(p_ccp->Rec.Dt, DATF_GERMANCENT));
+												if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+													mark_buf.Cat(temp_buf);
+													double cost = R2(ccitem.Price - ccitem.Discount);
+													double vat_in_cost = 0.0;
+													PPGoodsTaxEntry gtx;
+													if(goods_obj.FetchTax(ccitem.GoodsID, p_ccp->Rec.Dt, 0, &gtx) > 0) {
+														GTaxVect vect;
+														vect.Calc_(&gtx, cost, 1.0, GTAXVF_BEFORETAXES, 0);
+														vat_in_cost = vect.GetValue(GTAXVF_VAT);
+													}
+													SXml::WNode un(rX, "union");
+													{
+														SXml::WNode dn(rX, "detail");
+														dn.PutInner("sgtin", mark_buf);
+														dn.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
+														dn.PutInner("vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
+													}
+													{
+														SXml::WNode sdn(rX, "sale_docs");
+														sdn.PutInner("doc_type", "1");
+														sdn.PutInner("doc_name", "cheque");
+														sdn.PutInner("doc_number", temp_buf.Z().Cat(p_ccp->Rec.Code));
+														sdn.PutInner("doc_date", temp_buf.Z().Cat(p_ccp->Rec.Dt, DATF_GERMANCENT));
+													}
 												}
 											}
 										}
@@ -1364,27 +1410,33 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 						SXml::WNode dtl(rX, "order_details");
 						for(uint i = 0; i < p_bp->GetTCount(); i++) {
 							const PPTransferItem & r_ti = p_bp->ConstTI(i);
-							double cost = r_ti.Cost;
-							double vat_in_cost = 0.0;
-							{
-								GTaxVect vect;
-								vect.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST);
-								vat_in_cost = vect.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
-							}
-							p_bp->XcL.Get(i+1, 0, lotxcode_set);
-							{
-								lotxcode_set.GetByBoxID(0, ss);
-								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-									if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-										mark_buf.Z();
-										if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-											mark_buf.Cat(temp_buf);
-											if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+							// @v11.9.9 {
+							long  local_chzn_prod_type = 0;
+							if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+								local_chzn_prod_type = gt_rec.ChZnProdType;
+							if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
+								double cost = r_ti.Cost;
+								double vat_in_cost = 0.0;
+								{
+									GTaxVect vect;
+									vect.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST);
+									vat_in_cost = vect.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
+								}
+								p_bp->XcL.Get(i+1, 0, lotxcode_set);
+								{
+									lotxcode_set.GetByBoxID(0, ss);
+									for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+											mark_buf.Z();
+											if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 												mark_buf.Cat(temp_buf);
-												SXml::WNode un(rX, "union");
-												un.PutInner("sgtin", mark_buf);
-												un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
-												un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
+												if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+													mark_buf.Cat(temp_buf);
+													SXml::WNode un(rX, "union");
+													un.PutInner("sgtin", mark_buf);
+													un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
+													un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
+												}
 											}
 										}
 									}
@@ -1430,27 +1482,33 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 						SXml::WNode dtl(rX, "order_details");
 						for(uint i = 0; i < p_bp->GetTCount(); i++) {
 							const PPTransferItem & r_ti = p_bp->ConstTI(i);
-							double cost = r_ti.Cost;
-							double vat_in_cost = 0.0;
-							{
-								GTaxVect vect;
-								vect.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST);
-								vat_in_cost = vect.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
-							}
-							p_bp->XcL.Get(i+1, 0, lotxcode_set);
-							{
-								lotxcode_set.GetByBoxID(0, ss);
-								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-									if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-										mark_buf.Z();
-										if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-											mark_buf.Cat(temp_buf);
-											if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+							// @v11.9.9 {
+							long  local_chzn_prod_type = 0;
+							if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+								local_chzn_prod_type = gt_rec.ChZnProdType;
+							if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
+								double cost = r_ti.Cost;
+								double vat_in_cost = 0.0;
+								{
+									GTaxVect vect;
+									vect.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST);
+									vat_in_cost = vect.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
+								}
+								p_bp->XcL.Get(i+1, 0, lotxcode_set);
+								{
+									lotxcode_set.GetByBoxID(0, ss);
+									for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+											mark_buf.Z();
+											if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 												mark_buf.Cat(temp_buf);
-												SXml::WNode un(rX, "union");
-												un.PutInner("sgtin", mark_buf);
-												un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
-												un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
+												if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+													mark_buf.Cat(temp_buf);
+													SXml::WNode un(rX, "union");
+													un.PutInner("sgtin", mark_buf);
+													un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
+													un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
+												}
 											}
 										}
 									}
@@ -1485,8 +1543,12 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 						SXml::WNode dtl(rX, "order_details");
 						for(uint i = 0; i < p_bp->GetTCount(); i++) {
 							const PPTransferItem & r_ti = p_bp->ConstTI(i);
-							p_bp->XcL.Get(i+1, 0, lotxcode_set);
-							{
+							// @v11.9.9 {
+							long  local_chzn_prod_type = 0;
+							if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
+								local_chzn_prod_type = gt_rec.ChZnProdType;
+							if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
+								p_bp->XcL.Get(i+1, 0, lotxcode_set);
 								lotxcode_set.GetByBoxID(0, ss);
 								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 									if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
@@ -3121,29 +3183,7 @@ int PPChZnPrcssr::PrepareBillPacketForSending(PPID billID, void * pChZnPacket)
 	if(p_bobj->ExtractPacket(billID, p_bp) > 0) {
 		PPLotExtCodeContainer::MarkSet lotxcode_set;
 		PPLotExtCodeContainer::MarkSet::Entry msentry;
-		// @v11.9.9 {
-		bool  medcine_only = false;
-		{
-			const int mdlp_op_list[] = {
-				ChZnInterface::doctypMdlpResult, 
-				ChZnInterface::doctypMdlpQueryKizInfo, 
-				ChZnInterface::doctypMdlpKizInfo,
-				ChZnInterface::doctypMdlpRefusalReceiver, 
-				ChZnInterface::doctypMdlpMoveOrder, 
-				ChZnInterface::doctypMdlpReceiveOrder,
-				ChZnInterface::doctypMdlpMovePlace, 
-				ChZnInterface::doctypMdlpMoveUnregisteredOrder,
-				ChZnInterface::doctypMdlpRetailSale, 
-				ChZnInterface::doctypMdlpMoveOrderNotification,
-				ChZnInterface::doctypMdlpReceiveOrderNotification,
-				ChZnInterface::doctypMdlpAccept
-			};
-			for(uint i = 0; !medcine_only && i < SIZEOFARRAY(mdlp_op_list); i++) {
-				if(mdlp_op_list[i] == p_chzn_packet->DocType)
-					medcine_only = true;
-			}
-		}
-		// } @v11.9.9 
+		const bool  medcine_only = IsMedcineOnly(p_chzn_packet->DocType); // @v11.9.9 
 		for(uint tidx = 0; !suited && tidx < p_bp->GetTCount(); tidx++) {
 			const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
 			long  local_chzn_prod_type = 0; // @v11.9.9

@@ -566,28 +566,45 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 			else if(action < 0) {
 				if(s == 8)
 					sqlite3_bind_int64(h_stmt, idx, *static_cast<const sqlite3_int64 *>(p_data));
-				else {
+				else if(s == 4) {
 					sqlite3_bind_int(h_stmt, idx, *static_cast<const int *>(p_data));
 				}
+				else if(s == 2) {
+					sqlite3_bind_int(h_stmt, idx, *static_cast<const int16 *>(p_data));
+				}
 			}
-			else { // action > 0
+			else if(action == 1) {
+				if(s == 8) {
+					*static_cast<int64 *>(p_data) = sqlite3_column_int64(h_stmt, idx);
+				}
+				else if(s == 4) {
+					*static_cast<int *>(p_data) = sqlite3_column_int(h_stmt, idx);
+				}
+				else if(s == 2) {
+					*static_cast<int16 *>(p_data) = sqlite3_column_int(h_stmt, idx);
+				}
 			}
 			break;
 		case S_FLOAT:
 			if(action == 0) {
 			}
 			else if(action < 0) {
+				assert(oneof2(s, 4, 8));
 				if(s == 8) {
 					sqlite3_bind_double(h_stmt, idx, *static_cast<const double *>(p_data));
 				}
 				else if(s == 4) {
 					sqlite3_bind_double(h_stmt, idx, static_cast<double>(*static_cast<const float *>(p_data)));
 				}
-				else {
-					assert(0);
-				}
 			}
-			else { // action > 0
+			else if(action == 1) {
+				assert(oneof2(s, 4, 8));
+				if(s == 8) {
+					*static_cast<double *>(p_data) = sqlite3_column_double(h_stmt, idx);
+				}
+				else if(s == 4) {
+					*static_cast<float *>(p_data) = sqlite3_column_double(h_stmt, idx);
+				}
 			}
 			break;
 		case S_DATE:
@@ -599,7 +616,7 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 				uint64 ued = UED::_SetRaw_Time(UED_META_DATE_DAY, tmi);
 				sqlite3_bind_int64(h_stmt, idx, *reinterpret_cast<const sqlite3_int64 *>(&ued));
 			}
-			else { // action > 0
+			else if(action == 1) {
 			}
 			break;
 		case S_TIME:
@@ -611,12 +628,22 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 				uint64 ued = UED::_SetRaw_Time(UED_META_DAYTIME_MS, tmi);
 				sqlite3_bind_int64(h_stmt, idx, *reinterpret_cast<const sqlite3_int64 *>(&ued));
 			}
-			else { // action > 0
+			else if(action == 1) {
 			}
 			break;
 		case S_DATETIME:
 			break;
 		case S_ZSTRING:
+			if(action == 0) {
+			}
+			else if(action < 0) {
+				const int len = sstrlen(static_cast<const char *>(p_data));
+				sqlite3_bind_text(h_stmt, idx, static_cast<const char *>(p_data), len, SQLITE_STATIC);
+			}
+			else if(action == 1) {
+				const uchar * p_outer_text = sqlite3_column_text(h_stmt, idx);
+				strnzcpy(static_cast<char *>(p_data), p_outer_text, s);
+			}
 			break;
 		case S_DEC:
 			break;
@@ -671,275 +698,6 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 		case S_COLOR_RGBA:
 			break;
 	}
-	//MYSQL_BIND bind_item;
-	//MEMSZERO(bind_item);
-	//bind_item.buffer_type = static_cast<enum enum_field_types>(r_bind.NtvTyp);
-	//bind_item.buffer = p_data;
-	//bind_item.buffer_length = r_bind.NtvSize;
-	//bind_list.insert(&bind_item);
-	#if 0 // {
-	{
-		uint16 * p_ind = r_bind.IndPos ? reinterpret_cast<uint16 *>(rS.BS.P_Buf + r_bind.IndPos) : 0;
-		THROW(ProcessError(OCIBindByPos(h_stmt, &p_bd, Err, -r_bind.Pos, p_data, r_bind.NtvSize, r_bind.NtvTyp,
-			p_ind, 0/*alenp*/, 0/*rcodep*/, 0/*maxarr_len*/, 0/*curelep*/, OCI_DEFAULT)));
-		r_bind.H = reinterpret_cast<uint32>(p_bd);
-	}
-	if(row_count > 1) {
-		THROW(ProcessError(OCIBindArrayOfStruct(p_bd, Err, r_bind.ItemSize, sizeof(uint16), 0, 0)));
-	}
-	#endif // } 0
-#if 0 // {
-	const  size_t sz = stsize(pBind->Typ);
-	uint16 out_typ = 0;
-	pBind->NtvSize = static_cast<uint16>(sz); // default value
-	if(action == 0)
-		pBind->Dim = count;
-	const int t = GETSTYPE(pBind->Typ);
-	switch(t) {
-		case S_CHAR: ProcessBinding_SimpleType(action, count, pStmt, pBind, datatypeInt); break;
-		case S_INT:
-		case S_AUTOINC: ProcessBinding_SimpleType(action, count, pStmt, pBind, datatypeInt); break;
-		case S_UINT: ProcessBinding_SimpleType(action, count, pStmt, pBind, datatypeInt/*signed*/); break;
-		case S_INT64: ProcessBinding_SimpleType(action, count, pStmt, pBind, datatypeInt); break;
-		case S_FLOAT: ProcessBinding_SimpleType(action, count, pStmt, pBind, datatypeReal); break;
-		case S_DATE:
-			/*
-				static bool   UED::_GetRaw_Time(uint64 ued, SUniTime_Internal & rT);
-				static uint64 UED::_SetRaw_Time(uint64 meta, const SUniTime_Internal & rT);
-			*/
-			if(action == 0) {
-				pBind->SetNtvTypeAndSize(datatypeInt, sizeof(uint64));
-				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
-			}
-			else if(action < 0) {
-				LDATE * p_dt = static_cast<LDATE *>(pBind->P_Data);
-				SUniTime_Internal tmi(*p_dt);
-				uint64 ued = UED::_SetRaw_Time(UED_META_DATE_DAY, tmi);
-				uint64 * p_dbs_data = static_cast<uint64 *>(pStmt->GetBindOuterPtr(pBind, count));
-				*p_dbs_data = ued;
-			}
-			else if(action == 1) {
-				const uint64 * p_dbs_data = static_cast<uint64 *>(pStmt->GetBindOuterPtr(pBind, count));
-				SUniTime_Internal tmi;
-				UED::_GetRaw_Time(*p_dbs_data, tmi);
-				LDATE * p_dt = static_cast<LDATE *>(pBind->P_Data);
-				tmi.GetDate(p_dt);
-			}
-			else if(action == 1000)
-				ProcessBinding_FreeDescr(count, pStmt, pBind);
-			break;
-		case S_TIME:
-			if(action == 0) {
-				pBind->SetNtvTypeAndSize(MYSQL_TYPE_TIME, sizeof(MYSQL_TIME));
-				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
-			}
-			else if(action < 0) {
-				MYSQL_TIME * p_ocidt = static_cast<MYSQL_TIME *>(pStmt->GetBindOuterPtr(pBind, count));
-				LTIME * p_dt = static_cast<LTIME *>(pBind->P_Data);
-				memzero(p_ocidt, sizeof(*p_ocidt));
-				p_ocidt->hour = p_dt->hour();
-				p_ocidt->minute = p_dt->minut();
-				p_ocidt->second = p_dt->sec();
-				p_ocidt->second_part = 0;
-				p_ocidt->time_type = MYSQL_TIMESTAMP_TIME;
-			}
-			else if(action == 1) {
-				const MYSQL_TIME * p_ocidt = static_cast<const MYSQL_TIME *>(pStmt->GetBindOuterPtr(pBind, count));
-				*static_cast<LTIME *>(pBind->P_Data) = encodetime(p_ocidt->hour, p_ocidt->minute, p_ocidt->second, 0/*p_ocidt->second_part*/);
-			}
-			else if(action == 1000)
-				ProcessBinding_FreeDescr(count, pStmt, pBind);
-			break;
-		case S_DATETIME:
-			if(action == 0) {
-				pBind->SetNtvTypeAndSize(MYSQL_TYPE_DATETIME, sizeof(MYSQL_TIME));
-				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
-			}
-			else if(action < 0) {
-				MYSQL_TIME * p_ocidt = static_cast<MYSQL_TIME *>(pStmt->GetBindOuterPtr(pBind, count));
-				LDATETIME * p_dt = static_cast<LDATETIME *>(pBind->P_Data);
-				memzero(p_ocidt, sizeof(*p_ocidt));
-				p_ocidt->year = p_dt->d.year();
-				p_ocidt->month = p_dt->d.month();
-				p_ocidt->day = p_dt->d.day();
-				p_ocidt->hour = p_dt->t.hour();
-				p_ocidt->minute = p_dt->t.minut();
-				p_ocidt->second = p_dt->t.sec();
-				p_ocidt->second_part = 0;
-				p_ocidt->time_type = MYSQL_TIMESTAMP_DATETIME;
-			}
-			else if(action == 1) {
-				const MYSQL_TIME * p_ocidt = static_cast<const MYSQL_TIME *>(pStmt->GetBindOuterPtr(pBind, count));
-				static_cast<LDATETIME *>(pBind->P_Data)->d = encodedate(p_ocidt->day, p_ocidt->month, p_ocidt->year);
-				static_cast<LDATETIME *>(pBind->P_Data)->t = encodetime(p_ocidt->hour, p_ocidt->minute, p_ocidt->second, 0/*p_ocidt->second_part*/);
-			}
-			else if(action == 1000)
-				ProcessBinding_FreeDescr(count, pStmt, pBind);
-			break;
-		case S_NOTE:
-		case S_ZSTRING:
-			if(action == 0) {
-				pBind->SetNtvTypeAndSize(MYSQL_TYPE_STRING, static_cast<uint16>(sz));
-				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
-			}
-			else if(action < 0) {
-				char * p_outer = static_cast<char *>(pStmt->GetBindOuterPtr(pBind, count));
-				//
-				// 1. Необходимо защититься от ситуации, когда в конце буфера отсутствует '\0'
-				// 2. Необходимо конвертировать OEM кодировку (используется в btrieve данных и
-				//    в проекте в целом) в CHAR кодировку, которая используется для хранения строк
-				//    в SQL-базах.
-				// 3. Пустая строка для критериев запроса извлечения данных должна быть представлена единственным пробелом.
-				//
-				if(PTR8(pBind->P_Data)[0] == 0) {
-					if(action == -1) {
-						p_outer[0] = ' ';
-						p_outer[1] = 0;
-					}
-					else
-						p_outer[0] = 0;
-				}
-				else {
-					//
-					// Особый случай: все элементы заполнены символами 255.
-					// Это - максимальное значение, используемое в сравнениях.
-					// Его не следует преобразовывать функцией SOemToChar
-					//
-					int    is_max = 0;
-					if(PTR8C(pBind->P_Data)[0] == 255) {
-						is_max = 1;
-						for(uint k = 1; k < (sz-1); k++)
-							if(PTR8C(pBind->P_Data)[k] != 255) {
-								is_max = 0;
-								break;
-							}
-					}
-					strnzcpy(p_outer, static_cast<const char *>(pBind->P_Data), sz);
-					if(!is_max)
-						SOemToChar(p_outer);
-				}
-				/*
-				const size_t len = sstrlen(p_outer);
-				if(len < sz-1) {
-					memset(p_outer + len, ' ', sz - len);
-					p_outer[sz-1] = 0;
-				}
-				*/
-			}
-			else if(action == 1) {
-				const int16 * p_ind = static_cast<const int16 *>(pStmt->GetIndPtr(pBind, count));
-				if(p_ind && *p_ind == -1) {
-					PTR8(pBind->P_Data)[0] = 0;
-				}
-				else {
-					CharToOemA(static_cast<char *>(pStmt->GetBindOuterPtr(pBind, count)), static_cast<char *>(pBind->P_Data)); // @unicodeproblem
-					trimright(static_cast<char *>(pBind->P_Data));
-				}
-			}
-			break;
-#if 0 // {
-		case S_BLOB:
-		case S_CLOB:
-			if(action == 0)
-				ProcessBinding_AllocDescr(count, pStmt, pBind, MYSQL_TYPE_BLOB, OCI_DTYPE_LOB);
-			else if(action < 0) {
-				OD ocilob = *static_cast<const OD *>(pStmt->GetBindOuterPtr(pBind, count));
-				DBLobBlock * p_lob = pStmt->GetBindingLob();
-				size_t lob_sz = 0;
-				uint32 lob_loc = 0; // @x64crit
-				if(p_lob) {
-					p_lob->GetSize(labs(pBind->Pos)-1, &lob_sz);
-					p_lob->GetLocator(labs(pBind->Pos)-1, &lob_loc); // @x64crit
-					SETIFZ(lob_loc, (uint32)OdAlloc(OCI_DTYPE_LOB).H); // @x64crit
-					ProcessError(OCILobAssign(Env, Err, (const OCILobLocator *)(lob_loc), reinterpret_cast<OCILobLocator **>(&ocilob.H)));
-				}
-				LobWrite(ocilob, pBind->Typ, static_cast<SLob *>(pBind->P_Data), lob_sz);
-			}
-			else if(action == 1) {
-				OD ocilob = *static_cast<const OD *>(pStmt->GetBindOuterPtr(pBind, count));
-				DBLobBlock * p_lob = pStmt->GetBindingLob();
-				size_t lob_sz = 0;
-				uint32 lob_loc = 0;
-				LobRead(ocilob, pBind->Typ, static_cast<SLob *>(pBind->P_Data), &lob_sz);
-				if(p_lob) {
-					SETIFZ(lob_loc, (uint32)OdAlloc(OCI_DTYPE_LOB).H);
-					ProcessError(OCILobAssign(Env, Err, ocilob, (OCILobLocator **)&lob_loc));
-					p_lob->SetSize(labs(pBind->Pos)-1, lob_sz);
-					p_lob->SetLocator(labs(pBind->Pos)-1, lob_loc);
-				}
-			}
-			else if(action == 1000)
-				ProcessBinding_FreeDescr(count, pStmt, pBind);
-			break;
-		case S_DEC:
-		case S_MONEY:
-			if(action == 0) {
-				pBind->SetNtvTypeAndSize(SQLT_FLT, sizeof(double));
-				pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
-			}
-			else {
-				const int16 dec_len = static_cast<int16>(GETSSIZED(pBind->Typ));
-				const int16 dec_prc = static_cast<int16>(GETSPRECD(pBind->Typ));
-				if(action < 0)
-					*static_cast<double *>(pStmt->GetBindOuterPtr(pBind, count)) = dectobin(static_cast<const char *>(pBind->P_Data), dec_len, dec_prc);
-				else if(action == 1)
-					dectodec(*static_cast<double *>(pStmt->GetBindOuterPtr(pBind, count)), static_cast<char *>(pBind->P_Data), dec_len, dec_prc);
-			}
-			break;
-		case S_RAW:
-			if(action == 0) {
-				pBind->SetNtvTypeAndSize(SQLT_BIN, static_cast<uint16>(sz));
-				pStmt->AllocBindSubst(count, (sz * 2), pBind);
-			}
-			else if(action < 0) {
-				uint16 * p_outer = static_cast<uint16 *>(pStmt->GetBindOuterPtr(pBind, count));
-				memcpy(p_outer, pBind->P_Data, sz);
-				/*
-				for(uint i = 0; i < sz; i++)
-					p_outer[i] = byte2hex(PTR8(pBind->P_Data)[i]);
-				*/
-			}
-			else if(action == 1) {
-				const uint16 * p_outer = static_cast<const uint16 *>(pStmt->GetBindOuterPtr(pBind, count));
-				memcpy(pBind->P_Data, p_outer, sz);
-				/*
-				for(uint i = 0; i < sz; i++)
-					PTR8(pBind->P_Data)[i] = hex2byte(p_outer[i]);
-				*/
-			}
-			break;
-		case S_ROWID:
-			if(action == 0)
-				ProcessBinding_AllocDescr(count, pStmt, pBind, SQLT_RDD, OCI_DTYPE_ROWID);
-			else if(action < 0) {
-				//assert(0);
-			}
-			else if(action == 1) {
-				OD ocirid = *static_cast<const OD *>(pStmt->GetBindOuterPtr(pBind, count));
-				uint16 len = sizeof(DBRowId);
-				OCIRowidToChar(ocirid, static_cast<OraText *>(pBind->P_Data), &len, Err);
-			}
-			else if(action == 1000)
-				ProcessBinding_FreeDescr(count, pStmt, pBind);
-			break;
-		//case S_LSTRING:
-		//case S_WCHAR:
-		//case S_LOGICAL:
-		//case S_NUMERIC:
-#endif // } 0
-	}
-	//
-	// Распределяем пространство для переменных индикаторов и FSL.
-	// При сигнале SSqlStmt::Bind::fCalcOnly ничего не делаем
-	// поскольку функция SSqlStmt::SetupBindingSubstBuffer должна была
-	// предусмотреть необходимость в пространстве для специальных значений.
-	//
-	if(action == 0 && !(pBind->Flags & SSqlStmt::Bind::fCalcOnly)) {
-		pStmt->AllocIndSubst(count, pBind);
-		if(pBind->Pos > 0)
-			pStmt->AllocFslSubst(count, pBind);
-	}
-#endif // } 0
 	return ok;
 }
 
