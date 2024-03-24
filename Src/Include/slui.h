@@ -1198,6 +1198,7 @@ private:
 	//   Таким образом, клиент функции должен объект, передаваемый по указателю pBlk распределить динамически (new)
 	//
 	int    Put(const char * pSymb, ComplexColorBlock * pBlk);
+	int    Get(const char * pSymb, ComplexColorBlock * pBlk) const;
 	int    Get(const char * pSymb, const TSCollection <SColorSet> * pSetList, ComplexColorBlock * pBlk) const;
 	int    Helper_Get(const char * pSymb, const TSCollection <SColorSet> * pSetList, SColor & rC, StringSet * pRecurSymbList) const;
 	bool   FASTCALL IsInnerEntryEq(const InnerEntry & rE1, const SColorSet & rS, const InnerEntry & rE2) const;

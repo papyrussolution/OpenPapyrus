@@ -1324,6 +1324,11 @@ int SColorSet::Put(const char * pSymb, ComplexColorBlock * pBlk)
 	return ok;
 }
 
+int SColorSet::Get(const char * pSymb, ComplexColorBlock * pBlk) const
+{
+	return Get(pSymb, 0, pBlk);
+}
+
 int SColorSet::Get(const char * pSymb, const TSCollection <SColorSet> * pSetList, ComplexColorBlock * pBlk) const
 {
 	int    ok = -1;
@@ -1365,7 +1370,7 @@ int SColorSet::Helper_Get(const char * pSymb, const TSCollection <SColorSet> * p
 		THROW(!pRecurSymbList->search(pSymb, 0, 1)); // @todo @err
 		pRecurSymbList->add(pSymb);
 	}
-	ok = Get(pSymb, &blk);
+	ok = Get(pSymb, pSetList, &blk);
 	if(ok > 0) {
 		StringSet ss_recur;
 		StringSet * p_recur_symb_list = NZOR(pRecurSymbList, &ss_recur);
