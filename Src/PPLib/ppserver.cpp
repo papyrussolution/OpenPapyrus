@@ -2126,7 +2126,7 @@ PPWorkerSession::CmdRet PPWorkerSession::Helper_QueryNaturalToken(PPServerCmd * 
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
 		LAssocArray rel_obj_list;
-		tr.Run(token.ucptr(), -1, nta, 0);
+		tr.Run(token, nta, 0);
 		if(nta.Has(SNTOK_EMAIL) > 0.0f) {
             PPIDArray psn_list;
             PPIDArray loc_list;
@@ -3457,6 +3457,44 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 						ok = cmdretOK;
 					}
 
+				}
+			}
+			break;
+		case PPSCMD_WSCTL_REGISTRATION: // @v11.9.10 WSCTL Регистрация клиента
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				const LDATETIME now_dtm = getcurdatetime_();
+				SString raw_text;
+				THROW(pEv->ReadLine(raw_text));
+				{
+					WsCtlSrvBlock::RegistrationBlock _blk;
+					raw_text.Chomp().Strip();
+					STempBuffer bin_buf(raw_text.Len()*3);
+					size_t actual_len = 0;
+					THROW_SL(raw_text.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_len));
+					SETIFZQ(P_WsCtlBlk, new WsCtlSrvBlock());
+					temp_buf.Z().CatN(bin_buf.cptr(), actual_len);
+					THROW_SL(p_js_param = SJson::Parse(temp_buf));
+					THROW(_blk.FromJsonObj(p_js_param));
+					_blk.Name.Transf(CTRANSF_UTF8_TO_INNER);
+					{
+						PPID   prc_id = 0;
+						PPID   tsess_id = 0;
+						TSessionTbl::Rec tsess_rec;
+						ProcessorTbl::Rec prc_rec;
+						THROW_PP(_blk.WsCtlUuid, PPERR_WSCTL_PROT_UNDEFMCHNUUID);
+						THROW(P_WsCtlBlk->SearchPrcByWsCtlUuid(_blk.WsCtlUuid, &prc_id, 0) > 0);
+						THROW(P_WsCtlBlk->TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0);
+						THROW(P_WsCtlBlk->Registration(_blk));
+						{
+							SJson js_reply(SJson::tOBJECT);
+							js_reply.InsertInt("scardid", _blk.SCardID);
+							js_reply.InsertInt("personid", _blk.PsnID);
+							js_reply.ToStr(temp_buf);
+							rReply.SetString(temp_buf);
+							ok = cmdretOK;
+						}
+					}
 				}
 			}
 			break;

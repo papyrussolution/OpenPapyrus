@@ -510,15 +510,17 @@ static void parser_state_init(GumboParser * parser)
 
 static void parser_state_destroy(GumboParser * parser) 
 {
-	GumboParserState * state = parser->_parser_state;
-	if(state->_fragment_ctx) {
-		destroy_node(state->_fragment_ctx);
+	if(parser) {
+		GumboParserState * state = parser->_parser_state;
+		if(state) {
+			destroy_node(state->_fragment_ctx);
+			gumbo_vector_destroy(&state->_active_formatting_elements);
+			gumbo_vector_destroy(&state->_open_elements);
+			gumbo_vector_destroy(&state->_template_insertion_modes);
+			gumbo_string_buffer_destroy(&state->_text_node._buffer);
+			SAlloc::F(state);
+		}
 	}
-	gumbo_vector_destroy(&state->_active_formatting_elements);
-	gumbo_vector_destroy(&state->_open_elements);
-	gumbo_vector_destroy(&state->_template_insertion_modes);
-	gumbo_string_buffer_destroy(&state->_text_node._buffer);
-	SAlloc::F(state);
 }
 
 static GumboNode * FASTCALL get_document_node(GumboParser * parser) { return parser->_output->document; }
@@ -2366,38 +2368,40 @@ static bool handle_after_head(GumboParser * parser, GumboToken* token)
 
 static void FASTCALL destroy_node(GumboNode * node) 
 {
-	switch(node->type) {
-		case GUMBO_NODE_DOCUMENT: 
-			{
-				GumboDocument * doc = &node->v.document;
-				for(uint i = 0; i < doc->children.length; ++i) {
-					destroy_node(static_cast<GumboNode *>(doc->children.data[i])); // @recursion
+	if(node) {
+		switch(node->type) {
+			case GUMBO_NODE_DOCUMENT: 
+				{
+					GumboDocument * doc = &node->v.document;
+					for(uint i = 0; i < doc->children.length; ++i) {
+						destroy_node(static_cast<GumboNode *>(doc->children.data[i])); // @recursion
+					}
+					SAlloc::F((void *)doc->children.data);
+					SAlloc::F((void *)doc->name);
+					SAlloc::F((void *)doc->public_identifier);
+					SAlloc::F((void *)doc->system_identifier);
+				} 
+				break;
+			case GUMBO_NODE_TEMPLATE:
+			case GUMBO_NODE_ELEMENT:
+				for(uint i = 0; i < node->v.element.attributes.length; ++i) {
+					gumbo_destroy_attribute(static_cast<GumboAttribute *>(node->v.element.attributes.data[i]));
 				}
-				SAlloc::F((void *)doc->children.data);
-				SAlloc::F((void *)doc->name);
-				SAlloc::F((void *)doc->public_identifier);
-				SAlloc::F((void *)doc->system_identifier);
-			} 
-			break;
-		case GUMBO_NODE_TEMPLATE:
-		case GUMBO_NODE_ELEMENT:
-		    for(uint i = 0; i < node->v.element.attributes.length; ++i) {
-			    gumbo_destroy_attribute(static_cast<GumboAttribute *>(node->v.element.attributes.data[i]));
-		    }
-		    SAlloc::F(node->v.element.attributes.data);
-		    for(uint i = 0; i < node->v.element.children.length; ++i) {
-			    destroy_node(static_cast<GumboNode *>(node->v.element.children.data[i])); // @recursion
-		    }
-		    SAlloc::F(node->v.element.children.data);
-		    break;
-		case GUMBO_NODE_TEXT:
-		case GUMBO_NODE_CDATA:
-		case GUMBO_NODE_COMMENT:
-		case GUMBO_NODE_WHITESPACE:
-		    SAlloc::F((void *)node->v.text.text);
-		    break;
+				SAlloc::F(node->v.element.attributes.data);
+				for(uint i = 0; i < node->v.element.children.length; ++i) {
+					destroy_node(static_cast<GumboNode *>(node->v.element.children.data[i])); // @recursion
+				}
+				SAlloc::F(node->v.element.children.data);
+				break;
+			case GUMBO_NODE_TEXT:
+			case GUMBO_NODE_CDATA:
+			case GUMBO_NODE_COMMENT:
+			case GUMBO_NODE_WHITESPACE:
+				SAlloc::F((void *)node->v.text.text);
+				break;
+		}
+		SAlloc::F(node);
 	}
-	SAlloc::F(node);
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/complete/tokenization.html#parsing-main-inbody
@@ -4368,15 +4372,17 @@ void gumbo_destroy_node(GumboNode * node)
 	destroy_node(node);
 }
 
-void gumbo_destroy_output(GumboOutput * output) 
+void FASTCALL gumbo_destroy_output(GumboOutput * output) 
 {
 	// Need a dummy GumboParser because the allocator comes along with the options object.
 	//GumboParser parser;
 	//parser._options = options;
-	destroy_node(output->document);
-	for(uint i = 0; i < output->errors.length; ++i) {
-		gumbo_error_destroy(static_cast<GumboError *>(output->errors.data[i]));
+	if(output) {
+		destroy_node(output->document);
+		for(uint i = 0; i < output->errors.length; ++i) {
+			gumbo_error_destroy(static_cast<GumboError *>(output->errors.data[i]));
+		}
+		gumbo_vector_destroy(&output->errors);
+		SAlloc::F(output);
 	}
-	gumbo_vector_destroy(&output->errors);
-	SAlloc::F(output);
 }

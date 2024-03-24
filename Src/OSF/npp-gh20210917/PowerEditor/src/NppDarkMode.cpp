@@ -729,7 +729,6 @@ void paintButton(HWND hwnd, HDC hdc, ButtonData& buttonData)
 	DWORD nState = static_cast<DWORD>(SendMessage(hwnd, BM_GETSTATE, 0, 0));
 	DWORD nStyle = GetWindowLong(hwnd, GWL_STYLE);
 	DWORD nButtonStyle = nStyle & 0xF;
-
 	int iPartID = BP_CHECKBOX;
 	if(nButtonStyle == BS_CHECKBOX || nButtonStyle == BS_AUTOCHECKBOX) {
 		iPartID = BP_CHECKBOX;
@@ -740,44 +739,30 @@ void paintButton(HWND hwnd, HDC hdc, ButtonData& buttonData)
 	else {
 		assert(false);
 	}
-
 	// states of BP_CHECKBOX and BP_RADIOBUTTON are the same
 	int iStateID = RBS_UNCHECKEDNORMAL;
-
-	if(nStyle & WS_DISABLED) iStateID = RBS_UNCHECKEDDISABLED;
-	else if(nState & BST_PUSHED) iStateID = RBS_UNCHECKEDPRESSED;
-	else if(nState & BST_HOT) iStateID = RBS_UNCHECKEDHOT;
-
-	if(nState & BST_CHECKED) iStateID += 4;
-
+	if(nStyle & WS_DISABLED) 
+		iStateID = RBS_UNCHECKEDDISABLED;
+	else if(nState & BST_PUSHED) 
+		iStateID = RBS_UNCHECKEDPRESSED;
+	else if(nState & BST_HOT) 
+		iStateID = RBS_UNCHECKEDHOT;
+	if(nState & BST_CHECKED) 
+		iStateID += 4;
 	if(BufferedPaintRenderAnimation(hwnd, hdc)) {
 		return;
 	}
-
 	BP_ANIMATIONPARAMS animParams = { sizeof(animParams) };
 	animParams.style = BPAS_LINEAR;
 	if(iStateID != buttonData.iStateID) {
-		GetThemeTransitionDuration(buttonData.hTheme,
-		    iPartID,
-		    buttonData.iStateID,
-		    iStateID,
-		    TMT_TRANSITIONDURATIONS,
-		    &animParams.dwDuration);
+		GetThemeTransitionDuration(buttonData.hTheme, iPartID, buttonData.iStateID, iStateID, TMT_TRANSITIONDURATIONS, &animParams.dwDuration);
 	}
-
 	RECT rcClient = { 0 };
 	GetClientRect(hwnd, &rcClient);
-
 	HDC hdcFrom = nullptr;
 	HDC hdcTo = nullptr;
-	HANIMATIONBUFFER hbpAnimation = BeginBufferedAnimation(hwnd,
-		hdc,
-		&rcClient,
-		BPBF_COMPATIBLEBITMAP,
-		nullptr,
-		&animParams,
-		&hdcFrom,
-		&hdcTo);
+	HANIMATIONBUFFER hbpAnimation = BeginBufferedAnimation(hwnd, hdc, &rcClient, BPBF_COMPATIBLEBITMAP, nullptr,
+		&animParams, &hdcFrom, &hdcTo);
 	if(hbpAnimation) {
 		if(hdcFrom) {
 			renderButton(hwnd, hdcFrom, buttonData.hTheme, iPartID, buttonData.iStateID);
@@ -785,34 +770,22 @@ void paintButton(HWND hwnd, HDC hdc, ButtonData& buttonData)
 		if(hdcTo) {
 			renderButton(hwnd, hdcTo, buttonData.hTheme, iPartID, iStateID);
 		}
-
 		buttonData.iStateID = iStateID;
-
 		EndBufferedAnimation(hbpAnimation, TRUE);
 	}
 	else {
 		renderButton(hwnd, hdc, buttonData.hTheme, iPartID, iStateID);
-
 		buttonData.iStateID = iStateID;
 	}
 }
 
 constexpr UINT_PTR g_buttonSubclassID = 42;
 
-LRESULT CALLBACK ButtonSubclass(HWND hWnd,
-    UINT uMsg,
-    WPARAM wParam,
-    LPARAM lParam,
-    UINT_PTR uIdSubclass,
-    DWORD_PTR dwRefData
-    )
+LRESULT CALLBACK ButtonSubclass(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
 	UNREFERENCED_PARAMETER(uIdSubclass);
-
 	auto pButtonData = reinterpret_cast<ButtonData*>(dwRefData);
-
-	switch(uMsg)
-	{
+	switch(uMsg) {
 		case WM_UPDATEUISTATE:
 		    if(HIWORD(wParam) & (UISF_HIDEACCEL | UISF_HIDEFOCUS)) {
 			    InvalidateRect(hWnd, nullptr, FALSE);

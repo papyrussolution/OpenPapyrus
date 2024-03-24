@@ -129,10 +129,8 @@ static int obj_name_cmp(const OBJ_NAME * a, const OBJ_NAME * b)
 
 	ret = a->type - b->type;
 	if(ret == 0) {
-		if((name_funcs_stack != NULL)
-		    && (sk_NAME_FUNCS_num(name_funcs_stack) > a->type)) {
-			ret = sk_NAME_FUNCS_value(name_funcs_stack,
-				a->type)->cmp_func(a->name, b->name);
+		if((name_funcs_stack != NULL) && (sk_NAME_FUNCS_num(name_funcs_stack) > a->type)) {
+			ret = sk_NAME_FUNCS_value(name_funcs_stack, a->type)->cmp_func(a->name, b->name);
 		}
 		else
 			ret = strcasecmp(a->name, b->name);
@@ -143,12 +141,8 @@ static int obj_name_cmp(const OBJ_NAME * a, const OBJ_NAME * b)
 static unsigned long obj_name_hash(const OBJ_NAME * a)
 {
 	unsigned long ret;
-
-	if((name_funcs_stack != NULL)
-	    && (sk_NAME_FUNCS_num(name_funcs_stack) > a->type)) {
-		ret =
-		    sk_NAME_FUNCS_value(name_funcs_stack,
-			a->type)->hash_func(a->name);
+	if(name_funcs_stack && (sk_NAME_FUNCS_num(name_funcs_stack) > a->type)) {
+		ret = sk_NAME_FUNCS_value(name_funcs_stack, a->type)->hash_func(a->name);
 	}
 	else {
 		ret = ossl_lh_strcasehash(a->name);

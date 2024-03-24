@@ -329,190 +329,25 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTabl
 	const  uint row_count = rS.BL.Dim;
 	const  uint col_count = rS.BL.getCount();
 	sqlite3_stmt * h_stmt = StmtHandle(rS);
-	//TSVector <MYSQL_BIND> bind_list;
 	assert(checkirange(row_count, 1U, 1024U));
 	THROW(rS.SetupBindingSubstBuffer(dir, row_count));
 	if(dir == -1) { // Входящие для SQL-запроса параметры (например для INSERT)
 		for(uint i = 0; i < col_count; i++) {
 			SSqlStmt::Bind & r_bind = rS.BL.at(i);
 			if(r_bind.Pos < 0) {
-				//OCIBind * p_bd = 0;
-				//THROW(ProcessBinding(0, row_count, &rS, &r_bind));
-				{
-					void * p_data = rS.GetBindOuterPtr(&r_bind, 0);
-					/*
-						int sqlite3_bind_blob(sqlite3_stmt*, int, const void*, int n, void(*)(void*));
-						int sqlite3_bind_blob64(sqlite3_stmt*, int, const void*, sqlite3_uint64, void(*)(void*));
-						int sqlite3_bind_double(sqlite3_stmt*, int, double);
-						int sqlite3_bind_int(sqlite3_stmt*, int, int);
-						int sqlite3_bind_int64(sqlite3_stmt*, int, sqlite3_int64);
-						int sqlite3_bind_null(sqlite3_stmt*, int);
-						int sqlite3_bind_text(sqlite3_stmt*,int,const char*,int,void(*)(void*));
-						int sqlite3_bind_text16(sqlite3_stmt*, int, const void*, int, void(*)(void*));
-						int sqlite3_bind_text64(sqlite3_stmt*, int, const char*, sqlite3_uint64, void(*)(void*), unsigned char encoding);
-						int sqlite3_bind_value(sqlite3_stmt*, int, const sqlite3_value*);
-						int sqlite3_bind_pointer(sqlite3_stmt*, int, void*, const char*,void(*)(void*));
-						int sqlite3_bind_zeroblob(sqlite3_stmt*, int, int n);
-						int sqlite3_bind_zeroblob64(sqlite3_stmt*, int, sqlite3_uint64);
-					*/
-					const int t = GETSTYPE(r_bind.Typ);
-					const uint s = GETSSIZE(r_bind.Typ);
-					switch(t) {
-						case S_INT:
-							if(s == 8)
-								sqlite3_bind_int64(h_stmt, i, *static_cast<const sqlite3_int64 *>(p_data));
-							else {
-								sqlite3_bind_int(h_stmt, i, *static_cast<const int *>(p_data));
-							}
-							break;
-						case S_FLOAT:
-							if(s == 8) {
-								sqlite3_bind_double(h_stmt, i, *static_cast<const double *>(p_data));
-							}
-							else if(s == 4) {
-								sqlite3_bind_double(h_stmt, i, static_cast<double>(*static_cast<const float *>(p_data)));
-							}
-							else {
-								assert(0);
-							}
-							break;
-						case S_DATE:
-							{
-								LDATE * p_dt = static_cast<LDATE *>(p_data);
-								SUniTime_Internal tmi(*p_dt);
-								uint64 ued = UED::_SetRaw_Time(UED_META_DATE_DAY, tmi);
-								sqlite3_bind_int64(h_stmt, i, *reinterpret_cast<const sqlite3_int64 *>(&ued));
-							}
-							break;
-						case S_TIME:
-							{
-								LDATE * p_dt = static_cast<LDATE *>(p_data);
-								SUniTime_Internal tmi(*p_dt);
-								uint64 ued = UED::_SetRaw_Time(UED_META_DATE_DAY, tmi);
-								sqlite3_bind_int64(h_stmt, i, *reinterpret_cast<const sqlite3_int64 *>(&ued));
-							}
-							break;
-						case S_ZSTRING:
-							{
-							}
-							break;
-						case S_NOTE:
-							break;
-						case S_DEC:
-							break;
-						case S_MONEY:
-							break;
-						case S_LOGICAL:
-							break;
-						case S_NUMERIC:
-							break;
-						case S_LSTRING:
-							break;
-						case S_LVAR:
-							break;
-						case S_UBINARY:
-							break;
-						case S_AUTOINC:
-							break;
-						case S_BIT:
-							break;
-						case S_STS:
-							break;
-						case S_INTRANGE:
-							break;
-						case S_REALRANGE:
-							break;
-						case S_DATERANGE:
-							break;
-						case S_DATETIME:
-							break;
-						case S_ARRAY:
-							break;
-						case S_STRUCT:
-							break;
-						case S_VARIANT:
-							break;
-						case S_WCHAR:
-							break;
-						case S_BLOB:
-							break;
-						case S_CLOB:
-							break;
-						case S_RAW:
-							break;
-						case S_ROWID:
-							break;
-						case S_IPOINT2:
-							break;
-						case S_FPOINT2:
-							break;
-						case S_WZSTRING:
-							break;
-						case S_UUID_:
-							break;
-						case S_INT64:
-							break;
-						case S_UINT64:
-							break;
-						case S_COLOR_RGBA:
-							break;
-					}
-					//MYSQL_BIND bind_item;
-					//MEMSZERO(bind_item);
-					//bind_item.buffer_type = static_cast<enum enum_field_types>(r_bind.NtvTyp);
-					//bind_item.buffer = p_data;
-					//bind_item.buffer_length = r_bind.NtvSize;
-					//bind_list.insert(&bind_item);
-					#if 0 // {
-					{
-						uint16 * p_ind = r_bind.IndPos ? reinterpret_cast<uint16 *>(rS.BS.P_Buf + r_bind.IndPos) : 0;
-						THROW(ProcessError(OCIBindByPos(h_stmt, &p_bd, Err, -r_bind.Pos, p_data, r_bind.NtvSize, r_bind.NtvTyp,
-							p_ind, 0/*alenp*/, 0/*rcodep*/, 0/*maxarr_len*/, 0/*curelep*/, OCI_DEFAULT)));
-						r_bind.H = reinterpret_cast<uint32>(p_bd);
-					}
-					if(row_count > 1) {
-						THROW(ProcessError(OCIBindArrayOfStruct(p_bd, Err, r_bind.ItemSize, sizeof(uint16), 0, 0)));
-					}
-					#endif // } 0
-				}
+				THROW(ProcessBinding(0, row_count, &rS, &r_bind));
+				THROW(ProcessBinding(-1, row_count, &rS, &r_bind));
 			}
 		}
-		//if(bind_list.getCount())
-			//bind_result = mysql_stmt_bind_param(static_cast<MYSQL_STMT *>(rS.H), static_cast<MYSQL_BIND *>(bind_list.dataPtr()));
 	}
 	else if(dir == +1) { // Исходящие из SQL-запроса значения (например для SELECT)
 		for(uint i = 0; i < col_count; i++) {
 			SSqlStmt::Bind & r_bind = rS.BL.at(i);
 			if(r_bind.Pos > 0) {
-				//OCIDefine * p_bd = 0;
 				THROW(ProcessBinding(0, row_count, &rS, &r_bind));
-				{
-					void * p_data = rS.GetBindOuterPtr(&r_bind, 0);
-					//MYSQL_BIND bind_item;
-					//MEMSZERO(bind_item);
-					//bind_item.buffer_type = static_cast<enum_field_types>(r_bind.NtvTyp);
-					//bind_item.buffer_length = r_bind.NtvSize;
-					//bind_item.buffer = p_data;
-					//bind_item.is_null
-					//bind_item.length
-					//bind_item.error
-					//bind_list.insert(&bind_item);
-					#if 0 // {
-					{
-						uint16 * p_ind = r_bind.IndPos ? reinterpret_cast<uint16 *>(rS.BS.P_Buf + r_bind.IndPos) : 0;
-						uint16 * p_fsl = r_bind.FslPos ? reinterpret_cast<uint16 *>(rS.BS.P_Buf + r_bind.FslPos) : 0;
-						THROW(ProcessError(OCIDefineByPos(h_stmt, &p_bd, Err, r_bind.Pos, p_data, r_bind.NtvSize, r_bind.NtvTyp, p_ind, p_fsl, 0, OCI_DEFAULT)));
-						r_bind.H = (uint32)p_bd;
-					}
-					if(row_count > 1) {
-						THROW(ProcessError(OCIDefineArrayOfStruct(p_bd, Err, r_bind.ItemSize, sizeof(uint16), sizeof(uint16), 0)));
-					}
-					#endif // } 0
-				}
+				THROW(ProcessBinding(dir, row_count, &rS, &r_bind));
 			}
 		}
-		//if(bind_list.getCount())
-			//mysql_stmt_bind_result(static_cast<MYSQL_STMT *>(rS.H), &bind_list.at(0));
 	}
 	CATCH
 		ok = 0;
@@ -645,6 +480,23 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 				strnzcpy(static_cast<char *>(p_data), p_outer_text, s);
 			}
 			break;
+		case S_WCHAR:
+			if(action == 0) {
+			}
+			else if(action < 0) {
+				/*
+					sqlite documentation:
+					In those routines that have a fourth argument, its value is the number of bytes in the parameter. 
+					To be clear: the value is the number of bytes in the value, not the number of characters. 				
+				*/
+				const int len = sstrlen(static_cast<const wchar_t *>(p_data)) * sizeof(size_t);
+				sqlite3_bind_text16(h_stmt, idx, static_cast<const char *>(p_data), len, SQLITE_STATIC);
+			}
+			else if(action == 1) {
+				const wchar_t * p_outer_text = static_cast<const wchar_t *>(sqlite3_column_text16(h_stmt, idx));
+				strnzcpy(static_cast<wchar_t *>(p_data), p_outer_text, s / sizeof(size_t));
+			}
+			break;
 		case S_DEC:
 			break;
 		case S_MONEY:
@@ -676,8 +528,6 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 		case S_STRUCT:
 			break;
 		case S_VARIANT:
-			break;
-		case S_WCHAR:
 			break;
 		case S_BLOB:
 			break;

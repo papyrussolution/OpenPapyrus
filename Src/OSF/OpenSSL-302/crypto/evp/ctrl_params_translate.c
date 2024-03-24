@@ -2291,9 +2291,9 @@ static const struct translation_st * lookup_translation(struct translation_st * 
 			 * At least one of the ctrl cmd names must be match the ctrl
 			 * cmd name in the template.
 			 */
-			if(item->ctrl_str != NULL && strcasecmp(tmpl->ctrl_str, item->ctrl_str) == 0)
+			if(item->ctrl_str && strcasecmp(tmpl->ctrl_str, item->ctrl_str) == 0)
 				ctrl_str = tmpl->ctrl_str;
-			else if(item->ctrl_hexstr != NULL && strcasecmp(tmpl->ctrl_hexstr, item->ctrl_hexstr) == 0)
+			else if(item->ctrl_hexstr && strcasecmp(tmpl->ctrl_hexstr, item->ctrl_hexstr) == 0)
 				ctrl_hexstr = tmpl->ctrl_hexstr;
 			else
 				continue;
@@ -2319,7 +2319,7 @@ static const struct translation_st * lookup_translation(struct translation_st * 
 			 * key name can therefore be used in both directions.  We must
 			 * therefore take the action type into account in this case.
 			 */
-			if((item->action_type != NONE && tmpl->action_type != item->action_type) || (item->param_key != NULL && strcasecmp(tmpl->param_key, item->param_key) != 0))
+			if((item->action_type != NONE && tmpl->action_type != item->action_type) || (item->param_key && strcasecmp(tmpl->param_key, item->param_key) != 0))
 				continue;
 		}
 		else {

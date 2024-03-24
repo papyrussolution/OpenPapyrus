@@ -954,12 +954,10 @@ int evp_pkey_name2type(const char * name)
 {
 	int type;
 	size_t i;
-
 	for(i = 0; i < SIZEOFARRAY(standard_name2type); i++) {
 		if(strcasecmp(name, (const char *)standard_name2type[i].ptr) == 0)
 			return (int)standard_name2type[i].id;
 	}
-
 	if((type = EVP_PKEY_type(OBJ_sn2nid(name))) != NID_undef)
 		return type;
 	return EVP_PKEY_type(OBJ_ln2nid(name));

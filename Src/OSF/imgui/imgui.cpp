@@ -2585,7 +2585,6 @@ static void ImGuiListClipper_SortAndFuseRanges(ImVector<ImGuiListClipperRange>& 
 {
 	if(ranges.Size - offset <= 1)
 		return;
-
 	// Helper to order ranges and fuse them together if possible (bubble sort is fine as we are only sorting 2-3 entries)
 	for(int sort_end = ranges.Size - offset - 1; sort_end > 0; --sort_end)
 		for(int i = offset; i < sort_end + offset; ++i)

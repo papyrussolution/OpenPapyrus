@@ -179,10 +179,10 @@ static int def_load(CONF * conf, const char * name, long * line)
 /* Parse a boolean value and fill in *flag. Return 0 on error. */
 static int parsebool(const char * pval, int * flag)
 {
-	if(strcasecmp(pval, "on") == 0 || strcasecmp(pval, "true") == 0) {
+	if(sstreqi_ascii(pval, "on") || sstreqi_ascii(pval, "true")) {
 		*flag = 1;
 	}
-	else if(strcasecmp(pval, "off") == 0 || strcasecmp(pval, "false") == 0) {
+	else if(sstreqi_ascii(pval, "off") || sstreqi_ascii(pval, "false")) {
 		*flag = 0;
 	}
 	else {
@@ -834,7 +834,7 @@ static BIO * get_next_file(const char * path, OPENSSL_DIR_CTX ** dirctx)
 	size_t pathlen = strlen(path);
 	while((filename = OPENSSL_DIR_read(dirctx, path)) != NULL) {
 		size_t namelen = strlen(filename);
-		if((namelen > 5 && strcasecmp(filename + namelen - 5, ".conf") == 0) || (namelen > 4 && strcasecmp(filename + namelen - 4, ".cnf") == 0)) {
+		if((namelen > 5 && sstreqi_ascii(filename + namelen - 5, ".conf")) || (namelen > 4 && sstreqi_ascii(filename + namelen - 4, ".cnf"))) {
 			BIO * bio;
 			size_t newlen = pathlen + namelen + 2;
 			char * newpath = (char*)OPENSSL_zalloc(newlen);

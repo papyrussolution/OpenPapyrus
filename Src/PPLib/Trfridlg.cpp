@@ -1,5 +1,5 @@
 // TRFRIDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2560,7 +2560,7 @@ int TrfrItemDialog::_SetupLot(bool dontSetupPriceByLot)
 	else
 	   	Rest = (Item.Flags & (PPTFR_RECEIPT | PPTFR_UNLIM)) ? Item.Quantity_ : 0.0;
 	if(!Item.QCert && Item.GoodsID && !(P_BObj->GetConfig().Flags & BCF_DONTINHQCERT) && (Item.Flags & PPTFR_RECEIPT)) // @v10.4.10 (Item.Flags & PPTFR_RECEIPT)
-		P_Trfr->Rcpt.GetLastQCert(labs(Item.GoodsID), Item.Date, &Item.QCert, 0); // @v10.4.10 Item.Date
+		P_Trfr->Rcpt.GetLastQCert(labs(Item.GoodsID), Item.Date, Item.LocID, &Item.QCert, 0); // @v10.4.10 Item.Date // @v11.9.10 Item.LocID
 	setCtrlLong(CTLSEL_LOT_QCERT, Item.QCert);
 	{
 		QCertCtrlGroup::Rec qc_rec(Item.QCert);

@@ -660,27 +660,27 @@ static int random_conf_init(CONF_IMODULE * md, const CONF * cnf)
 		return 0;
 	for(i = 0; i < sk_CONF_VALUE_num(elist); i++) {
 		cval = sk_CONF_VALUE_value(elist, i);
-		if(strcasecmp(cval->name, "random") == 0) {
+		if(sstreqi_ascii(cval->name, "random")) {
 			if(!random_set_string(&dgbl->rng_name, cval->value))
 				return 0;
 		}
-		else if(strcasecmp(cval->name, "cipher") == 0) {
+		else if(sstreqi_ascii(cval->name, "cipher")) {
 			if(!random_set_string(&dgbl->rng_cipher, cval->value))
 				return 0;
 		}
-		else if(strcasecmp(cval->name, "digest") == 0) {
+		else if(sstreqi_ascii(cval->name, "digest")) {
 			if(!random_set_string(&dgbl->rng_digest, cval->value))
 				return 0;
 		}
-		else if(strcasecmp(cval->name, "properties") == 0) {
+		else if(sstreqi_ascii(cval->name, "properties")) {
 			if(!random_set_string(&dgbl->rng_propq, cval->value))
 				return 0;
 		}
-		else if(strcasecmp(cval->name, "seed") == 0) {
+		else if(sstreqi_ascii(cval->name, "seed")) {
 			if(!random_set_string(&dgbl->seed_name, cval->value))
 				return 0;
 		}
-		else if(strcasecmp(cval->name, "seed_properties") == 0) {
+		else if(sstreqi_ascii(cval->name, "seed_properties")) {
 			if(!random_set_string(&dgbl->seed_propq, cval->value))
 				return 0;
 		}

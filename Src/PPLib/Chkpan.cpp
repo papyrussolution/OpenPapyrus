@@ -1417,6 +1417,7 @@ void CPosProcessor::SetupExt(const CCheckPacket * pPack)
 			}
 		}*/
 		// } @v11.8.8 
+		P.PPExtStrContainer::Copy(*pPack); // @v11.9.10
 	}
 }
 
@@ -4009,6 +4010,8 @@ int CheckPaneDialog::ConfirmPosPaymBank(/*double amount*/PosPaymentBlock & rPpl)
 		}
 		DECL_DIALOG_SETDTS()
 		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
 			Ptb.SetBrush(brushInvalid, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
 			Ptb.SetBrush(brushEAddrPhone, SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
 			Ptb.SetBrush(brushEAddrEmail, SPaintObj::bsSolid, GetColorRef(SClrCadetblue),  0);
@@ -4025,6 +4028,7 @@ int CheckPaneDialog::ConfirmPosPaymBank(/*double amount*/PosPaymentBlock & rPpl)
 				setCtrlString(CTL_POSPAYMBNK_EADDR, Data.EAddr.EAddr);
 				setCtrlUInt16(CTL_POSPAYMBNK_PAPERLESS, BIN(Data.Flags & PosPaymentBlock::fPaperless));
 			}
+			return ok;
 		}
 		DECL_DIALOG_GETDTS()
 		{
@@ -4107,20 +4111,27 @@ int CheckPaneDialog::ConfirmPosPaymBank(/*double amount*/PosPaymentBlock & rPpl)
 	};
 	int    yes = 1;
 	if(/*amount*/rPpl.AmtToPaym != 0.0) {
-		TDialog * dlg = new TDialog(DLG_POSPAYMBNK);
+		ConfirmPosPaymBankDialog * dlg = new ConfirmPosPaymBankDialog();
 		if(CheckDialogPtrErr(&dlg)) {
 			// @v11.9.8 {
-			if(!DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) {
+			/*if(!DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) {
 				dlg->showCtrl(CTL_POSPAYMBNK_EADDR, 0);
 				dlg->showCtrl(CTL_POSPAYMBNK_EADDRINF, 0);
 				dlg->showCtrl(CTL_POSPAYMBNK_PAPERLESS, 0);
 				dlg->showCtrl(CTLFRAME_POSPAYMBNK_PAPERLESS, 0);
-			}
+			}*/
 			// } @v11.9.8
-			dlg->setCtrlReal(CTL_POSPAYMBNK_AMOUNT, /*amount*/rPpl.AmtToPaym);
-			if(ExecViewAndDestroy(dlg) != cmOK)
+			//dlg->setCtrlReal(CTL_POSPAYMBNK_AMOUNT, /*amount*/rPpl.AmtToPaym);
+			dlg->setDTS(&rPpl);
+			if(ExecView(dlg) == cmOK) {
+				if(!dlg->getDTS(&rPpl)) {
+					yes = 0;
+				}
+			}
+			else
 				yes = 0;
 		}
+		delete dlg;
 	}
 	return yes;
 }

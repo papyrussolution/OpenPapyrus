@@ -663,7 +663,7 @@ static int decoder_process(const OSSL_PARAM params[], void * arg)
 		 * too special knowledge.
 		 */
 		trace_data_structure = data_structure;
-		if(data_type && data_structure && strcasecmp(data_structure, "type-specific") == 0)
+		if(data_type && data_structure && sstreqi_ascii(data_structure, "type-specific"))
 			data_structure = NULL;
 		OSSL_TRACE_BEGIN(DECODER) {
 			BIO_printf(trc_out,

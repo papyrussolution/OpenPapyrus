@@ -224,25 +224,18 @@ static int cmd_Curves(SSL_CONF_CTX * cctx, const char * value)
 static int cmd_ECDHParameters(SSL_CONF_CTX * cctx, const char * value)
 {
 	int rv = 1;
-
 	/* Ignore values supported by 1.0.2 for the automatic selection */
-	if((cctx->flags & SSL_CONF_FLAG_FILE)
-	    && (strcasecmp(value, "+automatic") == 0
-	    || strcasecmp(value, "automatic") == 0))
+	if((cctx->flags & SSL_CONF_FLAG_FILE) && (sstreqi_ascii(value, "+automatic") || sstreqi_ascii(value, "automatic")))
 		return 1;
-	if((cctx->flags & SSL_CONF_FLAG_CMDLINE) &&
-	    strcmp(value, "auto") == 0)
+	if((cctx->flags & SSL_CONF_FLAG_CMDLINE) && strcmp(value, "auto") == 0)
 		return 1;
-
 	/* ECDHParameters accepts a single group name */
 	if(strstr(value, ":") != NULL)
 		return 0;
-
 	if(cctx->ctx)
 		rv = SSL_CTX_set1_groups_list(cctx->ctx, value);
 	else if(cctx->ssl)
 		rv = SSL_set1_groups_list(cctx->ssl, value);
-
 	return rv > 0;
 }
 

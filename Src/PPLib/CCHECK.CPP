@@ -591,6 +591,17 @@ int CCheckItem::SplitByQtty(double restQtty, CCheckItem & rNewItem)
 CCheckPacket::BueryEAddr_::BueryEAddr_() : AddrType(0)
 {
 }
+
+CCheckPacket::BueryEAddr_::BueryEAddr_(const BueryEAddr_ & rS) : AddrType(rS.AddrType), EAddr(rS.EAddr)
+{
+}
+
+CCheckPacket::BueryEAddr_ & FASTCALL CCheckPacket::BueryEAddr_::operator = (const BueryEAddr_ & rS)
+{
+	AddrType = rS.AddrType;
+	EAddr = rS.EAddr;
+	return *this;
+}
 		
 CCheckPacket::BueryEAddr_ & CCheckPacket::BueryEAddr_::Z()
 {

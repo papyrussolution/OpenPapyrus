@@ -1166,15 +1166,15 @@ EVP_PKEY * EVP_PKEY_Q_keygen(OSSL_LIB_CTX * libctx, const char * propq,
 	OSSL_PARAM params[] = { OSSL_PARAM_END, OSSL_PARAM_END };
 	EVP_PKEY * ret = NULL;
 	va_start(args, type);
-	if(strcasecmp(type, "RSA") == 0) {
+	if(sstreqi_ascii(type, "RSA")) {
 		bits = va_arg(args, size_t);
 		params[0] = OSSL_PARAM_construct_size_t(OSSL_PKEY_PARAM_RSA_BITS, &bits);
 	}
-	else if(strcasecmp(type, "EC") == 0) {
+	else if(sstreqi_ascii(type, "EC")) {
 		name = va_arg(args, char *);
 		params[0] = OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME, name, 0);
 	}
-	else if(strcasecmp(type, "ED25519") != 0 && strcasecmp(type, "X25519") != 0 && strcasecmp(type, "ED448") != 0 && strcasecmp(type, "X448") != 0) {
+	else if(!sstreqi_ascii(type, "ED25519") && !sstreqi_ascii(type, "X25519") && !sstreqi_ascii(type, "ED448") && !sstreqi_ascii(type, "X448")) {
 		ERR_raise(ERR_LIB_EVP, ERR_R_PASSED_INVALID_ARGUMENT);
 		goto end;
 	}

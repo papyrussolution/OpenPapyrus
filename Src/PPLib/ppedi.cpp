@@ -575,7 +575,7 @@ int GtinStruc::Parse(const char * pCode)
 					temp_buf.CatChar(code_buf.C(i));
 				}
 			}
-			tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta, 0);
+			tr.Run(temp_buf, nta, 0);
 			//tr.Run(code_buf.ucptr(), code_buf.Len(), nta, 0);
 		}
 		if(nta.Has(SNTOK_CHZN_CIGITEM) || nta.Has(SNTOK_CHZN_ALTCIGITEM)) { // @v11.9.4 (SNTOK_CHZN_ALTCIGITEM)
@@ -5067,6 +5067,9 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 					// iteration
 					Goods2Tbl::Rec goods_rec;
 					SString barcode;
+					double total_qtty = 0.0;
+					double total_amt = 0.0;
+					double total_amt_aftertaxes = 0.0;
 					for(uint i = 0; i < r_org_pack.GetTCount(); i++) {
 						uint   current_ti_pos = 0;
 						const PPTransferItem & r_ti = r_org_pack.ConstTI(i);
@@ -5089,23 +5092,34 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 								n_ti.PutAttrib(G.GetToken_Ansi(PPHSC_RU_APPEL2), temp_buf.Z().Cat(goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
 								//n_ti.PutAttrib(G.GetToken_Ansi(PPHSC_RU_OKEI), "");
 							}
+							GTaxVect vect;
+							const long exclude_tax_flags = GTAXVF_SALESTAX;
 							const double qtty = fabs(p_current_ti->Quantity_);
 							const double price = fabs(p_current_ti->NetPrice());
+							const double amt = price * qtty;
+							vect.CalcTI(*p_current_ti, rBp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags, -1);
+							const double amt_aftertaxes = vect.GetValue(GTAXVF_AFTERTAXES);
+							total_qtty += qtty;
+							total_amt += amt;
+							total_amt_aftertaxes += amt_aftertaxes;
 							n_ti.PutAttrib(G.GetToken_Ansi(PPHSC_RU_QT_TY), temp_buf.Z().Cat(qtty, MKSFMTD_030));
-							n_ti.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNT), temp_buf.Z().Cat(price * qtty, MKSFMTD_020));
-							n_ti.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNTAFTERTAX), ""); // СуммаБезНал
+							n_ti.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNT), temp_buf.Z().Cat(amt, MKSFMTD_020));
+							n_ti.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNTAFTERTAX), temp_buf.Z().Cat(amt_aftertaxes, MKSFMTD_020)); // СуммаБезНал
 							n_ti.PutAttrib(G.GetToken_Ansi(PPHSC_RU_PRICE), temp_buf.Z().Cat(price, MKSFMTD_020));
 							{
 								SXml::WNode n_item(G.P_X, G.GetToken_Ansi(PPHSC_RU_VAT));
+								n_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TAXRATE2), temp_buf.Z().Cat(vect.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 1, NMBF_NOTRAILZ)));
+								n_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNT), temp_buf.Z().Cat(vect.GetValue(GTAXVF_VAT), MKSFMTD_020));
+								n_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TAXRATETYPE), G.GetToken_Ansi(PPHSC_RU_PERCENT));
 							}
 							{
-								SXml::WNode n_item(G.P_X, G.GetToken_Ansi(PPHSC_RU_EXCISE));
+								//SXml::WNode n_item(G.P_X, G.GetToken_Ansi(PPHSC_RU_EXCISE));
 							}
 							{
-								SXml::WNode n_(G.P_X, G.GetToken_Ansi(PPHSC_RU_FEATURE));
+								//SXml::WNode n_(G.P_X, G.GetToken_Ansi(PPHSC_RU_FEATURE));
 							}
 							{
-								SXml::WNode n_(G.P_X, G.GetToken_Ansi(PPHSC_RU_PARAMETER));
+								//SXml::WNode n_(G.P_X, G.GetToken_Ansi(PPHSC_RU_PARAMETER));
 							}
 							{
 								SXml::WNode n_prev_item(G.P_X, G.GetToken_Ansi(PPHSC_RU_TABOFDOCLINE_PREV));
@@ -5123,21 +5137,25 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 								}
 								const double qtty = fabs(r_ti.Quantity_);
 								const double price = fabs(r_ti.NetPrice());
+								vect.CalcTI(r_ti, rBp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags, -1);
 								n_prev_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_QT_TY), temp_buf.Z().Cat(qtty, MKSFMTD_030));
 								n_prev_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNT), temp_buf.Z().Cat(price * qtty, MKSFMTD_020));
-								n_prev_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNTAFTERTAX), ""); // СуммаБезНал
+								n_prev_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNTAFTERTAX), temp_buf.Z().Cat(vect.GetValue(GTAXVF_AFTERTAXES), MKSFMTD_020)); // СуммаБезНал
 								n_prev_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_PRICE), temp_buf.Z().Cat(price, MKSFMTD_020));
 								{
 									SXml::WNode n_item(G.P_X, G.GetToken_Ansi(PPHSC_RU_VAT));
+									n_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TAXRATE2), temp_buf.Z().Cat(vect.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 1, NMBF_NOTRAILZ)));
+									n_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNT), temp_buf.Z().Cat(vect.GetValue(GTAXVF_VAT), MKSFMTD_020));
+									n_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TAXRATETYPE), G.GetToken_Ansi(PPHSC_RU_PERCENT));
 								}
 								{
-									SXml::WNode n_item(G.P_X, G.GetToken_Ansi(PPHSC_RU_EXCISE));
+									//SXml::WNode n_item(G.P_X, G.GetToken_Ansi(PPHSC_RU_EXCISE));
 								}
 								{
-									SXml::WNode n_(G.P_X, G.GetToken_Ansi(PPHSC_RU_FEATURE));
+									//SXml::WNode n_(G.P_X, G.GetToken_Ansi(PPHSC_RU_FEATURE));
 								}
 								{
-									SXml::WNode n_(G.P_X, G.GetToken_Ansi(PPHSC_RU_PARAMETER));
+									//SXml::WNode n_(G.P_X, G.GetToken_Ansi(PPHSC_RU_PARAMETER));
 								}
 							}
 						}
@@ -5145,9 +5163,9 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 					{
 						SXml::WNode n_total(G.P_X, G.GetToken_Ansi(PPHSC_RU_TABOFDOCTOTOAL));
 						//<ИтогТабл Кол_во="10.000" Сумма="183.00" СуммаБезНал="166.36"/>
-						n_total.PutAttrib(G.GetToken_Ansi(PPHSC_RU_QT_TY), "");
-						n_total.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNT), "");
-						n_total.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNTAFTERTAX), ""); // СуммаБезНал
+						n_total.PutAttrib(G.GetToken_Ansi(PPHSC_RU_QT_TY), temp_buf.Z().Cat(total_qtty, MKSFMTD_030));
+						n_total.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNT), temp_buf.Z().Cat(total_amt, MKSFMTD_020));
+						n_total.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNTAFTERTAX), temp_buf.Z().Cat(total_amt_aftertaxes, MKSFMTD_020)); // СуммаБезНал
 					}
 				}
 			}
@@ -5454,12 +5472,16 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 			}
 			if(prot == InetUrl::protFtp) {
 				ScURL curl;
-				const char * p_box_name = "Outbox";
-				url.SetComponent(url.cPath, p_box_name);
+				//const char * p_box_name = "Outbox";
+				//url.SetComponent(url.cPath, p_box_name);
+				SString _box;
+				if(Epp.GetExtStrData(PPEdiProviderPacket::extssSubOut, _box) > 0 && _box.NotEmptyS())
+					url.SetComponent(url.cPath, _box);
+				//
 				THROW(curl.FtpPut(url, ScURL::mfVerbose, path, 0, 0));
 				pIdent->EdiOp = rPack.DocType;
 				pIdent->Uuid = msg_uuid;
-				pIdent->Box = p_box_name;
+				pIdent->Box = /*p_box_name*/_box;
 				pIdent->Time = getcurdatetime_();
 				ok = 1;
 			}

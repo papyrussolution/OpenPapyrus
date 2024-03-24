@@ -97,6 +97,8 @@ public:
 			PPID   TechID;
 			PPID   TSessID;
 			double Amount;
+			char   NameTextUtf8[128]; // @v11.9.10
+			char   PhoneUtf8[64]; // @v11.9.10
 			char   AuthTextUtf8[128];
 			char   AuthPwUtf8[128];
 		};
@@ -151,12 +153,13 @@ public:
 		screenUndef          = 0, // неопределенный
 		screenConstruction   = 1, // Тестовый режим для разработки 
 		screenHybernat       = 2, // спящий режим 
-		screenRegister       = 3, // регистрация //
+		// 3 skipped (there was an unused item)
 		screenLogin          = 4, // авторизация //
 		screenAuthSelectSess = 5, // авторизованный режим - выбор сессии
 		screenSession        = 6, // рабочая сессия //
 		screenIntro          = 7, // Заголовочный экран
 		screenAdmin          = 8, // Администраторский экран 
+		screenRegistration   = 9, // @v11.9.10 Регистрация нового пользователя //
 	};
 	//
 	enum {
@@ -191,6 +194,7 @@ public:
 		loidLogo                      = 10026,
 		loidToolbar                   = 10027, // Область панели инструментов в верхней части окна
 		loidAdminCtrlGroup            = 10028, // Область администраторского экрана с кнопками команд
+		loidRegistrationBlock         = 10029, // @v11.9.10 Блок диалога регистрации
 		//
 		loidStartProgramEntry         = 20000  // Стартовый идентификатор для иконок выбора программ. Первый layout идентифицируется как (loidStartProgramEntry+1)
 	};
@@ -310,6 +314,25 @@ public:
 		PPID   PersonID;
 		uint   State;
 	};
+	class DRegistration : public DServerError {
+	public:
+		DRegistration() : SCardID(0), PersonID(0), State(0)
+		{
+		}
+		DRegistration & Z()
+		{
+			SCardID = 0;
+			PersonID = 0;
+			State = 0;
+			return *this;
+		}
+		enum {
+			stWaitOn = 0x0001 // Объект находится в состоянии ожидания результата регистрации
+		};
+		PPID   SCardID;
+		PPID   PersonID;
+		uint   State;
+	};
 	class DPrices : public DServerError {
 	public:
 		DPrices();
@@ -409,7 +432,8 @@ public:
 			syncdataAuth,             // DAuth
 			syncdataAutonomousTSess,  // DTSess Поддержка актуальности автономных данных о текущей сессии
 			syncdataClientPolicy,     // DPolicy Политика ограничений пользовательского сеанса
-			syncdataProgramList       // D_PgmList Список программ, которые могут быть запущены из оболочки
+			syncdataProgramList,      // D_PgmList Список программ, которые могут быть запущены из оболочки
+			syncdataRegistration      // @v11.9.10 D_Reg Результат регистрации клиента
 		};
 
 		WsCtl_SelfIdentityBlock SidBlk;
@@ -421,9 +445,11 @@ public:
 		SyncEntry <DTSess>   D_TSess;
 		SyncEntry <DConnectionStatus> D_ConnStatus;
 		SyncEntry <DAuth>    D_Auth;
+		SyncEntry <DRegistration> D_Reg; // @v11.9.10
 
 		State() : D_Prc(syncdataPrc), D_Test(syncdataTest), D_Acc(syncdataAccount), D_Prices(syncdataPrices), D_TSess(syncdataTSess), 
-			D_ConnStatus(syncdataJobSrvConnStatus), D_Auth(syncdataAuth), SelectedTecGoodsID(0), D_LastErr(syncdataServerError)
+			D_ConnStatus(syncdataJobSrvConnStatus), D_Auth(syncdataAuth), SelectedTecGoodsID(0), D_LastErr(syncdataServerError),
+			D_Reg(syncdataRegistration)
 		{
 		}
 		PPID   GetSelectedTecGoodsID() const { return SelectedTecGoodsID; }
@@ -645,6 +671,22 @@ private:
 	void   LoadProgramList2();
 	static void LoadProgramImages(WsCtl_ProgramCollection & rPgmL, TextureCache & rTextureCache);
 	void   EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayout & rTl);
+	int    ScreenItem_Logo(SUiLayout * pLoParent, int viewFlags) // loidLogo
+	{
+		int    result = 0;
+		ImGuiWindowByLayout wbl(pLoParent, loidLogo, "##Logo", viewFlags|ImGuiWindowFlags_NoBackground);
+		if(wbl.IsValid()) {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			GetFilePath(fnLogo, true, r_temp_buf);
+			Texture_CachedFileEntity * p_logo_te = Cache_Texture.Get(r_temp_buf);
+			if(p_logo_te && p_logo_te->P_Texture) {
+				const float _x = ImGui::GetWindowWidth();
+				const float _y = ImGui::GetWindowHeight();
+				ImGui::Image(p_logo_te->P_Texture, ImVec2(_x, _y));
+			}
+		}
+		return result;
+	}
 	//
 	// Descr: Коды состояния ошибки для информирования пользователя //
 	//
@@ -665,9 +707,8 @@ private:
 
 	//
 	char   TestInput[128];
-	//char   LoginText[256];
-	//char   PwText[128];
 	WsCtl_LoginBlock LoginBlk;
+	WsCtl_RegistrationBlock RegBlk; // @v11.9.10
 	DServerError LastSvrErr;
 	ImDialog_WsCtlConfig * P_Dlg_Cfg;
 
@@ -700,6 +741,8 @@ public:
 //
 WsCtlReqQueue::Req::Param::Param() : SCardID(0), GoodsID(0), TechID(0), TSessID(0), Amount(0.0)
 {
+	NameTextUtf8[0] = 0; // @v11.9.10
+	PhoneUtf8[0] = 0; // @v11.9.10
 	AuthTextUtf8[0] = 0;
 	AuthPwUtf8[0] = 0;
 }
@@ -1441,6 +1484,59 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				}
 			}
 			break;
+		case PPSCMD_WSCTL_REGISTRATION: // @v11.9.10
+			if(P_St) {
+				bool   data_settled = false; // Признак того, что данные в блоке состояния инициализированы 
+				WsCtl_ImGuiSceneBlock::DRegistration st_data;
+				WsCtl_ImGuiSceneBlock::DPrc st_prc;
+				P_St->D_Prc.GetData(st_prc); 
+				PPJobSrvCmd cmd;
+				cmd.StartWriting(PPSCMD_WSCTL_REGISTRATION);
+				{
+					SJson js_param(SJson::tOBJECT);
+					js_param.InsertString("name", rReq.P.NameTextUtf8);
+					js_param.InsertString("phone", rReq.P.PhoneUtf8);
+					js_param.InsertString("pw", rReq.P.AuthPwUtf8);
+					temp_buf.Z().Cat(st_prc.PrcUuid, S_GUID::fmtIDL);
+					js_param.InsertString("wsctluuid", temp_buf);
+					js_param.ToStr(temp_buf);
+					SString mime_buf;
+					mime_buf.EncodeMime64(temp_buf.ucptr(), temp_buf.Len());
+					cmd.Write(mime_buf.ucptr(), mime_buf.Len()+1);
+				}
+				cmd.FinishWriting();
+				if(rCli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
+					SString reply_buf;
+					reply.StartReading(&reply_buf);
+					if(reply.CheckRepError()) {
+						SJson * p_js_obj = SJson::Parse(reply_buf);
+						const SJson * p_c = 0;
+						if(p_js_obj) {
+							p_c = p_js_obj->FindChildByKey("scardid");
+							if(SJson::IsNumber(p_c)) {
+								st_data.SCardID = p_c->Text.ToLong();
+							}
+							p_c = p_js_obj->FindChildByKey("personid");
+							if(SJson::IsNumber(p_c)) {
+								st_data.PersonID = p_c->Text.ToLong();
+							}
+							st_data.State = 0;
+							P_St->D_Reg.SetData(st_data);
+							data_settled = true; 
+						}
+						else {
+							PPSetErrorSLib();
+							st_data.SetupByLastError();
+						}
+						ZDELETE(p_js_obj);
+					}
+					else
+						st_data.SetupByLastError();
+				}
+				else
+					st_data.SetupByLastError();
+			}
+			break;
 		case PPSCMD_WSCTL_AUTH:
 			if(P_St) {
 				bool   data_settled = false; // Признак того, что данные в блоке состояния инициализированы 
@@ -1484,7 +1580,6 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 								if(st_tsess_data.FromJsonObject(p_c)) {
 									is_tsess_data_valid = false;
 								}
-
 							}
 							st_data.State = 0;
 							P_St->D_Auth.SetData(st_data);
@@ -1827,8 +1922,7 @@ WsCtl_ImGuiSceneBlock::~WsCtl_ImGuiSceneBlock()
 int WsCtl_ImGuiSceneBlock::SetScreen(int scr)
 {
 	int    ok = 0;
-	if(oneof8(scr, screenConstruction, screenHybernat, screenRegister, screenLogin, screenAuthSelectSess, 
-		screenSession, screenIntro, screenAdmin)) {
+	if(oneof8(scr, screenConstruction, screenHybernat, screenLogin, screenAuthSelectSess, screenSession, screenIntro, screenAdmin, screenRegistration)) {
 		if(Screen != scr) {
 			Screen = scr;
 			ok = 1;
@@ -2015,7 +2109,7 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 					const char * p_color_name = ImGui::GetStyleColorName(i);
 					if(!isempty(p_color_name)) {
 						SColor c;
-						if(p_cs->Get(p_color_name, c)) {
+						if(p_uid->GetColor(p_cs, p_color_name, c)) {
 							style->Colors[i] = c;
 						}
 					}
@@ -2032,16 +2126,12 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 			SColor primary_font_color;
 			SColor secondary_font_color;
 			SColor substrat_color;
-			if(p_cs) {
-				p_cs->Get("TextPrimary", primary_font_color);
-				p_cs->Get("TextSecondary", secondary_font_color);
-				p_cs->Get("Substrat", substrat_color);
-			}
-			else {
-				substrat_color.Set(0x1E, 0x22, 0x28);
+			if(!p_uid->GetColor(p_cs, "TextPrimary", primary_font_color))
 				primary_font_color = SColor(SClrWhite);
+			if(!p_uid->GetColor(p_cs, "TextSecondary", secondary_font_color))
 				secondary_font_color = SColor(SClrSilver);
-			}
+			if(!p_uid->GetColor(p_cs, "Substrat", substrat_color))
+				substrat_color.Set(0x1E, 0x22, 0x28);
 			ClearColor = substrat_color;
 			{
 				//const char * p_font_face_list[] = { "Roboto", "DroidSans", "Cousine", "Karla", "ProggyClean", "ProggyTiny" };
@@ -2214,215 +2304,6 @@ void WsCtl_ImGuiSceneBlock::LastServerErrorPopup(bool isErr)
 	}
 }
 
-#if 0 // { // Эта функция была актуальна до использования механизма внешнего описания лейаутов {
-void WsCtl_ImGuiSceneBlock::MakeLayout(SJson ** ppJsList)
-{
-	const FRect margin_(2.0f, 1.0f, 2.0f, 1.0f);
-	LongArray lo_id_list;
-	SString temp_buf;
-	{
-		//
-		// screenLogin
-		//
-		const int lo_id = screenLogin;
-		const char * p_lo_symb = "screenLogin";
-		SUiLayout * p_tl = new SUiLayout();
-		SUiLayoutParam alb(DIREC_VERT, SUiLayoutParam::alignCenter, SUiLayoutParam::alignCenter);
-		alb.AlignItems = SUiLayoutParam::alignCenter;
-		p_tl->SetLayoutBlock(alb);
-		p_tl->SetID(lo_id);
-		p_tl->SetSymb(p_lo_symb);
-		{
-			SUiLayoutParam alb(DIREC_HORZ, SUiLayoutParam::alignCenter, SUiLayoutParam::alignCenter);
-			alb.SetFixedSizeX(480).SetFixedSizeY(360);
-			p_tl->InsertItem(0, &alb, loidLoginBlock);
-		}
-		Cache_Layout.Put(p_tl, true);
-		lo_id_list.add(lo_id);
-	}
-	{
-		//
-		// screenAuthSelectSess
-		//
-		const int lo_id = screenAuthSelectSess;
-		const char * p_lo_symb = "screenAuthSelectSess";
-		SUiLayout * p_tl = new SUiLayout();
-		SUiLayoutParam alb(DIREC_HORZ, SUiLayoutParam::alignCenter, SUiLayoutParam::alignCenter);
-		p_tl->SetLayoutBlock(alb);
-		p_tl->SetID(lo_id);
-		p_tl->SetSymb(p_lo_symb);
-		{
-			// Left menu
-			SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-			alb01.SetMargin(margin_).SetFixedSizeX(128.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-			p_tl->InsertItem(0, &alb01, loidMenuBlock);			
-		}
-		{
-			SUiLayoutParam alb_mg(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-			alb_mg.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-			SUiLayout * p_lo_main_group = p_tl->InsertItem(0, &alb_mg, loidMainGroup);
-			{
-				SUiLayoutParam alb_ig(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
-				alb_ig.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-				SUiLayout * p_lo_info_group = p_lo_main_group->InsertItem(0, &alb_ig, loidMainGroup);
-				{
-					// Person info
-					SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-					alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-					p_lo_info_group->InsertItem(0, &alb01, loidPersonInfo);
-				}
-				{
-					// Account info
-					SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-					alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-					p_lo_info_group->InsertItem(0, &alb01, loidAccountInfo);
-				}
-				{
-					SUiLayoutParam albg(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-					albg.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-					SUiLayout * p_lo_grp = p_lo_info_group->InsertItem(0, &albg, 0);
-					{
-						// Session selection
-						SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-						alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-						p_lo_grp->InsertItem(0, &alb01, loidSessionSelection);
-					}
-					{
-						SUiLayoutParam alb01(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
-						alb01.SetMargin(margin_).SetFixedSizeY(128.0f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-						p_lo_grp->InsertItem(0, &alb01, loidSessionButtonGroup);
-					}
-				}
-			}
-			{
-				// Buttons group
-				SUiLayoutParam alb01(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
-				alb01.SetMargin(margin_).SetFixedSizeY(128.0f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-				p_lo_main_group->InsertItem(0, &alb01, loidBottomCtrlGroup);
-			}
-		}
-		Cache_Layout.Put(p_tl, true);
-		lo_id_list.add(lo_id);
-	}
-	{
-		//
-		// screenSession
-		//
-		const int lo_id = screenSession;
-		const char * p_lo_symb = "screenSession";
-		SUiLayout * p_tl = new SUiLayout();
-		p_tl->SetLayoutBlock(SUiLayoutParam(DIREC_HORZ, 0, SUiLayoutParam::alignStretch));
-		p_tl->SetID(lo_id);
-		p_tl->SetSymb(p_lo_symb);
-		{
-			{
-				SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-				alb.SetVArea(SUiLayoutParam::areaSideL);
-				alb.SetFixedSizeX(256).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f).SetMargin(1.0f);
-				p_tl->InsertItem(0, &alb, loidMenuBlock);
-			}
-			{
-				SUiLayoutParam alb_mg(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-				alb_mg.SetVArea(SUiLayoutParam::areaSideL);
-				alb_mg.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f).SetMargin(1.0f);
-				SUiLayout * p_lo_main_group = p_tl->InsertItem(0, &alb_mg, loidMainGroup);
-				{
-					SUiLayoutParam alb01(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
-					alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetFixedSizeY(128.0f);
-					p_lo_main_group->InsertItem(0, &alb01, loidSessionInfo);
-				}
-				{
-					SUiLayoutParam alb01(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
-					alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-					p_lo_main_group->InsertItem(0, &alb01, loidSessionProgramGallery);
-				}
-			}
-		}
-		Cache_Layout.Put(p_tl, true);
-		lo_id_list.add(lo_id);
-	}
-	{
-		//
-		// screenConstruction
-		//
-		const int lo_id = screenConstruction;
-		const char * p_lo_symb = "screenConstruction";
-		SUiLayout * p_tl = new SUiLayout();
-		p_tl->SetLayoutBlock(SUiLayoutParam(DIREC_HORZ, 0, SUiLayoutParam::alignStretch));
-		p_tl->SetID(lo_id);
-		p_tl->SetSymb(p_lo_symb);
-		{
-			{
-				SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-				alb.SetVArea(SUiLayoutParam::areaSideL);
-				alb.SetFixedSizeX(256).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f).SetMargin(1.0f);
-				p_tl->InsertItem(0, &alb, loidMenuBlock);
-			}
-			{
-				SUiLayoutParam alb_mg(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-				alb_mg.SetVArea(SUiLayoutParam::areaSideL);
-				alb_mg.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f).SetMargin(1.0f);
-				SUiLayout * p_lo_main_group = p_tl->InsertItem(0, &alb_mg, loidMainGroup);
-				{
-					SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
-					alb.SetMargin(margin_).SetGrowFactor(1.2f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-					SUiLayout * p_lo_up_group = p_lo_main_group->InsertItem(0, &alb, loidUpperGroup);
-					{
-						SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-						alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-						p_lo_up_group->InsertItem(0, &alb01, loidCtl01);
-					}
-					{
-						SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-						alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-						p_lo_up_group->InsertItem(0, &alb01, loidCtl02);
-					}
-				}
-				{
-					SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
-					alb.SetMargin(margin_).SetGrowFactor(0.8f).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-					SUiLayout * p_lo_dn_group = p_lo_main_group->InsertItem(0, &alb, loidBottomGroup);
-					/*{
-						SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-						alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-						p_lo_dn_group->InsertItem(0, &alb01, loidTestProgramGallery);
-					}
-					{
-						SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-						alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-						p_lo_dn_group->InsertItem(0, &alb01, loidAdv02);
-					}
-					{
-						SUiLayoutParam alb01(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-						alb01.SetMargin(margin_).SetGrowFactor(1.0f).SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-						p_lo_dn_group->InsertItem(0, &alb01, loidAdv03);
-					}*/
-				}
-			}
-		}
-		Cache_Layout.Put(p_tl, true);
-		lo_id_list.add(lo_id);
-	}
-	if(ppJsList) {
-		SJson * p_js_lo_list = 0;
-		if(lo_id_list.getCount()) {
-			p_js_lo_list = SJson::CreateArr();
-			for(uint i = 0; i < lo_id_list.getCount(); i++) {
-				int lo_id = lo_id_list.get(i);
-				const SUiLayout * p_lo = Cache_Layout.Get(&lo_id, sizeof(lo_id));
-				if(p_lo) {
-					SJson * p_js_item = p_lo->ToJsonObj();
-					if(p_js_item) {
-						p_js_lo_list->InsertChild(p_js_item);
-					}
-				}
-			}
-		}
-		*ppJsList = p_js_lo_list;
-	}
-}
-#endif // } 0 
-
 void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayout & rTl)
 {
 	const int view_flags = ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoDecoration;
@@ -2565,49 +2446,6 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 		}
 	}
 }
-
-#if 0 // {
-int WsCtl_ImGuiSceneBlock::LoadProgramList()
-{
-	int    ok = 1;
-	//PgmL
-	//D:\Papyrus\ppy\workspace\wsctl\wsctl-program.json 
-	SString temp_buf;
-	PPGetPath(PPPATH_WORKSPACE, temp_buf);
-	temp_buf.SetLastSlash().Cat("wsctl").SetLastSlash().Cat("wsctl-program.json"); // По этому пути находится тестовый фейковый список программ
-	SJson * p_js = SJson::ParseFile(temp_buf);
-	THROW_SL(p_js);
-	THROW(PgmL.FromJsonObj(p_js));
-	PgmL.MakeCatList();
-	{
-		SString pic_base_path;
-		PPGetPath(PPPATH_WORKSPACE, temp_buf);
-		(pic_base_path = temp_buf).SetLastSlash().Cat("cache").SetLastSlash().Cat("img").SetLastSlash();
-		if(pathValid(pic_base_path, 1)) {
-			Cache_Texture.SetBasePath(pic_base_path);
-			for(uint i = 0; i < PgmL.getCount(); i++) {
-				WsCtl_ProgramEntry * p_pe = PgmL.at(i);
-				if(p_pe) {
-					if(p_pe->PicSymb.NotEmpty()) {
-						(temp_buf = pic_base_path).Cat(p_pe->PicSymb);
-						if(fileExists(temp_buf)) {
-							Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
-							if(p_cfe && p_cfe->Init(temp_buf)) {
-								if(p_cfe->Reload(true, &ImgRtb)) {
-									Cache_Texture.Put(p_cfe);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	CATCHZOK
-	delete p_js;
-	return ok;
-}
-#endif // } 0
 
 int WsCtl_ImGuiSceneBlock::GetProgramListFromCache(WsCtl_ProgramCollection & rPgmL, WsCtl_ClientPolicy & rPolicyL)
 {
@@ -2973,19 +2811,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					p_tl->Evaluate(&evp);
 					{
 						//ImGuiWindowByLayout wbl_full(p_tl, "##Intro", view_flags);
-						{
-							ImGuiWindowByLayout wbl(p_tl, loidLogo, "##Logo", view_flags|ImGuiWindowFlags_NoBackground);
-							if(wbl.IsValid()) {
-								SString & r_temp_buf = SLS.AcquireRvlStr();
-								GetFilePath(fnLogo, true, r_temp_buf);
-								Texture_CachedFileEntity * p_logo_te = Cache_Texture.Get(r_temp_buf);
-								if(p_logo_te && p_logo_te->P_Texture) {
-									const float _x = ImGui::GetWindowWidth();
-									const float _y = ImGui::GetWindowHeight();
-									ImGui::Image(p_logo_te->P_Texture, ImVec2(_x, _y));
-								}
-							}
-						}
+						ScreenItem_Logo(p_tl, view_flags);
 						{
 							ImGuiWindowByLayout wbl(p_tl, loidButtonStart, "##Button-Start", view_flags|ImGuiWindowFlags_NoBackground);
 							if(wbl.IsValid()) {
@@ -2996,6 +2822,10 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								ImVec2 sz(256.0f, 64.0f);
 								if(ImGui::Button2(r_temp_buf, /*ButtonSize_Std*/sz, ImGuiButtonFlags_NoShadow)) {
 									SetScreen(screenLogin);
+								}
+								PPLoadStringUtf8("registration", r_temp_buf);
+								if(ImGui::Button2(r_temp_buf, /*ButtonSize_Std*/sz, ImGuiButtonFlags_NoShadow)) {
+									SetScreen(screenRegistration);
 								}
 								GImGui->Style.FrameBorderSize = preserve_fbs;
 							}
@@ -3021,6 +2851,78 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					//ImGui::End();
 				//}
 			}
+			else if(_screen == screenRegistration) { // @v11.9.10
+				SUiLayout * p_tl = Cache_Layout.Get(&_screen, sizeof(_screen));
+				if(p_tl) {
+					p_tl->Evaluate(&evp);
+					{
+						ImGuiWindowByLayout wbl(p_tl, loidToolbar, "##Toolbar", view_flags);
+						void * p_icon_back = Cache_Icon.Get(PPDV_ARROWBACK);
+						if(p_icon_back) {
+							if(ImGui::ImageButton(p_icon_back, ImVec2(ImGuiRuntimeBlock::IconSize, ImGuiRuntimeBlock::IconSize))) {
+								SetScreen(screenIntro);
+							}
+						}
+					}
+					ScreenItem_Logo(p_tl, view_flags);
+					{
+						ImGuiWindowByLayout wbl(p_tl, loidRegistrationBlock, "##REGISTRATIONBLOCK", view_flags);
+						if(wbl.IsValid()) {
+							DRegistration data_reg;
+							St.D_Reg.GetData(data_reg);
+							if(data_reg.SCardID && data_reg.PersonID && data_reg._Status == 0) {
+								RegBlk.Z();
+								SetScreen(screenLogin);
+							}
+							else {
+								{
+									//
+									// Handle an error
+									//
+									errstate = errstateNone;
+									if(!data_reg.SCardID || !data_reg.PersonID || data_reg._Status != 0) {
+										LastSvrErr = data_reg;
+										// Сбрасываем информацию об ошибке {
+										data_reg.DServerError::Z();
+										St.D_Reg.SetData(data_reg);
+										// }
+										if(LastSvrErr._Message.NotEmpty()) {
+											errstate = errstateServer;
+										}
+									}
+									else if(LastSvrErr._Status != 0) {
+										if(LastSvrErr._Message.NotEmpty()) {
+											errstate = errstateServer;
+										}
+									}
+									//LastServerErrorPopup(is_err);
+									ErrorPopup_(errstate);
+								}
+								ImGui::InputText(InputLabelPrefix("Фамилия Имя"), RegBlk.Name, sizeof(RegBlk.Name), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								ImGui::InputText(InputLabelPrefix("Номер телефона"), RegBlk.Phone, sizeof(RegBlk.Phone), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								ImGui::InputText(InputLabelPrefix("Пароль"), RegBlk.PwText, sizeof(RegBlk.PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								ImGui::InputText(InputLabelPrefix("Повторите пароль"), RegBlk.PwRepeatText, sizeof(RegBlk.PwRepeatText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								if(!isempty(RegBlk.Name)) {
+									SNaturalTokenArray nta;
+									STokenRecognizer tr;
+									tr.Run(reinterpret_cast<const uchar *>(RegBlk.Phone), -1, nta, 0);
+									if(nta.Has(SNTOK_PHONE)) {
+										if(!isempty(RegBlk.PwText) && sstreq(RegBlk.PwText, RegBlk.PwRepeatText)) {
+											if(ImGui::Button("Register", ButtonSize_Std) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
+												WsCtlReqQueue::Req req(PPSCMD_WSCTL_REGISTRATION);
+												STRNSCPY(req.P.NameTextUtf8, RegBlk.Name);
+												STRNSCPY(req.P.PhoneUtf8, RegBlk.Phone);
+												STRNSCPY(req.P.AuthPwUtf8, RegBlk.PwText);
+												P_CmdQ->Push(req);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 			else if(_screen == screenLogin) {
 				SUiLayout * p_tl = Cache_Layout.Get(&_screen, sizeof(_screen));
 				if(p_tl) {
@@ -3032,30 +2934,16 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							if(ImGui::ImageButton(p_icon_back, ImVec2(ImGuiRuntimeBlock::IconSize, ImGuiRuntimeBlock::IconSize))) {
 								SetScreen(screenIntro);
 							}
-							//ImGui::Image(p_icon_back, ImVec2(WsCtlConst::IconSize, WsCtlConst::IconSize));
 						}
 					}
-					{
-						ImGuiWindowByLayout wbl(p_tl, loidLogo, "##Logo", view_flags|ImGuiWindowFlags_NoBackground);
-						if(wbl.IsValid()) {
-							SString & r_temp_buf = SLS.AcquireRvlStr();
-							GetFilePath(fnLogo, true, r_temp_buf);
-							Texture_CachedFileEntity * p_logo_te = Cache_Texture.Get(r_temp_buf);
-							if(p_logo_te && p_logo_te->P_Texture) {
-								const float _x = ImGui::GetWindowWidth();
-								const float _y = ImGui::GetWindowHeight();
-								ImGui::Image(p_logo_te->P_Texture, ImVec2(_x, _y));
-							}
-						}
-					}
+					ScreenItem_Logo(p_tl, view_flags);
 					{
 						ImGuiWindowByLayout wbl(p_tl, loidLoginBlock, "##LOGINBLOCK", view_flags);
 						if(wbl.IsValid()) {
 							DAuth data_auth;
 							St.D_Auth.GetData(data_auth);
 							if(data_auth.SCardID && data_auth._Status == 0) {
-								MEMSZERO(LoginBlk.LoginText);
-								MEMSZERO(LoginBlk.PwText);
+								LoginBlk.Z();
 								SetScreen(screenAuthSelectSess);
 							}
 							else {

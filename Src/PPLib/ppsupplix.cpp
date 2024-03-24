@@ -7360,8 +7360,8 @@ private:
 						p_new_pack->Client.PersonID = psn_id;
 						p_new_pack->Client.DlvrLocID = pBp->GetDlvrAddrID();
 						{
-							STokenRecognizer tr;
-							SNaturalTokenArray nta;
+							//STokenRecognizer tr;
+							//SNaturalTokenArray nta;
 							THROW_PP_S(PsnObj.GetRegister(psn_id, PPREGT_TPID, pBp->Rec.Dt, &reg_rec) > 0 && (temp_buf = reg_rec.Num).NotEmptyS(), PPERR_PERSONINNUNDEF, psn_pack.Rec.Name);
 							// @v11.6.11 tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta, 0);
 							// @v11.6.11 added_msg_buf.Z().Cat(temp_buf).CatDiv('-', 1).Cat(psn_pack.Rec.Name);

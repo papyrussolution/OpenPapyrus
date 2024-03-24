@@ -914,6 +914,7 @@ int VATBCfgDialog::editItemDialog(VATBCfg::Item * pItem)
 			AddClusterAssoc(CTL_VATBL_FLAGS, 3, VATBCfg::fVATFromReckon);
 			AddClusterAssoc(CTL_VATBL_FLAGS, 4, VATBCfg::fVATFree);
 			AddClusterAssoc(CTL_VATBL_FLAGS, 5, VATBCfg::fAsPayment);
+			AddClusterAssoc(CTL_VATBL_FLAGS, 6, VATBCfg::fReckonDateByPayment); // @v11.9.10
 			SetClusterData(CTL_VATBL_FLAGS, Data.Flags);
 			// @v11.0.3 {
 			AddClusterAssoc(CTL_VATBL_SIGNFILT, 0, 0);
@@ -934,7 +935,8 @@ int VATBCfgDialog::editItemDialog(VATBCfg::Item * pItem)
 				SetClusterData(CTL_VATBL_EXPBYFACT, exp_by_fact);
 			}
 			DisableClusterItem(CTL_VATBL_FLAGS, 4, P_Cfg->Kind != PPVTB_SIMPLELEDGER);
-			DisableClusterItem(CTL_VATBL_FLAGS, 6, P_Cfg->Kind != PPVTB_SIMPLELEDGER);
+			DisableClusterItem(CTL_VATBL_FLAGS, 5, P_Cfg->Kind != PPVTB_SIMPLELEDGER); // @v11.9.10 @fix 6-->5
+			DisableClusterItem(CTL_VATBL_FLAGS, 6, P_Cfg->Kind == PPVTB_SIMPLELEDGER); // @v11.9.10
 			if(P_Cfg->Kind == PPVTB_SIMPLELEDGER)
 				SetupPPObjCombo(this, CTLSEL_VATBL_MAINAMT, PPOBJ_AMOUNTTYPE, Data.MainAmtTypeID, 0, 0);
 			setVATFld();
@@ -980,14 +982,15 @@ int VATBCfgDialog::editItemDialog(VATBCfg::Item * pItem)
 		void   setVATFld()
 		{
 			int    is_paym_op = 0;
-			PPID   opk_id = getCtrlLong(CTLSEL_VATBL_OPRKIND);
+			const  PPID op_id = getCtrlLong(CTLSEL_VATBL_OPRKIND);
 			ushort v = getCtrlUInt16(CTL_VATBL_FLAGS);
-			if(IsOpPaym(opk_id))
+			if(IsOpPaym(op_id))
 				is_paym_op = 1;
 			else
 				setCtrlUInt16(CTL_VATBL_FLAGS, v & ~(0x08 | 0x10));
 			DisableClusterItem(CTL_VATBL_FLAGS, 3, !is_paym_op);
 			DisableClusterItem(CTL_VATBL_FLAGS, 5, !is_paym_op);
+			DisableClusterItem(CTL_VATBL_FLAGS, 6, !is_paym_op); // @v11.9.10
 			disableCtrl(CTL_VATBL_EXPBYFACT, is_paym_op);
 		}
 		VATBCfg * P_Cfg;
@@ -2291,10 +2294,10 @@ int PPViewVatBook::ProcessOp2(const OpEntryVector & rList, uint listIdx, const O
 	const  OpEntry & r_entry = rList.at(listIdx);
 	//const  PPID op_id = rList.at(i).OpID;
 	GetOpData(r_entry.OpID, &op_rec);
-	const  int is_paym = BIN(op_rec.OpTypeID == PPOPT_PAYMENT);
-	const  int is_ret  = BIN(op_rec.OpTypeID == PPOPT_GOODSRETURN);
-	const  int is_neg  = BIN(pNegList && pNegList->Search(r_entry.OpID, r_entry.AmtTypeID, 0));
-	const  int do_storno = BIN(mode < 0);
+	const  bool is_paym = (op_rec.OpTypeID == PPOPT_PAYMENT);
+	const  bool is_ret  = (op_rec.OpTypeID == PPOPT_GOODSRETURN);
+	const  bool is_neg  = (pNegList && pNegList->Search(r_entry.OpID, r_entry.AmtTypeID, 0));
+	const  bool do_storno = (mode < 0);
 	if(mode < 0)
 		mode = (mode == -1000) ? 0 : -mode;
 	const  int storn_reckon = (!do_storno && VBObj.GetConfig(Filt.Kind).Flags & VATBCfg::hfDontStornReckon) ? 0 : 1;

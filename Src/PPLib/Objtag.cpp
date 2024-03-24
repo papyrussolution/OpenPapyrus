@@ -2310,7 +2310,7 @@ int TagDlgParam::GetDlgData(TDialog * dlg, ObjTagItem * pItem)
 			{
 				STokenRecognizer tr;
 				SNaturalTokenArray nta;
-				tr.Run(temp_buf.ucptr(), -1, nta, 0);
+				tr.Run(temp_buf, nta, 0);
 				THROW_PP_S(nta.Has(SNTOK_EGAISWARECODE) > 0.0f, PPERR_INVEGAISWARECODE, temp_buf);
 			}
 		}

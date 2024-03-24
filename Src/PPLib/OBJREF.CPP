@@ -2644,7 +2644,7 @@ int PPObjGlobalUserAcc::Register(PPID & ID, const char * pName, const char * pPa
 				if(p_scs_obj->GetPacket(cfg.SCardSerID, &scs_pack) > 0 && scs_pack.Rec.GetType() == scstCredit && scs_pack.Eb.CodeTempl[0]) {
 					PPID   sc_id = 0;
 					SString sc_code;
-					THROW(p_sc_obj->Create_(&sc_id, scs_pack.Rec.ID, personID, 0, sc_code, PPObjSCard::cdfCreditCard, 0));
+					THROW(p_sc_obj->Create_(&sc_id, scs_pack.Rec.ID, personID, 0, sc_code, 0, PPObjSCard::cdfCreditCard, 0));
 				}
 			}
 			THROW(tra.Commit());

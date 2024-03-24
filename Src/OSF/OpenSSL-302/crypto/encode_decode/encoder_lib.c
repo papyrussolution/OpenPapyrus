@@ -417,7 +417,7 @@ static int encoder_process(struct encoder_process_data_st * data)
 		 * the name of the next encoder (the one found by the parent call).
 		 */
 		if(top) {
-			if(data->ctx->output_type != NULL && strcasecmp(current_output_type, data->ctx->output_type) != 0) {
+			if(data->ctx->output_type && strcasecmp(current_output_type, data->ctx->output_type) != 0) {
 				OSSL_TRACE_BEGIN(ENCODER) {
 					BIO_printf(trc_out, "[%d]    Skipping because current encoder output type (%s) != desired output type (%s)\n",
 					    data->level, current_output_type, data->ctx->output_type);

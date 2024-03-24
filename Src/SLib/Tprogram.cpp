@@ -2780,8 +2780,8 @@ void UserInterfaceSettings::Init()
 	WindowViewStyle = wndVKVector;
 	TableViewStyle = 1;
 	ListElemCount = 0;
-	TableFont.Init();
-	ListFont.Init();
+	TableFont.Z();
+	ListFont.Z();
 	SupportMail.Z();
 	SpecialInputDeviceSymb.Z();
 }
@@ -2844,11 +2844,11 @@ int UserInterfaceSettings::Restore()
 			WindowViewStyle = blk_b7909.WndViewKindID;
 			TableViewStyle = blk_b7909.BrwColorsSchemaNum;
 			ListElemCount = blk_b7909.ListElemCount;
-			TableFont.Init();
+			TableFont.Z();
 			TableFont.Face = blk_b7909.BrwFontName;
 			TableFont.Size = (int16)blk_b7909.BrwFontHeight;
 			TableFont.Weight = (float)blk_b7909.BrwFontWeight;
-			ListFont.Init(); // В предыдущих версиях не было определения этого шрифта.
+			ListFont.Z(); // В предыдущих версиях не было определения этого шрифта.
 			SupportMail = blk_b7909.SupportMail;
 		}
 		else

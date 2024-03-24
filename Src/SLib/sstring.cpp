@@ -8759,3 +8759,10 @@ int STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rR
 	int ok = Implement(ib, pToken, len, rResultList, pStat);
 	return ok ? PostImplement(ib, pToken, len, rResultList, pStat) : 0;
 }
+
+int STokenRecognizer::Run(const SString & rToken, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat)
+{
+	ImplementBlock ib;
+	int ok = Implement(ib, rToken.ucptr(), rToken.Len(), rResultList, pStat);
+	return ok ? PostImplement(ib, rToken.ucptr(), rToken.Len(), rResultList, pStat) : 0;	
+}

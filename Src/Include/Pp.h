@@ -5544,6 +5544,7 @@ private:
 #define PPSCMD_WSCTL_LOGOUT          10133 // @v11.7.7  WSCTL Выход из сеанса (без завершения текущей рабочей сессии)
 #define PPSCMD_WSCTL_QUERYPOLICY     10134 // @v11.7.12 WSCTL Запрос политики ограничений сеанса
 #define PPSCMD_WSCTL_QUERYPGMLIST    10135 // @v11.8.5  WSCTL Запрос списка программ для запуска на клиенткой машине
+#define PPSCMD_WSCTL_REGISTRATION    10136 // @v11.9.10 WSCTL Регистрация клиента
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -10112,6 +10113,8 @@ public:
 	};
 	struct BueryEAddr_ { // @v11.8.11
 		BueryEAddr_();
+		BueryEAddr_(const BueryEAddr_ & rS);
+		BueryEAddr_ & FASTCALL operator = (const BueryEAddr_ & rS);
 		BueryEAddr_ & Z();
 		bool   IsEmpty() const;
 		int    SetEMail(const char * pEAddr);
@@ -13079,7 +13082,17 @@ public:
 	// Descr: То же, что и GetCurrentGoodsPrice только ищет лоты, которые пришли не позднее чем date.
 	//
 	int    GetGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * = 0);
-	int    GetLastQCert(PPID goodsID, LDATE beforeDate, PPID * pQCertID, PPID * pLotID);
+	//
+	// Descr: Находит наиболее новый сертификат качества для товара goodsID до даты beforeDate (включительно).
+	//   Если аргумент locID не нулевой, то в первую очередь ограничивает поиск сертификата только теми лотами, которые относятся к
+	//   складу с заданным идентификатором, если же по заданному складу нет лота с сертификатом, то в таком случае
+	//   ищет требуемый лот по любому из складов.
+	// Returns:
+	//   >0 - найден лот с не пустым сертификатом
+	//   <0 - не найдено ни одного лота по заданным критериям и с не пустым сертификатом
+	//    0 - error
+	//
+	int    GetLastQCert(PPID goodsID, LDATE beforeDate, PPID locID, PPID * pQCertID, PPID * pLotID);
 	int    IsThereOpenedLotForQCert(PPID qcertID);
 	//
 	// Descr:
@@ -34836,23 +34849,28 @@ public:
 	// Флаги элементов списка
 	//
 	enum {
-		fExclude        = 0x0001, // Исключить операцию при формировании книги
-		fNegative       = 0x0002, // Операция заносится в книгу с инвертированным знаком
-		fByExtObj       = 0x0004, // Контрагентом в записи книги является дополнительный объект
-		fVATFromReckon  = 0x0008, // Налоги из зачетного документа
-		fVATFree        = 0x0010, // Операция освобождена от налогов
-		fAsPayment      = 0x0020, // Только для типов операции PPOPT_PAYMENT.
+		fExclude             = 0x0001, // Исключить операцию при формировании книги
+		fNegative            = 0x0002, // Операция заносится в книгу с инвертированным знаком
+		fByExtObj            = 0x0004, // Контрагентом в записи книги является дополнительный объект
+		fVATFromReckon       = 0x0008, // Налоги из зачетного документа
+		fVATFree             = 0x0010, // Операция освобождена от налогов
+		fAsPayment           = 0x0020, // Только для типов операции PPOPT_PAYMENT.
 			// Запись по операции формируется так: в книгу заносится запись датой документа
 			// с суммой равной номинальной сумме этого документа и суммами НДС, рассчитываемыми
 			// по связанному документу. Для связанного документа его датой формируется сторнирующая запись.
-		fExpendByFact   = 0x0040, // Учитывать расходы по операции по факту. То есть,
+		fExpendByFact        = 0x0040, // Учитывать расходы по операции по факту. То есть,
 			// если документ является приходом товаров, то перечисляются все лоты, сформированные
 			// документом и суммируются все отгрузки (возможно по оплатам) по этим лотам за
 			// заданный период.
-		fFactByShipment  = 0x0080, // Переопределяет учет по данной операции таким образом,
+		fFactByShipment      = 0x0080, // Переопределяет учет по данной операции таким образом,
 			// что документы этой операции будут учитываться по отгрузке (если общее правило книги - по оплате).
 			// Если общее правило книги "по отгрузке", то данный флаг игнорируется.
 		// fExcludeNegative = 0x0100  // @v10.9.11 Исключать запись с отрицательной суммой
+		fReckonDateByPayment = 0x0100 // @v11.9.10 Дату записей зачитывающих оплат формировать по дате зачетного документа, а не по дате зачета
+			// То есть:
+			// 2024-02-01 - платеж
+			// 2024-02-05 - отгрузка и зачитывающая оплата
+			// Если флаг не установлен, то ...
 	};
 	//
 	// Флаги конфигурации
@@ -34860,7 +34878,7 @@ public:
 	enum {
 		hfIterateClb      = 0x0001, // Translated to VatBookFilt::fIterateClb
 		hfDontStornReckon = 0x0002, // Не сторнировать зачитывающие оплаты
-		hfWoTax   = 0x0004, // Книга доходов/расходов без НДС
+		hfWoTax           = 0x0004, // Книга доходов/расходов без НДС
 		hfD_InvcDate      = 0x0008, // В качестве даты записи использовать дату счета-фактуры
 		hfD_MaxInvcBill   = 0x0010  // В качестве даты записи использовать более позднюю из дат
 		//hfExpendByFactShipm
@@ -35154,25 +35172,22 @@ struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
 	int16  BonusChrgExtRule;   // Дополнительная величина правила изменения начисления бонуса по карте
 	uint8  Reserve2;           // @reserve
 	int8   VerifTag;           // Если 1, то запись верифицирована версией 7.3.7 на предмет правильности установки флагов
-		// @v9.8.9 Если VerifTag == 2, то запись сохранена в версии v9.8.9 или выше.
+		// Если VerifTag == 2, то запись сохранена в версии v9.8.9 или выше.
 	PPID   BonusGrpID;         // Товарная группа, по которой зачитываются бонусы на карты
 	PPID   CrdGoodsGrpID;      // Товарная группа, продажа товаров которой зачитывается как списание по кредитной карте в количественном выражении.
-	// @v9.8.9 char   CodeTempl[20];      // Шаблон номеров карт
 	int32  FixedBonus;         // @v10.5.5 (.01) Фиксированная сумма бонуса на один чек. Специальный сценарий. (для бонусных и кредитных карт)
 	PPID   RsrvPoolDestSerID;  // @v10.2.7 Серия, в которую должна переносится карта из резервного пула (которым является данная серия) при
 		// активации (динамическом сопоставлении с телефоном или персоналией)
 	long   SpecialTreatment;   // @v10.1.3 Идентификатор специальной трактовки операций с картами серии.
-	long   QuotKindID_s;       // @v9.8.9 Вид котировки
-	long   PersonKindID;       // @v9.8.9 Вид персоналии, используемый для владельцев карт (по умолчанию - PPPRK_CLIENT)
+	long   QuotKindID_s;       // Вид котировки
+	long   PersonKindID;       // Вид персоналии, используемый для владельцев карт (по умолчанию - PPPRK_CLIENT)
 	LDATE  Issue;              // Дата выпуска
 	LDATE  Expiry;             // Дата окончания действия //
 	long   PDis;               // Скидка (.01%)
 	double MaxCredit;          // Максимальный кредит (для кредитных карт)
 	long   Flags;              // @flags
-	long   Reserve4; // @v9.8.9
-	long   ParentID; // @v9.8.9
-	// @v9.8.9 long   QuotKindID_s;       // Вид котировки
-	// @v9.8.9 long   PersonKindID;       // Вид персоналии, используемый для владельцев карт (по умолчанию - PPPRK_CLIENT)
+	long   Reserve4;           //
+	long   ParentID;           //
 };
 
 struct TrnovrRngDis {      // @persistent @flat
@@ -35646,13 +35661,14 @@ public:
 	//   пробелы), то номер новой карты формируется автоматически в соответствии с шаблоном, определенным
 	//   в серии, которой будет принадлежать карта. При отсутствии валидного шаблона
 	//   функция завершается с ошибкой.
+	// ARG(pPassword IN): Опциональная строка, устанавливаемая как пароль для доступа к функциям, ассоциированным с картой
 	// ARG(flags IN): Опции создания новой записи (PPObjSCard::cdfXXX).
 	// ARG(use_ta IN): Если !0, то фукнция выполняется в собственной транзакции.
 	// Returns:
 	//   >0 - функция завершилась успешно.
 	//   0  - ошибка.
 	//
-	int    Create_(PPID * pID, PPID seriesID, PPID ownerID, const SCardTbl::Rec * pPatternRec, SString & rNumber, long flags, int use_ta);
+	int    Create_(PPID * pID, PPID seriesID, PPID ownerID, const SCardTbl::Rec * pPatternRec, SString & rNumber, const char * pPassword, long flags, int use_ta);
 	int    GetListBySubstring(const char * pSubstr, PPID seriesID, StrAssocArray * pList, int fromBegStr);
 	//
 	// Descr: Возвращает 1 если серия scSerID является серией кредитных карт.
@@ -38886,8 +38902,8 @@ public:
 		//PPTXT_LINKBILLVIEWKINDS                "1,Оплаты по документу;2,Начисления ренты по документу;3,Зачеты по документу;4,Зачитывающие документы;6,Документы списания драфт-документа"
 		// @v10.3.0 Значения (кроме 100) увеличены на 1 для того, чтобы нулевое значение стало сигнализировать неопределенность
 		lkPayments       =   1,  // Оплаты по документу
-		lkCharge =   2,  // Начисления ренты по документу
-		lkReckon =   3,  // Зачеты по документу
+		lkCharge         =   2,  // Начисления ренты по документу
+		lkReckon         =   3,  // Зачеты по документу
 		lkByReckon       =   4,  // Зачитывающие документы
 		lkWrOffDraft     =   6,  // Документы списания драфт-документа
 		lkCorrection     =   7,  // @v10.3.1 Документы корректировки
@@ -53838,9 +53854,7 @@ struct PosPaymentBlock {
 		fAltCashRegUse     = 0x0004  // Если (Flags & fAltCashRegEnabled) и (Flags & fAltCashRegUse) то печатать чека на альтернативном регистраторе
 	};
 	long   Flags;        // @v11.3.6
-	// @v11.8.11 int    BuyersEAddrType; // @v11.3.6 (0|SNTOK_EMAIL|SNTOK_PHONE)
-	// @v11.8.11 SString BuyersEAddr; // @v11.3.6
-	CCheckPacket::BueryEAddr_ EAddr;  // @v11.8.11 Электронный адрес покупателя (email or phone)
+	CCheckPacket::BueryEAddr_ EAddr;  // Электронный адрес покупателя (email or phone)
 	CcAmountList CcPl;
 private:
 	double Total;          // Итоговая сумма чека     @*CPosProcessor::GetTotal())

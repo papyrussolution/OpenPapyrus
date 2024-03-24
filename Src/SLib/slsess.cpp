@@ -1,5 +1,5 @@
 // SLSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1153,7 +1153,7 @@ bool SlSession::LoadUiDescription(const char * pFileName) // @v11.9.3
 					for(uint i = 0; i < p_uid->ClrList.getCount(); i++) {
 						SColorSet * p_cs = p_uid->ClrList.at(i);
 						if(p_cs)
-							p_cs->Resolve();
+							p_cs->Resolve(&p_uid->ClrList); // @v11.9.10 В ColorSet введена возможность декларировать ссылки на другие сеты
 					}
 					ENTER_CRITICAL_SECTION
 						ZDELETE(P_Uid);

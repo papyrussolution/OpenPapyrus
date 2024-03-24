@@ -1,5 +1,5 @@
 // TEST-ETC.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 // @codepage UTF-8
 // Модуль тестирования разных функций. В основном в процессе разработки.
 //
@@ -837,6 +837,207 @@ SLTEST_R(ObjTypeSymb)
 			symb = "abracadabra";
 			SLCHECK_EQ(0, DS.GetObjectTypeSymb(31139, symb));
 			SLCHECK_NZ(symb.IsEmpty());
+		}
+	}
+	return CurrentStatus;
+}
+
+
+struct BarcodeArray_TestEntry {
+	const char * P_Barcode;
+	double Qtty;
+	bool   Preferred;
+};
+
+static void BarcodeArray_TestEntry_To_BarcodeArray(const BarcodeArray_TestEntry * pList, size_t listCount, BarcodeArray & rDest)
+{
+	assert(pList);
+	assert(listCount > 0);
+	rDest.clear();
+	LongArray pref_idx_list;
+	for(size_t i = 0; i < listCount; i++) {
+		const BarcodeArray_TestEntry & r_entry = pList[i];
+		BarcodeTbl::Rec bc_rec;
+		bc_rec.GoodsID = 1000;
+		STRNSCPY(bc_rec.Code, r_entry.P_Barcode);
+		bc_rec.Qtty = r_entry.Qtty;
+		if(r_entry.Preferred) {
+			pref_idx_list.add(static_cast<long>(i));
+		}
+		rDest.insert(&bc_rec);
+	}
+	for(uint j = 0; j < pref_idx_list.getCount(); j++) {
+		rDest.SetPreferredItem(pref_idx_list.get(j));
+	}
+}
+
+SLTEST_R(BarcodeArray)
+{
+	BarcodeTbl::Rec bc_rec;
+	BarcodeArray bc_list;
+	{
+		const BarcodeArray_TestEntry list[] {
+			{ "4600949140018", 1.0, false },
+			{ "4607096000899", 1.0, false }			
+		};
+		BarcodeArray_TestEntry_To_BarcodeArray(list, SIZEOFARRAY(list), bc_list);
+		uint   single_item_idx = 0;
+		const BarcodeTbl::Rec * p_si = bc_list.GetSingleItem(&single_item_idx, 0);
+		SLCHECK_EQ(single_item_idx, 0U);
+		SLCHECK_NZ(p_si);
+		if(p_si) {
+			SLCHECK_NZ(sstreq(p_si->Code, list[0].P_Barcode));
+		}
+	}
+	{
+		const BarcodeArray_TestEntry list[] {
+			{ "4690228006845", 1, false },
+			{ "4607041425166", 1, false },
+		};
+		BarcodeArray_TestEntry_To_BarcodeArray(list, SIZEOFARRAY(list), bc_list);
+		uint   single_item_idx = 0;
+		const BarcodeTbl::Rec * p_si = bc_list.GetSingleItem(&single_item_idx, 0);
+		SLCHECK_EQ(single_item_idx, 0U);
+		SLCHECK_NZ(p_si);
+		if(p_si) {
+			SLCHECK_NZ(sstreq(p_si->Code, list[0].P_Barcode));
+		}
+	}
+	{
+		const BarcodeArray_TestEntry list[] {
+			{ "4690228030901", 1, false },
+			{ "4690228030918", 1, false },
+		};
+		BarcodeArray_TestEntry_To_BarcodeArray(list, SIZEOFARRAY(list), bc_list);
+		uint   single_item_idx = 0;
+		const BarcodeTbl::Rec * p_si = bc_list.GetSingleItem(&single_item_idx, 0);
+		SLCHECK_EQ(single_item_idx, 0U);
+		SLCHECK_NZ(p_si);
+		if(p_si) {
+			SLCHECK_NZ(sstreq(p_si->Code, list[0].P_Barcode));
+		}
+	}
+	{
+		const BarcodeArray_TestEntry list[] {
+			{ "4690228028885", 1, false },
+			{ "4690228028892", 1, false },
+		};
+		BarcodeArray_TestEntry_To_BarcodeArray(list, SIZEOFARRAY(list), bc_list);
+		uint   single_item_idx = 0;
+		const BarcodeTbl::Rec * p_si = bc_list.GetSingleItem(&single_item_idx, 0);
+		SLCHECK_EQ(single_item_idx, 0U);
+		SLCHECK_NZ(p_si);
+		if(p_si) {
+			SLCHECK_NZ(sstreq(p_si->Code, list[0].P_Barcode));
+		}
+	}
+	{
+		const BarcodeArray_TestEntry list[] {
+			{ "46902280288", 1, false }, // neither ean nor upc
+			{ "46902280287", 1, false }, // neither ean nor upc
+		};
+		BarcodeArray_TestEntry_To_BarcodeArray(list, SIZEOFARRAY(list), bc_list);
+		{
+			uint   single_item_idx = 0;
+			const BarcodeTbl::Rec * p_si = bc_list.GetSingleItem(&single_item_idx, 0);
+			SLCHECK_EQ(single_item_idx, 0U);
+			SLCHECK_NZ(p_si);
+			if(p_si) {
+				SLCHECK_NZ(sstreq(p_si->Code, list[0].P_Barcode));
+			}
+		}
+		{
+			uint   single_item_idx = 0;
+			const BarcodeTbl::Rec * p_si = bc_list.GetSingleItem(&single_item_idx, BarcodeArray::sifValidEanUpcOnly);
+			SLCHECK_EQ(single_item_idx, 0U);
+			SLCHECK_Z(p_si);
+		}
+	}
+	{
+		const BarcodeArray_TestEntry list[] {
+			{ "3700353610365", 1, false },
+			{ "3700353610389", 1, false },
+			{ "8717662020117", 1, true },
+			{ "8717662020834", 1, false },
+			{ "3700353612048", 1, false },
+			{ "3700353611362", 1, false },
+			{ "3700353611393", 1, false },
+			{ "3700353610327", 1, false },
+			{ "5060199510129", 1, false },
+		};
+		BarcodeArray_TestEntry_To_BarcodeArray(list, SIZEOFARRAY(list), bc_list);
+		uint   single_item_idx = 0;
+		const BarcodeTbl::Rec * p_si = bc_list.GetSingleItem(&single_item_idx, 0);
+		SLCHECK_EQ(single_item_idx, 2U);
+		SLCHECK_NZ(p_si);
+		if(p_si) {
+			SLCHECK_NZ(sstreq(p_si->Code, list[2].P_Barcode));
+		}
+	}
+	{
+		const BarcodeArray_TestEntry list[] {
+			{ "3700353610365", 1, false },
+			{ "3700353610389", 1, false },
+			{ "87176620201", 1, true }, // neither ean nor upc
+			{ "8717662020834", 1, false },
+			{ "3700353612048", 1, false },
+			{ "3700353611362", 1, false },
+			{ "3700353611393", 1, false },
+			{ "3700353610327", 1, false },
+			{ "5060199510129", 1, false },
+		};
+		BarcodeArray_TestEntry_To_BarcodeArray(list, SIZEOFARRAY(list), bc_list);
+		{
+			uint   single_item_idx = 0;
+			const BarcodeTbl::Rec * p_si = bc_list.GetSingleItem(&single_item_idx, 0);
+			SLCHECK_EQ(single_item_idx, 2U);
+			SLCHECK_NZ(p_si);
+			if(p_si) {
+				SLCHECK_NZ(sstreq(p_si->Code, list[2].P_Barcode));
+			}
+		}
+		{
+			uint   single_item_idx = 0;
+			const BarcodeTbl::Rec * p_si = bc_list.GetSingleItem(&single_item_idx, BarcodeArray::sifValidEanUpcOnly);
+			SLCHECK_EQ(single_item_idx, 0U);
+			SLCHECK_NZ(p_si);
+			if(p_si) {
+				SLCHECK_NZ(sstreq(p_si->Code, list[0].P_Barcode));
+			}
+		}
+	}
+	{
+		const BarcodeArray_TestEntry list[] {
+			{ "3700353610365", 1, false },
+			{ "3700353610389", 1, false },
+			{ "8717662020117", 1, true }, // first preferred item 
+			{ "8717662020834", 1, false },
+			{ "3700353612048", 1, true }, // second preferred item - it will be preferred because it's position greater than previos preferred item
+			{ "3700353611362", 1, false },
+			{ "3700353611393", 1, false },
+			{ "3700353610327", 1, false },
+			{ "5060199510129", 1, false },
+		};
+		BarcodeArray_TestEntry_To_BarcodeArray(list, SIZEOFARRAY(list), bc_list);
+		uint   single_item_idx = 0;
+		const BarcodeTbl::Rec * p_si = bc_list.GetSingleItem(&single_item_idx, 0);
+		SLCHECK_EQ(single_item_idx, 4U);
+		SLCHECK_NZ(p_si);
+		if(p_si) {
+			SLCHECK_NZ(sstreq(p_si->Code, list[4].P_Barcode));
+		}
+	}
+	{
+		const BarcodeArray_TestEntry list[] {
+			{ "4850017004371", 1, true },
+		};
+		BarcodeArray_TestEntry_To_BarcodeArray(list, SIZEOFARRAY(list), bc_list);
+		uint   single_item_idx = 0;
+		const BarcodeTbl::Rec * p_si = bc_list.GetSingleItem(&single_item_idx, 0);
+		SLCHECK_EQ(single_item_idx, 0U);
+		SLCHECK_NZ(p_si);
+		if(p_si) {
+			SLCHECK_NZ(sstreq(p_si->Code, list[0].P_Barcode));
 		}
 	}
 	return CurrentStatus;

@@ -850,8 +850,6 @@ public:
 		uint   Flags;
 		uint   FirstItemIndex; // Индекс элемента [0..], с которого начинать расчет
 		SPoint2F ForceSize;
-		//float  ForceWidth;
-		//float  ForceHeight;
 	};
 	int    Evaluate(const Param * pP);
 	SUiLayout * InsertItem();
@@ -1107,8 +1105,11 @@ private:
 // Descr: Набор цветов для пользовательского интерфейса. Цвет идентифицируется либо символом либо целочисленным идентификатором.
 //   Должно быть задано либо то, либо это.
 // 
-class SColorSet : private SStrGroup { // @v11.7.10 @construction
+class SColorSet : private SStrGroup { // @v11.7.10
 public:
+	//
+	// Descr: Идентификаторы функций формирования цветов
+	//
 	enum {
 		funcNone = 0,
 		funcEmpty,     // ZEROCOLOR
@@ -1127,8 +1128,9 @@ public:
 	const  SString & GetSymb() const { return Symb; }
 	SJson * ToJsonObj() const;
 	int    FromJsonObj(const SJson * pJs);
-	int    Get(const char * pSymb, SColor & rC) const;
-	int    Resolve();
+	int    Get(const char * pSymb, const TSCollection <SColorSet> * pSetList, SColor & rC) const;
+	int    Resolve(const TSCollection <SColorSet> * pSetList);
+	bool   ValidateRefs(const TSCollection <SColorSet> * pSetList) const;
 	//
 	int    Test();
 private:
@@ -1152,7 +1154,11 @@ private:
 
 		SColor C;
 		float  F;
-		SString RefSymb;
+		SString RefSymb; // Символ цвета, определенного где-то в ином месте.
+			// Этот символ может быть представлен префиксом символа набора цветов (setssymb.colorsymb)
+			// для того, чтобы можно было ссылаться на набор отличный от того, где 
+			// собственно определен цвет, использующий ссылку.
+			// Простая ссылка (colorsymb) указывает на цвет, определенный в текущем наборе.
 	};
 	struct ComplexColorBlock {
 		ComplexColorBlock();
@@ -1164,7 +1170,7 @@ private:
 		SString & ToStr(SString & rBuf) const;
 
 		SColor C;
-		SString RefSymb;
+		SString RefSymb; // Символ другого цвета в коллекции
 		int   Func;
 		TSCollection <ColorArg> ArgList;
 	};
@@ -1184,7 +1190,7 @@ private:
 	//
 	int    Helper_ParsePrimitive(SStrScan & rScan, ColorArg & rItem) const;
 	int    ParseComplexColorBlock(const char * pText, ComplexColorBlock & rBlk) const;
-	int    ResolveComplexColorBlock(const ComplexColorBlock & rBlk, SColor & rC, StringSet & rRecurSymbList) const;
+	int    ResolveComplexColorBlock(const ComplexColorBlock & rBlk, const TSCollection <SColorSet> * pSetList, SColor & rC, StringSet & rRecurSymbList) const;
 	//
 	// Descr: Вставляет элемент набора с символом pSymb и значением pBlk.
 	//   Объект по указателю pBlk переходит в полное владение функцией. В случае успеха, он будет включен в
@@ -1192,8 +1198,8 @@ private:
 	//   Таким образом, клиент функции должен объект, передаваемый по указателю pBlk распределить динамически (new)
 	//
 	int    Put(const char * pSymb, ComplexColorBlock * pBlk);
-	int    Get(const char * pSymb, ComplexColorBlock * pBlk) const;
-	int    Helper_Get(const char * pSymb, SColor & rC, StringSet * pRecurSymbList) const;
+	int    Get(const char * pSymb, const TSCollection <SColorSet> * pSetList, ComplexColorBlock * pBlk) const;
+	int    Helper_Get(const char * pSymb, const TSCollection <SColorSet> * pSetList, SColor & rC, StringSet * pRecurSymbList) const;
 	bool   FASTCALL IsInnerEntryEq(const InnerEntry & rE1, const SColorSet & rS, const InnerEntry & rE2) const;
 
 	enum {
@@ -1235,6 +1241,54 @@ public:
 
 	SString Face;
 	SString Src;
+};
+//
+// Descr: Определитель шрифта
+//
+class SFontDescr { // @persistent
+public:
+	enum {
+		fItalic    = 0x0001,
+		fUnderline = 0x0002,
+		fStrikeOut = 0x0004,
+		fBold      = 0x0008, // Если Weight == 0.0f и Flags & fBold, то неявно применяется значение
+			// Weight такое, чтобы шрифт выглядел утолщенным. Если Weight > 0.0, то этот флаг игнорируется.
+		fAntialias = 0x0010
+	};
+
+	SFontDescr();
+	SFontDescr(const char * pFace, int size, int flags);
+	SFontDescr & Z();
+	bool   FASTCALL operator == (const SFontDescr & rS) const { return IsEq(rS); }
+	bool   FASTCALL IsEq(const SFontDescr & rS) const;
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    ToStr(SString & rBuf, long fmt) const;
+	int    FASTCALL FromStr(const char *);
+	int    FASTCALL SetLogFont(const LOGFONTA * pLf);
+	int    FASTCALL SetLogFont(const LOGFONTW * pLf);
+	LOGFONTA * FASTCALL MakeLogFont(LOGFONTA * pLf) const;
+	LOGFONTW * FASTCALL MakeLogFont(LOGFONTW * pLf) const;
+	SJson * ToJsonObj() const;
+	int    FromJsonObj(const SJson * pJs);
+	//
+	// Descr: Преобразует json-массив pJs в коллекцию описаний шрифтов
+	// Note: Список rList функцией не очищается перед исполнением (то есть, в него будут добавляться новые элементы, а те, что были останутся на месте)
+	//
+	static bool ListFromJsonArray(const SJson * pJs, TSCollection <SFontDescr> & rList);
+	static SJson * ListToJsonArray(const TSCollection <SFontDescr> & rList);
+
+	int16  Size;        // @anchor Логический размер шрифта в пикселях
+	int16  Flags;       // @flags SFontDescr::fXXX
+	float  Weight;      // Толщина шрифта. 0.0f - не важно, 1.0f - нормальный, 2.0f - максимально толстый.
+	uint8  CharSet;     // Набор символов XXX_CHARSET (win32)
+	uint8  Reserve[15];
+	SString Face;       // @anchor
+	SString Symb;       // @v11.9.10 Символ для идентификации этого экземпляра среди коллекции аналогичных
+	SString ColorRefSymb; // @v11.9.10 Символ цвета шрифта. Введен для использования в стилях UI (UiDescription)
+		// @todo Пока не сериализуется функцией Serialize поскольку для этого необходимо глубокое изменение формата сериализации во всем проекте.
+private:
+	int    FASTCALL Helper_SetLogFont(const void * pLf);
+	int    FASTCALL Helper_MakeLogFont(void * pLf) const;
 };
 //
 // Descr: Список скалярных величин, устанавливаемых в json-конфигурации интерфейса
@@ -1286,6 +1340,7 @@ private:
 
 class UiDescription {
 public:
+	static SColor GetColorR(const UiDescription * pUid, const SColorSet * pColorSet, const char * pColorSymb, const SColor defaultC);
 	UiDescription();
 	~UiDescription();
 	UiDescription & Z();
@@ -1297,51 +1352,24 @@ public:
 	int FromJsonObj(const SJson * pJsObj);
 	const SColorSet * GetColorSetC(const char * pCsSymb) const;
 	SColorSet * GetColorSet(const char * pCsSymb);
-	const SFontSource * GetFontSourceC(const char * pSymb) const;
-	void  SetSourceFileName(const char * pFileName);
-	const char * GetSourceFileName() const;
+	int    GetColor(const SColorSet * pColorSet, const char * pColorSymb, SColor & rC) const;
+	SColor GetColorR(const SColorSet * pColorSet, const char * pColorSymb, const SColor defaultC) const;
+	int    GetColor(const char * pColorSetSymb, const char * pColorSymb, SColor & rC) const;
+	const  SFontSource * GetFontSourceC(const char * pSymb) const;
+	void   SetSourceFileName(const char * pFileName);
+	const  char * GetSourceFileName() const;
+	//
+	// Descr: Проверяет корректность ссылок в наборах цветов ClrList
+	//
+	bool   ValidateColorSetList();
 
 	TSCollection <SFontSource> FontList;
+	TSCollection <SFontDescr> FontDescrList; // @v11.9.10
 	TSCollection <SColorSet> ClrList;
 	TSCollection <SUiLayout> LoList;
 	UiValueList VList; // @v11.9.4
 private:
 	SString SourceFileName; // @v11.9.7 Исходный файл, из которого был загружен экземпляр. Устанавливается из-вне методом SetSourceFileName(const char *)
-};
-//
-// Descr: Определитель шрифта
-//
-class SFontDescr { // @persistent
-public:
-	enum {
-		fItalic    = 0x0001,
-		fUnderline = 0x0002,
-		fStrikeOut = 0x0004,
-		fBold      = 0x0008, // Если Weight == 0.0f и Flags & fBold, то неявно применяется значение
-			// Weight такое, чтобы шрифт выглядел утолщенным. Если Weight > 0.0, то этот флаг игнорируется.
-		fAntialias = 0x0010
-	};
-
-	SFontDescr(const char * pFace, int size, int flags);
-	void   Init();
-	bool   FASTCALL IsEq(const SFontDescr & rS) const;
-	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
-	int    ToStr(SString & rBuf, long fmt) const;
-	int    FASTCALL FromStr(const char *);
-	int    FASTCALL SetLogFont(const LOGFONTA * pLf);
-	int    FASTCALL SetLogFont(const LOGFONTW * pLf);
-	LOGFONTA * FASTCALL MakeLogFont(LOGFONTA * pLf) const;
-	LOGFONTW * FASTCALL MakeLogFont(LOGFONTW * pLf) const;
-
-	int16  Size;        // @anchor Логический размер шрифта в пикселях
-	int16  Flags;       // @flags SFontDescr::fXXX
-	float  Weight;      // Толщина шрифта. 0.0f - не важно, 1.0f - нормальный, 2.0f - максимально толстый.
-	uint8  CharSet;     // Набор символов XXX_CHARSET (win32)
-	uint8  Reserve[15];
-	SString Face;       // @anchor
-private:
-	int    FASTCALL Helper_SetLogFont(const void * pLf);
-	int    FASTCALL Helper_MakeLogFont(void * pLf) const;
 };
 //
 // Descr: Определитель текстового параграфа

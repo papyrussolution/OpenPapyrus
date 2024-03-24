@@ -6,6 +6,44 @@
 #pragma hdrstop
 #include <wsctl.h>
 //
+// 
+// 
+WsCtl_LoginBlock::WsCtl_LoginBlock()
+{
+	Z();
+}
+	
+WsCtl_LoginBlock::~WsCtl_LoginBlock()
+{
+	Z();
+}
+	
+WsCtl_LoginBlock & WsCtl_LoginBlock::Z()
+{
+	memzero(LoginText, sizeof(LoginText));
+	memzero(PwText, sizeof(PwText));
+	return *this;
+}
+
+WsCtl_RegistrationBlock::WsCtl_RegistrationBlock()
+{
+	Z();
+}
+	
+WsCtl_RegistrationBlock::~WsCtl_RegistrationBlock()
+{
+	Z();
+}
+	
+WsCtl_RegistrationBlock & WsCtl_RegistrationBlock::Z()
+{
+	memzero(Name, sizeof(Name));
+	memzero(Phone, sizeof(Phone));
+	memzero(PwText, sizeof(PwText));
+	memzero(PwRepeatText, sizeof(PwRepeatText));
+	return *this;
+}
+//
 //
 //
 WsCtl_SelfIdentityBlock::WsCtl_SelfIdentityBlock() : PrcID(0)
@@ -586,6 +624,63 @@ int WsCtl_ClientPolicy::RestoreSystemImage()
 //
 //
 //
+WsCtlSrvBlock::RegistrationBlock::RegistrationBlock() : Status(0), SCardID(0), PsnID(0)
+{
+	Z();
+}
+		
+WsCtlSrvBlock::RegistrationBlock & WsCtlSrvBlock::RegistrationBlock::Z()
+{
+	WsCtlUuid.Z();
+	Name.Obfuscate();
+	Name.Z();
+	Phone.Obfuscate();
+	Phone.Z();
+	PwText.Obfuscate();
+	PwText.Z();
+	Status = 0;
+	SCardID = 0;
+	PsnID = 0;
+	return *this;
+}
+		
+bool WsCtlSrvBlock::RegistrationBlock::IsValid() const
+{
+	bool result = true;
+	if(Name.IsEmpty())
+		result = false;
+	else {
+		STokenRecognizer tr;
+		SNaturalTokenArray nta;
+		tr.Run(Phone, nta, 0);
+		if(!nta.Has(SNTOK_PHONE))
+			result = false;
+	}
+	return result;
+}
+
+bool WsCtlSrvBlock::RegistrationBlock::FromJsonObj(const SJson * pJs)
+{
+	bool   result = false;
+	Z();
+	if(pJs) {
+		const SJson * p_c = pJs->FindChildByKey("name");
+		if(SJson::IsString(p_c))
+			Name = p_c->Text;
+		p_c = pJs->FindChildByKey("phone");
+		if(SJson::IsString(p_c))
+			Phone = p_c->Text;
+		p_c = pJs->FindChildByKey("pw");
+		if(SJson::IsString(p_c))
+			PwText = p_c->Text;
+		p_c = pJs->FindChildByKey("wsctluuid");
+		if(SJson::IsString(p_c)) {
+			WsCtlUuid.FromStr(p_c->Text);
+		}
+	}
+	return IsValid();
+}
+
 WsCtlSrvBlock::AuthBlock::AuthBlock()
 {
 }
@@ -898,6 +993,61 @@ int WsCtlSrvBlock::StartSess(StartSessBlock & rBlk)
 	CATCHZOK
 	return ok;
 }
+
+int WsCtlSrvBlock::Registration(RegistrationBlock & rBlk)
+{
+	int    ok = 0;
+	PPID   sc_id = 0;
+	PPID   psn_id = 0;
+	SString temp_buf;
+	PPObjSCardSeries scs_obj;
+	PPSCardSeries2 scs_rec;
+	THROW(rBlk.IsValid());
+	THROW(ScSerID); // @todo @err (не удалось определить серию карт, с которыми ассоциированы аккаунты клиентов)
+	THROW(scs_obj.Search(ScSerID, &scs_rec) > 0);
+	THROW(scs_rec.PersonKindID); // @todo @err Это поле необходимо для идентификации вида, которому будет принадлежать новая персоналия //
+	{
+		PPObjIDArray oid_list_by_phone;
+		PPEAddr::Phone::NormalizeStr(rBlk.Phone, 0, temp_buf);
+		PsnObj.LocObj.P_Tbl->SearchPhoneObjList(temp_buf, 0, oid_list_by_phone);
+		if(oid_list_by_phone.getCount()) {
+			; // @todo Надо что-то сделать если телефон уже есть в базе данных
+		}
+		else {
+			PPPersonPacket psn_pack;
+			PPSCardPacket sc_pack;
+			PPObjPerson::EditBlock _eb;
+			PsnObj.InitEditBlock(scs_rec.PersonKindID, _eb);
+			psn_pack.Rec.Status = NZOR(_eb.InitStatusID, PPPRS_PRIVATE);
+			STRNSCPY(psn_pack.Rec.Name, rBlk.Name);
+			psn_pack.Kinds.add(_eb.InitKindID);
+			psn_pack.ELA.AddItem(PPELK_MOBILE, rBlk.Phone);
+			//
+			//sc_pack
+			{
+				assert(psn_id == 0);
+				assert(sc_id == 0);
+				SString dummy_number;
+				PPTransaction tra(1);
+				THROW(tra);
+				THROW(PsnObj.PutPacket(&psn_id, &psn_pack, 0));
+				THROW(ScObj.Create_(&sc_id, ScSerID, psn_id, /*pPatternRec*/0, dummy_number, rBlk.PwText, /*flags*/PPObjSCard::cdfCreditCard, /*use_ta*/0));
+				THROW(tra.Commit());
+				rBlk.PsnID = psn_id;
+				rBlk.SCardID = sc_id;
+				rBlk.Status = 1;
+			}
+
+		}
+	}
+	CATCH
+		rBlk.Phone = 0;
+		rBlk.SCardID = 0;
+		rBlk.SCardID = 0;
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
 	
 int WsCtlSrvBlock::Auth(AuthBlock & rBlk)
 {
@@ -912,7 +1062,7 @@ int WsCtlSrvBlock::Auth(AuthBlock & rBlk)
 		bool    text_identification_done = false;
 		SNaturalTokenArray nta;
 		STokenRecognizer tr;
-		tr.Run(rBlk.LoginText.ucptr(), rBlk.LoginText.Len(), nta, 0);
+		tr.Run(rBlk.LoginText, nta, 0);
 		if(nta.Has(SNTOK_PHONE)) {
 			PPObjIDArray oid_list_by_phone;
 			PPEAddr::Phone::NormalizeStr(rBlk.LoginText, 0, temp_buf);

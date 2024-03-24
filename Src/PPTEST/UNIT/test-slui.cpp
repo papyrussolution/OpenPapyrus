@@ -1,5 +1,5 @@
 // TEST-SLUI.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 // @codepage UTF-8
 // Тестирование низкоуровневых компонентов пользовательского интерфейса
 //
@@ -270,7 +270,7 @@ int SColorSet::Test()
 			THROW(ccb2.C == ccb.C);
 			//
 			SColor color_resolved;
-			THROW(Get(p_symb, color_resolved) > 0);
+			THROW(Get(p_symb, 0, color_resolved) > 0);
 			THROW(color_resolved == ccb_ref.C);
 		}
 		//
@@ -295,7 +295,7 @@ int SColorSet::Test()
 			THROW(ccb2.C == ccb.C);
 			//
 			SColor color_resolved;
-			THROW(Get(p_symb, color_resolved) > 0);
+			THROW(Get(p_symb, 0, color_resolved) > 0);
 			THROW(color_resolved == SColor(ccb_ref.C).SetAlphaF(0.7f));
 		}
 	}
@@ -331,7 +331,7 @@ int SColorSet::Test()
 			THROW(ccb2.C == ccb.C);
 			//
 			SColor color_resolved;
-			THROW(Get(p_symb, color_resolved) > 0);
+			THROW(Get(p_symb, 0, color_resolved) > 0);
 			THROW(color_resolved == SColor::Lerp(primary, secondary, 0.4f));
 		}
 	}
@@ -361,7 +361,7 @@ int SColorSet::Test()
 			THROW(ccb2.C == ccb.C);
 			//
 			SColor color_resolved;
-			THROW(Get(p_symb, color_resolved) > 0);
+			THROW(Get(p_symb, 0, color_resolved) > 0);
 			THROW(color_resolved == SColor(ccb_ref.C).Lighten(0.1f));
 		}
 	}
@@ -388,7 +388,7 @@ int SColorSet::Test()
 			THROW(ccb2.C == ccb.C);
 			//
 			SColor color_resolved;
-			THROW(Get(p_symb, color_resolved) > 0);
+			THROW(Get(p_symb, 0, color_resolved) > 0);
 			THROW(color_resolved == SColor(SClrGreen).Darken(0.3f).SetAlpha(180));
 		}
 	}
@@ -413,7 +413,7 @@ int SColorSet::Test()
 			THROW(ccb2.C == ccb.C);
 			//
 			SColor color_resolved;
-			THROW(Get(p_symb, color_resolved) > 0);
+			THROW(Get(p_symb, 0, color_resolved) > 0);
 			THROW(color_resolved == SColor(0.14f));
 		}
 	}
@@ -429,6 +429,39 @@ SLTEST_R(SColorSet)
 {
 	SColorSet cs;
 	SLCHECK_NZ(cs.Test());
+	return CurrentStatus;
+}
+
+SLTEST_R(SFontDescr)
+{
+	SJson * p_js = 0;
+	TSCollection <SFontDescr> font_list1;
+	TSCollection <SFontDescr> font_list2;
+	{
+		// Считываем json-описание шрифтов
+		p_js = SJson::ParseFile(MakeInputFilePath("fontdescr_list.json"));
+		THROW(SLCHECK_NZ(p_js));
+		if(p_js->IsObject() && p_js->P_Child) {
+			SFontDescr::ListFromJsonArray(p_js->P_Child->P_Child, font_list1);
+		}
+		ZDELETE(p_js);
+	}
+	{
+		// Обратно преобразуем список дескрипторов в json-формат
+
+		SJson js(SJson::tOBJECT);
+		SJson * p_js_list = SFontDescr::ListToJsonArray(font_list1);
+		THROW(SLCHECK_NZ(p_js_list));
+		js.Insert("font_list", p_js_list);
+		//
+		THROW(SLCHECK_NZ(js.P_Child));
+		THROW(SLCHECK_NZ(SFontDescr::ListFromJsonArray(js.P_Child->P_Child, font_list2)));
+		THROW(SLCHECK_NZ(TSCollection_IsEq(&font_list1, &font_list2)));
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
+	delete p_js;
 	return CurrentStatus;
 }
 

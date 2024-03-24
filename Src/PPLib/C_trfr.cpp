@@ -1104,15 +1104,13 @@ int Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flags, PPL
 				if(goods_obj.GetStockExt(labs(rec.GoodsID), &gse, 0) > 0 && gse.Package > 0 && !feqeps(gse.Package, rec.UnitPerPack, 1E-7))
 					rResultList.AddFault(PPLotFault::PackDifferentGSE, &rec, 0, 0);
 			}
-			// @v10.4.10 {
 			if(flags & TLRF_SETINHQCERT && rec.GoodsID > 0 && !rec.QCertID) {
 				PPID last_qcert_id = 0;
 				PPID last_qcert_lot_id = 0;
-				if(Rcpt.GetLastQCert(rec.GoodsID, rec.Dt, &last_qcert_id, &last_qcert_lot_id) > 0) {
+				if(Rcpt.GetLastQCert(rec.GoodsID, rec.Dt, rec.LocID, &last_qcert_id, &last_qcert_lot_id) > 0) {
 					rResultList.AddFault(PPLotFault::ThereIsQCert, &rec, 0, last_qcert_lot_id);
 				}
 			}
-			// } @v10.4.10
 			if(rec.PrevLotID) {
 				if(rec.ID == rec.PrevLotID)
 					ProcessLotFault(rResultList, PPLotFault::RefPrevEqID, 0, 0);
@@ -1466,20 +1464,18 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
 						}
 					}
 				}
-				// @v10.4.10 {
 				if(flags & TLRF_SETINHQCERT) {
 					if(pFaultList->HasFault(PPLotFault::ThereIsQCert, &fault, &fault_pos)) {
 						if(!lot_rec.QCertID) { // @paranoic
 							PPID last_qcert_id = 0;
 							PPID last_qcert_lot_id = 0;
-							if(Rcpt.GetLastQCert(lot_rec.GoodsID, lot_rec.Dt, &last_qcert_id, &last_qcert_lot_id) > 0) {
+							if(Rcpt.GetLastQCert(lot_rec.GoodsID, lot_rec.Dt, lot_rec.LocID, &last_qcert_id, &last_qcert_lot_id) > 0) {
 								lot_rec.QCertID = last_qcert_id;
 								err_lot = 1;
 							}
 						}
 					}
 				}
-				// } @v10.4.10 
 				if(flags & TLRF_REPAIRPACKUNCOND) {
 					if(pFaultList->HasFault(PPLotFault::PackDifferentGSE, &fault, &fault_pos)) {
                         if(gse_inited || goods_obj.GetStockExt(labs(lot_rec.GoodsID), &gse) > 0) {

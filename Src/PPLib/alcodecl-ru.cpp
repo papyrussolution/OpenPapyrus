@@ -579,7 +579,7 @@ int PPViewAlcoDeclRu::Diagnose()
 					_kpp = reg_rec.Num;
 				}
 				if(_kpp.NotEmpty()) {
-					tr.Run(_kpp.ucptr(), _kpp.Len(), nta, 0);
+					tr.Run(_kpp, nta, 0);
 					if(!nta.Has(SNTOK_RU_KPP))
 						status |= stKppInv;
 				}
@@ -602,14 +602,14 @@ int PPViewAlcoDeclRu::Diagnose()
 				if(Arp.GetWkrRegister(Arp.wkrKPP, suppl_id, 0, Filt.Period.low, &reg_rec) > 0)
 					_kpp = reg_rec.Num;
 				if(_inn.NotEmpty()) {
-					tr.Run(_inn.ucptr(), _inn.Len(), nta, 0);								
+					tr.Run(_inn, nta, 0);								
 					if(!nta.Has(SNTOK_RU_INN))
 						status |= stInnInv;
 				}
 				else
 					status |= stInnAbs;
 				if(_kpp.NotEmpty()) {
-					tr.Run(_kpp.ucptr(), _kpp.Len(), nta, 0);								
+					tr.Run(_kpp, nta, 0);								
 					if(!nta.Has(SNTOK_RU_KPP))
 						status |= stKppInv;
 				}
@@ -632,14 +632,14 @@ int PPViewAlcoDeclRu::Diagnose()
 				if(Arp.GetWkrRegister(Arp.wkrKPP, manuf_id, 0, Filt.Period.low, &reg_rec) > 0)
 					_kpp = reg_rec.Num;
 				if(_inn.NotEmpty()) {
-					tr.Run(_inn.ucptr(), _inn.Len(), nta, 0);								
+					tr.Run(_inn, nta, 0);
 					if(!nta.Has(SNTOK_RU_INN))
 						status |= stInnInv;
 				}
 				else
 					status |= stInnAbs;
 				if(_kpp.NotEmpty()) {
-					tr.Run(_kpp.ucptr(), _kpp.Len(), nta, 0);								
+					tr.Run(_kpp, nta, 0);
 					if(!nta.Has(SNTOK_RU_KPP))
 						status |= stKppInv;
 				}
@@ -1386,7 +1386,7 @@ int PPViewAlcoDeclRu::Export()
 								SNaturalTokenArray nta;
 								SString result_email;
 								for(uint emp = 0; ss_email.get(&emp, temp_buf);) {
-									tr.Run(temp_buf.ucptr(), -1, nta, 0);
+									tr.Run(temp_buf, nta, 0);
 									if(nta.Has(SNTOK_EMAIL) > 0.0f) {
 										result_email = temp_buf;
 										break;

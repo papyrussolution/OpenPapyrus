@@ -2344,14 +2344,6 @@ static int PPGetDefaultEncrKey(SString & rBuf)
 	return ok;
 }
 
-static SColor STDCALL Helper_GetUiColor(const SColorSet * pCs, const char * pColorSymb, SColor defaultColor) // @v11.9.3
-{
-	SColor result;
-	if(!pCs || !pCs->Get(pColorSymb, result))
-		result = defaultColor;
-	return result;
-}
-
 int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFileName)
 {
 	int    ok = 1;
@@ -2517,23 +2509,23 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 		const UiDescription * p_uid = SLS.GetUiDescription();
 		const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 		{
-			UiToolBox_.CreateColor(TProgram::tbiButtonTextColor, Helper_GetUiColor(p_cs, "button_fg", SColor(SClrBlack)));
-			UiToolBox_.CreateColor(TProgram::tbiButtonTextColor+TProgram::tbisDisable, Helper_GetUiColor(p_cs, "button_disabled_fg", SColor(SClrWhite)));
-			UiToolBox_.CreateColor(TProgram::tbiIconRegColor,     Helper_GetUiColor(p_cs, "icon_reg", SColor(0x00, 0x49, 0x82))); // "#004982"
-			UiToolBox_.CreateColor(TProgram::tbiIconAlertColor,   Helper_GetUiColor(p_cs, "icon_alert", SColor(0xDD, 0x1C, 0x1A)));
-			UiToolBox_.CreateColor(TProgram::tbiIconAccentColor,  Helper_GetUiColor(p_cs, "icon_accent", SColor(0x2A, 0x9D, 0x8F)));
-			UiToolBox_.CreateColor(TProgram::tbiIconPassiveColor, Helper_GetUiColor(p_cs, "icon_passive", SColor(0xFF, 0xF1, 0xD0)));
+			UiToolBox_.CreateColor(TProgram::tbiButtonTextColor, UiDescription::GetColorR(p_uid, p_cs, "button_fg", SColor(SClrBlack)));
+			UiToolBox_.CreateColor(TProgram::tbiButtonTextColor+TProgram::tbisDisable, UiDescription::GetColorR(p_uid, p_cs, "button_disabled_fg", SColor(SClrWhite)));
+			UiToolBox_.CreateColor(TProgram::tbiIconRegColor,     UiDescription::GetColorR(p_uid, p_cs, "icon_reg", SColor(0x00, 0x49, 0x82))); // "#004982"
+			UiToolBox_.CreateColor(TProgram::tbiIconAlertColor,   UiDescription::GetColorR(p_uid, p_cs, "icon_alert", SColor(0xDD, 0x1C, 0x1A)));
+			UiToolBox_.CreateColor(TProgram::tbiIconAccentColor,  UiDescription::GetColorR(p_uid, p_cs, "icon_accent", SColor(0x2A, 0x9D, 0x8F)));
+			UiToolBox_.CreateColor(TProgram::tbiIconPassiveColor, UiDescription::GetColorR(p_uid, p_cs, "icon_passive", SColor(0xFF, 0xF1, 0xD0)));
 			UiToolBox_.CreatePen(TProgram::tbiBlackPen,         SPaintObj::psSolid, 1.0f, SClrBlack); // @v10.3.0
 			UiToolBox_.CreatePen(TProgram::tbiWhitePen,         SPaintObj::psSolid, 1.0f, SClrWhite); // @v10.3.0
-			UiToolBox_.CreateBrush(TProgram::tbiInvalInpBrush,  SPaintObj::bsSolid, Helper_GetUiColor(p_cs, "invalidinput_bg", SClrCrimson), 0); // @v10.2.4
-			UiToolBox_.CreateBrush(TProgram::tbiInvalInp2Brush, SPaintObj::bsSolid, Helper_GetUiColor(p_cs, "invalidinput2_bg", SColor(0xff, 0x99, 0x00))/*https://www.colorhexa.com/ff9900*/, 0); // @v10.3.0
-			UiToolBox_.CreateBrush(TProgram::tbiInvalInp3Brush, SPaintObj::bsSolid, Helper_GetUiColor(p_cs, "invalidinput3_bg", SColor(0xff, 0x33, 0xcc))/*https://www.colorhexa.com/ff33cc*/, 0); // @v10.3.0
-			UiToolBox_.CreateBrush(TProgram::tbiListBkgBrush,   SPaintObj::bsSolid, Helper_GetUiColor(p_cs, "list_bg", SClrWhite), 0); // @v10.3.0
-			UiToolBox_.CreatePen(TProgram::tbiListBkgPen,       SPaintObj::psSolid, 1.0f, Helper_GetUiColor(p_cs, "list_border", SClrWhite)); // @v10.3.0
-			UiToolBox_.CreateBrush(TProgram::tbiListFocBrush,   SPaintObj::bsSolid, Helper_GetUiColor(p_cs, "list_focus_bg", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
-			UiToolBox_.CreatePen(TProgram::tbiListFocPen,       SPaintObj::psSolid, 1.0f, Helper_GetUiColor(p_cs, "list_focus_border", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/); // @v10.3.0
-			UiToolBox_.CreateBrush(TProgram::tbiListSelBrush,   SPaintObj::bsSolid, Helper_GetUiColor(p_cs, "list_sel_bg", SColor(0xa2, 0xd2, 0xff))/*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
-			UiToolBox_.CreatePen(TProgram::tbiListSelPen,       SPaintObj::psDot, 1.0f, Helper_GetUiColor(p_cs, "list_sel_border", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/); // @v10.3.0
+			UiToolBox_.CreateBrush(TProgram::tbiInvalInpBrush,  SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput_bg", SClrCrimson), 0); // @v10.2.4
+			UiToolBox_.CreateBrush(TProgram::tbiInvalInp2Brush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput2_bg", SColor(0xff, 0x99, 0x00))/*https://www.colorhexa.com/ff9900*/, 0); // @v10.3.0
+			UiToolBox_.CreateBrush(TProgram::tbiInvalInp3Brush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput3_bg", SColor(0xff, 0x33, 0xcc))/*https://www.colorhexa.com/ff33cc*/, 0); // @v10.3.0
+			UiToolBox_.CreateBrush(TProgram::tbiListBkgBrush,   SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "list_bg", SClrWhite), 0); // @v10.3.0
+			UiToolBox_.CreatePen(TProgram::tbiListBkgPen,       SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_border", SClrWhite)); // @v10.3.0
+			UiToolBox_.CreateBrush(TProgram::tbiListFocBrush,   SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "list_focus_bg", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
+			UiToolBox_.CreatePen(TProgram::tbiListFocPen,       SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_focus_border", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/); // @v10.3.0
+			UiToolBox_.CreateBrush(TProgram::tbiListSelBrush,   SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "list_sel_bg", SColor(0xa2, 0xd2, 0xff))/*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
+			UiToolBox_.CreatePen(TProgram::tbiListSelPen,       SPaintObj::psDot, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_sel_border", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/); // @v10.3.0
 			{
 				// linear-gradient(to bottom, #f0f9ff 0%,#cbebff 47%,#a1dbff 100%)
 				/*
@@ -2546,14 +2538,14 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 				UiToolBox_.AddGradientStop(gradient, 1.00f, SColor(0xa1, 0xdb, 0xff));
 				UiToolBox_.CreateBrush(tbiButtonBrush, SPaintObj::bsPattern, SColor(0xDC, 0xD9, 0xD1), 0, gradient);
 				*/
-				UiToolBox_.CreateBrush(TProgram::tbiButtonBrush, SPaintObj::bsSolid, Helper_GetUiColor(p_cs, "button_bg", SColor(0xDC, 0xD9, 0xD1)), 0);
+				UiToolBox_.CreateBrush(TProgram::tbiButtonBrush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "button_bg", SColor(0xDC, 0xD9, 0xD1)), 0);
 			}
-			UiToolBox_.CreateBrush(TProgram::tbiButtonBrush+TProgram::tbisSelect, SPaintObj::bsSolid, Helper_GetUiColor(p_cs, "button_sel_bg", SColor(0xBA, 0xBA, 0xC9)), 0);
-			UiToolBox_.CreatePen(TProgram::tbiButtonPen, SPaintObj::psSolid, 1, Helper_GetUiColor(p_cs, "button_border", UiToolBox_.GetColor(TProgram::tbiIconRegColor)));
-			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisDefault, SPaintObj::psSolid, 1, Helper_GetUiColor(p_cs, "button_def_border", SClrGreen));
-			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisFocus,   SPaintObj::psSolid, 1, Helper_GetUiColor(p_cs, "button_focus_border", SClrOrange));
-			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisSelect,  SPaintObj::psSolid, 1, Helper_GetUiColor(p_cs, "button_sel_border", SClrOrange));
-			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisDisable, SPaintObj::psSolid, 1, Helper_GetUiColor(p_cs, "button_disabled_border", SColor(SClrWhite)));
+			UiToolBox_.CreateBrush(TProgram::tbiButtonBrush+TProgram::tbisSelect, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "button_sel_bg", SColor(0xBA, 0xBA, 0xC9)), 0);
+			UiToolBox_.CreatePen(TProgram::tbiButtonPen, SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_border", UiToolBox_.GetColor(TProgram::tbiIconRegColor)));
+			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisDefault, SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_def_border", SClrGreen));
+			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisFocus,   SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_focus_border", SClrOrange));
+			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisSelect,  SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_sel_border", SClrOrange));
+			UiToolBox_.CreatePen(TProgram::tbiButtonPen+TProgram::tbisDisable, SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_disabled_border", SColor(SClrWhite)));
 			UiToolBox_.SetBrush(TProgram::tbiButtonBrush_F, SPaintObj::bsSolid, SColor(0xDC, 0xD9, 0xD1), 0);
 			UiToolBox_.SetBrush(TProgram::tbiButtonBrush_F+TProgram::tbisSelect, SPaintObj::bsSolid, SColor(0xBA, 0xBA, 0xC9), 0);
 			UiToolBox_.SetPen(TProgram::tbiButtonPen_F, SPaintObj::psSolid, 1, SColor(0x47, 0x47, 0x3D));

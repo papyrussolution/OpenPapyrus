@@ -5239,7 +5239,7 @@ int PPBillImporter::Run()
 										if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) { // @v11.6.0 PPOPT_DRAFTRECEIPT
 											PPID   last_qcert_id = 0;
 											PPID   last_qcert_lot_id = 0;
-											if(P_BObj->trfr->Rcpt.GetLastQCert(goods_id, pack.Rec.Dt, &last_qcert_id, &last_qcert_lot_id) > 0)
+											if(P_BObj->trfr->Rcpt.GetLastQCert(goods_id, pack.Rec.Dt, pack.Rec.LocID, &last_qcert_id, &last_qcert_lot_id) > 0)
 												ti.QCert = last_qcert_id;
 										}
 									}
@@ -7260,8 +7260,8 @@ int DocNalogRu_Generator::WriteAddress_SBIS(const PPLocationPacket & rP, int reg
 		PPObjLocation loc_obj;
 		PPID   country_id = 0;
 		PPCountryBlock country_blk;
-		loc_obj.GetCountry(&rP, &country_id, &country_blk);
-		if(country_blk.IsNative) {
+		const int gcr = loc_obj.GetCountry(&rP, &country_id, &country_blk);
+		if(gcr <= 0 || country_blk.IsNative) {
 			// PPHSC_RU_ADDR_RF 
 			/*
 				Кварт	А		Н	

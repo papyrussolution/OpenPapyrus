@@ -462,7 +462,7 @@ int InetUrl::Parse(const char * pUrl)
 				//uint tokn = 0;
 				//tr.Run(reinterpret_cast<const uchar *>(pCode), sstrlen(pCode), nta, &nts);
 				//if(nts.Seq & SNTOKSEQ_ASCII && nts.Len >= 25) ok = 100000;
-				tr.Run(_url.ucptr(), _url.Len(), nta, &nts);
+				tr.Run(_url, nta, &nts);
 				if(nta.Has(SNTOK_IP4)) {
 					Protocol = 0;
 					TermList.Add(cHost, _url);

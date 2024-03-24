@@ -2974,7 +2974,7 @@ int PPObjSCard::SetInheritance(const PPSCardSerPacket * pScsPack, SCardTbl::Rec 
 	return ok;
 }
 
-int PPObjSCard::Create_(PPID * pID, PPID seriesID, PPID ownerID, const SCardTbl::Rec * pPatternRec, SString & rNumber, long flags, int use_ta)
+int PPObjSCard::Create_(PPID * pID, PPID seriesID, PPID ownerID, const SCardTbl::Rec * pPatternRec, SString & rNumber, const char * pPassword, long flags, int use_ta)
 {
 	int    ok = 1;
 	SString number;
@@ -3040,6 +3040,11 @@ int PPObjSCard::Create_(PPID * pID, PPID seriesID, PPID ownerID, const SCardTbl:
 			pack.Rec.Expiry    = scs_pack.Rec.Expiry;
 			pack.Rec.Flags    |= SCRDF_INHERITED;
 		}
+		// @v11.9.10 {
+		if(!isempty(pPassword)) {
+			pack.PutExtStrData(PPSCardPacket::extssPassword, pPassword);
+		}
+		// } @v11.9.10 
 		THROW(PutPacket(pID, &pack, use_ta));
 		rNumber = number;
 	}

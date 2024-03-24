@@ -162,6 +162,27 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 							if(goods_obj.TranslateGoodsUnitToBase(goods_rec, SUOM_LITER, &ratio) > 0) {
 								double chzn_qtty = fabs(ccl.Quantity) * ratio;
 								int pczcr = PreprocessChZnCode(101, chzn_code, chzn_qtty, SUOM_LITER, uom_fragm, chzn_pp_result);
+								// @v11.9.10 {
+								if(/*pczcr > 0*/true) {
+									if(/*chzn_pp_result.Status == 1*/true) {
+										chzn_pp_result.LineIdx = pos;
+										int accept_op = 1; // 1 - accept, 2 - reject
+										pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, 0/*uomId*/, uom_fragm, chzn_pp_result);
+										PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
+										if(pczcr > 0)
+											pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
+									}
+									else {
+										ok = 2;
+										chzn_pp_result.LineIdx = pos;
+										int accept_op = 2; // 1 - accept, 2 - reject
+										pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, 0/*uomId*/, uom_fragm, chzn_pp_result);
+										PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
+										// @v11.7.0 if(pczcr > 0)
+										pPack->SetLineChZnPreprocessResult(/*pos*/0, &chzn_pp_result); // @v11.7.0 pos-->0 (экспериментально: чтобы кассовый чек не содержал эту марку)
+									}
+								}
+								// } @v11.9.10 
 							}
 						}
 						else {

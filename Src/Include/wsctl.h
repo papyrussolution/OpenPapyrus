@@ -1,5 +1,5 @@
 // WSCTL.H
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 //
 //
 // Descr: Блок само-идентификации. 
@@ -42,22 +42,24 @@ public:
 
 class WsCtl_LoginBlock {
 public:
-	WsCtl_LoginBlock()
-	{
-		Z();
-	}
-	~WsCtl_LoginBlock()
-	{
-		Z();
-	}
-	WsCtl_LoginBlock & Z()
-	{
-		memzero(LoginText, sizeof(LoginText));
-		memzero(PwText, sizeof(PwText));
-		return *this;
-	}
+	WsCtl_LoginBlock();
+	~WsCtl_LoginBlock();
+	WsCtl_LoginBlock & Z();
+
 	char   LoginText[256];
 	char   PwText[128];	
+};
+
+class WsCtl_RegistrationBlock {
+public:
+	WsCtl_RegistrationBlock();
+	~WsCtl_RegistrationBlock();
+	WsCtl_RegistrationBlock & Z();
+
+	char   Name[256];
+	char   Phone[32];
+	char   PwText[128];
+	char   PwRepeatText[128];
 };
 /*
 {
@@ -240,6 +242,21 @@ private:
 //
 class WsCtlSrvBlock {
 public:
+	struct RegistrationBlock { // @v11.9.10
+		RegistrationBlock();
+		RegistrationBlock & Z();
+		bool   IsValid() const;
+		bool   FromJsonObj(const SJson * pJs);
+
+		S_GUID  WsCtlUuid;
+		SString Name;
+		SString Phone;
+		SString PwText;
+		// Results:
+		int    Status;  // 0 - error, 1 - success
+		PPID   SCardID;
+		PPID   PsnID;
+	};
 	struct AuthBlock {
 		AuthBlock();
 		AuthBlock & Z();
@@ -252,9 +269,7 @@ public:
 		S_GUID  WsCtlUuid;
 		SString LoginText;
 		SString Pw;
-		//
 		// Results:
-		//
 		PPID   SCardID;
 		PPID   PsnID;
 	};
@@ -293,6 +308,7 @@ public:
 	int    GetRawQuotKindList(PPIDArray & rList);
 	int    GetQuotList(PPID goodsID, PPID locID, const PPIDArray & rRawQkList, PPQuotArray & rQList);
 	int    StartSess(StartSessBlock & rBlk);
+	int    Registration(RegistrationBlock & rBlk);
 	int    Auth(AuthBlock & rBlk);
 	int    SendClientPolicy(SString & rResult);
 	int    SendProgramList(SString & rResult);

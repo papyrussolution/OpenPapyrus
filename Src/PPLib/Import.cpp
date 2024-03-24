@@ -7364,7 +7364,7 @@ int ImportSpecial(const char * pPath_)
 									// nm;eml;pw;phn;gender;dob;id;cntry;cty;adr;src
 									if(rut.NotEmpty() && rut_control.Len() == 1) {
 										(temp_buf = rut).Cat(rut_control);
-										tr.Run(temp_buf.ucptr(), -1, nta, 0);
+										tr.Run(temp_buf, nta, 0);
 										if(nta.Has(SNTOK_CL_RUT) > 0.0f)
 											rut = temp_buf;
 										else

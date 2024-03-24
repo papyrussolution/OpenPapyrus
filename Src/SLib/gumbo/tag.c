@@ -25,27 +25,60 @@ const char * gumbo_normalized_tagname(GumboTag tag)
 	return kGumboTagNames[tag];
 }
 
-void gumbo_tag_from_original_text(GumboStringPiece * text) 
+void FASTCALL GumboTagFromOriginalTextC(const GumboStringPiece * pText, SString & rTag)
 {
-	if(text->data) {
-		assert(text->length >= 2);
-		assert(text->data[0] == '<');
-		assert(text->data[text->length - 1] == '>');
-		if(text->data[1] == '/') {
+	rTag.Z();
+	if(pText && pText->data) {
+		assert(pText->length >= 2);
+		assert(pText->data[0] == '<');
+		assert(pText->data[pText->length - 1] == '>');
+		if(pText->data[1] == '/') {
 			// End tag.
-			assert(text->length >= 3);
-			text->data += 2; // Move past </
-			text->length -= 3;
+			assert(pText->length >= 3);
+			rTag.CatN(pText->data+2, pText->length-3);
+			//pText->data += 2; // Move past </
+			//pText->length -= 3;
 		}
 		else {
 			// Start tag.
-			text->data += 1; // Move past <
-			text->length -= 2;
+			size_t len = pText->length-2;
+			//pText->data += 1; // Move past <
+			//pText->length -= 2;
 			// strnchr is apparently not a standard C library function, so I loop
 			// explicitly looking for whitespace or other illegal tag characters.
-			for(const char * c = text->data; c != text->data + text->length; ++c) {
+			for(const char * c = pText->data; c != pText->data + pText->length; ++c) {
 				if(isspace(*c) || *c == '/') {
-					text->length = c - text->data;
+					//pText->length = c - pText->data;
+					len = c - pText->data;
+					break;
+				}
+			}
+			rTag.CatN(pText->data+1, len);
+		}
+	}	
+}
+
+void FASTCALL gumbo_tag_from_original_text(GumboStringPiece * pText) 
+{
+	if(pText && pText->data) {
+		assert(pText->length >= 2);
+		assert(pText->data[0] == '<');
+		assert(pText->data[pText->length - 1] == '>');
+		if(pText->data[1] == '/') {
+			// End tag.
+			assert(pText->length >= 3);
+			pText->data += 2; // Move past </
+			pText->length -= 3;
+		}
+		else {
+			// Start tag.
+			pText->data += 1; // Move past <
+			pText->length -= 2;
+			// strnchr is apparently not a standard C library function, so I loop
+			// explicitly looking for whitespace or other illegal tag characters.
+			for(const char * c = pText->data; c != pText->data + pText->length; ++c) {
+				if(isspace(*c) || *c == '/') {
+					pText->length = c - pText->data;
 					break;
 				}
 			}

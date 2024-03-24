@@ -3050,8 +3050,11 @@ inline ImGuiKey ConvertSingleModFlagToKey(ImGuiContext* ctx, ImGuiKey key)
 ImGuiKeyData* GetKeyData(ImGuiContext* ctx, ImGuiKey key);
 inline ImGuiKeyData*    GetKeyData(ImGuiKey key)                                    { ImGuiContext & g = *GImGui; return GetKeyData(&g, key); }
 void GetKeyChordName(ImGuiKeyChord key_chord, char* out_buf, int out_buf_size);
-inline ImGuiKey MouseButtonToKey(ImGuiMouseButton button)                   { assert(button >= 0 && button < ImGuiMouseButton_COUNT);
-									      return (ImGuiKey)(ImGuiKey_MouseLeft + button); }
+inline ImGuiKey MouseButtonToKey(ImGuiMouseButton button) 
+{ 
+	assert(button >= 0 && button < ImGuiMouseButton_COUNT);
+	return (ImGuiKey)(ImGuiKey_MouseLeft + button); 
+}
 bool IsMouseDragPastThreshold(ImGuiMouseButton button, float lock_threshold = -1.0f);
 ImVec2 GetKeyMagnitude2d(ImGuiKey key_left, ImGuiKey key_right, ImGuiKey key_up, ImGuiKey key_down);
 float GetNavTweakPressedAmount(ImGuiAxis axis);

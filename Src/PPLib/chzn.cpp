@@ -103,7 +103,8 @@ DRAFTBEER HORECA @v11.9.4
 			if(rS.GetToken(GtinStruc::fldGTIN14, &_01) && rS.GetToken(GtinStruc::fldSerial, &_21) && _01.Len() == 14) {
 				if(rS.GetToken(GtinStruc::fldPrice, &_8005) && rS.GetToken(GtinStruc::fldControlRuTobacco, &_93) && rS.GetToken(GtinStruc::fldAddendumId, &_240)) { // @v11.8.11 блок сигарет
 					rBuf./*CatChar('\x1D').*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("8005").Cat(_8005).
-						CatChar('\x1D').Cat("93").Cat(_93)/*.CatChar('\x1D').Cat("240").Cat(_240)*/;
+						CatChar('\x1D').Cat("93").Cat(_93)
+						.CatChar('\x1D').Cat("240").Cat(_240); // @v11.9.10 Возвращаем криптохвост назад
 				}
 				else if(rS.GetToken(GtinStruc::fldUSPS, &_91) && rS.GetToken(GtinStruc::fldInner1, &_92)) {
 					if(_21.Len() == 13 && _91.Len() == 4/*&& _92.Len() == 44*/) {
@@ -3527,3 +3528,53 @@ int PPChZnPrcssr::Run(const Param & rP)
 	CATCHZOKPPERR
 	return ok;
 }
+//
+// @v11.9.10 @construction Permissive Mode (разрешительный режим)
+// 
+
+// Хост для тестового контура: https://markirovka.sandbox.crptech.ru
+// Хост для продуктивного контура: https://markirovka.crpt.ru
+
+class ChZnPermissiveModeInterface {
+public:
+	ChZnPermissiveModeInterface()
+	{
+	}
+	~ChZnPermissiveModeInterface()
+	{
+	}
+	int    QueryCdnList() 
+	{
+		// Хост для тестового контура: https://markirovka.sandbox.crptech.ru
+		// Хост для продуктивного контура: https://cdn.crpt.ru
+		// GET /cdn/info
+		int    ok = 0;
+		return ok;
+	}
+
+	struct CdnStatus {
+		SString CdnAddr; // адрес CDN-площадки
+		int    Code; // 0 - ok, !0 - error
+		int    AvgTimeMs;
+	};
+
+	int    QueryCdnStatus(CdnStatus & rStatus)
+	{
+		// GET /cdn/health/check
+		int    ok = 0;
+		return ok;
+	}
+
+	struct CodeStatus {
+		
+	};
+
+	int    CheckCodeList(const char * pFiscalDriveNumber, const StringSet & rSsCoded)
+	{
+		// POST /codes/check
+		int    ok = 0;
+		return ok;
+	}
+private:
+	SString Token; // Токен авторизации // Токен нужно получить на каждый ИНН и использовать на всех кассах
+};

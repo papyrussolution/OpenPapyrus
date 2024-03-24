@@ -81,7 +81,6 @@ OSSL_STORE_CTX * OSSL_STORE_open_ex(const char * uri, OSSL_LIB_CTX * libctx, con
 			schemes[schemes_n++] = scheme_copy;
 		}
 	}
-
 	ERR_set_mark();
 
 	/*

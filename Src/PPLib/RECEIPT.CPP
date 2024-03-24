@@ -796,26 +796,34 @@ int ReceiptCore::GatherChilds(PPID parent, PPIDArray * pList, int (*test)(const 
 	return r;
 }
 
-int ReceiptCore::GetLastQCert(PPID goodsID, LDATE beforeDate, PPID * pQCertID, PPID * pLotID)
+int ReceiptCore::GetLastQCert(PPID goodsID, LDATE beforeDate, PPID locID, PPID * pQCertID, PPID * pLotID)
 {
+	int    ok = -1;
 	ASSIGN_PTR(pQCertID, 0);
 	ReceiptTbl::Key2 k;
 	BExtQuery q(this, 2);
 	DBQ * dbq = &(this->GoodsID == goodsID && this->QCertID > 0L);
 	if(checkdate(beforeDate))
 		dbq = &(*dbq && this->Dt <= beforeDate);
+	dbq = ppcheckfiltid(dbq, this->LocID, locID); // @v11.9.10
 	q.select(this->ID, this->Dt, this->QCertID, 0L).where(*dbq);
 	k.GoodsID = goodsID;
 	k.Dt = checkdate(beforeDate) ? beforeDate : MAXDATE;
 	k.OprNo = MAXLONG;
-	for(q.initIteration(true, &k, spLe); q.nextIteration() > 0;) {
+	for(q.initIteration(true, &k, spLe); ok < 0 && q.nextIteration() > 0;) {
 		if(data.QCertID) {
 			ASSIGN_PTR(pQCertID, data.QCertID);
 			ASSIGN_PTR(pLotID, data.ID);
-			return 1;
+			ok = 1;
 		}
 	}
-	return (goodsID > 0) ? GetLastQCert(-goodsID, beforeDate, pQCertID, pLotID) /* @recursion */ : -1; 
+	if(ok < 0 && goodsID > 0) {
+		ok = GetLastQCert(-goodsID /*по лотам заказов*/, beforeDate, locID, pQCertID, pLotID); // @recursion
+	}
+	if(ok < 0 && locID) {
+		ok = GetLastQCert(goodsID, beforeDate, 0 /*по любому складу*/, pQCertID, pLotID); // @recursion
+	}
+	return ok;
 }
 
 int ReceiptCore::IsThereOpenedLotForQCert(PPID qcertID)

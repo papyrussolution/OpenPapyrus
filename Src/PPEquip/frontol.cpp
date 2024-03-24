@@ -535,8 +535,14 @@ int ACS_FRONTOL::ExportData(int updOnly)
 							// Если для товара не определена единица измерения (правда, так быть не должно), то НЕ разрешаем дробное количество
 							tail.CatChar('0');
 						}
-						for(i = 0; i < 4; i++)
-							tail.Comma().CatChar('1'); // Разрешить продажи, возврат, отриц.остатки, регистрацию без указания кол-ва
+						for(i = 0; i < 3; i++)
+							tail.Comma().CatChar('1'); // Разрешить продажи, возврат, отриц.остатки
+						/*@v11.9.10{*/if(gds_info.ChZnProdType == GTCHZNPT_DRAFTBEER) {
+							tail.Comma().CatChar('0'); // без указания кол-ва
+						}
+						else /*}@v11.9.10*/{
+							tail.Comma().CatChar('1'); // без указания кол-ва
+						}
 						tail.Semicol();
 						// }
 						if(gds_info.NoDis > 0)
@@ -617,7 +623,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
                             tail.Cat(mark_type).Semicol();                                      // #55 Признак алкогольной продукции // @v11.9.3 1L-->mark_type
                             tail.Cat((agi.StatusFlags & agi.stMarkWanted) ? 0L : 1L).Semicol(); // #56 Признак маркированной алкогольной продукции (0 - маркированная)
                             tail.Cat(agi.Proof, MKSFMTD(0, 1, NMBF_NOZERO)).Semicol();          // #57 Крепость алкогольной продукции
-							tail.Semicol();                                                     // #58 Признак способа расчета // @v11.9.5
+							// @v11.9.10 @fix (это поле формируется ниже после if-else) tail.Semicol(); // #58 Признак способа расчета // @v11.9.5
 						}
 						else {
 							tail.Semicol();         // #53 Код вида алкогольной продукции

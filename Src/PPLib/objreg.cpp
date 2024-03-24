@@ -222,7 +222,7 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 			STokenRecognizer tr;
 			SNaturalTokenStat nts;
 			SNaturalTokenArray nta;
-			tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta.Z(), &nts); 
+			tr.Run(temp_buf, nta.Z(), &nts); 
 			//
 			if(Data.RegTypeID == PPREGT_TPID) {
 				// @v10.8.1 ValidCode = SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, temp_buf, temp_buf.Len());

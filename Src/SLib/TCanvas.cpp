@@ -1952,27 +1952,34 @@ int SFontSource::FromJsonObj(const SJson * pJs)
 //
 //
 //
-SFontDescr::SFontDescr(const char * pFace, int size, int flags)
+SFontDescr::SFontDescr() : Size(0), Flags(0), Weight(0.0f), CharSet(DEFAULT_CHARSET)
 {
-	Init();
-	Face = pFace;
-	Size = static_cast<int16>(size);
-	Flags = (flags & (fItalic|fUnderline|fStrikeOut|fBold|fAntialias));
+	memzero(Reserve, sizeof(Reserve));
 }
 
-void SFontDescr::Init()
+SFontDescr::SFontDescr(const char * pFace, int size, int flags) : Size(static_cast<int16>(size)), 
+	Face(pFace), Flags(flags & (fItalic|fUnderline|fStrikeOut|fBold|fAntialias)), Weight(0.0f), CharSet(DEFAULT_CHARSET)
 {
-	Face = 0;
+	memzero(Reserve, sizeof(Reserve));
+}
+
+SFontDescr & SFontDescr::Z()
+{
+	Face.Z();
+	Symb.Z(); // @v11.9.10
+	ColorRefSymb.Z(); // @v11.9.10
 	Size = 0;
 	Flags = 0;
 	Weight = 0.0f;
 	CharSet = DEFAULT_CHARSET;
 	memzero(Reserve, sizeof(Reserve));
+	return *this;
 }
 
 bool FASTCALL SFontDescr::IsEq(const SFontDescr & rS) const
 {
-	return (Face.CmpNC(rS.Face) == 0 && Size == rS.Size && Flags == rS.Flags && Weight == rS.Weight && CharSet == rS.CharSet);
+	return (Face.IsEqiAscii(rS.Face) && Symb.IsEqiUtf8(rS.Symb) && Size == rS.Size && Flags == rS.Flags && Weight == rS.Weight && CharSet == rS.CharSet &&
+		ColorRefSymb.IsEqiAscii(rS.ColorRefSymb));
 }
 
 int SFontDescr::ToStr(SString & rBuf, long fmt) const
@@ -1997,7 +2004,7 @@ int SFontDescr::ToStr(SString & rBuf, long fmt) const
 int FASTCALL SFontDescr::FromStr(const char * pStr)
 {
 	int    ok = 1;
-	Init();
+	Z();
 	if(pStr) {
 		const char * p = sstrchr(pStr, '(');
 		if(p) {
@@ -2028,6 +2035,119 @@ int FASTCALL SFontDescr::FromStr(const char * pStr)
 	return ok;
 }
 
+SJson * SFontDescr::ToJsonObj() const
+{
+	SJson * p_result = SJson::CreateObj();
+	SString temp_buf;
+	if(Symb.NotEmpty())
+		p_result->InsertString("symb", (temp_buf = Symb).Escape());
+	if(Face.NotEmpty()) {
+		p_result->InsertString("face", (temp_buf = Face).Escape());
+		if(Size != 0) {
+			p_result->InsertNumber("size", temp_buf.Z().Cat(Size));
+		}
+		if(Weight > 0.0f && Weight <= 2.0f)
+			p_result->InsertString("weight", temp_buf.Z().Cat(Weight, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+		if(Flags) {
+			temp_buf.Z();
+			if(Flags & fItalic)
+				temp_buf.CatDivIfNotEmpty(' ', 0).Cat("italic");
+			if(Flags & fBold)
+				temp_buf.CatDivIfNotEmpty(' ', 0).Cat("bold");
+			if(Flags & fUnderline)
+				temp_buf.CatDivIfNotEmpty(' ', 0).Cat("underline");
+			if(Flags & fStrikeOut)
+				temp_buf.CatDivIfNotEmpty(' ', 0).Cat("strikeout");
+			if(Flags & fAntialias)
+				temp_buf.CatDivIfNotEmpty(' ', 0).Cat("antialias");
+			p_result->InsertStringNe("modifiers", temp_buf.Escape());
+		}
+		p_result->InsertStringNe("colorrefsymb", (temp_buf = ColorRefSymb).Escape());
+	}
+	return p_result;
+}
+
+/*static*/bool SFontDescr::ListFromJsonArray(const SJson * pJs, TSCollection <SFontDescr> & rList)
+{
+	bool   ok = true;
+	THROW(SJson::IsArray(pJs)); // @todo @err
+	{
+		for(const SJson * p_js_inner = pJs->P_Child; p_js_inner; p_js_inner = p_js_inner->P_Next) {
+			SFontDescr * p_item = rList.CreateNewItem();
+			THROW(p_item);
+			THROW(p_item->FromJsonObj(p_js_inner));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+/*static*/SJson * SFontDescr::ListToJsonArray(const TSCollection <SFontDescr> & rList)
+{
+	SJson * p_result = SJson::CreateArr();
+	THROW(p_result);
+	for(uint i = 0; i < rList.getCount(); i++) {
+		const SFontDescr * p_item = rList.at(i);
+		THROW(p_item);
+		SJson * p_js_item = p_item->ToJsonObj();
+		THROW(p_js_item);
+		p_result->InsertChild(p_js_item);
+	}
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	return p_result;
+}
+
+int SFontDescr::FromJsonObj(const SJson * pJs)
+{
+	Z();
+	int    ok = 1;
+	SString temp_buf;
+	THROW(SJson::IsObject(pJs)); // @todo @err
+	for(const SJson * p_jsn = pJs->P_Child; p_jsn; p_jsn = p_jsn->P_Next) {
+		if(p_jsn->Text.IsEqiAscii("symb"))
+			SJson::GetChildTextUnescaped(p_jsn, Symb);
+		if(p_jsn->Text.IsEqiAscii("face"))
+			SJson::GetChildTextUnescaped(p_jsn, Face);
+		if(p_jsn->Text.IsEqiAscii("size")) {
+			// @fixme Черт его знает... Наверное, Size должен быть типа float и единица измерения не помещает. Но пока пусть будет вот так просто.
+			if(p_jsn->P_Child->IsNumber()) {
+				Size = static_cast<int16>(p_jsn->P_Child->Text.ToReal_Plain());
+			}
+			else if(p_jsn->P_Child->IsString()) {
+				SJson::GetChildTextUnescaped(p_jsn, temp_buf);
+				Size = static_cast<int16>(temp_buf.ToReal_Plain());
+			}
+		}
+		else if(p_jsn->Text.IsEqiAscii("modifiers")) {
+			SJson::GetChildTextUnescaped(p_jsn, temp_buf);
+			StringSet ss(";");
+			temp_buf.Tokenize(" \t,;", ss);
+			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+				if(temp_buf.IsEqiAscii("italic"))
+					Flags |= fItalic;
+				else if(temp_buf.IsEqiAscii("bold"))
+					Flags |= fBold;
+				else if(temp_buf.IsEqiAscii("underline"))
+					Flags |= fUnderline;
+				else if(temp_buf.IsEqiAscii("strikeout"))
+					Flags |= fStrikeOut;
+				else if(temp_buf.IsEqiAscii("antialias"))
+					Flags |= fAntialias;
+			}
+		}
+		else if(p_jsn->Text.IsEqiAscii("weight")) {
+			;
+		}
+		else if(p_jsn->Text.IsEqiAscii("colorrefsymb")) {
+			;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SFontDescr::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
@@ -2040,7 +2160,7 @@ int SFontDescr::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 int FASTCALL SFontDescr::Helper_SetLogFont(const void * pLf)
 {
 	int    ok = 1;
-	Init();
+	Z();
 	const LOGFONTW * p_lf = static_cast<const LOGFONTW *>(pLf);
 	if(p_lf) {
 		Size = static_cast<int16>(labs(p_lf->lfHeight));

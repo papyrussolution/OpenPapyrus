@@ -135,7 +135,7 @@ int PPGenCashNode::DrvVerFromStr(const char * pS)
 		SString temp_buf(pS);
 		STokenRecognizer tr;
 		SNaturalTokenArray nta;
-		tr.Run(temp_buf.Strip().ucptr(), -1, nta, 0);
+		tr.Run(temp_buf.Strip(), nta, 0);
 		if(nta.Has(SNTOK_SOFTWAREVER) > 0.0f) {
 			SString major, minor;
 			temp_buf.Divide('.', major, minor);

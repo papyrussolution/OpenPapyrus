@@ -145,7 +145,8 @@ const char * gumbo_normalized_tagname(GumboTag tag);
  * empty (NULL data pointer), then this function will exit successfully as a
  * no-op.
  */
-void gumbo_tag_from_original_text(GumboStringPiece* text);
+void FASTCALL gumbo_tag_from_original_text(GumboStringPiece* text);
+void FASTCALL GumboTagFromOriginalTextC(const GumboStringPiece * pText, SString & rTag);
 /**
  * Fixes the case of SVG elements that are not all lowercase.
  * http://www.whatwg.org/specs/web-apps/current-work/multipage/tree-construction.html#parsing-main-inforeign
@@ -531,10 +532,10 @@ GumboOutput* gumbo_parse(const char * buffer);
  * Extended version of gumbo_parse that takes an explicit options structure,
  * buffer, and length.
  */
-GumboOutput* gumbo_parse_with_options(const GumboOptions* options, const char * buffer, size_t buffer_length);
+GumboOutput * gumbo_parse_with_options(const GumboOptions* options, const char * buffer, size_t buffer_length);
 
 /** Release the memory used for the parse tree & parse errors. */
-void gumbo_destroy_output(GumboOutput * output);
+void FASTCALL gumbo_destroy_output(GumboOutput * output);
 
 #ifdef __cplusplus
 }

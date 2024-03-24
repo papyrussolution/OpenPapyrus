@@ -421,10 +421,10 @@ SUiLayoutParam & SUiLayoutParam::SetContainerDirection(int direc /*DIREC_XXX*/)
 			uint tokn = 0;
 			for(uint ssp = 0; ok && ss.get(&ssp, temp_buf);) {
 				temp_buf.Strip();
-				tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta, 0);
+				tr.Run(temp_buf, nta, 0);
 				if(nta.Has(SNTOK_NUMERIC_DOT)) {
 					tokn++;
-					float v = temp_buf.ToFloat();
+					const float v = temp_buf.ToFloat();
 					//const int iv = static_cast<int>(v);
 					assert(oneof4(tokn, 1, 2, 3, 4));
 					if(tokn == 1) {

@@ -63,10 +63,8 @@ static const OSSL_ITEM rsakem_opname_id_map[] = {
 static int name2id(const char * name, const OSSL_ITEM * map, size_t sz)
 {
 	size_t i;
-
 	if(!name)
 		return -1;
-
 	for(i = 0; i < sz; ++i) {
 		if(strcasecmp((const char *)map[i].ptr, name) == 0)
 			return map[i].id;

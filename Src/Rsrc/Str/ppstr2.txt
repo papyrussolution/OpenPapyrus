@@ -11040,6 +11040,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgvatbookitem_fnegative                 "Отрицательная запись"
 @cfgvatbookitem_fvatfree                  "Не облагаемая налогом"
 @cfgvatbookitem_fvatfromreckon            "Налоги из зачетного документа"
+@cfgvatbookitem_freckondatebypayment      "Дата записи - дата зачетного документа"
 @cfgvatbookitem_expendbyfact              "Учет расходов по факту" // generic
 @cfgvatbookitem_mainamttype               "Тип замещения номинальной суммы"
 @cfgvatbookitem_op                        "@{oprkind}"
@@ -18355,6 +18356,7 @@ PPHSC_RU_TAXRATE2              "Ставка" // @v11.9.5 SBIS
 PPHSC_RU_TAXRATETYPE           "ТипСтавки" // @v11.9.5 SBIS
 PPHSC_RU_TAXRATE_BEFORE        "НалСтДо"
 PPHSC_RU_TAXRATE_AFTER         "НалСтПосле"
+PPHSC_RU_PERCENT               "процент" // @v11.9.10 SBIS
 PPHSC_RU_PRICE                 "Цена"
 PPHSC_RU_WAREPRICE             "ЦенаТов"
 PPHSC_RU_WAREPRICE_BEFORE      "ЦенаТовДо"

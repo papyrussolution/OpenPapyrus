@@ -9,6 +9,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="ImGuiFileDialog">
+      <UniqueIdentifier>{ec3d4262-e027-4e42-beb4-8063041ca577}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\OSF\imgui\imgui.cpp" />
@@ -21,6 +24,9 @@
     <ClCompile Include="..\OSF\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\OSF\imgui\imgui-pch.cpp" />
     <ClCompile Include="..\OSF\imgui\misc\freetype\imgui_freetype.cpp" />
+    <ClCompile Include="..\OSF\ImGuiFileDialog\ImGuiFileDialog.cpp">
+      <Filter>ImGuiFileDialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\imgui\imconfig.h">
@@ -49,6 +55,12 @@
     </ClInclude>
     <ClInclude Include="..\OSF\imgui\misc\freetype\imgui_freetype.h">
       <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\ImGuiFileDialog\ImGuiFileDialog.h">
+      <Filter>ImGuiFileDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\ImGuiFileDialog\ImGuiFileDialogConfig.h">
+      <Filter>ImGuiFileDialog</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

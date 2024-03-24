@@ -1321,10 +1321,12 @@ static void PreprocessText(SString & rText)
 
 enum {
 	pgnfTextOnly      = 0x0001,
-	pgnfSkipEmptyText = 0x0002
+	pgnfSkipEmptyText = 0x0002,
+	pgnfTagsOnly      = 0x0004, // Выводит только имена тегов
+	pgnfSkipScript    = 0x0008,
 };
 
-static void PrintGumboNode(GumboNode * pN, uint tabN, uint flags, SFile & rF, SString & rTempBuf)
+static void PrintGumboNode(const GumboNode * pN, uint tabN, uint flags, SFile & rF, SString & rTempBuf)
 {
 	if(pN) {
 		SString tag_buf;
@@ -1340,7 +1342,7 @@ static void PrintGumboNode(GumboNode * pN, uint tabN, uint flags, SFile & rF, SS
 			}
 		}
 		else if(pN->type == GUMBO_NODE_ELEMENT) {
-			GumboElement & r_el = pN->v.element;
+			const GumboElement & r_el = pN->v.element;
 			const char * p_tag = gumbo_normalized_tagname(r_el.tag);
 			tag_buf.Z();
 		    if(!isempty(p_tag)) {
@@ -1348,41 +1350,43 @@ static void PrintGumboNode(GumboNode * pN, uint tabN, uint flags, SFile & rF, SS
 		    }
 		    else {
 			    if(r_el.original_tag.data && r_el.original_tag.length) {
-				    gumbo_tag_from_original_text(&r_el.original_tag);
-					tag_buf.CatN(r_el.original_tag.data, r_el.original_tag.length);
+				    GumboTagFromOriginalTextC(&r_el.original_tag, tag_buf);
+					//tag_buf.CatN(r_el.original_tag.data, r_el.original_tag.length);
 			    }
 		    }
-			if(!(flags & pgnfTextOnly)) {
-				rTempBuf.Z().Tab(tabN).CatEq("element", tag_buf);
-				rF.WriteLine(rTempBuf.CR());
-			}
-			//
-			if(r_el.attributes.length) {
+			if(!(flags & pgnfSkipScript) || !tag_buf.IsEqiAscii("script")) {
 				if(!(flags & pgnfTextOnly)) {
-					rTempBuf.Z().Tab(tabN).Cat("attributes").Colon();
+					rTempBuf.Z().Tab(tabN).CatEq("element", tag_buf);
 					rF.WriteLine(rTempBuf.CR());
-					for(uint i = 0; i < r_el.attributes.length; i++) {
-						GumboAttribute * p_attr = static_cast<GumboAttribute *>(r_el.attributes.data[i]);
-						if(p_attr) {
-							rTempBuf.Z().Tab(tabN+1).CatEq(p_attr->name, p_attr->value);
-							rF.WriteLine(rTempBuf.CR());
+				}
+				//
+				if(r_el.attributes.length) {
+					if(!(flags & pgnfTextOnly) && !(flags & pgnfTagsOnly)) {
+						rTempBuf.Z().Tab(tabN).Cat("attributes").Colon();
+						rF.WriteLine(rTempBuf.CR());
+						for(uint i = 0; i < r_el.attributes.length; i++) {
+							GumboAttribute * p_attr = static_cast<GumboAttribute *>(r_el.attributes.data[i]);
+							if(p_attr) {
+								rTempBuf.Z().Tab(tabN+1).CatEq(p_attr->name, p_attr->value);
+								rF.WriteLine(rTempBuf.CR());
+							}
 						}
 					}
 				}
-			}
-			if(r_el.children.length) {
-				if(!(flags & pgnfTextOnly)) {
-					rTempBuf.Z().Tab(tabN).Cat("children").Colon();
-					rF.WriteLine(rTempBuf.CR());
-				}
-				for(uint i = 0; i < r_el.children.length; i++) {
-					GumboNode * p_node = static_cast<GumboNode *>(r_el.children.data[i]);
-					PrintGumboNode(p_node, tabN+1, flags, rF, rTempBuf); // @recursion
+				if(r_el.children.length) {
+					if(!(flags & pgnfTextOnly) && !(flags & pgnfTagsOnly)) {
+						rTempBuf.Z().Tab(tabN).Cat("children").Colon();
+						rF.WriteLine(rTempBuf.CR());
+					}
+					for(uint i = 0; i < r_el.children.length; i++) {
+						GumboNode * p_node = static_cast<GumboNode *>(r_el.children.data[i]);
+						PrintGumboNode(p_node, tabN+1, flags, rF, rTempBuf); // @recursion
+					}
 				}
 			}
 		}
-		else {
-			GumboText & r_t = pN->v.text;
+		else if(!(flags & pgnfTagsOnly)) {
+			const GumboText & r_t = pN->v.text;
 			tag_buf = r_t.text;
 			if(IsTextContainsSpacesOnly(tag_buf) && !(flags & pgnfSkipEmptyText)) {
 				rTempBuf.Z().Tab(tabN+1).Cat("text").CatDiv(':', 2).Cat("(spaces)");
@@ -1436,6 +1440,7 @@ static void GumboTest()
 	SString temp_buf;
 
 	const char * p_addr_list[] = {
+		"https://rutor.org.in/",
 		"https://holdingbeauty.ru/catalog/",
 		"https://holdingbeauty.ru/catalog/ukhod-za-volosami/"
 	};
@@ -1445,9 +1450,16 @@ static void GumboTest()
 			p_output = gumbo_parse_with_options(&go, temp_buf, temp_buf.Len());
 			{
 				PPGetPath(PPPATH_TESTROOT, temp_buf);
-				temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("html").CatChar('-').Cat(i+1).Dot().Cat("out");
+				temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("html").CatChar('-').CatLongZ(i+1, 3).Cat("-text").Dot().Cat("out");
 				SFile f_out(temp_buf, SFile::mWrite);
-				uint pgn_flags = pgnfTextOnly|pgnfSkipEmptyText;
+				uint pgn_flags = pgnfTextOnly|pgnfSkipEmptyText|pgnfSkipScript;
+				PrintGumboNode(p_output->document, 0, pgn_flags, f_out, temp_buf);
+			}
+			{
+				PPGetPath(PPPATH_TESTROOT, temp_buf);
+				temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("html").CatChar('-').CatLongZ(i+1, 3).Cat("-tags").Dot().Cat("out");
+				SFile f_out(temp_buf, SFile::mWrite);
+				uint pgn_flags = pgnfTagsOnly|pgnfSkipEmptyText;
 				PrintGumboNode(p_output->document, 0, pgn_flags, f_out, temp_buf);
 			}
 			//
@@ -1619,8 +1631,8 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	TestGtinStruc();
-	//GumboTest();
+	GumboTest();
+	//TestGtinStruc();
 	//Test_SSystemBackup();
 	//TestPow10Tab();
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");

@@ -4178,7 +4178,7 @@ public:
 	//   перечисленных в строке pDelimChrSet. Результирующие фрагменты заносятся в
 	//   набор строк (StringSet) rResult.
 	//   Если pDelimChrSet == 0, то применяется набор разделителей по умолчанию " \t\n\r".
-	//   Несколько разделителей идущих подряд считаются за один.
+	//   Важно: несколько разделителей идущих подряд считаются за один.
 	//   Функция не очищает rResult перед тем как начнет туда вставлять новые элементы.
 	// Returns:
 	//   2 - в строке this встречен как минимум один разделитель
@@ -12030,6 +12030,7 @@ public:
 	//   Если len < 0, то просматривается sstrlen(pToken) символов
 	//
 	int    Run(const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
+	int    Run(const SString & rToken, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
 protected:
 	struct ImplementBlock {
 		enum {
@@ -12156,7 +12157,7 @@ public:
 
 	static int Sort(const char * pSrcFileName, const char * pOutFileName, CompFunc fcmp, SortParam * pExtraParam);
 	//
-	// Descr: Атрибутуты файлов
+	// Descr: Атрибуты файлов
 	//
 	enum {
 		attrRdOnly            = 0x00000001, // dos/win _A_RDONLY
@@ -12186,6 +12187,26 @@ public:
 		attrUsrR   = 0x00400000, // unix user permission Read
 		attrUsrW   = 0x00800000, // unix user permission Write
 		attrUsrX   = 0x01000000, // unix user permission Execute
+	};
+	//
+	// Descr: Перечисление свойств файла в виде флагов.
+	//   Стимулом ввода этого перечилсения является необходимость определения списка отображаемых атрибутов
+	//   файлов и каталогов.
+	//
+	enum {
+		propNam           = 0x0001,
+		propExt           = 0x0002,
+		propNamExt        = 0x0004,
+		propDir           = 0x0008,
+		propDirNamExt     = 0x0010,
+		propSize          = 0x0020,
+		propSizeAllocated = 0x0040,
+		propCrtTime       = 0x0100,
+		propAccsTime      = 0x0200,
+		propModTime       = 0x0400,
+		propAttrs         = 0x0800,
+		propAcl           = 0x1000, // access control list
+		propFormat        = 0x2000, // SFileFormat
 	};
 
 	struct Stat { // @flat

@@ -407,7 +407,7 @@ static int try_cert(struct extracted_param_data_st * data, OSSL_STORE_INFO ** v,
 		if(!cert)
 			return 0;
 		/* If we have a data type, it should be a PEM name */
-		if(data->data_type != NULL && (strcasecmp(data->data_type, PEM_STRING_X509_TRUSTED) == 0))
+		if(data->data_type && sstreqi_ascii(data->data_type, PEM_STRING_X509_TRUSTED))
 			ignore_trusted = 0;
 		if(d2i_X509_AUX(&cert, (const unsigned char**)&data->octet_data, data->octet_data_size) == NULL && (!ignore_trusted
 		    || d2i_X509(&cert, (const unsigned char**)&data->octet_data, data->octet_data_size) == NULL)) {

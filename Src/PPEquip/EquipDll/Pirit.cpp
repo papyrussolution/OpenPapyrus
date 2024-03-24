@@ -2509,7 +2509,7 @@ int PiritEquip::RunCheck(int opertype)
 			{
 				uint16 product_type_bytes = 0;
 				uint8  chzn_1162_bytes[128];
-				if(false /*@construction Пока не задействуем код - не работает*/ && (Check.DraftBeerSimplifiedCode.NotEmpty() && Check.PhQtty > 0.0)) { 
+				if(/*false*/true/*@construction Пока не задействуем код - не работает*/ && (Check.DraftBeerSimplifiedCode.NotEmpty() && Check.PhQtty > 0.0)) { 
 					product_type_bytes = 0x444D;
 					int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, 0, chzn_1162_bytes, sizeof(chzn_1162_bytes));
 					if(rl > 0) {
@@ -2533,7 +2533,7 @@ int PiritEquip::RunCheck(int opertype)
 								}
 								THROW(ExecCmd("79", in_data, out_data, r_error)); // query=15
 							}
-							if(false) {
+							if(/*false*/true) {
 								in_data.Z(); // @v11.2.3 @fix
 								CreateStr(str.Z(), in_data); // #1 (tag 1162) Код товарной номенклатуры (для офд 1.2 - пустая строка)
 								CreateStr("[M]", in_data);

@@ -4,12 +4,120 @@
 #include <pp.h>
 #pragma hdrstop
 #include <imgui-support.h>
+#include <..\OSF\ImGuiFileDialog\ImGuiFileDialog.h>
+#include <..\SLib\gumbo\gumbo.h>
 
 static ImGuiRuntimeBlock ImgRtb;
 //static const ImVec2 ButtonSize_Std(64.0f, 24.0f);
 //static const ImVec2 ButtonSize_Double(128.0f, 24.0f);
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam); // Forward declare message handler from imgui_impl_win32.cpp
+
+class SingleFilePaneBlock {
+public:
+	SingleFilePaneBlock() : P(), State(0), CurrentIdx(0)
+	{
+	}
+	struct Param {
+		Param() : Columns(SFile::propNamExt|SFile::propSize|SFile::propModTime), SortModifier(0)
+		{
+		}
+		uint8  ReserveStart[64];
+		uint32 Columns; // flags SFile::propXXX
+		uint32 SortModifier; // Модификатор порядка сортировки элементов
+		uint8  Reserve[64];
+		LongArray SortOrder; // Список значений SFile::propXXX, определяющий порядок сортировки
+		SString Path; // Текущий путь, отображаемый на панеле
+	};
+
+	bool Run(const char * pPath)
+	{
+		return ProcessPath(pPath);
+	}
+	bool SetCurrentIdx(uint idx/*[1..]*/)
+	{
+		if(idx > 0 && idx <= Fep.GetCount()) {
+			CurrentIdx = idx;
+			return true;
+		}
+		else
+			return false;
+	}
+	uint GetCurrentIdx() const
+	{
+		return (CurrentIdx > 0 && CurrentIdx <= Fep.GetCount()) ? CurrentIdx : 0;
+	}
+	bool ProcessPath(const char * pPath)
+	{
+		bool   ok = false;
+		SString temp_buf;
+		if(!pPath && State & stInited) {
+			Fep.GetInitPath(temp_buf);
+			if(!temp_buf.IsEmpty()) {
+				//ok = LOGIC(Fep.Scan(temp_buf, "*.*", SFileEntryPool::scanfKeepCase|SFileEntryPool::scanfReckonDirs|SFileEntryPool::scanfReckonUpFolder));
+				ok = true;
+				if(ok) {
+					//Fep.Sort(SFileEntryPool::scByName);
+					State |= stInited;
+				}
+			}
+		}
+		else if(SFile::IsDir(pPath)) {
+			SFsPath::NormalizePath(pPath, SFsPath::npfCompensateDotDot, temp_buf);
+			ok = LOGIC(Fep.Scan(temp_buf, "*.*", SFileEntryPool::scanfKeepCase|SFileEntryPool::scanfReckonDirs|SFileEntryPool::scanfReckonUpFolder));
+			if(ok) {
+				Fep.Sort(SFileEntryPool::scByName);
+				CurrentIdx = 0;
+				State |= stInited;
+			}
+		}
+		return ok;
+	}
+
+	Param  P; // persistent-блок параметров
+	// Далее следуют факторы состояния //
+	enum {
+		stInited = 0x0001
+	};
+	uint   State;
+	SFileEntryPool Fep;
+	uint CurrentIdx; // [1..] (0 - undef)
+	LongArray SelectedIdxList;
+};
+
+struct FilePaneBlock {
+	FilePaneBlock() : P()
+	{
+		// В списке должен быть хотя бы один элемент
+		SingleFilePaneBlock * p_entry = L.CreateNewItem();
+	}
+	struct Param { // persistent-блок параметров
+		Param() : MpMode(mpmodeSingle)
+		{
+		}
+		//
+		// Режим отображения панелей
+		//
+		enum {
+			mpmodeSingle = 0, // Единственная панель
+			mpmodeDouble,     // Двойная панель
+			mpmodeTabbed      // Табулированный список панелей
+		};
+		uint   MpMode; // mpmodeXXX
+	};
+	Param  P;
+	TSCollection <SingleFilePaneBlock> L; 
+};
+
+struct HtmlParserBlock {
+	HtmlParserBlock()
+	{
+	}
+	~HtmlParserBlock()
+	{
+	}
+	SString Url;
+};
 
 class Kabq_ImGuiSceneBlock : public ImGuiSceneBase {
 public:
@@ -22,18 +130,24 @@ public:
 		loidContentArea               = 10005,
 		loidToolbar                   = 10027, // Область панели инструментов в верхней части окна
 		loidStatusbar                 = 10028,
+		loidContentAreaTwoPane        = 10029, // Область отображения контента в виде 2 панелей. Динамически вставляется в loidContentArea
+		loidContentAreaTwoPane_Left   = 10030, // Левая часть 2-панельной области отображения контента
+		loidContentAreaTwoPane_Right  = 10031, // Правая часть 2-панельной области отображения контента
 	};
 	enum {
 		topicUndef = 0,
 		topicComputer = 1,
-		topicNotes = 2,
-		topicFinance = 3,
-		topicScores = 4,
-		topicPasswordVault = 5
+		topicProcesses = 2,
+		topicSystem = 3,
+		topicNotes = 4,
+		topicFinance = 5,
+		topicScores = 6,
+		topicPasswordVault = 7,
+		topicHtmlParser = 8
 	};
 	class State {
 	public:
-		State() : Topic(topicUndef)
+		State() : Topic(topicUndef), FpBlk()/*, DirBlk(*FpParam.L.at(0))*/
 		{
 		}
 		struct SearchInputBlock {
@@ -54,60 +168,8 @@ public:
 			STokenRecognizer Tr;
 			SString PreserveInput;
 		};
-		struct DirectoryBlock {
-			DirectoryBlock() : IsInited(false), CurrentIdx(0)
-			{
-			}
-			bool Run(const char * pPath)
-			{
-				return ProcessPath(pPath);
-			}
-			bool SetCurrentIdx(uint idx/*[1..]*/)
-			{
-				if(idx > 0 && idx <= Fep.GetCount()) {
-					CurrentIdx = idx;
-					return true;
-				}
-				else
-					return false;
-			}
-			uint GetCurrentIdx() const
-			{
-				return (CurrentIdx > 0 && CurrentIdx <= Fep.GetCount()) ? CurrentIdx : 0;
-			}
-			bool ProcessPath(const char * pPath)
-			{
-				bool   ok = false;
-				SString temp_buf;
-				if(!pPath && IsInited) {
-					Fep.GetInitPath(temp_buf);
-					if(!temp_buf.IsEmpty()) {
-						//ok = LOGIC(Fep.Scan(temp_buf, "*.*", SFileEntryPool::scanfKeepCase|SFileEntryPool::scanfReckonDirs|SFileEntryPool::scanfReckonUpFolder));
-						ok = true;
-						if(ok) {
-							//Fep.Sort(SFileEntryPool::scByName);
-							IsInited = true;						
-						}
-					}
-				}
-				else if(SFile::IsDir(pPath)) {
-					SFsPath::NormalizePath(pPath, SFsPath::npfCompensateDotDot, temp_buf);
-					ok = LOGIC(Fep.Scan(temp_buf, "*.*", SFileEntryPool::scanfKeepCase|SFileEntryPool::scanfReckonDirs|SFileEntryPool::scanfReckonUpFolder));
-					if(ok) {
-						Fep.Sort(SFileEntryPool::scByName);
-						CurrentIdx = 0;
-						IsInited = true;
-					}
-				}
-				return ok;
-			}
-			bool IsInited;
-			SFileEntryPool Fep;
-			uint CurrentIdx; // [1..] (0 - undef)
-			LongArray SelectedIdxList;
-		};
 		SearchInputBlock SiBlk;
-		DirectoryBlock DirBlk;
+		FilePaneBlock FpBlk;
 		int    Topic;
 	};
 	class InitializedConstData {
@@ -142,7 +204,9 @@ public:
 private:
 	static int CbInput_Search(ImGuiInputTextCallbackData * pInputData);
 	void    ProcessSearchInput(ImGuiContext * pImCtx);
-	void    View_FsDir();
+	void    Build_FsDir(SUiLayout * pParentLayout, int loId, const char * pWindowIdent);
+	void    Build_FsDir2(uint filePaneIdx);
+	void    Build_HtmlParser(SUiLayout * pParentLayout, int loId, const char * pWindowIdent);
 	State St;
 	const InitializedConstData * P_ICD;
 };
@@ -219,7 +283,7 @@ private:
 					const char * p_color_name = ImGui::GetStyleColorName(i);
 					if(!isempty(p_color_name)) {
 						SColor c;
-						if(p_cs->Get(p_color_name, c)) {
+						if(p_uid->GetColor(p_cs, p_color_name, c)) {
 							style->Colors[i] = c;
 						}
 					}
@@ -231,19 +295,9 @@ private:
 		const SColorSet * p_cs = p_uid->GetColorSetC("imgui-style");	
 		{
 			ImFontConfig f;
-			SColor primary_font_color;
-			SColor secondary_font_color;
-			SColor substrat_color;
-			if(p_cs) {
-				p_cs->Get("TextPrimary", primary_font_color);
-				p_cs->Get("TextSecondary", secondary_font_color);
-				p_cs->Get("Substrat", substrat_color);
-			}
-			else {
-				substrat_color.Set(0x1E, 0x22, 0x28);
-				primary_font_color = SColor(SClrWhite);
-				secondary_font_color = SColor(SClrSilver);
-			}
+			SColor primary_font_color = p_uid->GetColorR(p_cs, "TextPrimary", SColor(SClrWhite));
+			SColor secondary_font_color = p_uid->GetColorR(p_cs, "TextSecondary", SColor(SClrSilver));
+			SColor substrat_color = p_uid->GetColorR(p_cs, "Substrat", SColor(0x1E, 0x22, 0x28));
 			ClearColor = substrat_color;
 			{
 				//const char * p_font_face_list[] = { "Roboto", "DroidSans", "Cousine", "Karla", "ProggyClean", "ProggyTiny" };
@@ -288,71 +342,141 @@ void Kabq_ImGuiSceneBlock::ProcessSearchInput(ImGuiContext * pImCtx)
 	return 0;
 }
 
-void Kabq_ImGuiSceneBlock::View_FsDir()
+void Kabq_ImGuiSceneBlock::Build_FsDir2(uint filePaneIdx)
 {
-	SFileEntryPool::Entry fe;
-	SString temp_buf;
-	if(ImGui::BeginTable("view_directory", 3, ImGuiTableFlags_Resizable|ImGuiTableFlags_NoSavedSettings|ImGuiTableFlags_Borders|ImGuiTableFlags_ScrollY)) {
-		ImGui::TableSetupColumn("name", ImGuiTableColumnFlags_WidthStretch);
-		ImGui::TableSetupColumn("size", ImGuiTableColumnFlags_WidthFixed);
-		ImGui::TableSetupColumn("time", ImGuiTableColumnFlags_WidthFixed);
-		ImGui::TableSetupScrollFreeze(1, 1);
-		ImGui::TableHeadersRow();
-		ImGuiListClipper clipper;
-		bool enter_pressed_idx = false;
-		clipper.Begin(St.DirBlk.Fep.GetCount());
-		while(clipper.Step()) {
-			//for(uint i = 0; i < St.DirBlk.Fep.GetCount(); i++) {
-			for(int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
-				St.DirBlk.Fep.Get(i, &fe, 0);
-				ImGui::TableNextRow();
-				{
-					ImGui::TableSetColumnIndex(0);
-					//ImGui::Text(fe.Name);
-					bool is_selected = false;//St.DirBlk.GetCurrentIdx() == static_cast<uint>(i+1);
-					if(ImGui::Selectable(fe.Name, is_selected, ImGuiSelectableFlags_SpanAllColumns|ImGuiSelectableFlags_AllowDoubleClick)) {
-						enter_pressed_idx = true;
-						St.DirBlk.SetCurrentIdx(i+1);
-					}
-				}
-				{
-					ImGui::TableSetColumnIndex(1);
-					temp_buf.Z().Cat(fe.Size);
-					if(false) {
-						const auto right_edge = ImGui::GetCursorPosX() + ImGui::GetColumnWidth();
-						const auto text_width = ImGui::CalcTextSize(temp_buf).x + 2 * ImGui::GetStyle().ItemSpacing.x;
-						const auto pos_x = (right_edge - text_width - ImGui::GetScrollX());
-						ImGui::SetCursorPosX(pos_x);
-						ImGui::Text(temp_buf);
-					}
-					else {
-						ImGui::Text(temp_buf);
-					}
-				}
-				{
-					LDATETIME dtm_mod;
-					dtm_mod.SetNs100(fe.ModTm_);
-					ImGui::TableSetColumnIndex(2);
-					ImGui::Text(temp_buf.Z().Cat(dtm_mod, DATF_ISO8601CENT, 0));
-				}
-			}
+	SingleFilePaneBlock * p_sfp_blk = St.FpBlk.L.at(filePaneIdx);
+	if(p_sfp_blk) {
+		SString temp_buf;
+		if(!(p_sfp_blk->State & SingleFilePaneBlock::stInited)) {
+			if(!GetKnownFolderPath(UED_FSKNOWNFOLDER_COMPUTER, temp_buf))
+				if(!GetKnownFolderPath(UED_FSKNOWNFOLDER_STARTUP, temp_buf))
+					if(!GetKnownFolderPath(UED_FSKNOWNFOLDER_DESKTOP, temp_buf))
+						temp_buf = "c:\\";
+			p_sfp_blk->Run(temp_buf);
 		}
-		ImGui::EndTable();
-		if(enter_pressed_idx) {
-			if(St.DirBlk.Fep.Get(enter_pressed_idx-1, &fe, &temp_buf)) {
-				if(fe.IsFolder()) {
-					St.DirBlk.Run(temp_buf);
+		else {
+			p_sfp_blk->Run(0);
+		}
+		{
+			SFileEntryPool::Entry fe;
+			if(ImGui::BeginTable("view_directory", 3, ImGuiTableFlags_Resizable|ImGuiTableFlags_NoSavedSettings|ImGuiTableFlags_Borders|ImGuiTableFlags_ScrollY)) {
+				ImGui::TableSetupColumn("name", ImGuiTableColumnFlags_WidthStretch);
+				ImGui::TableSetupColumn("size", ImGuiTableColumnFlags_WidthFixed);
+				ImGui::TableSetupColumn("time", ImGuiTableColumnFlags_WidthFixed);
+				ImGui::TableSetupScrollFreeze(1, 1);
+				ImGui::TableHeadersRow();
+				ImGuiListClipper clipper;
+				bool    enter_pressed_idx = false;
+				clipper.Begin(p_sfp_blk->Fep.GetCount());
+				while(clipper.Step()) {
+					//for(uint i = 0; i < St.DirBlk.Fep.GetCount(); i++) {
+					for(int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
+						p_sfp_blk->Fep.Get(i, &fe, 0);
+						ImGui::TableNextRow();
+						{
+							ImGui::TableSetColumnIndex(0);
+							//ImGui::Text(fe.Name);
+							bool is_selected = false;//St.DirBlk.GetCurrentIdx() == static_cast<uint>(i+1);
+							if(ImGui::Selectable(fe.Name, is_selected, ImGuiSelectableFlags_SpanAllColumns|ImGuiSelectableFlags_AllowDoubleClick)) {
+								if(ImGui::IsMouseDoubleClicked(0/*left*/)) {
+									enter_pressed_idx = true;
+									p_sfp_blk->SetCurrentIdx(i+1);
+								}
+							}
+						}
+						{
+							ImGui::TableSetColumnIndex(1);
+							temp_buf.Z().Cat(fe.Size);
+							if(false) {
+								const auto right_edge = ImGui::GetCursorPosX() + ImGui::GetColumnWidth();
+								const auto text_width = ImGui::CalcTextSize(temp_buf).x + 2 * ImGui::GetStyle().ItemSpacing.x;
+								const auto pos_x = (right_edge - text_width - ImGui::GetScrollX());
+								ImGui::SetCursorPosX(pos_x);
+								ImGui::Text(temp_buf);
+							}
+							else {
+								ImGui::Text(temp_buf);
+							}
+						}
+						{
+							LDATETIME dtm_mod;
+							dtm_mod.SetNs100(fe.ModTm_);
+							ImGui::TableSetColumnIndex(2);
+							ImGui::Text(temp_buf.Z().Cat(dtm_mod, DATF_ISO8601CENT, 0));
+						}
+					}
+				}
+				ImGui::EndTable();
+				if(enter_pressed_idx) {
+					const uint cur_idx = p_sfp_blk->GetCurrentIdx();
+					if(cur_idx && p_sfp_blk->Fep.Get(cur_idx-1, &fe, &temp_buf)) {
+						if(fe.IsFolder()) {
+							p_sfp_blk->Run(temp_buf);
+						}
+					}
 				}
 			}
 		}
 	}
 }
 
+void Kabq_ImGuiSceneBlock::Build_FsDir(SUiLayout * pParentLayout, int loId, const char * pWindowIdent)
+{
+	if(pParentLayout) {
+		uint mpmode = FilePaneBlock::Param::mpmodeDouble;//St.FpBlk.P.MpMode;
+		const int view_flags = ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoDecoration;
+		if(mpmode == FilePaneBlock::Param::mpmodeSingle) {
+			ImGuiWindowByLayout wbl(pParentLayout, /*loidContentArea*/loId, /*"##ContentArea"*/pWindowIdent, view_flags);
+			if(wbl.IsValid()) {
+				Build_FsDir2(0/*filePaneIdx*/);
+			}
+		}
+		else if(mpmode == FilePaneBlock::Param::mpmodeDouble) {
+			SUiLayout * p_lo = pParentLayout->FindById(loId);
+			if(p_lo) {
+				FRect r = p_lo->GetFrameAdjustedToParent();
+				const int double_pane_lo_id = loidContentAreaTwoPane;
+				const SUiLayout * p_lo_double_pane = Cache_Layout.Get(&double_pane_lo_id, sizeof(double_pane_lo_id));
+				if(p_lo_double_pane) {
+					SUiLayout lo_double_pane(*p_lo_double_pane);
+					SUiLayout::Param evp;
+					evp.ForceSize = r.GetSize();
+					lo_double_pane.Evaluate(&evp);
+					//
+					{
+						const SUiLayout * p_lo_left = lo_double_pane.FindByIdC(loidContentAreaTwoPane_Left);
+						ImGuiWindowByLayout wbl(p_lo_left, r.a, /*"##ContentArea"*/"##ContentAreaTwoPane_Left", view_flags);
+						if(wbl.IsValid()) {
+							if(St.FpBlk.L.getCount() < 1)
+								St.FpBlk.L.CreateNewItem();
+							assert(St.FpBlk.L.getCount() >= 1);
+							Build_FsDir2(0/*filePaneIdx*/);
+						}
+					}
+					{
+						const SUiLayout * p_lo_right = lo_double_pane.FindByIdC(loidContentAreaTwoPane_Right);
+						ImGuiWindowByLayout wbl(p_lo_right, r.a, /*"##ContentArea"*/"##ContentAreaTwoPane_Right", view_flags);
+						if(wbl.IsValid()) {
+							if(St.FpBlk.L.getCount() < 2)
+								St.FpBlk.L.CreateNewItem();
+							assert(St.FpBlk.L.getCount() >= 2);
+							Build_FsDir2(1/*filePaneIdx*/);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void Kabq_ImGuiSceneBlock::Build_HtmlParser(SUiLayout * pParentLayout, int loId, const char * pWindowIdent)
+{
+}
+
 void Kabq_ImGuiSceneBlock::BuildScene()
 {
 	BuildSceneProlog(); // Start the Dear ImGui frame
-	const int view_flags = ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoDecoration|
-		0;
+	const int view_flags = ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoDecoration;
 	ImGuiViewport * p_vp = ImGui::GetMainViewport();
 	if(p_vp) {
 		SString temp_buf;
@@ -361,23 +485,24 @@ void Kabq_ImGuiSceneBlock::BuildScene()
 		evp.ForceSize.x = sz.x;
 		evp.ForceSize.y = sz.y;
 		int   loid = loidMainFrame;
-		SUiLayout * p_tl = Cache_Layout.Get(&loid, sizeof(loid));
-		if(p_tl) {
-			p_tl->Evaluate(&evp);
+		const SUiLayout * p_tl_org = Cache_Layout.Get(&loid, sizeof(loid));
+		if(p_tl_org) {
+			SUiLayout tl(*p_tl_org); // Мы будем работать с копией оригинального лейаута поскольку нам придется ее менять в зависимости от текущего состояния //
+			tl.Evaluate(&evp);
 			{
-				ImGuiWindowByLayout wbl(p_tl, loidToolbar, "##Toolbar", view_flags);
+				ImGuiWindowByLayout wbl(&tl, loidToolbar, "##Toolbar", view_flags);
 				if(wbl.IsValid()) {
 					;
 				}
 			}
 			{
-				ImGuiWindowByLayout wbl(p_tl, loidWorkFrame, "##WorkFrame", view_flags);
+				ImGuiWindowByLayout wbl(&tl, loidWorkFrame, "##WorkFrame", view_flags);
 				if(wbl.IsValid()) {
 					;
 				}
 			}
 			{
-				ImGuiWindowByLayout wbl(p_tl, loidTopicbar, "##Topicbar", view_flags);
+				ImGuiWindowByLayout wbl(&tl, loidTopicbar, "##Topicbar", view_flags);
 				if(wbl.IsValid()) {
 					if(ImGui::Button2("Computer", P_ICD->ButtonSize_Double)) {
 						St.Topic = topicComputer;
@@ -394,16 +519,35 @@ void Kabq_ImGuiSceneBlock::BuildScene()
 					if(ImGui::Button2("Password Vault", P_ICD->ButtonSize_Double)) {
 						St.Topic = topicPasswordVault;
 					}
+					if(ImGui::Button2("Html parser", P_ICD->ButtonSize_Double)) {
+						St.Topic = topicHtmlParser;
+					}
+					if(ImGui::Button2("(debug) File Dialog", P_ICD->ButtonSize_Double)) {
+						IGFD::FileDialogConfig config;
+						config.path = ".";
+						config.sidePane = 0;
+						config.sidePaneWidth = 128.0f;
+						ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", "*.*", config);
+					}
+					if(ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
+						if(ImGuiFileDialog::Instance()->IsOk()) { // action if OK
+							std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+							std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+							// action
+						}
+    					// close
+						ImGuiFileDialog::Instance()->Close();
+					}
 				}
 			}
 			{
-				ImGuiWindowByLayout wbl(p_tl, loidContentFrame, "##ContentFrame", view_flags);
+				ImGuiWindowByLayout wbl(&tl, loidContentFrame, "##ContentFrame", view_flags);
 				if(wbl.IsValid()) {
 					;
 				}
 			}
 			{
-				ImGuiWindowByLayout wbl(p_tl, loidSearchbar, "##Searchbar", view_flags);
+				ImGuiWindowByLayout wbl(&tl, loidSearchbar, "##Searchbar", view_flags);
 				if(wbl.IsValid()) {
 					ImGui::InputText("##SearchInput", St.SiBlk.Buf, sizeof(St.SiBlk.Buf), ImGuiInputTextFlags_CallbackEdit, CbInput_Search, this);
 					St.SiBlk.ProcessInput();
@@ -419,37 +563,21 @@ void Kabq_ImGuiSceneBlock::BuildScene()
 				}
 			}
 			{
-				ImGuiWindowByLayout wbl(p_tl, loidContentArea, "##ContentArea", view_flags);
-				if(wbl.IsValid()) {
-					if(St.Topic == topicComputer) {
-						if(!St.DirBlk.IsInited) {
-							if(!GetKnownFolderPath(UED_FSKNOWNFOLDER_COMPUTER, temp_buf))
-								if(!GetKnownFolderPath(UED_FSKNOWNFOLDER_STARTUP, temp_buf))
-									if(!GetKnownFolderPath(UED_FSKNOWNFOLDER_DESKTOP, temp_buf))
-										temp_buf = "c:\\";
-							St.DirBlk.Run(temp_buf);
-							View_FsDir();
-						}
-						else {
-							St.DirBlk.Run(0);
-							View_FsDir();
-						}
-						/*if(St.DirBlk.IsInited) {
-							St.DirBlk.Run(0);
-							View_FsDir();
-						}
-						else if(SFile::IsDir(St.SiBlk.Buf)) {
-							St.DirBlk.Run(St.SiBlk.Buf);
-							View_FsDir();
-						}*/
-					}
-					else {
+				if(St.Topic == topicComputer) {
+					Build_FsDir(&tl, loidContentArea, "##ContentArea");
+				}
+				else if(St.Topic == topicHtmlParser) {
+					Build_HtmlParser(&tl, loidContentArea, "##ContentArea");
+				}
+				else {
+					ImGuiWindowByLayout wbl(&tl, loidContentArea, "##ContentArea", view_flags);
+					if(wbl.IsValid()) {
 						ImGui::Text("Under construction...");
 					}
 				}
 			}
 			{
-				ImGuiWindowByLayout wbl(p_tl, loidStatusbar, "##Statusbar", view_flags);
+				ImGuiWindowByLayout wbl(&tl, loidStatusbar, "##Statusbar", view_flags);
 				if(wbl.IsValid()) {
 					;
 				}

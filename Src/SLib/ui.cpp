@@ -826,83 +826,75 @@ SString & SColorSet::ComplexColorBlock::ToStr(SString & rBuf) const
 int SColorSet::Helper_ParsePrimitive(SStrScan & rScan, ColorArg & rItem) const
 {
 	rItem.Z();
-	int    ok = 0;
+	int    ok = 1;
 	bool   debug_mark = false;
 	bool   syntax_err = false;
 	SString temp_buf;
 	rScan.Skip();
-	if(rScan[0] == '#') {
+	if(rScan.GetNumber(temp_buf)) {
+		rItem.F = static_cast<float>(temp_buf.ToReal_Plain());
+		ok = 2;
+	}
+	else if(rScan[0] == '#') {
 		rScan.Incr();
 		rScan.GetUntil('|', temp_buf);
 		temp_buf.Insert(0, "#");
-		if(rItem.C.FromStr(temp_buf))
-			ok = 1;			
-		else
-			syntax_err = true;
-		/*if(rScan.GetIdent(temp_buf)) {
-			// именованный цвет	
-			if(rItem.C.FromStr(temp_buf))
-				ok = 1;			
-		}
-		else 
-				syntax_err = true;*/
-		if(!syntax_err) {
-			if(rScan[0] == '|') {
-				// alpha
-				rScan.Incr();
-				if(rScan.GetNumber(temp_buf)) {
-					double alpha = temp_buf.ToReal();
-					if(alpha > 1.0 && alpha < 256.0)
-						rItem.C.SetAlpha(static_cast<uint8>(alpha));
-					else if(alpha >= 0.0 && alpha <= 1.0)
-						rItem.C.SetAlphaF(static_cast<float>(alpha));
-					else {
-						ok = 0; // @todo @err
-					}
-					if(ok && rItem.C.IsEmpty()) {
-						// Эксклюзивный случай: валидное текстовое представление цвета
-						// определяет пустое с точки зрения slib значение {0,0,0,0}
-						// для того, что бы другие слои подсистемы не трактовали его
-						// как инвалидное определим alpha как 1, что в реальности 
-						// почти не отличается от нуля (я, по крайней мере, так надеюсь).
-						//rItem.C.Alpha = 1;
-						debug_mark = true;
-					}
-				}
+		THROW(rItem.C.FromStr(temp_buf)); // @todo @err
+		if(rScan[0] == '|') {
+			// alpha
+			rScan.Incr();
+			THROW(rScan.GetNumber(temp_buf)); // @todo @err (alpha value needed)
+			const double alpha = temp_buf.ToReal_Plain();
+			if(alpha > 1.0 && alpha < 256.0)
+				rItem.C.SetAlpha(static_cast<uint8>(alpha));
+			else if(alpha >= 0.0 && alpha <= 1.0)
+				rItem.C.SetAlphaF(static_cast<float>(alpha));
+			else {
+				CALLEXCEPT(); // @todo @err (invalid alpha value)
+			}
+			if(rItem.C.IsEmpty()) {
+				// Эксклюзивный случай: валидное текстовое представление цвета
+				// определяет пустое с точки зрения slib значение {0,0,0,0}
+				// для того, что бы другие слои подсистемы не трактовали его
+				// как инвалидное определим alpha как 1, что в реальности 
+				// почти не отличается от нуля (я, по крайней мере, так надеюсь).
+				//rItem.C.Alpha = 1;
+				debug_mark = true;
 			}
 		}
 	}
 	else if(rScan[0] == '$') {
 		rScan.Incr();
-		if(rScan.GetIdent(temp_buf)) {
-			// ссылка на другой цвет набора
-			rItem.RefSymb = temp_buf;
-			ok = 1;
-			if(rScan[0] == '|') {
-				// alpha
-				rScan.Incr();
-				if(rScan.GetNumber(temp_buf)) {
-					double alpha = temp_buf.ToReal();
-					if(alpha > 1.0 && alpha < 256.0)
-						rItem.C.SetAlpha(static_cast<uint8>(alpha));
-					else if(alpha >= 0.0 && alpha <= 1.0)
-						rItem.C.SetAlphaF(static_cast<float>(alpha));
-					else {
-						ok = 0; // @todo @err
-					}
-				}				
-			}
-			ok = 3;
+		THROW(rScan.GetIdent(temp_buf)); // @todo @err (invalid color ref symb)
+		// ссылка на другой цвет набора
+		if(rScan[0] == '.') {
+			rScan.Incr();
+			const SString set_symb(temp_buf);
+			THROW(rScan.GetIdent(temp_buf)); // @todo @err (invalid colorset symb)
+			(rItem.RefSymb = set_symb).Dot().Cat(temp_buf);
 		}
 		else {
-			syntax_err = true;
-			// @todo @err
+			rItem.RefSymb = temp_buf;
 		}
+		if(rScan[0] == '|') {
+			// alpha
+			rScan.Incr();
+			THROW(rScan.GetNumber(temp_buf)); // @todo @err (alpha value needed)
+			const double alpha = temp_buf.ToReal_Plain();
+			if(alpha > 1.0 && alpha < 256.0)
+				rItem.C.SetAlpha(static_cast<uint8>(alpha));
+			else if(alpha >= 0.0 && alpha <= 1.0)
+				rItem.C.SetAlphaF(static_cast<float>(alpha));
+			else {
+				CALLEXCEPT(); // @todo @err (invalid alpha value)
+			}
+		}
+		ok = 3;
 	}
-	else if(rScan.GetNumber(temp_buf)) {
-		rItem.F = static_cast<float>(temp_buf.ToReal_Plain());
-		ok = 2;
+	else {
+		CALLEXCEPT(); // @todo @err (syntax error)
 	}
+	CATCHZOK
 	return ok;
 }
 
@@ -1015,7 +1007,7 @@ int SColorSet::ParseComplexColorBlock(const char * pText, ComplexColorBlock & rB
 	return ok;
 }
 
-int SColorSet::Resolve()
+int SColorSet::Resolve(const TSCollection <SColorSet> * pSetList)
 {
 	int    ok = 1;
 	if(State & stateResolved) {
@@ -1030,7 +1022,7 @@ int SColorSet::Resolve()
 					if(p_ccb) {
 						SColor c;
 						StringSet recur_symb_list;
-						if(ResolveComplexColorBlock(*p_ccb, c, recur_symb_list)) {
+						if(ResolveComplexColorBlock(*p_ccb, pSetList, c, recur_symb_list)) {
 							p_entry->C = c;
 						}
 						else {
@@ -1056,7 +1048,7 @@ int SColorSet::Resolve()
 	return ok;
 }
 
-int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, SColor & rC, StringSet & rRecurSymbList) const
+int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, const TSCollection <SColorSet> * pSetList, SColor & rC, StringSet & rRecurSymbList) const
 {
 	int    ok = 1;
 	if(rBlk.Func) {
@@ -1078,7 +1070,7 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, SColor &
 							arg1_c = p_arg->C;
 						}
 						else if(argt == argtRefColor) {
-							THROW(Helper_Get(p_arg->RefSymb, arg1_c, &rRecurSymbList));
+							THROW(Helper_Get(p_arg->RefSymb, pSetList, arg1_c, &rRecurSymbList));
 						}
 						else {
 							CALLEXCEPT(); // @todo @err
@@ -1092,7 +1084,7 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, SColor &
 							arg2_c = p_arg->C;
 						}
 						else if(argt == argtRefColor) {
-							THROW(Helper_Get(p_arg->RefSymb, arg2_c, &rRecurSymbList));
+							THROW(Helper_Get(p_arg->RefSymb, pSetList, arg2_c, &rRecurSymbList));
 						}
 						else {
 							CALLEXCEPT(); // @todo @err
@@ -1125,7 +1117,7 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, SColor &
 							arg1_c = p_arg->C;
 						}
 						else if(argt == argtRefColor) {
-							THROW(Helper_Get(p_arg->RefSymb, arg1_c, &rRecurSymbList));
+							THROW(Helper_Get(p_arg->RefSymb, pSetList, arg1_c, &rRecurSymbList));
 						}
 						else {
 							CALLEXCEPT(); // @todo @err
@@ -1157,7 +1149,7 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, SColor &
 							arg1_c = p_arg->C;
 						}
 						else if(argt == argtRefColor) {
-							THROW(Helper_Get(p_arg->RefSymb, arg1_c, &rRecurSymbList));
+							THROW(Helper_Get(p_arg->RefSymb, pSetList, arg1_c, &rRecurSymbList));
 						}
 						else {
 							CALLEXCEPT(); // @todo @err
@@ -1200,7 +1192,7 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, SColor &
 		}
 	}
 	else if(rBlk.RefSymb.NotEmpty()) {
-		THROW(Helper_Get(rBlk.RefSymb, rC, &rRecurSymbList));
+		THROW(Helper_Get(rBlk.RefSymb, pSetList, rC, &rRecurSymbList));
 		{
 			float alpha = rBlk.C.AlphaF();
 			if(alpha > 0.0f)
@@ -1249,6 +1241,26 @@ SJson * SColorSet::ToJsonObj() const
 	}
 	return p_result;
 }
+
+bool SColorSet::ValidateRefs(const TSCollection <SColorSet> * pSetList) const
+{
+	// Проверка ссылок во всем наборе:
+	// -- символы, на которые ссылаются элементы должны существовать
+	// -- не должно быть рекурсивных зависимостей
+	// все проверки сделает функция Get() - она должна для каждого элемента набора вычислить эффективный цвет и вернуть значение больше нуля.
+	bool   ok = true;
+	SString temp_buf;
+	InnerEntry * p_entry = 0;
+	for(uint idx = 0; L.Enum(&idx, &p_entry);) {
+		if(p_entry) {
+			SColor c;
+			GetS(p_entry->SymbP, temp_buf);
+			THROW(Get(temp_buf, pSetList, c) > 0);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
 	
 int SColorSet::FromJsonObj(const SJson * pJs)
 {
@@ -1271,20 +1283,8 @@ int SColorSet::FromJsonObj(const SJson * pJs)
 			}
 		}
 	}
-	{
-		// Теперь мы должны проверить ссылка во всем наборе:
-		// -- символы, на которые ссылаются элементы должны существовать
-		// -- не должно быть рекурсивных зависимостей
-		// все проверки сделает функция Get() - она должна для каждого элемента набора вычислить эффективный цвет и вернуть значение больше нуля.
-		InnerEntry * p_entry = 0;
-		for(uint idx = 0; L.Enum(&idx, &p_entry);) {
-			if(p_entry) {
-				SColor c;
-				GetS(p_entry->SymbP, symb_buf);
-				THROW(Get(symb_buf, c) > 0);
-			}
-		}
-	}
+	// Теперь мы должны проверить ссылки во всем наборе
+	// @v11.9.10 (проверка выполняется в экземпляре UiDescription после загрузки всех цветовых наборов) THROW(ValidateRefs(pSetList));
 	CATCHZOK
 	return ok;
 }
@@ -1324,11 +1324,13 @@ int SColorSet::Put(const char * pSymb, ComplexColorBlock * pBlk)
 	return ok;
 }
 
-int SColorSet::Get(const char * pSymb, ComplexColorBlock * pBlk) const
+int SColorSet::Get(const char * pSymb, const TSCollection <SColorSet> * pSetList, ComplexColorBlock * pBlk) const
 {
 	int    ok = -1;
-	//SColor c(ZEROCOLOR);
 	if(!isempty(pSymb)) {
+		if(sstrchr(pSymb, '.')) {
+			
+		}
 		SString & r_key_buf = SLS.AcquireRvlStr();
 		r_key_buf.Cat(pSymb).Utf8ToLower();
 		const InnerEntry * p_entry = L.Get(r_key_buf.cptr(), r_key_buf.Len());
@@ -1354,7 +1356,7 @@ int SColorSet::Get(const char * pSymb, ComplexColorBlock * pBlk) const
 	return ok;
 }
 
-int SColorSet::Helper_Get(const char * pSymb, SColor & rC, StringSet * pRecurSymbList) const
+int SColorSet::Helper_Get(const char * pSymb, const TSCollection <SColorSet> * pSetList, SColor & rC, StringSet * pRecurSymbList) const
 {
 	int    ok = 1;
 	ComplexColorBlock blk;
@@ -1367,7 +1369,7 @@ int SColorSet::Helper_Get(const char * pSymb, SColor & rC, StringSet * pRecurSym
 	if(ok > 0) {
 		StringSet ss_recur;
 		StringSet * p_recur_symb_list = NZOR(pRecurSymbList, &ss_recur);
-		ok = ResolveComplexColorBlock(blk, c, *p_recur_symb_list);
+		ok = ResolveComplexColorBlock(blk, pSetList, c, *p_recur_symb_list);
 	}
 	CATCHZOK
 	rC = c;
@@ -1398,9 +1400,9 @@ bool FASTCALL SColorSet::IsInnerEntryEq(const InnerEntry & rE1, const SColorSet 
 	return eq;
 }
 	
-int SColorSet::Get(const char * pSymb, SColor & rC) const
+int SColorSet::Get(const char * pSymb, const TSCollection <SColorSet> * pSetList, SColor & rC) const
 {
-	return Helper_Get(pSymb, rC, 0);
+	return Helper_Get(pSymb, pSetList, rC, 0);
 }
 //
 //
@@ -1655,6 +1657,8 @@ bool FASTCALL UiDescription::IsEq(const UiDescription & rS) const
 	bool eq = true;
 	if(!TSCollection_IsEq(&FontList, &rS.FontList))
 		eq = false;
+	if(!TSCollection_IsEq(&FontDescrList, &rS.FontDescrList))
+		eq = false;
 	else if(!TSCollection_IsEq(&ClrList, &rS.ClrList))	
 		eq = false;
 	else if(!TSCollection_IsEq(&LoList, &rS.LoList))	
@@ -1665,6 +1669,7 @@ bool FASTCALL UiDescription::IsEq(const UiDescription & rS) const
 UiDescription & UiDescription::Copy(const UiDescription & rS)
 {
 	TSCollection_Copy(FontList, rS.FontList);
+	TSCollection_Copy(FontDescrList, rS.FontDescrList); // @v11.9.10
 	TSCollection_Copy(ClrList, rS.ClrList);
 	TSCollection_Copy(LoList, rS.LoList);
 	SourceFileName = rS.SourceFileName; // @v11.9.7
@@ -1672,7 +1677,7 @@ UiDescription & UiDescription::Copy(const UiDescription & rS)
 }
 
 void  UiDescription::SetSourceFileName(const char * pFileName) { SourceFileName = pFileName; }
-const const char * UiDescription::GetSourceFileName() const { return SourceFileName; }
+const char * UiDescription::GetSourceFileName() const { return SourceFileName; }
 
 SColorSet * UiDescription::GetColorSet(const char * pCsSymb)
 {
@@ -1688,6 +1693,45 @@ const SColorSet * UiDescription::GetColorSetC(const char * pCsSymb) const
 			p_result = p_cset;
 	}
 	return p_result;
+}
+
+int UiDescription::GetColor(const SColorSet * pColorSet, const char * pColorSymb, SColor & rC) const
+{
+	return pColorSet ? pColorSet->Get(pColorSymb, &ClrList, rC) : 0;
+}
+
+SColor UiDescription::GetColorR(const SColorSet * pColorSet, const char * pColorSymb, const SColor defaultC) const
+{
+	SColor result;
+	if(!GetColor(pColorSet, pColorSymb, result))
+		result = defaultC;
+	return result;
+}
+
+/*static*/SColor UiDescription::GetColorR(const UiDescription * pUid, const SColorSet * pColorSet, const char * pColorSymb, const SColor defaultC)
+{
+	SColor result;
+	if(!pUid || !pUid->GetColor(pColorSet, pColorSymb, result))
+		result = defaultC;
+	return result;
+}
+
+int UiDescription::GetColor(const char * pColorSetSymb, const char * pColorSymb, SColor & rC) const
+{
+	return GetColor(GetColorSetC(pColorSetSymb), pColorSymb, rC);
+}
+
+bool UiDescription::ValidateColorSetList()
+{
+	bool   ok = true;
+	for(uint i = 0; i < ClrList.getCount(); i++) {
+		const SColorSet * p_set = ClrList.at(i);
+		if(p_set) {
+			if(!p_set->ValidateRefs(&ClrList))
+				ok = false;
+		}
+	}
+	return ok;
 }
 
 const SFontSource * UiDescription::GetFontSourceC(const char * pSymb) const
@@ -1796,6 +1840,7 @@ int UiDescription::FromJsonObj(const SJson * pJsObj)
 						THROW(p_item);								
 						THROW(p_item->FromJsonObj(p_js_inner));
 					}
+					THROW(ValidateColorSetList());
 				}
 			}
 			else if(p_jsn->Text.IsEqiAscii("layout_list")) {

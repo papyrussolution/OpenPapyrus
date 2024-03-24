@@ -289,7 +289,7 @@ static int add1_headers(OSSL_HTTP_REQ_CTX * rctx, const STACK_OF(CONF_VALUE) * h
 	CONF_VALUE * hdr;
 	for(i = 0; i < sk_CONF_VALUE_num(headers); i++) {
 		hdr = sk_CONF_VALUE_value(headers, i);
-		if(add_host && strcasecmp("host", hdr->name) == 0)
+		if(add_host && sstreqi_ascii("host", hdr->name))
 			add_host = 0;
 		if(!OSSL_HTTP_REQ_CTX_add1_header(rctx, hdr->name, hdr->value))
 			return 0;
@@ -604,27 +604,25 @@ next_line:
 				    *line_end = '\0';
 		    }
 		    if(value != NULL && line_end != NULL) {
-			    if(rctx->state == OHS_REDIRECT && strcasecmp(key, "Location") == 0) {
+			    if(rctx->state == OHS_REDIRECT && sstreqi_ascii(key, "Location")) {
 				    rctx->redirection_url = value;
 				    return 0;
 			    }
-			    if(rctx->expected_ct != NULL && strcasecmp(key, "Content-Type") == 0) {
+			    if(rctx->expected_ct != NULL && sstreqi_ascii(key, "Content-Type")) {
 				    if(strcasecmp(rctx->expected_ct, value) != 0) {
-					    ERR_raise_data(ERR_LIB_HTTP, HTTP_R_UNEXPECTED_CONTENT_TYPE,
-						"expected=%s, actual=%s",
-						rctx->expected_ct, value);
+					    ERR_raise_data(ERR_LIB_HTTP, HTTP_R_UNEXPECTED_CONTENT_TYPE, "expected=%s, actual=%s", rctx->expected_ct, value);
 					    return 0;
 				    }
 				    found_expected_ct = 1;
 			    }
 			    /* https://tools.ietf.org/html/rfc7230#section-6.3 Persistence */
-			    if(strcasecmp(key, "Connection") == 0) {
-				    if(strcasecmp(value, "keep-alive") == 0)
+			    if(sstreqi_ascii(key, "Connection")) {
+				    if(sstreqi_ascii(value, "keep-alive"))
 					    found_keep_alive = 1;
-				    else if(strcasecmp(value, "close") == 0)
+				    else if(sstreqi_ascii(value, "close"))
 					    found_keep_alive = 0;
 			    }
-			    else if(strcasecmp(key, "Content-Length") == 0) {
+			    else if(sstreqi_ascii(key, "Content-Length")) {
 				    resp_len = (size_t)strtoul(value, &line_end, 10);
 				    if(line_end == value || *line_end != '\0') {
 					    ERR_raise_data(ERR_LIB_HTTP,

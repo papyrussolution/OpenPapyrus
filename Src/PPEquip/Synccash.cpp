@@ -466,7 +466,7 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, int uomId, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult)
 {
 	int    ok = -1;
-	if(op == 100) { // 100 - предварителные операции перед проверкой марок по чеку. Может быть актуально для некоторых типов регистраторов.
+	if(op == 100) { // 100 - предварительные операции перед проверкой марок по чеку. Может быть актуально для некоторых типов регистраторов.
 		;
 	}
 	// @v11.9.4 {

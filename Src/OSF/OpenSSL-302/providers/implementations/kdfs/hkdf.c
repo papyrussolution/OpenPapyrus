@@ -160,16 +160,11 @@ static int kdf_hkdf_derive(void * vctx, unsigned char * key, size_t keylen,
 	switch(ctx->mode) {
 		case EVP_KDF_HKDF_MODE_EXTRACT_AND_EXPAND:
 		default:
-		    return HKDF(libctx, md, ctx->salt, ctx->salt_len,
-			       ctx->key, ctx->key_len, ctx->info, ctx->info_len, key, keylen);
-
+		    return HKDF(libctx, md, ctx->salt, ctx->salt_len, ctx->key, ctx->key_len, ctx->info, ctx->info_len, key, keylen);
 		case EVP_KDF_HKDF_MODE_EXTRACT_ONLY:
-		    return HKDF_Extract(libctx, md, ctx->salt, ctx->salt_len,
-			       ctx->key, ctx->key_len, key, keylen);
-
+		    return HKDF_Extract(libctx, md, ctx->salt, ctx->salt_len, ctx->key, ctx->key_len, key, keylen);
 		case EVP_KDF_HKDF_MODE_EXPAND_ONLY:
-		    return HKDF_Expand(md, ctx->key, ctx->key_len, ctx->info,
-			       ctx->info_len, key, keylen);
+		    return HKDF_Expand(md, ctx->key, ctx->key_len, ctx->info, ctx->info_len, key, keylen);
 	}
 }
 
@@ -181,19 +176,17 @@ static int hkdf_common_set_ctx_params(KDF_HKDF * ctx, const OSSL_PARAM params[])
 
 	if(!params)
 		return 1;
-
 	if(!ossl_prov_digest_load_from_params(&ctx->digest, params, libctx))
 		return 0;
-
 	if((p = OSSL_PARAM_locate_const(params, OSSL_KDF_PARAM_MODE)) != NULL) {
 		if(p->data_type == OSSL_PARAM_UTF8_STRING) {
-			if(strcasecmp((const char *)p->data, "EXTRACT_AND_EXPAND") == 0) {
+			if(sstreqi_ascii((const char *)p->data, "EXTRACT_AND_EXPAND")) {
 				ctx->mode = EVP_KDF_HKDF_MODE_EXTRACT_AND_EXPAND;
 			}
-			else if(strcasecmp((const char *)p->data, "EXTRACT_ONLY") == 0) {
+			else if(sstreqi_ascii((const char *)p->data, "EXTRACT_ONLY")) {
 				ctx->mode = EVP_KDF_HKDF_MODE_EXTRACT_ONLY;
 			}
-			else if(strcasecmp((const char *)p->data, "EXPAND_ONLY") == 0) {
+			else if(sstreqi_ascii((const char *)p->data, "EXPAND_ONLY")) {
 				ctx->mode = EVP_KDF_HKDF_MODE_EXPAND_ONLY;
 			}
 			else {
