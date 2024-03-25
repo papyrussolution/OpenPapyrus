@@ -97,7 +97,7 @@ namespace NArchive {
 		/*
 		   static bool IsEmptyData(const char *buf, size_t size)
 		   {
-		   for(unsigned i = 0; i < size; i++)
+		   for(uint i = 0; i < size; i++)
 			if(buf[i] != 0)
 			  return false;
 		   return true;

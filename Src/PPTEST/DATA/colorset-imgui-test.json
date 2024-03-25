@@ -2,6 +2,25 @@
 	"symb": "ui",
 	"colorset_list": [
 		{
+			"symb": "testset01",
+			"a": "#white",
+			"b": "#green"
+		},
+		{
+			"symb": "testset02",
+			"a": "#black",
+			"b": "#blue"
+		},
+		{
+			"symb": "testset03",
+			"a1": "$testset01.a",
+			"b1": "$testset01.b",
+			"a2": "$testset02.a",
+			"b2": "$testset02.b",
+			"x": "$testset03.a1",
+			"y": "$a2"
+		},
+		{
 			"symb": "imgui-style",
 			"Text": "#rgb(1.00, 1.00, 1.00)",
 			"TextDisabled": "#rgb(0.50, 0.50, 0.50)",

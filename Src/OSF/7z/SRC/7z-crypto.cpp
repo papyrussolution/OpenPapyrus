@@ -988,7 +988,7 @@ namespace NCrypto {
 		HRESULT CDecoder::SetDecoderProps(const Byte * p, uint size, bool includeIV, bool isService)
 		{
 			uint64 Version;
-			unsigned num = ReadVarInt(p, size, &Version);
+			uint num = ReadVarInt(p, size, &Version);
 			if(num == 0)
 				return E_NOTIMPL;
 			p += num;

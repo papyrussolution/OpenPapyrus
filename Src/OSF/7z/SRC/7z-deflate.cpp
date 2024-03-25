@@ -414,7 +414,7 @@ namespace NCompress {
 					minCount = 3;
 				}
 				for(uint n = 0; n < numLevels; n++) {
-					unsigned curLen = nextLen;
+					uint curLen = nextLen;
 					nextLen = (n < numLevels - 1) ? levels[(size_t)n + 1] : 0xFF;
 					count++;
 					if(count < maxCount && curLen == nextLen)
@@ -450,7 +450,7 @@ namespace NCompress {
 				}
 			}
 
-			NO_INLINE void CCoder::WriteBits(uint32 value, unsigned numBits)
+			NO_INLINE void CCoder::WriteBits(uint32 value, uint numBits)
 			{
 				m_OutStream.WriteBits(value, numBits);
 			}
@@ -1054,7 +1054,7 @@ namespace NCompress {
 							sym -= kSymbolMatch;
 							uint32 len;
 							{
-								unsigned numBits;
+								uint numBits;
 								if(_deflate64Mode) {
 									len = kLenStart64[sym];
 									numBits = kLenDirectBits64[sym];

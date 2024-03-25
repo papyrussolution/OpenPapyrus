@@ -82,7 +82,7 @@ HRESULT CHashCallbackConsole::SetCompleted(const uint64 * completeValue)
 	return CheckBreak2();
 }
 
-static void AddMinuses(AString &s, unsigned num)
+static void AddMinuses(AString &s, uint num)
 {
 	for(uint i = 0; i < num; i++)
 		s += '-';
@@ -94,7 +94,7 @@ static void AddSpaces_if_Positive(AString &s, int num)
 		s.Add_Space();
 }
 
-static void SetSpacesAndNul(char * s, unsigned num)
+static void SetSpacesAndNul(char * s, uint num)
 {
 	for(uint i = 0; i < num; i++)
 		s[i] = ' ';

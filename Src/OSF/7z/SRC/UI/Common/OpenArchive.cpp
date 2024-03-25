@@ -2129,7 +2129,7 @@ HRESULT CArc::OpenStream2(const COpenOptions &op)
 			// ---------- Open Loop for Current Pos ----------
 			bool wasOpen = false;
 			for(;;) {
-				unsigned index;
+				uint index;
 				bool isDifficult;
 				if(needCheckStartOpen && indexOfDifficult < difficultFormats.Size()) {
 					index = difficultFormats[indexOfDifficult++];

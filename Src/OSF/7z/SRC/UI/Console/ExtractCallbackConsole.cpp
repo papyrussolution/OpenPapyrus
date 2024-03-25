@@ -56,7 +56,7 @@ void PrintSize_bytes_Smart(AString &s, uint64 val)
 {
 	Print_UInt64_and_String(s, val, "bytes");
 	if(val) {
-		unsigned numBits = 10;
+		uint numBits = 10;
 		char c = 'K';
 		char temp[4] = { 'K', 'i', 'B', 0 };
 		if(val >= ((uint64)10 << 30)) {

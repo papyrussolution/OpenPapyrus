@@ -62,7 +62,7 @@ namespace NCommandLineParser {
 		if(s.IsEmpty() || !IsItSwitchChar(s[0]))
 			return false;
 
-		unsigned pos = 1;
+		uint pos = 1;
 		unsigned switchIndex = 0;
 		int maxLen = -1;
 

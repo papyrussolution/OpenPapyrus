@@ -46,7 +46,7 @@ namespace NCompress {
 			Byte * GetStream() const;
 			void   Init();
 			void   Flush();
-			void   WriteBits(uint32 value, unsigned numBits);
+			void   WriteBits(uint32 value, uint numBits);
 			uint32 GetBytePos() const;
 			uint32 GetPos() const;
 			Byte   GetCurByte() const;
@@ -361,7 +361,7 @@ namespace NCompress {
 				WriteByte2(((Byte)(v >> (24 - i * 8))));
 		}
 
-		void CEncoder::WriteBits(uint32 value, unsigned numBits) { m_OutStream.WriteBits(value, numBits); }
+		void CEncoder::WriteBits(uint32 value, uint numBits) { m_OutStream.WriteBits(value, numBits); }
 		void CEncoder::WriteByte(Byte b) { WriteBits(b, 8); }
 
 		// void CEncoder::WriteBit(Byte v) { WriteBits(v, 1); }
@@ -1225,7 +1225,7 @@ namespace NCompress {
 							state5 = 0;
 						}
 						/*
-						   for(unsigned i = state4; i < kMaxAlphaSize; i++)
+						   for(uint i = state4; i < kMaxAlphaSize; i++)
 						   lens[i] = 0;
 						 */
 						if(!huffs[state2].BuildFull(lens, state4))
@@ -1408,7 +1408,7 @@ namespace NCompress {
 
 		  #ifdef BZIP2_BYTE_MODE
 
-			unsigned c = ((const Byte *)(tt + kBlockSizeMax))[0];
+			uint c = ((const Byte *)(tt + kBlockSizeMax))[0];
 
 			for(uint32 i = 0; i < blockSize; i++) {
 				unsigned c1 = c;
@@ -1428,9 +1428,7 @@ namespace NCompress {
 			 */
 
 		  #else
-
-			unsigned c = (uint)(tt[0] & 0xFF);
-
+			uint c = (uint)(tt[0] & 0xFF);
 			for(uint32 i = 0; i < blockSize; i++) {
 				unsigned c1 = c;
 				const uint32 pos = counters[c];

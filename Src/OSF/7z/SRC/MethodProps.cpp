@@ -98,7 +98,7 @@ static HRESULT StringToDictSize(const UString &s, NCOM::CPropVariant &destProp)
 			destProp = (uint64)((uint64)1 << (uint)number);
 		return S_OK;
 	}
-	unsigned numBits;
+	uint numBits;
 	switch(MyCharLower_Ascii(s[numDigits])) {
 		case 'b': destProp = number; return S_OK;
 		case 'k': numBits = 10; break;

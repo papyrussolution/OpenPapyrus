@@ -14,7 +14,7 @@ namespace NArchive {
 	namespace NPpmd {
 		static const uint32 kHeaderSize = 16;
 		static const uint32 kSignature = 0x84ACAF8F;
-		static const unsigned kNewHeaderVer = 8;
+		static const uint kNewHeaderVer = 8;
 
 		struct CItem {
 			uint32 Attrib;

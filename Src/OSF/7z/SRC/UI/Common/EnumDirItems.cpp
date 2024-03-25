@@ -250,7 +250,7 @@ static HRESULT EnumerateDirItems_Spec(const NWildcard::CCensorNode &curNode, int
 {
 	const FString name2 = curFolderName + FCHAR_PATH_SEPARATOR;
 	unsigned parent = dirItems.AddPrefix(phyParent, logParent, fs2us(name2));
-	unsigned numItems = dirItems.Items.Size();
+	uint numItems = dirItems.Items.Size();
 	HRESULT res = EnumerateDirItems(curNode, parent, parent, phyPrefix + name2, addArchivePrefix, dirItems, enterToSubFolders);
 	if(numItems == dirItems.Items.Size())
 		dirItems.DeleteLastPrefix();

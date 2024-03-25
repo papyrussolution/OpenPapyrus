@@ -30,7 +30,7 @@ void CPercentPrinterState::ClearCurState()
 
 void CPercentPrinter::ClosePrint(bool needFlush)
 {
-	unsigned num = _printedString.Len();
+	uint num = _printedString.Len();
 	if(num != 0) {
 		uint i;
 

@@ -208,7 +208,7 @@ bool ReadNamesFromListFile(CFSTR fileName, UStringVector &strings, UINT codePage
 		if(processed != fileSize)
 			return false;
 		file.Close();
-		unsigned num = (uint)fileSize / 2;
+		uint num = (uint)fileSize / 2;
 		wchar_t * p = u.GetBuf(num);
 		if(codePage == MY__CP_UTF16)
 			for(uint i = 0; i < num; i++) {
@@ -251,7 +251,7 @@ bool ReadNamesFromListFile(CFSTR fileName, UStringVector &strings, UINT codePage
 	const wchar_t kGoodBOM = 0xFEFF;
 	const wchar_t kBadBOM  = 0xFFFE;
 	UString s;
-	unsigned i = 0;
+	uint i = 0;
 	for(; i < u.Len() && u[i] == kGoodBOM; i++) ;
 	for(; i < u.Len(); i++) {
 		wchar_t c = u[i];
@@ -321,7 +321,7 @@ void ConvertUInt64ToOct(uint64 val, char * s) throw()
 	}
 	s[i] = 0;
 	do {
-		unsigned t = (uint)(val & 0x7);
+		uint t = (uint)(val & 0x7);
 		val >>= 3;
 		s[--i] = (char)('0' + t);
 	} while(i);
@@ -329,7 +329,7 @@ void ConvertUInt64ToOct(uint64 val, char * s) throw()
 
 #define GET_HEX_CHAR(t) ((char)(((t < 10) ? ('0' + t) : ('A' + (t - 10)))))
 
-static inline char GetHexChar(unsigned t) { return GET_HEX_CHAR(t); }
+static inline char GetHexChar(uint t) { return GET_HEX_CHAR(t); }
 
 void ConvertUInt32ToHex(uint32 val, char * s) throw()
 {
@@ -371,7 +371,7 @@ void ConvertUInt32ToHex8Digits(uint32 val, char * s) throw()
 	for(int i = 7; i >= 0; i--) {
 		uint   t = val & 0xF;
 		val >>= 4;
-		s[i] = GET_HEX_CHAR(t);;
+		s[i] = GET_HEX_CHAR(t);
 	}
 }
 /*
@@ -379,7 +379,7 @@ void ConvertUInt32ToHex8Digits(uint32 val, char * s) throw()
    {
    s[8] = 0;
    for(int i = 7; i >= 0; i--) {
-    unsigned t = val & 0xF;
+    uint t = val & 0xF;
     val >>= 4;
     s[i] = (wchar_t)(((t < 10) ? ('0' + t) : ('A' + (t - 10))));
    }
@@ -506,7 +506,7 @@ uint32 ConvertOctStringToUInt32(const char * s, const char ** end) throw()
 	ASSIGN_PTR(end, s);
 	uint32 res = 0;
 	for(;; s++) {
-		unsigned c = (uchar)*s;
+		uint c = (uchar)*s;
 		if(c < '0' || c > '7') {
 			ASSIGN_PTR(end, s);
 			return res;
@@ -1081,7 +1081,7 @@ UString Get_Correct_FsFile_Name(const UString &name)
 
 void Correct_FsPath(bool absIsAllowed, UStringVector &parts, bool isDir)
 {
-	unsigned i = 0;
+	uint i = 0;
 	if(absIsAllowed) {
     #if defined(_WIN32) && !defined(UNDER_CE)
 		bool isDrive = false;

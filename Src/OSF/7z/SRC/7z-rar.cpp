@@ -582,7 +582,7 @@ namespace NCompress {
 				}
 				else {
 					if(sym == kTableLevelRepNumber) {
-						unsigned num = ReadBits(2) + 3;
+						uint num = ReadBits(2) + 3;
 						if(i == 0) {
 							// return false;
 							continue; // original unRAR
@@ -598,7 +598,7 @@ namespace NCompress {
 						while(i < num);
 					}
 					else {
-						unsigned num;
+						uint num;
 						if(sym == kTableLevel0Number)
 							num = ReadBits(3) + 3;
 						else if(sym == kTableLevel0Number2)
@@ -3140,7 +3140,7 @@ namespace NCompress {
 			checkSum ^= flags;
 			uint32 blockSize;
 			{
-				unsigned num = (flags >> 3) & 3;
+				uint num = (flags >> 3) & 3;
 				if(num == 3)
 					return S_FALSE;
 				blockSize = _bitStream.ReadByteInAligned();
@@ -3174,7 +3174,7 @@ namespace NCompress {
 					_bitStream.Prepare();
 					uint len = (uint)_bitStream.ReadBits9fix(4);
 					if(len == 15) {
-						unsigned num = (uint)_bitStream.ReadBits9fix(4);
+						uint num = (uint)_bitStream.ReadBits9fix(4);
 						if(num != 0) {
 							num += 2;
 							num += i;
@@ -3193,7 +3193,7 @@ namespace NCompress {
 				RIF(m_LevelDecoder.Build(lens2));
 			}
 			Byte lens[kTablesSizesSum];
-			unsigned i = 0;
+			uint i = 0;
 			while(i < kTablesSizesSum) {
 				if(_bitStream._buf >= _bitStream._bufCheck2) {
 					if(_bitStream._buf >= _bitStream._bufCheck)
@@ -3209,7 +3209,7 @@ namespace NCompress {
 				else {
 					sym -= 16;
 					unsigned sh = ((sym & 1) << 2);
-					unsigned num = (uint)_bitStream.ReadBits9(3 + sh) + 3 + (sh << 1);
+					uint num = (uint)_bitStream.ReadBits9(3 + sh) + 3 + (sh << 1);
 					num += i;
 					if(num > kTablesSizesSum)
 						num = kTablesSizesSum;
@@ -3401,7 +3401,7 @@ namespace NCompress {
 					if(rep0 >= 4) {
 						if(rep0 >= _numCorrectDistSymbols)
 							break;  // return S_FALSE;
-						unsigned numBits = (rep0 >> 1) - 1;
+						uint numBits = (rep0 >> 1) - 1;
 						rep0 = (2 | (rep0 & 1)) << numBits;
 						if(numBits < kNumAlignBits)
 							rep0 += _bitStream.ReadBits9(numBits);
@@ -4634,7 +4634,7 @@ namespace NArchive {
 			}
 			/*
 			   int baseFileIndex = -1;
-			   for(unsigned i = 0; i < _refItems.Size(); i++) {
+			   for(uint i = 0; i < _refItems.Size(); i++) {
 			   CItem &item = _items[_refItems[i].ItemIndex];
 			   if(item.IsAltStream)
 				item.BaseFileIndex = baseFileIndex;
@@ -5109,7 +5109,7 @@ namespace NArchive {
 			ConvertUInt64ToHex(v, sz + 2);
 			s += sz;
 		}
-		static void PrintType(AString &s, const char * const table[], unsigned num, uint64 val)
+		static void PrintType(AString &s, const char * const table[], uint num, uint64 val)
 		{
 			char sz[32];
 			const char * p = NULL;
@@ -5188,7 +5188,7 @@ namespace NArchive {
 			return a;
 		}
 
-		int CItem::FindExtra(unsigned extraID, unsigned &recordDataSize) const
+		int CItem::FindExtra(unsigned extraID, uint &recordDataSize) const
 		{
 			recordDataSize = 0;
 			size_t offset = 0;
@@ -5198,7 +5198,7 @@ namespace NArchive {
 					return -1;
 				{
 					uint64 size;
-					unsigned num = ReadVarInt(Extra + offset, rem, &size);
+					uint num = ReadVarInt(Extra + offset, rem, &size);
 					if(num == 0)
 						return -1;
 					offset += num;
@@ -5209,7 +5209,7 @@ namespace NArchive {
 				}
 				{
 					uint64 id;
-					unsigned num = ReadVarInt(Extra + offset, rem, &id);
+					uint num = ReadVarInt(Extra + offset, rem, &id);
 					if(num == 0)
 						return -1;
 					offset += num;
@@ -5237,7 +5237,7 @@ namespace NArchive {
 					return;
 				{
 					uint64 size;
-					unsigned num = ReadVarInt(Extra + offset, rem, &size);
+					uint num = ReadVarInt(Extra + offset, rem, &size);
 					if(num == 0)
 						return;
 					offset += num;
@@ -5249,7 +5249,7 @@ namespace NArchive {
 				{
 					uint64 id;
 					{
-						unsigned num = ReadVarInt(Extra + offset, rem, &id);
+						uint num = ReadVarInt(Extra + offset, rem, &id);
 						if(num == 0)
 							break;
 						offset += num;
@@ -5266,7 +5266,7 @@ namespace NArchive {
 					if(id == NExtraID::kTime) {
 						const Byte * p = Extra + offset;
 						uint64 flags;
-						unsigned num = ReadVarInt(p, rem, &flags);
+						uint num = ReadVarInt(p, rem, &flags);
 						if(num != 0) {
 							s += ':';
 							for(uint i = 0; i < SIZEOFARRAY(g_ExtraTimeFlags); i++)
@@ -5320,7 +5320,7 @@ namespace NArchive {
 			Algo = 0;
 			Flags = 0;
 			Cnt = 0;
-			unsigned num = ReadVarInt(p, size, &Algo);
+			uint num = ReadVarInt(p, size, &Algo);
 			if(num == 0) 
 				return false; 
 			p += num; 
@@ -5345,7 +5345,7 @@ namespace NArchive {
 				return false;
 			const Byte * p = Extra + (uint)offset;
 			uint64 flags;
-			unsigned num = ReadVarInt(p, size, &flags);
+			uint num = ReadVarInt(p, size, &flags);
 			if(num == 0) 
 				return false; 
 			p += num; 
@@ -5698,7 +5698,7 @@ namespace NArchive {
 			return S_OK;
 		}
 		/*
-		   int CInArcInfo::FindExtra(unsigned extraID, unsigned &recordDataSize) const
+		   int CInArcInfo::FindExtra(unsigned extraID, uint &recordDataSize) const
 		   {
 		   recordDataSize = 0;
 		   size_t offset = 0;
@@ -5708,7 +5708,7 @@ namespace NArchive {
 			  return -1;
 			{
 			  uint64 size;
-			  unsigned num = ReadVarInt(Extra + offset, rem, &size);
+			  uint num = ReadVarInt(Extra + offset, rem, &size);
 			  if(num == 0)
 				return -1;
 			  offset += num;
@@ -5719,7 +5719,7 @@ namespace NArchive {
 			}
 			{
 			  uint64 id;
-			  unsigned num = ReadVarInt(Extra + offset, rem, &id);
+			  uint num = ReadVarInt(Extra + offset, rem, &id);
 			  if(num == 0)
 				return -1;
 			  offset += num;
@@ -5749,7 +5749,7 @@ namespace NArchive {
 			return false;
 		   const Byte *p = Extra + (uint)offset;
 
-		   unsigned num;
+		   uint num;
 
 		   num = ReadVarInt(p, size, &locator.Flags);
 		   if(num == 0) return false; p += num; size -= num;
@@ -6617,7 +6617,7 @@ namespace NArchive {
 		{
 			return CompareItemsPaths2(*(const CHandler*)param, *p1, *p2, NULL);
 		}
-		static int FindLink(const CHandler &handler, const CUIntVector &sorted, const AString &s, unsigned index)
+		static int FindLink(const CHandler &handler, const CUIntVector &sorted, const AString &s, uint index)
 		{
 			unsigned left = 0, right = sorted.Size();
 			for(;;) {
@@ -7029,7 +7029,7 @@ namespace NArchive {
 			return S_OK;
 		}
 
-		static int FASTCALL FindLinkBuf(const CObjectVector <CLinkFile> & linkFiles, unsigned index)
+		static int FASTCALL FindLinkBuf(const CObjectVector <CLinkFile> & linkFiles, uint index)
 		{
 			for(uint left = 0, right = linkFiles.Size();;) {
 				if(left == right)
@@ -7102,7 +7102,7 @@ namespace NArchive {
 				{
 					unsigned solidLimit = 0;
 					for(uint32 t = 0; t < numItems; t++) {
-						unsigned index = allFilesMode ? t : indices[t];
+						uint index = allFilesMode ? t : indices[t];
 						const CRefItem &ref = _refs[index];
 						const CItem &item = _items[ref.Item];
 						const CItem &lastItem = _items[ref.Last];
@@ -7193,7 +7193,7 @@ namespace NArchive {
 						solidLimit = i + 1;
 					}
 					for(uint32 t = 0; t < numItems; t++) {
-						unsigned index = allFilesMode ? t : indices[t];
+						uint index = allFilesMode ? t : indices[t];
 						const CRefItem &ref = _refs[index];
 						int linkIndex = ref.Link;
 						if(linkIndex < 0 || (uint)linkIndex >= index)

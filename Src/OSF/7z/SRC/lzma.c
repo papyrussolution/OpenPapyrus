@@ -498,7 +498,7 @@ static void RangeEnc_FlushData(CRangeEnc * p)
 		RangeEnc_ShiftLow(p);
 }
 
-static void FASTCALL RangeEnc_EncodeDirectBits(CRangeEnc * p, uint32 value, unsigned numBits)
+static void FASTCALL RangeEnc_EncodeDirectBits(CRangeEnc * p, uint32 value, uint numBits)
 {
 	do {
 		p->range >>= 1;
@@ -2271,7 +2271,7 @@ static int FASTCALL LzmaDec_DecodeReal(CLzmaDec * p, SizeT limit, const Byte * b
 						prob = probs + SpecPos + distance - posSlot - 1;
 						{
 							uint32 mask = 1;
-							unsigned i = 1;
+							uint i = 1;
 							do {
 								GET_BIT2(prob + i, i,; , distance |= mask);
 								mask <<= 1;
@@ -2301,7 +2301,7 @@ static int FASTCALL LzmaDec_DecodeReal(CLzmaDec * p, SizeT limit, const Byte * b
 						prob = probs + Align;
 						distance <<= kNumAlignBits;
 						{
-							unsigned i = 1;
+							uint i = 1;
 							GET_BIT2(prob + i, i,; , distance |= 1);
 							GET_BIT2(prob + i, i,; , distance |= 2);
 							GET_BIT2(prob + i, i,; , distance |= 4);
@@ -2333,7 +2333,7 @@ static int FASTCALL LzmaDec_DecodeReal(CLzmaDec * p, SizeT limit, const Byte * b
 			len += kMatchMinLen;
 			{
 				SizeT rem;
-				unsigned curLen;
+				uint curLen;
 				SizeT pos;
 				if((rem = limit - dicPos) == 0) {
 					p->dicPos = dicPos;
@@ -2561,7 +2561,7 @@ static ELzmaDummy LzmaDec_TryDummy(const CLzmaDec * p, const Byte * buf, SizeT i
 						numDirectBits = kNumAlignBits;
 					}
 					{
-						unsigned i = 1;
+						uint i = 1;
 						do {
 							GET_BIT_CHECK(prob + i, i);
 						} while(--numDirectBits != 0);
@@ -3126,7 +3126,7 @@ typedef struct {
 	CLzma2Enc * lzma2Enc;
 } CMtCallbackImp;
 
-static SRes MtCallbackImp_Code(const IMtCoderCallback * pp, unsigned index, Byte * dest, size_t * destSize,
+static SRes MtCallbackImp_Code(const IMtCoderCallback * pp, uint index, Byte * dest, size_t * destSize,
     const Byte * src, size_t srcSize, int finished)
 {
 	CMtCallbackImp * imp = CONTAINER_FROM_VTBL(pp, CMtCallbackImp, funcTable);

@@ -1004,7 +1004,7 @@ namespace NArchive {
 				streamSpec->SetStream(packStream);
 				streamSpec->Init(packPositions[j + 1] - packPositions[j]);
 			}
-			unsigned num = inStreams.Size();
+			uint num = inStreams.Size();
 			CObjArray<ISequentialInStream *> inStreamPointers(num);
 			for(i = 0; i < num; i++)
 				inStreamPointers[i] = inStreams[i];
@@ -1411,7 +1411,7 @@ namespace NArchive {
 			*value = 0;
 			if(subStream > Sizes.Size())
 				return S_FALSE;  // E_FAIL;
-			unsigned index = (uint)subStream;
+			uint index = (uint)subStream;
 			if(index < Sizes.Size()) {
 				*value = Sizes[index];
 				return S_OK;
@@ -1435,7 +1435,7 @@ namespace NArchive {
 					sum++;
 			return sum;
 		}
-		static inline bool BoolVector_Item_IsValidAndTrue(const CBoolVector &v, unsigned i)
+		static inline bool BoolVector_Item_IsValidAndTrue(const CBoolVector &v, uint i)
 		{
 			return (i < v.Size() ? v[i] : false);
 		}
@@ -2024,7 +2024,7 @@ namespace NArchive {
 
 		void CInArchive::Read_UInt32_Vector(CUInt32DefVector &v)
 		{
-			unsigned numItems = v.Defs.Size();
+			uint numItems = v.Defs.Size();
 			v.Vals.ClearAndSetSize(numItems);
 			uint32 * p = &v.Vals[0];
 			const bool * defs = &v.Defs[0];
@@ -2036,7 +2036,7 @@ namespace NArchive {
 			}
 		}
 
-		void CInArchive::ReadHashDigests(unsigned numItems, CUInt32DefVector &crcs)
+		void CInArchive::ReadHashDigests(uint numItems, CUInt32DefVector &crcs)
 		{
 			ReadBoolVector2(numItems, crcs.Defs);
 			Read_UInt32_Vector(crcs);
@@ -2397,7 +2397,7 @@ namespace NArchive {
 				ThrowIncorrect();
 		}
 
-		void CInArchive::ReadBoolVector(unsigned numItems, CBoolVector &v)
+		void CInArchive::ReadBoolVector(uint numItems, CBoolVector &v)
 		{
 			v.ClearAndSetSize(numItems);
 			Byte b = 0;
@@ -2413,7 +2413,7 @@ namespace NArchive {
 			}
 		}
 
-		void CInArchive::ReadBoolVector2(unsigned numItems, CBoolVector &v)
+		void CInArchive::ReadBoolVector2(uint numItems, CBoolVector &v)
 		{
 			Byte allAreDefined = ReadByte();
 			if(allAreDefined == 0) {
@@ -2427,7 +2427,7 @@ namespace NArchive {
 		}
 
 		void CInArchive::ReadUInt64DefVector(const CObjectVector<CByteBuffer> &dataVector,
-					CUInt64DefVector &v, unsigned numItems)
+					CUInt64DefVector &v, uint numItems)
 		{
 			ReadBoolVector2(numItems, v.Defs);
 
@@ -2695,7 +2695,7 @@ namespace NArchive {
 									ReadBytes(db.SecureBuf + offset, db.SecureOffsets[i+1] - offset);
 								  }
 								  db.SecureIDs.Clear();
-								  for(unsigned i = 0; i < numFiles; i++)
+								  for(uint i = 0; i < numFiles; i++)
 								  {
 									db.SecureIDs.Add(ReadNum());
 									// db.SecureIDs.Add(ReadUInt32());
@@ -3440,7 +3440,7 @@ namespace NArchive {
 
 		// 7-Zip 4.50 - 4.58 contain BUG, so they do not support .7z archives with Unknown field.
 
-		void COutArchive::SkipToAligned(unsigned pos, unsigned alignShifts)
+		void COutArchive::SkipToAligned(uint pos, unsigned alignShifts)
 		{
 			if(_useAlign) {
 				const uint alignSize = (uint)1 << alignShifts;
@@ -4523,7 +4523,7 @@ namespace NArchive {
 					return extIndex;
 				if(c == ' ')
 					continue;
-				unsigned pos = 0;
+				uint pos = 0;
 				for(;;) {
 					char c2 = ext[pos++];
 					if(c2 == 0 && (c == 0 || c == ' '))
@@ -4992,7 +4992,7 @@ namespace NArchive {
 			*value = 0;
 			if(subStream >= _extractStatuses->Size())
 				return S_FALSE;  // E_FAIL;
-			unsigned index = (uint)subStream;
+			uint index = (uint)subStream;
 			if((*_extractStatuses)[index]) {
 				const CFileItem &fi = _db->Files[_startIndex + index];
 				if(fi.HasStream)
@@ -5291,7 +5291,7 @@ namespace NArchive {
 
 		#endif
 
-		static void GetFile(const CDatabase &inDb, unsigned index, CFileItem &file, CFileItem2 &file2)
+		static void GetFile(const CDatabase &inDb, uint index, CFileItem &file, CFileItem2 &file2)
 		{
 			file = inDb.Files[index];
 			file2.CTimeDefined = inDb.CTime.GetItem(index, file2.CTime);
@@ -6150,7 +6150,7 @@ namespace NArchive {
 				val >>= 10; c = 'k';
 			}
 			::ConvertUInt32ToString(val, s);
-			unsigned pos = sstrlen(s);
+			uint pos = sstrlen(s);
 			s[pos++] = c;
 			s[pos] = 0;
 			return pos;
@@ -6364,7 +6364,7 @@ namespace NArchive {
 				// for(int ttt = 0; ttt < 1; ttt++) {
 				const uint kTempSize = 256;
 				char temp[kTempSize];
-				unsigned pos = kTempSize;
+				uint pos = kTempSize;
 				temp[--pos] = 0;
 
 				size_t startPos = _db.FoCodersDataOffset[folderIndex];
@@ -6693,7 +6693,7 @@ namespace NArchive {
 							return E_INVALIDARG;
 						const PROPVARIANT &value = values[i];
 						uint32 number;
-						unsigned index = ParseStringToUInt32(name, number);
+						uint index = ParseStringToUInt32(name, number);
 						if(index == 0) {
 							if(name.IsEqualTo("mtf")) {
 								RINOK(PROPVARIANT_to_bool(value, _useMultiThreadMixer));
@@ -7356,7 +7356,7 @@ namespace NArchive {
 					_numSolidFiles = v;
 				}
 				else {
-					unsigned numBits;
+					uint numBits;
 					switch(c) {
 						case 'b': numBits =  0; break;
 						case 'k': numBits = 10; break;

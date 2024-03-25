@@ -66,7 +66,7 @@ static void MtProgress_Init(CMtProgress * p, ICompressProgress * progress)
 	p->res = SZ_OK;
 }
 
-static void MtProgress_Reinit(CMtProgress * p, unsigned index)
+static void MtProgress_Reinit(CMtProgress * p, uint index)
 {
 	p->inSizes[index] = 0;
 	p->outSizes[index] = 0;
@@ -74,7 +74,7 @@ static void MtProgress_Reinit(CMtProgress * p, unsigned index)
 
 #define UPDATE_PROGRESS(size, prev, total) if(size != (uint64)(int64)-1) { total += size - prev; prev = size; }
 
-SRes MtProgress_Set(CMtProgress * p, unsigned index, uint64 inSize, uint64 outSize)
+SRes MtProgress_Set(CMtProgress * p, uint index, uint64 inSize, uint64 outSize)
 {
 	SRes res;
 	CriticalSection_Enter(&p->cs);

@@ -955,7 +955,7 @@ namespace NArchive {
 								  // directory in sequence (-1 if this is the first listing chunk)
 					ReadUInt32(); // Chunk number of next  listing chunk when reading
 								  // directory in sequence (-1 if this is the last listing chunk)
-					unsigned numItems = 0;
+					uint numItems = 0;
 
 					for(;;) {
 						uint64 offset = _inBuffer.GetProcessedSize() - chunkPos;
@@ -1141,7 +1141,7 @@ namespace NArchive {
 					ReadUInt32(); // 1 (unknown -- other values have also been seen here)
 					ReadUInt32(); // 0 (unknown)
 
-					unsigned numItems = 0;
+					uint numItems = 0;
 					for(;;) {
 						uint64 offset = _inBuffer.GetProcessedSize() - chunkPos;
 						uint32 offsetLimit = dirChunkSize - quickrefLength;

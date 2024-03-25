@@ -1895,10 +1895,10 @@ public:
 	void Empty() { _len = 0; _chars[0] = 0; }
 	operator const char *() const { return _chars; }
 	const char * Ptr() const { return _chars; }
-	const char * Ptr(unsigned pos) const { return _chars + pos; }
-	const char * RightPtr(unsigned num) const { return _chars + _len - num; }
+	const char * Ptr(uint pos) const { return _chars + pos; }
+	const char * RightPtr(uint num) const { return _chars + _len - num; }
 	char Back() const { return _chars[(size_t)_len - 1]; }
-	void ReplaceOneCharAtPos(unsigned pos, char c) { _chars[pos] = c; }
+	void ReplaceOneCharAtPos(uint pos, char c) { _chars[pos] = c; }
 	// GetBuf(minLen): provides the buffer that can store
 	// at least (minLen) characters and additional null terminator.
 	// 9.35: GetBuf doesn't preserve old characters and terminator 
@@ -1960,7 +1960,7 @@ public:
 	void Replace(const AString &oldString, const AString &newString);
 	void Delete(uint index) throw();
 	void Delete(uint index, unsigned count) throw();
-	void DeleteFrontal(unsigned num) throw();
+	void DeleteFrontal(uint num) throw();
 	void DeleteBack();
 	void FASTCALL DeleteFrom(uint index);
 };
@@ -1989,11 +1989,11 @@ void operator == (char c1, const AString &s2);
 void operator == (const AString &s1, char c2);
 void operator+(char c, const AString &s); // this function can be OK, but we don't use it
 void operator+(const AString &s, int c);
-void operator+(const AString &s, unsigned c);
+void operator+(const AString &s, uint c);
 void operator+(int c, const AString &s);
-void operator+(unsigned c, const AString &s);
+void operator+(uint c, const AString &s);
 void operator-(const AString &s, int c);
-void operator-(const AString &s, unsigned c);
+void operator-(const AString &s, uint c);
 
 class UString {
 	wchar_t * _chars;
@@ -2005,9 +2005,9 @@ class UString {
 	void ReAlloc2(unsigned newLimit);
 	void SetStartLen(unsigned len);
 	void Grow_1();
-	void Grow(unsigned n);
-	UString(unsigned num, const wchar_t * s); // for Mid
-	UString(unsigned num, const UString &s); // for Left
+	void Grow(uint n);
+	UString(uint num, const wchar_t * s); // for Mid
+	UString(uint num, const UString &s); // for Left
 	UString(const UString &s, wchar_t c); // it's for String + char
 	UString(const wchar_t * s1, unsigned num1, const wchar_t * s2, unsigned num2);
 	friend UString operator + (const UString &s, wchar_t c) { return UString(s, c); }
@@ -2049,10 +2049,10 @@ public:
 	}
 	operator const wchar_t *() const { return _chars; }
 	const wchar_t * Ptr() const { return _chars; }
-	const wchar_t * Ptr(unsigned pos) const { return _chars + pos; }
-	const wchar_t * FASTCALL RightPtr(unsigned num) const { return _chars + _len - num; }
+	const wchar_t * Ptr(uint pos) const { return _chars + pos; }
+	const wchar_t * FASTCALL RightPtr(uint num) const { return _chars + _len - num; }
 	wchar_t Back() const { return _chars[(size_t)_len - 1]; }
-	void   ReplaceOneCharAtPos(unsigned pos, wchar_t c) { _chars[pos] = c; }
+	void   ReplaceOneCharAtPos(uint pos, wchar_t c) { _chars[pos] = c; }
 	wchar_t * FASTCALL GetBuf(unsigned minLen);
 	wchar_t * FASTCALL GetBuf_SetEnd(unsigned minLen);
 	void FASTCALL ReleaseBuf_SetLen(unsigned newLen) { _len = newLen; }
@@ -2130,7 +2130,7 @@ public:
 	void Replace(const UString &oldString, const UString &newString);
 	void Delete(uint index) throw();
 	void Delete(uint index, unsigned count) throw();
-	void DeleteFrontal(unsigned num) throw();
+	void DeleteFrontal(uint num) throw();
 	void DeleteBack() { _chars[--_len] = 0; }
 	void DeleteFrom(uint index)
 	{
@@ -2169,11 +2169,11 @@ void operator-(const UString &s1, wchar_t c);
 #ifdef _WIN32
 	// can we forbid these functions, if wchar_t is 32-bit ?
 	void operator+(const UString &s, int c);
-	void operator+(const UString &s, unsigned c);
+	void operator+(const UString &s, uint c);
 	void operator+(int c, const UString &s);
-	void operator+(unsigned c, const UString &s);
+	void operator+(uint c, const UString &s);
 	void operator-(const UString &s1, int c);
-	void operator-(const UString &s1, unsigned c);
+	void operator-(const UString &s1, uint c);
 #endif
 
 class UString2 {
@@ -4232,22 +4232,22 @@ struct CUInt32PCharPair {
 	const char * Name;
 };
 
-AString TypePairToString(const CUInt32PCharPair * pairs, unsigned num, uint32 value);
-void PairToProp(const CUInt32PCharPair * pairs, unsigned num, uint32 value, NWindows::NCOM::CPropVariant &prop);
+AString TypePairToString(const CUInt32PCharPair * pairs, uint num, uint32 value);
+void PairToProp(const CUInt32PCharPair * pairs, uint num, uint32 value, NWindows::NCOM::CPropVariant &prop);
 
-AString FlagsToString(const char * const * names, unsigned num, uint32 flags);
-AString FlagsToString(const CUInt32PCharPair * pairs, unsigned num, uint32 flags);
-void FlagsToProp(const char * const * names, unsigned num, uint32 flags, NWindows::NCOM::CPropVariant &prop);
-void FlagsToProp(const CUInt32PCharPair * pairs, unsigned num, uint32 flags, NWindows::NCOM::CPropVariant &prop);
+AString FlagsToString(const char * const * names, uint num, uint32 flags);
+AString FlagsToString(const CUInt32PCharPair * pairs, uint num, uint32 flags);
+void FlagsToProp(const char * const * names, uint num, uint32 flags, NWindows::NCOM::CPropVariant &prop);
+void FlagsToProp(const CUInt32PCharPair * pairs, uint num, uint32 flags, NWindows::NCOM::CPropVariant &prop);
 
-AString TypeToString(const char * const table[], unsigned num, uint32 value);
-void TypeToProp(const char * const table[], unsigned num, uint32 value, NWindows::NCOM::CPropVariant &prop);
+AString TypeToString(const char * const table[], uint num, uint32 value);
+void TypeToProp(const char * const table[], uint num, uint32 value, NWindows::NCOM::CPropVariant &prop);
 
 #define PAIR_TO_PROP(pairs, value, prop) PairToProp(pairs, SIZEOFARRAY(pairs), value, prop)
 #define FLAGS_TO_PROP(pairs, value, prop) FlagsToProp(pairs, SIZEOFARRAY(pairs), value, prop)
 #define TYPE_TO_PROP(table, value, prop) TypeToProp(table, SIZEOFARRAY(table), value, prop)
 
-void Flags64ToProp(const CUInt32PCharPair * pairs, unsigned num, uint64 flags, NWindows::NCOM::CPropVariant &prop);
+void Flags64ToProp(const CUInt32PCharPair * pairs, uint num, uint64 flags, NWindows::NCOM::CPropVariant &prop);
 #define FLAGS64_TO_PROP(pairs, value, prop) Flags64ToProp(pairs, SIZEOFARRAY(pairs), value, prop)
 //
 //#include <Windows/PropVariantConv.h>
@@ -4421,7 +4421,7 @@ namespace NCompress {
 			}
 			void SetFixedLevels()
 			{
-				unsigned i = 0;
+				uint i = 0;
 				for(; i < 144; i++) litLenLevels[i] = 8;
 				for(; i < 256; i++) litLenLevels[i] = 9;
 				for(; i < 280; i++) litLenLevels[i] = 7;
@@ -5041,7 +5041,7 @@ namespace NArchive {
 				value = 0;
 				return false;
 			}
-			bool ValidAndDefined(unsigned i) const { return i < Defs.Size() && Defs[i]; }
+			bool ValidAndDefined(uint i) const { return i < Defs.Size() && Defs[i]; }
 			bool CheckSize(uint size) const { return Defs.Size() == size || Defs.Size() == 0; }
 			void SetItem(uint index, bool defined, uint32 value);
 
@@ -5267,7 +5267,7 @@ namespace NArchive {
 			CByteBuffer Data;
 
 			bool ExtractNtfsTime(uint index, FILETIME &ft) const;
-			bool ExtractUnixTime(bool isCentral, unsigned index, uint32 &res) const;
+			bool ExtractUnixTime(bool isCentral, uint index, uint32 &res) const;
 			bool ExtractUnixExtraTime(uint index, uint32 &res) const;
 			bool ExtractIzUnicode(uint32 crc, AString &name) const
 			{
@@ -5378,7 +5378,7 @@ namespace NArchive {
 			   }
 			 */
 			bool GetNtfsTime(uint index, FILETIME &ft) const;
-			bool GetUnixTime(bool isCentral, unsigned index, uint32 &res) const;
+			bool GetUnixTime(bool isCentral, uint index, uint32 &res) const;
 			void PrintInfo(AString &s) const;
 			void RemoveUnknownSubBlocks();
 		};
@@ -5657,7 +5657,7 @@ namespace NCompress {
 					bitStream->MovePos((uint)(pair & kPairLenMask));
 					return pair >> kNumPairLenBits;
 				}
-				unsigned numBits;
+				uint numBits;
 				for(numBits = kNumTableBits + 1; val >= _limits[numBits]; numBits++) 
 					;
 				if(numBits > kNumBitsMax)
@@ -5674,7 +5674,7 @@ namespace NCompress {
 					bitStream->MovePos((uint)(pair & kPairLenMask));
 					return pair >> kNumPairLenBits;
 				}
-				unsigned numBits;
+				uint numBits;
 				for(numBits = kNumTableBits + 1; val >= _limits[numBits]; numBits++) 
 					;
 				bitStream->MovePos(numBits);
@@ -5844,9 +5844,9 @@ namespace NCompress {
 	   Byte Buf[256];
 
 	   void StartInit() { memzero(Buf, sizeof(Buf)); }
-	   void Add(unsigned pos, Byte val) { Buf[pos] = val;  }
+	   void Add(uint pos, Byte val) { Buf[pos] = val;  }
 	   Byte GetHead() const { return Buf[0]; }
-	   Byte GetAndMove(unsigned pos)
+	   Byte GetAndMove(uint pos)
 	   {
 		Byte res = Buf[pos];
 		for(; pos >= 8; pos -= 8) {
@@ -5878,9 +5878,9 @@ namespace NCompress {
 	struct CMtf8Decoder {
 		CMtfVar Buf[256 >> MTF_MOVS];
 		void StartInit() { memzero(Buf, sizeof(Buf)); }
-		void Add(unsigned pos, Byte val) { Buf[pos >> MTF_MOVS] |= ((CMtfVar)val << ((pos & MTF_MASK) << 3)); }
+		void Add(uint pos, Byte val) { Buf[pos >> MTF_MOVS] |= ((CMtfVar)val << ((pos & MTF_MASK) << 3)); }
 		Byte GetHead() const { return (Byte)Buf[0]; }
-		FORCEINLINE Byte GetAndMove(unsigned pos) throw()
+		FORCEINLINE Byte GetAndMove(uint pos) throw()
 		{
 			uint32 lim = ((uint32)pos >> MTF_MOVS);
 			pos = (pos & MTF_MASK) << 3;
@@ -5933,7 +5933,7 @@ namespace NCompress {
 		  size -= Counts[i];
 		}
 	   }
-	   void Add(unsigned pos, Byte val) { Buf[pos] = val; }
+	   void Add(uint pos, Byte val) { Buf[pos] = val; }
 	   Byte GetAndMove(int pos)
 	   {
 		if(pos < SmallSize) {
@@ -7453,7 +7453,7 @@ typedef struct {
 	uint64 outSizes[NUM_MT_CODER_THREADS_MAX];
 } CMtProgress;
 
-SRes MtProgress_Set(CMtProgress * p, unsigned index, uint64 inSize, uint64 outSize);
+SRes MtProgress_Set(CMtProgress * p, uint index, uint64 inSize, uint64 outSize);
 
 struct _CMtCoder;
 
@@ -7473,7 +7473,7 @@ typedef struct {
 
 typedef struct IMtCoderCallback IMtCoderCallback;
 struct IMtCoderCallback {
-	SRes (* Code)(const IMtCoderCallback * p, unsigned index, Byte * dest, size_t * destSize, const Byte * src, size_t srcSize, int finished);
+	SRes (* Code)(const IMtCoderCallback * p, uint index, Byte * dest, size_t * destSize, const Byte * src, size_t srcSize, int finished);
 };
 
 #define IMtCoderCallback_Code(p, index, dest, destSize, src, srcSize, finished) (p)->Code(p, index, dest, destSize, src, srcSize, finished)
@@ -7867,7 +7867,7 @@ namespace NArchive {
 			   {
 			   uint len = _changed.Len();
 			   _changed.Empty();
-			   for(unsigned i = 0; i < len; i++)
+			   for(uint i = 0; i < len; i++)
 				_changed += L'0';
 			   }
 			 */
@@ -7875,7 +7875,7 @@ namespace NArchive {
 			UString GetNextName()
 			{
 				if(_needChangeForNext) {
-					unsigned i = _changed.Len();
+					uint i = _changed.Len();
 					if(i == 0)
 						return UString();
 					for(;;) {
@@ -8595,7 +8595,7 @@ namespace NArchive {
 				Byte b = *(const Byte *)FileId;
 				return (b == 0 || b == 1);
 			}
-			const Byte* FindSuspRecord(unsigned skipSize, Byte id0, Byte id1, unsigned &lenRes) const
+			const Byte* FindSuspRecord(unsigned skipSize, Byte id0, Byte id1, uint &lenRes) const
 			{
 				lenRes = 0;
 				if(SystemUse.Size() < skipSize)
@@ -8618,7 +8618,7 @@ namespace NArchive {
 				return 0;
 			}
 
-			const Byte* GetNameCur(bool checkSusp, int skipSize, unsigned &nameLenRes) const
+			const Byte* GetNameCur(bool checkSusp, int skipSize, uint &nameLenRes) const
 			{
 				const Byte * res = NULL;
 				uint len = 0;
@@ -8738,7 +8738,7 @@ namespace NArchive {
 			   if((flags & (1 << pxType)) == 0)
 				return false;
 
-			   for(unsigned i = 0; i < pxType; i++)
+			   for(uint i = 0; i < pxType; i++)
 			   {
 				if(len < step)
 				  return false;
@@ -8764,7 +8764,7 @@ namespace NArchive {
 			   }
 			 */
 
-			bool CheckSusp(const Byte * p, unsigned &startPos) const
+			bool CheckSusp(const Byte * p, uint &startPos) const
 			{
 				if(p[0] == 'S' && p[1] == 'P' && p[2] == 0x7 && p[3] == 0x1 && p[4] == 0xBE && p[5] == 0xEF) {
 					startPos = p[6];
@@ -8772,7 +8772,7 @@ namespace NArchive {
 				}
 				return false;
 			}
-			bool CheckSusp(unsigned &startPos) const
+			bool CheckSusp(uint &startPos) const
 			{
 				const Byte * p = (const Byte *)SystemUse;
 				uint len = (int)SystemUse.Size();

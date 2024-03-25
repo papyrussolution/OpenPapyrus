@@ -93,21 +93,17 @@ typedef struct {
 	// Byte *IsEmptyFiles;
 	Byte * IsDirs;
 	CSzBitUi32s CRCs;
-
 	CSzBitUi32s Attribs;
 	// CSzBitUi32s Parents;
 	CSzBitUi64s MTime;
 	CSzBitUi64s CTime;
-
 	uint32 * FolderToFile; // NumFolders + 1
 	uint32 * FileToFolder; // NumFiles
-
 	size_t * FileNameOffsets; /* in 2-byte steps */
 	Byte * FileNames; /* UTF-16-LE */
 } CSzArEx;
 
 #define SzArEx_IsDir(p, i) (SzBitArray_Check((p)->IsDirs, i))
-
 #define SzArEx_GetFileSize(p, i) ((p)->UnpackPositions[(i) + 1] - (p)->UnpackPositions[i])
 
 void SzArEx_Init(CSzArEx * p);
@@ -148,17 +144,10 @@ size_t SzArEx_GetFileNameUtf16(const CSzArEx * p, size_t fileIndex, uint16 * des
     Free *outBuffer and set *outBuffer to 0, if you want to flush cache.
  */
 
-SRes SzArEx_Extract(const CSzArEx * db,
-    ILookInStream * inStream,
-    uint32 fileIndex,         /* index of file */
-    uint32 * blockIndex,       /* index of solid block */
-    Byte ** outBuffer,         /* pointer to pointer to output buffer (allocated with allocMain) */
-    size_t * outBufferSize,    /* buffer size for output buffer */
-    size_t * offset,           /* offset of stream for required file in *outBuffer */
-    size_t * outSizeProcessed, /* size of file in *outBuffer */
-    ISzAllocPtr allocMain,
-    ISzAllocPtr allocTemp);
-
+SRes SzArEx_Extract(const CSzArEx * db, ILookInStream * inStream, uint32 fileIndex/* index of file */,
+    uint32 * blockIndex/* index of solid block */, Byte ** outBuffer/* pointer to pointer to output buffer (allocated with allocMain) */,
+    size_t * outBufferSize/* buffer size for output buffer */, size_t * offset/* offset of stream for required file in *outBuffer */,
+    size_t * outSizeProcessed/* size of file in *outBuffer */, ISzAllocPtr allocMain, ISzAllocPtr allocTemp);
 /*
    SzArEx_Open Errors:
    SZ_ERROR_NO_ARCHIVE
@@ -169,9 +158,7 @@ SRes SzArEx_Extract(const CSzArEx * db,
    SZ_ERROR_INPUT_EOF
    SZ_ERROR_FAIL
  */
-
-SRes SzArEx_Open(CSzArEx * p, ILookInStream * inStream,
-    ISzAllocPtr allocMain, ISzAllocPtr allocTemp);
+SRes SzArEx_Open(CSzArEx * p, ILookInStream * inStream, ISzAllocPtr allocMain, ISzAllocPtr allocTemp);
 
 EXTERN_C_END
 

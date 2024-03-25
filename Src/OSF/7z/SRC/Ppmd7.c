@@ -106,13 +106,13 @@ Bool Ppmd7_Alloc(CPpmd7 * p, uint32 size, ISzAllocPtr alloc)
 	return True;
 }
 
-static void InsertNode(CPpmd7 * p, void * node, unsigned indx)
+static void InsertNode(CPpmd7 * p, void * node, uint indx)
 {
 	*((CPpmd_Void_Ref*)node) = p->FreeList[indx];
 	p->FreeList[indx] = REF(node);
 }
 
-static void * RemoveNode(CPpmd7 * p, unsigned indx)
+static void * RemoveNode(CPpmd7 * p, uint indx)
 {
 	CPpmd_Void_Ref * node = (CPpmd_Void_Ref*)Ppmd7_GetPtr(p, p->FreeList[indx]);
 	p->FreeList[indx] = *node;
@@ -121,7 +121,7 @@ static void * RemoveNode(CPpmd7 * p, unsigned indx)
 
 static void SplitBlock(CPpmd7 * p, void * ptr, unsigned oldIndx, unsigned newIndx)
 {
-	unsigned i, nu = I2U(oldIndx) - I2U(newIndx);
+	uint i, nu = I2U(oldIndx) - I2U(newIndx);
 	ptr = (Byte *)ptr + U2B(I2U(newIndx));
 	if(I2U(i = U2I(nu)) != nu) {
 		unsigned k = I2U(--i);
@@ -196,7 +196,7 @@ static void GlueFreeBlocks(CPpmd7 * p)
 	}
 }
 
-static void * AllocUnitsRare(CPpmd7 * p, unsigned indx)
+static void * AllocUnitsRare(CPpmd7 * p, uint indx)
 {
 	uint i;
 	void * retVal;
@@ -219,7 +219,7 @@ static void * AllocUnitsRare(CPpmd7 * p, unsigned indx)
 	return retVal;
 }
 
-static void * AllocUnits(CPpmd7 * p, unsigned indx)
+static void * AllocUnits(CPpmd7 * p, uint indx)
 {
 	uint32 numBytes;
 	if(p->FreeList[indx] != 0)
@@ -263,7 +263,7 @@ static void SetSuccessor(CPpmd_State * p, CPpmd_Void_Ref v)
 
 static void RestartModel(CPpmd7 * p)
 {
-	unsigned i, k, m;
+	uint i, k, m;
 	memzero(p->FreeList, sizeof(p->FreeList));
 	p->Text = p->Base + p->AlignOffset;
 	p->HiUnit = p->Text + p->Size;
@@ -751,7 +751,7 @@ void Ppmd7_EncodeSymbol(CPpmd7 * p, CPpmd7z_RangeEnc * rc, int symbol)
 		CPpmd_See * see;
 		CPpmd_State * s;
 		uint32 sum;
-		unsigned i, numMasked = p->MinContext->NumStats;
+		uint i, numMasked = p->MinContext->NumStats;
 		do {
 			p->OrderFall++;
 			if(!p->MinContext->Suffix)
@@ -909,7 +909,7 @@ int Ppmd7_DecodeSymbol(CPpmd7 * p, const IPpmd7_RangeDec * rc)
 		CPpmd_State * ps[256], * s;
 		uint32 freqSum, count, hiCnt;
 		CPpmd_See * see;
-		unsigned i, num, numMasked = p->MinContext->NumStats;
+		uint i, num, numMasked = p->MinContext->NumStats;
 		do {
 			p->OrderFall++;
 			if(!p->MinContext->Suffix)

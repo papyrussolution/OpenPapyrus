@@ -136,7 +136,7 @@ static void FASTCALL AddHex(AString & s, uint32 v)
 	s += sz;
 }
 
-AString TypePairToString(const CUInt32PCharPair * pairs, unsigned num, uint32 value)
+AString TypePairToString(const CUInt32PCharPair * pairs, uint num, uint32 value)
 {
 	char sz[16];
 	const char * p = NULL;
@@ -152,12 +152,12 @@ AString TypePairToString(const CUInt32PCharPair * pairs, unsigned num, uint32 va
 	return (AString)p;
 }
 
-void PairToProp(const CUInt32PCharPair * pairs, unsigned num, uint32 value, NCOM::CPropVariant &prop)
+void PairToProp(const CUInt32PCharPair * pairs, uint num, uint32 value, NCOM::CPropVariant &prop)
 {
 	prop = TypePairToString(pairs, num, value);
 }
 
-AString TypeToString(const char * const table[], unsigned num, uint32 value)
+AString TypeToString(const char * const table[], uint num, uint32 value)
 {
 	char sz[16];
 	const char * p = NULL;
@@ -170,7 +170,7 @@ AString TypeToString(const char * const table[], unsigned num, uint32 value)
 	return (AString)p;
 }
 
-void TypeToProp(const char * const table[], unsigned num, uint32 value, NWindows::NCOM::CPropVariant &prop)
+void TypeToProp(const char * const table[], uint num, uint32 value, NWindows::NCOM::CPropVariant &prop)
 {
 	char sz[16];
 	const char * p = NULL;
@@ -183,7 +183,7 @@ void TypeToProp(const char * const table[], unsigned num, uint32 value, NWindows
 	prop = p;
 }
 
-AString FlagsToString(const char * const * names, unsigned num, uint32 flags)
+AString FlagsToString(const char * const * names, uint num, uint32 flags)
 {
 	AString s;
 	for(uint i = 0; i < num; i++) {
@@ -203,7 +203,7 @@ AString FlagsToString(const char * const * names, unsigned num, uint32 flags)
 	return s;
 }
 
-AString FlagsToString(const CUInt32PCharPair * pairs, unsigned num, uint32 flags)
+AString FlagsToString(const CUInt32PCharPair * pairs, uint num, uint32 flags)
 {
 	AString s;
 	for(uint i = 0; i < num; i++) {
@@ -222,12 +222,12 @@ AString FlagsToString(const CUInt32PCharPair * pairs, unsigned num, uint32 flags
 	return s;
 }
 
-void FlagsToProp(const char * const * names, unsigned num, uint32 flags, NCOM::CPropVariant &prop)
+void FlagsToProp(const char * const * names, uint num, uint32 flags, NCOM::CPropVariant &prop)
 	{ prop = FlagsToString(names, num, flags); }
-void FlagsToProp(const CUInt32PCharPair * pairs, unsigned num, uint32 flags, NCOM::CPropVariant &prop)
+void FlagsToProp(const CUInt32PCharPair * pairs, uint num, uint32 flags, NCOM::CPropVariant &prop)
 	{ prop = FlagsToString(pairs, num, flags); }
 
-AString Flags64ToString(const CUInt32PCharPair * pairs, unsigned num, uint64 flags)
+AString Flags64ToString(const CUInt32PCharPair * pairs, uint num, uint64 flags)
 {
 	AString s;
 	for(uint i = 0; i < num; i++) {
@@ -251,7 +251,7 @@ AString Flags64ToString(const CUInt32PCharPair * pairs, unsigned num, uint64 fla
 	return s;
 }
 
-void Flags64ToProp(const CUInt32PCharPair * pairs, unsigned num, uint64 flags, NCOM::CPropVariant &prop)
+void Flags64ToProp(const CUInt32PCharPair * pairs, uint num, uint64 flags, NCOM::CPropVariant &prop)
 {
 	prop = Flags64ToString(pairs, num, flags);
 }
@@ -1854,7 +1854,7 @@ namespace NWindows {
 								do {
 									k--;
 								} while(k >= 0 && !isdirslash(s[(uint)k]));
-								unsigned num;
+								uint num;
 								if(k >= 0) {
 									num = i - k;
 									i = k;
@@ -1868,7 +1868,7 @@ namespace NWindows {
 							}
 						}
 						else if(isdirslash(c1) || c1 == 0) {
-							unsigned num = 2;
+							uint num = 2;
 							if(i != 0)
 								i--;
 							else if(c1 == 0)
@@ -3117,7 +3117,7 @@ namespace NWindows {
 			if(!MyFormatMessage(errorCode, m) || m.IsEmpty()) {
 				char s[16];
 				for(int i = 0; i < 8; i++) {
-					unsigned t = errorCode & 0xF;
+					uint t = errorCode & 0xF;
 					errorCode >>= 4;
 					s[7 - i] = (char)((t < 10) ? ('0' + t) : ('A' + (t - 10)));
 				}

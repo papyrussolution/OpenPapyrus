@@ -189,6 +189,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\OSF\ImGuiFileDialog\ImGuiFileDialog.cpp" />
     <ClCompile Include="..\OSF\imgui\backends\imgui_impl_dx10.cpp" />
     <ClCompile Include="..\OSF\imgui\backends\imgui_impl_dx11.cpp" />
     <ClCompile Include="..\OSF\imgui\backends\imgui_impl_dx9.cpp" />
@@ -206,6 +207,8 @@
     <ClCompile Include="..\OSF\imgui\misc\freetype\imgui_freetype.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\OSF\ImGuiFileDialog\ImGuiFileDialog.h" />
+    <ClInclude Include="..\OSF\ImGuiFileDialog\ImGuiFileDialogConfig.h" />
     <ClInclude Include="..\OSF\imgui\backends\imgui_impl_dx10.h" />
     <ClInclude Include="..\OSF\imgui\backends\imgui_impl_dx11.h" />
     <ClInclude Include="..\OSF\imgui\backends\imgui_impl_dx9.h" />

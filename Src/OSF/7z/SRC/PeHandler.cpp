@@ -79,9 +79,9 @@ namespace NArchive {
 		prop = sz;
 	}
 
-	static const unsigned kHeaderSize = 4 + 20;
-	static const unsigned k_OptHeader32_Size_MIN = 96;
-	static const unsigned k_OptHeader64_Size_MIN = 112;
+	static const uint kHeaderSize = 4 + 20;
+	static const uint k_OptHeader32_Size_MIN = 96;
+	static const uint k_OptHeader64_Size_MIN = 112;
 
 	static const uint32 PE_IMAGE_FILE_DLL  = (1 << 13);
 
@@ -314,7 +314,7 @@ namespace NArchive {
 		}
 	};
 
-	static const unsigned kNameSize = 8;
+	static const uint kNameSize = 8;
 
 	static void GetName(const Byte * name, AString &res)
 	{
@@ -947,7 +947,7 @@ namespace NArchive {
 			return S_FALSE;
 		unsigned numNameItems = Get16(_buf + offset + 12);
 		unsigned numIdItems = Get16(_buf + offset + 14);
-		unsigned numItems = numNameItems + numIdItems;
+		uint numItems = numNameItems + numIdItems;
 		if((rem - 16) / 8 < numItems)
 			return S_FALSE;
 		if(!_usedRes.SetRange(offset, 16 + numItems * 8))
@@ -967,8 +967,8 @@ namespace NArchive {
 	}
 
 	static const uint32 kFileSizeMax = (uint32)1 << 31;
-	static const unsigned kNumResItemsMax = (uint)1 << 23;
-	static const unsigned kNumStringLangsMax = 256;
+	static const uint kNumResItemsMax = (uint)1 << 23;
+	static const uint kNumStringLangsMax = 256;
 
 	// BITMAPINFOHEADER
 	struct CBitmapInfoHeader {
@@ -1377,7 +1377,7 @@ namespace NArchive {
 
 	static bool CompareWStrStrings(const Byte * p, const char * s)
 	{
-		unsigned pos = 0;
+		uint pos = 0;
 		for(;;) {
 			Byte c = *s++;
 			if(Get16(p + pos) != c)
@@ -1399,7 +1399,7 @@ namespace NArchive {
 
 	static int Get_Utf16Str_Len_InBytes(const Byte * p, size_t size)
 	{
-		unsigned pos = 0;
+		uint pos = 0;
 		for(;;) {
 			if(pos + 1 >= size)
 				return -1;
@@ -1409,7 +1409,7 @@ namespace NArchive {
 		}
 	}
 
-	static const unsigned k_ResoureBlockHeader_Size = 6;
+	static const uint k_ResoureBlockHeader_Size = 6;
 
 	bool CVersionBlock::Parse(const Byte * p, uint32 size)
 	{
@@ -1786,7 +1786,7 @@ namespace NArchive {
 			return pe >= 0x40 && pe <= 0x1000 /* && (pe & 7) == 0 */;
 		}
 
-		static const unsigned kStartSize = 0x40;
+		static const uint kStartSize = 0x40;
 
 		API_FUNC_static_IsArc IsArc_Pe(const Byte * p, size_t size)
 		{
@@ -1937,7 +1937,7 @@ namespace NArchive {
 			CObjectVector<CSection> sections = _sections;
 			sections.Sort();
 			uint32 limit = (1 << 12);
-			unsigned num = 0;
+			uint num = 0;
 			FOR_VECTOR(k, sections) {
 				const CSection &s = sections[k];
 				if(s.Pa > limit) {
@@ -2308,7 +2308,7 @@ namespace NArchive {
 
 		static const uint32 kHeaderSize = 40;
 
-		static bool FindValue(const CUInt32PCharPair * pairs, unsigned num, uint32 value)
+		static bool FindValue(const CUInt32PCharPair * pairs, uint num, uint32 value)
 		{
 			for(uint i = 0; i < num; i++)
 				if(pairs[i].Value == value)

@@ -1452,7 +1452,7 @@ namespace NArchive {
 			return false;
 		}
 
-		bool CExtraSubBlock::ExtractUnixTime(bool isCentral, unsigned index, uint32 &res) const
+		bool CExtraSubBlock::ExtractUnixTime(bool isCentral, uint index, uint32 &res) const
 		{
 			res = 0;
 			uint32 size = (uint32)Data.Size();
@@ -1505,7 +1505,7 @@ namespace NArchive {
 			return false;
 		}
 
-		bool CExtraBlock::GetUnixTime(bool isCentral, unsigned index, uint32 &res) const
+		bool CExtraBlock::GetUnixTime(bool isCentral, uint index, uint32 &res) const
 		{
 			{
 				FOR_VECTOR(i, SubBlocks) {
@@ -2143,7 +2143,7 @@ namespace NArchive {
 		// reads from cache and from Stream
 		// move to next volume can be allowed if(CanStartNewVol) and only before first byte reading
 
-		HRESULT CInArchive::ReadFromCache(Byte * data, uint size, unsigned &processed)
+		HRESULT CInArchive::ReadFromCache(Byte * data, uint size, uint &processed)
 		{
 			HRESULT result = S_OK;
 			processed = 0;
@@ -3675,7 +3675,7 @@ namespace NArchive {
 		}
 
 		HRESULT CInArchive::ReadVols2(IArchiveOpenVolumeCallback * volCallback,
-			unsigned start, int lastDisk, int zipDisk, unsigned numMissingVolsMax, unsigned &numMissingVols)
+			unsigned start, int lastDisk, int zipDisk, unsigned numMissingVolsMax, uint &numMissingVols)
 		{
 			numMissingVols = 0;
 			for(uint i = start;; i++) {
@@ -4861,7 +4861,7 @@ namespace NArchive {
 			{ NStrongCrypto_AlgId::kRC4, "RC4" }
 		};
 
-		static const char * FindNameForId(const CIdToNamePair * pairs, unsigned num, unsigned id)
+		static const char * FindNameForId(const CIdToNamePair * pairs, uint num, unsigned id)
 		{
 			for(uint i = 0; i < num; i++) {
 				const CIdToNamePair & pair = pairs[i];
@@ -5822,7 +5822,7 @@ namespace NArchive {
 					return false;
 			}
 		}
-		static int FindZipMethod(const char * s, const char * const * names, unsigned num)
+		static int FindZipMethod(const char * s, const char * const * names, uint num)
 		{
 			for(uint i = 0; i < num; i++) {
 				const char * name = names[i];
@@ -6912,7 +6912,7 @@ namespace NArchive {
 								DWORD lastError = GetLastError();
 								return lastError != 0 ? lastError : E_FAIL;
 							}
-							unsigned t = (uint)(result - WAIT_OBJECT_0);
+							uint t = (uint)(result - WAIT_OBJECT_0);
 							if(t >= compressingCompletedEvents.Size())
 								return E_FAIL;
 							CThreadInfo & threadInfo = threads.Threads[threadIndices[t]];

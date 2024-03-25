@@ -19,8 +19,8 @@ namespace NArchive {
 		static const size_t kInputBufSize = 1 << 20;
 		const Byte kSignature[kSignatureSize] = NSIS_SIGNATURE;
 		static const uint32 kMask_IsCompressed = (uint32)1 << 31;
-		static const unsigned kNumCommandParams = 6;
-		static const unsigned kCmdSize = 4 + kNumCommandParams * 4;
+		static const uint kNumCommandParams = 6;
+		static const uint kCmdSize = 4 + kNumCommandParams * 4;
 
 		#ifdef NSIS_SCRIPT
 			#define CR_LF "\x0D\x0A"
@@ -148,7 +148,7 @@ namespace NArchive {
 			kNumCmds
 		};
 
-		static const unsigned kNumAdditionalParkCmds = 3;
+		static const uint kNumAdditionalParkCmds = 3;
 
 		struct CCommandInfo {
 			Byte NumParams;
@@ -472,7 +472,7 @@ namespace NArchive {
 				if(isRTF) {
 					lic.Text.Alloc((size_t)len);
 					for(uint32 i = 0; i < len; i++, sz += 2) {
-						unsigned c = Get16(sz);
+						uint c = Get16(sz);
 						if(c >= 256)
 							c = '?';
 						lic.Text[i] = (Byte)(c);
@@ -508,7 +508,7 @@ namespace NArchive {
 			"EXEPATH" /* NSIS 2.26+ */, "EXEFILE" /* NSIS 2.26+ */, "HWNDPARENT", "_CLICK" /*is set from page->clicknext*/, "_OUTDIR" /*NSIS 2.04+ */
 		};
 
-		static const unsigned kNumInternalVars = 20 + SIZEOFARRAY(kVarStrings);
+		static const uint kNumInternalVars = 20 + SIZEOFARRAY(kVarStrings);
 
 		#define GET_NUM_INTERNAL_VARS (IsNsis200 ? kNumInternalVars - 3 : IsNsis225 ? kNumInternalVars - 2 : kNumInternalVars);
 
@@ -591,7 +591,7 @@ namespace NArchive {
 		{
 			for(;;) {
 				unsigned c16 = Get16(p16); p16 += 2;
-				unsigned c = (Byte)(*p8++);
+				uint c = (Byte)(*p8++);
 				if(c16 != c)
 					return false;
 				if(c == 0)
@@ -732,7 +732,7 @@ namespace NArchive {
 							if(c == NS_CODE_SHELL)
 								GetShellString(Raw_AString, c0, c1);
 							else {
-								unsigned n = DECODE_NUMBER_FROM_2_CHARS(c0, c1);
+								uint n = DECODE_NUMBER_FROM_2_CHARS(c0, c1);
 								if(c == NS_CODE_VAR)
 									GetVar(Raw_AString, n);
 								else //  if(c == NS_CODE_LANG)
@@ -763,7 +763,7 @@ namespace NArchive {
 						if(c == NS_3_CODE_SHELL)
 							GetShellString(Raw_AString, c0, c1);
 						else {
-							unsigned n = DECODE_NUMBER_FROM_2_CHARS(c0, c1);
+							uint n = DECODE_NUMBER_FROM_2_CHARS(c0, c1);
 							if(c == NS_3_CODE_VAR)
 								GetVar(Raw_AString, n);
 							else // if(c == NS_3_CODE_LANG)
@@ -797,7 +797,7 @@ namespace NArchive {
 							if(c == NS_CODE_SHELL)
 								GetShellString(res, c0, c1);
 							else {
-								unsigned n = DECODE_NUMBER_FROM_2_CHARS(c0, c1);
+								uint n = DECODE_NUMBER_FROM_2_CHARS(c0, c1);
 								if(c == NS_CODE_VAR)
 									GetVar(res, n);
 								else // if(c == NS_CODE_LANG)
@@ -823,7 +823,7 @@ namespace NArchive {
 							if(c == NS_3_CODE_SHELL)
 								GetShellString(res, c0, c1);
 							else {
-								unsigned n = DECODE_NUMBER_FROM_2_CHARS(c0, c1);
+								uint n = DECODE_NUMBER_FROM_2_CHARS(c0, c1);
 								if(c == NS_3_CODE_VAR)
 									GetVar(res, n);
 								else // if(c == NS_3_CODE_LANG)
@@ -860,7 +860,7 @@ namespace NArchive {
 
 			if(IsPark()) {
 				for(;;) {
-					unsigned c = Get16(p);
+					uint c = Get16(p);
 					p += 2;
 					if(c == 0)
 						break;
@@ -870,7 +870,7 @@ namespace NArchive {
 					}
 
 					if(IS_PARK_SPEC_CHAR(c)) {
-						unsigned n = Get16(p);
+						uint n = Get16(p);
 						p += 2;
 						if(n == 0)
 							break;
@@ -899,7 +899,7 @@ namespace NArchive {
 
 			// NSIS-3 Unicode
 			for(;;) {
-				unsigned c = Get16(p);
+				uint c = Get16(p);
 				p += 2;
 				if(c > NS_3_CODE_SKIP) {
 					Raw_UString += (wchar_t)c;
@@ -908,7 +908,7 @@ namespace NArchive {
 				if(c == 0)
 					break;
 
-				unsigned n = Get16(p);
+				uint n = Get16(p);
 				p += 2;
 				if(n == 0)
 					break;
@@ -938,13 +938,13 @@ namespace NArchive {
 		void CInArchive::GetNsisString_Unicode(AString &res, const Byte * p)
 		{
 			for(;;) {
-				unsigned c = Get16(p);
+				uint c = Get16(p);
 				p += 2;
 				if(c == 0)
 					break;
 				if(IsPark()) {
 					if(IS_PARK_SPEC_CHAR(c)) {
-						unsigned n = Get16(p);
+						uint n = Get16(p);
 						p += 2;
 						if(n == 0)
 							break;
@@ -966,7 +966,7 @@ namespace NArchive {
 				else {
 					// NSIS-3 Unicode
 					if(c <= NS_3_CODE_SKIP) {
-						unsigned n = Get16(p);
+						uint n = Get16(p);
 						p += 2;
 						if(n == 0)
 							break;
@@ -1059,7 +1059,7 @@ namespace NArchive {
 			if(param == 0)
 				return true;
 			const Byte * p = _data + _stringsPos;
-			unsigned c;
+			uint c;
 			if(IsUnicode)
 				c = Get16(p + param * 2 - 2);
 			else
@@ -1123,7 +1123,7 @@ namespace NArchive {
 				if(IsUnicode) {
 					if(IsPark()) {
 						for(;;) {
-							unsigned c = Get16(data + i * 2);
+							uint c = Get16(data + i * 2);
 							i++;
 							if(c == 0)
 								break;
@@ -1143,7 +1143,7 @@ namespace NArchive {
 					}
 					else { // NSIS-3 Unicode
 						for(;;) {
-							unsigned c = Get16(data + i * 2);
+							uint c = Get16(data + i * 2);
 							i++;
 							if(c == 0)
 								break;
@@ -1280,7 +1280,7 @@ namespace NArchive {
 
 		#define FLAGS_DELIMITER '|'
 
-		static void FlagsToString2(CDynLimBuf &s, const char * const * table, unsigned num, uint32 flags)
+		static void FlagsToString2(CDynLimBuf &s, const char * const * table, uint num, uint32 flags)
 		{
 			bool filled = false;
 			for(uint i = 0; i < num; i++) {
@@ -1340,7 +1340,7 @@ namespace NArchive {
 			SpaceQuStr(_tempString);
 		}
 
-		void CInArchive::AddParams(const uint32 * params, unsigned num)
+		void CInArchive::AddParams(const uint32 * params, uint num)
 		{
 			for(uint i = 0; i < num; i++)
 				AddParam(params[i]);
@@ -1352,13 +1352,13 @@ namespace NArchive {
 				AddParam(pos);
 		}
 
-		static unsigned GetNumParams(const uint32 * params, unsigned num)
+		static unsigned GetNumParams(const uint32 * params, uint num)
 		{
 			for(; num > 0 && params[num - 1] == 0; num--) ;
 			return num;
 		}
 
-		void CInArchive::AddOptionalParams(const uint32 * params, unsigned num)
+		void CInArchive::AddOptionalParams(const uint32 * params, uint num)
 		{
 			AddParams(params, GetNumParams(params, num));
 		}
@@ -1372,8 +1372,8 @@ namespace NArchive {
 		static const uint32 CMD_REF_Section = (1 << 6);
 		static const uint32 CMD_REF_InitPluginDir = (1 << 7);
 		// static const uint32 CMD_REF_Creator = (1 << 5); // _Pre is used instead
-		static const unsigned CMD_REF_OnFunc_NumShifts = 28; // it uses for onFunc too
-		static const unsigned CMD_REF_Page_NumShifts = 16; // it uses for onFunc too
+		static const uint CMD_REF_OnFunc_NumShifts = 28; // it uses for onFunc too
+		static const uint CMD_REF_Page_NumShifts = 16; // it uses for onFunc too
 		static const uint32 CMD_REF_Page_Mask   = 0x0FFF0000;
 		static const uint32 CMD_REF_OnFunc_Mask = 0xF0000000;
 
@@ -1516,7 +1516,7 @@ namespace NArchive {
 			return (*end == 0);
 		}
 
-		static const unsigned k_CtlColors_Size = 24;
+		static const uint k_CtlColors_Size = 24;
 
 		struct CNsis_CtlColors {
 			uint32 text; // COLORREF
@@ -1566,7 +1566,7 @@ namespace NArchive {
 			v = ((v & 0xFF) << 16) | (v & 0xFF00) | ((v >> 16) & 0xFF);
 			char sz[32];
 			for(int i = 5; i >= 0; i--) {
-				unsigned t = v & 0xF;
+				uint t = v & 0xF;
 				v >>= 4;
 				sz[i] = (char)(((t < 10) ? ('0' + t) : ('A' + (t - 10))));
 			}
@@ -1729,7 +1729,7 @@ namespace NArchive {
 			NewLine();
 		}
 
-		void CInArchive::AddPageOption(const uint32 * params, unsigned num, const char * name)
+		void CInArchive::AddPageOption(const uint32 * params, uint num, const char * name)
 		{
 			num = GetNumParams(params, num);
 			if(num == 0)
@@ -1860,7 +1860,7 @@ namespace NArchive {
 		#define SF_TOGGLED    (1 << 7)
 		#define SF_NAMECHG    (1 << 8)
 
-		bool CInArchive::PrintSectionBegin(const CSection &sect, unsigned index)
+		bool CInArchive::PrintSectionBegin(const CSection &sect, uint index)
 		{
 			AString name;
 			if(sect.Flags & SF_BOLD)
@@ -1939,7 +1939,7 @@ namespace NArchive {
 			AddLF();
 		}
 
-		// static const unsigned kOnFuncShift = 4;
+		// static const uint kOnFuncShift = 4;
 
 		void CInArchive::ClearLangComment()
 		{
@@ -2384,7 +2384,7 @@ namespace NArchive {
 				return -1;
 
 			const Byte * p = _data + _stringsPos + strPos;
-			unsigned c = *p;
+			uint c = *p;
 			if(NsisType == k_NsisType_Nsis3) {
 				if(c != NS_3_CODE_VAR)
 					return -1;
@@ -3414,7 +3414,7 @@ namespace NArchive {
 						Add_ExecFlags(params[2]);
 						Add_GotoVars2(&params[0]);
 						/*
-						   static const unsigned kIfErrors = 2;
+						   static const uint kIfErrors = 2;
 						   if(params[2] != kIfErrors && params[3] != 0xFFFFFFFF ||
 							params[2] == kIfErrors && params[3] != 0)
 						   {
@@ -3875,7 +3875,7 @@ namespace NArchive {
 							if(modKey & 4) s += "ALT|";
 							if(modKey & 8) s += "EXT|";
 
-							static const unsigned kMy_VK_F1 = 0x70;
+							static const uint kMy_VK_F1 = 0x70;
 							if(key >= kMy_VK_F1 && key <= kMy_VK_F1 + 23) {
 								s += 'F';
 								Add_UInt(key - kMy_VK_F1 + 1);
@@ -3993,7 +3993,7 @@ namespace NArchive {
 								if(size <= AfterHeaderSize - 4 - bhData.Offset - offset) {
 									for(uint32 i = 0; i < size; i++) {
 										Byte b = (p2 + 4)[i];
-										unsigned t;
+										uint t;
 										t = (b >> 4); s += (char)(((t < 10) ? ('0' + t) : ('A' + (t - 10))));
 										t = (b & 15); s += (char)(((t < 10) ? ('0' + t) : ('A' + (t - 10))));
 									}
@@ -5045,9 +5045,9 @@ namespace NArchive {
 
 		// ---------- PE (EXE) parsing ----------
 
-		static const unsigned k_PE_StartSize = 0x40;
-		static const unsigned k_PE_HeaderSize = 4 + 20;
-		static const unsigned k_PE_OptHeader32_Size_MIN = 96;
+		static const uint k_PE_StartSize = 0x40;
+		static const uint k_PE_HeaderSize = 4 + 20;
+		static const uint k_PE_OptHeader32_Size_MIN = 96;
 
 		static inline bool CheckPeOffset(uint32 pe)
 		{

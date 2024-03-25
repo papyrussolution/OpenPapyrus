@@ -318,7 +318,7 @@ int MyStringCompareNoCase(const wchar_t * s1, const wchar_t * s2) throw()
 }
 
 /*
-   int MyStringCompareNoCase_N(const wchar_t *s1, const wchar_t *s2, unsigned num)
+   int MyStringCompareNoCase_N(const wchar_t *s1, const wchar_t *s2, uint num)
    {
    for(; num != 0; num--)
    {
@@ -339,7 +339,7 @@ int MyStringCompareNoCase(const wchar_t * s1, const wchar_t * s2) throw()
 
 // ---------- AString ----------
 
-void AString::InsertSpace(unsigned &index, uint size)
+void AString::InsertSpace(uint &index, uint size)
 {
 	Grow(size);
 	MoveItems(index + size, index);
@@ -386,7 +386,7 @@ void AString::Grow_1()
 	ReAlloc(next - 1);
 }
 
-void AString::Grow(unsigned n)
+void AString::Grow(uint n)
 {
 	unsigned freeSize = _limit - _len;
 	if(n > freeSize) {
@@ -398,7 +398,7 @@ void AString::Grow(unsigned n)
 	}
 }
 
-AString::AString(unsigned num, const char * s)
+AString::AString(uint num, const char * s)
 {
 	uint len = sstrlen(s);
 	if(num > len)
@@ -408,7 +408,7 @@ AString::AString(unsigned num, const char * s)
 	_chars[num] = 0;
 }
 
-AString::AString(unsigned num, const AString &s)
+AString::AString(uint num, const AString &s)
 {
 	if(num > s._len)
 		num = s._len;
@@ -577,7 +577,7 @@ void FASTCALL AString::SetFromWStr_if_Ascii(const wchar_t * s)
    {
    uint len = ::SysStringLen(s);
    {
-    for(unsigned i = 0; i < len; i++)
+    for(uint i = 0; i < len; i++)
       if(s[i] <= 0 || s[i] >= 0x80)
         return;
    }
@@ -752,7 +752,7 @@ void AString::TrimLeft() throw()
 		if(c != ' ' && c != '\n' && c != '\t')
 			break;
 	}
-	unsigned pos = (uint)(p - _chars);
+	uint pos = (uint)(p - _chars);
 	if(pos != 0) {
 		MoveItems(0, pos);
 		_len -= pos;
@@ -794,7 +794,7 @@ void AString::InsertAtFront(char c)
 
 void AString::Insert(uint index, const char * s)
 {
-	unsigned num = sstrlen(s);
+	uint num = sstrlen(s);
 	if(num != 0) {
 		InsertSpace(index, num);
 		memcpy(_chars + index, s, num);
@@ -804,7 +804,7 @@ void AString::Insert(uint index, const char * s)
 
 void AString::Insert(uint index, const AString &s)
 {
-	unsigned num = s.Len();
+	uint num = s.Len();
 	if(num != 0) {
 		InsertSpace(index, num);
 		memcpy(_chars + index, s, num);
@@ -892,7 +892,7 @@ void AString::Delete(uint index, unsigned count) throw()
 	}
 }
 
-void AString::DeleteFrontal(unsigned num) throw()
+void AString::DeleteFrontal(uint num) throw()
 {
 	if(num != 0) {
 		MoveItems(0, num);
@@ -1000,7 +1000,7 @@ void UString::Grow_1()
 	ReAlloc(next - 1);
 }
 
-void UString::Grow(unsigned n)
+void UString::Grow(uint n)
 {
 	unsigned freeSize = _limit - _len;
 	if(n > freeSize) {
@@ -1012,7 +1012,7 @@ void UString::Grow(unsigned n)
 	}
 }
 
-UString::UString(unsigned num, const wchar_t * s)
+UString::UString(uint num, const wchar_t * s)
 {
 	uint len = sstrlen(s);
 	SETMIN(num, len);
@@ -1021,7 +1021,7 @@ UString::UString(unsigned num, const wchar_t * s)
 	_chars[num] = 0;
 }
 
-UString::UString(unsigned num, const UString &s)
+UString::UString(uint num, const UString &s)
 {
 	SETMIN(num, s._len);
 	SetStartLen(num);
@@ -1352,7 +1352,7 @@ void UString::TrimLeft() throw()
 		if(c != ' ' && c != '\n' && c != '\t')
 			break;
 	}
-	unsigned pos = (uint)(p - _chars);
+	uint pos = (uint)(p - _chars);
 	if(pos != 0) {
 		MoveItems(0, pos);
 		_len -= pos;
@@ -1394,7 +1394,7 @@ void UString::InsertAtFront(wchar_t c)
 
 void UString::Insert(uint index, const wchar_t * s)
 {
-	unsigned num = sstrlen(s);
+	uint num = sstrlen(s);
 	if(num != 0) {
 		InsertSpace(index, num);
 		wmemcpy(_chars + index, s, num);
@@ -1404,7 +1404,7 @@ void UString::Insert(uint index, const wchar_t * s)
 
 void UString::Insert(uint index, const UString &s)
 {
-	unsigned num = s.Len();
+	uint num = s.Len();
 	if(num != 0) {
 		InsertSpace(index, num);
 		wmemcpy(_chars + index, s, num);
@@ -1492,7 +1492,7 @@ void UString::Delete(uint index, unsigned count) throw()
 	}
 }
 
-void UString::DeleteFrontal(unsigned num) throw()
+void UString::DeleteFrontal(uint num) throw()
 {
 	if(num != 0) {
 		MoveItems(0, num);
@@ -1822,7 +1822,7 @@ static char * Utf16_To_Utf8(char * dest, const wchar_t * src, const wchar_t * sr
 
     #ifndef _WCHART_IS_16BIT
 		uint32 b;
-		unsigned numBits;
+		uint numBits;
 		if(val < _UTF8_RANGE(3)) {
 			numBits = 6 * 3; b = _UTF8_HEAD(3, val);
 		}

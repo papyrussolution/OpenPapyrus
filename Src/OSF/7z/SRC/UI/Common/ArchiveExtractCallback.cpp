@@ -649,7 +649,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 		}
 		for(;;) {
 			// while (NName::IsAbsolutePath(linkPath))
-			unsigned n = NName::GetRootPrefixSize(linkPath);
+			uint n = NName::GetRootPrefixSize(linkPath);
 			if(n == 0)
 				break;
 			isRelative = false;

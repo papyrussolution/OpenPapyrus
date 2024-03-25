@@ -40,7 +40,7 @@ namespace NCompress {
 
 				friend class CCoderReleaser;
 
-				bool ReadTP(unsigned num, unsigned numBits, int spec);
+				bool ReadTP(uint num, uint numBits, int spec);
 				bool ReadC();
 				HRESULT CodeReal(uint64 outSize, ICompressProgressInfo * progress);
 			public:

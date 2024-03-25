@@ -971,7 +971,7 @@ static Bool Xz_CheckFooter(CXzStreamFlags flags, uint64 indexSize, const Byte * 
 
 SRes XzBlock_Parse(CXzBlock * p, const Byte * header)
 {
-	unsigned pos;
+	uint pos;
 	unsigned numFilters, i;
 	unsigned headerSize = (uint)header[0] << 2;
 	if(CrcCalc(header, headerSize) != GetUi32(header + headerSize))
@@ -1089,7 +1089,7 @@ SRes XzUnpacker_Code(CXzUnpacker * p, Byte * dest, SizeT * destLen, const Byte *
 			RINOK(res);
 			if(*status == CODER_STATUS_FINISHED_WITH_MARK) {
 				Byte temp[32];
-				unsigned num = Xz_WriteVarInt(temp, p->packSize + p->blockHeaderSize + XzFlags_GetCheckSize(p->streamFlags));
+				uint num = Xz_WriteVarInt(temp, p->packSize + p->blockHeaderSize + XzFlags_GetCheckSize(p->streamFlags));
 				num += Xz_WriteVarInt(temp + num, p->unpackSize);
 				Sha256_Update(&p->sha, temp, num);
 				p->indexSize += num;

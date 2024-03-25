@@ -52,7 +52,7 @@ namespace NCompress {
 			uint16 Freqs[kNumSymbolsMax + 1];
 			Byte   Vals[kNumSymbolsMax];
 		public:
-			void   Init(unsigned numItems);
+			void   Init(uint numItems);
 			uint   Decode(CRangeDecoder * rc);
 		};
 
@@ -168,7 +168,7 @@ namespace NCompress {
 			Range = high - Low + 1;
 		}
 
-		void CModelDecoder::Init(unsigned numItems)
+		void CModelDecoder::Init(uint numItems)
 		{
 			NumItems = numItems;
 			ReorderCount = kReorderCountStart;

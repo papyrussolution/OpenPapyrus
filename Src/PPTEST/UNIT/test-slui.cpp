@@ -487,6 +487,60 @@ SLTEST_R(UiDescription)
 				f_out.Write(temp_buf.cptr(), temp_buf.Len());
 			}
 		}
+		{
+			/*
+				{
+					"symb": "testset01",
+					"a": "#white",
+					"b": "#green"
+				},
+				{
+					"symb": "testset02",
+					"a": "#black",
+					"b": "#blue"
+				},
+				{
+					"symb": "testset03",
+					"a1": "$testset01.a",
+					"b1": "$testset01.b",
+					"a2": "$testset02.a",
+					"b2": "$testset02.b",
+					"x": "$testset03.a1",
+					"y": "a2"
+				},
+			*/
+			SColor color_result1;
+			SColor color_result2;
+			SLCHECK_NZ(uid.GetColor("testset03", "a1", color_result1));
+			SLCHECK_NZ(uid.GetColor("testset01", "a", color_result2));
+			SLCHECK_EQ(color_result1, SColor(SClrWhite));
+			SLCHECK_EQ(color_result1, color_result2);
+			//
+			SLCHECK_NZ(uid.GetColor("testset03", "b1", color_result1));
+			SLCHECK_NZ(uid.GetColor("testset01", "b", color_result2));
+			SLCHECK_EQ(color_result1, SColor(SClrGreen));
+			SLCHECK_EQ(color_result1, color_result2);
+			//
+			SLCHECK_NZ(uid.GetColor("testset03", "a2", color_result1));
+			SLCHECK_NZ(uid.GetColor("testset02", "a", color_result2));
+			SLCHECK_EQ(color_result1, SColor(SClrBlack));
+			SLCHECK_EQ(color_result1, color_result2);
+			//
+			SLCHECK_NZ(uid.GetColor("testset03", "b2", color_result1));
+			SLCHECK_NZ(uid.GetColor("testset02", "b", color_result2));
+			SLCHECK_EQ(color_result1, SColor(SClrBlue));
+			SLCHECK_EQ(color_result1, color_result2);
+			//
+			SLCHECK_NZ(uid.GetColor("testset03", "x", color_result1));
+			SLCHECK_NZ(uid.GetColor("testset03", "a1", color_result2));
+			SLCHECK_EQ(color_result1, SColor(SClrWhite));
+			SLCHECK_EQ(color_result1, color_result2);
+			//
+			SLCHECK_NZ(uid.GetColor("testset03", "y", color_result1));
+			SLCHECK_NZ(uid.GetColor("testset03", "a2", color_result2));
+			SLCHECK_EQ(color_result1, SColor(SClrBlack));
+			SLCHECK_EQ(color_result1, color_result2);
+		}
 	}
 	{
 		p_js2 = SJson::ParseFile(MakeOutputFilePath("colorset-imgui-test-reverse.json"));

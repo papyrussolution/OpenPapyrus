@@ -86,7 +86,7 @@ namespace NArchive {
 			void   UpdatePhySize(uint64 val) { SETMAX(PhySize, val); }
 			HRESULT ReadSector(IInStream * inStream, Byte * buf, unsigned sectorSizeBits, uint32 sid);
 			HRESULT ReadIDs(IInStream * inStream, Byte * buf, unsigned sectorSizeBits, uint32 sid, uint32 * dest);
-			HRESULT Update_PhySize_WithItem(unsigned index);
+			HRESULT Update_PhySize_WithItem(uint index);
 			void   Clear();
 			bool   IsLargeStream(uint64 size) const { return size >= LongStreamMinSize; }
 
@@ -204,11 +204,11 @@ namespace NArchive {
 
 		// static const char * const k_Msi_ID = ""; // "{msi}";
 		static const char k_Msi_SpecChar = '!';
-		static const unsigned k_Msi_NumBits = 6;
-		static const unsigned k_Msi_NumChars = 1 << k_Msi_NumBits;
-		static const unsigned k_Msi_CharMask = k_Msi_NumChars - 1;
-		static const unsigned k_Msi_StartUnicodeChar = 0x3800;
-		static const unsigned k_Msi_UnicodeRange = k_Msi_NumChars * (k_Msi_NumChars + 1);
+		static const uint k_Msi_NumBits = 6;
+		static const uint k_Msi_NumChars = 1 << k_Msi_NumBits;
+		static const uint k_Msi_CharMask = k_Msi_NumChars - 1;
+		static const uint k_Msi_StartUnicodeChar = 0x3800;
+		static const uint k_Msi_UnicodeRange = k_Msi_NumChars * (k_Msi_NumChars + 1);
 
 		static bool IsMsiName(const Byte * p)
 		{
@@ -293,7 +293,7 @@ namespace NArchive {
 			return s;
 		}
 
-		HRESULT CDatabase::Update_PhySize_WithItem(unsigned index)
+		HRESULT CDatabase::Update_PhySize_WithItem(uint index)
 		{
 			const CItem &item = Items[index];
 			bool isLargeStream = (index == 0 || IsLargeStream(item.Size));
@@ -325,7 +325,7 @@ namespace NArchive {
 		}
 
 		// There is name "[!]MsiPatchSequence" in msp files
-		static const unsigned kMspSequence_Size = 18;
+		static const uint kMspSequence_Size = 18;
 		static const Byte kMspSequence[kMspSequence_Size] = { 0x40, 0x48, 0x96, 0x45, 0x6C, 0x3E, 0xE4, 0x45, 0xE6, 0x42, 0x16, 0x42, 0x37, 0x41, 0x27, 0x41, 0x37, 0x41 };
 
 		HRESULT CDatabase::Open(IInStream * inStream)

@@ -46,7 +46,7 @@ void CBitlEncoder::FlushByte()
 	_curByte = 0;
 }
 
-void CBitlEncoder::WriteBits(uint32 value, unsigned numBits)
+void CBitlEncoder::WriteBits(uint32 value, uint numBits)
 {
 	while(numBits > 0) {
 		if(numBits < _bitPos) {

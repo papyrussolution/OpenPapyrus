@@ -57,7 +57,7 @@ HRESULT CHashBundle::SetMethods(DECL_EXTERNAL_CODECS_LOC_VARS const UStringVecto
 			methods.Clear();
 			ids.Clear();
 			FOR_VECTOR(t, tempMethods) {
-				unsigned index = ids.AddToUniqueSorted(tempMethods[t]);
+				uint index = ids.AddToUniqueSorted(tempMethods[t]);
 				if(ids.Size() != methods.Size())
 					methods.Insert(index, m);
 			}
@@ -68,7 +68,7 @@ HRESULT CHashBundle::SetMethods(DECL_EXTERNAL_CODECS_LOC_VARS const UStringVecto
 			CMethodId id;
 			if(!FindHashMethod(EXTERNAL_CODECS_LOC_VARS m.MethodName, id))
 				return E_NOTIMPL;
-			unsigned index = ids.AddToUniqueSorted(id);
+			uint index = ids.AddToUniqueSorted(id);
 			if(ids.Size() != methods.Size())
 				methods.Insert(index, m);
 		}

@@ -1333,28 +1333,54 @@ int SColorSet::Get(const char * pSymb, const TSCollection <SColorSet> * pSetList
 {
 	int    ok = -1;
 	if(!isempty(pSymb)) {
-		if(sstrchr(pSymb, '.')) {
-			
-		}
 		SString & r_key_buf = SLS.AcquireRvlStr();
 		r_key_buf.Cat(pSymb).Utf8ToLower();
-		const InnerEntry * p_entry = L.Get(r_key_buf.cptr(), r_key_buf.Len());
-		if(p_entry) {
-			if(p_entry->CcbP) {
-				THROW(p_entry->CcbP <= CcC.getCount()); // @todo @err
-				{
-					const ComplexColorBlock * p_inner_blk = CcC.at(p_entry->CcbP-1);
-					THROW(p_inner_blk); // @todo @err
-					ASSIGN_PTR(pBlk, *p_inner_blk);
-				}
+		// @v11.9.10 Резолвинг символа цвета, относящегося к другому сету {
+		if(r_key_buf.HasChr('.')) {
+			SString & r_left = SLS.AcquireRvlStr();
+			SString & r_right = SLS.AcquireRvlStr();
+			const int dr = r_key_buf.Divide('.', r_left, r_right);
+			assert(dr > 0); // Мы только что выше убедились, что в исходной строке есть точка ('.')
+			if(r_left.IsEqiAscii(Symb)) {
+				ok = Get(r_right, pSetList, pBlk); // @recursion
 			}
 			else {
-				if(pBlk) {
-					pBlk->Z();
-					pBlk->C = p_entry->C;
+				if(pSetList) {
+					const SColorSet * p_target_set = 0;
+					for(uint i = 0; !p_target_set && i < pSetList->getCount(); i++) {
+						const SColorSet * p_internal_set = pSetList->at(i);
+						if(p_internal_set && p_internal_set->Symb.IsEqiAscii(r_left))
+							p_target_set = p_internal_set;
+					}
+					if(p_target_set) {
+						ok = p_target_set->Get(r_right, pSetList, pBlk);
+					}
+					else
+						ok = 0; // unable to resolve symbol of another SColorSet
 				}
+				else
+					ok = 0; // unable to resolve symbol of another SColorSet
 			}
-			ok = 1;
+		} // } @v11.9.10
+		else {
+			const InnerEntry * p_entry = L.Get(r_key_buf.cptr(), r_key_buf.Len());
+			if(p_entry) {
+				if(p_entry->CcbP) {
+					THROW(p_entry->CcbP <= CcC.getCount()); // @todo @err
+					{
+						const ComplexColorBlock * p_inner_blk = CcC.at(p_entry->CcbP-1);
+						THROW(p_inner_blk); // @todo @err
+						ASSIGN_PTR(pBlk, *p_inner_blk);
+					}
+				}
+				else {
+					if(pBlk) {
+						pBlk->Z();
+						pBlk->C = p_entry->C;
+					}
+				}
+				ok = 1;
+			}
 		}
 	}
 	CATCHZOK

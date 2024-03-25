@@ -449,7 +449,7 @@ static void AddSwitchWildcardsToCensor(NWildcard::CCensor &censor, const UString
 	for(i = 0; i < strings.Size(); i++) {
 		const UString &name = strings[i];
 		NRecursedType::EEnum recursedType;
-		unsigned pos = 0;
+		uint pos = 0;
 		if(name.Len() < kSomeCludePostStringMinSize) {
 			errorMessage = "Too short switch";
 			break;
@@ -705,7 +705,7 @@ static void SetMethodOptions(const CParser & parser, CObjectVector <CProperty> &
 	}
 }
 
-static inline void SetStreamMode(const CSwitchResult &sw, unsigned &res)
+static inline void SetStreamMode(const CSwitchResult &sw, uint &res)
 {
 	if(sw.ThereIs)
 		res = sw.PostCharIndex;
@@ -796,7 +796,7 @@ static int32 FindCharset(const NCommandLineParser::CParser &parser, unsigned key
 		if(v < ((uint32)1 << 16))
 			return (int32)v;
 	name.MakeLower_Ascii();
-	unsigned num = byteOnlyCodePages ? kNumByteOnlyCodePages : SIZEOFARRAY(g_CodePagePairs);
+	uint num = byteOnlyCodePages ? kNumByteOnlyCodePages : SIZEOFARRAY(g_CodePagePairs);
 	for(uint i = 0;; i++) {
 		if(i == num) // to disable warnings from different compilers
 			throw CArcCmdLineException("Unsupported charset:", name);
@@ -838,7 +838,7 @@ HRESULT EnumerateDirItemsAndSort(NWildcard::CCensor &censor, NWildcard::ECensorP
 	sortedPaths.ClearAndReserve(indices.Size());
 	sortedFullPaths.ClearAndReserve(indices.Size());
 	for(i = 0; i < indices.Size(); i++) {
-		unsigned index = indices[i];
+		uint index = indices[i];
 		sortedPaths.AddInReserved(fs2us(paths[index]));
 		sortedFullPaths.AddInReserved(fullPaths[index]);
 		if(i > 0 && CompareFileNames(sortedFullPaths[i], sortedFullPaths[i - 1]) == 0)

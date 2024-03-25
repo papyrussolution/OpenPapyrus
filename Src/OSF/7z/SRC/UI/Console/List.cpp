@@ -254,7 +254,7 @@ public:
 	AString LinesString;
 
 	void Clear() { _fields.Clear(); LinesString.Empty(); }
-	void Init(const CFieldInfoInit * standardFieldTable, unsigned numItems);
+	void Init(const CFieldInfoInit * standardFieldTable, uint numItems);
 	HRESULT AddMainProps(IInArchive * archive);
 	HRESULT AddRawProps(IArchiveGetRawProps * getRawProps);
 	void PrintTitle();
@@ -264,7 +264,7 @@ public:
 	void PrintSum(const CListStat2 &stat2);
 };
 
-void CFieldPrinter::Init(const CFieldInfoInit * standardFieldTable, unsigned numItems)
+void CFieldPrinter::Init(const CFieldInfoInit * standardFieldTable, uint numItems)
 {
 	Clear();
 	for(uint i = 0; i < numItems; i++) {

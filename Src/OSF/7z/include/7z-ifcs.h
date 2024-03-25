@@ -1779,7 +1779,7 @@ public:
 	void   Init();
 	HRESULT Flush();
 	void   FlushByte();
-	void   WriteBits(uint32 value, unsigned numBits);
+	void   WriteBits(uint32 value, uint numBits);
 	void   FASTCALL WriteByte(Byte b);
 private:
 	COutBuffer _stream;
@@ -2318,7 +2318,7 @@ namespace NCompress {
 				uint32 GetOptimal(uint32 &backRes);
 				uint32 GetOptimalFast(uint32 &backRes);
 				void LevelTableDummy(const Byte * levels, unsigned numLevels, uint32 * freqs);
-				void WriteBits(uint32 value, unsigned numBits);
+				void WriteBits(uint32 value, uint numBits);
 				void LevelTableCode(const Byte * levels, unsigned numLevels, const Byte * lens, const uint32 * codes);
 				void MakeTables(unsigned maxHuffLen);
 				uint32 GetLzBlockPrice() const;
@@ -2679,7 +2679,7 @@ namespace NCompress {
 
 			uint32 ReadRleBlock(Byte * buf);
 			void WriteBytes(const Byte * data, uint32 sizeInBits, Byte lastByte);
-			void WriteBits(uint32 value, unsigned numBits);
+			void WriteBits(uint32 value, uint numBits);
 			void WriteByte(Byte b);
 			// void WriteBit(Byte v);
 			void WriteCrc(uint32 v);
@@ -4641,7 +4641,7 @@ namespace NArchive {
 			void WriteUnpackInfo(const CObjectVector<CFolder> &folders, const COutFolders &outFolders);
 			void WriteSubStreamsInfo(const CObjectVector<CFolder> &folders, const COutFolders &outFolders,
 				const CRecordVector<uint64> &unpackSizes, const CUInt32DefVector &digests);
-			void SkipToAligned(unsigned pos, unsigned alignShifts);
+			void SkipToAligned(uint pos, unsigned alignShifts);
 			void WriteAlignedBools(const CBoolVector &v, unsigned numDefined, Byte type, unsigned itemSizeShifts);
 			void WriteUInt64DefVector(const CUInt64DefVector &v, Byte type);
 			HRESULT EncodeStream(DECL_EXTERNAL_CODECS_LOC_VARS CEncoder &encoder, const CByteBuffer &data,
@@ -4852,15 +4852,15 @@ namespace NArchive {
 			void WaitId(uint64 id);
 			void Read_UInt32_Vector(CUInt32DefVector &v);
 			void ReadArchiveProperties(CInArchiveInfo &archiveInfo);
-			void ReadHashDigests(unsigned numItems, CUInt32DefVector &crcs);
+			void ReadHashDigests(uint numItems, CUInt32DefVector &crcs);
 			void ReadPackInfo(CFolders &f);
 			void ReadUnpackInfo(const CObjectVector<CByteBuffer> * dataVector, CFolders &folders);
 			void ReadSubStreamsInfo(CFolders &folders, CRecordVector<uint64> &unpackSizes, CUInt32DefVector &digests);
 			void ReadStreamsInfo(const CObjectVector<CByteBuffer> * dataVector, uint64 &dataOffset,
 				CFolders &folders, CRecordVector<uint64> &unpackSizes, CUInt32DefVector &digests);
-			void ReadBoolVector(unsigned numItems, CBoolVector &v);
-			void ReadBoolVector2(unsigned numItems, CBoolVector &v);
-			void ReadUInt64DefVector(const CObjectVector<CByteBuffer> &dataVector, CUInt64DefVector &v, unsigned numItems);
+			void ReadBoolVector(uint numItems, CBoolVector &v);
+			void ReadBoolVector2(uint numItems, CBoolVector &v);
+			void ReadUInt64DefVector(const CObjectVector<CByteBuffer> &dataVector, CUInt64DefVector &v, uint numItems);
 			HRESULT ReadAndDecodePackedStreams(DECL_EXTERNAL_CODECS_LOC_VARS uint64 baseOffset, uint64 &dataOffset,
 				CObjectVector<CByteBuffer> &dataVector _7Z_DECODER_CRYPRO_VARS_DECL);
 			HRESULT ReadHeader(DECL_EXTERNAL_CODECS_LOC_VARS CDbEx &db _7Z_DECODER_CRYPRO_VARS_DECL);
@@ -5374,8 +5374,8 @@ namespace NArchive {
 			uint64 GetVirtStreamPos() { return _streamPos - _bufCached + _bufPos; }
 			HRESULT Seek_SavePos(uint64 offset);
 			HRESULT SeekToVol(int volIndex, uint64 offset);
-			HRESULT ReadFromCache(Byte * data, uint size, unsigned &processed);
-			HRESULT ReadVols2(IArchiveOpenVolumeCallback * volCallback, unsigned start, int lastDisk, int zipDisk, unsigned numMissingVolsMax, unsigned &numMissingVols);
+			HRESULT ReadFromCache(Byte * data, uint size, uint &processed);
+			HRESULT ReadVols2(IArchiveOpenVolumeCallback * volCallback, unsigned start, int lastDisk, int zipDisk, unsigned numMissingVolsMax, uint &numMissingVols);
 			HRESULT ReadVols();
 			HRESULT FindMarker(const uint64 * searchLimit);
 			HRESULT IncreaseRealPosition(uint64 addValue, bool &isFinished);
@@ -6816,7 +6816,7 @@ namespace NArchive {
 			bool   Is_CMT() const;
 			bool   Is_ACL() const;
 			// bool Is_QO()  const { return IsService() && Name == "QO"; }
-			int    FindExtra(unsigned extraID, unsigned &recordDataSize) const;
+			int    FindExtra(unsigned extraID, uint &recordDataSize) const;
 			void   PrintInfo(AString &s) const;
 			bool   IsEncrypted() const;
 			int    FindExtra_Blake() const;
@@ -6880,7 +6880,7 @@ namespace NArchive {
 					   bool Is_QuickOpen() const { return (Flags & NLocatorFlags::kQuickOpen) != 0; }
 					   bool Is_Recovery() const { return (Flags & NLocatorFlags::kRecovery) != 0; }
 				   };
-				   int FindExtra(unsigned extraID, unsigned &recordDataSize) const;
+				   int FindExtra(unsigned extraID, uint &recordDataSize) const;
 				   bool FindExtra_Locator(CLocator &locator) const;
 				 */
 				CInArcInfo();
@@ -7928,7 +7928,7 @@ namespace NArchive {
 			void Add_GotoVar1(uint32 param);
 			void Add_GotoVars2(const uint32 * params);
 
-			bool PrintSectionBegin(const CSection &sect, unsigned index);
+			bool PrintSectionBegin(const CSection &sect, uint index);
 			void PrintSectionEnd();
 
 			void GetNsisString(AString &res, const Byte * s);
@@ -7939,10 +7939,10 @@ namespace NArchive {
 			void MessageBox_MB_Part(uint32 param);
 			void AddParam(uint32 pos);
 			void AddOptionalParam(uint32 pos);
-			void AddParams(const uint32 * params, unsigned num);
+			void AddParams(const uint32 * params, uint num);
 			void AddPageOption1(uint32 param, const char * name);
-			void AddPageOption(const uint32 * params, unsigned num, const char * name);
-			void AddOptionalParams(const uint32 * params, unsigned num);
+			void AddPageOption(const uint32 * params, uint num, const char * name);
+			void AddOptionalParams(const uint32 * params, uint num);
 			void AddRegRoot(uint32 value);
 
 			void ClearLangComment();

@@ -63,7 +63,7 @@ namespace NCompress {
 				return false;
 			if((_bitPos >> 4) * 2 != _extraSize)
 				return false;
-			unsigned numBits = _bitPos & 15;
+			uint numBits = _bitPos & 15;
 			return (((_value >> (_bitPos - numBits)) & (((uint32)1 << numBits) - 1)) == 0);
 		}
 
@@ -142,7 +142,7 @@ namespace NCompress {
 		{
 			if(_extraSize != 0)
 				return false;
-			unsigned numBits = _bitPos - 16;
+			uint numBits = _bitPos - 16;
 			if(((_value >> 16) & (((uint32)1 << numBits) - 1)) != 0)
 				return false;
 			_buf -= 2;
@@ -223,7 +223,7 @@ namespace NCompress {
 					levels2[i] = (Byte)ReadBits(kNumLevelBits);
 				RIF(_levelDecoder.Build(levels2));
 			}
-			unsigned i = 0;
+			uint i = 0;
 			do {
 				uint32 sym = _levelDecoder.Decode(&_bitStream);
 				if(sym <= kNumHuffmanBits) {
@@ -233,7 +233,7 @@ namespace NCompress {
 					continue;
 				}
 
-				unsigned num;
+				uint num;
 				Byte symbol;
 
 				if(sym < kLevelSym_Same) {

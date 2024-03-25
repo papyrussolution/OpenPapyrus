@@ -99,7 +99,7 @@ Bool Ppmd8_Alloc(CPpmd8 * p, uint32 size, ISzAllocPtr alloc)
 	return True;
 }
 
-static void InsertNode(CPpmd8 * p, void * node, unsigned indx)
+static void InsertNode(CPpmd8 * p, void * node, uint indx)
 {
 	((CPpmd8_Node*)node)->Stamp = EMPTY_NODE;
 	((CPpmd8_Node*)node)->Next = (CPpmd8_Node_Ref)p->FreeList[indx];
@@ -108,7 +108,7 @@ static void InsertNode(CPpmd8 * p, void * node, unsigned indx)
 	p->Stamps[indx]++;
 }
 
-static void * RemoveNode(CPpmd8 * p, unsigned indx)
+static void * RemoveNode(CPpmd8 * p, uint indx)
 {
 	CPpmd8_Node * node = NODE((CPpmd8_Node_Ref)p->FreeList[indx]);
 	p->FreeList[indx] = node->Next;
@@ -118,7 +118,7 @@ static void * RemoveNode(CPpmd8 * p, unsigned indx)
 
 static void SplitBlock(CPpmd8 * p, void * ptr, unsigned oldIndx, unsigned newIndx)
 {
-	unsigned i, nu = I2U(oldIndx) - I2U(newIndx);
+	uint i, nu = I2U(oldIndx) - I2U(newIndx);
 	ptr = (Byte *)ptr + U2B(I2U(newIndx));
 	if(I2U(i = U2I(nu)) != nu) {
 		unsigned k = I2U(--i);
@@ -175,7 +175,7 @@ static void GlueFreeBlocks(CPpmd8 * p)
 	}
 }
 
-static void * AllocUnitsRare(CPpmd8 * p, unsigned indx)
+static void * AllocUnitsRare(CPpmd8 * p, uint indx)
 {
 	uint i;
 	void * retVal;
@@ -197,7 +197,7 @@ static void * AllocUnitsRare(CPpmd8 * p, unsigned indx)
 	return retVal;
 }
 
-static void * AllocUnits(CPpmd8 * p, unsigned indx)
+static void * AllocUnits(CPpmd8 * p, uint indx)
 {
 	uint32 numBytes;
 	if(p->FreeList[indx] != 0)
@@ -250,7 +250,7 @@ static void SpecialFreeUnit(CPpmd8 * p, void * ptr)
 
 static void * MoveUnitsUp(CPpmd8 * p, void * oldPtr, unsigned nu)
 {
-	unsigned indx = U2I(nu);
+	uint indx = U2I(nu);
 	void * ptr;
 	if((Byte *)oldPtr > p->UnitsStart + 16 * 1024 || REF(oldPtr) > p->FreeList[indx])
 		return oldPtr;
@@ -306,7 +306,7 @@ static void SetSuccessor(CPpmd_State * p, CPpmd_Void_Ref v)
 
 static void RestartModel(CPpmd8 * p)
 {
-	unsigned i, k, m, r;
+	uint i, k, m, r;
 	memzero(p->FreeList, sizeof(p->FreeList));
 	memzero(p->Stamps, sizeof(p->Stamps));
 	RESET_TEXT(0);
@@ -363,7 +363,7 @@ void Ppmd8_Init(CPpmd8 * p, unsigned maxOrder, unsigned restoreMethod)
 
 static void Refresh(CPpmd8 * p, CTX_PTR ctx, unsigned oldNU, unsigned scale)
 {
-	unsigned i = ctx->NumStats, escFreq, sumFreq, flags;
+	uint i = ctx->NumStats, escFreq, sumFreq, flags;
 	CPpmd_State * s = (CPpmd_State*)ShrinkUnits(p, STATS(ctx), oldNU, (i + 2) >> 1);
 	ctx->Stats = REF(s);
   #ifdef PPMD8_FREEZE_SUPPORT
@@ -793,7 +793,7 @@ static void UpdateModel(CPpmd8 * p)
 			if((ns1 & 1) != 0) {
 				/* Expand for one UNIT */
 				unsigned oldNU = (ns1 + 1) >> 1;
-				unsigned i = U2I(oldNU);
+				uint i = U2I(oldNU);
 				if(i != U2I((size_t)oldNU + 1)) {
 					void * ptr = AllocUnits(p, i + 1);
 					void * oldPtr;

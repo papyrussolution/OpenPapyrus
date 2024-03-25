@@ -108,17 +108,9 @@ namespace NArchive {
 			kpidSymLink
 		};
 
-		static const Byte kArcProps[] =
-		{
-			kpidComment,
-			kpidCTime,
-			kpidMTime,
-			// kpidHeadersSize
-		};
-
+		static const Byte kArcProps[] = { kpidComment, kpidCTime, kpidMTime, /*kpidHeadersSize*/ };
 		IMP_IInArchive_Props
 		IMP_IInArchive_ArcProps
-
 		STDMETHODIMP CHandler::Open(IInStream * stream, const uint64 * /* maxCheckStartPosition */, IArchiveOpenCallback * /* openArchiveCallback */)
 		{
 			COM_TRY_BEGIN
@@ -145,8 +137,10 @@ namespace NArchive {
 		static void AddString(AString &s, const char * name, const Byte * p, uint size)
 		{
 			uint i;
-			for(i = 0; i < size && p[i]; i++) ;
-			for(; i > 0 && p[i - 1] == ' '; i--) ;
+			for(i = 0; i < size && p[i]; i++) 
+				;
+			for(; i > 0 && p[i - 1] == ' '; i--) 
+				;
 			if(i != 0) {
 				AString d;
 				d.SetFrom((const char *)p, i);
@@ -563,7 +557,7 @@ namespace NArchive {
 			uint len = 0;
 			const CDir * cur = this;
 			for(;;) {
-				unsigned curLen;
+				uint curLen;
 				cur->GetNameCur(checkSusp, skipSize, curLen);
 				len += curLen;
 				cur = cur->Parent;
@@ -574,7 +568,7 @@ namespace NArchive {
 			char * p = s.GetBuf_SetEnd(len) + len;
 			cur = this;
 			for(;;) {
-				unsigned curLen;
+				uint curLen;
 				const Byte * name = cur->GetNameCur(checkSusp, skipSize, curLen);
 				p -= curLen;
 				if(curLen != 0)
@@ -594,9 +588,8 @@ namespace NArchive {
 			uint len = 0;
 			const CDir * cur = this;
 			for(;;) {
-				unsigned curLen = (uint)(cur->FileId.Size() / 2);
+				uint curLen = (uint)(cur->FileId.Size() / 2);
 				const Byte * fid = cur->FileId;
-
 				uint i;
 				for(i = 0; i < curLen; i++)
 					if(fid[i * 2] == 0 && fid[i * 2 + 1] == 0)
@@ -610,7 +603,7 @@ namespace NArchive {
 			wchar_t * p = s.GetBuf_SetEnd(len) + len;
 			cur = this;
 			for(;;) {
-				unsigned curLen = (uint)(cur->FileId.Size() / 2);
+				uint curLen = (uint)(cur->FileId.Size() / 2);
 				const Byte * fid = cur->FileId;
 				uint i;
 				for(i = 0; i < curLen; i++)
