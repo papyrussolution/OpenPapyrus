@@ -2111,6 +2111,7 @@
     <ClCompile Include="..\SLib\SAIS\libsais64.c" />
     <ClCompile Include="..\SLib\sdecimal.cpp" />
     <ClCompile Include="..\SLib\sdrecord.cpp" />
+    <ClCompile Include="..\SLib\sltabs.cpp" />
     <ClCompile Include="..\SLib\smemchr.cpp" />
     <ClCompile Include="..\SLib\soapdbt.cpp" />
     <ClCompile Include="..\SLib\sprocess.cpp" />
