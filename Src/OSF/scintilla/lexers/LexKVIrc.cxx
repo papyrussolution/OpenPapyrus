@@ -20,15 +20,15 @@ using namespace Scintilla;
 /* KVIrc Script syntactic rules: http://www.kvirc.net/doc/doc_syntactic_rules.html */
 
 /* Utility functions */
-static bool FASTCALL IsAWordChar(int ch) {
-	/* Keyword list includes modules, i.e. words including '.', and
-	 * alias namespaces include ':' */
-	return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '.'
-	   || ch == ':');
+static bool FASTCALL IsAWordChar(int ch) 
+{
+	// Keyword list includes modules, i.e. words including '.', and alias namespaces include ':'
+	return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '.' || ch == ':');
 }
 
-static bool FASTCALL IsAWordStart(int ch) {
-	/* Functions (start with '$') are treated separately to keywords */
+static bool FASTCALL IsAWordStart(int ch) 
+{
+	// Functions (start with '$') are treated separately to keywords
 	return (ch < 0x80) && (isalnum(ch) || ch == '_' );
 }
 

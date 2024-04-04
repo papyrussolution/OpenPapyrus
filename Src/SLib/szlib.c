@@ -491,7 +491,6 @@ static void make_crc_table()
 			}
 		}
 #endif /* BYFOUR */
-
 		crc_table_empty = 0;
 	}
 	else {  /* not first */
@@ -533,6 +532,7 @@ static void write_table(FILE * out, const uint32  * table)
 #endif /* MAKECRCH */
 
 #else /* !DYNAMIC_CRC_TABLE */
+#if 0 // @v11.9.11 (replaced with SlTabs::LookupTable_CRC32LE_Zlib)
 	//
 	// Tables of CRC-32s of all single-byte values, made by make_crc_table().
 	//
@@ -896,6 +896,7 @@ static void write_table(FILE * out, const uint32  * table)
 	#endif
 		}
 	};
+#endif // } 0 @v11.9.11
 #endif /* DYNAMIC_CRC_TABLE */
 //
 // This function can be used by asm versions of crc32()
@@ -906,10 +907,10 @@ const uint32 * get_crc_table()
 	if(crc_table_empty)
 		make_crc_table();
 #endif
-	return (const uint32 *)crc_table;
+	return (const uint32 *)/*crc_table*/SlTabs::LookupTable_CRC32LE_Zlib;
 }
 
-#define DO1 crc = crc_table[0][((int)crc ^ (*buf++)) & 0xff] ^ (crc >> 8)
+#define DO1 crc = /*crc_table*/SlTabs::LookupTable_CRC32LE_Zlib[0][((int)crc ^ (*buf++)) & 0xff] ^ (crc >> 8)
 #define DO8 DO1; DO1; DO1; DO1; DO1; DO1; DO1; DO1
 
 ulong crc32_z(ulong crc, const uchar  * buf, size_t len)
@@ -957,7 +958,9 @@ ulong crc32(ulong crc, const uchar  * buf, uInt len)
 // should not be copied and pasted into a compilation unit in which other code
 // writes to the buffer that is passed to these routines.
 // 
-#define DOLIT4 c ^= *buf4++; c = crc_table[3][c & 0xff] ^ crc_table[2][(c >> 8) & 0xff] ^ crc_table[1][(c >> 16) & 0xff] ^ crc_table[0][c >> 24]
+#define DOLIT4 c ^= *buf4++; c = /*crc_table*/SlTabs::LookupTable_CRC32LE_Zlib[3][c & 0xff] ^ \
+	/*crc_table*/SlTabs::LookupTable_CRC32LE_Zlib[2][(c >> 8) & 0xff] ^ \
+	/*crc_table*/SlTabs::LookupTable_CRC32LE_Zlib[1][(c >> 16) & 0xff] ^ /*crc_table*/SlTabs::LookupTable_CRC32LE_Zlib[0][c >> 24]
 #define DOLIT32 DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4
 
 static ulong crc32_little(ulong crc, const uchar * buf, size_t len)
@@ -966,7 +969,7 @@ static ulong crc32_little(ulong crc, const uchar * buf, size_t len)
 	uint32 c = (uint32)crc;
 	c = ~c;
 	while(len && ((ptrdiff_t)buf & 3)) {
-		c = crc_table[0][(c ^ *buf++) & 0xff] ^ (c >> 8);
+		c = /*crc_table*/SlTabs::LookupTable_CRC32LE_Zlib[0][(c ^ *buf++) & 0xff] ^ (c >> 8);
 		len--;
 	}
 	buf4 = reinterpret_cast<const uint32 *>(buf);
@@ -980,13 +983,15 @@ static ulong crc32_little(ulong crc, const uchar * buf, size_t len)
 	}
 	buf = reinterpret_cast<const uchar *>(buf4);
 	if(len) do {
-		c = crc_table[0][(c ^ *buf++) & 0xff] ^ (c >> 8);
+		c = /*crc_table*/SlTabs::LookupTable_CRC32LE_Zlib[0][(c ^ *buf++) & 0xff] ^ (c >> 8);
 	} while(--len);
 	c = ~c;
 	return (ulong)c;
 }
 
-#define DOBIG4 c ^= *buf4++; c = crc_table[4][c & 0xff] ^ crc_table[5][(c >> 8) & 0xff] ^ crc_table[6][(c >> 16) & 0xff] ^ crc_table[7][c >> 24]
+#define DOBIG4 c ^= *buf4++; c = /*crc_table*/SlTabs::LookupTable_CRC32LE_Zlib[4][c & 0xff] ^ \
+	/*crc_table*/SlTabs::LookupTable_CRC32LE_Zlib[5][(c >> 8) & 0xff] ^ \
+	/*crc_table*/SlTabs::LookupTable_CRC32LE_Zlib[6][(c >> 16) & 0xff] ^ /*crc_table*/SlTabs::LookupTable_CRC32LE_Zlib[7][c >> 24]
 #define DOBIG32 DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4
 
 static ulong crc32_big(ulong crc, const uchar * buf, size_t len)
@@ -995,7 +1000,7 @@ static ulong crc32_big(ulong crc, const uchar * buf, size_t len)
 	uint32 c = sbswap32((uint32)crc);
 	c = ~c;
 	while(len && ((ptrdiff_t)buf & 3)) {
-		c = crc_table[4][(c >> 24) ^ *buf++] ^ (c << 8);
+		c = /*crc_table*/SlTabs::LookupTable_CRC32LE_Zlib[4][(c >> 24) ^ *buf++] ^ (c << 8);
 		len--;
 	}
 	buf4 = reinterpret_cast<const uint32 *>(buf);
@@ -1009,7 +1014,7 @@ static ulong crc32_big(ulong crc, const uchar * buf, size_t len)
 	}
 	buf = reinterpret_cast<const uchar *>(buf4);
 	if(len) do {
-		c = crc_table[4][(c >> 24) ^ *buf++] ^ (c << 8);
+		c = /*crc_table*/SlTabs::LookupTable_CRC32LE_Zlib[4][(c >> 24) ^ *buf++] ^ (c << 8);
 	} while(--len);
 	c = ~c;
 	return (ulong)(sbswap32(c));

@@ -15,10 +15,7 @@ using namespace Scintilla;
 #endif
 
 // Extended to accept accented characters
-static bool FASTCALL IsAWordChar(int ch)
-{
-	return ch >= 0x80 || isalnum(ch) || ch == '-' || ch == '_';
-}
+static bool FASTCALL IsAWordChar(int ch) { return ch >= 0x80 || isalnum(ch) || ch == '-' || ch == '_'; }
 
 static void ColourisePowerShellDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
     WordList * keywordlists[], Accessor & styler)

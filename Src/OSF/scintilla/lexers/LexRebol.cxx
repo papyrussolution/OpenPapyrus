@@ -20,7 +20,7 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL IsAWordChar(const int ch)
+static bool FASTCALL IsAWordChar(int ch)
 {
 	return (isalnum(ch) || ch == '?' || ch == '!' || ch == '.' || ch == '\'' || ch == '+' || ch == '-' || ch == '*' || ch == '&' ||
 	    ch == '|' || ch == '=' || ch == '_' || ch == '~');

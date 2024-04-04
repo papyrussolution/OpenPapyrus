@@ -14,10 +14,7 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL IsAWordChar(const int ch)
-{
-	return (ch < 0x80) && (isalpha(ch) || ch == '@' || ch == '_');
-}
+static bool FASTCALL IsAWordChar(int ch) { return (ch < 0x80) && (isalpha(ch) || ch == '@' || ch == '_'); }
 
 static bool FASTCALL IsAnOther(const int ch)
 {

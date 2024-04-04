@@ -1009,7 +1009,7 @@ ROD_QUOTKIND PP_RCDATA {
 // {ID, Name, Symb, ObjType, DataType}
 //
 ROD_TAG PP_RCDATA {
-	100,
+	102,
 	 1, "@{rtag_lotclb}\0",                   "LOTCLB\0",             "LOT\0",        "STRING\0" // @v9.8.11
 	 2, "@{rtag_lotserial}\0",                "LOTSERIAL\0",          "LOT\0",        "STRING\0" // @v9.8.11
 	 4, "@{rtag_posrights}\0",                "POSRIGHTS\0",          "PERSON\0",     "STRING\0"
@@ -1110,7 +1110,8 @@ ROD_TAG PP_RCDATA {
 	106, "@{rtag_prcuuid}\0",                 "PRCUUID\0",            "PROCESSOR\0",  "UUID\0"   // @v11.7.2
 	107, "@{rtag_billlinkccheckuuid}\0",      "LINKCCHECKUUID\0",     "BILL\0",       "UUID\0"   // @v11.8.8
 	108, "@{rtag_chzndisposalrsn}\0",         "CHZNDISPOSALREASON\0", "BILL\0",       "INT\0"    // @v11.8.12 Признак причины выбытия марки честный знак <СвВыбытияМАРК> (1,2,3,4 or empty)
-
+	109, "@{rtag_personchznpmtoken}\0",       "PERSONCHZNPMTOKEN\0",  "PERSON\0",     "STRING\0" // @v11.9.11 Токен для проверки марок честный знак в разрешительном режиме (привязка к персоналии)
+	110, "@{rtag_personchznpmtoken}\0",       "GUACHZNPMTOKEN\0",     "GLOBALUSER\0", "STRING\0" // @v11.9.11 Токен для проверки марок честный знак в разрешительном режиме (привязка к глобальной учетной записи)
 	//#define PPTAG_LOC_VETIS_REGIONGUID  99L // @v11.0.10 ВЕТИС-идент региона локации (склад или адрес доставки) // в терминах ВЕТИС - region GUID (не UUID)
 	// 40, "ФСРАР код товара\0",             "FSRARGOODSCODE\0",    "GOODS\0",      "STRING\0"
 	// @postponed 80, "@{rtag_locvetisentityguid}\0",       "LOCVETISENTITYGUID\0", "LOCATION\0",   "UUID\0"

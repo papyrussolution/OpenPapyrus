@@ -15,7 +15,7 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL IsAWordChar(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '%'); }
+static bool FASTCALL IsAWordChar(int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '%'); }
 static bool FASTCALL IsAWordStart(const int ch) { return (ch < 0x80) && (isalnum(ch)); }
 static bool FASTCALL IsABlank(uint ch) { return (ch == ' ') || (ch == 0x09) || (ch == 0x0b); }
 static bool FASTCALL IsALineEnd(char ch) { return ((ch == '\n') || (ch == '\r')); }

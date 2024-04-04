@@ -4881,6 +4881,7 @@ public:
 private:
 	int    ProcessDocument(DocNalogRu_Reader::DocumentInfo * pNrDoc, TSCollection <PPEdiProcessor::Packet> & rList);
 	int    Write_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp);
+	int    Write_DESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp);
 	DocNalogRu_Reader Reader;
 	DocNalogRu_Generator G;
 };
@@ -4890,6 +4891,18 @@ private:
 EdiProviderImplementation_SBIS::EdiProviderImplementation_SBIS(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) :
 	PPEdiProcessor::ProviderImplementation(rEpp, mainOrgID, flags)
 {
+}
+
+int EdiProviderImplementation_SBIS::Write_DESADV(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp)
+{
+	int    ok = 1;
+	SString nominal_file_name; // @stub
+	SString result_file_name_;
+	PPBillImpExpParam bill_ieparam;
+	DocNalogRu_WriteBillBlock _blk(bill_ieparam, rBp, "ON_NSCHFDOPPR", nominal_file_name);
+	ok = _blk.IsValid() ? _blk.Do_UPD(result_file_name_) : 0;
+	//int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName)
+	return ok;
 }
 
 int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_GUID & rIdent, const PPBillPacket & rBp, const PPBillPacket * pExtBp)
@@ -5444,25 +5457,37 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 		GetTempOutputPath(rPack.DocType, path);
 		THROW_SL(SFile::CreateDir(path.RmvLastSlash()));
 		//
-		//MakeTempFileName(path.SetLastSlash(), "export_", "xml", 0, temp_buf);
 		PPEanComDocument::GetMsgSymbByType(rPack.DocType, temp_buf);
 		path.SetLastSlash().Cat(temp_buf);
 		msg_uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
 		path.CatChar('_').Cat(temp_buf).DotCat("xml");
 		//
-		THROW(p_x = xmlNewTextWriterFilename(path, 0));
-		Epp.GetExtStrData(Epp.extssFormatSymb, edi_format_symb);
-		const int use_own_format = edi_format_symb.IsEqiAscii("eancom") ? 0 : 1;
-		switch(rPack.DocType) {
-			//case PPEDIOP_ORDER: THROW(Write_OwnFormat_ORDERS(p_x, msg_uuid, *p_bp)); break;
-			case PPEDIOP_ORDERRSP: THROW(Write_ORDERRSP(p_x, msg_uuid, *p_bp, static_cast<const PPBillPacket *>(rPack.P_ExtData))); break;
-			//case PPEDIOP_DESADV: THROW(Write_OwnFormat_DESADV(p_x, msg_uuid, *p_bp)); break;
-			//case PPEDIOP_ALCODESADV: THROW(Write_OwnFormat_ALCODESADV(p_x, msg_uuid, *p_bp)); break;
-			//case PPEDIOP_INVOIC: THROW(Write_OwnFormat_INVOIC(p_x, msg_uuid, *p_bp)); break;
-			//case PPEDIOP_RECADV: THROW(Write_OwnFormat_RECADV(p_x, msg_uuid, *p_recadv_pack)); break; // @v11.2.9
+		if(rPack.DocType == PPEDIOP_DESADV) {
+			SString result_file_name_;
+			PPBillImpExpParam bill_ieparam;
+			DocNalogRu_WriteBillBlock _blk(bill_ieparam, *p_bp, "ON_NSCHFDOPPR", path/*nominam-file_name*/);
+			ok = _blk.IsValid() ? _blk.Do_UPD(result_file_name_) : 0;
+			path = result_file_name_;
+			//int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName)
 		}
-		xmlFreeTextWriter(p_x);
-		p_x = 0;
+		else {
+			//
+			//MakeTempFileName(path.SetLastSlash(), "export_", "xml", 0, temp_buf);
+			//
+			THROW(p_x = xmlNewTextWriterFilename(path, 0));
+			Epp.GetExtStrData(Epp.extssFormatSymb, edi_format_symb);
+			const int use_own_format = edi_format_symb.IsEqiAscii("eancom") ? 0 : 1;
+			switch(rPack.DocType) {
+				//case PPEDIOP_ORDER: THROW(Write_OwnFormat_ORDERS(p_x, msg_uuid, *p_bp)); break;
+				case PPEDIOP_ORDERRSP: THROW(Write_ORDERRSP(p_x, msg_uuid, *p_bp, static_cast<const PPBillPacket *>(rPack.P_ExtData))); break;
+				// (see above (if(rPack.DocType == PPEDIOP_DESADV))) case PPEDIOP_DESADV: THROW(Write_DESADV(p_x, msg_uuid, *p_bp)); break;
+				//case PPEDIOP_ALCODESADV: THROW(Write_OwnFormat_ALCODESADV(p_x, msg_uuid, *p_bp)); break;
+				//case PPEDIOP_INVOIC: THROW(Write_OwnFormat_INVOIC(p_x, msg_uuid, *p_bp)); break;
+				//case PPEDIOP_RECADV: THROW(Write_OwnFormat_RECADV(p_x, msg_uuid, *p_recadv_pack)); break; // @v11.2.9
+			}
+			xmlFreeTextWriter(p_x);
+			p_x = 0;
+		}
 		if(!(Flags & ctrfTestMode)) {
 			InetUrl url;
 			THROW(Epp.MakeUrl(0, url));

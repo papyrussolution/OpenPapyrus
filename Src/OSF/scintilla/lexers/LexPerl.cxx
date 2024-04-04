@@ -514,7 +514,7 @@ void LexerPerl::InterpolateSegment(StyleContext &sc, int maxSeg, bool isPattern)
 	while(maxSeg > 0) {
 		bool isVar = false;
 		int sLen = 0;
-		if((maxSeg > 1) && (sc.ch == '$' || sc.ch == '@')) {
+		if(maxSeg > 1 && oneof2(sc.ch, '$', '@')) {
 			// $#[$]*word [$@][$]*word (where word or {word} is always present)
 			bool braces = false;
 			sLen = 1;

@@ -2097,8 +2097,7 @@ int CTableOrder::SetupGrid(PPID posNodeID)
 	p_brw->SetData(p_brw->To.P_Grid, 0);
 	{
 		SString title_buf;
-		PPLoadText(PPTXT_PPVTTL_CTABLEORDER, title_buf);
-		p_brw->setTitle(title_buf);
+		p_brw->setTitle(PPLoadTextS(PPTXT_PPVTTL_CTABLEORDER, title_buf));
 	}
 	if(modeless) {
 		InsertView(p_brw);

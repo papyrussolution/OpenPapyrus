@@ -126,8 +126,7 @@
 /* Define to 1 if you have the <windows.h> header file. */
 #define HAVE_WINDOWS_H 1
 
-/* Define to 1 if the system has the type `_Bool'. */
-#define HAVE__BOOL 1
+// @v11.9.11 #define HAVE__BOOL 1 /* Define to 1 if the system has the type `_Bool'. */
 
 /* Define to 1 if you have the `_snprintf' function. */
 #define HAVE__SNPRINTF 1

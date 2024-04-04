@@ -1624,14 +1624,24 @@ public:
 };
 
 struct VetisApplicationBlock {
-	VetisApplicationBlock(uint vetisSvcVer, const VetisApplicationData * pAppParam);
+	VetisApplicationBlock(SVerT vetisSvcVer, const VetisApplicationData * pAppParam);
 	VetisApplicationBlock();
 	VetisApplicationBlock(const VetisApplicationBlock & rS);
 	~VetisApplicationBlock();
 	VetisApplicationBlock & FASTCALL operator = (const VetisApplicationBlock & rS);
 	void   Clear();
 	int    FASTCALL Copy(const VetisApplicationBlock & rS);
-
+	const  char * GetServiceId() const
+	{
+		if(VetisSvcVer_ == SVerT(2, 1))
+			return "mercury-g2b.service:2.1";
+		else if(VetisSvcVer_ == SVerT(2, 0))
+			return "mercury-g2b.service:2.0";
+		else if(VetisSvcVer_ == SVerT(1, 0))
+			return "mercury-g2b.service";
+		else
+			return "mercury-g2b.service:2.1";
+	}
 	enum {
 		appstUndef     = -1,
 		appstAccepted  = 0,
@@ -1651,7 +1661,8 @@ struct VetisApplicationBlock {
 		long   Offset;
 		long   Total;
 	};
-	uint   VetisSvcVer; // 1, 2
+	//uint   VetisSvcVer; // 1, 2
+	SVerT  VetisSvcVer_; // 1.0, 2.0, 2.1
 	int    ApplicationStatus;
 	int64  LocalTransactionId;
 	SString ServiceId;
@@ -1782,14 +1793,14 @@ VetisEnterprise & VetisEnterprise::Z()
 	return *this;
 }
 
-VetisApplicationBlock::VetisApplicationBlock(uint vetisSvcVer, const VetisApplicationData * pAppParam) :
-	VetisSvcVer(vetisSvcVer), ApplicationStatus(appstUndef), IssueDate(ZERODATETIME), RcvDate(ZERODATETIME),
+VetisApplicationBlock::VetisApplicationBlock(SVerT vetisSvcVer, const VetisApplicationData * pAppParam) :
+	VetisSvcVer_(vetisSvcVer), ApplicationStatus(appstUndef), IssueDate(ZERODATETIME), RcvDate(ZERODATETIME),
 	PrdcRsltDate(ZERODATETIME), P_AppParam(pAppParam), LocalTransactionId(0)
 {
 }
 
 VetisApplicationBlock::VetisApplicationBlock() :
-	VetisSvcVer(1), ApplicationStatus(appstUndef), IssueDate(ZERODATETIME), RcvDate(ZERODATETIME),
+	VetisSvcVer_(2, 1), ApplicationStatus(appstUndef), IssueDate(ZERODATETIME), RcvDate(ZERODATETIME),
 	PrdcRsltDate(ZERODATETIME), P_AppParam(0), LocalTransactionId(0)
 {
 }
@@ -1842,7 +1853,7 @@ void VetisApplicationBlock::Clear()
 int FASTCALL VetisApplicationBlock::Copy(const VetisApplicationBlock & rS)
 {
 	int    ok = 1;
-	VetisSvcVer = rS.VetisSvcVer;
+	VetisSvcVer_ = rS.VetisSvcVer_;
 	ApplicationStatus = rS.ApplicationStatus;
 	LocalTransactionId = rS.LocalTransactionId;
 	ServiceId = rS.ServiceId;
@@ -5169,10 +5180,30 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 	return ok;
 }
 
-static const char * GetAppSvcUrl(uint mjVer, uint mnVer, int isTestContour)
+static const char * GetAppSvcPath(SVerT ver, const char * pAppSvc) // @v11.9.11
+{
+	//"platform/services/2.0/ProductService"
+	SString & r_result = SLS.AcquireRvlStr();
+	(r_result = "platform/services");
+	if(ver.IsLt(2, 0, 0)) {
+		;
+	}
+	else if(ver.GetMajor() == 2) {
+		if(ver.GetMinor() == 0)
+			r_result.Slash().Cat("2.0");
+		else if(ver.GetMinor() == 1)
+			r_result.Slash().Cat("2.1");
+	}
+	if(!isempty(pAppSvc))
+		r_result.Slash().Cat(pAppSvc);
+	return r_result;
+}
+
+static const char * GetAppSvcUrl(SVerT ver, int isTestContour)
 {
 	const char * p_domain = (isTestContour/*P.Flags & P.fTestContour*/) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
-	if(mjVer == 1) {
+	return InetUrl::MkHttps(p_domain, GetAppSvcPath(ver, "ApplicationManagementService")); // @v11.9.11
+	/* @v11.9.11 if(mjVer == 1) {
 		return InetUrl::MkHttps(p_domain, "platform/services/ApplicationManagementService");
 	}
 	else if(mjVer == 2) {
@@ -5181,7 +5212,7 @@ static const char * GetAppSvcUrl(uint mjVer, uint mnVer, int isTestContour)
 		else if(mnVer == 1)
 			return InetUrl::MkHttps(p_domain, "platform/services/2.1/ApplicationManagementService");
 	}
-	return 0;
+	return 0;*/
 }
 
 static void FASTCALL PutSingleGuidEntity(SXmlWriter & rDoc, const char * pEntNs, const char * pEnt, const char * pGuidNs, const S_GUID & rGuid)
@@ -5274,7 +5305,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 					n_f.PutInner(SXml::nst("apldef", "apiKey"), temp_buf);
 					{
 						SXml::WNode n_app(srb, SXml::nst("apl", "application"));
-						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
+						n_app.PutInner(SXml::nst("apl", "serviceId"), rAppBlk.GetServiceId());
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
@@ -5368,7 +5399,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						SXml::WNode n_app(srb, SXml::nst("apl", "application"));
 						//n_app.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
 						// (?) n_app.PutInner(SXml::nst("app", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
+						n_app.PutInner(SXml::nst("apl", "serviceId"), rAppBlk.GetServiceId());
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
@@ -5470,7 +5501,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						SXml::WNode n_app(srb, SXml::nst("apl", "application"));
 						//n_app.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
 						// (?) n_app.PutInner(SXml::nst("app", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
+						n_app.PutInner(SXml::nst("apl", "serviceId"), rAppBlk.GetServiceId());
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
@@ -5525,7 +5556,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						SXml::WNode n_app(srb, SXml::nst("app", "application"));
 						//n_app.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
 						// (?) n_app.PutInner(SXml::nst("app", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
-						n_app.PutInner(SXml::nst("app", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
+						n_app.PutInner(SXml::nst("app", "serviceId"), rAppBlk.GetServiceId());
 						n_app.PutInner(SXml::nst("app", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
 						n_app.PutInner(SXml::nst("app", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst("app", "data"));
@@ -5598,7 +5629,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 						SXml::WNode n_app(srb, SXml::nst(/*"app"*/0, "application"));
 						n_f.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
 						n_app.PutInner(SXml::nst(/*"app"*/0, "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
-						n_app.PutInner(SXml::nst(/*"app"*/0, "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
+						n_app.PutInner(SXml::nst(/*"app"*/0, "serviceId"), rAppBlk.GetServiceId());
 						n_app.PutInner(SXml::nst(/*"app"*/0, "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
 						n_app.PutInner(SXml::nst(/*"app"*/0, "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst(/*"app"*/0, "data"));
@@ -5643,7 +5674,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 					{
 						SXml::WNode n_app(srb, SXml::nst("apl", "application"));
 						n_app.PutInner(SXml::nst("apl", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
+						n_app.PutInner(SXml::nst("apl", "serviceId"), rAppBlk.GetServiceId());
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, 0));
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
@@ -5768,7 +5799,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 					{
 						SXml::WNode n_app(srb, SXml::nst("apl", "application"));
 						n_app.PutInner(SXml::nst("apl", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
+						n_app.PutInner(SXml::nst("apl", "serviceId"), rAppBlk.GetServiceId());
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, 0));
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
@@ -6032,7 +6063,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 					{
 						SXml::WNode n_app(srb, SXml::nst("apl", "application"));
 						n_app.PutInner(SXml::nst("apl", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
+						n_app.PutInner(SXml::nst("apl", "serviceId"), rAppBlk.GetServiceId());
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, 0));
 						{
@@ -6237,7 +6268,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 			}
 		}
 		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signGetVetDocumentList) {
-			assert(rAppBlk.VetisSvcVer == 2);
+			assert(rAppBlk.VetisSvcVer_.IsGe(2, 0, 0));
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
 			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
 			n_env.PutAttrib(SXml::nst_xmlns("xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
@@ -6258,7 +6289,8 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 					{
 						SXml::WNode n_app(srb, SXml::nst("apl", "application"));
 						n_app.PutInner(SXml::nst("apl", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.1" : "mercury-g2b.service"); // @note mercury-g2b.service:2.1 not mercury-g2b.service:2.0
+						// @v11.9.11 n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.1" : "mercury-g2b.service"); // @note mercury-g2b.service:2.1 not mercury-g2b.service:2.0
+						n_app.PutInner(SXml::nst("apl", "serviceId"), rAppBlk.GetServiceId()); // @v11.9.11 
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
@@ -6304,7 +6336,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 					{
 						SXml::WNode n_app(srb, SXml::nst("apl", "application"));
 						n_app.PutInner(SXml::nst("apl", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
+						n_app.PutInner(SXml::nst("apl", "serviceId"), rAppBlk.GetServiceId());
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
@@ -6629,7 +6661,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 			}
 		}
 		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signGetVetDocumentChangesList) {
-			assert(rAppBlk.VetisSvcVer == 2);
+			assert(rAppBlk.VetisSvcVer_.IsGe(2, 0, 0));
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
 			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
 			n_env.PutAttrib(SXml::nst_xmlns("xs"),      InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
@@ -6650,7 +6682,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 					{
 						SXml::WNode n_app(srb, SXml::nst("apl", "application"));
 						n_app.PutInner(SXml::nst("apl", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
-						n_app.PutInner(SXml::nst("apl", "serviceId"), "mercury-g2b.service:2.0");
+						n_app.PutInner(SXml::nst("apl", "serviceId"), rAppBlk.GetServiceId());
 						n_app.PutInner(SXml::nst("apl", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
 						n_app.PutInner(SXml::nst("apl", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst("apl", "data"));
@@ -6692,7 +6724,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 					{
 						SXml::WNode n_app(srb, SXml::nst("app", "application"));
 						n_app.PutInner(SXml::nst("app", "applicationId"), VGuidToStr(rAppBlk.ApplicationId, temp_buf));
-						n_app.PutInner(SXml::nst("app", "serviceId"), (rAppBlk.VetisSvcVer == 2) ? "mercury-g2b.service:2.0" : "mercury-g2b.service");
+						n_app.PutInner(SXml::nst("app", "serviceId"), rAppBlk.GetServiceId());
 						n_app.PutInner(SXml::nst("app", "issuerId"), VGuidToStr(rAppBlk.IssuerId, temp_buf));
 						n_app.PutInner(SXml::nst("app", "issueDate"), temp_buf.Z().Cat(rAppBlk.IssueDate, DATF_ISO8601CENT, /*TIMF_TIMEZONE*/0));
 						SXml::WNode n_data(srb, SXml::nst("app", "data"));
@@ -6702,7 +6734,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 									const VetisGetStockEntryByUUIDRequest * p_req = static_cast<const VetisGetStockEntryByUUIDRequest *>(rAppBlk.P_AppParam);
 									SXml::WNode n_req(srb, "getStockEntryByUuidRequest");
 									n_req.PutAttrib(SXml::nst_xmlns("sch"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
-									if(rAppBlk.VetisSvcVer == 2)
+									if(rAppBlk.VetisSvcVer_.IsGe(2, 0, 0))
 										n_req.PutAttrib(SXml::nst_xmlns("vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
 									else
 										n_req.PutAttrib(SXml::nst_xmlns("vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document"));
@@ -6715,17 +6747,17 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 									n_req.PutAttrib(SXml::nst_xmlns("ik"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/ikar"));
 									n_req.PutAttrib(SXml::nst_xmlns("bs"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
 									n_req.PutAttrib(SXml::nst_xmlns("dt"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
-									if(rAppBlk.VetisSvcVer == 2)
+									if(rAppBlk.VetisSvcVer_.IsGe(2, 0, 0))
 										n_req.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
 									else
 										n_req.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/applications"));
 									n_req.PutInner("localTransactionId", temp_buf.Z().Cat(rAppBlk.LocalTransactionId));
-									PutInitiator(srb, 0, (rAppBlk.VetisSvcVer == 2) ? "vd" : "co", rAppBlk.User);
+									PutInitiator(srb, 0, (rAppBlk.VetisSvcVer_ >= SVerT(2)) ? "vd" : "co", rAppBlk.User);
 									//PutListOptions(srb, "bs", p_req->ListOptions);
 									{
 										SXml::WNode n_n2(srb, _xmlnst_bs_uuid(), temp_buf.Z().Cat(p_req->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower));
 									}
-									if(rAppBlk.VetisSvcVer == 2)
+									if(rAppBlk.VetisSvcVer_.IsGe(2, 0, 0))
 										n_req.PutInner(_xmlnst_dt("enterpriseGuid"), temp_buf.Z().Cat(rAppBlk.EnterpriseId, S_GUID::fmtIDL|S_GUID::fmtLower));
 									else
 										n_req.PutInner(SXml::nst("ent", "enterpriseGuid"), temp_buf.Z().Cat(rAppBlk.EnterpriseId, S_GUID::fmtIDL|S_GUID::fmtLower));
@@ -6768,7 +6800,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 									const VetisGetVetDocumentByUuidRequest * p_req = static_cast<const VetisGetVetDocumentByUuidRequest *>(rAppBlk.P_AppParam);
 									SXml::WNode n_req(srb, "getVetDocumentByUuidRequest");
 									n_req.PutAttrib(SXml::nst_xmlns("sch"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
-									if(rAppBlk.VetisSvcVer == 2) {
+									if(rAppBlk.VetisSvcVer_.IsGe(2, 0, 0)) {
 										n_req.PutAttrib(SXml::nst_xmlns("vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
 										n_req.PutAttrib(SXml::nst_xmlns("dt"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
 									}
@@ -6782,16 +6814,16 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 									n_req.PutAttrib(SXml::nst_xmlns("pr"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/argus/production"));
 									n_req.PutAttrib(SXml::nst_xmlns("ik"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/ikar"));
 									n_req.PutAttrib(SXml::nst_xmlns("bs"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
-									if(rAppBlk.VetisSvcVer == 2) // @v10.5.4
+									if(rAppBlk.VetisSvcVer_.IsGe(2, 0, 0))
 										n_req.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
 									else
 										n_req.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/applications"));
 									n_req.PutInner("localTransactionId", temp_buf.Z().Cat(rAppBlk.LocalTransactionId));
-									PutInitiator(srb, 0, (rAppBlk.VetisSvcVer == 2) ? "vd" : "co", rAppBlk.User);
+									PutInitiator(srb, 0, rAppBlk.VetisSvcVer_.IsGe(2, 0, 0) ? "vd" : "co", rAppBlk.User);
 									{
 										SXml::WNode n_n2(srb, _xmlnst_bs_uuid(), temp_buf.Z().Cat(p_req->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower));
 									}
-									if(rAppBlk.VetisSvcVer == 2)
+									if(rAppBlk.VetisSvcVer_.IsGe(2, 0, 0))
 										n_req.PutInner(_xmlnst_dt("enterpriseGuid"), temp_buf.Z().Cat(rAppBlk.EnterpriseId, S_GUID::fmtIDL|S_GUID::fmtLower));
 									else
 										n_req.PutInner(SXml::nst("ent", "enterpriseGuid"), temp_buf.Z().Cat(rAppBlk.EnterpriseId, S_GUID::fmtIDL|S_GUID::fmtLower));
@@ -6802,7 +6834,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 									const VetisGetStockEntryListRequest * p_req = static_cast<const VetisGetStockEntryListRequest *>(rAppBlk.P_AppParam);
 									SXml::WNode n_req(srb, "getStockEntryListRequest");
 									n_req.PutAttrib(SXml::nst_xmlns("sch"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
-									if(rAppBlk.VetisSvcVer == 2)
+									if(rAppBlk.VetisSvcVer_.IsGe(2, 0, 0))
 										n_req.PutAttrib(SXml::nst_xmlns("vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
 									else
 										n_req.PutAttrib(SXml::nst_xmlns("vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document"));
@@ -6815,14 +6847,14 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 									n_req.PutAttrib(SXml::nst_xmlns("ik"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/ikar"));
 									n_req.PutAttrib(SXml::nst_xmlns("bs"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
 									n_req.PutAttrib(SXml::nst_xmlns("dt"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
-									if(rAppBlk.VetisSvcVer == 2)
+									if(rAppBlk.VetisSvcVer_.IsGe(2, 0, 0))
 										n_req.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
 									else
 										n_req.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/applications"));
 									n_req.PutInner("localTransactionId", temp_buf.Z().Cat(rAppBlk.LocalTransactionId));
-									PutInitiator(srb, 0, (rAppBlk.VetisSvcVer == 2) ? "vd" : "co", rAppBlk.User);
+									PutInitiator(srb, 0, rAppBlk.VetisSvcVer_.IsGe(2, 0, 0) ? "vd" : "co", rAppBlk.User);
 									PutListOptions(srb, "bs", p_req->ListOptions);
-									if(rAppBlk.VetisSvcVer == 2)
+									if(rAppBlk.VetisSvcVer_.IsGe(2, 0, 0))
 										n_req.PutInner(_xmlnst_dt("enterpriseGuid"), temp_buf.Z().Cat(rAppBlk.EnterpriseId, S_GUID::fmtIDL|S_GUID::fmtLower));
 									else
 										n_req.PutInner(SXml::nst("ent", "enterpriseGuid"), temp_buf.Z().Cat(rAppBlk.EnterpriseId, S_GUID::fmtIDL|S_GUID::fmtLower));
@@ -6833,7 +6865,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 									const VetisGetStockEntryChangesListRequest * p_req = static_cast<const VetisGetStockEntryChangesListRequest *>(rAppBlk.P_AppParam);
 									SXml::WNode n_req(srb, "getStockEntryChangesListRequest");
 									n_req.PutAttrib(SXml::nst_xmlns("sch"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
-									if(rAppBlk.VetisSvcVer == 2)
+									if(rAppBlk.VetisSvcVer_.IsGe(2, 0, 0))
 										n_req.PutAttrib(SXml::nst_xmlns("vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
 									else
 										n_req.PutAttrib(SXml::nst_xmlns("vd"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document"));
@@ -6846,19 +6878,19 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 									n_req.PutAttrib(SXml::nst_xmlns("ik"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/ikar"));
 									n_req.PutAttrib(SXml::nst_xmlns("bs"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
 									n_req.PutAttrib(SXml::nst_xmlns("dt"),  InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
-									if(rAppBlk.VetisSvcVer == 2)
+									if(rAppBlk.VetisSvcVer_.IsGe(2, 0, 0))
 										n_req.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
 									else
 										n_req.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/applications"));
 									n_req.PutInner("localTransactionId", temp_buf.Z().Cat(rAppBlk.LocalTransactionId));
-									PutInitiator(srb, 0, (rAppBlk.VetisSvcVer == 2) ? "vd" : "co", rAppBlk.User);
+									PutInitiator(srb, 0, rAppBlk.VetisSvcVer_.IsGe(2, 0, 0) ? "vd" : "co", rAppBlk.User);
 									PutListOptions(srb, "bs", p_req->ListOptions);
 									{
 										SXml::WNode n_n2(srb, SXml::nst("bs", "updateDateInterval"));
 										n_n2.PutInner(SXml::nst("bs", "beginDate"), temp_buf.Z().Cat(p_req->Period.Start, DATF_ISO8601CENT, 0));
 										n_n2.PutInner(SXml::nst("bs", "endDate"), temp_buf.Z().Cat(p_req->Period.Finish, DATF_ISO8601CENT, 0));
 									}
-									if(rAppBlk.VetisSvcVer == 2)
+									if(rAppBlk.VetisSvcVer_.IsGe(2, 0, 0))
 										n_req.PutInner(_xmlnst_dt("enterpriseGuid"), temp_buf.Z().Cat(rAppBlk.EnterpriseId, S_GUID::fmtIDL|S_GUID::fmtLower));
 									else
 										n_req.PutInner(SXml::nst("ent", "enterpriseGuid"), temp_buf.Z().Cat(rAppBlk.EnterpriseId, S_GUID::fmtIDL|S_GUID::fmtLower));
@@ -6875,11 +6907,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(rAppBlk.AppData);
 		{
-			const char * p_url = 0;
-			if(rAppBlk.VetisSvcVer == 1)
-				p_url = GetAppSvcUrl(1, 0, P.Flags & P.fTestContour);
-			else if(rAppBlk.VetisSvcVer == 2)
-				p_url = GetAppSvcUrl(2, 0, P.Flags & P.fTestContour);
+			const char * p_url = GetAppSvcUrl(rAppBlk.VetisSvcVer_, P.Flags & P.fTestContour);
 			THROW(SendSOAP(p_url, "submitApplicationRequest", rAppBlk.AppData, temp_buf));
 		}
 		THROW(ParseReply(temp_buf, rResult));
@@ -6991,11 +7019,7 @@ int PPVetisInterface::ReceiveResult(const S_GUID & rAppId, OutcomingEntry * pOcE
 		xmlTextWriterFlush(srb);
 		reply_buf.CopyFromN(reinterpret_cast<char *>(static_cast<xmlBuffer *>(srb)->content), static_cast<xmlBuffer *>(srb)->use);
 		{
-			const char * p_url = 0;
-			if(rResult.VetisSvcVer == 1)
-				p_url = GetAppSvcUrl(1, 0, P.Flags & P.fTestContour);
-			else if(rResult.VetisSvcVer == 2)
-				p_url = GetAppSvcUrl(2, 0, P.Flags & P.fTestContour);
+			const char * p_url = GetAppSvcUrl(rResult.VetisSvcVer_, P.Flags & P.fTestContour);
 			THROW(SendSOAP(p_url, "receiveApplicationResult", reply_buf, temp_buf));
 		}
 		THROW(ParseReply(temp_buf, rResult));
@@ -7053,7 +7077,7 @@ int PPVetisInterface::GetEntityQuery2(int queryType, const char * pQueryParam, V
 		if(oneof2(iblk.Svc, svcProduct, svcEnterprise)) {
 			const char * p_url = 0;
 			const char * p_arg_ns = 0;
-			const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
+			const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf;
 			{
 
 				SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
@@ -7061,11 +7085,11 @@ int PPVetisInterface::GetEntityQuery2(int queryType, const char * pQueryParam, V
 				n_env.PutAttrib(SXml::nst_xmlns("ws"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/registry/ws-definitions/v2"));
 				n_env.PutAttrib(SXml::nst_xmlns("bs"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
 				if(iblk.Svc == svcProduct) {
-					p_url = InetUrl::MkHttps(p_domain, "platform/services/2.0/ProductService");
+					p_url = InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "ProductService"));
 					p_arg_ns = "ws";
 				}
 				else if(iblk.Svc == svcEnterprise) {
-					p_url = InetUrl::MkHttps(p_domain, "platform/services/2.0/EnterpriseService");
+					p_url = InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "EnterpriseService"));
 					p_arg_ns = "ws";
 				}
 				assert(p_url);
@@ -7195,7 +7219,7 @@ int PPVetisInterface::GetUnitList(uint offs, uint count, VetisApplicationBlock &
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
 		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
-		THROW(SendSOAP(InetUrl::MkHttps(p_domain, "platform/services/2.0/DictionaryService"), "GetUnitList", reply_buf, temp_buf));
+		THROW(SendSOAP(InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "DictionaryService")), "GetUnitList", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 		ok = 1;
 	}
@@ -7230,7 +7254,7 @@ int PPVetisInterface::GetCountryList(VetisApplicationBlock & rReply)
 		srb.GetReplyString(reply_buf);
 		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
 		//https://api.vetrf.ru/platform/services/2.0/IkarService
-		THROW(SendSOAP(InetUrl::MkHttps(p_domain, "platform/services/2.0/IkarService"), "GetAllCountryList", reply_buf, temp_buf));
+		THROW(SendSOAP(InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "IkarService")), "GetAllCountryList", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 		ok = 1;
 	}
@@ -7267,7 +7291,7 @@ int PPVetisInterface::GetRegionList(S_GUID & rCountryGuid, VetisApplicationBlock
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
 		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
-		THROW(SendSOAP(InetUrl::MkHttps(p_domain, "platform/services/2.0/IkarService"), "GetRegionListByCountry", reply_buf, temp_buf));
+		THROW(SendSOAP(InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "IkarService")), "GetRegionListByCountry", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 		ok = 1;
 	}
@@ -7303,7 +7327,7 @@ int PPVetisInterface::GetLocalityList(S_GUID & rRegionGuid, VetisApplicationBloc
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
 		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
-		THROW(SendSOAP(InetUrl::MkHttps(p_domain, "platform/services/2.0/IkarService"), "GetLocalityListByRegion", reply_buf, temp_buf));
+		THROW(SendSOAP(InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "IkarService")), "GetLocalityListByRegion", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 		ok = 1;
 	}
@@ -7337,7 +7361,7 @@ int PPVetisInterface::GetPurposeList(uint offs, uint count, VetisApplicationBloc
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
 		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
-		THROW(SendSOAP(InetUrl::MkHttps(p_domain, "platform/services/2.0/DictionaryService"), "GetPurposeList", reply_buf, temp_buf));
+		THROW(SendSOAP(InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "DictionaryService")), "GetPurposeList", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 	}
     CATCHZOK
@@ -7376,7 +7400,7 @@ int PPVetisInterface::GetProductChangesList(uint offs, uint count, LDATE since, 
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
 		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf;
-		THROW(SendSOAP(InetUrl::MkHttps(p_domain, "platform/services/2.0/ProductService"), "GetProductChangesList", reply_buf, temp_buf));
+		THROW(SendSOAP(InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "ProductService")), "GetProductChangesList", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 		ok = 1;
 	}
@@ -7435,7 +7459,7 @@ int PPVetisInterface::GetSubProductChangesList(uint offs, uint count, LDATE sinc
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
 		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf;
-		THROW(SendSOAP(InetUrl::MkHttps(p_domain, "platform/services/2.0/ProductService"), "GetSubProductChangesList", reply_buf, temp_buf));
+		THROW(SendSOAP(InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "ProductService")), "GetSubProductChangesList", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 		ok = 1;
 	}
@@ -7469,7 +7493,7 @@ int PPVetisInterface::GetProductItemList(uint offs, uint count, VetisApplication
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
 		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
-		THROW(SendSOAP(InetUrl::MkHttps(p_domain, "platform/services/2.0/ProductService"), "GetProductItemList", reply_buf, temp_buf));
+		THROW(SendSOAP(InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "ProductService")), "GetProductItemList", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 	}
     CATCHZOK
@@ -7522,7 +7546,7 @@ int PPVetisInterface::GetRussianEnterpriseList(uint offs, uint count, VetisAppli
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
 		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
-		THROW(SendSOAP(InetUrl::MkHttps(p_domain, "platform/services/2.0/EnterpriseService"), "GetRussianEnterpriseList", reply_buf, temp_buf));
+		THROW(SendSOAP(InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "EnterpriseService")), "GetRussianEnterpriseList", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 	}
     CATCHZOK
@@ -7576,9 +7600,7 @@ int PPVetisInterface::PrepareApplicationBlockForReq(VetisApplicationBlock & rBlk
 	}
 	THROW_PP(temp_buf.NotEmpty(), PPERR_VETISINITUSERUNDEF);
 	rBlk.User = temp_buf;
-	rBlk.ServiceId = "mercury-g2b.service";
-	if(rBlk.VetisSvcVer == 2)
-		rBlk.ServiceId.Colon().Cat("2.0");
+	rBlk.ServiceId = rBlk.GetServiceId();
 	rBlk.IssuerId = P.IssuerUUID;
 	rBlk.EnterpriseId = P.EntUUID;
 	rBlk.IssueDate = getcurdatetime_();
@@ -7596,11 +7618,11 @@ int PPVetisInterface::GetStockEntryByUuid(const S_GUID & rUuid, VetisApplication
 	{
 		rReply.Clear();
 		VetisApplicationBlock submit_result;
-		VetisApplicationBlock blk(2, &app_data);
+		VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 		blk.EnterpriseId = P.EntUUID;
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-			rReply.VetisSvcVer = 2;
+			rReply.VetisSvcVer_ = SVerT(2, 1);
 			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			ok = 1;
 		}
@@ -7617,10 +7639,10 @@ int PPVetisInterface::GetVetDocumentByUuid(const S_GUID & rUuid, VetisApplicatio
 	{
 		rReply.Clear();
 		VetisApplicationBlock submit_result;
-		VetisApplicationBlock blk(2, &app_data); // @v10.5.4 version 1-->2
+		VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-			rReply.VetisSvcVer = 2; // @v10.5.4
+			rReply.VetisSvcVer_ = SVerT(2, 1);
 			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			ok = 1;
 		}
@@ -7645,7 +7667,7 @@ int PPVetisInterface::GetStockEntryChangesList(const STimeChunk & rPeriod, uint 
 		force_next_try = 0;
 		rReply.Clear();
 		VetisApplicationBlock submit_result;
-		VetisApplicationBlock blk(2, &app_data);
+		VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
@@ -7686,7 +7708,7 @@ int PPVetisInterface::GetStockEntryList(uint startOffset, uint count, VetisAppli
 		force_next_try = 0;
 		rReply.Clear();
 		VetisApplicationBlock submit_result;
-		VetisApplicationBlock blk(2, &app_data);
+		VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
@@ -7728,7 +7750,7 @@ int PPVetisInterface::GetVetDocumentChangesList(const STimeChunk & rPeriod, uint
 		force_next_try = 0;
 		rReply.Clear();
 		VetisApplicationBlock submit_result;
-		VetisApplicationBlock blk(2, &app_data); // @v10.8.10 ver 1-->2
+		VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
@@ -7759,11 +7781,11 @@ int PPVetisInterface::GetVetDocumentList(const STimeChunk & rPeriod, uint startO
 	int    ok = -1;
 	VetisGetVetDocumentListRequest app_data;
 	app_data.ListOptions.Set(startOffset, count);
-	app_data.Period = rPeriod; // @v10.6.4
+	app_data.Period = rPeriod;
 	{
 		rReply.Clear();
 		VetisApplicationBlock submit_result;
-		VetisApplicationBlock blk(2, &app_data); // @v10.6.4
+		VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
@@ -7786,7 +7808,7 @@ int PPVetisInterface::ProcessIncomingConsignment(const S_GUID & rDocUuid, VetisA
 			{
 				rReply.Clear();
 				VetisApplicationBlock submit_result;
-				VetisApplicationBlock blk(2, &app_data); // @v10.5.4 ver 1-->2
+				VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 				THROW(SubmitRequest(blk, submit_result));
 				if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 					THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
@@ -7807,7 +7829,7 @@ int PPVetisInterface::ModifyEnterprise(VetisRegisterModificationType modType, co
 	{
 		rReply.Clear();
 		VetisApplicationBlock submit_result;
-		VetisApplicationBlock blk(2, &app_data); // @problem-vetis-ver1 // @v10.9.3 ver 1-->2
+		VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
@@ -7827,7 +7849,7 @@ int PPVetisInterface::ModifyActivityLocations(VetisRegisterModificationType modT
 	{
 		rReply.Clear();
 		VetisApplicationBlock submit_result;
-		VetisApplicationBlock blk(2, &app_data); // @problem-vetis-ver1 // @v10.9.3 ver 1-->2
+		VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
@@ -7846,7 +7868,7 @@ int PPVetisInterface::ModifyProducerStockListOperation(VetisRegisterModification
 	{
 		rReply.Clear();
 		VetisApplicationBlock submit_result;
-		VetisApplicationBlock blk(2, &app_data);
+		VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
@@ -7866,7 +7888,7 @@ int PPVetisInterface::CheckShipmentRegionalizationOperation(const UuidArray & rS
 	{
 		rReply.Clear();
 		VetisApplicationBlock submit_result;
-		VetisApplicationBlock blk(2, &app_data);
+		VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
@@ -7887,7 +7909,7 @@ int PPVetisInterface::WithdrawVetDocument(const S_GUID & rDocUuid, VetisApplicat
 		{
 			rReply.Clear();
 			VetisApplicationBlock submit_result;
-			VetisApplicationBlock blk(1, &app_data); // @problem-vetis-ver1
+			VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 			THROW(SubmitRequest(blk, submit_result));
 			if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
 				THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
@@ -7905,7 +7927,7 @@ int PPVetisInterface::WriteOffIncomeCert(PPID docEntityID, TSVector <VetisEntity
 	SString temp_buf;
 	VetisVetDocument org_doc_entity;
 	VetisResolveDiscrepancyRequest app_data;
-	VetisApplicationBlock blk(2, &app_data);
+	VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 	{
 		PPID   stock_entry_entity_id = 0;
 		VetisApplicationBlock org_doc_reply;
@@ -7939,7 +7961,7 @@ int PPVetisInterface::WriteOffIncomeCert(PPID docEntityID, TSVector <VetisEntity
 		VetisApplicationBlock submit_result;
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-			rReply.VetisSvcVer = 2;
+			rReply.VetisSvcVer_ = SVerT(2, 1);
 			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			if(rReply.ApplicationStatus == VetisApplicationBlock::appstCompleted) {
 				if(rReply.VetDocList.getCount() || rReply.VetStockList.getCount()) {
@@ -7981,7 +8003,7 @@ int PPVetisInterface::RegisterProduction(PPID docEntityID, const PPIDArray & rEx
 	PPObjBill * p_bobj = BillObj;
 	SString temp_buf;
 	VetisRegisterProductionRequest app_data;
-	VetisApplicationBlock blk(2, &app_data);
+	VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 	SUniTime min_src_expiry_from;
 	SUniTime min_src_expiry_to;
 	THROW(PeC.SearchDocument(docEntityID, &app_data.VdRec) > 0);
@@ -8041,7 +8063,7 @@ int PPVetisInterface::RegisterProduction(PPID docEntityID, const PPIDArray & rEx
 		VetisApplicationBlock submit_result;
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-			rReply.VetisSvcVer = 2;
+			rReply.VetisSvcVer_ = SVerT(2, 1);
 			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			if(rReply.ApplicationStatus == VetisApplicationBlock::appstCompleted) {
 				if(rReply.VetDocList.getCount() || rReply.VetStockList.getCount()) {
@@ -8096,7 +8118,7 @@ int PPVetisInterface::ResolveDiscrepancy(PPID docEntityID, TSVector <VetisEntity
 	SString temp_buf;
 	VetisVetDocument org_doc_entity;
 	VetisResolveDiscrepancyRequest app_data;
-	VetisApplicationBlock blk(2, &app_data);
+	VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 	THROW(PeC.SearchDocument(docEntityID, &app_data.VdRec) > 0);
 	THROW_PP_S(app_data.VdRec.VetisDocStatus == vetisdocstOUTGOING_PREPARING, PPERR_VETISVETDOCOUTPREPEXP, docEntityID);
 	THROW(app_data.VdRec.Flags & VetisVetDocument::fDiscrepancy);
@@ -8131,7 +8153,7 @@ int PPVetisInterface::ResolveDiscrepancy(PPID docEntityID, TSVector <VetisEntity
 		VetisApplicationBlock submit_result;
 		THROW(SubmitRequest(blk, submit_result));
 		if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-			rReply.VetisSvcVer = 2;
+			rReply.VetisSvcVer_ = SVerT(2, 1);
 			THROW(ReceiveResult(submit_result.ApplicationId, 0, rReply, 0/*once*/));
 			if(rReply.ApplicationStatus == VetisApplicationBlock::appstCompleted) {
 				if(rReply.VetDocList.getCount() || rReply.VetStockList.getCount()) {
@@ -8382,7 +8404,7 @@ int PPVetisInterface::PrepareOutgoingConsignment2(OutcomingEntry & rEntry, TSVec
 	VetisApplicationBlock org_doc_reply;
 	VetisPrepareOutgoingConsignmentRequest app_data;
 	VetisApplicationBlock submit_result;
-	VetisApplicationBlock blk(2, &app_data); // @v10.8.9 ver 1-->2
+	VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 	VetisEntityCore::Entity sub_entity;
 	SString temp_buf;
 	SString msg_buf;
@@ -8535,7 +8557,7 @@ int PPVetisInterface::PrepareOutgoingConsignment(PPID docEntityID, const TSColle
 	VetisApplicationBlock org_doc_reply;
 	VetisPrepareOutgoingConsignmentRequest app_data;
 	VetisApplicationBlock submit_result;
-	VetisApplicationBlock blk(2, &app_data); // @v10.8.9 ver 1-->2
+	VetisApplicationBlock blk(SVerT(2, 1), &app_data);
 	VetisEntityCore::Entity sub_entity;
 	SString temp_buf;
 	SString msg_buf;
@@ -8678,7 +8700,7 @@ int PPVetisInterface::ProcessUnresolvedEntityList(const TSVector <VetisEntityCor
 	SString temp_buf;
 	for(uint i = 0; i < rList.getCount(); i++) {
 		const VetisEntityCore::UnresolvedEntity & r_entry = rList.at(i);
-		VetisApplicationBlock reply(1, 0); // @problem-vetis-ver1
+		VetisApplicationBlock reply(SVerT(2, 1), 0);
 		S_GUID guid;
 		int    rr = 1;
 		PPID   entity_id = 0;

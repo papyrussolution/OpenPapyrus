@@ -108,7 +108,6 @@ generic_string folderBrowser(HWND parent, const generic_string & title, int outp
 	generic_string folderName;
 	CustomFileDialog dlg(parent);
 	dlg.setTitle(title.c_str());
-
 	// Get an initial directory from the edit control or from argument provided
 	TCHAR directory[MAX_PATH] = {};
 	if(outputCtrlID != 0)

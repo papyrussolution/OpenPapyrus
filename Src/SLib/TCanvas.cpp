@@ -2138,10 +2138,10 @@ int SFontDescr::FromJsonObj(const SJson * pJs)
 			}
 		}
 		else if(p_jsn->Text.IsEqiAscii("weight")) {
-			;
+			Weight = static_cast<float>(p_jsn->P_Child->Text.ToReal_Plain());
 		}
 		else if(p_jsn->Text.IsEqiAscii("colorrefsymb")) {
-			;
+			SJson::GetChildTextUnescaped(p_jsn, ColorRefSymb);
 		}
 	}
 	CATCHZOK

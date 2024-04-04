@@ -893,7 +893,7 @@ void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int i
 			    if(sc.atLineStart && !continuationLine) {
 				    sc.SetState(SCE_C_DEFAULT|activitySet);
 			    }
-			    else if(oneof2(sc.ch, '@', '\\')) {        // JavaDoc and Doxygen support
+			    else if(oneof2(sc.ch, '@', '\\')) { // JavaDoc and Doxygen support
 				    // Verify that we have the conditions to mark a comment-doc-keyword
 				    if((IsASpace(sc.chPrev) || oneof2(sc.chPrev, '/', '!')) && !IsASpace(sc.chNext)) {
 					    styleBeforeDCKeyword = SCE_C_COMMENTLINEDOC;

@@ -86,7 +86,7 @@ public:
 };
 
 struct FilePaneBlock {
-	FilePaneBlock() : P()
+	FilePaneBlock() : P(), FocusedPaneIdx(0)
 	{
 		// ¬ списке должен быть хот€ бы один элемент
 		SingleFilePaneBlock * p_entry = L.CreateNewItem();
@@ -106,6 +106,7 @@ struct FilePaneBlock {
 		uint   MpMode; // mpmodeXXX
 	};
 	Param  P;
+	uint   FocusedPaneIdx; // 0 - undefined, 1 - L(0), etc. ƒл€ двух-панельного вида 1 - лева€ панель, 2 - права€ панель
 	TSCollection <SingleFilePaneBlock> L; 
 };
 
@@ -215,7 +216,7 @@ private:
 {
 	int    ok = 1;
 	SString temp_buf;
-	LoadUiDescription();
+	LoadUiDescription(rIo);
 	const UiDescription * p_uid = SLS.GetUiDescription();
 	P_ICD = new InitializedConstData(p_uid);
 	{
@@ -277,7 +278,7 @@ private:
 		colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 		colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 		if(use_ui_descripton && p_uid) {
-			const SColorSet * p_cs = p_uid->GetColorSetC("imgui-style");	
+			const SColorSet * p_cs = p_uid->GetColorSetC("imgui_style");	
 			if(p_cs) {
 				for(uint i = 0; i < SIZEOFARRAY(style->Colors); i++) {
 					const char * p_color_name = ImGui::GetStyleColorName(i);
@@ -292,13 +293,14 @@ private:
 		}
 	}
 	if(p_uid) {
-		const SColorSet * p_cs = p_uid->GetColorSetC("imgui-style");	
+		const SColorSet * p_cs = p_uid->GetColorSetC("imgui_style");	
 		{
 			ImFontConfig f;
-			SColor primary_font_color = p_uid->GetColorR(p_cs, "TextPrimary", SColor(SClrWhite));
-			SColor secondary_font_color = p_uid->GetColorR(p_cs, "TextSecondary", SColor(SClrSilver));
 			SColor substrat_color = p_uid->GetColorR(p_cs, "Substrat", SColor(0x1E, 0x22, 0x28));
 			ClearColor = substrat_color;
+			/* @v11.9.11 (теперь грузитс€ из ресурсов)
+			SColor primary_font_color = p_uid->GetColorR(p_cs, "TextPrimary", SColor(SClrWhite));
+			SColor secondary_font_color = p_uid->GetColorR(p_cs, "TextSecondary", SColor(SClrSilver));
 			{
 				//const char * p_font_face_list[] = { "Roboto", "DroidSans", "Cousine", "Karla", "ProggyClean", "ProggyTiny" };
 				{
@@ -320,6 +322,7 @@ private:
 					}
 				}
 			}
+			*/
 		}
 	}
 	return ok;
@@ -360,6 +363,10 @@ void Kabq_ImGuiSceneBlock::Build_FsDir2(uint filePaneIdx)
 		{
 			SFileEntryPool::Entry fe;
 			if(ImGui::BeginTable("view_directory", 3, ImGuiTableFlags_Resizable|ImGuiTableFlags_NoSavedSettings|ImGuiTableFlags_Borders|ImGuiTableFlags_ScrollY)) {
+				if(St.FpBlk.FocusedPaneIdx && (St.FpBlk.FocusedPaneIdx-1)==filePaneIdx) {
+					ImGuiContext & g = *GImGui;
+					ImGui::FocusWindow(g.CurrentWindow);
+				}
 				ImGui::TableSetupColumn("name", ImGuiTableColumnFlags_WidthStretch);
 				ImGui::TableSetupColumn("size", ImGuiTableColumnFlags_WidthFixed);
 				ImGui::TableSetupColumn("time", ImGuiTableColumnFlags_WidthFixed);
@@ -378,10 +385,7 @@ void Kabq_ImGuiSceneBlock::Build_FsDir2(uint filePaneIdx)
 							//ImGui::Text(fe.Name);
 							bool is_selected = false;//St.DirBlk.GetCurrentIdx() == static_cast<uint>(i+1);
 							if(ImGui::Selectable(fe.Name, is_selected, ImGuiSelectableFlags_SpanAllColumns|ImGuiSelectableFlags_AllowDoubleClick)) {
-								if(ImGui::IsMouseDoubleClicked(0/*left*/)) {
-									enter_pressed_idx = true;
-									p_sfp_blk->SetCurrentIdx(i+1);
-								}
+								p_sfp_blk->SetCurrentIdx(i+1);
 							}
 						}
 						{
@@ -407,6 +411,12 @@ void Kabq_ImGuiSceneBlock::Build_FsDir2(uint filePaneIdx)
 					}
 				}
 				ImGui::EndTable();
+				if(ImGui::IsMouseDoubleClicked(0/*left*/)) {
+					enter_pressed_idx = true;
+				}
+				else if(ImGui::IsKeyReleased(ImGuiKey_Enter)) {
+					enter_pressed_idx = true;
+				}
 				if(enter_pressed_idx) {
 					const uint cur_idx = p_sfp_blk->GetCurrentIdx();
 					if(cur_idx && p_sfp_blk->Fep.Get(cur_idx-1, &fe, &temp_buf)) {
@@ -422,6 +432,7 @@ void Kabq_ImGuiSceneBlock::Build_FsDir2(uint filePaneIdx)
 
 void Kabq_ImGuiSceneBlock::Build_FsDir(SUiLayout * pParentLayout, int loId, const char * pWindowIdent)
 {
+	bool debug_mark = false;
 	if(pParentLayout) {
 		uint mpmode = FilePaneBlock::Param::mpmodeDouble;//St.FpBlk.P.MpMode;
 		const int view_flags = ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoDecoration;
@@ -443,9 +454,11 @@ void Kabq_ImGuiSceneBlock::Build_FsDir(SUiLayout * pParentLayout, int loId, cons
 					evp.ForceSize = r.GetSize();
 					lo_double_pane.Evaluate(&evp);
 					//
+					const char * p_left_pane_ident = "##ContentAreaTwoPane_Left";
+					const char * p_right_pane_ident = "##ContentAreaTwoPane_Right";
 					{
 						const SUiLayout * p_lo_left = lo_double_pane.FindByIdC(loidContentAreaTwoPane_Left);
-						ImGuiWindowByLayout wbl(p_lo_left, r.a, /*"##ContentArea"*/"##ContentAreaTwoPane_Left", view_flags);
+						ImGuiWindowByLayout wbl(p_lo_left, r.a, p_left_pane_ident, view_flags);
 						if(wbl.IsValid()) {
 							if(St.FpBlk.L.getCount() < 1)
 								St.FpBlk.L.CreateNewItem();
@@ -455,13 +468,39 @@ void Kabq_ImGuiSceneBlock::Build_FsDir(SUiLayout * pParentLayout, int loId, cons
 					}
 					{
 						const SUiLayout * p_lo_right = lo_double_pane.FindByIdC(loidContentAreaTwoPane_Right);
-						ImGuiWindowByLayout wbl(p_lo_right, r.a, /*"##ContentArea"*/"##ContentAreaTwoPane_Right", view_flags);
+						ImGuiWindowByLayout wbl(p_lo_right, r.a, p_right_pane_ident, view_flags);
 						if(wbl.IsValid()) {
 							if(St.FpBlk.L.getCount() < 2)
 								St.FpBlk.L.CreateNewItem();
 							assert(St.FpBlk.L.getCount() >= 2);
 							Build_FsDir2(1/*filePaneIdx*/);
 						}
+					}
+					{
+						ImGuiContext & r_g = *GImGui;
+						ImGuiID left_id = ImHashStr(p_left_pane_ident);
+						ImGuiID right_id = ImHashStr(p_right_pane_ident);
+						ImGuiWindow * p_left_win = ImGui::FindWindowByID(left_id);
+						ImGuiWindow * p_right_win = ImGui::FindWindowByID(right_id);
+						ImGuiWindow * p_win = r_g.NavWindow;
+						uint    local_focused_pane_idx = 0;
+						while(p_win && !local_focused_pane_idx) {
+							if(p_win == p_left_win)
+								local_focused_pane_idx = 1;
+							else if(p_win == p_right_win)
+								local_focused_pane_idx = 2;
+							else
+								p_win = p_win->ParentWindow;
+						}
+						if(local_focused_pane_idx) {
+							St.FpBlk.FocusedPaneIdx = local_focused_pane_idx;
+						}
+					}
+					if(ImGui::IsKeyReleased(ImGuiKey_Tab)) {
+						if(St.FpBlk.FocusedPaneIdx == 1)
+							St.FpBlk.FocusedPaneIdx = 2;
+						else if(St.FpBlk.FocusedPaneIdx == 2)
+							St.FpBlk.FocusedPaneIdx = 1;
 					}
 				}
 			}
@@ -479,6 +518,8 @@ void Kabq_ImGuiSceneBlock::BuildScene()
 	const int view_flags = ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoDecoration;
 	ImGuiViewport * p_vp = ImGui::GetMainViewport();
 	if(p_vp) {
+		ImGuiObjStack stk;
+		PushFontEntry(stk, "FontPrimary");
 		SString temp_buf;
 		ImVec2 sz = p_vp->Size;
 		SUiLayout::Param evp;
@@ -504,10 +545,30 @@ void Kabq_ImGuiSceneBlock::BuildScene()
 			{
 				ImGuiWindowByLayout wbl(&tl, loidTopicbar, "##Topicbar", view_flags);
 				if(wbl.IsValid()) {
-					if(ImGui::Button2("Computer", P_ICD->ButtonSize_Double)) {
-						St.Topic = topicComputer;
+					//ImGuiContext & g = *GImGui;
+					//ImGui::FocusWindow(g.CurrentWindow);
+					{
+						void * p_tb_icon = Cache_Icon.Get(ImgRtb, PPDV_FOLDER01);
+						if(p_tb_icon) {
+							if(ImGui::ImageButton(p_tb_icon, ImVec2(ImGuiRuntimeBlock::IconSize, ImGuiRuntimeBlock::IconSize))) {
+								St.Topic = topicComputer;
+							}
+							if(ImGui::IsItemHovered())  
+								ImGui::SetTooltip("File system navigation");
+						}
 					}
-					if(ImGui::Button2("Notes", P_ICD->ButtonSize_Double)) {
+					{
+						void * p_tb_icon = Cache_Icon.Get(ImgRtb, PPDV_FILEFORMAT_HTML);
+						if(p_tb_icon) {
+							if(ImGui::ImageButton(p_tb_icon, ImVec2(ImGuiRuntimeBlock::IconSize, ImGuiRuntimeBlock::IconSize))) {
+								St.Topic = topicHtmlParser;
+							}
+							if(ImGui::IsItemHovered())  
+								ImGui::SetTooltip("HTML parser");
+						}
+					}
+					if(ImGui::Button2("Notes", P_ICD->ButtonSize_Double, 
+						ImGuiButtonFlags_PressedOnClick|ImGuiButtonFlags_PressedOnClickRelease|ImGuiButtonFlags_NoNavFocus)) {
 						St.Topic = topicNotes;
 					}
 					if(ImGui::Button2("Finances", P_ICD->ButtonSize_Double)) {

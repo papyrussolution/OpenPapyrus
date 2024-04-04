@@ -1,32 +1,32 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *
- * This file is part of xlslib -- A multiplatform, C/C++ library
- * for dynamic generation of Excel(TM) files.
- *
- * Copyright 2004 Yeico S. A. de C. V. All Rights Reserved.
- * Copyright 2008-2011 David Hoerl All Rights Reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification, are
- * permitted provided that the following conditions are met:
- *
- *    1. Redistributions of source code must retain the above copyright notice, this list of
- *       conditions and the following disclaimer.
- *
- *    2. Redistributions in binary form must reproduce the above copyright notice, this list
- *       of conditions and the following disclaimer in the documentation and/or other materials
- *       provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY David Hoerl ''AS IS'' AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL David Hoerl OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+*
+* This file is part of xlslib -- A multiplatform, C/C++ library
+* for dynamic generation of Excel(TM) files.
+*
+* Copyright 2004 Yeico S. A. de C. V. All Rights Reserved.
+* Copyright 2008-2011 David Hoerl All Rights Reserved.
+*
+* Redistribution and use in source and binary forms, with or without modification, are
+* permitted provided that the following conditions are met:
+*
+*    1. Redistributions of source code must retain the above copyright notice, this list of
+*       conditions and the following disclaimer.
+*
+*    2. Redistributions in binary form must reproduce the above copyright notice, this list
+*       of conditions and the following disclaimer in the documentation and/or other materials
+*       provided with the distribution.
+*
+* THIS SOFTWARE IS PROVIDED BY David Hoerl ''AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+* FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL David Hoerl OR
+* CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+* ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include "xlslib-internal.h"
 #pragma hdrstop
@@ -129,7 +129,6 @@ const uint8 font_t::COLOR_OPTION_TABLE[] =
 	COLOR_CODE_SYS_WIND_BG
 };
 
-
 font_t::font_t(CGlobalRecords& gRecords) :
 	m_GlobalRecords(gRecords),
 	name(FONT_DFLT_FONTNAME),
@@ -165,16 +164,16 @@ font_t::font_t(const font_t& right) :
 
 // only used by globalRec for defaults
 font_t::font_t(CGlobalRecords& gRecords,
-			   uint16 index_,
-			   const std::string& name_,
-			   uint16 height_,
-			   boldness_option_t boldstyle_,
-			   underline_option_t underline_,
-			   script_option_t script_,
-			   color_name_t color_,
-			   uint16 attributes_,
-			   uint8 family_,
-			   uint8 charset_) :
+    uint16 index_,
+    const std::string& name_,
+    uint16 height_,
+    boldness_option_t boldstyle_,
+    underline_option_t underline_,
+    script_option_t script_,
+    color_name_t color_,
+    uint16 attributes_,
+    uint8 family_,
+    uint8 charset_) :
 	m_GlobalRecords(gRecords),
 	//index(0x0000),
 	//name(FONT_DFLT_FONTNAME),
@@ -234,7 +233,8 @@ void font_t::SetItalic(bool italic)
 {
 	if(italic) {
 		attributes |= FONT_ATTR_ITALIC;
-	} else {
+	}
+	else {
 		attributes &= (~FONT_ATTR_ITALIC);
 	}
 
@@ -245,7 +245,8 @@ void font_t::SetStrikeout(bool so)
 {
 	if(so) {
 		attributes |= FONT_ATTR_STRIKEOUT;
-	} else {
+	}
+	else {
 		attributes &= (~FONT_ATTR_STRIKEOUT);
 	}
 
@@ -257,7 +258,8 @@ void font_t::SetOutline(bool ol)
 {
 	if(ol) {
 		attributes |= FONT_ATTR_OUTLINEMACH;
-	} else {
+	}
+	else {
 		attributes &= (~FONT_ATTR_OUTLINEMACH);
 	}
 
@@ -269,7 +271,8 @@ void font_t::SetShadow(bool sh)
 {
 	if(sh) {
 		attributes |= FONT_ATTR_SHADOWMACH;
-	} else {
+	}
+	else {
 		attributes &= (~FONT_ATTR_SHADOWMACH);
 	}
 

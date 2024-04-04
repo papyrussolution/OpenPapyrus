@@ -13,31 +13,19 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL IsAWordChar(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_');
-}
+static bool FASTCALL IsAWordChar(int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_'); }
+static bool FASTCALL IsAWordStart(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_'); }
 
-static bool FASTCALL IsAWordStart(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '_');
-}
-
-static void ColouriseESCRIPTDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
-    Accessor & styler)
+static void ColouriseESCRIPTDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
 	WordList &keywords3 = *keywordlists[2];
-
 	// Do not leak onto next line
 	/*if(initStyle == SCE_ESCRIPT_STRINGEOL)
 	        initStyle = SCE_ESCRIPT_DEFAULT;*/
-
 	StyleContext sc(startPos, length, initStyle, styler);
-
 	bool caseSensitive = styler.GetPropertyInt("escript.case.sensitive", 0) != 0;
-
 	for(; sc.More(); sc.Forward()) {
 		/*if(sc.atLineStart && (sc.state == SCE_ESCRIPT_STRING)) {
 		        // Prevent SCE_ESCRIPT_STRINGEOL from leaking back to previous line

@@ -89,7 +89,8 @@ void VP8LClearBackwardRefs(VP8LBackwardRefs* const refs) {
 	refs->refs_ = NULL;
 }
 
-void VP8LBackwardRefsClear(VP8LBackwardRefs* const refs) {
+void VP8LBackwardRefsClear(VP8LBackwardRefs* const refs) 
+{
 	assert(refs != NULL);
 	VP8LClearBackwardRefs(refs);
 	while(refs->free_blocks_) {
@@ -100,8 +101,8 @@ void VP8LBackwardRefsClear(VP8LBackwardRefs* const refs) {
 }
 
 // Swaps the content of two VP8LBackwardRefs.
-static void BackwardRefsSwap(VP8LBackwardRefs* const refs1,
-    VP8LBackwardRefs* const refs2) {
+static void BackwardRefsSwap(VP8LBackwardRefs* const refs1, VP8LBackwardRefs* const refs2) 
+{
 	const int point_to_refs1 = (refs1->tail_ && refs1->tail_ == &refs1->refs_);
 	const int point_to_refs2 = (refs2->tail_ && refs2->tail_ == &refs2->refs_);
 	const VP8LBackwardRefs tmp = *refs1;

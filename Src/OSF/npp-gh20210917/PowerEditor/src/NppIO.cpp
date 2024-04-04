@@ -1301,17 +1301,13 @@ bool Notepad_plus::fileRename(BufferID id)
 	bool isFileExisting = PathFileExists(buf->getFullPathName()) != FALSE;
 	if(isFileExisting) {
 		CustomFileDialog fDlg(_pPublicInterface->getHSelf());
-
 		fDlg.setExtFilter(TEXT("All types"), TEXT(".*"));
 		setFileOpenSaveDlgFilters(fDlg, false);
 		fDlg.setFolder(buf->getFullPathName());
 		fDlg.setDefFileName(buf->getFileName());
-
 		generic_string title = _nativeLangSpeaker.getLocalizedStrFromID("file-rename-title", TEXT("Rename"));
 		fDlg.setTitle(title.c_str());
-
 		generic_string fn = fDlg.doSaveDlg();
-
 		if(!fn.empty())
 			success = MainFileManager.moveFile(bufferID, fn.c_str());
 	}

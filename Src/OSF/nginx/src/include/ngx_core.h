@@ -973,7 +973,7 @@ static ngx_inline uint32_t ngx_crc(uchar * data, size_t len)
 //#include <ngx_crc32.h>
 //
 extern uint32_t * ngx_crc32_table_short;
-extern uint32_t ngx_crc32_table256[];
+// @v11.9.11 (replaced with SlTabs::LookupTable_CRC32LE_Zlib) extern uint32_t ngx_crc32_table256[];
 
 static ngx_inline uint32_t ngx_crc32_short(uchar * p, size_t len)
 {
@@ -990,7 +990,7 @@ static ngx_inline uint32_t ngx_crc32_long(uchar * p, size_t len)
 {
 	uint32_t crc = 0xffffffff;
 	while(len--) {
-		crc = ngx_crc32_table256[(crc ^ *p++) & 0xff] ^ (crc >> 8);
+		crc = /*ngx_crc32_table256*/SlTabs::LookupTable_CRC32LE_Zlib[0][(crc ^ *p++) & 0xff] ^ (crc >> 8);
 	}
 	return crc ^ 0xffffffff;
 }
@@ -999,7 +999,7 @@ static ngx_inline void ngx_crc32_update(uint32_t * crc, uchar * p, size_t len)
 {
 	uint32_t c = *crc;
 	while(len--) {
-		c = ngx_crc32_table256[(c ^ *p++) & 0xff] ^ (c >> 8);
+		c = /*ngx_crc32_table256*/SlTabs::LookupTable_CRC32LE_Zlib[0][(c ^ *p++) & 0xff] ^ (c >> 8);
 	}
 	*crc = c;
 }

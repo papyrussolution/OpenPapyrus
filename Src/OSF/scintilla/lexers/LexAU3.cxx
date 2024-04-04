@@ -59,20 +59,9 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL IsTypeCharacter(const int ch)
-{
-	return ch == '$';
-}
-
-static bool FASTCALL IsAWordChar(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '_');
-}
-
-static bool FASTCALL IsAWordStart(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '@' || ch == '#' || ch == '$' || ch == '.');
-}
+static bool FASTCALL IsTypeCharacter(const int ch) { return ch == '$'; }
+static bool FASTCALL IsAWordChar(int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_'); }
+static bool FASTCALL IsAWordStart(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '@' || ch == '#' || ch == '$' || ch == '.'); }
 
 static bool FASTCALL IsAOperator(char ch)
 {

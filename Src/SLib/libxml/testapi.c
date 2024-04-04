@@ -10149,26 +10149,23 @@ static int test_xmlListAppend()
 	int test_ret = 0;
 	int mem_base;
 	int ret_val;
-	xmlList * l; /* a list */
+	xmlList * p_list; // a list
 	int n_l;
 	void * data; /* the data */
 	int n_data;
-
 	for(n_l = 0; n_l < gen_nb_xmlListPtr; n_l++) {
 		for(n_data = 0; n_data < gen_nb_userdata; n_data++) {
 			mem_base = xmlMemBlocks();
-			l = gen_xmlListPtr(n_l, 0);
+			p_list = gen_xmlListPtr(n_l, 0);
 			data = gen_userdata(n_data, 1);
-
-			ret_val = xmlListAppend(l, data);
+			ret_val = xmlListAppend(p_list, data);
 			desret_int(ret_val);
 			call_tests++;
-			des_xmlListPtr(n_l, l, 0);
+			des_xmlListPtr(n_l, p_list, 0);
 			des_userdata(n_data, data, 1);
 			xmlResetLastError();
 			if(mem_base != xmlMemBlocks()) {
-				printf("Leak of %d blocks found in xmlListAppend",
-				    xmlMemBlocks() - mem_base);
+				printf("Leak of %d blocks found in xmlListAppend", xmlMemBlocks() - mem_base);
 				test_ret++;
 				printf(" %d", n_l);
 				printf(" %d", n_data);
@@ -10177,24 +10174,21 @@ static int test_xmlListAppend()
 		}
 	}
 	function_tests++;
-
 	return test_ret;
 }
 
-static int test_xmlListClear() {
+static int test_xmlListClear() 
+{
 	int test_ret = 0;
-
 	int mem_base;
-	xmlList * l; /* a list */
+	xmlList * p_list; /* a list */
 	int n_l;
-
 	for(n_l = 0; n_l < gen_nb_xmlListPtr; n_l++) {
 		mem_base = xmlMemBlocks();
-		l = gen_xmlListPtr(n_l, 0);
-
-		xmlListClear(l);
+		p_list = gen_xmlListPtr(n_l, 0);
+		xmlListClear(p_list);
 		call_tests++;
-		des_xmlListPtr(n_l, l, 0);
+		des_xmlListPtr(n_l, p_list, 0);
 		xmlResetLastError();
 		if(mem_base != xmlMemBlocks()) {
 			printf("Leak of %d blocks found in xmlListClear", xmlMemBlocks() - mem_base);
@@ -10267,33 +10261,29 @@ static int test_xmlListDup() {
 	return test_ret;
 }
 
-static int test_xmlListEmpty() {
+static int test_xmlListEmpty() 
+{
 	int test_ret = 0;
-
 	int mem_base;
 	int ret_val;
-	xmlList * l; /* a list */
+	xmlList * p_list; /* a list */
 	int n_l;
-
 	for(n_l = 0; n_l < gen_nb_xmlListPtr; n_l++) {
 		mem_base = xmlMemBlocks();
-		l = gen_xmlListPtr(n_l, 0);
-
-		ret_val = xmlListEmpty(l);
+		p_list = gen_xmlListPtr(n_l, 0);
+		ret_val = xmlListEmpty(p_list);
 		desret_int(ret_val);
 		call_tests++;
-		des_xmlListPtr(n_l, l, 0);
+		des_xmlListPtr(n_l, p_list, 0);
 		xmlResetLastError();
 		if(mem_base != xmlMemBlocks()) {
-			printf("Leak of %d blocks found in xmlListEmpty",
-			    xmlMemBlocks() - mem_base);
+			printf("Leak of %d blocks found in xmlListEmpty", xmlMemBlocks() - mem_base);
 			test_ret++;
 			printf(" %d", n_l);
 			printf("\n");
 		}
 	}
 	function_tests++;
-
 	return test_ret;
 }
 
@@ -10311,26 +10301,24 @@ static int test_xmlListFront() {
 	return test_ret;
 }
 
-static int test_xmlListInsert() {
+static int test_xmlListInsert() 
+{
 	int test_ret = 0;
-
 	int mem_base;
 	int ret_val;
-	xmlList * l; /* a list */
+	xmlList * p_list; /* a list */
 	int n_l;
 	void * data; /* the data */
 	int n_data;
-
 	for(n_l = 0; n_l < gen_nb_xmlListPtr; n_l++) {
 		for(n_data = 0; n_data < gen_nb_userdata; n_data++) {
 			mem_base = xmlMemBlocks();
-			l = gen_xmlListPtr(n_l, 0);
+			p_list = gen_xmlListPtr(n_l, 0);
 			data = gen_userdata(n_data, 1);
-
-			ret_val = xmlListInsert(l, data);
+			ret_val = xmlListInsert(p_list, data);
 			desret_int(ret_val);
 			call_tests++;
-			des_xmlListPtr(n_l, l, 0);
+			des_xmlListPtr(n_l, p_list, 0);
 			des_userdata(n_data, data, 1);
 			xmlResetLastError();
 			if(mem_base != xmlMemBlocks()) {
@@ -10382,24 +10370,21 @@ static int test_xmlListMerge()
 	return test_ret;
 }
 
-static int test_xmlListPopBack() {
+static int test_xmlListPopBack() 
+{
 	int test_ret = 0;
-
 	int mem_base;
-	xmlList * l; /* a list */
+	xmlList * p_list; /* a list */
 	int n_l;
-
 	for(n_l = 0; n_l < gen_nb_xmlListPtr; n_l++) {
 		mem_base = xmlMemBlocks();
-		l = gen_xmlListPtr(n_l, 0);
-
-		xmlListPopBack(l);
+		p_list = gen_xmlListPtr(n_l, 0);
+		xmlListPopBack(p_list);
 		call_tests++;
-		des_xmlListPtr(n_l, l, 0);
+		des_xmlListPtr(n_l, p_list, 0);
 		xmlResetLastError();
 		if(mem_base != xmlMemBlocks()) {
-			printf("Leak of %d blocks found in xmlListPopBack",
-			    xmlMemBlocks() - mem_base);
+			printf("Leak of %d blocks found in xmlListPopBack", xmlMemBlocks() - mem_base);
 			test_ret++;
 			printf(" %d", n_l);
 			printf("\n");
@@ -10410,24 +10395,21 @@ static int test_xmlListPopBack() {
 	return test_ret;
 }
 
-static int test_xmlListPopFront() {
+static int test_xmlListPopFront() 
+{
 	int test_ret = 0;
-
 	int mem_base;
-	xmlList * l; /* a list */
+	xmlList * p_list; /* a list */
 	int n_l;
-
 	for(n_l = 0; n_l < gen_nb_xmlListPtr; n_l++) {
 		mem_base = xmlMemBlocks();
-		l = gen_xmlListPtr(n_l, 0);
-
-		xmlListPopFront(l);
+		p_list = gen_xmlListPtr(n_l, 0);
+		xmlListPopFront(p_list);
 		call_tests++;
-		des_xmlListPtr(n_l, l, 0);
+		des_xmlListPtr(n_l, p_list, 0);
 		xmlResetLastError();
 		if(mem_base != xmlMemBlocks()) {
-			printf("Leak of %d blocks found in xmlListPopFront",
-			    xmlMemBlocks() - mem_base);
+			printf("Leak of %d blocks found in xmlListPopFront", xmlMemBlocks() - mem_base);
 			test_ret++;
 			printf(" %d", n_l);
 			printf("\n");
@@ -10442,20 +10424,19 @@ static int test_xmlListPushBack()
 	int test_ret = 0;
 	int mem_base;
 	int ret_val;
-	xmlList * l; /* a list */
+	xmlList * p_list; /* a list */
 	int n_l;
 	void * data; /* new data */
 	int n_data;
 	for(n_l = 0; n_l < gen_nb_xmlListPtr; n_l++) {
 		for(n_data = 0; n_data < gen_nb_userdata; n_data++) {
 			mem_base = xmlMemBlocks();
-			l = gen_xmlListPtr(n_l, 0);
+			p_list = gen_xmlListPtr(n_l, 0);
 			data = gen_userdata(n_data, 1);
-
-			ret_val = xmlListPushBack(l, data);
+			ret_val = xmlListPushBack(p_list, data);
 			desret_int(ret_val);
 			call_tests++;
-			des_xmlListPtr(n_l, l, 0);
+			des_xmlListPtr(n_l, p_list, 0);
 			des_userdata(n_data, data, 1);
 			xmlResetLastError();
 			if(mem_base != xmlMemBlocks()) {
@@ -10477,25 +10458,23 @@ static int test_xmlListPushFront()
 	int test_ret = 0;
 	int mem_base;
 	int ret_val;
-	xmlList * l; /* a list */
+	xmlList * p_list; /* a list */
 	int n_l;
 	void * data; /* new data */
 	int n_data;
 	for(n_l = 0; n_l < gen_nb_xmlListPtr; n_l++) {
 		for(n_data = 0; n_data < gen_nb_userdata; n_data++) {
 			mem_base = xmlMemBlocks();
-			l = gen_xmlListPtr(n_l, 0);
+			p_list = gen_xmlListPtr(n_l, 0);
 			data = gen_userdata(n_data, 1);
-
-			ret_val = xmlListPushFront(l, data);
+			ret_val = xmlListPushFront(p_list, data);
 			desret_int(ret_val);
 			call_tests++;
-			des_xmlListPtr(n_l, l, 0);
+			des_xmlListPtr(n_l, p_list, 0);
 			des_userdata(n_data, data, 1);
 			xmlResetLastError();
 			if(mem_base != xmlMemBlocks()) {
-				printf("Leak of %d blocks found in xmlListPushFront",
-				    xmlMemBlocks() - mem_base);
+				printf("Leak of %d blocks found in xmlListPushFront", xmlMemBlocks() - mem_base);
 				test_ret++;
 				printf(" %d", n_l);
 				printf(" %d", n_data);
@@ -10508,26 +10487,24 @@ static int test_xmlListPushFront()
 	return test_ret;
 }
 
-static int test_xmlListRemoveAll() {
+static int test_xmlListRemoveAll() 
+{
 	int test_ret = 0;
-
 	int mem_base;
 	int ret_val;
-	xmlList * l; /* a list */
+	xmlList * p_list; /* a list */
 	int n_l;
 	void * data; /* list data */
 	int n_data;
-
 	for(n_l = 0; n_l < gen_nb_xmlListPtr; n_l++) {
 		for(n_data = 0; n_data < gen_nb_userdata; n_data++) {
 			mem_base = xmlMemBlocks();
-			l = gen_xmlListPtr(n_l, 0);
+			p_list = gen_xmlListPtr(n_l, 0);
 			data = gen_userdata(n_data, 1);
-
-			ret_val = xmlListRemoveAll(l, data);
+			ret_val = xmlListRemoveAll(p_list, data);
 			desret_int(ret_val);
 			call_tests++;
-			des_xmlListPtr(n_l, l, 0);
+			des_xmlListPtr(n_l, p_list, 0);
 			des_userdata(n_data, data, 1);
 			xmlResetLastError();
 			if(mem_base != xmlMemBlocks()) {
@@ -10550,20 +10527,19 @@ static int test_xmlListRemoveFirst()
 	int test_ret = 0;
 	int mem_base;
 	int ret_val;
-	xmlList * l; /* a list */
+	xmlList * p_list; /* a list */
 	int n_l;
 	void * data; /* list data */
 	int n_data;
 	for(n_l = 0; n_l < gen_nb_xmlListPtr; n_l++) {
 		for(n_data = 0; n_data < gen_nb_userdata; n_data++) {
 			mem_base = xmlMemBlocks();
-			l = gen_xmlListPtr(n_l, 0);
+			p_list = gen_xmlListPtr(n_l, 0);
 			data = gen_userdata(n_data, 1);
-
-			ret_val = xmlListRemoveFirst(l, data);
+			ret_val = xmlListRemoveFirst(p_list, data);
 			desret_int(ret_val);
 			call_tests++;
-			des_xmlListPtr(n_l, l, 0);
+			des_xmlListPtr(n_l, p_list, 0);
 			des_userdata(n_data, data, 1);
 			xmlResetLastError();
 			if(mem_base != xmlMemBlocks()) {
@@ -10585,26 +10561,23 @@ static int test_xmlListRemoveLast()
 	int test_ret = 0;
 	int mem_base;
 	int ret_val;
-	xmlList * l; /* a list */
+	xmlList * p_list; /* a list */
 	int n_l;
 	void * data; /* list data */
 	int n_data;
-
 	for(n_l = 0; n_l < gen_nb_xmlListPtr; n_l++) {
 		for(n_data = 0; n_data < gen_nb_userdata; n_data++) {
 			mem_base = xmlMemBlocks();
-			l = gen_xmlListPtr(n_l, 0);
+			p_list = gen_xmlListPtr(n_l, 0);
 			data = gen_userdata(n_data, 1);
-
-			ret_val = xmlListRemoveLast(l, data);
+			ret_val = xmlListRemoveLast(p_list, data);
 			desret_int(ret_val);
 			call_tests++;
-			des_xmlListPtr(n_l, l, 0);
+			des_xmlListPtr(n_l, p_list, 0);
 			des_userdata(n_data, data, 1);
 			xmlResetLastError();
 			if(mem_base != xmlMemBlocks()) {
-				printf("Leak of %d blocks found in xmlListRemoveLast",
-				    xmlMemBlocks() - mem_base);
+				printf("Leak of %d blocks found in xmlListRemoveLast", xmlMemBlocks() - mem_base);
 				test_ret++;
 				printf(" %d", n_l);
 				printf(" %d", n_data);
@@ -10617,24 +10590,21 @@ static int test_xmlListRemoveLast()
 	return test_ret;
 }
 
-static int test_xmlListReverse() {
+static int test_xmlListReverse() 
+{
 	int test_ret = 0;
-
 	int mem_base;
-	xmlList * l; /* a list */
+	xmlList * p_list; /* a list */
 	int n_l;
-
 	for(n_l = 0; n_l < gen_nb_xmlListPtr; n_l++) {
 		mem_base = xmlMemBlocks();
-		l = gen_xmlListPtr(n_l, 0);
-
-		xmlListReverse(l);
+		p_list = gen_xmlListPtr(n_l, 0);
+		xmlListReverse(p_list);
 		call_tests++;
-		des_xmlListPtr(n_l, l, 0);
+		des_xmlListPtr(n_l, p_list, 0);
 		xmlResetLastError();
 		if(mem_base != xmlMemBlocks()) {
-			printf("Leak of %d blocks found in xmlListReverse",
-			    xmlMemBlocks() - mem_base);
+			printf("Leak of %d blocks found in xmlListReverse", xmlMemBlocks() - mem_base);
 			test_ret++;
 			printf(" %d", n_l);
 			printf("\n");
@@ -10645,26 +10615,24 @@ static int test_xmlListReverse() {
 	return test_ret;
 }
 
-static int test_xmlListReverseSearch() {
+static int test_xmlListReverseSearch() 
+{
 	int test_ret = 0;
-
 	int mem_base;
 	void * ret_val;
-	xmlList * l; /* a list */
+	xmlList * p_list; /* a list */
 	int n_l;
 	void * data; /* a search value */
 	int n_data;
-
 	for(n_l = 0; n_l < gen_nb_xmlListPtr; n_l++) {
 		for(n_data = 0; n_data < gen_nb_userdata; n_data++) {
 			mem_base = xmlMemBlocks();
-			l = gen_xmlListPtr(n_l, 0);
+			p_list = gen_xmlListPtr(n_l, 0);
 			data = gen_userdata(n_data, 1);
-
-			ret_val = xmlListReverseSearch(l, data);
+			ret_val = xmlListReverseSearch(p_list, data);
 			desret_void_ptr(ret_val);
 			call_tests++;
-			des_xmlListPtr(n_l, l, 0);
+			des_xmlListPtr(n_l, p_list, 0);
 			des_userdata(n_data, data, 1);
 			xmlResetLastError();
 			if(mem_base != xmlMemBlocks()) {
@@ -10684,31 +10652,28 @@ static int test_xmlListReverseSearch() {
 
 static int test_xmlListReverseWalk() {
 	int test_ret = 0;
-
 	/* missing type support */
 	return test_ret;
 }
 
-static int test_xmlListSearch() {
+static int test_xmlListSearch() 
+{
 	int test_ret = 0;
-
 	int mem_base;
 	void * ret_val;
-	xmlList * l; /* a list */
+	xmlList * p_list; /* a list */
 	int n_l;
 	void * data; /* a search value */
 	int n_data;
-
 	for(n_l = 0; n_l < gen_nb_xmlListPtr; n_l++) {
 		for(n_data = 0; n_data < gen_nb_userdata; n_data++) {
 			mem_base = xmlMemBlocks();
-			l = gen_xmlListPtr(n_l, 0);
+			p_list = gen_xmlListPtr(n_l, 0);
 			data = gen_userdata(n_data, 1);
-
-			ret_val = xmlListSearch(l, data);
+			ret_val = xmlListSearch(p_list, data);
 			desret_void_ptr(ret_val);
 			call_tests++;
-			des_xmlListPtr(n_l, l, 0);
+			des_xmlListPtr(n_l, p_list, 0);
 			des_userdata(n_data, data, 1);
 			xmlResetLastError();
 			if(mem_base != xmlMemBlocks()) {
@@ -10726,54 +10691,47 @@ static int test_xmlListSearch() {
 	return test_ret;
 }
 
-static int test_xmlListSize() {
+static int test_xmlListSize() 
+{
 	int test_ret = 0;
-
 	int mem_base;
 	int ret_val;
-	xmlList * l; /* a list */
+	xmlList * p_list; /* a list */
 	int n_l;
-
 	for(n_l = 0; n_l < gen_nb_xmlListPtr; n_l++) {
 		mem_base = xmlMemBlocks();
-		l = gen_xmlListPtr(n_l, 0);
-
-		ret_val = xmlListSize(l);
+		p_list = gen_xmlListPtr(n_l, 0);
+		ret_val = xmlListSize(p_list);
 		desret_int(ret_val);
 		call_tests++;
-		des_xmlListPtr(n_l, l, 0);
+		des_xmlListPtr(n_l, p_list, 0);
 		xmlResetLastError();
 		if(mem_base != xmlMemBlocks()) {
-			printf("Leak of %d blocks found in xmlListSize",
-			    xmlMemBlocks() - mem_base);
+			printf("Leak of %d blocks found in xmlListSize", xmlMemBlocks() - mem_base);
 			test_ret++;
 			printf(" %d", n_l);
 			printf("\n");
 		}
 	}
 	function_tests++;
-
 	return test_ret;
 }
 
-static int test_xmlListSort() {
+static int test_xmlListSort() 
+{
 	int test_ret = 0;
-
 	int mem_base;
-	xmlList * l; /* a list */
+	xmlList * p_list; /* a list */
 	int n_l;
-
 	for(n_l = 0; n_l < gen_nb_xmlListPtr; n_l++) {
 		mem_base = xmlMemBlocks();
-		l = gen_xmlListPtr(n_l, 0);
-
-		xmlListSort(l);
+		p_list = gen_xmlListPtr(n_l, 0);
+		xmlListSort(p_list);
 		call_tests++;
-		des_xmlListPtr(n_l, l, 0);
+		des_xmlListPtr(n_l, p_list, 0);
 		xmlResetLastError();
 		if(mem_base != xmlMemBlocks()) {
-			printf("Leak of %d blocks found in xmlListSort",
-			    xmlMemBlocks() - mem_base);
+			printf("Leak of %d blocks found in xmlListSort", xmlMemBlocks() - mem_base);
 			test_ret++;
 			printf(" %d", n_l);
 			printf("\n");

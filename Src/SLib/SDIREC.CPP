@@ -402,12 +402,17 @@ int SFileEntryPool::Helper_Scan(const char * pPath, const char * pWildcard, long
 	assert(!isempty(pPath)); // Вызывающая функция обязана проверить это условие
 	SDirEntry fb;
 	SString temp_buf;
-	temp_buf = pPath;
-	if(pWildcard) {
-		temp_buf.SetLastSlash().Cat(pWildcard);
-	}
 	const bool do_recursive = LOGIC(flags & scanfRecursive);
 	const bool reckon_dirs = LOGIC(flags & scanfReckonDirs); // @v11.8.10
+	temp_buf = pPath;
+	if(pWildcard) {
+		if(do_recursive || (flags & scanfReckonUpFolder)) {
+			temp_buf.SetLastSlash().Cat("*.*");
+		}
+		else {
+			temp_buf.SetLastSlash().Cat(pWildcard);
+		}
+	}
 	//scanfReckonDirs
 	for(SDirec sdirec(temp_buf, 0); sdirec.Next(&fb) > 0;) {
 		// @debug {
@@ -424,7 +429,9 @@ int SFileEntryPool::Helper_Scan(const char * pPath, const char * pWildcard, long
 		}
 		else if(!fb.IsSelf()) {
 			if(fb.IsFile()) {
-				THROW(Add(pPath, fb, flags));
+				if(isempty(pWildcard) || sstreq(pWildcard, "*.*") || SFile::WildcardMatch(pWildcard, fb.GetNameUtf8(temp_buf))) {
+					THROW(Add(pPath, fb, flags));	
+				}
 				ok = 1;
 			}
 			else if(fb.IsFolder()) {

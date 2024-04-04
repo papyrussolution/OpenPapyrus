@@ -1977,20 +1977,6 @@ int PPObjBrand::Fetch(PPID id, PPBrand * pRec)
 	return (ok > 0) ? Helper_GetRec(goods_rec, pRec) : ok;
 }
 
-
-int PPObjBrand::Get(PPID id, PPBrandPacket * pPack)
-{
-	int    ok = PPObjGoods::Search(id);
-	if(ok > 0) {
-		if(pPack) {
-			THROW(Helper_GetRec(P_Tbl->data, &pPack->Rec));
-			THROW(GetTagList(id, &pPack->TagL));
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
 int PPObjBrand::Put(PPID * pID, PPBrandPacket * pPack, int use_ta)
 {
 	int    ok = 1;
@@ -2048,6 +2034,19 @@ int PPObjBrand::Put(PPID * pID, PPBrandPacket * pPack, int use_ta)
 			DS.LogAction(PPACN_OBJADD, Obj, *pID, 0, 0);
 		}
 		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPObjBrand::Get(PPID id, PPBrandPacket * pPack)
+{
+	int    ok = PPObjGoods::Search(id);
+	if(ok > 0) {
+		if(pPack) {
+			THROW(Helper_GetRec(P_Tbl->data, &pPack->Rec));
+			THROW(GetTagList(id, &pPack->TagL));
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -2930,8 +2929,8 @@ PPViewBrand::BrwItem::BrwItem(const PPBrand * pS) : ID(0), OwnerID(0), Flags(0),
 		STRNSCPY(OwnerName, r_temp_buf);
 	}
 	else {
-		PTR32(Name)[0] = 0;
-		PTR32(OwnerName)[0] = 0;
+		Name[0] = 0;
+		OwnerName[0] = 0;
 	}
 }
 
@@ -3025,9 +3024,9 @@ int FASTCALL PPViewBrand::NextIteration(BrandViewItem * pItem)
 	int    ok = -1;
 	while(ok < 0 && P_DsList && P_DsList->getPointer() < P_DsList->getCount()) {
 		const  PPID id = static_cast<const BrwItem *>(P_DsList->at(P_DsList->getPointer()))->ID;
-		PPBrandPacket brand;
-		if(Obj.Get(id, &brand) > 0) {
-			ASSIGN_PTR(pItem, brand.Rec);
+		PPBrandPacket pack;
+		if(Obj.Get(id, &pack) > 0) {
+			ASSIGN_PTR(pItem, pack.Rec);
 			P_DsList->incPointer();
 			ok = 1;
 		}

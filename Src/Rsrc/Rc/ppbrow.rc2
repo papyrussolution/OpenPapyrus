@@ -1,5 +1,5 @@
 // PPBROW.RC2
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage windows-1251
 // Part of project Papyrus
 //
@@ -1519,6 +1519,22 @@ browser BRAND north(100), 3, 0, "@{view_brand}", OWNER|GRID, 0
 		separator
 		SYSJ                    : kbCtrlJ, PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
 		TRANSMIT                : kbCtrlH, PPDV_SYNC01,       "@{dotransmit}\tCtrl-H"
+		separator
+		CHANGEFILT              : kbCtrlV, PPDV_FILTER01,     "@{filter}\tCtrl-V"
+	}
+}
+
+browser SWPROGRAM north(100), 3, 0, "@{view_swprogram}", OWNER|GRID, 0
+{
+	"@id",              0, int32,        ALIGN_RIGHT, 10, BCO_USERPROC
+	"@appellation",     1, zstring(128), 0, 50, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		EDITITEM                : kbEnter, PPDV_EDITFILE02,   "@{edit}\tEnter"
+		ADDITEM                 : kbIns,   PPDV_ADDFILE02,    "@{add}\tInsert"
+		DELETEITEM              : kbDel,   PPDV_DELETEFILE02, "@{delete}\tDelete"
+		TOTAL                   : kbF9,    PPDV_SIGMA02,      "@{totals}\tF9"
+		separator
+		SYSJ                    : kbCtrlJ, PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
 		separator
 		CHANGEFILT              : kbCtrlV, PPDV_FILTER01,     "@{filter}\tCtrl-V"
 	}
@@ -7217,6 +7233,7 @@ filter StyloQIndexingParam     { "@{filter_styloqindexingparam}" } // @v11.3.4
 filter StyloQGoodsInfoParam    { "@{filter_styloqgoodsinfoparam}" } // @v11.4.5
 filter StyloQIncomingListParam { "@{filter_styloqincominglistparam}" } // @v11.4.7
 filter StyloQDocumentPrereqParam { "@{filter_styloqdocumentparam}" } // @v11.5.0
+view   SwProgram { "@{view_swprogram}" } // @v11.9.11
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //
@@ -9229,6 +9246,9 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_COLUMNS_ONE // @v11.8.6
 	PPDV_IMPORT_DOC // @v11.8.8
 	PPDV_SHARE01 // @v11.9.0
+	PPDV_FILEFORMAT_HTML // @V11.9.11
+	PPDV_FILEFORMAT_JSON // @V11.9.11
+	PPDV_FILEFORMAT_XML // @V11.9.11
 }
 //
 // Следующие изображения используются без замещения цвета

@@ -81,10 +81,7 @@ struct OptionSetBaan : public OptionSet<OptionsBaan> {
 	}
 };
 
-static bool FASTCALL IsAWordChar(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_' || ch == '$');
-}
+static bool FASTCALL IsAWordChar(int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_' || ch == '$'); }
 
 static bool FASTCALL IsAnOperator(int ch)
 {

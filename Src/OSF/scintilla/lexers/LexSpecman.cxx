@@ -15,20 +15,9 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL IsAWordChar(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_' || ch == '\'');
-}
-
-static bool FASTCALL IsANumberChar(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '\'');
-}
-
-static bool FASTCALL IsAWordStart(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '`');
-}
+static bool FASTCALL IsAWordChar(int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_' || ch == '\''); }
+static bool FASTCALL IsANumberChar(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '\''); }
+static bool FASTCALL IsAWordStart(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '`'); }
 
 static void ColouriseSpecmanDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[],
     Accessor & styler, bool caseSensitive)

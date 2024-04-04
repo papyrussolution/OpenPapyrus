@@ -26,7 +26,7 @@ static void ColouriseVHDLDoc(
     WordList *keywordlists[],
     Accessor & styler);
 
-static bool FASTCALL IsAWordChar(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_' ); }
+static bool FASTCALL IsAWordChar(int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_' ); }
 static bool FASTCALL IsAWordStart(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_'); }
 static bool FASTCALL IsABlank(uint ch) { return (ch == ' ') || (ch == 0x09) || (ch == 0x0b); }
 

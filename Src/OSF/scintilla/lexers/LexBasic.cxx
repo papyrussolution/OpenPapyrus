@@ -358,7 +358,7 @@ void SCI_METHOD LexerBasic::Lex(Sci_PositionU startPos, Sci_Position length, int
 			if(sc.atLineEnd) {
 				sc.SetState(SCE_B_DEFAULT);
 			}
-			else if(sc.ch == '\\' || sc.ch == '@') {
+			else if(oneof2(sc.ch, '\\', '@')) {
 				if(IsLetter(sc.chNext) && sc.chPrev != '\\') {
 					styleBeforeKeyword = sc.state;
 					sc.SetState(SCE_B_DOCKEYWORD);
@@ -385,7 +385,7 @@ void SCI_METHOD LexerBasic::Lex(Sci_PositionU startPos, Sci_Position length, int
 				sc.Forward();
 				sc.ForwardSetState(SCE_B_DEFAULT);
 			}
-			else if(sc.ch == '\\' || sc.ch == '@') {
+			else if(oneof2(sc.ch, '\\', '@')) {
 				if(IsLetter(sc.chNext) && sc.chPrev != '\\') {
 					styleBeforeKeyword = sc.state;
 					sc.SetState(SCE_B_DOCKEYWORD);
@@ -393,10 +393,8 @@ void SCI_METHOD LexerBasic::Lex(Sci_PositionU startPos, Sci_Position length, int
 				;
 			}
 		}
-
 		if(sc.atLineStart)
 			isfirst = true;
-
 		if(sc.state == SCE_B_DEFAULT || sc.state == SCE_B_ERROR) {
 			if(isfirst && sc.Match('.') && comment_char != '\'') {
 				sc.SetState(SCE_B_LABEL);

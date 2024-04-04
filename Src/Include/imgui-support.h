@@ -111,10 +111,73 @@ public:
 protected:
 	void   Render(ImGuiRuntimeBlock & rRtb);
 	void   BuildSceneProlog();
-	int    LoadUiDescription();
+	int    LoadUiDescription(ImGuiIO & rIo);
 	int    CreateFontEntry(ImGuiIO & rIo, const char * pSymb, const char * pPath, float sizePx, const ImFontConfig * pFontCfg, const SColor * pClr);
 	int    PushFontEntry(ImGuiObjStack & rStk, const char * pSymb);
 	
+	class CommonTextureCacheEntry {
+	public:
+		CommonTextureCacheEntry() : P_Texture(0)
+		{
+		}
+		explicit CommonTextureCacheEntry(void * pTexture) : P_Texture(pTexture)
+		{
+		}
+		void * P_Texture;
+		void Destroy()
+		{
+			if(P_Texture) {
+				static_cast<IUnknown *>(P_Texture)->Release();
+				P_Texture = 0;
+			}
+		}
+	};
+	class Texture_IconEntity : public CommonTextureCacheEntry {
+	public:
+		Texture_IconEntity() : CommonTextureCacheEntry(), Id(0)
+		{
+		}
+		Texture_IconEntity(uint id, void * pTexture) : CommonTextureCacheEntry(pTexture), Id(id)
+		{
+		}
+		const void * GetHashKey(const void * pCtx, uint * pSize) const // hash-table support
+		{
+			ASSIGN_PTR(pSize, sizeof(Id));
+			return &Id;
+		}
+		uint    Id;
+	};
+	class IconTextureCache : private TSHashCollection <Texture_IconEntity> { // @v11.9.2
+	public:
+		IconTextureCache() : TSHashCollection <Texture_IconEntity>(1024, 0)
+		{
+		}
+		void * Get(ImGuiRuntimeBlock & rRtb, uint id)
+		{
+			void * p_texture = 0;
+			if(id) {
+				Texture_IconEntity * p_entry = static_cast<Texture_IconEntity *>(TSHashCollection <Texture_IconEntity>::Get(&id, sizeof(id)));
+				if(p_entry) {
+					p_texture = p_entry->P_Texture;
+				}
+				else {
+					void * p_icon = rRtb.MakeIconTexture(id);
+					if(p_icon) {
+						Texture_IconEntity * p_new_entry = new Texture_IconEntity(id, p_icon);
+						if(p_new_entry) {
+							if(TSHashCollection <Texture_IconEntity>::Put(p_new_entry, true)) {
+								p_entry = static_cast<Texture_IconEntity *>(TSHashCollection <Texture_IconEntity>::Get(&id, sizeof(id)));
+								assert(p_entry && p_entry == p_new_entry);
+								p_texture = p_entry->P_Texture;
+							}
+						}
+					}
+				}
+			}
+			return p_texture;
+		}
+	};
+	IconTextureCache Cache_Icon;
 	ImVec4 ClearColor;
 	TSHashCollection <SUiLayout> Cache_Layout;
 	TSHashCollection <SImFontDescription> Cache_Font;

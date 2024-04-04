@@ -231,10 +231,11 @@ static void checkHeader(LoadState * S) {
 /*
 ** load precompiled chunk
 */
-LClosure * luaU_undump(lua_State * L, ZIO * Z, const char * name) {
+LClosure * luaU_undump(lua_State * L, ZIO * Z, const char * name) 
+{
 	LoadState S;
 	LClosure * cl;
-	if(*name == '@' || *name == '=')
+	if(oneof2(*name, '@', '='))
 		S.name = name + 1;
 	else if(*name == LUA_SIGNATURE[0])
 		S.name = "binary string";

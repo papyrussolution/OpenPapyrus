@@ -4518,6 +4518,8 @@ struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 #define PPGDSK_BRAND               5L // Брэнды
 #define PPGDSK_BRANDGROUP          6L // Группы брэндов
 #define PPGDSK_SUPRWARE            7L // Составные товары // @vmiller
+#define PPGDSK_COMPUTER            8L // @v11.9.11 Компьютерный юнит. Имеется в виду физический компьютер, находящийся на балансе/обслуживании
+#define PPGDSK_SWPROGRAM           9L // @v11.9.11 Компьютерная программа. 
 //
 // Внутрение типы штрихкодов, отражающие специфику товарного кода.
 //
@@ -8186,6 +8188,7 @@ public:
 	static int FASTCALL RecognizeStdName(const char * pText);
 	static int FASTCALL CreateImage(/*const char * pCode, int bcstd, int outpFormat, const char * pOutpFileName*/BarcodeImageParam & rParam);
 	static int FASTCALL RecognizeImage(const char * pInpFileName, TSCollection <PPBarcode::Entry> & rList);
+	static int ZXing_RecognizeImage(const char * pInpFileName, TSCollection <PPBarcode::Entry> & rList);
 	//
 	// Descr: Конвертирует штрихкод в формате UPC-E в формат UPC-A
 	// Note: Не проверяет входящий параметр pUpce на корректное представление UPC-E
@@ -20134,6 +20137,8 @@ public:
 	PPGlobalUserAccPacket();
 	int    FASTCALL IsEq(const PPGlobalUserAccPacket & rS) const;
 	PPGlobalUserAccPacket & Z();
+	int    SetAccessKey(const char * pValue);
+	int    GetAccessKey(SString & rValue) const;
 
 	PPGlobalUserAcc Rec;
 	ObjTagList TagL;        // Список тегов
@@ -23980,7 +23985,8 @@ private:
 //
 // @ModuleDecl(PPObjGoodsValRestr)
 //
-struct PPGoodsValRestr {
+struct PPGoodsValRestr { // @flat @persistent
+	PPGoodsValRestr();
 	long   Tag;            // Const=PPOBJ_GOODSVALRESTR
 	long   ID;             // @id
 	char   Name[48];       // @name
@@ -30937,6 +30943,115 @@ public:
 private:
 	static int MakeStorage(PPID id, const PPSuprWare * pRec, Goods2Tbl::Rec * pRawRec, BarcodeArray * pBcList);
 	virtual int DeleteObj(PPID id);
+};
+//
+//
+// 
+struct PPComputer { // @flat
+	PPComputer();
+	PPID   ID;             // @id
+	char   Name[128];      // @name
+	char   Code[20];       // (Stored as Barcode.Code with prefix '^' and Qtty = 1.0)
+};
+
+class PPComputerPacket {
+public:
+	PPComputerPacket();
+
+	PPComputer Rec;
+	ObjTagList TagL;
+};
+
+
+class PPObjComputer : public PPObjGoods { // @construction
+public:
+	PPObjComputer(void * extraPtr = 0);
+	~PPObjComputer();
+	int    Get(PPID, PPComputerPacket *);
+	int    Put(PPID *, PPComputerPacket *, int use_ta);
+};
+//
+// 
+//
+class SwProgramFilt : public PPBaseFilt { // @construction
+public:
+	SwProgramFilt();
+	SwProgramFilt & FASTCALL operator = (const SwProgramFilt & rS);
+	virtual bool IsEmpty() const;
+
+	uint8  ReserveStart[28];  // @anchor
+	long   Order;             //
+	long   Flags;
+	SString SrchStr;          // @anchor Строка, содержащаяся в имени
+	ObjIdListFilt ParentList;
+};
+
+struct PPSwProgram { // @flat
+	PPSwProgram();
+	bool   FASTCALL IsEq(const PPSwProgram & rS) const;
+	bool   FASTCALL CheckForFilt(const SwProgramFilt * pFilt) const;
+	PPID   ID;             // @id
+	char   Name[128];      // @name
+	char   Code[20];       // (Stored as Barcode.Code with prefix '^' and Qtty = 1.0)
+	long   Flags;
+};
+
+class PPSwProgramPacket {
+public:
+	PPSwProgramPacket();
+	bool    FASTCALL IsEq(const PPSwProgramPacket & rS) const;
+	bool    FASTCALL Copy(const PPSwProgramPacket & rS);
+	PPSwProgram Rec;
+	ObjLinkFiles LinkFiles;
+	ObjTagList TagL;
+};
+
+class PPObjSwProgram : public PPObjGoods { // @construction
+public:
+	static int Helper_GetRec(const Goods2Tbl::Rec & rGoodsRec, PPSwProgram * pRec);
+
+	PPObjSwProgram(void * extraPtr = 0);
+	~PPObjSwProgram();
+	int    Get(PPID, PPSwProgramPacket *);
+	int    Put(PPID *, PPSwProgramPacket *, int use_ta);
+	virtual void * CreateObjListWin(uint aFlags, void * extraPtr);
+private:
+	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
+	virtual int  Edit(PPID * pID, void * extraPtr);
+};
+
+typedef PPSwProgram SwProgramViewItem;
+
+class PPViewSwProgram : public PPView { // @construction
+public:
+	struct BrwItem { // @persistent @store(Reference2Tbl)
+		explicit BrwItem(const PPSwProgram * pS);
+		PPID   ID;
+		PPID   CategoryID;
+		long   Flags;
+		char   Name[128];
+		long   ViewFlags;
+	};
+	PPViewSwProgram();
+	~PPViewSwProgram();
+	virtual int Init_(const PPBaseFilt * pBaseFilt);
+	virtual int EditBaseFilt(PPBaseFilt * pBaseFilt);
+	int    InitIteration();
+	int    FASTCALL NextIteration(SwProgramViewItem *);
+	static int CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
+private:
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  OnExecBrowser(PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual void ViewTotal();
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    MakeList();
+
+	SArray * P_DsList;
+	SwProgramFilt Filt;
+	PPObjSwProgram Obj;
 };
 //
 // Descr: Специализированный блок обработки структур для отображения //
@@ -53414,6 +53529,19 @@ protected:
 	PPObjAmountType AmtObj;
 };
 
+class ExtStrContainerListDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPExtStrContainer);
+	const SIntToSymbTabEntry * P_DescrList;
+	const size_t DescrListCount;
+public:
+	ExtStrContainerListDialog(uint dlgId, uint listCtlId, const char * pTitle, bool readOnly, const SIntToSymbTabEntry * pDescrList, size_t descrListCount);
+	DECL_DIALOG_SETDTS();
+	DECL_DIALOG_GETDTS();
+private:
+	virtual int  setupList();
+	const bool ReadOnly;
+};
+
 class BankingOrderDialog : public TDialog {
 public:
 	BankingOrderDialog();
@@ -55509,6 +55637,42 @@ private:
 	SCodepage Cp; // @v11.9.9
 	SString EncBuf;
 };
+
+class DocNalogRu_WriteBillBlock {
+public:
+	DocNalogRu_WriteBillBlock(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const char * pHeaderSymb, const SString & rFileName);
+	~DocNalogRu_WriteBillBlock();
+	const  bool IsValid() const { return !(State & stError); }
+	const  SString & FASTCALL GetToken(long tokId);
+	const  SString & FASTCALL EncText(const SString & rS);
+	int    Do_Invoice(SString & rResultFileName);
+	int    Do_Invoice2(SString & rResultFileName);
+	int    Do_CorrInvoice(SString & rResultFileName);
+	int    Do_UPD(SString & rResultFileName);
+	int    Do_DP_REZRUISP(SString & rResultFileName);
+
+	enum {
+		stError                 = 0x0001, // В конструкторе возникла ошибка
+		stAgreementParamIsValid = 0x0002  // Получение параметров клиентского соглашение (G.GetAgreementParams) завершилось успешно
+	};
+	uint   State;
+	const  PPBillImpExpParam & R_P;
+	const  PPBillPacket & R_Bp;
+
+	PPObjAccSheet AcsObj;
+	PPOprKind OpRec;
+	PPOprKind LinkOpRec;
+	PPID   DtoID; // PPOBJ_PERSON
+	PPID   MainOrgID; // PPOBJ_PERSON
+	PPID   ContragentID; // PPOBJ_PERSON
+	SString AgtCode;
+	LDATE  AgtDate;
+	LDATE  AgtExpiry;
+	const  SString & R_NominalFileName;
+	SString HeaderSymb;
+	DocNalogRu_Generator::FileInfo _Hi;
+	DocNalogRu_Generator G;
+};
 //
 //
 //
@@ -55528,18 +55692,6 @@ public:
 	};
 	
 	static int ParseText(const char * pText, const char * pTemplate, PPImpExpParam::PtTokenList & rResultList, SString * pFileTemplate);
-	//
-	// Descr: Предопределенный форматы импорт/экспорта документов
-	//
-	/* @v11.0.2 (replaced with PredefinedImpExpFormat::piefXXX ) enum { // @persistent
-		pfUndef = 0,
-		pfNalogR_Invoice   = 1, //
-		pfNalogR_REZRUISP  = 2, //
-		pfNalogR_SCHFDOPPR = 3, // УПД ON_SCHFDOPPR_1_995_01_05_01_02.xsd
-		pfExport_Marks     = 4, // @v10.7.12
-		pfNalogR           = 5, // @v10.8.0 import-only Файлы в формате nalog.ru
-		pfNalogR_ON_NSCHFDOPPRMARK = 6, // @v10.8.0 Счет-фактура с марками
-	};*/
 	explicit PPBillImpExpParam(uint recId = 0, long flags = 0);
 	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
@@ -55910,6 +56062,19 @@ private:
 	void   SetupCtrls(long direction);
 
 	PPCCheckImpExpParam Data;
+};
+//
+// Descr: Вспомогательный класс, обеспечивающий однообразную запись в журналы
+//   процесса обмена данными с глобальными сервисами. В качестве параметра
+//   конструктора передается идентификатор строки имени файла журнала.
+//   Например: PPFILNAM_UDSTALK_LOG ("uds-talk.log").
+//
+class PPGlobalServiceLogTalkingHelper {
+public:
+	explicit PPGlobalServiceLogTalkingHelper(uint logFileNameId);
+	void   Log(const char * pPrefix, const char * pTargetUrl, const SString & rMsg);
+private:
+	SString LogFileName;
 };
 //
 //
@@ -56630,6 +56795,87 @@ public:
 private:
 	int    PrepareBillPacketForSending(PPID billID, void * pChZnPacket);
 	void * P_Ib; // Блок инициализации
+};
+
+class ChZnPermissiveModeInterface {
+public:
+	struct CdnStatus {
+		CdnStatus();
+		SString CdnAddr; // адрес CDN-площадки
+		int    Code; // 0 - ok, !0 - error
+		int    AvgTimeMs;
+	};
+	struct CodeStatus {
+		CodeStatus();
+		enum {
+			fFound      = 0x0001, // Признак наличия кода. Возможные значения: true — «Код найден»; false — «Код не найден»
+			fValid      = 0x0002, // Результат проверки валидности структуры КМ. Возможные значения: true — «Структура валидная»; false — «Структура не валидная»
+			fVerified   = 0x0004, // Результат проверки крипто-подписи КМ. Возможные значения: true — «Проверка крипто-подписи завершилась успешно»; false — «Проверка крипто-подписи.
+			fRealizable = 0x0008, // Признак ввода в оборот. Признак показывает, находится ли КИ в статусе «В обороте». Возможные значения: true – «КИ в статусе «В обороте»»; false – «КИ в статусе, отличном от «В обороте»».
+			fUtilised   = 0x0010, // Признак нанесения КИ на упаковку. Возможные значения: true — «КИ нанесён»; false — «КИ не нанесён»
+			fIsOwner    = 0x0020, // Признак, определяющий что запрос направлен владельцем кода. true — КМ принадлежит участнику, который направил запрос; false — КМ не принадлежит участнику, который направил запрос.
+			fIsBlocked  = 0x0040, // Признак того, что розничная продажа продукции заблокирована по решению ОГВ. true — продажа заблокирована; false — продажа не заблокирована.
+			fIsTracking = 0x0080, // Признак контроля прослеживаемости в товарной группе. true — контроль прослеживаемости в товарной группе для данного КМ включен; false — контроль прослеживаемости в товарной группе для данного КМ выключен.
+			fSold       = 0x0100, // Признак вывода из оборота товара. true — товар выведен из оборота; false — товар не выведен из оборота.
+			fGrayZone   = 0x0200, // Признак принадлежности табачной продукции к «серой зоне». true — принадлежит; false — не принадлежит
+		};
+		SString Cis; //
+		int    ErrorCode; // Код ошибки. 
+			// 0 — ошибки отсутствуют; 1 — ошибка валидации КМ; 2 — КМ не содержит GTIN; 3 — КМ не содержит серийный номер; 4 — КМ содержит недопустимые символы; 
+			// 5 — ошибка верификации крипто-подписи КМ (формат крипто-подписи не соответствует типу КМ); 6 — ошибка верификации крипто-подписи КМ (крипто-подпись не валидная); 
+			// 7 — ошибка верификации крипто-подписи КМ (крипто-ключ не валиден); 8 — КМ не прошел верификацию в стране эмитента; 9 — Найденные AI в КМ не поддерживаются; 
+			// 10 — КМ не найден в ГИС МТ 11 — КМ не найден в трансгране
+		int    EliminationState; // Дополнительная информация по КМ. 
+			// 1 — товар выведен из оборота по причинам «по образцам» или «дистанционная продажа»; 
+			// 2 — товар выведен из оборота по причинам «для собственных нужд» или «для производственных целей» Заполняется для товаров, выведенных из оборота по этим причинам с 08.02.24
+		uint   Mrp; // Максимальная розничная цена. В копейках (для табака).
+		uint   Smp; // Минимальная из возможных единых минимальных цен. В копейках (для табака).
+		uint   PackageQtty;    // 
+		uint   InnerUnitCount; // Количество единиц товара в потребительской упаковке / Фактический объём / Фактический вес.
+		uint   SoldUnitCount;  // Счётчик проданного и возвращённого товара.
+		uint   Flags;
+		uint   GroupIds[64];
+		LDATETIME ExpiryDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
+		LDATETIME ProductionDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
+		double Weight; // Переменный вес продукции (в граммах). Возвращается только для товарной группы «Молочная продукция»
+		SString PrVetDocument; // Производственный ветеринарный сопроводительный документ. Возвращается только для товарной группы «Молочная продукция»
+		SString Message; // Сообщение об ошибке
+		S_GUID ReqId;   // Уникальный идентификатор запроса
+		int64  ReqTimestamp; // Дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
+		SString PackageType; // Тип упаковки. См. «Справочник "Типы упаковки"»
+		SString Parent;      // КИ агрегата.
+		SString ProducerInn; // ИНН производителя.
+	};
+
+	class CodeStatusCollection : public TSCollection <CodeStatus> {
+	public:
+		CodeStatusCollection();
+		CodeStatusCollection & Z();
+		int    Code; // Result code. 0 - ok
+		SString Description; // error message or "ok"
+		S_GUID ReqId;
+		int64  ReqTimestamp;
+	};
+
+	enum {
+		queryGetCdnList = 1,
+		queryGetCdnStatus,
+		queryCheckCodeList
+	};
+	enum {
+		fTest = 0x0001
+	};
+	ChZnPermissiveModeInterface(const char * pToken, uint flags);
+	~ChZnPermissiveModeInterface();
+	int    SelectCdnHost(SString & rResult);
+	int    CheckCodeList(const char * pHost, const char * pFiscalDriveNumber, const StringSet & rSsCodes, CodeStatusCollection & rResult);
+private:
+	SString & MakeTargetUrl(int query, const char * pAddendum, SString & rResult) const;
+	int    QueryCdnList(TSCollection <CdnStatus> & rResultList);
+	int    QueryCdnStatus(CdnStatus & rStatus);
+	uint   Flags;
+	SString Token; // Токен авторизации // Токен нужно получить на каждый ИНН и использовать на всех кассах
+	PPGlobalServiceLogTalkingHelper Lth;
 };
 //
 //
@@ -57400,19 +57646,6 @@ struct LayoutEntryDialogBlock : public SUiLayoutParam {
 
 	SString ParentLayoutSymb;
 	SString OwnLayoutSymb;
-};
-//
-// Descr: Вспомогательный класс, обеспечивающий однообразную запись в журналы
-//   процесса обмена данными с глобальными сервисами. В качестве параметра
-//   конструктора передается идентификатор строки имени файла журнала.
-//   Например: PPFILNAM_UDSTALK_LOG ("uds-talk.log").
-//
-class PPGlobalServiceLogTalkingHelper {
-public:
-	explicit PPGlobalServiceLogTalkingHelper(uint logFileNameId);
-	void   Log(const char * pPrefix, const char * pTargetUrl, const SString & rMsg);
-private:
-	SString LogFileName;
 };
 //
 //

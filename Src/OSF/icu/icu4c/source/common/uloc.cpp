@@ -1071,7 +1071,7 @@ CharString U_EXPORT2 ulocimp_getLanguage(const char * localeID, const char ** pE
 	if(uprv_stricmp(localeID, "root") == 0) {
 		localeID += 4;
 	}
-	else if(uprv_strnicmp(localeID, "und", 3) == 0 && (localeID[3] == '\0' || localeID[3] == '-' || localeID[3] == '_' || localeID[3] == '@')) {
+	else if(uprv_strnicmp(localeID, "und", 3) == 0 && oneof4(localeID[3], '\0', '-', '_', '@')) {
 		localeID += 3;
 	}
 	/* if it starts with i- or x- then copy that prefix */

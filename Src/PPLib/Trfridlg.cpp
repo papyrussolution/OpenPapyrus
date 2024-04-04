@@ -3270,7 +3270,7 @@ int PPObjBill::SelectLot2(SelectLotParam & rParam)
 			slb_flags |= SelLotBrowser::fShowPhQtty;
 		if(rParam.Flags & rParam.fShowVetisTag)
 			slb_flags |= SelLotBrowser::fShowVetisTag;
-		if(rParam.Flags & rParam.fShowManufTime) // @v10.2.10
+		if(rParam.Flags & rParam.fShowManufTime)
 			slb_flags |= SelLotBrowser::fShowManufTime;
 		THROW_MEM(p_brw = new SelLotBrowser(this, p_ary, s, slb_flags));
 		if(rParam.Title.NotEmpty())

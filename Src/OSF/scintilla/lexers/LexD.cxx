@@ -334,7 +334,7 @@ void SCI_METHOD LexerD::Lex(Sci_PositionU startPos, Sci_Position length, int ini
 				    sc.Forward();
 				    sc.ForwardSetState(SCE_D_DEFAULT);
 			    }
-			    else if(sc.ch == '@' || sc.ch == '\\') {        // JavaDoc and Doxygen support
+			    else if(oneof2(sc.ch, '@', '\\')) { // JavaDoc and Doxygen support
 				    // Verify that we have the conditions to mark a comment-doc-keyword
 				    if((IsASpace(sc.chPrev) || sc.chPrev == '*') && (!IsASpace(sc.chNext))) {
 					    styleBeforeDCKeyword = SCE_D_COMMENTDOC;
@@ -351,7 +351,7 @@ void SCI_METHOD LexerD::Lex(Sci_PositionU startPos, Sci_Position length, int ini
 			    if(sc.atLineStart) {
 				    sc.SetState(SCE_D_DEFAULT);
 			    }
-			    else if(sc.ch == '@' || sc.ch == '\\') {        // JavaDoc and Doxygen support
+			    else if(oneof2(sc.ch, '@', '\\')) { // JavaDoc and Doxygen support
 				    // Verify that we have the conditions to mark a comment-doc-keyword
 				    if((IsASpace(sc.chPrev) || sc.chPrev == '/' || sc.chPrev == '!') && (!IsASpace(sc.chNext))) {
 					    styleBeforeDCKeyword = SCE_D_COMMENTLINEDOC;

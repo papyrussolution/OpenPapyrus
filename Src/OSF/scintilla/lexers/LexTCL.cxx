@@ -15,15 +15,8 @@ using namespace Scintilla;
 #endif
 
 // Extended to accept accented characters
-static bool FASTCALL IsAWordChar(int ch)
-{
-	return ch >= 0x80 || (isalnum(ch) || ch == '_' || ch ==':' || ch=='.'); // : name space separator
-}
-
-static bool FASTCALL IsAWordStart(int ch)
-{
-	return ch >= 0x80 || (ch ==':' || isalpha(ch) || ch == '_');
-}
+static bool FASTCALL IsAWordChar(int ch) { return ch >= 0x80 || (isalnum(ch) || ch == '_' || ch ==':' || ch=='.'); /* : name space separator*/ }
+static bool FASTCALL IsAWordStart(int ch) { return ch >= 0x80 || (ch ==':' || isalpha(ch) || ch == '_'); }
 
 static bool FASTCALL IsANumberChar(int ch)
 {

@@ -1746,7 +1746,7 @@ void PsnEventDialog::postVK()
 		tag.FetchBySymb("SMPAGEID", &vk_page_tag_id);
 		gua_obj.SearchBySymb("vk_acc", 0, &gua_rec);
 		if(gua_obj.GetPacket(gua_rec.ID, &gua_pack)>0) {
-			if(gua_pack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, data.Token.Z())>0) {
+			if(gua_pack.GetAccessKey(data.Token) > 0) {
 				if(gua_pack.TagL.GetItemStr(vk_page_tag_id, data.PageId.Z())>0) {
 					if(gua_pack.TagL.GetItemStr(vk_grp_tag_id, data.GroupId.Z())>0) {
 						getCtrlString(CTL_PSNEVNT_MEMO, data.TxtMsg);

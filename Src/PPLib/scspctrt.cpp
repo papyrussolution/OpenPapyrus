@@ -1,5 +1,5 @@
 // SCSPCTRT.CPP
-// Copyright (c) A.Sobolev 2018, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2018, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Реализация специальных интерпретаций поведения персональных карт
 //
@@ -735,7 +735,7 @@ int UdsGameInterface::Setup(PPID guaID)
 	Ib.OuterWareIdentTagID = 0;
 	THROW(gua_obj.GetPacket(guaID, &Ib.GuaPack) > 0);
 	THROW(Ib.GuaPack.TagL.GetItemStr(PPTAG_GUA_LOGIN, Ib.CliIdent) > 0);
-	THROW(Ib.GuaPack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, Ib.CliAccsKey) > 0);
+	THROW(Ib.GuaPack.GetAccessKey(Ib.CliAccsKey) > 0);
 	{
 		const ObjTagItem * p_tag_item = Ib.GuaPack.TagL.GetItem(PPTAG_GUA_OUTERWAREIDTAG);
 		long    outer_wareid_tag_id = 0;

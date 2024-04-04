@@ -1757,6 +1757,7 @@ COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Rsrc\Style\uid-kabq.json" />
     <None Include="..\Rsrc\Style\uid-papyrus.json" />
     <None Include="..\Rsrc\Style\uid-wsctl.json" />
   </ItemGroup>

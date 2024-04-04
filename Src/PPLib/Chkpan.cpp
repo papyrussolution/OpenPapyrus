@@ -8032,10 +8032,8 @@ int CheckPaneDialog::SelectCheck(PPID * pChkID, SString * pSelFormat, const char
 	const uint dlg_id = (DlgFlags & fLarge) ? DLG_SELCHECK_L : DLG_SELCHECK;
 	SelCheckListDialog * dlg = new SelCheckListDialog(dlg_id, (pSelFormat ? ((flags & scfSelSlipDocForm) ? 1 : -1) : 0), P_CM, this, &param);
 	if(CheckDialogPtrErr(&dlg)) {
-		// @v10.9.6 {
 		if(!isempty(pTitle))
 			dlg->setTitle(pTitle);
-		// } @v10.9.6 
 		while(ok < 0 && ExecView(dlg) == cmOK)
 			if(dlg->getDTS(&sch))
 				ok = 1;

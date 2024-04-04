@@ -5438,7 +5438,7 @@ int PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 			case PPOBJ_STYLOPALM: val = PPHS_STYLOPALM; break;
 			case PPOBJ_GEOTRACKING: val = PPHS_GEOTRACKING; break; // @v10.1.5
 			case PPOBJ_STYLOQBINDERY: val = PPHS_STYLOQBINDERY; break; // @v11.3.4
-			case PPOBJ_WSCTL: val = PPHS_WSCTL; break; // @v11.7.3
+			case PPOBJ_COMPUTER: val = PPHS_WSCTL; break; // @v11.7.3
 		}
 		if(val)
 			ok = P_ObjIdentBlk->P_ShT->GetByAssoc(val, rBuf);
@@ -5498,7 +5498,7 @@ PPID PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 				case PPHS_GEOTRACKING:    val = PPOBJ_GEOTRACKING; break; // @v10.1.5
 				case PPHS_TAG:            val = PPOBJ_TAG; break; // @v10.9.4
 				case PPHS_STYLOQBINDERY:  val = PPOBJ_STYLOQBINDERY; break; // @v11.4.3
-				case PPHS_WSCTL:          val = PPOBJ_WSCTL; break; // @v11.7.3
+				case PPHS_WSCTL:          val = PPOBJ_COMPUTER; break; // @v11.7.3
 				default: PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb); break;
 			}
 			obj_type = LoWord(val);

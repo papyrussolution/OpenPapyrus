@@ -16,10 +16,7 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL IsAWordChar(int ch)
-{
-	return (ch >= 0x80) || isalnum(ch) || ch == '_';
-}
+static bool FASTCALL IsAWordChar(int ch) { return (ch >= 0x80) || isalnum(ch) || ch == '_'; }
 
 static Sci_Position tillEndOfTripleQuote(Accessor & styler, Sci_Position pos, Sci_Position max)
 {

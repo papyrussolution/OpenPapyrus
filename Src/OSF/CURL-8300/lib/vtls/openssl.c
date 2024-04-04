@@ -2143,27 +2143,22 @@ static CURLcode ossl_verifyhost(struct Curl_easy * data, struct connectdata * co
 					       our server IP address is */
 					    if((altlen == addrlen) && !memcmp(altptr, &addr, altlen)) {
 						    ipmatched = TRUE;
-						    infof(data,
-							" subjectAltName: host \"%s\" matched cert's IP address!",
-							dispname);
+						    infof(data, " subjectAltName: host \"%s\" matched cert's IP address!", dispname);
 					    }
 					    break;
 				}
 			}
 		}
 		GENERAL_NAMES_free(altnames);
-
 		if(dnsmatched || ipmatched)
 			matched = TRUE;
 	}
-
 	if(matched)
 		/* an alternative name matched */
 		;
 	else if(dNSName || iPAddress) {
 		infof(data, " subjectAltName does not match %s", dispname);
-		failf(data, "SSL: no alternative certificate subject name matches "
-		    "target host name '%s'", dispname);
+		failf(data, "SSL: no alternative certificate subject name matches target host name '%s'", dispname);
 		result = CURLE_PEER_FAILED_VERIFICATION;
 	}
 	else {
@@ -2172,7 +2167,6 @@ static CURLcode ossl_verifyhost(struct Curl_easy * data, struct connectdata * co
 		int i = -1;
 		uchar * peer_CN = NULL;
 		int peerlen = 0;
-
 		/* The following is done because of a bug in 0.9.6b */
 		X509_NAME * name = X509_get_subject_name(server_cert);
 		if(name) {
@@ -2180,15 +2174,12 @@ static CURLcode ossl_verifyhost(struct Curl_easy * data, struct connectdata * co
 			while((j = X509_NAME_get_index_by_NID(name, NID_commonName, i)) >= 0)
 				i = j;
 		}
-
 		/* we have the name entry and we will now convert this to a string
 		   that we can use for comparison. Doing this we support BMPstring,
 		   UTF8, etc. */
 
 		if(i >= 0) {
-			ASN1_STRING * tmp =
-			    X509_NAME_ENTRY_get_data(X509_NAME_get_entry(name, i));
-
+			ASN1_STRING * tmp = X509_NAME_ENTRY_get_data(X509_NAME_get_entry(name, i));
 			/* In OpenSSL 0.9.7d and earlier, ASN1_STRING_to_UTF8 fails if the input
 			   is already UTF-8 encoded. We check for this case and copy the raw
 			   string manually to avoid the problem. This code can be made

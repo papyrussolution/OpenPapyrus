@@ -31,6 +31,20 @@
 			"src": "dd/font/Roboto-Medium.ttf"
 		}
 	],
+	"font_list": [
+		{
+			"symb": "FontPrimary",
+			"face": "DroidSans",
+			"size": 18,
+			"colorrefsymb": "imgui_style.TextPrimary"
+		},
+		{
+			"symb": "FontSecondary",
+			"face": "Roboto",
+			"size": 16,
+			"colorrefsymb": "imgui_style.TextSecondary"
+		}
+	],
 	"colorset_list": [
 		{
 			"symb": "papyrus_style",
@@ -56,16 +70,16 @@
 			"list_focus_border": "#0066cc",
 			"list_sel_bg": "#a2d2ff",
 			"list_sel_border": "#0066cc",
-			"grid_title":      "#D6D3CE",
+			"grid_title": "#D6D3CE",
 			"grid_titledelim": "#909090",
-			"grid_bg":         "#white", 
-			"grid_fg":         "#black",
-			"grid_curcell_bg": "#808080", 
-			"grid_curcell_fg": "#white", 
-			"grid_curline_bg": "#C0C0C0", 
+			"grid_bg": "#white",
+			"grid_fg": "#black",
+			"grid_curcell_bg": "#808080",
+			"grid_curcell_fg": "#white",
+			"grid_curline_bg": "#C0C0C0",
 			"grid_curline_fg": "#black",
-			"grid_gridhorz":   "#C0C0C0", 
-			"grid_gridvert":   "#909090",
+			"grid_gridhorz": "#C0C0C0",
+			"grid_gridvert": "#909090",
 			"ccheck_junk_bg": "#orange",
 			"ccheck_junk_fg": "#black",
 			"ccheck_imported_bg": "#palegreen",
@@ -84,9 +98,9 @@
 			"ccheckitem_fixedprice_fg": "#black",
 			"barcode_preferred_bg": "#green",
 			"barcode_preferred_fg": "#white"
-		},	
+		},
 		{
-			"symb": "imgui-style",
+			"symb": "imgui_style",
 			"Substrat": "#1E2228",
 			"TextPrimary": "#white",
 			"TextSecondary": "#silver",

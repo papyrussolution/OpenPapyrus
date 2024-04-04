@@ -2768,7 +2768,7 @@ int PPObjGoods::GetOpenedList(PPID locID, const PPIDArray * pOverlapList, UintHa
 	return ok;
 }
 
-ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long options, void * extraPtr, PPID locID, PPID mtxLocID)
+ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parentID, long options, void * extraPtr, PPID locID, PPID mtxLocID)
 {
 	struct LbxDataGoods {
 		long   ParentID;
@@ -2780,22 +2780,22 @@ ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parent, long options
 		size_t s = sizeof(lbx_extra);
 		MEMSZERO(lbx_extra);
 		pDef->GetUserData(&lbx_extra, &s);
-		parent = lbx_extra.ParentID;
+		parentID = lbx_extra.ParentID;
 		options = lbx_extra.Options;
 		extraPtr = lbx_extra.ExtraPtr;
 	}
 	else {
-		lbx_extra.ParentID = parent;
+		lbx_extra.ParentID = parentID;
 		lbx_extra.Gen = 0;
 		lbx_extra.Options = options;
 		lbx_extra.ExtraPtr = extraPtr;
 	}
 	const  int  code_prefix = BIN(DS.CheckExtFlag(ECF_CODEPREFIXEDLIST));
-	const  long grp   = (parent == LONG_MIN) ? 0 : labs(parent);
+	const  long grp   = (parentID == LONG_MIN) ? 0 : labs(parentID);
 	const  long brand = (options & selfExtLongAsBrand) ? reinterpret_cast<long>(extraPtr) : 0;
-	const  int  exist_only = BIN(parent < 0);
-	const  int  dont_sel_passive = (options & selfHidePassive) ? 1 : ((options & selfForcePassive) ? 0 : BIN(GetConfig().Flags & GCF_DONTSELPASSIVE));
-	const  int  dont_sel_generic = BIN(options & selfHideGeneric); // @v10.7.7
+	const  bool exist_only = (parentID < 0);
+	const  bool dont_sel_passive = (options & selfHidePassive) ? true : ((options & selfForcePassive) ? false : LOGIC(GetConfig().Flags & GCF_DONTSELPASSIVE));
+	const  bool dont_sel_generic = LOGIC(options & selfHideGeneric); // @v10.7.7
 	const  PPID loc_id = NZOR(locID, LConfig.Location);
 	const  PPID mtx_qk_id = (options & selfUseMatrix) ? GetConfig().MtxQkID : 0;
 	Goods2Tbl * t = 0;

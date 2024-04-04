@@ -910,15 +910,12 @@ static void ColouriseRbDoc(Sci_PositionU startPos, Sci_Position length, int init
 				else if(isSafeWordcharOrHigh(chNext)) {
 					state = SCE_RB_SYMBOL;
 				}
-				else if((chNext == '@' || chNext == '$') &&
-				    isSafeWordcharOrHigh(chNext2)) {
+				else if((chNext == '@' || chNext == '$') && isSafeWordcharOrHigh(chNext2)) {
 					// instance and global variable followed by an identifier
 					advance_char(i, ch, chNext, chNext2);
 					state = SCE_RB_SYMBOL;
 				}
-				else if(((chNext == '@' && chNext2 == '@')  ||
-					    (chNext == '$' && chNext2 == '-')) &&
-				    isSafeWordcharOrHigh(styler.SafeGetCharAt(i+3))) {
+				else if(((chNext == '@' && chNext2 == '@') || (chNext == '$' && chNext2 == '-')) && isSafeWordcharOrHigh(styler.SafeGetCharAt(i+3))) {
 					// class variables and special global variable "$-IDENTCHAR"
 					state = SCE_RB_SYMBOL;
 					// $-IDENTCHAR doesn't continue past the IDENTCHAR

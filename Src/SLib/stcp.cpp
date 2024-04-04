@@ -1989,6 +1989,7 @@ static const SIntToSymbTabEntry HttpHeaderTitles[] = {
 	{ SHttpProtocol::hdrAuthSecret, "authorization-secret" },
 	{ SHttpProtocol::hdrXOriginRequestId, "X-Origin-Request-Id" },
 	{ SHttpProtocol::hdrXTimestamp, "X-Timestamp" },
+	{ SHttpProtocol::hdrXApiKey, "X-API-KEY" }, // @v11.9.11
 };
 
 /*static*/int FASTCALL SHttpProtocol::GetHeaderTitle(int hdr, SString & rTitle)

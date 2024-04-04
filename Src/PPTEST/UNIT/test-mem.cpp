@@ -1,5 +1,5 @@
 // TEST-MEM.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -535,6 +535,54 @@ SLTEST_R(SBuffer)
 			SLCHECK_LT(0, SFile::Compare(in_file_name, out_file_name, 0));
 			pipe.Reset();
 		}
+	}
+	return CurrentStatus;
+}
+
+SLTEST_R(SExchange)
+{
+	const uint32 low = 0;
+	const uint32 upp = 1000000000;
+	int    bm = -1;
+	if(pBenchmark == 0) 
+		bm = 0;
+	else if(sstreqi_ascii(pBenchmark, "SExchange"))
+		bm = 1;
+	else if(sstreqi_ascii(pBenchmark, "SExchangeXor"))
+		bm = 2;
+	if(bm == 0) {
+		for(uint32 i = 0; i <= (upp-low+1); i++) {
+			const uint32 org_a = low+i;
+			const uint32 org_b = upp-i;
+			uint32 a = org_a;
+			uint32 b = org_b;
+			SExchange(&a, &b);
+			SLCHECK_EQ(a, org_b);
+			SLCHECK_EQ(b, org_a);
+			SExchangeXor(&a, &b);
+			SLCHECK_EQ(a, org_a);
+			SLCHECK_EQ(b, org_b);
+		}
+	}
+	else {
+		uint64 dummy_sum = 0;
+		if(bm == 1) { // SExchange
+			for(uint32 i = 0; i <= (upp-low+1); i++) {
+				uint32 a = low+i;
+				uint32 b = upp-i;
+				SExchange(&a, &b);
+				dummy_sum += (a+b); // for prevention of the compiler optimization
+			}
+		}
+		else if(bm == 2) { // SExchangeXor
+			for(uint32 i = 0; i <= (upp-low+1); i++) {
+				uint32 a = low+i;
+				uint32 b = upp-i;
+				SExchangeXor(&a, &b);
+				dummy_sum += (a+b); // for prevention of the compiler optimization
+			}
+		}
+		DummyFunc(&dummy_sum);
 	}
 	return CurrentStatus;
 }

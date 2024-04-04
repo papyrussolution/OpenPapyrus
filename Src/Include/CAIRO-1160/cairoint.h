@@ -116,6 +116,7 @@ CAIRO_BEGIN_DECLS
  */
 #define CAIRO_BITSWAP8(c) ((((c) * 0x0802LU & 0x22110LU) | ((c) * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16)
 
+#if 0 // @v11.9.11 (replaced with SBits::Cpop)
 /* Return the number of 1 bits in mask.
  *
  * GCC 3.4 supports a "population count" builtin, which on many targets is
@@ -128,11 +129,12 @@ inline int CXX_FUNC_CONST _cairo_popcount(uint32 mask)
 #if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
 	return __builtin_popcount(mask);
 #else
-	int y = (mask >> 1) &033333333333;
+	int y = (mask >> 1) & 033333333333;
 	y = mask - y - ((y >>1) & 033333333333);
 	return (((y + (y >> 3)) & 030707070707) % 077);
 #endif
 }
+#endif
 
 FORCEINLINE boolint _cairo_is_little_endian()
 {

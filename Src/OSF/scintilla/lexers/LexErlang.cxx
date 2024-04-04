@@ -57,10 +57,7 @@ typedef enum {
 	PREPROCESSOR
 } atom_parse_state_t;
 
-static bool FASTCALL IsAWordChar(const int ch)
-{
-	return (ch < 0x80) && (ch != ' ') && (isalnum(ch) || ch == '_');
-}
+static bool FASTCALL IsAWordChar(int ch) { return (ch < 0x80) && (ch != ' ') && (isalnum(ch) || ch == '_'); }
 
 static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
     WordList * keywordlists[], Accessor & styler)
@@ -167,7 +164,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 				/* -------------------------------------------------------------- */
 				/* Atoms ---------------------------------------------------------*/
 				case ATOM_UNQUOTED: {
-				    if('@' == sc.ch) {
+				    if(sc.ch == '@') {
 					    parse_state = NODE_NAME_UNQUOTED;
 				    }
 				    else if(sc.ch == ':') {
@@ -207,7 +204,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 			    } break;
 
 				case ATOM_QUOTED: {
-				    if('@' == sc.ch) {
+				    if(sc.ch == '@') {
 					    parse_state = NODE_NAME_QUOTED;
 				    }
 				    else if('\'' == sc.ch && '\\' != sc.chPrev) {
@@ -220,7 +217,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 				/* -------------------------------------------------------------- */
 				/* Node names ----------------------------------------------------*/
 				case NODE_NAME_UNQUOTED: {
-				    if('@' == sc.ch) {
+				    if(sc.ch == '@') {
 					    sc.SetState(SCE_ERLANG_DEFAULT);
 					    parse_state = STATE_NULL;
 				    }
@@ -232,7 +229,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 			    } break;
 
 				case NODE_NAME_QUOTED: {
-				    if('@' == sc.ch) {
+				    if(sc.ch == '@') {
 					    sc.SetState(SCE_ERLANG_DEFAULT);
 					    parse_state = STATE_NULL;
 				    }

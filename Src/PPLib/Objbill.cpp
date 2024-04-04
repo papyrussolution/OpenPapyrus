@@ -1450,6 +1450,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 				const  PPID prepay_goods_id = (r_ccfg.PrepayInvoiceGoodsID && GObj.Fetch(r_ccfg.PrepayInvoiceGoodsID, &prepay_goods_rec) > 0) ? prepay_goods_rec.ID : 0;
 				THROW(p_cm = PPCashMachine::CreateInstance(param.PosNodeID));
 				THROW(p_cm->SyncAllowPrint());
+				THROW(p_cm->SyncCheckForSessionOver()); // @v11.9.10
 				if(_mode == 2) { // correction
 					PPCashMachine::FiscalCorrection fc;
 					fc.Dt = pack.Rec.Dt;

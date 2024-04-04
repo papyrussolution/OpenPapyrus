@@ -405,8 +405,7 @@ static int zueci_ascii_inv_u(const uchar * src, const zueci_u32 len, const uint 
 {
 	const uchar c = *src;
 	(void)len;
-	if((flags & ZUECI_FLAG_SB_STRAIGHT_THRU) || c == 0x7F || (c <= 'z' && c != '#' && c != '$' && c != '@'
-	    && (c <= 'Z' || c == '_' || c >= 'a'))) {
+	if((flags & ZUECI_FLAG_SB_STRAIGHT_THRU) || c == 0x7F || (c <= 'z' && c != '#' && c != '$' && c != '@' && (c <= 'Z' || c == '_' || c >= 'a'))) {
 		*p_u = c;
 		return 1;
 	}
@@ -417,7 +416,8 @@ static int zueci_ascii_inv_u(const uchar * src, const zueci_u32 len, const uint 
 
 #ifndef ZUECI_EMBED_NO_TO_ECI
 /* Unicode to ECI 25 UTF-16 Big Endian (ISO/IEC 10646) - assumes valid Unicode */
-static int zueci_u_utf16be(const zueci_u32 u, uchar * dest) {
+static int zueci_u_utf16be(const zueci_u32 u, uchar * dest) 
+{
 	zueci_u32 u2, v;
 	if(u < 0x10000) {
 		dest[0] = (uchar)(u >> 8);

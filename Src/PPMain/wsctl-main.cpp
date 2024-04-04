@@ -528,25 +528,6 @@ private:
 	bool   ShowAnotherWindow;
 	int    Screen; // screenXXX
 	//SUiLayout Lo01; // = new SUiLayout(SUiLayoutParam(DIREC_VERT, 0, SUiLayoutParam::alignStretch));
-
-	class CommonTextureCacheEntry {
-	public:
-		CommonTextureCacheEntry() : P_Texture(0)
-		{
-		}
-		explicit CommonTextureCacheEntry(void * pTexture) : P_Texture(pTexture)
-		{
-		}
-		void * P_Texture;
-		void Destroy()
-		{
-			if(P_Texture) {
-				static_cast<IUnknown *>(P_Texture)->Release();
-				P_Texture = 0;
-			}
-		}
-	};
-
 	class Texture_CachedFileEntity : public SCachedFileEntity, public CommonTextureCacheEntry {
 	public:
 		Texture_CachedFileEntity();
@@ -567,54 +548,7 @@ private:
 		SString BasePath;
 	};
 
-	class Texture_IconEntity : public CommonTextureCacheEntry {
-	public:
-		Texture_IconEntity() : CommonTextureCacheEntry(), Id(0)
-		{
-		}
-		Texture_IconEntity(uint id, void * pTexture) : CommonTextureCacheEntry(pTexture), Id(id)
-		{
-		}
-		const void * GetHashKey(const void * pCtx, uint * pSize) const // hash-table support
-		{
-			ASSIGN_PTR(pSize, sizeof(Id));
-			return &Id;
-		}
-		uint    Id;
-	};
-	class IconTextureCache : private TSHashCollection <Texture_IconEntity> { // @v11.9.2
-	public:
-		IconTextureCache() : TSHashCollection <Texture_IconEntity>(1024, 0)
-		{
-		}
-		void * Get(uint id)
-		{
-			void * p_texture = 0;
-			if(id) {
-				Texture_IconEntity * p_entry = static_cast<Texture_IconEntity *>(TSHashCollection <Texture_IconEntity>::Get(&id, sizeof(id)));
-				if(p_entry) {
-					p_texture = p_entry->P_Texture;
-				}
-				else {
-					void * p_icon = ImgRtb.MakeIconTexture(id);
-					if(p_icon) {
-						Texture_IconEntity * p_new_entry = new Texture_IconEntity(id, p_icon);
-						if(p_new_entry) {
-							if(TSHashCollection <Texture_IconEntity>::Put(p_new_entry, true)) {
-								p_entry = static_cast<Texture_IconEntity *>(TSHashCollection <Texture_IconEntity>::Get(&id, sizeof(id)));
-								assert(p_entry && p_entry == p_new_entry);
-								p_texture = p_entry->P_Texture;
-							}
-						}
-					}
-				}
-			}
-			return p_texture;
-		}
-	};
-
 	TextureCache Cache_Texture;
-	IconTextureCache Cache_Icon; // @v11.9.2
 	//
 	// Следующие 2 объекта загружаются при инициализации сеанса запросом к серверу или из кэша.
 	//
@@ -1906,7 +1840,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 }
 
 WsCtl_ImGuiSceneBlock::WsCtl_ImGuiSceneBlock() : ImGuiSceneBase(), ShowDemoWindow(false), ShowAnotherWindow(false), Screen(screenUndef),
-	P_CmdQ(new WsCtlReqQueue), Cache_Texture(1024, 0), Cache_Icon(), P_Dlg_Cfg(0)
+	P_CmdQ(new WsCtlReqQueue), Cache_Texture(1024, 0), P_Dlg_Cfg(0)
 {
 	TestInput[0] = 0;
 	//LoginText[0] = 0;
@@ -2011,7 +1945,7 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 	SString path_bin;
 	PPIniFile ini_file;
 	PPGetPath(PPPATH_BIN, path_bin);
-	LoadUiDescription();
+	LoadUiDescription(rIo);
 	if((ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_PORT, &JsP.Port) <= 0 || JsP.Port <= 0))
 		JsP.Port = InetUrl::GetDefProtocolPort(InetUrl::prot_p_PapyrusServer);//DEFAULT_SERVER_PORT;
 	if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_CLIENTSOCKETTIMEOUT, &JsP.Timeout) <= 0 || JsP.Timeout <= 0)
@@ -2103,7 +2037,7 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 		colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 		colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 		if(use_ui_descripton && p_uid) {
-			const SColorSet * p_cs = p_uid->GetColorSetC("imgui-style");	
+			const SColorSet * p_cs = p_uid->GetColorSetC("imgui_style");	
 			if(p_cs) {
 				for(uint i = 0; i < SIZEOFARRAY(style->Colors); i++) {
 					const char * p_color_name = ImGui::GetStyleColorName(i);
@@ -2118,21 +2052,22 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 		}
 	}
 	if(p_uid) {
-		const SColorSet * p_cs = p_uid->GetColorSetC("imgui-style");	
+		const SColorSet * p_cs = p_uid->GetColorSetC("imgui_style");	
 		{
 			///Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf
 			//C:/Windows/Fonts/Tahoma.ttf
 			ImFontConfig f;
+			SColor substrat_color;
+			if(!p_uid->GetColor(p_cs, "Substrat", substrat_color))
+				substrat_color.Set(0x1E, 0x22, 0x28);
+			ClearColor = substrat_color;
+			/*
 			SColor primary_font_color;
 			SColor secondary_font_color;
-			SColor substrat_color;
 			if(!p_uid->GetColor(p_cs, "TextPrimary", primary_font_color))
 				primary_font_color = SColor(SClrWhite);
 			if(!p_uid->GetColor(p_cs, "TextSecondary", secondary_font_color))
 				secondary_font_color = SColor(SClrSilver);
-			if(!p_uid->GetColor(p_cs, "Substrat", substrat_color))
-				substrat_color.Set(0x1E, 0x22, 0x28);
-			ClearColor = substrat_color;
 			{
 				//const char * p_font_face_list[] = { "Roboto", "DroidSans", "Cousine", "Karla", "ProggyClean", "ProggyTiny" };
 				{
@@ -2156,6 +2091,7 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 				//CreateFontEntry(rIo, "FontSecondary", "/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 14.0f, 0, &secondary_font_color);
 				//CreateFontEntry(rIo, "FontPrimary", "/Papyrus/Src/Rsrc/Font/imgui/Roboto-Medium.ttf", 16.0f, 0, &primary_font_color);
 			}
+			*/
 		}
 	}
 	{
@@ -2747,6 +2683,8 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 			0;
 		ImGuiViewport * p_vp = ImGui::GetMainViewport();
 		if(p_vp) {
+			ImGuiObjStack stk;
+			PushFontEntry(stk, "FontPrimary");
 			//PreprocessProgramList();
 			ImVec2 sz = p_vp->Size;
 			SUiLayout::Param evp;
@@ -2768,7 +2706,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					{
 						ImGuiWindowByLayout wbl(p_tl, loidToolbar, "##Toolbar", view_flags);
 						if(wbl.IsValid()) {
-							void * p_icon_back = Cache_Icon.Get(PPDV_ARROWBACK);
+							void * p_icon_back = Cache_Icon.Get(ImgRtb, PPDV_ARROWBACK);
 							if(p_icon_back) {
 								if(ImGui::ImageButton(p_icon_back, ImVec2(ImGuiRuntimeBlock::IconSize, ImGuiRuntimeBlock::IconSize))) {
 									SetScreen(screenIntro);
@@ -2857,7 +2795,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					p_tl->Evaluate(&evp);
 					{
 						ImGuiWindowByLayout wbl(p_tl, loidToolbar, "##Toolbar", view_flags);
-						void * p_icon_back = Cache_Icon.Get(PPDV_ARROWBACK);
+						void * p_icon_back = Cache_Icon.Get(ImgRtb, PPDV_ARROWBACK);
 						if(p_icon_back) {
 							if(ImGui::ImageButton(p_icon_back, ImVec2(ImGuiRuntimeBlock::IconSize, ImGuiRuntimeBlock::IconSize))) {
 								SetScreen(screenIntro);
@@ -2929,7 +2867,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					p_tl->Evaluate(&evp);
 					{
 						ImGuiWindowByLayout wbl(p_tl, loidToolbar, "##Toolbar", view_flags);
-						void * p_icon_back = Cache_Icon.Get(PPDV_ARROWBACK);
+						void * p_icon_back = Cache_Icon.Get(ImgRtb, PPDV_ARROWBACK);
 						if(p_icon_back) {
 							if(ImGui::ImageButton(p_icon_back, ImVec2(ImGuiRuntimeBlock::IconSize, ImGuiRuntimeBlock::IconSize))) {
 								SetScreen(screenIntro);
@@ -3106,7 +3044,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						p_tl->Evaluate(&evp);
 						{
 							ImGuiWindowByLayout wbl(p_tl, loidToolbar, "##Toolbar", view_flags);
-							void * p_icon_back = Cache_Icon.Get(PPDV_ARROWBACK);
+							void * p_icon_back = Cache_Icon.Get(ImgRtb, PPDV_ARROWBACK);
 							if(p_icon_back) {
 								if(ImGui::ImageButton(p_icon_back, ImVec2(ImGuiRuntimeBlock::IconSize, ImGuiRuntimeBlock::IconSize))) {
 									DAuth data_auth;

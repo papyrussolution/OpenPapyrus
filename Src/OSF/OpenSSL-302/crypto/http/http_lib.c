@@ -73,11 +73,10 @@ int OSSL_parse_url(const char * url, char ** pscheme, char ** puser, char ** pho
 	/* parse optional "userinfo@" */
 	user = user_end = host = p;
 	host = strchr(p, '@');
-	if(host != NULL)
+	if(host)
 		user_end = host++;
 	else
 		host = p;
-
 	/* parse host name/address as far as needed here */
 	if(host[0] == '[') {
 		/* ipv6 literal, which may include ':' */

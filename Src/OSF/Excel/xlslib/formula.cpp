@@ -41,9 +41,9 @@ using namespace xlslib_strings;
 
 uint16 xlslib_core::NumberOfArgsForExcelFunction(expr_function_code_t func)
 {
-    uint16 result = A_UNKNOWN;
-    switch (func) {
-        case FUNC_UDF: result = A_UNKNOWN; break;
+	uint16 result = A_UNKNOWN;
+	switch(func) {
+		case FUNC_UDF: result = A_UNKNOWN; break;
 		case FUNC_IF: result = A_2_OR_3; break;
 		case FUNC_COUNT: result = A_1_OR_MORE; break;
 		case FUNC_ISNA: result = A_1; break;
@@ -574,91 +574,91 @@ uint16 xlslib_core::NumberOfArgsForExcelFunction(expr_function_code_t func)
 		case FUNC_GAMMALN_PRECISE: result = A_UNKNOWN; break;
 		case FUNC_CEILING_PRECISE: result = A_UNKNOWN; break;
 		case FUNC_FLOOR_PRECISE: result = A_UNKNOWN; break;
-        default: result = 0xFFFFU; break;
+		default: result = 0xFFFFU; break;
 	}
-    return result;
+	return result;
 }
 
-
-formula_t::formula_t(CGlobalRecords& glbl, worksheet *ws) :
-    m_GlobalRecords(glbl),
-    m_Worksheet(ws)
+formula_t::formula_t(CGlobalRecords& glbl, worksheet * ws) :
+	m_GlobalRecords(glbl),
+	m_Worksheet(ws)
 {
-    data_storage = new CDataStorage();
+	data_storage = new CDataStorage();
 
-    main_data = data_storage->MakeCUnit();
-    aux_data = data_storage->MakeCUnit();
+	main_data = data_storage->MakeCUnit();
+	aux_data = data_storage->MakeCUnit();
 
-    main_data->Inflate(10);
-    aux_data->Inflate(10);
+	main_data->Inflate(10);
+	aux_data->Inflate(10);
 }
 
 formula_t::~formula_t()
 {
-    delete data_storage;
+	delete data_storage;
 }
 
-int8 formula_t::PushBoolean(bool value) 
+int8 formula_t::PushBoolean(bool value)
 {
-    int8 errcode = NO_ERRORS;
+	int8 errcode = NO_ERRORS;
 
-    errcode |= main_data->AddValue8(OP_BOOL);
-    errcode |= main_data->AddValue8((uint8) !!value);
+	errcode |= main_data->AddValue8(OP_BOOL);
+	errcode |= main_data->AddValue8((uint8) !!value);
 
-    return errcode;
+	return errcode;
 }
 
 int8 formula_t::PushMissingArgument()
 {
-    int8 errcode = NO_ERRORS;
+	int8 errcode = NO_ERRORS;
 
-    errcode |= main_data->AddValue8(OP_MISSARG);
+	errcode |= main_data->AddValue8(OP_MISSARG);
 
-    return errcode;
+	return errcode;
 }
 
 int8 formula_t::PushError(uint8 value)
 {
-    int8 errcode = NO_ERRORS;
+	int8 errcode = NO_ERRORS;
 
-    errcode |= main_data->AddValue8(OP_ERR);
-    errcode |= main_data->AddValue8(value);
+	errcode |= main_data->AddValue8(OP_ERR);
+	errcode |= main_data->AddValue8(value);
 
-    return errcode;
+	return errcode;
 }
 
 int8 formula_t::PushInteger(int32 value)
 {
-    int8 errcode = NO_ERRORS;
+	int8 errcode = NO_ERRORS;
 
-    if (value >= 0 && value <= 65535) {
-        errcode |= main_data->AddValue8(OP_INT);
-        errcode |= main_data->AddValue16((uint16)value);
-    } else {
-        errcode |= main_data->AddValue8(OP_NUM);
-        errcode |= main_data->AddValue64FP(value);
-    }
+	if(value >= 0 && value <= 65535) {
+		errcode |= main_data->AddValue8(OP_INT);
+		errcode |= main_data->AddValue16((uint16)value);
+	}
+	else {
+		errcode |= main_data->AddValue8(OP_NUM);
+		errcode |= main_data->AddValue64FP(value);
+	}
 
-    return errcode;
+	return errcode;
 }
 
 int8 formula_t::PushFloatingPoint(double value)
 {
-    int8 errcode = NO_ERRORS;
+	int8 errcode = NO_ERRORS;
 
-    errcode |= main_data->AddValue8(OP_NUM);
-    errcode |= main_data->AddValue64FP(value);
+	errcode |= main_data->AddValue8(OP_NUM);
+	errcode |= main_data->AddValue64FP(value);
 
-    return errcode;
+	return errcode;
 }
 
 int8 formula_t::PushOperator(expr_operator_code_t op)
 {
-    int8 errcode = NO_ERRORS;
+	int8 errcode = NO_ERRORS;
 
-    errcode |= main_data->AddValue8(op);
+	errcode |= main_data->AddValue8(op);
 
-    return errcode;
+	return errcode;
 }
 
 int8 formula_t::PushCellReference(const cell_t& cell, cell_addr_mode_t opt)
@@ -673,21 +673,22 @@ int8 formula_t::PushCellReference(const cell_t& cell, cell_addr_mode_t opt)
 
 int8 formula_t::PushReference(uint32 row, uint32 col, uint32 idx, cell_addr_mode_t opt)
 {
-    int8 errcode = NO_ERRORS;
+	int8 errcode = NO_ERRORS;
 
-    if (m_Worksheet == NULL || idx == invalidIndex || idx == m_Worksheet->GetIndex()) {
-        errcode |= main_data->AddValue8(OP_REFV);
-        col &= 0x3FFF;
-    } else {
-        errcode |= main_data->AddValue8(OP_REF3DV);
-        errcode |= main_data->AddValue16(static_cast<uint16>(idx));
-        col &= 0x00FF;
-    }
-    errcode |= main_data->AddValue16(static_cast<uint16>(row));
+	if(m_Worksheet == NULL || idx == invalidIndex || idx == m_Worksheet->GetIndex()) {
+		errcode |= main_data->AddValue8(OP_REFV);
+		col &= 0x3FFF;
+	}
+	else {
+		errcode |= main_data->AddValue8(OP_REF3DV);
+		errcode |= main_data->AddValue16(static_cast<uint16>(idx));
+		col &= 0x00FF;
+	}
+	errcode |= main_data->AddValue16(static_cast<uint16>(row));
 
-    XL_ASSERT((opt & ~0xC000) == 0);
-    col |= opt & 0xC000;
-    errcode |= main_data->AddValue16(static_cast<uint16>(col));
+	XL_ASSERT((opt & ~0xC000) == 0);
+	col |= opt & 0xC000;
+	errcode |= main_data->AddValue16(static_cast<uint16>(col));
 
 	return errcode;
 }
@@ -706,19 +707,20 @@ int8 formula_t::PushCellAreaReference(const cell_t& upper_left_cell, const cell_
 
 int8 formula_t::PushAreaReference(uint32 ul_row, uint32 ul_col, uint32 ul_idx, uint32 lr_row, uint32 lr_col, uint32 lr_idx, cell_addr_mode_t opt)
 {
-    int8 errcode = NO_ERRORS;
-	(void)lr_idx;	// prevent warning
+	int8 errcode = NO_ERRORS;
+	(void)lr_idx;   // prevent warning
 
-    if (m_Worksheet == NULL || ul_idx == invalidIndex || ul_idx == m_Worksheet->GetIndex()) {
-        errcode |= main_data->AddValue8(OP_AREAA); // OP_AREA. OP_AREAV, OP_AREAA
-        ul_col &= 0x3FFF;
-        lr_col &= 0x3FFF;
-    } else {
-        errcode |= main_data->AddValue8(OP_AREA3DA); // OP_AREA. OP_AREAV, OP_AREAA
-        errcode |= main_data->AddValue16(static_cast<uint16>(ul_idx));
-        ul_col &= 0x00FF;
-        lr_col &= 0x00FF;
-    }
+	if(m_Worksheet == NULL || ul_idx == invalidIndex || ul_idx == m_Worksheet->GetIndex()) {
+		errcode |= main_data->AddValue8(OP_AREAA); // OP_AREA. OP_AREAV, OP_AREAA
+		ul_col &= 0x3FFF;
+		lr_col &= 0x3FFF;
+	}
+	else {
+		errcode |= main_data->AddValue8(OP_AREA3DA); // OP_AREA. OP_AREAV, OP_AREAA
+		errcode |= main_data->AddValue16(static_cast<uint16>(ul_idx));
+		ul_col &= 0x00FF;
+		lr_col &= 0x00FF;
+	}
 
 	// BIFF8 format!
 	errcode |= main_data->AddValue16(static_cast<uint16>(ul_row));
@@ -737,43 +739,45 @@ int8 formula_t::PushAreaReference(uint32 ul_row, uint32 ul_col, uint32 ul_idx, u
 
 int8 formula_t::PushFunction(expr_function_code_t func) {
 	uint16 argcntmask = NumberOfArgsForExcelFunction(func);
-    int8 errcode = NO_ERRORS;
-    if (argcntmask == A_0 || argcntmask == A_1 || argcntmask == A_2 ||
-            argcntmask == A_3 || argcntmask == A_4 || argcntmask == A_5 ||
-            argcntmask == A_UNKNOWN) {
+	int8 errcode = NO_ERRORS;
+	if(argcntmask == A_0 || argcntmask == A_1 || argcntmask == A_2 ||
+	    argcntmask == A_3 || argcntmask == A_4 || argcntmask == A_5 ||
+	    argcntmask == A_UNKNOWN) {
 		errcode |= main_data->AddValue8(OP_FUNC | CELLOP_AS_VALUE);
 		errcode |= main_data->AddValue16(func);
-    } else {
-        errcode = GENERAL_ERROR;
-    }
-    return errcode;
+	}
+	else {
+		errcode = GENERAL_ERROR;
+	}
+	return errcode;
 }
 
 int8 formula_t::PushFunction(expr_function_code_t func, size_t argcount) {
 	uint16 argcntmask = NumberOfArgsForExcelFunction(func);
-    int8 errcode = NO_ERRORS;
-    if (argcntmask == A_UNKNOWN || (argcntmask & ~(1U << argcount))) {
+	int8 errcode = NO_ERRORS;
+	if(argcntmask == A_UNKNOWN || (argcntmask & ~(1U << argcount))) {
 		errcode |= main_data->AddValue8(OP_FUNCVAR | CELLOP_AS_VALUE);
 		errcode |= main_data->AddValue8((uint8)argcount & 0x7F); // no prompt for user: 0x80 not set
-		errcode |= main_data->AddValue16((uint16)func & 0x7FFF); 
-    } else {
-        errcode = GENERAL_ERROR;
-    }
-    return errcode;
+		errcode |= main_data->AddValue16((uint16)func & 0x7FFF);
+	}
+	else {
+		errcode = GENERAL_ERROR;
+	}
+	return errcode;
 }
 
 int8 formula_t::PushText(const std::string& v) {
-    u16string value;
+	u16string value;
 	m_GlobalRecords.char2str16(v, value);
 
-    return PushText(value);
+	return PushText(value);
 }
 
 int8 formula_t::PushText(const ustring& v) {
-    u16string value;
+	u16string value;
 	m_GlobalRecords.wide2str16(v, value);
 
-    return PushText(value);
+	return PushText(value);
 }
 
 #if !defined(__FRAMEWORK__)
@@ -786,67 +790,68 @@ int8 formula_t::PushText(const u16string& value) {
 
 	return errcode;
 }
+
 #endif
 
 int8 formula_t::PushTextArray(const std::vector<std::string>& vec) {
 	int8 errcode = NO_ERRORS;
-    errcode |= main_data->AddValue8(OP_ARRAYA);
-    errcode |= main_data->AddFixedDataArray(0, 7);
-    errcode |= aux_data->AddValue8(1);
-    errcode |= aux_data->AddValue16((uint16)vec.size());
-    for(unsigned int i=0; i<vec.size(); i++) {
-        errcode |= aux_data->AddValue8(0x01);
-        std::string str = vec[i];
-        u16string value;
-        m_GlobalRecords.char2str16(str, value);
+	errcode |= main_data->AddValue8(OP_ARRAYA);
+	errcode |= main_data->AddFixedDataArray(0, 7);
+	errcode |= aux_data->AddValue8(1);
+	errcode |= aux_data->AddValue16((uint16)vec.size());
+	for(unsigned int i = 0; i<vec.size(); i++) {
+		errcode |= aux_data->AddValue8(0x01);
+		std::string str = vec[i];
+		u16string value;
+		m_GlobalRecords.char2str16(str, value);
 
-        errcode |= aux_data->AddUnicodeString(value, CUnit::LEN1_FLAGS_UNICODE);
-    }
-    return errcode;
+		errcode |= aux_data->AddUnicodeString(value, CUnit::LEN1_FLAGS_UNICODE);
+	}
+	return errcode;
 }
 
 int8 formula_t::PushTextArray(const std::vector<ustring>& vec) {
 	int8 errcode = NO_ERRORS;
-    errcode |= main_data->AddValue8(OP_ARRAYA);
-    errcode |= main_data->AddFixedDataArray(0, 7);
-    errcode |= aux_data->AddValue8(1);
-    errcode |= aux_data->AddValue16((uint16)vec.size());
-    for(unsigned int i=0; i<vec.size(); i++) {
-        errcode |= aux_data->AddValue8(0x01);
-        ustring str = vec[i];
-        u16string value;
-        m_GlobalRecords.wide2str16(str, value);
+	errcode |= main_data->AddValue8(OP_ARRAYA);
+	errcode |= main_data->AddFixedDataArray(0, 7);
+	errcode |= aux_data->AddValue8(1);
+	errcode |= aux_data->AddValue16((uint16)vec.size());
+	for(unsigned int i = 0; i<vec.size(); i++) {
+		errcode |= aux_data->AddValue8(0x01);
+		ustring str = vec[i];
+		u16string value;
+		m_GlobalRecords.wide2str16(str, value);
 
-        errcode |= aux_data->AddUnicodeString(value, CUnit::LEN1_FLAGS_UNICODE);
-    }
-    return errcode;
+		errcode |= aux_data->AddUnicodeString(value, CUnit::LEN1_FLAGS_UNICODE);
+	}
+	return errcode;
 }
 
 int8 formula_t::PushFloatingPointArray(const std::vector<double>& vec) {
 	int8 errcode = NO_ERRORS;
-    errcode |= main_data->AddValue8(OP_ARRAYA);
-    errcode |= aux_data->AddValue8(1);
-    errcode |= aux_data->AddValue16(static_cast<uint16>(vec.size()));
-    for(unsigned int i=0; i<vec.size(); i++) {
-        errcode |= aux_data->AddValue8(0x02);
-        errcode |= aux_data->AddValue64FP(vec[i]);
-    }
-    return errcode;
+	errcode |= main_data->AddValue8(OP_ARRAYA);
+	errcode |= aux_data->AddValue8(1);
+	errcode |= aux_data->AddValue16(static_cast<uint16>(vec.size()));
+	for(unsigned int i = 0; i<vec.size(); i++) {
+		errcode |= aux_data->AddValue8(0x02);
+		errcode |= aux_data->AddValue64FP(vec[i]);
+	}
+	return errcode;
 }
 
 void formula_t::DumpData(CUnit &dst) const
 {
-    dst.Append(*main_data);
-    dst.Append(*aux_data);
+	dst.Append(*main_data);
+	dst.Append(*aux_data);
 }
 
 size_t formula_t::GetSize(void) const
 {
-    return main_data->GetDataSize() + aux_data->GetDataSize();
+	return main_data->GetDataSize() + aux_data->GetDataSize();
 }
 
 void formula_t::GetResultEstimate(estimated_formula_result_t &dst) const
 {
-    dst.SetCalcOnLoad();
-    dst.SetErrorCode(XLERR_VALUE);
+	dst.SetCalcOnLoad();
+	dst.SetErrorCode(XLERR_VALUE);
 }

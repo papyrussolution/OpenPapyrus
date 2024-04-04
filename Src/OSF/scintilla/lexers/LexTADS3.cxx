@@ -87,21 +87,13 @@ static bool FASTCALL IsATADS3Operator(const int ch)
 	      || ch == '@' || ch == '&' || ch == '~';
 }
 
-static bool FASTCALL IsAWordChar(const int ch)
-{
-	return isalnum(ch) || ch == '_';
-}
-
-static bool FASTCALL IsAWordStart(const int ch)
-{
-	return isalpha(ch) || ch == '_';
-}
+static bool FASTCALL IsAWordChar(int ch) { return isalnum(ch) || ch == '_'; }
+static bool FASTCALL IsAWordStart(const int ch) { return isalpha(ch) || ch == '_'; }
 
 static bool FASTCALL IsAHexDigit(const int ch)
 {
 	int lch = tolower(ch);
-	return isdec(lch) || lch == 'a' || lch == 'b' || lch == 'c'
-	      || lch == 'd' || lch == 'e' || lch == 'f';
+	return isdec(lch) || lch == 'a' || lch == 'b' || lch == 'c' || lch == 'd' || lch == 'e' || lch == 'f';
 }
 
 static bool FASTCALL IsAnHTMLChar(int ch)

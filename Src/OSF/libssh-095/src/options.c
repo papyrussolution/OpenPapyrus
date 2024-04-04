@@ -451,7 +451,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 				    ssh_set_error_oom(session);
 				    return -1;
 			    }
-			    p = strchr(q, '@');
+			    p = sstrchr(q, '@');
 			    ZFREE(session->opts.host);
 			    if(p) {
 				    *p = '\0';

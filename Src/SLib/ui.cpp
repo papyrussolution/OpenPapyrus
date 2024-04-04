@@ -1864,6 +1864,9 @@ int UiDescription::FromJsonObj(const SJson * pJsObj)
 					}
 				}
 			}
+			else if(p_jsn->Text.IsEqiAscii("font_list")) {
+				SFontDescr::ListFromJsonArray(p_jsn->P_Child, FontDescrList); // @todo process error
+			}
 			else if(p_jsn->Text.IsEqiAscii("colorset_list")) {
 				if(SJson::IsArray(p_jsn->P_Child)) {
 					for(const SJson * p_js_inner = p_jsn->P_Child->P_Child; p_js_inner; p_js_inner = p_js_inner->P_Next) {

@@ -249,9 +249,13 @@ int PPObjBarCodeStruc::Browse(void * extraPtr) { return RefObjView(this, PPDS_CR
 //
 // @ModuleDef(PPObjGoodsValRestr)
 //
+PPGoodsValRestr::PPGoodsValRestr()
+{
+	THISZERO();
+}
+
 PPGoodsValRestrPacket::PPGoodsValRestrPacket()
 {
-	MEMSZERO(Rec);
 }
 
 const ObjRestrictArray & PPGoodsValRestrPacket::GetBillArRestrictList() const { return BillArRestr; }
@@ -986,5 +990,368 @@ int PPObjPallet::Edit(PPID * pID, void * extraPtr)
 	}
 	CATCHZOKPPERR
 	delete dlg;
+	return ok;
+}
+//
+//
+//
+PPComputer::PPComputer()
+{
+	THISZERO();
+}
+
+PPComputerPacket::PPComputerPacket()
+{
+}
+
+PPObjComputer::PPObjComputer(void * extraPtr) : PPObjGoods(PPOBJ_COMPUTER, PPGDSK_COMPUTER, extraPtr)
+{
+}
+
+PPObjComputer::~PPObjComputer()
+{
+}
+//
+//
+//
+PPSwProgram::PPSwProgram()
+{
+	THISZERO();
+}
+
+bool FASTCALL PPSwProgram::IsEq(const PPSwProgram & rS) const
+{
+	return (ID == rS.ID && Flags == rS.Flags && sstreq(Name, rS.Name) && sstreq(Code, rS.Code));
+}
+
+bool FASTCALL PPSwProgram::CheckForFilt(const SwProgramFilt * pFilt) const
+{
+	return true; // @stub
+}
+
+PPSwProgramPacket::PPSwProgramPacket()
+{
+}
+
+bool FASTCALL PPSwProgramPacket::Copy(const PPSwProgramPacket & rS)
+{
+	Rec = rS.Rec;
+	TagL = rS.TagL;
+	LinkFiles = rS.LinkFiles;
+	return true;
+}
+
+bool FASTCALL PPSwProgramPacket::IsEq(const PPSwProgramPacket & rS) const
+{
+	return (Rec.IsEq(rS.Rec) && TagL.IsEq(rS.TagL));	
+}
+
+PPObjSwProgram::PPObjSwProgram(void * extraPtr) : PPObjGoods(PPOBJ_SWPROGRAM, PPGDSK_SWPROGRAM, extraPtr)
+{
+}
+	
+PPObjSwProgram::~PPObjSwProgram()
+{
+}
+
+/*virtual*/int PPObjSwProgram::Edit(PPID * pID, void * extraPtr)
+{
+	int    ok = -1;
+	return ok;
+}
+
+/*virtual*/ListBoxDef * PPObjSwProgram::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
+{
+	ListBoxDef * p_result = 0;
+	return p_result;
+}
+
+/*virtual*/void * PPObjSwProgram::CreateObjListWin(uint flags, void * extraPtr)
+{
+	return 0;
+}
+
+int PPObjSwProgram::Put(PPID * pID, PPSwProgramPacket * pPack, int use_ta)
+{
+	int    ok = 1;
+	Goods2Tbl::Rec raw_rec;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(*pID) {
+			PPSwProgramPacket org_pack;
+			THROW(Get(*pID, &org_pack) > 0);
+			if(pPack) {
+				if(!pPack->IsEq(org_pack) || pPack->LinkFiles.IsChanged(*pID, 0L)) {
+					THROW(CheckRights(PPR_MOD));
+					raw_rec.ID = org_pack.Rec.ID;
+					raw_rec.Kind = PPGDSK_SWPROGRAM;
+					STRNSCPY(raw_rec.Name, pPack->Rec.Name);
+					raw_rec.Flags   = pPack->Rec.Flags;
+					THROW(P_Tbl->Update(pID, &raw_rec, 0));
+					THROW(SetTagList(*pID, &pPack->TagL, 0));
+					if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
+						pPack->LinkFiles.Save(*pID, 0L);
+					}
+					DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
+				}
+				else
+					ok = -1;
+			}
+			else {
+				THROW(CheckRights(PPR_DEL));
+				THROW(P_Tbl->Update(pID, 0, 0));
+				THROW(SetTagList(*pID, 0, 0));
+				{
+					ObjLinkFiles _lf(Obj);
+					_lf.Save(*pID, 0L);
+				}
+				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
+			}
+		}
+		else if(pPack) {
+			THROW(CheckRights(PPR_INS));
+			MEMSZERO(raw_rec);
+			raw_rec.Kind = PPGDSK_BRAND;
+			STRNSCPY(raw_rec.Name, pPack->Rec.Name);
+			raw_rec.Flags   = pPack->Rec.Flags;
+			THROW(P_Tbl->Update(pID, &raw_rec, 0));
+			THROW(SetTagList(*pID, &pPack->TagL, 0));
+			if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
+				pPack->LinkFiles.Save(*pID, 0L);
+			}
+			DS.LogAction(PPACN_OBJADD, Obj, *pID, 0, 0);
+		}
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
+/*static*/int PPObjSwProgram::Helper_GetRec(const Goods2Tbl::Rec & rGoodsRec, PPSwProgram * pRec)
+{
+	int    ok = 1;
+	if(pRec) {
+		memzero(pRec, sizeof(*pRec));
+		if(rGoodsRec.Kind == PPGDSK_SWPROGRAM) {
+			pRec->ID = rGoodsRec.ID;
+			STRNSCPY(pRec->Name, rGoodsRec.Name);
+			pRec->Flags = rGoodsRec.Flags;
+		}
+		else
+			ok = PPSetError(/*PPERR_INVBRANDRECKIND*/1, rGoodsRec.ID);
+	}
+	return ok;
+}
+
+int PPObjSwProgram::Get(PPID id, PPSwProgramPacket * pPack)
+{
+	int    ok = PPObjGoods::Search(id);
+	if(ok > 0) {
+		if(pPack) {
+			THROW(Helper_GetRec(P_Tbl->data, &pPack->Rec));
+			THROW(GetTagList(id, &pPack->TagL));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+IMPLEMENT_PPFILT_FACTORY(SwProgram); SwProgramFilt::SwProgramFilt() : PPBaseFilt(PPFILT_SWPROGRAM, 0, 1)
+{
+	SetFlatChunk(offsetof(SwProgramFilt, ReserveStart), offsetof(SwProgramFilt, SrchStr) - offsetof(SwProgramFilt, ReserveStart));
+	SetBranchSString(offsetof(SwProgramFilt, SrchStr));
+	SetBranchObjIdListFilt(offsetof(SwProgramFilt, ParentList));
+	Init(1, 0);
+}
+	
+SwProgramFilt & FASTCALL SwProgramFilt::operator = (const SwProgramFilt & rS)
+{
+	Copy(&rS, 1);
+	return *this;
+}
+
+/*virtual*/bool SwProgramFilt::IsEmpty() const
+{
+	return (Flags == 0 && SrchStr.IsEmpty() && ParentList.GetCount() == 0);
+}
+
+PPViewSwProgram::BrwItem::BrwItem(const PPSwProgram * pS) : ID(0), CategoryID(0), Flags(0), ViewFlags(0)
+{
+	Name[0] = 0;
+	if(pS) {
+		ID = pS->ID;
+		Flags = pS->Flags;
+		CategoryID = 0;
+		STRNSCPY(Name, pS->Name);
+	}
+}
+
+PPViewSwProgram::PPViewSwProgram() : PPView(&Obj, &Filt, PPVIEW_SWPROGRAM, PPView::implBrowseArray, /*defReportId*/0), P_DsList(0)
+{
+}
+	
+PPViewSwProgram::~PPViewSwProgram()
+{
+	ZDELETE(P_DsList);
+}
+	
+/*virtual*/int PPViewSwProgram::Init_(const PPBaseFilt * pBaseFilt)
+{
+	int    ok = 1;
+	THROW(Helper_InitBaseFilt(pBaseFilt));
+	BExtQuery::ZDelete(&P_IterQuery);
+	Counter.Init();
+	CATCHZOK
+	return ok;
+}
+	
+/*virtual*/int PPViewSwProgram::EditBaseFilt(PPBaseFilt * pBaseFilt)
+{
+	int    ok = -1;
+	return ok;
+}
+	
+int PPViewSwProgram::InitIteration()
+{
+	return MakeList();
+}
+	
+int FASTCALL PPViewSwProgram::NextIteration(SwProgramViewItem * pItem)
+{
+	int    ok = -1;
+	while(ok < 0 && P_DsList && P_DsList->getPointer() < P_DsList->getCount()) {
+		const  PPID id = static_cast<const BrwItem *>(P_DsList->at(P_DsList->getPointer()))->ID;
+		PPSwProgramPacket pack;
+		if(Obj.Get(id, &pack) > 0) {
+			ASSIGN_PTR(pItem, pack.Rec);
+			P_DsList->incPointer();
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+static int PPViewSwProgram_CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+{
+	int    ok = -1;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
+	if(p_brw) {
+		PPViewSwProgram * p_view = static_cast<PPViewSwProgram *>(p_brw->P_View);
+		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
+	}
+	return ok;
+}
+	
+/*static*/int PPViewSwProgram::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+{
+	int    ok = -1;
+	if(pBrw && pData && pCellStyle && col >= 0) {
+		BrowserDef * p_def = pBrw->getDef();
+		if(col >= 0 && col < static_cast<long>(p_def->getCount())) {
+			const BroColumn & r_col = p_def->at(col);
+			if(col == 0) { // id
+				const BrwItem * p_item = static_cast<const BrwItem *>(pData);
+				if(p_item->Flags & BRNDF_HASIMAGES) { // @todo replace BRNDF_HASIMAGES with ...
+					pCellStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
+					pCellStyle->Color2 = GetColorRef(SClrGreen);
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+/*static*/int FASTCALL PPViewSwProgram::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	PPViewSwProgram * p_v = static_cast<PPViewSwProgram *>(pBlk->ExtraPtr);
+	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
+}
+	
+/*virtual*/SArray * PPViewSwProgram::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+{
+	SArray * p_array = 0;
+	PPBrand ds_item;
+	THROW(MakeList());
+	p_array = new SArray(*P_DsList);
+	CATCH
+		ZDELETE(P_DsList);
+	ENDCATCH
+	ASSIGN_PTR(pBrwId, BROWSER_SWPROGRAM);
+	return p_array;
+}
+	
+/*virtual*/void PPViewSwProgram::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+}
+	
+/*virtual*/int PPViewSwProgram::OnExecBrowser(PPViewBrowser *)
+{
+	int    ok = -1;
+	return ok;
+}
+	
+/*virtual*/int PPViewSwProgram::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+{
+	int    ok = -1;
+	return ok;
+}
+	
+/*virtual*/void PPViewSwProgram::ViewTotal()
+{
+}
+	
+int PPViewSwProgram::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	int    ok = 0;
+	if(pBlk->P_SrcData && pBlk->P_DestData) {
+		ok = 1;
+		const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+		int    r = 0;
+		switch(pBlk->ColumnN) {
+			case 0: pBlk->Set(p_item->ID); break; // @id
+			case 1: pBlk->Set(p_item->Name); break; // @name
+		}
+	}
+	return ok;
+}
+	
+int PPViewSwProgram::MakeList()
+{
+	int    ok = 1;
+	PPSwProgram item;
+	GoodsCore * p_tbl = Obj.P_Tbl;
+	PPIDArray result_list;
+	Goods2Tbl::Key2 k2;
+	//const  PPID single_owner_id = Filt.OwnerList.GetSingle();
+	PPObjGoods goods_obj;
+	//PPIDArray single_brand_list;
+	PPIDArray goods_list;
+	BExtQuery q(p_tbl, 2);
+	DBQ * dbq = &(p_tbl->Kind == PPGDSK_SWPROGRAM);
+	if(P_DsList)
+		P_DsList->clear();
+	else
+		P_DsList = new SArray(sizeof(BrwItem));
+	//dbq = ppcheckfiltid(dbq, p_tbl->ManufID, single_owner_id);
+	q.select(p_tbl->ID, p_tbl->Name, p_tbl->GoodsTypeID, p_tbl->ManufID, p_tbl->Flags, 0L).where(*dbq);
+	MEMSZERO(k2);
+	k2.Kind = PPGDSK_SWPROGRAM;
+	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
+		PPSwProgram rec;
+		if(Obj.Helper_GetRec(p_tbl->data, &rec) && rec.CheckForFilt(&Filt)) {
+			BrwItem new_item(&rec);
+			//if(Filt.Flags & Filt.fShowGoodsCount) {
+				//single_brand_list.clear();
+				//single_brand_list.add(rec.ID);
+				//goods_obj.P_Tbl->GetListByBrandList(single_brand_list, goods_list);
+				//new_item.LinkGoodsCount = goods_list.getCount();
+			//}
+			THROW_SL(P_DsList->insert(&new_item));
+		}
+	}
+	CATCHZOK
+	CALLPTRMEMB(P_DsList, setPointer(0));
 	return ok;
 }

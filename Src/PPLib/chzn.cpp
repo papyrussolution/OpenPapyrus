@@ -6,6 +6,249 @@
 #include <pp.h>
 #pragma hdrstop
 //#include <wininet.h>
+
+class ChZnInterface {
+public:
+	enum {
+		qAuth = 1,
+		qToken,
+		qDocOutcome,
+		qCurrentUserInfo,
+		qGetDocList,
+		qGetIncomingDocList,
+		qGetOutcomingDocList,
+		qGetDoc,
+		qDocumentSend,
+		qGetTicket
+	};
+	ChZnInterface();
+	~ChZnInterface();
+	enum {
+		urloptHttps   = 0x0001,
+		urloptSandBox = 0x0002
+	};
+
+	struct InitBlock {
+		InitBlock() : GuaID(0), ProtocolVer(0), ProtocolId(protidUnkn)
+		{
+		}
+		enum {
+			protidUnkn      = 0,
+			protidMdlp      = 1, // ИС Маркировка. МДЛП. Протокол обмена интерфейсного уровня
+			protidEdoLtMdlp = 2, // API ЭДО лайт МДЛП
+			protidEdoLtInt  = 3, // API ЭДО лайт Интеграционный стенд ГИС МТ
+			protidEdoLtElk  = 4, // API ЭДО лайт Продуктивый стенд ГИС МТ
+			protidGisMt     = 5, // API ГИС МТ
+		};
+		PPID   GuaID;
+		int    ProtocolVer;
+		int    ProtocolId;
+		PPGlobalUserAccPacket GuaPack;
+		SString CliAccsKey;
+		SString CliSecret;
+		SString CliIdent;
+		SString Cn; // CN субъекта сертификата электронной подписи (PPTAG_GUA_CERTSUBJCN)
+		SString CryptoProPath;
+		SString EndPoint; // URL для запросов
+		SString PermissiveModeToken; // @v11.9.11 Токен доступа к сервису разрешительного режима
+		//
+		SString Token;
+	};
+
+	class WinInternetHandleStack : private TSStack <HINTERNET> {
+	public:
+		WinInternetHandleStack();
+		~WinInternetHandleStack();
+		HINTERNET Push(HINTERNET h);
+		void Destroy();
+		HINTERNET PushConnection(const InetUrl & rUrl, HINTERNET hInetSess);
+		HINTERNET PushHttpRequestGet(HINTERNET hConn, const InetUrl & rUrl);
+		HINTERNET PushHttpRequestPost(HINTERNET hConn, const InetUrl & rUrl);
+	};
+	/*enum {
+		codetypeSgtin = 1,
+		codetypeSscc  = 2
+	};*/
+
+	struct Packet;
+	//
+	// Descr: Статус документа
+	//
+	enum {
+		docstUnkn = 0,
+		docstInProgress, // IN_PROGRESS – Проверяется
+		docstCheckedOk,  // CHECKED_OK – Обработан
+		docstCheckedNoOk, // CHECKED_NOT_OK – Обработан с ошибками
+		docstProcessingError, // PROCESSING_ERROR – Техническая ошибка
+		docstUndefined, // UNDEFINED – не определен
+		docstCancelled, // CANCELLED – Аннулирован. Только для документа 'Отмена отгрузки'
+		docstAccepted, // ACCEPTED – Принят. Только для документа 'Отгрузка'
+		docstWaitAcceptance, // WAIT_ACCEPTANCE – Ожидание приемку. Только для документа 'Отгрузка'. Устанавливается при успешной обработке документа 'Отгрузка товара'
+		docstParticipantRegistration // WAIT_PARTICIPANT_REGISTRATION -Ожидает регистрации участника в ГИС МТ. Только для документа 'Отгрузка'. Устанавливается при успешной обработке документа 'Отгрузка товара' в сторону незарегистрированного участника
+	};
+	class Document {
+	public:
+		Document();
+		Document(const Document & rS);
+		Document & FASTCALL operator = (const Document & rS);
+		int    Parse(const char * pBuffer);
+		int    GetTransactionPartyCode(PPID psnID, PPID locID, SString & rCode);
+		int    Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack);
+		Document & FASTCALL Copy(const Document & rS);
+		enum {
+			fInput = 0x0001 // Входящий документ. Иначе - исходящий
+		};
+		S_GUID Uuid;
+		LDATETIME Dtm;
+		LDATETIME ReceivedDtm;
+		int  Type;
+		int  Format; // SFileFormat::xxx
+		int  Status;
+		int  DownloadStatus;
+		int  Flags;
+		SString SenderName;
+		SString ReceiverName;
+		SString Body;
+		SString Content;
+	};
+	//
+	// Для идентификации типов кодов используются константы, определенные в slib.h
+	//   SNTOK_CHZN_GS1_GTIN SNTOK_CHZN_SIGN_SGTIN SNTOK_CHZN_SSCC
+	//
+	enum {
+		doctypUnkn                               =   0,
+		doctypMdlpResult                   		 = 200,
+		doctypMdlpQueryKizInfo             		 = 210,
+		doctypMdlpKizInfo                  		 = 211,
+		doctypMdlpRefusalReceiver          		 = 252, // @v10.9.1
+		doctypMdlpMoveOrder                		 = 415, // @v10.9.2
+		doctypMdlpReceiveOrder             		 = 416,
+		doctypMdlpMovePlace                		 = 431, // @v10.8.7 
+		doctypMdlpMoveUnregisteredOrder          = 441, // @v11.2.0
+		doctypMdlpRetailSale                     = 511, // @v11.0.1
+		doctypMdlpMoveOrderNotification          = 601, // @v11.8.2
+		doctypMdlpReceiveOrderNotification 		 = 602,
+		doctypMdlpAccept                         = 701,
+		doctypMdlpPosting                        = 702, // @v10.9.7
+		//
+		// Следующие типы определены для интерфейса ГИС МТ. Для них нет заданных внешним сервисом числовых значений
+		//
+		doctGisMt_OstDescription         = 1001,
+		doctGisMt_Aggregation            = 1002,
+		doctGisMt_Disaggregation         = 1003,
+		doctGisMt_Reaggregation          = 1004,
+		doctGisMt_LpIntroduceGoods       = 1005,
+		doctGisMt_LkIndiCommissioning    = 1006,
+		doctGisMt_LpGoodsImport          = 1007,
+		doctGisMt_Crossborder            = 1008,
+		doctGisMt_LpIntroduceGoodsCrossborderCSD = 1009,
+		doctGisMt_IntroduceOST           = 1010,
+		doctGisMt_LkContractCommissioning        = 1011,
+		doctGisMt_LpReturn               = 1012,
+		doctGisMt_LpShipGoods            = 1013,
+		doctGisMt_LpShipReceipt          = 1014,
+		doctGisMt_LpCancelShipment       = 1015,
+		doctGisMt_LpAcceptGoods          = 1016,
+		doctGisMt_LkReceipt              = 1017,
+		doctGisMt_LkRemark               = 1018,
+		doctGisMt_KmCancellation         = 1019,
+		doctGisMt_AppliedKmCancellation  = 1020
+	};
+	struct Packet {
+		struct ErrorItem {
+			int    Code;
+			SString Descr;
+			SString Ident;
+		};
+		struct OperationResult {
+			OperationResult() : Op(0), Status(0)
+			{
+			}
+			int    Op; // doctypXXX Ид операции в ответ на которую пришел тикет
+			int    Status; // -1 - rejected, 1 - accepted
+			SString OpIdent; 
+			SString OpComment;
+			TSCollection <ErrorItem> Errors;
+		};
+		struct QueryKizInfo {
+			QueryKizInfo() : CodeType(0), Modifier(0), ArID(0)
+			{
+			}
+			int   CodeType; // SNTOK_CHZN_XXX
+			int   Modifier; // 0 - none, 1 - down, 2 - up
+			PPID  ArID;
+			SString SubjectIdent;
+			SString Code;
+		};
+		explicit Packet(int docType);
+		~Packet();
+		const  int DocType;
+		long   Flags;
+		long   ChZnProdType; // @v11.1.11 GTCHZNPT_XXX
+		void * P_Data;
+	};
+	
+	int    ParseDocument(const SJson * pJsonObj, Document & rItem);
+	int    ParseDocumentList(const char * pJsonInput, TSCollection <Document> & rList);
+	int    SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock & rBlk);
+	int    GetSign(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rResultBuf);
+	SString & MakeTargetUrl_(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
+	enum {
+		mhffTokenOnly  = 0x0001,
+		mhffAuthBearer = 0x0002 // auth: Bearer else auth: Token
+	};
+	SString & MakeHeaderFields(const char * pToken, uint flags, StrStrAssocArray * pHdrFlds, SString & rBuf);
+	const CERT_CONTEXT * GetClientSslCertificate(InitBlock & rIb);
+	int    MakeAuthRequest(InitBlock & rBlk, SString & rBuf);
+	int    MakeTokenRequest(InitBlock & rIb, const char * pAuthCode, SString & rBuf);
+	int    MakeAuthRequest2(InitBlock & rBlk, SString & rBuf);
+	int    MakeTokenRequest2(InitBlock & rIb, const char * pAuthCode, SString & rBuf);
+	int    MakeDocumentRequest(const InitBlock & rIb, const ChZnInterface::Packet & rPack, const void * pData, size_t dataLen, S_GUID & rReqId, SString & rBuf);
+	uint   GetLastWinInternetResponse(SString & rMsgBuf);
+	uint   ReadReply(HINTERNET hReq, SString & rBuf);
+	int    GetUserInfo2(InitBlock & rIb);
+	int    GetIncomeDocList2_temp(InitBlock & rIb);
+	enum {
+		docfoldDocs     = 0,
+		docfoldArc      = 1,
+		docfoldBin      = 2,
+		docfoldToSign   = 3,
+		docfoldRejected = 4
+	};
+	struct DocumentFilt {
+		DocumentFilt();
+		enum {
+			fIncoming  = 0x0001,
+			fOutcoming = 0x0002
+		};
+		int    Flags;
+		int    Folder;
+		uint   CountOffset;
+		uint   CountLimit;
+		DateRange Period;
+	};
+	int    GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, TSCollection <Document> & rList);
+	int    GetDocument(const InitBlock & rIb, const S_GUID * pUuid, const InetUrl * pUrl, Document & rDoc);
+	int    ReadJsonReplyForSingleItem(const char * pReply, const char * pTarget, SString & rResult);
+	int    TransmitDocument2(const InitBlock & rIb, const ChZnInterface::Packet & rPack, SString & rReply);
+	int    GetDocumentTicket(const InitBlock & rIb, const char * pDocIdent, SString & rTicket);
+	int    Connect(InitBlock & rIb);
+	// @v10.8.0 int    Connect2(InitBlock & rIb);
+	int    GetToken2(const char * pAuthCode, InitBlock & rIb);
+	int    GetPendingIdentList(const InitBlock & rIb, StringSet & rResult);
+	int    CommitTicket(const char * pPath, const char * pIdent, const char * pTicket);
+	int    ParseTicket(const char * pTicket, Packet ** ppP);
+	int    GetDebugPath(const InitBlock & rIb, SString & rPath);
+private:
+	//int    LogTalking(const char * pPrefix, const char * pTargetUrl, const SString & rMsg);
+	int    GetTemporaryFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn);
+	int    CreatePendingFile(const char * pPath, const char * pIdent);
+
+	PPGlobalServiceLogTalkingHelper Lth;
+};
+//
+//
+//
 /*
 Альтернативная табачная продукция //
 04670190770074MmK).<EAAAAEC/d
@@ -426,356 +669,149 @@ static const SIntToSymbTabEntry CzDocType_SymbTab[] = {
 	{ 702, "posting" }, // @v10.9.7
 };
 
-class ChZnInterface {
-public:
-	enum {
-		qAuth = 1,
-		qToken,
-		qDocOutcome,
-		qCurrentUserInfo,
-		qGetDocList,
-		qGetIncomingDocList,
-		qGetOutcomingDocList,
-		qGetDoc,
-		qDocumentSend,
-		qGetTicket
-	};
-	ChZnInterface() : Lth(PPFILNAM_CHZNTALK_LOG)
-	{
+ChZnInterface::DocumentFilt::DocumentFilt() : Flags(0), Folder(docfoldDocs), CountLimit(0), CountOffset(0)
+{
+	Period.Z();
+}
+
+ChZnInterface::Document::Document() : Dtm(ZERODATETIME), ReceivedDtm(ZERODATETIME), Type(doctypUnkn), 
+	Format(SFileFormat::Unkn), Status(docstUnkn), DownloadStatus(0), Flags(0)
+{
+}
+
+ChZnInterface::Document::Document(const Document & rS)
+{
+	Copy(rS);
+}
+
+ChZnInterface::Document & FASTCALL ChZnInterface::Document::operator = (const Document & rS)
+{
+	return Copy(rS);
+}
+
+ChZnInterface::Document & FASTCALL ChZnInterface::Document::Copy(const Document & rS)
+{
+	Uuid = rS.Uuid;
+	Dtm = rS.Dtm;
+	ReceivedDtm = rS.ReceivedDtm;
+	Type = rS.Type;
+	Format = rS.Format;
+	Status = rS.Status;
+	DownloadStatus = rS.DownloadStatus;
+	Flags = rS.Flags;
+	SenderName = rS.SenderName;
+	ReceiverName = rS.ReceiverName;
+	Body = rS.Body;
+	Content = rS.Content;
+	return *this;
+}
+
+ChZnInterface::Packet::Packet(int docType) : DocType(docType), Flags(0), P_Data(0), ChZnProdType(0)
+{
+	switch(DocType) {
+		case doctypMdlpResult: P_Data = new OperationResult(); break;
+		case doctypMdlpQueryKizInfo: P_Data = new QueryKizInfo(); break;
+		case doctypMdlpMoveOrder: // @v10.9.2
+		case doctypMdlpReceiveOrder:
+		case doctypMdlpMovePlace: // @v10.8.7 
+		case doctypMdlpRefusalReceiver: // @v10.9.1
+		case doctypMdlpPosting: // @v10.9.7
+		case doctGisMt_LkReceipt: // @v10.9.10
+		case doctGisMt_LpShipReceipt: // @v10.9.10
+			P_Data = new PPBillPacket; 
+			break; 
+		case doctypMdlpRetailSale: // @v11.0.1
+			P_Data = new CCheckPacket;
+			break;
 	}
-	~ChZnInterface()
-	{
+}
+		
+ChZnInterface::Packet::~Packet()
+{
+	switch(DocType) {
+		case doctypMdlpResult: delete static_cast<OperationResult *>(P_Data); break;
+		case doctypMdlpQueryKizInfo: delete static_cast<QueryKizInfo *>(P_Data); break;
+		case doctypMdlpMoveOrder: // @v10.9.2
+		case doctypMdlpReceiveOrder:
+		case doctypMdlpMovePlace: // @v10.8.7 
+		case doctypMdlpRefusalReceiver: // @v10.9.1
+		case doctypMdlpPosting: // @v10.9.7
+		case doctGisMt_LkReceipt: // @v10.9.10
+		case doctGisMt_LpShipReceipt: // @v10.9.10
+			delete static_cast<PPBillPacket *>(P_Data); 
+			break;
+		case doctypMdlpRetailSale: // @v11.0.1
+			delete static_cast<CCheckPacket *>(P_Data);
+			break;					
 	}
-	enum {
-		urloptHttps   = 0x0001,
-		urloptSandBox = 0x0002
-	};
+}
 
-	struct InitBlock {
-		InitBlock() : GuaID(0), ProtocolVer(0), ProtocolId(protidUnkn)
-		{
-		}
-		enum {
-			protidUnkn      = 0,
-			protidMdlp      = 1, // ИС Маркировка. МДЛП. Протокол обмена интерфейсного уровня
-			protidEdoLtMdlp = 2, // API ЭДО лайт МДЛП
-			protidEdoLtInt  = 3, // API ЭДО лайт Интеграционный стенд ГИС МТ
-			protidEdoLtElk  = 4, // API ЭДО лайт Продуктивый стенд ГИС МТ
-			protidGisMt     = 5, // API ГИС МТ
-		};
-		PPID   GuaID;
-		int    ProtocolVer;
-		int    ProtocolId;
-		PPGlobalUserAccPacket GuaPack;
-		SString CliAccsKey;
-		SString CliSecret;
-		SString CliIdent;
-		SString Cn; // CN субъекта сертификата электронной подписи (PPTAG_GUA_CERTSUBJCN)
-		SString CryptoProPath;
-		SString EndPoint; // URL для запросов
-		//
-		SString Token;
-	};
+ChZnInterface::WinInternetHandleStack::WinInternetHandleStack()
+{
+}
+		
+ChZnInterface::WinInternetHandleStack::~WinInternetHandleStack()
+{
+	Destroy();
+}
 
-	class WinInternetHandleStack : private TSStack <HINTERNET> {
-	public:
-		WinInternetHandleStack()
-		{
-		}
-		~WinInternetHandleStack()
-		{
-			Destroy();
-		}
-		HINTERNET Push(HINTERNET h)
-		{
-			if(h) {
-				push(h);
-			}
-			return h;
-		}
-		void Destroy()
-		{
-			HINTERNET h = 0;
-			while(pop(h)) {
-				::InternetCloseHandle(h);
-			}
-		}
-		HINTERNET PushConnection(const InetUrl & rUrl, HINTERNET hInetSess)
-		{
-			SString temp_buf;
-			rUrl.GetComponent(InetUrl::cHost, 0, temp_buf);
-			int   port = rUrl.GetDefProtocolPort(rUrl.GetProtocol());
-			return Push(InternetConnect(hInetSess, SUcSwitch(temp_buf), port, _T("")/*lpszUserName*/, _T("")/*lpszPassword*/, INTERNET_SERVICE_HTTP, 0, 0));
-		}
-		HINTERNET PushHttpRequestGet(HINTERNET hConn, const InetUrl & rUrl)
-		{
-			const TCHAR * p_types[] = { _T("text/*"), _T("application/json"), 0 };
-			SString qbuf;
-			SString temp_buf;
-			rUrl.GetComponent(InetUrl::cPath, 0, temp_buf);
-			qbuf = temp_buf;
-			rUrl.GetComponent(InetUrl::cQuery, 0, temp_buf);
-			if(temp_buf.NotEmptyS())
-				qbuf.CatChar('?').Cat(temp_buf);
-			return Push(HttpOpenRequest(hConn, _T("GET"), SUcSwitch(qbuf), _T("HTTP/1.1"), NULL, p_types, INTERNET_FLAG_KEEP_CONNECTION|INTERNET_FLAG_SECURE, 1));
-		}
-		HINTERNET PushHttpRequestPost(HINTERNET hConn, const InetUrl & rUrl)
-		{
-			const TCHAR * p_types[] = { _T("text/*"), _T("application/json"), 0 };
-			SString qbuf;
-			SString temp_buf;
-			rUrl.GetComponent(InetUrl::cPath, 0, temp_buf);
-			qbuf = temp_buf;
-			rUrl.GetComponent(InetUrl::cQuery, 0, temp_buf);
-			if(temp_buf.NotEmptyS())
-				qbuf.CatChar('?').Cat(temp_buf);
-			return Push(HttpOpenRequest(hConn, _T("POST"), SUcSwitch(qbuf), _T("HTTP/1.1"), NULL, p_types, INTERNET_FLAG_KEEP_CONNECTION|INTERNET_FLAG_SECURE, 1));
-		}
-	};
-	/*enum {
-		codetypeSgtin = 1,
-		codetypeSscc  = 2
-	};*/
+HINTERNET ChZnInterface::WinInternetHandleStack::Push(HINTERNET h)
+{
+	if(h) {
+		push(h);
+	}
+	return h;
+}
 
-	struct Packet;
-	//
-	// Descr: Статус документа
-	//
-	enum {
-		docstUnkn = 0,
-		docstInProgress, // IN_PROGRESS – Проверяется
-		docstCheckedOk,  // CHECKED_OK – Обработан
-		docstCheckedNoOk, // CHECKED_NOT_OK – Обработан с ошибками
-		docstProcessingError, // PROCESSING_ERROR – Техническая ошибка
-		docstUndefined, // UNDEFINED – не определен
-		docstCancelled, // CANCELLED – Аннулирован. Только для документа 'Отмена отгрузки'
-		docstAccepted, // ACCEPTED – Принят. Только для документа 'Отгрузка'
-		docstWaitAcceptance, // WAIT_ACCEPTANCE – Ожидание приемку. Только для документа 'Отгрузка'. Устанавливается при успешной обработке документа 'Отгрузка товара'
-		docstParticipantRegistration // WAIT_PARTICIPANT_REGISTRATION -Ожидает регистрации участника в ГИС МТ. Только для документа 'Отгрузка'. Устанавливается при успешной обработке документа 'Отгрузка товара' в сторону незарегистрированного участника
-	};
-	class Document {
-	public:
-		Document() : Dtm(ZERODATETIME), ReceivedDtm(ZERODATETIME), Type(doctypUnkn), 
-			Format(SFileFormat::Unkn), Status(docstUnkn), DownloadStatus(0), Flags(0)
-		{
-		}
-		Document(const Document & rS)
-		{
-			Copy(rS);
-		}
-		Document & FASTCALL operator = (const Document & rS)
-		{
-			return Copy(rS);
-		}
-		int    Parse(const char * pBuffer);
-		int    GetTransactionPartyCode(PPID psnID, PPID locID, SString & rCode);
-		int    Make(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack);
-		Document & FASTCALL Copy(const Document & rS)
-		{
-			Uuid = rS.Uuid;
-			Dtm = rS.Dtm;
-			ReceivedDtm = rS.ReceivedDtm;
-			Type = rS.Type;
-			Format = rS.Format;
-			Status = rS.Status;
-			DownloadStatus = rS.DownloadStatus;
-			Flags = rS.Flags;
-			SenderName = rS.SenderName;
-			ReceiverName = rS.ReceiverName;
-			Body = rS.Body;
-			Content = rS.Content;
-			return *this;
-		}
-		enum {
-			fInput = 0x0001 // Входящий документ. Иначе - исходящий
-		};
-		S_GUID Uuid;
-		LDATETIME Dtm;
-		LDATETIME ReceivedDtm;
-		int  Type;
-		int  Format; // SFileFormat::xxx
-		int  Status;
-		int  DownloadStatus;
-		int  Flags;
-		SString SenderName;
-		SString ReceiverName;
-		SString Body;
-		SString Content;
-	};
-	//
-	// Для идентификации типов кодов используются константы, определенные в slib.h
-	//   SNTOK_CHZN_GS1_GTIN SNTOK_CHZN_SIGN_SGTIN SNTOK_CHZN_SSCC
-	//
-	enum {
-		doctypUnkn                               =   0,
-		doctypMdlpResult                   		 = 200,
-		doctypMdlpQueryKizInfo             		 = 210,
-		doctypMdlpKizInfo                  		 = 211,
-		doctypMdlpRefusalReceiver          		 = 252, // @v10.9.1
-		doctypMdlpMoveOrder                		 = 415, // @v10.9.2
-		doctypMdlpReceiveOrder             		 = 416,
-		doctypMdlpMovePlace                		 = 431, // @v10.8.7 
-		doctypMdlpMoveUnregisteredOrder          = 441, // @v11.2.0
-		doctypMdlpRetailSale                     = 511, // @v11.0.1
-		doctypMdlpMoveOrderNotification          = 601, // @v11.8.2
-		doctypMdlpReceiveOrderNotification 		 = 602,
-		doctypMdlpAccept                         = 701,
-		doctypMdlpPosting                        = 702, // @v10.9.7
-		//
-		// Следующие типы определены для интерфейса ГИС МТ. Для них нет заданных внешним сервисом числовых значений
-		//
-		doctGisMt_OstDescription         = 1001,
-		doctGisMt_Aggregation            = 1002,
-		doctGisMt_Disaggregation         = 1003,
-		doctGisMt_Reaggregation          = 1004,
-		doctGisMt_LpIntroduceGoods       = 1005,
-		doctGisMt_LkIndiCommissioning    = 1006,
-		doctGisMt_LpGoodsImport          = 1007,
-		doctGisMt_Crossborder            = 1008,
-		doctGisMt_LpIntroduceGoodsCrossborderCSD = 1009,
-		doctGisMt_IntroduceOST           = 1010,
-		doctGisMt_LkContractCommissioning        = 1011,
-		doctGisMt_LpReturn               = 1012,
-		doctGisMt_LpShipGoods            = 1013,
-		doctGisMt_LpShipReceipt          = 1014,
-		doctGisMt_LpCancelShipment       = 1015,
-		doctGisMt_LpAcceptGoods          = 1016,
-		doctGisMt_LkReceipt              = 1017,
-		doctGisMt_LkRemark               = 1018,
-		doctGisMt_KmCancellation         = 1019,
-		doctGisMt_AppliedKmCancellation  = 1020
-	};
-	struct Packet {
-		struct ErrorItem {
-			int    Code;
-			SString Descr;
-			SString Ident;
-		};
-		struct OperationResult {
-			OperationResult() : Op(0), Status(0)
-			{
-			}
-			int    Op; // doctypXXX Ид операции в ответ на которую пришел тикет
-			int    Status; // -1 - rejected, 1 - accepted
-			SString OpIdent; 
-			SString OpComment;
-			TSCollection <ErrorItem> Errors;
-		};
-		struct QueryKizInfo {
-			QueryKizInfo() : CodeType(0), Modifier(0), ArID(0)
-			{
-			}
-			int   CodeType; // SNTOK_CHZN_XXX
-			int   Modifier; // 0 - none, 1 - down, 2 - up
-			PPID  ArID;
-			SString SubjectIdent;
-			SString Code;
-		};
-		explicit Packet(int docType) : DocType(docType), Flags(0), P_Data(0), ChZnProdType(0)
-		{
-			switch(DocType) {
-				case doctypMdlpResult: P_Data = new OperationResult(); break;
-				case doctypMdlpQueryKizInfo: P_Data = new QueryKizInfo(); break;
-				case doctypMdlpMoveOrder: // @v10.9.2
-				case doctypMdlpReceiveOrder:
-				case doctypMdlpMovePlace: // @v10.8.7 
-				case doctypMdlpRefusalReceiver: // @v10.9.1
-				case doctypMdlpPosting: // @v10.9.7
-				case doctGisMt_LkReceipt: // @v10.9.10
-				case doctGisMt_LpShipReceipt: // @v10.9.10
-					P_Data = new PPBillPacket; 
-					break; 
-				case doctypMdlpRetailSale: // @v11.0.1
-					P_Data = new CCheckPacket;
-					break;
-			}
-		}
-		~Packet()
-		{
-			switch(DocType) {
-				case doctypMdlpResult: delete static_cast<OperationResult *>(P_Data); break;
-				case doctypMdlpQueryKizInfo: delete static_cast<QueryKizInfo *>(P_Data); break;
-				case doctypMdlpMoveOrder: // @v10.9.2
-				case doctypMdlpReceiveOrder:
-				case doctypMdlpMovePlace: // @v10.8.7 
-				case doctypMdlpRefusalReceiver: // @v10.9.1
-				case doctypMdlpPosting: // @v10.9.7
-				case doctGisMt_LkReceipt: // @v10.9.10
-				case doctGisMt_LpShipReceipt: // @v10.9.10
-					delete static_cast<PPBillPacket *>(P_Data); 
-					break;
-				case doctypMdlpRetailSale: // @v11.0.1
-					delete static_cast<CCheckPacket *>(P_Data);
-					break;					
-			}
-		}
-		const  int DocType;
-		long   Flags;
-		long   ChZnProdType; // @v11.1.11 GTCHZNPT_XXX
-		void * P_Data;
-	};
+void ChZnInterface::WinInternetHandleStack::Destroy()
+{
+	HINTERNET h = 0;
+	while(pop(h)) {
+		::InternetCloseHandle(h);
+	}
+}
+
+HINTERNET ChZnInterface::WinInternetHandleStack::PushConnection(const InetUrl & rUrl, HINTERNET hInetSess)
+{
+	SString temp_buf;
+	rUrl.GetComponent(InetUrl::cHost, 0, temp_buf);
+	int   port = rUrl.GetDefProtocolPort(rUrl.GetProtocol());
+	return Push(InternetConnect(hInetSess, SUcSwitch(temp_buf), port, _T("")/*lpszUserName*/, _T("")/*lpszPassword*/, INTERNET_SERVICE_HTTP, 0, 0));
+}
+
+HINTERNET ChZnInterface::WinInternetHandleStack::PushHttpRequestGet(HINTERNET hConn, const InetUrl & rUrl)
+{
+	const TCHAR * p_types[] = { _T("text/*"), _T("application/json"), 0 };
+	SString qbuf;
+	SString temp_buf;
+	rUrl.GetComponent(InetUrl::cPath, 0, temp_buf);
+	qbuf = temp_buf;
+	rUrl.GetComponent(InetUrl::cQuery, 0, temp_buf);
+	if(temp_buf.NotEmptyS())
+		qbuf.CatChar('?').Cat(temp_buf);
+	return Push(HttpOpenRequest(hConn, _T("GET"), SUcSwitch(qbuf), _T("HTTP/1.1"), NULL, p_types, INTERNET_FLAG_KEEP_CONNECTION|INTERNET_FLAG_SECURE, 1));
+}
+
+HINTERNET ChZnInterface::WinInternetHandleStack::PushHttpRequestPost(HINTERNET hConn, const InetUrl & rUrl)
+{
+	const TCHAR * p_types[] = { _T("text/*"), _T("application/json"), 0 };
+	SString qbuf;
+	SString temp_buf;
+	rUrl.GetComponent(InetUrl::cPath, 0, temp_buf);
+	qbuf = temp_buf;
+	rUrl.GetComponent(InetUrl::cQuery, 0, temp_buf);
+	if(temp_buf.NotEmptyS())
+		qbuf.CatChar('?').Cat(temp_buf);
+	return Push(HttpOpenRequest(hConn, _T("POST"), SUcSwitch(qbuf), _T("HTTP/1.1"), NULL, p_types, INTERNET_FLAG_KEEP_CONNECTION|INTERNET_FLAG_SECURE, 1));
+}
+
+ChZnInterface::ChZnInterface() : Lth(PPFILNAM_CHZNTALK_LOG)
+{
+}
 	
-	int    ParseDocument(const SJson * pJsonObj, Document & rItem);
-	int    ParseDocumentList(const char * pJsonInput, TSCollection <Document> & rList);
-	int    SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock & rBlk);
-	int    GetSign(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rResultBuf);
-	SString & MakeTargetUrl_(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
-	enum {
-		mhffTokenOnly  = 0x0001,
-		mhffAuthBearer = 0x0002 // auth: Bearer else auth: Token
-	};
-	SString & MakeHeaderFields(const char * pToken, uint flags, StrStrAssocArray * pHdrFlds, SString & rBuf);
-	const CERT_CONTEXT * GetClientSslCertificate(InitBlock & rIb);
-	int    MakeAuthRequest(InitBlock & rBlk, SString & rBuf);
-	int    MakeTokenRequest(InitBlock & rIb, const char * pAuthCode, SString & rBuf);
-	int    MakeAuthRequest2(InitBlock & rBlk, SString & rBuf);
-	int    MakeTokenRequest2(InitBlock & rIb, const char * pAuthCode, SString & rBuf);
-	int    MakeDocumentRequest(const InitBlock & rIb, const ChZnInterface::Packet & rPack, const void * pData, size_t dataLen, S_GUID & rReqId, SString & rBuf);
-	uint   GetLastWinInternetResponse(SString & rMsgBuf);
-	uint   ReadReply(HINTERNET hReq, SString & rBuf);
-	int    GetUserInfo2(InitBlock & rIb);
-	int    GetIncomeDocList2_temp(InitBlock & rIb);
-	enum {
-		docfoldDocs     = 0,
-		docfoldArc      = 1,
-		docfoldBin      = 2,
-		docfoldToSign   = 3,
-		docfoldRejected = 4
-	};
-	struct DocumentFilt {
-		DocumentFilt() : Flags(0), Folder(docfoldDocs), CountLimit(0), CountOffset(0)
-		{
-			Period.Z();
-		}
-		enum {
-			fIncoming  = 0x0001,
-			fOutcoming = 0x0002
-		};
-		int    Flags;
-		int    Folder;
-		uint   CountOffset;
-		uint   CountLimit;
-		DateRange Period;
-	};
-	int    GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, TSCollection <Document> & rList);
-	int    GetDocument(const InitBlock & rIb, const S_GUID * pUuid, const InetUrl * pUrl, Document & rDoc);
-	int    ReadJsonReplyForSingleItem(const char * pReply, const char * pTarget, SString & rResult);
-	int    TransmitDocument2(const InitBlock & rIb, const ChZnInterface::Packet & rPack, SString & rReply);
-	int    GetDocumentTicket(const InitBlock & rIb, const char * pDocIdent, SString & rTicket);
-	int    Connect(InitBlock & rIb);
-	// @v10.8.0 int    Connect2(InitBlock & rIb);
-	int    GetToken2(const char * pAuthCode, InitBlock & rIb);
-	int    GetPendingIdentList(const InitBlock & rIb, StringSet & rResult);
-	int    CommitTicket(const char * pPath, const char * pIdent, const char * pTicket);
-	int    ParseTicket(const char * pTicket, Packet ** ppP);
-	int    GetDebugPath(const InitBlock & rIb, SString & rPath);
-private:
-	//int    LogTalking(const char * pPrefix, const char * pTargetUrl, const SString & rMsg);
-	int    GetTemporaryFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn);
-	int    CreatePendingFile(const char * pPath, const char * pIdent);
-
-	PPGlobalServiceLogTalkingHelper Lth;
-};
+ChZnInterface::~ChZnInterface()
+{
+}
 
 static const SIntToSymbTabEntry ChZnDocStatusList[] = {
 	{ ChZnInterface::docstInProgress, "IN_PROGRESS" },// IN_PROGRESS – Проверяется
@@ -1613,12 +1649,13 @@ int ChZnInterface::SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock 
 	PPObjGlobalUserAcc gua_obj;
 	THROW(gua_obj.GetPacket(guaID, &rBlk.GuaPack) > 0);
 	rBlk.EndPoint = pEndPoint;
-	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, rBlk.CliAccsKey);
+	rBlk.GuaPack.GetAccessKey(rBlk.CliAccsKey);
 	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_SECRET, rBlk.CliSecret);
 	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_LOGIN, rBlk.CliIdent); // Отпечаток открытого ключа 
 		// Сертификат в реестре находится в "сертификаты-текущий пользователь/личное/реестр/сертификаты". 
 		// Требуется в доверенные еще внести сертификат Крипто-Про (в инструкции по быстрому старту про это есть). 
 	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_CERTSUBJCN, rBlk.Cn);
+	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_CHZN_PM_TOKEN, rBlk.PermissiveModeToken); // @v11.9.11
 	if(rBlk.Cn.NotEmptyS()) {
 		//rBlk.Cn.ReplaceStr("\"", " ", 0);
 		//rBlk.Cn.ReplaceStr("  ", " ", 0);
@@ -3474,7 +3511,359 @@ int PPChZnPrcssr::Run(const Param & rP)
 	ZDELETE(p_pack);
 	return ok;
 }
+//
+// @v11.9.10 @construction Permissive Mode (разрешительный режим)
+// 
 
+// Хост для тестового контура: https://markirovka.sandbox.crptech.ru
+// Хост для продуктивного контура: https://markirovka.crpt.ru
+
+ChZnPermissiveModeInterface::CdnStatus::CdnStatus() : Code(-1), AvgTimeMs(-1)
+{
+}
+
+ChZnPermissiveModeInterface::CodeStatus::CodeStatus() : ErrorCode(0), EliminationState(0), Mrp(0), Smp(0), InnerUnitCount(0), SoldUnitCount(0), Flags(0), ExpiryDtm(ZERODATETIME),
+	ProductionDtm(ZERODATETIME), Weight(0.0), ReqTimestamp(0), PackageQtty(0)
+{
+	memzero(GroupIds, sizeof(GroupIds));
+}
+
+ChZnPermissiveModeInterface::CodeStatusCollection::CodeStatusCollection() : TSCollection <CodeStatus>(), Code(0), ReqTimestamp(0)
+{
+}
+		
+ChZnPermissiveModeInterface::CodeStatusCollection & ChZnPermissiveModeInterface::CodeStatusCollection::Z()
+{
+	Code = 0;
+	ReqTimestamp = 0;
+	Description.Z();
+	ReqId.Z();
+	freeAll();
+	return *this;
+}
+
+SString & ChZnPermissiveModeInterface::MakeTargetUrl(int query, const char * pAddendum, SString & rResult) const 
+{
+	rResult.Z();
+	// @construction
+	if(query == queryGetCdnList) {
+		if(Flags & fTest) {
+			rResult = "https://markirovka.sandbox.crptech.ru";
+		}
+		else {
+			rResult = "https://cdn.crpt.ru";
+		}
+		rResult.SetLastDSlash().Cat("api/v4/true-api/cdn/info");
+	}
+	else if(query == queryGetCdnStatus) {
+		//"<адрес CDN-площадки>/api/v4/true-api/cdn/health/check"
+		(rResult = pAddendum).SetLastDSlash().Cat("api/v4/true-api/cdn/health/check");
+	}
+	else if(query == queryCheckCodeList) {
+		// "<url контура>/api/v4/true-api/codes/check"
+		(rResult = pAddendum).SetLastDSlash().Cat("api/v4/true-api/codes/check");
+	}
+	return rResult;
+}
+
+ChZnPermissiveModeInterface::ChZnPermissiveModeInterface(const char * pToken, uint flags) : Token(pToken), Flags(flags), Lth(PPFILNAM_CHZNTALK_LOG)
+{
+}
+
+ChZnPermissiveModeInterface::~ChZnPermissiveModeInterface()
+{
+}
+
+int ChZnPermissiveModeInterface::QueryCdnList(TSCollection <CdnStatus> & rResultList) 
+{
+	rResultList.freeAll();
+	// Хост для тестового контура: https://markirovka.sandbox.crptech.ru
+	// Хост для продуктивного контура: https://cdn.crpt.ru
+	// GET /cdn/info
+	/*
+		curl -X GET "<url контура>/api/v4/true-api/cdn/info" -H "Content-Type: application/json" -H "X-API-KEY: <Аутентификационный токен участника оборота>"
+	*/
+	int    ok = 1;
+	SJson * p_js_reply = 0;
+	SString temp_buf;
+	SString url_buf;
+	SString reply_buf;
+	InetUrl url;
+	ScURL c;
+	StrStrAssocArray hdr_flds;
+	SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
+	SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrXApiKey, Token);
+	SBuffer ack_buf;
+	SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+	THROW(MakeTargetUrl(queryGetCdnList, 0, url_buf).NotEmpty());
+	THROW(url.Parse(url_buf));
+	Lth.Log("req", url_buf, temp_buf.Z());
+	THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+	{
+		SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+		THROW(p_ack_buf);
+		reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+		Lth.Log("rep", 0, reply_buf);
+		THROW_SL(p_js_reply = SJson::Parse(reply_buf));
+		/*
+			{
+				"code": 0,
+				"description": "ok",
+				"hosts": [ { "host": "https://cdn01.crpt.ru" }, { "host": "https://cdn08.crpt.ru" } ]
+			}
+		*/
+		THROW(SJson::IsObject(p_js_reply));
+		for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("code")) {
+				//rReplyT.ID = SJson::IsNumber(p_cur->P_Child) ? p_cur->P_Child->Text.ToInt64() : 0;
+			}
+			else if(p_cur->Text.IsEqiAscii("description")) {
+			}
+			else if(p_cur->Text.IsEqiAscii("hosts")) {
+				if(SJson::IsArray(p_cur->P_Child)) {
+					for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+						if(SJson::IsObject(p_js_item)) {
+							const SJson * p_js_host = p_js_item->FindChildByKey("host");
+							if(p_js_host) {
+								(temp_buf = p_js_host->Text).Unescape();
+								CdnStatus * p_new_entry = rResultList.CreateNewItem();
+								THROW_SL(p_new_entry);
+								p_new_entry->CdnAddr = temp_buf;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_js_reply;
+	return ok;
+}
+
+int ChZnPermissiveModeInterface::QueryCdnStatus(CdnStatus & rStatus)
+{
+	// GET /cdn/health/check
+	int    ok = 1;
+	SJson * p_js_reply = 0;
+	SString temp_buf;
+	SString url_buf;
+	SString reply_buf;
+	InetUrl url;
+	ScURL c;
+	StrStrAssocArray hdr_flds;
+	SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
+	SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrXApiKey, Token);
+	SBuffer ack_buf;
+	SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+	THROW(MakeTargetUrl(queryGetCdnStatus, rStatus.CdnAddr, url_buf).NotEmpty());
+	THROW(url.Parse(url_buf));
+	Lth.Log("req", url_buf, temp_buf.Z());
+	THROW_SL(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+	{
+		SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+		THROW(p_ack_buf);
+		reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+		Lth.Log("rep", 0, reply_buf);
+		THROW_SL(p_js_reply = SJson::Parse(reply_buf));
+		THROW(SJson::IsObject(p_js_reply));
+		for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("code")) {
+				rStatus.Code = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("description")) {
+			}
+			else if(p_cur->Text.IsEqiAscii("avgTimeMs")) {
+				rStatus.AvgTimeMs = p_cur->P_Child->Text.ToLong();
+			}
+		}
+	}
+	CATCHZOK
+	delete p_js_reply;
+	return ok;
+}
+
+int ChZnPermissiveModeInterface::SelectCdnHost(SString & rResult)
+{
+	int    ok = -1;
+	TSCollection <CdnStatus> cdn_host_list;
+	if(QueryCdnList(cdn_host_list)) {
+		{
+			int    min_time = MAXINT;
+			uint   min_time_idx = 0; // [1..cdn_host_list.getCount()]
+			for(uint i = 0; i < cdn_host_list.getCount(); i++) {
+				CdnStatus * p_item = cdn_host_list.at(i);
+				if(p_item && p_item->CdnAddr.NotEmpty()) {
+					if(QueryCdnStatus(*p_item) > 0 && p_item->Code == 0 && p_item->AvgTimeMs >= 0) {
+						if(min_time > p_item->AvgTimeMs) {
+							min_time = p_item->AvgTimeMs;
+							min_time_idx = i+1;
+						}
+					}
+				}
+			}
+			if(min_time_idx) {
+				rResult = cdn_host_list.at(min_time_idx-1)->CdnAddr;
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+int ChZnPermissiveModeInterface::CheckCodeList(const char * pHost, const char * pFiscalDriveNumber, const StringSet & rSsCodes, CodeStatusCollection & rResult)
+{
+	// POST /codes/check
+	// "<url контура>/api/v4/true-api/codes/check"
+	rResult.Z();
+	int    ok = 1;
+	SJson * p_js_reply = 0;
+	SString temp_buf;
+	SString url_buf;
+	SString req_buf;
+	SString reply_buf;
+	InetUrl url;
+	ScURL c;
+	StrStrAssocArray hdr_flds;
+	SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
+	SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrXApiKey, Token);
+	SBuffer ack_buf;
+	SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+	THROW(MakeTargetUrl(queryCheckCodeList, pHost, url_buf).NotEmpty());
+	THROW(url.Parse(url_buf));
+	{
+		SJson js_query(SJson::tOBJECT);
+		SJson * p_js_code_list = new SJson(SJson::tARRAY);
+		for(uint ssp = 0; rSsCodes.get(&ssp, temp_buf);) {
+			p_js_code_list->InsertChild(SJson::CreateString(temp_buf.Escape()));
+		}
+		js_query.Insert("codes", p_js_code_list);
+		if(!isempty(pFiscalDriveNumber)) {
+			js_query.Insert("fiscalDriveNumber", SJson::CreateString((temp_buf = pFiscalDriveNumber).Escape()));
+		}
+		THROW_SL(js_query.ToStr(req_buf));
+		Lth.Log("req", url_buf, req_buf);
+	}
+	THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+	{
+		SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+		THROW(p_ack_buf);
+		reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+		Lth.Log("rep", 0, reply_buf);
+		THROW_SL(p_js_reply = SJson::Parse(reply_buf));
+		/*
+			{
+				"code": 0,
+				"description": "ok",
+				"hosts": [ { "host": "https://cdn01.crpt.ru" }, { "host": "https://cdn08.crpt.ru" } ]
+			}
+		*/
+		THROW(SJson::IsObject(p_js_reply));
+		for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("code")) {
+				rResult.Code = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("description")) {
+				SJson::GetChildTextUnescaped(p_cur, rResult.Description);
+			}
+			else if(p_cur->Text.IsEqiAscii("reqId")) {
+				SJson::GetChildTextUnescaped(p_cur, temp_buf);
+				rResult.ReqId.FromStr(temp_buf);
+			}
+			else if(p_cur->Text.IsEqiAscii("reqTimestamp")) {
+				rResult.ReqTimestamp = p_cur->P_Child->Text.ToInt64();
+			}
+			else if(p_cur->Text.IsEqiAscii("codes")) {
+				if(SJson::IsArray(p_cur->P_Child)) {
+					for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+						if(SJson::IsObject(p_js_item)) {
+							CodeStatus * p_new_item = rResult.CreateNewItem();
+							for(const SJson * p_js_f = p_js_item->P_Child; p_js_f; p_js_f = p_js_f->P_Next) {
+								if(p_js_f->P_Child) {
+									if(p_js_f->Text.IsEqiAscii("cis")) {
+										SJson::GetChildTextUnescaped(p_js_f, p_new_item->Cis);
+									}
+									else if(p_js_f->Text.IsEqiAscii("valid")) {
+										SETFLAG(p_new_item->Flags, CodeStatus::fValid, SJson::GetBoolean(p_js_f) > 0);
+									}
+									else if(p_js_f->Text.IsEqiAscii("printView")) {
+										;
+									}
+									else if(p_js_f->Text.IsEqiAscii("gtin")) {
+									}
+									else if(p_js_f->Text.IsEqiAscii("groupIds")) {
+									}
+									else if(p_js_f->Text.IsEqiAscii("verified")) {
+										SETFLAG(p_new_item->Flags, CodeStatus::fVerified, SJson::GetBoolean(p_js_f) > 0);
+									}
+									else if(p_js_f->Text.IsEqiAscii("found")) {
+										SETFLAG(p_new_item->Flags, CodeStatus::fFound, SJson::GetBoolean(p_js_f) > 0);
+									}
+									else if(p_js_f->Text.IsEqiAscii("realizable")) {
+										SETFLAG(p_new_item->Flags, CodeStatus::fRealizable, SJson::GetBoolean(p_js_f) > 0);
+									}
+									else if(p_js_f->Text.IsEqiAscii("utilised")) {
+										SETFLAG(p_new_item->Flags, CodeStatus::fUtilised, SJson::GetBoolean(p_js_f) > 0);
+									}
+									else if(p_js_f->Text.IsEqiAscii("isBlocked")) {
+										SETFLAG(p_new_item->Flags, CodeStatus::fIsBlocked, SJson::GetBoolean(p_js_f) > 0);
+									}
+									else if(p_js_f->Text.IsEqiAscii("expireDate")) {
+										SJson::GetChildTextUnescaped(p_js_f, temp_buf);
+										strtodatetime(temp_buf, &p_new_item->ExpiryDtm, DATF_ISO8601CENT, 0);
+									}
+									else if(p_js_f->Text.IsEqiAscii("productionDate")) {
+										SJson::GetChildTextUnescaped(p_js_f, temp_buf);
+										strtodatetime(temp_buf, &p_new_item->ExpiryDtm, DATF_ISO8601CENT, 0);
+									}
+									else if(p_js_f->Text.IsEqiAscii("errorCode")) {
+										p_new_item->ErrorCode = p_js_f->P_Child->Text.ToLong();
+									}
+									else if(p_js_f->Text.IsEqiAscii("isTracking")) {
+										SETFLAG(p_new_item->Flags, CodeStatus::fIsTracking, SJson::GetBoolean(p_js_f) > 0);
+									}
+									else if(p_js_f->Text.IsEqiAscii("sold")) {
+										SETFLAG(p_new_item->Flags, CodeStatus::fSold, SJson::GetBoolean(p_js_f) > 0);
+									}
+									else if(p_js_f->Text.IsEqiAscii("packageType")) {
+										SJson::GetChildTextUnescaped(p_js_f, p_new_item->PackageType);
+									}
+									else if(p_js_f->Text.IsEqiAscii("packageQuantity")) {
+										p_new_item->PackageQtty = p_js_f->P_Child->Text.ToULong();
+									}
+									else if(p_js_f->Text.IsEqiAscii("producerInn")) {
+										SJson::GetChildTextUnescaped(p_js_f, p_new_item->ProducerInn);
+									}
+									else if(p_js_f->Text.IsEqiAscii("grayZone")) {
+										SETFLAG(p_new_item->Flags, CodeStatus::fGrayZone, SJson::GetBoolean(p_js_f) > 0);
+									}
+									else if(p_js_f->Text.IsEqiAscii("soldUnitCount")) {
+										p_new_item->SoldUnitCount = p_js_f->P_Child->Text.ToULong();
+									}
+									else if(p_js_f->Text.IsEqiAscii("innerUnitCount")) {
+										p_new_item->InnerUnitCount = p_js_f->P_Child->Text.ToULong();
+									}
+									else if(p_js_f->Text.IsEqiAscii("mrp")) {
+										p_new_item->Mrp = p_js_f->P_Child->Text.ToULong();
+									}
+									else if(p_js_f->Text.IsEqiAscii("smp")) {
+										p_new_item->Smp = p_js_f->P_Child->Text.ToULong();
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_js_reply;
+	return ok;
+}
+//
+//
+//
 /*static*/int PPChZnPrcssr::Test()
 {
 	int    ok = 1;
@@ -3483,10 +3872,49 @@ int PPChZnPrcssr::Run(const Param & rP)
 	PPChZnPrcssr::Param param;
 	TSCollection <ChZnInterface::Document> doc_list;
 	ChZnInterface::Document single_doc;
+	TSCollection <ChZnPermissiveModeInterface::CdnStatus> cdn_host_list;
+	SString best_cdn_host;
+	ChZnPermissiveModeInterface::CodeStatusCollection code_status_result;
 	if(prcssr.EditParam(&param) > 0) {
+		StringSet mark_list;
+		{
+			SString img_path;
+			PPGetPath(PPPATH_TESTROOT, img_path);
+			if(img_path.NotEmpty()) {
+				img_path.SetLastSlash().Cat("data").SetLastSlash().Cat("chzn-marks-img");
+				SFsPath::NormalizePath(img_path, SFsPath::npfCompensateDotDot, temp_buf);
+				img_path = temp_buf;
+				SFileEntryPool fp;
+				SFileEntryPool::Entry fpe;
+				SString img_file_name;
+				fp.Scan(img_path, "*.jpg", SFileEntryPool::scanfRecursive);
+				for(uint i = 0; i < fp.GetCount(); i++) {
+					if(fp.Get(i, &fpe, &img_file_name)) {
+						TSCollection <PPBarcode::Entry> bc_list;
+						if(PPBarcode::ZXing_RecognizeImage(img_file_name, bc_list) > 0) {
+							for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
+								const PPBarcode::Entry * p_bc_entry = bc_list.at(bcidx);
+								if(p_bc_entry && p_bc_entry->BcStd == BARCSTD_DATAMATRIX) {
+									mark_list.add(p_bc_entry->Code);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 		ChZnInterface ifc;
 		ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(prcssr.P_Ib);
 		THROW(ifc.SetupInitBlock(param.GuaID, 0, *p_ib));
+		{
+			if(p_ib->PermissiveModeToken.NotEmpty()) {
+				ChZnPermissiveModeInterface pm_ifc(p_ib->PermissiveModeToken, /*ChZnPermissiveModeInterface::fTest*/0);
+				pm_ifc.SelectCdnHost(best_cdn_host);
+				if(best_cdn_host.NotEmpty()) {
+					pm_ifc.CheckCodeList(best_cdn_host, 0, mark_list, code_status_result);
+				}
+			}
+		}
 		//SETIFZ(p_ib->ProtocolId = ChZnInterface::InitBlock::protidGisMt;
 		{
 			//const CERT_CONTEXT * p_cert = ifc.GetClientSslCertificate(prcssr.Ib);
@@ -3528,53 +3956,3 @@ int PPChZnPrcssr::Run(const Param & rP)
 	CATCHZOKPPERR
 	return ok;
 }
-//
-// @v11.9.10 @construction Permissive Mode (разрешительный режим)
-// 
-
-// Хост для тестового контура: https://markirovka.sandbox.crptech.ru
-// Хост для продуктивного контура: https://markirovka.crpt.ru
-
-class ChZnPermissiveModeInterface {
-public:
-	ChZnPermissiveModeInterface()
-	{
-	}
-	~ChZnPermissiveModeInterface()
-	{
-	}
-	int    QueryCdnList() 
-	{
-		// Хост для тестового контура: https://markirovka.sandbox.crptech.ru
-		// Хост для продуктивного контура: https://cdn.crpt.ru
-		// GET /cdn/info
-		int    ok = 0;
-		return ok;
-	}
-
-	struct CdnStatus {
-		SString CdnAddr; // адрес CDN-площадки
-		int    Code; // 0 - ok, !0 - error
-		int    AvgTimeMs;
-	};
-
-	int    QueryCdnStatus(CdnStatus & rStatus)
-	{
-		// GET /cdn/health/check
-		int    ok = 0;
-		return ok;
-	}
-
-	struct CodeStatus {
-		
-	};
-
-	int    CheckCodeList(const char * pFiscalDriveNumber, const StringSet & rSsCoded)
-	{
-		// POST /codes/check
-		int    ok = 0;
-		return ok;
-	}
-private:
-	SString Token; // Токен авторизации // Токен нужно получить на каждый ИНН и использовать на всех кассах
-};

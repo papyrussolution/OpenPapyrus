@@ -1217,7 +1217,8 @@
 #define PPOBJ_VETISIC       1078L  // @v11.3.2 !PPObject Используется для блокировки функций обмена с сервисами ВЕТИС
 	#define PPVETISICFUNC_SETUPOUTGOINGENTRIES 1
 	#define PPVETISICFUNC_PROCESSOUTCOMING     2
-#define PPOBJ_WSCTL         1079L  // @v11.7.3 !PPObject Управляемый компьютер (в рамках проекта WSCTL)
+#define PPOBJ_COMPUTER      1079L  // @v11.7.3  Управляемый компьютер (в рамках проекта WSCTL). Хранится в таблице gooods2 с видом записи PPGDSK_COMPUTER
+#define PPOBJ_SWPROGRAM     1080L  // @v11.9.11 Программа (в рамках проекта WSCTL). Хранится в таблице gooods2 с видом записи PPGDSK_SWPROGRAM
 #define PPOBJ_DBCONVERT     1100L  // Специальный объект, используемый для формирования записей
 	// с информацией о конвертации базы данных. Запись, идентифицирующая конвертацию имеет идентификатор
 	// вида 0xMJMNRR  где MJ - мажор, MN - минор, RR - релиз
@@ -1400,6 +1401,8 @@
 #define PPTAG_PRC_UUID              106L // @v11.7.2  UUID процессора
 #define PPTAG_BILL_LINKCCHECKUUID   107L // @v11.8.8  UUID кассового чека, сформированного по документу
 #define PPTAG_BILL_CHZNDISPOSALRSN  108L // @v11.8.12 Признак причины выбытия марки честный знак <СвВыбытияМАРК> (1,2,3,4 or empty)
+#define PPTAG_PERSON_CHZN_PM_TOKEN  109L // @v11.9.11 Токен для проверки марок честный знак в разрешительном режиме (привязка к персоналии)
+#define PPTAG_GUA_CHZN_PM_TOKEN     110L // @v11.9.11 Токен для проверки марок честный знак в разрешительном режиме (привязка к глобальной учетной записи)
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -9068,6 +9071,7 @@
 	#define CTL_BUSPARAMS_TEXT            (1 + WINDOWS_ID_BIAS)
 #define DLG_GLOBUSERACC          1054 // GLOBUACC Запись объекта PPOBJ_GLOBALUSERACC
 	#define cmGlobalServiceSetting        101
+	#define cmGuaExtList                  102 // @v11.9.11 
 	#define CTL_GLOBUSERACC_ID            (1 + WINDOWS_ID_BIAS)
 	#define CTL_GLOBUSERACC_NAME          (2 + WINDOWS_ID_BIAS)
 	#define CTL_GLOBUSERACC_SYMB          (3 + WINDOWS_ID_BIAS)

@@ -1631,7 +1631,8 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	GumboTest();
+	PPChZnPrcssr::Test();
+	//GumboTest();
 	//TestGtinStruc();
 	//Test_SSystemBackup();
 	//TestPow10Tab();
@@ -1694,7 +1695,6 @@ int DoConstructionTest()
 		con.Close();
 	}
 	#endif // } 0 @construction
-	//PPChZnPrcssr::Test();
 	//TestUdsInterface();
 	//TestTsDensityMap();
 	//TestAddressRecognition();

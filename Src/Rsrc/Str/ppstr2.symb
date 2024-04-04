@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494797
+LastSignatureCode=2147494800
 LastAutoCodeList=1,12223;102,10177;103,10072;110,10000;111,12104;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10150;120,10005;1001,10000;121,10000;122,10000;123,10320;124,10328;125,10063
 
 [SignatureList]
@@ -2539,6 +2539,7 @@ rtag_lotacceptance=2147494700
 rtag_prcuuid=2147494714
 rtag_billlinkccheckuuid=2147494756
 rtag_chzndisposalrsn=2147494784
+rtag_personchznpmtoken=2147494798
 rregt_passport=2147485696
 rregt_regfree=2147485697
 rregt_tpid=2147485698
@@ -2702,6 +2703,7 @@ view_styloqbindery=2147493915
 view_styloqcommands=2147494078
 view_usermenu=2147494082
 view_events=2147494083
+view_swprogram=2147494800
 filter_cashnodepane=2147485829
 filter_prcssrwroffdraftparam=2147485830
 filter_prcssrunifypriceparam=2147485831
@@ -3871,6 +3873,7 @@ billrunie_transmit_addrlist=2147486905
 billrunie_transmit_subj=2147486906
 billrunie_gua=2147486907
 ccheckrunie=2147494745
+extfldlist=2147494799
 ccextlist=2147494760
 ccextlist_s=2147494761
 bizscore_bounds=2147486908

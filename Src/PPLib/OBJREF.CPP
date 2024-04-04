@@ -2051,6 +2051,24 @@ int FASTCALL PPGlobalUserAccPacket::IsEq(const PPGlobalUserAccPacket & rS) const
 #undef NRECFLD
 }
 
+int PPGlobalUserAccPacket::SetAccessKey(const char * pValue)
+{
+	return PutExtStrData(extssAccessKey, pValue);
+}
+
+int PPGlobalUserAccPacket::GetAccessKey(SString & rValue) const
+{
+	rValue.Z();
+	int    ok = 0;
+	if(GetExtStrData(extssAccessKey, rValue) > 0) {
+		ok = 1;
+	}
+	else if(TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, rValue) > 0) {
+		ok = 1;
+	}
+	return ok;
+}
+
 /*static*/int FASTCALL PPObjGlobalUserAcc::ReadConfig(PPGlobalUserAccConfig * pCfg)
 {
 	int    r = PPRef->GetPropMainConfig(PPPRP_GLOBALUSERACCCFG, pCfg, sizeof(*pCfg));
@@ -2410,69 +2428,96 @@ private:
 			Data.TagL.ObjType = PPOBJ_GLOBALUSERACC;
 			EditObjTagValList(&Data.TagL, 0);
 		}
+		else if(event.isCmd(cmGuaExtList)) {
+			EditExtList();
+		}
 		else if(event.isCmd(cmGlobalServiceSetting)) {
 			PPID service_ident = Data.Rec.ServiceIdent;
 			switch(service_ident) {
-			case PPGLS_TWITTER:
-				break;
-			case PPGLS_FACEBOOK:
-				break;
-			case PPGLS_VK:
-				{			
-					uint change_flag = 0;
-					SString temp_buf;
-					PPLogger logger;
-					/*VkStruct*/VkInterface::InitBlock pack;
-					VkGuaCfgDialog * dlg = new VkGuaCfgDialog();
-					dlg->setDTS(&pack);
-					if(ExecView(dlg) == cmOK) {
-						if(dlg->getDTS(&pack)) {
-							if(pack.GroupId.Len() > 0) {
-								ObjTagItem new_obj_tag_item;
-								new_obj_tag_item.SetStr(PPTAG_GUA_SOCIALGROUPCODE, pack.GroupId.Unescape());
-								if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1) > 0)
-									change_flag++;
+				case PPGLS_TWITTER:
+					break;
+				case PPGLS_FACEBOOK:
+					break;
+				case PPGLS_VK:
+					{			
+						uint change_flag = 0;
+						SString temp_buf;
+						PPLogger logger;
+						VkInterface::InitBlock pack;
+						VkGuaCfgDialog * dlg = new VkGuaCfgDialog();
+						dlg->setDTS(&pack);
+						if(ExecView(dlg) == cmOK) {
+							if(dlg->getDTS(&pack)) {
+								if(pack.GroupId.Len() > 0) {
+									Data.TagL.PutItemStr(PPTAG_GUA_SOCIALGROUPCODE, pack.GroupId.Unescape()); // @v11.9.11
+									/* @v11.9.11
+									ObjTagItem new_obj_tag_item;
+									new_obj_tag_item.SetStr(PPTAG_GUA_SOCIALGROUPCODE, pack.GroupId.Unescape());
+									if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1) > 0)
+										change_flag++;
+									*/
+								}
+								if(pack.PageId.Len() > 0) {
+									Data.TagL.PutItemStr(PPTAG_GUA_SOCIALPAGECODE, pack.PageId.Unescape()); // @v11.9.11
+									/* @v11.9.11
+									ObjTagItem new_obj_tag_item;
+									new_obj_tag_item.SetStr(PPTAG_GUA_SOCIALPAGECODE, pack.PageId.Unescape());
+									if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1) > 0) // @v10.8.3 @fix (remove ';')
+										change_flag++;
+									*/
+								}
+								if(pack.CliAccsKey.Len()) {
+									Data.SetAccessKey(pack.CliAccsKey.Unescape()); // @v11.9.11
+									/* @v11.9.11
+									ObjTagItem new_obj_tag_item;
+									new_obj_tag_item.SetStr(PPTAG_GUA_ACCESSKEY, pack.CliAccsKey.Unescape());
+									if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1) > 0)
+										change_flag++;
+									*/
+								}
+								/* @v11.9.11
+								if(change_flag > 0)
+									ref.Ot.GetList(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &Data.TagL);
+								*/
 							}
-							if(pack.PageId.Len() > 0) {
-								ObjTagItem new_obj_tag_item;
-								new_obj_tag_item.SetStr(PPTAG_GUA_SOCIALPAGECODE, pack.PageId.Unescape());
-								if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1) > 0) // @v10.8.3 @fix (remove ';')
-									change_flag++;
-							}
-							if(pack.CliAccsKey.Len()) {
-								ObjTagItem new_obj_tag_item;
-								new_obj_tag_item.SetStr(PPTAG_GUA_ACCESSKEY, pack.CliAccsKey.Unescape());
-								if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1) > 0)
-									change_flag++;
-							}
-							if(change_flag > 0)
-								ref.Ot.GetList(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &Data.TagL);
 						}
+						delete dlg;
 					}
-					delete dlg;
-				}
-				break;
-			case PPGLS_VETIS:
-				break;
-			case PPGLS_CHZN:
-				break;
-			default:
-				break;
+					break;
+				case PPGLS_VETIS:
+					break;
+				case PPGLS_CHZN:
+					break;
+				default:
+					break;
 			}
 		}
-//@erik @v10.7.13{
+		//@erik @v10.7.13{
 		else if(event.isCbSelected(CTLSEL_GLOBUSERACC_SVC)) {
-			//PPID service_ident;
-			getCtrlData(CTLSEL_GLOBUSERACC_SVC, &Data.Rec.ServiceIdent); // @v10.5.5
-			if(!Data.Rec.ServiceIdent)
-				disableCtrl(CTL_GS_SETTING, 1);
-			else
-				disableCtrl(CTL_GS_SETTING, 0);
+			getCtrlData(CTLSEL_GLOBUSERACC_SVC, &Data.Rec.ServiceIdent);
+			disableCtrl(CTL_GS_SETTING, !Data.Rec.ServiceIdent);
 		}
-// } @erik @v10.7.13
+		// } @erik @v10.7.13
 		else
 			return;
 		clearEvent(event);
+	}
+	int    EditExtList()
+	{
+		int    ok = -1;
+		static const SIntToSymbTabEntry ext_list[] = {
+			// Функционально поле PPGlobalUserAccPacket::extssAccessKey замещает тег PPTAG_GUA_ACCESSKEY, по этому и наименование будет использовать то же самое
+			{ PPGlobalUserAccPacket::extssAccessKey, "rtag_guaaccesskey" }, 
+		};
+		ExtStrContainerListDialog * dlg = new ExtStrContainerListDialog(DLG_CCEXTLIST, CTL_CCEXTLIST_LIST, "@extfldlist", false, ext_list, SIZEOFARRAY(ext_list));
+		if(CheckDialogPtrErr(&dlg)) {
+			dlg->setDTS(&Data);
+			if(ExecView(dlg) == cmOK) {
+				;
+			}
+		}
+		delete dlg;
+		return ok;
 	}
 	PPObjGlobalUserAcc GuaObj;
 };

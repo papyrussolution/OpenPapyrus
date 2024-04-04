@@ -661,9 +661,7 @@ inline size_t AllocSize(size_t capacity, size_t slot_size, size_t slot_align) {
 template <class Policy, class Hash, class Eq, class Alloc>
 class raw_hash_set {
 	using PolicyTraits = hash_policy_traits<Policy>;
-	using KeyArgImpl =
-	    KeyArg<IsTransparent<Eq>::value && IsTransparent<Hash>::value>;
-
+	using KeyArgImpl = KeyArg<IsTransparent<Eq>::value && IsTransparent<Hash>::value>;
 public:
 	using init_type = typename PolicyTraits::init_type;
 	using key_type = typename PolicyTraits::key_type;
@@ -707,21 +705,15 @@ private:
 	// Note: we separate SameAsElementReference into its own type to avoid using
 	// reference unless we need to. MSVC doesn't seem to like it in some
 	// cases.
-	template <class T>
-	using RequiresInsertable = typename std::enable_if<
+	template <class T> using RequiresInsertable = typename std::enable_if<
 		absl::disjunction<std::is_convertible<T, init_type>,
 		SameAsElementReference<T> >::value,
 		int>::type;
 
 	// RequiresNotInit is a workaround for gcc prior to 7.1.
 	// See https://godbolt.org/g/Y4xsUh.
-	template <class T>
-	using RequiresNotInit =
-	    typename std::enable_if<!std::is_same<T, init_type>::value, int>::type;
-
-	template <class ... Ts>
-	using IsDecomposable = IsDecomposable<void, PolicyTraits, Hash, Eq, Ts ...>;
-
+	template <class T> using RequiresNotInit = typename std::enable_if<!std::is_same<T, init_type>::value, int>::type;
+	template <class ... Ts> using IsDecomposable = IsDecomposable<void, PolicyTraits, Hash, Eq, Ts ...>;
 public:
 	static_assert(std::is_same<pointer, value_type*>::value, "Allocators with custom pointer types are not supported");
 	static_assert(std::is_same<const_pointer, const value_type*>::value, "Allocators with custom pointer types are not supported");
@@ -736,45 +728,40 @@ public:
 		using pointer = absl::remove_reference_t<reference>*;
 		using difference_type = typename raw_hash_set::difference_type;
 
-		iterator() {
+		iterator() 
+		{
 		}
-
 		// PRECONDITION: not an end() iterator.
-		reference operator*() const {
+		reference operator*() const 
+		{
 			AssertIsFull(ctrl_);
 			return PolicyTraits::element(slot_);
 		}
-
 		// PRECONDITION: not an end() iterator.
-		pointer operator->() const {
-			return &operator*();
-		}
-
+		pointer operator->() const { return &operator*(); }
 		// PRECONDITION: not an end() iterator.
-		iterator& operator++() {
+		iterator& operator++() 
+		{
 			AssertIsFull(ctrl_);
 			++ctrl_;
 			++slot_;
 			skip_empty_or_deleted();
 			return *this;
 		}
-
 		// PRECONDITION: not an end() iterator.
-		iterator operator++(int) {
+		iterator operator++(int) 
+		{
 			auto tmp = *this;
 			++*this;
 			return tmp;
 		}
-
-		friend bool operator == (const iterator& a, const iterator& b) {
+		friend bool operator == (const iterator& a, const iterator& b) 
+		{
 			AssertIsValid(a.ctrl_);
 			AssertIsValid(b.ctrl_);
 			return a.ctrl_ == b.ctrl_;
 		}
-
-		friend bool operator != (const iterator& a, const iterator& b) {
-			return !(a == b);
-		}
+		friend bool operator != (const iterator& a, const iterator& b) { return !(a == b); }
 
 private:
 		iterator(ctrl_t* ctrl, slot_type* slot) : ctrl_(ctrl), slot_(slot) {

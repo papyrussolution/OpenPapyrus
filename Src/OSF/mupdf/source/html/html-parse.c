@@ -333,19 +333,19 @@ static void generate_text(fz_context * ctx, fz_html_box * box, const char * text
 						add_flow_word(ctx, pool, flow, box, mark, prev, lang);
 					add_flow_shyphen(ctx, pool, flow, box);
 					mark = text;
-					g->last_brk_cls = UCDN_LINEBREAK_CLASS_WJ; /* don't add sbreaks after a soft
-					                                              hyphen */
+					g->last_brk_cls = UCDN_LINEBREAK_CLASS_WJ; /* don't add sbreaks after a soft hyphen */
 				}
 				else if(bsp) { /* allow soft breaks */
 					int this_brk_cls = ucdn_get_resolved_linebreak_class(c);
 					if(this_brk_cls < UCDN_LINEBREAK_CLASS_RI) {
 						int brk = pairbrk[g->last_brk_cls][this_brk_cls];
-
 						/* we handle spaces elsewhere, so ignore these classes */
-						if(brk == '@') brk = '^';
-						if(brk == '#') brk = '^';
-						if(brk == '%') brk = '^';
-
+						if(brk == '@')
+							brk = '^';
+						if(brk == '#')
+							brk = '^';
+						if(brk == '%')
+							brk = '^';
 						if(brk == '_') {
 							if(mark != prev)
 								add_flow_word(ctx, pool, flow, box, mark, prev, lang);

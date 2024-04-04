@@ -1359,6 +1359,14 @@ public:
 	static constexpr const char * P_WrKey_MsWin_RestrictRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\RestrictRun"; // @v11.8.12 HKEY_CURRENT_USER
 };
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
+// 
+// Descr: Класс, содержащий статические декларации таблиц данных общего использования.
+// 
+class SlTabs {
+public:
+	static const uint32 LookupTable_CRC32LE_Zlib[8][256];
+	static const uint32 LookupTable_CRC32BE_Zlib[8][256];
+};
 //
 template <class T> T * AssignPtr2Ptr(T *& prDest, const T * pSrc) // @v11.4.12
 {
@@ -5128,10 +5136,14 @@ FORCEINLINE size_t sstrlen(const char * pStr) { return pStr ? strlen(pStr) : 0; 
 FORCEINLINE size_t sstrlen(const uchar * pStr) { return pStr ? strlen(reinterpret_cast<const char *>(pStr)) : 0; }
 FORCEINLINE size_t sstrlen(const wchar_t * pStr) { return pStr  ? wcslen(pStr) : 0; }
 FORCEINLINE size_t sstrlen(const char16_t * pStr) { return pStr  ? wcslen(reinterpret_cast<const wchar_t *>(pStr)) : 0; } // @v11.9.5
+FORCEINLINE size_t sstrlen(const short * pStr) { return pStr  ? wcslen(reinterpret_cast<const wchar_t *>(pStr)) : 0; } // @v11.9.11
+FORCEINLINE size_t sstrlen(const ushort * pStr) { return pStr  ? wcslen(reinterpret_cast<const wchar_t *>(pStr)) : 0; } // @v11.9.11
 FORCEINLINE int    sstrleni(const char * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int    sstrleni(const uchar * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int    sstrleni(const wchar_t * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int    sstrleni(const char16_t * pStr) { return static_cast<int>(sstrlen(pStr)); } // @v11.9.5
+FORCEINLINE int    sstrleni(const short * pStr) { return static_cast<int>(sstrlen(pStr)); } // @v11.9.11
+FORCEINLINE int    sstrleni(const ushort * pStr) { return static_cast<int>(sstrlen(pStr)); } // @v11.9.11
 //
 // Descr: Если по указателю pStr находится символ (символы) перевода строки, то возвращает
 //   длину комбинации (1 или 2), в противном случае возвращает 0.
@@ -6330,6 +6342,14 @@ template <class T> void SExchange(T * pA, T * pB)
 	T temp = *pA;
 	*pA = *pB;
 	*pB = temp;
+}
+
+// @v11.9.11 Внес этот трюковый код сюда дабы позже проверить как это работает
+FORCEINLINE void SExchangeXor(uint32 * pA, uint32 * pB) // @experimental
+{
+	*pA = *pA ^ *pB;
+	*pB = *pA ^ *pB;
+	*pA = *pA ^ *pB;
 }
 //
 // Descr: Если *pA > *pB, то меняет значения по этим указателям местами,
@@ -19101,6 +19121,14 @@ public:
 };
 
 void FASTCALL TraceFunc(const char * pFuncName, const char * pAddedMsg);
+//
+// Descr: Функция, которая ничего не делает. Нужна для того, чтобы,
+//   передав в нее указатель на данные, "обмануть" компилятор дабы он не выбрасывал участок кода,
+//   который по его мнению ничего не делает.
+// Returns:
+//   1
+//
+int  FASTCALL DummyFunc(void * ptr);
 
 #ifdef _DEBUG
 	#define TRACE_FUNC()    TraceFunc(__FUNCTION__, 0)

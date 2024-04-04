@@ -469,15 +469,14 @@ bool ImGui::ButtonBehavior(const ImRect & bb, ImGuiID id, bool * pHovered, bool 
 		// - Technically we only need some values in one code path, but since this is gated by hovered test this is fine.
 		int mouse_button_clicked = -1;
 		int mouse_button_released = -1;
-		for(int button = 0; button < 3; button++)
+		for(int button = 0; button < 3; button++) {
 			if(flags & (ImGuiButtonFlags_MouseButtonLeft << button)) { // Handle ImGuiButtonFlags_MouseButtonRight and ImGuiButtonFlags_MouseButtonMiddle here.
-				if(IsMouseClicked(button, test_owner_id) && mouse_button_clicked == -1) {
+				if(IsMouseClicked(button, test_owner_id) && mouse_button_clicked == -1)
 					mouse_button_clicked = button;
-				}
-				if(IsMouseReleased(button, test_owner_id) && mouse_button_released == -1) {
+				if(IsMouseReleased(button, test_owner_id) && mouse_button_released == -1)
 					mouse_button_released = button;
-				}
 			}
+		}
 		// Process initial action
 		if(!(flags & ImGuiButtonFlags_NoKeyModifiers) || (!g.IO.KeyCtrl && !g.IO.KeyShift && !g.IO.KeyAlt)) {
 			if(mouse_button_clicked != -1 && g.ActiveId != id) {

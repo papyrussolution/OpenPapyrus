@@ -15,15 +15,8 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL IsAWordChar(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '%');
-}
-
-static bool FASTCALL IsAWordStart(const int ch) 
-{
-	return (ch < 0x80) && (isalnum(ch));
-}
+static bool FASTCALL IsAWordChar(int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '%'); }
+static bool FASTCALL IsAWordStart(const int ch) { return (ch < 0x80) && (isalnum(ch)); }
 
 static void ColouriseDMAPDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler) 
 {

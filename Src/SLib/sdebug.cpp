@@ -1,5 +1,5 @@
 // SDEBUG.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2016, 2017, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2016, 2017, 2020, 2021, 2023, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -59,4 +59,10 @@ void FASTCALL TraceFunc(const char * pFuncName, const char * pAddedMsg)
 	if(pAddedMsg)
 		text.CatDiv(':', 1).Cat(pAddedMsg);
 	SLS.LogMessage(0, text, 0);
+}
+
+int  FASTCALL DummyFunc(void * ptr)
+{
+	(void)ptr;
+	return 1;
 }

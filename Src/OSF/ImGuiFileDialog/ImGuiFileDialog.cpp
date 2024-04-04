@@ -2588,7 +2588,6 @@ void IGFD::FileManager::DrawPathComposer(const FileDialogInternal& vFileDialogIn
 #endif  // _IGFD_WIN_
 
 	ImGui::SameLine();
-
 	if(IMGUI_BUTTON(editPathButtonString)) {
 		inputPathActivated = !inputPathActivated;
 		if(inputPathActivated) {
@@ -2599,12 +2598,10 @@ void IGFD::FileManager::DrawPathComposer(const FileDialogInternal& vFileDialogIn
 			}
 		}
 	}
-	if(ImGui::IsItemHovered())  ImGui::SetTooltip(buttonEditPathString);
-
+	if(ImGui::IsItemHovered())  
+		ImGui::SetTooltip(buttonEditPathString);
 	ImGui::SameLine();
-
 	ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
-
 	// show current path
 	if(!m_CurrentPathDecomposition.empty()) {
 		ImGui::SameLine();
@@ -2669,13 +2666,15 @@ void IGFD::FileManager::DrawPathComposer(const FileDialogInternal& vFileDialogIn
 	}
 }
 
-void IGFD::FileManager::m_SetCurrentPath(std::vector<std::string>::iterator vPathIter) {
+void IGFD::FileManager::m_SetCurrentPath(std::vector<std::string>::iterator vPathIter) 
+{
 	m_CurrentPath = ComposeNewPath(vPathIter);
 	IGFD::Utils::SetBuffer(inputPathBuffer, MAX_PATH_BUFFER_SIZE, m_CurrentPath);
 	inputPathActivated = true;
 }
 
-std::string IGFD::FileManager::GetResultingPath() {
+std::string IGFD::FileManager::GetResultingPath() 
+{
 	if(dLGDirectoryMode && m_SelectedFileNames.size() == 1) { // if directory mode with selection 1
 		std::string selectedDirectory = fileNameBuffer;
 		std::string path              = m_CurrentPath;
@@ -2765,12 +2764,12 @@ void IGFD::FileDialogInternal::NewFrame() {
 	}
 }
 
-void IGFD::FileDialogInternal::EndFrame() {
+void IGFD::FileDialogInternal::EndFrame() 
+{
 	// directory change
 	if(fileManager.puPathClicked) {
 		fileManager.OpenCurrentPath(*this);
 	}
-
 	if(fileManager.inputPathActivated) {
 		auto gio = ImGui::GetIO();
 		if(ImGui::IsKeyReleased(ImGuiKey_Enter)) {
@@ -2968,14 +2967,15 @@ void IGFD::ThumbnailFeature::m_ThreadThumbnailFileDatasExtractionFunc() {
 	}
 }
 
-void IGFD::ThumbnailFeature::m_VariadicProgressBar(float fraction, const ImVec2& size_arg, const char* fmt, ...) {
+void IGFD::ThumbnailFeature::m_VariadicProgressBar(float fraction, const ImVec2& size_arg, const char* fmt, ...) 
+{
 	va_list args;
 	va_start(args, fmt);
-	char TempBuffer[512];
-	const int w = vsnprintf(TempBuffer, 511, fmt, args);
+	char temp_buffer[512];
+	const int w = vsnprintf(temp_buffer, sizeof(temp_buffer)-1, fmt, args);
 	va_end(args);
 	if(w) {
-		ImGui::ProgressBar(fraction, size_arg, TempBuffer);
+		ImGui::ProgressBar(fraction, size_arg, temp_buffer);
 	}
 }
 
@@ -3804,14 +3804,13 @@ bool IGFD::FileDialog::Display(const std::string& vKey, ImGuiWindowFlags vFlags,
 
 			ImGuiID _frameId = ImGui::GetID(name.c_str());
 			ImVec2 frameSize = ImVec2(0, 0);
-			if(m_FileDialogInternal.getDialogConfig().flags & ImGuiFileDialogFlags_NoDialog)  frameSize = vMaxSize;
+			if(m_FileDialogInternal.getDialogConfig().flags & ImGuiFileDialogFlags_NoDialog)  
+				frameSize = vMaxSize;
 			if(ImGui::BeginChild(_frameId, frameSize, false, flags | ImGuiWindowFlags_NoScrollbar)) {
 				m_FileDialogInternal.name = name; //-V820
-
-				if(fdFile.dLGpath.empty())  fdFile.dLGpath = ".";// defaut path is '.'
-
+				if(fdFile.dLGpath.empty())  
+					fdFile.dLGpath = ".";// defaut path is '.'
 				fdFilter.SetDefaultFilterIfNotDefined();
-
 				// init list of files
 				if(fdFile.IsFileListEmpty()) {
 					if(fdFile.dLGpath != ".")                                   // Removes extension seperator in filename if we don't check
@@ -3825,12 +3824,10 @@ bool IGFD::FileDialog::Display(const std::string& vKey, ImGuiWindowFlags vFlags,
 						fdFile.SetDefaultFileName(".");
 					fdFile.ScanDir(m_FileDialogInternal, fdFile.dLGpath);
 				}
-
 				// draw dialog parts
 				m_DrawHeader(); // place, directory, path
 				m_DrawContent(); // place, files view, side pane
 				res = m_DrawFooter(); // file field, filter combobox, ok/cancel buttons
-
 				m_EndFrame();
 			}
 			ImGui::EndChild();
@@ -3868,7 +3865,8 @@ void IGFD::FileDialog::m_NewFrame() {
 	m_NewThumbnailFrame(m_FileDialogInternal);
 }
 
-void IGFD::FileDialog::m_EndFrame() {
+void IGFD::FileDialog::m_EndFrame() 
+{
 	m_EndThumbnailFrame(m_FileDialogInternal);
 	m_FileDialogInternal.EndFrame();
 }

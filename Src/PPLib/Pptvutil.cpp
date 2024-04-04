@@ -8341,3 +8341,55 @@ private:
 	SProxiAuthParam Data;
 };
 #endif // } 0 @construction
+//
+//
+//
+ExtStrContainerListDialog::ExtStrContainerListDialog(uint dlgId, uint listCtlId, const char * pTitle, bool readOnly, const SIntToSymbTabEntry * pDescrList, size_t descrListCount) : 
+	PPListDialog(dlgId, listCtlId), ReadOnly(readOnly), P_DescrList(pDescrList), DescrListCount(descrListCount)
+{
+	if(ReadOnly) {
+		SString temp_buf;
+		showCtrl(STDCTL_INSBUTTON, false);
+		showCtrl(STDCTL_DELBUTTON, false);
+		showCtrl(STDCTL_EDITBUTTON, false);
+		showCtrl(STDCTL_OKBUTTON, false);
+		setButtonText(cmCancel, PPLoadStringS("close", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
+	}
+	setTitle(pTitle);
+	updateList(0);
+}
+
+IMPL_DIALOG_SETDTS(ExtStrContainerListDialog)
+{
+	int    ok = 1;
+	RVALUEPTR(Data, pData);
+	//
+	updateList(0);
+	return ok;
+}
+	
+IMPL_DIALOG_GETDTS(ExtStrContainerListDialog)
+{
+	int    ok = 1;
+	//
+	ASSIGN_PTR(pData, Data);
+	return ok;
+}
+
+/*virtual*/int ExtStrContainerListDialog::setupList()
+{
+	StringSet ss(SLBColumnDelim);
+	SString temp_buf;
+	SString title_buf;
+	for(uint i = 0; i < DescrListCount; i++) {
+		const int fld_id = P_DescrList[i].Id;
+		if(Data.GetExtStrData(fld_id, temp_buf) > 0) {
+			ss.Z();
+			PPLoadString(P_DescrList[i].P_Symb, title_buf);
+			ss.add(title_buf);
+			ss.add(temp_buf);
+			addStringToList(fld_id, ss.getBuf());
+		}
+	}
+	return 1;
+}

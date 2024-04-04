@@ -41,8 +41,7 @@ const X509V3_EXT_METHOD ossl_v3_freshest_crl = {
 	NULL
 };
 
-static STACK_OF(GENERAL_NAME) *gnames_from_sectname(X509V3_CTX *ctx,
-    char * sect)
+static STACK_OF(GENERAL_NAME) *gnames_from_sectname(X509V3_CTX *ctx, char * sect)
 {
 	STACK_OF(CONF_VALUE) *gnsect;
 	STACK_OF(GENERAL_NAME) *gens;
@@ -62,12 +61,10 @@ static STACK_OF(GENERAL_NAME) *gnames_from_sectname(X509V3_CTX *ctx,
 	return gens;
 }
 
-static int set_dist_point_name(DIST_POINT_NAME ** pdp, X509V3_CTX * ctx,
-    CONF_VALUE * cnf)
+static int set_dist_point_name(DIST_POINT_NAME ** pdp, X509V3_CTX * ctx, CONF_VALUE * cnf)
 {
 	STACK_OF(GENERAL_NAME) *fnm = NULL;
 	STACK_OF(X509_NAME_ENTRY) *rnm = NULL;
-
 	if(strncmp(cnf->name, "fullname", 9) == 0) {
 		fnm = gnames_from_sectname(ctx, cnf->value);
 		if(!fnm)
@@ -76,8 +73,7 @@ static int set_dist_point_name(DIST_POINT_NAME ** pdp, X509V3_CTX * ctx,
 	else if(strcmp(cnf->name, "relativename") == 0) {
 		int ret;
 		STACK_OF(CONF_VALUE) *dnsect;
-		X509_NAME * nm;
-		nm = X509_NAME_new();
+		X509_NAME * nm = X509_NAME_new();
 		if(nm == NULL)
 			return -1;
 		dnsect = X509V3_get_section(ctx, cnf->value);

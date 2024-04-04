@@ -8498,6 +8498,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_prcuuid                             "UUID процессора" // @v11.7.2
 @rtag_billlinkccheckuuid                  "UUID связанного кассового чека" // @v11.8.8
 @rtag_chzndisposalrsn                     "Причина выбытия марки честный знак" // @v11.8.12
+@rtag_personchznpmtoken                   "ЧЕСТНЫЙ ЗНАК токен разрешительного режима"  // @v11.9.11
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -8676,6 +8677,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @view_styloqcommands                      "Команды Stylo-Q"
 @view_usermenu                            "Пользовательские меню и рабочие столы"
 @view_events                              "@{event_pl}"
+@view_swprogram                           "Исполняемые программы"
 
 @filter_cashnodepane                      "Фильтр кассовой панели"
 @filter_prcssrwroffdraftparam             "Параметры списания драфт-документов"
@@ -9898,8 +9900,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billrunie_gua                            "@{globaluseracc}"
 
 @ccheckrunie                              "Импорт кассовых чеков"
+@extfldlist                               "Поля расширения"
 @ccextlist                                "Поля расширения кассового чека"
-@ccextlist_s                              "Поля расширения"
+@ccextlist_s                              "@{extfldlist}"
 
 @bizscore_bounds                          "Контрольные границы значения"
 @bizscore_descr                           "@{description}"

@@ -16,18 +16,11 @@ using namespace Scintilla;
 #endif
 
 // Extended to accept accented characters
-static bool FASTCALL IsAWordChar(int ch) 
-{
-	return ch >= 0x80 || isalnum(ch) || ch == '_';
-}
+static bool FASTCALL IsAWordChar(int ch) { return ch >= 0x80 || isalnum(ch) || ch == '_'; }
+static bool FASTCALL IsOperator(const int ch) { return (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '&' || ch == '|' || ch == '<' || ch == '>' || ch == '='); }
 
-static bool FASTCALL IsOperator(const int ch) 
+static void ColouriseKixDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler) 
 {
-	return (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '&' || ch == '|' || ch == '<' || ch == '>' || ch == '=');
-}
-
-static void ColouriseKixDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor & styler) {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
 	WordList &keywords3 = *keywordlists[2];

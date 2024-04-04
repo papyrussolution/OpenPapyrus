@@ -24,10 +24,7 @@ static bool FASTCALL IsAWordChar(int ch, bool sqlAllowDottedWord)
 		return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '.');
 }
 
-static bool FASTCALL IsAWordStart(int ch)
-{
-	return (ch < 0x80) && (isalpha(ch) || ch == '_');
-}
+static bool FASTCALL IsAWordStart(int ch) { return (ch < 0x80) && (isalpha(ch) || ch == '_'); }
 
 static bool FASTCALL IsADoxygenChar(int ch)
 {
@@ -397,7 +394,7 @@ void SCI_METHOD LexerSQL::Lex(Sci_PositionU startPos, Sci_Position length, int i
 				    sc.Forward();
 				    sc.ForwardSetState(SCE_SQL_DEFAULT);
 			    }
-			    else if(sc.ch == '@' || sc.ch == '\\') { // Doxygen support
+			    else if(oneof2(sc.ch, '@', '\\')) { // Doxygen support
 				    // Verify that we have the conditions to mark a comment-doc-keyword
 				    if((IsASpace(sc.chPrev) || sc.chPrev == '*') && (!IsASpace(sc.chNext))) {
 					    styleBeforeDCKeyword = SCE_SQL_COMMENTDOC;

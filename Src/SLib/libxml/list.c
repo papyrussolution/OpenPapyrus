@@ -31,12 +31,12 @@ struct xmlList {
  *
  * Unlink and deallocate @lk from list @l
  */
-static void FASTCALL xmlLinkDeallocator(xmlList * l, xmlLink * lk)
+static void FASTCALL xmlLinkDeallocator(xmlList * pList, xmlLink * lk)
 {
 	(lk->prev)->next = lk->next;
 	(lk->next)->prev = lk->prev;
-	if(l->linkDeallocator)
-		l->linkDeallocator(lk);
+	if(pList->linkDeallocator)
+		pList->linkDeallocator(lk);
 	SAlloc::F(lk);
 }
 /**
@@ -119,16 +119,16 @@ static xmlLink * FASTCALL xmlListLinkSearch(xmlList * pList, void * data)
  *
  * Returns the link containing the data or NULL
  */
-static xmlLink * xmlListLinkReverseSearch(xmlList * l, void * data)
+static xmlLink * xmlListLinkReverseSearch(xmlList * pList, void * data)
 {
 	xmlLink * lk;
-	if(l == NULL)
+	if(pList == NULL)
 		return 0;
-	lk = xmlListHigherSearch(l, data);
-	if(lk == l->sentinel)
+	lk = xmlListHigherSearch(pList, data);
+	if(lk == pList->sentinel)
 		return NULL;
 	else
-		return (l->linkCompare(lk->data, data) == 0) ? lk : NULL;
+		return (pList->linkCompare(lk->data, data) == 0) ? lk : NULL;
 }
 /**
  * xmlListCreate:
@@ -141,31 +141,30 @@ static xmlLink * xmlListLinkReverseSearch(xmlList * l, void * data)
  */
 xmlList * xmlListCreate(xmlListDeallocator deallocator, xmlListDataCompare compare)
 {
-	xmlList * l = static_cast<xmlList *>(SAlloc::M(sizeof(xmlList)));
-	if(!l) {
+	xmlList * p_list = static_cast<xmlList *>(SAlloc::M(sizeof(xmlList)));
+	if(!p_list) {
 		xmlGenericError(0, "Cannot initialize memory for list");
-		return 0;
 	}
-	memzero(l, sizeof(xmlList)); // Initialize the list to NULL 
-	/* Add the sentinel */
-	l->sentinel = static_cast<xmlLink *>(SAlloc::M(sizeof(xmlLink)));
-	if(!l->sentinel) {
-		xmlGenericError(0, "Cannot initialize memory for sentinel");
-		SAlloc::F(l);
-		return 0;
+	else {
+		memzero(p_list, sizeof(xmlList)); // Initialize the list to NULL 
+		// Add the sentinel
+		p_list->sentinel = static_cast<xmlLink *>(SAlloc::M(sizeof(xmlLink)));
+		if(!p_list->sentinel) {
+			xmlGenericError(0, "Cannot initialize memory for sentinel");
+			ZFREE(p_list);
+		}
+		else {
+			p_list->sentinel->next = p_list->sentinel;
+			p_list->sentinel->prev = p_list->sentinel;
+			p_list->sentinel->data = NULL;
+			// If there is a link deallocator, use it
+			if(deallocator)
+				p_list->linkDeallocator = deallocator;
+			// If there is a link comparator, use it
+			p_list->linkCompare = compare ? compare : xmlLinkCompare/*Use our own*/;
+		}
 	}
-	l->sentinel->next = l->sentinel;
-	l->sentinel->prev = l->sentinel;
-	l->sentinel->data = NULL;
-	/* If there is a link deallocator, use it */
-	if(deallocator)
-		l->linkDeallocator = deallocator;
-	/* If there is a link comparator, use it */
-	if(compare)
-		l->linkCompare = compare;
-	else /* Use our own */
-		l->linkCompare = xmlLinkCompare;
-	return l;
+	return p_list;
 }
 /**
  * xmlListSearch:
@@ -308,15 +307,15 @@ int xmlListRemoveFirst(xmlList * pList, void * data)
  *
  * Returns 1 if a deallocation occured, or 0 if not found
  */
-int xmlListRemoveLast(xmlList * l, void * data)
+int xmlListRemoveLast(xmlList * pList, void * data)
 {
-	if(l == NULL)
+	if(pList == NULL)
 		return 0;
 	else {
 		// Find the last instance of this data 
-		xmlLink * lk = xmlListLinkReverseSearch(l, data);
+		xmlLink * lk = xmlListLinkReverseSearch(pList, data);
 		if(lk) {
-			xmlLinkDeallocator(l, lk);
+			xmlLinkDeallocator(pList, lk);
 			return 1;
 		}
 		else
@@ -332,11 +331,11 @@ int xmlListRemoveLast(xmlList * l, void * data)
  *
  * Returns the number of deallocation, or 0 if not found
  */
-int xmlListRemoveAll(xmlList * l, void * data)
+int xmlListRemoveAll(xmlList * pList, void * data)
 {
 	int count = 0;
-	if(l) {
-		while(xmlListRemoveFirst(l, data))
+	if(pList) {
+		while(xmlListRemoveFirst(pList, data))
 			count++;
 	}
 	return count;
@@ -366,10 +365,7 @@ void FASTCALL xmlListClear(xmlList * pList)
  *
  * Returns 1 if the list is empty, 0 if not empty and -1 in case of error
  */
-int FASTCALL xmlListEmpty(const xmlList * l)
-{
-	return l ? (l->sentinel->next == l->sentinel) : -1;
-}
+int FASTCALL xmlListEmpty(const xmlList * pList) { return pList ? (pList->sentinel->next == pList->sentinel) : -1; }
 /**
  * xmlListFront:
  * @l:  a list
@@ -378,10 +374,7 @@ int FASTCALL xmlListEmpty(const xmlList * l)
  *
  * Returns the first element in the list, or NULL
  */
-xmlLink * FASTCALL xmlListFront(xmlList * l)
-{
-	return l ? l->sentinel->next : 0;
-}
+xmlLink * FASTCALL xmlListFront(xmlList * pList) { return pList ? pList->sentinel->next : 0; }
 /**
  * xmlListEnd:
  * @l:  a list
@@ -390,10 +383,7 @@ xmlLink * FASTCALL xmlListFront(xmlList * l)
  *
  * Returns the last element in the list, or NULL
  */
-xmlLink * xmlListEnd(xmlList * l)
-{
-	return l ? l->sentinel->prev : 0;
-}
+xmlLink * xmlListEnd(xmlList * pList) { return pList ? pList->sentinel->prev : 0; }
 /**
  * xmlListSize:
  * @l:  a list
@@ -402,31 +392,31 @@ xmlLink * xmlListEnd(xmlList * l)
  *
  * Returns the number of elements in the list or -1 in case of error
  */
-int xmlListSize(xmlList * l)
+int xmlListSize(xmlList * pList)
 {
 	int count = 0;
-	if(l == NULL)
+	if(pList == NULL)
 		return -1;
 	/* @todo keep a counter in xmlList instead */
-	for(xmlLink * lk = l->sentinel->next; lk != l->sentinel; lk = lk->next, count++) 
+	for(xmlLink * lk = pList->sentinel->next; lk != pList->sentinel; lk = lk->next, count++) 
 		;
 	return count;
 }
 // 
 // Descr: Removes the first element in the list
 // 
-void FASTCALL xmlListPopFront(xmlList * l)
+void FASTCALL xmlListPopFront(xmlList * pList)
 {
-	if(!xmlListEmpty(l))
-		xmlLinkDeallocator(l, l->sentinel->next);
+	if(!xmlListEmpty(pList))
+		xmlLinkDeallocator(pList, pList->sentinel->next);
 }
 // 
 // Descr: Removes the last element in the list
 // 
-void xmlListPopBack(xmlList * l)
+void xmlListPopBack(xmlList * pList)
 {
-	if(!xmlListEmpty(l))
-		xmlLinkDeallocator(l, l->sentinel->prev);
+	if(!xmlListEmpty(pList))
+		xmlLinkDeallocator(pList, pList->sentinel->prev);
 }
 /**
  * xmlListPushFront:
@@ -437,13 +427,13 @@ void xmlListPopBack(xmlList * l)
  *
  * Returns 1 if successful, 0 otherwise
  */
-int FASTCALL xmlListPushFront(xmlList * l, void * data)
+int FASTCALL xmlListPushFront(xmlList * pList, void * data)
 {
 	xmlLink * lkPlace;
 	xmlLink * lkNew;
-	if(l == NULL)
+	if(pList == NULL)
 		return 0;
-	lkPlace = l->sentinel;
+	lkPlace = pList->sentinel;
 	// Add the new link 
 	lkNew = static_cast<xmlLink *>(SAlloc::M(sizeof(xmlLink)));
 	if(lkNew == NULL) {
@@ -466,13 +456,13 @@ int FASTCALL xmlListPushFront(xmlList * l, void * data)
  *
  * Returns 1 if successful, 0 otherwise
  */
-int xmlListPushBack(xmlList * l, void * data)
+int xmlListPushBack(xmlList * pList, void * data)
 {
 	xmlLink * lkPlace;
 	xmlLink * lkNew;
-	if(l == NULL)
+	if(pList == NULL)
 		return 0;
-	lkPlace = l->sentinel->prev;
+	lkPlace = pList->sentinel->prev;
 	/* Add the new link */
 	lkNew = static_cast<xmlLink *>(SAlloc::M(sizeof(xmlLink)));
 	if(!lkNew) {
@@ -494,22 +484,19 @@ int xmlListPushBack(xmlList * l, void * data)
  *
  * Returns a pointer to the data referenced from this link
  */
-void * FASTCALL xmlLinkGetData(xmlLink * lk)
-{
-	return lk ? lk->data : 0;
-}
+void * FASTCALL xmlLinkGetData(xmlLink * lk) { return lk ? lk->data : 0; }
 /**
  * xmlListReverse:
  * @l:  a list
  *
  * Reverse the order of the elements in the list
  */
-void xmlListReverse(xmlList * l)
+void xmlListReverse(xmlList * pList)
 {
-	if(l) {
-		xmlLink * lkPrev = l->sentinel;
+	if(pList) {
+		xmlLink * lkPrev = pList->sentinel;
 		xmlLink * lk;
-		for(lk = l->sentinel->next; lk != l->sentinel; lk = lk->next) {
+		for(lk = pList->sentinel->next; lk != pList->sentinel; lk = lk->next) {
 			lkPrev->next = lkPrev->prev;
 			lkPrev->prev = lk;
 			lkPrev = lk;
@@ -525,19 +512,19 @@ void xmlListReverse(xmlList * l)
  *
  * Sort all the elements in the list
  */
-void xmlListSort(xmlList * l)
+void xmlListSort(xmlList * pList)
 {
-	if(l) {
-		if(!xmlListEmpty(l)) {
+	if(pList) {
+		if(!xmlListEmpty(pList)) {
 			/* I think that the real answer is to implement quicksort, the
 			 * alternative is to implement some list copying procedure which
 			 * would be based on a list copy followed by a clear followed by
 			 * an insert. This is slow...
 			 */
-			xmlList * lTemp = xmlListDup(l);
+			xmlList * lTemp = xmlListDup(pList);
 			if(lTemp) {
-				xmlListClear(l);
-				xmlListMerge(l, lTemp);
+				xmlListClear(pList);
+				xmlListMerge(pList, lTemp);
 				xmlListDelete(lTemp);
 			}
 		}
@@ -552,10 +539,10 @@ void xmlListSort(xmlList * l)
  * Walk all the element of the first from first to last and
  * apply the walker function to it
  */
-void xmlListWalk(xmlList * l, xmlListWalker walker, const void * user)
+void xmlListWalk(xmlList * pList, xmlListWalker walker, const void * user)
 {
-	if(l && walker) {
-		for(xmlLink * lk = l->sentinel->next; lk != l->sentinel; lk = lk->next) {
+	if(pList && walker) {
+		for(xmlLink * lk = pList->sentinel->next; lk != pList->sentinel; lk = lk->next) {
 			if((walker(lk->data, user)) == 0)
 				break;
 		}
@@ -570,10 +557,10 @@ void xmlListWalk(xmlList * l, xmlListWalker walker, const void * user)
  * Walk all the element of the list in reverse order and
  * apply the walker function to it
  */
-void xmlListReverseWalk(xmlList * l, xmlListWalker walker, const void * user)
+void xmlListReverseWalk(xmlList * pList, xmlListWalker walker, const void * user)
 {
-	if(l && walker) {
-		for(xmlLink * lk = l->sentinel->prev; lk != l->sentinel; lk = lk->prev) {
+	if(pList && walker) {
+		for(xmlLink * lk = pList->sentinel->prev; lk != pList->sentinel; lk = lk->prev) {
 			if((walker(lk->data, user)) == 0)
 				break;
 		}

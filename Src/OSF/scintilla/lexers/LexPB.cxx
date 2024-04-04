@@ -47,15 +47,8 @@ static bool FASTCALL IsTypeCharacter(const int ch)
 	return ch == '%' || ch == '&' || ch == '@' || ch == '!' || ch == '#' || ch == '$' || ch == '?';
 }
 
-static bool FASTCALL IsAWordChar(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_');
-}
-
-static bool FASTCALL IsAWordStart(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '_');
-}
+static bool FASTCALL IsAWordChar(int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_'); }
+static bool FASTCALL IsAWordStart(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_'); }
 
 static bool MatchUpperCase(Accessor & styler, Sci_Position pos, const char * s)   //Same as styler.Match() but uppercase
                                                                                  // comparison (a-z,A-Z and space only)

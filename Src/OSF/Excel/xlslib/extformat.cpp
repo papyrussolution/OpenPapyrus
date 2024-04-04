@@ -1,32 +1,32 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *
- * This file is part of xlslib -- A multiplatform, C/C++ library
- * for dynamic generation of Excel(TM) files.
- *
- * Copyright 2004 Yeico S. A. de C. V. All Rights Reserved.
- * Copyright 2008-2011 David Hoerl All Rights Reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification, are
- * permitted provided that the following conditions are met:
- *
- *    1. Redistributions of source code must retain the above copyright notice, this list of
- *       conditions and the following disclaimer.
- *
- *    2. Redistributions in binary form must reproduce the above copyright notice, this list
- *       of conditions and the following disclaimer in the documentation and/or other materials
- *       provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY David Hoerl ''AS IS'' AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL David Hoerl OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
- * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+*
+* This file is part of xlslib -- A multiplatform, C/C++ library
+* for dynamic generation of Excel(TM) files.
+*
+* Copyright 2004 Yeico S. A. de C. V. All Rights Reserved.
+* Copyright 2008-2011 David Hoerl All Rights Reserved.
+*
+* Redistribution and use in source and binary forms, with or without modification, are
+* permitted provided that the following conditions are met:
+*
+*    1. Redistributions of source code must retain the above copyright notice, this list of
+*       conditions and the following disclaimer.
+*
+*    2. Redistributions in binary form must reproduce the above copyright notice, this list
+*       of conditions and the following disclaimer in the documentation and/or other materials
+*       provided with the distribution.
+*
+* THIS SOFTWARE IS PROVIDED BY David Hoerl ''AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+* FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL David Hoerl OR
+* CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+* ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include "xlslib-internal.h"
 #pragma hdrstop
@@ -222,8 +222,8 @@ xf_init_t::xf_init_t() :
 	border_style(),
 	border_color()
 {
-	for(int i=0; i<_NUM_BORDERS; ++i) {
-		border_style[i]	= BORDER_NONE;
+	for(int i = 0; i<_NUM_BORDERS; ++i) {
+		border_style[i] = BORDER_NONE;
 		border_color[i] = ORIG_COLOR_BLACK;
 	}
 }
@@ -253,8 +253,8 @@ xf_init_t::xf_init_t(const xf_init_t &that) :
 	border_style(),
 	border_color()
 {
-	for(int i=0; i<_NUM_BORDERS; ++i) {
-		border_style[i]	= that.border_style[i];
+	for(int i = 0; i<_NUM_BORDERS; ++i) {
+		border_style[i] = that.border_style[i];
 		border_color[i] = that.border_color[i];
 	}
 }
@@ -270,25 +270,51 @@ bool xf_init_t::operator==(const xf_init_t& right)
 	// used by "range" in doing mass changes. Try to arrange so most
 	// likely failures occur early
 
-	if(font != right.font) {return false; }
-
-	if(fill_fgcolor != right.fill_fgcolor) {return false; }
-	if(fill_bgcolor != right.fill_bgcolor) {return false; }
-	if(fillstyle != right.fillstyle) {return false; }
-
-	for(int i=0; i<_NUM_BORDERS; ++i) {
-		if(border_style[i] != right.border_style[i]) {return false; }
-		if(border_color[i] != right.border_color[i]) {return false; }
+	if(font != right.font) {
+		return false;
 	}
 
-	if(halign != right.halign) {return false; }
-	if(valign != right.valign) {return false; }
-	if(indent != right.indent) {return false; }
-	if(txt_orient != right.txt_orient) {return false; }
+	if(fill_fgcolor != right.fill_fgcolor) {
+		return false;
+	}
+	if(fill_bgcolor != right.fill_bgcolor) {
+		return false;
+	}
+	if(fillstyle != right.fillstyle) {
+		return false;
+	}
 
-	if(locked != right.locked) {return false; }
-	if(hidden != right.hidden) {return false; }
-	if(wrap != right.wrap) {return false; }
+	for(int i = 0; i<_NUM_BORDERS; ++i) {
+		if(border_style[i] != right.border_style[i]) {
+			return false;
+		}
+		if(border_color[i] != right.border_color[i]) {
+			return false;
+		}
+	}
+
+	if(halign != right.halign) {
+		return false;
+	}
+	if(valign != right.valign) {
+		return false;
+	}
+	if(indent != right.indent) {
+		return false;
+	}
+	if(txt_orient != right.txt_orient) {
+		return false;
+	}
+
+	if(locked != right.locked) {
+		return false;
+	}
+	if(hidden != right.hidden) {
+		return false;
+	}
+	if(wrap != right.wrap) {
+		return false;
+	}
 
 	return true;
 }
@@ -296,10 +322,9 @@ bool xf_init_t::operator==(const xf_init_t& right)
 const xf_init_t &xf_t::GetDefaultXFshadow(CGlobalRecords& gRecords, bool userXF, bool isCell)
 {
 	(void)userXF; // remove warning
-	if (!isCell) {
-		const xf_t *xf = gRecords.GetDefaultXF();
-
-		if (xf)	{
+	if(!isCell) {
+		const xf_t * xf = gRecords.GetDefaultXF();
+		if(xf) {
 			return xf->GetXFshadow();
 		}
 	}
@@ -359,7 +384,7 @@ xf_t::xf_t(xlslib_core::CGlobalRecords& gRecords, bool userXF, bool isCell, bool
 	SetHidden(xfi.hidden);
 	SetWrap(xfi.wrap);
 
-	for(int i=0; i<_NUM_BORDERS; ++i) {
+	for(int i = 0; i<_NUM_BORDERS; ++i) {
 		SetBorderStyle((border_side_t)i, xfi.border_style[i]);
 		SetBorderColor((border_side_t)i, xfi.border_color[i]);
 	}
@@ -404,12 +429,12 @@ xf_t::xf_t(const xf_t& orig) :
 	flags(orig.flags)
 {
 	SetFont(orig.font); // side effects
-	if (orig.format) {
+	if(orig.format) {
 		SetFormat(orig.format); // side effects
 	}
 
-	for(int i=0; i<_NUM_BORDERS; ++i) {
-		border_style[i]	= orig.border_style[i];
+	for(int i = 0; i<_NUM_BORDERS; ++i) {
+		border_style[i] = orig.border_style[i];
 		border_color[i] = orig.border_color[i];
 	}
 
@@ -465,7 +490,7 @@ xf_t::xf_t(CGlobalRecords& gRecords, const xf_init_t& xfinit) :
 	SetHidden(xfinit.hidden);
 	SetWrap(xfinit.wrap);
 
-	for(int i=0; i<_NUM_BORDERS; ++i) {
+	for(int i = 0; i<_NUM_BORDERS; ++i) {
 		SetBorderStyle((border_side_t)i, xfinit.border_style[i]);
 		SetBorderColor((border_side_t)i, xfinit.border_color[i]);
 	}
@@ -483,23 +508,24 @@ void xf_t::SetFlag(uint8 flag)
 		if((flags & flag) == 0) {
 			// The flag forces all these fields to be defined, so init them to defaults
 			switch(flag) {
-			case XF_ALIGN_ATRALC:
-				XL_ASSERT(valign == XF_VALIGN_BOTTOM); /* is already set as default through xfinit() */
-				break;
-			case XF_ALIGN_ATRPAT:
-				XL_ASSERT(fill_fgcolor == COLOR_CODE_SYS_WIND_FG);
-				XL_ASSERT(fill_bgcolor == COLOR_CODE_SYS_WIND_BG);
-				break;
-			case XF_ALIGN_ATRBDR:
-				XL_ASSERT(valign == XF_VALIGN_BOTTOM);
-				break;
+				case XF_ALIGN_ATRALC:
+				    XL_ASSERT(valign == XF_VALIGN_BOTTOM); /* is already set as default through xfinit() */
+				    break;
+				case XF_ALIGN_ATRPAT:
+				    XL_ASSERT(fill_fgcolor == COLOR_CODE_SYS_WIND_FG);
+				    XL_ASSERT(fill_bgcolor == COLOR_CODE_SYS_WIND_BG);
+				    break;
+				case XF_ALIGN_ATRBDR:
+				    XL_ASSERT(valign == XF_VALIGN_BOTTOM);
+				    break;
 			}
 		}
 #endif
 		// Cells indicate that a characteristic is not equal
 		//  from its parent with the flag set.
 		flags |= flag;
-	} else {
+	}
+	else {
 		// Styles indicate that a characteristic is
 		// being implemented with the flag cleared.
 		flags &= ~flag;
@@ -512,7 +538,8 @@ void xf_t::ClearFlag(uint8 flag)
 		// Cells indicate that a characteristic is not equal
 		//  from its parent with the flag set.
 		flags |= flag;
-	} else {
+	}
+	else {
 		// Styles indicate that a characteristic is
 		// being implemented with the flag cleared.
 		flags &= ~flag;
@@ -586,10 +613,10 @@ void xf_t::UnMarkUsed(void)
 	}
 
 	if(m_usage_counter == 0) {
-		if (font && font->Usage()) {
+		if(font && font->Usage()) {
 			font->UnMarkUsed();
 		}
-		if (format && format->Usage()) {
+		if(format && format->Usage()) {
 			format->UnMarkUsed();
 		}
 	}
@@ -602,7 +629,7 @@ uint32 xf_t::Usage(void) const
 
 void xf_t::SetParent(const xf_t* parent)
 {
-	if (parent)	{
+	if(parent) {
 		xfi = parent->xfi;
 
 		// now make sure all the flags are properly set, given that we probably have altered xfi 'shadow base' by now.
@@ -646,7 +673,8 @@ uint16 xf_t::GetFontIndex(void) const
 {
 	if(font != NULL) {
 		return font->GetIndex();
-	} else {
+	}
+	else {
 		return 0;
 	}
 }
@@ -678,13 +706,13 @@ void xf_t::SetFormat(format_number_t fmt)
 	format = NULL;
 }
 
-void xf_t::SetFormat(format_t *fmt)
+void xf_t::SetFormat(format_t * fmt)
 {
-	if (!fmt) {
+	if(!fmt) {
 		return;
 	}
 
-	if (format)	{
+	if(format) {
 		format->UnMarkUsed();
 	}
 
@@ -709,7 +737,7 @@ uint16 xf_t::GetFormatIndex(void) const
 format_number_t xf_t::GetFormat(void) const
 {
 	int frmt;
-	for(frmt=(int)FMT_GENERAL; frmt<=(int)FMT_TEXT; ++frmt)	{
+	for(frmt = (int)FMT_GENERAL; frmt<=(int)FMT_TEXT; ++frmt) {
 		if(formatIndex == format_t::format2index((format_number_t)frmt)) {
 			return (format_number_t)frmt;
 		}
@@ -756,7 +784,7 @@ void xf_t::SetBorderStyle(border_side_t side, border_style_t style)
 		SetFlag(XF_ALIGN_ATRBDR);
 	}
 	// fix up XF record for Excel, who does not like color == 0 when the style is not NONE!
-	if (IsCell() && border_color[side] == 0) {
+	if(IsCell() && border_color[side] == 0) {
 		border_color[side] = COLOR_OPTIONS_TABLE[CLR_SYS_WIND_FG];
 	}
 }
@@ -809,14 +837,14 @@ uint16 xf_t::GetBorderColorIdx(border_side_t side) const
 
 xf_t& xf_t::operator=(const xf_t& right)
 {
-	if (&right != this)	{
+	if(&right != this) {
 		//m_GlobalRecords = right.GetGlobalRecords();
 		xfi = right.xfi;
 
-		index		= right.index; // or -1 or 0 ?
+		index           = right.index; // or -1 or 0 ?
 		parent_index = right.parent_index;
 
-		font		= right.font;
+		font            = right.font;
 		formatIndex = right.formatIndex;
 		format      = right.format;
 
@@ -824,22 +852,22 @@ xf_t& xf_t::operator=(const xf_t& right)
 		valign = right.valign;
 		indent = right.indent;
 
-		txt_orient		= right.txt_orient;
+		txt_orient              = right.txt_orient;
 
-		fill_fgcolor	= right.fill_fgcolor;
-		fill_bgcolor	= right.fill_bgcolor;
-		fillstyle		= right.fillstyle;
+		fill_fgcolor    = right.fill_fgcolor;
+		fill_bgcolor    = right.fill_bgcolor;
+		fillstyle               = right.fillstyle;
 
-		locked		= right.locked;
-		hidden		= right.hidden;
-		wrap		= right.wrap;
-		is_cell		= right.is_cell;
-		is_userXF	= right.is_userXF;
+		locked          = right.locked;
+		hidden          = right.hidden;
+		wrap            = right.wrap;
+		is_cell         = right.is_cell;
+		is_userXF       = right.is_userXF;
 
 		flags = right.flags;
 
-		for(int i=0; i<_NUM_BORDERS; ++i) {
-			border_style[i]	= right.border_style[i];
+		for(int i = 0; i<_NUM_BORDERS; ++i) {
+			border_style[i] = right.border_style[i];
 			border_color[i] = right.border_color[i];
 		}
 	}
@@ -849,48 +877,48 @@ xf_t& xf_t::operator=(const xf_t& right)
 
 bool xf_t::operator==(const xf_t& right)
 {
-	if (formatIndex != right.formatIndex)
+	if(formatIndex != right.formatIndex)
 		return false;
-	if (font != right.font)
+	if(font != right.font)
 		return false;
-	if (format != right.format)
-		return false;
-
-	if (halign != right.halign)
-		return false;
-	if (valign != right.valign)
-		return false;
-	if (indent != right.indent)
-		return false;
-	if (txt_orient != right.txt_orient)
+	if(format != right.format)
 		return false;
 
-	if (fillstyle != right.fillstyle)
+	if(halign != right.halign)
 		return false;
-	if (fill_fgcolor != right.fill_fgcolor)
+	if(valign != right.valign)
 		return false;
-	if (fill_bgcolor != right.fill_bgcolor)
+	if(indent != right.indent)
 		return false;
-
-	if (locked != right.locked)
-		return false;
-	if (hidden != right.hidden)
-		return false;
-	if (wrap != right.wrap)
-		return false;
-	if (is_cell != right.is_cell)
-		return false;
-	if (is_userXF != right.is_userXF)
+	if(txt_orient != right.txt_orient)
 		return false;
 
-	for (int i=0; i<_NUM_BORDERS; i++) {
-		if (border_style[i] != right.border_style[i])
+	if(fillstyle != right.fillstyle)
+		return false;
+	if(fill_fgcolor != right.fill_fgcolor)
+		return false;
+	if(fill_bgcolor != right.fill_bgcolor)
+		return false;
+
+	if(locked != right.locked)
+		return false;
+	if(hidden != right.hidden)
+		return false;
+	if(wrap != right.wrap)
+		return false;
+	if(is_cell != right.is_cell)
+		return false;
+	if(is_userXF != right.is_userXF)
+		return false;
+
+	for(int i = 0; i<_NUM_BORDERS; i++) {
+		if(border_style[i] != right.border_style[i])
 			return false;
-		if (border_color[i] != right.border_color[i])
-	  		return false;
+		if(border_color[i] != right.border_color[i])
+			return false;
 	}
 
-	if (flags != right.flags)
+	if(flags != right.flags)
 		return false;
 
 	return true;
@@ -971,7 +999,7 @@ uint8 xf_t::GetTxtOrientation(void) const
 void xf_t::SetFillFGColor(color_name_t color)
 {
 	// Set the related flag.
-	if(color != xf_t::xfiInit.fill_fgcolor)	{
+	if(color != xf_t::xfiInit.fill_fgcolor) {
 		SetFlag(XF_ALIGN_ATRPAT);
 	}
 
@@ -996,7 +1024,7 @@ uint16 xf_t::GetFillFGColorIdx(void) const
 void xf_t::SetFillBGColor(color_name_t color)
 {
 	// Set the related flag.
-	if(color != xf_t::xfiInit.fill_bgcolor)	{
+	if(color != xf_t::xfiInit.fill_bgcolor) {
 		SetFlag(XF_ALIGN_ATRPAT);
 	}
 
@@ -1021,7 +1049,7 @@ uint16 xf_t::GetFillBGColorIdx(void) const
 void xf_t::SetFillStyle(fill_option_t fill)
 {
 	// Set the related flag.
-	if(fill != xf_t::xfiInit.fillstyle)	{
+	if(fill != xf_t::xfiInit.fillstyle) {
 		SetFlag(XF_ALIGN_ATRPAT);
 	}
 
@@ -1120,16 +1148,16 @@ CExtFormat::CExtFormat(CDataStorage &datastore, const xf_t* xfdef) :
 	SetWrap(xfdef->IsWrap());
 
 	SetBorder(BORDER_BOTTOM, xfdef->GetBorderStyle(BORDER_BOTTOM),
-		xfdef->GetBorderColorIdx(BORDER_BOTTOM));
+	    xfdef->GetBorderColorIdx(BORDER_BOTTOM));
 	SetBorder(BORDER_TOP, xfdef->GetBorderStyle(BORDER_TOP),
-		xfdef->GetBorderColorIdx(BORDER_TOP));
+	    xfdef->GetBorderColorIdx(BORDER_TOP));
 	SetBorder(BORDER_LEFT, xfdef->GetBorderStyle(BORDER_LEFT),
-		xfdef->GetBorderColorIdx(BORDER_LEFT));
+	    xfdef->GetBorderColorIdx(BORDER_LEFT));
 	SetBorder(BORDER_RIGHT, xfdef->GetBorderStyle(BORDER_RIGHT),
-		xfdef->GetBorderColorIdx(BORDER_RIGHT));
+	    xfdef->GetBorderColorIdx(BORDER_RIGHT));
 
 	SetFlags(xfdef->GetFlags());
-	if (is_cell) {
+	if(is_cell) {
 		SetXFParent(xfdef->GetParentIndex());
 	}
 }
@@ -1167,7 +1195,8 @@ void CExtFormat::InitDummy(bool is_cell)
 
 	if(is_cell) {
 		AddDataArray(xfCellDefault, sizeof(xfCellDefault));
-	} else {
+	}
+	else {
 		AddDataArray(xfStyleDefault, sizeof(xfStyleDefault));
 	}
 }
@@ -1241,9 +1270,10 @@ void CExtFormat::SetLocked(bool locked)
 	uint16 value;
 
 	GetValue16From(&value, XF_OFFSET_PROP);
-	if (locked) {
+	if(locked) {
 		value |= XF_PROP_LOCKED;
-	} else {
+	}
+	else {
 		value &= ~XF_PROP_LOCKED;
 	}
 	SetValueAt16(value, XF_OFFSET_PROP);
@@ -1254,9 +1284,10 @@ void CExtFormat::SetHidden(bool hidden)
 	uint16 value;
 
 	GetValue16From(&value, XF_OFFSET_PROP);
-	if (hidden) {
+	if(hidden) {
 		value |= XF_PROP_HIDDEN;
-	} else {
+	}
+	else {
 		value &= ~XF_PROP_HIDDEN;
 	}
 	SetValueAt16(value, XF_OFFSET_PROP);
@@ -1288,9 +1319,10 @@ void CExtFormat::SetWrap(bool wrap)
 	uint32 value;
 
 	GetValue32From(&value, XF_OFFSET_ALIGN);
-	if (wrap) {
+	if(wrap) {
 		value |= XF_ALIGN_WRAP;
-	} else {
+	}
+	else {
 		value &= ~(uint32)XF_ALIGN_WRAP;
 	}
 	SetValueAt32(value, XF_OFFSET_ALIGN);
@@ -1302,13 +1334,14 @@ void CExtFormat::SetIndent(uint8 indentval)
 
 	if(indentval & XF_INDENT_LVL) {
 		mask = XF_INDENT_LVL;
-	} else
-	if(indentval & XF_INDENT_SHRINK2FIT) {
+	}
+	else if(indentval & XF_INDENT_SHRINK2FIT)        {
 		mask = XF_INDENT_SHRINK2FIT;
-	} else
-	if(indentval & (XF_INDENT_CONTEXT|XF_INDENT_L2R|XF_INDENT_R2L)) {
+	}
+	else if(indentval & (XF_INDENT_CONTEXT|XF_INDENT_L2R|XF_INDENT_R2L))        {
 		mask = XF_INDENT_DIR;
-	} else {
+	}
+	else {
 		mask = XF_INDENT_LVL | XF_INDENT_SHRINK2FIT | XF_INDENT_DIR;
 	}
 
@@ -1382,58 +1415,58 @@ void CExtFormat::SetBorder(border_side_t border, uint16 style, uint16 color)
 	uint32 value, color32 = color, style32 = style;
 
 	switch(border) {
-	case BORDER_BOTTOM:
-		GetValue32From(&value, XF_OFFSET_BORDERA);
-		value &= (~(uint32)XF_BORDER_BOTTOMSTYLE);
-		style32 <<= XF_STYLE_SHIFTPOS_BOTTOM;
-		value |= (style32 & XF_BORDER_BOTTOMSTYLE);
-		SetValueAt32(value, XF_OFFSET_BORDERA);
+		case BORDER_BOTTOM:
+		    GetValue32From(&value, XF_OFFSET_BORDERA);
+		    value &= (~(uint32)XF_BORDER_BOTTOMSTYLE);
+		    style32 <<= XF_STYLE_SHIFTPOS_BOTTOM;
+		    value |= (style32 & XF_BORDER_BOTTOMSTYLE);
+		    SetValueAt32(value, XF_OFFSET_BORDERA);
 
-		GetValue32From(&value, XF_OFFSET_BORDERB);
-		value &= (~(uint32)XF_BORDER_BOTTOMCOLOR);
-		color32 <<= XF_COLOR_SHIFTPOS_BOTTOM;
-		value |= (color32 & XF_BORDER_BOTTOMCOLOR);
-		SetValueAt32(value, XF_OFFSET_BORDERB);
-		break;
+		    GetValue32From(&value, XF_OFFSET_BORDERB);
+		    value &= (~(uint32)XF_BORDER_BOTTOMCOLOR);
+		    color32 <<= XF_COLOR_SHIFTPOS_BOTTOM;
+		    value |= (color32 & XF_BORDER_BOTTOMCOLOR);
+		    SetValueAt32(value, XF_OFFSET_BORDERB);
+		    break;
 
-	case BORDER_TOP:
-		GetValue32From(&value, XF_OFFSET_BORDERA);
-		value &= (~(uint32)XF_BORDER_TOPSTYLE);
-		style32 <<= XF_STYLE_SHIFTPOS_TOP;
-		value |= (style32 & XF_BORDER_TOPSTYLE);
-		SetValueAt32(value, XF_OFFSET_BORDERA);
+		case BORDER_TOP:
+		    GetValue32From(&value, XF_OFFSET_BORDERA);
+		    value &= (~(uint32)XF_BORDER_TOPSTYLE);
+		    style32 <<= XF_STYLE_SHIFTPOS_TOP;
+		    value |= (style32 & XF_BORDER_TOPSTYLE);
+		    SetValueAt32(value, XF_OFFSET_BORDERA);
 
-		GetValue32From(&value, XF_OFFSET_BORDERB);
-		value &= (~(uint32)XF_BORDER_TOPCOLOR);
-		color32 <<= XF_COLOR_SHIFTPOS_TOP;
-		value |= (color32 & XF_BORDER_TOPCOLOR);
-		SetValueAt32(value, XF_OFFSET_BORDERB);
-		break;
+		    GetValue32From(&value, XF_OFFSET_BORDERB);
+		    value &= (~(uint32)XF_BORDER_TOPCOLOR);
+		    color32 <<= XF_COLOR_SHIFTPOS_TOP;
+		    value |= (color32 & XF_BORDER_TOPCOLOR);
+		    SetValueAt32(value, XF_OFFSET_BORDERB);
+		    break;
 
-	case BORDER_LEFT:
-		GetValue32From(&value, XF_OFFSET_BORDERA);
-		value &= ~(uint32)(XF_BORDER_LEFTSTYLE|XF_BORDER_LEFTCOLOR);
+		case BORDER_LEFT:
+		    GetValue32From(&value, XF_OFFSET_BORDERA);
+		    value &= ~(uint32)(XF_BORDER_LEFTSTYLE|XF_BORDER_LEFTCOLOR);
 
-		color32 <<= XF_COLOR_SHIFTPOS_LEFT;
-		style32 <<= XF_STYLE_SHIFTPOS_LEFT;
-		value |= (color32 & XF_BORDER_LEFTCOLOR) | (style32 & XF_BORDER_LEFTSTYLE);
+		    color32 <<= XF_COLOR_SHIFTPOS_LEFT;
+		    style32 <<= XF_STYLE_SHIFTPOS_LEFT;
+		    value |= (color32 & XF_BORDER_LEFTCOLOR) | (style32 & XF_BORDER_LEFTSTYLE);
 
-		SetValueAt32(value, XF_OFFSET_BORDERA);
-		break;
+		    SetValueAt32(value, XF_OFFSET_BORDERA);
+		    break;
 
-	case BORDER_RIGHT:
-		GetValue32From(&value, XF_OFFSET_BORDERA);
+		case BORDER_RIGHT:
+		    GetValue32From(&value, XF_OFFSET_BORDERA);
 
-		value &= ~(uint32)(XF_BORDER_RIGHTSTYLE|XF_BORDER_RIGHTCOLOR);
-		color32 <<= XF_COLOR_SHIFTPOS_RIGHT;
-		style32 <<= XF_STYLE_SHIFTPOS_RIGHT;
-		value |= (color32 & XF_BORDER_RIGHTCOLOR) | (style32 & XF_BORDER_RIGHTSTYLE);
+		    value &= ~(uint32)(XF_BORDER_RIGHTSTYLE|XF_BORDER_RIGHTCOLOR);
+		    color32 <<= XF_COLOR_SHIFTPOS_RIGHT;
+		    style32 <<= XF_STYLE_SHIFTPOS_RIGHT;
+		    value |= (color32 & XF_BORDER_RIGHTCOLOR) | (style32 & XF_BORDER_RIGHTSTYLE);
 
-		SetValueAt32(value, XF_OFFSET_BORDERA);
-		break;
+		    SetValueAt32(value, XF_OFFSET_BORDERA);
+		    break;
 
-	default:
-		break;
+		default:
+		    break;
 	}
 }
 

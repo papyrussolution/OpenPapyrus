@@ -540,9 +540,9 @@ static void _swap_ximage_to_native(XImage * ximage)
  * right in 'shift'. */
 static void _characterize_field(uint32 mask, int * width, int * shift)
 {
-	*width = _cairo_popcount(mask);
+	*width = SBits::Cpop(mask);
 	/* The final '& 31' is to force a 0 mask to result in 0 shift. */
-	*shift = _cairo_popcount((mask - 1) & ~mask) & 31;
+	*shift = SBits::Cpop((mask - 1) & ~mask) & 31;
 }
 
 /* Convert a field of 'width' bits to 'new_width' bits with correct
@@ -551,13 +551,11 @@ static inline uint32 _resize_field(uint32 field, int width, int new_width)
 {
 	if(width == 0)
 		return 0;
-
 	if(width >= new_width) {
 		return field >> (width - new_width);
 	}
 	else {
 		uint32 result = field << (new_width - width);
-
 		while(width < new_width) {
 			result |= result >> width;
 			width <<= 1;

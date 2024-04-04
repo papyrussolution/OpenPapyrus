@@ -6,7 +6,6 @@
 #include <pp.h>
 #pragma hdrstop
 
-int ZXing_RecognizeBarcodeImage(const char * pInpFileName, TSCollection <PPBarcode::Entry> & rList); // @prototype(zxing_client.cpp)
 int ZXing_CreateBarcodeImage(const PPBarcode::BarcodeImageParam & rParam); // @prototype(zxing_client.cpp)
 
 static const SIntToSymbTabEntry TestBcStdSymbList[] = {
@@ -89,7 +88,7 @@ SLTEST_R(BarcodeOutputAndRecognition)
 		// D:\Papyrus\Src\PPTEST\DATA\chzn-sigblk-20230906_144733.jpg 
 		(input_file_path = GetSuiteEntry()->InPath).SetLastSlash().Cat("chzn-sigblk-20230906_144733.jpg");
 		TSCollection <PPBarcode::Entry> bc_list;
-		SLCHECK_LT(0, ZXing_RecognizeBarcodeImage(input_file_path, bc_list));
+		SLCHECK_LT(0, PPBarcode::ZXing_RecognizeImage(input_file_path, bc_list));
 	}
 	(input_file_path = GetSuiteEntry()->InPath).SetLastSlash().Cat("barcode.txt");
     SFile f_in(input_file_path, SFile::mRead);
@@ -120,7 +119,7 @@ SLTEST_R(BarcodeOutputAndRecognition)
 						TSCollection <PPBarcode::Entry> bc_list;
 						//
 						TSCollection <PPBarcode::Entry> bc_list2;
-						if(SLCHECK_LT(0, ZXing_RecognizeBarcodeImage(bip.OutputFileName, bc_list2))) {
+						if(SLCHECK_LT(0, PPBarcode::ZXing_RecognizeImage(bip.OutputFileName, bc_list2))) {
 							SLCHECK_EQ(bc_list2.getCount(), 1U);
 							if(bc_list2.getCount() > 0) {
 								const PPBarcode::Entry * p_entry = bc_list2.at(0);
@@ -149,7 +148,7 @@ SLTEST_R(BarcodeOutputAndRecognition)
 						TSCollection <PPBarcode::Entry> bc_list;
 						//
 						TSCollection <PPBarcode::Entry> bc_list2;
-						if(SLCHECK_LT(0, ZXing_RecognizeBarcodeImage(bip.OutputFileName, bc_list2))) {
+						if(SLCHECK_LT(0, PPBarcode::ZXing_RecognizeImage(bip.OutputFileName, bc_list2))) {
 							SLCHECK_LE(1U, bc_list2.getCount());
 							if(bc_list2.getCount() > 0) {
 								for(uint bcidx = 0; bcidx < bc_list2.getCount(); bcidx++) {
@@ -180,7 +179,7 @@ SLTEST_R(BarcodeOutputAndRecognition)
 						TSCollection <PPBarcode::Entry> bc_list;
 						//
 						TSCollection <PPBarcode::Entry> bc_list2;
-						if(SLCHECK_LT(0, ZXing_RecognizeBarcodeImage(bip.OutputFileName, bc_list2))) {
+						if(SLCHECK_LT(0, PPBarcode::ZXing_RecognizeImage(bip.OutputFileName, bc_list2))) {
 							SLCHECK_EQ(bc_list2.getCount(), 1U);
 							if(bc_list2.getCount() > 0) {
 								const PPBarcode::Entry * p_entry = bc_list2.at(0);

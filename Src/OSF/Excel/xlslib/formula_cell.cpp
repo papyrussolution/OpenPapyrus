@@ -51,7 +51,7 @@ formula_cell_t::formula_cell_t(CGlobalRecords& gRecords, uint32 rowval, uint32 c
 	cell_t(gRecords, rowval, colval, pxfval),
 	ast(ast_val),
 	auto_destruct_expression_tree(autodes),
-    stack(NULL)
+	stack(NULL)
 {
 	XL_ASSERT(ast_val);
 
@@ -60,10 +60,10 @@ formula_cell_t::formula_cell_t(CGlobalRecords& gRecords, uint32 rowval, uint32 c
 #endif
 }
 
-formula_cell_t::formula_cell_t(CGlobalRecords& gRecords, uint32 rowval, uint32 colval, 
-        formula_t *stack_val, xf_t* pxfval) :
+formula_cell_t::formula_cell_t(CGlobalRecords& gRecords, uint32 rowval, uint32 colval,
+    formula_t * stack_val, xf_t* pxfval) :
 	cell_t(gRecords, rowval, colval, pxfval),
-    ast(NULL),
+	ast(NULL),
 	stack(stack_val)
 {
 	XL_ASSERT(stack_val);
@@ -75,34 +75,36 @@ formula_cell_t::formula_cell_t(CGlobalRecords& gRecords, uint32 rowval, uint32 c
 
 formula_cell_t::~formula_cell_t()
 {
-	if (ast && auto_destruct_expression_tree) {
+	if(ast && auto_destruct_expression_tree) {
 		ast->DestroyAST();
 	}
 }
 
 void formula_cell_t::GetResultEstimate(estimated_formula_result_t &dst) const
 {
-	if (ast) {
+	if(ast) {
 		ast->GetResultEstimate(dst);
-	} else if (stack) {
-        stack->GetResultEstimate(dst);
-    }
+	}
+	else if(stack) {
+		stack->GetResultEstimate(dst);
+	}
 }
 
 size_t formula_cell_t::GetSize(void) const
 {
 	estimated_formula_result_t estimate(m_GlobalRecords);
-	const expression_node_t *expr = GetAST();
-    XL_ASSERT(expr != NULL || stack != NULL);
+	const expression_node_t * expr = GetAST();
+	XL_ASSERT(expr != NULL || stack != NULL);
 	size_t len = 4+2+2+2+8+2+4+2;
-    if (expr) {
-        len += expr->GetSize();
-    } else if (stack) {
-        len += stack->GetSize();
-    }
-    GetResultEstimate(estimate);
+	if(expr) {
+		len += expr->GetSize();
+	}
+	else if(stack) {
+		len += stack->GetSize();
+	}
+	GetResultEstimate(estimate);
 
-	if (estimate.EncodedValueIsString()) {
+	if(estimate.EncodedValueIsString()) {
 		// FORMULA BIFF8 is immediately followed by a STRING BIFF8 record!
 		const u16string* str = estimate.GetStringValue();
 
@@ -120,14 +122,15 @@ CUnit* formula_cell_t::GetData(CDataStorage &datastore) const
 
 void formula_cell_t::DumpData(CUnit &dst) const
 {
-    if (ast) {
-        formula_t *fs = new formula_t(m_GlobalRecords, NULL);
-        ast->DumpData(*fs, true); // rgce dump, length_of_parsed_expr
-        fs->DumpData(dst);
-        delete fs;
-    } else if (stack) {
-        stack->DumpData(dst);
-    }
+	if(ast) {
+		formula_t * fs = new formula_t(m_GlobalRecords, NULL);
+		ast->DumpData(*fs, true); // rgce dump, length_of_parsed_expr
+		fs->DumpData(dst);
+		delete fs;
+	}
+	else if(stack) {
+		stack->DumpData(dst);
+	}
 }
 
 /*
@@ -152,9 +155,9 @@ CFormula::CFormula(CDataStorage &datastore, const formula_cell_t& expr) :
 	AddValue32(0); // chn
 
 	size_t len_position = GetDataSize();
-	AddValue16(0 /* expr.GetSize() */ ); // length_of_parsed_expr
+	AddValue16(0 /* expr.GetSize() */);  // length_of_parsed_expr
 
-	expr.DumpData(*this); 
+	expr.DumpData(*this);
 
 	size_t end = GetDataSize();
 	uint32 len_position32 = (uint32)len_position;
@@ -162,7 +165,7 @@ CFormula::CFormula(CDataStorage &datastore, const formula_cell_t& expr) :
 
 	SetRecordLength(GetDataSize()-RECORD_HEADER_SIZE);
 
-	if (estimate.EncodedValueIsString()) {
+	if(estimate.EncodedValueIsString()) {
 		// FORMULA BIFF8 is immediately followed by a STRING BIFF8 record!
 		//
 		// fake it by appending it at the tail of the current record!
@@ -226,4 +229,3 @@ CFormula::~CFormula()
  *  C0 00 00 FC 0F 00
  *  1E 01 00 1E 02 00 1E 03 00 1E 04 00 41 2E 01  012e  256+32+14  302
  */
-

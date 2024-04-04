@@ -18,10 +18,7 @@ using namespace Scintilla;
 #endif
 
 // Extended to accept accented characters
-static bool FASTCALL IsAWordChar(int ch)
-{
-	return ch >= 0x80 || (isalnum(ch) || ch == '_');
-}
+static bool FASTCALL IsAWordChar(int ch) { return ch >= 0x80 || (isalnum(ch) || ch == '_'); }
 
 static void ColouriseFlagShipDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
     WordList * keywordlists[], Accessor & styler)
@@ -112,7 +109,7 @@ static void ColouriseFlagShipDoc(Sci_PositionU startPos, Sci_Position length, in
 				    sc.Forward();
 				    sc.ForwardSetState(bEnableCode ? SCE_FS_DEFAULT : SCE_FS_DEFAULT_C);
 			    }
-			    else if(sc.ch == '@' || sc.ch == '\\') {        // JavaDoc and Doxygen support
+			    else if(oneof2(sc.ch, '@', '\\')) { // JavaDoc and Doxygen support
 				    // Verify that we have the conditions to mark a comment-doc-keyword
 				    if((IsASpace(sc.chPrev) || sc.chPrev == '*') && (!IsASpace(sc.chNext))) {
 					    styleBeforeDCKeyword = bEnableCode ? SCE_FS_COMMENTDOC : SCE_FS_COMMENTDOC_C;
@@ -131,7 +128,7 @@ static void ColouriseFlagShipDoc(Sci_PositionU startPos, Sci_Position length, in
 			    if(sc.atLineStart) {
 				    sc.SetState(bEnableCode ? SCE_FS_DEFAULT : SCE_FS_DEFAULT_C);
 			    }
-			    else if(sc.ch == '@' || sc.ch == '\\') {        // JavaDoc and Doxygen support
+			    else if(oneof2(sc.ch, '@', '\\')) { // JavaDoc and Doxygen support
 				    // Verify that we have the conditions to mark a comment-doc-keyword
 				    if((IsASpace(sc.chPrev) || sc.chPrev == '/' || sc.chPrev == '!') && (!IsASpace(sc.chNext))) {
 					    styleBeforeDCKeyword = bEnableCode ? SCE_FS_COMMENTLINEDOC : SCE_FS_COMMENTLINEDOC_C;
@@ -140,8 +137,7 @@ static void ColouriseFlagShipDoc(Sci_PositionU startPos, Sci_Position length, in
 			    }
 			    break;
 			case SCE_FS_COMMENTDOCKEYWORD:
-			    if((styleBeforeDCKeyword == SCE_FS_COMMENTDOC || styleBeforeDCKeyword == SCE_FS_COMMENTDOC_C) &&
-			    sc.Match('*', '/')) {
+			    if((styleBeforeDCKeyword == SCE_FS_COMMENTDOC || styleBeforeDCKeyword == SCE_FS_COMMENTDOC_C) && sc.Match('*', '/')) {
 				    sc.ChangeState(SCE_FS_COMMENTDOCKEYWORDERROR);
 				    sc.Forward();
 				    sc.ForwardSetState(bEnableCode ? SCE_FS_DEFAULT : SCE_FS_DEFAULT_C);

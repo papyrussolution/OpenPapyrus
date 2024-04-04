@@ -309,7 +309,7 @@ static inline void ImQsort(void* base, size_t count, size_t size_of_element, int
 #endif
 
 // Helpers: Color Blending
-ImU32         ImAlphaBlendColors(ImU32 col_a, ImU32 col_b);
+ImU32 ImAlphaBlendColors(ImU32 col_a, ImU32 col_b);
 
 // Helpers: Bit manipulation
 static inline bool ImIsPowerOfTwo(int v)    { return v != 0 && (v & (v - 1)) == 0; }
@@ -318,12 +318,12 @@ static inline int  ImUpperPowerOfTwo(int v) { v--; v |= v >> 1; v |= v >> 2; v |
 
 // Helpers: String
 // @sobolev int ImStricmp(const char* str1, const char* str2);
-int           ImStrnicmp(const char* str1, const char* str2, size_t count);
-void          ImStrncpy(char* dst, const char* src, size_t count);
+int    ImStrnicmp(const char* str1, const char* str2, size_t count);
+void   ImStrncpy(char* dst, const char* src, size_t count);
 // @v11.9.7 (replaced with sstrdup) char * ImStrdup(const char* str);
 char * ImStrdupcpy(char* dst, size_t* p_dst_size, const char* str);
 const char*   ImStrchrRange(const char* str_begin, const char* str_end, char c);
-int           ImStrlenW(const ImWchar* str);
+// @v11.9.11 (unused) int     ImStrlenW(const ImWchar* str);
 const char*   ImStreolRange(const char* str, const char* str_end);                // End end-of-line
 const ImWchar*ImStrbolW(const ImWchar* buf_mid_line, const ImWchar* buf_begin);   // Find beginning-of-line
 const char*   ImStristr(const char* haystack, const char* haystack_end, const char* needle, const char* needle_end);
@@ -336,25 +336,25 @@ static inline bool ImCharIsBlankW(uint c)  { return c == ' ' || c == '\t' || c =
 IM_MSVC_RUNTIME_CHECKS_RESTORE
 
 // Helpers: Formatting
-int           ImFormatString(char* buf, size_t buf_size, const char* fmt, ...) IM_FMTARGS(3);
-int           ImFormatStringV(char* buf, size_t buf_size, const char* fmt, va_list args) IM_FMTLIST(3);
-void          ImFormatStringToTempBuffer(const char** out_buf, const char** out_buf_end, const char* fmt, ...) IM_FMTARGS(3);
-void          ImFormatStringToTempBufferV(const char** out_buf, const char** out_buf_end, const char* fmt, va_list args) IM_FMTLIST(3);
-const char*   ImParseFormatFindStart(const char* format);
-const char*   ImParseFormatFindEnd(const char* format);
-const char*   ImParseFormatTrimDecorations(const char* format, char* buf, size_t buf_size);
-void          ImParseFormatSanitizeForPrinting(const char* fmt_in, char* fmt_out, size_t fmt_out_size);
-const char*   ImParseFormatSanitizeForScanning(const char* fmt_in, char* fmt_out, size_t fmt_out_size);
-int           ImParseFormatPrecision(const char* format, int default_value);
+int    ImFormatString(char* buf, size_t buf_size, const char* fmt, ...) IM_FMTARGS(3);
+int    ImFormatStringV(char* buf, size_t buf_size, const char* fmt, va_list args) IM_FMTLIST(3);
+void   ImFormatStringToTempBuffer(const char** out_buf, const char** out_buf_end, const char* fmt, ...) IM_FMTARGS(3);
+void   ImFormatStringToTempBufferV(const char** out_buf, const char** out_buf_end, const char* fmt, va_list args) IM_FMTLIST(3);
+const  char * ImParseFormatFindStart(const char* format);
+const  char * ImParseFormatFindEnd(const char* format);
+const  char * ImParseFormatTrimDecorations(const char* format, char* buf, size_t buf_size);
+void   ImParseFormatSanitizeForPrinting(const char* fmt_in, char* fmt_out, size_t fmt_out_size);
+const  char * ImParseFormatSanitizeForScanning(const char* fmt_in, char* fmt_out, size_t fmt_out_size);
+int    ImParseFormatPrecision(const char* format, int default_value);
 
 // Helpers: UTF-8 <> wchar conversions
-const char*   ImTextCharToUtf8(char out_buf[5], uint c);                                        // return out_buf
-int           ImTextStrToUtf8(char* out_buf, int out_buf_size, const ImWchar* in_text, const ImWchar* in_text_end);   // return output UTF-8 bytes count
-int           ImTextCharFromUtf8(uint* out_char, const char* in_text, const char* in_text_end); // read one character. return input UTF-8 bytes count
-int           ImTextStrFromUtf8(ImWchar* out_buf, int out_buf_size, const char* in_text, const char* in_text_end, const char** in_remaining = NULL);   // return input UTF-8 bytes count
-int           ImTextCountCharsFromUtf8(const char* in_text, const char* in_text_end);           // return number of UTF-8 code-points (NOT bytes count)
-int           ImTextCountUtf8BytesFromChar(const char* in_text, const char* in_text_end);       // return number of bytes to express one char in UTF-8
-int           ImTextCountUtf8BytesFromStr(const ImWchar* in_text, const ImWchar* in_text_end);  // return number of bytes to express string in UTF-8
+const  char * ImTextCharToUtf8(char out_buf[5], uint c);                                        // return out_buf
+int    ImTextStrToUtf8(char* out_buf, int out_buf_size, const ImWchar* in_text, const ImWchar* in_text_end);   // return output UTF-8 bytes count
+int    ImTextCharFromUtf8(uint* out_char, const char* in_text, const char* in_text_end); // read one character. return input UTF-8 bytes count
+int    ImTextStrFromUtf8(ImWchar* out_buf, int out_buf_size, const char* in_text, const char* in_text_end, const char** in_remaining = NULL);   // return input UTF-8 bytes count
+int    ImTextCountCharsFromUtf8(const char* in_text, const char* in_text_end);           // return number of UTF-8 code-points (NOT bytes count)
+int    ImTextCountUtf8BytesFromChar(const char* in_text, const char* in_text_end);       // return number of bytes to express one char in UTF-8
+int    ImTextCountUtf8BytesFromStr(const ImWchar* in_text, const ImWchar* in_text_end);  // return number of bytes to express string in UTF-8
 
 // Helpers: File System
 #ifdef IMGUI_DISABLE_FILE_FUNCTIONS
@@ -413,8 +413,8 @@ static inline double ImRsqrt(double x) { return 1.0 / sqrt(x); }
 // @sobolev (replaced with smin) template <typename T> static inline T ImMin(T lhs, T rhs) { return lhs < rhs ? lhs : rhs; }
 // @sobolev (replaced with smax) template <typename T> static inline T ImMax(T lhs, T rhs) { return lhs >= rhs ? lhs : rhs; }
 // @sobolev (replaced with sclamp) template <typename T> static inline T ImClamp__Removed(T v, T mn, T mx) { return (v < mn) ? mn : (v > mx) ? mx : v; }
-template <typename T> static inline T ImLerp(T a, T b, float t)                  { return (T)(a + (b - a) * t); }
-template <typename T> static inline void ImSwap(T& a, T& b)                      { T tmp = a; a = b; b = tmp; }
+template <typename T> static inline T ImLerp(T a, T b, float t) { return (T)(a + (b - a) * t); }
+template <typename T> static inline void ImSwap(T& a, T& b)     { T tmp = a; a = b; b = tmp; }
 template <typename T> static inline T ImAddClampOverflow(T a, T b, T mn, T mx)   { if(b < 0 && (a < mn - b)) return mn; if(b > 0 && (a > mx - b))  return mx; return a + b; }
 template <typename T> static inline T ImSubClampOverflow(T a, T b, T mn, T mx)   { if(b > 0 && (a < mn + b)) return mn; if(b < 0 && (a > mx + b))  return mx; return a - b; }
 // - Misc maths helpers

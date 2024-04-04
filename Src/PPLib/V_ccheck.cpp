@@ -4044,6 +4044,27 @@ private:
 	}
 	int    ViewExtList()
 	{
+		static const SIntToSymbTabEntry ext_list[] = {
+			{ CCheckPacket::extssMemo,               "ccextss_memo" },
+			{ CCheckPacket::extssSign,               "ccextss_sign" },
+			{ CCheckPacket::extssEgaisUrl,           "ccextss_egaisurl" },
+			{ CCheckPacket::extssRemoteProcessingTa, "ccextss_remoteprocessingta" },
+			{ CCheckPacket::extssChZnProcessingTag,  "ccextss_chznprocessingtag" },
+			{ CCheckPacket::extssBuyerINN,           "ccextss_buyerinn" },
+			{ CCheckPacket::extssBuyerName,          "ccextss_buyername" },
+			{ CCheckPacket::extssBuyerPhone,         "ccextss_buyerphone" },
+			{ CCheckPacket::extssBuyerEMail,         "ccextss_buyeremail" },
+			{ CCheckPacket::extssUuid,               "ccextss_uuid" },
+			{ CCheckPacket::extssPrescrDate,         "ccextss_prescrdate" },
+			{ CCheckPacket::extssPrescrSerial,       "ccextss_prescrserial" },
+			{ CCheckPacket::extssPrescrNumber,       "ccextss_prescrnumber" },
+			{ CCheckPacket::extssEgaisProcessingTag, "ccextss_egaisprocessingtag" },
+			{ CCheckPacket::extssSourceSymb,         "ccextss_sourcesymb" },
+			{ CCheckPacket::extssOuterIdent,         "ccextss_outerident" },
+			{ CCheckPacket::extssOuterExtTag,        "ccextss_outerexttag" },
+			{ CCheckPacket::extssLinkBillUuid,       "ccextss_linkbilluuid" },
+		};
+		/*
 		class CcExtListDialog : public PPListDialog {
 			const CCheckPacket & R_Data;
 		public:
@@ -4089,11 +4110,13 @@ private:
 				}
 				return 1;
 			}
-		};
+		};*/
 
 		int    ok = -1;
-		CcExtListDialog * dlg = new CcExtListDialog(Data);
+		//CcExtListDialog * dlg = new CcExtListDialog(Data);
+		ExtStrContainerListDialog * dlg = new ExtStrContainerListDialog(DLG_CCEXTLIST, CTL_CCEXTLIST_LIST, 0, true, ext_list, SIZEOFARRAY(ext_list));
 		if(CheckDialogPtrErr(&dlg)) {
+			dlg->setDTS(&Data);
 			ExecViewAndDestroy(dlg);
 		}
 		return ok;

@@ -17,27 +17,15 @@ using namespace Scintilla;
 static bool FASTCALL isEiffelOperator(uint ch)
 {
 	// '.' left out as it is used to make up numbers
-	return ch == '*' || ch == '/' || ch == '\\' || ch == '-' || ch == '+' ||
-	       ch == '(' || ch == ')' || ch == '=' ||
-	       ch == '{' || ch == '}' || ch == '~' ||
-	       ch == '[' || ch == ']' || ch == ';' ||
-	       ch == '<' || ch == '>' || ch == ',' ||
-	       ch == '.' || ch == '^' || ch == '%' || ch == ':' ||
-	       ch == '!' || ch == '@' || ch == '?';
+	return ch == '*' || ch == '/' || ch == '\\' || ch == '-' || ch == '+' || ch == '(' || ch == ')' || ch == '=' ||
+		ch == '{' || ch == '}' || ch == '~' || ch == '[' || ch == ']' || ch == ';' ||
+		ch == '<' || ch == '>' || ch == ',' || ch == '.' || ch == '^' || ch == '%' || ch == ':' || ch == '!' || ch == '@' || ch == '?';
 }
 
-static bool FASTCALL IsAWordChar(uint ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '_');
-}
+static bool FASTCALL IsAWordChar(uint ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_'); }
+static bool FASTCALL IsAWordStart(uint ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_'); }
 
-static bool FASTCALL IsAWordStart(uint ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '_');
-}
-
-static void ColouriseEiffelDoc(Sci_PositionU startPos, Sci_Position length, int initStyle,
-    WordList * keywordlists[], Accessor & styler)
+static void ColouriseEiffelDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler)
 {
 	WordList & keywords = *keywordlists[0];
 	StyleContext sc(startPos, length, initStyle, styler);

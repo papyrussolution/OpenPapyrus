@@ -2799,7 +2799,7 @@ int GnuPlot::Expand1LevelMacros()
 	char * m;
 	udvt_entry * udv;
 	// Most lines have no macros 
-	if(!strchr(Pgm.P_InputLine, '@'))
+	if(!sstrchr(Pgm.P_InputLine, '@'))
 		return 0;
 	temp_string = (char *)SAlloc::M(Pgm.InputLineLen);
 	len = strlen(Pgm.P_InputLine);

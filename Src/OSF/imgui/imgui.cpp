@@ -1675,14 +1675,14 @@ const char* ImStrchrRange(const char* str, const char* str_end, char c)
 	return p;
 }
 
-int ImStrlenW(const ImWchar* str)
+/* @v11.9.11 (unused) int ImStrlenW(const ImWchar* str)
 {
 	//return (int)wcslen((const wchar_t*)str);  // FIXME-OPT: Could use this when wchar_t are 16-bit
 	int n = 0;
 	while(*str++)  
 		n++;
 	return n;
-}
+}*/
 
 // Find end-of-line. Return pointer will point to either first \n, either str_end.
 const char* ImStreolRange(const char* str, const char* str_end)
@@ -1702,7 +1702,6 @@ const char* ImStristr(const char* haystack, const char* haystack_end, const char
 {
 	if(!needle_end)
 		needle_end = needle + strlen(needle);
-
 	const char un0 = (char)ImToUpper(*needle);
 	while((!haystack_end && *haystack) || (haystack_end && haystack < haystack_end)) {
 		if(ImToUpper(*haystack) == un0) {
@@ -1781,19 +1780,15 @@ void ImFormatStringToTempBuffer(const char** out_buf, const char** out_buf_end, 
 	ImGuiContext & g = *GImGui;
 	va_list args;
 	va_start(args, fmt);
-	if(fmt[0] == '%' && fmt[1] == 's' && fmt[2] == 0) {
-		const char* buf = va_arg(args, const char*); // Skip formatting when using "%s"
+	if(sstreq(fmt, "%s")) {
+		const char * buf = va_arg(args, const char*); // Skip formatting when using "%s"
 		*out_buf = buf;
-		if(out_buf_end) {
-			*out_buf_end = buf + strlen(buf);
-		}
+		ASSIGN_PTR(out_buf_end, buf + sstrlen(buf));
 	}
 	else {
 		int buf_len = ImFormatStringV(g.TempBuffer.Data, g.TempBuffer.Size, fmt, args);
 		*out_buf = g.TempBuffer.Data;
-		if(out_buf_end) {
-			*out_buf_end = g.TempBuffer.Data + buf_len;
-		}
+		ASSIGN_PTR(out_buf_end, g.TempBuffer.Data + buf_len);
 	}
 	va_end(args);
 }
@@ -1801,25 +1796,22 @@ void ImFormatStringToTempBuffer(const char** out_buf, const char** out_buf_end, 
 void ImFormatStringToTempBufferV(const char** out_buf, const char** out_buf_end, const char* fmt, va_list args)
 {
 	ImGuiContext & g = *GImGui;
-	if(fmt[0] == '%' && fmt[1] == 's' && fmt[2] == 0) {
+	if(sstreq(fmt, "%s")) {
 		const char* buf = va_arg(args, const char*); // Skip formatting when using "%s"
 		*out_buf = buf;
-		if(out_buf_end) {
-			*out_buf_end = buf + strlen(buf);
-		}
+		ASSIGN_PTR(out_buf_end, buf + sstrlen(buf));
 	}
 	else {
 		int buf_len = ImFormatStringV(g.TempBuffer.Data, g.TempBuffer.Size, fmt, args);
 		*out_buf = g.TempBuffer.Data;
-		if(out_buf_end) {
-			*out_buf_end = g.TempBuffer.Data + buf_len;
-		}
+		ASSIGN_PTR(out_buf_end, g.TempBuffer.Data + buf_len);
 	}
 }
 
 // CRC32 needs a 1KB lookup table (not cache friendly)
 // Although the code to generate the table is simple and shorter than the table itself, using a const table allows us to easily:
 // - avoid an unnecessary branch/memory tap, - keep the ImHashXXX functions usable by static constructors, - make it thread-safe.
+#if 0 // @v11.9.11 (replaced with SlTabs::LookupTable_CRC32LE_Zlib[0])
 static const ImU32 GCrc32LookupTable[256] = {
 	0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3, 
 	0x0EDB8832, 0x79DCB8A4, 0xE0D5E91E, 0x97D2D988, 0x09B64C2B, 0x7EB17CBD, 0xE7B82D07, 0x90BF1D91,
@@ -1854,6 +1846,7 @@ static const ImU32 GCrc32LookupTable[256] = {
 	0xBDBDF21C, 0xCABAC28A, 0x53B39330, 0x24B4A3A6, 0xBAD03605, 0xCDD70693, 0x54DE5729, 0x23D967BF, 
 	0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94, 0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D,
 };
+#endif // } 0
 
 // Known size hash
 // It is ok to call ImHashData on a string with known length but the ### operator won't be supported.
@@ -1862,7 +1855,7 @@ ImGuiID ImHashData(const void* data_p, size_t data_size, ImGuiID seed)
 {
 	ImU32 crc = ~seed;
 	const uchar* data = (const uchar*)data_p;
-	const ImU32* crc32_lut = GCrc32LookupTable;
+	const ImU32 * crc32_lut = /*GCrc32LookupTable*/SlTabs::LookupTable_CRC32LE_Zlib[0];
 	while(data_size-- != 0)
 		crc = (crc >> 8) ^ crc32_lut[(crc & 0xFF) ^ *data++];
 	return ~crc;
@@ -1879,7 +1872,7 @@ ImGuiID ImHashStr(const char* data_p, size_t data_size, ImGuiID seed)
 	seed = ~seed;
 	ImU32 crc = seed;
 	const uchar* data = (const uchar*)data_p;
-	const ImU32* crc32_lut = GCrc32LookupTable;
+	const ImU32 * crc32_lut = /*GCrc32LookupTable*/SlTabs::LookupTable_CRC32LE_Zlib[0];
 	if(data_size != 0) {
 		while(data_size-- != 0) {
 			uchar c = *data++;
@@ -2913,8 +2906,7 @@ void STDCALL ImGui::PopStyleColor(int count)
 	}
 }
 
-static const ImGuiDataVarInfo GStyleVarInfo[] =
-{
+static const ImGuiDataVarInfo GStyleVarInfo[] = {
 	{ ImGuiDataType_Float, 1, (ImU32)IM_OFFSETOF(ImGuiStyle, Alpha) },           // ImGuiStyleVar_Alpha
 	{ ImGuiDataType_Float, 1, (ImU32)IM_OFFSETOF(ImGuiStyle, DisabledAlpha) },   // ImGuiStyleVar_DisabledAlpha
 	{ ImGuiDataType_Float, 2, (ImU32)IM_OFFSETOF(ImGuiStyle, WindowPadding) },   // ImGuiStyleVar_WindowPadding
@@ -3842,11 +3834,9 @@ void ImGui::MarkItemEdited(ImGuiID id)
 		g.ActiveIdHasBeenEditedThisFrame = true;
 		g.ActiveIdHasBeenEditedBefore = true;
 	}
-
 	// We accept a MarkItemEdited() on drag and drop targets (see https://github.com/ocornut/imgui/issues/1875#issuecomment-978243343)
 	// We accept 'ActiveIdPreviousFrame == id' for InputText() returning an edit after it has been taken ActiveId away (#4714)
 	assert(g.DragDropActive || g.ActiveId == id || g.ActiveId == 0 || g.ActiveIdPreviousFrame == id);
-
 	//assert(g.CurrentWindow->DC.LastItemId == id);
 	g.LastItemData.StatusFlags |= ImGuiItemStatusFlags_Edited;
 }
@@ -5149,7 +5139,7 @@ bool ImGui::BeginChildEx(const char* name, ImGuiID id, const ImVec2 & size_arg, 
 		size.y = smax(content_avail.y + size.y, 4.0f);
 	SetNextWindowSize(size);
 	// Build up name. If you need to append to a same child from multiple location in the ID stack, use BeginChild(ImGuiID id) with a stable value.
-	const char* temp_window_name;
+	const char * temp_window_name;
 	if(name)
 		ImFormatStringToTempBuffer(&temp_window_name, NULL, "%s/%s_%08X", parent_window->Name, name, id);
 	else
@@ -5920,7 +5910,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
 {
 	ImGuiContext & g = *GImGui;
 	const ImGuiStyle & style = g.Style;
-	assert(name != NULL && name[0] != '\0'); // Window name required
+	assert(!isempty(name)); // Window name required
 	assert(g.WithinFrameScope);              // Forgot to call ImGui::NewFrame()
 	assert(g.FrameCountEnded != g.FrameCount); // Called ImGui::Render() or ImGui::EndFrame() and haven't called ImGui::NewFrame() again yet
 
@@ -10325,9 +10315,8 @@ static bool ImGui::NavScoreItem(ImGuiNavItemData* result)
 	// Compute distance between boxes
 	// FIXME-NAV: Introducing biases for vertical navigation, needs to be removed.
 	float dbx = NavScoreItemDistInterval(cand.Min.x, cand.Max.x, curr.Min.x, curr.Max.x);
-	float dby =
-	    NavScoreItemDistInterval(ImLerp(cand.Min.y, cand.Max.y, 0.2f), ImLerp(cand.Min.y, cand.Max.y, 0.8f), ImLerp(curr.Min.y, curr.Max.y, 0.2f),
-		ImLerp(curr.Min.y, curr.Max.y, 0.8f));                                                                                                                                            // Scale down on Y to keep using box-distance for vertically touching items
+	float dby = NavScoreItemDistInterval(ImLerp(cand.Min.y, cand.Max.y, 0.2f), ImLerp(cand.Min.y, cand.Max.y, 0.8f), 
+		ImLerp(curr.Min.y, curr.Max.y, 0.2f), ImLerp(curr.Min.y, curr.Max.y, 0.8f));                                                                                                                                            // Scale down on Y to keep using box-distance for vertically touching items
 	if(dby != 0.0f && dbx != 0.0f)
 		dbx = (dbx / 1000.0f) + ((dbx > 0.0f) ? +1.0f : -1.0f);
 	float dist_box = ImFabs(dbx) + ImFabs(dby);
@@ -11056,11 +11045,9 @@ void ImGui::NavUpdateCreateTabbingRequest()
 	assert(g.NavMoveDir == ImGuiDir_None);
 	if(window == NULL || g.NavWindowingTarget != NULL || (window->Flags & ImGuiWindowFlags_NoNavInputs))
 		return;
-
 	const bool tab_pressed = IsKeyPressed(ImGuiKey_Tab, ImGuiKeyOwner_None, ImGuiInputFlags_Repeat) && !g.IO.KeyCtrl && !g.IO.KeyAlt;
 	if(!tab_pressed)
 		return;
-
 	// Initiate tabbing request
 	// (this is ALWAYS ENABLED, regardless of ImGuiConfigFlags_NavEnableKeyboard flag!)
 	// Initially this was designed to use counters and modulo arithmetic, but that could not work with unsubmitted items (list clipper). Instead we use a strategy close to other move requests.

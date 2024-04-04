@@ -1,0 +1,293 @@
+{
+	"symb": "ui",
+	"value_list": {
+		"button_std_height": 24,
+		"button_std_width": 64,
+		"button_double_width": 128
+	},
+	"fontsrc_list": [
+		{
+			"face": "Cousine",
+			"src": "dd/font/Cousine-Regular.ttf"
+		},
+		{
+			"face": "DroidSans",
+			"src": "dd/font/DroidSans.ttf"
+		},
+		{
+			"face": "Karla",
+			"src": "dd/font/Karla-Regular.ttf"
+		},
+		{
+			"face": "ProggyClean",
+			"src": "dd/font/ProggyClean.ttf"
+		},
+		{
+			"face": "ProggyTiny",
+			"src": "dd/font/ProggyTiny.ttf"
+		},
+		{
+			"face": "Roboto",
+			"src": "dd/font/Roboto-Medium.ttf"
+		}
+	],
+	"font_list": [
+		{
+			"symb": "FontPrimary",
+			"face": "DroidSans",
+			"size": 14,
+			"colorrefsymb": "imgui_style.TextPrimary"
+		},
+		{
+			"symb": "FontSecondary",
+			"face": "Roboto",
+			"size": 12,
+			"colorrefsymb": "imgui_style.TextSecondary"
+		}
+	],
+	"colorset_list": [
+		{
+			"symb": "kabq_style",
+			"fs_file_bg": "#white",
+			"fs_file_fg": "#white",
+			"fs_folder_bg": "#white",
+			"fs_folder_fg": "#white",
+			"fs_current_bg": "#white",
+			"fs_current_fg": "#white",
+			"fs_selected_bg": "#white",
+			"fs_selected_fg": "#white"
+		},
+		{
+			"symb": "papyrus_style",
+			"button_bg": "#DCD9D1",
+			"button_sel_bg": "#BABAC9",
+			"button_border": "$icon_reg",
+			"button_def_border": "#green",
+			"button_focus_border": "#orange",
+			"button_sel_border": "#orange",
+			"button_disabled_border": "#white",
+			"button_fg": "#black",
+			"button_disabled_fg": "#white",
+			"icon_reg": "#52E4C0",
+			"icon_alert": "#DD1C1A",
+			"icon_accent": "#2A9D8F",
+			"icon_passive": "#FFF1D0",
+			"invalidinput_bg": "#crimson",
+			"invalidinput2_bg": "#ff9900",
+			"invalidinput3_bg": "#ff33cc",
+			"list_bg": "#white",
+			"list_border": "#white",
+			"list_focus_bg": "#0066cc",
+			"list_focus_border": "#0066cc",
+			"list_sel_bg": "#a2d2ff",
+			"list_sel_border": "#0066cc",
+			"grid_title":      "#D6D3CE",
+			"grid_titledelim": "#909090",
+			"grid_bg":         "#white", 
+			"grid_fg":         "#black",
+			"grid_curcell_bg": "#808080", 
+			"grid_curcell_fg": "#white", 
+			"grid_curline_bg": "#C0C0C0", 
+			"grid_curline_fg": "#black",
+			"grid_gridhorz":   "#C0C0C0", 
+			"grid_gridvert":   "#909090",
+			"ccheck_junk_bg": "#orange",
+			"ccheck_junk_fg": "#black",
+			"ccheck_imported_bg": "#palegreen",
+			"ccheck_imported_fg": "#black",
+			"ccheck_suspended_bg": "#yellow",
+			"ccheck_suspended_fg": "#black",
+			"ccheckitem_gift_bg": "#green",
+			"ccheckitem_gift_fg": "#black",
+			"ccheckitem_grouped_bg": "#lightgrey",
+			"ccheckitem_grouped_fg": "#black",
+			"ccheckitem_printed_bg": "#FCD5B4",
+			"ccheckitem_printed_fg": "#black",
+			"ccheckitem_partofcomplex_bg": "#D7E4BC",
+			"ccheckitem_partofcomplex_fg": "#black",
+			"ccheckitem_fixedprice_bg": "#cadetblue",
+			"ccheckitem_fixedprice_fg": "#black",
+			"barcode_preferred_bg": "#green",
+			"barcode_preferred_fg": "#white"
+		},	
+		{
+			"symb": "imgui_style",
+			"Substrat": "#1E2228",
+			"TextPrimary": "#white",
+			"TextSecondary": "#silver",
+			"Text": "#rgb(1.00, 1.00, 1.00)",
+			"TextDisabled": "#rgb(0.50, 0.50, 0.50)",
+			"WindowBg": "#2B3038",
+			"ChildBg": "#rgb(0.00, 0.00, 0.00)|0.00",
+			"PopupBg": "#rgb(0.08, 0.08, 0.08)|0.94",
+			"Border": "#rgb(0.43, 0.43, 0.50)|0.50",
+			"BorderShadow": "#rgb(0.00, 0.00, 0.00)|0.00",
+			"FrameBg": "#black|0.95",
+			"FrameBgHovered": "#rgb(0.26, 0.59, 0.98)|0.40",
+			"FrameBgActive": "#rgb(0.26, 0.59, 0.98)|0.67",
+			"TitleBg": "#rgb(0.04, 0.04, 0.04)",
+			"TitleBgActive": "#rgb(0.16, 0.29, 0.48)",
+			"TitleBgCollapsed": "#rgb(0.00, 0.00, 0.00)|0.51",
+			"MenuBarBg": "#rgb(0.14, 0.14, 0.14)",
+			"ScrollbarBg": "#rgb(0.02, 0.02, 0.02)|0.53",
+			"ScrollbarGrab": "#rgb(0.31, 0.31, 0.31)",
+			"ScrollbarGrabHovered": "#rgb(0.41, 0.41, 0.41)",
+			"ScrollbarGrabActive": "#rgb(0.51, 0.51, 0.51)",
+			"CheckMark": "#rgb(0.26, 0.59, 0.98)",
+			"SliderGrab": "#rgb(0.24, 0.52, 0.88)",
+			"SliderGrabActive": "#rgb(0.26, 0.59, 0.98)",
+			"Button": "#rgb(0.26, 0.59, 0.98)|0.40",
+			"ButtonHovered": "#rgb(0.26, 0.59, 0.98)",
+			"ButtonActive": "#rgb(0.06, 0.53, 0.98)",
+			"Header": "#rgb(0.26, 0.59, 0.98)|0.31",
+			"HeaderHovered": "#rgb(0.26, 0.59, 0.98)|0.80",
+			"HeaderActive": "#rgb(0.26, 0.59, 0.98)",
+			"Separator": "$Border",
+			"SeparatorHovered": "#rgb(0.10, 0.40, 0.75)|0.78",
+			"SeparatorActive": "#rgb(0.10, 0.40, 0.75)",
+			"ResizeGrip": "#rgb(0.26, 0.59, 0.98)|0.20",
+			"ResizeGripHovered": "#rgb(0.26, 0.59, 0.98)|0.67",
+			"ResizeGripActive": "#rgb(0.26, 0.59, 0.98)|0.95",
+			"Tab": "lerp $Header, $TitleBgActive, 0.80",
+			"TabHovered": "$HeaderHovered",
+			"TabActive": "lerp $HeaderActive $TitleBgActive 0.60",
+			"TabUnfocused": "lerp $Tab, $TitleBg, 0.80",
+			"TabUnfocusedActive": "lerp $TabActive, $TitleBg, 0.40",
+			"PlotLines": "#rgb(0.61, 0.61, 0.61)",
+			"PlotLinesHovered": "#rgb(1.00, 0.43, 0.35)",
+			"PlotHistogram": "#rgb(0.90, 0.70, 0.00)",
+			"PlotHistogramHovered": "#rgb(1.00, 0.60, 0.00)",
+			"TableHeaderBg": "#rgb(0.19, 0.19, 0.20)",
+			"TableBorderStrong": "#rgb(0.31, 0.31, 0.35)",
+			"TableBorderLight": "#rgb(0.23, 0.23, 0.25)",
+			"TableRowBg": "#rgb(0.00, 0.00, 0.00)|0.00",
+			"TableRowBgAlt": "#rgb(1.00, 1.00, 1.00)|0.06",
+			"TextSelectedBg": "#rgb(0.26, 0.59, 0.98)|0.35",
+			"DragDropTarget": "#rgb(1.00, 1.00, 0.00)|0.90",
+			"NavHighlight": "#rgb(0.26, 0.59, 0.98)",
+			"NavWindowingHighlight": "#rgb(1.00, 1.00, 1.00)|0.70",
+			"NavWindowingDimBg": "#rgb(0.80, 0.80, 0.80)|0.20",
+			"ModalWindowDimBg": "#rgb(0.80, 0.80, 0.80)|0.35"
+		}
+	],
+	"layout_list": [
+		{
+			"symb": "contentarea_twopane",
+			"id": 10029,
+			"flags": "horizontal",
+			"children": [
+				{
+					"symb": "contentarea_twopane_left",
+					"id": 10030,
+					"size": "undef, 100%",
+					"growfactor": 1,
+					"shrinkfactor": 1
+				},
+				{
+					"symb": "contentarea_twopane_right",
+					"id": 10031,
+					"size": "undef, 100%",
+					"growfactor": 1,
+					"shrinkfactor": 1
+				}
+			]
+		},
+		{
+			"symb": "mainframe",
+			"id": 1,
+			"flags": "vertical",
+			"size": "1037, 477",
+			"justifycontent": "start",
+			"aligncontent": "stretch",
+			"alignitems": "stretch",
+			"alignself": "auto",
+			"shrinkfactor": 1,
+			"children": [
+				{
+					"symb": "toolbar",
+					"id": 10027,
+					"size": "100%, 48",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "center",
+					"gravityy": "top",
+					"shrinkfactor": 1
+				},
+				{
+					"symb": "workframe",
+					"id": 10001,
+					"flags": "horizontal",
+					"size": "100%, undef",
+					"justifycontent": "start",
+					"aligncontent": "stretch",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "center",
+					"gravityy": "center",
+					"growfactor": 1,
+					"shrinkfactor": 1,
+					"children": [
+						{
+							"symb": "topicbar",
+							"id": 10002,
+							"size": "undef, 100%",
+							"alignitems": "stretch",
+							"alignself": "auto",
+							"gravityx": "center",
+							"gravityy": "center",
+							"growfactor": 1,
+							"shrinkfactor": 1
+						},
+						{
+							"symb": "contentframe",
+							"id": 10003,
+							"flags": "vertical wrap",
+							"size": "undef, 100%",
+							"justifycontent": "start",
+							"aligncontent": "stretch",
+							"alignitems": "stretch",
+							"alignself": "auto",
+							"gravityx": "center",
+							"gravityy": "center",
+							"growfactor": 5,
+							"shrinkfactor": 1,
+							"children": [
+								{
+									"symb": "searchbar",
+									"id": 10004,
+									"size": "100%, 64",
+									"alignitems": "stretch",
+									"alignself": "auto",
+									"gravityx": "center",
+									"gravityy": "center",
+									"shrinkfactor": 1
+								},
+								{
+									"symb": "contentarea",
+									"id": 10005,
+									"size": "100%, undef",
+									"alignitems": "stretch",
+									"alignself": "auto",
+									"gravityx": "center",
+									"gravityy": "center",
+									"growfactor": 1,
+									"shrinkfactor": 1
+								}
+							]
+						}
+					]
+				},
+				{
+					"symb": "statusbar",
+					"id": 10028,
+					"size": "100%, 48",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "center",
+					"gravityy": "bottom",
+					"shrinkfactor": 1
+				}
+			]
+		}	
+	]
+}

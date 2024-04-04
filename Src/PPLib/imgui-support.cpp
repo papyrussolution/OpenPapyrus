@@ -299,7 +299,7 @@ const void * SImFontDescription::GetHashKey(const void * pCtx, uint * pKeyLen) c
 //
 //
 //
-ImGuiSceneBase::ImGuiSceneBase() : ClearColor(SColor(0x1E, 0x22, 0x28)), Cache_Layout(512, 0), Cache_Font(101, 0)
+ImGuiSceneBase::ImGuiSceneBase() : Cache_Icon(), ClearColor(SColor(0x1E, 0x22, 0x28)), Cache_Layout(512, 0), Cache_Font(101, 0)
 {
 }
 	
@@ -312,20 +312,45 @@ ImGuiSceneBase::~ImGuiSceneBase()
 	return -1;
 }
 
-int ImGuiSceneBase::LoadUiDescription()
+int ImGuiSceneBase::LoadUiDescription(ImGuiIO & rIo)
 {
 	int    ok = 0;
 	SString temp_buf;
 	const UiDescription * p_uid = SLS.GetUiDescription(); // @v11.9.3
 	if(p_uid) {
 		{
-			const bool use_outer_layout_description = true;
+ 			const bool use_outer_layout_description = true;
+			if(p_uid->FontDescrList.getCount()) {
+				SString path_bin;
+				PPGetPath(PPPATH_BIN, path_bin);
+				for(uint i = 0; i < p_uid->FontDescrList.getCount(); i++) {
+					const SFontDescr * p_fd = p_uid->FontDescrList.at(i);
+					if(p_fd && p_fd->Symb.NotEmpty()) {
+						const SFontSource * p_fs = p_fd->Face.NotEmpty() ? p_uid->GetFontSourceC(p_fd->Face) : 0;
+						if(p_fs) {
+							(temp_buf = path_bin).SetLastSlash().Cat("..").SetLastSlash().Cat(p_fs->Src);
+							if(fileExists(temp_buf)) {
+								SColor * p_color = 0;
+								SColor color;
+								if(p_fd->ColorRefSymb.NotEmpty()) {
+									if(p_uid->GetColor("imgui_style", p_fd->ColorRefSymb, color)) {
+										p_color = &color;
+									}
+								}
+								CreateFontEntry(rIo, p_fd->Symb, temp_buf, static_cast<float>(p_fd->Size), 0, p_color);
+							}
+						}
+					}
+				}
+			}
 			if(use_outer_layout_description) {
-				for(uint i = 0; i < p_uid->LoList.getCount(); i++) {
-					const SUiLayout * p_lo = p_uid->LoList.at(i);
-					if(p_lo) {
-						SUiLayout * p_new_lo = new SUiLayout(*p_lo);
-						Cache_Layout.Put(p_new_lo, true);
+				{
+					for(uint i = 0; i < p_uid->LoList.getCount(); i++) {
+						const SUiLayout * p_lo = p_uid->LoList.at(i);
+						if(p_lo) {
+							SUiLayout * p_new_lo = new SUiLayout(*p_lo);
+							Cache_Layout.Put(p_new_lo, true);
+						}
 					}
 				}
 			}

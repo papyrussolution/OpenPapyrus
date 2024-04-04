@@ -1,5 +1,5 @@
  // GLBSRVS.CPP
- // Copyright (c) E.Sobolev 2020, 2021, 2022, 2024
+ // Copyright (c) Erik Sobolev 2020, 2021, 2022, 2024
  //
 #include <pp.h>
 #pragma hdrstop
@@ -181,7 +181,7 @@ int VkInterface::Setup(PPID guaID, uint flags)
 	THROW(gua_obj.GetPacket(guaID, &Ib.GuaPack) > 0);
 	Ib.GuaID = guaID;
 	//THROW(Ib.GuaPack.TagL.GetItemStr(PPTAG_GUA_LOGIN, Ib.CliIdent) > 0);
-	THROW(Ib.GuaPack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, Ib.CliAccsKey) > 0);
+	THROW(Ib.GuaPack.GetAccessKey(Ib.CliAccsKey) > 0);
 	//Ib.EndPoint = InetUrl::MkHttps("api.uds.app", "partner/v2");
 	{
 		Reference * p_ref = PPRef;
@@ -833,7 +833,7 @@ static int Setup_GlobalService_UDS_InitParam(SetupGlobalServiceUDS_Param & rP, i
 				gua_pack.TagL.GetItemStr(PPTAG_GUA_LOGIN, db_value);
 				if(db_value.NotEmptyS() && !rP.Login.NotEmptyS())
 					rP.Login = db_value;
-				gua_pack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, db_value.Z());
+				gua_pack.GetAccessKey(db_value);
 				if(db_value.NotEmptyS() && !rP.ApiKey.NotEmptyS()) {
 					rP.ApiKey = db_value;
 				}
@@ -862,7 +862,7 @@ static int Setup_GlobalService_UDS_InitParam(SetupGlobalServiceUDS_Param & rP, i
 				THROW(gua_obj.GetPacket(rP.GuaID, &gua_pack) > 0);
 				THROW_PP_S(gua_pack.Rec.ServiceIdent == service_ident, PPERR_INVGUASERVICEIDENT, temp_buf.Z());
 				gua_pack.TagL.PutItemStr(PPTAG_GUA_LOGIN, rP.Login);
-				gua_pack.TagL.PutItemStr(PPTAG_GUA_ACCESSKEY, rP.ApiKey);
+				gua_pack.SetAccessKey(rP.ApiKey);
 				THROW(gua_obj.PutPacket(&temp_id, &gua_pack, 0)); // @v10.9.11 @fix use_ta 1-->0
 			}
 			else {
@@ -871,7 +871,7 @@ static int Setup_GlobalService_UDS_InitParam(SetupGlobalServiceUDS_Param & rP, i
 				STRNSCPY(gua_pack.Rec.Name, "UDS");
 				STRNSCPY(gua_pack.Rec.Symb, "UDS");
 				gua_pack.TagL.PutItemStr(PPTAG_GUA_LOGIN, rP.Login);
-				gua_pack.TagL.PutItemStr(PPTAG_GUA_ACCESSKEY, rP.ApiKey);
+				gua_pack.SetAccessKey(rP.ApiKey);
 				THROW(gua_obj.PutPacket(&temp_id, &gua_pack, 0));
 			}
 			if(rP.SCardSerID) {
@@ -1013,7 +1013,7 @@ static int Setup_GlobalService_VK_InitParam(SetupGlobalServiceVK_Param & rP, int
 		if(!force) {
 			if(rP.GuaID && gua_obj.GetPacket(rP.GuaID, &gua_pack) > 0) {
 				SString db_value;
-				gua_pack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, db_value.Z());
+				gua_pack.GetAccessKey(db_value);
 				if(db_value.NotEmptyS() && !rP.ApiKey.NotEmptyS())
 					rP.ApiKey = db_value;
 				gua_pack.TagL.GetItemStr(PPTAG_GUA_SOCIALGROUPCODE, db_value.Z());
@@ -1061,7 +1061,7 @@ static int Setup_GlobalService_VK_InitParam(SetupGlobalServiceVK_Param & rP, int
 					STRNSCPY(gua_pack.Rec.Symb, "VKACC");
 				}
 				{
-					gua_pack.TagL.PutItemStr(PPTAG_GUA_ACCESSKEY, rP.ApiKey);
+					gua_pack.SetAccessKey(rP.ApiKey);
 					gua_pack.TagL.PutItemStr(PPTAG_GUA_SOCIALGROUPCODE, rP.GroupIdent);
 					gua_pack.TagL.PutItemStr(PPTAG_GUA_SOCIALPAGECODE, rP.PageIdent);
 					{
@@ -1249,7 +1249,7 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 					if(GuaObj.GetPacket(gua_id, &gua_pack) > 0) {
 						gua_pack.TagL.GetItemStr(PPTAG_GUA_SOCIALGROUPCODE, group_code);
 						gua_pack.TagL.GetItemStr(PPTAG_GUA_SOCIALPAGECODE, page_code);
-						gua_pack.TagL.GetItemStr(PPTAG_GUA_ACCESSKEY, accs_key);
+						gua_pack.GetAccessKey(accs_key);
 					}
 					setCtrlString(CTL_SUVK_APIKEY, accs_key);
 					setCtrlString(CTL_SUVK_GROUPIDENT, group_code);

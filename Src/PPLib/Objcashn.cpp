@@ -536,8 +536,7 @@ StrAssocArray * PPObjCashNode::MakeStrAssocList(void * extraPtr)
 	else {
 		SString title;
 		THROW(lw = new ListWindow(new StrAssocListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify), 0, 0));
-		THROW(PPLoadText(PPTXT_SELECTCASHNODE, title));
-		lw->setTitle(title);
+		lw->setTitle(PPLoadTextS(PPTXT_SELECTCASHNODE, title));
 		lw->ViewOptions |= (ofCenterX | ofCenterY);
 		while(!valid_data && ExecView(lw) == cmOK) {
 			lw->getResult(&id);

@@ -197,7 +197,7 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 				    sc.Forward();
 				    sc.ForwardSetState(SCE_ECL_DEFAULT);
 			    }
-			    else if(sc.ch == '@' || sc.ch == '\\') {        // JavaDoc and Doxygen support
+			    else if(oneof2(sc.ch, '@', '\\')) { // JavaDoc and Doxygen support
 				    // Verify that we have the conditions to mark a comment-doc-keyword
 				    if((IsASpace(sc.chPrev) || sc.chPrev == '*') && (!IsASpace(sc.chNext))) {
 					    styleBeforeDCKeyword = SCE_ECL_COMMENTDOC;
@@ -214,7 +214,7 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 			    if(sc.atLineStart) {
 				    sc.SetState(SCE_ECL_DEFAULT);
 			    }
-			    else if(sc.ch == '@' || sc.ch == '\\') {        // JavaDoc and Doxygen support
+			    else if(oneof2(sc.ch, '@', '\\')) { // JavaDoc and Doxygen support
 				    // Verify that we have the conditions to mark a comment-doc-keyword
 				    if((IsASpace(sc.chPrev) || sc.chPrev == '/' || sc.chPrev == '!') && (!IsASpace(sc.chNext))) {
 					    styleBeforeDCKeyword = SCE_ECL_COMMENTLINEDOC;

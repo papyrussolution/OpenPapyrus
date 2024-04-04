@@ -89,7 +89,7 @@ int ZXing_CreateBarcodeImage(const PPBarcode::BarcodeImageParam & rParam)
 	return ok;
 }
 
-int ZXing_RecognizeBarcodeImage(const char * pInpFileName, TSCollection <PPBarcode::Entry> & rList)
+/*static*/int PPBarcode::ZXing_RecognizeImage(const char * pInpFileName, TSCollection <PPBarcode::Entry> & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -166,5 +166,3 @@ int ZXing_RecognizeBarcodeImage(const char * pInpFileName, TSCollection <PPBarco
 	delete p_fig;
 	return ok;
 }
-
-

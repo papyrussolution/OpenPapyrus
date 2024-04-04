@@ -148,10 +148,10 @@ boolint _pixman_format_from_masks(const cairo_format_masks_t * masks, pixman_for
 	pixman_format_code_t format;
 	int format_type;
 	cairo_format_masks_t format_masks;
-	int a = _cairo_popcount(masks->alpha_mask);
-	int r = _cairo_popcount(masks->red_mask);
-	int g = _cairo_popcount(masks->green_mask);
-	int b = _cairo_popcount(masks->blue_mask);
+	int a = SBits::Cpop(masks->alpha_mask);
+	int r = SBits::Cpop(masks->red_mask);
+	int g = SBits::Cpop(masks->green_mask);
+	int b = SBits::Cpop(masks->blue_mask);
 	if(masks->red_mask) {
 		if(masks->red_mask > masks->blue_mask)
 			format_type = PIXMAN_TYPE_ARGB;
