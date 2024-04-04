@@ -1,0 +1,30 @@
+{
+	"font_list": [
+		{
+			"symb": "fd1",
+			"face": "arial",
+			"size": 16,
+			"modifiers": "italic"
+		},
+		{
+			"symb": "fd2",
+			"face": "Times New Roman",
+			"size": 11,
+			"modifiers": "bold"
+		},
+		{
+			"symb": "fd3",
+			"face": "tahoma",
+			"size": 16,
+			"modifiers": "italic",
+			"weight": 1
+		},
+		{
+			"symb": "fd4",
+			"face": "Cousine",
+			"size": 16,
+			"modifiers": "italic",
+			"colorrefsymb": "#black"
+		}
+	]
+}
