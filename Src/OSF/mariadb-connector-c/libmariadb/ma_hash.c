@@ -129,7 +129,6 @@ static uint calc_hashnr_caseup(const uchar * key, uint length)
 }
 
 #else
-
 /*
  * Fowler/Noll/Vo hash
  *
@@ -148,7 +147,7 @@ uint calc_hashnr(const uchar * key, uint len)
 	const uchar * end = key+len;
 	uint hash;
 	for(hash = 0; key < end; key++) {
-		hash *= 16777619;
+		hash *= 0x01000193U/*16777619*/;
 		hash ^= (uint) *(uchar *)key;
 	}
 	return (hash);
@@ -159,7 +158,7 @@ uint calc_hashnr_caseup(const uchar * key, uint len)
 	const uchar * end = key+len;
 	uint hash;
 	for(hash = 0; key < end; key++) {
-		hash *= 16777619;
+		hash *= 0x01000193U/*16777619*/;
 		hash ^= (uint)(uchar)toupper(*key);
 	}
 	return (hash);

@@ -2148,7 +2148,7 @@ ImVec4 ImGui::ColorConvertU32ToFloat4(ImU32 in)
 		((in >> IM_COL32_A_SHIFT) & 0xFF) * s);
 }
 
-ImU32 ImGui::ColorConvertFloat4ToU32(const ImVec4 & in)
+ImU32 FASTCALL ImGui::ColorConvertFloat4ToU32(const ImVec4 & in)
 {
 	ImU32 out;
 	out  = ((ImU32)IM_F32_TO_INT8_SAT(in.x)) << IM_COL32_R_SHIFT;
@@ -3634,7 +3634,7 @@ ImGuiID ImGuiWindow::GetID(const char* str, const char* str_end)
 	return id;
 }
 
-ImGuiID ImGuiWindow::GetID(const void* ptr)
+ImGuiID FASTCALL ImGuiWindow::GetID(const void * ptr)
 {
 	ImGuiID seed = IDStack.back();
 	ImGuiID id = ImHashData(&ptr, sizeof(void*), seed);
@@ -3644,7 +3644,7 @@ ImGuiID ImGuiWindow::GetID(const void* ptr)
 	return id;
 }
 
-ImGuiID ImGuiWindow::GetID(int n)
+ImGuiID FASTCALL ImGuiWindow::GetID(int n)
 {
 	ImGuiID seed = IDStack.back();
 	ImGuiID id = ImHashData(&n, sizeof(n), seed);
@@ -7282,7 +7282,7 @@ ImGuiStorage* ImGui::GetStateStorage()
 	return window->DC.StateStorage;
 }
 
-void STDCALL ImGui::PushID(const char* str_id)
+void FASTCALL ImGui::PushID(const char* str_id)
 {
 	ImGuiContext & g = *GImGui;
 	ImGuiWindow * window = g.CurrentWindow;
@@ -7290,7 +7290,7 @@ void STDCALL ImGui::PushID(const char* str_id)
 	window->IDStack.push_back(id);
 }
 
-void STDCALL ImGui::PushID(const char* str_id_begin, const char* str_id_end)
+void FASTCALL ImGui::PushID(const char* str_id_begin, const char* str_id_end)
 {
 	ImGuiContext & g = *GImGui;
 	ImGuiWindow * window = g.CurrentWindow;
@@ -7298,7 +7298,7 @@ void STDCALL ImGui::PushID(const char* str_id_begin, const char* str_id_end)
 	window->IDStack.push_back(id);
 }
 
-void STDCALL ImGui::PushID(const void* ptr_id)
+void FASTCALL ImGui::PushID(const void* ptr_id)
 {
 	ImGuiContext & g = *GImGui;
 	ImGuiWindow * window = g.CurrentWindow;
@@ -7306,7 +7306,7 @@ void STDCALL ImGui::PushID(const void* ptr_id)
 	window->IDStack.push_back(id);
 }
 
-void STDCALL ImGui::PushID(int int_id)
+void FASTCALL ImGui::PushID(int int_id)
 {
 	ImGuiContext & g = *GImGui;
 	ImGuiWindow * window = g.CurrentWindow;
@@ -7352,19 +7352,19 @@ void STDCALL ImGui::PopID()
 	window->IDStack.pop_back();
 }
 
-ImGuiID STDCALL ImGui::GetID(const char* str_id)
+ImGuiID FASTCALL ImGui::GetID(const char* str_id)
 {
 	ImGuiWindow * window = GImGui->CurrentWindow;
 	return window->GetID(str_id);
 }
 
-ImGuiID STDCALL ImGui::GetID(const char* str_id_begin, const char* str_id_end)
+ImGuiID FASTCALL ImGui::GetID(const char* str_id_begin, const char* str_id_end)
 {
 	ImGuiWindow * window = GImGui->CurrentWindow;
 	return window->GetID(str_id_begin, str_id_end);
 }
 
-ImGuiID STDCALL ImGui::GetID(const void* ptr_id)
+ImGuiID FASTCALL ImGui::GetID(const void* ptr_id)
 {
 	ImGuiWindow * window = GImGui->CurrentWindow;
 	return window->GetID(ptr_id);

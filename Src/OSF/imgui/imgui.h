@@ -492,14 +492,14 @@ float  GetFrameHeightWithSpacing();             // ~ FontSize + style.FramePaddi
 // - You can also use the "Label##foobar" syntax within widget label to distinguish them from each others.
 // - In this header file we use the "label"/"name" terminology to denote a string that will be displayed + used as an ID,
 //   whereas "str_id" denote a string that is only used as an ID and not normally displayed.
-void    STDCALL PushID(const char* str_id);                                         // push string into the ID stack (will hash string).
-void    STDCALL PushID(const char* str_id_begin, const char* str_id_end);           // push string into the ID stack (will hash string).
-void    STDCALL PushID(const void* ptr_id);                                         // push pointer into the ID stack (will hash pointer).
-void    STDCALL PushID(int int_id);                                                 // push integer into the ID stack (will hash integer).
-void    STDCALL PopID();                                                            // pop from the ID stack.
-ImGuiID STDCALL GetID(const char* str_id);                                          // calculate unique ID (hash of whole ID stack + given parameter). e.g. if you want to query into ImGuiStorage yourself
-ImGuiID STDCALL GetID(const char* str_id_begin, const char* str_id_end);
-ImGuiID STDCALL GetID(const void* ptr_id);
+void    FASTCALL PushID(const char* str_id);   // push string into the ID stack (will hash string).
+void    FASTCALL PushID(const char* str_id_begin, const char* str_id_end);           // push string into the ID stack (will hash string).
+void    FASTCALL PushID(const void* ptr_id);  // push pointer into the ID stack (will hash pointer).
+void    FASTCALL PushID(int int_id);          // push integer into the ID stack (will hash integer).
+void    STDCALL PopID();                      // pop from the ID stack.
+ImGuiID FASTCALL GetID(const char* str_id);    // calculate unique ID (hash of whole ID stack + given parameter). e.g. if you want to query into ImGuiStorage yourself
+ImGuiID FASTCALL GetID(const char* str_id_begin, const char* str_id_end);
+ImGuiID FASTCALL GetID(const void* ptr_id);
 
 // Widgets: Text
 void    TextUnformatted(const char* text, const char* text_end = NULL);     // raw text without formatting. Roughly equivalent to Text("%s", text) but: A) doesn't require null terminated string if 'text_end' is specified, B) it's faster, no memory copy is done, no buffer size limits, recommended for long chunks of text.
@@ -922,7 +922,7 @@ ImVec2 CalcTextSize(const char* text, const char* text_end = NULL, bool hide_tex
 
 // Color Utilities
 ImVec4 ColorConvertU32ToFloat4(ImU32 in);
-ImU32  ColorConvertFloat4ToU32(const ImVec4 & in);
+ImU32  FASTCALL ColorConvertFloat4ToU32(const ImVec4 & in);
 void   ColorConvertRGBtoHSV(float r, float g, float b, float& out_h, float& out_s, float& out_v);
 void   ColorConvertHSVtoRGB(float h, float s, float v, float& out_r, float& out_g, float& out_b);
 

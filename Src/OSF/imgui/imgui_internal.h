@@ -2483,8 +2483,8 @@ public:
 	ImGuiWindow(ImGuiContext* context, const char* name);
 	~ImGuiWindow();
 	ImGuiID GetID(const char * str, const char* str_end = NULL);
-	ImGuiID GetID(const void * ptr);
-	ImGuiID GetID(int n);
+	ImGuiID FASTCALL GetID(const void * ptr);
+	ImGuiID FASTCALL GetID(int n);
 	ImGuiID GetIDFromRectangle(const ImRect& r_abs);
 	// We don't use g.FontSize because the window may be != g.CurrentWindow.
 	ImRect  Rect() const { return ImRect(Pos.x, Pos.y, Pos.x + Size.x, Pos.y + Size.y); }
@@ -2577,6 +2577,7 @@ struct ImGuiTabBar {
 	bool TabsAddedNew;         // Set to true when a new tab item or button has been added to the tab bar during last frame
 	int16 TabsActiveCount;     // Number of tabs submitted this frame.
 	int16 LastTabItemIdx;      // Index of last BeginTabItem() tab for use by EndTabItem()
+	uint16 Reserve; // @alignment // @sobolev
 	float ItemSpacingY;
 	ImVec2 FramePadding;       // style.FramePadding locked at the time of BeginTabBar()
 	ImVec2 BackupCursorPos;

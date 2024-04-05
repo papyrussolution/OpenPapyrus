@@ -149,7 +149,7 @@ uint32 __ham_func5(DB * dbp, const void * key, uint32 len)
 	k = static_cast<const uint8 *>(key);
 	e = k+len;
 	for(h = 0; k < e; ++k) {
-		h *= 16777619;
+		h *= 0x01000193U/*16777619*/;
 		h ^= *k;
 	}
 	return h;

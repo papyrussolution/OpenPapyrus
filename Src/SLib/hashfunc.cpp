@@ -1,5 +1,5 @@
 // HASHFUNC.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2016, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2012, 2013, 2016, 2019, 2020, 2021, 2022, 2023, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -366,7 +366,7 @@ uint32 FASTCALL SlHash::PJW(const void * pData, size_t len)
 	const uint BitsInUnsignedInt = (uint)(sizeof(uint) * 8);
 	const uint ThreeQuarters     = (uint)((BitsInUnsignedInt  * 3) / 4);
 	const uint OneEighth = (uint)(BitsInUnsignedInt / 8);
-	const uint HighBits  = (uint)(0xFFFFFFFF) << (BitsInUnsignedInt - OneEighth);
+	const uint HighBits  = _FFFF32 << (BitsInUnsignedInt - OneEighth);
 	uint32 hash = 0;
 	uint32 test = 0;
 	for(uint i = 0; i < len; i++) {
@@ -434,10 +434,16 @@ uint32 FASTCALL SlHash::BP(const void * pData, size_t len)
 }
 //
 // FNV Hash Function
+// Fowler / Noll / Vo (FNV) Hash (http://www.isthe.com/chongo/tech/comp/fnv/)
 //
 uint32 FASTCALL SlHash::FNV(const void * pData, size_t len)
 {
-	const uint fnv_prime = 0x811C9DC5;
+	//
+	// @20240405 Похоже, я нашел неверную реализацию функции. Судя по вариантам из других источников,
+	// значение 0x811C9DC5 применяется в качестве инициализации, а в итерации используется 0x01000193.
+	// Черт! Это - плохо, я из того источника много функций взял и с тестами - придется все пересматривать.
+	//
+	const uint fnv_prime = 0x811C9DC5U;
 	uint32 hash = 0;
 	for(uint i = 0; i < len; i++) {
 		hash *= fnv_prime;

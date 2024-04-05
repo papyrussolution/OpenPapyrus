@@ -346,10 +346,10 @@ typedef uchar uint8;
     do {                                            \
         unsigned _fn_i;                             \
         char *_hf_key = (char *)(key);              \
-        hashv = 2166136261UL;                       \
-        for (_fn_i = 0; _fn_i < keylen; _fn_i++)    \
+        hashv = 0x811C9DC5U/*2166136261UL*/;        \
+        for(_fn_i = 0; _fn_i < keylen; _fn_i++)    \
             hashv = hashv ^ _hf_key[_fn_i];         \
-        hashv = hashv * 16777619;                   \
+        hashv = hashv * 0x01000193U/*16777619*/;    \
         bkt = hashv & (num_bkts - 1);               \
     } while(0)
 
