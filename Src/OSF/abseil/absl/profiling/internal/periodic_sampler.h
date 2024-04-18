@@ -6,8 +6,6 @@
 #ifndef ABSL_PROFILING_INTERNAL_PERIODIC_SAMPLER_H_
 #define ABSL_PROFILING_INTERNAL_PERIODIC_SAMPLER_H_
 
-//#include <stdint.h>
-//#include <atomic>
 #include "absl/base/optimization.h"
 #include "absl/profiling/internal/exponential_biased.h"
 

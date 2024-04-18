@@ -6457,7 +6457,8 @@ SOAP_FMAC1 void * /*SOAP_FMAC2*/FASTCALL soap_malloc(struct soap * soap, size_t 
 		/* keep chain of alloced cells for destruction */
 	      *reinterpret_cast<void **>(p+n) = soap->alist;
 	      *reinterpret_cast<size_t *>(p+n+sizeof(void *)) = n;
-	      soap->alist = p+n; }
+	      soap->alist = p+n; 
+	}
 	soap->alloced = 1;
 	return p;
 }

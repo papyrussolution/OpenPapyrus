@@ -36,10 +36,10 @@
 // Note that this duplicates some code from lzma.h, but this is better since
 // we can work without inttypes.h thanks to Autoconf tests.
 #ifndef UINT32_C
-#if UINT_MAX != 4294967295U
-#		error UINT32_C is not defined and unsigned int is not 32-bit.
-#	endif
-#define UINT32_C(n) n ## U
+	#if UINT_MAX != 4294967295U
+		#error UINT32_C is not defined and unsigned int is not 32-bit.
+	#endif
+	#define UINT32_C(n) n ## U
 #endif
 #ifndef UINT32_MAX
 	#define UINT32_MAX UINT32_C(4294967295)
@@ -67,18 +67,18 @@
 		#define PRIX64 "llX"
 	#endif
 #else
-#	ifndef UINT64_C
-#		define UINT64_C(n) n ## UL
-#	endif
-#	ifndef PRIu64
-#		define PRIu64 "lu"
-#	endif
-#	ifndef PRIx64
-#		define PRIx64 "lx"
-#	endif
-#	ifndef PRIX64
-#		define PRIX64 "lX"
-#	endif
+	#ifndef UINT64_C
+		#define UINT64_C(n) n ## UL
+	#endif
+	#ifndef PRIu64
+		#define PRIu64 "lu"
+	#endif
+	#ifndef PRIx64
+		#define PRIx64 "lx"
+	#endif
+	#ifndef PRIX64
+		#define PRIX64 "lX"
+	#endif
 #endif
 #ifndef UINT64_MAX
 	#define UINT64_MAX UINT64_C(18446744073709551615)
@@ -96,12 +96,12 @@
 // The code currently assumes that size_t is either 32-bit or 64-bit.
 #ifndef SIZE_MAX
 #if SIZEOF_SIZE_T == 4
-#		define SIZE_MAX UINT32_MAX
-#	elif SIZEOF_SIZE_T == 8
-#		define SIZE_MAX UINT64_MAX
-#	else
-#		error size_t is not 32-bit or 64-bit
-#	endif
+#define SIZE_MAX UINT32_MAX
+#elif SIZEOF_SIZE_T == 8
+#define SIZE_MAX UINT64_MAX
+#else
+#error size_t is not 32-bit or 64-bit
+#endif
 #endif
 #if SIZE_MAX != UINT32_MAX && SIZE_MAX != UINT64_MAX
 #	error size_t is not 32-bit or 64-bit

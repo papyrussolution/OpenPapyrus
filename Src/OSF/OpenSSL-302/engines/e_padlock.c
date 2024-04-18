@@ -598,7 +598,7 @@ static int padlock_aes_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const u
 	int key_len = EVP_CIPHER_CTX_get_key_length(ctx) * 8;
 	unsigned long mode = EVP_CIPHER_CTX_get_mode(ctx);
 	if(!key)
-		return 0;       /* ERROR */
+		return 0; /* ERROR */
 	cdata = ALIGNED_CIPHER_DATA(ctx);
 	memzero(cdata, sizeof(*cdata));
 	/* Prepare Control word. */

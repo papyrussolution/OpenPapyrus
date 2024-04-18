@@ -1,5 +1,5 @@
 // TAGCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // @Kernel
 // Теги объектов
@@ -1210,7 +1210,7 @@ int ObjTagCore::PutListExcl(PPID objType, PPID objID, const ObjTagList * pList, 
 				for(pos = 0; (p_item = pList->EnumItems(&pos)) != 0;) {
 					p_org_item = org_list.GetItem(p_item->TagID);
 					if(!p_org_item || *p_org_item != *p_item) {
-						if(!(is_excl_list && pExclList->lsearch(p_item->TagID))) { // @v9.0.9
+						if(!(is_excl_list && pExclList->lsearch(p_item->TagID))) {
 							THROW(PutTag(objType, objID, (ObjTagItem*)p_item, 0));
 						}
 					}
@@ -1400,6 +1400,9 @@ int ObjTagCore::GetList(PPID objType, PPID objID, ObjTagList * pList)
 			if(!pList->PutItem(tag_id, &item))
 				ok = 0;
 		}
+	}
+	if(!ok) {
+		PPSetError(PPERR_GETTAGLISTBYOBJFAULT, PPObjID(objType, objID).ToStr(SLS.AcquireRvlStr()));
 	}
 	return ok;
 }

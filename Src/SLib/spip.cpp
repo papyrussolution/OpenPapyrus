@@ -1,5 +1,5 @@
 // SPIP.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 // Program Interface Paradigm
 //
 #include <slib-internal.h>
@@ -416,27 +416,29 @@ SString FASTCALL SVerT::ToStr(SString & rBuf) const
 int FASTCALL SVerT::FromStr(const char * pStr)
 {
 	int    ok = 0;
-	int    j = 0, n = 0, r = 0;
-	SString temp_buf;
-	SStrScan scan(pStr);
-	Set(0, 0, 0);
-	if(scan.Skip().GetDigits(temp_buf)) {
-		j = (int)temp_buf.ToLong();
-		if(scan.Skip()[0] == '.') {
-			scan.Incr();
-			if(scan.Skip().GetDigits(temp_buf)) {
-				n = (int)temp_buf.ToLong();
-				if(scan.Skip()[0] == '.') {
-					scan.Incr();
-					if(scan.Skip().GetDigits(temp_buf)) {
-						r = (int)temp_buf.ToLong();
-						Set(j, n, r);
-						ok = 3;
+	Z();
+	if(!isempty(pStr)) {
+		int    j = 0, n = 0, r = 0;
+		SString temp_buf;
+		SStrScan scan(pStr);
+		if(scan.Skip().GetDigits(temp_buf)) {
+			j = (int)temp_buf.ToLong();
+			if(scan.Skip()[0] == '.') {
+				scan.Incr();
+				if(scan.Skip().GetDigits(temp_buf)) {
+					n = (int)temp_buf.ToLong();
+					if(scan.Skip()[0] == '.') {
+						scan.Incr();
+						if(scan.Skip().GetDigits(temp_buf)) {
+							r = (int)temp_buf.ToLong();
+							Set(j, n, r);
+							ok = 3;
+						}
 					}
-				}
-				else {
-					Set(j, n, 0);
-					ok = 2;
+					else {
+						Set(j, n, 0);
+						ok = 2;
+					}
 				}
 			}
 		}

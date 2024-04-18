@@ -29,7 +29,6 @@
 #ifndef ABSL_DEBUGGING_INTERNAL_VDSO_SUPPORT_H_
 #define ABSL_DEBUGGING_INTERNAL_VDSO_SUPPORT_H_
 
-//#include <atomic>
 #include "absl/base/attributes.h"
 #include "absl/debugging/internal/elf_mem_image.h"
 

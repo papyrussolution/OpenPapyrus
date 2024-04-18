@@ -743,6 +743,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 			}
 			// @v11.4.6 {
 			AddClusterAssoc(CTL_STQCMD_FLAGS, 0, Data.fPrepareAhead);
+			AddClusterAssoc(CTL_STQCMD_FLAGS, 1, Data.fPassive); // @v11.9.12
 			SetClusterData(CTL_STQCMD_FLAGS, Data.Flags);
 			// } @v11.4.6 
 			// @v11.5.9 {

@@ -15,12 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/container/internal/hashtablez_sampler.h"
-//#include <algorithm>
-//#include <atomic>
-//#include <cassert>
-//#include <cmath>
-//#include <functional>
-//#include <limits>
 #include "absl/base/attributes.h"
 #include "absl/base/config.h"
 #include "absl/base/internal/raw_logging.h"

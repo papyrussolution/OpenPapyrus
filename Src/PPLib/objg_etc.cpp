@@ -36,7 +36,7 @@ int PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 	int    ok = 1;
 	int    r = cmCancel;
 	int    valid_data = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	PPGoodsType rec;
 	TDialog * dlg = 0;
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_GDSTYP))));
@@ -212,7 +212,7 @@ int PPObjBarCodeStruc::Edit(PPID * pID, void * extraPtr)
 	int    ok = 1;
 	int    r = cmCancel;
 	int    valid_data = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	PPBarcodeStruc rec;
 	TDialog * dlg = 0;
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_BCODESTR))));
@@ -530,7 +530,7 @@ int PPObjGoodsValRestr::Edit(PPID * pID, void * extraPtr)
 	int    r = cmCancel;
 	int    ok = 1;
 	int    valid_data = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	PPGoodsValRestrPacket pack;
 	GoodsValRestrDialog * dlg = new GoodsValRestrDialog;
 	THROW(CheckDialogPtr(&dlg));
@@ -948,7 +948,7 @@ PPObjPallet::PPObjPallet(void * extraPtr) : PPObjReference(PPOBJ_PALLET, extraPt
 int PPObjPallet::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
-	int    is_new = 0;
+	bool   is_new = false;
 	TDialog * dlg = 0;
 	PPPallet pack;
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PALLET))));
@@ -1021,7 +1021,7 @@ PPSwProgram::PPSwProgram()
 
 bool FASTCALL PPSwProgram::IsEq(const PPSwProgram & rS) const
 {
-	return (ID == rS.ID && Flags == rS.Flags && sstreq(Name, rS.Name) && sstreq(Code, rS.Code));
+	return (ID == rS.ID && Flags == rS.Flags && CategoryID == rS.CategoryID && sstreq(Name, rS.Name) && sstreq(ExeFn, rS.ExeFn) && sstreq(Code, rS.Code));
 }
 
 bool FASTCALL PPSwProgram::CheckForFilt(const SwProgramFilt * pFilt) const
@@ -1031,6 +1031,12 @@ bool FASTCALL PPSwProgram::CheckForFilt(const SwProgramFilt * pFilt) const
 
 PPSwProgramPacket::PPSwProgramPacket()
 {
+}
+
+void PPSwProgramPacket::Init()
+{
+	LinkFiles.Clear();
+	TagL.Destroy();
 }
 
 bool FASTCALL PPSwProgramPacket::Copy(const PPSwProgramPacket & rS)
@@ -1054,9 +1060,97 @@ PPObjSwProgram::~PPObjSwProgram()
 {
 }
 
+class SwProgramDialog : public TDialog {
+	DECL_DIALOG_DATA(PPSwProgramPacket);
+	enum {
+		ctlgroupIbg = 1
+	};
+public:
+	SwProgramDialog() : TDialog(DLG_SWPROGRAM)
+	{
+		addGroup(ctlgroupIbg, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_SWPROGRAM_IMAGE,
+			cmAddImage, cmDelImage, 1, ImageBrowseCtrlGroup::fUseExtOpenDlg));
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		//
+		setCtrlLong(CTL_SWPROGRAM_ID, Data.Rec.ID);
+		setCtrlData(CTL_SWPROGRAM_NAME, Data.Rec.Name);
+		setCtrlData(CTL_SWPROGRAM_EXEFN, Data.Rec.ExeFn);
+		{
+			ImageBrowseCtrlGroup::Rec rec;
+			Data.LinkFiles.Init(PPOBJ_SWPROGRAM);
+			if(Data.Rec.Flags & BRNDF_HASIMAGES)
+				Data.LinkFiles.Load(Data.Rec.ID, 0L);
+			Data.LinkFiles.At(0, rec.Path);
+			setGroupData(ctlgroupIbg, &rec);
+		}
+		SetupPPObjCombo(this, CTLSEL_SWPROGRAM_CAT, PPOBJ_SWPROGRAMCATEGORY, Data.Rec.CategoryID, OLW_CANINSERT, 0);
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		getCtrlData(sel = CTL_SWPROGRAM_NAME,  Data.Rec.Name);
+		THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
+		getCtrlData(CTL_SWPROGRAM_EXEFN, Data.Rec.ExeFn);
+		getCtrlData(CTLSEL_SWPROGRAM_CAT, &Data.Rec.CategoryID);
+		{
+			ImageBrowseCtrlGroup::Rec rec;
+			if(getGroupData(ctlgroupIbg, &rec))
+				if(rec.Path.Len()) {
+					THROW(Data.LinkFiles.Replace(0, rec.Path));
+				}
+				else
+					Data.LinkFiles.Remove(0);
+			SETFLAG(Data.Rec.Flags, BRNDF_HASIMAGES, Data.LinkFiles.GetCount());
+		}
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmTags)) {
+			Data.TagL.ObjType = PPOBJ_SWPROGRAM;
+			EditObjTagValList(&Data.TagL, 0);
+			clearEvent(event);
+		}
+	}
+};
+
 /*virtual*/int PPObjSwProgram::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = -1;
+	bool   valid_data = false;
+	bool   is_new = false;
+	SwProgramDialog * dlg = 0;
+	PPSwProgramPacket pack;
+	THROW(EditPrereq(pID, dlg, &is_new));
+	THROW(CheckDialogPtr(&(dlg = new SwProgramDialog())));
+	if(!is_new) {
+		THROW(Get(*pID, &pack) > 0);
+	}
+	else
+		pack.Init();
+	THROW(dlg->setDTS(&pack));
+	while(!valid_data && ExecView(dlg) == cmOK) {
+		if(dlg->getDTS(&pack)) {
+			if(Put(pID, &pack, 1)) {
+				ok = cmOK;
+				valid_data = true;
+			}
+			else
+				PPError();
+		}
+	}
+	CATCHZOKPPERR
+	delete dlg;
 	return ok;
 }
 
@@ -1084,10 +1178,7 @@ int PPObjSwProgram::Put(PPID * pID, PPSwProgramPacket * pPack, int use_ta)
 			if(pPack) {
 				if(!pPack->IsEq(org_pack) || pPack->LinkFiles.IsChanged(*pID, 0L)) {
 					THROW(CheckRights(PPR_MOD));
-					raw_rec.ID = org_pack.Rec.ID;
-					raw_rec.Kind = PPGDSK_SWPROGRAM;
-					STRNSCPY(raw_rec.Name, pPack->Rec.Name);
-					raw_rec.Flags   = pPack->Rec.Flags;
+					Helper_SetRec(&pPack->Rec, raw_rec);
 					THROW(P_Tbl->Update(pID, &raw_rec, 0));
 					THROW(SetTagList(*pID, &pPack->TagL, 0));
 					if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
@@ -1111,10 +1202,7 @@ int PPObjSwProgram::Put(PPID * pID, PPSwProgramPacket * pPack, int use_ta)
 		}
 		else if(pPack) {
 			THROW(CheckRights(PPR_INS));
-			MEMSZERO(raw_rec);
-			raw_rec.Kind = PPGDSK_BRAND;
-			STRNSCPY(raw_rec.Name, pPack->Rec.Name);
-			raw_rec.Flags   = pPack->Rec.Flags;
+			Helper_SetRec(&pPack->Rec, raw_rec);
 			THROW(P_Tbl->Update(pID, &raw_rec, 0));
 			THROW(SetTagList(*pID, &pPack->TagL, 0));
 			if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
@@ -1128,6 +1216,21 @@ int PPObjSwProgram::Put(PPID * pID, PPSwProgramPacket * pPack, int use_ta)
 	return ok;
 }
 
+/*static*/int PPObjSwProgram::Helper_SetRec(const PPSwProgram * pRec, Goods2Tbl::Rec & rGoodsRec)
+{
+	int    ok = 1;
+	memzero(&rGoodsRec, sizeof(rGoodsRec));
+	if(pRec) {
+		rGoodsRec.ID = pRec->ID;
+		rGoodsRec.Kind = PPGDSK_SWPROGRAM;
+		STRNSCPY(rGoodsRec.Name, pRec->Name);
+		STRNSCPY(rGoodsRec.Abbr, pRec->ExeFn);
+		rGoodsRec.WrOffGrpID = pRec->CategoryID;
+		rGoodsRec.Flags = pRec->Flags;
+	}
+	return ok;
+}
+
 /*static*/int PPObjSwProgram::Helper_GetRec(const Goods2Tbl::Rec & rGoodsRec, PPSwProgram * pRec)
 {
 	int    ok = 1;
@@ -1136,7 +1239,9 @@ int PPObjSwProgram::Put(PPID * pID, PPSwProgramPacket * pPack, int use_ta)
 		if(rGoodsRec.Kind == PPGDSK_SWPROGRAM) {
 			pRec->ID = rGoodsRec.ID;
 			STRNSCPY(pRec->Name, rGoodsRec.Name);
+			STRNSCPY(pRec->ExeFn, rGoodsRec.Abbr);
 			pRec->Flags = rGoodsRec.Flags;
+			pRec->CategoryID = rGoodsRec.WrOffGrpID;
 		}
 		else
 			ok = PPSetError(/*PPERR_INVBRANDRECKIND*/1, rGoodsRec.ID);
@@ -1179,15 +1284,17 @@ SwProgramFilt & FASTCALL SwProgramFilt::operator = (const SwProgramFilt & rS)
 PPViewSwProgram::BrwItem::BrwItem(const PPSwProgram * pS) : ID(0), CategoryID(0), Flags(0), ViewFlags(0)
 {
 	Name[0] = 0;
+	ExeFn[0] = 0;
 	if(pS) {
 		ID = pS->ID;
 		Flags = pS->Flags;
-		CategoryID = 0;
+		CategoryID = pS->CategoryID;
 		STRNSCPY(Name, pS->Name);
+		STRNSCPY(ExeFn, pS->ExeFn);
 	}
 }
 
-PPViewSwProgram::PPViewSwProgram() : PPView(&Obj, &Filt, PPVIEW_SWPROGRAM, PPView::implBrowseArray, /*defReportId*/0), P_DsList(0)
+PPViewSwProgram::PPViewSwProgram() : PPView(&Obj, &Filt, PPVIEW_SWPROGRAM, PPView::implBrowseArray|PPView::implDontEditNullFilter, /*defReportId*/0), P_DsList(0)
 {
 }
 	
@@ -1284,6 +1391,10 @@ static int PPViewSwProgram_CellStyleFunc(const void * pData, long col, int paint
 	
 /*virtual*/void PPViewSwProgram::PreprocessBrowser(PPViewBrowser * pBrw)
 {
+	if(pBrw) {
+		pBrw->SetDefUserProc(PPViewSwProgram::GetDataForBrowser, this);
+		pBrw->SetCellStyleFunc(PPViewSwProgram_CellStyleFunc, pBrw);
+	}
 }
 	
 /*virtual*/int PPViewSwProgram::OnExecBrowser(PPViewBrowser *)
@@ -1294,7 +1405,47 @@ static int PPViewSwProgram_CellStyleFunc(const void * pData, long col, int paint
 	
 /*virtual*/int PPViewSwProgram::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
-	int    ok = -1;
+	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	PPID   preserve_id = 0;
+	if(ok == -2) {
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		preserve_id = id;
+		switch(ppvCmd) {
+			case PPVCMD_MOUSEHOVER:
+				if(id && static_cast<const BrwItem *>(pHdr)->Flags & BRNDF_HASIMAGES) {
+					SString img_path;
+					ObjLinkFiles link_files(PPOBJ_SWPROGRAM);
+					link_files.Load(id, 0L);
+					link_files.At(0, img_path);
+					PPTooltipMessage(0, img_path, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
+						SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+				}
+				break;
+			case PPVCMD_REFRESH:
+				ok = 1;
+				break;
+		}
+	}
+	if(ok > 0) {
+		MakeList();
+		if(pBrw) {
+			AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
+			if(p_def) {
+				SArray * p_array = new SArray(*P_DsList);
+				p_def->setArray(p_array, 0, 1);
+				pBrw->setRange(p_array->getCount());
+				uint   temp_pos = 0;
+				long   update_pos = -1;
+				if(preserve_id > 0 && P_DsList->lsearch(&preserve_id, &temp_pos, CMPF_LONG))
+					update_pos = temp_pos;
+				if(update_pos >= 0)
+					pBrw->go(update_pos);
+				else if(update_pos == MAXLONG)
+					pBrw->go(p_array->getCount()-1);
+			}
+			pBrw->Update();
+		}
+	}
 	return ok;
 }
 	
@@ -1312,6 +1463,21 @@ int PPViewSwProgram::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		switch(pBlk->ColumnN) {
 			case 0: pBlk->Set(p_item->ID); break; // @id
 			case 1: pBlk->Set(p_item->Name); break; // @name
+			case 2: 
+				{
+					bool settled = false;
+					if(p_item->CategoryID) {
+						Reference2Tbl::Rec cat_rec;
+						if(PPRef->GetItem(PPOBJ_SWPROGRAMCATEGORY, p_item->CategoryID, &cat_rec) > 0) {
+							pBlk->Set(cat_rec.ObjName);
+							settled = true;
+						}
+					}
+					if(!settled)
+						pBlk->Set("");
+				}
+				break; // category
+			case 3: pBlk->Set(p_item->ExeFn); break; // exe file name
 		}
 	}
 	return ok;
@@ -1335,7 +1501,7 @@ int PPViewSwProgram::MakeList()
 	else
 		P_DsList = new SArray(sizeof(BrwItem));
 	//dbq = ppcheckfiltid(dbq, p_tbl->ManufID, single_owner_id);
-	q.select(p_tbl->ID, p_tbl->Name, p_tbl->GoodsTypeID, p_tbl->ManufID, p_tbl->Flags, 0L).where(*dbq);
+	q.select(p_tbl->ID, p_tbl->Name, p_tbl->Abbr, p_tbl->WrOffGrpID, p_tbl->GoodsTypeID, p_tbl->ManufID, p_tbl->Flags, 0L).where(*dbq);
 	MEMSZERO(k2);
 	k2.Kind = PPGDSK_SWPROGRAM;
 	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {

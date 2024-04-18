@@ -442,7 +442,7 @@
 	#define PPPRK_SHIPOWNER     13L // Владельцы транспортных средств
 	#define PPPRK_VESSELSAGENT  14L // Транспортные брокеры
 	#define PPPRK_CAPTAIN       15L // Командиры транспортных средств
-	#define PPPRK_DTO           16L // @v9.8.0 Оператораы передачи данных
+	#define PPPRK_DTO           16L // @v9.8.0 Операторы передачи данных
 
 #define PPOBJ_PRSNSTATUS          9L  // $ Юридические статусы персоналий
 	#define PPPRS_PRIVATE        1L // Физическое лицо
@@ -1034,6 +1034,7 @@
 #define PPOBJ_EVENTSUBSCRIPTION  82L // @v10.8.9 Подписка на события //
 	#define EVNTSUBSCRPRP_EXTENSION    1L
 #define PPOBJ_BIZSCORE2          83L // @v11.9.1 @construction 2-я версия определителей бизнес-показателей
+#define PPOBJ_SWPROGRAMCATEGORY  84L // @v11.9.12 Категория исполняемой программы. Простой вспомогательный справочник для объекта PPOBJ_SWPROGRAM
 #define PPOBJ_DYNAMICOBJS  100L // Список динамических объектов
 //
 // Отраслевые справочники
@@ -1403,6 +1404,8 @@
 #define PPTAG_BILL_CHZNDISPOSALRSN  108L // @v11.8.12 Признак причины выбытия марки честный знак <СвВыбытияМАРК> (1,2,3,4 or empty)
 #define PPTAG_PERSON_CHZN_PM_TOKEN  109L // @v11.9.11 Токен для проверки марок честный знак в разрешительном режиме (привязка к персоналии)
 #define PPTAG_GUA_CHZN_PM_TOKEN     110L // @v11.9.11 Токен для проверки марок честный знак в разрешительном режиме (привязка к глобальной учетной записи)
+#define PPTAG_GUA_CHZN_PM_HOST      111L // @v11.9.12 Хост для проверки марок честный знак в разрешительном режиме. Значение тега формируется автоматически
+	// и содержит строку вида [url space timestamp]
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -5531,6 +5534,7 @@
 	#define CTLSEL_SELBBSMPL_QK          (8 + WINDOWS_ID_BIAS)
 	#define CTL_SELBBSMPL_DT             (9 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SELBBSMPL_DT          (10 + WINDOWS_ID_BIAS)
+	#define CTL_SELBBSMPL_INFO           (11 + WINDOWS_ID_BIAS)
 #define DLG_SELPCKG               493 // Выбор пакета
 	#define CTL_SELPCKG_LIST             (1 + WINDOWS_ID_BIAS)
 #define DLG_GOODSOPR2             494 // Расширение фильтра товарного отчета по операции
@@ -6489,7 +6493,7 @@
 	#define CTL_BSKT2BILL_QK             (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BSKT2BILL_QK          (4 + WINDOWS_ID_BIAS)
 	#define CTL_BSKT2BILL_USELINK        (5 + WINDOWS_ID_BIAS)
-#define DLG_PSNSELANALOG          617 // Выбор персоналии по соотвествию имени
+#define DLG_PSNSELANALOG          617 // Выбор персоналии по соответствию имени
 	#define CTL_PSNSELANALOG_SRCH        (1 + WINDOWS_ID_BIAS)
 	#define CTL_PSNSELANALOG_LIST        (2 + WINDOWS_ID_BIAS)
 #define DLG_ADDRBOOK              618 // Адресная книга
@@ -8762,6 +8766,9 @@
 	#define CTLBRW_EXTDEV_HOSTICURL     (27 + WINDOWS_ID_BIAS)
 	#define CTL_EXTDEV_DRVVER           (28 + WINDOWS_ID_BIAS)
 	#define CTL_EXTDEV_CHKEGMUNIQ       (29 + WINDOWS_ID_BIAS)
+	#define CTL_EXTDEV_CHZNPM           (30 + WINDOWS_ID_BIAS)
+	#define CTL_EXTDEV_CHZNGUA          (31 + WINDOWS_ID_BIAS)
+	#define CTLSEL_EXTDEV_CHZNGUA       (32 + WINDOWS_ID_BIAS)
 
 #define DLG_STAFFCALFLT           991 // F_STCAL Фильтр штатных календарей
 	#define cmStaffCalFiltObjList       101
@@ -10527,6 +10534,8 @@
 	#define CTL_EDIPRV_FORMAT           (14 + WINDOWS_ID_BIAS)
 	#define CTL_EDIPRV_SUBIN            (15 + WINDOWS_ID_BIAS) // @v11.9.4
 	#define CTL_EDIPRV_SUBOUT           (16 + WINDOWS_ID_BIAS) // @v11.9.4
+	#define CTL_EDIPRV_DTO              (17 + WINDOWS_ID_BIAS) // @v11.9.12 Персоналия-оператор передачи данных
+	#define CTLSEL_EDIPRV_DTO           (18 + WINDOWS_ID_BIAS) // @v11.9.12
 #define DLG_BILLCFGEXT            1276 // Диалог дополнительных параметров конфигурации документов
 	// CTL_BILLCFG_XXX
 #define DLG_IMPEXPQUOT            1277
@@ -11525,6 +11534,13 @@
 	#define CTL_BIZSC2_SYMB                (3 + WINDOWS_ID_BIAS)
 	#define CTL_BIZSC2_PARENT              (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BIZSC2_PARENT           (5 + WINDOWS_ID_BIAS)
+#define DLG_SWPROGRAM             1438
+	#define CTL_SWPROGRAM_ID               (1 + WINDOWS_ID_BIAS)
+	#define CTL_SWPROGRAM_NAME             (2 + WINDOWS_ID_BIAS)
+	#define CTL_SWPROGRAM_CAT              (3 + WINDOWS_ID_BIAS)
+	#define CTLSEL_SWPROGRAM_CAT           (4 + WINDOWS_ID_BIAS)
+	#define CTL_SWPROGRAM_EXEFN            (5 + WINDOWS_ID_BIAS)
+	#define CTL_SWPROGRAM_IMAGE            (6 + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

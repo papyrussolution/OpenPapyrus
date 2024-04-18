@@ -102,11 +102,11 @@ extern int32 BZ2_rNums[512];
 
 /*-- Stuff for doing CRCs. --*/
 
-extern uint32 BZ2_crc32Table[256];
+// @v11.9.12 (replaced with SlTabs::LookupTable_CRC32_BZip2) extern uint32 BZ2_crc32Table[256];
 
 #define BZ_INITIALISE_CRC(crcVar) { crcVar = 0xffffffffL; }
 #define BZ_FINALISE_CRC(crcVar) { crcVar = ~(crcVar); }
-#define BZ_UPDATE_CRC(crcVar, cha) { crcVar = (crcVar << 8) ^ BZ2_crc32Table[(crcVar >> 24) ^ ((uchar)cha)]; }
+#define BZ_UPDATE_CRC(crcVar, cha) { crcVar = (crcVar << 8) ^ SlTabs::LookupTable_CRC32_BZip2[(crcVar >> 24) ^ ((uchar)cha)]; }
 
 /*-- States and modes for compression. --*/
 

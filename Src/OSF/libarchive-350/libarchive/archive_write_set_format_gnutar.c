@@ -426,8 +426,7 @@ static int archive_write_gnutar_header(struct archive_write * a, ArchiveEntry * 
 			case AE_IFDIR: tartype = '5'; break;
 			case AE_IFIFO: tartype = '6'; break;
 			default: /* AE_IFSOCK and unknown */
-			    __archive_write_entry_filetype_unsupported(
-				    &a->archive, entry, "gnutar");
+			    __archive_write_entry_filetype_unsupported(&a->archive, entry, "gnutar");
 			    ret = ARCHIVE_FAILED;
 			    goto exit_write_header;
 		}

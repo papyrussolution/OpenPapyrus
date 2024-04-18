@@ -557,8 +557,7 @@ static void initializeLibxml2(void)
 	/*
 	 * register the new I/O handlers
 	 */
-	if(xmlRegisterInputCallbacks(hugeMatch, hugeOpen,
-	    hugeRead, hugeClose) < 0) {
+	if(xmlRegisterInputCallbacks(hugeMatch, hugeOpen, hugeRead, hugeClose) < 0) {
 		fprintf(stderr, "failed to register Huge handler\n");
 		exit(1);
 	}

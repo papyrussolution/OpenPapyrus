@@ -30,7 +30,7 @@ char * CRYPTO_strndup(const char * str, size_t s, const char* file, int line)
 	char * ret;
 	if(!str)
 		return NULL;
-	maxlen = OPENSSL_strnlen(str, s);
+	maxlen = /*OPENSSL_strnlen*/sstrnlen(str, s);
 	ret = (char*)CRYPTO_malloc(maxlen + 1, file, line);
 	if(ret) {
 		memcpy(ret, str, maxlen);
@@ -41,7 +41,7 @@ char * CRYPTO_strndup(const char * str, size_t s, const char* file, int line)
 
 void * CRYPTO_memdup(const void * data, size_t siz, const char* file, int line)
 {
-	void * ret;
+	void * ret = NULL;
 	if(data == NULL || siz >= INT_MAX)
 		return NULL;
 	ret = CRYPTO_malloc(siz, file, line);
@@ -52,12 +52,13 @@ void * CRYPTO_memdup(const void * data, size_t siz, const char* file, int line)
 	return memcpy(ret, data, siz);
 }
 
-size_t OPENSSL_strnlen(const char * str, size_t maxlen)
+/* @v11.9.12 (replaced with sstrnlen) size_t OPENSSL_strnlen(const char * str, size_t maxlen)
 {
 	const char * p;
-	for(p = str; maxlen-- != 0 && *p != CH_ZERO; ++p);
+	for(p = str; maxlen-- != 0 && *p != CH_ZERO; ++p)
+		;
 	return p - str;
-}
+}*/
 
 size_t OPENSSL_strlcpy(char * dst, const char * src, size_t size)
 {

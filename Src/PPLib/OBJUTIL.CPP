@@ -121,7 +121,9 @@ static const ushort _Objects[] = {
 	PPOBJ_TIMESERIES,         // @v10.7.4
 	PPOBJ_TSSMODEL,           // @v10.7.4
 	PPOBJ_EVENTSUBSCRIPTION,  // @v10.8.9
-	PPOBJ_STYLOQBINDERY       // @v11.1.7
+	PPOBJ_STYLOQBINDERY,      // @v11.1.7
+	PPOBJ_SWPROGRAM,          // @v11.9.12
+	PPOBJ_SWPROGRAMCATEGORY,  // @v11.9.12
 };
 
 // @v10.9.4 #define _ObjectsCount (sizeof(_Objects) / sizeof(ushort/*PPID*/))
@@ -145,6 +147,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_WOODBREED   :
 		case PPOBJ_EVENTTOKEN  :
 		case PPOBJ_CAFETABLE   :
+		case PPOBJ_SWPROGRAMCATEGORY: // @v11.9.12
 		case PPOBJ_TRANSPMODEL : p = new PPObjReference(obj, extraPtr); break;
 		case PPOBJ_ACTION      : p = new PPObjSysAction(extraPtr); break;
 		case PPOBJ_GTACTION    : p = new PPObjGtaAction(extraPtr); break;
@@ -241,6 +244,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_TSSMODEL:           p = new PPObjTssModel(extraPtr); break; // @v10.7.4
 		case PPOBJ_EVENTSUBSCRIPTION:  p = new PPObjEventSubscription(extraPtr); break; // @v10.8.9
 		case PPOBJ_STYLOQBINDERY:      p = new PPObjStyloQBindery(extraPtr); break;     // @v11.1.7
+		case PPOBJ_SWPROGRAM:          p = new PPObjSwProgram(extraPtr); break; // @v11.9.12
 		default:
 			if(PPRef->GetItem(PPOBJ_DYNAMICOBJS, obj) > 0)
 				p = new PPObjReference(obj, extraPtr);
@@ -744,17 +748,17 @@ int PPObject::Browse(void * extraPtr)
 	return 0;
 }
 
-int PPObject::EditPrereq(PPID * pID, TDialog * pDlg, int * pIsNew)
+int PPObject::EditPrereq(PPID * pID, TDialog * pDlg, bool * pIsNew)
 {
 	int    ok = 1;
-	int    is_new = 0;
+	bool   is_new = false;
 	assert(pID);
 	if(!pID)
 		ok = PPSetErrorInvParam();
 	else if(!CheckRights(PPR_READ))
 		ok = 0;
 	else if(*pID == 0) {
-		is_new = 1;
+		is_new = true;
 		if(!CheckRights(PPR_INS))
 			ok = 0;
 	}
@@ -767,7 +771,7 @@ int PPObject::EditPrereq(PPID * pID, TDialog * pDlg, int * pIsNew)
 int PPObject::Edit(PPID * pID, void * extraPtr) { return 0; }
 int PPObject::Search(PPID id, void *) { return 0; }
 int PPObject::DeleteObj(PPID id) { return 0; }
-int PPObject::ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx) { return 1; }
+int PPObject::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx) { return 1; }
 const char * PPObject::GetNamePtr() { return 0; }
 StrAssocArray * PPObject::MakeStrAssocList(void * extraPtr) { return 0; }
 int PPObject::MakeReserved(long flags) { return 1; }

@@ -829,7 +829,6 @@ pdf_obj * pdf_copy_dict(fz_context * ctx, pdf_obj * obj)
 	RESOLVE(obj);
 	if(!OBJ_IS_DICT(obj))
 		fz_throw(ctx, FZ_ERROR_GENERIC, "not a dict (%s)", pdf_objkindstr(obj));
-
 	doc = DICT(obj)->doc;
 	n = pdf_dict_len(ctx, obj);
 	dict = pdf_new_dict(ctx, doc, n);
@@ -841,7 +840,6 @@ pdf_obj * pdf_copy_dict(fz_context * ctx, pdf_obj * obj)
 		pdf_drop_obj(ctx, dict);
 		fz_rethrow(ctx);
 	}
-
 	return dict;
 }
 
@@ -919,7 +917,7 @@ static int pdf_dict_finds(fz_context * ctx, pdf_obj * obj, const char * key)
 
 static int pdf_dict_find(fz_context * pCtx/*@unused*/, pdf_obj * obj, pdf_obj * key)
 {
-	int len = DICT(obj)->len;
+	const int len = DICT(obj)->len;
 	if((obj->flags & PDF_FLAGS_SORTED) && len > 0) {
 		int l = 0;
 		int r = len - 1;
@@ -942,8 +940,7 @@ static int pdf_dict_find(fz_context * pCtx/*@unused*/, pdf_obj * obj, pdf_obj * 
 		return -1 - l;
 	}
 	else {
-		int i;
-		for(i = 0; i < len; i++) {
+		for(int i = 0; i < len; i++) {
 			pdf_obj * k = DICT(obj)->items[i].k;
 			if(k < PDF_LIMIT) {
 				if(k == key)

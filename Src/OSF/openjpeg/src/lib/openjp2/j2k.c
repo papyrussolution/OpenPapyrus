@@ -8856,11 +8856,8 @@ static boolint opj_j2k_write_SQcd_SQcc(opj_j2k_t * p_j2k, uint32_t p_tile_no, ui
 			opj_event_msg(p_manager, EVT_ERROR, "Error writing SQcd SQcc element\n");
 			return FALSE;
 		}
-
-		opj_write_bytes(p_data, l_tccp->qntsty + (l_tccp->numgbits << 5),
-		    1);       /* Sqcx */
+		opj_write_bytes(p_data, l_tccp->qntsty + (l_tccp->numgbits << 5), 1);       /* Sqcx */
 		++p_data;
-
 		for(l_band_no = 0; l_band_no < l_num_bands; ++l_band_no) {
 			l_expn = (uint32_t)l_tccp->stepsizes[l_band_no].expn;
 			opj_write_bytes(p_data, l_expn << 3, 1); /* SPqcx_i */

@@ -383,7 +383,7 @@ DEFINE_LHASH_OF_INTERNAL(ERR_STRING_DATA);
 
 /* Building blocks */
 void ERR_new(void);
-void ERR_set_debug(const char * file, int line, const char * func);
+void STDCALL ERR_set_debug(const char * file, int line, const char * func);
 void ERR_set_error(int lib, int reason, const char * fmt, ...);
 void ERR_vset_error(int lib, int reason, const char * fmt, va_list args);
 

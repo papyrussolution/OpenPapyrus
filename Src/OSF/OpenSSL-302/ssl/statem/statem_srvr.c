@@ -1476,12 +1476,9 @@ MSG_PROCESS_RETURN tls_process_client_hello(SSL * s, PACKET * pkt)
 		 * for SSLv3 and it is fixed. It won't change even if
 		 * sizeof(clienthello->random) does.
 		 */
-		challenge_len = challenge_len > SSL3_RANDOM_SIZE
-		    ? SSL3_RANDOM_SIZE : challenge_len;
-		memset(clienthello->random, 0, SSL3_RANDOM_SIZE);
-		if(!PACKET_copy_bytes(&challenge,
-		    clienthello->random + SSL3_RANDOM_SIZE -
-		    challenge_len, challenge_len)
+		challenge_len = challenge_len > SSL3_RANDOM_SIZE ? SSL3_RANDOM_SIZE : challenge_len;
+		memzero(clienthello->random, SSL3_RANDOM_SIZE);
+		if(!PACKET_copy_bytes(&challenge, clienthello->random + SSL3_RANDOM_SIZE - challenge_len, challenge_len)
 		    /* Advertise only null compression. */
 		    || !PACKET_buf_init(&compression, &null_compression, 1)) {
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
@@ -2614,7 +2611,7 @@ int tls_construct_server_key_exchange(SSL * s, WPACKET * pkt)
 					SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
 					goto err;
 				}
-				memset(binval, 0, len);
+				memzero(binval, len);
 			}
 		}
 

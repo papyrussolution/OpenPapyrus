@@ -15,22 +15,12 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/internal/cord_rep_btree.h"
-//#include <atomic>
-//#include <cassert>
-//#include <cstdint>
-//#include <iostream>
-//#include <ostream>
-//#include <string>
-//#include "absl/base/attributes.h"
-//#include "absl/base/config.h"
 #include "absl/base/internal/raw_logging.h"
 #include "absl/base/optimization.h"
 #include "absl/strings/internal/cord_data_edge.h"
 #include "absl/strings/internal/cord_internal.h"
 #include "absl/strings/internal/cord_rep_consume.h"
 #include "absl/strings/internal/cord_rep_flat.h"
-//#include "absl/strings/str_cat.h"
-//#include "absl/strings/string_view.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

@@ -1743,9 +1743,9 @@ struct UT_hash_handle {
 	do {										 \
 		unsigned _fn_i;								       \
 		char * _hf_key = (char *)(key);							  \
-		hashv = 0x811C9DC5U/*2166136261UL*/; \
+		hashv = SlConst::FnvHash1Init32; \
 		for(_fn_i = 0; _fn_i < keylen; _fn_i++)						 \
-			hashv = (hashv * 0x01000193U/*16777619*/) ^ _hf_key[_fn_i];				   \
+			hashv = (hashv * SlConst::FnvHashPrime32) ^ _hf_key[_fn_i];				   \
 		bkt = hashv & (num_bkts-1);						       \
 	} while(0)
 

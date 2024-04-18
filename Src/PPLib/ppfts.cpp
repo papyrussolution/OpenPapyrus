@@ -447,12 +447,16 @@ PPFtsDatabase::PPFtsDatabase(bool forUpdate) : State(0), P_XDb(0), P_Supplementa
 	{
 		SString dbpath;
 		GetDatabasePath(dbdMain, dbpath);
-		if(forUpdate) {
-			P_XDb = new Xapian::WritableDatabase(dbpath.cptr(), Xapian::DB_CREATE_OR_OPEN, 0);
-			State |= stWriting;
-		}
-		else {
-			P_XDb = new Xapian::Database(dbpath.cptr(), Xapian::DB_OPEN);
+		try {
+			if(forUpdate) {
+				P_XDb = new Xapian::WritableDatabase(dbpath.cptr(), Xapian::DB_CREATE_OR_OPEN, 0);
+				State |= stWriting;
+			}
+			else {
+				P_XDb = new Xapian::Database(dbpath.cptr(), Xapian::DB_OPEN);
+			}
+		} catch(...) {
+			P_XDb = 0;
 		}
 		// @todo process exception if any
 	}

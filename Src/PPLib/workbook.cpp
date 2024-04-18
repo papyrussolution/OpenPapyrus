@@ -299,7 +299,8 @@ void PPObjWorkbook::SortIdListByRankAndName(LongArray & rList)
 			return ok;
 		}
 	};
-	int    ok = -1, is_new = 0;
+	int    ok = -1;
+	int    is_new = 0;
 	WorkbookCfgDialog * dlg = new WorkbookCfgDialog;
 	PPObjOpCounter opc_obj;
 	WorkbookCfgDialog::Rec data;

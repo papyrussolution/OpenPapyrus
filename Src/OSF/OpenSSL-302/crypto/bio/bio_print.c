@@ -363,7 +363,7 @@ static int fmtstr(char ** sbuffer, char ** buffer, size_t * currlen, size_t * ma
 	size_t strln;
 	int cnt = 0;
 	SETIFZQ(value, "<NULL>");
-	strln = OPENSSL_strnlen(value, max < 0 ? SIZE_MAX : (size_t)max);
+	strln = /*OPENSSL_strnlen*/sstrnlen(value, max < 0 ? SIZE_MAX : (size_t)max);
 	padlen = min - strln;
 	if(min < 0 || padlen < 0)
 		padlen = 0;

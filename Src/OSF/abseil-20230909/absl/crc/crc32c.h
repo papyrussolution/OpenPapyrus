@@ -47,36 +47,25 @@ ABSL_NAMESPACE_BEGIN
 // collisions. Use an explicit conversion to the `uint32_t` space for operations
 // that treat `crc32c_t` as an integer.
 class crc32c_t final {
- public:
-  crc32c_t() = default;
-  constexpr explicit crc32c_t(uint32_t crc) : crc_(crc) {}
-
-  crc32c_t(const crc32c_t&) = default;
-  crc32c_t& operator=(const crc32c_t&) = default;
-
-  explicit operator uint32_t() const { return crc_; }
-
-  friend bool operator==(crc32c_t lhs, crc32c_t rhs) {
-    return static_cast<uint32_t>(lhs) == static_cast<uint32_t>(rhs);
-  }
-
-  friend bool operator!=(crc32c_t lhs, crc32c_t rhs) { return !(lhs == rhs); }
-
-  template <typename Sink>
-  friend void AbslStringify(Sink& sink, crc32c_t crc) {
-    absl::Format(&sink, "%08x", static_cast<uint32_t>(crc));
-  }
-
- private:
-  uint32_t crc_;
+public:
+	crc32c_t() = default;
+	constexpr explicit crc32c_t(uint32_t crc) : crc_(crc) {}
+	crc32c_t(const crc32c_t&) = default;
+	crc32c_t& operator=(const crc32c_t&) = default;
+	explicit operator uint32_t() const { return crc_; }
+	friend bool operator==(crc32c_t lhs, crc32c_t rhs) { return static_cast<uint32_t>(lhs) == static_cast<uint32_t>(rhs); }
+	friend bool operator!=(crc32c_t lhs, crc32c_t rhs) { return !(lhs == rhs); }
+	template <typename Sink>
+	friend void AbslStringify(Sink& sink, crc32c_t crc) { absl::Format(&sink, "%08x", static_cast<uint32_t>(crc)); }
+private:
+	uint32_t crc_;
 };
-
 
 namespace crc_internal {
 // Non-inline code path for `absl::ExtendCrc32c()`. Do not call directly.
 // Call `absl::ExtendCrc32c()` (defined below) instead.
 crc32c_t ExtendCrc32cInternal(crc32c_t initial_crc,
-                              absl::string_view buf_to_add);
+    absl::string_view buf_to_add);
 }  // namespace crc_internal
 
 // -----------------------------------------------------------------------------
@@ -99,17 +88,17 @@ crc32c_t ComputeCrc32c(absl::string_view buf);
 // `ComputeCrc32c`.
 //
 // This operation has a runtime cost of O(`buf_to_add.size()`)
-inline crc32c_t ExtendCrc32c(crc32c_t initial_crc,
-                             absl::string_view buf_to_add) {
-  // Approximately 75% of calls have size <= 64.
-  if (buf_to_add.size() <= 64) {
-    uint32_t crc = static_cast<uint32_t>(initial_crc);
-    if (crc_internal::ExtendCrc32cInline(&crc, buf_to_add.data(),
-                                         buf_to_add.size())) {
-      return crc32c_t{crc};
-    }
-  }
-  return crc_internal::ExtendCrc32cInternal(initial_crc, buf_to_add);
+inline crc32c_t ExtendCrc32c(crc32c_t initial_crc, absl::string_view buf_to_add) 
+{
+	// Approximately 75% of calls have size <= 64.
+	if(buf_to_add.size() <= 64) {
+		uint32_t crc = static_cast<uint32_t>(initial_crc);
+		if(crc_internal::ExtendCrc32cInline(&crc, buf_to_add.data(),
+		    buf_to_add.size())) {
+			return crc32c_t{crc};
+		}
+	}
+	return crc_internal::ExtendCrc32cInternal(initial_crc, buf_to_add);
 }
 
 // ExtendCrc32cByZeroes()
@@ -129,8 +118,7 @@ crc32c_t ExtendCrc32cByZeroes(crc32c_t initial_crc, size_t length);
 //
 // Using `MemcpyCrc32c()` is potentially faster than performing the `memcpy()`
 // and `ComputeCrc32c()` operations separately.
-crc32c_t MemcpyCrc32c(void* dest, const void* src, size_t count,
-                      crc32c_t initial_crc = crc32c_t{0});
+crc32c_t MemcpyCrc32c(void* dest, const void* src, size_t count, crc32c_t initial_crc = crc32c_t{0});
 
 // -----------------------------------------------------------------------------
 // CRC32C Arithmetic Functions
@@ -163,7 +151,7 @@ crc32c_t ConcatCrc32c(crc32c_t crc1, crc32c_t crc2, size_t crc2_length);
 //
 // This operation has a runtime cost of O(log(`remaining_string_length`)).
 crc32c_t RemoveCrc32cPrefix(crc32c_t prefix_crc, crc32c_t full_string_crc,
-                            size_t remaining_string_length);
+    size_t remaining_string_length);
 // RemoveCrc32cSuffix()
 //
 // Calculates the CRC32C value of an existing buffer with a series of bytes
@@ -175,13 +163,13 @@ crc32c_t RemoveCrc32cPrefix(crc32c_t prefix_crc, crc32c_t full_string_crc,
 //
 // This operation has a runtime cost of O(log(`suffix_len`))
 crc32c_t RemoveCrc32cSuffix(crc32c_t full_string_crc, crc32c_t suffix_crc,
-                            size_t suffix_length);
+    size_t suffix_length);
 
 // operator<<
 //
 // Streams the CRC32C value `crc` to the stream `os`.
 inline std::ostream& operator<<(std::ostream& os, crc32c_t crc) {
-  return os << absl::StreamFormat("%08x", static_cast<uint32_t>(crc));
+	return os << absl::StreamFormat("%08x", static_cast<uint32_t>(crc));
 }
 
 ABSL_NAMESPACE_END

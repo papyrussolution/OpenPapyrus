@@ -863,6 +863,9 @@
     </ClCompile>
     <ClCompile Include="..\SLib\sstrtransform.cpp" />
     <ClCompile Include="..\SLib\sltabs.cpp" />
+    <ClCompile Include="..\SLib\fnv-503\fnv_hash.c">
+      <Filter>fnv-hash</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -999,6 +1002,9 @@
     </ClInclude>
     <ClInclude Include="..\SLib\EDLIB\edlib.h">
       <Filter>EdLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\fnv-503\fnv.h">
+      <Filter>fnv-hash</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1255,6 +1261,9 @@
     </Filter>
     <Filter Include="EdLib">
       <UniqueIdentifier>{bab0c3b0-97de-431a-9d41-bf173cb8b6cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fnv-hash">
+      <UniqueIdentifier>{9218a208-cbbf-4fe7-939a-b3d6092c187c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

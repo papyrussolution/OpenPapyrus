@@ -1338,6 +1338,12 @@ public:
 		//0x9e3779b9 is the integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
 	static constexpr uint32 MagicMurmurC1 = 0xcc9e2d51U; // @v11.4.0 0xcc9e2d51 // Magic number C1 for 32-bit hashing from Murmur3
 	static constexpr uint32 MagicMurmurC2 = 0x1b873593U; // @v11.4.0 0x1b873593 // Magic number C2 for 32-bit hashing from Murmur3
+	static constexpr uint32 FnvHash0Init32 = 0U; // @v11.9.12 Константа инициализации хэш-функции FNV0_32
+	static constexpr uint32 FnvHash1Init32 = 0x811c9dc5U; // @v11.9.12 Константа инициализации хэш-функции FNV1_32 и FNVa_32
+	static constexpr uint64 FnvHash0Init64 = 0ULL; // @v11.9.12 Константа инициализации хэш-функции FNV0_64
+	static constexpr uint64 FnvHash1Init64 = 0xcbf29ce484222325ULL; // @v11.9.12 Константа инициализации хэш-функции FNV1_64 и FNVa_64
+	static constexpr uint32 FnvHashPrime32 = 0x01000193U/*16777619*/; // @v11.9.12 Константа для итерации хэш-функции FNV_32 (32 bit magic FNV-0 and FNV-1 prime)
+	static constexpr uint64 FnvHashPrime64 = 0x100000001b3ULL; // @v11.9.12 Константа для итерации хэш-функции FNV_4 (64 bit magic FNV-0 and FNV-1 prime)
 	static constexpr long   OneBillion = 1000000000L; // @v11.7.6
 	static constexpr const char * P_HxDigL  = "0123456789abcdef";
 	static constexpr const char * P_HxDigU  = "0123456789ABCDEF";
@@ -1346,6 +1352,7 @@ public:
 	static constexpr uint16 CrcPoly_ANSI16  = 0xA001;
 	static constexpr uint16 CrcPoly_CCITT16 = 0x1021;
 	static constexpr uint32 CrcPoly_CCITT32 = 0xEDB88320U;
+	static constexpr uint32 CrcPoly_BZIP2   = 0x04C11DB7U; // AUTODIN II, Ethernet, & FDDI
 	static constexpr uint64 CrcPoly_64      = 0xC96C5795D7870F42ULL;
 	static constexpr uint64 Epoch1600_1970_Offs_s     = 11644473600ULL;        // Number of second units from 1/1/1601 to 1/1/1970
 	static constexpr uint64 Epoch1600_1970_Offs_Mks   = 11644473600000000ULL;  // Number of microsecond units from 1/1/1601 to 1/1/1970
@@ -1366,6 +1373,7 @@ class SlTabs {
 public:
 	static const uint32 LookupTable_CRC32LE_Zlib[8][256];
 	static const uint32 LookupTable_CRC32BE_Zlib[8][256];
+	static const uint32 LookupTable_CRC32_BZip2[256];
 };
 //
 template <class T> T * AssignPtr2Ptr(T *& prDest, const T * pSrc) // @v11.4.12
@@ -5048,6 +5056,13 @@ public:
 //
 struct SVerT { // @persistent Size=4
 	explicit SVerT(int = 0, int = 0, int = 0);
+	bool   IsEmpty() const { return (!V && !R); }
+	SVerT & Z()
+	{
+		V = 0;
+		R = 0;
+		return *this;
+	}
 	int    Get(int *, int *, int *) const;
 	int    GetMajor() const;
 	int    GetMinor() const;
@@ -9174,8 +9189,8 @@ public:
 	//
 	// Descr: Сравнивает экземпляр this с экземпляром src.
 	//   Сравнение осуществляется по-элементно. Если this->getCount() != src.getCount(), то
-	//   экземпляры не равны, в противном случае, каждый элемент this сравнивается с соотвествующим
-	//   (согласно номеру позиции) элементом src. Если Id, ParentId и (побайтно) Txt равны соотвествующим
+	//   экземпляры не равны, в противном случае, каждый элемент this сравнивается с соответствующим
+	//   (согласно номеру позиции) элементом src. Если Id, ParentId и (побайтно) Txt равны соответствующим
 	//   полям Item экземпляра src, то элементы равны.
 	// Returns:
 	//   1 - массивы равны
@@ -10879,7 +10894,7 @@ public:
 		Php      = 105, // php source code
 		Java     = 106, // java source code
 		Py       = 107, // Python source code
-		UnixShell        = 108, // Unix Shell script
+		UnixShell = 108, // Unix Shell script
 		Msi      = 109, // Microsoft Installer package
 		TxtUtf8  = 110, // Текст в формате utf8
 		TxtAscii = 111, // Текст в котором только ASCII-символы

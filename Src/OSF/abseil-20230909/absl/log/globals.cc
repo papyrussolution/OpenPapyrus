@@ -15,19 +15,10 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/log/globals.h"
-//#include <atomic>
-//#include <cstddef>
-//#include <cstdint>
-//#include <cstdlib>
-//#include <cstring>
-//#include <string>
-//#include "absl/base/attributes.h"
-//#include "absl/base/config.h"
 #include "absl/base/internal/atomic_hook.h"
 #include "absl/base/internal/raw_logging.h"
 #include "absl/base/log_severity.h"
 #include "absl/hash/hash.h"
-//#include "absl/strings/string_view.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

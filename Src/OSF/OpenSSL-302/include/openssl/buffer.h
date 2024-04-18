@@ -35,7 +35,7 @@ extern "C" {
 #define BUF_memdup(data, size) OPENSSL_memdup(data, size)
 #define BUF_strlcpy(dst, src, size)  OPENSSL_strlcpy(dst, src, size)
 #define BUF_strlcat(dst, src, size) OPENSSL_strlcat(dst, src, size)
-#define BUF_strnlen(str, maxlen) OPENSSL_strnlen(str, maxlen)
+#define BUF_strnlen(str, maxlen) /*OPENSSL_strnlen*/sstrnlen(str, maxlen)
 #endif
 
 struct buf_mem_st {

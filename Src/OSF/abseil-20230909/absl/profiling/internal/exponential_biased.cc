@@ -15,11 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/profiling/internal/exponential_biased.h"
-//#include <stdint.h>
-//#include <algorithm>
-//#include <atomic>
-//#include <cmath>
-//#include <limits>
 #include "absl/base/attributes.h"
 #include "absl/base/optimization.h"
 

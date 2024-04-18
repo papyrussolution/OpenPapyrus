@@ -15,10 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/internal/cordz_functions.h"
-//#include <atomic>
-//#include <cmath>
-//#include <limits>
-//#include <random>
 #include "absl/base/attributes.h"
 #include "absl/base/config.h"
 #include "absl/base/internal/raw_logging.h"

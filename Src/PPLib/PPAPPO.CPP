@@ -491,6 +491,7 @@ int PPApp::processCommand(uint cmd)
 		case cmTssModel:             ShowObjects(PPOBJ_TSSMODEL,    0);       break; // @v10.7.4
 		case cmFreightPackageType:   ShowObjects(PPOBJ_FREIGHTPACKAGETYPE, 0); break; // @v10.4.1
 		case cmTaxSystemKind:        ShowObjects(PPOBJ_TAXSYSTEMKIND, 0);     break; // @v10.6.0
+		case cmSwProgramCategory:    ShowObjects(PPOBJ_SWPROGRAMCATEGORY, 0); break; // @v11.9.12
 		case cmObjTag:               ShowTags_(PPOBJ_PERSON);                 break;
 		case cmLotTag:               ShowTags_(PPOBJ_LOT);                    break;
 		case cmBillTag:              ShowTags_(PPOBJ_BILL);                   break;
@@ -565,6 +566,7 @@ int PPApp::processCommand(uint cmd)
 		case cmAlcoDeclRu:           PPView::Execute(PPVIEW_ALCODECLRU,      0, PPView::exefModeless, 0); break; // @v11.0.5
 		case cmStyloQBindery:        PPView::Execute(PPVIEW_STYLOQBINDERY,   0, PPView::exefModeless, 0); break; // @v11.1.7
 		case cmStyloQCommands:       PPView::Execute(PPVIEW_STYLOQCOMMAND,   0, PPView::exefModeless, 0); break; // @v11.1.9
+		case cmSwProgram:            PPView::Execute(PPVIEW_SWPROGRAM,       0, PPView::exefModeless, 0); break; // @v11.9.12
 		case cmProcessUED: // @v11.6.6
 			{
 				//PPLogger logger;

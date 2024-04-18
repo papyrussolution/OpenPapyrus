@@ -1,5 +1,5 @@
 // OBJEVENT.CPP
-// Copyright (c) A.Sobolev 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2020, 2021, 2022, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -389,7 +389,7 @@ int PPObjEventSubscription::EditDialog(PPEventSubscriptionPacket * pPack)
 /*virtual*/int PPObjEventSubscription::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
-	int    is_new = 0;
+	bool   is_new = false;
 	PPEventSubscriptionPacket pack;
 	THROW(EditPrereq(pID, 0, &is_new));
 	if(!is_new) {

@@ -43,7 +43,7 @@ void RECORD_LAYER_clear(RECORD_LAYER * rl)
 	rl->packet = NULL;
 	rl->packet_length = 0;
 	rl->wnum = 0;
-	memset(rl->handshake_fragment, 0, sizeof(rl->handshake_fragment));
+	memzero(rl->handshake_fragment, sizeof(rl->handshake_fragment));
 	rl->handshake_fragment_len = 0;
 	rl->wpend_tot = 0;
 	rl->wpend_type = 0;
@@ -97,12 +97,12 @@ int RECORD_LAYER_write_pending(const RECORD_LAYER * rl)
 
 void RECORD_LAYER_reset_read_sequence(RECORD_LAYER * rl)
 {
-	memset(rl->read_sequence, 0, sizeof(rl->read_sequence));
+	memzero(rl->read_sequence, sizeof(rl->read_sequence));
 }
 
 void RECORD_LAYER_reset_write_sequence(RECORD_LAYER * rl)
 {
-	memset(rl->write_sequence, 0, sizeof(rl->write_sequence));
+	memzero(rl->write_sequence, sizeof(rl->write_sequence));
 }
 
 size_t ssl3_pending(const SSL * s)
@@ -853,7 +853,7 @@ wpacket_init_complete:
 
 	totlen = 0;
 	/* Clear our SSL3_RECORD structures */
-	memset(wr, 0, sizeof(wr));
+	memzero(wr, sizeof(wr));
 	for(j = 0; j < numpipes; j++) {
 		unsigned int version = (s->version == TLS1_3_VERSION) ? TLS1_2_VERSION
 		    : s->version;

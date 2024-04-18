@@ -203,7 +203,8 @@ static void sum_write(archive_string *, struct reg_info *);
 static int write_mtree_entry(struct archive_write *, struct mtree_entry *);
 static int write_dot_dot_entry(struct archive_write *, struct mtree_entry *);
 
-#define COMPUTE_CRC(var, ch)    (var) = (var) << 8 ^ crctab[(var) >> 24 ^ (ch)]
+#define COMPUTE_CRC(var, ch)    (var) = (var) << 8 ^ SlTabs::LookupTable_CRC32_BZip2[(var) >> 24 ^ (ch)]
+/* @v11.9.12 (replaced with SlTabs::LookupTable_CRC32_BZip2)
 static const uint32 crctab[] = {
 	0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b, 0x1a864db2, 0x1e475005, 
 	0x2608edb8, 0x22c9f00f, 0x2f8ad6d6, 0x2b4bcb61, 0x350c9b64, 0x31cd86d3, 0x3c8ea00a, 0x384fbdbd,
@@ -237,7 +238,7 @@ static const uint32 crctab[] = {
 	0xe3a1cbc1, 0xe760d676, 0xea23f0af, 0xeee2ed18, 0xf0a5bd1d, 0xf464a0aa, 0xf9278673, 0xfde69bc4, 
 	0x89b8fd09, 0x8d79e0be, 0x803ac667, 0x84fbdbd0, 0x9abc8bd5, 0x9e7d9662, 0x933eb0bb, 0x97ffad0c, 
 	0xafb010b1, 0xab710d06, 0xa6322bdf, 0xa2f33668, 0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4
-};
+};*/
 
 static const uchar safe_char[256] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 00 - 0F */

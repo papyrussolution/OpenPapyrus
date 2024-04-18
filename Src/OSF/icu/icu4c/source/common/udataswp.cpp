@@ -234,8 +234,7 @@ U_CAPI int32_t U_EXPORT2 udata_swapDataHeader(const UDataSwapper * ds, const voi
 	if((length>=0 && length<(int32_t)sizeof(DataHeader)) ||
 	    pHeader->dataHeader.magic1!=0xda ||
 	    pHeader->dataHeader.magic2!=0x27 ||
-	    pHeader->info.sizeofUChar!=2
-	    ) {
+	    pHeader->info.sizeofUChar!=2) {
 		udata_printError(ds, "udata_swapDataHeader(): initial bytes do not look like ICU data\n");
 		*pErrorCode = U_UNSUPPORTED_ERROR;
 		return 0;

@@ -24,9 +24,6 @@
 #include <signal.h>
 #endif
 #endif
-//#include <atomic>
-//#include <cassert>
-//#include <memory>
 #include "absl/base/attributes.h"
 #include "absl/base/call_once.h"
 #include "absl/base/internal/raw_logging.h"

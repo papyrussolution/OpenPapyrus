@@ -1,5 +1,5 @@
 // SLIB-INTERNAL.H
-// Copyright (c) A.Sobolev 2020, 2022, 2023
+// Copyright (c) A.Sobolev 2020, 2022, 2023, 2024
 //
 #ifndef __SLIB_INTERNAL_H
 #define __SLIB_INTERNAL_H

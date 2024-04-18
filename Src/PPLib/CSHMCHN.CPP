@@ -1015,7 +1015,12 @@ int PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 
 int PPCashMachine::SyncPrintCheck(CCheckPacket * pCcPack, int addSummator)
 {
+	/*
+		
+	*/
 	int    ok = 1;
+	bool   debug_mark = false; // @debug
+	SString temp_buf;
 	SyncPrintErrCode = 0;
 	CmLocking cml(NodeRec);
 	THROW(cml);
@@ -1039,6 +1044,45 @@ int PPCashMachine::SyncPrintCheck(CCheckPacket * pCcPack, int addSummator)
 			flags |= PRNCHK_BANKING;
 		NodeRec.Flags |= CASHF_LASTCHKCANCELLED;
 		THROW(UpdateNode(1));
+		// @v11.9.12 {
+		{
+			const PPSyncCashNode & r_cn = P_SyncIntrf->GetPosNode();
+			if(oneof2(r_cn.ChZnPermissiveMode, PPSyncCashNode::chznpmSoft, PPSyncCashNode::chznpmStrict)) {
+				if(r_cn.ChZnGuaID) {
+					PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection check_code_list;
+					PPObjGoods goods_obj;
+					CCheckLineTbl::Rec ccl;
+					for(uint pos = 0; pCcPack->EnumLines(&pos, &ccl) > 0;) {
+						Goods2Tbl::Rec goods_rec;
+						if(goods_obj.Fetch(ccl.GoodsID, &goods_rec) > 0) {
+							if(pCcPack->GetLineTextExt(pos, CCheckPacket::lnextChZnMark, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+								GtinStruc gts;
+								if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+									uint clp = 0;
+									CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
+									PPChZnPrcssr::ReconstructOriginalChZnCode(gts, temp_buf);
+									PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.CreateNewItem(&clp);
+									if(p_cle) {
+										p_cle->OrgMark = temp_buf;
+										p_cle->OrgRowId = pos;
+									}
+								}
+							}
+						}
+					}
+					if(check_code_list.getCount()) {
+						PPChZnPrcssr::PmCheck(r_cn.ChZnGuaID, 0, check_code_list);
+						for(uint i = 0; i < check_code_list.getCount(); i++) {
+							const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.at(i);
+							if(p_cle) {
+								debug_mark = true;
+							}
+						}
+					}
+				}
+			}
+		}
+		// } @v11.9.12 
 		{
 			const int spcr = P_SyncIntrf->PrintCheck(pCcPack, flags);
 			ok = SyncSetPrintErrCode(spcr, 1);

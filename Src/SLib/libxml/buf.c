@@ -945,12 +945,12 @@ int FASTCALL xmlBufWriteCHAR(xmlBuf * buf, const xmlChar * string)
  * Returns 0 if successful, a positive error code number otherwise
  *    and -1 in case of internal or API error.
  */
-int FASTCALL xmlBufWriteChar(xmlBuf * buf, const char * string) 
+int FASTCALL xmlBufWriteChar(xmlBuf * pBuf, const char * pString) 
 {
-	if(!buf || buf->error)
+	if(!pBuf || pBuf->error)
 		return -1;
-	CHECK_COMPAT(buf)
-	return (buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE) ? -1 : xmlBufCCat(buf, string);
+	CHECK_COMPAT(pBuf)
+	return (pBuf->alloc == XML_BUFFER_ALLOC_IMMUTABLE) ? -1 : xmlBufCCat(pBuf, pString);
 }
 /**
  * xmlBufWriteQuotedString:
@@ -1008,7 +1008,6 @@ int FASTCALL xmlBufWriteQuotedString(xmlBuf * buf, const xmlChar * string)
 	}
 	return 0;
 }
-
 /**
  * xmlBufFromBuffer:
  * @buffer: incoming old buffer to convert to a new one
@@ -1042,7 +1041,6 @@ xmlBuf * FASTCALL xmlBufFromBuffer(xmlBuffer * buffer)
 	}
 	return ret;
 }
-
 /**
  * xmlBufBackToBuffer:
  * @buf: new buffer wrapping the old one
@@ -1066,15 +1064,15 @@ xmlBuffer * FASTCALL xmlBufBackToBuffer(xmlBuf * buf)
 		return NULL;
 	}
 	ret = buf->buffer;
-	/*
-	 * What to do in case of error in the buffer ???
-	 */
+	//
+	// What to do in case of error in the buffer ???
+	//
 	if(buf->use > INT_MAX) {
-		/*
-		 * Worse case, we really allocated and used more than the
-		 * maximum allowed memory for an xmlBuffer on this architecture.
-		 * Keep the buffer but provide a truncated size value.
-		 */
+		//
+		// Worse case, we really allocated and used more than the
+		// maximum allowed memory for an xmlBuffer on this architecture.
+		// Keep the buffer but provide a truncated size value.
+		//
 		xmlBufOverflowError(buf, "Used size too big for xmlBuffer");
 		ret->use = INT_MAX;
 		ret->size = INT_MAX;

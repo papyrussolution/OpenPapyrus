@@ -15,7 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/profiling/internal/periodic_sampler.h"
-//#include <atomic>
 #include "absl/profiling/internal/exponential_biased.h"
 
 namespace absl {

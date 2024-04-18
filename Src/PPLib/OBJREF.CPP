@@ -469,7 +469,7 @@ int PPObjReference::CheckName(PPID id, const char * pName, int silent)
 int PPObjReference::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
-	int    is_new = 0;
+	bool   is_new = false;
 	ReferenceTbl::Rec rec;
 	THROW(EditPrereq(pID, 0, &is_new));
 	if(!is_new) {
@@ -715,7 +715,7 @@ int PPObjReference::MakeReserved(long flags)
 		case PPOBJ_USR:           rez_id = ROD_USR;           break;
 		case PPOBJ_UNIT:          rez_id = ROD_UNIT;          break;
 		case PPOBJ_CITYSTATUS:    rez_id = ROD_CITYSTATUS;    break;
-		case PPOBJ_PERSONKIND:      rez_id = ROD_PRSNKIND;      break;
+		case PPOBJ_PERSONKIND:    rez_id = ROD_PRSNKIND;      break;
 		case PPOBJ_PRSNSTATUS:    rez_id = ROD_PRSNSTATUS;    break;
 		case PPOBJ_OPRTYPE:       rez_id = ROD_OPRTYPE;       break;
 		case PPOBJ_BNKACCTYPE:    rez_id = ROD_BNKACCTYPE;    break;
@@ -1863,7 +1863,8 @@ int PPObjDynamicObjs::Browse(void * extraPtr)
 
 int PPObjDynamicObjs::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, is_new = 0;
+	int    ok = cmCancel;
+	bool   is_new = false;
 	ReferenceTbl::Rec rec;
 	THROW(EditPrereq(pID, 0, &is_new));
 	if(!is_new) {
@@ -2083,7 +2084,8 @@ int PPGlobalUserAccPacket::GetAccessKey(SString & rValue) const
 
 /*static*/int PPObjGlobalUserAcc::EditConfig()
 {
-	int    ok = -1, is_new = 0;
+	int    ok = -1;
+	int    is_new = 0;
 	PPGlobalUserAccConfig cfg;
 	TDialog * dlg = new TDialog(DLG_GUACFG);
 	THROW(CheckCfgRights(PPCFGOBJ_GLOBALUSERACC, PPR_READ, 0));
@@ -2524,7 +2526,8 @@ private:
 
 int PPObjGlobalUserAcc::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, is_new = 0;
+	int    ok = cmCancel;
+	bool   is_new = false;
 	PPGlobalUserAccPacket pack;
 	THROW(EditPrereq(pID, 0, &is_new));
 	if(!is_new) {
@@ -3856,6 +3859,8 @@ int FASTCALL PPEdiProvider::IsEq(const PPEdiProvider & rS) const
 		eq = 0;
 	else if(GuaID != rS.GuaID)
 		eq = 0;
+	else if(DtoPersonID != rS.DtoPersonID) // @v11.9.12
+		eq = 0;
 	return eq;
 }
 
@@ -3994,12 +3999,14 @@ int PPObjEdiProvider::PutPacket(PPID * pID, PPEdiProviderPacket * pPack, int use
 int PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
 {
 	class EdiProviderDialog : public TDialog {
+		DECL_DIALOG_DATA(PPEdiProviderPacket);
+		PPObjEdiProvider * P_Obj;
 	public:
 		EdiProviderDialog(PPObjEdiProvider * pObj) : TDialog(DLG_EDIPRV), P_Obj(pObj)
 		{
 			assert(pObj);
 		}
-		int    setDTS(const PPEdiProviderPacket * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
 			SString temp_buf;
@@ -4036,9 +4043,10 @@ int PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
 			setCtrlString(CTL_EDIPRV_SUBOUT, temp_buf);
 			// } @v11.9.4
 			SetupPPObjCombo(this, CTLSEL_EDIPRV_GUA, PPOBJ_GLOBALUSERACC, Data.Rec.GuaID, OLW_CANINSERT);
+			SetupPersonCombo(this, CTLSEL_EDIPRV_DTO, Data.Rec.DtoPersonID, OLW_CANINSERT, PPPRK_DTO, true); // @v11.9.12
 			return ok;
 		}
-		int    getDTS(PPEdiProviderPacket * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -4068,19 +4076,17 @@ int PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
 			Data.PutExtStrData(PPEdiProviderPacket::extssSubOut, temp_buf);
 			// } @v11.9.4
 			Data.Rec.GuaID = getCtrlLong(CTLSEL_EDIPRV_GUA);
+			Data.Rec.DtoPersonID = getCtrlLong(CTLSEL_EDIPRV_DTO); // @v11.9.12
 			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
 		}
-	private:
-		PPObjEdiProvider * P_Obj;
-		PPEdiProviderPacket Data;
 	};
 
 	int    ok = cmCancel;
 	int    r = cmCancel;
 	int    valid_data = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	PPEdiProviderPacket pack;
 	EdiProviderDialog * dlg = new EdiProviderDialog(this);
 	THROW(CheckDialogPtr(&dlg));

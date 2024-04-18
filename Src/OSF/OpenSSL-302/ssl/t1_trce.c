@@ -1397,20 +1397,14 @@ static int ssl_print_ticket(BIO * bio, int indent, const SSL * ssl,
 	BIO_printf(bio, "ticket_lifetime_hint=%u\n", tick_life);
 	if(SSL_IS_TLS13(ssl)) {
 		unsigned int ticket_age_add;
-
 		if(msglen < 4)
 			return 0;
-		ticket_age_add =
-		    ((unsigned int)msg[0] << 24)
-		    | ((unsigned int)msg[1] << 16)
-		    | ((unsigned int)msg[2] << 8)
-		    | (unsigned int)msg[3];
+		ticket_age_add = ((unsigned int)msg[0] << 24) | ((unsigned int)msg[1] << 16) | ((unsigned int)msg[2] << 8) | (unsigned int)msg[3];
 		msglen -= 4;
 		msg += 4;
 		BIO_indent(bio, indent + 2, 80);
 		BIO_printf(bio, "ticket_age_add=%u\n", ticket_age_add);
-		if(!ssl_print_hexbuf(bio, indent + 2, "ticket_nonce", 1, &msg,
-		    &msglen))
+		if(!ssl_print_hexbuf(bio, indent + 2, "ticket_nonce", 1, &msg, &msglen))
 			return 0;
 	}
 	if(!ssl_print_hexbuf(bio, indent + 2, "ticket", 2, &msg, &msglen))

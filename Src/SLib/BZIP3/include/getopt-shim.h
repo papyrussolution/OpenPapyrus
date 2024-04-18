@@ -65,11 +65,11 @@ static void __getopt_msg(const char * a, const char * b, const char * c, size_t 
 	funlockfile(f);
 }
 
-int getopt(int argc, char * const argv[], const char * optstring) {
+int getopt(int argc, char * const argv[], const char * optstring) 
+{
 	int i, c, d;
 	int k, l;
 	char * optchar;
-
 	if(!optind || optreset) {
 		optreset = 0;
 		__optpos = 0;

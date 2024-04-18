@@ -228,6 +228,8 @@
 			MENUITEM "@cmd_genericdevice",				cmGenericDevice // @v7.8.0
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_cafetable",					cmCafeTable // @v8.4.1
+			MENUITEM "@cmd_swprogram",                  cmSwProgram // @v11.9.12
+			MENUITEM "@cmd_swprogramcategory",          cmSwProgramCategory // @v11.9.12
 		}
 		POPUP "@cmdpu_admin" {
 			MENUITEM "@cmd_dbdiv",						cmDBDiv

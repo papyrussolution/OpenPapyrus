@@ -3062,7 +3062,8 @@ int ReadDBMaintainCfg(DBMaintainParam * pParam)
 
 int EditDBMaintainCfg()
 {
-	int    ok = -1, is_new = 0;
+	int    ok = -1;
+	int    is_new = 0;
 	DBMaintainParam  param;
 	THROW(CheckCfgRights(PPCFGOBJ_DBMAINTAIN, PPR_READ, 0));
 	THROW(is_new = ReadDBMaintainCfg(&param));

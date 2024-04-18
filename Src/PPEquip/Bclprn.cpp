@@ -95,7 +95,7 @@ int PPObjBarcodePrinter::Edit(PPID * pID, void * extraPtr)
 	int    ok = 1;
 	int    r = cmCancel;
 	int    valid_data = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	BarcodePrinterDialog * dlg = new BarcodePrinterDialog();
 	PPBarcodePrinter2 rec;
 	THROW(CheckDialogPtr(&dlg));

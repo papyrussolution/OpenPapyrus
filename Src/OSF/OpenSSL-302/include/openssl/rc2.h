@@ -33,31 +33,25 @@ typedef unsigned int RC2_INT;
 #define RC2_DECRYPT     0
 
 typedef struct rc2_key_st {
-    RC2_INT data[64];
+	RC2_INT data[64];
 } RC2_KEY;
 #endif
 #ifndef OPENSSL_NO_DEPRECATED_3_0
-OSSL_DEPRECATEDIN_3_0 void RC2_set_key(RC2_KEY *key, int len,
-                                       const uchar *data, int bits);
-OSSL_DEPRECATEDIN_3_0 void RC2_ecb_encrypt(const uchar *in,
-                                           uchar *out, RC2_KEY *key,
-                                           int enc);
-OSSL_DEPRECATEDIN_3_0 void RC2_encrypt(unsigned long *data, RC2_KEY *key);
-OSSL_DEPRECATEDIN_3_0 void RC2_decrypt(unsigned long *data, RC2_KEY *key);
-OSSL_DEPRECATEDIN_3_0 void RC2_cbc_encrypt(const uchar *in,
-                                           uchar *out, long length,
-                                           RC2_KEY *ks, uchar *iv,
-                                           int enc);
-OSSL_DEPRECATEDIN_3_0 void RC2_cfb64_encrypt(const uchar *in,
-                                             uchar *out, long length,
-                                             RC2_KEY *schedule,
-                                             uchar *ivec,
-                                             int *num, int enc);
-OSSL_DEPRECATEDIN_3_0 void RC2_ofb64_encrypt(const uchar *in,
-                                             uchar *out, long length,
-                                             RC2_KEY *schedule,
-                                             uchar *ivec,
-                                             int *num);
+OSSL_DEPRECATEDIN_3_0 void RC2_set_key(RC2_KEY * key, int len, const uchar * data, int bits);
+OSSL_DEPRECATEDIN_3_0 void RC2_ecb_encrypt(const uchar * in, uchar * out, RC2_KEY * key, int enc);
+OSSL_DEPRECATEDIN_3_0 void RC2_encrypt(unsigned long * data, RC2_KEY * key);
+OSSL_DEPRECATEDIN_3_0 void RC2_decrypt(unsigned long * data, RC2_KEY * key);
+OSSL_DEPRECATEDIN_3_0 void RC2_cbc_encrypt(const uchar * in, uchar * out, long length, RC2_KEY * ks, uchar * iv, int enc);
+OSSL_DEPRECATEDIN_3_0 void RC2_cfb64_encrypt(const uchar * in,
+    uchar * out, long length,
+    RC2_KEY * schedule,
+    uchar * ivec,
+    int * num, int enc);
+OSSL_DEPRECATEDIN_3_0 void RC2_ofb64_encrypt(const uchar * in,
+    uchar * out, long length,
+    RC2_KEY * schedule,
+    uchar * ivec,
+    int * num);
 #endif
 
 #ifdef  __cplusplus

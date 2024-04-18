@@ -161,11 +161,13 @@ static int PPObjProject_WriteConfig(PPProjectConfig * pCfg, PPOpCounterPacket * 
 			}
 		}
 	};
-	int    ok = -1, valid_data = 0, ta = 0, is_new = 0;
+	int    ok = -1;
+	int    valid_data = 0;
+	int    ta = 0;
+	int    is_new = 0;
 	ProjectCfgDialog * dlg = new ProjectCfgDialog;
 	PPObjOpCounter opc_obj;
 	ProjectCfgDialog::Rec data;
-
 	THROW(CheckDialogPtr(&dlg));
 	THROW(CheckCfgRights(PPCFGOBJ_PROJECT, PPR_READ, 0));
 	is_new = ReadConfig(&data.Cfg);
@@ -2817,7 +2819,10 @@ int PPObjPrjTask::EditDialog(PPPrjTaskPacket * pPack)
 int PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 {
 	const  long extra_param = reinterpret_cast<long>(extraPtr);
-	int    ok = cmCancel, r = 0, is_new = 0, task_finished = 0;
+	int    ok = cmCancel;
+	int    r = 0;
+	int    is_new = 0;
+	int    task_finished = 0;
 	PPID   prev_employer = 0, parent_prj = 0, client = 0;
 	PPID   employer = 0;
 	PPPrjTaskPacket pack;

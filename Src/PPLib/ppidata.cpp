@@ -1082,7 +1082,9 @@ int WinInetFTP::CreateDir(const char * pDir)
 	private:
 		SString Agents;
 	};
-	int    ok = -1, valid_data = 0, is_new = 0;
+	int    ok = -1;
+	int    valid_data = 0;
+	int    is_new = 0;
 	InetConnConfigDialog * p_dlg = new InetConnConfigDialog();
 	PPInetConnConfig cfg;
 	THROW(CheckCfgRights(PPCFGOBJ_INETCONN, PPR_READ, 0));

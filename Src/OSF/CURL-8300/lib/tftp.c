@@ -280,20 +280,20 @@ static ushort getrpacketblock(const struct tftp_packet * packet)
 	return (ushort)((packet->data[2] << 8) | packet->data[3]);
 }
 
-static size_t tftp_strnlen(const char * string, size_t maxlen)
+/* @v11.9.12 (replaced with sstrnlen) static size_t tftp_strnlen(const char * string, size_t maxlen)
 {
 	const char * end = (const char *)smemchr(string, '\0', maxlen);
 	return end ? (size_t)(end - string) : maxlen;
-}
+}*/
 
 static const char *tftp_option_get(const char * buf, size_t len, const char ** option, const char ** value)
 {
-	size_t loc = tftp_strnlen(buf, len);
+	size_t loc = /*tftp_strnlen*/sstrnlen(buf, len);
 	loc++; /* NULL term */
 	if(loc >= len)
 		return NULL;
 	*option = buf;
-	loc += tftp_strnlen(buf + loc, len-loc);
+	loc += /*tftp_strnlen*/sstrnlen(buf + loc, len-loc);
 	loc++; /* NULL term */
 	if(loc > len)
 		return NULL;
@@ -1025,7 +1025,7 @@ static CURLcode tftp_receive_packet(struct Curl_easy * data)
 			    char * str = (char *)state->rpacket.data + 4;
 			    size_t strn = state->rbytes - 4;
 			    state->error = (tftp_error_t)error;
-			    if(tftp_strnlen(str, strn) < strn)
+			    if(/*tftp_strnlen*/sstrnlen(str, strn) < strn)
 				    infof(data, "TFTP error: %s", str);
 			    break;
 		    }

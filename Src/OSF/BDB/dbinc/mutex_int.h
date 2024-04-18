@@ -5,11 +5,8 @@
  *
  * $Id$
  */
-
 #ifndef _DB_MUTEX_INT_H_
 #define	_DB_MUTEX_INT_H_
-
-//#include "dbinc/atomic.h"
 
 #if defined(__cplusplus)
 extern "C" {

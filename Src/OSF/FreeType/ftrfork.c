@@ -438,7 +438,6 @@ static FT_Error raccess_guess_darwin_ufs_export(FT_Library library,
 		*result_file_name = newpath;
 	else
 		FT_FREE(newpath);
-
 	return error;
 }
 
@@ -455,17 +454,12 @@ static FT_Error raccess_guess_darwin_hfsplus(FT_Library library,
 	char *      newpath = NULL;
 	FT_Memory memory;
 	FT_Long base_file_len = (FT_Long)ft_strlen(base_file_name);
-
 	FT_UNUSED(stream);
-
 	memory = library->memory;
-
 	if(base_file_len + 6 > FT_INT_MAX)
 		return FT_THROW(Array_Too_Large);
-
 	if(FT_ALLOC(newpath, base_file_len + 6))
 		return error;
-
 	FT_MEM_COPY(newpath, base_file_name, base_file_len);
 	FT_MEM_COPY(newpath + base_file_len, "/rsrc", 6);
 
@@ -475,11 +469,8 @@ static FT_Error raccess_guess_darwin_hfsplus(FT_Library library,
 	return FT_Err_Ok;
 }
 
-static FT_Error raccess_guess_darwin_newvfs(FT_Library library,
-    FT_Stream stream,
-    char * base_file_name,
-    char   ** result_file_name,
-    FT_Long    * result_offset)
+static FT_Error raccess_guess_darwin_newvfs(FT_Library library, FT_Stream stream,
+    char * base_file_name, char   ** result_file_name, FT_Long    * result_offset)
 {
 	/*
 	   Only meaningful on systems with Mac OS X (> 10.1).

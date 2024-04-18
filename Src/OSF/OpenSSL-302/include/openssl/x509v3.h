@@ -1066,17 +1066,12 @@ int X509V3_add1_i2d(STACK_OF(X509_EXTENSION) **x, int nid, void * value,
 #define string_to_hex OPENSSL_hexstr2buf
 #endif
 
-void X509V3_EXT_val_prn(BIO * out, STACK_OF(CONF_VALUE) *val, int indent,
-    int ml);
-int X509V3_EXT_print(BIO * out, X509_EXTENSION * ext, unsigned long flag,
-    int indent);
+void X509V3_EXT_val_prn(BIO * out, STACK_OF(CONF_VALUE) *val, int indent, int ml);
+int X509V3_EXT_print(BIO * out, X509_EXTENSION * ext, unsigned long flag, int indent);
 #ifndef OPENSSL_NO_STDIO
 int X509V3_EXT_print_fp(FILE * out, X509_EXTENSION * ext, int flag, int indent);
 #endif
-int X509V3_extensions_print(BIO * out, const char * title,
-    const STACK_OF(X509_EXTENSION) * exts,
-    unsigned long flag, int indent);
-
+int X509V3_extensions_print(BIO * out, const char * title, const STACK_OF(X509_EXTENSION) * exts, unsigned long flag, int indent);
 int X509_check_ca(X509 * x);
 int X509_check_purpose(X509 * x, int id, int ca);
 int X509_supported_extension(X509_EXTENSION * ex);
@@ -1099,9 +1094,7 @@ int X509_PURPOSE_get_count(void);
 X509_PURPOSE * X509_PURPOSE_get0(int idx);
 int X509_PURPOSE_get_by_sname(const char * sname);
 int X509_PURPOSE_get_by_id(int id);
-int X509_PURPOSE_add(int id, int trust, int flags,
-    int (* ck)(const X509_PURPOSE *, const X509 *, int),
-    const char * name, const char * sname, void * arg);
+int X509_PURPOSE_add(int id, int trust, int flags, int (* ck)(const X509_PURPOSE *, const X509 *, int), const char * name, const char * sname, void * arg);
 char * X509_PURPOSE_get0_name(const X509_PURPOSE * xp);
 char * X509_PURPOSE_get0_sname(const X509_PURPOSE * xp);
 int X509_PURPOSE_get_trust(const X509_PURPOSE * xp);

@@ -1575,7 +1575,7 @@ SString & SOraDbProvider::GetTemporaryFileName(SString & rFileNameBuf, long * pS
 int SOraDbProvider::CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode)
 {
 	int    ok = 1;
-	THROW(SqlGen.Z().CreateTable(*pTbl, 0));
+	THROW(SqlGen.Z().CreateTable(*pTbl, 0, false, 1));
 	{
 		SSqlStmt stmt(this, (const SString &)SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));

@@ -160,7 +160,8 @@ struct RestoreStackItem {
 			DisableClusterItem(CTL_DBXCHGCFG_FLAGS, 5, BIN(Data.DfctRcptOpID && GetOpType(Data.DfctRcptOpID) != PPOPT_GOODSRECEIPT));
 		}
 	};
-	int    ok = -1, is_new = 0;
+	int    ok = -1;
+	int    is_new = 0;
 	PPDBXchgConfig cfg;
 	DbExchangeCfgDialog * p_dlg = new DbExchangeCfgDialog();
 	THROW(CheckDialogPtr(&p_dlg));

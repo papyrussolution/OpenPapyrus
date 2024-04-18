@@ -1,5 +1,5 @@
 // V_STAFF.CPP
-// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -32,9 +32,9 @@ PPViewStaffList::PPViewStaffList() : PPView(&SlObj, &Filt, PPVIEW_STAFFLIST, imp
 	PPAmountType    at_rec;
 	PPObjAmountType at_obj;
 	PPLoadText(PPTXT_SALARY_AMOUNT_TYPES, buf);
-	memzero(SalaryAmountTypes, sizeof(PPID) * 4);
+	memzero(SalaryAmountTypes, sizeof(SalaryAmountTypes));
 	for(PPID id = 0; at_obj.EnumItems(&id, &at_rec) > 0;)
-		if((at_rec.Flags & PPAmountType::fStaffAmount) && PPSearchSubStr(buf, &type_no, at_rec.Symb, 1) && type_no < 4)
+		if((at_rec.Flags & PPAmountType::fStaffAmount) && PPSearchSubStr(buf, &type_no, at_rec.Symb, 1) && type_no < SIZEOFARRAY(SalaryAmountTypes))
 			SalaryAmountTypes[type_no] = at_rec.ID;
 }
 
@@ -49,7 +49,8 @@ void * PPViewStaffList::GetEditExtraParam()
 int PPViewStaffList::EditBaseFilt(PPBaseFilt * pFilt)
 {
 #define GRP_DIV 1
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	TDialog * dlg = 0;
 	THROW(Filt.IsA(pFilt));
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_STAFFLFLT))));
@@ -952,7 +953,7 @@ StrAssocArray * FastEditSumByDivDlg::MakeDivList()
 			}
 		 }
 		 //
-		 // Заносим штатные назначения и персоналии им соотвествующие
+		 // Заносим штатные назначения и персоналии им соответствующие
 		 //
 		 {
 			DBQ * post_dbq = 0;

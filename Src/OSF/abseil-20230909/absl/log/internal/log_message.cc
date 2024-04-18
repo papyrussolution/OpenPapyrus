@@ -16,23 +16,9 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/log/internal/log_message.h"
-//#include <stddef.h>
-//#include <stdint.h>
-//#include <stdlib.h>
-//#include <string.h>
 #ifndef _WIN32
 #include <unistd.h>
 #endif
-//#include <algorithm>
-//#include <array>
-//#include <atomic>
-//#include <memory>
-//#include <ostream>
-//#include <string>
-//#include <tuple>
-//#include "absl/base/attributes.h"
-//#include "absl/base/config.h"
-//#include "absl/base/internal/raw_logging.h"
 #include "absl/base/internal/strerror.h"
 #include "absl/base/internal/sysinfo.h"
 #include "absl/base/log_severity.h"
@@ -47,11 +33,7 @@
 #include "absl/log/log_entry.h"
 #include "absl/log/log_sink.h"
 #include "absl/log/log_sink_registry.h"
-//#include "absl/memory/memory.h"
-//#include "absl/strings/string_view.h"
 #include "absl/time/clock.h"
-//#include "absl/time/time.h"
-//#include "absl/types/span.h"
 
 extern "C" ABSL_ATTRIBUTE_WEAK void ABSL_INTERNAL_C_SYMBOL(
     AbslInternalOnFatalLogMessage)(const absl::LogEntry&) {

@@ -83,7 +83,7 @@ U_CAPI void U_EXPORT2 u_flushDefaultConverter()
 /*
    returns the minimum of (the length of the null-terminated string) and n.
  */
-static int32_t u_astrnlen(const char * s1, int32_t n)
+/* @v11.9.12 (replaced with sstrnlen) static int32_t u_astrnlen(const char * s1, int32_t n)
 {
 	int32_t len = 0;
 	if(s1) {
@@ -92,7 +92,7 @@ static int32_t u_astrnlen(const char * s1, int32_t n)
 		}
 	}
 	return len;
-}
+}*/
 
 U_CAPI char16_t * U_EXPORT2 u_uastrncpy(char16_t * ucs1, const char * s2, int32_t n)
 {
@@ -101,14 +101,13 @@ U_CAPI char16_t * U_EXPORT2 u_uastrncpy(char16_t * ucs1, const char * s2, int32_
 	UConverter * cnv = u_getDefaultConverter(&err);
 	if(U_SUCCESS(err) && cnv != NULL) {
 		ucnv_reset(cnv);
-		ucnv_toUnicode(cnv, &target, ucs1+n, &s2, s2+u_astrnlen(s2, n), NULL, TRUE, &err);
+		ucnv_toUnicode(cnv, &target, ucs1+n, &s2, s2 + /*u_astrnlen*/sstrnlen(s2, n), NULL, TRUE, &err);
 		ucnv_reset(cnv); /* be good citizens */
 		u_releaseDefaultConverter(cnv);
 		if(U_FAILURE(err) && (err != U_BUFFER_OVERFLOW_ERROR)) {
 			*ucs1 = 0; /* failure */
 		}
-		if(target < (ucs1+n)) { /* U_BUFFER_OVERFLOW_ERROR isn't an err, just means no termination will happen.
-			 */
+		if(target < (ucs1+n)) { // U_BUFFER_OVERFLOW_ERROR isn't an err, just means no termination will happen.
 			*target = 0; /* terminate */
 		}
 	}

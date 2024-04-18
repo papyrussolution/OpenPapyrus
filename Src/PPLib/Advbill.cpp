@@ -16,7 +16,7 @@ int PPObjAdvBillKind::Edit(PPID * pID, void * extraPtr)
 	int    ok = cmCancel;
 	int    valid_data = 0;
 	int    r = cmCancel;
-	int    is_new = 0;
+	bool   is_new = false;
 	PPAdvBillKind rec;
 	PPIDArray op_type_list;
 	TDialog * dlg = new TDialog(DLG_ADVBILLKIND);

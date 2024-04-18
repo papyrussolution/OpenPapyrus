@@ -374,7 +374,7 @@ static int add_custom_ext_intern(SSL_CTX * ctx, ENDPOINT role,
 		return 0;
 	exts->meths = tmp;
 	meth = exts->meths + exts->meths_count;
-	memset(meth, 0, sizeof(*meth));
+	memzero(meth, sizeof(*meth));
 	meth->role = role;
 	meth->context = context;
 	meth->parse_cb = parse_cb;

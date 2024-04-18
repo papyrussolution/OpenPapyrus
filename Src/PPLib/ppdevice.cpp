@@ -1,5 +1,5 @@
 // PPDEVICE.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -134,7 +134,8 @@ int PPObjGenericDevice::Edit(PPID * pID, void * extraPtr)
 			return ok;
 		}
 	};
-	int    ok = -1, is_new = 0;
+	int    ok = -1;
+	bool   is_new = false;
 	GenDvcDialog * dlg = 0;
 	PPGenericDevicePacket pack;
 	THROW(EditPrereq(pID, 0, &is_new));

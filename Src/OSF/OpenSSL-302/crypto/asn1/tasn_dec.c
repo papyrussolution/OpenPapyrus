@@ -627,7 +627,7 @@ static int asn1_d2i_ex_primitive(ASN1_VALUE ** pval, const uchar ** in, long inl
 	long len;
 	if(pval == NULL) {
 		ERR_raise(ERR_LIB_ASN1, ASN1_R_ILLEGAL_NULL);
-		return 0;       /* Should never happen */
+		return 0; /* Should never happen */
 	}
 	if(it->itype == ASN1_ITYPE_MSTRING) {
 		utype = tag;

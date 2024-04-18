@@ -515,6 +515,7 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 			case PPVIEW_ALCODECLRU:      p_v = new PPViewAlcoDeclRu(); break; // @v11.0.5
 			case PPVIEW_STYLOQBINDERY:   p_v = new PPViewStyloQBindery(); break; // @v11.1.7
 			case PPVIEW_STYLOQCOMMAND:   p_v = new PPViewStyloQCommand(); break; // @v11.1.9
+			case PPVIEW_SWPROGRAM:       p_v = new PPViewSwProgram(); break; // @v11.9.12
 			default: ok = PPSetError(PPERR_UNDEFVIEWID);
 		}
 		if(p_v) {

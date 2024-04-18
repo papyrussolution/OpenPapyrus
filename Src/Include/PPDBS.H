@@ -9921,9 +9921,9 @@ public:
 		uint16 UIVal;
 		double RVal1;
 		double RVal2;
-		SLob   TextField;
 		S_GUID GuidVal;
 		char   S[32];
+		SLob   TextField;
 	} data;
 	struct Key0 {
 		LDATE  Dt;
@@ -9947,9 +9947,9 @@ public:
 	DBField UIVal;
 	DBField RVal1;
 	DBField RVal2;
-	DBField TextField;
 	DBField GuidVal;
 	DBField S;
+	DBField TextField;
 };
 #pragma pack(pop)
 

@@ -584,7 +584,9 @@ int PPObjBudget::Helper_Edit(PPBudgetPacket * pPack)
 
 /*virtual*/int PPObjBudget::Edit(PPID * pID, void * extraPtr)
 {
-	int    r = cmCancel, is_locked = 0, is_new = 0;
+	int    r = cmCancel;
+	int    is_locked = 0;
+	bool   is_new = false;
 	PPBudgetPacket pack;
 	THROW(EditPrereq(pID, 0, &is_new));
 	if(!is_new) {

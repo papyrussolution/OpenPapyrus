@@ -190,7 +190,7 @@ fz_buffer * pdf_load_embedded_file(fz_context * ctx, pdf_obj * fs)
 	return pdf_load_stream(ctx, pdf_embedded_file_stream(ctx, fs));
 }
 
-const char * pdf_guess_mime_type_from_file_name(fz_context * ctx, const char * filename)
+const char * pdf_guess_mime_type_from_file_name(fz_context * ctx, const char * filename) // @todo use SFileFormat
 {
 	const char * ext = strrchr(filename, '.');
 	if(ext) {
@@ -396,15 +396,12 @@ static fz_link * pdf_load_link(fz_context * ctx, pdf_document * doc, pdf_obj * d
 
 fz_link * pdf_load_link_annots(fz_context * ctx, pdf_document * doc, pdf_obj * annots, int pagenum, fz_matrix page_ctm)
 {
-	fz_link * link, * head, * tail;
+	fz_link * link = 0;
+	fz_link * head = 0;
+	fz_link * tail = 0;
 	pdf_obj * obj;
-	int i, n;
-
-	head = tail = NULL;
-	link = NULL;
-
-	n = pdf_array_len(ctx, annots);
-	for(i = 0; i < n; i++) {
+	const int n = pdf_array_len(ctx, annots);
+	for(int i = 0; i < n; i++) {
 		/* FIXME: Move the try/catch out of the loop for performance? */
 		fz_try(ctx)
 		{
@@ -416,7 +413,6 @@ fz_link * pdf_load_link_annots(fz_context * ctx, pdf_document * doc, pdf_obj * a
 			fz_rethrow_if(ctx, FZ_ERROR_TRYLATER);
 			link = NULL;
 		}
-
 		if(link) {
 			if(!head)
 				head = tail = link;
@@ -426,7 +422,6 @@ fz_link * pdf_load_link_annots(fz_context * ctx, pdf_document * doc, pdf_obj * a
 			}
 		}
 	}
-
 	return head;
 }
 

@@ -72,20 +72,19 @@
 #ifndef ABSL_STRINGS_SUBSTITUTE_H_
 #define ABSL_STRINGS_SUBSTITUTE_H_
 
-#include <cstring>
-#include <string>
-#include <type_traits>
-#include <vector>
-
-#include "absl/base/macros.h"
-#include "absl/base/port.h"
+//#include <cstring>
+//#include <string>
+//#include <type_traits>
+//#include <vector>
+//#include "absl/base/macros.h"
+//#include "absl/base/port.h"
 #include "absl/strings/ascii.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/internal/stringify_sink.h"
-#include "absl/strings/numbers.h"
-#include "absl/strings/str_cat.h"
+//#include "absl/strings/numbers.h"
+//#include "absl/strings/str_cat.h"
 #include "absl/strings/str_split.h"
-#include "absl/strings/string_view.h"
+//#include "absl/strings/string_view.h"
 #include "absl/strings/strip.h"
 
 namespace absl {

@@ -2540,7 +2540,7 @@ enum SubstGrpPerson {
 	sgpAccSheet,       // Таблица статей аналитического учета
 	sgpFirstRelation = 10000,
 		// 10001 начиная с этого значения, типы отношений персоналий
-		// Строки соотвествующие типам отношений не указаны в PPTXT_SUBSTPERSONLIST
+		// Строки соответствующие типам отношений не указаны в PPTXT_SUBSTPERSONLIST
 		// и заносятся в строки для combobox'а динамически
 	sgpArticleMask   = 0x8000000 // Маска, индицирующая то, что идентификатор для подстановки является статьей, а не персоналией.
 };
@@ -3289,7 +3289,7 @@ public:
 	void   Normalize(int kind, PPID prmrID);
 	//
 	// Descr: Вспомогательная функция, реализующая разрешение ссылок при синхронизации
-	//   объекта, который содержит 'кземпляр this.
+	//   объекта, который содержит экземпляр this.
 	//
 	int    ProcessObjRefs(PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	void   InitIteration();
@@ -4707,7 +4707,7 @@ public:
 	//   Если задан ид существующей товарной группы grpID, то переносятся только коды товаров,
 	//   принадлежащих этой группе.
 	//   Если srcArCode < 0 && grpID != 0 && destArID >= 0, тогда для статьи destArID
-	//   генерируются коды товаров, принадлежащих группе grpID и не имеющих соотвествующих
+	//   генерируются коды товаров, принадлежащих группе grpID и не имеющих соответствующих
 	//   кодов.
 	//   Если pLogger != 0, тогда информация о ходе процесса (и возможных проблемах) отображается в
 	//   журнале.
@@ -4807,7 +4807,7 @@ public:
 	int    SearchByArCode(PPID arID, const char * pBarcode, ArGoodsCodeTbl::Rec *, Goods2Tbl::Rec * pGoodsRec = 0);
 	//
 	// Descr: Ищет все товарные артикулы, связанные со статьей arID и содержащие подстроку substr.
-	// ARG(arID IN): Идентификатор статьи, которой должны соотвествовать найденные коды.
+	// ARG(arID IN): Идентификатор статьи, которой должны соответствовать найденные коды.
 	//   Если arID == -1, то ищутся собственные коды (ArID == 0).
 	//   Если arID == 0, то ищутся все коды, независимо от статьи.
 	// ARG(substr IN): Указатель на подстроку, которая должна содержаться во всех найденных
@@ -4956,7 +4956,7 @@ public:
 	//
 	// Descr: Извлекает через кэш список котировок для товара goodsID.
 	//   Параметры qkID и locID, если не нулевые, ограничивают возвращаемый список
-	//   только теми элементами, которые содержать соотвествующие поля PPQuot::Kind и PPQuot::LocID.
+	//   только теми элементами, которые содержать соответствующие поля PPQuot::Kind и PPQuot::LocID.
 	//
 	int    FetchQuotList(PPID goodsID, PPID qkID, PPID locID, PPQuotArray & rList);
 	int    SetQuotList(const PPQuotArray & rQList, bool updByTime, int use_ta);
@@ -8692,12 +8692,12 @@ public:
 	//   -1 - OK ?
 	//   -2 - Caller must skip receiving object
 	//
-	virtual int    ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
-	static  int    STDCALL ProcessObjRefInArray(PPID, long *, PPObjIDArray *, int replace);
-	static  int    STDCALL ProcessObjRefInArray(PPID objTypeID, int * pObjID, PPObjIDArray * pArray, int replace)
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
+	static  int STDCALL ProcessObjRefInArray(PPID, long *, PPObjIDArray *, int replace);
+	static  int STDCALL ProcessObjRefInArray(PPID objTypeID, int * pObjID, PPObjIDArray * pArray, int replace)
 		{ return ProcessObjRefInArray(objTypeID, reinterpret_cast<long *>(pObjID), pArray, replace); }
-	static  int    STDCALL ProcessObjRefInArray_NoPreprocess(PPID objTypeID, PPID * pObjID, PPObjIDArray * pArray, int replace);
-	static  int    ProcessObjListRefInArray(PPID, PPIDArray &, PPObjIDArray * pArray, int replace);
+	static  int STDCALL ProcessObjRefInArray_NoPreprocess(PPID objTypeID, PPID * pObjID, PPObjIDArray * pArray, int replace);
+	static  int ProcessObjListRefInArray(PPID, PPIDArray &, PPObjIDArray * pArray, int replace);
 	// Возвращает PPObjListWindow
 	virtual void * CreateObjListWin(uint aFlags, void * extraPtr);
 
@@ -8733,7 +8733,7 @@ protected:
 	virtual const char * GetNamePtr();
 	int    RemoveSync(PPID);
 	int    EditSpcRightFlags(uint dlgID, uint flCtlID, uint sflCtlID, uint bufSize, ObjRights *, EmbedDialog * pDlg = 0);
-	int    EditPrereq(PPID * pID, TDialog * pDlg, int * pIsNew);
+	int    EditPrereq(PPID * pID, TDialog * pDlg, bool * pIsNew);
 	void   FASTCALL Helper_GetRights(int onStartUp);
 
 	long   ImplementFlags;
@@ -10175,11 +10175,11 @@ public:
 		extssMemo               =  1, // @reserved Примечание
 		extssSign               =  2, // Строка подписи чека (ЕГАИС)
 		extssEgaisUrl           =  3, // Текст URL информации о чеке ЕГАИС
-		extssRemoteProcessingTa =  4, // @v10.9.0 Символ транзакции удаленной обработки чека
-		extssChZnProcessingTag  =  5, // @v11.0.1 Символ признака передачи чека на сервер честный знак
-		extssBuyerINN           =  6, // @v11.0.4 ИНН покупателя (при формировании чека по документу)
-		extssBuyerName          =  7, // @v11.0.4 Наименование покупателя (при формировании чека по документу)
-		extssBuyerPhone         =  8, // @v11.0.4 Телефон покупателя //
+		extssRemoteProcessingTa =  4, // Символ транзакции удаленной обработки чека
+		extssChZnProcessingTag  =  5, // Символ признака передачи чека на сервер честный знак
+		extssBuyerINN           =  6, // ИНН покупателя (при формировании чека по документу)
+		extssBuyerName          =  7, // Наименование покупателя (при формировании чека по документу)
+		extssBuyerPhone         =  8, // Телефон покупателя //
 		extssBuyerEMail         =  9, // @v11.3.6 Адрес электронной почты покупателя //
 		extssUuid               = 10, // @v11.5.2 UUID чека. Применяется в ограниченном наборе сценариев. Введен ради взаимодействия со Stylo-Q.
 		extssPrescrDate         = 11, // @v11.7.12 Дата медицинского рецепта. Сохраняется в формате DATF_ISO8601 без разделителей, eg 20230821
@@ -13336,7 +13336,7 @@ public:
 	// ARG(pCountersignerName	IN): Имя заверителя подписи
 	// ARG(signerNumber			IN): Номер подписи, котороую нужно заверить. Список подписей
 	//								можно получить с помощью функции GetSignersInDoc(). Каждой
-	//								подписи соотвествует номер, пока что начиная с единицы
+	//								подписи соответствует номер, пока что начиная с единицы
 	//								(зависит от того, с какой позиции считает SmartListBox::getCurID()).
 	//								Этот номер и нужно указать
 	// ARG(pFileName			IN): Имя подписанного документа
@@ -13349,7 +13349,7 @@ public:
 	// ARG(pSignFileName	IN): Имя файла с подписью
 	// ARG(signNumber		IN): Номер подписи в документе. Список подписей
 	//						можно получить с помощью функции GetSignersInDoc(). Каждой
-	//						подписи соотвествует номер, пока что начиная с единицы
+	//						подписи соответствует номер, пока что начиная с единицы
 	//						(зависит от того, с какой позиции считает SmartListBox::getCurID()).
 	//						Этот номер и нужно указать
 	// Returns:
@@ -13360,7 +13360,7 @@ public:
 	// ARG(pSignFileName	IN): Имя файла с подписью
 	// ARG(signerNumber		IN): Номер заверенной подписи. Список подписей
 	//							можно получить с помощью функции GetSignersInDoc(). Каждой
-	//							подписи соотвествует номер, пока что начиная с единицы
+	//							подписи соответствует номер, пока что начиная с единицы
 	//							зависит от того, с какой позиции считает SmartListBox::getCurID()).
 	//							Этот номер и нужно указать
 	// Returns:
@@ -13398,7 +13398,7 @@ public:
 	// ARG(pSignFileName	IN): Имя файла с подписью
 	// ARG(signerNumber		IN): Номер подписи для проверки. Список подписей
 	//							можно получить с помощью функции GetSignersInDoc(). Каждой
-	//							подписи соотвествует номер, пока что начиная с единицы
+	//							подписи соответствует номер, пока что начиная с единицы
 	//							(зависит от того, с какой позиции считает SmartListBox::getCurID()).
 	//							Этот номер и нужно указать
 	// Returns:
@@ -13411,7 +13411,7 @@ public:
 	// ARG(pSignFileName	IN): Имя файла с подписью
 	// ARG(signerNumber		IN): Номер заверенной подписи. Список подписей
 	//							можно получить с помощью функции GetSignersInDoc(). Каждой
-	//							подписи соотвествует номер, пока что начиная с единицы
+	//							подписи соответствует номер, пока что начиная с единицы
 	//							(зависит от того, с какой позиции считает SmartListBox::getCurID()).
 	//							Этот номер и нужно указать
 	// Returns:
@@ -13441,7 +13441,7 @@ public:
 	// ARG(pSignFileName	IN): Имя файла с подписями
 	// ARG(signNumber		IN): Номер подписи. Список подписей
 	//							можно получить с помощью функции GetSignersInDoc(). Каждой
-	//							подписи соотвествует номер, пока что начиная с единицы
+	//							подписи соответствует номер, пока что начиная с единицы
 	//							(зависит от того, с какой позиции считает SmartListBox::getCurID()).
 	//							Этот номер и нужно указать
 	// ARG(rSignerName OUT): Имя владельца подписи
@@ -14795,7 +14795,7 @@ public:
 	int    StoreStatByGoodsList(const PPIDArray & rGoodsList, LDATE commonLastDate, StatStoreErr * pErr, int use_ta);
 		// @<<PrcssrPrediction::ProcessGoods
 	//
-	// Descr: Проверяет соотвествие таблиц данных текущей версии системы.
+	// Descr: Проверяет соответствие таблиц данных текущей версии системы.
 	//
 	int    CheckTableStruct();
 	static int FASTCALL ShrinkDate(LDATE dt, int16 * pSDt);
@@ -17347,7 +17347,7 @@ public:
 	int    Fetch(PPID id, PPPersonKind * pRec);
 protected:
 	virtual int  HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual int  Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx);
 };
 //
@@ -18492,7 +18492,7 @@ private:
 	//virtual int  ProcessReservedItem(TVRez &);
 	virtual int Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	int    EditDialog(PPTimeSeriesPacket * pEntry);
 };
 
@@ -18898,7 +18898,7 @@ public:
 	//
 	int    IsThereDistribCostAmounts();
 private:
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual int  Read(PPObjPack * pPack, PPID id, void * stream, ObjTransmContext * pCtx);
 	virtual int  Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
@@ -19173,7 +19173,7 @@ private:
 	static int SerializeDim(int dir, PPGdsClsDim * p, SBuffer & rBuf, SSerializeContext * pSCtx);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	int    PutDim(PPID gdsClsID, PPID propID, PPGdsClsDim *);
 	int    GetDim(PPID gdsClsID, PPID propID, PPGdsClsDim *);
@@ -19636,7 +19636,7 @@ private:
 	virtual int  EditRights(uint, ObjRights *, EmbedDialog * pDlg = 0);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  MakeReserved(long flags);
 	int    SetReckonExData(PPID, const PPReckonOpEx * pData, int use_ta);
@@ -19713,7 +19713,7 @@ private:
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual void * CreateObjListWin(uint flags, void * extraPtr);
 };
 //
@@ -19755,7 +19755,7 @@ private:
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 };
 //
 //
@@ -19817,7 +19817,7 @@ private:
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	int    AssignImages(ListBoxDef * pDef);
 
@@ -20179,7 +20179,7 @@ protected:
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 };
 //
 //
@@ -20445,7 +20445,7 @@ struct PPEdiProvider {
 	int32  AddrPort2;      // IP-порт резервного адреса
 	uint8  Reserve[48];
 	PPID   GuaID;          // Ид глобальной учетной записи, используемой для авторизации
-	long   Reserve2;
+	PPID   DtoPersonID;    // @v11.9.12 Ид персоналии - оператора передачи данных (вид персоналии PPPRK_DTO).
 };
 
 class PPEdiProviderPacket {
@@ -20485,7 +20485,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext * pCtx);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext * pCtx);
-	virtual int ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 };
 //
 // @ModuleDecl(PPObjAccSheet)
@@ -20522,7 +20522,7 @@ public:
 private:
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual void * CreateObjListWin(uint flags, void * extraPtr);
 	virtual int  MakeReserved(long flags);
 };
@@ -20907,7 +20907,7 @@ public:
 	char   Symb[20];         //
 	PPID   CurRestBillID;    // Временный документ текущих остатков по незакрытым кассовым сессиям
 	PPID   CashType;         // Тип ККМ (PPCMT_XXX)
-	int16  DrvVerMajor;      //
+	int16  DrvVerMajor;      // @todo Заменить поля DrvVerMajor && DrvVerMinor на SVerT
 	int16  DrvVerMinor;      //
 	uint16 DisRoundPrec;     // .01 @#{0..50000} Точность округления скидки //
 	uint16 AmtRoundPrec;     // .01 @#{0..50000} Точность округления результирующей суммы чека
@@ -20965,8 +20965,8 @@ public:
 		};
 		uint16 DaysPeriod;
 		int16  DlvrItemsShowTag; // 0 - показывать не зависимо от статуса доставки, <0 - только без доставки, >0 - только с доставкой
-		long   Flags;       // @v9.7.5 @flags
-		uint8  Reserve[28]; // @v9.7.5 [32]-->[28]
+		long   Flags;       // @flags
+		uint8  Reserve[28]; //
 	};
 	char   Port[8];          // Имя порта (LPT1, COM1, ...)
 	PPID   DownBill;         //
@@ -20974,14 +20974,13 @@ public:
 	PPID   CurSessID;        // ->Bill.ID Текущая кассовая сессия //
 	PPID   TouchScreenID;    //
 	PPID   ExtCashNodeID;    //
-	//PPID   PapyrusNodeID_unused; // ИД кассового узла Папирус @v9.6.8 unused
 	PPID   AlternateRegID;   // Явно обозначенный альтернативный регистратор
 		// (if ExtFlags & CASHFX_EXTNODEASALT && !AlternateRegID) то альтернативным регистратором является ExtCashNodeID
 	PPID   ScaleID;          //
 	PPID   CustDispType;     // Тип дисплея покупателя //
 	char   CustDispPort[8];  // Имя порта дисплея покупателя (COM)
 	uint16 CustDispFlags;	 // cdfXXX
-	int16  EgaisMode;        // @v9.0.9 Режим работы с УТМ ЕГАИС. 0 - не использовать, 1 - использовать, 2 - тестовый режим
+	int16  EgaisMode;        // Режим работы с УТМ ЕГАИС. 0 - не использовать, 1 - использовать, 2 - тестовый режим
 	long   BnkTermType;		 // Тип банковского терминала
 	uint16 BnkTermLogNum;	 // Логический номер банковского терминала
 	uint16 BnkTermFlags;	 // btfXXX
@@ -20990,10 +20989,20 @@ public:
 	uint16 SleepTimeout;     //
 	PPID   LocalTouchScrID;  // Локальный (по отношению к компютеру) идентификатор записи PPObjTouchScreen
 	// @v11.9.6 (moved to PPGenCashNode) uint16 Speciality;       // PPCashNode::spXXX
-	uint16 Reserve;          // @v11.9.6 @alignment
+	// @v11.9.12 uint16 Reserve;          // @v11.9.6 @alignment
+	//
+	// Descr: Варианты использования разрешительного режима честный знак
+	//
+	enum {
+		chznpmDontUse = 0,
+		chznpmStrict  = 1,
+		chznpmSoft    = 2
+	};
+	int16  ChZnPermissiveMode; // @v11.9.12 Варианты работы с разрешительным режимом честный знак. 0 - не использовать, 1 - строгое использование, 2 - мягкое использование.
 	uint16 BonusMaxPart;     // Максимальная часть чека, которая может быть оплачена бонусом
 		// Ограничение хранится в промилле. Example: 152 = 15.2% от суммы чека
 	PPID   PhnSvcID;         // Телефонный сервис (для обслуживания заказов столов и доставки)
+	PPID   ChZnGuaID;        // @v11.9.12 Глобальная учетная запись для доступа к сервису честный знак (работа с разрешительным режимом)
 	SuspCheckFilt Scf;       // Фильтр отображения списка отложенных чеков
 	SString PrinterPort;     // Для печати напрямую на windows printer
 	SString TableSelWhatman; // Имя файла ватмана для выбора стола кафе
@@ -21025,7 +21034,7 @@ public:
 	static int   IsExtCashNode(PPID nodeID, PPID * pParentID);
 	//
 	// Descr: Вызывает список выбора кассового узла. В списке отображаются узлы
-	//   в соотвествии со следующими условиями:
+	//   в соответствии со следующими условиями:
 	//   1. Если locID != 0, то только те, которые относятся к складу locID
 	//   2. Если syncGroup == 1, то выбираются только синхронные узлы
 	//   3. Если syncGroup == 2, то выбираются только асинхронные узлы
@@ -21129,7 +21138,7 @@ public:
 	int    DiagnoseNode(const PPGenCashNode & rNode, StringSet & rSsResult);
 private:
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	int    EditSync(PPSyncCashNode *);
 	int    EditAsync(PPAsyncCashNode *);
 	int    Helper_ResolveItem(PPID id, PPIDArray & rDestList, LAssocArray & rFullList); // @recursion
@@ -21614,7 +21623,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	int    AddCurRecord(const PPAccount * pBaseRec, PPID curID);
 	// @v10.2.12 (dup of PPObjReference::ExtraPtr) void * ExtraPtr;
 public:
@@ -22061,12 +22070,17 @@ public:
 	// Descr: Параметры, необходимые для правильной печати чека с ёбнутыми обвесами для российской офд и честного знака
 	//
 	struct OfdFactors {
+		OfdFactors();
 		OfdFactors & Z();
 		// 
 		// Descr: Возвращает true если версия офд для этого кассового узла больше или равна 1.2
 		//
 		bool   IsOfdVerGe12() const; 
-		SString OfdVer;
+		//SString OfdVer;
+		SVerT  OfdVer_;
+		PPID   ChZnGuaID; // @v11.9.12 Идентификатор глобальной учетной записи для работы с честным знаком
+		int16  ChZnPermissiveMode; // @v11.9.12
+		uint16 Reserve; // @v11.9.12 @alignment
 		SString Sid;
 	};
 	void    GetOfdFactors(OfdFactors & rP);
@@ -22075,6 +22089,7 @@ public:
 	//   с марками честный знак перед проведением чека через фискальный регистратор.
 	//
 	int     PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheckPacket * pPack);
+	const PPSyncCashNode & GetPosNode() const { return SCn; } // @v11.9.12
 protected:
 	enum {
 		stError = 0x0001
@@ -23579,7 +23594,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 };
 // } @v7.6.1 @Muxa
@@ -23766,11 +23781,11 @@ private:
 	virtual const char * GetNamePtr();
 	virtual void * CreateObjListWin(uint flags, void * extraPtr);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
-	virtual int  RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
-	virtual int    HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
-	virtual int    Read(PPObjPack * pPack, PPID id, void * stream, ObjTransmContext * pCtx);
-	virtual int    Write(PPObjPack * pPack, PPID * pID, void * stream, ObjTransmContext * pCtx);
-	virtual int    ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
+	virtual int HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
+	virtual int Read(PPObjPack * pPack, PPID id, void * stream, ObjTransmContext * pCtx);
+	virtual int Write(PPObjPack * pPack, PPID * pID, void * stream, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	int    Helper_Edit(PPID * pID, AddBlock * pAb);
 	int    AddListItem(StrAssocArray * pList, const WorkbookTbl::Rec * pRec, PPIDArray * pRecurTrace);
 	int    CheckParent(PPID itemID, PPID parentID);
@@ -23979,7 +23994,7 @@ public:
 	int    FASTCALL Fetch(PPID id, PPGoodsType *);
 	bool   FASTCALL IsUnlim(PPID id);
 private:
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 };
 //
@@ -24072,7 +24087,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	int    Helper_ReadBarList(PPID id, PPGoodsValRestrPacket & rPack);
 };
 //
@@ -24528,7 +24543,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	int    Helper_LoadItems(PPID id, PPGoodsStruc * pData);
 	int    SerializePacket(int dir, PPGoodsStruc * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -24630,7 +24645,7 @@ public:
 private:
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 };
@@ -25017,7 +25032,7 @@ public:
 private:
 	virtual int  Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  EditRights(uint, ObjRights *, EmbedDialog * pDlg = 0);
@@ -25254,7 +25269,7 @@ private:
 	virtual int  ValidateSelection(PPID, uint olwFlags, void * extraPtr);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 
 	PsnOpKindFilt CurrFilt;
@@ -25357,7 +25372,7 @@ public:
 	//     В случае, если существует более одной записи государства с именем равным pName,
 	//     то список таких записей сверяется с параметрами pCode и pAlpha2. Первая запись,
 	//     которая согласуется либо с pCode либо с pAlpha2, считается искомой. Если все
-	//     записи не соотвествуют этим критериям, то берется первая из списка.
+	//     записи не соответствуют этим критериям, то берется первая из списка.
 	//   - Если предыдущие шаги безуспешны, то
 	//       если !isempty(pCode), тогда точное соответствие WorldTbl::Rec::Code - pCode
 	//   - Если предыдущие шаги безуспешны, то
@@ -25419,7 +25434,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext * pCtx);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext * pCtx);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual const char * GetNamePtr();
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	int    Unite(PPID destID, PPID srcID);
@@ -25994,7 +26009,7 @@ private:
 	virtual int HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int MakeReserved(long flags);
 	virtual const char * GetNamePtr();
@@ -26812,7 +26827,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual const char * GetNamePtr();
 	virtual int  MakeReserved(long flags);
 	int    ReplyPersonELinkDel(PPID);
@@ -27074,7 +27089,7 @@ private:
 	virtual int  EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg);
 	virtual int  Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx);
 	virtual int  Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	//
 	// Descr: Извлекает список назначений персоналии personID на должность staffID.
 	//   Все найденные назначения заносятся в массив pList. Массив предварительно очищается.
@@ -27263,7 +27278,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 };
 //
 // @ModuleDecl(PPObjDateTimeRep)
@@ -27580,7 +27595,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	int    PutItems(PPID id, PPStaffCalPacket * pPack, int logAction);
 	int    Helper_CheckInEntry(LDATE dt, int proj_r, int inverse,
 		const TSVector <StaffCalendarTbl::Rec> & rCalList, const TSVector <StaffCalendarTbl::Rec> & rProjCalList,
@@ -27943,7 +27958,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual const char * GetNamePtr();
 	int    TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * pPok, const PoClause_ * pClause, int action, int use_ta);
 	int    TC_SetCalendar(PPID psnID, const PPPsnOpKind * pPok, const PPPsnEventPacket * pPack, const PoClause_ * pClause);
@@ -28472,7 +28487,7 @@ public:
 	int    IsPacketEq(const PPArticlePacket & rS1, const PPArticlePacket & rS2, long options);
 	int    CheckObject(const ArticleTbl::Rec * pRec, SString * pMsgBuf);
 	//
-	// Descr: Проверяет согласуется ли изменяемый пакет персоналии с соотвествующими статьями
+	// Descr: Проверяет согласуется ли изменяемый пакет персоналии с соответствующими статьями
 	//
 	int    CheckPersonPacket(const PPPersonPacket * pPack, PPIDArray * pAbsentKinds);
 	int    FASTCALL Fetch(PPID id, ArticleTbl::Rec * pRec); // @macrow
@@ -28519,7 +28534,7 @@ public:
 private:
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual const char * GetNamePtr();
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	int    SearchAssocObjRef(PPID objType, PPID objID, PPID * pAccSheetID, PPID kind, PPID * pID);
@@ -29492,7 +29507,7 @@ struct GoodsCodeSrchBlock {
 //
 // Флаг динамического обобщения товаров. Если согласно маске дин обобщения существует
 // набор классицированных товаров, подходящих под это обобщение, но при этом не существует
-// реального обобщенного товара, соотвествующего такой маске, то создается искусственный
+// реального обобщенного товара, соответствующего такой маске, то создается искусственный
 // идентификатор равный одному из товаров обобщения с наложением маски DYNGENGOODSMASK.
 //
 #define DYNGENGOODSMASK 0x20000000L
@@ -30185,7 +30200,7 @@ protected:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 
 	PPID   Kind; // PPGDSK_XXX (Initialized by constructor)
 private:
@@ -30755,7 +30770,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 };
 //
 // PPObjBrand
@@ -30829,7 +30844,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 };
 //
 //
@@ -30993,12 +31008,15 @@ struct PPSwProgram { // @flat
 	PPID   ID;             // @id
 	char   Name[128];      // @name
 	char   Code[20];       // (Stored as Barcode.Code with prefix '^' and Qtty = 1.0)
+	char   ExeFn[128];     // Имя исполняемого файла (без пути)
 	long   Flags;
+	PPID   CategoryID;     // 
 };
 
 class PPSwProgramPacket {
 public:
 	PPSwProgramPacket();
+	void    Init();
 	bool    FASTCALL IsEq(const PPSwProgramPacket & rS) const;
 	bool    FASTCALL Copy(const PPSwProgramPacket & rS);
 	PPSwProgram Rec;
@@ -31009,6 +31027,7 @@ public:
 class PPObjSwProgram : public PPObjGoods { // @construction
 public:
 	static int Helper_GetRec(const Goods2Tbl::Rec & rGoodsRec, PPSwProgram * pRec);
+	static int Helper_SetRec(const PPSwProgram * pRec, Goods2Tbl::Rec & rGoodsRec);
 
 	PPObjSwProgram(void * extraPtr = 0);
 	~PPObjSwProgram();
@@ -31030,6 +31049,7 @@ public:
 		PPID   CategoryID;
 		long   Flags;
 		char   Name[128];
+		char   ExeFn[128];
 		long   ViewFlags;
 	};
 	PPViewSwProgram();
@@ -31470,10 +31490,10 @@ public:
     	GoodsItem & Z();
 
     	enum {
-    		stClass        = 0x0001,  // Товар классифицирован
+    		stClass                = 0x0001,  // Товар классифицирован
     		stCategoryCodeByLotTag = 0x0002,  // Код категории продукции извлечен из тега лота
     		stCategoryCodeByClsDim = 0x0004,  // Код категории продукции извлечен из классификатора-размерности
-    		stCategoryName = 0x0008,  // Наименование категории продукции успешно идентифицировано
+    		stCategoryName         = 0x0008,  // Наименование категории продукции успешно идентифицировано
     		stRefcUsedByGoodsCode  = 0x0010,  // Поля с префиксом Refc инициализированы исходя из GoodsItem::EgaisCode
     		stRefcUsedByRefA       = 0x0020,  // Поля с префиксом Refc инициализированы исходя из GoodsItem::InformA
     		stEgaisCodeByLotTag    = 0x0040,  // ЕГАИС-код товара получен из лота (более надежный вариант, нежели stEgaisCodeByGoods)
@@ -31481,7 +31501,7 @@ public:
     		stRefcInfAPrManufConfl = 0x0100,  // Конфликт в справочнике ЕГАИС между кодом производителя в справка А и записе товара
     		stRefcInfAPrImprtConfl = 0x0200,  // Конфликт в справочнике ЕГАИС между кодом импортера в справка А и записе товара
     		stRefcPrDbCategConfl   = 0x0400,  // Конфликт между видом продукции в базе данных и записе товара ЕГАИС
-    		stMarkWanted   = 0x0800   // @v9.0.9 Товар маркированный (имеет акцизную марку)
+    		stMarkWanted           = 0x0800   // Товар маркированный (имеет акцизную марку)
     	};
     	long   StatusFlags;
     	PPID   GoodsID;
@@ -32425,7 +32445,7 @@ public:
 	// ARG(pRec  IN): @#{vptr} проверяемая запись
 	// Returns:
 	//   >0 - запись pRec удовлетворяет требованиям уникальности полей Port и BcPrefix
-	//   0  - в записи pRec дублируется либо Port либо BcPrefix (устанавливается соотвествующий код ошибки PPErrCode).
+	//   0  - в записи pRec дублируется либо Port либо BcPrefix (устанавливается соответствующий код ошибки PPErrCode).
 	//
 	int    CheckDup(PPID objID, const PPScalePacket * pPack);
 	int    PrepareData(PPID, long flags, PPLogger * pLogger);
@@ -32687,14 +32707,14 @@ class PPObjQCert : public PPObject {
 public:
 	explicit PPObjQCert(void * extraPtr = 0);
 	~PPObjQCert();
-	virtual int    Browse(void * extraPtr);
-	virtual int    Edit(PPID * pID, void * extraPtr);
-	virtual int    DeleteObj(PPID id);
+	virtual int Browse(void * extraPtr);
+	virtual int Edit(PPID * pID, void * extraPtr);
+	virtual int DeleteObj(PPID id);
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr /* goodsID */);
-	virtual int    Search(PPID id, void * b = 0);
-	virtual int    Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
-	virtual int    Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int    ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int Search(PPID id, void * b = 0);
+	virtual int Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
+	virtual int Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	int    SearchByCode(const char * pCode, PPID * pID, QualityCertTbl::Rec * pRec);
 	int    PutPacket(PPID * pID, QualityCertTbl::Rec * pPack, int use_ta);
 	//
@@ -33300,6 +33320,7 @@ typedef TSCollection <PPGPaymentOrder> PPGPaymentOrderList;
 // Descr: Блок параметров для создания документа по образцу
 //
 struct SelAddBySampleParam {
+	SelAddBySampleParam();
 	enum {
 		fCopyBillCode   = 0x0001,
 		fNonInteractive = 0x0002,
@@ -33324,6 +33345,7 @@ struct SelAddBySampleParam {
 	PPID   QuotKindID; // @v10.0.02 Вид котировки для установки цен в создаваемом документе
 	LDATE  Dt;         // @v10.0.02 Дата нового документа. Если ZERODATE, то равняется документу образца
 	long   Flags;
+	BillTbl::Rec SampleBillRec;
 };
 //
 // Descr: Класс, управляющий объектом данных PPOBJ_BILL
@@ -34054,7 +34076,7 @@ public:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	static int   TotalTransmitProblems(ObjTransmContext * pCtx, int * pNextPassNeeded); // Realy private function. Accessed only from PPObject::ReceivePackets()
 	int    GetAlternateArticle(PPID arID, PPID sheetID, PPID * pAltArID);
 	int    GetPayableOpListByReckonOp(const PPReckonOpEx &, PPID arID, ReckonOpArList *);
@@ -35203,7 +35225,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack); // @macrow
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	int    RemoveWrOffBills(PPID sessID, int use_ta);
 	int    VerifyAmounts(PPID sessID, const CSessTotal & rTotal, PPLogger & rLogger);
 
@@ -35480,7 +35502,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack); // @macrow
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext * pCtx);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext * pCtx);
-	virtual int ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual void * CreateObjListWin(uint flags, void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
 	int    Helper_GetChildList(PPID id, PPIDArray & rList, PPIDArray * pStack);
@@ -35888,7 +35910,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	int    Helper_Edit(PPID * pID, const AddParam * pParam);
 	enum {
 		clsfStrList = 0x0001, // Возвращает по указателю pList StrAssocArray, иначе - PPIDArray
@@ -36115,7 +36137,7 @@ public:
 	PPObjAdvBillKind(void * extraPtr = 0);
 	virtual int Edit(PPID * pID, void * extraPtr);
 private:
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 };
 //
 // @ModuleDecl(PPObjProcessor)
@@ -36407,7 +36429,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	int    AddListItem(StrAssocArray * pList, ProcessorTbl::Rec * pRec, PPIDArray * pRecurTrace);
 		// @recursion @<<PPObjProcessor::MakeStrAssocList(PPID)
 public:
@@ -36585,7 +36607,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	int    Helper_AddItemToList(StrAssocArray * pList, PPID techID, PPID parentID, const char * pCode, LongArray & rRecurList);
 	int    Helper_GetTerminalChildList(PPID techID, PPIDArray & rList, LongArray & rRecurList);
 	int    AddItemsToList(StrAssocArray *, PPIDArray * pIdList, PPIDArray * pGoodsIdList, long extraParam, PPID goodsID = 0);
@@ -37312,7 +37334,7 @@ private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	int    SerializePacket(int dir, TSessionPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    Helper_SetSessionState(TSessionTbl::Rec *, int newState, int checkOnly, int updateChilds);
 	int    Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger &, int use_ta);
@@ -41294,7 +41316,7 @@ public:
 		PPObjQuotKind QkObj;
 		int    GoodsPriceWoTaxes;
 		int    LotPriceWoTaxes;
-		LDATE  Dt;         // @v9.0.9
+		LDATE  Dt;
 		PPID   GoodsID;
 		PPID   GoodsGrpID; // = Goods(GoodsID).ParentID
 		PPID   TaxGrpID;
@@ -43114,7 +43136,7 @@ public:
 	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 	CCheckFilt & FASTCALL operator = (const CCheckFilt & src);
 	//
-	// Descr: Устанавливает список кассовых узлов (NodeList) в соотвествии
+	// Descr: Устанавливает список кассовых узлов (NodeList) в соответствии
 	//   со списком идентификаторов складов pLocList. Для каждого идентификатора
 	//   склада из списка извлекается список кассовых узлов, принадлежащих ему
 	//   и вставляется в список NodeList.
@@ -44632,15 +44654,15 @@ public:
 	int    SelectBasket(PPBasketCombine & rBasket);
 	int    Transfer(PPID);
 private:
-	static  void   SetAddLockErrInfo(PPID mutexID);
+	static  void SetAddLockErrInfo(PPID mutexID);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr); // @v11.4.1
-	virtual void   FASTCALL Destroy(PPObjPack * pPack);
-	virtual int    HandleMsg(int, PPID, PPID, void * extraPtr); // @v11.4.0
-	virtual int    Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
-	virtual int    Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int    ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual void FASTCALL Destroy(PPObjPack * pPack);
+	virtual int HandleMsg(int, PPID, PPID, void * extraPtr); // @v11.4.0
+	virtual int Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
+	virtual int Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual void * CreateObjListWin(uint flags, void * extraPtr);
-	virtual int    ProcessReservedItem(TVRez &);
+	virtual int ProcessReservedItem(TVRez &);
 };
 
 class PPBasketCombine {
@@ -45731,7 +45753,7 @@ private:
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr /*parentPrjID*/);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	//virtual int    HandleMsg(int, PPID, PPID, void * extraPtr);
 	SString NameBuf;
 public:
@@ -45879,7 +45901,7 @@ private:
 	virtual const char * GetNamePtr();
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
-	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
+	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	int    SubstDescr(PPPrjTaskPacket * pPack);
 	int    DetermineNewStatus(const PPProjectConfig * pCfg, const PrjTaskTbl::Rec * pRec, int * pNewStatus);
@@ -46723,8 +46745,6 @@ public:
 			delete p_base_filt;
 			return ok;
 		}
-		//int    GetAttendanceParam(StyloQAttendancePrereqParam & rP) const;
-		//int    GetIncomingListParam(StyloQIncomingListParam & rP) const;
 		bool   CanApplyPrepareAheadOption() const;
 		bool   CanApplyNotifyFlag(long f) const;
 		enum {
@@ -46734,7 +46754,9 @@ public:
 				// Поскольку не ясно какой именно результат должен быть подготовлен заранее.
 			fNotify_ObjNew    = 0x0004, // @v11.5.9 Опция извещения: извещать о новых объектах
 			fNotify_ObjUpd    = 0x0008, // @v11.5.9 Опция извещения: извещать об измененных объектах
-			fNotify_ObjStatus = 0x0010  // @v11.5.9 Опция извещения: извещать об изменении статусов объектов
+			fNotify_ObjStatus = 0x0010, // @v11.5.9 Опция извещения: извещать об изменении статусов объектов
+			fPassive          = 0x0020  // @v11.9.12 Команда является пассивной (не загружается на устройства)  
+
 		};
 		int32  Ver;                 //
 		int32  BaseCmdId;           //
@@ -54574,6 +54596,7 @@ protected:
 	int    EgaisMode;        // Режим работы с ЕГАИС (0 - нет, 1 - использовать, 2 - тестовый режим).
 		// Извлекается из записи синхронного кассового узла (PPSyncCashNode::EgaisMode)
 		// Если EgaisMode != 0 и !(Flags & fNoEdit), то в конструкторе создается *P_EgPrc.
+	int    ChZnPermissiveMode; // @v11.9.12 Режим работы с разрешительным режимом честный знак.
 	double BonusMaxPart;     // @*CPosProcessor::CPosProcessor()
 	long   OrgOperRights;    // Права доступа установленные в конструкторе либо по ключу.
 		// Так как агент может переопределять права доступа, то при изменении агента OperRightsFlags
@@ -55662,8 +55685,8 @@ public:
 	PPObjAccSheet AcsObj;
 	PPOprKind OpRec;
 	PPOprKind LinkOpRec;
-	PPID   DtoID; // PPOBJ_PERSON
-	PPID   MainOrgID; // PPOBJ_PERSON
+	PPID   DtoID;        // PPOBJ_PERSON Провайдер обмена данными
+	PPID   MainOrgID;    // PPOBJ_PERSON
 	PPID   ContragentID; // PPOBJ_PERSON
 	SString AgtCode;
 	LDATE  AgtDate;
@@ -55704,9 +55727,12 @@ public:
 	PPID   ImpOpID;           // @persistent
 	long   PredefFormat;      // @persistent PredefinedImpExpFormat
 	PPID   FixTagID;          // @v11.5.6 @persistent Тег, фиксирующий факт экспорта документа. Если в документе такой тег установлен, то документ снова не экспортируется.
+	PPID   DtoPersonID;       // @v11.9.12 Ид персоналии оператора передачи данных. Введен ради использования в EDI. В ini-файле не сохраняется и не читается из него!
 	SString Object1SrchCode;  // @persistent
 	SString Object2SrchCode;  // @persistent
 	SString OuterFormatVer;   // @v11.6.5 @persistent Номер формата внешних данных. Если пусто, то применяется программно предопределенное значение.
+	SString EdiProviderSymb;  // @v11.9.12 Символ EDI-провайдера. Требутся для того, чтобы видоизменять экспортируемые форматы в соответствии с нюансами, заваемыми провайдером.
+		// Допустимые символы  провайдеров перечислены в начале класса PPEdiProcessor.
 };
 //
 // Экспорт/импорт инвентаризации
@@ -56080,6 +56106,11 @@ private:
 //
 //
 class PPEdiProcessor {
+	// Символы провайдеров:
+	// KONTUR 
+	// KONTUR-T
+	// EXITE
+	// SBIS
 public:
 	struct RecadvPacket {
 		RecadvPacket();
@@ -56689,11 +56720,7 @@ private:
 	int    Helper_CreateTransferToShop(const PPBillPacket * pCurrentRestPack);
 	int    Helper_CreateWriteOffShop(int v3markMode, const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod);
 	int    Helper_CreateWriteOff_ByCCheck(const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod); // @v11.8.2
-	// @v10.2.9 (moved to LotExtCodeCore) int    Helper_MakeMarkList(PPID lotID, StringSet & rSsExtCodes, uint * pExtCodeCount);
 	int    Helper_ExtractGoodsCodesFromBills(PPID opID, StringSet & rSs);
-	// @v10.6.5 void   FASTCALL Log(const SString & rMsg);
-	// @v10.6.5 void   LogTextWithAddendum(int msgCode, const SString & rAddendum);
-	// @v10.6.5 void   LogLastError();
 	void   LogTicketResult(const Ticket * pTicket, const BillTbl::Rec * pBillRec);
 	//
 	// Descr: Выводит в журнал сообщение об отправке пакета rPack
@@ -56757,6 +56784,11 @@ public:
 	};
 	static int FASTCALL IsChZnCode(const char * pCode);
 	//
+	// Descr: Проверяет на равенство два кода честный знак pCode1 и pCode2.
+	//   Сопоставление осуществляется без учета специальных символов.
+	//
+	static bool FASTCALL AreChZnCodesEqual(const char * pCode1, const char * pCode2);
+	//
 	// Descr: Варианты интерпретации результата функции ParseChZnCode
 	// Note: Значение больше нуля трактуется как марка, пригодная к обработке честным знаком
 	//
@@ -56792,90 +56824,123 @@ public:
 	int    Run(const Param & rP);
 	int    TransmitCcList(const Param & rP, const TSCollection <CCheckPacket> & rList);
 	static int Test();
+
+	class PermissiveModeInterface {
+	public:
+		struct CdnStatus {
+			CdnStatus();
+			SString CdnAddr; // адрес CDN-площадки
+			int    Code; // 0 - ok, !0 - error
+			int    AvgTimeMs;
+		};
+		struct CodeStatus {
+			CodeStatus();
+			enum {
+				fFound      = 0x0001, // Признак наличия кода. Возможные значения: true — «Код найден»; false — «Код не найден»
+				fValid      = 0x0002, // Результат проверки валидности структуры КМ. Возможные значения: true — «Структура валидная»; false — «Структура не валидная»
+				fVerified   = 0x0004, // Результат проверки крипто-подписи КМ. Возможные значения: true — «Проверка крипто-подписи завершилась успешно»; false — «Проверка крипто-подписи.
+				fRealizable = 0x0008, // Признак ввода в оборот. Признак показывает, находится ли КИ в статусе «В обороте». Возможные значения: true – «КИ в статусе «В обороте»»; false – «КИ в статусе, отличном от «В обороте»».
+				fUtilised   = 0x0010, // Признак нанесения КИ на упаковку. Возможные значения: true — «КИ нанесён»; false — «КИ не нанесён»
+				fIsOwner    = 0x0020, // Признак, определяющий что запрос направлен владельцем кода. true — КМ принадлежит участнику, который направил запрос; false — КМ не принадлежит участнику, который направил запрос.
+				fIsBlocked  = 0x0040, // Признак того, что розничная продажа продукции заблокирована по решению ОГВ. true — продажа заблокирована; false — продажа не заблокирована.
+				fIsTracking = 0x0080, // Признак контроля прослеживаемости в товарной группе. true — контроль прослеживаемости в товарной группе для данного КМ включен; false — контроль прослеживаемости в товарной группе для данного КМ выключен.
+				fSold       = 0x0100, // Признак вывода из оборота товара. true — товар выведен из оборота; false — товар не выведен из оборота.
+				fGrayZone   = 0x0200, // Признак принадлежности табачной продукции к «серой зоне». true — принадлежит; false — не принадлежит
+			};
+			CodeStatus & AssignExceptOrgValues(const CodeStatus & rS);
+
+			uint   OrgRowId; // Идентификатор строки документа (или еще чего нибудь), которому соответствует код. Вызывающая функция сама интерпретирует это значение.
+			SString OrgMark; // Текст марки, подаваемый на вход процедуре проверки
+			SString Cis; //
+			int    ErrorCode; // Код ошибки. 
+				// 0 — ошибки отсутствуют; 
+				// 1 — ошибка валидации КМ; 
+				// 2 — КМ не содержит GTIN; 
+				// 3 — КМ не содержит серийный номер; 
+				// 4 — КМ содержит недопустимые символы; 
+				// 5 — ошибка верификации крипто-подписи КМ (формат крипто-подписи не соответствует типу КМ); 
+				// 6 — ошибка верификации крипто-подписи КМ (крипто-подпись не валидная); 
+				// 7 — ошибка верификации крипто-подписи КМ (крипто-ключ не валиден); 
+				// 8 — КМ не прошел верификацию в стране эмитента; 
+				// 9 — Найденные AI в КМ не поддерживаются; 
+				// 10 — КМ не найден в ГИС МТ 11 — КМ не найден в трансгране
+			int    EliminationState; // Дополнительная информация по КМ. 
+				// 1 — товар выведен из оборота по причинам «по образцам» или «дистанционная продажа»; 
+				// 2 — товар выведен из оборота по причинам «для собственных нужд» или «для производственных целей» Заполняется для товаров, выведенных из оборота по этим причинам с 08.02.24
+			uint   Mrp; // Максимальная розничная цена. В копейках (для табака).
+			uint   Smp; // Минимальная из возможных единых минимальных цен. В копейках (для табака).
+			uint   PackageQtty;    // 
+			uint   InnerUnitCount; // Количество единиц товара в потребительской упаковке / Фактический объём / Фактический вес.
+			uint   SoldUnitCount;  // Счётчик проданного и возвращённого товара.
+			uint   Flags;
+			uint   GroupIds[64];
+			LDATETIME ExpiryDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
+			LDATETIME ProductionDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
+			double Weight; // Переменный вес продукции (в граммах). Возвращается только для товарной группы «Молочная продукция»
+			SString PrVetDocument; // Производственный ветеринарный сопроводительный документ. Возвращается только для товарной группы «Молочная продукция»
+			SString Message; // Сообщение об ошибке
+			S_GUID ReqId;   // Уникальный идентификатор запроса
+			int64  ReqTimestamp; // Дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
+			SString PackageType; // Тип упаковки. См. «Справочник "Типы упаковки"»
+			SString Parent;      // КИ агрегата.
+			SString ProducerInn; // ИНН производителя.
+		};
+
+		class CodeStatusCollection : public TSCollection <CodeStatus> {
+		public:
+			CodeStatusCollection();
+			CodeStatusCollection & Z();
+			//
+			// Descr: Сопоставляет результат проверки, полученный от честного знака с коллекцией this
+			//   и, если находит, соответствующий элемент, то присваивает ему поля результата проверки.
+			// ARG(rowN IN): Если значение больше или равно нулю, то предполагается, что элемент rEntry
+			//   находится в rowN позиции списка результатов. Это может помочь сопоставлению.
+			// Returns:
+			//   >0 - номер позиции (+1) в коллекции this, с которым успешно сопоставлен результат
+			//    0 - не удалось найти соответствие.
+			//
+			int    SetupResultEntry(int rowN, const CodeStatus & rEntry);
+			int    Code; // Result code. 0 - ok
+			SString Description; // error message or "ok"
+			S_GUID ReqId;
+			int64  ReqTimestamp;
+		};
+
+		enum {
+			queryGetCdnList = 1,
+			queryGetCdnStatus,
+			queryCheckCodeList
+		};
+		enum {
+			fTest = 0x0001
+		};
+		PermissiveModeInterface(const char * pToken, uint flags);
+		~PermissiveModeInterface();
+		int    SelectCdnHost(SString & rResult);
+		//
+		// Descr: Извлекает из тега PPTAG_GUA_CHZN_PM_HOST глобальной учетной записи guaID имя хоста,
+		//   к которому следует обращаться для проверки марок. Если учетная запись guaID не найдена или 
+		//   тег не определен, либо в случае, если срок действия тега истек, то заново получает
+		//   наиболее приемлемый хост функцией SelectCdnHost и, по возможности, сохраняет его в теге.
+		//
+		int    FetchCdnHost(PPID guaID, SString & rResult);
+		int    CheckCodeList(const char * pHost, const char * pFiscalDriveNumber, CodeStatusCollection & rList);
+	private:
+		SString & MakeTargetUrl(int query, const char * pAddendum, SString & rResult) const;
+		int    QueryCdnList(TSCollection <CdnStatus> & rResultList);
+		int    QueryCdnStatus(CdnStatus & rStatus);
+		uint   Flags;
+		SString Token; // Токен авторизации // Токен нужно получить на каждый ИНН и использовать на всех кассах
+		PPGlobalServiceLogTalkingHelper Lth;
+	};
+
+	//
+	// Descr: Высокоуровневая (терминальная) функция, реализующая полный цикл вызовов для проверки марок в разрешительном режиме.
+	//
+	static int PmCheck(PPID guaID, const char * pFiscalDriveNumber, PermissiveModeInterface::CodeStatusCollection & rList);
 private:
 	int    PrepareBillPacketForSending(PPID billID, void * pChZnPacket);
 	void * P_Ib; // Блок инициализации
-};
-
-class ChZnPermissiveModeInterface {
-public:
-	struct CdnStatus {
-		CdnStatus();
-		SString CdnAddr; // адрес CDN-площадки
-		int    Code; // 0 - ok, !0 - error
-		int    AvgTimeMs;
-	};
-	struct CodeStatus {
-		CodeStatus();
-		enum {
-			fFound      = 0x0001, // Признак наличия кода. Возможные значения: true — «Код найден»; false — «Код не найден»
-			fValid      = 0x0002, // Результат проверки валидности структуры КМ. Возможные значения: true — «Структура валидная»; false — «Структура не валидная»
-			fVerified   = 0x0004, // Результат проверки крипто-подписи КМ. Возможные значения: true — «Проверка крипто-подписи завершилась успешно»; false — «Проверка крипто-подписи.
-			fRealizable = 0x0008, // Признак ввода в оборот. Признак показывает, находится ли КИ в статусе «В обороте». Возможные значения: true – «КИ в статусе «В обороте»»; false – «КИ в статусе, отличном от «В обороте»».
-			fUtilised   = 0x0010, // Признак нанесения КИ на упаковку. Возможные значения: true — «КИ нанесён»; false — «КИ не нанесён»
-			fIsOwner    = 0x0020, // Признак, определяющий что запрос направлен владельцем кода. true — КМ принадлежит участнику, который направил запрос; false — КМ не принадлежит участнику, который направил запрос.
-			fIsBlocked  = 0x0040, // Признак того, что розничная продажа продукции заблокирована по решению ОГВ. true — продажа заблокирована; false — продажа не заблокирована.
-			fIsTracking = 0x0080, // Признак контроля прослеживаемости в товарной группе. true — контроль прослеживаемости в товарной группе для данного КМ включен; false — контроль прослеживаемости в товарной группе для данного КМ выключен.
-			fSold       = 0x0100, // Признак вывода из оборота товара. true — товар выведен из оборота; false — товар не выведен из оборота.
-			fGrayZone   = 0x0200, // Признак принадлежности табачной продукции к «серой зоне». true — принадлежит; false — не принадлежит
-		};
-		SString Cis; //
-		int    ErrorCode; // Код ошибки. 
-			// 0 — ошибки отсутствуют; 1 — ошибка валидации КМ; 2 — КМ не содержит GTIN; 3 — КМ не содержит серийный номер; 4 — КМ содержит недопустимые символы; 
-			// 5 — ошибка верификации крипто-подписи КМ (формат крипто-подписи не соответствует типу КМ); 6 — ошибка верификации крипто-подписи КМ (крипто-подпись не валидная); 
-			// 7 — ошибка верификации крипто-подписи КМ (крипто-ключ не валиден); 8 — КМ не прошел верификацию в стране эмитента; 9 — Найденные AI в КМ не поддерживаются; 
-			// 10 — КМ не найден в ГИС МТ 11 — КМ не найден в трансгране
-		int    EliminationState; // Дополнительная информация по КМ. 
-			// 1 — товар выведен из оборота по причинам «по образцам» или «дистанционная продажа»; 
-			// 2 — товар выведен из оборота по причинам «для собственных нужд» или «для производственных целей» Заполняется для товаров, выведенных из оборота по этим причинам с 08.02.24
-		uint   Mrp; // Максимальная розничная цена. В копейках (для табака).
-		uint   Smp; // Минимальная из возможных единых минимальных цен. В копейках (для табака).
-		uint   PackageQtty;    // 
-		uint   InnerUnitCount; // Количество единиц товара в потребительской упаковке / Фактический объём / Фактический вес.
-		uint   SoldUnitCount;  // Счётчик проданного и возвращённого товара.
-		uint   Flags;
-		uint   GroupIds[64];
-		LDATETIME ExpiryDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
-		LDATETIME ProductionDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
-		double Weight; // Переменный вес продукции (в граммах). Возвращается только для товарной группы «Молочная продукция»
-		SString PrVetDocument; // Производственный ветеринарный сопроводительный документ. Возвращается только для товарной группы «Молочная продукция»
-		SString Message; // Сообщение об ошибке
-		S_GUID ReqId;   // Уникальный идентификатор запроса
-		int64  ReqTimestamp; // Дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
-		SString PackageType; // Тип упаковки. См. «Справочник "Типы упаковки"»
-		SString Parent;      // КИ агрегата.
-		SString ProducerInn; // ИНН производителя.
-	};
-
-	class CodeStatusCollection : public TSCollection <CodeStatus> {
-	public:
-		CodeStatusCollection();
-		CodeStatusCollection & Z();
-		int    Code; // Result code. 0 - ok
-		SString Description; // error message or "ok"
-		S_GUID ReqId;
-		int64  ReqTimestamp;
-	};
-
-	enum {
-		queryGetCdnList = 1,
-		queryGetCdnStatus,
-		queryCheckCodeList
-	};
-	enum {
-		fTest = 0x0001
-	};
-	ChZnPermissiveModeInterface(const char * pToken, uint flags);
-	~ChZnPermissiveModeInterface();
-	int    SelectCdnHost(SString & rResult);
-	int    CheckCodeList(const char * pHost, const char * pFiscalDriveNumber, const StringSet & rSsCodes, CodeStatusCollection & rResult);
-private:
-	SString & MakeTargetUrl(int query, const char * pAddendum, SString & rResult) const;
-	int    QueryCdnList(TSCollection <CdnStatus> & rResultList);
-	int    QueryCdnStatus(CdnStatus & rStatus);
-	uint   Flags;
-	SString Token; // Токен авторизации // Токен нужно получить на каждый ИНН и использовать на всех кассах
-	PPGlobalServiceLogTalkingHelper Lth;
 };
 //
 //

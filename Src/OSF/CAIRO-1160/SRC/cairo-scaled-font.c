@@ -507,16 +507,12 @@ static void _cairo_scaled_font_placeholder_wait_for_creation_to_finish(cairo_sca
  * Not necessarily better than a lot of other hashes, but should be OK, and
  * well tested with binary data.
  */
-
-#define FNV_32_PRIME ((uint32)0x01000193)
-#define FNV1_32_INIT ((uint32)0x811c9dc5)
-
 static uint32 FASTCALL _hash_matrix_fnv(const cairo_matrix_t * matrix, uint32 hval)
 {
 	const uint8 * buffer = reinterpret_cast<const uint8 *>(matrix);
-	int len = sizeof(cairo_matrix_t);
+	size_t len = sizeof(cairo_matrix_t);
 	do {
-		hval *= FNV_32_PRIME;
+		hval *= SlConst::FnvHashPrime32;
 		hval ^= *buffer++;
 	} while(--len);
 	return hval;
@@ -534,7 +530,7 @@ static uint32 FASTCALL _hash_mix_bits(uint32 hash)
 
 static uint32 FASTCALL _cairo_scaled_font_compute_hash(cairo_scaled_font_t * scaled_font)
 {
-	uint32 hash = FNV1_32_INIT;
+	uint32 hash = SlConst::FnvHash1Init32;
 	/* We do a bytewise hash on the font matrices */
 	hash = _hash_matrix_fnv(&scaled_font->font_matrix, hash);
 	hash = _hash_matrix_fnv(&scaled_font->ctm, hash);

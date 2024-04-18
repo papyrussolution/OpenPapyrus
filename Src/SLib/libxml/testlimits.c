@@ -649,26 +649,19 @@ static void initializeLibxml2(void)
 	/*
 	 * register the new I/O handlers
 	 */
-	if(xmlRegisterInputCallbacks(hugeMatch, hugeOpen,
-	    hugeRead, hugeClose) < 0) {
+	if(xmlRegisterInputCallbacks(hugeMatch, hugeOpen, hugeRead, hugeClose) < 0) {
 		fprintf(stderr, "failed to register Huge handlers\n");
 		exit(1);
 	}
-	if(xmlRegisterInputCallbacks(crazyMatch, crazyOpen,
-	    crazyRead, crazyClose) < 0) {
+	if(xmlRegisterInputCallbacks(crazyMatch, crazyOpen, crazyRead, crazyClose) < 0) {
 		fprintf(stderr, "failed to register Crazy handlers\n");
 		exit(1);
 	}
 }
-
-/************************************************************************
-*									*
-*		SAX empty callbacks                                     *
-*									*
-************************************************************************/
-
+//
+// SAX empty callbacks
+//
 unsigned long callbacks = 0;
-
 /**
  * isStandaloneCallback:
  * @ctxt:  An XML parser context

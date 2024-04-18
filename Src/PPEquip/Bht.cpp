@@ -1446,7 +1446,10 @@ void BhtDialog::editMore()
 
 int PPObjBHT::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = -1, r = cmCancel, valid_data = 0, is_new = 0;
+	int    ok = -1;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	bool   is_new = false;
 	BhtDialog * dlg = 0;
 	PPBhtTerminalPacket pack;
 	THROW(CheckDialogPtr(&(dlg = new BhtDialog())));

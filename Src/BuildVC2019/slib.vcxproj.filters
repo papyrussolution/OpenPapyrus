@@ -848,6 +848,9 @@
       <Filter>libjpeg</Filter>
     </ClCompile>
     <ClCompile Include="..\SLib\sstrtransform.cpp" />
+    <ClCompile Include="..\SLib\fnv-503\fnv_hash.c">
+      <Filter>fnv-hash</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Slib.h">
@@ -1126,6 +1129,9 @@
     <ClInclude Include="..\OSF\utf8.h\utf8.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\SLib\fnv-503\fnv.h">
+      <Filter>fnv-hash</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Osf\Asmlib\cachesize32.asm">
@@ -1381,6 +1387,9 @@
     </Filter>
     <Filter Include="libjpeg">
       <UniqueIdentifier>{e50e50ab-af11-4f2f-85d2-d451779756dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fnv-hash">
+      <UniqueIdentifier>{a95b6670-7816-4af2-88de-3c8556d1fc86}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

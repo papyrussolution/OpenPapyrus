@@ -179,7 +179,9 @@ int SalChargeDialog::moveItem(long pos, long id, int up)
 int PPObjSalCharge::Edit(PPID * pID, void * extraPtr)
 {
 	const  long extra_param = reinterpret_cast<long>(extraPtr);
-	int    ok = -1, r = cmCancel, is_new = 0;
+	int    ok = -1;
+	int    r = cmCancel;
+	bool   is_new = false;
 	PPSalChargePacket pack;
 	SalChargeDialog * p_dlg = 0;
 	THROW(EditPrereq(pID, 0, &is_new));
@@ -1494,7 +1496,10 @@ int StaffCalDialog::delItem(long pos, long id)
 
 int PPObjStaffCal::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = 1, r = cmCancel, valid_data = 0, is_new = 0;
+	int    ok = 1;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	bool   is_new = false;
 	StaffCalFilt filt;
 	if(extraPtr)
 		filt = *static_cast<const StaffCalFilt *>(extraPtr);

@@ -507,7 +507,7 @@ bool GoodsCore::IsRecValid(const Goods2Tbl::Rec * pRec)
 	}
 	else {
 		//THROW_PP(oneof3(k, PPGDSK_PCKGTYPE, PPGDSK_TRANSPORT, PPGDSK_BRAND), PPERR_INVGOODSKIND);
-		THROW_PP_S(oneof4(k, PPGDSK_PCKGTYPE, PPGDSK_TRANSPORT, PPGDSK_BRAND, PPGDSK_SUPRWARE), PPERR_INVGOODSKIND, pRec->Name);
+		THROW_PP_S(oneof5(k, PPGDSK_PCKGTYPE, PPGDSK_TRANSPORT, PPGDSK_BRAND, PPGDSK_SUPRWARE, PPGDSK_SWPROGRAM), PPERR_INVGOODSKIND, pRec->Name);
 	}
 	CATCHZOK
 	return ok;
@@ -525,7 +525,8 @@ int GoodsCore::Update(PPID * pGoodsID, Goods2Tbl::Rec * pRec, int use_ta)
 			case PPGDSK_TRANSPORT: obj_type = PPOBJ_TRANSPORT;  break;
 			case PPGDSK_BRAND:     obj_type = PPOBJ_BRAND;      break;
 			case PPGDSK_PCKGTYPE:  obj_type = PPOBJ_PCKGTYPE;   break;
-			case PPGDSK_SUPRWARE: obj_type = PPOBJ_COMPGOODS;  break; // @vmiller
+			case PPGDSK_SUPRWARE:  obj_type = PPOBJ_COMPGOODS;  break; // @vmiller
+			case PPGDSK_SWPROGRAM: obj_type = PPOBJ_SWPROGRAM;  break; // @v11.9.12
 		}
 	{
 		PPTransaction tra(use_ta);

@@ -4741,7 +4741,7 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 								SETIFZ(owner_kind_id, PPPRK_CLIENT);
 								if(owner_kind_id && pk_obj.Search(owner_kind_id, &pk_rec) > 0) {
 									PersonTbl::Rec psn_rec;
-									PPID   reg_type_id = pk_rec.CodeRegTypeID;
+									const PPID reg_type_id = pk_rec.CodeRegTypeID;
 									temp_id_list.clear();
 									if(code_buf.NotEmptyS() && reg_type_id && PsnObj.GetListByRegNumber(reg_type_id, owner_kind_id, code_buf, temp_id_list) > 0) {
 										if(temp_id_list.getCount() == 1)
@@ -5261,7 +5261,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 					}
 				}
 				else if(cn_rec.Flags & CASHF_SYNC && CnObj.GetSync(rPib.PosNodeID, &scn_pack) > 0) {
-					if(scn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf) && temp_buf.NotEmptyS()) {
+					if(scn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf) && temp_buf.Transf(CTRANSF_INNER_TO_UTF8).NotEmptyS()) {
 						StringSet ss_row_paths(';', temp_buf);
 						for(uint ssrp_pos = 0; ss_row_paths.get(&ssrp_pos, temp_buf);) {
 							PreprocessInputSource(rPib.PosNodeID, temp_buf, ss_paths, remote_url_assoc);
@@ -5980,7 +5980,7 @@ int RunInputProcessThread(PPID posNodeID)
         		PPObjCashNode cn_obj;
 				PPSyncCashNode cn_pack;
 				THROW(cn_obj.GetSync(IB.PosNodeID, &cn_pack) > 0);
-				if(cn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf) > 0 && SFile::IsDir(temp_buf.RmvLastSlash())) { // @v9.9.12 RmvLastSlash()
+				if(cn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf) > 0 && SFile::IsDir(temp_buf.Transf(CTRANSF_INNER_TO_UTF8).RmvLastSlash())) {
 					in_path = temp_buf;
 				}
 				else {

@@ -92,19 +92,15 @@ int tls_setup_handshake(SSL * s)
 		/* SSLfatal() already called */
 		return 0;
 	}
-
 	/* Reset any extension flags */
-	memset(s->ext.extflags, 0, sizeof(s->ext.extflags));
-
+	memzero(s->ext.extflags, sizeof(s->ext.extflags));
 	if(ssl_get_min_max_version(s, &ver_min, &ver_max, NULL) != 0) {
 		SSLfatal(s, SSL_AD_PROTOCOL_VERSION, SSL_R_NO_PROTOCOLS_AVAILABLE);
 		return 0;
 	}
-
 	/* Sanity check that we have MD5-SHA1 if we need it */
 	if(s->ctx->ssl_digest_methods[SSL_MD_MD5_SHA1_IDX] == NULL) {
 		int md5sha1_needed = 0;
-
 		/* We don't have MD5-SHA1 - do we need it? */
 		if(SSL_IS_DTLS(s)) {
 			if(DTLS_VERSION_LE(ver_max, DTLS1_VERSION))
@@ -140,12 +136,10 @@ int tls_setup_handshake(SSL * s)
 			return 0;
 		}
 	}
-
 	ok = 0;
 	if(s->server) {
 		STACK_OF(SSL_CIPHER) *ciphers = SSL_get_ciphers(s);
 		int i;
-
 		/*
 		 * Sanity check that the maximum version we accept has ciphers
 		 * enabled. For clients we do this check during construction of the
@@ -2135,15 +2129,11 @@ int check_in_list(SSL * s, uint16_t group_id, const uint16_t * groups,
 }
 
 /* Replace ClientHello1 in the transcript hash with a synthetic message */
-int create_synthetic_message_hash(SSL * s, const uchar * hashval,
-    size_t hashlen, const uchar * hrr,
-    size_t hrrlen)
+int create_synthetic_message_hash(SSL * s, const uchar * hashval, size_t hashlen, const uchar * hrr, size_t hrrlen)
 {
-	unsigned char hashvaltmp[EVP_MAX_MD_SIZE];
-	unsigned char msghdr[SSL3_HM_HEADER_LENGTH];
-
-	memset(msghdr, 0, sizeof(msghdr));
-
+	uchar hashvaltmp[EVP_MAX_MD_SIZE];
+	uchar msghdr[SSL3_HM_HEADER_LENGTH];
+	memzero(msghdr, sizeof(msghdr));
 	if(hashval == NULL) {
 		hashval = hashvaltmp;
 		hashlen = 0;

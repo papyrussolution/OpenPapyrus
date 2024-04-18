@@ -772,7 +772,10 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					}
 					// } @v11.2.3 
 					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
-					THROW(ArrAdd(Arr_In, DVCPARAM_OFDVER, ofdf.OfdVer)); // @v11.1.9
+					temp_buf.Z();
+					if(!ofdf.OfdVer_.IsEmpty())
+						ofdf.OfdVer_.ToStr(temp_buf);
+					THROW(ArrAdd(Arr_In, DVCPARAM_OFDVER, temp_buf)); // @v11.1.9
 					// @v11.3.6 {
 					if(paperless) {
 						THROW(ArrAdd(Arr_In, DVCPARAM_PAPERLESS, 1)); 

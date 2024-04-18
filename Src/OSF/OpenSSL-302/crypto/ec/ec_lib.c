@@ -1149,8 +1149,7 @@ int EC_GROUP_have_precompute_mult(const EC_GROUP * group)
 	if(group->meth->have_precompute_mult != 0)
 		return group->meth->have_precompute_mult(group);
 	else
-		return 0;       /* cannot tell whether precomputation has
-	                         * been performed */
+		return 0; /* cannot tell whether precomputation has been performed */
 }
 
 #endif

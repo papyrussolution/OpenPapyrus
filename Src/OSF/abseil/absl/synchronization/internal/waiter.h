@@ -18,8 +18,6 @@
 #ifdef ABSL_HAVE_SEMAPHORE_H
 	#include <semaphore.h>
 #endif
-//#include <atomic>
-//#include <cstdint>
 #include "absl/base/internal/thread_identity.h"
 #include "absl/synchronization/internal/futex.h"
 #include "absl/synchronization/internal/kernel_timeout.h"

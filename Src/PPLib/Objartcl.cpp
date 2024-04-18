@@ -2354,7 +2354,10 @@ int DebtDimDialog::delItem(long pos, long id)
 
 int PPObjDebtDim::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = 1, r = cmCancel, valid_data = 0, is_new = 0;
+	int    ok = 1;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	bool   is_new = false;
 	PPDebtDimPacket pack;
 	DebtDimDialog * p_dlg = 0;
 	THROW(EditPrereq(pID, 0, &is_new));

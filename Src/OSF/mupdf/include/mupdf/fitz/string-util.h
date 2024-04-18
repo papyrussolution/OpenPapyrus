@@ -31,7 +31,7 @@
 	up to the first delimiter char (or the end of the string), or
 	NULL.
 */
-char *fz_strsep(char **stringp, const char *delim);
+char * fz_strsep(char **stringp, const char *delim);
 
 /**
 	Copy at most n-1 chars of a string into a destination

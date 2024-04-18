@@ -1,5 +1,5 @@
 // OBJDBDIV.CPP
-// Copyright (c) A.Sobolev 1997-2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1997-2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2024
 // @codepage UTF-8
 // Объект, управляющий разделами БД
 //
@@ -515,7 +515,9 @@ int PPObjDBDiv::GetCounter(PPID dbid, long * pCounter, int use_ta)
 
 int PPObjDBDiv::Edit(PPID * pID, void * extraPtr)
 {
-	int    r = cmCancel, valid_data = 0, is_new = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	bool   is_new = false;
 	DBDivPack pack;
 	DBDivDialog * dlg = 0;
 	THROW(CheckDialogPtr(&(dlg = new DBDivDialog)));

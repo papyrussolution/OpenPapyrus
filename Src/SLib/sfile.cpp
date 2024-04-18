@@ -1688,7 +1688,10 @@ static const SIntToSymbTabEntry SFileAccsfSymbList[] = {
 /*static*/int SFile::IsOpenedForWriting(const char * pFileName)
 {
 	int    ok = 0;
-	HANDLE handle = ::CreateFile(SUcSwitch(pFileName), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0); // @unicodeproblem
+	SString _file_name(pFileName);
+	SStringU _file_name_u;
+	_file_name.CopyToUnicode(_file_name_u);
+	HANDLE handle = ::CreateFileW(_file_name_u, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0); // @unicodeproblem
 	// Если ошибка, то файл открыт
 	if(handle == INVALID_HANDLE_VALUE) {
 		if(GetLastError() == ERROR_SHARING_VIOLATION) {

@@ -7,9 +7,6 @@
 #ifndef ABSL_STRINGS_CORDZ_INFO_H_
 #define ABSL_STRINGS_CORDZ_INFO_H_
 
-//#include <atomic>
-//#include <cstdint>
-//#include <functional>
 #include "absl/base/config.h"
 #include "absl/base/internal/raw_logging.h"
 #include "absl/base/internal/spinlock.h"

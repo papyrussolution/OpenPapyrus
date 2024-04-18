@@ -1,5 +1,5 @@
 // OBJREGT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2016, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2016, 2018, 2019, 2020, 2021, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -242,7 +242,7 @@ int PPObjRegisterType::Edit(PPID * pID, void * extraPtr)
 	int    ok = 1;
 	int    r = cmCancel;
 	int    valid_data = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	ushort flags = 0;
 	PPRegisterTypePacket pack;
 	RegisterTypeDialog * p_dlg = 0;

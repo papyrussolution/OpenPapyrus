@@ -44,7 +44,7 @@ int BIO_get_host_ip(const char * str, uchar * ip)
 	BIO_ADDRINFO * res = NULL;
 	int ret = 0;
 	if(BIO_sock_init() != 1)
-		return 0;       /* don't generate another error code here */
+		return 0; /* don't generate another error code here */
 	if(BIO_lookup(str, NULL, BIO_LOOKUP_CLIENT, AF_INET, SOCK_STREAM, &res)) {
 		size_t l;
 		if(BIO_ADDRINFO_family(res) != AF_INET) {
@@ -78,7 +78,7 @@ int BIO_get_port(const char * str, unsigned short * port_ptr)
 	}
 
 	if(BIO_sock_init() != 1)
-		return 0;       /* don't generate another error code here */
+		return 0; /* don't generate another error code here */
 
 	if(BIO_lookup(NULL, str, BIO_LOOKUP_CLIENT, AF_INET, SOCK_STREAM, &res)) {
 		if(BIO_ADDRINFO_family(res) != AF_INET) {

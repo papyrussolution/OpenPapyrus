@@ -443,7 +443,7 @@ uint32 FASTCALL SlHash::FNV(const void * pData, size_t len)
 	// значение 0x811C9DC5 применяется в качестве инициализации, а в итерации используется 0x01000193.
 	// Черт! Это - плохо, я из того источника много функций взял и с тестами - придется все пересматривать.
 	//
-	const uint fnv_prime = 0x811C9DC5U;
+	const uint fnv_prime = SlConst::FnvHash1Init32;
 	uint32 hash = 0;
 	for(uint i = 0; i < len; i++) {
 		hash *= fnv_prime;
@@ -1887,7 +1887,7 @@ SCRC32::~SCRC32()
 	else {
 		if(!State::P_Tab_Crc32) {
 			State::P_Tab_Crc32 = static_cast<uint32 *>(SAlloc::M(sizeof(State::P_Tab_Crc32) * 256));
-			CrcModel cm(32, 0x04C11DB7, CrcModel::fRefIn, 0, 0);
+			CrcModel cm(32, SlConst::CrcPoly_BZIP2, CrcModel::fRefIn, 0, 0);
             for(uint i = 0; i < 256; i++) {
 				State::P_Tab_Crc32[i] = cm.Tab(i);
             }
@@ -3617,7 +3617,7 @@ int SCRC32::MakeTab()
 		{
 			// norm       reverse in  reverse out
 			// 0x04C11DB7 0xEDB88320  0x82608EDB
-			CrcModel cm(32, 0x04C11DB7, CrcModel::fRefIn, 0, 0);
+			CrcModel cm(32, SlConst::CrcPoly_BZIP2, CrcModel::fRefIn, 0, 0);
             ulong   cm_test[256];
             for(uint i = 0; i < SIZEOFARRAY(cm_test); i++) {
 				cm_test[i] = cm.Tab(i);
@@ -4031,7 +4031,7 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 						if(do_init_tab) {
 							// norm       reverse in  reverse out
 							// 0x04C11DB7 0xEDB88320  0x82608EDB
-							CrcModel cm(32, 0x04C11DB7, CrcModel::fRefIn, 0, 0);
+							CrcModel cm(32, SlConst::CrcPoly_BZIP2, CrcModel::fRefIn, 0, 0);
 							for(uint i = 0; i < 256; i++)
 								p_tab[i] = cm.Tab(i);
 						}

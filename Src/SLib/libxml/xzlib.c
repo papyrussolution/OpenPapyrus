@@ -11,49 +11,47 @@
 
 #ifdef HAVE_LZMA_H
 //#include "xzlib.h"
-
-/* values for xz_state how */
-#define LOOK 0                  /* look for a gzip/lzma header */
-#define COPY 1                  /* copy input directly */
-#define GZIP 2                  /* decompress a gzip stream */
-#define LZMA 3                  /* decompress a lzma stream */
-
-/* internal lzma file state data structure */
+//
+// values for xz_state how 
+//
+#define LOOK 0 // look for a gzip/lzma header
+#define COPY 1 // copy input directly
+#define GZIP 2 // decompress a gzip stream
+#define LZMA 3 // decompress a lzma stream
+//
+// internal lzma file state data structure 
+//
 typedef struct {
-	int mode; /* see lzma modes above */
-	int fd; /* file descriptor */
+	int    mode; /* see lzma modes above */
+	int    fd; /* file descriptor */
 	char * path; /* path or fd for error messages */
-	uint64_t pos; /* current position in uncompressed data */
-	uint size; /* buffer size, zero if not allocated yet */
-	uint want; /* requested buffer size, default is BUFSIZ */
+	uint64 pos; /* current position in uncompressed data */
+	uint   size; /* buffer size, zero if not allocated yet */
+	uint   want; /* requested buffer size, default is BUFSIZ */
 	uchar * in; /* input buffer */
 	uchar * out; /* output buffer (double-sized when reading) */
 	uchar * next; /* next output data to deliver or write */
-	uint have; /* amount of output data unused at next */
-	int eof; /* true if end of input file reached */
-	uint64_t start; /* where the lzma data started, for rewinding */
-	uint64_t raw; /* where the raw data started, for seeking */
-	int how; /* 0: get header, 1: copy, 2: decompress */
-	int direct; /* true if last read direct, false if lzma */
+	uint   have; /* amount of output data unused at next */
+	int    eof; /* true if end of input file reached */
+	uint64 start; /* where the lzma data started, for rewinding */
+	uint64 raw; /* where the raw data started, for seeking */
+	int    how; /* 0: get header, 1: copy, 2: decompress */
+	int    direct; /* true if last read direct, false if lzma */
 	/* seek request */
-	uint64_t skip; /* amount to skip (already rewound if backwards) */
-	int seek; /* true if seek request pending */
+	uint64 skip; /* amount to skip (already rewound if backwards) */
+	int    seek; /* true if seek request pending */
 	/* error information */
-	int err; /* error code */
+	int    err; /* error code */
 	char * msg; /* error message */
 	/* lzma stream */
-	int init; /* is the iniflate stream initialized */
+	int    init; /* is the iniflate stream initialized */
 	lzma_stream strm; /* stream structure in-place (not a pointer) */
-	char padding1[32]; /* padding allowing to cope with possible
-	                           extensions of above structure without
-	                           too much side effect */
+	char   padding1[32]; /* padding allowing to cope with possible extensions of above structure without too much side effect */
 #ifdef HAVE_ZLIB_H
 	/* zlib inflate or deflate stream */
 	z_stream zstrm; /* stream structure in-place (not a pointer) */
 #endif
-	char padding2[32]; /* padding allowing to cope with possible
-	                           extensions of above structure without
-	                           too much side effect */
+	char   padding2[32]; /* padding allowing to cope with possible extensions of above structure without too much side effect */
 } xz_state, * xz_statep;
 
 static void xz_error(xz_statep state, int err, const char * msg)
@@ -104,43 +102,46 @@ static void xz_reset(xz_statep state)
 
 static xzFile xz_open(const char * path, int fd, const char * mode ATTRIBUTE_UNUSED)
 {
-	/* allocate xzFile structure to return */
+	// allocate xzFile structure to return
 	xz_statep state = static_cast<xz_statep>(SAlloc::M(sizeof(xz_state)));
 	if(!state)
 		return NULL;
-	state->size = 0; /* no buffers allocated yet */
-	state->want = BUFSIZ; /* requested buffer size */
-	state->msg = NULL; /* no error message yet */
-	state->init = 0; /* initialization of zlib data */
-	/* save the path name for error messages */
+	state->size = 0; // no buffers allocated yet
+	state->want = BUFSIZ; // requested buffer size
+	state->msg = NULL; // no error message yet
+	state->init = 0; // initialization of zlib data
+	// save the path name for error messages
 	state->path = static_cast<char *>(SAlloc::M(sstrlen(path) + 1));
-	if(state->path == NULL) {
+	if(isempty(state->path)) {
 		SAlloc::F(state);
 		return NULL;
 	}
-	strcpy(state->path, path);
-	/* open the file with the appropriate mode (or just use fd) */
-	state->fd = fd != -1 ? fd : open(path,
-#ifdef O_LARGEFILE
-	    O_LARGEFILE |
-#endif
-#ifdef O_BINARY
-	    O_BINARY |
-#endif
-	    O_RDONLY, 0666);
-	if(state->fd == -1) {
-		SAlloc::F(state->path);
-		SAlloc::F(state);
-		return NULL;
+	else {
+		strcpy(state->path, path);
+		// open the file with the appropriate mode (or just use fd)
+		SString _file_name(path);
+		SStringU _file_name_u;
+		_file_name.CopyToUnicode(_file_name_u);
+		int open_flags = O_RDONLY;
+	#ifdef O_LARGEFILE
+			open_flags |= O_LARGEFILE;
+	#endif
+	#ifdef O_BINARY
+			open_flags |= O_BINARY;
+	#endif
+		state->fd = (fd != -1) ? fd : _wopen(_file_name_u, open_flags, 0666); // @v11.9.12 open-->_wopen
+		if(state->fd == -1) {
+			SAlloc::F(state->path);
+			SAlloc::F(state);
+			return NULL;
+		}
+		// save the current position for rewinding (only if reading)
+		state->start = lseek(state->fd, 0, SEEK_CUR);
+		if(state->start == (uint64_t)-1)
+			state->start = 0;
+		xz_reset(state); // initialize stream
+		return (xzFile)state; // return stream
 	}
-	/* save the current position for rewinding (only if reading) */
-	state->start = lseek(state->fd, 0, SEEK_CUR);
-	if(state->start == (uint64_t)-1)
-		state->start = 0;
-	/* initialize stream */
-	xz_reset(state);
-	/* return stream */
-	return (xzFile)state;
 }
 
 static int xz_compressed(xzFile f) 
@@ -160,15 +161,8 @@ static int xz_compressed(xzFile f)
 	return -1;
 }
 
-xzFile __libxml2_xzopen(const char * path, const char * mode)
-{
-	return xz_open(path, -1, mode);
-}
-
-int __libxml2_xzcompressed(xzFile f) 
-{
-	return xz_compressed(f);
-}
+xzFile __libxml2_xzopen(const char * path, const char * mode) { return xz_open(path, -1, mode); }
+int __libxml2_xzcompressed(xzFile f) { return xz_compressed(f); }
 
 xzFile __libxml2_xzdopen(int fd, const char * mode)
 {
@@ -208,7 +202,7 @@ static int xz_avail(xz_statep state)
 		return -1;
 	if(state->eof == 0) {
 		// avail_in is size_t, which is not necessary sizeof(uint) 
-		unsigned tmp = strm->avail_in;
+		uint tmp = strm->avail_in;
 		if(xz_load(state, state->in, state->size, &tmp) == -1) {
 			strm->avail_in = tmp;
 			return -1;
@@ -278,33 +272,25 @@ static int is_format_lzma(xz_statep state)
 	uncompressed_size = 0;
 	for(i = 0; i < 8; ++i)
 		uncompressed_size |= (uint64_t)(state->in[5 + i]) << (i * 8);
-
-	if(uncompressed_size != UINT64_MAX
-	 && uncompressed_size > (UINT64_C(1) << 38))
+	if(uncompressed_size != UINT64_MAX && uncompressed_size > (UINT64_C(1) << 38))
 		return 0;
-
 	return 1;
 }
 
 #ifdef HAVE_ZLIB_H
 
-/* Get next byte from input, or -1 if end or error. */
-#define NEXT() ((strm->avail_in == 0 && xz_avail(state) == -1) ? -1 : \
-	    (strm->avail_in == 0 ? -1 :	\
-		    (strm->avail_in--, *(strm->next_in)++)))
-/* Same thing, but from zstrm */
-#define NEXTZ() ((strm->avail_in == 0 && xz_avail_zstrm(state) == -1) ? -1 : \
-	    (strm->avail_in == 0 ? -1 :	\
-		    (strm->avail_in--, *(strm->next_in)++)))
+// Get next byte from input, or -1 if end or error
+#define NEXT() ((strm->avail_in == 0 && xz_avail(state) == -1) ? -1 : (strm->avail_in == 0 ? -1 :	(strm->avail_in--, *(strm->next_in)++)))
+// Same thing, but from zstrm
+#define NEXTZ() ((strm->avail_in == 0 && xz_avail_zstrm(state) == -1) ? -1 : (strm->avail_in == 0 ? -1 :	(strm->avail_in--, *(strm->next_in)++)))
 
 /* Get a four-byte little-endian integer and return 0 on success and the value
    in *ret.  Otherwise -1 is returned and *ret is not modified. */
 static int gz_next4(xz_statep state, unsigned long * ret)
 {
 	int ch;
-	unsigned long val;
+	ulong val;
 	z_streamp strm = &(state->zstrm);
-
 	val = NEXTZ();
 	val += (uint)NEXTZ() << 8;
 	val += (ulong)NEXTZ() << 16;
@@ -366,7 +352,6 @@ static int xz_head(xz_statep state)
 		}
 #endif
 	}
-
 	/* get some data in the input buffer */
 	if(strm->avail_in == 0) {
 		if(xz_avail(state) == -1)
@@ -374,7 +359,6 @@ static int xz_head(xz_statep state)
 		if(strm->avail_in == 0)
 			return 0;
 	}
-
 	/* look for the xz magic header bytes */
 	if(is_format_xz(state) || is_format_lzma(state)) {
 		state->how = LZMA;

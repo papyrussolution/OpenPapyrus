@@ -112,7 +112,8 @@ LocValEntry * FASTCALL LocValList::GetEntry(PPID locID)
 
 /*static*/int Predictor::PutPredictCfg(const PPPredictConfig * pCfg, int use_ta)
 {
-	int    ok = 1, is_new = 1;
+	int    ok = 1;
+	int    is_new = 1;
 	Reference * p_ref = PPRef;
 	PPPredictConfig prev_cfg;
 	PPPredictConfig cfg = *pCfg;
@@ -389,7 +390,8 @@ PPPredictConfig::PPPredictConfig()
 
 /*static*/int PrcssrPrediction::EditPredictCfg()
 {
-	int    ok = -1, is_new = 0;
+	int    ok = -1;
+	int    is_new = 0;
 	ushort v = 0;
 	PPIDArray op_list;
 	TDialog * dlg = new TDialog(DLG_PREDICTCFG);

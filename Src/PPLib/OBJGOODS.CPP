@@ -3484,7 +3484,7 @@ int PPObjGoods::Edit(PPID * pID, GoodsPacketKind gpk, long group, PPID clsID, co
 {
 	int    r = cmCancel;
 	int    is_locked = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	TDialog * kind_dlg = 0;
 	PPGoodsPacket pack;
 	THROW(EditPrereq(pID, 0, &is_new));

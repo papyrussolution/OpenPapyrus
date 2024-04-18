@@ -93,7 +93,7 @@ int CRYPTO_atomic_load(uint64_t * val, uint64_t * ret, CRYPTO_RWLOCK * lock);
 
 size_t OPENSSL_strlcpy(char * dst, const char * src, size_t siz);
 size_t OPENSSL_strlcat(char * dst, const char * src, size_t siz);
-size_t OPENSSL_strnlen(const char * str, size_t maxlen);
+// @v11.9.12 (replaced with sstrnlen) size_t OPENSSL_strnlen(const char * str, size_t maxlen);
 int OPENSSL_buf2hexstr_ex(char * str, size_t str_n, size_t * strlength, const uchar * buf, size_t buflen, const char sep);
 char * OPENSSL_buf2hexstr(const uchar * buf, long buflen);
 int OPENSSL_hexstr2buf_ex(uchar * buf, size_t buf_n, size_t * buflen, const char * str, const char sep);

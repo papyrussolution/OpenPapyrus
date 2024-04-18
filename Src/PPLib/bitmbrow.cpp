@@ -151,7 +151,7 @@ private:
 	long   FASTCALL CalcPriceDevItem(long pos, long flags);
 	int    GetPriceRestrictions(int itemPos, const PPTransferItem & rTi, RealRange * pRange);
 	int    UpdatePriceDevList(long pos, int op);
-	int    CheckRows(); // Проверяет список строк документа. Если есть проблемы, то они добавляются в список ProblemsList, который отображается при наведении на соотвествующую строку (колонка 1)
+	int    CheckRows(); // Проверяет список строк документа. Если есть проблемы, то они добавляются в список ProblemsList, который отображается при наведении на соответствующую строку (колонка 1)
 	int    EditExtCodeList(int rowIdx);
 	int    ValidateExtCodeList();
 	int    Sort(const LongArray * pSortColIdxList);

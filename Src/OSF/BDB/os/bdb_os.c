@@ -139,7 +139,6 @@ void FASTCALL __os_ufree(ENV * env, void * ptr)
 }
 /*
  *	The strdup(3) function for DB.
- *
  */
 int __os_strdup(ENV * env, const char * str, void * storep)
 {

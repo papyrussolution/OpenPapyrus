@@ -2625,7 +2625,7 @@ int PPObjOprKind::Edit(PPID * pID, long opTypeID, PPID linkOpID)
 {
 	int    ok = 1;
 	int    done = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	int    r = cmCancel;
 	PPOprKindPacket pack;
 	THROW(EditPrereq(pID, 0, &is_new));

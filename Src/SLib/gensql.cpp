@@ -1,5 +1,5 @@
 // GENSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020, 2022, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -277,10 +277,14 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 	return rBuf;
 }
 
-int Generator_SQL::CreateTable(const DBTable & rTbl, const char * pFileName, int indent)
+int Generator_SQL::CreateTable(const DBTable & rTbl, const char * pFileName, bool ifNotExists, int indent)
 {
 	const char * p_name = NZOR(pFileName, rTbl.GetName());
-	Tok(tokCreate).Sp().Tok(tokTable).Sp();
+	Tok(tokCreate).Sp();
+	if(ifNotExists) {
+		Tok(tokIfNotExists).Sp();		
+	}
+	Tok(tokTable).Sp();
 	Buf.Cat(p_name);
 	Sp().LPar();
 	if(indent)
@@ -445,6 +449,7 @@ const char * Generator_SQL::P_Tokens[] = {
 	"MAX",
 	"NLS_LOWER",
 	"LOWER",
+	"IF NOT EXISTS" // @v11.9.12
 };
 
 Generator_SQL & Generator_SQL::HintBegin()

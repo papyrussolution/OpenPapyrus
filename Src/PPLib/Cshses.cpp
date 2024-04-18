@@ -73,18 +73,20 @@ int PPSyncCashSession::Init(const char * pName, const char * pPort)
 	return Handle;
 }
 
+PPSyncCashSession::OfdFactors::OfdFactors() : ChZnGuaID(0), ChZnPermissiveMode(0)
+{
+}
+
 PPSyncCashSession::OfdFactors & PPSyncCashSession::OfdFactors::Z()
 {
-	OfdVer.Z();
+	OfdVer_.Z();
+	ChZnGuaID = 0;
+	ChZnPermissiveMode = 0;
 	Sid.Z();
 	return *this;
 }
 
-bool PPSyncCashSession::OfdFactors::IsOfdVerGe12() const
-{
-	SVerT vofd;
-	return (OfdVer.NotEmpty() && vofd.FromStr(OfdVer) && vofd.IsGe(1, 2, 0));
-}
+bool PPSyncCashSession::OfdFactors::IsOfdVerGe12() const { return (!OfdVer_.IsEmpty() && OfdVer_.IsGe(1, 2, 0)); }
 
 void PPSyncCashSession::GetOfdFactors(OfdFactors & rP)
 {
@@ -92,7 +94,11 @@ void PPSyncCashSession::GetOfdFactors(OfdFactors & rP)
 	if(CnObj.P_Ref) {
 		if(SCn.LocID)
 			CnObj.P_Ref->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, rP.Sid);
-		CnObj.P_Ref->Ot.GetTagStr(PPOBJ_CASHNODE, NodeID, PPTAG_POSNODE_OFDVER, rP.OfdVer);
+		SString temp_buf;
+		CnObj.P_Ref->Ot.GetTagStr(PPOBJ_CASHNODE, NodeID, PPTAG_POSNODE_OFDVER, temp_buf);
+		rP.OfdVer_.FromStr(temp_buf);
+		rP.ChZnGuaID = SCn.ChZnGuaID;
+		rP.ChZnPermissiveMode = SCn.ChZnPermissiveMode;
 	}
 }
 
@@ -1038,7 +1044,7 @@ int PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rSessLis
 			LAssocArray extlines_list;
 			ccl_assoc.sort(CMPF_LONG); // @v9.8.4 Перенесено из тела FlashTempCcLines ради const-аргумента
 			THROW(FlashTempCcLines(&ccl_assoc, &extlines_list));
-			{ // Для чеков, у которых есть строки с расширениями нужно установить соотвествующий флаг
+			{ // Для чеков, у которых есть строки с расширениями нужно установить соответствующий флаг
 				uint count = extlines_list.getCount();
 				for(uint i = 0; i < count; i++) {
 					LAssoc extl_item = extlines_list.at(i);

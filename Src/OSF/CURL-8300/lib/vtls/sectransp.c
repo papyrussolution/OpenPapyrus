@@ -3157,36 +3157,26 @@ static void sectransp_close(struct Curl_cfilter * cf, struct Curl_easy * data)
 	}
 }
 
-static int sectransp_shutdown(struct Curl_cfilter * cf,
-    struct Curl_easy * data)
+static int sectransp_shutdown(struct Curl_cfilter * cf, struct Curl_easy * data)
 {
 	struct ssl_connect_data * connssl = cf->ctx;
-	struct st_ssl_backend_data * backend =
-	    (struct st_ssl_backend_data *)connssl->backend;
+	struct st_ssl_backend_data * backend = (struct st_ssl_backend_data *)connssl->backend;
 	ssize_t nread;
 	int what;
 	int rc;
 	char buf[120];
 	int loop = 10; /* avoid getting stuck */
 	CURLcode result;
-
 	assert(backend);
-
 	if(!backend->ssl_ctx)
 		return 0;
-
 #ifndef CURL_DISABLE_FTP
 	if(data->set.ftp_ccc != CURLFTPSSL_CCC_ACTIVE)
 		return 0;
 #endif
-
 	sectransp_close(cf, data);
-
 	rc = 0;
-
-	what = SOCKET_READABLE(Curl_conn_cf_get_socket(cf, data),
-		SSL_SHUTDOWN_TIMEOUT);
-
+	what = SOCKET_READABLE(Curl_conn_cf_get_socket(cf, data), SSL_SHUTDOWN_TIMEOUT);
 	CURL_TRC_CF(data, cf, "shutdown");
 	while(loop--) {
 		if(what < 0) {
@@ -3236,18 +3226,14 @@ static size_t sectransp_version(char * buffer, size_t size)
 	return msnprintf(buffer, size, "SecureTransport");
 }
 
-static bool sectransp_data_pending(struct Curl_cfilter * cf,
-    const struct Curl_easy * data)
+static bool sectransp_data_pending(struct Curl_cfilter * cf, const struct Curl_easy * data)
 {
 	const struct ssl_connect_data * connssl = cf->ctx;
-	struct st_ssl_backend_data * backend =
-	    (struct st_ssl_backend_data *)connssl->backend;
+	struct st_ssl_backend_data * backend = (struct st_ssl_backend_data *)connssl->backend;
 	OSStatus err;
 	size_t buffer;
-
 	(void)data;
 	assert(backend);
-
 	if(backend->ssl_ctx) { /* SSL is in use */
 		CURL_TRC_CF((struct Curl_easy *)data, cf, "data_pending");
 		err = SSLGetBufferedReadSize(backend->ssl_ctx, &buffer);
@@ -3259,16 +3245,13 @@ static bool sectransp_data_pending(struct Curl_cfilter * cf,
 		return false;
 }
 
-static CURLcode sectransp_random(struct Curl_easy * data UNUSED_PARAM,
-    uchar * entropy, size_t length)
+static CURLcode sectransp_random(struct Curl_easy * data UNUSED_PARAM, uchar * entropy, size_t length)
 {
 	/* arc4random_buf() isn't available on cats older than Lion, so let's
 	   do this manually for the benefit of the older cats. */
 	size_t i;
 	u_int32_t random_number = 0;
-
 	(void)data;
-
 	for(i = 0 ; i < length ; i++) {
 		if(i % sizeof(u_int32_t) == 0)
 			random_number = arc4random();

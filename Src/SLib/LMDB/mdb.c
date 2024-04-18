@@ -4786,15 +4786,14 @@ static int ESECT mdb_env_excl_lock(MDB_env * env, int * excl)
 static mdb_hash_t mdb_hash(const void * val, size_t len)
 {
 	const uchar * s = (const uchar *)val, * end = s + len;
-	mdb_hash_t hval = 0xcbf29ce484222325ULL;
+	mdb_hash_t hval = SlConst::FnvHash1Init64;
 	/*
 	 * FNV-1a hash each octet of the buffer
 	 */
 	while(s < end) {
-		hval = (hval ^ *s++) * 0x100000001b3ULL;
+		hval = (hval ^ *s++) * SlConst::FnvHashPrime64;
 	}
-	/* return our new hash value */
-	return hval;
+	return hval; // return our new hash value
 }
 
 /** Hash the string and output the encoded hash.

@@ -354,7 +354,8 @@ int AmtTypeDialog::getDTS(PPAmountTypePacket * pData)
 int PPObjAmountType::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
-	int    r = cmCancel, valid_data = 0, is_new = 0;
+	int    r = cmCancel, valid_data = 0;
+	bool   is_new = false;
 	PPAmountTypePacket pack;
 	AmtTypeDialog * dlg = 0;
 	THROW(CheckDialogPtr(&(dlg = new AmtTypeDialog(this))));

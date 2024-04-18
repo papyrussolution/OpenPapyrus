@@ -50,8 +50,7 @@
 #ifndef ABSL_SYNCHRONIZATION_NOTIFICATION_H_
 #define ABSL_SYNCHRONIZATION_NOTIFICATION_H_
 
-#include <atomic>
-
+//#include <atomic>
 #include "absl/base/attributes.h"
 #include "absl/synchronization/mutex.h"
 #include "absl/time/time.h"

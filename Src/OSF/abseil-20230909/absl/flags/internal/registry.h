@@ -16,12 +16,11 @@
 #ifndef ABSL_FLAGS_INTERNAL_REGISTRY_H_
 #define ABSL_FLAGS_INTERNAL_REGISTRY_H_
 
-#include <functional>
-
-#include "absl/base/config.h"
-#include "absl/flags/commandlineflag.h"
-#include "absl/flags/internal/commandlineflag.h"
-#include "absl/strings/string_view.h"
+//#include <functional>
+//#include "absl/base/config.h"
+//#include "absl/flags/commandlineflag.h"
+//#include "absl/flags/internal/commandlineflag.h"
+//#include "absl/strings/string_view.h"
 
 // --------------------------------------------------------------------
 // Global flags registry API.
@@ -29,7 +28,6 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace flags_internal {
-
 // Executes specified visitor for each non-retired flag in the registry. While
 // callback are executed, the registry is locked and can't be changed.
 void ForEachFlag(std::function<void(CommandLineFlag&)> visitor);
@@ -81,15 +79,14 @@ constexpr size_t kRetiredFlagObjAlignment = alignof(void*);
 // Registered a retired flag with name 'flag_name' and type 'T'.
 template <typename T>
 class RetiredFlag {
- public:
-  void Retire(const char* flag_name) {
-    flags_internal::Retire(flag_name, base_internal::FastTypeId<T>(), buf_);
-  }
+public:
+	void Retire(const char* flag_name) {
+		flags_internal::Retire(flag_name, base_internal::FastTypeId<T>(), buf_);
+	}
 
- private:
-  alignas(kRetiredFlagObjAlignment) char buf_[kRetiredFlagObjSize];
+private:
+	alignas(kRetiredFlagObjAlignment) char buf_[kRetiredFlagObjSize];
 };
-
 }  // namespace flags_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

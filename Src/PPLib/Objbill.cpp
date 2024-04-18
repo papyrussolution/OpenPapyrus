@@ -1646,7 +1646,7 @@ int PPObjBill::Helper_EditGoodsBill(PPID * pBillID, PPBillPacket * pPack)
 		ok = EditInventory(pPack, 0);
 	}
 	else {
-		for(int valid_data = 0; !valid_data && (ok = ::EditGoodsBill(pPack, 0)) == cmOK;) {
+		for(bool valid_data = false; !valid_data && (ok = ::EditGoodsBill(pPack, 0)) == cmOK;) {
 			PPID   id = pPack->Rec.ID;
 			if(CheckModificationAfterLoading(*pPack)) {
 				PPWaitStart();
@@ -1672,7 +1672,7 @@ int PPObjBill::Helper_EditGoodsBill(PPID * pBillID, PPBillPacket * pPack)
 						}
 					}
 					Debug_TrfrError(pPack);
-					valid_data = 1;
+					valid_data = true;
 					ASSIGN_PTR(pBillID, pPack->Rec.ID);
 					{
 						ReckonParam rp(1, 0);
@@ -1691,17 +1691,24 @@ int PPObjBill::Helper_EditGoodsBill(PPID * pBillID, PPBillPacket * pPack)
 	return ok;
 }
 
+SelAddBySampleParam::SelAddBySampleParam() : Action(acnUndef), OpID(0), LocID(0), QuotKindID(0), Dt(ZERODATE), Flags(0)
+{
+}
+
 int PPObjBill::AddExpendByReceipt(PPID * pBillID, PPID sampleBillID, const SelAddBySampleParam * pParam)
 {
-	int    ok = 1, res = cmCancel;
-	PPID   save_loc = LConfig.Location;
+	int    ok = 1;
+	int    res = cmCancel;
+	const  PPID save_loc = LConfig.Location;
 	PPID   op_type = 0;
-	PPID   org_acc_sheet_id = 0, new_acc_sheet_id = 0;
+	PPID   org_acc_sheet_id = 0;
+	PPID   new_acc_sheet_id = 0;
 	uint   i;
 	SString clb;
 	PPTransferItem * p_ti;
-	PPOprKind    op_rec;
-	PPBillPacket pack, sample_pack;
+	PPOprKind op_rec;
+	PPBillPacket pack;
+	PPBillPacket sample_pack;
 	ASSIGN_PTR(pBillID, 0L);
 	THROW_INVARG(pParam);
 	THROW(CheckRights(PPR_INS));
@@ -1765,8 +1772,9 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 	PPID   loc_id = preserve_cfg_loc;
 	PPID   op_type = 0;
 	SString temp_buf;
-	PPOprKind    op_rec;
-	PPBillPacket pack, sample_pack;
+	PPOprKind op_rec;
+	PPBillPacket pack;
+	PPBillPacket sample_pack;
 	ASSIGN_PTR(pBillID, 0L);
 	THROW_INVARG(pParam);
 	THROW(CheckRights(PPR_INS));
@@ -2045,7 +2053,7 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 							new_ti.Cost = lot_rec.Cost;
 						}
 					}
-					new_ti.SetupSign(pack.Rec.OpID); // @v10.0.08
+					new_ti.SetupSign(pack.Rec.OpID);
 					// @v11.0.2 {
 					{
 						row_idx_list.Z();

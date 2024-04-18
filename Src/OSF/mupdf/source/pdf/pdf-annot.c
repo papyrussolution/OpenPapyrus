@@ -1516,14 +1516,10 @@ void pdf_clear_annot_ink_list(fz_context * ctx, pdf_annot * annot)
 
 void pdf_add_annot_ink_list_stroke(fz_context * ctx, pdf_annot * annot)
 {
-	pdf_obj * ink_list;
-
-	ink_list = pdf_dict_get(ctx, annot->obj, PDF_NAME(InkList));
+	pdf_obj * ink_list = pdf_dict_get(ctx, annot->obj, PDF_NAME(InkList));
 	if(!pdf_is_array(ctx, ink_list))
 		ink_list = pdf_dict_put_array(ctx, annot->obj, PDF_NAME(InkList), 10);
-
 	pdf_array_push_array(ctx, ink_list, 16);
-
 	pdf_dirty_annot(ctx, annot);
 }
 
@@ -1531,7 +1527,6 @@ void pdf_add_annot_ink_list_stroke_vertex(fz_context * ctx, pdf_annot * annot, S
 {
 	fz_matrix page_ctm, inv_page_ctm;
 	pdf_obj * ink_list, * stroke;
-
 	pdf_page_transform(ctx, annot->page, NULL, &page_ctm);
 	inv_page_ctm = fz_invert_matrix(page_ctm);
 
@@ -1550,12 +1545,9 @@ void pdf_add_annot_ink_list(fz_context * ctx, pdf_annot * annot, int n, SPoint2F
 	fz_matrix page_ctm, inv_page_ctm;
 	pdf_obj * ink_list, * stroke;
 	int i;
-
 	check_allowed_subtypes(ctx, annot, PDF_NAME(InkList), ink_list_subtypes);
-
 	pdf_page_transform(ctx, annot->page, NULL, &page_ctm);
 	inv_page_ctm = fz_invert_matrix(page_ctm);
-
 	ink_list = pdf_dict_get(ctx, annot->obj, PDF_NAME(InkList));
 	if(!pdf_is_array(ctx, ink_list))
 		ink_list = pdf_dict_put_array(ctx, annot->obj, PDF_NAME(InkList), 10);

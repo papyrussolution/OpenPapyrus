@@ -18,8 +18,6 @@
 
 #include "absl/absl-internal.h"
 #pragma hdrstop
-//#include <atomic>
-//#include <cstdint>
 #include "absl/base/internal/spinlock_wait.h"
 #if defined(_WIN32)
 #include "absl/base/internal/spinlock_win32.inc"

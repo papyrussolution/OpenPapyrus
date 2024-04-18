@@ -566,8 +566,7 @@ static int archive_write_pax_header(struct archive_write * a, ArchiveEntry * ent
 			    break;
 		    }
 			default: /* AE_IFSOCK and unknown */
-			    __archive_write_entry_filetype_unsupported(
-				    &a->archive, entry_original, "pax");
+			    __archive_write_entry_filetype_unsupported(&a->archive, entry_original, "pax");
 			    return ARCHIVE_FAILED;
 		}
 	}

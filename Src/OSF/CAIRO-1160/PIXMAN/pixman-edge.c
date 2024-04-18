@@ -241,12 +241,10 @@ static void rasterize_edges_8(pixman_image_t * image, pixman_edge_t * l, pixman_
 			/* We're done, make sure we clean up any remaining fill. */
 			if(fill_start != fill_end) {
 				if(fill_size == N_Y_FRAC(8)) {
-					MEMSET_WRAPPED(image, ap + fill_start,
-					    0xff, fill_end - fill_start);
+					MEMSET_WRAPPED(image, ap + fill_start, 0xff, fill_end - fill_start);
 				}
 				else {
-					ADD_SATURATE_8(ap + fill_start, fill_size * N_X_FRAC(8),
-					    fill_end - fill_start);
+					ADD_SATURATE_8(ap + fill_start, fill_size * N_X_FRAC(8), fill_end - fill_start);
 				}
 			}
 			break;
@@ -263,12 +261,10 @@ static void rasterize_edges_8(pixman_image_t * image, pixman_edge_t * l, pixman_
 			y += STEP_Y_BIG(8);
 			if(fill_start != fill_end) {
 				if(fill_size == N_Y_FRAC(8)) {
-					MEMSET_WRAPPED(image, ap + fill_start,
-					    0xff, fill_end - fill_start);
+					MEMSET_WRAPPED(image, ap + fill_start, 0xff, fill_end - fill_start);
 				}
 				else {
-					ADD_SATURATE_8(ap + fill_start, fill_size * N_X_FRAC(8),
-					    fill_end - fill_start);
+					ADD_SATURATE_8(ap + fill_start, fill_size * N_X_FRAC(8), fill_end - fill_start);
 				}
 
 				fill_start = fill_end = -1;

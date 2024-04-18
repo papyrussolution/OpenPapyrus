@@ -378,7 +378,9 @@ int PPObjStyloPalm::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 
 /*static*/int PPObjStyloPalm::EditConfig()
 {
-	int    ok = -1, valid_data = 0, is_new = 0;
+	int    ok = -1;
+	int    valid_data = 0;
+	int    is_new = 0;
 	PPStyloPalmConfig cfg;
 	TDialog * dlg = new TDialog(DLG_SPIICFG);
 	PPIDArray  op_list;
@@ -723,7 +725,7 @@ int PPObjStyloPalm::Edit(PPID * pID, void * extraPtr)
 	int    ok = 1;
 	int    r = cmCancel;
 	int    valid_data = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	uint   dlg_id = 0;
 	PPStyloPalmPacket pack;
 	StyloPalmDialog * dlg = 0;

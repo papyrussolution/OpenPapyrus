@@ -2559,7 +2559,8 @@ public:
 		tokMax,      // function max
 		tokNlsLower, // function nls_lower
 		tokLower,    // @v11.6.0 function lower
-		tokCountOfTokens
+		tokCountOfTokens,
+		tokIfNotExists, // @v11.9.12 if not exists
 	};
 	enum {
 		pfxIndex = 1,
@@ -2574,7 +2575,7 @@ public:
 	Generator_SQL(SqlServerType sqlst, long flags);
 	SqlServerType GetServerType() const { return Sqlst; }
 	operator SString & () { return Buf; }
-	int    CreateTable(const DBTable & rTbl, const char * pFileName, int indent = 1);
+	int    CreateTable(const DBTable & rTbl, const char * pFileName, bool ifNotExists, int indent);
 	int    CreateIndex(const DBTable & rTbl, const char * pFileName, uint n);
 	int    GetIndexName(const DBTable & rTbl, uint n, SString & rBuf);
 	int    CreateSequenceOnField(const DBTable & rTbl, const char * pFileName, uint fldN, long newVal);

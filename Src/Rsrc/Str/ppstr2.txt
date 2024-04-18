@@ -2320,6 +2320,11 @@ PPERR_CCIMP_WAREBYCCLINENFOUND      "Товар '%s', на который ссы
 PPERR_CCIMP_INVQTTY                 "Количество товара '%s' в строке чека имеет недопустимое значение. Чек отклонен"
 PPERR_UNSUPPORTEDPREDEFFMT          "Неподдерживаемый предопределенный формат '%s'"
 PPERR_NGNXSRV_PIPESESSOVERFLOW      "Достигнут предел числа потоков обработки запросов (%s)"
+PPERR_GETTAGLISTBYOBJFAULT          "Ошибка получения списка тегов по объекту '%s'"
+PPERR_CHZNPMTOKENUNDEF              "Не определен токен разрешительного режима @{brand_chzn}"
+PPERR_CHZNPMCDNHOSTFAULT            "Не удалось определить CDN-хост разрешительного режима @{brand_chzn}"
+PPERR_CHZNPMQUERYCDNLISTFAULT       "Ошибка получения списка CDN-хостов разрешительного режима @{brand_chzn}"
+PPERR_CHZNPMCDNHOSTSELECTIONFAULT   "Ошибка выбора доступного CDN-хоста разрешительного режима @{brand_chzn}"
 // LastError
 
 [102] // confirmation
@@ -2658,6 +2663,7 @@ PPINF_EGAISSHOPRETURNCR    "Создан документ возврата с р
 81   "@{obj_tssmodel}"
 82   "@{eventsubscription}"
 83   "@{bizscore} II (construction)" // @v11.9.2
+84   "@{swprogramcategory_pl}" // @v11.9.12 PPOBJ_SWPROGRAMCATEGORY
 100  "@{dynobject_pl}"
 101  "Породы древесины"
 1000 /!/ "#UNASSIGNED"
@@ -2711,6 +2717,7 @@ PPINF_EGAISSHOPRETURNCR    "Создан документ возврата с р
 1076 "@{event}"
 1077 "Подшивка объектов Stylo-Q"
 1079 "@{managedcomputer}"
+1080 "@{swprogram_pl}"
 
 [111]
 //
@@ -5026,6 +5033,7 @@ PPTXT_NGINXSRV_MNTRREPORTEDFAULT     "Мониторинг NGINX-сервера 
 PPTXT_PRESSTOAUTHANDSTART            "Нажмите чтобы авторизоваться\nи начать работу" // @v11.9.2 wsctl
 PPTXT_SELECTEDTARIFF                 "Выбранный тариф" // @v11.9.2 wsctl
 PPTXT_STARTSESSION                   "Начать работу" // @v11.9.2 wsctl
+PPTXT_CREATEBILL_HINT_ORDDTGTNOW     "Документ заказа, по которому вы собираетесь создать отгрузку, выписан будущей датой"
 //
 // LastText
 
@@ -6846,6 +6854,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @person_scnd                         "Вторичная персоналия"
 @org                                 "Организация"
 @orgcode                             "Код организации"
+@datatransferoperator                "Оператор передачи данных"
 @enterprise                          "Предприятие"
 @enterprise_pl                       "Предприятия"
 @enterprisecode                      "Код предприятия"
@@ -7431,6 +7440,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @computer                            "Компьютер"
 @managedcomputer                     "Управляемый компьютер"
 @managedcomputer_pl                  "Управляемые компьютеры"
+@swprogram                           "Исполняемая программа"
+@swprogram_pl                        "Исполняемые программы"
+@swprogramcategory                   "Категория исполняемой программы"
+@swprogramcategory_pl                "Категории исполняемых программ"
+@executablefile                      "Исполняемый файл"
 @jobtask                             "Серверная задача"
 @jobtask_pl                          "Серверные задачи"
 @server                              "Сервер"
@@ -8499,6 +8513,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_billlinkccheckuuid                  "UUID связанного кассового чека" // @v11.8.8
 @rtag_chzndisposalrsn                     "Причина выбытия марки честный знак" // @v11.8.12
 @rtag_personchznpmtoken                   "ЧЕСТНЫЙ ЗНАК токен разрешительного режима"  // @v11.9.11
+@rtag_personchznpmhost                    "ЧЕСТНЫЙ ЗНАК хост разрешительного режима"  // @v11.9.12
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -8677,7 +8692,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @view_styloqcommands                      "Команды Stylo-Q"
 @view_usermenu                            "Пользовательские меню и рабочие столы"
 @view_events                              "@{event_pl}"
-@view_swprogram                           "Исполняемые программы"
+@view_swprogram                           "@{swprogram_pl}"
 
 @filter_cashnodepane                      "Фильтр кассовой панели"
 @filter_prcssrwroffdraftparam             "Параметры списания драфт-документов"
@@ -9203,6 +9218,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_underconstruction                    "В разработке"
 @cmd_processued                           "Процессинг UED (internal)"
 @cmd_processbomestimatedvalues            "Расчет оценочных цен на продукцию (BOM)"
+@cmd_swprogram                            "@{swprogram_pl}"
+@cmd_swprogramcategory                    "@{swprogramcategory_pl}"
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
@@ -10102,6 +10119,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cashnode_egaismode_testmode              "@{testmode}"
 @cashnode_egaismode_scanmarkonly          "Только сканировать марку"
 @cashnode_importparam                     "Параметры импорта" // cmd
+@cashnode_chznpm                          "Разрешительный режим @{brand_chzn}"
+@cashnode_chznpm_dontuse                  "Не использовать"
+@cashnode_chznpm_softmode                 "Мягкий режим"
+@cashnode_chznpm_strictmode               "Строгий режим"
+@cashnode_chzngua                         "Глобальная учетная запись @{brand_chzn}"
 
 @cashnode_async_exppaths                  "Пути экспорта"
 @cashnode_async_impfiles                  "Файлы импорта"
@@ -18482,23 +18504,35 @@ PPHSC_RU_CONFSHIPMDOCNAME      "НаимДокОтгр"  // @v11.1.6
 PPHSC_RU_CONFSHIPMDOCNAM_BILL  "Накладная"    // @v11.1.7
 PPHSC_RU_CONFSHIPMDOCNO        "НомДокОтгр"   // @v11.1.6
 PPHSC_RU_CONFSHIPMDOCDATE      "ДатаДокОтгр"  // @v11.1.6
-PPHSC_RU_PURCHASELEDGER        "КнигаПокуп" // @v11.3.2
-PPHSC_RU_PURCHASELEDGERLN      "КнПокСтр" // @v11.3.2
-PPHSC_RU_SALESLEDGER           "КнигаПрод" // @v11.3.2
-PPHSC_RU_SALESLEDGERLN         "КнПродСтр" // @v11.3.2
+PPHSC_RU_PURCHASELEDGER        "КнигаПокуп"   // @v11.3.2
+PPHSC_RU_PURCHASELEDGERLN      "КнПокСтр"     // @v11.3.2
+PPHSC_RU_SALESLEDGER           "КнигаПрод"    // @v11.3.2
+PPHSC_RU_SALESLEDGERLN         "КнПродСтр"    // @v11.3.2
 PPHSC_RU_TRANSACTIONCONTENT1   "СодФХЖ1"
 PPHSC_RU_TRANSACTIONCONTENT2   "СодФХЖ2"
 PPHSC_RU_EXTRA1                "ИнфПолФХЖ1"
 PPHSC_RU_EXTRA2                "ИнфПолФХЖ2"
 PPHSC_RU_TRANSACTIONCONTENTEX1 "ДопСвФХЖ1"
 PPHSC_RU_EXTRA_GLN_SUPPL       "GLN_поставщика"
+PPHSC_RU_EXTRA_GLN_SUPPL2      "GLNПост"             // @v11.9.12 SBIS
+PPHSC_RU_EXTRA_GLN_BUYER2      "GLNПокуп"            // @v11.9.12 SBIS
 PPHSC_RU_EXTRA_GLN_CONSIGNOR   "GLN_грузоотправителя"
+PPHSC_RU_EXTRA_GLN_CONSIGNOR2  "GLNГрузОтпр"         // @v11.9.12 SBIS
 PPHSC_RU_EXTRA_WAYBILLCODE     "номер_накладной"
+PPHSC_RU_EXTRA_WAYBILLCODE2    "НакладнаяНомер"      // @v11.9.12 SBIS
 PPHSC_RU_EXTRA_WAYBILLDATE     "дата_накладной"
-PPHSC_RU_EXTRA_CONSIGNEEGLN    "GLN_грузополучателя" // @v11.7.4
-PPHSC_RU_EXTRA_MATERIALCODE    "код_материала" // @v11.7.4
+PPHSC_RU_EXTRA_WAYBILLDATE2    "НакладнаяДата"       // @v11.9.12 SBIS
+PPHSC_RU_EXTRA_GLN_CONSIGNEE   "GLN_грузополучателя" // @v11.7.4
+PPHSC_RU_EXTRA_GLN_CONSIGNEE2  "GLNГрузПолуч"        // @v11.9.12 SBIS
+PPHSC_RU_EXTRA_MATERIALCODE    "код_материала"       // @v11.7.4
 PPHSC_RU_EXTRA_BARCODE         "штрихкод"
-PPHSC_RU_EXTRA_TRACING         "СведПрослеж" // @v11.7.1
+PPHSC_RU_EXTRA_TRACING         "СведПрослеж"         // @v11.7.1
+PPHSC_RU_EXTRA_GENDATE         "ДатаГен"             // @v11.9.12 SBIS
+PPHSC_RU_EXTRA_ORDERCODE       "ЗаказНомер"          // @v11.9.12 SBIS
+PPHSC_RU_EXTRA_ORDERDATE       "ЗаказДата"           // @v11.9.12 SBIS
+PPHSC_RU_EXTRA_SHIPDATE        "ОтгрузкаДата"        // @v11.9.12 SBIS
+PPHSC_RU_EXTRA_VATRATE         "СтавкаНДС"           // @v11.9.12 SBIS
+PPHSC_RU_EXTRA_WHNAME          "СкладНаименование"   // @v11.9.12 SBIS
 PPHSC_RU_CHIEF                 "Руководитель"
 PPHSC_RU_DIRECTOR              "Директор"
 PPHSC_RU_CHIEFACCOUNTANT       "Главбух"

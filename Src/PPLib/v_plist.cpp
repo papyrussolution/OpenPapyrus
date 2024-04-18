@@ -608,7 +608,7 @@ int PPViewPriceList::InitRPB(RecalcParamBlock * pRPB,
 		GObj.MultTaxFactor(pGoodsRec->ID, &tax_factor);
 	if(lotPriceWoTaxes /*pGoodsRec->Flags & GF_PRICEWOTAXES*/)
 		GObj.AdjPriceToTaxes(pGoodsRec->TaxGrpID, tax_factor, &price, 1);
-	pRPB->Dt = Filt.Dt; // @v9.0.9
+	pRPB->Dt = Filt.Dt;
 	pRPB->TaxFactor = tax_factor;
 	pRPB->GoodsID   = pGoodsRec->ID;
 	pRPB->GoodsGrpID = pGoodsRec->ParentID;
@@ -2818,7 +2818,8 @@ int FASTCALL ReadPriceListConfig(PriceListConfig * pCfg)
 
 int EditPriceListConfig()
 {
-	int    ok = -1, is_new = 0;
+	int    ok = -1;
+	int    is_new = 0;
 	PriceListConfig cfg;
 	TDialog * dlg = 0;
 	ComboBox   * p_cb = 0;

@@ -1016,34 +1016,68 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 				PPWaitPercent(i + 1, max_dis_list.getCount(), iter_msg);
 			}
 		}
-		//
-		// @v10.6.4 {
-		// Выгрузка минимальных допустимых цен
-		//
 		{
-			for(uint i = 0; i < min_price_list.getCount(); i++) {
-				const char * p_type = "MIN_PRICE";
-				const _MinPriceEntry * p_entry = static_cast<const _MinPriceEntry *>(min_price_list.at(i));
-				(restr_id = p_subj_type).CatChar('-').Cat(p_entry->Barcode).CatChar('-').Cat(p_type);
-				p_writer->StartElement("min-price-restriction");
-	 			p_writer->AddAttrib("id", restr_id.cptr());
-				p_writer->AddAttrib("subject-type", p_subj_type);
-				p_writer->AddAttrib("subject-code", p_entry->Barcode);
-				p_writer->AddAttrib("type", p_type);
-				p_writer->AddAttrib("value", p_entry->MinPrice);
-				p_writer->PutElement("since-date", beg_dtm);
-				p_writer->PutElement("till-date", end_dtm);
-				p_writer->PutElement("since-time", beg_dtm.t);
-				p_writer->PutElement("till-time", end_dtm.t);
-				p_writer->PutElement("deleted", LOGIC(p_entry->Deleted));
-				p_writer->PutElement("days-of-week", "MO TU WE TH FR SA SU");
-				if(rStoreIndex.NotEmpty())
-					p_writer->PutElement("shop-indices", rStoreIndex); //<shop-indices>2</shop-indices>
-				p_writer->EndElement(); // </max-discount-restriction>
-				PPWaitPercent(i + 1, min_price_list.getCount(), iter_msg);
+			const char * p_type = "MIN_PRICE";
+			//
+			// @v10.6.4 {
+			// Выгрузка минимальных допустимых цен
+			//
+			if(min_price_list.getCount()) {
+				for(uint i = 0; i < min_price_list.getCount(); i++) {
+					const _MinPriceEntry * p_entry = static_cast<const _MinPriceEntry *>(min_price_list.at(i));
+					(restr_id = p_subj_type).CatChar('-').Cat(p_entry->Barcode).CatChar('-').Cat(p_type);
+					p_writer->StartElement("min-price-restriction");
+	 				p_writer->AddAttrib("id", restr_id.cptr());
+					p_writer->AddAttrib("subject-type", p_subj_type);
+					p_writer->AddAttrib("subject-code", p_entry->Barcode);
+					p_writer->AddAttrib("type", p_type);
+					p_writer->AddAttrib("value", p_entry->MinPrice);
+					p_writer->PutElement("since-date", beg_dtm);
+					p_writer->PutElement("till-date", end_dtm);
+					p_writer->PutElement("since-time", beg_dtm.t);
+					p_writer->PutElement("till-time", end_dtm.t);
+					p_writer->PutElement("deleted", LOGIC(p_entry->Deleted));
+					p_writer->PutElement("days-of-week", "MO TU WE TH FR SA SU");
+					if(rStoreIndex.NotEmpty())
+						p_writer->PutElement("shop-indices", rStoreIndex); //<shop-indices>2</shop-indices>
+					p_writer->EndElement(); // </max-discount-restriction>
+					PPWaitPercent(i + 1, min_price_list.getCount(), iter_msg);
+				}
 			}
+			else {
+				if(oneof2(rGoodsInfo.ChZnProdType, GTCHZNPT_TOBACCO, GTCHZNPT_ALTTOBACCO)) {
+					/*
+					@20240409 Для табака тоже надо выгружать min-price-restriction
+						<min-price-restriction id="GOOD-46245991-MIN_PRICE_PERCENT" subject-type="GOOD" subject-code="46245991" type="MIN_PRICE" value="50.00">
+  							<since-date>2024-04-02T00:00:00.000</since-date>
+  							<till-date>2074-04-02T23:59:59.000</till-date>
+  							<since-time>00:00:00.000</since-time>
+  							<till-time>23:59:59.000</till-time>
+  							<deleted>false</deleted>
+  							<days-of-week>MO TU WE TH FR SA SU</days-of-week>
+						 </min-price-restriction>
+					*/
+					//const _MinPriceEntry * p_entry = static_cast<const _MinPriceEntry *>(min_price_list.at(i));
+					(restr_id = p_subj_type).CatChar('-').Cat(rGoodsInfo.ID).CatChar('-').Cat(p_type);
+					p_writer->StartElement("min-price-restriction");
+	 				p_writer->AddAttrib("id", restr_id.cptr());
+					p_writer->AddAttrib("subject-type", p_subj_type);
+					p_writer->AddAttrib("subject-code", temp_buf.Z().Cat(rGoodsInfo.ID));
+					p_writer->AddAttrib("type", p_type);
+					p_writer->AddAttrib("value", "1.00");
+					p_writer->PutElement("since-date", beg_dtm);
+					p_writer->PutElement("till-date", end_dtm);
+					p_writer->PutElement("since-time", beg_dtm.t);
+					p_writer->PutElement("till-time", end_dtm.t);
+					p_writer->PutElement("deleted", false);
+					p_writer->PutElement("days-of-week", "MO TU WE TH FR SA SU");
+					if(rStoreIndex.NotEmpty())
+						p_writer->PutElement("shop-indices", rStoreIndex); //<shop-indices>2</shop-indices>
+					p_writer->EndElement(); // </max-discount-restriction>
+				}
+			}
+			// } @v10.6.4
 		}
-		// } @v10.6.4
 	}
 	p_writer->EndElement(); // </goods-catalog>
 	CATCHZOK

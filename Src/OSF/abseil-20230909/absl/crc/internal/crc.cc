@@ -70,7 +70,8 @@ constexpr int ZEROES_BASE = (1 << ZEROES_BASE_LG);  // must be a power of 2
 
 constexpr uint32_t kCrc32cPoly = 0x82f63b78;
 
-uint32_t ReverseBits(uint32_t bits) {
+uint32_t ReverseBits(uint32_t bits) 
+{
 	bits = (bits & 0xaaaaaaaau) >> 1 | (bits & 0x55555555u) << 1;
 	bits = (bits & 0xccccccccu) >> 2 | (bits & 0x33333333u) << 2;
 	bits = (bits & 0xf0f0f0f0u) >> 4 | (bits & 0x0f0f0f0fu) << 4;
@@ -78,7 +79,8 @@ uint32_t ReverseBits(uint32_t bits) {
 }
 
 // Polynomial long multiplication mod the polynomial of degree 32.
-void PolyMultiply(uint32_t* val, uint32_t m, uint32_t poly) {
+void PolyMultiply(uint32_t* val, uint32_t m, uint32_t poly) 
+{
 	uint32_t l = *val;
 	uint32_t result = 0;
 	auto onebit = uint32_t{0x80000000u};
@@ -97,8 +99,8 @@ void PolyMultiply(uint32_t* val, uint32_t m, uint32_t poly) {
 }
 }  // namespace
 
-void CRCImpl::FillWordTable(uint32_t poly, uint32_t last, int word_size,
-    Uint32By256* t) {
+void CRCImpl::FillWordTable(uint32_t poly, uint32_t last, int word_size, Uint32By256* t) 
+{
 	for(int j = 0; j != word_size; j++) { // for each byte of extension....
 		t[j][0] = 0;              // a zero has no effect
 		for(int i = 128; i != 0; i >>= 1) { // fill in entries for powers of 2
@@ -136,13 +138,12 @@ void CRCImpl::FillWordTable(uint32_t poly, uint32_t last, int word_size,
 	}
 }
 
-int CRCImpl::FillZeroesTable(uint32_t poly, Uint32By256* t) {
+int CRCImpl::FillZeroesTable(uint32_t poly, Uint32By256* t) 
+{
 	uint32_t inc = 1;
 	inc <<= 31;
-
 	// Extend by one zero bit. We know degree > 1 so (inc & 1) == 0.
 	inc >>= 1;
-
 	// Now extend by 2, 4, and 8 bits, so now `inc` is extended by one zero byte.
 	for(int i = 0; i < 3; ++i) {
 		PolyMultiply(&inc, inc, poly);
@@ -164,30 +165,27 @@ int CRCImpl::FillZeroesTable(uint32_t poly, Uint32By256* t) {
 }
 
 // Internal version of the "constructor".
-CRCImpl* CRCImpl::NewInternal() {
+CRCImpl* CRCImpl::NewInternal() 
+{
 	// Find an accelearated implementation first.
 	CRCImpl* result = TryNewCRC32AcceleratedX86ARMCombined();
-
 	// Fall back to generic implementions if no acceleration is available.
 	if(result == nullptr) {
 		result = new CRC32();
 	}
-
 	result->InitTables();
-
 	return result;
 }
 
 //  The 32-bit implementation
-
-void CRC32::InitTables() {
+void CRC32::InitTables() 
+{
 	// Compute the table for extending a CRC by one byte.
 	Uint32By256* t = new Uint32By256[4];
 	FillWordTable(kCrc32cPoly, kCrc32cPoly, 1, t);
 	for(int i = 0; i != 256; i++) {
 		this->table0_[i] = t[0][i];
 	}
-
 	// Construct a table for updating the CRC by 4 bytes data followed by
 	// 12 bytes of zeroes.
 	//
@@ -255,11 +253,11 @@ void CRC32::InitTables() {
 	    "");
 }
 
-void CRC32::Extend(uint32_t* crc, const void* bytes, size_t length) const {
+void CRC32::Extend(uint32_t* crc, const void* bytes, size_t length) const 
+{
 	const uint8_t* p = static_cast<const uint8_t*>(bytes);
 	const uint8_t* e = p + length;
 	uint32_t l = *crc;
-
 	auto step_one_byte = [this, &p, &l]() {
 		    int c = (l & 0xff) ^ *p++;
 		    l = this->table0_[c] ^ (l >> 8);
@@ -432,7 +430,8 @@ CRC::CRC() {
 }
 
 // The "constructor" for a CRC32C with a standard polynomial.
-CRC* CRC::Crc32c() {
+CRC* CRC::Crc32c() 
+{
 	static CRC* singleton = CRCImpl::NewInternal();
 	return singleton;
 }

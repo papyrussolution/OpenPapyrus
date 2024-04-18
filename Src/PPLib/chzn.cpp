@@ -348,6 +348,7 @@ DRAFTBEER HORECA @v11.9.4
 					rBuf./*CatChar('\x1D').*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("8005").Cat(_8005).
 						CatChar('\x1D').Cat("93").Cat(_93)
 						.CatChar('\x1D').Cat("240").Cat(_240); // @v11.9.10 Возвращаем криптохвост назад
+					ok = 2; // @v11.9.12 @fix
 				}
 				else if(rS.GetToken(GtinStruc::fldUSPS, &_91) && rS.GetToken(GtinStruc::fldInner1, &_92)) {
 					if(_21.Len() == 13 && _91.Len() == 4/*&& _92.Len() == 44*/) {
@@ -557,6 +558,39 @@ DRAFTBEER HORECA @v11.9.4
 		}
 	}
 	return ok;
+}
+
+/*static*/bool FASTCALL PPChZnPrcssr::AreChZnCodesEqual(const char * pCode1, const char * pCode2)
+{
+	bool eq = true;
+	if(!sstreq(pCode1, pCode2)) {
+		SString code1(pCode1);
+		SString code2(pCode2);
+		{
+			code1.ShiftLeftChr('0xE8');
+			if(code1.HasPrefix("]C1")) {
+				code1.ShiftLeft(3);
+				code1.ShiftLeftChr('0xE8');
+			}
+			size_t p = 0;
+			while(code1.SearchChar('0x1D', &p)) {
+				code1.Excise(p, 1);
+			}
+		}
+		{
+			code2.ShiftLeftChr('0xE8');
+			if(code2.HasPrefix("]C1")) {
+				code2.ShiftLeft(3);
+				code2.ShiftLeftChr('0xE8');
+			}
+			size_t p = 0;
+			while(code2.SearchChar('0x1D', &p)) {
+				code2.Excise(p, 1);
+			}
+		}
+		eq = code1.IsEq(code2);
+	}
+	return eq;
 }
 
 /*static*/int FASTCALL PPChZnPrcssr::IsChZnCode(const char * pCode)
@@ -3518,21 +3552,91 @@ int PPChZnPrcssr::Run(const Param & rP)
 // Хост для тестового контура: https://markirovka.sandbox.crptech.ru
 // Хост для продуктивного контура: https://markirovka.crpt.ru
 
-ChZnPermissiveModeInterface::CdnStatus::CdnStatus() : Code(-1), AvgTimeMs(-1)
+/*
+	Определение случаев запрета продажи товаров, подлежащих обязательной маркировке средствами идентификации
+	===============
+	Все товарные группы 
+	---------------
+	1.  Случай запрета продажи: Продажа товара, сведения о маркировке средствами идентификации которого 
+		отсутствуют в информационной системе мониторинга                             
+		Параметр: found utilised  
+		Условие запрета продажи: При значении false для параметра found – код идентификации не найден в ГИС МТ. 
+		При значении false для параметра utilised – код маркировки эмитирован, но нет информации о его нанесении. 
+	2   Случай запрета продажи: Продажа товара с кодом проверки, который не соответствует характеристикам, в том числе структуре и формату, 
+		установленным правилами маркировки отдельных видов товаров, в отношении которых введена обязательная маркировка, и (или) требованиям 
+		к его формированию и (или) нанесению, установленным указанными правилами маркировки 
+		Параметр: verified 
+		При значении false – не пройдена криптографическая проверка кода маркировки 
+	3   Случай запрета продажи: Продажа товара, который на момент проверки выведен из оборота (по статусу кода идентификации в информационной системе мониторинга) 
+		Параметр: sold 
+		Условие запрета продажи: При значении true – код идентификации выведен из оборота
+	4   Случай запрета продажи: Продажа товара, заблокированного или приостановленного для реализации по решению органов власти, 
+		принятых в пределах установленных полномочий (по статусу кода идентификации в информационной системе мониторинга)
+		Параметр: isBlocked 
+		Условие запрета продажи: При значении true – код идентификации заблокирован по решению ОГВ. В параметре ogvs вернётся ОГВ, 
+		заблокировавший код идентификации. 
+	5   Случай запрета продажи: Продажа товара при отсутствии в информационной системе мониторинга сведений о его вводе в оборот 
+		(за исключением случаев, когда потребительская или групповая упаковка относится к временно не прослеживаемой) 
+		Параметр: realizable 
+		Условие запрета продажи: При значении false параметра sold и значении false параметра realizable – нет информации о вводе в 
+		оборот кода идентификации (*)
+			
+	Молочная продукция, Пиво и слабоалкогольные напитки, Упакованная вода 
+	-------------------
+	6   Случай запрета продажи: Продажа товара с истекшим сроком годности
+		Параметр: expireDate 
+		Условие запрета продажи: При значении даты и времени проверки больше или равным значению из expireDate – товар считается с 
+		истекшим сроком годности
+				
+	Табачная продукция 
+	-------------------
+	7   Случай запрета продажи: Продажа товара по цене ниже или выше максимальной розничной цены 
+		Параметр: из кода маркировки
+		МРЦ для потребительских упаковок (пачек) декодируется по инструкции (приложение 1) из кода маркировки. 
+		МРЦ для групповых упаковок (блоков) содержится в идентификаторе применения (AI) 8005 в копейках.
+	(*) На табачную продукцию не распространяется случай запрета (п.5) при значении true параметра grayZone, т.к. такая потребительская или групповая упаковка относится к временно непрослеживаемой.
+*/
+
+PPChZnPrcssr::PermissiveModeInterface::CdnStatus::CdnStatus() : Code(-1), AvgTimeMs(-1)
 {
 }
 
-ChZnPermissiveModeInterface::CodeStatus::CodeStatus() : ErrorCode(0), EliminationState(0), Mrp(0), Smp(0), InnerUnitCount(0), SoldUnitCount(0), Flags(0), ExpiryDtm(ZERODATETIME),
+PPChZnPrcssr::PermissiveModeInterface::CodeStatus::CodeStatus() : OrgRowId(0), ErrorCode(0), EliminationState(0), Mrp(0), Smp(0), InnerUnitCount(0), SoldUnitCount(0), Flags(0), ExpiryDtm(ZERODATETIME),
 	ProductionDtm(ZERODATETIME), Weight(0.0), ReqTimestamp(0), PackageQtty(0)
 {
 	memzero(GroupIds, sizeof(GroupIds));
 }
 
-ChZnPermissiveModeInterface::CodeStatusCollection::CodeStatusCollection() : TSCollection <CodeStatus>(), Code(0), ReqTimestamp(0)
+PPChZnPrcssr::PermissiveModeInterface::CodeStatus & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::AssignExceptOrgValues(const CodeStatus & rS)
+{
+	Cis = rS.Cis;
+	ErrorCode = rS.ErrorCode;
+	EliminationState = rS.EliminationState;
+	Mrp = rS.Mrp;
+	Smp = rS.Smp;
+	PackageQtty = rS.PackageQtty;
+	InnerUnitCount = rS.InnerUnitCount;
+	SoldUnitCount = rS.SoldUnitCount;
+	Flags = rS.Flags;
+	memcpy(GroupIds, rS.GroupIds, sizeof(GroupIds));
+	ExpiryDtm = rS.ExpiryDtm;
+	ProductionDtm = rS.ProductionDtm;
+	Weight = rS.Weight;
+	PrVetDocument = rS.PrVetDocument;
+	Message = rS.Message;
+	ReqId = rS.ReqId;
+	ReqTimestamp = rS.ReqTimestamp;
+	PackageType = rS.PackageType;
+	Parent = rS.Parent;
+	ProducerInn = rS.ProducerInn;
+	return *this;
+}
+
+PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection::CodeStatusCollection() : TSCollection <CodeStatus>(), Code(0), ReqTimestamp(0)
 {
 }
 		
-ChZnPermissiveModeInterface::CodeStatusCollection & ChZnPermissiveModeInterface::CodeStatusCollection::Z()
+PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection & PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection::Z()
 {
 	Code = 0;
 	ReqTimestamp = 0;
@@ -3542,7 +3646,22 @@ ChZnPermissiveModeInterface::CodeStatusCollection & ChZnPermissiveModeInterface:
 	return *this;
 }
 
-SString & ChZnPermissiveModeInterface::MakeTargetUrl(int query, const char * pAddendum, SString & rResult) const 
+int PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection::SetupResultEntry(int rowN, const CodeStatus & rEntry)
+{
+	int    result = 0;
+	for(uint i = 0; !result && i < getCount(); i++) {
+		CodeStatus * p_iter = at(i);
+		if(p_iter) {
+			if(AreChZnCodesEqual(p_iter->OrgMark, rEntry.Cis)) {
+				p_iter->AssignExceptOrgValues(rEntry);
+				result = i+1;
+			}
+		}
+	}
+	return result;
+}
+
+SString & PPChZnPrcssr::PermissiveModeInterface::MakeTargetUrl(int query, const char * pAddendum, SString & rResult) const 
 {
 	rResult.Z();
 	// @construction
@@ -3566,15 +3685,15 @@ SString & ChZnPermissiveModeInterface::MakeTargetUrl(int query, const char * pAd
 	return rResult;
 }
 
-ChZnPermissiveModeInterface::ChZnPermissiveModeInterface(const char * pToken, uint flags) : Token(pToken), Flags(flags), Lth(PPFILNAM_CHZNTALK_LOG)
+PPChZnPrcssr::PermissiveModeInterface::PermissiveModeInterface(const char * pToken, uint flags) : Token(pToken), Flags(flags), Lth(PPFILNAM_CHZNTALK_LOG)
 {
 }
 
-ChZnPermissiveModeInterface::~ChZnPermissiveModeInterface()
+PPChZnPrcssr::PermissiveModeInterface::~PermissiveModeInterface()
 {
 }
 
-int ChZnPermissiveModeInterface::QueryCdnList(TSCollection <CdnStatus> & rResultList) 
+int PPChZnPrcssr::PermissiveModeInterface::QueryCdnList(TSCollection <CdnStatus> & rResultList) 
 {
 	rResultList.freeAll();
 	// Хост для тестового контура: https://markirovka.sandbox.crptech.ru
@@ -3641,7 +3760,7 @@ int ChZnPermissiveModeInterface::QueryCdnList(TSCollection <CdnStatus> & rResult
 	return ok;
 }
 
-int ChZnPermissiveModeInterface::QueryCdnStatus(CdnStatus & rStatus)
+int PPChZnPrcssr::PermissiveModeInterface::QueryCdnStatus(CdnStatus & rStatus)
 {
 	// GET /cdn/health/check
 	int    ok = 1;
@@ -3683,39 +3802,83 @@ int ChZnPermissiveModeInterface::QueryCdnStatus(CdnStatus & rStatus)
 	return ok;
 }
 
-int ChZnPermissiveModeInterface::SelectCdnHost(SString & rResult)
+int PPChZnPrcssr::PermissiveModeInterface::SelectCdnHost(SString & rResult)
 {
-	int    ok = -1;
+	int    ok = 1;
 	TSCollection <CdnStatus> cdn_host_list;
-	if(QueryCdnList(cdn_host_list)) {
-		{
-			int    min_time = MAXINT;
-			uint   min_time_idx = 0; // [1..cdn_host_list.getCount()]
-			for(uint i = 0; i < cdn_host_list.getCount(); i++) {
-				CdnStatus * p_item = cdn_host_list.at(i);
-				if(p_item && p_item->CdnAddr.NotEmpty()) {
-					if(QueryCdnStatus(*p_item) > 0 && p_item->Code == 0 && p_item->AvgTimeMs >= 0) {
-						if(min_time > p_item->AvgTimeMs) {
-							min_time = p_item->AvgTimeMs;
-							min_time_idx = i+1;
-						}
+	THROW_PP(QueryCdnList(cdn_host_list), PPERR_CHZNPMQUERYCDNLISTFAULT);
+	{
+		int    min_time = MAXINT;
+		uint   min_time_idx = 0; // [1..cdn_host_list.getCount()]
+		for(uint i = 0; i < cdn_host_list.getCount(); i++) {
+			CdnStatus * p_item = cdn_host_list.at(i);
+			if(p_item && p_item->CdnAddr.NotEmpty()) {
+				if(QueryCdnStatus(*p_item) > 0 && p_item->Code == 0 && p_item->AvgTimeMs >= 0) {
+					if(min_time > p_item->AvgTimeMs) {
+						min_time = p_item->AvgTimeMs;
+						min_time_idx = i+1;
 					}
 				}
 			}
-			if(min_time_idx) {
-				rResult = cdn_host_list.at(min_time_idx-1)->CdnAddr;
-				ok = 1;
-			}
 		}
+		THROW_PP(min_time_idx, PPERR_CHZNPMCDNHOSTSELECTIONFAULT);
+		rResult = cdn_host_list.at(min_time_idx-1)->CdnAddr;
 	}
+	CATCHZOK
 	return ok;
 }
 
-int ChZnPermissiveModeInterface::CheckCodeList(const char * pHost, const char * pFiscalDriveNumber, const StringSet & rSsCodes, CodeStatusCollection & rResult)
+int PPChZnPrcssr::PermissiveModeInterface::FetchCdnHost(PPID guaID, SString & rResult)
+{
+	rResult.Z();
+	int    ok = -1;
+	const  LDATETIME now_dtm = getcurdatetime_();
+	Reference * p_ref = PPRef;
+	SString temp_buf;
+	SString tag_buf;
+	LDATETIME upd_time = ZERODATETIME;
+	PPObjGlobalUserAcc gua_obj;
+	PPGlobalUserAcc gua_rec;
+	bool need_to_query = true;
+	THROW(gua_obj.Fetch(guaID, &gua_rec) > 0);
+	p_ref->Ot.GetTagStr(PPOBJ_GLOBALUSERACC, guaID, PPTAG_GUA_CHZN_PM_HOST, tag_buf);
+	if(tag_buf.NotEmptyS()) {
+		StringSet ss(';', tag_buf);
+		if(ss.getCount()) {
+			uint ssp = 0; 
+			if(ss.get(&ssp, temp_buf)) {
+				rResult = temp_buf;
+				if(ss.get(&ssp, temp_buf) && strtodatetime(temp_buf, &upd_time, DATF_ISO8601CENT, 0)) {
+					if(diffdatetimesec(now_dtm, upd_time) <= (48 * 60 * 60)) {
+						need_to_query = false;
+					}
+				}
+			}
+		}
+	}
+	if(need_to_query) {
+		THROW(SelectCdnHost(temp_buf) > 0);
+		rResult = temp_buf;
+		tag_buf.Z().Cat(rResult).Semicol().Cat(getcurdatetime_(), DATF_ISO8601CENT, 0);
+		ObjTagItem tag_item;
+		tag_item.SetStr(PPTAG_GUA_CHZN_PM_HOST, tag_buf);
+		if(!p_ref->Ot.PutTag(PPOBJ_GLOBALUSERACC, guaID, &tag_item, 1)) {
+			; // @todo log-error
+		}
+		ok = 2;
+	}
+	else {
+		assert(rResult.NotEmpty());
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPChZnPrcssr::PermissiveModeInterface::CheckCodeList(const char * pHost, const char * pFiscalDriveNumber, CodeStatusCollection & rList)
 {
 	// POST /codes/check
 	// "<url контура>/api/v4/true-api/codes/check"
-	rResult.Z();
 	int    ok = 1;
 	SJson * p_js_reply = 0;
 	SString temp_buf;
@@ -3734,8 +3897,11 @@ int ChZnPermissiveModeInterface::CheckCodeList(const char * pHost, const char * 
 	{
 		SJson js_query(SJson::tOBJECT);
 		SJson * p_js_code_list = new SJson(SJson::tARRAY);
-		for(uint ssp = 0; rSsCodes.get(&ssp, temp_buf);) {
-			p_js_code_list->InsertChild(SJson::CreateString(temp_buf.Escape()));
+		for(uint i = 0; i < rList.getCount(); i++) {
+			const CodeStatus * p_entry = rList.at(i);
+			if(p_entry && p_entry->OrgMark.NotEmpty()) {
+				p_js_code_list->InsertChild(SJson::CreateString((temp_buf = p_entry->OrgMark).Escape()));
+			}
 		}
 		js_query.Insert("codes", p_js_code_list);
 		if(!isempty(pFiscalDriveNumber)) {
@@ -3761,30 +3927,32 @@ int ChZnPermissiveModeInterface::CheckCodeList(const char * pHost, const char * 
 		THROW(SJson::IsObject(p_js_reply));
 		for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("code")) {
-				rResult.Code = p_cur->P_Child->Text.ToLong();
+				rList.Code = p_cur->P_Child->Text.ToLong();
 			}
 			else if(p_cur->Text.IsEqiAscii("description")) {
-				SJson::GetChildTextUnescaped(p_cur, rResult.Description);
+				SJson::GetChildTextUnescaped(p_cur, rList.Description);
 			}
 			else if(p_cur->Text.IsEqiAscii("reqId")) {
 				SJson::GetChildTextUnescaped(p_cur, temp_buf);
-				rResult.ReqId.FromStr(temp_buf);
+				rList.ReqId.FromStr(temp_buf);
 			}
 			else if(p_cur->Text.IsEqiAscii("reqTimestamp")) {
-				rResult.ReqTimestamp = p_cur->P_Child->Text.ToInt64();
+				rList.ReqTimestamp = p_cur->P_Child->Text.ToInt64();
 			}
 			else if(p_cur->Text.IsEqiAscii("codes")) {
 				if(SJson::IsArray(p_cur->P_Child)) {
+					uint position = 0;
 					for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
 						if(SJson::IsObject(p_js_item)) {
-							CodeStatus * p_new_item = rResult.CreateNewItem();
+							CodeStatus new_item;
+							position++;
 							for(const SJson * p_js_f = p_js_item->P_Child; p_js_f; p_js_f = p_js_f->P_Next) {
 								if(p_js_f->P_Child) {
 									if(p_js_f->Text.IsEqiAscii("cis")) {
-										SJson::GetChildTextUnescaped(p_js_f, p_new_item->Cis);
+										SJson::GetChildTextUnescaped(p_js_f, new_item.Cis);
 									}
 									else if(p_js_f->Text.IsEqiAscii("valid")) {
-										SETFLAG(p_new_item->Flags, CodeStatus::fValid, SJson::GetBoolean(p_js_f) > 0);
+										SETFLAG(new_item.Flags, CodeStatus::fValid, SJson::GetBoolean(p_js_f->P_Child) > 0);
 									}
 									else if(p_js_f->Text.IsEqiAscii("printView")) {
 										;
@@ -3794,63 +3962,64 @@ int ChZnPermissiveModeInterface::CheckCodeList(const char * pHost, const char * 
 									else if(p_js_f->Text.IsEqiAscii("groupIds")) {
 									}
 									else if(p_js_f->Text.IsEqiAscii("verified")) {
-										SETFLAG(p_new_item->Flags, CodeStatus::fVerified, SJson::GetBoolean(p_js_f) > 0);
+										SETFLAG(new_item.Flags, CodeStatus::fVerified, SJson::GetBoolean(p_js_f->P_Child) > 0);
 									}
 									else if(p_js_f->Text.IsEqiAscii("found")) {
-										SETFLAG(p_new_item->Flags, CodeStatus::fFound, SJson::GetBoolean(p_js_f) > 0);
+										SETFLAG(new_item.Flags, CodeStatus::fFound, SJson::GetBoolean(p_js_f->P_Child) > 0);
 									}
 									else if(p_js_f->Text.IsEqiAscii("realizable")) {
-										SETFLAG(p_new_item->Flags, CodeStatus::fRealizable, SJson::GetBoolean(p_js_f) > 0);
+										SETFLAG(new_item.Flags, CodeStatus::fRealizable, SJson::GetBoolean(p_js_f->P_Child) > 0);
 									}
 									else if(p_js_f->Text.IsEqiAscii("utilised")) {
-										SETFLAG(p_new_item->Flags, CodeStatus::fUtilised, SJson::GetBoolean(p_js_f) > 0);
+										SETFLAG(new_item.Flags, CodeStatus::fUtilised, SJson::GetBoolean(p_js_f->P_Child) > 0);
 									}
 									else if(p_js_f->Text.IsEqiAscii("isBlocked")) {
-										SETFLAG(p_new_item->Flags, CodeStatus::fIsBlocked, SJson::GetBoolean(p_js_f) > 0);
+										SETFLAG(new_item.Flags, CodeStatus::fIsBlocked, SJson::GetBoolean(p_js_f->P_Child) > 0);
 									}
 									else if(p_js_f->Text.IsEqiAscii("expireDate")) {
 										SJson::GetChildTextUnescaped(p_js_f, temp_buf);
-										strtodatetime(temp_buf, &p_new_item->ExpiryDtm, DATF_ISO8601CENT, 0);
+										strtodatetime(temp_buf, &new_item.ExpiryDtm, DATF_ISO8601CENT, 0);
 									}
 									else if(p_js_f->Text.IsEqiAscii("productionDate")) {
 										SJson::GetChildTextUnescaped(p_js_f, temp_buf);
-										strtodatetime(temp_buf, &p_new_item->ExpiryDtm, DATF_ISO8601CENT, 0);
+										strtodatetime(temp_buf, &new_item.ExpiryDtm, DATF_ISO8601CENT, 0);
 									}
 									else if(p_js_f->Text.IsEqiAscii("errorCode")) {
-										p_new_item->ErrorCode = p_js_f->P_Child->Text.ToLong();
+										new_item.ErrorCode = p_js_f->P_Child->Text.ToLong();
 									}
 									else if(p_js_f->Text.IsEqiAscii("isTracking")) {
-										SETFLAG(p_new_item->Flags, CodeStatus::fIsTracking, SJson::GetBoolean(p_js_f) > 0);
+										SETFLAG(new_item.Flags, CodeStatus::fIsTracking, SJson::GetBoolean(p_js_f->P_Child) > 0);
 									}
 									else if(p_js_f->Text.IsEqiAscii("sold")) {
-										SETFLAG(p_new_item->Flags, CodeStatus::fSold, SJson::GetBoolean(p_js_f) > 0);
+										SETFLAG(new_item.Flags, CodeStatus::fSold, SJson::GetBoolean(p_js_f->P_Child) > 0);
 									}
 									else if(p_js_f->Text.IsEqiAscii("packageType")) {
-										SJson::GetChildTextUnescaped(p_js_f, p_new_item->PackageType);
+										SJson::GetChildTextUnescaped(p_js_f, new_item.PackageType);
 									}
 									else if(p_js_f->Text.IsEqiAscii("packageQuantity")) {
-										p_new_item->PackageQtty = p_js_f->P_Child->Text.ToULong();
+										new_item.PackageQtty = p_js_f->P_Child->Text.ToULong();
 									}
 									else if(p_js_f->Text.IsEqiAscii("producerInn")) {
-										SJson::GetChildTextUnescaped(p_js_f, p_new_item->ProducerInn);
+										SJson::GetChildTextUnescaped(p_js_f, new_item.ProducerInn);
 									}
 									else if(p_js_f->Text.IsEqiAscii("grayZone")) {
-										SETFLAG(p_new_item->Flags, CodeStatus::fGrayZone, SJson::GetBoolean(p_js_f) > 0);
+										SETFLAG(new_item.Flags, CodeStatus::fGrayZone, SJson::GetBoolean(p_js_f->P_Child) > 0);
 									}
 									else if(p_js_f->Text.IsEqiAscii("soldUnitCount")) {
-										p_new_item->SoldUnitCount = p_js_f->P_Child->Text.ToULong();
+										new_item.SoldUnitCount = p_js_f->P_Child->Text.ToULong();
 									}
 									else if(p_js_f->Text.IsEqiAscii("innerUnitCount")) {
-										p_new_item->InnerUnitCount = p_js_f->P_Child->Text.ToULong();
+										new_item.InnerUnitCount = p_js_f->P_Child->Text.ToULong();
 									}
 									else if(p_js_f->Text.IsEqiAscii("mrp")) {
-										p_new_item->Mrp = p_js_f->P_Child->Text.ToULong();
+										new_item.Mrp = p_js_f->P_Child->Text.ToULong();
 									}
 									else if(p_js_f->Text.IsEqiAscii("smp")) {
-										p_new_item->Smp = p_js_f->P_Child->Text.ToULong();
+										new_item.Smp = p_js_f->P_Child->Text.ToULong();
 									}
 								}
 							}
+							rList.SetupResultEntry(position, new_item);
 						}
 					}
 				}
@@ -3859,6 +4028,31 @@ int ChZnPermissiveModeInterface::CheckCodeList(const char * pHost, const char * 
 	}
 	CATCHZOK
 	delete p_js_reply;
+	return ok;
+}
+
+int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, PermissiveModeInterface::CodeStatusCollection & rList)
+{
+	int    ok = -1;
+	PPChZnPrcssr prcssr(0);
+	//PPChZnPrcssr::Param param;
+	ChZnInterface ifc;
+	ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(prcssr.P_Ib);
+	THROW(ifc.SetupInitBlock(guaID, 0, *p_ib));
+	{
+		THROW_PP(p_ib->PermissiveModeToken.NotEmpty(), PPERR_CHZNPMTOKENUNDEF);
+		{
+			SString best_cdn_host;
+			PermissiveModeInterface pm_ifc(p_ib->PermissiveModeToken, /*PPChZnPrcssr::PermissiveModeInterface::fTest*/0);
+			pm_ifc.FetchCdnHost(guaID, best_cdn_host);
+			THROW_PP(best_cdn_host.NotEmpty(), PPERR_CHZNPMCDNHOSTFAULT);
+			pm_ifc.CheckCodeList(best_cdn_host, 0, rList);
+		}
+	}
+	CATCH
+		ok = 0;
+		PPLogMessage(PPFILNAM_CHZN_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+	ENDCATCH
 	return ok;
 }
 //
@@ -3872,11 +4066,11 @@ int ChZnPermissiveModeInterface::CheckCodeList(const char * pHost, const char * 
 	PPChZnPrcssr::Param param;
 	TSCollection <ChZnInterface::Document> doc_list;
 	ChZnInterface::Document single_doc;
-	TSCollection <ChZnPermissiveModeInterface::CdnStatus> cdn_host_list;
+	TSCollection <PPChZnPrcssr::PermissiveModeInterface::CdnStatus> cdn_host_list;
 	SString best_cdn_host;
-	ChZnPermissiveModeInterface::CodeStatusCollection code_status_result;
+	PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection check_code_result;
 	if(prcssr.EditParam(&param) > 0) {
-		StringSet mark_list;
+		//StringSet mark_list;
 		{
 			SString img_path;
 			PPGetPath(PPPATH_TESTROOT, img_path);
@@ -3895,7 +4089,9 @@ int ChZnPermissiveModeInterface::CheckCodeList(const char * pHost, const char * 
 							for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
 								const PPBarcode::Entry * p_bc_entry = bc_list.at(bcidx);
 								if(p_bc_entry && p_bc_entry->BcStd == BARCSTD_DATAMATRIX) {
-									mark_list.add(p_bc_entry->Code);
+									PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_new_entry = check_code_result.CreateNewItem();
+									p_new_entry->OrgRowId = i+1;
+									p_new_entry->OrgMark = p_bc_entry->Code;
 								}
 							}
 						}
@@ -3908,10 +4104,11 @@ int ChZnPermissiveModeInterface::CheckCodeList(const char * pHost, const char * 
 		THROW(ifc.SetupInitBlock(param.GuaID, 0, *p_ib));
 		{
 			if(p_ib->PermissiveModeToken.NotEmpty()) {
-				ChZnPermissiveModeInterface pm_ifc(p_ib->PermissiveModeToken, /*ChZnPermissiveModeInterface::fTest*/0);
-				pm_ifc.SelectCdnHost(best_cdn_host);
+				PPChZnPrcssr::PermissiveModeInterface pm_ifc(p_ib->PermissiveModeToken, /*PPChZnPrcssr::PermissiveModeInterface::fTest*/0);
+				//pm_ifc.SelectCdnHost(best_cdn_host);
+				pm_ifc.FetchCdnHost(param.GuaID, best_cdn_host);
 				if(best_cdn_host.NotEmpty()) {
-					pm_ifc.CheckCodeList(best_cdn_host, 0, mark_list, code_status_result);
+					pm_ifc.CheckCodeList(best_cdn_host, 0, check_code_result);
 				}
 			}
 		}

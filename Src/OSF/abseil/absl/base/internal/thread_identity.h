@@ -16,8 +16,6 @@
 	// Defines __GOOGLE_GRTE_VERSION__ (via glibc-specific features.h) when supported.
 	#include <unistd.h>
 #endif
-//#include <atomic>
-//#include <cstdint>
 #include "absl/base/config.h"
 #include "absl/base/internal/per_thread_tls.h"
 #include "absl/base/optimization.h"

@@ -1211,13 +1211,11 @@ static int lha_read_file_extended_header(ArchiveRead * a, struct lha * lha,
 			    break;
 			case EXT_UNIX_GNAME:
 			    if(datasize > 0)
-				    archive_strncpy(&lha->gname,
-					(const char *)extdheader, datasize);
+				    archive_strncpy(&lha->gname, (const char *)extdheader, datasize);
 			    break;
 			case EXT_UNIX_UNAME:
 			    if(datasize > 0)
-				    archive_strncpy(&lha->uname,
-					(const char *)extdheader, datasize);
+				    archive_strncpy(&lha->uname, (const char *)extdheader, datasize);
 			    break;
 			case EXT_UNIX_MTIME:
 			    if(datasize == sizeof(uint32))
@@ -1421,8 +1419,7 @@ static int lha_read_data_lzh(ArchiveRead * a, const void ** buff, size_t * size,
 		*offset = lha->entry_offset;
 		*size = lha->strm.avail_out;
 		*buff = lha->strm.ref_ptr;
-		lha->entry_crc_calculated =
-		    lha_crc16(lha->entry_crc_calculated, *buff, *size);
+		lha->entry_crc_calculated = lha_crc16(lha->entry_crc_calculated, *buff, *size);
 		lha->entry_offset += *size;
 	}
 	else {

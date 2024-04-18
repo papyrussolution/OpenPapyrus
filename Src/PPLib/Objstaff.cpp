@@ -837,7 +837,9 @@ int PPObjStaffList::PutPacket(PPID * pID, PPStaffPacket * pPack, int use_ta)
 
 int PPObjStaffList::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = 1, r = cmCancel, is_new = 0;
+	int    ok = 1;
+	int    r = cmCancel;
+	bool   is_new = false;
 	PPStaffPacket pack;
 	THROW(EditPrereq(pID, 0, &is_new));
 	if(!is_new) {

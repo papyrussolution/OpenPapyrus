@@ -542,8 +542,7 @@ int SMIME_text(BIO * in, BIO * out)
 		ERR_raise(ERR_LIB_ASN1, ASN1_R_MIME_PARSE_ERROR);
 		return 0;
 	}
-	if((hdr = mime_hdr_find(headers, "content-type")) == NULL
-	    || hdr->value == NULL) {
+	if((hdr = mime_hdr_find(headers, "content-type")) == NULL || hdr->value == NULL) {
 		ERR_raise(ERR_LIB_ASN1, ASN1_R_MIME_NO_CONTENT_TYPE);
 		sk_MIME_HEADER_pop_free(headers, mime_hdr_free);
 		return 0;

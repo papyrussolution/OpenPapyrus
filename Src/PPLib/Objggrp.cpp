@@ -1340,7 +1340,9 @@ struct Storage_PPTranspConfig { // @persistent @store(PropertyTbl)
 {
 	const  long prop_cfg_id = PPPRP_TRANSPCFG;
 	const  long cfg_obj_type = PPCFGOBJ_TRANSP;
-	int    ok = 1, is_new = 0, r;
+	int    ok = 1;
+	int    is_new = 0;
+	int    r;
 	size_t sz = sizeof(Storage_PPTranspConfig);
 	Storage_PPTranspConfig * p_cfg = 0;
 	{
@@ -2197,14 +2199,17 @@ int PPObjBrand::Browse(void * extraPtr)
 #endif // } 0
 }
 
-#define GRP_IBG 1
+//#define GRP_IBG 1
 
 class BrandDialog : public TDialog {
 	DECL_DIALOG_DATA(PPBrandPacket);
+	enum {
+		ctlgroupIbg = 1
+	};
 public:
 	BrandDialog() : TDialog(DLG_BRAND)
 	{
-		addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_GOODS_IMAGE,
+		addGroup(ctlgroupIbg, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_GOODS_IMAGE,
 			cmAddImage, cmDelImage, 1, ImageBrowseCtrlGroup::fUseExtOpenDlg));
 	}
 	DECL_DIALOG_SETDTS()
@@ -2220,7 +2225,7 @@ public:
 			if(Data.Rec.Flags & BRNDF_HASIMAGES)
 				Data.LinkFiles.Load(Data.Rec.ID, 0L);
 			Data.LinkFiles.At(0, rec.Path);
-			setGroupData(GRP_IBG, &rec);
+			setGroupData(ctlgroupIbg, &rec);
 		}
 		SetupPPObjCombo(this, CTLSEL_GOODS_MANUF, PPOBJ_PERSON, Data.Rec.OwnerID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_MANUF));
 		return ok;
@@ -2234,7 +2239,7 @@ public:
 		getCtrlData(CTLSEL_GOODS_MANUF, &Data.Rec.OwnerID);
 		{
 			ImageBrowseCtrlGroup::Rec rec;
-			if(getGroupData(GRP_IBG, &rec))
+			if(getGroupData(ctlgroupIbg, &rec))
 				if(rec.Path.Len()) {
 					THROW(Data.LinkFiles.Replace(0, rec.Path));
 				}
@@ -2261,8 +2266,8 @@ private:
 int PPObjBrand::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = -1;
-	int    valid_data = 0;
-	int    is_new = 0;
+	bool   valid_data = false;
+	bool   is_new = false;
 	BrandDialog * dlg = 0;
 	PPBrandPacket pack;
 	THROW(EditPrereq(pID, dlg, &is_new));
@@ -2277,7 +2282,7 @@ int PPObjBrand::Edit(PPID * pID, void * extraPtr)
 		if(dlg->getDTS(&pack)) {
 			if(Put(pID, &pack, 1)) {
 				ok = cmOK;
-				valid_data = 1;
+				valid_data = true;
 			}
 			else
 				PPError();

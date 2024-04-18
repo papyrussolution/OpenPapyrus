@@ -1049,15 +1049,11 @@ OSSL_PARAM OSSL_PARAM_construct_double(const char * key, double * buf)
 	return ossl_param_construct(key, OSSL_PARAM_REAL, buf, sizeof(double));
 }
 
-static int get_string_internal(const OSSL_PARAM * p, void ** val,
-    size_t * max_len, size_t * used_len,
-    unsigned int type)
+static int get_string_internal(const OSSL_PARAM * p, void ** val, size_t * max_len, size_t * used_len, unsigned int type)
 {
 	size_t sz, alloc_sz;
-
 	if((val == NULL && used_len == NULL) || p == NULL || p->data_type != type)
 		return 0;
-
 	sz = p->data_size;
 	/*
 	 * If the input size is 0, or the input string needs NUL byte
@@ -1102,7 +1098,7 @@ int OSSL_PARAM_get_utf8_string(const OSSL_PARAM * p, char ** val, size_t max_len
 	if(ret == 0)
 		return 0;
 	if(data_length >= max_len)
-		data_length = OPENSSL_strnlen((const char *)p->data, data_length);
+		data_length = /*OPENSSL_strnlen*/sstrnlen((const char *)p->data, data_length);
 	if(data_length >= max_len)
 		return 0;    /* No space for a terminating NUL byte */
 	(*val)[data_length] = '\0';

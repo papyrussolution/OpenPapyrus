@@ -1,5 +1,5 @@
 // BTRV.CPP
-// Copyright (c) A. Sobolev 1994-1999, 2001, 2003, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A. Sobolev 1994-1999, 2001, 2003, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -101,15 +101,8 @@ const PageSzInfo Btrieve::LimitPgInfo[NUMPGSIZES] =
 	return BRet(BTRV(op, 0, 0, 0, 0, WBTRVTAIL_ZZ));
 }
 
-/*static*/int Btrieve::RollbackWork()
-{
-	return BRet(BTRV(B_ABORTTRANSACTION, 0, 0, 0, 0, WBTRVTAIL_ZZ));
-}
-
-/*static*/int Btrieve::CommitWork()
-{
-	return BRet(BTRV(B_ENDTRANSACTION, 0, 0, 0, 0, WBTRVTAIL_ZZ));
-}
+/*static*/int Btrieve::RollbackWork() { return BRet(BTRV(B_ABORTTRANSACTION, 0, 0, 0, 0, WBTRVTAIL_ZZ)); }
+/*static*/int Btrieve::CommitWork() { return BRet(BTRV(B_ENDTRANSACTION, 0, 0, 0, 0, WBTRVTAIL_ZZ)); }
 
 /*static*/int Btrieve::AddContinuous(const char * pFileName /* "volume:\path[,volume:\path]*" */)
 {

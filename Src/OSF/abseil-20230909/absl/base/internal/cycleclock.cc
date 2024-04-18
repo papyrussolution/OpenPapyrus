@@ -23,8 +23,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/base/internal/cycleclock.h"
-//#include <atomic>
-//#include <chrono>  // NOLINT(build/c++11)
 #include "absl/base/attributes.h"
 #include "absl/base/config.h"
 #include "absl/base/internal/unscaledcycleclock.h"

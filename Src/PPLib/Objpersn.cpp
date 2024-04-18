@@ -3901,9 +3901,12 @@ int AddrListDialog::delItem(long pos, long /*id*/)
 //
 int EditELink(PPELink * pLink); // @prototype(elinkdlg.cpp)
 
-#define GRP_IBG 1
+//#define GRP_IBG 1
 
 class PersonDialogBase : public TDialog {
+	enum {
+		ctlgroupIbg = 1
+	};
 public:
 	explicit PersonDialogBase(uint dlgID) : TDialog(dlgID), DupID(0)
 	{
@@ -3995,6 +3998,9 @@ protected:
 };
 
 class PersonDialog : public PersonDialogBase {
+	enum {
+		ctlgroupIbg = 1
+	};
 public:
 	explicit PersonDialog(int dlgID) : PersonDialogBase(dlgID), IsCashier(0)
 	{
@@ -4006,7 +4012,7 @@ public:
 		PPObjSecur obj_secur(PPOBJ_USR, 0);
 		if(!obj_secur.CheckRights(PPR_READ))
 			enableCommand(cmCashierRights, 0);
-		addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_PERSON_IMAGE,
+		addGroup(ctlgroupIbg, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_PERSON_IMAGE,
 			cmAddImage, cmDelImage, PsnObj.CheckRights(PSNRT_UPDIMAGE), ImageBrowseCtrlGroup::fUseExtOpenDlg));
 		Ptb.SetBrush(brushHumanName,    SPaintObj::bsSolid, LightenColor(GetColorRef(SClrYellow), 0.8f), 0);
 		Ptb.SetBrush(brushHumanNameFem, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrRed), 0.8f), 0);
@@ -4053,7 +4059,7 @@ public:
 			if(Data.Rec.Flags & PSNF_HASIMAGES)
 				Data.LinkFiles.Load(Data.Rec.ID, 0L);
 			Data.LinkFiles.At(0, rec.Path);
-			setGroupData(GRP_IBG, &rec);
+			setGroupData(ctlgroupIbg, &rec);
 		}
 		if(Data.Rec.Status)
 			selectCtrl(CTL_PERSON_NAME);
@@ -4083,7 +4089,7 @@ public:
 		// } @v10.9.0
 		{
 			ImageBrowseCtrlGroup::Rec rec;
-			if(getGroupData(GRP_IBG, &rec))
+			if(getGroupData(ctlgroupIbg, &rec))
 				if(rec.Path.Len()) {
 					THROW(Data.LinkFiles.Replace(0, rec.Path));
 				}
@@ -4847,7 +4853,7 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 	int    ok = 1;
 	int    valid_data = 0;
 	int    r = cmCancel;
-	int    is_new = 0;
+	bool   is_new = false;
 	PPID   short_dlg_kind_id = 0;
 	uint   dlg_id = 0;
 	TDialog * dlg = 0;
@@ -5824,7 +5830,10 @@ int  MainOrg2Dialog::getPsnRegs(char *corrAcc, char *bicAcc, char *innAcc, long 
 int PPObjPerson::ExtEdit(PPID * pID, void * extraPtr)
 {
 	PPID extra_kind_id = reinterpret_cast<PPID>(extraPtr);
-	int    ok = 1, valid_data = 0, r = cmCancel, is_new = (*pID == 0);
+	int    ok = 1;
+	int    valid_data = 0;
+	int    r = cmCancel;
+	int    is_new = (*pID == 0);
 	MainOrg2Dialog * mainorg2_dlg = 0;
 	PPPersonPacket info;
 	THROW(CheckRightsModByID(pID));
@@ -6621,7 +6630,7 @@ int PPObjPersonKind::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
 	// @v10.3.0 (never used) int    ta = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	PPPersonKind psnk;
 	TDialog * dlg = 0;
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PSNKIND))));

@@ -748,11 +748,8 @@ EXT_RETURN tls_construct_ctos_early_data(SSL * s, WPACKET * pkt,
 	if(psksess == NULL && s->psk_client_callback != NULL) {
 		unsigned char psk[PSK_MAX_PSK_LEN];
 		size_t psklen = 0;
-
-		memset(identity, 0, sizeof(identity));
-		psklen = s->psk_client_callback(s, NULL, identity, sizeof(identity) - 1,
-			psk, sizeof(psk));
-
+		memzero(identity, sizeof(identity));
+		psklen = s->psk_client_callback(s, NULL, identity, sizeof(identity) - 1, psk, sizeof(psk));
 		if(psklen > PSK_MAX_PSK_LEN) {
 			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, ERR_R_INTERNAL_ERROR);
 			return EXT_RETURN_FAIL;
@@ -934,15 +931,12 @@ EXT_RETURN tls_construct_ctos_padding(SSL * s, WPACKET * pkt,
 			hlen -= 4;
 		else
 			hlen = 1;
-
-		if(!WPACKET_put_bytes_u16(pkt, TLSEXT_TYPE_padding)
-		    || !WPACKET_sub_allocate_bytes_u16(pkt, hlen, &padbytes)) {
+		if(!WPACKET_put_bytes_u16(pkt, TLSEXT_TYPE_padding) || !WPACKET_sub_allocate_bytes_u16(pkt, hlen, &padbytes)) {
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
 			return EXT_RETURN_FAIL;
 		}
-		memset(padbytes, 0, hlen);
+		memzero(padbytes, hlen);
 	}
-
 	return EXT_RETURN_SENT;
 }
 

@@ -1141,7 +1141,7 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 	int    ok = 1;
 	int    r = cmCancel;
 	int    valid_data = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	ObjTagDialog * dlg = 0;
 	if(*pID && ObjTagFilt::ObjTypeRootIdentToObjType(*pID, 0)) {
 		// Специальный идентификатор, поступивший из списка - тип объекта - его редактировать не надо.

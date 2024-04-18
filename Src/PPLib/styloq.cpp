@@ -1141,7 +1141,6 @@ private:
 
 /*static*/bool StyloQCommandList::GetFullList(const char * pDbSymb, StyloQCommandList & rList)
 {
-	
 	rList.Z();
 	bool   ok = false;
 	StyloQCommandList_CachedFileEntity * p_obj = StyloQCommandList_CachedFileEntity::GetGlobalObj();
@@ -1671,7 +1670,7 @@ StyloQCommandList * StyloQCommandList::CreateSubListByContext(PPObjID oid, int b
 	PPObjSecur usr_obj(PPOBJ_USR, 0);
 	for(uint i = 0; i < L.getCount(); i++) {
 		const Item * p_item = L.at(i);
-		if(p_item && (!baseCmdId || p_item->BaseCmdId == baseCmdId)) { // @v11.4.5 (&& (!baseCmdId || p_item->BaseCmdId == baseCmdId))
+		if(p_item && (!baseCmdId || p_item->BaseCmdId == baseCmdId) && !(p_item->Flags & Item::fPassive)) { // @v11.4.5 (&& (!baseCmdId || p_item->BaseCmdId == baseCmdId)) // @v11.9.12 (&& !(p_item->Flags & Item::fPassive))
 			// rList.Z().addzlist(PPOBJ_USR, PPOBJ_PERSON, PPOBJ_DBDIV, PPOBJ_CASHNODE, 0L);
 			bool suited = false;
 			if(!skipInternalCommands || !oneof2(p_item->BaseCmdId, StyloQCommandList::sqbcRsrvPushIndexContent, StyloQCommandList::sqbcGoodsInfo)) {

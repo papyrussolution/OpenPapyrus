@@ -806,7 +806,8 @@ int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * p
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
-	int    r, is_new = 0;
+	int    r;
+	int    is_new = 0;
 	PPGoodsConfig cfg = *pCfg;
 	PPGoodsConfig prev_cfg;
 	// @v9.7.2 assert(!cfg.Ver.IsLt(7, 7, 0)); // Жесткая проверка на предмет инициализации номера версии
@@ -1203,7 +1204,9 @@ int PPObjGoods::WriteConfig(const PPGoodsConfig * pCfg, const SString * pGoodsEx
 
 /*static*/int PPObjGoods::EditConfig()
 {
-	int    ok = -1, ta = 0, is_new = 0;
+	int    ok = -1;
+	int    ta = 0;
+	int    is_new = 0;
 	int    valid_data = 0;
 	int    suppress_l_zero = 0;
 	SString goods_ex_titles;

@@ -6,8 +6,6 @@
 #include "db_int.h"
 #pragma hdrstop
 #define LOAD_ACTUAL_MUTEX_CODE
-//#include "db_int.h"
-//#include "dbinc/atomic.h"
 #include "dbinc/mutex_int.h" // This is where we load in the actual mutex declarations.
 //
 // STATICS

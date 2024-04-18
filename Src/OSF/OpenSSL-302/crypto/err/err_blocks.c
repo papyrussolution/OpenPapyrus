@@ -21,7 +21,7 @@ void ERR_new(void)
 	}
 }
 
-void ERR_set_debug(const char * file, int line, const char * func)
+void STDCALL ERR_set_debug(const char * file, int line, const char * func)
 {
 	ERR_STATE * es = ossl_err_get_state_int();
 	if(es)

@@ -1,5 +1,5 @@
 // GDSCLS.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -746,7 +746,9 @@ int PPObjGoodsClass::UpdatePropObjType(PPID clsID, int gcProp, PPID prevObjType,
 
 int PPObjGoodsClass::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, valid_data = 0, is_new = 0;
+	int    ok = cmCancel;
+	int    valid_data = 0;
+	bool   is_new = false;
 	const  PPID org_id = DEREFPTRORZ(pID);
 	PPObjGoods goods_obj;
 	PPGdsClsPacket pack;

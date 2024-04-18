@@ -576,8 +576,7 @@ static void xmlHTMLPrintFileContext(xmlParserInput * input)
 	n = 0;
 	while((*cur != 0) && (*cur != '\n') && (*cur != '\r') && (n < 79)) {
 		len = strlen(buffer);
-		snprintf(&buffer[len], sizeof(buffer) - len, "%c",
-		    (unsigned char)*cur++);
+		snprintf(&buffer[len], sizeof(buffer) - len, "%c", (uchar)*cur++);
 		n++;
 	}
 	len = strlen(buffer);

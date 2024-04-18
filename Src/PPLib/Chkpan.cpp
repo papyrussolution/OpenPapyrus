@@ -321,13 +321,11 @@ int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, boo
 				setStaticText(CTL_CHKPAN_CHKNUM,  temp_buf.Z().Cat(P_ChkPack->Rec.Code));
 				setStaticText(CTL_CHKPAN_CASHNUM, temp_buf.Z().Cat(P_ChkPack->Rec.PosNodeID));
 				setStaticText(CTL_CHKPAN_INITDTM, temp_buf.Z().Cat(P_ChkPack->Ext.CreationDtm, DATF_DMY|DATF_NOZERO, TIMF_HMS|TIMF_NOZERO));
-				// @v10.6.8 {
 				if(P_ChkPack->Ext.CreationUserID)
 					GetObjectName(PPOBJ_USR, P_ChkPack->Ext.CreationUserID, temp_buf);
 				else
 					temp_buf.Z();
 				setStaticText(CTL_CHKPAN_INITUSER, temp_buf);
-				// } @v10.6.8
 				temp_buf.Z();
 				const long f = P_ChkPack->Rec.Flags;
 				CatCharByFlag(f, CCHKF_NOTUSED,   'G', temp_buf, 1);
@@ -372,7 +370,7 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack, con
 		pPack->Ext.GuestCount = GuestCount;
 		pPack->Ext.LinkCheckID = (pPack->Rec.Flags & CCHKF_SKIP) ? 0 : OrderCheckID;
 		pPack->Ext.CreationDtm = Eccd.InitDtm;
-		pPack->Ext.CreationUserID = Eccd.InitUserID; // @v10.6.8
+		pPack->Ext.CreationUserID = Eccd.InitUserID;
 		if(!isExtCc)
 			CCheckPacket::CopyExtStrContainer(*pPack, *this, 0); // @v11.8.11
 		// @v11.8.11 pPack->SetGuid(&Eccd.Uuid); // @v11.5.8
@@ -715,8 +713,9 @@ private:
 int CPosProcessor::LoadModifiers(PPID goodsID, SaModif & rModif)
 {
 	int    ok = -1;
-	Goods2Tbl::Rec goods_rec, item_goods_rec;
-	rModif.clear(); // @v10.6.8 freeAll()-->clear()
+	Goods2Tbl::Rec goods_rec;
+	Goods2Tbl::Rec item_goods_rec;
+	rModif.clear();
 	if(GObj.Fetch(goodsID, &goods_rec) > 0) {
 		int    r = 0;
 		PPGoodsStruc gs;
@@ -841,7 +840,7 @@ int CPosProcessor::ExportCTblList(SString & rBuf)
 				n_item.PutInner("ID", temp_buf.Z().Cat(ctbl_id));
 				PPObjCashNode::GetCafeTableName(ctbl_id, temp_buf.Z());
 				n_item.PutInner("Name", temp_buf);
-				n_item.PutInner("State", temp_buf.Z().Cat(0L)); // @v10.3.11 @fix (temp_buf = 0L)-->temp_buf.Z().Cat(0L)
+				n_item.PutInner("State", temp_buf.Z().Cat(0L));
 				{
 					int    cc_count = 0;
 					int    cc_guest_count = 0;
@@ -921,7 +920,7 @@ int CPosProcessor::ExportCCheckList(long ctblId, SString & rBuf)
 				n_item.PutInner("Amount", temp_buf.Z().Cat(MONEYTOLDBL(r_item.Amount), MKSFMTD_020));
 				n_item.PutInner("Discount", temp_buf.Z().Cat(MONEYTOLDBL(r_item.Discount), MKSFMTD_020));
 				n_item.PutInner("CreationTime", temp_buf.Z().Cat(r_item.CreationDtm, DATF_ISO8601CENT, 0));
-				n_item.PutInner("CreationUserID", temp_buf.Z().Cat(r_item.CreationUserID)); // @v10.6.8
+				n_item.PutInner("CreationUserID", temp_buf.Z().Cat(r_item.CreationUserID));
 			}
 		}
 		xmlTextWriterFlush(p_writer);
@@ -1117,7 +1116,7 @@ void CPosProcessor::GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & 
 //
 CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, uint ctrFlags/*isTouchScreen*/, void * pDummy) : CashNodeID(cashNodeID),
 	P_CcView(0), P_TSesObj(0), P_EgPrc(0), P_CM(0), P_CM_EXT(0), P_CM_ALT(0), P_GTOA(0), P_ChkPack(pOuterPack), P_DivGrpList(0),
-	Flags(0), EgaisMode(0), BonusMaxPart(1.0), OperRightsFlags(0), OrgOperRights(0), SuspCheckID(0), CheckID(checkID), AuthAgentID(0),
+	Flags(0), EgaisMode(0), ChZnPermissiveMode(0), BonusMaxPart(1.0), OperRightsFlags(0), OrgOperRights(0), SuspCheckID(0), CheckID(checkID), AuthAgentID(0),
 	AbstractGoodsID(0), ExtCnLocID(0), ExtCashNodeID(0), AltRegisterID(0), TouchScreenID(0), ScaleID(0), CnPhnSvcID(0), UiFlags(0),
 	State_p(0), LastGrpListUpdTime(ZERODATETIME)
 {
@@ -1155,7 +1154,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 	CnName = cn_rec.Name;
 	CnSymb = cn_rec.Symb;
 	CnFlags = cn_rec.Flags & (CASHF_SELALLGOODS|CASHF_USEQUOT|CASHF_NOASKPAYMTYPE|CASHF_SHOWREST|CASHF_KEYBOARDWKEY|CASHF_WORKWHENLOCK|CASHF_DISABLEZEROAGENT|
-		CASHF_UNIFYGDSATCHECK|CASHF_UNIFYGDSTOPRINT|CASHF_CHECKFORPRESENT|CASHF_ABOVEZEROSALE|CASHF_SYNC|CASHF_SKIPUNPRINTEDCHECKS); // @v10.2.4 CASHF_SKIPUNPRINTEDCHECKS
+		CASHF_UNIFYGDSATCHECK|CASHF_UNIFYGDSTOPRINT|CASHF_CHECKFORPRESENT|CASHF_ABOVEZEROSALE|CASHF_SYNC|CASHF_SKIPUNPRINTEDCHECKS);
 	CnExtFlags = cn_rec.ExtFlags;
 	CnSpeciality = static_cast<long>(cn_rec.Speciality);
 	CnLocID = cn_rec.LocID;
@@ -1199,7 +1198,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 			{ orfRestoreSuspWithoutAgent, CSESSOPRT_RESTORESUSPWOA, 1 },
 			{ orfChgAgentInCheck,         CSESSOPRT_CHGCCAGENT,     1 },
 			{ orfEscChkLineBeforeOrder,   CSESSOPRT_ESCCLINEBORD,   1 },
-			{ orfReprnUnfCc,              CSESSOPRT_REPRNUNFCC,     1 }, // @v10.6.11
+			{ orfReprnUnfCc,              CSESSOPRT_REPRNUNFCC,     1 },
 			{ orfArbitraryDiscount,       CSESSOPRT_ARBITRARYDISC,  1 }, // @v11.0.9
 		};
 		for(uint i = 0; i < SIZEOFARRAY(rt_tab); i++) {
@@ -1207,7 +1206,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 		}
 		OrgOperRights = OperRightsFlags;
 	}
-	{ // @v10.9.0
+	{
 		PPObjSCardSeries scs_obj;
 		scs_obj.GetSeriesWithSpecialTreatment(SpcTrtScsList);
 	}
@@ -1390,7 +1389,7 @@ void CPosProcessor::SetupExt(const CCheckPacket * pPack)
 			}
 		}
 		P.Eccd.InitDtm = pPack->Ext.CreationDtm;
-		P.Eccd.InitUserID = pPack->Ext.CreationUserID; // @v10.6.8
+		P.Eccd.InitUserID = pPack->Ext.CreationUserID;
 		// @v11.8.11 pPack->GetGuid(P.Eccd.Uuid); // @v11.5.8
 		if(P.Eccd.Flags & P.Eccd.fDelivery) {
 			P.Eccd.DlvrDtm = pPack->Ext.StartOrdDtm;
@@ -1459,7 +1458,7 @@ int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent)
 			SETFLAG(f, orfChgPrintedCheck, ort & CSESSOPRT_CHGPRINTEDCHK);
 			SETFLAG(f, orfChgAgentInCheck, ort & CSESSOPRT_CHGCCAGENT);
 			SETFLAG(f, orfEscChkLineBeforeOrder, ort & CSESSOPRT_ESCCLINEBORD);
-			SETFLAG(f, orfReprnUnfCc,      ort & CSESSOPRT_REPRNUNFCC); // @v10.6.11
+			SETFLAG(f, orfReprnUnfCc,      ort & CSESSOPRT_REPRNUNFCC);
 			SETFLAG(f, orfArbitraryDiscount, ort & CSESSOPRT_ARBITRARYDISC); // @v11.0.9
 
 			OperRightsFlags = f;
@@ -1515,7 +1514,7 @@ int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent)
 double CPosProcessor::CalcCurrentRest(PPID goodsID, bool checkInputBuffer)
 {
 	double rest = 0.0;
-	if(GetCc().CalcGoodsRest(goodsID, getcurdate_(), GetCnLocID(goodsID), &rest)) { // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	if(GetCc().CalcGoodsRest(goodsID, getcurdate_(), GetCnLocID(goodsID), &rest)) {
 		for(uint pos = 0; P.lsearch(&goodsID, &pos, CMPF_LONG); pos++)
 			rest -= P.at(pos).Quantity;
 		if(checkInputBuffer && P.HasCur()) {
@@ -1560,21 +1559,17 @@ PPID CPosProcessor::GetAuthAgentID() const
 
 double CPosProcessor::GetUsableBonus() const 
 { 
-	// @v10.9.6 return (Flags & fSCardBonus) ? CSt.UsableBonus : 0.0; 
-	// @v10.9.6 {
 	double result = 0.0;
 	if(Flags & fSCardBonus) {
-		if(CSt.CSTRB.SpecialTreatment && CSt.CSTRB.Flags & CSt.CSTRB.fBonusDisabled) {
+		if(CSt.CSTRB.SpecialTreatment && CSt.CSTRB.Flags & CSt.CSTRB.fBonusDisabled)
 			result = 0.0;
-		}
 		else
 			result = CSt.UsableBonus;
 	}
 	return result;
-	// } @v10.9.6 
 }
 
-double CPosProcessor::GetBonusMaxPart() const { return BonusMaxPart; } // @v10.9.0
+double CPosProcessor::GetBonusMaxPart() const { return BonusMaxPart; }
 double CPosProcessor::RoundDis(double d) const { return PPRound(d, R__.DisRoundPrec, R__.DisRoundDir); }
 
 int CPosProcessor::SetupCTable(int tableNo, int guestCount)
@@ -1684,7 +1679,7 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 			if(init_rest < 0.0 && scst == scstBonus)
 				init_rest = 0.0;
 			double rest = 0.0;
-			const double fixed_bonus = fdiv100i(sc_rec.FixedBonus); // @v10.5.6
+			const double fixed_bonus = fdiv100i(sc_rec.FixedBonus);
 			CSt.RestByCrdCard = (fixed_bonus > 0.0) ? MIN(fixed_bonus, init_rest) : init_rest; // @todo FixedBonus надо доработать
 			Flags |= fSCardCredit;
 			if(scst == scstBonus) {
@@ -3329,10 +3324,6 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	PhnSvcTimer(1000), UhttImportTimer(180000), BarrierViolationCounter(0)/*@debug*/, ActiveListID(0), SelGoodsGrpID(0), AltGoodsGrpID(0),
 	GoodsListFontHeight(0), GoodsListEntryGap(0), P_PalmWaiter(0), P_UhttImporter(0), P_CDY(0), P_BNKTERM(0), P_PhnSvcClient(0)
 {
-	// @v10.9.0 @ctr(CPosProcessor) UiFlags = 0;
-	// @v10.9.0 @ctr(CPosProcessor) TouchScreenID = 0;
-	// @v10.9.0 @ctr(CPosProcessor) ScaleID = 0;
-	// @v10.9.0 @ctr(CPosProcessor) CnPhnSvcID = 0;
 	SetupState(sEMPTYLIST_EMPTYBUF);
 	SETFLAG(DlgFlags, fLarge, /*isTouchScreen*/(ctrFlags & ctrfTouchScreen));
 	Ptb.SetColor(clrFocus,  RGB(0x20, 0xAC, 0x90));

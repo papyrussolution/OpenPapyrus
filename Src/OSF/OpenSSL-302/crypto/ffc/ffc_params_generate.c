@@ -348,8 +348,7 @@ static int generate_q_fips186_4(BN_CTX * ctx, BIGNUM * q, const EVP_MD * evpmd,
 		else
 			pmd = md;
 		if(mdsize < qsize)
-			memset(md + mdsize, 0, qsize - mdsize);
-
+			memzero(md + mdsize, qsize - mdsize);
 		/*
 		 * A.1.1.2 Step (7) AND
 		 * A.1.1.3 Step (8)

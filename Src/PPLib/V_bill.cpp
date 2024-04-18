@@ -3444,7 +3444,7 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 	class SelAddByOrdDialog : public TDialog {
 		DECL_DIALOG_DATA(SelAddBySampleParam);
 	public:
-		SelAddByOrdDialog(int allowBulkMode) : TDialog(DLG_SELOBSMPL), AllowBulkMode(allowBulkMode)
+		SelAddByOrdDialog(bool allowBulkMode) : TDialog(DLG_SELOBSMPL), AllowBulkMode(allowBulkMode)
 		{
 		}
 		DECL_DIALOG_SETDTS()
@@ -3551,7 +3551,13 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 			GetClusterData(CTL_SELBBSMPL_WHAT, &Data.Action);
 			PPIDArray op_list;
 			PPOprKind op_rec;
+			SString hint_buf; // @v11.9.12
 			if(Data.Action == Data.acnShipmByOrder) {
+				// @v11.9.12 {
+				if(checkdate(Data.SampleBillRec.Dt) && Data.SampleBillRec.Dt > getcurdate_()) {
+					PPLoadText(PPTXT_CREATEBILL_HINT_ORDDTGTNOW, hint_buf);
+				}
+				// } @v11.9.12 
 				for(PPID id = 0; EnumOperations(PPOPT_GOODSEXPEND, &id, &op_rec) > 0;)
 					if(op_rec.Flags & OPKF_ONORDER)
 						op_list.add(id);
@@ -3565,8 +3571,9 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 					op_list.add(id);
 			}
 			SetupOprKindCombo(this, CTLSEL_SELBBSMPL_OP, op_list.getSingle(), 0, &op_list, OPKLF_OPLIST);
+			setStaticText(CTL_SELBBSMPL_INFO, hint_buf); // @v11.9.12
 		}
-		int    AllowBulkMode;
+		const bool AllowBulkMode;
 	};
 	DIALOG_PROC_BODY_P1(SelAddByOrdDialog, allowBulkMode, pData);
 }
@@ -3580,30 +3587,26 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 		const  PPID op_type_id = GetOpType(bill_rec.OpID);
 		if(Filt.DenyFlags & BillFilt::fDenyAdd)
 			ok = -1;
-		else if(Filt.Flags & BillFilt::fAccturnOnly && op_type_id != PPOPT_AGREEMENT) // @v10.2.2 (&& op_type_id != PPOPT_AGREEMENT)
+		else if(Filt.Flags & BillFilt::fAccturnOnly && op_type_id != PPOPT_AGREEMENT)
 			ok = P_BObj->AddAccturnBySample(&bill_id, sampleBillID);
 		else {
 			SelAddBySampleParam param;
-			MEMSZERO(param);
+			param.SampleBillRec = bill_rec;
 			param.Action = param.acnUndef;
 			param.LocID = bill_rec.LocID;
-			int    allow_bulk_mode = 0;
-			if(op_type_id == PPOPT_GOODSORDER) {
-				// @v10.0.02 {
-				if(P_BObj->CheckRights(BILLOPRT_MULTUPD, 1) && Filt.OpID && GetOpType(Filt.OpID) == op_type_id)
-					allow_bulk_mode = 1;
-				// } @v10.0.02
-				SelectAddByOrderAction(&param, allow_bulk_mode);
+			bool   allow_bulk_mode = false;
+			switch(op_type_id) {
+				case PPOPT_GOODSORDER:
+					if(P_BObj->CheckRights(BILLOPRT_MULTUPD, 1) && Filt.OpID && GetOpType(Filt.OpID) == op_type_id)
+						allow_bulk_mode = true;
+					SelectAddByOrderAction(&param, allow_bulk_mode);
+					break;
+				case PPOPT_GOODSRECEIPT:
+				case PPOPT_GOODSMODIF: SelectAddByRcptAction(&param); break;
+				case PPOPT_DRAFTEXPEND:
+				case PPOPT_DRAFTRECEIPT: SelectAddByDraftAction(&param, bill_rec); break;
+				default: param.Action = SelAddBySampleParam::acnStd; break;
 			}
-			else if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF))
-				SelectAddByRcptAction(&param);
-			// @v11.0.2 {
-			else if(oneof2(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT)) {
-				SelectAddByDraftAction(&param, bill_rec);
-			}
-			// } @v11.0.2 
-			else
-				param.Action = SelAddBySampleParam::acnStd;
 			switch(param.Action) {
 				case SelAddBySampleParam::acnStd:
 					{
@@ -3612,7 +3615,7 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 						ok = P_BObj->AddGoodsBill(&bill_id, &ab);
 					}
 					break;
-				case SelAddBySampleParam::acnDraftExpByDraftRcpt: // @v11.0.2
+				case SelAddBySampleParam::acnDraftExpByDraftRcpt:
 					{
 						assert(op_type_id == PPOPT_DRAFTRECEIPT);
 						if(op_type_id == PPOPT_DRAFTRECEIPT) {
@@ -3699,7 +3702,7 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 						ok = -1;
 					break;
 				case SelAddBySampleParam::acnShipmAll:
-					if(oneof3(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_DRAFTEXPEND)) // @v10.9.1 PPOPT_DRAFTEXPEND
+					if(oneof3(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_DRAFTEXPEND))
 						ok = P_BObj->AddExpendByReceipt(&bill_id, sampleBillID, &param);
 					else
 						ok = -1;
@@ -5191,7 +5194,7 @@ void PPViewBill::ViewTotal()
 struct PrvdrDllLink {
 	PrvdrDllLink() : SessId(0), P_ExpDll(0)
 	{
-		PTR32(PrvdrSymb)[0] = 0;
+		PrvdrSymb[0] = 0;
 	}
 	int    SessId;
 	char   PrvdrSymb[12]; // PPSupplExchangeCfg::PrvdrSymb
@@ -5199,12 +5202,6 @@ struct PrvdrDllLink {
 	ImpExpParamDllStruct ParamDll;
 };
 
-// @v11.9.11 (moved to DocNalogRu_WriteBillBlock::Do_UPD) int WriteBill_NalogRu2_Invoice(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
-// pHeaderSymb: "ON_NSCHFDOPPRMARK" || "ON_NSCHFDOPPR"
-// @v11.9.11 (moved to DocNalogRu_WriteBillBlock::Do_Invoice2) int WriteBill_NalogRu2_Invoice2(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const char * pHeaderSymb, const SString & rFileName, SString & rResultFileName); // @prototype 
-// @v11.9.11 (moved to DocNalogRu_WriteBillBlock::Do_CorrInvoice) int WriteBill_NalogRu2_CorrInvoice(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const char * pHeaderSymb, const SString & rFileName, SString & rResultFileName); // @v11.7.0
-// @v11.9.11 (moved to DocNalogRu_WriteBillBlock::Do_DP_REZRUISP) int WriteBill_NalogRu2_DP_REZRUISP(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
-// @v11.9.11 (moved to DocNalogRu_WriteBillBlock::Do_UPD) int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
 int WriteBill_ExportMarks(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
 
 static bool IsByEmailAddrByContext(const SString & rBuf)
@@ -9111,7 +9108,7 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 			vect.CalcTI(ti, item.OpID, TIAMT_AMOUNT);
 		   	I.VaTax    = vect.GetTaxRate(GTAX_VAT, 0);
 			I.VatSum   = vect.GetValue(GTAXVF_VAT);
-			I.ExTax    = vect.GetTaxRate(GTAX_EXCISE, 0); // @v10.0.05 @fix GTAXVF_EXCISE-->GTAX_EXCISE
+			I.ExTax    = vect.GetTaxRate(GTAX_EXCISE, 0);
 			I.ExtSum   = vect.GetValue(GTAXVF_EXCISE);
 			I.StTax    = vect.GetTaxRate(GTAX_SALES, 0);
 			I.StSum    = vect.GetValue(GTAXVF_SALESTAX);

@@ -310,7 +310,7 @@ int PPObjGoodsTax::Edit(PPID * pID, void * extraPtr)
 {
 	int    r = cmCancel;
 	int    valid_data = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	PPGoodsTaxPacket pack;
 	GoodsTaxDialog * dlg = 0;
 	THROW(CheckDialogPtr(&(dlg = new GoodsTaxDialog(DLG_GDSTAX))));

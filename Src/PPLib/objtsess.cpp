@@ -148,7 +148,9 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 {
 	const  long prop_cfg_id = PPPRP_TSESSCFG;
 	const  long cfg_obj_type = PPCFGOBJ_TECHSESS;
-	int    ok = 1, is_new = 0, r;
+	int    ok = 1;
+	int    is_new = 0;
+	int    r;
 	size_t sz = sizeof(Storage_PPTSessionConfig);
 	Storage_PPTSessionConfig * p_cfg = 0;
 	SSerializeContext sctx;
@@ -202,7 +204,8 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 /*static*/int FASTCALL PPObjTSession::ReadConfig(PPTSessConfig * pCfg)
 {
 	const  long prop_cfg_id = PPPRP_TSESSCFG;
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	Reference * p_ref = PPRef;
 	size_t sz = 0;
 	Storage_PPTSessionConfig * p_cfg = 0;

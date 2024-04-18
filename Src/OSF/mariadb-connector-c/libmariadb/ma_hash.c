@@ -147,10 +147,10 @@ uint calc_hashnr(const uchar * key, uint len)
 	const uchar * end = key+len;
 	uint hash;
 	for(hash = 0; key < end; key++) {
-		hash *= 0x01000193U/*16777619*/;
+		hash *= SlConst::FnvHashPrime32;
 		hash ^= (uint) *(uchar *)key;
 	}
-	return (hash);
+	return hash;
 }
 
 uint calc_hashnr_caseup(const uchar * key, uint len)
@@ -172,7 +172,7 @@ static inline
 uint rec_hashnr(HASH * hash, const uchar * record)
 {
 	uint length;
-	uchar * key = (uchar *)hash_key(hash, record, &length, 0);
+	const uchar * key = (uchar *)hash_key(hash, record, &length, 0);
 	return (*hash->calc_hashnr)(key, length);
 }
 

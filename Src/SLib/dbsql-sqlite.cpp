@@ -41,7 +41,7 @@ SSqliteDbProvider::~SSqliteDbProvider()
 int FASTCALL SSqliteDbProvider::ProcessError(int status)
 {
 	int    ok = 1;
-	if(status != SQLITE_OK) {
+	if(!oneof3(status, SQLITE_OK, SQLITE_ROW, SQLITE_DONE)) {
 		// @todo
 		ok = 0;
 	}
@@ -125,8 +125,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTabl
 
 /*virtual*/SString & SSqliteDbProvider::MakeFileName_(const char * pTblName, SString & rBuf)
 {
-	rBuf.Z();
-	return rBuf;
+	return rBuf.SetIfEmpty(pTblName);
 }
 	
 /*virtual*/int SSqliteDbProvider::IsFileExists_(const char * pFileName)
@@ -144,7 +143,8 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTabl
 {
 	int    ok = 1;
 	// @construction {
-	THROW(SqlGen.Z().CreateTable(*pTbl, 0));
+	const int cm = RESET_CRM_TEMP(createMode);
+	THROW(SqlGen.Z().CreateTable(*pTbl, 0, oneof2(cm, crmNoReplace, crmTTSNoReplace), 1));
 	{
 		SSqlStmt stmt(this, (const SString &)SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));

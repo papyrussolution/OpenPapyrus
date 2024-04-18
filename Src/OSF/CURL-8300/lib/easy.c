@@ -104,7 +104,7 @@ static curl_simple_lock s_lock = CURL_SIMPLE_LOCK_INIT;
 #elif !defined(HAVE_STRDUP)
 	#define system_strdup Curl_strdup
 #else
-	#define system_strdup _strdup // @sobolev strdup--_strdup
+	#define system_strdup _strdup // @sobolev strdup-->_strdup
 #endif
 #if defined(_MSC_VER) && defined(_DLL) && !defined(__POCC__)
 	#pragma warning(disable:4232) /* MSVC extension, dllimport identity */

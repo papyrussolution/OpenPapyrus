@@ -4873,6 +4873,9 @@ private:
 
 class EdiProviderImplementation_SBIS : public PPEdiProcessor::ProviderImplementation {
 public:
+	/*
+		СвОЭДОтпр ИННЮЛ="7605016030" ИдЭДО="2BE" НаимОрг="ООО "Компания "Тензор""/>
+	*/
 	EdiProviderImplementation_SBIS(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
 	virtual ~EdiProviderImplementation_SBIS();
 	virtual int    GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList);
@@ -4899,6 +4902,8 @@ int EdiProviderImplementation_SBIS::Write_DESADV(xmlTextWriter * pX, const S_GUI
 	SString nominal_file_name; // @stub
 	SString result_file_name_;
 	PPBillImpExpParam bill_ieparam;
+	bill_ieparam.DtoPersonID = Epp.Rec.DtoPersonID;
+	bill_ieparam.EdiProviderSymb = "SBIS";
 	DocNalogRu_WriteBillBlock _blk(bill_ieparam, rBp, "ON_NSCHFDOPPR", nominal_file_name);
 	ok = _blk.IsValid() ? _blk.Do_UPD(result_file_name_) : 0;
 	//int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName)
@@ -5465,6 +5470,8 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 		if(rPack.DocType == PPEDIOP_DESADV) {
 			SString result_file_name_;
 			PPBillImpExpParam bill_ieparam;
+			bill_ieparam.DtoPersonID = Epp.Rec.DtoPersonID;
+			bill_ieparam.EdiProviderSymb = "SBIS";
 			DocNalogRu_WriteBillBlock _blk(bill_ieparam, *p_bp, "ON_NSCHFDOPPR", path/*nominam-file_name*/);
 			ok = _blk.IsValid() ? _blk.Do_UPD(result_file_name_) : 0;
 			path = result_file_name_;
@@ -8531,7 +8538,7 @@ int PPEdiProcessor::ProviderImplementation::SearchLinkedOrder(const char * pCode
 int PPEdiProcessor::ProviderImplementation::SearchLinkedBill(const char * pCode, LDATE dt, PPID arID, int ediOp, BillTbl::Rec * pBillRec)
 {
 	int    ok = -1;
-	char   scode[64]; // @v11.1.12 [32]-->[64]
+	char   scode[64];
 	BillCore * p_bt = P_BObj->P_Tbl;
 	Reference * p_ref = PPRef;
 	DBQ  * dbq = 0;
@@ -8542,7 +8549,6 @@ int PPEdiProcessor::ProviderImplementation::SearchLinkedBill(const char * pCode,
 	} k;
 	int    idx = 2;
 	STRNSCPY(scode, pCode);
-	// @v11.1.12 BillCore::GetCode(scode);
 	MEMSZERO(k);
 	if(arID) {
 		k.k3.Object = arID;
@@ -8560,7 +8566,6 @@ int PPEdiProcessor::ProviderImplementation::SearchLinkedBill(const char * pCode,
 	q.select(p_bt->ID, p_bt->Dt, p_bt->Code, p_bt->EdiOp, 0L).where(*dbq);
 	for(q.initIteration(false, &k, spGe); ok < 0 && q.nextIteration() > 0;) {
 		temp_buf = p_bt->data.Code;
-		// @v11.1.12 BillCore::GetCode(temp_buf);
 		if(temp_buf.NotEmptyS() && stricmp866(temp_buf, scode) == 0) {
 			const  PPID bill_id = p_bt->data.ID;
 			S_GUID sent_guid;

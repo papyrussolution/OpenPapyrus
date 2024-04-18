@@ -527,7 +527,6 @@ typedef union { double d; ULong L[2]; } U;
 #define rounded_quotient(a, b) ((a) /= (b))
 #define Big0 (Frac_mask1 | Exp_msk1*(DBL_MAX_EXP+Bias-1))
 #define Big1 0xffffffff
-#define FFFFFFFF 0xffffffffUL
 
 /* This is tested to be enough for dtoa */
 
@@ -651,7 +650,7 @@ static Bigint * multadd(Bigint * b, int m, int a, Stack_alloc * alloc)
 	do {
 		y = *x * (ULLong)m + carry;
 		carry = y >> 32;
-		*x++ = (ULong)(y & FFFFFFFF);
+		*x++ = (ULong)(y & _FFFF32);
 	} while(++i < wds);
 	if(carry) {
 		if(wds >= b->maxwds) {
@@ -780,7 +779,7 @@ static Bigint * mult(Bigint * a, Bigint * b, Stack_alloc * alloc)
 			do {
 				z = *x++ *(ULLong)y + *xc + carry;
 				carry = z >> 32;
-				*xc++ = (ULong)(z & FFFFFFFF);
+				*xc++ = (ULong)(z & _FFFF32);
 			} while(x < xae);
 			*xc = (ULong)carry;
 		}
@@ -946,13 +945,13 @@ static Bigint * diff(Bigint * a, Bigint * b, Stack_alloc * alloc)
 	do {
 		y = (ULLong)*xa++ - *xb++ - borrow;
 		borrow = y >> 32 & (ULong)1;
-		*xc++ = (ULong)(y & FFFFFFFF);
+		*xc++ = (ULong)(y & _FFFF32);
 	}
 	while(xb < xbe);
 	while(xa < xae) {
 		y = *xa++ - borrow;
 		borrow = y >> 32 & (ULong)1;
-		*xc++ = (ULong)(y & FFFFFFFF);
+		*xc++ = (ULong)(y & _FFFF32);
 	}
 	while(!*--xc)
 		wa--;
@@ -1034,9 +1033,9 @@ static int quorem(Bigint * b, Bigint * S)
 		do {
 			ys = *sx++ *(ULLong)q + carry;
 			carry = ys >> 32;
-			y = *bx - (ys & FFFFFFFF) - borrow;
+			y = *bx - (ys & _FFFF32) - borrow;
 			borrow = y >> 32 & (ULong)1;
-			*bx++ = (ULong)(y & FFFFFFFF);
+			*bx++ = (ULong)(y & _FFFF32);
 		}
 		while(sx <= sxe);
 		if(!*bxe) {
@@ -1055,9 +1054,9 @@ static int quorem(Bigint * b, Bigint * S)
 		do {
 			ys = *sx++ + carry;
 			carry = ys >> 32;
-			y = *bx - (ys & FFFFFFFF) - borrow;
+			y = *bx - (ys & _FFFF32) - borrow;
 			borrow = y >> 32 & (ULong)1;
-			*bx++ = (ULong)(y & FFFFFFFF);
+			*bx++ = (ULong)(y & _FFFF32);
 		}
 		while(sx <= sxe);
 		bx = b->p.x;

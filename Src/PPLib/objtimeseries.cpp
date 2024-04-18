@@ -1,5 +1,5 @@
 // OBJTIMESERIES.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Модуль, управляющий объектом данных PPObjTimeSeries
 //
@@ -615,7 +615,8 @@ private:
 	
 int PPObjTssModel::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, is_new = 0;
+	int    ok = cmCancel;
+	bool   is_new = false;
 	PPTssModelPacket pack;
 	THROW(EditPrereq(pID, 0, &is_new));
 	if(!is_new) {
@@ -1406,7 +1407,7 @@ int PPObjTimeSeries::EditDialog(PPTimeSeriesPacket * pEntry)
 /*virtual*/int PPObjTimeSeries::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
-	int    is_new = 0;
+	bool   is_new = false;
 	PPTimeSeriesPacket pack;
 	THROW(EditPrereq(pID, 0, &is_new));
 	if(!is_new) {

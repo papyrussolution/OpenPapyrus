@@ -223,18 +223,14 @@ static int evp_pkey_cmp_any(const EVP_PKEY * a, const EVP_PKEY * b,
 	/* For purely provided keys, we just call the keymgmt utility */
 	if(evp_pkey_is_provided(a) && evp_pkey_is_provided(b))
 		return evp_keymgmt_util_match((EVP_PKEY*)a, (EVP_PKEY*)b, selection);
-
 	/*
 	 * At this point, one of them is provided, the other not.  This allows
 	 * us to compare types using legacy NIDs.
 	 */
-	if(evp_pkey_is_legacy(a)
-	    && !EVP_KEYMGMT_is_a(b->keymgmt, OBJ_nid2sn(a->type)))
+	if(evp_pkey_is_legacy(a) && !EVP_KEYMGMT_is_a(b->keymgmt, OBJ_nid2sn(a->type)))
 		return -1;       /* not the same key type */
-	if(evp_pkey_is_legacy(b)
-	    && !EVP_KEYMGMT_is_a(a->keymgmt, OBJ_nid2sn(b->type)))
+	if(evp_pkey_is_legacy(b) && !EVP_KEYMGMT_is_a(a->keymgmt, OBJ_nid2sn(b->type)))
 		return -1;       /* not the same key type */
-
 	/*
 	 * We've determined that they both are the same keytype, so the next
 	 * step is to do a bit of cross export to ensure we have keydata for

@@ -371,7 +371,10 @@ public:
 
 int PPObjPhoneService::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = -1, r = cmCancel, valid_data = 0, is_new = 0;
+	int    ok = -1;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	bool   is_new = false;
 	PhoneServiceDialog * dlg = 0;
 	PPPhoneServicePacket pack;
 	THROW(EditPrereq(pID, 0, &is_new));

@@ -1049,62 +1049,42 @@ int X509_CRL_cmp(const X509_CRL * a, const X509_CRL * b);
 int X509_CRL_match(const X509_CRL * a, const X509_CRL * b);
 int X509_aux_print(BIO * out, X509 * x, int indent);
 #ifndef OPENSSL_NO_STDIO
-int X509_print_ex_fp(FILE * bp, X509 * x, unsigned long nmflag,
-    unsigned long cflag);
+int X509_print_ex_fp(FILE * bp, X509 * x, unsigned long nmflag, unsigned long cflag);
 int X509_print_fp(FILE * bp, X509 * x);
 int X509_CRL_print_fp(FILE * bp, X509_CRL * x);
 int X509_REQ_print_fp(FILE * bp, X509_REQ * req);
-int X509_NAME_print_ex_fp(FILE * fp, const X509_NAME * nm, int indent,
-    unsigned long flags);
+int X509_NAME_print_ex_fp(FILE * fp, const X509_NAME * nm, int indent, unsigned long flags);
 #endif
 
 int X509_NAME_print(BIO * bp, const X509_NAME * name, int obase);
-int X509_NAME_print_ex(BIO * out, const X509_NAME * nm, int indent,
-    unsigned long flags);
-int X509_print_ex(BIO * bp, X509 * x, unsigned long nmflag,
-    unsigned long cflag);
+int X509_NAME_print_ex(BIO * out, const X509_NAME * nm, int indent, unsigned long flags);
+int X509_print_ex(BIO * bp, X509 * x, unsigned long nmflag, unsigned long cflag);
 int X509_print(BIO * bp, X509 * x);
 int X509_ocspid_print(BIO * bp, X509 * x);
 int X509_CRL_print_ex(BIO * out, X509_CRL * x, unsigned long nmflag);
 int X509_CRL_print(BIO * bp, X509_CRL * x);
-int X509_REQ_print_ex(BIO * bp, X509_REQ * x, unsigned long nmflag,
-    unsigned long cflag);
+int X509_REQ_print_ex(BIO * bp, X509_REQ * x, unsigned long nmflag, unsigned long cflag);
 int X509_REQ_print(BIO * bp, X509_REQ * req);
-
 int X509_NAME_entry_count(const X509_NAME * name);
-int X509_NAME_get_text_by_NID(const X509_NAME * name, int nid,
-    char * buf, int len);
-int X509_NAME_get_text_by_OBJ(const X509_NAME * name, const ASN1_OBJECT * obj,
-    char * buf, int len);
-
+int X509_NAME_get_text_by_NID(const X509_NAME * name, int nid, char * buf, int len);
+int X509_NAME_get_text_by_OBJ(const X509_NAME * name, const ASN1_OBJECT * obj, char * buf, int len);
 /*
  * NOTE: you should be passing -1, not 0 as lastpos. The functions that use
  * lastpos, search after that position on.
  */
 int X509_NAME_get_index_by_NID(const X509_NAME * name, int nid, int lastpos);
-int X509_NAME_get_index_by_OBJ(const X509_NAME * name, const ASN1_OBJECT * obj,
-    int lastpos);
+int X509_NAME_get_index_by_OBJ(const X509_NAME * name, const ASN1_OBJECT * obj, int lastpos);
 X509_NAME_ENTRY * X509_NAME_get_entry(const X509_NAME * name, int loc);
 X509_NAME_ENTRY * X509_NAME_delete_entry(X509_NAME * name, int loc);
-int X509_NAME_add_entry(X509_NAME * name, const X509_NAME_ENTRY * ne,
-    int loc, int set);
+int X509_NAME_add_entry(X509_NAME * name, const X509_NAME_ENTRY * ne, int loc, int set);
 int X509_NAME_add_entry_by_OBJ(X509_NAME * name, const ASN1_OBJECT * obj, int type,
-    const uchar * bytes, int len, int loc,
-    int set);
+    const uchar * bytes, int len, int loc, int set);
 int X509_NAME_add_entry_by_NID(X509_NAME * name, int nid, int type,
-    const uchar * bytes, int len, int loc,
-    int set);
+    const uchar * bytes, int len, int loc, int set);
 X509_NAME_ENTRY * X509_NAME_ENTRY_create_by_txt(X509_NAME_ENTRY ** ne,
-    const char * field, int type,
-    const uchar * bytes,
-    int len);
-X509_NAME_ENTRY * X509_NAME_ENTRY_create_by_NID(X509_NAME_ENTRY ** ne, int nid,
-    int type,
-    const uchar * bytes,
-    int len);
-int X509_NAME_add_entry_by_txt(X509_NAME * name, const char * field, int type,
-    const uchar * bytes, int len, int loc,
-    int set);
+    const char * field, int type, const uchar * bytes, int len);
+X509_NAME_ENTRY * X509_NAME_ENTRY_create_by_NID(X509_NAME_ENTRY ** ne, int nid, int type, const uchar * bytes, int len);
+int X509_NAME_add_entry_by_txt(X509_NAME * name, const char * field, int type, const uchar * bytes, int len, int loc, int set);
 X509_NAME_ENTRY * X509_NAME_ENTRY_create_by_OBJ(X509_NAME_ENTRY ** ne,
     const ASN1_OBJECT * obj, int type,
     const uchar * bytes,

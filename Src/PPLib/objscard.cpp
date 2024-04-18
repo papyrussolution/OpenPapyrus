@@ -3696,7 +3696,7 @@ int PPObjSCard::Helper_Edit(PPID * pID, const AddParam * pParam)
 	int    ok = -1;
 	int    r = cmCancel;
 	int    valid_data = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	long   prev_pdis = 0;
 	PPSCardPacket pack;
 	PPObjSCardSeries ser_obj;

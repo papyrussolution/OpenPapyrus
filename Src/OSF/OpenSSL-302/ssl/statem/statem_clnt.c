@@ -2898,9 +2898,8 @@ static int tls_construct_cke_dhe(SSL * s, WPACKET * pkt)
 			SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
 			goto err;
 		}
-		memset(keybytes, 0, pad_len);
+		memzero(keybytes, pad_len);
 	}
-
 	if(!WPACKET_sub_memcpy_u16(pkt, encoded_pub, encoded_pub_len)) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
 		goto err;
@@ -3532,9 +3531,7 @@ int tls_construct_next_proto(SSL * s, WPACKET * pkt)
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
-
-	memset(padding, 0, padding_len);
-
+	memzero(padding, padding_len);
 	return 1;
 }
 

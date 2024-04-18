@@ -2620,8 +2620,8 @@ void PPALDD_DebtTrnovr::Destroy() { DESTROY_PPVIEW_ALDD(DebtTrnovr); }
 {
 	const  long prop_cfg_id  = PPPRP_DEBTORSTATCFG;
 	const  long cfg_obj_type = PPCFGOBJ_DEBTORSTAT;
-
-	int    ok = -1, is_new = 0/*, ta = 0*/;
+	int    ok = -1;
+	int    is_new = 0;
 	SString temp_buf;
 	PPDebtorStatConfig cfg;
 	MEMSZERO(cfg);

@@ -851,7 +851,7 @@ table Goods2 {             // size=200
 	autolong ID;           // @id
 	long   Kind;           // Вид объекта (группа, товар и т.д.) PPGDSK_XXX
 	string Name[128];      // @name                    // @v6.2.2 [64]-->[128]
-	string Abbr[128];      // Сокращенное наименование // @v6.2.2 [64]-->[128]
+	string Abbr[128];      // Сокращенное наименование // @v6.2.2 [64]-->[128] // @v11.9.12 For PPOBJ_SWPROGRAM used as 'Исполняемый файл'
 	long   ParentID;       // ->Goods2.ID (Kind = PPGDSK_GROUP [1])
 	long   GoodsTypeID;    // Тип товара ->Ref(PPOBJ_GOODSTYPE)
 	long   UnitID;         // Единица измерения       ->Ref(PPOBJ_UNIT)
@@ -860,7 +860,7 @@ table Goods2 {             // size=200
 	long   ManufID;        // Производитель           ->Person.ID               For PPOBJ_BRAND used as Owner // @v6.2.2 For PPOBJ_TRANSPORT used as Owner
 	long   StrucID;        // Структура товара        ->Ref(PPOBJ_GOODSSTRUC)
 	long   TaxGrpID;       // Группа налогообложения  ->Ref(PPOBJ_GOODSTAX)     For PPOBJ_PCKGTYPE used as Counter
-	long   WrOffGrpID;     // Группа списания         ->Ref(PPOBJ_ASSTWROFFGRP) For PPOBJ_PCKGTYPE used as GoodsGrpID
+	long   WrOffGrpID;     // Группа списания         ->Ref(PPOBJ_ASSTWROFFGRP) For PPOBJ_PCKGTYPE used as GoodsGrpID // @v11.9.12 For PPOBJ_SWPROGRAM used as Category
 	long   Flags;          // Флаги GF_XXX
 	long   GdsClsID;       // ИД отраслевого класса товара ->Ref(PPOBJ_GDSCLS)  For PPOBJ_TRANSPORT used as TransportType
 	long   BrandID;        // Брэнд ->Goods2.ID (Kind = PPGDSK_BRAND [5])       // @v6.2.2 For PPOBJ_TRANSPORT used as TransportModel -->Ref(PPOBJ_TRANSPMODEL)
@@ -5320,7 +5320,6 @@ file:
 table TestTa01 {
 	date   Dt;
 	time   Tm;
-	//datetime Dtm;
 	long   Ref1ID; // ->TestRef01.ID ProbOf(NULL)=0.05 ProbOf(HANGEDLINK)=0.000001
 	long   Ref2ID; // ->TestRef02.ID ProbOf(NULL)=0.80 ProbOf(HANGEDLINK)=0.000001
 	long   LVal;
@@ -5329,17 +5328,13 @@ table TestTa01 {
 	uint16 UIVal;
 	double RVal1;
 	double RVal2;
-	clob   TextField; // @v11.9.8
 	guid   GuidVal;
 	string S[32];
+	clob   TextField; // @v11.9.8
 index:
 	Dt, Tm (unique mod);
-	//Dtm (unique mod);
 	Ref1ID, Dt, Tm (unique mod);
-	//Ref1ID, Dtm (unique mod);
-	//RVal1 (dup mod);
 	I64Val (dup mod);
-	//GuidVal (dup mod);
 file:
 	"testta1.btr";
 	page=4096;

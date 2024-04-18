@@ -1051,7 +1051,8 @@ void GnuPlot::SetDashType()
 	custom_dashtype_def * this_dashtype = NULL;
 	custom_dashtype_def * new_dashtype = NULL;
 	custom_dashtype_def * prev_dashtype = NULL;
-	int tag, is_new = FALSE;
+	int    tag;
+	int    is_new = FALSE;
 	Pgm.Shift();
 	// get tag 
 	if(Pgm.EndOfCommand() || ((tag = IntExpression()) <= 0))

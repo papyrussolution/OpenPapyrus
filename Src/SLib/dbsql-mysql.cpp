@@ -120,7 +120,8 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 {
 	int    ok = 1;
 	// @construction {
-	THROW(SqlGen.Z().CreateTable(*pTbl, 0));
+	const int cm = RESET_CRM_TEMP(createMode);
+	THROW(SqlGen.Z().CreateTable(*pTbl, 0, oneof2(cm, crmNoReplace, crmTTSNoReplace), 1));
 	{
 		SSqlStmt stmt(this, (const SString &)SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));

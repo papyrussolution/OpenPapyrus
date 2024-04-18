@@ -48,9 +48,9 @@ int FASTCALL PPGenCashNode::Copy(const PPGenCashNode & rS)
 	DisRoundPrec  = rS.DisRoundPrec;
 	AmtRoundPrec  = rS.AmtRoundPrec;
 	Speciality    = rS.Speciality; // @v11.9.6
-	LocID = rS.LocID;
+	LocID         = rS.LocID;
 	ExtQuotID     = rS.ExtQuotID;
-	Flags = rS.Flags;
+	Flags         = rS.Flags;
 	ExtFlags      = rS.ExtFlags;
 	GoodsLocAssocID = rS.GoodsLocAssocID;
 	ParentID      = rS.ParentID;
@@ -137,10 +137,19 @@ int PPGenCashNode::DrvVerFromStr(const char * pS)
 		SNaturalTokenArray nta;
 		tr.Run(temp_buf.Strip(), nta, 0);
 		if(nta.Has(SNTOK_SOFTWAREVER) > 0.0f) {
+			// @v11.9.12 {
+			SVerT ver;
+			if(ver.FromStr(temp_buf) > 0) {
+				DrvVerMajor = ver.GetMajor();
+				DrvVerMinor = ver.GetMinor();				
+			}
+			// } @v11.9.12
+			/* @v11.9.12
 			SString major, minor;
 			temp_buf.Divide('.', major, minor);
 			DrvVerMajor = static_cast<int16>(major.ToLong());
 			DrvVerMinor = static_cast<int16>(minor.ToLong());
+			*/
 		}
 		else {
 			ok = PPSetError(PPERR_INVVERSIONTEXT, pS);
@@ -177,7 +186,6 @@ int PPAsyncCashNode::GetLogNumList(PPIDArray & rList) const
 {
 	int    ok = 1;
 	rList.clear();
-	// @v9.6.0 {
 	StringSet ss;
 	SString temp_buf;
 	LogNumList.Tokenize(",", ss);
@@ -197,23 +205,6 @@ int PPAsyncCashNode::GetLogNumList(PPIDArray & rList) const
         }
 	}
 	rList.sortAndUndup();
-	// } @v9.6.0
-	/*
-	//SString log_num_list = LogNumList;
-	if(log_num_list.NotEmptyS()) {
-		//121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,143,144,145,146,147,148,149,150,151,152,153,154,155,141,142
-		char   tempbuf[512]; // @v9.6.0 @fix [128]-->[512]
-		char * p;
-		long   n, sDELIM = 0x0000202CL; // ", "
-		STRNSCPY(tempbuf, log_num_list);
-		if((p = strtok(tempbuf, (char *)&sDELIM)) != 0) {
-			do {
-				if((n = atol(p)) > 0)
-					rList.add(n);
-			} while((p = strtok(0, (char *)&sDELIM)) != 0);
-		}
-	}
-	*/
 	ok = rList.getCount() ? 1 : -1;
 	CATCH
 		rList.clear();
@@ -248,7 +239,13 @@ const PPGenCashNode::PosIdentEntry * FASTCALL PPAsyncCashNode::SearchPosIdentEnt
 	return p_result;
 }
 
+#pragma pack(push, 1)
 struct __PPExtDevices {     // @persistent
+	bool   IsEmpty() const
+	{
+		return !(TouchScreenID || ExtCashNodeID || CustDispType || BnkTermType ||
+			AlternateRegID || ScaleID || PhnSvcID || ExtStrBuf[0] || EgaisMode || ChZnPermissiveMode || ChZnGuaID);
+	}
 	PPID   Tag;             // Const = PPOBJ_CASHNODE
 	PPID   CashNodeID;      // ИД кассового узла
 	PPID   Prop;            // Const = CNPRP_EXTDEVICES
@@ -257,21 +254,24 @@ struct __PPExtDevices {     // @persistent
 	long   CustDispType;    // Тип дисплея покупателя //
 	char   CustDispPort[8]; // Порт дисплея покупателя (COM)
 	uint16 CustDispFlags;	// flXXX
-	// @v9.7.10 PPID   PapyrusNodeID;   // ИД кассового узла Папирус
-	PPID   AlternateRegID;  // @v9.7.10
+	PPID   AlternateRegID;  // Альтернативный регистратор 
 	PPID   ScaleID;         // ИД весов
 	int16  ClearCDYTimeout; // Таймаут очистки дисплея покупателя после печати чека
-	int16  EgaisMode;       // @v9.0.9 Режим работы с УТМ ЕГАИС. 0 - не использовать, 1 - использовать, 2 - тестовый режим
+	int16  EgaisMode;       // Режим работы с УТМ ЕГАИС. 0 - не использовать, 1 - использовать, 2 - тестовый режим
 	PPID   PhnSvcID;        //
 	long   BnkTermType;		// Тип банковского терминала
 	uint16 BnkTermLogNum;	// Логический номер банковского терминала
 	uint16 BnkTermFlags;	// btfXXX
 	char   BnkTermPort[8];	// Порт банковского терминала (COM)
-	char   Reserve2[12];    // @reserve
-	long   Reserve3[1];     // @reserve
+	int16  ChZnPermissiveMode; // @v11.9.12
+	char   Reserve2[10];    // @reserve // @v11.9.12 [12]-->[10]
+	PPID   ChZnGuaID;       // @v11.9.12 Глобальная учетная запись для доступа к сервису честный знак (работа с разрешительным режимом)
+	// @v11.9.12 long   Reserve3[1];     // @reserve
 	char   ExtStrBuf[758];  // @anchor
 };
+#pragma pack(pop)
 
+#pragma pack(push, 1)
 struct __PosNodeExt {       // @persistent
 	PPID   Tag;             // Const = PPOBJ_CASHNODE
 	PPID   CashNodeID;      // ИД кассового узла
@@ -284,23 +284,20 @@ struct __PosNodeExt {       // @persistent
 	uint16 Reserve3;        // @alignment
 	int32  Reserve2;        // @reserve
 };
+#pragma pack(pop)
 
 PPSyncCashNode::SuspCheckFilt::SuspCheckFilt()
 {
 	THISZERO();
 }
 
-bool PPSyncCashNode::SuspCheckFilt::IsEmpty() const
-{
-	return (DaysPeriod == 0 && DlvrItemsShowTag == 0 && Flags == 0);
-}
+bool PPSyncCashNode::SuspCheckFilt::IsEmpty() const { return (DaysPeriod == 0 && DlvrItemsShowTag == 0 && Flags == 0); }
 
 PPSyncCashNode::PPSyncCashNode() : PPGenCashNode(), DownBill(0), CurDate(ZERODATE), CurSessID(0), TouchScreenID(0), ExtCashNodeID(0),
 	AlternateRegID(0), ScaleID(0), CustDispType(0), CustDispFlags(0), BnkTermType(0), BnkTermLogNum(0),
-	BnkTermFlags(0), ClearCDYTimeout(0), EgaisMode(0), SleepTimeout(0), LocalTouchScrID(0)
+	BnkTermFlags(0), ClearCDYTimeout(0), EgaisMode(0), ChZnGuaID(0), ChZnPermissiveMode(0), SleepTimeout(0), LocalTouchScrID(0)
 {
 	memzero(Port, sizeof(Port));
-	// @v9.7.10 PapyrusNodeID_unused = 0;
 	memzero(CustDispPort, sizeof(CustDispPort));
 	memzero(BnkTermPort, sizeof(BnkTermPort));
 }
@@ -718,9 +715,12 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 				pSCN->ClearCDYTimeout = p_ed->ClearCDYTimeout;
 				if(pSCN->ClearCDYTimeout < 0 || pSCN->ClearCDYTimeout > 60)
 					pSCN->ClearCDYTimeout = 0;
-				pSCN->EgaisMode    = p_ed->EgaisMode;
-				if(!oneof4(pSCN->EgaisMode, 0, 1, 2, 3))
-					pSCN->EgaisMode = 0;
+				pSCN->EgaisMode = oneof4(p_ed->EgaisMode, 0, 1, 2, 3) ? p_ed->EgaisMode : 0;
+				// @v11.9.12 {
+				pSCN->ChZnGuaID = p_ed->ChZnGuaID;
+				pSCN->ChZnPermissiveMode = oneof3(p_ed->ChZnPermissiveMode, PPSyncCashNode::chznpmDontUse, 
+					PPSyncCashNode::chznpmSoft, PPSyncCashNode::chznpmStrict) ? p_ed->ChZnPermissiveMode : PPSyncCashNode::chznpmDontUse;
+				// } @v11.9.12 
 				pSCN->BnkTermType  = p_ed->BnkTermType;
 				pSCN->BnkTermLogNum = p_ed->BnkTermLogNum;
 				STRNSCPY(pSCN->BnkTermPort, p_ed->BnkTermPort);
@@ -748,6 +748,7 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 			pSCN->BnkTermFlags	  = 0;
 			pSCN->ClearCDYTimeout = 0;
 			pSCN->EgaisMode       = 0;
+			pSCN->ChZnPermissiveMode = 0; // @v11.9.12
 			pSCN->PrinterPort     = 0;
 			pSCN->TableSelWhatman = 0;
 			pSCN->BnkTermPath     = 0;
@@ -967,8 +968,9 @@ int PPObjCashNode::IsVatFree(PPID id)
 int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 {
 	int    ok = 1;
-	int    is_new = 0;
-	long   f = 0L, f1 = 0L;
+	bool   is_new = false;
+	long   f = 0L;
+	long   f1 = 0L;
 	SString temp_buf;
 	PPCashNode rec;
 	__PPExtDevices * p_ed = 0;
@@ -986,7 +988,7 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 		}
 		else {
 			MEMSZERO(rec);
-			is_new = 1;
+			is_new = true;
 		}
 		if(!oneof2(pCN->CashType, PPCMT_CASHNGROUP, PPCMT_DISTRIB)) {
 			f = pCN->Flags & (CASHF_SYNC | CASHF_ASYNC);
@@ -1035,25 +1037,24 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 					const size_t ed_size = ALIGNSIZE(offsetof(__PPExtDevices, ExtStrBuf) + p_scn->ExtString.Len() + 1, 2);
 					THROW_MEM(p_ed = static_cast<__PPExtDevices *>(SAlloc::M(ed_size)));
 					memzero(p_ed, ed_size);
-
 					p_ed->TouchScreenID = p_scn->TouchScreenID;
 					p_ed->ExtCashNodeID = p_scn->ExtCashNodeID;
-					// @v9.7.10 p_ed->PapyrusNodeID = 0; // @v9.6.9 p_scn->PapyrusNodeID-->0
-					p_ed->AlternateRegID = p_scn->AlternateRegID; // @v9.7.10
+					p_ed->AlternateRegID = p_scn->AlternateRegID;
 					p_ed->ScaleID       = p_scn->ScaleID;
 					p_ed->CustDispType  = p_scn->CustDispType;
 					STRNSCPY(p_ed->CustDispPort, p_scn->CustDispPort);
 					p_ed->CustDispFlags = p_scn->CustDispFlags;
 					p_ed->ClearCDYTimeout = p_scn->ClearCDYTimeout;
-					p_ed->EgaisMode     = p_scn->EgaisMode; // @v9.0.9
+					p_ed->EgaisMode     = p_scn->EgaisMode;
+					p_ed->ChZnPermissiveMode = p_scn->ChZnPermissiveMode; // @v11.9.12
+					p_ed->ChZnGuaID     = p_scn->ChZnGuaID; // @v11.9.12
 					p_ed->BnkTermType   = p_scn->BnkTermType;
 					p_ed->BnkTermLogNum = p_scn->BnkTermLogNum;
 					p_ed->BnkTermFlags = p_scn->BnkTermFlags;
 					p_ed->PhnSvcID     = p_scn->PhnSvcID;
 					STRNSCPY(p_ed->BnkTermPort, p_scn->BnkTermPort);
 					p_scn->ExtString.CopyTo(p_ed->ExtStrBuf, 0); // Размер буфера p_ed точно отмерен для того, чтобы вместить p_scn->ExtString: см. выше
-					if(p_ed->TouchScreenID || p_ed->ExtCashNodeID || p_ed->CustDispType || p_ed->BnkTermType ||
-						/*p_ed->PapyrusNodeID*/p_ed->AlternateRegID || p_ed->ScaleID || p_ed->PhnSvcID || p_ed->ExtStrBuf[0] || p_ed->EgaisMode) {
+					if(!p_ed->IsEmpty()) {
 						THROW(P_Ref->PutProp(Obj, *pID, CNPRP_EXTDEVICES, p_ed, ed_size, 0));
 					}
 					else {
@@ -1066,7 +1067,7 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 						MEMSZERO(pnext);
 						pnext.ScfDaysPeriod = p_scn->Scf.DaysPeriod;
 						pnext.ScfDlvrItemsShowTag = p_scn->Scf.DlvrItemsShowTag;
-						pnext.ScfFlags = p_scn->Scf.Flags; // @v9.7.5
+						pnext.ScfFlags = p_scn->Scf.Flags;
 						pnext.BonusMaxPart = p_scn->BonusMaxPart;
 						THROW(P_Ref->PutProp(Obj, *pID, CNPRP_EXTRA, &pnext, sizeof(pnext)));
 					}
@@ -1313,6 +1314,7 @@ int SelectPrinterFromWinPool(SString & rPrinter)
 static int EditExtDevices(PPSyncCashNode * pData)
 {
 	class ExtDevicesDialog : public TDialog {
+		DECL_DIALOG_DATA(PPSyncCashNode);
 	public:
 		ExtDevicesDialog() : TDialog(DLG_EXTDEV)
 		{
@@ -1321,7 +1323,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_EXTDEV_HOSTICURL, CTL_EXTDEV_HOSTICURL, 1, 0, 0,
 				FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfPath);
 		}
-		int    setDTS(const PPSyncCashNode * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			if(!RVALUEPTR(Data, pData))
 				MEMSZERO(Data);
@@ -1354,6 +1356,13 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			AddClusterAssoc(CTL_EXTDEV_EGAISMODE,  2, 2);
 			AddClusterAssoc(CTL_EXTDEV_EGAISMODE,  3, 3);
 			SetClusterData(CTL_EXTDEV_EGAISMODE, Data.EgaisMode);
+			// @v11.9.12 {
+			SetupPPObjCombo(this, CTLSEL_EXTDEV_CHZNGUA, PPOBJ_GLOBALUSERACC, Data.ChZnGuaID, 0);
+			AddClusterAssocDef(CTL_EXTDEV_CHZNPM, 0, PPSyncCashNode::chznpmDontUse);
+			AddClusterAssoc(CTL_EXTDEV_CHZNPM, 1, PPSyncCashNode::chznpmSoft);
+			AddClusterAssoc(CTL_EXTDEV_CHZNPM, 2, PPSyncCashNode::chznpmStrict);
+			SetClusterData(CTL_EXTDEV_CHZNPM, Data.ChZnPermissiveMode);
+			// } @v11.9.12 
 			AddClusterAssoc(CTL_EXTDEV_CHKEGMUNIQ, 0, CASHFX_CHECKEGAISMUNIQ); // @v10.1.1
 			AddClusterAssoc(CTL_EXTDEV_CHKEGMUNIQ, 1, CASHFX_BNKSLIPAFTERRCPT); // @v10.9.11
 			AddClusterAssoc(CTL_EXTDEV_CHKEGMUNIQ, 2, CASHFX_SYNCOPENSESSSOFT); // @v11.4.7
@@ -1364,7 +1373,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			setCtrlString(CTL_EXTDEV_DRVVER, temp_buf); // @v10.0.03
 			return 1;
 		}
-		int    getDTS(PPSyncCashNode * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok  = 1;
 			uint   sel = 0;
@@ -1402,7 +1411,9 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			Data.SetPropString(SCN_MANUFSERIAL, temp_buf);
 			getCtrlString(CTL_EXTDEV_HOSTICURL, temp_buf);
 			Data.SetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf);
-			Data.EgaisMode = (int16)GetClusterData(CTL_EXTDEV_EGAISMODE);
+			Data.EgaisMode = static_cast<int16>(GetClusterData(CTL_EXTDEV_EGAISMODE));
+			getCtrlData(CTLSEL_EXTDEV_CHZNGUA, &Data.ChZnGuaID); // @v11.9.12
+			Data.ChZnPermissiveMode = static_cast<int16>(GetClusterData(CTL_EXTDEV_CHZNPM)); // @v11.9.12
 			GetClusterData(CTL_EXTDEV_CHKEGMUNIQ, &Data.ExtFlags); // @v10.1.1
 			getCtrlString(sel = CTL_EXTDEV_DRVVER, temp_buf); // @v10.0.03
 			THROW(Data.DrvVerFromStr(temp_buf)); // @v10.0.03
@@ -1447,11 +1458,12 @@ static int EditExtDevices(PPSyncCashNode * pData)
 		int    EditCustDisp()
 		{
 			class CustDispDialog : public TDialog {
+				DECL_DIALOG_DATA(PPSyncCashNode);
 			public:
 				CustDispDialog() : TDialog(DLG_CUSTDISP)
 				{
 				}
-				int    setDTS(const PPSyncCashNode * pData)
+				DECL_DIALOG_SETDTS()
 				{
 					RVALUEPTR(Data, pData);
 					SetupStringComboDevice(this, CTLSEL_CUSTDISP_DEVICE, DVCCLS_DISPLAY, Data.CustDispType, 0);
@@ -1460,7 +1472,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 					setCtrlData(CTL_CUSTDISP_USB, &Data.CustDispFlags);
 					return 1;
 				}
-				int    getDTS(PPSyncCashNode * pData)
+				DECL_DIALOG_GETDTS()
 				{
 					int    ok = 1;
 					uint   sel = 0;
@@ -1479,20 +1491,19 @@ static int EditExtDevices(PPSyncCashNode * pData)
 					CATCHZOKPPERRBYDLG
 					return ok;
 				}
-			private:
-				PPSyncCashNode Data;
 			};
 			DIALOG_PROC_BODY(CustDispDialog, &Data);
 		}
 		int    EditBnkTerm()
 		{
 			class BnkTermDialog : public TDialog {
+				DECL_DIALOG_DATA(PPSyncCashNode);
 			public:
 				BnkTermDialog() : TDialog(DLG_BNKTERM)
 				{
 					FileBrowseCtrlGroup::Setup(this, CTLBRW_BNKTERM_FILENAME, CTL_BNKTERM_PATH, 1, 0, 0, FileBrowseCtrlGroup::fbcgfFile);
 				}
-				int    setDTS(const PPSyncCashNode * pData)
+				DECL_DIALOG_SETDTS()
 				{
 					if(!RVALUEPTR(Data, pData))
 						MEMSZERO(Data);
@@ -1503,7 +1514,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 					setCtrlData(CTL_BNKTERM_PINPAD, &Data.BnkTermFlags);
 					return 1;
 				}
-				int    getDTS(PPSyncCashNode * pData)
+				DECL_DIALOG_GETDTS()
 				{
 					int    ok = 1;
 					uint   sel = 0;
@@ -1517,12 +1528,9 @@ static int EditExtDevices(PPSyncCashNode * pData)
 					ASSIGN_PTR(pData, Data);
 					return ok;
 				}
-			private:
-				PPSyncCashNode Data;
 			};
 			DIALOG_PROC_BODY(BnkTermDialog, &Data);
 		}
-		PPSyncCashNode Data;
 	};
 	DIALOG_PROC_BODY(ExtDevicesDialog, pData);
 }
@@ -2387,11 +2395,9 @@ int PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 	dlg->setCtrlLong(CTL_CASHN_ID, pACN->ID);
 	// @vmiller SetupStringCombo(dlg, CTLSEL_CASHN_DEVICE, PPTXT_CMT, pACN->CashType, 0);
 	SetupStringComboDevice(dlg, CTLSEL_CASHN_DEVICE, DVCCLS_SYNCPOS, pACN->CashType, 0); // @vmiller
-	// @v10.0.03 dlg->setCtrlData(CTL_CASHN_DRVVERMAJOR, &pACN->DrvVerMajor);
-	// @v10.0.03 dlg->setCtrlData(CTL_CASHN_DRVVERMINOR, &pACN->DrvVerMinor);
 	SetupStringCombo(dlg, CTLSEL_CASHN_SPECIALITY, PPTXT_POSNODE_SPECIALITY, pACN->Speciality); // @v11.9.6
-	pACN->DrvVerToStr(temp_buf); // @v10.0.03
-	dlg->setCtrlString(CTL_CASHN_DRVVER, temp_buf); // @v10.0.03
+	pACN->DrvVerToStr(temp_buf);
+	dlg->setCtrlString(CTL_CASHN_DRVVER, temp_buf);
 	dlg->setCtrlString(CTL_CASHN_IMPFILES, pACN->ImpFiles);
 	dlg->setCtrlString(CTL_CASHN_EXPPATHS, pACN->ExpPaths);
 	dlg->setCtrlString(CTL_CASHN_LOGNUMS,  pACN->LogNumList);
@@ -2449,8 +2455,6 @@ int PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 		dlg->getCtrlData(CTL_CASHN_NAME, pACN->Name);
 		dlg->getCtrlData(CTL_CASHN_SYMB, pACN->Symb);
 		dlg->getCtrlData(CTLSEL_CASHN_DEVICE, &pACN->CashType);
-		// @v10.0.03 dlg->getCtrlData(CTL_CASHN_DRVVERMAJOR, &pACN->DrvVerMajor);
-		// @v10.0.03 dlg->getCtrlData(CTL_CASHN_DRVVERMINOR, &pACN->DrvVerMinor);
 		dlg->getCtrlString(CTL_CASHN_DRVVER, temp_buf);
 		if(!pACN->DrvVerFromStr(temp_buf)) {
 			PPErrorByDialog(dlg, CTL_CASHN_DRVVER);
@@ -3197,7 +3201,10 @@ int TouchScreenDlg::SelGrpList()
 
 int PPObjTouchScreen::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = 1, r = cmCancel, valid_data = 0, is_new = 0;
+	int    ok = 1;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	bool   is_new = false;
 	TouchScreenDlg * dlg = 0;
 	PPTouchScreenPacket  ts_pack;
 	THROW(CheckDialogPtr(&(dlg = new TouchScreenDlg)));
@@ -3307,7 +3314,10 @@ int PPObjLocPrinter::PutPacket(PPID * pID, const PPLocPrinter * pPack, int use_t
 			}
 		}
 	};
-	int    ok = 1, r = cmCancel, valid_data = 0, is_new = 0;
+	int    ok = 1;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	bool   is_new = false;
 	ushort v = 0;
 	LocPrinterDialog * p_dlg = 0;
 	PPLocPrinter  loc_prn;

@@ -17,14 +17,14 @@ using namespace NWindows;
 // BZip2Crc.cpp
 uint32 CBZip2Crc::Table[256];
 
-static const uint32 kBZip2CrcPoly = 0x04c11db7; // AUTODIN II, Ethernet, & FDDI
+// @v11.9.12 (replaced with SlConst::CrcPoly_BZIP2) static const uint32 kBZip2CrcPoly = 0x04c11db7; // AUTODIN II, Ethernet, & FDDI
 
 void CBZip2Crc::InitTable()
 {
 	for(uint32 i = 0; i < 256; i++) {
 		uint32 r = (i << 24);
 		for(uint j = 0; j < 8; j++)
-			r = (r << 1) ^ (kBZip2CrcPoly & ((uint32)0 - (r >> 31)));
+			r = (r << 1) ^ (SlConst::CrcPoly_BZIP2 & ((uint32)0 - (r >> 31)));
 		Table[i] = r;
 	}
 }

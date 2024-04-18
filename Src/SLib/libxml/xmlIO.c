@@ -923,9 +923,14 @@ static int xmlBufferWrite(void * context, const char * buffer, int len)
  *
  * Returns 1 if matches, 0 otherwise
  */
-static int xmlGzfileMatch(const char * filename ATTRIBUTE_UNUSED)
+static int xmlGzfileMatch(const char * pFileName ATTRIBUTE_UNUSED)
 {
-	return 1;
+	// @v11.9.12 return 1
+	// @v11.9.12 {
+	SFileFormat ff;
+	int ffr = ff.Identify(pFileName, 0);
+	return BIN(ffr == 2 && ff == SFileFormat::Gz);
+	// } @v11.9.12 
 }
 /**
  * xmlGzfileOpen_real:
@@ -1113,9 +1118,14 @@ static int xmlGzfileClose(void * context)
  *
  * Returns 1 if matches, 0 otherwise
  */
-static int xmlXzfileMatch(const char * filename ATTRIBUTE_UNUSED)
+static int xmlXzfileMatch(const char * pFileName)
 {
-	return 1;
+	// @v11.9.12 return 1
+	// @v11.9.12 {
+	SFileFormat ff;
+	int ffr = ff.Identify(pFileName, 0);
+	return BIN(ffr == 2 && ff == SFileFormat::Xz);
+	// } @v11.9.12 
 }
 /**
  * xmlXzFileOpen_real:
@@ -1943,7 +1953,6 @@ void xmlRegisterDefaultInputCallbacks()
 #ifdef HAVE_LZMA_H
 	xmlRegisterInputCallbacks(xmlXzfileMatch, xmlXzfileOpen, xmlXzfileRead, xmlXzfileClose);
 #endif /* HAVE_ZLIB_H */
-
 #ifdef LIBXML_HTTP_ENABLED
 	xmlRegisterInputCallbacks(xmlIOHTTPMatch, xmlIOHTTPOpen, xmlIOHTTPRead, xmlIOHTTPClose);
 #endif /* LIBXML_HTTP_ENABLED */
@@ -2204,23 +2213,23 @@ int FASTCALL xmlOutputBufferClose(xmlOutputBuffer * out)
 
 #endif /* LIBXML_OUTPUT_ENABLED */
 
-xmlParserInputBuffer * __xmlParserInputBufferCreateFilename(const char * URI, xmlCharEncoding enc)
+xmlParserInputBuffer * __xmlParserInputBufferCreateFilename(const char * pUri, xmlCharEncoding enc)
 {
 	xmlParserInputBuffer * ret;
 	int i = 0;
 	void * context = NULL;
 	if(xmlInputCallbackInitialized == 0)
 		xmlRegisterDefaultInputCallbacks();
-	if(!URI)
+	if(isempty(pUri))
 		return 0;
-	/*
-	 * Try to find one of the input accept method accepting that scheme
-	 * Go in reverse to give precedence to user defined handlers.
-	 */
+	//
+	// Try to find one of the input accept method accepting that scheme
+	// Go in reverse to give precedence to user defined handlers.
+	//
 	if(!context) {
 		for(i = xmlInputCallbackNr - 1; i >= 0; i--) {
-			if(xmlInputCallbackTable[i].matchcallback && (xmlInputCallbackTable[i].matchcallback(URI) != 0)) {
-				context = xmlInputCallbackTable[i].opencallback(URI);
+			if(xmlInputCallbackTable[i].matchcallback && (xmlInputCallbackTable[i].matchcallback(pUri) != 0)) {
+				context = xmlInputCallbackTable[i].opencallback(pUri);
 				if(context) {
 					break;
 				}
@@ -2230,16 +2239,16 @@ xmlParserInputBuffer * __xmlParserInputBufferCreateFilename(const char * URI, xm
 	if(!context) {
 		return 0;
 	}
-	/*
-	 * Allocate the Input buffer front-end.
-	 */
+	// 
+	// Allocate the Input buffer front-end.
+	// 
 	ret = xmlAllocParserInputBuffer(enc);
 	if(ret) {
 		ret->context = context;
 		ret->readcallback = xmlInputCallbackTable[i].readcallback;
 		ret->closecallback = xmlInputCallbackTable[i].closecallback;
 #ifdef HAVE_ZLIB_H
-		if((xmlInputCallbackTable[i].opencallback == xmlGzfileOpen) && (strcmp(URI, "-") != 0)) {
+		if((xmlInputCallbackTable[i].opencallback == xmlGzfileOpen) && (strcmp(pUri, "-") != 0)) {
 #if defined(ZLIB_VERNUM) && ZLIB_VERNUM >= 0x1230
 			ret->compressed = !gzdirect((gzFile)context);
 #else
@@ -2258,14 +2267,13 @@ xmlParserInputBuffer * __xmlParserInputBufferCreateFilename(const char * URI, xm
 		}
 #endif
 #ifdef HAVE_LZMA_H
-		if((xmlInputCallbackTable[i].opencallback == xmlXzfileOpen) && (strcmp(URI, "-") != 0)) {
+		if((xmlInputCallbackTable[i].opencallback == xmlXzfileOpen) && (strcmp(pUri, "-") != 0)) {
 			ret->compressed = __libxml2_xzcompressed(context);
 		}
 #endif
 	}
 	else
 		xmlInputCallbackTable[i].closecallback(context);
-
 	return ret;
 }
 

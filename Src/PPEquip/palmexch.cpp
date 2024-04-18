@@ -1217,7 +1217,9 @@ SString & PalmTcpExchange::GetTcpDevListPath(SString & rPath)
 
 int PalmTcpExchange::LogTrafficInfo(const char * pDevice)
 {
-	int    ok = 1, r = 1, is_new = 0;
+	int    ok = 1;
+	int    r = 1;
+	int    is_new = 0;
 	FILE * f = 0;
 	SString path, msg, s_dtm;
 	THROW(pDevice && P_So);
@@ -1250,7 +1252,9 @@ int PalmTcpExchange::LogTrafficInfo(const char * pDevice)
 
 /*static*/int PalmTcpExchange::LogTrafficInfo(const char * pPath, const char * pLogPath, const char * pDevice, int isReadBytes)
 {
-	int    ok = 1, r = 1, is_new = 0;
+	int    ok = 1;
+	int    r = 1;
+	int    is_new = 0;
 	FILE * f = 0;
 	SString path, msg, s_dtm;
 	THROW(pDevice && pPath && pLogPath);

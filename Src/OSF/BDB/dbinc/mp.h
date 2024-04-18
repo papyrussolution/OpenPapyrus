@@ -9,8 +9,6 @@
 #ifndef	_DB_MP_H_
 #define	_DB_MP_H_
 
-//#include "dbinc/atomic.h"
-
 #if defined(__cplusplus)
 extern "C" {
 #endif

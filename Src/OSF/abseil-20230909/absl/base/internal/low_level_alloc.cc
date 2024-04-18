@@ -34,22 +34,14 @@
 #ifndef ABSL_LOW_LEVEL_ALLOC_MISSING
 
 #ifndef _WIN32
-#include <pthread.h>
-#include <signal.h>
-#include <sys/mman.h>
-#include <unistd.h>
-#else
-//#include <windows.h>
+	#include <pthread.h>
+	#include <signal.h>
+	#include <sys/mman.h>
+	#include <unistd.h>
 #endif
 #ifdef __linux__
-#include <sys/prctl.h>
+	#include <sys/prctl.h>
 #endif
-//#include <string.h>
-//#include <algorithm>
-//#include <atomic>
-//#include <cerrno>
-//#include <cstddef>
-//#include <new>  // for placement-new
 #include "absl/base/dynamic_annotations.h"
 #include "absl/base/internal/raw_logging.h"
 #include "absl/base/internal/spinlock.h"

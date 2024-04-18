@@ -56,7 +56,8 @@ int PPCliBnkImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 {
 	int    ok = 1;
 	long   flags = 0;
-	SString params, fld_name;
+	SString params;
+	SString fld_name;
 	THROW(PPLoadText(PPTXT_CLIENTBANKPARAMS, params));
 	THROW(PPImpExpParam::WriteIni(pFile, pSect));
 	if(BnkCode.NotEmpty()) {
@@ -116,7 +117,10 @@ int PPCliBnkImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const St
 int FASTCALL GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpParam * pParam, uint maxBackup, PPLogger * pLogger)
 {
 	int    ok = 1;
-	SString ini_file_name, section, all_fields_name, temp_buf;
+	SString temp_buf;
+	SString ini_file_name;
+	SString section;
+	SString all_fields_name;
 	StringSet all_sections;
 	PPCliBnkImpExpParam param;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_CLIBNK_INI, ini_file_name));
@@ -157,7 +161,7 @@ int FASTCALL GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpP
 struct BankStmntAssocItem {  // @persistent @store(PropertyTbl)[as item of array] @flat
 	PPID   AccSheetID; //
 	int16  Sign;       // -1, 1, 0 (undefined)
-	int16  AddedTag;   // Дополнительный тег для установки соотвествия вида операции
+	int16  AddedTag;   // Дополнительный тег для установки соответствия вида операции. Ассоциация применяется если AddedTag >= 0 && поле AddedAssocTag в записи равно AddedTag.
 	PPID   OpID;       //
 };
 //
@@ -166,7 +170,7 @@ struct BankStmntAssocItem {  // @persistent @store(PropertyTbl)[as item of array
 struct BankStmntItem : public Sdr_CliBnkData { // @flat
 	BankStmntItem() : Sdr_CliBnkData(), WeArePayer(0), PayerPersonID(0), ReceiverPersonID(0)
 	{
-		PTR32(WhKPP)[0] = 0;
+		WhKPP[0] = 0;
 	}
 	void PutPayerRcvrInfo(const BankStmntItem * pItem)
 	{
@@ -268,7 +272,6 @@ public:
 		else
 			ok = 0;
 		return ok;
-		// @v9.6.3 @fix (не понятная лишняя строка) return P_ImEx ? P_ImEx->OpenFileForWriting(0, 1) : 0;
 	}
 	int    PutRecord(const PPBillPacket * pPack, PPID debtBillID, PPLogger * pLogger);
 	int    PutHeader()
@@ -300,14 +303,10 @@ private:
 	DateRange Period;
 };
 
-ClientBankImportDef::ClientBankImportDef()
-	{ P_Helper = new Helper_ClientBank2(0); }
-ClientBankImportDef::~ClientBankImportDef()
-	{ delete static_cast<Helper_ClientBank2 *>(P_Helper); }
-PPImpExpParam & ClientBankImportDef::GetParam() const
-	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->GetParam(); }
-int ClientBankImportDef::ReadDefinition(const char * pIniSection)
-	{ return static_cast<Helper_ClientBank2 *>(P_Helper)->ReadDefinition(pIniSection); }
+ClientBankImportDef::ClientBankImportDef() { P_Helper = new Helper_ClientBank2(0); }
+ClientBankImportDef::~ClientBankImportDef() { delete static_cast<Helper_ClientBank2 *>(P_Helper); }
+PPImpExpParam & ClientBankImportDef::GetParam() const { return static_cast<Helper_ClientBank2 *>(P_Helper)->GetParam(); }
+int ClientBankImportDef::ReadDefinition(const char * pIniSection) { return static_cast<Helper_ClientBank2 *>(P_Helper)->ReadDefinition(pIniSection); }
 
 // AHTOXA {
 static int GetOurInfo(BankStmntItem * pItem)
@@ -1102,7 +1101,7 @@ int SetupCliBnkAssoc()
 		{
 			class SetupCliBnkAssocItemDialog : public TDialog {
 			public:
-				SetupCliBnkAssocItemDialog () : TDialog(DLG_CBASITM)
+				SetupCliBnkAssocItemDialog() : TDialog(DLG_CBASITM)
 				{
 				}
 				int    setDTS(const BankStmntAssocItem * pItem)

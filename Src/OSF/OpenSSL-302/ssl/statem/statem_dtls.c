@@ -331,10 +331,8 @@ int dtls_get_message(SSL * s, int * mt)
 	size_t msg_len;
 	size_t tmplen;
 	int errtype;
-
 	msg_hdr = &s->d1->r_msg_hdr;
-	memset(msg_hdr, 0, sizeof(*msg_hdr));
-
+	memzero(msg_hdr, sizeof(*msg_hdr));
 again:
 	if(!dtls_get_reassembled_message(s, &errtype, &tmplen)) {
 		if(errtype == DTLS1_HM_BAD_FRAGMENT
@@ -368,13 +366,9 @@ again:
 	s2n(msg_hdr->seq, p);
 	l2n3(0, p);
 	l2n3(msg_len, p);
-
-	memset(msg_hdr, 0, sizeof(*msg_hdr));
-
+	memzero(msg_hdr, sizeof(*msg_hdr));
 	s->d1->handshake_read_seq++;
-
 	s->init_msg = s->init_buf->data + DTLS1_HM_HEADER_LENGTH;
-
 	return 1;
 }
 
@@ -555,17 +549,14 @@ static int dtls1_reassemble_fragment(SSL * s, const struct hm_header_st * msg_hd
 	if((msg_hdr->frag_off + frag_len) > msg_hdr->msg_len ||
 	    msg_hdr->msg_len > dtls1_max_handshake_message_len(s))
 		goto err;
-
 	if(frag_len == 0) {
 		return DTLS1_HM_FRAGMENT_RETRY;
 	}
-
 	/* Try to find item in queue */
-	memset(seq64be, 0, sizeof(seq64be));
+	memzero(seq64be, sizeof(seq64be));
 	seq64be[6] = (unsigned char)(msg_hdr->seq >> 8);
 	seq64be[7] = (unsigned char)msg_hdr->seq;
 	item = pqueue_find(s->d1->buffered_messages, seq64be);
-
 	if(item == NULL) {
 		frag = dtls1_hm_fragment_new(msg_hdr->msg_len, 1);
 		if(frag == NULL)
@@ -660,12 +651,10 @@ static int dtls1_process_out_of_seq_message(SSL * s, const struct hm_header_st *
 	unsigned char seq64be[8];
 	size_t frag_len = msg_hdr->frag_len;
 	size_t readbytes;
-
 	if((msg_hdr->frag_off + frag_len) > msg_hdr->msg_len)
 		goto err;
-
 	/* Try to find item in queue, to prevent duplicate entries */
-	memset(seq64be, 0, sizeof(seq64be));
+	memzero(seq64be, sizeof(seq64be));
 	seq64be[6] = (unsigned char)(msg_hdr->seq >> 8);
 	seq64be[7] = (unsigned char)msg_hdr->seq;
 	item = pqueue_find(s->d1->buffered_messages, seq64be);
@@ -1055,21 +1044,17 @@ int dtls1_buffer_message(SSL * s, int is_ccs)
 	if(is_ccs) {
 		/* For DTLS1_BAD_VER the header length is non-standard */
 		if(!ossl_assert(s->d1->w_msg_hdr.msg_len +
-		    ((s->version ==
-		    DTLS1_BAD_VER) ? 3 : DTLS1_CCS_HEADER_LENGTH)
-		    == (unsigned int)s->init_num)) {
+		    ((s->version == DTLS1_BAD_VER) ? 3 : DTLS1_CCS_HEADER_LENGTH) == (unsigned int)s->init_num)) {
 			dtls1_hm_fragment_free(frag);
 			return 0;
 		}
 	}
 	else {
-		if(!ossl_assert(s->d1->w_msg_hdr.msg_len +
-		    DTLS1_HM_HEADER_LENGTH == (unsigned int)s->init_num)) {
+		if(!ossl_assert(s->d1->w_msg_hdr.msg_len + DTLS1_HM_HEADER_LENGTH == (unsigned int)s->init_num)) {
 			dtls1_hm_fragment_free(frag);
 			return 0;
 		}
 	}
-
 	frag->msg_header.msg_len = s->d1->w_msg_hdr.msg_len;
 	frag->msg_header.seq = s->d1->w_msg_hdr.seq;
 	frag->msg_header.type = s->d1->w_msg_hdr.type;
@@ -1082,19 +1067,10 @@ int dtls1_buffer_message(SSL * s, int is_ccs)
 	frag->msg_header.saved_retransmit_state.write_hash = s->write_hash;
 	frag->msg_header.saved_retransmit_state.compress = s->compress;
 	frag->msg_header.saved_retransmit_state.session = s->session;
-	frag->msg_header.saved_retransmit_state.epoch =
-	    DTLS_RECORD_LAYER_get_w_epoch(&s->rlayer);
-
-	memset(seq64be, 0, sizeof(seq64be));
-	seq64be[6] =
-	    (unsigned
-	    char)(dtls1_get_queue_priority(frag->msg_header.seq,
-	    frag->msg_header.is_ccs) >> 8);
-	seq64be[7] =
-	    (unsigned
-	    char)(dtls1_get_queue_priority(frag->msg_header.seq,
-	    frag->msg_header.is_ccs));
-
+	frag->msg_header.saved_retransmit_state.epoch = DTLS_RECORD_LAYER_get_w_epoch(&s->rlayer);
+	memzero(seq64be, sizeof(seq64be));
+	seq64be[6] = (unsigned char)(dtls1_get_queue_priority(frag->msg_header.seq, frag->msg_header.is_ccs) >> 8);
+	seq64be[7] = (unsigned char)(dtls1_get_queue_priority(frag->msg_header.seq, frag->msg_header.is_ccs));
 	item = pitem_new(seq64be, frag);
 	if(item == NULL) {
 		dtls1_hm_fragment_free(frag);
@@ -1114,12 +1090,10 @@ int dtls1_retransmit_message(SSL * s, unsigned short seq, int * found)
 	unsigned long header_length;
 	unsigned char seq64be[8];
 	struct dtls1_retransmit_state saved_state;
-
 	/* XDTLS:  the requested message ought to be found, otherwise error */
-	memset(seq64be, 0, sizeof(seq64be));
+	memzero(seq64be, sizeof(seq64be));
 	seq64be[6] = (unsigned char)(seq >> 8);
 	seq64be[7] = (unsigned char)seq;
-
 	item = pqueue_find(s->d1->sent_messages, seq64be);
 	if(item == NULL) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
@@ -1229,10 +1203,9 @@ static uchar * dtls1_write_message_header(SSL * s, uchar * p)
 
 void dtls1_get_message_header(uchar * data, struct hm_header_st * msg_hdr)
 {
-	memset(msg_hdr, 0, sizeof(*msg_hdr));
+	memzero(msg_hdr, sizeof(*msg_hdr));
 	msg_hdr->type = *(data++);
 	n2l3(data, msg_hdr->msg_len);
-
 	n2s(data, msg_hdr->seq);
 	n2l3(data, msg_hdr->frag_off);
 	n2l3(data, msg_hdr->frag_len);

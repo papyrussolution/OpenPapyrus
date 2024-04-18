@@ -17,15 +17,6 @@
 #include "absl/time/clock.h"
 #include "absl/base/attributes.h"
 #include "absl/base/optimization.h"
-//#ifdef _WIN32
-//#include <windows.h>
-//#endif
-//#include <algorithm>
-//#include <atomic>
-//#include <cerrno>
-//#include <cstdint>
-//#include <ctime>
-//#include <limits>
 #include "absl/base/internal/spinlock.h"
 #include "absl/base/internal/unscaledcycleclock.h"
 #include "absl/base/macros.h"

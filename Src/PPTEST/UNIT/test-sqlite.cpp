@@ -20,7 +20,7 @@ SLTEST_R(SQLite)
 	{
 		// Создать таблицу
 		DBTable dbt;
-		if(dbp.LoadTableSpec(&dbt, "TestTa01", "TestTa01", 1)) {
+		if(dbp.LoadTableSpec(&dbt, "TestTa01", "TestTa01", /*createIfNExists*/0)) {
 			if(dbp.CreateDataFile(&dbt, "TestTa01", SET_CRM_TEMP(crmNoReplace), 0)) {
 				debug_mark = true;
 			}

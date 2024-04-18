@@ -1050,7 +1050,9 @@ int PPObjMrpTab::EditDialog(MrpTabTbl::Rec * pRec) { DIALOG_PROC_BODY(MrpTabDial
 
 int PPObjMrpTab::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = 1, r = cmCancel, is_new = 0;
+	int    ok = 1;
+	int    r = cmCancel;
+	bool   is_new = false;
 	const  PPConfig & r_cfg = LConfig;
 	MrpTabTbl::Rec rec;
 	THROW(EditPrereq(pID, 0, &is_new));

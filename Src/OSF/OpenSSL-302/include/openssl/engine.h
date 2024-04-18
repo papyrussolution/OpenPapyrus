@@ -42,26 +42,25 @@ extern "C" {
  * These flags are used to control combinations of algorithm (methods) by
  * bitwise "OR"ing.
  */
-#define ENGINE_METHOD_RSA               (unsigned int)0x0001
-#define ENGINE_METHOD_DSA               (unsigned int)0x0002
-#define ENGINE_METHOD_DH                (unsigned int)0x0004
-#define ENGINE_METHOD_RAND              (unsigned int)0x0008
-#define ENGINE_METHOD_CIPHERS           (unsigned int)0x0040
-#define ENGINE_METHOD_DIGESTS           (unsigned int)0x0080
-#define ENGINE_METHOD_PKEY_METHS        (unsigned int)0x0200
-#define ENGINE_METHOD_PKEY_ASN1_METHS   (unsigned int)0x0400
-#define ENGINE_METHOD_EC                (unsigned int)0x0800
+#define ENGINE_METHOD_RSA               0x0001U
+#define ENGINE_METHOD_DSA               0x0002U
+#define ENGINE_METHOD_DH                0x0004U
+#define ENGINE_METHOD_RAND              0x0008U
+#define ENGINE_METHOD_CIPHERS           0x0040U
+#define ENGINE_METHOD_DIGESTS           0x0080U
+#define ENGINE_METHOD_PKEY_METHS        0x0200U
+#define ENGINE_METHOD_PKEY_ASN1_METHS   0x0400U
+#define ENGINE_METHOD_EC                0x0800U
 /* Obvious all-or-nothing cases. */
-#define ENGINE_METHOD_ALL               (unsigned int)0xFFFF
-#define ENGINE_METHOD_NONE              (unsigned int)0x0000
-
+#define ENGINE_METHOD_ALL               0xFFFFU
+#define ENGINE_METHOD_NONE              0x0000U
 /*
  * This(ese) flag(s) controls behaviour of the ENGINE_TABLE mechanism used
  * internally to control registration of ENGINE implementations, and can be
  * set by ENGINE_set_table_flags(). The "NOINIT" flag prevents attempts to
  * initialise registered ENGINEs if they are not already initialised.
  */
-#define ENGINE_TABLE_FLAG_NOINIT        (unsigned int)0x0001
+#define ENGINE_TABLE_FLAG_NOINIT        0x0001
 
 /* ENGINE flags that can be set by ENGINE_set_flags(). */
 /* Not used */
@@ -106,23 +105,23 @@ extern "C" {
  */
 
 /* accepts a 'long' input value (3rd parameter to ENGINE_ctrl) */
-#define ENGINE_CMD_FLAG_NUMERIC         (unsigned int)0x0001
+#define ENGINE_CMD_FLAG_NUMERIC         0x0001U
 /*
  * accepts string input (cast from 'void*' to 'const char *', 4th parameter
  * to ENGINE_ctrl)
  */
-#define ENGINE_CMD_FLAG_STRING          (unsigned int)0x0002
+#define ENGINE_CMD_FLAG_STRING          0x0002U
 /*
  * Indicates that the control command takes *no* input. Ie. the control
  * command is unparameterised.
  */
-#define ENGINE_CMD_FLAG_NO_INPUT        (unsigned int)0x0004
+#define ENGINE_CMD_FLAG_NO_INPUT        0x0004U
 /*
  * Indicates that the control command is internal. This control command won't
  * be shown in any output, and is only usable through the ENGINE_ctrl_cmd()
  * function.
  */
-#define ENGINE_CMD_FLAG_INTERNAL        (unsigned int)0x0008
+#define ENGINE_CMD_FLAG_INTERNAL        0x0008U
 /*
  * NB: These 3 control commands are deprecated and should not be used.
  * ENGINEs relying on these commands should compile conditional support for

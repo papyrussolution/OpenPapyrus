@@ -15,11 +15,9 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/crc/crc32c.h"
-//#include <cstdint>
 #include "absl/crc/internal/crc.h"
 #include "absl/crc/internal/crc32c.h"
 #include "absl/crc/internal/crc_memcpy.h"
-//#include "absl/strings/string_view.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
@@ -50,30 +48,30 @@ crc32c_t ExtendCrc32cInternal(crc32c_t initial_crc,
 }
 }  // namespace crc_internal
 
-crc32c_t ComputeCrc32c(absl::string_view buf) {
-	return ExtendCrc32c(crc32c_t{0}, buf);
-}
+crc32c_t ComputeCrc32c(absl::string_view buf) { return ExtendCrc32c(crc32c_t{0}, buf); }
 
-crc32c_t ExtendCrc32cByZeroes(crc32c_t initial_crc, size_t length) {
+crc32c_t ExtendCrc32cByZeroes(crc32c_t initial_crc, size_t length) 
+{
 	uint32_t crc = static_cast<uint32_t>(initial_crc) ^ kCRC32Xor;
 	CrcEngine()->ExtendByZeroes(&crc, length);
 	return static_cast<crc32c_t>(crc ^ kCRC32Xor);
 }
 
-crc32c_t ConcatCrc32c(crc32c_t lhs_crc, crc32c_t rhs_crc, size_t rhs_len) {
+crc32c_t ConcatCrc32c(crc32c_t lhs_crc, crc32c_t rhs_crc, size_t rhs_len) 
+{
 	uint32_t result = static_cast<uint32_t>(lhs_crc);
 	CrcEngine()->ExtendByZeroes(&result, rhs_len);
 	return crc32c_t{result ^ static_cast<uint32_t>(rhs_crc)};
 }
 
-crc32c_t RemoveCrc32cPrefix(crc32c_t crc_a, crc32c_t crc_ab, size_t length_b) {
+crc32c_t RemoveCrc32cPrefix(crc32c_t crc_a, crc32c_t crc_ab, size_t length_b) 
+{
 	return ConcatCrc32c(crc_a, crc_ab, length_b);
 }
 
-crc32c_t MemcpyCrc32c(void* dest, const void* src, size_t count,
-    crc32c_t initial_crc) {
-	return static_cast<crc32c_t>(
-		crc_internal::Crc32CAndCopy(dest, src, count, initial_crc, false));
+crc32c_t MemcpyCrc32c(void* dest, const void* src, size_t count, crc32c_t initial_crc) 
+{
+	return static_cast<crc32c_t>(crc_internal::Crc32CAndCopy(dest, src, count, initial_crc, false));
 }
 
 // Remove a Suffix of given size from a buffer

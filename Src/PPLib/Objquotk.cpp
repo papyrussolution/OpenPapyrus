@@ -1102,7 +1102,7 @@ int PPObjQuotKind::Edit(PPID * pID, void * extraPtr)
 	int    ok = 1;
 	int    r = cmCancel;
 	int    valid_data = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	PPQuotKindPacket pack;
 	QuotKindDialog * p_dlg = 0;
 	THROW(CheckDialogPtr(&(p_dlg = new QuotKindDialog(this))));

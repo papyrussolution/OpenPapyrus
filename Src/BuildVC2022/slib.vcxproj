@@ -1431,6 +1431,7 @@
       </PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="..\SLib\EDLIB\edlib.cpp" />
+    <ClCompile Include="..\SLib\fnv-503\fnv_hash.c" />
     <ClCompile Include="..\SLib\gensql.cpp" />
     <ClCompile Include="..\SLib\Kr.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
@@ -4637,6 +4638,7 @@
     <ClInclude Include="..\Include\xxhash.h" />
     <ClInclude Include="..\Include\zlib.h" />
     <ClInclude Include="..\SLib\EDLIB\edlib.h" />
+    <ClInclude Include="..\SLib\fnv-503\fnv.h" />
     <ClInclude Include="..\SLib\gumbo\gumbo-internal.h" />
     <ClInclude Include="..\SLib\gumbo\gumbo.h" />
     <ClInclude Include="..\SLib\gumbo\tag_enum.h" />

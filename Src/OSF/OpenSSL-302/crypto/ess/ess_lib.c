@@ -127,12 +127,9 @@ static ESS_CERT_ID_V2 * ESS_CERT_ID_V2_new_init(const EVP_MD * hash_alg,
 	unsigned char hash[EVP_MAX_MD_SIZE];
 	unsigned int hash_len = sizeof(hash);
 	X509_ALGOR * alg = NULL;
-
-	memset(hash, 0, sizeof(hash));
-
+	memzero(hash, sizeof(hash));
 	if((cid = ESS_CERT_ID_V2_new()) == NULL)
 		goto err;
-
 	if(!EVP_MD_is_a(hash_alg, SN_sha256)) {
 		alg = X509_ALGOR_new();
 		if(alg == NULL)

@@ -4675,7 +4675,7 @@ int PPObjScale::Edit(PPID * pID, void * extraPtr)
 	int    ok = 1;
 	int    r = cmCancel;
 	int    valid_data = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	SString temp_buf;
 	PPScalePacket pack;
 	ScaleDialog * dlg = new ScaleDialog();

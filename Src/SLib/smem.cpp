@@ -50,6 +50,8 @@ bool FASTCALL ismemzero(const void * p, size_t s)
 void * FASTCALL memzero(void * p, size_t s)
 {
 	if(p) {
+		memset(p, 0, s); // @v11.9.12
+		/* @v11.9.12 нет никакого смысла в этих выдуманных детских оптимизациях: memset сама отлично справляется.
 		switch(s) {
 			case 1: PTR8(p)[0] = 0; break;
 			case 2: PTR16(p)[0] = 0; break;
@@ -81,7 +83,7 @@ void * FASTCALL memzero(void * p, size_t s)
 			default:
 				memset(p, 0, s);
 				break;
-		}
+		}*/
 	}
 	return p;
 }

@@ -1528,6 +1528,8 @@ browser SWPROGRAM north(100), 3, 0, "@{view_swprogram}", OWNER|GRID, 0
 {
 	"@id",              0, int32,        ALIGN_RIGHT, 10, BCO_USERPROC
 	"@appellation",     1, zstring(128), 0, 50, BCO_USERPROC
+	"@category",        2, zstring(128), 0, 50, BCO_USERPROC
+	"@executablefile",  3, zstring(128), 0, 50, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM                : kbEnter, PPDV_EDITFILE02,   "@{edit}\tEnter"
 		ADDITEM                 : kbIns,   PPDV_ADDFILE02,    "@{add}\tInsert"

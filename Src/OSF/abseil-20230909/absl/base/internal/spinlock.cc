@@ -15,9 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/base/internal/spinlock.h"
-//#include <algorithm>
-//#include <atomic>
-//#include <limits>
 #include "absl/base/attributes.h"
 #include "absl/base/config.h"
 #include "absl/base/internal/atomic_hook.h"

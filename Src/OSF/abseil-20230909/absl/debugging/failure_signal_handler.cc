@@ -35,13 +35,6 @@
 #ifdef __linux__
 	#include <sys/prctl.h>
 #endif
-//#include <algorithm>
-//#include <atomic>
-//#include <cerrno>
-//#include <csignal>
-//#include <cstdio>
-//#include <cstring>
-//#include <ctime>
 #include "absl/base/attributes.h"
 #include "absl/base/internal/raw_logging.h"
 #include "absl/base/internal/sysinfo.h"

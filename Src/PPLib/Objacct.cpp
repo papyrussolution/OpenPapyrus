@@ -1010,7 +1010,7 @@ int PPObjAccount::Edit(PPID * pID, void * extraPtr /*accType*/)
 	const  int extra_acc_type = reinterpret_cast<int>(extraPtr);
 	int    ok = -1;
 	int    valid_data = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	int    acc_type = ACY_BAL;
 	AccountDialog    * p_bal_dlg = 0;
 	GenAccountDialog * p_gen_dlg = 0;

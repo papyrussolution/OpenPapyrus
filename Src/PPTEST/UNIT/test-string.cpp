@@ -70,6 +70,33 @@ public:
 	size_t MaxStrListItemLen; // @v11.7.10 Для оценки производительности smemchr(ptr, 0, size)
 };
 
+class OtherImplementation_String {
+public:
+	// скопировал различные реализации для теста и, если тест отрабатывает, то заменяю эти реализации на sstrnlen
+	static size_t OPENSSL_strnlen(const char * str, size_t maxlen)
+	{
+		const char * p;
+		for(p = str; maxlen-- != 0 && *p != 0; ++p)
+			;
+		return p - str;
+	}
+	static size_t tftp_strnlen(const char * string, size_t maxlen)
+	{
+		const char * end = (const char *)smemchr(string, '\0', maxlen);
+		return end ? (size_t)(end - string) : maxlen;
+	}
+	static int32_t u_astrnlen(const char * s1, int32_t n) // icu
+	{
+		int32_t len = 0;
+		if(s1) {
+			while(n-- && *(s1++)) {
+				len++;
+			}
+		}
+		return len;
+	}
+};
+
 SLTEST_FIXTURE(SString, SlTestFixtureSString)
 {
 	// benchmark: benchmark=stack;sstring;revolver;atof;satof
@@ -104,6 +131,65 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	else if(sstreqi_ascii(pBenchmark, "sstrnlen"))     bm = 13; // @v11.7.10
 	else SetInfo("invalid benchmark");
 	if(bm == 0) {
+		{
+			// Тестирование функций sstrlen и sstrnlen
+			SLCHECK_EQ(sstrlen(static_cast<const char *>(0)), 0U);
+			SLCHECK_EQ(sstrlen(static_cast<const uchar *>(0)), 0U);
+			SLCHECK_EQ(sstrlen(static_cast<const wchar_t *>(0)), 0U);
+			SLCHECK_EQ(sstrlen(static_cast<const char16_t *>(0)), 0U);
+			SLCHECK_EQ(sstrlen(static_cast<const ushort *>(0)), 0U);
+			SLCHECK_EQ(sstrlen(static_cast<const short *>(0)), 0U);
+
+			SLCHECK_EQ(sstrlen(static_cast<const char *>("")), 0U);
+			SLCHECK_EQ(sstrlen(reinterpret_cast<const uchar *>("")), 0U);
+			SLCHECK_EQ(sstrlen(static_cast<const wchar_t *>(L"")), 0U);
+			SLCHECK_EQ(sstrlen(reinterpret_cast<const char16_t *>(L"")), 0U);
+			SLCHECK_EQ(sstrlen(reinterpret_cast<const ushort *>(L"")), 0U);
+			SLCHECK_EQ(sstrlen(reinterpret_cast<const short *>(L"")), 0U);
+
+			SLCHECK_EQ(sstrlen(static_cast<const char *>("abc")), 3U);
+			SLCHECK_EQ(sstrlen(reinterpret_cast<const uchar *>("abc")), 3U);
+			SLCHECK_EQ(sstrlen(static_cast<const wchar_t *>(L"abc")), 3U);
+			SLCHECK_EQ(sstrlen(reinterpret_cast<const char16_t *>(L"abc")), 3U);
+			SLCHECK_EQ(sstrlen(reinterpret_cast<const ushort *>(L"abc")), 3U);
+			SLCHECK_EQ(sstrlen(reinterpret_cast<const short *>(L"abc")), 3U);
+			{
+				constexpr size_t buf_len = SMEGABYTE(20) + 37;
+				constexpr size_t delta = 6;
+				char * p_very_long_string = static_cast<char *>(SAlloc::M(buf_len));
+				SLCHECK_NZ(p_very_long_string);
+				if(p_very_long_string) {
+					SObfuscateBuffer(p_very_long_string, buf_len);
+					char * p = p_very_long_string;
+					do {
+						p = static_cast<char *>(const_cast<void *>(smemchr(p, 0, buf_len - (p - p_very_long_string))));
+						if(p)
+							*p++ = '\x01';
+					} while(p && (p - p_very_long_string) < buf_len);
+					assert(smemchr(p_very_long_string, 0, buf_len) == 0);
+					p_very_long_string[buf_len-delta] = 0;
+
+					SLCHECK_EQ(sstrlen(p_very_long_string), buf_len-delta);
+					SLCHECK_EQ(sstrlen(reinterpret_cast<const uchar *>(p_very_long_string)), buf_len-delta);
+					for(uint j = 0; j < SKILOBYTE(1); j++) {
+						SLCHECK_EQ(sstrnlen(p_very_long_string, j), j);
+						SLCHECK_EQ(sstrnlen(reinterpret_cast<const uchar *>(p_very_long_string), j), j);
+
+						SLCHECK_EQ(OtherImplementation_String::OPENSSL_strnlen(p_very_long_string, j), j);
+						SLCHECK_EQ(OtherImplementation_String::tftp_strnlen(p_very_long_string, j), j);
+						SLCHECK_EQ(OtherImplementation_String::u_astrnlen(p_very_long_string, j), (int)j);
+					}
+					SLCHECK_EQ(sstrnlen(p_very_long_string, buf_len), buf_len-delta);
+					SLCHECK_EQ(sstrnlen(reinterpret_cast<const uchar *>(p_very_long_string), buf_len), buf_len-delta);
+
+					SLCHECK_EQ(OtherImplementation_String::OPENSSL_strnlen(p_very_long_string, buf_len), buf_len-delta);
+					SLCHECK_EQ(OtherImplementation_String::tftp_strnlen(p_very_long_string, buf_len), buf_len-delta);
+					SLCHECK_EQ(OtherImplementation_String::u_astrnlen(p_very_long_string, buf_len), (int)(buf_len-delta));
+
+					ZFREE(p_very_long_string);
+				}
+			}
+		}
 		{
 			// @v11.9.4 Ситуативный тест проверки преобразования double в строку
 			double qtty = 0.3;
@@ -2648,37 +2734,37 @@ SLTEST_R(slprintf)
 
 			struct unsshort_st {
 				ushort num; /* unsigned short  */
-				const char * expected; /* expected string */
+				const char * expected; // expected string
 				char result[BUFSZ]; /* result string   */
 			};
 			struct sigshort_st {
 				short num;      /* signed short    */
-				const char * expected; /* expected string */
+				const char * expected; // expected string
 				char result[BUFSZ]; /* result string   */
 			};
 			struct unsint_st {
 				uint num; /* unsigned int    */
-				const char * expected; /* expected string */
+				const char * expected; // expected string
 				char result[BUFSZ]; /* result string   */
 			};
 			struct sigint_st {
 				int num;        /* signed int      */
-				const char * expected; /* expected string */
+				const char * expected; // expected string
 				char result[BUFSZ]; /* result string   */
 			};
 			struct unslong_st {
 				ulong num; /* unsigned long   */
-				const char * expected; /* expected string */
+				const char * expected; // expected string
 				char result[BUFSZ]; /* result string   */
 			};
 			struct siglong_st {
 				long num;       /* signed long     */
-				const char * expected; /* expected string */
+				const char * expected; // expected string
 				char result[BUFSZ]; /* result string   */
 			};
 			struct curloff_st {
 				off_t num; /* curl_off_t      */
-				const char * expected; /* expected string */
+				const char * expected; // expected string
 				char result[BUFSZ]; /* result string   */
 			};
 

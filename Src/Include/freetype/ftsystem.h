@@ -32,13 +32,9 @@ FT_BEGIN_HEADER
  *  use a custom memory manager or you own i/o streams.
  *
  */
-
-/**************************************************************************
- *
- *           M E M O R Y   M A N A G E M E N T
- *
- */
-
+//
+// M E M O R Y   M A N A G E M E N T
+//
 /**************************************************************************
  *
  * @type:
@@ -70,9 +66,7 @@ typedef struct FT_MemoryRec_*  FT_Memory;
  *   Address of new memory block.  0~in case of failure.
  *
  */
-typedef void *
-(* FT_Alloc_Func)(FT_Memory memory,
-    long size);
+typedef void * (* FT_Alloc_Func)(FT_Memory memory, long size);
 
 /**************************************************************************
  *
@@ -90,9 +84,7 @@ typedef void *
  *     The address of the target memory block.
  *
  */
-typedef void
-(* FT_Free_Func)(FT_Memory memory,
-    void *  block);
+typedef void (* FT_Free_Func)(FT_Memory memory, void *  block);
 
 /**************************************************************************
  *
@@ -122,11 +114,7 @@ typedef void
  *   In case of error, the old block must still be available.
  *
  */
-typedef void *
-(* FT_Realloc_Func)(FT_Memory memory,
-    long cur_size,
-    long new_size,
-    void *  block);
+typedef void * (* FT_Realloc_Func)(FT_Memory memory, long cur_size, long new_size, void *  block);
 
 /**************************************************************************
  *
@@ -212,11 +200,7 @@ typedef union  FT_StreamDesc_ {
  *   a `count` of~0.  A non-zero return value then indicates an error.
  *
  */
-typedef ulong
-(* FT_Stream_IoFunc)(FT_Stream stream,
-    ulong offset,
-    uchar * buffer,
-    ulong count);
+typedef ulong (* FT_Stream_IoFunc)(FT_Stream stream, ulong offset, uchar * buffer, ulong count);
 
 /**************************************************************************
  *
@@ -231,8 +215,7 @@ typedef ulong
  *    A handle to the target stream.
  *
  */
-typedef void
-(* FT_Stream_CloseFunc)(FT_Stream stream);
+typedef void (* FT_Stream_CloseFunc)(FT_Stream stream);
 
 /**************************************************************************
  *

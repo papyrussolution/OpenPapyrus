@@ -2584,14 +2584,12 @@ static CURLcode override_login(struct Curl_easy * data,
 	char ** userp = &conn->user;
 	char ** passwdp = &conn->passwd;
 	char ** optionsp = &conn->options;
-
 	if(data->set.str[STRING_OPTIONS]) {
 		SAlloc::F(*optionsp);
 		*optionsp = strdup(data->set.str[STRING_OPTIONS]);
 		if(!*optionsp)
 			return CURLE_OUT_OF_MEMORY;
 	}
-
 #ifndef CURL_DISABLE_NETRC
 	if(data->set.use_netrc == CURL_NETRC_REQUIRED) {
 		ZFREE(*userp);
