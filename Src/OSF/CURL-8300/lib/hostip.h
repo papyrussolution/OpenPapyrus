@@ -25,13 +25,6 @@
 ***************************************************************************/
 
 #include "curl_setup.h"
-//#include "hash.h"
-//#include "curl_addrinfo.h"
-//#include "timeval.h" /* for timediff_t */
-//#include "asyn.h"
-//#ifdef HAVE_SETJMP_H
-    //#include <setjmp.h>
-//#endif
 
 /* Allocate enough memory to hold the full name information structs and
  * everything. OSF1 is known to require at least 8872 bytes. The buffer

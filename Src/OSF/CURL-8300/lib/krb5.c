@@ -44,19 +44,11 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-
-//#include "urldata.h"
-//#include "cfilters.h"
 #include "cf-socket.h"
-//#include "curl_base64.h"
 #include "ftp.h"
 #include "curl_gssapi.h"
-//#include "sendf.h"
 #include "curl_krb5.h"
-//#include "warnless.h"
-//#include "strcase.h"
 #include "strdup.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"

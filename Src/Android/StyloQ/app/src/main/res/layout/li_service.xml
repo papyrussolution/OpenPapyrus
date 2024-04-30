@@ -26,6 +26,8 @@
         <!--
         <View style="@style/FakeView"/>
         -->
+        <ImageButton style="@style/ToolbarButton" android:id="@+id/CTL_BUTTON_FORCEUPDATE"
+            android:gravity="left" android:src="@drawable/ic_refresh01"/>
         <ImageButton style="@style/ToolbarButton" android:id="@+id/buttonInfo"
             android:layout_gravity="center_vertical|right"
             android:src="@drawable/ic_info01"/>

@@ -113,8 +113,8 @@ int ProcessorPlaceCodeTemplate::Parse(const char * pPattern)
 			sub2.CatChar(temp_buf.C(p++));
 		}
 		THROW_PP_S(temp_buf.C(p) == ']', PPERR_PRCPLCCODE_EXPRBRK, pPattern);
-		if(sub.IsDigit()) {
-			THROW_PP_S(sub2.IsDigit(), PPERR_PRCPLCCODE_EXPINT, pPattern);
+		if(sub.IsDec()) {
+			THROW_PP_S(sub2.IsDec(), PPERR_PRCPLCCODE_EXPINT, pPattern);
 			seq.Type = 1;
 			seq.Start = sub.ToLong();
 			seq.End = sub2.ToLong();
@@ -1457,10 +1457,10 @@ int ProcessorDialog::setupParent()
 				SString obj_title;
 				GetObjectTitle(grp_rec.LinkObjType, obj_title);
 				setLabelText(CTL_PRC_LINKOBJ, obj_title);
-				if(grp_rec.LinkObjType == PPOBJ_COMPUTER)
+				/* @v12.0.0 if(grp_rec.LinkObjType == PPOBJ_COMPUTER)
 					disableCtrl(CTLSEL_PRC_LINKOBJ, true);
-				else
-					SetupPPObjCombo(this, CTLSEL_PRC_LINKOBJ, grp_rec.LinkObjType, Data.Rec.LinkObjID, OLW_CANINSERT, reinterpret_cast<void *>(link_extra));
+				else*/
+				SetupPPObjCombo(this, CTLSEL_PRC_LINKOBJ, grp_rec.LinkObjType, Data.Rec.LinkObjID, OLW_CANINSERT, reinterpret_cast<void *>(link_extra));
 			}
 			else
 				setLabelText(CTL_PRC_LINKOBJ, 0);
@@ -1545,6 +1545,9 @@ int ProcessorDialog::setupAssoc()
 		disableCtrl(CTLSEL_PRC_ASSOCGROUP, !(Data.Rec.LinkObjType == PPOBJ_PERSON));
 		if(Data.Rec.LinkObjType == PPOBJ_PERSON)
 			SetupPPObjCombo(this, CTLSEL_PRC_ASSOCGROUP, groupObjType(), Data.Rec.LinkObjID, OLW_CANINSERT, 0);
+		else if(Data.Rec.LinkObjType == PPOBJ_COMPUTER) { // @v12.0.0
+			//SetupPPObjCombo(this, CTLSEL_PRC_ASSOCGROUP, )
+		}
 		else
 			setCtrlLong(CTL_PRC_ASSOCGROUP, 0);
 	}

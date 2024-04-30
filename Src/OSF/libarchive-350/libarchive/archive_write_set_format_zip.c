@@ -15,10 +15,8 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_zip.c 201168 20
 	#include <langinfo.h>
 #endif
 #include "archive_cryptor_private.h"
-//#include "archive_entry_locale.h"
 #include "archive_hmac_private.h"
 #include "archive_random_private.h"
-//#include "archive_write_set_format_private.h"
 #ifndef HAVE_ZLIB_H
 	#include "archive_crc32.h"
 #endif

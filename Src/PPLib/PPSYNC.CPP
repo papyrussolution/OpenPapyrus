@@ -12,6 +12,16 @@
 #define HDR_SZ            (sizeof(PPSyncHeader) + LOCK_PRFX_SIZE)
 #define BLK_SZ            (sizeof(PPSyncItem) + LOCK_PRFX_SIZE)
 
+PPSyncHeader::PPSyncHeader() : Magic(0), RecsCount(0), Ver(0)
+{
+	MEMSZERO(Reserved);
+}
+
+PPSyncItem::PPSyncItem() : ID(0), Type(0), UserID(0), ObjType(0), ObjID(0), Counter(0), TerminalSessID(0)
+{
+	Name[0] = 0;
+}
+
 PPSync::PPSync() : Handle(-1), NoSHARE(0)
 {
 }
@@ -100,19 +110,29 @@ int PPSync::CreateEmptyFile()
 
 int PPSync::ImplementGetBlock(ulong offs, void * pBuf, int * pIsLocked)
 {
+	static_assert(sizeof(PPSyncItem) == 66);
+	static_assert(sizeof(PPSyncHeader) == 62);
 	int    ok = 1;
-	union _Blk {
-		PPSyncItem   item;
-		PPSyncHeader hdr;
-	} blk;
+	//union _Blk {
+	PPSyncItem   item;
+	PPSyncHeader hdr;
+	//} blk;
 	if(CheckOffset(offs)) {
 		_lseek(Handle, offs + LOCK_PRFX_SIZE, SEEK_SET);
-		MEMSZERO(blk);
-		int    r = read(Handle, &blk, offs ? sizeof(PPSyncItem) : sizeof(PPSyncHeader));
+		//MEMSZERO(blk);
+		int    r = 0;
+		if(offs)
+			r = read(Handle, &item, sizeof(PPSyncItem));
+		else 
+			r = read(Handle, &hdr, sizeof(PPSyncHeader));
 		if(r >= 0) {
 			ASSIGN_PTR(pIsLocked, BIN(IsLocked(offs)));
-			if(pBuf)
-				memcpy(pBuf, &blk, offs ? sizeof(blk.item) : sizeof(blk.hdr));
+			if(pBuf) {
+				if(offs)
+					memcpy(pBuf, &item, sizeof(PPSyncItem));
+				else
+					memcpy(pBuf, &hdr, sizeof(PPSyncHeader));
+			}
 		}
 		else
 			ok = PPSetError(PPERR_SYNCREAD, DataPath);

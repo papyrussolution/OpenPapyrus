@@ -15,9 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/crc/internal/crc_cord_state.h"
-//#include <cassert>
-//#include "absl/base/config.h"
-//#include "absl/numeric/bits.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

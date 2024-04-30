@@ -6,10 +6,6 @@
 #ifndef ABSL_STRINGS_INTERNAL_OSTRINGSTREAM_H_
 #define ABSL_STRINGS_INTERNAL_OSTRINGSTREAM_H_
 
-//#include <cassert>
-//#include <ostream>
-//#include <streambuf>
-//#include <string>
 #include "absl/base/port.h"
 
 namespace absl {

@@ -1364,6 +1364,7 @@
     <ClInclude Include="..\Include\sartre.h" />
     <ClInclude Include="..\Include\Slib.h" />
     <ClInclude Include="..\Include\ued-id.h" />
+    <ClInclude Include="..\Include\ued.h" />
     <ClInclude Include="..\PPMain\resrc1.h" />
     <ClInclude Include="..\Rsrc\Str\ppstr2.h" />
   </ItemGroup>

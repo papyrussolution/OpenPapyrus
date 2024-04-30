@@ -15,19 +15,13 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/crc/internal/cpu_detect.h"
-//#include <cstdint>
-//#include <string>
-//#include "absl/base/config.h"
-
 #if defined(__aarch64__) && defined(__linux__)
-#include <asm/hwcap.h>
-#include <sys/auxv.h>
+	#include <asm/hwcap.h>
+	#include <sys/auxv.h>
 #endif
-
 #if defined(_WIN32) || defined(_WIN64)
-#include <intrin.h>
+	#include <intrin.h>
 #endif
-
 #if defined(__x86_64__) || defined(_M_X64)
 #if ABSL_HAVE_BUILTIN(__cpuid)
 // MSVC-equivalent __cpuid intrinsic declaration for clang-like compilers

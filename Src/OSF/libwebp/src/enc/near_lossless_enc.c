@@ -16,10 +16,7 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
-//#include <stdlib.h>
 #include "src/dsp/lossless_common.h"
-//#include "src/utils/utils.h"
 #include "src/enc/vp8li_enc.h"
 
 #if (WEBP_NEAR_LOSSLESS == 1)

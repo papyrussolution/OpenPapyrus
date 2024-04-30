@@ -785,7 +785,7 @@ static const char *get_winapi_error(int err, char * buf, size_t buflen)
 	}
 
 	/* Truncate multiple lines */
-	p = strchr(buf, '\n');
+	p = sstrchr(buf, '\n');
 	if(p) {
 		if(p > buf && *(p-1) == '\r')
 			*(p-1) = '\0';

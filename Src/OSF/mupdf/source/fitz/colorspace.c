@@ -98,15 +98,14 @@ void fz_drop_colorspace_context(fz_context * ctx)
 	}
 }
 
-fz_colorspace * fz_device_gray(fz_context * ctx) { return ctx->colorspace->gray; }
-fz_colorspace * fz_device_rgb(fz_context * ctx) { return ctx->colorspace->rgb; }
-fz_colorspace * fz_device_bgr(fz_context * ctx) { return ctx->colorspace->bgr; }
-fz_colorspace * fz_device_cmyk(fz_context * ctx) { return ctx->colorspace->cmyk; }
-fz_colorspace * fz_device_lab(fz_context * ctx) { return ctx->colorspace->lab; }
+fz_colorspace * FASTCALL fz_device_gray(fz_context * ctx) { return ctx->colorspace->gray; }
+fz_colorspace * FASTCALL fz_device_rgb(fz_context * ctx) { return ctx->colorspace->rgb; }
+fz_colorspace * FASTCALL fz_device_bgr(fz_context * ctx) { return ctx->colorspace->bgr; }
+fz_colorspace * FASTCALL fz_device_cmyk(fz_context * ctx) { return ctx->colorspace->cmyk; }
+fz_colorspace * FASTCALL fz_device_lab(fz_context * ctx) { return ctx->colorspace->lab; }
 
 /* Same order as needed by LCMS */
-static const char * fz_intent_names[] =
-{
+static const char * fz_intent_names[] = {
 	"Perceptual",
 	"RelativeColorimetric",
 	"Saturation",

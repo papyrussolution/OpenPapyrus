@@ -35,10 +35,6 @@
 
 #define _POSIX_SOURCE 1
 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-
 /* Defined so I can write to a file on gui/windowing platforms */
 /*  #define STDERR stderr  */
 //#define STDERR stdout   /* For DOS */

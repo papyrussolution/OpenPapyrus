@@ -50,26 +50,17 @@
 #endif
 
 #include <limits.h>
-
-//#include "urldata.h"
-//#include "sendf.h"
 #include "inet_pton.h"
 #include "vtls.h"
 #include "vtls_int.h"
 #include "keylog.h"
 #include "parsedate.h"
-//#include "connect.h" /* for the connect timeout */
 #include "select.h"
-//#include "strcase.h"
 #include "x509asn1.h"
-//#include "curl_printf.h"
-//#include "multiif.h"
-
 #include <wolfssl/openssl/ssl.h>
 #include <wolfssl/ssl.h>
 #include <wolfssl/error-ssl.h>
 #include "wolfssl.h"
-
 /* The last #include files should be: */
 #include "curl_memory.h"
 #include "memdebug.h"

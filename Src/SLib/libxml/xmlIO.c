@@ -1371,9 +1371,9 @@ static int xmlZMemBuffExtend(xmlZMemBuffPtr buff, size_t ext_amt)
 	size_t cur_used;
 	uchar * tmp_ptr = NULL;
 	if(buff == NULL)
-		return ( -1 );
+		return -1;
 	else if(ext_amt == 0)
-		return ( 0);
+		return 0;
 	cur_used = buff->zctrl.next_out - buff->zbuff;
 	new_size = buff->size + ext_amt;
 #ifdef DEBUG_HTTP

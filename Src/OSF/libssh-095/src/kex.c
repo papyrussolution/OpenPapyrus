@@ -272,14 +272,14 @@ static int cmp_first_kex_algo(const char * client_str, const char * server_str)
 	size_t client_kex_len;
 	size_t server_kex_len;
 	int is_wrong = 1;
-	const char * colon = strchr(client_str, ',');
+	const char * colon = sstrchr(client_str, ',');
 	if(colon == NULL) {
 		client_kex_len = strlen(client_str);
 	}
 	else {
 		client_kex_len = colon - client_str;
 	}
-	colon = strchr(server_str, ',');
+	colon = sstrchr(server_str, ',');
 	if(colon == NULL) {
 		server_kex_len = strlen(server_str);
 	}

@@ -46,6 +46,12 @@ UedSetBase::~UedSetBase()
 	LimbCount = 0;
 }
 
+UedSetBase & UedSetBase::Z()
+{
+	LimbCount = 0;
+	return *this;
+}
+
 UedSetBase & FASTCALL UedSetBase::operator = (const UedSetBase & rS)
 {
 	Copy(rS);
@@ -2400,3 +2406,18 @@ bool SrUedContainer_Rt::GetSymb(uint64 ued, SString & rSymb) const
 {
 	return SearchBaseId(ued, rSymb);
 }
+//
+//
+//
+class UedRecordPool {
+public:
+	struct Entry {
+		uint32 Pos;
+	};
+	UedRecordPool()
+	{
+	}
+	~UedRecordPool()
+	{
+	}
+};

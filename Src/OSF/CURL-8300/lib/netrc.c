@@ -27,15 +27,11 @@
 #ifndef CURL_DISABLE_NETRC
 
 #ifdef HAVE_PWD_H
-#include <pwd.h>
+	#include <pwd.h>
 #endif
-
-//#include <curl/curl.h>
 #include "netrc.h"
 #include "strtok.h"
-//#include "strcase.h"
 #include "curl_get_line.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"

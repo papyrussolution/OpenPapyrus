@@ -3255,18 +3255,18 @@ SString & CDECL SString::VPrintf(const char * pFormat, va_list vl)
 	return *this;
 }
 
-int SString::IsDigit() const
+bool SString::IsDec() const
 {
 	const  size_t len = Len();
-	int    ok = 1;
+	bool   ok = true;
 	if(len) {
 		for(size_t i = 0; ok && i < len; i++) {
 			if(!isdec(P_Buf[i]))
-				ok = 0;
+				ok = false;
 		}
 	}
 	else
-		ok = 0;
+		ok = false;
 	return ok;
 }
 
@@ -7917,7 +7917,7 @@ int SNaturalTokenArray::Add(uint32 tok, float prob)
 	PTR8(_buf)[_bp++] = PTR8C(&productTypeBytes)[1];
 	PTR8(_buf)[_bp++] = PTR8C(&productTypeBytes)[0];
 	SString temp_buf(pGTIN);
-	if(temp_buf.Len() == 14 && temp_buf.IsDigit()) {
+	if(temp_buf.Len() == 14 && temp_buf.IsDec()) {
 		int64 n = temp_buf.ToInt64();
 		PTR8(_buf)[_bp++] = PTR8C(&n)[5];
 		PTR8(_buf)[_bp++] = PTR8C(&n)[4];

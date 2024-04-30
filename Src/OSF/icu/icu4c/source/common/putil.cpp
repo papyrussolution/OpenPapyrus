@@ -1196,7 +1196,7 @@ U_CAPI void U_EXPORT2 u_setDataDirectory(const char * directory)
 #if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
 		{
 			char * p;
-			while((p = uprv_strchr(newDataDir, U_FILE_ALT_SEP_CHAR)) != NULL) {
+			while((p = sstrchr(newDataDir, U_FILE_ALT_SEP_CHAR)) != NULL) {
 				*p = U_FILE_SEP_CHAR;
 			}
 		}
@@ -1349,7 +1349,7 @@ static void setTimeZoneFilesDir(const char * path, UErrorCode & status)
 		gTimeZoneFilesDirectory->append(path, status);
 #if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
 		char * p = gTimeZoneFilesDirectory->data();
-		while((p = uprv_strchr(p, U_FILE_ALT_SEP_CHAR)) != NULL) {
+		while((p = sstrchr(p, U_FILE_ALT_SEP_CHAR)) != NULL) {
 			*p = U_FILE_SEP_CHAR;
 		}
 #endif
@@ -1553,10 +1553,10 @@ U_CAPI const char * U_EXPORT2 uprv_getDefaultLocaleID()
 	}
 	strcpy(correctedPOSIXLocale, posixID);
 	char * limit;
-	if((limit = uprv_strchr(correctedPOSIXLocale, '.')) != nullptr) {
+	if((limit = sstrchr(correctedPOSIXLocale, '.')) != nullptr) {
 		*limit = 0;
 	}
-	if((limit = uprv_strchr(correctedPOSIXLocale, '@')) != nullptr) {
+	if((limit = sstrchr(correctedPOSIXLocale, '@')) != nullptr) {
 		*limit = 0;
 	}
 	if((strcmp("C", correctedPOSIXLocale) == 0) // no @ variant
@@ -1575,7 +1575,7 @@ U_CAPI const char * U_EXPORT2 uprv_getDefaultLocaleID()
 			p = "NY";
 			/* Don't worry about no__NY. In practice, it won't appear. */
 		}
-		if(uprv_strchr(correctedPOSIXLocale, '_') == nullptr) {
+		if(sstrchr(correctedPOSIXLocale, '_') == nullptr) {
 			uprv_strcat(correctedPOSIXLocale, "__"); /* aa@b -> aa__b (note this can make the new locale 1
 			                                            char longer) */
 		}
@@ -1584,7 +1584,7 @@ U_CAPI const char * U_EXPORT2 uprv_getDefaultLocaleID()
 		}
 
 		const char * q;
-		if((q = uprv_strchr(p, '.')) != nullptr) {
+		if((q = sstrchr(p, '.')) != nullptr) {
 			/* How big will the resulting string be? */
 			int32_t len = (int32_t)(strlen(correctedPOSIXLocale) + (q-p));
 			uprv_strncat(correctedPOSIXLocale, p, q-p); // do not include charset
@@ -1702,7 +1702,7 @@ U_CAPI const char * U_EXPORT2 uprv_getDefaultLocaleID()
 	strcpy(correctedLocale, localeID);
 
 	/* Strip off the '.locale' extension. */
-	if((p = uprv_strchr(correctedLocale, '.')) != NULL) {
+	if((p = sstrchr(correctedLocale, '.')) != NULL) {
 		*p = 0;
 	}
 
@@ -1893,13 +1893,13 @@ static const char * getCodepageFromPOSIXID(const char * localeName, char * buffe
 	char localeBuf[100];
 	const char * name = NULL;
 	char * variant = NULL;
-	if(localeName != NULL && (name = (uprv_strchr(localeName, '.'))) != NULL) {
+	if(localeName != NULL && (name = (sstrchr(localeName, '.'))) != NULL) {
 		size_t localeCapacity = smin(sizeof(localeBuf), (name-localeName)+1);
 		uprv_strncpy(localeBuf, localeName, localeCapacity);
 		localeBuf[localeCapacity-1] = 0; /* ensure NULL termination */
 		name = uprv_strncpy(buffer, name+1, buffCapacity);
 		buffer[buffCapacity-1] = 0; /* ensure NULL termination */
-		if((variant = const_cast<char *>(uprv_strchr(name, '@'))) != NULL) {
+		if((variant = const_cast<char *>(sstrchr(name, '@'))) != NULL) {
 			*variant = 0;
 		}
 		name = remapPlatformDependentCodepage(localeBuf, name);

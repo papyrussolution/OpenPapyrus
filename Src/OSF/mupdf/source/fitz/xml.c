@@ -637,7 +637,7 @@ static const ushort * find_xml_encoding(char * s)
 {
 	const ushort * table = NULL;
 	char * xml, * enc;
-	char * end = strchr(s, '>');
+	char * end = sstrchr(s, '>');
 	if(end) {
 		*end = 0;
 		xml = strstr(s, "<?xml");

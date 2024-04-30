@@ -22,11 +22,6 @@
 #ifdef __ANDROID__
 	#include <android/log.h>
 #endif
-#ifdef _WIN32
-	//#include <windows.h>
-#endif
-//#include <algorithm>
-//#include <vector>
 #include "absl/base/attributes.h"
 #include "absl/base/call_once.h"
 #include "absl/base/config.h"

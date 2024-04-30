@@ -1631,7 +1631,7 @@ int PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlT
 					w_a.PutInner(SXml::nst("oref", "Country"), EncText(temp_buf)); // По умолчанию 643 (Россия)
 				}
 				LocationCore::GetExField(&__loc_rec, LOCEXSTR_ZIP, temp_buf);
-				if(!temp_buf.IsDigit() || temp_buf.Len() != 6) // Проверка на "битый" почтовый индекс
+				if(!temp_buf.IsDec() || temp_buf.Len() != 6) // Проверка на "битый" почтовый индекс
 					temp_buf.Z();
 				w_a.PutInnerSkipEmpty(SXml::nst("oref", "Index"), EncText(temp_buf));
 				//
@@ -4362,7 +4362,7 @@ int PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPack)
 							if(SXml::GetContentByName(p_pos, "Identity", temp_buf)) {
 								// @v10.3.4 {
 								STRNSCPY(item.OrgRowIdent, temp_buf);
-								if(temp_buf.IsDigit()) {
+								if(temp_buf.IsDec()) {
 									if(temp_buf == "0")
 										item.P = PPConst::EgaisInRowIdentDivider;
 									else
@@ -4843,7 +4843,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 						org_line_ident.Z();
 						for(const xmlNode * p_pos = p_c->children; p_pos; p_pos = p_pos->next) {
 							if(SXml::GetContentByName(p_pos, "Identity", temp_buf)) {
-								if(temp_buf.IsDigit()) {
+								if(temp_buf.IsDec()) {
 									const long dec_id = temp_buf.ToLong();
 									if(temp_buf == "0") {
 										ti.RByBill = PPConst::EgaisInRowIdentDivider;
@@ -5326,7 +5326,7 @@ int PPEgaisProcessor::Helper_AcceptTtnRefB(const Packet * pPack, const TSCollect
 		BillTbl::Rec ex_bill_rec;
 		PPIDArray bill_id_list;
 		p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_OUTERCODE, p_inf->Id, &bill_id_list);
-		if(p_inf->Id.IsDigit()) {
+		if(p_inf->Id.IsDec()) {
 			int64 id_64 = p_inf->Id.ToInt64();
 			if(id_64 > 0 && id_64 < LONG_MAX) {
 				PPID   id_32 = static_cast<PPID>(id_64);

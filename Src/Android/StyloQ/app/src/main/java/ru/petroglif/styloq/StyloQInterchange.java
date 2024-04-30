@@ -2603,7 +2603,11 @@ public class StyloQInterchange {
 					StyloQApp.InterchangeResult inner_result = Helper_DoInterchange2(appCtx, param);
 					// Правильно будет трактовать inner_result == null как внутреннюю ошибку.
 					if(inner_result != null) {
-						if(treat_result_on_the_spot) {
+						/*if(inner_result.ResultTag == StyloQApp.SvcQueryResult.EXCEPTION) {
+							inner_result.GetErrMsg();
+							throw new StyloQException(ppstr2.PPERR_SQ_SVCACCSPTREQFAULT, "");
+						}
+						else*/if(treat_result_on_the_spot) {
 							if(param.OriginalCmdItem.Uuid == null && param.OriginalCmdItem.Name.equalsIgnoreCase("requestdocumentstatuslist")) {
 								if(inner_result.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
 									if(inner_result.InfoReply != null && inner_result.InfoReply instanceof SecretTagPool) {

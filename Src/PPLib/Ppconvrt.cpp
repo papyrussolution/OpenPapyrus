@@ -6148,65 +6148,6 @@ CONVERT_PROC(Convert8203, PPCvtRegister8203);
 //
 //
 //
-class PPCvtRegister8306 : public PPTableConversion {
-public:
-	virtual DBTable * CreateTableInstance(int * pNeedConversion)
-	{
-		DBTable * p_tbl = new RegisterTbl;
-		if(!p_tbl)
-			PPSetErrorNoMem();
-		else if(pNeedConversion) {
-			int16  num_keys;
-			p_tbl->getNumKeys(&num_keys);
-			RECORDSIZE recsz = p_tbl->getRecSize();
-			*pNeedConversion = BIN(recsz < sizeof(RegisterTbl::Rec) || num_keys < 5);
-		}
-		return p_tbl;
-	}
-	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
-	{
-		struct RegisterTblRec_Before8306 {
-			long   ID;
-			long   PsnID;
-			long   PsnEventID;
-			long   RegTypeID;
-			LDATE  Dt;
-			long   RegOrgID;
-			char   Serial[12];
-			char   Num[32];
-			LDATE  Expiry;
-			long   UniqCntr;
-			long   Flags;
-			long   ExtID; // @v9.0.4 Reserve-->ExtID
-		};
-		RegisterTbl::Rec * p_data = static_cast<RegisterTbl::Rec *>(pNewTbl->getDataBuf());
-		RegisterTblRec_Before8306 * p_old_rec = static_cast<RegisterTblRec_Before8306 *>(pOldRec);
-		memzero(p_data, sizeof(*p_data));
-#define CPYFLD(f) p_data->f = p_old_rec->f
-		CPYFLD(ID);
-		CPYFLD(PsnEventID);
-		CPYFLD(RegTypeID);
-		CPYFLD(Dt);
-		CPYFLD(RegOrgID);
-		CPYFLD(Expiry);
-		CPYFLD(UniqCntr);
-		CPYFLD(Flags);
-		CPYFLD(ExtID); // @v9.0.4 Reserve-->ExtID
-#undef CPYFLD
-		if(p_old_rec->PsnID) {
-			p_data->ObjType = PPOBJ_PERSON;
-			p_data->ObjID = p_old_rec->PsnID;
-		}
-		STRNSCPY(p_data->Serial, p_old_rec->Serial);
-		STRNSCPY(p_data->Num, p_old_rec->Num);
-		return 1;
-	}
-};
-
-CONVERT_PROC(Convert8306, PPCvtRegister8306);
-//
-//
-//
 class PPCvtBarcode8800 : public PPTableConversion {
 public:
 	DBTable * CreateTableInstance(int * pNeedConversion);
@@ -8629,3 +8570,180 @@ int Convert11200()
 	}
 	return ok;
 }
+//
+//
+//
+#if 0 // Конвертация совмещена с v12.0.0 {
+class PPCvtRegister8306 : public PPTableConversion {
+public:
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new RegisterTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			int16  num_keys;
+			p_tbl->getNumKeys(&num_keys);
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(RegisterTbl::Rec) || num_keys < 5);
+		}
+		return p_tbl;
+	}
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
+	{
+		#pragma pack(push, 1)
+		struct RegisterTblRec_Before8306 {
+			long   ID;
+			long   PsnID;
+			long   PsnEventID;
+			long   RegTypeID;
+			LDATE  Dt;
+			long   RegOrgID;
+			char   Serial[12];
+			char   Num[32];
+			LDATE  Expiry;
+			long   UniqCntr;
+			long   Flags;
+			long   ExtID; // @v9.0.4 Reserve-->ExtID
+		};
+		#pragma pack(pop)
+		RegisterTbl::Rec * p_data = static_cast<RegisterTbl::Rec *>(pNewTbl->getDataBuf());
+		RegisterTblRec_Before8306 * p_old_rec = static_cast<RegisterTblRec_Before8306 *>(pOldRec);
+		memzero(p_data, sizeof(*p_data));
+#define CPYFLD(f) p_data->f = p_old_rec->f
+		CPYFLD(ID);
+		CPYFLD(PsnEventID);
+		CPYFLD(RegTypeID);
+		CPYFLD(Dt);
+		CPYFLD(RegOrgID);
+		CPYFLD(Expiry);
+		CPYFLD(UniqCntr);
+		CPYFLD(Flags);
+		CPYFLD(ExtID); // @v9.0.4 Reserve-->ExtID
+#undef CPYFLD
+		if(p_old_rec->PsnID) {
+			p_data->ObjType = PPOBJ_PERSON;
+			p_data->ObjID = p_old_rec->PsnID;
+		}
+		STRNSCPY(p_data->Serial, p_old_rec->Serial);
+		STRNSCPY(p_data->Num, p_old_rec->Num);
+		return 1;
+	}
+};
+
+CONVERT_PROC(Convert8306, PPCvtRegister8306);
+#endif // } 0
+
+class PPCvtRegister12000 : public PPTableConversion {
+	enum {
+		recfmtCurrent = 0,
+		recfmtBefore8306,
+		recfmtBefore12000,
+	};
+	int    RecFmt;
+public:
+	PPCvtRegister12000() : PPTableConversion(), RecFmt(recfmtCurrent)
+	{
+	}
+
+	#pragma pack(push, 1)
+	struct RegisterTblRec_Before8306 {
+		long   ID;
+		long   PsnID;
+		long   PsnEventID;
+		long   RegTypeID;
+		LDATE  Dt;
+		long   RegOrgID;
+		char   Serial[12];
+		char   Num[32];
+		LDATE  Expiry;
+		long   UniqCntr;
+		long   Flags;
+		long   ExtID; // @v9.0.4 Reserve-->ExtID
+	};
+
+	struct RegisterTblRec_Before12000 {
+		long   ID;
+		long   ObjType;
+		long   ObjID;
+		long   PsnEventID;
+		long   RegTypeID;
+		LDATE  Dt;
+		long   RegOrgID;
+		char   Serial[12];
+		char   Num[32];
+		LDATE  Expiry;
+		long   UniqCntr;
+		long   Flags;
+		long   ExtID;
+	};
+	#pragma pack(pop)
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new RegisterTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			int16  num_keys;
+			p_tbl->getNumKeys(&num_keys);
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			if(recsz < sizeof(RegisterTblRec_Before12000) || num_keys < 5) {
+				RecFmt = recfmtBefore8306;
+				*pNeedConversion = 1;
+			}
+			else if(recsz < sizeof(RegisterTbl::Rec)) {
+				RecFmt = recfmtBefore12000;
+				*pNeedConversion = 1;
+			}
+			else
+				*pNeedConversion = 0;
+		}
+		return p_tbl;
+	}
+	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
+	{
+		RegisterTbl::Rec * p_data = static_cast<RegisterTbl::Rec *>(pNewTbl->getDataBuf());
+		memzero(p_data, sizeof(*p_data));
+		if(RecFmt = recfmtBefore12000) {
+			RegisterTblRec_Before12000 * p_old_rec = static_cast<RegisterTblRec_Before12000 *>(pOldRec);
+	#define CPYFLD(f) p_data->f = p_old_rec->f
+			CPYFLD(ID);
+			CPYFLD(ObjType);
+			CPYFLD(ObjID);
+			CPYFLD(PsnEventID);
+			CPYFLD(RegTypeID);
+			CPYFLD(Dt);
+			CPYFLD(RegOrgID);
+			CPYFLD(Expiry);
+			CPYFLD(UniqCntr);
+			CPYFLD(Flags);
+			CPYFLD(ExtID);
+	#undef CPYFLD
+			STRNSCPY(p_data->Serial, p_old_rec->Serial);
+			STRNSCPY(p_data->Num, p_old_rec->Num);
+		}
+		else if(RecFmt = recfmtBefore8306) {
+			RegisterTblRec_Before8306 * p_old_rec = static_cast<RegisterTblRec_Before8306 *>(pOldRec);
+	#define CPYFLD(f) p_data->f = p_old_rec->f
+			CPYFLD(ID);
+			CPYFLD(PsnEventID);
+			CPYFLD(RegTypeID);
+			CPYFLD(Dt);
+			CPYFLD(RegOrgID);
+			CPYFLD(Expiry);
+			CPYFLD(UniqCntr);
+			CPYFLD(Flags);
+			CPYFLD(ExtID); // @v9.0.4 Reserve-->ExtID
+	#undef CPYFLD
+			if(p_old_rec->PsnID) {
+				p_data->ObjType = PPOBJ_PERSON;
+				p_data->ObjID = p_old_rec->PsnID;
+			}
+			STRNSCPY(p_data->Serial, p_old_rec->Serial);
+			STRNSCPY(p_data->Num, p_old_rec->Num);			
+		}
+		return 1;
+	}
+};
+
+CONVERT_PROC(Convert12000, PPCvtRegister12000);

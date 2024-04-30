@@ -7192,7 +7192,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 								}
 							}
 							else {
-								if(Input.IsDigit()) {
+								if(Input.IsDec()) {
 									guest_count = Input.ToLong();
 									if(guest_count > 0 && guest_count < 1000) {
 										P.GuestCount = (uint16)guest_count;
@@ -9780,7 +9780,7 @@ void CheckPaneDialog::AcceptDivision()
 		showInputLineCalc(this, CTL_CHKPAN_INPUT);
 		is_input = GetInput();
 	}
-	if(P.HasCur() && P.GetCur().GoodsID && is_input && Input.IsDigit()) {
+	if(P.HasCur() && P.GetCur().GoodsID && is_input && Input.IsDec()) {
 		long  div = Input.ToLong();
 		if(div > 0 && div < 1000) {
 			P.GetCur().Division = static_cast<int16>(div);
@@ -12405,7 +12405,7 @@ int CPosProcessor::PrintToLocalPrinters(int selPrnType, bool ignoreNonZeroAgentR
 int CheckPaneDialog::ResetOperRightsByKey()
 {
 	int    ok = -1;
-	if((CnFlags & CASHF_KEYBOARDWKEY) && GetInput() && Input.IsDigit()) {
+	if((CnFlags & CASHF_KEYBOARDWKEY) && GetInput() && Input.IsDec()) {
 		long   key_pos = Input.ToLong();
 		PPIDArray oper_rights_ary;
 		if(GetOperRightsByKeyPos(key_pos, &oper_rights_ary) > 0) {

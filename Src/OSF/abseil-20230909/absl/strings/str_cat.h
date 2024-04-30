@@ -87,25 +87,9 @@
 #ifndef ABSL_STRINGS_STR_CAT_H_
 #define ABSL_STRINGS_STR_CAT_H_
 
-//#include <algorithm>
-//#include <array>
-//#include <cassert>
-//#include <cstddef>
-//#include <cstdint>
-//#include <cstring>
-//#include <limits>
-//#include <string>
-//#include <type_traits>
-//#include <utility>
-//#include <vector>
-//#include "absl/base/attributes.h"
-//#include "absl/base/port.h"
-//#include "absl/meta/type_traits.h"
 #include "absl/strings/internal/has_absl_stringify.h"
 #include "absl/strings/internal/resize_uninitialized.h"
 #include "absl/strings/internal/stringify_sink.h"
-//#include "absl/strings/numbers.h"
-//#include "absl/strings/string_view.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

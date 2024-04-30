@@ -30,18 +30,9 @@
 
 #include <wolfssh/ssh.h>
 #include <wolfssh/wolfsftp.h>
-//#include "urldata.h"
-//#include "cfilters.h"
-//#include "connect.h"
-//#include "sendf.h"
-//#include "progress.h"
-//#include "curl_path.h"
 #include "strtoofft.h"
-//#include "transfer.h"
 #include "speedcheck.h"
 #include "select.h"
-//#include "multiif.h"
-//#include "warnless.h"
 
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"

@@ -73,7 +73,7 @@ OSSL_STORE_CTX * OSSL_STORE_open_ex(const char * uri, OSSL_LIB_CTX * libctx, con
 	 * going through that one twice!
 	 */
 	OPENSSL_strlcpy(scheme_copy, uri, sizeof(scheme_copy));
-	if((p = strchr(scheme_copy, ':')) != NULL) {
+	if((p = sstrchr(scheme_copy, ':')) != NULL) {
 		*p++ = '\0';
 		if(strcasecmp(scheme_copy, "file") != 0) {
 			if(strncmp(p, "//", 2) == 0)

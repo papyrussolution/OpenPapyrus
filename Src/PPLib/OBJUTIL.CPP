@@ -124,6 +124,7 @@ static const ushort _Objects[] = {
 	PPOBJ_STYLOQBINDERY,      // @v11.1.7
 	PPOBJ_SWPROGRAM,          // @v11.9.12
 	PPOBJ_SWPROGRAMCATEGORY,  // @v11.9.12
+	PPOBJ_COMPUTER,           // @v12.0.0
 };
 
 // @v10.9.4 #define _ObjectsCount (sizeof(_Objects) / sizeof(ushort/*PPID*/))
@@ -245,6 +246,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_EVENTSUBSCRIPTION:  p = new PPObjEventSubscription(extraPtr); break; // @v10.8.9
 		case PPOBJ_STYLOQBINDERY:      p = new PPObjStyloQBindery(extraPtr); break;     // @v11.1.7
 		case PPOBJ_SWPROGRAM:          p = new PPObjSwProgram(extraPtr); break; // @v11.9.12
+		case PPOBJ_COMPUTER:           p = new PPObjComputer(extraPtr); break; // @v12.0.0
 		default:
 			if(PPRef->GetItem(PPOBJ_DYNAMICOBJS, obj) > 0)
 				p = new PPObjReference(obj, extraPtr);

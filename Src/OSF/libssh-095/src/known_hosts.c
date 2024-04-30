@@ -57,11 +57,11 @@ static struct ssh_tokens_st * ssh_get_knownhost_line(FILE ** file, const char * 
 		}
 	}
 	while(fgets(buffer, sizeof(buffer), *file)) {
-		ptr = strchr(buffer, '\n');
+		ptr = sstrchr(buffer, '\n');
 		if(ptr) {
 			*ptr =  '\0';
 		}
-		ptr = strchr(buffer, '\r');
+		ptr = sstrchr(buffer, '\r');
 		if(ptr) {
 			*ptr = '\0';
 		}
@@ -70,8 +70,7 @@ static struct ssh_tokens_st * ssh_get_knownhost_line(FILE ** file, const char * 
 		}
 		tokens = ssh_tokenize(buffer, ' ');
 		if(!tokens) {
-			fclose(*file);
-			*file = NULL;
+			SFile::ZClose(file);
 			return NULL;
 		}
 		if(tokens->tokens[0] == NULL || tokens->tokens[1] == NULL || tokens->tokens[2] == NULL) {
@@ -82,8 +81,7 @@ static struct ssh_tokens_st * ssh_get_knownhost_line(FILE ** file, const char * 
 		*found_type = tokens->tokens[1];
 		return tokens;
 	}
-	fclose(*file);
-	*file = NULL;
+	SFile::ZClose(file);
 	/* we did not find anything, end of file*/
 	return NULL;
 }
@@ -167,7 +165,7 @@ static int match_hashed_host(const char * host, const char * sourcehash)
 	if(source == NULL) {
 		return 0;
 	}
-	b64hash = strchr(source, '|');
+	b64hash = sstrchr(source, '|');
 	if(b64hash == NULL) {
 		/* Invalid hash */
 		ZFREE(source);

@@ -1,8 +1,6 @@
 #ifndef __PARSER_TYPEDEF_H__
 #define __PARSER_TYPEDEF_H__
 
-//#include <vector>
-
 #ifndef YYtypeDEF_YY_SCANNER_T
 	#define YYtypeDEF_YY_SCANNER_T
 	typedef void* yyscan_t;

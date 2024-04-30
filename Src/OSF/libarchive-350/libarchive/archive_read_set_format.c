@@ -1,6 +1,5 @@
 /*-
- * Copyright (c) 2003-2012 Tim Kientzle
- * All rights reserved.
+ * Copyright (c) 2003-2012 Tim Kientzle All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -14,7 +13,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-//#include "archive_read_private.h"
 
 int archive_read_set_format(Archive * _a, int code)
 {

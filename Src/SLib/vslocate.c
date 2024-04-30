@@ -3,9 +3,6 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-//#include <stdio.h>
-//#define WIN32_LEAN_AND_MEAN
-//#include <Windows.h>
 
 // Callback for receiving installation instances
 typedef void (*instance_callback)(const wchar_t* version, const wchar_t* path);

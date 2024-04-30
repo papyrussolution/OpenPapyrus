@@ -29,12 +29,6 @@
 #ifdef USE_LIBRTMP
 
 #include "curl_rtmp.h"
-//#include "urldata.h"
-//#include "nonblock.h" /* for curlx_nonblock */
-//#include "progress.h" /* for Curl_pgrsSetUploadSize */
-//#include "transfer.h"
-//#include "warnless.h"
-//#include <curl/curl.h>
 #include <librtmp/rtmp.h>
 #include "curl_memory.h"
 /* The last #include file should be: */

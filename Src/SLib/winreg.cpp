@@ -1,5 +1,5 @@
 // WINREG.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -480,7 +480,7 @@ int WinRegKey::PutEnumeratedStrings(const StringSet & rSs, StrAssocArray * pResu
 	THROW(Key);
 	{
 		for(uint i = 0; EnumValues(&i, &param_buf, &value) > 0;) {
-			if(param_buf.IsDigit()) {
+			if(param_buf.IsDec()) {
 				const long p = param_buf.ToLong();
 				value.GetStringUtf8(temp_buf);
 				if(temp_buf.NotEmptyS()) {

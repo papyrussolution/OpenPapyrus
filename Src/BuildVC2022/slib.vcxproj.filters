@@ -866,6 +866,7 @@
     <ClCompile Include="..\SLib\fnv-503\fnv_hash.c">
       <Filter>fnv-hash</Filter>
     </ClCompile>
+    <ClCompile Include="..\SLib\slrecmgr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

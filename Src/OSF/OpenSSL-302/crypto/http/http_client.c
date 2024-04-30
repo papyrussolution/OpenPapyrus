@@ -592,14 +592,14 @@ next_line:
 			    }
 		    }
 		    key = buf;
-		    value = strchr(key, ':');
+		    value = sstrchr(key, ':');
 		    if(value) {
 			    *(value++) = '\0';
 			    while(ossl_isspace(*value))
 				    value++;
-			    line_end = strchr(value, '\r');
+			    line_end = sstrchr(value, '\r');
 			    if(line_end == NULL)
-				    line_end = strchr(value, '\n');
+				    line_end = sstrchr(value, '\n');
 			    if(line_end != NULL)
 				    *line_end = '\0';
 		    }
@@ -763,7 +763,7 @@ static BIO * http_new_bio(const char * server /* optionally includes ":port" */,
 		port = proxy_port;
 	}
 
-	if(port == NULL && strchr(host, ':') == NULL)
+	if(port == NULL && sstrchr(host, ':') == NULL)
 		port = use_ssl ? OSSL_HTTPS_PORT : OSSL_HTTP_PORT;
 
 	cbio = BIO_new_connect(host /* optionally includes ":port" */);
@@ -850,7 +850,7 @@ OSSL_HTTP_REQ_CTX * OSSL_HTTP_open(const char * server, const char * port,
 		}
 		if(port != NULL && *port == '\0')
 			port = NULL;
-		if(port == NULL && strchr(server, ':') == NULL)
+		if(port == NULL && sstrchr(server, ':') == NULL)
 			port = use_ssl ? OSSL_HTTPS_PORT : OSSL_HTTP_PORT;
 		proxy = OSSL_HTTP_adapt_proxy(proxy, no_proxy, server, use_ssl);
 		if(proxy != NULL && !OSSL_HTTP_parse_url(proxy, NULL /* use_ssl */, NULL /* user */, &proxy_host, &proxy_port, NULL /* num */, NULL /* path */, NULL, NULL))

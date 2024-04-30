@@ -26,19 +26,9 @@
 
 #if !defined(CURL_DISABLE_RTSP) && !defined(USE_HYPER)
 
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "transfer.h"
-//#include "sendf.h"
-//#include "multiif.h"
-//#include "http.h"
 #include "url.h"
-//#include "progress.h"
 #include "rtsp.h"
-//#include "strcase.h"
 #include "select.h"
-//#include "connect.h"
-//#include "cfilters.h"
 #include "strdup.h"
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
@@ -829,7 +819,7 @@ CURLcode rtsp_parse_transport(struct Curl_easy * data, char * transport)
 	while(start && *start) {
 		while(*start && ISBLANK(*start) )
 			start++;
-		end = strchr(start, ';');
+		end = sstrchr(start, ';');
 		if(checkprefix("interleaved=", start)) {
 			long chan2, chan;
 			char * endp;

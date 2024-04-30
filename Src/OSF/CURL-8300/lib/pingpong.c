@@ -26,14 +26,9 @@
 ***************************************************************************/
 #include "curl_setup.h"
 #pragma hdrstop
-//#include "urldata.h"
-//#include "cfilters.h"
-//#include "sendf.h"
 #include "select.h"
-//#include "progress.h"
 #include "speedcheck.h"
 #include "pingpong.h"
-//#include "multiif.h"
 #include "vtls/vtls.h"
 
 /* The last 3 #include files should be in this order */

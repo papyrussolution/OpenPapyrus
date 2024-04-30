@@ -7,12 +7,8 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_tar.c 201161 2009-12-29 05:44:39Z kientzle $");
-//#include "archive_acl_private.h" /* For ACL parsing routines. */
-//#include "archive_entry_locale.h"
-//#include "archive_read_private.h"
 
 //#define tar_min(a, b) ((a) < (b) ? (a) : (b))
-
 /*
  * Layout of POSIX 'ustar' tar header.
  */

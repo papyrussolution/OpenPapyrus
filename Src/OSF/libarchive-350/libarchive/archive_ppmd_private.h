@@ -7,8 +7,6 @@
 #ifndef __LIBARCHIVE_BUILD
 	#error This header is only to be used internally to libarchive.
 #endif
-//#include <stddef.h>
-//#include "archive_read_private.h"
 
 /*** Begin defined in Types.h ***/
 

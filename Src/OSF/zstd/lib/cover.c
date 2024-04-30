@@ -735,15 +735,13 @@ ZDICTLIB_API size_t ZDICT_trainFromBuffer_cover(void * dictBuffer, size_t dictBu
 
 	DISPLAYLEVEL(2, "Building dictionary\n");
 	{
-		const size_t tail =
-		    COVER_buildDictionary(&ctx, ctx.freqs, &activeDmers, dictBuffer,
+		const size_t tail = COVER_buildDictionary(&ctx, ctx.freqs, &activeDmers, dictBuffer,
 			dictBufferCapacity, parameters);
 		const size_t dictionarySize = ZDICT_finalizeDictionary(
 			dict, dictBufferCapacity, dict + tail, dictBufferCapacity - tail,
 			samplesBuffer, samplesSizes, nbSamples, parameters.zParams);
 		if(!ZSTD_isError(dictionarySize)) {
-			DISPLAYLEVEL(2, "Constructed dictionary of size %u\n",
-			    (uint)dictionarySize);
+			DISPLAYLEVEL(2, "Constructed dictionary of size %u\n", (uint)dictionarySize);
 		}
 		COVER_ctx_destroy(&ctx);
 		COVER_map_destroy(&activeDmers);

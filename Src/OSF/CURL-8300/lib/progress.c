@@ -23,19 +23,11 @@
 ***************************************************************************/
 #include "curl_setup.h"
 #pragma hdrstop
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "multiif.h"
-//#include "progress.h"
-//#include "timeval.h"
-//#include "curl_printf.h"
 
-/* check rate limits within this many recent milliseconds, at minimum. */
-#define MIN_RATE_LIMIT_PERIOD 3000
+#define MIN_RATE_LIMIT_PERIOD 3000 /* check rate limits within this many recent milliseconds, at minimum. */
 
 #ifndef CURL_DISABLE_PROGRESS_METER
-/* Provide a string that is 2 + 1 + 2 + 1 + 2 = 8 letters long (plus the zero
-   byte) */
+/* Provide a string that is 2 + 1 + 2 + 1 + 2 = 8 letters long (plus the zero byte) */
 static void time2str(char * r, curl_off_t seconds)
 {
 	curl_off_t h;

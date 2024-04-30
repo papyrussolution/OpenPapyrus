@@ -13,7 +13,6 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dec/vp8i_dec.h"
 
 // In append mode, buffer allocations increase as multiples of this value.
 // Needs to be a power of 2.

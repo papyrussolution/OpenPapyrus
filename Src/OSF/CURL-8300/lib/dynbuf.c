@@ -226,7 +226,7 @@ CURLcode Curl_dyn_addf(struct dynbuf * s, const char * fmt, ...)
 /*
  * Returns a pointer to the buffer.
  */
-char *Curl_dyn_ptr(const struct dynbuf * s)
+char * Curl_dyn_ptr(const struct dynbuf * s)
 {
 	assert(s);
 	assert(s->init == DYNINIT);
@@ -237,7 +237,7 @@ char *Curl_dyn_ptr(const struct dynbuf * s)
 /*
  * Returns an unsigned pointer to the buffer.
  */
-uchar *Curl_dyn_uptr(const struct dynbuf * s)
+uchar * Curl_dyn_uptr(const struct dynbuf * s)
 {
 	assert(s);
 	assert(s->init == DYNINIT);

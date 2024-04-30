@@ -38,10 +38,8 @@
 #if CAIRO_HAS_QUARTZ_SURFACE // {
 
 #include <dlfcn.h>
-//#include "cairo-image-surface-private.h"
 #include "cairo-quartz.h"
 #include "cairo-quartz-private.h"
-//#include "cairo-error-private.h"
 
 /**
  * SECTION:cairo-quartz-fonts

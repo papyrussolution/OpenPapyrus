@@ -36,10 +36,6 @@
 #ifndef ABSL_LOW_LEVEL_ALLOC_MISSING
 
 #include "absl/synchronization/internal/graphcycles.h"
-//#include <algorithm>
-//#include <array>
-//#include <cinttypes>
-//#include <limits>
 #include "absl/base/internal/hide_ptr.h"
 #include "absl/base/internal/raw_logging.h"
 #include "absl/base/internal/spinlock.h"

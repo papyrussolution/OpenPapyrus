@@ -37,34 +37,14 @@ static const uint8_t LATCHES[] = {
 	231, // LATCH_TO_BASE256,
 };
 
-static bool IsDigit(int ch)
-{
-	return ch >= '0' && ch <= '9';
-}
-
-static bool IsExtendedASCII(int ch)
-{
-	return ch >= 128 && ch <= 255;
-}
-
-static bool IsNativeC40(int ch)
-{
-	return (ch == ' ') || (ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'Z');
-}
-
-static bool IsNativeText(int ch)
-{
-	return (ch == ' ') || (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'z');
-}
-
+// @v12.0.0 (replaced with isdec) static bool IsDigit(int ch) { return ch >= '0' && ch <= '9'; }
+static bool IsExtendedASCII(int ch) { return ch >= 128 && ch <= 255; }
+static bool IsNativeC40(int ch) { return (ch == ' ') || isdec(ch) || (ch >= 'A' && ch <= 'Z'); }
+static bool IsNativeText(int ch) { return (ch == ' ') || isdec(ch) || (ch >= 'a' && ch <= 'z'); }
 static bool IsX12TermSep(int ch) { return (ch == '\r') || (ch == '*') || (ch == '>'); }
-static bool IsNativeX12(int ch) { return IsX12TermSep(ch) || (ch == ' ') || (ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'Z'); }
+static bool IsNativeX12(int ch) { return IsX12TermSep(ch) || (ch == ' ') || isdec(ch) || (ch >= 'A' && ch <= 'Z'); }
 static bool IsNativeEDIFACT(int ch) { return ch >= ' ' && ch <= '^'; }
-static bool IsSpecialB256(int /*ch*/)
-{
-	return false; //TODO NOT IMPLEMENTED YET!!!
-}
-
+static bool IsSpecialB256(int /*ch*/) { return false; } //TODO NOT IMPLEMENTED YET!!!
 /*
  * Converts the message to a byte array using the default encoding (cp437) as defined by the
  * specification
@@ -72,7 +52,6 @@ static bool IsSpecialB256(int /*ch*/)
  * @param msg the message
  * @return the byte array of the message
  */
-
 /*
    public static byte[] getBytesForMessage(String msg) {
    return msg.getBytes(Charset.forName("cp437")); //See 4.4.3 and annex B of ISO/IEC 15438:2001(E)
@@ -151,9 +130,8 @@ static int LookAheadTest(const std::string& msg, size_t startpos, int currentMod
 
 		int c = (uint8_t)msg.at(startpos + charsProcessed);
 		charsProcessed++;
-
 		//step L
-		if(IsDigit(c)) {
+		if(isdec(c)) {
 			charCounts[ASCII_ENCODATION] += 0.5f;
 		}
 		else if(IsExtendedASCII(c)) {
@@ -293,12 +271,12 @@ namespace ASCIIEncoder {
 static int DetermineConsecutiveDigitCount(const std::string& msg, int startpos)
 {
 	auto begin = msg.begin() + startpos;
-	return narrow_cast<int>(std::find_if_not(begin, msg.end(), IsDigit) - begin);
+	return narrow_cast<int>(std::find_if_not(begin, msg.end(), /*IsDigit*/isdec<int>) - begin);
 }
 
 static uint8_t EncodeASCIIDigits(int digit1, int digit2)
 {
-	if(IsDigit(digit1) && IsDigit(digit2)) {
+	if(isdec(digit1) && isdec(digit2)) {
 		int num = (digit1 - '0') * 10 + (digit2 - '0');
 		return static_cast<uint8_t>(num + 130);
 	}

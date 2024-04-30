@@ -27,25 +27,14 @@
 #ifdef USE_NGHTTP2
 #include <stdint.h>
 #include <nghttp2/nghttp2.h>
-//#include "urldata.h"
-//#include "bufq.h"
 #include "http1.h"
 #include "http2.h"
-//#include "http.h"
-//#include "sendf.h"
 #include "select.h"
-//#include "curl_base64.h"
-//#include "strcase.h"
-//#include "multiif.h"
 #include "url.h"
 #include "urlapi-int.h"
-//#include "cfilters.h"
-//#include "connect.h"
 #include "rand.h"
 #include "strtoofft.h"
 #include "strdup.h"
-//#include "transfer.h"
-//#include "dynbuf.h"
 #include "headers.h"
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
@@ -735,7 +724,7 @@ char *curl_pushheader_byname(struct curl_pushheaders * h, const char * header)
 	   the header, but header == ":" must be rejected. If we have ':' in
 	   the middle of header, it could be matched in middle of the value,
 	   this is because we do prefix match.*/
-	if(!h || !GOOD_EASY_HANDLE(h->data) || !header || !header[0] || sstreq(header, ":") || strchr(header + 1, ':'))
+	if(!h || !GOOD_EASY_HANDLE(h->data) || !header || !header[0] || sstreq(header, ":") || sstrchr(header + 1, ':'))
 		return NULL;
 
 	stream = H2_STREAM_CTX(h->data);

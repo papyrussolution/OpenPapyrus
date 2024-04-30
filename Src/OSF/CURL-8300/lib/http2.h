@@ -27,38 +27,20 @@
 #include "curl_setup.h"
 
 #ifdef USE_NGHTTP2
-//#include "http.h"
 
-/* value for MAX_CONCURRENT_STREAMS we use until we get an updated setting
-   from the peer */
-#define DEFAULT_MAX_CONCURRENT_STREAMS 100
-
+#define DEFAULT_MAX_CONCURRENT_STREAMS 100 /* value for MAX_CONCURRENT_STREAMS we use until we get an updated setting from the peer */
 /*
  * Store nghttp2 version info in this buffer.
  */
 void Curl_http2_ver(char * p, size_t len);
-
-CURLcode Curl_http2_request_upgrade(struct dynbuf * req,
-    struct Curl_easy * data);
-
+CURLcode Curl_http2_request_upgrade(struct dynbuf * req, struct Curl_easy * data);
 /* returns true if the HTTP/2 stream error was HTTP_1_1_REQUIRED */
 bool Curl_h2_http_1_1_error(struct Curl_easy * data);
-
-bool Curl_conn_is_http2(const struct Curl_easy * data,
-    const struct connectdata * conn,
-    int sockindex);
-bool Curl_http2_may_switch(struct Curl_easy * data,
-    struct connectdata * conn,
-    int sockindex);
-
-CURLcode Curl_http2_switch(struct Curl_easy * data,
-    struct connectdata * conn, int sockindex);
-
+bool Curl_conn_is_http2(const struct Curl_easy * data, const struct connectdata * conn, int sockindex);
+bool Curl_http2_may_switch(struct Curl_easy * data, struct connectdata * conn, int sockindex);
+CURLcode Curl_http2_switch(struct Curl_easy * data, struct connectdata * conn, int sockindex);
 CURLcode Curl_http2_switch_at(struct Curl_cfilter * cf, struct Curl_easy * data);
-
-CURLcode Curl_http2_upgrade(struct Curl_easy * data,
-    struct connectdata * conn, int sockindex,
-    const char * ptr, size_t nread);
+CURLcode Curl_http2_upgrade(struct Curl_easy * data, struct connectdata * conn, int sockindex, const char * ptr, size_t nread);
 
 extern struct Curl_cftype Curl_cft_nghttp2;
 

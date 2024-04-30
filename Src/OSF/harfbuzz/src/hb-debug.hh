@@ -80,11 +80,11 @@ static inline void _hb_print_func(const char * func)
 		if(0 == strncmp(func, "typename ", 9))
 			func += 9;
 		/* Skip return type */
-		const char * space = strchr(func, ' ');
+		const char * space = sstrchr(func, ' ');
 		if(space)
 			func = space + 1;
 		/* Skip parameter list */
-		const char * paren = strchr(func, '(');
+		const char * paren = sstrchr(func, '(');
 		if(paren)
 			func_len = paren - func;
 		slfprintf_stderr("%.*s", func_len, func);

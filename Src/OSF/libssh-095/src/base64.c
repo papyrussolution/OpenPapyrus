@@ -115,7 +115,6 @@ ssh_buffer base64_to_bin(const char * source)
 		    if(equals != 2) {
 			    goto error;
 		    }
-
 		    if(_base64_to_bin(block, ptr, 1) < 0) {
 			    goto error;
 		    }
@@ -141,20 +140,18 @@ ssh_buffer base64_to_bin(const char * source)
 			    goto error;
 		    }
 		    ZFREE(base64);
-
 		    return buffer;
 		default:
 		    /* 4,3,2 are the only padding size allowed */
 		    goto error;
 	}
-
 error:
 	ZFREE(base64);
 	SSH_BUFFER_FREE(buffer);
 	return NULL;
 }
 
-#define BLOCK(letter, n) do {ptr = strchr(p_basis, source[n]); \
+#define BLOCK(letter, n) do {ptr = sstrchr(p_basis, source[n]); \
 	if(!ptr) return -1; \
 	i = ptr - p_basis; \
 	SET_ ## letter(*block, i); \
@@ -208,7 +205,7 @@ static int get_equals(char * string)
 {
 	char * ptr = string;
 	int num = 0;
-	while((ptr = (char *)strchr(ptr, '=')) != NULL) {
+	while((ptr = (char *)sstrchr(ptr, '=')) != NULL) {
 		num++;
 		*ptr = '\0';
 		ptr++;

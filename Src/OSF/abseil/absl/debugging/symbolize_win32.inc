@@ -15,8 +15,6 @@
 
 #pragma comment(lib, "dbghelp.lib")
 
-//#include <algorithm>
-//#include <cstring>
 #include "absl/base/internal/raw_logging.h"
 
 namespace absl {

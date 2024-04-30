@@ -1748,6 +1748,7 @@ private:
 // Descr: Заголовок файла блокировок
 //
 struct PPSyncHeader { // @persistent @size=62 (+4 Lock Prefix Size)
+	PPSyncHeader();
 	long   Magic;          // unique identifier
 	long   RecsCount;      // number of records
 	int16  Ver;            // Since v4.6.15 Ver=1
@@ -1761,6 +1762,7 @@ struct PPSyncHeader { // @persistent @size=62 (+4 Lock Prefix Size)
 // Descr: Запись файла блокировок
 //
 struct PPSyncItem { // @persistent @size=66 (+4 Lock Prefix Size)
+	PPSyncItem();
 	long   ID;             // record id
 	long   Type;           // record type (1-Semaphore, 2-Mutex, 3-DbLock, 0-Logout) PPSYNC_XXX
 	long   UserID;         // user unique identifier
@@ -5442,113 +5444,114 @@ private:
 //
 // Descr: Команды сервера
 //
-#define PPSCMD_HELLO                 10001
-#define PPSCMD_LOGIN                 10002
-#define PPSCMD_LOGOUT                10003
-#define PPSCMD_QUIT                  10004
-#define PPSCMD_SPII                  10005
-#define PPSCMD_STYLOBHT              10006
-#define PPSCMD_GETBIZSCORES          10007 //
-#define PPSCMD_STYLOBHTII            10008 //
-#define PPSCMD_GETLASTERRMSG         10011 // Получить сообщение о последней ошибке
-#define PPSCMD_SOBLK                 10019 // SELECT, SET, CREATE object //
-#define PPSCMD_CHECKGLOBALCREDENTIAL 10020 // CheckGlobalCredential global_acc_name global_acc_password
-#define PPSCMD_GETSERVERSTAT         10021 //
-#define PPSCMD_STOPTHREAD            10022 // Остановить поток (PPJobSrvProtocol::StopThreadBlock)
-#define PPSCMD_CREATEVIEW            10025 //
-#define PPSCMD_DESTROYVIEW           10026 //
-#define PPSCMD_HSH                   10027 // Handshake
-#define PPSCMD_SUSPEND               10028 // SUSPEND переводит сеанс в режим ожидания и возвращает ИД сеанса
-#define PPSCMD_RESUME                10029 // RESUME переключает работу на сеанс с которым до этого было приостановлена
+#define PPSCMD_HELLO                  10001
+#define PPSCMD_LOGIN                  10002
+#define PPSCMD_LOGOUT                 10003
+#define PPSCMD_QUIT                   10004
+#define PPSCMD_SPII                   10005
+#define PPSCMD_STYLOBHT               10006
+#define PPSCMD_GETBIZSCORES           10007 //
+#define PPSCMD_STYLOBHTII             10008 //
+#define PPSCMD_GETLASTERRMSG          10011 // Получить сообщение о последней ошибке
+#define PPSCMD_SOBLK                  10019 // SELECT, SET, CREATE object //
+#define PPSCMD_CHECKGLOBALCREDENTIAL  10020 // CheckGlobalCredential global_acc_name global_acc_password
+#define PPSCMD_GETSERVERSTAT          10021 //
+#define PPSCMD_STOPTHREAD             10022 // Остановить поток (PPJobSrvProtocol::StopThreadBlock)
+#define PPSCMD_CREATEVIEW             10025 //
+#define PPSCMD_DESTROYVIEW            10026 //
+#define PPSCMD_HSH                    10027 // Handshake
+#define PPSCMD_SUSPEND                10028 // SUSPEND переводит сеанс в режим ожидания и возвращает ИД сеанса
+#define PPSCMD_RESUME                 10029 // RESUME переключает работу на сеанс с которым до этого было приостановлена
 	// работа (командой SUSPEND). Номером сеанса указывается параметром команды.
-#define PPSCMD_CONFIG                10030 // CONFIG устанавливает конфигурационный параметр вказанный следующим за командой токеном.
-#define PPSCMD_REFRESHVIEW           10031 // Требование серверу обновить содержимое PPView, идентификатор которого передается с командой.
-#define PPSCMD_RFIDPRCSSR            10032
-#define PPSCMD_GETTDDO               10033 // Извлечение текста по шаблону TDDO
-#define PPSCMD_GETIMAGE              10034 // Извлечение изображения, связанного с объектом данных
-#define PPSCMD_GETNEXTFILEPART       10035 // Получить очередную часть файла
-#define PPSCMD_ACKFILE               10036 // Подтверждение приема файла клиентом
-#define PPSCMD_CANCELFILE            10037 // Отмена приема файла клиентом
-#define PPSCMD_EXECVIEWNF            10038 // Запуск отчета по именованному фильтру (EXECVIEW file_name [dl600_data_name])
-#define PPSCMD_PREPAREPALMOUTDATA    10039 // Подготовка данных для КПК на базе StyloAndroid
-#define PPSCMD_PREPAREPALMINDATA     10040 // Подготовка к приему данных с КПК на базе StyloAndroid
-#define PPSCMD_GETFILE               10041 // Получить файл с сервера
-#define PPSCMD_PUTFILE               10042 // Получить файл от клиента
-#define PPSCMD_PUTNEXTFILEPART       10043 // Получить файл следующую часть файла от клиента
-#define PPSCMD_PROCESSPALMXMLDATA    10044 // Обработать ранее полученные данные с КПК
-#define PPSCMD_SETGLOBALUSER         10045 // Установить идентификатор текущего глобального аккаунта
-#define PPSCMD_GETGLOBALUSER         10046 // Получить идентификатор текущего глобального аккаунта
-#define PPSCMD_SETOBJECTTAG          10047 // Установить значение тега объекта
-#define PPSCMD_GETOBJECTTAG          10048 // Получить значение тега объекта
-#define PPSCMD_SETIMAGEMIME          10049 // Установка изображения, связанного с объектом данных
-#define PPSCMD_SETIMAGE              10050 // Установка изображения, связанного с объектом данных (бинарный пакет)
-#define PPSCMD_PING                  10051 // Тестовая команда, для проверки работоспособности сервера и клиента. Может сопровождаться дополнительными параметрами при специфических тестах.
-#define PPSCMD_GTACHECKIN            10052 // Регистрация тарифицируемой транзакции по глобальной учетной записи
-#define PPSCMD_EXPTARIFFTA           10053 // Установить флаг - тарифицируемая транзакци
-#define PPSCMD_SENDSMS               10054 // Отправка SMS
-#define PPSCMD_POS_INIT              10055 //
-#define PPSCMD_POS_RELEASE           10056 // CPOSRELEASE id
-#define PPSCMD_POS_GETCCHECKLIST     10058 // CPOSGETCCHECKLIST
-#define PPSCMD_POS_GETCCHECKLNCOUNT  10060 // CPOSGETCCHECKLNCOUNT
-#define PPSCMD_POS_ADDCCHECKLINE     10061 // CPOSADDCCHECKLINE
-#define PPSCMD_POS_RMVCCHECKLINE     10062 // CPOSRMVCCHECKLINE
-#define PPSCMD_POS_CLEARCCHECK       10063 // CPOSCLEARCHECK
-#define PPSCMD_POS_RMVCCHECK         10064 // CPOSRMVCCHECK
-#define PPSCMD_POS_PRINTCCHECK       10065 // CPOSPRINTCHECK
-#define PPSCMD_POS_GETCONFIG         10066 // CPOSGETCONFIG
-#define PPSCMD_POS_SETCONFIG         10067 // CPOSSETCONFIG
-#define PPSCMD_POS_GETSTATE          10068 // CPOSGETSTATE
-#define PPSCMD_POS_SELECTCCHECK      10069 //
-#define PPSCMD_POS_SUSPENDCCHECK     10070 //
-#define PPSCMD_POS_SELECTCTABLE      10071
-#define PPSCMD_POS_GETCPOSRIGHTS     10072
-#define PPSCMD_POS_DECRYPTAUTHDATA   10074
-#define PPSCMD_POS_GETGOODSPRICE     10075 // CPOSGETGOODSPRICE
-#define PPSCMD_POS_PRINTCCHECKLOCAL  10076 // CPOSPRINTCHECKLOCAL
-#define PPSCMD_POS_GETCURRENTSTATE   10077 // CPOSGETCURRENTSTATE
-#define PPSCMD_POS_RESETCURRENTLINE  10078 // CPOSRESETCURRENTLINE
-#define PPSCMD_POS_PROCESSBARCODE    10079 // CPOSPROCESSBARCODE
-#define PPSCMD_POS_GETCTABLELIST     10080 // CPOSGETCTABLELIST
-#define PPSCMD_POS_CPOSSETCCROWQUEUE 10081 // CPOSSETCCROWQUEUE
-#define PPSCMD_POS_GETMODIFLIST      10082 // CPOSGETMODIFLIST goodsID
-#define PPSCMD_RESETCACHE            10101 // RESETCACHE
-#define PPSCMD_GETDISPLAYINFO        10102
-#define PPSCMD_GETWORKBOOKCONTENT    10103
-#define PPSCMD_SETTXTCMDTERM         10104 //
-#define PPSCMD_GETKEYWORDSEQ         10105 //
-#define PPSCMD_REGISTERSTYLO         10106 //
-#define PPSCMD_SETWORKBOOKCONTENT    10107 //
-#define PPSCMD_QUERYNATURALTOKEN     10108 //
-#define PPSCMD_GETARTICLEBYPERSON    10109 //
-#define PPSCMD_GETPERSONBYARTICLE    10110 //
-#define PPSCMD_LOGLOCKSTACK          10111 // Отладочная команда приводящая к выводу стека блокировок всех потоков в журнал debug.log
-#define PPSCMD_SETTIMESERIES         10112 // @v10.2.3
-#define PPSCMD_GETREQQUOTES          10113 // @v10.2.4
-#define PPSCMD_SETTIMESERIESPROP     10114 // @v10.2.5
-#define PPSCMD_SETTIMESERIESSTKENV   10115 // @v10.2.10
-#define PPSCMD_TIMESERIESTANOTIFY    10116 // @v10.3.11
-#define PPSCMD_GETCOMMONMQSCONFIG    10117 // @v10.5.9
-#define PPSCMD_SQ_ACQUAINTANCE       10118 // @v11.0.10 Инициирующее сообщение от клиента сервису для установки контакта. Клиент еще не "знаком" с сервисом.
-#define PPSCMD_SQ_SESSION            10119 // @v11.0.10
-#define PPSCMD_SQ_SRPREGISTER        10120 // @v11.0.10 Регистрация по SRP-протоколу
-#define PPSCMD_SQ_SRPAUTH            10121 // @v11.0.10 Авторизация по SRP-протоколу
-#define PPSCMD_SQ_SRPAUTH_S2         10122 // @v11.0.11 Авторизация по SRP-протоколу (the second phase)
-#define PPSCMD_SQ_SRPAUTH_ACK        10123 // @v11.0.11 Авторизация по SRP-протоколу (завершающее сообщение от клиента серверу об Успешности авторизации)
-#define PPSCMD_SQ_COMMAND            10124 // @v11.0.11 Собственно команда в рамках протокола Stylo-Q
-#define PPSCMD_EXECJOBIMM            10125 // @v11.3.9  Запустить задачу непосредственно по этой команде.
-#define PPSCMD_WSCTL_INIT            10126 // @v11.7.1  WSCTL Инициирующий запрос для получения базовых параметров работы управляемой рабочей станции
-#define PPSCMD_WSCTL_GETQUOTLIST     10127 // @v11.7.1  WSCTL Получить список котировок для рабочей станции
-#define PPSCMD_WSCTL_GETACCOUNTSTATE 10128 // @v11.7.1  WSCTL Получить информацию об аккаунте клиента
-#define PPSCMD_WSCTL_AUTH            10129 // @v11.7.1  WSCTL Авторизация клиента
-#define PPSCMD_WSCTL_BEGIN_SESS      10130 // @v11.7.6  WSCTL Запуск рабочего сеанса
-#define PPSCMD_WSCTL_END_SESS        10131 // @v11.7.6  WSCTL Завершение рабочего сеанса
-#define PPSCMD_WSCTL_TSESS           10132 // @v11.7.7  WSCTL Возвращает статус текущей сессии процессора
-#define PPSCMD_WSCTL_LOGOUT          10133 // @v11.7.7  WSCTL Выход из сеанса (без завершения текущей рабочей сессии)
-#define PPSCMD_WSCTL_QUERYPOLICY     10134 // @v11.7.12 WSCTL Запрос политики ограничений сеанса
-#define PPSCMD_WSCTL_QUERYPGMLIST    10135 // @v11.8.5  WSCTL Запрос списка программ для запуска на клиенткой машине
-#define PPSCMD_WSCTL_REGISTRATION    10136 // @v11.9.10 WSCTL Регистрация клиента
+#define PPSCMD_CONFIG                 10030 // CONFIG устанавливает конфигурационный параметр вказанный следующим за командой токеном.
+#define PPSCMD_REFRESHVIEW            10031 // Требование серверу обновить содержимое PPView, идентификатор которого передается с командой.
+#define PPSCMD_RFIDPRCSSR             10032
+#define PPSCMD_GETTDDO                10033 // Извлечение текста по шаблону TDDO
+#define PPSCMD_GETIMAGE               10034 // Извлечение изображения, связанного с объектом данных
+#define PPSCMD_GETNEXTFILEPART        10035 // Получить очередную часть файла
+#define PPSCMD_ACKFILE                10036 // Подтверждение приема файла клиентом
+#define PPSCMD_CANCELFILE             10037 // Отмена приема файла клиентом
+#define PPSCMD_EXECVIEWNF             10038 // Запуск отчета по именованному фильтру (EXECVIEW file_name [dl600_data_name])
+#define PPSCMD_PREPAREPALMOUTDATA     10039 // Подготовка данных для КПК на базе StyloAndroid
+#define PPSCMD_PREPAREPALMINDATA      10040 // Подготовка к приему данных с КПК на базе StyloAndroid
+#define PPSCMD_GETFILE                10041 // Получить файл с сервера
+#define PPSCMD_PUTFILE                10042 // Получить файл от клиента
+#define PPSCMD_PUTNEXTFILEPART        10043 // Получить файл следующую часть файла от клиента
+#define PPSCMD_PROCESSPALMXMLDATA     10044 // Обработать ранее полученные данные с КПК
+#define PPSCMD_SETGLOBALUSER          10045 // Установить идентификатор текущего глобального аккаунта
+#define PPSCMD_GETGLOBALUSER          10046 // Получить идентификатор текущего глобального аккаунта
+#define PPSCMD_SETOBJECTTAG           10047 // Установить значение тега объекта
+#define PPSCMD_GETOBJECTTAG           10048 // Получить значение тега объекта
+#define PPSCMD_SETIMAGEMIME           10049 // Установка изображения, связанного с объектом данных
+#define PPSCMD_SETIMAGE               10050 // Установка изображения, связанного с объектом данных (бинарный пакет)
+#define PPSCMD_PING                   10051 // Тестовая команда, для проверки работоспособности сервера и клиента. Может сопровождаться дополнительными параметрами при специфических тестах.
+#define PPSCMD_GTACHECKIN             10052 // Регистрация тарифицируемой транзакции по глобальной учетной записи
+#define PPSCMD_EXPTARIFFTA            10053 // Установить флаг - тарифицируемая транзакци
+#define PPSCMD_SENDSMS                10054 // Отправка SMS
+#define PPSCMD_POS_INIT               10055 //
+#define PPSCMD_POS_RELEASE            10056 // CPOSRELEASE id
+#define PPSCMD_POS_GETCCHECKLIST      10058 // CPOSGETCCHECKLIST
+#define PPSCMD_POS_GETCCHECKLNCOUNT   10060 // CPOSGETCCHECKLNCOUNT
+#define PPSCMD_POS_ADDCCHECKLINE      10061 // CPOSADDCCHECKLINE
+#define PPSCMD_POS_RMVCCHECKLINE      10062 // CPOSRMVCCHECKLINE
+#define PPSCMD_POS_CLEARCCHECK        10063 // CPOSCLEARCHECK
+#define PPSCMD_POS_RMVCCHECK          10064 // CPOSRMVCCHECK
+#define PPSCMD_POS_PRINTCCHECK        10065 // CPOSPRINTCHECK
+#define PPSCMD_POS_GETCONFIG          10066 // CPOSGETCONFIG
+#define PPSCMD_POS_SETCONFIG          10067 // CPOSSETCONFIG
+#define PPSCMD_POS_GETSTATE           10068 // CPOSGETSTATE
+#define PPSCMD_POS_SELECTCCHECK       10069 //
+#define PPSCMD_POS_SUSPENDCCHECK      10070 //
+#define PPSCMD_POS_SELECTCTABLE       10071
+#define PPSCMD_POS_GETCPOSRIGHTS      10072
+#define PPSCMD_POS_DECRYPTAUTHDATA    10074
+#define PPSCMD_POS_GETGOODSPRICE      10075 // CPOSGETGOODSPRICE
+#define PPSCMD_POS_PRINTCCHECKLOCAL   10076 // CPOSPRINTCHECKLOCAL
+#define PPSCMD_POS_GETCURRENTSTATE    10077 // CPOSGETCURRENTSTATE
+#define PPSCMD_POS_RESETCURRENTLINE   10078 // CPOSRESETCURRENTLINE
+#define PPSCMD_POS_PROCESSBARCODE     10079 // CPOSPROCESSBARCODE
+#define PPSCMD_POS_GETCTABLELIST      10080 // CPOSGETCTABLELIST
+#define PPSCMD_POS_CPOSSETCCROWQUEUE  10081 // CPOSSETCCROWQUEUE
+#define PPSCMD_POS_GETMODIFLIST       10082 // CPOSGETMODIFLIST goodsID
+#define PPSCMD_RESETCACHE             10101 // RESETCACHE
+#define PPSCMD_GETDISPLAYINFO         10102
+#define PPSCMD_GETWORKBOOKCONTENT     10103
+#define PPSCMD_SETTXTCMDTERM          10104 //
+#define PPSCMD_GETKEYWORDSEQ          10105 //
+#define PPSCMD_REGISTERSTYLO          10106 //
+#define PPSCMD_SETWORKBOOKCONTENT     10107 //
+#define PPSCMD_QUERYNATURALTOKEN      10108 //
+#define PPSCMD_GETARTICLEBYPERSON     10109 //
+#define PPSCMD_GETPERSONBYARTICLE     10110 //
+#define PPSCMD_LOGLOCKSTACK           10111 // Отладочная команда приводящая к выводу стека блокировок всех потоков в журнал debug.log
+#define PPSCMD_SETTIMESERIES          10112 // @v10.2.3
+#define PPSCMD_GETREQQUOTES           10113 // @v10.2.4
+#define PPSCMD_SETTIMESERIESPROP      10114 // @v10.2.5
+#define PPSCMD_SETTIMESERIESSTKENV    10115 // @v10.2.10
+#define PPSCMD_TIMESERIESTANOTIFY     10116 // @v10.3.11
+#define PPSCMD_GETCOMMONMQSCONFIG     10117 // @v10.5.9
+#define PPSCMD_SQ_ACQUAINTANCE        10118 // @v11.0.10 Инициирующее сообщение от клиента сервису для установки контакта. Клиент еще не "знаком" с сервисом.
+#define PPSCMD_SQ_SESSION             10119 // @v11.0.10
+#define PPSCMD_SQ_SRPREGISTER         10120 // @v11.0.10 Регистрация по SRP-протоколу
+#define PPSCMD_SQ_SRPAUTH             10121 // @v11.0.10 Авторизация по SRP-протоколу
+#define PPSCMD_SQ_SRPAUTH_S2          10122 // @v11.0.11 Авторизация по SRP-протоколу (the second phase)
+#define PPSCMD_SQ_SRPAUTH_ACK         10123 // @v11.0.11 Авторизация по SRP-протоколу (завершающее сообщение от клиента серверу об Успешности авторизации)
+#define PPSCMD_SQ_COMMAND             10124 // @v11.0.11 Собственно команда в рамках протокола Stylo-Q
+#define PPSCMD_EXECJOBIMM             10125 // @v11.3.9  Запустить задачу непосредственно по этой команде.
+#define PPSCMD_WSCTL_INIT             10126 // @v11.7.1  WSCTL Инициирующий запрос для получения базовых параметров работы управляемой рабочей станции
+#define PPSCMD_WSCTL_GETQUOTLIST      10127 // @v11.7.1  WSCTL Получить список котировок для рабочей станции
+#define PPSCMD_WSCTL_GETACCOUNTSTATE  10128 // @v11.7.1  WSCTL Получить информацию об аккаунте клиента
+#define PPSCMD_WSCTL_AUTH             10129 // @v11.7.1  WSCTL Авторизация клиента
+#define PPSCMD_WSCTL_BEGIN_SESS       10130 // @v11.7.6  WSCTL Запуск рабочего сеанса
+#define PPSCMD_WSCTL_END_SESS         10131 // @v11.7.6  WSCTL Завершение рабочего сеанса
+#define PPSCMD_WSCTL_TSESS            10132 // @v11.7.7  WSCTL Возвращает статус текущей сессии процессора
+#define PPSCMD_WSCTL_LOGOUT           10133 // @v11.7.7  WSCTL Выход из сеанса (без завершения текущей рабочей сессии)
+#define PPSCMD_WSCTL_QUERYPOLICY      10134 // @v11.7.12 WSCTL Запрос политики ограничений сеанса
+#define PPSCMD_WSCTL_QUERYPGMLIST     10135 // @v11.8.5  WSCTL Запрос списка программ для запуска на клиенткой машине
+#define PPSCMD_WSCTL_REGISTRATION     10136 // @v11.9.10 WSCTL Регистрация клиента
+#define PPSCMD_WSCTL_REGISTERCOMPUTER 10137 // @v12.0.0 WSCTL Регистрация рабочей станции
 
-#define PPSCMD_TEST                  11000 // Сеанс тестирования //
+#define PPSCMD_TEST                   11000 // Сеанс тестирования //
 //
 //
 //
@@ -8644,13 +8647,13 @@ public:
 	//   и не обязана проверять права пользователя на администрирование
 	//   (то есть на изменение прав доступа).
 	//
-	virtual int    EditRights(uint bufSize, ObjRights * buf, EmbedDialog * pDlg = 0);
+	virtual int  EditRights(uint bufSize, ObjRights * buf, EmbedDialog * pDlg = 0);
 	//
 	// Descr: создает зарезервированные записи.
 	// ARG(flags IN): 0 или один из флагов PPObject::mrfXXX
 	//
-	virtual int    MakeReserved(long flags);
-	virtual int    HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
+	virtual int  MakeReserved(long flags);
+	virtual int  HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	//
 	// Descr: Функция должна извлечь из потока (stream) или из базы данных (stream == 0)
@@ -8658,7 +8661,7 @@ public:
 	//   Если объект извлекается из базы данных и приоритет обработки объекта отличается //
 	//   от обычного (1000), то в поле pPack->Priority функция должна установить требуемое значение.
 	//
-	virtual int    Read(PPObjPack * pPack, PPID id, void * stream, ObjTransmContext * pCtx);
+	virtual int  Read(PPObjPack * pPack, PPID id, void * stream, ObjTransmContext * pCtx);
 	//
 	// Descr: функция записи в поток или в базу данных бинарного представления объекта
 	//   Извлеченное из базы данных или из потока представление храниться по указателю pPack->Data.
@@ -8684,7 +8687,7 @@ public:
 	//   101 -     В окне журнала необходимо поместить сообщение о том, что объект успешно создан
 	//   102 -     В окне журнала необходимо поместить сообщение о том, что объект успешно изменен
 	//
-	virtual int    Write(PPObjPack * pPack, PPID * pID, void * stream, ObjTransmContext *);
+	virtual int  Write(PPObjPack * pPack, PPID * pID, void * stream, ObjTransmContext *);
 	//
 	// Returns:
 	//   >0 - OK
@@ -8930,8 +8933,9 @@ public:
 //
 // RegisterCore (Implemented in REGISTER.CPP)
 //
-int FASTCALL operator != (const RegisterTbl::Rec &, const RegisterTbl::Rec &);
+// @v12.0.0 (replaced with !RegisterCore::IsEqualRec() && r1.ID != r2.ID) int FASTCALL operator != (const RegisterTbl::Rec &, const RegisterTbl::Rec &);
 
+#pragma pack(push, 1)
 struct PPBankAccount { // @#=sizeof(RegisterTbl::Rec) @flat
 	PPBankAccount();
 	PPBankAccount(const RegisterTbl::Rec & rS);
@@ -8945,13 +8949,14 @@ struct PPBankAccount { // @#=sizeof(RegisterTbl::Rec) @flat
 	long   RegTypeID;   // Const=PPREGT_BANKACCOUNT
 	LDATE  OpenDate;    //
 	long   BankID;      // ->Person.ID
-	char   UnusedZ2[12]; //
-	char   Acct[32];     // Номер счета
+	char   UnusedZ2[32]; // @v12.0.0 [12]-->[32]
+	char   Acct[128];    // Номер счета @v12.0.0 [32]-->[128]
 	LDATE  Expiry;       // Дата окончания действия счета
 	long   UniqCntr;     // Счетчик, делающий индекс (RegTypeID, Serial, Number, UniqCntr) уникальным
 	long   Flags;        //
 	long   AccType;      //
 };
+#pragma pack(pop)
 
 class RegisterArray : public SVector {
 public:
@@ -8971,6 +8976,13 @@ public:
 	//   <0 - требуемая запись не найдена.
 	//
 	int    GetRegister(PPID regTypeID, LDATE dt, uint * pPos, RegisterTbl::Rec * pRec) const;
+	//
+	// Descr: Ищет регистр типа regTyp начиная с позиции *pPos или 0 если pPos == 0.
+	// Returns:
+	//   >0 - найдена запись удовлетворяющая условиям функции.
+	//   <0 - требуемая запись не найдена.
+	//
+	int    GetRegister(PPID regType, uint * pos, RegisterTbl::Rec * pRec) const;
 	int    GetListByType(PPID regTypeID, LDATE dt, RegisterArray * pList) const;
 	int    GetListByPeriod(PPID regTypeID, const DateRange & rPeriod, RegisterArray * pList) const;
 	int    GetBankAccountList(TSVector <PPBankAccount> * pList) const;
@@ -8980,13 +8992,6 @@ public:
 	//   то добавляет новую запись, в противном случае - модифицирует существующую
 	//
 	int    SetBankAccount(const PPBankAccount * pRec, uint pos);
-	//
-	// Descr: Ищет регистр типа regTyp начиная с позиции *pPos или 0 если pPos == 0.
-	// Returns:
-	//   >0 - найдена запись удовлетворяющая условиям функции.
-	//   <0 - требуемая запись не найдена.
-	//
-	int    GetRegister(PPID regType, uint * pos, RegisterTbl::Rec * pRec) const;
 	int    GetRegNumber(PPID regTyp, LDATE dt, SString & rBuf) const;
 	int    GetRegNumber(PPID regTyp, SString & rBuf) const;
 	//
@@ -11092,6 +11097,7 @@ protected:
 // @v10.8.5 (replaced with PPRentCondition::fClosed)  #define RENTF_CLOSED    0x0001L // Закрытый договор
 // @v10.8.5 (replaced with PPRentCondition::fPercent) #define RENTF_PERCENT   0x0010L // Процентные начисления по ренте.
 
+#pragma pack(push,1)
 struct PPRentCondition {   // @size=48 @persistent @store(PropertyTbl[PPOBJ_BILL, @id, BILLPRP_RENT])
 	PPRentCondition(); // @v11.9.6
 	bool   IsEmpty() const;
@@ -11118,6 +11124,7 @@ struct PPRentCondition {   // @size=48 @persistent @store(PropertyTbl[PPOBJ_BILL
 	long   ChargeDayOffs;  // Смещение даты начисления (в днях)
 	uint8  Reserve2[16];   // @reserve
 };
+#pragma pop
 //
 // Value added record for PPOBJ_BILL
 // Used if (BillTbl::Rec::Flags & BILLF_BANKING)
@@ -11134,6 +11141,7 @@ struct PPRentCondition {   // @size=48 @persistent @store(PropertyTbl[PPOBJ_BILL
 #define BNKPAYMF_REQ        0x0001L // Платежное требование (иначе поручение)
 #define BNKPAYMF_WOACCEPT   0x0002L // Без акцепта (иначе с акцептом)
 
+#pragma pack(push,1)
 struct PPTaxPeriod {       // @persistent @size=6
 	SString & Format(SString & rBuf) const;
 	enum {
@@ -11156,7 +11164,9 @@ struct PPTaxPeriod {       // @persistent @size=6
 	int8   Day;            //
 	int16  P;              // PPTaxPeriod::eXXX
 };
+#pragma pop
 
+#pragma pack(push,1)
 struct PPBankingOrder { // @persistent @store(PropertyTbl)
 	PPBankingOrder();
 	//
@@ -11204,10 +11214,12 @@ struct PPBankingOrder { // @persistent @store(PropertyTbl)
 	int16  FormalPurpose;    // @v10.7.9 Формальное назначение платежа (4byte-aligned with Txm)
 	uint8  Reserve[24];      // @v10.7.9 @reserve
 };
+#pragma pop
 //
 // Descr: Информация по фрахту документа
 //
-struct PPFreight {         // @persistent @store(PropertyTbl)
+#pragma pack(push,1)
+struct PPFreight { // @persistent @store(PropertyTbl)
 	PPFreight();
 	PPFreight & Z();
 	bool   IsEmpty() const;
@@ -11235,6 +11247,7 @@ struct PPFreight {         // @persistent @store(PropertyTbl)
 	PPID   Captain2ID;     // @v10.9.2 2-й командир транспорта
 	uint8  Reserve2[16];   // @v10.9.2
 };
+#pragma pop
 //
 // Descr: Заголовок авансового отчета
 //
@@ -18990,7 +19003,7 @@ public:
 	int    PutPacket(PPID *pOpCntrID, const PPOpCounterPacket *, int use_ta);
 	int    GetPacket(PPID opCntrID, PPOpCounterPacket *);
 private:
-	virtual int MakeReserved(long flags);
+	virtual int  MakeReserved(long flags);
 	int    Helper_GetCounter(PPID id, PPID locID, long * pCounter, SString * pCodeBuf, int use_ta);
 };
 //
@@ -26005,13 +26018,13 @@ private:
 	static PPID FASTCALL Implement_ObjToWarehouse_Direct(PPID arID, int ignoreRights, PPID * pAcsID);
 	void   InitInstance(SCtrLite sctr, void * extraPtr);
 	PPObjLocation(SCtrLite);
-	virtual int DeleteObj(PPID id);
-	virtual int HandleMsg(int, PPID, PPID, void * extraPtr);
-	virtual int Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
-	virtual int Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
+	virtual int  DeleteObj(PPID id);
+	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
+	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
+	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
-	virtual int MakeReserved(long flags);
+	virtual int  MakeReserved(long flags);
 	virtual const char * GetNamePtr();
 	int    AddListItem(StrAssocArray * pList, const LocationTbl::Rec * pLocRec, long zeroParentId, PPIDArray * pRecurTrace);
 		// @<<PPObjLocation::MakeList(const LocationFilt, long)
@@ -30616,7 +30629,7 @@ public:
 	static int SetDynamicOwner(PPID id, long curOwner, long newOwner);
 	static int RemoveDynamicAlt(PPID id, long owner, int forceDel = 0, int useTa = 1);
 private:
-	virtual int    MakeReserved(long flags);
+	virtual int  MakeReserved(long flags);
 };
 //
 //
@@ -30962,28 +30975,90 @@ private:
 //
 //
 // 
+class ComputerFilt : public PPBaseFilt { // @construction
+public:
+	ComputerFilt();
+	ComputerFilt & FASTCALL operator = (const ComputerFilt & rS);
+	virtual bool IsEmpty() const;
+
+	uint8  ReserveStart[28];  // @anchor
+	long   Order;             //
+	long   Flags;
+	SString SrchStr;          // @anchor Строка, содержащаяся в имени
+};
+
 struct PPComputer { // @flat
 	PPComputer();
+	PPComputer & Z();
+	bool   FASTCALL IsEq(const PPComputer & rS) const;
+	bool   FASTCALL CheckForFilt(const ComputerFilt * pFilt) const;
 	PPID   ID;             // @id
 	char   Name[128];      // @name
 	char   Code[20];       // (Stored as Barcode.Code with prefix '^' and Qtty = 1.0)
+	long   Flags;
+	S_GUID  Uuid;
+	MACAddr MacAdr;        // 		
+	binary128 IpAdr;
 };
 
 class PPComputerPacket {
 public:
 	PPComputerPacket();
+	PPComputerPacket & Z();
+	bool    FASTCALL IsEq(const PPComputerPacket & rS) const;
+	bool    FASTCALL Copy(const PPComputerPacket & rS);
 
 	PPComputer Rec;
+	ObjLinkFiles LinkFiles;
 	ObjTagList TagL;
 };
 
 
 class PPObjComputer : public PPObjGoods { // @construction
 public:
+	static  int  Helper_SetRec(const PPComputer * pRec, Goods2Tbl::Rec & rGoodsRec);
+	static  int  Helper_GetRec(const Goods2Tbl::Rec & rGoodsRec, PPComputer * pRec);
+
 	PPObjComputer(void * extraPtr = 0);
 	~PPObjComputer();
-	int    Get(PPID, PPComputerPacket *);
-	int    Put(PPID *, PPComputerPacket *, int use_ta);
+	int    Get(PPID id, PPComputerPacket * pPack);
+	int    Put(PPID * pID, PPComputerPacket * pPack, int use_ta);
+private:
+	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
+	virtual int  Edit(PPID * pID, void * extraPtr);
+};
+
+typedef PPComputer ComputerViewItem;
+
+class PPViewComputer : public PPView {
+public:
+	struct BrwItem { // @persistent @store(Reference2Tbl)
+		explicit BrwItem(const PPComputer * pS);
+		PPID   ID;
+		long   Flags;
+		char   Name[128];
+		long   ViewFlags;
+	};
+	PPViewComputer();
+	~PPViewComputer();
+	virtual int Init_(const PPBaseFilt * pBaseFilt);
+	virtual int EditBaseFilt(PPBaseFilt * pBaseFilt);
+	int    InitIteration();
+	int    FASTCALL NextIteration(ComputerViewItem *);
+	static int CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
+private:
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  OnExecBrowser(PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual void ViewTotal();
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    MakeList();
+
+	SArray * P_DsList;
+	ComputerFilt Filt;
+	PPObjComputer Obj;
 };
 //
 // 
@@ -55471,6 +55546,8 @@ public:
 		SString ProgVer;       // ВерсПрог
 		SString Indep_Format;  // @v11.9.5 fIndepFormatProvider Наименование формата файла (для независимых провайдеров)
 		SString Indep_Name;    // @v11.9.5 fIndepFormatProvider Наименование документа (похоже по структуре на имя файла, но почему то отличается) (для независимых провайдеров) 
+		SString EdiProviderSymb;  // @v12.0.0 Символ EDI-провайдера. Требутся для того, чтобы видоизменять экспортируемые форматы в соответствии с нюансами, заваемыми провайдером.
+			// Допустимые символы  провайдеров перечислены в начале класса PPEdiProcessor.
 	};
 	struct Address {
 		Address();
@@ -55594,6 +55671,11 @@ public:
 	};
 	DocNalogRu_Generator();
 	~DocNalogRu_Generator();
+	//
+	// ARG(senderID IN): Ид персоналии-отправителя //
+	// ARG(rcvrID IN): Ид персоналии-получателя //
+	// ARG(providerID IN): Ид персоналии провайдера обмена данными (не путать с объектом провайдер EDI, который, впрочем, может ссылаться на персоналию-провайдера)
+	//
 	int    CreateHeaderInfo(const char * pFormatPrefix, PPID senderID, PPID rcvrID, PPID providerID, const char * pBaseFileName, FileInfo & rInfo);
 	int    MakeOutFileIdent(FileInfo & rHi);
 	int    MakeOutFileName(const char * pFileIdent, SString & rFileName);
@@ -55648,6 +55730,24 @@ public:
 	xmlTextWriter * P_X;
 private:
 	void   WriteExcise(SXml::WNode & rParentNode, double value);
+	//
+	// Descr: Извлекает из базы данных идентификатор участника документооборота.
+	//   Сложность в том, что этот идентификатор может быть задан либо в виде тега персоналии (PPTAG_PERSON_ENALOGID),
+	//   либо (начиная с @v12.0.0) в виде регистра (зарезервированный тип PPREGT_ENALOGID). При этом регистр может быть 
+	//   ассоциирован с персоналией-оператором обмена данными.
+	//   Алгоритм функции таков:
+	//   -- сначала ищет регистр персоналии типа PPREGT_ENALOGID с организацией-эмитентом равной dtoPersonID
+	//   -- если не предыдущий пункт неудачный, то ищет регистр того же типа, но с нулевой организацией-эмитентом 
+	//   -- если не предыдущий пункт неудачный, то ищет тег PPTAG_PERSON_ENALOGID 
+	// Returns:
+	//    0 - ошибка
+	//   <0 - идентификатор не найден 
+	//    1 - идентификатор найден в регистре с точным соответствием по организации-эмитенту
+	//    2 - идентификатор найден в регистре, для которого не определен эмитент (dtoPersonID != 0)
+	//    3 - идентификатор найден в регистре с явно заданным эмитентом, не совпадающим с dtoPersonID
+	//    4 - идентификатор найден в теге
+	//
+	int    GetIdentifier(PPID psnID, PPID dtoPersonID, SString & rBuf);
 	enum {
 		fExpChZnMarksGTINSER = 0x0001,
 		fExpPlainAddr        = 0x0002 // @v11.5.11 see pp.ini [config] ExpNalogRuPlainAddr
@@ -55685,7 +55785,7 @@ public:
 	PPObjAccSheet AcsObj;
 	PPOprKind OpRec;
 	PPOprKind LinkOpRec;
-	PPID   DtoID;        // PPOBJ_PERSON Провайдер обмена данными
+	PPID   DtoPersonID;  // PPOBJ_PERSON Провайдер обмена данными
 	PPID   MainOrgID;    // PPOBJ_PERSON
 	PPID   ContragentID; // PPOBJ_PERSON
 	SString AgtCode;
@@ -59501,7 +59601,7 @@ int Convert7708();
 int Convert7712();
 int Convert7907();
 // @v8.3.6 int Convert8203();
-int Convert8306();
+// @v12.0.0 int Convert8306();
 int Convert8800();
 int ConvertWorkbook813();
 int Convert8910();
@@ -59522,6 +59622,7 @@ int Convert10905(); // @v10.9.5 EgaisRefA
 int Convert11004(); // @v11.0.4 TSessLine
 int Convert11112(); // @v11.1.12 Bill
 int Convert11200(); // @v11.2.0 Соглашения с клиентами
+int Convert12000(); // @v12.0.0 Регистры (увеличились длины серии и номера регистра)
 int DoChargeSalary();
 int DoDebtRate();
 int DoBizScore(PPID bzsID);

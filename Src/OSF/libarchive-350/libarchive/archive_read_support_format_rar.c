@@ -8,12 +8,9 @@
 #ifndef HAVE_ZLIB_H
 	#include "archive_crc32.h"
 #endif
-//#include "archive_entry_locale.h"
 #include "archive_ppmd7_private.h"
-//#include "archive_read_private.h"
 
-/* RAR signature, also known as the mark header */
-#define RAR_SIGNATURE "\x52\x61\x72\x21\x1A\x07\x00"
+#define RAR_SIGNATURE "\x52\x61\x72\x21\x1A\x07\x00" /* RAR signature, also known as the mark header */
 
 /* Header types */
 #define MARK_HEAD    0x72
@@ -1284,14 +1281,14 @@ static int read_header(ArchiveRead * a, ArchiveEntry * entry, char head_type)
 					return ARCHIVE_FATAL;
 			}
 			fn_sconv = rar->sconv_utf8;
-			while((strp = strchr(filename, '\\')) != NULL)
+			while((strp = sstrchr(filename, '\\')) != NULL)
 				*strp = '/';
 			p += filename_size;
 		}
 	}
 	else {
 		fn_sconv = sconv;
-		while((strp = strchr(filename, '\\')) != NULL)
+		while((strp = sstrchr(filename, '\\')) != NULL)
 			*strp = '/';
 		p += filename_size;
 	}
@@ -1585,13 +1582,10 @@ static int read_data_compressed(ArchiveRead * a, const void ** buff, size_t * si
 {
 	if(looper++ > MAX_COMPRESS_DEPTH)
 		return ARCHIVE_FATAL;
-	struct rar * rar;
 	int64 start, end, actualend;
 	size_t bs;
 	int ret = (ARCHIVE_OK), sym, code, lzss_offset, length, i;
-
-	rar = (struct rar *)(a->format->data);
-
+	struct rar * rar = (struct rar *)(a->format->data);
 	do {
 		if(!rar->valid)
 			return ARCHIVE_FATAL;

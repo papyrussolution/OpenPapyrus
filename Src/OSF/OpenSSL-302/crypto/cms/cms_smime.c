@@ -321,24 +321,20 @@ int CMS_verify(CMS_ContentInfo * cms, STACK_OF(X509) * certs, X509_STORE * store
 				goto err;
 			if(cadesVerify) {
 				STACK_OF(X509) *si_chain = si_chains ? si_chains[i] : NULL;
-
 				if(ossl_cms_check_signing_certs(si, si_chain) <= 0)
 					goto err;
 			}
 		}
 	}
-
 	/*
 	 * Performance optimization: if the content is a memory BIO then store
 	 * its contents in a temporary read only memory BIO. This avoids
 	 * potentially large numbers of slow copies of data which will occur when
 	 * reading from a read write memory BIO when signatures are calculated.
 	 */
-
 	if(dcont && (BIO_method_type(dcont) == BIO_TYPE_MEM)) {
 		char * ptr;
-		long len;
-		len = BIO_get_mem_data(dcont, &ptr);
+		long len = BIO_get_mem_data(dcont, &ptr);
 		tmpin = (len == 0) ? dcont : BIO_new_mem_buf(ptr, len);
 		if(tmpin == NULL) {
 			ERR_raise(ERR_LIB_CMS, ERR_R_MALLOC_FAILURE);

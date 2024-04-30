@@ -506,7 +506,7 @@ static int32_t getShortestSubtagLength(const char * localeID)
 U_CAPI const char * U_EXPORT2 locale_getKeywordsStart(const char * localeID) 
 {
 	const char * result = NULL;
-	if((result = uprv_strchr(localeID, '@')) != NULL) {
+	if((result = sstrchr(localeID, '@')) != NULL) {
 		return result;
 	}
 #if(U_CHARSET_FAMILY == U_EBCDIC_FAMILY)
@@ -517,7 +517,7 @@ U_CAPI const char * U_EXPORT2 locale_getKeywordsStart(const char * localeID)
 		static const uint8 ebcdicSigns[] = { 0x7C, 0x44, 0x66, 0x80, 0xAC, 0xAE, 0xAF, 0xB5, 0xEC, 0xEF, 0x00 };
 		const uint8 * charToFind = ebcdicSigns;
 		while(*charToFind) {
-			if((result = uprv_strchr(localeID, *charToFind)) != NULL) {
+			if((result = sstrchr(localeID, *charToFind)) != NULL) {
 				return result;
 			}
 			charToFind++;
@@ -596,8 +596,8 @@ U_CFUNC void ulocimp_getKeywords(const char * localeID, char prev, ByteSink& sin
 				*status = U_INTERNAL_PROGRAM_ERROR;
 				return;
 			}
-			equalSign = uprv_strchr(pos, '=');
-			semicolon = uprv_strchr(pos, ';');
+			equalSign = sstrchr(pos, '=');
+			semicolon = sstrchr(pos, ';');
 			/* lack of '=' [foo@currency] is illegal */
 			/* ';' before '=' [foo@currency;collation=pinyin] is illegal */
 			if(!equalSign || (semicolon && semicolon<equalSign)) {
@@ -734,7 +734,7 @@ U_CAPI void U_EXPORT2 ulocimp_getKeywordValue(const char * localeID, const char 
 			const char * keyValueTail;
 			int32_t keyValueLen;
 			startSearchHere++; /* skip @ or ; */
-			nextSeparator = uprv_strchr(startSearchHere, '=');
+			nextSeparator = sstrchr(startSearchHere, '=');
 			if(!nextSeparator) {
 				*status = U_ILLEGAL_ARGUMENT_ERROR; /* key must have =value */
 				return;
@@ -769,7 +769,7 @@ U_CAPI void U_EXPORT2 ulocimp_getKeywordValue(const char * localeID, const char 
 				}
 			}
 			localeKeywordNameBuffer[keyValueLen] = 0; /* terminate */
-			startSearchHere = uprv_strchr(nextSeparator, ';');
+			startSearchHere = sstrchr(nextSeparator, ';');
 			if(strcmp(keywordNameBuffer, localeKeywordNameBuffer) == 0) {
 				/* current entry matches the keyword. */
 				nextSeparator++; /* skip '=' */
@@ -891,7 +891,7 @@ U_CAPI int32_t U_EXPORT2 uloc_setKeywordValue(const char * keywordName, const ch
 		const char * keyValueTail;
 		int32_t keyValueLen;
 		keywordStart++; /* skip @ or ; */
-		nextEqualsign = uprv_strchr(keywordStart, '=');
+		nextEqualsign = sstrchr(keywordStart, '=');
 		if(!nextEqualsign) {
 			*status = U_ILLEGAL_ARGUMENT_ERROR; /* key must have =value */
 			return 0;
@@ -926,7 +926,7 @@ U_CAPI int32_t U_EXPORT2 uloc_setKeywordValue(const char * keywordName, const ch
 			}
 		}
 		localeKeywordNameBuffer[keyValueLen] = 0; /* terminate */
-		nextSeparator = uprv_strchr(nextEqualsign, ';');
+		nextSeparator = sstrchr(nextEqualsign, ';');
 		/* start processing the value part */
 		nextEqualsign++; /* skip '=' */
 		/* First strip leading & trailing spaces (TC decided to tolerate these) */
@@ -1353,7 +1353,7 @@ static void _canonicalize(const char * localeID, ByteSink& sink, uint32_t option
 	if(_hasBCP47Extension(localeID)) {
 		const char * localeIDPtr = localeID;
 		// convert all underbars to hyphens, unless the "BCP47 extension" comes at the beginning of the string
-		if(uprv_strchr(localeID, '_') != nullptr && localeID[1] != '-' && localeID[1] != '_') {
+		if(sstrchr(localeID, '_') != nullptr && localeID[1] != '-' && localeID[1] != '_') {
 			localeIDWithHyphens.append(localeID, -1, *err);
 			if(U_SUCCESS(*err)) {
 				for(char * p = localeIDWithHyphens.data(); *p != '\0'; ++p) {
@@ -1444,8 +1444,8 @@ static void _canonicalize(const char * localeID, ByteSink& sink, uint32_t option
 	/* Scan ahead to next '@' and determine if it is followed by '=' and/or ';'
 	   After this, tmpLocaleID either points to '@' or is NULL */
 	if((tmpLocaleID = locale_getKeywordsStart(tmpLocaleID)) != NULL) {
-		keywordAssign = uprv_strchr(tmpLocaleID, '=');
-		separatorIndicator = uprv_strchr(tmpLocaleID, ';');
+		keywordAssign = sstrchr(tmpLocaleID, '=');
+		separatorIndicator = sstrchr(tmpLocaleID, ';');
 	}
 	/* Copy POSIX-style variant, if any [mr@FOO] */
 	if(!OPTION_SET(options, _ULOC_CANONICALIZE) && tmpLocaleID != NULL && keywordAssign == NULL) {
@@ -1787,7 +1787,7 @@ U_CAPI uint32_t U_EXPORT2 uloc_getLCID(const char * localeID)
 	if(U_FAILURE(status) || status == U_STRING_NOT_TERMINATED_WARNING) {
 		return 0;
 	}
-	if(uprv_strchr(localeID, '@')) {
+	if(sstrchr(localeID, '@')) {
 		// uprv_convertToLCID does not support keywords other than collation.
 		// Remove all keywords except collation.
 		int32_t len;

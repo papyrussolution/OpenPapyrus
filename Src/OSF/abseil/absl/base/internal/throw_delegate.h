@@ -7,9 +7,6 @@
 #ifndef ABSL_BASE_INTERNAL_THROW_DELEGATE_H_
 #define ABSL_BASE_INTERNAL_THROW_DELEGATE_H_
 
-//#include <string>
-//#include "absl/base/config.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace base_internal {

@@ -995,13 +995,57 @@ int PPObjPallet::Edit(PPID * pID, void * extraPtr)
 //
 //
 //
-PPComputer::PPComputer()
+PPComputer::PPComputer() : ID(0), Flags(0)
 {
-	THISZERO();
+	Name[0] = 0;
+	Code[0] = 0;
+}
+
+PPComputer & PPComputer::Z()
+{
+	ID = 0;
+	Flags = 0;
+	Uuid.Z();
+	MacAdr.Z();
+	IpAdr.Z();
+	Name[0] = 0;
+	Code[0] = 0;
+	return *this;
+}
+
+bool FASTCALL PPComputer::IsEq(const PPComputer & rS) const
+{
+	return (ID == rS.ID && sstreq(Name, rS.Name) && sstreq(Code, rS.Code) && Flags == rS.Flags && Uuid == rS.Uuid && MacAdr == rS.MacAdr && IpAdr == rS.IpAdr);
+}
+
+bool FASTCALL PPComputer::CheckForFilt(const ComputerFilt * pFilt) const
+{
+	return true; // @stub
 }
 
 PPComputerPacket::PPComputerPacket()
 {
+}
+
+PPComputerPacket & PPComputerPacket::Z()
+{
+	Rec.Z();
+	LinkFiles.Clear();
+	TagL.Destroy();
+	return *this;
+}
+
+bool FASTCALL PPComputerPacket::IsEq(const PPComputerPacket & rS) const
+{
+	return (Rec.IsEq(rS.Rec) && TagL.IsEq(rS.TagL));
+}
+
+bool FASTCALL PPComputerPacket::Copy(const PPComputerPacket & rS)
+{
+	Rec = rS.Rec;
+	TagL = rS.TagL;
+	LinkFiles = rS.LinkFiles;
+	return true;
 }
 
 PPObjComputer::PPObjComputer(void * extraPtr) : PPObjGoods(PPOBJ_COMPUTER, PPGDSK_COMPUTER, extraPtr)
@@ -1010,6 +1054,487 @@ PPObjComputer::PPObjComputer(void * extraPtr) : PPObjGoods(PPOBJ_COMPUTER, PPGDS
 
 PPObjComputer::~PPObjComputer()
 {
+}
+
+/*virtual*/ListBoxDef * PPObjComputer::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
+{
+	return _Selector2(pOrgDef, 0, PPObjGoods::selfByName, extraPtr, 0, 0);
+}
+
+#pragma pack(push,1)
+struct PPComputerSysBlock { // @persistent @store(PropertyTbl)
+	PPID   Tag;            // Const=PPOBJ_COMPUTER
+	PPID   ID;             // ->Computer.ID
+	PPID   PropID;         // Const=COMPUTERPRP_SYS
+	char   Reserve[42];    //
+	MACAddr MacAdr;        // 6bytes
+	binary128 IpAdr;       // 16bytes 
+	long   Val1;           // @reserve 
+	long   Val2;           // @reserve
+};
+#pragma pop
+
+/*static*/int PPObjComputer::Helper_GetRec(const Goods2Tbl::Rec & rGoodsRec, PPComputer * pRec)
+{
+	int    ok = 1;
+	if(pRec) {
+		memzero(pRec, sizeof(*pRec));
+		if(rGoodsRec.Kind == PPGDSK_COMPUTER) {
+			pRec->ID = rGoodsRec.ID;
+			STRNSCPY(pRec->Name, rGoodsRec.Name);
+			pRec->Flags = rGoodsRec.Flags;
+		}
+		else
+			ok = PPSetError(/*PPERR_INVBRANDRECKIND*/1, rGoodsRec.ID);
+	}
+	return ok;
+}
+
+int PPObjComputer::Get(PPID id, PPComputerPacket * pPack)
+{
+	CALLPTRMEMB(pPack, Z());
+	int    ok = PPObjGoods::Search(id);
+	if(ok > 0) {
+		if(pPack) {
+			THROW(Helper_GetRec(P_Tbl->data, &pPack->Rec));
+			THROW(GetTagList(id, &pPack->TagL));
+			{
+				const  ObjTagItem * p_tag_item = pPack->TagL.GetItem(PPTAG_COMPUTER_GUID);
+				if(p_tag_item)
+					p_tag_item->GetGuid(&pPack->Rec.Uuid);
+			}
+			{
+				Reference * p_ref = PPRef;
+				PPComputerSysBlock csblk;
+				if(p_ref->GetProperty(PPOBJ_COMPUTER, id, COMPUTERPRP_SYS, &csblk, sizeof(csblk)) > 0) {
+					pPack->Rec.IpAdr = csblk.IpAdr;
+					pPack->Rec.MacAdr = csblk.MacAdr;
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+/*static*/int PPObjComputer::Helper_SetRec(const PPComputer * pRec, Goods2Tbl::Rec & rGoodsRec)
+{
+	int    ok = 1;
+	memzero(&rGoodsRec, sizeof(rGoodsRec));
+	if(pRec) {
+		rGoodsRec.ID = pRec->ID;
+		rGoodsRec.Kind = PPGDSK_COMPUTER;
+		STRNSCPY(rGoodsRec.Name, pRec->Name);
+		rGoodsRec.Flags = pRec->Flags;
+	}
+	return ok;
+}
+
+int PPObjComputer::Put(PPID * pID, PPComputerPacket * pPack, int use_ta)
+{
+	int    ok = 1;
+	Reference * p_ref = PPRef;
+	Goods2Tbl::Rec raw_rec;
+	PPComputerSysBlock csblk;
+	PPComputerSysBlock * p_csblk = 0;
+	MEMSZERO(csblk);
+	{
+		if(pPack) {
+			//
+			// Поле UUID хранится одновременно и в записи PPComputer и в тегах (собственно, теги - способ хранения поля в базе данных).
+			// Считаем, что значение в поле PPComputer::Uuid приоритетное.
+			//
+			if(!!pPack->Rec.Uuid) {
+				ObjTagItem tag_item;
+				tag_item.SetGuid(PPTAG_COMPUTER_GUID, &pPack->Rec.Uuid);
+				pPack->TagL.PutItem(PPTAG_COMPUTER_GUID, &tag_item);
+			}
+			else {
+				pPack->TagL.PutItem(PPTAG_COMPUTER_GUID, 0);
+			}
+		}
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(*pID) {
+			PPComputerPacket org_pack;
+			THROW(Get(*pID, &org_pack) > 0);
+			if(pPack) {
+				if(!pPack->IsEq(org_pack) || pPack->LinkFiles.IsChanged(*pID, 0L)) {
+					THROW(CheckRights(PPR_MOD));
+					Helper_SetRec(&pPack->Rec, raw_rec);
+					THROW(P_Tbl->Update(pID, &raw_rec, 0));
+					{
+						if(!(pPack->Rec.MacAdr.IsEmpty() && pPack->Rec.IpAdr.IsZero())) {
+							csblk.ID = *pID;
+							csblk.IpAdr = pPack->Rec.IpAdr;
+							csblk.MacAdr = pPack->Rec.MacAdr;
+							p_csblk = &csblk;
+						}
+						THROW(p_ref->PutProp(PPOBJ_COMPUTER, *pID, COMPUTERPRP_SYS, p_csblk, sizeof(*p_csblk)));
+					}
+					THROW(SetTagList(*pID, &pPack->TagL, 0));
+					if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
+						pPack->LinkFiles.Save(*pID, 0L);
+					}
+					DS.LogAction(PPACN_OBJUPD, Obj, *pID, 0, 0);
+				}
+				else
+					ok = -1;
+			}
+			else {
+				THROW(CheckRights(PPR_DEL));
+				THROW(P_Tbl->Update(pID, 0, 0));
+				THROW(p_ref->PutProp(PPOBJ_COMPUTER, *pID, COMPUTERPRP_SYS, 0, 0));
+				THROW(SetTagList(*pID, 0, 0));
+				{
+					ObjLinkFiles _lf(Obj);
+					_lf.Save(*pID, 0L);
+				}
+				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
+			}
+		}
+		else if(pPack) {
+			THROW(CheckRights(PPR_INS));
+			Helper_SetRec(&pPack->Rec, raw_rec);
+			THROW(P_Tbl->Update(pID, &raw_rec, 0));
+			{
+				if(!(pPack->Rec.MacAdr.IsEmpty() && pPack->Rec.IpAdr.IsZero())) {
+					csblk.ID = *pID;
+					csblk.IpAdr = pPack->Rec.IpAdr;
+					csblk.MacAdr = pPack->Rec.MacAdr;
+					p_csblk = &csblk;
+					
+				}
+				THROW(p_ref->PutProp(PPOBJ_COMPUTER, *pID, COMPUTERPRP_SYS, p_csblk, sizeof(*p_csblk)));
+			}
+			THROW(SetTagList(*pID, &pPack->TagL, 0));
+			if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
+				pPack->LinkFiles.Save(*pID, 0L);
+			}
+			DS.LogAction(PPACN_OBJADD, Obj, *pID, 0, 0);
+		}
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
+class ComputerDialog : public TDialog {
+	DECL_DIALOG_DATA(PPComputerPacket);
+	enum {
+		ctlgroupIbg = 1
+	};
+public:
+	ComputerDialog() : TDialog(DLG_COMPUTER)
+	{
+		addGroup(ctlgroupIbg, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_COMPUTER_IMAGE,
+			cmAddImage, cmDelImage, 1, ImageBrowseCtrlGroup::fUseExtOpenDlg));
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		SString temp_buf;
+		RVALUEPTR(Data, pData);
+		//
+		setCtrlLong(CTL_COMPUTER_ID, Data.Rec.ID);
+		setCtrlData(CTL_COMPUTER_NAME, Data.Rec.Name);
+		if(!!Data.Rec.Uuid)
+			Data.Rec.Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+		else
+			temp_buf.Z();
+		setCtrlString(CTL_COMPUTER_UUID, temp_buf);
+		if(!Data.Rec.MacAdr.IsEmpty())
+			Data.Rec.MacAdr.ToStr(temp_buf);
+		else
+			temp_buf.Z();
+		setCtrlString(CTL_COMPUTER_MACADR, temp_buf);
+		if(!Data.Rec.IpAdr.IsZero()) {
+			
+		}
+		{
+			ImageBrowseCtrlGroup::Rec rec;
+			Data.LinkFiles.Init(PPOBJ_COMPUTER);
+			if(Data.Rec.Flags & BRNDF_HASIMAGES)
+				Data.LinkFiles.Load(Data.Rec.ID, 0L);
+			Data.LinkFiles.At(0, rec.Path);
+			setGroupData(ctlgroupIbg, &rec);
+		}
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		getCtrlData(sel = CTL_COMPUTER_NAME,  Data.Rec.Name);
+		THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
+		{
+			ImageBrowseCtrlGroup::Rec rec;
+			if(getGroupData(ctlgroupIbg, &rec))
+				if(rec.Path.Len()) {
+					THROW(Data.LinkFiles.Replace(0, rec.Path));
+				}
+				else
+					Data.LinkFiles.Remove(0);
+			SETFLAG(Data.Rec.Flags, BRNDF_HASIMAGES, Data.LinkFiles.GetCount());
+		}
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmTags)) {
+			Data.TagL.ObjType = PPOBJ_COMPUTER;
+			EditObjTagValList(&Data.TagL, 0);
+			clearEvent(event);
+		}
+	}
+};
+
+/*virtual*/int PPObjComputer::Edit(PPID * pID, void * extraPtr)
+{
+	int    ok = -1;
+	bool   valid_data = false;
+	bool   is_new = false;
+	ComputerDialog * dlg = 0;
+	PPComputerPacket pack;
+	THROW(EditPrereq(pID, dlg, &is_new));
+	THROW(CheckDialogPtr(&(dlg = new ComputerDialog())));
+	if(!is_new) {
+		THROW(Get(*pID, &pack) > 0);
+	}
+	else
+		pack.Z();
+	THROW(dlg->setDTS(&pack));
+	while(!valid_data && ExecView(dlg) == cmOK) {
+		if(dlg->getDTS(&pack)) {
+			if(Put(pID, &pack, 1)) {
+				ok = cmOK;
+				valid_data = true;
+			}
+			else
+				PPError();
+		}
+	}
+	CATCHZOKPPERR
+	delete dlg;
+	return ok;
+}
+
+IMPLEMENT_PPFILT_FACTORY(Computer); ComputerFilt::ComputerFilt() : PPBaseFilt(PPFILT_COMPUTER, 0, 1)
+{
+	SetFlatChunk(offsetof(ComputerFilt, ReserveStart), offsetof(ComputerFilt, SrchStr) - offsetof(ComputerFilt, ReserveStart));
+	SetBranchSString(offsetof(ComputerFilt, SrchStr));
+	Init(1, 0);
+}
+
+ComputerFilt & FASTCALL ComputerFilt::operator = (const ComputerFilt & rS)
+{
+	Copy(&rS, 1);
+	return *this;
+}
+
+/*virtual*/bool ComputerFilt::IsEmpty() const
+{
+	return (Flags == 0 && SrchStr.IsEmpty());
+}
+
+PPViewComputer::BrwItem::BrwItem(const PPComputer * pS) : ID(0), Flags(0), ViewFlags(0)
+{
+	Name[0] = 0;
+	if(pS) {
+		ID = pS->ID;
+		Flags = pS->Flags;
+		STRNSCPY(Name, pS->Name);
+	}
+}
+
+PPViewComputer::PPViewComputer() : PPView(&Obj, &Filt, PPVIEW_COMPUTER, PPView::implBrowseArray|PPView::implDontEditNullFilter, 0), P_DsList(0)
+{
+}
+
+PPViewComputer::~PPViewComputer()
+{
+	delete P_DsList;
+}
+
+/*virtual*/int PPViewComputer::Init_(const PPBaseFilt * pBaseFilt)
+{
+	int    ok = 1;
+	THROW(Helper_InitBaseFilt(pBaseFilt));
+	BExtQuery::ZDelete(&P_IterQuery);
+	Counter.Init();
+	CATCHZOK
+	return ok;
+}
+	
+/*virtual*/int PPViewComputer::EditBaseFilt(PPBaseFilt * pBaseFilt)
+{
+	return -1; // @stub
+}
+	
+int PPViewComputer::InitIteration()
+{
+	return -1; // @stub
+}
+	
+int FASTCALL PPViewComputer::NextIteration(ComputerViewItem * pItem)
+{
+	return -1; // @stub
+}
+	
+/*static*/int PPViewComputer::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+{
+	return -1; // @stub
+}
+	
+/*static*/int FASTCALL PPViewComputer::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	PPViewComputer * p_v = static_cast<PPViewComputer *>(pBlk->ExtraPtr);
+	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
+}
+	
+/*virtual*/SArray * PPViewComputer::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+{
+	SArray * p_array = 0;
+	PPBrand ds_item;
+	THROW(MakeList());
+	p_array = new SArray(*P_DsList);
+	CATCH
+		ZDELETE(P_DsList);
+	ENDCATCH
+	ASSIGN_PTR(pBrwId, BROWSER_COMPUTER);
+	return p_array;
+}
+
+static int PPViewComputer_CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+{
+	int    ok = -1;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
+	if(p_brw) {
+		PPViewComputer * p_view = static_cast<PPViewComputer *>(p_brw->P_View);
+		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
+	}
+	return ok;
+}
+	
+/*virtual*/void PPViewComputer::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+	if(pBrw) {
+		pBrw->SetDefUserProc(PPViewComputer::GetDataForBrowser, this);
+		pBrw->SetCellStyleFunc(PPViewComputer_CellStyleFunc, pBrw);
+	}
+}
+	
+/*virtual*/int PPViewComputer::OnExecBrowser(PPViewBrowser *)
+{
+	return -1; // @stub
+}
+	
+/*virtual*/int PPViewComputer::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+{
+	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	PPID   preserve_id = 0;
+	if(ok == -2) {
+		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		preserve_id = id;
+		switch(ppvCmd) {
+			case PPVCMD_MOUSEHOVER:
+				if(id && static_cast<const BrwItem *>(pHdr)->Flags & BRNDF_HASIMAGES) {
+					SString img_path;
+					ObjLinkFiles link_files(PPOBJ_COMPUTER);
+					link_files.Load(id, 0L);
+					link_files.At(0, img_path);
+					PPTooltipMessage(0, img_path, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
+						SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+				}
+				break;
+			case PPVCMD_REFRESH:
+				ok = 1;
+				break;
+		}
+	}
+	if(ok > 0) {
+		MakeList();
+		if(pBrw) {
+			AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
+			if(p_def) {
+				SArray * p_array = new SArray(*P_DsList);
+				p_def->setArray(p_array, 0, 1);
+				pBrw->setRange(p_array->getCount());
+				uint   temp_pos = 0;
+				long   update_pos = -1;
+				if(preserve_id > 0 && P_DsList->lsearch(&preserve_id, &temp_pos, CMPF_LONG))
+					update_pos = temp_pos;
+				if(update_pos >= 0)
+					pBrw->go(update_pos);
+				else if(update_pos == MAXLONG)
+					pBrw->go(p_array->getCount()-1);
+			}
+			pBrw->Update();
+		}
+	}
+	return ok;
+}
+	
+/*virtual*/void PPViewComputer::ViewTotal()
+{
+}
+
+int PPViewComputer::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	int    ok = 0;
+	if(pBlk->P_SrcData && pBlk->P_DestData) {
+		ok = 1;
+		const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+		int    r = 0;
+		switch(pBlk->ColumnN) {
+			case 0: pBlk->Set(p_item->ID); break; // @id
+			case 1: pBlk->Set(p_item->Name); break; // @name
+		}
+	}
+	return ok;
+}
+	
+int PPViewComputer::MakeList()
+{
+	int    ok = 1;
+	PPSwProgram item;
+	GoodsCore * p_tbl = Obj.P_Tbl;
+	PPIDArray result_list;
+	Goods2Tbl::Key2 k2;
+	//const  PPID single_owner_id = Filt.OwnerList.GetSingle();
+	PPObjGoods goods_obj;
+	//PPIDArray single_brand_list;
+	PPIDArray goods_list;
+	BExtQuery q(p_tbl, 2);
+	DBQ * dbq = &(p_tbl->Kind == PPGDSK_COMPUTER);
+	if(P_DsList)
+		P_DsList->clear();
+	else
+		P_DsList = new SArray(sizeof(BrwItem));
+	//dbq = ppcheckfiltid(dbq, p_tbl->ManufID, single_owner_id);
+	q.select(p_tbl->ID, p_tbl->Name, p_tbl->Abbr, p_tbl->WrOffGrpID, p_tbl->GoodsTypeID, p_tbl->ManufID, p_tbl->Flags, 0L).where(*dbq);
+	MEMSZERO(k2);
+	k2.Kind = PPGDSK_COMPUTER;
+	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
+		PPComputer rec;
+		if(Obj.Helper_GetRec(p_tbl->data, &rec) && rec.CheckForFilt(&Filt)) {
+			BrwItem new_item(&rec);
+			//if(Filt.Flags & Filt.fShowGoodsCount) {
+				//single_brand_list.clear();
+				//single_brand_list.add(rec.ID);
+				//goods_obj.P_Tbl->GetListByBrandList(single_brand_list, goods_list);
+				//new_item.LinkGoodsCount = goods_list.getCount();
+			//}
+			THROW_SL(P_DsList->insert(&new_item));
+		}
+	}
+	CATCHZOK
+	CALLPTRMEMB(P_DsList, setPointer(0));
+	return ok;
 }
 //
 //
@@ -1156,8 +1681,7 @@ private:
 
 /*virtual*/ListBoxDef * PPObjSwProgram::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
 {
-	ListBoxDef * p_result = 0;
-	return p_result;
+	return _Selector2(pOrgDef, 0, PPObjGoods::selfByName, extraPtr, 0, 0);
 }
 
 /*virtual*/void * PPObjSwProgram::CreateObjListWin(uint flags, void * extraPtr)

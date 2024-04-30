@@ -1232,7 +1232,7 @@ void save_pm3dcolor(FILE * fp, const t_colorspec * tc)
 void GnuPlot::SaveDataFuncStyle(FILE * fp, const char * which, enum PLOT_STYLE style)
 {
 	char * answer = sstrdup(reverse_table_lookup(plotstyle_tbl, style));
-	char * idollar = strchr(answer, '$');
+	char * idollar = sstrchr(answer, '$');
 	if(idollar) {
 		do {
 			*idollar = *(idollar+1);

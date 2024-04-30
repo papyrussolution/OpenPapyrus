@@ -31,9 +31,6 @@
  * be shared.
  */
 
-//#include <curl/curl.h>
-//#include "timeval.h"
-
 struct connectdata;
 
 struct conncache {

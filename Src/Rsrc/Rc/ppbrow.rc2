@@ -1542,6 +1542,22 @@ browser SWPROGRAM north(100), 3, 0, "@{view_swprogram}", OWNER|GRID, 0
 	}
 }
 
+browser COMPUTER north(100), 3, 0, "@{view_computer}", OWNER|GRID, 0
+{
+	"@id",              0, int32,        ALIGN_RIGHT, 10, BCO_USERPROC
+	"@appellation",     1, zstring(128), 0, 50, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		EDITITEM                : kbEnter, PPDV_EDITFILE02,   "@{edit}\tEnter"
+		ADDITEM                 : kbIns,   PPDV_ADDFILE02,    "@{add}\tInsert"
+		DELETEITEM              : kbDel,   PPDV_DELETEFILE02, "@{delete}\tDelete"
+		TOTAL                   : kbF9,    PPDV_SIGMA02,      "@{totals}\tF9"
+		separator
+		SYSJ                    : kbCtrlJ, PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
+		separator
+		CHANGEFILT              : kbCtrlV, PPDV_FILTER01,     "@{filter}\tCtrl-V"
+	}
+}
+
 browser ATURNLIST north(100), 1, 0, "@{view_accturn} {%s}", OWNER|GRID, 0
 {
 	"@date",    1, notype, DATF_DMY, 8
@@ -7236,6 +7252,7 @@ filter StyloQGoodsInfoParam    { "@{filter_styloqgoodsinfoparam}" } // @v11.4.5
 filter StyloQIncomingListParam { "@{filter_styloqincominglistparam}" } // @v11.4.7
 filter StyloQDocumentPrereqParam { "@{filter_styloqdocumentparam}" } // @v11.5.0
 view   SwProgram { "@{view_swprogram}" } // @v11.9.11
+view   Computer  { "@{view_computer}" } // @v12.0.0
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

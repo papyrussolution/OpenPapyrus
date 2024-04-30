@@ -7,10 +7,6 @@
 #ifndef ABSL_TIME_INTERNAL_CCTZ_ZONE_INFO_SOURCE_H_
 #define ABSL_TIME_INTERNAL_CCTZ_ZONE_INFO_SOURCE_H_
 
-//#include <cstddef>
-//#include <functional>
-//#include <memory>
-//#include <string>
 #include "absl/base/config.h"
 
 namespace absl {

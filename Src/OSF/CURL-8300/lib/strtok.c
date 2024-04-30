@@ -36,7 +36,7 @@ char *Curl_strtok_r(char * ptr, const char * sep, char ** end)
 		ptr = *end;
 
 	/* pass all letters that are including in the separator string */
-	while(*ptr && strchr(sep, *ptr))
+	while(*ptr && sstrchr(sep, *ptr))
 		++ptr;
 
 	if(*ptr) {
@@ -48,7 +48,7 @@ char *Curl_strtok_r(char * ptr, const char * sep, char ** end)
 
 		/* scan through the string to find where it ends, it ends on a
 		   null byte or a character that exists in the separator string */
-		while(**end && !strchr(sep, **end))
+		while(**end && !sstrchr(sep, **end))
 			++*end;
 
 		if(**end) {

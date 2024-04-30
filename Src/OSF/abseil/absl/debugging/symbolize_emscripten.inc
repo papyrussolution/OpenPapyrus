@@ -5,8 +5,6 @@
 //
 #include <cxxabi.h>
 #include <emscripten.h>
-//#include <algorithm>
-//#include <cstring>
 #include "absl/base/internal/raw_logging.h"
 #include "absl/debugging/internal/demangle.h"
 #include "absl/strings/numbers.h"

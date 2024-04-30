@@ -75,8 +75,8 @@
 static const char * too_many_cols_msg = "Too many columns in using specification and implied sampling array";
 
 #define is_EOF(c) oneof2(c, 'e', 'E') /* test to see if the end of an inline datafile is reached */
-#define is_comment(c) ((c) && (strchr(_Df.df_commentschars, (c)) != NULL)) /* is it a comment line? */
-#define NOTSEP (!_Df.df_separators || !strchr(_Df.df_separators, *s)) /* Used to skip whitespace but not cross a field boundary */
+#define is_comment(c) ((c) && (sstrchr(_Df.df_commentschars, (c)) != NULL)) /* is it a comment line? */
+#define NOTSEP (!_Df.df_separators || !sstrchr(_Df.df_separators, *s)) /* Used to skip whitespace but not cross a field boundary */
 
 enum COLUMN_TYPE { 
 	CT_DEFAULT, 
@@ -1259,12 +1259,12 @@ static bool valid_format(const char * format)
 	if(!format)
 		return false;
 	for(;;) {
-		if(!(format = strchr(format, '%'))) /* look for format spec  */
+		if(!(format = sstrchr(format, '%'))) /* look for format spec  */
 			return (formats_found > 0 && formats_found <= 7);
 		// Found a % to check --- scan past option specifiers: 
 		do {
 			format++;
-		} while(*format && strchr("+-#0123456789.", *format));
+		} while(*format && sstrchr("+-#0123456789.", *format));
 		// Now at format modifier 
 		switch(*format) {
 			case '*': /* Ignore '*' statements */
@@ -1272,7 +1272,7 @@ static bool valid_format(const char * format)
 			    format++;
 			    continue;
 			case 'l': /* Now we found it !!! */
-			    if(!strchr("fFeEgG", format[1])) /* looking for a valid format */
+			    if(!sstrchr("fFeEgG", format[1])) /* looking for a valid format */
 				    return false;
 			    formats_found++;
 			    format++;
@@ -2413,7 +2413,7 @@ int GnuPlot::CheckMissing(const char * s)
 		}
 	}
 	// April 2013 - Treat an empty csv field as "missing" 
-	if(_Df.df_separators && strchr(_Df.df_separators, *s))
+	if(_Df.df_separators && sstrchr(_Df.df_separators, *s))
 		return 1;
 	return 0;
 }
@@ -3840,7 +3840,7 @@ void GnuPlot::PlotOptionBinaryFormat(char * pFormatString)
 						int strl = strlen(df_binary_tables[j].group[k].name[m]);
 						// Check for exact match, which includes character
 						// after the substring being non-alphanumeric. 
-						if(!strncmp(substr, df_binary_tables[j].group[k].name[m], strl) && strchr("%\'\" ", *(substr + strl))) {
+						if(!strncmp(substr, df_binary_tables[j].group[k].name[m], strl) && sstrchr("%\'\" ", *(substr + strl))) {
 							substr += strl; /* Advance pointer in array to next text. */
 							if(!ignore) {
 								for(int n = 0; n < field_repeat; n++) {

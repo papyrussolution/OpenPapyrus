@@ -15,12 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/internal/str_format/float_conversion.h"
-//#include <string.h>
-//#include <algorithm>
-//#include <cassert>
-//#include <cmath>
-//#include <limits>
-//#include <string>
 #include "absl/base/attributes.h"
 #include "absl/base/config.h"
 #include "absl/base/optimization.h"

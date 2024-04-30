@@ -366,7 +366,7 @@ int __archive_pathmatch(const char * p, const char * s, int flags)
 
 	/* If start is unanchored, try to match start of each path element. */
 	if(flags & PATHMATCH_NO_ANCHOR_START) {
-		for(; s != NULL; s = strchr(s, '/')) {
+		for(; s != NULL; s = sstrchr(s, '/')) {
 			if(*s == '/')
 				s++;
 			if(pm(p, s, flags))

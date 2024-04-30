@@ -18,14 +18,6 @@ __FBSDID("$FreeBSD$");
 #ifdef HAVE_SYS_WAIT_H
 	#include <sys/wait.h>
 #endif
-//#ifdef HAVE_SIGNAL_H
-	//#include <signal.h>
-//#endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#include "archive_read_private.h"
-//#include "filter_fork.h"
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
 	/* Deprecated; remove in libarchive 4.0 */

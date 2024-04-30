@@ -7,8 +7,6 @@
 #include "libxml.h"
 #pragma hdrstop
 #include <libxml/parser.h>
-//#include <libxml/parserInternals.h>
-//#include "buf.h"
 
 int lastError;
 

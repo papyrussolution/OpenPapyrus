@@ -44,25 +44,18 @@
 #undef OCSP_RESPONSE
 #endif
 
-//#include "urldata.h"
-//#include "sendf.h"
 #include "formdata.h" /* for the boundary function */
 #include "url.h" /* for the ssl config check function */
 #include "inet_pton.h"
 #include "openssl.h"
-//#include "connect.h"
 #include "slist.h"
 #include "select.h"
 #include "vtls.h"
 #include "vtls_int.h"
 #include "vauth/vauth.h"
 #include "keylog.h"
-//#include "strcase.h"
 #include "hostcheck.h"
-//#include "multiif.h"
 #include "strerror.h"
-//#include "curl_printf.h"
-
 #include <openssl/ssl.h>
 #include <openssl/rand.h>
 #include <openssl/x509v3.h>
@@ -88,9 +81,6 @@
 #define USE_OPENSSL_ENGINE
 #include <openssl/engine.h>
 #endif
-
-//#include "warnless.h"
-
 /* The last #include files should be: */
 #include "curl_memory.h"
 #include "memdebug.h"

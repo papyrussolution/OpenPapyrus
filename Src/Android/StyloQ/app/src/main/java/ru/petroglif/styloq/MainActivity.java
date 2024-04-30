@@ -631,17 +631,17 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 	private boolean GetSvcCommandList(StyloQDatabase.SecStoragePacket svcPack, boolean forceQuery)
 	{
 		boolean ok = false;
-		StyloQApp app_ctx = (StyloQApp)getApplication();
-		try {
-			if(app_ctx != null) {
-				StyloQDatabase db = app_ctx.GetDB();
-				if(db != null && svcPack != null) {
+		if(svcPack != null) {
+			StyloQApp app_ctx = (StyloQApp) getApplication();
+			try {
+				StyloQDatabase db = (app_ctx != null) ? app_ctx.GetDB() : null;
+				if(db != null) {
 					boolean do_request = true;
 					byte[] svc_ident = svcPack.Pool.Get(SecretTagPool.tagSvcIdent);
 					if(SLib.GetLen(svc_ident) > 0) {
 						if(!forceQuery && svcPack.Rec.Kind == StyloQDatabase.SecStoragePacket.kForeignService) {
-							StyloQDatabase.SecStoragePacket pack = db.GetForeignSvcCommandList(svc_ident);
-							if(pack != null && !StyloQInterchange.IsExpired(pack.Rec.Expiration)) {
+							StyloQDatabase.SecStoragePacket cmd_list_pack = db.GetForeignSvcCommandList(svc_ident);
+							if(cmd_list_pack != null && !StyloQInterchange.IsExpired(cmd_list_pack.Rec.Expiration)) {
 								CommandListActivity cmdl_activity = app_ctx.FindCommandListActivityBySvcIdent(svc_ident);
 								if(cmdl_activity == null) {
 									//cmdl_activity.
@@ -676,9 +676,9 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 				}
 				else
 					ok = false;
+			} catch(StyloQException exn) {
+				ok = false;
 			}
-		} catch(StyloQException exn) {
-			ok = false;
 		}
 		return ok;
 	}
@@ -759,6 +759,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					if(ev_subj != null) {
 						SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.buttonInfo);
+						SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.CTL_BUTTON_FORCEUPDATE); // @v12.0.0
 						result = ev_subj.RvHolder;
 					}
 				}
@@ -787,11 +788,15 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 									dialog.show();
 								}
 							}
+							// @v12.0.0 {
+							else if(ev_subj.ItemView != null && ev_subj.ItemView.getId() == R.id.CTL_BUTTON_FORCEUPDATE) {
+								SetTouchedItemIndex(ev_subj.ItemIdx);
+								GetSvcCommandList(cur_entry.Pack, true);
+							}
+							// } @v12.0.0
 							else {
 								SetTouchedItemIndex(ev_subj.ItemIdx);
-								if(cur_entry.Pack != null) {
-									GetSvcCommandList(cur_entry.Pack, false);
-								}
+								GetSvcCommandList(cur_entry.Pack, false);
 							}
 						}
 					}
@@ -805,8 +810,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 						SetTouchedItemIndex(ev_subj.ItemIdx);
 						ListEntry cur_entry = ListData.get(ev_subj.ItemIdx);
 						if(cur_entry != null) {
-							if(cur_entry.Pack != null)
-								GetSvcCommandList(cur_entry.Pack, true);
+							GetSvcCommandList(cur_entry.Pack, true);
 						}
 					}
 				}
@@ -820,6 +824,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							if(SLib.IsInRange(ev_subj.ItemIdx, ListData)) {
 								final ListEntry cur_entry = ListData.get(ev_subj.ItemIdx);
 								if(cur_entry != null) {
+									boolean force_update_cmd_is_visible = false; // @v12.0.0
 									View iv = ev_subj.RvHolder.itemView;
 									if((cur_entry.Status & ListEntry.statusTouched) != 0)
 										iv.setBackgroundResource(R.drawable.shape_listitem_focused);
@@ -827,6 +832,9 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 										iv.setBackgroundResource(R.drawable.shape_listitem);
 									TextView ctl = (TextView)iv.findViewById(R.id.LVITEM_SVCNAME);
 									if(cur_entry.Pack != null) { // @v11.4.0 @fix
+										if(!StyloQInterchange.IsExpired(cur_entry.CmdListExpiration)) {
+											force_update_cmd_is_visible = true;
+										}
 										if(ctl != null)
 											ctl.setText(cur_entry.Pack.GetSvcName(cur_entry.Face));
 										View img_view = iv.findViewById(R.id.LVITEM_IMG);
@@ -835,20 +843,12 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 											SLib.SetupImage(this, img_view, blob_signature, false);
 										}
 									}
-									//
-									/* @debug {
-										iv.setOnTouchListener(
-											new View.OnTouchListener() {
-												public boolean onTouch(View v, MotionEvent event)
-												{
-													int action = event.getAction();
-													//if(action == MotionEvent.A)
-													// ... Respond to touch events
-													return false;
-												}
-											}
-										);
-									}*/
+									{
+										View v = iv.findViewById(R.id.CTL_BUTTON_FORCEUPDATE);
+										if(v != null) {
+											v.setVisibility(force_update_cmd_is_visible ? View.VISIBLE : View.GONE);
+										}
+									}
 								}
 							}
 						}

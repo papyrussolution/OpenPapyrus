@@ -134,7 +134,7 @@ int GnuPlot::DoLine()
 	else {
 		// Strip off trailing comment 
 		FPRINTF((stderr, "doline( \"%s\" )\n", Pgm.P_InputLine));
-		if(strchr(inlptr, '#')) {
+		if(sstrchr(inlptr, '#')) {
 			Pgm.NumTokens = Scanner(&Pgm.P_InputLine, &Pgm.InputLineLen);
 			if(Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] == '#')
 				Pgm.P_InputLine[Pgm.P_Token[Pgm.NumTokens].StartIdx] = '\0';
@@ -2395,7 +2395,7 @@ void GnuPlot::HelpCommand()
 		help_ptr = HELPFILE; // if can't find environment variable then just use HELPFILE 
 #else
 		// try whether we can find the helpfile via shell_find. If not, just use the default. (tnx Andreas) 
-		if(!strchr(HELPFILE, ':') && !strchr(HELPFILE, '/') && !strchr(HELPFILE, '\\')) {
+		if(!sstrchr(HELPFILE, ':') && !sstrchr(HELPFILE, '/') && !sstrchr(HELPFILE, '\\')) {
 			if(isempty(help_fname)) {
 				strcpy(help_fname, HELPFILE);
 				if(shel_find(help_fname) == 0)

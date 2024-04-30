@@ -128,7 +128,7 @@ char * ossl_algorithm_get1_first_name(const OSSL_ALGORITHM * algo)
 	if(algo->algorithm_names == NULL)
 		return NULL;
 
-	first_name_end = strchr(algo->algorithm_names, ':');
+	first_name_end = sstrchr(algo->algorithm_names, ':');
 	if(first_name_end == NULL)
 		first_name_len = strlen(algo->algorithm_names);
 	else

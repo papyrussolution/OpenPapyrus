@@ -27,19 +27,11 @@
 #ifdef USE_BEARSSL
 
 #include <bearssl.h>
-
 #include "bearssl.h"
-//#include "urldata.h"
-//#include "sendf.h"
 #include "inet_pton.h"
 #include "vtls.h"
 #include "vtls_int.h"
-//#include "connect.h"
 #include "select.h"
-//#include "multiif.h"
-//#include "curl_printf.h"
-//#include "strcase.h"
-
 /* The last #include files should be: */
 #include "curl_memory.h"
 #include "memdebug.h"

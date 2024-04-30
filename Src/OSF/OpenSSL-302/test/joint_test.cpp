@@ -24463,7 +24463,7 @@ int setup_tests()
 						// Protect obj->p5 against too much data.  This should not
 						// happen, we don't use that long strings.
 						// 
-						size_t data_length = OPENSSL_strnlen((const char *)params->data, params->data_size);
+						size_t data_length = /*OPENSSL_strnlen*/sstrnlen((const char *)params->data, params->data_size);
 						if(!TEST_size_t_lt(data_length, sizeof(obj->p5)))
 							return 0;
 						strncpy(obj->p5, (const char *)params->data, data_length);

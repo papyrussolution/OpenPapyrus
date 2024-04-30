@@ -283,7 +283,7 @@ static int ssh_config_parse_proxy_jump(ssh_session session, const char * s, bool
 
 	cp = c;
 	do {
-		endp = strchr(cp, ',');
+		endp = sstrchr(cp, ',');
 		if(endp) {
 			// Split out the token 
 			*endp = '\0';

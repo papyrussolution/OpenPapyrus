@@ -54,8 +54,8 @@ void GnuPlot::OutputNumber(double coord, int axIdx, char * pBuffer)
 				GStrFTime(pBuffer+1, BUFFERSIZE-1, AxS.P_TimeFormat, coord);
 			else
 				GStrFTime(pBuffer+1, BUFFERSIZE-1, r_ax.formatstring, coord);
-			while(strchr(pBuffer, '\n')) {
-				*(strchr(pBuffer, '\n')) = ' ';
+			while(sstrchr(pBuffer, '\n')) {
+				*(sstrchr(pBuffer, '\n')) = ' ';
 			}
 			strcat(pBuffer, "\"");
 		}

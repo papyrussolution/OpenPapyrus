@@ -27,25 +27,14 @@
 
 #if !defined(CURL_DISABLE_PROXY)
 
-//#ifdef HAVE_NETINET_IN_H
-//#include <netinet/in.h>
-//#endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+	#include <arpa/inet.h>
 #endif
-//#include "urldata.h"
-//#include "sendf.h"
 #include "select.h"
-//#include "cfilters.h"
-//#include "connect.h"
-//#include "timeval.h"
 #include "socks.h"
-//#include "multiif.h" /* for getsock macros */
 #include "inet_pton.h"
 #include "url.h"
-
 /* The last 3 #include files should be in this order */
-//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 

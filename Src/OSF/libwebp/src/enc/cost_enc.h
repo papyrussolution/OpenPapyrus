@@ -14,8 +14,6 @@
 #ifndef WEBP_ENC_COST_ENC_H_
 #define WEBP_ENC_COST_ENC_H_
 
-//#include <assert.h>
-//#include <stdlib.h>
 #include "src/enc/vp8i_enc.h"
 
 //#ifdef __cplusplus

@@ -16,19 +16,11 @@
 
 #include "absl/absl-internal.h"
 #pragma hdrstop
-//#include <cstddef>
-//#include <cstdint>
-//#include <memory>
-//#include <vector>
-//#include "absl/base/attributes.h"
-//#include "absl/base/config.h"
 #include "absl/base/internal/endian.h"
 #include "absl/base/prefetch.h"
 #include "absl/crc/internal/cpu_detect.h"
 #include "absl/crc/internal/crc32_x86_arm_combined_simd.h"
 #include "absl/crc/internal/crc_internal.h"
-//#include "absl/memory/memory.h"
-//#include "absl/numeric/bits.h"
 
 #if defined(ABSL_CRC_INTERNAL_HAVE_ARM_SIMD) || defined(ABSL_CRC_INTERNAL_HAVE_X86_SIMD)
 	#define ABSL_INTERNAL_CAN_USE_SIMD_CRC32C

@@ -6,8 +6,6 @@
 #include <pp.h>
 #pragma hdrstop
 
-//#include <stdio.h>
-//#include <inttypes.h>
 #include <libdivide.h>
 #include "..\OSF\libdivide\constant_fast_div.h"
 #include "..\OSF\libdivide\test\DivideTest.h"

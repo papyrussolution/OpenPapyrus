@@ -6,11 +6,6 @@
 #ifndef ABSL_RANDOM_INTERNAL_SEED_MATERIAL_H_
 #define ABSL_RANDOM_INTERNAL_SEED_MATERIAL_H_
 
-//#include <cassert>
-//#include <cstdint>
-//#include <cstdlib>
-//#include <string>
-//#include <vector>
 #include "absl/base/attributes.h"
 #include "absl/random/internal/fast_uniform_bits.h"
 #include "absl/types/optional.h"

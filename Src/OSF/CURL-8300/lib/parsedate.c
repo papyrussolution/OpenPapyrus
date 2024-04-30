@@ -77,11 +77,7 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #include <limits.h>
-//#include <curl/curl.h>
-//#include "strcase.h"
-//#include "warnless.h"
 #include "parsedate.h"
-
 /*
  * parsedate()
  *

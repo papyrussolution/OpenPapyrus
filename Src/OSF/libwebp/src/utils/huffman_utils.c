@@ -13,16 +13,10 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
-//#include <stdlib.h>
-//#include <string.h>
 #include "src/utils/huffman_utils.h"
-//#include "src/utils/utils.h"
 #include "src/webp/format_constants.h"
 
-// Huffman data read via DecodeImageStream is represented in two (red and green)
-// bytes.
-#define MAX_HTREE_GROUPS    0x10000
+#define MAX_HTREE_GROUPS    0x10000 // Huffman data read via DecodeImageStream is represented in two (red and green) bytes.
 
 HTreeGroup* VP8LHtreeGroupsNew(int num_htree_groups) {
 	HTreeGroup* const htree_groups =

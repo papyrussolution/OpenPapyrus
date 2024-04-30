@@ -588,7 +588,7 @@ bool _mariadb_set_conf_option(MYSQL * mysql, const char * config_option, const c
 		int i;
 		char * c;
 		/* CONC-395: replace underscore "_" by dash "-" */
-		while((c = (char *)strchr(config_option, '_')))
+		while((c = (char *)sstrchr(config_option, '_')))
 			*c = '-';
 		for(i = 0; mariadb_defaults[i].conf_key; i++) {
 			if(sstreq(mariadb_defaults[i].conf_key, config_option)) {

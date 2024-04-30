@@ -1211,7 +1211,7 @@ TERM_PUBLIC void TK_enhanced_open(GpTermEntry_Static * pThis, const char * fontn
 		tk_enhanced_widthflag = widthflag;
 		// set new font 
 		family = sstrdup(fontname);
-		sep = strchr(family, ':');
+		sep = sstrchr(family, ':');
 		ASSIGN_PTR(sep, '\0');
 		isbold = (strstr(fontname, ":Bold") != NULL);
 		isitalic = (strstr(fontname, ":Italic") != NULL);

@@ -55,15 +55,14 @@ int fz_unicode_from_glyph_name(const char * name)
 	int l = 0;
 	int r = SIZEOFARRAY(single_name_list) - 1;
 	int code = 0;
-
 	fz_strlcpy(buf, name, sizeof buf);
-
 	/* kill anything after first period and underscore */
-	p = strchr(buf, '.');
-	if(p) p[0] = 0;
-	p = strchr(buf, '_');
-	if(p) p[0] = 0;
-
+	p = sstrchr(buf, '.');
+	if(p) 
+		p[0] = 0;
+	p = sstrchr(buf, '_');
+	if(p) 
+		p[0] = 0;
 	while(l <= r) {
 		int m = (l + r) >> 1;
 		int c = strcmp(buf, single_name_list[m]);
@@ -74,14 +73,12 @@ int fz_unicode_from_glyph_name(const char * name)
 		else
 			return single_code_list[m];
 	}
-
 	if(buf[0] == 'u' && buf[1] == 'n' && buf[2] == 'i' && strlen(buf) == 7)
 		code = strtol(buf + 3, NULL, 16);
 	else if(buf[0] == 'u')
 		code = strtol(buf + 1, NULL, 16);
 	else if(buf[0] == 'a' && buf[1] != 0 && buf[2] != 0)
 		code = strtol(buf + 1, NULL, 10);
-
 	return (code > 0 && code <= 0x10ffff) ? code : FZ_REPLACEMENT_CHARACTER;
 }
 

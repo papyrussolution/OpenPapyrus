@@ -21,7 +21,7 @@ static int detect_super_script(fz_stext_line * line, fz_stext_char * ch)
 static const char * font_full_name(fz_context * ctx, fz_font * font)
 {
 	const char * name = fz_font_name(ctx, font);
-	const char * s = strchr(name, '+');
+	const char * s = sstrchr(name, '+');
 	return s ? s + 1 : name;
 }
 

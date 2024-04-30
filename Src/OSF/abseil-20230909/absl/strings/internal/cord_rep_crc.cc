@@ -15,9 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/internal/cord_rep_crc.h"
-//#include <cassert>
-//#include <cstdint>
-//#include <utility>
 #include "absl/base/config.h"
 #include "absl/strings/internal/cord_internal.h"
 

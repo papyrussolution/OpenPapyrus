@@ -1490,7 +1490,7 @@ UDateTimePatternField DateTimePatternGenerator::getFieldAndWidthIndices(const ch
 	uprv_strncpy(cldrFieldKey, key, UDATPG_FIELD_KEY_MAX);
 	cldrFieldKey[UDATPG_FIELD_KEY_MAX] = 0; // ensure termination
 	*widthP = UDATPG_WIDE;
-	char * hyphenPtr = uprv_strchr(cldrFieldKey, '-');
+	char * hyphenPtr = sstrchr(cldrFieldKey, '-');
 	if(hyphenPtr) {
 		for(int32_t i = UDATPG_WIDTH_COUNT-1; i > 0; --i) {
 			if(sstreq(CLDR_FIELD_WIDTH[i], hyphenPtr)) {

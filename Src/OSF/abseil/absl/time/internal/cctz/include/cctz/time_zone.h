@@ -12,11 +12,6 @@
 #ifndef ABSL_TIME_INTERNAL_CCTZ_TIME_ZONE_H_
 #define ABSL_TIME_INTERNAL_CCTZ_TIME_ZONE_H_
 
-//#include <chrono>
-//#include <cstdint>
-//#include <limits>
-//#include <string>
-//#include <utility>
 #include "absl/base/config.h"
 #include "absl/time/internal/cctz/include/cctz/civil_time.h"
 

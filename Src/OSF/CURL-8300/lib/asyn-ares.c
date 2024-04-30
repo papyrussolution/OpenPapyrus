@@ -46,19 +46,10 @@
 #include <in.h>
 #include <inet.h>
 #endif
-
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "hostip.h"
-//#include "hash.h"
 #include "share.h"
 #include "url.h"
-//#include "multiif.h"
 #include "inet_pton.h"
-//#include "connect.h"
 #include "select.h"
-//#include "progress.h"
-//#include "timediff.h"
 
 #if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) &&   \
 	defined(WIN32)
@@ -768,8 +759,7 @@ struct Curl_addrinfo *Curl_resolver_getaddrinfo(struct Curl_easy * data, const c
 			int pf = PF_INET;
 			memzero(&hints, sizeof(hints));
 #ifdef CURLRES_IPV6
-			if((data->conn->ip_version != CURL_IPRESOLVE_V4) &&
-			    Curl_ipv6works(data)) {
+			if((data->conn->ip_version != CURL_IPRESOLVE_V4) && Curl_ipv6works(data)) {
 				/* The stack seems to be IPv6-enabled */
 				if(data->conn->ip_version == CURL_IPRESOLVE_V6)
 					pf = PF_INET6;

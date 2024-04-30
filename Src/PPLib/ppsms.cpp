@@ -1087,7 +1087,7 @@ int FormatPhone(const char * pPhone, SString & rPhone, SString & rErrMsg)
 	SString phone(pPhone), old_phone(pPhone);
 	SString str, sub_str, fmt_buf, added_buf;
 	if(phone.NotEmpty()) {
-		if(!phone.IsDigit()) {
+		if(!phone.IsDec()) {
 			for(size_t j = 0; j < phone.Len();) {
 				if(!isdec(phone.C(j)))
 					phone.Excise(j, 1);

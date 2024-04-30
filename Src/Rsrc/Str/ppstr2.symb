@@ -1,8 +1,8 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494814
-LastAutoCodeList=1,12228;102,10177;103,10072;110,10000;111,12105;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10150;120,10005;1001,10000;121,10000;122,10000;123,10320;124,10343;125,10063
+LastSignatureCode=2147494818
+LastAutoCodeList=1,12228;102,10177;103,10072;110,10000;111,12105;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10150;120,10005;1001,10000;121,10000;122,10000;123,10321;124,10343;125,10063
 
 [SignatureList]
 testsign1=2147483649
@@ -2547,6 +2547,7 @@ rtag_billlinkccheckuuid=2147494756
 rtag_chzndisposalrsn=2147494784
 rtag_personchznpmtoken=2147494798
 rtag_personchznpmhost=2147494801
+rtag_computeruuid=2147494817
 rregt_passport=2147485696
 rregt_regfree=2147485697
 rregt_tpid=2147485698
@@ -2565,6 +2566,7 @@ rregt_countrycode=2147485710
 rregt_bankaccount=2147485711
 rregt_dto_id=2147485712
 rregt_taxsystem=2147485713
+rregt_enalogid=2147494818
 ropcntr_workbook=2147485714
 txsk_general=2147485715
 txsk_simplified=2147485716
@@ -2711,6 +2713,7 @@ view_styloqcommands=2147494078
 view_usermenu=2147494082
 view_events=2147494083
 view_swprogram=2147494800
+view_computer=2147494815
 filter_cashnodepane=2147485829
 filter_prcssrwroffdraftparam=2147485830
 filter_prcssrunifypriceparam=2147485831
@@ -3229,6 +3232,7 @@ cmd_processued=2147494677
 cmd_processbomestimatedvalues=2147494727
 cmd_swprogram=2147494805
 cmd_swprogramcategory=2147494808
+cmd_computer=2147494816
 cmdpu_admin=2147486280
 cmdpu_salesanalyze=2147486281
 cmdpu_accounting=2147486282
@@ -16102,6 +16106,7 @@ PPHS_WEEKDAY=8071133
 PPHS_WORKBOOK=8071134
 PPHS_WORLD=8071135
 PPHS_WSCTL=8071242
+PPHS_COMPUTER=8071249
 PPHS_LOGLOCKSTACK=8071136
 PPHS_PAYMENT=8071137
 PPHS_UNKN=8071138

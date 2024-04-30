@@ -15,10 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/internal/str_format/bind.h"
-//#include <cerrno>
-//#include <limits>
-//#include <sstream>
-//#include <string>
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

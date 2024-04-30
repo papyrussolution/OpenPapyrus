@@ -27,19 +27,8 @@
 
 #ifdef USE_WEBSOCKETS
 
-//#include "urldata.h"
-//#include "bufq.h"
-//#include "dynbuf.h"
 #include "rand.h"
-//#include "curl_base64.h"
-//#include "connect.h"
-//#include "sendf.h"
-//#include "multiif.h"
-//#include "ws.h"
 #include "easyif.h"
-//#include "transfer.h"
-//#include "nonblock.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"

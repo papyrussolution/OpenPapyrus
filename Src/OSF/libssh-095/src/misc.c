@@ -30,9 +30,6 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
-#ifdef HAVE_SYS_TIME_H
-	//#include <sys/time.h>
-#endif /* HAVE_SYS_TIME_H */
 #ifdef _WIN32
 	#ifndef _WIN32_IE
 		#define _WIN32_IE 0x0501 // SHGetSpecialFolderPath
@@ -173,7 +170,7 @@ int ssh_is_ipaddr_v4(const char * str)
 int ssh_is_ipaddr(const char * str) 
 {
 	int rc = SOCKET_ERROR;
-	if(strchr(str, ':')) {
+	if(sstrchr(str, ':')) {
 		struct sockaddr_storage ss;
 		int sslen = sizeof(ss);
 		/* TODO link-local (IP:v6:addr%ifname). */
@@ -271,7 +268,7 @@ int ssh_is_ipaddr_v4(const char * str)
 int ssh_is_ipaddr(const char * str) 
 {
 	int rc = -1;
-	if(strchr(str, ':')) {
+	if(sstrchr(str, ':')) {
 		struct in6_addr dest6;
 		/* TODO link-local (IP:v6:addr%ifname). */
 		rc = inet_pton(AF_INET6, str, &dest6);
@@ -918,7 +915,7 @@ char * ssh_path_expand_tilde(const char * d)
 	}
 	d++;
 	/* handle ~user/path */
-	p = strchr(d, '/');
+	p = sstrchr(d, '/');
 	if(p && p > d) {
 #ifdef _WIN32
 		return sstrdup(d);
@@ -1271,7 +1268,7 @@ int ssh_match_group(const char * group, const char * object)
 {
 	const char * z = group;
 	do {
-		const char * a = strchr(z, ',');
+		const char * a = sstrchr(z, ',');
 		if(!a) {
 			if(sstreq(z, object)) {
 				return 1;

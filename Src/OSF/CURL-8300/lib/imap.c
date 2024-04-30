@@ -52,25 +52,11 @@
 #include <in.h>
 #include <inet.h>
 #endif
-
-//#include <curl/curl.h>
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "hostip.h"
-//#include "progress.h"
-//#include "transfer.h"
-//#include "escape.h"
-//#include "http.h" /* for HTTP proxy tunnel stuff */
 #include "socks.h"
 #include "imap.h"
-//#include "mime.h"
 #include "strtoofft.h"
-//#include "strcase.h"
 #include "vtls/vtls.h"
-//#include "cfilters.h"
-//#include "connect.h"
 #include "select.h"
-//#include "multiif.h"
 #include "url.h"
 #include "bufref.h"
 #include "curl_sasl.h"

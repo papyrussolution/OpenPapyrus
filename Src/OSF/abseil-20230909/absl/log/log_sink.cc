@@ -15,7 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/log/log_sink.h"
-//#include "absl/base/config.h"
 
 namespace absl {
 	ABSL_NAMESPACE_BEGIN

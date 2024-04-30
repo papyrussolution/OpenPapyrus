@@ -19,11 +19,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/internal/str_format/arg.h"
-//#include <cassert>
-//#include <cerrno>
-//#include <cstdlib>
-//#include <string>
-//#include <type_traits>
 #include "absl/base/port.h"
 #include "absl/strings/internal/str_format/float_conversion.h"
 #include "absl/strings/numbers.h"

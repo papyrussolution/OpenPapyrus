@@ -24,9 +24,6 @@
 *
 ***************************************************************************/
 
-//#include "urldata.h"
-//#include "curl_addrinfo.h"
-
 #ifndef CURL_DISABLE_DOH
 
 typedef enum {

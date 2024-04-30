@@ -109,7 +109,7 @@ static void Encode(js_State * J, const char * str, const char * unescaped)
 	}
 	while(*str) {
 		int c = (unsigned char)*str++;
-		if(strchr(unescaped, c))
+		if(sstrchr(unescaped, c))
 			js_putc(J, &sb, c);
 		else {
 			js_putc(J, &sb, '%');
@@ -144,7 +144,7 @@ static void Decode(js_State * J, const char * str, const char * reserved)
 				js_urierror(J, "invalid escape sequence");
 			// @v11.9.3 c = jsY_tohex(a) << 4 | jsY_tohex(b);
 			c = hex2(a, b); // @v11.9.3
-			if(!strchr(reserved, c))
+			if(!sstrchr(reserved, c))
 				js_putc(J, &sb, c);
 			else {
 				js_putc(J, &sb, '%');

@@ -109,7 +109,7 @@ static fz_location epub_resolve_link(fz_context * ctx, fz_document * doc_, const
 	epub_chapter * ch;
 	int i;
 
-	const char * s = strchr(dest, '#');
+	const char * s = sstrchr(dest, '#');
 	size_t n = s ? (size_t)(s - dest) : strlen(dest);
 	if(s && s[1] == 0)
 		s = NULL;

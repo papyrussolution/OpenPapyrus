@@ -322,7 +322,6 @@ static void xmlNanoFTPScanURL(void * ctx, const char * URL) {
 		xmlFreeURI(uri);
 		return;
 	}
-
 	ctxt->protocol = xmlMemStrdup(uri->scheme);
 	ctxt->hostname = xmlMemStrdup(uri->server);
 	if(uri->path != NULL)
@@ -331,10 +330,9 @@ static void xmlNanoFTPScanURL(void * ctx, const char * URL) {
 		ctxt->path = xmlMemStrdup("/");
 	if(uri->port != 0)
 		ctxt->port = uri->port;
-
 	if(uri->user != NULL) {
 		char * cptr;
-		if((cptr = strchr(uri->user, ':')) == NULL)
+		if((cptr = sstrchr(uri->user, ':')) == NULL)
 			ctxt->user = xmlMemStrdup(uri->user);
 		else {
 			ctxt->user = (char*)xmlStrndup((xmlChar*)uri->user,
@@ -2074,4 +2072,3 @@ int main(int argc, char ** argv) {
 #endif /* STANDALONE */
 #endif /* LIBXML_FTP_ENABLED */
 //#define bottom_nanoftp
-//#include "elfgcchack.h"

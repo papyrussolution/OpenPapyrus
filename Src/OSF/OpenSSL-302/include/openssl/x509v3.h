@@ -1336,14 +1336,12 @@ SKM_DEFINE_STACK_OF_INTERNAL(IPAddressFamily, IPAddressFamily, IPAddressFamily)
 #define sk_IPAddressFamily_value(sk, idx) ((IPAddressFamily*)OPENSSL_sk_value(ossl_check_const_IPAddressFamily_sk_type(sk), (idx)))
 #define sk_IPAddressFamily_new(cmp) ((STACK_OF(IPAddressFamily) *)OPENSSL_sk_new(ossl_check_IPAddressFamily_compfunc_type(cmp)))
 #define sk_IPAddressFamily_new_null() ((STACK_OF(IPAddressFamily) *)OPENSSL_sk_new_null())
-#define sk_IPAddressFamily_new_reserve(cmp, \
-	    n) ((STACK_OF(IPAddressFamily) *)OPENSSL_sk_new_reserve(ossl_check_IPAddressFamily_compfunc_type(cmp), (n)))
+#define sk_IPAddressFamily_new_reserve(cmp, n) ((STACK_OF(IPAddressFamily) *)OPENSSL_sk_new_reserve(ossl_check_IPAddressFamily_compfunc_type(cmp), (n)))
 #define sk_IPAddressFamily_reserve(sk, n) OPENSSL_sk_reserve(ossl_check_IPAddressFamily_sk_type(sk), (n))
 #define sk_IPAddressFamily_free(sk) OPENSSL_sk_free(ossl_check_IPAddressFamily_sk_type(sk))
 #define sk_IPAddressFamily_zero(sk) OPENSSL_sk_zero(ossl_check_IPAddressFamily_sk_type(sk))
 #define sk_IPAddressFamily_delete(sk, i) ((IPAddressFamily*)OPENSSL_sk_delete(ossl_check_IPAddressFamily_sk_type(sk), (i)))
-#define sk_IPAddressFamily_delete_ptr(sk, \
-	    ptr) ((IPAddressFamily*)OPENSSL_sk_delete_ptr(ossl_check_IPAddressFamily_sk_type(sk), ossl_check_IPAddressFamily_type(ptr)))
+#define sk_IPAddressFamily_delete_ptr(sk, ptr) ((IPAddressFamily*)OPENSSL_sk_delete_ptr(ossl_check_IPAddressFamily_sk_type(sk), ossl_check_IPAddressFamily_type(ptr)))
 #define sk_IPAddressFamily_push(sk, ptr) OPENSSL_sk_push(ossl_check_IPAddressFamily_sk_type(sk), ossl_check_IPAddressFamily_type(ptr))
 #define sk_IPAddressFamily_unshift(sk, ptr) OPENSSL_sk_unshift(ossl_check_IPAddressFamily_sk_type(sk), ossl_check_IPAddressFamily_type(ptr))
 #define sk_IPAddressFamily_pop(sk) ((IPAddressFamily*)OPENSSL_sk_pop(ossl_check_IPAddressFamily_sk_type(sk)))
@@ -1352,8 +1350,7 @@ SKM_DEFINE_STACK_OF_INTERNAL(IPAddressFamily, IPAddressFamily, IPAddressFamily)
 	    ossl_check_IPAddressFamily_freefunc_type(freefunc))
 #define sk_IPAddressFamily_insert(sk, ptr, idx) OPENSSL_sk_insert(ossl_check_IPAddressFamily_sk_type(sk), \
 	    ossl_check_IPAddressFamily_type(ptr), (idx))
-#define sk_IPAddressFamily_set(sk, idx, \
-	    ptr) ((IPAddressFamily*)OPENSSL_sk_set(ossl_check_IPAddressFamily_sk_type(sk), (idx), ossl_check_IPAddressFamily_type(ptr)))
+#define sk_IPAddressFamily_set(sk, idx, ptr) ((IPAddressFamily*)OPENSSL_sk_set(ossl_check_IPAddressFamily_sk_type(sk), (idx), ossl_check_IPAddressFamily_type(ptr)))
 #define sk_IPAddressFamily_find(sk, ptr) OPENSSL_sk_find(ossl_check_IPAddressFamily_sk_type(sk), ossl_check_IPAddressFamily_type(ptr))
 #define sk_IPAddressFamily_find_ex(sk, ptr) OPENSSL_sk_find_ex(ossl_check_IPAddressFamily_sk_type(sk), ossl_check_IPAddressFamily_type(ptr))
 #define sk_IPAddressFamily_find_all(sk, ptr, pnum) OPENSSL_sk_find_all(ossl_check_IPAddressFamily_sk_type(sk), \

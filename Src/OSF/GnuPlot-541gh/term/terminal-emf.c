@@ -1667,11 +1667,11 @@ TERM_PUBLIC void ENHemf_FLUSH(GpTermEntry_Static * pThis)
 			for(i = 0; i < sstrleni(str); i++) {
 				if((GPT._Encoding == S_ENC_UTF8) && ((str[i] & 0x100)))
 					continue;
-				if(strchr(" ijl.,;:|!()[]I-'", str[i]))
+				if(sstrchr(" ijl.,;:|!()[]I-'", str[i]))
 					thin++;
-				if(('A' <= str[i] && str[i] <= 'Z') || strchr("mw<>", str[i]))
+				if(('A' <= str[i] && str[i] <= 'Z') || sstrchr("mw<>", str[i]))
 					wide++;
-				if(strchr(" i.,;:|!'", str[i])) /* really thin */
+				if(sstrchr(" i.,;:|!'", str[i])) /* really thin */
 					thin++;
 			}
 			strl += 0.30 * wide;

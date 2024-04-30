@@ -27,10 +27,6 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
-//#include "urldata.h"
-//#include "warnless.h"
-//#include "escape.h"
 #include "strdup.h"
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"

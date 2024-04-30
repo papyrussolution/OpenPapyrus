@@ -514,10 +514,10 @@ void X509_email_free(STACK_OF(OPENSSL_STRING) * sk)
 	sk_OPENSSL_STRING_pop_free(sk, str_free);
 }
 
-typedef int (* equal_fn) (const uchar * pattern, size_t pattern_len, const uchar * subject, size_t subject_len, unsigned int flags);
+typedef int (* equal_fn) (const uchar * pattern, size_t pattern_len, const uchar * subject, size_t subject_len, uint flags);
 
 /* Skip pattern prefix to match "wildcard" subject */
-static void skip_prefix(const uchar ** p, size_t * plen, size_t subject_len, unsigned int flags)
+static void skip_prefix(const uchar ** p, size_t * plen, size_t subject_len, uint flags)
 {
 	const uchar * pattern = *p;
 	size_t pattern_len = *plen;
@@ -529,7 +529,6 @@ static void skip_prefix(const uchar ** p, size_t * plen, size_t subject_len, uns
 	 */
 	if((flags & _X509_CHECK_FLAG_DOT_SUBDOMAINS) == 0)
 		return;
-
 	while(pattern_len > subject_len && *pattern) {
 		if((flags & X509_CHECK_FLAG_SINGLE_LABEL_SUBDOMAINS) &&
 		    *pattern == '.')
@@ -546,7 +545,7 @@ static void skip_prefix(const uchar ** p, size_t * plen, size_t subject_len, uns
 }
 
 /* Compare while ASCII ignoring case. */
-static int equal_nocase(const uchar * pattern, size_t pattern_len, const uchar * subject, size_t subject_len, unsigned int flags)
+static int equal_nocase(const uchar * pattern, size_t pattern_len, const uchar * subject, size_t subject_len, uint flags)
 {
 	skip_prefix(&pattern, &pattern_len, subject_len, flags);
 	if(pattern_len != subject_len)
@@ -573,9 +572,7 @@ static int equal_nocase(const uchar * pattern, size_t pattern_len, const uchar *
 }
 
 /* Compare using memcmp. */
-static int equal_case(const uchar * pattern, size_t pattern_len,
-    const uchar * subject, size_t subject_len,
-    unsigned int flags)
+static int equal_case(const uchar * pattern, size_t pattern_len, const uchar * subject, size_t subject_len, uint flags)
 {
 	skip_prefix(&pattern, &pattern_len, subject_len, flags);
 	if(pattern_len != subject_len)
@@ -586,7 +583,7 @@ static int equal_case(const uchar * pattern, size_t pattern_len,
  * RFC 5280, section 7.5, requires that only the domain is compared in a
  * case-insensitive manner.
  */
-static int equal_email(const uchar * a, size_t a_len, const uchar * b, size_t b_len, unsigned int unused_flags)
+static int equal_email(const uchar * a, size_t a_len, const uchar * b, size_t b_len, uint unused_flags)
 {
 	size_t i = a_len;
 	if(a_len != b_len)
@@ -612,17 +609,13 @@ static int equal_email(const uchar * a, size_t a_len, const uchar * b, size_t b_
  * Compare the prefix and suffix with the subject, and check that the
  * characters in-between are valid.
  */
-static int wildcard_match(const uchar * prefix, size_t prefix_len,
-    const uchar * suffix, size_t suffix_len,
-    const uchar * subject, size_t subject_len,
-    unsigned int flags)
+static int wildcard_match(const uchar * prefix, size_t prefix_len, const uchar * suffix, size_t suffix_len, const uchar * subject, size_t subject_len, uint flags)
 {
 	const uchar * wildcard_start;
 	const uchar * wildcard_end;
 	const uchar * p;
 	int allow_multi = 0;
 	int allow_idna = 0;
-
 	if(subject_len < prefix_len + suffix_len)
 		return 0;
 	if(!equal_nocase(prefix, prefix_len, subject, prefix_len, flags))
@@ -665,7 +658,7 @@ static int wildcard_match(const uchar * prefix, size_t prefix_len,
 #define LABEL_HYPHEN    (1 << 2)
 #define LABEL_IDNA      (1 << 3)
 
-static const uchar * valid_star(const uchar * p, size_t len, unsigned int flags)
+static const uchar * valid_star(const uchar * p, size_t len, uint flags)
 {
 	const uchar * star = 0;
 	size_t i;
@@ -726,7 +719,7 @@ static const uchar * valid_star(const uchar * p, size_t len, unsigned int flags)
 }
 
 /* Compare using wildcards. */
-static int equal_wildcard(const uchar * pattern, size_t pattern_len, const uchar * subject, size_t subject_len, unsigned int flags)
+static int equal_wildcard(const uchar * pattern, size_t pattern_len, const uchar * subject, size_t subject_len, uint flags)
 {
 	const uchar * star = NULL;
 	/*
@@ -736,11 +729,8 @@ static int equal_wildcard(const uchar * pattern, size_t pattern_len, const uchar
 	if(!(subject_len > 1 && subject[0] == '.'))
 		star = valid_star(pattern, pattern_len, flags);
 	if(star == NULL)
-		return equal_nocase(pattern, pattern_len,
-			   subject, subject_len, flags);
-	return wildcard_match(pattern, star - pattern,
-		   star + 1, (pattern + pattern_len) - star - 1,
-		   subject, subject_len, flags);
+		return equal_nocase(pattern, pattern_len, subject, subject_len, flags);
+	return wildcard_match(pattern, star - pattern, star + 1, (pattern + pattern_len) - star - 1, subject, subject_len, flags);
 }
 
 /*
@@ -748,13 +738,9 @@ static int equal_wildcard(const uchar * pattern, size_t pattern_len, const uchar
  * cmp_type > 0 only compare if string matches the type, otherwise convert it
  * to UTF8.
  */
-
-static int do_check_string(const ASN1_STRING * a, int cmp_type, equal_fn equal,
-    unsigned int flags, const char * b, size_t blen,
-    char ** peername)
+static int do_check_string(const ASN1_STRING * a, int cmp_type, equal_fn equal, uint flags, const char * b, size_t blen, char ** peername)
 {
 	int rv = 0;
-
 	if(!a->data || !a->length)
 		return 0;
 	if(cmp_type > 0) {
@@ -794,8 +780,7 @@ static int do_check_string(const ASN1_STRING * a, int cmp_type, equal_fn equal,
 	return rv;
 }
 
-static int do_x509_check(X509 * x, const char * chk, size_t chklen,
-    unsigned int flags, int check_type, char ** peername)
+static int do_x509_check(X509 * x, const char * chk, size_t chklen, uint flags, int check_type, char ** peername)
 {
 	GENERAL_NAMES * gens = NULL;
 	const X509_NAME * name = NULL;
@@ -805,7 +790,6 @@ static int do_x509_check(X509 * x, const char * chk, size_t chklen,
 	int san_present = 0;
 	int rv = 0;
 	equal_fn equal;
-
 	/* See below, this flag is internal-only */
 	flags &= ~_X509_CHECK_FLAG_DOT_SUBDOMAINS;
 	if(check_type == GEN_EMAIL) {
@@ -833,22 +817,18 @@ static int do_x509_check(X509 * x, const char * chk, size_t chklen,
 	gens = (GENERAL_NAMES *)X509_get_ext_d2i(x, NID_subject_alt_name, NULL, NULL);
 	if(gens) {
 		for(i = 0; i < sk_GENERAL_NAME_num(gens); i++) {
-			GENERAL_NAME * gen;
 			ASN1_STRING * cstr;
-
-			gen = sk_GENERAL_NAME_value(gens, i);
+			GENERAL_NAME * gen = sk_GENERAL_NAME_value(gens, i);
 			if((gen->type == GEN_OTHERNAME) && (check_type == GEN_EMAIL)) {
 				if(OBJ_obj2nid(gen->d.otherName->type_id) ==
 				    NID_id_on_SmtpUTF8Mailbox) {
 					san_present = 1;
-
 					/*
 					 * If it is not a UTF8String then that is unexpected and we
 					 * treat it as no match
 					 */
 					if(gen->d.otherName->value->type == V_ASN1_UTF8STRING) {
 						cstr = gen->d.otherName->value->value.utf8string;
-
 						/* Positive on success, negative on error! */
 						if((rv = do_check_string(cstr, 0, equal, flags,
 						    chk, chklen, peername)) != 0)
@@ -880,26 +860,22 @@ static int do_x509_check(X509 * x, const char * chk, size_t chklen,
 		if(san_present && !(flags & X509_CHECK_FLAG_ALWAYS_CHECK_SUBJECT))
 			return 0;
 	}
-
 	/* We're done if CN-ID is not pertinent */
 	if(cnid == NID_undef || (flags & X509_CHECK_FLAG_NEVER_CHECK_SUBJECT))
 		return 0;
-
 	i = -1;
 	name = X509_get_subject_name(x);
 	while((i = X509_NAME_get_index_by_NID(name, cnid, i)) >= 0) {
 		const X509_NAME_ENTRY * ne = X509_NAME_get_entry(name, i);
 		const ASN1_STRING * str = X509_NAME_ENTRY_get_data(ne);
-
 		/* Positive on success, negative on error! */
-		if((rv = do_check_string(str, -1, equal, flags,
-		    chk, chklen, peername)) != 0)
+		if((rv = do_check_string(str, -1, equal, flags, chk, chklen, peername)) != 0)
 			return rv;
 	}
 	return 0;
 }
 
-int X509_check_host(X509 * x, const char * chk, size_t chklen, unsigned int flags, char ** peername)
+int X509_check_host(X509 * x, const char * chk, size_t chklen, uint flags, char ** peername)
 {
 	if(chk == NULL)
 		return -2;
@@ -917,7 +893,7 @@ int X509_check_host(X509 * x, const char * chk, size_t chklen, unsigned int flag
 	return do_x509_check(x, chk, chklen, flags, GEN_DNS, peername);
 }
 
-int X509_check_email(X509 * x, const char * chk, size_t chklen, unsigned int flags)
+int X509_check_email(X509 * x, const char * chk, size_t chklen, uint flags)
 {
 	if(chk == NULL)
 		return -2;
@@ -935,16 +911,16 @@ int X509_check_email(X509 * x, const char * chk, size_t chklen, unsigned int fla
 	return do_x509_check(x, chk, chklen, flags, GEN_EMAIL, NULL);
 }
 
-int X509_check_ip(X509 * x, const uchar * chk, size_t chklen, unsigned int flags)
+int X509_check_ip(X509 * x, const uchar * chk, size_t chklen, uint flags)
 {
 	if(chk == NULL)
 		return -2;
 	return do_x509_check(x, (char*)chk, chklen, flags, GEN_IPADD, NULL);
 }
 
-int X509_check_ip_asc(X509 * x, const char * ipasc, unsigned int flags)
+int X509_check_ip_asc(X509 * x, const char * ipasc, uint flags)
 {
-	unsigned char ipout[16];
+	uchar  ipout[16];
 	size_t iplen;
 	if(ipasc == NULL)
 		return -2;
@@ -956,21 +932,18 @@ int X509_check_ip_asc(X509 * x, const char * ipasc, unsigned int flags)
 
 char * ossl_ipaddr_to_asc(uchar * p, int len)
 {
-	/*
-	 * 40 is enough space for the longest IPv6 address + nul terminator byte
-	 * XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX\0
-	 */
+	//
+	// 40 is enough space for the longest IPv6 address + nul terminator byte
+	// XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX\0
+	//
 	char buf[40], * out;
-	int i = 0, remain = 0, bytes = 0;
-
+	int  i = 0, remain = 0, bytes = 0;
 	switch(len) {
-		case 4: /* IPv4 */
+		case 4: // IPv4
 		    BIO_snprintf(buf, sizeof(buf), "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
 		    break;
-		case 16: /* IPv6 */
-		    for(out = buf, i = 8, remain = sizeof(buf);
-			i-- > 0 && bytes >= 0;
-			remain -= bytes, out += bytes) {
+		case 16: // IPv6
+		    for(out = buf, i = 8, remain = sizeof(buf); i-- > 0 && bytes >= 0; remain -= bytes, out += bytes) {
 			    const char * p_template = (i > 0 ? "%X:" : "%X");
 			    bytes = BIO_snprintf(out, remain, p_template, p[0] << 8 | p[1]);
 			    p += 2;
@@ -982,25 +955,17 @@ char * ossl_ipaddr_to_asc(uchar * p, int len)
 	}
 	return OPENSSL_strdup(buf);
 }
-
 /*
- * Convert IP addresses both IPv4 and IPv6 into an OCTET STRING compatible
- * with RFC3280.
+ * Convert IP addresses both IPv4 and IPv6 into an OCTET STRING compatible with RFC3280.
  */
-
 ASN1_OCTET_STRING * a2i_IPADDRESS(const char * ipasc)
 {
 	unsigned char ipout[16];
 	ASN1_OCTET_STRING * ret;
-	int iplen;
-
 	/* If string contains a ':' assume IPv6 */
-
-	iplen = ossl_a2i_ipadd(ipout, ipasc);
-
+	int iplen = ossl_a2i_ipadd(ipout, ipasc);
 	if(!iplen)
 		return NULL;
-
 	ret = ASN1_OCTET_STRING_new();
 	if(!ret)
 		return NULL;
@@ -1017,7 +982,7 @@ ASN1_OCTET_STRING * a2i_IPADDRESS_NC(const char * ipasc)
 	unsigned char ipout[32];
 	char * iptmp = NULL;
 	int iplen1, iplen2;
-	char * p = const_cast<char *>(strchr(ipasc, '/')); // @badcast
+	char * p = const_cast<char *>(sstrchr(ipasc, '/')); // @badcast
 	if(!p)
 		return NULL;
 	iptmp = OPENSSL_strdup(ipasc);
@@ -1047,9 +1012,8 @@ err:
 
 int ossl_a2i_ipadd(uchar * ipout, const char * ipasc)
 {
-	/* If string contains a ':' assume IPv6 */
-
-	if(strchr(ipasc, ':')) {
+	// If string contains a ':' assume IPv6 
+	if(sstrchr(ipasc, ':')) {
 		if(!ipv6_from_asc(ipout, ipasc))
 			return 0;
 		return 16;
@@ -1065,11 +1029,9 @@ static int ipv4_from_asc(uchar * v4, const char * in)
 {
 	const char * p;
 	int a0, a1, a2, a3, n;
-
 	if(sscanf(in, "%d.%d.%d.%d%n", &a0, &a1, &a2, &a3, &n) != 4)
 		return 0;
-	if((a0 < 0) || (a0 > 255) || (a1 < 0) || (a1 > 255)
-	    || (a2 < 0) || (a2 > 255) || (a3 < 0) || (a3 > 255))
+	if((a0 < 0) || (a0 > 255) || (a1 < 0) || (a1 > 255) || (a2 < 0) || (a2 > 255) || (a3 < 0) || (a3 > 255))
 		return 0;
 	p = in + n;
 	if(!(*p == '\0' || ossl_isspace(*p)))
@@ -1082,69 +1044,61 @@ static int ipv4_from_asc(uchar * v4, const char * in)
 }
 
 typedef struct {
-	/* Temporary store for IPV6 output */
-	unsigned char tmp[16];
-	/* Total number of bytes in tmp */
-	int total;
-	/* The position of a zero (corresponding to '::') */
-	int zero_pos;
-	/* Number of zeroes */
-	int zero_cnt;
+	uchar tmp[16]; /* Temporary store for IPV6 output */
+	int total; /* Total number of bytes in tmp */
+	int zero_pos; /* The position of a zero (corresponding to '::') */
+	int zero_cnt; /* Number of zeroes */
 } IPV6_STAT;
 
 static int ipv6_from_asc(uchar * v6, const char * in)
 {
 	IPV6_STAT v6stat;
-
 	v6stat.total = 0;
 	v6stat.zero_pos = -1;
 	v6stat.zero_cnt = 0;
-	/*
-	 * Treat the IPv6 representation as a list of values separated by ':'.
-	 * The presence of a '::' will parse as one, two or three zero length
-	 * elements.
-	 */
+	// 
+	// Treat the IPv6 representation as a list of values separated by ':'.
+	// The presence of a '::' will parse as one, two or three zero length elements.
+	// 
 	if(!CONF_parse_list(in, ':', 0, ipv6_cb, &v6stat))
 		return 0;
-
-	/* Now for some sanity checks */
-
+	// Now for some sanity checks
 	if(v6stat.zero_pos == -1) {
-		/* If no '::' must have exactly 16 bytes */
+		// If no '::' must have exactly 16 bytes
 		if(v6stat.total != 16)
 			return 0;
 	}
 	else {
-		/* If '::' must have less than 16 bytes */
+		// If '::' must have less than 16 bytes
 		if(v6stat.total == 16)
 			return 0;
-		/* More than three zeroes is an error */
+		// More than three zeroes is an error
 		if(v6stat.zero_cnt > 3) {
 			return 0;
-			/* Can only have three zeroes if nothing else present */
+			// Can only have three zeroes if nothing else present
 		}
 		else if(v6stat.zero_cnt == 3) {
 			if(v6stat.total > 0)
 				return 0;
 		}
 		else if(v6stat.zero_cnt == 2) {
-			/* Can only have two zeroes if at start or end */
+			// Can only have two zeroes if at start or end
 			if((v6stat.zero_pos != 0) && (v6stat.zero_pos != v6stat.total))
 				return 0;
 		}
 		else {
-			/* Can only have one zero if *not* start or end */
+			// Can only have one zero if *not* start or end
 			if((v6stat.zero_pos == 0) || (v6stat.zero_pos == v6stat.total))
 				return 0;
 		}
 	}
-	/* Format result */
+	// Format result
 	if(v6stat.zero_pos >= 0) {
-		/* Copy initial part */
+		// Copy initial part
 		memcpy(v6, v6stat.tmp, v6stat.zero_pos);
-		/* Zero middle */
+		// Zero middle
 		memzero(v6 + v6stat.zero_pos, 16 - v6stat.total);
-		/* Copy final part */
+		// Copy final part
 		if(v6stat.total != v6stat.zero_pos)
 			memcpy(v6 + v6stat.zero_pos + 16 - v6stat.total, v6stat.tmp + v6stat.zero_pos, v6stat.total - v6stat.zero_pos);
 	}
@@ -1157,25 +1111,25 @@ static int ipv6_from_asc(uchar * v6, const char * in)
 static int ipv6_cb(const char * elem, int len, void * usr)
 {
 	IPV6_STAT * s = (IPV6_STAT *)usr;
-	/* Error if 16 bytes written */
+	// Error if 16 bytes written
 	if(s->total == 16)
 		return 0;
 	if(!len) {
-		/* Zero length element, corresponds to '::' */
+		// Zero length element, corresponds to '::'
 		if(s->zero_pos == -1)
 			s->zero_pos = s->total;
-		/* If we've already got a :: its an error */
+		// If we've already got a :: its an error
 		else if(s->zero_pos != s->total)
 			return 0;
 		s->zero_cnt++;
 	}
 	else {
-		/* If more than 4 characters could be final a.b.c.d form */
+		// If more than 4 characters could be final a.b.c.d form
 		if(len > 4) {
-			/* Need at least 4 bytes left */
+			// Need at least 4 bytes left
 			if(s->total > 12)
 				return 0;
-			/* Must be end of string */
+			// Must be end of string
 			if(elem[len])
 				return 0;
 			if(!ipv4_from_asc(s->tmp + s->total, elem))
@@ -1190,17 +1144,14 @@ static int ipv6_cb(const char * elem, int len, void * usr)
 	}
 	return 1;
 }
-
-/*
- * Convert a string of up to 4 hex digits into the corresponding IPv6 form.
- */
-
+// 
+// Convert a string of up to 4 hex digits into the corresponding IPv6 form.
+//
 static int ipv6_hex(uchar * out, const char * in, int inlen)
 {
-	unsigned char c;
-	unsigned int num = 0;
+	uchar c;
+	uint num = 0;
 	int x;
-
 	if(inlen > 4)
 		return 0;
 	while(inlen--) {
@@ -1254,9 +1205,7 @@ int X509V3_NAME_from_section(X509_NAME * nm, STACK_OF(CONF_VALUE) * dn_sk, unsig
 		else {
 			mval = 0;
 		}
-		if(!X509_NAME_add_entry_by_txt(nm, type, chtype,
-		    (uchar *)v->value, -1, -1,
-		    mval))
+		if(!X509_NAME_add_entry_by_txt(nm, type, chtype, (uchar *)v->value, -1, -1, mval))
 			return 0;
 	}
 	return 1;

@@ -52,7 +52,7 @@ UUID        {HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+
 {COMMENT}   { ++yyline; }
 {COMMENT_C} {
 	int    c;
-	for( ; ; ) {
+	while(true) {
 		while((c = yyinput()) != '*' && c != EOF)
 			if(c == '\n')
 				yyline++;

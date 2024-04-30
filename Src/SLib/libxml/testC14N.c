@@ -20,9 +20,6 @@
 #endif
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
-//#include <libxml/xpath.h>
-//#include <libxml/xpathInternals.h>
-//#include <libxml/c14n.h>
 
 static void usage(const char * name) {
 	fprintf(stderr, "Usage: %s <mode> <xml-file> [<xpath-expr>] [<inclusive-ns-list>]\n", name);

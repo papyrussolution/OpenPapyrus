@@ -16,8 +16,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_gnu_tar.c 191579 2009-04-27 18:35:03Z gastal $");
-//#include "archive_entry_locale.h"
-//#include "archive_write_set_format_private.h"
 
 struct gnutar {
 	uint64 entry_bytes_remaining;

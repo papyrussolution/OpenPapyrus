@@ -905,7 +905,7 @@ U_CFUNC Resource res_findResource(const ResourceData * pResData, Resource r, cha
 		/* Iteration stops if: the path has been consumed, we found a non-existing
 		 * resource (t1 == RES_BOGUS) or we found a scalar resource (including alias)
 		 */
-		nextSepP = uprv_strchr(pathP, RES_PATH_SEPARATOR);
+		nextSepP = sstrchr(pathP, RES_PATH_SEPARATOR);
 		/* if there are more separators, terminate string
 		 * and set path to the remaining part of the string
 		 */
@@ -918,7 +918,7 @@ U_CFUNC Resource res_findResource(const ResourceData * pResData, Resource r, cha
 			*path = nextSepP+1;
 		}
 		else {
-			*path = uprv_strchr(pathP, 0);
+			*path = sstrchr(pathP, 0);
 		}
 
 		/* if the resource is a table */

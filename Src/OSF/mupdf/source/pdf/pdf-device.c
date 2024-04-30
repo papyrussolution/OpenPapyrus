@@ -191,26 +191,19 @@ static void pdf_dev_ctm(fz_context * ctx, pdf_device * pdev, fz_matrix ctm)
 	fz_append_printf(ctx, gs->buf, "%M cm\n", &inverse);
 }
 
-static void pdf_dev_color(fz_context * ctx,
-    pdf_device * pdev,
-    fz_colorspace * colorspace,
-    const float * color,
-    int stroke,
-    fz_color_params color_params)
+static void pdf_dev_color(fz_context * ctx, pdf_device * pdev, fz_colorspace * colorspace, const float * color, int stroke, fz_color_params color_params)
 {
 	int diff = 0;
 	int i;
 	int cspace = 0;
 	float rgb[FZ_MAX_COLORS];
 	gstate * gs = CURRENT_GSTATE(pdev);
-
 	if(colorspace == fz_device_gray(ctx))
 		cspace = 1;
 	else if(colorspace == fz_device_rgb(ctx))
 		cspace = 3;
 	else if(colorspace == fz_device_cmyk(ctx))
 		cspace = 4;
-
 	if(cspace == 0) {
 		/* If it's an unknown colorspace, fallback to rgb */
 		fz_convert_color(ctx, colorspace, color, fz_device_rgb(ctx), rgb, NULL, color_params);
@@ -218,23 +211,18 @@ static void pdf_dev_color(fz_context * ctx,
 		colorspace = fz_device_rgb(ctx);
 		cspace = 3;
 	}
-
 	if(gs->colorspace[stroke] != colorspace) {
 		gs->colorspace[stroke] = colorspace;
 		diff = 1;
 	}
-
 	for(i = 0; i < cspace; i++)
 		if(gs->color[stroke][i] != color[i]) {
 			gs->color[stroke][i] = color[i];
 			diff = 1;
 		}
-
 	if(diff == 0)
 		return;
-
-	switch(cspace + stroke*8)
-	{
+	switch(cspace + stroke*8) {
 		case 1:
 		    fz_append_printf(ctx, gs->buf, "%g g\n", color[0]);
 		    break;
@@ -261,7 +249,6 @@ static void pdf_dev_alpha(fz_context * ctx, pdf_device * pdev, float alpha, int 
 	int i;
 	pdf_document * doc = pdev->doc;
 	gstate * gs = CURRENT_GSTATE(pdev);
-
 	/* If the alpha is unchanged, nothing to do */
 	if(gs->alpha[stroke] == alpha)
 		return;

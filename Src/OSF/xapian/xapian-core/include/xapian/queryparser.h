@@ -19,8 +19,6 @@
 #include <xapian/query.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
-//#include <string>
-//#include <unordered_set>
 
 namespace Xapian {
 class Database;

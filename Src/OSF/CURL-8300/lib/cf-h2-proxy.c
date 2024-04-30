@@ -28,17 +28,9 @@
 #if defined(USE_NGHTTP2) && !defined(CURL_DISABLE_PROXY)
 
 #include <nghttp2/nghttp2.h>
-//#include "urldata.h"
-//#include "cfilters.h"
-//#include "connect.h"
-//#include "curl_trc.h"
-//#include "bufq.h"
-//#include "dynbuf.h"
-//#include "dynhds.h"
 #include "http1.h"
 #include "http2.h"
 #include "http_proxy.h"
-//#include "multiif.h"
 #include "cf-h2-proxy.h"
 
 /* The last 3 #include files should be in this order */
@@ -104,7 +96,7 @@ static CURLcode tunnel_stream_init(struct Curl_cfilter * cf,
 		port = cf->conn->remote_port;
 
 	if(hostname != cf->conn->host.name)
-		ipv6_ip = (strchr(hostname, ':') != NULL);
+		ipv6_ip = (sstrchr(hostname, ':') != NULL);
 
 	ts->authority = /* host:port with IPv6 support */
 	    aprintf("%s%s%s:%d", ipv6_ip?"[":"", hostname, ipv6_ip?"]":"", port);

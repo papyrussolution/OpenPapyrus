@@ -23,10 +23,6 @@ typedef struct my_aio_result {
 	int pending;
 } my_aio_result;
 #endif
-//#ifndef _mariadb_ctype_h
-	//#include <mariadb_ctype.h>                    /* for MARIADB_CHARSET_INFO */
-//#endif
-//#include <stdarg.h>
 
 #define MYSYS_PROGRAM_USES_CURSES() \
 	do { \

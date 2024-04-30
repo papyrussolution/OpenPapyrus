@@ -1236,11 +1236,6 @@ START_HELP(epson_180dpi)
 "",
 " which defaults to medium (=font size) and normal.",
 " Preferred combinations are `medium normal` and `small draft`.",
-#ifdef MSDOS
-"",
-" With each of these drivers, a binary copy is required on a PC to print.",
-" Do not use `print`---use instead `copy file /b lpt1:`.",
-#endif
 ""
 END_HELP(epson_180dpi)
 #endif /* TERM_HELP */

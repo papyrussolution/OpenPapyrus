@@ -289,8 +289,6 @@ int Curl_amiga_select(int nfds, fd_set * readfds, fd_set * writefds,
  */
 #define __NO_NET_API
 #endif
-//#include <stdio.h>
-//#include <assert.h>
 #ifdef __TANDEM /* for ns*-tandem-nsk systems */
 	#if !defined __LP64
 		#include <floss.h> /* FLOSS is only used for 32-bit builds. */
@@ -454,18 +452,6 @@ int Curl_amiga_select(int nfds, fd_set * readfds, fd_set * writefds,
 #ifdef WIN32
 	#define DIR_CHAR      "\\"
 #else /* WIN32 */
-	#ifdef MSDOS  /* Watt-32 */
-		#include <sys/ioctl.h>
-		#define select(n, r, w, x, t) select_s(n, r, w, x, t)
-		#define ioctl(x, y, z) ioctlsocket(x, y, (char *)(z))
-		#include <tcp.h>
-		#ifdef word
-			#undef word
-		#endif
-		#ifdef byte
-			#undef byte
-		#endif
-	#endif /* MSDOS */
 	#ifdef __minix
 	/* Minix 3 versions up to at least 3.1.3 are missing these prototypes */
 	extern char *strtok_r(char * s, const char * delim, char ** last);
@@ -672,7 +658,7 @@ int Curl_amiga_select(int nfds, fd_set * readfds, fd_set * writefds,
 /* In Windows the default file mode is text but an application can override it.
    Therefore we specify it explicitly. https://github.com/curl/curl/pull/258
  */
-#if defined(WIN32) || defined(MSDOS)
+#if defined(WIN32)
 #define FOPEN_READTEXT "rt"
 #define FOPEN_WRITETEXT "wt"
 #define FOPEN_APPENDTEXT "at"

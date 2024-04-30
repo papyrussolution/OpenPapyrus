@@ -41,16 +41,12 @@
 
 #ifndef CURL_DISABLE_FTP
 
-//#include <curl/curl.h>
-//#include "urldata.h"
 #include "fileinfo.h"
-//#include "llist.h"
 #include "strtoofft.h"
 #include "ftp.h"
 #include "ftplistparser.h"
 #include "curl_fnmatch.h"
 #include "curl_memory.h"
-//#include "multiif.h"
 /* The last #include file should be: */
 #include "memdebug.h"
 
@@ -454,7 +450,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 				    case PL_UNIX_PERMISSION:
 					parser->item_length++;
 					if(parser->item_length <= 9) {
-						if(!strchr("rwx-tTsS", c)) {
+						if(!sstrchr("rwx-tTsS", c)) {
 							parser->error = CURLE_FTP_BAD_FILE_LIST;
 							goto fail;
 						}
@@ -845,7 +841,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 				    case PL_WINNT_DATE:
 					parser->item_length++;
 					if(parser->item_length < 9) {
-						if(!strchr("0123456789-", c)) { /* only simple control */
+						if(!sstrchr("0123456789-", c)) { /* only simple control */
 							parser->error = CURLE_FTP_BAD_FILE_LIST;
 							goto fail;
 						}
@@ -881,7 +877,7 @@ size_t Curl_ftp_parselist(char * buffer, size_t size, size_t nmemb, void * connp
 							    parser->state.NT.sub.dirorsize = pl_winNT_substate::PL_WINNT_DIRORSIZE_PRESPACE;
 							    parser->item_length = 0;
 						    }
-						    else if(!strchr("APM0123456789:", c)) {
+						    else if(!sstrchr("APM0123456789:", c)) {
 							    parser->error = CURLE_FTP_BAD_FILE_LIST;
 							    goto fail;
 						    }

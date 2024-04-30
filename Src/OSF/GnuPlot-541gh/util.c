@@ -363,7 +363,7 @@ void GnuPlot::MantExp(double log10_base, double x, bool scientific/* round to po
 		double actual_base = (scientific ? 1000 : pow(10.0, log10_base));
 		int precision = 0;
 		double tolerance;
-		format = strchr(format, '.');
+		format = sstrchr(format, '.');
 		if(format)
 			// a decimal point was found in the format, so use that precision. 
 			precision = strtol(format + 1, NULL, 10);
@@ -778,7 +778,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 			// dot is the default decimalsign we will be replacing 
 			int dot = *get_decimal_locale();
 			// replace every dot by the contents of decimalsign 
-			while((dotpos2 = strchr(dotpos1, dot)) != NULL) {
+			while((dotpos2 = sstrchr(dotpos1, dot)) != NULL) {
 				if(newlength == 1) { /* The normal case */
 					*dotpos2 = *GpU.decimalsign;
 					dotpos1++;
@@ -811,7 +811,7 @@ void GnuPlot::PrintfValue(char * pOutString, size_t count, const char * pFormat,
 			// dot is the default hyphen we will be replacing 
 			int dot = '-';
 			// replace every dot by the contents of minus_sign 
-			while((dotpos2 = strchr(dotpos1, dot)) != NULL) {
+			while((dotpos2 = sstrchr(dotpos1, dot)) != NULL) {
 				if(newlength == 1) { /* The normal case */
 					*dotpos2 = *GpU.minus_sign;
 					dotpos1++;
@@ -1303,7 +1303,7 @@ static char * num_to_str(double r)
 	if(i > 3)
 		i = 0;
 	sprintf(s[j], "%.15g", r);
-	if(strchr(s[j], '.') == NULL && strchr(s[j], 'e') == NULL && strchr(s[j], 'E') == NULL)
+	if(sstrchr(s[j], '.') == NULL && sstrchr(s[j], 'e') == NULL && sstrchr(s[j], 'E') == NULL)
 		strcat(s[j], ".0");
 	return s[j];
 }

@@ -1142,7 +1142,7 @@ U_CAPI uint32_t uprv_convertToLCIDPlatform(const char * localeID, UErrorCode * s
 	const char * mylocaleID = localeID;
 
 	// Check any for keywords.
-	if(uprv_strchr(localeID, '@')) {
+	if(sstrchr(localeID, '@')) {
 		icu::CharString collVal;
 		{
 			icu::CharStringByteSink sink(&collVal);

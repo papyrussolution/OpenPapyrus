@@ -1,5 +1,5 @@
 // FUTIL.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -396,7 +396,13 @@ void STDCALL encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME * dt)
 int copyFileByName(const char * pSrcFileName, const char * pDestFileName)
 {
 #ifdef __WIN32__
-	int    r = ::CopyFile(SUcSwitch(pSrcFileName), SUcSwitch(pDestFileName), 0);
+	SString src_fn(pSrcFileName);
+	SString dest_fn(pDestFileName);
+	SStringU src_fn_u;
+	SStringU dest_fn_u;
+	src_fn.CopyToUnicode(src_fn_u);
+	dest_fn.CopyToUnicode(dest_fn_u);
+	int    r = ::CopyFileW(src_fn_u, dest_fn_u, 0);
 	if(!r)
 		SLS.SetOsError();
 	return r;
@@ -464,7 +470,6 @@ int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMovePr
 	//SLS.SetAddedMsgString(pDestFileName);
 	//THROW_V(desthdl != INVALID_HANDLE_VALUE, SLERR_OPENFAULT);
 	flen = ::GetFileSize(srchdl, 0);
-
 	scfd.P_Src   = pSrcFileName;
 	scfd.P_Dest  = pDestFileName;
 	scfd.SizeTotal = flen;

@@ -452,7 +452,7 @@ static int wait_random_seeded(void)
 			 */
 			if(uname(&un) == 0) {
 				kernel[0] = satoi(un.release);
-				p = strchr(un.release, '.');
+				p = sstrchr(un.release, '.');
 				kernel[1] = p == NULL ? 0 : satoi(p + 1);
 				if(kernel[0] > kernel_version[0] || (kernel[0] == kernel_version[0] && kernel[1] >= kernel_version[1])) {
 					return 0;

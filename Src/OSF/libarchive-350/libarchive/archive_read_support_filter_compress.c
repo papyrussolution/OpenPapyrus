@@ -18,10 +18,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#include "archive_read_private.h"
 /*
  * Because LZW decompression is pretty simple, I've just implemented
  * the whole decompressor here (cribbing from "compress" source code,
@@ -29,7 +25,6 @@ __FBSDID("$FreeBSD$");
  * made an effort to clarify and simplify the algorithm, so the
  * names and structure here don't exactly match those used by compress.
  */
-
 struct private_data {
 	/* Input variables. */
 	const uchar     * next_in;

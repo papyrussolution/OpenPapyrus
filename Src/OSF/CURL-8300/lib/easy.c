@@ -41,40 +41,25 @@
 #ifdef HAVE_SYS_PARAM_H
 	#include <sys/param.h>
 #endif
-
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "transfer.h"
 #include "vtls/vtls.h"
 #include "url.h"
 #include "getinfo.h"
-//#include "hostip.h"
 #include "share.h"
 #include "strdup.h"
-//#include "progress.h"
 #include "easyif.h"
-//#include "multiif.h"
 #include "select.h"
-//#include "cfilters.h"
-//#include "sendf.h" /* for failf function prototype */
-//#include "connect.h" /* for Curl_getconnectinfo */
 #include "slist.h"
-//#include "mime.h"
 #include "amigaos.h"
 #include "macos.h"
-//#include "warnless.h"
 #include "sigpipe.h"
 #include "vssh/ssh.h"
 #include "setopt.h"
 #include "http_digest.h"
 #include "system_win32.h"
 #include "http2.h"
-//#include "dynbuf.h"
 #include "altsvc.h"
 #include "hsts.h"
-
 #include "easy_lock.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"
@@ -634,10 +619,8 @@ static CURLcode easy_events(struct Curl_multi * multi)
 	/* this struct is made static to allow it to be used after this function
 	   returns and curl_multi_remove_handle() is called */
 	static struct events evs = {2, FALSE, 0, NULL, 0};
-
 	/* if running event-based, do some further multi inits */
 	events_setup(multi, &evs);
-
 	return wait_or_timeout(multi, &evs);
 }
 
@@ -651,15 +634,11 @@ static CURLcode easy_transfer(struct Curl_multi * multi)
 	bool done = FALSE;
 	CURLMcode mcode = CURLM_OK;
 	CURLcode result = CURLE_OK;
-
 	while(!done && !mcode) {
 		int still_running = 0;
-
 		mcode = curl_multi_poll(multi, NULL, 0, 1000, NULL);
-
 		if(!mcode)
 			mcode = curl_multi_perform(multi, &still_running);
-
 		/* only read 'still_running' if curl_multi_perform() return OK */
 		if(!mcode && !still_running) {
 			int rc;
@@ -1087,29 +1066,22 @@ CURLcode curl_easy_pause(struct Curl_easy * data, int action)
 			uint i;
 			uint count = data->state.tempcount;
 			struct tempbuf writebuf[3]; /* there can only be three */
-
 			/* copy the structs to allow for immediate re-pausing */
 			for(i = 0; i < data->state.tempcount; i++) {
 				writebuf[i] = data->state.tempwrite[i];
 				Curl_dyn_init(&data->state.tempwrite[i].b, DYN_PAUSE_BUFFER);
 			}
 			data->state.tempcount = 0;
-
 			for(i = 0; i < count; i++) {
-				/* even if one function returns error, this loops through and frees
-				   all buffers */
+				/* even if one function returns error, this loops through and frees all buffers */
 				if(!result)
-					result = Curl_client_write(data, writebuf[i].type,
-						Curl_dyn_ptr(&writebuf[i].b),
-						Curl_dyn_len(&writebuf[i].b));
+					result = Curl_client_write(data, writebuf[i].type, Curl_dyn_ptr(&writebuf[i].b), Curl_dyn_len(&writebuf[i].b));
 				Curl_dyn_free(&writebuf[i].b);
 			}
-
 			if(result)
 				return result;
 		}
 	}
-
 #ifdef USE_HYPER
 	if(!(newstate & KEEP_SEND_PAUSE)) {
 		/* need to wake the send body waker */
@@ -1119,16 +1091,12 @@ CURLcode curl_easy_pause(struct Curl_easy * data, int action)
 		}
 	}
 #endif
-
 	/* if there's no error and we're not pausing both directions, we want
 	   to have this handle checked soon */
-	if((newstate & (KEEP_RECV_PAUSE|KEEP_SEND_PAUSE)) !=
-	    (KEEP_RECV_PAUSE|KEEP_SEND_PAUSE)) {
+	if((newstate & (KEEP_RECV_PAUSE|KEEP_SEND_PAUSE)) != (KEEP_RECV_PAUSE|KEEP_SEND_PAUSE)) {
 		Curl_expire(data, 0, EXPIRE_RUN_NOW); /* get this handle going again */
-
 		/* reset the too-slow time keeper */
 		data->state.keeps_speed.tv_sec = 0;
-
 		if(!data->state.tempcount)
 			/* if not pausing again, force a recv/send check of this connection as
 			   the data might've been read off the socket already */
@@ -1138,37 +1106,29 @@ CURLcode curl_easy_pause(struct Curl_easy * data, int action)
 				return CURLE_ABORTED_BY_CALLBACK;
 		}
 	}
-
 	if(!data->state.done)
 		/* This transfer may have been moved in or out of the bundle, update the
 		   corresponding socket callback, if used */
 		result = Curl_updatesocket(data);
-
 	return result;
 }
 
-static CURLcode easy_connection(struct Curl_easy * data, curl_socket_t * sfd,
-    struct connectdata ** connp)
+static CURLcode easy_connection(struct Curl_easy * data, curl_socket_t * sfd, struct connectdata ** connp)
 {
 	if(!data)
 		return CURLE_BAD_FUNCTION_ARGUMENT;
-
 	/* only allow these to be called on handles with CURLOPT_CONNECT_ONLY */
 	if(!data->set.connect_only) {
 		failf(data, "CONNECT_ONLY is required");
 		return CURLE_UNSUPPORTED_PROTOCOL;
 	}
-
 	*sfd = Curl_getconnectinfo(data, connp);
-
 	if(*sfd == CURL_SOCKET_BAD) {
 		failf(data, "Failed to get recent socket");
 		return CURLE_UNSUPPORTED_PROTOCOL;
 	}
-
 	return CURLE_OK;
 }
-
 /*
  * Receives data from the connected socket. Use after successful
  * curl_easy_perform() with CURLOPT_CONNECT_ONLY option.
@@ -1222,38 +1182,27 @@ CURLcode Curl_connect_only_attach(struct Curl_easy * data)
  *
  * This is the private internal version of curl_easy_send()
  */
-CURLcode Curl_senddata(struct Curl_easy * data, const void * buffer,
-    size_t buflen, ssize_t * n)
+CURLcode Curl_senddata(struct Curl_easy * data, const void * buffer, size_t buflen, ssize_t * n)
 {
 	curl_socket_t sfd;
-	CURLcode result;
 	ssize_t n1;
 	struct connectdata * c = NULL;
 	SIGPIPE_VARIABLE(pipe_st);
-
-	result = easy_connection(data, &sfd, &c);
+	CURLcode result = easy_connection(data, &sfd, &c);
 	if(result)
 		return result;
-
 	if(!data->conn)
-		/* on first invoke, the transfer has been detached from the connection and
-		   needs to be reattached */
-		Curl_attach_connection(data, c);
-
+		Curl_attach_connection(data, c); /* on first invoke, the transfer has been detached from the connection and needs to be reattached */
 	*n = 0;
 	sigpipe_ignore(data, &pipe_st);
 	result = Curl_write(data, sfd, buffer, buflen, &n1);
 	sigpipe_restore(&pipe_st);
-
 	if(n1 == -1)
 		return CURLE_SEND_ERROR;
-
 	/* detect EAGAIN */
 	if(!result && !n1)
 		return CURLE_AGAIN;
-
 	*n = n1;
-
 	return result;
 }
 
@@ -1261,14 +1210,12 @@ CURLcode Curl_senddata(struct Curl_easy * data, const void * buffer,
  * Sends data over the connected socket. Use after successful
  * curl_easy_perform() with CURLOPT_CONNECT_ONLY option.
  */
-CURLcode curl_easy_send(struct Curl_easy * data, const void * buffer,
-    size_t buflen, size_t * n)
+CURLcode curl_easy_send(struct Curl_easy * data, const void * buffer, size_t buflen, size_t * n)
 {
 	ssize_t written = 0;
 	CURLcode result;
 	if(Curl_is_in_callback(data))
 		return CURLE_RECURSIVE_API_CALL;
-
 	result = Curl_senddata(data, buffer, buflen, &written);
 	*n = (size_t)written;
 	return result;

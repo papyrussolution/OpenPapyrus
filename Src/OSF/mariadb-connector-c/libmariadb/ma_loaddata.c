@@ -36,16 +36,9 @@
  */
 #include <ma_global.h>
 #pragma hdrstop
-//#include <ma_sys.h>
-//#include <ma_string.h>
-//#include "errmsg.h"
-//#include "mysql.h"
-//#include <mariadb/ma_io.h>
-//#include <string.h>
 #ifdef _WIN32
 	#include <share.h>
 #endif
-//#include <ma_common.h>
 
 typedef struct st_mysql_infile_info {
 	MA_FILE   * fp;

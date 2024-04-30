@@ -16,8 +16,6 @@
 #define XAPIAN_INCLUDED_RESULT_H
 
 #include "backends/multi.h"
-//#include "xapian/types.h"
-//#include <string>
 
 /** A result in an MSet. */
 class Result {

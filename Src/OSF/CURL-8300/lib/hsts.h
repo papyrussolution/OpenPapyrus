@@ -26,8 +26,6 @@
 #include "curl_setup.h"
 
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
-//#include <curl/curl.h>
-//#include "llist.h"
 
 #ifdef DEBUGBUILD
 extern time_t deltatime;

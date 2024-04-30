@@ -9,7 +9,5 @@
 		#error This header is only to be used internally to libarchive.
 	#endif
 #endif
-//#include "archive.h"
-//#include "archive_entry.h"
 void __archive_write_entry_filetype_unsupported(Archive *a, ArchiveEntry *entry, const char *format);
 #endif

@@ -25,10 +25,6 @@
 ***************************************************************************/
 #include "curl_setup.h"
 
-//#include "nonblock.h" /* for curlx_nonblock(), formerly Curl_nonblock() */
-//#include "sockaddr.h"
-//#include "timeval.h"
-
 struct Curl_dns_entry;
 
 /* generic function that returns how much time there's left to run, according

@@ -26,8 +26,6 @@
 
 /* This file is for lib internal stuff */
 
-//#include "curl_setup.h"
-
 #define PORT_FTP 21
 #define PORT_FTPS 990
 #define PORT_TELNET 23
@@ -153,14 +151,12 @@ typedef CURLcode (*Curl_datastream)(struct Curl_easy * data,
     int select_res);
 #endif
 
-//#include "mime.h"
 #include "imap.h"
 #include "pop3.h"
 #include "smtp.h"
 #include "ftp.h"
 #include "file.h"
 #include "vssh/ssh.h"
-//#include "http.h"
 #include "rtsp.h"
 #include "smb.h"
 #include "mqtt.h"

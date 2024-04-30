@@ -15,10 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/cord_analysis.h"
-//#include <cassert>
-//#include <cstddef>
-//#include <cstdint>
-//#include <unordered_set>
 #include "absl/base/config.h"
 #include "absl/strings/internal/cord_data_edge.h"
 #include "absl/strings/internal/cord_internal.h"

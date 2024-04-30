@@ -415,8 +415,8 @@ char * GnuPlot::MkStr(char * sp, double x, AXIS_INDEX axis)
 	}
 	else if(AxS[axis].datatype == DT_TIMEDATE) {
 		char * format = CopyOrInventFormatString(&AxS[axis]);
-		while(strchr(format, '\n'))
-			*(strchr(format, '\n')) = ' ';
+		while(sstrchr(format, '\n'))
+			*(sstrchr(format, '\n')) = ' ';
 		GStrFTime(sp, 40, format, x);
 	}
 	else

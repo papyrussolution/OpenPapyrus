@@ -20,9 +20,6 @@
 
 #ifdef ABSL_HAVE_ELF_MEM_IMAGE  // defined in elf_mem_image.h
 
-//#include <string.h>
-//#include <cassert>
-//#include <cstddef>
 #include "absl/base/config.h"
 #include "absl/base/internal/raw_logging.h"
 

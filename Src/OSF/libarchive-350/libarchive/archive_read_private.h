@@ -10,10 +10,6 @@
 	#endif
 #endif
 
-//#include "archive.h"
-//#include "archive_string.h"
-//#include "archive_private.h"
-
 struct ArchiveRead;
 struct ArchiveReadFilterBidder;
 struct ArchiveReadFilter;

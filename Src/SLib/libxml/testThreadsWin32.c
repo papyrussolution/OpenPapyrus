@@ -4,12 +4,7 @@
 #pragma hdrstop
 #if defined(LIBXML_THREAD_ENABLED) && defined(LIBXML_CATALOG_ENABLED)
 #include <libxml/globals.h>
-//#include <libxml/threads.h>
 #include <libxml/parser.h>
-//#include <libxml/catalog.h>
-//#include <windows.h>
-//#include <string.h>
-//#include <assert.h>
 
 #define MAX_ARGC        20
 #define TEST_REPEAT_COUNT 500

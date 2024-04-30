@@ -549,7 +549,7 @@ void LoadMacros(TW * lptw)
 			ButtonText[lpmw->nButton] = (char *)macroptr;
 			ButtonIcon[lpmw->nButton] = I_IMAGENONE; /* comctl 5.81, Win 2000 */
 			{
-				char * icon = strchr((char *)macroptr, ';');
+				char * icon = sstrchr((char *)macroptr, ';');
 				if(icon) {
 					int inumber;
 					*icon = '\0';

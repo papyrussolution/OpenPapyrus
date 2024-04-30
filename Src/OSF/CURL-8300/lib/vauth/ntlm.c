@@ -503,9 +503,9 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data,
 	size_t domlen = 0;
 	memzero(lmresp, sizeof(lmresp));
 	memzero(ntresp, sizeof(ntresp));
-	user = strchr(userp, '\\');
+	user = sstrchr(userp, '\\');
 	if(!user)
-		user = strchr(userp, '/');
+		user = sstrchr(userp, '/');
 
 	if(user) {
 		domain = userp;

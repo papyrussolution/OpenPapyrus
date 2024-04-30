@@ -507,7 +507,7 @@ bool GoodsCore::IsRecValid(const Goods2Tbl::Rec * pRec)
 	}
 	else {
 		//THROW_PP(oneof3(k, PPGDSK_PCKGTYPE, PPGDSK_TRANSPORT, PPGDSK_BRAND), PPERR_INVGOODSKIND);
-		THROW_PP_S(oneof5(k, PPGDSK_PCKGTYPE, PPGDSK_TRANSPORT, PPGDSK_BRAND, PPGDSK_SUPRWARE, PPGDSK_SWPROGRAM), PPERR_INVGOODSKIND, pRec->Name);
+		THROW_PP_S(oneof6(k, PPGDSK_PCKGTYPE, PPGDSK_TRANSPORT, PPGDSK_BRAND, PPGDSK_SUPRWARE, PPGDSK_SWPROGRAM, PPGDSK_COMPUTER), PPERR_INVGOODSKIND, pRec->Name);
 	}
 	CATCHZOK
 	return ok;
@@ -527,6 +527,7 @@ int GoodsCore::Update(PPID * pGoodsID, Goods2Tbl::Rec * pRec, int use_ta)
 			case PPGDSK_PCKGTYPE:  obj_type = PPOBJ_PCKGTYPE;   break;
 			case PPGDSK_SUPRWARE:  obj_type = PPOBJ_COMPGOODS;  break; // @vmiller
 			case PPGDSK_SWPROGRAM: obj_type = PPOBJ_SWPROGRAM;  break; // @v11.9.12
+			case PPGDSK_COMPUTER:  obj_type = PPOBJ_COMPUTER;  break; // @v11.9.12
 		}
 	{
 		PPTransaction tra(use_ta);
@@ -1658,7 +1659,7 @@ int GoodsCore::ReadBarcodes(PPID id, BarcodeArray & rCodeList)
 			do {
 				BCTbl.copyBufTo(&rec);
 				int    is_gds_article = 0;
-				if(rec.Code[0] == '$' && (barcode = (rec.Code + 1)).IsDigit() && IsInnerBarcodeType(rec.BarcodeType, BARCODE_TYPE_UNDEF))
+				if(rec.Code[0] == '$' && (barcode = (rec.Code + 1)).IsDec() && IsInnerBarcodeType(rec.BarcodeType, BARCODE_TYPE_UNDEF))
 					is_gds_article = 1;
 				if(!is_gds_article && !rCodeList.insert(&rec))
 					ok = PPSetErrorSLib();

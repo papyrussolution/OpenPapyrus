@@ -427,7 +427,7 @@ U_CFUNC int32_t uprv_copyEbcdic(const UDataSwapper * ds,
 U_CFUNC bool uprv_isEbcdicAtSign(char c) 
 {
 	static const uint8 ebcdicAtSigns[] = { 0x7C, 0x44, 0x66, 0x80, 0xAC, 0xAE, 0xAF, 0xB5, 0xEC, 0xEF, 0x00 };
-	return c != 0 && uprv_strchr((const char *)ebcdicAtSigns, c) != nullptr;
+	return c != 0 && sstrchr((const char *)ebcdicAtSigns, c) != nullptr;
 }
 
 /* compare invariant strings; variant characters compare less than others and unlike each other */

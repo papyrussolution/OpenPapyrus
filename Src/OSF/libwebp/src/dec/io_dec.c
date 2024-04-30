@@ -13,7 +13,6 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dec/vp8i_dec.h"
 #include "src/dsp/yuv.h"
 //
 // Main YUV<->RGB conversion functions

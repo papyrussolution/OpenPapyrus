@@ -15,7 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/internal/escaping.h"
-//#include "absl/base/internal/endian.h"
 #include "absl/base/internal/raw_logging.h"
 
 namespace absl {

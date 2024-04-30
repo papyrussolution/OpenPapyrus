@@ -27,10 +27,6 @@
 
 #ifdef CURLDEBUG
 
-//#include <curl/curl.h>
-
-//#include "urldata.h"
-
 #define MEMDEBUG_NODEFINES /* don't redefine the standard functions */
 
 /* The last 3 #include files should be in this order */

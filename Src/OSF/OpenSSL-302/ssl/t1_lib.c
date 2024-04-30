@@ -2339,7 +2339,7 @@ static int sig_cb(const char * elem, int len, void * arg)
 		return 0;
 	memcpy(etmp, elem, len);
 	etmp[len] = 0;
-	p = strchr(etmp, '+');
+	p = sstrchr(etmp, '+');
 	/*
 	 * We only allow SignatureSchemes listed in the sigalg_lookup_tbl;
 	 * if there's no '+' in the provided name, look for the new-style combined

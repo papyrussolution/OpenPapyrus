@@ -15,9 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/log/internal/nullguard.h"
-//#include <array>
-//#include "absl/base/attributes.h"
-//#include "absl/base/config.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

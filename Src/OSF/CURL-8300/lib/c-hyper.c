@@ -48,14 +48,6 @@
 #endif
 
 #include <hyper.h>
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "transfer.h"
-//#include "multiif.h"
-//#include "progress.h"
-//#include "content_encoding.h"
-//#include "ws.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"
@@ -591,7 +583,7 @@ CURLcode Curl_hyper_header(struct Curl_easy * data, hyper_headers * headers,
 	do {
 		size_t linelen = 0;
 
-		p = strchr(n, ':');
+		p = sstrchr(n, ':');
 		if(!p)
 			/* this is fine if we already added at least one header */
 			return numh ? CURLE_OK : CURLE_BAD_FUNCTION_ARGUMENT;
@@ -600,13 +592,13 @@ CURLcode Curl_hyper_header(struct Curl_easy * data, hyper_headers * headers,
 		while(*p == ' ')
 			p++;
 		v = p;
-		p = strchr(v, '\r');
+		p = sstrchr(v, '\r');
 		if(!p) {
-			p = strchr(v, '\n');
+			p = sstrchr(v, '\n');
 			if(p)
 				linelen = 1; /* LF only */
 			else {
-				p = strchr(v, '\0');
+				p = sstrchr(v, '\0');
 				newline = FALSE; /* no newline */
 			}
 		}

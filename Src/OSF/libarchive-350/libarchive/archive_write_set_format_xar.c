@@ -12,9 +12,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-//#include "archive_digest_private.h"
-//#include "archive_entry_locale.h"
-//#include "archive_rb.h"
 /*
  * Differences to xar utility.
  * - Subdocument is not supported yet.
@@ -914,19 +911,15 @@ static int make_fflags_entry(struct archive_write * a, xmlTextWriterPtr writer, 
 		{ "reserved",   "Reserved"},
 		{ NULL, NULL}
 	};
-	const struct flagentry * fe, * flagentry;
+	const struct flagentry * fe;
 #define FLAGENTRY_MAXSIZE ((sizeof(flagbsd)+sizeof(flagext2))/sizeof(flagbsd))
 	const struct flagentry * avail[FLAGENTRY_MAXSIZE];
-	const char * p;
-	int i, n, r;
-	if(sstreq(element, "ext2"))
-		flagentry = flagext2;
-	else
-		flagentry = flagbsd;
-	n = 0;
-	p = fflags_text;
+	int i, r;
+	const struct flagentry * flagentry = sstreq(element, "ext2") ? flagext2 : flagbsd;
+	int n = 0;
+	const char * p = fflags_text;
 	do {
-		const char * cp = strchr(p, ',');
+		const char * cp = sstrchr(p, ',');
 		if(cp == NULL)
 			cp = p + strlen(p);
 		for(fe = flagentry; fe->name; fe++) {
@@ -964,16 +957,15 @@ static int make_fflags_entry(struct archive_write * a, xmlTextWriterPtr writer, 
 
 static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, struct file * file)
 {
-	struct xar * xar;
 	const char * filetype, * filelink, * fflags;
 	archive_string linkto;
 	struct heap_data * heap;
 	uchar * tmp;
 	const char * p;
 	size_t len;
-	int r, r2, l, ll;
-	xar = (struct xar *)a->format_data;
-	r2 = ARCHIVE_OK;
+	int r, l, ll;
+	struct xar * xar = (struct xar *)a->format_data;
+	int r2 = ARCHIVE_OK;
 	/*
 	 * Make a file name entry, "<name>".
 	 */
@@ -1855,7 +1847,7 @@ static int file_gen_utility_names(struct archive_write * a, struct file * file)
 static int get_path_component(char * name, int n, const char * fn)
 {
 	int l;
-	const char * p = strchr(fn, '/');
+	const char * p = sstrchr(fn, '/');
 	if(!p) {
 		l = strlen(fn);
 		if(l == 0)

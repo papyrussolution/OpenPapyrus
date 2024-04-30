@@ -48,24 +48,12 @@
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
-
-//#include "urldata.h"
-//#include "cfilters.h"
-
 #include "vtls.h" /* generic SSL protos etc */
 #include "vtls_int.h"
 #include "slist.h"
-//#include "sendf.h"
-//#include "strcase.h"
 #include "url.h"
-//#include "progress.h"
 #include "share.h"
-//#include "multiif.h"
-//#include "timeval.h"
 #include "curl_md5.h"
-//#include "warnless.h"
-//#include "curl_base64.h"
-//#include "curl_printf.h"
 #include "strdup.h"
 
 /* The last #include files should be: */

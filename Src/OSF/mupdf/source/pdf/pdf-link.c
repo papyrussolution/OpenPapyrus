@@ -430,7 +430,7 @@ int pdf_resolve_link(fz_context * ctx, pdf_document * doc, const char * uri, flo
 	if(uri && uri[0] == '#') {
 		int page = satoi(uri + 1) - 1;
 		if(xp || yp) {
-			const char * x = strchr(uri, ',');
+			const char * x = sstrchr(uri, ',');
 			const char * y = strrchr(uri, ',');
 			if(x && y) {
 				if(xp) *xp = satoi(x + 1);

@@ -154,10 +154,10 @@ static bool _mariadb_read_options_from_file(MYSQL * mysql, const char * config_f
 		if(*ptr == '!') {
 			char * val;
 			ptr++;
-			if(!(val = strchr(ptr, ' ')))
+			if(!(val = sstrchr(ptr, ' ')))
 				continue;
 			*val++ = 0;
-			end = strchr(val, 0);
+			end = sstrchr(val, 0);
 			for(; isspace(end[-1]); end--); /* Remove end space */
 			*end = 0;
 			if(sstreq(ptr, "includedir"))
@@ -171,7 +171,7 @@ static bool _mariadb_read_options_from_file(MYSQL * mysql, const char * config_f
 		is_escaped = (*ptr == '\\');
 		if(*ptr == '[') {               /* Group name */
 			found_group = 1;
-			if(!(end = (char *)strchr(++ptr, ']'))) {
+			if(!(end = (char *)sstrchr(++ptr, ']'))) {
 				/* todo: set error */
 				goto err;
 			}
@@ -186,13 +186,14 @@ static bool _mariadb_read_options_from_file(MYSQL * mysql, const char * config_f
 		}
 		if(!read_values)
 			continue;
-		if(!(end = value = strchr(ptr, '='))) {
-			end = strchr(ptr, '\0'); /* Option without argument */
+		if(!(end = value = sstrchr(ptr, '='))) {
+			end = sstrchr(ptr, '\0'); /* Option without argument */
 			set_option(mysql, ptr, NULL);
 		}
 		if(!key)
 			key = ptr;
-		for(; isspace(end[-1]); end--);
+		for(; isspace(end[-1]); end--)
+			;
 		*end = 0;
 		if(value) {
 			/* Remove pre- and end space */
@@ -201,7 +202,7 @@ static bool _mariadb_read_options_from_file(MYSQL * mysql, const char * config_f
 			value++;
 			ptr = value;
 			for(; isspace(*value); value++);
-			value_end = strchr(value, '\0');
+			value_end = sstrchr(value, '\0');
 			*value_end = 0;
 			optval = ptr;
 			for(; isspace(value_end[-1]); value_end--);
@@ -255,7 +256,6 @@ static bool _mariadb_read_options_from_file(MYSQL * mysql, const char * config_f
 		}
 	}
 	rc = 0;
-
 err:
 	if(file)
 		ma_close(file);

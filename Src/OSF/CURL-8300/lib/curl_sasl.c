@@ -37,19 +37,12 @@
 
 #if !defined(CURL_DISABLE_IMAP) || !defined(CURL_DISABLE_SMTP) || !defined(CURL_DISABLE_POP3) || (!defined(CURL_DISABLE_LDAP) && defined(USE_OPENLDAP))
 
-//#include <curl/curl.h>
-//#include "urldata.h"
-
-//#include "curl_base64.h"
 #include "curl_md5.h"
 #include "vauth/vauth.h"
-//#include "cfilters.h"
 #include "vtls/vtls.h"
 #include "curl_hmac.h"
 #include "curl_sasl.h"
-//#include "warnless.h"
 #include "strtok.h"
-//#include "sendf.h"
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"

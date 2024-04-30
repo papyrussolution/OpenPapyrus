@@ -7,8 +7,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_iso9660.c 201246 2009-12-30 05:30:35Z kientzle $");
-//#include "archive_entry_locale.h"
-//#include "archive_read_private.h"
 /*
  * An overview of ISO 9660 format:
  *

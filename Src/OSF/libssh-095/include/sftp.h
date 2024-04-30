@@ -32,9 +32,6 @@
 #ifndef SFTP_H
 #define SFTP_H
 
-//#include <sys/types.h>
-//#include "libssh.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

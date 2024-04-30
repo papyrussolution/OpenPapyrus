@@ -83,7 +83,8 @@ SLTEST_R(sql_parser)
 		SQLParserResult result;
 		SQLParser::parse(
 			"CREATE TABLE dummy_table ("
-			"  c_bigint BIGINT, "
+			"  c_bigint BIGINT, \n"
+			"\n/* some \n comment */\n"
 			"  c_boolean BOOLEAN, "
 			"  c_char CHAR(42), "
 			"  c_date DATE, "
@@ -158,8 +159,8 @@ SLTEST_R(sql_parser)
 		SLCHECK_NZ(sstreq(stmt->columns->at(8)->name, "c_double_not_null"));
 		SLCHECK_NZ(stmt->columns->at(8)->type == (ColumnType{hsql::DataType::DOUBLE}));
 		SLCHECK_EQ(stmt->columns->at(8)->nullable, false);
-		SLCHECK_EQ(stmt->columns->at(8)->column_constraints->size(), 1U);
-		SLCHECK_NZ(stmt->columns->at(8)->column_constraints->count(ConstraintType::NotNull));
+		SLCHECK_EQ(stmt->columns->at(8)->P_Constraints->size(), 1U);
+		SLCHECK_NZ(stmt->columns->at(8)->P_Constraints->count(ConstraintType::NotNull));
 		// c_float FLOAT
 		SLCHECK_NZ(sstreq(stmt->columns->at(9)->name, "c_float"));
 		SLCHECK_NZ(stmt->columns->at(9)->type == (ColumnType{hsql::DataType::FLOAT}));
@@ -172,8 +173,8 @@ SLTEST_R(sql_parser)
 		SLCHECK_NZ(sstreq(stmt->columns->at(11)->name, "c_integer_null"));
 		SLCHECK_NZ(stmt->columns->at(11)->type == (ColumnType{hsql::DataType::INT}));
 		SLCHECK_EQ(stmt->columns->at(11)->nullable, true);
-		SLCHECK_EQ(stmt->columns->at(11)->column_constraints->size(), 1U);
-		SLCHECK_NZ(stmt->columns->at(11)->column_constraints->count(ConstraintType::Null));
+		SLCHECK_EQ(stmt->columns->at(11)->P_Constraints->size(), 1U);
+		SLCHECK_NZ(stmt->columns->at(11)->P_Constraints->count(ConstraintType::Null));
 		// c_long LONG
 		SLCHECK_NZ(sstreq(stmt->columns->at(12)->name, "c_long"));
 		SLCHECK_NZ(stmt->columns->at(12)->type == (ColumnType{hsql::DataType::LONG}));
@@ -190,12 +191,12 @@ SLTEST_R(sql_parser)
 		SLCHECK_NZ(sstreq(stmt->columns->at(15)->name, "c_text"));
 		SLCHECK_NZ(stmt->columns->at(15)->type == (ColumnType{hsql::DataType::TEXT}));
 		SLCHECK_EQ(stmt->columns->at(15)->nullable, false);
-		// Expecting two elements in column_constraints since information about NULL constraints is separately stored in
+		// Expecting two elements in P_Constraints since information about NULL constraints is separately stored in
 		// ColumnDefinition::nullable
-		SLCHECK_EQ(stmt->columns->at(15)->column_constraints->size(), 3U);
-		SLCHECK_NZ(stmt->columns->at(15)->column_constraints->count(ConstraintType::Unique));
-		SLCHECK_NZ(stmt->columns->at(15)->column_constraints->count(ConstraintType::PrimaryKey));
-		SLCHECK_NZ(stmt->columns->at(15)->column_constraints->count(ConstraintType::NotNull));
+		SLCHECK_EQ(stmt->columns->at(15)->P_Constraints->size(), 3U);
+		SLCHECK_NZ(stmt->columns->at(15)->P_Constraints->count(ConstraintType::Unique));
+		SLCHECK_NZ(stmt->columns->at(15)->P_Constraints->count(ConstraintType::PrimaryKey));
+		SLCHECK_NZ(stmt->columns->at(15)->P_Constraints->count(ConstraintType::NotNull));
 		// c_time TIME
 		SLCHECK_NZ(sstreq(stmt->columns->at(16)->name, "c_time"));
 		SLCHECK_NZ(stmt->columns->at(16)->type == (ColumnType{hsql::DataType::TIME}));
@@ -272,8 +273,13 @@ SLTEST_R(sql_parser)
 		SLCHECK_NZ(sstreq(stmt->where->expr->name, "name"));
 		SLCHECK_NZ(sstreq(stmt->where->expr2->name, "Max O'Mustermann"));
 	}
+	{
+		const char * p_stmt = "INSERT INTO `tourist` (`id`, `name`, `passport`, `birthday`, `phone`, `icq`, `email`, `address`, `web`, `trafficSource`, `tracking`, `dataReg`, `dateUpdate`, `status`, `category`, `covid`, `idAmo`, `gender`, `nationality`) VALUES"
+		" (1,	'любовь',	'',	NULL,	79214245933,	NULL,	NULL,	'',	NULL,	NULL,	NULL,	'2021-06-28 17:53:55',	'2021-08-27 09:01:24',	0,	0,	NULL,	12694183,	0,	NULL);";
+		TEST_PARSE_SINGLE_SQL(p_stmt, kStmtInsert, InsertStatement, result, stmt);
+	}
 	{ // TEST(InsertStatementTest)
-		TEST_PARSE_SINGLE_SQL("INSERT INTO students VALUES ('Max Mustermann', 12345, 'Musterhausen', 2.0)", kStmtInsert, InsertStatement, result, stmt);
+		TEST_PARSE_SINGLE_SQL("INSERT INTO `students` (`dateUpdate`, `int_value`, `string-value`, `real-vaLUE`) VALUES ('Max Mustermann', 12345, 'Musterhausen', 2.0)", kStmtInsert, InsertStatement, result, stmt);
 		SLCHECK_EQ(stmt->values->size(), 4U);
 		// TODO
 	}
@@ -300,19 +306,28 @@ SLTEST_R(sql_parser)
 		SLCHECK_NZ(sstreq(stmt->tableName, "myTable"));
 		SLCHECK_EQ(stmt->type, kCreateIndex);
 		SLCHECK_EQ(stmt->ifNotExists, false);
-		SLCHECK_EQ(stmt->indexColumns->size(), 1U);
+		//SLCHECK_EQ(stmt->indexColumns->size(), 1U);
+		SLCHECK_EQ(stmt->P_Idx->getCount(), 1U);
 	}
 	{ // TEST(CreateIndexStatementIfNotExistsTest) 
 		SQLParserResult result;
-		SQLParser::parse("CREATE INDEX IF NOT EXISTS myindex ON myTable (col1, col2);", &result);
+		SQLParser::parse("CREATE INDEX IF NOT EXISTS myindex ON myTable (col1 DESC, col2 asc);", &result);
 		SLCHECK_NZ(result.isValid());
-		SLCHECK_EQ(result.size(), 1U);
-		const CreateStatement* stmt = (const CreateStatement*)result.getStatement(0);
-		SLCHECK_NZ(sstreq(stmt->indexName, "myindex"));
-		SLCHECK_NZ(sstreq(stmt->tableName, "myTable"));
-		SLCHECK_EQ(stmt->type, kCreateIndex);
-		SLCHECK_EQ(stmt->ifNotExists, true);
-		SLCHECK_EQ(stmt->indexColumns->size(), 2U);
+		if(result.isValid()) {
+			SLCHECK_EQ(result.size(), 1U);
+			const CreateStatement* stmt = (const CreateStatement*)result.getStatement(0);
+			SLCHECK_NZ(sstreq(stmt->indexName, "myindex"));
+			SLCHECK_NZ(sstreq(stmt->tableName, "myTable"));
+			SLCHECK_EQ(stmt->type, kCreateIndex);
+			SLCHECK_EQ(stmt->ifNotExists, true);
+			//SLCHECK_EQ(stmt->indexColumns->size(), 2U);
+			SLCHECK_EQ(stmt->P_Idx->getCount(), 2U);
+			if(stmt->P_Idx->getCount() == 2) {
+				SLCHECK_NZ(stmt->P_Idx->at(0)->Flags & hsql::IndexSegment::fDesc);
+				SLCHECK_Z(stmt->P_Idx->at(1)->Flags & hsql::IndexSegment::fDesc);
+				SLCHECK_NZ(stmt->P_Idx->at(1)->Field.IsEqiAscii("col2"));
+			}
+		}
 	}
 	{ // TEST(DropIndexTest) 
 		SQLParserResult result;
@@ -659,15 +674,15 @@ SLTEST_R(sql_parser)
 		//
 		// Здесь я хочу проверить парсинг файлов создания базы данных Papyrus, генерируемых при сборке системы
 		//
-		bool debug_mark = false;
 		SString path;
 		SLS.QueryPath("srcroot", path);
 		if(path.NotEmpty()) {
+			const char * pp_files[] = { "ppdbs-mysql.sql", "ppdbs-sqlite.sql"};
 			STempBuffer in_buf(SMEGABYTE(1));
 			path.SetLastSlash().Cat("rsrc").SetLastSlash().Cat("dl600");
 			SString src_file_name;
-			{
-				(src_file_name = path).SetLastSlash().Cat("ppdbs-mysql.sql");
+			for(uint i = 0; i < SIZEOFARRAY(pp_files); i++) {
+				(src_file_name = path).SetLastSlash().Cat(pp_files[i]);
 				SFile f_in(src_file_name, SFile::mRead);
 				if(f_in.IsValid()) {
 					size_t actual_size = 0;
@@ -676,13 +691,31 @@ SLTEST_R(sql_parser)
 						std::string query;
 						query.insert(0, static_cast<const char *>(in_buf.vcptr()), actual_size);
 						if(hsql::SQLParser::parse(query, &result)) {
-							debug_mark = true;
+							SLCHECK_NZ(result.isValid());
 						}
 					}
 				}
 			}
 		}
-
+	}
+	if(1) {
+		// Произвольный sql-файл D:\\DEV\\Resource\\Data\\ETC\\(DB timeup.es).sql 
+		// D:/DEV/Resource/Data/ETC/scantour_ru\tourist.sql
+		STempBuffer in_buf(SMEGABYTE(1));
+		//SString src_file_name("C:\\DEV\\RESOURCE\\DATA\\ETC\\scantour.ru\\pay_zap_new.sql");
+		SString src_file_name("C:\\DEV\\RESOURCE\\DATA\\ETC\\scantour.ru\\tourist.sql"/*"D:/DEV/Resource/Data/ETC/scantour_ru/tourist.sql"*/);
+		SFile f_in(src_file_name, SFile::mRead|SFile::mBinary);
+		if(f_in.IsValid()) {
+			size_t actual_size = 0;
+			if(f_in.ReadAll(in_buf, 0, &actual_size)) {
+				hsql::SQLParserResult result;
+				SString query;
+				query.CatN(in_buf, actual_size);
+				if(hsql::SQLParser::parse(query, &result)) {
+					SLCHECK_NZ(result.isValid());
+				}
+			}
+		}
 	}
 	return CurrentStatus;
 }

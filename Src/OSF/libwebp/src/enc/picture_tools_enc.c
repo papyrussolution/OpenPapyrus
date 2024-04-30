@@ -13,7 +13,6 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
 #include "src/enc/vp8i_enc.h"
 #include "src/dsp/yuv.h"
 

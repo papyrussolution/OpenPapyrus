@@ -293,7 +293,7 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 	if(tif->tif_header.common.tiff_magic != TIFF_BIGENDIAN && tif->tif_header.common.tiff_magic != TIFF_LITTLEENDIAN
 	    #if MDI_SUPPORT
 	 &&
-	    #if HOST_BIGENDIAN
+	    #ifdef SL_BIGENDIAN
 	    tif->tif_header.common.tiff_magic != MDI_BIGENDIAN
 	    #else
 	    tif->tif_header.common.tiff_magic != MDI_LITTLEENDIAN
@@ -376,17 +376,15 @@ TIFF * TIFFClientOpen(const char * name, const char * mode, thandle_t clientdata
 			    else
 				    tif->tif_flags &= ~TIFF_MAPPED;
 		    }
-		    /*
-		 * Sometimes we do not want to read the first directory (for example,
-		 * it may be broken) and want to proceed to other directories. I this
-		 * case we use the TIFF_HEADERONLY flag to open file and return
-		 * immediately after reading TIFF header.
-		     */
+			// 
+			// Sometimes we do not want to read the first directory (for example,
+			// it may be broken) and want to proceed to other directories. I this
+			// case we use the TIFF_HEADERONLY flag to open file and return
+			// immediately after reading TIFF header.
+			// 
 		    if(tif->tif_flags & TIFF_HEADERONLY)
 			    return tif;
-		    /*
-		 * Setup initial directory.
-		     */
+			// Setup initial directory.
 		    if(TIFFReadDirectory(tif)) {
 			    tif->tif_rawcc = (tmsize_t)-1;
 			    tif->tif_flags |= TIFF_BUFFERSETUP;
@@ -415,10 +413,7 @@ bad2:
 /*
  * Return open file's name.
  */
-const char * TIFFFileName(TIFF * tif)
-{
-	return (tif->tif_name);
-}
+const char * TIFFFileName(const TIFF * tif) { return (tif->tif_name); }
 /*
  * Set the file name.
  */
@@ -431,10 +426,7 @@ const char * TIFFSetFileName(TIFF * tif, const char * name)
 /*
  * Return open file's I/O descriptor.
  */
-int TIFFFileno(TIFF * tif)
-{
-	return (tif->tif_fd);
-}
+int TIFFFileno(const TIFF * tif) { return (tif->tif_fd); }
 /*
  * Set open file's I/O descriptor, and return previous value.
  */

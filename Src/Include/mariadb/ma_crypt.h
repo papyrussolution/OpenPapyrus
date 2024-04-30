@@ -15,9 +15,6 @@
 #ifndef _ma_hash_h_
 #define _ma_hash_h_
 
-//#include <stddef.h>
-//#include <stdarg.h>
-
 /*! Hash algorithms */
 #define MA_HASH_MD5       1
 #define MA_HASH_SHA1      2

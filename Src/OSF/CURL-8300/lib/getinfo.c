@@ -24,14 +24,8 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
-//#include "urldata.h"
 #include "getinfo.h"
-
 #include "vtls/vtls.h"
-//#include "connect.h" /* Curl_getconnectinfo() */
-//#include "progress.h"
-
 /* The last #include files should be: */
 #include "curl_memory.h"
 #include "memdebug.h"
@@ -47,7 +41,6 @@ CURLcode Curl_initinfo(struct Curl_easy * data)
 {
 	struct Progress * pro = &data->progress;
 	struct PureInfo * info = &data->info;
-
 	pro->t_nslookup = 0;
 	pro->t_connect = 0;
 	pro->t_appconnect = 0;

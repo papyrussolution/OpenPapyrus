@@ -366,7 +366,7 @@ int PPPosProtocol::InitSrcRootInfo(PPID posNodeID, PPPosProtocol::RouteBlock & r
 		if(PPRef->Ot.GetTag(PPOBJ_CASHNODE, posNodeID, PPTAG_POSNODE_UUID, &tag_item) > 0 && tag_item.GetGuid(&uuid)) {
 			rInfo.Uuid = uuid;
 		}
-		if((temp_buf = cn_rec.Symb).Strip().IsDigit()) {
+		if((temp_buf = cn_rec.Symb).Strip().IsDec()) {
 			long cn_n = temp_buf.ToLong();
 			if(cn_n > 0)
 				rInfo.Code = temp_buf;
@@ -4914,8 +4914,8 @@ int PPPosProtocol::Helper_GetPosNodeInfo_ForInputProcessing(const PPCashNode * p
 	int    ok = -1;
 	SString temp_buf;
 	(temp_buf = pCnRec->Symb).Strip();
-	if(temp_buf.IsDigit()) {
-		long   isymb = temp_buf.ToLong();
+	if(temp_buf.IsDec()) {
+		const long isymb = temp_buf.ToLong();
 		if(isymb > 0) {
 			PosNodeISymbEntry new_entry;
 			new_entry.PosNodeID = pCnRec->ID;
@@ -5359,7 +5359,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 								}
 							}
 							else if(!is_my_file) {
-								if(root_blk.Code.IsDigit()) {
+								if(root_blk.Code.IsDec()) {
 									long   isymb = root_blk.Code.ToLong();
 									uint   isymb_pos = 0;
 									if(isymb > 0 && pos_node_isymb_list.lsearch(&isymb, &isymb_pos, CMPF_LONG)) {

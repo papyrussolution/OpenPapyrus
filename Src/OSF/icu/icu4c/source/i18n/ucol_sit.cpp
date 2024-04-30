@@ -170,7 +170,7 @@ static const char * U_CALLCONV _processRFC3066Locale(CollatorSpec * spec, uint32
 {
 	char terminator = *string;
 	string++;
-	const char * end = uprv_strchr(string+1, terminator);
+	const char * end = sstrchr(string+1, terminator);
 	if(end == NULL || end - string >= loc3066Capacity) {
 		*status = U_BUFFER_OVERFLOW_ERROR;
 		return string;

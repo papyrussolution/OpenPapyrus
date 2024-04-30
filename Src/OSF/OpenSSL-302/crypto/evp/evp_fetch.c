@@ -119,7 +119,7 @@ static void * get_evp_method_from_store(void * store, const OSSL_PROVIDER ** pro
 	if((name_id = methdata->name_id) == 0 && methdata->names != NULL) {
 		OSSL_NAMEMAP * namemap = ossl_namemap_stored(methdata->libctx);
 		const char * names = methdata->names;
-		const char * q = strchr(names, NAME_SEPARATOR);
+		const char * q = sstrchr(names, NAME_SEPARATOR);
 		size_t l = (q == NULL ? strlen(names) : (size_t)(q - names));
 		if(namemap == 0)
 			return NULL;
@@ -148,7 +148,7 @@ static int put_evp_method_in_store(void * store, void * method, const OSSL_PROVI
 	 * numeric identity, so just use the first to get that identity.
 	 */
 	if(names) {
-		const char * q = strchr(names, NAME_SEPARATOR);
+		const char * q = sstrchr(names, NAME_SEPARATOR);
 		l = (q == NULL ? strlen(names) : (size_t)(q - names));
 	}
 	if((namemap = ossl_namemap_stored(methdata->libctx)) == NULL

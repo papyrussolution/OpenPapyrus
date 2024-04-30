@@ -12,9 +12,6 @@
 //
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <stdlib.h>
-//#include "src/dec/vp8i_dec.h"
-//#include "src/utils/utils.h"
 //
 // Main reconstruction function.
 //

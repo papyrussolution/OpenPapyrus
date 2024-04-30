@@ -424,7 +424,7 @@ TERM_PUBLIC void CGM_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 				    if(pGp->IsStringValue(pGp->Pgm.GetCurTokenIdx()) && (s = pGp->TryToGetString())) {
 					    double relwidth;
 					    int font_index;
-					    char * comma = strchr(s, ',');
+					    char * comma = sstrchr(s, ',');
 					    if(comma && (1 == sscanf(comma + 1, "%d", &cgm_fontsize)))
 						    *comma = '\0';
 					    if(*s)
@@ -730,7 +730,7 @@ static int CGM_find_font(const char * name, int numchar, double * relwidth)
 TERM_PUBLIC int CGM_set_font(GpTermEntry_Static * pThis, const char * font)
 {
 	int size, font_index;
-	const char * comma = strchr(font, ',');
+	const char * comma = sstrchr(font, ',');
 	int len;
 	double width;
 	// Allow null string to indicaute default font 

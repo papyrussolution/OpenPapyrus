@@ -21,12 +21,6 @@
 #ifndef ABSL_STRINGS_INTERNAL_STR_JOIN_INTERNAL_H_
 #define ABSL_STRINGS_INTERNAL_STR_JOIN_INTERNAL_H_
 
-//#include <cstring>
-//#include <iterator>
-//#include <memory>
-//#include <string>
-//#include <type_traits>
-//#include <utility>
 #include "absl/strings/internal/ostringstream.h"
 #include "absl/strings/internal/resize_uninitialized.h"
 #include "absl/strings/str_cat.h"

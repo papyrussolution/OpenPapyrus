@@ -26,22 +26,16 @@ template <typename IntT, IntT divisor> struct libdivide_constants {};
 
 // Primary template - divide as normal. Performant for divisors that are a power of 2
 template <typename T, T divisor, bool is_power2> struct fast_divide_t {
-	static FORCEINLINE T divide(T n) {
-		return n/divisor;
-	}
+	static FORCEINLINE T divide(T n) { return n/divisor; }
 };
 
 // Divide by 1 - no-op
 template <bool is_power2> struct fast_divide_t<uint16_t, 1U, is_power2> {
-	static FORCEINLINE uint16_t divide(uint16_t n) {
-		return n;
-	}
+	static FORCEINLINE uint16_t divide(uint16_t n) { return n; }
 };
 
 template <bool is_power2> struct fast_divide_t<int16_t, 1, is_power2> {
-	static FORCEINLINE int16_t divide(int16_t n) {
-		return n;
-	}
+	static FORCEINLINE int16_t divide(int16_t n) { return n; }
 };
 
 // Specialzed template for non-power of 2 uint16_t divisors

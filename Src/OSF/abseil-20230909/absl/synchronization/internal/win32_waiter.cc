@@ -18,13 +18,6 @@
 
 #ifdef ABSL_INTERNAL_HAVE_WIN32_WAITER
 
-//#include <windows.h>
-//#include "absl/base/config.h"
-//#include "absl/base/internal/raw_logging.h"
-//#include "absl/base/internal/thread_identity.h"
-//#include "absl/base/optimization.h"
-//#include "absl/synchronization/internal/kernel_timeout.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace synchronization_internal {

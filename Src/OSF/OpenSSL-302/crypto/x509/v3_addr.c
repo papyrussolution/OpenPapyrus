@@ -1231,19 +1231,15 @@ static int addr_validate_path_internal(X509_STORE_CTX * ctx, STACK_OF(X509) * ch
 			IPAddressFamily * fp =
 			    sk_IPAddressFamily_value(x->rfc3779_addr, k);
 			if(fp == NULL) {
-				if(fc->ipAddressChoice->type ==
-				    IPAddressChoice_addressesOrRanges) {
+				if(fc->ipAddressChoice->type == IPAddressChoice_addressesOrRanges) {
 					validation_err(X509_V_ERR_UNNESTED_RESOURCE);
 					break;
 				}
 				continue;
 			}
-			if(fp->ipAddressChoice->type ==
-			    IPAddressChoice_addressesOrRanges) {
-				if(fc->ipAddressChoice->type == IPAddressChoice_inherit
-				    || addr_contains(fp->ipAddressChoice->u.addressesOrRanges,
-				    fc->ipAddressChoice->u.addressesOrRanges,
-				    length_from_afi(X509v3_addr_get_afi(fc))))
+			if(fp->ipAddressChoice->type == IPAddressChoice_addressesOrRanges) {
+				if(fc->ipAddressChoice->type == IPAddressChoice_inherit || addr_contains(fp->ipAddressChoice->u.addressesOrRanges,
+				    fc->ipAddressChoice->u.addressesOrRanges, length_from_afi(X509v3_addr_get_afi(fc))))
 					(void)sk_IPAddressFamily_set(child, j, fp);
 				else
 					validation_err(X509_V_ERR_UNNESTED_RESOURCE);

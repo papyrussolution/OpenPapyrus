@@ -33,30 +33,30 @@
  * If *stringp is NULL, strsep returns NULL.
  *
  * PUBLIC: #ifndef HAVE_STRSEP
- * PUBLIC: char *strsep __P((char **, const char *));
+ * PUBLIC: char * strsep(char **, const char *);
  * PUBLIC: #endif
  */
 char * strsep(char ** stringp, const char * delim)
 {
-	char * s;
-	const char * spanp;
-	int c, sc;
-	char * tok;
-	if((s = *stringp) == NULL)
+	char * s = *stringp;
+	if(s == NULL)
 		return NULL;
-	for(tok = s;;) {
-		c = *s++;
-		spanp = delim;
-		do {
-			if((sc = *spanp++) == c) {
-				if(c == 0)
-					s = NULL;
-				else
-					s[-1] = 0;
-				*stringp = s;
-				return tok;
-			}
-		} while(sc != 0);
+	else {
+		for(char * tok = s;;) {
+			int c = *s++;
+			const char * spanp = delim;
+			int sc;
+			do {
+				if((sc = *spanp++) == c) {
+					if(c == 0)
+						s = NULL;
+					else
+						s[-1] = 0;
+					*stringp = s;
+					return tok;
+				}
+			} while(sc != 0);
+		}
 	}
 	/* NOTREACHED */
 }

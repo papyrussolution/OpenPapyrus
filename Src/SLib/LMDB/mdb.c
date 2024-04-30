@@ -36,9 +36,6 @@
 	//#define _FILE_OFFSET_BITS       64
 //#endif
 #ifdef _WIN32
-//#include <malloc.h>
-//#include <windows.h>
-//#include <wchar.h> // get wcscpy() 
 
 /* We use native NT APIs to setup the memory map, so that we can
  * let the DB file grow incrementally instead of always preallocating
@@ -73,8 +70,6 @@ static NtCloseFunc * NtClose;
  */
 #define MDB_PID_T       int
 #define MDB_THR_T       DWORD
-//#include <sys/types.h>
-//#include <sys/stat.h>
 #ifdef __GNUC__
 	#include <sys/param.h>
 #else

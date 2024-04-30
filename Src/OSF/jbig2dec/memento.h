@@ -181,11 +181,7 @@
  * sudo mkdir /opt/lib
  * sudo cp .libs/libbacktrace.so /opt/lib/
  */
-
 #ifndef MEMENTO_H
-
-//#include <stdlib.h>
-
 #define MEMENTO_H
 
 #ifndef MEMENTO_UNDERLYING_MALLOC

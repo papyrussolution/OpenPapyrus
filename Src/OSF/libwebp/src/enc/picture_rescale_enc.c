@@ -17,11 +17,7 @@
 
 #if !defined(WEBP_REDUCE_SIZE)
 
-//#include <assert.h>
-//#include <stdlib.h>
 #include "src/enc/vp8i_enc.h"
-//#include "src/utils/rescaler_utils.h"
-//#include "src/utils/utils.h"
 
 #define HALVE(x) (((x) + 1) >> 1)
 

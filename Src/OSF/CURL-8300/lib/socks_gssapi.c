@@ -28,16 +28,9 @@
 #if defined(HAVE_GSSAPI) && !defined(CURL_DISABLE_PROXY)
 
 #include "curl_gssapi.h"
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "cfilters.h"
-//#include "connect.h"
-//#include "timeval.h"
 #include "socks.h"
-//#include "warnless.h"
 
 /* The last 3 #include files should be in this order */
-//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -137,7 +130,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter * cf,
 	 */
 
 	/* prepare service name */
-	if(strchr(serviceptr, '/')) {
+	if(sstrchr(serviceptr, '/')) {
 		service.length = serviceptr_length;
 		service.value = SAlloc::M(service.length);
 		if(!service.value)

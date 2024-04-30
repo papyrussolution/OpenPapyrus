@@ -424,12 +424,12 @@ DRAFTBEER HORECA @v11.9.4
 		temp_buf = pCode;
 		if(temp_buf.HasPrefix("02") && temp_buf.Len() >/*strictly GT*/ (2+14+2)) { // Специальный случай: никакая не марка, но суррогатная комбинация 02 GTIN 37 QTY
 			temp_buf.Sub(2, 14, sub_buf);
-			if(sub_buf.IsDigit()) {
+			if(sub_buf.IsDec()) {
 				rS.Add(GtinStruc::fldGTIN14, sub_buf);
 				temp_buf.Sub((2+14), 2, sub_buf);
 				if(sub_buf == "37") {
 					temp_buf.Sub((2+14+2), temp_buf.Len()/*up to end*/, sub_buf);
-					if(sub_buf.IsDigit()) {
+					if(sub_buf.IsDec()) {
 						rS.Add(GtinStruc::fldCount, sub_buf);
 						ok = SNTOK_CHZN_SURROGATE_GTINCOUNT;
 					}
@@ -438,7 +438,7 @@ DRAFTBEER HORECA @v11.9.4
 		}
 		else if(temp_buf.HasPrefix("02") && temp_buf.Len() == (2+14)) { // Специальный случай: никакая не марка, но суррогатная комбинация 02 GTIN
 			temp_buf.Sub(2, 14, sub_buf);
-			if(sub_buf.IsDigit()) {
+			if(sub_buf.IsDec()) {
 				rS.Add(GtinStruc::fldGTIN14, sub_buf);
 				ok = SNTOK_CHZN_SURROGATE_GTIN;
 			}

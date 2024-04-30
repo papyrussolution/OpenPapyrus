@@ -68,6 +68,7 @@ DocNalogRu_Base::FileInfo & DocNalogRu_Base::FileInfo::Z()
 	ProgVer.Z();
 	Indep_Format.Z(); // @v11.9.5
 	Indep_Name.Z(); // @v11.9.5
+	EdiProviderSymb.Z(); // @v12.0.0
 	return *this;
 }
 
@@ -108,13 +109,13 @@ bool DocNalogRu_Base::FileInfo::ParseFileName(const char * pFileName, bool nonSt
 			// ON_ORDER_ 100400537995 _ 100100910817 _ 20240124 _ 10BACC44-756A-4ECC-86D0-6F97FC6FED9A.xml 
 			for(uint ssp = 0, c_ = 0; ss.get(&ssp, temp_buf); c_++) {
 				if(c_ == 0) {
-					if(temp_buf.IsDigit())
+					if(temp_buf.IsDec())
 						ReceiverIdent = temp_buf;
 					else if(!nonStrict)
 						ok = false;
 				}
 				else if(c_ == 1) {
-					if(temp_buf.IsDigit())
+					if(temp_buf.IsDec())
 						SenderIdent = temp_buf;
 					else if(!nonStrict)
 						ok = false;
@@ -2457,7 +2458,7 @@ static uint SplitBarcodeList(const char * pSrcBuf, SString & rPlainResult, Strin
 				StringSet ss(';', rPlainResult);
 				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 					temp_buf.Chomp();
-					if(temp_buf.NotEmptyS() && temp_buf.IsDigit()) {
+					if(temp_buf.NotEmptyS() && temp_buf.IsDec()) {
 						rSs.add(temp_buf);
 						result++;
 					}
@@ -2467,7 +2468,7 @@ static uint SplitBarcodeList(const char * pSrcBuf, SString & rPlainResult, Strin
 				StringSet ss(',', rPlainResult);
 				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 					temp_buf.Chomp();
-					if(temp_buf.NotEmptyS() && temp_buf.IsDigit()) {
+					if(temp_buf.NotEmptyS() && temp_buf.IsDec()) {
 						rSs.add(temp_buf);
 						result++;
 					}
@@ -6322,8 +6323,14 @@ int DocNalogRu_Generator::MakeOutFileIdent(FileInfo & rHi)
 {
 	int    ok = 1;
 	SString temp_buf;
-	(rHi.FileId = rHi.FormatPrefix).CatChar('_').Cat(rHi.ReceiverIdent).CatChar('_').Cat(rHi.SenderIdent).CatChar('_').
-		Cat(temp_buf.Z().Cat(rHi.CurDtm.d, DATF_ANSI|DATF_CENTURY|DATF_NODIV)).CatChar('_').Cat(S_GUID(SCtrGenerate()), S_GUID::fmtIDL);
+	if(/*rHi.EdiProviderSymb.IsEqiAscii("SBIS")*/false) {
+		(rHi.FileId = rHi.FormatPrefix).CatChar('_').Cat(/*rHi.ReceiverIdent*/"").CatChar('_').Cat(/*rHi.SenderIdent*/"").CatChar('_').
+			Cat(temp_buf.Z().Cat(rHi.CurDtm.d, DATF_ANSI|DATF_CENTURY|DATF_NODIV)).CatChar('_').Cat(S_GUID(SCtrGenerate()), S_GUID::fmtIDL);
+	}
+	else {
+		(rHi.FileId = rHi.FormatPrefix).CatChar('_').Cat(rHi.ReceiverIdent).CatChar('_').Cat(rHi.SenderIdent).CatChar('_').
+			Cat(temp_buf.Z().Cat(rHi.CurDtm.d, DATF_ANSI|DATF_CENTURY|DATF_NODIV)).CatChar('_').Cat(S_GUID(SCtrGenerate()), S_GUID::fmtIDL);
+	}
 	return ok;
 }
 
@@ -6334,6 +6341,57 @@ int DocNalogRu_Generator::MakeOutFileName(const char * pFileIdent, SString & rFi
 	SFileFormat::GetExt(SFileFormat::Xml, ps.Ext);
 	ps.Nam = pFileIdent;
 	ps.Merge(rFileName);
+	return ok;
+}
+
+int DocNalogRu_Generator::GetIdentifier(PPID psnID, PPID dtoPersonID, SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = -1;
+	RegisterArray reg_list;
+	if(PsnObj.GetRegList(psnID, &reg_list, 1) > 0) {
+		RegisterArray reg_list_by_type;
+		if(reg_list.GetListByType(PPREGT_ENALOGID, getcurdate_(), &reg_list_by_type) > 0) {
+			{
+				for(uint i = 0; ok < 0 && i < reg_list_by_type.getCount(); i++) {
+					const RegisterTbl::Rec & r_reg = reg_list_by_type.at(i);
+					if(r_reg.Num[0]) {
+						if(r_reg.RegOrgID == dtoPersonID) {
+							rBuf = r_reg.Num;
+							ok = 1;
+						}
+					}
+				}
+			}
+			if(ok < 0 && dtoPersonID) {
+				for(uint i = 0; ok < 0 && i < reg_list_by_type.getCount(); i++) {
+					const RegisterTbl::Rec & r_reg = reg_list_by_type.at(i);
+					if(r_reg.Num[0]) {
+						if(r_reg.RegOrgID == 0) {
+							rBuf = r_reg.Num;
+							ok = 2;
+						}
+					}
+				}
+			}
+			if(ok < 0) {
+				for(uint i = 0; ok < 0 && i < reg_list_by_type.getCount(); i++) {
+					const RegisterTbl::Rec & r_reg = reg_list_by_type.at(i);
+					if(r_reg.Num[0]) {
+						// Мы - в отчаянии: нет регистра с подходящим эмитентом: берем первый попавшийся регистр без оглядки на эмитента
+						rBuf = r_reg.Num;
+						ok = 3;
+					}
+				}
+			}
+		}
+	}
+	if(ok < 0) {
+		// В регистрах нет записи с типом PPREGT_ENALOGID: используем метод before @v12.0.0 - берем идентификатор из тега
+		if(PPRef->Ot.GetTagStr(PPOBJ_PERSON, psnID, PPTAG_PERSON_ENALOGID, rBuf) > 0) {
+			ok = 4;
+		}
+	}
 	return ok;
 }
 
@@ -6367,7 +6425,8 @@ int DocNalogRu_Generator::CreateHeaderInfo(const char * pFormatPrefix, PPID send
 	}
 	if(rInfo.SenderPersonID) {
 		if(PsnObj.Search(rInfo.SenderPersonID, &psn_rec) > 0) {
-			p_ref->Ot.GetTagStr(PPOBJ_PERSON, rInfo.SenderPersonID, PPTAG_PERSON_ENALOGID, rInfo.SenderIdent);
+			// @v12.0.0 p_ref->Ot.GetTagStr(PPOBJ_PERSON, rInfo.SenderPersonID, PPTAG_PERSON_ENALOGID, rInfo.SenderIdent);
+			GetIdentifier(rInfo.SenderPersonID, rInfo.ProviderPersonID, rInfo.SenderIdent); // @v12.0.0 
 			if(psn_rec.Flags & PSNF_NOVATAX)
 				rInfo.Flags |= rInfo.fVatFree;
 		}
@@ -6375,8 +6434,10 @@ int DocNalogRu_Generator::CreateHeaderInfo(const char * pFormatPrefix, PPID send
 			rInfo.SenderPersonID = 0;
 	}
 	if(rInfo.ReceiverPersonID) {
-		if(PsnObj.Search(rInfo.ReceiverPersonID, &psn_rec) > 0)
-			p_ref->Ot.GetTagStr(PPOBJ_PERSON, rInfo.ReceiverPersonID, PPTAG_PERSON_ENALOGID, rInfo.ReceiverIdent);
+		if(PsnObj.Search(rInfo.ReceiverPersonID, &psn_rec) > 0) {
+			// @v12.0.0 p_ref->Ot.GetTagStr(PPOBJ_PERSON, rInfo.ReceiverPersonID, PPTAG_PERSON_ENALOGID, rInfo.ReceiverIdent);
+			GetIdentifier(rInfo.ReceiverPersonID, rInfo.ProviderPersonID, rInfo.ReceiverIdent); // @v12.0.0 
+		}
 		else
 			rInfo.ReceiverPersonID = 0;
 	}
@@ -6388,6 +6449,27 @@ int DocNalogRu_Generator::CreateHeaderInfo(const char * pFormatPrefix, PPID send
 
 DocNalogRu_Generator::File::File(DocNalogRu_Generator & rG, const FileInfo & rHi) : N(rG.P_X, rG.GetToken_Ansi(PPHSC_RU_FILE))
 {
+	/*
+		ON_ORDER___20240320_d730aec2-5630-4839-a4f3-ab33875b9f07.xml 
+		//
+		ON_NSCHFDOPPR_2BM-1001144078-100101001-201503111155523751282_2BM-100100910817-20121218104345889223900000000_20240418_72597A4F-2CF8-4D63-8949-7D4C823E9022.xml 
+		Имя файла обмена должно иметь следующий вид:
+
+		R_T_A_O_GGGGMMDD_N1_N2_N3_N4_N5_N6_N7.Расширение, где:
+
+		R - префикс, принимающий значение ON
+		T - префикс, принимающий значение NSCHFDOPPR
+		A - идентификатор получателя счета-фактуры (покупатель), где идентификатор получателя совпадает с идентификатором участника электронного документооборота в рамках выставления и получения счетов-фактур
+		O - идентификатор отправителя счета-фактуры, где идентификатор отправителя совпадает с идентификатором участника электронного документооборота в рамках выставления и получения счетов-фактур
+		GGGGMMDD - GGGG- год формирования передаваемого файла, MM - месяц, DD - день;
+		N1 - 36 символьный глобально уникальный идентификатор GUID (Globally Unique IDentifier)
+		N2 - Формируется значение "1" в случае, если используется в целях контроля за движением товаров, подлежащих прослеживаемости (при отсутствии показателя принимает однозначное значение "0")
+		N3 - Формируется значение "1" в случае, если используется в целях контроля за движением товаров, подлежащих маркировке (при отсутствии показателя принимает однозначное значение "0")
+		N4 - Формируется значение "1" в случае, если используется в целях контроля за движением алкогольной продукции, подлежащей маркировке (при отсутствии показателя принимает однозначное значение "0")
+		N5 - Формируется значение "1" в случае, если используется в целях контроля за движением/оборотом табачной продукции, сырья, никотиносодержащей продукции и никотинового сырья (при отсутствии показателя принимает однозначное значение "0")
+		N6 - Формируется значение "1" в случае, если использование настоящего формата предусмотрено в рамках движения нефтепродуктов (при отсутствии показателя принимает однозначное значение "0")
+		N7 - Формируется свободное двузначное число, которое принимает значение в соответствии со списком в электронной форме, размещенным на официальном сайте Федеральной налоговой службы в информационно-телекоммуникационной сети "Интернет" в виде отдельного файла (при отсутствии показателя принимает однозначное значение "00").
+	*/
 	if(!(rHi.Flags & FileInfo::fIndepFormatProvider)) { // @v11.9.9 Для независимого провайдера атрибуты тега <Файл> вносятся прикладной функцией //
 		Reference * p_ref = PPRef;
 		SString temp_buf;
@@ -6411,9 +6493,9 @@ DocNalogRu_Generator::File::File(DocNalogRu_Generator & rG, const FileInfo & rHi
 		{
 			SXml::WNode n_(rG.P_X, rG.GetToken_Ansi(PPHSC_RU_EDISIDESINFO)); // Сведения об участниках электронного документооборота
 			if(rHi.SenderIdent.NotEmpty()) {
-				if(rHi.ProviderIdent.NotEmpty())
+				/* @v12.0.0 if(rHi.ProviderIdent.NotEmpty())
 					(temp_buf = rHi.ProviderIdent).CatChar('-').Cat(rHi.SenderIdent);
-				else
+				else*/
 					temp_buf = rHi.SenderIdent;
 			}
 			else
@@ -6421,9 +6503,9 @@ DocNalogRu_Generator::File::File(DocNalogRu_Generator & rG, const FileInfo & rHi
 			n_.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_SENDERID), temp_buf);
 			//
 			if(rHi.ReceiverIdent.NotEmpty()) {
-				if(rHi.ProviderIdent.NotEmpty())
+				/* @v12.0.0 if(rHi.ProviderIdent.NotEmpty())
 					(temp_buf = rHi.ProviderIdent).CatChar('-').Cat(rHi.ReceiverIdent);
-				else
+				else*/
 					temp_buf = rHi.ReceiverIdent;
 			}
 			else
@@ -6721,7 +6803,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 					if(u_rec.ID == SUOM_KILOGRAM || u_rec.BaseUnitID == SUOM_KILOGRAM)
 						is_weighted_ware = true;
 					// } @v11.9.6 
-					(unit_name = u_rec.Name).Transf(CTRANSF_INNER_TO_OUTER); // @v10.6.11
+					(unit_name = u_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
 					unit_code = isempty(u_rec.Code) ? "0000" : u_rec.Code;
 				}
 				else
@@ -7059,14 +7141,21 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 					n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_VAL), barcode_for_exchange);
 				}
 				// @v11.7.4 {
-				if(goods_ar_code.NotEmpty()) {
-					{
-						SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXTRA2));
-						n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_IDENTIF), GetToken_Ansi(PPHSC_RU_EXTRA_MATERIALCODE));
-						n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_VAL), goods_ar_code);
-					}
+				// @v12.0.0 Это - какой-то бред: я для каждого ебнутого покупателя должен буду вставлять одно и то же с разными тегами? {
+				{
+					SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXTRA2));
+					n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_IDENTIF), GetToken_Ansi(PPHSC_RU_GOODSCODE_BUYER));
+					n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_VAL), barcode_for_exchange);					
 				}
+				// } @v12.0.0 
 				// } @v11.7.4 
+			}
+			if(goods_ar_code.NotEmpty()) {
+				{
+					SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXTRA2));
+					n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_IDENTIF), GetToken_Ansi(PPHSC_RU_EXTRA_MATERIALCODE));
+					n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_VAL), goods_ar_code);
+				}
 			}
 		}
 		else {
@@ -7626,11 +7715,12 @@ int DocNalogRu_Generator::GetAgreementParams(/*PPID arID*/const PPBillPacket & r
 }
 
 DocNalogRu_WriteBillBlock::DocNalogRu_WriteBillBlock(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const char * pHeaderSymb, const SString & rFileName) : 
-	State(0), R_P(rParam), R_Bp(rBp), DtoID(rParam.DtoPersonID), HeaderSymb(pHeaderSymb), R_NominalFileName(rFileName),
+	State(0), R_P(rParam), R_Bp(rBp), DtoPersonID(rParam.DtoPersonID), HeaderSymb(pHeaderSymb), R_NominalFileName(rFileName),
 	AgtDate(ZERODATE), AgtExpiry(ZERODATE)
 {
 	MainOrgID = GetMainOrgID();
 	ContragentID = ObjectToPerson(R_Bp.Rec.Object, 0);
+	_Hi.EdiProviderSymb = rParam.EdiProviderSymb; // @v12.0.0
 	if(R_P.OuterFormatVer.NotEmpty())
 		_Hi.FileFormatVer = R_P.OuterFormatVer;
 	THROW(GetOpData(R_Bp.Rec.OpID, &OpRec) > 0);
@@ -7639,7 +7729,7 @@ DocNalogRu_WriteBillBlock::DocNalogRu_WriteBillBlock(const PPBillImpExpParam & r
 	}
 	if(G.GetAgreementParams(rBp, AgtCode, AgtDate, AgtExpiry) > 0)
 		State |= stAgreementParamIsValid;
-	THROW(G.CreateHeaderInfo(HeaderSymb, MainOrgID, ContragentID, DtoID, R_NominalFileName, _Hi));
+	THROW(G.CreateHeaderInfo(HeaderSymb, MainOrgID, ContragentID, DtoPersonID, R_NominalFileName, _Hi));
 	THROW(G.StartDocument(_Hi.FileName, cp1251));
 	CATCH
 		State |= stError;
@@ -8275,9 +8365,22 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
+	BillTbl::Rec order_bill_rec;
 	rResultFileName.Z();
 	{
 		SString temp_buf;
+		{
+			PPIDArray order_id_list;
+			R_Bp.GetOrderList(order_id_list);
+			if(order_id_list.getCount()) {
+				const PPID order_bill_id = order_id_list.get(0);
+				if(p_bobj->Search(order_bill_id, &order_bill_rec) > 0) {
+					;
+				}
+				else
+					order_bill_rec.ID = 0;
+			}
+		}
         {
 			DocNalogRu_Generator::File f(G, _Hi);
 			GetMainOrgName(temp_buf);
@@ -8419,27 +8522,21 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 					// @v11.7.4 PPHSC_RU_EXTRA_GLN_CONSIGNEE GLN_грузополучателя
 					SXml::WNode n(G.P_X, GetToken(PPHSC_RU_EXTRA1)); // Do_UPD
 					if(R_P.EdiProviderSymb.IsEqiAscii("SBIS")) {
-						SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF)); // [0..20]
-						n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_EXTRA_GENDATE));
-						n_1.PutAttrib(GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(getcurdatetime_(), DATF_GERMANCENT, TIMF_HMS));
 						{
-							PPIDArray order_id_list;
-							R_Bp.GetOrderList(order_id_list);
-							if(order_id_list.getCount()) {
-								const PPID order_bill_id = order_id_list.get(0);
-								BillTbl::Rec order_bill_rec;
-								if(p_bobj->Search(order_bill_id, &order_bill_rec) > 0) {
-									{
-										SXml::WNode n_2(G.P_X, GetToken(PPHSC_RU_TEXTINF));
-										n_2.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_EXTRA_ORDERCODE));
-										n_2.PutAttrib(GetToken(PPHSC_RU_VAL), EncText(temp_buf = order_bill_rec.Code));
-									}
-									{
-										SXml::WNode n_2(G.P_X, GetToken(PPHSC_RU_TEXTINF));
-										n_2.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_EXTRA_ORDERDATE));
-										n_2.PutAttrib(GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(order_bill_rec.Dt, DATF_GERMANCENT));
-									}
-								}
+							SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF)); // [0..20]
+							n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_EXTRA_GENDATE));
+							n_1.PutAttrib(GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(getcurdatetime_(), DATF_GERMANCENT, TIMF_HMS));
+						}
+						if(order_bill_rec.ID) {
+							{
+								SXml::WNode n_2(G.P_X, GetToken(PPHSC_RU_TEXTINF));
+								n_2.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_EXTRA_ORDERCODE));
+								n_2.PutAttrib(GetToken(PPHSC_RU_VAL), EncText(temp_buf = order_bill_rec.Code));
+							}
+							{
+								SXml::WNode n_2(G.P_X, GetToken(PPHSC_RU_TEXTINF));
+								n_2.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_EXTRA_ORDERDATE));
+								n_2.PutAttrib(GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(order_bill_rec.Dt, DATF_GERMANCENT));
 							}
 						}
 					}
@@ -8459,17 +8556,33 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 					}
 					// } @v11.9.12 
 					if(consignee_gln.NotEmpty()) {
-						SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF)); // [0..20]
-						const long ident_tok_id = (R_P.EdiProviderSymb.IsEqiAscii("SBIS") ? PPHSC_RU_EXTRA_GLN_CONSIGNEE2 : PPHSC_RU_EXTRA_GLN_CONSIGNEE);
-						n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(ident_tok_id));
-						n_1.PutAttrib(GetToken(PPHSC_RU_VAL), EncText(consignee_gln));
+						{ // @fixme Здесь должен быть GLN покупателя, а не грузополучателя, но пусть пока так будет
+							SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF)); // [0..20]
+							const long ident_tok_id = PPHSC_RU_EXTRA_GLN_BUYER2;
+							n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(ident_tok_id));
+							n_1.PutAttrib(GetToken(PPHSC_RU_VAL), EncText(consignee_gln));
+						}
+						{
+							SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF)); // [0..20]
+							const long ident_tok_id = (R_P.EdiProviderSymb.IsEqiAscii("SBIS") ? PPHSC_RU_EXTRA_GLN_CONSIGNEE2 : PPHSC_RU_EXTRA_GLN_CONSIGNEE);
+							n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(ident_tok_id));
+							n_1.PutAttrib(GetToken(PPHSC_RU_VAL), EncText(consignee_gln));
+						}
 					}
 					// } @v11.7.4 
 					if(consignor_gln.NotEmpty()) {
-						SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF)); // [0..20]
-						const long ident_tok_id = (R_P.EdiProviderSymb.IsEqiAscii("SBIS") ? PPHSC_RU_EXTRA_GLN_CONSIGNOR2 : PPHSC_RU_EXTRA_GLN_CONSIGNOR);
-						n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(ident_tok_id));
-						n_1.PutAttrib(GetToken(PPHSC_RU_VAL), EncText(consignor_gln));
+						{ // @fixme Вообще-то здесь должен быть GLN поставщика, а не склада-отправителя, но пока так пусть будет
+							SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF)); // [0..20]
+							const long ident_tok_id = (R_P.EdiProviderSymb.IsEqiAscii("SBIS") ? PPHSC_RU_EXTRA_GLN_SUPPL2 : PPHSC_RU_EXTRA_GLN_SUPPL);
+							n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(ident_tok_id));
+							n_1.PutAttrib(GetToken(PPHSC_RU_VAL), EncText(consignor_gln));
+						}
+						{
+							SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF)); // [0..20]
+							const long ident_tok_id = (R_P.EdiProviderSymb.IsEqiAscii("SBIS") ? PPHSC_RU_EXTRA_GLN_CONSIGNOR2 : PPHSC_RU_EXTRA_GLN_CONSIGNOR);
+							n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(ident_tok_id));
+							n_1.PutAttrib(GetToken(PPHSC_RU_VAL), EncText(consignor_gln));
+						}
 					}
 					if(AgtCode.NotEmpty()) {
 						{
@@ -8515,17 +8628,22 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 					n_1.PutAttrib(GetToken(PPHSC_RU_CONTOFOP), EncText(temp_buf));
 					{
 						SXml::WNode n_11(G.P_X, GetToken(PPHSC_RU_BASISFORWARETRANSFER));
-						if(AgtCode.NotEmpty()) {
-							temp_buf = GetToken(PPHSC_RU_CONTRACT);
-							n_11.PutAttrib(GetToken(PPHSC_RU_NAMEOFBASISFORWARETRANSFER), temp_buf);
+						if(order_bill_rec.ID) {
+							SString _from_text;
+							PPLoadString("from", _from_text);
+							PPLoadStringS("booking", temp_buf).Space().Cat("No").Space().Cat(order_bill_rec.Code).Space().Cat(_from_text).Space().Cat(order_bill_rec.Dt, DATF_GERMANCENT);
+							n_11.PutAttrib(GetToken(PPHSC_RU_NAMEOFBASISFORWARETRANSFER), EncText(temp_buf));
+							n_11.PutAttrib(GetToken(PPHSC_RU_NUMBOFBASISFORWARETRANSFER), EncText(temp_buf = order_bill_rec.Code));
+							n_11.PutAttrib(GetToken(PPHSC_RU_DATEOFBASISFORWARETRANSFER), temp_buf.Z().Cat(order_bill_rec.Dt, DATF_GERMANCENT));
+						}
+						else if(AgtCode.NotEmpty()) {
+							n_11.PutAttrib(GetToken(PPHSC_RU_NAMEOFBASISFORWARETRANSFER), GetToken(PPHSC_RU_CONTRACT));
 							n_11.PutAttrib(GetToken(PPHSC_RU_NUMBOFBASISFORWARETRANSFER), EncText(AgtCode));
 							temp_buf.Z().Cat(checkdate(AgtDate) ? AgtDate : encodedate(1, 1, 2017), DATF_GERMANCENT);
 							n_11.PutAttrib(GetToken(PPHSC_RU_DATEOFBASISFORWARETRANSFER), EncText(temp_buf));
 						}
 						else {
-							// @v10.6.12 temp_buf = g.GetToken_Ansi(PPHSC_RU_ABSENCE);
-							temp_buf = GetToken(PPHSC_RU_NODOCOFBASISFORWARETRANSFER); // @v10.6.12
-							n_11.PutAttrib(GetToken(PPHSC_RU_NAMEOFBASISFORWARETRANSFER), temp_buf);
+							n_11.PutAttrib(GetToken(PPHSC_RU_NAMEOFBASISFORWARETRANSFER), GetToken(PPHSC_RU_NODOCOFBASISFORWARETRANSFER));
 						}
 						// @v11.0.2 {
 						/* @v11.1.12 

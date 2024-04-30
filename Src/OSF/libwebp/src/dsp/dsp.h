@@ -12,10 +12,6 @@
 // Speed-critical functions.
 // Author: Skal (pascal.massimino@gmail.com)
 //
-//#ifdef HAVE_CONFIG_H
-//#include "src/webp/config.h"
-//#endif
-//#include "src/webp/types.h"
 #define BPS 32   // this is the common stride for enc/dec
 //
 // WEBP_RESTRICT

@@ -758,9 +758,6 @@ static int str_gsub(lua_State * L)
 /*
 ** Hexadecimal floating-point formatter
 */
-
-//#include <math.h>
-
 #define SIZELENMOD      (sizeof(LUA_NUMBER_FRMLEN)/sizeof(char))
 
 /*

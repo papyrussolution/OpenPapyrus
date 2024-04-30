@@ -83,8 +83,6 @@ operator delete(void * p) throw()
 
 #else
 
-//#include <stdio.h>
-
 // #pragma init_seg(lib)
 const int kDebugSize = 1000000;
 static void * a[kDebugSize];

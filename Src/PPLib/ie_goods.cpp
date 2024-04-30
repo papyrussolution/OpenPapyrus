@@ -2075,7 +2075,7 @@ int PPGoodsImporter::AssignEgaisCode(const Sdr_Goods2 & rRec, PPGoodsPacket * pP
 	if(rRec.EgaisCode[0]) {
 		SString temp_buf, msg_buf, fmt_buf;
 		(temp_buf = rRec.EgaisCode).Strip();
-		if(temp_buf.Len() == 19 && temp_buf.IsDigit()) {
+		if(temp_buf.Len() == 19 && temp_buf.IsDec()) {
 			BarcodeTbl::Rec egais_code_rec;
 			if(GObj.SearchByBarcode(temp_buf, &egais_code_rec, 0, 0) > 0) {
 				PPLoadText(PPTXT_IMPEGAISCODEXISTS, fmt_buf);

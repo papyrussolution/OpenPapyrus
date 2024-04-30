@@ -16,9 +16,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/internal/str_format/extension.h"
-//#include <errno.h>
-//#include <algorithm>
-//#include <string>
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

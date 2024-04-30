@@ -86,22 +86,18 @@
 #pragma hdrstop
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
 
-//#include "urldata.h"
 #include "cookie.h"
 #include "psl.h"
 #include "strtok.h"
-//#include "sendf.h"
 #include "slist.h"
 #include "share.h"
 #include "strtoofft.h"
-//#include "strcase.h"
 #include "curl_get_line.h"
 #include "curl_memrchr.h"
 #include "parsedate.h"
 #include "rename.h"
 #include "fopen.h"
 #include "strdup.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"
@@ -173,7 +169,7 @@ static bool pathmatch(const char * cookie_path, const char * request_uri)
 	uri_path = strdup(request_uri);
 	if(!uri_path)
 		return FALSE;
-	pos = strchr(uri_path, '?');
+	pos = sstrchr(uri_path, '?');
 	if(pos)
 		*pos = 0x0;
 
@@ -807,7 +803,7 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 			 * passed-in path to this function MAY have a '?' and following part that
 			 * MUST NOT be stored as part of the path.
 			 */
-			const char * queryp = strchr(path, '?');
+			const char * queryp = sstrchr(path, '?');
 			/*
 			 * queryp is where the interesting part of the path ends, so now we
 			 * want to the find the last
@@ -871,10 +867,10 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 			return NULL;
 		}
 		/* strip off the possible end-of-line characters */
-		ptr = strchr(lineptr, '\r');
+		ptr = sstrchr(lineptr, '\r');
 		if(ptr)
 			*ptr = 0; /* clear it */
-		ptr = strchr(lineptr, '\n');
+		ptr = sstrchr(lineptr, '\n');
 		if(ptr)
 			*ptr = 0; /* clear it */
 
@@ -1072,7 +1068,7 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 				 * "/loginhelper" is ok.
 				 */
 
-				sep = strchr(clist->spath + 1, '/');
+				sep = sstrchr(clist->spath + 1, '/');
 
 				if(sep)
 					cllen = sep - clist->spath;

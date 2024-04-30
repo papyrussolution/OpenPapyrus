@@ -26,21 +26,11 @@
 
 #ifndef CURL_DISABLE_GOPHER
 
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "transfer.h"
-//#include "sendf.h"
-//#include "cfilters.h"
-//#include "connect.h"
-//#include "progress.h"
 #include "gopher.h"
 #include "select.h"
 #include "strdup.h"
 #include "vtls/vtls.h"
 #include "url.h"
-//#include "escape.h"
-//#include "warnless.h"
-//#include "curl_printf.h"
 #include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
@@ -48,13 +38,11 @@
 /*
  * Forward declarations.
  */
-
 static CURLcode gopher_do(struct Curl_easy * data, bool * done);
 #ifdef USE_SSL
-static CURLcode gopher_connect(struct Curl_easy * data, bool * done);
-static CURLcode gopher_connecting(struct Curl_easy * data, bool * done);
+	static CURLcode gopher_connect(struct Curl_easy * data, bool * done);
+	static CURLcode gopher_connecting(struct Curl_easy * data, bool * done);
 #endif
-
 /*
  * Gopher protocol handler.
  * This is also a nice simple template to build off for simple

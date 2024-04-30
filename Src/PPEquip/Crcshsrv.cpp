@@ -1280,7 +1280,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 					int    skip = 0;
 					ser_name = ser_rec.Name;
 					ser_ident = ser_rec.Symb;
-					if(!ser_ident.NotEmptyS() || !ser_ident.IsDigit()) {
+					if(!ser_ident.NotEmptyS() || !ser_ident.IsDec()) {
 						ser_ident.Z().CatChar('0');
 						if(zero_series_has_seen)
 							skip = 1;
@@ -1307,7 +1307,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 					(msg_buf = fmt_buf).CatDiv(':', 2).Cat(ser_rec.Name);
 					ser_name = ser_rec.Name;
 					ser_ident = ser_rec.Symb;
-					if(!ser_ident.NotEmptyS() || !ser_ident.IsDigit())
+					if(!ser_ident.NotEmptyS() || !ser_ident.IsDec())
 						ser_ident.Z().CatChar('0');
 					for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
 						PPWaitPercent(iter.GetCounter(), msg_buf);
@@ -1376,7 +1376,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 					THROW_SL(scard_quot_ary.Add(ser_rec.ID, ser_rec.QuotKindID_s, 0));
 					(msg_buf = fmt_buf).CatDiv(':', 2).Cat(ser_rec.Name);
 					ser_ident = ser_rec.Symb;
-					if(!ser_ident.NotEmptyS() || !ser_ident.IsDigit())
+					if(!ser_ident.NotEmptyS() || !ser_ident.IsDec())
 						ser_ident.Z().CatChar('0');
 					for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
 						PPWaitPercent(iter.GetCounter(), msg_buf);

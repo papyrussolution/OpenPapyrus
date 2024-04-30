@@ -501,16 +501,13 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
 		uint last_index = 0;
 		for(uint i = 0; i < feature_events.length; i++) {
 			feature_event_t * event = &feature_events[i];
-
 			if(event->index != last_index) {
 				/* Save a snapshot of active features and the range. */
 				range_record_t * range = range_records.push();
 
 				if(active_features.length) {
-					CFMutableArrayRef features_array = CFArrayCreateMutable(kCFAllocatorDefault,
-						0,
+					CFMutableArrayRef features_array = CFArrayCreateMutable(kCFAllocatorDefault, 0,
 						&kCFTypeArrayCallBacks);
-
 					/* TODO sort and resolve conflicting features? */
 					/* active_features.qsort (); */
 					for(uint j = 0; j < active_features.length; j++) {
@@ -543,21 +540,16 @@ hb_bool_t _hb_coretext_shape(hb_shape_plan_t * shape_plan,
 							(const void**)keys,
 							(const void**)values,
 							ARRAY_LENGTH(keys),
-							&kCFTypeDictionaryKeyCallBacks,
-							&kCFTypeDictionaryValueCallBacks);
+							&kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 						for(uint i = 0; i < ARRAY_LENGTH(values); i++)
 							CFRelease(values[i]);
-
 						CFArrayAppendValue(features_array, dict);
 						CFRelease(dict);
 					}
-
 					CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault,
 						(const void**)&kCTFontFeatureSettingsAttribute,
 						(const void**)&features_array,
-						1,
-						&kCFTypeDictionaryKeyCallBacks,
-						&kCFTypeDictionaryValueCallBacks);
+						1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 					CFRelease(features_array);
 
 					CTFontDescriptorRef font_desc = CTFontDescriptorCreateWithAttributes(attributes);
@@ -766,15 +758,12 @@ resize_and_retry:
 			CFDictionaryRef options = CFDictionaryCreate(kCFAllocatorDefault,
 				(const void**)&kCTTypesetterOptionForcedEmbeddingLevel,
 				(const void**)&level_number,
-				1,
-				&kCFTypeDictionaryKeyCallBacks,
-				&kCFTypeDictionaryValueCallBacks);
+				1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 			CFRelease(level_number);
 			if(UNLIKELY(!options)) {
 				CFRelease(attr_string);
 				FAIL("CFDictionaryCreate failed");
 			}
-
 			CTTypesetterRef typesetter = CTTypesetterCreateWithAttributedStringAndOptions(attr_string, options);
 			CFRelease(options);
 			CFRelease(attr_string);

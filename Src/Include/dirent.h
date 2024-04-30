@@ -154,7 +154,7 @@
 struct _wdirent {
 	long   d_ino; /* Always zero */
 	long   d_off; /* File position within stream */
-	unsigned short d_reclen; /* Structure size */
+	ushort d_reclen; /* Structure size */
 	size_t d_namlen; /* Length of name without \0 */
 	int    d_type; /* File type */
 	wchar_t d_name[PATH_MAX+1]; /* File name */
@@ -177,7 +177,7 @@ typedef struct _WDIR _WDIR;
 struct dirent {
 	long   d_ino; /* Always zero */
 	long   d_off; /* File position within stream */
-	unsigned short d_reclen; /* Structure size */
+	ushort d_reclen; /* Structure size */
 	size_t d_namlen; /* Length of name without \0 */
 	int    d_type; /* File type */
 	char   d_name[PATH_MAX+1]; /* File name */

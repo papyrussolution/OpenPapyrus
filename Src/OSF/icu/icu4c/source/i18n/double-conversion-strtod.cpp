@@ -425,7 +425,7 @@ static bool ComputeGuess(Vector<const char> trimmed, int exponent, double* guess
 }
 
 #if U_DEBUG // needed for ICU only in debug mode
-static bool IsDigit(const char d) { return ('0' <= d) && (d <= '9'); }
+// @v12.0.0 (replaced with isdec) static bool IsDigit(const char d) { return ('0' <= d) && (d <= '9'); }
 static bool IsNonZeroDigit(const char d) { return ('1' <= d) && (d <= '9'); }
 
 #ifdef __has_cpp_attribute
@@ -436,7 +436,7 @@ static bool IsNonZeroDigit(const char d) { return ('1' <= d) && (d <= '9'); }
 static bool AssertTrimmedDigits(const Vector<const char>& buffer) 
 {
 	for(int i = 0; i < buffer.length(); ++i) {
-		if(!IsDigit(buffer[i])) {
+		if(!isdec(buffer[i])) {
 			return false;
 		}
 	}

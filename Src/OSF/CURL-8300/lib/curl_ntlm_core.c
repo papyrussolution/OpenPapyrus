@@ -113,13 +113,9 @@
 #else
 #  error "Can't compile NTLM support without a crypto library with DES."
 #endif
-
-//#include "urldata.h"
-//#include "strcase.h"
 #include "curl_ntlm_core.h"
 #include "curl_md5.h"
 #include "curl_hmac.h"
-//#include "warnless.h"
 #include "curl_endian.h"
 #include "curl_des.h"
 #include "curl_md4.h"

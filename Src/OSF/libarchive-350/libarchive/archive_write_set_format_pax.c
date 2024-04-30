@@ -7,8 +7,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_pax.c 201162 2009-12-29 05:47:46Z kientzle $");
-//#include "archive_entry_locale.h"
-//#include "archive_write_set_format_private.h"
 
 struct sparse_block {
 	struct sparse_block     * next;
@@ -797,15 +795,15 @@ static int archive_write_pax_header(struct archive_write * a, ArchiveEntry * ent
 		else {
 			/* Find largest suffix that will fit. */
 			/* Note: strlen() > 100, so strlen() - 100 - 1 >= 0 */
-			suffix = strchr(path + path_length - 100 - 1, '/');
+			suffix = sstrchr(path + path_length - 100 - 1, '/');
 			/* Don't attempt an empty prefix. */
 			if(suffix == path)
-				suffix = strchr(suffix + 1, '/');
+				suffix = sstrchr(suffix + 1, '/');
 			/* We can put it in the ustar header if it's
 			 * all ASCII and it's either <= 100 characters
 			 * or can be split at a '/' into a prefix <=
 			 * 155 chars and a suffix <= 100 chars.  (Note
-			 * the strchr() above will return NULL exactly
+			 * the sstrchr() above will return NULL exactly
 			 * when the path can't be split.)
 			 */
 			if(suffix == NULL/* Suffix > 100 chars. */ || suffix[1] == '\0' /* empty suffix */ || suffix - path > 155) { /* Prefix > 155 chars */

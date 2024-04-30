@@ -347,7 +347,7 @@ static int __archive_mktempx(const char * tmpdir, char * pTemplate)
 		pTemplate = temp_name.s;
 	}
 	else {
-		tp = strchr(pTemplate, 'X');
+		tp = sstrchr(pTemplate, 'X');
 		if(tp == NULL)  /* No X, programming error */
 			abort();
 		for(ep = tp; *ep == 'X'; ep++)

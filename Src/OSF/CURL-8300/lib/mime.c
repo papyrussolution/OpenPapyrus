@@ -24,24 +24,14 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
-//#include "mime.h"
-//#include "warnless.h"
-//#include "urldata.h"
-//#include "sendf.h"
 
-#if !defined(CURL_DISABLE_MIME) && (!defined(CURL_DISABLE_HTTP) ||      \
-	!defined(CURL_DISABLE_SMTP) ||      \
-	!defined(CURL_DISABLE_IMAP))
+#if !defined(CURL_DISABLE_MIME) && (!defined(CURL_DISABLE_HTTP) || !defined(CURL_DISABLE_SMTP) || !defined(CURL_DISABLE_IMAP))
 
 #if defined(HAVE_LIBGEN_H) && defined(HAVE_BASENAME)
-#include <libgen.h>
+	#include <libgen.h>
 #endif
-
 #include "rand.h"
 #include "slist.h"
-//#include "strcase.h"
-//#include "dynbuf.h"
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"

@@ -489,7 +489,7 @@ U_CAPI int32_t U_EXPORT2 ucurr_forLocale(const char * locale, char16_t * buff, i
 	}
 #endif
 	// Remove variants, which is only needed for registration.
-	char * idDelim = uprv_strchr(id, VAR_DELIM);
+	char * idDelim = sstrchr(id, VAR_DELIM);
 	if(idDelim) {
 		idDelim[0] = 0;
 	}

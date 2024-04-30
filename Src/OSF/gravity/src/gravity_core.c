@@ -119,7 +119,7 @@ static GravityValue convert_string2number(gravity_string_t * string, number_form
 		}
 	}
 	// if dot character is contained into the string than force the float_preferred flag
-	if(number_format == number_format_any && (strchr(string->cptr(), '.') != NULL)) 
+	if(number_format == number_format_any && (sstrchr(string->cptr(), '.') != NULL)) 
 		number_format = number_format_float;
 	// default case
 	return (number_format == number_format_float) ? GravityValue::from_float(strtod(string->cptr(), NULL)) : GravityValue::from_int(strtoll(string->cptr(), NULL, 0));

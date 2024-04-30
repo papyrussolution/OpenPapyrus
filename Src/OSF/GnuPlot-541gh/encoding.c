@@ -37,7 +37,7 @@ enum set_encoding_id encoding_from_locale()
 	char * cp_str;
 	l = setlocale(LC_CTYPE, "");
 	// preserve locale string, skip language information 
-	if(l && (cp_str = strchr(l, '.')) != NULL) {
+	if(l && (cp_str = sstrchr(l, '.')) != NULL) {
 		cp_str++; /* Step past the dot in, e.g., German_Germany.1252 */
 		uint cp = strtoul(cp_str, NULL, 10);
 		if(cp != 0)
@@ -151,7 +151,7 @@ void GnuPlot::SetDegreeSign(char * locale)
 #ifdef HAVE_LANGINFO_H
 		char * cencoding = nl_langinfo(CODESET);
 #else
-		char * cencoding = strchr(locale, '.');
+		char * cencoding = sstrchr(locale, '.');
 		if(cencoding)
 			cencoding++; /* Step past the dot in, e.g., ja_JP.EUC-JP */
 #endif

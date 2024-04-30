@@ -332,8 +332,6 @@ typedef struct LEPoint LEPoint;
 #else
 
 /* Not using ICU memory - use C std lib versions */
-//#include <stdlib.h>
-//#include <string.h>
 /**
  * A convenience macro to get the length of an array.
  *

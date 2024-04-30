@@ -150,7 +150,7 @@ size_t gp_strcspn(const char * str1, const char * str2)
 	if(str1 && str2) {
 		pos = strlen(str1);
 		while(*str2++) {
-			const char * s = strchr(str1, *str2);
+			const char * s = sstrchr(str1, *str2);
 			if(s)
 				if((s - str1) < static_cast<ssize_t>(pos))
 					pos = (s - str1);
@@ -340,7 +340,7 @@ DIR * gp_opendir(const char * name)
 	if(!isempty(name)) {
 		size_t base_length = strlen(name);
 		// search pattern must end with suitable wildcard 
-		const char * all = strchr("/\\", name[base_length-1]) ? "*" : "/*";
+		const char * all = sstrchr("/\\", name[base_length-1]) ? "*" : "/*";
 		dir = (DIR *)SAlloc::M(sizeof(*dir));
 		if(dir && (mbname = (char *)SAlloc::M(base_length + strlen(all) + 1)) != NULL) {
 			strcat(strcpy(mbname, name), all);

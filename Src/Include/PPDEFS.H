@@ -799,6 +799,10 @@
 	#define PPREGT_BANKACCOUNT  16 // @v9.0.4 Банковский счет (начиная с v9.0.4 банковские счета переносятся в таблицу Register)
 	#define PPREGT_DTO_ID       17 // @v9.8.0 Идентификатор оператора передачи данных (PPPRK_DTO)
 	#define PPREGT_TAXSYSTEM    18 // @v10.6.0 Вид системы налогообложения //
+	#define PPREGT_ENALOGID     19 // @v12.0.0 ИД участника документооборота (nalog.ru). До @v12.0.0 применялся только тег PPTAG_PERSON_ENALOGID,
+		// однако выяснилось, что у организации может существовать несколько идентификаторов в зависимости от привязки к провайдеру.
+		// Регистр решает проблему привязки, поскольку содержит атрибут регистрирующей организации.
+		// И я в очередной раз восхищен тупостью всех тех, кто организовывал весь этот бардак.
 	//
 	// Extra records of PPOBJ_REGISTERTYPE
 	#define REGTPRP_FORMAT       1L // Формат вывода регистра
@@ -1219,6 +1223,7 @@
 	#define PPVETISICFUNC_SETUPOUTGOINGENTRIES 1
 	#define PPVETISICFUNC_PROCESSOUTCOMING     2
 #define PPOBJ_COMPUTER      1079L  // @v11.7.3  Управляемый компьютер (в рамках проекта WSCTL). Хранится в таблице gooods2 с видом записи PPGDSK_COMPUTER
+	#define COMPUTERPRP_SYS       1L // @v12.0.0 Запись свойств управляемого компьютера, хранящая системные параметры (MAC-addr, IP-addr, cpu etc)
 #define PPOBJ_SWPROGRAM     1080L  // @v11.9.11 Программа (в рамках проекта WSCTL). Хранится в таблице gooods2 с видом записи PPGDSK_SWPROGRAM
 #define PPOBJ_DBCONVERT     1100L  // Специальный объект, используемый для формирования записей
 	// с информацией о конвертации базы данных. Запись, идентифицирующая конвертацию имеет идентификатор
@@ -1405,6 +1410,7 @@
 #define PPTAG_PERSON_CHZN_PM_TOKEN  109L // @v11.9.11 Токен для проверки марок честный знак в разрешительном режиме (привязка к персоналии)
 #define PPTAG_GUA_CHZN_PM_TOKEN     110L // @v11.9.11 Токен для проверки марок честный знак в разрешительном режиме (привязка к глобальной учетной записи)
 #define PPTAG_GUA_CHZN_PM_HOST      111L // @v11.9.12 Хост для проверки марок честный знак в разрешительном режиме. Значение тега формируется автоматически
+#define PPTAG_COMPUTER_GUID         112L // @v12.0.0 GUID записи управляемого компьютера
 	// и содержит строку вида [url space timestamp]
 //
 // Зарезервированные идентификаторы глобальных учетных записей
@@ -9078,7 +9084,7 @@
 	#define CTL_BUSPARAMS_TEXT            (1 + WINDOWS_ID_BIAS)
 #define DLG_GLOBUSERACC          1054 // GLOBUACC Запись объекта PPOBJ_GLOBALUSERACC
 	#define cmGlobalServiceSetting        101
-	#define cmGuaExtList                  102 // @v11.9.11 
+	#define cmGuaExtList                  102 // @v11.9.11
 	#define CTL_GLOBUSERACC_ID            (1 + WINDOWS_ID_BIAS)
 	#define CTL_GLOBUSERACC_NAME          (2 + WINDOWS_ID_BIAS)
 	#define CTL_GLOBUSERACC_SYMB          (3 + WINDOWS_ID_BIAS)
@@ -11541,6 +11547,14 @@
 	#define CTLSEL_SWPROGRAM_CAT           (4 + WINDOWS_ID_BIAS)
 	#define CTL_SWPROGRAM_EXEFN            (5 + WINDOWS_ID_BIAS)
 	#define CTL_SWPROGRAM_IMAGE            (6 + WINDOWS_ID_BIAS)
+#define DLG_COMPUTER              1439
+	#define CTL_COMPUTER_ID                (1 + WINDOWS_ID_BIAS)
+	#define CTL_COMPUTER_NAME              (2 + WINDOWS_ID_BIAS)
+	#define CTL_COMPUTER_CODE              (3 + WINDOWS_ID_BIAS)
+	#define CTL_COMPUTER_IMAGE             (6 + WINDOWS_ID_BIAS)
+	#define CTL_COMPUTER_UUID              (7 + WINDOWS_ID_BIAS)
+	#define CTL_COMPUTER_MACADR            (8 + WINDOWS_ID_BIAS)
+	#define CTL_COMPUTER_IPADR             (9 + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

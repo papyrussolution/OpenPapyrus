@@ -27,13 +27,7 @@
 
 #if !defined(CURL_DISABLE_PROXY)
 
-//#include <curl/curl.h>
-//#include "urldata.h"
-//#include "cfilters.h"
 #include "cf-haproxy.h"
-//#include "curl_trc.h"
-//#include "multiif.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"

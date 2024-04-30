@@ -2581,7 +2581,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 		case PPSCMD_SETTXTCMDTERM:
 			{
 				pEv->GetParam(1, temp_buf); // PPGetExtStrData(1, pEv->Params, temp_buf);
-				if(temp_buf.IsDigit() || temp_buf == "-1") {
+				if(temp_buf.IsDec() || temp_buf == "-1") {
 					long   terminal_code = temp_buf.ToLong();
 					SetupTxtCmdTerm(temp_buf.ToLong());
 				}
@@ -3841,6 +3841,8 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				rReply.SetString(temp_buf);
 				ok = cmdretOK;				
 			}
+			break;
+		case PPSCMD_WSCTL_REGISTERCOMPUTER: // @v12.0.0
 			break;
 		/*
 		case PPSCMD_GETTSESSPLACESTATUS:

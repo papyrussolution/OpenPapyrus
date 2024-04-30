@@ -35,9 +35,6 @@
 #include <in.h>
 #include <inet.h>
 #endif
-
-//#include "nonblock.h"
-
 /*
  * curlx_nonblock() set the given socket to either blocking or non-blocking
  * mode based on the 'nonblock' boolean argument. This function is highly

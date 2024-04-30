@@ -13,9 +13,6 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/utils/filters_utils.h"
-//#include <stdlib.h>
-//#include <string.h>
 
 // -----------------------------------------------------------------------------
 // Quick estimate of a potentially interesting filter mode to try.

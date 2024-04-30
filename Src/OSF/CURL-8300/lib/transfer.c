@@ -59,28 +59,14 @@
 #error "We can't compile without socket() support!"
 #endif
 
-//#include "urldata.h"
-//#include <curl/curl.h>
 #include "netrc.h"
-
-//#include "content_encoding.h"
-//#include "hostip.h"
-//#include "cfilters.h"
-//#include "transfer.h"
-//#include "sendf.h"
 #include "speedcheck.h"
-//#include "progress.h"
-//#include "http.h"
 #include "url.h"
 #include "getinfo.h"
 #include "vtls/vtls.h"
 #include "vquic/vquic.h"
 #include "select.h"
-//#include "multiif.h"
-//#include "connect.h"
 #include "http2.h"
-//#include "mime.h"
-//#include "strcase.h"
 #include "urlapi-int.h"
 #include "hsts.h"
 #include "setopt.h"

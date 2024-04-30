@@ -1,5 +1,5 @@
 // CSHMCHN.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 // Механизм работы с кассовыми машинами
@@ -1463,7 +1463,7 @@ CSPanel::CSPanel(uint rezID, PPID aNodeID, char * nodeName, int fZReport) : TDia
 void CSPanel::ResetButtons()
 {
 	SString  input;
-	if(UseKeyboardWKey && getCtrlString(CTL_CSPANEL_INPUT, input) && input.IsDigit()) {
+	if(UseKeyboardWKey && getCtrlString(CTL_CSPANEL_INPUT, input) && input.IsDec()) {
 		long  key_pos = input.ToLong();
 		PPIDArray oper_rights_ary;
 		if(GetOperRightsByKeyPos(key_pos, &oper_rights_ary) > 0) {

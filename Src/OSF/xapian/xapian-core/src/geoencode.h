@@ -17,8 +17,6 @@
 #ifndef XAPIAN_INCLUDED_GEOENCODE_H
 #define XAPIAN_INCLUDED_GEOENCODE_H
 
-//#include <string>
-
 namespace GeoEncode {
 /** Encode a coordinate and append it to a string.
  *

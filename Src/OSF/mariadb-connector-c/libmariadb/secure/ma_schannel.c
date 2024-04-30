@@ -18,7 +18,6 @@
 #pragma hdrstop
 #include "ma_schannel.h"
 #include "schannel_certs.h"
-//#include <assert.h>
 
 #define SC_IO_BUFFER_SIZE 0x4000
 #define MAX_SSL_ERR_LEN 100

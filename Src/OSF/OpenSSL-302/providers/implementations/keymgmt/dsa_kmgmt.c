@@ -22,7 +22,6 @@
 #include "prov/provider_ctx.h"
 #include "crypto/dsa.h"
 #include "internal/sizes.h"
-//#include "internal/nelem.h"
 #include "internal/param_build_set.h"
 
 static OSSL_FUNC_keymgmt_new_fn dsa_newdata;

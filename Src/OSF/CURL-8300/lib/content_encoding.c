@@ -23,12 +23,8 @@
 ***************************************************************************/
 #include "curl_setup.h"
 #pragma hdrstop
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include <stddef.h>
-
 #ifdef HAVE_LIBZ
-#include <zlib.h>
+	#include <zlib.h>
 #endif
 
 #ifdef HAVE_BROTLI
@@ -45,12 +41,7 @@
 #ifdef /*HAVE_ZSTD*/HAVE_LIBZSTD 
 	#include <..\osf\zstd\lib\include\zstd.h>
 #endif
-//#include "sendf.h"
-//#include "http.h"
-//#include "content_encoding.h"
 #include "strdup.h"
-//#include "strcase.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"

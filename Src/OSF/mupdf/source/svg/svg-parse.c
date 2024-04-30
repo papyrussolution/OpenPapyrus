@@ -228,7 +228,7 @@ int svg_parse_enum_from_style(fz_context * ctx, svg_document * doc, const char *
 				while(*p && svg_is_whitespace(*p))
 					++p;
 				fz_strlcpy(buf, p, sizeof buf);
-				end = strchr(buf, ';');
+				end = sstrchr(buf, ';');
 				if(end)
 					*end = 0;
 				for(i = 0; i < ecount; ++i)
@@ -255,11 +255,11 @@ char * svg_parse_string_from_style(fz_context * ctx, svg_document * doc, const c
 				quote = *p;
 				if(quote == '\'' || quote == '"') {
 					fz_strlcpy(buf, p+1, buf_size);
-					end = strchr(buf, quote);
+					end = sstrchr(buf, quote);
 				}
 				else {
 					fz_strlcpy(buf, p, buf_size);
-					end = strchr(buf, ';');
+					end = sstrchr(buf, ';');
 				}
 				if(end)
 					*end = 0;

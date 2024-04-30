@@ -5,9 +5,6 @@
 #ifndef __REPORT_H
 #define __REPORT_H
 
-//#include <Windows.h>
-//#include <slib.h>
-
 class TVRez;
 //
 // Встроенные переменные

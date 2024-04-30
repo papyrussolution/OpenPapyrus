@@ -33,18 +33,9 @@
 #endif
 
 #include "smb.h"
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "multiif.h"
-//#include "cfilters.h"
-//#include "connect.h"
-//#include "progress.h"
-//#include "transfer.h"
 #include "vtls/vtls.h"
 #include "curl_ntlm_core.h"
-//#include "escape.h"
 #include "curl_endian.h"
-
 /* The last #include files should be: */
 #include "curl_memory.h"
 #include "memdebug.h"
@@ -443,9 +434,9 @@ static CURLcode smb_connect(struct Curl_easy * data, bool * done)
 	connkeep(conn, "SMB default");
 
 	/* Parse the username, domain, and password */
-	slash = strchr(conn->user, '/');
+	slash = sstrchr(conn->user, '/');
 	if(!slash)
-		slash = strchr(conn->user, '\\');
+		slash = sstrchr(conn->user, '\\');
 
 	if(slash) {
 		smbc->user = slash + 1;
@@ -1140,9 +1131,9 @@ static CURLcode smb_parse_url_path(struct Curl_easy * data,
 	if(!smbc->share)
 		return CURLE_OUT_OF_MEMORY;
 
-	slash = strchr(smbc->share, '/');
+	slash = sstrchr(smbc->share, '/');
 	if(!slash)
-		slash = strchr(smbc->share, '\\');
+		slash = sstrchr(smbc->share, '\\');
 
 	/* The share must be present */
 	if(!slash) {

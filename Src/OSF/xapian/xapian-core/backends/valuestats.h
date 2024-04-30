@@ -16,9 +16,6 @@
 #ifndef XAPIAN_INCLUDED_VALUESTATS_H
 #define XAPIAN_INCLUDED_VALUESTATS_H
 
-//#include <string>
-//#include "xapian/types.h"
-
 /** Class to hold statistics for a given slot. */
 struct ValueStats {
 	Xapian::doccount freq; /// The number of documents which have a (non-empty) value stored in the slot.

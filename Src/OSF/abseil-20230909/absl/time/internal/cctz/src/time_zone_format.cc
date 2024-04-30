@@ -26,23 +26,6 @@
 #endif
 #include "absl/base/config.h"
 #include "absl/time/internal/cctz/include/cctz/time_zone.h"
-
-// Include time.h directly since, by C++ standards, ctime doesn't have to
-// declare strptime.
-//#include <time.h>
-//#include <cctype>
-//#include <chrono>
-//#include <cstddef>
-//#include <cstdint>
-//#include <cstring>
-//#include <ctime>
-//#include <limits>
-//#include <string>
-//#include <vector>
-//#if !HAS_STRPTIME
-	//#include <iomanip>
-	//#include <sstream>
-//#endif
 #include "absl/time/internal/cctz/include/cctz/civil_time.h"
 #include "time_zone_if.h"
 

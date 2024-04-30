@@ -26,11 +26,8 @@
 
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_DIGEST_AUTH)
 
-//#include "urldata.h"
-//#include "strcase.h"
 #include "vauth/vauth.h"
 #include "http_digest.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"
@@ -145,7 +142,7 @@ CURLcode Curl_output_digest(struct Curl_easy * data,
 	 */
 
 	if(authp->iestyle) {
-		tmp = strchr((char *)uripath, '?');
+		tmp = sstrchr((char *)uripath, '?');
 		if(tmp) {
 			size_t urilen = tmp - (char *)uripath;
 			/* typecast is fine here since the value is always less than 32 bits */

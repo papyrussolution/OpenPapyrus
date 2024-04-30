@@ -82,18 +82,9 @@
 #include <libxml/relaxng.h>
 #include <libxml/xmlschemas.h>
 #endif
-//#ifdef LIBXML_PATTERN_ENABLED
-//#include <libxml/pattern.h>
-//#endif
-//#ifdef LIBXML_C14N_ENABLED
-//#include <libxml/c14n.h>
-//#endif
-//#ifdef LIBXML_OUTPUT_ENABLED
-//#include <libxml/xmlsave.h>
-//#endif
 
 #ifndef XML_XML_DEFAULT_CATALOG
-#define XML_XML_DEFAULT_CATALOG "file:///etc/xml/catalog"
+	#define XML_XML_DEFAULT_CATALOG "file:///etc/xml/catalog"
 #endif
 
 typedef enum {

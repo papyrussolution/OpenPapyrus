@@ -15,8 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/match.h"
-//#include <algorithm>
-//#include <cstdint>
 #include "absl/base/config.h"
 #include "absl/base/internal/endian.h"
 #include "absl/base/optimization.h"

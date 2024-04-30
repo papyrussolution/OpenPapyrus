@@ -14,9 +14,6 @@
 #ifndef WEBP_DEC_ALPHAI_DEC_H_
 #define WEBP_DEC_ALPHAI_DEC_H_
 
-//#include "src/dec/webpi_dec.h"
-//#include "src/utils/filters_utils.h"
-
 //#ifdef __cplusplus
 //extern "C" {
 //#endif

@@ -567,6 +567,7 @@ int PPApp::processCommand(uint cmd)
 		case cmStyloQBindery:        PPView::Execute(PPVIEW_STYLOQBINDERY,   0, PPView::exefModeless, 0); break; // @v11.1.7
 		case cmStyloQCommands:       PPView::Execute(PPVIEW_STYLOQCOMMAND,   0, PPView::exefModeless, 0); break; // @v11.1.9
 		case cmSwProgram:            PPView::Execute(PPVIEW_SWPROGRAM,       0, PPView::exefModeless, 0); break; // @v11.9.12
+		case cmComputer:             PPView::Execute(PPVIEW_COMPUTER,        0, PPView::exefModeless, 0); break; // @v12.0.0
 		case cmProcessUED: // @v11.6.6
 			{
 				//PPLogger logger;

@@ -379,6 +379,7 @@ void   yyfree(void * , yyscan_t yyscanner);
 #define incl 1
 #define singlequotedstring 2
 #define COMMENT 3
+#define IN_COMMENT 4
 
 #endif
 
@@ -649,9 +650,9 @@ extern int yylex \
 #undef yyTABLES_NAME
 #endif
 
-#line 288 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.l"
+#line 304 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.l"
 
 
-#line 655 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.h"
+#line 656 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.h"
 #undef hsql_IN_HEADER
 #endif /* hsql_HEADER_H */

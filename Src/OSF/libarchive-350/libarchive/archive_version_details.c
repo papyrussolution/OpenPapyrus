@@ -37,7 +37,7 @@ const char * archive_version_details(void)
 		}
 		if(bzlib) {
 			const char * p = bzlib;
-			const char * sep = strchr(p, ',');
+			const char * sep = sstrchr(p, ',');
 			if(sep == NULL)
 				sep = p + strlen(p);
 			archive_strcat(&str, " bz2lib/");

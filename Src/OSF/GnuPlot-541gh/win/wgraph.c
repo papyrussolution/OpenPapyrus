@@ -4714,7 +4714,7 @@ static void DrawZoomBox(GW * lpgw)
 		SetROP2(hdc, OldROP2);
 		ReleaseDC(lpgw->hGraph, hdc);
 		if(zoombox.text1) {
-			const char * separator = strchr(zoombox.text1, '\r');
+			const char * separator = sstrchr(zoombox.text1, '\r');
 			if(separator) {
 				Draw_XOR_Text(lpgw, zoombox.text1, separator - zoombox.text1, fx, fy);
 				Draw_XOR_Text(lpgw, separator + 1, strlen(separator + 1), fx, fy + text_y);
@@ -4723,7 +4723,7 @@ static void DrawZoomBox(GW * lpgw)
 				Draw_XOR_Text(lpgw, zoombox.text1, strlen(zoombox.text1), fx, fy + lpgw->ChrS.y / 2);
 		}
 		if(zoombox.text2) {
-			const char * separator = strchr(zoombox.text2, '\r');
+			const char * separator = sstrchr(zoombox.text2, '\r');
 			if(separator) {
 				Draw_XOR_Text(lpgw, zoombox.text2, separator - zoombox.text2, tx, ty);
 				Draw_XOR_Text(lpgw, separator + 1, strlen(separator + 1), tx, ty + text_y);

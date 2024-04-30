@@ -5,9 +5,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-//#include "archive_getdate.h"
-//#include "archive_pathmatch.h"
-//#include "archive_rb.h"
 
 struct match {
 	struct match * next;

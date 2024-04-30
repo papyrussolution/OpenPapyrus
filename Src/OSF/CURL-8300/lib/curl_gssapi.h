@@ -25,7 +25,6 @@
  ***************************************************************************/
 
 #include "curl_setup.h"
-//#include "urldata.h"
 
 #ifdef HAVE_GSSAPI
 extern gss_OID_desc Curl_spnego_mech_oid;

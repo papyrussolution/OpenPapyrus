@@ -15,14 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/log/internal/proto.h"
-//#include <algorithm>
-//#include <cassert>
-//#include <cstddef>
-//#include <cstdint>
-//#include <cstring>
-//#include "absl/base/attributes.h"
-//#include "absl/base/config.h"
-//#include "absl/types/span.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

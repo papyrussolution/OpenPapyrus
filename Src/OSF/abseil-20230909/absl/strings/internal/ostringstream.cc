@@ -15,10 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/internal/ostringstream.h"
-//#include <cassert>
-//#include <cstddef>
-//#include <ios>
-//#include <streambuf>
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

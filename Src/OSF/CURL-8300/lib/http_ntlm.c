@@ -36,13 +36,9 @@
 
 #define DEBUG_ME 0
 
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "strcase.h"
 #include "http_ntlm.h"
 #include "curl_ntlm_core.h"
 #include "curl_ntlm_wb.h"
-//#include "curl_base64.h"
 #include "vauth/vauth.h"
 #include "url.h"
 

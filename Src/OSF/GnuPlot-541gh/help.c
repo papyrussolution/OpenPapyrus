@@ -583,12 +583,6 @@ void GnuPlot::StartOutput()
 #ifdef __DJGPP__
 	if(line_count == NULL)
 		screensize = ScreenRows();
-#elif defined(__WATCOMC__) && defined(MSDOS)
-	if(line_count == NULL) {
-		struct videoconfig vc;
-		_getvideoconfig(&vc);
-		screensize = vc.numtextrows;
-	}
 #endif
 	if(screensize < 3)
 		screensize = SCREENSIZE;

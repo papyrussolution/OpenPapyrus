@@ -181,7 +181,7 @@ const char * PropNameData::getName(const char * nameGroup, int32_t nameIndex)
 	}
 	// Skip nameIndex names.
 	for(; nameIndex>0; --nameIndex) {
-		nameGroup = uprv_strchr(nameGroup, 0)+1;
+		nameGroup = sstrchr(nameGroup, 0)+1;
 	}
 	if(*nameGroup==0) {
 		return NULL; // no name (Property[Value]Aliases.txt has "n/a")

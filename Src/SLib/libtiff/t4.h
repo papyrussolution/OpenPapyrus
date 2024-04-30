@@ -21,9 +21,9 @@
  * worthwhile to make code & length 8 bits.
  */
 typedef struct tableentry {
-    unsigned short length;  /* bit length of g3 code */
-    unsigned short code;    /* g3 code */
-    short runlen;           /* run length in bits */
+    ushort length;  /* bit length of g3 code */
+    ushort code;    /* g3 code */
+    short  runlen; /* run length in bits */
 } tableentry;
 
 #define EOL	0x001	/* EOL code value - 0000 0000 0000 1 */

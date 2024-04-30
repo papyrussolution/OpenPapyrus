@@ -14,9 +14,6 @@
 
 #include "absl/absl-internal.h"
 #pragma hdrstop
-//#include <cstdint>
-//#include <memory>
-//#include "absl/base/config.h"
 #include "absl/crc/crc32c.h"
 #include "absl/crc/internal/crc_memcpy.h"
 

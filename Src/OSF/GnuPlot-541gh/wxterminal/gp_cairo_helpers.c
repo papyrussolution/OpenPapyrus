@@ -44,10 +44,6 @@
 #pragma hdrstop
 #include "gp_cairo_helpers.h"
 
-//#include "alloc.h"
-// for rgb functions
-//#include "getcolor.h"
-
 uint * gp_cairo_helper_coordval_to_chars(GpTermEntry_Static * pThis, coordval * image, int M, int N, t_imagecolor color_mode)
 {
 	int m, n;

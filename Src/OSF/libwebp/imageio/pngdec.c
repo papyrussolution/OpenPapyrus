@@ -12,10 +12,6 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 #include "./pngdec.h"
-//#ifdef HAVE_CONFIG_H
-//#include "webp/config.h"
-//#endif
-//#include <stdio.h>
 
 #ifdef WEBP_HAVE_PNG
 #ifndef PNG_USER_MEM_SUPPORTED

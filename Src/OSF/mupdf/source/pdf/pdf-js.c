@@ -7,8 +7,6 @@
 #if FZ_ENABLE_JS
 
 #include "mujs.h"
-//#include <stdarg.h>
-//#include <string.h>
 
 struct pdf_js {
 	fz_context * ctx;
@@ -450,7 +448,7 @@ static void util_printf_f(fz_context * ctx, fz_buffer * out, int ds, int sign, i
 	n = strlen(digits);
 	if(sign)
 		++n;
-	point = strchr(digits, '.');
+	point = sstrchr(digits, '.');
 	if(point)
 		m = 3 - (point - digits) % 3;
 	else {
@@ -595,7 +593,7 @@ static void util_printf(js_State * J)
 
 static void addmethod(js_State * J, const char * name, js_CFunction fun, int n)
 {
-	const char * realname = strchr(name, '.');
+	const char * realname = sstrchr(name, '.');
 	realname = realname ? realname + 1 : name;
 	js_newcfunction(J, fun, name, n);
 	js_defproperty(J, -2, realname, JS_READONLY | JS_DONTENUM | JS_DONTCONF);
@@ -603,7 +601,7 @@ static void addmethod(js_State * J, const char * name, js_CFunction fun, int n)
 
 static void addproperty(js_State * J, const char * name, js_CFunction getfun, js_CFunction setfun)
 {
-	const char * realname = strchr(name, '.');
+	const char * realname = sstrchr(name, '.');
 	realname = realname ? realname + 1 : name;
 	js_newcfunction(J, getfun, name, 0);
 	js_newcfunction(J, setfun, name, 1);

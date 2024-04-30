@@ -166,7 +166,7 @@ int ossl_store_register_loader_int(OSSL_STORE_LOADER * loader)
 	 * scheme        = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
 	 */
 	if(ossl_isalpha(*scheme))
-		while(*scheme != '\0' && (ossl_isalpha(*scheme) || ossl_isdigit(*scheme) || strchr("+-.", *scheme) != NULL))
+		while(*scheme != '\0' && (ossl_isalpha(*scheme) || ossl_isdigit(*scheme) || sstrchr("+-.", *scheme) != NULL))
 			scheme++;
 	if(*scheme != '\0') {
 		ERR_raise_data(ERR_LIB_OSSL_STORE, OSSL_STORE_R_INVALID_SCHEME, "scheme=%s", loader->scheme);

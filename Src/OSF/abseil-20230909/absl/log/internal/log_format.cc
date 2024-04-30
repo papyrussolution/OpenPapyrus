@@ -22,12 +22,6 @@
 #else
     #include <sys/time.h>
 #endif
-//#include <cstddef>
-//#include <cstdint>
-//#include <limits>
-//#include <string>
-//#include <type_traits>
-//#include "absl/base/config.h"
 #include "absl/base/log_severity.h"
 #include "absl/base/optimization.h"
 #include "absl/log/internal/append_truncated.h"
@@ -37,7 +31,6 @@
 #include "absl/strings/str_format.h"
 #include "absl/strings/string_view.h"
 #include "absl/time/civil_time.h"
-//#include "absl/time/time.h"
 #include "absl/types/span.h"
 
 namespace absl {

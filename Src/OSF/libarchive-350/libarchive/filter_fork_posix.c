@@ -22,12 +22,6 @@ __FBSDID("$FreeBSD: head/lib/libarchive/filter_fork.c 182958 2008-09-12 05:33:00
 #if defined(HAVE_SYS_TYPES_H)
 #include <sys/types.h>
 #endif
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_STRING_H
-//#include <string.h>
-//#endif
 #if defined(HAVE_POLL) && (defined(HAVE_POLL_H) || defined(HAVE_SYS_POLL_H))
 	#if defined(HAVE_POLL_H)
 		#include <poll.h>
@@ -47,12 +41,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/filter_fork.c 182958 2008-09-12 05:33:00
 #ifdef HAVE_SPAWN_H
 	#include <spawn.h>
 #endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#include "archive.h"
 #include "archive_cmdline_private.h"
-//#include "filter_fork.h"
 
 int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdout, pid_t * out_child)
 {

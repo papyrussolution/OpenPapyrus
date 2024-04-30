@@ -27,18 +27,10 @@
 
 #ifndef CURL_DISABLE_DOH
 
-//#include "urldata.h"
-//#include "curl_addrinfo.h"
 #include "doh.h"
-
-//#include "sendf.h"
-//#include "multiif.h"
 #include "url.h"
 #include "share.h"
-//#include "curl_base64.h"
-//#include "connect.h"
 #include "strdup.h"
-//#include "dynbuf.h"
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"
@@ -135,7 +127,7 @@ UNITTEST DOHcode doh_encode(const char * host,
 	/* encode each label and store it in the QNAME */
 	while(*hostp) {
 		size_t labellen;
-		const char * dot = strchr(hostp, '.');
+		const char * dot = sstrchr(hostp, '.');
 		if(dot)
 			labellen = dot - hostp;
 		else
@@ -834,7 +826,7 @@ static struct Curl_addrinfo *doh2ai(const struct dohentry * de, const char * hos
 
 #ifdef ENABLE_IPV6
 			case AF_INET6:
-			    addr6 = (void *)ai->ai_addr; /* storage area for this info */
+			    addr6 = (struct sockaddr_in6 *)ai->ai_addr; /* storage area for this info */
 			    assert(sizeof(struct in6_addr) == sizeof(de->addr[i].ip.v6));
 			    memcpy(&addr6->sin6_addr, &de->addr[i].ip.v6, sizeof(struct in6_addr));
 			    addr6->sin6_family = addrtype;

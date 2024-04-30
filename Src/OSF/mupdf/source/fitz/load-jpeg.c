@@ -393,10 +393,8 @@ void fz_load_jpeg_info(fz_context * ctx, const uchar * rbuf, size_t rlen, int * 
 	err.error_exit = error_exit;
 	cinfo.client_data = NULL;
 	fz_jpg_mem_init((j_common_ptr)&cinfo, ctx);
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		jpeg_create_decompress(&cinfo);
-
 		cinfo.src = &src;
 		src.init_source = init_source;
 		src.fill_input_buffer = fill_input_buffer;
@@ -405,7 +403,6 @@ void fz_load_jpeg_info(fz_context * ctx, const uchar * rbuf, size_t rlen, int * 
 		src.term_source = term_source;
 		src.next_input_byte = rbuf;
 		src.bytes_in_buffer = rlen;
-
 		jpeg_save_markers(&cinfo, JPEG_APP0+1, 0xffff);
 		jpeg_save_markers(&cinfo, JPEG_APP0+13, 0xffff);
 		jpeg_save_markers(&cinfo, JPEG_APP0+2, 0xffff);

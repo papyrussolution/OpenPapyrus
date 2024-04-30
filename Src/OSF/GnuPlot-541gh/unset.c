@@ -1227,8 +1227,8 @@ void GnuPlot::UnsetTerminal()
 	// FIXME: change is correct but reported result is truncated 
 	if(original_terminal && original_terminal->udv_value.Type != NOTDEFINED) {
 		char * termname = sstrdup(original_terminal->udv_value.v.string_val);
-		if(strchr(termname, ' '))
-			*strchr(termname, ' ') = '\0';
+		if(sstrchr(termname, ' '))
+			*sstrchr(termname, ' ') = '\0';
 		GPT._TermOptions.Z();
 		GPT.P_Term = ChangeTerm(termname, strlen(termname));
 		SAlloc::F(termname);

@@ -12,7 +12,6 @@
 //
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dec/vp8i_dec.h"
 
 static FORCEINLINE uint8 clip_8b(int v) { return (!(v & ~0xff)) ? v : (v < 0) ? 0 : 255; }
 //

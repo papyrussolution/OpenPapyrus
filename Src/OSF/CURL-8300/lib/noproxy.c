@@ -28,15 +28,10 @@
 #ifndef CURL_DISABLE_PROXY
 
 #include "inet_pton.h"
-//#include "strcase.h"
 #include "noproxy.h"
-//#ifdef HAVE_NETINET_IN_H
-//#include <netinet/in.h>
-//#endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+	#include <arpa/inet.h>
 #endif
-
 /*
  * Curl_cidr4_match() returns TRUE if the given IPv4 address is within the
  * specified CIDR address range.
@@ -70,19 +65,15 @@ UNITTEST bool Curl_cidr4_match(const char * ipv4/* 1.2.3.4 address */, const cha
 	return (address == check);
 }
 
-UNITTEST bool Curl_cidr6_match(const char * ipv6,
-    const char * network,
-    uint bits)
+UNITTEST bool Curl_cidr6_match(const char * ipv6, const char * network, uint bits)
 {
 #ifdef ENABLE_IPV6
 	int bytes;
 	int rest;
 	uchar address[16];
 	uchar check[16];
-
 	if(!bits)
 		bits = 128;
-
 	bytes = bits/8;
 	rest = bits & 0x07;
 	if(1 != Curl_inet_pton(AF_INET6, ipv6, address))
@@ -95,7 +86,6 @@ UNITTEST bool Curl_cidr6_match(const char * ipv6,
 		return FALSE;
 	if(rest && !((address[bytes] ^ check[bytes]) & (0xff << (8 - rest))))
 		return FALSE;
-
 	return TRUE;
 #else
 	(void)ipv6;
@@ -142,7 +132,7 @@ bool Curl_check_noproxy(const char * name, const char * no_proxy, bool * spacese
 		if(name[0] == '[') {
 			const char * endptr;
 			/* IPv6 numerical address */
-			endptr = strchr(name, ']');
+			endptr = sstrchr(name, ']');
 			if(!endptr)
 				return FALSE;
 			name++;
@@ -221,7 +211,7 @@ bool Curl_check_noproxy(const char * name, const char * no_proxy, bool * spacese
 					    memcpy(checkip, check, tokenlen);
 					    checkip[tokenlen] = 0;
 					    check = checkip;
-					    slash = const_cast<char *>(strchr(check, '/'));
+					    slash = const_cast<char *>(sstrchr(check, '/'));
 					    /* if the slash is part of this token, use it */
 					    if(slash) {
 						    bits = atoi(slash + 1);

@@ -11,9 +11,6 @@
 // with different flags from other targets, using different levels of
 // optimization, potentially introducing ODR violations.
 
-//#include <cstddef>
-//#include "absl/base/config.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace random_internal {

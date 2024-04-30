@@ -2173,12 +2173,12 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 			const PPGoodsConfig & r_gcfg = goods_obj.GetConfig();
 			{
 				temp_buf = r_gcfg.WghtPrefix;
-				if(temp_buf.NotEmptyS() && temp_buf.IsDigit())
+				if(temp_buf.NotEmptyS() && temp_buf.IsDec())
 					js.InsertString("barcodeweightprefix", temp_buf);
 			}
 			{
 				temp_buf = r_gcfg.WghtCntPrefix;
-				if(temp_buf.NotEmptyS() && temp_buf.IsDigit())
+				if(temp_buf.NotEmptyS() && temp_buf.IsDec())
 					js.InsertString("barcodecountprefix", temp_buf);
 			}
 		}

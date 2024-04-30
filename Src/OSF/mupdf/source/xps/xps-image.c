@@ -47,14 +47,14 @@ static void xps_find_image_brush_source_part(fz_context * ctx,
 		profile_name = NULL;
 
 		fz_strlcpy(buf, image_source_att, sizeof buf);
-		p = strchr(buf, ' ');
+		p = sstrchr(buf, ' ');
 		if(p) {
 			image_name = p + 1;
-			p = strchr(p + 1, ' ');
+			p = sstrchr(p + 1, ' ');
 			if(p) {
 				*p = 0;
 				profile_name = p + 1;
-				p = strchr(p + 1, '}');
+				p = sstrchr(p + 1, '}');
 				if(p)
 					*p = 0;
 			}

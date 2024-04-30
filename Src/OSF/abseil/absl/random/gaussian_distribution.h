@@ -12,11 +12,6 @@
 // Implementation based on "The Ziggurat Method for Generating Random Variables"
 // by George Marsaglia and Wai Wan Tsang: http://www.jstatsoft.org/v05/i08/
 //
-//#include <cmath>
-//#include <cstdint>
-//#include <istream>
-//#include <limits>
-//#include <type_traits>
 #include "absl/base/config.h"
 #include "absl/random/internal/fast_uniform_bits.h"
 #include "absl/random/internal/generate_real.h"

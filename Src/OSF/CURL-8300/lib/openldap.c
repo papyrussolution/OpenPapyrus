@@ -39,18 +39,9 @@
  */
 
 #include <ldap.h>
-
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "sendf.h"
 #include "vtls/vtls.h"
-//#include "transfer.h"
 #include "curl_ldap.h"
-//#include "curl_base64.h"
-//#include "cfilters.h"
-//#include "connect.h"
 #include "curl_sasl.h"
-//#include "strcase.h"
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"

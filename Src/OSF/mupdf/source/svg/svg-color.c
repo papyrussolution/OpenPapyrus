@@ -172,7 +172,7 @@ svg_predefined_colors[] = {
 static int unhex(int chr)
 {
 	// @sobolev const char * hextable = "0123456789abcdef";
-	return strchr(SlConst::P_HxDigL, (chr|32)) - SlConst::P_HxDigL;
+	return sstrchr(SlConst::P_HxDigL, (chr|32)) - SlConst::P_HxDigL;
 }
 
 void svg_parse_color(fz_context * ctx, svg_document * doc, const char * str, float * rgb)
@@ -265,7 +265,7 @@ static int svg_parse_color_from_style_string(fz_context * ctx, svg_document * do
 	while(*p && svg_is_whitespace(*p))
 		++p;
 	fz_strlcpy(buf, p, sizeof buf);
-	e = strchr(buf, ';');
+	e = sstrchr(buf, ';');
 	if(e)
 		*e = 0;
 	if(sstreq(buf, "none"))

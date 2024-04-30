@@ -33,22 +33,14 @@
 #include <netinet/tcp.h>
 #endif
 
-//#include <curl/curl.h>
-
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "cfilters.h"
-//#include "connect.h"
 #include "vtls/vtls.h"
 #include "vssh/ssh.h"
 #include "easyif.h"
-//#include "multiif.h"
 #include "strerror.h"
 #include "select.h"
 #include "strdup.h"
 #include "http2.h"
 #include "headers.h"
-//#include "ws.h"
 
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"

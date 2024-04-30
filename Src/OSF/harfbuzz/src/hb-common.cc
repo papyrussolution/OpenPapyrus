@@ -40,7 +40,7 @@ void _hb_options_init()
 	const char * c = getenv("HB_OPTIONS");
 	if(c) {
 		while(*c) {
-			const char * p = strchr(c, ':');
+			const char * p = sstrchr(c, ':');
 			if(!p)
 				p = c + strlen(c);
 

@@ -163,7 +163,7 @@ CURLcode Curl_get_pathname(const char ** cpp, char ** path, char * homedir)
 		/* Read to end of filename - either to whitespace or terminator */
 		end = strpbrk(cp, WHITESPACE);
 		if(!end)
-			end = strchr(cp, '\0');
+			end = sstrchr(cp, '\0');
 		/* return pointer to second parameter if it exists */
 		*cpp = end + strspn(end, WHITESPACE);
 		pathLength = 0;

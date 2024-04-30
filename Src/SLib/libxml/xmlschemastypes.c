@@ -11,12 +11,6 @@
 #include <libxml/xmlschemas.h>
 #include <libxml/schemasInternals.h>
 #include <libxml/xmlschemastypes.h>
-//#ifdef HAVE_MATH_H
-	//#include <math.h>
-//#endif
-//#ifdef HAVE_FLOAT_H
-	//#include <float.h>
-//#endif
 #define DEBUG
 #ifndef LIBXML_XPATH_ENABLED
 	extern double xmlXPathNAN;

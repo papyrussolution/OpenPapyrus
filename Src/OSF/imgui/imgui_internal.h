@@ -46,10 +46,6 @@
 #ifndef IMGUI_VERSION
 	#include "imgui.h"
 #endif
-//#include <stdio.h>      // FILE*, sscanf
-//#include <stdlib.h>     // NULL, malloc, free, qsort, atoi, atof
-//#include <math.h>       // sqrtf, fabsf, fmodf, powf, floorf, ceilf, cosf, sinf
-//#include <limits.h>     // INT_MIN, INT_MAX
 
 // Enable SSE intrinsics if available
 #if (defined __SSE__ || defined __x86_64__ || defined _M_X64 || (defined(_M_IX86_FP) && (_M_IX86_FP >= 1))) && !defined(IMGUI_DISABLE_SSE)

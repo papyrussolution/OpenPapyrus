@@ -87,13 +87,13 @@ void CRYPTO_get_alloc_counts(int * mcount, int * rcount, int * fcount)
  */
 static void parseit(void)
 {
-	char * semi = strchr(md_failstring, ';');
+	char * semi = sstrchr(md_failstring, ';');
 	char * atsign;
 	if(semi)
 		*semi++ = '\0';
 	/* Get the count (atol will stop at the @ if there), and percentage */
 	md_count = atol(md_failstring);
-	atsign = strchr(md_failstring, '@');
+	atsign = sstrchr(md_failstring, '@');
 	md_fail_percent = atsign == NULL ? 0 : satoi(atsign + 1);
 	if(semi)
 		md_failstring = semi;

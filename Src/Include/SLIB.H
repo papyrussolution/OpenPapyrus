@@ -4168,6 +4168,12 @@ public:
 	void   Obfuscate();
 	const  char * SearchChar(int c, size_t * pPos) const;
 	const  char * SearchRChar(int c, size_t * pPos) const;
+	//
+	// Descr: Ищет символ c в строке this начиная с позиции startPos.
+	//   Если символ найден, то возвращает указатель на него и присваивает по указателю pPos (если pPos != 0)
+	//   индекс обнаруженного символа.
+	//   Если символ не найден, то возвращает 0 и по указателю pPos (если pPos != 0) присваивает 0.
+	//
 	const  char * SearchCharPos(size_t startPos, int c, size_t * pPos) const;
 	//
 	// Descr: Определяет факт наличия в строке this символа c.
@@ -4228,7 +4234,11 @@ public:
 	//
 	int    Divide(int divChr, SString & rLeft, SString & rRight) const;
 	int    Wrap(uint maxLen, SString & rHead, SString & rTail) const;
-	int    IsDigit() const;
+	//
+	// Descr: Возвращает true в случае, если все символы строки являются десятичными цифрами, иначе false.
+	//   Если строка пустая, то возвращает false.
+	//
+	bool   IsDec() const;
 	long   ToLong() const;
 	ulong  ToULong() const;
 	int64  ToInt64() const;
@@ -4289,7 +4299,7 @@ public:
 	int    ToIntRange(IntRange & rRange, long flags) const;
 	//
 	// Descr: Копирует подстроку [startPos..startPos+len] в буфер rBuf.
-	//   Если startPos+len превышает длину строки this, то копируем максимально возможное число символов до конца строки.
+	//   Если startPos+len превышает длину строки this, то копирует максимально возможное число символов до конца строки.
 	//   Если startPos >= this->Len(), то обнуляет буфер rBuf ничего в него не копируя.
 	// Returns:
 	//   rBuf
@@ -6936,6 +6946,14 @@ public:
 	{
 		memcpy(D, rS.D, sizeof(D));
 	}
+	TSBinary <BYTESIZE> & Z()
+	{
+		memzero(D, sizeof(D));
+		return *this;
+	}
+	bool   FASTCALL operator == (const TSBinary <BYTESIZE> & rS) const { return IsEq(rS); }
+	bool   FASTCALL operator != (const TSBinary <BYTESIZE> & rS) const { return !IsEq(rS); }
+	bool   FASTCALL IsEq(const TSBinary <BYTESIZE> & rS) const { return memcmp(D, rS.D, sizeof(D)) == 0; }
 	bool   IsZero() const { return ismemzero(D, sizeof(D)); }
 	TSBinary <BYTESIZE> & FASTCALL operator = (const TSBinary <BYTESIZE> & rS)
 	{
@@ -6953,7 +6971,7 @@ public:
 	operator const GUID & () const;
 	enum {
 		fmtIDL = 0,
-		fmtC = 1,
+		fmtC   = 1,
 		fmtPlain,    // "плоский" формат. то есть, без ограничителей и разделителей в 16-ричном формате
 		// @construction fmtSUID27,   // @v10.9.0 Специальный внутренний формат (base32), умещающийся в 28 байт (с нулем в конце)
 		fmtLower = 0x8000 // Флаг, предписывающий использовать буквы [a-f] в строчном регистре

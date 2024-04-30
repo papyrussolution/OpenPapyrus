@@ -27,17 +27,11 @@
 
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_AWS)
 
-//#include "urldata.h"
-//#include "strcase.h"
 #include "strdup.h"
 #include "http_aws_sigv4.h"
 #include "curl_sha256.h"
-//#include "transfer.h"
 #include "parsedate.h"
-//#include "sendf.h"
-
 #include <time.h>
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"
@@ -215,9 +209,9 @@ static CURLcode make_headers(struct Curl_easy * data,
 	 */
 	for(l = data->set.headers; l; l = l->next) {
 		char * dupdata, * ptr;
-		char * sep = strchr(l->data, ':');
+		char * sep = sstrchr(l->data, ':');
 		if(!sep)
-			sep = strchr(l->data, ';');
+			sep = sstrchr(l->data, ';');
 		if(!sep || (*sep == ':' && !*(sep + 1)))
 			continue;
 		for(ptr = sep + 1; ISSPACE(*ptr); ++ptr)
@@ -247,7 +241,7 @@ static CURLcode make_headers(struct Curl_easy * data,
 		*date_header = curl_maprintf("%s: %s\r\n", date_hdr_key, timestamp);
 	}
 	else {
-		char * value = strchr(*date_header, ':');
+		char * value = sstrchr(*date_header, ':');
 		if(!value) {
 			*date_header = NULL;
 			goto fail;
@@ -284,7 +278,7 @@ static CURLcode make_headers(struct Curl_easy * data,
 		if(Curl_dyn_add(canonical_headers, "\n"))
 			goto fail;
 
-		tmp = strchr(l->data, ':');
+		tmp = sstrchr(l->data, ':');
 		if(tmp)
 			*tmp = 0;
 
@@ -324,7 +318,7 @@ static char *parse_content_sha_hdr(struct Curl_easy * data,
 	if(!value)
 		return NULL;
 
-	value = strchr(value, ':');
+	value = sstrchr(value, ':');
 	if(!value)
 		return NULL;
 	++value;
@@ -425,7 +419,7 @@ static CURLcode canon_query(struct Curl_easy * data, const char * query, struct 
 		const char * amp;
 		entry++;
 		ap->p = p;
-		amp = strchr(p, '&');
+		amp = sstrchr(p, '&');
 		if(amp)
 			ap->len = amp - p; /* excluding the ampersand */
 		else {
@@ -574,7 +568,7 @@ CURLcode Curl_output_aws_sigv4(struct Curl_easy * data, bool proxy)
 		strcpy(provider1, provider0);
 
 	if(!service[0]) {
-		const char * hostdot = strchr(hostname, '.');
+		const char * hostdot = sstrchr(hostname, '.');
 		if(!hostdot) {
 			failf(data, "aws-sigv4: service missing in parameters and hostname");
 			result = CURLE_URL_MALFORMAT;
@@ -593,7 +587,7 @@ CURLcode Curl_output_aws_sigv4(struct Curl_easy * data, bool proxy)
 
 		if(!region[0]) {
 			const char * reg = hostdot + 1;
-			const char * hostreg = strchr(reg, '.');
+			const char * hostreg = sstrchr(reg, '.');
 			if(!hostreg) {
 				failf(data, "aws-sigv4: region missing in parameters and hostname");
 				result = CURLE_URL_MALFORMAT;

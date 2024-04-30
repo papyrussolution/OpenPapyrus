@@ -24,12 +24,6 @@
 #ifndef ABSL_STATUS_STATUSOR_H_
 #define ABSL_STATUS_STATUSOR_H_
 
-//#include <exception>
-//#include <initializer_list>
-//#include <new>
-//#include <string>
-//#include <type_traits>
-//#include <utility>
 #include "absl/base/attributes.h"
 #include "absl/base/call_once.h"
 #include "absl/meta/type_traits.h"

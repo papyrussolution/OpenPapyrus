@@ -260,7 +260,7 @@ static int LUA_GP_term_out(lua_State * pL)
 		    break;
 	}
 	last = (char *)msg;
-	while((line = strchr(last, '\n'))) {
+	while((line = sstrchr(last, '\n'))) {
 		*line = '\0';
 		if(pagelines >= 22) {
 			fputs("Press return for more: ", stderr);
@@ -1119,7 +1119,7 @@ TERM_PUBLIC void LUA_image(GpTermEntry_Static * pThis, uint m, uint n, coordval 
 			char * idx;
 			// cairo based png images with alpha channel 
 			if((idx = strrchr(GPT.P_OutStr, '.')) == NULL)
-				idx = strchr(GPT.P_OutStr, '\0');
+				idx = sstrchr(GPT.P_OutStr, '\0');
 			image_file = (char *)SAlloc::M((idx-GPT.P_OutStr)+10);
 			strncpy(image_file, GPT.P_OutStr, (idx-GPT.P_OutStr) + 1);
 			snprintf(image_file+(idx-GPT.P_OutStr), 9, ".%03d.png", (uchar)(++image_cnt));

@@ -16,20 +16,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/flags/parse.h"
-//#include <stdlib.h>
-//#include <algorithm>
-//#include <cstdint>
-//#include <cstdlib>
-//#include <fstream>
-//#include <iostream>
-//#include <ostream>
-//#include <string>
-//#include <tuple>
-//#include <utility>
-//#include <vector>
-//#ifdef _WIN32
-//#include <windows.h>
-//#endif
 #include "absl/algorithm/container.h"
 #include "absl/base/attributes.h"
 #include "absl/base/config.h"

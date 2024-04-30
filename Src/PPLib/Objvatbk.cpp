@@ -1952,8 +1952,7 @@ static int FASTCALL IsSimpleLedgerRecEmpty(const VATBookTbl::Rec & r)
 		MONEYTOLDBL(r.Excise) == 0.0 && MONEYTOLDBL(r.VAT0) == 0 && MONEYTOLDBL(r.Export) == 0.0);
 }
 
-int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs * pTai, long mrbbf, PPObjBill::PplBlock * pEbfBlk, 
-	/*PPID mainAmtTypeID*/const OpEntry & rOpEntry)
+int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs * pTai, long mrbbf, PPObjBill::PplBlock * pEbfBlk, const OpEntry & rOpEntry)
 {
 	int    ok = 1;
 	int    is_ebf_rec = 0;
@@ -1961,6 +1960,10 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 	const  int sl_use_cost_vat_addendum = BIN(Filt.Kind == PPVTB_SIMPLELEDGER);
 	int    is_cost_vat_addendum_rec = 0;
 	double scale = 1.0;
+	LDATE  _dt = ZERODATE; // @v12.0.0
+	LDATE  _rcpt_dt = ZERODATE; // @v12.0.0
+	LDATE  _invc_dt = ZERODATE; // @v12.0.0
+	LDATE  _paym_dt = ZERODATE; // @v12.0.0
 	PPBillPacket pack;
 	VATBookTbl::Key1 k1;
 	VATBookTbl::Rec ebf_rec;
@@ -1974,38 +1977,48 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 	{
 		const  double org_pack_amount = pack.Rec.Amount; // Значение номинала может измениться из-за подстановки суммы
 		bool   is_subst_amount = false;
+		bool   is_reckon = false; // @v12.0.0 Признак того, что запись относится к зачитывающему документу (оплате)
 		double subst_amount = 0.0;
 		if(pPaymRec && GetOpType(pPaymRec->OpID) == PPOPT_PAYMENT) {
 			uint   i;
 			AmtEntry * p_ae = 0;
 			PPBillPacket paym_pack;
 			THROW(P_BObj->ExtractPacket(pPaymRec->ID, &paym_pack));
-			if(paym_pack.PaymBillID && r_cfg.CheckFlag(pPaymRec->OpID, VATBCfg::fVATFromReckon)) {
-				int    r, r2;
-				double mult = 0.0;
-				PPBillPacket reckon_pack;
-				THROW(P_BObj->ExtractPacket(paym_pack.PaymBillID, &reckon_pack));
-				// @v11.1.12 bill_code = reckon_pack.Ext.InvoiceCode[0] ? reckon_pack.Ext.InvoiceCode : BillCore::GetCode(reckon_pack.Rec.Code);
-				bill_code = reckon_pack.Ext.InvoiceCode[0] ? reckon_pack.Ext.InvoiceCode : reckon_pack.Rec.Code; // @v11.1.12 
-				mult = paym_pack.GetBaseAmount() / reckon_pack.GetBaseAmount();
-				reckon_pack.Rec.Amount = BR2(paym_pack.Rec.Amount);
-				for(i = 0; reckon_pack.Amounts.enumItems(&i, (void **)&p_ae);)
-					if(p_ae->Amt != 0.0)
-						p_ae->Amt = BR2(p_ae->Amt * mult);
-				THROW(r2 = reckon_pack.SetupVirtualTItems());
-				THROW(r = vata.CalcBill(&reckon_pack));
-				if(r2 < 0)
-					vata.Scale_(mult, 0);
-				if(r > 0)
-					paym_has_vat_amounts = true;
+			if(paym_pack.PaymBillID) {
+				const bool reckon_date_by_payment = r_cfg.CheckFlag(pPaymRec->OpID, VATBCfg::fReckonDateByPayment);
+				const bool vat_from_reckon = r_cfg.CheckFlag(pPaymRec->OpID, VATBCfg::fVATFromReckon);
+				if(reckon_date_by_payment || vat_from_reckon) {
+					PPBillPacket reckon_pack;
+					if(P_BObj->ExtractPacket(paym_pack.PaymBillID, &reckon_pack) > 0) {
+						if(reckon_date_by_payment) {
+							_paym_dt = reckon_pack.Rec.Dt;
+							_invc_dt = reckon_pack.Rec.Dt;
+						}
+						if(vat_from_reckon) {
+							int    r, r2;
+							double mult = 0.0;
+							bill_code = reckon_pack.Ext.InvoiceCode[0] ? reckon_pack.Ext.InvoiceCode : reckon_pack.Rec.Code;
+							mult = paym_pack.GetBaseAmount() / reckon_pack.GetBaseAmount();
+							reckon_pack.Rec.Amount = BR2(paym_pack.Rec.Amount);
+							for(i = 0; reckon_pack.Amounts.enumItems(&i, (void **)&p_ae);)
+								if(p_ae->Amt != 0.0)
+									p_ae->Amt = BR2(p_ae->Amt * mult);
+							THROW(r2 = reckon_pack.SetupVirtualTItems());
+							THROW(r = vata.CalcBill(&reckon_pack));
+							if(r2 < 0)
+								vata.Scale_(mult, 0);
+							if(r > 0)
+								paym_has_vat_amounts = true;
+						}
+					}
+				}
 			}
 			if(!paym_has_vat_amounts && paym_pack.Amounts.HasVatSum(pTai)) {
 				THROW(vata.CalcBill(&paym_pack));
 				paym_has_vat_amounts = true;
 			}
 		}
-		// @v11.0.2 if(Filt.Kind == PPVTB_SIMPLELEDGER && !pPaymRec && mainAmtTypeID) {
-		if(Filt.Kind == PPVTB_SIMPLELEDGER && rOpEntry.AmtTypeID) { // @v11.0.2
+		if(Filt.Kind == PPVTB_SIMPLELEDGER && rOpEntry.AmtTypeID) {
 			subst_amount = pack.Amounts.Get(rOpEntry.AmtTypeID, 0);
 			if(subst_amount != org_pack_amount) {
 				pack.Rec.Amount = subst_amount;
@@ -2014,7 +2027,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 			{
 				LongArray to_rmv_pos_list;
 				{
-					int    is_there_stax = 0;
+					bool   is_there_stax = false;
 					PPObjAmountType amtt_obj;
 					AmtEntry * p_ae;
 					PPAmountType amtt_rec;
@@ -2024,7 +2037,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 								to_rmv_pos_list.addUnique(i-1);
 							else if(!is_there_stax && amtt_rec.IsTax(GTAX_SALES)) {
 								to_rmv_pos_list.addUnique(i-1);
-								is_there_stax = 1;
+								is_there_stax = true;
 							}
 						}
 					}
@@ -2038,9 +2051,9 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 				}
 			}
 		}
-		//
-		if(!rOpEntry.SignFilt || (rOpEntry.SignFilt < 0 && pack.Rec.Amount < 0.0) || (rOpEntry.SignFilt > 0 && pack.Rec.Amount > 0.0)) { // @v11.0.3
+		if(!rOpEntry.SignFilt || (rOpEntry.SignFilt < 0 && pack.Rec.Amount < 0.0) || (rOpEntry.SignFilt > 0 && pack.Rec.Amount > 0.0)) {
 			VATBookTbl::Rec rec;
+			const bool reckon_date_by_payment = r_cfg.CheckFlag(pack.Rec.OpID, VATBCfg::fReckonDateByPayment); // @v12.0.0
 			if(!paym_has_vat_amounts) {
 				if(!pack.Amounts.HasVatSum(pTai))
 					THROW(pack.SetupVirtualTItems());
@@ -2048,8 +2061,28 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 			}
 			rec.LineType_ = static_cast<int16>(Filt.Kind);
 			rec.LineSubType = 0;
-			rec.Dt       = (pPaymRec && pPaymRec->Dt) ? pPaymRec->Dt : pack.Rec.Dt;
-			rec.RcptDt   = pack.Rec.Dt;
+			if(!checkdate(_dt)) {
+				if(pPaymRec && checkdate(pPaymRec->Dt)) {
+					_dt = pPaymRec->Dt;
+				}
+				else if(pack.Ext.InvoiceDate && (r_cfg.Flags & VATBCfg::hfD_InvcDate)) {
+					_dt = pack.Ext.InvoiceDate;
+				}
+				else if(pack.Ext.InvoiceDate && (r_cfg.Flags & VATBCfg::hfD_MaxInvcBill)) {
+					_dt = MAX(pack.Ext.InvoiceDate, pack.Rec.Dt);
+				}
+				else {
+					_dt = pack.Rec.Dt;
+				}
+			}
+			if(!checkdate(_rcpt_dt))
+				_rcpt_dt = pack.Rec.Dt;
+			if(!checkdate(_invc_dt)) {
+				if(pack.Ext.InvoiceDate)
+					_invc_dt = pack.Ext.InvoiceDate;
+				else
+					_invc_dt = pack.Rec.Dt;
+			}
 			rec.Object   = r_cfg.CheckFlag(pack.Rec.OpID, VATBCfg::fByExtObj) ? pack.Rec.Object2 : pack.Rec.Object;
 			rec.Object2  = pack.Rec.Object2;
 			rec.LocID    = pack.Rec.LocID;
@@ -2057,54 +2090,37 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 				bill_code.CopyTo(rec.Code, sizeof(rec.Code));
 			else if(pack.Ext.InvoiceCode[0])
 				STRNSCPY(rec.Code, pack.Ext.InvoiceCode);
-			else {
-				// @v11.1.12 BillCore::GetCode(STRNSCPY(rec.Code, pack.Rec.Code));
-				STRNSCPY(rec.Code, pack.Rec.Code); // @v11.1.12 
-			}
-			if(pack.Ext.InvoiceDate) {
-				rec.InvcDt = pack.Ext.InvoiceDate;
-				if(!pPaymRec || !pPaymRec->Dt) {
-					if(r_cfg.Flags & VATBCfg::hfD_InvcDate)
-						rec.Dt = pack.Ext.InvoiceDate;
-					else if(r_cfg.Flags & VATBCfg::hfD_MaxInvcBill)
-						rec.Dt = MAX(pack.Ext.InvoiceDate, pack.Rec.Dt);
-				}
-			}
 			else
-				rec.InvcDt = pack.Rec.Dt;
-			// @v10.3.10 {
+				STRNSCPY(rec.Code, pack.Rec.Code);
 			if(pack.OpTypeID == PPOPT_CORRECTION) {
-				// @v11.1.12 BillCore::GetCode(STRNSCPY(rec.CBillCode, pack.Rec.Code));
-				STRNSCPY(rec.CBillCode, pack.Rec.Code); // @v11.1.12 
+				STRNSCPY(rec.CBillCode, pack.Rec.Code);
 				rec.CBillDt = pack.Rec.Dt;
 				if(pack.P_LinkPack) {
 					if(pack.P_LinkPack->Ext.InvoiceCode[0])
 						STRNSCPY(rec.Code, pack.P_LinkPack->Ext.InvoiceCode);
-					else {
-						// @v11.1.12 BillCore::GetCode(STRNSCPY(rec.Code, pack.P_LinkPack->Rec.Code));
-						STRNSCPY(rec.Code, pack.P_LinkPack->Rec.Code); // @v11.1.12 
-					}
-					if(checkdate(pack.P_LinkPack->Ext.InvoiceDate)) {
-						rec.InvcDt = pack.P_LinkPack->Rec.Dt;
-						if(r_cfg.Flags & VATBCfg::hfD_InvcDate)
-							rec.Dt = pack.P_LinkPack->Ext.InvoiceDate;
-						else if(r_cfg.Flags & VATBCfg::hfD_MaxInvcBill)
-							rec.Dt = MAX(pack.P_LinkPack->Ext.InvoiceDate, pack.P_LinkPack->Rec.Dt);
-					}
 					else
-						rec.InvcDt = pack.P_LinkPack->Rec.Dt;
+						STRNSCPY(rec.Code, pack.P_LinkPack->Rec.Code);
+					_invc_dt = pack.P_LinkPack->Rec.Dt;
+					if(checkdate(pack.P_LinkPack->Ext.InvoiceDate)) {
+						if(r_cfg.Flags & VATBCfg::hfD_InvcDate)
+							_dt = pack.P_LinkPack->Ext.InvoiceDate;
+						else if(r_cfg.Flags & VATBCfg::hfD_MaxInvcBill)
+							_dt = MAX(pack.P_LinkPack->Ext.InvoiceDate, pack.P_LinkPack->Rec.Dt);
+					}
 				}
 			}
-			// } @v10.3.10 
 			{
 				const double pack_rec_amt = BR2(pack.Rec.Amount);
 				if(pPaymRec) {
 					const double paym_rec_amt = BR2(pPaymRec->Amount);
 					rec.OpID   = pPaymRec->OpID;
 					rec.Link   = pPaymRec->ID;
-					if(mrbbf & mrbbfIsStorno)
-						rec.Dt = rec.InvcDt = pPaymRec->Dt;
-					rec.PaymDt = pPaymRec->Dt;
+					if(mrbbf & mrbbfIsStorno) {
+						_dt = pPaymRec->Dt;
+						_invc_dt = pPaymRec->Dt;
+					}
+					if(!checkdate(_paym_dt))
+						_paym_dt = pPaymRec->Dt;
 					if(!paym_has_vat_amounts)
 						scale =  paym_rec_amt / org_pack_amount;
 					{
@@ -2119,8 +2135,10 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 				else {
 					rec.Link   = pack.Rec.ID;
 					rec.OpID   = pack.Rec.OpID;
-					if(Filt.Kind == PPVTB_SIMPLELEDGER)
-						rec.PaymDt = pack.Rec.Dt;
+					if(Filt.Kind == PPVTB_SIMPLELEDGER) {
+						if(!checkdate(_paym_dt))
+							_paym_dt = pack.Rec.Dt;
+					}
 					const double final_amount = pack_rec_amt;
 					LDBLTOMONEY(final_amount, rec.Amount);
 				}
@@ -2135,7 +2153,6 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 				if(mrbbf & mrbbfIsNeg) {
 					double local_scale = scale;
 					if(pEbfBlk && pPaymRec && pEbfBlk->CheckPaymOp(pPaymRec->OpID) && pEbfBlk->Period.low) {
-						// @v10.3.0 (never used) double amount = MONEYTOLDBL(rec.VAT0);
 						double cost_amt = 0.0;
 						double exp_paym_amt = 0.0;
 						DateRange op_period;
@@ -2150,7 +2167,6 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 							}
 						}
 						if(cost_amt != 0.0 && exp_paym_amt != 0.0) {
-							// @v10.3.0 (never used) double before_exp_part = exp_paym_amt / cost_amt;
 							local_scale = scale * exp_paym_amt / cost_amt;
 							set_vat_params_result = _SetVATParams(&rec, &vata, local_scale, 0, sl_use_cost_vat_addendum);
 						}
@@ -2165,7 +2181,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 					if(!skip && set_vat_params_result == 100) {
 						sl_cost_vat_addenum_rec = rec;
 						sl_cost_vat_addenum_rec.LineSubType = 1;
-						_SetVATParams(&sl_cost_vat_addenum_rec, &vata, local_scale, 0, 2); // @v9.8.4 scale-->local_scale
+						_SetVATParams(&sl_cost_vat_addenum_rec, &vata, local_scale, 0, 2);
 						LDBLTOMONEY(0.0, sl_cost_vat_addenum_rec.Amount); // Доход
 						LDBLTOMONEY(0.0, sl_cost_vat_addenum_rec.Excise); // Доход для налогообложения //
 						is_cost_vat_addendum_rec = 1;
@@ -2217,10 +2233,14 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 			}
 			else
 				_SetVATParams(&rec, &vata, scale, BIN(IsSellingOp(pack.Rec.OpID) > 0), 0);
+			rec.Dt       = _dt;
+			rec.RcptDt   = _rcpt_dt;
+			rec.InvcDt   = _invc_dt;
+			rec.PaymDt   = _paym_dt;
 			if(!skip) {
-				int    is_fixed = 0;
+				bool   is_fixed = false;
 				long   rbydate = 0;
-				const  PPID    link_id = rec.Link;
+				const  PPID link_id = rec.Link;
 				MEMSZERO(k1);
 				k1.Link = link_id;
 				k1.LineType_ = static_cast<int16>(Filt.Kind);
@@ -2236,12 +2256,12 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 								THROW_DB(VBObj.P_Tbl->deleteRec()); // @sfu
 							}
 							else
-								is_fixed = 1;
+								is_fixed = true;
 						}
 						THROW_DB(BTROKORNFOUND);
 					}
 					if(!is_fixed) {
-						int    rec_added = 0;
+						bool   rec_added = false;
 						if(rbydate)
 							rec.LineNo = rbydate;
 						else
@@ -2249,19 +2269,19 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 						if(!(mrbbf & mrbbfFactByShipmExp)) {
 							if(!IsSimpleLedgerRecEmpty(rec)) {
 								THROW_DB(VBObj.P_Tbl->insertRecBuf(&rec));
-								rec_added = 1;
+								rec_added = true;
 							}
 						}
 						if(is_ebf_rec) {
 							if(!IsSimpleLedgerRecEmpty(ebf_rec)) {
 								THROW(IncDateKey(VBObj.P_Tbl, 2, ebf_rec.Dt, &ebf_rec.LineNo));
 								THROW_DB(VBObj.P_Tbl->insertRecBuf(&ebf_rec));
-								rec_added = 1;
+								rec_added = true;
 								if(is_cost_vat_addendum_rec == 2) {
 									if(!IsSimpleLedgerRecEmpty(sl_cost_vat_addenum_rec)) {
 										THROW(IncDateKey(VBObj.P_Tbl, 2, sl_cost_vat_addenum_rec.Dt, &sl_cost_vat_addenum_rec.LineNo));
 										THROW_DB(VBObj.P_Tbl->insertRecBuf(&sl_cost_vat_addenum_rec));
-										rec_added = 1;
+										rec_added = true;
 									}
 								}
 							}
@@ -2270,7 +2290,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 							if(!IsSimpleLedgerRecEmpty(sl_cost_vat_addenum_rec)) {
 								THROW(IncDateKey(VBObj.P_Tbl, 2, sl_cost_vat_addenum_rec.Dt, &sl_cost_vat_addenum_rec.LineNo));
 								THROW_DB(VBObj.P_Tbl->insertRecBuf(&sl_cost_vat_addenum_rec));
-								rec_added = 1;
+								rec_added = true;
 							}
 						}
 						if(rec_added)

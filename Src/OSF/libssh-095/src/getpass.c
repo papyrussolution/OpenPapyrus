@@ -46,7 +46,7 @@ static int ssh_gets(const char * prompt, char * buf, size_t len, int verify)
 			SAlloc::F(tmp);
 			return 0;
 		}
-		if((ptr = strchr(tmp, '\n'))) {
+		if((ptr = sstrchr(tmp, '\n'))) {
 			*ptr = '\0';
 		}
 		fprintf(stdout, "\n");
@@ -66,7 +66,7 @@ static int ssh_gets(const char * prompt, char * buf, size_t len, int verify)
 				clearerr(stdin);
 				continue;
 			}
-			if((ptr = strchr(key_string, '\n'))) {
+			if((ptr = sstrchr(key_string, '\n'))) {
 				*ptr = '\0';
 			}
 			fprintf(stdout, "\n");

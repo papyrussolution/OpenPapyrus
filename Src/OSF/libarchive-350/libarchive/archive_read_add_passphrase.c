@@ -14,7 +14,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-//#include "archive_read_private.h"
 
 static void add_passphrase_to_tail(ArchiveRead * a, struct archive_read_passphrase * p)
 {

@@ -447,7 +447,7 @@ const char * UDataPathIterator::next(UErrorCode * pErrorCode)
 		}
 		else {
 			/* fix up next for next time */
-			nextPath = uprv_strchr(currentPath, U_PATH_SEP_CHAR);
+			nextPath = sstrchr(currentPath, U_PATH_SEP_CHAR);
 			if(nextPath == NULL) {
 				/* segment: entire path */
 				pathLen = (int32_t)strlen(currentPath);
@@ -1038,10 +1038,10 @@ static UDataMemory * doOpenChoice(const char * path, const char * type, const ch
 	// remap from alternate path char to the main one 
 	CharString altSepPath;
 	if(path) {
-		if(uprv_strchr(path, U_FILE_ALT_SEP_CHAR) != NULL) {
+		if(sstrchr(path, U_FILE_ALT_SEP_CHAR) != NULL) {
 			altSepPath.append(path, *pErrorCode);
 			char * p;
-			while((p = uprv_strchr(altSepPath.data(), U_FILE_ALT_SEP_CHAR)) != NULL) {
+			while((p = sstrchr(altSepPath.data(), U_FILE_ALT_SEP_CHAR)) != NULL) {
 				*p = U_FILE_SEP_CHAR;
 			}
 #if defined (UDATA_DEBUG)
@@ -1061,7 +1061,7 @@ static UDataMemory * doOpenChoice(const char * path, const char * type, const ch
 	}
 	else {
 		const char * pkg = uprv_strrchr(path, U_FILE_SEP_CHAR);
-		const char * first = uprv_strchr(path, U_FILE_SEP_CHAR);
+		const char * first = sstrchr(path, U_FILE_SEP_CHAR);
 		if(uprv_pathIsAbsolute(path) || (pkg != first)) { /* more than one slash in the path- not a tree name */
 			// see if this is an /absolute/path/to/package  path 
 			if(pkg) {
@@ -1072,7 +1072,7 @@ static UDataMemory * doOpenChoice(const char * path, const char * type, const ch
 			}
 		}
 		else {
-			treeChar = uprv_strchr(path, U_TREE_SEPARATOR);
+			treeChar = sstrchr(path, U_TREE_SEPARATOR);
 			if(treeChar) {
 				treeName.append(treeChar+1, *pErrorCode); /* following '-' */
 				if(isICUData) {

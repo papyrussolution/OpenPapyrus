@@ -51,7 +51,7 @@ static const OSSL_LIB_CTX_METHOD provider_conf_ossl_ctx_method = {
 
 static const char * skip_dot(const char * name)
 {
-	const char * p = strchr(name, '.');
+	const char * p = sstrchr(name, '.');
 	if(p)
 		return p + 1;
 	return name;

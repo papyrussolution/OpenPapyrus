@@ -90,7 +90,7 @@ int Curl_gethostname(char * const name, GETHOSTNAME_TYPE_ARG2 namelen)
 		return err;
 
 	/* Truncate domain, leave only machine name */
-	dot = strchr(name, '.');
+	dot = sstrchr(name, '.');
 	if(dot)
 		*dot = '\0';
 

@@ -5,10 +5,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-//#ifdef HAVE_UNISTD_H
-//#include <unistd.h>
-//#endif
-//#include "archive_read_private.h"
 
 #ifdef HAVE_ZLIB_H
 struct private_data {

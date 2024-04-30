@@ -176,7 +176,7 @@ hb_bool_t _hb_graphite2_shape(hb_shape_plan_t * shape_plan CXX_UNUSED_PARAM,
 	hb_face_t * face = font->face;
 	gr_face * grface = face->data.graphite2->grface;
 	const char * lang = hb_language_to_string(hb_buffer_get_language(buffer));
-	const char * lang_end = lang ? strchr(lang, '-') : nullptr;
+	const char * lang_end = lang ? sstrchr(lang, '-') : nullptr;
 	int lang_len = lang_end ? lang_end - lang : -1;
 	gr_feature_val * feats = gr_face_featureval_for_lang(grface, lang ? hb_tag_from_string(lang, lang_len) : 0);
 	for(uint i = 0; i < num_features; i++) {

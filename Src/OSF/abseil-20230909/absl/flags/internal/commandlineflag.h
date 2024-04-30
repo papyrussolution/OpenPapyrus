@@ -16,9 +16,6 @@
 #ifndef ABSL_FLAGS_INTERNAL_COMMANDLINEFLAG_H_
 #define ABSL_FLAGS_INTERNAL_COMMANDLINEFLAG_H_
 
-//#include "absl/base/config.h"
-//#include "absl/base/internal/fast_type_id.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace flags_internal {

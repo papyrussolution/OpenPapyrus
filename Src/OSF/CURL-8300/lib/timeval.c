@@ -52,15 +52,13 @@ struct curltime Curl_now(void) {
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
-
 		now.tv_sec = milliseconds / 1000;
 		now.tv_usec = (milliseconds % 1000) * 1000;
 	}
 	return now;
 }
 
-#elif defined(HAVE_CLOCK_GETTIME_MONOTONIC) ||  \
-	defined(HAVE_CLOCK_GETTIME_MONOTONIC_RAW)
+#elif defined(HAVE_CLOCK_GETTIME_MONOTONIC) ||  defined(HAVE_CLOCK_GETTIME_MONOTONIC_RAW)
 
 struct curltime Curl_now(void) {
 	/*

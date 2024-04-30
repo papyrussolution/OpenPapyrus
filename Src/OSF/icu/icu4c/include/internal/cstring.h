@@ -24,7 +24,7 @@
 // @sobolev #define uprv_strlen_Removed(str) U_STANDARD_CPP_NAMESPACE strlen(str)
 // @sobolev #define uprv_strcmp_Removed(s1, s2) U_STANDARD_CPP_NAMESPACE strcmp(s1, s2)
 #define uprv_strcat(dst, src) U_STANDARD_CPP_NAMESPACE strcat(dst, src)
-#define uprv_strchr(s, c) U_STANDARD_CPP_NAMESPACE strchr(s, c)
+// @v12.0.0 (replaced with sstrchr) #define uprv_strchr_Removed(s, c) U_STANDARD_CPP_NAMESPACE strchr(s, c)
 #define uprv_strstr(s, c) U_STANDARD_CPP_NAMESPACE strstr(s, c)
 #define uprv_strrchr(s, c) U_STANDARD_CPP_NAMESPACE strrchr(s, c)
 #define uprv_strncpy(dst, src, size) U_STANDARD_CPP_NAMESPACE strncpy(dst, src, size)

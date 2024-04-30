@@ -656,7 +656,7 @@ UnicodeString &LocaleDisplayNamesImpl::localeIdName(const char * localeId,
 		}
 	}
 	langData.getNoFallback("Languages", localeId, result);
-	if(result.isBogus() && uprv_strchr(localeId, '_') == NULL) {
+	if(result.isBogus() && sstrchr(localeId, '_') == NULL) {
 		// Canonicalize lang and try again, ICU-20870
 		// (only for language codes without script or region)
 		Locale canonLocale = Locale::createCanonical(localeId);
@@ -678,7 +678,7 @@ UnicodeString &LocaleDisplayNamesImpl::localeIdName(const char * localeId,
 
 UnicodeString &LocaleDisplayNamesImpl::languageDisplayName(const char * lang, UnicodeString & result) const 
 {
-	if(sstreq(lang, "root") || uprv_strchr(lang, '_') != NULL) {
+	if(sstreq(lang, "root") || sstrchr(lang, '_') != NULL) {
 		return result = UnicodeString(lang, -1, US_INV);
 	}
 	if(nameLength == UDISPCTX_LENGTH_SHORT) {

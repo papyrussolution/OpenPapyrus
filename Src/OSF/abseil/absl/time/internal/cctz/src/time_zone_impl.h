@@ -7,8 +7,6 @@
 #ifndef ABSL_TIME_INTERNAL_CCTZ_TIME_ZONE_IMPL_H_
 #define ABSL_TIME_INTERNAL_CCTZ_TIME_ZONE_IMPL_H_
 
-//#include <memory>
-//#include <string>
 #include "absl/base/config.h"
 #include "absl/time/internal/cctz/include/cctz/civil_time.h"
 #include "absl/time/internal/cctz/include/cctz/time_zone.h"

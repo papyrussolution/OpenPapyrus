@@ -15,11 +15,6 @@
 #ifdef HAVE_SYS_UTSNAME_H
 	#include <sys/utsname.h>
 #endif
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#include "archive_entry_locale.h"
-//#include "archive_rb.h"
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	#define getuid() 0
@@ -4987,7 +4982,7 @@ static void isoent_setup_file_location(struct iso9660 * iso9660, int location)
 static int get_path_component(char * name, size_t n, const char * fn)
 {
 	size_t l;
-	const char * p = strchr(fn, '/');
+	const char * p = sstrchr(fn, '/');
 	if(!p) {
 		if((l = strlen(fn)) == 0)
 			return 0;

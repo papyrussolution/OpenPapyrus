@@ -14,9 +14,7 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-//#include "archive_entry_locale.h"
 #include "archive_ppmd7_private.h"
-//#include "archive_read_private.h"
 #ifndef HAVE_ZLIB_H
 	#include "archive_crc32.h"
 #endif

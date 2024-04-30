@@ -41,39 +41,22 @@
 #include <arpa/inet.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+	#include <in.h>
+	#include <inet.h>
 #endif
-
-//#include <curl/curl.h>
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "hostip.h"
-//#include "progress.h"
-//#include "transfer.h"
-//#include "escape.h"
-//#include "http.h" /* for HTTP proxy tunnel stuff */
 #include "ssh.h"
 #include "url.h"
 #include "speedcheck.h"
 #include "getinfo.h"
 #include "strdup.h"
-//#include "strcase.h"
 #include "vtls/vtls.h"
-//#include "cfilters.h"
-//#include "connect.h"
 #include "inet_ntop.h"
 #include "parsedate.h" /* for the week day and month names */
-//#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 #include "strtoofft.h"
-//#include "multiif.h"
 #include "select.h"
-//#include "warnless.h"
-//#include "curl_path.h"
-
 #include <curl_base64.h> /* for base64 encoding/decoding */
 #include <curl_sha256.h>
 
@@ -1507,7 +1490,7 @@ static CURLcode ssh_statemach_act(struct Curl_easy * data, bool * block)
 				     * the arguments following the command must be separated from the
 				     * command with a space so we can check for it unconditionally
 				     */
-				    cp = strchr(cmd, ' ');
+				    cp = sstrchr(cmd, ' ');
 				    if(!cp) {
 					    failf(data, "Syntax error command '%s', missing parameter",
 						cmd);
@@ -2148,7 +2131,7 @@ static CURLcode ssh_statemach_act(struct Curl_easy * data, bool * block)
 			    break;
 
 			case SSH_SFTP_CREATE_DIRS:
-			    sshc->slash_pos = strchr(sshc->slash_pos, '/');
+			    sshc->slash_pos = sstrchr(sshc->slash_pos, '/');
 			    if(sshc->slash_pos) {
 				    *sshc->slash_pos = 0;
 				    infof(data, "Creating directory '%s'", sshp->path);

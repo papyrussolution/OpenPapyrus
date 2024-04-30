@@ -56,132 +56,49 @@
 /* Define if you need the _REENTRANT define for some functions */
 #undef NEED_REENTRANT
 
-/* Define if you want to enable IPv6 support */
-#define ENABLE_IPV6
-
-/* Define if struct sockaddr_in6 has the sin6_scope_id member */
-#define HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID 1
-
-/* Define this to 'int' if ssize_t is not an available typedefed type */
-#undef ssize_t
-
-/* Define this as a suitable file to read random data from */
-#undef RANDOM_FILE
-
-/* Define to 1 if you have the alarm function. */
-#define HAVE_ALARM 1
-
-/* Define if you have the <arpa/inet.h> header file. */
-#define HAVE_ARPA_INET_H
-
-/* Define if you have the `closesocket' function. */
-#undef HAVE_CLOSESOCKET
-
-/* Define if you have the <fcntl.h> header file. */
-#define HAVE_FCNTL_H
-
-/* Define if you have the `geteuid' function. */
-#define HAVE_GETEUID
-
-/* Define if you have the `gethostname' function. */
-#define HAVE_GETHOSTNAME
-
-/* Define if you have the `getpass_r' function. */
-#undef HAVE_GETPASS_R
-
-/* Define to 1 if you have the getpeername function. */
-#define HAVE_GETPEERNAME 1
-
-/* Define if you have the `getpwuid' function. */
-#define HAVE_GETPWUID
-
-/* Define to 1 if you have the getsockname function. */
-#define HAVE_GETSOCKNAME 1
-
-/* Define if you have the `gettimeofday' function. */
-#define HAVE_GETTIMEOFDAY
-
-/* Define if you have the `timeval' struct. */
-#define HAVE_STRUCT_TIMEVAL
-
-/* Define if you have the <inttypes.h> header file. */
-#define HAVE_INTTYPES_H
-
-/* Define if you have the <io.h> header file. */
-#undef HAVE_IO_H
-
-/* Define if you have the `socket' library (-lsocket). */
-#undef HAVE_LIBSOCKET
-
-/* Define if you have GSS API. */
-#define HAVE_GSSAPI
-
-/* Define if you have the GNU gssapi libraries */
-#undef HAVE_GSSGNU
-
-/* Define if you have the Heimdal gssapi libraries */
-#define HAVE_GSSHEIMDAL
-
-/* Define if you have the MIT gssapi libraries */
-#undef HAVE_GSSMIT
-
-/* Define if you need the malloc.h header file even with stdlib.h  */
-/* #define NEED_MALLOC_H 1 */
-
-/* Define if you have the <netdb.h> header file. */
-#define HAVE_NETDB_H
-
-/* Define if you have the <netinet/in.h> header file. */
-#define HAVE_NETINET_IN_H
-
-/* Define if you have the <net/if.h> header file. */
-#define HAVE_NET_IF_H
-
-/* Define if you have the <pwd.h> header file. */
-#define HAVE_PWD_H
-
-/* Define if you have the `select' function. */
-#define HAVE_SELECT
-
-/* Define if you have the `sigaction' function. */
-#define HAVE_SIGACTION
-
-/* Define if you have the `signal' function. */
-#undef HAVE_SIGNAL
-
-/* Define if you have the <signal.h> header file. */
-#define HAVE_SIGNAL_H
-
-/* Define if you have the `socket' function. */
-#define HAVE_SOCKET
-
-/* Define if you have the <stdint.h> header file. */
-#undef HAVE_STDINT_H
-/* Define if you have the <stdlib.h> header file. */
-#define HAVE_STDLIB_H
-/* The following define is needed on OS400 to enable strcmpi(), stricmp() and strdup(). */
-#define __cplusplus__strings__
-
-/* Define if you have the `strcasecmp' function. */
-#undef HAVE_STRCASECMP
-
-/* Define if you have the `strcmpi' function. */
-#define HAVE_STRCMPI
-
-/* Define if you have the `stricmp' function. */
-#define HAVE_STRICMP
-
-/* Define if you have the `strdup' function. */
-#define HAVE_STRDUP
-
-/* Define if you have the <strings.h> header file. */
-#define HAVE_STRINGS_H
-
-/* Define if you have the <string.h> header file. */
-#define HAVE_STRING_H
-
-/* Define if you have the <stropts.h> header file. */
-#undef HAVE_STROPTS_H
+#define ENABLE_IPV6 /* Define if you want to enable IPv6 support */
+#define HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID 1 /* Define if struct sockaddr_in6 has the sin6_scope_id member */
+#undef ssize_t /* Define this to 'int' if ssize_t is not an available typedefed type */
+#undef RANDOM_FILE /* Define this as a suitable file to read random data from */
+#define HAVE_ALARM 1 /* Define to 1 if you have the alarm function. */
+#define HAVE_ARPA_INET_H /* Define if you have the <arpa/inet.h> header file. */
+#undef HAVE_CLOSESOCKET /* Define if you have the `closesocket' function. */
+#define HAVE_FCNTL_H /* Define if you have the <fcntl.h> header file. */
+#define HAVE_GETEUID /* Define if you have the `geteuid' function. */
+#define HAVE_GETHOSTNAME /* Define if you have the `gethostname' function. */
+#undef HAVE_GETPASS_R /* Define if you have the `getpass_r' function. */
+#define HAVE_GETPEERNAME 1 /* Define to 1 if you have the getpeername function. */
+#define HAVE_GETPWUID /* Define if you have the `getpwuid' function. */
+#define HAVE_GETSOCKNAME 1 /* Define to 1 if you have the getsockname function. */
+#define HAVE_GETTIMEOFDAY /* Define if you have the `gettimeofday' function. */
+#define HAVE_STRUCT_TIMEVAL /* Define if you have the `timeval' struct. */
+#define HAVE_INTTYPES_H /* Define if you have the <inttypes.h> header file. */
+#undef HAVE_IO_H /* Define if you have the <io.h> header file. */
+#undef HAVE_LIBSOCKET /* Define if you have the `socket' library (-lsocket). */
+#define HAVE_GSSAPI /* Define if you have GSS API. */
+#undef HAVE_GSSGNU /* Define if you have the GNU gssapi libraries */
+#define HAVE_GSSHEIMDAL /* Define if you have the Heimdal gssapi libraries */
+#undef HAVE_GSSMIT /* Define if you have the MIT gssapi libraries */
+/* #define NEED_MALLOC_H 1 */ /* Define if you need the malloc.h header file even with stdlib.h  */
+#define HAVE_NETDB_H /* Define if you have the <netdb.h> header file. */
+#define HAVE_NETINET_IN_H /* Define if you have the <netinet/in.h> header file. */
+#define HAVE_NET_IF_H /* Define if you have the <net/if.h> header file. */
+#define HAVE_PWD_H /* Define if you have the <pwd.h> header file. */
+#define HAVE_SELECT /* Define if you have the `select' function. */
+#define HAVE_SIGACTION /* Define if you have the `sigaction' function. */
+#undef HAVE_SIGNAL /* Define if you have the `signal' function. */
+#define HAVE_SIGNAL_H /* Define if you have the <signal.h> header file. */
+#define HAVE_SOCKET /* Define if you have the `socket' function. */
+#undef HAVE_STDINT_H /* Define if you have the <stdint.h> header file. */
+#define HAVE_STDLIB_H /* Define if you have the <stdlib.h> header file. */
+#define __cplusplus__strings__ /* The following define is needed on OS400 to enable strcmpi(), stricmp() and strdup(). */
+#undef HAVE_STRCASECMP /* Define if you have the `strcasecmp' function. */
+#define HAVE_STRCMPI /* Define if you have the `strcmpi' function. */
+#define HAVE_STRICMP /* Define if you have the `stricmp' function. */
+#define HAVE_STRDUP /* Define if you have the `strdup' function. */
+#define HAVE_STRINGS_H /* Define if you have the <strings.h> header file. */
+#define HAVE_STRING_H /* Define if you have the <string.h> header file. */
+#undef HAVE_STROPTS_H /* Define if you have the <stropts.h> header file. */
 
 /* Define if you have the `strtok_r' function. */
 #define HAVE_STRTOK_R

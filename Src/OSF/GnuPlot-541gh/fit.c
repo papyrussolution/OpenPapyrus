@@ -949,8 +949,8 @@ static char * pack_float(char * num)
 		needs_packing = (strlen(buf) == 9);
 	}
 	if(needs_packing) {
-		char * p = strchr(num, 'e');
-		SETIFZ(p, strchr(num, 'E'));
+		char * p = sstrchr(num, 'e');
+		SETIFZ(p, sstrchr(num, 'E'));
 		if(p) {
 			p += 2; // also skip sign of exponent 
 			if(*p == '0') {
@@ -1008,7 +1008,7 @@ void GnuPlot::FitShowBrief(int iter, double chisq, double last_chisq, double * p
 		for(k = 0, p = buf + 4; (k < 3) && p; k++) {
 			p++;
 			pack_float(p);
-			p = strchr(p, 'e');
+			p = sstrchr(p, 'e');
 		}
 		fputs(buf, pDevice);
 		len = strlen(buf);
@@ -1719,7 +1719,7 @@ out_of_range:
 			}
 			else
 				fixed = FALSE;
-			if((tmp = strchr(s, '#')) != NULL)
+			if((tmp = sstrchr(s, '#')) != NULL)
 				*tmp = '\0';
 			if(!GpFit::IsEmptyString(s)) {
 				tmp = get_next_word(&s, &c);
@@ -1743,7 +1743,7 @@ out_of_range:
 				}
 				// next must be '=' 
 				if(c != '=') {
-					tmp = strchr(s, '=');
+					tmp = sstrchr(s, '=');
 					if(!tmp)
 						Eex("syntax error in parameter file");
 					s = tmp + 1;
@@ -1855,8 +1855,8 @@ out_of_range:
 	// remember last fit command for 'save fit' 
 	// FIXME: This breaks if there is a ; internal to the fit command 
 	FREEANDASSIGN(_Fit.last_fit_command, sstrdup(&Pgm.P_InputLine[Pgm.P_Token[fit_token].StartIdx]));
-	if(strchr(_Fit.last_fit_command, ';'))
-		*strchr(_Fit.last_fit_command, ';') = '\0';
+	if(sstrchr(_Fit.last_fit_command, ';'))
+		*sstrchr(_Fit.last_fit_command, ';') = '\0';
 	// save fit command to user variable 
 	Ev.FillGpValString("GPVAL_LAST_FIT", _Fit.last_fit_command);
 }

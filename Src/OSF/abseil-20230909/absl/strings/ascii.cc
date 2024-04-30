@@ -15,9 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/ascii.h"
-//#include <climits>
-//#include <cstring>
-//#include <string>
 #include "absl/base/config.h"
 
 namespace absl {

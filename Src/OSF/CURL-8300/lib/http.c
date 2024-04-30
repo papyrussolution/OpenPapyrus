@@ -48,14 +48,7 @@
 #ifdef USE_HYPER
 	#include <hyper.h>
 #endif
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "transfer.h"
-//#include "sendf.h"
 #include "formdata.h"
-//#include "mime.h"
-//#include "progress.h"
-//#include "curl_base64.h"
 #include "cookie.h"
 #include "vauth/vauth.h"
 #include "vtls/vtls.h"
@@ -67,24 +60,14 @@
 #include "http_aws_sigv4.h"
 #include "url.h"
 #include "share.h"
-//#include "hostip.h"
-//#include "dynhds.h"
-//#include "http.h"
 #include "select.h"
 #include "parsedate.h" /* for the week day and month names */
 #include "strtoofft.h"
-//#include "multiif.h"
-//#include "strcase.h"
-//#include "content_encoding.h"
 #include "http_proxy.h"
-//#include "warnless.h"
 #include "http2.h"
-//#include "cfilters.h"
-//#include "connect.h"
 #include "strdup.h"
 #include "altsvc.h"
 #include "hsts.h"
-//#include "ws.h"
 #include "c-hyper.h"
 #include "curl_ctype.h"
 
@@ -309,11 +292,11 @@ char *Curl_copy_header_value(const char * header)
 
 	/* data is in the host encoding so
 	   use '\r' and '\n' instead of 0x0d and 0x0a */
-	end = strchr(start, '\r');
+	end = sstrchr(start, '\r');
 	if(!end)
-		end = strchr(start, '\n');
+		end = sstrchr(start, '\n');
 	if(!end)
-		end = strchr(start, '\0');
+		end = sstrchr(start, '\0');
 	if(!end)
 		return NULL;
 	/* skip all trailing space letters */
@@ -1503,14 +1486,14 @@ bool Curl_compareheader(const char * headerline, /* line to check */
 		start++;
 
 	/* find the end of the header line */
-	end = strchr(start, '\r'); /* lines end with CRLF */
+	end = sstrchr(start, '\r'); /* lines end with CRLF */
 	if(!end) {
 		/* in case there's a non-standard compliant line here */
-		end = strchr(start, '\n');
+		end = sstrchr(start, '\n');
 
 		if(!end)
 			/* hm, there's no line ending here, use the zero byte! */
-			end = strchr(start, '\0');
+			end = sstrchr(start, '\0');
 	}
 
 	len = end-start; /* length of the content part of the input line */
@@ -1699,7 +1682,7 @@ CURLcode Curl_http_compile_trailers(struct curl_slist * trailers, struct dynbuf 
 	}
 	while(trailers) {
 		/* only add correctly formatted trailers */
-		ptr = strchr(trailers->data, ':');
+		ptr = sstrchr(trailers->data, ':');
 		if(ptr && *(ptr + 1) == ' ') {
 			result = Curl_dyn_add(b, trailers->data);
 			if(result)
@@ -1718,10 +1701,7 @@ CURLcode Curl_http_compile_trailers(struct curl_slist * trailers, struct dynbuf 
 
 static bool hd_name_eq(const char * n1, size_t n1len, const char * n2, size_t n2len)
 {
-	if(n1len == n2len) {
-		return strncasecompare(n1, n2, n1len);
-	}
-	return FALSE;
+	return (n1len == n2len) ? strncasecompare(n1, n2, n1len) : FALSE;
 }
 
 CURLcode Curl_dynhds_add_custom(struct Curl_easy * data, bool is_connect, struct dynhds * hds)
@@ -1732,16 +1712,12 @@ CURLcode Curl_dynhds_add_custom(struct Curl_easy * data, bool is_connect, struct
 	struct curl_slist * headers;
 	int numlists = 1; /* by default */
 	int i;
-
 #ifndef CURL_DISABLE_PROXY
 	enum proxy_use proxy;
-
 	if(is_connect)
 		proxy = HEADER_CONNECT;
 	else
-		proxy = conn->bits.httpproxy && !conn->bits.tunnel_proxy?
-		    HEADER_PROXY:HEADER_SERVER;
-
+		proxy = conn->bits.httpproxy && !conn->bits.tunnel_proxy ? HEADER_PROXY:HEADER_SERVER;
 	switch(proxy) {
 		case HEADER_SERVER:
 		    h[0] = data->set.headers;
@@ -1770,12 +1746,11 @@ CURLcode Curl_dynhds_add_custom(struct Curl_easy * data, bool is_connect, struct
 		for(headers = h[i]; headers; headers = headers->next) {
 			const char * name, * value;
 			size_t namelen, valuelen;
-
 			/* There are 2 quirks in place for custom headers:
 			 * 1. setting only 'name:' to suppress a header from being sent
 			 * 2. setting only 'name;' to send an empty (illegal) header
 			 */
-			ptr = strchr(headers->data, ':');
+			ptr = sstrchr(headers->data, ':');
 			if(ptr) {
 				name = headers->data;
 				namelen = ptr - headers->data;
@@ -1792,7 +1767,7 @@ CURLcode Curl_dynhds_add_custom(struct Curl_easy * data, bool is_connect, struct
 				}
 			}
 			else {
-				ptr = strchr(headers->data, ';');
+				ptr = sstrchr(headers->data, ';');
 
 				if(!ptr) {
 					/* neither : nor ; in provided header value. We seem
@@ -1918,11 +1893,11 @@ CURLcode Curl_add_custom_headers(struct Curl_easy * data,
 
 		while(headers) {
 			char * semicolonp = NULL;
-			ptr = strchr(headers->data, ':');
+			ptr = sstrchr(headers->data, ':');
 			if(!ptr) {
 				char * optr;
 				/* no colon, semicolon? */
-				ptr = strchr(headers->data, ';');
+				ptr = sstrchr(headers->data, ';');
 				if(ptr) {
 					optr = ptr;
 					ptr++; /* pass the semicolon */
@@ -2200,13 +2175,13 @@ CURLcode Curl_http_host(struct Curl_easy * data, struct connectdata * conn)
 				/* since the 'cookiehost' is an allocated memory area that will be
 				   freed later we cannot simply increment the pointer */
 				memmove(cookiehost, cookiehost + 1, strlen(cookiehost) - 1);
-				closingbracket = strchr(cookiehost, ']');
+				closingbracket = sstrchr(cookiehost, ']');
 				if(closingbracket)
 					*closingbracket = 0;
 			}
 			else {
 				int startsearch = 0;
-				char * colon = strchr(cookiehost + startsearch, ':');
+				char * colon = sstrchr(cookiehost + startsearch, ':');
 				if(colon)
 					*colon = 0; /* The host must not include an embedded port number */
 			}

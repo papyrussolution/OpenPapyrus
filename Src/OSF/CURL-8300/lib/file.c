@@ -48,25 +48,18 @@
 	#include <fcntl.h>
 #endif
 #include "strtoofft.h"
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "progress.h"
-//#include "sendf.h"
-//#include "escape.h"
 #include "file.h"
 #include "speedcheck.h"
 #include "getinfo.h"
-//#include "transfer.h"
 #include "url.h"
 #include "parsedate.h" /* for the week day and month names */
-//#include "warnless.h"
 #include "curl_range.h"
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
-#if defined(WIN32) || defined(MSDOS) || defined(__EMX__)
+#if defined(WIN32) || defined(__EMX__)
 	#define DOS_FILESYSTEM 1
 #elif defined(__amigaos4__)
 	#define AMIGA_FILESYSTEM 1
@@ -204,7 +197,7 @@ static CURLcode file_connect(struct Curl_easy * data, bool * done)
 
 	if(real_path[0] == '/') {
 		extern int __unix_path_semantics;
-		if(strchr(real_path + 1, ':')) {
+		if(sstrchr(real_path + 1, ':')) {
 			/* Amiga absolute path */
 			fd = open_readonly(real_path + 1, O_RDONLY);
 			file->path++;
@@ -262,7 +255,7 @@ static CURLcode file_disconnect(struct Curl_easy * data, struct connectdata * co
 static CURLcode file_upload(struct Curl_easy * data)
 {
 	struct FILEPROTO * file = data->req.p.file;
-	const char * dir = strchr(file->path, DIRSEP);
+	const char * dir = sstrchr(file->path, DIRSEP);
 	int fd;
 	int mode;
 	CURLcode result = CURLE_OK;

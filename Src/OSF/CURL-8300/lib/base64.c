@@ -29,13 +29,9 @@
 #if !defined(CURL_DISABLE_HTTP_AUTH) || defined(USE_SSH) || !defined(CURL_DISABLE_LDAP) || \
 	!defined(CURL_DISABLE_SMTP) || !defined(CURL_DISABLE_POP3) || !defined(CURL_DISABLE_IMAP) || \
 	!defined(CURL_DISABLE_DOH) || defined(USE_SSL)
-//#include <curl/curl.h>
-//#include "warnless.h"
-//#include "curl_base64.h"
-
 /* The last 2 #include files should be in this order */
 #ifdef BUILDING_LIBCURL
-#include "curl_memory.h"
+	#include "curl_memory.h"
 #endif
 #include "memdebug.h"
 

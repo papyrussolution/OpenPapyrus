@@ -13,13 +13,7 @@
 
 #ifdef LIBXML_READER_ENABLED
 #include <libxml/xmlreader.h>
-//#ifdef LIBXML_SCHEMAS_ENABLED
-	//#include <libxml/relaxng.h>
-	//#include <libxml/xmlschemas.h>
-//#endif
-//#ifdef LIBXML_XINCLUDE_ENABLED
-	//#include <libxml/xinclude.h>
-//#endif
+
 #define MAX_ERR_MSG_SIZE 64000
 /*
  * The following VA_COPY was coded following an example in

@@ -14,14 +14,6 @@
 
    The above copyright notice and this permission notice shall be included in all
    copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-   SOFTWARE.
  */
 #include <imgui-slib-internal.h>
 #pragma hdrstop
@@ -32,9 +24,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #pragma endregion
-
 #pragma region IGFD LICENSE
-
 #pragma endregion
 
 #include "ImGuiFileDialog.h"
@@ -43,16 +33,16 @@
 
 #pragma region Includes
 
-#include <cfloat>
-#include <cstring>  // stricmp / strcasecmp
-#include <cstdarg>  // variadic
+//#include <cfloat>
+//#include <cstring>  // stricmp / strcasecmp
+//#include <cstdarg>  // variadic
 #include <sstream>
 #include <iomanip>
-#include <ctime>
-#include <memory>
-#include <sys/stat.h>
-#include <cstdio>
-#include <cerrno>
+//#include <ctime>
+//#include <memory>
+//#include <sys/stat.h>
+//#include <cstdio>
+//#include <cerrno>
 
 // this option need c++17
 #ifdef USE_STD_FILESYSTEM
@@ -65,11 +55,9 @@
 #endif  // __EMSCRIPTEN__
 
 #ifdef _MSC_VER
-
-#define IGFD_DEBUG_BREAK \
-	if(IsDebuggerPresent()) __debugbreak()
+	#define IGFD_DEBUG_BREAK if(IsDebuggerPresent()) __debugbreak()
 #else
-#define IGFD_DEBUG_BREAK
+	#define IGFD_DEBUG_BREAK
 #endif
 
 #if defined(__WIN32__) || defined(WIN32) || defined(_WIN32) || defined(__WIN64__) || defined(WIN64) || defined(_WIN64) || defined(_MSC_VER)
@@ -1008,7 +996,8 @@ std::string IGFD::Utils::GetPathSeparator() {
 	return std::string(1U, PATH_SEP);
 }
 
-std::string IGFD::Utils::RoundNumber(double vvalue, int n) {
+std::string IGFD::Utils::RoundNumber(double vvalue, int n) 
+{
 	std::stringstream tmp;
 	tmp << std::setprecision(n) << std::fixed << vvalue;
 	return tmp.str();

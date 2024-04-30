@@ -14,15 +14,11 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
 // @sobolev #ifdef HAVE_LZ4_H
 #if defined(HAVE_LIBLZ4) // @sobolev
 	#include <..\slib\lz4\lz4.h>
 	#include <xxhash.h> // @sobolev
 #endif
-//#include "archive_read_private.h"
 #include "archive_xxhash.h"
 
 #define LZ4_MAGICNUMBER         0x184d2204

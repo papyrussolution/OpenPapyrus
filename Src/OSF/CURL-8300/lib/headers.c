@@ -24,11 +24,8 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include "urldata.h"
 #include "strdup.h"
-//#include "strcase.h"
 #include "headers.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"
@@ -275,9 +272,9 @@ CURLcode Curl_headers_push(struct Curl_easy * data, const char * header, uchar t
 	if((header[0] == '\r') || (header[0] == '\n'))
 		/* ignore the body separator */
 		return CURLE_OK;
-	end = strchr(header, '\r');
+	end = sstrchr(header, '\r');
 	if(!end) {
-		end = strchr(header, '\n');
+		end = sstrchr(header, '\n');
 		if(!end)
 			return CURLE_BAD_FUNCTION_ARGUMENT;
 	}

@@ -1333,7 +1333,7 @@ private:
 						}
 					}
 					else {
-						if(Param.Code.IsDigit()) {
+						if(Param.Code.IsDec()) {
 							if(Param.Std == 0) {
 								Param.Std = BARCSTD_CODE39;
 								SetClusterData(CTL_WOBARCODE_STD, Param.Std);

@@ -24,16 +24,8 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include "urldata.h"
 #include "strerror.h"
-//#include "cfilters.h"
-//#include "connect.h"
 #include "url.h" /* for ZFREE() */
-//#include "sendf.h"
-//#include "sockaddr.h" /* required for Curl_sockaddr_storage */
-//#include "multiif.h"
-//#include "progress.h"
-//#include "warnless.h"
 
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"

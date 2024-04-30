@@ -16,9 +16,7 @@
 #ifndef HAVE_ZLIB_H
 	#include "archive_crc32.h"
 #endif
-//#include "archive_entry_locale.h"
 #include "archive_ppmd7_private.h"
-//#include "archive_entry_private.h"
 #ifdef HAVE_BLAKE2_H
 	#include <blake2.h>
 #else

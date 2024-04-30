@@ -26,25 +26,15 @@
 #pragma hdrstop
 #include "http_proxy.h"
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_PROXY)
-
-//#include <curl/curl.h>
 #ifdef USE_HYPER
-#include <hyper.h>
+	#include <hyper.h>
 #endif
-//#include "sendf.h"
-//#include "http.h"
 #include "url.h"
 #include "select.h"
-//#include "progress.h"
-//#include "cfilters.h"
 #include "cf-h1-proxy.h"
 #include "cf-h2-proxy.h"
-//#include "connect.h"
 #include "curlx.h"
 #include "vtls/vtls.h"
-//#include "transfer.h"
-//#include "multiif.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"

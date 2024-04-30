@@ -30,23 +30,10 @@
 #elif defined(HAVE_UNISTD_H)
 #include <unistd.h>
 #endif
-
 #if !defined(HAVE_SELECT) && !defined(HAVE_POLL_FINE)
-#error "We can't compile without select() or poll() support."
+	#error "We can't compile without select() or poll() support."
 #endif
-
-#ifdef MSDOS
-#include <dos.h>  /* delay() */
-#endif
-
-//#include <curl/curl.h>
-
-//#include "urldata.h"
-//#include "connect.h"
 #include "select.h"
-//#include "timediff.h"
-//#include "warnless.h"
-
 /*
  * Internal function used for waiting a specific amount of ms
  * in Curl_socket_check() and Curl_poll() when no file descriptor
@@ -73,9 +60,7 @@ int Curl_wait_ms(timediff_t timeout_ms)
 		SET_SOCKERRNO(EINVAL);
 		return -1;
 	}
-#if defined(MSDOS)
-	delay(timeout_ms);
-#elif defined(WIN32)
+#if defined(WIN32)
 	/* prevent overflow, timeout_ms is typecast to ULONG/DWORD. */
 #if TIMEDIFF_T_MAX >= ULONG_MAX
 	if(timeout_ms >= ULONG_MAX)

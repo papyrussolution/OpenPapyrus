@@ -14,10 +14,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-//#ifdef HAVE_UNISTD_H
-	//#include <unistd.h>
-//#endif
-//#include "archive_read_private.h"
 
 static const uchar grzip_magic[] = { 0x47, 0x52, 0x5a, 0x69, 0x70, 0x49, 0x49, 0x00, 0x02, 0x04, 0x3a, 0x29 };
 

@@ -1302,5 +1302,4 @@ void cdataBlock(void * ctx, const xmlChar * value, int len)
 }
 
 #define bottom_legacy
-//#include "elfgcchack.h"
 #endif /* LIBXML_LEGACY_ENABLED */

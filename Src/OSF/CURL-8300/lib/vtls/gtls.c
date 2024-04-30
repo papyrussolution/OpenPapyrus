@@ -39,22 +39,14 @@
 #include <gnutls/x509.h>
 #include <gnutls/crypto.h>
 #include <nettle/sha2.h>
-
-//#include "urldata.h"
-//#include "sendf.h"
 #include "inet_pton.h"
 #include "gtls.h"
 #include "vtls.h"
 #include "vtls_int.h"
 #include "vauth/vauth.h"
 #include "parsedate.h"
-//#include "connect.h" /* for the connect timeout */
 #include "select.h"
-//#include "strcase.h"
-//#include "warnless.h"
 #include "x509asn1.h"
-//#include "multiif.h"
-//#include "curl_printf.h"
 #include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"

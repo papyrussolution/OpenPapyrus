@@ -10,15 +10,6 @@ __FBSDID("$FreeBSD$");
 
 #if !defined(HAVE_ARC4RANDOM_BUF) && (!defined(_WIN32) || defined(__CYGWIN__))
 
-//#ifdef HAVE_FCNTL
-//#include <fcntl.h>
-//#endif
-//#ifdef HAVE_LIMITS_H
-//#include <limits.h>
-//#endif
-//#ifdef HAVE_UNISTD_H
-//#include <unistd.h>
-//#endif
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif

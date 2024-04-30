@@ -42,10 +42,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/crc/internal/crc.h"
-//#include <cstdint>
-//#include "absl/base/internal/endian.h"
-//#include "absl/base/internal/raw_logging.h"
-//#include "absl/base/prefetch.h"
 #include "absl/crc/internal/crc_internal.h"
 
 namespace absl {

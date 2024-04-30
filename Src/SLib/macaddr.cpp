@@ -1,16 +1,8 @@
 // MACADDR.CPP
-// Copyright (c) A.Sobolev 2005, 2008, 2010, 2011, 2014, 2016, 2019, 2020, 2022, 2023
+// Copyright (c) A.Sobolev 2005, 2008, 2010, 2011, 2014, 2016, 2019, 2020, 2022, 2023, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
-//#include <snet.h>
-//#include <iphlpapi.h>
-//#include <Ws2tcpip.h>
-
-// iphlpapi.dll
-
-// GetAdaptersInfo
-// SendARP
 
 typedef DWORD (WINAPI * PT_GetAdaptersInfo)(PIP_ADAPTER_INFO pAdapterInfo, PULONG pOutBufLen);
 typedef DWORD (WINAPI * PT_SendARP)(IPAddr DestIP, IPAddr SrcIP, PULONG pMacAddr, PULONG PhyAddrLen);
@@ -68,18 +60,35 @@ int ProcPool_IpHlpApi::PtRelease()
 	return ok;
 }
 
-void MACAddr::Init()
+
+MACAddr::MACAddr()
 {
 	memzero(Addr, sizeof(Addr));
 }
 
-bool MACAddr::IsEmpty() const
+MACAddr::MACAddr(const MACAddr & rS)
 {
-	for(size_t i = 0; i < sizeof(Addr); i++)
-		if(Addr[i] != 0)
-			return false;
-	return true;
+	memcpy(Addr, rS.Addr, sizeof(Addr));
 }
+
+MACAddr & FASTCALL MACAddr::operator = (const MACAddr & rS)
+{
+	memcpy(Addr, rS.Addr, sizeof(Addr));
+	return *this;
+}
+
+bool FASTCALL MACAddr::operator == (const MACAddr & rS) const
+{
+	return memcmp(Addr, rS.Addr, sizeof(Addr)) == 0;
+}
+
+MACAddr & MACAddr::Z()
+{
+	memzero(Addr, sizeof(Addr));
+	return *this;
+}
+
+bool MACAddr::IsEmpty() const { return ismemzero(Addr, sizeof(Addr)); }
 
 SString & FASTCALL MACAddr::ToStr(SString & rBuf) const
 {
@@ -284,7 +293,6 @@ int GetFirstHostByMACAddr(const MACAddr * pItem, InetAddr * pAddr)
 	return ok;
 }
 */
-
 int GetMACAddrList(MACAddrArray * pList)
 {
 	int    ok = 0;
@@ -300,7 +308,6 @@ int GetMACAddrList(MACAddrArray * pList)
 				if(p_iter->Type == MIB_IF_TYPE_ETHERNET) {
 					MACAddr ma;
 					if(p_iter->AddressLength == sizeof(ma.Addr)) {
-						ma.Init();
 						memcpy(ma.Addr, p_iter->Address, sizeof(ma.Addr));
 						pList->insert(&ma);
 						ok = 1;
@@ -316,10 +323,136 @@ int GetFirstMACAddr(MACAddr * pAddr)
 {
 	int    ok = 0;
 	MACAddrArray ma_list;
-	CALLPTRMEMB(pAddr, Init());
+	CALLPTRMEMB(pAddr, Z());
 	if(GetMACAddrList(&ma_list)) {
 		ASSIGN_PTR(pAddr, ma_list.at(0));
 		ok = 1;
 	}
+	return ok;
+}
+//
+//
+//
+SIpAddr::SIpAddr() : binary128()
+{
+}
+	
+bool SIpAddr::IsIp4() const
+{
+	return IsZero() ? false : ismemzero(D+4, sizeof(binary128)-4);
+}
+	
+bool SIpAddr::IsIp6() const
+{
+	return IsZero() ? false : !ismemzero(D+4, sizeof(binary128)-4);
+}
+	
+/*
+char * ossl_ipaddr_to_asc(uchar * p, int len)
+{
+	//
+	// 40 is enough space for the longest IPv6 address + nul terminator byte
+	// XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX\0
+	//
+	char buf[40], * out;
+	int i = 0, remain = 0, bytes = 0;
+	switch(len) {
+		case 4: // IPv4
+		    BIO_snprintf(buf, sizeof(buf), "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
+		    break;
+		case 16: // IPv6
+		    for(out = buf, i = 8, remain = sizeof(buf); i-- > 0 && bytes >= 0; remain -= bytes, out += bytes) {
+			    const char * p_template = (i > 0 ? "%X:" : "%X");
+			    bytes = BIO_snprintf(out, remain, p_template, p[0] << 8 | p[1]);
+			    p += 2;
+		    }
+		    break;
+		default:
+		    BIO_snprintf(buf, sizeof(buf), "<invalid length=%d>", len);
+		    break;
+	}
+	return OPENSSL_strdup(buf);
+}
+*/ 
+
+SString & SIpAddr::ToStr(long fmt, SString & rBuf) const
+{
+	rBuf.Z();
+	if(IsZero()) {
+		rBuf.Cat("0.0.0.0");
+	}
+	else {
+		if(IsIp4()) {
+			rBuf.Cat(D[0]).Dot().Cat(D[1]).Dot().Cat(D[2]).Dot().Cat(D[3]);
+		}
+		else if(IsIp6()) {
+			for(uint i = 0; i < sizeof(D)/2; i++) {
+				if(i)
+					rBuf.Colon();
+				rBuf.CatHex(*reinterpret_cast<const uint16 *>(D+(i<<1)));
+			}
+		}
+		else {
+			constexpr int somethint_went_wrong_with_SIpAddr_ToStr = 0;
+			assert(somethint_went_wrong_with_SIpAddr_ToStr);
+		}
+	}
+	return rBuf;
+}
+
+bool SIpAddr::FromStr(const char * pStr)
+{
+	bool    ok = true;
+	THROW(!isempty(pStr));
+	while(oneof2(pStr[0], ' ', '\t'))
+		pStr++;
+	THROW(pStr[0]);
+	{
+		SString temp_buf(pStr);
+		SString src_buf;
+		bool is_sq_par = false;
+		if(temp_buf.C(0) == '[') {
+			size_t ep = 0;
+			THROW(temp_buf.SearchCharPos(1, ']', &ep) && ep > 2);
+			temp_buf.Sub(1, ep-1, src_buf);
+			is_sq_par = true;
+		}
+		else
+			src_buf = temp_buf;
+		{
+			uint dot_pos = 0;
+			uint colon_pos = 0;
+			const char * p_dot = src_buf.SearchChar('.', &dot_pos);
+			const char * p_colon = src_buf.SearchChar(':', &colon_pos);
+			if(p_dot) {
+				THROW(!is_sq_par);
+				if(!p_colon || colon_pos > dot_pos) {
+					StringSet ss('.', src_buf);
+					uint _v[4];
+					for(uint ssp = 0, _c = 0; ss.get(&ssp, temp_buf); _c++) {
+						THROW(_c < SIZEOFARRAY(_v));
+						THROW(temp_buf.IsDec());
+						{
+							const uint idx = _c; //(SIZEOFARRAY(_v) - _c - 1);
+							assert(idx >= 0 && idx <= 4); // @paranoic
+							_v[idx] = temp_buf.ToULong();
+							THROW(_v[idx] < 256);
+						}
+					}
+					D[0] = static_cast<uint8>(_v[0]);
+					D[1] = static_cast<uint8>(_v[1]);
+					D[2] = static_cast<uint8>(_v[2]);
+					D[3] = static_cast<uint8>(_v[3]);
+				}
+			}
+			else if(p_colon) {
+				if(!p_dot || dot_pos > colon_pos) {
+					StringSet ss(':', src_buf);
+					uint _v[8];
+				}
+			}
+		}
+	}
+	CATCHZOK
 	return ok;
 }

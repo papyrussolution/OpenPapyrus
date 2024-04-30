@@ -54,6 +54,7 @@ void FASTCALL PPBankAccount::GetRegisterRec(RegisterTbl::Rec & rRec) const
 	rRec.ExtID = AccType;
 }
 
+/* @v12.0.0 (replaced with !RegisterCore::IsEqualRec() && r1.ID != r2.ID)
 int FASTCALL operator != (const RegisterTbl::Rec & r1, const RegisterTbl::Rec & r2)
 {
 	if(r1.ID != r2.ID) return 1;
@@ -68,7 +69,7 @@ int FASTCALL operator != (const RegisterTbl::Rec & r1, const RegisterTbl::Rec & 
 	if(!sstreq(r1.Serial, r2.Serial)) return 1;
 	if(!sstreq(r1.Num, r2.Num)) return 1;
 	return 0;
-}
+}*/
 
 /*static*/int FASTCALL RegisterCore::IsEqualRec(const RegisterTbl::Rec & rRec1, const RegisterTbl::Rec & rRec2)
 {
@@ -696,8 +697,10 @@ int RegisterCore::_Put(PPID objType, PPID objID, RegisterArray * pAry, int use_t
 					}
 					else {
 						const RegisterTbl::Rec & r_new_rec = pAry->at(i);
-						if(data != r_new_rec)
+						if(!RegisterCore::IsEqualRec(data, r_new_rec) || data.ID != r_new_rec.ID) { // @v12.0.0 
+						// @v12.0.0 if(data != r_new_rec) {
 							THROW(update_list.add(reg_id));
+						}
 					}
 				} while(search(idx, &k, spNext));
 			}

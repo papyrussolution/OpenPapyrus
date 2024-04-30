@@ -5,7 +5,6 @@
 #define TERM_DRIVER_H
 
 #include "syscfg.h"
-//#include <stdio.h>
 //
 // functions provided by term.c 
 //

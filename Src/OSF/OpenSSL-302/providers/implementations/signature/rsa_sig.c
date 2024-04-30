@@ -21,7 +21,6 @@
 #include <openssl/params.h>
 #include <openssl/evp.h>
 #include <openssl/proverr.h>
-//#include "internal/nelem.h"
 #include "internal/sizes.h"
 #include "crypto/rsa.h"
 #include "prov/providercommon.h"

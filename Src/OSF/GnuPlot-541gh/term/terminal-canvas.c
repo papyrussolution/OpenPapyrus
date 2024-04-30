@@ -851,8 +851,8 @@ TERM_PUBLIC void CANVAS_point(GpTermEntry_Static * pThis, uint x, uint y, int nu
 	/* Hypertext support */
 	if(CANVAS_hypertext_text) {
 		/* EAM DEBUG: embedded \n produce illegal javascript output */
-		while(strchr(CANVAS_hypertext_text, '\n'))
-			*strchr(CANVAS_hypertext_text, '\n') = '\v';
+		while(sstrchr(CANVAS_hypertext_text, '\n'))
+			*sstrchr(CANVAS_hypertext_text, '\n') = '\v';
 		fprintf(GPT.P_GpOutFile, "Hypertext(%d,%d,%.1f,\"%s\");\n", x, (canvas_ymax-y), width, CANVAS_hypertext_text);
 		ZFREE(CANVAS_hypertext_text);
 	}
@@ -1179,14 +1179,14 @@ static int canvas_strwidth(char * s)
 	char * end = s + strlen(s);
 	while(*s) {
 		if((*s & 0x80) == 0) {
-			if(strchr("iIl|", *s)) width += 8;
-			else if(strchr("j`',;:!.", *s)) width += 10;
-			else if(strchr("ftr", *s)) width += 12;
-			else if(strchr("()[]{}\\", *s)) width += 14;
-			else if(strchr(" JTv^_\"*ykLsxz", *s)) width += 16;
-			else if(strchr("AceFV?abdEghnopqu", *s)) width += 18;
-			else if(strchr("M~<>%W=&@", *s)) width += 24;
-			else if(strchr("m", *s)) width += 30;
+			if(sstrchr("iIl|", *s)) width += 8;
+			else if(sstrchr("j`',;:!.", *s)) width += 10;
+			else if(sstrchr("ftr", *s)) width += 12;
+			else if(sstrchr("()[]{}\\", *s)) width += 14;
+			else if(sstrchr(" JTv^_\"*ykLsxz", *s)) width += 16;
+			else if(sstrchr("AceFV?abdEghnopqu", *s)) width += 18;
+			else if(sstrchr("M~<>%W=&@", *s)) width += 24;
+			else if(sstrchr("m", *s)) width += 30;
 			else width += 20;
 			s++;
 			continue;

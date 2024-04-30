@@ -1,3 +1,5 @@
+
+#include <slib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,10 +29,8 @@ static int xgetopt(int argc, char * argv[], char * optstring)
 		scan = argv[xoptind]+1;
 		xoptind++;
 	}
-
 	c = *scan++;
-	place = strchr(optstring, c);
-
+	place = sstrchr(optstring, c);
 	if(!place || c == ':') {
 		slfprintf_stderr("%s: unknown option -%c\n", argv[0], c);
 		return '?';

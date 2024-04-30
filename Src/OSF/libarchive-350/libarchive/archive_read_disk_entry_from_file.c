@@ -45,15 +45,6 @@ __FBSDID("$FreeBSD");
 #ifdef HAVE_COPYFILE_H
 #include <copyfile.h>
 #endif
-//#ifdef HAVE_ERRNO_H
-//#include <errno.h>
-//#endif
-//#ifdef HAVE_FCNTL_H
-//#include <fcntl.h>
-//#endif
-//#ifdef HAVE_LIMITS_H
-//#include <limits.h>
-//#endif
 #ifdef HAVE_LINUX_TYPES_H
 #include <linux/types.h>
 #endif
@@ -76,9 +67,6 @@ __FBSDID("$FreeBSD");
 #ifdef HAVE_PATHS_H
 #include <paths.h>
 #endif
-//#ifdef HAVE_UNISTD_H
-//#include <unistd.h>
-//#endif
 #include "archive_read_disk_private.h"
 
 #ifndef O_CLOEXEC

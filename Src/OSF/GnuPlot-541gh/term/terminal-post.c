@@ -347,7 +347,7 @@ char * PS_escape_string(char * origstr, const char * escapelist)
 		if(newstr) {
 			char * n;
 			for(n = newstr; *origstr; *n++ = *origstr++) {
-				if(strchr(escapelist, *origstr))
+				if(sstrchr(escapelist, *origstr))
 					*n++ = '\\';
 			}
 			*n = '\0';
@@ -3654,7 +3654,7 @@ static void PS_load_glyphlist(GpTermEntry_Static * pThis)
 			if(code >= 0x0100 && !pThis->P_Gp->TPsB.P_Params->adobeglyphnames)
 				continue;
 			next++;
-			len = strchr(next, ';') - next;
+			len = sstrchr(next, ';') - next;
 			strncpy(glyph_name, next, len);
 			glyph_name[len] = '\0';
 			FPRINTF((stderr, "%04X   %s\n", code, glyph_name));

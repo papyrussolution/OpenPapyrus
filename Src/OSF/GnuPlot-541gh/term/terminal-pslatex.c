@@ -169,7 +169,7 @@ void PSTEX_reopen_output(GpTermEntry_Static * pThis)
 		char * dotIndex;
 		// if there's no extension, append ".ps" 
 		if((dotIndex = strrchr(GPT.P_OutStr, '.')) == NULL)
-			dotIndex = strchr(GPT.P_OutStr, '\0');
+			dotIndex = sstrchr(GPT.P_OutStr, '\0');
 		// try to open the auxiliary file for the postscript parts. 
 		if(p_gp->TPsB.P_Params->useauxfile) {
 			// length of outstr plus ('.' or '\0') plus "eps" plus '\0' 
@@ -383,10 +383,10 @@ void EPSLATEX_common_init(GpTermEntry_Static * pThis)
 			strcpy(fontfamily, p_gp->TPsB.P_Params->font);
 			*fontseries = '\0';
 			*fontshape = '\0';
-			if((comma = strchr(fontfamily, ',')) != NULL) {
+			if((comma = sstrchr(fontfamily, ',')) != NULL) {
 				*comma = '\0';
 				strcpy(fontseries, comma+1);
-				if((comma = strchr(fontseries, ',')) != NULL) {
+				if((comma = sstrchr(fontseries, ',')) != NULL) {
 					*comma = '\0';
 					strcpy(fontshape, comma+1);
 				}

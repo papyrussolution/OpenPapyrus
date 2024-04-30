@@ -29,9 +29,6 @@
  **********************************************************************/
 #ifdef CURLRES_IPV4 /* plain IPv4 code coming up */
 
-//#ifdef HAVE_NETINET_IN_H
-//#include <netinet/in.h>
-//#endif
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
@@ -42,11 +39,6 @@
 #include <in.h>
 #include <inet.h>
 #endif
-
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "hostip.h"
-//#include "hash.h"
 #include "share.h"
 #include "url.h"
 /* The last 3 #include files should be in this order */

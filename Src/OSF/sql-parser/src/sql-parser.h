@@ -26,16 +26,22 @@ namespace hsql {
 		TIME,
 		VARCHAR,
 		BINARY, // @sobolev
+		BLOB, // @sobolev
+		MEDIUMBLOB, // @sobolev mysql
+		TINYTEXT, // @sobolev mysql
+		MEDIUMTEXT, // @sobolev mysql
+		LONGTEXT, // @sobolev mysql
 	};
 
 	// Represents the type of a column, e.g., FLOAT or VARCHAR(10)
 	struct ColumnType {
+		static bool Make(const char * pIdent, int len, int prec, ColumnType & rResult, SString & rMsgBuf);
 		ColumnType() = default;
-		ColumnType(DataType data_type, int64_t length = 0, int64_t precision = 0, int64_t scale = 0);
+		ColumnType(DataType data_type, int64 length = 0, int64 precision = 0, int64 scale = 0);
 		DataType data_type;
-		int64_t length; // Used for, e.g., VARCHAR(10)
-		int64_t precision; // Used for, e.g., DECIMAL (6, 4) or TIME (5)
-		int64_t scale; // Used for DECIMAL (6, 4)
+		int64 length; // Used for, e.g., VARCHAR(10)
+		int64 precision; // Used for, e.g., DECIMAL (6, 4) or TIME (5)
+		int64 scale; // Used for DECIMAL (6, 4)
 	};
 
 	bool operator==(const ColumnType& lhs, const ColumnType& rhs);
@@ -123,9 +129,9 @@ namespace hsql {
 	enum FrameBoundType { kFollowing, kPreceding, kCurrentRow };
 
 	struct FrameBound {
-		FrameBound(int64_t offset, FrameBoundType type, bool unbounded);
+		FrameBound(int64 offset, FrameBoundType type, bool unbounded);
 
-		int64_t offset;
+		int64 offset;
 		FrameBoundType type;
 		bool unbounded;
 	};
@@ -145,82 +151,79 @@ namespace hsql {
 
 	// Description of additional fields for a window expression.
 	struct WindowDescription {
-		WindowDescription(std::vector<Expr*>* partitionList, std::vector<OrderDescription*>* orderList,
-			FrameDescription* frameDescription);
+		WindowDescription(std::vector<Expr*>* partitionList, std::vector<OrderDescription*>* orderList, FrameDescription* frameDescription);
 		virtual ~WindowDescription();
 
-		std::vector<Expr*>* partitionList;
-		std::vector<OrderDescription*>* orderList;
-		FrameDescription* frameDescription;
+		std::vector<Expr*> * partitionList;
+		std::vector<OrderDescription*> * orderList;
+		FrameDescription * frameDescription;
 	};
 
 	// Represents SQL expressions (i.e. literals, operators, column_refs).
 	// TODO: When destructing a placeholder expression, we might need to alter the
 	// placeholder_list.
 	struct Expr {
-		Expr(ExprType type);
+		explicit Expr(ExprType type);
 		virtual ~Expr();
 
 		ExprType type;
-
 		// TODO: Replace expressions by list.
-		Expr* expr;
-		Expr* expr2;
-		std::vector<Expr*>* exprList;
-		SelectStatement* select;
-		char* name;
-		char* table;
-		char* alias;
+		Expr * expr;
+		Expr * expr2;
+		std::vector<Expr*> * exprList;
+		SelectStatement * select;
+		char * name;
+		char * table;
+		char * alias;
 		double fval;
-		int64_t ival;
-		int64_t ival2;
+		int64  ival;
+		int64  ival2;
 		DatetimeField datetimeField;
 		ColumnType columnType;
-		bool isBoolLiteral;
 		OperatorType opType;
-		bool distinct;
-
-		WindowDescription* windowDescription;
+		bool   isBoolLiteral;
+		bool   distinct;
+		WindowDescription * windowDescription;
 		//
 		// Convenience accessor methods.
 		//
-		bool isType(ExprType exprType) const;
-		bool isLiteral() const;
-		bool hasAlias() const;
-		bool hasTable() const;
-		const char* getName() const;
+		bool   isType(ExprType exprType) const;
+		bool   isLiteral() const;
+		bool   hasAlias() const;
+		bool   hasTable() const;
+		const  char * getName() const;
 		//
 		// Static constructors.
 		//
-		static Expr* make(ExprType type);
-		static Expr* makeOpUnary(OperatorType op, Expr* expr);
-		static Expr* makeOpBinary(Expr* expr1, OperatorType op, Expr* expr2);
-		static Expr* makeBetween(Expr* expr, Expr* left, Expr* right);
-		static Expr* makeCaseList(Expr* caseListElement);
-		static Expr* makeCaseListElement(Expr* when, Expr* then);
-		static Expr* caseListAppend(Expr* caseList, Expr* caseListElement);
-		static Expr* makeCase(Expr* expr, Expr* when, Expr* elseExpr);
-		static Expr* makeLiteral(int64_t val);
-		static Expr* makeLiteral(double val);
-		static Expr* makeLiteral(char* val);
-		static Expr* makeLiteral(bool val);
-		static Expr* makeNullLiteral();
-		static Expr* makeDateLiteral(char* val);
-		static Expr* makeIntervalLiteral(int64_t duration, DatetimeField unit);
-		static Expr* makeColumnRef(char* name);
-		static Expr* makeColumnRef(char* table, char* name);
-		static Expr* makeStar(void);
-		static Expr* makeStar(char* table);
-		static Expr* makeFunctionRef(char* func_name, std::vector<Expr*>* exprList, bool distinct, WindowDescription* window);
-		static Expr* makeArray(std::vector<Expr*>* exprList);
-		static Expr* makeArrayIndex(Expr* expr, int64_t index);
-		static Expr* makeParameter(int id);
-		static Expr* makeSelect(SelectStatement* select);
-		static Expr* makeExists(SelectStatement* select);
-		static Expr* makeInOperator(Expr* expr, std::vector<Expr*>* exprList);
-		static Expr* makeInOperator(Expr* expr, SelectStatement* select);
-		static Expr* makeExtract(DatetimeField datetimeField1, Expr* expr);
-		static Expr* makeCast(Expr* expr, ColumnType columnType);
+		static Expr * make(ExprType type);
+		static Expr * makeOpUnary(OperatorType op, Expr* expr);
+		static Expr * makeOpBinary(Expr* expr1, OperatorType op, Expr* expr2);
+		static Expr * makeBetween(Expr* expr, Expr* left, Expr* right);
+		static Expr * makeCaseList(Expr* caseListElement);
+		static Expr * makeCaseListElement(Expr* when, Expr* then);
+		static Expr * caseListAppend(Expr* caseList, Expr* caseListElement);
+		static Expr * makeCase(Expr* expr, Expr* when, Expr* elseExpr);
+		static Expr * makeLiteral(int64 val);
+		static Expr * makeLiteral(double val);
+		static Expr * makeLiteral(char* val);
+		static Expr * makeLiteral(bool val);
+		static Expr * makeNullLiteral();
+		static Expr * makeDateLiteral(char* val);
+		static Expr * makeIntervalLiteral(int64 duration, DatetimeField unit);
+		static Expr * makeColumnRef(char* name);
+		static Expr * makeColumnRef(char* table, char* name);
+		static Expr * makeStar(void);
+		static Expr * makeStar(char* table);
+		static Expr * makeFunctionRef(char* func_name, std::vector<Expr*>* exprList, bool distinct, WindowDescription* window);
+		static Expr * makeArray(std::vector<Expr*>* exprList);
+		static Expr * makeArrayIndex(Expr* expr, int64 index);
+		static Expr * makeParameter(int id);
+		static Expr * makeSelect(SelectStatement* select);
+		static Expr * makeExists(SelectStatement* select);
+		static Expr * makeInOperator(Expr* expr, std::vector<Expr*>* exprList);
+		static Expr * makeInOperator(Expr* expr, SelectStatement* select);
+		static Expr * makeExtract(DatetimeField datetimeField1, Expr* expr);
+		static Expr * makeCast(Expr* expr, ColumnType columnType);
 	};
 
 	// Zero initializes an Expr object and assigns it to a space in the heap
@@ -231,7 +234,7 @@ namespace hsql {
 		Expr* var;                          \
 		do {                                \
 			Expr zero = {type};               \
-			var = (Expr*)SAlloc::M(sizeof *var); \
+			var = (Expr *)SAlloc::M(sizeof *var); \
 			*var = zero;                      \
 		} while(0);
 	#undef ALLOC_EXPR
@@ -358,7 +361,8 @@ namespace hsql {
 		NotNull, 
 		Null, 
 		PrimaryKey, 
-		Unique 
+		Unique,
+		AutoIncrement // @sobolev
 	};
 
 	// Superclass for both TableConstraint and Column Definition
@@ -374,27 +378,28 @@ namespace hsql {
 		~TableConstraint() override;
 
 		ConstraintType type;
-		std::vector<char*>* columnNames;
+		std::vector<char*> * columnNames;
 	};
 
 	// Represents definition of a table column
 	struct ColumnDefinition : TableElement {
-		ColumnDefinition(char* name, ColumnType type, std::unordered_set<ConstraintType>* column_constraints);
+		ColumnDefinition(char* name, ColumnType type, std::unordered_set<ConstraintType> * pConstraints);
 		~ColumnDefinition() override;
 		// By default, columns are nullable. However, we track if a column is explicitly requested to be nullable to
 		// notice conflicts with PRIMARY KEY table constraints.
 		bool trySetNullableExplicit() 
 		{
-			if(column_constraints->count(ConstraintType::NotNull) || column_constraints->count(ConstraintType::PrimaryKey)) {
-				if(column_constraints->count(ConstraintType::Null)) {
+			if(P_Constraints->count(ConstraintType::NotNull) || P_Constraints->count(ConstraintType::PrimaryKey)) {
+				if(P_Constraints->count(ConstraintType::Null)) {
 					return false;
 				}
 				nullable = false;
 			}
 			return true;
 		}
-		std::unordered_set<ConstraintType>* column_constraints;
-		char* name;
+		std::unordered_set<ConstraintType> * P_Constraints;
+		char * name;
+		char * P_CharSet; // @sobolev
 		ColumnType type;
 		bool nullable;
 	};
@@ -406,10 +411,33 @@ namespace hsql {
 		kCreateIndex
 	};
 
+	struct IndexSegment {
+		IndexSegment() : Flags(0)
+		{
+		}
+		enum {
+			fDesc = 0x0001
+		};
+		uint   Flags;
+		SString Field;
+	};
+
+	class Index : public TSCollection <IndexSegment> {
+	public:
+		Index() : TSCollection <IndexSegment>(), Flags(0)
+		{
+		}
+		enum {
+			fUnique = 0x0001
+		};
+		uint   Flags;
+		SString Name;
+	};
+
 	// Represents SQL Create statements.
 	// Example: "CREATE TABLE students (name TEXT, student_number INTEGER, city TEXT, grade DOUBLE)"
 	struct CreateStatement : SQLStatement {
-		CreateStatement(CreateType type);
+		explicit CreateStatement(CreateType type);
 		~CreateStatement() override;
 		void setColumnDefsAndConstraints(std::vector<TableElement*>* tableElements);
 
@@ -420,7 +448,8 @@ namespace hsql {
 		char * schema;                            // default: nullptr
 		char * tableName;                         // default: nullptr
 		char * indexName;                         // default: nullptr
-		std::vector<char*> * indexColumns;        // default: nullptr
+		// @sobolev std::vector<char*> * indexColumns;        // default: nullptr
+		Index * P_Idx; // @sobolev
 		std::vector<ColumnDefinition*> * columns; // default: nullptr
 		std::vector<TableConstraint*>  * tableConstraints; // default: nullptr
 		std::vector<char*> * viewColumns;
@@ -790,6 +819,7 @@ namespace hsql {
 		// This does NOT mean that the SQL string was valid SQL. To check that
 		// you need to check result->isValid();
 		static bool parse(const std::string & sql, SQLParserResult* result);
+		static bool parse(const char * pSqlPgm, SQLParserResult * result);
 		// Run tokenization on the given string and store the tokens in the output vector.
 		static bool tokenize(const std::string & sql, std::vector<int16_t>* tokens);
 		// Deprecated.

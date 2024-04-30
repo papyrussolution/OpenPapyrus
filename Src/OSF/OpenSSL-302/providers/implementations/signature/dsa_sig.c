@@ -20,7 +20,6 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 #include <openssl/proverr.h>
-//#include "internal/nelem.h"
 #include "internal/sizes.h"
 #include "prov/providercommon.h"
 #include "prov/implementations.h"

@@ -118,7 +118,7 @@ int ssh_config_parse_uri(const char * tok, char ** username, char ** hostname, c
 	}
 
 	/* Username part (optional) */
-	endp = strchr(tok, '@');
+	endp = sstrchr(tok, '@');
 	if(endp != NULL) {
 		/* Zero-length username is not valid */
 		if(tok == endp) {
@@ -132,7 +132,7 @@ int ssh_config_parse_uri(const char * tok, char ** username, char ** hostname, c
 		}
 		tok = endp + 1;
 		/* If there is second @ character, this does not look like our URI */
-		endp = strchr(tok, '@');
+		endp = sstrchr(tok, '@');
 		if(endp != NULL) {
 			goto error;
 		}
@@ -142,7 +142,7 @@ int ssh_config_parse_uri(const char * tok, char ** username, char ** hostname, c
 	if(*tok == '[') {
 		/* IPv6 address is enclosed with square brackets */
 		tok++;
-		endp = strchr(tok, ']');
+		endp = sstrchr(tok, ']');
 		if(endp == NULL) {
 			goto error;
 		}
@@ -151,7 +151,7 @@ int ssh_config_parse_uri(const char * tok, char ** username, char ** hostname, c
 		/* Hostnames or aliases expand to the last colon or to the end */
 		endp = strrchr(tok, ':');
 		if(endp == NULL) {
-			endp = strchr(tok, '\0');
+			endp = sstrchr(tok, '\0');
 		}
 	}
 	if(tok == endp) {

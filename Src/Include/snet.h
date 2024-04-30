@@ -1,20 +1,20 @@
 // SNET.H
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #ifndef __SNET_H
 #define __SNET_H
 
 #include <slib.h>
-//#ifdef _WIN32_WINNT
-	//#undef _WIN32_WINNT
-//#endif
-// @v10.9.9 #include <ws2tcpip.h>
 //
 //
 //
-struct MACAddr { // @size=6
-	void   Init();
+struct MACAddr { // @persistent @size=6
+	MACAddr();
+	MACAddr(const MACAddr & rS);
+	MACAddr & FASTCALL operator = (const MACAddr & rS);
+	bool   FASTCALL operator == (const MACAddr & rS) const;
+	MACAddr & Z();
 	bool   IsEmpty() const;
 	SString & FASTCALL ToStr(SString & rBuf) const;
 	//
@@ -37,6 +37,17 @@ public:
 
 int GetFirstMACAddr(MACAddr *);
 int GetMACAddrList(MACAddrArray *);
+//
+//
+//
+class SIpAddr : public binary128 { // @persistent @size=16
+public:
+	SIpAddr();
+	bool    IsIp4() const;
+	bool    IsIp6() const;
+	SString & ToStr(long fmt, SString & rBuf) const;
+	bool    FromStr(const char * pStr);
+};
 //
 //
 //

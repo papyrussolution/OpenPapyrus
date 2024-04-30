@@ -6,8 +6,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-//#include "archive_entry_locale.h"
-//#include "archive_write_set_format_private.h"
 
 struct v7tar {
 	uint64 entry_bytes_remaining;

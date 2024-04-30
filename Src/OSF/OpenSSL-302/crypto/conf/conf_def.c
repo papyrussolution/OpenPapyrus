@@ -391,7 +391,7 @@ again:
 				trim_ws(conf, p);
 
 				/* Pragma values take the form keyword:value */
-				pval = strchr(p, ':');
+				pval = sstrchr(p, ':');
 				if(pval == NULL || pval == p || pval[1] == '\0') {
 					ERR_raise(ERR_LIB_CONF, CONF_R_INVALID_PRAGMA);
 					goto err;

@@ -1,5 +1,5 @@
 // PPSPROT.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -194,7 +194,6 @@ int PPJobSrvProtocol::CheckRepError()
 
 PPJobSrvProtocol::StopThreadBlock::StopThreadBlock() : TId(0)
 {
-	MAddr.Init();
 }
 
 int PPJobSrvProtocol::StopThreadBlock::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)

@@ -26,28 +26,15 @@
 #pragma hdrstop
 
 #if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
-
-//#include <curl/curl.h>
 #ifdef USE_HYPER
 #include <hyper.h>
 #endif
-//#include "urldata.h"
-//#include "dynbuf.h"
-//#include "sendf.h"
-//#include "http.h"
 #include "http_proxy.h"
 #include "url.h"
 #include "select.h"
-//#include "progress.h"
-//#include "cfilters.h"
 #include "cf-h1-proxy.h"
-//#include "connect.h"
-//#include "curl_trc.h"
 #include "curlx.h"
 #include "vtls/vtls.h"
-//#include "transfer.h"
-//#include "multiif.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"
@@ -213,12 +200,10 @@ static CURLcode CONNECT_host(struct Curl_easy * data, struct connectdata * conn,
 	char * hostheader; /* for CONNECT */
 	char * host = NULL; /* Host: */
 	bool ipv6_ip = conn->bits.ipv6_ip;
-
 	/* the hostname may be different */
 	if(hostname != conn->host.name)
-		ipv6_ip = (strchr(hostname, ':') != NULL);
-	hostheader = /* host:port with IPv6 support */
-	    aprintf("%s%s%s:%d", ipv6_ip?"[":"", hostname, ipv6_ip?"]":"", remote_port);
+		ipv6_ip = (sstrchr(hostname, ':') != NULL);
+	hostheader = /* host:port with IPv6 support */aprintf("%s%s%s:%d", ipv6_ip?"[":"", hostname, ipv6_ip?"]":"", remote_port);
 	if(!hostheader)
 		return CURLE_OUT_OF_MEMORY;
 	if(!Curl_checkProxyheaders(data, conn, STRCONST("Host"))) {

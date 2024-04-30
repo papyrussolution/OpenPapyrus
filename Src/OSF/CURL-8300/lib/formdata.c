@@ -24,20 +24,14 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
 #include "formdata.h"
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_FORM_API)
 #if defined(HAVE_LIBGEN_H) && defined(HAVE_BASENAME)
 	#include <libgen.h>
 #endif
-//#include "urldata.h" /* for struct Curl_easy */
-//#include "mime.h"
 #include "vtls/vtls.h"
-//#include "strcase.h"
-//#include "sendf.h"
 #include "strdup.h"
 #include "rand.h"
-//#include "warnless.h"
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"

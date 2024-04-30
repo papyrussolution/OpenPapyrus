@@ -25,17 +25,10 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
-//#include "urldata.h"
 #include "url.h"
-//#include "progress.h"
-//#include "multiif.h"
-//#include "sendf.h"
 #include "conncache.h"
 #include "share.h"
 #include "sigpipe.h"
-//#include "connect.h"
-//#include "strcase.h"
 
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"

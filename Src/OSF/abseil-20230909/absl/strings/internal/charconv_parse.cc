@@ -16,9 +16,6 @@
 #pragma hdrstop
 #include "absl/strings/internal/charconv_parse.h"
 #include "absl/strings/charconv.h"
-//#include <cassert>
-//#include <cstdint>
-//#include <limits>
 #include "absl/strings/internal/memutil.h"
 
 namespace absl {
@@ -197,9 +194,8 @@ template <> constexpr int DigitMagnitude<16>() { return 4; }
 //
 // ConsumeDigits does not protect against overflow on *out; max_digits must
 // be chosen with respect to type T to avoid the possibility of overflow.
-template <int base, typename T>
-int ConsumeDigits(const char* begin, const char* end, int max_digits, T* out,
-    bool* dropped_nonzero_digit) {
+template <int base, typename T> int ConsumeDigits(const char* begin, const char* end, int max_digits, T* out, bool* dropped_nonzero_digit) 
+{
 	if(base == 10) {
 		assert(max_digits <= std::numeric_limits<T>::digits10);
 	}
@@ -207,15 +203,13 @@ int ConsumeDigits(const char* begin, const char* end, int max_digits, T* out,
 		assert(max_digits * 4 <= std::numeric_limits<T>::digits);
 	}
 	const char* const original_begin = begin;
-
 	// Skip leading zeros, but only if *out is zero.
 	// They don't cause an overflow so we don't have to count them for
 	// `max_digits`.
-	while(!*out && end != begin && *begin == '0') ++begin;
-
+	while(!*out && end != begin && *begin == '0') 
+		++begin;
 	T accumulator = *out;
-	const char* significant_digits_end =
-	    (end - begin > max_digits) ? begin + max_digits : end;
+	const char* significant_digits_end = (end - begin > max_digits) ? begin + max_digits : end;
 	while(begin < significant_digits_end && IsDigit<base>(*begin)) {
 		// Do not guard against *out overflow; max_digits was chosen to avoid this.
 		// Do assert against it, to detect problems in debug builds.
@@ -455,10 +449,8 @@ strings_internal::ParsedFloat ParseFloat(const char* begin, const char* end,
 	return result;
 }
 
-template ParsedFloat ParseFloat<10>(const char* begin, const char* end,
-    chars_format format_flags);
-template ParsedFloat ParseFloat<16>(const char* begin, const char* end,
-    chars_format format_flags);
+template ParsedFloat ParseFloat<10>(const char* begin, const char* end, chars_format format_flags);
+template ParsedFloat ParseFloat<16>(const char* begin, const char* end, chars_format format_flags);
 }  // namespace strings_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

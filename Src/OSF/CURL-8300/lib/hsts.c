@@ -28,19 +28,13 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_HSTS)
-//#include <curl/curl.h>
-//#include "urldata.h"
-//#include "llist.h"
 #include "hsts.h"
 #include "curl_get_line.h"
-//#include "strcase.h"
-//#include "sendf.h"
 #include "strtoofft.h"
 #include "parsedate.h"
 #include "fopen.h"
 #include "rename.h"
 #include "share.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"

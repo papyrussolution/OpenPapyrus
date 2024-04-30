@@ -34,7 +34,7 @@
 //
 #define HAVE_IEEEFP 1 /* Define as 0 or 1 according to the floating point format suported by the machine */
 #define HOST_FILLORDER FILLORDER_MSB2LSB /* Set the native cpu bit order (FILLORDER_LSB2MSB or FILLORDER_MSB2LSB) */
-#define HOST_BIGENDIAN 0 /* Native cpu byte order: 1 if big-endian (Motorola) or 0 if little-endian (Intel) */
+// @v12.0.0 (replaced with SL_BIGENDIAN) #define HOST_BIGENDIAN 0 /* Native cpu byte order: 1 if big-endian (Motorola) or 0 if little-endian (Intel) */
 #define CCITT_SUPPORT 1 /* Support CCITT Group 3 & 4 algorithms */
 /* #undef JPEG_SUPPORT */ /* Support JPEG compression (requires IJG JPEG library) */
 #define JPEG_SUPPORT 1
@@ -117,12 +117,9 @@
  * Some types as promoted in a variable argument list
  * We use uint16_vap rather then directly using int, because this way
  * we document the type we actually want to pass through, conceptually,
- * rather then confusing the issue by merely stating the type it gets
- * promoted to
+ * rather then confusing the issue by merely stating the type it gets promoted to
  */
-
 typedef int uint16_vap;
-
 /*
  * TIFF header.
  */
@@ -142,8 +139,6 @@ typedef struct {
 	uint16 tiff_unused; /* unused word, should be 0 */
 	uint64 tiff_diroff; /* byte offset to first directory */
 } TIFFHeaderBig;
-
-
 /*
  * NB: In the comments below,
  *  - items marked with a + are obsoleted by revision 5.0,
@@ -152,7 +147,6 @@ typedef struct {
  *  - items marked with a $ are obsoleted by revision 6.0.
  *  - items marked with a & are introduced by Adobe DNG specification.
  */
-
 /*
  * Tag data type information.
  *
@@ -182,87 +176,87 @@ typedef enum {
  * TIFF Tag Definitions.
  */
 #define	TIFFTAG_SUBFILETYPE		254	/* subfile data descriptor */
-#define	    FILETYPE_REDUCEDIMAGE	0x1	/* reduced resolution version */
-#define	    FILETYPE_PAGE		0x2	/* one page of many */
-#define	    FILETYPE_MASK		0x4	/* transparency mask */
+#define	FILETYPE_REDUCEDIMAGE	0x1	/* reduced resolution version */
+#define	FILETYPE_PAGE		0x2	/* one page of many */
+#define	FILETYPE_MASK		0x4	/* transparency mask */
 #define	TIFFTAG_OSUBFILETYPE		255	/* +kind of data in subfile */
-#define	    OFILETYPE_IMAGE		1	/* full resolution image data */
-#define	    OFILETYPE_REDUCEDIMAGE	2	/* reduced size image data */
-#define	    OFILETYPE_PAGE		3	/* one page of many */
+#define	OFILETYPE_IMAGE		1	/* full resolution image data */
+#define	OFILETYPE_REDUCEDIMAGE	2	/* reduced size image data */
+#define	OFILETYPE_PAGE		3	/* one page of many */
 #define	TIFFTAG_IMAGEWIDTH		256	/* image width in pixels */
 #define	TIFFTAG_IMAGELENGTH		257	/* image height in pixels */
 #define	TIFFTAG_BITSPERSAMPLE		258	/* bits per channel (sample) */
 #define	TIFFTAG_COMPRESSION		259	/* data compression technique */
-#define	    COMPRESSION_NONE		1	/* dump mode */
-#define	    COMPRESSION_CCITTRLE	2	/* CCITT modified Huffman RLE */
-#define	    COMPRESSION_CCITTFAX3	3	/* CCITT Group 3 fax encoding */
+#define	COMPRESSION_NONE		1	/* dump mode */
+#define	COMPRESSION_CCITTRLE	2	/* CCITT modified Huffman RLE */
+#define	COMPRESSION_CCITTFAX3	3	/* CCITT Group 3 fax encoding */
 #define COMPRESSION_CCITT_T4        3       /* CCITT T.4 (TIFF 6 name) */
-#define	    COMPRESSION_CCITTFAX4	4	/* CCITT Group 4 fax encoding */
+#define	COMPRESSION_CCITTFAX4	4	/* CCITT Group 4 fax encoding */
 #define COMPRESSION_CCITT_T6        4       /* CCITT T.6 (TIFF 6 name) */
-#define	    COMPRESSION_LZW		5       /* Lempel-Ziv  & Welch */
-#define	    COMPRESSION_OJPEG		6	/* !6.0 JPEG */
-#define	    COMPRESSION_JPEG		7	/* %JPEG DCT compression */
+#define	COMPRESSION_LZW		5       /* Lempel-Ziv  & Welch */
+#define	COMPRESSION_OJPEG		6	/* !6.0 JPEG */
+#define	COMPRESSION_JPEG		7	/* %JPEG DCT compression */
 #define COMPRESSION_T85			9	/* !TIFF/FX T.85 JBIG compression */
 #define COMPRESSION_T43			10	/* !TIFF/FX T.43 colour by layered JBIG compression */
-#define	    COMPRESSION_NEXT		32766	/* NeXT 2-bit RLE */
-#define	    COMPRESSION_CCITTRLEW	32771	/* #1 w/ word alignment */
-#define	    COMPRESSION_PACKBITS	32773	/* Macintosh RLE */
-#define	    COMPRESSION_THUNDERSCAN	32809	/* ThunderScan RLE */
+#define	COMPRESSION_NEXT		32766	/* NeXT 2-bit RLE */
+#define	COMPRESSION_CCITTRLEW	32771	/* #1 w/ word alignment */
+#define	COMPRESSION_PACKBITS	32773	/* Macintosh RLE */
+#define	COMPRESSION_THUNDERSCAN	32809	/* ThunderScan RLE */
 /* codes 32895-32898 are reserved for ANSI IT8 TIFF/IT <dkelly@apago.com) */
-#define	    COMPRESSION_IT8CTPAD	32895   /* IT8 CT w/padding */
-#define	    COMPRESSION_IT8LW		32896   /* IT8 Linework RLE */
-#define	    COMPRESSION_IT8MP		32897   /* IT8 Monochrome picture */
-#define	    COMPRESSION_IT8BL		32898   /* IT8 Binary line art */
+#define	COMPRESSION_IT8CTPAD	32895   /* IT8 CT w/padding */
+#define	COMPRESSION_IT8LW		32896   /* IT8 Linework RLE */
+#define	COMPRESSION_IT8MP		32897   /* IT8 Monochrome picture */
+#define	COMPRESSION_IT8BL		32898   /* IT8 Binary line art */
 /* compression codes 32908-32911 are reserved for Pixar */
 #define COMPRESSION_PIXARFILM	32908   /* Pixar companded 10bit LZW */
-#define	    COMPRESSION_PIXARLOG	32909   /* Pixar companded 11bit ZIP */
-#define	    COMPRESSION_DEFLATE		32946	/* Deflate compression */
+#define	COMPRESSION_PIXARLOG	32909   /* Pixar companded 11bit ZIP */
+#define	COMPRESSION_DEFLATE		32946	/* Deflate compression */
 #define COMPRESSION_ADOBE_DEFLATE   8       /* Deflate compression,
 						   as recognized by Adobe */
 /* compression code 32947 is reserved for Oceana Matrix <dev@oceana.com> */
 #define COMPRESSION_DCS             32947   /* Kodak DCS encoding */
-#define	    COMPRESSION_JBIG		34661	/* ISO JBIG */
+#define	COMPRESSION_JBIG		34661	/* ISO JBIG */
 #define COMPRESSION_SGILOG		34676	/* SGI Log Luminance RLE */
 #define COMPRESSION_SGILOG24	34677	/* SGI Log 24-bit packed */
 #define COMPRESSION_JP2000          34712   /* Leadtools JPEG2000 */
-#define	    COMPRESSION_LZMA		34925	/* LZMA2 */
+#define	COMPRESSION_LZMA		34925	/* LZMA2 */
 #define	TIFFTAG_PHOTOMETRIC		262	/* photometric interpretation */
-#define	    PHOTOMETRIC_MINISWHITE	0	/* min value is white */
-#define	    PHOTOMETRIC_MINISBLACK	1	/* min value is black */
-#define	    PHOTOMETRIC_RGB		2	/* RGB color model */
-#define	    PHOTOMETRIC_PALETTE		3	/* color map indexed */
-#define	    PHOTOMETRIC_MASK		4	/* $holdout mask */
-#define	    PHOTOMETRIC_SEPARATED	5	/* !color separations */
-#define	    PHOTOMETRIC_YCBCR		6	/* !CCIR 601 */
-#define	    PHOTOMETRIC_CIELAB		8	/* !1976 CIE L*a*b* */
-#define	    PHOTOMETRIC_ICCLAB		9	/* ICC L*a*b* [Adobe TIFF Technote 4] */
-#define	    PHOTOMETRIC_ITULAB		10	/* ITU L*a*b* */
-#define	    PHOTOMETRIC_CFA		32803	/* color filter array */
+#define	PHOTOMETRIC_MINISWHITE	0	/* min value is white */
+#define	PHOTOMETRIC_MINISBLACK	1	/* min value is black */
+#define	PHOTOMETRIC_RGB		2	/* RGB color model */
+#define	PHOTOMETRIC_PALETTE		3	/* color map indexed */
+#define	PHOTOMETRIC_MASK		4	/* $holdout mask */
+#define	PHOTOMETRIC_SEPARATED	5	/* !color separations */
+#define	PHOTOMETRIC_YCBCR		6	/* !CCIR 601 */
+#define	PHOTOMETRIC_CIELAB		8	/* !1976 CIE L*a*b* */
+#define	PHOTOMETRIC_ICCLAB		9	/* ICC L*a*b* [Adobe TIFF Technote 4] */
+#define	PHOTOMETRIC_ITULAB		10	/* ITU L*a*b* */
+#define	PHOTOMETRIC_CFA		32803	/* color filter array */
 #define PHOTOMETRIC_LOGL		32844	/* CIE Log2(L) */
 #define PHOTOMETRIC_LOGLUV		32845	/* CIE Log2(L) (u',v') */
 #define	TIFFTAG_THRESHHOLDING		263	/* +thresholding used on data */
-#define	    THRESHHOLD_BILEVEL		1	/* b&w art scan */
-#define	    THRESHHOLD_HALFTONE		2	/* or dithered scan */
-#define	    THRESHHOLD_ERRORDIFFUSE	3	/* usually floyd-steinberg */
+#define	THRESHHOLD_BILEVEL		1	/* b&w art scan */
+#define	THRESHHOLD_HALFTONE		2	/* or dithered scan */
+#define	THRESHHOLD_ERRORDIFFUSE	3	/* usually floyd-steinberg */
 #define	TIFFTAG_CELLWIDTH		264	/* +dithering matrix width */
 #define	TIFFTAG_CELLLENGTH		265	/* +dithering matrix height */
 #define	TIFFTAG_FILLORDER		266	/* data order within a byte */
-#define	    FILLORDER_MSB2LSB		1	/* most significant -> least */
-#define	    FILLORDER_LSB2MSB		2	/* least significant -> most */
+#define	FILLORDER_MSB2LSB		1	/* most significant -> least */
+#define	FILLORDER_LSB2MSB		2	/* least significant -> most */
 #define	TIFFTAG_DOCUMENTNAME		269	/* name of doc. image is from */
 #define	TIFFTAG_IMAGEDESCRIPTION	270	/* info about image */
 #define	TIFFTAG_MAKE			271	/* scanner manufacturer name */
 #define	TIFFTAG_MODEL			272	/* scanner model name/number */
 #define	TIFFTAG_STRIPOFFSETS		273	/* offsets to data strips */
 #define	TIFFTAG_ORIENTATION		274	/* +image orientation */
-#define	    ORIENTATION_TOPLEFT		1	/* row 0 top, col 0 lhs */
-#define	    ORIENTATION_TOPRIGHT	2	/* row 0 top, col 0 rhs */
-#define	    ORIENTATION_BOTRIGHT	3	/* row 0 bottom, col 0 rhs */
-#define	    ORIENTATION_BOTLEFT		4	/* row 0 bottom, col 0 lhs */
-#define	    ORIENTATION_LEFTTOP		5	/* row 0 lhs, col 0 top */
-#define	    ORIENTATION_RIGHTTOP	6	/* row 0 rhs, col 0 top */
-#define	    ORIENTATION_RIGHTBOT	7	/* row 0 rhs, col 0 bottom */
-#define	    ORIENTATION_LEFTBOT		8	/* row 0 lhs, col 0 bottom */
+#define	ORIENTATION_TOPLEFT		1	/* row 0 top, col 0 lhs */
+#define	ORIENTATION_TOPRIGHT	2	/* row 0 top, col 0 rhs */
+#define	ORIENTATION_BOTRIGHT	3	/* row 0 bottom, col 0 rhs */
+#define	ORIENTATION_BOTLEFT		4	/* row 0 bottom, col 0 lhs */
+#define	ORIENTATION_LEFTTOP		5	/* row 0 lhs, col 0 top */
+#define	ORIENTATION_RIGHTTOP	6	/* row 0 rhs, col 0 top */
+#define	ORIENTATION_RIGHTBOT	7	/* row 0 rhs, col 0 bottom */
+#define	ORIENTATION_LEFTBOT		8	/* row 0 lhs, col 0 bottom */
 #define	TIFFTAG_SAMPLESPERPIXEL		277	/* samples per pixel */
 #define	TIFFTAG_ROWSPERSTRIP		278	/* rows per strip of data */
 #define	TIFFTAG_STRIPBYTECOUNTS		279	/* bytes counts for strips */
@@ -271,39 +265,39 @@ typedef enum {
 #define	TIFFTAG_XRESOLUTION		282	/* pixels/resolution in x */
 #define	TIFFTAG_YRESOLUTION		283	/* pixels/resolution in y */
 #define	TIFFTAG_PLANARCONFIG		284	/* storage organization */
-#define	    PLANARCONFIG_CONTIG		1	/* single image plane */
-#define	    PLANARCONFIG_SEPARATE	2	/* separate planes of data */
+#define	PLANARCONFIG_CONTIG		1	/* single image plane */
+#define	PLANARCONFIG_SEPARATE	2	/* separate planes of data */
 #define	TIFFTAG_PAGENAME		285	/* page name image is from */
 #define	TIFFTAG_XPOSITION		286	/* x page offset of image lhs */
 #define	TIFFTAG_YPOSITION		287	/* y page offset of image lhs */
 #define	TIFFTAG_FREEOFFSETS		288	/* +byte offset to free block */
 #define	TIFFTAG_FREEBYTECOUNTS		289	/* +sizes of free blocks */
 #define	TIFFTAG_GRAYRESPONSEUNIT	290	/* $gray scale curve accuracy */
-#define	    GRAYRESPONSEUNIT_10S	1	/* tenths of a unit */
-#define	    GRAYRESPONSEUNIT_100S	2	/* hundredths of a unit */
-#define	    GRAYRESPONSEUNIT_1000S	3	/* thousandths of a unit */
-#define	    GRAYRESPONSEUNIT_10000S	4	/* ten-thousandths of a unit */
-#define	    GRAYRESPONSEUNIT_100000S	5	/* hundred-thousandths */
+#define	GRAYRESPONSEUNIT_10S	1	/* tenths of a unit */
+#define	GRAYRESPONSEUNIT_100S	2	/* hundredths of a unit */
+#define	GRAYRESPONSEUNIT_1000S	3	/* thousandths of a unit */
+#define	GRAYRESPONSEUNIT_10000S	4	/* ten-thousandths of a unit */
+#define	GRAYRESPONSEUNIT_100000S	5	/* hundred-thousandths */
 #define	TIFFTAG_GRAYRESPONSECURVE	291	/* $gray scale response curve */
 #define	TIFFTAG_GROUP3OPTIONS		292	/* 32 flag bits */
 #define	TIFFTAG_T4OPTIONS		292	/* TIFF 6.0 proper name alias */
-#define	    GROUP3OPT_2DENCODING	0x1	/* 2-dimensional coding */
-#define	    GROUP3OPT_UNCOMPRESSED	0x2	/* data not compressed */
-#define	    GROUP3OPT_FILLBITS		0x4	/* fill to byte boundary */
+#define	GROUP3OPT_2DENCODING	0x1	/* 2-dimensional coding */
+#define	GROUP3OPT_UNCOMPRESSED	0x2	/* data not compressed */
+#define	GROUP3OPT_FILLBITS		0x4	/* fill to byte boundary */
 #define	TIFFTAG_GROUP4OPTIONS		293	/* 32 flag bits */
 #define TIFFTAG_T6OPTIONS               293     /* TIFF 6.0 proper name */
-#define	    GROUP4OPT_UNCOMPRESSED	0x2	/* data not compressed */
+#define	GROUP4OPT_UNCOMPRESSED	0x2	/* data not compressed */
 #define	TIFFTAG_RESOLUTIONUNIT		296	/* units of resolutions */
-#define	    RESUNIT_NONE		1	/* no meaningful units */
-#define	    RESUNIT_INCH		2	/* english */
-#define	    RESUNIT_CENTIMETER		3	/* metric */
+#define	RESUNIT_NONE		1	/* no meaningful units */
+#define	RESUNIT_INCH		2	/* english */
+#define	RESUNIT_CENTIMETER		3	/* metric */
 #define	TIFFTAG_PAGENUMBER		297	/* page numbers of multi-page */
 #define	TIFFTAG_COLORRESPONSEUNIT	300	/* $color curve accuracy */
-#define	    COLORRESPONSEUNIT_10S	1	/* tenths of a unit */
-#define	    COLORRESPONSEUNIT_100S	2	/* hundredths of a unit */
-#define	    COLORRESPONSEUNIT_1000S	3	/* thousandths of a unit */
-#define	    COLORRESPONSEUNIT_10000S	4	/* ten-thousandths of a unit */
-#define	    COLORRESPONSEUNIT_100000S	5	/* hundred-thousandths */
+#define	COLORRESPONSEUNIT_10S	1	/* tenths of a unit */
+#define	COLORRESPONSEUNIT_100S	2	/* hundredths of a unit */
+#define	COLORRESPONSEUNIT_1000S	3	/* thousandths of a unit */
+#define	COLORRESPONSEUNIT_10000S	4	/* ten-thousandths of a unit */
+#define	COLORRESPONSEUNIT_100000S	5	/* hundred-thousandths */
 #define	TIFFTAG_TRANSFERFUNCTION	301	/* !colorimetry info */
 #define	TIFFTAG_SOFTWARE		305	/* name & release */
 #define	TIFFTAG_DATETIME		306	/* creation date and time */

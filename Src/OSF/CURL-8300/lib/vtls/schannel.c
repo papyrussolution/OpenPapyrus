@@ -41,20 +41,13 @@
 #include "schannel_int.h"
 #include "vtls.h"
 #include "vtls_int.h"
-//#include "strcase.h"
-//#include "sendf.h"
-//#include "connect.h" /* for the connect timeout */
 #include "strerror.h"
 #include "select.h" /* for the socket readiness */
 #include "inet_pton.h" /* for IP addr SNI check */
 #include "curl_multibyte.h"
-//#include "warnless.h"
 #include "x509asn1.h"
-//#include "curl_printf.h"
-//#include "multiif.h"
 #include "version_win32.h"
 #include "rand.h"
-
 /* The last #include file should be: */
 #include "curl_memory.h"
 #include "memdebug.h"
@@ -364,7 +357,7 @@ static const struct algo algs[] = {
 
 static int get_alg_id_by_name(char * name)
 {
-	char * nameEnd = strchr(name, ':');
+	char * nameEnd = sstrchr(name, ':');
 	size_t n = nameEnd ? (size_t)(nameEnd - name) : strlen(name);
 	int i;
 
@@ -395,7 +388,7 @@ static CURLcode set_ssl_ciphers(SCHANNEL_CRED * schannel_cred, char * ciphers,
 			schannel_cred->dwFlags |= SCH_USE_STRONG_CRYPTO;
 		else
 			return CURLE_SSL_CIPHER;
-		startCur = strchr(startCur, ':');
+		startCur = sstrchr(startCur, ':');
 		if(startCur)
 			startCur++;
 	}
@@ -810,7 +803,7 @@ static CURLcode schannel_acquire_credential_handle(struct Curl_cfilter * cf,
 			disable_aes_ccm_sha256 = TRUE;
 
 			while(startCur && (0 != *startCur) && (algCount < remaining_ciphers)) {
-				nameEnd = strchr(startCur, ':');
+				nameEnd = sstrchr(startCur, ':');
 				n = nameEnd ? (size_t)(nameEnd - startCur) : strlen(startCur);
 
 				/* reject too-long cipher names */

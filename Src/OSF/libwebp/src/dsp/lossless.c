@@ -15,8 +15,6 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dec/vp8li_dec.h"
-//#include "src/utils/endian_inl_utils.h"
 #include "src/dsp/lossless.h"
 #include "src/dsp/lossless_common.h"
 //

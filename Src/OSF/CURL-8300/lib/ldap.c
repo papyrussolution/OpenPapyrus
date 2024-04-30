@@ -75,19 +75,9 @@
 #include <ldap_ssl.h>
 #endif /* HAVE_LDAP_SSL && HAVE_LDAP_SSL_H */
 #endif
-
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "sendf.h"
-//#include "escape.h"
-//#include "progress.h"
-//#include "transfer.h"
-//#include "strcase.h"
 #include "strtok.h"
 #include "curl_ldap.h"
 #include "curl_multibyte.h"
-//#include "curl_base64.h"
-//#include "connect.h"
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"
@@ -809,10 +799,10 @@ static bool split_str(char * str, char *** out, size_t * count)
 	char * s;
 	size_t i;
 	size_t items = 1;
-	s = strchr(str, ',');
+	s = sstrchr(str, ',');
 	while(s) {
 		items++;
-		s = strchr(++s, ',');
+		s = sstrchr(++s, ',');
 	}
 	res = (char **)SAlloc::C(items, sizeof(char *));
 	if(!res)
@@ -911,7 +901,7 @@ static int _ldap_url_parse2(struct Curl_easy * data,
 		goto quit;
 
 	/* Parse the attributes. skip "??" */
-	q = strchr(p, '?');
+	q = sstrchr(p, '?');
 	if(q)
 		*q++ = '\0';
 
@@ -981,7 +971,7 @@ static int _ldap_url_parse2(struct Curl_easy * data,
 		goto quit;
 
 	/* Parse the scope. skip "??" */
-	q = strchr(p, '?');
+	q = sstrchr(p, '?');
 	if(q)
 		*q++ = '\0';
 
@@ -1000,7 +990,7 @@ static int _ldap_url_parse2(struct Curl_easy * data,
 		goto quit;
 
 	/* Parse the filter */
-	q = strchr(p, '?');
+	q = sstrchr(p, '?');
 	if(q)
 		*q++ = '\0';
 

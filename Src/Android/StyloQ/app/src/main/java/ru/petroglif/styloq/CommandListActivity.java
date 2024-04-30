@@ -351,7 +351,7 @@ public class CommandListActivity extends SLib.SlActivity {
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					if(ev_subj != null) {
 						SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.CTL_BUTTON_RUNCMD);
-						SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.CTL_BUTTON_RUNCMD_FORCEUPDATE);
+						SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.CTL_BUTTON_FORCEUPDATE);
 						result = ev_subj.RvHolder;
 					}
 				}
@@ -378,7 +378,7 @@ public class CommandListActivity extends SLib.SlActivity {
 							StyloQCommand.Item cmd_item = ListData.GetViewItem(ev_subj.ItemIdx);
 							if(cmd_item != null && StyloQCommand.IsCommandPending(SvcIdent, cmd_item) == 0) {
 								if(ev_subj.ItemView != null) {
-									if(ev_subj.ItemView.getId() == R.id.CTL_BUTTON_RUNCMD || ev_subj.ItemView.getId() == R.id.CTL_BUTTON_RUNCMD_FORCEUPDATE) {
+									if(ev_subj.ItemView.getId() == R.id.CTL_BUTTON_RUNCMD || ev_subj.ItemView.getId() == R.id.CTL_BUTTON_FORCEUPDATE) {
 										double _max_dist = cmd_item.GetGeoDistanceRestriction();
 										if(_max_dist > 0.0) {
 											// Команда будет запущена после получения координат (see case SLib.EV_GEOLOCDETECTED here)
@@ -395,7 +395,7 @@ public class CommandListActivity extends SLib.SlActivity {
 												Helper_RunCmd(cmd_item, null, false);
 												RefreshStatus();
 											}
-											else if(ev_subj.ItemView.getId() == R.id.CTL_BUTTON_RUNCMD_FORCEUPDATE) {
+											else if(ev_subj.ItemView.getId() == R.id.CTL_BUTTON_FORCEUPDATE) {
 												Helper_RunCmd(cmd_item, null, true);
 												RefreshStatus();
 											}
@@ -499,7 +499,7 @@ public class CommandListActivity extends SLib.SlActivity {
 												}
 											}
 											{
-												View v = iv.findViewById(R.id.CTL_BUTTON_RUNCMD_FORCEUPDATE);
+												View v = iv.findViewById(R.id.CTL_BUTTON_FORCEUPDATE);
 												if(v != null) {
 													v.setVisibility(force_update_cmd_is_visible ? View.VISIBLE : View.GONE);
 												}

@@ -498,7 +498,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_getCCSID(const UConverter * converter, UErrorCode 
 		/* Rare case. This is for cases like gb18030, which doesn't have an IBM canonical name, but does have an IBM alias. */
 		const char * standardName = ucnv_getStandardName(ucnv_getName(converter, err), "IBM", err);
 		if(U_SUCCESS(*err) && standardName) {
-			const char * ccsidStr = uprv_strchr(standardName, '-');
+			const char * ccsidStr = sstrchr(standardName, '-');
 			if(ccsidStr)
 				ccsid = (int32_t)atol(ccsidStr+1); /* +1 to skip '-' */
 		}
@@ -1767,7 +1767,7 @@ U_CAPI void U_EXPORT2 ucnv_convertEx(UConverter * targetCnv, UConverter * source
 	}
 	if(sourceLimit==NULL) {
 		/* get limit of single-byte-NUL-terminated source string */
-		sourceLimit = uprv_strchr(*source, 0);
+		sourceLimit = sstrchr(*source, 0);
 	}
 	if(reset) {
 		ucnv_resetToUnicode(sourceCnv);
@@ -2056,7 +2056,7 @@ static int32_t ucnv_internalConvert(UConverter * outConverter, UConverter * inCo
 
 	/* set up */
 	if(sourceLength<0) {
-		sourceLimit = uprv_strchr(source, 0);
+		sourceLimit = sstrchr(source, 0);
 	}
 	else {
 		sourceLimit = source+sourceLength;

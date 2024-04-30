@@ -72,7 +72,7 @@ int OSSL_parse_url(const char * url, char ** pscheme, char ** puser, char ** pho
 
 	/* parse optional "userinfo@" */
 	user = user_end = host = p;
-	host = strchr(p, '@');
+	host = sstrchr(p, '@');
 	if(host)
 		user_end = host++;
 	else
@@ -80,20 +80,20 @@ int OSSL_parse_url(const char * url, char ** pscheme, char ** puser, char ** pho
 	/* parse host name/address as far as needed here */
 	if(host[0] == '[') {
 		/* ipv6 literal, which may include ':' */
-		host_end = strchr(host + 1, ']');
+		host_end = sstrchr(host + 1, ']');
 		if(host_end == NULL)
 			goto parse_err;
 		p = ++host_end;
 	}
 	else {
 		/* look for start of optional port, path, query, or fragment */
-		host_end = strchr(host, ':');
+		host_end = sstrchr(host, ':');
 		if(host_end == NULL)
-			host_end = strchr(host, '/');
+			host_end = sstrchr(host, '/');
 		if(host_end == NULL)
-			host_end = strchr(host, '?');
+			host_end = sstrchr(host, '?');
 		if(host_end == NULL)
-			host_end = strchr(host, '#');
+			host_end = sstrchr(host, '#');
 		if(host_end == NULL) /* the remaining string is just the hostname */
 			host_end = host + strlen(host);
 		p = host_end;
@@ -123,7 +123,7 @@ int OSSL_parse_url(const char * url, char ** pscheme, char ** puser, char ** pho
 	path_end = query = query_end = frag = frag_end = path + strlen(path);
 
 	/* parse optional "?query" */
-	tmp = strchr(p, '?');
+	tmp = sstrchr(p, '?');
 	if(tmp != NULL) {
 		p = tmp;
 		if(pquery != NULL) {
@@ -133,7 +133,7 @@ int OSSL_parse_url(const char * url, char ** pscheme, char ** puser, char ** pho
 	}
 
 	/* parse optional "#fragment" */
-	tmp = strchr(p, '#');
+	tmp = sstrchr(p, '#');
 	if(tmp != NULL) {
 		if(query == path_end) /* we did not record a query component */
 			path_end = tmp;

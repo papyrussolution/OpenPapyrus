@@ -181,7 +181,7 @@ void GnuPlot::TermSetOutput(GpTermEntry * pTerm, char * pDest)
 #if defined(PIPES)
 		if(*pDest == '|') {
 			RestrictPOpen();
-#if defined(_WIN32 ) || defined(MSDOS)
+#if defined(_WIN32) || defined(MSDOS)
 			if(pTerm && (pTerm->flags & TERM_BINARY))
 				f = popen(pDest + 1, "wb");
 			else
@@ -522,7 +522,7 @@ void GnuPlot::WriteMultiline(GpTermEntry * pTerm, int x, int y, const char * pTe
 	if(pText_) {
 		char * p_local_buf = 0;
 		char * p_text = 0;
-		if(strchr(pText_, '\n') || strchr(pText_, '\r')) {
+		if(sstrchr(pText_, '\n') || sstrchr(pText_, '\r')) {
 			p_local_buf = sstrdup(pText_);
 			p_text = p_local_buf;
 		}
@@ -545,7 +545,7 @@ void GnuPlot::WriteMultiline(GpTermEntry * pTerm, int x, int y, const char * pTe
 				y += (vert * lines * pTerm->CV()) / 2;
 		}
 		for(;;) { // we will explicitly break out 
-			if(p_text && (p = strchr(p_text, '\n')) != NULL)
+			if(p_text && (p = sstrchr(p_text, '\n')) != NULL)
 				*p = 0; // terminate the string 
 			if(pTerm->justify_text(pTerm, hor)) {
 				if(on_page(pTerm, x, y))
@@ -1187,8 +1187,8 @@ GpTermEntry * GnuPlot::SetTerm()
 		char * input_name = Pgm.P_InputLine + Pgm.GetCurTokenStartIndex();
 		p_term = ChangeTerm(input_name, Pgm.GetCurTokenLength());
 		if(!p_term && IsStringValue(Pgm.GetCurTokenIdx()) && (input_name = TryToGetString())) {
-			if(strchr(input_name, ' '))
-				*strchr(input_name, ' ') = '\0';
+			if(sstrchr(input_name, ' '))
+				*sstrchr(input_name, ' ') = '\0';
 			p_term = ChangeTerm(input_name, strlen(input_name));
 			SAlloc::F(input_name);
 		}
@@ -1346,8 +1346,8 @@ void GnuPlot::InitTerminal()
 		int namelength = strlen(term_name);
 		udvt_entry * name = Ev.AddUdvByName("GNUTERM");
 		Gstring(&name->udv_value, sstrdup(term_name));
-		if(strchr(term_name, ' '))
-			namelength = strchr(term_name, ' ') - term_name;
+		if(sstrchr(term_name, ' '))
+			namelength = sstrchr(term_name, ' ') - term_name;
 		// Force the terminal to initialize default fonts, etc.	This prevents 
 		// segfaults and other strangeness if you set GNUTERM to "post" or    
 		// "png" for example. However, calling X11_options() is expensive due 
@@ -1991,7 +1991,7 @@ const char * enhanced_recursion(GpTermEntry * pTerm, const char * p, bool brace,
 					    if(p[1]=='\\' || p[1]=='(' || p[1]==')') {
 						    (pTerm->enhanced_writec)(pTerm, '\\');
 					    }
-					    else if(strchr("^_@&~{}", p[1]) == NULL) {
+					    else if(sstrchr("^_@&~{}", p[1]) == NULL) {
 						    (pTerm->enhanced_writec)(pTerm, '\\');
 						    (pTerm->enhanced_writec)(pTerm, '\\');
 						    break;
@@ -2085,7 +2085,7 @@ int GnuPlot::EstimateStrlen(const char * pText, double * pHeight)
 	if(GPT.P_Term->flags & TERM_IS_LATEX)
 		return strlen_tex(pText);
 #ifdef GP_ENH_EST
-	if(strchr(pText, '\n') || (GPT.P_Term->flags & TERM_ENHANCED_TEXT)) {
+	if(sstrchr(pText, '\n') || (GPT.P_Term->flags & TERM_ENHANCED_TEXT)) {
 		GpTermEntry * tsave = GPT.P_Term;
 		GPT.P_Term = &_ENHest;
 		GPT.P_Term->put_text(GPT.P_Term, 0, 0, pText);
@@ -2444,13 +2444,13 @@ char * escape_reserved_chars(const char * str, const char * reserved)
 	int newsize = strlen(str);
 	// Count number of reserved characters 
 	for(i = 0; str[i] != '\0'; i++) {
-		if(strchr(reserved, str[i]))
+		if(sstrchr(reserved, str[i]))
 			newsize++;
 	}
 	char * escaped_str = (char *)SAlloc::M(newsize + 1);
 	// Prefix each reserved character with a backslash 
 	for(i = 0, newsize = 0; str[i] != '\0'; i++) {
-		if(strchr(reserved, str[i]))
+		if(sstrchr(reserved, str[i]))
 			escaped_str[newsize++] = '\\';
 		escaped_str[newsize++] = str[i];
 	}

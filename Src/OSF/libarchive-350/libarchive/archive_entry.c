@@ -26,9 +26,6 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_entry.c 201096 2009-12-28 02:41:
 #if defined(HAVE_EXT2FS_EXT2_FS_H) && !defined(__CYGWIN__)
 #include <ext2fs/ext2_fs.h>     /* for Linux file flags */
 #endif
-//#include "archive_acl_private.h"
-//#include "archive_entry_locale.h"
-//#include "archive_entry_private.h"
 
 #if !defined(HAVE_MAJOR) && !defined(major)
 	/* Replacement for major/minor/makedev. */

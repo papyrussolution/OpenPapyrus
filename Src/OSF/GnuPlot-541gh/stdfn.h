@@ -2,11 +2,11 @@
 // Copyright 1986 - 1993, 1998, 2004   Thomas Williams, Colin Kelley
 //
 /* get prototypes or declarations for string and stdlib functions and deal
-   with missing functions like strchr. */
+   with missing functions like sstrchr. */
 
 /* we will assume the ANSI/Posix/whatever situation as default.
    the header file is called string.h and the index functions are called
-   strchr, strrchr. Exceptions have to be listed explicitly */
+   sstrchr, strrchr. Exceptions have to be listed explicitly */
 
 #ifndef STDFN_H
 #define STDFN_H

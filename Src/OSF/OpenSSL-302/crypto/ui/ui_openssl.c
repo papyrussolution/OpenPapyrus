@@ -256,7 +256,7 @@ static int read_till_nl(FILE * in)
 	do {
 		if(!fgets(buf, SIZE, in))
 			return 0;
-	} while(strchr(buf, '\n') == NULL);
+	} while(sstrchr(buf, '\n') == NULL);
 	return 1;
 }
 
@@ -272,18 +272,14 @@ static int read_string_inner(UI * ui, UI_STRING * uis, int echo, int strip_nl)
 #if !defined(OPENSSL_SYS_WINCE)
 	char * p = NULL;
 	int echo_eol = !echo;
-
 	intr_signal = 0;
 	ok = 0;
 	ps = 0;
-
 	pushsig();
 	ps = 1;
-
 	if(!echo && !noecho_console(ui))
 		goto error;
 	ps = 2;
-
 	result[0] = '\0';
 #if defined(_WIN32)
 	if(is_a_tty) {
@@ -291,20 +287,15 @@ static int read_string_inner(UI * ui, UI_STRING * uis, int echo, int strip_nl)
 #if defined(CP_UTF8)
 		if(GetEnvironmentVariableW(L"OPENSSL_WIN32_UTF8", NULL, 0) != 0) {
 			WCHAR wresult[BUFSIZ];
-
 			if(ReadConsoleW(GetStdHandle(STD_INPUT_HANDLE),
 			    wresult, maxsize, &numread, NULL)) {
-				if(numread >= 2 &&
-				    wresult[numread-2] == L'\r' &&
-				    wresult[numread-1] == L'\n') {
+				if(numread >= 2 && wresult[numread-2] == L'\r' && wresult[numread-1] == L'\n') {
 					wresult[numread-2] = L'\n';
 					numread--;
 				}
 				wresult[numread] = '\0';
-				if(WideCharToMultiByte(CP_UTF8, 0, wresult, -1,
-				    result, sizeof(result), NULL, 0) > 0)
+				if(WideCharToMultiByte(CP_UTF8, 0, wresult, -1, result, sizeof(result), NULL, 0) > 0)
 					p = result;
-
 				OPENSSL_cleanse(wresult, sizeof(wresult));
 			}
 		}
@@ -312,8 +303,7 @@ static int read_string_inner(UI * ui, UI_STRING * uis, int echo, int strip_nl)
 #endif
 		if(ReadConsoleA(GetStdHandle(STD_INPUT_HANDLE),
 		    result, maxsize, &numread, NULL)) {
-			if(numread >= 2 &&
-			    result[numread-2] == '\r' && result[numread-1] == '\n') {
+			if(numread >= 2 && result[numread-2] == '\r' && result[numread-1] == '\n') {
 				result[numread-2] = '\n';
 				numread--;
 			}
@@ -336,7 +326,7 @@ static int read_string_inner(UI * ui, UI_STRING * uis, int echo, int strip_nl)
 		goto error;
 	if(ferror(tty_in))
 		goto error;
-	if((p = (char*)strchr(result, '\n')) != NULL) {
+	if((p = (char*)sstrchr(result, '\n')) != NULL) {
 		if(strip_nl)
 			*p = '\0';
 	}
@@ -344,7 +334,6 @@ static int read_string_inner(UI * ui, UI_STRING * uis, int echo, int strip_nl)
 		goto error;
 	if(UI_set_result(ui, uis, result) >= 0)
 		ok = 1;
-
 error:
 	if(intr_signal == SIGINT)
 		ok = -1;

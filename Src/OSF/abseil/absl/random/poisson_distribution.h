@@ -6,12 +6,6 @@
 #ifndef ABSL_RANDOM_POISSON_DISTRIBUTION_H_
 #define ABSL_RANDOM_POISSON_DISTRIBUTION_H_
 
-//#include <cassert>
-//#include <cmath>
-//#include <istream>
-//#include <limits>
-//#include <ostream>
-//#include <type_traits>
 #include "absl/random/internal/fast_uniform_bits.h"
 #include "absl/random/internal/fastmath.h"
 #include "absl/random/internal/generate_real.h"

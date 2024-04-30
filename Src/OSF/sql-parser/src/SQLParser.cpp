@@ -6,7 +6,7 @@
 #include "parser/flex_lexer.h"
 
 namespace hsql {
-	FrameBound::FrameBound(int64_t offset, FrameBoundType type, bool unbounded) : offset{offset}, type{type}, unbounded{unbounded} 
+	FrameBound::FrameBound(int64 offset, FrameBoundType type, bool unbounded) : offset{offset}, type{type}, unbounded{unbounded} 
 	{
 	}
 
@@ -136,7 +136,7 @@ namespace hsql {
 		return e;
 	}
 
-	Expr* Expr::makeLiteral(int64_t val) 
+	Expr* Expr::makeLiteral(int64 val) 
 	{
 		Expr* e = new Expr(kExprLiteralInt);
 		e->ival = val;
@@ -172,7 +172,7 @@ namespace hsql {
 		return e;
 	}
 
-	Expr* Expr::makeIntervalLiteral(int64_t duration, DatetimeField unit) 
+	Expr* Expr::makeIntervalLiteral(int64 duration, DatetimeField unit) 
 	{
 		Expr* e = new Expr(kExprLiteralInterval);
 		e->ival = duration;
@@ -219,7 +219,7 @@ namespace hsql {
 		return e;
 	}
 
-	Expr* Expr::makeArrayIndex(Expr* expr, int64_t index) 
+	Expr* Expr::makeArrayIndex(Expr* expr, int64 index) 
 	{
 		Expr* e = new Expr(kExprArrayIndex);
 		e->expr = expr;
@@ -330,7 +330,8 @@ namespace hsql {
 	// 
 	// 
 	CreateStatement::CreateStatement(CreateType type) : SQLStatement(kStmtCreate), type(type), ifNotExists(false), fUnique(false), filePath(nullptr), schema(nullptr),
-		tableName(nullptr), indexName(nullptr), indexColumns(nullptr), columns(nullptr), tableConstraints(nullptr), viewColumns(nullptr), select(nullptr)
+		tableName(nullptr), indexName(nullptr), /*indexColumns(nullptr)*/P_Idx(0), columns(nullptr), tableConstraints(nullptr), 
+		viewColumns(nullptr), select(nullptr)
 	{
 	}
 
@@ -353,12 +354,13 @@ namespace hsql {
 			}
 			delete tableConstraints;
 		}
-		if(indexColumns) {
+		/* @sobolev if(indexColumns) {
 			for(char* column : *indexColumns) {
 				SAlloc::F(column);
 			}
 			delete indexColumns;
-		}
+		}*/
+		delete P_Idx; // @sobolev
 		if(viewColumns) {
 			for(char* column : *viewColumns) {
 				SAlloc::F(column);
@@ -405,18 +407,216 @@ namespace hsql {
 		}
 		delete columnNames;
 	}
-
 	// ColumnDefinition
-	ColumnDefinition::ColumnDefinition(char* name, ColumnType type, std::unordered_set<ConstraintType>* column_constraints)
-		: column_constraints(column_constraints), name(name), type(type), nullable(true) {}
+	ColumnDefinition::ColumnDefinition(char* name, ColumnType type, std::unordered_set<ConstraintType> * pConstraints) : 
+		P_Constraints(pConstraints), name(name), type(type), nullable(true), P_CharSet(0)
+	{
+	}
 
 	ColumnDefinition::~ColumnDefinition() 
 	{
 		SAlloc::F(name);
-		delete column_constraints;
+		SAlloc::F(P_CharSet); // @sobolev
+		delete P_Constraints;
 	}
 
-	ColumnType::ColumnType(DataType data_type, int64_t length, int64_t precision, int64_t scale) : data_type(data_type), length(length), precision(precision), scale(scale) 
+	/*static*/bool ColumnType::Make(const char * pIdent, int len, int prec, ColumnType & rResult, SString & rMsgBuf)
+	{
+		rMsgBuf.Z();
+		bool   ok = true;
+		rResult.data_type = DataType::UNKNOWN;
+		rResult.length = 0;
+		rResult.precision = 0;
+		rResult.scale = 0;
+		if(isempty(pIdent)) {
+			ok = false;
+		}
+		else {
+			if(sstreqi_ascii(pIdent, "BIGINT")) {
+				if(len >= 0 || prec >= 0)
+					ok = false;
+				else
+					rResult.data_type = DataType::BIGINT;
+			}
+			else if(sstreqi_ascii(pIdent, "BOOLEAN")) {
+				if(len >= 0 || prec >= 0)
+					ok = false;
+				else
+					rResult.data_type = DataType::BOOLEAN;
+			}
+			else if(sstreqi_ascii(pIdent, "CHAR")) {
+				if(len <= 0 || prec >= 0)
+					ok = false;
+				else {
+					rResult.data_type = DataType::CHAR;
+					rResult.length = len;
+				}
+			}
+			else if(sstreqi_ascii(pIdent, "DATE")) {
+				if(len >= 0 || prec >= 0)
+					ok = false;
+				else
+					rResult.data_type = DataType::DATE;
+			}
+			else if(sstreqi_ascii(pIdent, "DATETIME") || sstreqi_ascii(pIdent, "TIMESTAMP")) {
+				if(len >= 0 || prec >= 0)
+					ok = false;
+				else
+					rResult.data_type = DataType::DATETIME;
+			}
+			else if(sstreqi_ascii(pIdent, "DECIMAL") || sstreqi_ascii(pIdent, "NUMERIC")) {
+				rResult.data_type = DataType::DECIMAL;
+				rResult.precision = (len > 0) ? len : 0;
+				rResult.scale = (prec > 0) ? prec : 0;
+			}
+			else if(sstreqi_ascii(pIdent, "DOUBLE")) {
+				if(len >= 0 || prec >= 0)
+					ok = false;
+				else
+					rResult.data_type = DataType::DOUBLE;
+			}
+			else if(sstreqi_ascii(pIdent, "FLOAT")) {
+				if(len >= 0 || prec >= 0)
+					ok = false;
+				else
+					rResult.data_type = DataType::FLOAT;
+			}
+			else if(sstreqi_ascii(pIdent, "INT") || sstreqi_ascii(pIdent, "INTEGER")) {
+				if(prec >= 0 || (len > 0 && !oneof4(len, 1, 2, 4, 8)))
+					ok = false;
+				else {
+					rResult.data_type = DataType::INT;
+					if(len > 0)
+						rResult.length = len;
+				}
+			}
+			else if(sstreqi_ascii(pIdent, "LONG")) {
+				if(len >= 0 || prec >= 0)
+					ok = false;
+				else
+					rResult.data_type = DataType::LONG;
+			}
+			else if(sstreqi_ascii(pIdent, "REAL")) {
+				if(len >= 0 || prec >= 0)
+					ok = false;
+				else
+					rResult.data_type = DataType::REAL;
+			}
+			else if(sstreqi_ascii(pIdent, "SMALLINT")) {
+				if(len >= 0 || prec >= 0)
+					ok = false;
+				else
+					rResult.data_type = DataType::SMALLINT;
+			}
+			else if(sstreqi_ascii(pIdent, "TEXT")) {
+				if(prec >= 0)
+					ok = false;
+				else {
+					rResult.data_type = DataType::TEXT;
+					if(len > 0)
+						rResult.length = len;
+				}
+			}
+			else if(sstreqi_ascii(pIdent, "TINYTEXT")) {
+				if(len >= 0 || prec >= 0)
+					ok = false;
+				else {
+					rResult.data_type = DataType::TINYTEXT;
+					if(len > 0)
+						rResult.length = len;
+				}
+			}
+			else if(sstreqi_ascii(pIdent, "MEDIUMTEXT")) {
+				if(len >= 0 || prec >= 0)
+					ok = false;
+				else {
+					rResult.data_type = DataType::MEDIUMTEXT;
+					if(len > 0)
+						rResult.length = len;
+				}
+			}
+			else if(sstreqi_ascii(pIdent, "LONGTEXT")) {
+				if(len >= 0 || prec >= 0)
+					ok = false;
+				else {
+					rResult.data_type = DataType::LONGTEXT;
+					if(len > 0)
+						rResult.length = len;
+				}
+			}
+			else if(sstreqi_ascii(pIdent, "TIME")) {
+				if(prec >= 0)
+					ok = false;
+				else {
+					rResult.data_type = DataType::TIME;
+					if(len > 0)
+						rResult.precision = len; // optional time precision
+				}
+			}
+			else if(sstreqi_ascii(pIdent, "VARCHAR") || sstreqi_ascii(pIdent, "CHARACTER_VARYING")) {
+				if(len <= 0 || prec >= 0)
+					ok = false;
+				else {
+					rResult.data_type = DataType::VARCHAR;
+					rResult.length = len;
+				}
+			}
+			else if(sstreqi_ascii(pIdent, "BINARY") || sstreqi_ascii(pIdent, "RAW")) {
+				if(len <= 0 || prec >= 0)
+					ok = false;
+				else {
+					rResult.data_type = DataType::BINARY;
+					rResult.length = len;
+				}
+			}
+			else if(sstreqi_ascii(pIdent, "BLOB")) {
+				if(prec >= 0)
+					ok = false;
+				else {
+					rResult.data_type = DataType::BLOB;
+					if(len >= 0)
+						rResult.length = len;
+				}
+			}
+			else if(sstreqi_ascii(pIdent, "MEDIUMBLOB")) {
+				if(len >= 0 || prec >= 0)
+					ok = false;
+				else
+					rResult.data_type = DataType::MEDIUMBLOB;
+			}
+			else {
+				// invalid column type
+				ok = false;
+			}
+			/*
+				column_type : BIGINT { $$ = ColumnType{hsql::DataType::BIGINT}; }
+				| BOOLEAN { $$ = ColumnType{hsql::DataType::BOOLEAN}; }
+				| CHAR '(' INTVAL ')' { $$ = ColumnType{hsql::DataType::CHAR, $3}; }
+				| CHARACTER_VARYING '(' INTVAL ')' { $$ = ColumnType{hsql::DataType::VARCHAR, $3}; }
+				| DATE { $$ = ColumnType{hsql::DataType::DATE}; };
+				| DATETIME { $$ = ColumnType{hsql::DataType::DATETIME}; }
+				| DECIMAL opt_decimal_specification {
+				  $$ = ColumnType{hsql::DataType::DECIMAL, 0, $2->first, $2->second};
+				  delete $2;
+				} | DOUBLE { $$ = ColumnType{hsql::DataType::DOUBLE}; }
+				| FLOAT { $$ = ColumnType{hsql::DataType::FLOAT}; }
+				| INT { $$ = ColumnType{hsql::DataType::INT}; }
+				| INTEGER { $$ = ColumnType{hsql::DataType::INT}; }
+				| LONG { $$ = ColumnType{hsql::DataType::LONG}; }
+				| REAL { $$ = ColumnType{hsql::DataType::REAL}; }
+				| SMALLINT { $$ = ColumnType{hsql::DataType::SMALLINT}; }
+				| TEXT { $$ = ColumnType{hsql::DataType::TEXT}; }
+				| TIME opt_time_precision { $$ = ColumnType{hsql::DataType::TIME, 0, $2}; }
+				| TIMESTAMP { $$ = ColumnType{hsql::DataType::DATETIME}; }
+				| VARCHAR '(' INTVAL ')' { $$ = ColumnType{hsql::DataType::VARCHAR, $3}; }
+				| BINARY '(' INTVAL ')' { $$ = ColumnType{hsql::DataType::BINARY, $3}; } // @sobolev
+				| RAW '(' INTVAL ')' { $$ = ColumnType{hsql::DataType::BINARY, $3}; } // @sobolev
+			*/
+		}
+		return ok;
+	}
+
+	ColumnType::ColumnType(DataType data_type, int64 length, int64 precision, int64 scale) : data_type(data_type), length(length), precision(precision), scale(scale) 
 	{
 	}
 
@@ -440,6 +640,7 @@ namespace hsql {
 			case DataType::CHAR: stream << "CHAR(" << column_type.length << ")"; break;
 			case DataType::VARCHAR: stream << "VARCHAR(" << column_type.length << ")"; break;
 			case DataType::BINARY: stream << "BINARY(" << column_type.length << ")"; break; // @sobolev
+			case DataType::MEDIUMBLOB: stream << "MEDIUMBLOB"; break; // @sobolev
 			case DataType::DECIMAL: stream << "DECIMAL"; break;
 			case DataType::TEXT: stream << "TEXT"; break;
 			case DataType::DATETIME: stream << "DATETIME"; break;
@@ -826,9 +1027,27 @@ namespace hsql {
 	//
 	//
 	SQLParser::SQLParser() { slfprintf_stderr("SQLParser only has static methods atm! Do not initialize!\n"); }
-
-	// static
-	bool SQLParser::parse(const std::string & sql, SQLParserResult * result) 
+	/*static*/bool SQLParser::parse(const char * pSqlPgm, SQLParserResult * result) 
+	{
+		yyscan_t scanner;
+		if(hsql_lex_init(&scanner)) {
+			// Couldn't initialize the lexer.
+			slfprintf_stderr("SQLParser: Error when initializing lexer!\n");
+			return false;
+		}
+		else {
+			YY_BUFFER_STATE state = hsql__scan_string(pSqlPgm, scanner);
+			// Parse the tokens.
+			// If parsing fails, the result will contain an error object.
+			int ret = hsql_parse(result, scanner);
+			bool success = (ret == 0);
+			result->setIsValid(success);
+			hsql__delete_buffer(state, scanner);
+			hsql_lex_destroy(scanner);
+			return true;
+		}
+	}
+	/*static*/bool SQLParser::parse(const std::string & sql, SQLParserResult * result) 
 	{
 		yyscan_t scanner;
 		if(hsql_lex_init(&scanner)) {
@@ -885,7 +1104,7 @@ namespace hsql {
 	std::ostream & operator<<(std::ostream& os, const DatetimeField& datetime);
 	std::ostream & operator<<(std::ostream& os, const FrameBound& frame_bound);
 	std::string indent(uintmax_t num_indent) { return std::string(static_cast<uint>(num_indent), '\t'); }
-	static void inprint(int64_t val, uintmax_t num_indent) { std::cout << indent(num_indent).c_str() << val << "  " << std::endl; }
+	static void inprint(int64 val, uintmax_t num_indent) { std::cout << indent(num_indent).c_str() << val << "  " << std::endl; }
 	static void inprint(double val, uintmax_t num_indent) { std::cout << indent(num_indent).c_str() << val << std::endl; }
 	static void inprint(const char* val, uintmax_t num_indent) { std::cout << indent(num_indent).c_str() << val << std::endl; }
 	static void inprint(const char* val, const char* val2, uintmax_t num_indent) { std::cout << indent(num_indent).c_str() << val << "->" << val2 << std::endl; }

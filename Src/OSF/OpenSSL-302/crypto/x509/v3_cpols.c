@@ -237,7 +237,7 @@ err:
 
 static int displaytext_get_tag_len(const char * tagstr)
 {
-	const char * colon = strchr(tagstr, ':');
+	const char * colon = sstrchr(tagstr, ':');
 	return (colon == NULL) ? -1 : colon - tagstr;
 }
 

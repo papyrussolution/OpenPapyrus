@@ -44,14 +44,9 @@
 #define USE_WIN32_LOCAL_TIME_ZONE
 #include <roapi.h>
 #include <tchar.h>
-//#include <wchar.h>
 #include <windows.globalization.h>
-//#include <windows.h>
 #endif
 #endif
-//#include <cstdlib>
-//#include <cstring>
-//#include <string>
 #include "time_zone_fixed.h"
 #include "time_zone_impl.h"
 

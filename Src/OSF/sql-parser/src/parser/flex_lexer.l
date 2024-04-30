@@ -9,10 +9,8 @@
 %{
 #include <sql-parser.h>
 #pragma hdrstop
-//#include "../sql/Expr.h"
 #include "bison_parser.h"
 #include <climits>
-//#include <stdio.h>
 #include <sstream>
 
 #define TOKEN(name) { return SQL_##name; }
@@ -49,8 +47,8 @@ static thread_local std::stringstream strbuf;
 %option bison-locations
 /* %option nodefault */
 
-
 %s COMMENT
+%x IN_COMMENT
 
 /***************************
  ** Section 3: Rules
@@ -60,6 +58,12 @@ static thread_local std::stringstream strbuf;
 --              BEGIN(COMMENT);
 <COMMENT>[^\n]* /* skipping comment content until a end of line is read */;
 <COMMENT>\n     BEGIN(INITIAL);
+
+<INITIAL>"/*"         BEGIN(IN_COMMENT);
+<IN_COMMENT>"*/"      BEGIN(INITIAL);
+<IN_COMMENT>[^*\n]+   // eat comment in chunks
+<IN_COMMENT>"*"       // eat the lone star
+<IN_COMMENT>\n        yylineno++;
 
 [ \t\n]+        /* skip whitespace */;
 
@@ -75,14 +79,11 @@ ASC         TOKEN(ASC)
 BEFORE      TOKEN(BEFORE)
 BEGIN       TOKEN(BEGIN)
 BETWEEN     TOKEN(BETWEEN)
-BIGINT      TOKEN(BIGINT)
-BOOLEAN     TOKEN(BOOLEAN)
 BY          TOKEN(BY)
 CALL        TOKEN(CALL)
 CASCADE     TOKEN(CASCADE)
 CASE        TOKEN(CASE)
 CAST        TOKEN(CAST)
-CHAR        TOKEN(CHAR)
 COLUMN      TOKEN(COLUMN)
 COLUMNS     TOKEN(COLUMNS)
 COMMIT      TOKEN(COMMIT)
@@ -90,12 +91,9 @@ CONTROL     TOKEN(CONTROL)
 COPY        TOKEN(COPY)
 CREATE      TOKEN(CREATE)
 CROSS       TOKEN(CROSS)
-DATE        TOKEN(DATE)
-DATETIME    TOKEN(DATETIME)
 DAY         TOKEN(DAY)
 DAYS        TOKEN(DAYS)
 DEALLOCATE  TOKEN(DEALLOCATE)
-DECIMAL     TOKEN(DECIMAL)
 DEFAULT     TOKEN(DEFAULT)
 DELETE      TOKEN(DELETE)
 DELTA       TOKEN(DELTA)
@@ -103,10 +101,9 @@ DESC        TOKEN(DESC)
 DESCRIBE    TOKEN(DESCRIBE)
 DIRECT      TOKEN(DIRECT)
 DISTINCT    TOKEN(DISTINCT)
-DOUBLE      TOKEN(DOUBLE)
 DROP        TOKEN(DROP)
 ELSE        TOKEN(ELSE)
-END         TOKEN(END)
+ /*END         TOKEN(END)*/
 ESCAPE      TOKEN(ESCAPE)
 EXCEPT      TOKEN(EXCEPT)
 EXECUTE     TOKEN(EXECUTE)
@@ -115,10 +112,8 @@ EXPLAIN     TOKEN(EXPLAIN)
 EXTRACT     TOKEN(EXTRACT)
 FALSE       TOKEN(FALSE)
 FILE        TOKEN(FILE)
-FLOAT       TOKEN(FLOAT)
 FOLLOWING   TOKEN(FOLLOWING)
 FOR         TOKEN(FOR)
-FORMAT      TOKEN(FORMAT)
 FROM        TOKEN(FROM)
 FULL        TOKEN(FULL)
 GLOBAL      TOKEN(GLOBAL)
@@ -136,8 +131,6 @@ IN          TOKEN(IN)
 INDEX       TOKEN(INDEX)
 INNER       TOKEN(INNER)
 INSERT      TOKEN(INSERT)
-INT         TOKEN(INT)
-INTEGER     TOKEN(INTEGER)
 INTERSECT   TOKEN(INTERSECT)
 INTERVAL    TOKEN(INTERVAL)
 INTO        TOKEN(INTO)
@@ -151,7 +144,6 @@ LIMIT       TOKEN(LIMIT)
 LOAD        TOKEN(LOAD)
 LOCAL       TOKEN(LOCAL)
 LOCKED      TOKEN(LOCKED)
-LONG        TOKEN(LONG)
 MERGE       TOKEN(MERGE)
 MINUS       TOKEN(MINUS)
 MINUTE      TOKEN(MINUTE)
@@ -163,7 +155,6 @@ NO          TOKEN(NO)
 NOT         TOKEN(NOT)
 NOWAIT      TOKEN(NOWAIT)
 NULL        TOKEN(NULL)
-NVARCHAR    TOKEN(NVARCHAR)
 OF          TOKEN(OF)
 OFF         TOKEN(OFF)
 OFFSET      TOKEN(OFFSET)
@@ -179,7 +170,6 @@ PRECEDING   TOKEN(PRECEDING)
 PREPARE     TOKEN(PREPARE)
 PRIMARY     TOKEN(PRIMARY)
 RANGE       TOKEN(RANGE)
-REAL        TOKEN(REAL)
 RENAME      TOKEN(RENAME)
 RESTRICT    TOKEN(RESTRICT)
 RIGHT       TOKEN(RIGHT)
@@ -194,16 +184,12 @@ SET         TOKEN(SET)
 SHARE       TOKEN(SHARE)
 SHOW        TOKEN(SHOW)
 SKIP        TOKEN(SKIP)
-SMALLINT    TOKEN(SMALLINT)
 SORTED      TOKEN(SORTED)
 SPATIAL     TOKEN(SPATIAL)
 TABLE       TOKEN(TABLE)
 TABLES      TOKEN(TABLES)
-TEMPORARY   TOKEN(TEMPORARY)
-TEXT        TOKEN(TEXT)
+ /*TEMPORARY   TOKEN(TEMPORARY)*/
 THEN        TOKEN(THEN)
-TIME        TOKEN(TIME)
-TIMESTAMP   TOKEN(TIMESTAMP)
 TO          TOKEN(TO)
 TOP         TOKEN(TOP)
 TRANSACTION TOKEN(TRANSACTION)
@@ -212,11 +198,11 @@ TRUNCATE    TOKEN(TRUNCATE)
 UNBOUNDED   TOKEN(UNBOUNDED)
 UNION       TOKEN(UNION)
 UNIQUE      TOKEN(UNIQUE)
+AUTO_INCREMENT TOKEN(AUTO_INCREMENT) /* @sobolev */
 UNLOAD      TOKEN(UNLOAD)
 UPDATE      TOKEN(UPDATE)
 USING       TOKEN(USING)
 VALUES      TOKEN(VALUES)
-VARCHAR     TOKEN(VARCHAR)
 VIEW        TOKEN(VIEW)
 VIRTUAL     TOKEN(VIRTUAL)
 WHEN        TOKEN(WHEN)
@@ -224,11 +210,34 @@ WHERE       TOKEN(WHERE)
 WITH        TOKEN(WITH)
 YEAR        TOKEN(YEAR)
 YEARS       TOKEN(YEARS)
-BINARY      TOKEN(BINARY) // @sobolev
-RAW         TOKEN(BINARY) // @sobolev
+
+ /* @sobolev
+LONG        TOKEN(LONG)
+BIGINT      TOKEN(BIGINT)
+BOOLEAN     TOKEN(BOOLEAN)
+CHAR        TOKEN(CHAR)
+DATE        TOKEN(DATE)
+DATETIME    TOKEN(DATETIME)
+DECIMAL     TOKEN(DECIMAL)
+DOUBLE      TOKEN(DOUBLE)
+FLOAT       TOKEN(FLOAT)
+REAL        TOKEN(REAL)
+INT         TOKEN(INT)
+INTEGER     TOKEN(INTEGER)
+SMALLINT    TOKEN(SMALLINT)
+NVARCHAR    TOKEN(NVARCHAR)
+VARCHAR     TOKEN(VARCHAR)
+TEXT        TOKEN(TEXT)
+TIME        TOKEN(TIME)
+TIMESTAMP   TOKEN(TIMESTAMP) */
+ /*
+BINARY      TOKEN(BINARY) 
+RAW         TOKEN(BINARY)*/
 
 CURRENT[ \t\n]+ROW       TOKEN(CURRENT_ROW)
 CHARACTER[ \t\n]+VARYING TOKEN(CHARACTER_VARYING)
+CHARACTER[ \t\n]+SET TOKEN(CHARACTER_SET)
+WITH[ \t\n]+FORMAT TOKEN(WITH_FORMAT)
 
             /* Allow =/== see https://sqlite.org/lang_expr.html#collateop */
 "=="        TOKEN(EQUALS)
@@ -240,7 +249,7 @@ CHARACTER[ \t\n]+VARYING TOKEN(CHARACTER_VARYING)
 
 [-+*/(){},.;<>=^%:?[\]|]    { return yytext[0]; }
 
-[0-9]+"."[0-9]* |
+[0-9]+"."[0-9]* | 
 "."[0-9]*  {
 	yylval->fval = atof(yytext);
 	return SQL_FLOATVAL;
@@ -267,6 +276,13 @@ CHARACTER[ \t\n]+VARYING TOKEN(CHARACTER_VARYING)
 }
 
 \"[^\"\n]+\" {
+	// Crop the leading and trailing quote char
+	yylval->sval = hsql::substr(yytext, 1, strlen(yytext)-1);
+	return SQL_IDENTIFIER;
+}
+
+ /* @sobolev */
+\`[^\`\n]+\` {
 	// Crop the leading and trailing quote char
 	yylval->sval = hsql::substr(yytext, 1, strlen(yytext)-1);
 	return SQL_IDENTIFIER;

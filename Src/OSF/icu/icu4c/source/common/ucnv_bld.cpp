@@ -1096,7 +1096,7 @@ static inline void internalSetName(const char * name, UErrorCode * status)
 	UConverterNamePieces stackPieces;
 	UConverterLoadArgs stackArgs = UCNV_LOAD_ARGS_INITIALIZER;
 	const size_t length = sstrlen(name);
-	const bool containsOption = (uprv_strchr(name, UCNV_OPTION_SEP_CHAR) != 0);
+	const bool containsOption = (sstrchr(name, UCNV_OPTION_SEP_CHAR) != 0);
 	const UConverterSharedData * algorithmicSharedData;
 	stackArgs.name = name;
 	if(containsOption) {

@@ -40,17 +40,6 @@
 #if defined(__myriad2__)
 #include <rtems.h>
 #endif
-//#include <string.h>
-//#include <cassert>
-//#include <cerrno>
-//#include <cstdint>
-//#include <cstdio>
-//#include <cstdlib>
-//#include <ctime>
-//#include <limits>
-//#include <thread>  // NOLINT(build/c++11)
-//#include <utility>
-//#include <vector>
 #include "absl/base/call_once.h"
 #include "absl/base/config.h"
 #include "absl/base/internal/raw_logging.h"

@@ -14,9 +14,6 @@
 
 #include "absl/absl-internal.h"
 #pragma hdrstop
-//#include <string.h>
-//#include <cctype>
-//#include <cstdint>
 #include "absl/strings/match.h"
 #include "absl/strings/string_view.h"
 #include "absl/time/internal/cctz/include/cctz/time_zone.h"

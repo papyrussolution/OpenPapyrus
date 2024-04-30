@@ -254,7 +254,7 @@ int ossl_a2ulabel(const char * in, char * out, size_t * outlen)
 	if(!out)
 		result = 0;
 	while(1) {
-		const char * tmpptr = strchr(inptr, '.');
+		const char * tmpptr = sstrchr(inptr, '.');
 		size_t delta = (tmpptr) ? (size_t)(tmpptr - inptr) : strlen(inptr);
 		if(strncmp(inptr, "xn--", 4) != 0) {
 			size += delta + 1;

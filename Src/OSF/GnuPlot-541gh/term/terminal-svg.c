@@ -1620,7 +1620,7 @@ TERM_PUBLIC void ENHsvg_OPEN(GpTermEntry_Static * pThis, const char * fontname, 
 			fprintf(stderr, "ENHsvg_OPEN: null fontname\n");
 		else {
 			char * family = sstrdup(fontname);
-			char * sep = strchr(family, ':');
+			char * sep = sstrchr(family, ':');
 			if(sep)
 				*sep = '\0';
 			if(strcmp(SVG_fontNameCur, family)) {

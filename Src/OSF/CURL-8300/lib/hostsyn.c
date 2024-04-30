@@ -42,22 +42,15 @@
 #include <in.h>
 #include <inet.h>
 #endif
-
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "hostip.h"
-//#include "hash.h"
 #include "share.h"
 #include "url.h"
 #include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
-
 /*
  * Function provided by the resolver backend to set DNS servers to use.
  */
-CURLcode Curl_set_dns_servers(struct Curl_easy * data,
-    char * servers)
+CURLcode Curl_set_dns_servers(struct Curl_easy * data, char * servers)
 {
 	(void)data;
 	(void)servers;

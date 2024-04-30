@@ -23,8 +23,6 @@
 #include <xapian/matchdecider.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
-//#include <string>
-//#include <set>
 
 namespace Xapian {
 class Document;

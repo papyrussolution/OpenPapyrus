@@ -180,7 +180,7 @@ found_full_mon:
 			    // read EPOCH data
 			    // EPOCH is the std. unix timeformat seconds since 01.01.1970 UTC
 				{
-					char  * fraction = strchr(s, GpU.decimalsign ? *GpU.decimalsign : '.');
+					char  * fraction = sstrchr(s, GpU.decimalsign ? *GpU.decimalsign : '.');
 					double ufraction = 0;
 					double when = strtod(s, &s) - SEC_OFFS_SYS;
 					GGmTime(tm, when);

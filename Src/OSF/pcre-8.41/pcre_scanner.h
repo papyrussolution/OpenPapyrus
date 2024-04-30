@@ -30,9 +30,6 @@
 #ifndef _PCRE_SCANNER_H
 #define _PCRE_SCANNER_H
 
-//#include <assert.h>
-#include <string>
-#include <vector>
 #include <pcrecpp.h>
 #include <pcre_stringpiece.h>
 

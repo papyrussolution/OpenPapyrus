@@ -22,8 +22,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/hash/internal/city.h"
-//#include <string.h>  // for memcpy and memset
-//#include <algorithm>
 #include "absl/base/config.h"
 #include "absl/base/internal/endian.h"
 #include "absl/base/internal/unaligned_access.h"

@@ -88,11 +88,7 @@ public:
 	~UedSetBase();
 	UedSetBase & FASTCALL operator = (const UedSetBase & rS);
 	bool   FASTCALL operator == (const UedSetBase & rS) const;
-	UedSetBase & Z()
-	{
-		LimbCount = 0;
-		return *this;
-	}
+	UedSetBase & Z();
 	int    FASTCALL Copy(const UedSetBase & rS);
 	bool   FASTCALL IsEq(const UedSetBase & rS) const;
 	uint   GetLimbCount() const { return LimbCount; }

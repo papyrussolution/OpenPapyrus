@@ -25,28 +25,24 @@
 #include "curl_setup.h"
 #pragma hdrstop
 
-//#ifdef HAVE_NETINET_IN_H
-//#include <netinet/in.h>
-//#endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+	#include <arpa/inet.h>
 #endif
 #ifdef HAVE_NET_IF_H
-#include <net/if.h>
+	#include <net/if.h>
 #endif
 #ifdef HAVE_IPHLPAPI_H
-#include <Iphlpapi.h>
+	#include <Iphlpapi.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+	#include <sys/ioctl.h>
 #endif
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+	#include <sys/param.h>
 #endif
-
 #ifdef __VMS
 #include <in.h>
 #include <inet.h>
@@ -61,52 +57,36 @@
 #endif
 
 #include <limits.h>
-
 #include "doh.h"
-//#include "urldata.h"
 #include "netrc.h"
 #include "formdata.h"
-//#include "mime.h"
 #include "vtls/vtls.h"
-//#include "hostip.h"
-//#include "transfer.h"
-//#include "sendf.h"
-//#include "progress.h"
 #include "cookie.h"
-//#include "strcase.h"
 #include "strerror.h"
-//#include "escape.h"
 #include "strtok.h"
 #include "share.h"
-//#include "content_encoding.h"
 #include "http_digest.h"
 #include "http_negotiate.h"
 #include "select.h"
-//#include "multiif.h"
 #include "easyif.h"
 #include "speedcheck.h"
-//#include "warnless.h"
 #include "getinfo.h"
 #include "urlapi-int.h"
 #include "system_win32.h"
 #include "hsts.h"
 #include "noproxy.h"
-//#include "cfilters.h"
 #include "idn.h"
-
 /* And now for the protocols */
 #include "ftp.h"
 #include "dict.h"
 #include "telnet.h"
 #include "tftp.h"
-//#include "http.h"
 #include "http2.h"
 #include "file.h"
 #include "curl_ldap.h"
 #include "vssh/ssh.h"
 #include "imap.h"
 #include "url.h"
-//#include "connect.h"
 #include "inet_ntop.h"
 #include "http_ntlm.h"
 #include "curl_rtmp.h"
@@ -118,9 +98,7 @@
 #include "strdup.h"
 #include "setopt.h"
 #include "altsvc.h"
-//#include "dynbuf.h"
 #include "headers.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"
@@ -1613,12 +1591,11 @@ CURLcode Curl_uc_to_curlcode(CURLUcode uc)
 		case CURLUE_USER_NOT_ALLOWED: return CURLE_LOGIN_DENIED;
 	}
 }
-
 #ifdef ENABLE_IPV6
-/*
- * If the URL was set with an IPv6 numerical address with a zone id part, set
- * the scope_id based on that!
- */
+// 
+// If the URL was set with an IPv6 numerical address with a zone id part, set
+// the scope_id based on that!
+// 
 static void zonefrom_url(CURLU * uh, struct Curl_easy * data, struct connectdata * conn)
 {
 	char * zoneid;
@@ -1628,7 +1605,7 @@ static void zonefrom_url(CURLU * uh, struct Curl_easy * data, struct connectdata
 #endif
 	if(!uc && zoneid) {
 		char * endp;
-		unsigned long scope = strtoul(zoneid, &endp, 10);
+		ulong scope = strtoul(zoneid, &endp, 10);
 		if(!*endp && (scope < UINT_MAX)) {
 			conn->scope_id = (uint)scope; /* A plain number, use it directly as a scope id. */
 		}
@@ -1638,7 +1615,7 @@ static void zonefrom_url(CURLU * uh, struct Curl_easy * data, struct connectdata
 		else if(Curl_if_nametoindex) {
 #endif
 #if defined(HAVE_IF_NAMETOINDEX) || defined(WIN32)
-			/* Zone identifier is not numeric */
+			// Zone identifier is not numeric
 			uint scopeidx = 0;
 #if defined(WIN32)
 			scopeidx = Curl_if_nametoindex(zoneid);
@@ -1655,29 +1632,24 @@ static void zonefrom_url(CURLU * uh, struct Curl_easy * data, struct connectdata
 				conn->scope_id = scopeidx;
 		}
 #endif /* HAVE_IF_NAMETOINDEX || WIN32 */
-			SAlloc::F(zoneid);
-		}
+		SAlloc::F(zoneid);
 	}
 }
 
 #else
 #define zonefrom_url(a, b, c) Curl_nop_stmt
 #endif
-
 /*
  * Parse URL and fill in the relevant members of the connection struct.
  */
-static CURLcode parseurlandfillconn(struct Curl_easy * data,
-    struct connectdata * conn)
+static CURLcode parseurlandfillconn(struct Curl_easy * data, struct connectdata * conn)
 {
 	CURLcode result;
 	CURLU * uh;
 	CURLUcode uc;
 	char * hostname;
 	bool use_set_uh = (data->set.uh && !data->state.this_is_a_follow);
-
 	up_free(data); /* cleanup previous leftovers first */
-
 	/* parse the URL */
 	if(use_set_uh) {
 		uh = data->state.uh = curl_url_dup(data->set.uh);
@@ -1685,14 +1657,10 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data,
 	else {
 		uh = data->state.uh = curl_url();
 	}
-
 	if(!uh)
 		return CURLE_OUT_OF_MEMORY;
-
-	if(data->set.str[STRING_DEFAULT_PROTOCOL] &&
-	    !Curl_is_absolute_url(data->state.url, NULL, 0, TRUE)) {
-		char * url = aprintf("%s://%s", data->set.str[STRING_DEFAULT_PROTOCOL],
-			data->state.url);
+	if(data->set.str[STRING_DEFAULT_PROTOCOL] && !Curl_is_absolute_url(data->state.url, NULL, 0, TRUE)) {
+		char * url = aprintf("%s://%s", data->set.str[STRING_DEFAULT_PROTOCOL], data->state.url);
 		if(!url)
 			return CURLE_OUT_OF_MEMORY;
 		if(data->state.url_alloc)
@@ -1700,21 +1668,15 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data,
 		data->state.url = url;
 		data->state.url_alloc = TRUE;
 	}
-
 	if(!use_set_uh) {
 		char * newurl;
-		uc = curl_url_set(uh, CURLUPART_URL, data->state.url,
-			CURLU_GUESS_SCHEME |
-			CURLU_NON_SUPPORT_SCHEME |
-			(data->set.disallow_username_in_url ?
-			CURLU_DISALLOW_USER : 0) |
-			(data->set.path_as_is ? CURLU_PATH_AS_IS : 0));
+		uc = curl_url_set(uh, CURLUPART_URL, data->state.url, CURLU_GUESS_SCHEME|CURLU_NON_SUPPORT_SCHEME|
+			(data->set.disallow_username_in_url ? CURLU_DISALLOW_USER : 0)|(data->set.path_as_is ? CURLU_PATH_AS_IS : 0));
 		if(uc) {
 			failf(data, "URL rejected: %s", curl_url_strerror(uc));
 			return Curl_uc_to_curlcode(uc);
 		}
-
-		/* after it was parsed, get the generated normalized version */
+		// after it was parsed, get the generated normalized version
 		uc = curl_url_get(uh, CURLUPART_URL, &newurl, 0);
 		if(uc)
 			return Curl_uc_to_curlcode(uc);
@@ -1740,27 +1702,27 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data,
 		// This looks like an IPv6 address literal. See if there is an address scope
 		size_t hlen;
 		conn->bits.ipv6_ip = TRUE;
-		/* cut off the brackets! */
+		// cut off the brackets!
 		hostname++;
 		hlen = strlen(hostname);
 		hostname[hlen - 1] = 0;
 		zonefrom_url(uh, data, conn);
 	}
-	/* make sure the connect struct gets its own copy of the host name */
+	// make sure the connect struct gets its own copy of the host name
 	conn->host.rawalloc = strdup(hostname ? hostname : "");
 	if(!conn->host.rawalloc)
 		return CURLE_OUT_OF_MEMORY;
 	conn->host.name = conn->host.rawalloc;
-	/*************************************************************
-	* IDN-convert the hostnames
-	*************************************************************/
+	//
+	// IDN-convert the hostnames
+	//
 	result = Curl_idnconvert_hostname(&conn->host);
 	if(result)
 		return result;
 #ifndef CURL_DISABLE_HSTS
-	/* HSTS upgrade */
+	// HSTS upgrade
 	if(data->hsts && sstreqi_ascii("http", data->state.up.scheme)) {
-		/* This MUST use the IDN decoded name */
+		// This MUST use the IDN decoded name
 		if(Curl_hsts(data->hsts, conn->host.name, TRUE)) {
 			char * url;
 			ZFREE(data->state.up.scheme);
@@ -1769,7 +1731,7 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data,
 				return Curl_uc_to_curlcode(uc);
 			if(data->state.url_alloc)
 				ZFREE(data->state.url);
-			/* after update, get the updated version */
+			// after update, get the updated version
 			uc = curl_url_get(uh, CURLUPART_URL, &url, 0);
 			if(uc)
 				return Curl_uc_to_curlcode(uc);
@@ -1780,27 +1742,22 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data,
 			}
 			data->state.url = url;
 			data->state.url_alloc = TRUE;
-			infof(data, "Switched from HTTP to HTTPS due to HSTS => %s",
-			    data->state.url);
+			infof(data, "Switched from HTTP to HTTPS due to HSTS => %s", data->state.url);
 		}
 	}
 #endif
-
 	result = findprotocol(data, conn, data->state.up.scheme);
 	if(result)
 		return result;
-
-	/*
-	 * User name and password set with their own options override the
-	 * credentials possibly set in the URL.
-	 */
+	// 
+	// User name and password set with their own options override the
+	// credentials possibly set in the URL.
+	// 
 	if(!data->set.str[STRING_PASSWORD]) {
 		uc = curl_url_get(uh, CURLUPART_PASSWORD, &data->state.up.password, 0);
 		if(!uc) {
 			char * decoded;
-			result = Curl_urldecode(data->state.up.password, 0, &decoded, NULL,
-				conn->handler->flags&PROTOPT_USERPWDCTRL ?
-				REJECT_ZERO : REJECT_CTRL);
+			result = Curl_urldecode(data->state.up.password, 0, &decoded, NULL, conn->handler->flags&PROTOPT_USERPWDCTRL ? REJECT_ZERO : REJECT_CTRL);
 			if(result)
 				return result;
 			conn->passwd = decoded;
@@ -1811,17 +1768,13 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data,
 		else if(uc != CURLUE_NO_PASSWORD)
 			return Curl_uc_to_curlcode(uc);
 	}
-
 	if(!data->set.str[STRING_USERNAME]) {
-		/* we don't use the URL API's URL decoder option here since it rejects
-		   control codes and we want to allow them for some schemes in the user
-		   and password fields */
+		// we don't use the URL API's URL decoder option here since it rejects
+		// control codes and we want to allow them for some schemes in the user and password fields 
 		uc = curl_url_get(uh, CURLUPART_USER, &data->state.up.user, 0);
 		if(!uc) {
 			char * decoded;
-			result = Curl_urldecode(data->state.up.user, 0, &decoded, NULL,
-				conn->handler->flags&PROTOPT_USERPWDCTRL ?
-				REJECT_ZERO : REJECT_CTRL);
+			result = Curl_urldecode(data->state.up.user, 0, &decoded, NULL, conn->handler->flags&PROTOPT_USERPWDCTRL ? REJECT_ZERO : REJECT_CTRL);
 			if(result)
 				return result;
 			conn->user = decoded;
@@ -1830,15 +1783,13 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data,
 		else if(uc != CURLUE_NO_USER)
 			return Curl_uc_to_curlcode(uc);
 		else if(data->state.aptr.passwd) {
-			/* no user was set but a password, set a blank user */
+			// no user was set but a password, set a blank user
 			result = Curl_setstropt(&data->state.aptr.user, "");
 		}
 		if(result)
 			return result;
 	}
-
-	uc = curl_url_get(uh, CURLUPART_OPTIONS, &data->state.up.options,
-		CURLU_URLDECODE);
+	uc = curl_url_get(uh, CURLUPART_OPTIONS, &data->state.up.options, CURLU_URLDECODE);
 	if(!uc) {
 		conn->options = strdup(data->state.up.options);
 		if(!conn->options)
@@ -1846,40 +1797,28 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data,
 	}
 	else if(uc != CURLUE_NO_OPTIONS)
 		return Curl_uc_to_curlcode(uc);
-
-	uc = curl_url_get(uh, CURLUPART_PATH, &data->state.up.path,
-		CURLU_URLENCODE);
+	uc = curl_url_get(uh, CURLUPART_PATH, &data->state.up.path, CURLU_URLENCODE);
 	if(uc)
 		return Curl_uc_to_curlcode(uc);
-
-	uc = curl_url_get(uh, CURLUPART_PORT, &data->state.up.port,
-		CURLU_DEFAULT_PORT);
+	uc = curl_url_get(uh, CURLUPART_PORT, &data->state.up.port, CURLU_DEFAULT_PORT);
 	if(uc) {
 		if(!sstreqi_ascii("file", data->state.up.scheme))
 			return CURLE_OUT_OF_MEMORY;
 	}
 	else {
-		unsigned long port = strtoul(data->state.up.port, NULL, 10);
-		conn->port = conn->remote_port =
-		    (data->set.use_port && data->state.allow_port) ?
-		    data->set.use_port : curlx_ultous(port);
+		ulong port = strtoul(data->state.up.port, NULL, 10);
+		conn->port = conn->remote_port = (data->set.use_port && data->state.allow_port) ? data->set.use_port : curlx_ultous(port);
 	}
-
 	(void)curl_url_get(uh, CURLUPART_QUERY, &data->state.up.query, 0);
-
 #ifdef ENABLE_IPV6
 	if(data->set.scope_id)
-		/* Override any scope that was set above.  */
-		conn->scope_id = data->set.scope_id;
+		conn->scope_id = data->set.scope_id; // Override any scope that was set above
 #endif
-
 	return CURLE_OK;
 }
-
-/*
- * If we're doing a resumed transfer, we need to setup our stuff
- * properly.
- */
+//
+// If we're doing a resumed transfer, we need to setup our stuff properly.
+//
 static CURLcode setup_range(struct Curl_easy * data)
 {
 	struct UrlState * s = &data->state;
@@ -1968,11 +1907,9 @@ void Curl_free_request_state(struct Curl_easy * data)
 * name and is not limited to HTTP proxies only.
 * The returned pointer must be freed by the caller (unless NULL)
 ****************************************************************/
-static char *detect_proxy(struct Curl_easy * data,
-    struct connectdata * conn)
+static char * detect_proxy(struct Curl_easy * data, struct connectdata * conn)
 {
 	char * proxy = NULL;
-
 	/* If proxy was not specified, we check for default proxy environment
 	 * variables, to enable i.e Lynx compliance:
 	 *
@@ -1997,20 +1934,14 @@ static char *detect_proxy(struct Curl_easy * data,
 #ifdef CURL_DISABLE_VERBOSE_STRINGS
 	(void)data;
 #endif
-
-	/* Now, build <protocol>_proxy and check for such a one to use */
+	// Now, build <protocol>_proxy and check for such a one to use
 	while(*protop)
 		*envp++ = Curl_raw_tolower(*protop++);
-
-	/* append _proxy */
-	strcpy(envp, "_proxy");
-
-	/* read the protocol proxy: */
+	strcpy(envp, "_proxy"); // append _proxy
+	// read the protocol proxy:
 	prox = curl_getenv(proxy_env);
-
 	/*
-	 * We don't try the uppercase version of HTTP_PROXY because of
-	 * security reasons:
+	 * We don't try the uppercase version of HTTP_PROXY because of security reasons:
 	 *
 	 * When curl is used in a webserver application
 	 * environment (cgi or php), this environment variable can
@@ -2021,11 +1952,10 @@ static char *detect_proxy(struct Curl_easy * data,
 	 * arbitrarily redirected by any external attacker.
 	 */
 	if(!prox && !sstreqi_ascii("http_proxy", proxy_env)) {
-		/* There was no lowercase variable, try the uppercase version: */
+		// There was no lowercase variable, try the uppercase version:
 		Curl_strntoupper(proxy_env, proxy_env, sizeof(proxy_env));
 		prox = curl_getenv(proxy_env);
 	}
-
 	envp = proxy_env;
 	if(prox) {
 		proxy = prox; /* use this */
@@ -2040,20 +1970,16 @@ static char *detect_proxy(struct Curl_easy * data,
 	}
 	if(proxy)
 		infof(data, "Uses proxy env variable %s == '%s'", envp, proxy);
-
 	return proxy;
 }
 
 #endif /* CURL_DISABLE_HTTP */
-
 /*
  * If this is supposed to use a proxy, we need to figure out the proxy
  * host name, so that we can reuse an existing connection
  * that may exist registered to the same proxy host.
  */
-static CURLcode parse_proxy(struct Curl_easy * data,
-    struct connectdata * conn, char * proxy,
-    curl_proxytype proxytype)
+static CURLcode parse_proxy(struct Curl_easy * data, struct connectdata * conn, char * proxy, curl_proxytype proxytype)
 {
 	char * portptr = NULL;
 	int port = -1;
@@ -2070,16 +1996,13 @@ static CURLcode parse_proxy(struct Curl_easy * data,
 	char * path = NULL;
 	bool is_unix_proxy = FALSE;
 #endif
-
 	if(!uhp) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto error;
 	}
-
 	/* When parsing the proxy, allowing non-supported schemes since we have
 	   these made up ones for proxies. Guess scheme for URLs without it. */
-	uc = curl_url_set(uhp, CURLUPART_URL, proxy,
-		CURLU_NON_SUPPORT_SCHEME|CURLU_GUESS_SCHEME);
+	uc = curl_url_set(uhp, CURLUPART_URL, proxy, CURLU_NON_SUPPORT_SCHEME|CURLU_GUESS_SCHEME);
 	if(!uc) {
 		/* parsed okay as a URL */
 		uc = curl_url_get(uhp, CURLUPART_SCHEME, &scheme, 0);
@@ -2087,7 +2010,6 @@ static CURLcode parse_proxy(struct Curl_easy * data,
 			result = CURLE_OUT_OF_MEMORY;
 			goto error;
 		}
-
 		if(sstreqi_ascii("https", scheme)) {
 			if(proxytype != CURLPROXY_HTTPS2)
 				proxytype = CURLPROXY_HTTPS;
@@ -2113,31 +2035,21 @@ static CURLcode parse_proxy(struct Curl_easy * data,
 		}
 	}
 	else {
-		failf(data, "Unsupported proxy syntax in \'%s\': %s", proxy,
-		    curl_url_strerror(uc));
+		failf(data, "Unsupported proxy syntax in \'%s\': %s", proxy, curl_url_strerror(uc));
 		result = CURLE_COULDNT_RESOLVE_PROXY;
 		goto error;
 	}
-
 #ifdef USE_SSL
 	if(!Curl_ssl_supports(data, SSLSUPP_HTTPS_PROXY))
 #endif
 	if(IS_HTTPS_PROXY(proxytype)) {
-		failf(data, "Unsupported proxy \'%s\', libcurl is built without the "
-		    "HTTPS-proxy support.", proxy);
+		failf(data, "Unsupported proxy \'%s\', libcurl is built without the HTTPS-proxy support.", proxy);
 		result = CURLE_NOT_BUILT_IN;
 		goto error;
 	}
-
-	sockstype =
-	    proxytype == CURLPROXY_SOCKS5_HOSTNAME ||
-	    proxytype == CURLPROXY_SOCKS5 ||
-	    proxytype == CURLPROXY_SOCKS4A ||
-	    proxytype == CURLPROXY_SOCKS4;
-
+	sockstype = oneof4(proxytype, CURLPROXY_SOCKS5_HOSTNAME, CURLPROXY_SOCKS5, CURLPROXY_SOCKS4A, CURLPROXY_SOCKS4);
 	proxyinfo = sockstype ? &conn->socks_proxy : &conn->http_proxy;
 	proxyinfo->proxytype = (uchar)proxytype;
-
 	/* Is there a username and password given in this proxy url? */
 	uc = curl_url_get(uhp, CURLUPART_USER, &proxyuser, CURLU_URLDECODE);
 	if(uc && (uc != CURLUE_NO_USER))
@@ -2145,7 +2057,6 @@ static CURLcode parse_proxy(struct Curl_easy * data,
 	uc = curl_url_get(uhp, CURLUPART_PASSWORD, &proxypasswd, CURLU_URLDECODE);
 	if(uc && (uc != CURLUE_NO_PASSWORD))
 		goto error;
-
 	if(proxyuser || proxypasswd) {
 		ZFREE(proxyinfo->user);
 		proxyinfo->user = proxyuser;
@@ -2168,18 +2079,14 @@ static CURLcode parse_proxy(struct Curl_easy * data,
 			goto error;
 		conn->bits.proxy_user_passwd = TRUE; /* enable it */
 	}
-
 	(void)curl_url_get(uhp, CURLUPART_PORT, &portptr, 0);
-
 	if(portptr) {
 		port = (int)strtol(portptr, NULL, 10);
 		SAlloc::F(portptr);
 	}
 	else {
 		if(data->set.proxyport)
-			/* None given in the proxy string, then get the default one if it is
-			   given */
-			port = (int)data->set.proxyport;
+			port = (int)data->set.proxyport; // None given in the proxy string, then get the default one if it is given
 		else {
 			if(IS_HTTPS_PROXY(proxytype))
 				port = CURL_DEFAULT_HTTPS_PROXY_PORT;
@@ -2192,7 +2099,6 @@ static CURLcode parse_proxy(struct Curl_easy * data,
 		if(conn->port < 0 || sockstype || !conn->socks_proxy.host.rawalloc)
 			conn->port = port;
 	}
-
 	/* now, clone the proxy host name */
 	uc = curl_url_get(uhp, CURLUPART_HOST, &host, CURLU_URLDECODE);
 	if(uc) {
@@ -2221,7 +2127,6 @@ static CURLcode parse_proxy(struct Curl_easy * data,
 			host = NULL;
 		}
 	}
-
 	if(!is_unix_proxy) {
 #endif
 	ZFREE(proxyinfo->host.rawalloc);
@@ -2682,13 +2587,11 @@ static CURLcode override_login(struct Curl_easy * data,
 /*
  * Set the login details so they're available in the connection
  */
-static CURLcode set_login(struct Curl_easy * data,
-    struct connectdata * conn)
+static CURLcode set_login(struct Curl_easy * data, struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;
 	const char * setuser = CURL_DEFAULT_USER;
 	const char * setpasswd = CURL_DEFAULT_PASSWORD;
-
 	/* If our protocol needs a password and we have none, use the defaults */
 	if((conn->handler->flags & PROTOPT_NEEDSPWD) && !data->state.aptr.user)
 		;
@@ -2702,26 +2605,20 @@ static CURLcode set_login(struct Curl_easy * data,
 		if(!conn->user)
 			return CURLE_OUT_OF_MEMORY;
 	}
-
 	/* Store the default password */
 	if(!conn->passwd) {
 		conn->passwd = strdup(setpasswd);
 		if(!conn->passwd)
 			result = CURLE_OUT_OF_MEMORY;
 	}
-
 	return result;
 }
-
 /*
  * Parses a "host:port" string to connect to.
  * The hostname and the port may be empty; in this case, NULL is returned for
  * the hostname and -1 for the port.
  */
-static CURLcode parse_connect_to_host_port(struct Curl_easy * data,
-    const char * host,
-    char ** hostname_result,
-    int * port_result)
+static CURLcode parse_connect_to_host_port(struct Curl_easy * data, const char * host, char ** hostname_result, int * port_result)
 {
 	char * host_dup;
 	char * hostptr;
@@ -2729,7 +2626,6 @@ static CURLcode parse_connect_to_host_port(struct Curl_easy * data,
 	char * portptr;
 	int port = -1;
 	CURLcode result = CURLE_OK;
-
 #if defined(CURL_DISABLE_VERBOSE_STRINGS)
 	(void)data;
 #endif
@@ -2775,7 +2671,7 @@ static CURLcode parse_connect_to_host_port(struct Curl_easy * data,
 #endif
 	}
 	/* Get port number off server.com:1080 */
-	host_portno = strchr(portptr, ':');
+	host_portno = sstrchr(portptr, ':');
 	if(host_portno) {
 		char * endp = NULL;
 		*host_portno = '\0'; /* cut off number from host name */
@@ -2858,7 +2754,7 @@ static CURLcode parse_connect_to_string(struct Curl_easy * data,
 		}
 		else {
 			/* check whether the URL's port matches */
-			const char * ptr_next = strchr(ptr, ':');
+			const char * ptr_next = sstrchr(ptr, ':');
 			if(ptr_next) {
 				char * endp = NULL;
 				long port_to_match = strtol(ptr, &endp, 10);
@@ -2958,10 +2854,7 @@ static CURLcode parse_connect_to_slist(struct Curl_easy * data,
 #endif
 		{
 			srcalpnid = ALPN_h1;
-			hit = Curl_altsvc_lookup(data->asi,
-				srcalpnid, host, conn->remote_port, /* from */
-				&as /* to */,
-				allowed_versions);
+			hit = Curl_altsvc_lookup(data->asi, srcalpnid, host, conn->remote_port, /* from */ &as /* to */, allowed_versions);
 		}
 		if(hit) {
 			char * hostd = strdup((char *)as->dst.host);
@@ -3250,10 +3143,7 @@ static void reuse_conn(struct Curl_easy * data,
  * @see Curl_setup_conn()
  *
  */
-
-static CURLcode create_conn(struct Curl_easy * data,
-    struct connectdata ** in_connect,
-    bool * async)
+static CURLcode create_conn(struct Curl_easy * data, struct connectdata ** in_connect, bool * async)
 {
 	CURLcode result = CURLE_OK;
 	struct connectdata * conn;
@@ -3264,10 +3154,8 @@ static CURLcode create_conn(struct Curl_easy * data,
 	bool waitpipe = FALSE;
 	size_t max_host_connections = Curl_multi_max_host_connections(data->multi);
 	size_t max_total_connections = Curl_multi_max_total_connections(data->multi);
-
 	*async = FALSE;
 	*in_connect = NULL;
-
 	/*************************************************************
 	* Check input data
 	*************************************************************/
@@ -3275,13 +3163,11 @@ static CURLcode create_conn(struct Curl_easy * data,
 		result = CURLE_URL_MALFORMAT;
 		goto out;
 	}
-
 	/* First, split up the current URL in parts so that we can use the
 	   parts for checking against the already present connections. In order
 	   to not have to modify everything at once, we allocate a temporary
 	   connection data struct and fill in for comparison purposes. */
 	conn = allocate_conn(data);
-
 	if(!conn) {
 		result = CURLE_OUT_OF_MEMORY;
 		goto out;

@@ -13,8 +13,6 @@
  */
 #include "archive_platform.h"
 #pragma hdrstop
-//#include "archive_entry_locale.h"
-//#include "archive_read_private.h"
 
 #define MAXMATCH                256     /* Maximum match length. */
 #define MINMATCH                3       /* Minimum match length. */

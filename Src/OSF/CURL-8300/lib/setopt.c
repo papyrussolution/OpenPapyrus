@@ -23,31 +23,18 @@
 ***************************************************************************/
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <limits.h>
-//#ifdef HAVE_NETINET_IN_H
-//#include <netinet/in.h>
-//#endif
 #ifdef HAVE_LINUX_TCP_H
 #include <linux/tcp.h>
 #elif defined(HAVE_NETINET_TCP_H)
 #include <netinet/tcp.h>
 #endif
-
-//#include "urldata.h"
 #include "url.h"
-//#include "progress.h"
-//#include "content_encoding.h"
-//#include "strcase.h"
 #include "share.h"
 #include "vtls/vtls.h"
-//#include "warnless.h"
-//#include "sendf.h"
 #include "http2.h"
 #include "setopt.h"
-//#include "multiif.h"
 #include "altsvc.h"
 #include "hsts.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"
@@ -146,7 +133,7 @@ static CURLcode protocol2num(const char * str, curl_prot_t * val)
 	do {
 		const char * token = str;
 		size_t tlen;
-		str = strchr(str, ',');
+		str = sstrchr(str, ',');
 		tlen = str? (size_t)(str - token): strlen(token);
 		if(tlen) {
 			const struct Curl_handler * h = Curl_builtin_scheme(token, tlen);

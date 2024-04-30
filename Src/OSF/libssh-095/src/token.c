@@ -72,7 +72,7 @@ struct ssh_tokens_st * ssh_tokenize(const char * chain, char separator)
 	}
 	c = tokens->buffer;
 	do {
-		found = strchr(c, separator);
+		found = sstrchr(c, separator);
 		if(found != NULL) {
 			c = found + 1;
 			num_tokens++;
@@ -90,7 +90,7 @@ struct ssh_tokens_st * ssh_tokenize(const char * chain, char separator)
 
 	for(i = 1; i < num_tokens; i++) {
 		/* Find next separator */
-		found = strchr(c, separator);
+		found = sstrchr(c, separator);
 		if(found == NULL) {
 			break;
 		}

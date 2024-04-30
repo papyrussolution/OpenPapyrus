@@ -111,11 +111,9 @@ void Printer::Print(const std::map<std::string, std::string>& variables, const c
 		}
 		else if(text[i] == variable_delimiter_) {
 			// Saw the start of a variable name.
-
 			// Write what we have so far.
 			WriteRaw(text + pos, i - pos);
 			pos = i + 1;
-
 			// Find closing delimiter.
 			const char* end = strchr(text + pos, variable_delimiter_);
 			if(end == NULL) {

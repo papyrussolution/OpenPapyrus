@@ -107,7 +107,7 @@ static int ssl_module_init(CONF_IMODULE * md, const CONF * cnf)
 			struct ssl_conf_cmd_st * cmd = ssl_name->cmds + j;
 
 			/* Skip any initial dot in name */
-			name = strchr(cmd_conf->name, '.');
+			name = sstrchr(cmd_conf->name, '.');
 			if(name != NULL)
 				name++;
 			else

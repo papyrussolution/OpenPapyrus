@@ -604,8 +604,8 @@ table Register {          // size=88
 	long   RegTypeID;     // ->Ref(PPOBJ_REGISTERTYPE) @# !0
 	date   Dt;            //
 	long   RegOrgID;      // ->Person.ID
-	string Serial[12];    //
-	string Num[32];       // @#{!0} @v5.8.11 Number-->Num
+	string Serial[32];    // @v12.0.0 [12]-->[32]
+	string Num[128];      // @#{!0} @v5.8.11 Number-->Num // @v12.0.0 [32]-->[128]
 	date   Expiry;        // Дата окончания действия документа
 	long   UniqCntr;      // @v4.4.5 Счетчик, делающий индекс (RegTypeID, Serial, Number, UniqCntr) уникальным
 	long   Flags;         // @v4.4.5

@@ -24,22 +24,11 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
-//#include "urldata.h"
-//#include "transfer.h"
 #include "url.h"
-//#include "cfilters.h"
-//#include "connect.h"
-//#include "progress.h"
 #include "easyif.h"
 #include "share.h"
 #include "psl.h"
-//#include "multiif.h"
-//#include "sendf.h"
-//#include "timeval.h"
-//#include "http.h"
 #include "select.h"
-//#include "warnless.h"
 #include "speedcheck.h"
 #include "conncache.h"
 #include "multihandle.h"

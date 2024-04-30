@@ -10,7 +10,6 @@
 #ifndef XAPIAN_INCLUDED_WEIGHT_H
 #define XAPIAN_INCLUDED_WEIGHT_H
 
-//#include <string>
 #include <xapian/database.h>
 #include <xapian/registry.h>
 #include <xapian/types.h>

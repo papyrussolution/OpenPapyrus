@@ -6,8 +6,6 @@
 #ifndef ABSL_STATUS_INTERNAL_STATUSOR_INTERNAL_H_
 #define ABSL_STATUS_INTERNAL_STATUSOR_INTERNAL_H_
 
-//#include <type_traits>
-//#include <utility>
 #include "absl/base/attributes.h"
 #include "absl/meta/type_traits.h"
 #include "absl/status/status.h"

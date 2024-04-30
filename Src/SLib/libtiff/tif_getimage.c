@@ -2464,7 +2464,7 @@ int TIFFReadRGBATileExt(TIFF * tif, uint32 col, uint32 row, uint32 * raster, int
 	 */
 	if(!TIFFRGBAImageOK(tif, emsg) || !TIFFRGBAImageBegin(&img, tif, stop_on_error, emsg)) {
 		TIFFErrorExt(tif->tif_clientdata, TIFFFileName(tif), "%s", emsg);
-		return ( 0);
+		return 0;
 	}
 	/*
 	 * The TIFFRGBAImageGet() function doesn't allow us to get off the

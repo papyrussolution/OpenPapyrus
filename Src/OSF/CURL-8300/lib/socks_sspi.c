@@ -27,19 +27,12 @@
 
 #if defined(USE_WINDOWS_SSPI) && !defined(CURL_DISABLE_PROXY)
 
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "cfilters.h"
-//#include "connect.h"
 #include "strerror.h"
-//#include "timeval.h"
 #include "socks.h"
 #include "curl_sspi.h"
 #include "curl_multibyte.h"
-//#include "warnless.h"
 #include "strdup.h"
 /* The last 3 #include files should be in this order */
-//#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
 
@@ -101,7 +94,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(struct Curl_cfilter * cf,
 	 */
 
 	/* prepare service name */
-	if(strchr(service, '/')) {
+	if(sstrchr(service, '/')) {
 		service_name = strdup(service);
 		if(!service_name)
 			return CURLE_OUT_OF_MEMORY;

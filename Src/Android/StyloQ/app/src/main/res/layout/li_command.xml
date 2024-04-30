@@ -16,7 +16,7 @@
     <View style="@style/FakeView"/>
     <TextView style="@style/ExecuteTimeText" android:id="@+id/CTL_IND_EXECUTETIME"/>
     <!-- <ImageView style="@style/StatusIndicator" android:id="@+id/CTL_IND_STATUS"/> -->
-    <ImageButton style="@style/ToolbarButton" android:id="@+id/CTL_BUTTON_RUNCMD_FORCEUPDATE"
+    <ImageButton style="@style/ToolbarButton" android:id="@+id/CTL_BUTTON_FORCEUPDATE"
         android:gravity="left" app:srcCompat="@drawable/ic_refresh01"/>
     <ImageButton style="@style/ToolbarButton" android:id="@+id/CTL_BUTTON_RUNCMD"
         android:gravity="left"/>

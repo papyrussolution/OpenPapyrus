@@ -15,17 +15,6 @@
 #ifndef ABSL_STRINGS_INTERNAL_STL_TYPE_TRAITS_H_
 #define ABSL_STRINGS_INTERNAL_STL_TYPE_TRAITS_H_
 
-//#include <array>
-//#include <bitset>
-//#include <deque>
-//#include <forward_list>
-//#include <list>
-//#include <map>
-//#include <set>
-//#include <type_traits>
-//#include <unordered_map>
-//#include <unordered_set>
-//#include <vector>
 #include "absl/meta/type_traits.h"
 
 namespace absl {

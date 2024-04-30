@@ -9,7 +9,7 @@
 #define PATHSEP_TO_NUL(arg)                     \
 	do {                                            \
 		char * s = arg;                              \
-		while((s = strchr(s, PATHSEP)) != NULL)    \
+		while((s = sstrchr(s, PATHSEP)) != NULL)    \
 			* s ++ = '\0';                         \
 	} while(0)
 

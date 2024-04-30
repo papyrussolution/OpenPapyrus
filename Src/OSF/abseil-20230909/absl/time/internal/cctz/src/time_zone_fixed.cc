@@ -15,11 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "time_zone_fixed.h"
-//#include <algorithm>
-//#include <cassert>
-//#include <chrono>
-//#include <cstring>
-//#include <string>
 #include "absl/base/config.h"
 
 namespace absl {

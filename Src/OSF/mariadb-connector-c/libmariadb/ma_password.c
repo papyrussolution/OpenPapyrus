@@ -33,10 +33,6 @@
 
 #include <ma_global.h>
 #pragma hdrstop
-//#include <ma_sys.h>
-//#include <ma_string.h>
-//#include <ma_sha1.h>
-//#include "mysql.h"
 
 void ma_randominit(struct rand_struct * rand_st, ulong seed1, ulong seed2)
 {                                               /* For mysql 3.21.# */

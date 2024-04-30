@@ -13,9 +13,6 @@
 //          Vikas (vikasa@google.com)
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
-//#include "src/mux/muxi.h"
-//#include "src/utils/utils.h"
 //
 // Helper method(s).
 //

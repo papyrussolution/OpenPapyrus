@@ -51,20 +51,6 @@
 
 #include "absl/absl-internal.h"
 #pragma hdrstop
-//#if defined(_MSC_VER)
-	//#include <winsock2.h>  // for timeval
-//#endif
-//#include <algorithm>
-//#include <cassert>
-//#include <chrono>  // NOLINT(build/c++11)
-//#include <cmath>
-//#include <cstdint>
-//#include <cstdlib>
-//#include <cstring>
-//#include <ctime>
-//#include <functional>
-//#include <limits>
-//#include <string>
 #include "absl/base/attributes.h"
 #include "absl/base/casts.h"
 #include "absl/base/config.h"

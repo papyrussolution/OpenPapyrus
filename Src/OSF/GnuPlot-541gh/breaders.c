@@ -75,7 +75,7 @@ static const char * FASTCALL edf_findInHeader(const char * header, const char * 
 	const char * value_ptr = strstr(header, key);
 	if(value_ptr) {
 		// an edf line is "key     = value ;" 
-		value_ptr = 1 + strchr(value_ptr + strlen(key), '=');
+		value_ptr = 1 + sstrchr(value_ptr + strlen(key), '=');
 		while(isspace((uchar)*value_ptr))
 			value_ptr++;
 	}

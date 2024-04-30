@@ -15,8 +15,6 @@
 #ifndef ABSL_STRINGS_INTERNAL_CORDZ_HANDLE_H_
 #define ABSL_STRINGS_INTERNAL_CORDZ_HANDLE_H_
 
-//#include <atomic>
-//#include <vector>
 #include "absl/base/config.h"
 #include "absl/base/internal/raw_logging.h"
 

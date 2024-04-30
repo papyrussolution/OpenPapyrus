@@ -24,17 +24,8 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
-//#include "curl_trc.h"
-//#include "urldata.h"
 #include "easyif.h"
-//#include "cfilters.h"
-//#include "timeval.h"
-//#include "multiif.h"
-//#include "strcase.h"
-
 #include "cf-socket.h"
-//#include "connect.h"
 #include "http2.h"
 #include "http_proxy.h"
 #include "cf-h1-proxy.h"
@@ -84,7 +75,7 @@ void Curl_debug(struct Curl_easy * data, curl_infotype type,
  */
 void Curl_failf(struct Curl_easy * data, const char * fmt, ...)
 {
-	assert(!strchr(fmt, '\n'));
+	assert(!sstrchr(fmt, '\n'));
 	if(data->set.verbose || data->set.errorbuffer) {
 		va_list ap;
 		char error[CURL_ERROR_SIZE + 2];
@@ -106,7 +97,7 @@ void Curl_failf(struct Curl_easy * data, const char * fmt, ...)
 
 void Curl_infof(struct Curl_easy * data, const char * fmt, ...)
 {
-	assert(!strchr(fmt, '\n'));
+	assert(!sstrchr(fmt, '\n'));
 	if(data && data->set.verbose) {
 		va_list ap;
 		int len;

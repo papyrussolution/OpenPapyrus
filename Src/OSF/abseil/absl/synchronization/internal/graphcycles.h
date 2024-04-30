@@ -27,8 +27,7 @@
 //   otherwise.
 //   FindPath() is linear in the size of the graph.
 // The current implementation uses O(|V|+|E|) space.
-
-//#include <cstdint>
+//
 #include "absl/base/config.h"
 
 namespace absl {

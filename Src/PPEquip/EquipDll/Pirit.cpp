@@ -2967,9 +2967,9 @@ int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t 
 				}
 				// @v11.3.3 {
 				// Какая-то несуразица: в протоколе описано одно, в реальности в некоторых случаях - другое
-				if(potential_cc_number1.IsDigit() && !potential_cc_number2.IsDigit())
+				if(potential_cc_number1.IsDec() && !potential_cc_number2.IsDec())
 					cc_number = potential_cc_number1.ToLong();
-				else if(!potential_cc_number1.IsDigit() && potential_cc_number2.IsDigit())
+				else if(!potential_cc_number1.IsDec() && potential_cc_number2.IsDec())
 					cc_number = potential_cc_number2.ToLong();
 				// } @v11.3.3 
 				if(cc_number == 18 || cc_number < 0) // @v10.1.9 Костыль: Некоторые аппараты всегад возвращают 18-й номер чека. Трактуем это как 0.

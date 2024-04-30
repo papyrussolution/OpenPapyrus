@@ -58,11 +58,6 @@
 #ifndef ABSL_SYNCHRONIZATION_MUTEX_H_
 #define ABSL_SYNCHRONIZATION_MUTEX_H_
 
-//#include <atomic>
-//#include <cstdint>
-//#include <cstring>
-//#include <iterator>
-//#include <string>
 #include "absl/base/const_init.h"
 #include "absl/base/internal/identity.h"
 #include "absl/base/internal/low_level_alloc.h"

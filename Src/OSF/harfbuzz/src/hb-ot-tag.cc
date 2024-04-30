@@ -163,9 +163,9 @@ struct LangTag {
 	{
 		const char * b = this->language;
 		uint db;
-		const char * p = strchr(a, '-');
+		const char * p = sstrchr(a, '-');
 		uint da = p ? (uint)(p - a) : strlen(a);
-		p = strchr(b, '-');
+		p = sstrchr(b, '-');
 		db = p ? (uint)(p - b) : strlen(b);
 		return strncmp(a, b, hb_max(da, db));
 	}
@@ -205,10 +205,10 @@ static void hb_ot_tags_from_language(const char * lang_str, const char * limit, 
 	if(hb_ot_tags_from_complex_language(lang_str, limit, count, tags))
 		return;
 	/* Find a language matching in the first component. */
-	s = strchr(lang_str, '-');
+	s = sstrchr(lang_str, '-');
 	{
 		if(s && limit - lang_str >= 6) {
-			const char * extlang_end = strchr(s + 1, '-');
+			const char * extlang_end = sstrchr(s + 1, '-');
 			/* If there is an extended language tag, use it. */
 			if(3 == (extlang_end ? extlang_end - s - 1 : strlen(s + 1)) && isasciialpha(s[1]))
 				lang_str = s + 1;

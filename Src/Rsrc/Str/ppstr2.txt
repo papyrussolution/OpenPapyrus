@@ -8514,6 +8514,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_chzndisposalrsn                     "Причина выбытия марки честный знак" // @v11.8.12
 @rtag_personchznpmtoken                   "ЧЕСТНЫЙ ЗНАК токен разрешительного режима"  // @v11.9.11
 @rtag_personchznpmhost                    "ЧЕСТНЫЙ ЗНАК хост разрешительного режима"  // @v11.9.12
+@rtag_computeruuid                        "UUID компьютера" // @v12.0.0
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -8535,6 +8536,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rregt_bankaccount                        "@{bankaccount}"
 @rregt_dto_id                             "Ид оператора передачи данных"
 @rregt_taxsystem                          "@{taxsystemkind}"
+@rregt_enalogid                           "Ид участника эл документооборота nalog.ru"
 /
 // Зарезервированные счетчики операций
 //
@@ -8693,6 +8695,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @view_usermenu                            "Пользовательские меню и рабочие столы"
 @view_events                              "@{event_pl}"
 @view_swprogram                           "@{swprogram_pl}"
+@view_computer                            "@{managedcomputer_pl}"
 
 @filter_cashnodepane                      "Фильтр кассовой панели"
 @filter_prcssrwroffdraftparam             "Параметры списания драфт-документов"
@@ -9220,6 +9223,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_processbomestimatedvalues            "Расчет оценочных цен на продукцию (BOM)"
 @cmd_swprogram                            "@{swprogram_pl}"
 @cmd_swprogramcategory                    "@{swprogramcategory_pl}"
+@cmd_computer                             "@{managedcomputer_pl}"
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
@@ -18149,6 +18153,7 @@ PPHS_WEEKDAY                   "weekday"
 PPHS_WORKBOOK                  "workbook"
 PPHS_WORLD                     "world"
 PPHS_WSCTL                     "wsctl" // @v11.7.2
+PPHS_COMPUTER                  "computer" // @v12.0.0
 PPHS_LOGLOCKSTACK              "loglockstack"
 PPHS_PAYMENT                   "payment"
 PPHS_UNKN                      "unkn"

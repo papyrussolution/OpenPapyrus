@@ -32,7 +32,7 @@ static bool append_filename_argument(std::string & cmd, const std::string & arg,
 			// call commands like "xcopy" or "rd" which don't.
 			cmd += '\\';
 		}
-		else if(*i < 32 || std::strchr("<>\"|*?", *i)) {
+		else if(*i < 32 || std::sstrchr("<>\"|*?", *i)) {
 			// Check for illegal characters in filename.
 			return false;
 		}

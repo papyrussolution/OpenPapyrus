@@ -336,10 +336,7 @@ static int _Lock(PPID id)
 	return 1;
 }
 
-static int _Unlock(PPID id)
-{
-	return id ? DS.GetSync().ReleaseMutex(PPOBJ_GOODS, id) : 1;
-}
+static int _Unlock(PPID id) { return id ? DS.GetSync().ReleaseMutex(PPOBJ_GOODS, id) : 1; }
 
 int PPObjGoods::Lock(PPID id)
 {
@@ -2795,7 +2792,7 @@ ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parentID, long optio
 	const  long brand = (options & selfExtLongAsBrand) ? reinterpret_cast<long>(extraPtr) : 0;
 	const  bool exist_only = (parentID < 0);
 	const  bool dont_sel_passive = (options & selfHidePassive) ? true : ((options & selfForcePassive) ? false : LOGIC(GetConfig().Flags & GCF_DONTSELPASSIVE));
-	const  bool dont_sel_generic = LOGIC(options & selfHideGeneric); // @v10.7.7
+	const  bool dont_sel_generic = LOGIC(options & selfHideGeneric);
 	const  PPID loc_id = NZOR(locID, LConfig.Location);
 	const  PPID mtx_qk_id = (options & selfUseMatrix) ? GetConfig().MtxQkID : 0;
 	Goods2Tbl * t = 0;
@@ -2807,7 +2804,7 @@ ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parentID, long optio
 		Goods2Tbl::Key2 k2;
 		Goods2Tbl::Key4 k4;
 	} k_;
-	if(oneof3(Kind, PPGDSK_TRANSPORT, PPGDSK_BRAND, PPGDSK_PCKGTYPE)) {
+	if(oneof5(Kind, PPGDSK_TRANSPORT, PPGDSK_BRAND, PPGDSK_PCKGTYPE, PPGDSK_SWPROGRAM, PPGDSK_COMPUTER)) { // @v12.0.0 PPGDSK_SWPROGRAM, PPGDSK_COMPUTER
 		GoodsCore * p_tbl = P_Tbl;
 		BExtQuery q(p_tbl, (options & selfByName) ? 2 : 4);
 		DBQ * dbq = &(p_tbl->Kind == Kind);

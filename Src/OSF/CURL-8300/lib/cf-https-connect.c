@@ -27,12 +27,6 @@
 
 #if !defined(CURL_DISABLE_HTTP) && !defined(USE_HYPER)
 
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "curl_trc.h"
-//#include "cfilters.h"
-//#include "connect.h"
-//#include "multiif.h"
 #include "cf-https-connect.h"
 #include "http2.h"
 #include "vquic/vquic.h"

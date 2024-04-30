@@ -7,9 +7,6 @@
 #ifndef ABSL_STRINGS_INTERNAL_CORD_REP_BTREE_H_
 #define ABSL_STRINGS_INTERNAL_CORD_REP_BTREE_H_
 
-//#include <cassert>
-//#include <cstdint>
-//#include <iosfwd>
 #include "absl/base/config.h"
 #include "absl/base/internal/raw_logging.h"
 #include "absl/base/optimization.h"

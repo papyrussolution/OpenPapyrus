@@ -9,8 +9,6 @@
 #define lapi_c
 #define LUA_CORE
 
-//#include <stdarg.h>
-//#include <string.h>
 #include "lua.h"
 #include "lapi.h"
 #include "ldebug.h"

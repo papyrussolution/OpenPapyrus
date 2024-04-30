@@ -586,9 +586,6 @@ static JMP_BUF fpe_env;
 //
 static RETSIGTYPE fpe(int /*an_int*/)
 {
-#if defined(MSDOS) && !defined(__EMX__) && !defined(DJGPP)
-	_fpreset(); // thanks to lotto@wjh12.UUCP for telling us about this 
-#endif
 	signal(SIGFPE, (sigfunc)fpe);
 	GPO.Ev.IsUndefined_ = true;
 	LONGJMP(fpe_env, TRUE);

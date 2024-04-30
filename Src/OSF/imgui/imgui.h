@@ -58,10 +58,6 @@
 //
 // Includes
 #include <slib.h> // @sobolev
-//#include <float.h>   // FLT_MIN, FLT_MAX
-//#include <stdarg.h>  // va_list, va_start, va_end
-//#include <stddef.h>  // ptrdiff_t, NULL
-//#include <string.h>  // memset, memmove, memcpy, strlen, strchr, strcpy, strcmp
 
 // Define attributes of all API symbols declarations (e.g. for DLL under Windows)
 // is used for core imgui functions, IMGUI_IMPL_API is used for the default backends files (imgui_impl_xxx.h)

@@ -58,29 +58,15 @@
 #include <inet.h>
 #endif
 
-//#include <curl/curl.h>
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "hostip.h"
-//#include "progress.h"
-//#include "transfer.h"
-//#include "escape.h"
-//#include "http.h" /* for HTTP proxy tunnel stuff */
-//#include "mime.h"
 #include "socks.h"
 #include "smtp.h"
 #include "strtoofft.h"
-//#include "strcase.h"
 #include "vtls/vtls.h"
-//#include "cfilters.h"
-//#include "connect.h"
 #include "select.h"
-//#include "multiif.h"
 #include "url.h"
 #include "curl_gethostname.h"
 #include "bufref.h"
 #include "curl_sasl.h"
-//#include "warnless.h"
 #include "idn.h"
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"

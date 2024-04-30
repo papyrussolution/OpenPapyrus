@@ -432,7 +432,7 @@ int PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, const 
 						idx_spc = TextIndex::spcDigital; // Processing after switch
 					else {
 						Get(idx, rBlk.Item_);
-						if(rBlk.Item_.Text.IsDigit())
+						if(rBlk.Item_.Text.IsDec())
 							idx++;
 						else
 							ok = 0;
@@ -445,7 +445,7 @@ int PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, const 
 							idx_spc = (TextIndex::spcDigL_First + 1) - tok_len; // Processing after switch
 						else {
 							Get(idx, rBlk.Item_);
-							if(rBlk.Item_.Text.IsDigit() && rBlk.Item_.Text.Len() == tok_len)
+							if(rBlk.Item_.Text.IsDec() && rBlk.Item_.Text.Len() == tok_len)
 								idx++;
 							else
 								ok = 0;
@@ -454,13 +454,13 @@ int PPTextAnalyzer::Match(PPTextAnalyzer::FindBlock & rBlk, uint termIdx, const 
 					break;
 				case Replacer::stFloat:
 					Get(idx, rBlk.Item_);
-					if(rBlk.Item_.Text.IsDigit()) {
+					if(rBlk.Item_.Text.IsDec()) {
 						if(idx < idxLast) {
 							Get(++idx, rBlk.Item_);
 							if(rBlk.Item_.Text == ".") {
 								if(idx < idxLast) {
 									Get(++idx, rBlk.Item_);
-									if(rBlk.Item_.Text.IsDigit())
+									if(rBlk.Item_.Text.IsDec())
 										idx++;
 								}
 							}
@@ -807,7 +807,7 @@ int PPTextAnalyzer::IndexText(PPTextAnalyzer::FindBlock & rBlk, uint idxFirst, u
 	for(uint i = idxFirst; i <= idxLast; i++) {
 		Get(i, rBlk.Item_);
 		THROW(rBlk.P_Idx->Add_(i, rBlk.Item_.TextId));
-		if(rBlk.Item_.Text.IsDigit()) {
+		if(rBlk.Item_.Text.IsDec()) {
 			THROW(rBlk.P_Idx->Add_(i, TextIndex::spcDigital));
 			{
 				const int len = rBlk.Item_.Text.Len();
@@ -2597,7 +2597,7 @@ int PPObjectTokenizer::SearchObjects(const char * pText, PPID objType, long flag
 				const double order_coeff = (2.0 - ((i+1) / order_div));
 				const SearchBlockEntry * p_entry = result.at(i);
 				const int sw_r = GetTextById(p_entry->T, src_word_buf);
-				const int _digital = BIN(src_word_buf.IsDigit());
+				const bool _digital = src_word_buf.IsDec();
 				if(debug_output)
 					if(sw_r > 0)
 						PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf.Z().Tab().Cat((temp_buf = src_word_buf).ToOem()), LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);

@@ -9,9 +9,6 @@
 #define ltablib_c
 #define LUA_LIB
 
-//#include <limits.h>
-//#include <stddef.h>
-//#include <string.h>
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"

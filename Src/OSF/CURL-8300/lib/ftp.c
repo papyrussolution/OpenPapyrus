@@ -37,27 +37,15 @@
 #include <in.h>
 #include <inet.h>
 #endif
-
-//#include <curl/curl.h>
-//#include "urldata.h"
-//#include "sendf.h"
 #include "if2ip.h"
-//#include "hostip.h"
-//#include "progress.h"
-//#include "transfer.h"
-//#include "escape.h"
-//#include "http.h" /* for HTTP proxy tunnel stuff */
 #include "ftp.h"
 #include "fileinfo.h"
 #include "ftplistparser.h"
 #include "curl_range.h"
 #include "curl_krb5.h"
 #include "strtoofft.h"
-//#include "strcase.h"
 #include "vtls/vtls.h"
-//#include "cfilters.h"
 #include "cf-socket.h"
-//#include "connect.h"
 #include "strerror.h"
 #include "inet_ntop.h"
 #include "inet_pton.h"
@@ -837,7 +825,7 @@ static CURLcode ftp_state_use_port(struct Curl_easy * data, /*ftpport*/int fcmd/
 	struct sockaddr * sa = (struct sockaddr *)&ss;
 	struct sockaddr_in * const sa4 = (sockaddr_in *)sa;
 #ifdef ENABLE_IPV6
-	struct sockaddr_in6 * const sa6 = (void *)sa;
+	struct sockaddr_in6 * const sa6 = (struct sockaddr_in6 *)sa;
 #endif
 	static const char mode[][5] = { "EPRT", "PORT" };
 	enum resolve_t rc;
@@ -875,7 +863,7 @@ static CURLcode ftp_state_use_port(struct Curl_easy * data, /*ftpport*/int fcmd/
 		if(*string_ftpport == '[') {
 			/* [ipv6]:port(-range) */
 			ip_start = string_ftpport + 1;
-			ip_end = strchr(string_ftpport, ']');
+			ip_end = sstrchr(string_ftpport, ']');
 			if(ip_end)
 				strncpy(addr, ip_start, ip_end - ip_start);
 		}
@@ -886,7 +874,7 @@ static CURLcode ftp_state_use_port(struct Curl_easy * data, /*ftpport*/int fcmd/
 			ip_end = string_ftpport;
 		}
 		else {
-			ip_end = strchr(string_ftpport, ':');
+			ip_end = sstrchr(string_ftpport, ':');
 			if(ip_end) {
 				/* either ipv6 or (ipv4|domain|interface):port(-range) */
 #ifdef ENABLE_IPV6
@@ -908,10 +896,10 @@ static CURLcode ftp_state_use_port(struct Curl_easy * data, /*ftpport*/int fcmd/
 
 		/* parse the port */
 		if(ip_end) {
-			port_start = strchr(ip_end, ':');
+			port_start = sstrchr(ip_end, ':');
 			if(port_start) {
 				port_min = curlx_ultous(strtoul(port_start + 1, NULL, 10));
-				port_sep = strchr(port_start, '-');
+				port_sep = sstrchr(port_start, '-');
 				if(port_sep) {
 					port_max = curlx_ultous(strtoul(port_sep + 1, NULL, 10));
 				}
@@ -1721,7 +1709,7 @@ static CURLcode ftp_state_pasv_resp(struct Curl_easy * data, int ftpcode)
 	ZFREE(ftpc->newhost);
 	if((ftpc->count1 == 0) && (ftpcode == 229)) {
 		/* positive EPSV response */
-		char * ptr = strchr(str, '(');
+		char * ptr = sstrchr(str, '(');
 		if(ptr) {
 			char sep;
 			ptr++;
@@ -1752,11 +1740,9 @@ static CURLcode ftp_state_pasv_resp(struct Curl_easy * data, int ftpcode)
 			return CURLE_FTP_WEIRD_PASV_REPLY;
 		}
 	}
-	else if((ftpc->count1 == 1) &&
-	    (ftpcode == 227)) {
+	else if((ftpc->count1 == 1) && (ftpcode == 227)) {
 		/* positive PASV response */
 		uint ip[6];
-
 		/*
 		 * Scan for a sequence of six comma-separated numbers and use them as
 		 * IP+port indicators.
@@ -1771,24 +1757,19 @@ static CURLcode ftp_state_pasv_resp(struct Curl_easy * data, int ftpcode)
 				break;
 			str++;
 		}
-
 		if(!*str) {
 			failf(data, "Couldn't interpret the 227-response");
 			return CURLE_FTP_WEIRD_227_FORMAT;
 		}
-
 		/* we got OK from server */
 		if(data->set.ftp_skip_ip) {
 			/* told to ignore the remotely given IP but instead use the host we used
 			   for the control connection */
-			infof(data, "Skip %u.%u.%u.%u for data connection, reuse %s instead",
-			    ip[0], ip[1], ip[2], ip[3],
-			    conn->host.name);
+			infof(data, "Skip %u.%u.%u.%u for data connection, reuse %s instead", ip[0], ip[1], ip[2], ip[3], conn->host.name);
 			ftpc->newhost = strdup(control_address(conn));
 		}
 		else
 			ftpc->newhost = aprintf("%u.%u.%u.%u", ip[0], ip[1], ip[2], ip[3]);
-
 		if(!ftpc->newhost)
 			return CURLE_OUT_OF_MEMORY;
 
@@ -1810,12 +1791,10 @@ static CURLcode ftp_state_pasv_resp(struct Curl_easy * data, int ftpcode)
 		 * here. We don't want to rely on a former host lookup that might've
 		 * expired now, instead we remake the lookup here and now!
 		 */
-		const char * const host_name = conn->bits.socksproxy ?
-		    conn->socks_proxy.host.name : conn->http_proxy.host.name;
+		const char * const host_name = conn->bits.socksproxy ? conn->socks_proxy.host.name : conn->http_proxy.host.name;
 		rc = Curl_resolv(data, host_name, conn->port, FALSE, &addr);
 		if(rc == CURLRESOLV_PENDING)
-			/* BLOCKING, ignores the return code but 'addr' will be NULL in
-			   case of failure */
+			/* BLOCKING, ignores the return code but 'addr' will be NULL in case of failure */
 			(void)Curl_resolver_wait_resolv(data, &addr);
 		connectport = (ushort)conn->port; /* we connect to the proxy's port */
 		if(!addr) {
@@ -1828,7 +1807,6 @@ static CURLcode ftp_state_pasv_resp(struct Curl_easy * data, int ftpcode)
 	{
 		/* normal, direct, ftp connection */
 		assert(ftpc->newhost);
-
 		/* postponed address resolution in case of tcp fastopen */
 		if(conn->bits.tcp_fastopen && !conn->bits.reuse && !ftpc->newhost[0]) {
 			Curl_conn_ev_update_info(data, conn);
@@ -1837,42 +1815,31 @@ static CURLcode ftp_state_pasv_resp(struct Curl_easy * data, int ftpcode)
 			if(!ftpc->newhost)
 				return CURLE_OUT_OF_MEMORY;
 		}
-
 		rc = Curl_resolv(data, ftpc->newhost, ftpc->newport, FALSE, &addr);
 		if(rc == CURLRESOLV_PENDING)
 			/* BLOCKING */
 			(void)Curl_resolver_wait_resolv(data, &addr);
-
 		connectport = ftpc->newport; /* we connect to the remote port */
-
 		if(!addr) {
 			failf(data, "Can't resolve new host %s:%hu", ftpc->newhost, connectport);
 			return CURLE_FTP_CANT_GET_HOST;
 		}
 	}
-
-	result = Curl_conn_setup(data, conn, SECONDARYSOCKET, addr,
-		conn->bits.ftp_use_data_ssl?
-		CURL_CF_SSL_ENABLE : CURL_CF_SSL_DISABLE);
-
+	result = Curl_conn_setup(data, conn, SECONDARYSOCKET, addr, conn->bits.ftp_use_data_ssl ? CURL_CF_SSL_ENABLE : CURL_CF_SSL_DISABLE);
 	if(result) {
 		Curl_resolv_unlock(data, addr); /* we're done using this address */
 		if(ftpc->count1 == 0 && ftpcode == 229)
 			return ftp_epsv_disable(data, conn);
-
 		return result;
 	}
-
 	/*
 	 * When this is used from the multi interface, this might've returned with
 	 * the 'connected' set to FALSE and thus we are now awaiting a non-blocking
 	 * connect to connect.
 	 */
-
 	if(data->set.verbose)
 		/* this just dumps information about this second connection */
 		ftp_pasv_verbose(data, addr->addr, ftpc->newhost, connectport);
-
 	Curl_resolv_unlock(data, addr); /* we're done using this address */
 
 	ZFREE(conn->secondaryhostname);
@@ -2172,7 +2139,7 @@ static CURLcode ftp_state_size_resp(struct Curl_easy * data,
 		   for all the digits at the end of the response and parse only those as a
 		   number. */
 		char * start = &buf[4];
-		char * fdigit = strchr(start, '\r');
+		char * fdigit = sstrchr(start, '\r');
 		if(fdigit) {
 			do
 				fdigit--;
@@ -4011,7 +3978,7 @@ CURLcode ftp_parse_url_path(struct Curl_easy * data)
 			    }
 
 			    /* parse the URL path into separate path components */
-			    while((slashPos = strchr(curPos, '/'))) {
+			    while((slashPos = sstrchr(curPos, '/'))) {
 				    size_t compLen = slashPos - curPos;
 				    /* path starts with a slash: add that as a directory */
 				    if((compLen == 0) && (ftpc->dirdepth == 0))

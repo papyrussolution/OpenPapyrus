@@ -1,5 +1,5 @@
 // INETURL.CPP
-// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -482,7 +482,7 @@ int InetUrl::Parse(const char * pUrl)
 						State &= ~stEmpty;
 						_done = 1;
 					}
-					else if(right_buf.IsDigit()) {
+					else if(right_buf.IsDec()) {
 						tr.Run(left_buf.ucptr(), left_buf.Len(), nta, &nts);
 						if(nta.Has(SNTOK_IP4)) {
 							Protocol = 0;

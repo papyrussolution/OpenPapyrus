@@ -38,12 +38,6 @@
 #ifndef ABSL_STRINGS_STR_REPLACE_H_
 #define ABSL_STRINGS_STR_REPLACE_H_
 
-//#include <string>
-//#include <utility>
-//#include <vector>
-//#include "absl/base/attributes.h"
-//#include "absl/strings/string_view.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 
@@ -108,9 +102,7 @@ std::string StrReplaceAll(absl::string_view s,
 //                               {"#Noun", "Apples"}}, &s);
 //  EXPECT_EQ(count, 4);
 //  EXPECT_EQ("Bob bought 5 Apples. Thanks Bob!", s);
-int StrReplaceAll(std::initializer_list<std::pair<absl::string_view, absl::string_view> >
-    replacements,
-    std::string* target);
+int StrReplaceAll(std::initializer_list<std::pair<absl::string_view, absl::string_view> > replacements, std::string* target);
 
 // Overload of `StrReplaceAll()` to replace patterns within a given output
 // string *in place* with replacements provided within a container of key/value
@@ -135,8 +127,8 @@ struct ViableSubstitution {
 	size_t offset;
 
 	ViableSubstitution(absl::string_view old_str,
-	    absl::string_view replacement_str, size_t offset_val)
-		: old(old_str), replacement(replacement_str), offset(offset_val) {
+	    absl::string_view replacement_str, size_t offset_val) : old(old_str), replacement(replacement_str), offset(offset_val) 
+	{
 	}
 
 	// One substitution occurs "before" another (takes priority) if either

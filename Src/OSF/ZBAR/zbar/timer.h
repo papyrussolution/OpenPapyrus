@@ -74,8 +74,6 @@ static inline int _zbar_timer_check(zbar_timer_t * timer)
 
 #elif defined(_WIN32)
 
-//#include <windows.h>
-
 typedef DWORD zbar_timer_t;
 
 static inline int _zbar_timer_now()

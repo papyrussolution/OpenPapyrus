@@ -57,7 +57,7 @@ static int match_hashed_hostname(const char * host, const char * hashed_host)
 		return 0;
 	}
 
-	b64_hash = strchr(hashed, '|');
+	b64_hash = sstrchr(hashed, '|');
 	if(b64_hash == NULL) {
 		goto error;
 	}

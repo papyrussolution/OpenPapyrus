@@ -14,9 +14,7 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD$");
-//#include "archive_entry_locale.h"
 #include "archive_random_private.h"
-//#include "archive_write_set_format_private.h"
 
 struct warc_s {
 	uint omit_warcinfo : 1;
@@ -294,7 +292,7 @@ static ssize_t _popul_ehdr(archive_string * tgt, size_t tsz, warc_essential_hdr_
 		static const char _uri[] = "";
 		static const char _fil[] = "file://";
 		const char * u;
-		const char * chk = strchr(hdr.tgturi, ':');
+		const char * chk = sstrchr(hdr.tgturi, ':');
 		if(chk != NULL && chk[1U] == '/' && chk[2U] == '/') {
 			/* yep, it's definitely a URI */
 			u = _uri;

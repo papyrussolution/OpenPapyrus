@@ -1,5 +1,5 @@
 // TEST-INET.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -458,5 +458,39 @@ SLTEST_R(Uri)
 		CurrentStatus = 0;
 		ok = 0;
 	ENDCATCH
+	return CurrentStatus;
+}
+//
+//
+//
+SLTEST_R(SIpAddr)
+{
+	SString temp_buf;
+	const char * pp_ip4_list[] = {
+		"0.0.0.0", // @anchor
+		"127.0.0.1",
+		"255.255.255.0",
+		"1.1.1.1",
+		"217.77.50.185"
+	};
+	{
+		SIpAddr ia;
+		for(uint i = 0; i < SIZEOFARRAY(pp_ip4_list); i++) {
+			const char * p_ip4_addr = pp_ip4_list[i];
+			SLCHECK_NZ(ia.FromStr(p_ip4_addr));
+			if(i == 0) {
+				SLCHECK_NZ(ia.IsZero());
+				SLCHECK_NZ(!ia.IsIp4());
+				SLCHECK_NZ(!ia.IsIp6());
+			}
+			else {
+				SLCHECK_NZ(!ia.IsZero());
+				SLCHECK_NZ(ia.IsIp4());
+				SLCHECK_NZ(!ia.IsIp6());
+			}
+			ia.ToStr(0, temp_buf);
+			SLCHECK_EQ(temp_buf, p_ip4_addr);
+		}
+	}
 	return CurrentStatus;
 }

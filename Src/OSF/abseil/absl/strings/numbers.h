@@ -14,14 +14,6 @@
 #ifdef __SSE4_2__
 #include <x86intrin.h>
 #endif
-
-//#include <cstddef>
-//#include <cstdlib>
-//#include <cstring>
-//#include <ctime>
-//#include <limits>
-//#include <string>
-//#include <type_traits>
 #include "absl/base/config.h"
 #ifdef __SSE4_2__
 // TODO(jorg): Remove this when we figure out the right way

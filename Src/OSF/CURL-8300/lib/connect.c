@@ -23,54 +23,40 @@
 ***************************************************************************/
 #include "curl_setup.h"
 #pragma hdrstop
-
-//#ifdef HAVE_NETINET_IN_H
-//#include <netinet/in.h> /* <netinet/tcp.h> may need it */
-//#endif
 #ifdef HAVE_SYS_UN_H
-#include <sys/un.h> /* for sockaddr_un */
+	#include <sys/un.h> /* for sockaddr_un */
 #endif
 #ifdef HAVE_LINUX_TCP_H
-#include <linux/tcp.h>
+	#include <linux/tcp.h>
 #elif defined(HAVE_NETINET_TCP_H)
-#include <netinet/tcp.h>
+	#include <netinet/tcp.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+	#include <sys/ioctl.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
 #ifdef HAVE_FCNTL_H
-#include <fcntl.h>
+	#include <fcntl.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+	#include <arpa/inet.h>
 #endif
-
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+	#include <in.h>
+	#include <inet.h>
 #endif
-
-//#include "urldata.h"
-//#include "sendf.h"
 #include "if2ip.h"
 #include "strerror.h"
-//#include "cfilters.h"
-//#include "connect.h"
 #include "cf-haproxy.h"
 #include "cf-https-connect.h"
 #include "cf-socket.h"
 #include "select.h"
 #include "url.h" /* for ZFREE() */
-//#include "multiif.h"
-//#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 #include "inet_ntop.h"
 #include "inet_pton.h"
 #include "vtls/vtls.h" /* for vtsl cfilters */
-//#include "progress.h"
-//#include "warnless.h"
 #include "conncache.h"
 #include "multihandle.h"
 #include "share.h"
@@ -78,7 +64,6 @@
 #include "vquic/vquic.h" /* for quic cfilters */
 #include "http_proxy.h"
 #include "socks.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"
@@ -100,22 +85,18 @@
 #define TIMEOUT_CONNECT 1
 #define TIMEOUT_MAXTIME 2
 
-timediff_t Curl_timeleft(struct Curl_easy * data,
-    struct curltime * nowp,
-    bool duringconnect)
+timediff_t Curl_timeleft(struct Curl_easy * data, struct curltime * nowp, bool duringconnect)
 {
 	uint timeout_set = 0;
 	timediff_t connect_timeout_ms = 0;
 	timediff_t maxtime_timeout_ms = 0;
 	timediff_t timeout_ms = 0;
 	struct curltime now;
-
 	/* The duration of a connect and the total transfer are calculated from two
 	   different time-stamps. It can end up with the total timeout being reached
 	   before the connect timeout expires and we must acknowledge whichever
 	   timeout that is reached first. The total timeout is set per entire
 	   operation, while the connect timeout is set per connect. */
-
 	if(data->set.timeout > 0) {
 		timeout_set = TIMEOUT_MAXTIME;
 		maxtime_timeout_ms = data->set.timeout;

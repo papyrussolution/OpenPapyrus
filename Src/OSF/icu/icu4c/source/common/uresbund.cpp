@@ -960,7 +960,7 @@ UResourceBundle * getAliasTargetAsResourceBundle(const ResourceData &resData, Re
 		char * chAliasData = chAlias.data();
 		char * sep = chAliasData + 1;
 		path = sep;
-		sep = uprv_strchr(sep, RES_PATH_SEPARATOR);
+		sep = sstrchr(sep, RES_PATH_SEPARATOR);
 		if(sep != nullptr) {
 			*sep++ = 0;
 		}
@@ -985,7 +985,7 @@ UResourceBundle * getAliasTargetAsResourceBundle(const ResourceData &resData, Re
 			}
 			else {
 				locale = sep;
-				sep = uprv_strchr(sep, RES_PATH_SEPARATOR);
+				sep = sstrchr(sep, RES_PATH_SEPARATOR);
 				if(sep != nullptr) {
 					*sep++ = 0;
 				}
@@ -997,7 +997,7 @@ UResourceBundle * getAliasTargetAsResourceBundle(const ResourceData &resData, Re
 		// No path, start with a locale.
 		char * sep = chAlias.data();
 		locale = sep;
-		sep = uprv_strchr(sep, RES_PATH_SEPARATOR);
+		sep = sstrchr(sep, RES_PATH_SEPARATOR);
 		if(sep != nullptr) {
 			*sep++ = 0;
 		}
@@ -1718,7 +1718,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_findResource(const char * path, UResourc
 	if(*pathToResource == RES_PATH_SEPARATOR) { /* there is a path specification */
 		pathToResource++;
 		packageName = pathToResource;
-		pathToResource = uprv_strchr(pathToResource, RES_PATH_SEPARATOR);
+		pathToResource = sstrchr(pathToResource, RES_PATH_SEPARATOR);
 		if(pathToResource == NULL) {
 			*status = U_ILLEGAL_ARGUMENT_ERROR;
 		}
@@ -1727,7 +1727,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_findResource(const char * path, UResourc
 			locale = pathToResource+1;
 		}
 	}
-	localeEnd = uprv_strchr(locale, RES_PATH_SEPARATOR);
+	localeEnd = sstrchr(locale, RES_PATH_SEPARATOR);
 	if(localeEnd) {
 		*localeEnd = 0;
 	}
@@ -1807,13 +1807,13 @@ static Resource getTableItemByKeyPath(const ResourceData * pResData, Resource ta
 	char * pathPart = path.data(); /* Path from current resource to desired resource */
 	UResType type = (UResType)RES_GET_TYPE(resource); /* the current resource type */
 	while(*pathPart && resource != RES_BOGUS && URES_IS_CONTAINER(type)) {
-		char * nextPathPart = uprv_strchr(pathPart, RES_PATH_SEPARATOR);
+		char * nextPathPart = sstrchr(pathPart, RES_PATH_SEPARATOR);
 		if(nextPathPart) {
 			*nextPathPart = 0; /* Terminating null for this part of path. */
 			nextPathPart++;
 		}
 		else {
-			nextPathPart = uprv_strchr(pathPart, 0);
+			nextPathPart = sstrchr(pathPart, 0);
 		}
 		int32_t t;
 		const char * pathP = pathPart;
@@ -1839,7 +1839,7 @@ static void createPath(const char * origResPath, int32_t origResPathLen, const c
 	// elements SUPERSEDE the corresponding elements of inKey.  So this code counts the number of elements in
 	// resPath and origResPath and, for each path element in resPath that doesn't have a counterpart in origResPath,
 	// deletes a path element from the beginning of inKey.  The remainder of inKey is then appended to
-	// resPath to form the result.  (We're not using uprv_strchr() here because resPath and origResPath may
+	// resPath to form the result.  (We're not using sstrchr() here because resPath and origResPath may
 	// not be zero-terminated.)
 	path.clear();
 	const char * key = inKey;
@@ -1985,7 +1985,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_getByKeyWithFallback(const UResourceBund
 				else {
 					const char * separator = nullptr;
 					if(fillIn->fResPath != nullptr) {
-						separator = uprv_strchr(fillIn->fResPath, RES_PATH_SEPARATOR);
+						separator = sstrchr(fillIn->fResPath, RES_PATH_SEPARATOR);
 					}
 					if(separator != nullptr && separator[1] != '\0') {
 						createPath(origResPath, origResPathLen, fillIn->fResPath, static_cast<int32_t>(strlen(fillIn->fResPath)), inKey, path, status);

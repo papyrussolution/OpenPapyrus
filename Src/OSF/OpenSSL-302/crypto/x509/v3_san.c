@@ -176,14 +176,12 @@ STACK_OF(CONF_VALUE) *i2v_GENERAL_NAME(X509V3_EXT_METHOD *method,
 		    break;
 
 		case GEN_URI:
-		    if(!x509v3_add_len_value_uchar("URI", gen->d.ia5->data,
-			gen->d.ia5->length, &ret))
+		    if(!x509v3_add_len_value_uchar("URI", gen->d.ia5->data, gen->d.ia5->length, &ret))
 			    return NULL;
 		    break;
 
 		case GEN_DIRNAME:
-		    if(X509_NAME_oneline(gen->d.dirn, oline, sizeof(oline)) == NULL
-			|| !X509V3_add_value("DirName", oline, &ret))
+		    if(X509_NAME_oneline(gen->d.dirn, oline, sizeof(oline)) == NULL || !X509V3_add_value("DirName", oline, &ret))
 			    return NULL;
 		    break;
 
@@ -193,7 +191,6 @@ STACK_OF(CONF_VALUE) *i2v_GENERAL_NAME(X509V3_EXT_METHOD *method,
 			    ret = NULL;
 		    OPENSSL_free(tmp);
 		    break;
-
 		case GEN_RID:
 		    i2t_ASN1_OBJECT(oline, 256, gen->d.rid);
 		    if(!X509V3_add_value("Registered ID", oline, &ret))
@@ -617,7 +614,7 @@ static int do_othername(GENERAL_NAME * gen, const char * value, X509V3_CTX * ctx
 	char * objtmp = NULL;
 	const char * p;
 	int objlen;
-	if((p = strchr(value, ';')) == NULL)
+	if((p = sstrchr(value, ';')) == NULL)
 		return 0;
 	if((gen->d.otherName = OTHERNAME_new()) == NULL)
 		return 0;

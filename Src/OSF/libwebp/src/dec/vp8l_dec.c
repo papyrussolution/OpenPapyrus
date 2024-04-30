@@ -13,11 +13,9 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dec/vp8li_dec.h"
 #include "src/dsp/lossless.h"
 #include "src/dsp/lossless_common.h"
 #include "src/dsp/yuv.h"
-//#include "src/utils/endian_inl_utils.h"
 #include "src/utils/huffman_utils.h"
 
 #define NUM_ARGB_CACHE_ROWS          16

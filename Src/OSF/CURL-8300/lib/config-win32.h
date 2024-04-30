@@ -589,44 +589,34 @@ Vista
 /* #define USE_ARES 1 */
 
 /* Default define to enable threaded asynchronous DNS lookups. */
-#if !defined(USE_SYNC_DNS) && !defined(USE_ARES) && \
-    !defined(USE_THREADS_WIN32)
-#define USE_THREADS_WIN32 1
+#if !defined(USE_SYNC_DNS) && !defined(USE_ARES) && !defined(USE_THREADS_WIN32)
+    #define USE_THREADS_WIN32 1
 #endif
-
 #if defined(USE_ARES) && defined(USE_THREADS_WIN32)
-#  error "Only one DNS lookup specialty may be defined at most"
+    #error "Only one DNS lookup specialty may be defined at most"
 #endif
-
 /* ---------------------------------------------------------------- */
 /*                           LDAP SUPPORT                           */
 /* ---------------------------------------------------------------- */
-
 #if defined(CURL_HAS_NOVELL_LDAPSDK)
-#undef USE_WIN32_LDAP
-#define HAVE_LDAP_SSL_H 1
-#define HAVE_LDAP_URL_PARSE 1
+    #undef USE_WIN32_LDAP
+    #define HAVE_LDAP_SSL_H 1
+    #define HAVE_LDAP_URL_PARSE 1
 #elif defined(CURL_HAS_OPENLDAP_LDAPSDK)
-#undef USE_WIN32_LDAP
-#define HAVE_LDAP_URL_PARSE 1
+    #undef USE_WIN32_LDAP
+    #define HAVE_LDAP_URL_PARSE 1
 #else
-#undef HAVE_LDAP_URL_PARSE
-#define HAVE_LDAP_SSL 1
-#define USE_WIN32_LDAP 1
+    #undef HAVE_LDAP_URL_PARSE
+    #define HAVE_LDAP_SSL 1
+    #define USE_WIN32_LDAP 1
 #endif
-
 #if defined(__POCC__) && defined(USE_WIN32_LDAP)
-#define CURL_DISABLE_LDAP 1
+    #define CURL_DISABLE_LDAP 1
 #endif
-
-/* Define to use the Windows crypto library. */
 #if !defined(CURL_WINDOWS_APP)
-#define USE_WIN32_CRYPTO
+    #define USE_WIN32_CRYPTO /* Define to use the Windows crypto library. */
 #endif
-
-/* Define to use Unix sockets. */
-#define USE_UNIX_SOCKETS
-
+#define USE_UNIX_SOCKETS /* Define to use Unix sockets. */
 /* ---------------------------------------------------------------- */
 /*                       ADDITIONAL DEFINITIONS                     */
 /* ---------------------------------------------------------------- */
@@ -648,14 +638,11 @@ Vista
 #endif
 #endif
 
-/* Name of package */
-#define PACKAGE "curl"
-
-/* If you want to build curl with the built-in manual */
-#define USE_MANUAL 1
-
+#define PACKAGE "curl" /* Name of package */
+#define USE_MANUAL 1 /* If you want to build curl with the built-in manual */
+#define ENABLE_IPV6 1 // @sobolev 
+/* @sobolev
 #if defined(__POCC__) || defined(USE_IPV6)
-#define ENABLE_IPV6 1
-#endif
-
+    #define ENABLE_IPV6 1
+#endif */
 #endif /* HEADER_CURL_CONFIG_WIN32_H */

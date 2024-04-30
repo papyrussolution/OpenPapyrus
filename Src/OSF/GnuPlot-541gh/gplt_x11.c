@@ -1598,7 +1598,7 @@ static int record()
 							DisplayCoords(plot, str);
 							break;
 						    case 1:
-							second = strchr(str, '\r');
+							second = sstrchr(str, '\r');
 							if(second == NULL) {
 								*(plot->zoombox_str1a) = '\0';
 								*(plot->zoombox_str1b) = '\0';
@@ -1614,7 +1614,7 @@ static int record()
 								DrawBox(plot);
 							break;
 						    case 2:
-							second = strchr(str, '\r');
+							second = sstrchr(str, '\r');
 							if(second == NULL) {
 								*(plot->zoombox_str2a) = '\0';
 								*(plot->zoombox_str2b) = '\0';
@@ -4110,14 +4110,14 @@ static char* getMultiTabConsoleSwitchCommand(ulong * newGnuplotXID)
 			char * konsole_tab;
 			ulong w;
 			FILE * p;
-			ptr = strchr(ptr, '(');
+			ptr = sstrchr(ptr, '(');
 			/* the string for tab nb 4 looks like 'DCOPRef(konsole-2866, session-4)' */
 			if(!ptr) return NULL;
 			konsole_name = sstrdup(ptr+1);
-			konsole_tab = strchr(konsole_name, ',');
+			konsole_tab = sstrchr(konsole_name, ',');
 			if(!konsole_tab) break;
 			*konsole_tab++ = 0;
-			ptr = strchr(konsole_tab, ')');
+			ptr = sstrchr(konsole_tab, ')');
 			if(ptr) *ptr = 0;
 			/* Not necessary to define DCOP_RAISE: returning newly known
 			 * newGnuplotXID instead is sufficient.
@@ -4993,7 +4993,7 @@ gnuplot: X11 aborted.\n", ldisplay);
 			fprintf(stderr, "gnuplot: %s failed. X11 aborted.\n", SYSINFO_METHOD);
 			EXIT(1);
 		}
-		if((p = strchr(host, '.')) != NULL)
+		if((p = sstrchr(host, '.')) != NULL)
 			*p = '\0';
 		strcpy(buffer, home);
 		strcat(buffer, "/.Xdefaults-");
@@ -5471,10 +5471,10 @@ int fontset_transsep(char * nfname, char * ofname, int n)
 	strncpy(nfname, ofname, n);
 	if(nfname[n-1]!='\0')
 		nfname[n] = '\0';
-	if(strchr(nfname, ','))
+	if(sstrchr(nfname, ','))
 		return 1;
 	s = nfname;
-	while((s = strchr(nfname, FontSetSep)) != NULL) {
+	while((s = sstrchr(nfname, FontSetSep)) != NULL) {
 		*s = ',';
 		nfname = s;
 	}
@@ -5619,7 +5619,7 @@ static void pr_font(char * fontname)
 #ifndef USE_X11_MULTIBYTE
 	if(!font) {
 #else
-	if(!font && !mbfont && !strchr(fontname, FontSetSep)) {
+	if(!font && !mbfont && !sstrchr(fontname, FontSetSep)) {
 #endif
 		/* EAM 19-Aug-2002 Try to construct a plausible X11 full font spec */
 		/* We are passed "font<, size><, slant>"                             */

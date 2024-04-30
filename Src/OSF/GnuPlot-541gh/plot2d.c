@@ -1536,7 +1536,7 @@ text_label * GnuPlot::StoreLabel(GpTermEntry * pTerm, text_label * pListHead, Gp
 		while(string[textlen]) {
 			if(string[textlen] == '"')
 				in_quote = !in_quote;
-			else if(strchr(_Df.df_separators, string[textlen]) && !in_quote)
+			else if(sstrchr(_Df.df_separators, string[textlen]) && !in_quote)
 				break;
 			textlen++;
 		}

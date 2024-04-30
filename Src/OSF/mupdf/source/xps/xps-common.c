@@ -264,20 +264,17 @@ void xps_parse_color(fz_context * ctx, xps_document * doc, char * base_uri, char
 	else if(strstr(string, "ContextColor ") == string) {
 		/* Crack the string for profile name and sample values */
 		fz_strlcpy(buf, string, sizeof buf);
-
-		profile = strchr(buf, ' ');
+		profile = sstrchr(buf, ' ');
 		if(!profile) {
 			fz_warn(ctx, "cannot find icc profile uri in '%s'", string);
 			return;
 		}
-
 		*profile++ = 0;
-		p = strchr(profile, ' ');
+		p = sstrchr(profile, ' ');
 		if(!p) {
 			fz_warn(ctx, "cannot find component values in '%s'", profile);
 			return;
 		}
-
 		*p++ = 0;
 		n = count_commas(p) + 1;
 		if(n > FZ_MAX_COLORS) {
@@ -287,7 +284,7 @@ void xps_parse_color(fz_context * ctx, xps_document * doc, char * base_uri, char
 		i = 0;
 		while(i < n) {
 			samples[i++] = fz_atof(p);
-			p = strchr(p, ',');
+			p = sstrchr(p, ',');
 			if(!p)
 				break;
 			p++;
@@ -297,10 +294,8 @@ void xps_parse_color(fz_context * ctx, xps_document * doc, char * base_uri, char
 		while(i < n) {
 			samples[i++] = 0;
 		}
-
 		/* TODO: load ICC profile */
-		switch(n)
-		{
+		switch(n) {
 			case 2: *csp = fz_device_gray(ctx); break;
 			case 4: *csp = fz_device_rgb(ctx); break;
 			case 5: *csp = fz_device_cmyk(ctx); break;

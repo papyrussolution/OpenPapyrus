@@ -667,10 +667,9 @@ static void print_stack_default(void * addr)
 		slfprintf_stderr("    ["FMTP "]\n", addr);
 	}
 #ifdef HAVE_LIBDL
-	else if(strchr(strings[0], ':') == NULL) {
+	else if(sstrchr(strings[0], ':') == NULL) {
 		/* Probably a "path [address]" format string */
-		char * s = strchr(strings[0], ' ');
-
+		char * s = sstrchr(strings[0], ' ');
 		if(s != strings[0]) {
 			memcpy(backtrace_exe, strings[0], s - strings[0]);
 			backtrace_exe[s-strings[0]] = 0;
@@ -692,8 +691,7 @@ static void Memento_initStacktracer(void)
 
 static int Memento_getStacktrace(void ** stack, int * skip)
 {
-	size_t num;
-	num = backtrace(&stack[0], MEMENTO_BACKTRACE_MAX);
+	size_t num = backtrace(&stack[0], MEMENTO_BACKTRACE_MAX);
 	*skip = SkipStackBackTraceLevels;
 	if(num <= SkipStackBackTraceLevels)
 		return 0;

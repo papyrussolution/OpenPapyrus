@@ -1,5 +1,5 @@
 // TEXTBRW.CPP
-// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // STextBrowser
 //
 #include <pp.h>
@@ -1445,7 +1445,7 @@ int STextBrowser::UpdateIndicators()
 				STokenizer::Item ti;
 				for(uint i = 0; i < idx_count; i++) {
 					P_Tknzr->Get(idx_first+i, ti);
-					if(ti.Token == STokenizer::tokWord && !ti.Text.IsDigit()) {
+					if(ti.Token == STokenizer::tokWord && !ti.Text.IsDec()) {
 						if(p_srdb->GetWordInfo(ti.Text, 0, info_list) > 0) {
 							/*for(uint j = 0; j < info_list.getCount(); j++) {
 								p_srdb->WordInfoToStr(info_list.at(j), temp_buf);

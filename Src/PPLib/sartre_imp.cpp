@@ -1,5 +1,5 @@
 // SARTRE_IMP.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1727,7 +1727,7 @@ int SrConceptParser::Run(const char * pFileName)
 						{
 							THROW(R_Db.ResolveWord(temp_buf, &word_id));
 							assert(word_id);
-							if(!temp_buf.IsDigit()) { // @v10.2.0
+							if(!temp_buf.IsDec()) {
 								const int lang_id = p_current->GetLangID();
 								if(lang_id) {
 									wf.Clear();
@@ -2920,7 +2920,7 @@ int PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileName)
 						THROW(rwr);
 						assert(word_id);
 						if(rwr == 2) { // Было создано новое слово - добавим к нему известные нам признаки (пока только язык)
-							if(!temp_buf.IsDigit()) { // @v10.2.0
+							if(!temp_buf.IsDec()) {
 								THROW(rDb.SetSimpleWordFlexiaModel_Express(word_id, wordform_id, 0));
 								items_per_tx++;
 							}

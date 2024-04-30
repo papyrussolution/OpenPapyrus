@@ -182,7 +182,7 @@ void fz_format_output_path(fz_context * ctx, char * path, size_t size, const cha
 	for(i = 0; page; page /= 10)
 		num[i++] = '0' + page % 10;
 	num[i] = 0;
-	s = p = strchr(fmt, '%');
+	s = p = sstrchr(fmt, '%');
 	if(p) {
 		++p;
 		while(*p >= '0' && *p <= '9')

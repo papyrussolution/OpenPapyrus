@@ -298,7 +298,7 @@ Locale::Locale(const char * newLanguage, const char * newCountry, const char * n
 			togo.append(SEP_CHAR, status).append(newVariant, vsize, status);
 		}
 		if(ksize != 0) {
-			if(uprv_strchr(newKeywords, '=')) {
+			if(sstrchr(newKeywords, '=')) {
 				togo.append('@', status); /* keyword parsing */
 			}
 			else {
@@ -1000,30 +1000,22 @@ CharString&AliasReplacer::generateKey(const char * language, const char * region
 {
 	out.append(language, status);
 	if(notEmpty(region)) {
-		out.append(SEP_CHAR, status)
-		.append(region, status);
+		out.append(SEP_CHAR, status).append(region, status);
 	}
 	if(notEmpty(variant)) {
-		out.append(SEP_CHAR, status)
-		.append(variant, status);
+		out.append(SEP_CHAR, status).append(variant, status);
 	}
 	return out;
 }
 
-void AliasReplacer::parseLanguageReplacement(const char * replacement,
-    const char *& replacedLanguage,
-    const char *& replacedScript,
-    const char *& replacedRegion,
-    const char *& replacedVariant,
-    const char *& replacedExtensions,
-    UVector& toBeFreed,
-    UErrorCode & status)
+void AliasReplacer::parseLanguageReplacement(const char * replacement, const char *& replacedLanguage, const char *& replacedScript,
+    const char *& replacedRegion, const char *& replacedVariant, const char *& replacedExtensions, UVector& toBeFreed, UErrorCode & status)
 {
 	if(U_FAILURE(status)) {
 		return;
 	}
 	replacedScript = replacedRegion = replacedVariant = replacedExtensions = nullptr;
-	if(uprv_strchr(replacement, '_') == nullptr) {
+	if(sstrchr(replacement, '_') == nullptr) {
 		replacedLanguage = replacement;
 		// reach the end, just return it.
 		return;
@@ -1040,11 +1032,11 @@ void AliasReplacer::parseLanguageReplacement(const char * replacement,
 	toBeFreed.addElementX(str, status);
 	char * data = str->data();
 	replacedLanguage = (const char *)data;
-	char * endOfField = uprv_strchr(data, '_');
+	char * endOfField = sstrchr(data, '_');
 	*endOfField = '\0'; // null terminiate it.
 	endOfField++;
 	const char * start = endOfField;
-	endOfField = (char *)uprv_strchr(start, '_');
+	endOfField = (char *)sstrchr(start, '_');
 	size_t len = 0;
 	if(endOfField == nullptr) {
 		len = strlen(start);
@@ -1060,7 +1052,7 @@ void AliasReplacer::parseLanguageReplacement(const char * replacement,
 			return;
 		}
 		start = endOfField++;
-		endOfField = (char *)uprv_strchr(start, '_');
+		endOfField = (char *)sstrchr(start, '_');
 		if(endOfField == nullptr) {
 			len = strlen(start);
 		}
@@ -1076,7 +1068,7 @@ void AliasReplacer::parseLanguageReplacement(const char * replacement,
 			return;
 		}
 		start = endOfField++;
-		endOfField = (char *)uprv_strchr(start, '_');
+		endOfField = (char *)sstrchr(start, '_');
 		if(endOfField == nullptr) {
 			len = strlen(start);
 		}
@@ -1212,7 +1204,7 @@ bool AliasReplacer::replaceTerritory(UVector& toBeFreed, UErrorCode & status)
 		return false;
 	}
 	const char * replacedRegion = replacement;
-	const char * firstSpace = uprv_strchr(replacement, ' ');
+	const char * firstSpace = sstrchr(replacement, ' ');
 	if(firstSpace != nullptr) {
 		// If there are are more than one region in the replacement.
 		// We need to check which one match based on the language.
@@ -1319,7 +1311,7 @@ bool AliasReplacer::replaceSubdivision(StringPiece subdivision, CharString& outp
 	}
 	const char * replacement = data->subdivisionMap().get(subdivision.data());
 	if(replacement) {
-		const char * firstSpace = uprv_strchr(replacement, ' ');
+		const char * firstSpace = sstrchr(replacement, ' ');
 		// Found replacement data for this subdivision.
 		size_t len = firstSpace ? (firstSpace - replacement) : strlen(replacement);
 		if(2 <= len && len <= 8) {
@@ -1362,7 +1354,7 @@ bool AliasReplacer::replaceTransformedExtensions(CharString& transformedExtensio
 			return false;
 		}
 		do {
-			const char * tvalue = uprv_strchr(tkey, '-');
+			const char * tvalue = sstrchr(tkey, '-');
 			if(tvalue == nullptr) {
 				status = U_ILLEGAL_ARGUMENT_ERROR;
 				return false;
@@ -1385,7 +1377,7 @@ bool AliasReplacer::replaceTransformedExtensions(CharString& transformedExtensio
 				output.append('-', status);
 			}
 			const char * tfield = (const char *)tfields.elementAt(i);
-			const char * tvalue = uprv_strchr(tfield, '-');
+			const char * tvalue = sstrchr(tfield, '-');
 			if(tvalue == nullptr) {
 				status = U_ILLEGAL_ARGUMENT_ERROR;
 				return false;
@@ -1469,7 +1461,7 @@ bool AliasReplacer::replace(const Locale & locale, CharString& out, UErrorCode &
 		char * start = variantsBuff.data();
 		T_CString_toLowerCase(start);
 		char * end;
-		while((end = uprv_strchr(start, SEP_CHAR)) != nullptr && U_SUCCESS(status)) {
+		while((end = sstrchr(start, SEP_CHAR)) != nullptr && U_SUCCESS(status)) {
 			*end = NULL_CHAR; // null terminate inside variantsBuff
 			variants.addElementX(start, status);
 			start = end + 1;
@@ -1692,15 +1684,15 @@ Locale & Locale::init(const char * localeID, bool canonicalize)
 		/* But _ could also appeared in timezone such as "en@timezone=America/Los_Angeles" */
 		separator = field[0] = fullName;
 		fieldIdx = 1;
-		char * at = uprv_strchr(fullName, '@');
-		while((separator = uprv_strchr(field[fieldIdx-1], SEP_CHAR)) != 0 && fieldIdx < SIZEOFARRAYi(field)-1 && (at == nullptr || separator < at)) {
+		char * at = sstrchr(fullName, '@');
+		while((separator = sstrchr(field[fieldIdx-1], SEP_CHAR)) != 0 && fieldIdx < SIZEOFARRAYi(field)-1 && (at == nullptr || separator < at)) {
 			field[fieldIdx] = separator + 1;
 			fieldLen[fieldIdx-1] = (int32_t)(separator - field[fieldIdx-1]);
 			fieldIdx++;
 		}
 		// variant may contain @foo or .foo POSIX cruft; remove it
-		separator = uprv_strchr(field[fieldIdx-1], '@');
-		char * sep2 = uprv_strchr(field[fieldIdx-1], '.');
+		separator = sstrchr(field[fieldIdx-1], '@');
+		char * sep2 = sstrchr(field[fieldIdx-1], '.');
 		if(separator || sep2) {
 			if(separator==NULL || (sep2 && separator > sep2)) {
 				separator = sep2;
@@ -1780,8 +1772,8 @@ void Locale::initBaseName(UErrorCode & status)
 {
 	if(U_SUCCESS(status)) {
 		U_ASSERT(baseName==NULL || baseName==fullName);
-		const char * atPtr = uprv_strchr(fullName, '@');
-		const char * eqPtr = uprv_strchr(fullName, '=');
+		const char * atPtr = sstrchr(fullName, '@');
+		const char * eqPtr = sstrchr(fullName, '=');
 		if(atPtr && eqPtr && atPtr < eqPtr) {
 			// Key words exist.
 			int32_t baseNameLength = (int32_t)(atPtr - fullName);
@@ -2155,8 +2147,8 @@ StringEnumeration * Locale::createKeywords(UErrorCode & status) const
 	if(U_FAILURE(status)) {
 		return result;
 	}
-	const char * variantStart = uprv_strchr(fullName, '@');
-	const char * assignment = uprv_strchr(fullName, '=');
+	const char * variantStart = sstrchr(fullName, '@');
+	const char * assignment = sstrchr(fullName, '=');
 	if(variantStart) {
 		if(assignment > variantStart) {
 			CharString keywords;
@@ -2182,8 +2174,8 @@ StringEnumeration * Locale::createUnicodeKeywords(UErrorCode & status) const
 	if(U_FAILURE(status)) {
 		return result;
 	}
-	const char * variantStart = uprv_strchr(fullName, '@');
-	const char * assignment = uprv_strchr(fullName, '=');
+	const char * variantStart = sstrchr(fullName, '@');
+	const char * assignment = sstrchr(fullName, '=');
 	if(variantStart) {
 		if(assignment > variantStart) {
 			CharString keywords;

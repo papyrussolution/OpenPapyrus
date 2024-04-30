@@ -578,7 +578,7 @@ U_CAPI const char * U_EXPORT2 ultag_getTKeyStart(const char * localeID)
 {
 	const char * result = localeID;
 	const char * sep;
-	while((sep = uprv_strchr(result, SEP)) != nullptr) {
+	while((sep = sstrchr(result, SEP)) != nullptr) {
 		if(_isTKey(result, static_cast<int32_t>(sep - result))) {
 			return result;
 		}

@@ -23,9 +23,6 @@
 
 #include <zbar.h>
 #pragma hdrstop
-//#include "image.h"
-//#include "video.h"
-//#include "window.h"
 
 /* pack bit size and location offset of a component into one byte
  */

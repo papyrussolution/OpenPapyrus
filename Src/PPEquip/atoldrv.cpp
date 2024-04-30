@@ -457,7 +457,7 @@ private:
 			P_Fptr10->SetSingleSettingProc(h, LIBFPTR_SETTING_PORT, temp_buf_u);
 			{
 				temp_buf.Z().Cat(Port).Strip(); // @v10.8.3 Strip()
-				if(temp_buf.IsDigit())
+				if(temp_buf.IsDec())
 					temp_buf.Z().Cat("com").Cat(Port); // @v10.8.3 "COM"-->"com"
 				temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
 				P_Fptr10->SetSingleSettingProc(h, LIBFPTR_SETTING_COM_FILE, temp_buf_u);
@@ -1798,7 +1798,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 							else {
 								//uint8 fptr10_mark_buf[512];
 								//int   mark_buf_data_len = 0;
-								p_js_item->InsertString("nomenclatureCode", sl_param.ChZnCode); // chzn mark
+								p_js_item->InsertString("nomenclatureCode", (temp_buf = sl_param.ChZnCode).Escape()); // chzn mark
 							}
 						}
 						{

@@ -4966,7 +4966,7 @@ StrAssocArray * FiasSelExtra::GetList(const char * pText)
 			size_t len = pattern.Len();
 			PPIDArray id_list;
 			SString temp_buf;
-			if(len == 6 && pattern.IsDigit()) {
+			if(len == 6 && pattern.IsDec()) {
 				P_Fr->FT.GetHouseListByZIP(pattern, id_list);
 				if(id_list.getCount()) {
 					p_list = new StrAssocArray;

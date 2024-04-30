@@ -9,10 +9,6 @@
 		#error This header is only to be used internally to libarchive.
 	#endif
 #endif
-//#include "archive.h"
-//#include "archive_string.h"
-//#include "archive_private.h"
-
 #define	ARCHIVE_WRITE_FILTER_STATE_NEW		1U
 #define	ARCHIVE_WRITE_FILTER_STATE_OPEN		2U
 #define	ARCHIVE_WRITE_FILTER_STATE_CLOSED	4U

@@ -21,10 +21,6 @@
 #else
 #include <strings.h>  // for strcasecmp, but msvc does not have this header
 #endif
-//#include <sstream>
-//#include <string>
-//#include "absl/base/config.h"
-//#include "absl/strings/str_cat.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

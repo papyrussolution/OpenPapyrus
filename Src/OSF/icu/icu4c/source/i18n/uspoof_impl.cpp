@@ -120,7 +120,7 @@ void SpoofImpl::setAllowedLocales(const char * localesList, UErrorCode & status)
 	int32_t localeListCount = 0; // Number of locales provided by caller.
 	// Loop runs once per locale from the localesList, a comma separated list of locales.
 	do {
-		locEnd = uprv_strchr(locStart, ',');
+		locEnd = sstrchr(locStart, ',');
 		if(locEnd == NULL) {
 			locEnd = localesListEnd;
 		}

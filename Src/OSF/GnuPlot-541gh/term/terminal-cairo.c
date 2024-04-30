@@ -388,7 +388,7 @@ TERM_PUBLIC void cairotrm_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 				    pGp->IntErrorCurToken("font: expecting string");
 			    font_setting = sstrdup(s);
 			    if(*s) {
-				    char * sep = strchr(s, ',');
+				    char * sep = sstrchr(s, ',');
 				    if(sep) {
 					    sscanf(sep+1, "%f", &cairo_params->fontsize);
 					    *sep = '\0';

@@ -1029,7 +1029,7 @@ static int libiconv_iconv_open(rec_iconv_t * cd, const char * tocode, const char
 		p = DEFAULT_LIBICONV_DLL;
 	/* parse comma separated value */
 	for(; *p != 0; p = (*e == ',') ? e + 1 : e) {
-		e = strchr(p, ',');
+		e = sstrchr(p, ',');
 		if(p == e)
 			continue;
 		else if(!e)

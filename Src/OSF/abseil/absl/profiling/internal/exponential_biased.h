@@ -7,10 +7,6 @@
 #ifndef ABSL_PROFILING_INTERNAL_EXPONENTIAL_BIASED_H_
 #define ABSL_PROFILING_INTERNAL_EXPONENTIAL_BIASED_H_
 
-//#include <stdint.h>
-//#include "absl/base/config.h"
-//#include "absl/base/macros.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace profiling_internal {

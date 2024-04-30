@@ -16,9 +16,6 @@
  */
 #include <libssh-internal.h>
 #pragma hdrstop
-#ifdef HAVE_SYS_TIME_H
-	//#include <sys/time.h>
-#endif /* HAVE_SYS_TIME_H */
 #ifdef HAVE_SYS_UTIME_H
 	#include <sys/utime.h>
 #endif /* HAVE_SYS_UTIME_H */

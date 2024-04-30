@@ -653,7 +653,7 @@ int ssh_scp_pull_request(ssh_scp scp)
 		}
 		return rc;
 	}
-	p = strchr(buffer, '\n');
+	p = sstrchr(buffer, '\n');
 	if(p) {
 		*p = '\0';
 	}
@@ -663,7 +663,7 @@ int ssh_scp_pull_request(ssh_scp scp)
 		/* File */
 		case 'D':
 		    /* Directory */
-		    p = strchr(buffer, ' ');
+		    p = sstrchr(buffer, ' ');
 		    if(!p) {
 			    goto error;
 		    }
@@ -672,7 +672,7 @@ int ssh_scp_pull_request(ssh_scp scp)
 		    //mode = sstrdup(&buffer[1]);
 		    scp->request_mode = ssh_scp_integer_mode(&buffer[1]);
 		    tmp = p;
-		    p = strchr(p, ' ');
+		    p = sstrchr(p, ' ');
 		    if(!p) {
 			    goto error;
 		    }

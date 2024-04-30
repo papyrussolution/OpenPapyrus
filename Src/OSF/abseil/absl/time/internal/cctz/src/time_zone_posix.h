@@ -44,8 +44,6 @@
 #ifndef ABSL_TIME_INTERNAL_CCTZ_TIME_ZONE_POSIX_H_
 #define ABSL_TIME_INTERNAL_CCTZ_TIME_ZONE_POSIX_H_
 
-//#include <cstdint>
-//#include <string>
 #include "absl/base/config.h"
 
 namespace absl {

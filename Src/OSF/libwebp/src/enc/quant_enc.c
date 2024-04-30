@@ -12,9 +12,6 @@
 //
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
-//#include <math.h>
-//#include <stdlib.h>  // for abs()
 #include "src/dsp/quant.h"
 #include "src/enc/vp8i_enc.h"
 #include "src/enc/cost_enc.h"

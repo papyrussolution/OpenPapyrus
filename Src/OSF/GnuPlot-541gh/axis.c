@@ -457,7 +457,7 @@ static double make_auto_time_minitics(t_timelevel tlevel, double incr)
 /* Rarely called helper function looks_like_numeric() */
 static int FASTCALL looks_like_numeric(const char * format)
 {
-	if(!(format = strchr(format, '%')))
+	if(!(format = sstrchr(format, '%')))
 		return 0;
 	while(++format && (*format == ' ' || *format == '-' || *format == '+' || *format == '#'))
 		; /* do nothing */
@@ -514,7 +514,7 @@ char * GnuPlot::CopyOrInventFormatString(GpAxis * pAx)
 		if(t_max.tm_year != t_min.tm_year) {
 			// different years, include year in ticlabel 
 			// check convention, day/month or month/day 
-			if(strchr(AxS.P_TimeFormat, 'm') < strchr(AxS.P_TimeFormat, 'd'))
+			if(sstrchr(AxS.P_TimeFormat, 'm') < sstrchr(AxS.P_TimeFormat, 'd'))
 				strcpy(tempfmt, "%m/%d/%");
 			else
 				strcpy(tempfmt, "%d/%m/%");
@@ -525,7 +525,7 @@ char * GnuPlot::CopyOrInventFormatString(GpAxis * pAx)
 		}
 		else {
 			// Copy day/month order over from input format 
-			if(strchr(AxS.P_TimeFormat, 'm') < strchr(AxS.P_TimeFormat, 'd'))
+			if(sstrchr(AxS.P_TimeFormat, 'm') < sstrchr(AxS.P_TimeFormat, 'd'))
 				strcpy(tempfmt, "%m/%d");
 			else
 				strcpy(tempfmt, "%d/%m");
@@ -844,7 +844,7 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 			if(mark->level < 0) {
 				ticlabel = mark->label; // label read from data file 
 			}
-			else if(mark->label && !strchr(mark->label, '%')) {
+			else if(mark->label && !sstrchr(mark->label, '%')) {
 				ticlabel = mark->label; // string constant that contains no format keys 
 			}
 			else if(pThis->index >= PARALLEL_AXES) {
@@ -1871,7 +1871,7 @@ void GnuPlot::GStrDMS(char * pLabel, char * pFormat, double value)
 	Seconds = floor(seconds);
 	for(c = cfmt = sstrdup(pFormat); *c;) {
 		if(*c++ == '%') {
-			while(*c && !strchr("DdMmSsEN%", *c)) {
+			while(*c && !sstrchr("DdMmSsEN%", *c)) {
 				if(!isdec(*c) && !isspace(*c) && !ispunct(*c))
 					IntError(NO_CARET, "unrecognized format: \"%s\"", pFormat);
 				c++;

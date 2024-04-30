@@ -52,24 +52,13 @@
 #elif defined(HAVE_UNISTD_H)
 #include <unistd.h>
 #endif
-
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "transfer.h"
-//#include "sendf.h"
-//#include "escape.h"
-//#include "progress.h"
 #include "dict.h"
-//#include "curl_printf.h"
-//#include "strcase.h"
 #include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
-
 /*
  * Forward declarations.
  */
-
 static CURLcode dict_do(struct Curl_easy * data, bool * done);
 
 /*
@@ -191,16 +180,16 @@ static CURLcode dict_do(struct Curl_easy * data, bool * done)
 	if(strncasecompare(path, DICT_MATCH, sizeof(DICT_MATCH)-1) ||
 	    strncasecompare(path, DICT_MATCH2, sizeof(DICT_MATCH2)-1) ||
 	    strncasecompare(path, DICT_MATCH3, sizeof(DICT_MATCH3)-1)) {
-		word = strchr(path, ':');
+		word = sstrchr(path, ':');
 		if(word) {
 			word++;
-			database = strchr(word, ':');
+			database = sstrchr(word, ':');
 			if(database) {
 				*database++ = (char)0;
-				strategy = strchr(database, ':');
+				strategy = sstrchr(database, ':');
 				if(strategy) {
 					*strategy++ = (char)0;
-					nthdef = strchr(strategy, ':');
+					nthdef = sstrchr(strategy, ':');
 					if(nthdef) {
 						*nthdef = (char)0;
 					}
@@ -245,13 +234,13 @@ static CURLcode dict_do(struct Curl_easy * data, bool * done)
 	else if(strncasecompare(path, DICT_DEFINE, sizeof(DICT_DEFINE)-1) ||
 	    strncasecompare(path, DICT_DEFINE2, sizeof(DICT_DEFINE2)-1) ||
 	    strncasecompare(path, DICT_DEFINE3, sizeof(DICT_DEFINE3)-1)) {
-		word = strchr(path, ':');
+		word = sstrchr(path, ':');
 		if(word) {
 			word++;
-			database = strchr(word, ':');
+			database = sstrchr(word, ':');
 			if(database) {
 				*database++ = (char)0;
-				nthdef = strchr(database, ':');
+				nthdef = sstrchr(database, ':');
 				if(nthdef) {
 					*nthdef = (char)0;
 				}
@@ -288,7 +277,7 @@ static CURLcode dict_do(struct Curl_easy * data, bool * done)
 		Curl_setup_transfer(data, FIRSTSOCKET, -1, FALSE, -1);
 	}
 	else {
-		ppath = strchr(path, '/');
+		ppath = sstrchr(path, '/');
 		if(ppath) {
 			int i;
 

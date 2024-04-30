@@ -24,15 +24,7 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifndef CURL_DISABLE_HTTP
-
-//#include "urldata.h" /* it includes http_chunks.h */
-//#include "sendf.h"   /* for the client write stuff */
-//#include "dynbuf.h"
-//#include "content_encoding.h"
-//#include "http.h"
 #include "strtoofft.h"
-//#include "warnless.h"
-
 /* The last #include files should be: */
 #include "curl_memory.h"
 #include "memdebug.h"

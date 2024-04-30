@@ -3879,7 +3879,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						THROW(Convert7712()); // @v7.7.12
 						THROW(Convert7907());
 						// @v8.3.6 THROW(Convert8203());
-						THROW(Convert8306());
+						// @v12.0.0 (Перенесено в Convert12000) THROW(Convert8306());
 						THROW(Convert8800());
 						THROW(Convert8910()); // @v8.9.10
 						THROW(Convert9004()); // @v9.0.3 // @v9.0.4 Convert9003-->Convert9004
@@ -3897,6 +3897,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						THROW(Convert11004()); // @v11.0.4 Конвертация TSessLine (добавлены поля LotDimX, LotDimY, LotDimZ)
 						THROW(Convert11112()); // @v11.1.12 Bill
 						THROW(Convert11200()); // @v11.2.0 Соглашения с клиентами
+						THROW(Convert12000()); // @v12.0.0 Регистры (увеличились длины серии и номера регистра)
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;
@@ -5499,6 +5500,7 @@ PPID PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 				case PPHS_TAG:            val = PPOBJ_TAG; break; // @v10.9.4
 				case PPHS_STYLOQBINDERY:  val = PPOBJ_STYLOQBINDERY; break; // @v11.4.3
 				case PPHS_WSCTL:          val = PPOBJ_COMPUTER; break; // @v11.7.3
+				case PPHS_COMPUTER:       val = PPOBJ_COMPUTER; break; // @v12.0.0 // synonym of PPHS_WSCTL
 				default: PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb); break;
 			}
 			obj_type = LoWord(val);

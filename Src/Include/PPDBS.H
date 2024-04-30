@@ -1058,8 +1058,8 @@ public:
 		int32  RegTypeID;
 		LDATE  Dt;
 		int32  RegOrgID;
-		char   Serial[12];
-		char   Num[32];
+		char   Serial[32];
+		char   Num[128];
 		LDATE  Expiry;
 		int32  UniqCntr;
 		int32  Flags;
@@ -1077,14 +1077,14 @@ public:
 	};
 	struct Key3 {
 		int32  RegTypeID;
-		char   Serial[12];
-		char   Num[32];
+		char   Serial[32];
+		char   Num[128];
 		int32  UniqCntr;
 	};
 	struct Key4 {
 		int32  RegTypeID;
-		char   Num[32];
-		char   Serial[12];
+		char   Num[128];
+		char   Serial[32];
 		int32  UniqCntr;
 	};
 	DBField ID;

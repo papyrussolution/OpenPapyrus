@@ -2235,22 +2235,6 @@ ZEXTERN int deflateResetKeep(z_streamp);
 	//
 	// target dependencies 
 	//
-	#if defined(MSDOS) || (defined(WINDOWS) && !defined(WIN32))
-		#define OS_CODE  0x00
-		#ifndef Z_SOLO
-			#if defined(__TURBOC__) || defined(__BORLANDC__)
-				#if(__STDC__ == 1) && (defined(__LARGE__) || defined(__COMPACT__))
-					// Allow compilation with ANSI keywords only enabled 
-					void _Cdecl farfree(void * block);
-					void * _Cdecl farmalloc(unsigned long nbytes);
-				#else
-					#include <alloc.h>
-				#endif
-			#else // MSC or DJGPP 
-				#include <malloc.h>
-			#endif
-		#endif
-	#endif
 	#ifdef AMIGA
 		#define OS_CODE  1
 	#endif

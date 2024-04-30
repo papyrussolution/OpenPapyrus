@@ -171,7 +171,7 @@ static int nextrune(struct cstate * g)
 			    g->yychar = '0';
 			    return 1;
 		}
-		if(strchr(ESCAPES, g->yychar))
+		if(sstrchr(ESCAPES, g->yychar))
 			return 1;
 		if(isunicodeletter(g->yychar) || g->yychar == '_')  /* check identity escape */
 			die(g, "invalid escape character");
@@ -317,7 +317,7 @@ static int lexclass(struct cstate * g)
 				havesave = 1;
 			}
 		}
-		else if(quoted && strchr("DSWdsw", g->yychar)) {
+		else if(quoted && sstrchr("DSWdsw", g->yychar)) {
 			if(havesave) {
 				addrange(g, save, save);
 				if(havedash)

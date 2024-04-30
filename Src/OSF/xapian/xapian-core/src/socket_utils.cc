@@ -65,8 +65,7 @@ void set_socket_timeouts(int fd, double timeout)
 		    reinterpret_cast<char *>(&t), sizeof(t));
 #endif
 #ifdef SO_RCVTIMEO
-		(void)setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO,
-		    reinterpret_cast<char *>(&t), sizeof(t));
+		(void)setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<char *>(&t), sizeof(t));
 #endif
 	}
 #endif
@@ -80,8 +79,7 @@ void set_socket_timeouts(int fd, double timeout)
 #else
 		DWORD flag = 1;
 #endif
-		(void)setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE,
-		    reinterpret_cast<char *>(&flag), sizeof(flag));
+		(void)setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, reinterpret_cast<char *>(&flag), sizeof(flag));
 	}
 #endif
 }
@@ -122,7 +120,7 @@ int pretty_ip6(const void* p, char * buf)
 	const char * r = buf;
 #endif
 	if(startswith(r, "::ffff:") || startswith(r, "::FFFF:")) {
-		if(strchr(r + 7, '.')) {
+		if(sstrchr(r + 7, '.')) {
 			r += 7;
 		}
 	}

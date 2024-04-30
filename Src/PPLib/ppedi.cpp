@@ -496,7 +496,7 @@ static int FASTCALL Base80ToTobaccoPrice(const SString & rS, SString & rBuf)
 		const uint len = rS.Len();
 		for(uint i = 0; ok && i < len; i++) {
 			const  char c = rS.C(i);
-			const  char * p_idxpos = strchr(p_alphabet, c);
+			const  char * p_idxpos = sstrchr(p_alphabet, c);
 			if(p_idxpos) {
 				const uint64 m = ui64pow(80, len-i-1);
 				result += m * (p_idxpos - p_alphabet);
@@ -511,7 +511,7 @@ static int FASTCALL Base80ToTobaccoPrice(const SString & rS, SString & rBuf)
 		const uint len = temp_buf.Len();
 		for(uint i = 0; ok && i < len; i++) {
 			const  char c = temp_buf.C(i);
-			const  char * p_idxpos = strchr(p_alphabet, c);
+			const  char * p_idxpos = sstrchr(p_alphabet, c);
 			if(p_idxpos) {
 				const uint64 m = ui64pow(80, len-i-1);
 				result2 += m * (p_idxpos - p_alphabet);

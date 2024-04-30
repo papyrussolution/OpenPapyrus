@@ -15,10 +15,6 @@
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_mtree.c 201171 2009-12-29 06:39:07Z kientzle $");
 
-//#include "archive_digest_private.h"
-//#include "archive_entry_private.h"
-//#include "archive_rb.h"
-
 #define INDENTNAMELEN   15
 #define MAXLINELEN      80
 #define SET_KEYS        (F_FLAGS | F_GID | F_GNAME | F_MODE | F_TYPE | F_UID | F_UNAME)
@@ -1814,7 +1810,7 @@ static struct mtree_entry * mtree_entry_find_child(struct mtree_entry * parent, 
 static int get_path_component(char * name, size_t n, const char * fn)
 {
 	size_t l;
-	const char * p = strchr(fn, '/');
+	const char * p = sstrchr(fn, '/');
 	if(!p) {
 		if((l = strlen(fn)) == 0)
 			return 0;

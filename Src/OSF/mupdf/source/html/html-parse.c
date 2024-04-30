@@ -675,11 +675,11 @@ static fz_html_box * generate_boxes(fz_context * ctx,
 					const char * h_att = fz_xml_att(node, "height");
 					if(w_att && (w = satoi(w_att)) > 0) {
 						style.width.value = w;
-						style.width.unit = strchr(w_att, '%') ? N_PERCENT : N_LENGTH;
+						style.width.unit = sstrchr(w_att, '%') ? N_PERCENT : N_LENGTH;
 					}
 					if(h_att && (h = satoi(h_att)) > 0) {
 						style.height.value = h;
-						style.height.unit = strchr(h_att, '%') ? N_PERCENT : N_LENGTH;
+						style.height.unit = sstrchr(h_att, '%') ? N_PERCENT : N_LENGTH;
 					}
 
 					if(display == DIS_BLOCK) {

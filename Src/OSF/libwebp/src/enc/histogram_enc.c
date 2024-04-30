@@ -11,15 +11,10 @@
 //
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#ifdef HAVE_CONFIG_H
-//#include "src/webp/config.h"
-//#endif
-//#include <math.h>
 #include "src/enc/backward_references_enc.h"
 #include "src/enc/histogram_enc.h"
 #include "src/dsp/lossless.h"
 #include "src/dsp/lossless_common.h"
-//#include "src/utils/utils.h"
 
 #define MAX_COST 1.e38
 

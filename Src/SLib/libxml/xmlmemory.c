@@ -6,12 +6,6 @@
 
 #if 0 // {
 
-//#ifdef HAVE_SYS_TYPES_H
-	//#include <sys/types.h>
-//#endif
-//#ifdef HAVE_MALLOC_H
-	//#include <malloc.h>
-//#endif
 /* #define DEBUG_MEMORY */
 
 /**

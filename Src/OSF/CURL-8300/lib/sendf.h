@@ -25,7 +25,6 @@
 ***************************************************************************/
 
 #include "curl_setup.h"
-//#include "curl_trc.h"
 
 #define CLIENTWRITE_BODY    (1<<0)
 #define CLIENTWRITE_HEADER  (1<<1)
@@ -35,25 +34,12 @@
 #define CLIENTWRITE_TRAILER (1<<5) /* a trailer header */
 #define CLIENTWRITE_BOTH   (CLIENTWRITE_BODY|CLIENTWRITE_HEADER)
 
-CURLcode Curl_client_write(struct Curl_easy * data, int type, char * ptr,
-    size_t len) WARN_UNUSED_RESULT;
-
+CURLcode Curl_client_write(struct Curl_easy * data, int type, char * ptr, size_t len) WARN_UNUSED_RESULT;
 /* internal read-function, does plain socket, SSL and krb4 */
-CURLcode Curl_read(struct Curl_easy * data, curl_socket_t sockfd,
-    char * buf, size_t buffersize,
-    ssize_t * n);
-
+CURLcode Curl_read(struct Curl_easy * data, curl_socket_t sockfd, char * buf, size_t buffersize, ssize_t * n);
 /* internal write-function, does plain socket, SSL, SCP, SFTP and krb4 */
-CURLcode Curl_write(struct Curl_easy * data,
-    curl_socket_t sockfd,
-    const void * mem, size_t len,
-    ssize_t * written);
-
+CURLcode Curl_write(struct Curl_easy * data, curl_socket_t sockfd, const void * mem, size_t len, ssize_t * written);
 /* internal write-function, using sockindex for connection destination */
-CURLcode Curl_nwrite(struct Curl_easy * data,
-    int sockindex,
-    const void * buf,
-    size_t blen,
-    ssize_t * pnwritten);
+CURLcode Curl_nwrite(struct Curl_easy * data, int sockindex, const void * buf, size_t blen, ssize_t * pnwritten);
 
 #endif /* HEADER_CURL_SENDF_H */

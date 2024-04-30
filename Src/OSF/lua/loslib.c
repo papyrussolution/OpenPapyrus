@@ -9,11 +9,6 @@
 #define loslib_c
 #define LUA_LIB
 
-//#include <errno.h>
-// @v11.7.1 #include <locale.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <time.h>
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"

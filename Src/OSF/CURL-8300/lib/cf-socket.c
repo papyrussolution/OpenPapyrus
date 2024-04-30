@@ -24,10 +24,6 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-
-//#ifdef HAVE_NETINET_IN_H
-//#include <netinet/in.h> /* <netinet/tcp.h> may need it */
-//#endif
 #ifdef HAVE_SYS_UN_H
 #include <sys/un.h> /* for sockaddr_un */
 #endif
@@ -53,28 +49,18 @@
 #include <in.h>
 #include <inet.h>
 #endif
-//#include "urldata.h"
-//#include "bufq.h"
-//#include "sendf.h"
 #include "if2ip.h"
 #include "strerror.h"
-//#include "cfilters.h"
 #include "cf-socket.h"
-//#include "connect.h"
 #include "select.h"
 #include "url.h" /* for ZFREE() */
-//#include "multiif.h"
-//#include "sockaddr.h" /* required for Curl_sockaddr_storage */
 #include "inet_ntop.h"
 #include "inet_pton.h"
-//#include "progress.h"
-//#include "warnless.h"
 #include "conncache.h"
 #include "multihandle.h"
 #include "rand.h"
 #include "share.h"
 #include "version_win32.h"
-
 /* The last 3 #include files should be in this order */
 //#include "curl_printf.h"
 #include "curl_memory.h"
@@ -90,7 +76,7 @@
  */
 static void set_ipv6_v6only(curl_socket_t sockfd, int on)
 {
-	(void)setsockopt(sockfd, IPPROTO_IPV6, IPV6_V6ONLY, (void *)&on, sizeof(on));
+	(void)setsockopt(sockfd, IPPROTO_IPV6, IPV6_V6ONLY, (const char *)&on, sizeof(on));
 }
 
 #else
@@ -259,23 +245,18 @@ static CURLcode socket_open(struct Curl_easy * data,
 		 * here to connect.
 		 */
 		Curl_set_in_callback(data, true);
-		*sockfd = data->set.fopensocket(data->set.opensocket_client,
-			CURLSOCKTYPE_IPCXN,
-			(struct curl_sockaddr *)addr);
+		*sockfd = data->set.fopensocket(data->set.opensocket_client, CURLSOCKTYPE_IPCXN, (struct curl_sockaddr *)addr);
 		Curl_set_in_callback(data, false);
 	}
 	else {
 		/* opensocket callback not set, so simply create the socket now */
 		*sockfd = socket(addr->family, addr->socktype, addr->protocol);
 	}
-
 	if(*sockfd == CURL_SOCKET_BAD)
-		/* no socket, no connection */
-		return CURLE_COULDNT_CONNECT;
-
+		return CURLE_COULDNT_CONNECT; /* no socket, no connection */
 #if defined(ENABLE_IPV6) && defined(HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID)
 	if(data->conn->scope_id && (addr->family == AF_INET6)) {
-		struct sockaddr_in6 * const sa6 = (void *)&addr->sa_addr;
+		struct sockaddr_in6 * const sa6 = (struct sockaddr_in6 *)&addr->sa_addr;
 		sa6->sin6_scope_id = data->conn->scope_id;
 	}
 #endif
@@ -536,7 +517,7 @@ static CURLcode bindlocal(struct Curl_easy * data, struct connectdata * conn,
 			/* IPv6 address */
 			if(af == AF_INET6) {
 #ifdef HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID
-				char * scope_ptr = strchr(myhost, '%');
+				char * scope_ptr = sstrchr(myhost, '%');
 				if(scope_ptr)
 					*(scope_ptr++) = '\0';
 #endif
@@ -1558,17 +1539,13 @@ static CURLcode cf_udp_setup_quic(struct Curl_cfilter * cf, struct Curl_easy * d
 	int rc;
 	/* QUIC needs a connected socket, nonblocking */
 	assert(ctx->sock != CURL_SOCKET_BAD);
-
 	rc = connect(ctx->sock, &ctx->addr.sa_addr, ctx->addr.addrlen);
 	if(-1 == rc) {
 		return socket_connect_result(data, ctx->r_ip, SOCKERRNO);
 	}
 	set_local_ip(cf, data);
-	CURL_TRC_CF(data, cf, "%s socket %" CURL_FORMAT_SOCKET_T
-	    " connected: [%s:%d] -> [%s:%d]",
-	    (ctx->transport == TRNSPRT_QUIC)? "QUIC" : "UDP",
-	    ctx->sock, ctx->l_ip, ctx->l_port, ctx->r_ip, ctx->r_port);
-
+	CURL_TRC_CF(data, cf, "%s socket %" CURL_FORMAT_SOCKET_T " connected: [%s:%d] -> [%s:%d]",
+	    (ctx->transport == TRNSPRT_QUIC)? "QUIC" : "UDP", ctx->sock, ctx->l_ip, ctx->l_port, ctx->r_ip, ctx->r_port);
 	(void)curlx_nonblock(ctx->sock, TRUE);
 	switch(ctx->addr.family) {
 #if defined(__linux__) && defined(IP_MTU_DISCOVER)

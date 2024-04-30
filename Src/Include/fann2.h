@@ -60,9 +60,6 @@
 #else
 	#if !defined(_MSC_EXTENSIONS) && !defined(_INC_WINDOWS)
 		extern ulong __stdcall GetTickCount(void);
-	#else
-		//#define WIN32_LEAN_AND_MEAN
-		//#include <windows.h>
 	#endif
 #endif
 

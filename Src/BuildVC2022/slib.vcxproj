@@ -2064,6 +2064,7 @@
     <ClCompile Include="..\SLib\sdecimal.cpp" />
     <ClCompile Include="..\SLib\sdrecord.cpp" />
     <ClCompile Include="..\SLib\sfilestorage.cpp" />
+    <ClCompile Include="..\SLib\slrecmgr.cpp" />
     <ClCompile Include="..\SLib\sltabs.cpp" />
     <ClCompile Include="..\SLib\smemchr.cpp" />
     <ClCompile Include="..\SLib\soapdbt.cpp" />

@@ -55,23 +55,11 @@
 #include <inet.h>
 #endif
 
-//#include <curl/curl.h>
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "hostip.h"
-//#include "progress.h"
-//#include "transfer.h"
-//#include "escape.h"
-//#include "http.h" /* for HTTP proxy tunnel stuff */
 #include "socks.h"
 #include "pop3.h"
 #include "strtoofft.h"
-//#include "strcase.h"
 #include "vtls/vtls.h"
-//#include "cfilters.h"
-//#include "connect.h"
 #include "select.h"
-//#include "multiif.h"
 #include "url.h"
 #include "bufref.h"
 #include "curl_sasl.h"
@@ -685,7 +673,7 @@ static CURLcode pop3_state_servergreet_resp(struct Curl_easy * data,
 					/* If the timestamp does not contain '@' it is not (as required by
 					   RFC-1939) conformant to the RFC-822 message id syntax, and we
 					   therefore do not use APOP authentication. */
-					at = strchr(pop3c->apoptimestamp, '@');
+					at = sstrchr(pop3c->apoptimestamp, '@');
 					if(!at)
 						ZFREE(pop3c->apoptimestamp);
 					else

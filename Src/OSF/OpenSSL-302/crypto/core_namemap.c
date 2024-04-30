@@ -267,7 +267,7 @@ int ossl_namemap_add_names(OSSL_NAMEMAP * namemap, int number, const char * name
 	for(p = names; *p != '\0'; p = (q == NULL ? p + l : q + 1)) {
 		int this_number;
 
-		if((q = strchr(p, separator)) == NULL)
+		if((q = sstrchr(p, separator)) == NULL)
 			l = strlen(p); /* offset to \0 */
 		else
 			l = q - p; /* offset to the next separator */
@@ -292,7 +292,7 @@ int ossl_namemap_add_names(OSSL_NAMEMAP * namemap, int number, const char * name
 	/* Now that we have checked, register all names */
 	for(p = names; *p != '\0'; p = (q == NULL ? p + l : q + 1)) {
 		int this_number;
-		if((q = strchr(p, separator)) == NULL)
+		if((q = sstrchr(p, separator)) == NULL)
 			l = strlen(p); /* offset to \0 */
 		else
 			l = q - p; /* offset to the next separator */

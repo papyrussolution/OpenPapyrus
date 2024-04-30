@@ -74,11 +74,11 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 	for(i = 0; acmd->argv[i] != NULL; i++) {
 		if(i == 0) {
 			const char * p, * sp;
-			if((p = strchr(acmd->argv[i], '/')) != NULL || (p = strchr(acmd->argv[i], '\\')) != NULL)
+			if((p = sstrchr(acmd->argv[i], '/')) != NULL || (p = sstrchr(acmd->argv[i], '\\')) != NULL)
 				p++;
 			else
 				p = acmd->argv[i];
-			if((sp = strchr(p, ' ')) != NULL)
+			if((sp = sstrchr(p, ' ')) != NULL)
 				archive_strappend_char(&cmdline, '"');
 			archive_strcat(&cmdline, p);
 			if(sp)
@@ -91,7 +91,7 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 	}
 	if(i <= 1) {
 		const char * sp;
-		if((sp = strchr(arg0, ' ')) != NULL)
+		if((sp = sstrchr(arg0, ' ')) != NULL)
 			archive_strappend_char(&cmdline, '"');
 		archive_strcat(&cmdline, arg0);
 		if(sp)

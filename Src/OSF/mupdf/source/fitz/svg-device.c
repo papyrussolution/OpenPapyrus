@@ -227,7 +227,7 @@ static void svg_dev_stroke_color(fz_context * ctx,
 static void svg_font_family(fz_context * ctx, char buf[], int size, const char * name)
 {
 	/* Remove "ABCDEF+" prefix and "-Bold" suffix. */
-	char * p = (char *)strchr(name, '+'); // @badcast
+	char * p = (char *)sstrchr(name, '+'); // @badcast
 	if(p) 
 		fz_strlcpy(buf, p+1, size);
 	else 

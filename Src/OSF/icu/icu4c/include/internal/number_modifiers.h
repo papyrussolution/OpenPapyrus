@@ -7,8 +7,6 @@
 #ifndef __NUMBER_MODIFIERS_H__
 #define __NUMBER_MODIFIERS_H__
 
-//#include <algorithm>
-//#include <cstdint>
 #include "unicode/uniset.h"
 #include "unicode/simpleformatter.h"
 #include "standardplural.h"

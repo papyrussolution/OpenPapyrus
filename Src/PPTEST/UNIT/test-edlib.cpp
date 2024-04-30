@@ -12,7 +12,6 @@
 #include <climits>
 #include <algorithm>
 #include <vector>
-
 #include "..\slib\edlib\edlib.h"
 //#include "..\slib\edlib\SimpleEditDistance.h"
 

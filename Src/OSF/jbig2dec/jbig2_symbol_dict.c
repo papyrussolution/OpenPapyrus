@@ -1,8 +1,6 @@
-/* Copyright (C) 2001-2020 Artifex Software, Inc.
-   All Rights Reserved.
+/* Copyright (C) 2001-2020 Artifex Software, Inc. All Rights Reserved.
 
-   This software is provided AS-IS with no warranty, either express or
-   implied.
+   This software is provided AS-IS with no warranty, either express or implied.
 
    This software is distributed under license and may not be copied,
    modified or distributed except as expressly authorized under the terms
@@ -12,16 +10,12 @@
    Artifex Software, Inc.,  1305 Grant Avenue - Suite 200, Novato,
    CA 94945, U.S.A., +1(415)492-9861, for further information.
  */
-
 /*
     jbig2dec
  */
-
 /* symbol dictionary segment decode and support */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-//#include "jbig2_symbol_dict.h"
-//#include "jbig2_text.h"
 
 /* Table 13 */
 typedef struct {

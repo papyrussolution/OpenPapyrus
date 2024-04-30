@@ -101,7 +101,7 @@ public:
 			PPIDArray  objid_list;
 			ids_set.setBuf(buf.cptr(), buf.Len() + 1);
 			for(pos = 0; ids_set.get(&pos, buf);) {
-				THROW(buf.Strip().IsDigit() && (id = buf.ToLong()) > 0);
+				THROW(buf.Strip().IsDec() && (id = buf.ToLong()) > 0);
 				objid_list.addUnique(id);
 			}
 			objid_list.sort();
@@ -116,8 +116,8 @@ public:
 			SString left, right;
 			ids_set.setBuf(buf.cptr(), buf.Len() + 1);
 			for(pos = 0; ids_set.get(&pos, buf);) {
-				THROW(buf.Strip().Divide('-', left, right) > 0 && left.Strip().IsDigit() && (comm_id.Key = left.ToLong()) > 0 &&
-					right.Strip().IsDigit() && (comm_id.Val = right.ToLong()) > 0);
+				THROW(buf.Strip().Divide('-', left, right) > 0 && left.Strip().IsDec() && (comm_id.Key = left.ToLong()) > 0 &&
+					right.Strip().IsDec() && (comm_id.Val = right.ToLong()) > 0);
 				if(!commid_list.bsearch(&comm_id, 0, PTR_CMPFUNC(_2long)))
 					commid_list.ordInsert(&comm_id, 0, PTR_CMPFUNC(_2long));
 			}

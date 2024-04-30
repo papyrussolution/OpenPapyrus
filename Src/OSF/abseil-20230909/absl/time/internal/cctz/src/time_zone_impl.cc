@@ -15,12 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "time_zone_impl.h"
-//#include <deque>
-//#include <memory>
-//#include <mutex>
-//#include <string>
-//#include <unordered_map>
-//#include <utility>
 #include "absl/base/config.h"
 #include "time_zone_fixed.h"
 

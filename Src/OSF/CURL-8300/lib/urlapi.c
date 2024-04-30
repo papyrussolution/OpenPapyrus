@@ -104,8 +104,8 @@ static const char *find_host_sep(const char * url)
 	else
 		sep += 2;
 
-	query = strchr(sep, '?');
-	sep = strchr(sep, '/');
+	query = sstrchr(sep, '?');
+	sep = sstrchr(sep, '/');
 
 	if(!sep)
 		sep = url + strlen(url);
@@ -255,7 +255,7 @@ static char *concat_url(char * base, const char * relurl)
 		int level = 0;
 		/* First we need to find out if there's a ?-letter in the URL,
 		   and cut it and the right-side of that off */
-		pathsep = strchr(protsep, '?');
+		pathsep = sstrchr(protsep, '?');
 		if(pathsep)
 			*pathsep = 0;
 		/* we have a relative path to append to the last slash if there's one
@@ -268,7 +268,7 @@ static char *concat_url(char * base, const char * relurl)
 				*pathsep = 0;
 		}
 		// Check if there's any slash after the host name, and if so, remember that position instead
-		pathsep = strchr(protsep, '/');
+		pathsep = sstrchr(protsep, '/');
 		protsep = pathsep ? (pathsep + 1) : NULL;
 		/* now deal with one "./" or any amount of "../" in the newurl and act accordingly */
 		if((useurl[0] == '.') && (useurl[1] == '/'))
@@ -303,12 +303,12 @@ static char *concat_url(char * base, const char * relurl)
 		}
 		else {
 			/* cut off the original URL from the first slash, or deal with URLs without slash */
-			pathsep = strchr(protsep, '/');
+			pathsep = sstrchr(protsep, '/');
 			if(pathsep) {
 				/* When people use badly formatted URLs, such as
 				   "http://www.url.com?dir=/home/daniel" we must not use the first
 				   slash, if there's a ?-letter before it! */
-				char * sep = strchr(protsep, '?');
+				char * sep = sstrchr(protsep, '?');
 				if(sep && (sep < pathsep))
 					pathsep = sep;
 				*pathsep = 0;
@@ -318,7 +318,7 @@ static char *concat_url(char * base, const char * relurl)
 				   formatted URL, such as "http://www.url.com?id=2380" which doesn't
 				   use a slash separator as it is supposed to, we need to check for a
 				   ?-letter as well! */
-				pathsep = strchr(protsep, '?');
+				pathsep = sstrchr(protsep, '?');
 				if(pathsep)
 					*pathsep = 0;
 			}
@@ -357,7 +357,7 @@ static CURLUcode junkscan(const char * url, size_t * urllen, uint flags)
 		/* excessive input length */
 		return CURLUE_MALFORMED_INPUT;
 	nfine = strcspn(url, badbytes);
-	if((nfine != n) || (!(flags & CURLU_ALLOW_SPACE) && strchr(url, ' ')))
+	if((nfine != n) || (!(flags & CURLU_ALLOW_SPACE) && sstrchr(url, ' ')))
 		return CURLUE_MALFORMED_INPUT;
 	*urllen = n;
 	return CURLUE_OK;
@@ -458,7 +458,7 @@ UNITTEST CURLUcode Curl_parse_port(struct Curl_URL * u, struct dynbuf * host,
 	 * Find the end of an IPv6 address on the ']' ending bracket.
 	 */
 	if(hostname[0] == '[') {
-		portptr = strchr(hostname, ']');
+		portptr = sstrchr(hostname, ']');
 		if(!portptr)
 			return CURLUE_BAD_IPV6;
 		portptr++;
@@ -471,7 +471,7 @@ UNITTEST CURLUcode Curl_parse_port(struct Curl_URL * u, struct dynbuf * host,
 			portptr = NULL;
 	}
 	else
-		portptr = strchr(hostname, ':');
+		portptr = sstrchr(hostname, ':');
 
 	if(portptr) {
 		char * rest;
@@ -506,7 +506,7 @@ UNITTEST CURLUcode Curl_parse_port(struct Curl_URL * u, struct dynbuf * host,
 	return CURLUE_OK;
 }
 
-/* this assumes 'hostname' now starts with [ */
+// this assumes 'hostname' now starts with [
 static CURLUcode ipv6_parse(struct Curl_URL * u, char * hostname, size_t hlen/* length of hostname */)
 {
 	size_t len;
@@ -569,11 +569,10 @@ static CURLUcode hostname_check(struct Curl_URL * u, char * hostname, size_t hle
 	else if(hostname[0] == '[')
 		return ipv6_parse(u, hostname, hlen);
 	else {
-		/* letters from the second string are not ok */
+		// letters from the second string are not ok 
 		len = strcspn(hostname, " \r\n\t/:#?!@{}[]\\$\'\"^`*<>=;,+&()%");
 		if(hlen != len)
-			/* hostname with bad content */
-			return CURLUE_BAD_HOSTNAME;
+			return CURLUE_BAD_HOSTNAME; // hostname with bad content
 	}
 	return CURLUE_OK;
 }
@@ -673,7 +672,7 @@ static int ipv4_normalize(struct dynbuf * host)
 static CURLUcode urldecode_host(struct dynbuf * host)
 {
 	const char * hostname = Curl_dyn_ptr(host);
-	const char * per = strchr(hostname, '%');
+	const char * per = sstrchr(hostname, '%');
 	if(!per)
 		/* nothing to decode */
 		return CURLUE_OK;
@@ -1111,7 +1110,7 @@ static CURLUcode parseurl(const char * url, CURLU * u, uint flags)
 			goto fail;
 		}
 	}
-	fragment = strchr(path, '#');
+	fragment = sstrchr(path, '#');
 	if(fragment) {
 		fraglen = pathlen - (fragment - path);
 		if(fraglen > 1) {

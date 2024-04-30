@@ -110,7 +110,7 @@ U_CAPI int32_t U_EXPORT2 uscript_getCode(const char * nameOrAbbrOrLocale,
 		return 0;
 	}
 	triedCode = FALSE;
-	if(uprv_strchr(nameOrAbbrOrLocale, '-')==NULL && uprv_strchr(nameOrAbbrOrLocale, '_')==NULL) {
+	if(sstrchr(nameOrAbbrOrLocale, '-')==NULL && sstrchr(nameOrAbbrOrLocale, '_')==NULL) {
 		/* try long and abbreviated script names first */
 		UScriptCode code = (UScriptCode)u_getPropertyValueEnum(UCHAR_SCRIPT, nameOrAbbrOrLocale);
 		if(code!=USCRIPT_INVALID_CODE) {

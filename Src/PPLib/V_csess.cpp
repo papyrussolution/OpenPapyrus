@@ -1173,7 +1173,7 @@ int PPDfCreateRulePacket::SetCashNN(const char * pBuf, int delim)
 		if(cash_nn.NotEmptyS()) {
 			StringSet ss(static_cast<char>(delim), cash_nn);
 			for(uint pos = 0; ss.get(&pos, buf);)
-				if(buf.Strip().IsDigit())
+				if(buf.Strip().IsDec())
 					ary.addUnique(buf.ToLong());
 				else {
 					ok = 0;

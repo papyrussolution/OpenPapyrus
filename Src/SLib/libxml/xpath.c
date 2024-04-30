@@ -11,15 +11,6 @@
  */
 #include <slib-internal.h>
 #pragma hdrstop
-//#ifdef HAVE_MATH_H
-	//#include <math.h>
-//#endif
-//#ifdef HAVE_FLOAT_H
-	//#include <float.h>
-//#endif
-//#ifdef HAVE_SIGNAL_H
-	//#include <signal.h>
-//#endif
 #ifdef LIBXML_PATTERN_ENABLED
 	#define XPATH_STREAMING
 #endif

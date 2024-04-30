@@ -24,7 +24,6 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include "strcase.h"
 #include "easyoptions.h"
 
 #ifndef CURL_DISABLE_GETOPTIONS

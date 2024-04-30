@@ -15,12 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/base/internal/raw_logging.h"
-//#include <cstdarg>
-//#include <cstddef>
-//#include <cstdio>
-//#include <cstdlib>
-//#include <cstring>
-//#include <string>
 #ifdef __EMSCRIPTEN__
 	#include <emscripten/console.h>
 #endif

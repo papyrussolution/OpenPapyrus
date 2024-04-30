@@ -2101,7 +2101,7 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 	// do z tics 
 	if(AxS.__Z().ticmode &&
 	    // Don't output tics and grids if this is the front part of a two-part grid drawing process: 
-	    (FRONTGRID != whichgrid) && !_3DBlk.splot_map && (_3DBlk.SurfaceRotX != 0.0f) && (_3DBlk.draw_surface || (_3DBlk.draw_contour & CONTOUR_SRF) || strchr(_Pm3D.pm3d.where, 's'))) {
+	    (FRONTGRID != whichgrid) && !_3DBlk.splot_map && (_3DBlk.SurfaceRotX != 0.0f) && (_3DBlk.draw_surface || (_3DBlk.draw_contour & CONTOUR_SRF) || sstrchr(_Pm3D.pm3d.where, 's'))) {
 		GenTics(pTerm, &AxS[FIRST_Z_AXIS], &GnuPlot::ZTickCallback);
 	}
 	if(AxS.__Y().zeroaxis && !AxS.__X().log && AxS.__X().InRange(0.0)) {
@@ -3168,7 +3168,7 @@ void GnuPlot::Do3DKeyLayout(GpTermEntry * pTerm, legend_key * pKey, int * xinkey
 		if(pKey->title.font)
 			pTerm->set_font(pTerm, "");
 		// Allow a little extra clearance for markup 
-		if(pTerm->CheckFlag(TERM_ENHANCED_TEXT) && (strchr(pKey->title.text, '^') || strchr(pKey->title.text, '_')))
+		if(pTerm->CheckFlag(TERM_ENHANCED_TEXT) && (sstrchr(pKey->title.text, '^') || sstrchr(pKey->title.text, '_')))
 			_3DBlk.KeyTitleExtra = pTerm->CV()/2;
 	}
 	key_width = _3DBlk.KeyColWth * (_3DBlk.KeyCols - 1) + _3DBlk.KeySizeRight + _3DBlk.KeySizeLeft;

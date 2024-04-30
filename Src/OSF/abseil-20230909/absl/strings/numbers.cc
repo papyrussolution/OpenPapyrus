@@ -18,18 +18,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/numbers.h"
-//#include <algorithm>
-//#include <cassert>
-//#include <cfloat>  // for DBL_DIG and FLT_DIG
-//#include <cmath>   // for HUGE_VAL
-//#include <cstdint>
-//#include <cstdio>
-//#include <cstdlib>
-//#include <cstring>
-//#include <iterator>
-//#include <limits>
-//#include <system_error>  // NOLINT(build/c++11)
-//#include <utility>
 #include "absl/base/attributes.h"
 #include "absl/base/config.h"
 #include "absl/base/internal/endian.h"

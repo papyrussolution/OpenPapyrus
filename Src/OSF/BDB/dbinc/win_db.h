@@ -28,8 +28,6 @@
 #include <tcl.h>
 #endif
 #define	WIN32_LEAN_AND_MEAN
-//#include <windows.h>
-//#include <winsock2.h>
 #ifndef DB_WINCE
 	#include <WinIoCtl.h>
 #endif

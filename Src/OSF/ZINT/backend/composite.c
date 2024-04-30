@@ -33,13 +33,9 @@
 
    The date of publication for these functions is 31 May 2006
  */
-
 #include "common.h"
 #pragma hdrstop
 #include "pdf417.h"
-//#include "large.h"
-//#include "gs1.h"
-//#include "composite.h"
 //
 // Tables for UCC.EAN Composite Symbols
 //

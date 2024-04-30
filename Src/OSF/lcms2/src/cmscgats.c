@@ -382,7 +382,7 @@ static boolint BuildAbsolutePath(const char * relPath, const char * basePath, ch
 // Make sure no exploit is being even tried
 static const char * NoMeta(const char * str)
 {
-	if(strchr(str, '%') != NULL)
+	if(sstrchr(str, '%'))
 		return "**** CORRUPTED FORMAT STRING ***";
 	return str;
 }
@@ -1327,7 +1327,7 @@ static void WriteData(SAVESTREAM* fp, cmsIT8 * it8)
 					WriteStr(fp, "\"\"");
 				else {
 					// If value contains whitespace, enclose within quote
-					if(strchr(ptr, ' ') != NULL) {
+					if(sstrchr(ptr, ' ')) {
 						WriteStr(fp, "\"");
 						WriteStr(fp, ptr);
 						WriteStr(fp, "\"");
@@ -1479,11 +1479,7 @@ static boolint HeaderSection(cmsIT8 * it8)
 	char VarName[MAXID];
 	char Buffer[MAXSTR];
 	KEYVALUE* Key;
-
-	while(it8->sy != SEOF &&
-	    it8->sy != SSYNERROR &&
-	    it8->sy != SBEGIN_DATA_FORMAT &&
-	    it8->sy != SBEGIN_DATA) {
+	while(it8->sy != SEOF && it8->sy != SSYNERROR && it8->sy != SBEGIN_DATA_FORMAT && it8->sy != SBEGIN_DATA) {
 		switch(it8->sy) {
 			case SKEYWORD:
 			    InSymbol(it8);
@@ -1509,10 +1505,9 @@ static boolint HeaderSection(cmsIT8 * it8)
 				    if(Key == NULL) return FALSE;
 #endif
 			    }
-
 			    InSymbol(it8);
-			    if(!GetVal(it8, Buffer, MAXSTR - 1, "Property data expected")) return FALSE;
-
+			    if(!GetVal(it8, Buffer, MAXSTR - 1, "Property data expected")) 
+					return FALSE;
 			    if(Key->WriteAs != WRITE_PAIR) {
 				    AddToList(it8, &GetTable(it8)->HeaderList, VarName, NULL, Buffer,
 					(it8->sy == SSTRING) ? WRITE_STRINGIFY : WRITE_UNCOOKED);
@@ -1527,7 +1522,7 @@ static boolint HeaderSection(cmsIT8 * it8)
 				    for(Subkey = Buffer; Subkey; Subkey = Nextkey) {
 					    char * Value, * temp;
 					    //  identify token pair boundary
-					    Nextkey = (char *)strchr(Subkey, ';');
+					    Nextkey = (char *)sstrchr(Subkey, ';');
 					    if(Nextkey)
 						    *Nextkey++ = '\0';
 

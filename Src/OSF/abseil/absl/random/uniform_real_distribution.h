@@ -20,12 +20,6 @@
 #ifndef ABSL_RANDOM_UNIFORM_REAL_DISTRIBUTION_H_
 #define ABSL_RANDOM_UNIFORM_REAL_DISTRIBUTION_H_
 
-//#include <cassert>
-//#include <cmath>
-//#include <cstdint>
-//#include <istream>
-//#include <limits>
-//#include <type_traits>
 #include "absl/meta/type_traits.h"
 #include "absl/random/internal/fast_uniform_bits.h"
 #include "absl/random/internal/generate_real.h"

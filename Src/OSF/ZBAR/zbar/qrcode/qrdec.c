@@ -1245,10 +1245,8 @@ static int qr_img_get_bit(const uchar * _img, int _width, int _height, int _x, i
 }
 
 #if defined(QR_DEBUG)
-//#include "image.h"
 
-static void qr_finder_dump_aff_undistorted(qr_finder * _ul, qr_finder * _ur,
-    qr_finder * _dl, qr_aff * _aff, const uchar * _img, int _width, int _height)
+static void qr_finder_dump_aff_undistorted(qr_finder * _ul, qr_finder * _ur, qr_finder * _dl, qr_aff * _aff, const uchar * _img, int _width, int _height)
 {
 	uchar * gimg;
 	FILE * fout = 0;

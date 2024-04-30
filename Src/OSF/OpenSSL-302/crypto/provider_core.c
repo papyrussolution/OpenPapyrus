@@ -17,7 +17,6 @@
 #include "crypto/cryptlib.h"
 #include "crypto/evp.h" /* evp_method_store_flush */
 #include "crypto/rand.h"
-//#include "internal/nelem.h"
 #include "internal/thread_once.h"
 #include "internal/provider.h"
 #include "internal/refcount.h"

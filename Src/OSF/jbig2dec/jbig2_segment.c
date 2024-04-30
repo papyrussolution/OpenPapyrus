@@ -17,8 +17,6 @@
  */
 #include "jbig2dec-internal.h"
 #pragma hdrstop
-//#include "jbig2_symbol_dict.h"
-//#include "jbig2_text.h"
 
 Jbig2Segment * jbig2_parse_segment_header(Jbig2Ctx * ctx, uint8 * buf, size_t buf_size, size_t * p_header_size)
 {

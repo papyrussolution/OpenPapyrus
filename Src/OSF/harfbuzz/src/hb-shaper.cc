@@ -39,13 +39,13 @@ static struct hb_shapers_lazy_loader_t : hb_lazy_loader_t<const hb_shaper_entry_
 		memcpy(shapers, all_shapers, sizeof(all_shapers));
 		/* Reorder shaper list to prefer requested shapers. */
 		uint i = 0;
-		char * end, * p = env;
+		char * end;
+		char * p = env;
 		for(;;) {
-			end = strchr(p, ',');
+			end = sstrchr(p, ',');
 			if(!end)
 				end = p + strlen(p);
-
-			for(uint j = i; j < ARRAY_LENGTH(all_shapers); j++)
+			for(uint j = i; j < ARRAY_LENGTH(all_shapers); j++) {
 				if(end - p == (int)strlen(shapers[j].name) && 0 == strncmp(shapers[j].name, p, end - p)) {
 					/* Reorder this shaper to position i */
 					struct hb_shaper_entry_t t = shapers[j];
@@ -53,13 +53,12 @@ static struct hb_shapers_lazy_loader_t : hb_lazy_loader_t<const hb_shaper_entry_
 					shapers[i] = t;
 					i++;
 				}
-
+			}
 			if(!*end)
 				break;
 			else
 				p = end + 1;
 		}
-
 #if HB_USE_ATEXIT
 		atexit(free_static_shapers);
 #endif

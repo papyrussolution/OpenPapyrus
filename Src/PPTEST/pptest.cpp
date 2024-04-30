@@ -1554,9 +1554,6 @@ static void Test_LibPhoneNumber()
 #endif
 }
 
-//#include <memory>
-//#include <string>
-
 //void TestPow10Tab(); // prototype(dconvstr.c)
 
 int DoConstructionTest()
@@ -1631,9 +1628,9 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	PPChZnPrcssr::Test();
+	TestGtinStruc();
+	//PPChZnPrcssr::Test();
 	//GumboTest();
-	//TestGtinStruc();
 	//Test_SSystemBackup();
 	//TestPow10Tab();
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");

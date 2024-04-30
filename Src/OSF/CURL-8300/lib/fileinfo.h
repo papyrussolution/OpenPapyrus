@@ -24,10 +24,6 @@
 *
 ***************************************************************************/
 
-//#include <curl/curl.h>
-//#include "llist.h"
-//#include "dynbuf.h"
-
 struct fileinfo {
 	struct curl_fileinfo info;
 	struct Curl_llist_element list;

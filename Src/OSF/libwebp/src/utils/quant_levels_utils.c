@@ -14,7 +14,6 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
 #include "src/utils/quant_levels_utils.h"
 
 #define NUM_SYMBOLS     256

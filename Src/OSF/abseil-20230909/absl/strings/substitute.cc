@@ -15,11 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/substitute.h"
-//#include <algorithm>
-//#include <cassert>
-//#include <cstddef>
-//#include <cstdint>
-//#include <string>
 #include "absl/base/config.h"
 #include "absl/base/internal/raw_logging.h"
 #include "absl/strings/ascii.h"

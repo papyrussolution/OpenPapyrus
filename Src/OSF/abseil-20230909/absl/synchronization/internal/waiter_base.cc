@@ -15,8 +15,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/synchronization/internal/waiter_base.h"
-//#include "absl/base/config.h"
-//#include "absl/base/internal/thread_identity.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

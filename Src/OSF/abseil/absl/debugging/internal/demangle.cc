@@ -362,9 +362,9 @@ static void STDCALL Append(State * state, const char * const str, const int leng
 }
 
 // We don't use equivalents in libc to avoid locale issues.
-static bool FASTCALL IsLower(char c) { return c >= 'a' && c <= 'z'; }
-static bool FASTCALL IsAlpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
-static bool FASTCALL IsDigit(char c) { return c >= '0' && c <= '9'; }
+//static bool FASTCALL IsLower(char c) { return c >= 'a' && c <= 'z'; }
+//static bool FASTCALL IsAlpha(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
+// @v12.0.0 (replaced with isdec) static bool FASTCALL IsDigit(char c) { return c >= '0' && c <= '9'; }
 
 // Returns true if "str" is a function clone suffix.  These suffixes are used
 // by GCC 4.5.x and later versions (and our locally-modified version of GCC
@@ -377,17 +377,17 @@ static bool FASTCALL IsFunctionCloneSuffix(const char * str)
 	while(str[i] != '\0') {
 		bool parsed = false;
 		// Consume a single [.<alpha> | _]*[.<digit>]* sequence.
-		if(str[i] == '.' && (IsAlpha(str[i + 1]) || str[i + 1] == '_')) {
+		if(str[i] == '.' && (isasciialpha(str[i + 1]) || str[i + 1] == '_')) {
 			parsed = true;
 			i += 2;
-			while(IsAlpha(str[i]) || str[i] == '_') {
+			while(isasciialpha(str[i]) || str[i] == '_') {
 				++i;
 			}
 		}
-		if(str[i] == '.' && IsDigit(str[i + 1])) {
+		if(str[i] == '.' && isdec(str[i + 1])) {
 			parsed = true;
 			i += 2;
-			while(IsDigit(str[i])) {
+			while(isdec(str[i])) {
 				++i;
 			}
 		}
@@ -414,8 +414,7 @@ static void STDCALL MaybeAppendWithLength(State * state, const char * const str,
 		}
 		// Remember the last identifier name for ctors/dtors,
 		// but only if we haven't yet overflown the buffer.
-		if(state->parse_state.out_cur_idx < state->out_end_idx &&
-		    (IsAlpha(str[0]) || str[0] == '_')) {
+		if(state->parse_state.out_cur_idx < state->out_end_idx && (isasciialpha(str[0]) || str[0] == '_')) {
 			state->parse_state.prev_name_idx = state->parse_state.out_cur_idx;
 			state->parse_state.prev_name_length = length;
 		}
@@ -834,7 +833,7 @@ static bool FASTCALL ParseNumber(State * state, int * number_out)
 	const char * p = RemainingInput(state);
 	uint64_t number = 0;
 	for(; *p != '\0'; ++p) {
-		if(IsDigit(*p)) {
+		if(isdec(*p)) {
 			number = number * 10 + (*p - '0');
 		}
 		else {
@@ -866,7 +865,7 @@ static bool FASTCALL ParseFloatNumber(State * state)
 	if(guard.IsTooComplex()) return false;
 	const char * p = RemainingInput(state);
 	for(; *p != '\0'; ++p) {
-		if(!IsDigit(*p) && !(*p >= 'a' && *p <= 'f')) {
+		if(!isdec(*p) && !(*p >= 'a' && *p <= 'f')) {
 			break;
 		}
 	}
@@ -886,7 +885,7 @@ static bool FASTCALL ParseSeqId(State * state)
 		return false;
 	const char * p = RemainingInput(state);
 	for(; *p != '\0'; ++p) {
-		if(!IsDigit(*p) && !(*p >= 'A' && *p <= 'Z')) {
+		if(!isdec(*p) && !(*p >= 'A' && *p <= 'Z')) {
 			break;
 		}
 	}
@@ -928,22 +927,20 @@ static bool FASTCALL ParseOperatorName(State * state, int * arity)
 	// First check with "cv" (cast) case.
 	ParseState copy = state->parse_state;
 	if(ParseTwoCharToken(state, "cv") && MaybeAppend(state, "operator ") &&
-	    EnterNestedName(state) && ParseType(state) &&
-	    LeaveNestedName(state, copy.nest_level)) {
+	    EnterNestedName(state) && ParseType(state) && LeaveNestedName(state, copy.nest_level)) {
 		if(arity != nullptr) {
 			*arity = 1;
 		}
 		return true;
 	}
 	state->parse_state = copy;
-
 	// Then vendor extended operators.
 	if(ParseOneCharToken(state, 'v') && ParseDigit(state, arity) && ParseSourceName(state)) {
 		return true;
 	}
 	state->parse_state = copy;
 	// Other operator names should start with a lower alphabet followed by a lower/upper alphabet.
-	if(!(IsLower(RemainingInput(state)[0]) && IsAlpha(RemainingInput(state)[1]))) {
+	if(!(isasciilwr(RemainingInput(state)[0]) && isasciialpha(RemainingInput(state)[1]))) {
 		return false;
 	}
 	// We may want to perform a binary search if we really need speed.
@@ -955,7 +952,7 @@ static bool FASTCALL ParseOperatorName(State * state, int * arity)
 				*arity = p->arity;
 			}
 			MaybeAppend(state, "operator");
-			if(IsLower(*p->real_name)) { // new, delete, etc.
+			if(isasciilwr(*p->real_name)) { // new, delete, etc.
 				MaybeAppend(state, " ");
 			}
 			MaybeAppend(state, p->real_name);

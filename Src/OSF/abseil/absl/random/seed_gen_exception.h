@@ -15,9 +15,6 @@
 #ifndef ABSL_RANDOM_SEED_GEN_EXCEPTION_H_
 #define ABSL_RANDOM_SEED_GEN_EXCEPTION_H_
 
-//#include <exception>
-//#include "absl/base/config.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 

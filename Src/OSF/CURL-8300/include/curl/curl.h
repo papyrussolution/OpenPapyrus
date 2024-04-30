@@ -61,8 +61,6 @@
 	!defined(__SYMBIAN32__)
 #define CURL_WIN32
 #endif
-//#include <stdio.h>
-//#include <limits.h>
 #if (defined(__FreeBSD__) && (__FreeBSD__ >= 2)) || defined(__MidnightBSD__)
 	#include <osreldate.h> // Needed for __FreeBSD_version or __MidnightBSD_version symbol definition 
 #endif

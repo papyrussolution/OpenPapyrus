@@ -48,13 +48,8 @@
  * RSS Expanded > GS1 DataBar Expanded Omnidirectional
  * RSS Expanded Stacked > GS1 DataBar Expanded Stacked Omnidirectional
  */
-
 #include "common.h"
 #pragma hdrstop
-//#include "rss.h"
-//#include "large.h"
-//#include "gs1.h"
-
 //
 // Data tables for Reduced Space Symbology
 //

@@ -114,7 +114,6 @@ int ma_close(MA_FILE * file)
 	int rc;
 	if(!file)
 		return -1;
-
 	switch(file->type) {
 		case MA_FILE_LOCAL:
 		    rc = fclose((FILE*)file->ptr);
@@ -138,7 +137,6 @@ int ma_feof(MA_FILE * file)
 {
 	if(!file)
 		return -1;
-
 	switch(file->type) {
 		case MA_FILE_LOCAL:
 		    return feof((FILE*)file->ptr);
@@ -184,7 +182,6 @@ char * ma_gets(char * ptr, size_t size, MA_FILE * file)
 {
 	if(!file)
 		return NULL;
-
 	switch(file->type) {
 		case MA_FILE_LOCAL:
 		    return fgets(ptr, (int)size, (FILE*)file->ptr);

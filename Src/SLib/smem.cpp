@@ -1,5 +1,5 @@
 // SMEM.CPP
-// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -27,12 +27,12 @@
 bool FASTCALL ismemzero(const void * p, size_t s)
 {
 	switch(s) {
-		case  1: return BIN(PTR8C(p)[0] == 0);
-		case  2: return BIN(PTR16C(p)[0] == 0);
-		case  4: return BIN(PTR32C(p)[0] == 0);
-		case  8: return BIN(PTR32C(p)[0] == 0 && PTR32C(p)[1] == 0);
-		case 12: return BIN(PTR32C(p)[0] == 0 && PTR32C(p)[1] == 0 && PTR32C(p)[2] == 0);
-		case 16: return BIN(PTR32C(p)[0] == 0 && PTR32C(p)[1] == 0 && PTR32C(p)[2] == 0 && PTR32C(p)[3] == 0);
+		case  1: return (PTR8C(p)[0] == 0);
+		case  2: return (PTR16C(p)[0] == 0);
+		case  4: return (PTR32C(p)[0] == 0);
+		case  8: return (PTR32C(p)[0] == 0 && PTR32C(p)[1] == 0);
+		case 12: return (PTR32C(p)[0] == 0 && PTR32C(p)[1] == 0 && PTR32C(p)[2] == 0);
+		case 16: return (PTR32C(p)[0] == 0 && PTR32C(p)[1] == 0 && PTR32C(p)[2] == 0 && PTR32C(p)[3] == 0);
 	}
 	size_t v = s / 4;
 	size_t m = s % 4;

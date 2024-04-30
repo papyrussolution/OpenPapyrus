@@ -7,8 +7,6 @@
 #include "archive_platform.h"
 #pragma hdrstop
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_cpio_newc.c 201160 2009-12-29 05:41:57Z kientzle $");
-//#include "archive_entry_locale.h"
-//#include "archive_write_set_format_private.h"
 
 static ssize_t  archive_write_newc_data(struct archive_write *, const void * buff, size_t s);
 static int archive_write_newc_close(struct archive_write *);
