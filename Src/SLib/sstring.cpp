@@ -2575,6 +2575,17 @@ int STDCALL SString::CmpSuffix(const char * pS, int ignoreCase) const
 	}
 }
 
+bool FASTCALL SString::HasSuffix(const char * pS) const
+{
+	if(P_Buf == 0 || pS == 0)
+		return false;
+	else {
+		const  size_t len = strlen(pS);
+		const  int delta = static_cast<int>(Len())-static_cast<int>(len);
+		return (len && delta >= 0) ? (memcmp(P_Buf+delta, pS, len) == 0) : false;
+	}
+}
+
 uint SString::OneOf(int div, const char * pPattern, int ignoreCase) const
 {
 	if(P_Buf && !isempty(pPattern)) {
@@ -3262,6 +3273,21 @@ bool SString::IsDec() const
 	if(len) {
 		for(size_t i = 0; ok && i < len; i++) {
 			if(!isdec(P_Buf[i]))
+				ok = false;
+		}
+	}
+	else
+		ok = false;
+	return ok;
+}
+
+bool SString::IsHex() const
+{
+	const  size_t len = Len();
+	bool   ok = true;
+	if(len) {
+		for(size_t i = 0; ok && i < len; i++) {
+			if(!ishex(P_Buf[i]))
 				ok = false;
 		}
 	}

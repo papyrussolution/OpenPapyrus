@@ -35,9 +35,9 @@
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+//#ifdef HAVE_ARPA_INET_H
+	//#include <arpa/inet.h>
+//#endif
 #ifdef __VMS
 #include <in.h>
 #include <inet.h>

@@ -28,20 +28,20 @@
 //#include <netinet/in.h>
 //#endif
 #ifdef HAVE_NETINET_IN6_H
-#include <netinet/in6.h>
+	#include <netinet/in6.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+//#ifdef HAVE_ARPA_INET_H
+	//#include <arpa/inet.h>
+//#endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+	#include <in.h>
+	#include <inet.h>
 #endif
 #ifdef HAVE_SIGNAL_H
-#include <signal.h>
+	#include <signal.h>
 #endif
 #include "rand.h"
 #include "share.h"

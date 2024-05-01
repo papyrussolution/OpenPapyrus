@@ -40,9 +40,9 @@ int GetMACAddrList(MACAddrArray *);
 //
 //
 //
-class SIpAddr : public binary128 { // @persistent @size=16
+class S_IPAddr : public binary128 { // @persistent @size=16 // @v12.0.0 @construction
 public:
-	SIpAddr();
+	S_IPAddr();
 	bool    IsIp4() const;
 	bool    IsIp6() const;
 	SString & ToStr(long fmt, SString & rBuf) const;

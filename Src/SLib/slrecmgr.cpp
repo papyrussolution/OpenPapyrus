@@ -76,37 +76,50 @@ struct SDataPageHeader {
 		ENDCATCH
 		return pfx_size;
 	}
-	uint32 WriteRecPrefix(const RecPrefix & rPfx)
+	uint32 EvaluateRecPrefix(const RecPrefix & rPfx, uint8 * pPfxBuf, uint8 * pFlags) const
 	{
-		uint8 pfx_buf[32];
 		uint  pfx_size = 0;
 		uint8 flags = 0;
 		pfx_size = 2; // signature + flags
 		if(rPfx.Size < (1U << 8)) {
-			*reinterpret_cast<uint8 *>(pfx_buf+2) = static_cast<uint8>(rPfx.Size);
+			if(pPfxBuf)
+				*reinterpret_cast<uint8 *>(pPfxBuf+2) = static_cast<uint8>(rPfx.Size);
 			pfx_size += 1; 
 			flags = 0x01;
 		}
 		else if(rPfx.Size < (1U << 16)) {
-			*reinterpret_cast<uint16 *>(pfx_buf+2) = static_cast<uint16>(rPfx.Size);
+			if(pPfxBuf)
+				*reinterpret_cast<uint16 *>(pPfxBuf+2) = static_cast<uint16>(rPfx.Size);
 			pfx_size += 2;
 			flags = 0x02;
 		}
 		else if(rPfx.Size < (1 << 24)) {
-			*reinterpret_cast<uint32 *>(pfx_buf+2) = static_cast<uint32>(rPfx.Size);
-			assert(pfx_buf[5] == 0);
+			if(pPfxBuf) {
+				*reinterpret_cast<uint32 *>(pPfxBuf+2) = static_cast<uint32>(rPfx.Size);
+				assert(pPfxBuf[5] == 0);
+			}
 			pfx_size += 3;
 			flags = 0x03;
 		}
 		else {
-			*reinterpret_cast<uint32 *>(pfx_buf+2) = static_cast<uint32>(rPfx.Size);
+			if(pPfxBuf)
+				*reinterpret_cast<uint32 *>(pPfxBuf+2) = static_cast<uint32>(rPfx.Size);
 			pfx_size += 4;
 			flags = 0x00;
 		}
 		if(rPfx.Flags & RecPrefix::fDeleted)
 			flags |= RecPrefix::fDeleted;
-		pfx_buf[0] = RecPrefix::Signature;
-		pfx_buf[1] = flags;
+		if(pPfxBuf) {
+			pPfxBuf[0] = RecPrefix::Signature;
+			pPfxBuf[1] = flags;
+		}
+		ASSIGN_PTR(pFlags, flags);
+		return pfx_size;		
+	}
+	uint32 WriteRecPrefix(const RecPrefix & rPfx)
+	{
+		uint8 pfx_buf[32];
+		const uint  pfx_size = EvaluateRecPrefix(rPfx, pfx_buf, 0);
 		if((rPfx.Size+pfx_size) <= GetFreeSize()) {
 			memcpy(PTR8(this) + FreePos, pfx_buf, pfx_size);
 			return pfx_size;
@@ -153,7 +166,7 @@ struct SDataPageHeader {
 		}
 		return p_result;
 	}
-	static SDataPageHeader * Allocate(uint32 type, uint totalSize)
+	static SDataPageHeader * Allocate(uint32 type, uint32 seq, uint totalSize)
 	{
 		SDataPageHeader * p_result = 0;
 		assert(totalSize > (sizeof(SDataPageHeader) + EndSentinelSize()));
@@ -163,6 +176,7 @@ struct SDataPageHeader {
 			p_result = static_cast<SDataPageHeader *>(ptr);
 			p_result->Signature = SignatureValue;
 			p_result->Type = type;
+			p_result->Seq = seq;
 			p_result->TotalSize = totalSize;
 			p_result->FreePos = static_cast<uint32>(sizeof(SDataPageHeader));
 		}
@@ -182,23 +196,32 @@ struct SDataPageHeader {
 
 class SRecPageManager {
 public:
-	SRecPageManager() : LastSeq(0)
+	SRecPageManager(uint32 pageSize) : PageSize(pageSize), LastSeq(0)
 	{
 	}
 	~SRecPageManager()
 	{
 	}
-	int    Write(uint64 * pRecId, uint pageType, const void * pData, size_t dataLen)
+	int    Write(uint64 * pRowId, uint pageType, const void * pData, size_t dataLen)
 	{
 		int    ok = 1;
 		return ok;
 	}
-	int    Read(uint64 recId, void * pBuf, size_t bufSize)
+	int    Read(uint64 rowId, void * pBuf, size_t bufSize)
 	{
 		int    ok = 1;
 		return ok;
+	}
+	SDataPageHeader * AllocatePage(uint32 type)
+	{
+		SDataPageHeader * p_new_page = SDataPageHeader::Allocate(type, ++LastSeq, PageSize);
+		if(p_new_page) {
+			L.insert(p_new_page);
+		}
+		return p_new_page;
 	}
 private:
+	const uint32 PageSize;
 	uint32 LastSeq;
 	TSCollection <SDataPageHeader> L;
 };

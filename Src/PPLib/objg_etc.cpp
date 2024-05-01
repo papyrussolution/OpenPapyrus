@@ -1068,7 +1068,7 @@ struct PPComputerSysBlock { // @persistent @store(PropertyTbl)
 	PPID   PropID;         // Const=COMPUTERPRP_SYS
 	char   Reserve[42];    //
 	MACAddr MacAdr;        // 6bytes
-	binary128 IpAdr;       // 16bytes 
+	S_IPAddr IpAdr;        // 16bytes 
 	long   Val1;           // @reserve 
 	long   Val2;           // @reserve
 };
@@ -1248,9 +1248,11 @@ public:
 		else
 			temp_buf.Z();
 		setCtrlString(CTL_COMPUTER_MACADR, temp_buf);
-		if(!Data.Rec.IpAdr.IsZero()) {
-			
-		}
+		if(!Data.Rec.IpAdr.IsZero())
+			Data.Rec.IpAdr.ToStr(0, temp_buf);
+		else
+			temp_buf.Z();
+		setCtrlString(CTL_COMPUTER_IPADR, temp_buf);
 		{
 			ImageBrowseCtrlGroup::Rec rec;
 			Data.LinkFiles.Init(PPOBJ_COMPUTER);
@@ -1265,8 +1267,13 @@ public:
 	{
 		int    ok = 1;
 		uint   sel = 0;
+		SString temp_buf;
 		getCtrlData(sel = CTL_COMPUTER_NAME,  Data.Rec.Name);
 		THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
+		getCtrlString(CTL_COMPUTER_MACADR, temp_buf);
+		// @todo MACAddr::FromStr
+		getCtrlString(CTL_COMPUTER_IPADR, temp_buf);
+		Data.Rec.IpAdr.FromStr(temp_buf); // @todo check error
 		{
 			ImageBrowseCtrlGroup::Rec rec;
 			if(getGroupData(ctlgroupIbg, &rec))
@@ -1287,9 +1294,36 @@ private:
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmTags)) {
 			Data.TagL.ObjType = PPOBJ_COMPUTER;
-			EditObjTagValList(&Data.TagL, 0);
-			clearEvent(event);
+			if(EditObjTagValList(&Data.TagL, 0) > 0) {
+				const ObjTagItem * p_tag_item = Data.TagL.GetItem(PPTAG_COMPUTER_GUID);
+				S_GUID uuid;
+				if(p_tag_item && p_tag_item->GetGuid(&uuid)) {
+					Data.Rec.Uuid = uuid;
+					{
+						SString temp_buf;
+						if(!!Data.Rec.Uuid)
+							Data.Rec.Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+						else
+							temp_buf.Z();
+						setCtrlString(CTL_COMPUTER_UUID, temp_buf);
+					}
+				}
+			}
 		}
+		else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_COMPUTER_UUID)) {
+			SString temp_buf;
+			getCtrlString(CTL_COMPUTER_UUID, temp_buf);
+			S_GUID uuid;
+			if(temp_buf.IsEmpty() || uuid.FromStr(temp_buf)) {
+				ObjTagItem tag_item;
+				if(tag_item.SetGuid(PPTAG_COMPUTER_GUID, &uuid)) {
+					Data.TagL.PutItem(PPTAG_COMPUTER_GUID, &tag_item);
+				}
+			}
+		}
+		else
+			return;
+		clearEvent(event);
 	}
 };
 

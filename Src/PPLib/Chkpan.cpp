@@ -379,7 +379,7 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack, con
 		SETFLAG(pPack->Rec.Flags, CCHKF_FIXEDPRICE, Eccd.Flags & Eccd.fFixedPrice);
 		SETFLAG(pPack->Rec.Flags, CCHKF_SPFINISHED, Eccd.Flags & Eccd.fSpFinished);
 		// @v11.3.6 {
-		// @v11.9.8 (похоже, я погорячился, закомментировав этот участок при перестройке работы блока строк расширеня чека) /* @v11.8.11 
+		// @v11.9.8 (похоже, я погорячился, закомментировав этот участок при перестройке работы блока строк расширения чека) /* @v11.8.11 
 		if(!EAddr.IsEmpty()) {
 			if(EAddr.AddrType == SNTOK_EMAIL) {
 				pPack->PutExtStrData(CCheckPacket::extssBuyerEMail, EAddr.EAddr);

@@ -30,21 +30,20 @@
 #ifdef CURLRES_ASYNCH
 
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+//#ifdef HAVE_ARPA_INET_H
+	//#include <arpa/inet.h>
+//#endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+	#include <in.h>
+	#include <inet.h>
 #endif
 #include "share.h"
 #include "url.h"
 #include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"
-
 /*
  * Curl_addrinfo_callback() gets called by ares, gethostbyname_thread()
  * or getaddrinfo_thread() when we got the name resolved (or not!).

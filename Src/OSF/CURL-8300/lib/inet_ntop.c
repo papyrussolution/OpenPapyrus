@@ -29,26 +29,23 @@
 //#ifdef HAVE_NETINET_IN_H
 //#include <netinet/in.h>
 //#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
+//#ifdef HAVE_ARPA_INET_H
+	#include <arpa/inet.h>
+//#endif
 #include "inet_ntop.h"
 //#include "curl_printf.h"
 
 #define IN6ADDRSZ       16
 #define INADDRSZ         4
 #define INT16SZ          2
-
 /*
  * If ENABLE_IPV6 is disabled, we still want to parse IPv6 addresses, so make
  * sure we have _some_ value for AF_INET6 without polluting our fake value
  * everywhere.
  */
 #if !defined(ENABLE_IPV6) && !defined(AF_INET6)
-#define AF_INET6 (AF_INET + 1)
+	#define AF_INET6 (AF_INET + 1)
 #endif
-
 /*
  * Format an IPv4 address, more or less like inet_ntop().
  *
@@ -57,20 +54,17 @@
  *  - uses no statics
  *  - takes a uchar* not an in_addr as input
  */
-static char *inet_ntop4(const uchar * src, char * dst, size_t size)
+static char * inet_ntop4(const uchar * src, char * dst, size_t size)
 {
 	char tmp[sizeof("255.255.255.255")];
 	size_t len;
-
 	assert(size >= 16);
-
 	tmp[0] = '\0';
 	(void)msnprintf(tmp, sizeof(tmp), "%d.%d.%d.%d",
 	    ((int)((uchar)src[0])) & 0xff,
 	    ((int)((uchar)src[1])) & 0xff,
 	    ((int)((uchar)src[2])) & 0xff,
 	    ((int)((uchar)src[3])) & 0xff);
-
 	len = strlen(tmp);
 	if(len == 0 || len >= size) {
 		errno = ENOSPC;
@@ -79,11 +73,10 @@ static char *inet_ntop4(const uchar * src, char * dst, size_t size)
 	strcpy(dst, tmp);
 	return dst;
 }
-
 /*
  * Convert IPv6 binary address into presentation (printable) format.
  */
-static char *inet_ntop6(const uchar * src, char * dst, size_t size)
+static char * inet_ntop6(const uchar * src, char * dst, size_t size)
 {
 	/*
 	 * Note that int32_t and int16_t need only be "at least" large enough
@@ -111,7 +104,6 @@ static char *inet_ntop6(const uchar * src, char * dst, size_t size)
 	cur.base  = -1;
 	best.len = 0;
 	cur.len = 0;
-
 	for(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
 		if(words[i] == 0) {
 			if(cur.base == -1) {

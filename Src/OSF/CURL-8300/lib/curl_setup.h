@@ -751,9 +751,9 @@ typedef struct sockaddr_un {
 #ifdef HAVE_NETDB_H
 	#include <netdb.h>
 #endif
-#ifdef HAVE_ARPA_INET_H
-	#include <arpa/inet.h>
-#endif
+//#ifdef HAVE_ARPA_INET_H
+	//#include <arpa/inet.h>
+//#endif
 #ifdef HAVE_NET_IF_H
 	#include <net/if.h>
 #endif

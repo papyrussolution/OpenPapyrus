@@ -34,26 +34,18 @@
 //#include <netinet/in.h>
 //#endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+//#ifdef HAVE_ARPA_INET_H
+	//#include <arpa/inet.h>
+//#endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+	#include <in.h>
+	#include <inet.h>
 #endif
-
 #if defined(USE_THREADS_POSIX) && defined(HAVE_PTHREAD_H)
-#include <pthread.h>
+	#include <pthread.h>
 #endif
-
-#ifdef HAVE_GETADDRINFO
-#define RESOLVER_ENOMEM  EAI_MEMORY
-#else
-#define RESOLVER_ENOMEM  ENOMEM
-#endif
-
 #include "share.h"
 #include "url.h"
 #include "inet_ntop.h"
@@ -62,6 +54,12 @@
 //#include "curl_printf.h"
 #include "curl_memory.h"
 #include "memdebug.h"
+
+#ifdef HAVE_GETADDRINFO
+	#define RESOLVER_ENOMEM  EAI_MEMORY
+#else
+	#define RESOLVER_ENOMEM  ENOMEM
+#endif
 
 struct resdata {
 	struct curltime start;

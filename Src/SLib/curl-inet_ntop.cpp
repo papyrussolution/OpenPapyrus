@@ -115,8 +115,9 @@ static char * FASTCALL inet_ntop6(const uchar * src, char * dst, size_t size)
 	cur.len = 0;
 	for(i = 0; i < (IN6ADDRSZ / INT16SZ); i++) {
 		if(words[i] == 0) {
-			if(cur.base == -1)
+			if(cur.base == -1) {
 				cur.base = i, cur.len = 1;
+			}
 			else
 				cur.len++;
 		}

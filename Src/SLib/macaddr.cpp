@@ -333,16 +333,16 @@ int GetFirstMACAddr(MACAddr * pAddr)
 //
 //
 //
-SIpAddr::SIpAddr() : binary128()
+S_IPAddr::S_IPAddr() : binary128()
 {
 }
 	
-bool SIpAddr::IsIp4() const
+bool S_IPAddr::IsIp4() const
 {
 	return IsZero() ? false : ismemzero(D+4, sizeof(binary128)-4);
 }
 	
-bool SIpAddr::IsIp6() const
+bool S_IPAddr::IsIp6() const
 {
 	return IsZero() ? false : !ismemzero(D+4, sizeof(binary128)-4);
 }
@@ -375,7 +375,7 @@ char * ossl_ipaddr_to_asc(uchar * p, int len)
 }
 */ 
 
-SString & SIpAddr::ToStr(long fmt, SString & rBuf) const
+SString & S_IPAddr::ToStr(long fmt, SString & rBuf) const
 {
 	rBuf.Z();
 	if(IsZero()) {
@@ -400,7 +400,7 @@ SString & SIpAddr::ToStr(long fmt, SString & rBuf) const
 	return rBuf;
 }
 
-bool SIpAddr::FromStr(const char * pStr)
+bool S_IPAddr::FromStr(const char * pStr) // @construction
 {
 	bool    ok = true;
 	THROW(!isempty(pStr));
@@ -447,8 +447,53 @@ bool SIpAddr::FromStr(const char * pStr)
 			}
 			else if(p_colon) {
 				if(!p_dot || dot_pos > colon_pos) {
+					constexpr uint __end_break_pos_value = 1000;
+					uint break_pos = 0;
+					if(src_buf.HasPrefix("::")) {
+						break_pos = 1;
+						src_buf.ShiftLeft(2);
+					}
+					else if(src_buf.HasSuffix("::")) {
+						break_pos = __end_break_pos_value; // special-value
+						src_buf.Trim(src_buf.Len()-2);
+					}
 					StringSet ss(':', src_buf);
-					uint _v[8];
+					TSVector <uint> _v;
+					uint _c = 0;
+					const uint ss_count = ss.getCount();
+					for(uint ssp = 0; ss.get(&ssp, temp_buf); _c++) {
+						THROW(_c < 8);
+						if(temp_buf.IsEmpty()) {
+							THROW(break_pos == 0); 
+							SETIFZ(break_pos, _c+1);
+						}
+						else {
+							THROW(temp_buf.Len() <= 4 && temp_buf.IsHex());
+							uint v = _texttohex32(temp_buf.cptr(), temp_buf.Len());
+							_v.insert(&v);
+						}
+					}
+					THROW(_c > 0);
+					if(break_pos) {
+						const uint zero = 0U;
+						const uint vc = _v.getCount();
+						if(break_pos == __end_break_pos_value) {
+							for(uint i = 0; i < (8 - vc); i++) 
+								_v.insert(&zero);
+						}
+						else {
+							for(uint i = 0; i < (8 - vc); i++) 
+								_v.atInsert(break_pos-1, &zero);
+						}
+					}
+					THROW(_v.getCount() == 8);
+					{
+						for(uint i = 0; i < _v.getCount(); i++) {
+							const uint32 v = _v.at(i);
+							assert(v < (1 << 16));
+							*reinterpret_cast<uint16 *>(D + (i<<1)) = static_cast<uint16>(v);
+						}
+					}
 				}
 			}
 		}

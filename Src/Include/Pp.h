@@ -30998,7 +30998,7 @@ struct PPComputer { // @flat
 	long   Flags;
 	S_GUID  Uuid;
 	MACAddr MacAdr;        // 		
-	binary128 IpAdr;
+	S_IPAddr IpAdr;
 };
 
 class PPComputerPacket {

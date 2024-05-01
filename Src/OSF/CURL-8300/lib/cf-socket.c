@@ -25,29 +25,28 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifdef HAVE_SYS_UN_H
-#include <sys/un.h> /* for sockaddr_un */
+	#include <sys/un.h> /* for sockaddr_un */
 #endif
 #ifdef HAVE_LINUX_TCP_H
-#include <linux/tcp.h>
+	#include <linux/tcp.h>
 #elif defined(HAVE_NETINET_TCP_H)
-#include <netinet/tcp.h>
+	#include <netinet/tcp.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+	#include <sys/ioctl.h>
 #endif
 #ifdef HAVE_NETDB_H
-#include <netdb.h>
+	#include <netdb.h>
 #endif
 #ifdef HAVE_FCNTL_H
-#include <fcntl.h>
+	#include <fcntl.h>
 #endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-
+//#ifdef HAVE_ARPA_INET_H
+	//#include <arpa/inet.h>
+//#endif
 #ifdef __VMS
-#include <in.h>
-#include <inet.h>
+	#include <in.h>
+	#include <inet.h>
 #endif
 #include "if2ip.h"
 #include "strerror.h"

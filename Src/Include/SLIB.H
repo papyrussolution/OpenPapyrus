@@ -4146,6 +4146,7 @@ public:
 	//
 	int    STDCALL CmpL(const char * pS, int ignoreCase) const;
 	int    STDCALL CmpSuffix(const char * pS, int ignoreCase) const;
+	bool   FASTCALL HasSuffix(const char * pS) const; // @v12.0.0
 	//
 	// Descr: Ищет совпадения между строкой this и одной из подстрок
 	//   строки pPattern. Подстроки разделяются символом div.
@@ -4239,6 +4240,11 @@ public:
 	//   Если строка пустая, то возвращает false.
 	//
 	bool   IsDec() const;
+	//
+	// Descr: Возвращает true в случае, если все символы строки являются шестнадцатиричными цифрами, иначе false.
+	//   Если строка пустая, то возвращает false.
+	//
+	bool   IsHex() const;
 	long   ToLong() const;
 	ulong  ToULong() const;
 	int64  ToInt64() const;
@@ -8785,7 +8791,7 @@ public:
 	int    addUniqueExclusive(const LongArray * pS, const LongArray * pExcl);
 	//
 	// Descr: То же, что и addUniqueExclusive(), но не проверяет добавляемые элементы на уникальность.
-	//   За счет этого функция работает на много быстрее, чем addUniqueExclusive().
+	//   За счет этого функция работает намного быстрее, чем addUniqueExclusive().
 	//
 	int    addExclusive(const LongArray * pS, const LongArray * pExcl);
 	enum {

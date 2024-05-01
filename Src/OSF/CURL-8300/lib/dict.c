@@ -33,26 +33,24 @@
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
+//#ifdef HAVE_ARPA_INET_H
+	//#include <arpa/inet.h>
+//#endif
 #ifdef HAVE_NET_IF_H
-#include <net/if.h>
+	#include <net/if.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-#include <sys/ioctl.h>
+	#include <sys/ioctl.h>
 #endif
-
 #ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
+	#include <sys/param.h>
 #endif
-
 #ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
+	#include <sys/select.h>
 #elif defined(HAVE_UNISTD_H)
-#include <unistd.h>
+	#include <unistd.h>
 #endif
-#include "dict.h"
+	#include "dict.h"
 #include "curl_memory.h"
 /* The last #include file should be: */
 #include "memdebug.h"

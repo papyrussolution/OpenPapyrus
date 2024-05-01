@@ -463,7 +463,7 @@ SLTEST_R(Uri)
 //
 //
 //
-SLTEST_R(SIpAddr)
+SLTEST_R(S_IPAddr)
 {
 	SString temp_buf;
 	const char * pp_ip4_list[] = {
@@ -474,7 +474,7 @@ SLTEST_R(SIpAddr)
 		"217.77.50.185"
 	};
 	{
-		SIpAddr ia;
+		S_IPAddr ia;
 		for(uint i = 0; i < SIZEOFARRAY(pp_ip4_list); i++) {
 			const char * p_ip4_addr = pp_ip4_list[i];
 			SLCHECK_NZ(ia.FromStr(p_ip4_addr));
@@ -490,6 +490,12 @@ SLTEST_R(SIpAddr)
 			}
 			ia.ToStr(0, temp_buf);
 			SLCHECK_EQ(temp_buf, p_ip4_addr);
+			{
+				//char * STDCALL Sl_Curl_InetNtop(int af, const void * pSrc, char * pBuf, size_t bufSize)
+				char    inetntop_buf[128];
+				Sl_Curl_InetNtop(AF_INET, ia.D, inetntop_buf, sizeof(inetntop_buf));
+				SLCHECK_EQ(temp_buf, inetntop_buf);
+			}
 		}
 	}
 	return CurrentStatus;

@@ -738,13 +738,10 @@ quit:
 	if(ldap_ssl)
 		ldapssl_client_deinit();
 #endif /* HAVE_LDAP_SSL && CURL_HAS_NOVELL_LDAPSDK */
-
 	FREE_ON_WINLDAP(host);
-
 	/* no data to transfer */
 	Curl_setup_transfer(data, -1, -1, FALSE, -1);
 	connclose(conn, "LDAP connection always disable reuse");
-
 	return result;
 }
 
@@ -753,7 +750,6 @@ static void _ldap_trace(const char * fmt, ...)
 {
 	static int do_trace = -1;
 	va_list args;
-
 	if(do_trace == -1) {
 		const char * env = getenv("CURL_TRACE");
 		do_trace = (env && strtol(env, NULL, 10) > 0);
@@ -765,7 +761,6 @@ static void _ldap_trace(const char * fmt, ...)
 	vfprintf(stderr, fmt, args);
 	va_end(args);
 }
-
 #endif
 
 #ifndef HAVE_LDAP_URL_PARSE
@@ -787,7 +782,6 @@ static int str2scope(const char * p)
 		return LDAP_SCOPE_SUBTREE;
 	return (-1);
 }
-
 /*
  * Split 'str' into strings separated by commas.
  * Note: out[] points into 'str'.
@@ -796,10 +790,9 @@ static bool split_str(char * str, char *** out, size_t * count)
 {
 	char ** res;
 	char * lasts;
-	char * s;
 	size_t i;
 	size_t items = 1;
-	s = sstrchr(str, ',');
+	char * s = sstrchr(str, ',');
 	while(s) {
 		items++;
 		s = sstrchr(++s, ',');
@@ -807,14 +800,12 @@ static bool split_str(char * str, char *** out, size_t * count)
 	res = (char **)SAlloc::C(items, sizeof(char *));
 	if(!res)
 		return FALSE;
-	for(i = 0, s = strtok_r(str, ",", &lasts); s && i < items;
-	    s = strtok_r(NULL, ",", &lasts), i++)
+	for(i = 0, s = strtok_r(str, ",", &lasts); s && i < items; s = strtok_r(NULL, ",", &lasts), i++)
 		res[i] = s;
 	*out = res;
 	*count = items;
 	return TRUE;
 }
-
 /*
  * Break apart the pieces of an LDAP URL.
  * Syntax:
@@ -885,37 +876,30 @@ static int _ldap_url_parse2(struct Curl_easy * data,
 
 		/* Free the unescaped string as we are done with it */
 		SAlloc::F(unescaped);
-
 		if(!ludp->lud_dn) {
 			rc = LDAP_NO_MEMORY;
-
 			goto quit;
 		}
 #else
 		ludp->lud_dn = unescaped;
 #endif
 	}
-
 	p = q;
 	if(!p)
 		goto quit;
-
 	/* Parse the attributes. skip "??" */
 	q = sstrchr(p, '?');
 	if(q)
 		*q++ = '\0';
-
 	if(*p) {
 		char ** attributes;
 		size_t count = 0;
-
 		/* Split the string into an array of attributes */
 		if(!split_str(p, &attributes, &count)) {
 			rc = LDAP_NO_MEMORY;
 
 			goto quit;
 		}
-
 		/* Allocate our array (+1 for the NULL entry) */
 #if defined(USE_WIN32_LDAP)
 		ludp->lud_attrs = (TCHAR **)SAlloc::C(count + 1, sizeof(TCHAR *));
@@ -936,24 +920,17 @@ static int _ldap_url_parse2(struct Curl_easy * data,
 				REJECT_ZERO);
 			if(result) {
 				SAlloc::F(attributes);
-
 				rc = LDAP_NO_MEMORY;
-
 				goto quit;
 			}
-
 #if defined(USE_WIN32_LDAP)
 			/* Convert the unescaped string to a tchar */
 			ludp->lud_attrs[i] = curlx_convert_UTF8_to_tchar(unescaped);
-
 			/* Free the unescaped string as we are done with it */
 			SAlloc::F(unescaped);
-
 			if(!ludp->lud_attrs[i]) {
 				SAlloc::F(attributes);
-
 				rc = LDAP_NO_MEMORY;
-
 				goto quit;
 			}
 #else

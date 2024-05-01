@@ -40,9 +40,9 @@
 #ifdef HAVE_FCNTL_H
 	#include <fcntl.h>
 #endif
-#ifdef HAVE_ARPA_INET_H
-	#include <arpa/inet.h>
-#endif
+//#ifdef HAVE_ARPA_INET_H
+	//#include <arpa/inet.h>
+//#endif
 #ifdef __VMS
 	#include <in.h>
 	#include <inet.h>
