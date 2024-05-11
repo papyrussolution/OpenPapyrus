@@ -3460,6 +3460,29 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				}
 			}
 			break;
+		case PPSCMD_WSCTL_REGISTERCOMPUTER: // @v12.0.0
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
+			SETIFZQ(P_WsCtlBlk, new WsCtlSrvBlock());
+			{
+				const LDATETIME now_dtm = getcurdatetime_();
+				SString raw_text;
+				if(pEv->ReadLine(raw_text)) {
+					raw_text.Chomp().Strip();
+					WsCtlSrvBlock::ComputerRegistrationBlock _blk;
+					STempBuffer bin_buf(raw_text.Len()*3);
+					size_t actual_len = 0;
+					THROW_SL(raw_text.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_len));
+					SETIFZQ(P_WsCtlBlk, new WsCtlSrvBlock());
+					temp_buf.Z().CatN(bin_buf.cptr(), actual_len);
+					THROW_SL(p_js_param = SJson::Parse(temp_buf));
+					THROW(_blk.FromJsonObj(p_js_param));
+					_blk.Name.Transf(CTRANSF_UTF8_TO_INNER);
+					{
+						THROW(P_WsCtlBlk->RegisterComputer(_blk));
+					}
+				}
+			}
+			break;
 		case PPSCMD_WSCTL_REGISTRATION: // @v11.9.10 WSCTL Регистрация клиента
 			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
@@ -3841,8 +3864,6 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				rReply.SetString(temp_buf);
 				ok = cmdretOK;				
 			}
-			break;
-		case PPSCMD_WSCTL_REGISTERCOMPUTER: // @v12.0.0
 			break;
 		/*
 		case PPSCMD_GETTSESSPLACESTATUS:

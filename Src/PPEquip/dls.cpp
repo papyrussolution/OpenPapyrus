@@ -584,7 +584,7 @@ DBQuery * PPViewDvcLoadingStat::CreateBrowserQuery(uint * pBrwId, SString * pSub
 		pSubTitle->Space();
 		GetDvcName(Filt.DvcType, pSubTitle);
 		pSubTitle->Space();
-		GetObjectName(dvc_obj_type, Filt.DvcID, *pSubTitle, 1);
+		CatObjectName(dvc_obj_type, Filt.DvcID, *pSubTitle);
 	}
 	if(Filt.DvcType == dvctCashs) {
 		PPDbqFuncPool::InitObjNameFunc(dbe_dvc, PPDbqFuncPool::IdObjNameCashNode, p_tbl->DvcID);
@@ -821,7 +821,7 @@ DBQuery * PPViewDLSDetail::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	if(pSubTitle) {
 		GetDvcName(Filt.DvcType, pSubTitle);
 		pSubTitle->Space();
-		GetObjectName((Filt.DvcType == dvctCashs) ? PPOBJ_CASHNODE : PPOBJ_SCALE, Filt.DvcID, *pSubTitle, 1);
+		CatObjectName((Filt.DvcType == dvctCashs) ? PPOBJ_CASHNODE : PPOBJ_SCALE, Filt.DvcID, *pSubTitle);
 	}
 	q = &select(
 		tbl->DlsID,      // #0

@@ -430,8 +430,8 @@ void FormatLoginToGLN(const char * login, SString & rStr)
 // Ибо логин 4607806659997EC_1, а должен быть 4607806659997ЕС
 void FormatLoginToLogin(const char * login, SString & rStr)
 {
-	uint exit_while = 0;
-	char low_strip = '_';
+	uint   exit_while = 0;
+	char   low_strip = '_';
 	rStr.Z();
 	if(login) {
 		while(!exit_while) {
@@ -1102,7 +1102,7 @@ int ExportCls::SendDoc()
 		}
 	}*/
 	//if(pos < RlnCfgList.getCount()) { // @vmiller comment
-		FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
+		FormatLoginToLogin(Header.EdiLogin, login); // ИД пользователя
 		param.Name = const_cast<char *>(login.cptr());
 		//param.Name = Header.EdiLogin;			// ИД пользователя
 		param.Password = Header.EdiPassword;	// Пароль
@@ -1644,7 +1644,7 @@ int ImportCls::ReceiveDoc()
 		//	}
 		//}
 		//if(pos < RlnCfgList.getCount()) { // @vmiller comment
-			FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
+			FormatLoginToLogin(Header.EdiLogin, login); // ИД пользователя
 			param.Name = (char *)(const char *)login;
 			//param.Name = Header.EdiLogin;			// ИД пользователя в системе
 			param.Password = Header.EdiPassword;	// Пароль
@@ -1738,7 +1738,7 @@ int ImportCls::SetNewStatus(SString & rErrTrackIdList)
 	rErrTrackIdList.Z();
 	for(size_t pos = 0; pos < TrackIds.getCount(); pos++) {
 		STRNSCPY(track_id_buf, TrackIds.Get(pos).Txt);
-		FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
+		FormatLoginToLogin(Header.EdiLogin, login); // ИД пользователя
 		param.Name = (char *)(const char *)login; // @badcast
 		//param.Name = Header.EdiLogin;			// ИД пользователя в системе
 		param.Password = Header.EdiPassword;	// Пароль
@@ -1779,7 +1779,7 @@ int ImportCls::SetReadStatus(SString & trackID)
 	_ns1__ChangeDocumentStatusResponse resp;
 	EDIServiceSoapProxy proxy(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
 	gSoapClientInit(&proxy, 0, 0);
-	FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
+	FormatLoginToLogin(Header.EdiLogin, login); // ИД пользователя
 	param.Name = (char *)(const char *)login;
 	//param.Name = Header.EdiLogin;			// ИД пользователя в системе
 	param.Password = Header.EdiPassword;	// Пароль
@@ -1836,7 +1836,7 @@ int ImportCls::ListMessageBox(SString & rResp)
 		//	(!RlnCfgList.at(pos).DocType.CmpNC(WEB_ELEMENT_CODE_TYPE_DESADV) && (MessageType == PPEDIOP_DESADV))) && // Если DESADV
 		//	!RlnCfgList.at(pos).Direction.CmpNC(WEB_ELEMENT_CODE_DIRECTION_IN)) ||
 		//	(!RlnCfgList.at(pos).DocType.CmpNC(WEB_ELEMENT_CODE_TYPE_APERAK) && (MessageType == PPEDIOP_APERAK))) { // Если APERAK
-			FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
+			FormatLoginToLogin(Header.EdiLogin, login); // ИД пользователя
 			param.Name = (char *)(const char *)login;
 			//param.Name = Header.EdiLogin;			// ИД пользователя
 			param.Password = Header.EdiPassword;	// Пароль пользователя

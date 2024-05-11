@@ -939,21 +939,20 @@ private:
 	 *    nullptr || ""   CCC        nullptr     CCC
 	 *    nullptr || ""   *          DDD         nullptr
 	 */
-	inline const char * deleteOrReplace(const char * input, const char * type, const char * replacement) {
-		return notEmpty(replacement) ?
-		       ((input == nullptr) ?  replacement : input) :
-		       ((type == nullptr) ? input  : nullptr);
+	inline const char * deleteOrReplace(const char * input, const char * type, const char * replacement) 
+	{
+		return notEmpty(replacement) ? ((input == nullptr) ?  replacement : input) : ((type == nullptr) ? input  : nullptr);
 	}
 
-	inline bool same(const char * a, const char * b) {
+	inline bool same(const char * a, const char * b) 
+	{
 		if(a == nullptr && b == nullptr) {
 			return true;
 		}
-		if((a == nullptr && b != nullptr) ||
-		    (a != nullptr && b == nullptr)) {
+		if((a == nullptr && b != nullptr) || (a != nullptr && b == nullptr)) {
 			return false;
 		}
-		return strcmp(a, b) == 0;
+		return sstreq(a, b);
 	}
 
 	// Gather fields and generate locale ID into out.

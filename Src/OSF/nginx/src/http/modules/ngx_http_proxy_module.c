@@ -2495,18 +2495,18 @@ static const char * ngx_http_proxy_redirect(ngx_conf_t * cf, const ngx_command_t
 	plcf->redirect = 1;
 	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(cf->args->nelts == 2) {
-		if(ngx_strcmp(value[1].data, "off") == 0) {
+		if(sstreq(value[1].data, "off")) {
 			plcf->redirect = 0;
 			plcf->redirects = NULL;
 			return NGX_CONF_OK;
 		}
-		if(ngx_strcmp(value[1].data, "false") == 0) {
+		if(sstreq(value[1].data, "false")) {
 			ngx_conf_log_error(NGX_LOG_ERR, cf, 0, "invalid parameter \"false\", use \"off\" instead");
 			plcf->redirect = 0;
 			plcf->redirects = NULL;
 			return NGX_CONF_OK;
 		}
-		if(ngx_strcmp(value[1].data, "default") != 0) {
+		if(!sstreq(value[1].data, "default")) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter \"%V\"", &value[1]);
 			return NGX_CONF_ERROR;
 		}
@@ -2521,7 +2521,7 @@ static const char * ngx_http_proxy_redirect(ngx_conf_t * cf, const ngx_command_t
 	if(pr == NULL) {
 		return NGX_CONF_ERROR;
 	}
-	if(ngx_strcmp(value[1].data, "default") == 0) {
+	if(sstreq(value[1].data, "default")) {
 		if(plcf->proxy_lengths) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "\"proxy_redirect default\" cannot be used with \"proxy_pass\" directive with variables");
 			return NGX_CONF_ERROR;
@@ -2597,7 +2597,7 @@ static const char * ngx_http_proxy_cookie_domain(ngx_conf_t * cf, const ngx_comm
 	}
 	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(cf->args->nelts == 2) {
-		if(ngx_strcmp(value[1].data, "off") == 0) {
+		if(sstreq(value[1].data, "off")) {
 			plcf->cookie_domains = NULL;
 			return NGX_CONF_OK;
 		}
@@ -2660,7 +2660,7 @@ static const char * ngx_http_proxy_cookie_path(ngx_conf_t * cf, const ngx_comman
 	}
 	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(cf->args->nelts == 2) {
-		if(ngx_strcmp(value[1].data, "off") == 0) {
+		if(sstreq(value[1].data, "off")) {
 			plcf->cookie_paths = NULL;
 			return NGX_CONF_OK;
 		}
@@ -2746,7 +2746,7 @@ static const char * ngx_http_proxy_store(ngx_conf_t * cf, const ngx_command_t * 
 		return "is duplicate";
 	}
 	value = static_cast<ngx_str_t *>(cf->args->elts);
-	if(ngx_strcmp(value[1].data, "off") == 0) {
+	if(sstreq(value[1].data, "off")) {
 		plcf->upstream.store = 0;
 		return NGX_CONF_OK;
 	}
@@ -2756,7 +2756,7 @@ static const char * ngx_http_proxy_store(ngx_conf_t * cf, const ngx_command_t * 
 	}
 #endif
 	plcf->upstream.store = 1;
-	if(ngx_strcmp(value[1].data, "on") == 0) {
+	if(sstreq(value[1].data, "on")) {
 		return NGX_CONF_OK;
 	}
 	/* include the terminating '\0' into script */
@@ -2786,7 +2786,7 @@ static const char * ngx_http_proxy_cache(ngx_conf_t * cf, const ngx_command_t * 
 	if(plcf->upstream.cache != NGX_CONF_UNSET) {
 		return "is duplicate";
 	}
-	if(ngx_strcmp(value[1].data, "off") == 0) {
+	if(sstreq(value[1].data, "off")) {
 		plcf->upstream.cache = 0;
 		return NGX_CONF_OK;
 	}

@@ -1242,7 +1242,6 @@ static const htmlEntityDesc html40EntitiesTable[] = {
 	{ 39,   "apos", "single quote" },
 	{ 60,   "lt",   "less-than sign, U+003C ISOnum" },
 	{ 62,   "gt",   "greater-than sign, U+003E ISOnum" },
-
 /*
  * A bunch still in the 128-255 range
  * Replacing them depend really on the charset used.
@@ -1349,15 +1348,12 @@ static const htmlEntityDesc html40EntitiesTable[] = {
 	{ 352,  "Scaron", "latin capital letter S with caron, U+0160 ISOlat2" },
 	{ 353,  "scaron", "latin small letter s with caron, U+0161 ISOlat2" },
 	{ 376,  "Yuml", "latin capital letter Y with diaeresis, U+0178 ISOlat2" },
-
 /*
  * Anything below should really be kept as entities references
  */
 	{ 402,  "fnof", "latin small f with hook = function = florin, U+0192 ISOtech" },
-
 	{ 710,  "circ", "modifier letter circumflex accent, U+02C6 ISOpub" },
 	{ 732,  "tilde", "small tilde, U+02DC ISOdia" },
-
 	{ 913,  "Alpha", "greek capital letter alpha, U+0391" },
 	{ 914,  "Beta", "greek capital letter beta, U+0392" },
 	{ 915,  "Gamma", "greek capital letter gamma, U+0393 ISOgrk3" },
@@ -1382,7 +1378,6 @@ static const htmlEntityDesc html40EntitiesTable[] = {
 	{ 935,  "Chi",  "greek capital letter chi, U+03A7" },
 	{ 936,  "Psi",  "greek capital letter psi, U+03A8 ISOgrk3" },
 	{ 937,  "Omega", "greek capital letter omega, U+03A9 ISOgrk3" },
-
 	{ 945,  "alpha", "greek small letter alpha, U+03B1 ISOgrk3" },
 	{ 946,  "beta", "greek small letter beta, U+03B2 ISOgrk3" },
 	{ 947,  "gamma", "greek small letter gamma, U+03B3 ISOgrk3" },
@@ -1411,7 +1406,6 @@ static const htmlEntityDesc html40EntitiesTable[] = {
 	{ 977,  "thetasym", "greek small letter theta symbol, U+03D1 NEW" },
 	{ 978,  "upsih", "greek upsilon with hook symbol, U+03D2 NEW" },
 	{ 982,  "piv",  "greek pi symbol, U+03D6 ISOgrk3" },
-
 	{ 8194, "ensp", "en space, U+2002 ISOpub" },
 	{ 8195, "emsp", "em space, U+2003 ISOpub" },
 	{ 8201, "thinsp", "thin space, U+2009 ISOpub" },
@@ -1429,23 +1423,16 @@ static const htmlEntityDesc html40EntitiesTable[] = {
 	{ 8222, "bdquo", "double low-9 quotation mark, U+201E NEW" },
 	{ 8224, "dagger", "dagger, U+2020 ISOpub" },
 	{ 8225, "Dagger", "double dagger, U+2021 ISOpub" },
-
 	{ 8226, "bull", "bullet = black small circle, U+2022 ISOpub" },
 	{ 8230, "hellip", "horizontal ellipsis = three dot leader, U+2026 ISOpub" },
-
 	{ 8240, "permil", "per mille sign, U+2030 ISOtech" },
-
 	{ 8242, "prime", "prime = minutes = feet, U+2032 ISOtech" },
 	{ 8243, "Prime", "double prime = seconds = inches, U+2033 ISOtech" },
-
 	{ 8249, "lsaquo", "single left-pointing angle quotation mark, U+2039 ISO proposed" },
 	{ 8250, "rsaquo", "single right-pointing angle quotation mark, U+203A ISO proposed" },
-
 	{ 8254, "oline", "overline = spacing overscore, U+203E NEW" },
 	{ 8260, "frasl", "fraction slash, U+2044 NEW" },
-
 	{ 8364, "euro", "euro sign, U+20AC NEW" },
-
 	{ 8465, "image", "blackletter capital I = imaginary part, U+2111 ISOamso" },
 	{ 8472, "weierp", "script capital P = power set = Weierstrass p, U+2118 ISOamso" },
 	{ 8476, "real", "blackletter capital R = real part symbol, U+211C ISOamso" },
@@ -1462,7 +1449,6 @@ static const htmlEntityDesc html40EntitiesTable[] = {
 	{ 8658, "rArr", "rightwards double arrow, U+21D2 ISOtech" },
 	{ 8659, "dArr", "downwards double arrow, U+21D3 ISOamsa" },
 	{ 8660, "hArr", "left right double arrow, U+21D4 ISOamsa" },
-
 	{ 8704, "forall", "for all, U+2200 ISOtech" },
 	{ 8706, "part", "partial differential, U+2202 ISOtech" },
 	{ 8707, "exist", "there exists, U+2203 ISOtech" },
@@ -1508,7 +1494,6 @@ static const htmlEntityDesc html40EntitiesTable[] = {
 	{ 9001, "lang", "left-pointing angle bracket = bra, U+2329 ISOtech" },
 	{ 9002, "rang", "right-pointing angle bracket = ket, U+232A ISOtech" },
 	{ 9674, "loz",  "lozenge, U+25CA ISOpub" },
-
 	{ 9824, "spades", "black spade suit, U+2660 ISOpub" },
 	{ 9827, "clubs", "black club suit = shamrock, U+2663 ISOpub" },
 	{ 9829, "hearts", "black heart suit = valentine, U+2665 ISOpub" },
@@ -1675,7 +1660,6 @@ int UTF8ToHtml(uchar * out, int * outlen, const uchar * in, int * inlen)
 	*inlen = processed - instart;
 	return 0;
 }
-
 /**
  * htmlEncodeEntities:
  * @out:  a pointer to an array of bytes to store the result

@@ -338,7 +338,6 @@ static void xml_emit_open_tag(fz_context * ctx, struct parser * parser, const ch
 		for(ns = a; ns < b - 1; ++ns)
 			if(*ns == ':')
 				a = ns + 1;
-
 		size = offsetof(fz_xml, u.d.name) + b-a+1;
 	}
 	head = (fz_xml *)fz_pool_alloc(ctx, parser->pool, size);
@@ -355,7 +354,6 @@ static void xml_emit_open_tag(fz_context * ctx, struct parser * parser, const ch
 #ifdef FZ_XML_SEQ
 	head->seq = parser->seq++;
 #endif
-
 	/* During construction, we use head->next to mean "the
 	 * tail of the children. When we close the tag, we
 	 * rewrite it to be NULL. */
@@ -370,7 +368,6 @@ static void xml_emit_open_tag(fz_context * ctx, struct parser * parser, const ch
 		head->prev = tail;
 		parser->head->next = head;
 	}
-
 	parser->head = head;
 	parser->depth++;
 }
@@ -421,11 +418,9 @@ static void xml_emit_text(fz_context * ctx, struct parser * parser, const char *
 	const char * p;
 	char * s;
 	int c;
-
 	/* Skip text outside the root tag */
 	if(parser->depth == 0)
 		return;
-
 	/* Skip all-whitespace text nodes */
 	if(!parser->preserve_white) {
 		for(p = a; p < b; p++)
@@ -434,10 +429,8 @@ static void xml_emit_text(fz_context * ctx, struct parser * parser, const char *
 		if(p == b)
 			return;
 	}
-
 	xml_emit_open_tag(ctx, parser, a, b, 1);
 	head = parser->head;
-
 	/* entities are all longer than UTFmax so runetochar is safe */
 	s = fz_xml_text(head);
 	while(a < b) {
@@ -450,21 +443,20 @@ static void xml_emit_text(fz_context * ctx, struct parser * parser, const char *
 		}
 	}
 	*s = 0;
-
 	xml_emit_close_tag(ctx, parser);
 }
 
 static void xml_emit_cdata(fz_context * ctx, struct parser * parser, const char * a, const char * b)
 {
-	fz_xml * head;
-	char * s;
 	xml_emit_open_tag(ctx, parser, a, b, 1);
-	head = parser->head;
-	s = head->u.text;
-	while(a < b)
-		*s++ = *a++;
-	*s = 0;
-	xml_emit_close_tag(ctx, parser);
+	{
+		fz_xml * head = parser->head;
+		char * s = head->u.text;
+		while(a < b)
+			*s++ = *a++;
+		*s = 0;
+		xml_emit_close_tag(ctx, parser);
+	}
 }
 
 static int close_tag(fz_context * ctx, struct parser * parser, const char * mark, const char * p)
@@ -498,7 +490,6 @@ parse_text:
 	else if(mark < p)
 		xml_emit_text(ctx, parser, mark, p);
 	return NULL;
-
 parse_element:
 	if(*p == '/') {
 		++p; goto parse_closing_element;

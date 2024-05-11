@@ -402,7 +402,7 @@ int Profile::InitUserProfile(const char * pUserName)
 				{
 					MACAddr addr;
 					if(GetFirstMACAddr(&addr))
-						addr.ToStr(temp_buf);
+						addr.ToStr(0, temp_buf);
 					else
 						temp_buf.Z();
 					line_buf.Semicol().Cat(temp_buf);

@@ -544,7 +544,7 @@ static bool readFile(ConvData * data, const char * converterName, UErrorCode * p
 
 	/* read an extension table if there is one */
 	while(T_FileStream_readLine(convFile, line, sizeof(line))) {
-		end = uprv_strchr(line, 0);
+		end = sstrchr(line, 0);
 		while(line<end &&
 		    (*(end-1)=='\n' || *(end-1)=='\r' || *(end-1)==' ' || *(end-1)=='\t')) {
 			--end;

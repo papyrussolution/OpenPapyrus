@@ -513,17 +513,13 @@ public:
 	 *  @param root_info  Information about the root is returned in this.
 	 */
 	void commit(glass_revision_number_t revision, RootInfo * root_info);
-	bool sync() 
-	{
-		return (flags & Xapian::DB_NO_SYNC) || handle < 0 || io_sync(handle);
-	}
+	bool sync() { return (flags & Xapian::DB_NO_SYNC) || handle < 0 || io_sync(handle); }
 	/** Cancel any outstanding changes.
 	 *
 	 *  This will discard any modifications which haven't been committed
 	 *  by calling commit().
 	 */
 	void cancel(const RootInfo & root_info, glass_revision_number_t rev);
-
 	/** Read an entry from the table, if and only if it is exactly that
 	 *  being asked for.
 	 *
@@ -539,7 +535,6 @@ public:
 	 *          false if key is not found in table.
 	 */
 	bool get_exact_entry(const std::string & key, std::string & tag) const;
-
 	/** Check if a key exists in the Btree.
 	 *
 	 *  This is just like get_exact_entry() except it doesn't read the tag
@@ -552,7 +547,6 @@ public:
 	 *          false if key is not found in table.
 	 */
 	bool key_exists(const std::string &key) const;
-
 	/** Read the tag value for the key pointed to by cursor C_.
 	 *
 	 *  @param keep_compressed  Don't uncompress the tag - e.g. useful

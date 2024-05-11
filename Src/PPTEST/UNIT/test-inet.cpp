@@ -500,3 +500,68 @@ SLTEST_R(S_IPAddr)
 	}
 	return CurrentStatus;
 }
+
+SLTEST_R(MACAddr)
+{
+	MACAddrArray macadr_list;
+	SString temp_buf;
+	THROW(SLCHECK_NZ(GetMACAddrList(&macadr_list)));
+	THROW(SLCHECK_NZ(macadr_list.getCount()));
+	{
+		MACAddr _macadr;
+		SLCHECK_NZ(_macadr.IsZero());
+		_macadr.Randomize();
+		SLCHECK_Z(_macadr.IsZero());
+		_macadr.Z();
+		SLCHECK_NZ(_macadr.IsZero());
+	}
+	for(uint i = 0; i < macadr_list.getCount(); i++) {
+		MACAddr temp_macadr;
+		const MACAddr & r_macadr = macadr_list.at(i);
+		r_macadr.ToStr(MACAddr::fmtDivColon, temp_buf);
+		SLCHECK_NZ(temp_buf.HasChr(':'));
+		SLCHECK_Z(temp_buf.HasChr('-'));
+		SLCHECK_Z(temp_buf.HasChr(' '));
+		SLCHECK_NZ(temp_macadr.FromStr(temp_buf));
+		SLCHECK_NZ(temp_macadr == r_macadr);
+		SLCHECK_NZ(temp_macadr.IsEq(r_macadr));
+		//
+		r_macadr.ToStr(0, temp_buf);
+		SLCHECK_Z(temp_buf.HasChr(':'));
+		SLCHECK_NZ(temp_buf.HasChr('-'));
+		SLCHECK_Z(temp_buf.HasChr(' '));
+		SLCHECK_NZ(temp_macadr.FromStr(temp_buf));
+		SLCHECK_NZ(temp_macadr == r_macadr);
+		SLCHECK_NZ(temp_macadr.IsEq(r_macadr));
+		//
+		r_macadr.ToStr(MACAddr::fmtPlain, temp_buf);
+		SLCHECK_Z(temp_buf.HasChr(':'));
+		SLCHECK_Z(temp_buf.HasChr('-'));
+		SLCHECK_Z(temp_buf.HasChr(' '));
+		{
+			for(uint ci = 0; ci < temp_buf.Len(); ci++) {
+				SLCHECK_Z(isasciilwr(temp_buf.C(ci)));
+			}
+		}
+		SLCHECK_NZ(temp_macadr.FromStr(temp_buf));
+		SLCHECK_NZ(temp_macadr == r_macadr);
+		SLCHECK_NZ(temp_macadr.IsEq(r_macadr));
+		//
+		r_macadr.ToStr(MACAddr::fmtLower, temp_buf);
+		SLCHECK_Z(temp_buf.HasChr(':'));
+		SLCHECK_NZ(temp_buf.HasChr('-'));
+		SLCHECK_Z(temp_buf.HasChr(' '));
+		{
+			for(uint ci = 0; ci < temp_buf.Len(); ci++) {
+				SLCHECK_Z(isasciiupr(temp_buf.C(ci)));
+			}
+		}
+		SLCHECK_NZ(temp_macadr.FromStr(temp_buf));
+		SLCHECK_NZ(temp_macadr == r_macadr);
+		SLCHECK_NZ(temp_macadr.IsEq(r_macadr));
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
+	return CurrentStatus;
+}

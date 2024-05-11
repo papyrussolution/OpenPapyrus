@@ -6,8 +6,7 @@
 
 /* Quick parsing of document to find links. */
 
-static void xps_load_links_in_element(fz_context * ctx, xps_document * doc, fz_matrix ctm,
-    char * base_uri, xps_resource * dict, fz_xml * node, fz_link ** link);
+static void xps_load_links_in_element(fz_context * ctx, xps_document * doc, fz_matrix ctm, char * base_uri, xps_resource * dict, fz_xml * node, fz_link ** link);
 
 static void xps_add_link(fz_context * ctx, xps_document * doc, fz_rect area, char * base_uri, char * target_uri, fz_link ** head)
 {
@@ -23,19 +22,14 @@ static void xps_load_links_in_path(fz_context * ctx, xps_document * doc, fz_matr
 	if(navigate_uri_att) {
 		char * transform_att = fz_xml_att(root, "RenderTransform");
 		fz_xml * transform_tag = fz_xml_down(fz_xml_find_down(root, "Path.RenderTransform"));
-
 		char * data_att = fz_xml_att(root, "Data");
 		fz_xml * data_tag = fz_xml_down(fz_xml_find_down(root, "Path.Data"));
-
 		fz_path * path = NULL;
 		int fill_rule;
 		fz_rect area;
-
 		xps_resolve_resource_reference(ctx, doc, dict, &data_att, &data_tag, NULL);
 		xps_resolve_resource_reference(ctx, doc, dict, &transform_att, &transform_tag, NULL);
-
 		ctm = xps_parse_transform(ctx, doc, transform_att, transform_tag, ctm);
-
 		if(data_att)
 			path = xps_parse_abbreviated_geometry(ctx, doc, data_att, &fill_rule);
 		else if(data_tag)
@@ -159,17 +153,14 @@ static void xps_load_links_in_fixed_page(fz_context * ctx, xps_document * doc, f
 	if(!root)
 		return;
 	fz_strlcpy(base_uri, page->fix->name, sizeof base_uri);
-	s = strrchr(base_uri, '/');
+	s = sstrrchr(base_uri, '/');
 	if(s)
 		s[1] = 0;
-
 	resource_tag = fz_xml_down(fz_xml_find_down(root, "FixedPage.Resources"));
 	if(resource_tag)
 		dict = xps_parse_resource_dictionary(ctx, doc, base_uri, resource_tag);
-
 	for(node = fz_xml_down(root); node; node = fz_xml_next(node))
 		xps_load_links_in_element(ctx, doc, ctm, base_uri, dict, node, link);
-
 	if(dict)
 		xps_drop_resource_dictionary(ctx, doc, dict);
 }

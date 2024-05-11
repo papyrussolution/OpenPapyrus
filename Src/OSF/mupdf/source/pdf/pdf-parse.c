@@ -563,8 +563,7 @@ skip:
 				    /* 64-bit to allow for numbers > INT_MAX and overflow */
 				    a = buf->i;
 				    tok = pdf_lex(ctx, file, buf);
-				    if(tok == PDF_TOK_CLOSE_DICT || tok == PDF_TOK_NAME ||
-					(tok == PDF_TOK_KEYWORD && sstreq(buf->scratch, "ID"))) {
+				    if(tok == PDF_TOK_CLOSE_DICT || tok == PDF_TOK_NAME || (tok == PDF_TOK_KEYWORD && sstreq(buf->scratch, "ID"))) {
 					    val = pdf_new_int(ctx, a);
 					    pdf_dict_put(ctx, dict, key, val);
 					    pdf_drop_obj(ctx, val);

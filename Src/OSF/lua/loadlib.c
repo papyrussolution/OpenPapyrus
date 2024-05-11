@@ -140,12 +140,13 @@ static lua_CFunction lsys_sym(lua_State * L, void * lib, const char * sym) {
 ** Replace in the path (on the top of the stack) any occurrence
 ** of LUA_EXEC_DIR with the executable's path.
 */
-static void setprogdir(lua_State * L) {
+static void setprogdir(lua_State * L) 
+{
 	char buff[MAX_PATH + 1];
 	char * lb;
-	DWORD nsize = sizeof(buff)/sizeof(char);
+	DWORD nsize = SIZEOFARRAY(buff);
 	DWORD n = GetModuleFileNameA(NULL, buff, nsize); /* get exec. name */
-	if(n == 0 || n == nsize || (lb = strrchr(buff, '\\')) == NULL)
+	if(n == 0 || n == nsize || (lb = sstrrchr(buff, '\\')) == NULL)
 		luaL_error(L, "unable to get ModuleFileName");
 	else {
 		*lb = '\0'; /* cut name on the last '\\' to get the path */
@@ -593,21 +594,25 @@ static void dooptions(lua_State * L, int n) {
 	}
 }
 
-static void modinit(lua_State * L, const char * modname) {
+static void modinit(lua_State * L, const char * modname) 
+{
 	const char * dot;
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "_M"); /* module._M = module */
 	lua_pushstring(L, modname);
 	lua_setfield(L, -2, "_NAME");
-	dot = strrchr(modname, '.'); /* look for last dot in module name */
-	if(dot == NULL) dot = modname;
-	else dot++;
+	dot = sstrrchr(modname, '.'); /* look for last dot in module name */
+	if(dot == NULL) 
+		dot = modname;
+	else 
+		dot++;
 	/* set _PACKAGE as package name (full module name minus last part) */
 	lua_pushlstring(L, modname, dot - modname);
 	lua_setfield(L, -2, "_PACKAGE");
 }
 
-static int ll_module(lua_State * L) {
+static int ll_module(lua_State * L) 
+{
 	const char * modname = luaL_checkstring(L, 1);
 	int lastarg = lua_gettop(L); /* last parameter */
 	luaL_pushmodule(L, modname, 1); /* get/create module table */

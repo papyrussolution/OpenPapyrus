@@ -593,7 +593,7 @@ int __qam_nameop(DB*dbp, DB_TXN * txn, const char * newname, qam_name_op op)
 	 * between endpath and endname (__dbq.NAME.).
 	 */
 	endpath++;
-	endname = strrchr(endpath, '.');
+	endname = sstrrchr(endpath, '.');
 	if(endname == NULL) {
 		ret = EINVAL;
 		goto err;

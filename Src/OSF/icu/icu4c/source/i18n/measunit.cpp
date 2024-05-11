@@ -25,33 +25,7 @@ U_NAMESPACE_BEGIN UOBJECT_DEFINE_RTTI_IMPLEMENTATION(MeasureUnit)
 // Start generated code for measunit.cpp
 
 // Maps from Type ID to offset in gSubTypes.
-static const int32_t gOffsets[] = {
-	0,
-	2,
-	7,
-	17,
-	27,
-	31,
-	330,
-	341,
-	357,
-	361,
-	370,
-	373,
-	377,
-	385,
-	407,
-	411,
-	426,
-	427,
-	433,
-	443,
-	447,
-	451,
-	453,
-	487
-};
-
+static const int32_t gOffsets[] = { 0, 2, 7, 17, 27, 31, 330, 341, 357, 361, 370, 373, 377, 385, 407, 411, 426, 427, 433, 443, 447, 451, 453, 487 };
 static const int32_t kCurrencyOffset = 5;
 
 // Must be sorted alphabetically.
@@ -634,150 +608,42 @@ MeasureUnit * MeasureUnit::createLiterPer100Kilometers(UErrorCode & status) { re
 MeasureUnit MeasureUnit::getLiterPer100Kilometers() { return MeasureUnit(4, 0); }
 MeasureUnit * MeasureUnit::createLiterPerKilometer(UErrorCode & status) { return MeasureUnit::create(4, 1, status); }
 MeasureUnit MeasureUnit::getLiterPerKilometer() { return MeasureUnit(4, 1); }
-
-MeasureUnit * MeasureUnit::createMilePerGallon(UErrorCode & status) {
-	return MeasureUnit::create(4, 2, status);
-}
-
-MeasureUnit MeasureUnit::getMilePerGallon() {
-	return MeasureUnit(4, 2);
-}
-
-MeasureUnit * MeasureUnit::createMilePerGallonImperial(UErrorCode & status) {
-	return MeasureUnit::create(4, 3, status);
-}
-
-MeasureUnit MeasureUnit::getMilePerGallonImperial() {
-	return MeasureUnit(4, 3);
-}
-
-MeasureUnit * MeasureUnit::createBit(UErrorCode & status) {
-	return MeasureUnit::create(6, 0, status);
-}
-
-MeasureUnit MeasureUnit::getBit() {
-	return MeasureUnit(6, 0);
-}
-
-MeasureUnit * MeasureUnit::createByte(UErrorCode & status) {
-	return MeasureUnit::create(6, 1, status);
-}
-
-MeasureUnit MeasureUnit::getByte() {
-	return MeasureUnit(6, 1);
-}
-
-MeasureUnit * MeasureUnit::createGigabit(UErrorCode & status) {
-	return MeasureUnit::create(6, 2, status);
-}
-
-MeasureUnit MeasureUnit::getGigabit() {
-	return MeasureUnit(6, 2);
-}
-
-MeasureUnit * MeasureUnit::createGigabyte(UErrorCode & status) {
-	return MeasureUnit::create(6, 3, status);
-}
-
-MeasureUnit MeasureUnit::getGigabyte() {
-	return MeasureUnit(6, 3);
-}
-
-MeasureUnit * MeasureUnit::createKilobit(UErrorCode & status) {
-	return MeasureUnit::create(6, 4, status);
-}
-
-MeasureUnit MeasureUnit::getKilobit() {
-	return MeasureUnit(6, 4);
-}
-
-MeasureUnit * MeasureUnit::createKilobyte(UErrorCode & status) {
-	return MeasureUnit::create(6, 5, status);
-}
-
-MeasureUnit MeasureUnit::getKilobyte() {
-	return MeasureUnit(6, 5);
-}
-
-MeasureUnit * MeasureUnit::createMegabit(UErrorCode & status) {
-	return MeasureUnit::create(6, 6, status);
-}
-
-MeasureUnit MeasureUnit::getMegabit() {
-	return MeasureUnit(6, 6);
-}
-
-MeasureUnit * MeasureUnit::createMegabyte(UErrorCode & status) {
-	return MeasureUnit::create(6, 7, status);
-}
-
-MeasureUnit MeasureUnit::getMegabyte() {
-	return MeasureUnit(6, 7);
-}
-
-MeasureUnit * MeasureUnit::createPetabyte(UErrorCode & status) {
-	return MeasureUnit::create(6, 8, status);
-}
-
-MeasureUnit MeasureUnit::getPetabyte() {
-	return MeasureUnit(6, 8);
-}
-
-MeasureUnit * MeasureUnit::createTerabit(UErrorCode & status) {
-	return MeasureUnit::create(6, 9, status);
-}
-
-MeasureUnit MeasureUnit::getTerabit() {
-	return MeasureUnit(6, 9);
-}
-
-MeasureUnit * MeasureUnit::createTerabyte(UErrorCode & status) {
-	return MeasureUnit::create(6, 10, status);
-}
-
-MeasureUnit MeasureUnit::getTerabyte() {
-	return MeasureUnit(6, 10);
-}
-
-MeasureUnit * MeasureUnit::createCentury(UErrorCode & status) {
-	return MeasureUnit::create(7, 0, status);
-}
-
-MeasureUnit MeasureUnit::getCentury() {
-	return MeasureUnit(7, 0);
-}
-
-MeasureUnit * MeasureUnit::createDay(UErrorCode & status) {
-	return MeasureUnit::create(7, 1, status);
-}
-
-MeasureUnit MeasureUnit::getDay() {
-	return MeasureUnit(7, 1);
-}
-
-MeasureUnit * MeasureUnit::createDayPerson(UErrorCode & status) {
-	return MeasureUnit::create(7, 2, status);
-}
-
-MeasureUnit MeasureUnit::getDayPerson() {
-	return MeasureUnit(7, 2);
-}
-
-MeasureUnit * MeasureUnit::createDecade(UErrorCode & status) {
-	return MeasureUnit::create(7, 3, status);
-}
-
-MeasureUnit MeasureUnit::getDecade() {
-	return MeasureUnit(7, 3);
-}
-
-MeasureUnit * MeasureUnit::createHour(UErrorCode & status) {
-	return MeasureUnit::create(7, 4, status);
-}
-
-MeasureUnit MeasureUnit::getHour() {
-	return MeasureUnit(7, 4);
-}
+MeasureUnit * MeasureUnit::createMilePerGallon(UErrorCode & status) { return MeasureUnit::create(4, 2, status); }
+MeasureUnit MeasureUnit::getMilePerGallon() { return MeasureUnit(4, 2); }
+MeasureUnit * MeasureUnit::createMilePerGallonImperial(UErrorCode & status) { return MeasureUnit::create(4, 3, status); }
+MeasureUnit MeasureUnit::getMilePerGallonImperial() { return MeasureUnit(4, 3); }
+MeasureUnit * MeasureUnit::createBit(UErrorCode & status) { return MeasureUnit::create(6, 0, status); }
+MeasureUnit MeasureUnit::getBit() { return MeasureUnit(6, 0); }
+MeasureUnit * MeasureUnit::createByte(UErrorCode & status) { return MeasureUnit::create(6, 1, status); }
+MeasureUnit MeasureUnit::getByte() { return MeasureUnit(6, 1); }
+MeasureUnit * MeasureUnit::createGigabit(UErrorCode & status) { return MeasureUnit::create(6, 2, status); }
+MeasureUnit MeasureUnit::getGigabit() { return MeasureUnit(6, 2); }
+MeasureUnit * MeasureUnit::createGigabyte(UErrorCode & status) { return MeasureUnit::create(6, 3, status); }
+MeasureUnit MeasureUnit::getGigabyte() { return MeasureUnit(6, 3); }
+MeasureUnit * MeasureUnit::createKilobit(UErrorCode & status) { return MeasureUnit::create(6, 4, status); }
+MeasureUnit MeasureUnit::getKilobit() { return MeasureUnit(6, 4); }
+MeasureUnit * MeasureUnit::createKilobyte(UErrorCode & status) { return MeasureUnit::create(6, 5, status); }
+MeasureUnit MeasureUnit::getKilobyte() { return MeasureUnit(6, 5); }
+MeasureUnit * MeasureUnit::createMegabit(UErrorCode & status) { return MeasureUnit::create(6, 6, status); }
+MeasureUnit MeasureUnit::getMegabit() { return MeasureUnit(6, 6); }
+MeasureUnit * MeasureUnit::createMegabyte(UErrorCode & status) { return MeasureUnit::create(6, 7, status); }
+MeasureUnit MeasureUnit::getMegabyte() { return MeasureUnit(6, 7); }
+MeasureUnit * MeasureUnit::createPetabyte(UErrorCode & status) { return MeasureUnit::create(6, 8, status); }
+MeasureUnit MeasureUnit::getPetabyte() { return MeasureUnit(6, 8); }
+MeasureUnit * MeasureUnit::createTerabit(UErrorCode & status) { return MeasureUnit::create(6, 9, status); }
+MeasureUnit MeasureUnit::getTerabit() { return MeasureUnit(6, 9); }
+MeasureUnit * MeasureUnit::createTerabyte(UErrorCode & status) { return MeasureUnit::create(6, 10, status); }
+MeasureUnit MeasureUnit::getTerabyte() { return MeasureUnit(6, 10); }
+MeasureUnit * MeasureUnit::createCentury(UErrorCode & status) { return MeasureUnit::create(7, 0, status); }
+MeasureUnit MeasureUnit::getCentury() { return MeasureUnit(7, 0); }
+MeasureUnit * MeasureUnit::createDay(UErrorCode & status) { return MeasureUnit::create(7, 1, status); }
+MeasureUnit MeasureUnit::getDay() { return MeasureUnit(7, 1); }
+MeasureUnit * MeasureUnit::createDayPerson(UErrorCode & status) { return MeasureUnit::create(7, 2, status); }
+MeasureUnit MeasureUnit::getDayPerson() { return MeasureUnit(7, 2); }
+MeasureUnit * MeasureUnit::createDecade(UErrorCode & status) { return MeasureUnit::create(7, 3, status); }
+MeasureUnit MeasureUnit::getDecade() { return MeasureUnit(7, 3); }
+MeasureUnit * MeasureUnit::createHour(UErrorCode & status) { return MeasureUnit::create(7, 4, status); }
+MeasureUnit MeasureUnit::getHour() { return MeasureUnit(7, 4); }
 
 MeasureUnit * MeasureUnit::createMicrosecond(UErrorCode & status) {
 	return MeasureUnit::create(7, 5, status);
@@ -1964,11 +1830,10 @@ const char * MeasureUnit::getSubtype() const {
 	return getIdentifier();
 }
 
-const char * MeasureUnit::getIdentifier() const {
-	return fImpl ? fImpl->identifier.data() : gSubTypes[getOffset()];
-}
+const char * MeasureUnit::getIdentifier() const { return fImpl ? fImpl->identifier.data() : gSubTypes[getOffset()]; }
 
-bool MeasureUnit::operator == (const UObject& other) const {
+bool MeasureUnit::operator == (const UObject& other) const 
+{
 	if(this == &other) { // Same object, equal
 		return true;
 	}
@@ -1976,12 +1841,11 @@ bool MeasureUnit::operator == (const UObject& other) const {
 		return false;
 	}
 	const MeasureUnit &rhs = static_cast<const MeasureUnit&>(other);
-	return strcmp(getIdentifier(), rhs.getIdentifier()) == 0;
+	return sstreq(getIdentifier(), rhs.getIdentifier());
 }
 
-int32_t MeasureUnit::getAvailable(MeasureUnit * dest,
-    int32_t destCapacity,
-    UErrorCode & errorCode) {
+int32_t MeasureUnit::getAvailable(MeasureUnit * dest, int32_t destCapacity, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}

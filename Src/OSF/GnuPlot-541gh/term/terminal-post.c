@@ -932,9 +932,8 @@ void PS_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 				    if(set_font)
 					    goto PS_options_error;
 				    set_font = TRUE;
-				    if((pGp->TPsB.P_Params->terminal == PSTERM_POSTSCRIPT) ||
-					(pGp->TPsB.P_Params->terminal == PSTERM_EPSLATEX)) {
-					    char * comma = strrchr(s, ',');
+				    if((pGp->TPsB.P_Params->terminal == PSTERM_POSTSCRIPT) || (pGp->TPsB.P_Params->terminal == PSTERM_EPSLATEX)) {
+					    char * comma = sstrrchr(s, ',');
 					    if(comma && (1 == sscanf(comma+1, "%f", &pGp->TPsB.P_Params->fontsize))) {
 						    set_fontsize = TRUE;
 						    *comma = '\0';

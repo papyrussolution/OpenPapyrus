@@ -162,7 +162,7 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir, const char * na
 #if(U_FILE_SEP_CHAR != U_FILE_ALT_SEP_CHAR)
 		{
 			char * t;
-			while((t = uprv_strchr(line, U_FILE_ALT_SEP_CHAR))) {
+			while((t = sstrchr(line, U_FILE_ALT_SEP_CHAR))) {
 				*t = U_FILE_SEP_CHAR;
 			}
 		}
@@ -346,7 +346,8 @@ U_CAPI void U_EXPORT2 createCommonDataFile(const char * destDir, const char * na
 	}
 }
 
-static void addFile(const char * filename, const char * name, const char * source, bool sourceTOC, bool verbose) {
+static void addFile(const char * filename, const char * name, const char * source, bool sourceTOC, bool verbose) 
+{
 	char * s;
 	uint32_t length;
 	char * fullPath = NULL;
@@ -372,32 +373,25 @@ static void addFile(const char * filename, const char * name, const char * sourc
 		strcpy(s, name);
 		uprv_strcat(s, U_TREE_ENTRY_SEP_STRING);
 		uprv_strcat(s, filename);
-
 		/* get the basename */
 		fixDirToTreePath(s);
 		files[fileCount].basename = s;
 		files[fileCount].basenameLength = length;
-
 		files[fileCount].pathname = fullPath;
-
 		basenameTotal += length;
-
 		/* try to open the file */
 		file = T_FileStream_open(fullPath, "rb");
 		if(!file) {
 			slfprintf_stderr("gencmn: unable to open listed file %s\n", fullPath);
 			exit(U_FILE_ACCESS_ERROR);
 		}
-
 		/* get the file length */
 		length = T_FileStream_size(file);
 		if(T_FileStream_error(file) || length<=20) {
 			slfprintf_stderr("gencmn: unable to get length of listed file %s\n", fullPath);
 			exit(U_FILE_ACCESS_ERROR);
 		}
-
 		T_FileStream_close(file);
-
 		/* do not add files that are longer than maxSize */
 		if(maxSize && length>maxSize) {
 			if(verbose) {
@@ -462,8 +456,7 @@ static char * pathToFullPath(const char * path, const char * source)
 		fullPath[0] = 0;
 	}
 	n = (int32_t)strlen(fullPath);
-	fullPath[n] = 0;   /* Suppress compiler warning for unused variable n    */
-	                   /*  when conditional code below is not compiled.      */
+	fullPath[n] = 0;   /* Suppress compiler warning for unused variable n when conditional code below is not compiled. */
 	uprv_strcat(fullPath, path);
 
 #if(U_FILE_ALT_SEP_CHAR != U_TREE_ENTRY_SEP_CHAR)
@@ -498,17 +491,16 @@ U_CDECL_END
 static void fixDirToTreePath(char * s)
 {
 	(void)s;
-#if(U_FILE_SEP_CHAR != U_TREE_ENTRY_SEP_CHAR) || ((U_FILE_ALT_SEP_CHAR != U_FILE_SEP_CHAR) && \
-	(U_FILE_ALT_SEP_CHAR != U_TREE_ENTRY_SEP_CHAR))
+#if(U_FILE_SEP_CHAR != U_TREE_ENTRY_SEP_CHAR) || ((U_FILE_ALT_SEP_CHAR != U_FILE_SEP_CHAR) && (U_FILE_ALT_SEP_CHAR != U_TREE_ENTRY_SEP_CHAR))
 	char * t;
 #endif
 #if(U_FILE_SEP_CHAR != U_TREE_ENTRY_SEP_CHAR)
-	for(t = s; t = uprv_strchr(t, U_FILE_SEP_CHAR);) {
+	for(t = s; t = sstrchr(t, U_FILE_SEP_CHAR);) {
 		*t = U_TREE_ENTRY_SEP_CHAR;
 	}
 #endif
 #if(U_FILE_ALT_SEP_CHAR != U_FILE_SEP_CHAR) && (U_FILE_ALT_SEP_CHAR != U_TREE_ENTRY_SEP_CHAR)
-	for(t = s; t = uprv_strchr(t, U_FILE_ALT_SEP_CHAR);) {
+	for(t = s; t = sstrchr(t, U_FILE_ALT_SEP_CHAR);) {
 		*t = U_TREE_ENTRY_SEP_CHAR;
 	}
 #endif

@@ -1,5 +1,5 @@
 // V_TRANSP.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
+// Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -193,10 +193,12 @@ DBQuery * PPViewTransport::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 void PPViewTransport::MakeTempRec(const PPTransportPacket * pTranspPack, TempTransportTbl::Rec * pTempRec)
 {
 	if(pTempRec && pTranspPack) {
+		SString temp_buf;
 		memzero(pTempRec, sizeof(*pTempRec));
 		pTempRec->ID = pTranspPack->Rec.ID;
 		STRNSCPY(pTempRec->Name, pTranspPack->Rec.Name);
-		GetObjectName(PPOBJ_TRANSPMODEL, pTranspPack->Rec.TrModelID, pTempRec->ModelName, sizeof(pTempRec->ModelName));
+		GetObjectName(PPOBJ_TRANSPMODEL, pTranspPack->Rec.TrModelID, temp_buf.Z());
+		STRNSCPY(pTempRec->ModelName, temp_buf);
 		pTempRec->ModelID   = pTranspPack->Rec.TrModelID;
 		pTempRec->OwnerID   = pTranspPack->Rec.OwnerID;
 		pTempRec->CaptainID = pTranspPack->Rec.CaptainID;
@@ -443,7 +445,11 @@ int PPALDD_TransportView::InitData(PPFilt & rFilt, long rsrv)
 	H.FltCountryID   = p_filt->CountryID;
 	STRNSCPY(H.FltCode, p_filt->Code);
 	STRNSCPY(H.FltTrailCode, p_filt->TrailCode);
-	GetObjectName(PPOBJ_TRANSPMODEL, p_filt->ModelID, H.FltModelName, sizeof(H.FltModelName));
+	{
+		SString temp_buf;
+		GetObjectName(PPOBJ_TRANSPMODEL, p_filt->ModelID, temp_buf);
+		STRNSCPY(H.FltModelName, temp_buf);
+	}
 	return DlRtm::InitData(rFilt, rsrv);
 }
 

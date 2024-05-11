@@ -333,7 +333,7 @@ static char * ngx_log_set_levels(ngx_conf_t * cf, ngx_log_t * log)
 		for(i = 2; i < cf->args->nelts; i++) {
 			found = 0;
 			for(n = 1; n <= NGX_LOG_DEBUG; n++) {
-				if(ngx_strcmp(value[i].data, err_levels[n].data) == 0) {
+				if(sstreq(value[i].data, err_levels[n].data)) {
 					if(log->Level) {
 						ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "duplicate log level \"%V\"", &value[i]);
 						return NGX_CONF_ERROR;
@@ -344,7 +344,7 @@ static char * ngx_log_set_levels(ngx_conf_t * cf, ngx_log_t * log)
 				}
 			}
 			for(n = 0, d = NGX_LOG_DEBUG_FIRST; d <= NGX_LOG_DEBUG_LAST; d <<= 1) {
-				if(ngx_strcmp(value[i].data, debug_levels[n++]) == 0) {
+				if(sstreq(value[i].data, debug_levels[n++])) {
 					if(log->Level & ~NGX_LOG_DEBUG_ALL) {
 						ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid log level \"%V\"", &value[i]);
 						return NGX_CONF_ERROR;
@@ -389,7 +389,7 @@ char * ngx_log_set_log(ngx_conf_t * cf, ngx_log_t ** head)
 		}
 	}
 	value = static_cast<ngx_str_t *>(cf->args->elts);
-	if(ngx_strcmp(value[1].data, "stderr") == 0) {
+	if(sstreq(value[1].data, "stderr")) {
 		ngx_str_null(&name);
 		cf->cycle->log_use_stderr = 1;
 		new_log->file = ngx_conf_open_file(cf->cycle, &name);

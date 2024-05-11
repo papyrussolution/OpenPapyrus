@@ -895,7 +895,7 @@ int FASTCALL GetLocationName(PPID locID, SString & rBuf)
 			ideqvalstr(locID, rBuf.Z());
 	}
 	else
-		ok = GetObjectName(PPOBJ_LOCATION, locID, rBuf, 0);
+		ok = GetObjectName(PPOBJ_LOCATION, locID, rBuf);
 	return ok;
 }
 
@@ -914,7 +914,7 @@ SString & GetExtLocationName(const ObjIdListFilt & rLocList, size_t maxItems, SS
 				break;
 			}
 			else
-				GetObjectName(PPOBJ_LOCATION, rLocList.Get().at(i), rBuf, 1);
+				CatObjectName(PPOBJ_LOCATION, rLocList.Get().at(i), rBuf);
 		}
 	}
 	return rBuf;
@@ -2128,7 +2128,7 @@ static SString & CDECL Helper_PPFormat(const SString & rFmt, SString * pBuf, /*.
 						break;
 					case tokAccount:
 						obj_id = va_arg(pArgList, PPID);
-						GetObjectName(PPOBJ_ACCOUNT2, obj_id, buf, 1);
+						CatObjectName(PPOBJ_ACCOUNT2, obj_id, buf);
 						break;
 					case tokArticle:
 						obj_id = va_arg(pArgList, PPID);
@@ -2180,7 +2180,7 @@ static SString & CDECL Helper_PPFormat(const SString & rFmt, SString * pBuf, /*.
 						break;
 					case tokBill:
 						obj_id = va_arg(pArgList, PPID);
-						GetObjectName(PPOBJ_BILL, obj_id, buf, 1);
+						CatObjectName(PPOBJ_BILL, obj_id, buf);
 						break;
 					case tokPrc:
 						obj_id = va_arg(pArgList, PPID);
@@ -2206,7 +2206,7 @@ static SString & CDECL Helper_PPFormat(const SString & rFmt, SString * pBuf, /*.
 						break;
 					case tokTSess:
 						obj_id = va_arg(pArgList, PPID);
-						GetObjectName(PPOBJ_TSESSION, obj_id, buf, 1);
+						CatObjectName(PPOBJ_TSESSION, obj_id, buf);
 						break;
 					case tokSalCharge:
 						obj_id = va_arg(pArgList, PPID);

@@ -27,6 +27,7 @@
     <ClCompile Include="..\OSF\ImGuiFileDialog\ImGuiFileDialog.cpp">
       <Filter>ImGuiFileDialog</Filter>
     </ClCompile>
+    <ClCompile Include="..\OSF\imgui\misc\cpp\imgui_stdlib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\imgui\imconfig.h">
@@ -61,6 +62,9 @@
     </ClInclude>
     <ClInclude Include="..\OSF\ImGuiFileDialog\ImGuiFileDialogConfig.h">
       <Filter>ImGuiFileDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\imgui\misc\cpp\imgui_stdlib.h">
+      <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

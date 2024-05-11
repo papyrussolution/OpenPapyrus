@@ -666,120 +666,89 @@ static int pki_key_ecdsa_to_nid(gcry_sexp_t k)
 	gcry_sexp_t sexp;
 	const char * tmp;
 	size_t size;
-
 	sexp = gcry_sexp_find_token(k, "curve", 0);
 	if(sexp == NULL) {
 		return -1;
 	}
-
 	tmp = gcry_sexp_nth_data(sexp, 1, &size);
-
 	if(size == 10) {
 		int cmp;
-
 		cmp = memcmp("NIST P-256", tmp, size);
 		if(cmp == 0) {
 			gcry_sexp_release(sexp);
 			return NID_gcrypt_nistp256;
 		}
-
 		cmp = memcmp("NIST P-384", tmp, size);
 		if(cmp == 0) {
 			gcry_sexp_release(sexp);
 			return NID_gcrypt_nistp384;
 		}
-
 		cmp = memcmp("NIST P-521", tmp, size);
 		if(cmp == 0) {
 			gcry_sexp_release(sexp);
 			return NID_gcrypt_nistp521;
 		}
 	}
-
 	gcry_sexp_release(sexp);
 	return -1;
 }
 
-static enum ssh_keytypes_e pki_key_ecdsa_to_key_type(gcry_sexp_t k){
-	int nid;
-
-	nid = pki_key_ecdsa_to_nid(k);
-
+static enum ssh_keytypes_e pki_key_ecdsa_to_key_type(gcry_sexp_t k)
+{
+	int nid = pki_key_ecdsa_to_nid(k);
 	switch(nid) {
-		case NID_gcrypt_nistp256:
-		    return SSH_KEYTYPE_ECDSA_P256;
-		case NID_gcrypt_nistp384:
-		    return SSH_KEYTYPE_ECDSA_P384;
-		case NID_gcrypt_nistp521:
-		    return SSH_KEYTYPE_ECDSA_P521;
-		default:
-		    return SSH_KEYTYPE_UNKNOWN;
+		case NID_gcrypt_nistp256: return SSH_KEYTYPE_ECDSA_P256;
+		case NID_gcrypt_nistp384: return SSH_KEYTYPE_ECDSA_P384;
+		case NID_gcrypt_nistp521: return SSH_KEYTYPE_ECDSA_P521;
+		default: return SSH_KEYTYPE_UNKNOWN;
 	}
 }
 
 static const char * pki_key_ecdsa_nid_to_gcrypt_name(int nid)
 {
 	switch(nid) {
-		case NID_gcrypt_nistp256:
-		    return "NIST P-256";
-		case NID_gcrypt_nistp384:
-		    return "NIST P-384";
-		case NID_gcrypt_nistp521:
-		    return "NIST P-521";
+		case NID_gcrypt_nistp256: return "NIST P-256";
+		case NID_gcrypt_nistp384: return "NIST P-384";
+		case NID_gcrypt_nistp521: return "NIST P-521";
 	}
-
 	return "unknown";
 }
 
 const char * pki_key_ecdsa_nid_to_name(int nid)
 {
 	switch(nid) {
-		case NID_gcrypt_nistp256:
-		    return "ecdsa-sha2-nistp256";
-		case NID_gcrypt_nistp384:
-		    return "ecdsa-sha2-nistp384";
-		case NID_gcrypt_nistp521:
-		    return "ecdsa-sha2-nistp521";
+		case NID_gcrypt_nistp256: return "ecdsa-sha2-nistp256";
+		case NID_gcrypt_nistp384: return "ecdsa-sha2-nistp384";
+		case NID_gcrypt_nistp521: return "ecdsa-sha2-nistp521";
 	}
-
 	return "unknown";
 }
 
 static const char * pki_key_ecdsa_nid_to_char(int nid)
 {
 	switch(nid) {
-		case NID_gcrypt_nistp256:
-		    return "nistp256";
-		case NID_gcrypt_nistp384:
-		    return "nistp384";
-		case NID_gcrypt_nistp521:
-		    return "nistp521";
-		default:
-		    break;
+		case NID_gcrypt_nistp256: return "nistp256";
+		case NID_gcrypt_nistp384: return "nistp384";
+		case NID_gcrypt_nistp521: return "nistp521";
+		default: break;
 	}
-
 	return "unknown";
 }
 
 int pki_key_ecdsa_nid_from_name(const char * name)
 {
-	int cmp;
-
-	cmp = strcmp(name, "nistp256");
+	int cmp = strcmp(name, "nistp256");
 	if(cmp == 0) {
 		return NID_gcrypt_nistp256;
 	}
-
 	cmp = strcmp(name, "nistp384");
 	if(cmp == 0) {
 		return NID_gcrypt_nistp384;
 	}
-
 	cmp = strcmp(name, "nistp521");
 	if(cmp == 0) {
 		return NID_gcrypt_nistp521;
 	}
-
 	return -1;
 }
 

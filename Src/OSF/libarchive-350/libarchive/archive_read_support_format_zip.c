@@ -3049,7 +3049,7 @@ static void expose_parent_dirs(struct zip * zip, const char * name, size_t name_
 	archive_string_init(&str);
 	archive_strncpy(&str, name, name_length);
 	for(;;) {
-		s = strrchr(str.s, '/');
+		s = sstrrchr(str.s, '/');
 		if(!s)
 			break;
 		*s = '\0';

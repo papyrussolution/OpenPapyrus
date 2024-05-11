@@ -323,7 +323,7 @@ bool GnuPlot::DfReadPixmap(t_pixmap * pixmap)
 	int filetype;
 	int i, j;
 	coordval * pixel;
-	char * file_ext = strrchr(pixmap->filename, '.');
+	char * file_ext = sstrrchr(pixmap->filename, '.');
 	// Parse file name 
 	if(!file_ext++)
 		return FALSE;

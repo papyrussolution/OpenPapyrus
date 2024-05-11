@@ -494,7 +494,7 @@ struct AllowedHourFormatsSink : public ResourceSink {
 			int32_t length = 0;
 			int32_t preferredFormat = ALLOWED_HOUR_FORMAT_UNKNOWN;
 			for(int32_t j = 0; formatList.getKeyAndValue(j, key, value); ++j) {
-				if(strcmp(key, "allowed") == 0) {
+				if(sstreq(key, "allowed")) {
 					if(value.getType() == URES_STRING) {
 						length = 2; // 1 preferred to add later, 1 allowed to add now
 						if(list.allocateInsteadAndReset(length + 1) == nullptr) {
@@ -516,7 +516,7 @@ struct AllowedHourFormatsSink : public ResourceSink {
 						}
 					}
 				}
-				else if(strcmp(key, "preferred") == 0) {
+				else if(sstreq(key, "preferred")) {
 					preferredFormat = getHourFormatFromUnicodeString(value.getUnicodeString(errorCode));
 				}
 			}
@@ -658,23 +658,21 @@ void DateTimePatternGenerator::getAllowedHourFormats(const Locale &locale, UErro
 	// We need to check if there is an hour cycle on locale
 	char buffer[8];
 	int32_t count = locale.getKeywordValue("hours", buffer, sizeof(buffer), status);
-
 	fDefaultHourFormatChar = 0;
 	if(U_SUCCESS(status) && count > 0) {
-		if(strcmp(buffer, "h24") == 0) {
+		if(sstreq(buffer, "h24")) {
 			fDefaultHourFormatChar = LOW_K;
 		}
-		else if(strcmp(buffer, "h23") == 0) {
+		else if(sstreq(buffer, "h23")) {
 			fDefaultHourFormatChar = CAP_H;
 		}
-		else if(strcmp(buffer, "h12") == 0) {
+		else if(sstreq(buffer, "h12")) {
 			fDefaultHourFormatChar = LOW_H;
 		}
-		else if(strcmp(buffer, "h11") == 0) {
+		else if(sstreq(buffer, "h11")) {
 			fDefaultHourFormatChar = CAP_K;
 		}
 	}
-
 	// Check if the region has an alias
 	if(allowedFormats == nullptr) {
 		UErrorCode localStatus = U_ZERO_ERROR;

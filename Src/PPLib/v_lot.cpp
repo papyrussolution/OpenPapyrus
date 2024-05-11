@@ -2652,7 +2652,7 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			}
 			if(Filt.QCertID) {
 				sub_title.CatDivIfNotEmpty('-', 1);
-				GetObjectName(PPOBJ_QCERT, Filt.QCertID, sub_title, 1);
+				CatObjectName(PPOBJ_QCERT, Filt.QCertID, sub_title);
 			}
 		}
 		if(sub_title.IsEmpty())

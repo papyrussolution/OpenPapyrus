@@ -8274,17 +8274,6 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/STDCALL soap_element_begin_out(struct soap * soap, 
 #endif
 }
 
-#ifndef HAVE_STRRCHR
-SOAP_FMAC1 char * SOAP_FMAC2 soap_strrchr(const char * s, int t)
-{
-	char * r = NULL;
-	while(*s)
-		if(*s++ == t)
-			r = (char *)s-1;
-	return r;
-}
-#endif
-
 #ifndef HAVE_STRTOL
 SOAP_FMAC1 long SOAP_FMAC2 soap_strtol(const char * s, char ** t, int b)
 {
@@ -8376,7 +8365,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_array_begin_out(struct soap * soap, const char * 
 	if(soap_element(soap, tag, id, "SOAP-ENC:Array"))
 		return soap->error;
 	if(soap->version == 2) {
-		const char * s = soap_strrchr(type, '[');
+		const char * s = sstrrchr(type, '[');
 		if((size_t)(s-type) < sizeof(soap->tmpbuf)) {
 			strncpy(soap->tmpbuf, type, s-type);
 			soap->tmpbuf[s-type] = '\0';
@@ -9279,7 +9268,7 @@ SOAP_FMAC1 int FASTCALL soap_peek_element(struct soap * soap)
 			}
 			else if(soap->version == 1) {
 				if(!soap_match_tag(soap, tp->name, "SOAP-ENC:arrayType")) {
-					s = soap_strrchr(tp->value, '[');
+					s = sstrrchr(tp->value, '[');
 					if(s && (size_t)(s-tp->value) < sizeof(soap->arrayType)) {
 						strncpy(soap->arrayType, tp->value, s-tp->value);
 						soap->arrayType[s-tp->value] = '\0';

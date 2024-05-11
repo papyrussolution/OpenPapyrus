@@ -413,7 +413,7 @@ struct GumboElement {
  */
 struct GumboNode {
 	GumboNodeType type; /** The type of node that this is. */
-	GumboNode* parent; /** Pointer back to parent node.  Not owned. */
+	GumboNode * parent; /** Pointer back to parent node.  Not owned. */
 	size_t index_within_parent; /** The index within the parent's children vector of this node. */
 	// 
 	// A bitvector of flags containing information about why this element was

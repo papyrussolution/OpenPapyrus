@@ -13,10 +13,10 @@
 
 static void xps_rels_for_part(fz_context * ctx, xps_document * doc, char * buf, char * name, int buflen)
 {
-	char * p = strrchr(name, '/');
-	char * basename = p ? p + 1 : name;
+	char * p = sstrrchr(name, '/');
+	char * basename = p ? (p + 1) : name;
 	fz_strlcpy(buf, name, buflen);
-	p = strrchr(buf, '/');
+	p = sstrrchr(buf, '/');
 	ASSIGN_PTR(p, 0);
 	fz_strlcat(buf, "/_rels/", buflen);
 	fz_strlcat(buf, basename, buflen);
@@ -93,19 +93,15 @@ static void xps_add_link_target(fz_context * ctx, xps_document * doc, char * nam
 {
 	xps_fixpage * page = doc->last_page;
 	xps_target * target = fz_malloc_struct(ctx, xps_target);
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		target->name = fz_strdup(ctx, name);
 		target->page = page->number;
 		target->next = doc->target;
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_free(ctx, target);
 		fz_rethrow(ctx);
 	}
-
 	doc->target = target;
 }
 
@@ -113,8 +109,8 @@ fz_location xps_lookup_link_target(fz_context * ctx, fz_document * doc_, const c
 {
 	xps_document * doc = (xps_document*)doc_;
 	xps_target * target;
-	const char * needle = strrchr(target_uri, '#');
-	needle = needle ? needle + 1 : target_uri;
+	const char * needle = sstrrchr(target_uri, '#');
+	needle = needle ? (needle + 1) : target_uri;
 	for(target = doc->target; target; target = target->next)
 		if(sstreq(target->name, needle))
 			return fz_make_location(0, target->page);
@@ -229,13 +225,11 @@ static void xps_parse_metadata(fz_context * ctx, xps_document * doc, xps_part * 
 	fz_xml_doc * xml;
 	char buf[1024];
 	char * s;
-
 	/* Save directory name part */
 	fz_strlcpy(buf, part->name, sizeof buf);
-	s = strrchr(buf, '/');
+	s = sstrrchr(buf, '/');
 	if(s)
 		s[0] = 0;
-
 	/* _rels parts are voodoo: their URI references are from
 	 * the part they are associated with, not the actual _rels
 	 * part being parsed.
@@ -243,17 +237,13 @@ static void xps_parse_metadata(fz_context * ctx, xps_document * doc, xps_part * 
 	s = strstr(buf, "/_rels");
 	if(s)
 		*s = 0;
-
 	doc->base_uri = buf;
 	doc->part_uri = part->name;
-
 	xml = fz_parse_xml(ctx, part->data, 0);
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		xps_parse_metadata_imp(ctx, doc, fz_xml_root(xml), fixdoc);
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		fz_drop_xml(ctx, xml);
 		doc->base_uri = NULL;
 		doc->part_uri = NULL;

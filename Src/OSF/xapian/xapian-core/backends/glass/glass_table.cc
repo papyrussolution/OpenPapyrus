@@ -1386,7 +1386,6 @@ bool GlassTable::readahead_key(const string &key) const
 {
 	LOGCALL(DB, bool, "GlassTable::readahead_key", key);
 	Assert(!key.empty());
-
 	// An overlong key cannot be found.
 	if(key.size() > GLASS_BTREE_MAX_KEY_LEN)
 		RETURN(false);
@@ -1461,9 +1460,7 @@ bool GlassTable::key_exists(const string &key) const
 bool GlassTable::read_tag(Glass::Cursor * C_, string * tag, bool keep_compressed) const
 {
 	LOGCALL(DB, bool, "GlassTable::read_tag", Literal("C_") | tag | keep_compressed);
-
 	tag->resize(0);
-
 	bool first = true;
 	bool compressed = false;
 	bool decompress = false;
@@ -1529,11 +1526,11 @@ void GlassTable::basic_open(const RootInfo * root_info, glass_revision_number_t 
 {
 	LOGCALL_VOID(DB, "GlassTable::basic_open", root_info|rev);
 	revision_number = rev;
-	root =                 root_info->get_root();
-	level =                root_info->get_level();
-	item_count =           root_info->get_num_entries();
+	root =           root_info->get_root();
+	level =          root_info->get_level();
+	item_count =     root_info->get_num_entries();
 	faked_root_block = root_info->get_root_is_fake();
-	sequential =           root_info->get_sequential();
+	sequential = root_info->get_sequential();
 	const string & fl_serialised = root_info->get_free_list();
 	if(!fl_serialised.empty()) {
 		if(!free_list.unpack(fl_serialised))
@@ -1542,20 +1539,14 @@ void GlassTable::basic_open(const RootInfo * root_info, glass_revision_number_t 
 	else {
 		free_list.reset();
 	}
-
 	compress_min = root_info->get_compress_min();
-
 	/* kt holds constructed items as well as keys */
 	kt = LeafItem_wr(zeroed_new(block_size));
-
 	set_max_item_size(BLOCK_CAPACITY);
-
 	for(int j = 0; j <= level; ++j) {
 		C[j].init(block_size);
 	}
-
 	read_root();
-
 	if(cursor_created_since_last_modification) {
 		cursor_created_since_last_modification = false;
 		++cursor_version;
@@ -1575,10 +1566,8 @@ void GlassTable::read_root()
 		memzero(p, block_size);
 		int o = block_size - I2 - K1;
 		LeafItem_wr(p + o).fake_root_item();
-
 		LeafItem_wr::setD(p, DIR_START, o); // its directory entry
 		SET_DIR_END(p, DIR_START + D2);// the directory size
-
 		o -= (DIR_START + D2);
 		SET_MAX_FREE(p, o);
 		SET_TOTAL_FREE(p, o);
@@ -1633,14 +1622,10 @@ void GlassTable::do_open_to_write(const RootInfo * root_info,
 			throw Xapian::DatabaseOpeningError(message, errno);
 		}
 	}
-
 	writable = true;
 	basic_open(root_info, rev);
-
 	split_p = new uint8[block_size];
-
 	buffer = zeroed_new(block_size);
-
 	changed_n = 0;
 	changed_c = DIR_START;
 	seq_count = SEQ_START_POINT;

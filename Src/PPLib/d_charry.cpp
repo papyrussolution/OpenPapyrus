@@ -123,9 +123,11 @@ int PPDS_ELinkAddr::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr) {
+			SString temp_buf;
 			Data = *static_cast<const PPELink *>(dataPtr);
 			KindID = Data.KindID;
-			GetObjectName(PPOBJ_ELINKKIND, Data.KindID, KindName, sizeof(KindName));
+			GetObjectName(PPOBJ_ELINKKIND, Data.KindID, temp_buf.Z());
+			STRNSCPY(KindName, temp_buf);
 			STRNSCPY(Addr, Data.Addr);
 		}
 		else
@@ -345,14 +347,21 @@ int PPDS_Barcode::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBu
 //
 int PPDS_CrrGoods::ExtractOuterData()
 {
-	GetObjectName(PPOBJ_UNIT, Data.Rec.UnitID, UnitName, sizeof(UnitName));
-	GetObjectName(PPOBJ_UNIT, Data.Rec.PhUnitID, PhUnitName, sizeof(PhUnitName));
+	SString temp_buf;
+	GetObjectName(PPOBJ_UNIT, Data.Rec.UnitID, temp_buf.Z());
+	STRNSCPY(UnitName, temp_buf);
+	GetObjectName(PPOBJ_UNIT, Data.Rec.PhUnitID, temp_buf.Z());
+	STRNSCPY(PhUnitName, temp_buf);
 	PhUPerU = Data.Rec.PhUPerU;
-	GetObjectName(PPOBJ_GOODSGROUP, Data.Rec.ParentID, GroupName, sizeof(GroupName));
-	GetObjectName(PPOBJ_PERSON, Data.Rec.ManufID, ManufName, sizeof(ManufName));
-	PPCountryBlock country_blk;
-	GObj.GetManufCountry(Data.Rec.ID, &Data.Rec, 0, &country_blk);
-	country_blk.Name.CopyTo(ManufCountry, sizeof(ManufCountry));
+	GetObjectName(PPOBJ_GOODSGROUP, Data.Rec.ParentID, temp_buf.Z());
+	STRNSCPY(GroupName, temp_buf);
+	GetObjectName(PPOBJ_PERSON, Data.Rec.ManufID, temp_buf.Z());
+	STRNSCPY(ManufName, temp_buf);
+	{
+		PPCountryBlock country_blk;
+		GObj.GetManufCountry(Data.Rec.ID, &Data.Rec, 0, &country_blk);
+		country_blk.Name.CopyTo(ManufCountry, sizeof(ManufCountry));
+	}
 	return 1;
 }
 
@@ -518,13 +527,16 @@ int PPDS_CrrQCert::InitData(Ido op, void * dataPtr, long addedParam)
 		RegOrgName[0] = 0;
 	}
 	else if(op == idoExtract) {
+		SString temp_buf;
 		if(dataPtr) {
 			Data = *static_cast<const QualityCertTbl::Rec *>(dataPtr);
-			GetObjectName(PPOBJ_PERSON, Data.RegOrgan, RegOrgName, sizeof(RegOrgName));
+			GetObjectName(PPOBJ_PERSON, Data.RegOrgan, temp_buf.Z());
+			STRNSCPY(RegOrgName, temp_buf);
 		}
 		if(addedParam) {
 			if(QcObj.Search(addedParam, &Data) > 0) {
-				GetObjectName(PPOBJ_PERSON, Data.RegOrgan, RegOrgName, sizeof(RegOrgName));
+				GetObjectName(PPOBJ_PERSON, Data.RegOrgan, temp_buf.Z());
+				STRNSCPY(RegOrgName, temp_buf);
 			}
 			else
 				ok = -1;

@@ -637,7 +637,7 @@ static int ngx_libc_cdecl ngx_http_autoindex_cmp_entries(const void * one, const
 	else if(!first->dir && second->dir)
 		return 1; // move the directories to the start 
 	else 
-		return (int)ngx_strcmp(first->name.data, second->name.data);
+		return strcmp(PTRCHRC_(first->name.data), PTRCHRC_(second->name.data));
 }
 
 #if 0

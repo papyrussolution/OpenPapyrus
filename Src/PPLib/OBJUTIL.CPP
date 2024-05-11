@@ -125,6 +125,7 @@ static const ushort _Objects[] = {
 	PPOBJ_SWPROGRAM,          // @v11.9.12
 	PPOBJ_SWPROGRAMCATEGORY,  // @v11.9.12
 	PPOBJ_COMPUTER,           // @v12.0.0
+	PPOBJ_COMPUTERCATEGORY,   // @v12.0.1
 };
 
 // @v10.9.4 #define _ObjectsCount (sizeof(_Objects) / sizeof(ushort/*PPID*/))
@@ -141,6 +142,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_UNIT        : p = new PPObjUnit(extraPtr); break;
 		case PPOBJ_PERSONKIND    : p = new PPObjPersonKind(extraPtr); break;
 		case PPOBJ_PRSNCATEGORY: p = new PPObjPersonCat(extraPtr); break;
+		case PPOBJ_COMPUTERCATEGORY:  p = new PPObjComputerCategory(extraPtr); break; // @v12.0.1
 		case PPOBJ_CURRATE     :
 		case PPOBJ_STAFFRANK   :
 		case PPOBJ_BNKACCTYPE  :
@@ -1297,6 +1299,7 @@ int STDCALL BroadcastObjMessage(int msg, PPID srcObjType, PPID srcObjID, void * 
 	return 1;
 }
 
+/* @v12.0.1 
 int STDCALL GetObjectName(PPID obj, PPID id, char * pBuf, size_t bufLen)
 {
 	int    r = 0;
@@ -1310,46 +1313,64 @@ int STDCALL GetObjectName(PPID obj, PPID id, char * pBuf, size_t bufLen)
 	}
 	return r;
 }
+*/
 
-int STDCALL GetObjectName(PPID objType, PPID objID, SString & rBuf, int cat)
+static int STDCALL Implement_GetObjectName(PPID objType, PPID objID, SString & rBuf, bool cat)
 {
+	if(!cat)
+		rBuf.Z();
 	int    ok = 0;
 	char   temp_buf[256];
 	SString _t;
-	PTR32(temp_buf)[0] = 0;
-	switch(objType) {
-		case PPOBJ_PERSON: ok = GetPersonName(objID, _t); break;
-		case PPOBJ_GOODS: ok = GetGoodsNameR(objID, _t); break;
-		case PPOBJ_ARTICLE: ok = GetArticleName(objID, _t); break;
-		case PPOBJ_LOT:
-			{
-				PPObjBill * p_bobj = BillObj;
-				if(p_bobj) {
-					ReceiptTbl::Rec lot_rec;
-					if(p_bobj->trfr->Rcpt.Search(objID, &lot_rec) > 0) {
-						ReceiptCore::MakeCodeString(&lot_rec, 0, _t);
-						ok = 1;
+	temp_buf[0] = 0;
+	if(objType) {
+		if(objID) {
+			switch(objType) {
+				case PPOBJ_PERSON: ok = GetPersonName(objID, _t); break;
+				case PPOBJ_GOODS: ok = GetGoodsNameR(objID, _t); break;
+				case PPOBJ_ARTICLE: ok = GetArticleName(objID, _t); break;
+				case PPOBJ_LOT:
+					{
+						PPObjBill * p_bobj = BillObj;
+						if(p_bobj) {
+							ReceiptTbl::Rec lot_rec;
+							if(p_bobj->trfr->Rcpt.Search(objID, &lot_rec) > 0) {
+								ReceiptCore::MakeCodeString(&lot_rec, 0, _t);
+								ok = 1;
+							}
+						}
 					}
-				}
+					break;
+				case PPOBJ_AMOUNTTYPE:
+					{
+						PPObjAmountType amtt_obj;
+						PPAmountType amtt_rec;
+						if(amtt_obj.Fetch(objID, &amtt_rec) > 0) {
+							_t = amtt_rec.Name;
+							ok = 1;
+						}
+						else {
+							ideqvalstr(objID, _t);
+							ok = -1;
+						}
+					}
+					break;
+				default:
+					// @v12.0.1 ok = GetObjectName(objType, objID, temp_buf, sizeof(temp_buf));
+					// @v12.0.1 {
+					{
+						PPObject * p_o = GetPPObject(objType, 0);
+						if(p_o) {
+							ok = p_o->GetName(objID, temp_buf, sizeof(temp_buf));
+							delete p_o;
+						}
+					}
+					// } @v12.0.1 
+					break;
 			}
-			break;
-		case PPOBJ_AMOUNTTYPE: // @v10.0.0
-			{
-				PPObjAmountType amtt_obj;
-				PPAmountType amtt_rec;
-				if(amtt_obj.Fetch(objID, &amtt_rec) > 0) {
-					_t = amtt_rec.Name;
-					ok = 1;
-				}
-				else {
-					ideqvalstr(objID, _t);
-					ok = -1;
-				}
-			}
-			break;
-		default:
-			ok = GetObjectName(objType, objID, temp_buf, sizeof(temp_buf));
-			break;
+		}
+		else
+			ok = -1;
 	}
 	if(cat) {
 		if(_t.NotEmpty())
@@ -1366,6 +1387,17 @@ int STDCALL GetObjectName(PPID objType, PPID objID, SString & rBuf, int cat)
 	return ok;
 }
 
+int STDCALL GetObjectName(PPID objType, PPID objID, SString & rBuf)
+{
+	return Implement_GetObjectName(objType, objID, rBuf, false);
+}
+
+int STDCALL CatObjectName(PPID objType, PPID objID, SString & rBuf) // @v12.0.1 Вместо GetObjectName(PPID objType, PPID objID, SString & rBuf, int cat);
+{
+	return Implement_GetObjectName(objType, objID, rBuf, true);
+}
+
+
 SString & GetExtObjectName(const ObjIdListFilt & rObjList, PPID obj, size_t maxItems, SString & rBuf)
 {
 	if(rObjList.IsEmpty()) {
@@ -1380,7 +1412,7 @@ SString & GetExtObjectName(const ObjIdListFilt & rObjList, PPID obj, size_t maxI
 				break;
 			}
 			else
-				GetObjectName(obj, rObjList.Get().at(i), rBuf, 1);
+				CatObjectName(obj, rObjList.Get().at(i), rBuf);
 		}
 	}
 	return rBuf;

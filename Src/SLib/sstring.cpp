@@ -201,7 +201,7 @@ int WriteQuotedString(const char * pInBuf, size_t inBufLen, uint flags, SString 
 //
 //
 //
-SRegExpSet::SRegExpSet() : P_ReQuotedStr(0), P_ReNumber(0), P_ReHex(0), P_ReIdent(0), 
+SRegExpSet::SRegExpSet() : P_ReQuotedStr(0), P_ReNumber(0), P_ReHex(0), P_ReIdent(0), P_ReIdentWithHyphen(0), 
 	P_ReDigits(0), P_ReXDigits(0), P_ReEMail(0), P_ReDate(0), P_RePhone(0)
 {
 }
@@ -212,6 +212,7 @@ SRegExpSet::~SRegExpSet()
 	ZDELETE(P_ReNumber);
 	ZDELETE(P_ReHex);
 	ZDELETE(P_ReIdent);
+	ZDELETE(P_ReIdentWithHyphen); // @v12.0.1
 	ZDELETE(P_ReDigits);
 	ZDELETE(P_ReXDigits); // @v11.4.1
 	ZDELETE(P_ReEMail);
@@ -616,6 +617,19 @@ int FASTCALL SStrScan::GetIdent(SString & rBuf)
 	if(!P_ReIdent)
 		P_ReIdent = new SRegExp2("^[_a-zA-Z][_0-9a-zA-Z]*", cp1251, SRegExp2::syntaxDefault, 0);
 	if(P_ReIdent->Find(this, 0)) {
+		Get(rBuf);
+		IncrLen();
+		return 1;
+	}
+	else
+		return 0;
+}
+
+int  FASTCALL SStrScan::GetIdentWithHyphen(SString & rBuf)
+{
+	if(!P_ReIdentWithHyphen)
+		P_ReIdentWithHyphen = new SRegExp2("^[_a-zA-Z][_0-9a-zA-Z-]*", cp1251, SRegExp2::syntaxDefault, 0);
+	if(P_ReIdentWithHyphen->Find(this, 0)) {
 		Get(rBuf);
 		IncrLen();
 		return 1;

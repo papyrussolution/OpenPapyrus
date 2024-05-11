@@ -191,19 +191,16 @@ static void globfree(glob_t * pglob) {
 #else
 #include <glob.h>
 #endif
-
-/************************************************************************
-*									*
-*		Libxml2 specific routines				*
-*									*
-************************************************************************/
-
+// 
+// Libxml2 specific routines
+// 
 static int nb_tests = 0;
 static int nb_errors = 0;
 static int nb_leaks = 0;
 static int extraMemoryFromResolver = 0;
 
-static int fatalError(void) {
+static int fatalError(void) 
+{
 	fprintf(stderr, "Exitting tests on fatal error\n");
 	exit(1);
 }
@@ -524,14 +521,11 @@ static void initializeLibxml2(void) {
 	xmlRelaxNGInitTypes();
 #endif
 }
-
-/************************************************************************
-*									*
-*		File name and path utilities				*
-*									*
-************************************************************************/
-
-static const char *baseFilename(const char * filename) {
+// 
+// File name and path utilities
+// 
+static const char *baseFilename(const char * filename) 
+{
 	const char * cur;
 	if(filename == NULL)
 		return NULL;
@@ -543,19 +537,17 @@ static const char *baseFilename(const char * filename) {
 	return(cur);
 }
 
-static char *resultFilename(const char * filename, const char * out,
-    const char * suffix) {
+static char *resultFilename(const char * filename, const char * out, const char * suffix) 
+{
 	const char * base;
 	char res[500];
 	char suffixbuff[500];
-
 /*************
     if ((filename[0] == 't') && (filename[1] == 'e') &&
         (filename[2] == 's') && (filename[3] == 't') &&
         (filename[4] == '/'))
         filename = &filename[5];
 *************/
-
 	base = baseFilename(filename);
 	if(suffix == NULL)
 		suffix = ".tmp";
@@ -690,25 +682,17 @@ static int loadMem(const char * filename, const char ** mem, int * size) {
 	return(0);
 }
 
-static int unloadMem(const char * mem) {
+static int unloadMem(const char * mem) 
+{
 	free((char *)mem);
 	return(0);
 }
-
-/************************************************************************
-*									*
-*		Tests implementations					*
-*									*
-************************************************************************/
-
-/************************************************************************
-*									*
-*		Parse to SAX based tests				*
-*									*
-************************************************************************/
-
+// 
+// Tests implementations
+// 
+// Parse to SAX based tests
+// 
 static FILE * SAXdebug = NULL;
-
 /*
  * empty SAX block
  */
@@ -1980,25 +1964,19 @@ static int errParseTest(const char * filename, const char * result, const char *
 }
 
 #ifdef LIBXML_READER_ENABLED
-/************************************************************************
-*									*
-*		Reader based tests					*
-*									*
-************************************************************************/
-
-static void processNode(FILE * out, xmlTextReader * reader) {
+// 
+// Reader based tests
+// 
+static void processNode(FILE * out, xmlTextReader * reader) 
+{
 	const xmlChar * name, * value;
 	int type, empty;
-
 	type = xmlTextReaderNodeType(reader);
 	empty = xmlTextReaderIsEmptyElement(reader);
-
 	name = xmlTextReaderConstName(reader);
 	if(name == NULL)
 		name = BAD_CAST "--";
-
 	value = xmlTextReaderConstValue(reader);
-
 	fprintf(out, "%d %d %s %d %d",
 	    xmlTextReaderDepth(reader),
 	    type,
@@ -4175,14 +4153,11 @@ static testDesc testDescriptions[] = {
 #endif
 	{NULL, NULL, NULL, NULL, NULL, NULL, 0}
 };
-
-/************************************************************************
-*									*
-*		The main code driving the tests				*
-*									*
-************************************************************************/
-
-static int launchTests(testDescPtr tst) {
+// 
+// The main code driving the tests
+// 
+static int launchTests(testDescPtr tst) 
+{
 	int res = 0, err = 0;
 	size_t i;
 	char * result;
@@ -4336,9 +4311,9 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED)
 }
 
 #else /* ! LIBXML_OUTPUT_ENABLED */
-int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) {
+int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED) 
+{
 	fprintf(stderr, "runtest requires output to be enabled in libxml2\n");
 	return(1);
 }
-
 #endif

@@ -213,13 +213,13 @@ double _Complex cexp(double _Complex z)
 // 
 char * gp_basename(char * path)
 {
-	char * basename = strrchr(path, DIRSEP1);
+	char * basename = sstrrchr(path, DIRSEP1);
 	if(basename) {
 		basename++;
 		return basename;
 	}
 #if DIRSEP2 != NUL
-	basename = strrchr(path, DIRSEP2);
+	basename = sstrrchr(path, DIRSEP2);
 	if(basename) {
 		basename++;
 		return basename;

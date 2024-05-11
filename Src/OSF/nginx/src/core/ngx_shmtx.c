@@ -135,7 +135,7 @@ static void ngx_shmtx_wakeup(ngx_shmtx_t * mtx)
 ngx_int_t ngx_shmtx_create(ngx_shmtx_t * mtx, ngx_shmtx_sh_t * addr, uchar * name)
 {
 	if(mtx->name) {
-		if(ngx_strcmp(name, mtx->name) == 0) {
+		if(sstreq(name, mtx->name)) {
 			mtx->name = name;
 			return NGX_OK;
 		}

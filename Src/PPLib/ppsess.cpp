@@ -2761,7 +2761,7 @@ int PPSession::MakeMachineID(MACAddr * pMachineID)
 		char buf[32];
 		// @v11.1.1 IdeaRandMem(buf, sizeof(buf));
 		SObfuscateBuffer(buf, sizeof(buf)); // @v11.1.1 
-		memcpy(addr.Addr, buf+3, sizeof(addr.Addr));
+		memcpy(addr.D, buf+3, sizeof(addr.D));
 		ok = 1;
 	}
 	ASSIGN_PTR(pMachineID, addr);
@@ -4208,9 +4208,9 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					r_cc.Flags2 &= ~CCFLG2_USEVETIS;
 					PPAlbatrossConfig acfg;
 					if(DS.FetchAlbatrosConfig(&acfg) > 0) {
-						acfg.GetExtStrData(ALBATROSEXSTR_VETISUSER, temp_buf.Z());
+						acfg.GetExtStrData(ALBATROSEXSTR_VETISUSER, temp_buf);
 						if(temp_buf.NotEmpty()) {
-							acfg.GetExtStrData(ALBATROSEXSTR_VETISAPIKEY, temp_buf.Z());
+							acfg.GetExtStrData(ALBATROSEXSTR_VETISAPIKEY, temp_buf);
 							if(temp_buf.NotEmpty())
 								r_cc.Flags2 |= CCFLG2_USEVETIS;
 						}

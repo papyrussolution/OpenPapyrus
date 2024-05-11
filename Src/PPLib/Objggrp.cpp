@@ -1834,7 +1834,7 @@ int PPObjTransport::GetNameByTemplate(PPTransport * pPack, const char * pTemplat
 			switch(sym) {
 				case PPSYM_MODEL:
 					if(pPack->TrModelID)
-						GetObjectName(PPOBJ_TRANSPMODEL, pPack->TrModelID, temp_buf, 0);
+						GetObjectName(PPOBJ_TRANSPMODEL, pPack->TrModelID, temp_buf);
 					break;
 				case PPSYM_CODE:
 					temp_buf = pPack->Code;

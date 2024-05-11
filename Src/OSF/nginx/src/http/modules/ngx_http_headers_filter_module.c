@@ -518,11 +518,10 @@ static const char * ngx_http_headers_expires(ngx_conf_t * cf, const ngx_command_
 	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(cf->args->nelts == 2) {
 		hcf->expires = NGX_HTTP_EXPIRES_ACCESS;
-
 		n = 1;
 	}
 	else { /* cf->args->nelts == 3 */
-		if(ngx_strcmp(value[1].data, "modified") != 0) {
+		if(!sstreq(value[1].data, "modified")) {
 			return "invalid value";
 		}
 		hcf->expires = NGX_HTTP_EXPIRES_MODIFIED;
@@ -599,7 +598,7 @@ static const char * ngx_http_headers_add(ngx_conf_t * cf, const ngx_command_t * 
 	if(cf->args->nelts == 3) {
 		return NGX_CONF_OK;
 	}
-	if(ngx_strcmp(value[3].data, "always") != 0) {
+	if(!sstreq(value[3].data, "always")) {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter \"%V\"", &value[3]);
 		return NGX_CONF_ERROR;
 	}

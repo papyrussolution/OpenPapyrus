@@ -61,54 +61,89 @@ int ProcPool_IpHlpApi::PtRelease()
 }
 
 
-MACAddr::MACAddr()
+MACAddr::MACAddr() : TSBinary<6>()
 {
-	memzero(Addr, sizeof(Addr));
+	//memzero(Addr, sizeof(Addr));
 }
 
-MACAddr::MACAddr(const MACAddr & rS)
+MACAddr::MACAddr(const MACAddr & rS) : TSBinary<6>(rS)
 {
-	memcpy(Addr, rS.Addr, sizeof(Addr));
+	//memcpy(Addr, rS.Addr, sizeof(Addr));
 }
 
-MACAddr & FASTCALL MACAddr::operator = (const MACAddr & rS)
+/*MACAddr & FASTCALL MACAddr::operator = (const MACAddr & rS)
 {
 	memcpy(Addr, rS.Addr, sizeof(Addr));
 	return *this;
-}
-
-bool FASTCALL MACAddr::operator == (const MACAddr & rS) const
-{
-	return memcmp(Addr, rS.Addr, sizeof(Addr)) == 0;
-}
-
-MACAddr & MACAddr::Z()
+}*/
+//bool FASTCALL MACAddr::operator == (const MACAddr & rS) const { return memcmp(Addr, rS.Addr, sizeof(Addr)) == 0; }
+/*MACAddr & MACAddr::Z()
 {
 	memzero(Addr, sizeof(Addr));
 	return *this;
-}
+}*/
+//bool MACAddr::IsEmpty() const { return ismemzero(Addr, sizeof(Addr)); }
 
-bool MACAddr::IsEmpty() const { return ismemzero(Addr, sizeof(Addr)); }
-
-SString & FASTCALL MACAddr::ToStr(SString & rBuf) const
+SString & FASTCALL MACAddr::ToStr(long fmt, SString & rBuf) const
 {
 	rBuf.Z();
-	for(size_t i = 0; i < sizeof(Addr); i++) {
-		char   item_buf[64];
-		sprintf(item_buf, "%.2X", Addr[i]);
-		if(i)
-			rBuf.CatChar('-');
-		rBuf.Cat(item_buf);
+	for(size_t i = 0; i < sizeof(D); i++) {
+		if(i && !(fmt & fmtPlain)) {
+			rBuf.CatChar((fmt & fmtDivColon) ? ':' : '-');
+		}
+		if(fmt & fmtLower)
+			rBuf.CatHex(D[i]);
+		else
+			rBuf.CatHexUpper(D[i]);
 	}
 	return rBuf;
 }
 
+bool MACAddr::FromStr(const char * pStr) // @v12.0.1
+{
+	Z();
+	bool   ok = true;
+	if(!isempty(pStr)) {
+		const  char * p = pStr;
+		uint   t = 0;
+		char   temp_buf[128];
+		while(*p) {
+			char   c = *p;
+			if(!oneof2(c, ' ', '\t')) {
+				int    is_valid_ch = 0;
+				if(ishex(c)) {
+					temp_buf[t++] = c;
+					is_valid_ch = 1;
+				}
+				else if(t == 32)
+					break;
+				else if(oneof3(c, '-', ':', ' ')) // ƒопускаем что разделител€ми могут быть пробелы
+					is_valid_ch = 1;
+				if(t > (sizeof(temp_buf)-4))
+					break;
+			}
+			p++;
+		}
+		if(t == 12) {
+			size_t i;
+			uint8 * p_data = D;
+			for(i = 0; i < 6; i++)
+				p_data[i] = hextobyte(temp_buf + (i << 1));
+		}
+		else
+			ok = SLS.SetError(SLERR_INVGUIDSTR, pStr);
+	}
+	else
+		ok = false;
+	return ok;
+}
+
 int FASTCALL MACAddr::Cmp(const MACAddr & s) const
 {
-	for(size_t i = 0; i < sizeof(Addr); i++)
-		if(Addr[i] < s.Addr[i])
+	for(size_t i = 0; i < sizeof(D); i++)
+		if(D[i] < s.D[i])
 			return -1;
-		else if(Addr[i] > s.Addr[i])
+		else if(D[i] > s.D[i])
 			return 1;
 	return 0;
 }
@@ -136,7 +171,7 @@ static int GetMacByIP(const SString & rIP, MACAddr * pMAC)
 		MEMSZERO(mac);
 		ProcPool_IpHlpApi::PtLoad();
 		if(ProcPool_IpHlpApi::SendARP(inet_addr(rIP), 0, mac, &(size = 6)) == NO_ERROR) {
-			memcpy(pMAC->Addr, mac, sizeof(pMAC->Addr));
+			memcpy(pMAC->D, mac, sizeof(pMAC->D));
 			ok = 1;
 		}
 	}
@@ -307,8 +342,8 @@ int GetMACAddrList(MACAddrArray * pList)
 			for(IP_ADAPTER_INFO * p_iter = p_info; p_iter; p_iter = p_iter->Next) {
 				if(p_iter->Type == MIB_IF_TYPE_ETHERNET) {
 					MACAddr ma;
-					if(p_iter->AddressLength == sizeof(ma.Addr)) {
-						memcpy(ma.Addr, p_iter->Address, sizeof(ma.Addr));
+					if(p_iter->AddressLength == sizeof(ma.D)) {
+						memcpy(ma.D, p_iter->Address, sizeof(ma.D));
 						pList->insert(&ma);
 						ok = 1;
 					}

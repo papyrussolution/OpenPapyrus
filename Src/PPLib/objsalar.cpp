@@ -1278,7 +1278,7 @@ public:
 				GetObjectTitle(link_obj_type, temp_buf);
 				if(P_Pack->Rec.LinkObjID) {
 					temp_buf.CatDiv(':', 2);
-					GetObjectName(link_obj_type, P_Pack->Rec.LinkObjID, temp_buf, 1);
+					CatObjectName(link_obj_type, P_Pack->Rec.LinkObjID, temp_buf);
 				}
 				setStaticText(CTL_STAFFCALD_ST_OBJ, temp_buf);
 			}

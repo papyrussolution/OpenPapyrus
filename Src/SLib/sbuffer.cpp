@@ -678,7 +678,7 @@ SBinaryChunk::SBinaryChunk(const SBinaryChunk & rS) : L(0)
 SBinaryChunk & SBinaryChunk::Randomize(size_t len)
 {
 	if(len && Ensure(len))
-		SLS.GetTLA().Rg.ObfuscateBuffer(P_Buf, Len());
+		memrandomize(P_Buf, Len());
 	else
 		Z();
 	return *this;

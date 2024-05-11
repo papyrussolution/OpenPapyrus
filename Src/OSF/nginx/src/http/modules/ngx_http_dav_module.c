@@ -666,7 +666,7 @@ static ngx_int_t ngx_http_dav_depth(ngx_http_request_t * r, ngx_int_t dflt)
 		}
 	}
 	else {
-		if(depth->value.len == sizeof("infinity") - 1 && ngx_strcmp(depth->value.data, "infinity") == 0) {
+		if(depth->value.len == sizeof("infinity") - 1 && sstreq(depth->value.data, "infinity")) {
 			return NGX_HTTP_DAV_INFINITY_DEPTH;
 		}
 	}

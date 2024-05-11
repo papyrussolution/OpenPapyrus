@@ -1285,7 +1285,7 @@ static void free_sconv_object(archive_string_conv * sc)
 			return (GetACP());
 		if(locale[0] == 'C' && locale[1] == '\0')
 			return (CP_C_LOCALE);
-		p = strrchr(locale, '.');
+		p = sstrrchr(locale, '.');
 		if(!p)
 			return (GetACP());
 		if(sstreq(p+1, "utf8"))
@@ -1359,7 +1359,7 @@ static void free_sconv_object(archive_string_conv * sc)
 			return (GetOEMCP());
 		if(locale[0] == 'C' && locale[1] == '\0')
 			return (CP_C_LOCALE);
-		p = strrchr(locale, '.');
+		p = sstrrchr(locale, '.');
 		if(!p)
 			return (GetOEMCP());
 		len = p - locale;

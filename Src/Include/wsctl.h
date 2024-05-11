@@ -7,9 +7,11 @@
 class WsCtl_SelfIdentityBlock {
 public:
 	WsCtl_SelfIdentityBlock();
-	int    GetOwnUuid();
+	int    GetOwnIdentifiers();
 
 	S_GUID Uuid;
+	MACAddrArray MacAdrList; // @v12.0.1
+	S_IPAddr IpAdr; // @v12.0.1
 	PPID   PrcID; // Идентификатор процессора на сервере. Инициируется ответом от сервера.
 	SString PrcName; // Наименование процессора на сервере. Инициируется ответом от сервера.
 };
@@ -257,6 +259,55 @@ public:
 		PPID   SCardID;
 		PPID   PsnID;
 	};
+	struct ComputerRegistrationBlock { // @v12.0.1
+		ComputerRegistrationBlock() : Status(0), PrcID(0), ComputerID(0)
+		{
+		}
+		ComputerRegistrationBlock & Z()
+		{
+			WsCtlUuid.Z();
+			MacAdrList.clear();
+			Name.Z();
+			Status = 0;
+			PrcID = 0;
+			ComputerID = 0;
+			return *this;
+		}
+		bool   FromJsonObj(const SJson * pJs)
+		{
+			bool   result = false;
+			Z();
+			if(pJs) {
+				const SJson * p_c = pJs->FindChildByKey("nm");
+				if(SJson::IsString(p_c))
+					Name = p_c->Text;
+				p_c = pJs->FindChildByKey("wsctluuid");
+				if(SJson::IsString(p_c)) {
+					WsCtlUuid.FromStr(p_c->Text);
+				}
+				p_c = pJs->FindChildByKey("macadr_list");
+				if(SJson::IsArray(p_c)) {
+					SString temp_buf;
+					for(const SJson * p_js_item = p_c->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+						if(SJson::IsString(p_js_item) && (temp_buf = p_js_item->Text).NotEmptyS()) {
+							MACAddr macadr;
+							if(macadr.FromStr(temp_buf)) {
+								MacAdrList.insert(&macadr);
+							}
+						}
+					}
+				}
+			}
+			return result;
+		}
+		S_GUID WsCtlUuid; // IN/OUT
+		MACAddrArray MacAdrList;
+		SString Name;
+		// Results:
+		int    Status;  // 0 - error, 1 - success
+		PPID   PrcID;
+		PPID   ComputerID;
+	};
 	struct AuthBlock {
 		AuthBlock();
 		AuthBlock & Z();
@@ -309,6 +360,7 @@ public:
 	int    GetQuotList(PPID goodsID, PPID locID, const PPIDArray & rRawQkList, PPQuotArray & rQList);
 	int    StartSess(StartSessBlock & rBlk);
 	int    Registration(RegistrationBlock & rBlk);
+	int    RegisterComputer(ComputerRegistrationBlock & rBlk);
 	int    Auth(AuthBlock & rBlk);
 	int    SendClientPolicy(SString & rResult);
 	int    SendProgramList(SString & rResult);

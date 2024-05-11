@@ -7,7 +7,6 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
 #ifndef OPENSSL_COMPERR_H
 #define OPENSSL_COMPERR_H
 #pragma once
@@ -16,16 +15,12 @@
 #include <openssl/symhacks.h>
 #include <openssl/cryptoerr_legacy.h>
 
-
 #ifndef OPENSSL_NO_COMP
-
-
-/*
- * COMP reason codes.
- */
-#define COMP_R_ZLIB_DEFLATE_ERROR                        99
-#define COMP_R_ZLIB_INFLATE_ERROR                        100
-#define COMP_R_ZLIB_NOT_SUPPORTED                        101
-
+	/*
+	 * COMP reason codes.
+	 */
+	#define COMP_R_ZLIB_DEFLATE_ERROR                        99
+	#define COMP_R_ZLIB_INFLATE_ERROR                        100
+	#define COMP_R_ZLIB_NOT_SUPPORTED                        101
 #endif
 #endif

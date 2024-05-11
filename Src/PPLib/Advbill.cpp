@@ -1,5 +1,5 @@
 // ADVBILL.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -623,7 +623,7 @@ static int SetAdvBillItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItemLis
 	pEntry->Dt = pItem->AdvDt;
 	STRNSCPY(pEntry->Code, pItem->AdvCode);
 	pEntry->Amount = pItem->Amount;
-	GetObjectName(PPOBJ_ADVBILLKIND, pItem->AdvBillKindID, temp_buf, 0);
+	GetObjectName(PPOBJ_ADVBILLKIND, pItem->AdvBillKindID, temp_buf);
 	temp_buf.CopyTo(pEntry->BillKind, sizeof(pEntry->BillKind));
 	acctid.ac = pItem->AccID;
 	acctid.ar = pItem->ArID;
@@ -639,10 +639,12 @@ static int SetAdvBillItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItemLis
 static int SetWarrantItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItemList::Item * pItem, PPObjBill *)
 {
 	int    ok = 1;
+	SString temp_buf;
 	memzero(pEntry, sizeof(AdvBillItemEntry));
 	THROW_INVARG(pEntry && pItem);
 	STRNSCPY(pEntry->Memo, pItem->Memo);
-	GetObjectName(PPOBJ_UNIT, pItem->ArID, pEntry->Code, sizeof(pEntry->Code));
+	GetObjectName(PPOBJ_UNIT, pItem->ArID, temp_buf.Z());
+	STRNSCPY(pEntry->Code, temp_buf);
 	pEntry->Amount = pItem->Amount;
 	CATCHZOK
 	return ok;

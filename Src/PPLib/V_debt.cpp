@@ -2261,7 +2261,7 @@ int PPViewDebtTrnovr::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 						PPELinkArray phones_ary;
 						PersonCore::GetELinks(ObjectToPerson(hdr.ArID, 0), phones_ary);
 						for(uint i = 0; i < phones_ary.getCount(); i++) {
-							GetObjectName(PPOBJ_ELINKKIND, phones_ary.at(i).KindID, buf, 1);
+							CatObjectName(PPOBJ_ELINKKIND, phones_ary.at(i).KindID, buf);
 							buf.CatDiv(':', 2).Cat(phones_ary.at(i).Addr).CR();
 							r = 1;
 						}

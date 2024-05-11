@@ -34,7 +34,7 @@ U_CAPI const char * U_EXPORT2 u_skipWhitespace(const char * s) {
 
 U_CAPI char * U_EXPORT2 u_rtrim(char * s) 
 {
-	char * end = uprv_strchr(s, 0);
+	char * end = sstrchr(s, 0);
 	while(s<end && U_IS_INV_WHITESPACE(*(end-1))) {
 		*--end = 0;
 	}
@@ -117,7 +117,7 @@ U_CAPI void U_EXPORT2 u_parseDelimitedFile(const char * filename, char delimiter
 		}
 
 		/* remove in-line comments */
-		limit = uprv_strchr(start, '#');
+		limit = sstrchr(start, '#');
 		if(limit!=NULL) {
 			/* get white space before the pound sign */
 			while(limit>start && U_IS_INV_WHITESPACE(*(limit-1))) {

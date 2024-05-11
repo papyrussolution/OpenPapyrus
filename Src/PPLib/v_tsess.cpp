@@ -926,16 +926,16 @@ DBQuery * PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	THROW(CheckQueryPtr(q));
 	if(pSubTitle) {
 		if(Filt.SuperSessID) {
-			GetObjectName(PPOBJ_TSESSION, Filt.SuperSessID, *pSubTitle, 1);
+			CatObjectName(PPOBJ_TSESSION, Filt.SuperSessID, *pSubTitle);
 		}
 		else {
 			if(Filt.PrcID) {
 				pSubTitle->CatDivIfNotEmpty(';', 0);
-				GetObjectName(PPOBJ_PROCESSOR, Filt.PrcID, *pSubTitle, 1);
+				CatObjectName(PPOBJ_PROCESSOR, Filt.PrcID, *pSubTitle);
 			}
 			if(Filt.TechID) {
 				pSubTitle->CatDivIfNotEmpty(';', 0);
-				GetObjectName(PPOBJ_TECH, Filt.TechID, *pSubTitle, 1);
+				CatObjectName(PPOBJ_TECH, Filt.TechID, *pSubTitle);
 			}
 		}
 	}
@@ -1809,7 +1809,7 @@ DBQuery * PPViewTSessLine::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	}
 	THROW(CheckQueryPtr(q));
 	if(pSubTitle) {
-		GetObjectName(PPOBJ_TSESSION, Filt.TSesList.GetSingle(), *pSubTitle, 0);
+		GetObjectName(PPOBJ_TSESSION, Filt.TSesList.GetSingle(), *pSubTitle);
 		if(Filt.GoodsID) {
 			SString goods_name;
 			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(GetGoodsName(Filt.GoodsID, goods_name));

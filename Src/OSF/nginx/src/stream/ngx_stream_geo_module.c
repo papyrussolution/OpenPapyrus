@@ -418,7 +418,7 @@ static const char * ngx_stream_geo(ngx_conf_t * cf, const ngx_command_t * dummy,
 	ctx = (ngx_stream_geo_conf_ctx_t *)cf->ctx;
 	value = static_cast<ngx_str_t *>(cf->args->elts);
 	if(cf->args->nelts == 1) {
-		if(ngx_strcmp(value[0].data, "ranges") == 0) {
+		if(sstreq(value[0].data, "ranges")) {
 			if(ctx->tree
 #if (NGX_HAVE_INET6)
 			   || ctx->tree6
@@ -436,7 +436,7 @@ static const char * ngx_stream_geo(ngx_conf_t * cf, const ngx_command_t * dummy,
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid number of the geo parameters");
 		goto failed;
 	}
-	if(ngx_strcmp(value[0].data, "include") == 0) {
+	if(sstreq(value[0].data, "include")) {
 		rv = ngx_stream_geo_include(cf, ctx, &value[1]);
 		goto done;
 	}
@@ -460,8 +460,7 @@ static char * ngx_stream_geo_range(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_t * 
 	in_addr_t start, end;
 	ngx_str_t * net;
 	ngx_uint_t del;
-
-	if(ngx_strcmp(value[0].data, "default") == 0) {
+	if(sstreq(value[0].data, "default")) {
 		if(ctx->high.default_value) {
 			ngx_conf_log_error(NGX_LOG_WARN, cf, 0,
 			    "duplicate default geo range value: \"%V\", old value: \"%v\"",
@@ -490,11 +489,9 @@ static char * ngx_stream_geo_range(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_t * 
 			return NGX_CONF_ERROR;
 		}
 	}
-
 	ctx->entries++;
 	ctx->outside_entries = 1;
-
-	if(ngx_strcmp(value[0].data, "delete") == 0) {
+	if(sstreq(value[0].data, "delete")) {
 		net = &value[1];
 		del = 1;
 	}
@@ -502,60 +499,40 @@ static char * ngx_stream_geo_range(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_t * 
 		net = &value[0];
 		del = 0;
 	}
-
 	last = net->data + net->len;
-
 	p = ngx_strlchr(net->data, last, '-');
-
 	if(!p) {
 		goto invalid;
 	}
-
 	start = ngx_inet_addr(net->data, p - net->data);
-
 	if(start == INADDR_NONE) {
 		goto invalid;
 	}
-
 	start = ntohl(start);
-
 	p++;
-
 	end = ngx_inet_addr(p, last - p);
-
 	if(end == INADDR_NONE) {
 		goto invalid;
 	}
-
 	end = ntohl(end);
-
 	if(start > end) {
 		goto invalid;
 	}
-
 	if(del) {
 		if(ngx_stream_geo_delete_range(cf, ctx, start, end)) {
 			ngx_conf_log_error(NGX_LOG_WARN, cf, 0,
 			    "no address range \"%V\" to delete", net);
 		}
-
 		return NGX_CONF_OK;
 	}
-
 	ctx->value = ngx_stream_geo_value(cf, ctx, &value[1]);
-
 	if(ctx->value == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	ctx->net = net;
-
 	return ngx_stream_geo_add_range(cf, ctx, start, end);
-
 invalid:
-
 	ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid range \"%V\"", net);
-
 	return NGX_CONF_ERROR;
 }
 
@@ -826,33 +803,25 @@ static char * ngx_stream_geo_cidr(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_t * c
 		}
 	}
 #endif
-
-	if(ngx_strcmp(value[0].data, "default") == 0) {
+	if(sstreq(value[0].data, "default")) {
 		cidr.family = AF_INET;
 		cidr.u.in.addr = 0;
 		cidr.u.in.mask = 0;
-
 		rv = ngx_stream_geo_cidr_add(cf, ctx, &cidr, &value[1], &value[0]);
-
 		if(rv != NGX_CONF_OK) {
 			return rv;
 		}
-
 #if (NGX_HAVE_INET6)
 		cidr.family = AF_INET6;
 		memzero(&cidr.u.in6, sizeof(ngx_in6_cidr_t));
-
 		rv = ngx_stream_geo_cidr_add(cf, ctx, &cidr, &value[1], &value[0]);
-
 		if(rv != NGX_CONF_OK) {
 			return rv;
 		}
 #endif
-
 		return NGX_CONF_OK;
 	}
-
-	if(ngx_strcmp(value[0].data, "delete") == 0) {
+	if(sstreq(value[0].data, "delete")) {
 		net = &value[1];
 		del = 1;
 	}
@@ -989,7 +958,7 @@ static ngx_stream_variable_value_t * ngx_stream_geo_value(ngx_conf_t * cf, ngx_s
 static ngx_int_t ngx_stream_geo_cidr_value(ngx_conf_t * cf, ngx_str_t * net, ngx_cidr_t * cidr)
 {
 	ngx_int_t rc;
-	if(ngx_strcmp(net->data, "255.255.255.255") == 0) {
+	if(sstreq(net->data, "255.255.255.255")) {
 		cidr->family = AF_INET;
 		cidr->u.in.addr = 0xffffffff;
 		cidr->u.in.mask = 0xffffffff;

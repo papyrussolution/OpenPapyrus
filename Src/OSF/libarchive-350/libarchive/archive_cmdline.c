@@ -100,7 +100,7 @@ int __archive_cmdline_parse(struct archive_cmdline * data, const char * cmd)
 	r = cmdline_set_path(data, as.s);
 	if(r != ARCHIVE_OK)
 		goto exit_function;
-	p = strrchr(as.s, '/');
+	p = sstrrchr(as.s, '/');
 	if(!p)
 		p = as.s;
 	else

@@ -102,7 +102,7 @@ const char * PPObjCSession::GetNamePtr() { return MakeCodeString(&P_Tbl->data, N
 /*static*/SString & FASTCALL PPObjCSession::MakeCodeString(const CSessionTbl::Rec * pRec, SString & rBuf)
 {
 	rBuf.Z().Cat(pRec->Dt).CatDiv('-', 1).Cat(pRec->SessNumber).CatDiv('-', 1).Cat(pRec->CashNumber).CatDiv('-', 1);
-	GetObjectName(PPOBJ_CASHNODE, pRec->CashNodeID, rBuf, 1);
+	CatObjectName(PPOBJ_CASHNODE, pRec->CashNodeID, rBuf);
 	return rBuf;
 }
 

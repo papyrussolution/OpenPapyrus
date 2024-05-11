@@ -1042,3 +1042,30 @@ SLTEST_R(BarcodeArray)
 	}
 	return CurrentStatus;
 }
+
+SLTEST_R(SRecPageManager)
+{
+	bool debug_mark = false;
+	{
+		const uint page_size_list[] = { 512 * 2, 512 * 3, 512 * 4, 512 * 5, 512 * 6, 512 * 1024 };
+		for(uint psi = 0; psi < SIZEOFARRAY(page_size_list); psi++) {
+			const uint page_size = page_size_list[psi];
+			for(uint seq = 1; seq < SMEGABYTE(1); seq++) {
+				for(uint offs = sizeof(SDataPageHeader); offs < page_size-32; offs++) {
+					//static uint64 MakeRowId(uint pageSize, uint pageSeq, uint offset);
+					//static int SplitRowId(uint64 rowId, uint pageSize, uint * pPageSeq, uint * pOffset);					
+					uint64 row_id = SRecPageManager::MakeRowId(page_size, seq, offs);
+					SLCHECK_NZ(row_id);
+					uint seq__ = 0;
+					uint ofs__ = 0;
+					SRecPageManager::SplitRowId(row_id, page_size, &seq__, &ofs__);
+					SLCHECK_EQ(seq__, seq);
+					SLCHECK_EQ(ofs__, offs);
+					if(!CurrentStatus)
+						debug_mark = true;
+				}
+			}			
+		}
+	}
+	return CurrentStatus;
+}

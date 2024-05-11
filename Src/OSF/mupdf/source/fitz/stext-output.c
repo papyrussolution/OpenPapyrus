@@ -30,7 +30,7 @@ static void font_family_name(fz_context * ctx, fz_font * font, char * buf, int s
 	const char * name = font_full_name(ctx, font);
 	char * s;
 	fz_strlcpy(buf, name, size);
-	s = strrchr(buf, '-');
+	s = sstrrchr(buf, '-');
 	if(s)
 		*s = 0;
 	if(is_mono)

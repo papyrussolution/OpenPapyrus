@@ -1127,7 +1127,7 @@ static void CONTEXT_fontstring_parse(char * from_string, char * to_string, int t
 {
 	double tmp_fontsize = 0.0;
 	size_t n;
-	char * comma = strrchr(from_string, ',');
+	char * comma = sstrrchr(from_string, ',');
 	if(comma) {
 		sscanf(comma + 1, "%lf", &tmp_fontsize);
 		n = comma - from_string;

@@ -2786,7 +2786,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 		pBrw->ViewOptions |= (ofCenterX | ofCenterY);
 		if(Filt.Flags & BillFilt::fCashOnly) {
 			const PPConfig & r_cfg = LConfig;
-			GetObjectName(PPOBJ_CASHNODE, r_cfg.Cash, sub_title, 1);
+			CatObjectName(PPOBJ_CASHNODE, r_cfg.Cash, sub_title);
 			sub_title.CatDivIfNotEmpty('-', 1).Cat(r_cfg.OperDate);
 		}
 		else {
@@ -9268,10 +9268,12 @@ int PPALDD_AdvanceRep::NextIteration(PPIterID iterId)
 	const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(Extra[0].Ptr);
 	if(H.nn < static_cast<int16>(p_pack->AdvList.GetCount())) {
 		const PPAdvBillItemList::Item & r_item = p_pack->AdvList.Get(H.nn);
+		SString temp_buf;
 		STRNSCPY(I.AdvCode, r_item.AdvCode);
 		I.AdvDt = r_item.AdvDt;
 		I.AdvBillKindID = r_item.AdvBillKindID;
-		GetObjectName(PPOBJ_ADVBILLKIND, r_item.AdvBillKindID, I.AdvBillKindName, sizeof(I.AdvBillKindName));
+		GetObjectName(PPOBJ_ADVBILLKIND, r_item.AdvBillKindID, temp_buf.Z());
+		STRNSCPY(I.AdvBillKindName, temp_buf);
 		I.AdvBillID = r_item.AdvBillID;
 		I.AccID     = r_item.AccID;
 		I.ArID      = r_item.ArID;
@@ -9533,10 +9535,12 @@ int PPALDD_Warrant::NextIteration(PPIterID iterId)
 	IterProlog(iterId, 0);
 	PPBillPacket * p_pack = static_cast<PPBillPacket *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	if(I.LineNo < static_cast<int16>(p_pack->AdvList.GetCount())) {
+		SString temp_buf;
 		char   buf[128];
 		const  PPAdvBillItemList::Item & r_item = p_pack->AdvList.Get(I.LineNo);
 		STRNSCPY(I.GdsName, r_item.Memo);
-		GetObjectName(PPOBJ_UNIT, r_item.ArID, I.Unit, sizeof(I.Unit));
+		GetObjectName(PPOBJ_UNIT, r_item.ArID, temp_buf.Z());
+		STRNSCPY(I.Unit, temp_buf);
 		numbertotext(r_item.Amount, NTTF_NOZERO|NTTF_FIRSTCAP|NTTF_DECCURR, buf);
 		STRNSCPY(I.Qtty, buf);
 		I.LineNo++;

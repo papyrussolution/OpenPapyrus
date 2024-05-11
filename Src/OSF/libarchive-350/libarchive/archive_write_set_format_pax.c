@@ -597,10 +597,10 @@ static int archive_write_pax_header(struct archive_write * a, ArchiveEntry * ent
 		}
 		strcpy(name, oname);
 		/* Find last '/'; strip trailing '/' characters */
-		bname = strrchr(name, '/');
+		bname = sstrrchr(name, '/');
 		while(bname && bname[1] == '\0') {
 			*bname = '\0';
-			bname = strrchr(name, '/');
+			bname = sstrrchr(name, '/');
 		}
 		if(bname == NULL) {
 			memmove(name + 2, name, name_length + 1);

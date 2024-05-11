@@ -125,7 +125,7 @@ void ObjReceiveParamDialog::updateList()
 		if(Data.SenderDbDivList.getCount())
 			for(uint i = 0; i < Data.SenderDbDivList.getCount(); i++) {
 				PPID id = Data.SenderDbDivList.at(i);
-				GetObjectName(PPOBJ_DBDIV, id, text, 0);
+				GetObjectName(PPOBJ_DBDIV, id, text);
 				THROW_SL(p_list->addItem(id, text));
 			}
 		else {

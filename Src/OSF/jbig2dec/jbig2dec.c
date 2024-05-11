@@ -419,9 +419,9 @@ static char * make_output_filename(const char * input_filename, const char * ext
 		c = "out";
 	else {
 		/* strip any leading path */
-		c = strrchr(input_filename, '/'); /* *nix */
+		c = sstrrchr(input_filename, '/'); /* *nix */
 		if(!c)
-			c = strrchr(input_filename, '\\'); /* win32/dos */
+			c = sstrrchr(input_filename, '\\'); /* win32/dos */
 		if(c)
 			c++; /* skip the path separator */
 		else
@@ -432,7 +432,7 @@ static char * make_output_filename(const char * input_filename, const char * ext
 		c = "out";
 	/* strip the extension */
 	len = strlen(c);
-	e = strrchr(c, '.');
+	e = sstrrchr(c, '.');
 	if(e)
 		len -= strlen(e);
 	extlen = strlen(extension);

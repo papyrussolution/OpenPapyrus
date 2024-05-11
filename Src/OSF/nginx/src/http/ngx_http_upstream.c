@@ -3729,14 +3729,14 @@ static const char * ngx_http_upstream_server(ngx_conf_t * cf, const ngx_command_
 			}
 			continue;
 		}
-		if(ngx_strcmp(value[i].data, "backup") == 0) {
+		if(sstreq(value[i].data, "backup")) {
 			if(!(uscf->flags & NGX_HTTP_UPSTREAM_BACKUP)) {
 				goto not_supported;
 			}
 			us->backup = 1;
 			continue;
 		}
-		if(ngx_strcmp(value[i].data, "down") == 0) {
+		if(sstreq(value[i].data, "down")) {
 			if(!(uscf->flags & NGX_HTTP_UPSTREAM_DOWN)) {
 				goto not_supported;
 			}
@@ -3855,7 +3855,7 @@ const char * ngx_http_upstream_bind_set_slot(ngx_conf_t * cf, const ngx_command_
 		return "is duplicate";
 	}
 	value = static_cast<ngx_str_t *>(cf->args->elts);
-	if(cf->args->nelts == 2 && ngx_strcmp(value[1].data, "off") == 0) {
+	if(cf->args->nelts == 2 && sstreq(value[1].data, "off")) {
 		*plocal = NULL;
 		return NGX_CONF_OK;
 	}
@@ -3896,7 +3896,7 @@ const char * ngx_http_upstream_bind_set_slot(ngx_conf_t * cf, const ngx_command_
 		}
 	}
 	if(cf->args->nelts > 2) {
-		if(ngx_strcmp(value[2].data, "transparent") == 0) {
+		if(sstreq(value[2].data, "transparent")) {
 #if (NGX_HAVE_TRANSPARENT_PROXY)
 			local->transparent = 1;
 #else
@@ -3971,7 +3971,7 @@ const char * ngx_http_upstream_param_set_slot(ngx_conf_t * cf, const ngx_command
 	param->value = value[2];
 	param->skip_empty = 0;
 	if(cf->args->nelts == 4) {
-		if(ngx_strcmp(value[3].data, "if_not_empty") != 0) {
+		if(!sstreq(value[3].data, "if_not_empty")) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid parameter \"%V\"", &value[3]);
 			return NGX_CONF_ERROR;
 		}

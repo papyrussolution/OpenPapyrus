@@ -1,24 +1,23 @@
 // CSTRING.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 1997-2012, International Business Machines Corporation and others.  All Rights Reserved.
- * Contains CString interface
- * @author       Helena Shih
- * Modification History:
- *   Date        Name        Description
- *   6/17/98     hshih       Created.
- *  05/03/99     stephen     Changed from functions to macros.
- *  06/14/99     stephen     Added icu_strncat, icu_strncmp, icu_tolower
- */
+// Copyright (C) 1997-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// Contains CString interface
+// @author       Helena Shih
+// Modification History:
+// Date        Name        Description
+// 6/17/98     hshih       Created.
+// 05/03/99     stephen     Changed from functions to macros.
+// 06/14/99     stephen     Added icu_strncat, icu_strncmp, icu_tolower
+// 
 #ifndef CSTRING_H
 #define CSTRING_H 1
 
 #include "unicode/utypes.h"
 #include "cmemory.h"
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
+//#include <string.h>
+//#include <stdlib.h>
+//#include <ctype.h>
 
 // @sobolev #define uprv_strcpy_Removed(dst, src) U_STANDARD_CPP_NAMESPACE strcpy(dst, src)
 // @sobolev #define uprv_strlen_Removed(str) U_STANDARD_CPP_NAMESPACE strlen(str)
@@ -30,7 +29,6 @@
 #define uprv_strncpy(dst, src, size) U_STANDARD_CPP_NAMESPACE strncpy(dst, src, size)
 #define uprv_strncmp(s1, s2, n) U_STANDARD_CPP_NAMESPACE strncmp(s1, s2, n)
 #define uprv_strncat(dst, src, n) U_STANDARD_CPP_NAMESPACE strncat(dst, src, n)
-
 /**
  * Is c an ASCII-repertoire letter a-z or A-Z?
  * Note: The implementation is specific to whether ICU is compiled for

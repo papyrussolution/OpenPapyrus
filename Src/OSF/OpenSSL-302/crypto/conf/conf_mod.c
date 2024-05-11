@@ -299,21 +299,18 @@ static CONF_MODULE * module_add(DSO * dso, const char * name,
 		OPENSSL_free(tmod);
 		return NULL;
 	}
-
 	return tmod;
 }
-
 /*
  * Find a module from the list. We allow module names of the form
  * modname.XXXX to just search for modname to allow the same module to be
  * initialized more than once.
  */
-
 static CONF_MODULE * module_find(const char * name)
 {
 	CONF_MODULE * tmod;
 	int i, nchar;
-	const char * p = strrchr(name, '.');
+	const char * p = sstrrchr(name, '.');
 	if(p)
 		nchar = p - name;
 	else

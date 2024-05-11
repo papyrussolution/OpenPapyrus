@@ -329,37 +329,35 @@ struct LocaleDisplayNamesImpl::CapitalizationContextSink : public ResourceSink {
 	}
 
 	virtual ~CapitalizationContextSink();
-
-	virtual void put(const char * key, ResourceValue &value, bool /*noFallback*/,
-	    UErrorCode & errorCode) override {
+	virtual void put(const char * key, ResourceValue &value, bool /*noFallback*/, UErrorCode & errorCode) override 
+	{
 		ResourceTable contexts = value.getTable(errorCode);
 		if(U_FAILURE(errorCode)) {
 			return;
 		}
 		for(int i = 0; contexts.getKeyAndValue(i, key, value); ++i) {
 			CapContextUsage usageEnum;
-			if(strcmp(key, "key") == 0) {
+			if(sstreq(key, "key")) {
 				usageEnum = kCapContextUsageKey;
 			}
-			else if(strcmp(key, "keyValue") == 0) {
+			else if(sstreq(key, "keyValue")) {
 				usageEnum = kCapContextUsageKeyValue;
 			}
-			else if(strcmp(key, "languages") == 0) {
+			else if(sstreq(key, "languages")) {
 				usageEnum = kCapContextUsageLanguage;
 			}
-			else if(strcmp(key, "script") == 0) {
+			else if(sstreq(key, "script")) {
 				usageEnum = kCapContextUsageScript;
 			}
-			else if(strcmp(key, "territory") == 0) {
+			else if(sstreq(key, "territory")) {
 				usageEnum = kCapContextUsageTerritory;
 			}
-			else if(strcmp(key, "variant") == 0) {
+			else if(sstreq(key, "variant")) {
 				usageEnum = kCapContextUsageVariant;
 			}
 			else {
 				continue;
 			}
-
 			int32_t len = 0;
 			const int32_t* intVector = value.getIntVector(len, errorCode);
 			if(U_FAILURE(errorCode)) {
@@ -798,7 +796,7 @@ UnicodeString &LocaleDisplayNamesImpl::keyValueDisplayName(const char * key,
     const char * value,
     UnicodeString & result,
     bool skipAdjust) const {
-	if(strcmp(key, "currency") == 0) {
+	if(sstreq(key, "currency")) {
 		// ICU4C does not have ICU4J CurrencyDisplayInfo equivalent for now.
 		UErrorCode sts = U_ZERO_ERROR;
 		UnicodeString ustrValue(value, -1, US_INV);

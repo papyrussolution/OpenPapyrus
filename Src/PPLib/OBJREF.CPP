@@ -4235,7 +4235,8 @@ int PPObjFreightPackageType::Edit(PPID * pID, void * extraPtr)
 		}
 	};
 	int    ok = 1;
-	int    r = cmCancel, valid_data = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	PPFreightPackageType rec;
 	FreightPackageTypeDialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));
@@ -4295,4 +4296,95 @@ int PPObjTaxSystemKind::ProcessReservedItem(TVRez & rRez)
 	}
 	CATCHZOK
 	return ok;
+}
+//
+//
+//
+PPComputerCategory::PPComputerCategory()
+{
+	THISZERO();
+}
+
+PPObjComputerCategory::PPObjComputerCategory(void * extraPtr) : PPObjReference(PPOBJ_COMPUTERCATEGORY, extraPtr)
+{
+}
+
+/*virtual*/int PPObjComputerCategory::MakeReserved(long flags)
+{
+	int    ok = 1;
+	PPComputerCategory compcat_rec;
+	if(Search(PPCOMPCAT_DEFAULT, &compcat_rec) > 0) {
+		;
+	}
+	else {
+		PPID   id = PPCOMPCAT_DEFAULT;
+		compcat_rec.ID = id;
+		STRNSCPY(compcat_rec.Name, "default");
+		STRNSCPY(compcat_rec.Symb, "DEFAULT");
+		if(!AddItem(&id, &compcat_rec, 1)) {
+			ok = 0;
+		}
+	}
+	return ok;
+}
+	
+/*virtual*/int PPObjComputerCategory::Edit(PPID * pID, void * extraPtr)
+{
+	class ComputerCategoryDialog : public TDialog {
+		DECL_DIALOG_DATA(PPComputerCategory);
+	public:
+		ComputerCategoryDialog() : TDialog(DLG_COMPCAT)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			setCtrlLong(CTL_COMPCAT_ID, Data.ID);
+			setCtrlData(CTL_COMPCAT_NAME, Data.Name);
+			setCtrlData(CTL_COMPCAT_SYMB, Data.Symb);
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			getCtrlData(CTL_COMPCAT_NAME, Data.Name);
+			getCtrlData(CTL_COMPCAT_SYMB, Data.Symb);
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	};
+	int    ok = 1;
+	int    r = cmCancel;
+	int    valid_data = 0;
+	PPComputerCategory rec;
+	ComputerCategoryDialog * dlg = 0;
+	THROW(CheckRightsModByID(pID));
+	if(*pID) {
+		THROW(Search(*pID, &rec) > 0);
+	}
+	else {
+		MEMSZERO(rec);
+	}
+	THROW(CheckDialogPtr(&(dlg = new ComputerCategoryDialog)));
+	dlg->setDTS(&rec);
+	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
+		if(dlg->getDTS(&rec)) {
+			if(*pID)
+				*pID = rec.ID;
+			if(!CheckName(*pID, rec.Name, 0))
+				dlg->selectCtrl(CTL_COMPCAT_NAME);
+			else if(!CheckDupSymb(*pID, rec.Symb))
+				PPErrorByDialog(dlg, CTL_COMPCAT_SYMB);
+			else if(StoreItem(Obj, *pID, &rec, 1)) {
+				Dirty(*pID);
+				valid_data = 1;
+			}
+			else
+				PPError();
+		}
+	}
+	CATCHZOKPPERR
+	delete dlg;
+	return ok ? r : 0;
 }

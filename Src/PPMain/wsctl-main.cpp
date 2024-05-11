@@ -96,6 +96,7 @@ public:
 			PPID   GoodsID;
 			PPID   TechID;
 			PPID   TSessID;
+			MACAddr MacAdrList[4]; // Список mac-адресов для самоидентификации
 			double Amount;
 			char   NameTextUtf8[128]; // @v11.9.10
 			char   PhoneUtf8[64]; // @v11.9.10
@@ -289,6 +290,7 @@ public:
 		PPID   PrcID;
 		PPID   CurrentTSessID;  // Текущая сессия процессора
 		PPID   ReservedTSessID; // Ближайшая (будущая) зарезервированная сессия процессора
+		MACAddrArray MacAdrList; // @v12.0.1 Список mac-адресов компьютера
 		SString PrcName;
 	};
 	class DAccount : public DServerError {
@@ -314,6 +316,25 @@ public:
 		PPID   PersonID;
 		uint   State;
 	};
+	class DComputerRegistration : public DServerError { // @v12.0.1
+	public:
+		DComputerRegistration() : CategoryID(0)
+		{
+		}
+		DComputerRegistration & Z()
+		{
+			DServerError::Z();
+			Name.Z();
+			CategoryName.Z();
+			CategoryID = 0;
+			PrcUuid.Z();
+			return *this;
+		}
+		SString Name;
+		SString CategoryName;
+		PPID   CategoryID;
+		S_GUID PrcUuid;
+	};
 	class DRegistration : public DServerError {
 	public:
 		DRegistration() : SCardID(0), PersonID(0), State(0)
@@ -321,6 +342,7 @@ public:
 		}
 		DRegistration & Z()
 		{
+			DServerError::Z();
 			SCardID = 0;
 			PersonID = 0;
 			State = 0;
@@ -497,12 +519,76 @@ public:
 		char   SubstTxt_Password[128];
 		//char   SubstTxt_
 	};
-	class ImDialog_WsCtlLogin : public ImDialogState {
+	/*class ImDialog_WsCtlLogin : public ImDialogState {
 	public:
 		ImDialog_WsCtlLogin(WsCtl_ImGuiSceneBlock & rBlk);
 		~ImDialog_WsCtlLogin();
 		virtual int Build();
 		virtual bool CommitData();
+	};*/
+	class ImDialog_WsRegisterComputer : public ImDialogState {
+	public:
+		ImDialog_WsRegisterComputer(WsCtl_ImGuiSceneBlock & rBlk, WsCtl_SelfIdentityBlock * pCtx) : R_Blk(rBlk), ImDialogState(pCtx)
+		{
+			SString temp_buf;
+			if(pCtx) {
+				Data = *pCtx;
+			}
+			STRNSCPY(SubstTxt_Name, Data.PrcName);
+			if(Data.MacAdrList.getCount()) {
+				Data.MacAdrList.at(0).ToStr(0, temp_buf);
+			}
+			else
+				temp_buf.Z();
+			STRNSCPY(SubstTxt_MacAdr, temp_buf);
+			Data.Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+			STRNSCPY(SubstTxt_UUID, temp_buf);
+		}
+		~ImDialog_WsRegisterComputer()
+		{
+		}
+		virtual int Build()
+		{
+			int    result = 0;
+			const char * p_popup_title = "Register computer";
+			ImGui::OpenPopup(p_popup_title);
+			if(ImGui::BeginPopup(p_popup_title)) {
+				ImGui::InputText(R_Blk.InputLabelPrefix("Computer Name"), SubstTxt_Name, sizeof(SubstTxt_Name));
+				ImGui::InputText(R_Blk.InputLabelPrefix("MAC Address"), SubstTxt_MacAdr, sizeof(SubstTxt_MacAdr));
+				ImGui::InputText(R_Blk.InputLabelPrefix("UUID"), SubstTxt_UUID, sizeof(SubstTxt_UUID));
+				ImGui::NewLine();
+				if(ImGui::Button("ok", ButtonSize_Std)) {
+					ImGui::CloseCurrentPopup();
+					result = 1;
+				}
+				ImGui::SameLine();
+				if(ImGui::Button("cancel", ButtonSize_Std)) {
+					ImGui::CloseCurrentPopup();
+					result = -1;
+				}
+				ImGui::EndPopup();
+			}
+			return result;
+		}
+		virtual bool CommitData()
+		{
+			bool   ok = true;
+			if(P_Ctx) {
+				//Data.DbSymb = SubstTxt_DbSymb;
+				//Data.User = SubstTxt_User;
+				//Data.Password = SubstTxt_Password;
+				static_cast<WsCtl_SelfIdentityBlock *>(P_Ctx)->PrcName = SubstTxt_Name;
+			}
+			else
+				ok = false;
+			return ok;
+		}
+	private:
+		WsCtl_ImGuiSceneBlock & R_Blk;
+		WsCtl_SelfIdentityBlock Data;
+		char   SubstTxt_Name[128];
+		char   SubstTxt_MacAdr[48];
+		char   SubstTxt_UUID[48];
 	};
 private:
 	//
@@ -645,6 +731,7 @@ private:
 	WsCtl_RegistrationBlock RegBlk; // @v11.9.10
 	DServerError LastSvrErr;
 	ImDialog_WsCtlConfig * P_Dlg_Cfg;
+	ImDialog_WsRegisterComputer * P_Dlg_RegComp; // @v12.0.1
 
 	class ScrollerPosition_ : public SScroller::Position {
 	public:
@@ -1418,6 +1505,48 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				}
 			}
 			break;
+		case PPSCMD_WSCTL_REGISTERCOMPUTER: // @v12.0.1
+			if(P_St) {
+				PPJobSrvCmd cmd;
+				WsCtl_ImGuiSceneBlock::DPrc st_prc;
+				WsCtl_ImGuiSceneBlock::DComputerRegistration st_data;
+				P_St->D_Prc.GetData(st_prc);
+				{
+					SJson js_param(SJson::tOBJECT);
+					if(st_prc.PrcName.NotEmpty()) {
+						js_param.InsertString("nm", st_prc.PrcName);
+					}
+					if(st_prc.MacAdrList.getCount()) {
+						SJson * p_js_macadr_list = new SJson(SJson::tARRAY);
+						for(uint i = 0; i < st_prc.MacAdrList.getCount(); i++) {
+							st_prc.MacAdrList.at(i).ToStr(0, temp_buf);
+							SJson * p_js_macadr = SJson::CreateString(temp_buf);
+							p_js_macadr_list->InsertChild(p_js_macadr);
+							p_js_macadr = 0;
+						}
+						js_param.Insert("macadr_list", p_js_macadr_list);
+					}
+					if(!!st_prc.PrcUuid) {
+						st_prc.PrcUuid.ToStr(S_GUID::fmtIDL, temp_buf);
+						js_param.InsertString("wsctluuid", temp_buf);
+					}
+					js_param.ToStr(temp_buf);
+					SString mime_buf;
+					mime_buf.EncodeMime64(temp_buf.ucptr(), temp_buf.Len());
+					cmd.Write(mime_buf.ucptr(), mime_buf.Len()+1);
+				}
+				cmd.FinishWriting();
+				if(rCli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
+					SString reply_buf;
+					reply.StartReading(&reply_buf);
+					if(reply.CheckRepError()) {
+					}
+					else {
+						st_data.SetupByLastError();
+					}
+				}
+			}
+			break;
 		case PPSCMD_WSCTL_REGISTRATION: // @v11.9.10
 			if(P_St) {
 				bool   data_settled = false; // Признак того, что данные в блоке состояния инициализированы 
@@ -1428,7 +1557,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				cmd.StartWriting(PPSCMD_WSCTL_REGISTRATION);
 				{
 					SJson js_param(SJson::tOBJECT);
-					js_param.InsertString("name", rReq.P.NameTextUtf8);
+					js_param.InsertString("nm", rReq.P.NameTextUtf8); // @v12.0.1 "name"-->"nm"
 					js_param.InsertString("phone", rReq.P.PhoneUtf8);
 					js_param.InsertString("pw", rReq.P.AuthPwUtf8);
 					temp_buf.Z().Cat(st_prc.PrcUuid, S_GUID::fmtIDL);
@@ -1840,7 +1969,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 }
 
 WsCtl_ImGuiSceneBlock::WsCtl_ImGuiSceneBlock() : ImGuiSceneBase(), ShowDemoWindow(false), ShowAnotherWindow(false), Screen(screenUndef),
-	P_CmdQ(new WsCtlReqQueue), Cache_Texture(1024, 0), P_Dlg_Cfg(0)
+	P_CmdQ(new WsCtlReqQueue), Cache_Texture(1024, 0), P_Dlg_Cfg(0), P_Dlg_RegComp(0)
 {
 	TestInput[0] = 0;
 	//LoginText[0] = 0;
@@ -1951,7 +2080,7 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 	if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_CLIENTSOCKETTIMEOUT, &JsP.Timeout) <= 0 || JsP.Timeout <= 0)
 		JsP.Timeout = -1;
 	ini_file.Get(PPINISECT_SERVER, PPINIPARAM_SERVER_NAME, JsP.Server);
-	St.SidBlk.GetOwnUuid();
+	St.SidBlk.GetOwnIdentifiers();
 	JsP.Read();
 	if(JsP.Server.NotEmpty()) {
 		//
@@ -2723,6 +2852,10 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							if(ImGui::Button2("Config...", button_size)) {
 								SETIFZQ(P_Dlg_Cfg, new ImDialog_WsCtlConfig(*this, &JsP));
 							}
+							if(ImGui::Button2("Register computer...", button_size)) {
+								//PolicyL.CreateSystemImage();
+								SETIFZQ(P_Dlg_RegComp, new ImDialog_WsRegisterComputer(*this, &St.SidBlk));
+							}
 							if(ImGui::Button2("Create profile image...", button_size)) {
 								PolicyL.CreateSystemImage();
 							}
@@ -2736,6 +2869,22 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 											}
 										}
 										ZDELETE(P_Dlg_Cfg);
+									}
+								}
+								if(P_Dlg_RegComp) {
+									int r = P_Dlg_RegComp->Build();
+									if(r != 0) {
+										if(r > 0) {
+											if(P_Dlg_RegComp->CommitData()) {
+												// @construction
+												WsCtlReqQueue::Req req(PPSCMD_WSCTL_REGISTERCOMPUTER);
+												STRNSCPY(req.P.AuthTextUtf8, LoginBlk.LoginText);
+												STRNSCPY(req.P.AuthPwUtf8, LoginBlk.PwText);
+												P_CmdQ->Push(req);
+												//
+											}
+										}
+										ZDELETE(P_Dlg_RegComp);
 									}
 								}
 							}

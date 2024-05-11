@@ -108,7 +108,7 @@ static void xps_deobfuscate_font_resource(fz_context * ctx, xps_document * doc, 
 		fz_warn(ctx, "insufficient data for font deobfuscation");
 		return;
 	}
-	p = strrchr(part->name, '/');
+	p = sstrrchr(part->name, '/');
 	if(!p)
 		p = part->name;
 	for(i = 0; i < 32 && *p; p++) {
@@ -167,9 +167,8 @@ fz_font * xps_lookup_font(fz_context * ctx, xps_document * doc, char * base_uri,
 	int subfontid = 0;
 	xps_part * part;
 	fz_font * font;
-
 	xps_resolve_url(ctx, doc, partname, base_uri, font_uri, sizeof partname);
-	subfont = strrchr(partname, '#');
+	subfont = sstrrchr(partname, '#');
 	if(subfont) {
 		subfontid = atoi(subfont + 1);
 		*subfont = 0;

@@ -4838,7 +4838,7 @@ int PPObjBill::ViewLotComplete(PPID lotID, PPID * pSelectedLotID)
 				SString title_buf;
 				if(trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
 					GObj.FetchNameR(lot_rec.GoodsID, title_buf);
-					GetObjectName(PPOBJ_LOCATION, lot_rec.LocID, title_buf.CatDivIfNotEmpty(':', 1), 1);
+					CatObjectName(PPOBJ_LOCATION, lot_rec.LocID, title_buf.CatDivIfNotEmpty(':', 1));
 					title_buf.CatDivIfNotEmpty(':', 1).Cat(lot_rec.Dt);
 				}
 				p_brw->setSubTitle(title_buf);

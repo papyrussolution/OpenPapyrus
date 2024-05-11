@@ -1290,7 +1290,6 @@ static CURLcode ftp_state_list(struct Curl_easy * data)
 	CURLcode result = CURLE_OK;
 	struct FTP * ftp = data->req.p.ftp;
 	struct connectdata * conn = data->conn;
-
 	/* If this output is to be machine-parsed, the NLST command might be better
 	   to use, since the LIST command output is not specified or standard in any
 	   way. It has turned out that the NLST list output is not the same on all
@@ -1306,7 +1305,6 @@ static CURLcode ftp_state_list(struct Curl_easy * data)
 	 */
 	char * lstArg = NULL;
 	char * cmd;
-
 	if((data->set.ftp_filemethod == FTPFILE_NOCWD) && ftp->path) {
 		/* url-decode before evaluation: e.g. paths starting/ending with %2f */
 		const char * slashPos = NULL;
@@ -1314,36 +1312,26 @@ static CURLcode ftp_state_list(struct Curl_easy * data)
 		result = Curl_urldecode(ftp->path, 0, &rawPath, NULL, REJECT_CTRL);
 		if(result)
 			return result;
-
-		slashPos = strrchr(rawPath, '/');
+		slashPos = sstrrchr(rawPath, '/');
 		if(slashPos) {
 			/* chop off the file part if format is dir/file otherwise remove
 			   the trailing slash for dir/dir/ except for absolute path / */
 			size_t n = slashPos - rawPath;
 			if(n == 0)
 				++n;
-
 			lstArg = rawPath;
 			lstArg[n] = '\0';
 		}
 		else
 			SAlloc::F(rawPath);
 	}
-
-	cmd = aprintf("%s%s%s",
-		data->set.str[STRING_CUSTOMREQUEST]?
-		data->set.str[STRING_CUSTOMREQUEST]:
-		(data->state.list_only?"NLST":"LIST"),
-		lstArg? " ": "",
-		lstArg? lstArg: "");
+	cmd = aprintf("%s%s%s", data->set.str[STRING_CUSTOMREQUEST] ? data->set.str[STRING_CUSTOMREQUEST] : (data->state.list_only?"NLST":"LIST"),
+		lstArg ? " " : "", lstArg ? lstArg : "");
 	SAlloc::F(lstArg);
-
 	if(!cmd)
 		return CURLE_OUT_OF_MEMORY;
-
 	result = Curl_pp_sendf(data, &conn->proto.ftpc.pp, "%s", cmd);
 	SAlloc::F(cmd);
-
 	if(!result)
 		ftp_state(data, FTP_LIST);
 
@@ -3562,14 +3550,12 @@ static void wc_data_dtor(void * ptr)
 
 static CURLcode init_wc_data(struct Curl_easy * data)
 {
-	char * last_slash;
 	struct FTP * ftp = data->req.p.ftp;
 	char * path = ftp->path;
 	struct WildcardData * wildcard = data->wildcard;
 	CURLcode result = CURLE_OK;
 	struct ftp_wc * ftpwc = NULL;
-
-	last_slash = strrchr(ftp->path, '/');
+	char * last_slash = sstrrchr(ftp->path, '/');
 	if(last_slash) {
 		last_slash++;
 		if(last_slash[0] == '\0') {
@@ -3933,7 +3919,7 @@ CURLcode ftp_parse_url_path(struct Curl_easy * data)
 		    break;
 
 		case FTPFILE_SINGLECWD:
-		    slashPos = strrchr(rawPath, '/');
+		    slashPos = sstrrchr(rawPath, '/');
 		    if(slashPos) {
 			    /* get path before last slash, except for / */
 			    size_t dirlen = slashPos - rawPath;

@@ -9,14 +9,20 @@
 //
 //
 //
-struct MACAddr { // @persistent @size=6
+struct MACAddr : public TSBinary <6> { // @persistent @size=6
+	enum {
+		fmtDivColon = 0x0001, // Разделитель разрядов ':'. Если этот флаг не установлен и не установлен так же fmtPlain, то разделитель разрядов '-'
+		fmtPlain    = 0x0002, // Не разделять разряды 
+		fmtLower    = 0x8000, // Флаг, предписывающий использовать буквы [a-f] в строчном регистре
+	};
 	MACAddr();
 	MACAddr(const MACAddr & rS);
-	MACAddr & FASTCALL operator = (const MACAddr & rS);
-	bool   FASTCALL operator == (const MACAddr & rS) const;
-	MACAddr & Z();
-	bool   IsEmpty() const;
-	SString & FASTCALL ToStr(SString & rBuf) const;
+	//MACAddr & FASTCALL operator = (const MACAddr & rS);
+	//bool   FASTCALL operator == (const MACAddr & rS) const;
+	//MACAddr & Z();
+	//bool   IsEmpty() const;
+	SString & FASTCALL ToStr(long fmt, SString & rBuf) const;
+	bool   FromStr(const char * pStr);
 	//
 	// Descr: сравнивает MAC-адреса this и s.
 	//   Сравнение осуществляется побайтно, начиная с байта Addr[0]
@@ -26,7 +32,7 @@ struct MACAddr { // @persistent @size=6
 	//  >0 - адрес this больше адреса s
 	//
 	int    FASTCALL Cmp(const MACAddr & s) const;
-	uint8  Addr[6];
+	//uint8  Addr[6];
 };
 
 class MACAddrArray : public TSVector <MACAddr> {

@@ -198,7 +198,7 @@ static char * text_nextString(TestText * tt, int32_t * pLength)
 	}
 
 	/* find the end of this string */
-	tt->limit = uprv_strchr(s, 0);
+	tt->limit = sstrchr(s, 0);
 	*pLength = (int32_t)(tt->limit - s);
 	return s;
 }
@@ -230,7 +230,7 @@ static bool text_open(TestText * tt)
 	tt->textLimit = tt->text + length;
 	*tt->textLimit = 0;
 	/* replace all Unicode '#' (U+0023) with NUL */
-	for(s = tt->text; (s = uprv_strchr(s, 0x23)) != NULL; *s++ = 0) {
+	for(s = tt->text; (s = sstrchr(s, 0x23)) != NULL; *s++ = 0) {
 	}
 	text_reset(tt);
 	return TRUE;

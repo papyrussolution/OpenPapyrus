@@ -149,10 +149,9 @@ int ssh_config_parse_uri(const char * tok, char ** username, char ** hostname, c
 	}
 	else {
 		/* Hostnames or aliases expand to the last colon or to the end */
-		endp = strrchr(tok, ':');
-		if(endp == NULL) {
+		endp = sstrrchr(tok, ':');
+		if(endp == NULL)
 			endp = sstrchr(tok, '\0');
-		}
 	}
 	if(tok == endp) {
 		/* Zero-length hostnames are not valid */

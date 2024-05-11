@@ -8317,8 +8317,12 @@ private:
 #define DBMSG_OBJDELETE          1
 #define DBMSG_OBJUPDATE          2
 #define DBMSG_PERSONLOSEKIND     3
-#define DBMSG_PERSONACQUIREKIND  4
+#define DBMSG_PERSONACQUIREKIND  4 // Посылается объектом PPOBJ_PERSON в ответ на изменении персоналии для каждого вида, которой персоналия принадлежит.
+	// Сообщение посылается целенаправленно объектам PPOBJ_PROCESSOR и PPOBJ_ARTICLE
 #define DBMSG_OBJNAMEUPDATE      5
+#define DBMSG_COMPUTERACQUIRECAT 6 // @v12.0.1 Посылается объектом PPOBJ_COMPUTER при изменении категории компьютера.
+	// Сообщение посылается целенаправленно объекту PPOBJ_PROCESSOR 
+#define DBMSG_COMPUTERLOSECAT    7 // @v12.0.1 Посылается объектом PPOBJ_COMPUTER при изменении категории компьютера (для предотвращения появления 'висячего' процессора) 
 //
 // Запрос на существование ссылок. Если существуют, то DBRPL_REFSFOUNDED иначе DBRPL_OK
 // (пока работает лишь для избранных объектов. Полагаться на это сообщение в общем случае не следует).
@@ -17241,6 +17245,7 @@ private:
 // @ModuleDecl(PPObjUnit)
 // Единицы измерения //
 //
+#pragma pack(push,1)
 struct PPUnit2 {           // @persistent @store(Reference2Tbl+)
 	PPUnit2();
 	int    ValidateQuantityFraction(double qtty) const;
@@ -17277,6 +17282,7 @@ struct PPUnit2 {           // @persistent @store(Reference2Tbl+)
 	PPID   BaseUnitID;     // ->Ref(PPOBJ_UNIT)
 	long   Reserve2;       // @reserve
 };
+#pragma pack(pop)
 
 class PPObjUnit : public PPObjReference {
 public:
@@ -30974,7 +30980,29 @@ private:
 };
 //
 //
-// 
+//
+#pragma pack(push,1)
+struct PPComputerCategory {
+	PPComputerCategory();
+	long   Tag;            // Const=PPOBJ_COMPUTERCATEGORY
+	long   ID;             // @id
+	char   Name[48];       // @name @!refname
+	char   Symb[20];
+	char   CNameTemplate[32]; // Шаблон для автоматического именования компьютеров, принадлежащих категории
+	uint8  Reserve[32];    // @reserve
+	int32  Val1;
+	int32  Val2;
+};
+#pragma pack(pop)
+
+class PPObjComputerCategory : public PPObjReference {
+public:
+	PPObjComputerCategory(void * extraPtr = 0);
+	virtual int  Edit(PPID * pID, void * extraPtr);
+private:
+	virtual int  MakeReserved(long flags);
+};
+
 class ComputerFilt : public PPBaseFilt { // @construction
 public:
 	ComputerFilt();
@@ -30996,6 +31024,7 @@ struct PPComputer { // @flat
 	char   Name[128];      // @name
 	char   Code[20];       // (Stored as Barcode.Code with prefix '^' and Qtty = 1.0)
 	long   Flags;
+	PPID   CategoryID;     // ->Reference(PPOBJ_COMPUTERCATEGORY)
 	S_GUID  Uuid;
 	MACAddr MacAdr;        // 		
 	S_IPAddr IpAdr;
@@ -31023,9 +31052,12 @@ public:
 	~PPObjComputer();
 	int    Get(PPID id, PPComputerPacket * pPack);
 	int    Put(PPID * pID, PPComputerPacket * pPack, int use_ta);
+	int    SearchByMacAddr(const MACAddr & rKey, PPID * pID, PPComputerPacket * pPack);
 private:
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	virtual int  Edit(PPID * pID, void * extraPtr);
+
+	PPObjProcessor * P_PrcObj; // Скрытый экземпляр для быстрой обработки сообщений DBMSG_COMPUTERACQUIRECAT
 };
 
 typedef PPComputer ComputerViewItem;
@@ -36437,6 +36469,16 @@ public:
 	//
 	int    SearchByName(int kind, const char * pName, PPID * pID, ProcessorTbl::Rec * pRec);
 	int    SearchByCode(const char * pCode, PPID * pID, ProcessorTbl::Rec * pRec);
+	//
+	// Descr: Ищет все процессоры, которые связаны с объектом {objType; objID}
+	//   Список rList после завершения функции содержит несортированный список процессоров, ассоциированных с заданным объектом.
+	//   Перед исполнением функция очищает список rList.
+	// Returns:
+	//	 >0 - найден по крайней мере один процессор, связанный с {objType; objID}
+	//   <0 - не найдено ни одного связанного с {objType; objID} процессора
+	//    0 - ошибка
+	//
+	int    SearchListByLinkObj(PPID objType, PPID objID, PPIDArray & rList); // @v12.0.1
 	int    SearchByLinkObj(PPID objType, PPID objID, PPID * pID, ProcessorTbl::Rec * pRec);
 	int    SearchAnyRef(PPID objType, PPID objID, PPID * pID);
 	int    PutPacket(PPID * pID, PPProcessorPacket * pPack, int use_ta);
@@ -36507,6 +36549,8 @@ private:
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	int    AddListItem(StrAssocArray * pList, ProcessorTbl::Rec * pRec, PPIDArray * pRecurTrace);
 		// @recursion @<<PPObjProcessor::MakeStrAssocList(PPID)
+	int    SearchAutocreateGroupListByObjGroup(PPID objType, PPID objGroupID, PPIDArray & rList);
+	int    AutocreateByObjGroup(PPID linkObjType, PPID linkObjID, const PPIDArray & rGrpIdList, int use_ta);
 public:
 	TLP_MEMB(ProcessorCore, P_Tbl);
 	void * ExtraPtr;
@@ -58597,8 +58641,9 @@ SString & FASTCALL GetObjectTitle(PPID objType, SString & rBuf);
 //   по указателю pExtra присваивает WORLDOBJ_CITY.
 //
 PPID   FASTCALL GetObjectTypeBySymb(const char * pSymb, long * pExtra);
-int    STDCALL  GetObjectName(PPID objType, PPID objID, char * pBuf, size_t bufLen);
-int    STDCALL  GetObjectName(PPID objType, PPID objID, SString &, int cat = 0);
+// @v12.0.1 int    STDCALL  GetObjectName(PPID objType, PPID objID, char * pBuf, size_t bufLen);
+int    STDCALL  GetObjectName(PPID objType, PPID objID, SString & rBuf);
+int    STDCALL  CatObjectName(PPID objType, PPID objID, SString & rBuf); // @v12.0.1 Вместо GetObjectName(PPID objType, PPID objID, SString & rBuf, int cat);
 SString & GetExtObjectName(const ObjIdListFilt & rObjList, PPID obj, size_t maxItems, SString & rBuf);
 int    FASTCALL ShowObjects(PPID objType, void * extraPtr);
 	// @>>GetPPObject(objType, extra)->Browse(extra)

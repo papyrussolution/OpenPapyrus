@@ -1647,7 +1647,7 @@ struct BackupDlgData {
 	uint   Cmd;
 };
 
-int CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, int showDialog = 1);
+int CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, bool showDialog);
 
 class BackupDialog : public TDialog {
 public:
@@ -1726,7 +1726,7 @@ IMPL_HANDLE_EVENT(BackupDialog)
 		}
 		else if(TVCMD == cmBuCheck) {
 			CALLPTRMEMB(P_List, getCurID(&Data.CopyID));
-			if(CheckBuCopy(PPB, &Data) <= 0)
+			if(CheckBuCopy(PPB, &Data, true/*showDialog*/) <= 0)
 				PPError();
 			Data.CopyID = 0;
 			clearEvent(event);
@@ -2515,7 +2515,7 @@ static int _DoProtect(PPDbEntrySet2 * pDbes, PPBackup * ppb)
 	return ok;
 }
 
-int CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, int showDialog)
+int CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, bool showDialog)
 {
 	int    ok = -1;
 	BCopyData copy_data;

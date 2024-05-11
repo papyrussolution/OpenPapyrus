@@ -1547,7 +1547,7 @@ static const char * ngx_http_uwsgi_store(ngx_conf_t * cf, const ngx_command_t * 
 	}
 	else {
 		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
-		if(ngx_strcmp(value[1].data, "off") == 0) {
+		if(sstreq(value[1].data, "off")) {
 			uwcf->upstream.store = 0;
 			return NGX_CONF_OK;
 		}
@@ -1557,7 +1557,7 @@ static const char * ngx_http_uwsgi_store(ngx_conf_t * cf, const ngx_command_t * 
 		}
 #endif
 		uwcf->upstream.store = 1;
-		if(ngx_strcmp(value[1].data, "on") == 0) {
+		if(sstreq(value[1].data, "on")) {
 			return NGX_CONF_OK;
 		}
 		/* include the terminating '\0' into script */

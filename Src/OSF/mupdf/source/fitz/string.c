@@ -7,10 +7,7 @@
 	#define PATH_MAX 4096
 #endif
 
-static inline int fz_tolower(int c)
-{
-	return (c >= 'A' && c <= 'Z') ? (c + 32) : c;
-}
+static inline int fz_tolower(int c) { return (c >= 'A' && c <= 'Z') ? (c + 32) : c; }
 
 /* @sobolev (replaced with sstrnlen) size_t fz_strnlen(const char * s, size_t n)
 {
@@ -27,7 +24,7 @@ int fz_strncasecmp(const char * a, const char * b, size_t n)
 	return fz_tolower(*a) - fz_tolower(*b);
 }
 
-int fz_strcasecmp(const char * a, const char * b)
+/* @v12.0.1 (replaced with sstreqi_ascii - was used only as !fz_strcasecmp) int fz_strcasecmp(const char * a, const char * b)
 {
 	while(fz_tolower(*a) == fz_tolower(*b)) {
 		if(*a++ == 0)
@@ -35,7 +32,7 @@ int fz_strcasecmp(const char * a, const char * b)
 		b++;
 	}
 	return fz_tolower(*a) - fz_tolower(*b);
-}
+}*/
 
 char * fz_strsep(char ** stringp, const char * delim)
 {
@@ -192,7 +189,7 @@ void fz_format_output_path(fz_context * ctx, char * path, size_t size, const cha
 		++p;
 	}
 	else {
-		s = p = strrchr(fmt, '.');
+		s = p = sstrrchr(fmt, '.');
 		if(!p)
 			s = p = fmt + strlen(fmt);
 	}
@@ -214,8 +211,7 @@ void fz_format_output_path(fz_context * ctx, char * path, size_t size, const cha
 char * fz_cleanname(char * name)
 {
 	char * p, * q, * dotdot;
-	int rooted;
-	rooted = name[0] == '/';
+	int rooted = name[0] == '/';
 	/*
 	 * invariants:
 	 *		p points at beginning of path element we're considering.

@@ -2789,12 +2789,7 @@ int PPViewBrowser::Helper_SetupToolbarCombo(PPID objType, PPID id, uint flags, v
 				for(uint i = 0; i < pObjList->getCount(); i++) {
 					const  PPID obj_id = pObjList->get(i);
 					if(obj_id) {
-						switch(objType) {
-							case PPOBJ_PERSON: GetPersonName(obj_id, name_buf); break;
-							case PPOBJ_ARTICLE: GetArticleName(obj_id, name_buf); break;
-							case PPOBJ_GOODS: GetGoodsName(obj_id, name_buf); break;
-							default: GetObjectName(objType, obj_id, name_buf, 0); break;
-						}
+						GetObjectName(objType, obj_id, name_buf);
 						p_list->Add(obj_id, name_buf);
 					}
 				}

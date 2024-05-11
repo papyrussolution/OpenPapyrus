@@ -435,12 +435,12 @@ static const char * ngx_stream_core_listen(ngx_conf_t * cf, const ngx_command_t 
 	backlog = 0;
 	for(i = 2; i < cf->args->nelts; i++) {
 #if !(NGX_WIN32)
-		if(ngx_strcmp(value[i].data, "udp") == 0) {
+		if(sstreq(value[i].data, "udp")) {
 			ls->type = SOCK_DGRAM;
 			continue;
 		}
 #endif
-		if(ngx_strcmp(value[i].data, "bind") == 0) {
+		if(sstreq(value[i].data, "bind")) {
 			ls->bind = 1;
 			continue;
 		}
@@ -481,10 +481,10 @@ static const char * ngx_stream_core_listen(ngx_conf_t * cf, const ngx_command_t 
 			size_t len;
 			uchar buf[NGX_SOCKADDR_STRLEN];
 			if(ls->sockaddr.sockaddr.sa_family == AF_INET6) {
-				if(ngx_strcmp(&value[i].data[10], "n") == 0) {
+				if(sstreq(&value[i].data[10], "n")) {
 					ls->ipv6only = 1;
 				}
-				else if(ngx_strcmp(&value[i].data[10], "ff") == 0) {
+				else if(sstreq(&value[i].data[10], "ff")) {
 					ls->ipv6only = 0;
 				}
 				else {
@@ -504,7 +504,7 @@ static const char * ngx_stream_core_listen(ngx_conf_t * cf, const ngx_command_t 
 			return NGX_CONF_ERROR;
 #endif
 		}
-		if(ngx_strcmp(value[i].data, "reuseport") == 0) {
+		if(sstreq(value[i].data, "reuseport")) {
 #if (NGX_HAVE_REUSEPORT)
 			ls->reuseport = 1;
 			ls->bind = 1;
@@ -513,7 +513,7 @@ static const char * ngx_stream_core_listen(ngx_conf_t * cf, const ngx_command_t 
 #endif
 			continue;
 		}
-		if(ngx_strcmp(value[i].data, "ssl") == 0) {
+		if(sstreq(value[i].data, "ssl")) {
 #if (NGX_STREAM_SSL)
 			ls->ssl = 1;
 			continue;
@@ -523,10 +523,10 @@ static const char * ngx_stream_core_listen(ngx_conf_t * cf, const ngx_command_t 
 #endif
 		}
 		if(ngx_strncmp(value[i].data, "so_keepalive=", 13) == 0) {
-			if(ngx_strcmp(&value[i].data[13], "on") == 0) {
+			if(sstreq(&value[i].data[13], "on")) {
 				ls->so_keepalive = 1;
 			}
-			else if(ngx_strcmp(&value[i].data[13], "off") == 0) {
+			else if(sstreq(&value[i].data[13], "off")) {
 				ls->so_keepalive = 2;
 			}
 			else {
@@ -583,7 +583,7 @@ invalid_so_keepalive:
 			return NGX_CONF_ERROR;
 #endif
 		}
-		if(ngx_strcmp(value[i].data, "proxy_protocol") == 0) {
+		if(sstreq(value[i].data, "proxy_protocol")) {
 			ls->proxy_protocol = 1;
 			continue;
 		}

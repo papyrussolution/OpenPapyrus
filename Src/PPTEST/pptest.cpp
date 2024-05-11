@@ -1295,6 +1295,7 @@ int TestFann()
 //
 //
 #include <..\SLib\gumbo\gumbo.h>
+#include <..\SLib\gumbo\gumbo-internal.h>
 
 static bool IsTextContainsSpacesOnly(const SString & rText)
 {
@@ -1400,6 +1401,21 @@ static void PrintGumboNode(const GumboNode * pN, uint tabN, uint flags, SFile & 
 	}
 }
 
+static void PrintGumboOutput(const GumboOutput * pGo, uint tabN, uint flags, SFile & rF, SString & rTempBuf)
+{
+	if(pGo) {
+		if(pGo->errors.length) {
+			rF.WriteLine(rTempBuf.Z().Cat("Errors").Colon().CR());
+			for(uint i = 0; i < pGo->errors.length; i++) {
+				//gumbo_error_to_string(GumboParser * parser, const GumboError* error, GumboStringBuffer* output) 
+				const GumboError * p_err = static_cast<const GumboError *>(pGo->errors.data[i]);
+				//rF.WriteLine(rTempBuf.Z().Tab().Cat(p_err->text).CR());
+			}
+		}
+		PrintGumboNode(pGo->document, 0, flags, rF, rTempBuf);
+	}
+}
+
 static int LoadHttpPage(const char * pUrl, SString & rBuf)
 {
 	rBuf.Z();
@@ -1409,12 +1425,20 @@ static int LoadHttpPage(const char * pUrl, SString & rBuf)
 	THROW(!isempty(pUrl));
 	THROW(url.Parse(pUrl));
 	{
+		/*
+			user-agent:
+			Mozilla/5.0 (Windows NT 10.0; Win64; x64) 
+			AppleWebKit/537.36 (KHTML, like Gecko) 
+			Chrome/94.0.4606.81 
+			Safari/537.36
+		*/ 
 		ScURL c;
 		SBuffer in_buffer;
 		SFile wr_stream(in_buffer, SFile::mWrite);
 		StrStrAssocArray hdr_flds;
 		SFileFormat::GetMime(SFileFormat::Html, temp_buf);
 		temp_buf.CatDiv(';', 2).CatEq("charset", "utf-8");
+		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrUserAgent, "Mozilla/5.0");
 		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
 		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrCacheControl, "no-cache");
 		//SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAcceptLang, "ru");
@@ -1432,12 +1456,349 @@ static int LoadHttpPage(const char * pUrl, SString & rBuf)
 	return ok;
 }
 
+class HtmlParsingRule {
+public:
+	enum {
+		tName = 1,
+		tUrl,           // url
+		tItem,          // item
+		tDetailEntry,   // detail
+		tPageEntry,     // pager
+		tNextPageEntry, // nextpage
+	};
+	//
+	// Descr: Отдельный терм фильтрации 
+	//
+	class Filter {
+	public:
+		Filter() : P_Child(0)
+		{
+		}
+		~Filter()
+		{
+			ZDELETE(P_Child);
+		}
+		Filter & Z()
+		{
+			Tag.Z();
+			AttrL.Z();
+			TextPrefix.Z();
+			ZDELETE(P_Child);
+			return *this;
+		}
+		SString Tag;
+		StrStrAssocArray AttrL;
+		SString TextPrefix;
+		Filter * P_Child;
+	};
+	class Entry {
+	public:
+		Entry() : Token(0)
+		{
+		}
+		int    Token;
+		SString Field;
+		SString Text; // url or original filter description
+		Filter F;
+	};
+	HtmlParsingRule()
+	{
+	}
+	struct FilterResult {
+		FilterResult() : P_Node(0)
+		{
+		}
+		FilterResult(const FilterResult & rS) : P_Node(rS.P_Node), Text(rS.Text)
+		{
+		}
+		FilterResult & FASTCALL operator = (const FilterResult & rS) { return Copy(rS); }
+		FilterResult & FASTCALL Copy(const FilterResult & rS)
+		{
+			P_Node = rS.P_Node;
+			Text = rS.Text;
+			return *this;
+		}
+		const GumboNode * P_Node; // @notowned
+		SString Text;
+	};
+	int FindFilter(const GumboNode * pN, const Filter * pF, TSCollection <FilterResult> & rResult) const
+	{
+		int ok = 1;
+		if(pN && pF) {
+			if(pN->type == GUMBO_NODE_DOCUMENT) {
+				for(uint i = 0; i < pN->v.document.children.length; i++) {
+					THROW(FindFilter(static_cast<const GumboNode *>(pN->v.document.children.data[i]), pF, rResult)); // @recursion
+				}
+			}
+			else if(pN->type == GUMBO_NODE_ELEMENT) {
+				const char * p_tag = gumbo_normalized_tagname(pN->v.element.tag);
+				bool sat = true;
+				SString result_text;
+				if(pF->Tag.IsEqiAscii(p_tag)) {
+					if(pF->AttrL.getCount()) {
+						for(uint i = 0; sat && i < pF->AttrL.getCount(); i++) {
+							SStrToStrAssoc a = pF->AttrL.at(i);
+							const GumboAttribute * p_attr = gumbo_get_attribute(&pN->v.element.attributes, a.Key);
+							if(p_attr) {
+								if(sstreq(a.Val, "?")) {
+									result_text = a.Val;
+								}
+								else if(sstreqi_ascii(p_attr->value, a.Val)) {
+									;
+								}
+								else
+									sat = false;
+							}
+							else {
+								sat = false;
+							}
+						}
+					}
+				}
+				else
+					sat = false;
+				if(sat) {
+					FilterResult * p_result_item = rResult.CreateNewItem();
+					THROW_SL(p_result_item);
+					p_result_item->P_Node = pN;
+					if(result_text)
+						p_result_item->Text = result_text;
+					else {
+						// @todo Воткнуть в p_result->Text текстовое представление узла P_Node
+					}
+				}
+				{
+					for(uint i = 0; i < pN->v.element.children.length; i++) {
+						THROW(FindFilter(static_cast<const GumboNode *>(pN->v.element.children.data[i]), pF, rResult)); // @recursion
+					}
+				}
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	int    ParseFilter(const char * pStr, Filter & rF)
+	{
+		// syntax: tag-symb ['(' attr-symb ':' attr-value [';' attr-symb ':' attr-value] ')']
+		// Специальный символ атрибута '%text-prefix' трактуется как текстовый префикс в теле
+		// тега, предшествующий искомым данным.
+		int    ok = 1;
+		THROW(!isempty(pStr));
+		{
+			SString temp_buf;
+			SString attr_buf;
+			SString val_buf;
+			SStrScan scan(pStr);
+			scan.Skip();
+			THROW(scan.GetIdentWithHyphen(rF.Tag));
+			scan.Skip();
+			if(scan[0] == '(') {
+				bool do_go_next = false;
+				do {
+					do_go_next = false;
+					attr_buf.Z();
+					val_buf.Z();
+					scan.Incr();
+					scan.Skip();
+					THROW(scan.GetIdentWithHyphen(attr_buf));
+					scan.Skip();
+					if(scan[0] == ':') {
+						scan.Incr();
+						scan.Skip();
+						if(scan.GetQuotedString(val_buf)) {
+							;
+						}
+						else if(scan.GetUntil(';', val_buf)) {
+							val_buf.Strip();
+							do_go_next = true;
+						}
+						else if(scan.GetUntil(')', val_buf)) {
+							val_buf.Strip();
+						}
+						else {
+							CALLEXCEPT();
+						}
+					}
+					else if(scan[0] == ';') {
+						do_go_next = true;
+					}
+					else if(scan[0] == ')') {
+					}
+					else {
+						CALLEXCEPT();
+					}
+					rF.AttrL.Add(attr_buf, val_buf, 1);
+				} while(do_go_next);
+			}
+			else if(scan.Get("->", temp_buf)) {
+				// @todo
+			}
+			else {
+				THROW(scan.IsEnd());
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	int SetEntry(const char * pKey, const char * pValue)
+	{
+		int    ok = 1;
+		if(sstreqi_ascii(pKey, "url")) {
+			THROW(!isempty(pValue));
+			{
+				Entry * p_entry = L.CreateNewItem();
+				THROW_SL(p_entry);
+				p_entry->Token = tUrl;
+				p_entry->Text = pValue;
+			}
+		}
+		else {
+			int    token = 0;
+			SString field;
+			if(sstreqi_ascii(pKey, "item")) {
+				token = tItem;
+			}
+			else if(sstreqi_ascii(pKey, "detail")) {
+				token = tDetailEntry;
+			}
+			else if(sstreqi_ascii(pKey, "pager")) {
+				token = tPageEntry;
+			}
+			THROW(token);
+			THROW(!isempty(pValue));
+			{
+				uint entry_pos = 0;
+				Entry * p_entry = L.CreateNewItem(&entry_pos);
+				THROW_SL(p_entry);
+				p_entry->Token = token;
+				p_entry->Field = field;
+				p_entry->Text = pValue;
+				if(ParseFilter(pValue, p_entry->F)) {
+					; // ok
+				}
+				else {
+					L.atFree(entry_pos);
+					CALLEXCEPT();
+				}
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	bool   GetUrl(SString & rUrlBuf) const
+	{
+		rUrlBuf.Z();
+		bool    ok = false;
+		for(uint i = 0; i < L.getCount(); i++) {
+			const Entry * p_entry = L.at(i);
+			if(p_entry && p_entry->Token == tUrl) {
+				rUrlBuf = p_entry->Text;
+				ok = true;
+			}
+		}
+		return ok;
+	}
+	SString Symb;
+	TSCollection <Entry> L;
+	//TSCollection <Filter> FiltL; // Список термов фильтрации контента для данного правила
+};
+
+class HtmlParsingRuleSet : public TSCollection <HtmlParsingRule> {
+public:
+	HtmlParsingRuleSet() : TSCollection <HtmlParsingRule>()
+	{
+	}
+	int    ReadIni(const char * pIniFileName)
+	{
+		int    ok = -1;
+		SString temp_buf;
+		SString sect_buf;
+		SString param_buf;
+		SString value_buf;
+		StringSet ss_sections;
+		StringSet ss_entries;
+		SIniFile ini_file(pIniFileName);
+		THROW(ini_file.IsValid());
+		ini_file.GetSections(&ss_sections);
+		for(uint ssp = 0; ss_sections.get(&ssp, sect_buf);) {
+			ini_file.GetEntries(sect_buf, &ss_entries, 0);
+			if(ss_entries.getCount()) {
+				HtmlParsingRule * p_rule = new HtmlParsingRule();
+				THROW_SL(p_rule);
+				bool is_there_err = false;
+				for(uint ssp2 = 0; ss_entries.get(&ssp2, param_buf);) {
+					if(ini_file.GetParam(sect_buf, param_buf, value_buf) > 0) {
+						if(!p_rule->SetEntry(param_buf, value_buf)) {
+							is_there_err = true;
+							; // @todo @err
+						}
+					}
+				}
+				if(is_there_err) {
+					delete p_rule;
+				}
+				else {
+					p_rule->Symb = sect_buf;
+					insert(p_rule);
+					ok = 1;
+				}
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+};
+
 static void GumboTest()
 {
 	GumboOutput * p_output = 0;
 	const GumboOptions go = kGumboDefaultOptions;
 	//SString input_buf;
 	SString temp_buf;
+	SString html_buf;
+	HtmlParsingRuleSet prset;
+
+	PPGetPath(PPPATH_TESTROOT, temp_buf);
+	temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("htmlparsing-rule-set.ini");
+	if(prset.ReadIni(temp_buf)) {
+		SString url_buf;
+		SString _item_rule;
+		for(uint i = 0; i < prset.getCount(); i++) {
+			const HtmlParsingRule * p_rule = prset.at(i);
+			if(p_rule) {
+				p_rule->GetUrl(url_buf);
+				//p_rule->GetToken(HtmlParsingRule::tItem, _item_rule);
+				if(url_buf.NotEmptyS()) {
+					if(LoadHttpPage(url_buf, html_buf)) {
+						p_output = gumbo_parse_with_options(&go, html_buf, html_buf.Len());
+						if(p_output && p_output->root) {
+							{
+								PPGetPath(PPPATH_TESTROOT, temp_buf);
+								temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat(p_rule->Symb).Dot().Cat("out");
+								SFile f_out(temp_buf, SFile::mWrite);
+								uint pgn_flags = 0;
+								PrintGumboOutput(p_output, 0, pgn_flags, f_out, temp_buf);
+							}
+							for(uint ei = 0; ei < p_rule->L.getCount(); ei++) {
+								const HtmlParsingRule::Entry * p_entry = p_rule->L.at(ei);
+								if(p_entry) {
+									if(p_entry->Token == HtmlParsingRule::tItem) {
+										TSCollection <HtmlParsingRule::FilterResult> frl;
+										p_rule->FindFilter(p_output->document, &p_entry->F, frl);
+										if(frl.getCount()) {
+										}
+									}
+								}
+							}
+						}
+						//
+						gumbo_destroy_output(p_output);
+						p_output = 0;
+					}
+				}
+			}
+		}
+	}
 
 	const char * p_addr_list[] = {
 		"https://rutor.org.in/",
@@ -1446,8 +1807,8 @@ static void GumboTest()
 	};
 	for(uint i = 0; i < SIZEOFARRAY(p_addr_list); i++) {
 		const char * p_url = p_addr_list[i];
-		if(LoadHttpPage(p_url, temp_buf)) {
-			p_output = gumbo_parse_with_options(&go, temp_buf, temp_buf.Len());
+		if(LoadHttpPage(p_url, html_buf)) {
+			p_output = gumbo_parse_with_options(&go, html_buf, html_buf.Len());
 			{
 				PPGetPath(PPPATH_TESTROOT, temp_buf);
 				temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("html").CatChar('-').CatLongZ(i+1, 3).Cat("-text").Dot().Cat("out");
@@ -1628,9 +1989,9 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	TestGtinStruc();
+	//TestGtinStruc();
 	//PPChZnPrcssr::Test();
-	//GumboTest();
+	GumboTest();
 	//Test_SSystemBackup();
 	//TestPow10Tab();
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");

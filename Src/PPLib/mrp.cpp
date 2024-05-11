@@ -938,7 +938,7 @@ void PPObjMrpTab::GenerateName(PPID linkObjType, PPID linkObjID, SString * pName
 		long   c = 0;
 		GetCounter(&c, use_ta);
 		if(linkObjType && linkObjID) {
-			GetObjectName(linkObjType, linkObjID, *pName, 1);
+			CatObjectName(linkObjType, linkObjID, *pName);
 			pName->Space();
 		}
 		pName->CatChar('#').Cat(c);

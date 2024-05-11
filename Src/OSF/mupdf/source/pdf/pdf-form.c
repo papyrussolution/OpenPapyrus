@@ -1451,11 +1451,11 @@ static pdf_obj * get_locked_fields_from_xfa(fz_context * ctx, pdf_document * doc
 	while(node) {
 		fz_xml * variables, * manifest, * ref;
 		pdf_obj * arr;
-		/* Find the enclosing subform */
+		// Find the enclosing subform
 		do {
 			node = fz_xml_up(node);
-		} while(node && strcmp(fz_xml_tag(node), "subform"));
-		/* Look for a variables within that. */
+		} while(node && !sstreq(fz_xml_tag(node), "subform"));
+		// Look for a variables within that
 		variables = fz_xml_find_down(node, "variables");
 		if(variables == NULL)
 			continue;
@@ -1758,18 +1758,16 @@ void pdf_field_event_calculate(fz_context * ctx, pdf_document * doc, pdf_obj * f
 			char * old_value = fz_strdup(ctx, pdf_field_value(ctx, field));
 			char * new_value = NULL;
 			fz_var(new_value);
-			fz_try(ctx)
-			{
+			fz_try(ctx) {
 				pdf_js_event_init(js, field, old_value, 1);
 				pdf_execute_js_action(ctx, doc, field, "AA/C/JS", action);
 				if(pdf_js_event_result(js)) {
 					char * new_value = pdf_js_event_value(js);
-					if(strcmp(old_value, new_value))
+					if(!sstreq(old_value, new_value))
 						pdf_set_field_value(ctx, doc, field, new_value, 0);
 				}
 			}
-			fz_always(ctx)
-			{
+			fz_always(ctx) {
 				fz_free(ctx, old_value);
 				fz_free(ctx, new_value);
 			}

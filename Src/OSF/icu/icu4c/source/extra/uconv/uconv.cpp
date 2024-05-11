@@ -501,7 +501,7 @@ bool ConvertFile::convertFile(const char * pname, const char * fromcpage, UConve
 		UnicodeString str(translit), pestr;
 		// Create from rules or by ID as needed. 
 		parse.line = -1;
-		if(uprv_strchr(translit, ':') || uprv_strchr(translit, '>') || uprv_strchr(translit, '<') || uprv_strchr(translit, '>')) {
+		if(sstrchr(translit, ':') || sstrchr(translit, '>') || sstrchr(translit, '<') || sstrchr(translit, '>')) {
 			t = Transliterator::createFromRules(UNICODE_STRING_SIMPLE("Uconv"), str, UTRANS_FORWARD, parse, err);
 		}
 		else {

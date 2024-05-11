@@ -45,19 +45,17 @@ void ASN1_add_oid_module(void)
 {
 	CONF_module_add("oid_section", oid_module_init, oid_module_finish);
 }
-
 /*-
  * Create an OID based on a name value pair. Accept two formats.
  * shortname = 1.2.3.4
  * shortname = some long name, 1.2.3.4
  */
-
 static int do_create(const char * value, const char * name)
 {
 	int nid;
 	const char * ln, * ostr;
 	char * lntmp = NULL;
-	const char * p = strrchr(value, ',');
+	const char * p = sstrrchr(value, ',');
 	if(!p) {
 		ln = name;
 		ostr = value;

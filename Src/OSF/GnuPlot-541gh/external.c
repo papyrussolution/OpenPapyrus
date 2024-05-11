@@ -62,7 +62,7 @@ at_type * GnuPlot::ExternalAt(const char * func_name)
 	if(!file)
 		IntErrorCurToken("expecting external function filename");
 	GpExpandTilde(&file);
-	func = strrchr(file, ':');
+	func = sstrrchr(file, ':');
 	if(func) {
 		func[0] = 0;
 		func++;
@@ -76,12 +76,12 @@ at_type * GnuPlot::ExternalAt(const char * func_name)
 		const char * err = DLL_ERROR(dl);
 		char * s;
 #ifdef DLL_PATHSEP
-		int no_path = !(s = strrchr(file, DLL_PATHSEP[0]));
+		int no_path = !(s = sstrrchr(file, DLL_PATHSEP[0]));
 #else
 		int no_path = 0;
 #endif
 #ifdef DLL_EXT
-		int no_ext  = !strrchr(no_path ? file : s, '.');
+		int no_ext  = !sstrrchr(no_path ? file : s, '.');
 #else
 		int no_ext = 0;
 #endif

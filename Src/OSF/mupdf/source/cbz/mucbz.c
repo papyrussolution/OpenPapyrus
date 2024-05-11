@@ -89,9 +89,9 @@ static void cbz_create_page_list(fz_context * ctx, cbz_document * doc)
 	doc->page = fz_malloc_array(ctx, count, const char *);
 	for(i = 0; i < count; i++) {
 		const char * name = fz_list_archive_entry(ctx, arch, i);
-		const char * ext = name ? strrchr(name, '.') : NULL;
+		const char * ext = sstrrchr(name, '.');
 		for(k = 0; cbz_ext_list[k]; k++) {
-			if(ext && !fz_strcasecmp(ext, cbz_ext_list[k])) {
+			if(ext && sstreqi_ascii(ext, cbz_ext_list[k])) {
 				doc->page[doc->page_count++] = name;
 				break;
 			}

@@ -141,17 +141,13 @@ public:
 	{
 		const hb_ot_name_entry_t * a = (const hb_ot_name_entry_t*)pa;
 		const hb_ot_name_entry_t * b = (const hb_ot_name_entry_t*)pb;
-
 		/* Compare by name_id, then language. */
-
 		if(a->name_id != b->name_id)
 			return a->name_id - b->name_id;
-
 		if(a->language == b->language) return 0;
 		if(!a->language) return -1;
 		if(!b->language) return +1;
-		return strcmp(hb_language_to_string(a->language),
-			   hb_language_to_string(b->language));
+		return strcmp(hb_language_to_string(a->language), hb_language_to_string(b->language));
 	}
 
 	static int _hb_ot_name_entry_cmp(const void * pa, const void * pb)

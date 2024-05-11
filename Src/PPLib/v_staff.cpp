@@ -695,7 +695,7 @@ DBQuery * PPViewStaffPost::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			*pSubTitle = psn_rec.Name;
 		if(Filt.DivID) {
 			pSubTitle->CatDivIfNotEmpty('-', 1);
-			GetObjectName(PPOBJ_LOCATION, Filt.DivID, *pSubTitle, 1);
+			CatObjectName(PPOBJ_LOCATION, Filt.DivID, *pSubTitle);
 		}
 	}
 	ASSIGN_PTR(pBrwId, brw_id);

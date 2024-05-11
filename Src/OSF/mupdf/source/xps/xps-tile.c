@@ -5,13 +5,17 @@
 #include "xps-imp.h"
 
 #define TILE
-
 /*
  * Parse a tiling brush (visual and image brushes at this time) common
  * properties. Use the callback to draw the individual tiles.
  */
-
-enum { TILE_NONE, TILE_TILE, TILE_FLIP_X, TILE_FLIP_Y, TILE_FLIP_X_Y };
+enum { 
+	TILE_NONE, 
+	TILE_TILE, 
+	TILE_FLIP_X, 
+	TILE_FLIP_Y, 
+	TILE_FLIP_X_Y 
+};
 
 struct closure {
 	char * base_uri;
@@ -313,7 +317,7 @@ void xps_parse_fixed_page(fz_context * ctx, xps_document * doc, fz_matrix ctm, x
 	fz_rect area;
 	char * s;
 	fz_strlcpy(base_uri, page->fix->name, sizeof base_uri);
-	s = strrchr(base_uri, '/');
+	s = sstrrchr(base_uri, '/');
 	if(s)
 		s[1] = 0;
 	dict = NULL;

@@ -284,11 +284,11 @@ static const char * ngx_stream_map(ngx_conf_t * cf, const ngx_command_t * dummy,
 	ngx_stream_compile_complex_value_t ccv;
 	ngx_stream_map_conf_ctx_t * ctx = (ngx_stream_map_conf_ctx_t *)cf->ctx;
 	ngx_str_t  * value = static_cast<ngx_str_t *>(cf->args->elts);
-	if(cf->args->nelts == 1 && ngx_strcmp(value[0].data, "hostnames") == 0) {
+	if(cf->args->nelts == 1 && sstreq(value[0].data, "hostnames")) {
 		ctx->hostnames = 1;
 		return NGX_CONF_OK;
 	}
-	if(cf->args->nelts == 1 && ngx_strcmp(value[0].data, "volatile") == 0) {
+	if(cf->args->nelts == 1 && sstreq(value[0].data, "volatile")) {
 		ctx->no_cacheable = 1;
 		return NGX_CONF_OK;
 	}
@@ -296,7 +296,7 @@ static const char * ngx_stream_map(ngx_conf_t * cf, const ngx_command_t * dummy,
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid number of the map parameters");
 		return NGX_CONF_ERROR;
 	}
-	if(ngx_strcmp(value[0].data, "include") == 0) {
+	if(sstreq(value[0].data, "include")) {
 		return ngx_conf_include(cf, dummy, conf);
 	}
 	key = 0;
@@ -369,7 +369,7 @@ static const char * ngx_stream_map(ngx_conf_t * cf, const ngx_command_t * dummy,
 	}
 	*vp = var;
 found:
-	if(ngx_strcmp(value[0].data, "default") == 0) {
+	if(sstreq(value[0].data, "default")) {
 		if(ctx->default_value) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "duplicate default map parameter");
 			return NGX_CONF_ERROR;

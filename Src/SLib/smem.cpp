@@ -47,6 +47,13 @@ bool FASTCALL ismemzero(const void * p, size_t s)
 	return true;
 }
 
+void * FASTCALL memrandomize(void * p, size_t s)
+{
+	if(p && s)
+		SLS.GetTLA().Rg.ObfuscateBuffer(p, s);
+	return p;
+}
+
 void * FASTCALL memzero(void * p, size_t s)
 {
 	if(p) {

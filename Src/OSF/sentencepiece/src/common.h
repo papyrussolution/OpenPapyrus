@@ -110,9 +110,9 @@ void SetMinLogLevel(int v);
 inline const char * BaseName(const char * path) 
 {
 #ifdef OS_WIN
-	const char * p = strrchr(path, '\\');
+	const char * p = sstrrchr(path, '\\');
 #else
-	const char * p = strrchr(path, '/');
+	const char * p = sstrrchr(path, '/');
 #endif
 	if(p == nullptr) return path;
 	return p + 1;

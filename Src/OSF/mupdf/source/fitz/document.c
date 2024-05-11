@@ -61,7 +61,7 @@ const fz_document_handler * fz_recognize_document(fz_context * ctx, const char *
 	fz_document_handler_context * dc = ctx->handler;
 	if(dc->count == 0)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "No document handlers registered");
-	ext = strrchr(magic, '.');
+	ext = sstrrchr(magic, '.');
 	if(ext)
 		needle = ext + 1;
 	else
@@ -75,13 +75,13 @@ const fz_document_handler * fz_recognize_document(fz_context * ctx, const char *
 			score = dc->handler[i]->recognize(ctx, magic);
 		if(!ext) {
 			for(entry = &dc->handler[i]->mimetypes[0]; *entry; entry++)
-				if(!fz_strcasecmp(needle, *entry) && score < 100) {
+				if(sstreqi_ascii(needle, *entry) && score < 100) {
 					score = 100;
 					break;
 				}
 		}
 		for(entry = &dc->handler[i]->extensions[0]; *entry; entry++)
-			if(!fz_strcasecmp(needle, *entry) && score < 100) {
+			if(sstreqi_ascii(needle, *entry) && score < 100) {
 				score = 100;
 				break;
 			}

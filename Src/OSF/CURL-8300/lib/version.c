@@ -24,11 +24,9 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-
 #ifdef USE_NGHTTP2
-#include <nghttp2/nghttp2.h>
+	#include <nghttp2/nghttp2.h>
 #endif
-
 //#include <curl/curl.h>
 //#include "urldata.h"
 #include "vtls/vtls.h"
@@ -37,31 +35,24 @@
 #include "vquic/vquic.h"
 //#include "curl_printf.h"
 #include "easy_lock.h"
-
 #ifdef USE_ARES
-#if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) &&   \
-	defined(WIN32)
-#define CARES_STATICLIB
+	#if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) && defined(WIN32)
+		#define CARES_STATICLIB
+	#endif
+	#include <ares.h>
 #endif
-#include <ares.h>
-#endif
-
 #ifdef USE_LIBIDN2
-#include <idn2.h>
+	#include <idn2.h>
 #endif
-
 #ifdef USE_LIBPSL
-#include <libpsl.h>
+	#include <libpsl.h>
 #endif
-
 #ifdef USE_LIBRTMP
-#include <librtmp/rtmp.h>
+	#include <librtmp/rtmp.h>
 #endif
-
 #ifdef HAVE_LIBZ
-#include <zlib.h>
+	#include <zlib.h>
 #endif
-
 #ifdef HAVE_BROTLI
 #if defined(__GNUC__)
 /* Ignore -Wvla warnings in brotli headers */

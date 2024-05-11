@@ -160,10 +160,10 @@ ngx_resolver_t * ngx_resolver_create(ngx_conf_t * cf, ngx_str_t * names, ngx_uin
 		}
 #if (NGX_HAVE_INET6)
 		if(ngx_strncmp(names[i].data, "ipv6=", 5) == 0) {
-			if(ngx_strcmp(&names[i].data[5], "on") == 0) {
+			if(sstreq(&names[i].data[5], "on")) {
 				r->ipv6 = 1;
 			}
-			else if(ngx_strcmp(&names[i].data[5], "off") == 0) {
+			else if(sstreq(&names[i].data[5], "off")) {
 				r->ipv6 = 0;
 			}
 			else {

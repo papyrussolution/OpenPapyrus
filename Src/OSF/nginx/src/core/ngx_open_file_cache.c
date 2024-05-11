@@ -824,7 +824,7 @@ static void ngx_open_file_cache_rbtree_insert_value(ngx_rbtree_node_t * temp, ng
 		else { /* node->key == temp->key */
 			file = (ngx_cached_open_file_t*)node;
 			file_temp = (ngx_cached_open_file_t*)temp;
-			p = (ngx_strcmp(file->name, file_temp->name) < 0) ? &temp->left : &temp->right;
+			p = (strcmp(PTRCHRC_(file->name), PTRCHRC_(file_temp->name)) < 0) ? &temp->left : &temp->right;
 		}
 		if(*p == sentinel) {
 			break;
@@ -850,7 +850,7 @@ static ngx_cached_open_file_t * ngx_open_file_lookup(ngx_open_file_cache_t * cac
 		else {
 			// hash == node->key 
 			ngx_cached_open_file_t * file = (ngx_cached_open_file_t*)node;
-			ngx_int_t rc = ngx_strcmp(name->data, file->name);
+			ngx_int_t rc = strcmp(PTRCHRC_(name->data), PTRCHRC_(file->name));
 			if(rc == 0) {
 				return file;
 			}

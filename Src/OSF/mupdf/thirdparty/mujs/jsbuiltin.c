@@ -1,3 +1,5 @@
+// jsbuiltin.c
+//
 #include "jsi.h"
 #include "jslex.h"
 #include "jscompile.h"
@@ -12,7 +14,7 @@ static void jsB_globalf(js_State * J, const char * name, js_CFunction cfun, int 
 
 void jsB_propf(js_State * J, const char * name, js_CFunction cfun, int n)
 {
-	const char * pname = strrchr(name, '.');
+	const char * pname = sstrrchr(name, '.');
 	pname = pname ? pname + 1 : name;
 	js_newcfunction(J, cfun, name, n);
 	js_defproperty(J, -2, pname, JS_DONTENUM);

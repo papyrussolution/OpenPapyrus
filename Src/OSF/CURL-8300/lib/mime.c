@@ -228,8 +228,8 @@ static char *Curl_basename(char * path)
 {
 	/* Ignore all the details above for now and make a quick and simple
 	   implementation here */
-	char * s1 = strrchr(path, '/');
-	char * s2 = strrchr(path, '\\');
+	char * s1 = sstrrchr(path, '/');
+	char * s2 = sstrrchr(path, '\\');
 	if(s1 && s2) {
 		path = (s1 > s2? s1 : s2) + 1;
 	}

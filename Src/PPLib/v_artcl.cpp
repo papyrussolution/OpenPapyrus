@@ -1100,7 +1100,9 @@ PPALDD_DESTRUCTOR(ArticleView) { Destroy(); }
 int PPALDD_ArticleView::InitData(PPFilt & rFilt, long rsrv)
 {
 	INIT_PPVIEW_ALDD_DATA_U(Article, rsrv);
-	GetObjectName(PPOBJ_ACCSHEET, p_filt->AccSheetID, H.FltAccSheetName, sizeof(H.FltAccSheetName));
+	SString temp_buf;
+	GetObjectName(PPOBJ_ACCSHEET, p_filt->AccSheetID, temp_buf.Z());
+	STRNSCPY(H.FltAccSheetName, temp_buf);
 	return DlRtm::InitData(rFilt, rsrv);
 }
 

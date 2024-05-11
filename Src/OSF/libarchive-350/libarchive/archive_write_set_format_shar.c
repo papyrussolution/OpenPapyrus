@@ -154,7 +154,7 @@ static int archive_write_shar_header(struct archive_write * a, ArchiveEntry * en
 	if(archive_entry_filetype(entry) != AE_IFDIR) {
 		/* Try to create the dir. */
 		p = sstrdup(name);
-		pp = strrchr(p, '/');
+		pp = sstrrchr(p, '/');
 		/* If there is a / character, try to create the dir. */
 		if(pp) {
 			*pp = '\0';
@@ -230,7 +230,7 @@ static int archive_write_shar_header(struct archive_write * a, ArchiveEntry * en
 			    SAlloc::F(shar->last_dir);
 			    shar->last_dir = sstrdup(name);
 			    /* Trim a trailing '/'. */
-			    pp = strrchr(shar->last_dir, '/');
+			    pp = sstrrchr(shar->last_dir, '/');
 			    if(pp && pp[1] == '\0')
 				    *pp = '\0';
 			    /*

@@ -132,14 +132,14 @@ static int vms_load(DSO * dso)
 	 * Start with trying to find the end of a dir-spec, and save the position
 	 * of the byte after in sp1
 	 */
-	sp1 = strrchr(filename, ']');
-	sp2 = strrchr(filename, '>');
+	sp1 = sstrrchr(filename, ']');
+	sp2 = sstrrchr(filename, '>');
 	if(sp1 == NULL)
 		sp1 = sp2;
 	if(sp2 != NULL && sp2 > sp1)
 		sp1 = sp2;
 	if(sp1 == NULL)
-		sp1 = strrchr(filename, ':');
+		sp1 = sstrrchr(filename, ':');
 	if(sp1 == NULL)
 		sp1 = filename;
 	else
@@ -459,12 +459,12 @@ static char * vms_name_converter(DSO * dso, const char * filename)
 	}
 	else {
 		p = filename;
-		transform = (strrchr(p, '>') == NULL && strrchr(p, ']') == NULL);
+		transform = (sstrrchr(p, '>') == NULL && sstrrchr(p, ']') == NULL);
 	}
 	if(transform) {
 		int rsize = len + sizeof(DSO_EXTENSION);
 		if((translated = OPENSSL_malloc(rsize)) != NULL) {
-			p = strrchr(filename, ';');
+			p = sstrrchr(filename, ';');
 			if(p)
 				len = p - filename;
 			strncpy(translated, filename, len);

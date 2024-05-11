@@ -140,7 +140,7 @@ void FASTCALL ngx_strlow(uchar * dst, const uchar * src, size_t n);
 #define ngx_strncmp(s1, s2, n)  strncmp((const char *)s1, (const char *)s2, n)
 
 /* msvc and icc7 compile strcmp() to inline loop */
-#define ngx_strcmp(s1, s2)  strcmp((const char *)s1, (const char *)s2)
+// @v12.0.1 (replaced with sstreq and strcmp) #define ngx_strcmp(s1, s2)  strcmp((const char *)s1, (const char *)s2)
 #define ngx_strstr(s1, s2)  strstr((const char *)s1, (const char *)s2)
 #define ngx_strlen(s)       strlen((const char *)s)
 #define ngx_strchr(s1, c)   sstrchr((const char *)s1, (int)c)

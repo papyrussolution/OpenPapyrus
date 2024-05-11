@@ -13820,9 +13820,7 @@ static int xmlSchemaCheckRCaseNameAndTypeOK(xmlSchemaParserCtxtPtr ctxt, xmlSche
 	 * or is not fixed, or R's declaration's {value constraint} is fixed
 	 * with the same value."
 	 */
-	if(elemB->value && (elemB->flags & XML_SCHEMAS_ELEM_FIXED) &&
-	    ((elemR->value == NULL) ||
-		    ((elemR->flags & XML_SCHEMAS_ELEM_FIXED) == 0) ||
+	if(elemB->value && (elemB->flags & XML_SCHEMAS_ELEM_FIXED) && ((elemR->value == NULL) || ((elemR->flags & XML_SCHEMAS_ELEM_FIXED) == 0) ||
 	            /* @todo Equality of the initial value or normalized or canonical? */
 		    (!sstreq(elemR->value, elemB->value))))
 		return 1;

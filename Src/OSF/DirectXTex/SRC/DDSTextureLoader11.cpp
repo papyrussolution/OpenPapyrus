@@ -1403,11 +1403,11 @@ void SetDebugTextureInfo(_In_z_ const wchar_t* fileName, _In_opt_ ID3D11Resource
 		CHAR strFileA[MAX_PATH];
 		const int result = WideCharToMultiByte(CP_UTF8, WC_NO_BEST_FIT_CHARS, fileName, -1, strFileA, MAX_PATH, nullptr, nullptr);
 		if(result > 0) {
-			const char* pstrName = strrchr(strFileA, '\\');
+			const char * pstrName = sstrrchr(strFileA, '\\');
 			if(!pstrName) {
 				pstrName = strFileA;
 			}
-			else{
+			else {
 				pstrName++;
 			}
 			if(texture && *texture) {

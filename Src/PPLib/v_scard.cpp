@@ -1691,7 +1691,7 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	else
 		MEMSZERO(ser_rec);
 	if(Filt.PersonID)
-		GetObjectName(PPOBJ_PERSON, Filt.PersonID, sub_title, 1);
+		CatObjectName(PPOBJ_PERSON, Filt.PersonID, sub_title);
 	if(/*Filt.SeriesID*/SeriesList.GetSingle())
 		sub_title.CatDivIfNotEmpty('-', 1).Cat(ser_rec.Name);
 	if(P_TempOrd) {

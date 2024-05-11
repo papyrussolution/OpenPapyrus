@@ -379,86 +379,59 @@ static ngx_int_t ngx_http_upstream_get_chash_peer(ngx_peer_connection_t * pc, vo
 		best = NULL;
 		best_i = 0;
 		total = 0;
-
-		for(peer = hp->rrp.peers->peer, i = 0;
-		    peer;
-		    peer = peer->next, i++) {
+		for(peer = hp->rrp.peers->peer, i = 0; peer; peer = peer->next, i++) {
 			n = i / (8 * sizeof(uintptr_t));
 			m = static_cast<uintptr_t>(1) << i % (8 * sizeof(uintptr_t));
-
 			if(hp->rrp.tried[n] & m) {
 				continue;
 			}
-
 			if(peer->down) {
 				continue;
 			}
-
-			if(peer->server.len != server->len
-			   || ngx_strncmp(peer->server.data, server->data, server->len)
-			    != 0) {
+			if(peer->server.len != server->len || ngx_strncmp(peer->server.data, server->data, server->len) != 0) {
 				continue;
 			}
-
-			if(peer->max_fails
-			    && peer->fails >= peer->max_fails
-			    && now - peer->checked <= peer->fail_timeout) {
+			if(peer->max_fails && peer->fails >= peer->max_fails && now - peer->checked <= peer->fail_timeout) {
 				continue;
 			}
-
 			if(peer->max_conns && peer->conns >= peer->max_conns) {
 				continue;
 			}
-
 			peer->current_weight += peer->effective_weight;
 			total += peer->effective_weight;
-
 			if(peer->effective_weight < peer->weight) {
 				peer->effective_weight++;
 			}
-
 			if(best == NULL || peer->current_weight > best->current_weight) {
 				best = peer;
 				best_i = i;
 			}
 		}
-
 		if(best) {
 			best->current_weight -= total;
 			goto found;
 		}
-
 		hp->hash++;
 		hp->tries++;
-
 		if(hp->tries >= points->number) {
 			pc->name = hp->rrp.peers->name;
 			ngx_http_upstream_rr_peers_unlock(hp->rrp.peers);
 			return NGX_BUSY;
 		}
 	}
-
 found:
-
 	hp->rrp.current = best;
-
 	pc->sockaddr = best->sockaddr;
 	pc->socklen = best->socklen;
 	pc->name = &best->name;
-
 	best->conns++;
-
 	if(now - best->checked > best->fail_timeout) {
 		best->checked = now;
 	}
-
 	ngx_http_upstream_rr_peers_unlock(hp->rrp.peers);
-
 	n = best_i / (8 * sizeof(uintptr_t));
 	m = static_cast<uintptr_t>(1) << best_i % (8 * sizeof(uintptr_t));
-
 	hp->rrp.tried[n] |= m;
-
 	return NGX_OK;
 }
 
@@ -493,7 +466,7 @@ static const char * ngx_http_upstream_hash(ngx_conf_t * cf, const ngx_command_t 
 	if(cf->args->nelts == 2) {
 		uscf->peer.init_upstream = ngx_http_upstream_init_hash;
 	}
-	else if(ngx_strcmp(value[2].data, "consistent") == 0) {
+	else if(sstreq(value[2].data, "consistent")) {
 		uscf->peer.init_upstream = ngx_http_upstream_init_chash;
 	}
 	else {

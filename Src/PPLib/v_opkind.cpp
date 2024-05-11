@@ -1,5 +1,5 @@
 // V_OPKIND.CPP
-// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -373,13 +373,15 @@ int PPViewOprKind::MakeEntry(const PPOprKind & rOpRec, OprKindBrwItem & rEntry)
 	if(Filt.Flags & OPKF_RECKON)
 		accept_op = (accept_op && (rOpRec.Flags & OPKF_RECKON));
 	if(accept_op) {
+		SString temp_buf;
 		PPAccSheet acs_rec;
 		rEntry.ID = rOpRec.ID;
 		STRNSCPY(rEntry.Name, rOpRec.Name);
 		STRNSCPY(rEntry.Symb, rOpRec.Symb);
 		if(AcsObj.Fetch(rOpRec.AccSheetID, &acs_rec) > 0)
 			STRNSCPY(rEntry.AccSheet, acs_rec.Name);
-		GetObjectName(PPOBJ_OPRTYPE, rOpRec.OpTypeID, rEntry.OpType, sizeof(rEntry.OpType));
+		GetObjectName(PPOBJ_OPRTYPE, rOpRec.OpTypeID, temp_buf.Z());
+		STRNSCPY(rEntry.OpType, temp_buf);
 		CreateFlagsMnemonics(&rOpRec, rEntry.FlagsMnems, sizeof(rEntry.FlagsMnems));
 		rEntry.Rank = rOpRec.Rank;
 		ok = 1;
@@ -530,7 +532,11 @@ int PPALDD_OprKindList::InitData(PPFilt & rFilt, long rsrv)
 	H.FltPassive     = BIN(p_filt->Flags & OPKF_PASSIVE);
 	H.FltAccSheet    = p_filt->AccSheetID;
 	H.FltOpType      = p_filt->OpTypeID;
-	GetObjectName(PPOBJ_OPRTYPE, p_filt->OpTypeID, H.FltOpTypeName, sizeof(H.FltOpTypeName));
+	{
+		SString temp_buf;
+		GetObjectName(PPOBJ_OPRTYPE, p_filt->OpTypeID, temp_buf.Z());
+		STRNSCPY(H.FltOpTypeName, temp_buf);
+	}
 	return DlRtm::InitData(rFilt, rsrv);
 }
 

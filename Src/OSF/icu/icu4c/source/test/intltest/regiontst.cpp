@@ -808,7 +808,7 @@ void RegionTest::TestGroupingChildren() {
 				const char * expectedChildEnd = NULL;
 				const char * actualChild = NULL;
 				while((actualChild = actualChildren->next(NULL, err)) != NULL && *expectedChildStart != '\0') {
-					expectedChildEnd = uprv_strchr(expectedChildStart, ',');
+					expectedChildEnd = sstrchr(expectedChildStart, ',');
 					if(expectedChildEnd == NULL) {
 						expectedChildEnd = expectedChildStart + strlen(expectedChildStart);
 					}
@@ -824,7 +824,7 @@ void RegionTest::TestGroupingChildren() {
 					++numExpectedChildren;
 				}
 				while(expectedChildEnd != NULL && *expectedChildEnd != '\0') {
-					expectedChildEnd = uprv_strchr(expectedChildEnd + 1, ',');
+					expectedChildEnd = sstrchr(expectedChildEnd + 1, ',');
 					++numExpectedChildren;
 				}
 				if(numExpectedChildren != numActualChildren) {

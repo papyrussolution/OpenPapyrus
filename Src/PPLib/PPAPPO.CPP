@@ -492,6 +492,7 @@ int PPApp::processCommand(uint cmd)
 		case cmFreightPackageType:   ShowObjects(PPOBJ_FREIGHTPACKAGETYPE, 0); break; // @v10.4.1
 		case cmTaxSystemKind:        ShowObjects(PPOBJ_TAXSYSTEMKIND, 0);     break; // @v10.6.0
 		case cmSwProgramCategory:    ShowObjects(PPOBJ_SWPROGRAMCATEGORY, 0); break; // @v11.9.12
+		case cmComputerCategory:     ShowObjects(PPOBJ_COMPUTERCATEGORY, 0);  break; // @v12.0.1
 		case cmObjTag:               ShowTags_(PPOBJ_PERSON);                 break;
 		case cmLotTag:               ShowTags_(PPOBJ_LOT);                    break;
 		case cmBillTag:              ShowTags_(PPOBJ_BILL);                   break;
@@ -1445,7 +1446,7 @@ int PPVerHistory::Write(const char * pDataPath, const Info * pInfo)
 		rec.Dtm = getcurdatetime_();
 		rec.Ver = pInfo->CurVer;
 		DS.GetMachineID(&addr, 0);
-		addr.ToStr(temp_buf.Z()).CopyTo(rec.Machine, sizeof(rec.Machine));
+		addr.ToStr(0, temp_buf).CopyTo(rec.Machine, sizeof(rec.Machine));
 		f.Seek(0, SEEK_END);
 		THROW_SL(f.Write(&rec, sizeof(rec)) > 0);
 		THROW_SL(f.CalcCRC(sizeof(hdr), &crc) > 0);

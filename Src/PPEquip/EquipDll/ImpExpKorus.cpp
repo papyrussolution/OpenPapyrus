@@ -522,7 +522,7 @@ int ImportExportCls::Relationships()
 	_ns1__RelationshipsResponse resp;
 	EDIWebServiceSoapProxy proxy(SOAP_XML_INDENT);
 	gSoapClientInit(&proxy, 0, 0);
-	FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
+	FormatLoginToLogin(Header.EdiLogin, login); // ИД пользователя
 	param.Name = const_cast<char *>(login.cptr()); // @badcast
 	//param.Name = Header.EdiLogin;			// ИД пользователя
 	param.Password = Header.EdiPassword;	// Пароль
@@ -1384,7 +1384,7 @@ int ExportCls::SendDoc()
 	}
 	if(pos < RlnCfgList.getCount()) {
 		const StRlnConfig & r_item = RlnCfgList.at(pos);
-		FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
+		FormatLoginToLogin(Header.EdiLogin, login); // ИД пользователя
 		param.Name = (char *)(const char *)login;
 		//param.Name = Header.EdiLogin;			// ИД пользователя
 		param.Password = Header.EdiPassword;	// Пароль
@@ -1976,7 +1976,7 @@ int ImportCls::ReceiveDoc(uint messageType)
 			}
 			if(pos_ > 0 && pos_ <= rcl_c) {
 				const StRlnConfig & r_item = RlnCfgList.at(pos_-1);
-				FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
+				FormatLoginToLogin(Header.EdiLogin, login); // ИД пользователя
 				param.Name = const_cast<char *>(login.cptr());
 				//param.Name = Header.EdiLogin;			// ИД пользователя в системе
 				param.Password = Header.EdiPassword;	// Пароль
@@ -2043,7 +2043,7 @@ int ImportCls::SetNewStatus(SString & rErrTrackIdList)
 	rErrTrackIdList = 0;
 	for(size_t pos = 0; pos < TrackIds.getCount(); pos++) {
 		STRNSCPY(track_id_buf, TrackIds.Get(pos).Txt);
-		FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
+		FormatLoginToLogin(Header.EdiLogin, login); // ИД пользователя
 		param.Name = const_cast<char *>(login.cptr()); // @badcast
 		//param.Name = Header.EdiLogin;			// ИД пользователя в системе
 		param.Password = Header.EdiPassword;	// Пароль
@@ -2105,7 +2105,7 @@ int ImportCls::ListMessageBox(uint messageType)
 	for(pos = 0; pos < RlnCfgList.getCount(); pos ++) {
 		const StRlnConfig & r_item = RlnCfgList.at(pos);
 		if(r_item.Direction.CmpNC("IN") == 0 && r_item.EdiDocType == messageType) {
-			FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
+			FormatLoginToLogin(Header.EdiLogin, login); // ИД пользователя
 			param.Name = const_cast<char *>(login.cptr()); // @badcast
 			//param.Name = Header.EdiLogin;			// ИД пользователя
 			param.Password = Header.EdiPassword;	// Пароль пользователя

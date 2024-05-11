@@ -108,19 +108,19 @@ ngx_int_t ngx_add_module(ngx_conf_t * cf, ngx_str_t * file, ngx_module_t * pModu
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "module \"%V\" version %ui instead of %ui", file, pModule->version, (ngx_uint_t)nginx_version);
 		return NGX_ERROR;
 	}
-	if(ngx_strcmp(pModule->signature, NGX_MODULE_SIGNATURE) != 0) {
+	if(!sstreq(pModule->signature, NGX_MODULE_SIGNATURE)) {
 		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "module \"%V\" is not binary compatible", file);
 		return NGX_ERROR;
 	}
 	for(m = 0; cf->cycle->modules[m]; m++) {
-		if(ngx_strcmp(cf->cycle->modules[m]->name, pModule->name) == 0) {
+		if(sstreq(cf->cycle->modules[m]->name, pModule->name)) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "module \"%s\" is already loaded", pModule->name);
 			return NGX_ERROR;
 		}
 	}
-	/*
-	 * if the module wasn't previously loaded, assign an index
-	 */
+	//
+	// if the module wasn't previously loaded, assign an index
+	//
 	if(pModule->index == NGX_MODULE_UNSET_INDEX) {
 		pModule->index = ngx_module_index(cf->cycle);
 		if(pModule->index >= ngx_max_module) {
@@ -134,7 +134,7 @@ ngx_int_t ngx_add_module(ngx_conf_t * cf, ngx_str_t * file, ngx_module_t * pModu
 	before = cf->cycle->modules_n;
 	if(ppOrder) {
 		for(i = 0; ppOrder[i]; i++) {
-			if(ngx_strcmp(ppOrder[i], pModule->name) == 0) {
+			if(sstreq(ppOrder[i], pModule->name)) {
 				i++;
 				break;
 			}
@@ -144,7 +144,7 @@ ngx_int_t ngx_add_module(ngx_conf_t * cf, ngx_str_t * file, ngx_module_t * pModu
 			ngx_log_debug2(NGX_LOG_DEBUG_CORE, cf->log, 0, "module: %s before %s", module->name, order[i]);
 #endif
 			for(m = 0; m < before; m++) {
-				if(ngx_strcmp(cf->cycle->modules[m]->name, ppOrder[i]) == 0) {
+				if(sstreq(cf->cycle->modules[m]->name, ppOrder[i])) {
 					ngx_log_debug3(NGX_LOG_DEBUG_CORE, cf->log, 0, "module: %s before %s:%i", pModule->name, ppOrder[i], m);
 					before = m;
 					break;

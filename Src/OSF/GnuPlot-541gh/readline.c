@@ -507,9 +507,9 @@ char * GnuPlot::FnCompletion(size_t anchor_pos, int direction)
 			path = sstrdup("");
 		}
 		// separate directory and (partial) file directory name 
-		t = strrchr(path, DIRSEP1);
+		t = sstrrchr(path, DIRSEP1);
 #if DIRSEP2 != NUL
-		SETIFZQ(t, strrchr(path, DIRSEP2));
+		SETIFZQ(t, sstrrchr(path, DIRSEP2));
 #endif
 		if(t == NULL) {
 			/* name... */

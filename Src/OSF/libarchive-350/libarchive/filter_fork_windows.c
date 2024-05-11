@@ -46,7 +46,7 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 	 * a part of the cmdline and give CreateProcessA NULL as first
 	 * parameter, but I do not like that way.
 	 */
-	ext = strrchr(acmd->path, '.');
+	ext = sstrrchr(acmd->path, '.');
 	if(!ext || strlen(ext) > 4)
 		ext = ".exe"; // 'path' does not have a proper extension, so we have to give SearchPath() ".exe" as the extension
 	else

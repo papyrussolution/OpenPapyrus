@@ -215,21 +215,18 @@ typedef bool bit;
 typedef uint bit;
 #define BIT(x) bit x : 1
 #endif
-
 /*
  * Redefine TRUE and FALSE too, to catch current use. With this
  * change, 'bool found = 1' will give a warning on MIPSPro, but
  * 'bool found = TRUE' will not. Change tested on IRIX/MIPSPro,
  * AIX 5.1/Xlc, Tru64 5.1/cc, w/make test too.
  */
-
 #ifndef TRUE
 #define TRUE true
 #endif
 #ifndef FALSE
 #define FALSE false
 #endif
-
 #include "curl_ctype.h"
 
 /*

@@ -125,22 +125,21 @@ const CollationCacheEntry * LocaleCacheKey<CollationCacheEntry>::createObject(co
 	return loader->createCacheEntry(errorCode);
 }
 
-const CollationCacheEntry * CollationLoader::loadTailoring(const Locale &locale, UErrorCode & errorCode) {
+const CollationCacheEntry * CollationLoader::loadTailoring(const Locale &locale, UErrorCode & errorCode) 
+{
 	const CollationCacheEntry * rootEntry = CollationRoot::getRootCacheEntry(errorCode);
 	if(U_FAILURE(errorCode)) {
 		return NULL;
 	}
 	const char * name = locale.getName();
-	if(*name == 0 || strcmp(name, "root") == 0) {
+	if(*name == 0 || sstreq(name, "root")) {
 		// Have to add a ref.
 		rootEntry->addRef();
 		return rootEntry;
 	}
-
 	// Clear warning codes before loading where they get cached.
 	errorCode = U_ZERO_ERROR;
 	CollationLoader loader(rootEntry, locale, errorCode);
-
 	// getCacheEntry adds a ref for us.
 	return loader.getCacheEntry(errorCode);
 }
@@ -279,23 +278,23 @@ const CollationCacheEntry * CollationLoader::loadFromBundle(UErrorCode & errorCo
 	if(type[0] == 0) {
 		strcpy(type, defaultType);
 		typesTried |= TRIED_DEFAULT;
-		if(strcmp(type, "search") == 0) {
+		if(sstreq(type, "search")) {
 			typesTried |= TRIED_SEARCH;
 		}
-		if(strcmp(type, "standard") == 0) {
+		if(sstreq(type, "standard")) {
 			typesTried |= TRIED_STANDARD;
 		}
 		locale.setKeywordValue("collation", type, errorCode);
 		return getCacheEntry(errorCode);
 	}
 	else {
-		if(strcmp(type, defaultType) == 0) {
+		if(sstreq(type, defaultType)) {
 			typesTried |= TRIED_DEFAULT;
 		}
-		if(strcmp(type, "search") == 0) {
+		if(sstreq(type, "search")) {
 			typesTried |= TRIED_SEARCH;
 		}
-		if(strcmp(type, "standard") == 0) {
+		if(sstreq(type, "standard")) {
 			typesTried |= TRIED_STANDARD;
 		}
 		return loadFromCollations(errorCode);
@@ -359,10 +358,8 @@ const CollationCacheEntry * CollationLoader::loadFromCollations(UErrorCode & err
 			return NULL;
 		}
 	}
-
 	// Is this the same as the root collator? If so, then use that instead.
-	if((*actualLocale == 0 || strcmp(actualLocale, "root") == 0) &&
-	    strcmp(type, "standard") == 0) {
+	if((*actualLocale == 0 || sstreq(actualLocale, "root")) && sstreq(type, "standard")) {
 		if(typeFallback) {
 			errorCode = U_USING_DEFAULT_WARNING;
 		}
@@ -613,8 +610,8 @@ public:
 
 	virtual ~KeywordsSink();
 
-	virtual void put(const char * key, ResourceValue &value, bool /*noFallback*/,
-	    UErrorCode & errorCode) override {
+	virtual void put(const char * key, ResourceValue &value, bool /*noFallback*/, UErrorCode & errorCode) override 
+	{
 		if(U_FAILURE(errorCode)) {
 			return;
 		}
@@ -622,7 +619,7 @@ public:
 		for(int32_t i = 0; collations.getKeyAndValue(i, key, value); ++i) {
 			UResType type = value.getType();
 			if(type == URES_STRING) {
-				if(!hasDefault && strcmp(key, "default") == 0) {
+				if(!hasDefault && sstreq(key, "default")) {
 					CharString defcoll;
 					defcoll.appendInvariantChars(value.getUnicodeString(errorCode), errorCode);
 					if(U_SUCCESS(errorCode) && !defcoll.isEmpty()) {

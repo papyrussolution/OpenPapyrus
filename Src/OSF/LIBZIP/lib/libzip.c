@@ -2425,7 +2425,7 @@ int64 _zip_name_locate(zip_t * za, const char * fname, zip_flags_t flags, zip_er
 			// newly added (partially filled) entry or error 
 			if(fn) {
 				if(flags & ZIP_FL_NODIR) {
-					p = strrchr(fn, '/');
+					p = sstrrchr(fn, '/');
 					if(p)
 						fn = p+1;
 				}

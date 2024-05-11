@@ -762,7 +762,7 @@ TERM_PUBLIC void PCL_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 			    pGp->Pgm.Shift();
 			    if(pGp->IsStringValue(pGp->Pgm.GetCurTokenIdx()) && (s = pGp->TryToGetString())) {
 				    double fontsize;
-				    char * comma = strrchr(s, ',');
+				    char * comma = sstrrchr(s, ',');
 				    if(comma && (sscanf(comma + 1, "%lf", &fontsize) == 1)) {
 					    HPGL2_point_size = fontsize;
 					    *comma = '\0';

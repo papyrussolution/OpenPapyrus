@@ -265,7 +265,7 @@ TERM_PUBLIC void PICT2E_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 			    pGp->Pgm.Shift();
 			    if((s = pGp->TryToGetString()) != NULL) {
 				    int fontsize;
-				    char * comma = strrchr(s, ',');
+				    char * comma = sstrrchr(s, ',');
 				    if(comma && (1 == sscanf(comma + 1, "%i", &fontsize))) {
 					    _Pict2E.pict2e_fontsize = fontsize;
 					    if(_Pict2E.pict2e_fontsize <= 1)

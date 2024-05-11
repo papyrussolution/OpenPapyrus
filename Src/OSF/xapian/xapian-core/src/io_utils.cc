@@ -109,7 +109,8 @@ size_t io_read(int fd, char * p, size_t n, size_t min)
 					break;
 				throw Xapian::DatabaseCorruptError("Couldn't read enough (EOF)");
 			}
-			if(errno == EINTR) continue;
+			if(errno == EINTR) 
+				continue;
 			throw Xapian::DatabaseError("Error reading from file", errno);
 		}
 		p += c;
@@ -125,7 +126,8 @@ void io_write(int fd, const char * p, size_t n)
 	while(n) {
 		ssize_t c = _write(fd, p, n);
 		if(c < 0) {
-			if(errno == EINTR) continue;
+			if(errno == EINTR) 
+				continue;
 			throw Xapian::DatabaseError("Error writing to file", errno);
 		}
 		p += c;
@@ -228,7 +230,6 @@ bool io_readahead_block(int fd, size_t n, off_t b, off_t o)
 	// the same fd.
 	return posix_fadvise(fd, o, n, POSIX_FADV_WILLNEED) == 0;
 }
-
 #endif
 
 void io_read_block(int fd, char * p, size_t n, off_t b, off_t o)

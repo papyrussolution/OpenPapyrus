@@ -577,7 +577,7 @@ static ngx_int_t ngx_http_cmp_locations(const ngx_queue_t * one, const ngx_queue
 	if(!first->named && second->named) 
 		return -1; // shift named locations to the end 
 	if(first->named && second->named)
-		return ngx_strcmp(first->name.data, second->name.data);
+		return strcmp(PTRCHRC_(first->name.data), PTRCHRC_(second->name.data));
 #if (NGX_PCRE)
 	if(first->regex && !second->regex)
 		return 1; // shift the regex matches to the end 

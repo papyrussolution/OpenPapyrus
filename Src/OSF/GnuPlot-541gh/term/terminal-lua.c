@@ -1118,7 +1118,7 @@ TERM_PUBLIC void LUA_image(GpTermEntry_Static * pThis, uint m, uint n, coordval 
 		if(GPT.P_OutStr && ((color_mode == IC_RGBA) || image_extern)) {
 			char * idx;
 			// cairo based png images with alpha channel 
-			if((idx = strrchr(GPT.P_OutStr, '.')) == NULL)
+			if((idx = sstrrchr(GPT.P_OutStr, '.')) == NULL)
 				idx = sstrchr(GPT.P_OutStr, '\0');
 			image_file = (char *)SAlloc::M((idx-GPT.P_OutStr)+10);
 			strncpy(image_file, GPT.P_OutStr, (idx-GPT.P_OutStr) + 1);

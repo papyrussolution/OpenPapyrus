@@ -1446,13 +1446,8 @@ static void ShowDemoWindowWidgets()
 				static bool MyInputTextMultiline(const char* label, ImVector<char>* my_str, const ImVec2 & size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0)
 				{
 					assert((flags & ImGuiInputTextFlags_CallbackResize) == 0);
-					return ImGui::InputTextMultiline(label,
-						   my_str->begin(),
-						   (size_t)my_str->size(),
-						   size,
-						   flags | ImGuiInputTextFlags_CallbackResize,
-						   Funcs::MyResizeCallback,
-						   (void*)my_str);
+					return ImGui::InputTextMultiline(label, my_str->begin(), (size_t)my_str->size(), size,
+						   flags | ImGuiInputTextFlags_CallbackResize, Funcs::MyResizeCallback, (void*)my_str);
 				}
 			};
 

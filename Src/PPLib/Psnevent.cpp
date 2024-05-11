@@ -283,11 +283,11 @@ const char * PPObjPersonEvent::GetNamePtr()
 		NameBuf.Z().Cat(r_rec.Dt).Space().Cat(r_rec.Tm);
 		if(r_rec.PersonID) {
 			NameBuf.CatDiv('-', 1);
-			GetObjectName(PPOBJ_PERSON, r_rec.PersonID, NameBuf, 1);
+			CatObjectName(PPOBJ_PERSON, r_rec.PersonID, NameBuf);
 		}
 		else if(r_rec.SecondID) {
 			NameBuf.CatDiv('-', 1);
-			GetObjectName(PPOBJ_PERSON, r_rec.SecondID, NameBuf, 1);
+			CatObjectName(PPOBJ_PERSON, r_rec.SecondID, NameBuf);
 		}
 		{
 			SString & r_temp_buf = SLS.AcquireRvlStr(); // @v11.4.6 @fix (SString r_temp_buf)-->SString & r_temp_buf

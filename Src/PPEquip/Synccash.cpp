@@ -1192,10 +1192,10 @@ int	SCS_SYNCCASH::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 
 void SCS_SYNCCASH::CutLongTail(char * pBuf)
 {
-	char * p = 0;
 	if(pBuf && sstrlen(pBuf) > (uint)CheckStrLen) {
 		pBuf[CheckStrLen + 1] = 0;
-		if((p = strrchr(pBuf, ' ')) != 0)
+		char * p = sstrrchr(pBuf, ' ');
+		if(p)
 			*p = 0;
 		else
 			pBuf[CheckStrLen] = 0;

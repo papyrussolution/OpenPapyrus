@@ -584,7 +584,7 @@ static const char * ngx_http_limit_req(ngx_conf_t * cf, const ngx_command_t * cm
 			}
 			continue;
 		}
-		if(ngx_strcmp(value[i].data, "nodelay") == 0) {
+		if(sstreq(value[i].data, "nodelay")) {
 			nodelay = 1;
 			continue;
 		}

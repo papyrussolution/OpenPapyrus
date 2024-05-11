@@ -810,7 +810,7 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 			 */
 			const char * endslash;
 			if(!queryp)
-				endslash = strrchr(path, '/');
+				endslash = sstrrchr(path, '/');
 			else
 				endslash = (const char *)memrchr(path, '/', (queryp - path));
 			if(endslash) {

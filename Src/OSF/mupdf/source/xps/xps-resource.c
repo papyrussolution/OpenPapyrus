@@ -26,15 +26,12 @@ static fz_xml * xps_parse_resource_reference(fz_context * ctx, xps_document * do
 	if(strstr(att, "{StaticResource ") != att)
 		return NULL;
 	fz_strlcpy(name, att + 16, sizeof name);
-	s = strrchr(name, '}');
-	if(s)
-		*s = 0;
-
+	s = sstrrchr(name, '}');
+	ASSIGN_PTR(s, 0);
 	return xps_lookup_resource(ctx, doc, dict, name, urip);
 }
 
-void xps_resolve_resource_reference(fz_context * ctx, xps_document * doc, xps_resource * dict,
-    char ** attp, fz_xml ** tagp, char ** urip)
+void xps_resolve_resource_reference(fz_context * ctx, xps_document * doc, xps_resource * dict, char ** attp, fz_xml ** tagp, char ** urip)
 {
 	if(*attp) {
 		fz_xml * rsrc = xps_parse_resource_reference(ctx, doc, dict, *attp, urip);
@@ -53,24 +50,18 @@ static xps_resource * xps_parse_remote_resource_dictionary(fz_context * ctx, xps
 	xps_resource * dict = NULL;
 	fz_xml_doc * xml = NULL;
 	char * s;
-
 	fz_var(xml);
-
 	/* External resource dictionaries MUST NOT reference other resource dictionaries */
 	xps_resolve_url(ctx, doc, part_name, base_uri, source_att, sizeof part_name);
-
 	part = xps_read_part(ctx, doc, part_name);
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		xml = fz_parse_xml(ctx, part->data, 0);
 		if(!fz_xml_is_tag(fz_xml_root(xml), "ResourceDictionary"))
 			fz_throw(ctx, FZ_ERROR_GENERIC, "expected ResourceDictionary element");
-
 		fz_strlcpy(part_uri, part_name, sizeof part_uri);
-		s = strrchr(part_uri, '/');
+		s = sstrrchr(part_uri, '/');
 		if(s)
 			s[1] = 0;
-
 		dict = xps_parse_resource_dictionary(ctx, doc, part_uri, fz_xml_root(xml));
 		if(dict) {
 			dict->base_xml = xml; /* pass on ownership */

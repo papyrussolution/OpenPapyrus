@@ -1015,9 +1015,6 @@ int PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 
 int PPCashMachine::SyncPrintCheck(CCheckPacket * pCcPack, int addSummator)
 {
-	/*
-		
-	*/
 	int    ok = 1;
 	bool   debug_mark = false; // @debug
 	SString temp_buf;
@@ -1222,7 +1219,6 @@ int PPCashMachine::SyncPrintXReport()
 		if(SyncViewSessionStat(PPCashMachine::cssoXReport) == cmOK) {
 			PPWaitStart();
 			if(cs_obj.P_Tbl->Search(NodeRec.CurSessID, &cs_info.Rec) > 0) {
-				// @v10.4.2 CCheckCore cc;
 				long   _f = cs_obj.P_Tbl->GetCcGroupingFlags(cs_info.Rec, 0);
 				_f |= CCheckCore::gglfUseFullCcPackets;
 				r = cs_obj.P_Cc->GetSessTotal(NodeRec.CurSessID, _f, &cs_info.Total, 0);

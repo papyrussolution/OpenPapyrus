@@ -1229,7 +1229,7 @@ static void TestCompressOverlap() {
 	   bytes (149/33 rounded up + accent), tertstr should have > 2 tertiary bytes */
 	resultlen = ucol_getSortKey(coll, secstr, 150, result, SIZEOFARRAYi(result));
 	(void)resultlen; /* Suppress set but not used warning. */
-	tempptr = (uint8_t*)uprv_strchr((char *)result, 1) + 1;
+	tempptr = (uint8_t*)sstrchr((char *)result, 1) + 1;
 	while(*(tempptr + 1) != 1) {
 		/* the last secondary collation element is not checked since it is not
 		   part of the compression */
@@ -1256,7 +1256,7 @@ static void TestCompressOverlap() {
 	secstr[count] = 0;
 	tertstr[count] = 0;
 	resultlen = ucol_getSortKey(coll, secstr, 150, result, SIZEOFARRAYi(result));
-	tempptr = (uint8_t*)uprv_strchr((char *)result, 1) + 1;
+	tempptr = (uint8_t*)sstrchr((char *)result, 1) + 1;
 	while(*(tempptr + 1) != 1) {
 		/* the last secondary collation element is not checked since it is not
 		   part of the compression */

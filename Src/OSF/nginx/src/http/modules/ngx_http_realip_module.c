@@ -225,9 +225,8 @@ static const char * ngx_http_realip_from(ngx_conf_t * cf, const ngx_command_t * 
 			return NGX_CONF_ERROR;
 		}
 	}
-
 #if (NGX_HAVE_UNIX_DOMAIN)
-	if(ngx_strcmp(value[1].data, "unix:") == 0) {
+	if(sstreq(value[1].data, "unix:")) {
 		cidr = ngx_array_push(rlcf->from);
 		if(cidr == NULL) {
 			return NGX_CONF_ERROR;
@@ -289,15 +288,15 @@ static const char * ngx_http_realip(ngx_conf_t * cf, const ngx_command_t * cmd, 
 	}
 	else {
 		ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
-		if(ngx_strcmp(value[1].data, "X-Real-IP") == 0) {
+		if(sstreq(value[1].data, "X-Real-IP")) {
 			rlcf->type = NGX_HTTP_REALIP_XREALIP;
 			return NGX_CONF_OK;
 		}
-		if(ngx_strcmp(value[1].data, "X-Forwarded-For") == 0) {
+		if(sstreq(value[1].data, "X-Forwarded-For")) {
 			rlcf->type = NGX_HTTP_REALIP_XFWD;
 			return NGX_CONF_OK;
 		}
-		if(ngx_strcmp(value[1].data, "proxy_protocol") == 0) {
+		if(sstreq(value[1].data, "proxy_protocol")) {
 			rlcf->type = NGX_HTTP_REALIP_PROXY;
 			return NGX_CONF_OK;
 		}

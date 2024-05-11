@@ -2364,7 +2364,7 @@ int BillTransDialog::updateList()
 			const PPIDArray & rary = Data.DestDBDivList.Get();
 			for(uint i = 0; i < rary.getCount(); i++) {
 				const  PPID id = rary.at(i);
-				GetObjectName(PPOBJ_DBDIV, id, text, 0);
+				GetObjectName(PPOBJ_DBDIV, id, text);
 				THROW_SL(p_list->addItem(id, text));
 			}
 		}
@@ -2604,9 +2604,9 @@ int ObjTranDialog::updateList(int dbDivList)
 		if(p_ary->GetCount()) {
 			const PPIDArray & rary = p_ary->Get();
 			for(uint i = 0; i < rary.getCount(); i++) {
-				PPID   id = rary.at(i);
+				const PPID id = rary.at(i);
 				if(dbDivList)
-					GetObjectName(PPOBJ_DBDIV, id, text, 0);
+					GetObjectName(PPOBJ_DBDIV, id, text);
 				else
 					GetObjectTitle(id, text);
 				THROW_SL(p_list->addItem(id, text));

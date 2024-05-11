@@ -428,7 +428,7 @@ private:
 				for(uint i = 0; i < _list.getCount(); i++) {
 					PPID loc_id = _list.at(i);
 					if(!Data.SearchItemByID(loc_id, 0) || loc_id == pItem->ObjID) {
-						GetObjectName(PPOBJ_LOCATION, loc_id, loc_name, 0);
+						GetObjectName(PPOBJ_LOCATION, loc_id, loc_name);
 						loc_list.Add(loc_id, loc_name);
 					}
 				}

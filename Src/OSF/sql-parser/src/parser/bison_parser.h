@@ -35,8 +35,8 @@
    especially those whose name start with YY_ or yy_.  They are
    private implementation details that can be changed or removed.  */
 
-#ifndef YY_HSQL_D_PAPYRUS_SRC_OSF_SQL_PARSER_SRC_PARSER_BISON_PARSER_H_INCLUDED
-# define YY_HSQL_D_PAPYRUS_SRC_OSF_SQL_PARSER_SRC_PARSER_BISON_PARSER_H_INCLUDED
+#ifndef YY_HSQL_C_PAPYRUS_SRC_OSF_SQL_PARSER_SRC_PARSER_BISON_PARSER_H_INCLUDED
+# define YY_HSQL_C_PAPYRUS_SRC_OSF_SQL_PARSER_SRC_PARSER_BISON_PARSER_H_INCLUDED
 /* Debug traces.  */
 #ifndef HSQL_DEBUG
 # if defined YYDEBUG
@@ -343,4 +343,4 @@ struct HSQL_LTYPE {
 
 int hsql_parse (hsql::SQLParserResult* result, yyscan_t scanner);
 
-#endif /* !YY_HSQL_D_PAPYRUS_SRC_OSF_SQL_PARSER_SRC_PARSER_BISON_PARSER_H_INCLUDED  */
+#endif /* !YY_HSQL_C_PAPYRUS_SRC_OSF_SQL_PARSER_SRC_PARSER_BISON_PARSER_H_INCLUDED  */

@@ -273,9 +273,9 @@ int GnuPlot::Implement_ReadHistory(const char * pFileName)
 			char * pline = fgets(line, MAX_LINE_LEN, hist_file);
 			if(pline) {
 				// remove trailing linefeed 
-				if((pline = strrchr(line, '\n')))
+				if((pline = sstrrchr(line, '\n')))
 					*pline = '\0';
-				if((pline = strrchr(line, '\r')))
+				if((pline = sstrrchr(line, '\r')))
 					*pline = '\0';
 				// skip leading whitespace 
 				pline = line;

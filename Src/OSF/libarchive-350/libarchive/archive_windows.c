@@ -529,7 +529,7 @@ int __la_stat(const char * path, struct stat * st)
 	if(ret >= 0) {
 		const char * p;
 		copy_stat(st, &u);
-		p = strrchr(path, '.');
+		p = sstrrchr(path, '.');
 		if(p && strlen(p) == 4) {
 			char exttype[4];
 			++p;

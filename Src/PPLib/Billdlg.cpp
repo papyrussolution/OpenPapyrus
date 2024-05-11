@@ -1991,7 +1991,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 								int    is_stopped = CliAgt.IsStopped(debt_dim_id);
 								if(is_stopped > 0) {
 									SString msg_buf, debt_dim_name;
-									GetObjectName(PPOBJ_DEBTDIM, debt_dim_id, debt_dim_name, 0);
+									GetObjectName(PPOBJ_DEBTDIM, debt_dim_id, debt_dim_name);
 									GetArticleName(CliAgt.ClientID, msg_buf);
 									msg_buf.Colon().Cat(debt_dim_name);
 									PPError(PPERR_DENYSTOPPEDAR, msg_buf);
@@ -2590,7 +2590,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	THROW(opkobj.GetPacket(P_Pack->Rec.OpID, &op_pack) > 0);
 	{
 		temp_buf.Z().Cat(op_pack.Rec.Name).CatDiv(';', 1);
-		GetObjectName(PPOBJ_LOCATION, P_Pack->Rec.LocID, temp_buf, 1);
+		CatObjectName(PPOBJ_LOCATION, P_Pack->Rec.LocID, temp_buf);
 		setTitle(temp_buf);
 		GetObjectName(PPOBJ_BILLSTATUS, P_Pack->Rec.StatusID, temp_buf);
 		setStaticText(CTL_BILL_STATUS, temp_buf);
@@ -3245,7 +3245,7 @@ int PPObjBill::ViewBillInfo(PPID billID)
 			dlg->AddClusterAssoc(CTL_BILLINFO_RECADV, 2, 2);
 			dlg->AddClusterAssoc(CTL_BILLINFO_RECADV, 3, 3);
 			dlg->SetClusterData(CTL_BILLINFO_RECADV, recadv_status);
-			GetObjectName(PPOBJ_USR, pack.Rec.UserID, buf, 0);
+			GetObjectName(PPOBJ_USR, pack.Rec.UserID, buf);
 			dlg->setCtrlString(CTL_BILLINFO_USER, buf.Strip());
 			guid.ToStr(S_GUID::fmtIDL, buf);
 			dlg->setCtrlString(CTL_BILLINFO_UUID, buf.Strip());

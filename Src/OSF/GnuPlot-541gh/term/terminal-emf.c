@@ -758,7 +758,7 @@ TERM_PUBLIC void EMF_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 			pGp->Pgm.Shift();
 		// @fallthrough to old-style bare font name 
 		if((s = pGp->TryToGetString())) {
-			char * comma = strrchr(s, ',');
+			char * comma = sstrrchr(s, ',');
 			if(comma && (1 == sscanf(comma+1, "%f", &new_defaultfontsize))) {
 				*comma = '\0';
 			}

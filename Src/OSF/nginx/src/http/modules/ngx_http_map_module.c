@@ -276,35 +276,27 @@ static const char * ngx_http_map(ngx_conf_t * cf, const ngx_command_t * dummy, v
 	ngx_http_compile_complex_value_t ccv;
 	ngx_http_map_conf_ctx_t * ctx = (ngx_http_map_conf_ctx_t *)cf->ctx;
 	value = static_cast<ngx_str_t *>(cf->args->elts);
-	if(cf->args->nelts == 1 && ngx_strcmp(value[0].data, "hostnames") == 0) {
+	if(cf->args->nelts == 1 && sstreq(value[0].data, "hostnames")) {
 		ctx->hostnames = 1;
 		return NGX_CONF_OK;
 	}
-	if(cf->args->nelts == 1 && ngx_strcmp(value[0].data, "volatile") == 0) {
+	if(cf->args->nelts == 1 && sstreq(value[0].data, "volatile")) {
 		ctx->no_cacheable = 1;
 		return NGX_CONF_OK;
 	}
-
 	if(cf->args->nelts != 2) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid number of the map parameters");
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid number of the map parameters");
 		return NGX_CONF_ERROR;
 	}
-
-	if(ngx_strcmp(value[0].data, "include") == 0) {
+	if(sstreq(value[0].data, "include")) {
 		return ngx_conf_include(cf, dummy, conf);
 	}
-
 	key = 0;
-
 	for(i = 0; i < value[1].len; i++) {
 		key = ngx_hash(key, value[1].data[i]);
 	}
-
 	key %= ctx->keys.hsize;
-
 	vp = (ngx_http_variable_value_t**)ctx->values_hash[key].elts;
-
 	if(vp) {
 		for(i = 0; i < ctx->values_hash[key].nelts; i++) {
 			if(vp[i]->valid) {
@@ -373,33 +365,23 @@ static const char * ngx_http_map(ngx_conf_t * cf, const ngx_command_t * dummy, v
 		var->data = v.data;
 		var->valid = 1;
 	}
-
 	var->no_cacheable = 0;
 	var->not_found = 0;
-
 	vp = (ngx_http_variable_value_t**)ngx_array_push(&ctx->values_hash[key]);
 	if(vp == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	*vp = var;
-
 found:
-
-	if(ngx_strcmp(value[0].data, "default") == 0) {
+	if(sstreq(value[0].data, "default")) {
 		if(ctx->default_value) {
-			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-			    "duplicate default map parameter");
+			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "duplicate default map parameter");
 			return NGX_CONF_ERROR;
 		}
-
 		ctx->default_value = var;
-
 		return NGX_CONF_OK;
 	}
-
 #if (NGX_PCRE)
-
 	if(value[0].len && value[0].data[0] == '~') {
 		ngx_regex_compile_t rc;
 		ngx_http_map_regex_t  * regex;
@@ -425,36 +407,24 @@ found:
 		if(regex->regex == NULL) {
 			return NGX_CONF_ERROR;
 		}
-
 		regex->value = var;
-
 		return NGX_CONF_OK;
 	}
-
 #endif
-
 	if(value[0].len && value[0].data[0] == '\\') {
 		value[0].len--;
 		value[0].data++;
 	}
-
-	rv = ngx_hash_add_key(&ctx->keys, &value[0], var,
-	    (ctx->hostnames) ? NGX_HASH_WILDCARD_KEY : 0);
-
+	rv = ngx_hash_add_key(&ctx->keys, &value[0], var, (ctx->hostnames) ? NGX_HASH_WILDCARD_KEY : 0);
 	if(rv == NGX_OK) {
 		return NGX_CONF_OK;
 	}
-
 	if(rv == NGX_DECLINED) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "invalid hostname or wildcard \"%V\"", &value[0]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid hostname or wildcard \"%V\"", &value[0]);
 	}
-
 	if(rv == NGX_BUSY) {
-		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-		    "conflicting parameter \"%V\"", &value[0]);
+		ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "conflicting parameter \"%V\"", &value[0]);
 	}
-
 	return NGX_CONF_ERROR;
 }
 

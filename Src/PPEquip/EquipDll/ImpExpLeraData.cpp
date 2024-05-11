@@ -389,8 +389,8 @@ void GetErrorMsg(SString & rMsg)
 // Ибо логин 4607806659997EC_1, а должен быть 4607806659997ЕС
 void FormatLoginToLogin(const char * login, SString & rStr)
 {
-	uint exit_while = 0;
-	char low_strip = '_';
+	uint   exit_while = 0;
+	char   low_strip = '_';
 	rStr.Z();
 	if(login) {
 		while(!exit_while) {

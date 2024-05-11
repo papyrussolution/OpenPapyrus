@@ -3045,7 +3045,7 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 			FileType _file_type = _Df.BinFileType;
 			//if(_Df.df_plot_mode != MODE_QUERY && sstreq("auto", df_bin_filetype_table[_Df.BinFileType].key)) {
 			if(_Df.df_plot_mode != MODE_QUERY && oneof2(_file_type, filtypUndef, filtypAuto)) {
-				const char * file_ext = strrchr(_Df.df_filename, '.');
+				const char * file_ext = sstrrchr(_Df.df_filename, '.');
 				if(file_ext) {
 					int r = SIntToSymbTab_GetId(DfBinFileTypeTable, SIZEOFARRAY(DfBinFileTypeTable), file_ext+1);
 					_file_type = static_cast<FileType>(r);

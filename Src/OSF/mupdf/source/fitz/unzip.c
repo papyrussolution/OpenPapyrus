@@ -252,7 +252,7 @@ static zip_entry * lookup_zip_entry(fz_context * ctx, fz_zip_archive * zip, cons
 	if(name[0] == '/')
 		++name;
 	for(i = 0; i < zip->count; i++)
-		if(!fz_strcasecmp(name, zip->entries[i].name))
+		if(sstreqi_ascii(name, zip->entries[i].name))
 			return &zip->entries[i];
 	return NULL;
 }

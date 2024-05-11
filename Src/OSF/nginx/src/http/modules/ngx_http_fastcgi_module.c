@@ -2342,7 +2342,7 @@ static const char * ngx_http_fastcgi_store(ngx_conf_t * cf, const ngx_command_t 
 		return "is duplicate";
 	}
 	value = static_cast<ngx_str_t *>(cf->args->elts);
-	if(ngx_strcmp(value[1].data, "off") == 0) {
+	if(sstreq(value[1].data, "off")) {
 		flcf->upstream.store = 0;
 		return NGX_CONF_OK;
 	}
@@ -2352,7 +2352,7 @@ static const char * ngx_http_fastcgi_store(ngx_conf_t * cf, const ngx_command_t 
 	}
 #endif
 	flcf->upstream.store = 1;
-	if(ngx_strcmp(value[1].data, "on") == 0) {
+	if(sstreq(value[1].data, "on")) {
 		return NGX_CONF_OK;
 	}
 	/* include the terminating '\0' into script */
@@ -2382,7 +2382,7 @@ static const char * ngx_http_fastcgi_cache(ngx_conf_t * cf, const ngx_command_t 
 	if(flcf->upstream.cache != NGX_CONF_UNSET) {
 		return "is duplicate";
 	}
-	if(ngx_strcmp(value[1].data, "off") == 0) {
+	if(sstreq(value[1].data, "off")) {
 		flcf->upstream.cache = 0;
 		return NGX_CONF_OK;
 	}

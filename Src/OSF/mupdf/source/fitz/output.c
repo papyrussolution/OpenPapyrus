@@ -172,7 +172,7 @@ fz_output * fz_new_output_with_path(fz_context * ctx, const char * filename, int
 	fz_output * out;
 	if(filename == NULL)
 		fz_throw(ctx, FZ_ERROR_GENERIC, "no output to write to");
-	if(sstreq(filename, "/dev/null") || !fz_strcasecmp(filename, "nul:"))
+	if(sstreq(filename, "/dev/null") || sstreqi_ascii(filename, "nul:"))
 		return fz_new_output(ctx, 0, NULL, null_write, NULL, NULL);
 
 #ifdef _WIN32

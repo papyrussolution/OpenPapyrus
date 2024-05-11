@@ -516,7 +516,7 @@ TERM_PUBLIC void SVG_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 			pGp->Pgm.Shift();
 			if(!(s = pGp->TryToGetString()))
 				pGp->IntErrorCurToken("expecting font name");
-			comma = strrchr(s, ',');
+			comma = sstrrchr(s, ',');
 			if(comma && (1 == sscanf(comma + 1, "%lf", &SVG_fontSizeDef)))
 				*comma = '\0';
 			if(*s) {

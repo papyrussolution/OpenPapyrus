@@ -1977,11 +1977,6 @@ struct soap_plugin {
 #define soap_set_mode(soap, n) ((soap)->imode |= (n), (soap)->omode |= (n))
 #define soap_clr_mode(soap, n) ((soap)->imode &= ~(n), (soap)->omode &= ~(n))
 #define soap_destroy(soap) soap_delete((soap), NULL)
-#ifdef HAVE_STRRCHR
-	#define soap_strrchr(s, t) strrchr(s, t)
-#else
-	SOAP_FMAC1 char * SOAP_FMAC2 soap_strrchr(const char * s, int t);
-#endif
 #ifdef HAVE_STRTOL
 	#define soap_strtol(s, t, b) strtol(s, t, b)
 #else

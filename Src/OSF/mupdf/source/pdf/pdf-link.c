@@ -35,13 +35,11 @@ char * pdf_parse_link_dest(fz_context * ctx, pdf_document * doc, pdf_obj * dest)
 	pdf_obj * obj, * pageobj;
 	const char * ld;
 	int page;
-
 	dest = resolve_dest(ctx, doc, dest);
 	if(dest == NULL) {
 		fz_warn(ctx, "undefined link destination");
 		return NULL;
 	}
-
 	if(pdf_is_name(ctx, dest)) {
 		ld = pdf_to_name(ctx, dest);
 		return fz_strdup(ctx, ld);
@@ -50,7 +48,6 @@ char * pdf_parse_link_dest(fz_context * ctx, pdf_document * doc, pdf_obj * dest)
 		ld = pdf_to_str_buf(ctx, dest);
 		return fz_strdup(ctx, ld);
 	}
-
 	pageobj = pdf_array_get(ctx, dest, 0);
 	if(pdf_is_int(ctx, pageobj)) {
 		page = pdf_to_int(ctx, pageobj);
@@ -62,15 +59,12 @@ char * pdf_parse_link_dest(fz_context * ctx, pdf_document * doc, pdf_obj * dest)
 		fz_catch(ctx)
 		page = -1;
 	}
-
 	if(page < 0)
 		return NULL;
-
 	obj = pdf_array_get(ctx, dest, 1);
 	if(obj) {
 		pdf_obj * xo = NULL;
 		pdf_obj * yo = NULL;
-
 		if(pdf_name_eq(ctx, obj, PDF_NAME(XYZ))) {
 			xo = pdf_array_get(ctx, dest, 2);
 			yo = pdf_array_get(ctx, dest, 3);
@@ -85,18 +79,15 @@ char * pdf_parse_link_dest(fz_context * ctx, pdf_document * doc, pdf_obj * dest)
 		else if(pdf_name_eq(ctx, obj, PDF_NAME(FitV)) || pdf_name_eq(ctx, obj, PDF_NAME(FitBV))) {
 			xo = pdf_array_get(ctx, dest, 2);
 		}
-
 		if(xo || yo) {
 			int x, y, h;
 			fz_rect mediabox;
 			fz_matrix pagectm;
-
 			/* Link coords use a coordinate space that does not seem to respect Rotate or UserUnit. */
 			/* All we need to do is figure out the page height to flip the coordinate space. */
 			pdf_page_obj_transform(ctx, pageobj, &mediabox, &pagectm);
 			mediabox = fz_transform_rect(mediabox, pagectm);
 			h = mediabox.y1 - mediabox.y0;
-
 			x = xo ? pdf_to_int(ctx, xo) : 0;
 			y = yo ? h - pdf_to_int(ctx, yo) : 0;
 			return fz_asprintf(ctx, "#%d,%d,%d", page + 1, x, y);
@@ -111,10 +102,8 @@ static char * pdf_parse_file_spec(fz_context * ctx, pdf_document * doc, pdf_obj 
 	const char * path;
 	char * uri;
 	char frag[256];
-
 	if(pdf_is_string(ctx, file_spec))
 		filename = file_spec;
-
 	if(pdf_is_dict(ctx, file_spec)) {
 #ifdef _WIN32
 		filename = pdf_dict_get(ctx, file_spec, PDF_NAME(DOS));
@@ -124,12 +113,10 @@ static char * pdf_parse_file_spec(fz_context * ctx, pdf_document * doc, pdf_obj 
 		if(!filename)
 			filename = pdf_dict_geta(ctx, file_spec, PDF_NAME(UF), PDF_NAME(F));
 	}
-
 	if(!pdf_is_string(ctx, filename)) {
 		fz_warn(ctx, "cannot parse file specification");
 		return NULL;
 	}
-
 	if(pdf_is_array(ctx, dest))
 		fz_snprintf(frag, sizeof frag, "#page=%d", pdf_array_get_int(ctx, dest, 0) + 1);
 	else if(pdf_is_name(ctx, dest))
@@ -155,10 +142,10 @@ static char * pdf_parse_file_spec(fz_context * ctx, pdf_document * doc, pdf_obj 
 const char * pdf_embedded_file_name(fz_context * ctx, pdf_obj * fs)
 {
 	pdf_obj * filename = pdf_dict_get(ctx, fs, PDF_NAME(UF));
-	if(!filename) filename = pdf_dict_get(ctx, fs, PDF_NAME(F));
-	if(!filename) filename = pdf_dict_get(ctx, fs, PDF_NAME(Unix));
-	if(!filename) filename = pdf_dict_get(ctx, fs, PDF_NAME(DOS));
-	if(!filename) filename = pdf_dict_get(ctx, fs, PDF_NAME(Mac));
+	SETIFZ(filename, pdf_dict_get(ctx, fs, PDF_NAME(F)));
+	SETIFZ(filename, pdf_dict_get(ctx, fs, PDF_NAME(Unix)));
+	SETIFZ(filename, pdf_dict_get(ctx, fs, PDF_NAME(DOS)));
+	SETIFZ(filename, pdf_dict_get(ctx, fs, PDF_NAME(Mac)));
 	return pdf_to_text_string(ctx, filename);
 }
 
@@ -180,65 +167,58 @@ const char * pdf_embedded_file_type(fz_context * ctx, pdf_obj * fs)
 	return subtype ? pdf_to_name(ctx, subtype) : "application/octet-stream";
 }
 
-int pdf_is_embedded_file(fz_context * ctx, pdf_obj * fs)
-{
-	return pdf_is_stream(ctx, pdf_embedded_file_stream(ctx, fs));
-}
-
-fz_buffer * pdf_load_embedded_file(fz_context * ctx, pdf_obj * fs)
-{
-	return pdf_load_stream(ctx, pdf_embedded_file_stream(ctx, fs));
-}
+int pdf_is_embedded_file(fz_context * ctx, pdf_obj * fs) { return pdf_is_stream(ctx, pdf_embedded_file_stream(ctx, fs)); }
+fz_buffer * pdf_load_embedded_file(fz_context * ctx, pdf_obj * fs) { return pdf_load_stream(ctx, pdf_embedded_file_stream(ctx, fs)); }
 
 const char * pdf_guess_mime_type_from_file_name(fz_context * ctx, const char * filename) // @todo use SFileFormat
 {
-	const char * ext = strrchr(filename, '.');
+	const char * ext = sstrrchr(filename, '.');
 	if(ext) {
-		if(!fz_strcasecmp(ext, ".pdf")) return "application/pdf";
-		if(!fz_strcasecmp(ext, ".xml")) return "application/xml";
-		if(!fz_strcasecmp(ext, ".zip")) return "application/zip";
-		if(!fz_strcasecmp(ext, ".tar")) return "application/x-tar";
+		if(sstreqi_ascii(ext, ".pdf")) return "application/pdf";
+		if(sstreqi_ascii(ext, ".xml")) return "application/xml";
+		if(sstreqi_ascii(ext, ".zip")) return "application/zip";
+		if(sstreqi_ascii(ext, ".tar")) return "application/x-tar";
 
 		/* Text */
-		if(!fz_strcasecmp(ext, ".txt")) return "text/plain";
-		if(!fz_strcasecmp(ext, ".rtf")) return "application/rtf";
-		if(!fz_strcasecmp(ext, ".csv")) return "text/csv";
-		if(!fz_strcasecmp(ext, ".html")) return "text/html";
-		if(!fz_strcasecmp(ext, ".htm")) return "text/html";
-		if(!fz_strcasecmp(ext, ".css")) return "text/css";
+		if(sstreqi_ascii(ext, ".txt")) return "text/plain";
+		if(sstreqi_ascii(ext, ".rtf")) return "application/rtf";
+		if(sstreqi_ascii(ext, ".csv")) return "text/csv";
+		if(sstreqi_ascii(ext, ".html")) return "text/html";
+		if(sstreqi_ascii(ext, ".htm")) return "text/html";
+		if(sstreqi_ascii(ext, ".css")) return "text/css";
 
 		/* Office */
-		if(!fz_strcasecmp(ext, ".doc")) return "application/msword";
-		if(!fz_strcasecmp(ext, ".ppt")) return "application/vnd.ms-powerpoint";
-		if(!fz_strcasecmp(ext, ".xls")) return "application/vnd.ms-excel";
-		if(!fz_strcasecmp(ext, ".docx")) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-		if(!fz_strcasecmp(ext, ".pptx")) return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-		if(!fz_strcasecmp(ext, ".xlsx")) return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-		if(!fz_strcasecmp(ext, ".odt")) return "application/vnd.oasis.opendocument.text";
-		if(!fz_strcasecmp(ext, ".odp")) return "application/vnd.oasis.opendocument.presentation";
-		if(!fz_strcasecmp(ext, ".ods")) return "application/vnd.oasis.opendocument.spreadsheet";
+		if(sstreqi_ascii(ext, ".doc")) return "application/msword";
+		if(sstreqi_ascii(ext, ".ppt")) return "application/vnd.ms-powerpoint";
+		if(sstreqi_ascii(ext, ".xls")) return "application/vnd.ms-excel";
+		if(sstreqi_ascii(ext, ".docx")) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+		if(sstreqi_ascii(ext, ".pptx")) return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+		if(sstreqi_ascii(ext, ".xlsx")) return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+		if(sstreqi_ascii(ext, ".odt")) return "application/vnd.oasis.opendocument.text";
+		if(sstreqi_ascii(ext, ".odp")) return "application/vnd.oasis.opendocument.presentation";
+		if(sstreqi_ascii(ext, ".ods")) return "application/vnd.oasis.opendocument.spreadsheet";
 
 		/* Image */
-		if(!fz_strcasecmp(ext, ".bmp")) return "image/bmp";
-		if(!fz_strcasecmp(ext, ".gif")) return "image/gif";
-		if(!fz_strcasecmp(ext, ".jpeg")) return "image/jpeg";
-		if(!fz_strcasecmp(ext, ".jpg")) return "image/jpeg";
-		if(!fz_strcasecmp(ext, ".png")) return "image/png";
-		if(!fz_strcasecmp(ext, ".svg")) return "image/svg+xml";
-		if(!fz_strcasecmp(ext, ".tif")) return "image/tiff";
-		if(!fz_strcasecmp(ext, ".tiff")) return "image/tiff";
+		if(sstreqi_ascii(ext, ".bmp")) return "image/bmp";
+		if(sstreqi_ascii(ext, ".gif")) return "image/gif";
+		if(sstreqi_ascii(ext, ".jpeg")) return "image/jpeg";
+		if(sstreqi_ascii(ext, ".jpg")) return "image/jpeg";
+		if(sstreqi_ascii(ext, ".png")) return "image/png";
+		if(sstreqi_ascii(ext, ".svg")) return "image/svg+xml";
+		if(sstreqi_ascii(ext, ".tif")) return "image/tiff";
+		if(sstreqi_ascii(ext, ".tiff")) return "image/tiff";
 
 		/* Sound */
-		if(!fz_strcasecmp(ext, ".flac")) return "audio/flac";
-		if(!fz_strcasecmp(ext, ".mp3")) return "audio/mpeg";
-		if(!fz_strcasecmp(ext, ".ogg")) return "audio/ogg";
-		if(!fz_strcasecmp(ext, ".wav")) return "audio/wav";
+		if(sstreqi_ascii(ext, ".flac")) return "audio/flac";
+		if(sstreqi_ascii(ext, ".mp3")) return "audio/mpeg";
+		if(sstreqi_ascii(ext, ".ogg")) return "audio/ogg";
+		if(sstreqi_ascii(ext, ".wav")) return "audio/wav";
 
 		/* Movie */
-		if(!fz_strcasecmp(ext, ".avi")) return "video/x-msvideo";
-		if(!fz_strcasecmp(ext, ".mov")) return "video/quicktime";
-		if(!fz_strcasecmp(ext, ".mp4")) return "video/mp4";
-		if(!fz_strcasecmp(ext, ".webm")) return "video/webm";
+		if(sstreqi_ascii(ext, ".avi")) return "video/x-msvideo";
+		if(sstreqi_ascii(ext, ".mov")) return "video/quicktime";
+		if(sstreqi_ascii(ext, ".mp4")) return "video/mp4";
+		if(sstreqi_ascii(ext, ".webm")) return "video/webm";
 	}
 	return "application/octet-stream";
 }
@@ -431,10 +411,10 @@ int pdf_resolve_link(fz_context * ctx, pdf_document * doc, const char * uri, flo
 		int page = satoi(uri + 1) - 1;
 		if(xp || yp) {
 			const char * x = sstrchr(uri, ',');
-			const char * y = strrchr(uri, ',');
+			const char * y = sstrrchr(uri, ',');
 			if(x && y) {
-				if(xp) *xp = satoi(x + 1);
-				if(yp) *yp = satoi(y + 1);
+				ASSIGN_PTR(xp, satoi(x + 1));
+				ASSIGN_PTR(yp, satoi(y + 1));
 			}
 		}
 		return page;

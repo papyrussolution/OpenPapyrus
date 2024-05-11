@@ -70,7 +70,8 @@ public:
 	}
 	~GlassFreeList() 
 	{
-		delete [] p; delete [] pw;
+		delete [] p; 
+		delete [] pw;
 	}
 	bool empty() const { return fl == fl_end; }
 	uint4 get_block(const GlassTable * B, uint4 block_size, uint4 * blk_to_free = NULL);

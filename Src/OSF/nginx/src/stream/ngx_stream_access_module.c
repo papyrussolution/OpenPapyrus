@@ -251,11 +251,11 @@ static const char * ngx_stream_access_rule(ngx_conf_t * cf, const ngx_command_t 
 	all = 0;
 	memzero(&cidr, sizeof(ngx_cidr_t));
 	value = static_cast<ngx_str_t *>(cf->args->elts);
-	if(value[1].len == 3 && ngx_strcmp(value[1].data, "all") == 0) {
+	if(value[1].len == 3 && sstreq(value[1].data, "all")) {
 		all = 1;
 #if (NGX_HAVE_UNIX_DOMAIN)
 	}
-	else if(value[1].len == 5 && ngx_strcmp(value[1].data, "unix:") == 0) {
+	else if(value[1].len == 5 && sstreq(value[1].data, "unix:")) {
 		cidr.family = AF_UNIX;
 #endif
 	}

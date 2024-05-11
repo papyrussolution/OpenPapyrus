@@ -600,7 +600,7 @@ int ViewStatus()
 	GetMainOrgID(&main_org_id);
 	SetupPPObjCombo(dlg, CTLSEL_STATUS_MAINORG, PPOBJ_PERSON, main_org_id, 0, reinterpret_cast<void *>(PPPRK_MAIN));
 	dlg->setCtrlData(CTL_STATUS_DATE, &oper_dt);
-	GetObjectName(PPOBJ_DBDIV, LConfig.DBDiv, sbuf, 0);
+	GetObjectName(PPOBJ_DBDIV, LConfig.DBDiv, sbuf);
 	dlg->setCtrlString(CTL_STATUS_DBDIV, sbuf);
 	if(p_dict) {
 		p_dict->GetDbSymb(sbuf);
@@ -8011,7 +8011,7 @@ int RecentItemsStorage::CheckIn(const char * pText)
 				uint ssc = ss.getCount();
 				StringSet temp_ss;
 				for(uint ssp = 0, j = 0; ss.get(&ssp, temp_buf); j++) {
-					const int is_eq = Cf ? BIN(Cf(pText, temp_buf.cptr(), 0) == 0) : BIN(strcmp(pText, temp_buf) == 0);
+					const bool is_eq = Cf ? (Cf(pText, temp_buf.cptr(), 0) == 0) : sstreq(pText, temp_buf);
 					if(!is_eq && (!(MaxItems > 0 && ssc >= MaxItems) || j > (ssc - MaxItems)))
 						temp_ss.add(temp_buf);
 				}

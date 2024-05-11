@@ -1166,7 +1166,8 @@ int PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrVie
 				else if(p_tag->TagDataType == OTTYP_ENUM) {
 					PPObjectTag obj_tag_rec;
 					ObjTag.Fetch(p_tag->TagID, &obj_tag_rec);
-					GetObjectName(obj_tag_rec.TagEnumID, p_tag->Val.IntVal, item.RegNumber, sizeof(item.RegNumber));
+					GetObjectName(obj_tag_rec.TagEnumID, p_tag->Val.IntVal, temp_buf.Z());
+					STRNSCPY(item.RegNumber, temp_buf);
 				}
 				else if(p_tag->TagDataType == OTTYP_DATE)
 					datefmt(&p_tag->Val.DtVal, DATF_DMY, item.RegNumber);
@@ -1207,7 +1208,7 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 	int    ok = -1;
 	if(P_TempPsn && id) {
 		int    stop = 0;
-		int    is_crsst = BIN(Filt.Flags & PersonFilt::fTagsCrsstab);
+		const  bool is_crsst = LOGIC(Filt.Flags & PersonFilt::fTagsCrsstab);
 		uint   tags_count = 0;
 		PersonTbl::Rec psn_rec;
 		PPIDArray dlvr_addr_list;
@@ -2921,7 +2922,7 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 						for(uint i = 0; i < phones_ary.getCount(); i++) {
 							if(i != 0)
 								buf.CR();
-							GetObjectName(PPOBJ_ELINKKIND, phones_ary.at(i).KindID, buf, 1);
+							CatObjectName(PPOBJ_ELINKKIND, phones_ary.at(i).KindID, buf);
 							buf.CatDiv(':', 2).Cat(phones_ary.at(i).Addr);
 							r = 1;
 						}

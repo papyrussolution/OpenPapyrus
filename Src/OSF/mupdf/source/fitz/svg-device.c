@@ -232,7 +232,7 @@ static void svg_font_family(fz_context * ctx, char buf[], int size, const char *
 		fz_strlcpy(buf, p+1, size);
 	else 
 		fz_strlcpy(buf, name, size);
-	p = strrchr(buf, '-');
+	p = sstrrchr(buf, '-');
 	if(p) 
 		*p = 0;
 }

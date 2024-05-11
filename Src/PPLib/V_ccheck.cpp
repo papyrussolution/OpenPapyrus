@@ -4894,7 +4894,8 @@ int PPALDD_CCheckDetail::InitData(PPFilt & rFilt, long rsrv)
 		p_cpp->CalculatePaymentList(ppb, 0);
 		H.UsableBonus = ppb.GetUsableBonus();
 	}
-	GetObjectName(PPOBJ_SCARD, pack.Rec.SCardID, H.CheckSCardCode, sizeof(H.CheckSCardCode));
+	GetObjectName(PPOBJ_SCARD, pack.Rec.SCardID, temp_buf.Z());
+	STRNSCPY(H.CheckSCardCode, temp_buf);
 	H.AgentID       = pack.Ext.SalerID;
 	H.TableNo       = pack.Ext.TableNo;
 	H.GuestCount    = pack.Ext.GuestCount;

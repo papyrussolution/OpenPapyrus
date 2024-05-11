@@ -1343,16 +1343,10 @@ public:
 
 	const ExportParam * P_Ep;
 protected:
-	/* @v10.9.9 struct ExtData {
-		long   isFirst;
-		void * Ptr;
-	};*/
-	// @v10.9.9 (изменен порядок полей - так будет быстрее работать) {
 	struct ExtData2 {
-		void * Ptr;
+		void * Ptr; // @firstmember
 		long   IsFirst;
 	};
-	// } @v10.9.9 
 	int    InitFixData(const char * pScopeName, void * pData, size_t dataSize);
 	int    InitFixData(int reservedScopeCode, void * pData, size_t dataSize);
 	int    FASTCALL FinishRecord(const DlScope * pScope); // @recursion

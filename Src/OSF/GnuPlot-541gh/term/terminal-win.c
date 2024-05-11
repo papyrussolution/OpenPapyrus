@@ -390,7 +390,7 @@ TERM_PUBLIC void WIN_options(GpTermEntry_Static * pThis, GnuPlot * pGp)
 				    char * comma;
 				    if(set_font)
 					    pGp->IntErrorCurToken("extraneous argument in set terminal %s", pThis->name);
-				    comma = strrchr(s, ',');
+				    comma = sstrrchr(s, ',');
 				    if(comma && (1 == sscanf(comma + 1, "%i", &fontsize))) {
 					    set_fontsize = TRUE;
 					    *comma = '\0';
@@ -924,7 +924,7 @@ TERM_PUBLIC int WIN_set_font(GpTermEntry_Static * pThis, const char * font)
 	}
 	else {
 		int fontsize;
-		const char * size = strrchr(font, ',');
+		const char * size = sstrrchr(font, ',');
 		if(!size) {
 			_WinM.P_GraphWin->Op(W_font, 0, 0, font); // only font name given 
 		}

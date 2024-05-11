@@ -1,5 +1,5 @@
 // SECURDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 // Диалоги редактирования пользователей, групп, прав доступа.
 //
@@ -715,7 +715,7 @@ int ActiveUserListDlg::setupList()
 			ss.add(p_item->Name);
 			ss.add(buf.Z().Cat(p_item->ID));
 			ss.add(buf.Z().Cat(p_item->ObjID));
-			ss.add(p_item->MchnID.ToStr(buf.Z()));
+			ss.add(p_item->MchnID.ToStr(0, buf));
 			if(Options & ACTIVEUSERLIST_SHOWMACHINE){
 				InetAddr addr;
 				GetFirstHostByMACAddr(&p_item->MchnID, &addr);

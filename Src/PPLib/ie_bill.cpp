@@ -73,6 +73,7 @@ DocNalogRu_Base::FileInfo & DocNalogRu_Base::FileInfo::Z()
 }
 
 static const char * P_NalogRu_HeaderSymbList[] = {
+	"ORDER", // @v12.0.1
 	"ON_ORDER", 
 	"ON_CONFORDER",
 	"DP_REZRUISP",

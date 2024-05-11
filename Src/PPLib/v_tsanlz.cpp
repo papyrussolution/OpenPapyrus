@@ -994,12 +994,12 @@ DBQuery * PPViewTSessAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	THROW(CheckQueryPtr(p_q));
 	if(pSubTitle) {
 		if(Filt.SessIdList.IsExists() && Filt.SessIdList.Get().getSingle()) {
-			PPID   single_sess_id = Filt.SessIdList.Get().getSingle();
-			GetObjectName(PPOBJ_TSESSION, single_sess_id, *pSubTitle, 1);
+			const PPID single_sess_id = Filt.SessIdList.Get().getSingle();
+			CatObjectName(PPOBJ_TSESSION, single_sess_id, *pSubTitle);
 		}
 		else if(Filt.PrcID) {
 			pSubTitle->CatDivIfNotEmpty(';', 0);
-			GetObjectName(PPOBJ_PROCESSOR, Filt.PrcID, *pSubTitle, 1);
+			CatObjectName(PPOBJ_PROCESSOR, Filt.PrcID, *pSubTitle);
 		}
 	}
 	CATCH

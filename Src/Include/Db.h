@@ -4587,5 +4587,112 @@ private:
 	int    Err;
 	BDbDatabase * P_Db;
 };
+//
+// @v12.0.1 @experimental {
+//
+struct SDataPageHeader {
+	static constexpr uint32 SignatureValue = 0x76AE0000U;
+	static constexpr uint32 EndSentinelSize() { return 0U; }
+	//
+	// Descr: Типы страниц
+	//
+	enum {
+		tUndef = 0,
+		tStorageHeader   = 1, // Заголовочная страница хранилища. Определяет мета-данные 
+		tAllocationTable = 2, // Таблица распределения записей
+		tStructure       = 3, // Определение структуры записей
+		tRecord          = 4, // Данные записей
+		tIndex           = 5, // Индексные данные
+		tStringPool      = 6, // Пул текстовых строк 
+		tFixedChunkPool  = 7, // Пул отрезков данных фиксированной длины. Например GUID'ы (16байт) или MAC-адреса (6байт)
+	};
+	enum {
+		fUndef = 0,
+		fDirty = 0x0001,
+		fEmpty = 0x0002
+	};
+	struct RecPrefix {
+		static constexpr uint8 Signature = 0x9A;
+		enum {
+			fDeleted = 0x04
+		};
+		uint32 Size;
+		uint   Flags;
+	};
+	uint   GetFreeSizeFromPos(uint pos) const;
+	uint   GetFreeSize() const;
+	bool   IsValid() const;
+	uint32 ReadRecPrefix(uint pos, RecPrefix & rPfx) const;
+	static uint32 EvaluateRecPrefix(const RecPrefix & rPfx, uint8 * pPfxBuf, uint8 * pFlags);
+	uint32 WriteRecPrefix(uint offset, const RecPrefix & rPfx);
+	int    Write(const void * pData, uint dataLen);
+	const  void * Enum(uint * pPos, uint * pSize) const;
+	static SDataPageHeader * Allocate(uint32 type, uint32 seq, uint totalSize);
 
+	uint32 Signature;
+	uint32 Type;         // Тип страницы
+	uint32 Seq;          // Порядковый номер страницы. Уникальный в рамках одного хранилища. Поскольку все страницы в хранилище
+		// имеют одинаковый размер, то это поле определяет и адрес хранения страницы.
+	uint32 NextSeq;      // Номер последующей страницы, хранящей данные того же типа. 0 - для терминальной страницы
+	uint32 PrevSeq;      // Номер предыдущей страницы, хранящей данные того же типа. 0 - для первой страницы
+	uint16 Flags;
+	uint16 FixedChunkSize; // Если GetType() == tFixedChunkPool, то >0 иначе - 0.
+	uint32 TotalSize;    // Общий размер страницы вместе с этим заголовком и sentinel'ами (если есть такие)
+	uint32 FreePos;      // Смещение, с которого начинается свободное пространство. Свободный размер = (TotalSize-FreePos-EndSentinelSize)
+};
+
+class SRecPageFreeList {
+public:
+	struct FreeEntry {
+		FreeEntry() : Seq(0), FreeSize(0)
+		{
+		}
+		uint32 Seq;
+		uint32 FreeSize;
+	};
+private:
+	class SingleTypeList : public TSVector <FreeEntry> {
+	public:
+		SingleTypeList(uint32 type) : TSVector <FreeEntry>(), Type(type)
+		{
+		}
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		uint32 GetType() const { return Type; }
+		int    Put(uint32 seq, uint32 freeSize);
+		const  FreeEntry * Get(uint32 reqSize) const;
+	private:
+		const uint32 Type; 
+	};
+	TSCollection <SingleTypeList> L;
+public:
+	SRecPageFreeList()
+	{
+	}
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    Put(uint32 type, uint32 seq, uint32 freeSize);
+	const  FreeEntry * Get(uint32 type, uint32 reqSize) const;
+};
+
+class SRecPageManager {
+public:
+	static constexpr uint RowIdBitWidth = 48;
+	static uint64 MakeRowId(uint pageSize, uint pageSeq, uint offset);
+	static int SplitRowId(uint64 rowId, uint pageSize, uint * pPageSeq, uint * pOffset);
+	SRecPageManager(uint32 pageSize);
+	~SRecPageManager();
+	int    Write(uint64 * pRowId, uint pageType, const void * pData, size_t dataLen);
+	int    Read(uint64 rowId, void * pBuf, size_t bufSize);
+private:
+	SDataPageHeader * GetPage(uint32 seq);
+	SDataPageHeader * AllocatePage(uint32 type);
+	SDataPageHeader * QueryPageForWriting(uint32 pageType, uint32 reqSize);
+
+	const uint32 PageSize;
+	uint32 LastSeq;
+	TSCollection <SDataPageHeader> L;
+	SRecPageFreeList Fl;
+};
+//
+// } @v12.0.1 @experimental
+//
 #endif /* __DB_H */

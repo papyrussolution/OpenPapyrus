@@ -368,7 +368,7 @@ static boolint BuildAbsolutePath(const char * relPath, const char * basePath, ch
 	}
 	// No, search for last
 	strnzcpy(buffer, basePath, MaxLen);
-	tail = strrchr(buffer, DIR_CHAR);
+	tail = sstrrchr(buffer, DIR_CHAR);
 	if(tail == NULL) 
 		return FALSE; // Is not absolute and has no separators??
 	len = (uint32)(tail - buffer);
@@ -1525,24 +1525,22 @@ static boolint HeaderSection(cmsIT8 * it8)
 					    Nextkey = (char *)sstrchr(Subkey, ';');
 					    if(Nextkey)
 						    *Nextkey++ = '\0';
-
 					    // for each pair, split the subkey and the value
-					    Value = (char *)strrchr(Subkey, ',');
+					    Value = (char *)sstrrchr(Subkey, ',');
 					    if(Value == NULL)
 						    return SynError(it8, "Invalid value for property '%s'.", VarName);
-
 					    // gobble the spaces before the coma, and the coma itself
 					    temp = Value++;
-					    do *temp-- = '\0'; while(temp >= Subkey && *temp == ' ');
-
+					    do {
+							*temp-- = '\0'; 
+						} while(temp >= Subkey && *temp == ' ');
 					    // gobble any space at the right
 					    temp = Value + strlen(Value) - 1;
-					    while(*temp == ' ') *temp-- = '\0';
-
+					    while(*temp == ' ') 
+							*temp-- = '\0';
 					    // trim the strings from the left
 					    Subkey += strspn(Subkey, " ");
 					    Value += strspn(Value, " ");
-
 					    if(Subkey[0] == 0 || Value[0] == 0)
 						    return SynError(it8, "Invalid value for property '%s'.", VarName);
 					    AddToList(it8, &GetTable(it8)->HeaderList, VarName, Subkey, Value, WRITE_PAIR);

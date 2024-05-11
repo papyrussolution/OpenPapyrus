@@ -2012,7 +2012,7 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 						is_stopped = rRet.CliAgt.IsStopped(debt_dim_id);
 						if(is_stopped > 0) {
 							SString debt_dim_name;
-							GetObjectName(PPOBJ_DEBTDIM, debt_dim_id, debt_dim_name, 0);
+							GetObjectName(PPOBJ_DEBTDIM, debt_dim_id, debt_dim_name);
 							stop_err_addedmsg.Colon().Cat(debt_dim_name);
 						}
 					}

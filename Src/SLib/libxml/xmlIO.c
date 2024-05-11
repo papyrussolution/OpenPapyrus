@@ -1217,12 +1217,9 @@ static int xmlXzfileClose(void * context)
 #endif /* HAVE_LZMA_H */
 
 #ifdef LIBXML_HTTP_ENABLED
-/************************************************************************
-*									*
-*			I/O for HTTP file accesses			*
-*									*
-************************************************************************/
-
+//
+// I/O for HTTP file accesses
+//
 #ifdef LIBXML_OUTPUT_ENABLED
 typedef struct xmlIOHTTPWriteCtxt_ {
 	int compression;

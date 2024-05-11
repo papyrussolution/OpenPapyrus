@@ -171,7 +171,7 @@ extern int main(int argc, char * argv[])
 	filename = (char *)uprv_malloc(strlen(srcDir) + strlen(inputFileName) + (icuUniDataDir == NULL ? 0 : strlen(
 		icuUniDataDir)) + 40); /* hopefully this should be enough */
 	/* prepare the filename beginning with the source dir */
-	if(uprv_strchr(srcDir, U_FILE_SEP_CHAR) == NULL && uprv_strchr(srcDir, U_FILE_ALT_SEP_CHAR) == NULL) {
+	if(sstrchr(srcDir, U_FILE_SEP_CHAR) == NULL && sstrchr(srcDir, U_FILE_ALT_SEP_CHAR) == NULL) {
 		filename[0] = '.';
 		filename[1] = U_FILE_SEP_CHAR;
 		strcpy(filename+2, srcDir);

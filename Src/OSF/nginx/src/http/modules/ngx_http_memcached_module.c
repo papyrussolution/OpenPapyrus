@@ -266,7 +266,7 @@ length__:
 					return NGX_OK;
 				}
 			}
-			if(ngx_strcmp(p, "END\x0d") == 0) {
+			if(sstreq(p, "END\x0d")) {
 				ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "key: \"%V\" was not found by memcached", &ctx->key);
 				u->headers_in.content_length_n = 0;
 				u->headers_in.status_n = 404;

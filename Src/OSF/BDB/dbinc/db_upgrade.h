@@ -51,9 +51,9 @@ typedef struct _btmeta31 {
 	 */
 } BTMETA31;
 
-/************************************************************************
- HASH METADATA PAGE LAYOUT
- ************************************************************************/
+// 
+// HASH METADATA PAGE LAYOUT
+// 
 typedef struct _hashmeta31 {
 	DBMETA31 dbmeta;	/* 00-71: Generic meta-data page header. */
 
@@ -122,10 +122,9 @@ typedef struct _dbmeta30 {
 				/* 36-55: Unique file ID. */
 	uint8  uid[DB_FILE_ID_LEN];
 } DBMETA30;
-
-/************************************************************************
- BTREE METADATA PAGE LAYOUT
- ************************************************************************/
+// 
+// BTREE METADATA PAGE LAYOUT
+// 
 typedef struct _btmeta30 {
 	DBMETA30	dbmeta;	/* 00-55: Generic meta-data header. */
 
@@ -139,10 +138,9 @@ typedef struct _btmeta30 {
 	 * Minimum page size is 128.
 	 */
 } BTMETA30;
-
-/************************************************************************
- HASH METADATA PAGE LAYOUT
- ************************************************************************/
+// 
+// HASH METADATA PAGE LAYOUT
+// 
 typedef struct _hashmeta30 {
 	DBMETA30 dbmeta;	/* 00-55: Generic meta-data page header. */
 
@@ -160,10 +158,9 @@ typedef struct _hashmeta30 {
 	 * Minimum page size is 256.
 	 */
 } HMETA30;
-
-/************************************************************************
- QUEUE METADATA PAGE LAYOUT
- ************************************************************************/
+// 
+// QUEUE METADATA PAGE LAYOUT
+// 
 /*
  * QAM Meta data page structure
  *
@@ -182,13 +179,10 @@ typedef struct _qmeta30 {
 	 * Minimum page size is 128.
 	 */
 } QMETA30;
-
 /* Structures from Release 2.x */
-
-/************************************************************************
- BTREE METADATA PAGE LAYOUT
- ************************************************************************/
-
+// 
+// BTREE METADATA PAGE LAYOUT
+// 
 /*
  * Btree metadata page layout:
  */
@@ -207,11 +201,9 @@ typedef struct _btmeta2X {
 				/* 48-67: Unique file ID. */
 	uint8  uid[DB_FILE_ID_LEN];
 } BTMETA2X;
-
-/************************************************************************
- HASH METADATA PAGE LAYOUT
- ************************************************************************/
-
+// 
+// HASH METADATA PAGE LAYOUT
+// 
 /*
  * Hash metadata page layout:
  */

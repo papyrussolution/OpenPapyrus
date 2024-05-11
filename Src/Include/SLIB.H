@@ -6082,6 +6082,7 @@ int    memdword(void * p, size_t size, uint32 k, size_t * pOffs);
 //
 void * FASTCALL memzero(void * p, size_t s);
 bool   FASTCALL ismemzero(const void * p, size_t s);
+void * FASTCALL memrandomize(void * p, size_t s);
 // @v11.8.1 {
 static constexpr uint8  _FFFF8   = static_cast<uint8>(0xff);
 static constexpr uint16 _FFFF16  = static_cast<uint16>(0xffff);
@@ -6965,6 +6966,10 @@ public:
 	{
 		memcpy(D, rS.D, sizeof(D));
 		return *this;
+	}
+	void   Randomize()
+	{
+		memrandomize(D, BYTESIZE);
 	}
 	uint8  D[BYTESIZE];
 };
@@ -11682,6 +11687,7 @@ protected:
 	SRegExp2 * P_ReQuotedStr;
 	SRegExp2 * P_ReNumber;
 	SRegExp2 * P_ReIdent;
+	SRegExp2 * P_ReIdentWithHyphen; // @v12.0.1
 	SRegExp2 * P_ReHex;
 	SRegExp2 * P_ReDigits;
 	SRegExp2 * P_ReXDigits; // @v11.4.1
@@ -11774,7 +11780,17 @@ struct SStrScan : public SRegExpSet {
 	//   Принимаются следующие значения: SFileFormat::Json, SFileFormat::Csv, SFileFormat::Tsv, SFileFormat::Xml
 	//
 	int    GetQuotedString(SFileFormat format, SString & rBuf);
+	//
+	// Descr: Считывает символьный идентификатор, принятный в качестве такового во многих
+	//   языках программирования. То есть, первый символ - латинская буква или '_', последующие - 
+	//   латинские буквы, цифры или '_'.
+	//
 	int    FASTCALL GetIdent(SString & rBuf);
+	//
+	// Descr: Считывает символьный идентификатор аналогично функции GetIdent, но кроме прочих символов
+	//   допускает символ дефиса '-'.
+	//
+	int    FASTCALL GetIdentWithHyphen(SString & rBuf);
 	int    FASTCALL GetNumber(SString & rBuf);
 	//
 	// Descr: То же, что и GetNumber, но допускает отсутствие '0' перед '.'

@@ -55,11 +55,12 @@ public:
 	 * @param noFallback Ignored.
 	 * @param status The standard ICU error code output parameter.
 	 */
-	void put(const char * source, ResourceValue &value, bool /*noFallback*/, UErrorCode & status) override {
+	void put(const char * source, ResourceValue &value, bool /*noFallback*/, UErrorCode & status) override 
+	{
 		if(U_FAILURE(status)) {
 			return;
 		}
-		if(strcmp(source, "convertUnits") != 0) {
+		if(!sstreq(source, "convertUnits")) {
 			// This is very strict, however it is the cheapest way to be sure
 			// that with `value`, we're looking at the convertUnits table.
 			status = U_ILLEGAL_ARGUMENT_ERROR;
@@ -75,13 +76,13 @@ public:
 			UnicodeString factor = ICU_Utility::makeBogusString();
 			UnicodeString offset = ICU_Utility::makeBogusString();
 			for(int32_t i = 0; unitTable.getKeyAndValue(i, key, value); i++) {
-				if(strcmp(key, "target") == 0) {
+				if(sstreq(key, "target")) {
 					baseUnit = value.getUnicodeString(status);
 				}
-				else if(strcmp(key, "factor") == 0) {
+				else if(sstreq(key, "factor")) {
 					factor = value.getUnicodeString(status);
 				}
-				else if(strcmp(key, "offset") == 0) {
+				else if(sstreq(key, "offset")) {
 					offset = value.getUnicodeString(status);
 				}
 			}
@@ -154,7 +155,7 @@ public:
 		if(U_FAILURE(status)) {
 			return;
 		}
-		if(strcmp(key, "unitPreferenceData") != 0) {
+		if(!sstreq(key, "unitPreferenceData")) {
 			// This is very strict, however it is the cheapest way to be sure
 			// that with `value`, we're looking at the convertUnits table.
 			status = U_ILLEGAL_ARGUMENT_ERROR;
@@ -213,12 +214,12 @@ public:
 							return;
 						}
 						for(int32_t i = 0; unitPref.getKeyAndValue(i, key, value); ++i) {
-							if(strcmp(key, "unit") == 0) {
+							if(sstreq(key, "unit")) {
 								int32_t length;
 								const char16_t * u = value.getString(length, status);
 								up->unit.appendInvariantChars(u, length, status);
 							}
-							else if(strcmp(key, "geq") == 0) {
+							else if(sstreq(key, "geq")) {
 								int32_t length;
 								const char16_t * g = value.getString(length, status);
 								CharString geq;
@@ -227,7 +228,7 @@ public:
 								dq.setToDecNumber(geq.data(), status);
 								up->geq = dq.toDouble();
 							}
-							else if(strcmp(key, "skeleton") == 0) {
+							else if(sstreq(key, "skeleton")) {
 								up->skeleton = value.getUnicodeString(status);
 							}
 						}
@@ -319,7 +320,7 @@ int32_t getPreferenceMetadataIndex(const MaybeStackVector<UnitPreferenceMetadata
 		if(lastDashIdx > 0) {
 			desired.usage.truncate(lastDashIdx);
 		}
-		else if(strcmp(desired.usage.data(), "default") != 0) {
+		else if(!sstreq(desired.usage.data(), "default")) {
 			desired.usage.truncate(0).append("default", status);
 		}
 		else {
@@ -335,7 +336,7 @@ int32_t getPreferenceMetadataIndex(const MaybeStackVector<UnitPreferenceMetadata
 	U_ASSERT(foundCategory);
 	U_ASSERT(foundUsage);
 	if(!foundRegion) {
-		if(strcmp(desired.region.data(), "001") != 0) {
+		if(!sstreq(desired.region.data(), "001")) {
 			desired.region.truncate(0).append("001", status);
 			idx = binarySearch(metadata, desired, &foundCategory, &foundUsage, &foundRegion, status);
 		}

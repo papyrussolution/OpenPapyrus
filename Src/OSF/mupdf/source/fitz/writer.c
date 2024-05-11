@@ -93,7 +93,7 @@ static int FASTCALL is_extension(const char * a, const char * ext)
 {
 	if(a[0] == '.')
 		++a;
-	return !fz_strcasecmp(a, ext);
+	return sstreqi_ascii(a, ext);
 }
 
 static const char * FASTCALL prev_period(const char * start, const char * p)
@@ -107,8 +107,7 @@ static const char * FASTCALL prev_period(const char * start, const char * p)
 fz_document_writer * fz_new_document_writer(fz_context * ctx, const char * path, const char * explicit_format, const char * options)
 {
 	const char * format = explicit_format;
-	if(!format)
-		format = strrchr(path, '.');
+	SETIFZ(format, sstrrchr(path, '.'));
 	while(format) {
 #if FZ_ENABLE_PDF
 		if(is_extension(format, "pdf"))

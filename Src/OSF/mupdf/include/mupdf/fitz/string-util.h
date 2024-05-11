@@ -101,19 +101,18 @@ char *fz_cleanname(char *name);
 	The resolved path buffer must be of at least PATH_MAX size.
 */
 char *fz_realpath(const char *path, char *resolved_path);
-
 /**
 	Case insensitive (ASCII only) string comparison.
 */
-int fz_strcasecmp(const char *a, const char *b);
+// @v12.0.1 (replaced with sstreqi_ascii - was used only as !fz_strcasecmp) int fz_strcasecmp(const char *a, const char *b);
 int fz_strncasecmp(const char *a, const char *b, size_t n);
-
 /**
 	FZ_UTFMAX: Maximum number of bytes in a decoded rune (maximum
 	length returned by fz_chartorune).
 */
-enum { FZ_UTFMAX = 4 };
-
+enum { 
+	FZ_UTFMAX = 4 
+};
 /**
 	UTF8 decode a single rune from a sequence of chars.
 

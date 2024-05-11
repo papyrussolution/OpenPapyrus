@@ -42,16 +42,11 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL IsTypeCharacter(const int ch)
-{
-	return ch == '%' || ch == '&' || ch == '@' || ch == '!' || ch == '#' || ch == '$' || ch == '?';
-}
-
+static bool FASTCALL IsTypeCharacter(const int ch) { return ch == '%' || ch == '&' || ch == '@' || ch == '!' || ch == '#' || ch == '$' || ch == '?'; }
 static bool FASTCALL IsAWordChar(int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '.' || ch == '_'); }
 static bool FASTCALL IsAWordStart(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_'); }
 
-static bool MatchUpperCase(Accessor & styler, Sci_Position pos, const char * s)   //Same as styler.Match() but uppercase
-                                                                                 // comparison (a-z,A-Z and space only)
+static bool MatchUpperCase(Accessor & styler, Sci_Position pos, const char * s)   //Same as styler.Match() but uppercase comparison (a-z,A-Z and space only)
 {
 	char ch;
 	for(Sci_Position i = 0; *s; i++) {
@@ -63,16 +58,13 @@ static bool MatchUpperCase(Accessor & styler, Sci_Position pos, const char * s) 
 	return true;
 }
 
-static void ColourisePBDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler) {
+static void ColourisePBDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor & styler) 
+{
 	WordList &keywords = *keywordlists[0];
-
 	styler.StartAt(startPos);
-
 	StyleContext sc(startPos, length, initStyle, styler);
-
 	for(; sc.More(); sc.Forward()) {
-		switch(sc.state)
-		{
+		switch(sc.state) {
 			case SCE_B_OPERATOR:
 		    {
 			    sc.SetState(SCE_B_DEFAULT);
@@ -85,13 +77,13 @@ static void ColourisePBDoc(Sci_PositionU startPos, Sci_Position length, int init
 					    char s[100];
 					    sc.GetCurrentLowered(s, sizeof(s));
 					    if(keywords.InList(s)) {
-						    if(strcmp(s, "rem") == 0) {
+						    if(sstreq(s, "rem")) {
 							    sc.ChangeState(SCE_B_COMMENT);
 							    if(sc.atLineEnd) {
 								    sc.SetState(SCE_B_DEFAULT);
 							    }
 						    }
-						    else if(strcmp(s, "asm") == 0) {
+						    else if(sstreq(s, "asm")) {
 							    sc.ChangeState(SCE_B_ASM);
 							    if(sc.atLineEnd) {
 								    sc.SetState(SCE_B_DEFAULT);

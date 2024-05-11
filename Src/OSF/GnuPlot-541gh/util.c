@@ -869,7 +869,7 @@ void GnuPlot::PrintLineWithError(int t_num)
 		char * copy_of_input_line = sstrdup(Pgm.P_InputLine);
 		char * minimal_input_line = copy_of_input_line;
 		char * trunc;
-		while((trunc = strrchr(copy_of_input_line, '\n')) != NULL) {
+		while((trunc = sstrrchr(copy_of_input_line, '\n')) != NULL) {
 			int current = (t_num == NO_CARET) ? Pgm.GetCurTokenIdx() : t_num;
 			if(trunc < &copy_of_input_line[Pgm.P_Token[current].StartIdx]) {
 				minimal_input_line = trunc+1;

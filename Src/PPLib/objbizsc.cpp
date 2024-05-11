@@ -172,21 +172,21 @@ public:
 		long id = 0;
 		uint pos = 0;
 		SString str;
-		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_METAVAR, str.Z());
+		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_METAVAR, str);
 		Primitiv_List.Add(0, str);
-		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_BILL, str.Z());
+		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_BILL, str);
 		Primitiv_List.Add(1, str);
-		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_PAYM, str.Z());
+		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_PAYM, str);
 		Primitiv_List.Add(2, str);
-		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_CCHECK, str.Z());
+		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_CCHECK, str);
 		Primitiv_List.Add(3, str);
-		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_GOODSREST, str.Z());
+		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_GOODSREST, str);
 		Primitiv_List.Add(4, str);
-		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_PERSONEVENT, str.Z());
+		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_PERSONEVENT, str);
 		Primitiv_List.Add(5, str);
-		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_DEBT, str.Z());
+		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_DEBT, str);
 		Primitiv_List.Add(6, str);
-		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_BIZSCORE, str.Z());
+		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_BIZSCORE, str);
 		Primitiv_List.Add(7, str);
 		//
 		id = (Primitiv_List.SearchByTextNc(Primitiv_List.Get(Data.Kind-1).Txt, &(pos = 0)) > 0) ? (uint)Primitiv_List.Get(pos).Id : 0;
@@ -247,7 +247,7 @@ private:
 			long id = 0;
 			getCtrlData(CTLSEL_BIZPRCRT_PRIMITIV, &(id = 0));
 			Buf_Data.Kind = (int16)(id + 1);
-			Buf_Data.PutToStr(Str_Buf.Z());
+			Buf_Data.PutToStr(Str_Buf);
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
 			DisableControls(id);
 			clearEvent(event);
@@ -268,7 +268,7 @@ private:
 				case 10: Buf_Data.Sub = DL2_Score::subAverage; break;
 				default: Buf_Data.Sub = DL2_Score::subNone; break;
 			}
-			Buf_Data.PutToStr(Str_Buf.Z());
+			Buf_Data.PutToStr(Str_Buf);
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
 			clearEvent(event);
 		}
@@ -283,13 +283,13 @@ private:
 				case 5: Buf_Data.Cmp = DL2_Score::cmpPrev; break;
 				default: Buf_Data.Cmp = DL2_Score::cmpNone; break;
 			}
-			Buf_Data.PutToStr(Str_Buf.Z());
+			Buf_Data.PutToStr(Str_Buf);
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
 			clearEvent(event);
 		}
 		if(event.isCtlEvent(CTL_BIZPRCRT_PERIOD)) {
 			GetPeriodInput(this, CTL_BIZPRCRT_PERIOD, &Buf_Data.Period);
-			Buf_Data.PutToStr(Str_Buf.Z());
+			Buf_Data.PutToStr(Str_Buf);
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
 			clearEvent(event);
 		}
@@ -305,19 +305,19 @@ private:
 			Buf_Data.P_Ctx->Oc.Set(PPOBJ_LOCATION, &Str_Set, &id);
 			Buf_Data.LocListID = id;
 
-			Buf_Data.PutToStr(Str_Buf.Z());
+			Buf_Data.PutToStr(Str_Buf);
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
 			clearEvent(event);
 		}
 		if(event.isCbSelected(CTLSEL_BIZPRCRT_GOODSGRP)) {
 			Buf_Data.GoodsGrpListID = getCtrlLong(CTL_BIZPRCRT_GOODSGRP);
-			Buf_Data.PutToStr(Str_Buf.Z());
+			Buf_Data.PutToStr(Str_Buf);
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
 			clearEvent(event);
 		}
 		if(event.isCtlEvent(CTL_BIZPRCRT_OPSYMB)) {
 			getCtrlData(CTL_BIZPRCRT_OPSYMB, &Buf_Data.OpCode);
-			Buf_Data.PutToStr(Str_Buf.Z());
+			Buf_Data.PutToStr(Str_Buf);
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
 			clearEvent(event);
 		}
@@ -564,7 +564,7 @@ private:
 				while(r <= 0 && ExecView(dlg) == cmOK)
 					if(dlg->getDTS(&score)) {
 						SString buf;
-						score.PutToStr(buf.Z());
+						score.PutToStr(buf);
 						Data.Formula.Cat(buf);
 						setCtrlString(CTL_BIZSCORE_FORMULA, Data.Formula);
 						r = 1;
@@ -1263,7 +1263,7 @@ int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket *
 				if(i == 0) {
 					SString    text;
 					text.Cat(p_bizsc_rec->Dtm).Cat("<br>");
-					PPGetWord(PPWORD_CALCDATE, 1, buf.Z());
+					PPGetWord(PPWORD_CALCDATE, 1, buf);
 					text.Cat(buf).CatDiv(':', 1).Cat(p_bizsc_rec->ActualDate).Cat("<br>").CRB();
 					THROW(pSock->Send(text, text.Len(), 0));
 				}

@@ -1962,11 +1962,11 @@ DBQuery * PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	if(pSubTitle) {
 		if(Filt.PrcID) {
 			pSubTitle->CatDivIfNotEmpty(';', 0);
-			GetObjectName(PPOBJ_PROCESSOR, Filt.PrcID, *pSubTitle, 1);
+			CatObjectName(PPOBJ_PROCESSOR, Filt.PrcID, *pSubTitle);
 		}
 		if(Filt.GoodsID) {
 			pSubTitle->CatDivIfNotEmpty(';', 0);
-			GetObjectName(PPOBJ_GOODS, Filt.GoodsID, *pSubTitle, 1);
+			CatObjectName(PPOBJ_GOODS, Filt.GoodsID, *pSubTitle);
 		}
 	}
 	CATCH
@@ -2166,9 +2166,16 @@ int PPALDD_Tech::InitData(PPFilt & rFilt, long rsrv)
 			H.PrcID    = rec.PrcID;
 			H.GoodsID  = rec.GoodsID;
 			H.GStrucID = rec.GStrucID;
-			if(GetObjectName(PPOBJ_GOODSSTRUC, rec.GStrucID, H.GStrucName, sizeof(H.GStrucName)) > 0)
-				if(strip(H.GStrucName)[0] == 0)
-					STRNSCPY(H.GStrucName, "BOM #");
+			{
+				SString r_temp_buf = SLS.AcquireRvlStr();
+				if(GetObjectName(PPOBJ_GOODSSTRUC, rec.GStrucID, r_temp_buf) > 0) {
+					if(r_temp_buf.NotEmptyS()) {
+						STRNSCPY(H.GStrucName, r_temp_buf);
+					}
+					else 
+						STRNSCPY(H.GStrucName, "BOM #");
+				}
+			}
 			H.Flags    = rec.Flags;
 			H.Sign     = rec.Sign;
 			H.Cost     = rec.Cost;

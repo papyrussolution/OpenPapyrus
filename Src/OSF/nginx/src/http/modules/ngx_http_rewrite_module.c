@@ -226,19 +226,19 @@ static const char * ngx_http_rewrite(ngx_conf_t * cf, const ngx_command_t * cmd,
 		last = 1;
 	}
 	if(cf->args->nelts == 4) {
-		if(ngx_strcmp(value[3].data, "last") == 0) {
+		if(sstreq(value[3].data, "last")) {
 			last = 1;
 		}
-		else if(ngx_strcmp(value[3].data, "break") == 0) {
+		else if(sstreq(value[3].data, "break")) {
 			regex->break_cycle = 1;
 			last = 1;
 		}
-		else if(ngx_strcmp(value[3].data, "redirect") == 0) {
+		else if(sstreq(value[3].data, "redirect")) {
 			regex->status = NGX_HTTP_MOVED_TEMPORARILY;
 			regex->redirect = 1;
 			last = 1;
 		}
-		else if(ngx_strcmp(value[3].data, "permanent") == 0) {
+		else if(sstreq(value[3].data, "permanent")) {
 			regex->status = NGX_HTTP_MOVED_PERMANENTLY;
 			regex->redirect = 1;
 			last = 1;

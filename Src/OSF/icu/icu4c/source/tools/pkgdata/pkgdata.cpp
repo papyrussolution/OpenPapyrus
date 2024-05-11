@@ -2008,7 +2008,7 @@ static void loadLists(UPKGOptions * o, UErrorCode * status)
 				}
                                 /* Find the next quote */
 				if(linePtr[0] == '"') {
-					lineNext = uprv_strchr(linePtr+1, '"');
+					lineNext = sstrchr(linePtr+1, '"');
 					if(lineNext == NULL) {
 						slfprintf_stderr("%s:%d - missing trailing double quote (\")\n",
 						    l->str, (int)ln);
@@ -2028,7 +2028,7 @@ static void loadLists(UPKGOptions * o, UErrorCode * status)
 					}
 				}
 				else {
-					lineNext = uprv_strchr(linePtr, ' ');
+					lineNext = sstrchr(linePtr, ' ');
 					if(lineNext) {
 						*lineNext = 0; /* terminate at space */
 						lineNext++;

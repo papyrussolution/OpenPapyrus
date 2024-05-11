@@ -230,6 +230,7 @@
     <ClCompile Include="..\OSF\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\OSF\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\OSF\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="..\OSF\imgui\misc\cpp\imgui_stdlib.cpp" />
     <ClCompile Include="..\OSF\imgui\misc\freetype\imgui_freetype.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -243,6 +244,7 @@
     <ClInclude Include="..\OSF\imgui\imgui-slib-internal.h" />
     <ClInclude Include="..\OSF\imgui\imgui.h" />
     <ClInclude Include="..\OSF\imgui\imgui_internal.h" />
+    <ClInclude Include="..\OSF\imgui\misc\cpp\imgui_stdlib.h" />
     <ClInclude Include="..\OSF\imgui\misc\freetype\imgui_freetype.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

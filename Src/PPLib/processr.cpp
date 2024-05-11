@@ -572,6 +572,23 @@ int PPObjProcessor::SearchByCode(const char * pCode, PPID * pID, ProcessorTbl::R
 	return -1;
 }
 
+int PPObjProcessor::SearchListByLinkObj(PPID objType, PPID objID, PPIDArray & rList) // @v12.0.1
+{
+	rList.Z();
+	int    ok = -1;
+	ProcessorTbl * p_t = P_Tbl;
+	ProcessorTbl::Key1 k1;
+	MEMSZERO(k1);
+	k1.Kind = PPPRCK_PROCESSOR;
+	BExtQuery q(p_t, 0, 1);
+	q.selectAll().where(p_t->Kind == static_cast<long>(PPPRCK_PROCESSOR) && p_t->LinkObjType == objType && p_t->LinkObjID == objID);
+	for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
+		rList.add(p_t->data.ID);
+		ok = 1;
+	}
+	return ok;
+}
+
 int PPObjProcessor::SearchByLinkObj(PPID objType, PPID objID, PPID * pID, ProcessorTbl::Rec * pRec)
 {
 	int    ok = -1;
@@ -1126,6 +1143,57 @@ int PPObjProcessor::Fetch(PPID id, ProcessorTbl::Rec * pRec)
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);
 }
 
+int PPObjProcessor::SearchAutocreateGroupListByObjGroup(PPID objType, PPID objGroupID, PPIDArray & rList)
+{
+	rList.Z();
+	int    ok = -1;
+	if(objType) {
+		ProcessorTbl::Rec grp_rec;
+		ProcessorTbl::Key1 k1;
+		MEMSZERO(k1);
+		k1.Kind = PPPRCK_GROUP;
+		if(P_Tbl->search(1, &k1, spGe) && P_Tbl->data.Kind == PPPRCK_GROUP) do {
+			P_Tbl->copyBufTo(&grp_rec);
+			if(grp_rec.LinkObjType == objType && grp_rec.LinkObjID == objGroupID && grp_rec.Flags & PRCF_AUTOCREATE) {
+				rList.add(grp_rec.ID);
+				ok = 1;
+			}
+		} while(P_Tbl->search(1, &k1, spNext) && P_Tbl->data.Kind == PPPRCK_GROUP);
+	}
+	assert(ok > 0 || rList.getCount() == 0);
+	return ok;
+}
+
+int PPObjProcessor::AutocreateByObjGroup(PPID linkObjType, PPID linkObjID, const PPIDArray & rGrpIdList, int use_ta)
+{
+	int    ok = -1;
+	SString name_buf;
+	ProcessorTbl::Rec grp_rec;
+	for(uint i = 0; i < rGrpIdList.getCount(); i++) {
+		PPID   prc_id = 0;
+		int    r;
+		THROW(r = SearchByLinkObj(linkObjType, linkObjID, &prc_id, 0));
+		if(r < 0) {
+			prc_id = 0;
+			PPProcessorPacket pack;
+			pack.Rec.Kind = PPPRCK_PROCESSOR;
+			pack.Rec.ParentID = rGrpIdList.get(i);
+			THROW(GetRecWithInheritance(pack.Rec.ParentID, &grp_rec, 1) > 0);
+			assert(grp_rec.LinkObjType == linkObjType);
+			pack.Rec.LinkObjType = grp_rec.LinkObjType;
+			pack.Rec.LinkObjID = linkObjID;
+			pack.Rec.LocID = grp_rec.LocID;
+			// @v12.0.1 THROW(GetPersonName(link_obj_id, name_buf) > 0);
+			THROW(GetObjectName(linkObjType, linkObjID, name_buf) > 0); // @v12.0.1 
+			name_buf.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
+			SETFLAGBYSAMPLE(pack.Rec.Flags, PRCF_USETSESSSIMPLEDLG, grp_rec.Flags);
+			THROW(PutPacket(&prc_id, &pack, use_ta));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPObjProcessor::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
@@ -1134,40 +1202,24 @@ int PPObjProcessor::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		if(SearchAnyRef(_obj, _id, &prc_id) > 0)
 			ok = RetRefsExistsErr(Obj, prc_id);
 	}
+	else if(msg == DBMSG_COMPUTERACQUIRECAT) { // @v12.0.1
+		constexpr PPID link_obj_type = PPOBJ_COMPUTER;
+		const  PPID link_obj_id = _id;
+		const PPID compcat_id = reinterpret_cast<long>(extraPtr);
+		PPIDArray grp_id_list;
+		ProcessorTbl::Rec grp_rec;
+		if(SearchAutocreateGroupListByObjGroup(link_obj_type, compcat_id, grp_id_list) > 0) {
+			THROW(AutocreateByObjGroup(link_obj_type, link_obj_id, grp_id_list, 0));
+		}
+	}
 	else if(msg == DBMSG_PERSONACQUIREKIND) {
-		const  PPID person_id = _id;
+		constexpr PPID link_obj_type = PPOBJ_PERSON;
+		const  PPID link_obj_id = _id;
 		const  PPID kind_id = reinterpret_cast<long>(extraPtr);
 		SString name_buf;
 		PPIDArray grp_id_list;
-		ProcessorTbl::Rec grp_rec;
-		ProcessorTbl::Key1 k1;
-		MEMSZERO(k1);
-		k1.Kind = PPPRCK_GROUP;
-		if(P_Tbl->search(1, &k1, spGe) && P_Tbl->data.Kind == PPPRCK_GROUP) do {
-			P_Tbl->copyBufTo(&grp_rec);
-			if(grp_rec.LinkObjType == PPOBJ_PERSON && grp_rec.LinkObjID == kind_id && grp_rec.Flags & PRCF_AUTOCREATE) {
-				grp_id_list.add(grp_rec.ID);
-			}
-		} while(P_Tbl->search(1, &k1, spNext) && P_Tbl->data.Kind == PPPRCK_GROUP);
-		for(uint i = 0; i < grp_id_list.getCount(); i++) {
-			PPID   prc_id = 0;
-			int    r;
-			THROW(r = SearchByLinkObj(PPOBJ_PERSON, person_id, &prc_id, 0));
-			if(r < 0) {
-				prc_id = 0;
-				PPProcessorPacket pack;
-				pack.Rec.Kind = PPPRCK_PROCESSOR;
-				pack.Rec.ParentID = grp_id_list.get(i);
-				THROW(GetRecWithInheritance(pack.Rec.ParentID, &grp_rec, 1) > 0);
-				assert(grp_rec.LinkObjType == PPOBJ_PERSON);
-				pack.Rec.LinkObjType = grp_rec.LinkObjType;
-				pack.Rec.LinkObjID = person_id;
-				pack.Rec.LocID = grp_rec.LocID;
-				THROW(GetPersonName(person_id, name_buf) > 0);
-				name_buf.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
-				SETFLAGBYSAMPLE(pack.Rec.Flags, PRCF_USETSESSSIMPLEDLG, grp_rec.Flags);
-				THROW(PutPacket(&prc_id, &pack, 0));
-			}
+		if(SearchAutocreateGroupListByObjGroup(link_obj_type, kind_id, grp_id_list) > 0) {
+			THROW(AutocreateByObjGroup(link_obj_type, link_obj_id, grp_id_list, 0));
 		}
 	}
 	else if(msg == DBMSG_PERSONLOSEKIND) {
@@ -1224,7 +1276,15 @@ private:
 	int    setupParent();
 	int    setupAssoc();
 	void   setupLinkName(int force);
-	PPID   groupObjType() const { return (Data.Rec.LinkObjType == PPOBJ_PERSON) ? PPOBJ_PERSONKIND : 0; }
+	PPID   groupObjType() const 
+	{ 
+		if(Data.Rec.LinkObjType == PPOBJ_PERSON) 
+			return PPOBJ_PERSONKIND;
+		else if(Data.Rec.LinkObjType == PPOBJ_COMPUTER) // @v12.0.1
+			return PPOBJ_COMPUTERCATEGORY;
+		else
+			return 0;
+	}
 	int    EditExt();
 
 	PPProcessorPacket Data;
@@ -1542,11 +1602,11 @@ int ProcessorDialog::setupAssoc()
 		AddClusterAssoc(CTL_PRC_ASSOC,  2, PPOBJ_TRANSPORT);
 		AddClusterAssoc(CTL_PRC_ASSOC,  3, PPOBJ_COMPUTER); // @v11.7.3
 		SetClusterData(CTL_PRC_ASSOC, Data.Rec.LinkObjType);
-		disableCtrl(CTLSEL_PRC_ASSOCGROUP, !(Data.Rec.LinkObjType == PPOBJ_PERSON));
+		disableCtrl(CTLSEL_PRC_ASSOCGROUP, !oneof2(Data.Rec.LinkObjType, PPOBJ_PERSON, PPOBJ_COMPUTER));
 		if(Data.Rec.LinkObjType == PPOBJ_PERSON)
 			SetupPPObjCombo(this, CTLSEL_PRC_ASSOCGROUP, groupObjType(), Data.Rec.LinkObjID, OLW_CANINSERT, 0);
-		else if(Data.Rec.LinkObjType == PPOBJ_COMPUTER) { // @v12.0.0
-			//SetupPPObjCombo(this, CTLSEL_PRC_ASSOCGROUP, )
+		else if(Data.Rec.LinkObjType == PPOBJ_COMPUTER) { // @v12.0.1
+			SetupPPObjCombo(this, CTLSEL_PRC_ASSOCGROUP, groupObjType(), Data.Rec.LinkObjID, OLW_CANINSERT, 0);
 		}
 		else
 			setCtrlLong(CTL_PRC_ASSOCGROUP, 0);
@@ -1599,7 +1659,7 @@ int ProcessorDialog::setDTS(const PPProcessorPacket * pData)
 		setupLinkName(0);
 	}
 	else {
-		long   wr_off_dt_sel = (Data.Rec.Flags & PRCF_WROFFDT_START) ? 0 : 1;
+		const long wr_off_dt_sel = (Data.Rec.Flags & PRCF_WROFFDT_START) ? 0 : 1;
 		AddClusterAssoc(CTL_PRC_WROFFDT,  0, 0);
 		AddClusterAssocDef(CTL_PRC_WROFFDT,  1, 1);
 		SetClusterData(CTL_PRC_WROFFDT, wr_off_dt_sel);
@@ -1744,17 +1804,41 @@ int PPObjProcessor::Edit(PPID * pID, void * extraPtr /*parentID*/)
 			repeat = false;
 			const int edr = EditDialog(&pack);
 			if(edr > 0) {
+				bool is_local_err = false;
 				ProcessorTbl::Rec _rec;
 				if(strip(pack.Rec.Code)[0] && SearchByCode(pack.Rec.Code, 0, &_rec) > 0 && _rec.ID != pack.Rec.ID) {
 					PPObject::SetLastErrObj(Obj, _rec.ID);
 					PPError(PPERR_DUPSYMB, 0);
+					is_local_err = true;
 					repeat = true;
 				}
-				else if(PutPacket(pID, &pack, 1))
-					ok = cmOK;
 				else {
-					PPError();
-					repeat = true;
+					// @v12.0.1 {
+					if(pack.Rec.Kind == PPPRCK_PROCESSOR) {
+						if(pack.Rec.LinkObjType == PPOBJ_COMPUTER) {
+							if(pack.Rec.LinkObjID) {
+								PPIDArray obj_linked_list;
+								if(PPObjProcessor::SearchListByLinkObj(pack.Rec.LinkObjType, pack.Rec.LinkObjID, obj_linked_list) > 0) {
+									assert(obj_linked_list.getCount());
+									if(!pack.Rec.ID || !obj_linked_list.lsearch(pack.Rec.ID)) {
+										PPSetAddedMsgObjName(Obj, obj_linked_list.get(0));
+										PPError(PPERR_PRCDUPLINKTOCOMP);
+										is_local_err = true;
+										repeat = true;
+									}
+								}
+							}
+						}
+					}
+					// } @v12.0.1 
+					if(!is_local_err) {
+						if(PutPacket(pID, &pack, 1))
+							ok = cmOK;
+						else {
+							PPError();
+							repeat = true;
+						}
+					}
 				}
 			}
 		} while(repeat);

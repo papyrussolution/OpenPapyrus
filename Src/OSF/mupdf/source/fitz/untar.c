@@ -130,7 +130,7 @@ static tar_entry * lookup_tar_entry(fz_context * ctx, fz_tar_archive * tar, cons
 {
 	int i;
 	for(i = 0; i < tar->count; i++)
-		if(!fz_strcasecmp(name, tar->entries[i].name))
+		if(sstreqi_ascii(name, tar->entries[i].name))
 			return &tar->entries[i];
 	return NULL;
 }

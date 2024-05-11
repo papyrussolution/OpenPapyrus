@@ -61,6 +61,7 @@ int PPViewMrpTab::UpdateTempTable(PPID id)
 {
 	int    ok = 1;
 	if(P_TempOrd) {
+		SString temp_buf;
 		MrpTabTbl::Rec rec;
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
@@ -68,8 +69,10 @@ int PPViewMrpTab::UpdateTempTable(PPID id)
 			TempOrderTbl::Key0 k0;
 			TempOrderTbl::Rec ord_rec;
 			ord_rec.ID = id;
-			if(rec.LinkObjType)
-				GetObjectName(rec.LinkObjType, rec.LinkObjID, ord_rec.Name, sizeof(ord_rec.Name));
+			if(rec.LinkObjType) {
+				GetObjectName(rec.LinkObjType, rec.LinkObjID, temp_buf.Z());
+				STRNSCPY(ord_rec.Name, temp_buf);
+			}
 			else
 				ord_rec.Name[0] = 0;
 			k0.ID = id;
@@ -94,6 +97,7 @@ int PPViewMrpTab::UpdateTempTable(PPID id)
 int PPViewMrpTab::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
+	SString temp_buf;
 	MrpTabTbl * t = MrpObj.P_Tbl;
 	MrpTabViewItem item;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
@@ -102,8 +106,10 @@ int PPViewMrpTab::Init_(const PPBaseFilt * pBaseFilt)
 	for(InitIteration(); NextIteration(&item) > 0;) {
 		TempOrderTbl::Rec temp_ord_rec;
 		temp_ord_rec.ID = t->data.ID;
-		if(t->data.LinkObjType)
-			GetObjectName(t->data.LinkObjType, t->data.LinkObjID, temp_ord_rec.Name, sizeof(temp_ord_rec.Name));
+		if(t->data.LinkObjType) {
+			GetObjectName(t->data.LinkObjType, t->data.LinkObjID, temp_buf.Z());
+			STRNSCPY(temp_ord_rec.Name, temp_buf);
+		}
 		THROW_DB(P_TempOrd->insertRecBuf(&temp_ord_rec));
 	}
 	CATCHZOK
@@ -284,7 +290,7 @@ DBQuery * PPViewMrpTab::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		q->orderBy(t->Dt, 0L);
 	if(pSubTitle) {
 		if(Filt.ParentID) {
-			GetObjectName(PPOBJ_MRPTAB, Filt.ParentID, *pSubTitle, 1);
+			CatObjectName(PPOBJ_MRPTAB, Filt.ParentID, *pSubTitle);
 		}
 		else if(Filt.LinkObjType)
 			GetObjectTitle(Filt.LinkObjType, *pSubTitle);
@@ -854,8 +860,11 @@ int PPALDD_MrpTab::InitData(PPFilt & rFilt, long rsrv)
 			H.LocID = rec.LocID;
 			H.Dt = rec.Dt;
 			H.Flags = rec.Flags;
-			if(rec.LinkObjType && rec.LinkObjID)
-				GetObjectName(rec.LinkObjType, rec.LinkObjID, H.LinkObjName, sizeof(H.LinkObjName));
+			if(rec.LinkObjType && rec.LinkObjID) {
+				SString temp_buf;
+				GetObjectName(rec.LinkObjType, rec.LinkObjID, temp_buf.Z());
+				STRNSCPY(H.LinkObjName, temp_buf);
+			}
 			else
 				H.LinkObjName[0] = 0;
 			ok = DlRtm::InitData(rFilt, rsrv);

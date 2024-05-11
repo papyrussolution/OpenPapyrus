@@ -1096,7 +1096,7 @@ U_CAPI void U_EXPORT2 ucm_readTable(UCMFile * ucm, FileStream* convFile,
 		}
 
 		/* remove CR LF */
-		end = uprv_strchr(line, 0);
+		end = sstrchr(line, 0);
 		while(line<end && (*(end-1)=='\r' || *(end-1)=='\n')) {
 			--end;
 		}

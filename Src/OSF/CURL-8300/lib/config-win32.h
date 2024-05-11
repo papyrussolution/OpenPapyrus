@@ -39,16 +39,12 @@
 #define HAVE_FCNTL_H 1
 
 /* Define to 1 if you have the <inttypes.h> header file. */
-#if defined(__MINGW32__) || \
-    (defined(_MSC_VER) && (_MSC_VER >= 1800))
-#define HAVE_INTTYPES_H 1
+#if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER >= 1800))
+    #define HAVE_INTTYPES_H 1
 #endif
-
 /* Define to 1 if you have the <stdint.h> header file. */
-#if defined(__MINGW32__) || defined(__POCC__) || \
-    (defined(_MSC_VER) && (_MSC_VER >= 1600)) || \
-    (defined(__BORLANDC__) && (__BORLANDC__ >= 0x0582))
-#define HAVE_STDINT_H 1
+#if defined(__MINGW32__) || defined(__POCC__) || (defined(_MSC_VER) && (_MSC_VER >= 1600)) || (defined(__BORLANDC__) && (__BORLANDC__ >= 0x0582))
+    #define HAVE_STDINT_H 1
 #endif
 
 /* Define if you have the <io.h> header file. */
@@ -152,11 +148,9 @@
 
 /* Define if you can safely include both <sys/time.h> and <time.h>. */
 /* #define TIME_WITH_SYS_TIME 1 */
-
 /* Define to 1 if bool is an available type. */
-#if (defined(_MSC_VER) && (_MSC_VER >= 1800)) || \
-    defined(__MINGW64_VERSION_MAJOR)
-#define HAVE_BOOL_T 1
+#if (defined(_MSC_VER) && (_MSC_VER >= 1800)) || defined(__MINGW64_VERSION_MAJOR)
+    #define HAVE_BOOL_T 1
 #endif
 
 /* ---------------------------------------------------------------- */
@@ -240,38 +234,21 @@
 
 /* Define to the function return type for recv. */
 #define RECV_TYPE_RETV int
-
-/* Define if you have the send function. */
-#define HAVE_SEND 1
-
-/* Define to the type of arg 1 for send. */
-#define SEND_TYPE_ARG1 SOCKET
-
-/* Define to the type qualifier of arg 2 for send. */
-#define SEND_QUAL_ARG2 const
-
-/* Define to the type of arg 2 for send. */
-#define SEND_TYPE_ARG2 char *
-
-/* Define to the type of arg 3 for send. */
-#define SEND_TYPE_ARG3 int
-
-/* Define to the type of arg 4 for send. */
-#define SEND_TYPE_ARG4 int
-
+#define HAVE_SEND 1 /* Define if you have the send function. */
+#define SEND_TYPE_ARG1 SOCKET /* Define to the type of arg 1 for send. */
+#define SEND_QUAL_ARG2 const /* Define to the type qualifier of arg 2 for send. */
+#define SEND_TYPE_ARG2 char * /* Define to the type of arg 2 for send. */
+#define SEND_TYPE_ARG3 int /* Define to the type of arg 3 for send. */
+#define SEND_TYPE_ARG4 int /* Define to the type of arg 4 for send. */
 /* Define to the function return type for send. */
 #define SEND_TYPE_RETV int
-
 /* Define to 1 if you have the snprintf function. */
 #if defined(_MSC_VER) && (_MSC_VER >= 1900)
-#define HAVE_SNPRINTF 1
+    #define HAVE_SNPRINTF 1
 #endif
-
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x600  /* Vista */
-/* Define to 1 if you have a IPv6 capable working inet_ntop function. */
-#define HAVE_INET_NTOP 1
-/* Define to 1 if you have a IPv6 capable working inet_pton function. */
-#define HAVE_INET_PTON 1
+    #define HAVE_INET_NTOP 1 /* Define to 1 if you have a IPv6 capable working inet_ntop function. */
+    #define HAVE_INET_PTON 1 /* Define to 1 if you have a IPv6 capable working inet_pton function. */
 #endif
 
 /* Define to 1 if you have the `basename' function. */
@@ -310,24 +287,16 @@
 /*                            TYPE SIZES                            */
 /* ---------------------------------------------------------------- */
 
-/* Define to the size of `int', as computed by sizeof. */
-#define SIZEOF_INT 4
-
-/* Define to the size of `long long', as computed by sizeof. */
-/* #define SIZEOF_LONG_LONG 8 */
-
-/* Define to the size of `long', as computed by sizeof. */
-#define SIZEOF_LONG 4
-
+#define SIZEOF_INT 4 /* Define to the size of `int', as computed by sizeof. */
+/* #define SIZEOF_LONG_LONG 8 */ /* Define to the size of `long long', as computed by sizeof. */
+#define SIZEOF_LONG 4 /* Define to the size of `long', as computed by sizeof. */
 /* Define to the size of `size_t', as computed by sizeof. */
 #if defined(_WIN64)
-#define SIZEOF_SIZE_T 8
+    #define SIZEOF_SIZE_T 8
 #else
-#define SIZEOF_SIZE_T 4
+    #define SIZEOF_SIZE_T 4
 #endif
-
-/* Define to the size of `curl_off_t', as computed by sizeof. */
-#define SIZEOF_CURL_OFF_T 8
+#define SIZEOF_CURL_OFF_T 8 /* Define to the size of `curl_off_t', as computed by sizeof. */
 
 /* ---------------------------------------------------------------- */
 /*               BSD-style lwIP TCP/IP stack SPECIFIC               */
@@ -377,26 +346,17 @@
   #define HAVE_FREEADDRINFO
   #define SOCKET int
 #endif
-
-
 /* ---------------------------------------------------------------- */
 /*                        COMPILER SPECIFIC                         */
 /* ---------------------------------------------------------------- */
 
-/* Define to nothing if compiler does not support 'const' qualifier. */
-/* #define const */
-
-/* Define to nothing if compiler does not support 'volatile' qualifier. */
-/* #define volatile */
-
-/* Windows should not have HAVE_GMTIME_R defined */
-/* #undef HAVE_GMTIME_R */
-
+/* #define const */ /* Define to nothing if compiler does not support 'const' qualifier. */
+/* #define volatile */ /* Define to nothing if compiler does not support 'volatile' qualifier. */
+/* #undef HAVE_GMTIME_R */ /* Windows should not have HAVE_GMTIME_R defined */
 /* Define if the compiler supports C99 variadic macro style. */
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)
-#define HAVE_VARIADIC_MACROS_C99 1
+    #define HAVE_VARIADIC_MACROS_C99 1
 #endif
-
 /* Define if the compiler supports the 'long long' data type. */
 #if defined(__MINGW32__) || \
     (defined(_MSC_VER)     && (_MSC_VER     >= 1310)) || \
@@ -409,17 +369,14 @@
 #define _CRT_SECURE_NO_DEPRECATE 1
 #define _CRT_NONSTDC_NO_DEPRECATE 1
 #endif
-
 /* mingw-w64, mingw using >= MSVCR80, and visual studio >= 2005 (MSVCR80)
    all default to 64-bit time_t unless _USE_32BIT_TIME_T is defined */
-#if defined(__MINGW64_VERSION_MAJOR) || \
-    (defined(__MINGW32__) && (__MSVCRT_VERSION__ >= 0x0800)) || \
-    (defined(_MSC_VER) && (_MSC_VER >= 1400))
-#ifndef _USE_32BIT_TIME_T
-#define SIZEOF_TIME_T 8
-#else
-#define SIZEOF_TIME_T 4
-#endif
+#if defined(__MINGW64_VERSION_MAJOR) || (defined(__MINGW32__) && (__MSVCRT_VERSION__ >= 0x0800)) || (defined(_MSC_VER) && (_MSC_VER >= 1400))
+    #ifndef _USE_32BIT_TIME_T
+        #define SIZEOF_TIME_T 8
+    #else
+        #define SIZEOF_TIME_T 4
+    #endif
 #endif
 
 /* Define some minimum and default build targets for Visual Studio */
@@ -526,68 +483,51 @@ Vista
 /* ---------------------------------------------------------------- */
 /*                          STRUCT RELATED                          */
 /* ---------------------------------------------------------------- */
-
 /* Define if you have struct sockaddr_storage. */
 #if !defined(__SALFORDC__) && !defined(__BORLANDC__)
-#define HAVE_STRUCT_SOCKADDR_STORAGE 1
+    #define HAVE_STRUCT_SOCKADDR_STORAGE 1
 #endif
-
-/* Define if you have struct timeval. */
-#define HAVE_STRUCT_TIMEVAL 1
-
-/* Define if struct sockaddr_in6 has the sin6_scope_id member. */
-#define HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID 1
+#define HAVE_STRUCT_TIMEVAL 1 /* Define if you have struct timeval. */
+#define HAVE_SOCKADDR_IN6_SIN6_SCOPE_ID 1 /* Define if struct sockaddr_in6 has the sin6_scope_id member. */
 
 /* ---------------------------------------------------------------- */
 /*                        LARGE FILE SUPPORT                        */
 /* ---------------------------------------------------------------- */
-
 #if defined(_MSC_VER) && !defined(_WIN32_WCE)
-#if (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64)
-#define USE_WIN32_LARGE_FILES
-#else
-#define USE_WIN32_SMALL_FILES
+    #if (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64)
+        #define USE_WIN32_LARGE_FILES
+    #else
+        #define USE_WIN32_SMALL_FILES
+    #endif
 #endif
-#endif
-
 #if defined(__MINGW32__) && !defined(USE_WIN32_LARGE_FILES)
-#define USE_WIN32_LARGE_FILES
+    #define USE_WIN32_LARGE_FILES
 #endif
-
 #if defined(__POCC__)
-#undef USE_WIN32_LARGE_FILES
+    #undef USE_WIN32_LARGE_FILES
 #endif
-
 #if !defined(USE_WIN32_LARGE_FILES) && !defined(USE_WIN32_SMALL_FILES)
-#define USE_WIN32_SMALL_FILES
+    #define USE_WIN32_SMALL_FILES
 #endif
-
 /* Number of bits in a file offset, on hosts where this is settable. */
 #if defined(USE_WIN32_LARGE_FILES) && defined(__MINGW64_VERSION_MAJOR)
-#ifndef _FILE_OFFSET_BITS
-#define _FILE_OFFSET_BITS 64
+    #ifndef _FILE_OFFSET_BITS
+        #define _FILE_OFFSET_BITS 64
+    #endif
 #endif
-#endif
-
 /* Define to the size of `off_t', as computed by sizeof. */
-#if defined(__MINGW64_VERSION_MAJOR) && \
-  defined(_FILE_OFFSET_BITS) && (_FILE_OFFSET_BITS == 64)
-#define SIZEOF_OFF_T 8
+#if defined(__MINGW64_VERSION_MAJOR) && defined(_FILE_OFFSET_BITS) && (_FILE_OFFSET_BITS == 64)
+    #define SIZEOF_OFF_T 8
 #else
-#define SIZEOF_OFF_T 4
+    #define SIZEOF_OFF_T 4
 #endif
-
 /* ---------------------------------------------------------------- */
 /*                       DNS RESOLVER SPECIALTY                     */
 /* ---------------------------------------------------------------- */
-
 /*
  * Undefine both USE_ARES and USE_THREADS_WIN32 for synchronous DNS.
  */
-
-/* Define to enable c-ares asynchronous DNS lookups. */
-/* #define USE_ARES 1 */
-
+/* #define USE_ARES 1 */ /* Define to enable c-ares asynchronous DNS lookups. */
 /* Default define to enable threaded asynchronous DNS lookups. */
 #if !defined(USE_SYNC_DNS) && !defined(USE_ARES) && !defined(USE_THREADS_WIN32)
     #define USE_THREADS_WIN32 1
@@ -641,6 +581,7 @@ Vista
 #define PACKAGE "curl" /* Name of package */
 #define USE_MANUAL 1 /* If you want to build curl with the built-in manual */
 #define ENABLE_IPV6 1 // @sobolev 
+#define HAVE_LIBZ 1 // @sobolev @v12.0.1
 /* @sobolev
 #if defined(__POCC__) || defined(USE_IPV6)
     #define ENABLE_IPV6 1

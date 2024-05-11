@@ -26,10 +26,7 @@ PPObjBill::ReckonParam::ReckonParam(int automat, int dontConfirm) : Flags(0), Fo
 	PTR32(ForceBillCode)[0] = 0;
 }
 
-/*static*/bool FASTCALL PPObjBill::IsPoolOwnedByBill(PPID assocID)
-{
-	return oneof2(assocID, PPASS_PAYMBILLPOOL, PPASS_OPBILLPOOL);
-}
+/*static*/bool FASTCALL PPObjBill::IsPoolOwnedByBill(PPID assocID) { return oneof2(assocID, PPASS_PAYMBILLPOOL, PPASS_OPBILLPOOL); }
 
 int PPObjBill::CheckRightsWithOp(PPID opID, long rtflags)
 {
@@ -691,7 +688,7 @@ void PPObjBill::DiagGoodsTurnError(const PPBillPacket * pPack)
 		// PPINF_BILLADVLINE     "Строка расширения документа @int. Вид: @zstr; сумма: @real; счет: @zstr"
 		const PPAdvBillItemList::Item & r_item = pPack->AdvList.Get(ln);
 		SString advbillkind_buf, acc_buf;
-		GetObjectName(PPOBJ_ADVBILLKIND, r_item.AdvBillKindID, advbillkind_buf, 0);
+		GetObjectName(PPOBJ_ADVBILLKIND, r_item.AdvBillKindID, advbillkind_buf);
 		{
 			AcctID acctid;
 			Acct   acct;
@@ -9739,15 +9736,15 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 							break;
 						case PPSYM_PRC:
 							if(p_tsess_pack)
-								GetObjectName(PPOBJ_PROCESSOR, p_tsess_pack->Rec.PrcID, subst_buf, 0);
+								GetObjectName(PPOBJ_PROCESSOR, p_tsess_pack->Rec.PrcID, subst_buf);
 							break;
 						case PPSYM_TECH:
 							if(p_tsess_pack)
-								GetObjectName(PPOBJ_TECH, p_tsess_pack->Rec.TechID, subst_buf, 0);
+								GetObjectName(PPOBJ_TECH, p_tsess_pack->Rec.TechID, subst_buf);
 							break;
 						case PPSYM_POSNODE:
 							if(p_csess_rec && p_csess_rec->CashNodeID) {
-								GetObjectName(PPOBJ_CASHNODE, p_csess_rec->CashNodeID, subst_buf, 0);
+								GetObjectName(PPOBJ_CASHNODE, p_csess_rec->CashNodeID, subst_buf);
 							}
 							break;
 						case PPSYM_AGTCODE:

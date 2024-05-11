@@ -260,10 +260,7 @@ template <> U_I18N_API const MeasureFormatCacheData * LocaleCacheKey<MeasureForm
 	return result.orphan();
 }
 
-static bool isTimeUnit(const MeasureUnit &mu, const char * tu) {
-	return strcmp(mu.getType(), "duration") == 0 &&
-	       strcmp(mu.getSubtype(), tu) == 0;
-}
+static bool isTimeUnit(const MeasureUnit &mu, const char * tu) { return sstreq(mu.getType(), "duration") && sstreq(mu.getSubtype(), tu); }
 
 // Converts a composite measure into hours-minutes-seconds and stores at hms
 // array. [0] is hours; [1] is minutes; [2] is seconds. Returns a bit map of
@@ -272,10 +269,8 @@ static bool isTimeUnit(const MeasureUnit &mu, const char * tu) {
 //
 // If measures cannot be converted into hours, minutes, seconds or if amounts
 // are negative, or if hours, minutes, seconds are out of order, returns 0.
-static int32_t toHMS(const Measure * measures,
-    int32_t measureCount,
-    Formattable * hms,
-    UErrorCode & status) {
+static int32_t toHMS(const Measure * measures, int32_t measureCount, Formattable * hms, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return 0;
 	}

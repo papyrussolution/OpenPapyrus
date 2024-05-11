@@ -490,7 +490,6 @@ static char * ngx_http_userid_merge_conf(ngx_conf_t * cf, void * parent, void * 
 			conf->mark = prev->mark;
 		}
 	}
-
 	return NGX_CONF_OK;
 }
 
@@ -498,7 +497,6 @@ static ngx_int_t ngx_http_userid_init(ngx_conf_t * cf)
 {
 	ngx_http_next_header_filter = ngx_http_top_header_filter;
 	ngx_http_top_header_filter = ngx_http_userid_filter;
-
 	return NGX_OK;
 }
 
@@ -506,7 +504,7 @@ static char * ngx_http_userid_domain(ngx_conf_t * cf, void * post, void * data)
 {
 	ngx_str_t * domain = (ngx_str_t *)data;
 	uchar  * p, * p_new;
-	if(ngx_strcmp(domain->data, "none") == 0) {
+	if(sstreq(domain->data, "none")) {
 		ngx_str_set(domain, "");
 		return NGX_CONF_OK;
 	}
@@ -544,28 +542,25 @@ static const char * ngx_http_userid_expires(ngx_conf_t * cf, const ngx_command_t
 		return "is duplicate";
 	}
 	value = static_cast<ngx_str_t *>(cf->args->elts);
-	if(ngx_strcmp(value[1].data, "max") == 0) {
+	if(sstreq(value[1].data, "max")) {
 		ucf->expires = NGX_HTTP_USERID_MAX_EXPIRES;
 		return NGX_CONF_OK;
 	}
-
-	if(ngx_strcmp(value[1].data, "off") == 0) {
+	if(sstreq(value[1].data, "off")) {
 		ucf->expires = 0;
 		return NGX_CONF_OK;
 	}
-
 	ucf->expires = ngx_parse_time(&value[1], 1);
 	if(ucf->expires == (time_t)NGX_ERROR) {
 		return "invalid value";
 	}
-
 	return NGX_CONF_OK;
 }
 
 static char * ngx_http_userid_p3p(ngx_conf_t * cf, void * post, void * data)
 {
 	ngx_str_t  * p3p = (ngx_str_t *)data;
-	if(ngx_strcmp(p3p->data, "none") == 0) {
+	if(sstreq(p3p->data, "none")) {
 		ngx_str_set(p3p, "");
 	}
 	return NGX_CONF_OK;
@@ -579,7 +574,7 @@ static const char * ngx_http_userid_mark(ngx_conf_t * cf, const ngx_command_t * 
 		return "is duplicate";
 	}
 	value = static_cast<ngx_str_t *>(cf->args->elts);
-	if(ngx_strcmp(value[1].data, "off") == 0) {
+	if(sstreq(value[1].data, "off")) {
 		ucf->mark = '\0';
 		return NGX_CONF_OK;
 	}

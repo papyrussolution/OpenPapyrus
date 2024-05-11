@@ -1336,7 +1336,7 @@ private:
 					PPGetWord(PPWORD_NOTLINKTRANSFER, 0, buf);
 			}
 			else
-				GetObjectName(PPOBJ_OPRKIND, op_id, buf, 0);
+				GetObjectName(PPOBJ_OPRKIND, op_id, buf);
 			THROW(addStringToList(i, buf));
 		}
 	}
@@ -2922,15 +2922,20 @@ int PPObjBHT::PrepareLocData(const char * pPath, PPID bhtTypeID)
 
 int PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID billID)
 {
-	int    ok = -1, num_flds = 0;
-	SString fname, path, serial;
+	int    ok = -1;
+	int    num_flds = 0;
+	SString fname;
+	SString path;
+	SString serial;
 	SString temp_buf;
 	PPBillPacket pack;
 	PPImpExp * p_ie_brow = 0;
 	if(P_BObj->ExtractPacketWithFlags(billID, &pack, BPLD_FORCESERIALS) > 0) {
 		uint i = 0;
+		SString name_buf;
 		PPTransferItem ti;
 		PPImpExpParam ie_param_brow;
+		LocTransfCore loct_tbl;
 
 		PPGetFileName(PPFILNAM_BHT_BROWSWCELLS, fname);
 		(path = pPack->ImpExpPath_).SetLastSlash().Cat(fname);
@@ -2948,16 +2953,14 @@ int PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID bil
 	 		sdr_brow.Qtty     = fabs(ti.Qtty());
 			sdr_brow.Cost     = ti.Cost;
 			sdr_brow.RByBill  = (long)ti.RByBill;
-			GetObjectName(PPOBJ_GOODS, ti.GoodsID, sdr_brow.Name, sizeof(sdr_brow.Name));
-			(temp_buf = sdr_brow.Name).Transf(CTRANSF_INNER_TO_OUTER);
-			STRNSCPY(sdr_brow.Name, temp_buf); // @v9.4.11
+			GetObjectName(PPOBJ_GOODS, ti.GoodsID, temp_buf.Z());
+			temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+			STRNSCPY(sdr_brow.Name, temp_buf);
 			qtty = sdr_brow.Qtty;
 			{
-				LocTransfCore loct_tbl;
 				TSVector <LocTransfTbl::Rec> cell_list;
 				if(IsExpendOp(pack.Rec.OpID)) {
 					RAssocArray list;
-					SString name;
 					//
 					// Вычисляем сколько данного товара уже отгружено
 					//
@@ -2975,12 +2978,9 @@ int PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID bil
 						for(j = 0; j < cell_list.getCount(); j++) {
 							sdr_brow.LocID = cell_list.at(j).LocID;
 							sdr_brow.Qtty  = -fabs(cell_list.at(j).Qtty);
-							GetObjectName(PPOBJ_LOCATION, sdr_brow.LocID, sdr_brow.Name, sizeof(sdr_brow.Name));
-							name.Z().Space().Space().Space().Space().Cat(sdr_brow.Name);
-							name.CopyTo(sdr_brow.Name, sizeof(sdr_brow.Name));
-							// @v9.4.11 SOemToChar(sdr_brow.Name);
-							(temp_buf = sdr_brow.Name).Transf(CTRANSF_INNER_TO_OUTER); // @v9.4.11
-							STRNSCPY(sdr_brow.Name, temp_buf); // @v9.4.11
+							GetObjectName(PPOBJ_LOCATION, sdr_brow.LocID, name_buf.Z());
+							temp_buf.Z().CatCharN(' ', 4).Cat(name_buf).Transf(CTRANSF_INNER_TO_OUTER);
+							STRNSCPY(sdr_brow.Name, temp_buf);
 							THROW(p_ie_brow->AppendRecord(&sdr_brow, sizeof(sdr_brow)));
 						}
 					}
@@ -2994,12 +2994,9 @@ int PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID bil
 						for(uint j = 0; j < list.getCount(); j++) {
 							sdr_brow.LocID = list.at(j).Key;
 							sdr_brow.Qtty  = list.at(j).Val;
-							GetObjectName(PPOBJ_LOCATION, sdr_brow.LocID, sdr_brow.Name, sizeof(sdr_brow.Name));
-							name.Z().Space().Space().Space().Space().Cat(sdr_brow.Name);
-							name.CopyTo(sdr_brow.Name, sizeof(sdr_brow.Name));
-							// @v9.4.11 SOemToChar(sdr_brow.Name);
-							(temp_buf = sdr_brow.Name).Transf(CTRANSF_INNER_TO_OUTER); // @v9.4.11
-							STRNSCPY(sdr_brow.Name, temp_buf); // @v9.4.11
+							GetObjectName(PPOBJ_LOCATION, sdr_brow.LocID, name_buf.Z());
+							temp_buf.Z().CatCharN(' ', 4).Cat(name_buf).Transf(CTRANSF_INNER_TO_OUTER);
+							STRNSCPY(sdr_brow.Name, temp_buf);
 							THROW(p_ie_brow->AppendRecord(&sdr_brow, sizeof(sdr_brow)));
 						}
 					}
@@ -3013,15 +3010,11 @@ int PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID bil
 					THROW(p_ie_brow->AppendRecord(&sdr_brow, sizeof(sdr_brow)));
 					sdr_brow.Expended = 1;
 					for(uint j = 0; j < cell_list.getCount(); j++) {
-						SString name;
 						sdr_brow.Qtty  = -cell_list.at(j).Qtty;
 						sdr_brow.LocID = cell_list.at(j).LocID;
-						GetObjectName(PPOBJ_LOCATION, sdr_brow.LocID, sdr_brow.Name, sizeof(sdr_brow.Name));
-						name.Space().Space().Space().Space().Cat(sdr_brow.Name);
-						name.CopyTo(sdr_brow.Name, sizeof(sdr_brow.Name));
-						// @v9.4.11 SOemToChar(sdr_brow.Name);
-						(temp_buf = sdr_brow.Name).Transf(CTRANSF_INNER_TO_OUTER); // @v9.4.11
-						STRNSCPY(sdr_brow.Name, temp_buf); // @v9.4.11
+						GetObjectName(PPOBJ_LOCATION, sdr_brow.LocID, name_buf.Z());
+						temp_buf.Z().CatCharN(' ', 4).Cat(name_buf).Transf(CTRANSF_INNER_TO_OUTER);
+						STRNSCPY(sdr_brow.Name, temp_buf);
 						THROW(p_ie_brow->AppendRecord(&sdr_brow, sizeof(sdr_brow)));
 					}
 				}

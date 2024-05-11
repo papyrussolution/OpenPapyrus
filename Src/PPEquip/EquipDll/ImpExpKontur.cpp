@@ -1222,7 +1222,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 	if(P_ExportCls && !P_ExportCls->Inited) {
 		if(pExpHeader) {
 			P_ExportCls->Header = *static_cast<const Sdr_ImpExpHeader *>(pExpHeader);
-			FormatLoginToLogin(P_ExportCls->Header.EdiLogin, temp_buf.Z());
+			FormatLoginToLogin(P_ExportCls->Header.EdiLogin, temp_buf);
 			temp_buf.CopyTo(P_ExportCls->Header.EdiLogin, sizeof(P_ExportCls->Header.EdiLogin));
 		}
 		if(!isempty(pOutFileName)) {
@@ -2177,7 +2177,7 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 		SFsPath inp_ps;
 		if(pImpHeader) {
 			P_ImportCls->Header = *static_cast<const Sdr_ImpExpHeader *>(pImpHeader);
-			FormatLoginToLogin(P_ImportCls->Header.EdiLogin, temp_buf.Z());
+			FormatLoginToLogin(P_ImportCls->Header.EdiLogin, temp_buf);
 			temp_buf.CopyTo(P_ImportCls->Header.EdiLogin, sizeof(P_ImportCls->Header.EdiLogin));
 		}
 		if(!isempty(pInputFileName)) {

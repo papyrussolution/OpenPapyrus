@@ -1057,7 +1057,7 @@ void parsePreferencesTests(const char * filename, char delimiter, char * fields[
 		}
 
 		/* remove in-line comments */
-		limit = uprv_strchr(start, '#');
+		limit = sstrchr(start, '#');
 		if(limit != NULL) {
 			/* get white space before the pound sign */
 			while(limit > start && U_IS_INV_WHITESPACE(*(limit - 1))) {

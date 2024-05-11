@@ -403,7 +403,7 @@ int BIO_parse_hostserv(const char * hostserv, char ** host, char ** service, enu
 		}
 	}
 	else {
-		const char * p2 = strrchr(hostserv, ':');
+		const char * p2 = sstrrchr(hostserv, ':');
 		p = sstrchr(hostserv, ':');
 		/*-
 		 * Check for more than one colon.  There are three possible
@@ -417,7 +417,6 @@ int BIO_parse_hostserv(const char * hostserv, char ** host, char ** service, enu
 		 */
 		if(p != p2)
 			goto amb_err;
-
 		if(p) {
 			h = hostserv;
 			hl = p - h;

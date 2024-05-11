@@ -79,11 +79,10 @@ static int classifyWordTACL(Sci_PositionU start,
 	else {
 		if(s[0] == '#' || keywords.InList(s)) {
 			chAttr = SCE_C_WORD;
-
-			if(strcmp(s, "asm") == 0) {
+			if(sstreq(s, "asm")) {
 				ret = 2;
 			}
-			else if(strcmp(s, "end") == 0) {
+			else if(sstreq(s, "end")) {
 				ret = -1;
 			}
 		}
@@ -93,7 +92,7 @@ static int classifyWordTACL(Sci_PositionU start,
 		else if(commands.InList(s)) {
 			chAttr = SCE_C_UUID;
 		}
-		else if(strcmp(s, "comment") == 0) {
+		else if(sstreq(s, "comment")) {
 			chAttr = SCE_C_COMMENTLINE;
 			ret = 3;
 		}
@@ -324,7 +323,7 @@ static void FoldTACLDoc(Sci_PositionU startPos, Sci_Position length, int initSty
 			if(isTACLwordchar(ch) && !isTACLwordchar(chNext)) {
 				char s[100];
 				getRange(lastStart, i, styler, s, sizeof(s));
-				if(stylePrev == SCE_C_PREPROCESSOR && strcmp(s, "?section") == 0) {
+				if(stylePrev == SCE_C_PREPROCESSOR && sstreq(s, "?section")) {
 					section = true;
 					levelCurrent = 1;
 					levelPrev = 0;
@@ -333,7 +332,6 @@ static void FoldTACLDoc(Sci_PositionU startPos, Sci_Position length, int initSty
 					levelCurrent += classifyFoldPointTACL(s);
 			}
 		}
-
 		if(style == SCE_C_OPERATOR) {
 			if(ch == '[') {
 				levelCurrent++;
@@ -353,7 +351,6 @@ static void FoldTACLDoc(Sci_PositionU startPos, Sci_Position length, int initSty
 				}
 			}
 		}
-
 		if(foldPreprocessor && (style == SCE_C_PREPROCESSOR)) {
 			if(ch == '{' && chNext == '$') {
 				Sci_PositionU j = i+2; // skip {$

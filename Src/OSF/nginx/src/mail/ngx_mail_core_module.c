@@ -241,26 +241,20 @@ static const char * ngx_mail_core_listen(ngx_conf_t * cf, const ngx_command_t * 
 			}
 		}
 	}
-
 	for(i = 2; i < cf->args->nelts; i++) {
-		if(ngx_strcmp(value[i].data, "bind") == 0) {
+		if(sstreq(value[i].data, "bind")) {
 			ls->bind = 1;
 			continue;
 		}
-
 		if(ngx_strncmp(value[i].data, "backlog=", 8) == 0) {
 			ls->backlog = ngx_atoi(value[i].data + 8, value[i].len - 8);
 			ls->bind = 1;
-
 			if(ls->backlog == NGX_ERROR || ls->backlog == 0) {
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "invalid backlog \"%V\"", &value[i]);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid backlog \"%V\"", &value[i]);
 				return NGX_CONF_ERROR;
 			}
-
 			continue;
 		}
-
 		if(ngx_strncmp(value[i].data, "rcvbuf=", 7) == 0) {
 			size.len = value[i].len - 7;
 			size.data = value[i].data + 7;
@@ -297,32 +291,23 @@ static const char * ngx_mail_core_listen(ngx_conf_t * cf, const ngx_command_t * 
 #if (NGX_HAVE_INET6 && defined IPV6_V6ONLY)
 			size_t len;
 			uchar buf[NGX_SOCKADDR_STRLEN];
-
 			if(ls->sockaddr.sockaddr.sa_family == AF_INET6) {
-				if(ngx_strcmp(&value[i].data[10], "n") == 0) {
+				if(sstreq(&value[i].data[10], "n")) {
 					ls->ipv6only = 1;
 				}
-				else if(ngx_strcmp(&value[i].data[10], "ff") == 0) {
+				else if(sstreq(&value[i].data[10], "ff")) {
 					ls->ipv6only = 0;
 				}
 				else {
-					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-					    "invalid ipv6only flags \"%s\"",
-					    &value[i].data[9]);
+					ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid ipv6only flags \"%s\"", &value[i].data[9]);
 					return NGX_CONF_ERROR;
 				}
-
 				ls->bind = 1;
 			}
 			else {
-				len = ngx_sock_ntop(&ls->sockaddr.sockaddr, ls->socklen, buf,
-				    NGX_SOCKADDR_STRLEN, 1);
-
-				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-				    "ipv6only is not supported "
-				    "on addr \"%*s\", ignored", len, buf);
+				len = ngx_sock_ntop(&ls->sockaddr.sockaddr, ls->socklen, buf, NGX_SOCKADDR_STRLEN, 1);
+				ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "ipv6only is not supported on addr \"%*s\", ignored", len, buf);
 			}
-
 			continue;
 #else
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
@@ -331,8 +316,7 @@ static const char * ngx_mail_core_listen(ngx_conf_t * cf, const ngx_command_t * 
 			return NGX_CONF_ERROR;
 #endif
 		}
-
-		if(ngx_strcmp(value[i].data, "ssl") == 0) {
+		if(sstreq(value[i].data, "ssl")) {
 #if (NGX_MAIL_SSL)
 			ls->ssl = 1;
 			continue;
@@ -343,12 +327,11 @@ static const char * ngx_mail_core_listen(ngx_conf_t * cf, const ngx_command_t * 
 			return NGX_CONF_ERROR;
 #endif
 		}
-
 		if(ngx_strncmp(value[i].data, "so_keepalive=", 13) == 0) {
-			if(ngx_strcmp(&value[i].data[13], "on") == 0) {
+			if(sstreq(&value[i].data[13], "on")) {
 				ls->so_keepalive = 1;
 			}
-			else if(ngx_strcmp(&value[i].data[13], "off") == 0) {
+			else if(sstreq(&value[i].data[13], "off")) {
 				ls->so_keepalive = 2;
 			}
 			else {
@@ -445,7 +428,7 @@ static const char * ngx_mail_core_protocol(ngx_conf_t * cf, const ngx_command_t 
 			continue;
 		}
 		module = (ngx_mail_module_t *)cf->cycle->modules[m]->ctx;
-		if(module->protocol && ngx_strcmp(module->protocol->name.data, value[1].data) == 0) {
+		if(module->protocol && sstreq(module->protocol->name.data, value[1].data)) {
 			cscf->protocol = module->protocol;
 			return NGX_CONF_OK;
 		}
@@ -467,7 +450,7 @@ static const char * ngx_mail_core_resolver(ngx_conf_t * cf, const ngx_command_t 
 	if(cscf->resolver != NGX_CONF_UNSET_PTR) {
 		return "is duplicate";
 	}
-	if(ngx_strcmp(value[1].data, "off") == 0) {
+	if(sstreq(value[1].data, "off")) {
 		cscf->resolver = NULL;
 		return NGX_CONF_OK;
 	}

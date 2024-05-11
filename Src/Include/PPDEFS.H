@@ -1039,6 +1039,8 @@
 	#define EVNTSUBSCRPRP_EXTENSION    1L
 #define PPOBJ_BIZSCORE2          83L // @v11.9.1 @construction 2-я версия определителей бизнес-показателей
 #define PPOBJ_SWPROGRAMCATEGORY  84L // @v11.9.12 Категория исполняемой программы. Простой вспомогательный справочник для объекта PPOBJ_SWPROGRAM
+#define PPOBJ_COMPUTERCATEGORY   85L // @v12.0.1 Категория компьютера. Простой вспомогательный справочник для объекта PPOBJ_COMPUTER
+	#define PPCOMPCAT_DEFAULT          1L // @v12.0.1 Зарезервированная запись категории компьютеров default
 #define PPOBJ_DYNAMICOBJS  100L // Список динамических объектов
 //
 // Отраслевые справочники
@@ -11555,6 +11557,13 @@
 	#define CTL_COMPUTER_UUID              (7 + WINDOWS_ID_BIAS)
 	#define CTL_COMPUTER_MACADR            (8 + WINDOWS_ID_BIAS)
 	#define CTL_COMPUTER_IPADR             (9 + WINDOWS_ID_BIAS)
+	#define CTL_COMPUTER_CAT               (10 + WINDOWS_ID_BIAS)
+	#define CTLSEL_COMPUTER_CAT            (11 + WINDOWS_ID_BIAS)
+#define DLG_COMPCAT               1440 // @v12.0.1 PPOBJ_COMPUTERCATEGORY     
+	#define CTL_COMPCAT_ID                 (1 + WINDOWS_ID_BIAS)
+	#define CTL_COMPCAT_NAME               (2 + WINDOWS_ID_BIAS)
+	#define CTL_COMPCAT_SYMB               (3 + WINDOWS_ID_BIAS)
+	#define CTL_COMPCAT_CNTEMPL            (4 + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

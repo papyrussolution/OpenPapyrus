@@ -604,7 +604,7 @@ void SCS_SHTRIHFRF::CutLongTail(char * pBuf)
 {
 	if(pBuf && static_cast<long>(sstrlen(pBuf)) > CheckStrLen) {
 		pBuf[CheckStrLen + 1] = 0;
-		char * p = strrchr(pBuf, ' ');
+		char * p = sstrrchr(pBuf, ' ');
 		if(p)
 			*p = 0;
 		else

@@ -211,7 +211,7 @@ extern int main(int argc, char * argv[]) {
 				filename = findBasename(arg);
 				ext = uprv_strrchr(filename, '.');
 				if(!ext) {
-					ext = uprv_strchr(filename, 0);
+					ext = sstrchr(filename, 0);
 				}
 			}
 

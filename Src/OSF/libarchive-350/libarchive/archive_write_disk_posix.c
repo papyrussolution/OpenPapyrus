@@ -636,7 +636,7 @@ static int _archive_write_disk_header(Archive * _a, ArchiveEntry * entry)
 	}
 	{
 		// Check if the current file name is a type of the resource fork file.
-		const char * p = strrchr(a->name, '/');
+		const char * p = sstrrchr(a->name, '/');
 		if(!p)
 			p = a->name;
 		else
@@ -2892,7 +2892,7 @@ static int create_parent_dir(struct archive_write_disk * a, char * path)
 {
 	int r;
 	/* Remove tail element to obtain parent name. */
-	char * slash = strrchr(path, '/');
+	char * slash = sstrrchr(path, '/');
 	if(slash == NULL)
 		return ARCHIVE_OK;
 	*slash = '\0';
@@ -2916,7 +2916,7 @@ static int create_dir(struct archive_write_disk * a, char * path)
 	mode_t mode_final, mode;
 	int r;
 	/* Check for special names and just skip them. */
-	slash = strrchr(path, '/');
+	slash = sstrrchr(path, '/');
 	if(slash == NULL)
 		base = path;
 	else
@@ -3668,21 +3668,18 @@ static int fixup_appledouble(struct archive_write_disk * a, const char * pathnam
 	CXX_UNUSED(pathname);
 	return ARCHIVE_OK;
 }
-
 #else
 
 /*
  * On Mac OS, we use copyfile() to unpack the metadata and
  * apply it to the target file.
  */
-
 #if defined(HAVE_SYS_XATTR_H)
 static int copy_xattrs(struct archive_write_disk * a, int tmpfd, int dffd)
 {
 	ssize_t xattr_size;
 	char * xattr_names = NULL, * xattr_val = NULL;
 	int ret = ARCHIVE_OK, xattr_i;
-
 	xattr_size = flistxattr(tmpfd, NULL, 0, 0);
 	if(xattr_size == -1) {
 		archive_set_error(&a->archive, errno, "Failed to read metadata(xattr)");
@@ -3749,7 +3746,6 @@ static int copy_acls(struct archive_write_disk * a, int tmpfd, int dffd)
 #else
 	acl_t acl, dfacl = NULL;
 	int acl_r, ret = ARCHIVE_OK;
-
 	acl = acl_get_fd(tmpfd);
 	if(acl == NULL) {
 		if(errno == ENOENT)
@@ -3779,7 +3775,6 @@ static int create_tempdatafork(struct archive_write_disk * a, const char * pathn
 {
 	archive_string tmpdatafork;
 	int tmpfd;
-
 	archive_string_init(&tmpdatafork);
 	archive_strcpy(&tmpdatafork, "tar.md.XXXXXX");
 	tmpfd = mkstemp(tmpdatafork.s);
@@ -3798,18 +3793,14 @@ static int create_tempdatafork(struct archive_write_disk * a, const char * pathn
 	return (tmpfd);
 }
 
-static int copy_metadata(struct archive_write_disk * a, const char * metadata,
-    const char * datafork, int datafork_compressed)
+static int copy_metadata(struct archive_write_disk * a, const char * metadata, const char * datafork, int datafork_compressed)
 {
 	int ret = ARCHIVE_OK;
-
 	if(datafork_compressed) {
 		int dffd, tmpfd;
-
 		tmpfd = create_tempdatafork(a, metadata);
 		if(tmpfd == -1)
 			return ARCHIVE_WARN;
-
 		/*
 		 * Do not open the data fork compressed by HFS+ compression
 		 * with at least a writing mode(O_RDWR or O_WRONLY). it
@@ -3892,11 +3883,9 @@ static int fixup_appledouble(struct archive_write_disk * a, const char * pathnam
 	const char * p;
 	archive_string datafork;
 	int fd = -1, ret = ARCHIVE_OK;
-
 	archive_string_init(&datafork);
-	/* Check if the current file name is a type of the resource
-	 * fork file. */
-	p = strrchr(pathname, '/');
+	// Check if the current file name is a type of the resource fork file
+	p = sstrrchr(pathname, '/');
 	if(!p)
 		p = pathname;
 	else
@@ -4194,7 +4183,5 @@ int archive_write_disk_set_acls(Archive * a, int fd, const char * name, archive_
 	CXX_UNUSED(mode);
 	return ARCHIVE_OK;
 }
-
 #endif
-
 #endif /* !_WIN32 || __CYGWIN__ */

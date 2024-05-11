@@ -417,7 +417,7 @@ int PPAccTurnTempl::SubstAcct(int side, PPAccTurn * at, const ATSubstObjects * a
 					p_atobj->ConvertAcctID(r_acctid, &acct, &cur_id, 0);
 					GetArticleName(foreign_ar_id, msg_buf);
 					msg_buf.Quot('\'', '\'').CatChar('-').CatChar('>').Cat(acct.ToStr(0, name_buf));
-					GetObjectName(PPOBJ_ACCSHEET, r_sheet_id, name_buf, 0);
+					GetObjectName(PPOBJ_ACCSHEET, r_sheet_id, name_buf);
 					msg_buf.Space().Cat(name_buf.Quot('(', ')'));
 					CALLEXCEPT_PP_S(PPERR_UNABLESUBSTOBJ, msg_buf);
 				}

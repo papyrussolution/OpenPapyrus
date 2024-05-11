@@ -235,7 +235,7 @@ public:
 			func += "::";
 			// The ctor name is the last component if there are colons (e.g.
 			// for Query::Internal, the ctor is Internal.
-			const char * ctor_name = std::strrchr(class_name, ':');
+			const char * ctor_name = sstrrchr(class_name, ':');
 			if(ctor_name)
 				++ctor_name;
 			else
@@ -257,7 +257,7 @@ public:
 			func.assign(class_name);
 			func += "::~";
 			// The dtor name is the last component if there are colons.
-			const char * dtor_name = std::strrchr(class_name, ':');
+			const char * dtor_name = sstrrchr(class_name, ':');
 			if(dtor_name)
 				++dtor_name;
 			else

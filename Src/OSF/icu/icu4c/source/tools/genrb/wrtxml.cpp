@@ -193,7 +193,7 @@ static char * parseFilename(const char * id, char * /*lang*/) {
 	int canonLen = 0;
 	/*int i;*/
 	UErrorCode status = U_ZERO_ERROR;
-	const char * ext = uprv_strchr(id, '.');
+	const char * ext = sstrchr(id, '.');
 
 	if(ext != NULL) {
 		pos = (int)(ext - id);

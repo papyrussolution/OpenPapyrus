@@ -222,7 +222,7 @@ extern int main(int argc, char * argv[])
 	if(sourcedir != NULL && *sourcedir != 0) {
 		char * end;
 		strcpy(pathBuf, sourcedir);
-		end = uprv_strchr(pathBuf, 0);
+		end = sstrchr(pathBuf, 0);
 		if(*(end-1)!=U_FILE_SEP_CHAR) {
 			*(end++) = U_FILE_SEP_CHAR;
 		}
@@ -632,11 +632,11 @@ static uint16_t addAlias(const char * alias, uint16_t standard, uint16_t convert
 		/* Normally these option values are parsed at runtime, and they can
 		   be discarded when the alias is a default converter. Options should
 		   only be on a converter and not an alias. */
-		if(uprv_strchr(alias, UCNV_OPTION_SEP_CHAR) != 0) {
+		if(sstrchr(alias, UCNV_OPTION_SEP_CHAR) != 0) {
 			slfprintf_stderr("warning(line %d): alias %s contains a \"" UCNV_OPTION_SEP_STRING "\". Options are parsed at run-time and do not need to be in the alias table.\n",
 			    lineNum, alias);
 		}
-		if(uprv_strchr(alias, UCNV_VALUE_SEP_CHAR) != 0) {
+		if(sstrchr(alias, UCNV_VALUE_SEP_CHAR) != 0) {
 			slfprintf_stderr("warning(line %d): alias %s contains an \"" UCNV_VALUE_SEP_STRING "\". Options are parsed at run-time and do not need to be in the alias table.\n",
 			    lineNum, alias);
 		}
@@ -831,7 +831,7 @@ static uint32_t resolveAliases(uint16_t * uniqueAliasArr, uint16_t * uniqueAlias
 				/*printf("%s -> %s\n", GET_ALIAS_STR(knownAliases[idx]),
 				   GET_ALIAS_STR(converters[currConvNum].converter));*/
 			}
-			if(uprv_strchr(GET_ALIAS_STR(converters[currConvNum].converter), UCNV_OPTION_SEP_CHAR) != NULL) {
+			if(sstrchr(GET_ALIAS_STR(converters[currConvNum].converter), UCNV_OPTION_SEP_CHAR) != NULL) {
 				uniqueAliasToConverterArr[uniqueAliasIdx-1] |= UCNV_CONTAINS_OPTION_BIT;
 			}
 		}

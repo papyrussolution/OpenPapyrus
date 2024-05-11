@@ -73,7 +73,7 @@ extern int testData(TestIDNA& test)
 	//initialize
 	pTestIDNA = &test;
 	/* prepare the filename beginning with the source dir */
-	if(uprv_strchr(srcDir, U_FILE_SEP_CHAR) == NULL) {
+	if(sstrchr(srcDir, U_FILE_SEP_CHAR) == NULL) {
 		filename[0] = 0x2E;
 		filename[1] = U_FILE_SEP_CHAR;
 		strcpy(filename+2, srcDir);

@@ -3468,7 +3468,7 @@ int Bizerba::PrepareGoodsName(const char * pGoodsName, char * pBuf, size_t bufSi
 		char   buf[30], * p = 0;
 		STRNSCPY(buf, gds_name + 28);
 		gds_name[28] = 0;
-		if((p = strrchr(gds_name, ' ')) != 0) {
+		if((p = sstrrchr(gds_name, ' ')) != 0) {
 			*p++ = 10;
 			gds_name[28] = buf[0];
 		}
@@ -3478,7 +3478,7 @@ int Bizerba::PrepareGoodsName(const char * pGoodsName, char * pBuf, size_t bufSi
 		}
 		if(sstrlen(gds_name) > 57) {
 			gds_name[57] = 0;
-			if((p = strrchr(p, ' ')) != 0)
+			if((p = sstrrchr(p, ' ')) != 0)
 				*p = 0;
 		}
 	}

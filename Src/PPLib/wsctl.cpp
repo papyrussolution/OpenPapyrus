@@ -50,11 +50,12 @@ WsCtl_SelfIdentityBlock::WsCtl_SelfIdentityBlock() : PrcID(0)
 {
 }
 	
-int WsCtl_SelfIdentityBlock::GetOwnUuid()
+int WsCtl_SelfIdentityBlock::GetOwnIdentifiers()
 {
 	int    ok = 1;
 	bool   found = false;
 	S_GUID _uuid;
+	GetMACAddrList(&MacAdrList);
 	{
 		WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPConst::WrKey_WsCtl, 1);
 		if(reg_key.GetBinary(PPConst::WrParam_WsCtl_MachineUUID, &_uuid, sizeof(_uuid)) > 0) {
@@ -664,7 +665,7 @@ bool WsCtlSrvBlock::RegistrationBlock::FromJsonObj(const SJson * pJs)
 	bool   result = false;
 	Z();
 	if(pJs) {
-		const SJson * p_c = pJs->FindChildByKey("name");
+		const SJson * p_c = pJs->FindChildByKey("nm"); // @v12.0.1 "name"-->"nm"
 		if(SJson::IsString(p_c))
 			Name = p_c->Text;
 		p_c = pJs->FindChildByKey("phone");
@@ -678,7 +679,8 @@ bool WsCtlSrvBlock::RegistrationBlock::FromJsonObj(const SJson * pJs)
 			WsCtlUuid.FromStr(p_c->Text);
 		}
 	}
-	return IsValid();
+	result = IsValid();
+	return result;
 }
 
 WsCtlSrvBlock::AuthBlock::AuthBlock()
@@ -994,9 +996,46 @@ int WsCtlSrvBlock::StartSess(StartSessBlock & rBlk)
 	return ok;
 }
 
+int WsCtlSrvBlock::RegisterComputer(ComputerRegistrationBlock & rBlk)
+{
+	int    ok = 1;
+	PPObjComputer cobj;
+	THROW(rBlk.MacAdrList.getCount());
+	{
+		bool found = false;
+		for(uint i = 0; !found && i < rBlk.MacAdrList.getCount(); i++) {
+			const MACAddr & r_macadr = rBlk.MacAdrList.at(i);
+			PPID c_id = 0;
+			PPComputerPacket c_pack;
+			int r = cobj.SearchByMacAddr(r_macadr, &c_id, &c_pack);
+			THROW(r);
+			if(r > 0) {
+				rBlk.Status = 2;
+				rBlk.Name = c_pack.Rec.Name;
+				rBlk.ComputerID = c_pack.Rec.ID;
+				rBlk.WsCtlUuid = c_pack.Rec.Uuid;
+				found = true;
+			}
+		}
+		if(!found) {
+			PPComputerPacket new_c_pack;
+			new_c_pack.Rec.MacAdr = rBlk.MacAdrList.at(0);
+			if(!!rBlk.WsCtlUuid) {
+				new_c_pack.Rec.Uuid = rBlk.WsCtlUuid;
+			}
+			else
+				new_c_pack.Rec.Uuid.Generate();
+		}
+	}
+	CATCH
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
 int WsCtlSrvBlock::Registration(RegistrationBlock & rBlk)
 {
-	int    ok = 0;
+	int    ok = 1;
 	PPID   sc_id = 0;
 	PPID   psn_id = 0;
 	SString temp_buf;

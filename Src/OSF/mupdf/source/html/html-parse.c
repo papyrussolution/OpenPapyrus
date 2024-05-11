@@ -914,7 +914,7 @@ static void html_load_css(fz_context * ctx, fz_html_font_set * set, fz_archive *
 	for(fz_xml * node = fz_xml_down(head); node; node = fz_xml_next(node)) {
 		if(fz_xml_is_tag(node, "link")) {
 			char * rel = fz_xml_att(node, "rel");
-			if(rel && !fz_strcasecmp(rel, "stylesheet")) {
+			if(rel && sstreqi_ascii(rel, "stylesheet")) {
 				char * type = fz_xml_att(node, "type");
 				if((type && sstreq(type, "text/css")) || !type) {
 					char * href = fz_xml_att(node, "href");

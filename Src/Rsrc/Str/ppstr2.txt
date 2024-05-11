@@ -455,6 +455,7 @@ PPERR_OPERDATEDIFSYSDATE           "Вход с операционной дат�
 PPERR_CCHECKGENDISABLED            "Генератор чеков заблокирован"
 PPERR_PROCESSORRECUR               "Рекурсивная ссылка на родительский процессор '%s'"
 PPERR_PROCESSORSELFPAR             "Процессор '%s' ссылается на себя как на родительский"
+PPERR_PRCDUPLINKTOCOMP             "На выбранную запись управляемого компьютера уже ссылается другой процессор '%s'"
 PPERR_LOCATIONRECUR                "Обнаружена рекурсивная ссылка в записи локации '%s'"
 PPERR_WORKBOOKRECUR                "Обнаружена рекурсивная ссылка в записи рабочей книги '%s'"
 PPERR_WORKBOOKSELFPAR              "Запись рабочей книги '%s' ссылается на себя как на родительскую запись"
@@ -2664,6 +2665,7 @@ PPINF_EGAISSHOPRETURNCR    "Создан документ возврата с р
 82   "@{eventsubscription}"
 83   "@{bizscore} II (construction)" // @v11.9.2
 84   "@{swprogramcategory_pl}" // @v11.9.12 PPOBJ_SWPROGRAMCATEGORY
+85   "@{computercategory_pl}" // @v12.0.1 PPOBJ_COMPUTERCATEGORY
 100  "@{dynobject_pl}"
 101  "Породы древесины"
 1000 /!/ "#UNASSIGNED"
@@ -7444,6 +7446,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @swprogram_pl                        "Исполняемые программы"
 @swprogramcategory                   "Категория исполняемой программы"
 @swprogramcategory_pl                "Категории исполняемых программ"
+@computercategory                    "Категория управляемых компьютеров"
+@computercategory_pl                 "Категории управляемых компьютеров"
 @executablefile                      "Исполняемый файл"
 @jobtask                             "Серверная задача"
 @jobtask_pl                          "Серверные задачи"
@@ -9224,6 +9228,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_swprogram                            "@{swprogram_pl}"
 @cmd_swprogramcategory                    "@{swprogramcategory_pl}"
 @cmd_computer                             "@{managedcomputer_pl}"
+@cmd_computercategory                     "@{computercategory_pl}"
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"

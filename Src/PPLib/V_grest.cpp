@@ -3669,9 +3669,9 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 				pSubTitle->CatDivIfNotEmpty('-', 1).Cat(Filt.Date, DATF_DMY|DATF_CENTURY);
 			pSubTitle->CatDivIfNotEmpty('-', 1).Cat(GetExtLocationName(Filt.LocList, 2, loc_names));
 			if(Filt.SupplID)
-				GetObjectName(PPOBJ_ARTICLE, Filt.SupplID, pSubTitle->CatDivIfNotEmpty('-', 1), 1);
+				CatObjectName(PPOBJ_ARTICLE, Filt.SupplID, pSubTitle->CatDivIfNotEmpty('-', 1));
 			if(Filt.GoodsGrpID)
-				GetObjectName(PPOBJ_GOODSGROUP, Filt.GoodsGrpID, pSubTitle->CatDivIfNotEmpty('-', 1), 1);
+				CatObjectName(PPOBJ_GOODSGROUP, Filt.GoodsGrpID, pSubTitle->CatDivIfNotEmpty('-', 1));
 		}
 	}
 	// }

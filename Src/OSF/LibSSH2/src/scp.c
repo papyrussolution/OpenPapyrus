@@ -754,7 +754,7 @@ static LIBSSH2_CHANNEL * scp_send(LIBSSH2_SESSION * session, const char * path, 
 
 	if(session->scpSend_state == libssh2_NB_state_sent4) {
 		/* Send mode, size, and basename */
-		const char * base = strrchr(path, '/');
+		const char * base = sstrrchr(path, '/');
 		if(base)
 			base++;
 		else

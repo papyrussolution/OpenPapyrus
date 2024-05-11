@@ -412,18 +412,16 @@ OSSL_DEPRECATEDIN_3_0 int ERR_load_X509V3_strings(void);
 #define CMS_F_CMS_VERIFY                                 0
 #define CMS_F_KEK_UNWRAP_KEY                             0
 #endif
-
 #ifndef OPENSSL_NO_COMP
-/*
- * COMP function codes.
- */
-#define COMP_F_BIO_ZLIB_FLUSH                            0
-#define COMP_F_BIO_ZLIB_NEW                              0
-#define COMP_F_BIO_ZLIB_READ                             0
-#define COMP_F_BIO_ZLIB_WRITE                            0
-#define COMP_F_COMP_CTX_NEW                              0
+	/*
+	 * COMP function codes.
+	 */
+	#define COMP_F_BIO_ZLIB_FLUSH                            0
+	#define COMP_F_BIO_ZLIB_NEW                              0
+	#define COMP_F_BIO_ZLIB_READ                             0
+	#define COMP_F_BIO_ZLIB_WRITE                            0
+	#define COMP_F_COMP_CTX_NEW                              0
 #endif
-
 /*
  * CONF function codes.
  */

@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2014-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- */
+// Copyright (C) 2014-2016, International Business Machines Corporation and others.  All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "ucln_cmn.h"
@@ -126,9 +122,7 @@ static void U_CALLCONV initFromResourceBundle(UErrorCode & sts) {
 			}
 			bcpKeyId = bcpKeyIdBuf->data();
 		}
-
-		bool isTZ = strcmp(legacyKeyId, "timezone") == 0;
-
+		bool isTZ = sstreq(legacyKeyId, "timezone");
 		UHashtable * typeDataMap = uhash_open(uhash_hashIChars, uhash_compareIChars, NULL, &sts);
 		if(U_FAILURE(sts)) {
 			break;
@@ -164,28 +158,25 @@ static void U_CALLCONV initFromResourceBundle(UErrorCode & sts) {
 		}
 		else {
 			LocalUResourceBundlePointer typeMapEntry;
-
 			while(ures_hasNext(typeMapResByKey.getAlias())) {
 				typeMapEntry.adoptInstead(ures_getNextResource(typeMapResByKey.getAlias(), typeMapEntry.orphan(), &sts));
 				if(U_FAILURE(sts)) {
 					break;
 				}
 				const char * legacyTypeId = ures_getKey(typeMapEntry.getAlias());
-
 				// special types
-				if(strcmp(legacyTypeId, "CODEPOINTS") == 0) {
+				if(sstreq(legacyTypeId, "CODEPOINTS")) {
 					specialTypes |= SPECIALTYPE_CODEPOINTS;
 					continue;
 				}
-				if(strcmp(legacyTypeId, "REORDER_CODE") == 0) {
+				if(sstreq(legacyTypeId, "REORDER_CODE")) {
 					specialTypes |= SPECIALTYPE_REORDER_CODE;
 					continue;
 				}
-				if(strcmp(legacyTypeId, "RG_KEY_VALUE") == 0) {
+				if(sstreq(legacyTypeId, "RG_KEY_VALUE")) {
 					specialTypes |= SPECIALTYPE_RG_KEY_VALUE;
 					continue;
 				}
-
 				if(isTZ) {
 					// a timezone key uses a colon instead of a slash in the resource.
 					// e.g. America:Los_Angeles

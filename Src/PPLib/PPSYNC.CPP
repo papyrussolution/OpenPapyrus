@@ -555,7 +555,7 @@ int PPSync::GetLockingText(PPID mutexID, int resolveHostName, SString & rBuf)
 	PPSyncItem item;
 	if(GetItem(mutexID, &item) > 0) {
 		InetAddr addr;
-		item.MchnID.ToStr(mac_addr);
+		item.MchnID.ToStr(0, mac_addr);
 		GetFirstHostByMACAddr(&item.MchnID, &addr);
 		rBuf.CatEq("User", item.Name).CatDiv(',', 2);
 		rBuf.CatEq("Host", addr.ToStr(InetAddr::fmtHost, addr_buf)).CatDiv(',', 2);

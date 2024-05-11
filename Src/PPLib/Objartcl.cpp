@@ -912,7 +912,9 @@ int PPObjArticle::Edit(PPID * pID, void * extraPtr /*sheetID*/)
 {
 	const ArticleFilt * p_filt = static_cast<const ArticleFilt *>(extraPtr);
 	const  PPID extra_acs_id = NZOR(CurrFilt.AccSheetID, (p_filt ? p_filt->AccSheetID : 0));
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
+	SString temp_buf;
 	ArticleDlgData pack;
 	if(*pID == 0) {
 		THROW(CheckRights(PPR_INS));
@@ -928,7 +930,8 @@ int PPObjArticle::Edit(PPID * pID, void * extraPtr /*sheetID*/)
 				THROW_PP(oneof6(pack.Assoc, PPOBJ_PERSON, PPOBJ_LOCATION,
 					PPOBJ_ACCOUNT_PRE9004, PPOBJ_ACCOUNT2, PPOBJ_GLOBALUSERACC, PPOBJ_PROCESSOR), PPERR_INVACCSHEETASSOC); // @v11.3.12 PPOBJ_PROCESSOR
 				if(!oneof2(pack.Assoc, PPOBJ_ACCOUNT_PRE9004, PPOBJ_ACCOUNT2)) {
-					GetObjectName(pack.Assoc, pack.Rec.ObjID, pack.Rec.Name, sizeof(pack.Rec.Name));
+					GetObjectName(pack.Assoc, pack.Rec.ObjID, temp_buf.Z());
+					STRNSCPY(pack.Rec.Name, temp_buf);
 					pack.Options |= ArticleDlgData::fDisableName;
 				}
 			}
@@ -1673,6 +1676,7 @@ int PPObjArticle::AddSimple(PPID * pID, PPID accSheetID, const char * pName, lon
 int PPObjArticle::CreateObjRef(PPID * pID, PPID accSheetID, PPID objID, long ar, int use_ta)
 {
 	int    ok = 1;
+	SString temp_buf;
 	ArticleTbl::Rec rec;
 	PPObjAccSheet acs_obj;
 	PPAccSheet acs_rec;
@@ -1680,8 +1684,9 @@ int PPObjArticle::CreateObjRef(PPID * pID, PPID accSheetID, PPID objID, long ar,
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(acs_obj.Fetch(accSheetID, &acs_rec) > 0);
-		THROW(GetObjectName(acs_rec.Assoc, objID, rec.Name, sizeof(rec.Name)) > 0);
-		strip(rec.Name);
+		THROW(GetObjectName(acs_rec.Assoc, objID, temp_buf.Z()) > 0);
+		temp_buf.Strip();
+		STRNSCPY(rec.Name, temp_buf);
 		if(ar == 0) {
 			THROW(P_Tbl->SearchFreeNum(accSheetID, &ar));
 		}

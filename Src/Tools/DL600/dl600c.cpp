@@ -4579,7 +4579,7 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 			for(uint sgli = 0; sgli < sqlgen_list.getCount(); sgli++) {
 				Generator_SQL * p_sqlgen = sqlgen_list.at(sgli);
 				if(p_sqlgen) {
-					p_sqlgen->CreateTable(tbl, tbl.GetTableName());
+					p_sqlgen->CreateTable(tbl, tbl.GetTableName(), false, 1);
 					p_sqlgen->Eos().Cr();
 					uint j;
 					for(j = 0; j < tbl.GetIndices().getNumKeys(); j++) {

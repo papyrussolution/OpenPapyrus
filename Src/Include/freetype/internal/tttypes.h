@@ -1412,32 +1412,20 @@ typedef struct  TT_FaceRec_ {
 	/* A pointer to the bytecode interpreter to use.  This is also */
 	/* used to hook the debugger for the `ttdebug' utility.        */
 	TT_Interpreter interpreter;
-
 	/************************************************************************
-	 *
-	 * Other tables or fields. This is used by derivative formats like
-	 * OpenType.
-	 *
+	 * Other tables or fields. This is used by derivative formats like OpenType.
 	 */
-
 	FT_Generic extra;
-
 	const char * postscript_name;
-
 	FT_ULong glyf_len;
 	FT_ULong glyf_offset; /* since 2.7.1 */
-
 	FT_Bool is_cff2; /* since 2.7.1 */
-
 #ifdef TT_CONFIG_OPTION_GX_VAR_SUPPORT
 	FT_Bool doblend;
 	GX_Blend blend;
-
 	FT_UInt32 variation_support; /* since 2.7.1 */
-
 	const char * var_postscript_prefix; /* since 2.7.2 */
 	FT_UInt var_postscript_prefix_len; /* since 2.7.2 */
-
 #endif
 
 	/* since version 2.2 */

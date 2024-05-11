@@ -58,7 +58,7 @@ static ngx_int_t ngx_http_file_cache_init(ngx_shm_zone_t * shm_zone, void * data
 	ngx_uint_t n;
 	ngx_http_file_cache_t  * cache = (ngx_http_file_cache_t *)shm_zone->data;
 	if(ocache) {
-		if(ngx_strcmp(cache->path->name.data, ocache->path->name.data) != 0) {
+		if(!sstreq(cache->path->name.data, ocache->path->name.data)) {
 			ngx_log_error(NGX_LOG_EMERG, shm_zone->shm.log, 0, "cache \"%V\" uses the \"%V\" cache path while previously it used the \"%V\" cache path",
 			    &shm_zone->shm.name, &cache->path->name, &ocache->path->name);
 			return NGX_ERROR;
@@ -1575,10 +1575,10 @@ invalid_levels:
 			return NGX_CONF_ERROR;
 		}
 		else if(ngx_strncmp(value[i].data, "use_temp_path=", 14) == 0) {
-			if(ngx_strcmp(&value[i].data[14], "on") == 0) {
+			if(sstreq(&value[i].data[14], "on")) {
 				use_temp_path = 1;
 			}
-			else if(ngx_strcmp(&value[i].data[14], "off") == 0) {
+			else if(sstreq(&value[i].data[14], "off")) {
 				use_temp_path = 0;
 			}
 			else {
@@ -1750,7 +1750,7 @@ const char * ngx_http_file_cache_valid_set_slot(ngx_conf_t * cf, const ngx_comma
 		return NGX_CONF_OK;
 	}
 	for(i = 1; i < n; i++) {
-		if(ngx_strcmp(value[i].data, "any") == 0) {
+		if(sstreq(value[i].data, "any")) {
 			status = 0;
 		}
 		else {

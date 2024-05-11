@@ -83,7 +83,7 @@ InventoryDialog::InventoryDialog(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 	setStaticText(CTL_BILL_EXTINFO, temp_buf);
 	{
 		temp_buf.Z().Cat(op_pack.Rec.Name).CatDiv(';', 1);
-		GetObjectName(PPOBJ_LOCATION, P_Data->Rec.LocID, temp_buf, 1);
+		CatObjectName(PPOBJ_LOCATION, P_Data->Rec.LocID, temp_buf);
 		setTitle(temp_buf);
 	}
 	{

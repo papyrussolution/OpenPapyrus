@@ -263,7 +263,7 @@ static char *concat_url(char * base, const char * relurl)
 		   '?')  we append the new one at the end of the entire currently worked
 		   out URL */
 		if(useurl[0] != '?') {
-			pathsep = strrchr(protsep, '/');
+			pathsep = sstrrchr(protsep, '/');
 			if(pathsep)
 				*pathsep = 0;
 		}
@@ -281,7 +281,7 @@ static char *concat_url(char * base, const char * relurl)
 		if(protsep) {
 			while(level--) {
 				/* cut off one more level from the right of the original URL */
-				pathsep = strrchr(protsep, '/');
+				pathsep = sstrrchr(protsep, '/');
 				if(pathsep)
 					*pathsep = 0;
 				else {

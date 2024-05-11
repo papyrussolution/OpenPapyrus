@@ -5680,13 +5680,15 @@ int PPALDD_Transport::InitData(PPFilt & rFilt, long rsrv)
 		PPObjTransport * p_obj = static_cast<PPObjTransport *>(Extra[0].Ptr);
 		PPTransportPacket pack;
 		if(p_obj->Get(rFilt.ID, &pack) > 0) {
+			SString temp_buf;
 			H.ID        = pack.Rec.ID;
 			H.TrType    = pack.Rec.TrType;
 			H.Capacity  = pack.Rec.Capacity;
 			STRNSCPY(H.Name, pack.Rec.Name);
 			STRNSCPY(H.Code, pack.Rec.Code);
 			STRNSCPY(H.TrailerCode, pack.Rec.TrailerCode);
-			GetObjectName(PPOBJ_TRANSPMODEL, pack.Rec.TrModelID, H.ModelName, sizeof(H.ModelName));
+			GetObjectName(PPOBJ_TRANSPMODEL, pack.Rec.TrModelID, temp_buf.Z());
+			STRNSCPY(H.ModelName, temp_buf);
 			H.OwnerID = pack.Rec.OwnerID;
 			H.CountryID = pack.Rec.CountryID;
 			H.CaptainID = pack.Rec.CaptainID;

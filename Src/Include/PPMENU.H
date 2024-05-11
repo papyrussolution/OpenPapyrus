@@ -547,6 +547,7 @@
 #define cmBizScore2                    653 // @v11.9.2 @construction Бизнес-показатели-II
 #define cmSwProgram                    654 // @v11.9.12 Исполняемые программы (проект wsctl)
 #define cmSwProgramCategory            655 // @v11.9.12 Категории исполняемых программ (проект wsctl)
-#define cmComputer                     656 // @v12.0.0 Управляемые компьютеры
+#define cmComputer                     656 // @v12.0.0 Управляемые компьютеры (проект wsctl)
+#define cmComputerCategory             657 // @v12.0.1 Категории управляемых компьютеров (проект wsctl)
 
 #endif /* __PPMENU_H */

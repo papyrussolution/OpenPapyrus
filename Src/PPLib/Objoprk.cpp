@@ -2246,7 +2246,7 @@ int OpListDialog::setupList()
 	SString name_buf;
 	for(uint i = 0; i < OpListData.getCount(); i++) {
 		const  PPID id = OpListData.at(i);
-		if(GetObjectName(PPOBJ_OPRKIND, id, name_buf = 0, 0) <= 0)
+		if(GetObjectName(PPOBJ_OPRKIND, id, name_buf) <= 0)
 			ideqvalstr(id, name_buf);
 		if(!addStringToList(id, name_buf))
 			return 0;

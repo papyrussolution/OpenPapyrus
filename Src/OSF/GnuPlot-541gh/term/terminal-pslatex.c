@@ -168,7 +168,7 @@ void PSTEX_reopen_output(GpTermEntry_Static * pThis)
 	if(GPT.P_OutStr) {
 		char * dotIndex;
 		// if there's no extension, append ".ps" 
-		if((dotIndex = strrchr(GPT.P_OutStr, '.')) == NULL)
+		if((dotIndex = sstrrchr(GPT.P_OutStr, '.')) == NULL)
 			dotIndex = sstrchr(GPT.P_OutStr, '\0');
 		// try to open the auxiliary file for the postscript parts. 
 		if(p_gp->TPsB.P_Params->useauxfile) {
@@ -657,7 +657,7 @@ void EPSLATEX_reopen_output(GpTermEntry_Static * pThis, const char * ext)
 	char * psoutstr = NULL;
 	if(GPT.P_OutStr) {
 		uint outstrlen = strlen(GPT.P_OutStr);
-		if(strrchr(GPT.P_OutStr, '.') != &GPT.P_OutStr[outstrlen-4]) {
+		if(sstrrchr(GPT.P_OutStr, '.') != &GPT.P_OutStr[outstrlen-4]) {
 			p_gp->IntError(NO_CARET, "epslatex output file name must be of the form filename.xxx");
 		}
 		// copy filename to postsript output 

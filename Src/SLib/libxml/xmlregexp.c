@@ -2567,13 +2567,9 @@ static int xmlRegCheckCharacter(xmlRegAtom * atom, int codepoint)
 	}
 	return ret;
 }
-
-/************************************************************************
-*									*
-*	Saving and restoring state of an execution context		*
-*									*
-************************************************************************/
-
+// 
+// Saving and restoring state of an execution context
+// 
 #ifdef DEBUG_REGEXP_EXEC
 static void xmlFARegDebugExec(xmlRegExecCtxtPtr exec) 
 {
@@ -2960,16 +2956,12 @@ error:
 	}
 	return (exec->status);
 }
-
-/************************************************************************
-*									*
-*	Progressive interface to the verifier one atom at a time	*
-*									*
-************************************************************************/
+// 
+// Progressive interface to the verifier one atom at a time	*
+// 
 #ifdef DEBUG_ERR
-static void testerr(xmlRegExecCtxtPtr exec);
+	static void testerr(xmlRegExecCtxtPtr exec);
 #endif
-
 /**
  * xmlRegNewExecCtxt:
  * @comp: a precompiled regular expression
@@ -3107,8 +3099,8 @@ static void xmlFARegExecSaveInputString(xmlRegExecCtxtPtr exec, const xmlChar * 
  * Returns 1 if the comparison is satisfied and the number of substrings
  * is equal, 0 otherwise.
  */
-
-static int xmlRegStrEqualWildcard(const xmlChar * expStr, const xmlChar * valStr) {
+static int xmlRegStrEqualWildcard(const xmlChar * expStr, const xmlChar * valStr) 
+{
 	if(expStr == valStr) return 1;
 	if(expStr == NULL) return 0;
 	if(valStr == NULL) return 0;

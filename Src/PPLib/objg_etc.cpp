@@ -995,7 +995,7 @@ int PPObjPallet::Edit(PPID * pID, void * extraPtr)
 //
 //
 //
-PPComputer::PPComputer() : ID(0), Flags(0)
+PPComputer::PPComputer() : ID(0), Flags(0), CategoryID(0)
 {
 	Name[0] = 0;
 	Code[0] = 0;
@@ -1005,6 +1005,7 @@ PPComputer & PPComputer::Z()
 {
 	ID = 0;
 	Flags = 0;
+	CategoryID = 0;
 	Uuid.Z();
 	MacAdr.Z();
 	IpAdr.Z();
@@ -1015,7 +1016,8 @@ PPComputer & PPComputer::Z()
 
 bool FASTCALL PPComputer::IsEq(const PPComputer & rS) const
 {
-	return (ID == rS.ID && sstreq(Name, rS.Name) && sstreq(Code, rS.Code) && Flags == rS.Flags && Uuid == rS.Uuid && MacAdr == rS.MacAdr && IpAdr == rS.IpAdr);
+	return (ID == rS.ID && sstreq(Name, rS.Name) && sstreq(Code, rS.Code) && Flags == rS.Flags && 
+		CategoryID == rS.CategoryID && Uuid == rS.Uuid && MacAdr == rS.MacAdr && IpAdr == rS.IpAdr);
 }
 
 bool FASTCALL PPComputer::CheckForFilt(const ComputerFilt * pFilt) const
@@ -1048,12 +1050,13 @@ bool FASTCALL PPComputerPacket::Copy(const PPComputerPacket & rS)
 	return true;
 }
 
-PPObjComputer::PPObjComputer(void * extraPtr) : PPObjGoods(PPOBJ_COMPUTER, PPGDSK_COMPUTER, extraPtr)
+PPObjComputer::PPObjComputer(void * extraPtr) : PPObjGoods(PPOBJ_COMPUTER, PPGDSK_COMPUTER, extraPtr), P_PrcObj(new PPObjProcessor)
 {
 }
 
 PPObjComputer::~PPObjComputer()
 {
+	delete P_PrcObj;
 }
 
 /*virtual*/ListBoxDef * PPObjComputer::Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr)
@@ -1074,6 +1077,34 @@ struct PPComputerSysBlock { // @persistent @store(PropertyTbl)
 };
 #pragma pop
 
+int PPObjComputer::SearchByMacAddr(const MACAddr & rKey, PPID * pID, PPComputerPacket * pPack)
+{
+	int    ok = -1;
+	constexpr PPID prop_id = COMPUTERPRP_SYS;
+	Reference * p_ref = PPRef;
+	DBQ * dbq = 0;
+	PropertyTbl::Key0 k0;
+	PropertyTbl & r_prop = p_ref->Prop;
+	BExtQuery bext(&r_prop, 0, 64);
+	MEMSZERO(k0);
+	k0.ObjType = Obj;
+	k0.Prop    = prop_id;
+	dbq = &(*dbq && r_prop.ObjType == Obj && r_prop.Prop == prop_id);
+	bext.selectAll().where(*dbq);
+	for(bext.initIteration(false, &k0); ok < 0 && bext.nextIteration() > 0;) {
+		const PPComputerSysBlock * p_csblk = reinterpret_cast<const PPComputerSysBlock *>(&r_prop.data);
+		if(p_csblk->MacAdr == rKey) {
+			ASSIGN_PTR(pID, r_prop.data.ObjID);
+			if(pPack) {
+				THROW(Get(r_prop.data.ObjID, pPack) > 0);
+			}
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 /*static*/int PPObjComputer::Helper_GetRec(const Goods2Tbl::Rec & rGoodsRec, PPComputer * pRec)
 {
 	int    ok = 1;
@@ -1083,6 +1114,7 @@ struct PPComputerSysBlock { // @persistent @store(PropertyTbl)
 			pRec->ID = rGoodsRec.ID;
 			STRNSCPY(pRec->Name, rGoodsRec.Name);
 			pRec->Flags = rGoodsRec.Flags;
+			pRec->CategoryID = rGoodsRec.WrOffGrpID;
 		}
 		else
 			ok = PPSetError(/*PPERR_INVBRANDRECKIND*/1, rGoodsRec.ID);
@@ -1126,12 +1158,14 @@ int PPObjComputer::Get(PPID id, PPComputerPacket * pPack)
 		rGoodsRec.Kind = PPGDSK_COMPUTER;
 		STRNSCPY(rGoodsRec.Name, pRec->Name);
 		rGoodsRec.Flags = pRec->Flags;
+		rGoodsRec.WrOffGrpID = pRec->CategoryID;
 	}
 	return ok;
 }
 
 int PPObjComputer::Put(PPID * pID, PPComputerPacket * pPack, int use_ta)
 {
+	//CategoryID
 	int    ok = 1;
 	Reference * p_ref = PPRef;
 	Goods2Tbl::Rec raw_rec;
@@ -1164,7 +1198,7 @@ int PPObjComputer::Put(PPID * pID, PPComputerPacket * pPack, int use_ta)
 					Helper_SetRec(&pPack->Rec, raw_rec);
 					THROW(P_Tbl->Update(pID, &raw_rec, 0));
 					{
-						if(!(pPack->Rec.MacAdr.IsEmpty() && pPack->Rec.IpAdr.IsZero())) {
+						if(!(pPack->Rec.MacAdr.IsZero() && pPack->Rec.IpAdr.IsZero())) {
 							csblk.ID = *pID;
 							csblk.IpAdr = pPack->Rec.IpAdr;
 							csblk.MacAdr = pPack->Rec.MacAdr;
@@ -1173,6 +1207,7 @@ int PPObjComputer::Put(PPID * pID, PPComputerPacket * pPack, int use_ta)
 						THROW(p_ref->PutProp(PPOBJ_COMPUTER, *pID, COMPUTERPRP_SYS, p_csblk, sizeof(*p_csblk)));
 					}
 					THROW(SetTagList(*pID, &pPack->TagL, 0));
+					THROW(SendObjMessage(DBMSG_COMPUTERACQUIRECAT, PPOBJ_PROCESSOR, Obj, *pID, reinterpret_cast<void *>(pPack->Rec.CategoryID), 0));
 					if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
 						pPack->LinkFiles.Save(*pID, 0L);
 					}
@@ -1198,7 +1233,7 @@ int PPObjComputer::Put(PPID * pID, PPComputerPacket * pPack, int use_ta)
 			Helper_SetRec(&pPack->Rec, raw_rec);
 			THROW(P_Tbl->Update(pID, &raw_rec, 0));
 			{
-				if(!(pPack->Rec.MacAdr.IsEmpty() && pPack->Rec.IpAdr.IsZero())) {
+				if(!(pPack->Rec.MacAdr.IsZero() && pPack->Rec.IpAdr.IsZero())) {
 					csblk.ID = *pID;
 					csblk.IpAdr = pPack->Rec.IpAdr;
 					csblk.MacAdr = pPack->Rec.MacAdr;
@@ -1238,13 +1273,14 @@ public:
 		//
 		setCtrlLong(CTL_COMPUTER_ID, Data.Rec.ID);
 		setCtrlData(CTL_COMPUTER_NAME, Data.Rec.Name);
+		SetupPPObjCombo(this, CTLSEL_COMPUTER_CAT, PPOBJ_COMPUTERCATEGORY, Data.Rec.CategoryID, OLW_CANINSERT);
 		if(!!Data.Rec.Uuid)
 			Data.Rec.Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
 		else
 			temp_buf.Z();
 		setCtrlString(CTL_COMPUTER_UUID, temp_buf);
-		if(!Data.Rec.MacAdr.IsEmpty())
-			Data.Rec.MacAdr.ToStr(temp_buf);
+		if(!Data.Rec.MacAdr.IsZero())
+			Data.Rec.MacAdr.ToStr(0, temp_buf);
 		else
 			temp_buf.Z();
 		setCtrlString(CTL_COMPUTER_MACADR, temp_buf);
@@ -1270,6 +1306,7 @@ public:
 		SString temp_buf;
 		getCtrlData(sel = CTL_COMPUTER_NAME,  Data.Rec.Name);
 		THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
+		getCtrlData(CTLSEL_COMPUTER_CAT, &Data.Rec.CategoryID);
 		getCtrlString(CTL_COMPUTER_MACADR, temp_buf);
 		// @todo MACAddr::FromStr
 		getCtrlString(CTL_COMPUTER_IPADR, temp_buf);

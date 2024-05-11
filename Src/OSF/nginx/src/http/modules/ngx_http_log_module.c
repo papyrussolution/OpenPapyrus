@@ -811,7 +811,7 @@ static const char * ngx_http_log_set_log(ngx_conf_t * cf, const ngx_command_t * 
 	ngx_http_script_compile_t sc;
 	ngx_http_compile_complex_value_t ccv;
 	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
-	if(ngx_strcmp(value[1].data, "off") == 0) {
+	if(sstreq(value[1].data, "off")) {
 		llcf->off = 1;
 		if(cf->args->nelts == 2) {
 			return NGX_CONF_OK;
@@ -871,7 +871,7 @@ static const char * ngx_http_log_set_log(ngx_conf_t * cf, const ngx_command_t * 
 process_formats:
 	if(cf->args->nelts >= 3) {
 		name = value[2];
-		if(ngx_strcmp(name.data, "combined") == 0) {
+		if(sstreq(name.data, "combined")) {
 			lmcf->combined_used = 1;
 		}
 	}
@@ -1009,7 +1009,7 @@ static const char * ngx_http_log_set_format(ngx_conf_t * cf, const ngx_command_t
 	ngx_str_t * value = static_cast<ngx_str_t *>(cf->args->elts);
 	ngx_http_log_fmt_t * fmt = (ngx_http_log_fmt_t *)lmcf->formats.elts;
 	for(i = 0; i < lmcf->formats.nelts; i++) {
-		if(fmt[i].name.len == value[1].len && ngx_strcmp(fmt[i].name.data, value[1].data) == 0) {
+		if(fmt[i].name.len == value[1].len && sstreq(fmt[i].name.data, value[1].data)) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "duplicate \"log_format\" name \"%V\"", &value[1]);
 			return NGX_CONF_ERROR;
 		}
@@ -1046,7 +1046,7 @@ static char * ngx_http_log_compile_format(ngx_conf_t * cf, ngx_array_t * flushes
 		if(sstreq(data, "json")) {
 			json = 1;
 		}
-		else if(ngx_strcmp(data, "default") != 0) {
+		else if(!sstreq(data, "default")) {
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "unknown log format escaping \"%s\"", data);
 			return NGX_CONF_ERROR;
 		}
@@ -1200,7 +1200,7 @@ static const char * ngx_http_log_open_file_cache(ngx_conf_t * cf, const ngx_comm
 			}
 			continue;
 		}
-		if(ngx_strcmp(value[i].data, "off") == 0) {
+		if(sstreq(value[i].data, "off")) {
 			llcf->open_file_cache = NULL;
 			continue;
 		}

@@ -141,7 +141,7 @@ static const char * ngx_http_mirror(ngx_conf_t * cf, const ngx_command_t * cmd, 
 	ngx_http_mirror_loc_conf_t * mlcf = (ngx_http_mirror_loc_conf_t *)conf;
 	ngx_str_t  * s;
 	ngx_str_t  * value = static_cast<ngx_str_t *>(cf->args->elts);
-	if(ngx_strcmp(value[1].data, "off") == 0) {
+	if(sstreq(value[1].data, "off")) {
 		if(mlcf->mirror != NGX_CONF_UNSET_PTR) {
 			return "is duplicate";
 		}

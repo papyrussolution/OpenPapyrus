@@ -338,15 +338,15 @@ static const char * ngx_http_valid_referers(ngx_conf_t * cf, const ngx_command_t
 			ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid referer \"%V\"", &value[i]);
 			return NGX_CONF_ERROR;
 		}
-		if(ngx_strcmp(value[i].data, "none") == 0) {
+		if(sstreq(value[i].data, "none")) {
 			rlcf->no_referer = 1;
 			continue;
 		}
-		if(ngx_strcmp(value[i].data, "blocked") == 0) {
+		if(sstreq(value[i].data, "blocked")) {
 			rlcf->blocked_referer = 1;
 			continue;
 		}
-		if(ngx_strcmp(value[i].data, "server_names") == 0) {
+		if(sstreq(value[i].data, "server_names")) {
 			rlcf->server_names = 1;
 			continue;
 		}

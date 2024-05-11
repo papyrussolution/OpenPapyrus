@@ -3976,8 +3976,7 @@ cont:
 		 * Small optimization.
 		     */
 		    if(CONT->c1->type == XML_ELEMENT_CONTENT_ELEMENT) {
-			    if((NODE == NULL) ||
-			    (!sstreq(NODE->name, CONT->c1->name))) {
+			    if((NODE == NULL) || (!sstreq(NODE->name, CONT->c1->name))) {
 				    DEPTH++;
 				    CONT = CONT->c2;
 				    goto cont;
@@ -4015,8 +4014,7 @@ cont:
 		    if((CONT->c1->type == XML_ELEMENT_CONTENT_ELEMENT) &&
 		    ((CONT->c1->ocur == XML_ELEMENT_CONTENT_OPT) ||
 			    (CONT->c1->ocur == XML_ELEMENT_CONTENT_MULT))) {
-			    if((NODE == NULL) ||
-			    (!sstreq(NODE->name, CONT->c1->name))) {
+			    if((NODE == NULL) || (!sstreq(NODE->name, CONT->c1->name))) {
 				    DEPTH++;
 				    CONT = CONT->c2;
 				    goto cont;

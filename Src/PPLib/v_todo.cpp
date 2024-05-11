@@ -1964,7 +1964,7 @@ DBQuery * PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			prj_obj.GetFullName(Filt.ProjectID, *pSubTitle);
 		if(Filt.TemplateID) {
 			pSubTitle->CatDivIfNotEmpty('-', 1);
-			GetObjectName(PPOBJ_PRJTASK, Filt.TemplateID, *pSubTitle, 1);
+			CatObjectName(PPOBJ_PRJTASK, Filt.TemplateID, *pSubTitle);
 		}
 		if(Filt.EmployerID) {
 			GetPersonName(Filt.EmployerID, name_buf);
@@ -1976,7 +1976,7 @@ DBQuery * PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		}
 		if(Filt.LinkTaskID) {
 			SString  link_task_name;
-			GetObjectName(PPOBJ_PRJTASK, Filt.LinkTaskID, link_task_name, 0);
+			GetObjectName(PPOBJ_PRJTASK, Filt.LinkTaskID, link_task_name);
 			if(!link_task_name.NotEmptyS())
 				link_task_name.CatChar('#').Cat(Filt.LinkTaskID);
 			PPLoadString("connectedto", *pSubTitle);

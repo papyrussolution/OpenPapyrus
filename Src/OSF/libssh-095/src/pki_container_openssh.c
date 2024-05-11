@@ -330,14 +330,8 @@ static int pki_openssh_export_privkey_blob(const ssh_key privkey,
  * @brief encrypts an ed25519 private key blob
  *
  */
-static int pki_private_key_encrypt(ssh_buffer privkey_buffer,
-    const char * passphrase,
-    const char * ciphername,
-    const char * kdfname,
-    ssh_auth_callback auth_fn,
-    void * auth_data,
-    uint32_t rounds,
-    ssh_string salt)
+static int pki_private_key_encrypt(ssh_buffer privkey_buffer, const char * passphrase, const char * ciphername,
+    const char * kdfname, ssh_auth_callback auth_fn, void * auth_data, uint32_t rounds, ssh_string salt)
 {
 	struct ssh_cipher_struct * ciphers = ssh_get_ciphertab();
 	struct ssh_cipher_struct cipher;
@@ -346,14 +340,11 @@ static int pki_private_key_encrypt(ssh_buffer privkey_buffer,
 	char passphrase_buffer[128] = {0};
 	int rc;
 	int i;
-	int cmp;
-
-	cmp = strcmp(ciphername, "none");
+	int cmp = strcmp(ciphername, "none");
 	if(cmp == 0) {
 		/* no encryption required */
 		return SSH_OK;
 	}
-
 	for(i = 0; ciphers[i].name != NULL; i++) {
 		cmp = strcmp(ciphername, ciphers[i].name);
 		if(cmp == 0) {
@@ -361,12 +352,10 @@ static int pki_private_key_encrypt(ssh_buffer privkey_buffer,
 			break;
 		}
 	}
-
 	if(ciphers[i].name == NULL) {
 		SSH_LOG(SSH_LOG_WARN, "Unsupported cipher %s", ciphername);
 		return SSH_ERROR;
 	}
-
 	cmp = strcmp(kdfname, "bcrypt");
 	if(cmp != 0) {
 		SSH_LOG(SSH_LOG_WARN, "Unsupported KDF %s", kdfname);
@@ -378,22 +367,13 @@ static int pki_private_key_encrypt(ssh_buffer privkey_buffer,
 		SSH_LOG(SSH_LOG_WARN, "Key material too big");
 		return SSH_ERROR;
 	}
-
-	SSH_LOG(SSH_LOG_WARN, "Encryption: %d key, %d IV, %d rounds, %zu bytes salt",
-	    cipher.keysize/8,
-	    cipher.blocksize, rounds, ssh_string_len(salt));
-
+	SSH_LOG(SSH_LOG_WARN, "Encryption: %d key, %d IV, %d rounds, %zu bytes salt", cipher.keysize/8, cipher.blocksize, rounds, ssh_string_len(salt));
 	if(passphrase == NULL) {
 		if(auth_fn == NULL) {
 			SSH_LOG(SSH_LOG_WARN, "No passphrase provided");
 			return SSH_ERROR;
 		}
-		rc = auth_fn("Passphrase",
-			passphrase_buffer,
-			sizeof(passphrase_buffer),
-			0,
-			0,
-			auth_data);
+		rc = auth_fn("Passphrase", passphrase_buffer, sizeof(passphrase_buffer), 0, 0, auth_data);
 		if(rc != SSH_OK) {
 			return SSH_ERROR;
 		}
