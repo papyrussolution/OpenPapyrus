@@ -8,12 +8,19 @@
 /*static*/uint64 SRecPageManager::MakeRowId(uint pageSize, uint pageSeq, uint offset)
 {
 	uint64 result = 0;
-	uint bits_offs = (32 - SBits::Clz(pageSize)) + 1;
-	uint bits_page = RowIdBitWidth - bits_offs;
-	if(pageSeq >= (1ULL << bits_page)) {
+	const uint bits_offs = (32 - SBits::Clz(pageSize)) + 1;
+	const uint bits_page = RowIdBitWidth - bits_offs;
+	assert((1ULL << bits_offs) >= pageSize);
+	if(pageSeq == 0) {
+		; // @error
+	}
+	else if(pageSeq >= (1ULL << bits_page)) {
 		; // @error
 	}
 	else if(offset >= (1ULL << bits_offs)) {
+		; // @error
+	}
+	else if(offset >= pageSize) {
 		; // @error
 	}
 	else {
@@ -25,14 +32,26 @@
 /*static*/int SRecPageManager::SplitRowId(uint64 rowId, uint pageSize, uint * pPageSeq, uint * pOffset)
 {
 	int    ok = 1;
-	uint bits_offs = (32 - SBits::Clz(pageSize)) + 1;
-	uint bits_page = RowIdBitWidth - bits_offs;
+	const uint bits_offs = (32 - SBits::Clz(pageSize)) + 1;
+	const uint bits_page = RowIdBitWidth - bits_offs;
 	constexpr uint64 seq_mask = (~0ULL >> (64-RowIdBitWidth));
 	const uint64 ofs_mask = (~0ULL >> (64-bits_offs));
-	uint page_seq = ((rowId & seq_mask) >> bits_offs);
+	uint page_seq = static_cast<uint>((rowId & seq_mask) >> bits_offs);
 	uint offset = static_cast<uint>(rowId & ofs_mask);
 	ASSIGN_PTR(pPageSeq, page_seq);
 	ASSIGN_PTR(pOffset, offset);
+	if(page_seq == 0) {
+		ok = 0; // @error
+	}
+	else if(page_seq >= (1ULL << bits_page)) {
+		ok = 0; // @error
+	}
+	else if(offset >= (1ULL << bits_offs)) {
+		ok = 0; // @error
+	}
+	else if(offset >= pageSize) {
+		ok = 0; // @error
+	}
 	return ok;
 }
 SRecPageManager::SRecPageManager(uint32 pageSize) : PageSize(pageSize), LastSeq(0)
@@ -52,9 +71,13 @@ int SRecPageManager::Write(uint64 * pRowId, uint pageType, const void * pData, s
 	const uint pfx_size = SDataPageHeader::EvaluateRecPrefix(pfx, 0, 0);
 	SDataPageHeader * p_page = QueryPageForWriting(pageType, dataLen + pfx_size);
 	if(p_page) {
-		p_page->Write(pData, dataLen);
-		Fl.Put(pageType, p_page->Seq, p_page->GetFreeSize());
-		//ASSIGN_PTR(pRowId, MakeRowId(PageSize, p_page->Seq, )
+		uint64 rowid = p_page->Write(pData, dataLen);
+		if(rowid) {
+			Fl.Put(pageType, p_page->Seq, p_page->GetFreeSize());
+			ASSIGN_PTR(pRowId, rowid);
+		}
+		else
+			ok = 0;
 	}
 	return ok;
 }
@@ -62,6 +85,11 @@ int SRecPageManager::Write(uint64 * pRowId, uint pageType, const void * pData, s
 int SRecPageManager::Read(uint64 rowId, void * pBuf, size_t bufSize)
 {
 	int    ok = 1;
+	uint   ofs = 0;
+	SDataPageHeader * p_page = QueryPageForReading(rowId, 0/*pageType*/, &ofs);
+	if(p_page) {
+		
+	}
 	return ok;
 }
 
@@ -99,6 +127,33 @@ SDataPageHeader * SRecPageManager::QueryPageForWriting(uint32 pageType, uint32 r
 		}
 	}
 	p_result = p_free_entry ? GetPage(p_free_entry->Seq) : 0;
+	return p_result;
+}
+
+int SRecPageManager::ReleasePage(SDataPageHeader * pPage)
+{
+	int    ok = -1;
+	if(pPage) {
+		// @stub
+	}
+	return ok;
+}
+
+SDataPageHeader * SRecPageManager::QueryPageForReading(uint64 rowId, uint32 pageType, uint * pOffset)
+{
+	SDataPageHeader * p_result = 0;
+	uint   ofs = 0;
+	if(rowId) {
+		uint   seq = 0;
+		if(SplitRowId(rowId, PageSize, &seq, &ofs)) {
+			p_result = GetPage(seq);
+			if(p_result && pageType && p_result->Type != pageType) {
+				ReleasePage(p_result);
+				p_result = 0;
+			}
+		}
+	}
+	ASSIGN_PTR(pOffset, ofs);
 	return p_result;
 }
 //
@@ -203,9 +258,9 @@ uint32 SDataPageHeader::WriteRecPrefix(uint offset, const RecPrefix & rPfx)
 		return 0;
 }
 
-int SDataPageHeader::Write(const void * pData, uint dataLen)
+uint64 SDataPageHeader::Write(const void * pData, uint dataLen)
 {
-	int    ok = 1;
+	uint64 rowid = 0;
 	RecPrefix rp;
 	rp.Size = dataLen;
 	rp.Flags = 0;
@@ -216,9 +271,12 @@ int SDataPageHeader::Write(const void * pData, uint dataLen)
 		THROW(pfx_size);
 		memcpy(PTR8(this)+start_position+pfx_size, pData, dataLen);
 		FreePos += (pfx_size + dataLen);
+		rowid = SRecPageManager::MakeRowId(TotalSize, Seq, start_position);
 	}
-	CATCHZOK
-	return ok;
+	CATCH
+		rowid = 0;
+	ENDCATCH
+	return rowid;
 }
 
 const void * SDataPageHeader::Enum(uint * pPos, uint * pSize) const
@@ -351,4 +409,55 @@ const SRecPageFreeList::FreeEntry * SRecPageFreeList::Get(uint32 type, uint32 re
 		}
 	}
 	return p_result;
+}
+
+static void Test()
+{
+	struct DataEntry {
+		static DataEntry * Generate(uint size)
+		{
+			DataEntry * p_result = 0;
+			if(size) {
+				p_result = static_cast<DataEntry *>(SAlloc::M(size+sizeof(DataEntry)));
+				if(p_result) {
+					p_result->Size = size;
+					p_result->RowId = 0;
+					SLS.GetTLA().Rg.ObfuscateBuffer(p_result+1, size);
+				}
+			}
+			return p_result;
+		}
+		uint   Size;
+		uint64 RowId;
+	};
+	SCollection data_list;
+	const uint entry_count = 100;
+	const uint max_rec_size = 500;
+	SRecPageManager rm(4096);
+	{
+		for(uint i = 0; i < entry_count; i++) {
+			uint rs = SLS.GetTLA().Rg.GetUniformIntPos(max_rec_size+1);
+			if(rs > 0) {
+				DataEntry * p_entry = DataEntry::Generate(rs);
+				if(p_entry) {
+					uint64 row_id = 0;
+					if(rm.Write(&row_id, SDataPageHeader::tRecord, p_entry+1, p_entry->Size)) {
+						p_entry->RowId = row_id;
+						data_list.insert(p_entry);
+					}
+					else
+						SAlloc::F(p_entry);
+				}
+			}
+		}
+	}
+	{
+		for(uint i = 0; i < data_list.getCount(); i++) {
+			const DataEntry * p_entry = static_cast<const DataEntry *>(data_list.at(i));
+			if(p_entry) {
+				uint8 rec_buf[max_rec_size*2];
+				rm.Read(p_entry->RowId, rec_buf, sizeof(rec_buf));
+			}
+		}
+	}
 }

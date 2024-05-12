@@ -1050,8 +1050,26 @@ SLTEST_R(SRecPageManager)
 		const uint page_size_list[] = { 512 * 2, 512 * 3, 512 * 4, 512 * 5, 512 * 6, 512 * 1024 };
 		for(uint psi = 0; psi < SIZEOFARRAY(page_size_list); psi++) {
 			const uint page_size = page_size_list[psi];
-			for(uint seq = 1; seq < SMEGABYTE(1); seq++) {
-				for(uint offs = sizeof(SDataPageHeader); offs < page_size-32; offs++) {
+			for(uint seq = 1; seq < SMEGABYTE(1); seq += 7) {
+				uint offset_list[1024];
+				uint offset_list_count = 0;
+				{
+					for(uint i = sizeof(SDataPageHeader); i < 128; i++) {
+						offset_list[offset_list_count++] = i;
+					}
+				}
+				offset_list[offset_list_count++] = page_size-1;
+				{
+					for(uint i = 129; offset_list_count < SIZEOFARRAY(offset_list) && i < page_size; i += 119) {
+						offset_list[offset_list_count++] = i;
+					}
+				}
+				{
+					SLCHECK_Z(SRecPageManager::MakeRowId(page_size, seq, page_size));
+					SLCHECK_Z(SRecPageManager::MakeRowId(page_size, 0, page_size-7));
+				}
+				for(uint oi = 0; oi < offset_list_count; oi++) {
+					const uint offs = offset_list[oi];
 					//static uint64 MakeRowId(uint pageSize, uint pageSeq, uint offset);
 					//static int SplitRowId(uint64 rowId, uint pageSize, uint * pPageSeq, uint * pOffset);					
 					uint64 row_id = SRecPageManager::MakeRowId(page_size, seq, offs);

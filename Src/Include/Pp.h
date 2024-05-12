@@ -31053,6 +31053,7 @@ public:
 	int    Get(PPID id, PPComputerPacket * pPack);
 	int    Put(PPID * pID, PPComputerPacket * pPack, int use_ta);
 	int    SearchByMacAddr(const MACAddr & rKey, PPID * pID, PPComputerPacket * pPack);
+	int    GenerateName(PPID categoryID, SString & rBuf);
 private:
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	virtual int  Edit(PPID * pID, void * extraPtr);

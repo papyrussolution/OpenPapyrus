@@ -1077,6 +1077,31 @@ struct PPComputerSysBlock { // @persistent @store(PropertyTbl)
 };
 #pragma pop
 
+int PPObjComputer::GenerateName(PPID categoryID, SString & rBuf)
+{
+	int    ok = -1;
+	SString prefix;
+	SString name_buf;
+	if(categoryID) {
+		PPObjComputerCategory compcat_obj;
+		PPComputerCategory compcat_rec;
+		if(compcat_obj.Search(categoryID, &compcat_rec) > 0) {
+			prefix = compcat_rec.CNameTemplate;
+		}
+	}
+	if(prefix.Strip().IsEmpty()) {
+		prefix = "Computer";
+	}
+	long   seq = 0;
+	do {
+		seq++;
+		name_buf.Z().Cat(prefix).CatChar('-').CatLongZ(seq, 3);
+	} while(SearchByName(name_buf, 0, 0) > 0);
+	rBuf = name_buf;
+	ok = 1;
+	return ok;
+}
+
 int PPObjComputer::SearchByMacAddr(const MACAddr & rKey, PPID * pID, PPComputerPacket * pPack)
 {
 	int    ok = -1;
@@ -1207,7 +1232,10 @@ int PPObjComputer::Put(PPID * pID, PPComputerPacket * pPack, int use_ta)
 						THROW(p_ref->PutProp(PPOBJ_COMPUTER, *pID, COMPUTERPRP_SYS, p_csblk, sizeof(*p_csblk)));
 					}
 					THROW(SetTagList(*pID, &pPack->TagL, 0));
-					THROW(SendObjMessage(DBMSG_COMPUTERACQUIRECAT, PPOBJ_PROCESSOR, Obj, *pID, reinterpret_cast<void *>(pPack->Rec.CategoryID), 0));
+					if(pPack->Rec.CategoryID != org_pack.Rec.CategoryID) {
+						THROW(SendObjMessage(DBMSG_COMPUTERLOSECAT, PPOBJ_PROCESSOR, pPack->Rec.ID, org_pack.Rec.CategoryID));
+						THROW(SendObjMessage(DBMSG_COMPUTERACQUIRECAT, PPOBJ_PROCESSOR, Obj, *pID, reinterpret_cast<void *>(pPack->Rec.CategoryID), 0));
+					}
 					if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
 						pPack->LinkFiles.Save(*pID, 0L);
 					}
@@ -1243,6 +1271,9 @@ int PPObjComputer::Put(PPID * pID, PPComputerPacket * pPack, int use_ta)
 				THROW(p_ref->PutProp(PPOBJ_COMPUTER, *pID, COMPUTERPRP_SYS, p_csblk, sizeof(*p_csblk)));
 			}
 			THROW(SetTagList(*pID, &pPack->TagL, 0));
+			if(pPack->Rec.CategoryID) {
+				THROW(SendObjMessage(DBMSG_COMPUTERACQUIRECAT, PPOBJ_PROCESSOR, Obj, *pID, reinterpret_cast<void *>(pPack->Rec.CategoryID), 0));
+			}
 			if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
 				pPack->LinkFiles.Save(*pID, 0L);
 			}

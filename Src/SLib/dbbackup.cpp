@@ -79,7 +79,7 @@ DBBackup::InfoFile::InfoFile(DbProvider * pDb) : Stream(0)
 		MakeFileName(data_path, BackupInfoFile, FileName, sizeof(FileName));
 	}
 	else
-		PTR32(FileName)[0] = 0;
+		FileName[0] = 0;
 }
 
 DBBackup::InfoFile::~InfoFile()
@@ -252,27 +252,27 @@ int DBBackup::InfoFile::WriteRecord(FILE * stream, const BCopyData * pData)
 int DBBackup::InfoFile::ReadRecord(FILE * stream, BCopyData * pData)
 {
 	int    ok = -1;
+	SString temp_buf;
 	char   buf[1024];
 	CALLPTRMEMB(pData, Z());
 	while(fgets(buf, sizeof(buf), stream)) {
 		if(*strip(chomp(buf))) {
 			if(pData) {
-				uint   pos = 0, i = 0;
-				SString str;
+				uint   i = 0;
 				StringSet ss(',', buf);
-				while(ss.get(&pos, str)) {
-					str.Strip();
+				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					temp_buf.Strip();
 					switch(i++) {
-						case 0: pData->Set = str; break;
-						case 1: pData->ID = str.ToLong(); break;
-						case 2: pData->CopyPath = str; break;
-						case 3: pData->SubDir = str; break;
-						case 4: strtodate(str, DATF_DMY, &pData->Dtm.d); break;
-						case 5: strtotime(str, TIMF_HMS, &pData->Dtm.t); break;
-						case 6: SETFLAG(pData->Flags, BCOPYDF_USECOMPRESS, str.ToLong()); break; // copy format
-						case 7: pData->SrcSize  = _atoi64(str); break;
-						case 8: pData->DestSize = _atoi64(str); break;
-						case 9: pData->CheckSum = strtoul(str, 0, 10); break;
+						case 0: pData->Set = temp_buf; break;
+						case 1: pData->ID = temp_buf.ToLong(); break;
+						case 2: pData->CopyPath = temp_buf; break;
+						case 3: pData->SubDir = temp_buf; break;
+						case 4: strtodate(temp_buf, DATF_DMY, &pData->Dtm.d); break;
+						case 5: strtotime(temp_buf, TIMF_HMS, &pData->Dtm.t); break;
+						case 6: SETFLAG(pData->Flags, BCOPYDF_USECOMPRESS, temp_buf.ToLong()); break; // copy format
+						case 7: pData->SrcSize  = temp_buf.ToInt64(); break;
+						case 8: pData->DestSize = temp_buf.ToInt64(); break;
+						case 9: pData->CheckSum = temp_buf.ToULong(); break;
 					}
 				}
 			}

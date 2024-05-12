@@ -1167,6 +1167,7 @@ int PPObjProcessor::SearchAutocreateGroupListByObjGroup(PPID objType, PPID objGr
 int PPObjProcessor::AutocreateByObjGroup(PPID linkObjType, PPID linkObjID, const PPIDArray & rGrpIdList, int use_ta)
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	SString name_buf;
 	ProcessorTbl::Rec grp_rec;
 	for(uint i = 0; i < rGrpIdList.getCount(); i++) {
@@ -1187,6 +1188,15 @@ int PPObjProcessor::AutocreateByObjGroup(PPID linkObjType, PPID linkObjID, const
 			THROW(GetObjectName(linkObjType, linkObjID, name_buf) > 0); // @v12.0.1 
 			name_buf.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
 			SETFLAGBYSAMPLE(pack.Rec.Flags, PRCF_USETSESSSIMPLEDLG, grp_rec.Flags);
+			if(linkObjType == PPOBJ_COMPUTER) {
+				S_GUID uuid;
+				if(p_ref->Ot.GetTagGuid(linkObjType, linkObjID, PPTAG_COMPUTER_GUID, uuid) > 0) {
+					ObjTagItem tag_item;
+					if(tag_item.SetGuid(PPTAG_PRC_UUID, &uuid)) {
+						pack.TagL.PutItem(PPTAG_PRC_UUID, &tag_item);
+					}
+				}
+			}
 			THROW(PutPacket(&prc_id, &pack, use_ta));
 		}
 	}
@@ -1211,6 +1221,13 @@ int PPObjProcessor::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		if(SearchAutocreateGroupListByObjGroup(link_obj_type, compcat_id, grp_id_list) > 0) {
 			THROW(AutocreateByObjGroup(link_obj_type, link_obj_id, grp_id_list, 0));
 		}
+	}
+	else if(msg == DBMSG_COMPUTERLOSECAT) { // @v12.0.1
+		const  PPID comp_id = _obj;
+		const  PPID compcat_id = _id;
+		PPID   prc_id = 0;
+		if(SearchByLinkObj(PPOBJ_COMPUTER, comp_id, &prc_id, 0) > 0)
+			return RetRefsExistsErr(Obj, prc_id);
 	}
 	else if(msg == DBMSG_PERSONACQUIREKIND) {
 		constexpr PPID link_obj_type = PPOBJ_PERSON;
@@ -1261,6 +1278,7 @@ int PrcCtrlGroup::getData(TDialog * pDlg, void * pData)
 //
 //
 class ProcessorDialog : public TDialog {
+	DECL_DIALOG_DATA(PPProcessorPacket);
 public:
 	enum {
 		ctlgroupGoods = 1
@@ -1268,8 +1286,140 @@ public:
 	explicit ProcessorDialog(uint dlgID) : TDialog(dlgID), InheritedFlags(0)
 	{
 	}
-	int    setDTS(const PPProcessorPacket *);
-	int    getDTS(PPProcessorPacket *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		setCtrlLong(CTL_PRC_ID, Data.Rec.ID);
+		disableCtrl(CTL_PRC_ID, 1);
+		setCtrlData(CTL_PRC_NAME, Data.Rec.Name);
+		setCtrlData(CTL_PRC_SYMB, Data.Rec.Code);
+		SetupPPObjCombo(this, CTLSEL_PRC_PARENT, PPOBJ_PROCESSOR, Data.Rec.ParentID, OLW_CANINSERT|OLW_CANSELUPLEVEL, reinterpret_cast<void *>(PRCEXDF_GROUP));
+		SetupPPObjCombo(this, CTLSEL_PRC_LOC, PPOBJ_LOCATION, Data.Rec.LocID, 0);
+		SetupPPObjCombo(this, CTLSEL_PRC_RESTGGRP, PPOBJ_GOODSGROUP, Data.Rec.RestAltGrpID, OLW_CANINSERT, reinterpret_cast<void *>(GGRTYP_SEL_ALT));
+		setupParent();
+		if(Data.Rec.Kind == PPPRCK_PROCESSOR) {
+			SetupPPObjCombo(this, CTLSEL_PRC_PRINTER, PPOBJ_BCODEPRINTER, Data.Rec.PrinterID, OLW_CANINSERT, 0);
+			AddClusterAssoc(CTL_PRC_PANE_FLAGS, 0, PRCF_PRINTNEWLINE_PANE);
+			AddClusterAssoc(CTL_PRC_PANE_FLAGS, 1, PRCF_ONECLICKTURN_PANE);
+			SetClusterData(CTL_PRC_PANE_FLAGS, Data.Rec.Flags);
+			AddClusterAssoc(CTL_PRC_FLAGS, 0, PRCF_LOCKWROFF);
+			AddClusterAssoc(CTL_PRC_FLAGS, 1, PRCF_TURNINCOMPLBILL);
+			AddClusterAssoc(CTL_PRC_FLAGS, 2, PRCF_PASSIVE);
+			AddClusterAssoc(CTL_PRC_FLAGS, 3, PRCF_CLOSEBYJOBSRV);
+			AddClusterAssoc(CTL_PRC_FLAGS, 4, PRCF_USETSESSSIMPLEDLG);
+			AddClusterAssoc(CTL_PRC_FLAGS, 5, PRCF_NEEDCCHECK);
+			AddClusterAssoc(CTL_PRC_FLAGS, 6, PRCF_ALLOWCIP);
+			AddClusterAssoc(CTL_PRC_FLAGS, 7, PRCF_ALLOWCANCELAFTERCLOSE);
+			AddClusterAssoc(CTL_PRC_FLAGS, 8, PRCF_ALLOWREPEATING); // @v11.0.4
+			AddClusterAssoc(CTL_PRC_FLAGS, 9, PRCF_TECHCAPACITYREV); // @v11.3.10
+			SetClusterData(CTL_PRC_FLAGS, Data.Rec.Flags);
+			setCtrlData(CTL_PRC_LABELCOUNT, &Data.Rec.LabelCount);
+			setCtrlData(CTL_PRC_CIPMAX, &Data.Rec.CipMax);
+			setupLinkName(0);
+		}
+		else {
+			const long wr_off_dt_sel = (Data.Rec.Flags & PRCF_WROFFDT_START) ? 0 : 1;
+			AddClusterAssoc(CTL_PRC_WROFFDT,  0, 0);
+			AddClusterAssocDef(CTL_PRC_WROFFDT,  1, 1);
+			SetClusterData(CTL_PRC_WROFFDT, wr_off_dt_sel);
+			AddClusterAssoc(CTL_PRC_WROFFDT_BYSUPER, 0, PRCF_WROFFDT_BYSUPER);
+			SetClusterData(CTL_PRC_WROFFDT_BYSUPER, Data.Rec.Flags);
+			setupAssoc();
+			if(Data.Rec.LinkObjType && Data.Rec.ID) {
+				if(PrcObj.GetChildIDList(Data.Rec.ID, 1, 0) > 0)
+					disableCtrls(1, CTL_PRC_ASSOC, CTLSEL_PRC_ASSOCGROUP, 0);
+			}
+		}
+		setCtrlData(CTL_PRC_SRVJOBSYMB, Data.Rec.SrvJobSymb);
+		PPIDArray op_types;
+		op_types.addzlist(PPOPT_GOODSMODIF, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, 0);
+		SetupOprKindCombo(this, CTLSEL_PRC_WROFFOP, Data.Rec.WrOffOpID, 0, &op_types, 0);
+		setupAccSheet(CTLSEL_PRC_WROFFOP, CTLSEL_PRC_WROFFAR, Data.Rec.WrOffArID);
+		SetupPPObjCombo(this, CTLSEL_PRC_CIPKIND, PPOBJ_PERSONKIND, Data.Rec.CipPersonKindID, 0, 0);
+
+		LTIME  tm;
+		tm.settotalsec(Data.Rec.SuperSessTiming);
+		setCtrlData(CTL_PRC_SUPERSESSCONT, &tm);
+
+		AddClusterAssoc(CTL_PRC_GRP_FLAGS,  0, PRCF_INDUCTSUPERSESSTATUS);
+		AddClusterAssoc(CTL_PRC_GRP_FLAGS,  1, PRCF_STOREGOODSREST);
+		AddClusterAssoc(CTL_PRC_GRP_FLAGS,  2, PRCF_LOCKWROFF);
+		AddClusterAssoc(CTL_PRC_GRP_FLAGS,  3, PRCF_CANSWITCHPAN);
+		AddClusterAssoc(CTL_PRC_GRP_FLAGS,  4, PRCF_ACCDUPSERIALINSESS);
+		AddClusterAssoc(CTL_PRC_GRP_FLAGS,  5, PRCF_TURNINCOMPLBILL);
+		AddClusterAssoc(CTL_PRC_GRP_FLAGS,  6, PRCF_ADDEDOBJASAGENT);
+		AddClusterAssoc(CTL_PRC_GRP_FLAGS,  7, PRCF_CLOSEBYJOBSRV);
+		AddClusterAssoc(CTL_PRC_GRP_FLAGS,  8, PRCF_ALLOWCIP);
+		AddClusterAssoc(CTL_PRC_GRP_FLAGS,  9, PRCF_USETSESSSIMPLEDLG);
+		AddClusterAssoc(CTL_PRC_GRP_FLAGS, 10, PRCF_AUTOCREATE);
+		AddClusterAssoc(CTL_PRC_GRP_FLAGS, 11, PRCF_ALLOWCANCELAFTERCLOSE);
+		AddClusterAssoc(CTL_PRC_GRP_FLAGS, 12, PRCF_ALLOWREPEATING); // @v11.0.4
+		AddClusterAssoc(CTL_PRC_GRP_FLAGS, 13, PRCF_TECHCAPACITYREV); // @v11.3.10
+		SetClusterData(CTL_PRC_GRP_FLAGS, Data.Rec.Flags);
+		{
+			long  tcbquant = Data.Rec.TcbQuant * 5;
+			setCtrlLong(CTL_PRC_TCBQUANT, tcbquant);
+		}
+		disableCtrl(CTLSEL_PRC_RESTGGRP, !(Data.Rec.Flags & PRCF_STOREGOODSREST));
+		disableCtrl(CTL_PRC_CIPMAX, !(Data.Rec.Flags & PRCF_ALLOWCIP));
+		disableCtrl(CTLSEL_PRC_CIPKIND, !(Data.Rec.Flags & PRCF_ALLOWCIP));
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		LTIME  tm = ZEROTIME;
+		getCtrlData(sel = CTL_PRC_NAME, Data.Rec.Name);
+		THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
+		getCtrlData(CTL_PRC_SYMB, Data.Rec.Code);
+		getCtrlData(CTLSEL_PRC_PARENT, &Data.Rec.ParentID);
+		THROW_PP_S(!Data.Rec.ParentID || Data.Rec.ParentID != Data.Rec.ID, PPERR_PROCESSORSELFPAR, Data.Rec.Name);
+		getCtrlData(sel = CTLSEL_PRC_LOC, &Data.Rec.LocID);
+		THROW_PP(Data.Rec.LocID, PPERR_LOCNEEDED);
+		getCtrlData(CTLSEL_PRC_WROFFOP, &Data.Rec.WrOffOpID);
+		getCtrlData(CTLSEL_PRC_WROFFAR, &Data.Rec.WrOffArID);
+
+		getCtrlData(CTL_PRC_SUPERSESSCONT, &tm);
+		Data.Rec.SuperSessTiming = tm.totalsec();
+		GetClusterData(CTL_PRC_GRP_FLAGS, &Data.Rec.Flags);
+		getCtrlData(CTLSEL_PRC_RESTGGRP, &Data.Rec.RestAltGrpID);
+		if(Data.Rec.Kind == PPPRCK_PROCESSOR) {
+			getCtrlData(CTLSEL_PRC_PRINTER, &Data.Rec.PrinterID);
+			GetClusterData(CTL_PRC_PANE_FLAGS, &Data.Rec.Flags);
+			GetClusterData(CTL_PRC_FLAGS,      &Data.Rec.Flags);
+			getCtrlData(CTL_PRC_LABELCOUNT, &Data.Rec.LabelCount);
+			getCtrlData(CTL_PRC_CIPMAX, &Data.Rec.CipMax);
+			sel = CTL_PRC_LINKOBJ;
+			THROW_PP(oneof2(Data.Rec.LinkObjType, 0, PPOBJ_COMPUTER) || Data.Rec.LinkObjID, PPERR_LINKOBJNEEDED);
+		}
+		else {
+			long   wr_off_dt_sel = 0;
+			GetClusterData(CTL_PRC_WROFFDT, &wr_off_dt_sel);
+			SETFLAG(Data.Rec.Flags, PRCF_WROFFDT_START, wr_off_dt_sel == 0);
+			GetClusterData(CTL_PRC_WROFFDT_BYSUPER, &Data.Rec.Flags);
+			GetClusterData(CTL_PRC_ASSOC, &Data.Rec.LinkObjType);
+			if(Data.Rec.LinkObjType)
+				if(oneof2(Data.Rec.LinkObjType, PPOBJ_PERSON, PPOBJ_COMPUTER)) // @v12.0.1 PPOBJ_COMPUTER
+					Data.Rec.LinkObjID = getCtrlLong(CTLSEL_PRC_ASSOCGROUP);
+				else
+					Data.Rec.LinkObjID = 0;
+			else
+				Data.Rec.LinkObjID = 0;
+		}
+		getCtrlData(CTL_PRC_SRVJOBSYMB, Data.Rec.SrvJobSymb);
+		getCtrlData(CTLSEL_PRC_CIPKIND, &Data.Rec.CipPersonKindID);
+		if(InheritedFlags & PRCF_ALLOWCIP)
+			Data.Rec.Flags &= ~PRCF_ALLOWCIP;
+		{
+			long  tcbquant = 0;
+			if(getCtrlData(CTL_PRC_TCBQUANT, &tcbquant))
+				Data.Rec.TcbQuant = (int16)(tcbquant / 5);
+		}
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   setupAccSheet(uint opSelCtl, uint objSelCtl, PPID arID);
@@ -1287,7 +1437,6 @@ private:
 	}
 	int    EditExt();
 
-	PPProcessorPacket Data;
 	PPObjProcessor PrcObj;
 	long   InheritedFlags;
 };
@@ -1625,142 +1774,6 @@ void ProcessorDialog::setupLinkName(int force)
 				setCtrlString(CTL_PRC_NAME, link_obj_name);
 		}
 	}
-}
-
-int ProcessorDialog::setDTS(const PPProcessorPacket * pData)
-{
-	RVALUEPTR(Data, pData);
-	setCtrlLong(CTL_PRC_ID, Data.Rec.ID);
-	disableCtrl(CTL_PRC_ID, 1);
-	setCtrlData(CTL_PRC_NAME, Data.Rec.Name);
-	setCtrlData(CTL_PRC_SYMB, Data.Rec.Code);
-	SetupPPObjCombo(this, CTLSEL_PRC_PARENT, PPOBJ_PROCESSOR, Data.Rec.ParentID, OLW_CANINSERT|OLW_CANSELUPLEVEL, reinterpret_cast<void *>(PRCEXDF_GROUP));
-	SetupPPObjCombo(this, CTLSEL_PRC_LOC, PPOBJ_LOCATION, Data.Rec.LocID, 0);
-	SetupPPObjCombo(this, CTLSEL_PRC_RESTGGRP, PPOBJ_GOODSGROUP, Data.Rec.RestAltGrpID, OLW_CANINSERT, reinterpret_cast<void *>(GGRTYP_SEL_ALT));
-	setupParent();
-	if(Data.Rec.Kind == PPPRCK_PROCESSOR) {
-		SetupPPObjCombo(this, CTLSEL_PRC_PRINTER, PPOBJ_BCODEPRINTER, Data.Rec.PrinterID, OLW_CANINSERT, 0);
-		AddClusterAssoc(CTL_PRC_PANE_FLAGS, 0, PRCF_PRINTNEWLINE_PANE);
-		AddClusterAssoc(CTL_PRC_PANE_FLAGS, 1, PRCF_ONECLICKTURN_PANE);
-		SetClusterData(CTL_PRC_PANE_FLAGS, Data.Rec.Flags);
-		AddClusterAssoc(CTL_PRC_FLAGS, 0, PRCF_LOCKWROFF);
-		AddClusterAssoc(CTL_PRC_FLAGS, 1, PRCF_TURNINCOMPLBILL);
-		AddClusterAssoc(CTL_PRC_FLAGS, 2, PRCF_PASSIVE);
-		AddClusterAssoc(CTL_PRC_FLAGS, 3, PRCF_CLOSEBYJOBSRV);
-		AddClusterAssoc(CTL_PRC_FLAGS, 4, PRCF_USETSESSSIMPLEDLG);
-		AddClusterAssoc(CTL_PRC_FLAGS, 5, PRCF_NEEDCCHECK);
-		AddClusterAssoc(CTL_PRC_FLAGS, 6, PRCF_ALLOWCIP);
-		AddClusterAssoc(CTL_PRC_FLAGS, 7, PRCF_ALLOWCANCELAFTERCLOSE);
-		AddClusterAssoc(CTL_PRC_FLAGS, 8, PRCF_ALLOWREPEATING); // @v11.0.4
-		AddClusterAssoc(CTL_PRC_FLAGS, 9, PRCF_TECHCAPACITYREV); // @v11.3.10
-		SetClusterData(CTL_PRC_FLAGS, Data.Rec.Flags);
-		setCtrlData(CTL_PRC_LABELCOUNT, &Data.Rec.LabelCount);
-		setCtrlData(CTL_PRC_CIPMAX, &Data.Rec.CipMax);
-		setupLinkName(0);
-	}
-	else {
-		const long wr_off_dt_sel = (Data.Rec.Flags & PRCF_WROFFDT_START) ? 0 : 1;
-		AddClusterAssoc(CTL_PRC_WROFFDT,  0, 0);
-		AddClusterAssocDef(CTL_PRC_WROFFDT,  1, 1);
-		SetClusterData(CTL_PRC_WROFFDT, wr_off_dt_sel);
-		AddClusterAssoc(CTL_PRC_WROFFDT_BYSUPER, 0, PRCF_WROFFDT_BYSUPER);
-		SetClusterData(CTL_PRC_WROFFDT_BYSUPER, Data.Rec.Flags);
-		setupAssoc();
-		if(Data.Rec.LinkObjType && Data.Rec.ID) {
-			if(PrcObj.GetChildIDList(Data.Rec.ID, 1, 0) > 0)
-				disableCtrls(1, CTL_PRC_ASSOC, CTLSEL_PRC_ASSOCGROUP, 0);
-		}
-	}
-	setCtrlData(CTL_PRC_SRVJOBSYMB, Data.Rec.SrvJobSymb);
-	PPIDArray op_types;
-	op_types.addzlist(PPOPT_GOODSMODIF, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, 0);
-	SetupOprKindCombo(this, CTLSEL_PRC_WROFFOP, Data.Rec.WrOffOpID, 0, &op_types, 0);
-	setupAccSheet(CTLSEL_PRC_WROFFOP, CTLSEL_PRC_WROFFAR, Data.Rec.WrOffArID);
-	SetupPPObjCombo(this, CTLSEL_PRC_CIPKIND, PPOBJ_PERSONKIND, Data.Rec.CipPersonKindID, 0, 0);
-
-	LTIME  tm;
-	tm.settotalsec(Data.Rec.SuperSessTiming);
-	setCtrlData(CTL_PRC_SUPERSESSCONT, &tm);
-
-	AddClusterAssoc(CTL_PRC_GRP_FLAGS,  0, PRCF_INDUCTSUPERSESSTATUS);
-	AddClusterAssoc(CTL_PRC_GRP_FLAGS,  1, PRCF_STOREGOODSREST);
-	AddClusterAssoc(CTL_PRC_GRP_FLAGS,  2, PRCF_LOCKWROFF);
-	AddClusterAssoc(CTL_PRC_GRP_FLAGS,  3, PRCF_CANSWITCHPAN);
-	AddClusterAssoc(CTL_PRC_GRP_FLAGS,  4, PRCF_ACCDUPSERIALINSESS);
-	AddClusterAssoc(CTL_PRC_GRP_FLAGS,  5, PRCF_TURNINCOMPLBILL);
-	AddClusterAssoc(CTL_PRC_GRP_FLAGS,  6, PRCF_ADDEDOBJASAGENT);
-	AddClusterAssoc(CTL_PRC_GRP_FLAGS,  7, PRCF_CLOSEBYJOBSRV);
-	AddClusterAssoc(CTL_PRC_GRP_FLAGS,  8, PRCF_ALLOWCIP);
-	AddClusterAssoc(CTL_PRC_GRP_FLAGS,  9, PRCF_USETSESSSIMPLEDLG);
-	AddClusterAssoc(CTL_PRC_GRP_FLAGS, 10, PRCF_AUTOCREATE);
-	AddClusterAssoc(CTL_PRC_GRP_FLAGS, 11, PRCF_ALLOWCANCELAFTERCLOSE);
-	AddClusterAssoc(CTL_PRC_GRP_FLAGS, 12, PRCF_ALLOWREPEATING); // @v11.0.4
-	AddClusterAssoc(CTL_PRC_GRP_FLAGS, 13, PRCF_TECHCAPACITYREV); // @v11.3.10
-	SetClusterData(CTL_PRC_GRP_FLAGS, Data.Rec.Flags);
-	{
-		long  tcbquant = Data.Rec.TcbQuant * 5;
-		setCtrlLong(CTL_PRC_TCBQUANT, tcbquant);
-	}
-	disableCtrl(CTLSEL_PRC_RESTGGRP, !(Data.Rec.Flags & PRCF_STOREGOODSREST));
-	disableCtrl(CTL_PRC_CIPMAX, !(Data.Rec.Flags & PRCF_ALLOWCIP));
-	disableCtrl(CTLSEL_PRC_CIPKIND, !(Data.Rec.Flags & PRCF_ALLOWCIP));
-	return 1;
-}
-
-int ProcessorDialog::getDTS(PPProcessorPacket * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	LTIME  tm = ZEROTIME;
-	getCtrlData(sel = CTL_PRC_NAME, Data.Rec.Name);
-	THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
-	getCtrlData(CTL_PRC_SYMB, Data.Rec.Code);
-	getCtrlData(CTLSEL_PRC_PARENT, &Data.Rec.ParentID);
-	THROW_PP_S(!Data.Rec.ParentID || Data.Rec.ParentID != Data.Rec.ID, PPERR_PROCESSORSELFPAR, Data.Rec.Name);
-	getCtrlData(sel = CTLSEL_PRC_LOC, &Data.Rec.LocID);
-	THROW_PP(Data.Rec.LocID, PPERR_LOCNEEDED);
-	getCtrlData(CTLSEL_PRC_WROFFOP, &Data.Rec.WrOffOpID);
-	getCtrlData(CTLSEL_PRC_WROFFAR, &Data.Rec.WrOffArID);
-
-	getCtrlData(CTL_PRC_SUPERSESSCONT, &tm);
-	Data.Rec.SuperSessTiming = tm.totalsec();
-	GetClusterData(CTL_PRC_GRP_FLAGS, &Data.Rec.Flags);
-	getCtrlData(CTLSEL_PRC_RESTGGRP, &Data.Rec.RestAltGrpID);
-	if(Data.Rec.Kind == PPPRCK_PROCESSOR) {
-		getCtrlData(CTLSEL_PRC_PRINTER, &Data.Rec.PrinterID);
-		GetClusterData(CTL_PRC_PANE_FLAGS, &Data.Rec.Flags);
-		GetClusterData(CTL_PRC_FLAGS,      &Data.Rec.Flags);
-		getCtrlData(CTL_PRC_LABELCOUNT, &Data.Rec.LabelCount);
-		getCtrlData(CTL_PRC_CIPMAX, &Data.Rec.CipMax);
-		sel = CTL_PRC_LINKOBJ;
-		THROW_PP(oneof2(Data.Rec.LinkObjType, 0, PPOBJ_COMPUTER) || Data.Rec.LinkObjID, PPERR_LINKOBJNEEDED);
-	}
-	else {
-		long   wr_off_dt_sel = 0;
-		GetClusterData(CTL_PRC_WROFFDT, &wr_off_dt_sel);
-		SETFLAG(Data.Rec.Flags, PRCF_WROFFDT_START, wr_off_dt_sel == 0);
-		GetClusterData(CTL_PRC_WROFFDT_BYSUPER, &Data.Rec.Flags);
-		GetClusterData(CTL_PRC_ASSOC, &Data.Rec.LinkObjType);
-		if(Data.Rec.LinkObjType)
-			if(Data.Rec.LinkObjType == PPOBJ_PERSON)
-				Data.Rec.LinkObjID = getCtrlLong(CTLSEL_PRC_ASSOCGROUP);
-			else
-				Data.Rec.LinkObjID = 0;
-		else
-			Data.Rec.LinkObjID = 0;
-	}
-	getCtrlData(CTL_PRC_SRVJOBSYMB, Data.Rec.SrvJobSymb);
-	getCtrlData(CTLSEL_PRC_CIPKIND, &Data.Rec.CipPersonKindID);
-	if(InheritedFlags & PRCF_ALLOWCIP)
-		Data.Rec.Flags &= ~PRCF_ALLOWCIP;
-	{
-		long  tcbquant = 0;
-		if(getCtrlData(CTL_PRC_TCBQUANT, &tcbquant))
-			Data.Rec.TcbQuant = (int16)(tcbquant / 5);
-	}
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
 }
 
 int PPObjProcessor::Edit(PPID * pID, void * extraPtr /*parentID*/)

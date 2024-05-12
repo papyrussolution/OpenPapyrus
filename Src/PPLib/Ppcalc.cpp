@@ -1460,7 +1460,7 @@ int PosPaymentBlock::EditDialog2()
 				switch(Data.Kind) {
 					case cpmCash:
 						{
-							double val = TotalConst - Data.CcPl.Get(CCAMTTYP_CRDCARD);
+							const double val = TotalConst - Data.CcPl.Get(CCAMTTYP_CRDCARD);
 							Data.CcPl.Set(CCAMTTYP_CASH, val);
 							Data.CcPl.Set(CCAMTTYP_BANK, 0.0);
 							SetupAmount();
@@ -1472,7 +1472,7 @@ int PosPaymentBlock::EditDialog2()
 						break;
 					case cpmBank:
 						{
-							double val = TotalConst - Data.CcPl.Get(CCAMTTYP_CRDCARD);
+							const double val = TotalConst - Data.CcPl.Get(CCAMTTYP_CRDCARD);
 							Data.CcPl.Set(CCAMTTYP_CASH, 0.0);
 							Data.CcPl.Set(CCAMTTYP_BANK, val);
 							SetupAmount();

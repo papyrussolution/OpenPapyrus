@@ -4625,7 +4625,18 @@ struct SDataPageHeader {
 	uint32 ReadRecPrefix(uint pos, RecPrefix & rPfx) const;
 	static uint32 EvaluateRecPrefix(const RecPrefix & rPfx, uint8 * pPfxBuf, uint8 * pFlags);
 	uint32 WriteRecPrefix(uint offset, const RecPrefix & rPfx);
-	int    Write(const void * pData, uint dataLen);
+	//
+	// Returns:
+	//   0 - error
+	//   !0 - значение rowid внесенной записи
+	//
+	uint64 Write(const void * pData, uint dataLen);
+	//
+	// Returns:
+	//   0 - error
+	//   !0 - actual data size was read 
+	//
+	uint   Read(uint offset, void * pBuf, size_t bufSize);
 	const  void * Enum(uint * pPos, uint * pSize) const;
 	static SDataPageHeader * Allocate(uint32 type, uint32 seq, uint totalSize);
 
@@ -4686,6 +4697,8 @@ private:
 	SDataPageHeader * GetPage(uint32 seq);
 	SDataPageHeader * AllocatePage(uint32 type);
 	SDataPageHeader * QueryPageForWriting(uint32 pageType, uint32 reqSize);
+	SDataPageHeader * QueryPageForReading(uint64 rowId, uint32 pageType, uint * pOffset);
+	int    ReleasePage(SDataPageHeader * pPage);
 
 	const uint32 PageSize;
 	uint32 LastSeq;
