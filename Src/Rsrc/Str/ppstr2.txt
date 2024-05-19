@@ -2326,6 +2326,10 @@ PPERR_CHZNPMTOKENUNDEF              "Не определен токен разр
 PPERR_CHZNPMCDNHOSTFAULT            "Не удалось определить CDN-хост разрешительного режима @{brand_chzn}"
 PPERR_CHZNPMQUERYCDNLISTFAULT       "Ошибка получения списка CDN-хостов разрешительного режима @{brand_chzn}"
 PPERR_CHZNPMCDNHOSTSELECTIONFAULT   "Ошибка выбора доступного CDN-хоста разрешительного режима @{brand_chzn}"
+PPERR_COMPIDENTAMBIG_GUIDMACADR     "Неоднозначность в идентификации компьютера по GUID и MAC-адресу (%s)"
+PPERR_COMPIDENTAMBIG_GUID           "Неоднозначность в идентификации компьютера по GUID (%s)"
+PPERR_COMPIDENTAMBIG_MACADR         "Неоднозначность в идентификации компьютера по MAC-адресу (%s)"
+
 // LastError
 
 [102] // confirmation
@@ -3343,6 +3347,7 @@ PPFILNAM_NOIMAGE               "nophoto.png" // @v10.9.4
 PPFILNAM_VKTALK_LOG            "vk-talk.log" // @v10.9.6
 PPFILNAM_STYLOQSVC_LOG         "styloqsvc.log" // @v11.6.11
 PPFILNAM_STYLOQSVCTALK_LOG     "styloqsvc-talk.log" // @v11.9.2
+PPFILNAM_EDI_LOG               "edi.log" // @v12.0.2 В этом файле сохраняются результаты унифицированного обмена EDI (see PPBillImporter::DoFullEdiProcess)
 
 #!} // dont_translate
 
@@ -18159,6 +18164,7 @@ PPHS_WORKBOOK                  "workbook"
 PPHS_WORLD                     "world"
 PPHS_WSCTL                     "wsctl" // @v11.7.2
 PPHS_COMPUTER                  "computer" // @v12.0.0
+PPHS_COMPUTERCATEGORY          "computercategory" // @v12.0.2
 PPHS_LOGLOCKSTACK              "loglockstack"
 PPHS_PAYMENT                   "payment"
 PPHS_UNKN                      "unkn"

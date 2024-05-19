@@ -51,7 +51,8 @@ static constexpr int kLargeDOF = 150;
 //     Ibbetson D, Algorithm 209
 //     Collected Algorithms of the CACM 1963 p. 616
 //
-double POZ(double z) {
+double POZ(double z) 
+{
 	static constexpr double kP1[] = {
 		0.797884560593,  -0.531923007300, 0.319152932694,
 		-0.151968751364, 0.059054035642,  -0.019198292004,

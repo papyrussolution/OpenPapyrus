@@ -437,7 +437,7 @@ loop:
 			if(*r == '$') {
 				switch(*(++r)) {
 					case 0: --r; /* end of string; back up */
-					/* fallthrough */
+					// @fallthrough
 					case '$': js_putc(J, &sb, '$'); break;
 					case '`': js_putm(J, &sb, source, s); break;
 					case '\'': js_puts(J, &sb, s + n); break;
@@ -538,7 +538,7 @@ static void Sp_replace_string(js_State * J)
 			if(*r == '$') {
 				switch(*(++r)) {
 					case 0: --r; /* end of string; back up */
-					/* fallthrough */
+					// @fallthrough
 					case '$': js_putc(J, &sb, '$'); break;
 					case '&': js_putm(J, &sb, s, s + n); break;
 					case '`': js_putm(J, &sb, source, s); break;
@@ -554,7 +554,6 @@ static void Sp_replace_string(js_State * J)
 		js_puts(J, &sb, s + n);
 		js_putc(J, &sb, 0);
 	}
-
 	if(js_try(J)) {
 		js_free(J, sb);
 		js_throw(J);
@@ -574,21 +573,15 @@ static void Sp_replace(js_State * J)
 
 static void Sp_split_regexp(js_State * J)
 {
-	js_Regexp * re;
-	const char * text;
-	int limit, len, k;
+	int len, k;
 	const char * p, * a, * b, * c, * e;
 	Resub m;
-
-	text = checkstring(J, 0);
-	re = js_toregexp(J, 1);
-	limit = js_isdefined(J, 2) ? js_tointeger(J, 2) : 1 << 30;
-
+	const char * text = checkstring(J, 0);
+	js_Regexp * re = js_toregexp(J, 1);
+	int limit = js_isdefined(J, 2) ? js_tointeger(J, 2) : 1 << 30;
 	js_newarray(J);
 	len = 0;
-
 	e = text + strlen(text);
-
 	/* splitting the empty string */
 	if(e == text) {
 		if(js_doregexec(J, (Reprog *)re->prog, text, &m, 0)) {
@@ -598,25 +591,21 @@ static void Sp_split_regexp(js_State * J)
 		}
 		return;
 	}
-
 	p = a = text;
 	while(a < e) {
 		if(js_doregexec(J, (Reprog *)re->prog, a, &m, a > text ? REG_NOTBOL : 0))
 			break; /* no match */
-
 		b = m.sub[0].sp;
 		c = m.sub[0].ep;
-
 		/* empty string at end of last match */
 		if(b == p) {
 			++a;
 			continue;
 		}
-
-		if(len == limit) return;
+		if(len == limit) 
+			return;
 		js_pushlstring(J, p, b - p);
 		js_setindex(J, -2, len++);
-
 		for(k = 1; k < m.nsub; ++k) {
 			if(len == limit) return;
 			js_pushlstring(J, m.sub[k].sp, m.sub[k].ep - m.sub[k].sp);

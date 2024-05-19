@@ -1812,6 +1812,32 @@ bool SFile::IsValid() const
 	//return F ? true : ((IH >= 0 || T == tNullOutput) ? true : SLS.SetError(SLERR_FILENOTOPENED));
 }
 
+bool SFile::IsEof()
+{
+	bool   result = true;
+	if(IsValid()) {
+		const SBuffer * p_sb = GetSBufPtr();
+		if(p_sb) {
+			result = p_sb->GetAvailableSize() == 0;
+		}
+		else {
+			if(T == tArchive) {
+				// @todo для архива пока не понял как определить, что мы в конце потока
+			}
+			else {
+				FILE * p_f = GetFilePtr();
+				if(p_f) {
+					result = LOGIC(feof(p_f));
+				}
+				else if(IH >= 0) {
+					result = LOGIC(_eof(IH));
+				}
+			}
+		}		
+	}
+	return result;
+}
+
 int SFile::Open(SBuffer & rBuf, long mode)
 {
 	assert(InvariantC(0));
@@ -2003,7 +2029,7 @@ int SFile::Close()
 			LckChunk & r_lck = LckList.at(i);
 			assert(r_lck.Offs >= 0 && r_lck.Size >= 0);
 			if(r_lck.Size > 0) {
-				Unlock((int)(i+1));
+				Unlock(static_cast<int>(i+1));
 			}
 		}
 		FILE * p_f = GetFilePtr();
@@ -2026,7 +2052,7 @@ bool SFile::Seek(long offs, int origin)
 {
 	bool   ok = true;
 	assert(oneof3(origin, SEEK_SET, SEEK_CUR, SEEK_END));
-	assert(offs >= 0);
+	assert(offs >= 0 || origin == SEEK_CUR); // @v12.0.2 (|| origin == SEEK_CUR)
 	assert(InvariantC(0));
 	SBuffer * p_sb = GetSBufPtr();
 	if(p_sb) {

@@ -1102,33 +1102,45 @@ int PPObjComputer::GenerateName(PPID categoryID, SString & rBuf)
 	return ok;
 }
 
-int PPObjComputer::SearchByMacAddr(const MACAddr & rKey, PPID * pID, PPComputerPacket * pPack)
+int PPObjComputer::Implement_GetByMacAddr(const MACAddr & rKey, PPID * pID, PPComputerPacket * pPack, PPIDArray * pIdList)
 {
 	int    ok = -1;
 	constexpr PPID prop_id = COMPUTERPRP_SYS;
-	Reference * p_ref = PPRef;
-	DBQ * dbq = 0;
-	PropertyTbl::Key0 k0;
-	PropertyTbl & r_prop = p_ref->Prop;
-	BExtQuery bext(&r_prop, 0, 64);
-	MEMSZERO(k0);
-	k0.ObjType = Obj;
-	k0.Prop    = prop_id;
-	dbq = &(*dbq && r_prop.ObjType == Obj && r_prop.Prop == prop_id);
-	bext.selectAll().where(*dbq);
-	for(bext.initIteration(false, &k0); ok < 0 && bext.nextIteration() > 0;) {
-		const PPComputerSysBlock * p_csblk = reinterpret_cast<const PPComputerSysBlock *>(&r_prop.data);
-		if(p_csblk->MacAdr == rKey) {
-			ASSIGN_PTR(pID, r_prop.data.ObjID);
-			if(pPack) {
-				THROW(Get(r_prop.data.ObjID, pPack) > 0);
+	CALLPTRMEMB(pIdList, Z());
+	if(pIdList || (pID || pPack)) {
+		const  bool   first_only = (pIdList == 0 && (pID || pPack));
+		Reference * p_ref = PPRef;
+		DBQ * dbq = 0;
+		PropertyTbl::Key0 k0;
+		PropertyTbl & r_prop = p_ref->Prop;
+		BExtQuery bext(&r_prop, 0, 64);
+		MEMSZERO(k0);
+		k0.ObjType = Obj;
+		k0.Prop    = prop_id;
+		dbq = &(*dbq && r_prop.ObjType == Obj && r_prop.Prop == prop_id);
+		bext.selectAll().where(*dbq);
+		for(bext.initIteration(false, &k0); bext.nextIteration() > 0;) {
+			const PPComputerSysBlock * p_csblk = reinterpret_cast<const PPComputerSysBlock *>(&r_prop.data);
+			if(p_csblk->MacAdr == rKey) {
+				const PPID _id = r_prop.data.ObjID;
+				ASSIGN_PTR(pID, _id);
+				CALLPTRMEMB(pIdList, add(_id));
+				if(first_only) {
+					if(pPack) {
+						THROW(Get(_id, pPack) > 0);
+					}
+					break;
+				}
+				ok = 1;
 			}
-			ok = 1;
 		}
 	}
 	CATCHZOK
 	return ok;
 }
+
+int PPObjComputer::GetListByMacAddr(const MACAddr & rKey, PPIDArray & rIdList) { return Implement_GetByMacAddr(rKey, 0, 0, &rIdList); }
+int PPObjComputer::SearchByMacAddr(const MACAddr & rKey, PPID * pID, PPComputerPacket * pPack) { return Implement_GetByMacAddr(rKey, pID, pPack, 0); }
 
 /*static*/int PPObjComputer::Helper_GetRec(const Goods2Tbl::Rec & rGoodsRec, PPComputer * pRec)
 {

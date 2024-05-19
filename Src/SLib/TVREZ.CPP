@@ -1,30 +1,36 @@
 // TVREZ.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
 
-TVRez::TVRez(const char * fName, int useIndex) : Stream(0), P_Index(0), HeaderType(hdrUnknown)
+static constexpr size_t MaxRcStringLen = 126;
+
+TVRez::TVRez(const char * pFileName, bool useIndex) : /*Stream(0),*/P_Index(0), HeaderType(hdrUnknown)
 {
-	open(fName, useIndex);
+	open(pFileName, useIndex);
 }
 
 TVRez::~TVRez()
 {
 	delete P_Index;
-	SFile::ZClose(&Stream);
+	//SFile::ZClose(&Stream);
 }
 
-int TVRez::open(const char * fName, int useIndex)
+int TVRez::open(const char * pFileName, bool useIndex)
 {
 	int    ok = 1;
 	error = 0;
-	FileName = fName;
+	//FileName = pFileName;
 	ZDELETE(P_Index);
-	THROW(fileExists(fName));
-	Stream = fopen(fName, "rb");
+	THROW(fileExists(pFileName));
+	/*Stream = fopen(pFileName, "rb");
 	if(!Stream) {
-		SLS.SetError(SLERR_OPENFAULT, fName);
+		SLS.SetError(SLERR_OPENFAULT, pFileName);
+		CALLEXCEPT();
+	}*/
+	if(!F.Open(pFileName, SFile::mRead|SFile::mBinary)) {
+		SLS.SetError(SLERR_OPENFAULT, pFileName);
 		CALLEXCEPT();
 	}
 	THROW(setHdrType());
@@ -37,16 +43,24 @@ int TVRez::open(const char * fName, int useIndex)
 	return ok;
 }
 
+bool TVRez::Seek(long offs, int origin/*SEEK_SET || SEEK_CUR || SEEK_END*/)
+{
+	return F.Seek(offs, origin);
+}
+
 int TVRez::getChar()
 {
-	return fgetc(Stream);
+	//return fgetc(Stream);
+	char   v = 0;
+	return F.ReadV(&v, sizeof(v)) ? v : 0;
 }
 
 uint TVRez::getUINT()
 {
-	uint16 t;
-	fread(&t, sizeof(t), 1, Stream);
-	return t;
+	uint16 v = 0;
+	//fread(&v, sizeof(v), 1, Stream);
+	//return v;
+	return F.ReadV(&v, sizeof(v)) ? v : 0;
 }
 
 static char FASTCALL wchar_to_1251(int16 src)
@@ -76,14 +90,21 @@ SString & STDCALL TVRez::getString(SString & rBuf, int kind /*0 - 866, 1 - w_cha
 	for(char c = !0; c != 0;) {
 		if(kind == 1 && HeaderType == hdr32) {
 			int16 wc;
-			fread(&wc, sizeof(wc), 1, Stream);
-			c = wchar_to_1251(wc);
+			//fread(&wc, sizeof(wc), 1, Stream);
+			if(F.ReadV(&wc, sizeof(wc)))
+				c = wchar_to_1251(wc);
+			else
+				c = 0;
 		}
-		else
-			c = fgetc(Stream);
-		if(feof(Stream))
+		else {
+			//c = fgetc(Stream);
+			if(!F.ReadV(&c, sizeof(c)))
+				c = 0;
+		}
+		/*if(feof(Stream)) {
 			c = 0;
-		else if(c != 0)
+		}
+		else*/if(c != 0)
 			rBuf.CatChar(c);
 	}
 	if(kind == 2)
@@ -98,14 +119,20 @@ char * STDCALL TVRez::getString(char * buf, int kind /*0 - 866, 1 - w_char, 2 - 
 		for(char c = !0; c != 0;) {
 			if(kind == 1 && HeaderType == hdr32) {
 				int16 wc;
-				fread(&wc, sizeof(wc), 1, Stream);
-				c = wchar_to_1251(wc);
+				//fread(&wc, sizeof(wc), 1, Stream);
+				if(F.ReadV(&wc, sizeof(wc)))
+					c = wchar_to_1251(wc);
+				else
+					c = 0;
 			}
-			else
-				c = fgetc(Stream);
-			if(feof(Stream))
-				c = 0;
-			if(i < 126)
+			else {
+				//c = fgetc(Stream);
+				if(!F.ReadV(&c, sizeof(c)))
+					c = 0;
+			}
+			/*if(feof(Stream))
+				c = 0;*/
+			if(i < MaxRcStringLen)
 				buf[i++] = c;
 		}
 		buf[i] = 0;
@@ -117,16 +144,22 @@ char * STDCALL TVRez::getString(char * buf, int kind /*0 - 866, 1 - w_char, 2 - 
 
 TRect TVRez::getRect()
 {
-	TRect r;
-	fread(&r, sizeof(r), 1, Stream);
-	return r;
+	TRect v;
+	//fread(&v, sizeof(v), 1, Stream);
+	//return v;
+	return F.ReadV(&v, sizeof(v)) ? v : v.Z();
 }
 
 TYPEID TVRez::getType(int defaultLen)
 {
-	struct { uint16 N, Len, Dec; } tp;
-	fread(&tp, sizeof(tp), 1, Stream);
-	if(!feof(Stream) && !ferror(Stream) && !error)
+	struct { 
+		uint16 N;
+		uint16 Len;
+		uint16 Dec; 
+	} tp;
+	//fread(&tp, sizeof(tp), 1, Stream);
+	//if(!feof(Stream) && !ferror(Stream) && !error)
+	if(F.ReadV(&tp, sizeof(tp))) {
 		if(tp.N == S_MONEY || tp.N == S_DEC) {
 			if(tp.Len == 0)
 				tp.Len = 8;
@@ -139,8 +172,11 @@ TYPEID TVRez::getType(int defaultLen)
 				tp.Len = defaultLen;
 			return MKSTYPE(tp.N, tp.Len);
 		}
-	error = 1;
-	return 0;
+	}
+	else {
+		error = 1;
+		return 0;
+	}
 }
 
 long TVRez::getFormat(int defaultLen)
@@ -150,8 +186,9 @@ long TVRez::getFormat(int defaultLen)
 		uint16 len;
 		uint16 dec;
 	} fmt;
-	fread(&fmt, sizeof(fmt), 1, Stream);
-	if(!ferror(Stream) && !feof(Stream) && !error) {
+	//fread(&fmt, sizeof(fmt), 1, Stream);
+	//if(!ferror(Stream) && !feof(Stream) && !error) {
+	if(F.ReadV(&fmt, sizeof(fmt))) {
 		if(fmt.len == 0)
 			fmt.len = defaultLen;
 		if(fmt.dec)
@@ -159,8 +196,10 @@ long TVRez::getFormat(int defaultLen)
 		else
 			return MKSFMT(fmt.len, fmt.flags);
 	}
-	error = 1;
-	return 0;
+	else {
+		error = 1;
+		return 0;
+	}
 }
 
 int TVRez::setHdrType()
@@ -174,16 +213,23 @@ int TVRez::setHdrType()
 	res32prefix[9]  = 0xFF;
 	res32prefix[12] = 0xFF;
 	res32prefix[13] = 0xFF;
-	fseek(Stream, 0L, SEEK_SET);
-	if(fread(buf, 8, 1, Stream) && !ferror(Stream) && !feof(Stream))
-		if(buf[0] == 0xFF) {
-			HeaderType = hdr16;
-			ok = 1;
+	//fseek(Stream, 0L, SEEK_SET);
+	//if(fread(buf, 8, 1, Stream) && !ferror(Stream) && !feof(Stream)) {
+	if(F.Seek(0, SEEK_SET)) {
+		if(F.ReadV(buf, 8)) {
+			if(buf[0] == 0xFF) {
+				HeaderType = hdr16;
+				ok = 1;
+			}
+			else {
+				//if(fread(buf + 8, 24, 1, Stream) && !ferror(Stream) && !feof(Stream) && memcmp(buf, res32prefix, 32) == 0) {
+				if(F.ReadV(buf + 8, 24) && memcmp(buf, res32prefix, 32) == 0) {
+					HeaderType = hdr32;
+					ok = 1;
+				}
+			}
 		}
-		else if(fread(buf + 8, 24, 1, Stream) && !ferror(Stream) && !feof(Stream) && memcmp(buf, res32prefix, 32) == 0) {
-			HeaderType = hdr32;
-			ok = 1;
-		}
+	}
 	return ok;
 }
 
@@ -212,7 +258,7 @@ int TVRez::buildIndex()
 		if(hdr.IdKind == 0) {
 			item.type = hdr.Type;
 			item.id   = hdr.IntID;
-			item.pos  = ftell(Stream);
+			item.pos  = F.Tell(); //ftell(Stream);
 			item.sz   = hdr.Size;
 			if(!P_Index->insert(&item)) {
 				ZDELETE(P_Index);
@@ -221,7 +267,7 @@ int TVRez::buildIndex()
 		}
 		else {
 			item.id = 0;
-			item.pos = ftell(Stream);
+			item.pos = F.Tell(); //ftell(Stream);
 		}
 	}
 	P_Index->sort(PTR_CMPFUNC(ResIdxItem));
@@ -233,37 +279,48 @@ int TVRez::_readHeader16(ulong ofs, WResHeaderInfo * hdr, ResPosition rpos)
 	uint16  w;
 	uint32 dw;
 	ulong  sz_ofs;
-	fseek(Stream, ofs, SEEK_SET);
-	if(fgetc(Stream) == 0xFF && !ferror(Stream) && !feof(Stream)) {
-		fread(&w, sizeof(w), 1, Stream);
+	char   c;
+	//fseek(Stream, ofs, SEEK_SET);
+	F.Seek(ofs, SEEK_SET);
+	//if(fgetc(Stream) == 0xFF && !ferror(Stream) && !feof(Stream)) {
+	if(F.ReadV(&c, sizeof(c)) && c == '\xff') {
+		//fread(&w, sizeof(w), 1, Stream);
+		F.ReadV(&w, sizeof(w));
 		hdr->Type = w;
-		if(fgetc(Stream) == 0xFF) {
+		//if(fgetc(Stream) == 0xFF) {
+		if(F.ReadV(&c, sizeof(c)) && c == '\xff') {
 			hdr->IdKind = 0;
-			fread(&w, sizeof(w), 1, Stream);
+			//fread(&w, sizeof(w), 1, Stream);
+			F.ReadV(&w, sizeof(w));
 			hdr->IntID = w;
 		}
 		else {
 			hdr->IdKind = 1;
-			fseek(Stream, -1, SEEK_CUR);
+			//fseek(Stream, -1, SEEK_CUR);
+			F.Seek(-1, SEEK_CUR);
 			getString(hdr->StrID);
 		}
-		fread(&w, sizeof(w), 1, Stream);
+		//fread(&w, sizeof(w), 1, Stream);
+		F.ReadV(&w, sizeof(w));
 		hdr->Flags = w;
-		sz_ofs = ftell(Stream);
-		fread(&dw, sizeof(dw), 1, Stream);
+		sz_ofs = F.Tell(); //ftell(Stream);
+		//fread(&dw, sizeof(dw), 1, Stream);
+		F.ReadV(&dw, sizeof(dw));
 		hdr->Size = dw;
 		hdr->Next = sz_ofs + sizeof(dw) + hdr->Size;
 		switch(rpos) {
-			case beginOfResource: fseek(Stream, ofs, SEEK_SET);       break;
-			case sizeField:       fseek(Stream, sz_ofs, SEEK_SET);    break;
+			case beginOfResource: F.Seek(ofs, SEEK_SET); /*fseek(Stream, ofs, SEEK_SET);*/break;
+			case sizeField:       F.Seek(sz_ofs, SEEK_SET); /*fseek(Stream, sz_ofs, SEEK_SET);*/ break;
 			case beginOfData:     break;
-			case nextResource:    fseek(Stream, hdr->Next, SEEK_SET); break;
+			case nextResource:    F.Seek(hdr->Next, SEEK_SET); /*fseek(Stream, hdr->Next, SEEK_SET);*/break;
 			default:              break;
 		}
 		return 1;
 	}
-	else
-		fseek(Stream, ofs, SEEK_SET);
+	else {
+		//fseek(Stream, ofs, SEEK_SET);
+		F.Seek(ofs, SEEK_SET);
+	}
 	return 0;
 }
 
@@ -273,32 +330,43 @@ int TVRez::_readHeader32(ulong ofs, WResHeaderInfo * hdr, ResPosition rpos)
 	uint16 w  = 0;
 	uint32 dw = 0;
 	ulong  hdr_sz, next_pos;
-	fseek(Stream, ofs, SEEK_SET);
-	THROW(fread(&dw, sizeof(dw), 1, Stream) && !ferror(Stream) && !feof(Stream));
+	//fseek(Stream, ofs, SEEK_SET);
+	F.Seek(ofs, SEEK_SET);
+	//THROW(fread(&dw, sizeof(dw), 1, Stream) && !ferror(Stream) && !feof(Stream));
+	THROW(F.ReadV(&dw, sizeof(dw)));
 	hdr->Size = dw;
-	THROW(fread(&dw, sizeof(dw), 1, Stream) && !ferror(Stream) && !feof(Stream));
+	//THROW(fread(&dw, sizeof(dw), 1, Stream) && !ferror(Stream) && !feof(Stream));
+	THROW(F.ReadV(&dw, sizeof(dw)));
 	hdr_sz = dw;
-	THROW(fread(&w, sizeof(w), 1, Stream) && !ferror(Stream) && !feof(Stream));
+	//THROW(fread(&w, sizeof(w), 1, Stream) && !ferror(Stream) && !feof(Stream));
+	THROW(F.ReadV(&w, sizeof(w)));
 	THROW(w == 0xFFFF);
-	THROW(fread(&w, sizeof(w), 1, Stream) && !ferror(Stream) && !feof(Stream));
+	//THROW(fread(&w, sizeof(w), 1, Stream) && !ferror(Stream) && !feof(Stream));
+	THROW(F.ReadV(&w, sizeof(w)));
 	hdr->Type = w;
-	THROW(fread(&w, sizeof(w), 1, Stream) && !ferror(Stream) && !feof(Stream));
+	//THROW(fread(&w, sizeof(w), 1, Stream) && !ferror(Stream) && !feof(Stream));
+	THROW(F.ReadV(&w, sizeof(w)));
 	if(w == 0xFFFF) {
 		hdr->IdKind = 0;
-		THROW(fread(&w, sizeof(w), 1, Stream) && !ferror(Stream) && !feof(Stream));
+		//THROW(fread(&w, sizeof(w), 1, Stream) && !ferror(Stream) && !feof(Stream));
+		THROW(F.ReadV(&w, sizeof(w)));
 		hdr->IntID = w;
 	}
 	else {
 		hdr->IdKind = 1;
-		fseek(Stream, -2, SEEK_CUR);
+		//fseek(Stream, -2, SEEK_CUR);
+		F.Seek(-2, SEEK_CUR);
 		getString(hdr->StrID, 1);
-		next_pos = ftell(Stream);
+		next_pos = F.Tell(); //ftell(Stream);
 		if(next_pos % sizeof(dw) != 0)
 			next_pos = (next_pos / sizeof(dw) + 1) * sizeof(dw);
-		fseek(Stream, next_pos, SEEK_SET);
+		//fseek(Stream, next_pos, SEEK_SET);
+		F.Seek(next_pos, SEEK_CUR);
 	}
-	THROW(fread(&dw, sizeof(dw), 1, Stream) && !ferror(Stream) && !feof(Stream));
-	THROW(fread(&w, sizeof(w), 1, Stream) && !ferror(Stream) && !feof(Stream));
+	//THROW(fread(&dw, sizeof(dw), 1, Stream) && !ferror(Stream) && !feof(Stream));
+	THROW(F.ReadV(&dw, sizeof(dw)));
+	//THROW(fread(&w, sizeof(w), 1, Stream) && !ferror(Stream) && !feof(Stream));
+	THROW(F.ReadV(&w, sizeof(w)));
 	hdr->Flags = w;
 	next_pos = ofs + hdr_sz + hdr->Size;
 	if(next_pos % sizeof(dw) != 0)
@@ -306,14 +374,15 @@ int TVRez::_readHeader32(ulong ofs, WResHeaderInfo * hdr, ResPosition rpos)
 	hdr->Next = next_pos;
 	switch(rpos) {
 		case sizeField:
-		case beginOfResource: fseek(Stream, ofs, SEEK_SET);          break;
-		case beginOfData:     fseek(Stream, ofs + hdr_sz, SEEK_SET); break;
-		case nextResource:    fseek(Stream, hdr->Next, SEEK_SET);    break;
+		case beginOfResource: F.Seek(ofs, SEEK_SET);/*fseek(Stream, ofs, SEEK_SET);*/break;
+		case beginOfData:     F.Seek(ofs + hdr_sz, SEEK_SET);/*fseek(Stream, ofs + hdr_sz, SEEK_SET);*/break;
+		case nextResource:    F.Seek(hdr->Next, SEEK_SET);/*fseek(Stream, hdr->Next, SEEK_SET);*/ break;
 		default:              break;
 	}
 	CATCH
 		memzero(hdr, sizeof(WResHeaderInfo));
-		fseek(Stream, ofs, SEEK_SET);
+		//fseek(Stream, ofs, SEEK_SET);
+		F.Seek(ofs, SEEK_SET);
 		ok = 0;
 	ENDCATCH
 	return ok;
@@ -334,7 +403,8 @@ int TVRez::findResource(uint id, uint rscType, long * pOffs, long * pSz)
 	int    ok = 0;
 	long   offs = 0L, sz = 0L;
 	WResHeaderInfo hdr;
-	if(!error && !ferror(Stream) && !feof(Stream)) {
+	//if(!error && !ferror(Stream) && !feof(Stream)) {
+	if(!F.IsEof()) {
 		if(P_Index) {
 			uint   p = 0;
 			ResIdxItem item;
@@ -344,16 +414,18 @@ int TVRez::findResource(uint id, uint rscType, long * pOffs, long * pSz)
 				item = *static_cast<const ResIdxItem *>(P_Index->at(p));
 				offs = item.pos;
 				sz   = item.sz;
-				fseek(Stream, item.pos, SEEK_SET);
+				//fseek(Stream, item.pos, SEEK_SET);
+				F.Seek(item.pos, SEEK_SET);
 				ok = 1;
 			}
 		}
-		for(ulong ofs = 0; ok == 0 && readHeader(ofs, &hdr, beginOfData) > 0; ofs = hdr.Next)
+		for(ulong ofs = 0; ok == 0 && readHeader(ofs, &hdr, beginOfData) > 0; ofs = hdr.Next) {
 			if(hdr.Type == rscType && hdr.IdKind == 0 && hdr.IntID == id) {
-				offs = ftell(Stream);
+				offs = F.Tell();/*ftell(Stream);*/
 				sz   = hdr.Size;
 				ok = 1;
 			}
+		}
 	}
 	ASSIGN_PTR(pOffs, offs);
 	ASSIGN_PTR(pSz,   sz);
@@ -362,15 +434,17 @@ int TVRez::findResource(uint id, uint rscType, long * pOffs, long * pSz)
 
 int TVRez::getSizeField(long * pSz)
 {
-	long   sz;
-	fread(&sz, sizeof(sz), 1, Stream);
+	long   sz = 0;
+	//fread(&sz, sizeof(sz), 1, Stream);
+	int    ok = F.ReadV(&sz, sizeof(sz));
 	ASSIGN_PTR(pSz, sz);
-	return 1;
+	return ok;
 }
 
 long TVRez::getStreamPos()
 {
-	return ftell(Stream);
+	//return ftell(Stream);
+	return F.Tell();
 }
 
 int TVRez::enumResources(uint rscType, uint * pRscID, ulong * pDwPos)

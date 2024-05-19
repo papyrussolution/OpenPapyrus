@@ -3301,7 +3301,7 @@ static ulong _cairo_raster_source_pattern_hash(ulong hash, const cairo_raster_so
 
 ulong _cairo_pattern_hash(const cairo_pattern_t * pattern)
 {
-	ulong hash = _CAIRO_HASH_INIT_VALUE;
+	ulong hash = SlConst::DjbHashInit32;
 	if(pattern->status)
 		return 0;
 	hash = _cairo_hash_bytes(hash, &pattern->type, sizeof(pattern->type));

@@ -385,6 +385,14 @@ public:
 		LDATETIME TmScOp;
 		STimeChunk TmChunk;
 	};
+	class DComputerCategoryList : public DServerError {
+	public:
+		DComputerCategoryList();
+		DComputerCategoryList & Z();
+
+		LDATETIME DtmActual; // Момент последней актуализации данных
+		StrAssocArray L;
+	};
 	//
 	// Descr: Структура, описывающая текущее состояние системы.
 	//   Элементы структуры могут обновляються другими потоками.
@@ -455,7 +463,8 @@ public:
 			syncdataAutonomousTSess,  // DTSess Поддержка актуальности автономных данных о текущей сессии
 			syncdataClientPolicy,     // DPolicy Политика ограничений пользовательского сеанса
 			syncdataProgramList,      // D_PgmList Список программ, которые могут быть запущены из оболочки
-			syncdataRegistration      // @v11.9.10 D_Reg Результат регистрации клиента
+			syncdataRegistration,     // @v11.9.10 D_Reg Результат регистрации клиента
+			syncdataComputerCategoryList, // @v12.0.2 Результат извлечения списка категорий компьютеров
 		};
 
 		WsCtl_SelfIdentityBlock SidBlk;
@@ -468,10 +477,11 @@ public:
 		SyncEntry <DConnectionStatus> D_ConnStatus;
 		SyncEntry <DAuth>    D_Auth;
 		SyncEntry <DRegistration> D_Reg; // @v11.9.10
+		SyncEntry <DComputerCategoryList> D_CompCatList; // @v12.0.2
 
 		State() : D_Prc(syncdataPrc), D_Test(syncdataTest), D_Acc(syncdataAccount), D_Prices(syncdataPrices), D_TSess(syncdataTSess), 
 			D_ConnStatus(syncdataJobSrvConnStatus), D_Auth(syncdataAuth), SelectedTecGoodsID(0), D_LastErr(syncdataServerError),
-			D_Reg(syncdataRegistration)
+			D_Reg(syncdataRegistration), D_CompCatList(syncdataComputerCategoryList)
 		{
 		}
 		PPID   GetSelectedTecGoodsID() const { return SelectedTecGoodsID; }
@@ -577,7 +587,21 @@ public:
 				//Data.DbSymb = SubstTxt_DbSymb;
 				//Data.User = SubstTxt_User;
 				//Data.Password = SubstTxt_Password;
-				static_cast<WsCtl_SelfIdentityBlock *>(P_Ctx)->PrcName = SubstTxt_Name;
+				WsCtl_SelfIdentityBlock * p_blk = static_cast<WsCtl_SelfIdentityBlock *>(P_Ctx);
+				p_blk->PrcName = SubstTxt_Name;
+				{
+					MACAddr macadr;
+					p_blk->MacAdrList.clear();
+					if(macadr.FromStr(SubstTxt_MacAdr)) {
+						p_blk->MacAdrList.insert(&macadr);
+					}
+				}
+				{
+					S_GUID uuid;
+					if(uuid.FromStr(SubstTxt_UUID)) {
+						p_blk->Uuid = uuid;
+					}
+				}
 			}
 			else
 				ok = false;
@@ -984,6 +1008,18 @@ int WsCtl_ImGuiSceneBlock::DTSess::FromJsonObject(const SJson * pJsObj)
 		}
 	}
 	return ok;
+}
+
+WsCtl_ImGuiSceneBlock::DComputerCategoryList::DComputerCategoryList() : DtmActual(ZERODATETIME)
+{
+}
+
+WsCtl_ImGuiSceneBlock::DComputerCategoryList & WsCtl_ImGuiSceneBlock::DComputerCategoryList::DComputerCategoryList::Z()
+{
+	DServerError::Z();
+	L.Z();
+	DtmActual.Z();
+	return *this;
 }
 
 WsCtl_ImGuiSceneBlock::DServerError::DServerError() : _Status(0)
@@ -1511,23 +1547,30 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				WsCtl_ImGuiSceneBlock::DPrc st_prc;
 				WsCtl_ImGuiSceneBlock::DComputerRegistration st_data;
 				P_St->D_Prc.GetData(st_prc);
+				cmd.StartWriting(PPSCMD_WSCTL_REGISTERCOMPUTER);
 				{
 					SJson js_param(SJson::tOBJECT);
 					if(st_prc.PrcName.NotEmpty()) {
-						js_param.InsertString("nm", st_prc.PrcName);
+						js_param.InsertString("nm", rReq.P.NameTextUtf8);
 					}
-					if(st_prc.MacAdrList.getCount()) {
-						SJson * p_js_macadr_list = new SJson(SJson::tARRAY);
-						for(uint i = 0; i < st_prc.MacAdrList.getCount(); i++) {
-							st_prc.MacAdrList.at(i).ToStr(0, temp_buf);
-							SJson * p_js_macadr = SJson::CreateString(temp_buf);
-							p_js_macadr_list->InsertChild(p_js_macadr);
-							p_js_macadr = 0;
+					{
+						SJson * p_js_macadr_list = 0;
+						for(uint i = 0; i < SIZEOFARRAY(rReq.P.MacAdrList); i++) {
+							const MACAddr & r_macadr = rReq.P.MacAdrList[i];
+							if(!r_macadr.IsZero()) {
+								SETIFZ(p_js_macadr_list, new SJson(SJson::tARRAY));
+								r_macadr.ToStr(0, temp_buf);
+								SJson * p_js_macadr = SJson::CreateString(temp_buf);
+								p_js_macadr_list->InsertChild(p_js_macadr);
+								p_js_macadr = 0;
+							}
 						}
-						js_param.Insert("macadr_list", p_js_macadr_list);
+						if(p_js_macadr_list) {
+							js_param.Insert("macadr_list", p_js_macadr_list);
+						}
 					}
-					if(!!st_prc.PrcUuid) {
-						st_prc.PrcUuid.ToStr(S_GUID::fmtIDL, temp_buf);
+					if(!!rReq.P.Uuid) {
+						rReq.P.Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
 						js_param.InsertString("wsctluuid", temp_buf);
 					}
 					js_param.ToStr(temp_buf);
@@ -2292,6 +2335,8 @@ void WsCtl_ImGuiSceneBlock::EmitEvents()
 				case State::syncdataClientPolicy: // @v11.7.12
 					//P_CmdQ->Push(WsCtlReqQueue::Req(PPSCMD_WSCTL_QUERYPOLICY));
 					break;
+				case State::syncdataComputerCategoryList: // @v12.0.2
+					break;
 			}
 			St.SetSyncUpdateTimerLastReqTime(sync_data_id); // Отмечаем время отправки запроса
 		}
@@ -2878,8 +2923,13 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 											if(P_Dlg_RegComp->CommitData()) {
 												// @construction
 												WsCtlReqQueue::Req req(PPSCMD_WSCTL_REGISTERCOMPUTER);
-												STRNSCPY(req.P.AuthTextUtf8, LoginBlk.LoginText);
-												STRNSCPY(req.P.AuthPwUtf8, LoginBlk.PwText);
+												if(St.SidBlk.MacAdrList.getCount()) {
+													for(uint i = 0; i < St.SidBlk.MacAdrList.getCount() && i < SIZEOFARRAY(req.P.MacAdrList); i++) {
+														req.P.MacAdrList[i] = St.SidBlk.MacAdrList.at(i);
+													}
+												}
+												req.P.Uuid = St.SidBlk.Uuid;
+												STRNSCPY(req.P.NameTextUtf8, St.SidBlk.PrcName);
 												P_CmdQ->Push(req);
 												//
 											}

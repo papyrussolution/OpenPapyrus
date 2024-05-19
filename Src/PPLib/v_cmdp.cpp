@@ -1,5 +1,5 @@
 // V_CMDP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 // Редактирование списка команд
 //
@@ -1265,7 +1265,8 @@ int SelectCommandGroup(S_GUID & rUuid, long * pResourceTemplateId, SString * pNa
 			buf.Divide(',', left, right);
 			list.Add(left.ToLong() + DEFAULT_MENUS_OFFS, right);
 		}
-		fseek(p_rez->getStream(), 0, SEEK_SET);
+		//fseek(p_rez->getStream(), 0, SEEK_SET);
+		p_rez->Seek(0, SEEK_SET);
 		for(ulong pos = 0; p_rez->enumResources(0x04, &locm_id, &pos) > 0;) {
 			long _id = static_cast<long>(locm_id) + DEFAULT_MENUS_OFFS;
 			if(list.GetText(_id, buf) <= 0)
@@ -1448,22 +1449,23 @@ HMENU PPLoadCommandMenu(const S_GUID & rUuid, int * pNotFound)
 	return m;
 }
 
-HMENU PPLoadResourceMenu(TVRez * rez, long menuID, int * pNotFound)
+HMENU PPLoadResourceMenu(TVRez * pRez, long menuID, int * pNotFound)
 {
 	int    not_found = 1;
 	HMENU  m = 0;
 	StrAssocArray * p_items = 0;
 	PPCommandGroup * p_menu = 0;
-	if(rez != 0) {
+	if(pRez) {
 		m = CreateMenu();
 		MITH   mith;
 		long   length, menuOfs;
-		if(rez->findResource(menuID, 0x04, &menuOfs, &length)) {
+		if(pRez->findResource(menuID, 0x04, &menuOfs, &length)) {
 			length += menuOfs;
-			mith.versionNumber = rez->getUINT();
-			mith.offset = rez->getUINT();
-			fseek(rez->getStream(), mith.offset, SEEK_CUR);
-			readMenuRez(m, rez, length);
+			mith.versionNumber = pRez->getUINT();
+			mith.offset = pRez->getUINT();
+			//fseek(pRez->getStream(), mith.offset, SEEK_CUR);
+			pRez->Seek(mith.offset, SEEK_CUR);
+			readMenuRez(m, pRez, length);
 			not_found = 0;
 		}
 	}
@@ -1506,7 +1508,8 @@ HMENU PPLoadMenu(TVRez * rez, long menuID, int fromRc, int * pNotFound)
 			length += menuOfs;
 			mith.versionNumber = rez->getUINT();
 			mith.offset = rez->getUINT();
-			fseek(rez->getStream(), mith.offset, SEEK_CUR);
+			//fseek(rez->getStream(), mith.offset, SEEK_CUR);
+			rez->Seek(mith.offset, SEEK_CUR);
 			readMenuRez(m, rez, length);
 			not_found = 0;
 		}
@@ -1549,14 +1552,16 @@ int MenuResToMenu(uint resMenuID, PPCommandFolder * pMenu)
 	int    ok = -1;
 	TVRez * p_slrez = P_SlRez;
 	MITH   mith;
-	long   length = 0, menuOfs = 0;
+	long   length = 0;
+	long   menu_ofs = 0;
 	LAssocArray descrs;
 	THROW(PPCommandDescr::GetResourceList(descrs));
-	if(p_slrez->findResource(resMenuID, 0x04, &menuOfs, &length)) {
-		length += menuOfs;
+	if(p_slrez->findResource(resMenuID, 0x04, &menu_ofs, &length)) {
+		length += menu_ofs;
 		mith.versionNumber = p_slrez->getUINT();
 		mith.offset = p_slrez->getUINT();
-		fseek(p_slrez->getStream(), mith.offset, SEEK_CUR);
+		//fseek(p_slrez->getStream(), mith.offset, SEEK_CUR);
+		p_slrez->Seek(mith.offset, SEEK_CUR);
 		MenuResToMenu(pMenu, &descrs, p_slrez, length);
 		ok = 1;
 	}
@@ -1673,7 +1678,8 @@ int PPViewUserMenu::MakeList(PPViewBrowser * pBrw)
 						list.Add(_id, buf.Z().Cat(_id - DEFAULT_MENUS_OFFS));
 				}
 				*/
-				fseek(p_rez->getStream(), 0, SEEK_SET);
+				//fseek(p_rez->getStream(), 0, SEEK_SET);
+				p_rez->Seek(0, SEEK_SET);
 				for(ulong pos = 0; p_rez->enumResources(0x04, &locm_id, &pos) > 0;) {
 					long _id = static_cast<long>(locm_id) + DEFAULT_MENUS_OFFS;
 					{

@@ -483,7 +483,7 @@ static fz_pixmap * pam_binary_read_image(fz_context * ctx,
 	{
 		case PAM_BWA:
 		    pnm->alpha = 1;
-		/* fallthrough */
+		// @fallthrough
 		case PAM_BW:
 		    pnm->cs = fz_device_gray(ctx);
 		    maxval = 1;
@@ -491,20 +491,20 @@ static fz_pixmap * pam_binary_read_image(fz_context * ctx,
 		    break;
 		case PAM_GRAYA:
 		    pnm->alpha = 1;
-		/* fallthrough */
+		// @fallthrough
 		case PAM_GRAY:
 		    pnm->cs = fz_device_gray(ctx);
 		    minval = 2;
 		    break;
 		case PAM_RGBA:
 		    pnm->alpha = 1;
-		/* fallthrough */
+		// @fallthrough
 		case PAM_RGB:
 		    pnm->cs = fz_device_rgb(ctx);
 		    break;
 		case PAM_CMYKA:
 		    pnm->alpha = 1;
-		/* fallthrough */
+		// @fallthrough
 		case PAM_CMYK:
 		    pnm->cs = fz_device_cmyk(ctx);
 		    break;

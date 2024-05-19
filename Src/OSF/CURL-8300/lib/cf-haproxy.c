@@ -113,7 +113,7 @@ static CURLcode cf_haproxy_connect(struct Curl_cfilter * cf, struct Curl_easy * 
 		    if(result)
 			    goto out;
 		    ctx->state = HAPROXY_SEND;
-		/* FALLTHROUGH */
+		// @fallthrough
 		case HAPROXY_SEND:
 		    len = Curl_dyn_len(&ctx->data_out);
 		    if(len > 0) {
@@ -127,7 +127,7 @@ static CURLcode cf_haproxy_connect(struct Curl_cfilter * cf, struct Curl_easy * 
 			    }
 		    }
 		    ctx->state = HAPROXY_DONE;
-		/* FALLTHROUGH */
+		// @fallthrough
 		default:
 		    Curl_dyn_free(&ctx->data_out);
 		    break;

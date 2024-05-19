@@ -5690,8 +5690,10 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 														emrfInitBillFound     = 0x0002
 													};
 													int    ex_mark_results = 0;
-													double ref_cost = 0.0;  // @v10.3.11 Цена поступления из строки приходного (драфт) документа
-													double ref_price = 0.0; // @v10.3.11 Цена реализации из строки приходного (драфт) документа
+													double ref_cost = 0.0;  // Цена поступления из строки приходного (драфт) документа
+													double ref_price = 0.0; // Цена реализации из строки приходного (драфт) документа
+													const  bool use_last_init_op = true; // @v12.0.2 До этого релиза применялась первая инициирующая операция. Это, вероятно, не правильно - надо последнюю использовать.
+													uint   init_op_idx = 0; // @v12.02 (индекс +1) инициирующей операции в списке lec_rec_list
 													for(uint mridx = 0; mridx < lec_rec_list.getCount(); mridx++) {
 														const LotExtCodeTbl::Rec & r_lec_rec = lec_rec_list.at(mridx);
 														BillTbl::Rec lec_bill_rec;
@@ -5701,6 +5703,15 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 																ex_mark_results |= emrfAlreadyWrittenOff;
 															}
 															else if(lec_bill_rec.OpID == draft_rcpt_op_id) {
+																// @v12.0.1 {
+																if(use_last_init_op) {
+																	init_op_idx = mridx+1;
+																}
+																else if(!init_op_idx) {
+																	init_op_idx = mridx+1;
+																}
+																// } @v12.0.1 
+																/* @v12.0.2																	
 																if(!(ex_mark_results & emrfInitBillFound)) {
 																	int16 ln = 0;
 																	PPTransferItem lec_ti;
@@ -5713,14 +5724,36 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 																		P_BObj->LoadRowTagListForDraft(lec_bill_rec.ID, ltc);
 																		ltc.GetTagStr(ln-1, PPTAG_LOT_FSRARINFB, ref_b);
 																		ltc.GetTagStr(ln-1, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code_by_mark);
-																		ref_cost = lec_ti.Cost; // @v10.3.11
-																		ref_price = lec_ti.Price; // @v10.3.11
+																		ref_cost = lec_ti.Cost;
+																		ref_price = lec_ti.Price;
 																	}
 																	ex_mark_results |= emrfInitBillFound;
-																}
+																}*/
 															}
 														}
 													}
+													// @v12.0.2 {
+													if(init_op_idx) {
+														assert(init_op_idx <= lec_rec_list.getCount());
+														const LotExtCodeTbl::Rec & r_lec_rec = lec_rec_list.at(init_op_idx-1);
+														//
+														int16 ln = 0;
+														PPTransferItem lec_ti;
+														for(int lec_rbb = 0; P_BObj->P_CpTrfr->EnumItems(r_lec_rec.BillID, &lec_rbb, &lec_ti, 0) > 0;) {
+															if(++ln == r_lec_rec.RByBill)
+																break;
+														}
+														if(ln == r_lec_rec.RByBill) {
+															PPLotTagContainer ltc;
+															P_BObj->LoadRowTagListForDraft(r_lec_rec.BillID, ltc);
+															ltc.GetTagStr(ln-1, PPTAG_LOT_FSRARINFB, ref_b);
+															ltc.GetTagStr(ln-1, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code_by_mark);
+															ref_cost = lec_ti.Cost;
+															ref_price = lec_ti.Price;
+														}
+														ex_mark_results |= emrfInitBillFound;
+													}
+													// } @v12.0.2 
 													if(!(ex_mark_results & emrfAlreadyWrittenOff) && ref_b.NotEmpty() && egais_code_by_mark.NotEmpty()) {
 														double ex_row_qtty = 0.0;
 														double crest = 0.0;
@@ -7719,7 +7752,7 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 				THROW(Helper_CreateWriteOffShop(1, p_bp, pPeriod));
 				// } @v10.3.6
 			}
-			if(last_restshop_pos >= 0 && last_restshop_pos < static_cast<int>(pack_list.getCount())) {
+			if(last_restshop_pos >= 0 && last_restshop_pos < pack_list.getCountI()) {
 				const Packet * p_pack = pack_list.at(last_restshop_pos);
 				const PPBillPacket * p_bp = p_pack ? static_cast<const PPBillPacket *>(p_pack->P_Data) : 0;
 				THROW(Helper_CreateTransferToShop(p_bp));

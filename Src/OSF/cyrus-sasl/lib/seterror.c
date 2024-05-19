@@ -62,7 +62,6 @@ static int _sasl_seterror_usererr(int saslerr)
 	/* Hide the difference in a username failure and a password failure */
 	if(saslerr == SASL_NOUSER)
 		return SASL_BADAUTH;
-
 	/* otherwise return the error given; no transform necessary */
 	return saslerr;
 }
@@ -83,7 +82,7 @@ static int _sasl_seterror_usererr(int saslerr)
  *
  * if conn is NULL, function does nothing
  */
-void sasl_seterror(sasl_conn_t * conn, unsigned flags, const char * fmt, ...)
+void sasl_seterror(sasl_conn_t * conn, uint flags, const char * fmt, ...)
 {
 	size_t outlen = 0; /* current length of output buffer */
 	size_t pos = 0; /* current position in format string */
@@ -197,8 +196,7 @@ void sasl_seterror(sasl_conn_t * conn, unsigned flags, const char * fmt, ...)
 
 					    snprintf(tempbuf, 20, frmt, ival); /* have snprintf do the work */
 					    /* now add the string */
-					    result = _sasl_add_string(error_buf, error_buf_len,
-						    &outlen, tempbuf);
+					    result = _sasl_add_string(error_buf, error_buf_len, &outlen, tempbuf);
 					    if(result != SASL_OK)
 						    goto done;
 					    done = 1;

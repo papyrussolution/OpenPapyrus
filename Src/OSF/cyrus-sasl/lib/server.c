@@ -91,7 +91,7 @@ static sasl_global_callbacks_t global_callbacks;
  *  SASL_BADPARAM  -- password too long
  *  SASL_OK        -- successful
  */
-int sasl_setpass(sasl_conn_t * conn, const char * user, const char * pass, unsigned passlen, const char * oldpass, unsigned oldpasslen, unsigned flags)
+int sasl_setpass(sasl_conn_t * conn, const char * user, const char * pass, unsigned passlen, const char * oldpass, unsigned oldpasslen, uint flags)
 {
 	int result = SASL_OK, tmpresult;
 	sasl_server_conn_t * s_conn = (sasl_server_conn_t*)conn;
@@ -596,7 +596,7 @@ static int load_config(const sasl_callback_t * verifyfile_cb)
 		}
 
 		/* construct the filename for the config file */
-		config_filename = (char *)sasl_ALLOC((unsigned)len);
+		config_filename = (char *)sasl_ALLOC((uint)len);
 		if(!config_filename) {
 			result = SASL_NOMEM;
 			goto done;
@@ -897,7 +897,7 @@ static int _sasl_transition(sasl_conn_t * conn,
 	sasl_getopt_t * getopt;
 	int result = SASL_OK;
 	void * context;
-	unsigned flags = 0;
+	uint flags = 0;
 
 	if(!conn)
 		return SASL_BADPARAM;
@@ -955,7 +955,7 @@ int sasl_server_new(const char * service,
     const char * iplocalport,
     const char * ipremoteport,
     const sasl_callback_t * callbacks,
-    unsigned flags,
+    uint flags,
     sasl_conn_t ** pconn)
 {
 	int result;
@@ -1002,7 +1002,7 @@ int sasl_server_new(const char * service,
 	}
 
 	serverconn->sparams->service = (*pconn)->service;
-	serverconn->sparams->servicelen = (unsigned)strlen((*pconn)->service);
+	serverconn->sparams->servicelen = (uint)strlen((*pconn)->service);
 
 	if(global_callbacks.appname && global_callbacks.appname[0] != '\0') {
 		result = _sasl_strdup(global_callbacks.appname,
@@ -1013,7 +1013,7 @@ int sasl_server_new(const char * service,
 			goto done_error;
 		}
 		serverconn->sparams->appname = serverconn->appname;
-		serverconn->sparams->applen = (unsigned)strlen(serverconn->sparams->appname);
+		serverconn->sparams->applen = (uint)strlen(serverconn->sparams->appname);
 	}
 	else {
 		serverconn->appname = NULL;
@@ -1022,11 +1022,11 @@ int sasl_server_new(const char * service,
 	}
 
 	serverconn->sparams->serverFQDN = (*pconn)->serverFQDN;
-	serverconn->sparams->slen = (unsigned)strlen((*pconn)->serverFQDN);
+	serverconn->sparams->slen = (uint)strlen((*pconn)->serverFQDN);
 
 	if(user_realm) {
 		result = _sasl_strdup(user_realm, &serverconn->user_realm, NULL);
-		serverconn->sparams->urlen = (unsigned)strlen(user_realm);
+		serverconn->sparams->urlen = (uint)strlen(user_realm);
 		serverconn->sparams->user_realm = serverconn->user_realm;
 	}
 	else {
@@ -1282,7 +1282,7 @@ static int do_authorization(sasl_server_conn_t * s_conn)
 		s_conn->base.oparams.user, s_conn->base.oparams.ulen,
 		s_conn->base.oparams.authid, s_conn->base.oparams.alen,
 		s_conn->user_realm,
-		(s_conn->user_realm ? (unsigned)strlen(s_conn->user_realm) : 0),
+		(s_conn->user_realm ? (uint)strlen(s_conn->user_realm) : 0),
 		s_conn->sparams->propctx);
 
 	RETURN(&s_conn->base, ret);
@@ -1609,7 +1609,7 @@ static unsigned mech_names_len(mechanism_t * mech_list)
 	for(listptr = mech_list;
 	    listptr;
 	    listptr = listptr->next)
-		result += (unsigned)strlen(listptr->m.plug->mech_name);
+		result += (uint)strlen(listptr->m.plug->mech_name);
 
 	return result;
 }
@@ -1725,7 +1725,7 @@ int _sasl_server_listmech(sasl_conn_t * conn,
 	if(suffix)
 		strcat(conn->mechlist_buf, suffix);
 	if(plen)
-		*plen = (unsigned)strlen(conn->mechlist_buf);
+		*plen = (uint)strlen(conn->mechlist_buf);
 	*result = conn->mechlist_buf;
 	return SASL_OK;
 }
@@ -1780,8 +1780,8 @@ static int _sasl_checkpass(sasl_conn_t * conn, const char * user, unsigned userl
 	struct sasl_verify_password_s * v;
 	const char * service = conn->service;
 
-	if(!userlen) userlen = (unsigned)strlen(user);
-	if(!passlen) passlen = (unsigned)strlen(pass);
+	if(!userlen) userlen = (uint)strlen(user);
+	if(!passlen) passlen = (uint)strlen(pass);
 
 	/* call userdb callback function, if available */
 	result = _sasl_getcallback(conn, SASL_CB_SERVER_USERDB_CHECKPASS,

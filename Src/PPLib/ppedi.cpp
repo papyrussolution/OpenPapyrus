@@ -5232,7 +5232,7 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 					if(file_info.ParseFileName(ps.Nam, true/*non-strict*/)) {
 						PPEdiProcessor::DocumentInfo entry;
 						entry.Uuid = file_info.Uuid;
-						if(file_info.FormatPrefix.IsEqiAscii("on_order"))
+						if(file_info.FormatPrefix.IsEqiAscii("on_order") || file_info.FormatPrefix.IsEqiAscii("order"))
 							entry.EdiOp = PPEDIOP_ORDER;
 						else
 							entry.EdiOp = 0; // @todo
@@ -5254,6 +5254,7 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentInfo * pNrDoc, TSCollection <PPEdiProcessor::Packet> & rList)
 {
 	int    ok = 1;
+	//bool   debug_mark = false; // @v12.0.2 @debug 
 	PPEdiProcessor::Packet * p_pack = 0;
 	SString temp_buf;
 	SString addendum_msg_buf;
@@ -5261,6 +5262,7 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 		p_pack = new PPEdiProcessor::Packet(pNrDoc->EdiOp);
 		PPBillPacket * p_bp = static_cast<PPBillPacket *>(p_pack->P_Data);
 		if(p_bp) {
+			SString bill_text;
 			p_bp->CreateBlank_WithoutCode(ACfg.Hdr.OpID, 0, 0, 1);
 			p_bp->Rec.EdiOp = pNrDoc->EdiOp;
 			p_bp->Rec.Dt = pNrDoc->Dt;
@@ -5303,6 +5305,12 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 				}
 			}
 			// } @v11.9.9 
+			PPObjBill::MakeCodeString(&p_bp->Rec, 0, bill_text); // @v12.0.2
+			// @v12.0.2 @debug {
+			/*if(strstr(p_bp->Rec.Code, "00008734")) {
+				debug_mark = true;	
+			}*/
+			// } @v12.0.2 @debug 
 			for(uint gitemidx = 0; gitemidx < pNrDoc->GoodsItemList.getCount(); gitemidx++) {
 				const DocNalogRu_Base::GoodsItem * p_gitem = pNrDoc->GoodsItemList.at(gitemidx);
 				if(p_gitem) {
@@ -5345,14 +5353,16 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 					{
 						PPTransferItem ti;
 						PPID   goods_id = 0;
-						if(goods_id_by_suppl_code)
+						if(goods_id_by_suppl_code) {
 							goods_id = goods_id_by_suppl_code;
+						}
 						else if(goods_id_by_buyer_code)
 							goods_id = goods_id_by_buyer_code;
 						else 
 							goods_id = goods_id_by_gtin;
 						if(!goods_id) {
 							addendum_msg_buf.Z();
+							addendum_msg_buf.Cat(bill_text).CatDiv(':', 2); // @v12.0.2
 							if(p_gitem->GTIN.NotEmpty())
 								addendum_msg_buf.Cat(p_gitem->GTIN);
 							if(p_gitem->BuyerCode.NotEmpty())

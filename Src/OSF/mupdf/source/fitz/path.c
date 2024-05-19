@@ -1295,11 +1295,11 @@ fz_path * fz_clone_path(fz_context * ctx, fz_path * path)
 						break;
 					    case FZ_CURVETO:
 						xy += 2;
-					    /* fallthrough */
+					    // @fallthrough
 					    case FZ_CURVETOV:
 					    case FZ_CURVETOY:
 					    case FZ_QUADTO:
-						/* fallthrough */
+						// @fallthrough
 						xy += 2;
 					    case FZ_LINETO:
 						new_path->current.x = *xy++;
@@ -1318,17 +1318,17 @@ fz_path * fz_clone_path(fz_context * ctx, fz_path * path)
 						break;
 					    case FZ_CURVETOCLOSE:
 						xy += 2;
-					    /* fallthrough */
+					    // @fallthrough
 					    case FZ_CURVETOVCLOSE:
 					    case FZ_CURVETOYCLOSE:
 					    case FZ_QUADTOCLOSE:
 					    case FZ_LINETOCLOSE:
 						xy++;
-					    /* fallthrough */
+					    // @fallthrough
 					    case FZ_HORIZTOCLOSE:
 					    case FZ_VERTTOCLOSE:
 						xy++;
-					    /* fallthrough */
+					    // @fallthrough
 					    case FZ_DEGENLINETOCLOSE:
 						new_path->current.x = new_path->begin.x;
 						new_path->current.y = new_path->begin.y;

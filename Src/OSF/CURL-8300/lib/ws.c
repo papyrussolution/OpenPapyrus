@@ -284,7 +284,7 @@ static CURLcode ws_dec_pass(struct ws_decoder * dec,
 		case WS_DEC_INIT:
 		    ws_dec_reset(dec);
 		    dec->state = WS_DEC_HEAD;
-		/* FALLTHROUGH */
+		// @fallthrough
 		case WS_DEC_HEAD:
 		    result = ws_dec_read_head(dec, data, inraw);
 		    if(result) {
@@ -309,7 +309,7 @@ static CURLcode ws_dec_pass(struct ws_decoder * dec,
 			    dec->state = WS_DEC_INIT;
 			    break;
 		    }
-		/* FALLTHROUGH */
+		// @fallthrough
 		case WS_DEC_PAYLOAD:
 		    result = ws_dec_pass_payload(dec, data, inraw, write_payload, write_ctx);
 		    ws_dec_info(dec, data, "passing");

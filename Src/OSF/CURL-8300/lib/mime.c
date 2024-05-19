@@ -781,7 +781,7 @@ static size_t read_part_content(curl_mimepart * part,
 			case MIMEKIND_FILE:
 			    if(part->fp && feof(part->fp))
 				    break; /* At EOF. */
-			/* FALLTHROUGH */
+			// @fallthrough
 			default:
 			    if(part->readfunc) {
 				    if(!(part->flags & MIME_FAST_READ)) {
@@ -900,7 +900,7 @@ static size_t readback_part(curl_mimepart * part,
 				    mimesetstate(&part->state, MIMESTATE_USERHEADERS, hdr->next);
 				    break;
 			    }
-			/* FALLTHROUGH */
+			// @fallthrough
 			case MIMESTATE_CURLHEADERS:
 			    if(!hdr)
 				    mimesetstate(&part->state, MIMESTATE_USERHEADERS, part->userheaders);
@@ -934,7 +934,7 @@ static size_t readback_part(curl_mimepart * part,
 						fclose(part->fp);
 						part->fp = NULL;
 					}
-				    /* FALLTHROUGH */
+				    // @fallthrough
 				    case CURL_READFUNC_ABORT:
 				    case CURL_READFUNC_PAUSE:
 				    case READ_ERROR:

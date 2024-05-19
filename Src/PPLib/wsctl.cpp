@@ -999,32 +999,115 @@ int WsCtlSrvBlock::StartSess(StartSessBlock & rBlk)
 int WsCtlSrvBlock::RegisterComputer(ComputerRegistrationBlock & rBlk)
 {
 	int    ok = 1;
-	PPObjComputer cobj;
+	Reference * p_ref = PPRef;
+	SString temp_buf;
+	PPComputerPacket ex_comp_pack;
 	THROW(rBlk.MacAdrList.getCount());
 	{
-		bool found = false;
-		for(uint i = 0; !found && i < rBlk.MacAdrList.getCount(); i++) {
-			const MACAddr & r_macadr = rBlk.MacAdrList.at(i);
-			PPID c_id = 0;
-			PPComputerPacket c_pack;
-			int r = cobj.SearchByMacAddr(r_macadr, &c_id, &c_pack);
-			THROW(r);
-			if(r > 0) {
-				rBlk.Status = 2;
-				rBlk.Name = c_pack.Rec.Name;
-				rBlk.ComputerID = c_pack.Rec.ID;
-				rBlk.WsCtlUuid = c_pack.Rec.Uuid;
-				found = true;
+		PPID   ex_id = 0;
+		PPIDArray comp_id_list_by_uuid;
+		PPIDArray comp_id_list_by_macadr;
+		if(!!rBlk.WsCtlUuid) {
+			p_ref->Ot.SearchObjectsByGuid(PPOBJ_COMPUTER, PPTAG_COMPUTER_GUID, rBlk.WsCtlUuid, &comp_id_list_by_uuid);
+		}
+		{
+			PPIDArray temp_list;
+			for(uint i = 0; i < rBlk.MacAdrList.getCount(); i++) {
+				const MACAddr & r_macadr = rBlk.MacAdrList.at(i);
+				PPID c_id = 0;
+				int r = CompObj.SearchByMacAddr(r_macadr, &c_id, &ex_comp_pack);
+				CompObj.GetListByMacAddr(r_macadr, temp_list);
+				if(temp_list.getCount())
+					comp_id_list_by_macadr.add(&temp_list);
+				/*THROW(r);
+				if(r > 0) {
+					rBlk.Status = 2;
+					rBlk.Name = c_pack.Rec.Name;
+					rBlk.ComputerID = c_pack.Rec.ID;
+					rBlk.WsCtlUuid = c_pack.Rec.Uuid;
+					found_by_macadr = true;
+				}*/
 			}
 		}
-		if(!found) {
+		if(comp_id_list_by_uuid.getCount()) {
+			if(comp_id_list_by_macadr.getCount()) {
+				PPIDArray temp_list(comp_id_list_by_uuid);
+				temp_list.intersect(&comp_id_list_by_macadr);
+				if(!temp_list.getCount()) {
+					// Неоднозначность в идентификации по GUID и MAC-адресу
+					CALLEXCEPT_PP(PPERR_COMPIDENTAMBIG_GUIDMACADR);
+				}
+				else if(temp_list.getCount() > 1) {
+					// Неоднозначность в идентификации по GUID и MAC-адресу
+					CALLEXCEPT_PP(PPERR_COMPIDENTAMBIG_GUIDMACADR);
+				}
+				else {
+					assert(temp_list.getCount() == 1);
+					ex_id = temp_list.get(0);
+				}
+			}
+			else if(comp_id_list_by_uuid.getCount() > 1) {
+				// Неоднозначность в идентификации по GUID
+				CALLEXCEPT_PP(PPERR_COMPIDENTAMBIG_GUID);
+			}
+			else {
+				assert(comp_id_list_by_uuid.getCount() == 1);
+				ex_id = comp_id_list_by_uuid.get(0);
+			}
+		}
+		else if(comp_id_list_by_macadr.getCount() == 1)
+			ex_id = comp_id_list_by_macadr.get(0);
+		else if(comp_id_list_by_macadr.getCount()) {
+			// Неоднозначность в идентификации по MAC-адресу
+			CALLEXCEPT_PP(PPERR_COMPIDENTAMBIG_MACADR);
+		}
+		//const bool found_by_macadr = comp_id_list_by_macadr.getCount() ? true : false;
+		//const bool found_by_uuid = comp_id_list_by_uuid.getCount() ? true : false;
+		if(ex_id) {
+			THROW(CompObj.Get(ex_id, &ex_comp_pack) > 0);
+			{
+				bool do_update = false;
+				if(ex_comp_pack.Rec.MacAdr.IsZero() && rBlk.MacAdrList.getCount()) {
+					ex_comp_pack.Rec.MacAdr = rBlk.MacAdrList.at(0);
+					do_update = true;
+				}
+				if(ex_comp_pack.Rec.Uuid.IsZero() && !rBlk.WsCtlUuid.IsZero()) {
+					ex_comp_pack.Rec.Uuid = rBlk.WsCtlUuid;
+					do_update = true;
+				}
+				if(do_update) {
+					THROW(CompObj.Put(&ex_id, &ex_comp_pack, 1));
+				}
+			}
+			rBlk.Status = 2;
+			rBlk.Name = ex_comp_pack.Rec.Name;
+			rBlk.ComputerID = ex_comp_pack.Rec.ID;
+			rBlk.WsCtlUuid = ex_comp_pack.Rec.Uuid;
+		}
+		else {
+			PPID   new_computer_id = 0;
 			PPComputerPacket new_c_pack;
-			new_c_pack.Rec.MacAdr = rBlk.MacAdrList.at(0);
+			if(rBlk.MacAdrList.getCount())
+				new_c_pack.Rec.MacAdr = rBlk.MacAdrList.at(0);
+			if(rBlk.Name.NotEmptyS()) {
+				STRNSCPY(new_c_pack.Rec.Name, rBlk.Name);
+			}
+			else {
+				CompObj.GenerateName(0, rBlk.Name);
+				STRNSCPY(new_c_pack.Rec.Name, rBlk.Name);
+			}
 			if(!!rBlk.WsCtlUuid) {
 				new_c_pack.Rec.Uuid = rBlk.WsCtlUuid;
 			}
 			else
 				new_c_pack.Rec.Uuid.Generate();
+			THROW(CompObj.Put(&new_computer_id, &new_c_pack, 1));
+			{
+				rBlk.Status = 1;
+				rBlk.Name = new_c_pack.Rec.Name;
+				rBlk.ComputerID = new_c_pack.Rec.ID;
+				rBlk.WsCtlUuid = new_c_pack.Rec.Uuid;
+			}
 		}
 	}
 	CATCH

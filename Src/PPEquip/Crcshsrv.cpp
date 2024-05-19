@@ -553,6 +553,11 @@ struct _MinPriceEntry { // @flat
 	int16  Reserve; // @alignment
 };
 
+struct _ChZnTobaccoEntry { // @flat @v12.0.2
+	char   Barcode[24];
+	PPID   GoodsID;
+};
+
 int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, const SString & rPathGoods_, const PPAsyncCashNode & rCnData, const SString & rStoreIndex,
 	AsyncCashGoodsIterator * pGoodsIter, const SVector & rSalesGrpList, AsyncCashGoodsInfo & rGoodsInfo, SString & rResultFileName)
 {
@@ -582,6 +587,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 	PPID   prev_goods_id = 0;
 	SVector max_dis_list(sizeof(_MaxDisEntry));
 	SVector min_price_list(sizeof(_MinPriceEntry)); // @v10.6.4
+	SVector chzntobacco_list(sizeof(_ChZnTobaccoEntry)); // @v12.0.2 Список кодов и идентификаторов табачных товаров (для специального plug-in'а для маркировки)
 	LDATETIME beg_dtm;
 	LDATETIME end_dtm;
 	getcurdate(&beg_dtm.d);
@@ -649,6 +655,14 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 			char pref_barcode[32];
 			STRNSCPY(pref_barcode, r_cur_entry.PrefBarCode);
 			AddCheckDigToBarcode(pref_barcode);
+			// @v12.0.2 {
+			if(oneof2(rGoodsInfo.ChZnProdType, GTCHZNPT_TOBACCO, GTCHZNPT_ALTTOBACCO)) {
+				_ChZnTobaccoEntry _entry;
+				STRNSCPY(_entry.Barcode, pref_barcode);
+				_entry.GoodsID = rGoodsInfo.ID;
+				chzntobacco_list.insert(&_entry);
+			}
+			// } @v12.0.2 
 			// @v10.6.8 {
 			if(mode == 2) {
 				/*
@@ -782,12 +796,10 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 						else
 							p_writer->PutElement("product-type", "ProductPieceEntity");
 					}
-					// @v10.4.12 {
 					if(sr_prodtagb_tag && p_ref->Ot.GetTagStr(PPOBJ_GOODS, r_cur_entry.ID, sr_prodtagb_tag, temp_buf) > 0) {
 						temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 						p_writer->PutElement(temp_buf, "true");
 					}
-					// } @v10.4.12
 				}
 				if(mode == 0) {
 					p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(r_cur_entry.Price, SFMT_MONEY));
@@ -920,7 +932,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					if(do_process_lookbackprices) {
 						RealArray price_list;
 						if(pGoodsIter->GetDifferentPricesForLookBackPeriod(r_cur_entry.ID, r_cur_entry.Price, price_list) > 0 || (ModuleSubVer >= 2)) { // @v10.8.2 (ModuleSubVer >= 2)
-							assert(price_list.getCount());
+							// @v12.0.2 assert(price_list.getCount());
 							p_writer->StartElement("plugin-property", "key", "mrc");
 							for(uint pi = 0; pi < price_list.getCount(); pi++) {
 								p_writer->PutPlugin("price", price_list[pi]);
@@ -951,7 +963,6 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					dis_entry.Deleted = BIN(r_cur_entry.Flags_ & AsyncCashGoodsInfo::fDeleted);
 					max_dis_list.insert(&dis_entry);
 				}
-				// @v10.6.4 {
 				if(r_cur_entry.AllowedPriceR.low > 0.0) {
 					_MinPriceEntry mp_entry;
 					STRNSCPY(mp_entry.Barcode, pref_barcode);
@@ -960,7 +971,6 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					mp_entry.Reserve = 0;
 					min_price_list.insert(&mp_entry);
 				}
-				// } @v10.6.4
 			}
 			barcodes.clear();
 		}
@@ -1044,8 +1054,11 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					PPWaitPercent(i + 1, min_price_list.getCount(), iter_msg);
 				}
 			}
-			else {
-				if(oneof2(rGoodsInfo.ChZnProdType, GTCHZNPT_TOBACCO, GTCHZNPT_ALTTOBACCO)) {
+			if(chzntobacco_list.getCount()) {
+				//chzntobacco_id_list.sortAndUndup();
+				const double min_tobacco_price = 129.0;
+				for(uint i = 0; i < chzntobacco_list.getCount(); i++) {
+					const _ChZnTobaccoEntry * r_entry = static_cast<const _ChZnTobaccoEntry *>(chzntobacco_list.at(i));
 					/*
 					@20240409 Для табака тоже надо выгружать min-price-restriction
 						<min-price-restriction id="GOOD-46245991-MIN_PRICE_PERCENT" subject-type="GOOD" subject-code="46245991" type="MIN_PRICE" value="50.00">
@@ -1058,13 +1071,13 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 						 </min-price-restriction>
 					*/
 					//const _MinPriceEntry * p_entry = static_cast<const _MinPriceEntry *>(min_price_list.at(i));
-					(restr_id = p_subj_type).CatChar('-').Cat(rGoodsInfo.ID).CatChar('-').Cat(p_type);
+					(restr_id = p_subj_type).CatChar('-').Cat(r_entry->Barcode).CatChar('-').Cat(p_type);
 					p_writer->StartElement("min-price-restriction");
 	 				p_writer->AddAttrib("id", restr_id.cptr());
 					p_writer->AddAttrib("subject-type", p_subj_type);
-					p_writer->AddAttrib("subject-code", temp_buf.Z().Cat(rGoodsInfo.ID));
+					p_writer->AddAttrib("subject-code", temp_buf.Z().Cat(r_entry->Barcode));
 					p_writer->AddAttrib("type", p_type);
-					p_writer->AddAttrib("value", "1.00");
+					p_writer->AddAttrib("value", temp_buf.Z().Cat(min_tobacco_price, MKSFMTD(0, 2, 0)));
 					p_writer->PutElement("since-date", beg_dtm);
 					p_writer->PutElement("till-date", end_dtm);
 					p_writer->PutElement("since-time", beg_dtm.t);

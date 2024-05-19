@@ -287,12 +287,12 @@ int DH_set_length(DH * dh, long length)
 	return 1;
 }
 
-const unsigned char * EVP_CIPHER_CTX_iv(const EVP_CIPHER_CTX * ctx)
+const uchar * EVP_CIPHER_CTX_iv(const EVP_CIPHER_CTX * ctx)
 {
 	return ctx->iv;
 }
 
-unsigned char * EVP_CIPHER_CTX_iv_noconst(EVP_CIPHER_CTX * ctx)
+uchar * EVP_CIPHER_CTX_iv_noconst(EVP_CIPHER_CTX * ctx)
 {
 	return ctx->iv;
 }
@@ -349,8 +349,8 @@ int RSA_meth_set1_name(RSA_METHOD * meth, const char * name)
 }
 
 int RSA_meth_set_priv_enc(RSA_METHOD * meth,
-    int (*priv_enc)(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa,
+    int (*priv_enc)(int flen, const uchar * from,
+    uchar * to, RSA * rsa,
     int padding))
 {
 	meth->rsa_priv_enc = priv_enc;
@@ -358,8 +358,8 @@ int RSA_meth_set_priv_enc(RSA_METHOD * meth,
 }
 
 int RSA_meth_set_priv_dec(RSA_METHOD * meth,
-    int (*priv_dec)(int flen, const unsigned char * from,
-    unsigned char * to, RSA * rsa,
+    int (*priv_dec)(int flen, const uchar * from,
+    uchar * to, RSA * rsa,
     int padding))
 {
 	meth->rsa_priv_dec = priv_dec;

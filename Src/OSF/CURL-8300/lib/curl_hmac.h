@@ -24,23 +24,19 @@
 *
 ***************************************************************************/
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) \
-	|| !defined(CURL_DISABLE_AWS)
+#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || !defined(CURL_DISABLE_AWS)
 
 //#include <curl/curl.h>
 
 #define HMAC_MD5_LENGTH 16
 
 typedef CURLcode (* HMAC_hinit_func)(void * context);
-typedef void (* HMAC_hupdate_func)(void * context,
-    const uchar * data,
-    uint len);
+typedef void (* HMAC_hupdate_func)(void * context, const uchar * data, uint len);
 typedef void (* HMAC_hfinal_func)(uchar * result, void * context);
 
 /* Per-hash function HMAC parameters. */
 struct HMAC_params {
-	HMAC_hinit_func
-	    hmac_hinit; /* Initialize context procedure. */
+	HMAC_hinit_func hmac_hinit; /* Initialize context procedure. */
 	HMAC_hupdate_func hmac_hupdate; /* Update context with data. */
 	HMAC_hfinal_func hmac_hfinal;   /* Get final result procedure. */
 	uint hmac_ctxtsize;     /* Context structure size. */
@@ -56,12 +52,8 @@ struct HMAC_context {
 };
 
 /* Prototypes. */
-struct HMAC_context *Curl_HMAC_init(const struct HMAC_params * hashparams,
-    const uchar * key,
-    uint keylen);
-int Curl_HMAC_update(struct HMAC_context * context,
-    const uchar * data,
-    uint len);
+struct HMAC_context *Curl_HMAC_init(const struct HMAC_params * hashparams, const uchar * key, uint keylen);
+int Curl_HMAC_update(struct HMAC_context * context, const uchar * data, uint len);
 int Curl_HMAC_final(struct HMAC_context * context, uchar * result);
 
 CURLcode Curl_hmacit(const struct HMAC_params * hashparams,

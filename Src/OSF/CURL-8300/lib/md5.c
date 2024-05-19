@@ -608,26 +608,20 @@ struct MD5_context *Curl_MD5_init(const struct MD5_params * md5params)
 		SAlloc::F(ctxt);
 		return NULL;
 	}
-
 	return ctxt;
 }
 
-CURLcode Curl_MD5_update(struct MD5_context * context,
-    const uchar * data,
-    uint len)
+CURLcode Curl_MD5_update(struct MD5_context * context, const uchar * data, uint len)
 {
 	(*context->md5_hash->md5_update_func)(context->md5_hashctx, data, len);
-
 	return CURLE_OK;
 }
 
 CURLcode Curl_MD5_final(struct MD5_context * context, uchar * result)
 {
 	(*context->md5_hash->md5_final_func)(result, context->md5_hashctx);
-
 	SAlloc::F(context->md5_hashctx);
 	SAlloc::F(context);
-
 	return CURLE_OK;
 }
 

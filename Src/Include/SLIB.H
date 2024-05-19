@@ -1340,6 +1340,7 @@ public:
 	static constexpr uint32 MagicMurmurC2 = 0x1b873593U; // @v11.4.0 0x1b873593 // Magic number C2 for 32-bit hashing from Murmur3
 	static constexpr uint32 FnvHash0Init32 = 0U; // @v11.9.12 Константа инициализации хэш-функции FNV0_32
 	static constexpr uint32 FnvHash1Init32 = 0x811c9dc5U; // @v11.9.12 Константа инициализации хэш-функции FNV1_32 и FNVa_32
+	static constexpr uint32 DjbHashInit32  = 5381U; // @v12.0.2 DJBX33A (Daniel J. Bernstein) // Why 5381? odd number; prime number; deficient number (https://en.wikipedia.org/wiki/Deficient_number); 001/010/100/000/101 b
 	static constexpr uint64 FnvHash0Init64 = 0ULL; // @v11.9.12 Константа инициализации хэш-функции FNV0_64
 	static constexpr uint64 FnvHash1Init64 = 0xcbf29ce484222325ULL; // @v11.9.12 Константа инициализации хэш-функции FNV1_64 и FNVa_64
 	static constexpr uint32 FnvHashPrime32 = 0x01000193U/*16777619*/; // @v11.9.12 Константа для итерации хэш-функции FNV_32 (32 bit magic FNV-0 and FNV-1 prime)
@@ -12375,6 +12376,14 @@ public:
 	SFile(SBuffer & rBuf, long mode);
 	~SFile();
 	bool   IsValid() const;
+	//
+	// Descr: Если текущая позиция файла находится в пределах доступной области чтения, то возвращает false.
+	//   Еще раз, чтобы не было путаницы, функция вернет false если экземпляр файла валиден и нам есть что
+	//   из него прочитать. В противном случае вернет true. 
+	// Note: Для экземпляров, открытых для чтения архива, функция всегда будет возвращать true (до тех
+	//   пор, пока я не разберусь как правильно получить статус eof на архивах.
+	//
+	bool   IsEof();
 	operator FILE * ();
 	operator SBuffer * ();
 	//

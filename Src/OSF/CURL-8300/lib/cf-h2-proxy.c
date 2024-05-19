@@ -156,7 +156,7 @@ static void h2_tunnel_go_state(struct Curl_cfilter * cf,
 		    infof(data, "CONNECT phase completed");
 		    data->state.authproxy.done = TRUE;
 		    data->state.authproxy.multipass = FALSE;
-		/* FALLTHROUGH */
+		// @fallthrough
 		case H2_TUNNEL_FAILED:
 		    if(new_state == H2_TUNNEL_FAILED)
 			    CURL_TRC_CF(data, cf, "[%d] new tunnel state 'failed'", ts->stream_id);
@@ -1055,7 +1055,7 @@ static CURLcode H2_CONNECT(struct Curl_cfilter * cf,
 			    if(result)
 				    goto out;
 			    h2_tunnel_go_state(cf, ts, H2_TUNNEL_CONNECT, data);
-			/* FALLTHROUGH */
+			// @fallthrough
 
 			case H2_TUNNEL_CONNECT:
 			    /* see that the request is completely sent */
@@ -1074,7 +1074,7 @@ static CURLcode H2_CONNECT(struct Curl_cfilter * cf,
 				    result = CURLE_OK;
 				    goto out;
 			    }
-			/* FALLTHROUGH */
+			// @fallthrough
 
 			case H2_TUNNEL_RESPONSE:
 			    assert(ts->has_final_response);

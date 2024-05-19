@@ -102,15 +102,14 @@ struct gravity_hash_t {
     of equal lengths, but will play a role in generating different hash values for
     strings of different lengths.
  */
-
-#define HASH_SEED_VALUE                  5381
+// @v12.0.2 (replaced with SlConst::DjbHashInit32) #define HASH_SEED_VALUE                  5381
 
 #if 0 // (Эта реализация заменена на эквивалентную SlHash::Murmur3_32 @testpassed) {
 
 #define ROT32(x, y)                      ((x << y) | (x >> (32 - y)))
-#define COMPUTE_HASH(tbl, key, hash)     uint32 hash = murmur3_32(key, len, HASH_SEED_VALUE); hash = hash % tbl->size
-#define COMPUTE_HASH_NOMODULO(key, hash) uint32 hash = murmur3_32(key, len, HASH_SEED_VALUE)
-#define RECOMPUTE_HASH(tbl, key, hash)   hash = murmur3_32(key, len, HASH_SEED_VALUE); hash = hash % tbl->size
+#define COMPUTE_HASH(tbl, key, hash)     uint32 hash = murmur3_32(key, len, SlConst::DjbHashInit32); hash = hash % tbl->size
+#define COMPUTE_HASH_NOMODULO(key, hash) uint32 hash = murmur3_32(key, len, SlConst::DjbHashInit32)
+#define RECOMPUTE_HASH(tbl, key, hash)   hash = murmur3_32(key, len, SlConst::DjbHashInit32); hash = hash % tbl->size
 
 static /*inline*/ uint32 murmur3_32(const char * key, uint32 len, uint32 seed) 
 {
@@ -328,14 +327,14 @@ uint32 FASTCALL gravity_hash_count(const gravity_hash_t * hashtable) { return ha
 
 uint32 FASTCALL gravity_hash_compute_buffer(const char * key, uint32 len) 
 {
-	return SlHash::Murmur3_32(key, len, HASH_SEED_VALUE);
+	return SlHash::Murmur3_32(key, len, SlConst::DjbHashInit32);
 }
 
 uint32 gravity_hash_compute_int(gravity_int_t n) 
 {
 	char buffer[24];
 	snprintf(buffer, sizeof(buffer), "%" PRId64, n);
-	return SlHash::Murmur3_32(buffer, (uint32)strlen(buffer), HASH_SEED_VALUE);
+	return SlHash::Murmur3_32(buffer, (uint32)strlen(buffer), SlConst::DjbHashInit32);
 }
 
 uint32 gravity_hash_compute_float(gravity_float_t f) 
@@ -343,7 +342,7 @@ uint32 gravity_hash_compute_float(gravity_float_t f)
 	char buffer[24];
 	// was %g but we don't like scientific notation nor the missing .0 in case of float number with no decimals
 	snprintf(buffer, sizeof(buffer), "%f", f);
-	return SlHash::Murmur3_32(buffer, (uint32)strlen(buffer), HASH_SEED_VALUE);
+	return SlHash::Murmur3_32(buffer, (uint32)strlen(buffer), SlConst::DjbHashInit32);
 }
 
 void gravity_hash_stat(gravity_hash_t * hashtable) 

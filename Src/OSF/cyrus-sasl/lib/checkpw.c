@@ -86,9 +86,9 @@ static int _sasl_make_plain_secret(const char * salt, const char * passwd, size_
 	// @sobolev modif
 	//  Cyrus_MD5_CTX ctx;
 	// _sasl_MD5Init(&ctx);
-	// _sasl_MD5Update(&ctx, (const unsigned char *)salt, 16);
-	// _sasl_MD5Update(&ctx, (const unsigned char *)"sasldb", 6);
-	// _sasl_MD5Update(&ctx, (const unsigned char *)passwd, (unsigned int)passlen);
+	// _sasl_MD5Update(&ctx, (const uchar *)salt, 16);
+	// _sasl_MD5Update(&ctx, (const uchar *)"sasldb", 6);
+	// _sasl_MD5Update(&ctx, (const uchar *)passwd, (uint)passlen);
 	memcpy((*secret)->data, salt, 16);
 	(*secret)->data[16] = '\0';
 	// _sasl_MD5Final((*secret)->data + 17, &ctx);
@@ -96,7 +96,7 @@ static int _sasl_make_plain_secret(const char * salt, const char * passwd, size_
 		SlHash::State hst;
 		SlHash::Md5(&hst, salt, 16);
 		SlHash::Md5(&hst, "sasldb", 6);
-		SlHash::Md5(&hst, passwd, (unsigned int)passlen);
+		SlHash::Md5(&hst, passwd, (uint)passlen);
 		binary128 md5 = SlHash::Md5(&hst, 0, 0);
 		memcpy((*secret)->data + 17, &md5, sizeof(md5));
 	}
@@ -302,7 +302,7 @@ int _sasl_auxprop_verify_apop(sasl_conn_t * conn,
 	int ret = SASL_BADAUTH;
 	char * userid = NULL;
 	char * realm = NULL;
-	unsigned char digest[16];
+	uchar digest[16];
 	char digeststr[33];
 	const char * password_request[] = { SASL_AUX_PASSWORD, NULL };
 	struct propval auxprop_values[2];
@@ -330,8 +330,8 @@ int _sasl_auxprop_verify_apop(sasl_conn_t * conn,
 		goto done;
 	}
 	_sasl_MD5Init(&ctx);
-	_sasl_MD5Update(&ctx, (const unsigned char *)challenge, strlen(challenge));
-	_sasl_MD5Update(&ctx, (const unsigned char *)auxprop_values[0].values[0], strlen(auxprop_values[0].values[0]));
+	_sasl_MD5Update(&ctx, (const uchar *)challenge, strlen(challenge));
+	_sasl_MD5Update(&ctx, (const uchar *)auxprop_values[0].values[0], strlen(auxprop_values[0].values[0]));
 	_sasl_MD5Final(digest, &ctx);
 	/* erase the plaintext password */
 	sconn->sparams->utils->prop_erase(sconn->sparams->propctx, password_request[0]);
@@ -668,7 +668,7 @@ static int saslauthd_verify_password(sasl_conn_t * conn,
 	{
 		unsigned short max_len, req_len, u_len, p_len, s_len, r_len, c_len;
 
-		max_len = (unsigned short)sizeof(query);
+		max_len = (ushort)sizeof(query);
 
 		/* prevent buffer overflow */
 		if((strlen(userid) > USHRT_MAX) ||
@@ -703,24 +703,24 @@ static int saslauthd_verify_password(sasl_conn_t * conn,
 		r_len = htons(r_len);
 		c_len = htons(c_len);
 
-		memcpy(query_end, &u_len, sizeof(unsigned short));
-		query_end += sizeof(unsigned short);
+		memcpy(query_end, &u_len, sizeof(ushort));
+		query_end += sizeof(ushort);
 		while(*userid) *query_end++ = *userid++;
 
-		memcpy(query_end, &p_len, sizeof(unsigned short));
-		query_end += sizeof(unsigned short);
+		memcpy(query_end, &p_len, sizeof(ushort));
+		query_end += sizeof(ushort);
 		while(*passwd) *query_end++ = *passwd++;
 
-		memcpy(query_end, &s_len, sizeof(unsigned short));
-		query_end += sizeof(unsigned short);
+		memcpy(query_end, &s_len, sizeof(ushort));
+		query_end += sizeof(ushort);
 		while(*service) *query_end++ = *service++;
 
-		memcpy(query_end, &r_len, sizeof(unsigned short));
-		query_end += sizeof(unsigned short);
+		memcpy(query_end, &r_len, sizeof(ushort));
+		query_end += sizeof(ushort);
 		if(user_realm) while(*user_realm) *query_end++ = *user_realm++;
 
-		memcpy(query_end, &c_len, sizeof(unsigned short));
-		query_end += sizeof(unsigned short);
+		memcpy(query_end, &c_len, sizeof(ushort));
+		query_end += sizeof(ushort);
 		if(client_addr) while(*client_addr) *query_end++ = *client_addr++;
 	}
 

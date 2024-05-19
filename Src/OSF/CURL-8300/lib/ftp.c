@@ -2907,20 +2907,16 @@ static CURLcode ftp_statemachine(struct Curl_easy * data,
 			case FTP_PASV:
 			    result = ftp_state_pasv_resp(data, ftpcode);
 			    break;
-
 			case FTP_PORT:
 			    result = ftp_state_port_resp(data, ftpcode);
 			    break;
-
 			case FTP_LIST:
 			case FTP_RETR:
 			    result = ftp_state_get_resp(data, ftpcode, ftpc->state);
 			    break;
-
 			case FTP_STOR:
 			    result = ftp_state_stor_resp(data, ftpcode, ftpc->state);
 			    break;
-
 			case FTP_QUIT:
 			/* fallthrough, just stop! */
 			default:
@@ -2929,39 +2925,32 @@ static CURLcode ftp_statemachine(struct Curl_easy * data,
 			    break;
 		}
 	} /* if(ftpcode) */
-
 	return result;
 }
 
 /* called repeatedly until done from multi.c */
-static CURLcode ftp_multi_statemach(struct Curl_easy * data,
-    bool * done)
+static CURLcode ftp_multi_statemach(struct Curl_easy * data, bool * done)
 {
 	struct connectdata * conn = data->conn;
 	struct ftp_conn * ftpc = &conn->proto.ftpc;
 	CURLcode result = Curl_pp_statemach(data, &ftpc->pp, FALSE, FALSE);
-
 	/* Check for the state outside of the Curl_socket_check() return code checks
 	   since at times we are in fact already in this state when this function
 	   gets called. */
 	*done = (ftpc->state == FTP_STOP) ? TRUE : FALSE;
-
 	return result;
 }
 
-static CURLcode ftp_block_statemach(struct Curl_easy * data,
-    struct connectdata * conn)
+static CURLcode ftp_block_statemach(struct Curl_easy * data, struct connectdata * conn)
 {
 	struct ftp_conn * ftpc = &conn->proto.ftpc;
 	struct pingpong * pp = &ftpc->pp;
 	CURLcode result = CURLE_OK;
-
 	while(ftpc->state != FTP_STOP) {
 		result = Curl_pp_statemach(data, pp, TRUE, TRUE /* disconnecting */);
 		if(result)
 			break;
 	}
-
 	return result;
 }
 
@@ -3055,7 +3044,7 @@ static CURLcode ftp_done(struct Curl_easy * data, CURLcode status,
 
 		/* until we cope better with prematurely ended requests, let them
 		 * fallback as if in complete failure */
-		/* FALLTHROUGH */
+		// @fallthrough
 		default: /* by default, an error means the control connection is
 		            wedged and should not be used anymore */
 		    ftpc->ctl_valid = FALSE;

@@ -344,7 +344,7 @@ static void fz_process_shade_type4(fz_context * ctx, fz_shade * shade, fz_matrix
 			{
 				default:
 				    fz_warn(ctx, "ignoring out of range edge flag in mesh");
-				/* fallthrough */
+				// @fallthrough
 
 				case 0: /* start new triangle */
 				    SWAP(va, vd);

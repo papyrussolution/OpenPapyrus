@@ -154,7 +154,7 @@ typedef struct context {
 
 	sasl_ssf_t limitssf, requiressf; /* application defined bounds, for the
 	                                    server */
-	unsigned char qop;           /* as allowed by GSSAPI */
+	uchar qop;           /* as allowed by GSSAPI */
 
 	const sasl_utils_t * utils;
 
@@ -1113,7 +1113,7 @@ static int gssapi_server_mech_ssfcap(context_t * text,
 	gss_buffer_t input_token, output_token;
 	gss_buffer_desc real_input_token, real_output_token;
 	OM_uint32 maj_stat = 0, min_stat = 0;
-	unsigned char sasldata[4];
+	uchar sasldata[4];
 	sasl_ssf_t mech_ssf;
 	int ret;
 
@@ -1349,9 +1349,9 @@ static int gssapi_server_mech_ssfreq(context_t * text,
 	/* No matter what, set the rest of the oparams */
 
 	oparams->maxoutbuf =
-	    (((unsigned char *)output_token->value)[1] << 16) |
-	    (((unsigned char *)output_token->value)[2] << 8) |
-	    (((unsigned char *)output_token->value)[3] << 0);
+	    (((uchar *)output_token->value)[1] << 16) |
+	    (((uchar *)output_token->value)[2] << 8) |
+	    (((uchar *)output_token->value)[3] << 0);
 
 	GSS_LOCK_MUTEX_CTX(params->utils, text);
 	gss_release_buffer(&min_stat, output_token);
@@ -2007,9 +2007,9 @@ static int gssapi_client_mech_step(void * conn_context,
 		    }
 
 		    oparams->maxoutbuf =
-			(((unsigned char *)output_token->value)[1] << 16) |
-			(((unsigned char *)output_token->value)[2] << 8) |
-			(((unsigned char *)output_token->value)[3] << 0);
+			(((uchar *)output_token->value)[1] << 16) |
+			(((uchar *)output_token->value)[2] << 8) |
+			(((uchar *)output_token->value)[3] << 0);
 
 		    GSS_LOCK_MUTEX_CTX(params->utils, text);
 		    gss_release_buffer(&min_stat, output_token);
@@ -2051,25 +2051,25 @@ static int gssapi_client_mech_step(void * conn_context,
 			    if(params->props.maxbufsize > 0xFFFFFF) {
 				    /* make sure maxbufsize isn't too large */
 				    /* maxbufsize = 0xFFFFFF */
-				    ((unsigned char *)input_token->value)[1] = 0xFF;
-				    ((unsigned char *)input_token->value)[2] = 0xFF;
-				    ((unsigned char *)input_token->value)[3] = 0xFF;
+				    ((uchar *)input_token->value)[1] = 0xFF;
+				    ((uchar *)input_token->value)[2] = 0xFF;
+				    ((uchar *)input_token->value)[3] = 0xFF;
 			    }
 			    else {
-				    ((unsigned char *)input_token->value)[1] =
+				    ((uchar *)input_token->value)[1] =
 					(params->props.maxbufsize >> 16) & 0xFF;
-				    ((unsigned char *)input_token->value)[2] =
+				    ((uchar *)input_token->value)[2] =
 					(params->props.maxbufsize >> 8) & 0xFF;
-				    ((unsigned char *)input_token->value)[3] =
+				    ((uchar *)input_token->value)[3] =
 					(params->props.maxbufsize >> 0) & 0xFF;
 			    }
 		    }
 		    else {
-			    ((unsigned char *)input_token->value)[1] = 0;
-			    ((unsigned char *)input_token->value)[2] = 0;
-			    ((unsigned char *)input_token->value)[3] = 0;
+			    ((uchar *)input_token->value)[1] = 0;
+			    ((uchar *)input_token->value)[2] = 0;
+			    ((uchar *)input_token->value)[3] = 0;
 		    }
-		    ((unsigned char *)input_token->value)[0] = mychoice;
+		    ((uchar *)input_token->value)[0] = mychoice;
 
 		    GSS_LOCK_MUTEX_CTX(params->utils, text);
 		    maj_stat = gss_wrap(&min_stat,

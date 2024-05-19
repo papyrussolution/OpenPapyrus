@@ -651,7 +651,7 @@ error:
 		while(fax->rp < fax->wp && p < ep)
 			*p++ = *fax->rp++ ^ 0xff;
 	}
-	/* fallthrough */
+	// @fallthrough
 
 rtc:
 	fax->stage = STATE_DONE;

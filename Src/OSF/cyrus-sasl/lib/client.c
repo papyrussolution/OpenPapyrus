@@ -359,7 +359,7 @@ static void client_dispose(sasl_conn_t * pconn)
  *  SASL_NOMEM    -- not enough memory
  */
 int sasl_client_new(const char * service, const char * serverFQDN, const char * iplocalport,
-    const char * ipremoteport, const sasl_callback_t * prompt_supp, unsigned flags, sasl_conn_t ** pconn)
+    const char * ipremoteport, const sasl_callback_t * prompt_supp, uint flags, sasl_conn_t ** pconn)
 {
 	int result;
 	char name[MAXFQDNLEN];
@@ -753,15 +753,15 @@ int sasl_client_start(sasl_conn_t * conn, const char * mechlist, sasl_interact_t
 
 	/* make (the rest of) cparams */
 	c_conn->cparams->service = conn->service;
-	c_conn->cparams->servicelen = (unsigned)strlen(conn->service);
+	c_conn->cparams->servicelen = (uint)strlen(conn->service);
 
 	if(conn->serverFQDN) {
 		c_conn->cparams->serverFQDN = conn->serverFQDN;
-		c_conn->cparams->slen = (unsigned)strlen(conn->serverFQDN);
+		c_conn->cparams->slen = (uint)strlen(conn->serverFQDN);
 	}
 
 	c_conn->cparams->clientFQDN = c_conn->clientFQDN;
-	c_conn->cparams->clen = (unsigned)strlen(c_conn->clientFQDN);
+	c_conn->cparams->clen = (uint)strlen(c_conn->clientFQDN);
 
 	c_conn->cparams->external_ssf = conn->external.ssf;
 	c_conn->cparams->props = conn->props;
@@ -856,7 +856,7 @@ static unsigned mech_names_len(cmechanism_t * mech_list)
 	cmechanism_t * listptr;
 	unsigned result = 0;
 	for(listptr = mech_list; listptr; listptr = listptr->next)
-		result += (unsigned)strlen(listptr->m.plug->mech_name);
+		result += (uint)strlen(listptr->m.plug->mech_name);
 	return result;
 }
 
@@ -966,7 +966,7 @@ int _sasl_client_listmech(sasl_conn_t * conn, const char * prefix, const char * 
 	if(suffix)
 		strcat(conn->mechlist_buf, suffix);
 	if(plen)
-		*plen = (unsigned)strlen(conn->mechlist_buf);
+		*plen = (uint)strlen(conn->mechlist_buf);
 	*result = conn->mechlist_buf;
 	return SASL_OK;
 }

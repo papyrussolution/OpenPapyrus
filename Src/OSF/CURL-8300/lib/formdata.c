@@ -251,7 +251,7 @@ static CURLFORMcode FormAdd(struct curl_httppost ** httppost, struct curl_httppo
 			case CURLFORM_PTRNAME:
 			    current_form->flags |= HTTPPOST_PTRNAME; /* fall through */
 
-			/* FALLTHROUGH */
+			// @fallthrough
 			case CURLFORM_COPYNAME:
 			    if(current_form->name)
 				    return_value = CURL_FORMADD_OPTION_TWICE;
@@ -277,7 +277,7 @@ static CURLFORMcode FormAdd(struct curl_httppost ** httppost, struct curl_httppo
 			 */
 			case CURLFORM_PTRCONTENTS:
 			    current_form->flags |= HTTPPOST_PTRCONTENTS;
-			/* FALLTHROUGH */
+			// @fallthrough
 			case CURLFORM_COPYCONTENTS:
 			    if(current_form->value)
 				    return_value = CURL_FORMADD_OPTION_TWICE;

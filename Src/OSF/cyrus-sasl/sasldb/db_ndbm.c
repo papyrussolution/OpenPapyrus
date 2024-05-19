@@ -313,7 +313,7 @@ int _sasldb_getnextkey(const sasl_utils_t * utils __attribute__((unused)),
 	if(dbh->dkey.dptr == NULL)
 		return SASL_OK;
 
-	if((unsigned)dbh->dkey.dsize > max_out)
+	if((uint)dbh->dkey.dsize > max_out)
 		return SASL_BUFOVER;
 
 	memcpy(out, dbh->dkey.dptr, dbh->dkey.dsize);

@@ -68,16 +68,16 @@ typedef struct sasl_utils {
 
 	/* MD5 hash and HMAC functions */
 	void (*MD5Init)(Cyrus_MD5_CTX *);
-	void (*MD5Update)(Cyrus_MD5_CTX *, const unsigned char * text, unsigned int len);
-	void (*MD5Final)(unsigned char [16], Cyrus_MD5_CTX *);
-	void (*hmac_md5)(const unsigned char * text, int text_len,
-	const unsigned char * key, int key_len,
-	unsigned char [16]);
-	void (*hmac_md5_init)(HMAC_MD5_CTX *, const unsigned char * key, int len);
+	void (*MD5Update)(Cyrus_MD5_CTX *, const uchar * text, unsigned int len);
+	void (*MD5Final)(uchar [16], Cyrus_MD5_CTX *);
+	void (*hmac_md5)(const uchar * text, int text_len,
+	const uchar * key, int key_len,
+	uchar [16]);
+	void (*hmac_md5_init)(HMAC_MD5_CTX *, const uchar * key, int len);
 	/* hmac_md5_update() is just a call to MD5Update on inner context */
-	void (*hmac_md5_final)(unsigned char [16], HMAC_MD5_CTX *);
+	void (*hmac_md5_final)(uchar [16], HMAC_MD5_CTX *);
 	void (*hmac_md5_precalc)(HMAC_MD5_STATE *,
-	const unsigned char * key, int len);
+	const uchar * key, int len);
 	void (*hmac_md5_import)(HMAC_MD5_CTX *, HMAC_MD5_STATE *);
 
 	/* mechanism utility functions (same as above): */
@@ -99,9 +99,9 @@ typedef struct sasl_utils {
 	const char * pass, unsigned passlen);
 
 	/* Access to base64 encode/decode routines */
-	int (*decode64)(const char * in, unsigned inlen,
+	int (*decode64)(const char * in, uint inlen,
 	char * out, unsigned outmax, unsigned * outlen);
-	int (*encode64)(const char * in, unsigned inlen,
+	int (*encode64)(const char * in, uint inlen,
 	char * out, unsigned outmax, unsigned * outlen);
 
 	/* erase a buffer */
@@ -125,7 +125,7 @@ typedef struct sasl_utils {
 	 */
 	void (*log)(sasl_conn_t *conn, int level, const char * fmt, ...) __attribute__((format(printf, 3, 4)));
 	/* callback to sasl_seterror() */
-	void (*seterror)(sasl_conn_t *conn, unsigned flags, const char * fmt, ...) __attribute__((format(printf, 3, 4)));
+	void (*seterror)(sasl_conn_t *conn, uint flags, const char * fmt, ...) __attribute__((format(printf, 3, 4)));
 	/* spare function pointer */
 	int *(*spare_fptr)();
 	/* auxiliary property utilities */
@@ -164,7 +164,7 @@ typedef struct sasl_out_params {
 	const char * user; /* canonicalized user name */
 	const char * authid; /* canonicalized authentication id */
 
-	unsigned ulen; /* length of canonicalized user name */
+	uint ulen; /* length of canonicalized user name */
 	unsigned alen; /* length of canonicalized authid */
 
 	/* security layer information */
@@ -289,7 +289,7 @@ typedef struct sasl_client_params {
 	 */
 	int (* canon_user)(sasl_conn_t * conn,
 	    const char * in, unsigned len,
-	    unsigned flags,
+	    uint flags,
 	    sasl_out_params_t * oparams);
 
 	int (* spare_fptr1)();
@@ -299,7 +299,7 @@ typedef struct sasl_client_params {
 	int spare_int3;
 
 	/* flags field as passed to sasl_client_new */
-	unsigned flags;
+	uint flags;
 
 	/* set to 0 initially, this allows a plugin with extended parameters
 	 * to work with an older framework by updating version as parameters
@@ -549,10 +549,7 @@ typedef struct sasl_server_params {
 	 *  SASL_BADPARAM -- invalid conn
 	 *  SASL_BADPROT  -- invalid user/authid
 	 */
-	int (* canon_user)(sasl_conn_t * conn,
-	    const char * user, unsigned ulen,
-	    unsigned flags,
-	    sasl_out_params_t * oparams);
+	int (* canon_user)(sasl_conn_t * conn, const char * user, uint ulen, uint flags, sasl_out_params_t * oparams);
 
 	/* auxiliary property context (see definitions in prop.h)
 	 *  added cjn 2000-01-30
@@ -575,7 +572,7 @@ typedef struct sasl_server_params {
 	int spare_int2;
 	int spare_int3;
 	/* flags field as passed to sasl_server_new */
-	unsigned flags;
+	uint flags;
 	/* set to 0 initially, this allows a plugin with extended parameters
 	 * to work with an older framework by updating version as parameters
 	 * are added.
@@ -691,7 +688,7 @@ typedef struct sasl_server_plug {
 	    const char * user,
 	    const char * pass, unsigned passlen,
 	    const char * oldpass, unsigned oldpasslen,
-	    unsigned flags);
+	    uint flags);
 
 	/* query which mechanisms are available for user
 	 *  glob_context  -- context
@@ -842,14 +839,14 @@ typedef struct sasl_canonuser {
 	int (* canon_user_server)(void * glob_context,
 	    sasl_server_params_t * sparams,
 	    const char * user, unsigned len,
-	    unsigned flags,
+	    uint flags,
 	    char * out,
 	    unsigned out_umax, unsigned * out_ulen);
 
 	int (* canon_user_client)(void * glob_context,
 	    sasl_client_params_t * cparams,
 	    const char * user, unsigned len,
-	    unsigned flags,
+	    uint flags,
 	    char * out,
 	    unsigned out_max, unsigned * out_len);
 
@@ -899,8 +896,8 @@ typedef struct sasl_auxprop_plug {
 	 */
 	int (* auxprop_lookup)(void * glob_context,
 	    sasl_server_params_t * sparams,
-	    unsigned flags,
-	    const char * user, unsigned ulen);
+	    uint flags,
+	    const char * user, uint ulen);
 
 	/* name of the auxprop plugin */
 	char * name;
@@ -916,7 +913,7 @@ typedef struct sasl_auxprop_plug {
 	int (* auxprop_store)(void * glob_context,
 	    sasl_server_params_t * sparams,
 	    struct propctx * ctx,
-	    const char * user, unsigned ulen);
+	    const char * user, uint ulen);
 } sasl_auxprop_plug_t;
 
 /* auxprop lookup flags */

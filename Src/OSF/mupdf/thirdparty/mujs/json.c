@@ -1,8 +1,9 @@
+// json.c
+//
 #include "jsi.h"
 #include "jslex.h"
 #include "jsvalue.h"
 #include "jsbuiltin.h"
-
 #include "utf.h"
 
 int js_isnumberobject(js_State * J, int idx)
@@ -32,26 +33,22 @@ static int jsonaccept(js_State * J, int t)
 static void jsonexpect(js_State * J, int t)
 {
 	if(!jsonaccept(J, t))
-		js_syntaxerror(J, "JSON: unexpected token: %s (expected %s)",
-		    jsY_tokenstring(J->lookahead), jsY_tokenstring(t));
+		js_syntaxerror(J, "JSON: unexpected token: %s (expected %s)", jsY_tokenstring(J->lookahead), jsY_tokenstring(t));
 }
 
 static void jsonvalue(js_State * J)
 {
 	int i;
 	const char * name;
-
 	switch(J->lookahead) {
 		case TK_STRING:
 		    js_pushstring(J, J->text);
 		    jsonnext(J);
 		    break;
-
 		case TK_NUMBER:
 		    js_pushnumber(J, J->number);
 		    jsonnext(J);
 		    break;
-
 		case '{':
 		    js_newobject(J);
 		    jsonnext(J);
@@ -252,9 +249,8 @@ static void fmtobject(js_State * J, js_Buffer ** sb, js_Object * obj, const char
 {
 	const char * key;
 	int save;
-	int i, n;
-
-	n = js_gettop(J) - 1;
+	int i;
+	int n = js_gettop(J) - 1;
 	for(i = 4; i < n; ++i)
 		if(js_isobject(J, i))
 			if(js_toobject(J, i) == js_toobject(J, -1))
@@ -287,10 +283,9 @@ static void fmtobject(js_State * J, js_Buffer ** sb, js_Object * obj, const char
 
 static void fmtarray(js_State * J, js_Buffer ** sb, const char * gap, int level)
 {
-	int n, i;
+	int i;
 	char buf[32];
-
-	n = js_gettop(J) - 1;
+	int n = js_gettop(J) - 1;
 	for(i = 4; i < n; ++i)
 		if(js_isobject(J, i))
 			if(js_toobject(J, i) == js_toobject(J, -1))
@@ -312,9 +307,7 @@ static int fmtvalue(js_State * J, js_Buffer ** sb, const char * key, const char 
 {
 	/* replacer/property-list is in 2 */
 	/* holder is in -1 */
-
 	js_getproperty(J, -1, key);
-
 	if(js_isobject(J, -1)) {
 		if(js_hasproperty(J, -1, "toJSON")) {
 			if(js_iscallable(J, -1)) {

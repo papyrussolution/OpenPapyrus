@@ -1544,7 +1544,7 @@ static boolint _cairo_win32_font_face_destroy(void * abstract_face)
 
 static void _cairo_win32_font_face_init_key(cairo_win32_font_face_t * key, LOGFONTW * logfont, HFONT font)
 {
-	ulong hash = _CAIRO_HASH_INIT_VALUE;
+	ulong hash = SlConst::DjbHashInit32;
 	key->logfont = *logfont;
 	key->hfont = font;
 	hash = _cairo_hash_bytes(0, logfont->lfFaceName, 2*wcslen(logfont->lfFaceName));

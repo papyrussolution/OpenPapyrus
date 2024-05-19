@@ -52,13 +52,13 @@
 #define S43 15
 #define S44 21
 
-static void MD5Transform PROTO_LIST((UINT4 [4], const unsigned char [64]));
-static void Encode PROTO_LIST((unsigned char *, UINT4 *, unsigned int));
-static void Decode PROTO_LIST((UINT4 *, const unsigned char *, unsigned int));
+static void MD5Transform PROTO_LIST((UINT4 [4], const uchar [64]));
+static void Encode PROTO_LIST((uchar *, UINT4 *, unsigned int));
+static void Decode PROTO_LIST((UINT4 *, const uchar *, unsigned int));
 //static void MD5_memcpy PROTO_LIST((POINTER, POINTER, unsigned int));
 //static void MD5_memset PROTO_LIST((POINTER, int, unsigned int));
 
-static unsigned char PADDING[64] = {
+static uchar PADDING[64] = {
 	0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
@@ -76,10 +76,7 @@ static unsigned char PADDING[64] = {
 #define H(x, y, z) ((x) ^ (y) ^ (z))
 #define I(x, y, z) ((y) ^ ((x) | (~z)))
 
-/* ROTATE_LEFT rotates x left n bits.
-
- */
-
+// ROTATE_LEFT rotates x left n bits.
 #define ROTATE_LEFT(x, n) (((x) << (n)) | ((x) >> (32-(n))))
 
 /* FF, GG, HH, and II transformations for rounds 1, 2, 3, and 4.
@@ -108,7 +105,7 @@ void _sasl_MD5Init(Cyrus_MD5_CTX * context /* context */)
        operation, processing another message block, and updating the context.
  */
 
-void _sasl_MD5Update(Cyrus_MD5_CTX * context /* context */, const unsigned char * input /* input block */,
+void _sasl_MD5Update(Cyrus_MD5_CTX * context /* context */, const uchar * input /* input block */,
     unsigned int inputLen /* length of input block */)
 {
 	uint i, partLen;
@@ -137,14 +134,14 @@ void _sasl_MD5Update(Cyrus_MD5_CTX * context /* context */, const unsigned char 
 /* MD5 finalization. Ends an MD5 message-digest operation, writing the
        the message digest and zeroizing the context.
  */
-void _sasl_MD5Final(unsigned char digest[16] /* message digest */, Cyrus_MD5_CTX * context /* context */)
+void _sasl_MD5Final(uchar digest[16] /* message digest */, Cyrus_MD5_CTX * context /* context */)
 {
 	uchar bits[8];
 	uint index, padLen;
 	/* Save number of bits */
 	Encode(bits, context->count, 8);
 	/* Pad out to 56 mod 64. */
-	index = (unsigned int)((context->count[0] >> 3) & 0x3f);
+	index = (uint)((context->count[0] >> 3) & 0x3f);
 	padLen = (index < 56) ? (56 - index) : (120 - index);
 	_sasl_MD5Update(context, PADDING, padLen);
 	/* Append length (before padding) */
@@ -157,7 +154,7 @@ void _sasl_MD5Final(unsigned char digest[16] /* message digest */, Cyrus_MD5_CTX
 
 /* MD5 basic transformation. Transforms state based on block. */
 
-static void MD5Transform(UINT4 state[4], const unsigned char block[64])
+static void MD5Transform(UINT4 state[4], const uchar block[64])
 {
 	UINT4 a = state[0], b = state[1], c = state[2], d = state[3], x[16];
 	Decode(x, block, 64);
@@ -242,12 +239,12 @@ static void MD5Transform(UINT4 state[4], const unsigned char block[64])
 	memzero(x, sizeof(x));
 }
 
-/* Encodes input (UINT4) into output (unsigned char). Assumes len is
+/* Encodes input (UINT4) into output (uchar). Assumes len is
        a multiple of 4.
 
  */
 
-static void Encode(unsigned char * output, UINT4 * input, unsigned int len)
+static void Encode(uchar * output, UINT4 * input, unsigned int len)
 {
 	uint i, j;
 	for(i = 0, j = 0; j < len; i++, j += 4) {
@@ -258,8 +255,8 @@ static void Encode(unsigned char * output, UINT4 * input, unsigned int len)
 	}
 }
 
-// Decodes input (unsigned char) into output (UINT4). Assumes len is a multiple of 4.
-static void Decode(UINT4 * output, const unsigned char * input, unsigned int len)
+// Decodes input (uchar) into output (UINT4). Assumes len is a multiple of 4.
+static void Decode(UINT4 * output, const uchar * input, unsigned int len)
 {
 	uint i, j;
 	for(i = 0, j = 0; j < len; i++, j += 4)
@@ -285,7 +282,7 @@ static void Decode(UINT4 * output, const unsigned char * input, unsigned int len
 		((char *)output)[i] = (char)value;
 }*/
 
-void _sasl_hmac_md5_init(HMAC_MD5_CTX * hmac, const unsigned char * key, int key_len)
+void _sasl_hmac_md5_init(HMAC_MD5_CTX * hmac, const uchar * key, int key_len)
 {
 	uchar k_ipad[65]; /* inner padding - key XORd with ipad */
 	uchar k_opad[65]; /* outer padding - key XORd with opad */
@@ -342,7 +339,7 @@ void _sasl_hmac_md5_init(HMAC_MD5_CTX * hmac, const unsigned char * key, int key
  * buffer fields.  So all we have to do is save the state field; we
  * can zero the others when we reload it.  Which is why the decision
  * was made to pad the key out to 64 bytes in the first place. */
-void _sasl_hmac_md5_precalc(HMAC_MD5_STATE * state, const unsigned char * key, int key_len)
+void _sasl_hmac_md5_precalc(HMAC_MD5_STATE * state, const uchar * key, int key_len)
 {
 	HMAC_MD5_CTX hmac;
 	_sasl_hmac_md5_init(&hmac, key, key_len);
@@ -366,26 +363,26 @@ void _sasl_hmac_md5_import(HMAC_MD5_CTX * hmac, HMAC_MD5_STATE * state)
 	hmac->ictx.count[0] = hmac->octx.count[0] = 0x200;
 }
 
-void _sasl_hmac_md5_final(unsigned char digest[HMAC_MD5_SIZE], HMAC_MD5_CTX * hmac)
+void _sasl_hmac_md5_final(uchar digest[HMAC_MD5_SIZE], HMAC_MD5_CTX * hmac)
 {
 	_sasl_MD5Final(digest, &hmac->ictx); /* Finalize inner md5 */
 	_sasl_MD5Update(&hmac->octx, digest, 16); /* Update outer ctx */
 	_sasl_MD5Final(digest, &hmac->octx); /* Finalize outer md5 */
 }
 
-void _sasl_hmac_md5(const unsigned char * text /* pointer to data stream */, int text_len /* length of data stream */,
-    const unsigned char * key /* pointer to authentication key */, int key_len /* length of authentication key */,
-    unsigned char * digest /* caller digest to be filled in */)
+void _sasl_hmac_md5(const uchar * text /* pointer to data stream */, int text_len /* length of data stream */,
+    const uchar * key /* pointer to authentication key */, int key_len /* length of authentication key */,
+    uchar * digest /* caller digest to be filled in */)
 {
 	Cyrus_MD5_CTX context;
 
-	unsigned char k_ipad[65]; /* inner padding -
+	uchar k_ipad[65]; /* inner padding -
 	                           * key XORd with ipad
 	                           */
-	unsigned char k_opad[65]; /* outer padding -
+	uchar k_opad[65]; /* outer padding -
 	                           * key XORd with opad
 	                           */
-	unsigned char tk[16];
+	uchar tk[16];
 	int i;
 	/* if key is longer than 64 bytes reset it to key=MD5(key) */
 	if(key_len > 64) {

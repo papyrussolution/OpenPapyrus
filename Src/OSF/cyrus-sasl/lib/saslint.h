@@ -309,105 +309,49 @@ extern int _is_sasl_server_active(void);
  * _sasl_done_with_plugins frees the LIBRARIES loaded by the above 2
  * _sasl_locate_entry locates an entrypoint in a given library
  */
-extern int _sasl_load_plugins(const add_plugin_list_t * entrypoints,
-    const sasl_callback_t * getpath_callback,
-    const sasl_callback_t * verifyfile_callback);
-extern int _sasl_get_plugin(const char * file,
-    const sasl_callback_t * verifyfile_cb,
-    void ** libraryptr);
-extern int _sasl_locate_entry(void * library, const char * entryname,
-    void ** entry_point);
+extern int _sasl_load_plugins(const add_plugin_list_t * entrypoints, const sasl_callback_t * getpath_callback, const sasl_callback_t * verifyfile_callback);
+extern int _sasl_get_plugin(const char * file, const sasl_callback_t * verifyfile_cb, void ** libraryptr);
+extern int _sasl_locate_entry(void * library, const char * entryname, void ** entry_point);
 extern int _sasl_done_with_plugins();
 
 /*
  * common.c
  */
 extern const sasl_callback_t * _sasl_find_getpath_callback(const sasl_callback_t * callbacks);
-
 extern const sasl_callback_t * _sasl_find_getconfpath_callback(const sasl_callback_t * callbacks);
-
 extern const sasl_callback_t * _sasl_find_verifyfile_callback(const sasl_callback_t * callbacks);
-
 extern int _sasl_common_init(sasl_global_callbacks_t * global_callbacks);
-
-extern int _sasl_conn_init(sasl_conn_t * conn,
-    const char * service,
-    unsigned int flags,
-    enum Sasl_conn_type type,
-    int (* idle_hook)(sasl_conn_t * conn),
-    const char * serverFQDN,
-    const char * iplocalport,
-    const char * ipremoteport,
-    const sasl_callback_t * callbacks,
-    const sasl_global_callbacks_t * global_callbacks);
+extern int _sasl_conn_init(sasl_conn_t * conn, const char * service, unsigned int flags, enum Sasl_conn_type type,
+    int (* idle_hook)(sasl_conn_t * conn), const char * serverFQDN, const char * iplocalport, const char * ipremoteport,
+    const sasl_callback_t * callbacks, const sasl_global_callbacks_t * global_callbacks);
 extern void _sasl_conn_dispose(sasl_conn_t * conn);
-
-extern sasl_utils_t * _sasl_alloc_utils(sasl_conn_t * conn,
-    sasl_global_callbacks_t * global_callbacks);
+extern sasl_utils_t * _sasl_alloc_utils(sasl_conn_t * conn, sasl_global_callbacks_t * global_callbacks);
 extern int _sasl_free_utils(const sasl_utils_t ** utils);
-
-extern int _sasl_getcallback(sasl_conn_t * conn,
-    unsigned long callbackid,
-    sasl_callback_ft * pproc,
-    void ** pcontext);
-
-extern void _sasl_log(sasl_conn_t * conn,
-    int level,
-    const char * fmt,
-    ...);
-
+extern int _sasl_getcallback(sasl_conn_t * conn, unsigned long callbackid, sasl_callback_ft * pproc, void ** pcontext);
+extern void _sasl_log(sasl_conn_t * conn, int level, const char * fmt, ...);
 void _sasl_get_errorbuf(sasl_conn_t * conn, char *** bufhdl, size_t ** lenhdl);
-int _sasl_add_string(char ** out, size_t * alloclen,
-    size_t * outlen, const char * add);
-
+int _sasl_add_string(char ** out, size_t * alloclen, size_t * outlen, const char * add);
 /* More Generic Utilities in common.c */
 extern int _sasl_strdup(const char * in, char ** out, size_t * outlen);
-
 /* Basically a conditional call to realloc(), if we need more */
 int _buf_alloc(char ** rwbuf, size_t * curlen, size_t newlen);
-
 /* convert an iovec to a single buffer */
-int _iovec_to_buf(const struct iovec * vec,
-    unsigned numiov, buffer_info_t ** output);
-
+int _iovec_to_buf(const struct iovec * vec, unsigned numiov, buffer_info_t ** output);
 /* Convert between string formats and sockaddr formats */
-int _sasl_iptostring(const struct sockaddr * addr, socklen_t addrlen,
-    char * out, unsigned outlen);
-int _sasl_ipfromstring(const char * addr, struct sockaddr * out,
-    socklen_t outlen);
-
+int _sasl_iptostring(const struct sockaddr * addr, socklen_t addrlen, char * out, unsigned outlen);
+int _sasl_ipfromstring(const char * addr, struct sockaddr * out, socklen_t outlen);
 /*
  * external plugin (external.c)
  */
-int external_client_plug_init(const sasl_utils_t * utils,
-    int max_version,
-    int * out_version,
-    sasl_client_plug_t ** pluglist,
-    int * plugcount);
-int external_server_plug_init(const sasl_utils_t * utils,
-    int max_version,
-    int * out_version,
-    sasl_server_plug_t ** pluglist,
-    int * plugcount);
+int external_client_plug_init(const sasl_utils_t * utils, int max_version, int * out_version, sasl_client_plug_t ** pluglist, int * plugcount);
+int external_server_plug_init(const sasl_utils_t * utils, int max_version, int * out_version, sasl_server_plug_t ** pluglist, int * plugcount);
 
 /* Mech Listing Functions */
 int _sasl_build_mechlist(void);
-int _sasl_server_listmech(sasl_conn_t * conn,
-    const char * user,
-    const char * prefix,
-    const char * sep,
-    const char * suffix,
-    const char ** result,
-    unsigned * plen,
-    int * pcount);
-int _sasl_client_listmech(sasl_conn_t * conn,
-    const char * prefix,
-    const char * sep,
-    const char * suffix,
-    const char ** result,
-    unsigned * plen,
-    int * pcount);
-/* Just create a straight list of them */
+int _sasl_server_listmech(sasl_conn_t * conn, const char * user, const char * prefix, const char * sep, const char * suffix,
+    const char ** result, unsigned * plen, int * pcount);
+int _sasl_client_listmech(sasl_conn_t * conn, const char * prefix, const char * sep, const char * suffix, const char ** result,
+    unsigned * plen, int * pcount); /* Just create a straight list of them */
 sasl_string_list_t * _sasl_client_mechs(void);
 sasl_string_list_t * _sasl_server_mechs(void);
 
@@ -418,29 +362,17 @@ extern const char * sasl_config_getstring(const char * key, const char * def);
 
 /* checkpw.c */
 #ifdef DO_SASL_CHECKAPOP
-extern int _sasl_auxprop_verify_apop(sasl_conn_t * conn,
-    const char * userstr,
-    const char * challenge,
-    const char * response,
-    const char * user_realm);
+	extern int _sasl_auxprop_verify_apop(sasl_conn_t * conn, const char * userstr, const char * challenge, const char * response, const char * user_realm);
 #endif /* DO_SASL_CHECKAPOP */
 
 /* Auxprop Plugin (sasldb.c) */
-extern int sasldb_auxprop_plug_init(const sasl_utils_t * utils,
-    int max_version,
-    int * out_version,
-    sasl_auxprop_plug_t ** plug,
-    const char * plugname);
-
+extern int sasldb_auxprop_plug_init(const sasl_utils_t * utils, int max_version, int * out_version, sasl_auxprop_plug_t ** plug, const char * plugname);
 /*
  * auxprop.c
  */
 extern int _sasl_auxprop_add_plugin(void * p, void * library);
 extern void _sasl_auxprop_free(void);
-extern int _sasl_auxprop_lookup(sasl_server_params_t * sparams,
-    unsigned flags,
-    const char * user, unsigned ulen);
-
+extern int _sasl_auxprop_lookup(sasl_server_params_t * sparams, uint flags, const char * user, uint ulen);
 /*
  * canonusr.c
  */
@@ -452,22 +384,19 @@ extern int internal_canonuser_init(const sasl_utils_t * utils,
     const char * plugname);
 extern int _sasl_canon_user(sasl_conn_t * conn,
     const char * user,
-    unsigned ulen,
-    unsigned flags,
+    uint ulen,
+    uint flags,
     sasl_out_params_t * oparams);
 int _sasl_canon_user_lookup(sasl_conn_t * conn,
     const char * user,
-    unsigned ulen,
-    unsigned flags,
+    uint ulen,
+    uint flags,
     sasl_out_params_t * oparams);
 
 /*
  * saslutil.c
  */
-int get_fqhostname(char * name,
-    int namelen,
-    int abort_if_no_fqdn
-    );
+int get_fqhostname(char * name, int namelen, int abort_if_no_fqdn);
 
 #ifndef HAVE_GETHOSTNAME
 #ifdef sun
@@ -478,7 +407,7 @@ extern int gethostname(char *, int);
 
 #ifdef WIN32
 char * _sasl_wchar_to_utf8(WCHAR * str);
-WCHAR* _sasl_utf8_to_wchar(const char * str);
+WCHAR * _sasl_utf8_to_wchar(const char * str);
 #endif
 
 #endif /* SASLINT_H */

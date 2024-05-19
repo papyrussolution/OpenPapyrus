@@ -1011,8 +1011,7 @@ static boolint _cairo_pdf_source_surface_equal(const void * key_a, const void * 
 static void _cairo_pdf_source_surface_init_key(cairo_pdf_source_surface_entry_t * key)
 {
 	if(key->unique_id && key->unique_id_length > 0) {
-		key->base.hash = _cairo_hash_bytes(_CAIRO_HASH_INIT_VALUE,
-			key->unique_id, key->unique_id_length);
+		key->base.hash = _cairo_hash_bytes(SlConst::DjbHashInit32, key->unique_id, key->unique_id_length);
 	}
 	else {
 		key->base.hash = key->id;
@@ -1020,9 +1019,7 @@ static void _cairo_pdf_source_surface_init_key(cairo_pdf_source_surface_entry_t 
 }
 
 static cairo_int_status_t _cairo_pdf_surface_acquire_source_image_from_pattern(cairo_pdf_surface_t * surface,
-    const cairo_pattern_t * pattern,
-    cairo_image_surface_t ** image,
-    void ** image_extra)
+    const cairo_pattern_t * pattern, cairo_image_surface_t ** image, void ** image_extra)
 {
 	switch(pattern->type) {
 		case CAIRO_PATTERN_TYPE_SURFACE: {

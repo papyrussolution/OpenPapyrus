@@ -4567,7 +4567,13 @@ int PPXmlFileDetector::Run(const char * pFileName, int * pResult)
 		uint   _ut2 = 0; // @v11.9.4
 		size_t colon_pos = 0;
 		SString & r_temp_buf = SLS.AcquireRvlStr();
-		(r_temp_buf = pName).ToLower();
+		r_temp_buf = pName;
+		// @v12.0.2 {
+		if(r_temp_buf.IsLegalUtf8()) {
+			r_temp_buf.Utf8ToLower();
+		}
+		// } @v12.0.2 
+		// @v12.0.2 r_temp_buf.ToLower();
 		if(r_temp_buf.SearchChar(':', &colon_pos))
 			r_temp_buf.ShiftLeft(colon_pos+1);
 		P_ShT->Search(r_temp_buf, &_ut, 0);
@@ -4592,7 +4598,7 @@ int PPXmlFileDetector::Run(const char * pFileName, int * pResult)
 				case 0: // @v11.9.4
 					{
 						// PPHSC_RU_DOCUMENT
-						P_ShT_C->Search(r_temp_buf, &_ut2, 0);
+						P_ShT_C->Search(/*r_temp_buf*/pName, &_ut2, 0); // @v12.0.2 r_temp_buf-->pName (хэш-таблица P_ShT_C чувствительна к регистру)
 						if(_ut2 == PPHSC_RU_FILE) {
 							Result = NalogRu_Generic;
 							for(uint i = 0; ppAttrList[i] != 0; i += 2) {

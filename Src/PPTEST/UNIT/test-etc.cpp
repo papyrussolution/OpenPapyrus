@@ -528,14 +528,8 @@ SLTEST_R(WsCtl)
     the area under the geodesic, S12 (m2, accurate to 1 mm2)
 */
 struct GeodTestRecord {
-	GeodTestRecord()
+	GeodTestRecord() : Azi1(0.0), Azi2(0.0), GeodDistance(0.0), ArcDistance(0.0), M12(0.0), S12(0.0)
 	{
-		Azi1 = 0.0;
-		Azi2 = 0.0;
-		GeodDistance = 0.0;
-		ArcDistance = 0.0;
-		M12 = 0.0;
-		S12 = 0.0;
 	}
 	bool   FASTCALL IsEq(const GeodTestRecord & rS) const
 	{
@@ -1083,6 +1077,67 @@ SLTEST_R(SRecPageManager)
 						debug_mark = true;
 				}
 			}			
+		}
+	}
+	{
+		struct DataEntry {
+			static DataEntry * Generate(uint size)
+			{
+				DataEntry * p_result = 0;
+				if(size) {
+					p_result = static_cast<DataEntry *>(SAlloc::M(size+sizeof(DataEntry)));
+					if(p_result) {
+						p_result->Size = size;
+						p_result->RowId = 0;
+						SLS.GetTLA().Rg.ObfuscateBuffer(p_result+1, size);
+					}
+				}
+				return p_result;
+			}
+			uint   Size;
+			uint64 RowId;
+		};
+		SCollection data_list;
+		const uint entry_count = 1000;
+		const uint max_rec_size = 500;
+		SRecPageManager rm(4096);
+		{
+			for(uint i = 0; i < entry_count; i++) {
+				uint rs = SLS.GetTLA().Rg.GetUniformIntPos(max_rec_size+1);
+				if(rs > 0) {
+					DataEntry * p_entry = DataEntry::Generate(rs);
+					if(p_entry) {
+						uint64 row_id = 0;
+						const int write_result = rm.Write(&row_id, SDataPageHeader::tRecord, p_entry+1, p_entry->Size);
+						SLCHECK_NZ(write_result);
+						if(write_result) {
+							p_entry->RowId = row_id;
+							data_list.insert(p_entry);
+						}
+						else {
+							SAlloc::F(p_entry);
+						}
+					}
+				}
+			}
+		}
+		{
+			for(uint i = 0; i < data_list.getCount(); i++) {
+				const DataEntry * p_entry = static_cast<const DataEntry *>(data_list.at(i));
+				if(p_entry) {
+					uint8 rec_buf[max_rec_size*2];
+					const uint read_result = rm.Read(p_entry->RowId, rec_buf, sizeof(rec_buf));
+					SLCHECK_NZ(read_result);
+					if(read_result) {
+						; // @ok
+						SLCHECK_EQ(read_result, p_entry->Size);
+						SLCHECK_Z(memcmp(rec_buf, (p_entry+1), read_result));
+					}
+					else {
+						; // @err
+					}
+				}
+			}
 		}
 	}
 	return CurrentStatus;

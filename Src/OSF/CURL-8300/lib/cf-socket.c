@@ -1467,7 +1467,7 @@ static CURLcode cf_socket_query(struct Curl_cfilter * cf, struct Curl_easy * dat
 					*when = ctx->first_byte_at;
 					break;
 				}
-			    /* FALLTHROUGH */
+			    // @fallthrough
 			    default:
 				*when = ctx->connected_at;
 				break;

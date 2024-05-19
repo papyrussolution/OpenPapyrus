@@ -162,7 +162,7 @@ static void h1_tunnel_go_state(struct Curl_cfilter * cf, struct h1_tunnel_state 
 		    infof(data, "CONNECT phase completed");
 		    data->state.authproxy.done = TRUE;
 		    data->state.authproxy.multipass = FALSE;
-		/* FALLTHROUGH */
+		// @fallthrough
 		case H1_TUNNEL_FAILED:
 		    if(new_state == H1_TUNNEL_FAILED)
 			    CURL_TRC_CF(data, cf, "new tunnel state 'failed'");
@@ -866,7 +866,7 @@ static CURLcode H1_CONNECT(struct Curl_cfilter * cf, struct Curl_easy * data, st
 			    if(result)
 				    goto out;
 			    h1_tunnel_go_state(cf, ts, H1_TUNNEL_CONNECT, data);
-			/* FALLTHROUGH */
+			// @fallthrough
 
 			case H1_TUNNEL_CONNECT:
 			    /* see that the request is completely sent */
@@ -875,7 +875,7 @@ static CURLcode H1_CONNECT(struct Curl_cfilter * cf, struct Curl_easy * data, st
 			    if(result || !done)
 				    goto out;
 			    h1_tunnel_go_state(cf, ts, H1_TUNNEL_RECEIVE, data);
-			/* FALLTHROUGH */
+			// @fallthrough
 
 			case H1_TUNNEL_RECEIVE:
 			    /* read what is there */
@@ -890,7 +890,7 @@ static CURLcode H1_CONNECT(struct Curl_cfilter * cf, struct Curl_easy * data, st
 				    goto out;
 			    /* got it */
 			    h1_tunnel_go_state(cf, ts, H1_TUNNEL_RESPONSE, data);
-			/* FALLTHROUGH */
+			// @fallthrough
 
 			case H1_TUNNEL_RESPONSE:
 			    CURL_TRC_CF(data, cf, "CONNECT response");

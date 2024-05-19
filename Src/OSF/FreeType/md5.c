@@ -219,14 +219,11 @@ void MD5_Update(MD5_CTX * ctx, const void * data, unsigned long size)
 {
 	MD5_u32plus saved_lo;
 	unsigned long used, available;
-
 	saved_lo = ctx->lo;
 	if((ctx->lo = (saved_lo + size) & 0x1fffffff) < saved_lo)
 		ctx->hi++;
 	ctx->hi += size >> 29;
-
 	used = saved_lo & 0x3f;
-
 	if(used) {
 		available = 64 - used;
 
@@ -261,12 +258,12 @@ void MD5_Final(unsigned char * result, MD5_CTX * ctx)
 	ctx->buffer[used++] = 0x80;
 	available = 64 - used;
 	if(available < 8) {
-		memset(&ctx->buffer[used], 0, available);
+		memzero(&ctx->buffer[used], available);
 		body(ctx, ctx->buffer, 64);
 		used = 0;
 		available = 64;
 	}
-	memset(&ctx->buffer[used], 0, available - 8);
+	memzero(&ctx->buffer[used], available - 8);
 	ctx->lo <<= 3;
 	OUT(&ctx->buffer[56], ctx->lo)
 	OUT(&ctx->buffer[60], ctx->hi)
@@ -277,8 +274,7 @@ void MD5_Final(unsigned char * result, MD5_CTX * ctx)
 	OUT(&result[4], ctx->b)
 	OUT(&result[8], ctx->c)
 	OUT(&result[12], ctx->d)
-
-	memset(ctx, 0, sizeof(*ctx));
+	memzero(ctx, sizeof(*ctx));
 }
 
 #endif

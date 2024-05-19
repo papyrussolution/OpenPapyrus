@@ -636,7 +636,7 @@ static CURLcode oldap_state_mechs_resp(struct Curl_easy * data,
 		    switch(code) {
 			    case LDAP_SIZELIMIT_EXCEEDED:
 				infof(data, "Too many authentication mechanisms\n");
-			    /* FALLTHROUGH */
+			    // @fallthrough
 			    case LDAP_SUCCESS:
 			    case LDAP_NO_RESULTS_RETURNED:
 				if(Curl_sasl_can_authenticate(&li->sasl, data))
@@ -783,7 +783,7 @@ static CURLcode oldap_connecting(struct Curl_easy * data, bool * done)
 				    result = oldap_perform_bind(data, OLDAP_BIND);
 			    break;
 		    }
-		/* FALLTHROUGH */
+		// @fallthrough
 		case OLDAP_TLS:
 		    result = oldap_ssl_connect(data, OLDAP_TLS);
 		    if(result && data->set.use_ssl != CURLUSESSL_TRY)
@@ -1004,7 +1004,7 @@ static ssize_t oldap_recv(struct Curl_easy * data, int sockindex, char * buf,
 		    switch(code) {
 			    case LDAP_SIZELIMIT_EXCEEDED:
 				infof(data, "There are more than %d entries", lr->nument);
-			    /* FALLTHROUGH */
+			    // @fallthrough
 			    case LDAP_SUCCESS:
 				data->req.size = data->req.bytecount;
 				break;

@@ -143,7 +143,7 @@ int prop_dup(struct propctx * src_ctx, struct propctx ** dst_ctx)
 	/* What is the total allocated size of src_ctx? */
 	pool = src_ctx->mem_base;
 	while(pool) {
-		total_size += (unsigned)pool->size;
+		total_size += (uint)pool->size;
 		pool = pool->next;
 	}
 
@@ -230,7 +230,7 @@ int prop_request(struct propctx * ctx, const char ** names)
 		unsigned max_in_pool;
 
 		/* Do we need a larger base pool? */
-		max_in_pool = (unsigned)(ctx->mem_base->size / sizeof(struct propval));
+		max_in_pool = (uint)(ctx->mem_base->size / sizeof(struct propval));
 
 		if(total_values <= max_in_pool) {
 			/* Don't increase the size of the base pool, just use what
@@ -456,7 +456,7 @@ int prop_format(struct propctx * ctx, const char * sep, int seplen, char * outbu
 
 	needed = seplen * (ctx->used_values - 1);
 	for(val = ctx->values; val->name; val++) {
-		needed += (unsigned)strlen(val->name);
+		needed += (uint)strlen(val->name);
 	}
 
 	if(!outmax) return (needed + 1); /* Because of unsigned funkiness */
@@ -587,7 +587,7 @@ int prop_set(struct propctx * ctx, const char * name, const char * value, int va
 		cur->values[nvalues - 2] = ctx->data_end;
 
 		cur->nvalues++;
-		cur->valsize += ((unsigned)size - 1);
+		cur->valsize += ((uint)size - 1);
 	}
 	else { /* Appending an entry */
 		char ** tmp;
@@ -650,7 +650,7 @@ int prop_set(struct propctx * ctx, const char * name, const char * value, int va
 		*tmp = ctx->data_end;
 
 		cur->nvalues++;
-		cur->valsize += ((unsigned)size - 1);
+		cur->valsize += ((uint)size - 1);
 	}
 
 	return SASL_OK;
@@ -841,8 +841,8 @@ static int _sasl_account_status(int current_status,
 
 /* Do the callbacks for auxprop lookups */
 int _sasl_auxprop_lookup(sasl_server_params_t * sparams,
-    unsigned flags,
-    const char * user, unsigned ulen)
+    uint flags,
+    const char * user, uint ulen)
 {
 	sasl_getopt_t * getopt;
 	int ret, found = 0;
@@ -937,7 +937,7 @@ int sasl_auxprop_store(sasl_conn_t * conn,
 			return SASL_BADPARAM;
 
 		sparams = ((sasl_server_conn_t*)conn)->sparams;
-		userlen = (unsigned)strlen(user);
+		userlen = (uint)strlen(user);
 	}
 
 	/* Pickup getopt callback from the connection, if conn is not NULL */

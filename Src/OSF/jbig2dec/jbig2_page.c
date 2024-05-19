@@ -202,8 +202,7 @@ int jbig2_end_of_page(Jbig2Ctx * ctx, Jbig2Segment * segment, const uint8 * segm
 	uint32 page_number = ctx->pages[ctx->current_page].number;
 	int code;
 	if(segment->page_association != page_number) {
-		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number,
-		    "end of page marker for page %d doesn't match current page number %d", segment->page_association, page_number);
+		jbig2_error(ctx, JBIG2_SEVERITY_WARNING, segment->number, "end of page marker for page %d doesn't match current page number %d", segment->page_association, page_number);
 	}
 	jbig2_error(ctx, JBIG2_SEVERITY_INFO, segment->number, "end of page %d", page_number);
 	code = jbig2_complete_page(ctx);

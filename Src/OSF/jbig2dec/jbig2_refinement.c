@@ -30,12 +30,8 @@ static int jbig2_decode_refinement_template0_unopt(Jbig2Ctx * ctx, Jbig2Segment 
 	uint32 CONTEXT;
 	int x, y;
 	int bit;
-
-	if(pixel_outside_field(params->grat[0], params->grat[1]) ||
-	    refpixel_outside_field(params->grat[2], params->grat[3]))
-		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number,
-			   "adaptive template pixel is out of field");
-
+	if(pixel_outside_field(params->grat[0], params->grat[1]) || refpixel_outside_field(params->grat[2], params->grat[3]))
+		return jbig2_error(ctx, JBIG2_SEVERITY_FATAL, segment->number, "adaptive template pixel is out of field");
 	for(y = 0; y < GRH; y++) {
 		for(x = 0; x < GRW; x++) {
 			CONTEXT = 0;
@@ -77,8 +73,7 @@ static int jbig2_decode_refinement_template0_unopt(Jbig2Ctx * ctx, Jbig2Segment 
 	return 0;
 }
 
-static int jbig2_decode_refinement_template1_unopt(Jbig2Ctx * ctx,
-    Jbig2Segment * segment,
+static int jbig2_decode_refinement_template1_unopt(Jbig2Ctx * ctx, Jbig2Segment * segment,
     const Jbig2RefinementRegionParams * params, Jbig2ArithState * as, Jbig2Image * image, Jbig2ArithCx * GR_stats)
 {
 	const int GRW = image->width;

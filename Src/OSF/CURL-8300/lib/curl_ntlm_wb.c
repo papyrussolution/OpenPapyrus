@@ -465,7 +465,7 @@ CURLcode Curl_output_ntlm_wb(struct Curl_easy * data, struct connectdata * conn,
 		    /* connection is already authenticated,
 		     * don't send a header in future requests */
 		    *state = NTLMSTATE_LAST;
-		/* FALLTHROUGH */
+		// @fallthrough
 		case NTLMSTATE_LAST:
 		    ZFREE(*allocuserpwd);
 		    authp->done = TRUE;

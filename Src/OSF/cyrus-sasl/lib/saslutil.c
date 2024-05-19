@@ -97,11 +97,11 @@ static char index_64[128] = {
  * Returns SASL_OK on success, SASL_BUFOVER if result won't fit
  */
 
-int sasl_encode64(const char * _in, unsigned inlen, char * _out, unsigned outmax, unsigned * outlen)
+int sasl_encode64(const char * _in, uint inlen, char * _out, unsigned outmax, unsigned * outlen)
 {
-	const unsigned char * in = (const unsigned char *)_in;
-	unsigned char * out = (unsigned char *)_out;
-	unsigned char oval;
+	const uchar * in = (const uchar *)_in;
+	uchar * out = (uchar *)_out;
+	uchar oval;
 	unsigned olen;
 	/* check params */
 	if((inlen > 0) && (in == NULL)) return SASL_BADPARAM;
@@ -153,7 +153,7 @@ int sasl_encode64(const char * _in, unsigned inlen, char * _out, unsigned outmax
  * SASL_OK on success
  */
 
-int sasl_decode64(const char * in, unsigned inlen, char * out, unsigned outmax/* size of the buffer, not counting the NUL */, unsigned * outlen)
+int sasl_decode64(const char * in, uint inlen, char * out, unsigned outmax/* size of the buffer, not counting the NUL */, unsigned * outlen)
 {
 	unsigned len = 0;
 	unsigned j;
@@ -231,7 +231,7 @@ int sasl_mkchal(sasl_conn_t * conn, char * buf, unsigned maxlen, unsigned hostfl
 	    + (2 * 20);         /* 2 numbers, 20 => max size of 64bit
 	                         * ulong in base 10 */
 	if(hostflag && conn->serverFQDN)
-		len += (unsigned)strlen(conn->serverFQDN) + 1 /* for the @ */;
+		len += (uint)strlen(conn->serverFQDN) + 1 /* for the @ */;
 	if(maxlen < len)
 		return 0;
 	ret = sasl_randcreate(&pool);
@@ -277,14 +277,14 @@ int sasl_utf8verify(const char * str, unsigned len)
 void getranddata(unsigned short ret[RPOOL_SIZE])
 {
 	long curtime;
-	memzero(ret, RPOOL_SIZE*sizeof(unsigned short));
+	memzero(ret, RPOOL_SIZE*sizeof(ushort));
 #ifdef DEV_RANDOM
 	{
 		int fd = open(DEV_RANDOM, O_RDONLY);
 		if(fd != -1) {
-			unsigned char * buf = (unsigned char *)ret;
+			uchar * buf = (uchar *)ret;
 			ssize_t bytesread = 0;
-			size_t bytesleft = RPOOL_SIZE*sizeof(unsigned short);
+			size_t bytesleft = RPOOL_SIZE*sizeof(ushort);
 			do {
 				bytesread = read(fd, buf, bytesleft);
 				if(bytesread == -1 && errno == EINTR) continue;
@@ -299,7 +299,7 @@ void getranddata(unsigned short ret[RPOOL_SIZE])
 #endif
 
 #ifdef HAVE_GETPID
-	ret[0] ^= (unsigned short)getpid();
+	ret[0] ^= (ushort)getpid();
 #endif
 
 #ifdef HAVE_GETTIMEOFDAY
@@ -315,10 +315,10 @@ void getranddata(unsigned short ret[RPOOL_SIZE])
 		{
 			/* longs are guaranteed to be at least 32 bits; we need
 			   16 bits in each short */
-			ret[0] ^= (unsigned short)(tv.tv_sec & 0xFFFF);
-			ret[1] ^= (unsigned short)(clock() & 0xFFFF);
-			ret[1] ^= (unsigned short)(tv.tv_usec >> 16);
-			ret[2] ^= (unsigned short)(tv.tv_usec & 0xFFFF);
+			ret[0] ^= (ushort)(tv.tv_sec & 0xFFFF);
+			ret[1] ^= (ushort)(clock() & 0xFFFF);
+			ret[1] ^= (ushort)(tv.tv_usec >> 16);
+			ret[2] ^= (ushort)(tv.tv_usec & 0xFFFF);
 			return;
 		}
 	}
@@ -327,9 +327,9 @@ void getranddata(unsigned short ret[RPOOL_SIZE])
 	/* if all else fails just use time() */
 	curtime = (long)time(NULL); /* better be at least 32 bits */
 
-	ret[0] ^= (unsigned short)(curtime >> 16);
-	ret[1] ^= (unsigned short)(curtime & 0xFFFF);
-	ret[2] ^= (unsigned short)(clock() & 0xFFFF);
+	ret[0] ^= (ushort)(curtime >> 16);
+	ret[1] ^= (ushort)(curtime & 0xFFFF);
+	ret[2] ^= (ushort)(clock() & 0xFFFF);
 
 	return;
 }
@@ -361,8 +361,8 @@ void sasl_randseed(sasl_rand_t * rpool, const char * seed, unsigned len)
 
 	rpool->initialized = 1;
 
-	if(len > sizeof(unsigned short)*RPOOL_SIZE)
-		len = sizeof(unsigned short)*RPOOL_SIZE;
+	if(len > sizeof(ushort)*RPOOL_SIZE)
+		len = sizeof(ushort)*RPOOL_SIZE;
 
 	for(lup = 0; lup < len; lup += 2)
 		rpool->pool[lup/2] = (seed[lup] << 8) + seed[lup + 1];

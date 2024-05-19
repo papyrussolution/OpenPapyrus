@@ -106,9 +106,9 @@ extern int strcasecmp(const char * s1, const char * s2);
 
 /* defines */
 #define HASHLEN 16
-typedef unsigned char HASH[HASHLEN + 1];
+typedef uchar HASH[HASHLEN + 1];
 #define HASHHEXLEN 32
-typedef unsigned char HASHHEX[HASHHEXLEN + 1];
+typedef uchar HASHHEX[HASHHEXLEN + 1];
 
 #define MAC_SIZE 10
 #define MAC_OFFS 2
@@ -137,12 +137,12 @@ struct context;
 typedef int cipher_function_t (struct context *,
     const char *,
     unsigned,
-    unsigned char[],
+    uchar[],
     char *,
     unsigned *);
 
-typedef int cipher_init_t (struct context *, unsigned char [16],
-    unsigned char [16]);
+typedef int cipher_init_t (struct context *, uchar [16],
+    uchar [16]);
 typedef void cipher_free_t (struct context *);
 
 enum Context_type { SERVER = 0, CLIENT = 1 };
@@ -153,9 +153,9 @@ typedef struct cipher_context cipher_context_t;
 typedef struct reauth_entry {
 	char * authid;
 	char * realm;
-	unsigned char * nonce;
+	uchar * nonce;
 	unsigned int nonce_count;
-	unsigned char * cnonce;
+	uchar * cnonce;
 
 	union {
 		struct {
@@ -170,7 +170,7 @@ typedef struct reauth_entry {
 
 			/* for HTTP mode (RFC 2617) only */
 			char * algorithm;
-			unsigned char * opaque;
+			uchar * opaque;
 		} c; /* client stuff */
 	} u;
 } reauth_entry_t;
@@ -198,9 +198,9 @@ typedef struct context {
 	reauth_cache_t * reauth;
 	char * authid;
 	char * realm;
-	unsigned char * nonce;
+	uchar * nonce;
 	unsigned int nonce_count;
-	unsigned char * cnonce;
+	uchar * cnonce;
 	/* only used by the client */
 	char ** realms;
 	int realm_cnt;
@@ -244,9 +244,9 @@ struct digest_cipher {
 };
 
 #if 0
-static const unsigned char * COLON = ":";
+static const uchar * COLON = ":";
 #else
-static const unsigned char COLON[] = { ':', '\0' };
+static const uchar COLON[] = { ':', '\0' };
 #endif
 /* Hashes a string to produce an unsigned short */
 static unsigned hash(const char * str)
@@ -267,7 +267,7 @@ static unsigned hash(const char * str)
 static void CvtHex(HASH Bin, HASHHEX Hex)
 {
 	unsigned short i;
-	unsigned char j;
+	uchar j;
 
 	for(i = 0; i < HASHLEN; i++) {
 		j = (Bin[i] >> 4) & 0xf;
@@ -307,11 +307,11 @@ void DigestCalcResponse(const sasl_utils_t * utils,
 	/* calculate H(A2) */
 	utils->MD5Init(&Md5Ctx);
 	if(pszMethod) {
-		utils->MD5Update(&Md5Ctx, pszMethod, (unsigned)strlen((char *)pszMethod));
+		utils->MD5Update(&Md5Ctx, pszMethod, (uint)strlen((char *)pszMethod));
 	}
-	utils->MD5Update(&Md5Ctx, (unsigned char *)COLON, 1);
-	/* utils->MD5Update(&Md5Ctx, (unsigned char *) "AUTHENTICATE:", 13); */
-	utils->MD5Update(&Md5Ctx, pszDigestUri, (unsigned)strlen((char *)pszDigestUri));
+	utils->MD5Update(&Md5Ctx, (uchar *)COLON, 1);
+	/* utils->MD5Update(&Md5Ctx, (uchar *) "AUTHENTICATE:", 13); */
+	utils->MD5Update(&Md5Ctx, pszDigestUri, (uint)strlen((char *)pszDigestUri));
 	if(strcasecmp((char *)pszQop, "auth") != 0) {
 		/* append ":00000000000000000000000000000000" */
 		utils->MD5Update(&Md5Ctx, COLON, 1);
@@ -323,15 +323,15 @@ void DigestCalcResponse(const sasl_utils_t * utils,
 	utils->MD5Init(&Md5Ctx);
 	utils->MD5Update(&Md5Ctx, HA1, HASHHEXLEN);
 	utils->MD5Update(&Md5Ctx, COLON, 1);
-	utils->MD5Update(&Md5Ctx, pszNonce, (unsigned)strlen((char *)pszNonce));
+	utils->MD5Update(&Md5Ctx, pszNonce, (uint)strlen((char *)pszNonce));
 	utils->MD5Update(&Md5Ctx, COLON, 1);
 	if(*pszQop) {
 		sprintf((char *)ncvalue, "%08x", pszNonceCount);
-		utils->MD5Update(&Md5Ctx, ncvalue, (unsigned)strlen((char *)ncvalue));
+		utils->MD5Update(&Md5Ctx, ncvalue, (uint)strlen((char *)ncvalue));
 		utils->MD5Update(&Md5Ctx, COLON, 1);
-		utils->MD5Update(&Md5Ctx, pszCNonce, (unsigned)strlen((char *)pszCNonce));
+		utils->MD5Update(&Md5Ctx, pszCNonce, (uint)strlen((char *)pszCNonce));
 		utils->MD5Update(&Md5Ctx, COLON, 1);
-		utils->MD5Update(&Md5Ctx, pszQop, (unsigned)strlen((char *)pszQop));
+		utils->MD5Update(&Md5Ctx, pszQop, (uint)strlen((char *)pszQop));
 		utils->MD5Update(&Md5Ctx, COLON, 1);
 	}
 	utils->MD5Update(&Md5Ctx, HA2Hex, HASHHEXLEN);
@@ -339,10 +339,10 @@ void DigestCalcResponse(const sasl_utils_t * utils,
 	CvtHex(RespHash, Response);
 }
 
-static bool UTF8_In_8859_1(const unsigned char * base, size_t len)
+static bool UTF8_In_8859_1(const uchar * base, size_t len)
 {
-	const unsigned char * scan;
-	const unsigned char * end = base + len;
+	const uchar * scan;
+	const uchar * end = base + len;
 	for(scan = base; scan < end; ++scan) {
 		if(*scan > 0xC3)
 			break; /* abort if outside 8859-1 */
@@ -358,11 +358,11 @@ static bool UTF8_In_8859_1(const unsigned char * base, size_t len)
  * if the string is entirely in the 8859-1 subset of UTF-8, then translate to
  * 8859-1 prior to MD5
  */
-static void MD5_UTF8_8859_1(const sasl_utils_t * utils, Cyrus_MD5_CTX * ctx, bool In_ISO_8859_1, const unsigned char * base, int len)
+static void MD5_UTF8_8859_1(const sasl_utils_t * utils, Cyrus_MD5_CTX * ctx, bool In_ISO_8859_1, const uchar * base, int len)
 {
-	const unsigned char * scan;
-	unsigned char cbuf;
-	const unsigned char * end = base + len;
+	const uchar * scan;
+	uchar cbuf;
+	const uchar * end = base + len;
 	/* if we found a character outside 8859-1, don't alter string */
 	if(!In_ISO_8859_1) {
 		utils->MD5Update(ctx, base, len);
@@ -372,7 +372,7 @@ static void MD5_UTF8_8859_1(const sasl_utils_t * utils, Cyrus_MD5_CTX * ctx, boo
 	do {
 		for(scan = base; scan < end && *scan < 0xC0; ++scan);
 		if(scan != base)
-			utils->MD5Update(ctx, base, (unsigned)(scan - base));
+			utils->MD5Update(ctx, base, (uint)(scan - base));
 		if(scan + 1 >= end)
 			break;
 		cbuf = ((scan[0] & 0x3) << 6) | (scan[1] & 0x3f);
@@ -384,7 +384,7 @@ static void MD5_UTF8_8859_1(const sasl_utils_t * utils, Cyrus_MD5_CTX * ctx, boo
 /**
  * Returns true if it mangled the username.
  */
-static bool DigestCalcSecret(const sasl_utils_t * utils, unsigned char * pszUserName, unsigned char * pszRealm, unsigned char * Password,
+static bool DigestCalcSecret(const sasl_utils_t * utils, uchar * pszUserName, uchar * pszRealm, uchar * Password,
     int PasswordLen, bool Ignore_8859, HASH HA1)
 {
 	bool In_8859_1;
@@ -397,11 +397,11 @@ static bool DigestCalcSecret(const sasl_utils_t * utils, unsigned char * pszUser
 	/* We have to convert UTF-8 to ISO-8859-1 if possible */
 	if(Ignore_8859 == FALSE) {
 		In_8859_1 = UTF8_In_8859_1(pszUserName, strlen((char *)pszUserName));
-		MD5_UTF8_8859_1(utils, &Md5Ctx, In_8859_1, pszUserName, (unsigned)strlen((char *)pszUserName));
+		MD5_UTF8_8859_1(utils, &Md5Ctx, In_8859_1, pszUserName, (uint)strlen((char *)pszUserName));
 		Any_8859_1 |= In_8859_1;
 	}
 	else {
-		utils->MD5Update(&Md5Ctx, pszUserName, (unsigned)strlen((char *)pszUserName));
+		utils->MD5Update(&Md5Ctx, pszUserName, (uint)strlen((char *)pszUserName));
 	}
 	utils->MD5Update(&Md5Ctx, COLON, 1);
 	/* a NULL realm is equivalent to the empty string */
@@ -409,11 +409,11 @@ static bool DigestCalcSecret(const sasl_utils_t * utils, unsigned char * pszUser
 		if(Ignore_8859 == FALSE) {
 			/* We have to convert UTF-8 to ISO-8859-1 if possible */
 			In_8859_1 = UTF8_In_8859_1(pszRealm, strlen((char *)pszRealm));
-			MD5_UTF8_8859_1(utils, &Md5Ctx, In_8859_1, pszRealm, (unsigned)strlen((char *)pszRealm));
+			MD5_UTF8_8859_1(utils, &Md5Ctx, In_8859_1, pszRealm, (uint)strlen((char *)pszRealm));
 			Any_8859_1 |= In_8859_1;
 		}
 		else {
-			utils->MD5Update(&Md5Ctx, pszRealm, (unsigned)strlen((char *)pszRealm));
+			utils->MD5Update(&Md5Ctx, pszRealm, (uint)strlen((char *)pszRealm));
 		}
 	}
 	utils->MD5Update(&Md5Ctx, COLON, 1);
@@ -430,9 +430,9 @@ static bool DigestCalcSecret(const sasl_utils_t * utils, unsigned char * pszUser
 	return Any_8859_1;
 }
 
-static unsigned char * create_nonce(const sasl_utils_t * utils)
+static uchar * create_nonce(const sasl_utils_t * utils)
 {
-	unsigned char  * base64buf;
+	uchar  * base64buf;
 	int base64len;
 	char * ret = (char *)utils->FnMalloc(NONCE_SIZE);
 	if(ret == NULL)
@@ -440,7 +440,7 @@ static unsigned char * create_nonce(const sasl_utils_t * utils)
 	utils->rand(utils->rpool, (char *)ret, NONCE_SIZE);
 	/* base 64 encode it so it has valid chars */
 	base64len = (NONCE_SIZE * 4 / 3) + (NONCE_SIZE % 3 ? 4 : 0);
-	base64buf = (unsigned char *)utils->FnMalloc(base64len + 1);
+	base64buf = (uchar *)utils->FnMalloc(base64len + 1);
 	if(base64buf == NULL) {
 		utils->seterror(utils->conn, 0, "Unable to allocate final buffer");
 		return NULL;
@@ -457,12 +457,12 @@ static unsigned char * create_nonce(const sasl_utils_t * utils)
 }
 
 static int add_to_challenge(const sasl_utils_t * utils, char ** str, unsigned * buflen, unsigned * curlen,
-    char * name, unsigned char * value, bool need_quotes)
+    char * name, uchar * value, bool need_quotes)
 {
 	size_t namesize = strlen(name);
 	size_t valuesize = strlen((char *)value);
 	int ret;
-	unsigned newlen = (unsigned)(*curlen + 1 + namesize + 2 + valuesize + 2);
+	unsigned newlen = (uint)(*curlen + 1 + namesize + 2 + valuesize + 2);
 	ret = _plug_buf_alloc(utils, str, buflen, newlen);
 	if(ret != SASL_OK) 
 		return ret;
@@ -565,7 +565,7 @@ static char * skip_token(char * s, int caseinsensitive)
 		    s[0]=='\'' || s[0]=='/' || s[0]=='[' || s[0]==']' || s[0]== '?' ||
 		    s[0]=='=' || s[0]== '{' || s[0]== '}') {
 			if(caseinsensitive == 1) {
-				if(!isupper((unsigned char)s[0]))
+				if(!isupper((uchar)s[0]))
 					break;
 			}
 			else {
@@ -607,11 +607,11 @@ static bool str2ul32(char * str, unsigned long * value)
 		if(n > MAX_UIN32_DIV_10) {
 			return (FALSE);
 		}
-		else if(n == MAX_UIN32_DIV_10 && ((unsigned)(c - '0') > MAX_UIN32_MOD_10)) {
+		else if(n == MAX_UIN32_DIV_10 && ((uint)(c - '0') > MAX_UIN32_MOD_10)) {
 			return (FALSE);
 		}
 
-		n = n * 10 + (unsigned)(c - '0');
+		n = n * 10 + (uint)(c - '0');
 		str++;
 	}
 
@@ -796,7 +796,7 @@ typedef struct des_context_s des_context_t;
 
 /* slide the first 7 bytes of 'inbuf' into the high seven bits of the
    first 8 bytes of 'keybuf'. 'keybuf' better be 8 bytes long or longer. */
-static void slidebits(unsigned char * keybuf, unsigned char * inbuf)
+static void slidebits(uchar * keybuf, uchar * inbuf)
 {
 	keybuf[0] = inbuf[0];
 	keybuf[1] = (inbuf[0]<<7) | (inbuf[1]>>1);
@@ -817,7 +817,7 @@ static void slidebits(unsigned char * keybuf, unsigned char * inbuf)
 static int dec_3des(context_t * text,
     const char * input,
     unsigned inputlen,
-    unsigned char digest[16] __attribute__((unused)),
+    uchar digest[16] __attribute__((unused)),
     char * output,
     unsigned * outputlen)
 {
@@ -854,7 +854,7 @@ static int dec_3des(context_t * text,
 static int enc_3des(context_t * text,
     const char * input,
     unsigned inputlen,
-    unsigned char digest[16],
+    uchar digest[16],
     char * output,
     unsigned * outputlen)
 {
@@ -885,10 +885,10 @@ static int enc_3des(context_t * text,
 	return SASL_OK;
 }
 
-static int init_3des(context_t * text, unsigned char enckey[16], unsigned char deckey[16])
+static int init_3des(context_t * text, uchar enckey[16], uchar deckey[16])
 {
 	des_context_t * c;
-	unsigned char keybuf[8];
+	uchar keybuf[8];
 	/* allocate enc & dec context */
 	c = (des_context_t*)text->utils->FnMalloc(2 * sizeof(des_context_t));
 	if(!c) return SASL_NOMEM;
@@ -927,7 +927,7 @@ static int init_3des(context_t * text, unsigned char enckey[16], unsigned char d
 static int dec_des(context_t * text,
     const char * input,
     unsigned inputlen,
-    unsigned char digest[16] __attribute__((unused)),
+    uchar digest[16] __attribute__((unused)),
     char * output,
     unsigned * outputlen)
 {
@@ -953,7 +953,7 @@ static int dec_des(context_t * text,
 	return SASL_OK;
 }
 
-static int enc_des(context_t * text, const char * input, unsigned inputlen, unsigned char digest[16], char * output, unsigned * outputlen)
+static int enc_des(context_t * text, const char * input, unsigned inputlen, uchar digest[16], char * output, unsigned * outputlen)
 {
 	des_context_t * c = (des_context_t*)text->cipher_enc_context;
 	int len;
@@ -971,10 +971,10 @@ static int enc_des(context_t * text, const char * input, unsigned inputlen, unsi
 	return SASL_OK;
 }
 
-static int init_des(context_t * text, unsigned char enckey[16], unsigned char deckey[16])
+static int init_des(context_t * text, uchar enckey[16], uchar deckey[16])
 {
 	des_context_t * c;
-	unsigned char keybuf[8];
+	uchar keybuf[8];
 	/* allocate enc context */
 	c = (des_context_t*)text->utils->FnMalloc(2 * sizeof(des_context_t));
 	if(!c) return SASL_NOMEM;
@@ -1018,8 +1018,8 @@ static void free_rc4(context_t * text)
 }
 
 static int init_rc4(context_t * text,
-    unsigned char enckey[16],
-    unsigned char deckey[16])
+    uchar enckey[16],
+    uchar deckey[16])
 {
 	EVP_CIPHER_CTX * ctx;
 	int rc;
@@ -1046,7 +1046,7 @@ static int init_rc4(context_t * text,
 static int dec_rc4(context_t * text,
     const char * input,
     unsigned inputlen,
-    unsigned char digest[16] __attribute__((unused)),
+    uchar digest[16] __attribute__((unused)),
     char * output,
     unsigned * outputlen)
 {
@@ -1055,14 +1055,14 @@ static int dec_rc4(context_t * text,
 
 	/* decrypt the text part & HMAC */
 	rc = EVP_DecryptUpdate((EVP_CIPHER_CTX*)text->cipher_dec_context,
-		(unsigned char *)output, &len,
-		(const unsigned char *)input, inputlen);
+		(uchar *)output, &len,
+		(const uchar *)input, inputlen);
 	if(rc != 1) return SASL_FAIL;
 
 	*outputlen = len;
 
 	rc = EVP_DecryptFinal_ex((EVP_CIPHER_CTX*)text->cipher_dec_context,
-		(unsigned char *)output + len, &len);
+		(uchar *)output + len, &len);
 	if(rc != 1) return SASL_FAIL;
 
 	*outputlen += len;
@@ -1076,7 +1076,7 @@ static int dec_rc4(context_t * text,
 static int enc_rc4(context_t * text,
     const char * input,
     unsigned inputlen,
-    unsigned char digest[16],
+    uchar digest[16],
     char * output,
     unsigned * outputlen)
 {
@@ -1084,22 +1084,22 @@ static int enc_rc4(context_t * text,
 	int rc;
 	/* encrypt the text part */
 	rc = EVP_EncryptUpdate((EVP_CIPHER_CTX*)text->cipher_enc_context,
-		(unsigned char *)output, &len,
-		(const unsigned char *)input, inputlen);
+		(uchar *)output, &len,
+		(const uchar *)input, inputlen);
 	if(rc != 1) return SASL_FAIL;
 
 	*outputlen = len;
 
 	/* encrypt the `MAC part */
 	rc = EVP_EncryptUpdate((EVP_CIPHER_CTX*)text->cipher_enc_context,
-		(unsigned char *)output + *outputlen, &len,
+		(uchar *)output + *outputlen, &len,
 		digest, 10);
 	if(rc != 1) return SASL_FAIL;
 
 	*outputlen += len;
 
 	rc = EVP_EncryptFinal_ex((EVP_CIPHER_CTX*)text->cipher_enc_context,
-		(unsigned char *)output + *outputlen, &len);
+		(uchar *)output + *outputlen, &len);
 	if(rc != 1) return SASL_FAIL;
 
 	*outputlen += len;
@@ -1110,14 +1110,14 @@ static int enc_rc4(context_t * text,
 #else
 /* quick generic implementation of RC4 */
 struct rc4_context_s {
-	unsigned char sbox[256];
+	uchar sbox[256];
 	int i, j;
 };
 
 typedef struct rc4_context_s rc4_context_t;
 
 static void rc4_init(rc4_context_t * text,
-    const unsigned char * key,
+    const uchar * key,
     unsigned keylen)
 {
 	int i, j;
@@ -1128,7 +1128,7 @@ static void rc4_init(rc4_context_t * text,
 
 	j = 0;
 	for(i = 0; i < 256; i++) {
-		unsigned char tmp;
+		uchar tmp;
 		/* j = (j + Si + Ki) mod 256 */
 		j = (j + text->sbox[i] + key[i % keylen]) % 256;
 
@@ -1177,10 +1177,7 @@ static void rc4_encrypt(rc4_context_t * text,
 	text->j = j;
 }
 
-static void rc4_decrypt(rc4_context_t * text,
-    const char * input,
-    char * output,
-    unsigned len)
+static void rc4_decrypt(rc4_context_t * text, const char * input, char * output, unsigned len)
 {
 	int tmp;
 	int i = text->i;
@@ -1188,12 +1185,9 @@ static void rc4_decrypt(rc4_context_t * text,
 	int t;
 	int K;
 	const char * input_end = input + len;
-
 	while(input < input_end) {
 		i = (i + 1) % 256;
-
 		j = (j + text->sbox[i]) % 256;
-
 		/* swap Si and Sj */
 		tmp = text->sbox[i];
 		text->sbox[i] = text->sbox[j];
@@ -1226,8 +1220,8 @@ static void free_rc4(context_t * text)
 }
 
 static int init_rc4(context_t * text,
-    unsigned char enckey[16],
-    unsigned char deckey[16])
+    uchar enckey[16],
+    uchar deckey[16])
 {
 	/* allocate rc4 context structures */
 	text->cipher_enc_context =
@@ -1240,51 +1234,30 @@ static int init_rc4(context_t * text,
 
 	/* initialize them */
 	rc4_init((rc4_context_t*)text->cipher_enc_context,
-	    (const unsigned char *)enckey, 16);
+	    (const uchar *)enckey, 16);
 	rc4_init((rc4_context_t*)text->cipher_dec_context,
-	    (const unsigned char *)deckey, 16);
-
+	    (const uchar *)deckey, 16);
 	return SASL_OK;
 }
 
-static int dec_rc4(context_t * text,
-    const char * input,
-    unsigned inputlen,
-    unsigned char digest[16] __attribute__((unused)),
-    char * output,
-    unsigned * outputlen)
+static int dec_rc4(context_t * text, const char * input, unsigned inputlen, uchar digest[16] __attribute__((unused)), char * output, unsigned * outputlen)
 {
 	/* decrypt the text part & HMAC */
 	rc4_decrypt((rc4_context_t*)text->cipher_dec_context,
 	    input, output, inputlen);
-
 	/* no padding so we just subtract the HMAC to get the text length */
 	*outputlen = inputlen - 10;
-
 	return SASL_OK;
 }
 
-static int enc_rc4(context_t * text,
-    const char * input,
-    unsigned inputlen,
-    unsigned char digest[16],
-    char * output,
-    unsigned * outputlen)
+static int enc_rc4(context_t * text, const char * input, unsigned inputlen, uchar digest[16], char * output, unsigned * outputlen)
 {
 	/* pad is zero */
 	*outputlen = inputlen+10;
-
 	/* encrypt the text part */
-	rc4_encrypt((rc4_context_t*)text->cipher_enc_context,
-	    input,
-	    output,
-	    inputlen);
-
+	rc4_encrypt((rc4_context_t*)text->cipher_enc_context, input, output, inputlen);
 	/* encrypt the HMAC part */
-	rc4_encrypt((rc4_context_t*)text->cipher_enc_context,
-	    (const char *)digest,
-	    (output)+inputlen, 10);
-
+	rc4_encrypt((rc4_context_t*)text->cipher_enc_context, (const char *)digest, (output)+inputlen, 10);
 	return SASL_OK;
 }
 
@@ -1305,26 +1278,26 @@ struct digest_cipher available_ciphers[] =
 	{ NULL, 0, 0, 0, NULL, NULL, NULL, NULL }
 };
 
-static int create_layer_keys(context_t * text, const sasl_utils_t * utils, HASH key, int keylen, unsigned char enckey[16], unsigned char deckey[16])
+static int create_layer_keys(context_t * text, const sasl_utils_t * utils, HASH key, int keylen, uchar enckey[16], uchar deckey[16])
 {
 	Cyrus_MD5_CTX Md5Ctx;
 	utils->log(utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 create_layer_keys()");
 	utils->MD5Init(&Md5Ctx);
 	utils->MD5Update(&Md5Ctx, key, keylen);
 	if(text->i_am == SERVER) {
-		utils->MD5Update(&Md5Ctx, (const unsigned char *)SEALING_SERVER_CLIENT, (unsigned)strlen(SEALING_SERVER_CLIENT));
+		utils->MD5Update(&Md5Ctx, (const uchar *)SEALING_SERVER_CLIENT, (uint)strlen(SEALING_SERVER_CLIENT));
 	}
 	else {
-		utils->MD5Update(&Md5Ctx, (const unsigned char *)SEALING_CLIENT_SERVER, (unsigned)strlen(SEALING_CLIENT_SERVER));
+		utils->MD5Update(&Md5Ctx, (const uchar *)SEALING_CLIENT_SERVER, (uint)strlen(SEALING_CLIENT_SERVER));
 	}
 	utils->MD5Final(enckey, &Md5Ctx);
 	utils->MD5Init(&Md5Ctx);
 	utils->MD5Update(&Md5Ctx, key, keylen);
 	if(text->i_am != SERVER) {
-		utils->MD5Update(&Md5Ctx, (const unsigned char *)SEALING_SERVER_CLIENT, (unsigned)strlen(SEALING_SERVER_CLIENT));
+		utils->MD5Update(&Md5Ctx, (const uchar *)SEALING_SERVER_CLIENT, (uint)strlen(SEALING_SERVER_CLIENT));
 	}
 	else {
-		utils->MD5Update(&Md5Ctx, (const unsigned char *)SEALING_CLIENT_SERVER, (unsigned)strlen(SEALING_CLIENT_SERVER));
+		utils->MD5Update(&Md5Ctx, (const uchar *)SEALING_CLIENT_SERVER, (uint)strlen(SEALING_CLIENT_SERVER));
 	}
 	utils->MD5Final(deckey, &Md5Ctx);
 	/* create integrity keys */
@@ -1332,20 +1305,20 @@ static int create_layer_keys(context_t * text, const sasl_utils_t * utils, HASH 
 	utils->MD5Init(&Md5Ctx);
 	utils->MD5Update(&Md5Ctx, text->HA1, HASHLEN);
 	if(text->i_am == SERVER) {
-		utils->MD5Update(&Md5Ctx, (const unsigned char *)SIGNING_SERVER_CLIENT, (unsigned)strlen(SIGNING_SERVER_CLIENT));
+		utils->MD5Update(&Md5Ctx, (const uchar *)SIGNING_SERVER_CLIENT, (uint)strlen(SIGNING_SERVER_CLIENT));
 	}
 	else {
-		utils->MD5Update(&Md5Ctx, (const unsigned char *)SIGNING_CLIENT_SERVER, (unsigned)strlen(SIGNING_CLIENT_SERVER));
+		utils->MD5Update(&Md5Ctx, (const uchar *)SIGNING_CLIENT_SERVER, (uint)strlen(SIGNING_CLIENT_SERVER));
 	}
 	utils->MD5Final(text->Ki_send, &Md5Ctx);
 	/* receiving */
 	utils->MD5Init(&Md5Ctx);
 	utils->MD5Update(&Md5Ctx, text->HA1, HASHLEN);
 	if(text->i_am != SERVER) {
-		utils->MD5Update(&Md5Ctx, (const unsigned char *)SIGNING_SERVER_CLIENT, (unsigned)strlen(SIGNING_SERVER_CLIENT));
+		utils->MD5Update(&Md5Ctx, (const uchar *)SIGNING_SERVER_CLIENT, (uint)strlen(SIGNING_SERVER_CLIENT));
 	}
 	else {
-		utils->MD5Update(&Md5Ctx, (const unsigned char *)SIGNING_CLIENT_SERVER, (unsigned)strlen(SIGNING_CLIENT_SERVER));
+		utils->MD5Update(&Md5Ctx, (const uchar *)SIGNING_CLIENT_SERVER, (uint)strlen(SIGNING_CLIENT_SERVER));
 	}
 	utils->MD5Final(text->Ki_receive, &Md5Ctx);
 	return SASL_OK;
@@ -1412,10 +1385,10 @@ static int digestmd5_encode(void * context,
 	memcpy(text->encode_buf + 4, inblob->data, inblob->curlen);
 
 	if(text->cipher_enc) {
-		unsigned char digest[16];
+		uchar digest[16];
 
 		/* HMAC(ki, (seqnum, msg) ) */
-		text->utils->hmac_md5((const unsigned char *)text->encode_buf,
+		text->utils->hmac_md5((const uchar *)text->encode_buf,
 		    inblob->curlen + 4,
 		    text->Ki_send, HASHLEN, digest);
 
@@ -1426,10 +1399,10 @@ static int digestmd5_encode(void * context,
 	}
 	else {
 		/* HMAC(ki, (seqnum, msg) ) -- put directly into output buffer */
-		text->utils->hmac_md5((const unsigned char *)text->encode_buf,
+		text->utils->hmac_md5((const uchar *)text->encode_buf,
 		    inblob->curlen + 4,
 		    text->Ki_send, HASHLEN,
-		    (unsigned char *)text->encode_buf +
+		    (uchar *)text->encode_buf +
 		    inblob->curlen + 4);
 
 		*outputlen = inblob->curlen + 10; /* for message + CMAC */
@@ -1469,12 +1442,12 @@ static int digestmd5_decode_packet(void * context,
 {
 	context_t * text = (context_t*)context;
 	int result;
-	unsigned char * digest;
+	uchar * digest;
 	int tmpnum;
 	int lup;
 	unsigned short ver;
 	unsigned int seqnum;
-	unsigned char checkdigest[16];
+	uchar checkdigest[16];
 
 	if(inputlen < 16) {
 		text->utils->seterror(text->utils->conn, 0, "DIGEST-MD5 SASL packets must be at least 16 bytes long");
@@ -1528,12 +1501,12 @@ static int digestmd5_decode_packet(void * context,
 		memcpy(*output, input, inputlen - 6);
 		*outputlen = inputlen - 16; /* -16 to skip HMAC, ver and seqnum */
 	}
-	digest = (unsigned char *)*output + (inputlen - 16);
+	digest = (uchar *)*output + (inputlen - 16);
 
 	/* check the CMAC */
 
 	/* HMAC(ki, (seqnum, msg) ) */
-	text->utils->hmac_md5((const unsigned char *)text->decode_packet_buf,
+	text->utils->hmac_md5((const uchar *)text->decode_packet_buf,
 	    (*outputlen) + 4,
 	    text->Ki_receive, HASHLEN, checkdigest);
 
@@ -1656,9 +1629,9 @@ static digest_glob_context_t server_glob_context;
 static void DigestCalcHA1FromSecret(context_t * text,
     const sasl_utils_t * utils,
     HASH HA1,
-    unsigned char * authorization_id,
-    unsigned char * pszNonce,
-    unsigned char * pszCNonce,
+    uchar * authorization_id,
+    uchar * pszNonce,
+    uchar * pszCNonce,
     HASHHEX SessionKey)
 {
 	Cyrus_MD5_CTX Md5Ctx;
@@ -1677,13 +1650,13 @@ static void DigestCalcHA1FromSecret(context_t * text,
 		utils->MD5Update(&Md5Ctx, HA1, HASHLEN);
 	}
 	utils->MD5Update(&Md5Ctx, COLON, 1);
-	utils->MD5Update(&Md5Ctx, pszNonce, (unsigned)strlen((char *)pszNonce));
+	utils->MD5Update(&Md5Ctx, pszNonce, (uint)strlen((char *)pszNonce));
 	utils->MD5Update(&Md5Ctx, COLON, 1);
-	utils->MD5Update(&Md5Ctx, pszCNonce, (unsigned)strlen((char *)pszCNonce));
+	utils->MD5Update(&Md5Ctx, pszCNonce, (uint)strlen((char *)pszCNonce));
 	if(authorization_id) {
 		utils->MD5Update(&Md5Ctx, COLON, 1);
 		utils->MD5Update(&Md5Ctx, authorization_id,
-		    (unsigned)strlen((char *)authorization_id));
+		    (uint)strlen((char *)authorization_id));
 	}
 	utils->MD5Final(HA1, &Md5Ctx);
 
@@ -1695,9 +1668,9 @@ static void DigestCalcHA1FromSecret(context_t * text,
 
 static char * create_response(context_t * text,
     const sasl_utils_t * utils,
-    unsigned char * nonce,
+    uchar * nonce,
     unsigned int ncvalue,
-    unsigned char * cnonce,
+    uchar * cnonce,
     char * qop,
     const sasl_http_request_t * request,
     HASH Secret,
@@ -1715,7 +1688,7 @@ static char * create_response(context_t * text,
 	DigestCalcHA1FromSecret(text,
 	    utils,
 	    Secret,
-	    (unsigned char *)authorization_id,
+	    (uchar *)authorization_id,
 	    nonce,
 	    cnonce,
 	    SessionKey);
@@ -1738,10 +1711,10 @@ static char * create_response(context_t * text,
 	    nonce,              /* nonce from server */
 	    ncvalue,            /* 8 hex digits */
 	    cnonce,             /* client nonce */
-	    (unsigned char *)qop,                /* qop-value: "", "auth",
+	    (uchar *)qop,                /* qop-value: "", "auth",
 	                                         * "auth-int" */
-	    (unsigned char *)request->uri,               /* requested URL */
-	    (unsigned char *)request->method,
+	    (uchar *)request->uri,               /* requested URL */
+	    (uchar *)request->method,
 	    HEntity,            /* H(entity body) if qop="auth-int" */
 	    Response            /* request-digest or response-digest */
 	    );
@@ -1757,9 +1730,9 @@ static char * create_response(context_t * text,
 		    nonce,              /* nonce from server */
 		    ncvalue,            /* 8 hex digits */
 		    cnonce,             /* client nonce */
-		    (unsigned char *)qop,                /* qop-value: "", "auth",
+		    (uchar *)qop,                /* qop-value: "", "auth",
 		                                         * "auth-int" */
-		    (unsigned char *)request->uri,          /* requested URL */
+		    (uchar *)request->uri,          /* requested URL */
 		    NULL,
 		    HEntity,            /* H(entity body) if qop="auth-int" */
 		    Response            /* request-digest or response-digest */
@@ -1802,11 +1775,10 @@ static int get_server_realm(sasl_server_params_t * params, char ** realm)
 	}
 	return SASL_OK;
 }
-
 /*
  * Convert hex string to int
  */
-static int htoi(unsigned char * hexin, unsigned int * res)
+static int htoi(uchar * hexin, unsigned int * res)
 {
 	size_t lup;
 	size_t inlen = strlen((char *)hexin);
@@ -1845,15 +1817,11 @@ static int htoi(unsigned char * hexin, unsigned int * res)
 			    return SASL_BADPARAM;
 		}
 	}
-
 	return SASL_OK;
 }
 
-static int digestmd5_server_mech_new(void * glob_context,
-    sasl_server_params_t * sparams,
-    const char * challenge __attribute__((unused)),
-    unsigned challen __attribute__((unused)),
-    void ** conn_context)
+static int digestmd5_server_mech_new(void * glob_context, sasl_server_params_t * sparams, const char * challenge __attribute__((unused)),
+    unsigned challen __attribute__((unused)), void ** conn_context)
 {
 	/* holds state are in -- allocate server size */
 	context_t * text = (context_t *)sparams->utils->FnMalloc(sizeof(server_context_t));
@@ -1879,7 +1847,7 @@ static int digestmd5_server_mech_step1(server_context_t * stext,
 	context_t * text = (context_t*)stext;
 	int result;
 	char           * realm;
-	unsigned char  * nonce;
+	uchar  * nonce;
 	char           * charset = "utf-8";
 	char qop[1024], cipheropts[1024];
 	struct digest_cipher * cipher;
@@ -1943,7 +1911,7 @@ static int digestmd5_server_mech_step1(server_context_t * stext,
 	text->out_buf_len = 0;
 	if(add_to_challenge(sparams->utils,
 	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "nonce", (unsigned char *)nonce,
+	    "nonce", (uchar *)nonce,
 	    TRUE) != SASL_OK) {
 		SETERROR(sparams->utils, "internal error: add_to_challenge failed");
 		return SASL_FAIL;
@@ -1953,7 +1921,7 @@ static int digestmd5_server_mech_step1(server_context_t * stext,
 	 * send one to the client */
 	if(realm && add_to_challenge(sparams->utils,
 	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "realm", (unsigned char *)realm,
+	    "realm", (uchar *)realm,
 	    TRUE) != SASL_OK) {
 		SETERROR(sparams->utils, "internal error: add_to_challenge failed");
 		return SASL_FAIL;
@@ -1970,7 +1938,7 @@ static int digestmd5_server_mech_step1(server_context_t * stext,
 	if(add_to_challenge(sparams->utils,
 	    &text->out_buf, &text->out_buf_len, &resplen,
 	    "qop",
-	    (unsigned char *)qop, TRUE) != SASL_OK) {
+	    (uchar *)qop, TRUE) != SASL_OK) {
 		SETERROR(sparams->utils, "internal error: add_to_challenge 3 failed");
 		return SASL_FAIL;
 	}
@@ -1982,7 +1950,7 @@ static int digestmd5_server_mech_step1(server_context_t * stext,
 	if(strcmp(cipheropts, "")!=0) {
 		if(add_to_challenge(sparams->utils,
 		    &text->out_buf, &text->out_buf_len, &resplen,
-		    "cipher", (unsigned char *)cipheropts,
+		    "cipher", (uchar *)cipheropts,
 		    TRUE) != SASL_OK) {
 			SETERROR(sparams->utils,
 			    "internal error: add_to_challenge 4 failed");
@@ -1994,7 +1962,7 @@ static int digestmd5_server_mech_step1(server_context_t * stext,
 	if(stext->stale &&
 	    add_to_challenge(sparams->utils,
 	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "stale", (unsigned char *)"true", FALSE) != SASL_OK) {
+	    "stale", (uchar *)"true", FALSE) != SASL_OK) {
 		SETERROR(sparams->utils, "internal error: add_to_challenge failed");
 		return SASL_FAIL;
 	}
@@ -2012,7 +1980,7 @@ static int digestmd5_server_mech_step1(server_context_t * stext,
 		if(add_to_challenge(sparams->utils,
 		    &text->out_buf, &text->out_buf_len, &resplen,
 		    "maxbuf",
-		    (unsigned char *)maxbufstr, FALSE) != SASL_OK) {
+		    (uchar *)maxbufstr, FALSE) != SASL_OK) {
 			SETERROR(sparams->utils,
 			    "internal error: add_to_challenge 5 failed");
 			return SASL_FAIL;
@@ -2022,7 +1990,7 @@ static int digestmd5_server_mech_step1(server_context_t * stext,
 	if(add_to_challenge(sparams->utils,
 	    &text->out_buf, &text->out_buf_len, &resplen,
 	    "charset",
-	    (unsigned char *)charset, FALSE) != SASL_OK) {
+	    (uchar *)charset, FALSE) != SASL_OK) {
 		SETERROR(sparams->utils, "internal error: add_to_challenge 6 failed");
 		return SASL_FAIL;
 	}
@@ -2041,7 +2009,7 @@ static int digestmd5_server_mech_step1(server_context_t * stext,
 	if(add_to_challenge(sparams->utils,
 	    &text->out_buf, &text->out_buf_len, &resplen,
 	    "algorithm",
-	    (unsigned char *)"md5-sess", FALSE)!=SASL_OK) {
+	    (uchar *)"md5-sess", FALSE)!=SASL_OK) {
 		SETERROR(sparams->utils, "internal error: add_to_challenge 7 failed");
 		return SASL_FAIL;
 	}
@@ -2084,7 +2052,7 @@ static int digestmd5_server_mech_step1(server_context_t * stext,
 		stext->timestamp = time(0);
 	}
 
-	*serveroutlen = (unsigned)strlen(text->out_buf);
+	*serveroutlen = (uint)strlen(text->out_buf);
 	*serverout = text->out_buf;
 
 	text->state = 2;
@@ -2108,7 +2076,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 	char           * username = NULL;
 	char           * authorization_id = NULL;
 	char           * realm = NULL;
-	unsigned char  * nonce = NULL, * cnonce = NULL;
+	uchar  * nonce = NULL, * cnonce = NULL;
 	unsigned int noncecount = 0;
 	char           * qop = NULL;
 	char           * digesturi = NULL;
@@ -2213,7 +2181,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 			_plug_strdup(sparams->utils, value, (char **)&cnonce, NULL);
 		}
 		else if(strcasecmp(name, "nc") == 0) {
-			if(htoi((unsigned char *)value, &noncecount) != SASL_OK) {
+			if(htoi((uchar *)value, &noncecount) != SASL_OK) {
 				SETERROR(sparams->utils,
 				    "error converting hex to int");
 				result = SASL_BADAUTH;
@@ -2561,7 +2529,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 			goto FreeAllMem;
 		}
 
-		sec->len = (unsigned)len;
+		sec->len = (uint)len;
 		strncpy((char *)sec->data, auxprop_values[0].values[0], len + 1);
 
 		/*
@@ -2580,8 +2548,8 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 			 */
 
 			Try_8859_1 = DigestCalcSecret(sparams->utils,
-				(unsigned char *)username,
-				(unsigned char *)realm,
+				(uchar *)username,
+				(uchar *)realm,
 				sec->data,
 				sec->len,
 				FALSE,
@@ -2596,8 +2564,8 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 			 */
 
 			DigestCalcSecret(sparams->utils,
-			    (unsigned char *)username,
-			    (unsigned char *)realm,
+			    (uchar *)username,
+			    (uchar *)realm,
 			    sec->data,
 			    sec->len,
 			    TRUE,
@@ -2780,8 +2748,8 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 	    DEFAULT_BUFSIZE);
 
 	if(oparams->mech_ssf > 0) {
-		unsigned char enckey[16];
-		unsigned char deckey[16];
+		uchar enckey[16];
+		uchar deckey[16];
 
 		create_layer_keys(text, sparams->utils, text->HA1, n, enckey, deckey);
 
@@ -2815,7 +2783,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 
 		if(add_to_challenge(sparams->utils,
 		    &text->out_buf, &text->out_buf_len, &resplen,
-		    "rspauth", (unsigned char *)text->response_value,
+		    "rspauth", (uchar *)text->response_value,
 		    text->http_mode ? TRUE : FALSE) != SASL_OK) {
 			SETERROR(sparams->utils, "internal error: add_to_challenge failed");
 			result = SASL_FAIL;
@@ -2835,13 +2803,13 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 			snprintf(ncvalue, sizeof(ncvalue), "%08x", text->nonce_count);
 			if(add_to_challenge(sparams->utils,
 			    &text->out_buf, &text->out_buf_len, &resplen,
-			    "nc", (unsigned char *)ncvalue, FALSE) != SASL_OK) {
+			    "nc", (uchar *)ncvalue, FALSE) != SASL_OK) {
 				result = SASL_FAIL;
 				goto FreeAllMem;
 			}
 			if(add_to_challenge(sparams->utils,
 			    &text->out_buf, &text->out_buf_len, &resplen,
-			    "qop", (unsigned char *)qop, TRUE) != SASL_OK) {
+			    "qop", (uchar *)qop, TRUE) != SASL_OK) {
 				result = SASL_FAIL;
 				goto FreeAllMem;
 			}
@@ -2854,7 +2822,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 		}
 	}
 
-	*serveroutlen = (unsigned)strlen(text->out_buf);
+	*serveroutlen = (uint)strlen(text->out_buf);
 	*serverout = text->out_buf;
 
 	result = SASL_OK;
@@ -3098,7 +3066,7 @@ typedef struct client_context {
 
 	/* for HTTP mode (RFC 2617) only */
 	char * algorithm;
-	unsigned char * opaque;
+	uchar * opaque;
 } client_context_t;
 
 static digest_glob_context_t client_glob_context;
@@ -3107,12 +3075,12 @@ static digest_glob_context_t client_glob_context;
 static void DigestCalcHA1(context_t * text,
     const sasl_utils_t * utils,
     char * pszAlg,
-    unsigned char * pszUserName,
-    unsigned char * pszRealm,
+    uchar * pszUserName,
+    uchar * pszRealm,
     sasl_secret_t * pszPassword,
-    unsigned char * pszAuthorization_id,
-    unsigned char * pszNonce,
-    unsigned char * pszCNonce,
+    uchar * pszAuthorization_id,
+    uchar * pszNonce,
+    uchar * pszCNonce,
     HASHHEX SessionKey)
 {
 	Cyrus_MD5_CTX Md5Ctx;
@@ -3121,7 +3089,7 @@ static void DigestCalcHA1(context_t * text,
 	DigestCalcSecret(utils,
 	    pszUserName,
 	    pszRealm,
-	    (unsigned char *)pszPassword->data,
+	    (uchar *)pszPassword->data,
 	    pszPassword->len,
 	    FALSE,
 	    HA1);
@@ -3142,12 +3110,12 @@ static void DigestCalcHA1(context_t * text,
 			utils->MD5Update(&Md5Ctx, HA1, HASHLEN);
 		}
 		utils->MD5Update(&Md5Ctx, COLON, 1);
-		utils->MD5Update(&Md5Ctx, pszNonce, (unsigned)strlen((char *)pszNonce));
+		utils->MD5Update(&Md5Ctx, pszNonce, (uint)strlen((char *)pszNonce));
 		utils->MD5Update(&Md5Ctx, COLON, 1);
-		utils->MD5Update(&Md5Ctx, pszCNonce, (unsigned)strlen((char *)pszCNonce));
+		utils->MD5Update(&Md5Ctx, pszCNonce, (uint)strlen((char *)pszCNonce));
 		if(pszAuthorization_id) {
 			utils->MD5Update(&Md5Ctx, COLON, 1);
-			utils->MD5Update(&Md5Ctx, pszAuthorization_id, (unsigned)strlen((char *)pszAuthorization_id));
+			utils->MD5Update(&Md5Ctx, pszAuthorization_id, (uint)strlen((char *)pszAuthorization_id));
 		}
 		utils->MD5Final(HA1, &Md5Ctx);
 	}
@@ -3163,15 +3131,15 @@ static void DigestCalcHA1(context_t * text,
 static char * calculate_response(context_t * text,
     const sasl_utils_t * utils,
     char * algorithm,
-    unsigned char * username,
-    unsigned char * realm,
-    unsigned char * nonce,
+    uchar * username,
+    uchar * realm,
+    uchar * nonce,
     unsigned int ncvalue,
-    unsigned char * cnonce,
+    uchar * cnonce,
     char * qop,
     const sasl_http_request_t * request,
     sasl_secret_t * passwd,
-    unsigned char * authorization_id,
+    uchar * authorization_id,
     char ** response_value)
 {
 	HASHHEX SessionKey;
@@ -3187,7 +3155,7 @@ static char * calculate_response(context_t * text,
 	}
 	if(realm == NULL) {
 		/* a NULL realm is equivalent to the empty string */
-		realm = (unsigned char *)"";
+		realm = (uchar *)"";
 	}
 	if(qop == NULL) {
 		/* default to a qop of just authentication */
@@ -3224,10 +3192,10 @@ static char * calculate_response(context_t * text,
 	    nonce,              /* nonce from server */
 	    ncvalue,            /* 8 hex digits */
 	    cnonce,             /* client nonce */
-	    (unsigned char *)qop,                /* qop-value: "", "auth",
+	    (uchar *)qop,                /* qop-value: "", "auth",
 	                                         * "auth-int" */
-	    (unsigned char *)request->uri,               /* requested URL */
-	    (unsigned char *)request->method,
+	    (uchar *)request->uri,               /* requested URL */
+	    (uchar *)request->method,
 	    HEntity,            /* H(entity body) if qop="auth-int" */
 	    Response            /* request-digest or response-digest */
 	    );
@@ -3242,9 +3210,9 @@ static char * calculate_response(context_t * text,
 		    nonce,              /* nonce from server */
 		    ncvalue,            /* 8 hex digits */
 		    cnonce,             /* client nonce */
-		    (unsigned char *)qop,                /* qop-value: "", "auth",
+		    (uchar *)qop,                /* qop-value: "", "auth",
 		                                         * "auth-int" */
-		    (unsigned char *)request->uri,               /* requested URL */
+		    (uchar *)request->uri,               /* requested URL */
 		    NULL,
 		    HEntity,            /* H(entity body) if qop="auth-int" */
 		    Response            /* request-digest or response-digest */
@@ -3351,8 +3319,8 @@ static int make_client_response(context_t * text,
 	    calculate_response(text,
 		params->utils,
 		ctext->algorithm,
-		(unsigned char *)oparams->authid,
-		(unsigned char *)text->realm,
+		(uchar *)oparams->authid,
+		(uchar *)text->realm,
 		text->nonce,
 		text->nonce_count,
 		text->cnonce,
@@ -3360,7 +3328,7 @@ static int make_client_response(context_t * text,
 		request,
 		ctext->password,
 		strcmp(oparams->user, oparams->authid) ?
-		(unsigned char *)oparams->user : NULL,
+		(uchar *)oparams->user : NULL,
 		&text->response_value);
 
 	resplen = 0;
@@ -3369,7 +3337,7 @@ static int make_client_response(context_t * text,
 	text->out_buf_len = 0;
 	if(add_to_challenge(params->utils,
 	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "username", (unsigned char *)oparams->authid,
+	    "username", (uchar *)oparams->authid,
 	    TRUE) != SASL_OK) {
 		result = SASL_FAIL;
 		goto FreeAllocatedMem;
@@ -3377,7 +3345,7 @@ static int make_client_response(context_t * text,
 
 	if(add_to_challenge(params->utils,
 	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "realm", (unsigned char *)text->realm,
+	    "realm", (uchar *)text->realm,
 	    TRUE) != SASL_OK) {
 		result = SASL_FAIL;
 		goto FreeAllocatedMem;
@@ -3385,7 +3353,7 @@ static int make_client_response(context_t * text,
 	if(strcmp(oparams->user, oparams->authid)) {
 		if(add_to_challenge(params->utils,
 		    &text->out_buf, &text->out_buf_len, &resplen,
-		    "authzid", (unsigned char *)oparams->user, TRUE) != SASL_OK) {
+		    "authzid", (uchar *)oparams->user, TRUE) != SASL_OK) {
 			result = SASL_FAIL;
 			goto FreeAllocatedMem;
 		}
@@ -3405,13 +3373,13 @@ static int make_client_response(context_t * text,
 	snprintf(ncvalue, sizeof(ncvalue), "%08x", text->nonce_count);
 	if(add_to_challenge(params->utils,
 	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "nc", (unsigned char *)ncvalue, FALSE) != SASL_OK) {
+	    "nc", (uchar *)ncvalue, FALSE) != SASL_OK) {
 		result = SASL_FAIL;
 		goto FreeAllocatedMem;
 	}
 	if(add_to_challenge(params->utils,
 	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "qop", (unsigned char *)qop, FALSE) != SASL_OK) {
+	    "qop", (uchar *)qop, FALSE) != SASL_OK) {
 		result = SASL_FAIL;
 		goto FreeAllocatedMem;
 	}
@@ -3419,7 +3387,7 @@ static int make_client_response(context_t * text,
 		if(add_to_challenge(params->utils,
 		    &text->out_buf, &text->out_buf_len, &resplen,
 		    "cipher",
-		    (unsigned char *)ctext->cipher->name,
+		    (uchar *)ctext->cipher->name,
 		    FALSE) != SASL_OK) {
 			result = SASL_FAIL;
 			goto FreeAllocatedMem;
@@ -3428,31 +3396,19 @@ static int make_client_response(context_t * text,
 
 	if(params->props.maxbufsize) {
 		snprintf(maxbufstr, sizeof(maxbufstr), "%d", params->props.maxbufsize);
-		if(add_to_challenge(params->utils,
-		    &text->out_buf, &text->out_buf_len, &resplen,
-		    "maxbuf", (unsigned char *)maxbufstr,
-		    FALSE) != SASL_OK) {
-			SETERROR(params->utils,
-			    "internal error: add_to_challenge maxbuf failed");
+		if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "maxbuf", (uchar *)maxbufstr, FALSE) != SASL_OK) {
+			SETERROR(params->utils, "internal error: add_to_challenge maxbuf failed");
 			goto FreeAllocatedMem;
 		}
 	}
-
 	if(IsUTF8) {
-		if(add_to_challenge(params->utils,
-		    &text->out_buf, &text->out_buf_len, &resplen,
-		    "charset", (unsigned char *)"utf-8",
-		    FALSE) != SASL_OK) {
+		if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "charset", (uchar *)"utf-8", FALSE) != SASL_OK) {
 			result = SASL_FAIL;
 			goto FreeAllocatedMem;
 		}
 	}
-	if(add_to_challenge(params->utils,
-	    &text->out_buf, &text->out_buf_len, &resplen,
-	    text->http_mode ? "uri"                          /* per RFC 2617 */
-	    : "digest-uri",                                  /* per RFC 2831 */
-	    (unsigned char *)request->uri,
-	    TRUE) != SASL_OK) {
+	if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen,
+	    text->http_mode ? "uri" /* per RFC 2617 */ : "digest-uri"/* per RFC 2831 */, (uchar *)request->uri, TRUE) != SASL_OK) {
 		result = SASL_FAIL;
 		goto FreeAllocatedMem;
 	}
@@ -3460,7 +3416,7 @@ static int make_client_response(context_t * text,
 		/* per RFC 2617: algorithm & opaque MUST be sent back to server */
 		if(add_to_challenge(params->utils,
 		    &text->out_buf, &text->out_buf_len, &resplen,
-		    "algorithm", (unsigned char *)ctext->algorithm,
+		    "algorithm", (uchar *)ctext->algorithm,
 		    FALSE) != SASL_OK) {
 			result = SASL_FAIL;
 			goto FreeAllocatedMem;
@@ -3476,7 +3432,7 @@ static int make_client_response(context_t * text,
 	}
 	if(add_to_challenge(params->utils,
 	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "response", (unsigned char *)response,
+	    "response", (uchar *)response,
 	    FALSE) != SASL_OK) {
 		result = SASL_FAIL;
 		goto FreeAllocatedMem;
@@ -3512,8 +3468,8 @@ static int make_client_response(context_t * text,
 	    DEFAULT_BUFSIZE);
 
 	if(oparams->mech_ssf > 0) {
-		unsigned char enckey[16];
-		unsigned char deckey[16];
+		uchar enckey[16];
+		uchar deckey[16];
 
 		create_layer_keys(text, params->utils, text->HA1, nbits,
 		    enckey, deckey);
@@ -4039,38 +3995,23 @@ static int ask_user_info(client_context_t * ctext,
 		/* make the prompt list */
 		result =
 		    _plug_make_prompts(params->utils, prompt_need,
-			user_result == SASL_INTERACT ?
-			"Please enter your authorization name" : NULL,
-			NULL,
-			auth_result == SASL_INTERACT ?
-			"Please enter your authentication name" : NULL,
-			NULL,
-			pass_result == SASL_INTERACT ?
-			"Please enter your password" : NULL, NULL,
-			NULL, NULL, NULL,
-			realm_chal ? realm_chal : "{}",
-			realm_result == SASL_INTERACT ?
-			"Please enter your realm" : NULL,
+			user_result == SASL_INTERACT ? "Please enter your authorization name" : NULL, NULL,
+			auth_result == SASL_INTERACT ? "Please enter your authentication name" : NULL, NULL,
+			pass_result == SASL_INTERACT ? "Please enter your password" : NULL, NULL, NULL, NULL, NULL,
+			realm_chal ? realm_chal : "{}", realm_result == SASL_INTERACT ? "Please enter your realm" : NULL,
 			params->serverFQDN ? params->serverFQDN : NULL);
-
-		if(result == SASL_OK) return SASL_INTERACT;
-
+		if(result == SASL_OK) 
+			return SASL_INTERACT;
 		return result;
 	}
-
 	if(oparams->authid == NULL) {
 		if(!userid || !*userid) {
-			result = params->canon_user(params->utils->conn, authid, 0,
-				SASL_CU_AUTHID | SASL_CU_AUTHZID,
-				oparams);
+			result = params->canon_user(params->utils->conn, authid, 0, SASL_CU_AUTHID | SASL_CU_AUTHZID, oparams);
 		}
 		else {
-			result = params->canon_user(params->utils->conn,
-				authid, 0, SASL_CU_AUTHID, oparams);
+			result = params->canon_user(params->utils->conn, authid, 0, SASL_CU_AUTHID, oparams);
 			if(result != SASL_OK) return result;
-
-			result = params->canon_user(params->utils->conn,
-				userid, 0, SASL_CU_AUTHZID, oparams);
+			result = params->canon_user(params->utils->conn, userid, 0, SASL_CU_AUTHZID, oparams);
 		}
 		if(result != SASL_OK) return result;
 	}
@@ -4160,30 +4101,21 @@ static int digestmd5_client_mech_step1(client_context_t * ctext,
 		text->state = 2;
 		return SASL_CONTINUE;
 	}
-
 	/*
 	 * (username | realm | nonce | cnonce | nonce-count | qop digest-uri |
 	 * response | maxbuf | charset | auth-param )
 	 */
-
 	result = make_client_response(text, params, oparams);
 	if(result != SASL_OK) return result;
-
-	*clientoutlen = (unsigned)strlen(text->out_buf);
+	*clientoutlen = (uint)strlen(text->out_buf);
 	*clientout = text->out_buf;
 
 	/* check for next state (2 or 3) is done in digestmd5_client_mech_step() */
 	return SASL_CONTINUE;
 }
 
-static int digestmd5_client_mech_step2(client_context_t * ctext,
-    sasl_client_params_t * params,
-    const char * serverin,
-    unsigned serverinlen,
-    sasl_interact_t ** prompt_need,
-    const char ** clientout,
-    unsigned * clientoutlen,
-    sasl_out_params_t * oparams)
+static int digestmd5_client_mech_step2(client_context_t * ctext, sasl_client_params_t * params, const char * serverin,
+    unsigned serverinlen, sasl_interact_t ** prompt_need, const char ** clientout, unsigned * clientoutlen, sasl_out_params_t * oparams)
 {
 	context_t * text = (context_t*)ctext;
 	int result = SASL_FAIL;
@@ -4230,7 +4162,7 @@ static int digestmd5_client_mech_step2(client_context_t * ctext,
 	result = make_client_response(text, params, oparams);
 	if(result != SASL_OK) goto FreeAllocatedMem;
 
-	*clientoutlen = (unsigned)strlen(text->out_buf);
+	*clientoutlen = (uint)strlen(text->out_buf);
 	*clientout = text->out_buf;
 
 	text->state = 3;
@@ -4396,34 +4328,20 @@ static int digestmd5_client_mech_step(void * conn_context,
 		    /* cleanup after a failed reauth attempt */
 		    if(params->utils->mutex_lock(text->reauth->mutex) == SASL_OK) { /* LOCK */
 			    clear_reauth_entry(&text->reauth->e[val], CLIENT, params->utils);
-
 			    params->utils->mutex_unlock(text->reauth->mutex); /* UNLOCK */
 		    }
-
 		    if(text->realm) params->utils->FnFree(text->realm);
 		    if(text->nonce) params->utils->FnFree(text->nonce);
 		    if(text->cnonce) params->utils->FnFree(text->cnonce);
 		    text->realm = NULL;
 		    text->nonce = text->cnonce = NULL;
 		    ctext->cipher = NULL;
-
 		    GCC_FALLTHROUGH
-
 		case 2:
-		    return digestmd5_client_mech_step2(ctext, params,
-			       serverin, serverinlen,
-			       prompt_need,
-			       clientout, clientoutlen,
-			       oparams);
-
+		    return digestmd5_client_mech_step2(ctext, params, serverin, serverinlen, prompt_need, clientout, clientoutlen, oparams);
 		case 3:
 step3:
-		    return digestmd5_client_mech_step3(ctext, params,
-			       serverin, serverinlen,
-			       prompt_need,
-			       clientout, clientoutlen,
-			       oparams);
-
+		    return digestmd5_client_mech_step3(ctext, params, serverin, serverinlen, prompt_need, clientout, clientoutlen, oparams);
 		default:
 		    params->utils->log(NULL, SASL_LOG_ERR, "Invalid DIGEST-MD5 client step %d\n", text->state);
 		    return SASL_FAIL;
@@ -4498,6 +4416,5 @@ int digestmd5_client_plug_init(const sasl_utils_t * utils, int maxversion, int *
 	*out_version = SASL_CLIENT_PLUG_VERSION;
 	*pluglist = digestmd5_client_plugins;
 	*plugcount = 1;
-
 	return SASL_OK;
 }

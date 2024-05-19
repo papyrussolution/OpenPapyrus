@@ -198,7 +198,7 @@ bool Curl_check_noproxy(const char * name, const char * no_proxy, bool * spacese
 					    /* case C passes through, not a match */
 					    break;
 					case TYPE_IPV4:
-					/* FALLTHROUGH */
+					// @fallthrough
 					case TYPE_IPV6: {
 					    const char * check = token;
 					    char * slash;

@@ -116,7 +116,7 @@ cairo_status_t FASTCALL _cairo_path_fixed_init_copy(cairo_path_fixed_t * path, c
 
 ulong _cairo_path_fixed_hash(const cairo_path_fixed_t * path)
 {
-	ulong hash = _CAIRO_HASH_INIT_VALUE;
+	ulong hash = SlConst::DjbHashInit32;
 	const cairo_path_buf_t * buf;
 	uint count = 0;
 	cairo_path_foreach_buf_start(buf, path) {

@@ -232,7 +232,7 @@ static cairo_int_status_t cairo_pdf_interchange_write_node_object(cairo_pdf_surf
 
 static void init_named_dest_key(cairo_pdf_named_dest_t * dest)
 {
-	dest->base.hash = _cairo_hash_bytes(_CAIRO_HASH_INIT_VALUE, dest->attrs.name, strlen(dest->attrs.name));
+	dest->base.hash = _cairo_hash_bytes(SlConst::DjbHashInit32, dest->attrs.name, strlen(dest->attrs.name));
 }
 
 static boolint _named_dest_equal(const void * key_a, const void * key_b)

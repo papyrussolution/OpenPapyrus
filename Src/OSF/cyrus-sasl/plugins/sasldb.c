@@ -43,7 +43,7 @@
 #include "plugin_common.h"
 
 static int sasldb_auxprop_lookup(void * glob_context __attribute__((unused)), sasl_server_params_t * sparams,
-    unsigned flags, const char * user, unsigned ulen)
+    uint flags, const char * user, uint ulen)
 {
 	char * userid = NULL;
 	char * realm = NULL;
@@ -134,7 +134,7 @@ static int sasldb_auxprop_lookup(void * glob_context __attribute__((unused)), sa
 		}
 
 		sparams->utils->prop_set(sparams->propctx, cur->name,
-		    value, (unsigned)value_len);
+		    value, (uint)value_len);
 	}
 
 	/* [Keep in sync with LDAPDB, SQL]
@@ -180,7 +180,7 @@ static int sasldb_auxprop_store(void * glob_context __attribute__((unused)),
     sasl_server_params_t * sparams,
     struct propctx * ctx,
     const char * user,
-    unsigned ulen)
+    uint ulen)
 {
 	char * userid = NULL;
 	char * realm = NULL;

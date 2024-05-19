@@ -248,7 +248,7 @@ cairo_private cairo_status_t FASTCALL _cairo_user_data_array_set_data(cairo_user
 cairo_private cairo_status_t _cairo_user_data_array_copy(cairo_user_data_array_t * dst, const cairo_user_data_array_t * src);
 cairo_private void _cairo_user_data_array_foreach(cairo_user_data_array_t * array, void (*func)(const void * key, void * elt, void * closure), void * closure);
 
-#define _CAIRO_HASH_INIT_VALUE 5381
+// @v12.0.2 (replaced with SlConst::DjbHashInit32) #define _CAIRO_HASH_INIT_VALUE 5381
 
 cairo_private ulong FASTCALL _cairo_hash_string(const char * c);
 cairo_private ulong FASTCALL _cairo_hash_bytes(ulong hash, const void * bytes, uint length);

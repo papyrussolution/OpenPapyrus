@@ -265,7 +265,7 @@ static void fz_append_display_node(fz_context * ctx,
 			    else
 				    rect = &fz_infinite_rect;
 		    }
-		/* fallthrough */
+		// @fallthrough
 		default:
 		    if(writer->top > 0 && writer->tiled == 0 && writer->top <= STACK_SIZE && rect)
 			    writer->stack[writer->top-1].rect = fz_union_rect(writer->stack[writer->top-1].rect, *rect);

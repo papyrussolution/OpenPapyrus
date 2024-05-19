@@ -109,22 +109,14 @@ void ma_hash_result(MA_HASH_CTX * ctx, uchar * digest);
 static inline size_t ma_hash_digest_size(uint hash_alg)
 {
 	switch(hash_alg) {
-		case MA_HASH_MD5:
-		    return MA_MD5_HASH_SIZE;
-		case MA_HASH_SHA1:
-		    return MA_SHA1_HASH_SIZE;
-		case MA_HASH_SHA224:
-		    return MA_SHA224_HASH_SIZE;
-		case MA_HASH_SHA256:
-		    return MA_SHA256_HASH_SIZE;
-		case MA_HASH_SHA384:
-		    return MA_SHA384_HASH_SIZE;
-		case MA_HASH_SHA512:
-		    return MA_SHA512_HASH_SIZE;
-		case MA_HASH_RIPEMD160:
-		    return MA_RIPEMD160_HASH_SIZE;
-		default:
-		    return 0;
+		case MA_HASH_MD5: return MA_MD5_HASH_SIZE;
+		case MA_HASH_SHA1: return MA_SHA1_HASH_SIZE;
+		case MA_HASH_SHA224: return MA_SHA224_HASH_SIZE;
+		case MA_HASH_SHA256: return MA_SHA256_HASH_SIZE;
+		case MA_HASH_SHA384: return MA_SHA384_HASH_SIZE;
+		case MA_HASH_SHA512: return MA_SHA512_HASH_SIZE;
+		case MA_HASH_RIPEMD160: return MA_RIPEMD160_HASH_SIZE;
+		default: return 0;
 	}
 }
 

@@ -366,7 +366,7 @@ static void walk_splay(cmap_splay * tree, uint node, void (*fn)(cmap_splay *, vo
 				    from = TOP;
 				    break;
 			    }
-			/* fallthrough */
+			// @fallthrough
 			case LEFT:
 			    fn(&tree[node], arg);
 			    if(tree[node].right != EMPTY) {
@@ -374,7 +374,7 @@ static void walk_splay(cmap_splay * tree, uint node, void (*fn)(cmap_splay *, vo
 				    from = TOP;
 				    break;
 			    }
-			/* fallthrough */
+			// @fallthrough
 			case RIGHT:
 		    {
 			    uint parent = tree[node].parent;

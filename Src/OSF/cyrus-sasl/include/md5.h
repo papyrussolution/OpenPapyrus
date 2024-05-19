@@ -28,7 +28,7 @@
 typedef struct {
 	UINT4 state[4]; // state (ABCD) 
 	UINT4 count[2]; // number of bits, modulo 2^64 (lsb first) 
-	unsigned char buffer[64]; // input buffer 
+	uchar buffer[64]; // input buffer 
 } Cyrus_MD5_CTX;
 
 #ifdef __cplusplus
@@ -36,8 +36,8 @@ extern "C" {
 #endif
 
 void _sasl_MD5Init(Cyrus_MD5_CTX *);
-void _sasl_MD5Update(Cyrus_MD5_CTX *, const unsigned char *, unsigned int);
-void _sasl_MD5Final(unsigned char [16], Cyrus_MD5_CTX *);
+void _sasl_MD5Update(Cyrus_MD5_CTX *, const uchar *, unsigned int);
+void _sasl_MD5Final(uchar [16], Cyrus_MD5_CTX *);
 
 #ifdef __cplusplus
 }

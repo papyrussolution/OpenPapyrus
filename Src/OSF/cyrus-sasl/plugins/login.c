@@ -85,7 +85,7 @@ static int login_server_mech_step(void * conn_context, sasl_server_params_t * pa
 		    if(clientinlen == 0) {
 			    /* demand username */
 
-			    *serveroutlen = (unsigned)strlen(USERNAME_CHALLENGE);
+			    *serveroutlen = (uint)strlen(USERNAME_CHALLENGE);
 			    *serverout = USERNAME_CHALLENGE;
 
 			    return SASL_CONTINUE;
@@ -109,7 +109,7 @@ static int login_server_mech_step(void * conn_context, sasl_server_params_t * pa
 		    text->username_len = clientinlen;
 		    text->username[clientinlen] = '\0';
 		    /* demand password */
-		    *serveroutlen = (unsigned)strlen(PASSWORD_CHALLENGE);
+		    *serveroutlen = (uint)strlen(PASSWORD_CHALLENGE);
 		    *serverout = PASSWORD_CHALLENGE;
 		    text->state = 3;
 		    return SASL_CONTINUE;

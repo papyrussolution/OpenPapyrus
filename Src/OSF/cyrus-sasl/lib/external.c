@@ -43,74 +43,45 @@
 
 /*****************************  Server Section  *****************************/
 
-static int external_server_mech_new(void * glob_context __attribute__((unused)),
-    sasl_server_params_t * sparams,
-    const char * challenge __attribute__((unused)),
-    unsigned challen __attribute__((unused)),
-    void ** conn_context)
+static int external_server_mech_new(void * glob_context __attribute__((unused)), sasl_server_params_t * sparams,
+    const char * challenge __attribute__((unused)), unsigned challen __attribute__((unused)), void ** conn_context)
 {
-	if(!conn_context
-	    || !sparams
-	    || !sparams->utils
-	    || !sparams->utils->conn)
+	if(!conn_context || !sparams || !sparams->utils || !sparams->utils->conn)
 		return SASL_BADPARAM;
-
 	if(!sparams->utils->conn->external.auth_id)
 		return SASL_NOMECH;
-
 	*conn_context = NULL;
-
 	return SASL_OK;
 }
 
-static int external_server_mech_step(void * conn_context __attribute__((unused)),
-    sasl_server_params_t * sparams,
-    const char * clientin,
-    unsigned clientinlen,
-    const char ** serverout,
-    unsigned * serveroutlen,
-    sasl_out_params_t * oparams)
+static int external_server_mech_step(void * conn_context __attribute__((unused)), sasl_server_params_t * sparams,
+    const char * clientin, unsigned clientinlen, const char ** serverout, unsigned * serveroutlen, sasl_out_params_t * oparams)
 {
 	int result;
-
-	if(!sparams
-	    || !sparams->utils
-	    || !sparams->utils->conn
-	    || !sparams->utils->getcallback
-	    || !serverout
-	    || !serveroutlen
-	    || !oparams)
+	if(!sparams || !sparams->utils || !sparams->utils->conn || !sparams->utils->getcallback || !serverout || !serveroutlen || !oparams)
 		return SASL_BADPARAM;
-
 	if(!sparams->utils->conn->external.auth_id)
 		return SASL_BADPROT;
-
 	/* xxx arbitrary limit here */
-	if(clientinlen > 16384) return SASL_BADPROT;
-
+	if(clientinlen > 16384) 
+		return SASL_BADPROT;
 	if((sparams->props.security_flags & SASL_SEC_NOANONYMOUS) &&
 	    (!strcmp(sparams->utils->conn->external.auth_id, "anonymous"))) {
 		sasl_seterror(sparams->utils->conn, 0, "anonymous login not allowed");
 		return SASL_NOAUTHZ;
 	}
-
 	*serverout = NULL;
 	*serveroutlen = 0;
-
 	if(!clientin) {
 		/* No initial data; we're in a protocol which doesn't support it.
 		 * So we let the server app know that we need some... */
 		return SASL_CONTINUE;
 	}
-
 	if(clientinlen) {       /* if we have a non-zero authorization id */
 		/* The user's trying to authorize as someone they didn't
 		 * authenticate as */
-		result = sparams->canon_user(sparams->utils->conn,
-			clientin, 0,
-			SASL_CU_AUTHZID, oparams);
+		result = sparams->canon_user(sparams->utils->conn, clientin, 0, SASL_CU_AUTHZID, oparams);
 		if(result != SASL_OK) return result;
-
 		result = sparams->canon_user(sparams->utils->conn,
 			sparams->utils->conn->external.auth_id, 0,
 			SASL_CU_AUTHID | SASL_CU_EXTERNALLY_VERIFIED, oparams);
@@ -268,12 +239,10 @@ static int external_client_mech_step(void * conn_context, sasl_client_params_t *
 		return SASL_INTERACT;
 	}
 
-	*clientoutlen = user ? (unsigned)strlen(user) : 0;
+	*clientoutlen = user ? (uint)strlen(user) : 0;
 
 	result = _buf_alloc(&text->out_buf, &text->out_buf_len, *clientoutlen + 1);
-
 	if(result != SASL_OK) return result;
-
 	if(user && *user) {
 		result = params->canon_user(params->utils->conn,
 			user, 0, SASL_CU_AUTHZID, oparams);
@@ -306,19 +275,14 @@ static int external_client_mech_step(void * conn_context, sasl_client_params_t *
 	oparams->decode_context = NULL;
 	oparams->decode = NULL;
 	oparams->param_version = 0;
-
 	return SASL_OK;
 }
 
-static void external_client_mech_dispose(void * conn_context,
-    const sasl_utils_t * utils __attribute__((unused)))
+static void external_client_mech_dispose(void * conn_context, const sasl_utils_t * utils __attribute__((unused)))
 {
 	client_context_t * text = (client_context_t*)conn_context;
-
 	if(!text) return;
-
 	if(text->out_buf) sasl_FREE(text->out_buf);
-
 	sasl_FREE(text);
 }
 
@@ -348,23 +312,16 @@ static sasl_client_plug_t external_client_plugins[] =
 	}
 };
 
-int external_client_plug_init(const sasl_utils_t * utils,
-    int max_version,
-    int * out_version,
-    sasl_client_plug_t ** pluglist,
-    int * plugcount)
+int external_client_plug_init(const sasl_utils_t * utils, int max_version, int * out_version, sasl_client_plug_t ** pluglist, int * plugcount)
 {
 	if(!utils || !out_version || !pluglist || !plugcount)
 		return SASL_BADPARAM;
-
 	if(max_version != SASL_CLIENT_PLUG_VERSION) {
 		SETERROR(utils, "EXTERNAL version mismatch");
 		return SASL_BADVERS;
 	}
-
 	*out_version = SASL_CLIENT_PLUG_VERSION;
 	*pluglist = external_client_plugins;
 	*plugcount = 1;
-
 	return SASL_OK;
 }

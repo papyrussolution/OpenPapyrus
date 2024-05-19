@@ -3477,8 +3477,15 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 					THROW_SL(p_js_param = SJson::Parse(temp_buf));
 					THROW(_blk.FromJsonObj(p_js_param));
 					_blk.Name.Transf(CTRANSF_UTF8_TO_INNER);
+					THROW(P_WsCtlBlk->RegisterComputer(_blk));
+					_blk.Name.Transf(CTRANSF_INNER_TO_UTF8);
 					{
-						THROW(P_WsCtlBlk->RegisterComputer(_blk));
+						SJson * p_js_reply = _blk.ToJsonObj(true);
+						THROW(p_js_reply);
+						p_js_reply->ToStr(temp_buf);
+						ZDELETE(p_js_reply);
+						rReply.SetString(temp_buf);
+						ok = cmdretOK;
 					}
 				}
 			}
@@ -5423,7 +5430,7 @@ int run_service()
 				SLS.LogMessage(0, "SetServiceStatus error");
 			return result;
 		}
-		static VOID WINAPI ServiceCtrl(DWORD dwCtrlCode)
+		static void WINAPI ServiceCtrl(DWORD dwCtrlCode)
 		{
 			switch(dwCtrlCode) {
 				case SERVICE_CONTROL_SHUTDOWN:

@@ -208,7 +208,7 @@ typedef struct sasl_conn sasl_conn_t;
  */
 typedef struct sasl_secret {
 	unsigned long len;
-	unsigned char data[1]; /* variable sized */
+	uchar data[1]; /* variable sized */
 } sasl_secret_t;
 
 /* random data context structure
@@ -599,7 +599,7 @@ typedef int sasl_server_userdb_setpass_t (sasl_conn_t * conn,
     const char * pass,
     unsigned passlen,
     struct propctx * propctx,
-    unsigned flags);
+    uint flags);
 #define SASL_CB_SERVER_USERDB_SETPASS (0x8006)
 
 /* callback for a server-supplied user canonicalization function.
@@ -632,21 +632,14 @@ typedef int sasl_server_userdb_setpass_t (sasl_conn_t * conn,
 /* Combine the following with SASL_CU_AUTHID, if you don't want
    to fail if auxprop returned SASL_NOUSER/SASL_NOMECH. */
 #define SASL_CU_EXTERNALLY_VERIFIED 0x04
-
 #define SASL_CU_OVERRIDE            0x08    /* mapped to SASL_AUXPROP_OVERRIDE */
-
 /* The following CU flags are passed "as is" down to auxprop lookup */
 #define SASL_CU_ASIS_MASK           0xFFF0
 /* NOTE: Keep in sync with SASL_AUXPROP_<XXX> flags */
 #define SASL_CU_VERIFY_AGAINST_HASH 0x10
 
-typedef int sasl_canon_user_t (sasl_conn_t * conn,
-    void * context,
-    const char * in, unsigned inlen,
-    unsigned flags,
-    const char * user_realm,
-    char * out,
-    unsigned out_max, unsigned * out_len);
+typedef int sasl_canon_user_t (sasl_conn_t * conn, void * context, const char * in, uint inlen,
+    uint flags, const char * user_realm, char * out, unsigned out_max, unsigned * out_len);
 
 #define SASL_CB_CANON_USER (0x8007)
 
@@ -752,7 +745,7 @@ LIBSASL_API const char * sasl_errdetail(sasl_conn_t * conn);
  *
  * if conn is NULL, function does nothing
  */
-LIBSASL_API void sasl_seterror(sasl_conn_t * conn, unsigned flags,
+LIBSASL_API void sasl_seterror(sasl_conn_t * conn, uint flags,
     const char * fmt, ...);
 #define SASL_NOLOG       0x01
 
@@ -821,7 +814,7 @@ typedef struct sasl_channel_binding {
 	const char * name;
 	int critical;
 	unsigned long len;
-	const unsigned char * data;
+	const uchar * data;
 } sasl_channel_binding_t;
 
 #define SASL_CHANNEL_BINDING    21
@@ -830,7 +823,7 @@ typedef struct sasl_channel_binding {
 typedef struct sasl_http_request {
 	const char * method;            /* HTTP Method */
 	const char * uri;               /* request-URI */
-	const unsigned char * entity;   /* entity-body */
+	const uchar * entity;   /* entity-body */
 	unsigned long elen;             /* entity-body length */
 	unsigned non_persist;           /* Is it a non-persistent connection? */
 } sasl_http_request_t;
@@ -911,7 +904,7 @@ LIBSASL_API int sasl_client_init(const sasl_callback_t * callbacks);
  *  SASL_NOMEM    -- not enough memory
  */
 LIBSASL_API int sasl_client_new(const char * service, const char * serverFQDN, const char * iplocalport, const char * ipremoteport,
-    const sasl_callback_t * prompt_supp, unsigned flags, sasl_conn_t ** pconn);
+    const sasl_callback_t * prompt_supp, uint flags, sasl_conn_t ** pconn);
 
 /* select a mechanism for a connection
  *  mechlist      -- mechanisms server has available (punctuation ignored)
@@ -1014,7 +1007,7 @@ LIBSASL_API int sasl_server_new(const char * service,
     const char * iplocalport,
     const char * ipremoteport,
     const sasl_callback_t * callbacks,
-    unsigned flags,
+    uint flags,
     sasl_conn_t ** pconn);
 
 /* Return an array of NUL-terminated strings, terminated by a NULL pointer,
@@ -1175,7 +1168,7 @@ LIBSASL_API int sasl_setpass(sasl_conn_t * conn,
     const char * user,
     const char * pass, unsigned passlen,
     const char * oldpass, unsigned oldpasslen,
-    unsigned flags);
+    uint flags);
 #define SASL_SET_CREATE  0x01   /* create a new entry for user */
 #define SASL_SET_DISABLE 0x02   /* disable user account */
 #define SASL_SET_NOPLAIN 0x04   /* do not store secret in plain text */

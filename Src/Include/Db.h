@@ -4589,10 +4589,11 @@ private:
 };
 //
 // @v12.0.1 @experimental {
+// Менеджер записей как база для собственной DBMS (мечта детства). В практической плоскости
+// я намерен использовать этот модуль пока ситуативно.
 //
 struct SDataPageHeader {
 	static constexpr uint32 SignatureValue = 0x76AE0000U;
-	static constexpr uint32 EndSentinelSize() { return 0U; }
 	//
 	// Descr: Типы страниц
 	//
@@ -4612,25 +4613,76 @@ struct SDataPageHeader {
 		fEmpty = 0x0002
 	};
 	struct RecPrefix {
-		static constexpr uint8 Signature = 0x9A;
+		static constexpr uint8 Signature_Used = 0x9A; // Сигнатура записи занятого блока
+		static constexpr uint8 Signature_Free = 0xA9; // Сигнатура свободного участка страницы
+		static constexpr uint8 Signature_End1 = 0xAA; // Сигнатура свободного участка завершающегося этим сигнатурным байтом
+		static constexpr uint8 Signature_End2 = 0xAB; // Сигнатура свободного участка длиной 2 байта (включая эту сигнатуру)
+		static constexpr uint8 Signature_End3 = 0xAC; // Сигнатура свободного участка длиной 3 байта (включая эту сигнатуру)
+		//
+		// Descr: Флаги префикса блока. Значения начинаются с 0x04 поскольку младшие 2 бита
+		//   используются как индикатор длины поля payload-размера блока.
+		//
 		enum {
 			fDeleted = 0x04
 		};
-		uint32 Size;
-		uint   Flags;
+		RecPrefix() : PayloadSize(0), Flags(0), TotalSize(0)
+		{
+		}
+		void    SetPayload(uint size, uint flags)
+		{
+			PayloadSize = size;
+			TotalSize = 0;
+			Flags = flags;
+		}
+		void    SetTotalSize(uint totalSize, uint flags)
+		{
+			//assert(oneof3(padding, 1, 2, 3));
+			PayloadSize = 0;
+			Flags = flags;
+			if(totalSize >= 1 && totalSize <= 3) {
+				Flags |= fDeleted; // Ошметки 1..3 байта безусловно трактуем как неиспользуемые блоки
+			}
+			TotalSize = totalSize;
+		}
+		uint32 PayloadSize;
+		uint   Flags; // Младшие 2 бита поля Flags используются как индикатор длины поля размера блока.
+			// b00 - 4bytes, b01 - 1byte, b10 - 2bytes, b11 - 3bytes
+		//uint   Padding; // 1 || 2 || 3 // Если блок является остаточным "ошметком", находящимся между другими блоками
+			// или же в конце страницы, то он маркируется специальным образом.
+		uint   TotalSize; // Общий размер блока, включая префикс. При вызове функции EvaluateRecPrefix
+			// должен быть задан ненулевым только один из факторов: PayloadSize || TotalSize, поскольку в противном
+			// случае может возникнуть неоднозначность.
 	};
 	uint   GetFreeSizeFromPos(uint pos) const;
 	uint   GetFreeSize() const;
 	bool   IsValid() const;
 	uint32 ReadRecPrefix(uint pos, RecPrefix & rPfx) const;
-	static uint32 EvaluateRecPrefix(const RecPrefix & rPfx, uint8 * pPfxBuf, uint8 * pFlags);
-	uint32 WriteRecPrefix(uint offset, const RecPrefix & rPfx);
+	//
+	// Descr: Вычисляет префикс блока, определяемого параметром rPfx. Поле rPfx.Size
+	//   задает payload-размер блока (без учета префикса).
+	//   Если аргумент pPfxBuf != 0, то заносит бинарное представление префикса блока по этому адресу.
+	//   Если аргумент pFlags != 0, то по этому адресу присваиваются значения битовых флагов префикса.
+	//   Вызывающая функция должна определить одно и только одно из двух полей RecPrefix: TotalSize или PayloadSize.
+	//   Если определено TotalSize, то функция вычислит PayloadSize и установит его на выходе.
+	//   И наоборот, если определено PayloadSize, то функция вычислит TotalSize и установит его на выходе.
+	//   
+	// Returns:
+	//   0 - error
+	//  !0 - размер префикса
+	//
+	static uint32 EvaluateRecPrefix(RecPrefix & rPfx, uint8 * pPfxBuf, uint8 * pFlags);
+	//
+	// Descr: Служебная функция, записывающая префикс блока по смещению offset.
+	//   Аргумент rPfx должен определить либо TotalSize, либо PayloadSize, но не
+	//   то и другое одновременно (see EvaluateRecPrefix).
+	//
+	uint32 WriteRecPrefix(uint offset, RecPrefix & rPfx);
 	//
 	// Returns:
 	//   0 - error
 	//   !0 - значение rowid внесенной записи
 	//
-	uint64 Write(const void * pData, uint dataLen);
+	uint64 Write(uint offset, const void * pData, uint dataLen);
 	//
 	// Returns:
 	//   0 - error
@@ -4638,7 +4690,25 @@ struct SDataPageHeader {
 	//
 	uint   Read(uint offset, void * pBuf, size_t bufSize);
 	const  void * Enum(uint * pPos, uint * pSize) const;
+	uint   MarkOutBlock(uint offset, uint size);
 	static SDataPageHeader * Allocate(uint32 type, uint32 seq, uint totalSize);
+	//
+	// Descr: Проверяет валидность пары {offset; size} как блока страницы.
+	//   Пара считается валидной если (offset+size) не выходит за пределы
+	//   страницы и, если блок не является последним на странице, то
+	//   следующий байт - допустимая сигнатура блока (RecPrefix::Signature_XXX).
+	// Returns:
+	//   0 - пара {offset; size} не валидна
+	//   _FFFF32 - блок, определяемый парой, завершает страницу
+	//   иное значение - сигнатура следующего блока.
+	//
+	uint   VerifyBlock(uint offset, uint size) const;
+	//
+	// Descr: То же, что и VerifyBlock(uint offset, uint size) const, но для случая, когда размер 
+	//   блока не известен. Функция проверяет чтобы смещение находилось в начале блока,
+	//   определяет размер этого блока и возвращает сигнатуру следующего блока.
+	//
+	uint   VerifyBlock(uint offset, uint * pSize) const;
 
 	uint32 Signature;
 	uint32 Type;         // Тип страницы
@@ -4649,16 +4719,16 @@ struct SDataPageHeader {
 	uint16 Flags;
 	uint16 FixedChunkSize; // Если GetType() == tFixedChunkPool, то >0 иначе - 0.
 	uint32 TotalSize;    // Общий размер страницы вместе с этим заголовком и sentinel'ами (если есть такие)
-	uint32 FreePos;      // Смещение, с которого начинается свободное пространство. Свободный размер = (TotalSize-FreePos-EndSentinelSize)
+	uint32 FreePos;      // Смещение, с которого начинается свободное пространство. Свободный размер = (TotalSize-FreePos)
 };
 
 class SRecPageFreeList {
 public:
 	struct FreeEntry {
-		FreeEntry() : Seq(0), FreeSize(0)
+		FreeEntry() : RowId(0ULL), FreeSize(0)
 		{
 		}
-		uint32 Seq;
+		uint64 RowId;
 		uint32 FreeSize;
 	};
 private:
@@ -4669,7 +4739,7 @@ private:
 		}
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 		uint32 GetType() const { return Type; }
-		int    Put(uint32 seq, uint32 freeSize);
+		int    Put(uint64 rowId, uint32 freeSize);
 		const  FreeEntry * Get(uint32 reqSize) const;
 	private:
 		const uint32 Type; 
@@ -4692,7 +4762,12 @@ public:
 	SRecPageManager(uint32 pageSize);
 	~SRecPageManager();
 	int    Write(uint64 * pRowId, uint pageType, const void * pData, size_t dataLen);
-	int    Read(uint64 rowId, void * pBuf, size_t bufSize);
+	//
+	// Returns:
+	//   0 - error
+	//  !0 - actual size of the read data
+	//
+	uint   Read(uint64 rowId, void * pBuf, size_t bufSize);
 private:
 	SDataPageHeader * GetPage(uint32 seq);
 	SDataPageHeader * AllocatePage(uint32 type);

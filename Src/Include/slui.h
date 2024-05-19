@@ -6374,9 +6374,9 @@ public:
 	enum {
 		hdrUnknown, hdr16, hdr32
 	};
-	TVRez(const char * fName, int useIndex = 0);
+	TVRez(const char * pFileName, bool useIndex = false);
 	~TVRez();
-	int    open(const char *, int useIndex = 0);
+	int    open(const char * pFileName, bool useIndex = false);
 	int    setHdrType();
 	int    buildIndex();
 	int    getChar();
@@ -6391,15 +6391,17 @@ public:
 	int    getSizeField(long *);
 	long   getStreamPos();
 	int    enumResources(uint rscType, uint * rscID, ulong * dwPos);
-	FILE * getStream() const { return Stream; }
+	//FILE * getStream() const { return Stream; }
 	int    CheckDialogs(const char * pLogFileName); // @debug
+	bool   Seek(long offs, int origin/*SEEK_SET || SEEK_CUR || SEEK_END*/);
 
 	int    error;
 private:
 	int    _readHeader16(ulong ofs, WResHeaderInfo * hdr, ResPosition);
 	int    _readHeader32(ulong ofs, WResHeaderInfo * hdr, ResPosition);
-	SString FileName;
-	FILE   * Stream;
+	SFile  F;
+	//SString FileName;
+	//FILE   * Stream;
 	SVector * P_Index;
 	int      HeaderType;
 };

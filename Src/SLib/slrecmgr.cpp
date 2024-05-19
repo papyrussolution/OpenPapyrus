@@ -66,12 +66,11 @@ int SRecPageManager::Write(uint64 * pRowId, uint pageType, const void * pData, s
 {
 	int    ok = 1;
 	SDataPageHeader::RecPrefix pfx;
-	pfx.Size = dataLen;
-	pfx.Flags = 0;
+	pfx.SetPayload(dataLen, 0);
 	const uint pfx_size = SDataPageHeader::EvaluateRecPrefix(pfx, 0, 0);
 	SDataPageHeader * p_page = QueryPageForWriting(pageType, dataLen + pfx_size);
 	if(p_page) {
-		uint64 rowid = p_page->Write(pData, dataLen);
+		uint64 rowid = p_page->Write(p_page->FreePos, pData, dataLen);
 		if(rowid) {
 			Fl.Put(pageType, p_page->Seq, p_page->GetFreeSize());
 			ASSIGN_PTR(pRowId, rowid);
@@ -82,15 +81,15 @@ int SRecPageManager::Write(uint64 * pRowId, uint pageType, const void * pData, s
 	return ok;
 }
 
-int SRecPageManager::Read(uint64 rowId, void * pBuf, size_t bufSize)
+uint SRecPageManager::Read(uint64 rowId, void * pBuf, size_t bufSize)
 {
-	int    ok = 1;
 	uint   ofs = 0;
+	uint   actual_size = 0;
 	SDataPageHeader * p_page = QueryPageForReading(rowId, 0/*pageType*/, &ofs);
 	if(p_page) {
-		
+		actual_size = p_page->Read(ofs, pBuf, bufSize);
 	}
-	return ok;
+	return actual_size;
 }
 
 SDataPageHeader * SRecPageManager::GetPage(uint32 seq)
@@ -123,10 +122,14 @@ SDataPageHeader * SRecPageManager::QueryPageForWriting(uint32 pageType, uint32 r
 		SDataPageHeader * p_new_page = AllocatePage(pageType);
 		if(p_new_page) {
 			p_free_entry = Fl.Get(pageType, reqSize);
-			assert(p_free_entry->Seq == p_new_page->Seq);
+			//assert(p_free_entry->Seq == p_new_page->Seq);
 		}
 	}
-	p_result = p_free_entry ? GetPage(p_free_entry->Seq) : 0;
+	uint   seq = 0;
+	uint   ofs = 0;
+	if(p_free_entry && SRecPageManager::SplitRowId(p_free_entry->RowId, PageSize, &seq, &ofs)) {
+		p_result = GetPage(seq);
+	}
 	return p_result;
 }
 
@@ -161,12 +164,12 @@ SDataPageHeader * SRecPageManager::QueryPageForReading(uint64 rowId, uint32 page
 //
 uint SDataPageHeader::GetFreeSizeFromPos(uint pos) const 
 { 
-	return (pos <= (TotalSize - EndSentinelSize())) ? (TotalSize - EndSentinelSize() - pos) : 0;
+	return (pos <= TotalSize) ? (TotalSize - pos) : 0;
 }
 	
 uint SDataPageHeader::GetFreeSize() const 
 { 
-	assert(FreePos <= (TotalSize - EndSentinelSize()));
+	assert(FreePos <= TotalSize);
 	return GetFreeSizeFromPos(FreePos);
 }
 
@@ -179,25 +182,49 @@ bool SDataPageHeader::IsValid() const
 uint32 SDataPageHeader::ReadRecPrefix(uint pos, RecPrefix & rPfx) const
 {
 	uint32 pfx_size = 0;
-	THROW(PTR8C(this+1)[pos] == RecPrefix::Signature);
-	pfx_size = 2;
-	rPfx.Flags = PTR8C(this+1)[pos+1];
-	if((rPfx.Flags & 0x3) == 0) {
-		pfx_size += sizeof(uint32);
-		rPfx.Size = *reinterpret_cast<const uint32 *>(PTR8C(this+1)+2);
+	const uint8 * ptr = PTR8C(this)+pos;
+	if(ptr[0] == RecPrefix::Signature_End1) {
+		pfx_size = 1;
+		rPfx.Flags |= RecPrefix::fDeleted;
+		rPfx.TotalSize = 1;
+		rPfx.PayloadSize = 0;
 	}
-	else if((rPfx.Flags & 0x3) == 3) {
-		pfx_size += 3;
-		rPfx.Size = *reinterpret_cast<const uint32 *>(PTR8C(this+1)+2);
-		THROW(rPfx.Size < (1 << 24));
+	else if(ptr[0] == RecPrefix::Signature_End2) {
+		pfx_size = 2;
+		rPfx.Flags |= RecPrefix::fDeleted;
+		rPfx.TotalSize = 2;
+		rPfx.PayloadSize = 0;
 	}
-	else if((rPfx.Flags & 0x3) == 2) {
-		pfx_size += 2;
-		rPfx.Size = *reinterpret_cast<const uint16 *>(PTR8C(this+1)+2);
+	else if(ptr[0] == RecPrefix::Signature_End3) {
+		pfx_size = 3;
+		rPfx.Flags |= RecPrefix::fDeleted;
+		rPfx.TotalSize = 3;
+		rPfx.PayloadSize = 0;
 	}
-	else if((rPfx.Flags & 0x3) == 1) {
-		pfx_size += 1;
-		rPfx.Size = *reinterpret_cast<const uint8 *>(PTR8C(this+1)+2);
+	else if(oneof2(ptr[0], RecPrefix::Signature_Used, RecPrefix::Signature_Free)) {
+		pfx_size = 2;
+		rPfx.Flags = ptr[1];
+		if((rPfx.Flags & 0x3) == 0) {
+			pfx_size += sizeof(uint32);
+			rPfx.PayloadSize = *reinterpret_cast<const uint32 *>(ptr+2);
+			rPfx.TotalSize = rPfx.PayloadSize + pfx_size;
+		}
+		else if((rPfx.Flags & 0x3) == 3) {
+			pfx_size += 3;
+			rPfx.PayloadSize = *reinterpret_cast<const uint32 *>(ptr+2);
+			THROW(rPfx.PayloadSize < (1 << 24));
+			rPfx.TotalSize = rPfx.PayloadSize + pfx_size;
+		}
+		else if((rPfx.Flags & 0x3) == 2) {
+			pfx_size += 2;
+			rPfx.PayloadSize = *reinterpret_cast<const uint16 *>(ptr+2);
+			rPfx.TotalSize = rPfx.PayloadSize + pfx_size;
+		}
+		else if((rPfx.Flags & 0x3) == 1) {
+			pfx_size += 1;
+			rPfx.PayloadSize = *reinterpret_cast<const uint8 *>(ptr+2);
+			rPfx.TotalSize = rPfx.PayloadSize + pfx_size;
+		}
 	}
 	CATCH
 		pfx_size = 0;
@@ -205,52 +232,155 @@ uint32 SDataPageHeader::ReadRecPrefix(uint pos, RecPrefix & rPfx) const
 	return pfx_size;
 }
 
-/*static*/uint32 SDataPageHeader::EvaluateRecPrefix(const RecPrefix & rPfx, uint8 * pPfxBuf, uint8 * pFlags)
+/*static*/uint32 SDataPageHeader::EvaluateRecPrefix(RecPrefix & rPfx, uint8 * pPfxBuf, uint8 * pFlags)
 {
 	uint  pfx_size = 0;
 	uint8 flags = 0;
-	pfx_size = 2; // signature + flags
-	if(rPfx.Size < (1U << 8)) {
-		if(pPfxBuf)
-			*reinterpret_cast<uint8 *>(pPfxBuf+2) = static_cast<uint8>(rPfx.Size);
-		pfx_size += 1; 
-		flags = 0x01;
-	}
-	else if(rPfx.Size < (1U << 16)) {
-		if(pPfxBuf)
-			*reinterpret_cast<uint16 *>(pPfxBuf+2) = static_cast<uint16>(rPfx.Size);
-		pfx_size += 2;
-		flags = 0x02;
-	}
-	else if(rPfx.Size < (1 << 24)) {
-		if(pPfxBuf) {
-			*reinterpret_cast<uint32 *>(pPfxBuf+2) = static_cast<uint32>(rPfx.Size);
-			assert(pPfxBuf[5] == 0);
+	uint8 signature = 0;
+	if(rPfx.PayloadSize == 0) {
+		//
+		// Этот блок обрабатывает случай, когда известен rPfx.TotalSize но не определен rPfx.PayloadSize
+		//
+		uint   payload_size = 0;
+		if(rPfx.TotalSize == 1) {
+			signature = RecPrefix::Signature_End1;
+			pfx_size = 1;
+			if(pPfxBuf) {
+				pPfxBuf[0] = signature;
+			}
 		}
-		pfx_size += 3;
-		flags = 0x03;
+		else if(rPfx.TotalSize == 2) {
+			signature = RecPrefix::Signature_End2;
+			pfx_size = 2;
+			if(pPfxBuf) {
+				pPfxBuf[0] = signature;
+				pPfxBuf[1] = RecPrefix::fDeleted;
+			}
+		}
+		else if(rPfx.TotalSize == 3) {
+			signature = RecPrefix::Signature_End3;
+			pfx_size = 2;
+			if(pPfxBuf) {
+				pPfxBuf[0] = signature;
+				pPfxBuf[1] = RecPrefix::fDeleted;
+			}
+		}
+		else {
+			signature = (rPfx.Flags & RecPrefix::fDeleted) ? RecPrefix::Signature_Free : RecPrefix::Signature_Used;
+			if(rPfx.TotalSize < ((1U << 8) - 3)) {
+				pfx_size = 3;
+				flags = 0x01;
+				if(rPfx.Flags & RecPrefix::fDeleted)
+					flags |= RecPrefix::fDeleted;
+				payload_size = rPfx.TotalSize - pfx_size;
+				if(pPfxBuf) {
+					pPfxBuf[0] = signature;
+					pPfxBuf[1] = flags;
+					pPfxBuf[2] = static_cast<uint8>(payload_size);
+				}
+			}
+			else if(rPfx.PayloadSize < ((1U << 16) - 4)) {
+				pfx_size = 4;
+				flags = 0x02;
+				payload_size = rPfx.TotalSize - pfx_size;
+				if(rPfx.Flags & RecPrefix::fDeleted)
+					flags |= RecPrefix::fDeleted;
+				if(pPfxBuf) {
+					pPfxBuf[0] = signature;
+					pPfxBuf[1] = flags;
+					*reinterpret_cast<uint16 *>(pPfxBuf+2) = static_cast<uint16>(payload_size);
+				}
+			}
+			else if(rPfx.TotalSize < ((1 << 24) - 5)) {
+				pfx_size = 5;
+				flags = 0x03;
+				payload_size = rPfx.TotalSize - pfx_size;
+				if(rPfx.Flags & RecPrefix::fDeleted)
+					flags |= RecPrefix::fDeleted;
+				if(pPfxBuf) {
+					pPfxBuf[0] = signature;
+					pPfxBuf[1] = flags;
+					*reinterpret_cast<uint32 *>(pPfxBuf+2) = payload_size;
+					assert(pPfxBuf[5] == 0);
+				}
+			}
+			else {
+				pfx_size = 6;
+				flags = 0x00;
+				payload_size = rPfx.TotalSize - pfx_size;
+				if(rPfx.Flags & RecPrefix::fDeleted)
+					flags |= RecPrefix::fDeleted;
+				if(pPfxBuf) {
+					pPfxBuf[0] = signature;
+					pPfxBuf[1] = flags;
+					*reinterpret_cast<uint32 *>(pPfxBuf+2) = payload_size;
+				}
+			}
+		}
+		rPfx.PayloadSize = payload_size;
 	}
 	else {
-		if(pPfxBuf)
-			*reinterpret_cast<uint32 *>(pPfxBuf+2) = static_cast<uint32>(rPfx.Size);
-		pfx_size += 4;
-		flags = 0x00;
-	}
-	if(rPfx.Flags & RecPrefix::fDeleted)
-		flags |= RecPrefix::fDeleted;
-	if(pPfxBuf) {
-		pPfxBuf[0] = RecPrefix::Signature;
-		pPfxBuf[1] = flags;
+		//
+		// Этот блок обрабатывает случай, когда известен rPfx.PayloadSize но не определен rPfx.TotalSize
+		//
+		assert(rPfx.TotalSize == 0);
+		uint   total_size = 0;
+		pfx_size = 2; // signature + flags
+		signature = (rPfx.Flags & RecPrefix::fDeleted) ? RecPrefix::Signature_Free : RecPrefix::Signature_Used;
+		if(rPfx.PayloadSize < (1U << 8)) {
+			pfx_size += 1; 
+			flags = 0x01;
+			total_size = rPfx.PayloadSize + pfx_size;
+			if(pPfxBuf)
+				*reinterpret_cast<uint8 *>(pPfxBuf+2) = static_cast<uint8>(rPfx.PayloadSize);
+		}
+		else if(rPfx.PayloadSize < (1U << 16)) {
+			pfx_size += 2;
+			flags = 0x02;
+			total_size = rPfx.PayloadSize + pfx_size;
+			if(pPfxBuf)
+				*reinterpret_cast<uint16 *>(pPfxBuf+2) = static_cast<uint16>(rPfx.PayloadSize);
+		}
+		else if(rPfx.PayloadSize < (1 << 24)) {
+			pfx_size += 3;
+			flags = 0x03;
+			total_size = rPfx.PayloadSize + pfx_size;
+			if(pPfxBuf) {
+				*reinterpret_cast<uint32 *>(pPfxBuf+2) = static_cast<uint32>(rPfx.PayloadSize);
+				assert(pPfxBuf[5] == 0);
+			}
+		}
+		else {
+			pfx_size += 4;
+			flags = 0x00;
+			total_size = rPfx.PayloadSize + pfx_size;
+			if(pPfxBuf)
+				*reinterpret_cast<uint32 *>(pPfxBuf+2) = static_cast<uint32>(rPfx.PayloadSize);
+		}
+		rPfx.TotalSize = total_size;
+		if(rPfx.Flags & RecPrefix::fDeleted)
+			flags |= RecPrefix::fDeleted;
+		if(pPfxBuf) {
+			pPfxBuf[0] = signature;
+			if(pfx_size > 1)
+				pPfxBuf[1] = flags;
+		}
 	}
 	ASSIGN_PTR(pFlags, flags);
+	// Проверочные asserions для минимальной уверенности, что все сделано правильно
+	assert(rPfx.TotalSize > 0);
+	assert(rPfx.TotalSize > rPfx.PayloadSize);
+	assert(rPfx.TotalSize <= 3 || rPfx.PayloadSize > 0);
+	assert((rPfx.TotalSize - rPfx.PayloadSize) == pfx_size);
+	assert(rPfx.TotalSize > 3 || flags & RecPrefix::fDeleted);
 	return pfx_size;		
 }
 
-uint32 SDataPageHeader::WriteRecPrefix(uint offset, const RecPrefix & rPfx)
+uint32 SDataPageHeader::WriteRecPrefix(uint offset, RecPrefix & rPfx)
 {
 	uint8 pfx_buf[32];
 	const uint  pfx_size = EvaluateRecPrefix(rPfx, pfx_buf, 0);
-	if((rPfx.Size+pfx_size) <= GetFreeSize()) {
+	if((rPfx.PayloadSize+pfx_size) <= GetFreeSize()) {
 		memcpy(PTR8(this) + offset, pfx_buf, pfx_size);
 		return pfx_size;
 	}
@@ -258,25 +388,51 @@ uint32 SDataPageHeader::WriteRecPrefix(uint offset, const RecPrefix & rPfx)
 		return 0;
 }
 
-uint64 SDataPageHeader::Write(const void * pData, uint dataLen)
+uint64 SDataPageHeader::Write(uint offset, const void * pData, uint dataLen)
 {
 	uint64 rowid = 0;
-	RecPrefix rp;
-	rp.Size = dataLen;
-	rp.Flags = 0;
 	THROW(IsValid());
 	{
-		uint32 start_position = FreePos;
-		uint32 pfx_size = WriteRecPrefix(start_position, rp);
-		THROW(pfx_size);
-		memcpy(PTR8(this)+start_position+pfx_size, pData, dataLen);
-		FreePos += (pfx_size + dataLen);
-		rowid = SRecPageManager::MakeRowId(TotalSize, Seq, start_position);
+		RecPrefix ex_rp;
+		uint32 ex_pfx_size = ReadRecPrefix(offset, ex_rp); // offset validation
+		THROW(ex_pfx_size);
+		{
+			uint32 start_position = offset;
+			RecPrefix rp;
+			rp.SetPayload(dataLen, 0);
+			uint32 pfx_size = WriteRecPrefix(start_position, rp);
+			THROW(pfx_size);
+			memcpy(PTR8(this)+start_position+pfx_size, pData, dataLen);
+			FreePos += (pfx_size + dataLen);
+			rowid = SRecPageManager::MakeRowId(TotalSize, Seq, start_position);
+			if(ex_rp.TotalSize) {
+				
+			}
+		}
 	}
 	CATCH
 		rowid = 0;
 	ENDCATCH
 	return rowid;
+}
+
+uint SDataPageHeader::Read(uint offset, void * pBuf, size_t bufSize)
+{
+	uint    result = 0;
+	RecPrefix rp;
+	uint pfx_size = ReadRecPrefix(offset, rp);
+	if(pfx_size) {
+		if(pBuf) {
+			if(bufSize >= rp.PayloadSize) {
+				memcpy(pBuf, PTR8C(this) + offset + pfx_size, rp.PayloadSize);
+				result = rp.PayloadSize;
+			}
+		}
+		else {
+			result = rp.PayloadSize;
+		}
+	}
+	return result;
 }
 
 const void * SDataPageHeader::Enum(uint * pPos, uint * pSize) const
@@ -291,9 +447,9 @@ const void * SDataPageHeader::Enum(uint * pPos, uint * pSize) const
 			RecPrefix rp;
 			uint pfx_size = ReadRecPrefix(pos, rp);
 			if(pfx_size) {
-				if(GetFreeSizeFromPos(pos) >= rp.Size) {
-					ASSIGN_PTR(pSize, rp.Size);
-					pos += rp.Size + pfx_size;
+				if(GetFreeSizeFromPos(pos) >= rp.PayloadSize) {
+					ASSIGN_PTR(pSize, rp.PayloadSize);
+					pos += rp.PayloadSize + pfx_size;
 					*pPos = pos;
 					p_result = PTR8C(this) + pos + pfx_size;
 				}
@@ -303,11 +459,67 @@ const void * SDataPageHeader::Enum(uint * pPos, uint * pSize) const
 	return p_result;
 }
 
+uint SDataPageHeader::VerifyBlock(uint offset, uint * pSize) const
+{
+	uint    result = 0;
+	if(offset >= sizeof(SDataPageHeader)) {
+		RecPrefix pfx;
+		uint32 pfx_size = ReadRecPrefix(offset, pfx);
+		if(pfx_size) {
+			
+		}
+	}
+	return result;
+}
+
+uint SDataPageHeader::VerifyBlock(uint offset, uint size) const
+{
+	uint   result = 0;
+	if(offset >= sizeof(SDataPageHeader)) {
+		const uint end_offs = (offset + size);
+		if(end_offs > TotalSize) {
+			; // @error
+		}
+		else if(end_offs == TotalSize) {
+			result = _FFFF32;
+		}
+		else {
+			const uint8 _next_signature = PTR8C(this)[end_offs];
+			if(oneof5(_next_signature, RecPrefix::Signature_Used, RecPrefix::Signature_Free, RecPrefix::Signature_End1,
+				RecPrefix::Signature_End2, RecPrefix::Signature_End3)) {
+				result = _next_signature;
+			}
+			else {
+				; // @error
+			}
+		}
+	}
+	return result;
+}
+
+uint SDataPageHeader::MarkOutBlock(uint offset, uint size)
+{
+	uint    _next_signature = VerifyBlock(offset, size);
+	if(_next_signature) {
+		RecPrefix pfx;
+		uint8   pfx_buf[32];
+		uint8   pfx_flags = 0;
+		pfx.SetTotalSize(size, RecPrefix::fDeleted);
+		uint32 pfxsize = EvaluateRecPrefix(pfx, pfx_buf, &pfx_flags);
+		if(pfxsize) {
+			memcpy(PTR8(this)+offset, pfx_buf, pfxsize);
+		}
+		else 
+			_next_signature = 0;
+	}
+	return _next_signature;
+}
+
 /*static*/SDataPageHeader * SDataPageHeader::Allocate(uint32 type, uint32 seq, uint totalSize)
 {
 	SDataPageHeader * p_result = 0;
-	assert(totalSize > (sizeof(SDataPageHeader) + EndSentinelSize()));
-	void * ptr = (totalSize > (sizeof(SDataPageHeader) + EndSentinelSize())) ? SAlloc::M(totalSize) : 0;
+	assert(totalSize > sizeof(SDataPageHeader));
+	void * ptr = (totalSize > sizeof(SDataPageHeader)) ? SAlloc::M(totalSize) : 0;
 	if(ptr) {
 		memzero(ptr, totalSize);
 		p_result = static_cast<SDataPageHeader *>(ptr);
@@ -316,17 +528,22 @@ const void * SDataPageHeader::Enum(uint * pPos, uint * pSize) const
 		p_result->Seq = seq;
 		p_result->TotalSize = totalSize;
 		p_result->FreePos = static_cast<uint32>(sizeof(SDataPageHeader));
+		uint mobr = p_result->MarkOutBlock(sizeof(SDataPageHeader), totalSize - sizeof(SDataPageHeader));
+		assert(mobr);
+		if(!mobr) {
+			ZFREE(p_result);
+		}
 	}
 	return p_result;
 }
 //
 //
 //
-int SRecPageFreeList::SingleTypeList::Put(uint32 seq, uint32 freeSize)
+int SRecPageFreeList::SingleTypeList::Put(uint64 rowId, uint32 freeSize)
 {
 	int    ok = 0;
 	uint   pos = 0;
-	if(lsearch(&seq, &pos, CMPF_LONG)) {
+	if(lsearch(&rowId, &pos, CMPF_INT64)) {
 		if(freeSize == 0) {
 			atFree(pos);
 			ok = 2;
@@ -347,7 +564,7 @@ int SRecPageFreeList::SingleTypeList::Put(uint32 seq, uint32 freeSize)
 		}
 		else {
 			FreeEntry new_entry;
-			new_entry.Seq = seq;
+			new_entry.RowId = rowId;
 			new_entry.FreeSize = freeSize;
 			insert(&new_entry);
 			ok = 3;
@@ -411,53 +628,3 @@ const SRecPageFreeList::FreeEntry * SRecPageFreeList::Get(uint32 type, uint32 re
 	return p_result;
 }
 
-static void Test()
-{
-	struct DataEntry {
-		static DataEntry * Generate(uint size)
-		{
-			DataEntry * p_result = 0;
-			if(size) {
-				p_result = static_cast<DataEntry *>(SAlloc::M(size+sizeof(DataEntry)));
-				if(p_result) {
-					p_result->Size = size;
-					p_result->RowId = 0;
-					SLS.GetTLA().Rg.ObfuscateBuffer(p_result+1, size);
-				}
-			}
-			return p_result;
-		}
-		uint   Size;
-		uint64 RowId;
-	};
-	SCollection data_list;
-	const uint entry_count = 100;
-	const uint max_rec_size = 500;
-	SRecPageManager rm(4096);
-	{
-		for(uint i = 0; i < entry_count; i++) {
-			uint rs = SLS.GetTLA().Rg.GetUniformIntPos(max_rec_size+1);
-			if(rs > 0) {
-				DataEntry * p_entry = DataEntry::Generate(rs);
-				if(p_entry) {
-					uint64 row_id = 0;
-					if(rm.Write(&row_id, SDataPageHeader::tRecord, p_entry+1, p_entry->Size)) {
-						p_entry->RowId = row_id;
-						data_list.insert(p_entry);
-					}
-					else
-						SAlloc::F(p_entry);
-				}
-			}
-		}
-	}
-	{
-		for(uint i = 0; i < data_list.getCount(); i++) {
-			const DataEntry * p_entry = static_cast<const DataEntry *>(data_list.at(i));
-			if(p_entry) {
-				uint8 rec_buf[max_rec_size*2];
-				rm.Read(p_entry->RowId, rec_buf, sizeof(rec_buf));
-			}
-		}
-	}
-}

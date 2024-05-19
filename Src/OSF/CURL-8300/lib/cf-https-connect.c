@@ -249,7 +249,7 @@ static CURLcode cf_hc_connect(struct Curl_cfilter * cf, struct Curl_easy * data,
 			    cf_hc_baller_init(&ctx->h21_baller, cf, data, "h21",
 				cf->conn->transport);
 		    ctx->state = CF_HC_CONNECT;
-		/* FALLTHROUGH */
+		// @fallthrough
 
 		case CF_HC_CONNECT:
 		    if(cf_hc_baller_is_active(&ctx->h3_baller)) {

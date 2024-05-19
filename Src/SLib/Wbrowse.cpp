@@ -487,7 +487,8 @@ int ImpLoadToolbar(TVRez & rez, ToolbarList * pList)
 	pList->setBitmap(rez.getUINT());
 	SString temp_buf;
 	while(rez.getUINT() != TV_END) {
-		fseek(rez.getStream(), -static_cast<long>(sizeof(uint16)), SEEK_CUR);
+		//fseek(rez.getStream(), -static_cast<long>(sizeof(uint16)), SEEK_CUR);
+		rez.Seek(-static_cast<long>(sizeof(uint16)), SEEK_CUR);
 		ToolbarItem item;
 		item.Cmd = rez.getUINT();
 		if(item.Cmd != TV_MENUSEPARATOR) {
@@ -690,7 +691,8 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 							ToolbarList tb_list;
 							if(::LoadToolbar(&rez, TV_EXPTOOLBAR, toolbar_id, &tb_list))
 								setupToolbar(&tb_list);
-							fseek(rez.getStream(), sav_pos, SEEK_SET);
+							//fseek(rez.getStream(), sav_pos, SEEK_SET);
+							rez.Seek(sav_pos, SEEK_SET);
 						}
 						break;
 					case TV_CROSSTAB:

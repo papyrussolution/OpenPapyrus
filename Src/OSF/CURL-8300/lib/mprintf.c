@@ -343,7 +343,7 @@ static int dprintf_Pass1(const char * format, struct va_stack * vto, char ** end
 					case '0':
 					    if(!(flags & FLAGS_LEFT))
 						    flags |= FLAGS_PAD_NIL;
-					/* FALLTHROUGH */
+					// @fallthrough
 					case '1': case '2': case '3': case '4':
 					case '5': case '6': case '7': case '8': case '9':
 					    flags |= FLAGS_WIDTH;
@@ -375,11 +375,10 @@ static int dprintf_Pass1(const char * format, struct va_stack * vto, char ** end
 			if((i < 0) || (i >= MAX_PARAMETERS))
 				/* out of allowed range */
 				return 1;
-
 			switch(*fmt) {
 				case 'S':
 				    flags |= FLAGS_ALT;
-				/* FALLTHROUGH */
+				// @fallthrough
 				case 's':
 				    vto[i].type = FORMAT_STRING;
 				    break;
@@ -750,10 +749,8 @@ number:
 			    /* String.  */
 		    {
 			    static const char null[] = "(nil)";
-			    const char * str;
 			    size_t len;
-
-			    str = (char *)p->data.str;
+			    const char * str = (char *)p->data.str;
 			    if(!str) {
 				    /* Write null[] if there's space.  */
 				    if(prec == -1 || prec >= (long)sizeof(null) - 1) {
@@ -773,27 +770,21 @@ number:
 				    len = 0;
 			    else
 				    len = strlen(str);
-
 			    width -= (len > LONG_MAX) ? LONG_MAX : (long)len;
-
 			    if(p->flags & FLAGS_ALT)
 				    OUTCHAR('"');
-
 			    if(!(p->flags&FLAGS_LEFT))
 				    while(width-- > 0)
 					    OUTCHAR(' ');
-
 			    for(; len && *str; len--)
 				    OUTCHAR(*str++);
 			    if(p->flags&FLAGS_LEFT)
 				    while(width-- > 0)
 					    OUTCHAR(' ');
-
 			    if(p->flags & FLAGS_ALT)
 				    OUTCHAR('"');
 		    }
 		    break;
-
 			case FORMAT_PTR:
 			    /* Generic pointer.  */
 		    {
@@ -811,7 +802,6 @@ number:
 				    /* Write "(nil)" for a nil pointer.  */
 				    static const char strnil[] = "(nil)";
 				    const char * point;
-
 				    width -= (long)(sizeof(strnil) - 1);
 				    if(p->flags & FLAGS_LEFT)
 					    while(width-- > 0)
@@ -831,13 +821,11 @@ number:
 			    char * fptr = &formatbuf[1];
 			    size_t left = sizeof(formatbuf)-strlen(formatbuf);
 			    int len;
-
 			    width = -1;
 			    if(p->flags & FLAGS_WIDTH)
 				    width = p->width;
 			    else if(p->flags & FLAGS_WIDTHPARAM)
 				    width = (long)vto[p->width].data.num.as_signed;
-
 			    prec = -1;
 			    if(p->flags & FLAGS_PREC)
 				    prec = p->precision;
@@ -1005,7 +993,6 @@ int Curl_dyn_vprintf(struct dynbuf * dyn, const char * format, va_list ap_save)
 	struct asprintf info;
 	info.b = dyn;
 	info.fail = 0;
-
 	(void)dprintf_formatf(&info, alloc_addbyter, format, ap_save);
 	if(info.fail) {
 		Curl_dyn_free(info.b);

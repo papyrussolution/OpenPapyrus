@@ -24,7 +24,7 @@ extern "C" {
  *  SASL_BUFOVER if result won't fit
  *  SASL_OK on success
  */
-LIBSASL_API int sasl_decode64(const char *in, unsigned inlen,
+LIBSASL_API int sasl_decode64(const char *in, uint inlen,
 			      char *out, unsigned outmax, unsigned *outlen);
 
 /* base64 encode
@@ -37,7 +37,7 @@ LIBSASL_API int sasl_decode64(const char *in, unsigned inlen,
  * 
  * Returns SASL_OK on success, SASL_BUFOVER if result won't fit
  */
-LIBSASL_API int sasl_encode64(const char *in, unsigned inlen,
+LIBSASL_API int sasl_encode64(const char *in, uint inlen,
 			      char *out, unsigned outmax, unsigned *outlen);
 
 /* make a challenge string (NUL terminated)

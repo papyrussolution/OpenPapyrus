@@ -273,12 +273,49 @@ public:
 			ComputerID = 0;
 			return *this;
 		}
+		SJson * ToJsonObj(bool asServerReply) const
+		{
+			SJson * p_result = SJson::CreateObj();
+			SString temp_buf;
+			if(asServerReply) {
+				p_result->InsertInt("status", Status);
+			}
+			if(Name.NotEmpty()) {
+				p_result->InsertString("nm", Name);
+			}
+			{
+				SJson * p_js_macadr_list = 0;
+				for(uint i = 0; i < MacAdrList.getCount(); i++) {
+					const MACAddr & r_macadr = MacAdrList.at(i);
+					if(!r_macadr.IsZero()) {
+						SETIFZ(p_js_macadr_list, new SJson(SJson::tARRAY));
+						r_macadr.ToStr(0, temp_buf);
+						SJson * p_js_macadr = SJson::CreateString(temp_buf);
+						p_js_macadr_list->InsertChild(p_js_macadr);
+						p_js_macadr = 0;
+					}
+				}
+				if(p_js_macadr_list) {
+					p_result->Insert("macadr_list", p_js_macadr_list);
+				}
+			}
+			if(!!WsCtlUuid) {
+				WsCtlUuid.ToStr(S_GUID::fmtIDL, temp_buf);
+				p_result->InsertString("wsctluuid", temp_buf);
+			}
+			return p_result;
+		}
 		bool   FromJsonObj(const SJson * pJs)
 		{
 			bool   result = false;
 			Z();
 			if(pJs) {
-				const SJson * p_c = pJs->FindChildByKey("nm");
+				const SJson * p_c = 0;
+				p_c = pJs->FindChildByKey("status");
+				if(SJson::IsNumber(p_c)) {
+					Status = p_c->Text.ToLong();
+				}
+				p_c = pJs->FindChildByKey("nm");
 				if(SJson::IsString(p_c))
 					Name = p_c->Text;
 				p_c = pJs->FindChildByKey("wsctluuid");
@@ -297,6 +334,7 @@ public:
 						}
 					}
 				}
+				result = true;
 			}
 			return result;
 		}
@@ -371,6 +409,7 @@ public:
 	PPObjPerson PsnObj;
 	PPObjSCard ScObj;
 	PPObjArticle ArObj;
+	PPObjComputer CompObj;
 	S_GUID WsUUID; // UUID управляемой рабочей станции
 	PPID   PrcID;  // Ид процессора, соответствующего рабочей станции
 	SString PrcNameUtf8;

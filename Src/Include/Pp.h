@@ -31052,11 +31052,27 @@ public:
 	~PPObjComputer();
 	int    Get(PPID id, PPComputerPacket * pPack);
 	int    Put(PPID * pID, PPComputerPacket * pPack, int use_ta);
+	//
+	// Descr: Находит все идентификаторы компьютеров, имеющих mac-адрес равный rKey.
+	//   Предварительно очищает список rIdList.
+	// Note: Вообще, все компьютеры должны иметь уникальные mac-адреса, но в реальности
+	//   возможны какие-то сбои с работе системы, эксцессы исполнителей и т.д. По-этому
+	//   нам нужна функция, которая вернет все идентификаторы записей, имеющих заданный mac-адрес.
+	//
+	int    GetListByMacAddr(const MACAddr & rKey, PPIDArray & rIdList);
+	//
+	// Descr: Находит первую запись компьютера, имеющую mac-адрес равный rKey.
+	// Note: See note to function GetListByMacAddr
+	// 
 	int    SearchByMacAddr(const MACAddr & rKey, PPID * pID, PPComputerPacket * pPack);
 	int    GenerateName(PPID categoryID, SString & rBuf);
 private:
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	virtual int  Edit(PPID * pID, void * extraPtr);
+	//
+	// Descr: Реализация извлечения записей по критерию равенства mac-адреса.
+	//
+	int    Implement_GetByMacAddr(const MACAddr & rKey, PPID * pID, PPComputerPacket * pPack, PPIDArray * pIdList);
 
 	PPObjProcessor * P_PrcObj; // Скрытый экземпляр для быстрой обработки сообщений DBMSG_COMPUTERACQUIRECAT
 };

@@ -1460,7 +1460,7 @@ fail:
 			case SSL_FILETYPE_PEM:
 			    if(cert_done)
 				    break;
-			/* FALLTHROUGH */
+			// @fallthrough
 			case SSL_FILETYPE_ASN1:
 			    cert_use_result = key_blob ?
 				SSL_CTX_use_PrivateKey_blob(ctx, key_blob, file_type, key_passwd) :
@@ -2707,11 +2707,9 @@ static CURLcode ossl_set_ssl_version_min_max(struct Curl_cfilter * cf, SSL_CTX *
 		    ossl_ssl_version_max = 0;
 		    break;
 	}
-
 	if(!SSL_CTX_set_max_proto_version(ctx, ossl_ssl_version_max)) {
 		return CURLE_SSL_CONNECT_ERROR;
 	}
-
 	return CURLE_OK;
 }
 
@@ -2726,16 +2724,12 @@ typedef long ctx_option_t;
 #endif
 
 #if (OPENSSL_VERSION_NUMBER < 0x10100000L) /* 1.1.0 */
-static CURLcode ossl_set_ssl_version_min_max_legacy(ctx_option_t * ctx_options,
-    struct Curl_cfilter * cf,
-    struct Curl_easy * data)
+static CURLcode ossl_set_ssl_version_min_max_legacy(ctx_option_t * ctx_options, struct Curl_cfilter * cf, struct Curl_easy * data)
 {
 	struct ssl_primary_config * conn_config = Curl_ssl_cf_get_primary_config(cf);
 	long ssl_version = conn_config->version;
 	long ssl_version_max = conn_config->version_max;
-
 	(void)data; /* In case it's unused. */
-
 	switch(ssl_version) {
 		case CURL_SSLVERSION_TLSv1_3:
 #ifdef TLS1_3_VERSION
@@ -2752,7 +2746,7 @@ static CURLcode ossl_set_ssl_version_min_max_legacy(ctx_option_t * ctx_options,
 		    failf(data, OSSL_PACKAGE " was built without TLS 1.3 support");
 		    return CURLE_NOT_BUILT_IN;
 #endif
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CURL_SSLVERSION_TLSv1_2:
 #if OPENSSL_VERSION_NUMBER >= 0x1000100FL
 		    *ctx_options |= SSL_OP_NO_TLSv1_1;
@@ -2760,7 +2754,7 @@ static CURLcode ossl_set_ssl_version_min_max_legacy(ctx_option_t * ctx_options,
 		    failf(data, OSSL_PACKAGE " was built without TLS 1.2 support");
 		    return CURLE_NOT_BUILT_IN;
 #endif
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CURL_SSLVERSION_TLSv1_1:
 #if OPENSSL_VERSION_NUMBER >= 0x1000100FL
 		    *ctx_options |= SSL_OP_NO_TLSv1;
@@ -2768,23 +2762,22 @@ static CURLcode ossl_set_ssl_version_min_max_legacy(ctx_option_t * ctx_options,
 		    failf(data, OSSL_PACKAGE " was built without TLS 1.1 support");
 		    return CURLE_NOT_BUILT_IN;
 #endif
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CURL_SSLVERSION_TLSv1_0:
 		case CURL_SSLVERSION_TLSv1:
 		    break;
 	}
-
 	switch(ssl_version_max) {
 		case CURL_SSLVERSION_MAX_TLSv1_0:
 #if OPENSSL_VERSION_NUMBER >= 0x1000100FL
 		    *ctx_options |= SSL_OP_NO_TLSv1_1;
 #endif
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CURL_SSLVERSION_MAX_TLSv1_1:
 #if OPENSSL_VERSION_NUMBER >= 0x1000100FL
 		    *ctx_options |= SSL_OP_NO_TLSv1_2;
 #endif
-		/* FALLTHROUGH */
+		// @fallthrough
 		case CURL_SSLVERSION_MAX_TLSv1_2:
 #ifdef TLS1_3_VERSION
 		    *ctx_options |= SSL_OP_NO_TLSv1_3;

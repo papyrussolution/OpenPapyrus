@@ -217,8 +217,7 @@ typedef struct _cairo_page_media {
 
 static void _cairo_ps_form_init_key(cairo_ps_form_t * key)
 {
-	key->base.hash = _cairo_hash_bytes(_CAIRO_HASH_INIT_VALUE,
-		key->unique_id, key->unique_id_length);
+	key->base.hash = _cairo_hash_bytes(SlConst::DjbHashInit32, key->unique_id, key->unique_id_length);
 }
 
 static boolint _cairo_ps_form_equal(const void * key_a, const void * key_b)

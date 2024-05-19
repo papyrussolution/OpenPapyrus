@@ -131,7 +131,7 @@ int _sasl_strdup(const char * in, char ** out, size_t * outlen)
 {
 	size_t len = strlen(in);
 	ASSIGN_PTR(outlen, len);
-	*out = (char *)sasl_ALLOC((unsigned)len + 1);
+	*out = (char *)sasl_ALLOC((uint)len + 1);
 	if(!*out) 
 		return SASL_NOMEM;
 	strcpy((char *)*out, in);
@@ -298,7 +298,7 @@ static int _sasl_encodev(sasl_conn_t * conn,
 		memcpy(conn->multipacket_encoded_data.data + conn->multipacket_encoded_data.curlen, *output, *outputlen);
 		conn->multipacket_encoded_data.curlen += *outputlen;
 		*output = conn->multipacket_encoded_data.data;
-		*outputlen = (unsigned)conn->multipacket_encoded_data.curlen;
+		*outputlen = (uint)conn->multipacket_encoded_data.curlen;
 	}
 	(*p_num_packets)++;
 	RETURN(conn, result);
@@ -306,11 +306,7 @@ static int _sasl_encodev(sasl_conn_t * conn,
 
 /* security-encode an iovec */
 /* output is only valid until the next call to sasl_encode or sasl_encodev */
-int sasl_encodev(sasl_conn_t * conn,
-    const struct iovec * invec,
-    unsigned numiov,
-    const char ** output,
-    unsigned * outputlen)
+int sasl_encodev(sasl_conn_t * conn, const struct iovec * invec, unsigned numiov, const char ** output, unsigned * outputlen)
 {
 	int result = SASL_OK;
 	unsigned i;
@@ -339,7 +335,7 @@ int sasl_encodev(sasl_conn_t * conn,
 		result = _iovec_to_buf(invec, numiov, &conn->encode_buf);
 		if(result != SASL_OK) INTERROR(conn, result);
 		*output = conn->encode_buf->data;
-		*outputlen = (unsigned)conn->encode_buf->curlen;
+		*outputlen = (uint)conn->encode_buf->curlen;
 		RETURN(conn, result);
 	}
 	/* This might be better to check on a per-plugin basis, but I think
@@ -1043,11 +1039,11 @@ int sasl_setprop(sasl_conn_t * conn, int propnum, const void * value)
 		    if(conn->got_ip_remote) {
 			    if(conn->type == SASL_CONN_CLIENT) {
 				    ((sasl_client_conn_t*)conn)->cparams->ipremoteport = conn->ipremoteport;
-				    ((sasl_client_conn_t*)conn)->cparams->ipremlen = (unsigned)strlen(conn->ipremoteport);
+				    ((sasl_client_conn_t*)conn)->cparams->ipremlen = (uint)strlen(conn->ipremoteport);
 			    }
 			    else if(conn->type == SASL_CONN_SERVER) {
 				    ((sasl_server_conn_t*)conn)->sparams->ipremoteport = conn->ipremoteport;
-				    ((sasl_server_conn_t*)conn)->sparams->ipremlen = (unsigned)strlen(conn->ipremoteport);
+				    ((sasl_server_conn_t*)conn)->sparams->ipremlen = (uint)strlen(conn->ipremoteport);
 			    }
 		    }
 		    else {
@@ -1079,11 +1075,11 @@ int sasl_setprop(sasl_conn_t * conn, int propnum, const void * value)
 		    if(conn->got_ip_local) {
 			    if(conn->type == SASL_CONN_CLIENT) {
 				    ((sasl_client_conn_t*)conn)->cparams->iplocalport = conn->iplocalport;
-				    ((sasl_client_conn_t*)conn)->cparams->iploclen = (unsigned)strlen(conn->iplocalport);
+				    ((sasl_client_conn_t*)conn)->cparams->iploclen = (uint)strlen(conn->iplocalport);
 			    }
 			    else if(conn->type == SASL_CONN_SERVER) {
 				    ((sasl_server_conn_t*)conn)->sparams->iplocalport = conn->iplocalport;
-				    ((sasl_server_conn_t*)conn)->sparams->iploclen = (unsigned)strlen(conn->iplocalport);
+				    ((sasl_server_conn_t*)conn)->sparams->iploclen = (uint)strlen(conn->iplocalport);
 			    }
 		    }
 		    else {
@@ -1117,7 +1113,7 @@ int sasl_setprop(sasl_conn_t * conn, int propnum, const void * value)
 			    ((sasl_server_conn_t*)conn)->sparams->appname =
 				((sasl_server_conn_t*)conn)->appname;
 			    ((sasl_server_conn_t*)conn)->sparams->applen =
-				(unsigned)strlen(((sasl_server_conn_t*)conn)->appname);
+				(uint)strlen(((sasl_server_conn_t*)conn)->appname);
 		    }
 		    else {
 			    ((sasl_server_conn_t*)conn)->sparams->appname = NULL;
@@ -1233,7 +1229,7 @@ const char * sasl_errdetail(sasl_conn_t * conn)
 	snprintf(leader, 128, "SASL(%d): %s: ",
 	    sasl_usererr(conn->error_code), errstr);
 
-	need_len = (unsigned)(strlen(leader) + strlen(conn->error_buf) + 12);
+	need_len = (uint)(strlen(leader) + strlen(conn->error_buf) + 12);
 	if(_buf_alloc(&conn->errdetail_buf, &conn->errdetail_buf_len, need_len) != SASL_OK) {
 		return NULL;
 	}
@@ -1278,7 +1274,7 @@ static int _sasl_global_getopt(void * context,
 	*result = sasl_config_getstring(option, NULL);
 	if(*result != NULL) {
 		if(len) {
-			*len = (unsigned)strlen(*result);
+			*len = (uint)strlen(*result);
 		}
 		return SASL_OK;
 	}
@@ -1927,7 +1923,7 @@ const sasl_callback_t * _sasl_find_verifyfile_callback(const sasl_callback_t * c
 int _buf_alloc(char ** rwbuf, size_t * curlen, size_t newlen)
 {
 	if(!(*rwbuf)) {
-		*rwbuf = (char *)sasl_ALLOC((unsigned)newlen);
+		*rwbuf = (char *)sasl_ALLOC((uint)newlen);
 		if(*rwbuf == NULL) {
 			*curlen = 0;
 			return SASL_NOMEM;
@@ -1939,7 +1935,7 @@ int _buf_alloc(char ** rwbuf, size_t * curlen, size_t newlen)
 		while(needed < newlen)
 			needed *= 2;
 		/* WARN - We will leak the old buffer on failure */
-		*rwbuf = (char *)sasl_REALLOC(*rwbuf, (unsigned)needed);
+		*rwbuf = (char *)sasl_REALLOC(*rwbuf, (uint)needed);
 		if(*rwbuf == NULL) {
 			*curlen = 0;
 			return SASL_NOMEM;

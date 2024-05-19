@@ -93,7 +93,7 @@ static void fz_predict_png(fz_context * ctx, fz_predict * state, uchar * out, uc
 	switch(predictor) {
 		default:
 		    fz_warn(ctx, "unknown png predictor %d, treating as none", predictor);
-		/* fallthrough */
+		// @fallthrough
 		case 0:
 		    memcpy(out, in, len);
 		    break;

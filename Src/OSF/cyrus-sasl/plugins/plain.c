@@ -105,7 +105,7 @@ static int plain_server_mech_step(void * conn_context __attribute__((unused)),
 	lup++;
 	password = clientin + lup;
 	while((lup < clientinlen) && (clientin[lup] != 0)) ++lup;
-	password_len = (unsigned)(clientin + lup - password);
+	password_len = (uint)(clientin + lup - password);
 	if(lup != clientinlen) {
 		SETERROR(params->utils, "Got more data than we were expecting in the PLAIN plugin\n");
 		return SASL_BADPROT;

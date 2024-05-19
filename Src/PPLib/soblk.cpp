@@ -1197,20 +1197,11 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 			do {
 				int    sub_criterion = 0;
 				arg_buf.Z();
-				/* @v10.0.05 for(i = 0; !criterion && i < SIZEOFARRAY(crit_titles); i++) {
-					if(temp_buf.IsEqNC(crit_titles[i].P_Text)) {
-						crit = temp_buf;
-						criterion = crit_titles[i].ID;
-						(added_msg = obj).Space().Cat("BY").Space().Cat(crit);
-					}
-				}*/
-				// @v10.0.05 {
 				const int criterion = SIntToSymbTab_GetId(crit_titles, SIZEOFARRAY(crit_titles), temp_buf);
 				if(criterion) {
 					crit = temp_buf;
 					(added_msg = obj).Space().Cat("BY").Space().Cat(crit);
 				}
-				// } @v10.0.05
 				if(oneof4(criterion, cActual, cMatrix, cLast, cStripSSfx)) {
 					//
 					// Одиночные критерии (не требующие параметров): 'ACTUAL' 'MATRIX' 'LAST', 'STRIPSSFX'
@@ -1232,20 +1223,11 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 							sub_criterion = tag_id;
 						}
 						else {
-							/* @v10.0.05 for(i = 0; !sub_criterion && i < SIZEOFARRAY(subcrit_titles); i++) {
-								if(temp_buf.IsEqNC(subcrit_titles[i].P_Text)) {
-									sub_crit = temp_buf;
-									sub_criterion = subcrit_titles[i].ID;
-									(added_msg = obj).Space().Cat("BY").Space().Cat(crit).Dot().Cat(sub_crit);
-								}
-							}*/
-							// @v10.0.05 {
 							sub_criterion = SIntToSymbTab_GetId(subcrit_titles, SIZEOFARRAY(subcrit_titles), temp_buf);
 							if(sub_criterion) {
 								sub_crit = temp_buf;
 								(added_msg = obj).Space().Cat("BY").Space().Cat(crit).Dot().Cat(sub_crit);
 							}
-							// } @v10.0.05
 						}
 					}
 					THROW_PP(scan.Skip()[0] == '(', PPERR_CMDSEL_EXP_LEFTPAR);
@@ -1279,7 +1261,6 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 	CATCHZOK
 	return ok;
 }
-
 //
 // Локальная структура описания селектора интернет-магазина Universe-HTT
 //
@@ -3439,6 +3420,25 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				}
 			}
 			break;
+		case PPOBJ_COMPUTERCATEGORY: // @v12.0.2
+			if(Operator == oSelect) {
+				PPObjComputerCategory compcat_obj;
+				PPComputerCategory compcat_rec;
+				use_filt = 1;
+				if(IdList.getCount()) {
+					for(uint i = 0; i < IdList.getCount(); i++) {
+						if(compcat_obj.Search(IdList.at(i), &compcat_rec) > 0)
+							THROW_SL(ResultList.Add(compcat_rec.ID, 0, compcat_rec.Name));
+					}
+					use_filt = 0;
+				}
+				if(use_filt) {
+					for(SEnum en = compcat_obj.P_Ref->Enum(ObjType, 0); en.Next(&compcat_rec) > 0;) {
+						THROW_SL(ResultList.Add(compcat_rec.ID, 0, compcat_rec.Name));
+					}
+				}
+			}
+			break;
 		case PPOBJ_SPECSERIES:
 			if(Operator == oSelect) {
 				PPViewSpecSeries   view;
@@ -3681,12 +3681,11 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 				use_filt = 1;
 				PPObjWorkbook wb_obj;
 				WorkbookTbl::Rec wb_rec;
-				PPIDArray temp_list; // @v10.2.5
+				PPIDArray temp_list;
 				if(IdList.getCount()) {
 					for(uint i = 0; i < IdList.getCount(); i++) {
 						if(wb_obj.Fetch(IdList.at(i), &wb_rec) > 0) {
-							// @v10.2.5 THROW_SL(ResultList.Add(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
-							temp_list.add(wb_rec.ID); // @v10.2.5
+							temp_list.add(wb_rec.ID);
 						}
 					}
 					use_filt = 0;
@@ -3703,14 +3702,12 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 							const long _ep = o_buf.ToLong();
 							if(_ep == 2) {
 								if(wb_obj.SearchBySymb(txt_buf, &(temp_id = 0), &wb_rec) > 0) {
-									// @v10.2.5 THROW_SL(ResultList.Add(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
-									temp_list.add(wb_rec.ID); // @v10.2.5
+									temp_list.add(wb_rec.ID);
 								}
 							}
 							else if(_ep == 1) {
 								if(wb_obj.SearchByName(txt_buf, &temp_id, &wb_rec) > 0) {
-									// @v10.2.5 THROW_SL(ResultList.Add(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
-									temp_list.add(wb_rec.ID); // @v10.2.5
+									temp_list.add(wb_rec.ID);
 								}
 							}
 						}
@@ -3721,25 +3718,21 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					if(P_WorkbookF->ParentID) {
 						for(SEnum en = wb_obj.P_Tbl->EnumByParent(P_WorkbookF->ParentID, 0); en.Next(&wb_rec) > 0;) {
 							if(P_WorkbookF->Type == 0 || wb_rec.Type == P_WorkbookF->Type) {
-								// @v10.2.5 THROW_SL(ResultList.AddFast(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
-								temp_list.add(wb_rec.ID); // @v10.2.5
+								temp_list.add(wb_rec.ID);
 							}
 						}
 					}
 					else if(P_WorkbookF->Type) {
 						for(SEnum en = wb_obj.P_Tbl->EnumByType(P_WorkbookF->Type, 0); en.Next(&wb_rec) > 0;) {
-							// @v10.2.5 THROW_SL(ResultList.AddFast(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
-							temp_list.add(wb_rec.ID); // @v10.2.5
+							temp_list.add(wb_rec.ID);
 						}
 					}
 					else {
 						for(SEnum en = wb_obj.P_Tbl->Enum(0); en.Next(&wb_rec) > 0;) {
-							// @v10.2.5 THROW_SL(ResultList.AddFast(wb_rec.ID, wb_rec.ParentID, wb_rec.Name));
-							temp_list.add(wb_rec.ID); // @v10.2.5
+							temp_list.add(wb_rec.ID);
 						}
 					}
 				}
-				// @v10.2.5 {
 				if(temp_list.getCount()) {
 					temp_list.sortAndUndup();
 					wb_obj.SortIdListByRankAndName(temp_list);
@@ -3749,7 +3742,6 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						}
 					}
 				}
-				// } @v10.2.5
 			}
 			break;
 		case PPOBJ_GEOTRACKING:
@@ -5227,35 +5219,19 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 					case cGcDimY: strtorrng(rArg, P_GoodsF->Ep.DimY_Rng); break;
 					case cGcDimZ: strtorrng(rArg, P_GoodsF->Ep.DimZ_Rng); break;
 					case cGcGimW: strtorrng(rArg, P_GoodsF->Ep.DimW_Rng); break;
-					case cGcKind:
-						THROW(ResolveCrit_GoodsProp(P_GoodsF->Ep.GdsClsID, PPGdsCls::eKind, subcriterion, rArg, P_GoodsF->Ep.KindList));
-						break;
-					case cGcGrade:
-						THROW(ResolveCrit_GoodsProp(P_GoodsF->Ep.GdsClsID, PPGdsCls::eGrade, subcriterion, rArg, P_GoodsF->Ep.GradeList));
-						break;
-					case cGcAdd:
-						THROW(ResolveCrit_GoodsProp(P_GoodsF->Ep.GdsClsID, PPGdsCls::eAdd, subcriterion, rArg, P_GoodsF->Ep.AddObjList));
-						break;
-					case cGcAdd2:
-						THROW(ResolveCrit_GoodsProp(P_GoodsF->Ep.GdsClsID, PPGdsCls::eAdd2, subcriterion, rArg, P_GoodsF->Ep.AddObj2List));
-						break;
-					case cSeller:
+					case cGcKind: THROW(ResolveCrit_GoodsProp(P_GoodsF->Ep.GdsClsID, PPGdsCls::eKind, subcriterion, rArg, P_GoodsF->Ep.KindList)); break;
+					case cGcGrade: THROW(ResolveCrit_GoodsProp(P_GoodsF->Ep.GdsClsID, PPGdsCls::eGrade, subcriterion, rArg, P_GoodsF->Ep.GradeList)); break;
+					case cGcAdd: THROW(ResolveCrit_GoodsProp(P_GoodsF->Ep.GdsClsID, PPGdsCls::eAdd, subcriterion, rArg, P_GoodsF->Ep.AddObjList)); break;
+					case cGcAdd2: THROW(ResolveCrit_GoodsProp(P_GoodsF->Ep.GdsClsID, PPGdsCls::eAdd2, subcriterion, rArg, P_GoodsF->Ep.AddObj2List)); break;
+					case cSeller: 
 						THROW(ResolveCrit_ArByPerson(subcriterion, rArg, GetSupplAccSheet(), &temp_id));
 						P_GoodsF->CodeArID = temp_id;
 						break;
 					case cCode:
-					case cBarcode:
-						AddSrchCode_BySymb(rArg);
-						break;
-					case cArCode:
-						SrchCodeList.add(temp_buf.Z().Cat(3).Comma().Cat(rArg));
-						break;
-					case cActual:
-						P_GoodsF->Flags |= GoodsFilt::fActualOnly;
-						break;
-					case cMatrix:
-						P_GoodsF->Flags |= GoodsFilt::fRestrictByMatrix;
-						break;
+					case cBarcode: AddSrchCode_BySymb(rArg); break;
+					case cArCode: SrchCodeList.add(temp_buf.Z().Cat(3).Comma().Cat(rArg)); break;
+					case cActual: P_GoodsF->Flags |= GoodsFilt::fActualOnly; break;
+					case cMatrix: P_GoodsF->Flags |= GoodsFilt::fRestrictByMatrix; break;
 					case cMatrixLoc:
 						P_GoodsF->Flags |= GoodsFilt::fRestrictByMatrix;
 						THROW(ResolveCrit_Loc(subcriterion, rArg, &temp_id));
@@ -5268,14 +5244,12 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 						else
 							P_GoodsF->Flags &= ~GoodsFilt::fHidePassive;
 						break;
-						// @v10.7.7 {
 					case cGeneric:
 						if(rArg.OneOf(';', "no;false;0;default", 1))
 							P_GoodsF->Flags |= GoodsFilt::fHideGeneric;
 						else
 							P_GoodsF->Flags &= ~GoodsFilt::fHideGeneric;
 						break;
-						// } @v10.7.7 
 					case cLocation:
 						THROW(ResolveCrit_Loc(subcriterion, rArg, &temp_id));
 						P_GoodsF->LocList.Add(temp_id);
@@ -5312,18 +5286,10 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 						P_GgF->Name = rArg;
 						P_GgF->Flags |= LocalGoodsGroupFilt::fSubName;
 						break;
-					case cCode:
-						AddSrchCode_BySymb(rArg);
-						break;
-					case cParent:
-						THROW(ResolveCrit_GoodsGrp(subcriterion, rArg, &P_GgF->ParentID));
-						break;
-					case cPage:
-						THROW(ResolveCrit_Page(rArg));
-						break;
-					case cPosNode:
-						THROW(ResolveCrit_GoodsGrpListByPosNode(subcriterion, rArg, &IdList));
-						break;
+					case cCode: AddSrchCode_BySymb(rArg); break;
+					case cParent: THROW(ResolveCrit_GoodsGrp(subcriterion, rArg, &P_GgF->ParentID)); break;
+					case cPage: THROW(ResolveCrit_Page(rArg)); break;
+					case cPosNode: THROW(ResolveCrit_GoodsGrpListByPosNode(subcriterion, rArg, &IdList)); break;
 					default:
 						CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION);
 						break;

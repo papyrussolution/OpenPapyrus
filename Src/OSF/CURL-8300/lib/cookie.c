@@ -245,22 +245,19 @@ static const char * get_top_domain(const char * const domain, size_t * outlen)
 
 /* Avoid C1001, an "internal error" with MSVC14 */
 #if defined(_MSC_VER) && (_MSC_VER == 1900)
-#pragma optimize("", off)
+	#pragma optimize("", off)
 #endif
-
 /*
  * A case-insensitive hash for the cookie domains.
  */
 static size_t cookie_hash_domain(const char * domain, const size_t len)
 {
 	const char * end = domain + len;
-	size_t h = 5381;
-
+	size_t h = SlConst::DjbHashInit32;
 	while(domain < end) {
 		h += h << 5;
 		h ^= Curl_raw_toupper(*domain++);
 	}
-
 	return (h % COOKIE_HASH_SIZE);
 }
 
@@ -921,7 +918,7 @@ struct Cookie *Curl_cookie_add(struct Curl_easy * data,
 				    if(!co->spath)
 					    badcookie = TRUE;
 				    fields++; /* add a field and fall down to secure */
-				/* FALLTHROUGH */
+				// @fallthrough
 				case 3:
 				    co->secure = FALSE;
 				    if(sstreqi_ascii(ptr, "TRUE")) {

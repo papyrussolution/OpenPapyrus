@@ -4142,7 +4142,7 @@ void _zip_hash_free(zip_hash_t * hash)
 static uint16 FASTCALL _hash_string(const uint8 * name, uint16 size)
 {
 #define HASH_MULTIPLIER 33
-	uint16 value = 5381;
+	uint16 value = static_cast<uint16>(SlConst::DjbHashInit32);
 	if(!name)
 		return 0;
 	while(*name != 0) {

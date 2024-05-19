@@ -143,7 +143,7 @@ int _sasldb_getsecret(const sasl_utils_t * utils,
 		return SASL_NOMEM;
 	}
 
-	out->len = (unsigned)len;
+	out->len = (uint)len;
 	memcpy(out->data, buf, len);
 	out->data[len] = '\0';
 

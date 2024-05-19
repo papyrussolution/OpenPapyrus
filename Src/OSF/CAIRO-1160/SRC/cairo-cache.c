@@ -255,7 +255,7 @@ void _cairo_cache_foreach(cairo_cache_t * cache, cairo_cache_callback_func_t cac
 ulong FASTCALL _cairo_hash_string(const char * c)
 {
 	/* This is the djb2 hash. */
-	ulong hash = _CAIRO_HASH_INIT_VALUE;
+	ulong hash = SlConst::DjbHashInit32;
 	while(c && *c)
 		hash = ((hash << 5) + hash) + *c++;
 	return hash;

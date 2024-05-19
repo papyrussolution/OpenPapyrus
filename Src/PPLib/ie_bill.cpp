@@ -4563,6 +4563,7 @@ int PPBillImporter::DoFullEdiProcess()
 		ZDELETE(p_prvimp);
 	}
 	ZDELETE(p_prvimp);
+	Logger.Save(PPGetFilePathS(PPPATH_LOG, PPFILNAM_EDI_LOG, temp_buf), 0); // @v12.0.2
 	return ok;
 }
 

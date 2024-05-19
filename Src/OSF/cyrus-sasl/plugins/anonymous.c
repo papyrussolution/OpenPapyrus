@@ -242,7 +242,7 @@ static int anonymous_client_mech_step(void * conn_context,
 	memzero(hostname, sizeof(hostname));
 	gethostname(hostname, sizeof(hostname));
 	hostname[sizeof(hostname)-1] = '\0';
-	*clientoutlen = (unsigned)(userlen + strlen(hostname) + 1);
+	*clientoutlen = (uint)(userlen + strlen(hostname) + 1);
 	result = _plug_buf_alloc(cparams->utils, &text->out_buf, &text->out_buf_len, *clientoutlen);
 	if(result != SASL_OK) 
 		return result;

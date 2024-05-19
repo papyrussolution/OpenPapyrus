@@ -348,7 +348,7 @@ cairo_svg_unit_t cairo_svg_surface_get_document_unit(cairo_surface_t * abstract_
 static void _cairo_svg_source_surface_init_key(cairo_svg_source_surface_t * key)
 {
 	if(key->unique_id && key->unique_id_length > 0) {
-		key->base.hash = _cairo_hash_bytes(_CAIRO_HASH_INIT_VALUE, key->unique_id, key->unique_id_length);
+		key->base.hash = _cairo_hash_bytes(SlConst::DjbHashInit32, key->unique_id, key->unique_id_length);
 	}
 	else {
 		key->base.hash = key->id;

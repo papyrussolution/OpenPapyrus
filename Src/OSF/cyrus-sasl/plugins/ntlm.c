@@ -105,33 +105,28 @@ ssize_t writev(SOCKET fd, const struct iovec * iov, size_t iovcnt)
 }
 
 #endif /* WIN32 */
-
 #ifndef UINT16_MAX
-#define UINT16_MAX 65535U
+	#define UINT16_MAX 65535U
 #endif
-
 #if UINT_MAX == UINT16_MAX
-typedef unsigned int uint16;
+	typedef unsigned int uint16;
 #elif USHRT_MAX == UINT16_MAX
-typedef unsigned short uint16;
+	typedef unsigned short uint16;
 #else
-#error dont know what to use for uint16
+	#error dont know what to use for uint16
 #endif
-
 #ifndef UINT32_MAX
-#define UINT32_MAX 4294967295U
+	#define UINT32_MAX 4294967295U
 #endif
-
 #if UINT_MAX == UINT32_MAX
-// @sobolev typedef unsigned int uint32;
+	// @sobolev typedef unsigned int uint32;
 #elif ULONG_MAX == UINT32_MAX
-typedef unsigned long uint32;
+	typedef unsigned long uint32;
 #elif USHRT_MAX == UINT32_MAX
-typedef unsigned short uint32;
+	typedef unsigned short uint32;
 #else
-#error dont know what to use for uint32
+	#error dont know what to use for uint32
 #endif
-
 #define NTLM_SIGNATURE          "NTLMSSP"
 
 enum {
@@ -302,12 +297,12 @@ static int unload_buffer(const sasl_utils_t * utils, const u_char * buf,
  * NTLM encryption/authentication routines per section 2.10 of
  * draft-leach-cifs-v1-spec-02
  */
-static void E(unsigned char * out, unsigned char * K, unsigned Klen, unsigned char * D, unsigned Dlen)
+static void E(uchar * out, uchar * K, unsigned Klen, uchar * D, unsigned Dlen)
 {
 	unsigned k, d;
 	des_cblock K64;
 	des_key_schedule ks;
-	unsigned char * Dp;
+	uchar * Dp;
 #define KEY_SIZE   7
 #define BLOCK_SIZE 8
 	for(k = 0; k < Klen; k += KEY_SIZE, K += KEY_SIZE) {
@@ -329,54 +324,40 @@ static void E(unsigned char * out, unsigned char * K, unsigned Klen, unsigned ch
 	}
 }
 
-static unsigned char * P16_lm(unsigned char * P16, sasl_secret_t * passwd,
-    const sasl_utils_t * utils __attribute__((unused)),
-    char ** buf __attribute__((unused)),
-    unsigned * buflen __attribute__((unused)),
-    int * result)
+static uchar * P16_lm(uchar * P16, sasl_secret_t * passwd, const sasl_utils_t * utils __attribute__((unused)),
+    char ** buf __attribute__((unused)), unsigned * buflen __attribute__((unused)), int * result)
 {
 	char P14[14];
-	unsigned char S8[] = { 0x4b, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25 };
-
+	uchar S8[] = { 0x4b, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25 };
 	strncpy(P14, (const char *)passwd->data, sizeof(P14));
 	ucase(P14, sizeof(P14));
-
-	E(P16, (unsigned char *)P14, sizeof(P14), S8, sizeof(S8));
+	E(P16, (uchar *)P14, sizeof(P14), S8, sizeof(S8));
 	*result = SASL_OK;
 	return P16;
 }
 
-static unsigned char * P16_nt(unsigned char * P16, sasl_secret_t * passwd,
-    const sasl_utils_t * utils,
-    char ** buf, unsigned * buflen, int * result)
+static uchar * P16_nt(uchar * P16, sasl_secret_t * passwd, const sasl_utils_t * utils, char ** buf, unsigned * buflen, int * result)
 {
 	if(_plug_buf_alloc(utils, buf, buflen, 2 * passwd->len) != SASL_OK) {
 		SETERROR(utils, "cannot allocate P16_nt unicode buffer");
 		*result = SASL_NOMEM;
 	}
 	else {
-		to_unicode((unsigned char *)*buf, (const char *)passwd->data, passwd->len);
-		MD4((unsigned char *)*buf, 2 * passwd->len, P16);
+		to_unicode((uchar *)*buf, (const char *)passwd->data, passwd->len);
+		MD4((uchar *)*buf, 2 * passwd->len, P16);
 		*result = SASL_OK;
 	}
 	return P16;
 }
 
-static unsigned char * P21(unsigned char * P21, sasl_secret_t * passwd,
-    unsigned char * (*P16)(unsigned char *,
-    sasl_secret_t *,
-    const sasl_utils_t *,
-    char **, unsigned *, int *),
-    const sasl_utils_t * utils,
-    char ** buf, unsigned * buflen, int * result)
+static uchar * P21(uchar * P21, sasl_secret_t * passwd, uchar * (*P16)(uchar *, sasl_secret_t *, const sasl_utils_t *,
+    char **, unsigned *, int *), const sasl_utils_t * utils, char ** buf, unsigned * buflen, int * result)
 {
 	memzero(P16(P21, passwd, utils, buf, buflen, result) + 16, 5);
 	return P21;
 }
 
-static unsigned char * P24(unsigned char * P24, unsigned char * P21,
-    unsigned char * C8)
-
+static uchar * P24(uchar * P24, uchar * P21, uchar * C8)
 {
 	E(P24, P21, NTLM_HASH_LENGTH, C8, NTLM_NONCE_LENGTH);
 	return P24;
@@ -403,14 +384,14 @@ static void _plug_HMAC_CTX_free(HMAC_CTX * ctx, const sasl_utils_t * utils)
 #endif
 }
 
-static unsigned char * V2(unsigned char * V2, sasl_secret_t * passwd, const char * authid, const char * target,
-    const unsigned char * challenge, const unsigned char * blob, unsigned bloblen, const sasl_utils_t * utils, char ** buf, unsigned * buflen, int * result)
+static uchar * V2(uchar * V2, sasl_secret_t * passwd, const char * authid, const char * target,
+    const uchar * challenge, const uchar * blob, unsigned bloblen, const sasl_utils_t * utils, char ** buf, unsigned * buflen, int * result)
 {
 	HMAC_CTX * ctx = NULL;
-	unsigned char hash[EVP_MAX_MD_SIZE];
+	uchar hash[EVP_MAX_MD_SIZE];
 	char * upper;
 	// Allocate enough space for the unicode target 
-	unsigned int len = (unsigned int)(strlen(authid) + xstrlen(target));
+	unsigned int len = (uint)(strlen(authid) + xstrlen(target));
 	if(_plug_buf_alloc(utils, buf, buflen, 2 * len + 1) != SASL_OK) {
 		SETERROR(utils, "cannot allocate NTLMv2 hash");
 		*result = SASL_NOMEM;
@@ -422,24 +403,19 @@ static unsigned char * V2(unsigned char * V2, sasl_secret_t * passwd, const char
 	else {
 		/* NTLMv2hash = HMAC-MD5(NTLMhash, unicode(ucase(authid + domain))) */
 		P16_nt(hash, passwd, utils, buf, buflen, result);
-
 		/* Use the tail end of the buffer for ucase() conversion */
 		upper = *buf + len;
 		strcpy(upper, authid);
 		if(target) strcat(upper, target);
 		ucase(upper, len);
-		to_unicode((unsigned char *)*buf, upper, len);
-
-		HMAC(EVP_md5(), hash, MD4_DIGEST_LENGTH,
-		    (unsigned char *)*buf, 2 * len, hash, &len);
-
+		to_unicode((uchar *)*buf, upper, len);
+		HMAC(EVP_md5(), hash, MD4_DIGEST_LENGTH, (uchar *)*buf, 2 * len, hash, &len);
 		/* V2 = HMAC-MD5(NTLMv2hash, challenge + blob) + blob */
 		HMAC_CTX_reset(ctx);
 		HMAC_Init_ex(ctx, hash, len, EVP_md5(), NULL);
 		HMAC_Update(ctx, challenge, NTLM_NONCE_LENGTH);
 		HMAC_Update(ctx, blob, bloblen);
 		HMAC_Final(ctx, V2, &len);
-
 		/* the blob is concatenated outside of this function */
 
 		*result = SASL_OK;
@@ -454,7 +430,7 @@ static unsigned char * V2(unsigned char * V2, sasl_secret_t * passwd, const char
 typedef struct server_context {
 	int state;
 	uint32 flags;
-	unsigned char nonce[NTLM_NONCE_LENGTH];
+	uchar nonce[NTLM_NONCE_LENGTH];
 	/* per-step mem management */
 	char * out_buf;
 	unsigned out_buf_len;
@@ -463,17 +439,16 @@ typedef struct server_context {
 } server_context_t;
 
 #define N(a)                    (sizeof(a) / sizeof(a[0]))
-
 #define SMB_HDR_PROTOCOL        "\xffSMB"
 
 typedef struct {
-	unsigned char protocol[4];
-	unsigned char command;
+	uchar protocol[4];
+	uchar command;
 	uint32 status;
-	unsigned char flags;
+	uchar flags;
 	uint16 flags2;
 	uint16 PidHigh;
-	unsigned char extra[10];
+	uchar extra[10];
 	uint16 tid;
 	uint16 pid;
 	uint16 uid;
@@ -482,7 +457,7 @@ typedef struct {
 
 typedef struct {
 	uint16 dialect_index;
-	unsigned char security_mode;
+	uchar security_mode;
 	uint16 max_mpx_count;
 	uint16 max_number_vcs;
 	uint32 max_buffer_size;
@@ -492,12 +467,12 @@ typedef struct {
 	uint32 system_time_low;
 	uint32 system_time_high;
 	uint16 server_time_zone;
-	unsigned char encryption_key_length;
+	uchar encryption_key_length;
 } SMB_NegProt_Resp;
 
 typedef struct {
-	unsigned char andx_command;
-	unsigned char andx_reserved;
+	uchar andx_command;
+	uchar andx_reserved;
 	uint16 andx_offset;
 	uint16 max_buffer_size;
 	uint16 max_mpx_count;
@@ -510,8 +485,8 @@ typedef struct {
 } SMB_SessionSetup;
 
 typedef struct {
-	unsigned char andx_command;
-	unsigned char andx_reserved;
+	uchar andx_command;
+	uchar andx_reserved;
 	uint16 andx_offset;
 	uint16 action;
 } SMB_SessionSetup_Resp;
@@ -570,9 +545,9 @@ static const char * SMB_DIALECTS[] = {
 	"\x02NT LM 0.12"
 };
 
-static void load_smb_header(unsigned char buf[], SMB_Header * hdr)
+static void load_smb_header(uchar buf[], SMB_Header * hdr)
 {
-	unsigned char * p = buf;
+	uchar * p = buf;
 
 	memcpy(p, SMB_HDR_PROTOCOL, 4); p += 4;
 	*p++ = hdr->command;
@@ -587,9 +562,9 @@ static void load_smb_header(unsigned char buf[], SMB_Header * hdr)
 	htois(p, hdr->mid);
 }
 
-static void unload_smb_header(unsigned char buf[], SMB_Header * hdr)
+static void unload_smb_header(uchar buf[], SMB_Header * hdr)
 {
-	unsigned char * p = buf;
+	uchar * p = buf;
 
 	memcpy(hdr->protocol, p, 4); p += 4;
 	hdr->command = *p++;
@@ -604,9 +579,9 @@ static void unload_smb_header(unsigned char buf[], SMB_Header * hdr)
 	hdr->mid = itohs(p);
 }
 
-static void unload_negprot_resp(unsigned char buf[], SMB_NegProt_Resp * resp)
+static void unload_negprot_resp(uchar buf[], SMB_NegProt_Resp * resp)
 {
-	unsigned char * p = buf;
+	uchar * p = buf;
 
 	resp->dialect_index = itohs(p); p += 2;
 	resp->security_mode = *p++;
@@ -622,9 +597,9 @@ static void unload_negprot_resp(unsigned char buf[], SMB_NegProt_Resp * resp)
 	resp->encryption_key_length = *p;
 }
 
-static void load_session_setup(unsigned char buf[], SMB_SessionSetup * setup)
+static void load_session_setup(uchar buf[], SMB_SessionSetup * setup)
 {
-	unsigned char * p = buf;
+	uchar * p = buf;
 
 	*p++ = setup->andx_command;
 	*p++ = setup->andx_reserved;
@@ -639,10 +614,10 @@ static void load_session_setup(unsigned char buf[], SMB_SessionSetup * setup)
 	htoil(p, setup->capabilities); p += 4;
 }
 
-static void unload_session_setup_resp(unsigned char buf[],
+static void unload_session_setup_resp(uchar buf[],
     SMB_SessionSetup_Resp * resp)
 {
-	unsigned char * p = buf;
+	uchar * p = buf;
 
 	resp->andx_command = *p++;
 	resp->andx_reserved = *p++;
@@ -716,9 +691,8 @@ static int retry_read(SOCKET fd, char * buf0, unsigned nbyte)
 	int n;
 	int nread = 0;
 	char * buf = buf0;
-
-	if(nbyte == 0) return 0;
-
+	if(nbyte == 0) 
+		return 0;
 	for(;;) {
 /* Can't use read() on sockets on Windows, but recv works on all platforms */
 		n = recv(fd, buf, nbyte, 0);
@@ -728,20 +702,16 @@ static int retry_read(SOCKET fd, char * buf0, unsigned nbyte)
 #endif
 			return -1;
 		}
-
 		nread += n;
-
 		if(n >= (int)nbyte) return nread;
-
 		buf += n;
 		nbyte -= n;
 	}
 }
 
-static void make_netbios_name(const char * in, unsigned char out[])
+static void make_netbios_name(const char * in, uchar out[])
 {
 	size_t i, j = 0, n;
-
 	/* create a NetBIOS name from the DNS name
 	 *
 	 * - use up to the first 16 chars of the first part of the hostname
@@ -783,8 +753,8 @@ static SOCKET smb_connect_server(const sasl_utils_t * utils, const char * client
 	char * port = "139";
 	char hbuf[NI_MAXHOST], pbuf[NI_MAXSERV];
 
-	unsigned char called[34];
-	unsigned char calling[34];
+	uchar called[34];
+	uchar calling[34];
 	struct iovec iov[3];
 	uint32 pkt;
 	int rc;
@@ -875,7 +845,7 @@ static SOCKET smb_connect_server(const sasl_utils_t * utils, const char * client
 	rc = retry_read(s, (char *)&pkt, sizeof(pkt));
 	pkt = ntohl(pkt);
 	if(rc == -1 || pkt != (uint32)(NBT_POSITIVE_SESSION_RESP << 24)) {
-		unsigned char ec = NBT_ERR_UNSPECIFIED;
+		uchar ec = NBT_ERR_UNSPECIFIED;
 		char * errstr;
 		retry_read(s, (char *)&ec, sizeof(ec));
 		switch(ec) {
@@ -896,9 +866,9 @@ static int smb_negotiate_protocol(const sasl_utils_t * utils, server_context_t *
 {
 	SMB_Header hdr;
 	SMB_NegProt_Resp resp;
-	unsigned char hbuf[SMB_HDR_SIZE], * p;
-	unsigned char wordcount = 0;
-	unsigned char bc[sizeof(uint16)];
+	uchar hbuf[SMB_HDR_SIZE], * p;
+	uchar wordcount = 0;
+	uchar bc[sizeof(uint16)];
 	uint16 bytecount;
 	uint32 len, nl;
 	int n_dialects = N(SMB_DIALECTS);
@@ -977,7 +947,7 @@ static int smb_negotiate_protocol(const sasl_utils_t * utils, server_context_t *
 		utils->log(NULL, SASL_LOG_ERR, "NTLM: error reading NEGPROT response");
 		return SASL_FAIL;
 	}
-	p = (unsigned char *)text->out_buf;
+	p = (uchar *)text->out_buf;
 
 	/* parse the header */
 	if(len < SMB_HDR_SIZE) {
@@ -1049,7 +1019,7 @@ static int smb_negotiate_protocol(const sasl_utils_t * utils, server_context_t *
 			return SASL_NOMEM;
 		}
 		memcpy(*domain, p, len);
-		from_unicode(*domain, (unsigned char *)*domain, len);
+		from_unicode(*domain, (uchar *)*domain, len);
 
 		text->flags |= NTLM_TARGET_IS_DOMAIN;
 	}
@@ -1059,15 +1029,15 @@ static int smb_negotiate_protocol(const sasl_utils_t * utils, server_context_t *
 
 static int smb_session_setup(const sasl_utils_t * utils, server_context_t * text,
     const char * authid, char * domain,
-    unsigned char * lm_resp, unsigned lm_resp_len,
-    unsigned char * nt_resp, unsigned nt_resp_len)
+    uchar * lm_resp, unsigned lm_resp_len,
+    uchar * nt_resp, unsigned nt_resp_len)
 {
 	SMB_Header hdr;
 	SMB_SessionSetup setup;
 	SMB_SessionSetup_Resp resp;
-	unsigned char hbuf[SMB_HDR_SIZE], sbuf[SMB_SESSION_SETUP_SIZE], * p;
-	unsigned char wordcount = SMB_SESSION_SETUP_SIZE / sizeof(uint16);
-	unsigned char bc[sizeof(uint16)];
+	uchar hbuf[SMB_HDR_SIZE], sbuf[SMB_SESSION_SETUP_SIZE], * p;
+	uchar wordcount = SMB_SESSION_SETUP_SIZE / sizeof(uint16);
+	uchar bc[sizeof(uint16)];
 	uint16 bytecount;
 	uint32 len, nl;
 	struct iovec iov[12];
@@ -1180,7 +1150,7 @@ static int smb_session_setup(const sasl_utils_t * utils, server_context_t * text
 		utils->log(NULL, SASL_LOG_ERR, "NTLM: error reading SESSIONSETUP response");
 		return SASL_FAIL;
 	}
-	p = (unsigned char *)text->out_buf;
+	p = (uchar *)text->out_buf;
 
 	/* parse the header */
 	if(len < SMB_HDR_SIZE) {
@@ -1250,16 +1220,16 @@ static int create_challenge(const sasl_utils_t * utils,
 		SETERROR(utils, "need nonce for NTLM challenge");
 		return SASL_FAIL;
 	}
-	*outlen = offset + 2 * (unsigned)xstrlen(target);
+	*outlen = offset + 2 * (uint)xstrlen(target);
 	if(_plug_buf_alloc(utils, buf, buflen, *outlen) != SASL_OK) {
 		SETERROR(utils, "cannot allocate NTLM challenge");
 		return SASL_NOMEM;
 	}
-	base = (unsigned char *)*buf;
+	base = (uchar *)*buf;
 	memzero(base, *outlen);
 	memcpy(base + NTLM_SIG_OFFSET, NTLM_SIGNATURE, sizeof(NTLM_SIGNATURE));
 	htoil(base + NTLM_TYPE_OFFSET, NTLM_TYPE_CHALLENGE);
-	load_buffer(base + NTLM_TYPE2_TARGET_OFFSET, (const unsigned char *)ucase(target, 0), (uint16)xstrlen(target), flags & NTLM_USE_UNICODE,
+	load_buffer(base + NTLM_TYPE2_TARGET_OFFSET, (const uchar *)ucase(target, 0), (uint16)xstrlen(target), flags & NTLM_USE_UNICODE,
 	    base, &offset);
 	htoil(base + NTLM_TYPE2_FLAGS_OFFSET, flags);
 	memcpy(base + NTLM_TYPE2_CHALLENGE_OFFSET, nonce, NTLM_NONCE_LENGTH);
@@ -1389,7 +1359,7 @@ static int ntlm_server_mech_step2(server_context_t * text,
     unsigned * serveroutlen __attribute__((unused)),
     sasl_out_params_t * oparams)
 {
-	unsigned char * lm_resp = NULL, * nt_resp = NULL;
+	uchar * lm_resp = NULL, * nt_resp = NULL;
 	char * domain = NULL, * authid = NULL;
 	unsigned lm_resp_len, nt_resp_len, domain_len, authid_len;
 	int result;
@@ -1402,55 +1372,39 @@ static int ntlm_server_mech_step2(server_context_t * text,
 	}
 
 	result = unload_buffer(sparams->utils,
-		(const unsigned char *)clientin + NTLM_TYPE3_LMRESP_OFFSET,
+		(const uchar *)clientin + NTLM_TYPE3_LMRESP_OFFSET,
 		(u_char**)&lm_resp, &lm_resp_len, 0,
-		(const unsigned char *)clientin, clientinlen);
+		(const uchar *)clientin, clientinlen);
 	if(result != SASL_OK) goto cleanup;
 
 	result = unload_buffer(sparams->utils,
-		(const unsigned char *)clientin + NTLM_TYPE3_NTRESP_OFFSET,
+		(const uchar *)clientin + NTLM_TYPE3_NTRESP_OFFSET,
 		(u_char**)&nt_resp, &nt_resp_len, 0,
-		(const unsigned char *)clientin, clientinlen);
+		(const uchar *)clientin, clientinlen);
 	if(result != SASL_OK) goto cleanup;
-
-	result = unload_buffer(sparams->utils,
-		(const unsigned char *)clientin + NTLM_TYPE3_DOMAIN_OFFSET,
-		(u_char**)&domain, &domain_len,
-		text->flags & NTLM_USE_UNICODE,
-		(const unsigned char *)clientin, clientinlen);
+	result = unload_buffer(sparams->utils, (const uchar *)clientin + NTLM_TYPE3_DOMAIN_OFFSET,
+		(u_char**)&domain, &domain_len, text->flags & NTLM_USE_UNICODE, (const uchar *)clientin, clientinlen);
 	if(result != SASL_OK) goto cleanup;
-
-	result = unload_buffer(sparams->utils,
-		(const unsigned char *)clientin + NTLM_TYPE3_USER_OFFSET,
-		(u_char**)&authid, &authid_len,
-		text->flags & NTLM_USE_UNICODE,
-		(const unsigned char *)clientin, clientinlen);
+	result = unload_buffer(sparams->utils, (const uchar *)clientin + NTLM_TYPE3_USER_OFFSET,
+		(u_char**)&authid, &authid_len, text->flags & NTLM_USE_UNICODE, (const uchar *)clientin, clientinlen);
 	if(result != SASL_OK) goto cleanup;
-
 	/* require at least one response and an authid */
-	if((!lm_resp && !nt_resp) ||
-	    (lm_resp && lm_resp_len < NTLM_RESP_LENGTH) ||
-	    (nt_resp && nt_resp_len < NTLM_RESP_LENGTH) ||
-	    !authid) {
+	if((!lm_resp && !nt_resp) || (lm_resp && lm_resp_len < NTLM_RESP_LENGTH) || (nt_resp && nt_resp_len < NTLM_RESP_LENGTH) || !authid) {
 		SETERROR(sparams->utils, "client issued incorrect/nonexistent responses");
 		result = SASL_BADPROT;
 		goto cleanup;
 	}
-
 	sparams->utils->log(NULL, SASL_LOG_DEBUG, "client user: %s", authid);
-	if(domain) sparams->utils->log(NULL, SASL_LOG_DEBUG, "client domain: %s", domain);
-
+	if(domain) 
+		sparams->utils->log(NULL, SASL_LOG_DEBUG, "client domain: %s", domain);
 	if(text->sock == -1) {
 		/* verify the response internally */
-
 		sasl_secret_t * password = NULL;
 		size_t pass_len;
-		const char * password_request[] = { SASL_AUX_PASSWORD,
-						    NULL };
+		const char * password_request[] = { SASL_AUX_PASSWORD, NULL };
 		struct propval auxprop_values[2];
-		unsigned char hash[NTLM_HASH_LENGTH];
-		unsigned char resp[NTLM_RESP_LENGTH];
-
+		uchar hash[NTLM_HASH_LENGTH];
+		uchar resp[NTLM_RESP_LENGTH];
 		/* fetch user's password */
 		result = sparams->utils->prop_request(sparams->propctx, password_request);
 		if(result != SASL_OK) goto cleanup;
@@ -1482,7 +1436,7 @@ static int ntlm_server_mech_step2(server_context_t * text,
 			goto cleanup;
 		}
 
-		password->len = (unsigned)pass_len;
+		password->len = (uint)pass_len;
 		strncpy((char *)password->data, auxprop_values[0].values[0], pass_len + 1);
 
 		/* erase the plaintext password */
@@ -1682,21 +1636,21 @@ static int create_request(const sasl_utils_t * utils,
 	uint32 offset = NTLM_TYPE1_DATA_OFFSET;
 	u_char * base;
 
-	*outlen = (unsigned)(offset + xstrlen(domain) + xstrlen(wkstn));
+	*outlen = (uint)(offset + xstrlen(domain) + xstrlen(wkstn));
 	if(_plug_buf_alloc(utils, buf, buflen, *outlen) != SASL_OK) {
 		SETERROR(utils, "cannot allocate NTLM request");
 		return SASL_NOMEM;
 	}
 
-	base = (unsigned char *)*buf;
+	base = (uchar *)*buf;
 	memzero(base, *outlen);
 	memcpy(base + NTLM_SIG_OFFSET, NTLM_SIGNATURE, sizeof(NTLM_SIGNATURE));
 	htoil(base + NTLM_TYPE_OFFSET, NTLM_TYPE_REQUEST);
 	htoil(base + NTLM_TYPE1_FLAGS_OFFSET, flags);
 	load_buffer(base + NTLM_TYPE1_DOMAIN_OFFSET,
-	    (const unsigned char *)domain, (uint16)xstrlen(domain), 0, base, &offset);
+	    (const uchar *)domain, (uint16)xstrlen(domain), 0, base, &offset);
 	load_buffer(base + NTLM_TYPE1_WORKSTN_OFFSET,
-	    (const unsigned char *)wkstn, (uint16)xstrlen(wkstn), 0, base, &offset);
+	    (const uchar *)wkstn, (uint16)xstrlen(wkstn), 0, base, &offset);
 
 	return SASL_OK;
 }
@@ -1730,7 +1684,7 @@ static int create_response(const sasl_utils_t * utils,
 		return SASL_FAIL;
 	}
 
-	*outlen = (unsigned)(offset + (flags & NTLM_USE_UNICODE ? 2 : 1) *
+	*outlen = (uint)(offset + (flags & NTLM_USE_UNICODE ? 2 : 1) *
 	    (xstrlen(domain) + xstrlen(user) + xstrlen(wkstn)));
 	if(lm_resp) *outlen += NTLM_RESP_LENGTH;
 	if(nt_resp) *outlen += NTLM_RESP_LENGTH;
@@ -1740,7 +1694,7 @@ static int create_response(const sasl_utils_t * utils,
 		SETERROR(utils, "cannot allocate NTLM response");
 		return SASL_NOMEM;
 	}
-	base = (unsigned char *)*buf;
+	base = (uchar *)*buf;
 	memzero(base, *outlen);
 	memcpy(base + NTLM_SIG_OFFSET, NTLM_SIGNATURE, sizeof(NTLM_SIGNATURE));
 	htoil(base + NTLM_TYPE_OFFSET, NTLM_TYPE_RESPONSE);
@@ -1749,14 +1703,14 @@ static int create_response(const sasl_utils_t * utils,
 	load_buffer(base + NTLM_TYPE3_NTRESP_OFFSET,
 	    nt_resp, nt_resp ? NTLM_RESP_LENGTH : 0, 0, base, &offset);
 	load_buffer(base + NTLM_TYPE3_DOMAIN_OFFSET,
-	    (const unsigned char *)ucase(domain, 0), (uint16)xstrlen(domain),
+	    (const uchar *)ucase(domain, 0), (uint16)xstrlen(domain),
 	    flags & NTLM_USE_UNICODE,
 	    base, &offset);
 	load_buffer(base + NTLM_TYPE3_USER_OFFSET,
-	    (const unsigned char *)user, (uint16)xstrlen(user),
+	    (const uchar *)user, (uint16)xstrlen(user),
 	    flags & NTLM_USE_UNICODE, base, &offset);
 	load_buffer(base + NTLM_TYPE3_WORKSTN_OFFSET,
-	    (const unsigned char *)ucase(wkstn, 0), (uint16)xstrlen(wkstn),
+	    (const uchar *)ucase(wkstn, 0), (uint16)xstrlen(wkstn),
 	    flags & NTLM_USE_UNICODE,
 	    base, &offset);
 	load_buffer(base + NTLM_TYPE3_SESSIONKEY_OFFSET,
@@ -1825,8 +1779,8 @@ static int ntlm_client_mech_step2(client_context_t * text,
 	int auth_result = SASL_OK;
 	int pass_result = SASL_OK;
 	uint32 flags = 0;
-	unsigned char hash[NTLM_HASH_LENGTH];
-	unsigned char resp[NTLM_RESP_LENGTH], * lm_resp = NULL, * nt_resp = NULL;
+	uchar hash[NTLM_HASH_LENGTH];
+	uchar resp[NTLM_RESP_LENGTH], * lm_resp = NULL, * nt_resp = NULL;
 	int result;
 	const char * sendv2;
 
@@ -1873,7 +1827,7 @@ static int ntlm_client_mech_step2(client_context_t * text,
 	params->utils->log(NULL, SASL_LOG_DEBUG, "server flags: %x", flags);
 	flags &= NTLM_FLAGS_MASK; /* mask off the bits we don't support */
 	result = unload_buffer(params->utils,
-		(const unsigned char *)serverin + NTLM_TYPE2_TARGET_OFFSET,
+		(const uchar *)serverin + NTLM_TYPE2_TARGET_OFFSET,
 		(u_char**)&domain, NULL,
 		flags & NTLM_USE_UNICODE,
 		(u_char*)serverin, serverinlen);
@@ -1890,8 +1844,8 @@ static int ntlm_client_mech_step2(client_context_t * text,
 		params->utils->log(NULL, SASL_LOG_DEBUG, "calculating LMv2 response");
 		params->utils->rand(params->utils->rpool, cnonce, NTLM_NONCE_LENGTH);
 		V2(resp, password, oparams->authid, domain,
-		    (const unsigned char *)serverin + NTLM_TYPE2_CHALLENGE_OFFSET,
-		    (const unsigned char *)cnonce, NTLM_NONCE_LENGTH,
+		    (const uchar *)serverin + NTLM_TYPE2_CHALLENGE_OFFSET,
+		    (const uchar *)cnonce, NTLM_NONCE_LENGTH,
 		    params->utils, &text->out_buf, &text->out_buf_len, &result);
 
 		lm_resp = resp;
@@ -1900,14 +1854,14 @@ static int ntlm_client_mech_step2(client_context_t * text,
 		params->utils->log(NULL, SASL_LOG_DEBUG, "calculating NT response");
 		P24(resp, P21(hash, password, P16_nt, params->utils,
 		    &text->out_buf, &text->out_buf_len, &result),
-		    (unsigned char *)serverin + NTLM_TYPE2_CHALLENGE_OFFSET);
+		    (uchar *)serverin + NTLM_TYPE2_CHALLENGE_OFFSET);
 		nt_resp = resp;
 	}
 	else {
 		params->utils->log(NULL, SASL_LOG_DEBUG, "calculating LM response");
 		P24(resp, P21(hash, password, P16_lm, params->utils,
 		    &text->out_buf, &text->out_buf_len, &result),
-		    (unsigned char *)serverin + NTLM_TYPE2_CHALLENGE_OFFSET);
+		    (uchar *)serverin + NTLM_TYPE2_CHALLENGE_OFFSET);
 		lm_resp = resp;
 	}
 	if(result != SASL_OK) goto cleanup;
@@ -1973,8 +1927,7 @@ static void ntlm_client_mech_dispose(void * conn_context, const sasl_utils_t * u
 	}
 }
 
-static sasl_client_plug_t ntlm_client_plugins[] =
-{
+static sasl_client_plug_t ntlm_client_plugins[] = {
 	{
 		"NTLM",                 /* mech_name */
 		0,                      /* max_ssf */

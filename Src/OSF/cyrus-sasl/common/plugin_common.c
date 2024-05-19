@@ -246,7 +246,7 @@ void _plug_free_string(const sasl_utils_t * utils, char ** str)
 	size_t len;
 	if(!utils || !str || !(*str)) return;
 	len = strlen(*str);
-	utils->erasebuffer(*str, (unsigned int)len);
+	utils->erasebuffer(*str, (uint)len);
 	utils->FnFree(*str);
 	*str = NULL;
 }

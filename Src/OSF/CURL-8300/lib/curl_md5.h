@@ -24,17 +24,14 @@
 *
 ***************************************************************************/
 
-#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) \
-	|| !defined(CURL_DISABLE_DIGEST_AUTH)
+#if (defined(USE_CURL_NTLM_CORE) && !defined(USE_WINDOWS_SSPI)) || !defined(CURL_DISABLE_DIGEST_AUTH)
 
 #include "curl_hmac.h"
 
 #define MD5_DIGEST_LEN  16
 
 typedef CURLcode (* Curl_MD5_init_func)(void * context);
-typedef void (* Curl_MD5_update_func)(void * context,
-    const uchar * data,
-    uint len);
+typedef void (* Curl_MD5_update_func)(void * context, const uchar * data, uint len);
 typedef void (* Curl_MD5_final_func)(uchar * result, void * context);
 
 struct MD5_params {
@@ -47,19 +44,15 @@ struct MD5_params {
 
 struct MD5_context {
 	const struct MD5_params * md5_hash; /* Hash function definition */
-	void                  * md5_hashctx;/* Hash function context */
+	void * md5_hashctx;/* Hash function context */
 };
 
 extern const struct MD5_params Curl_DIGEST_MD5[1];
 extern const struct HMAC_params Curl_HMAC_MD5[1];
 
-CURLcode Curl_md5it(uchar * output, const uchar * input,
-    const size_t len);
-
-struct MD5_context *Curl_MD5_init(const struct MD5_params * md5params);
-CURLcode Curl_MD5_update(struct MD5_context * context,
-    const uchar * data,
-    uint len);
+CURLcode Curl_md5it(uchar * output, const uchar * input, const size_t len);
+struct MD5_context * Curl_MD5_init(const struct MD5_params * md5params);
+CURLcode Curl_MD5_update(struct MD5_context * context, const uchar * data, uint len);
 CURLcode Curl_MD5_final(struct MD5_context * context, uchar * result);
 
 #endif

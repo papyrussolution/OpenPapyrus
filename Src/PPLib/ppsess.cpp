@@ -5501,6 +5501,7 @@ PPID PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 				case PPHS_STYLOQBINDERY:  val = PPOBJ_STYLOQBINDERY; break; // @v11.4.3
 				case PPHS_WSCTL:          val = PPOBJ_COMPUTER; break; // @v11.7.3
 				case PPHS_COMPUTER:       val = PPOBJ_COMPUTER; break; // @v12.0.0 // synonym of PPHS_WSCTL
+				case PPHS_COMPUTERCATEGORY: val = PPOBJ_COMPUTERCATEGORY; break; // @v12.0.2
 				default: PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb); break;
 			}
 			obj_type = LoWord(val);

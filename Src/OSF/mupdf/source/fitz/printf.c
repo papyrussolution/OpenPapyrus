@@ -430,7 +430,7 @@ void fz_format_string(fz_context * ctx, void * user, void (*emit)(fz_context * c
 				    z = '0';
 				    fmtputc(&out, '0');
 				    fmtputc(&out, 'x');
-				/* fallthrough */
+				// @fallthrough
 				case 'x':
 				    if(bits == 64) {
 					    i64 = va_arg(args, int64_t);

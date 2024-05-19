@@ -33,8 +33,8 @@ void DH_get0_key(const DH *dh, const BIGNUM **pub_key, const BIGNUM **priv_key);
 int DH_set0_key(DH *dh, BIGNUM *pub_key, BIGNUM *priv_key);
 int DH_set_length(DH *dh, long length);
 
-const unsigned char *EVP_CIPHER_CTX_iv(const EVP_CIPHER_CTX *ctx);
-unsigned char *EVP_CIPHER_CTX_iv_noconst(EVP_CIPHER_CTX *ctx);
+const uchar *EVP_CIPHER_CTX_iv(const EVP_CIPHER_CTX *ctx);
+uchar *EVP_CIPHER_CTX_iv_noconst(EVP_CIPHER_CTX *ctx);
 EVP_MD_CTX *EVP_MD_CTX_new(void);
 void EVP_MD_CTX_free(EVP_MD_CTX *ctx);
 EVP_ENCODE_CTX *EVP_ENCODE_CTX_new(void);
@@ -45,8 +45,8 @@ void EVP_ENCODE_CTX_free(EVP_ENCODE_CTX *ctx);
 RSA_METHOD *RSA_meth_dup(const RSA_METHOD *meth);
 int RSA_meth_set1_name(RSA_METHOD *meth, const char *name);
 #define RSA_meth_get_finish(meth) meth->finish
-int RSA_meth_set_priv_enc(RSA_METHOD *meth, int (*priv_enc) (int flen, const unsigned char *from, unsigned char *to, RSA *rsa, int padding));
-int RSA_meth_set_priv_dec(RSA_METHOD *meth, int (*priv_dec) (int flen, const unsigned char *from, unsigned char *to, RSA *rsa, int padding));
+int RSA_meth_set_priv_enc(RSA_METHOD *meth, int (*priv_enc) (int flen, const uchar *from, uchar *to, RSA *rsa, int padding));
+int RSA_meth_set_priv_dec(RSA_METHOD *meth, int (*priv_dec) (int flen, const uchar *from, uchar *to, RSA *rsa, int padding));
 int RSA_meth_set_finish(RSA_METHOD *meth, int (*finish) (RSA *rsa));
 void RSA_meth_free(RSA_METHOD *meth);
 
