@@ -4592,6 +4592,61 @@ private:
 // Менеджер записей как база для собственной DBMS (мечта детства). В практической плоскости
 // я намерен использовать этот модуль пока ситуативно.
 //
+// Descr: Список свободных блоков. Структуроно состоит из коллеции векторов свободных, 
+//   каждый зи которых (векторов) ассоциированн с типом записи. Класс SRecPageManager
+//   запрашивает свободный блок с явным указанием типа записи (see SRecPageManager::QueryPageForWriting).
+//
+class SRecPageFreeList {
+public:
+	struct Entry {
+		Entry(uint64 rowId, uint32 freeSize) : RowId(rowId), FreeSize(freeSize)
+		{
+		}
+		Entry() : RowId(0ULL), FreeSize(0)
+		{
+		}
+		uint64 RowId;    // Идентификатор позиции свободного блока
+		uint32 FreeSize; // Досупный полезный размер блока (PayloadSize)
+	};
+private:
+	class SingleTypeList : public TSVector <Entry> {
+	public:
+		SingleTypeList(uint32 type) : TSVector <Entry>(), Type(type)
+		{
+		}
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		uint32 GetType() const { return Type; }
+		//
+		// Returns:
+		//    1 - блок уже существует в списке, но с другим значением размера - его размер был изменен
+		//   -1 - блок уже существует в списке с тем же значением размера - делать ничего не надо было
+		//    2 - блок существует в списке, был задан нулевой размер freeSize - блок удален
+		//    3 - блок не найден в списке - создана новая запись списка
+		//   -2 - блок не найден в списке, был задан нулевой размер freeSize - делать ничего не надо было
+		//    0 - ошибка
+		//
+		int    Put(uint64 rowId, uint32 freeSize);
+		//
+		// Descr: Удаляет свободный блок rowId из списка.
+		// Note: Если отсутствие заданного блока является ошибкой, то вызывающая функция должна 
+		//   проинспектировать результат вызова (see functon SingleTypeList::Put)
+		//
+		int    Remove(uint64 rowId) { return Put(rowId, 0U); }
+		const  Entry * Get(uint32 reqSize) const;
+	private:
+		const uint32 Type; 
+	};
+	TSCollection <SingleTypeList> L;
+public:
+	SRecPageFreeList()
+	{
+	}
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    Put(uint32 type, uint64 rowId, uint32 freeSize);
+	int    Remove(uint32 type, uint64 rowId) { return Put(type, rowId, 0U); }
+	const  Entry * Get(uint32 type, uint32 reqSize) const;
+};
+
 struct SDataPageHeader {
 	static constexpr uint32 SignatureValue = 0x76AE0000U;
 	//
@@ -4644,17 +4699,31 @@ struct SDataPageHeader {
 			}
 			TotalSize = totalSize;
 		}
-		uint32 PayloadSize;
 		uint   Flags; // Младшие 2 бита поля Flags используются как индикатор длины поля размера блока.
 			// b00 - 4bytes, b01 - 1byte, b10 - 2bytes, b11 - 3bytes
-		//uint   Padding; // 1 || 2 || 3 // Если блок является остаточным "ошметком", находящимся между другими блоками
-			// или же в конце страницы, то он маркируется специальным образом.
+		uint   PayloadSize; // Размер блока, доступный для использования.
 		uint   TotalSize; // Общий размер блока, включая префикс. При вызове функции EvaluateRecPrefix
 			// должен быть задан ненулевым только один из факторов: PayloadSize || TotalSize, поскольку в противном
 			// случае может возникнуть неоднозначность.
 	};
-	uint   GetFreeSizeFromPos(uint pos) const;
-	uint   GetFreeSize() const;
+	struct Stat {
+		Stat() : BlockCount(0), FreeBlockCount(0), UsableBlockCount(0), UsableBlockSize(0)
+		{
+		}
+		Stat & Z()
+		{
+			BlockCount = 0;
+			FreeBlockCount = 0;
+			UsableBlockCount = 0;
+			UsableBlockSize = 0;
+			return *this;
+		}
+		uint   BlockCount;       // Общее количество блоков на странице
+		uint   FreeBlockCount;   // Общее количество свободных блоков на странице
+		uint   UsableBlockCount; // Количество свободных блоков, чей размер позволяет их использовать для записи данных
+		uint   UsableBlockSize;  // Общий размер данных, который может быть записан в пригодные к использованию свободные блоки
+	};
+	bool   GetStat(Stat & rStat) const;
 	bool   IsValid() const;
 	uint32 ReadRecPrefix(uint pos, RecPrefix & rPfx) const;
 	//
@@ -4678,20 +4747,36 @@ struct SDataPageHeader {
 	//
 	uint32 WriteRecPrefix(uint offset, RecPrefix & rPfx);
 	//
+	// Descr: Записывает по адресу offset данные pData длиной dataLen. Смещение offset
+	//   задается от начала блока и должно точно указывать на предварительно распределенный
+	//   функцией MarkOutBlock блок. При успешном завершении функции по адресу pNewFreeEntry
+	//   заносится пара {rowId, payloadSize} нового свободного блока если записанные данные
+	//   (вместе со служебным префиксом) были меньше, нежели общий размер свободного блока по
+	//   смещению offset.
+	//   Если записанные данные точно соответствовали размеру блока или оствшийся "хвост" недостаточен
+	//   для того, чтобы в него что-нибудь в дальнейшем записать (1..3байта), то по указателю pNewFreeEntry заносится rowId
+	//   следующего блока и Size == 0. 
+	//   Если записанный блок заканчивает страницу, то по указателю pNewFreeEntry будет внесена пара {0, 0}
+	//   В случае ошибки, на выходе из функции pNewFreeEntry->RowId == 0.
+	// ARG(offset IN): Смещение блока, в которых будут записаны данные.
+	//   offset >= sizeof(SDataPageHeader) && offset < TotalSize.
+	// ARG(dataLen IN): Размер данных, которые должны быть записаны.
+	//   dataLen > 0 && dataLen < (TotalSize - sizeof(SDataPageHeader) - record_prefix)
+	// ARG(pNewFreeEntry OUT): @vptr Указатель, по которому вносится информация о новом
+	//   свободном блоке.
 	// Returns:
 	//   0 - error
 	//   !0 - значение rowid внесенной записи
 	//
-	uint64 Write(uint offset, const void * pData, uint dataLen);
+	uint64 Write(uint offset, const void * pData, uint dataLen, SRecPageFreeList::Entry * pNewFreeEntry);
 	//
 	// Returns:
 	//   0 - error
 	//   !0 - actual data size was read 
 	//
 	uint   Read(uint offset, void * pBuf, size_t bufSize);
-	const  void * Enum(uint * pPos, uint * pSize) const;
-	uint   MarkOutBlock(uint offset, uint size);
-	static SDataPageHeader * Allocate(uint32 type, uint32 seq, uint totalSize);
+	uint   MarkOutBlock(uint offset, uint size, RecPrefix * pPfx);
+	static SDataPageHeader * Allocate(uint32 type, uint32 seq, uint totalSize, SRecPageFreeList::Entry * pNewFreeEntry);
 	//
 	// Descr: Проверяет валидность пары {offset; size} как блока страницы.
 	//   Пара считается валидной если (offset+size) не выходит за пределы
@@ -4719,39 +4804,8 @@ struct SDataPageHeader {
 	uint16 Flags;
 	uint16 FixedChunkSize; // Если GetType() == tFixedChunkPool, то >0 иначе - 0.
 	uint32 TotalSize;    // Общий размер страницы вместе с этим заголовком и sentinel'ами (если есть такие)
-	uint32 FreePos;      // Смещение, с которого начинается свободное пространство. Свободный размер = (TotalSize-FreePos)
-};
-
-class SRecPageFreeList {
-public:
-	struct FreeEntry {
-		FreeEntry() : RowId(0ULL), FreeSize(0)
-		{
-		}
-		uint64 RowId;
-		uint32 FreeSize;
-	};
-private:
-	class SingleTypeList : public TSVector <FreeEntry> {
-	public:
-		SingleTypeList(uint32 type) : TSVector <FreeEntry>(), Type(type)
-		{
-		}
-		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-		uint32 GetType() const { return Type; }
-		int    Put(uint64 rowId, uint32 freeSize);
-		const  FreeEntry * Get(uint32 reqSize) const;
-	private:
-		const uint32 Type; 
-	};
-	TSCollection <SingleTypeList> L;
-public:
-	SRecPageFreeList()
-	{
-	}
-	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-	int    Put(uint32 type, uint32 seq, uint32 freeSize);
-	const  FreeEntry * Get(uint32 type, uint32 reqSize) const;
+	//uint32 FreePos;      // Смещение, с которого начинается свободное пространство. Свободный размер = (TotalSize-FreePos)
+	uint32 Reserve;      // @reserve
 };
 
 class SRecPageManager {
@@ -4771,7 +4825,6 @@ public:
 private:
 	SDataPageHeader * GetPage(uint32 seq);
 	SDataPageHeader * AllocatePage(uint32 type);
-	SDataPageHeader * QueryPageForWriting(uint32 pageType, uint32 reqSize);
 	SDataPageHeader * QueryPageForReading(uint64 rowId, uint32 pageType, uint * pOffset);
 	int    ReleasePage(SDataPageHeader * pPage);
 

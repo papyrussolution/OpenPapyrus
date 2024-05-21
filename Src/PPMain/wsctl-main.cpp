@@ -622,6 +622,12 @@ private:
 	//
 	class WsCtl_CliSession : public PPThread {
 	public:
+		//
+		// Descr: Идентификаторы запросов, которые не могут однозначно транслироваться в команды сервера PPSCMD_XXX
+		//
+		enum {
+			reqidQueryComputerCategoryList = (PPSCMD___LASTIDENTIFIER + 1),
+		};
 		WsCtl_CliSession(const WsCtl_Config & rJsP, WsCtl_ImGuiSceneBlock::State * pSt, WsCtlReqQueue * pQ);
 		virtual void Run();
 	private:
@@ -2008,6 +2014,19 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				P_St->D_TSess.SetData(st_data);
 			}
 			break;
+		case reqidQueryComputerCategoryList: // @v12.0.3
+			if(P_St) {
+				DComputerCategoryList st_data;
+				temp_buf.Z().Cat("SELECT").Space().Cat("COMPUTERCATEGORY");
+				if(rCli.ExecSrvCmd(temp_buf, reply)) { // Ответ придет в формате xml
+					SString reply_buf;
+					reply.StartReading(&reply_buf);
+					if(reply.CheckRepError()) {
+						
+					}
+				}
+			}
+			break;
 	}
 }
 
@@ -2899,7 +2918,14 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							}
 							if(ImGui::Button2("Register computer...", button_size)) {
 								//PolicyL.CreateSystemImage();
-								SETIFZQ(P_Dlg_RegComp, new ImDialog_WsRegisterComputer(*this, &St.SidBlk));
+								if(!P_Dlg_RegComp) { 
+									DComputerCategoryList st_data_compcat_list; // @v12.0.3
+									St.D_CompCatList.GetData(st_data_compcat_list);
+									if(!st_data_compcat_list.DtmActual) {
+										
+									}
+									P_Dlg_RegComp = new ImDialog_WsRegisterComputer(*this, &St.SidBlk);
+								}
 							}
 							if(ImGui::Button2("Create profile image...", button_size)) {
 								PolicyL.CreateSystemImage();

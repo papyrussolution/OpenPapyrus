@@ -68,7 +68,6 @@
     <ClCompile Include="..\SLib\Sprinter.cpp" />
     <ClCompile Include="..\SLib\srng.cpp" />
     <ClCompile Include="..\SLib\Sstack.cpp" />
-    <ClCompile Include="..\SLib\sstorage.cpp" />
     <ClCompile Include="..\Slib\sstring.cpp" />
     <ClCompile Include="..\SLib\ssvg.cpp" />
     <ClCompile Include="..\SLib\ssystem.cpp" />

@@ -8524,6 +8524,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_personchznpmtoken                   "ЧЕСТНЫЙ ЗНАК токен разрешительного режима"  // @v11.9.11
 @rtag_personchznpmhost                    "ЧЕСТНЫЙ ЗНАК хост разрешительного режима"  // @v11.9.12
 @rtag_computeruuid                        "UUID компьютера" // @v12.0.0
+@rtag_extdlvrloccodetag                   "Тег дополнительного кода адреса доставки" // @v12.0.3
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -18316,6 +18317,10 @@ PPHSC_RU_SUPPLIERID_           "ИдПоставщика"
 PPHSC_RU_GOODSCODE_SUPPL       "КодПоставщика" // @v11.9.5 SBIS
 PPHSC_RU_CONSIGNOR             "Грузоотправитель" // @v11.9.5 SBIS
 PPHSC_RU_CONSIGNEE             "Грузополучатель" // @v11.9.5 SBIS
+PPHSC_RU_PARAM_DIVCODE         "ПодразделениеКод" // @v12.0.3 SBIS (parameter)
+PPHSC_RU_PARAM_DIVNAME         "ПодразделениеНаименование" // @v12.0.3 SBIS (parameter)
+PPHSC_RU_PARAM_CONTRACTDATE    "ДоговорДата" // @v12.0.3 SBIS (parameter)
+PPHSC_RU_PARAM_CONTRACTCODE    "ДоговорНомер" // @v12.0.3 SBIS (parameter)
 PPHSC_RU_MOVING                "Движение"
 PPHSC_RU_SUPPLY                "Поставка"
 PPHSC_RU_RETURN                "Возврат"

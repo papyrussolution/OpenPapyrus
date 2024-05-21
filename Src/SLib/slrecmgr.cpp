@@ -67,12 +67,36 @@ int SRecPageManager::Write(uint64 * pRowId, uint pageType, const void * pData, s
 	int    ok = 1;
 	SDataPageHeader::RecPrefix pfx;
 	pfx.SetPayload(dataLen, 0);
-	const uint pfx_size = SDataPageHeader::EvaluateRecPrefix(pfx, 0, 0);
-	SDataPageHeader * p_page = QueryPageForWriting(pageType, dataLen + pfx_size);
+	SDataPageHeader * p_page = 0;//QueryPageForWriting(pageType, dataLen);
+	const SRecPageFreeList::Entry * p_free_entry = 0;
+	uint   offset = 0;
+	//SDataPageHeader * SRecPageManager::QueryPageForWriting(uint32 pageType, uint32 reqSize)
+	{
+		//SDataPageHeader * p_result = 0;
+		p_free_entry = Fl.Get(pageType, dataLen);
+		if(!p_free_entry) {
+			SDataPageHeader * p_new_page = AllocatePage(pageType);
+			if(p_new_page) {
+				p_free_entry = Fl.Get(pageType, dataLen);
+				//assert(p_free_entry->Seq == p_new_page->Seq);
+			}
+		}
+		uint   seq = 0;
+		if(p_free_entry && SRecPageManager::SplitRowId(p_free_entry->RowId, PageSize, &seq, &offset)) {
+			p_page = GetPage(seq);
+		}
+		//return p_result;
+	}
 	if(p_page) {
-		uint64 rowid = p_page->Write(p_page->FreePos, pData, dataLen);
+		SRecPageFreeList::Entry new_free_entry;
+		assert(offset >= sizeof(*p_page) && offset < p_page->TotalSize);
+		uint64 rowid = p_page->Write(offset, pData, dataLen, &new_free_entry);
 		if(rowid) {
-			Fl.Put(pageType, p_page->Seq, p_page->GetFreeSize());
+			assert(rowid == p_free_entry->RowId);
+			Fl.Remove(pageType, rowid);
+			if(new_free_entry.RowId && new_free_entry.FreeSize > 3) {
+				Fl.Put(pageType, p_page->Seq, new_free_entry.FreeSize);
+			}
 			ASSIGN_PTR(pRowId, rowid);
 		}
 		else
@@ -106,31 +130,13 @@ SDataPageHeader * SRecPageManager::GetPage(uint32 seq)
 
 SDataPageHeader * SRecPageManager::AllocatePage(uint32 type)
 {
-	SDataPageHeader * p_new_page = SDataPageHeader::Allocate(type, ++LastSeq, PageSize);
+	SRecPageFreeList::Entry new_free_entry;
+	SDataPageHeader * p_new_page = SDataPageHeader::Allocate(type, ++LastSeq, PageSize, &new_free_entry);
 	if(p_new_page) {
 		L.insert(p_new_page);
-		Fl.Put(type, p_new_page->Seq, p_new_page->GetFreeSize());
+		Fl.Put(type, new_free_entry.RowId, new_free_entry.FreeSize);
 	}
 	return p_new_page;
-}
-
-SDataPageHeader * SRecPageManager::QueryPageForWriting(uint32 pageType, uint32 reqSize)
-{
-	SDataPageHeader * p_result = 0;
-	const SRecPageFreeList::FreeEntry * p_free_entry = Fl.Get(pageType, reqSize);
-	if(!p_free_entry) {
-		SDataPageHeader * p_new_page = AllocatePage(pageType);
-		if(p_new_page) {
-			p_free_entry = Fl.Get(pageType, reqSize);
-			//assert(p_free_entry->Seq == p_new_page->Seq);
-		}
-	}
-	uint   seq = 0;
-	uint   ofs = 0;
-	if(p_free_entry && SRecPageManager::SplitRowId(p_free_entry->RowId, PageSize, &seq, &ofs)) {
-		p_result = GetPage(seq);
-	}
-	return p_result;
 }
 
 int SRecPageManager::ReleasePage(SDataPageHeader * pPage)
@@ -162,21 +168,39 @@ SDataPageHeader * SRecPageManager::QueryPageForReading(uint64 rowId, uint32 page
 //
 //
 //
-uint SDataPageHeader::GetFreeSizeFromPos(uint pos) const 
-{ 
-	return (pos <= TotalSize) ? (TotalSize - pos) : 0;
-}
-	
-uint SDataPageHeader::GetFreeSize() const 
-{ 
-	assert(FreePos <= TotalSize);
-	return GetFreeSizeFromPos(FreePos);
-}
-
 bool SDataPageHeader::IsValid() const
 {
-	return (Signature == SignatureValue && TotalSize > 0 && FreePos < TotalSize &&
-		(!FixedChunkSize || Type == tFixedChunkPool));
+	return (Signature == SignatureValue && TotalSize > 0 && /*FreePos < TotalSize &&*/(!FixedChunkSize || Type == tFixedChunkPool));
+}
+
+bool SDataPageHeader::GetStat(Stat & rStat) const
+{
+	bool ok = true;
+	rStat.Z();
+	THROW(IsValid());
+	{
+		uint   total_block_size = 0;
+		uint   offs = sizeof(*this);
+		do {
+			RecPrefix pfx;
+			uint32 pfx_size = ReadRecPrefix(offs, pfx);
+			THROW(pfx_size);
+			rStat.BlockCount++;
+			total_block_size += pfx.TotalSize;
+			if(pfx.Flags & RecPrefix::fDeleted) {
+				rStat.FreeBlockCount++;
+				if(pfx.PayloadSize >= 8) {
+					rStat.UsableBlockCount++;
+					rStat.UsableBlockSize += pfx.PayloadSize;
+				}
+			}
+			offs += pfx.TotalSize;
+		} while(offs < TotalSize);
+		THROW(offs == TotalSize);
+		THROW(total_block_size == (TotalSize-sizeof(*this)));
+	}
+	CATCHZOK
+	return ok;
 }
 
 uint32 SDataPageHeader::ReadRecPrefix(uint pos, RecPrefix & rPfx) const
@@ -380,39 +404,58 @@ uint32 SDataPageHeader::WriteRecPrefix(uint offset, RecPrefix & rPfx)
 {
 	uint8 pfx_buf[32];
 	const uint  pfx_size = EvaluateRecPrefix(rPfx, pfx_buf, 0);
-	if((rPfx.PayloadSize+pfx_size) <= GetFreeSize()) {
-		memcpy(PTR8(this) + offset, pfx_buf, pfx_size);
-		return pfx_size;
-	}
-	else
-		return 0;
+	assert((offset+rPfx.PayloadSize+pfx_size) <= TotalSize);
+	memcpy(PTR8(this) + offset, pfx_buf, pfx_size);
+	return pfx_size;
 }
 
-uint64 SDataPageHeader::Write(uint offset, const void * pData, uint dataLen)
+uint64 SDataPageHeader::Write(uint offset, const void * pData, uint dataLen, SRecPageFreeList::Entry * pNewFreeEntry)
 {
+	assert(pNewFreeEntry != 0);
 	uint64 rowid = 0;
+	SRecPageFreeList::Entry new_free_entry;
 	THROW(IsValid());
 	{
 		RecPrefix ex_rp;
 		uint32 ex_pfx_size = ReadRecPrefix(offset, ex_rp); // offset validation
 		THROW(ex_pfx_size);
+		assert(ex_rp.TotalSize > dataLen);
 		{
 			uint32 start_position = offset;
 			RecPrefix rp;
 			rp.SetPayload(dataLen, 0);
 			uint32 pfx_size = WriteRecPrefix(start_position, rp);
 			THROW(pfx_size);
+			assert(rp.PayloadSize == dataLen);
+			assert((pfx_size + dataLen) == rp.TotalSize);
+			assert(rp.TotalSize <= ex_rp.TotalSize);
 			memcpy(PTR8(this)+start_position+pfx_size, pData, dataLen);
-			FreePos += (pfx_size + dataLen);
-			rowid = SRecPageManager::MakeRowId(TotalSize, Seq, start_position);
-			if(ex_rp.TotalSize) {
-				
+			//
+			{
+				const uint next_position = start_position+pfx_size+dataLen;
+				if(ex_rp.TotalSize > rp.TotalSize) {
+					//FreePos += (pfx_size + dataLen);
+					SDataPageHeader::RecPrefix new_free_pfx;
+					const uint mobr = MarkOutBlock(next_position, (ex_rp.TotalSize - rp.TotalSize), &new_free_pfx);
+					THROW(mobr);
+					if(mobr != _FFFF32) {
+						new_free_entry.RowId = SRecPageManager::MakeRowId(TotalSize, Seq, next_position);
+						new_free_entry.FreeSize = new_free_pfx.PayloadSize;
+					}
+				}
+				else {
+					assert(ex_rp.TotalSize == rp.TotalSize);
+				}
 			}
+			rowid = SRecPageManager::MakeRowId(TotalSize, Seq, start_position);
 		}
 	}
 	CATCH
 		rowid = 0;
+		new_free_entry.RowId = 0;
+		new_free_entry.FreeSize = 0;
 	ENDCATCH
+	ASSIGN_PTR(pNewFreeEntry, new_free_entry);
 	return rowid;
 }
 
@@ -433,30 +476,6 @@ uint SDataPageHeader::Read(uint offset, void * pBuf, size_t bufSize)
 		}
 	}
 	return result;
-}
-
-const void * SDataPageHeader::Enum(uint * pPos, uint * pSize) const
-{
-	const void * p_result = 0;
-	if(pPos) {
-		uint pos = *pPos;
-		if(pos == 0) {
-			pos = sizeof(*this);
-		} 
-		if(pos < FreePos) {
-			RecPrefix rp;
-			uint pfx_size = ReadRecPrefix(pos, rp);
-			if(pfx_size) {
-				if(GetFreeSizeFromPos(pos) >= rp.PayloadSize) {
-					ASSIGN_PTR(pSize, rp.PayloadSize);
-					pos += rp.PayloadSize + pfx_size;
-					*pPos = pos;
-					p_result = PTR8C(this) + pos + pfx_size;
-				}
-			}
-		}
-	}
-	return p_result;
 }
 
 uint SDataPageHeader::VerifyBlock(uint offset, uint * pSize) const
@@ -497,11 +516,11 @@ uint SDataPageHeader::VerifyBlock(uint offset, uint size) const
 	return result;
 }
 
-uint SDataPageHeader::MarkOutBlock(uint offset, uint size)
+uint SDataPageHeader::MarkOutBlock(uint offset, uint size, RecPrefix * pPfx)
 {
 	uint    _next_signature = VerifyBlock(offset, size);
+	RecPrefix pfx;
 	if(_next_signature) {
-		RecPrefix pfx;
 		uint8   pfx_buf[32];
 		uint8   pfx_flags = 0;
 		pfx.SetTotalSize(size, RecPrefix::fDeleted);
@@ -512,28 +531,36 @@ uint SDataPageHeader::MarkOutBlock(uint offset, uint size)
 		else 
 			_next_signature = 0;
 	}
+	ASSIGN_PTR(pPfx, pfx);
 	return _next_signature;
 }
 
-/*static*/SDataPageHeader * SDataPageHeader::Allocate(uint32 type, uint32 seq, uint totalSize)
+/*static*/SDataPageHeader * SDataPageHeader::Allocate(uint32 type, uint32 seq, uint totalSize, SRecPageFreeList::Entry * pNewFreeEntry)
 {
 	SDataPageHeader * p_result = 0;
+	SRecPageFreeList::Entry new_free_entry;
 	assert(totalSize > sizeof(SDataPageHeader));
 	void * ptr = (totalSize > sizeof(SDataPageHeader)) ? SAlloc::M(totalSize) : 0;
 	if(ptr) {
+		RecPrefix pfx;
 		memzero(ptr, totalSize);
 		p_result = static_cast<SDataPageHeader *>(ptr);
 		p_result->Signature = SignatureValue;
 		p_result->Type = type;
 		p_result->Seq = seq;
 		p_result->TotalSize = totalSize;
-		p_result->FreePos = static_cast<uint32>(sizeof(SDataPageHeader));
-		uint mobr = p_result->MarkOutBlock(sizeof(SDataPageHeader), totalSize - sizeof(SDataPageHeader));
+		//p_result->FreePos = static_cast<uint32>(sizeof(SDataPageHeader));
+		uint mobr = p_result->MarkOutBlock(sizeof(SDataPageHeader), totalSize - sizeof(SDataPageHeader), &pfx);
 		assert(mobr);
 		if(!mobr) {
 			ZFREE(p_result);
 		}
+		else {
+			new_free_entry.RowId = SRecPageManager::MakeRowId(totalSize, seq, sizeof(SDataPageHeader));
+			new_free_entry.FreeSize = pfx.PayloadSize;
+		}
 	}
+	ASSIGN_PTR(pNewFreeEntry, new_free_entry);
 	return p_result;
 }
 //
@@ -549,7 +576,7 @@ int SRecPageFreeList::SingleTypeList::Put(uint64 rowId, uint32 freeSize)
 			ok = 2;
 		}
 		else {
-			FreeEntry & r_entry = at(pos);
+			Entry & r_entry = at(pos);
 			if(r_entry.FreeSize != freeSize) {
 				r_entry.FreeSize = freeSize;
 				ok = 1;
@@ -563,9 +590,7 @@ int SRecPageFreeList::SingleTypeList::Put(uint64 rowId, uint32 freeSize)
 			ok = -2;
 		}
 		else {
-			FreeEntry new_entry;
-			new_entry.RowId = rowId;
-			new_entry.FreeSize = freeSize;
+			Entry new_entry(rowId, freeSize);
 			insert(&new_entry);
 			ok = 3;
 		}
@@ -573,13 +598,13 @@ int SRecPageFreeList::SingleTypeList::Put(uint64 rowId, uint32 freeSize)
 	return ok;
 }
 
-const  SRecPageFreeList::FreeEntry * SRecPageFreeList::SingleTypeList::Get(uint32 reqSize) const
+const  SRecPageFreeList::Entry * SRecPageFreeList::SingleTypeList::Get(uint32 reqSize) const
 {
-	const  FreeEntry * p_result = 0;
+	const  Entry * p_result = 0;
 	uint32 min_tail = UINT_MAX;
 	uint   min_tail_idx = 0; // +1
 	for(uint i = 0; i < getCount(); i++) {
-		const FreeEntry & r_entry = at(i);
+		const Entry & r_entry = at(i);
 		if(r_entry.FreeSize >= reqSize) {
 			const uint32 tail = (r_entry.FreeSize - reqSize);
 			if(tail < min_tail) {
@@ -594,7 +619,7 @@ const  SRecPageFreeList::FreeEntry * SRecPageFreeList::SingleTypeList::Get(uint3
 	return p_result;
 }
 
-int SRecPageFreeList::Put(uint32 type, uint32 seq, uint32 freeSize)
+int SRecPageFreeList::Put(uint32 type, uint64 rowId, uint32 freeSize)
 {
 	int    ok = 0;
 	SingleTypeList * p_list = 0;
@@ -602,7 +627,7 @@ int SRecPageFreeList::Put(uint32 type, uint32 seq, uint32 freeSize)
 		SingleTypeList * p_iter = L.at(i);
 		if(p_iter && p_iter->GetType() == type) {
 			p_list = p_iter;
-			ok = p_iter->Put(seq, freeSize);
+			ok = p_iter->Put(rowId, freeSize);
 		}
 	}
 	if(!p_list) {
@@ -611,13 +636,13 @@ int SRecPageFreeList::Put(uint32 type, uint32 seq, uint32 freeSize)
 		p_list = p_new_list;
 	}
 	if(p_list)
-		ok = p_list->Put(seq, freeSize);
+		ok = p_list->Put(rowId, freeSize);
 	return ok;
 }
 
-const SRecPageFreeList::FreeEntry * SRecPageFreeList::Get(uint32 type, uint32 reqSize) const
+const SRecPageFreeList::Entry * SRecPageFreeList::Get(uint32 type, uint32 reqSize) const
 {
-	const  FreeEntry * p_result = 0;
+	const  Entry * p_result = 0;
 	for(uint i = 0; i < L.getCount(); i++) {
 		const SingleTypeList * p_iter = L.at(i);
 		if(p_iter && p_iter->GetType() == type) {
@@ -627,4 +652,3 @@ const SRecPageFreeList::FreeEntry * SRecPageFreeList::Get(uint32 type, uint32 re
 	}
 	return p_result;
 }
-

@@ -1388,32 +1388,34 @@
 	// не может быть представлена целым числом [1..30000]
 #define PPTAG_LOT_FREIGHTPACKAGE     86L // @v10.4.1 Транспортная упаковка. Структурированная информация сжата в строку.
 #define PPTAG_GOODS_VETISGUID        87L // @v10.5.1 GUID товара в справочнике ВЕТИС
-#define PPTAG_GUA_GUID               88L // @v10.5.3 GUID глобальной учетной записи
-#define PPTAG_GUA_ACCESSKEY          89L // @v10.5.5 Ключ доступа к глобальному ресурсу (не путать с паролем или секретом)
-#define PPTAG_LOT_LINKBILLROW        90L // @v10.5.7 Связанная строка документа
-#define PPTAG_GUA_CERTSUBJCN         91L // @v10.6.3 CN субъекта сертификата электронной подписи
-#define PPTAG_PERSON_CHZNCODE        92L // @v10.6.4 Код контрагента в честном знаке
-#define PPTAG_LOC_CHZNCODE           93L // @v10.6.4 Код локации в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE но имеет приоритет при идентификации)
-#define PPTAG_GUA_CHZNCODE           94L // @v10.6.5 Код своего предприятия в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE, PPTAG_LOC_CHZNCODE но имеет меньший приоритет при идентификации)
-#define PPTAG_GUA_PROTOCOL           95L // @v10.7.10 Протокол либо версия протокола обмена с сервисом, к которому привязана запись.
-#define PPTAG_GUA_OUTERWAREIDTAG     96L // @v10.9.4  Ссылка на тег товара, содержащий внешний идентификатор
-#define PPTAG_GUA_SOCIALGROUPCODE    97L // @v10.9.6  Код группы в социальной сети
-#define PPTAG_GUA_SOCIALPAGECODE     98L // @v10.9.6  Код страницы в социальной сети
-#define PPTAG_LOC_VETIS_REGIONGUID   99L // @v11.0.10 ВЕТИС-идент региона локации (склад или адрес доставки) // в терминах ВЕТИС - region GUID (не UUID)
-#define PPTAG_BILL_LONGCODE         100L // @v11.0.12 (надеюсь, временный тег) Если номер документа, поступившего из-вне длиннее sizeof(Bill:Code)-1 то полный номер сохраняется в этом теге
-#define PPTAG_POSNODE_OFDVER        101L // @v11.1.9  Версия ОФД на аппарате (аппаратах), с которой работает кассовый узел
-#define PPTAG_LOC_TRUNKPOINT        102L // @v11.2.9  Магистральная точка, ближайшая к адресу. Используется в логистике для планирования маршрутов.
-#define PPTAG_TSESS_OUTERCODE       103L // @v11.6.6  Внешний код технологической сессии
-#define PPTAG_PERSON_TRANSPORTTO    104L // @v11.6.9  Транспорт, используемый для доставки товара клиенту по-умолчанию (используется для интеграции с VETIS)
-#define PPTAG_LOT_ACCEPTANCE        105L // @v11.7.0  Результат "физической" приемки документа. Структурированная информация сжата в строку.
-#define PPTAG_PRC_UUID              106L // @v11.7.2  UUID процессора
-#define PPTAG_BILL_LINKCCHECKUUID   107L // @v11.8.8  UUID кассового чека, сформированного по документу
-#define PPTAG_BILL_CHZNDISPOSALRSN  108L // @v11.8.12 Признак причины выбытия марки честный знак <СвВыбытияМАРК> (1,2,3,4 or empty)
-#define PPTAG_PERSON_CHZN_PM_TOKEN  109L // @v11.9.11 Токен для проверки марок честный знак в разрешительном режиме (привязка к персоналии)
-#define PPTAG_GUA_CHZN_PM_TOKEN     110L // @v11.9.11 Токен для проверки марок честный знак в разрешительном режиме (привязка к глобальной учетной записи)
-#define PPTAG_GUA_CHZN_PM_HOST      111L // @v11.9.12 Хост для проверки марок честный знак в разрешительном режиме. Значение тега формируется автоматически
-#define PPTAG_COMPUTER_GUID         112L // @v12.0.0 GUID записи управляемого компьютера
+#define PPTAG_GUA_GUID                  88L // @v10.5.3 GUID глобальной учетной записи
+#define PPTAG_GUA_ACCESSKEY             89L // @v10.5.5 Ключ доступа к глобальному ресурсу (не путать с паролем или секретом)
+#define PPTAG_LOT_LINKBILLROW           90L // @v10.5.7 Связанная строка документа
+#define PPTAG_GUA_CERTSUBJCN            91L // @v10.6.3 CN субъекта сертификата электронной подписи
+#define PPTAG_PERSON_CHZNCODE           92L // @v10.6.4 Код контрагента в честном знаке
+#define PPTAG_LOC_CHZNCODE              93L // @v10.6.4 Код локации в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE но имеет приоритет при идентификации)
+#define PPTAG_GUA_CHZNCODE              94L // @v10.6.5 Код своего предприятия в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE, PPTAG_LOC_CHZNCODE но имеет меньший приоритет при идентификации)
+#define PPTAG_GUA_PROTOCOL              95L // @v10.7.10 Протокол либо версия протокола обмена с сервисом, к которому привязана запись.
+#define PPTAG_GUA_OUTERWAREIDTAG        96L // @v10.9.4  Ссылка на тег товара, содержащий внешний идентификатор
+#define PPTAG_GUA_SOCIALGROUPCODE       97L // @v10.9.6  Код группы в социальной сети
+#define PPTAG_GUA_SOCIALPAGECODE        98L // @v10.9.6  Код страницы в социальной сети
+#define PPTAG_LOC_VETIS_REGIONGUID      99L // @v11.0.10 ВЕТИС-идент региона локации (склад или адрес доставки) // в терминах ВЕТИС - region GUID (не UUID)
+#define PPTAG_BILL_LONGCODE            100L // @v11.0.12 (надеюсь, временный тег) Если номер документа, поступившего из-вне длиннее sizeof(Bill:Code)-1 то полный номер сохраняется в этом теге
+#define PPTAG_POSNODE_OFDVER           101L // @v11.1.9  Версия ОФД на аппарате (аппаратах), с которой работает кассовый узел
+#define PPTAG_LOC_TRUNKPOINT           102L // @v11.2.9  Магистральная точка, ближайшая к адресу. Используется в логистике для планирования маршрутов.
+#define PPTAG_TSESS_OUTERCODE          103L // @v11.6.6  Внешний код технологической сессии
+#define PPTAG_PERSON_TRANSPORTTO       104L // @v11.6.9  Транспорт, используемый для доставки товара клиенту по-умолчанию (используется для интеграции с VETIS)
+#define PPTAG_LOT_ACCEPTANCE           105L // @v11.7.0  Результат "физической" приемки документа. Структурированная информация сжата в строку.
+#define PPTAG_PRC_UUID                 106L // @v11.7.2  UUID процессора
+#define PPTAG_BILL_LINKCCHECKUUID      107L // @v11.8.8  UUID кассового чека, сформированного по документу
+#define PPTAG_BILL_CHZNDISPOSALRSN     108L // @v11.8.12 Признак причины выбытия марки честный знак <СвВыбытияМАРК> (1,2,3,4 or empty)
+#define PPTAG_PERSON_CHZN_PM_TOKEN     109L // @v11.9.11 Токен для проверки марок честный знак в разрешительном режиме (привязка к персоналии)
+#define PPTAG_GUA_CHZN_PM_TOKEN        110L // @v11.9.11 Токен для проверки марок честный знак в разрешительном режиме (привязка к глобальной учетной записи)
+#define PPTAG_GUA_CHZN_PM_HOST         111L // @v11.9.12 Хост для проверки марок честный знак в разрешительном режиме. Значение тега формируется автоматически
+#define PPTAG_COMPUTER_GUID            112L // @v12.0.0 GUID записи управляемого компьютера
 	// и содержит строку вида [url space timestamp]
+#define PPTAG_PERSON_EXTDLVRLOCCODETAG 113L // @v12.0.3 Ссылка на тег локации, содержащего внешний (дополнительный) код адреса доставки. Вообще говоря, это - ситуативный
+	// тег, необходимый для унификации двух механизмом импорта документов (штатный настраиваемый импорт и EDI).
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -11559,7 +11561,7 @@
 	#define CTL_COMPUTER_IPADR             (9 + WINDOWS_ID_BIAS)
 	#define CTL_COMPUTER_CAT               (10 + WINDOWS_ID_BIAS)
 	#define CTLSEL_COMPUTER_CAT            (11 + WINDOWS_ID_BIAS)
-#define DLG_COMPCAT               1440 // @v12.0.1 PPOBJ_COMPUTERCATEGORY     
+#define DLG_COMPCAT               1440 // @v12.0.1 PPOBJ_COMPUTERCATEGORY
 	#define CTL_COMPCAT_ID                 (1 + WINDOWS_ID_BIAS)
 	#define CTL_COMPCAT_NAME               (2 + WINDOWS_ID_BIAS)
 	#define CTL_COMPCAT_SYMB               (3 + WINDOWS_ID_BIAS)

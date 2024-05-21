@@ -383,6 +383,29 @@ int DocNalogRu_Reader::ReadFile(const char * pFileName, FileInfo & rHeader, TSCo
 										}
 									}
 								}
+								// @v12.0.3 {
+								/*
+									<Параметр Имя="ДоговорДата" Значение="01.01.2006"/>
+									<Параметр Имя="ДоговорНомер"/>
+									<Параметр Имя="Склад" Значение="Торговый зал Сигмы"/>
+									<Параметр Имя="ПодразделениеНаименование" Значение="Гипермаркет Сигма"/>
+									<Параметр Имя="ПодразделениеКод" Значение="00000001"/>
+								*/ 
+								else if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_PARAMETER))) {
+									if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_NAME), temp_buf)) {
+										extra_key = temp_buf;
+									}
+									if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_VALUE), temp_buf)) {
+										extra_val = temp_buf;
+									}
+									if(extra_key == GetToken_Utf8(PPHSC_RU_PARAM_DIVCODE)) {
+										(p_new_doc->ConsigneeDivCode = extra_val).Transf(CTRANSF_UTF8_TO_INNER);
+									}
+									else if(extra_key == GetToken_Utf8(PPHSC_RU_PARAM_DIVNAME)) {
+										(p_new_doc->ConsigneeDivName = extra_val).Transf(CTRANSF_UTF8_TO_INNER);
+									}
+								}
+								// } @v12.0.3 
 							}
 						}
 						else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_INVOICETAB))) {

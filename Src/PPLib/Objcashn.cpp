@@ -1535,21 +1535,181 @@ static int EditExtDevices(PPSyncCashNode * pData)
 	DIALOG_PROC_BODY(ExtDevicesDialog, pData);
 }
 
-#define GRP_TBLDGMPATH  1
-#define GRP_SLIPFMTPATH 2
-
 class SyncCashNodeCfgDialog : public TDialog {
+	DECL_DIALOG_DATA(PPSyncCashNode);	
+	enum { // @v12.0.3 
+		ctlgroupTblDgmPathy = 1, // Группа выбора файла описания диаграммы столов
+		ctlgroupSlipFmtPath = 2  // Группа выбора файла описания slip-формата чеков
+	};	
 public:
 	SyncCashNodeCfgDialog() : TDialog(DLG_CASHNS)
 	{
 		SetupCalDate(CTLCAL_CASHN_CURDATE, CTL_CASHN_CURDATE);
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_CASHN_TBLDGMPATH, CTL_CASHN_TBLDGMPATH, GRP_TBLDGMPATH, 0, PPTXT_FILPAT_WTM,
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_CASHN_TBLDGMPATH, CTL_CASHN_TBLDGMPATH, ctlgroupTblDgmPathy, 0, PPTXT_FILPAT_WTM,
 			FileBrowseCtrlGroup::fbcgfFile);
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_CASHN_SLIPFMTPATH, CTL_CASHN_SLIPFMTPATH, GRP_SLIPFMTPATH, 0, PPTXT_FILPAT_FMT,
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_CASHN_SLIPFMTPATH, CTL_CASHN_SLIPFMTPATH, ctlgroupSlipFmtPath, 0, PPTXT_FILPAT_FMT,
 			FileBrowseCtrlGroup::fbcgfFile);
 	}
-	int    setDTS(const PPSyncCashNode *);
-	int    getDTS(PPSyncCashNode *);
+	DECL_DIALOG_SETDTS()
+	{
+		PPObjLocation loc_obj;
+		if(!RVALUEPTR(Data, pData))
+			MEMSZERO(Data);
+		setCtrlData(CTL_CASHN_NAME, Data.Name);
+		setCtrlData(CTL_CASHN_SYMB, Data.Symb);
+		setCtrlLong(CTL_CASHN_ID, Data.ID);
+		// @vmiller SetupStringCombo(this, CTLSEL_CASHN_DEVICE, PPTXT_CMT, Data.CashType, 0);
+		SetupStringComboDevice(this, CTLSEL_CASHN_DEVICE, DVCCLS_SYNCPOS, Data.CashType, 0); // @vmiller
+		SetupStringCombo(this, CTLSEL_CASHN_SPECIALITY, PPTXT_POSNODE_SPECIALITY, Data.Speciality);
+		setCtrlData(CTL_CASHN_DRVVERMAJOR, &Data.DrvVerMajor);
+		setCtrlData(CTL_CASHN_DRVVERMINOR, &Data.DrvVerMinor);
+		setCtrlData(CTL_CASHN_PORT,    Data.Port);
+		//setCtrlData(CTL_CASHN_OVRFLW,  &pSCN->OvrflwDate);
+		setCtrlData(CTL_CASHN_CURDATE, &Data.CurDate);
+		setCtrlData(CTL_CASHN_CSESS,   &Data.CurSessID);
+		SETIFZ(Data.LocID, loc_obj.GetSingleWarehouse());
+		SetupPPObjCombo(this, CTLSEL_CASHN_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
+		SetupPPObjCombo(this, CTLSEL_CASHN_NOA, PPOBJ_NAMEDOBJASSOC, Data.GoodsLocAssocID, OLW_CANINSERT, 0);
+		AddClusterAssoc(CTL_CASHN_NOA_PRINTONLY, 0, CASHFX_GLASSOCPRINTONLY);
+		SetClusterData(CTL_CASHN_NOA_PRINTONLY, Data.ExtFlags);
+		DisableClusterItem(CTL_CASHN_NOA_PRINTONLY, 0, !Data.GoodsLocAssocID);
+
+		AddClusterAssoc(CTL_CASHN_FLAGS,  0, CASHF_CHKPAN);
+		AddClusterAssoc(CTL_CASHN_FLAGS,  1, CASHF_NAFCL);
+		AddClusterAssoc(CTL_CASHN_FLAGS,  2, CASHF_OPENBOX);
+		AddClusterAssoc(CTL_CASHN_FLAGS,  3, CASHF_ROUNDINT);
+		AddClusterAssoc(CTL_CASHN_FLAGS,  4, CASHF_SELALLGOODS);
+		AddClusterAssoc(CTL_CASHN_FLAGS,  5, CASHF_AUTO_PRINTCOPY);
+		AddClusterAssoc(CTL_CASHN_FLAGS,  6, CASHF_USEQUOT);
+		AddClusterAssoc(CTL_CASHN_FLAGS,  7, CASHF_NOASKPAYMTYPE);
+		AddClusterAssoc(CTL_CASHN_FLAGS,  8, CASHF_SHOWREST);
+		AddClusterAssoc(CTL_CASHN_FLAGS,  9, CASHF_KEYBOARDWKEY);
+		AddClusterAssoc(CTL_CASHN_FLAGS, 10, CASHF_WORKWHENLOCK);
+		AddClusterAssoc(CTL_CASHN_FLAGS, 11, CASHF_NOMODALCHECKVIEW);
+		AddClusterAssoc(CTL_CASHN_FLAGS, 12, CASHF_DISABLEZEROAGENT);
+		AddClusterAssoc(CTL_CASHN_FLAGS, 13, CASHF_SKIPUNPRINTEDCHECKS);
+		AddClusterAssoc(CTL_CASHN_FLAGS, 14, CASHF_CHECKFORPRESENT);
+		SetClusterData(CTL_CASHN_FLAGS, Data.Flags);
+		{
+			AddClusterAssoc(CTL_CASHN_EXTFLAGS,  0, 0x0001);
+			AddClusterAssoc(CTL_CASHN_EXTFLAGS,  1, 0x0002);
+			AddClusterAssoc(CTL_CASHN_EXTFLAGS,  2, 0x0004);
+			AddClusterAssoc(CTL_CASHN_EXTFLAGS,  3, 0x0008);
+			AddClusterAssoc(CTL_CASHN_EXTFLAGS,  4, 0x0010);
+			AddClusterAssoc(CTL_CASHN_EXTFLAGS,  5, 0x0020);
+			AddClusterAssoc(CTL_CASHN_EXTFLAGS,  6, 0x0040);
+			AddClusterAssoc(CTL_CASHN_EXTFLAGS,  7, 0x0080);
+			AddClusterAssoc(CTL_CASHN_EXTFLAGS,  8, 0x0100);
+			AddClusterAssoc(CTL_CASHN_EXTFLAGS,  9, 0x0200);
+			AddClusterAssoc(CTL_CASHN_EXTFLAGS, 10, 0x0400);
+			AddClusterAssoc(CTL_CASHN_EXTFLAGS, 11, 0x0800); // @v10.8.1 CASHFX_NOTIFYEQPTIMEMISM
+
+			long   ef = 0;
+			SETFLAG(ef, 0x0001, Data.Flags & CASHF_UNIFYGDSATCHECK);
+			SETFLAG(ef, 0x0002, Data.Flags & CASHF_UNIFYGDSTOPRINT);
+			SETFLAG(ef, 0x0004, Data.Flags & CASHF_NOTUSECHECKCUTTER);
+			SETFLAG(ef, 0x0008, Data.ExtFlags & CASHFX_SELSERIALBYGOODS);
+			SETFLAG(ef, 0x0010, Data.ExtFlags & CASHFX_FORCEDIVISION);
+			SETFLAG(ef, 0x0020, Data.Flags & CASHF_ABOVEZEROSALE);
+			SETFLAG(ef, 0x0040, Data.ExtFlags & CASHFX_EXTSCARDSEL);
+			SETFLAG(ef, 0x0080, Data.ExtFlags & CASHFX_KEEPORGCCUSER);
+			SETFLAG(ef, 0x0100, Data.ExtFlags & CASHFX_DISABLEZEROSCARD);
+			SETFLAG(ef, 0x0200, Data.ExtFlags & CASHFX_UHTTORDIMPORT);
+			SETFLAG(ef, 0x0400, Data.ExtFlags & CASHFX_ABSTRGOODSALLOWED);
+			SETFLAG(ef, 0x0800, Data.ExtFlags & CASHFX_NOTIFYEQPTIMEMISM);
+			SetClusterData(CTL_CASHN_EXTFLAGS, ef);
+			{
+				PPAlbatrossConfig acfg;
+				PPAlbatrosCfgMngr::Get(&acfg);
+				SString temp_buf;
+				acfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
+				DisableClusterItem(CTL_CASHN_EXTFLAGS, 9, /*acfg.UhttAccount.Empty()*/temp_buf.IsEmpty());
+			}
+		}
+		AddClusterAssoc(CTL_CASHN_PASSIVE, 0, CASHFX_PASSIVE);
+		SetClusterData(CTL_CASHN_PASSIVE, Data.ExtFlags);
+		//disableCtrl(CTL_CASHN_OVRFLW, 1);
+		setCtrlData(CTL_CASHN_SLEEPTIMEOUT, &Data.SleepTimeout);
+		if(!Data.TableSelWhatman.NotEmptyS()) {
+			FileBrowseCtrlGroup * p_fbg = static_cast<FileBrowseCtrlGroup *>(getGroup(ctlgroupTblDgmPathy));
+			if(p_fbg) {
+				SString path;
+				PPGetPath(PPPATH_WTM, path);
+				p_fbg->setInitPath(path);
+			}
+		}
+		setCtrlString(CTL_CASHN_TBLDGMPATH,  Data.TableSelWhatman);
+		setCtrlString(CTL_CASHN_SLIPFMTPATH, Data.SlipFmtPath);
+		{
+			PPObjCashNode::SelFilt f;
+			f.OnlyGroups = 1;
+			SetupPPObjCombo(this, CTLSEL_CASHN_GROUP, PPOBJ_CASHNODE, Data.ParentID, 0, &f);
+		}
+		disableCtrl(CTL_CASHN_CSESS, !PPMaster);
+		SetupCtrls();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		getCtrlData(sel = CTL_CASHN_NAME, Data.Name);
+		THROW_PP(*strip(Data.Name) != 0, PPERR_NAMENEEDED);
+		getCtrlData(sel = CTL_CASHN_SYMB, Data.Symb);
+		sel = CTL_CASHN_DEVICE;
+		getCtrlData(CTLSEL_CASHN_DEVICE, &Data.CashType);
+		THROW_PP(Data.CashType != 0, PPERR_CMTNEEDED);
+		THROW_PP(Data.CashType != PPCMT_OKA500, PPERR_OKA500NOTSUPPORTED);
+		THROW_PP(PPCashMachine::IsSyncCMT(Data.CashType), PPERR_CMSYNCNOTSUPP);
+		Data.Speciality = static_cast<uint16>(getCtrlLong(CTLSEL_CASHN_SPECIALITY));
+		getCtrlData(CTL_CASHN_DRVVERMAJOR, &Data.DrvVerMajor);
+		getCtrlData(CTL_CASHN_DRVVERMINOR, &Data.DrvVerMinor);
+		sel = CTL_CASHN_LOC;
+		getCtrlData(CTLSEL_CASHN_LOC, &Data.LocID);
+		THROW_PP(Data.LocID != 0, PPERR_LOCNEEDED);
+		getCtrlData(sel = CTLSEL_CASHN_NOA, &Data.GoodsLocAssocID);
+		if(Data.GoodsLocAssocID) {
+			PPNamedObjAssoc noa_rec;
+			THROW(SearchObject(PPOBJ_NAMEDOBJASSOC, Data.GoodsLocAssocID, &noa_rec) > 0);
+			THROW_PP_S(noa_rec.PrmrObjType == PPOBJ_GOODS && noa_rec.ScndObjType == PPOBJ_LOCATION &&
+				oneof2(noa_rec.ScndObjGrp, 0, LOCTYP_WAREHOUSE), PPERR_INVPOSGOODSLOCASSOC, noa_rec.Name);
+			GetClusterData(CTL_CASHN_NOA_PRINTONLY, &Data.ExtFlags);
+		}
+		else
+			Data.ExtFlags &= ~CASHFX_GLASSOCPRINTONLY;
+		getCtrlData(CTL_CASHN_PORT,     Data.Port);
+		getCtrlData(CTL_CASHN_CURDATE, &Data.CurDate);
+		if(PPMaster)
+			getCtrlData(CTL_CASHN_CSESS, &Data.CurSessID);
+		GetClusterData(CTL_CASHN_FLAGS, &Data.Flags);
+		{
+			const long ef = GetClusterData(CTL_CASHN_EXTFLAGS);
+			SETFLAG(Data.Flags,    CASHF_UNIFYGDSATCHECK,    ef & 0x0001);
+			SETFLAG(Data.Flags,    CASHF_UNIFYGDSTOPRINT,    ef & 0x0002);
+			SETFLAG(Data.Flags,    CASHF_NOTUSECHECKCUTTER,  ef & 0x0004);
+			SETFLAG(Data.ExtFlags, CASHFX_SELSERIALBYGOODS,  ef & 0x0008);
+			SETFLAG(Data.ExtFlags, CASHFX_FORCEDIVISION,     ef & 0x0010);
+			SETFLAG(Data.Flags,    CASHF_ABOVEZEROSALE,      ef & 0x0020);
+			SETFLAG(Data.ExtFlags, CASHFX_EXTSCARDSEL,       ef & 0x0040);
+			SETFLAG(Data.ExtFlags, CASHFX_KEEPORGCCUSER,     ef & 0x0080);
+			SETFLAG(Data.ExtFlags, CASHFX_DISABLEZEROSCARD,  ef & 0x0100);
+			SETFLAG(Data.ExtFlags, CASHFX_UHTTORDIMPORT,     ef & 0x0200);
+			SETFLAG(Data.ExtFlags, CASHFX_ABSTRGOODSALLOWED, ef & 0x0400);
+			SETFLAG(Data.ExtFlags, CASHFX_NOTIFYEQPTIMEMISM, ef & 0x0800); // @v10.8.1
+		}
+		GetClusterData(CTL_CASHN_PASSIVE, &Data.ExtFlags);
+		getCtrlData(CTL_CASHN_SLEEPTIMEOUT, &Data.SleepTimeout);
+		getCtrlString(CTL_CASHN_TBLDGMPATH,  Data.TableSelWhatman);
+		getCtrlString(CTL_CASHN_SLIPFMTPATH, Data.SlipFmtPath);
+		getCtrlData(CTLSEL_CASHN_GROUP, &Data.ParentID);
+		{
+			PPObjCashNode cn_obj;
+			THROW(cn_obj.Validate(&Data, 0));
+		}
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	int    editDivGrpAssoc(SArray * pList)
@@ -1560,8 +1720,6 @@ private:
 	int    editExt();
 	void   SetupCtrls();
 	int    EditCashParam();
-
-	PPSyncCashNode Data;
 };
 
 int SyncCashNodeCfgDialog::editRoundParam()
@@ -1713,168 +1871,6 @@ int SyncCashNodeCfgDialog::editExt()
 	return ok;
 }
 
-int SyncCashNodeCfgDialog::setDTS(const PPSyncCashNode * pData)
-{
-	PPObjLocation loc_obj;
-	if(!RVALUEPTR(Data, pData))
-		MEMSZERO(Data);
-	setCtrlData(CTL_CASHN_NAME, Data.Name);
-	setCtrlData(CTL_CASHN_SYMB, Data.Symb);
-	setCtrlLong(CTL_CASHN_ID, Data.ID);
-	// @vmiller SetupStringCombo(this, CTLSEL_CASHN_DEVICE, PPTXT_CMT, Data.CashType, 0);
-	SetupStringComboDevice(this, CTLSEL_CASHN_DEVICE, DVCCLS_SYNCPOS, Data.CashType, 0); // @vmiller
-	SetupStringCombo(this, CTLSEL_CASHN_SPECIALITY, PPTXT_POSNODE_SPECIALITY, Data.Speciality);
-	setCtrlData(CTL_CASHN_DRVVERMAJOR, &Data.DrvVerMajor);
-	setCtrlData(CTL_CASHN_DRVVERMINOR, &Data.DrvVerMinor);
-	setCtrlData(CTL_CASHN_PORT,    Data.Port);
-	//setCtrlData(CTL_CASHN_OVRFLW,  &pSCN->OvrflwDate);
-	setCtrlData(CTL_CASHN_CURDATE, &Data.CurDate);
-	setCtrlData(CTL_CASHN_CSESS,   &Data.CurSessID);
-	SETIFZ(Data.LocID, loc_obj.GetSingleWarehouse());
-	SetupPPObjCombo(this, CTLSEL_CASHN_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
-	SetupPPObjCombo(this, CTLSEL_CASHN_NOA, PPOBJ_NAMEDOBJASSOC, Data.GoodsLocAssocID, OLW_CANINSERT, 0);
-	AddClusterAssoc(CTL_CASHN_NOA_PRINTONLY, 0, CASHFX_GLASSOCPRINTONLY);
-	SetClusterData(CTL_CASHN_NOA_PRINTONLY, Data.ExtFlags);
-	DisableClusterItem(CTL_CASHN_NOA_PRINTONLY, 0, !Data.GoodsLocAssocID);
-
-	AddClusterAssoc(CTL_CASHN_FLAGS,  0, CASHF_CHKPAN);
-	AddClusterAssoc(CTL_CASHN_FLAGS,  1, CASHF_NAFCL);
-	AddClusterAssoc(CTL_CASHN_FLAGS,  2, CASHF_OPENBOX);
-	AddClusterAssoc(CTL_CASHN_FLAGS,  3, CASHF_ROUNDINT);
-	AddClusterAssoc(CTL_CASHN_FLAGS,  4, CASHF_SELALLGOODS);
-	AddClusterAssoc(CTL_CASHN_FLAGS,  5, CASHF_AUTO_PRINTCOPY);
-	AddClusterAssoc(CTL_CASHN_FLAGS,  6, CASHF_USEQUOT);
-	AddClusterAssoc(CTL_CASHN_FLAGS,  7, CASHF_NOASKPAYMTYPE);
-	AddClusterAssoc(CTL_CASHN_FLAGS,  8, CASHF_SHOWREST);
-	AddClusterAssoc(CTL_CASHN_FLAGS,  9, CASHF_KEYBOARDWKEY);
-	AddClusterAssoc(CTL_CASHN_FLAGS, 10, CASHF_WORKWHENLOCK);
-	AddClusterAssoc(CTL_CASHN_FLAGS, 11, CASHF_NOMODALCHECKVIEW);
-	AddClusterAssoc(CTL_CASHN_FLAGS, 12, CASHF_DISABLEZEROAGENT);
-	AddClusterAssoc(CTL_CASHN_FLAGS, 13, CASHF_SKIPUNPRINTEDCHECKS);
-	AddClusterAssoc(CTL_CASHN_FLAGS, 14, CASHF_CHECKFORPRESENT);
-	SetClusterData(CTL_CASHN_FLAGS, Data.Flags);
-	{
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  0, 0x0001);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  1, 0x0002);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  2, 0x0004);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  3, 0x0008);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  4, 0x0010);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  5, 0x0020);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  6, 0x0040);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  7, 0x0080);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  8, 0x0100);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS,  9, 0x0200);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 10, 0x0400);
-		AddClusterAssoc(CTL_CASHN_EXTFLAGS, 11, 0x0800); // @v10.8.1 CASHFX_NOTIFYEQPTIMEMISM
-
-		long   ef = 0;
-		SETFLAG(ef, 0x0001, Data.Flags & CASHF_UNIFYGDSATCHECK);
-		SETFLAG(ef, 0x0002, Data.Flags & CASHF_UNIFYGDSTOPRINT);
-		SETFLAG(ef, 0x0004, Data.Flags & CASHF_NOTUSECHECKCUTTER);
-		SETFLAG(ef, 0x0008, Data.ExtFlags & CASHFX_SELSERIALBYGOODS);
-		SETFLAG(ef, 0x0010, Data.ExtFlags & CASHFX_FORCEDIVISION);
-		SETFLAG(ef, 0x0020, Data.Flags & CASHF_ABOVEZEROSALE);
-		SETFLAG(ef, 0x0040, Data.ExtFlags & CASHFX_EXTSCARDSEL);
-		SETFLAG(ef, 0x0080, Data.ExtFlags & CASHFX_KEEPORGCCUSER);
-		SETFLAG(ef, 0x0100, Data.ExtFlags & CASHFX_DISABLEZEROSCARD);
-		SETFLAG(ef, 0x0200, Data.ExtFlags & CASHFX_UHTTORDIMPORT);
-		SETFLAG(ef, 0x0400, Data.ExtFlags & CASHFX_ABSTRGOODSALLOWED);
-		SETFLAG(ef, 0x0800, Data.ExtFlags & CASHFX_NOTIFYEQPTIMEMISM); // @v10.8.1
-		SetClusterData(CTL_CASHN_EXTFLAGS, ef);
-		{
-			PPAlbatrossConfig acfg;
-			PPAlbatrosCfgMngr::Get(&acfg);
-			SString temp_buf;
-			acfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
-			DisableClusterItem(CTL_CASHN_EXTFLAGS, 9, /*acfg.UhttAccount.Empty()*/temp_buf.IsEmpty());
-		}
-	}
-	AddClusterAssoc(CTL_CASHN_PASSIVE, 0, CASHFX_PASSIVE);
-	SetClusterData(CTL_CASHN_PASSIVE, Data.ExtFlags);
-	//disableCtrl(CTL_CASHN_OVRFLW, 1);
-	setCtrlData(CTL_CASHN_SLEEPTIMEOUT, &Data.SleepTimeout);
-	if(!Data.TableSelWhatman.NotEmptyS()) {
-		FileBrowseCtrlGroup * p_fbg = static_cast<FileBrowseCtrlGroup *>(getGroup(GRP_TBLDGMPATH));
-		if(p_fbg) {
-			SString path;
-			PPGetPath(PPPATH_WTM, path);
-			p_fbg->setInitPath(path);
-		}
-	}
-	setCtrlString(CTL_CASHN_TBLDGMPATH,  Data.TableSelWhatman);
-	setCtrlString(CTL_CASHN_SLIPFMTPATH, Data.SlipFmtPath);
-	{
-		PPObjCashNode::SelFilt f;
-		f.OnlyGroups = 1;
-		SetupPPObjCombo(this, CTLSEL_CASHN_GROUP, PPOBJ_CASHNODE, Data.ParentID, 0, &f);
-	}
-	disableCtrl(CTL_CASHN_CSESS, !PPMaster);
-	SetupCtrls();
-	return 1;
-}
-
-int SyncCashNodeCfgDialog::getDTS(PPSyncCashNode * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	getCtrlData(sel = CTL_CASHN_NAME, Data.Name);
-	THROW_PP(*strip(Data.Name) != 0, PPERR_NAMENEEDED);
-	getCtrlData(sel = CTL_CASHN_SYMB, Data.Symb);
-	sel = CTL_CASHN_DEVICE;
-	getCtrlData(CTLSEL_CASHN_DEVICE, &Data.CashType);
-	THROW_PP(Data.CashType != 0, PPERR_CMTNEEDED);
-	THROW_PP(Data.CashType != PPCMT_OKA500, PPERR_OKA500NOTSUPPORTED);
-	THROW_PP(PPCashMachine::IsSyncCMT(Data.CashType), PPERR_CMSYNCNOTSUPP);
-	Data.Speciality = static_cast<uint16>(getCtrlLong(CTLSEL_CASHN_SPECIALITY));
-	getCtrlData(CTL_CASHN_DRVVERMAJOR, &Data.DrvVerMajor);
-	getCtrlData(CTL_CASHN_DRVVERMINOR, &Data.DrvVerMinor);
-	sel = CTL_CASHN_LOC;
-	getCtrlData(CTLSEL_CASHN_LOC, &Data.LocID);
-	THROW_PP(Data.LocID != 0, PPERR_LOCNEEDED);
-	getCtrlData(sel = CTLSEL_CASHN_NOA, &Data.GoodsLocAssocID);
-	if(Data.GoodsLocAssocID) {
-		PPNamedObjAssoc noa_rec;
-		THROW(SearchObject(PPOBJ_NAMEDOBJASSOC, Data.GoodsLocAssocID, &noa_rec) > 0);
-		THROW_PP_S(noa_rec.PrmrObjType == PPOBJ_GOODS && noa_rec.ScndObjType == PPOBJ_LOCATION &&
-			oneof2(noa_rec.ScndObjGrp, 0, LOCTYP_WAREHOUSE), PPERR_INVPOSGOODSLOCASSOC, noa_rec.Name);
-		GetClusterData(CTL_CASHN_NOA_PRINTONLY, &Data.ExtFlags);
-	}
-	else
-		Data.ExtFlags &= ~CASHFX_GLASSOCPRINTONLY;
-	getCtrlData(CTL_CASHN_PORT,     Data.Port);
-	getCtrlData(CTL_CASHN_CURDATE, &Data.CurDate);
-	if(PPMaster)
-		getCtrlData(CTL_CASHN_CSESS, &Data.CurSessID);
-	GetClusterData(CTL_CASHN_FLAGS, &Data.Flags);
-	{
-		const long ef = GetClusterData(CTL_CASHN_EXTFLAGS);
-		SETFLAG(Data.Flags,    CASHF_UNIFYGDSATCHECK,    ef & 0x0001);
-		SETFLAG(Data.Flags,    CASHF_UNIFYGDSTOPRINT,    ef & 0x0002);
-		SETFLAG(Data.Flags,    CASHF_NOTUSECHECKCUTTER,  ef & 0x0004);
-		SETFLAG(Data.ExtFlags, CASHFX_SELSERIALBYGOODS,  ef & 0x0008);
-		SETFLAG(Data.ExtFlags, CASHFX_FORCEDIVISION,     ef & 0x0010);
-		SETFLAG(Data.Flags,    CASHF_ABOVEZEROSALE,      ef & 0x0020);
-		SETFLAG(Data.ExtFlags, CASHFX_EXTSCARDSEL,       ef & 0x0040);
-		SETFLAG(Data.ExtFlags, CASHFX_KEEPORGCCUSER,     ef & 0x0080);
-		SETFLAG(Data.ExtFlags, CASHFX_DISABLEZEROSCARD,  ef & 0x0100);
-		SETFLAG(Data.ExtFlags, CASHFX_UHTTORDIMPORT,     ef & 0x0200);
-		SETFLAG(Data.ExtFlags, CASHFX_ABSTRGOODSALLOWED, ef & 0x0400);
-		SETFLAG(Data.ExtFlags, CASHFX_NOTIFYEQPTIMEMISM, ef & 0x0800); // @v10.8.1
-	}
-	GetClusterData(CTL_CASHN_PASSIVE, &Data.ExtFlags);
-	getCtrlData(CTL_CASHN_SLEEPTIMEOUT, &Data.SleepTimeout);
-	getCtrlString(CTL_CASHN_TBLDGMPATH,  Data.TableSelWhatman);
-	getCtrlString(CTL_CASHN_SLIPFMTPATH, Data.SlipFmtPath);
-	getCtrlData(CTLSEL_CASHN_GROUP, &Data.ParentID);
-	{
-		PPObjCashNode cn_obj;
-		THROW(cn_obj.Validate(&Data, 0));
-	}
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
-
 int SyncCashNodeCfgDialog::EditCashParam()
 {
 	int    ok = -1;
@@ -1945,7 +1941,7 @@ IMPL_HANDLE_EVENT(SyncCashNodeCfgDialog)
 		DisableClusterItem(CTL_CASHN_NOA_PRINTONLY, 0, !getCtrlLong(CTLSEL_CASHN_NOA));
 	else if(event.isCmd(cmEditCashParam))
 		EditCashParam();
-	else if(event.isCmd(cmDiagnostics)) { // @v10.5.12
+	else if(event.isCmd(cmDiagnostics)) {
 		PPObjCashNode cn_obj;
 		if(getDTS(0)) {
 			StringSet ss;

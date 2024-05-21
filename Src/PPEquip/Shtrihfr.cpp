@@ -227,7 +227,6 @@ public:
 			ZDELETE(P_DrvFRIntrf);
 	}
 	virtual int PrintCheck(CCheckPacket * pPack, uint flags);
-	// @v10.0.0 virtual int PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int GetSummator(double * val);
@@ -240,6 +239,7 @@ public:
 	virtual int CheckForSessionOver();
 	virtual int PrintBnkTermReport(const char * pZCheck);
 	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, int uomId, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult); // @v11.6.6
+	virtual int Diagnostics(StringSet * pSs); // @v12.0.3
 private:
 	// @v10.3.9 virtual int InitChannel();
 	FR_INTRF  * InitDriver();
@@ -261,6 +261,7 @@ private:
 	bool GetFR(int id, double * pBuf);
 	bool GetFR(int id, char   * pBuf, size_t bufLen);
 	int  ExecFR(int id);
+	int  ExecFR_WithoutPassword(int id);
 	int  ExecFRPrintOper(int id);
 	int  AllowPrintOper(int id);
 	void SetErrorMessage();
@@ -454,6 +455,12 @@ private:
 		Numerator,                        // @v11.6.6 
 		Denominator,                      // @v11.6.6
 		FNCloseCheckEx,                   // @v11.7.2
+		ServerConnect,                    // @v12.0.3
+		ServerDisconnect,                 // @v12.0.3
+		Connect2,                         // @v12.0.3 
+		ComputerName,                     // @v12.0.3 
+		ServerConnected,                  // @v12.0.3 
+		ServerVersion,                    // @v12.0.3 
 	};
 	//
 	// Descr: Методы вывода штрихкодов
@@ -501,7 +508,10 @@ private:
 		extmethfDivisionalQuantity     = 0x00001000,
 		extmethfNumerator              = 0x00002000,
 		extmethfDenominator            = 0x00004000,
-		extmethfFNCloseCheckEx         = 0x00008000  // @v11.7.2
+		extmethfFNCloseCheckEx         = 0x00008000, // @v11.7.2
+		extmethfServerConnect          = 0x00010000, // @v12.0.3
+		extmethfServerDisconnect       = 0x00020000, // @v12.0.3
+		extmethfConnect2               = 0x00040000, // @v12.0.3
 	};
 	static uint ExtMethodsFlags;   // @v10.6.3 Флаги успешности получения расширенных методов драйвера
 	long   CashierPassword;    // Пароль кассира
@@ -541,6 +551,26 @@ PPSyncCashSession * CM_SHTRIHFRF::SyncInterface()
 }
 
 REGISTER_CMT(SHTRIHFRF, true, false);
+
+/*virtual*/int SCS_SHTRIHFRF::Diagnostics(StringSet * pSs) // @v12.0.3
+{
+	int    ok = 1;
+	int    server_connected = 0;
+	char   server_version[256];
+	server_version[0] = 0;
+	// @debug {
+	if(pSs) {
+		P_DrvFRIntrf->GetProperty(ServerConnected, &server_connected);
+		const char * p_computer_name = "localhost";
+		SetFR(ComputerName, p_computer_name);
+		ExecFR_WithoutPassword(ServerConnect);
+		P_DrvFRIntrf->GetProperty(ServerConnected, &server_connected);
+		P_DrvFRIntrf->GetProperty(ServerVersion, server_version, sizeof(server_version));
+		ExecFR(Beep);
+	}
+	// } @debug 
+	return ok;
+}
 
 int SCS_SHTRIHFRF::CheckForCash(double sum)
 {
@@ -1785,6 +1815,12 @@ FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 		IFC_ENTRY(GetExchangeParam),
 		IFC_ENTRY(SetExchangeParam),
 		IFC_ENTRY(Connect),
+		IFC_ENTRY_SS(ServerConnect, ExtMethodsFlags, extmethfServerConnect), // @v12.0.3
+		IFC_ENTRY_SS(ServerDisconnect, ExtMethodsFlags, extmethfServerDisconnect), // @v12.0.3
+		IFC_ENTRY_SS(Connect2, ExtMethodsFlags, extmethfConnect2), // @v12.0.3
+		IFC_ENTRY(ComputerName),                     // @v12.0.3 
+		IFC_ENTRY(ServerConnected),                  // @v12.0.3 
+		IFC_ENTRY(ServerVersion),                    // @v12.0.3
 		IFC_ENTRY(Disconnect),
 		IFC_ENTRY(Quantity),
 		IFC_ENTRY(Price),
@@ -2409,24 +2445,14 @@ int SCS_SHTRIHFRF::ConnectFR()
 			DeviceType = devtypeMini;
 		else if(oneof2(model_type, SHTRIH_COMBO_FRK, SHTRIH_COMBO_FRK_V2))
 			DeviceType = devtypeCombo;
-#if 0 // @construction {
-		// @v7.2.2 {
-		else if(model_type == SHTRIH_LIGHT_FRK) {
-			DeviceType = devtypeShtrih; // (Временно будем идентифицировать так это значение)
-			// (Должно быть так, но это требует перестройки многих точек кода) DeviceType = devtypeLight;
-		}
-		// } @v7.2.2
-#endif // } 0 @construction
 		SETFLAG(Flags, sfOldShtrih, (DeviceType == devtypeShtrih) && major_prot_ver < 2 && minor_prot_ver < 2);
 		THROW(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRNOTUSEWEIGHTSENSOR, &not_use_wght_sensor));
 		SETFLAG(Flags, sfUseWghtSensor, !not_use_wght_sensor);
-		// @v10.7.2 {
 		{
 			int  use_fr_meths = 0;
 			THROW(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRUSEFNMETHODS, &use_fr_meths));
 			SETFLAG(Flags, sfUseFnMethods, use_fr_meths == 1); 
 		}
-		// } @v10.7.2 
 		THROW(SetupTables());
 	}
 	CATCH
@@ -2547,17 +2573,30 @@ int SCS_SHTRIHFRF::GetResultCode(int methID)
 		FeedDocument }; // @v11.7.12 FeedDocument
 	int    ok = 1;
 	{
-		bool do_check_result_code = true;
-		for(uint i = 0; do_check_result_code && i < SIZEOFARRAY(func_without_retcode_checking); i++) {
-			if(methID == func_without_retcode_checking[i])
-				do_check_result_code = false;
+		if(methID == ServerConnect) {
+			int    server_connected = 0;
+			LogDebug("GetProperty", ServerConnected, 0); // @v11.6.12
+			THROW_PP_S(P_DrvFRIntrf->GetProperty(ServerConnected, &server_connected) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(ServerConnected, SLS.AcquireRvlStr())); 
+			if(server_connected) {
+				ResCode = RESCODE_NO_ERROR;
+			}
+			else {
+				ResCode = RESCODE_NO_CONNECTION;
+			}
 		}
-		if(do_check_result_code) {
-			LogDebug("GetProperty", ResultCode, 0); // @v11.6.12
-			THROW_PP_S(P_DrvFRIntrf->GetProperty(ResultCode, &ResCode) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(ResultCode, SLS.AcquireRvlStr())); 
+		else {
+			bool do_check_result_code = true;
+			for(uint i = 0; do_check_result_code && i < SIZEOFARRAY(func_without_retcode_checking); i++) {
+				if(methID == func_without_retcode_checking[i])
+					do_check_result_code = false;
+			}
+			if(do_check_result_code) {
+				LogDebug("GetProperty", ResultCode, 0); // @v11.6.12
+				THROW_PP_S(P_DrvFRIntrf->GetProperty(ResultCode, &ResCode) > 0, PPERR_SHTRIHFRGETPROPFAULT, P_DrvFRIntrf->GetNameByID(ResultCode, SLS.AcquireRvlStr())); 
+			}
+			else
+				ResCode = RESCODE_NO_ERROR;
 		}
-		else
-			ResCode = RESCODE_NO_ERROR;
 	}
 	if(ResCode != RESCODE_NO_ERROR) {
 		SString addendum_msg_buf;
@@ -2571,11 +2610,20 @@ int SCS_SHTRIHFRF::GetResultCode(int methID)
 int SCS_SHTRIHFRF::ExecFR(int id)
 {
 	int    ok = 1;
-	SString method;
-	P_DrvFRIntrf->GetNameByID(id, method);
 	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
 	LogDebug("SetProperty", Password, 0); // @v11.6.12
 	THROW_PP_S(P_DrvFRIntrf->SetProperty(Password, CashierPassword) > 0, PPERR_SHTRIHFRSETPROPFAULT, P_DrvFRIntrf->GetNameByID(Password, SLS.AcquireRvlStr()));
+	THROW(ExecFR_WithoutPassword(id));
+	CATCHZOK
+	return ok;
+}
+
+int SCS_SHTRIHFRF::ExecFR_WithoutPassword(int id)
+{
+	int    ok = 1;
+	SString method;
+	THROW_PP(P_DrvFRIntrf, PPERR_SHTRIHFRIFCNOTINITED);
+	P_DrvFRIntrf->GetNameByID(id, method);
 	LogDebug("CallMethod", id, 0); // @v11.6.12
 	THROW_PP_S(P_DrvFRIntrf->CallMethod(id) > 0, PPERR_SHTRIHFRCALLMETHFAULT, method);
 	THROW(GetResultCode(id));
