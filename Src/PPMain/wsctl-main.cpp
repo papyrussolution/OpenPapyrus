@@ -580,8 +580,10 @@ public:
 						}
 						for(uint catidx = 0; catidx < st_data_compcat_list.L.getCount(); catidx++) {
 							StrAssocArray::Item item = st_data_compcat_list.L.Get(catidx);
+							/*
 							if(ImGui::Selectable(item.Txt, item.Id == PgmL.GetSelectedCatSurrogateId()))
 								PgmL.SetSelectedCatSurrogateId(item.Id);
+							*/
 						}
 						ImGui::EndCombo();
 					}
