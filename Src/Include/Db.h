@@ -4645,6 +4645,7 @@ public:
 	int    Put(uint32 type, uint64 rowId, uint32 freeSize);
 	int    Remove(uint32 type, uint64 rowId) { return Put(type, rowId, 0U); }
 	const  Entry * Get(uint32 type, uint32 reqSize) const;
+	int    GetListForPage(uint pageSeq, TSVector <SRecPageFreeList::Entry> & rList) const; // @debug
 };
 
 struct SDataPageHeader {
@@ -4723,7 +4724,7 @@ struct SDataPageHeader {
 		uint   UsableBlockCount; // Количество свободных блоков, чей размер позволяет их использовать для записи данных
 		uint   UsableBlockSize;  // Общий размер данных, который может быть записан в пригодные к использованию свободные блоки
 	};
-	bool   GetStat(Stat & rStat) const;
+	bool   GetStat(Stat & rStat, TSVector <SRecPageFreeList::Entry> * pUsableBlockList) const;
 	bool   IsValid() const;
 	uint32 ReadRecPrefix(uint pos, RecPrefix & rPfx) const;
 	//
@@ -4810,6 +4811,24 @@ struct SDataPageHeader {
 
 class SRecPageManager {
 public:
+	//
+	// Структура RowId:
+	//   | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+	//    3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 
+	//          6                   5                   4                   3                   2                   1                   0
+	//   |                             |       |
+	//   reserve                       offs bits
+	// 
+	//   Общий размер типа: 64 бита
+	//   Старшие 16 бит - зарезервированы
+	//   Следующие старшие 4 бита - индикатор битовой ширины поля смещения внутри страницы.
+	//      Битовая ширина смещения может быть от 9 до 24 бит (0: 9, 1: 10, 15: 24)
+	//      Битовую ширину поля смещения назовем pobw (page offset bit-width)
+	//      Само смещение внутри страницы задается со сдвигом в 32 поскольку заголовок
+	//      страницы длиной 32 байта не участвует в распределении рабочих блоков.
+	//      Таким образом максимальная длина страницы = 2^(24+5)
+	//   Следующие старшие (64-4-pobw) бит - номер страницы.
+	//
 	static constexpr uint RowIdBitWidth = 48;
 	static uint64 MakeRowId(uint pageSize, uint pageSeq, uint offset);
 	static int SplitRowId(uint64 rowId, uint pageSize, uint * pPageSeq, uint * pOffset);
@@ -4822,6 +4841,7 @@ public:
 	//  !0 - actual size of the read data
 	//
 	uint   Read(uint64 rowId, void * pBuf, size_t bufSize);
+	static bool TestSinglePage(uint pageSize);
 private:
 	SDataPageHeader * GetPage(uint32 seq);
 	SDataPageHeader * AllocatePage(uint32 type);

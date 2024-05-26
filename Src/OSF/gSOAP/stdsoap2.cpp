@@ -5849,7 +5849,7 @@ SOAP_FMAC1 size_t /*SOAP_FMAC2*/FASTCALL soap_hash(const char * s)
 {
 	size_t h = 0;
 	while(*s)
-		h = 65599*h+*s++;
+		h = SlConst::OzanYigitHashPrime/*65599*/ * h + *s++;
 	return h%SOAP_IDHASH;
 }
 
@@ -5953,8 +5953,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_pointer_enter(struct soap * soap, const void * p,
 		h = soap_hash_ptr(a->__ptr);
 	else
 		h = soap_hash_ptr(p);
-	DBGLOG(TEST,
-		    SOAP_MESSAGE(fdebug, "Pointer enter location=%p array=%p size=%d dim=%d type=%d id=%d\n", p,
+	DBGLOG(TEST, SOAP_MESSAGE(fdebug, "Pointer enter location=%p array=%p size=%d dim=%d type=%d id=%d\n", p,
 			    a ? a->__ptr : NULL, a ? a->__size : 0, n, type, soap->idnum+1));
 	pp->next = soap->pht[h];
 	pp->type = type;

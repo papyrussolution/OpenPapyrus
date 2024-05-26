@@ -595,7 +595,6 @@ IMPL_HANDLE_EVENT(TDialog)
 			case TEvent::evCommand:
 				switch(event.message.command) {
 					case cmOK:
-						// @v10.7.7 {
 						{
 							TView * p_temp = P_Last;
 							if(p_temp) {
@@ -610,7 +609,6 @@ IMPL_HANDLE_EVENT(TDialog)
 							}
 						}
 						// @fallthrough
-						// } @v10.7.7 
 					case cmCancel:
 					case cmYes:
 					case cmNo:

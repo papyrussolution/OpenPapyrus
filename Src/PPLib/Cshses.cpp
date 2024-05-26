@@ -50,7 +50,7 @@ int PPSyncCashSession::Init(const char * pName, const char * pPort)
 	if(pPort) {
 		STRNSCPY(Port, pPort);
 		int    c = 0;
-		const  int comdvcs = IsComDvcSymb(pPort, &c);
+		const  int comdvcs = IsComDvcSymb(Port, &c);
 		if(comdvcs == comdvcsCom && (c >= 1 && c <= 32)) {
 			PortType = 2;
 			Handle = c;
@@ -62,6 +62,9 @@ int PPSyncCashSession::Init(const char * pName, const char * pPort)
 		else if(comdvcs == comdvcsPrn) {
 			PortType = 1;
 			Handle = 1;
+		}
+		else if(sstreqi_ascii(Port, "server")) { // @v12.0.3
+			PortType = 3;
 		}
 		if(PortType == 0)
 			Handle = open(pPort, O_CREAT|/*O_TRUNC*/O_APPEND|O_TEXT|O_WRONLY, S_IWRITE);

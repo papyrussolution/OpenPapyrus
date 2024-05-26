@@ -65,7 +65,7 @@ uint32 __ham_func2(DB * dbp, const void * key, uint32 len)
  * iteration, perform 8 HASHC's so we handle all 8 bytes.  Essentially, this
  * saves us 7 cmp & branch instructions.
  *
- * PUBLIC: uint32 __ham_func3 __P((DB *, const void *, uint32));
+ * PUBLIC: uint32 __ham_func3(DB *, const void *, uint32);
  */
 uint32 __ham_func3(DB * dbp, const void * key, uint32 len)
 {
@@ -75,7 +75,7 @@ uint32 __ham_func3(DB * dbp, const void * key, uint32 len)
 		COMPQUIET(dbp, 0);
 	if(!len)
 		return 0;
-#define HASHC   n = *k+++65599*n
+#define HASHC   n = *k++ + SlConst::OzanYigitHashPrime/*65599*/ * n
 	n = 0;
 	k = static_cast<const uint8 *>(key);
 	loop = (len+8-1)>>3;

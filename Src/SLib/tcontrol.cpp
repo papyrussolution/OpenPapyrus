@@ -10,9 +10,7 @@
 TStaticText::TStaticText(const TRect & bounds, const char * pText) : TView(bounds), Text(pText)
 {
 	SubSign = TV_SUBSIGN_STATIC;
-	Text.ShiftLeftChr(3); // @v10.7.7 
-	// @v10.7.7 if(pText && *pText == 3) pText++;
-	// @v10.7.7 Text = pText;
+	Text.ShiftLeftChr(3);
 }
 
 int TStaticText::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)

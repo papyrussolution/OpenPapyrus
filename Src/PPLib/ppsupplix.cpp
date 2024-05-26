@@ -272,17 +272,15 @@ public:
 			InitExportParam(p, addLineRecType);
 			AddLineRec = p.InrRec;
 		}
-		// @v10.4.0 {
 		if(promoLineRecType) {
 			PromoLineRecType = promoLineRecType;
 			InitExportParam(p, promoLineRecType);
 			PromoLineRec = p.InrRec;
 		}
-		// } @v10.4.0 
 		HeadScheme = pHeadScheme;
 		LineScheme = pLineScheme;
 		AddLineScheme = pAddLineScheme;
-		PromoLineScheme = pPromoLineScheme; // @v10.4.0
+		PromoLineScheme = pPromoLineScheme;
 		SchemeName = pSchemeName;
 		F.Close();
 		THROW_SL(F.Open(pFile, SFile::mWrite) > 0);
@@ -538,17 +536,17 @@ private:
 	uint   HeadRecType;
 	uint   LineRecType;
 	uint   AddLineRecType;
-	uint   PromoLineRecType; // @v10.4.0
+	uint   PromoLineRecType;
 	SString HeadScheme;
 	SString LineScheme;
 	SString AddLineScheme;
-	SString PromoLineScheme; // @v10.4.0
+	SString PromoLineScheme;
 	SString SchemeName;
 	SString FileName;
 	SdRecord HeadRec;
 	SdRecord LineRec;
 	SdRecord AddLineRec;
-	SdRecord PromoLineRec; // @v10.4.0
+	SdRecord PromoLineRec;
 	SFile  F;
 };
 

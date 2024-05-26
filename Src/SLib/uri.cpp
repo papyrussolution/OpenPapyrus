@@ -2673,9 +2673,9 @@ const char * STDCALL UriParserState::ParseIpLit2(const char * first, const char 
  */
 const char * STDCALL UriParserState::ParseIPv6address2(const char * first, const char * afterLast)
 {
-	int    zipperEver = 0;
-	int    quadsDone = 0;
-	int    digitCount = 0;
+	int    zipper_ever = 0;
+	int    quads_done = 0;
+	int    digit_count = 0;
 	uchar  digitHistory[4];
 	int    ip4OctetsDone = 0;
 	uchar  quadsAfterZipper[14];
@@ -2690,19 +2690,19 @@ const char * STDCALL UriParserState::ParseIPv6address2(const char * first, const
 			for(;;) {
 				switch(*first) {
 				    case URI_SET_DIGIT:
-						if(digitCount == 4) {
+						if(digit_count == 4) {
 							return StopSyntax(first);
 						}
-						digitHistory[digitCount++] =static_cast<uchar>(9+*first-'9');
+						digitHistory[digit_count++] =static_cast<uchar>(9+*first-'9');
 						break;
 				    case '.':
-						if((ip4OctetsDone == 4) || /* NOTE! */ (digitCount == 0) || (digitCount == 4))
+						if((ip4OctetsDone == 4) || /* NOTE! */ (digit_count == 0) || (digit_count == 4))
 							return StopSyntax(first); // Invalid digit or octet count 
-						else if((digitCount > 1) && (digitHistory[0] == 0))
-							return StopSyntax(first-digitCount); // Leading zero 
-						else if((digitCount > 2) && (digitHistory[1] == 0))
-							return StopSyntax(first-digitCount+1); // Leading zero 
-						else if((digitCount == 3) && (100*digitHistory[0]+10*digitHistory[1]+digitHistory[2] > 255)) {
+						else if((digit_count > 1) && (digitHistory[0] == 0))
+							return StopSyntax(first-digit_count); // Leading zero 
+						else if((digit_count > 2) && (digitHistory[1] == 0))
+							return StopSyntax(first-digit_count+1); // Leading zero 
+						else if((digit_count == 3) && (100*digitHistory[0]+10*digitHistory[1]+digitHistory[2] > 255)) {
 							// Octet value too large 
 							if(digitHistory[0] > 2)
 								StopSyntax(first-3);
@@ -2713,18 +2713,18 @@ const char * STDCALL UriParserState::ParseIPv6address2(const char * first, const
 							return NULL;
 						}
 						// Copy IPv4 octet 
-						P_Uri->HostData.ip6->data[16-4+ip4OctetsDone] = uriGetOctetValue(digitHistory, digitCount);
-						digitCount = 0;
+						P_Uri->HostData.ip6->data[16-4+ip4OctetsDone] = uriGetOctetValue(digitHistory, digit_count);
+						digit_count = 0;
 						ip4OctetsDone++;
 						break;
 				    case ']':
-						if((ip4OctetsDone != 3) || /* NOTE! */ (digitCount == 0) || (digitCount == 4))
+						if((ip4OctetsDone != 3) || /* NOTE! */ (digit_count == 0) || (digit_count == 4))
 							return StopSyntax(first); // Invalid digit or octet count 
-						else if((digitCount > 1) && (digitHistory[0] == 0))
-							return StopSyntax(first-digitCount); // Leading zero 
-						else if((digitCount > 2) && (digitHistory[1] == 0))
-							return StopSyntax(first-digitCount+1); // Leading zero
-						else if((digitCount == 3) && (100*digitHistory[0]+10*digitHistory[1]+digitHistory[2] > 255)) {
+						else if((digit_count > 1) && (digitHistory[0] == 0))
+							return StopSyntax(first-digit_count); // Leading zero 
+						else if((digit_count > 2) && (digitHistory[1] == 0))
+							return StopSyntax(first-digit_count+1); // Leading zero
+						else if((digit_count == 3) && (100*digitHistory[0]+10*digitHistory[1]+digitHistory[2] > 255)) {
 							// Octet value too large
 							if(digitHistory[0] > 2)
 								StopSyntax(first-3);
@@ -2738,7 +2738,7 @@ const char * STDCALL UriParserState::ParseIPv6address2(const char * first, const
 						// Copy missing quads right before IPv4 
 						memcpy(P_Uri->HostData.ip6->data+16-4-2*quadsAfterZipperCount, quadsAfterZipper, 2*quadsAfterZipperCount);
 						// Copy last IPv4 octet 
-						P_Uri->HostData.ip6->data[16-4+3] = uriGetOctetValue(digitHistory, digitCount);
+						P_Uri->HostData.ip6->data[16-4+3] = uriGetOctetValue(digitHistory, digit_count);
 						return first+1;
 				    default: return StopSyntax(first);
 				}
@@ -2753,36 +2753,36 @@ const char * STDCALL UriParserState::ParseIPv6address2(const char * first, const
 				switch(*first) {
 				    case URI_SET_HEX_LETTER_LOWER:
 						letterAmong = 1;
-						if(digitCount == 4)
+						if(digit_count == 4)
 							return StopSyntax(first);
-						digitHistory[digitCount] = static_cast<uchar>(15+*first-'f');
-						digitCount++;
+						digitHistory[digit_count] = static_cast<uchar>(15+*first-'f');
+						digit_count++;
 						break;
 				    case URI_SET_HEX_LETTER_UPPER:
 						letterAmong = 1;
-						if(digitCount == 4)
+						if(digit_count == 4)
 							return StopSyntax(first);
-						digitHistory[digitCount] = static_cast<uchar>(15+*first-'F');
-						digitCount++;
+						digitHistory[digit_count] = static_cast<uchar>(15+*first-'F');
+						digit_count++;
 						break;
 				    case URI_SET_DIGIT:
-						if(digitCount == 4)
+						if(digit_count == 4)
 							return StopSyntax(first);
-						digitHistory[digitCount] = static_cast<uchar>(9+*first-'9');
-						digitCount++;
+						digitHistory[digit_count] = static_cast<uchar>(9+*first-'9');
+						digit_count++;
 						break;
 				    case ':':
 						{
 							int setZipper = 0;
-							if(quadsDone > 8-zipperEver) // Too many quads? 
+							if(quads_done > 8-zipper_ever) // Too many quads? 
 								return StopSyntax(first);
 							else if(first+1 >= afterLast) // "::"? 
 								return StopSyntax(first+1);
 							else {
 								if(first[1] == ':') {
-									const int resetOffset = 2*(quadsDone+(digitCount > 0));
+									const int resetOffset = 2*(quads_done+(digit_count > 0));
 									first++;
-									if(zipperEver)
+									if(zipper_ever)
 										return StopSyntax(first); // "::.+::" 
 									else {
 										// Zero everything after zipper 
@@ -2795,32 +2795,32 @@ const char * STDCALL UriParserState::ParseIPv6address2(const char * first, const
 											return StopSyntax(first+1); // ":::+ "
 									}
 								}
-								if(digitCount > 0) {
-									if(zipperEver) {
-										uriWriteQuadToDoubleByte(digitHistory, digitCount, quadsAfterZipper+2*quadsAfterZipperCount);
+								if(digit_count > 0) {
+									if(zipper_ever) {
+										uriWriteQuadToDoubleByte(digitHistory, digit_count, quadsAfterZipper+2*quadsAfterZipperCount);
 										quadsAfterZipperCount++;
 									}
 									else {
-										uriWriteQuadToDoubleByte(digitHistory, digitCount, P_Uri->HostData.ip6->data+2*quadsDone);
+										uriWriteQuadToDoubleByte(digitHistory, digit_count, P_Uri->HostData.ip6->data+2*quads_done);
 									}
-									quadsDone++;
-									digitCount = 0;
+									quads_done++;
+									digit_count = 0;
 								}
 								letterAmong = 0;
 								if(setZipper) {
-									zipperEver = 1;
+									zipper_ever = 1;
 								}
 							}
 						}
 						break;
 				    case '.':
-						if((quadsDone > 6) || /* NOTE */(!zipperEver &&(quadsDone < 6)) || letterAmong ||(digitCount == 0) ||(digitCount == 4))
+						if((quads_done > 6) || /* NOTE */(!zipper_ever &&(quads_done < 6)) || letterAmong ||(digit_count == 0) ||(digit_count == 4))
 							return StopSyntax(first); // Invalid octet before 
-						else if((digitCount > 1) &&(digitHistory[0] == 0))
-							return StopSyntax(first-digitCount); // Leading zero 
-						else if((digitCount > 2) &&(digitHistory[1] == 0))
-							return StopSyntax(first-digitCount+1); // Leading zero 
-						else if((digitCount == 3) &&(100*digitHistory[0]+10*digitHistory[1]+digitHistory[2] > 255)) {
+						else if((digit_count > 1) &&(digitHistory[0] == 0))
+							return StopSyntax(first-digit_count); // Leading zero 
+						else if((digit_count > 2) &&(digitHistory[1] == 0))
+							return StopSyntax(first-digit_count+1); // Leading zero 
+						else if((digit_count == 3) &&(100*digitHistory[0]+10*digitHistory[1]+digitHistory[2] > 255)) {
 							// Octet value too large 
 							if(digitHistory[0] > 2)
 								StopSyntax(first-3);
@@ -2831,26 +2831,26 @@ const char * STDCALL UriParserState::ParseIPv6address2(const char * first, const
 							return NULL;
 						}
 						// Copy first IPv4 octet 
-						P_Uri->HostData.ip6->data[16-4] = uriGetOctetValue(digitHistory, digitCount);
-						digitCount = 0;
+						P_Uri->HostData.ip6->data[16-4] = uriGetOctetValue(digitHistory, digit_count);
+						digit_count = 0;
 						// Switch over to IPv4 loop 
 						ip4OctetsDone = 1;
 						walking = 0;
 						break;
 				    case ']': // Too little quads? 
-						if(!zipperEver && !((quadsDone == 7) && (digitCount > 0)))
+						if(!zipper_ever && !((quads_done == 7) && (digit_count > 0)))
 							return StopSyntax(first);
-						if(digitCount > 0) {
-							if(zipperEver) {
-								uriWriteQuadToDoubleByte(digitHistory, digitCount, quadsAfterZipper+2*quadsAfterZipperCount);
+						if(digit_count > 0) {
+							if(zipper_ever) {
+								uriWriteQuadToDoubleByte(digitHistory, digit_count, quadsAfterZipper+2*quadsAfterZipperCount);
 								quadsAfterZipperCount++;
 							}
 							else {
-								uriWriteQuadToDoubleByte(digitHistory, digitCount, P_Uri->HostData.ip6->data+2*quadsDone);
+								uriWriteQuadToDoubleByte(digitHistory, digit_count, P_Uri->HostData.ip6->data+2*quads_done);
 							}
 							/*
-							   quadsDone++;
-							   digitCount = 0;
+							   quads_done++;
+							   digit_count = 0;
 							 */
 						}
 						// Copy missing quads to the end 

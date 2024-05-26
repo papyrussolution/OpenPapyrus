@@ -1345,6 +1345,7 @@ public:
 	static constexpr uint64 FnvHash1Init64 = 0xcbf29ce484222325ULL; // @v11.9.12 Константа инициализации хэш-функции FNV1_64 и FNVa_64
 	static constexpr uint32 FnvHashPrime32 = 0x01000193U/*16777619*/; // @v11.9.12 Константа для итерации хэш-функции FNV_32 (32 bit magic FNV-0 and FNV-1 prime)
 	static constexpr uint64 FnvHashPrime64 = 0x100000001b3ULL; // @v11.9.12 Константа для итерации хэш-функции FNV_4 (64 bit magic FNV-0 and FNV-1 prime)
+	static constexpr uint32 OzanYigitHashPrime = 65599U; // @v12.0.3 Константа для итерации хэш-функции Ozan Yigit (используется в BDB и gSOAP)
 	static constexpr long   OneBillion = 1000000000L; // @v11.7.6
 	static constexpr const char * P_HxDigL  = "0123456789abcdef";
 	static constexpr const char * P_HxDigU  = "0123456789ABCDEF";

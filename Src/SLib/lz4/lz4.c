@@ -138,7 +138,7 @@
 // Basic Types
 // 
 #if defined(__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */)
-	#include <stdint.h>
+	//#include <stdint.h>
 	//typedef  uint8_t BYTE__Removed;
 	//typedef uint16_t U16__Removed;
 	//typedef uint32_t U32__Removed;
@@ -249,8 +249,7 @@ LZ4_FORCE_O2_INLINE_GCC_PPC64LE void LZ4_wildCopy(void * dstPtr, const void * sr
 #define WILDCOPYLENGTH 8
 #define LASTLITERALS   5   /* see ../doc/lz4_Block_format.md#parsing-restrictions */
 #define MFLIMIT       12   /* see ../doc/lz4_Block_format.md#parsing-restrictions */
-#define MATCH_SAFEGUARD_DISTANCE  ((2*WILDCOPYLENGTH) - MINMATCH)   /* ensure it's possible to write 2 x wildcopyLength
-	                                                               without overflowing output buffer */
+#define MATCH_SAFEGUARD_DISTANCE  ((2*WILDCOPYLENGTH) - MINMATCH)   /* ensure it's possible to write 2 x wildcopyLength without overflowing output buffer */
 static const int LZ4_minLength = (MFLIMIT+1);
 
 // @sobolev #define KB *(1 <<10)
@@ -338,10 +337,12 @@ static uint FASTCALL LZ4_NbCommonBytes(reg_t val)
 				r = 4;
 			}
 			else {
-				r = 0; val >>= by32;
+				r = 0; 
+				val >>= by32;
 			}
 			if(!(val>>16)) {
-				r += 2; val >>= 8;
+				r += 2; 
+				val >>= 8;
 			}
 			else {
 				val >>= 24;
@@ -437,8 +438,17 @@ typedef enum { clearedTable = 0, byPtr, byU32, byU16 } tableType_t;
  *        content, and matches are found by looking in the ctx
  *        ->dictCtx->hashTable.
  */
-typedef enum { noDict = 0, withPrefix64k, usingExtDict, usingDictCtx } dict_directive;
-typedef enum { noDictIssue = 0, dictSmall } dictIssue_directive;
+typedef enum { 
+	noDict = 0, 
+	withPrefix64k, 
+	usingExtDict, 
+	usingDictCtx 
+} dict_directive;
+
+typedef enum { 
+	noDictIssue = 0, 
+	dictSmall 
+} dictIssue_directive;
 // 
 // Local Utils
 // 

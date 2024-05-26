@@ -109,7 +109,6 @@
     <ClCompile Include="..\SLib\curl-parsedate.cpp" />
     <ClCompile Include="..\SLib\uchardet.cpp" />
     <ClCompile Include="..\SLib\test-cairo.cpp" />
-    <ClCompile Include="..\SLib\test-openssl.cpp" />
     <ClCompile Include="..\SLib\saudio.cpp" />
     <ClCompile Include="..\SLib\curl-inet_ntop.cpp" />
     <ClCompile Include="..\SLib\bdb.cpp" />

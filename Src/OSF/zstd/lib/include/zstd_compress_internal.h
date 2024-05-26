@@ -764,19 +764,13 @@ static uint64 ZSTD_rollingHash_append(uint64 hash, const void * buf, size_t size
 /** ZSTD_rollingHash_compute() :
  * Compute the rolling hash value of the buffer.
  */
-/*MEM_STATIC*/inline uint64 ZSTD_rollingHash_compute(void const* buf, size_t size)
-{
-	return ZSTD_rollingHash_append(0, buf, size);
-}
+/*MEM_STATIC*/inline uint64 ZSTD_rollingHash_compute(void const* buf, size_t size) { return ZSTD_rollingHash_append(0, buf, size); }
 
 /** ZSTD_rollingHash_primePower() :
  * Compute the primePower to be passed to ZSTD_rollingHash_rotate() for a hash
  * over a window of length bytes.
  */
-/*MEM_STATIC*/inline uint64 ZSTD_rollingHash_primePower(uint32 length)
-{
-	return ZSTD_ipow(prime8bytes, length - 1);
-}
+/*MEM_STATIC*/inline uint64 ZSTD_rollingHash_primePower(uint32 length) { return ZSTD_ipow(prime8bytes, length - 1); }
 
 /** ZSTD_rollingHash_rotate() :
  * Rotate the rolling hash by one byte.
@@ -819,32 +813,28 @@ static uint64 ZSTD_rollingHash_append(uint64 hash, const void * buf, size_t size
  * ZSTD_window_hasExtDict():
  * Returns non-zero if the window has a non-empty extDict.
  */
-/*MEM_STATIC*/inline uint32 ZSTD_window_hasExtDict(ZSTD_window_t const window)
-{
-	return window.lowLimit < window.dictLimit;
-}
-/**
- * ZSTD_matchState_dictMode():
- * Inspects the provided matchState and figures out what dictMode should be
- * passed to the compressor.
- */
+/*MEM_STATIC*/inline uint32 ZSTD_window_hasExtDict(ZSTD_window_t const window) { return window.lowLimit < window.dictLimit; }
+// 
+// ZSTD_matchState_dictMode():
+// Inspects the provided matchState and figures out what dictMode should be
+// passed to the compressor.
+// 
 /*MEM_STATIC*/inline ZSTD_dictMode_e ZSTD_matchState_dictMode(const ZSTD_matchState_t * ms)
 {
 	return ZSTD_window_hasExtDict(ms->window) ? ZSTD_extDict : (ms->dictMatchState ? (ms->dictMatchState->dedicatedDictSearch ? ZSTD_dedicatedDictSearch : ZSTD_dictMatchState) : ZSTD_noDict);
 }
-
-/* Defining this macro to non-zero tells zstd to run the overflow correction
- * code much more frequently. This is very inefficient, and should only be
- * used for tests and fuzzers.
- */
+// 
+// Defining this macro to non-zero tells zstd to run the overflow correction
+// code much more frequently. This is very inefficient, and should only be
+// used for tests and fuzzers.
+// 
 #ifndef ZSTD_WINDOW_OVERFLOW_CORRECT_FREQUENTLY
-#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-#define ZSTD_WINDOW_OVERFLOW_CORRECT_FREQUENTLY 1
-#else
-#define ZSTD_WINDOW_OVERFLOW_CORRECT_FREQUENTLY 0
+	#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+		#define ZSTD_WINDOW_OVERFLOW_CORRECT_FREQUENTLY 1
+	#else
+		#define ZSTD_WINDOW_OVERFLOW_CORRECT_FREQUENTLY 0
+	#endif
 #endif
-#endif
-
 /**
  * ZSTD_window_canOverflowCorrect():
  * Returns non-zero if the indices are large enough for overflow correction
@@ -1026,8 +1016,7 @@ static uint64 ZSTD_rollingHash_append(uint64 hash, const void * buf, size_t size
 	{   
 		const uint32 blockEndIdx = (uint32)((BYTE const*)blockEnd - window->base);
 	    const uint32 loadedDictEnd = *loadedDictEndPtr;
-	    DEBUGLOG(5, "ZSTD_checkDictValidity: blockEndIdx=%u, maxDist=%u, loadedDictEnd=%u",
-		(uint)blockEndIdx, (uint)maxDist, (uint)loadedDictEnd);
+	    DEBUGLOG(5, "ZSTD_checkDictValidity: blockEndIdx=%u, maxDist=%u, loadedDictEnd=%u", (uint)blockEndIdx, (uint)maxDist, (uint)loadedDictEnd);
 	    assert(blockEndIdx >= loadedDictEnd);
 	    if(blockEndIdx > loadedDictEnd + maxDist) {
 		    /* On reaching window size, dictionaries are invalidated.
@@ -1084,7 +1073,7 @@ static uint64 ZSTD_rollingHash_append(uint64 hash, const void * buf, size_t size
 		window->dictBase = window->base;
 		window->base = ip - distanceFromBase;
 		/* ms->nextToUpdate = window->dictLimit; */
-		if(window->dictLimit - window->lowLimit < HASH_READ_SIZE) 
+		if((window->dictLimit - window->lowLimit) < HASH_READ_SIZE) 
 			window->lowLimit = window->dictLimit; /* too small extDict */
 		contiguous = 0;
 	}

@@ -1378,16 +1378,21 @@ static boolint Write8bitTables(cmsContext ContextID, cmsIOHANDLER* io, uint32 n,
 // Check overflow
 static uint32 uipow(uint32 n, uint32 a, uint32 b)
 {
-	uint32 rv = 1, rc;
-	if(!a) return 0;
-	if(!n) return 0;
+	uint32 rv = 1;
+	uint32 rc;
+	if(!a) 
+		return 0;
+	if(!n) 
+		return 0;
 	for(; b > 0; b--) {
 		rv *= a;
 		// Check for overflow
-		if(rv > UINT_MAX / a) return (uint32) -1;
+		if(rv > UINT_MAX / a) 
+			return (uint32)-1;
 	}
 	rc = rv * n;
-	if(rv != rc / n) return (uint32) -1;
+	if(rv != rc / n) 
+		return (uint32)-1;
 	return rc;
 }
 

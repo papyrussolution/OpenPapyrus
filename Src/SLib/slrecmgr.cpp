@@ -173,7 +173,7 @@ bool SDataPageHeader::IsValid() const
 	return (Signature == SignatureValue && TotalSize > 0 && /*FreePos < TotalSize &&*/(!FixedChunkSize || Type == tFixedChunkPool));
 }
 
-bool SDataPageHeader::GetStat(Stat & rStat) const
+bool SDataPageHeader::GetStat(Stat & rStat, TSVector <SRecPageFreeList::Entry> * pUsableBlockList) const
 {
 	bool ok = true;
 	rStat.Z();
@@ -192,6 +192,14 @@ bool SDataPageHeader::GetStat(Stat & rStat) const
 				if(pfx.PayloadSize >= 8) {
 					rStat.UsableBlockCount++;
 					rStat.UsableBlockSize += pfx.PayloadSize;
+					if(pUsableBlockList) {
+						uint64 row_id = SRecPageManager::MakeRowId(TotalSize, Seq, offs);
+						THROW(row_id);
+						{
+							SRecPageFreeList::Entry ue(row_id, pfx.PayloadSize);
+							pUsableBlockList->insert(&ue);
+						}
+					}
 				}
 			}
 			offs += pfx.TotalSize;
@@ -640,6 +648,22 @@ int SRecPageFreeList::Put(uint32 type, uint64 rowId, uint32 freeSize)
 	return ok;
 }
 
+int SRecPageFreeList::GetListForPage(uint pageSeq, TSVector <SRecPageFreeList::Entry> & rList) const // @debug
+{
+	// @unfinished
+	int    ok = -1;
+	for(uint i = 0; i < L.getCount(); i++) {
+		const SingleTypeList * p_stl = L.at(i);
+		if(p_stl) {
+			for(uint j = 0; j < p_stl->getCount(); j++) {
+				const Entry & r_entry = p_stl->at(j);
+				//SRecPageManager::SplitRowId(r_entry.RowId, )
+			}
+		}
+	}
+	return ok;
+}
+
 const SRecPageFreeList::Entry * SRecPageFreeList::Get(uint32 type, uint32 reqSize) const
 {
 	const  Entry * p_result = 0;
@@ -651,4 +675,19 @@ const SRecPageFreeList::Entry * SRecPageFreeList::Get(uint32 type, uint32 reqSiz
 		}
 	}
 	return p_result;
+}
+
+/*static*/bool SRecPageManager::TestSinglePage(uint pageSize)
+{
+	bool    ok = true;
+	SRecPageManager mgr(pageSize);
+	SDataPageHeader * p_page = mgr.AllocatePage(SDataPageHeader::tRecord);
+	THROW(p_page);
+	{
+		SDataPageHeader::Stat stat;
+		TSVector <SRecPageFreeList::Entry> free_list;
+		THROW(p_page->GetStat(stat, &free_list));
+	}
+	CATCHZOK
+	return ok;
 }

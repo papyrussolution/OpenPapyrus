@@ -79,9 +79,6 @@
 	#ifdef HAVE_INTTYPES_H
 		#include <inttypes.h>
 	#endif
-	// @v11.7.1 #if defined(_WIN32) || defined(__BORLANDC__)
-		// @v11.7.1 #include <malloc.h>
-	// @v11.7.1 #endif
 	#ifdef ONIG_DEBUG_STATISTICS
 		#ifdef USE_TIMEOFDAY
 			#ifdef HAVE_SYS_TIME_H

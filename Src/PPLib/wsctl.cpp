@@ -46,7 +46,7 @@ WsCtl_RegistrationBlock & WsCtl_RegistrationBlock::Z()
 //
 //
 //
-WsCtl_SelfIdentityBlock::WsCtl_SelfIdentityBlock() : PrcID(0)
+WsCtl_SelfIdentityBlock::WsCtl_SelfIdentityBlock() : PrcID(0), ComputerID(0), CompCatID(0)
 {
 }
 	

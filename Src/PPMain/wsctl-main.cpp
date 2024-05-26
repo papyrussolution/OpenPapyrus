@@ -538,7 +538,7 @@ public:
 	};*/
 	class ImDialog_WsRegisterComputer : public ImDialogState {
 	public:
-		ImDialog_WsRegisterComputer(WsCtl_ImGuiSceneBlock & rBlk, WsCtl_SelfIdentityBlock * pCtx) : R_Blk(rBlk), ImDialogState(pCtx)
+		ImDialog_WsRegisterComputer(WsCtl_ImGuiSceneBlock & rBlk, WsCtl_SelfIdentityBlock * pCtx) : R_Blk(rBlk), ImDialogState(pCtx), CompCatID(0)
 		{
 			SString temp_buf;
 			if(pCtx) {
@@ -563,7 +563,29 @@ public:
 			const char * p_popup_title = "Register computer";
 			ImGui::OpenPopup(p_popup_title);
 			if(ImGui::BeginPopup(p_popup_title)) {
+				DComputerCategoryList st_data_compcat_list;
+				R_Blk.St.D_CompCatList.GetData(st_data_compcat_list);
+				//
 				ImGui::InputText(R_Blk.InputLabelPrefix("Computer Name"), SubstTxt_Name, sizeof(SubstTxt_Name));
+				if(st_data_compcat_list.L.getCount()) {
+					const char * p_selected_text = 0;
+					if(ImGui::BeginCombo("##compcatlist", p_selected_text)) {
+						if(CompCatID) {
+							for(uint i = 0; i < st_data_compcat_list.L.getCount(); i++) {
+								StrAssocArray::Item comp_cat_item = st_data_compcat_list.L.Get(i);
+								if(comp_cat_item.Id == CompCatID) {
+									p_selected_text = comp_cat_item.Txt;
+								}
+							}
+						}
+						for(uint catidx = 0; catidx < st_data_compcat_list.L.getCount(); catidx++) {
+							StrAssocArray::Item item = st_data_compcat_list.L.Get(catidx);
+							if(ImGui::Selectable(item.Txt, item.Id == PgmL.GetSelectedCatSurrogateId()))
+								PgmL.SetSelectedCatSurrogateId(item.Id);
+						}
+						ImGui::EndCombo();
+					}
+				}
 				ImGui::InputText(R_Blk.InputLabelPrefix("MAC Address"), SubstTxt_MacAdr, sizeof(SubstTxt_MacAdr));
 				ImGui::InputText(R_Blk.InputLabelPrefix("UUID"), SubstTxt_UUID, sizeof(SubstTxt_UUID));
 				ImGui::NewLine();
@@ -613,6 +635,7 @@ public:
 		char   SubstTxt_Name[128];
 		char   SubstTxt_MacAdr[48];
 		char   SubstTxt_UUID[48];
+		long   CompCatID; // @v12.0.3
 	};
 private:
 	//
@@ -1973,6 +1996,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 			break;
 		case PPSCMD_WSCTL_BEGIN_SESS:
 			if(P_St) {
+				bool   local_fault = true;
 				DTSess st_data;
 				SJson js_param(SJson::tOBJECT);
 				js_param.InsertInt("scardid", rReq.P.SCardID);
@@ -2000,31 +2024,37 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 					if(reply.CheckRepError()) {
 						SJson * p_js = SJson::Parse(reply_buf);
 						if(st_data.FromJsonObject(p_js)) {
-							;
+							local_fault = false;
 						}
-						else
-							st_data.SetupByLastError();
-						P_St->D_TSess.SetData(st_data);
 						ZDELETE(p_js);
 					}
-					else
-						st_data.SetupByLastError();
 				}
 				st_data.DtmActual = getcurdatetime_();
+				if(local_fault) {
+					st_data.SetupByLastError();
+				}
 				P_St->D_TSess.SetData(st_data);
 			}
 			break;
 		case reqidQueryComputerCategoryList: // @v12.0.3
 			if(P_St) {
+				bool   local_fault = true;
 				DComputerCategoryList st_data;
-				temp_buf.Z().Cat("SELECT").Space().Cat("COMPUTERCATEGORY");
+				temp_buf.Z().Cat("SELECT").Space().Cat("COMPUTERCATEGORY").Space().Cat("BY").Space().Cat("FORMAT").DotCat("BIN").CatParStr(static_cast<const char *>(0));
 				if(rCli.ExecSrvCmd(temp_buf, reply)) { // Ответ придет в формате xml
 					SString reply_buf;
 					reply.StartReading(&reply_buf);
 					if(reply.CheckRepError()) {
-						
+						if(st_data.L.Read(reply, 0)) {
+							local_fault = false;
+						}
 					}
 				}
+				st_data.DtmActual = getcurdatetime_();
+				if(local_fault) {
+					st_data.SetupByLastError();
+				}
+				P_St->D_CompCatList.SetData(st_data);
 			}
 			break;
 	}
@@ -2922,7 +2952,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 									DComputerCategoryList st_data_compcat_list; // @v12.0.3
 									St.D_CompCatList.GetData(st_data_compcat_list);
 									if(!st_data_compcat_list.DtmActual) {
-										
+										P_CmdQ->Push(WsCtlReqQueue::Req(WsCtl_CliSession::reqidQueryComputerCategoryList));
 									}
 									P_Dlg_RegComp = new ImDialog_WsRegisterComputer(*this, &St.SidBlk);
 								}

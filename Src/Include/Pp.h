@@ -22118,7 +22118,7 @@ protected:
 	PPID   NodeID;
 	char   Port[128]; //
 	char   Name[48];  //
-	int    PortType;  // 0 - file, 1 - lpt, 2 - com
+	int    PortType;  // 0 - file, 1 - lpt, 2 - com, 3 - server /*@v12.0.3*/
 	int    Handle;    //
 	long   State;
 	PPSlipFormatter * P_SlipFmt;
@@ -23977,6 +23977,7 @@ private:
 #define GTCHZNPT_ALTTOBACCO        11 // @v11.9.0 Альтернативная табачная продукция. Марки очень похожи на табак, но есть нюансы в обработке.
 #define GTCHZNPT_DRAFTBEER         12 // @v11.9.2 Пиво разливное
 #define GTCHZNPT_DIETARYSUPPLEMENT 13 // @v11.9.6 БАДы
+#define GTCHZNPT_BEER              14 // @v12.0.3 Пиво фасованное 
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -56365,7 +56366,7 @@ public:
 		enum {
 			ctrfTestMode = 0x0001
 		};
-		ProviderImplementation(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
+		ProviderImplementation(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags, PPLogger * pLogger);
 		virtual ~ProviderImplementation();
 		virtual int    GetDocumentList(const PPBillIterchangeFilt & rP, DocumentInfoList & rList) { return -1; }
 		virtual int    ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList) { return -1; }
@@ -56449,13 +56450,14 @@ public:
 		int    ResolveDlvrLoc(const OwnFormatContractor & rC, PPBillPacket * pPack);
 		int    ResolveOwnFormatContractor(const OwnFormatContractor & rC, int partyQ, PPBillPacket * pPack);
 		SString EncBuf;
+		PPLogger * P_Logger; // @notowned
 	private:
 		int    GetIntermediatePath(const char * pSub, int docType, SString & rBuf);
 		int    Helper_GetPersonGLN(PPID psnID, SString & rGLN);
 	};
 
 	static int FASTCALL GetEdiMsgTypeByText(const char * pSymb);
-	static ProviderImplementation * CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID, long flags);
+	static ProviderImplementation * CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID, long flags, PPLogger * pLogger);
 	explicit PPEdiProcessor(ProviderImplementation * pImp, PPLogger * pLogger);
 	~PPEdiProcessor();
 	int    SendOrders(const PPBillIterchangeFilt & rP, const PPIDArray & rArList);

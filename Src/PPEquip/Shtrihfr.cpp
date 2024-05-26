@@ -210,7 +210,7 @@ public:
 	SCS_SHTRIHFRF(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port),
 		CashierPassword(0), AdmPassword(0), ResCode(RESCODE_NO_ERROR), ErrCode(SYNCPRN_NO_ERROR),
 		DeviceType(devtypeUndef), CheckStrLen(DEF_STRLEN), Flags(0), RibbonParam(0), SCardPaymEntryN(0),
-		IsDebugMode(LOGIC(CConfig.Flags & CCFLG_DEBUG))
+		IsDebugMode(LOGIC(CConfig.Flags & CCFLG_DEBUG)), ConnectionMode(connmodeUndef)
 	{
 		if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
 			Flags |= sfDontUseCutter;
@@ -220,8 +220,21 @@ public:
 	~SCS_SHTRIHFRF()
 	{
 		if(Flags & sfConnected) {
-			if(!ExecFR(Disconnect))
-				LogLastError();
+			switch(ConnectionMode) {
+				case connmodeCom:
+				case connmodeComV2:
+					if(!ExecFR(Disconnect))
+						LogLastError();
+					break;
+				case connmodeServer:
+					if(!ExecFR(ServerDisconnect))
+						LogLastError();
+					break;
+				default:
+					constexpr int ShtrihFR_ConnectionModeUndefined = 0;
+					assert(ShtrihFR_ConnectionModeUndefined);
+					break;
+			}
 		}
 		if(--RefToIntrf == 0)
 			ZDELETE(P_DrvFRIntrf);
@@ -242,7 +255,7 @@ public:
 	virtual int Diagnostics(StringSet * pSs); // @v12.0.3
 private:
 	// @v10.3.9 virtual int InitChannel();
-	FR_INTRF  * InitDriver();
+	FR_INTRF * InitDriver();
 	int  ConnectFR();
 	int  SetupTables();
 	int  AnnulateCheck();
@@ -398,11 +411,11 @@ private:
 		ReceiptRibbonIsPresent,           // #82
 		OutputReceipt,                    // #83
 		ReceiptOutputType,                // #84
-		PrintBarcodeGraph,                // @v9.1.4
-		BarcodeType,                      // @v9.1.4
-		BarCode,                          // @v9.1.4
-		FirstLineNumber,                  // @v9.1.5
-		LineNumber,                       // @v9.1.5
+		PrintBarcodeGraph,                //
+		BarcodeType,                      //
+		BarCode,                          //
+		FirstLineNumber,                  //
+		LineNumber,                       //
 		Summ4,                            // @v10.6.1
 		Summ5,                            // @v10.6.1
 		Summ6,                            // @v10.6.1
@@ -466,11 +479,7 @@ private:
 	// Descr: Методы вывода штрихкодов
 	//
 	enum {
-		// @v9.1.7 bcmPrintBarcode = SCS_SHTRIHFRF::PrintBarCode,
-		// @v9.1.7 bcmPrint2DBarcode = SCS_SHTRIHFRF::Print2DBarcode,
 		bcmPrintBarcodeGraph = SCS_SHTRIHFRF::PrintBarcodeGraph, // !
-		// @v9.1.7 bcmPrintBarcodeLine = SCS_SHTRIHFRF::PrintBarcodeLine,
-		// @v9.1.7 bcmPrintBarcodeUsingPrinter = SCS_SHTRIHFRF::PrintBarcodeUsingPrinter // !
 	};
 	enum DeviceTypes {
 		devtypeUndef,
@@ -488,6 +497,15 @@ private:
 		sfDontUseCutter = 0x0020, // не использовать отрезчик чеков
 		sfUseWghtSensor = 0x0040, // использовать весовой датчик
 		sfUseFnMethods  = 0x0080  // @v10.7.2 Разрешение на использование fn-методов (параметр pp.ini [config] ShtrihFRUseFnMethods)
+	};
+	//
+	// Descr: Варианты соединения с кассовым регистратором
+	//
+	enum {
+		connmodeUndef = 0, // Соединение не установлено
+		connmodeCom,       // Соединение через com-port
+		connmodeComV2,     // Соединение через com-port (вызов Connect2)
+		connmodeServer     // Соединение с сервером (возможно local) (вызов ServerConnect)
 	};
 	static FR_INTRF * P_DrvFRIntrf;
 	static int  RefToIntrf;
@@ -522,6 +540,7 @@ private:
 	int    SCardPaymEntryN;    // @v10.6.2 PPINIPARAM_SHTRIHFRSCARDPAYMENTRY Регистр аппарата, в который заносится оплата по корпоративной карте [1..16]
 	long   CheckStrLen;        //
 	long   Flags;              //
+	int    ConnectionMode;     // @v12.0.5 connmodeXXX
 	SVerT  ProtocolVer;        // @v11.7.11 @!ConnectFR()
 	uint   RibbonParam;        //
 	SString AdmName;           // Имя сист.администратора
@@ -805,7 +824,7 @@ static int GetShtrihVatRateIdent(double vatRate, bool isVatFree) // @v11.2.12
 //
 int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 {
-	const   int use_fn_op = BIN(Flags & sfUseFnMethods); // @v10.7.2
+	const   bool use_fn_op = LOGIC(Flags & sfUseFnMethods); // @v10.7.2
 	int     ok = 1;
 	int     chk_no = 0;
 	bool    is_format = false;
@@ -1023,23 +1042,14 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 							if(sl_param.ChZnProductType && sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()) {
 								int    marking_type = 0;
 								switch(sl_param.ChZnProductType) {
-									/* @v10.8.11 
-									case GTCHZNPT_FUR: marking_type = 2; break;
-									case GTCHZNPT_TOBACCO: marking_type = 5; break;
-									case GTCHZNPT_SHOE: marking_type = 5408; break;
-									case GTCHZNPT_MEDICINE: marking_type = 3; break;
-									*/
-									// @v10.8.11 {
 									case GTCHZNPT_FUR: marking_type = 0x5246; break;
-									case GTCHZNPT_TOBACCO: 
-									case GTCHZNPT_ALTTOBACCO: // @v11.9.0
-										marking_type = 0x444D; break;
+									case GTCHZNPT_TOBACCO: marking_type = 0x444D; break;
+									case GTCHZNPT_ALTTOBACCO: marking_type = 0x444D; break; // @v11.9.0
 									case GTCHZNPT_SHOE: marking_type = 0x444D; break;
 									case GTCHZNPT_MEDICINE: marking_type = 0x444D; break;
 									case GTCHZNPT_CARTIRE: marking_type = 0x444D; break; // @v10.9.7
 									case GTCHZNPT_MILK: marking_type = 0x444D; break; // @v11.5.7
 									case GTCHZNPT_WATER: marking_type = 0x444D; break; // @v11.5.7
-									// } @v10.8.11
 								}
 								if(marking_type) {
 									THROW(SetFR(MarkingType, marking_type));
@@ -1439,9 +1449,8 @@ int SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry, int 
 			THROW(SetFR(FieldNumber, FRTAX_FIELD_TAXNAME));
 			THROW(ExecFR(GetFieldStruct));
 			{
-				// @v9.7.1 temp_buf = "НАЛОГ С ПРОДАЖ"; // @cstr #5
-				PPLoadText(PPTXT_CCFMT_STAX, temp_buf); // @v9.7.1
-				temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+				PPLoadText(PPTXT_CCFMT_STAX, temp_buf); // "НАЛОГ С ПРОДАЖ"
+				temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER);
 				THROW(SetFR(ValueOfFieldString, temp_buf));
 			}
 			THROW(ExecFR(WriteTable));
@@ -1456,11 +1465,8 @@ int SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry, int 
 			THROW(SetFR(FieldNumber, FRTAX_FIELD_TAXNAME));
 			THROW(ExecFR(GetFieldStruct));
 			{
-				// @v9.0.2 {
 				PPLoadString("vat", temp_buf);
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Space();
-				// } @v9.0.2
-				// @v9.0.2 PPGetWord(PPWORD_VAT, 1, temp_buf).Space();
 				(vat_str = temp_buf).Cat(fdiv100i(pVatAry->at(pos)), MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatChar('%');
 				THROW(SetFR(ValueOfFieldString, vat_str));
 			}
@@ -1915,22 +1921,9 @@ FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 		IFC_ENTRY(ReceiptRibbonIsPresent),
 		IFC_ENTRY(OutputReceipt),
 		IFC_ENTRY(ReceiptOutputType),
-		// @v9.1.7 IFC_ENTRY(PrintBarCode), // @v9.1.4
-		// @v9.1.7 IFC_ENTRY(Print2DBarcode), // @v9.1.4
-		IFC_ENTRY(PrintBarcodeGraph), // @v9.1.4
-		// @v9.1.7 IFC_ENTRY(PrintBarcodeUsingPrinter), // @v9.1.4
-		// @v9.1.7 IFC_ENTRY(PrintBarcodeLine), // @v9.1.4
-		IFC_ENTRY(BarcodeType), // @v9.1.4
-		IFC_ENTRY(BarCode), // @v9.1.4
-		// @v9.1.7 IFC_ENTRY(BarcodeDataLength), // @v9.1.4
-		// @v9.1.7 IFC_ENTRY(BarWidth), // @v9.1.4
-		// @v9.1.7 IFC_ENTRY(BarcodeStartBlockNumber),
-		// @v9.1.7 IFC_ENTRY(BarcodeParameter1),
-		// @v9.1.7 IFC_ENTRY(BarcodeParameter2),
-		// @v9.1.7 IFC_ENTRY(BarcodeParameter3),
-		// @v9.1.7 IFC_ENTRY(BarcodeParameter4),
-		// @v9.1.7 IFC_ENTRY(BarcodeParameter5),
-		// @v9.1.7 IFC_ENTRY(BarcodeAlignment),
+		IFC_ENTRY(PrintBarcodeGraph),
+		IFC_ENTRY(BarcodeType),
+		IFC_ENTRY(BarCode),
 		IFC_ENTRY(FirstLineNumber),
 		IFC_ENTRY(LineNumber),
 		IFC_ENTRY(FNOperation),        // @v10.7.2
@@ -2006,165 +1999,6 @@ FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 		PPLogMessage(PPFILNAM_SHTRIH_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 		ZDELETE(p_drv);
 	}
-#if 0 // @v11.6.7 {
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ResultCode) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ResultCodeDescription) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Password) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Beep) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ComNumber) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, BaudRate) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Timeout) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, GetExchangeParam) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, SetExchangeParam) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Connect) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Disconnect) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Quantity) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Price) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Summ1) > 0);
-	PayTypeRegFlags |= (1U << 1); // @v10.6.1
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Summ2) > 0);
-	PayTypeRegFlags |= (1U << 2); // @v10.6.1
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Summ3) > 0);
-	PayTypeRegFlags |= (1U << 3); // @v10.6.1
-
-	if(ASSIGN_ID_BY_NAME(p_drv,  Summ4)) PayTypeRegFlags |= (1U <<  4); // @v10.6.1
-	if(ASSIGN_ID_BY_NAME(p_drv,  Summ5)) PayTypeRegFlags |= (1U <<  5); // @v10.6.1
-	if(ASSIGN_ID_BY_NAME(p_drv,  Summ6)) PayTypeRegFlags |= (1U <<  6); // @v10.6.1
-	if(ASSIGN_ID_BY_NAME(p_drv,  Summ7)) PayTypeRegFlags |= (1U <<  7); // @v10.6.1
-	if(ASSIGN_ID_BY_NAME(p_drv,  Summ8)) PayTypeRegFlags |= (1U <<  8); // @v10.6.1
-	if(ASSIGN_ID_BY_NAME(p_drv,  Summ9)) PayTypeRegFlags |= (1U <<  9); // @v10.6.1
-	if(ASSIGN_ID_BY_NAME(p_drv, Summ10)) PayTypeRegFlags |= (1U << 10); // @v10.6.1
-	if(ASSIGN_ID_BY_NAME(p_drv, Summ11)) PayTypeRegFlags |= (1U << 11); // @v10.6.1
-	if(ASSIGN_ID_BY_NAME(p_drv, Summ12)) PayTypeRegFlags |= (1U << 12); // @v10.6.1
-	if(ASSIGN_ID_BY_NAME(p_drv, Summ13)) PayTypeRegFlags |= (1U << 13); // @v10.6.1
-	if(ASSIGN_ID_BY_NAME(p_drv, Summ14)) PayTypeRegFlags |= (1U << 14); // @v10.6.1
-	if(ASSIGN_ID_BY_NAME(p_drv, Summ15)) PayTypeRegFlags |= (1U << 15); // @v10.6.1
-	if(ASSIGN_ID_BY_NAME(p_drv, Summ16)) PayTypeRegFlags |= (1U << 16); // @v10.6.1
-	if(ASSIGN_ID_BY_NAME(p_drv, CloseCheckEx)) ExtMethodsFlags |= extmethfCloseCheckEx; // @v10.6.3
-	// @v11.2.11 {
-	if(ExtMethodsFlags & extmethfCloseCheckEx)
-		THROW(ASSIGN_ID_BY_NAME(p_drv, TaxType) > 0);
-	// } @v11.2.11
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Tax1) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Tax2) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Tax3) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Tax4) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, StringForPrinting) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, UseReceiptRibbon) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, UseJournalRibbon) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, PrintString) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, PrintWideString) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, StringQuantity) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, FeedDocument) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, DocumentName) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, DocumentNumber) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, PrintDocumentTitle) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, CheckType) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, OpenCheck) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Sale) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ReturnSale) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, CloseCheck) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, CutCheck) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, DrawerNumber) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, OpenDrawer) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, TableNumber) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, RowNumber) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, FieldNumber) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, GetFieldStruct) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ReadTable) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, WriteTable) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ValueOfFieldInteger) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ValueOfFieldString) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, RegisterNumber) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, GetOperationReg) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ContentsOfOperationRegister) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, GetCashReg) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ContentsOfCashRegister) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, GetECRStatus) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ECRMode) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ECRModeDescription) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ECRAdvancedMode) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ReceiptRibbonOpticalSensor) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, JournalRibbonOpticalSensor) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ContinuePrint) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, CancelCheck) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, PrintReportWithCleaning) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, PrintReportWithoutCleaning) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, UModel) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, UMajorProtocolVersion) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, UMinorProtocolVersion) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, GetDeviceMetrics) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, CashIncome) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, CashOutcome) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ClearSlipDocumentBuffer) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, FillSlipDocumentWithUnfiscalInfo) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, StringNumber) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, PrintSlipDocument) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, IsClearUnfiscalInfo) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, InfoType) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, EKLZIsPresent) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, IsEKLZOverflow) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, FMOverflow) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, FreeRecordInFM) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, IsFM24HoursOver) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, IsDrawerOpen) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Department) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ECRModeStatus) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, JournalRibbonIsPresent) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ReceiptRibbonIsPresent) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, OutputReceipt) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ReceiptOutputType) > 0);
-	// @v9.1.7 THROW(ASSIGN_ID_BY_NAME(p_drv, PrintBarCode) > 0); // @v9.1.4
-	// @v9.1.7 THROW(ASSIGN_ID_BY_NAME(p_drv, Print2DBarcode) > 0); // @v9.1.4
-	THROW(ASSIGN_ID_BY_NAME(p_drv, PrintBarcodeGraph) > 0); // @v9.1.4
-	// @v9.1.7 THROW(ASSIGN_ID_BY_NAME(p_drv, PrintBarcodeUsingPrinter) > 0); // @v9.1.4
-	// @v9.1.7 THROW(ASSIGN_ID_BY_NAME(p_drv, PrintBarcodeLine) > 0); // @v9.1.4
-	THROW(ASSIGN_ID_BY_NAME(p_drv, BarcodeType) > 0); // @v9.1.4
-	THROW(ASSIGN_ID_BY_NAME(p_drv, BarCode) > 0); // @v9.1.4
-	// @v9.1.7 THROW(ASSIGN_ID_BY_NAME(p_drv, BarcodeDataLength) > 0); // @v9.1.4
-	// @v9.1.7 THROW(ASSIGN_ID_BY_NAME(p_drv, BarWidth) > 0); // @v9.1.4
-	// @v9.1.7 THROW(ASSIGN_ID_BY_NAME(p_drv, BarcodeStartBlockNumber) > 0);
-	// @v9.1.7 THROW(ASSIGN_ID_BY_NAME(p_drv, BarcodeParameter1) > 0);
-	// @v9.1.7 THROW(ASSIGN_ID_BY_NAME(p_drv, BarcodeParameter2) > 0);
-	// @v9.1.7 THROW(ASSIGN_ID_BY_NAME(p_drv, BarcodeParameter3) > 0);
-	// @v9.1.7 THROW(ASSIGN_ID_BY_NAME(p_drv, BarcodeParameter4) > 0);
-	// @v9.1.7 THROW(ASSIGN_ID_BY_NAME(p_drv, BarcodeParameter5) > 0);
-	// @v9.1.7 THROW(ASSIGN_ID_BY_NAME(p_drv, BarcodeAlignment) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, FirstLineNumber) > 0);
-	THROW(ASSIGN_ID_BY_NAME(p_drv, LineNumber) > 0);
-
-	THROW(ASSIGN_ID_BY_NAME(p_drv, FNOperation) > 0);        // @v10.7.2
-	THROW(ASSIGN_ID_BY_NAME(p_drv, PaymentTypeSign) > 0);    // @v10.7.2 Признак способа расчета
-	THROW(ASSIGN_ID_BY_NAME(p_drv, PaymentItemSign) > 0);    // @v10.7.2 Признак предмета расчета 
-	THROW(ASSIGN_ID_BY_NAME(p_drv, FNSendItemCodeData) > 0); // @v10.7.2
-	THROW(ASSIGN_ID_BY_NAME(p_drv, MarkingType) > 0);        // @v10.7.2
-	THROW(ASSIGN_ID_BY_NAME(p_drv, GTIN) > 0);               // @v10.7.2
-	THROW(ASSIGN_ID_BY_NAME(p_drv, SerialNumber) > 0);       // @v10.7.2
-	THROW(ASSIGN_ID_BY_NAME(p_drv, FNBeginSTLVTag) > 0); // @v10.9.0
-	THROW(ASSIGN_ID_BY_NAME(p_drv, TagID) > 0);          // @v10.9.0
-	THROW(ASSIGN_ID_BY_NAME(p_drv, TagNumber) > 0);      // @v10.9.0
-	THROW(ASSIGN_ID_BY_NAME(p_drv, TagType) > 0);        // @v10.9.0
-	THROW(ASSIGN_ID_BY_NAME(p_drv, TagValueStr) > 0);    // @v10.9.0
-	THROW(ASSIGN_ID_BY_NAME(p_drv, FNAddTag) > 0);       // @v10.9.0
-	THROW(ASSIGN_ID_BY_NAME(p_drv, FNSendSTLVTag) > 0);  // @v10.9.0
-	THROW(ASSIGN_ID_BY_NAME(p_drv, FNCheckItemBarcode) > 0);     // @v11.6.6
-	THROW(ASSIGN_ID_BY_NAME(p_drv, FNCheckItemBarcode2) > 0);    // @v11.6.6
-	THROW(ASSIGN_ID_BY_NAME(p_drv, BarcodeHex) > 0);             // @v11.6.6
-	THROW(ASSIGN_ID_BY_NAME(p_drv, ItemStatus) > 0);             // @v11.6.6
-	THROW(ASSIGN_ID_BY_NAME(p_drv, CheckItemMode) > 0);          // @v11.6.6
-	THROW(ASSIGN_ID_BY_NAME(p_drv, TLVDataHex) > 0);             // @v11.6.6
-	THROW(ASSIGN_ID_BY_NAME(p_drv, CheckItemLocalResult) > 0);   // @v11.6.6
-	THROW(ASSIGN_ID_BY_NAME(p_drv, CheckItemLocalError) > 0);    // @v11.6.6 
-	THROW(ASSIGN_ID_BY_NAME(p_drv, MarkingType2) > 0);           // @v11.6.6
-	THROW(ASSIGN_ID_BY_NAME(p_drv, KMServerErrorCode) > 0);      // @v11.6.6
-	THROW(ASSIGN_ID_BY_NAME(p_drv, KMServerCheckingStatus) > 0); // @v11.6.6 
-	THROW(ASSIGN_ID_BY_NAME(p_drv, DivisionalQuantity) > 0);     // @v11.6.6
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Numerator) > 0);              // @v11.6.6 
-	THROW(ASSIGN_ID_BY_NAME(p_drv, Denominator) > 0);            // @v11.6.6
-	CATCH
-		ZDELETE(p_drv);
-	ENDCATCH
-#endif // } 0 @v11.6.7
 	return p_drv;
 }
 
@@ -2351,9 +2185,8 @@ int SCS_SHTRIHFRF::SetupTables()
 	// Наименования типов оплат
 	//
 	{
-		// @v9.7.1 temp_buf = "БЕЗНАЛИЧНАЯ ОПЛАТА"; // @cstr #13
-		PPLoadText(PPTXT_CCFMT_CASHLESSPAYM, temp_buf); // @v9.7.1
-		temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER); // @v9.7.1
+		PPLoadText(PPTXT_CCFMT_CASHLESSPAYM, temp_buf); // БЕЗНАЛИЧНАЯ ОПЛАТА
+		temp_buf.ToUpper().Transf(CTRANSF_INNER_TO_OUTER);
 		THROW(WriteStringToTbl(FRPAYMTYPE_TBL, 2, FRPAYMTYPE_NAME, temp_buf));
 	}
 	THROW(WriteStringToTbl(FRPAYMTYPE_TBL, 3, FRPAYMTYPE_NAME, ""));
@@ -2370,69 +2203,95 @@ int SCS_SHTRIHFRF::SetupTables()
 int SCS_SHTRIHFRF::ConnectFR()
 {
 	int    ok = -1;
+	const char * p_server_name = "localhost"; // @v12.0.3
 	if(Flags & sfConnected) {
 		if(RefToIntrf > 1) {
-			THROW(ExecFR(Disconnect));
-			THROW(SetFR(ComNumber, Handle));
-			THROW(ExecFR(Connect));
+			if(sstreqi_ascii(Port, "server")) { 
+				THROW(ExecFR(ServerDisconnect));
+				THROW(SetFR(ComputerName, p_server_name));
+				THROW(ExecFR_WithoutPassword(ServerConnect));
+			}
+			else {
+				THROW(ExecFR(Disconnect));
+				THROW(SetFR(ComNumber, Handle));
+				THROW(ExecFR(Connect));
+			}
 			THROW(AnnulateCheck());
 		}
 	}
 	else {
-		//#define DEF_BAUD_RATE              2   
-		//#define MAX_BAUD_RATE              6   // Для Штрих-ФР max скорость обмена 115200 бод
-		const int __def_baud_rate = 2; // Для Штрих-ФР скорость обмена по умолчанию 9600 бод
-		const int __max_baud_rate = 6; // Для Штрих-ФР max скорость обмена 115200 бод
-
-		int    baud_rate;
 		int    model_type = 0;
 		int    major_prot_ver = 0;
 		int    minor_prot_ver = 0;
 		int    not_use_wght_sensor = 0;
-		long   def_baud_rate = __def_baud_rate;
-		int    def_timeout = -1;
+		int    temp_int = 0;
 		SString buf, buf1;
 		PPIniFile ini_file;
-		int    temp_int = 0;
-		Flags &= ~sfUseFnMethods; // @v10.7.2
-		SCardPaymEntryN = ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRSCARDPAYMENTRY, &temp_int) ? inrangeordefault(temp_int, 1, 16, 0) : 0; // @v10.6.2
+		Flags &= ~sfUseFnMethods;
+		SCardPaymEntryN = ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRSCARDPAYMENTRY, &temp_int) ? inrangeordefault(temp_int, 1, 16, 0) : 0;
 		THROW_PP(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, buf) > 0, PPERR_SHTRIHFRADMPASSW);
 		buf.Divide(',', buf1, AdmName);
 		CashierPassword = AdmPassword = buf1.ToLong();
 		AdmName.Strip().Transf(CTRANSF_INNER_TO_OUTER);
-		/*
-			Тайм-аут приема байта. Тайм-аут приема байта нелинейный. Диапазон допустимых значений
-			[0…255] распадается на три диапазона:
-			-- в диапазоне [0…150] каждая единица соответствует 1 мс, т.е. данным диапазоном задаются значения тайм-аута от 0 до 150 мс;
-			-- в диапазоне [151…249] каждая единица соответствует 150 мс, т.е. данным диапазоном задаются значения тайм-аута от 300 мс до 15 сек;
-			-- в диапазоне [250…255] каждая единица соответствует 15 сек, т.е. данным диапазоном задаются значения тайм-аута от 30 сек до 105 сек.
-		*/
-		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRCONNECTPARAM, buf) > 0) {
-			SString  buf2;
-			if(buf.Divide(',', buf1, buf2) > 0)
-				def_timeout = buf2.ToLong();
-			def_baud_rate = buf1.ToLong();
-			if(def_baud_rate > __max_baud_rate)
-				def_baud_rate = __def_baud_rate;
-		}
-		THROW_PP(PortType == COM_PORT, PPERR_SYNCCASH_INVPORT);
-		THROW(SetFR(ComNumber, Handle));
-		if(def_timeout >= 0 && def_timeout < MAX_TIMEOUT) {
-			// @v11.6.12 (@development) THROW(SetFR(Timeout, def_timeout));
-		}
-		THROW((ok = ExecFR(Connect)) > 0 || ResCode == RESCODE_NO_CONNECTION);
-		for(baud_rate = 0; !ok && baud_rate <= __max_baud_rate; baud_rate++) {
-			THROW(SetFR(BaudRate, baud_rate));
+		// @v12.0.3 {
+		if(sstreqi_ascii(Port, "server")) { 
+			// ServerConnect
+			int    server_connected = 0;
+			char   server_version[256];
+			server_version[0] = 0;
+			P_DrvFRIntrf->GetProperty(ServerConnected, &server_connected);
+			THROW(SetFR(ComputerName, p_server_name));
+			THROW(ExecFR_WithoutPassword(ServerConnect));
+			P_DrvFRIntrf->GetProperty(ServerConnected, &server_connected);
+			P_DrvFRIntrf->GetProperty(ServerVersion, server_version, sizeof(server_version));
+			//ExecFR(Beep);
+			Flags |= sfConnected;
+			ConnectionMode = connmodeServer;
+		} // } @v12.0.3 
+		else {
+			//#define DEF_BAUD_RATE              2   
+			//#define MAX_BAUD_RATE              6   // Для Штрих-ФР max скорость обмена 115200 бод
+			const int __def_baud_rate = 2; // Для Штрих-ФР скорость обмена по умолчанию 9600 бод
+			const int __max_baud_rate = 6; // Для Штрих-ФР max скорость обмена 115200 бод
+
+			int    baud_rate;
+			long   def_baud_rate = __def_baud_rate;
+			int    def_timeout = -1;
+			/*
+				Тайм-аут приема байта. Тайм-аут приема байта нелинейный. Диапазон допустимых значений
+				[0…255] распадается на три диапазона:
+				-- в диапазоне [0…150] каждая единица соответствует 1 мс, т.е. данным диапазоном задаются значения тайм-аута от 0 до 150 мс;
+				-- в диапазоне [151…249] каждая единица соответствует 150 мс, т.е. данным диапазоном задаются значения тайм-аута от 300 мс до 15 сек;
+				-- в диапазоне [250…255] каждая единица соответствует 15 сек, т.е. данным диапазоном задаются значения тайм-аута от 30 сек до 105 сек.
+			*/
+			if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SHTRIHFRCONNECTPARAM, buf) > 0) {
+				SString  buf2;
+				if(buf.Divide(',', buf1, buf2) > 0)
+					def_timeout = buf2.ToLong();
+				def_baud_rate = buf1.ToLong();
+				if(def_baud_rate > __max_baud_rate)
+					def_baud_rate = __def_baud_rate;
+			}
+			THROW_PP(PortType == COM_PORT, PPERR_SYNCCASH_INVPORT);
+			THROW(SetFR(ComNumber, Handle));
+			if(def_timeout >= 0 && def_timeout < MAX_TIMEOUT) {
+				// @v11.6.12 (@development) THROW(SetFR(Timeout, def_timeout));
+			}
 			THROW((ok = ExecFR(Connect)) > 0 || ResCode == RESCODE_NO_CONNECTION);
-		}
-		THROW(ok > 0);
-		Flags |= sfConnected;
-		THROW(GetFR(BaudRate, &baud_rate));
-		if(baud_rate != def_baud_rate) {
-			THROW(SetFR(BaudRate, def_baud_rate));
-			THROW(ExecFR(SetExchangeParam));
-			THROW(ExecFR(Disconnect));
-			THROW(ExecFR(Connect));
+			for(baud_rate = 0; !ok && baud_rate <= __max_baud_rate; baud_rate++) {
+				THROW(SetFR(BaudRate, baud_rate));
+				THROW((ok = ExecFR(Connect)) > 0 || ResCode == RESCODE_NO_CONNECTION);
+			}
+			THROW(ok > 0);
+			Flags |= sfConnected;
+			ConnectionMode = connmodeCom; // @v12.0.3
+			THROW(GetFR(BaudRate, &baud_rate));
+			if(baud_rate != def_baud_rate) {
+				THROW(SetFR(BaudRate, def_baud_rate));
+				THROW(ExecFR(SetExchangeParam));
+				THROW(ExecFR(Disconnect));
+				THROW(ExecFR(Connect));
+			}
 		}
 		THROW(ExecFR(GetDeviceMetrics) > 0);
 		THROW(GetFR(UModel, &model_type));
@@ -2570,7 +2429,7 @@ bool SCS_SHTRIHFRF::GetFR(int id, char * pBuf, size_t bufLen)
 int SCS_SHTRIHFRF::GetResultCode(int methID)
 {
 	const  int func_without_retcode_checking[] = { GetECRStatus, Beep, Connect, OpenCheck, FNOperation, CloseCheckEx, CloseCheck,
-		FeedDocument }; // @v11.7.12 FeedDocument
+		FeedDocument, FNCheckItemBarcode, FNCheckItemBarcode2 }; // @v11.7.12 FeedDocument // @v12.0.3 FNCheckItemBarcode, FNCheckItemBarcode2
 	int    ok = 1;
 	{
 		if(methID == ServerConnect) {
@@ -2883,6 +2742,7 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 					}
 					else*/
 					if(ExtMethodsFlags & extmethfFNCheckItemBarcode) {
+						const bool use_FNCheckItemBarcode2 = true; // Если false, то используем FNCheckItemBarcode
 						THROW(ConnectFR());
 						//
 						//THROW(SetFR(BarCode, pCode));
@@ -2896,9 +2756,18 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 						}
 						THROW(SetFR(ItemStatus, 1L));
 						THROW(SetFR(CheckItemMode, 0L));
-						THROW(SetFR(TLVDataHex, ""));
-						tlv_data_hex[0] = 0;
-						THROW(ExecFR(FNCheckItemBarcode));
+						if(use_FNCheckItemBarcode2) {
+							//IFC_ENTRY_SS(DivisionalQuantity,     ExtMethodsFlags, extmethfDivisionalQuantity),     // @v11.6.6 / !
+							//IFC_ENTRY_SS(Numerator,              ExtMethodsFlags, extmethfNumerator),              // @v11.6.6 / !
+							//IFC_ENTRY_SS(Denominator,            ExtMethodsFlags, extmethfDenominator),            // @v11.6.6 / !
+							THROW(SetFR(DivisionalQuantity, false));
+							tlv_data_hex[0] = 0;
+							THROW(ExecFR(FNCheckItemBarcode2));
+						}
+						else {
+							THROW(SetFR(TLVDataHex, ""));
+							THROW(ExecFR(FNCheckItemBarcode));
+						}
 						{
 							msg_buf.Z().Cat("FNCheckItemBarcode req").CatDiv(':', 2).CatEq("BarCode", pCode).CatDiv(',', 2).
 								CatEq("ItemStatus", 1).CatDiv(',', 2).CatEq("CheckItemMode", 0).CatDiv(',', 2).

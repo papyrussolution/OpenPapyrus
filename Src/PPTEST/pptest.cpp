@@ -1990,8 +1990,8 @@ int DoConstructionTest()
 	}
 #endif // } 0
 	//TestGtinStruc();
-	//PPChZnPrcssr::Test();
-	GumboTest();
+	PPChZnPrcssr::Test();
+	//GumboTest();
 	//Test_SSystemBackup();
 	//TestPow10Tab();
 	//ImportSpecial("D:\\DEV\\RESOURCE\\DATA\\ETC");

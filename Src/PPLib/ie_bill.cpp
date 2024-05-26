@@ -383,29 +383,6 @@ int DocNalogRu_Reader::ReadFile(const char * pFileName, FileInfo & rHeader, TSCo
 										}
 									}
 								}
-								// @v12.0.3 {
-								/*
-									<Параметр Имя="ДоговорДата" Значение="01.01.2006"/>
-									<Параметр Имя="ДоговорНомер"/>
-									<Параметр Имя="Склад" Значение="Торговый зал Сигмы"/>
-									<Параметр Имя="ПодразделениеНаименование" Значение="Гипермаркет Сигма"/>
-									<Параметр Имя="ПодразделениеКод" Значение="00000001"/>
-								*/ 
-								else if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_PARAMETER))) {
-									if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_NAME), temp_buf)) {
-										extra_key = temp_buf;
-									}
-									if(SXml::GetAttrib(p_n3, GetToken_Utf8(PPHSC_RU_VALUE), temp_buf)) {
-										extra_val = temp_buf;
-									}
-									if(extra_key == GetToken_Utf8(PPHSC_RU_PARAM_DIVCODE)) {
-										(p_new_doc->ConsigneeDivCode = extra_val).Transf(CTRANSF_UTF8_TO_INNER);
-									}
-									else if(extra_key == GetToken_Utf8(PPHSC_RU_PARAM_DIVNAME)) {
-										(p_new_doc->ConsigneeDivName = extra_val).Transf(CTRANSF_UTF8_TO_INNER);
-									}
-								}
-								// } @v12.0.3 
 							}
 						}
 						else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_INVOICETAB))) {
@@ -536,6 +513,29 @@ int DocNalogRu_Reader::ReadFile(const char * pFileName, FileInfo & rHeader, TSCo
 							if(p_part)
 								ReadParticipant(p_n2, *p_part);
 						}
+						// @v12.0.3 {
+						/*
+							<Параметр Имя="ДоговорДата" Значение="01.01.2006"/>
+							<Параметр Имя="ДоговорНомер"/>
+							<Параметр Имя="Склад" Значение="Торговый зал Сигмы"/>
+							<Параметр Имя="ПодразделениеНаименование" Значение="Гипермаркет Сигма"/>
+							<Параметр Имя="ПодразделениеКод" Значение="00000001"/>
+						*/ 
+						else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_PARAMETER))) {
+							if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_NAME), temp_buf)) {
+								extra_key = temp_buf;
+							}
+							if(SXml::GetAttrib(p_n2, GetToken_Utf8(PPHSC_RU_VALUE), temp_buf)) {
+								extra_val = temp_buf;
+							}
+							if(extra_key == GetToken_Utf8(PPHSC_RU_PARAM_DIVCODE)) {
+								(p_new_doc->ConsigneeDivCode = extra_val).Transf(CTRANSF_UTF8_TO_INNER);
+							}
+							else if(extra_key == GetToken_Utf8(PPHSC_RU_PARAM_DIVNAME)) {
+								(p_new_doc->ConsigneeDivName = extra_val).Transf(CTRANSF_UTF8_TO_INNER);
+							}
+						}
+						// } @v12.0.3 
 						else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_TABOFDOC))) { // @v11.9.5 SBIS
 							for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
 								if(SXml::IsName(p_n3, GetToken_Utf8(PPHSC_RU_TABOFDOCLINE))) {
@@ -4386,7 +4386,7 @@ int PPBillImporter::DoFullEdiProcess()
 	if(Flags & fTestMode)
 		ediprvimp_ctr_flags |= PPEdiProcessor::ProviderImplementation::ctrfTestMode;
 	for(SEnum en = ediprv_obj.Enum(0); en.Next(&ediprv_rec) > 0;) {
-		p_prvimp = (ediprv_rec.Flags & PPEdiProvider::fPassive) ? 0 : PPEdiProcessor::CreateProviderImplementation(ediprv_rec.ID, main_org_id, ediprvimp_ctr_flags);
+		p_prvimp = (ediprv_rec.Flags & PPEdiProvider::fPassive) ? 0 : PPEdiProcessor::CreateProviderImplementation(ediprv_rec.ID, main_org_id, ediprvimp_ctr_flags, &Logger);
 		if(p_prvimp) {
 			PPEdiProcessor prc(p_prvimp, &Logger);
 			PPEdiProcessor::DocumentInfo doc_inf;

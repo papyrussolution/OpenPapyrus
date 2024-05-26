@@ -2522,8 +2522,8 @@ PPEdiProcessor::ProviderImplementation::OwnFormatContractor & PPEdiProcessor::Pr
 	return *this;
 }
 
-PPEdiProcessor::ProviderImplementation::ProviderImplementation(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) :
-	Epp(rEpp), MainOrgID(mainOrgID), Flags(flags), P_BObj(BillObj)
+PPEdiProcessor::ProviderImplementation::ProviderImplementation(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags, PPLogger * pLogger) :
+	Epp(rEpp), MainOrgID(mainOrgID), Flags(flags), P_BObj(BillObj), P_Logger(pLogger)
 {
 	PPAlbatrosCfgMngr::Get(&ACfg);
 	Arp.SetConfig(0);
@@ -2532,6 +2532,7 @@ PPEdiProcessor::ProviderImplementation::ProviderImplementation(const PPEdiProvid
 
 PPEdiProcessor::ProviderImplementation::~ProviderImplementation()
 {
+	P_Logger = 0;
 }
 
 const SString & FASTCALL PPEdiProcessor::ProviderImplementation::EncXmlText(const char * pS)
@@ -4806,7 +4807,7 @@ static const SIntToSymbTabEntry EanComIticSymbList[] = {
 
 class EdiProviderImplementation_Kontur : public PPEdiProcessor::ProviderImplementation {
 public:
-	EdiProviderImplementation_Kontur(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
+	EdiProviderImplementation_Kontur(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags, PPLogger * pLogger);
 	virtual ~EdiProviderImplementation_Kontur();
 	virtual int    GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList);
 	virtual int    ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
@@ -4846,7 +4847,7 @@ private:
 
 class EdiProviderImplementation_Exite : public PPEdiProcessor::ProviderImplementation {
 public:
-	EdiProviderImplementation_Exite(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
+	EdiProviderImplementation_Exite(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags, PPLogger * pLogger);
 	virtual ~EdiProviderImplementation_Exite();
 	virtual int    GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList);
 	virtual int    ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
@@ -4876,7 +4877,7 @@ public:
 	/*
 		СвОЭДОтпр ИННЮЛ="7605016030" ИдЭДО="2BE" НаимОрг="ООО "Компания "Тензор""/>
 	*/
-	EdiProviderImplementation_SBIS(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags);
+	EdiProviderImplementation_SBIS(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags, PPLogger * pLogger);
 	virtual ~EdiProviderImplementation_SBIS();
 	virtual int    GetDocumentList(const PPBillIterchangeFilt & rP, PPEdiProcessor::DocumentInfoList & rList);
 	virtual int    ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, TSCollection <PPEdiProcessor::Packet> & rList);
@@ -4891,8 +4892,8 @@ private:
 //
 //
 //
-EdiProviderImplementation_SBIS::EdiProviderImplementation_SBIS(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) :
-	PPEdiProcessor::ProviderImplementation(rEpp, mainOrgID, flags)
+EdiProviderImplementation_SBIS::EdiProviderImplementation_SBIS(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags, PPLogger * pLogger) :
+	PPEdiProcessor::ProviderImplementation(rEpp, mainOrgID, flags, pLogger)
 {
 }
 
@@ -5254,7 +5255,8 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentInfo * pNrDoc, TSCollection <PPEdiProcessor::Packet> & rList)
 {
 	int    ok = 1;
-	//bool   debug_mark = false; // @v12.0.2 @debug 
+	Reference * p_ref = PPRef;
+	bool   debug_mark = false; // @v12.0.2 @debug 
 	PPEdiProcessor::Packet * p_pack = 0;
 	SString temp_buf;
 	SString addendum_msg_buf;
@@ -5305,12 +5307,50 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 				}
 			}
 			// } @v11.9.9 
+			// @debug {
+			/*if(strstr(pNrDoc->Code, "9695") != 0) {
+				debug_mark = true;
+			}*/
+			// } @debug 
+			if(pNrDoc->ConsigneeDivCode.NotEmpty()) {
+				if(p_bp->Rec.Object) {
+					PPID   local_acs_id = 0;
+					PPID   buyer_psn_id = ObjectToPerson(p_bp->Rec.Object, &local_acs_id);
+					if(buyer_psn_id) {
+						ObjTagItem tag_item;
+						if(p_ref->Ot.GetTag(PPOBJ_PERSON, buyer_psn_id, PPTAG_PERSON_EXTDLVRLOCCODETAG, &tag_item) > 0) {
+							PPID   loc_code_tag_id = 0;
+							if(tag_item.GetInt(&loc_code_tag_id) > 0) {
+								PPIDArray loc_by_divcode_list;
+								if(p_ref->Ot.SearchObjectsByStr(PPOBJ_LOCATION, loc_code_tag_id, pNrDoc->ConsigneeDivCode, &loc_by_divcode_list) > 0) {
+									assert(loc_by_divcode_list.getCount());
+									if(loc_by_divcode_list.getCount() == 1) {
+										PPID   dlvrloc_id = loc_by_divcode_list.get(0);
+										debug_mark = true; // @debug
+										LocationTbl::Rec loc_rec;
+										if(PsnObj.LocObj.Fetch(dlvrloc_id, &loc_rec) > 0) {
+											if(loc_rec.OwnerID && loc_rec.OwnerID == buyer_psn_id) {
+												PPFreight freight;
+												p_bp->GetFreight(&freight);
+												freight.SetupDlvrAddr(dlvrloc_id);
+												p_bp->SetFreight(&freight);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 			PPObjBill::MakeCodeString(&p_bp->Rec, 0, bill_text); // @v12.0.2
 			// @v12.0.2 @debug {
 			/*if(strstr(p_bp->Rec.Code, "00008734")) {
 				debug_mark = true;	
 			}*/
 			// } @v12.0.2 @debug 
+			uint   local_iter_error_count = 0; // @v12.0.3 Счетчик локальных ошибок. Если в конце цикла он не нулевой, то генерируется выход по ошибке.
+				// Введено с целью информирования об ошибках во всех строках, а не только о первой встретившейся.
 			for(uint gitemidx = 0; gitemidx < pNrDoc->GoodsItemList.getCount(); gitemidx++) {
 				const DocNalogRu_Base::GoodsItem * p_gitem = pNrDoc->GoodsItemList.at(gitemidx);
 				if(p_gitem) {
@@ -5371,8 +5411,15 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 								addendum_msg_buf.CatDivIfNotEmpty('/', 0).Cat(p_gitem->SupplCode);
 							if(p_gitem->GoodsName.NotEmpty())
 								addendum_msg_buf.CatDivIfNotEmpty('/', 0).Cat(p_gitem->GoodsName);
-							addendum_msg_buf.CatDivIfNotEmpty(':', 1).Cat(p_bp->Rec.Code).CatDiv('-', 1).Cat(p_bp->Rec.Dt, DATF_DMY);
-							CALLEXCEPT_PP_S(PPERR_EDI_UNBLRSLV_GOODS, addendum_msg_buf);
+							// @v12.0.3 addendum_msg_buf.CatDivIfNotEmpty(':', 1).Cat(p_bp->Rec.Code).CatDiv('-', 1).Cat(p_bp->Rec.Dt, DATF_DMY);
+							if(P_Logger) {
+								local_iter_error_count++;
+								PPSetError(PPERR_EDI_UNBLRSLV_GOODS, addendum_msg_buf);
+								P_Logger->LogLastError();
+							}
+							else {
+								CALLEXCEPT_PP_S(PPERR_EDI_UNBLRSLV_GOODS, addendum_msg_buf);
+							}
 						}
 						ti.Init(&p_bp->Rec, 0, 0);
 						ti.RByBill = static_cast<int16>(p_gitem->RowN);
@@ -5383,6 +5430,7 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 					}
 				}
 			}
+			THROW_PP_S(!local_iter_error_count, PPERR_EDI_DOCNOTACCEPTED_TIFAULT, bill_text);
 			rList.insert(p_pack);
 			p_pack = 0; // Обнуляем указатель, поскольку владение им передано rList
 		}
@@ -6649,20 +6697,20 @@ PPEdiProcessor::Packet::~Packet()
 	P_ExtData = 0;
 }
 
-/*static*/PPEdiProcessor::ProviderImplementation * PPEdiProcessor::CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID, long flags)
+/*static*/PPEdiProcessor::ProviderImplementation * PPEdiProcessor::CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID, long flags, PPLogger * pLogger)
 {
 	ProviderImplementation * p_imp = 0;
 	PPObjEdiProvider ep_obj;
 	PPEdiProviderPacket ep_pack;
 	THROW(ep_obj.GetPacket(ediPrvID, &ep_pack) > 0);
 	if(sstreqi_ascii(ep_pack.Rec.Symb, "KONTUR") || sstreqi_ascii(ep_pack.Rec.Symb, "KONTUR-T")) {
-		p_imp = new EdiProviderImplementation_Kontur(ep_pack, mainOrgID, flags);
+		p_imp = new EdiProviderImplementation_Kontur(ep_pack, mainOrgID, flags, pLogger);
 	}
 	else if(sstreqi_ascii(ep_pack.Rec.Symb, "EXITE")) { // @v10.2.8
-		p_imp = new EdiProviderImplementation_Exite(ep_pack, mainOrgID, flags);
+		p_imp = new EdiProviderImplementation_Exite(ep_pack, mainOrgID, flags, pLogger);
 	}
 	else if(sstreqi_ascii(ep_pack.Rec.Symb, "SBIS")) { // @v11.9.4
-		p_imp = new EdiProviderImplementation_SBIS(ep_pack, mainOrgID, flags);
+		p_imp = new EdiProviderImplementation_SBIS(ep_pack, mainOrgID, flags, pLogger);
 	}
 	else {
 		CALLEXCEPT_PP_S(PPERR_EDI_THEREISNTPRVIMP, ep_pack.Rec.Symb);
@@ -7104,8 +7152,8 @@ int PPEdiProcessor::SendDESADV(int ediOp, const PPBillIterchangeFilt & rP, const
 //
 //
 //
-EdiProviderImplementation_Kontur::EdiProviderImplementation_Kontur(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) :
-	PPEdiProcessor::ProviderImplementation(rEpp, mainOrgID, flags)
+EdiProviderImplementation_Kontur::EdiProviderImplementation_Kontur(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags, PPLogger * pLogger) :
+	PPEdiProcessor::ProviderImplementation(rEpp, mainOrgID, flags, pLogger)
 {
 }
 
@@ -7994,8 +8042,8 @@ int EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::DocumentInfo 
 //
 //
 //
-EdiProviderImplementation_Exite::EdiProviderImplementation_Exite(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags) :
-	PPEdiProcessor::ProviderImplementation(rEpp, mainOrgID, flags)
+EdiProviderImplementation_Exite::EdiProviderImplementation_Exite(const PPEdiProviderPacket & rEpp, PPID mainOrgID, long flags, PPLogger * pLogger) :
+	PPEdiProcessor::ProviderImplementation(rEpp, mainOrgID, flags, pLogger)
 {
 }
 

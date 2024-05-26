@@ -2619,7 +2619,6 @@
     <ClCompile Include="..\SLib\tcontrol.cpp" />
     <ClCompile Include="..\SLib\Tdialog.cpp" />
     <ClCompile Include="..\SLib\test-cairo.cpp" />
-    <ClCompile Include="..\SLib\test-openssl.cpp" />
     <ClCompile Include="..\SLib\Toolbar.cpp" />
     <ClCompile Include="..\SLib\Tprogram.cpp" />
     <ClCompile Include="..\SLib\tprogram_exp.cpp" />
