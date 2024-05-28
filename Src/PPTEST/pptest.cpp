@@ -1989,8 +1989,8 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	//TestGtinStruc();
-	PPChZnPrcssr::Test();
+	TestGtinStruc();
+	//PPChZnPrcssr::Test();
 	//GumboTest();
 	//Test_SSystemBackup();
 	//TestPow10Tab();

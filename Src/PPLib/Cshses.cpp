@@ -157,7 +157,7 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 			int pczcr_pre = 0;
 			{
 				CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
-				pczcr_pre = PreprocessChZnCode(100, chzn_code, 1.0, 0/*uomId*/, 0, chzn_pp_result);
+				pczcr_pre = PreprocessChZnCode(ppchzcopInit, chzn_code, 1.0, 0/*uomId*/, 0, chzn_pp_result);
 			}
 			if(pczcr_pre != 0) {
 				for(uint pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
@@ -170,12 +170,12 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 							double ratio = 0.0;
 							if(goods_obj.TranslateGoodsUnitToBase(goods_rec, SUOM_LITER, &ratio) > 0) {
 								double chzn_qtty = fabs(ccl.Quantity) * ratio;
-								int pczcr = PreprocessChZnCode(101, chzn_code, chzn_qtty, SUOM_LITER, uom_fragm, chzn_pp_result);
+								int pczcr = PreprocessChZnCode(ppchzcopSurrogateCheck, chzn_code, chzn_qtty, SUOM_LITER, uom_fragm, chzn_pp_result);
 								// @v11.9.10 {
 								if(/*pczcr > 0*/true) {
 									if(/*chzn_pp_result.Status == 1*/true) {
 										chzn_pp_result.LineIdx = pos;
-										int accept_op = 1; // 1 - accept, 2 - reject
+										const int accept_op = ppchzcopAccept;
 										pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, 0/*uomId*/, uom_fragm, chzn_pp_result);
 										PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
 										if(pczcr > 0)
@@ -184,7 +184,7 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 									else {
 										ok = 2;
 										chzn_pp_result.LineIdx = pos;
-										int accept_op = 2; // 1 - accept, 2 - reject
+										const int accept_op = ppchzcopReject;
 										pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, 0/*uomId*/, uom_fragm, chzn_pp_result);
 										PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
 										// @v11.7.0 if(pczcr > 0)
@@ -206,7 +206,7 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 									PPUnit u_rec;
 									if(goods_obj.FetchUnit(goods_rec.UnitID, &u_rec) > 0 && u_rec.Fragmentation > 0 && u_rec.Fragmentation < 100000)
 										uom_fragm = u_rec.Fragmentation;
-									int pczcr = PreprocessChZnCode(0, chzn_code, chzn_qtty, 0/*uomId*/, uom_fragm, chzn_pp_result);
+									int pczcr = PreprocessChZnCode(ppchzcopCheck, chzn_code, chzn_qtty, 0/*uomId*/, uom_fragm, chzn_pp_result);
 									PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result);
 									// @debug {
 									//pczcr = 0;
@@ -215,7 +215,7 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 									if(pczcr > 0) {
 										if(chzn_pp_result.Status == 1) {
 											chzn_pp_result.LineIdx = pos;
-											int accept_op = 1; // 1 - accept, 2 - reject
+											const int accept_op = ppchzcopAccept;
 											pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, 0/*uomId*/, uom_fragm, chzn_pp_result);
 											PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
 											if(pczcr > 0)
@@ -224,7 +224,7 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 										else {
 											ok = 2;
 											chzn_pp_result.LineIdx = pos;
-											int accept_op = 2; // 1 - accept, 2 - reject
+											const int accept_op = ppchzcopReject;
 											pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, 0/*uomId*/, uom_fragm, chzn_pp_result);
 											PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
 											// @v11.7.0 if(pczcr > 0)

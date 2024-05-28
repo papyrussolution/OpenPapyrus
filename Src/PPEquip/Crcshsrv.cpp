@@ -703,28 +703,6 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 				if(oneof2(mode, 0, 1)) { // @v10.6.7
 					p_writer->PutElement("name", r_cur_entry.Name);
 					{
-						// @v11.4.4 {
-						/* @v11.4.5 if(goodsIdAsArticle) {
-							// @v10.9.11 {
-							if(r_cur_entry.Flags_ & AsyncCashGoodsInfo::fGMarkedType) {
-								const char * p_mark_type = 0;
-								switch(r_cur_entry.ChZnProdType) {
-									case GTCHZNPT_SHOE: p_mark_type = "FOOTWEAR"; break;
-									case GTCHZNPT_TEXTILE: p_mark_type = "LIGHT_INDUSTRY"; break;
-									case GTCHZNPT_CARTIRE: p_mark_type = "TYRES"; break;
-									case GTCHZNPT_PERFUMERY: p_mark_type = "PERFUMES"; break;
-									case GTCHZNPT_MILK: p_mark_type = "MILK"; break;
-								}
-								if(p_mark_type)
-									p_writer->PutElement("mark-type", p_mark_type);
-							}
-							// } @v10.9.11 
-							p_writer->StartElement("bar-code", "code", temp_buf.Z().Cat(r_cur_entry.ID));
-							p_writer->PutElement("count", temp_buf.Z().Cat("1"));
-							p_writer->PutElement("default-code", true);
-							p_writer->EndElement(); // </bar-code>
-						}*/
-						// } @v11.4.4 
 						for(uint i = 0; i < barcodes.getCount(); i++) {
 							BarcodeTbl::Rec bc = barcodes.at(i);
 							if(sstrlen(bc.Code)) {
@@ -742,6 +720,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 										case GTCHZNPT_MILK: p_mark_type = "MILK"; break;
 										case GTCHZNPT_WATER: p_mark_type = "WATER"; break; // @v11.5.6
 										case GTCHZNPT_DRAFTBEER: p_mark_type = "DRAFT_BEER"; break; // @v11.9.2
+										case GTCHZNPT_BEER: p_mark_type = "BEER"; break; // @v12.0.4
 									}
 									if(p_mark_type)
 										p_writer->PutElement("mark-type", p_mark_type);

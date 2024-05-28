@@ -207,38 +207,8 @@ class SCS_SHTRIHFRF : public PPSyncCashSession {
 	const  bool IsDebugMode;
 	uint8  Reserve[3]; // @alignment
 public:
-	SCS_SHTRIHFRF(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port),
-		CashierPassword(0), AdmPassword(0), ResCode(RESCODE_NO_ERROR), ErrCode(SYNCPRN_NO_ERROR),
-		DeviceType(devtypeUndef), CheckStrLen(DEF_STRLEN), Flags(0), RibbonParam(0), SCardPaymEntryN(0),
-		IsDebugMode(LOGIC(CConfig.Flags & CCFLG_DEBUG)), ConnectionMode(connmodeUndef)
-	{
-		if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
-			Flags |= sfDontUseCutter;
-		RefToIntrf++;
-		SETIFZ(P_DrvFRIntrf, InitDriver());
-	}
-	~SCS_SHTRIHFRF()
-	{
-		if(Flags & sfConnected) {
-			switch(ConnectionMode) {
-				case connmodeCom:
-				case connmodeComV2:
-					if(!ExecFR(Disconnect))
-						LogLastError();
-					break;
-				case connmodeServer:
-					if(!ExecFR(ServerDisconnect))
-						LogLastError();
-					break;
-				default:
-					constexpr int ShtrihFR_ConnectionModeUndefined = 0;
-					assert(ShtrihFR_ConnectionModeUndefined);
-					break;
-			}
-		}
-		if(--RefToIntrf == 0)
-			ZDELETE(P_DrvFRIntrf);
-	}
+	SCS_SHTRIHFRF(PPID n, char * pName, char * pPort);
+	~SCS_SHTRIHFRF();
 	virtual int PrintCheck(CCheckPacket * pPack, uint flags);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags);
@@ -278,33 +248,8 @@ private:
 	int  ExecFRPrintOper(int id);
 	int  AllowPrintOper(int id);
 	void SetErrorMessage();
-	void WriteLogFileToWriteTblErr(int tblNum, int rowNum, int fldNum, const char * pValue)
-	{
-		if(IsDebugMode) {
-			SString msg_fmt, msg, value;
-			(value = pValue).Transf(CTRANSF_OUTER_TO_INNER);
-			msg.Printf(PPLoadTextS(PPTXT_LOG_SHTRIH_WRITETBLERR, msg_fmt), tblNum, rowNum, fldNum, value.cptr());
-			PPLogMessage(PPFILNAM_SHTRIH_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
-		}
-	}
-	void LogDebug(const char * pFunc, int ifcId, const char * pArg)
-	{
-		if(IsDebugMode) {
-			SString temp_buf;
-			SString msg_buf;
-			if(!isempty(pFunc))
-				msg_buf.Cat(pFunc);
-			if(ifcId >= 0 && P_DrvFRIntrf) {
-				P_DrvFRIntrf->GetNameByID(ifcId, temp_buf);
-				msg_buf.CatDivConditionally(',', 2, msg_buf.NotEmpty()).Cat(temp_buf);
-			}
-			if(!isempty(pArg)) {
-				msg_buf.CatDivConditionally(',', 2, msg_buf.NotEmpty()).Cat(pArg);
-			}
-			if(msg_buf.NotEmpty())
-				PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
-		}
-	}
+	void WriteLogFileToWriteTblErr(int tblNum, int rowNum, int fldNum, const char * pValue);
+	void LogDebug(const char * pFunc, int ifcId, const char * pArg);
 	//
 	// Returns:
 	//   0 only. In order to initialize return code
@@ -490,7 +435,7 @@ private:
 	};
 	enum ShtrihFlags {
 		sfConnected     = 0x0001, // установлена связь с Штрих-ФР, COM-порт занят
-		sfOpenCheck     = 0x0002, // чек открыт
+		sfCheckOpened   = 0x0002, // чек открыт
 		sfCancelled     = 0x0004, // операция печати чека прервана пользователем
 		sfOldShtrih     = 0x0008, // старая версия драйвера Штрих-ФР
 		sfPrintSlip     = 0x0010, // печать подкладного документа
@@ -570,6 +515,40 @@ PPSyncCashSession * CM_SHTRIHFRF::SyncInterface()
 }
 
 REGISTER_CMT(SHTRIHFRF, true, false);
+
+SCS_SHTRIHFRF::SCS_SHTRIHFRF(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port),
+	CashierPassword(0), AdmPassword(0), ResCode(RESCODE_NO_ERROR), ErrCode(SYNCPRN_NO_ERROR),
+	DeviceType(devtypeUndef), CheckStrLen(DEF_STRLEN), Flags(0), RibbonParam(0), SCardPaymEntryN(0),
+	IsDebugMode(LOGIC(CConfig.Flags & CCFLG_DEBUG)), ConnectionMode(connmodeUndef)
+{
+	if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
+		Flags |= sfDontUseCutter;
+	RefToIntrf++;
+	SETIFZ(P_DrvFRIntrf, InitDriver());
+}
+	
+SCS_SHTRIHFRF::~SCS_SHTRIHFRF()
+{
+	if(Flags & sfConnected) {
+		switch(ConnectionMode) {
+			case connmodeCom:
+			case connmodeComV2:
+				if(!ExecFR(Disconnect))
+					LogLastError();
+				break;
+			case connmodeServer:
+				if(!ExecFR(ServerDisconnect))
+					LogLastError();
+				break;
+			default:
+				constexpr int ShtrihFR_ConnectionModeUndefined = 0;
+				assert(ShtrihFR_ConnectionModeUndefined);
+				break;
+		}
+	}
+	if(--RefToIntrf == 0)
+		ZDELETE(P_DrvFRIntrf);
+}
 
 /*virtual*/int SCS_SHTRIHFRF::Diagnostics(StringSet * pSs) // @v12.0.3
 {
@@ -843,10 +822,6 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash) + 0.001;
 		double running_total = 0.0;
-		// @v10.1.11 double fiscal = 0.0;
-		// @v10.1.11 double nonfiscal = 0.0;
-		// @v10.1.11 pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
-		// @v10.1.11 {
 		double real_fiscal = 0.0;
 		double real_nonfiscal = 0.0;
 		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
@@ -857,7 +832,6 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
 		const double amt_cash = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
-		// } @v10.1.11 
 		PPID   tax_sys_id = 0;
 		CnObj.GetTaxSystem(NodeID, pPack->Rec.Dt, &tax_sys_id);
 		// @v10.9.0 {
@@ -888,7 +862,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 				if(_fiscal != 0.0) {
 					THROW(SetFR(CheckType, (flags & PRNCHK_RETURN) ? 2L : 0L));
 					THROW(ExecFRPrintOper(OpenCheck));
-					// @v10.9.0 {
+					Flags |= sfCheckOpened;
 					if(use_fn_op) {
 						/*
 							полеОбъектККМ.CheckType = 0;
@@ -935,13 +909,11 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 							THROW(ExecFRPrintOper(FNSendSTLVTag));
 						}
 					}
-					// } @v10.9.0
 				}
 				else {
 					THROW(SetFR(DocumentName, "" /*sdc_param.Title*/));
 					THROW(ExecFRPrintOper(PrintDocumentTitle));
 				}
-				Flags |= sfOpenCheck;
 				for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
 					if(sl_param.Flags & SlipLineParam::fRegFiscal) {
 						CheckForRibbonUsing(SlipLineParam::fRegRegular|SlipLineParam::fRegJournal);
@@ -1063,7 +1035,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 						else {
 							THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
 						}
-						Flags |= sfOpenCheck;
+						Flags |= sfCheckOpened;
 						prn_total_sale = 0;
 					}
 					else if(sl_param.Kind == sl_param.lkBarcode) {
@@ -1122,7 +1094,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 							THROW(SetFR(Price, amt));
 							THROW(SetFR(Tax1, shtrih_vat_rate_ident)); // @v11.2.11 0-->shtrih_vat_rate_ident
 							THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
-							Flags |= sfOpenCheck;
+							Flags |= sfCheckOpened;
 							running_total += amt;
 						}
 						else /*if(fiscal != 0.0)*/ {
@@ -1130,7 +1102,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 							THROW(SetFR(Price, _fiscal));
 							THROW(SetFR(Tax1, shtrih_vat_rate_ident)); // @v11.2.11 0-->shtrih_vat_rate_ident
 							THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
-							Flags |= sfOpenCheck;
+							Flags |= sfCheckOpened;
 							running_total += _fiscal;
 						}
 					}
@@ -1163,7 +1135,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 				}
 				THROW(SetFR(Tax1, 0L));
 				THROW(ExecFRPrintOper((flags & PRNCHK_RETURN) ? ReturnSale : Sale));
-				Flags |= sfOpenCheck;
+				Flags |= sfCheckOpened;
 			}
 			// Информация о скидке
 			if(DeviceType == devtypeShtrih)
@@ -1273,7 +1245,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			THROW(SetFR(ReceiptOutputType, 0));
 			THROW(ExecFRPrintOper(OutputReceipt));
 		}
-		Flags &= ~sfOpenCheck;
+		Flags &= ~sfCheckOpened;
 		ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
 		THROW(Cut(1));
 		THROW(SetFR(RegisterNumber, CHECK_NUMBER_REG));
@@ -1289,7 +1261,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			if(ErrCode != SYNCPRN_ERROR_AFTER_PRINT) {
 				SString no_print_txt;
 				PPLoadText(PPTXT_CHECK_NOT_PRINTED, no_print_txt);
-				ErrCode = (Flags & sfOpenCheck) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
+				ErrCode = (Flags & sfCheckOpened) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
 				PPLogMessage(PPFILNAM_SHTRIH_LOG, CCheckCore::MakeCodeString(&pPack->Rec, 0, no_print_txt), LOGMSGF_TIME|LOGMSGF_USER);
 				ok = 0;
 			}
@@ -1297,7 +1269,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		else {
 			SetErrorMessage();
 			ExecFR(Beep);
-			if(Flags & sfOpenCheck)
+			if(Flags & sfCheckOpened)
 				ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
 			ok = 0;
 		}
@@ -1323,14 +1295,14 @@ int SCS_SHTRIHFRF::OpenBox()
 		if(Flags & sfCancelled) {
 			Flags &= ~sfCancelled;
 			if(ErrCode != SYNCPRN_ERROR_AFTER_PRINT) {
-				ErrCode = (Flags & sfOpenCheck) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
+				ErrCode = (Flags & sfCheckOpened) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
 				ok = 0;
 			}
 		}
 		else {
 			SetErrorMessage();
 			ExecFR(Beep);
-			if(Flags & sfOpenCheck)
+			if(Flags & sfCheckOpened)
 				ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
 			ok = 0;
 		}
@@ -1664,7 +1636,7 @@ int SCS_SHTRIHFRF::PrintReport(int withCleaning)
 	cshr_pssw = CashierPassword;
 	CashierPassword = AdmPassword;
 	//
-	Flags |= sfOpenCheck;
+	Flags |= sfCheckOpened;
 	THROW(ExecFR(GetECRStatus));
 	THROW(GetFR(ECRMode, &mode));
 	if(withCleaning) {
@@ -1686,8 +1658,8 @@ int SCS_SHTRIHFRF::PrintReport(int withCleaning)
 			ok = (ExecFR(Beep), 0);
 		}
 	ENDCATCH
-	if(Flags & sfOpenCheck) {
-		Flags &= ~sfOpenCheck;
+	if(Flags & sfCheckOpened) {
+		Flags &= ~sfCheckOpened;
 		CashierPassword = cshr_pssw;
 	}
 	return ok;
@@ -1747,7 +1719,7 @@ int SCS_SHTRIHFRF::PrintIncasso(double sum, int isIncome)
 	int    ok = 1;
 	ResCode = RESCODE_NO_ERROR;
 	THROW(ConnectFR());
-	Flags |= sfOpenCheck;
+	Flags |= sfCheckOpened;
 	THROW(SetFR(Summ1, sum));
 	if(isIncome) {
 		THROW(LineFeed(6, TRUE, FALSE));
@@ -1772,7 +1744,7 @@ int SCS_SHTRIHFRF::PrintIncasso(double sum, int isIncome)
 			ok = (ExecFR(Beep), 0);
 		}
 	ENDCATCH
-	Flags &= ~sfOpenCheck;
+	Flags &= ~sfCheckOpened;
 	return ok;
 }
 
@@ -2016,23 +1988,23 @@ int SCS_SHTRIHFRF::AnnulateCheck()
 		// Проверка на незавершенную печать
 		THROW(GetFR(ECRAdvancedMode, &adv_mode));
 		if(adv_mode == PRNMODE_AFTER_NO_PAPER) {
-			Flags |= sfOpenCheck;
+			Flags |= sfCheckOpened;
 			THROW(ExecFRPrintOper(ContinuePrint));
 			do {
 				THROW(ExecFR(GetECRStatus));
 				THROW(GetFR(ECRAdvancedMode, &adv_mode));
 			} while(adv_mode == PRNMODE_PRINT);
-			Flags &= ~sfOpenCheck;
+			Flags &= ~sfCheckOpened;
 			cut = 1;
 		}
 	}
 	// Проверка на наличие открытого чека, который надо аннулировать
 	THROW(GetFR(ECRMode, &mode));
 	if(mode == FRMODE_OPEN_CHECK) {
-		Flags |= sfOpenCheck | sfCancelled;
+		Flags |= sfCheckOpened | sfCancelled;
 		PPMessage(mfInfo|mfOK, PPINF_SHTRIHFR_CHK_ANNUL);
 		THROW(ExecFRPrintOper(CancelCheck));
-		Flags &= ~(sfOpenCheck | sfCancelled);
+		Flags &= ~(sfCheckOpened | sfCancelled);
 		cut = 1;
 		ok = 1;
 	}
@@ -2520,6 +2492,35 @@ int SCS_SHTRIHFRF::ExecFRPrintOper(int id)
 
 static bool IsModeOffPrint(int mode) { return oneof5(mode, FRMODE_OPEN_SESS, FRMODE_CLOSE_SESS, FRMODE_OPEN_CHECK, FRMODE_FULL_REPORT, FRMODE_LONG_EKLZ_REPORT) ? false : true; }
 
+void SCS_SHTRIHFRF::WriteLogFileToWriteTblErr(int tblNum, int rowNum, int fldNum, const char * pValue)
+{
+	if(IsDebugMode) {
+		SString msg_fmt, msg, value;
+		(value = pValue).Transf(CTRANSF_OUTER_TO_INNER);
+		msg.Printf(PPLoadTextS(PPTXT_LOG_SHTRIH_WRITETBLERR, msg_fmt), tblNum, rowNum, fldNum, value.cptr());
+		PPLogMessage(PPFILNAM_SHTRIH_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
+	}
+}
+
+void SCS_SHTRIHFRF::LogDebug(const char * pFunc, int ifcId, const char * pArg)
+{
+	if(IsDebugMode) {
+		SString temp_buf;
+		SString msg_buf;
+		if(!isempty(pFunc))
+			msg_buf.Cat(pFunc);
+		if(ifcId >= 0 && P_DrvFRIntrf) {
+			P_DrvFRIntrf->GetNameByID(ifcId, temp_buf);
+			msg_buf.CatDivConditionally(',', 2, msg_buf.NotEmpty()).Cat(temp_buf);
+		}
+		if(!isempty(pArg)) {
+			msg_buf.CatDivConditionally(',', 2, msg_buf.NotEmpty()).Cat(pArg);
+		}
+		if(msg_buf.NotEmpty())
+			PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+	}
+}
+
 int  SCS_SHTRIHFRF::LogLastError()
 {
 	SString & r_msg_buf = SLS.AcquireRvlStr();
@@ -2606,7 +2607,7 @@ int SCS_SHTRIHFRF::AllowPrintOper(int id)
 	else {
 		// На всякий случай помечаем, что чек открыт (иначе при сбое операции открытия чека неизвестно: чек уже открыт или нет)
 		if(mode == FRMODE_OPEN_CHECK)
-			Flags |= sfOpenCheck;
+			Flags |= sfCheckOpened;
 		// Ожидание заправки чековой ленты или выхода из режима, когда нельзя печатать чек
 		while(ok && (oneof2(adv_mode, PRNMODE_NO_PRINT_NO_PAPER, PRNMODE_PRINT_NO_PAPER) || (last_res_code == RESCODE_MODE_OFF && IsModeOffPrint(mode)))) {
 			int  send_msg = 0, r;
@@ -2698,10 +2699,18 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 	int    ok = -1;
 	SString temp_buf;
 	SString msg_buf;
-	if(op == 100) { // 100 - предварителные операции перед проверкой марок по чеку. Может быть актуально для некоторых типов регистраторов.
-		;
+	if(op == ppchzcopInit) {
+		THROW(SetFR(CheckType, 0L/*Продажа*/));
+		THROW(ExecFRPrintOper(OpenCheck));
+		Flags |= sfCheckOpened;
 	}
-	else if(op == 0) {
+	else if(op == ppchzcopCancel) {
+		if(Flags & sfCheckOpened) {
+			THROW(ExecFRPrintOper(CancelCheck));
+			Flags &= ~(sfCheckOpened | sfCancelled);
+		}
+	}
+	else if(op == ppchzcopCheck) {
 		rResult.CheckResult = 0;
 		rResult.Reason = 0;
 		rResult.ProcessingResult = 0;
@@ -2743,7 +2752,9 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 					else*/
 					if(ExtMethodsFlags & extmethfFNCheckItemBarcode) {
 						const bool use_FNCheckItemBarcode2 = true; // Если false, то используем FNCheckItemBarcode
-						THROW(ConnectFR());
+						if(!(Flags & sfCheckOpened)) {
+							THROW(ConnectFR());
+						}
 						//
 						//THROW(SetFR(BarCode, pCode));
 						{

@@ -4810,28 +4810,36 @@ struct SDataPageHeader {
 };
 
 class SRecPageManager {
-public:
 	//
 	// Структура RowId:
 	//   | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
 	//    3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 
 	//          6                   5                   4                   3                   2                   1                   0
-	//   |                             |       |
-	//   reserve                       offs bits
+	//   |                             |       |                                                |                                        |
+	//   reserve                       pobw    page sequence number                             offset in the page  
 	// 
 	//   Общий размер типа: 64 бита
 	//   Старшие 16 бит - зарезервированы
 	//   Следующие старшие 4 бита - индикатор битовой ширины поля смещения внутри страницы.
 	//      Битовая ширина смещения может быть от 9 до 24 бит (0: 9, 1: 10, 15: 24)
 	//      Битовую ширину поля смещения назовем pobw (page offset bit-width)
-	//      Само смещение внутри страницы задается со сдвигом в 32 поскольку заголовок
-	//      страницы длиной 32 байта не участвует в распределении рабочих блоков.
-	//      Таким образом максимальная длина страницы = 2^(24+5)
 	//   Следующие старшие (64-4-pobw) бит - номер страницы.
+	//   Самые младшие pobw бит - смещение внутри страницы
 	//
 	static constexpr uint RowIdBitWidth = 48;
+	static FORCEINLINE uint GetPageBits(uint offsetBits) { return (RowIdBitWidth - offsetBits - 4/*pobw*/); }
+	//
+	// Descr: Вспомогательная функция, определяющая битовую ширину поля смещения в идентификаторе
+	//   блока записи. Функция принимает опциональный проверочный аргумент pageSize.
+	//   Если pageSize != 0, то функция одновременно извлекает битовую ширину смещения из rowid
+	//   и вычисляет ее исходя из размера страницы. Если полученные два значения не равны,
+	//   то возвращает 0 (error).
+	//
+	static uint Helper_SplitRowId_GetOffsetBits(uint64 rowId, uint pageSize);
+public:
 	static uint64 MakeRowId(uint pageSize, uint pageSeq, uint offset);
-	static int SplitRowId(uint64 rowId, uint pageSize, uint * pPageSeq, uint * pOffset);
+	static int SplitRowId_WithPageSizeCheck(uint64 rowId, uint pageSize, uint * pPageSeq, uint * pOffset);
+	static int SplitRowId(uint64 rowId, uint * pPageSeq, uint * pOffset);
 	SRecPageManager(uint32 pageSize);
 	~SRecPageManager();
 	int    Write(uint64 * pRowId, uint pageType, const void * pData, size_t dataLen);
@@ -4847,6 +4855,7 @@ private:
 	SDataPageHeader * AllocatePage(uint32 type);
 	SDataPageHeader * QueryPageForReading(uint64 rowId, uint32 pageType, uint * pOffset);
 	int    ReleasePage(SDataPageHeader * pPage);
+	int    WriteToPage(SDataPageHeader * pPage, uint64 rowId, const void * pData, size_t dataLen);
 
 	const uint32 PageSize;
 	uint32 LastSeq;

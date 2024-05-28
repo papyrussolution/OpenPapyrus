@@ -7333,13 +7333,16 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						if(InitCashMachine() && P_CM) {
 							SString msg_buf;
 							//PPChZnPrcssr::ReconstructOriginalChZnCode(const GtinStruc & rS, SString & rBuf)
-							int r = P_CM->SyncPreprocessChZnCode(0, /*mark*/reconstructed_original, 1.0, 0/*uomId*/, 0, chzn_result);
-							msg_buf.CatEq("SyncPreprocessChZnCode-result", r).CR();
-							msg_buf.CatEq("check-result", chzn_result.CheckResult).CR();
-							msg_buf.CatEq("reason", chzn_result.Reason).CR();
-							msg_buf.CatEq("processing-result", chzn_result.ProcessingResult).CR();
-							msg_buf.CatEq("processing-code", chzn_result.ProcessingCode).CR();
-							msg_buf.CatEq("status", chzn_result.Status).CR();
+							if(P_CM->SyncPreprocessChZnCode(PPSyncCashSession::ppchzcopInit, /*mark*/reconstructed_original, 1.0, 0/*uomId*/, 0, chzn_result)) {
+								int r = P_CM->SyncPreprocessChZnCode(PPSyncCashSession::ppchzcopCheck, /*mark*/reconstructed_original, 1.0, 0/*uomId*/, 0, chzn_result);
+								P_CM->SyncPreprocessChZnCode(PPSyncCashSession::ppchzcopCancel, /*mark*/reconstructed_original, 1.0, 0/*uomId*/, 0, chzn_result);
+								msg_buf.CatEq("SyncPreprocessChZnCode-result", r).CR();
+								msg_buf.CatEq("check-result", chzn_result.CheckResult).CR();
+								msg_buf.CatEq("reason", chzn_result.Reason).CR();
+								msg_buf.CatEq("processing-result", chzn_result.ProcessingResult).CR();
+								msg_buf.CatEq("processing-code", chzn_result.ProcessingCode).CR();
+								msg_buf.CatEq("status", chzn_result.Status).CR();
+							}
 							PPChZnPrcssr::InputMark(mark, &reconstructed_original, msg_buf);
 						}						
 					}

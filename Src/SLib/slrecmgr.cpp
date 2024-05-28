@@ -5,55 +5,72 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
-/*static*/uint64 SRecPageManager::MakeRowId(uint pageSize, uint pageSeq, uint offset)
+/*static*/uint SRecPageManager::Helper_SplitRowId_GetOffsetBits(uint64 rowId, uint pageSize)
 {
-	uint64 result = 0;
-	const uint bits_offs = (32 - SBits::Clz(pageSize)) + 1;
-	const uint bits_page = RowIdBitWidth - bits_offs;
-	assert((1ULL << bits_offs) >= pageSize);
-	if(pageSeq == 0) {
-		; // @error
-	}
-	else if(pageSeq >= (1ULL << bits_page)) {
-		; // @error
-	}
-	else if(offset >= (1ULL << bits_offs)) {
-		; // @error
-	}
-	else if(offset >= pageSize) {
-		; // @error
+	uint  result = 0U;
+	const uint pobw = static_cast<uint>((rowId >> (RowIdBitWidth-4)) & 0xFULL) + 9;
+	THROW(pobw >= 9 && (pobw - 9) < 16); // @todo @err
+	if(pageSize > 0) {
+		result = SBits::CeilLog2(pageSize);//(32 - SBits::Clz(pageSize)) - 1;
+		THROW(result == pobw); // @todo @err
 	}
 	else {
-		result = (static_cast<uint64>(pageSeq) << bits_offs) | (static_cast<uint64>(offset));
+		result = pobw;
 	}
+	CATCH
+		result = 0U;
+	ENDCATCH
 	return result;
 }
 
-/*static*/int SRecPageManager::SplitRowId(uint64 rowId, uint pageSize, uint * pPageSeq, uint * pOffset)
+/*static*/uint64 SRecPageManager::MakeRowId(uint pageSize, uint pageSeq, uint offset)
+{
+	assert(pageSize >= 512);
+	assert((pageSize % 512) == 0);
+	uint64 result = 0;
+	const uint bits_offs = SBits::CeilLog2(pageSize); //(32 - SBits::Clz(pageSize)) - 1; // pobw
+	const uint bits_page = GetPageBits(bits_offs);
+	assert((1ULL << bits_offs) >= pageSize);
+	assert(bits_offs >= 9);
+	assert((bits_offs - 9) < 16);
+	THROW(pageSeq > 0); // @todo @err
+	THROW(pageSeq < (1ULL << bits_page)); // @todo @err
+	THROW(offset < (1ULL << bits_offs)); // @todo @err
+	THROW(offset < pageSize); // @todo @err
+	result = (static_cast<uint64>(bits_offs - 9) << (RowIdBitWidth-4) | (static_cast<uint64>(pageSeq) << bits_offs) | (static_cast<uint64>(offset)));
+	CATCH
+		result = 0ULL;
+	ENDCATCH
+	return result;
+}
+	
+/*static*/int SRecPageManager::SplitRowId_WithPageSizeCheck(uint64 rowId, uint pageSize, uint * pPageSeq, uint * pOffset)
 {
 	int    ok = 1;
-	const uint bits_offs = (32 - SBits::Clz(pageSize)) + 1;
-	const uint bits_page = RowIdBitWidth - bits_offs;
-	constexpr uint64 seq_mask = (~0ULL >> (64-RowIdBitWidth));
-	const uint64 ofs_mask = (~0ULL >> (64-bits_offs));
-	uint page_seq = static_cast<uint>((rowId & seq_mask) >> bits_offs);
-	uint offset = static_cast<uint>(rowId & ofs_mask);
-	ASSIGN_PTR(pPageSeq, page_seq);
-	ASSIGN_PTR(pOffset, offset);
-	if(page_seq == 0) {
-		ok = 0; // @error
+	const uint bits_offs = Helper_SplitRowId_GetOffsetBits(rowId, pageSize);
+	THROW(bits_offs);
+	{
+		const uint bits_page = GetPageBits(bits_offs);
+		constexpr uint64 seq_mask = (~0ULL >> (64-(RowIdBitWidth-4)));
+		const uint64 ofs_mask = (~0ULL >> (64-bits_offs));
+		const uint page_seq = static_cast<uint>((rowId & seq_mask) >> bits_offs);
+		const uint offset = static_cast<uint>(rowId & ofs_mask);
+		ASSIGN_PTR(pPageSeq, page_seq);
+		ASSIGN_PTR(pOffset, offset);
+		THROW(page_seq > 0); // @todo @err
+		THROW(page_seq < (1ULL << bits_page)); // @todo @err
+		THROW(offset < (1ULL << bits_offs)); // @todo @err
+		THROW(offset < pageSize); // @todo @err
 	}
-	else if(page_seq >= (1ULL << bits_page)) {
-		ok = 0; // @error
-	}
-	else if(offset >= (1ULL << bits_offs)) {
-		ok = 0; // @error
-	}
-	else if(offset >= pageSize) {
-		ok = 0; // @error
-	}
+	CATCHZOK
 	return ok;
 }
+
+/*static*/int SRecPageManager::SplitRowId(uint64 rowId, uint * pPageSeq, uint * pOffset)
+{
+	return SplitRowId_WithPageSizeCheck(rowId, 0, pPageSeq, pOffset);
+}
+
 SRecPageManager::SRecPageManager(uint32 pageSize) : PageSize(pageSize), LastSeq(0)
 {
 }
@@ -62,46 +79,52 @@ SRecPageManager::~SRecPageManager()
 {
 }
 
+int SRecPageManager::WriteToPage(SDataPageHeader * pPage, uint64 rowId, const void * pData, size_t dataLen)
+{
+	int    ok = 1;
+	uint   seq = 0;
+	uint   offset = 0;
+	THROW(pPage);
+	THROW(SRecPageManager::SplitRowId(rowId, &seq, &offset));
+	assert(seq == pPage->Seq); // Вызывающая функция не должна была передать неверное сочетание параметров!
+	{
+		SRecPageFreeList::Entry new_free_entry;
+		assert(offset >= sizeof(*pPage) && offset < pPage->TotalSize);
+		uint64 post_write_rowid = pPage->Write(offset, pData, dataLen, &new_free_entry);
+		THROW(post_write_rowid);
+		assert(post_write_rowid == rowId);
+		Fl.Remove(pPage->Type, post_write_rowid);
+		if(new_free_entry.RowId && new_free_entry.FreeSize > 3) {
+			Fl.Put(pPage->Type, pPage->Seq, new_free_entry.FreeSize);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SRecPageManager::Write(uint64 * pRowId, uint pageType, const void * pData, size_t dataLen)
 {
 	int    ok = 1;
-	SDataPageHeader::RecPrefix pfx;
-	pfx.SetPayload(dataLen, 0);
+	//SDataPageHeader::RecPrefix pfx;
+	//pfx.SetPayload(dataLen, 0);
 	SDataPageHeader * p_page = 0;//QueryPageForWriting(pageType, dataLen);
-	const SRecPageFreeList::Entry * p_free_entry = 0;
+	uint   seq = 0;
 	uint   offset = 0;
-	//SDataPageHeader * SRecPageManager::QueryPageForWriting(uint32 pageType, uint32 reqSize)
-	{
-		//SDataPageHeader * p_result = 0;
-		p_free_entry = Fl.Get(pageType, dataLen);
-		if(!p_free_entry) {
-			SDataPageHeader * p_new_page = AllocatePage(pageType);
-			if(p_new_page) {
-				p_free_entry = Fl.Get(pageType, dataLen);
-				//assert(p_free_entry->Seq == p_new_page->Seq);
-			}
+	const  SRecPageFreeList::Entry * p_free_entry = Fl.Get(pageType, dataLen);
+	if(!p_free_entry) {
+		SDataPageHeader * p_new_page = AllocatePage(pageType);
+		if(p_new_page) {
+			p_free_entry = Fl.Get(pageType, dataLen);
+			//assert(p_free_entry->Seq == p_new_page->Seq);
 		}
-		uint   seq = 0;
-		if(p_free_entry && SRecPageManager::SplitRowId(p_free_entry->RowId, PageSize, &seq, &offset)) {
-			p_page = GetPage(seq);
-		}
-		//return p_result;
 	}
-	if(p_page) {
-		SRecPageFreeList::Entry new_free_entry;
-		assert(offset >= sizeof(*p_page) && offset < p_page->TotalSize);
-		uint64 rowid = p_page->Write(offset, pData, dataLen, &new_free_entry);
-		if(rowid) {
-			assert(rowid == p_free_entry->RowId);
-			Fl.Remove(pageType, rowid);
-			if(new_free_entry.RowId && new_free_entry.FreeSize > 3) {
-				Fl.Put(pageType, p_page->Seq, new_free_entry.FreeSize);
-			}
-			ASSIGN_PTR(pRowId, rowid);
-		}
-		else
-			ok = 0;
-	}
+	THROW(p_free_entry);
+	THROW(SRecPageManager::SplitRowId(p_free_entry->RowId, &seq, &offset));
+	THROW(p_page = GetPage(seq));
+	THROW(p_page->Seq == seq); // @todo @err
+	THROW(WriteToPage(p_page, p_free_entry->RowId, pData, dataLen));
+	ASSIGN_PTR(pRowId, p_free_entry->RowId);
+	CATCHZOK
 	return ok;
 }
 
@@ -154,7 +177,7 @@ SDataPageHeader * SRecPageManager::QueryPageForReading(uint64 rowId, uint32 page
 	uint   ofs = 0;
 	if(rowId) {
 		uint   seq = 0;
-		if(SplitRowId(rowId, PageSize, &seq, &ofs)) {
+		if(SplitRowId(rowId, &seq, &ofs)) {
 			p_result = GetPage(seq);
 			if(p_result && pageType && p_result->Type != pageType) {
 				ReleasePage(p_result);
@@ -686,7 +709,9 @@ const SRecPageFreeList::Entry * SRecPageFreeList::Get(uint32 type, uint32 reqSiz
 	{
 		SDataPageHeader::Stat stat;
 		TSVector <SRecPageFreeList::Entry> free_list;
-		THROW(p_page->GetStat(stat, &free_list));
+		while(false) {
+			THROW(p_page->GetStat(stat, &free_list));
+		}
 	}
 	CATCHZOK
 	return ok;

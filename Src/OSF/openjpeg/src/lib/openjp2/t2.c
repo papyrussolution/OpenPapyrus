@@ -1218,24 +1218,19 @@ static boolint opj_t2_read_packet_header(opj_t2_t* p_t2,
 				}
 			}
 			n = (int32_t)l_cblk->numnewpasses;
-
 			if((p_tcp->tccps[p_pi->compno].cblksty & J2K_CCP_CBLKSTY_HT) != 0)
 				do {
 					uint32_t bit_number;
 					l_cblk->segs[l_segno].numnewpasses = l_segno == 0 ? 1 : (uint32_t)n;
-					bit_number = l_cblk->numlenbits + opj_uint_floorlog2(
-						l_cblk->segs[l_segno].numnewpasses);
+					bit_number = l_cblk->numlenbits + opj_uint_floorlog2(l_cblk->segs[l_segno].numnewpasses);
 					if(bit_number > 32) {
-						opj_event_msg(p_manager, EVT_ERROR,
-						    "Invalid bit number %d in opj_t2_read_packet_header()\n",
-						    bit_number);
+						opj_event_msg(p_manager, EVT_ERROR, "Invalid bit number %d in opj_t2_read_packet_header()\n", bit_number);
 						opj_bio_destroy(l_bio);
 						return FALSE;
 					}
 					l_cblk->segs[l_segno].newlen = opj_bio_read(l_bio, bit_number);
 					JAS_FPRINTF(stderr, "included=%d numnewpasses=%d increment=%d len=%d \n",
-					    l_included, l_cblk->segs[l_segno].numnewpasses, l_increment,
-					    l_cblk->segs[l_segno].newlen);
+					    l_included, l_cblk->segs[l_segno].numnewpasses, l_increment, l_cblk->segs[l_segno].newlen);
 					n -= (int32_t)l_cblk->segs[l_segno].numnewpasses;
 					if(n > 0) {
 						++l_segno;

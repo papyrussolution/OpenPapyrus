@@ -97,14 +97,14 @@ public:
 			if(Flags & sfCancelled) {
 				Flags &= ~sfCancelled;
 				if(ErrCode != SYNCPRN_ERROR_AFTER_PRINT) {
-					ErrCode = (Flags & sfOpenCheck) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
+					ErrCode = (Flags & sfCheckOpened) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
 					ok = 0;
 				}
 			}
 			else {
 				SetErrorMessage();
 				DoBeep();
-				if(Flags & sfOpenCheck)
+				if(Flags & sfCheckOpened)
 					ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
 				ok = 0;
 			}
@@ -775,7 +775,7 @@ private:
 
 	enum AtolDrvFlags {
 		sfConnected     = 0x0001,     // установлена связь с устройством, COM-порт занят
-		sfOpenCheck     = 0x0002,     // чек открыт
+		sfCheckOpened   = 0x0002,     // чек открыт
 		sfCancelled     = 0x0004,     // операция печати чека прервана пользователем
 		sfPrintSlip     = 0x0008,     // печать подкладного документа
 		sfDontUseCutter = 0x0010,     // не использовать отрезчик чеков
@@ -887,7 +887,7 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 
 /*virtual*/int SCS_ATOLDRV::PreprocessChZnCode(int op, const char * pCode, double qtty, int uomId, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult) // @v11.2.12
 {
-	if(op == 0) { // Другие операции этот блок менять не должны!
+	if(op == ppchzcopCheck) { // Другие операции этот блок менять не должны!
 		rResult.Z();
 	}
 	int    ok = 1;
@@ -896,7 +896,7 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 	StateBlock stb;
 	THROW(Connect(&stb));
 	if(P_Fptr10 && P_Fptr10->IsValid() && P_Fptr10->ProcessJsonProc) {
-		if(op == 100) { // 100 - предварителные операции перед проверкой марок по чеку. Может быть актуально для некоторых типов регистраторов.
+		if(op == ppchzcopInit) {
 			{
 				SJson  js(SJson::tOBJECT);
 				js.InsertString("type", "cancelMarkingCodeValidation");
@@ -908,7 +908,7 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 				THROW(CallJsonProc(&js, temp_buf));
 			}
 		}
-		else if(op == 0) { // Проверка марки
+		else if(op == ppchzcopCheck) {
 			{
 				SJson  js(SJson::tOBJECT);
 				js.InsertString("type", "beginMarkingCodeValidation");
@@ -1068,12 +1068,12 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 				} while(mcv_status < 0 && try_no < max_tries);
 			}
 		}
-		else if(op == 1) { //   1 - акцепт марки. должна быть вызвана непосредственно после вызова PreprocessChZnCode(0, ...)
+		else if(op == ppchzcopAccept) {
 			SJson  js(SJson::tOBJECT);
 			js.InsertString("type", "acceptMarkingCode");
 			THROW(CallJsonProc(&js, temp_buf));			
 		}
-		else if(op == 2) { //   2 - отказ от акцепта марки. должна быть вызвана непосредственно после вызова PreprocessChZnCode(0, ...)
+		else if(op == ppchzcopReject) {
 			SJson  js(SJson::tOBJECT);
 			js.InsertString("type", "declineMarkingCode");
 			THROW(CallJsonProc(&js, temp_buf));			
@@ -1392,7 +1392,7 @@ int SCS_ATOLDRV::AllowPrintOper(uint id)
 		// (иначе при сбое операции открытия чека неизвестно: чек уже открыт или нет)
 		THROW(GetProp(CheckState, &chk_state));
 		if(chk_state != CHKST_CLOSE)
-			Flags |= sfOpenCheck;
+			Flags |= sfCheckOpened;
 		// Ожидание заправки чековой ленты или выхода из режима, когда нельзя печатать чек
 		while(ok && last_res_code == RESCODE_NOPAPER || (last_res_code == RESCODE_MODE_OFF && IsModeOffPrint(mode))) {
 			int  send_msg = 0, r = 0;
@@ -2097,7 +2097,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						THROW(SetProp(CheckType, (flags & PRNCHK_RETURN) ? 2L : 1L));
 						THROW(ExecOper(OpenCheck));
 					}
-					Flags |= sfOpenCheck;
+					Flags |= sfCheckOpened;
 					debug_log_buf.Space().CatChar('{');
 					for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
 						if(sl_param.Flags & SlipLineParam::fRegFiscal) {
@@ -2290,7 +2290,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 								THROW(SetProp(Department, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 : static_cast<int32>(sl_param.DivID)));
 								THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
 							}
-							Flags |= sfOpenCheck;
+							Flags |= sfCheckOpened;
 							prn_total_sale = false;
 						}
 						else if(sl_param.Kind == sl_param.lkBarcode) {
@@ -2378,7 +2378,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 								THROW(SetProp(Price, pp));
 								THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
 							}
-							Flags |= sfOpenCheck;
+							Flags |= sfCheckOpened;
 							running_total += amt;
 						}
 					}
@@ -2415,7 +2415,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 						THROW(SetProp(Department, (division > 16 || division < 0) ? 0 : division));
 						THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
 					}
-					Flags |= sfOpenCheck;
+					Flags |= sfCheckOpened;
 				}
 				// Информация о скидке
 				THROW(PrintDiscountInfo(pPack, flags));
@@ -2450,7 +2450,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 				THROW(ExecOper(CloseCheck));
 				THROW(Exec(ResetMode));
 			}
-			Flags &= ~sfOpenCheck;
+			Flags &= ~sfCheckOpened;
 			ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
 			if(!(Flags & sfDontUseCutter)) {
 				CutPaper(0);
@@ -2464,7 +2464,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			if(ErrCode != SYNCPRN_ERROR_AFTER_PRINT) {
 				SString no_print_txt;
 				PPLoadText(PPTXT_CHECK_NOT_PRINTED, no_print_txt);
-				ErrCode = (Flags & sfOpenCheck) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
+				ErrCode = (Flags & sfCheckOpened) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
 				PPLogMessage(PPFILNAM_ATOLDRV_LOG, pPack ? CCheckCore::MakeCodeString(&pPack->Rec, 0, no_print_txt) : "", LOGMSGF_TIME|LOGMSGF_USER);
 				ok = 0;
 			}
@@ -2472,17 +2472,17 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		else {
 			SetErrorMessage();
 			DoBeep();
-			if(Flags & sfOpenCheck)
+			if(Flags & sfCheckOpened)
 				ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
 			PPLogMessage(PPFILNAM_ATOLDRV_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 			ok = 0;
 		}
 		if(P_Fptr10) {
-			if(Flags & sfOpenCheck)
+			if(Flags & sfCheckOpened)
 				P_Fptr10->CancelReceiptProc(fph);
 		}
 		else if(P_Disp) {
-			if(Flags & sfOpenCheck)
+			if(Flags & sfCheckOpened)
 				ExecOper(CancelCheck);
 			Exec(ResetMode);
 		}
@@ -2552,7 +2552,7 @@ int SCS_ATOLDRV::PrintReport(int withCleaning)
 	PPSyncCashSession::GetCurrentUserName(operator_name);
 	operator_name.Transf(CTRANSF_INNER_TO_OUTER);
 	//
-	Flags |= sfOpenCheck;
+	Flags |= sfCheckOpened;
 	if(P_Fptr10) {
 		void * fph = P_Fptr10->Handler;
 		//libfptr_set_param_str(fptr, 1021, L"Кассир Иванов И.");
@@ -2591,8 +2591,8 @@ int SCS_ATOLDRV::PrintReport(int withCleaning)
 		}
 		ok = 0;
 	ENDCATCH
-	if(Flags & sfOpenCheck) {
-		Flags &= ~sfOpenCheck;
+	if(Flags & sfCheckOpened) {
+		Flags &= ~sfCheckOpened;
 		CashierPassword = cshr_pssw;
 	}
 	return ok;
@@ -2673,7 +2673,7 @@ int SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 	else if(P_Disp) {
 		THROW(SetProp(Mode, MODE_REGISTER));
 		THROW(ExecOper(SetMode));
-		Flags |= sfOpenCheck;
+		Flags |= sfCheckOpened;
 		THROW(SetProp(Summ, sum));
 		THROW(ExecOper(isIncome ? CashIncome : CashOutcome));
 	}
@@ -2694,7 +2694,7 @@ int SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 	if(P_Disp) {
 		THROW(Exec(ResetMode));
 	}
-	Flags &= ~sfOpenCheck;
+	Flags &= ~sfCheckOpened;
 	return ok;
 }
 

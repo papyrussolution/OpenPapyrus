@@ -618,6 +618,9 @@ int ACS_FRONTOL::ExportData(int updOnly)
 								if(gds_info.ChZnProdType == GTCHZNPT_DRAFTBEER) {
 									mark_type = 18;
 								}
+								else if(gds_info.ChZnProdType == GTCHZNPT_BEER) { // @v12.0.4
+									mark_type = 17;
+								}
 							}
 							// } @v11.9.3 
                             tail.Cat(mark_type).Semicol();                                      // #55 Признак алкогольной продукции // @v11.9.3 1L-->mark_type

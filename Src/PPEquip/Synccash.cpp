@@ -140,7 +140,7 @@ private:
 
 	enum DevFlags {
 		sfConnected     = 0x0001, // установлена связь с ККМ, COM-порт занят
-		sfOpenCheck     = 0x0002, // чек открыт
+		sfCheckOpened     = 0x0002, // чек открыт
 		sfCancelled     = 0x0004, // операция печати чека прервана пользователем
 		sfPrintSlip     = 0x0010, // печать подкладного документа
 		sfDontUseCutter = 0x0020, // не использовать отрезчик чеков
@@ -564,20 +564,20 @@ int  SCS_SYNCCASH::AnnulateCheck()
 	GetStatus(status);
 	// Проверка на незавершенную печать
 	if(status & PRNMODE_AFTER_NO_PAPER) {
-		Flags |= sfOpenCheck;
+		Flags |= sfCheckOpened;
 		THROW(ExecPrintOper(DVCCMD_CONTINUEPRINT, Arr_In.Z(), Arr_Out));
 		do {
 			GetStatus(status);
 		} while(status & PRNMODE_PRINT);
-		Flags &= ~sfOpenCheck;
+		Flags &= ~sfCheckOpened;
 	}
 	// Проверка на наличие открытого чека, который надо аннулировать
 	// @v10.1.0 GetStatus(status);
 	if(status & FRMODE_OPEN_CHECK) {
-		Flags |= (sfOpenCheck | sfCancelled);
+		Flags |= (sfCheckOpened | sfCancelled);
 		PPMessage(mfInfo|mfOK, PPINF_SHTRIHFR_CHK_ANNUL, 0);
 		THROW(ExecPrintOper(DVCCMD_ANNULATE, Arr_In.Z(), Arr_Out));
-		Flags &= ~(sfOpenCheck | sfCancelled);
+		Flags &= ~(sfCheckOpened | sfCancelled);
 		ok = 1;
 	}
 	CATCHZOK
@@ -590,7 +590,7 @@ int SCS_SYNCCASH::PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * 
 	SString temp_buf;
 	ResCode = RESCODE_NO_ERROR;
 	THROW(Connect());
-	Flags |= sfOpenCheck;
+	Flags |= sfCheckOpened;
 	Arr_In.Z();
 	/*
 	struct FiscalCorrection {
@@ -662,7 +662,7 @@ int SCS_SYNCCASH::PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * 
 			ok = 0;
 		}
 	ENDCATCH
-	Flags &= ~sfOpenCheck;
+	Flags &= ~sfCheckOpened;
 	return ok;
 }
 
@@ -792,7 +792,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						PROFILE_END
 					}
 				}
-				Flags |= sfOpenCheck;
+				Flags |= sfCheckOpened;
 				for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
 					Arr_In.Z();
 					if(sl_param.Flags & SlipLineParam::fRegFiscal) {
@@ -900,7 +900,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						THROW(PutPrescription(prescr)); // @v11.8.0 // @v11.9.3 (one call)
 						THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
 						PROFILE_END
-						Flags |= sfOpenCheck;
+						Flags |= sfCheckOpened;
 						prn_total_sale = 0;
 					}
 					else if(sl_param.Kind == sl_param.lkBarcode) {
@@ -951,14 +951,14 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, 1L));
 							THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, amt));
 							THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
-							Flags |= sfOpenCheck;
+							Flags |= sfCheckOpened;
 							running_total += amt;
 						}
 						else /*if(fiscal != 0.0)*/ {
 							THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, 1L));
 							THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, _fiscal));
 							THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
-							Flags |= sfOpenCheck;
+							Flags |= sfCheckOpened;
 							running_total += _fiscal;
 						}
 						PROFILE_END
@@ -992,7 +992,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 				// Отдел
 				THROW(ArrAdd(Arr_In, DVCPARAM_DEPARTMENT, (division > 16 || division < 0) ? 0 : division));
 				THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
-				Flags |= sfOpenCheck;
+				Flags |= sfCheckOpened;
 			}
 			// Информация о скидке
 			THROW(PrintDiscountInfo(pPack, flags));
@@ -1028,7 +1028,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		}
 		// } @v11.3.6 
 		THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out)); // Всегда закрываем чек
-		Flags &= ~sfOpenCheck;
+		Flags &= ~sfCheckOpened;
 		ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
 		Arr_In.Z();
 		THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, 0));
@@ -1048,14 +1048,14 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 			if(ErrCode != SYNCPRN_ERROR_AFTER_PRINT) {
 				SString no_print_txt;
 				PPLoadText(PPTXT_CHECK_NOT_PRINTED, no_print_txt);
-				ErrCode = (Flags & sfOpenCheck) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
+				ErrCode = (Flags & sfCheckOpened) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
 				PPLogMessage(PPFILNAM_SHTRIH_LOG, CCheckCore::MakeCodeString(&pPack->Rec, 0, no_print_txt), LOGMSGF_TIME|LOGMSGF_USER);
 				ok = 0;
 			}
 		}
 		else {
 			SetErrorMessage();
-			if(Flags & sfOpenCheck)
+			if(Flags & sfCheckOpened)
 				ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
 			ok = 0;
 		}
@@ -1230,7 +1230,7 @@ int SCS_SYNCCASH::PrintReport(int withCleaning)
 	int    ok = 1;
 	ResCode = RESCODE_NO_ERROR;
 	THROW(Connect());
-	Flags |= sfOpenCheck;
+	Flags |= sfCheckOpened;
 	Arr_In.Z();
 	if(withCleaning) {
 		THROW(ExecPrintOper(DVCCMD_ZREPORT, Arr_In, Arr_Out));
@@ -1248,7 +1248,7 @@ int SCS_SYNCCASH::PrintReport(int withCleaning)
 			ok = 0;
 		}
 	ENDCATCH
-	Flags &= ~sfOpenCheck;
+	Flags &= ~sfCheckOpened;
 	return ok;
 }
 
@@ -1641,7 +1641,7 @@ int SCS_SYNCCASH::PrintIncasso(double sum, int isIncome)
 	ResCode = RESCODE_NO_ERROR;
 	int    ok = 1;
 	THROW(Connect());
-	Flags |= sfOpenCheck;
+	Flags |= sfCheckOpened;
 	if(isIncome) {
 		Arr_In.Z();
 		THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, DEPOSITCHECK));
@@ -1672,7 +1672,7 @@ int SCS_SYNCCASH::PrintIncasso(double sum, int isIncome)
 			ok = 0;
 		}
 	ENDCATCH
-	Flags &= ~sfOpenCheck;
+	Flags &= ~sfCheckOpened;
 	return ok;
 }
 
@@ -1689,13 +1689,13 @@ int SCS_SYNCCASH::OpenBox()
 		if(Flags & sfCancelled) {
 			Flags &= ~sfCancelled;
 			if(ErrCode != SYNCPRN_ERROR_AFTER_PRINT) {
-				ErrCode = (Flags & sfOpenCheck) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
+				ErrCode = (Flags & sfCheckOpened) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
 				ok = 0;
 			}
 		}
 		else {
 			SetErrorMessage();
-			if(Flags & sfOpenCheck)
+			if(Flags & sfCheckOpened)
 				ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
 			ok = PPErrorZ();
 		}
@@ -1747,7 +1747,7 @@ int SCS_SYNCCASH::AllowPrintOper()
 	// @v10.1.0 (избыточная команда - выше была уже вызвана) GetStatus(status);
 	if(status & NO_PAPER) {
 		if(status & FRMODE_OPEN_CHECK)
-			Flags |= sfOpenCheck;
+			Flags |= sfCheckOpened;
 		while(status & NO_PAPER) {
 			int  send_msg = 0, r;
 			PPSetError(PPERR_SYNCCASH_NO_CHK_RBN);

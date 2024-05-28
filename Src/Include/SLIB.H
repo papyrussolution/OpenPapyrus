@@ -7732,6 +7732,9 @@ public:
 #endif
 	static FORCEINLINE uint32 Rotr(ulong x, uint n) { return Rotr((uint32)x, n); }
 	static FORCEINLINE uint32 Rotl(ulong x, uint n) { return Rotl((uint32)x, n); }
+	//
+	static FORCEINLINE uint32 CeilLog2(uint32 x) { return x ? (32 - Clz(x - 1)) : 0; } // @v12.0.4
+	static FORCEINLINE uint64 CeilLog2(uint64 x) { return x ? (64 - Clz(x - 1)) : 0; } // @v12.0.4
 };
 //
 // Encrypt / Decrypt functions

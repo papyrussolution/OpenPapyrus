@@ -931,40 +931,28 @@ static INLINE boolint opj_tcd_init_tile(opj_tcd_t * p_tcd, uint32_t p_tile_no, b
 					/* BUG_WEIRD_TWO_INVK (look for this identifier in dwt.c): */
 					/* the test (!isEncoder && l_tccp->qmfbid == 0) is strongly */
 					/* linked to the use of two_invK instead of invK */
-					const int32_t log2_gain = (!isEncoder &&
-					    l_tccp->qmfbid == 0) ? 0 : (l_band->bandno == 0) ? 0 :
-					    (l_band->bandno == 3) ? 2 : 1;
-
+					const int32_t log2_gain = (!isEncoder && l_tccp->qmfbid == 0) ? 0 : (l_band->bandno == 0) ? 0 : (l_band->bandno == 3) ? 2 : 1;
 					/* Nominal dynamic range. Equation E-4 */
 					const int32_t Rb = (int32_t)l_image_comp->prec + log2_gain;
-
 					/* Delta_b value of Equation E-3 in "E.1 Inverse quantization
 					 * procedure" of the standard */
-					l_band->stepsize = (float)(((1.0 + l_step_size->mant / 2048.0) * pow(2.0,
-					    (int32_t)(Rb - l_step_size->expn))));
+					l_band->stepsize = (float)(((1.0 + l_step_size->mant / 2048.0) * pow(2.0, (int32_t)(Rb - l_step_size->expn))));
 				}
-
 				/* Mb value of Equation E-2 in "E.1 Inverse quantization
 				 * procedure" of the standard */
-				l_band->numbps = l_step_size->expn + (int32_t)l_tccp->numgbits -
-				    1;
-
+				l_band->numbps = l_step_size->expn + (int32_t)l_tccp->numgbits - 1;
 				if(!l_band->precincts && (l_nb_precincts > 0U)) {
-					l_band->precincts = (opj_tcd_precinct_t*)opj_malloc(/*3 * */
-						l_nb_precinct_size);
+					l_band->precincts = (opj_tcd_precinct_t*)opj_malloc(/*3 * */ l_nb_precinct_size);
 					if(!l_band->precincts) {
-						opj_event_msg(manager, EVT_ERROR,
-						    "Not enough memory to handle band precints\n");
+						opj_event_msg(manager, EVT_ERROR, "Not enough memory to handle band precints\n");
 						return FALSE;
 					}
-					/*fprintf(stderr, "\t\t\t\tAllocate precincts of a band (opj_tcd_precinct_t):
-					   %d\n",l_nb_precinct_size);     */
+					/*fprintf(stderr, "\t\t\t\tAllocate precincts of a band (opj_tcd_precinct_t):%d\n",l_nb_precinct_size);     */
 					memzero(l_band->precincts, l_nb_precinct_size);
 					l_band->precincts_data_size = l_nb_precinct_size;
 				}
 				else if(l_band->precincts_data_size < l_nb_precinct_size) {
-					opj_tcd_precinct_t * new_precincts = (opj_tcd_precinct_t*)opj_realloc(
-						l_band->precincts, /*3 * */ l_nb_precinct_size);
+					opj_tcd_precinct_t * new_precincts = (opj_tcd_precinct_t*)opj_realloc(l_band->precincts, /*3 * */ l_nb_precinct_size);
 					if(!new_precincts) {
 						opj_event_msg(manager, EVT_ERROR, "Not enough memory to handle band precints\n");
 						SAlloc::F(l_band->precincts);

@@ -2550,7 +2550,6 @@ int PiritEquip::RunCheck(int opertype)
 								CreateStr("", in_data); // #13 (tag 1073) Телефон(ы) платежного агента (для пл.агента/субагента, иначе пустой) 
 								CreateStr("", in_data); // #14 (tag 1074) Телефон(ы) оператора по приему платежей (для пл.агента/субагента, иначе пустой) 
 								CreateStr("030"/*GTCHZNPT_DRAFTBEER*/, in_data); // #15 (tag 1262) Идентификатор ФОИВ. Значение определяется ФНС РФ. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
-								
 								// @v11.9.3 str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_DMY|DATF_NODIV|DATF_CENTURY); // @v11.2.3 // @v11.2.7
 								str.Z().Cat("26032022"); // @v11.9.3
 								//str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_DMY | DATF_NODIV | DATF_CENTURY);
@@ -2567,7 +2566,8 @@ int PiritEquip::RunCheck(int opertype)
 									// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								// @v11.2.3 {
 								{
-									str.Z();
+									// @v12.0.4 str.Z();
+									str.Z().Cat("mode=horeca"); // @v12.0.4
 									CreateStr(str, in_data); // #18 (tag 1265) Значение отраслевого реквизита. Значение определяется отраслевым НПА. 
 										// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								}
@@ -2687,7 +2687,7 @@ int PiritEquip::RunCheck(int opertype)
 										CreateStr(str, in_data); // #15 (tag 1262) Идентификатор ФОИВ. Значение определяется ФНС РФ. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 									}
 									// @v11.9.3 str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_DMY|DATF_NODIV|DATF_CENTURY); // @v11.2.3 // @v11.2.7
-									str.Z().Cat("26.03.2022"); // @v11.9.3 // @v12.0.3 @fix "26032022"-->"26.03.2022"
+									str.Z().Cat("26032022"); // @v11.9.3
 									CreateStr(str, in_data); // #16 (tag 1263) Дата документа основания. Допускается дата после 1999 года. 
 										// Должен содержать сведения об НПА отраслевого регулирования. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 									/* @v11.9.3 if(Check.CheckNum > 0)
