@@ -213,6 +213,7 @@ public:
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int GetSummator(double * val);
+	virtual int OpenSession_(PPID sessID);
 	virtual int CloseSession(PPID sessID);
 	virtual int PrintXReport(const CSessInfo *);
 	virtual int PrintZReportCopy(const CSessInfo *);
@@ -400,6 +401,8 @@ private:
 		TaxType,                          // @v11.2.11
 		FNCheckItemBarcode,               // @v11.6.6
 		FNCheckItemBarcode2,              // @v11.6.6
+		FNAcceptMarkingCode,              // @v12.0.4
+		FNDeclineMarkingCode,             // @v12.0.4
 		BarcodeHex,                       // @v11.6.6
 		ItemStatus,                       // @v11.6.6
 		CheckItemMode,                    // @v11.6.6
@@ -419,6 +422,8 @@ private:
 		ComputerName,                     // @v12.0.3 
 		ServerConnected,                  // @v12.0.3 
 		ServerVersion,                    // @v12.0.3 
+		OpenSession,                      // @v12.0.4
+		AuthKey,                          // @v12.0.4
 	};
 	//
 	// Descr: Методы вывода штрихкодов
@@ -475,6 +480,7 @@ private:
 		extmethfServerConnect          = 0x00010000, // @v12.0.3
 		extmethfServerDisconnect       = 0x00020000, // @v12.0.3
 		extmethfConnect2               = 0x00040000, // @v12.0.3
+		extmethfOpenSession            = 0x00080000, // @v12.0.4
 	};
 	static uint ExtMethodsFlags;   // @v10.6.3 Флаги успешности получения расширенных методов драйвера
 	long   CashierPassword;    // Пароль кассира
@@ -1022,11 +1028,15 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 									case GTCHZNPT_CARTIRE: marking_type = 0x444D; break; // @v10.9.7
 									case GTCHZNPT_MILK: marking_type = 0x444D; break; // @v11.5.7
 									case GTCHZNPT_WATER: marking_type = 0x444D; break; // @v11.5.7
+									case GTCHZNPT_DIETARYSUPPLEMENT: marking_type = 0x444D; break; // @v12.0.4
+									case GTCHZNPT_BEER: marking_type = 0x444D; break; // @v12.0.4
+									case GTCHZNPT_DRAFTBEER: marking_type = 0x444D; break; // @v12.0.4
+									case GTCHZNPT_TEXTILE: marking_type = 0x444D; break; // @v12.0.4
 								}
 								if(marking_type) {
 									THROW(SetFR(MarkingType, marking_type));
 									THROW(SetFR(GTIN, sl_param.ChZnGTIN));
-									(temp_buf = sl_param.ChZnSerial).Align(13, ADJ_LEFT);
+									(temp_buf = sl_param.ChZnSerial)/* @v12.0.4 .Align(13, ADJ_LEFT)*/;
 									THROW(SetFR(SerialNumber, temp_buf));
 									THROW(ExecFRPrintOper(FNSendItemCodeData));
 								}
@@ -1665,6 +1675,18 @@ int SCS_SHTRIHFRF::PrintReport(int withCleaning)
 	return ok;
 }
 
+/*virtual*/int SCS_SHTRIHFRF::OpenSession_(PPID sessID)
+{
+	int    ok = 1;
+	ResCode = RESCODE_NO_ERROR;
+	THROW(ConnectFR());
+	THROW(ExecFR(OpenSession));
+	//Arr_In.Z();
+	//THROW(ExecPrintOper(DVCCMD_OPENSESSION, Arr_In, Arr_Out));
+	CATCHZOK
+	return ok;
+}
+
 int SCS_SHTRIHFRF::CloseSession(PPID sessID) { return PrintReport(1); }
 int SCS_SHTRIHFRF::PrintXReport(const CSessInfo *) { return PrintReport(0); }
 
@@ -1796,6 +1818,8 @@ FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 		IFC_ENTRY_SS(ServerConnect, ExtMethodsFlags, extmethfServerConnect), // @v12.0.3
 		IFC_ENTRY_SS(ServerDisconnect, ExtMethodsFlags, extmethfServerDisconnect), // @v12.0.3
 		IFC_ENTRY_SS(Connect2, ExtMethodsFlags, extmethfConnect2), // @v12.0.3
+		IFC_ENTRY_SS(OpenSession, ExtMethodsFlags, extmethfOpenSession), // @v12.0.4
+		IFC_ENTRY(AuthKey),                          // @v12.0.4
 		IFC_ENTRY(ComputerName),                     // @v12.0.3 
 		IFC_ENTRY(ServerConnected),                  // @v12.0.3 
 		IFC_ENTRY(ServerVersion),                    // @v12.0.3
@@ -1912,6 +1936,8 @@ FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 		IFC_ENTRY(TagValueStr),    // @v10.9.0
 		IFC_ENTRY(FNAddTag),       // @v10.9.0
 		IFC_ENTRY(FNSendSTLVTag),  // @v10.9.0
+		IFC_ENTRY(FNAcceptMarkingCode),  // @v12.0.4
+		IFC_ENTRY(FNDeclineMarkingCode), // @v12.0.4
 		IFC_ENTRY_SS(FNCheckItemBarcode,     ExtMethodsFlags, extmethfFNCheckItemBarcode),     // @v11.6.6 / !
 		IFC_ENTRY_SS(FNCheckItemBarcode2,    ExtMethodsFlags, extmethfFNCheckItemBarcode2),    // @v11.6.6 / !
 		IFC_ENTRY_SS(BarcodeHex,             ExtMethodsFlags, extmethfBarcodeHex),             // @v11.6.6
@@ -2401,7 +2427,9 @@ bool SCS_SHTRIHFRF::GetFR(int id, char * pBuf, size_t bufLen)
 int SCS_SHTRIHFRF::GetResultCode(int methID)
 {
 	const  int func_without_retcode_checking[] = { GetECRStatus, Beep, Connect, OpenCheck, FNOperation, CloseCheckEx, CloseCheck,
-		FeedDocument, FNCheckItemBarcode, FNCheckItemBarcode2 }; // @v11.7.12 FeedDocument // @v12.0.3 FNCheckItemBarcode, FNCheckItemBarcode2
+		FeedDocument, FNCheckItemBarcode, FNCheckItemBarcode2, 
+		FNAcceptMarkingCode, FNDeclineMarkingCode, // @v12.0.4
+		OpenSession, FNSendItemCodeData }; // @v11.7.12 FeedDocument // @v12.0.3 FNCheckItemBarcode, FNCheckItemBarcode2
 	int    ok = 1;
 	{
 		if(methID == ServerConnect) {
@@ -2700,15 +2728,15 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 	SString temp_buf;
 	SString msg_buf;
 	if(op == ppchzcopInit) {
-		THROW(SetFR(CheckType, 0L/*Продажа*/));
-		THROW(ExecFRPrintOper(OpenCheck));
-		Flags |= sfCheckOpened;
+		//THROW(SetFR(CheckType, 0L/*Продажа*/));
+		//THROW(ExecFRPrintOper(OpenCheck));
+		//Flags |= sfCheckOpened;
 	}
 	else if(op == ppchzcopCancel) {
-		if(Flags & sfCheckOpened) {
-			THROW(ExecFRPrintOper(CancelCheck));
-			Flags &= ~(sfCheckOpened | sfCancelled);
-		}
+		//if(Flags & sfCheckOpened) {
+			//THROW(ExecFRPrintOper(CancelCheck));
+			//Flags &= ~(sfCheckOpened | sfCancelled);
+		//}
 	}
 	else if(op == ppchzcopCheck) {
 		rResult.CheckResult = 0;
@@ -2797,6 +2825,7 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 							THROW(GetFR(CheckItemLocalError, &item_local_error));
 							THROW(GetFR(MarkingType2, &marking_type));
 							THROW(GetFR(KMServerErrorCode, &svr_err_code));
+							THROW(GetFR(KMServerCheckingStatus, &svr_checking_status));
 							THROW(GetFR(TLVDataHex, tlv_data_hex, sizeof(tlv_data_hex)-1));
 							rResult.CheckResult = svr_checking_status;
 							rResult.Reason = item_local_error;
@@ -2815,6 +2844,12 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 				}
 			}
 		}
+	}
+	else if(op == ppchzcopAccept) {
+		THROW(ExecFR(FNAcceptMarkingCode));
+	}
+	else if(op == ppchzcopReject) {
+		THROW(ExecFR(FNDeclineMarkingCode));
 	}
 	CATCH
 		ok = LogLastError(); // @v11.6.9

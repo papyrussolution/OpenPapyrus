@@ -1,5 +1,5 @@
 // DBTABLE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -482,8 +482,7 @@ int DBTable::Btr_Implement_UpdateRec(const void * pDataBuf, int ncc)
 				temp_buf.Write(P_DBuf, FixRecSize);
 				temp_buf.Write(lob_buffer.constptr(), lob_buffer.GetAvailableSize());
 				p_data_buf = (char *)temp_buf.constptr(); // @badcast
-				// @v9.1.12 @fix retBufLen = (uint16)lob_size;
-				retBufLen = (RECORDSIZE)temp_buf.GetAvailableSize(); // @v9.1.12 @fix
+				retBufLen = (RECORDSIZE)temp_buf.GetAvailableSize();
 			}
 		}
 		else {

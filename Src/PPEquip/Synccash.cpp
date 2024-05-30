@@ -104,7 +104,7 @@ public:
 	virtual int PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int GetSummator(double * val);
 	virtual int GetDeviceTime(LDATETIME * pDtm);
-	virtual int OpenSession(PPID sessID); // @v11.2.12
+	virtual int OpenSession_(PPID sessID); // @v11.2.12
 	virtual int CloseSession(PPID sessID);
 	virtual int PrintXReport(const CSessInfo *);
 	virtual int PrintZReportCopy(const CSessInfo *);
@@ -466,11 +466,11 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, int uomId, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult)
 {
 	int    ok = -1;
-	if(op == 100) { // 100 - предварительные операции перед проверкой марок по чеку. Может быть актуально для некоторых типов регистраторов.
+	if(op == ppchzcopInit) {
 		;
 	}
 	// @v11.9.4 {
-	else if(op == 101) {
+	else if(op == ppchzcopSurrogateCheck) {
 		rResult.CheckResult = 0;
 		rResult.Reason = 0;
 		rResult.ProcessingResult = 0;
@@ -488,7 +488,7 @@ int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, in
 		}
 	}
 	// } @v11.9.4
-	else if(op == 0) {
+	else if(op == ppchzcopCheck) {
 		rResult.CheckResult = 0;
 		rResult.Reason = 0;
 		rResult.ProcessingResult = 0;
@@ -547,7 +547,7 @@ int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, in
 			}
 		}
 	}
-	else if(oneof2(op, 1, 2)) {
+	else if(oneof2(op, ppchzcopAccept, ppchzcopReject)) {
 		THROW(Connect());
 		Arr_In.Z();
 		THROW(ExecOper((op == 2) ? DVCCMD_REJECTCHZNCODE : DVCCMD_ACCEPTCHZNCODE, Arr_In, Arr_Out));
@@ -1212,7 +1212,7 @@ void SCS_SYNCCASH::CutLongTail(SString & rBuf)
 
 int SCS_SYNCCASH::CloseSession(PPID sessID) { return PrintReport(1); }
 
-int SCS_SYNCCASH::OpenSession(PPID sessID) // @v11.2.12
+int SCS_SYNCCASH::OpenSession_(PPID sessID) // @v11.2.12
 {
 	int    ok = 1;
 	ResCode = RESCODE_NO_ERROR;

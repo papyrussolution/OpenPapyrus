@@ -77,21 +77,20 @@ private:
 
 	class  OpLogBlock {
 	public:
-		OpLogBlock(const char * pLogFileName, const char * pOp, const char * pExtMsg) : StartClk(clock()), Op(pOp), ExtMsg(pExtMsg) //конструктор. на вход идут 3 строки 
-		{																															//+ время с  начала работы программы (в тактах)
-			LogFileName = 0/*pLogFileName*/; // @v9.7.1 pLogFileName-->0
-			LogFileName = pLogFileName;
-			if (LogFileName.NotEmpty() && Op.NotEmpty()) {
+		OpLogBlock(const char * pLogFileName, const char * pOp, const char * pExtMsg) : StartClk(clock()), 
+			Op(pOp), ExtMsg(pExtMsg), LogFileName(pLogFileName) //конструктор. на вход идут 3 строки + время с  начала работы программы (в тактах)
+		{																															
+			if(LogFileName.NotEmpty() && Op.NotEmpty()) {
 				SString line_buf;
 				line_buf.CatCurDateTime(DATF_DMY|DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("start");
-				if (ExtMsg.NotEmpty())
+				if(ExtMsg.NotEmpty())
 					line_buf.Tab().Cat(ExtMsg);
 				SLS.LogMessage(LogFileName, line_buf, 8192);
 			}
 		}
 		~OpLogBlock()
 		{
-			if (LogFileName.NotEmpty() && Op.NotEmpty()) {
+			if(LogFileName.NotEmpty() && Op.NotEmpty()) {
 				const long end_clk = clock();
 				SString line_buf;
 				line_buf.CatCurDateTime(DATF_DMY|DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("finish").Tab().Cat(end_clk - StartClk);

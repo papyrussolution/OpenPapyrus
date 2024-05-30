@@ -294,7 +294,7 @@ int PPCashMachine::SyncOpenSession(LDATE * pDate)
 	// @v11.3.12 {
 	if(!(NodeRec.ExtFlags & CASHFX_SYNCOPENSESSSOFT)) { // @v11.4.7
 		assert(P_SyncIntrf);
-		CALLPTRMEMB(P_SyncIntrf, OpenSession(new_sess_id));
+		CALLPTRMEMB(P_SyncIntrf, OpenSession_(new_sess_id));
 	}
 	// } @v11.3.12
 	DS.SetOperDate(dtm);

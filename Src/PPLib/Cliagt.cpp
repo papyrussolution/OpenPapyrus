@@ -1104,8 +1104,8 @@ int FASTCALL PPSupplAgreement::ExchangeParam::Copy(const PPSupplAgreement::Excha
 	CPY_FLD(ExtString);
 	CPY_FLD(Fb);
 #undef CPY_FLD
-	DebtDimList = rS.DebtDimList; // @v9.1.3
-	WhList = rS.WhList; // @v9.9.5
+	DebtDimList = rS.DebtDimList;
+	WhList = rS.WhList;
 	return 1;
 }
 
@@ -1191,8 +1191,8 @@ PPSupplAgreement::ExchangeParam & PPSupplAgreement::ExchangeParam::Z()
 	ConnAddr.Z();
 	ExtString.Z();
 	MEMSZERO(Fb);
-	DebtDimList.Set(0); // @v9.1.3
-	WhList.Set(0); // @v9.9.5
+	DebtDimList.Set(0);
+	WhList.Set(0);
 	return *this;
 }
 
@@ -1211,18 +1211,18 @@ int FASTCALL PPSupplAgreement::ExchangeParam::IsEq(const ExchangeParam & rS) con
 	CMP_FLD(ProtVer);
 	CMP_FLD(ConnAddr);
 	CMP_FLD(ExtString);
-	CMP_FLD(Fb.DefUnitID); // @v9.2.4
-	CMP_FLD(Fb.CliCodeTagID); // @v9.4.4
-	CMP_FLD(Fb.LocCodeTagID); // @v9.4.4
-	CMP_FLD(Fb.BillAckTagID); // @v9.5.7
-	CMP_FLD(Fb.SequenceID); // @v9.4.2
-	CMP_FLD(Fb.StyloPalmID); // @v9.5.5
-	CMP_FLD(Fb.GoodsTagID); // @v9.9.5
-	CMP_FLD(Fb.NativeGIdType); // @v9.9.5
-	CMP_FLD(Fb.ForeignGIdType); // @v9.9.5
+	CMP_FLD(Fb.DefUnitID);
+	CMP_FLD(Fb.CliCodeTagID);
+	CMP_FLD(Fb.LocCodeTagID);
+	CMP_FLD(Fb.BillAckTagID);
+	CMP_FLD(Fb.SequenceID);
+	CMP_FLD(Fb.StyloPalmID);
+	CMP_FLD(Fb.GoodsTagID);
+	CMP_FLD(Fb.NativeGIdType);
+	CMP_FLD(Fb.ForeignGIdType);
 #undef CMP_FLD
-	if(!DebtDimList.IsEq(rS.DebtDimList)) return 0; // @v9.1.3
-	if(!WhList.IsEq(rS.WhList)) return 0; // @v9.9.5
+	if(!DebtDimList.IsEq(rS.DebtDimList)) return 0;
+	if(!WhList.IsEq(rS.WhList)) return 0;
 	return 1;
 }
 
@@ -1258,7 +1258,7 @@ int PPSupplAgreement::ExchangeParam::Serialize_Before_v9905_(int dir, SBuffer & 
 {
 	int    ok = 1;
 	THROW(Helper_SerializeCommon(dir, rBuf, pSCtx));
-	THROW_SL(DebtDimList.Serialize(dir, rBuf, pSCtx)); // @v9.1.3
+	THROW_SL(DebtDimList.Serialize(dir, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
 }
@@ -1267,8 +1267,8 @@ int PPSupplAgreement::ExchangeParam::Serialize_(int dir, SBuffer & rBuf, SSerial
 {
 	int    ok = 1;
 	THROW(Helper_SerializeCommon(dir, rBuf, pSCtx));
-	THROW_SL(DebtDimList.Serialize(dir, rBuf, pSCtx)); // @v9.1.3
-	THROW_SL(WhList.Serialize(dir, rBuf, pSCtx)); // @v9.9.5
+	THROW_SL(DebtDimList.Serialize(dir, rBuf, pSCtx));
+	THROW_SL(WhList.Serialize(dir, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
 }
@@ -1898,49 +1898,10 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 				LocationCtrlGroup::Rec l_rec(&Data.WhList);
 				setGroupData(ctlgroupLoc, &l_rec);
 			}
-			/* @v9.7.2
-			// Приход товара
-			{
-				op_list.freeAll();
-				MEMSZERO(op_kind);
-				for(PPID op_id = 0; EnumOperations(0, &op_id, &op_kind) > 0;)
-					if(oneof2(op_kind.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GENERIC))
-						op_list.add(op_id);
-				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_RCPT, Data.RcptOp, 0, &op_list, OPKLF_OPLIST);
-			}
-			// Возврат товара от покупател
-			{
-				op_list.freeAll();
-				MEMSZERO(op_kind);
-				for(PPID op_id = 0; EnumOperations(0, &op_id, &op_kind) > 0;)
-					if(oneof2(op_kind.OpTypeID, PPOPT_GOODSRETURN, PPOPT_GENERIC))
-						op_list.add(op_id);
-				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_RET, Data.RetOp, 0, &op_list, OPKLF_OPLIST);
-				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_SUPRET, Data.SupplRetOp, 0, &op_list, OPKLF_OPLIST);
-			}
-			// Межскладской расход товара, возврат товара поставщику
-			{
-				op_list.freeAll();
-				MEMSZERO(op_kind);
-				for(PPID op_id = 0; EnumOperations(0, &op_id, &op_kind) > 0;)
-					if(op_kind.OpTypeID == PPOPT_GOODSEXPEND)
-						op_list.add(op_id);
-				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_MOVOUT, Data.MovOutOp, 0, &op_list, OPKLF_OPLIST);
-			}
-			// Межсладской приход товара
-			{
-				op_list.freeAll();
-				MEMSZERO(op_kind);
-				for(PPID op_id = 0; EnumOperations(0, &op_id, &op_kind) > 0;)
-					if(op_kind.OpTypeID == PPOPT_GOODSRECEIPT)
-						op_list.add(op_id);
-				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_MOVIN, Data.MovInOp, 0, &op_list, OPKLF_OPLIST);
-			}
-			*/
-			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_UNIT, PPOBJ_UNIT, Data.Fb.DefUnitID, OLW_CANINSERT, 0); // @v9.2.4
-			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_CLICTAG, PPOBJ_TAG, Data.Fb.CliCodeTagID, OLW_CANINSERT, &PsnTagFlt); // @v9.4.4
-			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_LOCCTAG, PPOBJ_TAG, Data.Fb.LocCodeTagID, OLW_CANINSERT, &LocTagFlt); // @v9.4.4
-			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_BACKTAG, PPOBJ_TAG, Data.Fb.BillAckTagID, OLW_CANINSERT, &BillTagFlt); // @v9.5.7
+			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_UNIT, PPOBJ_UNIT, Data.Fb.DefUnitID, OLW_CANINSERT, 0);
+			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_CLICTAG, PPOBJ_TAG, Data.Fb.CliCodeTagID, OLW_CANINSERT, &PsnTagFlt);
+			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_LOCCTAG, PPOBJ_TAG, Data.Fb.LocCodeTagID, OLW_CANINSERT, &LocTagFlt);
+			SetupPPObjCombo(this, CTLSEL_SUPPLEOPS_BACKTAG, PPOBJ_TAG, Data.Fb.BillAckTagID, OLW_CANINSERT, &BillTagFlt);
 			updateList(-1);
 			return 1;
 		}
@@ -1949,7 +1910,6 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 			int    ok = 1;
 			uint   sel = 0;
 			getCtrlData(sel = CTLSEL_SUPPLEOPS_EXP, &Data.ExpendOp);
-			// @v9.1.3 THROW_PP(Data.ExpendOp, PPERR_INVEXPENDOP);
 			getCtrlData(CTLSEL_SUPPLEOPS_RCPT,      &Data.RcptOp);
 			getCtrlData(CTLSEL_SUPPLEOPS_SUPRET,    &Data.SupplRetOp);
 			getCtrlData(CTLSEL_SUPPLEOPS_RET,       &Data.RetOp);
@@ -1960,17 +1920,11 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 				getGroupData(ctlgroupLoc, &l_rec);
 				Data.WhList = l_rec.LocList;
 			}
-			getCtrlData(CTLSEL_SUPPLEOPS_UNIT,      &Data.Fb.DefUnitID); // @v9.2.4
-			getCtrlData(CTLSEL_SUPPLEOPS_CLICTAG,   &Data.Fb.CliCodeTagID); // @v9.4.4
-			getCtrlData(CTLSEL_SUPPLEOPS_LOCCTAG,   &Data.Fb.LocCodeTagID); // @v9.4.4
-			getCtrlData(CTLSEL_SUPPLEOPS_BACKTAG,   &Data.Fb.BillAckTagID); // @v9.5.7
+			getCtrlData(CTLSEL_SUPPLEOPS_UNIT,      &Data.Fb.DefUnitID);
+			getCtrlData(CTLSEL_SUPPLEOPS_CLICTAG,   &Data.Fb.CliCodeTagID);
+			getCtrlData(CTLSEL_SUPPLEOPS_LOCCTAG,   &Data.Fb.LocCodeTagID);
+			getCtrlData(CTLSEL_SUPPLEOPS_BACKTAG,   &Data.Fb.BillAckTagID);
 			ASSIGN_PTR(pData, Data);
-			/* @v9.1.3
-			CATCH
-				selectCtrl(sel);
-				ok = 0;
-			ENDCATCH
-			*/
 			return ok;
 		}
 	private:
@@ -2085,7 +2039,7 @@ int SupplAgtDialog::EditExchangeCfg()
 			uint   sel = 0;
 			SString  temp_buf;
 			getCtrlData(sel = CTLSEL_SUPLEXCHCFG_GGRP, &Data.GoodsGrpID);
-			getCtrlData(sel = CTLSEL_SUPLEXCHCFG_STYLO, &Data.Fb.StyloPalmID); // @v9.5.5
+			getCtrlData(sel = CTLSEL_SUPLEXCHCFG_STYLO, &Data.Fb.StyloPalmID);
 			{
 				getCtrlString(CTL_SUPLEXCHCFG_PRVDR, temp_buf.Z());
 				Data.PutExtStrData(PPSupplAgreement::ExchangeParam::extssEDIPrvdrSymb, temp_buf);

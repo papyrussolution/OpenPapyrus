@@ -1,5 +1,5 @@
 // BDB.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
+// Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -247,7 +247,7 @@ BDbDatabase::~BDbDatabase()
 	} while(c);
 	ZDELETE(P_SeqT);
 	if(E) {
-		E->log_flush(E, 0); // @v9.6.7
+		E->log_flush(E, 0);
 		E->close(E, 0);
 		E = 0;
 	}

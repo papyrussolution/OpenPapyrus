@@ -1,5 +1,5 @@
 // BIST.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // @threadsafe
 // Реализация стандартных типов данных семейства SType
@@ -1433,7 +1433,7 @@ char * SDec::tostr(const void * d, long fmt, char * buf) const
 		f = MKSFMTD(0, (S >> 8), 0);
 	else
 		f = fmt;
-	return realfmt(dectobin(static_cast<const char *>(d), (int16)(S & 0x00ff), (int16)(S >> 8)), f, buf); // @v9.8.4 @fix fmt-->f
+	return realfmt(dectobin(static_cast<const char *>(d), (int16)(S & 0x00ff), (int16)(S >> 8)), f, buf);
 }
 
 int SDec::fromstr(void * d, long, const char * buf) const

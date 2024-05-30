@@ -150,15 +150,6 @@ double CalcAssetDeprec(LDATE start, LDATE dt, long term)
 	const long num_periods = ((end - beg) > 0) ? (end - beg) : 0;
 	return fdivi(num_periods, term);
 }
-
-/* @v9.8.11 (unused) int CalcRestAssetPrice(LDATE start, LDATE dt, long term, double cost, double * pPrice)
-{
-	double deprec = CalcAssetDeprec(start, dt, term);
-	*pPrice = cost - (cost * deprec);
-	if(*pPrice < 0)
-		*pPrice = 0;
-	return 1;
-}*/
 //
 //
 //

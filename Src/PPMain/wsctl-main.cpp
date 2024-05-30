@@ -96,6 +96,7 @@ public:
 			PPID   GoodsID;
 			PPID   TechID;
 			PPID   TSessID;
+			PPID   CompCatID; // @v12.0.4 Категория компьютера (для регистрации комьютера)
 			MACAddr MacAdrList[4]; // Список mac-адресов для самоидентификации
 			double Amount;
 			char   NameTextUtf8[128]; // @v11.9.10
@@ -569,21 +570,21 @@ public:
 				ImGui::InputText(R_Blk.InputLabelPrefix("Computer Name"), SubstTxt_Name, sizeof(SubstTxt_Name));
 				if(st_data_compcat_list.L.getCount()) {
 					const char * p_selected_text = 0;
-					if(ImGui::BeginCombo("##compcatlist", p_selected_text)) {
-						if(CompCatID) {
-							for(uint i = 0; i < st_data_compcat_list.L.getCount(); i++) {
-								StrAssocArray::Item comp_cat_item = st_data_compcat_list.L.Get(i);
-								if(comp_cat_item.Id == CompCatID) {
-									p_selected_text = comp_cat_item.Txt;
-								}
+					if(CompCatID) {
+						for(uint i = 0; i < st_data_compcat_list.L.getCount(); i++) {
+							StrAssocArray::Item comp_cat_item = st_data_compcat_list.L.Get(i);
+							if(comp_cat_item.Id == CompCatID) {
+								p_selected_text = comp_cat_item.Txt;
 							}
 						}
+					}
+					if(ImGui::BeginCombo("##compcatlist", p_selected_text)) {
 						for(uint catidx = 0; catidx < st_data_compcat_list.L.getCount(); catidx++) {
 							StrAssocArray::Item item = st_data_compcat_list.L.Get(catidx);
-							/*
-							if(ImGui::Selectable(item.Txt, item.Id == PgmL.GetSelectedCatSurrogateId()))
-								PgmL.SetSelectedCatSurrogateId(item.Id);
-							*/
+							if(ImGui::Selectable(item.Txt, item.Id == CompCatID)) {
+								CompCatID = item.Id;
+								//PgmL.SetSelectedCatSurrogateId(item.Id);
+							}
 						}
 						ImGui::EndCombo();
 					}
@@ -608,10 +609,8 @@ public:
 		{
 			bool   ok = true;
 			if(P_Ctx) {
-				//Data.DbSymb = SubstTxt_DbSymb;
-				//Data.User = SubstTxt_User;
-				//Data.Password = SubstTxt_Password;
 				WsCtl_SelfIdentityBlock * p_blk = static_cast<WsCtl_SelfIdentityBlock *>(P_Ctx);
+				p_blk->CompCatID = CompCatID;
 				p_blk->PrcName = SubstTxt_Name;
 				{
 					MACAddr macadr;
@@ -815,7 +814,7 @@ public:
 //
 //
 //
-WsCtlReqQueue::Req::Param::Param() : SCardID(0), GoodsID(0), TechID(0), TSessID(0), Amount(0.0)
+WsCtlReqQueue::Req::Param::Param() : SCardID(0), GoodsID(0), TechID(0), TSessID(0), Amount(0.0), CompCatID(0)
 {
 	NameTextUtf8[0] = 0; // @v11.9.10
 	PhoneUtf8[0] = 0; // @v11.9.10
@@ -1574,49 +1573,41 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 			break;
 		case PPSCMD_WSCTL_REGISTERCOMPUTER: // @v12.0.1
 			if(P_St) {
+				SJson * p_js_param = 0;
 				PPJobSrvCmd cmd;
 				WsCtl_ImGuiSceneBlock::DPrc st_prc;
 				WsCtl_ImGuiSceneBlock::DComputerRegistration st_data;
+				WsCtlSrvBlock::ComputerRegistrationBlock comp_reg_blk;
 				P_St->D_Prc.GetData(st_prc);
-				cmd.StartWriting(PPSCMD_WSCTL_REGISTERCOMPUTER);
+				comp_reg_blk.Name = rReq.P.NameTextUtf8;
+				comp_reg_blk.WsCtlUuid = rReq.P.Uuid;
+				comp_reg_blk.CompCatID = rReq.P.CompCatID;
 				{
-					SJson js_param(SJson::tOBJECT);
-					if(st_prc.PrcName.NotEmpty()) {
-						js_param.InsertString("nm", rReq.P.NameTextUtf8);
+					for(uint i = 0; i < SIZEOFARRAY(rReq.P.MacAdrList); i++) {
+						const MACAddr & r_macadr = rReq.P.MacAdrList[i];
+						if(!r_macadr.IsZero())
+							comp_reg_blk.MacAdrList.insert(&r_macadr);
 					}
-					{
-						SJson * p_js_macadr_list = 0;
-						for(uint i = 0; i < SIZEOFARRAY(rReq.P.MacAdrList); i++) {
-							const MACAddr & r_macadr = rReq.P.MacAdrList[i];
-							if(!r_macadr.IsZero()) {
-								SETIFZ(p_js_macadr_list, new SJson(SJson::tARRAY));
-								r_macadr.ToStr(0, temp_buf);
-								SJson * p_js_macadr = SJson::CreateString(temp_buf);
-								p_js_macadr_list->InsertChild(p_js_macadr);
-								p_js_macadr = 0;
-							}
-						}
-						if(p_js_macadr_list) {
-							js_param.Insert("macadr_list", p_js_macadr_list);
-						}
-					}
-					if(!!rReq.P.Uuid) {
-						rReq.P.Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
-						js_param.InsertString("wsctluuid", temp_buf);
-					}
-					js_param.ToStr(temp_buf);
-					SString mime_buf;
-					mime_buf.EncodeMime64(temp_buf.ucptr(), temp_buf.Len());
-					cmd.Write(mime_buf.ucptr(), mime_buf.Len()+1);
 				}
-				cmd.FinishWriting();
-				if(rCli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
-					SString reply_buf;
-					reply.StartReading(&reply_buf);
-					if(reply.CheckRepError()) {
+				p_js_param = comp_reg_blk.ToJsonObj(false);
+				if(p_js_param) {
+					cmd.StartWriting(PPSCMD_WSCTL_REGISTERCOMPUTER);
+					{
+						p_js_param->ToStr(temp_buf);
+						ZDELETE(p_js_param);
+						SString mime_buf;
+						mime_buf.EncodeMime64(temp_buf.ucptr(), temp_buf.Len());
+						cmd.Write(mime_buf.ucptr(), mime_buf.Len()+1);
 					}
-					else {
-						st_data.SetupByLastError();
+					cmd.FinishWriting();
+					if(rCli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
+						SString reply_buf;
+						reply.StartReading(&reply_buf);
+						if(reply.CheckRepError()) {
+						}
+						else {
+							st_data.SetupByLastError();
+						}
 					}
 				}
 			}
@@ -2979,7 +2970,6 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 									if(r != 0) {
 										if(r > 0) {
 											if(P_Dlg_RegComp->CommitData()) {
-												// @construction
 												WsCtlReqQueue::Req req(PPSCMD_WSCTL_REGISTERCOMPUTER);
 												if(St.SidBlk.MacAdrList.getCount()) {
 													for(uint i = 0; i < St.SidBlk.MacAdrList.getCount() && i < SIZEOFARRAY(req.P.MacAdrList); i++) {
@@ -2987,9 +2977,9 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 													}
 												}
 												req.P.Uuid = St.SidBlk.Uuid;
+												req.P.CompCatID = St.SidBlk.CompCatID; // @v12.0.4
 												STRNSCPY(req.P.NameTextUtf8, St.SidBlk.PrcName);
 												P_CmdQ->Push(req);
-												//
 											}
 										}
 										ZDELETE(P_Dlg_RegComp);

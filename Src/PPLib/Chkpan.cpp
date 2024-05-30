@@ -7335,7 +7335,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 							//PPChZnPrcssr::ReconstructOriginalChZnCode(const GtinStruc & rS, SString & rBuf)
 							if(P_CM->SyncPreprocessChZnCode(PPSyncCashSession::ppchzcopInit, /*mark*/reconstructed_original, 1.0, 0/*uomId*/, 0, chzn_result)) {
 								int r = P_CM->SyncPreprocessChZnCode(PPSyncCashSession::ppchzcopCheck, /*mark*/reconstructed_original, 1.0, 0/*uomId*/, 0, chzn_result);
-								P_CM->SyncPreprocessChZnCode(PPSyncCashSession::ppchzcopCancel, /*mark*/reconstructed_original, 1.0, 0/*uomId*/, 0, chzn_result);
+								// (Оказалось, что не надо) P_CM->SyncPreprocessChZnCode(PPSyncCashSession::ppchzcopCancel, /*mark*/reconstructed_original, 1.0, 0/*uomId*/, 0, chzn_result);
 								msg_buf.CatEq("SyncPreprocessChZnCode-result", r).CR();
 								msg_buf.CatEq("check-result", chzn_result.CheckResult).CR();
 								msg_buf.CatEq("reason", chzn_result.Reason).CR();

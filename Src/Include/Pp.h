@@ -22075,7 +22075,7 @@ public:
 	virtual int GetDeviceTime(LDATETIME * pDtm) { ASSIGN_PTR(pDtm, ZERODATETIME); return -1; }
 	virtual int GetSummator(double * val) { return -1; }
 	virtual int EnableCashKeyb(int) { return -1; }
-	virtual int OpenSession(PPID sessID) { return -1; } // @v11.3.12
+	virtual int OpenSession_(PPID sessID) { return -1; } // @v11.3.12
 	virtual int CloseSession(PPID sessID) { return -1; }
 	virtual int GetPrintErrCode() { return 0; }
 	virtual int OpenBox() { return -1; }

@@ -157,7 +157,7 @@ int PUGL::Add__(const PUGL * pList)
 {
 	if(pList) {
 		PUGI * p_item;
-		for(uint i = 0; pList->enumItems(&i, (void **)&p_item);) // @v9.6.7 @fix enumItems-->pList->enumItems
+		for(uint i = 0; pList->enumItems(&i, (void **)&p_item);)
 			if(!Add(p_item, pList->Dt))
 				return 0;
 	}

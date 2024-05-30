@@ -678,8 +678,7 @@ typedef struct {
 			};
 			int num;
 			int nest_level;
-		} backref_general; /* BACKREF_MULTI, BACKREF_MULTI_IC, BACKREF_WITH_LEVEL, BACKREF_CHECK,
-		                      BACKREF_CHECK_WITH_LEVEL, */
+		} backref_general; /* BACKREF_MULTI, BACKREF_MULTI_IC, BACKREF_WITH_LEVEL, BACKREF_CHECK, BACKREF_CHECK_WITH_LEVEL, */
 
 		struct {
 			MemNumType n1;

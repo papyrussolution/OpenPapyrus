@@ -3479,6 +3479,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 					_blk.Name.Transf(CTRANSF_UTF8_TO_INNER);
 					THROW(P_WsCtlBlk->RegisterComputer(_blk));
 					_blk.Name.Transf(CTRANSF_INNER_TO_UTF8);
+					_blk.CompCatName.Transf(CTRANSF_INNER_TO_UTF8);
 					{
 						SJson * p_js_reply = _blk.ToJsonObj(true);
 						THROW(p_js_reply);

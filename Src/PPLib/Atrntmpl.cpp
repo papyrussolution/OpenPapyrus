@@ -13,19 +13,13 @@ PPAccTurn::PPAccTurn() : DbtSheet(0), CrdSheet(0), Date(ZERODATE), BillID(0), RB
 
 int FASTCALL PPAccTurn::IsEq(const PPAccTurn & rS) const
 {
+	// DbtSheet не участвует в проверке эквивалентности, поскольку есть избыточное поле и инициализируется по DbtID 
+	// CrdSheet не участвует в проверке эквивалентности, поскольку есть избыточное поле и инициализируется по CrdID
 	int    eq = 1;
 	if(DbtID != rS.DbtID)
 		eq = 0;
-	/* @v9.0.0 DbtSheet избыточное поле и инициализируется по DbtID
-	else if(DbtSheet != rS.DbtSheet)
-		eq = 0;
-	*/
 	else if(CrdID != rS.CrdID)
 		eq = 0;
-	/* @v9.0.0 CrdSheet избыточное поле и инициализируется по CrdID
-	else if(CrdSheet != rS.CrdSheet)
-		eq = 0;
-	*/
 	else if(Date != rS.Date)
 		eq = 0;
 	else if(BillID != rS.BillID)

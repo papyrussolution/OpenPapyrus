@@ -1524,7 +1524,6 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
 					err_lot = 1;
 				}
 			}
-			// @v9.3.12 {
 			if(flags & TLRF_REPAIRCOST) {
 				if(pFaultList->HasFault(PPLotFault::FirstCost, &fault, &fault_pos)) {
                     if(fault.ActualVal >= 0.0 && fault.ValidVal > 0.0) { // @v10.4.2 (fault.ActualVal == 0.0)-->(fault.ActualVal >= 0.0)
@@ -1541,7 +1540,6 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
                     }
 				}
 			}
-			// } @v9.3.12
 			if(lot_rec.GoodsID < 0) { // Заказ
 				BillTbl::Rec bill_rec;
 				if(p_bobj->Search(lot_rec.BillID, &bill_rec) > 0) {

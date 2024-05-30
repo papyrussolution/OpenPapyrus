@@ -625,6 +625,118 @@ int WsCtl_ClientPolicy::RestoreSystemImage()
 //
 //
 //
+WsCtlSrvBlock::ComputerRegistrationBlock::ComputerRegistrationBlock() : Status(0), PrcID(0), ComputerID(0), CompCatID(0)
+{
+}
+		
+WsCtlSrvBlock::ComputerRegistrationBlock & WsCtlSrvBlock::ComputerRegistrationBlock::Z()
+{
+	WsCtlUuid.Z();
+	MacAdrList.clear();
+	Name.Z();
+	CompCatName.Z();
+	Status = 0;
+	PrcID = 0;
+	ComputerID = 0;
+	CompCatID = 0;
+	return *this;
+}
+		
+SJson * WsCtlSrvBlock::ComputerRegistrationBlock::ToJsonObj(bool asServerReply) const
+{
+	SJson * p_result = SJson::CreateObj();
+	SString temp_buf;
+	if(asServerReply) {
+		p_result->InsertInt("status", Status);
+	}
+	if(Name.NotEmpty()) {
+		p_result->InsertString("nm", Name);
+	}
+	// @v12.0.4 {
+	if(CompCatID || CompCatName.NotEmpty()) {
+		//p_result->InsertString("nm", Name);
+		SJson * p_js_compcat = SJson::CreateObj();
+		if(CompCatID) {
+			p_js_compcat->InsertInt("id", CompCatID);
+		}
+		if(CompCatName.NotEmpty()) {
+			p_js_compcat->InsertString("nm", CompCatName);
+		}
+		p_result->Insert("computercategory", p_js_compcat);
+		p_js_compcat = 0;
+	}
+	// } @v12.0.4 
+	{
+		SJson * p_js_macadr_list = 0;
+		for(uint i = 0; i < MacAdrList.getCount(); i++) {
+			const MACAddr & r_macadr = MacAdrList.at(i);
+			if(!r_macadr.IsZero()) {
+				SETIFZ(p_js_macadr_list, new SJson(SJson::tARRAY));
+				r_macadr.ToStr(0, temp_buf);
+				SJson * p_js_macadr = SJson::CreateString(temp_buf);
+				p_js_macadr_list->InsertChild(p_js_macadr);
+				p_js_macadr = 0;
+			}
+		}
+		if(p_js_macadr_list) {
+			p_result->Insert("macadr_list", p_js_macadr_list);
+		}
+	}
+	if(!!WsCtlUuid) {
+		WsCtlUuid.ToStr(S_GUID::fmtIDL, temp_buf);
+		p_result->InsertString("wsctluuid", temp_buf);
+	}
+	return p_result;
+}
+
+bool WsCtlSrvBlock::ComputerRegistrationBlock::FromJsonObj(const SJson * pJs)
+{
+	bool   result = false;
+	Z();
+	if(pJs) {
+		const SJson * p_c = 0;
+		p_c = pJs->FindChildByKey("status");
+		if(SJson::IsNumber(p_c)) {
+			Status = p_c->Text.ToLong();
+		}
+		p_c = pJs->FindChildByKey("nm");
+		if(SJson::IsString(p_c))
+			Name = p_c->Text;
+		// @v12.0.4 {
+		p_c = pJs->FindChildByKey("computercategory");
+		if(SJson::IsObject(p_c)) {
+			const SJson * p_cc_c = p_c->FindChildByKey("nm");
+			if(SJson::IsString(p_cc_c))
+				CompCatName = p_cc_c->Text;
+			p_cc_c = p_c->FindChildByKey("id");
+			if(SJson::IsNumber(p_cc_c))
+				CompCatID = p_cc_c->Text.ToLong();
+		}
+		// } @v12.0.4 
+		p_c = pJs->FindChildByKey("wsctluuid");
+		if(SJson::IsString(p_c)) {
+			WsCtlUuid.FromStr(p_c->Text);
+		}
+		p_c = pJs->FindChildByKey("macadr_list");
+		if(SJson::IsArray(p_c)) {
+			SString temp_buf;
+			for(const SJson * p_js_item = p_c->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+				if(SJson::IsString(p_js_item) && (temp_buf = p_js_item->Text).NotEmptyS()) {
+					MACAddr macadr;
+					if(macadr.FromStr(temp_buf)) {
+						MacAdrList.insert(&macadr);
+					}
+				}
+			}
+		}
+		result = true;
+	}
+	return result;
+}
+
+//
+//
+//
 WsCtlSrvBlock::RegistrationBlock::RegistrationBlock() : Status(0), SCardID(0), PsnID(0)
 {
 	Z();
@@ -1001,6 +1113,8 @@ int WsCtlSrvBlock::RegisterComputer(ComputerRegistrationBlock & rBlk)
 	int    ok = 1;
 	Reference * p_ref = PPRef;
 	SString temp_buf;
+	PPObjComputerCategory compcat_obj;
+	PPComputerCategory compcat_rec;
 	PPComputerPacket ex_comp_pack;
 	THROW(rBlk.MacAdrList.getCount());
 	{
@@ -1083,6 +1197,16 @@ int WsCtlSrvBlock::RegisterComputer(ComputerRegistrationBlock & rBlk)
 			rBlk.Name = ex_comp_pack.Rec.Name;
 			rBlk.ComputerID = ex_comp_pack.Rec.ID;
 			rBlk.WsCtlUuid = ex_comp_pack.Rec.Uuid;
+			// @v12.0.4 {
+			if(compcat_obj.Search(ex_comp_pack.Rec.CategoryID, &compcat_rec) > 0) {
+				rBlk.CompCatID = compcat_rec.ID;
+				rBlk.CompCatName = compcat_rec.Name;
+			}
+			else {
+				rBlk.CompCatID = 0;
+				rBlk.CompCatName.Z();
+			}
+			// } @v12.0.4 
 		}
 		else {
 			PPID   new_computer_id = 0;
@@ -1101,6 +1225,15 @@ int WsCtlSrvBlock::RegisterComputer(ComputerRegistrationBlock & rBlk)
 			}
 			else
 				new_c_pack.Rec.Uuid.Generate();
+			if(compcat_obj.Search(rBlk.CompCatID, &compcat_rec) > 0) {
+				new_c_pack.Rec.CategoryID = compcat_rec.ID;
+			}
+			else if(rBlk.CompCatName.NotEmpty()) {
+				PPID   id_by_name = 0;
+				if(compcat_obj.SearchByName(rBlk.CompCatName, &id_by_name, &compcat_rec) > 0) {
+					new_c_pack.Rec.CategoryID = compcat_rec.ID;
+				}
+			}
 			THROW(CompObj.Put(&new_computer_id, &new_c_pack, 1));
 			{
 				rBlk.Status = 1;

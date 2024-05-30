@@ -3129,13 +3129,8 @@ int PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pG
 					bill_filt.Period = r_entry.Period;
 				}
 				if(!bill_filt.Period.low) {
-					const LDATE ctrl_pt_dt = NZOR(bill_filt.Period.upp, NZOR(bill_filt.DuePeriod.upp, NZOR(bill_filt.DuePeriod.low, getcurdate_()))); // @v9.4.11
-					bill_filt.Period.low = plusdate(ctrl_pt_dt, -30); // @v9.4.11
-					/* @v9.4.11 if(bill_filt.Period.upp)
-						bill_filt.Period.low = plusdate(bill_filt.Period.upp, -90);
-					else
-						bill_filt.Period.low = plusdate(getcurdate_(), -90);
-					*/
+					const LDATE ctrl_pt_dt = NZOR(bill_filt.Period.upp, NZOR(bill_filt.DuePeriod.upp, NZOR(bill_filt.DuePeriod.low, getcurdate_())));
+					bill_filt.Period.low = plusdate(ctrl_pt_dt, -30);
 				}
 				THROW(v_bill.Init_(&bill_filt));
 				for(v_bill.InitIteration(PPViewBill::OrdByDate); v_bill.NextIteration(&item) > 0; PPWaitPercent(v_bill.GetCounter())) {
@@ -3164,7 +3159,7 @@ int PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pG
 							sdr_brow.Cost = ti.Cost;
 							{
 								PPSupplDeal sd;
-								GObj.GetSupplDeal(ti.GoodsID, suppl_deal_qi, &sd, 1); // @v9.5.3 useCache=1
+								GObj.GetSupplDeal(ti.GoodsID, suppl_deal_qi, &sd, 1/*useCache*/);
 								sdr_brow.SuplDeal = sd.Cost;
 								sdr_brow.SuplDLow = static_cast<int16>(sd.DnDev * 100);
 								sdr_brow.SuplDUp  = static_cast<int16>(sd.UpDev * 100);
@@ -3173,7 +3168,7 @@ int PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pG
 							result_goods_list.add(labs(ti.GoodsID));
 						}
 					}
-					prf_measure += 1.0; // @v9.4.11
+					prf_measure += 1.0;
 				}
 			}
 			if(p_ie_bill && p_ie_brow) {
@@ -3188,8 +3183,8 @@ int PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pG
 				SCopyFile(r_path, path, 0, FILE_SHARE_READ, 0);
 			}
 		}
-		ufp.SetFactor(0, prf_measure); // @v9.4.11
-		ufp.Commit(); // @v9.4.11
+		ufp.SetFactor(0, prf_measure);
+		ufp.Commit();
 	}
 	CATCHZOK
 	ZDELETE(p_ie_bill);
@@ -3469,7 +3464,7 @@ int PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char * pPat
 		const long bcode_uniq_bias = 26L;
 		//while(giter.Next(&goods_rec) > 0) {
 		for(uint j = 0; j < goods_id_list.getCount(); j++) {
-			prf_measure += 1.0; // @v9.4.11
+			prf_measure += 1.0;
 			const  PPID _goods_id = goods_id_list.get(j);
 			uint   i;
 			BarcodeTbl::Rec * p_barcode = 0;
@@ -3478,7 +3473,7 @@ int PPObjBHT::PrepareGoodsData(PPID bhtID, const char * pPath, const char * pPat
 				if(p_barcode->Code[0]) {
 					PPID   goods_id = _goods_id;
 					temp_buf = p_barcode->Code;
-					if(temp_buf.Len() > 3 && temp_buf.Len() < 7) { // @v9.8.7 (temp_buf.Len() > 3 &&)
+					if(temp_buf.Len() > 3 && temp_buf.Len() < 7) {
 						temp_buf.PadLeft(12-temp_buf.Len(), '0');
 						if(check_dig)
 							AddBarcodeCheckDigit(temp_buf);
@@ -4238,8 +4233,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 		ReceiptCore  & r_rcpt = p_bobj->trfr->Rcpt;
 		Goods2Tbl::Rec goods_rec;
 		PPObjGoods     gobj;
-		// @v9.7.0 if(gobj.SearchByBarcode(CConfig.PrepayInvoiceGoodsCode, 0, &goods_rec) > 0)
-		if(gobj.Search(CConfig.PrepayInvoiceGoodsID, &goods_rec) > 0) // @v9.7.0 
+		if(gobj.Search(CConfig.PrepayInvoiceGoodsID, &goods_rec) > 0)
 			common_goods_id = goods_rec.ID;
 		THROW(ie_brow.OpenFileForReading(0));
 		pList->freeAll();
@@ -4549,12 +4543,9 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 								SETFLAG(ilti.Flags, PPTFR_RECEIPT, sign > 0);
 								ilti.Expiry = sdr_brow.Expiry;
 								if(p_bobj->ConvertILTI(&ilti, &pack, 0, CILTIF_INHLOTTAGS|CILTIF_ALLOWZPRICE, is_serial ? serial : (const char *)0) > 0) {
-									// @v9.4.9 if(ilti.Rest != 0.0 && sign == -1) {
-									if(sign == -1 && ilti.HasDeficit()) { // @v9.4.9
+									if(sign == -1 && ilti.HasDeficit()) {
 										if(pLog) {
-											// @v9.4.9 PPObject::SetLastErrObj(PPOBJ_GOODS, labs(ilti.GoodsID));
-											// @v9.4.9 PPSetError(PPERR_LOTRESTBOUND);
-											PPSetObjError(PPERR_LOTRESTBOUND, PPOBJ_GOODS, labs(ilti.GoodsID)); // @v9.4.9
+											PPSetObjError(PPERR_LOTRESTBOUND, PPOBJ_GOODS, labs(ilti.GoodsID));
 											pLog->LogLastError();
 										}
 										accept_doc = 0;
@@ -4646,8 +4637,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 			ilti.SetQtty(-qtty);
 			ilti.Price    = price;
 			THROW(p_bobj->ConvertILTI(&ilti, pPack, 0, CILTIF_DEFAULT, 0));
-			// @v9.4.9 if(R6(ilti.Rest) != 0)
-			if(ilti.HasDeficit()) // @v9.4.9
+			if(ilti.HasDeficit())
 				THROW(deficit_list.Add(&ilti, pPack->Rec.LocID, 0, pPack->Rec.Dt));
 		}
 		else if(p_bobj->SelectLotBySerial(pBarcode, 0, LConfig.Location, &lot_rec) > 0) {
@@ -5259,67 +5249,6 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 	CATCHZOK
 	return ok;
 }
-
-#if 0 // @v9.4.9 {
-static int SaveFile(PPID fileID, const char * pDir, int removeSrc, int isWinCe = 0)
-{
-	int    ok = -1;
-	if(fileID && pDir) {
-		SString src_path = pDir;
-		SString name;
-		PPGetFileName(fileID, name);
-		if(!isWinCe)
-			src_path.SetLastSlash().Cat("out");
-		src_path.SetLastSlash().Cat(name);
-		if(isWinCe) {
-			SFsPath::ReplaceExt(src_path, "dbf", 1);
-			src_path.Transf(CTRANSF_INNER_TO_OUTER);
-		}
-		if(fileExists(src_path)) {
-			SString save_path;
-			SFsPath sps;
-			PPGetPath(PPPATH_ROOT, save_path);
-			save_path.SetLastSlash().Cat("Save").SetLastSlash();
-			SFile::CreateDir(save_path);
-			sps.Split(src_path);
-			save_path.Cat(sps.Nam).Dot().Cat(sps.Ext);
-			SCopyFile(src_path, save_path, 0, FILE_SHARE_READ, 0);
-			if(removeSrc)
-				SFile::Remove(src_path);
-			ok = 1;
-		}
-	}
-	return ok;
-}
-
-static int CheckFile2(PPID fileID, const char * pDir, SStrCollection * pFiles, int * pFileDescr, PPID bhtTypeID = PPObjBHT::btPalm)
-{
-	int    ok = 0;
-	SString name;
-	SString path = pDir;
-	PPGetFileName(fileID, name);
-	if(bhtTypeID == PPObjBHT::btPalm)
-		path.SetLastSlash().Cat("out");
-	path.SetLastSlash().Cat(name);
-	if(bhtTypeID == PPObjBHT::btWinCe)
-		SFsPath::ReplaceExt(path.Transf(CTRANSF_INNER_TO_OUTER), "dbf", 1);
-	if(fileExists(path)) {
-		int    descr = pFiles->getCount();
-		if(bhtTypeID == PPObjBHT::btWinCe) {
-			long   s = 1;
-			SString new_dir, new_path;
-			PPGetPath(PPPATH_IN, new_dir);
-			MakeTempFileName(new_dir, "BHT", "DBF", &s, new_path);
-			SCopyFile(path, new_path, 0, FILE_SHARE_READ, 0);
-			path = new_path;
-		}
-		pFiles->insert(newStr(path));
-		ASSIGN_PTR(pFileDescr, descr);
-		ok = 1;
-	}
-	return ok;
-}
-#endif // } 0 @v9.4.9
 
 /*static*/int PPObjBHT::ReceiveData()
 {

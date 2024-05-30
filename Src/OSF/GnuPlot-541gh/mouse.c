@@ -152,16 +152,6 @@ static void alert()
 	fprintf(stderr, "\a");
 #endif
 }
-
-#ifndef HAVE_STPCPY
-	// handy function for composing strings; note: some platforms may
-	// already provide it, how should we handle that? autoconf? -- ptdb 
-	char * stpcpy(char * s, const char * p)
-	{
-		strcpy(s, p);
-		return s + strlen(p);
-	}
-#endif
 //
 // Transform mouse coordinates to graph coordinates
 //

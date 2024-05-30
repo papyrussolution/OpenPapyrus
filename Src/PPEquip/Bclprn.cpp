@@ -449,12 +449,12 @@ enum BarcodeVarStr {
 	bcvsGcAddProp,    //
 	bcvsLineCost,     //
 	bcvsLinePrice,    //
-	bcvsManufDate,    // @v7.5.1 Дата/время производства
-	bcvsManuf,        // @v7.5.1 Перенесено сверху-вниз (во избежании коллизии с bcvsManufDate)
-	bcvsQuot,         // @v7.6.10 quot:
-	bcvsGoodsCode,    // @v8.1.3 Текстовое представление кода товара
-	bcvsMainOrg,      // @v9.8.11 Наименование главной организации
-	bcvsWarehouse,    // @v9.8.11 Наименование склада
+	bcvsManufDate,    // Дата/время производства
+	bcvsManuf,        // 
+	bcvsQuot,         // quot:
+	bcvsGoodsCode,    // Текстовое представление кода товара
+	bcvsMainOrg,      // Наименование главной организации
+	bcvsWarehouse,    // Наименование склада
 
 	bcvsMemory,
 	bcvsCodepage,
@@ -465,7 +465,7 @@ enum BarcodeVarStr {
 };
 
 #define FIRSTSUBSTVAR bcvsGoodsName
-#define NUMSUBSTVARS  41 // 24-->33, @v7.2.12 34->36, @v7.5.1 36-->37 @v7.6.10 37-->38 @v8.1.3 38-->39 @v9.8.11 39-->41
+#define NUMSUBSTVARS  41
 
 BarcodeLabel::BarcodeLabel() : SArray(sizeof(BarcodeLabelEntry)), P_GPack(0), P_GcPack(0)
 {
@@ -729,8 +729,7 @@ int BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 					else if(i == bcvsExtE)
 						P_GPack->GetExtStrData(GDSEXSTR_USAGE, temp_str);
 					else if(i == bcvsBrand) {
-						// @v9.5.5 GetGoodsName(P_GPack->Rec.BrandID, temp_str);
-						goods_obj.FetchNameR(P_GPack->Rec.BrandID, temp_str); // @v9.5.5
+						goods_obj.FetchNameR(P_GPack->Rec.BrandID, temp_str);
 						temp_str.CopyTo(temp, sizeof(temp));
 					}
 					else if(i == bcvsGcDimX) {
@@ -797,7 +796,6 @@ int BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 					(temp_str = RGI.BarCode).Strip();
 					d = stpcpy(d, temp_str);
 					break;
-				// @v9.8.11 {
 				case bcvsMainOrg:
 					GetMainOrgName(temp_str);
 					d = stpcpy(d, temp_str);
@@ -808,7 +806,6 @@ int BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 						GetLocationName(RGI.LocID, temp_str);
 					d = stpcpy(d, temp_str);
 					break;
-				// } @v9.8.11
 			}
 			s += var_len;
 			break;

@@ -4636,6 +4636,8 @@ private:
 	private:
 		const uint32 Type; 
 	};
+	static const Entry * FindOptimalFreeEntry(const TSVector <Entry> & rList, uint reqSize, uint * pTailSize);
+
 	TSCollection <SingleTypeList> L;
 public:
 	SRecPageFreeList()

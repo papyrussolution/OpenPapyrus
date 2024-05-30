@@ -622,11 +622,10 @@ int PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 			THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack, p_pack, 0));
 			for(uint i = 0; i < rBlk.SrcDraftPack.GetTCount(); i++) {
 				const PPTransferItem & r_src_ti = rBlk.SrcDraftPack.ConstTI(i);
-				// @v9.8.11 rBlk.SrcDraftPack.SnL.GetNumber(i, &serial_buf);
-				rBlk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf); // @v9.8.11
+				rBlk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf);
 				ILTI ilti(&r_src_ti);
-				uint ciltif = CILTIF_USESUBST|CILTIF_USESUBST_STRUCONLY|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE; // @v9.2.1 CILTIF_ALLOWZPRICE
-				if(!(CcFlags & CCFLG_NOADJPRWROFFDRAFT)) // @v9.3.4
+				uint ciltif = CILTIF_USESUBST|CILTIF_USESUBST_STRUCONLY|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE;
+				if(!(CcFlags & CCFLG_NOADJPRWROFFDRAFT))
 					ciltif |= CILTIF_CAREFULLYALIGNPRICE;
 				local_row_pos_list.clear(); // @v10.6.0
 				THROW(ConvertILTI(&ilti, p_pack, &local_row_pos_list, ciltif, serial_buf)); // @v10.6.0 rows-->local_row_pos_list
@@ -997,7 +996,6 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 {
 	int    ok = -1;
 	int    incomplete = 0, processed = 0, r;
-	// @v9.4.0 int    j;
 	PPID   compl_bill_id = 0;
 	PPTransferItem ti;
 	SString serial_buf, clb_buf;
@@ -1005,7 +1003,6 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 	PPGoodsStruc gs;
 	// @v10.2.9 StringSet ss_lotxcode; // @v10.2.7
 	PPLotExtCodeContainer::MarkSet lotxcode_set; // @v10.2.9
-	// @v9.4.0 PPComplBlock compl_list;
 	LongArray rows;
 	WrOffDraftBlock blk(pWrOffParam, pDfctList);
 	{
@@ -1052,32 +1049,6 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 							if(r == 1000)
 								incomplete = 1;
 						}
-#if 0 // @v9.4.0 {
-						THROW_MEM(p_pack = new PPBillPacket);
-						THROW(InitDraftWrOffPacket(blk.P_WrOffParam, &blk.SrcDraftPack.Rec, p_pack, 0/*use_ta*/));
-						for(uint i = 0; i < blk.SrcDraftPack.GetTCount(); i++) {
-							const PPTransferItem & r_src_ti = blk.SrcDraftPack.ConstTI(i);
-							ILTI ilti(&r_src_ti);
-							ilti.Flags |= PPTFR_MINUS;
-							rows.clear();
-							THROW(ConvertILTI(&ilti, p_pack, &rows, CILTIF_DEFAULT, 0));
-							if(ilti.Rest == 0.0) {
-								if(LoadGoodsStruc(PPGoodsStruc::Ident(r_src_ti.GoodsID, GSF_DECOMPL, GSF_PARTITIAL, p_pack->Rec.Dt), &gs) > 0)
-									for(j = rows.getCount()-1; !incomplete && j >= 0; j--)
-										THROW(InitCompleteData2(&gs, p_pack->ConstTI(rows.at(j)), &compl_list));
-							}
-							else {
-								if(blk.P_DfctList)
-									THROW(blk.P_DfctList->Add(&ilti, blk.SrcDraftPack.Rec.LocID, i, p_pack->Rec.Dt));
-								incomplete = 1;
-							}
-						}
-						THROW(r = InsertComplList(p_pack, compl_list, +1, blk.P_DfctList));
-						p_pack->CalcModifCost();
-						THROW_SL(blk.ResultList.insert(p_pack));
-						p_pack = 0;
-						processed = 1;
-#endif // } 0 @v9.4.0
 						break;
 					case PPOPT_GOODSORDER:
 						THROW_MEM(p_pack = new PPBillPacket);

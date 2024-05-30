@@ -1080,6 +1080,10 @@ SLTEST_R(SRecPageManager)
 		}
 	}
 	{
+		int r = SRecPageManager::TestSinglePage(SKILOBYTE(512));
+		SLCHECK_NZ(r);
+	}
+	{
 		struct DataEntry {
 			static DataEntry * Generate(uint size)
 			{

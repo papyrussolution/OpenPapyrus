@@ -2190,8 +2190,6 @@ int PPBillPacket::SetupRow(int itemNo, PPTransferItem * pItem, const PPTransferI
 			j = (int)p;
 		}
 		THROW(InsertRow(pItem, 0, PCUG_USERCHOICE));
-		// @v9.8.11 ClbL.ReplacePosition(-1, GetTCount() - 1);
-		// @v9.8.11 SnL.ReplacePosition(-1, GetTCount() - 1);
 		LTagL.ReplacePosition(-1, GetTCount() - 1);
 		CheckLargeBill(1);
 	}
@@ -2278,7 +2276,7 @@ int PPBillPacket::RemoveRow(uint * pRowIdx)
 	}
 	Lots.atFree(r);
 	LTagL.RemovePosition(r);
-	XcL.RemovePosition(r+1); // @v9.8.11 В XcL индексы [1..]
+	XcL.RemovePosition(r+1); // В XcL индексы [1..]
 	if(P_QuotSetupInfoList) {
 		uint i = P_QuotSetupInfoList->getCount();
 		if(i) do {
@@ -2521,15 +2519,6 @@ int FASTCALL PPBillPacket::Copy(const PPBillPacket & rS)
 	_FLD(OpTypeID);
 	_FLD(AccSheetID);
 	_FLD(Counter);
-	/* @v9.8.11
-	_FLD(Turns);
-	_FLD(AdvList);
-	// @v9.8.11 _FLD(ClbL);
-	// @v9.8.11 _FLD(SnL);
-	_FLD(LTagL);
-	_FLD(BTagL);
-	_FLD(XcL);
-	*/
 	_FLD(PaymBillID);
 	_FLD(CSessID);
 	_FLD(SampleBillID);
@@ -2565,7 +2554,7 @@ int FASTCALL PPBillPacket::Copy(const PPBillPacket & rS)
 		P_MirrorLTagL = new PPLotTagContainer;
 		*P_MirrorLTagL = *rS.P_MirrorLTagL;
 	}
-	InvList = rS.InvList; // @v9.9.12
+	InvList = rS.InvList;
 	CATCHZOK
 	return ok;
 }
@@ -3477,7 +3466,7 @@ int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, 
 								if(!plan_bill_rec.Object || plan_bill_rec.Object == Rec.Object) {
 									const  PPID plan_bill_id = plan_bill_rec.ID;
 									PPBillPacket plan_bill_pack;
-									P_BObj->P_CpTrfr->LoadItems(plan_bill_id, &plan_bill_pack, &_goods_list); // @v9.5.1 &_goods_list
+									P_BObj->P_CpTrfr->LoadItems(plan_bill_id, &plan_bill_pack, &_goods_list);
 									int   has_goods = 0;
 									for(uint tiidx = 0; tiidx < plan_bill_pack.GetTCount(); tiidx++) {
 										if(plan_bill_pack.ConstTI(tiidx).GoodsID == goodsID) {
@@ -4955,7 +4944,7 @@ static int CanMerge(const PPTransferItem * pTI1, const PPTransferItem * pTI2, lo
 	int    yes = 1;
 	if(f & ETIEF_DONTUNITE)
 		yes = 0;
-	else if(!(f & ETIEF_FORCEUNITEGOODS && pTI1->GoodsID == pTI2->GoodsID)) { // @v9.6.2
+	else if(!(f & ETIEF_FORCEUNITEGOODS && pTI1->GoodsID == pTI2->GoodsID)) {
 		if(f & ETIEF_DISPOSE)
 			yes = 0;
 		else if(!(f & ETIEF_UNITEBYGOODS) || (pTI1->GoodsID != pTI2->GoodsID))
@@ -5144,10 +5133,8 @@ int PPBillPacket::EnumTItemsExt(TiIter * pI, PPTransferItem * pTI, TiItemExt * p
 					p_i->Seen.add(_idx);
 					if(!p_i->IsAccsCost())
 						pTI->Cost = 0;
-					if(pExt) {
-						// @v9.8.11 ClbL.GetNumber(_idx, &pExt->Clb);
-						LTagL.GetTagStr(_idx, PPTAG_LOT_CLB, pExt->Clb); // @v9.8.12
-					}
+					if(pExt)
+						LTagL.GetTagStr(_idx, PPTAG_LOT_CLB, pExt->Clb);
 					return 1;
 				}
 			}

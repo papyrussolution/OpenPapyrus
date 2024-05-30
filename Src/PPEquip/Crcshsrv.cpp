@@ -659,7 +659,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 			if(oneof2(rGoodsInfo.ChZnProdType, GTCHZNPT_TOBACCO, GTCHZNPT_ALTTOBACCO)) {
 				_ChZnTobaccoEntry _entry;
 				STRNSCPY(_entry.Barcode, pref_barcode);
-				_entry.GoodsID = rGoodsInfo.ID;
+				_entry.GoodsID = r_cur_entry.ID; // @v12.0.4 @fix rGoodsInfo.ID-->r_cur_entry.ID
 				chzntobacco_list.insert(&_entry);
 			}
 			// } @v12.0.2 

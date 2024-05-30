@@ -325,7 +325,7 @@ int PPAlbatrossConfig::GetPassword(int fld, SString & rPw) const
 				{
 					SXml::WNode n_h(_doc, "CommonMqsConfig");
 					n_h.PutInner("host", host);
-					n_h.PutInner("virtual-host", virthost); // @v10.6.0
+					n_h.PutInner("virtual-host", virthost);
 					n_h.PutInner("user", user);
 					n_h.PutInner("secret", secret);
 				}

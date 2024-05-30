@@ -49,7 +49,7 @@ public:
 	virtual int PrintCheck(CCheckPacket * pPack, uint flags);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int PrintXReport(const CSessInfo *) { return PrintReport(0); }
-	virtual int OpenSession(PPID sessID) 
+	virtual int OpenSession_(PPID sessID) 
 	{ 
 		int    ok = -1;
 		StateBlock stb;

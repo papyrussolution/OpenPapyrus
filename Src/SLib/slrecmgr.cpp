@@ -650,6 +650,50 @@ const  SRecPageFreeList::Entry * SRecPageFreeList::SingleTypeList::Get(uint32 re
 	return p_result;
 }
 
+/*static*/const SRecPageFreeList::Entry * SRecPageFreeList::FindOptimalFreeEntry(const TSVector <Entry> & rList, uint reqSize, uint * pTailSize)
+{
+	const Entry * p_result = 0;
+	uint   final_tail = 0;
+	uint   min_tail = UINT_MAX;
+	uint   min_tail_idx = 0;
+	uint   min_badtail = UINT_MAX;
+	uint   min_badtail_idx = 0;
+	for(uint i = 0; !p_result && i < rList.getCount(); i++) {
+		const Entry & r_item = rList.at(i);
+		if(r_item.FreeSize == reqSize) {
+			p_result = &r_item;
+			final_tail = 0;
+		}
+		else if(r_item.FreeSize > reqSize) {
+			uint local_tail = (r_item.FreeSize - reqSize);
+			if(oneof2(local_tail, 1, 2)) {
+				if(local_tail < min_badtail) {
+					min_badtail = local_tail;
+					min_badtail_idx = i+1;
+				}
+			}
+			else {
+				if(local_tail < min_tail) {
+					min_tail = local_tail;
+					min_tail_idx = i+1;
+				}
+			}
+		}
+	}
+	if(!p_result) {
+		if(min_tail_idx) {
+			p_result = &rList.at(min_tail_idx-1);
+			final_tail = min_tail;
+		}
+		else if(min_badtail_idx) {
+			p_result = &rList.at(min_badtail_idx-1);
+			final_tail = min_badtail;
+		}
+	}
+	ASSIGN_PTR(pTailSize, final_tail);
+	return p_result;
+}
+
 int SRecPageFreeList::Put(uint32 type, uint64 rowId, uint32 freeSize)
 {
 	int    ok = 0;
