@@ -344,11 +344,20 @@ DRAFTBEER HORECA @v11.9.4
 			SString _240; // @v11.8.11
 			SString _8005; // @v11.8.11
 			if(rS.GetToken(GtinStruc::fldGTIN14, &_01) && rS.GetToken(GtinStruc::fldSerial, &_21) && _01.Len() == 14) {
-				if(rS.GetToken(GtinStruc::fldPrice, &_8005) && rS.GetToken(GtinStruc::fldControlRuTobacco, &_93) && rS.GetToken(GtinStruc::fldAddendumId, &_240)) { // @v11.8.11 блок сигарет
-					rBuf./*CatChar('\x1D').*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("8005").Cat(_8005).
-						CatChar('\x1D').Cat("93").Cat(_93)
-						.CatChar('\x1D').Cat("240").Cat(_240); // @v11.9.10 Возвращаем криптохвост назад
-					ok = 2; // @v11.9.12 @fix
+				if(rS.GetToken(GtinStruc::fldPrice, &_8005) && rS.GetToken(GtinStruc::fldControlRuTobacco, &_93)) { // @v11.8.11 блок сигарет
+					if(rS.GetToken(GtinStruc::fldAddendumId, &_240)) {
+						rBuf./*CatChar('\x1D').*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("8005").Cat(_8005).
+							CatChar('\x1D').Cat("93").Cat(_93)
+							.CatChar('\x1D').Cat("240").Cat(_240); // @v11.9.10 Возвращаем криптохвост назад
+						ok = 2; // @v11.9.12 @fix
+					}
+					// @v12.0.4 {
+					else {
+						rBuf./*CatChar('\x1D').*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("8005").Cat(_8005).
+							CatChar('\x1D').Cat("93").Cat(_93);
+						ok = 2;
+					}
+					// } @v12.0.4 
 				}
 				else if(rS.GetToken(GtinStruc::fldUSPS, &_91) && rS.GetToken(GtinStruc::fldInner1, &_92)) {
 					if(_21.Len() == 13 && _91.Len() == 4/*&& _92.Len() == 44*/) {
@@ -357,7 +366,7 @@ DRAFTBEER HORECA @v11.9.4
 					}
 				}
 				else if(rS.GetToken(GtinStruc::fldInner2, &_93)) { // @v11.4.11 молочная продукция //
-					if(_21.Len() == 8 || _21.Len() == 6) {
+					if(oneof3(_21.Len(), 6, 7, 8)) { // @v12.0.4 7
 						rBuf./*CatChar('\x1D').*/Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("93").Cat(_93);
 						ok = 2;
 					}
@@ -4152,5 +4161,211 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, Permissiv
 		}
 	}
 	CATCHZOKPPERR
+	return ok;
+}
+
+class CheckChZnMarkDialog : public TDialog {
+	enum {
+		ctlgroupIbg = 1
+	};
+public:
+	CheckChZnMarkDialog() : TDialog(DLG_CHKCHZNMARK), LinkFiles(0)
+	{
+		addGroup(ctlgroupIbg, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_CHKCHZNMARK_PIC,
+			cmAddImage, cmDelImage, 1, ImageBrowseCtrlGroup::fUseExtOpenDlg));
+		{
+			TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_CHKCHZNMARK_INFO));
+			CALLPTRMEMB(p_il, SetupMaxTextLen(4000));
+		}
+		SetupPPObjCombo(this, CTLSEL_CHKCHZNMARK_GUA, PPOBJ_GLOBALUSERACC, 0, 0);
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmImageChanged)) {
+			ProcessInputPicture();
+		}
+		else if(event.isCmd(cmInputUpdated)) {
+			ProcessInputText();
+		}
+		else
+			return;
+		clearEvent(event);
+	}
+	SString & MakePrintableCode(const char * pOrgText, SString & rResult)
+	{
+		rResult.Z();
+		const uint len = sstrlen(pOrgText);
+		for(uint i = 0; i < len; i++) {
+			const char c = pOrgText[i];
+			if(c == '\xE8') {
+				rResult.Cat("<xE8>");
+			}
+			else if(c == '\x1D') {
+				rResult.Cat("<GS>");
+			}
+			else
+				rResult.CatChar(c);
+		}
+		return rResult;
+	}
+	void    ProcessMark(const char * pOriginalText, bool imgScan, SString & rInfoBuf)
+	{
+		SString temp_buf;
+		SString printable;
+		rInfoBuf.Cat("org").CatDiv(':', 2).Cat(MakePrintableCode(pOriginalText, printable));
+		GtinStruc gts;
+		const int pchzncr = PPChZnPrcssr::ParseChZnCode(pOriginalText, gts, 0);
+		const int ichzncr = PPChZnPrcssr::InterpretChZnCodeResult(pchzncr);
+		if(ichzncr == PPChZnPrcssr::chznciReal) {
+			PPChZnPrcssr::ReconstructOriginalChZnCode(gts, temp_buf);			
+			rInfoBuf.CRB().Cat("rcs").CatDiv(':', 2).Cat(MakePrintableCode(temp_buf, printable));
+			{
+				const PPID gua_id = getCtrlLong(CTLSEL_CHKCHZNMARK_GUA);
+				if(gua_id) {
+					PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection pm_code_list;
+					PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = pm_code_list.CreateNewItem();
+					if(p_cle) {
+						p_cle->OrgMark = temp_buf;
+						p_cle->OrgRowId = 0;
+						if(PPChZnPrcssr::PmCheck(gua_id, 0, pm_code_list)) {
+							const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_result_cle = pm_code_list.at(0);
+							if(p_result_cle) {
+								rInfoBuf.CRB().Cat("pm result").CatDiv(':', 2);
+								/*
+									SString Cis; //
+									int    ErrorCode; // Код ошибки. 
+										// 0 — ошибки отсутствуют; 
+										// 1 — ошибка валидации КМ; 
+										// 2 — КМ не содержит GTIN; 
+										// 3 — КМ не содержит серийный номер; 
+										// 4 — КМ содержит недопустимые символы; 
+										// 5 — ошибка верификации крипто-подписи КМ (формат крипто-подписи не соответствует типу КМ); 
+										// 6 — ошибка верификации крипто-подписи КМ (крипто-подпись не валидная); 
+										// 7 — ошибка верификации крипто-подписи КМ (крипто-ключ не валиден); 
+										// 8 — КМ не прошел верификацию в стране эмитента; 
+										// 9 — Найденные AI в КМ не поддерживаются; 
+										// 10 — КМ не найден в ГИС МТ 11 — КМ не найден в трансгране
+									int    EliminationState; // Дополнительная информация по КМ. 
+										// 1 — товар выведен из оборота по причинам «по образцам» или «дистанционная продажа»; 
+										// 2 — товар выведен из оборота по причинам «для собственных нужд» или «для производственных целей» Заполняется для товаров, выведенных из оборота по этим причинам с 08.02.24
+									uint   Mrp; // Максимальная розничная цена. В копейках (для табака).
+									uint   Smp; // Минимальная из возможных единых минимальных цен. В копейках (для табака).
+									uint   PackageQtty;    // 
+									uint   InnerUnitCount; // Количество единиц товара в потребительской упаковке / Фактический объём / Фактический вес.
+									uint   SoldUnitCount;  // Счётчик проданного и возвращённого товара.
+									uint   Flags;
+									uint   GroupIds[64];
+									LDATETIME ExpiryDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
+									LDATETIME ProductionDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
+									double Weight; // Переменный вес продукции (в граммах). Возвращается только для товарной группы «Молочная продукция»
+									SString PrVetDocument; // Производственный ветеринарный сопроводительный документ. Возвращается только для товарной группы «Молочная продукция»
+									SString Message; // Сообщение об ошибке
+									S_GUID ReqId;   // Уникальный идентификатор запроса
+									int64  ReqTimestamp; // Дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
+									SString PackageType; // Тип упаковки. См. «Справочник "Типы упаковки"»
+									SString Parent;      // КИ агрегата.
+									SString ProducerInn; // ИНН производителя.
+								*/
+								rInfoBuf.CRB().Tab().Cat("Cis").CatDiv(':', 2).Cat(p_result_cle->Cis);
+								rInfoBuf.CRB().Tab().Cat("ErrCode").CatDiv(':', 2).Cat(p_result_cle->ErrorCode);
+								rInfoBuf.CRB().Tab().Cat("EliminationState").CatDiv(':', 2).Cat(p_result_cle->EliminationState);
+								rInfoBuf.CRB().Tab().Cat("Mrp").CatDiv(':', 2).Cat(p_result_cle->Mrp);
+								rInfoBuf.CRB().Tab().Cat("Smp").CatDiv(':', 2).Cat(p_result_cle->Smp);
+								rInfoBuf.CRB().Tab().Cat("PackageQtty").CatDiv(':', 2).Cat(p_result_cle->PackageQtty);
+								rInfoBuf.CRB().Tab().Cat("InnerUnitCount").CatDiv(':', 2).Cat(p_result_cle->InnerUnitCount);
+								rInfoBuf.CRB().Tab().Cat("SoldUnitCount").CatDiv(':', 2).Cat(p_result_cle->SoldUnitCount);
+								rInfoBuf.CRB().Tab().Cat("Flags").CatDiv(':', 2).Cat(p_result_cle->Flags);
+								rInfoBuf.CRB().Tab().Cat("ExpiryDtm").CatDiv(':', 2).Cat(p_result_cle->ExpiryDtm, DATF_ISO8601CENT, 0);
+								rInfoBuf.CRB().Tab().Cat("ProductionDtm").CatDiv(':', 2).Cat(p_result_cle->ProductionDtm, DATF_ISO8601CENT, 0);
+								rInfoBuf.CRB().Tab().Cat("Weight").CatDiv(':', 2).Cat(p_result_cle->Weight, MKSFMTD(0, 3, 0));
+								rInfoBuf.CRB().Tab().Cat("PrVetDocument").CatDiv(':', 2).Cat(p_result_cle->PrVetDocument);
+								rInfoBuf.CRB().Tab().Cat("Message").CatDiv(':', 2).Cat(p_result_cle->Message);
+								rInfoBuf.CRB().Tab().Cat("ReqId").CatDiv(':', 2).Cat(p_result_cle->ReqId, S_GUID::fmtIDL);
+								rInfoBuf.CRB().Tab().Cat("ReqTimestamp").CatDiv(':', 2).Cat(p_result_cle->ReqTimestamp);
+								rInfoBuf.CRB().Tab().Cat("PackageType").CatDiv(':', 2).Cat(p_result_cle->PackageType);
+								rInfoBuf.CRB().Tab().Cat("Parent").CatDiv(':', 2).Cat(p_result_cle->Parent);
+								rInfoBuf.CRB().Tab().Cat("ProducerInn").CatDiv(':', 2).Cat(p_result_cle->ProducerInn);
+							}
+						}
+						else {
+							rInfoBuf.CRB().Cat("Permissive mode failure.");
+						}
+					}
+				}
+				else {
+					rInfoBuf.CRB().Cat("Set global account to request permissive mode.");
+				}
+			}
+		}
+		else if(ichzncr == 1000) { // pretend
+			rInfoBuf.CRB().Cat("pretend chzn-mark");
+		}
+		else if(ichzncr == PPChZnPrcssr::chznciSurrogate) {
+			rInfoBuf.CRB().Cat("surrogate chzn-mark");
+		}
+		else {
+			rInfoBuf.CRB().Cat("no chzn-mark");
+		}
+	}
+	void    ProcessInputText()
+	{
+		SString inp_buf;
+		SString info_buf;
+		const PPID gua_id = getCtrlLong(CTLSEL_CHKCHZNMARK_GUA);
+		getCtrlString(CTL_CHKCHZNMARK_INPUT, inp_buf);
+		ProcessMark(inp_buf, true, info_buf);
+		setCtrlString(CTL_CHKCHZNMARK_INFO, info_buf);
+	}
+	void    ProcessInputPicture()
+	{
+		bool   debug_mark = false;
+		{
+			ImageBrowseCtrlGroup::Rec rec;
+			if(getGroupData(ctlgroupIbg, &rec)) {
+				if(rec.Path.Len()) {
+					LinkFiles.Replace(0, rec.Path);
+				}
+				else
+					LinkFiles.Remove(0);
+			}
+		}
+		if(LinkFiles.GetCount()) {
+			SString img_file_name;
+			SString info_buf;
+			LinkFiles.At(0, img_file_name);
+			SFileFormat ff;
+			const int fir = ff.Identify(img_file_name);
+			if(oneof2(fir, 2, 3) && SImageBuffer::IsSupportedFormat(ff)) { // Принимаем только идентификацию по сигнатуре
+				TSCollection <PPBarcode::Entry> bc_list;
+				if(PPBarcode::ZXing_RecognizeImage(img_file_name, bc_list) > 0) {
+					info_buf.Z();
+					for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
+						const PPBarcode::Entry * p_bc_entry = bc_list.at(bcidx);
+						if(p_bc_entry && p_bc_entry->BcStd == BARCSTD_DATAMATRIX) {
+							ProcessMark(p_bc_entry->Code, true, info_buf);
+							setCtrlString(CTL_CHKCHZNMARK_INFO, info_buf);
+							//PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_new_entry = check_code_result.CreateNewItem();
+							//p_new_entry->OrgRowId = i+1;
+							//p_new_entry->OrgMark = p_bc_entry->Code;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	ObjLinkFiles LinkFiles;
+};
+
+/*static*/int PPChZnPrcssr::InteractiveCheck()
+{
+	int    ok = -1;
+	CheckChZnMarkDialog * dlg = new CheckChZnMarkDialog();
+	if(CheckDialogPtrErr(&dlg)) {
+		ExecView(dlg);
+	}
+	delete dlg;
 	return ok;
 }

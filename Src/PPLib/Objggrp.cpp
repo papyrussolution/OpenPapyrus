@@ -1923,7 +1923,7 @@ BrandFilt & FASTCALL BrandFilt::operator = (const BrandFilt & rS)
 
 bool BrandFilt::IsEmpty() const { return (!Flags && SrchStr.IsEmpty() && ParentList.IsEmpty() && OwnerList.IsEmpty()); }
 
-PPBrandPacket::PPBrandPacket()
+PPBrandPacket::PPBrandPacket() : LinkFiles(PPOBJ_BRAND)
 {
 	// @v10.4.10 (ctrs will do it) Init();
 }

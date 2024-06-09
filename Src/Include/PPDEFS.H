@@ -1962,6 +1962,7 @@
 #define cmSelectProcessors       1191 // @v11.3.4  Кнопка выбора списка процессоров
 #define cmToggleAllOrOwnOnly     1192 // @v11.4.1  Переключение отображения все/только свои (пока для товарных корзин)
 #define cmExecMapOnGeoLoc        1193 // @v11.6.2  Кнопка запускает функцию открытия карты с координатами, введенными в прикрепленном поле
+#define cmImageChanged           1194 // @v12.0.4  [evCommand] Событие генерируется группой управляющих элементов ImageBrowseCtrlGroup в ответ на изменение изображения и передается в родительский диалог.
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -11566,6 +11567,19 @@
 	#define CTL_COMPCAT_NAME               (2 + WINDOWS_ID_BIAS)
 	#define CTL_COMPCAT_SYMB               (3 + WINDOWS_ID_BIAS)
 	#define CTL_COMPCAT_CNTEMPL            (4 + WINDOWS_ID_BIAS)
+#define DLG_CHKCHZNMARK           1442 // @v12.0.4 Тестовый диалог проверки марки честный знак
+	#define CTL_CHKCHZNMARK_INPUT          (1 + WINDOWS_ID_BIAS)
+	#define CTL_CHKCHZNMARK_PIC            (2 + WINDOWS_ID_BIAS)
+	#define CTL_CHKCHZNMARK_INFO           (3 + WINDOWS_ID_BIAS)
+	#define CTL_CHKCHZNMARK_GUA            (4 + WINDOWS_ID_BIAS)
+	#define CTLSEL_CHKCHZNMARK_GUA         (5 + WINDOWS_ID_BIAS)
+	#define CTL_CHKCHZNMARK_FLAGS          (6 + WINDOWS_ID_BIAS)
+	#define CTL_CHKCHZNMARK_LOGO           (7 + WINDOWS_ID_BIAS)
+#define DLG_IMPSWPGM              1443 // @v12.0.4 Диалог импорт списка исполняемых программ
+	#define CTL_IMPSWPGM_FILE              (1 + WINDOWS_ID_BIAS)
+	#define CTLBRW_IMPSWPGM_FILE           (2 + WINDOWS_ID_BIAS)
+	#define CTL_IMPSWPGM_IMGDIR            (3 + WINDOWS_ID_BIAS)
+	#define CTLBRW_IMPSWPGM_IMGDIR         (4 + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

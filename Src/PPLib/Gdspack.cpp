@@ -8,7 +8,7 @@
 //
 // PPGoodsPacket
 //
-PPGoodsPacket::PPGoodsPacket() : P_Filt(0), P_Quots(0), P_Gled(0), UpdFlags(0), ClsDimZeroFlags(0)
+PPGoodsPacket::PPGoodsPacket() : P_Filt(0), P_Quots(0), P_Gled(0), UpdFlags(0), ClsDimZeroFlags(0), LinkFiles(PPOBJ_GOODS)
 {
 	// @v11.8.1 destroy();
 }

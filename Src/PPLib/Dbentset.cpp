@@ -63,7 +63,7 @@ int DbLoginBlock::UrlParse(const char * pUrl)
 		case InetUrl::protFile:
 			if(url.GetComponent(InetUrl::cUserName, 0, temp_buf))
 				SetAttr(attrUserName, temp_buf);
-			url.Composite(InetUrl::stHost|InetUrl::stPath, temp_buf);
+			url.Compose(InetUrl::stHost|InetUrl::stPath, temp_buf);
 			// @v10.9.3 @fix {
 			{
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
@@ -81,7 +81,7 @@ int DbLoginBlock::UrlParse(const char * pUrl)
 				SetAttr(attrUserName, temp_buf);
 			if(url.GetQueryParam("db", 0, temp_buf) > 0)
 				SetAttr(attrDbName, temp_buf);
-			url.Composite(InetUrl::stHost|InetUrl::stPort, temp_buf);
+			url.Compose(InetUrl::stHost|InetUrl::stPort, temp_buf);
 			SetAttr(attrServerUrl, temp_buf);
 			break;
 		case InetUrl::prot_p_ORACLE:
@@ -92,7 +92,7 @@ int DbLoginBlock::UrlParse(const char * pUrl)
 				SetAttr(attrUserName, temp_buf);
 			if(url.GetQueryParam("db", 0, temp_buf) > 0)
 				SetAttr(attrDbName, temp_buf);
-			url.Composite(InetUrl::stHost|InetUrl::stPort, temp_buf);
+			url.Compose(InetUrl::stHost|InetUrl::stPort, temp_buf);
 			SetAttr(attrServerUrl, temp_buf);
 			break;
 		case InetUrl::prot_p_SQLITE:
@@ -182,7 +182,7 @@ int DbLoginBlock::UrlCompose(SString & rUrlBuf) const
 	}
 	else {
 	}
-	url.Composite(InetUrl::stAll, rUrlBuf);
+	url.Compose(InetUrl::stAll, rUrlBuf);
 	return ok;
 }
 

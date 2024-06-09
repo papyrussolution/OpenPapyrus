@@ -1039,7 +1039,79 @@ SLTEST_R(BarcodeArray)
 
 SLTEST_R(SRecPageManager)
 {
+	struct DataEntry {
+		static DataEntry * Generate(uint size)
+		{
+			DataEntry * p_result = 0;
+			if(size) {
+				p_result = static_cast<DataEntry *>(SAlloc::M(size+sizeof(DataEntry)));
+				if(p_result) {
+					p_result->Size = size;
+					p_result->RowId = 0;
+					SLS.GetTLA().Rg.ObfuscateBuffer(p_result+1, size);
+				}
+			}
+			return p_result;
+		}
+		uint   Size;
+		uint64 RowId;
+	};
 	bool debug_mark = false;
+	{
+		SRecPageManager mgr(SMEGABYTE(4));
+		SDataPageHeader * p_page = mgr.AllocatePage(SDataPageHeader::tRecord);
+		if(p_page) {
+			const uint page_offs_list[] = { 32U, 65U, 130U, 259U, 517U };
+			for(uint ofsidx = 0; ofsidx < SIZEOFARRAY(page_offs_list); ofsidx++) {
+				const uint page_offs = page_offs_list[ofsidx];
+				for(uint total_size = 1; total_size < SMEGABYTE(3); total_size++) {
+					SDataPageHeader::RecPrefix pfx_wr;
+					SDataPageHeader::RecPrefix pfx_rd;
+					pfx_wr.SetTotalSize(total_size, SDataPageHeader::RecPrefix::fDeleted);
+					const uint32 wr = p_page->WriteRecPrefix(page_offs, pfx_wr);
+					SLCHECK_NZ(wr);
+					const uint32 rr = p_page->ReadRecPrefix(page_offs, pfx_rd);
+					SLCHECK_NZ(rr);
+					SLCHECK_EQ(rr, wr);
+					SLCHECK_EQ(pfx_wr.PayloadSize, pfx_rd.PayloadSize);
+					SLCHECK_EQ(pfx_wr.TotalSize, pfx_rd.TotalSize);
+					SLCHECK_EQ((pfx_wr.Flags & SDataPageHeader::RecPrefix::fDeleted), (pfx_rd.Flags & SDataPageHeader::RecPrefix::fDeleted));
+					if(!CurrentStatus)
+						debug_mark = true;
+				}
+			}
+		}
+	}
+	{
+		const uint max_rec_size = 500;
+		const uint page_size = SKILOBYTE(512);
+		SCollection data_list;
+		SRecPageManager mgr(page_size);
+		SDataPageHeader * p_page = mgr.AllocatePage(SDataPageHeader::tRecord);
+		SLCHECK_NZ(p_page);
+		if(p_page) {
+			SCollection data_list;
+			SDataPageHeader::Stat stat;
+			TSVector <SRecPageFreeList::Entry> free_list;
+			do {
+				uint rs = SLS.GetTLA().Rg.GetUniformIntPos(max_rec_size+1);
+				if(rs > 0) {		
+					DataEntry * p_entry = DataEntry::Generate(rs);
+					if(p_entry) {
+						int gflpr = mgr.GetFreeListForPage(p_page, free_list);
+						uint tail_size = 0;
+						const SRecPageFreeList::Entry * p_free_entry = SRecPageFreeList::FindOptimalFreeEntry(free_list, p_entry->Size, &tail_size);
+						if(p_free_entry) {
+							SLCHECK_LE(p_entry->Size, p_free_entry->FreeSize);
+							int wr = mgr.WriteToPage(p_page, p_free_entry->RowId, p_entry+1, p_entry->Size);
+							SLCHECK_NZ(wr > 0);
+							SLCHECK_NZ(p_page->GetStat(stat, &free_list));
+						}
+					}
+				}
+			} while(CurrentStatus && stat.UsableBlockSize > 0);
+		}
+	}
 	{
 		const uint page_size_list[] = { 512, 512 * 2, 512 * 3, 512 * 4, 512 * 5, 512 * 6, 512 * 1024, SMEGABYTE(2) };
 		for(uint psi = 0; psi < SIZEOFARRAY(page_size_list); psi++) {
@@ -1080,27 +1152,6 @@ SLTEST_R(SRecPageManager)
 		}
 	}
 	{
-		int r = SRecPageManager::TestSinglePage(SKILOBYTE(512));
-		SLCHECK_NZ(r);
-	}
-	{
-		struct DataEntry {
-			static DataEntry * Generate(uint size)
-			{
-				DataEntry * p_result = 0;
-				if(size) {
-					p_result = static_cast<DataEntry *>(SAlloc::M(size+sizeof(DataEntry)));
-					if(p_result) {
-						p_result->Size = size;
-						p_result->RowId = 0;
-						SLS.GetTLA().Rg.ObfuscateBuffer(p_result+1, size);
-					}
-				}
-				return p_result;
-			}
-			uint   Size;
-			uint64 RowId;
-		};
 		SCollection data_list;
 		const uint entry_count = 1000;
 		const uint max_rec_size = 500;

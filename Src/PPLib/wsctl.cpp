@@ -649,6 +649,12 @@ SJson * WsCtlSrvBlock::ComputerRegistrationBlock::ToJsonObj(bool asServerReply) 
 	if(asServerReply) {
 		p_result->InsertInt("status", Status);
 	}
+	if(ComputerID) {
+		p_result->InsertInt("id", ComputerID);
+	}
+	if(PrcID) {
+		p_result->InsertInt("prcid", PrcID);
+	}
 	if(Name.NotEmpty()) {
 		p_result->InsertString("nm", Name);
 	}
@@ -695,10 +701,15 @@ bool WsCtlSrvBlock::ComputerRegistrationBlock::FromJsonObj(const SJson * pJs)
 	Z();
 	if(pJs) {
 		const SJson * p_c = 0;
+		p_c = pJs->FindChildByKey("id");
+		if(SJson::IsNumber(p_c))
+			ComputerID = p_c->Text.ToLong();
+		p_c = pJs->FindChildByKey("prcid");
+		if(SJson::IsNumber(p_c))
+			PrcID = p_c->Text.ToLong();
 		p_c = pJs->FindChildByKey("status");
-		if(SJson::IsNumber(p_c)) {
+		if(SJson::IsNumber(p_c))
 			Status = p_c->Text.ToLong();
-		}
 		p_c = pJs->FindChildByKey("nm");
 		if(SJson::IsString(p_c))
 			Name = p_c->Text;
@@ -1237,8 +1248,8 @@ int WsCtlSrvBlock::RegisterComputer(ComputerRegistrationBlock & rBlk)
 			THROW(CompObj.Put(&new_computer_id, &new_c_pack, 1));
 			{
 				rBlk.Status = 1;
+				rBlk.ComputerID = new_computer_id;
 				rBlk.Name = new_c_pack.Rec.Name;
-				rBlk.ComputerID = new_c_pack.Rec.ID;
 				rBlk.WsCtlUuid = new_c_pack.Rec.Uuid;
 			}
 		}

@@ -2590,7 +2590,7 @@ static int EditStyloQConfig(StyloQConfig & rData)
 						InetUrl url(temp_buf);
 						if(url.GetProtocol() == 0)
 							url.SetProtocol(InetUrl::protAMQP);
-						url.Composite(0, temp_buf);
+						url.Compose(0, temp_buf);
 						setCtrlString(CTL_STQCFG_LOCLURL, temp_buf);
 						ACfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
 						setCtrlString(CTL_STQCFG_LOCLMQBAUTH, temp_buf);
@@ -2609,7 +2609,7 @@ static int EditStyloQConfig(StyloQConfig & rData)
 								InetUrl url(temp_buf);
 								if(url.GetProtocol() == 0)
 									url.SetProtocol(InetUrl::protAMQP);
-								url.Composite(0, temp_buf);
+								url.Compose(0, temp_buf);
 								setCtrlString(CTL_STQCFG_URL, temp_buf);
 								ACfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
 								setCtrlString(CTL_STQCFG_MQBAUTH, temp_buf);
@@ -6289,7 +6289,7 @@ int PPStyloQInterchange::KexServiceReply(SSecretTagPool & rSessCtx, const SSecre
 			url.SetPort_(rP.MqbInitParam.Port);
 			url.SetComponent(InetUrl::cUserName, rP.MqbInitParam.Auth);
 			url.SetComponent(InetUrl::cPassword, rP.MqbInitParam.Secret);
-			url.Composite(InetUrl::stAll, rP.AccessPoint);
+			url.Compose(InetUrl::stAll, rP.AccessPoint);
 		}
 		// } @v11.2.12 
 		/* @v11.2.12 {
@@ -6299,7 +6299,7 @@ int PPStyloQInterchange::KexServiceReply(SSecretTagPool & rSessCtx, const SSecre
 			url.SetPort_(rP.MqbInitParam.Port);
 			url.SetComponent(InetUrl::cUserName, rP.MqbInitParam.Auth);
 			url.SetComponent(InetUrl::cPassword, rP.MqbInitParam.Secret);
-			url.Composite(InetUrl::stAll, rP.AccessPoint);
+			url.Compose(InetUrl::stAll, rP.AccessPoint);
 		}*/
 	}
 	ok = 1;
@@ -9804,7 +9804,7 @@ bool PPStyloQInterchange::GetBlobInfo(const SBinaryChunk & rOwnIdent, PPObjID oi
 		}
 	}
 	else {
-		ObjLinkFiles olf;
+		ObjLinkFiles olf(oid.Obj);
 		olf.Init(oid.Obj);
 		olf.Load(oid.Id, 0L);
 		if(olf.GetCount()) {

@@ -5941,7 +5941,7 @@ struct PPWorkbook { // @size=sizeof(Reference2Tbl::Rec)
 
 class PPWorkbookPacket_Pre813 {
 public:
-	PPWorkbookPacket_Pre813()
+	PPWorkbookPacket_Pre813() : F(PPOBJ_WORKBOOK_PRE813)
 	{
 		destroy();
 	}

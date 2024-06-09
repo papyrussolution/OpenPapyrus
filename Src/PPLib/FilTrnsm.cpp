@@ -257,7 +257,7 @@ int GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long filtFla
 			temp_buf.EncodeUrl(eq_buf.Z().CatEq("subject", PPConst::P_SubjectOrder), 0);
 			url.SetComponent(InetUrl::cQuery, temp_buf);
 		}
-		url.Composite(0, temp_buf);
+		url.Compose(0, temp_buf);
 		uftp.SrcPath = temp_buf;
 		if(deleMsg)
 			uftp.Flags |= uftp.fDeleteAfter;

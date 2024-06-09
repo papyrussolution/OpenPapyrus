@@ -501,7 +501,7 @@ int WinInetFTP::Connect(PPInternetAccount * pAccount)
 			scheme = "ftp";
 			url.SetComponent(InetUrl::cScheme, scheme);
 		}
-		//url.Composite(InetUrl::stScheme|InetUrl::stHost, host);
+		//url.Compose(InetUrl::stScheme|InetUrl::stHost, host);
 		if(pwd[0] == 0) {
 			if(url.GetComponent(InetUrl::cPassword, 0, temp_buf) > 0)
 				STRNSCPY(pwd, temp_buf);

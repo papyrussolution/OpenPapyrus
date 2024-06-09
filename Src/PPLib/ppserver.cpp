@@ -2461,11 +2461,11 @@ PPWorkerSession::CmdRet PPWorkerSession::TransmitFile(int verb, int contentType 
 int PPWorkerSession::FinishReceivingFile(const PPJobSrvReply::TransmitFileBlock & rBlk, const SString & rFilePath, PPJobSrvReply & rReply)
 {
 	int    ok = 1;
-	ObjLinkFiles lf;
 	if(rBlk.TransmType == rBlk.ttObjImage) {
 		if(rBlk.ObjType == PPOBJ_GOODS) {
 			PPObjGoods goods_obj;
 			Goods2Tbl::Rec goods_rec;
+			ObjLinkFiles lf(rBlk.ObjType);
 			THROW(goods_obj.Search(rBlk.ObjID, &goods_rec) > 0);
 			THROW(lf.SetupZeroPositionFile(rBlk.ObjType, rBlk.ObjID, rFilePath));
 			THROW(goods_obj.UpdateFlags(rBlk.ObjID, GF_HASIMAGES, 0, 1));
@@ -2473,6 +2473,7 @@ int PPWorkerSession::FinishReceivingFile(const PPJobSrvReply::TransmitFileBlock 
 		else if(rBlk.ObjType == PPOBJ_PERSON) {
 			PPObjPerson psn_obj;
 			PersonTbl::Rec psn_rec;
+			ObjLinkFiles lf(rBlk.ObjType);
 			THROW(psn_obj.Search(rBlk.ObjID, &psn_rec) > 0);
 			THROW(lf.SetupZeroPositionFile(rBlk.ObjType, rBlk.ObjID, rFilePath));
 			THROW(psn_obj.P_Tbl->UpdateFlags(rBlk.ObjID, PSNF_HASIMAGES, 0, 1));
@@ -2480,6 +2481,7 @@ int PPWorkerSession::FinishReceivingFile(const PPJobSrvReply::TransmitFileBlock 
 		else if(rBlk.ObjType == PPOBJ_TSESSION) {
 			PPObjTSession tses_obj;
 			TSessionTbl::Rec tses_rec;
+			ObjLinkFiles lf(rBlk.ObjType);
 			THROW(tses_obj.Search(rBlk.ObjID, &tses_rec) > 0);
 			THROW(lf.SetupZeroPositionFile(rBlk.ObjType, rBlk.ObjID, rFilePath));
 			THROW(tses_obj.P_Tbl->UpdateFlags(rBlk.ObjID, TSESF_HASIMAGES, 0, 1));
@@ -2489,6 +2491,7 @@ int PPWorkerSession::FinishReceivingFile(const PPJobSrvReply::TransmitFileBlock 
         if(oneof2(rBlk.ObjType, PPOBJ_WORKBOOK, PPOBJ_WORKBOOK_PRE813)) { // @v10.7.0 PPOBJ_WORKBOOK_PRE813
             PPObjWorkbook wb_obj;
             WorkbookTbl::Rec wb_rec;
+			ObjLinkFiles lf(rBlk.ObjType);
             THROW(wb_obj.Search(rBlk.ObjID, &wb_rec) > 0);
             THROW(lf.SetupZeroPositionFile(PPOBJ_WORKBOOK, rBlk.ObjID, rFilePath));
         }
@@ -2742,10 +2745,9 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				long   upd_flags = 0;
 				size_t bin_size = 0;
 				long   obj_type_ext = 0;
-				PPID   obj_type = GetObjectTypeBySymb(name, &obj_type_ext);
+				const  PPID obj_type = GetObjectTypeBySymb(name, &obj_type_ext);
 				pEv->GetParam(2, temp_buf); // PPGetExtStrData(2, pEv->Params, temp_buf);
-				PPID   obj_id = temp_buf.ToLong();
-				ObjLinkFiles lf;
+				const  PPID obj_id = temp_buf.ToLong();
 				pEv->GetParam(3, temp_buf); // PPGetExtStrData(3, pEv->Params, temp_buf);
 				upd_flags = temp_buf.ToLong();
 				pEv->GetParam(4, content_type); // PPGetExtStrData(4, pEv->Params, content_type);
@@ -2773,6 +2775,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				if(obj_type == PPOBJ_GOODS) {
 					PPObjGoods goods_obj;
 					Goods2Tbl::Rec goods_rec;
+					ObjLinkFiles lf(obj_type);
 					THROW(goods_obj.Search(obj_id, &goods_rec) > 0);
 					THROW(lf.SetupZeroPositionFile(obj_type, obj_id, file_name));
 					THROW(goods_obj.UpdateFlags(obj_id, GF_HASIMAGES, 0, 1));
@@ -2780,6 +2783,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				else if(obj_type == PPOBJ_PERSON) {
 					PPObjPerson psn_obj;
 					PersonTbl::Rec psn_rec;
+					ObjLinkFiles lf(obj_type);
 					THROW(psn_obj.Search(obj_id, &psn_rec) > 0);
 					THROW(lf.SetupZeroPositionFile(obj_type, obj_id, file_name));
 					THROW(psn_obj.P_Tbl->UpdateFlags(obj_id, PSNF_HASIMAGES, 0, 1));
@@ -2792,11 +2796,10 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			{
 				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
 				long   obj_type_ext = 0;
-				PPID   obj_type = GetObjectTypeBySymb(name, &obj_type_ext);
+				const  PPID obj_type = GetObjectTypeBySymb(name, &obj_type_ext);
 				pEv->GetParam(2, temp_buf); // PPGetExtStrData(2, pEv->Params, temp_buf);
-				PPID   obj_id = temp_buf.ToLong();
+				const  PPID obj_id = temp_buf.ToLong();
 				SString img_path, obj_name;
-				ObjLinkFiles lf;
 				if(obj_type == PPOBJ_GOODS) {
 					PPObjGoods goods_obj;
 					Goods2Tbl::Rec goods_rec;
@@ -2828,9 +2831,12 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				else {
 					CALLEXCEPT_PP_S(PPERR_JOBSRV_GETIMG_INVOBJTYPE, name);
 				}
-				THROW(lf.GetZeroPositionFile(obj_type, obj_id, img_path));
-				THROW_PP_S(img_path.NotEmptyS(), PPERR_OBJHASNTIMG, obj_name);
-				ok = TransmitFile(tfvStart, tfctFile, img_path, rReply);
+				{
+					ObjLinkFiles lf(obj_type);
+					THROW(lf.GetZeroPositionFile(obj_type, obj_id, img_path));
+					THROW_PP_S(img_path.NotEmptyS(), PPERR_OBJHASNTIMG, obj_name);
+					ok = TransmitFile(tfvStart, tfctFile, img_path, rReply);
+				}
 			}
 			break;
 		case PPSCMD_GETFILE:

@@ -1,52 +1,11 @@
 // URI.H
 // Copyright (C) 2007, Weijia Song <songweijia@gmail.com>, Sebastian Pipping <webmaster@hartwork.org> All rights reserved.
-// Adopted to SLIB by A.Sobolev 2011-2021
+// Adopted to SLIB by A.Sobolev 2011-2021, 2024
 //
 #ifndef __URI_H // {
 #define __URI_H
 
 #include <slib.h>
-//
-// Version helper macro 
-//
-// @v11.2.1 #define URI_ANSI_TO_UNICODE(x) L ## x 
-//
-// Version 
-//
-// @v10.9.12 #define URI_VER_MAJOR           0
-// @v10.9.12 #define URI_VER_MINOR           7
-// @v10.9.12 #define URI_VER_RELEASE         6
-// @v10.9.12 #define URI_VER_SUFFIX_ANSI     ""
-// @v10.9.12 #define URI_VER_SUFFIX_UNICODE  URI_ANSI_TO_UNICODE(URI_VER_SUFFIX_ANSI)
-//
-// More version helper macros 
-//
-// @v10.9.12 #define URI_INT_TO_ANSI_HELPER(x) # x
-// @v10.9.12 #define URI_INT_TO_ANSI(x) URI_INT_TO_ANSI_HELPER(x)
-// @v10.9.12 #define URI_INT_TO_UNICODE_HELPER(x) URI_ANSI_TO_UNICODE(# x)
-// @v10.9.12 #define URI_INT_TO_UNICODE(x) URI_INT_TO_UNICODE_HELPER(x)
-// @v10.9.12 #define URI_VER_ANSI_HELPER(ma, mi, r, s)    URI_INT_TO_ANSI(ma) "." URI_INT_TO_ANSI(mi) "." URI_INT_TO_ANSI(r) s
-// @v10.9.12 #define URI_VER_UNICODE_HELPER(ma, mi, r, s) URI_INT_TO_UNICODE(ma) L"." URI_INT_TO_UNICODE(mi) L"." URI_INT_TO_UNICODE(r) s
-// Full version strings 
-// @v10.9.12 #define URI_VER_ANSI     URI_VER_ANSI_HELPER(URI_VER_MAJOR, URI_VER_MINOR, URI_VER_RELEASE, URI_VER_SUFFIX_ANSI)
-// @v10.9.12 #define URI_VER_UNICODE  URI_VER_UNICODE_HELPER(URI_VER_MAJOR, URI_VER_MINOR, URI_VER_RELEASE, URI_VER_SUFFIX_UNICODE)
-#if 0 // {
-// Shared errors 
-#define URI_SUCCESS                        0
-#define URI_ERROR_SYNTAX                   1 // Parsed text violates expected format
-#define URI_ERROR_NULL                     2 // One of the params passed was NULL although it mustn't be
-#define URI_ERROR_MALLOC                   3 // Requested memory could not be allocated
-#define URI_ERROR_OUTPUT_TOO_LARGE         4 // Some output is to large for the receiving buffer
-#define URI_ERROR_NOT_IMPLEMENTED          8 // The called function is not implemented yet
-#define URI_ERROR_RANGE_INVALID            9 // The parameters passed contained invalid ranges
-// Errors specific to ToStr 
-#define URI_ERROR_TOSTRING_TOO_LONG        URI_ERROR_OUTPUT_TOO_LARGE /* Deprecated, test for URI_ERROR_OUTPUT_TOO_LARGE instead */
-// Errors specific to AddBaseUri 
-#define URI_ERROR_ADDBASE_REL_BASE         5 // Given base is not absolute 
-// Errors specific to RemoveBaseUri 
-#define URI_ERROR_REMOVEBASE_REL_BASE      6 // Given base is not absolute 
-#define URI_ERROR_REMOVEBASE_REL_SOURCE    7 // Given base is not absolute 
-#endif // } 0
 // 
 // Specifies a line break conversion mode
 // 
@@ -67,7 +26,7 @@ struct UriTextRange {
 	UriTextRange(const char * pFirst, const char * pAfterLast);
 	void   Clear();
 	UriTextRange & FASTCALL operator = (const UriTextRange & rS);
-	int    Len() const;
+	int    Len() const { return (int)(P_AfterLast - P_First); }
 
 	const char * P_First;     // Pointer to first character 
 	const char * P_AfterLast; // Pointer to character after the last one still in 

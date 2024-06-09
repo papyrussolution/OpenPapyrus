@@ -259,7 +259,7 @@ SLTEST_R(ScURL_Mail)
 			url.SetComponent(InetUrl::cPath, temp_buf);
 			temp_buf.EncodeUrl("from=it@tdadvent.ru", 0);
 			url.SetComponent(InetUrl::cQuery, temp_buf);
-			url.Composite(0, temp_buf);
+			url.Compose(0, temp_buf);
 			uftp.SrcPath = temp_buf;
 			//uftp.Format = SFileFormat::Jpeg;
 			THROW(SLCHECK_NZ(uftp.Run(0, 0)));
@@ -448,7 +448,7 @@ SLTEST_R(Uri)
 			if(temp_buf.NotEmpty())
 				out_buf.Tab().CatEq("ref", temp_buf);
 			{
-				url.Composite(url.stAll, temp_buf);
+				url.Compose(url.stAll, temp_buf);
 				out_buf.Tab().CatEq("composition", temp_buf);
 			}
 			f_out.WriteLine(out_buf.CR());

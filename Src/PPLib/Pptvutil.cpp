@@ -2697,15 +2697,16 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 						if(p_fig) {
 							p_iv->SetOuterFigure(p_fig); // p_fig переходит в собственность p_iv
 							Data.Flags |= Rec::fUpdated;
+							p_v->MessageCommandToOwner(cmImageChanged); // @v12.0.4
 						}
 					}
 				}
 				else {
 					pDlg->setCtrlString(CtlImage, Data.Path = path);
 					Data.Flags |= Rec::fUpdated;
+					p_v->MessageCommandToOwner(cmImageChanged); // @v12.0.4
 				}
 			}
-			
 		}
 		pDlg->clearEvent(event);
 	}
@@ -2721,6 +2722,7 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 				pDlg->setCtrlString(CtlImage, Data.Path.Z());
 			}
 			Data.Flags |= Rec::fUpdated;
+			p_v->MessageCommandToOwner(cmImageChanged); // @v12.0.4
 		}
 		pDlg->clearEvent(event);
 	}
@@ -2747,6 +2749,7 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 					Data.Flags |= Rec::fUpdated;
 					pDlg->setCtrlString(CtlImage, Data.Path = temp_path);
 					pDlg->clearEvent(event);
+					p_v->MessageCommandToOwner(cmImageChanged); // @v12.0.4
 				}
 			}
 		}

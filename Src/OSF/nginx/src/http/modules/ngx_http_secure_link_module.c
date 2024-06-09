@@ -16,14 +16,10 @@ typedef struct {
 	ngx_str_t expires;
 } ngx_http_secure_link_ctx_t;
 
-static ngx_int_t ngx_http_secure_link_old_variable(ngx_http_request_t * r,
-    ngx_http_secure_link_conf_t * conf, ngx_http_variable_value_t * v,
-    uintptr_t data);
-static ngx_int_t ngx_http_secure_link_expires_variable(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data);
+static ngx_int_t ngx_http_secure_link_old_variable(ngx_http_request_t * r, ngx_http_secure_link_conf_t * conf, ngx_http_variable_value_t * v, uintptr_t data);
+static ngx_int_t ngx_http_secure_link_expires_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data);
 static void * ngx_http_secure_link_create_conf(ngx_conf_t * cf);
-static char * ngx_http_secure_link_merge_conf(ngx_conf_t * cf, void * parent,
-    void * child);
+static char * ngx_http_secure_link_merge_conf(ngx_conf_t * cf, void * parent, void * child);
 static ngx_int_t ngx_http_secure_link_add_variables(ngx_conf_t * cf);
 
 static ngx_command_t ngx_http_secure_link_commands[] = {
@@ -139,7 +135,6 @@ static ngx_int_t ngx_http_secure_link_variable(ngx_http_request_t * r,
 	if(hash.len != 16) {
 		goto not_found;
 	}
-
 	if(ngx_http_complex_value(r, conf->md5, &val) != NGX_OK) {
 		return NGX_ERROR;
 	}
@@ -155,50 +150,37 @@ static ngx_int_t ngx_http_secure_link_variable(ngx_http_request_t * r,
 	v->valid = 1;
 	v->no_cacheable = 0;
 	v->not_found = 0;
-
 	return NGX_OK;
-
 not_found:
-
 	v->not_found = 1;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_secure_link_old_variable(ngx_http_request_t * r,
-    ngx_http_secure_link_conf_t * conf, ngx_http_variable_value_t * v,
-    uintptr_t data)
+static ngx_int_t ngx_http_secure_link_old_variable(ngx_http_request_t * r, ngx_http_secure_link_conf_t * conf, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	uchar * p, * start, * end, * last;
+	uchar * start, * end;
 	size_t len;
 	ngx_int_t n;
 	ngx_uint_t i;
 	ngx_md5_t md5;
 	uchar hash[16];
-
-	p = &r->unparsed_uri.data[1];
-	last = r->unparsed_uri.data + r->unparsed_uri.len;
-
+	uchar * p = &r->unparsed_uri.data[1];
+	uchar * last = r->unparsed_uri.data + r->unparsed_uri.len;
 	while(p < last) {
 		if(*p++ == '/') {
 			start = p;
 			goto md5_start;
 		}
 	}
-
 	goto not_found;
-
 md5_start:
-
 	while(p < last) {
 		if(*p++ == '/') {
 			end = p - 1;
 			goto url_start;
 		}
 	}
-
 	goto not_found;
-
 url_start:
 	len = last - p;
 	if(end - start != 32 || len == 0) {
@@ -220,19 +202,14 @@ url_start:
 	v->not_found = 0;
 	v->data = p;
 	return NGX_OK;
-
 not_found:
-
 	v->not_found = 1;
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_secure_link_expires_variable(ngx_http_request_t * r,
-    ngx_http_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_http_secure_link_expires_variable(ngx_http_request_t * r, ngx_http_variable_value_t * v, uintptr_t data)
 {
-	ngx_http_secure_link_ctx_t  * ctx;
-	ctx = (ngx_http_secure_link_ctx_t *)ngx_http_get_module_ctx(r, ngx_http_secure_link_module);
+	ngx_http_secure_link_ctx_t * ctx = (ngx_http_secure_link_ctx_t *)ngx_http_get_module_ctx(r, ngx_http_secure_link_module);
 	if(ctx) {
 		v->len = ctx->expires.len;
 		v->valid = 1;
@@ -243,7 +220,6 @@ static ngx_int_t ngx_http_secure_link_expires_variable(ngx_http_request_t * r,
 	else {
 		v->not_found = 1;
 	}
-
 	return NGX_OK;
 }
 
@@ -260,7 +236,6 @@ static void * ngx_http_secure_link_create_conf(ngx_conf_t * cf)
 	 *   conf->md5 = NULL;
 	 *   conf->secret = { 0, NULL };
 	 */
-
 	return conf;
 }
 
@@ -275,43 +250,27 @@ static char * ngx_http_secure_link_merge_conf(ngx_conf_t * cf, void * parent, vo
 			    "\"secure_link\" and \"secure_link_md5\"");
 			return NGX_CONF_ERROR;
 		}
-
 		return NGX_CONF_OK;
 	}
-
-	if(conf->variable == NULL) {
-		conf->variable = prev->variable;
-	}
-
-	if(conf->md5 == NULL) {
-		conf->md5 = prev->md5;
-	}
-
+	SETIFZQ(conf->variable, prev->variable);
+	SETIFZQ(conf->md5, prev->md5);
 	if(conf->variable == NULL && conf->md5 == NULL) {
 		conf->secret = prev->secret;
 	}
-
 	return NGX_CONF_OK;
 }
 
 static ngx_int_t ngx_http_secure_link_add_variables(ngx_conf_t * cf)
 {
-	ngx_http_variable_t  * var;
-
-	var = ngx_http_add_variable(cf, &ngx_http_secure_link_name, 0);
+	ngx_http_variable_t  * var = ngx_http_add_variable(cf, &ngx_http_secure_link_name, 0);
 	if(var == NULL) {
 		return NGX_ERROR;
 	}
-
 	var->get_handler = ngx_http_secure_link_variable;
-
 	var = ngx_http_add_variable(cf, &ngx_http_secure_link_expires_name, 0);
 	if(var == NULL) {
 		return NGX_ERROR;
 	}
-
 	var->get_handler = ngx_http_secure_link_expires_variable;
-
 	return NGX_OK;
 }
-

@@ -912,16 +912,13 @@ int WhatmanObjectText::HandleCommand(int cmd, void * pExt)
 					text.Transf(CTRANSF_UTF8_TO_INNER);
 					TInputLine * p_il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_WOTEXT_TEXT));
 					if(p_il) {
-						const int max_text_len = 4000;
-						p_il->setFormat(MKSFMT(max_text_len, 0));
-						p_il->setType(MKSTYPE(S_ZSTRING, max_text_len));
-						p_il->setMaxLen(max_text_len);
+						p_il->SetupMaxTextLen(4000);
 						dlg->setCtrlString(CTL_WOTEXT_TEXT, text);
-						dlg->setRef(this); // @v10.4.9
+						dlg->setRef(this);
 						if(ExecView(dlg) == cmOK) {
 							dlg->getCtrlString(CTL_WOTEXT_TEXT, text);
 							Tlo.SetText(text);
-							dlg->updateRef(this); // @v10.4.9
+							dlg->updateRef(this);
 							ok = 1;
 						}
 					}

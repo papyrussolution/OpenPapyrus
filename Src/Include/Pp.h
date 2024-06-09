@@ -720,7 +720,7 @@ public:
 		stIgnoreCheckStorageDir    = 0x0002  // @v9.4.12
 	};
 
-	ObjLinkFiles();
+	// @v12.0.4 ObjLinkFiles();
 	explicit ObjLinkFiles(PPID objType);
 	ObjLinkFiles(const ObjLinkFiles & rS);
 	void   SetMode_IgnoreCheckStorageDir(int set);
@@ -783,7 +783,7 @@ private:
 	int    Helper_ClearBeforeSaving(PPID objID, const char * pAddedStr);
 	int    Helper_Save(PPID objID, const char * pAddedStr, uint idx, SString * pResultFileName);
 
-	PPID   ObjType;
+	const  PPID ObjType; // @v12.0.4 const
 	PPID   ObjID;
 	ulong  FilesNums;
 	ulong  InitFilesNums; // номера файлов присоединенных к объекту, не изменяется после загрузки
@@ -31142,6 +31142,7 @@ public:
 
 struct PPSwProgram { // @flat
 	PPSwProgram();
+	PPSwProgram & Z();
 	bool   FASTCALL IsEq(const PPSwProgram & rS) const;
 	bool   FASTCALL CheckForFilt(const SwProgramFilt * pFilt) const;
 	PPID   ID;             // @id
@@ -31155,24 +31156,32 @@ struct PPSwProgram { // @flat
 class PPSwProgramPacket {
 public:
 	PPSwProgramPacket();
-	void    Init();
+	PPSwProgramPacket(const PPSwProgramPacket & rS);
+	PPSwProgramPacket & Z();
+	PPSwProgramPacket & FASTCALL operator = (const PPSwProgramPacket & rS);
 	bool    FASTCALL IsEq(const PPSwProgramPacket & rS) const;
 	bool    FASTCALL Copy(const PPSwProgramPacket & rS);
 	PPSwProgram Rec;
 	ObjLinkFiles LinkFiles;
 	ObjTagList TagL;
+	SString CategoryName_; // @v12.0.4 @transient Поле используется как временное хранилище имени категории при импорте. При извлечении 
+		// пакета из базы данных и при сохранении никак не обрабатывается. В методе IsEq не учитывается.
 };
 
 class PPObjSwProgram : public PPObjGoods { // @construction
 public:
 	static int Helper_GetRec(const Goods2Tbl::Rec & rGoodsRec, PPSwProgram * pRec);
 	static int Helper_SetRec(const PPSwProgram * pRec, Goods2Tbl::Rec & rGoodsRec);
+	static SJson * PackToJson(const PPSwProgramPacket & rPack);
+	static int PackFromJson(const SJson * pJs, const char * pImgPathUtf8, PPSwProgramPacket & rPack);
 
-	PPObjSwProgram(void * extraPtr = 0);
+	explicit PPObjSwProgram(void * extraPtr = 0);
 	~PPObjSwProgram();
 	int    Get(PPID, PPSwProgramPacket *);
 	int    Put(PPID *, PPSwProgramPacket *, int use_ta);
 	virtual void * CreateObjListWin(uint aFlags, void * extraPtr);
+	SJson * ExportToJson();
+	int    ImportFromJson(const SJson * pJs, const char * pImgPathUtf8);
 private:
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	virtual int  Edit(PPID * pID, void * extraPtr);
@@ -57004,6 +57013,7 @@ public:
 	int    Run(const Param & rP);
 	int    TransmitCcList(const Param & rP, const TSCollection <CCheckPacket> & rList);
 	static int Test();
+	static int InteractiveCheck();
 
 	class PermissiveModeInterface {
 	public:
@@ -59423,6 +59433,7 @@ int    ImportCompGS(); // @vmiller
 int    ImportPhoneList();
 int    ImportWorkbook();
 int    ImportSCard();
+int    ImportSwProgram(); // @v12.0.4
 //int    ImportPosRefs(TSCollection <PPPosProtocol::QueryProcessBlock> * pQpBlkList);
 int    SetDatabaseChain();
 int    DBMaintenance(PPDbEntrySet2 *, int autoMode);

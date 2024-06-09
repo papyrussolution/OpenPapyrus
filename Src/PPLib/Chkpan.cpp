@@ -7332,6 +7332,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						CCheckPacket::PreprocessChZnCodeResult chzn_result;
 						if(InitCashMachine() && P_CM) {
 							SString msg_buf;
+							//reconstructed_original.Insert(0, "\xE8"); // @debug
 							//PPChZnPrcssr::ReconstructOriginalChZnCode(const GtinStruc & rS, SString & rBuf)
 							if(P_CM->SyncPreprocessChZnCode(PPSyncCashSession::ppchzcopInit, /*mark*/reconstructed_original, 1.0, 0/*uomId*/, 0, chzn_result)) {
 								int r = P_CM->SyncPreprocessChZnCode(PPSyncCashSession::ppchzcopCheck, /*mark*/reconstructed_original, 1.0, 0/*uomId*/, 0, chzn_result);

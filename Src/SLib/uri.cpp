@@ -153,7 +153,6 @@ static int FASTCALL UriAppendSegment(UriUri * uri, const char * first, const cha
 
 static int FASTCALL UriEqualsAuthority(const UriUri * pFirst, const UriUri * second)
 {
-	
 	if(pFirst->HostData.ip4) // IPv4 
 		return (second->HostData.ip4 && !memcmp(pFirst->HostData.ip4->data, second->HostData.ip4->data, 4)) ? TRUE : FALSE;
 	else if(pFirst->HostData.ip6) // IPv6 
@@ -1392,8 +1391,6 @@ UriTextRange & FASTCALL UriTextRange::operator = (const UriTextRange & rS)
 	P_AfterLast = rS.P_AfterLast;
 	return *this;
 }
-
-int UriTextRange::Len() const { return (int)(P_AfterLast - P_First); }
 
 static int FASTCALL UriFixPercentEncodingMalloc(const char ** ppFirst, const char ** ppAfterLast)
 {

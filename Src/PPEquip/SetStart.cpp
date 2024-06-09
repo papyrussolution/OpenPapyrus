@@ -544,6 +544,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 											  продукция 
 											• 101 – табачная продукция (Казахстан)
 								*/
+								/* @v12.0.4 (блок замещен ниже копией из модуля frontol.cpp)
 								int    identified_type = 0;
 								if(gds_info.Flags_ & gds_info.fGMarkedType) {
 									switch(gds_info.ChZnProdType) {
@@ -560,10 +561,37 @@ int ACS_SETSTART::ExportData(int updOnly)
 										case GTCHZNPT_JEWELRY: identified_type = 14; break; // @v11.4.9
 										case GTCHZNPT_WATER: identified_type = 15; break; // @v11.5.6
 										// } @v11.1.10 
+										//case GTCHZNPT_BEER: identified_type = 15; break; // @v11.5.6
 									}
 								}
 								if(identified_type)
 									tail.Cat(identified_type); // #55 Тип маркированной продукции
+								*/
+								// @v12.0.4 (сделан copy-paste из модуля frontol.cpp) {
+								if(gds_info.Flags_ & gds_info.fGMarkedType) {
+									int mark_type = 0;
+									switch(gds_info.ChZnProdType) {
+										case GTCHZNPT_SHOE: mark_type = 5; break;
+										case GTCHZNPT_TEXTILE: mark_type = 11; break;
+										case GTCHZNPT_CARTIRE: mark_type = 10; break;
+										case GTCHZNPT_PERFUMERY: mark_type = 9; break;
+										case GTCHZNPT_TOBACCO: mark_type = 4; break; 
+										case GTCHZNPT_ALTTOBACCO: mark_type = 12; break;
+										case GTCHZNPT_MEDICINE: mark_type = 3; break;
+										case GTCHZNPT_FUR: mark_type = 2; break;
+										case GTCHZNPT_MILK: mark_type = 13; break;
+										case GTCHZNPT_WATER: mark_type = 15; break;
+										case GTCHZNPT_DRAFTBEER: mark_type = 18; break;
+										case GTCHZNPT_BEER: mark_type = 17; break;
+										default:
+											if(gds_info.ChZnProdType)
+												mark_type = 7; // 7–иная маркированная продукция
+											break;
+									}
+									if(mark_type)
+										tail.Cat(mark_type); // #55 Признак алкогольной продукции
+								}
+								// } @v12.0.4 
 								tail.Semicol();         
 							}
 							// } @v10.9.0 

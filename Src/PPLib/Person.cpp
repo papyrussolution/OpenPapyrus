@@ -697,7 +697,7 @@ int FASTCALL CashierInfo::IsEq(const CashierInfo & rS) const
 //
 // PPPersonPacket
 //
-PPPersonPacket::PPPersonPacket() : PPPerson(), ObjTagContainerHelper(TagL, PPOBJ_PERSON, PPTAG_PERSON_UUID), P_SCardPack(0)
+PPPersonPacket::PPPersonPacket() : PPPerson(), ObjTagContainerHelper(TagL, PPOBJ_PERSON, PPTAG_PERSON_UUID), P_SCardPack(0), LinkFiles(PPOBJ_PERSON)
 {
 	// @v11.5.5 destroy();
 }

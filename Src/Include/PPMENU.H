@@ -549,5 +549,7 @@
 #define cmSwProgramCategory            655 // @v11.9.12 Категории исполняемых программ (проект wsctl)
 #define cmComputer                     656 // @v12.0.0 Управляемые компьютеры (проект wsctl)
 #define cmComputerCategory             657 // @v12.0.1 Категории управляемых компьютеров (проект wsctl)
+#define cmCheckChZnMark                658 // @v12.0.4 Проверка марки честный знак
+#define cmImportSwProgram              659 // @v12.0.4 Импорт списка исполняемых программ (проект wsctl)
 
 #endif /* __PPMENU_H */

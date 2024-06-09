@@ -136,7 +136,7 @@ int WorkbookCore::NextEnum(long enumHandle, WorkbookTbl::Rec * pRec)
 //
 //
 //
-PPWorkbookPacket::PPWorkbookPacket()
+PPWorkbookPacket::PPWorkbookPacket() : F(PPOBJ_WORKBOOK)
 {
 	destroy();
 }
@@ -684,7 +684,7 @@ public:
 		{
 			TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_WORKBOOK_DESCR));
 			if(p_il) {
-				p_il->setMaxLen(512);
+				p_il->SetupMaxTextLen(512);
 				Data.GetExtStrData(WBEXSTR_DESCRIPTION, temp_buf);
 				setCtrlString(CTL_WORKBOOK_DESCR, temp_buf);
 			}
@@ -735,13 +735,14 @@ public:
 		{
 			if(getCtrlView(CTL_WORKBOOK_IMAGE) && !DisableImage) {
 				ImageBrowseCtrlGroup::Rec rec;
-				if(getGroupData(ctlgroupIBG, &rec))
+				if(getGroupData(ctlgroupIBG, &rec)) {
 					if(rec.Path.Len()) {
 						THROW(Data.F.Replace(0, rec.Path));
 					}
 					else {
 						Data.F.Remove(0);
 					}
+				}
 			}
 			else {
 				getCtrlString(sel = CTL_WORKBOOK_FILE, temp_buf);

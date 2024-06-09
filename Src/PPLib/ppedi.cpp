@@ -5218,7 +5218,7 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 		ScURL  curl;
 		if(Epp.GetExtStrData(PPEdiProviderPacket::extssSubIn, _box) > 0 && _box.NotEmptyS())
 			url.SetComponent(url.cPath, _box);
-		url.Composite(InetUrl::stAll, temp_buf); // @debug
+		url.Compose(InetUrl::stAll, temp_buf); // @debug
 		SFileEntryPool fp;
 		SFileEntryPool::Entry fpe;
 		THROW_SL(curl.FtpList(url, ScURL::mfVerbose, fp));
@@ -8093,7 +8093,7 @@ int EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchangeFilt 
 			// page : страница
 
 			//THROW_SL(p_query->InsertString("doc_type", pDocType));
-			url.Composite(0, temp_buf);
+			url.Compose(0, temp_buf);
 			PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 			THROW_SL(query.ToStr(json_buf));
 		}
@@ -8200,7 +8200,7 @@ int EdiProviderImplementation_Exite::Implement_Auth(SString & rToken)
 		url.GetComponent(url.cPassword, 0, temp_buf);
 		THROW_SL(query.InsertString("varPassword", temp_buf.Transf(CTRANSF_INNER_TO_UTF8)));
 		url.SetComponent(url.cPassword, 0);
-		url.Composite(0, temp_buf);
+		url.Compose(0, temp_buf);
 		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 		THROW_SL(query.ToStr(json_buf));
 		//json_buf.EncodeUrl(temp_buf, 0);
@@ -8271,7 +8271,7 @@ int EdiProviderImplementation_Exite::Helper_SendDocument(const char * pDocType, 
 		THROW_SL(query.InsertInt("return_id", 1));
 		THROW_SL(query.ToStr(json_buf));
 	}
-	url.Composite(0, temp_buf);
+	url.Compose(0, temp_buf);
 	PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 	//json_buf.EncodeUrl(temp_buf, 0);
 
@@ -8689,7 +8689,7 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 		SJson query(SJson::tOBJECT);
 		THROW_SL(query.InsertString("varToken", AT.Token));
 		THROW_SL(query.InsertString("intDocID", pIdent->SId));
-		url.Composite(0, temp_buf);
+		url.Compose(0, temp_buf);
 		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "URL").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
 		THROW_SL(query.ToStr(json_buf));
 	}

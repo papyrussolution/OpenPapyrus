@@ -671,6 +671,19 @@ TInputLine::~TInputLine()
 const char * TInputLine::getText() { return Data.cptr(); }
 ComboBox * TInputLine::GetCombo() { return P_Combo; }
 
+bool TInputLine::SetupMaxTextLen(uint maxTextLen)
+{
+	bool   ok = true;
+	if(maxTextLen < UINT16_MAX) {
+		setFormat(MKSFMT(maxTextLen, 0));
+		setType(MKSTYPE(S_ZSTRING, maxTextLen));
+		setMaxLen(maxTextLen);
+	}
+	else
+		ok = false;
+	return ok;
+}
+
 void TInputLine::setMaxLen(int newMaxLen)
 {
 	MaxLen = newMaxLen;

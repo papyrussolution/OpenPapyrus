@@ -90,14 +90,14 @@ static void blt_in(void * closure, int16 x, int16 y, int16 w, int16 h, uint16 co
 	struct blt_in * info = static_cast<struct blt_in *>(closure);
 	cairo_color_t color;
 	cairo_rectangle_int_t rect;
-	if(coverage == 0xffff)
-		return;
-	rect.x = x;
-	rect.y = y;
-	rect.width  = w;
-	rect.height = h;
-	_cairo_color_init_rgba(&color, 0, 0, 0, coverage / (double)0xffff);
-	info->compositor->fill_rectangles(info->dst, CAIRO_OPERATOR_IN, &color, &rect, 1);
+	if(coverage != _FFFF16) {
+		rect.x = x;
+		rect.y = y;
+		rect.width  = w;
+		rect.height = h;
+		_cairo_color_init_rgba(&color, 0, 0, 0, coverage / (double)0xffff);
+		info->compositor->fill_rectangles(info->dst, CAIRO_OPERATOR_IN, &color, &rect, 1);
+	}
 }
 
 static cairo_surface_t * create_composite_mask(const cairo_mask_compositor_t * compositor, cairo_surface_t * dst,

@@ -1736,12 +1736,12 @@ int PPGetConfigList(StrAssocArray * pAry)
 //
 #define MAX_LINKED_FILES 32
 
-ObjLinkFiles::ObjLinkFiles()
+/* @v12.0.4 ObjLinkFiles::ObjLinkFiles()
 {
 	Clear();
-}
+}*/
 
-ObjLinkFiles::ObjLinkFiles(PPID objType)
+ObjLinkFiles::ObjLinkFiles(PPID objType) : ObjType(objType)
 {
 	if(objType)
 		Init(objType);
@@ -1749,7 +1749,7 @@ ObjLinkFiles::ObjLinkFiles(PPID objType)
 		Clear();
 }
 
-ObjLinkFiles::ObjLinkFiles(const ObjLinkFiles & rS)
+ObjLinkFiles::ObjLinkFiles(const ObjLinkFiles & rS) : ObjType(rS.ObjType)
 {
 	Copy(rS);
 }
@@ -1764,7 +1764,7 @@ void ObjLinkFiles::Clear()
 	Files.freeAll();
 	State = 0;
 	StoreDir.Z();
-	ObjType = 0;
+	// @v12.0.4 ObjType = 0;
 	ObjID = 0;
 	FilesNums = 0;
 	InitFilesNums = 0;
@@ -1773,18 +1773,20 @@ void ObjLinkFiles::Clear()
 void FASTCALL ObjLinkFiles::Init(PPID objType)
 {
 	Clear();
+	assert(objType == ObjType); // @v12.0.4
 	SString temp_buf;
 	DBS.GetDbPath(DBS.GetDbPathID(), StoreDir);
 	PPLoadText(PPTXT_LNKFILESDIR, temp_buf);
 	StoreDir.SetLastSlash().Cat(temp_buf).SetLastSlash();
-	ObjType = objType;
+	// @v12.0.4 ObjType = objType;
 }
 
 void ObjLinkFiles::Init(PPID objType, const char * pDir)
 {
 	Clear();
+	assert(objType == ObjType); // @v12.0.4
 	(StoreDir = pDir).SetLastSlash();
-	ObjType = objType;
+	// @v12.0.4 ObjType = objType;
 }
 
 int FASTCALL ObjLinkFiles::Copy(const ObjLinkFiles & rS)
@@ -1797,7 +1799,7 @@ int FASTCALL ObjLinkFiles::Copy(const ObjLinkFiles & rS)
 	}
 	FilesNums = rS.FilesNums;
 	StoreDir  = rS.StoreDir;
-	ObjType   = rS.ObjType;
+	// @v12.0.4 ObjType   = rS.ObjType;
 	ObjID     = rS.ObjID;
 	return ok;
 }
@@ -2129,8 +2131,7 @@ int ObjLinkFiles::Save(PPID objID, PPID addedID)
 
 int ObjLinkFiles::Serialize(int dir, int transmissionNotSupported, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
-	const size_t file_chunk_size = 8 * 1024 * 1024;
-
+	const size_t file_chunk_size = SMEGABYTE(8);
 	int    ok = 1;
 	uint32 _c = 0; // Количество файлов
 	int32  transmission_not_supported = BIN(dir > 0 && transmissionNotSupported);
@@ -2146,7 +2147,8 @@ int ObjLinkFiles::Serialize(int dir, int transmissionNotSupported, SBuffer & rBu
 		}
 	}
 	else {
-		THROW_SL(pSCtx->Serialize(dir, ObjType, rBuf));
+		PPID   temp_obj_type = ObjType; // @v12.0.4
+		THROW_SL(pSCtx->Serialize(dir, temp_obj_type, rBuf)); // @v12.0.4 ObjType-->temp_obj_type (ObjType is const now)
 		THROW_SL(pSCtx->Serialize(dir, ObjID, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, FilesNums, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, InitFilesNums, rBuf));

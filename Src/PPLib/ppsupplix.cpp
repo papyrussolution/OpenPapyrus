@@ -3256,7 +3256,7 @@ int iSalesPepsi::GetOrderFilesFromMailServer(PPID mailAccID, const char * pDestP
 			}
 		}
 		url.SetQueryParam("wildcard", "*.csv");
-		url.Composite(0, temp_buf);
+		url.Compose(0, temp_buf);
 		uftp.SrcPath = temp_buf;
 		if(deleMsg)
 			uftp.Flags |= uftp.fDeleteAfter;

@@ -1246,11 +1246,10 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.CheckType |= 0x80;
 			}
 			// } @v11.3.6
-			// @v11.9.4 {
-			if(pb.Get("DRAFTBEERSIMPLIFIED", param_val) > 0) {
+			if(pb.Get("DRAFTBEERSIMPLIFIED", param_val) > 0) // @v11.9.4
 				Check.DraftBeerSimplifiedCode = param_val;
-			}
-			// } @v11.9.4 
+			else
+				Check.DraftBeerSimplifiedCode.Z(); // @v12.0.4
 			// @v11.8.0 {
 			{
 				if(pb.Get("PRESCRDATE", param_val) > 0)
@@ -1476,19 +1475,17 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			int   is_vat_free = 0;
 			SetLastItems(cmd, 0);
 			// @v10.1.2 THROW(StartWork());
-			if(pb.Get("QUANTITY", param_val) > 0)
-				Check.Qtty = param_val.ToReal();
-			if(pb.Get("PHQTTY", param_val) > 0) // @v11.9.3
-				Check.PhQtty = param_val.ToReal();
+			Check.Qtty = (pb.Get("QUANTITY", param_val) > 0) ? param_val.ToReal() : 0.0;
+			Check.PhQtty = (pb.Get("PHQTTY", param_val) > 0) ? param_val.ToReal() : 0.0; // @v11.9.3
 			if(pb.Get("UOMID", param_val) > 0) // @v11.9.5
 				Check.UomId = param_val.ToLong();
-			if(pb.Get("DRAFTBEERSIMPLIFIED", param_val) > 0) { // @v11.9.4
+			if(pb.Get("DRAFTBEERSIMPLIFIED", param_val) > 0) // @v11.9.4
 				Check.DraftBeerSimplifiedCode = param_val;
-			}
+			else
+				Check.DraftBeerSimplifiedCode.Z(); // @v12.0.4
 			if(pb.Get("PRICE", param_val) > 0)
 				Check.Price = param_val.ToReal();
-			if(pb.Get("DEPARTMENT", param_val) > 0)
-				Check.Department = param_val.ToLong();
+			Check.Department = (pb.Get("DEPARTMENT", param_val) > 0) ? param_val.ToLong() : 0;
 			if(pb.Get("TEXT", param_val) > 0)
 				Check.Text = param_val;
 			if(pb.Get("CODE", param_val) > 0)
@@ -1566,8 +1563,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			}
 			// @v11.8.0 {
 			{
-				if(pb.Get("PRESCRDATE", param_val) > 0)
-					Check.PrescrDate = strtodate_(param_val, DATF_ISO8601CENT);
+				Check.PrescrDate = (pb.Get("PRESCRDATE", param_val) > 0) ? strtodate_(param_val, DATF_ISO8601CENT) : ZERODATE;
 				if(pb.Get("PRESCRSERIAL", param_val) > 0)
 					Check.PrescrSerial = param_val;
 				if(pb.Get("PRESCRNUMB", param_val) > 0)
@@ -2509,14 +2505,14 @@ int PiritEquip::RunCheck(int opertype)
 			{
 				uint16 product_type_bytes = 0;
 				uint8  chzn_1162_bytes[128];
-				if(/*false*/true/*@construction Пока не задействуем код - не работает*/ && (Check.DraftBeerSimplifiedCode.NotEmpty() && Check.PhQtty > 0.0)) { 
+				if(Check.DraftBeerSimplifiedCode.NotEmpty() && Check.PhQtty > 0.0) { 
 					product_type_bytes = 0x444D;
 					int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, 0, chzn_1162_bytes, sizeof(chzn_1162_bytes));
 					if(rl > 0) {
 						str.Z();
 						// @v11.1.10 {
 						if(OfdVer.IsGe(1, 2, 0)) {
-							/*if(Check.ChZnPpStatus > 0)*/{
+							{
 								in_data.Z();
 								CreateStr(15, in_data);
 								CreateChZnCode(/*Check.ChZnCode*/Check.ChZnGTIN, in_data); // (Строка)[0..128] Код маркировки
@@ -2533,7 +2529,7 @@ int PiritEquip::RunCheck(int opertype)
 								}
 								THROW(ExecCmd("79", in_data, out_data, r_error)); // query=15
 							}
-							if(/*false*/true) {
+							{
 								in_data.Z(); // @v11.2.3 @fix
 								CreateStr(str.Z(), in_data); // #1 (tag 1162) Код товарной номенклатуры (для офд 1.2 - пустая строка)
 								CreateStr("[M]", in_data);
@@ -2783,7 +2779,6 @@ int PiritEquip::RunCheck(int opertype)
 			CreateStr(Check.Ptt, in_data); // @v10.4.1 признак способа расчета (integer)
 			CreateStr(Check.Stt, in_data); // @erikO v10.4.12 Признак предмета расчета(integer)
 			{
-				// @v9.9.4 const int do_check_ret = 0;
 				const int do_check_ret = 1; // BIN(Check.Price == 0.0); // @v9.9.4 // @v11.2.3 =1
 				Check.Z();
 				THROW(ExecCmd("42", in_data, out_data, r_error)); // @v11.2.3

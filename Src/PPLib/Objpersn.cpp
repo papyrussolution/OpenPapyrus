@@ -4083,10 +4083,8 @@ public:
 		getCtrlString(CTL_PERSON_MEMO, Data.SMemo); // @v11.1.12
 		Data.SMemo.Strip(); // @v11.1.12
 		getCtrlData(CTLSEL_PERSON_CATEGORY, &Data.Rec.CatID);
-		// @v10.9.0 {
 		if(getCtrlView(CTL_PERSON_GENDER))
 			PersonCore::SetGender(Data.Rec, GetClusterData(CTL_PERSON_GENDER));
-		// } @v10.9.0
 		{
 			ImageBrowseCtrlGroup::Rec rec;
 			if(getGroupData(ctlgroupIbg, &rec))

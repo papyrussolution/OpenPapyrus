@@ -319,7 +319,7 @@ public:
 	};
 	class DComputerRegistration : public DServerError { // @v12.0.1
 	public:
-		DComputerRegistration() : CategoryID(0)
+		DComputerRegistration() : CategoryID(0), ComputerID(0), PrcID(0)
 		{
 		}
 		DComputerRegistration & Z()
@@ -327,12 +327,16 @@ public:
 			DServerError::Z();
 			Name.Z();
 			CategoryName.Z();
+			ComputerID = 0;
+			PrcID = 0;
 			CategoryID = 0;
 			PrcUuid.Z();
 			return *this;
 		}
 		SString Name;
 		SString CategoryName;
+		PPID   ComputerID;
+		PPID   PrcID;
 		PPID   CategoryID;
 		S_GUID PrcUuid;
 	};
@@ -466,6 +470,7 @@ public:
 			syncdataProgramList,      // D_PgmList Список программ, которые могут быть запущены из оболочки
 			syncdataRegistration,     // @v11.9.10 D_Reg Результат регистрации клиента
 			syncdataComputerCategoryList, // @v12.0.2 Результат извлечения списка категорий компьютеров
+			syncdataComputerRegistration, // @v12.0.4
 		};
 
 		WsCtl_SelfIdentityBlock SidBlk;
@@ -479,10 +484,11 @@ public:
 		SyncEntry <DAuth>    D_Auth;
 		SyncEntry <DRegistration> D_Reg; // @v11.9.10
 		SyncEntry <DComputerCategoryList> D_CompCatList; // @v12.0.2
+		SyncEntry <DComputerRegistration> D_CompReg; // @v12.0.4
 
 		State() : D_Prc(syncdataPrc), D_Test(syncdataTest), D_Acc(syncdataAccount), D_Prices(syncdataPrices), D_TSess(syncdataTSess), 
 			D_ConnStatus(syncdataJobSrvConnStatus), D_Auth(syncdataAuth), SelectedTecGoodsID(0), D_LastErr(syncdataServerError),
-			D_Reg(syncdataRegistration), D_CompCatList(syncdataComputerCategoryList)
+			D_Reg(syncdataRegistration), D_CompCatList(syncdataComputerCategoryList), D_CompReg(syncdataComputerRegistration)
 		{
 		}
 		PPID   GetSelectedTecGoodsID() const { return SelectedTecGoodsID; }
@@ -539,7 +545,8 @@ public:
 	};*/
 	class ImDialog_WsRegisterComputer : public ImDialogState {
 	public:
-		ImDialog_WsRegisterComputer(WsCtl_ImGuiSceneBlock & rBlk, WsCtl_SelfIdentityBlock * pCtx) : R_Blk(rBlk), ImDialogState(pCtx), CompCatID(0)
+		ImDialog_WsRegisterComputer(WsCtl_ImGuiSceneBlock & rBlk, WsCtl_SelfIdentityBlock * pCtx) : R_Blk(rBlk), 
+			ImDialogState(pCtx), CompCatID(0), WaitOnQueryResult(false)
 		{
 			SString temp_buf;
 			if(pCtx) {
@@ -630,6 +637,9 @@ public:
 				ok = false;
 			return ok;
 		}
+		void   SetWaitingOnQueryResult() { WaitOnQueryResult = true; }
+		void   ResetWaitingOnQueryResult() { WaitOnQueryResult = false; }
+		bool   IsWaitingOnQueryResult() const { return WaitOnQueryResult; }
 	private:
 		WsCtl_ImGuiSceneBlock & R_Blk;
 		WsCtl_SelfIdentityBlock Data;
@@ -637,6 +647,7 @@ public:
 		char   SubstTxt_MacAdr[48];
 		char   SubstTxt_UUID[48];
 		long   CompCatID; // @v12.0.3
+		bool   WaitOnQueryResult; // @v12.0.4
 	};
 private:
 	//
@@ -1604,10 +1615,20 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 						SString reply_buf;
 						reply.StartReading(&reply_buf);
 						if(reply.CheckRepError()) {
+							SJson * p_js_obj = SJson::Parse(reply_buf);
+							if(comp_reg_blk.FromJsonObj(p_js_obj)) {
+								st_data.CategoryID = comp_reg_blk.CompCatID;
+								st_data.ComputerID = comp_reg_blk.ComputerID;
+								st_data.PrcID = comp_reg_blk.PrcID;
+								st_data.Name = comp_reg_blk.Name;
+								st_data.CategoryName = comp_reg_blk.CompCatName;
+							}
 						}
 						else {
 							st_data.SetupByLastError();
 						}
+						const LDATETIME now_dtm = getcurdatetime_();
+						P_St->D_CompReg.SetData(st_data);
 					}
 				}
 			}
@@ -2943,6 +2964,8 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								//PolicyL.CreateSystemImage();
 								if(!P_Dlg_RegComp) { 
 									DComputerCategoryList st_data_compcat_list; // @v12.0.3
+									DComputerRegistration st_data_compreg;
+									St.D_CompReg.GetData(st_data_compreg); // Обнуляем текущее состояние регистрации компьютера
 									St.D_CompCatList.GetData(st_data_compcat_list);
 									if(!st_data_compcat_list.DtmActual) {
 										P_CmdQ->Push(WsCtlReqQueue::Req(WsCtl_CliSession::reqidQueryComputerCategoryList));
@@ -2966,23 +2989,39 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 									}
 								}
 								if(P_Dlg_RegComp) {
-									int r = P_Dlg_RegComp->Build();
-									if(r != 0) {
-										if(r > 0) {
-											if(P_Dlg_RegComp->CommitData()) {
-												WsCtlReqQueue::Req req(PPSCMD_WSCTL_REGISTERCOMPUTER);
-												if(St.SidBlk.MacAdrList.getCount()) {
-													for(uint i = 0; i < St.SidBlk.MacAdrList.getCount() && i < SIZEOFARRAY(req.P.MacAdrList); i++) {
-														req.P.MacAdrList[i] = St.SidBlk.MacAdrList.at(i);
-													}
-												}
-												req.P.Uuid = St.SidBlk.Uuid;
-												req.P.CompCatID = St.SidBlk.CompCatID; // @v12.0.4
-												STRNSCPY(req.P.NameTextUtf8, St.SidBlk.PrcName);
-												P_CmdQ->Push(req);
+									if(P_Dlg_RegComp->IsWaitingOnQueryResult()) {
+										DComputerRegistration st_data;
+										St.D_CompReg.GetData(st_data);
+										if(st_data._Status == 0) {
+											if(st_data.ComputerID) {
+												// @todo @ok
+												ZDELETE(P_Dlg_RegComp); // Уходим из диалога
 											}
 										}
-										ZDELETE(P_Dlg_RegComp);
+										else {
+											// @todo @error
+											P_Dlg_RegComp->ResetWaitingOnQueryResult();
+										}
+									}
+									else {
+										int r = P_Dlg_RegComp->Build();
+										if(r != 0) {
+											if(r > 0) {
+												if(P_Dlg_RegComp->CommitData()) {
+													WsCtlReqQueue::Req req(PPSCMD_WSCTL_REGISTERCOMPUTER);
+													if(St.SidBlk.MacAdrList.getCount()) {
+														for(uint i = 0; i < St.SidBlk.MacAdrList.getCount() && i < SIZEOFARRAY(req.P.MacAdrList); i++) {
+															req.P.MacAdrList[i] = St.SidBlk.MacAdrList.at(i);
+														}
+													}
+													req.P.Uuid = St.SidBlk.Uuid;
+													req.P.CompCatID = St.SidBlk.CompCatID; // @v12.0.4
+													STRNSCPY(req.P.NameTextUtf8, St.SidBlk.PrcName);
+													P_CmdQ->Push(req);
+													P_Dlg_RegComp->SetWaitingOnQueryResult();
+												}
+											}
+										}
 									}
 								}
 							}

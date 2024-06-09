@@ -2572,11 +2572,7 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 			sl_param.DivID = CurIter.DivID;
 			sl_param.PaymTermTag = CurIter.Ptt; // @v10.4.1
 			sl_param.SbjTermTag = CurIter.Stt; // @erikI v10.4.12
-			// @v11.9.3 {
-			if(CurIter.IsSimplifiedDraftBeer) {
-				sl_param.Flags |= SlipLineParam::fDraftBeerSimplified;
-			}
-			// } @v11.9.3 
+			SETFLAG(sl_param.Flags, SlipLineParam::fDraftBeerSimplified, CurIter.IsSimplifiedDraftBeer); // @v11.9.3
 		}
 		else if(ok < 0) {
 			if(CurZone == 0)

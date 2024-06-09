@@ -2760,7 +2760,7 @@ int PPCCheckImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 					SString url_path;
 					url_path.EncodeUrl(temp_buf, 0);
 					url.SetComponent(InetUrl::cPath, temp_buf);
-					url.Composite(0, _file_spec);
+					url.Compose(0, _file_spec);
 				}
 				else
 					_file_spec = temp_buf;

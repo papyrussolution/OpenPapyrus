@@ -821,10 +821,7 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 		TInputLine * p_memo_input = static_cast<TInputLine *>(getCtrlView(CTL_BILL_MEMO));
 		if(p_memo_input) {
 			PPSetupCtrlMenu(this, CTL_BILL_MEMO, CTLMNU_BILL_MEMO, CTRLMENU_BILLMEMO);
-			const uint max_memo_text_size = 512; // @v11.1.12
-			p_memo_input->setFormat(MKSFMT(max_memo_text_size, 0)); // @v11.1.12 sizeof(pPack->Rec.Memo)-->max_memo_text_size
-			p_memo_input->setType(MKSTYPE(S_ZSTRING, max_memo_text_size)); // @v11.1.12 sizeof(pPack->Rec.Memo)-->max_memo_text_size
-			p_memo_input->setMaxLen(max_memo_text_size); // @v11.1.12 sizeof(pPack->Rec.Memo)-->max_memo_text_size
+			p_memo_input->SetupMaxTextLen(512);
 			// (не понравилось пользователям) SetupWordSelector(CTL_BILL_MEMO, new TextHistorySelExtra("bill-memo-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
 		}
 	}

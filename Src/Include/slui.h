@@ -3879,6 +3879,13 @@ public:
 	virtual int    TransmitData(int dir, void * pData);
 	virtual void   setState(uint aState, bool enable);
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	//
+	// Descr: Устанавливает максимальную длину текста поля ввода. 
+	// Returns: 
+	//   true - success
+	//   false - fail (аргумент maxTextLen не должен превышать UINT16_MAX)
+	//
+	bool   SetupMaxTextLen(uint maxTextLen);
 	void   setupCombo(ComboBox *);
 	void   setupFreeTextWordSelector(WordSel_ExtraBlock * pBlk);
 	void   setFormat(long fmt);

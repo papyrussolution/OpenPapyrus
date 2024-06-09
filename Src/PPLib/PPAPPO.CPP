@@ -783,6 +783,7 @@ int PPApp::processCommand(uint cmd)
 				pp.ProcessInput(pib);
 			}
 			break;
+		case cmImportSwProgram:       ImportSwProgram();                 break; // @v12.0.4
 		case cmProcessSartre:         DoProcessSartre(0);                break;
 		case cmChainDatabase:         SetDatabaseChain();                break;
 		case cmDeleteTmpFiles:        DeleteTmpFiles();                  break;
@@ -905,6 +906,7 @@ int PPApp::processCommand(uint cmd)
 		case cmTestTddo2:               TestTddo2(); break; // @v9.8.3
 		case cmTestVetis:               TestVetis(); break; // @v9.8.9
 		case cmTestMqc:                 TestMqc();   break; // @v10.5.7
+		case cmCheckChZnMark:           PPChZnPrcssr::InteractiveCheck(); break; // @v12.0.4
 		case cmConvertLatexToHtml:      PPTex2Html(); break;
 		case cmConvertVersionToHtml:    PPVer2Html(); break;
 		// @underconstruction case cmGenerateGoodsBills:   GenerateGoodsBills(); break;

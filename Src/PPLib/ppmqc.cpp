@@ -979,7 +979,7 @@ int PPMqbClient::QueueDelete(const char * pQueue, long queueFlags)
 	THROW(oneof3(prot, 0, InetUrl::protAMQP, InetUrl::protAMQPS));
 	if(prot) {
 		url.SetProtocol(0);
-		url.Composite(0, host);
+		url.Compose(0, host);
 	}
 	// } @v11.2.12 
 	THROW(rC.Connect(host, NZOR(rP.Port, InetUrl::GetDefProtocolPort(InetUrl::protAMQP)/*5672*/)));

@@ -204,7 +204,7 @@ public:
 	// ARG(rBuf OUT): Буфер, в котором формируется url.
 	// Returns: комбинация флагов stXXX, соответствующая набору компонентов, внесенному в буфер rBuf.
 	//
-	int    Composite(long flags, SString & rBuf) const;
+	int    Compose(long flags, SString & rBuf) const;
 private:
 	int    Protocol;
 	StrAssocArray TermList;

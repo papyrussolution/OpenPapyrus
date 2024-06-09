@@ -170,7 +170,7 @@ PPPsnEventPacket::OnTurnBlock & PPPsnEventPacket::OnTurnBlock::Z()
 //
 //
 //
-PPPsnEventPacket::PPPsnEventPacket()
+PPPsnEventPacket::PPPsnEventPacket() : LinkFiles(PPOBJ_PERSONEVENT)
 {
 }
 

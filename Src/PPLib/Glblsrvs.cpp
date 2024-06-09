@@ -1115,19 +1115,11 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 			const int max_text_len = 512;
 			{
 				TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_SUVK_URL));
-				if(p_il) {
-					p_il->setFormat(MKSFMT(max_text_len, 0));
-					p_il->setType(MKSTYPE(S_ZSTRING, max_text_len));
-					p_il->setMaxLen(max_text_len);
-				}
+				CALLPTRMEMB(p_il, SetupMaxTextLen(max_text_len));
 			}
 			{
 				TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_SUVK_APIKEY));
-				if(p_il) {
-					p_il->setFormat(MKSFMT(max_text_len, 0));
-					p_il->setType(MKSTYPE(S_ZSTRING, max_text_len));
-					p_il->setMaxLen(max_text_len);
-				}
+				CALLPTRMEMB(p_il, SetupMaxTextLen(max_text_len));
 			}
 			SetupPPObjCombo(this, CTLSEL_SUVK_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, OLW_CANINSERT, reinterpret_cast<void *>(GlobalService));
 			{

@@ -1004,10 +1004,7 @@ struct OnigTestBlock { // @construction
 		nerror++;
 		slfprintf(err_file, "ERROR: %s  /%s/  #%d\n", pStr, pPattern, lineNo);
 	}
-	int GetResult() const
-	{
-		return ((nfail == 0 && nerror == 0) ? 0 : -1);
-	}
+	int GetResult() const { return ((nfail == 0 && nerror == 0) ? 0 : -1); }
 	int nsucc;
 	int nfail;
 	int nerror;

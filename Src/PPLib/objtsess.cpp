@@ -423,12 +423,13 @@ private:
 //
 //
 //
-TSessionPacket::TSessionPacket() : ObjTagContainerHelper(TagL, PPOBJ_TSESSION, PPTAG_TSESS_UUID), Flags(0), OuterTimingPrice(0.0)
+TSessionPacket::TSessionPacket() : ObjTagContainerHelper(TagL, PPOBJ_TSESSION, PPTAG_TSESS_UUID), Flags(0), OuterTimingPrice(0.0), LinkFiles(PPOBJ_TSESSION)
 {
 }
 
 TSessionPacket::TSessionPacket(const TSessionPacket & rS) : ObjTagContainerHelper(TagL, PPOBJ_TSESSION, PPTAG_TSESS_UUID), 
-	Flags(rS.Flags), OuterTimingPrice(rS.OuterTimingPrice), Rec(rS.Rec), CiList(rS.CiList), Lines(rS.Lines), TagL(rS.TagL), Ext(rS.Ext)
+	Flags(rS.Flags), OuterTimingPrice(rS.OuterTimingPrice), Rec(rS.Rec), CiList(rS.CiList), Lines(rS.Lines), TagL(rS.TagL), Ext(rS.Ext),
+	LinkFiles(PPOBJ_TSESSION)
 {
 }
 

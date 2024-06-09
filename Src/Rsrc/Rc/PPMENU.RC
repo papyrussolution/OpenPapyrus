@@ -337,6 +337,7 @@
 				MENUITEM "@cmd_importinventory",			cmImportInventory
 				MENUITEM "@cmd_importemailaccts",			cmImportEmailAccts
 				MENUITEM "@cmd_importccheck",               cmImportCChecks // @v11.8.5
+				MENUITEM "@cmd_importswprogram",            cmImportSwProgram // @v12.0.4
 				MENUITEM SEPARATOR
 				MENUITEM "@cmd_importtsessuhtt",			cmImportTSessUHTT
 			}
@@ -579,7 +580,8 @@
 				MENUITEM "@cmd_generateclibnkimport",		cmGenerateCliBnkImport
 				MENUITEM "@cmd_goodsresttest",				cmGoodsRestTest
 				MENUITEM "@cmd_textbrowsertest",			cmTextBrowserTest
-				MENUITEM "@cmd_gotovktest"                  cmGotoVK
+				MENUITEM "@cmd_gotovktest",                 cmGotoVK
+				MENUITEM "@cmd_checkchznmark",              cmCheckChZnMark // @v12.0.4
 			}
 		}
 	}

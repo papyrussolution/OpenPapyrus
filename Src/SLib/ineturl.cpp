@@ -4,8 +4,6 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-//#include <uri.h>
-//#include <snet.h>
 
 /*static*/ulong InetAddr::IPToULong(const char * pIP)
 {
@@ -684,7 +682,7 @@ int InetUrl::GetQueryParam(const char * pParam, int urlDecode, SString & rBuf) c
 	return ok;
 }
 
-int InetUrl::Composite(long flags, SString & rBuf) const
+int InetUrl::Compose(long flags, SString & rBuf) const
 {
 	rBuf.Z();
 	int    result = 0;

@@ -1406,7 +1406,7 @@ int PPCommandGroup::Write_Deprecated(SBuffer & rBuf, long extraParam) const
 		PPGetPath(PPPATH_BIN, dir);
 		PPLoadText(PPTXT_DESKIMGDIR, buf);
 		dir.SetLastSlash().Cat(buf).SetLastSlash();
-		ObjLinkFiles _lf;
+		ObjLinkFiles _lf(PPOBJ_DESKTOP);
 		_lf.Init(PPOBJ_DESKTOP, dir);
 		_lf.Load(ID, 0L);
 		if(Logo_.NotEmpty()) {
@@ -1436,7 +1436,7 @@ int PPCommandGroup::Read_Deprecated(SBuffer & rBuf, long extraParam)
 		PPGetPath(PPPATH_BIN, dir);
 		PPLoadText(PPTXT_DESKIMGDIR, buf);
 		dir.SetLastSlash().Cat(buf).SetLastSlash();
-		ObjLinkFiles logo;
+		ObjLinkFiles logo(PPOBJ_DESKTOP);
 		logo.Init(PPOBJ_DESKTOP, dir);
 		logo.Load(ID, 0L);
 		logo.At(0, buf);
@@ -1494,7 +1494,7 @@ int PPCommandGroup::Write2(void * pHandler, const long rwFlag) const
 				PPGetPath(PPPATH_BIN, dir);
 				PPLoadText(PPTXT_DESKIMGDIR, buf);
 				dir.SetLastSlash().Cat(buf).SetLastSlash();
-				ObjLinkFiles _lf;
+				ObjLinkFiles _lf(PPOBJ_DESKTOP);
 				_lf.Init(PPOBJ_DESKTOP, dir);
 				_lf.Load(ID, 0L);
 				if(Logo_.NotEmpty()) {
@@ -1557,7 +1557,7 @@ int PPCommandGroup::Read2(const void * pHandler, const long rwFlag)
 			PPGetPath(PPPATH_BIN, dir);
 			PPLoadText(PPTXT_DESKIMGDIR, buf);
 			dir.SetLastSlash().Cat(buf).SetLastSlash();
-			ObjLinkFiles logo;
+			ObjLinkFiles logo(PPOBJ_DESKTOP);
 			logo.Init(PPOBJ_DESKTOP, dir);
 			logo.Load(ID, 0L);
 			logo.At(0, buf);
@@ -1602,7 +1602,7 @@ int PPCommandGroup::LoadLogo()
 	PPGetPath(PPPATH_BIN, dir);
 	PPLoadText(PPTXT_DESKIMGDIR, buf);
 	dir.SetLastSlash().Cat(buf).SetLastSlash();
-	ObjLinkFiles logo;
+	ObjLinkFiles logo(PPOBJ_DESKTOP);
 	logo.Init(PPOBJ_DESKTOP, dir);
 	logo.Load(ID, 0L);
 	if(logo.At(0, Logo_.Z()))
@@ -1617,7 +1617,7 @@ int PPCommandGroup::StoreLogo()
 	PPGetPath(PPPATH_BIN, dir);
 	PPLoadText(PPTXT_DESKIMGDIR, buf);
 	dir.SetLastSlash().Cat(buf).SetLastSlash();
-	ObjLinkFiles _lf;
+	ObjLinkFiles _lf(PPOBJ_DESKTOP);
 	_lf.Init(PPOBJ_DESKTOP, dir);
 	_lf.Load(ID, 0L);
 	if(Logo_.Len() == 0)

@@ -4598,7 +4598,7 @@ private:
 //
 class SRecPageFreeList {
 public:
-	struct Entry {
+	struct Entry { // @flat
 		Entry(uint64 rowId, uint32 freeSize) : RowId(rowId), FreeSize(freeSize)
 		{
 		}
@@ -4636,10 +4636,9 @@ private:
 	private:
 		const uint32 Type; 
 	};
-	static const Entry * FindOptimalFreeEntry(const TSVector <Entry> & rList, uint reqSize, uint * pTailSize);
-
 	TSCollection <SingleTypeList> L;
 public:
+	static const Entry * FindOptimalFreeEntry(const TSVector <Entry> & rList, uint reqSize, uint * pTailSize);
 	SRecPageFreeList()
 	{
 	}
@@ -4650,6 +4649,7 @@ public:
 	int    GetListForPage(uint pageSeq, TSVector <SRecPageFreeList::Entry> & rList) const; // @debug
 };
 
+#pragma pack(push, 1)
 struct SDataPageHeader {
 	static constexpr uint32 SignatureValue = 0x76AE0000U;
 	//
@@ -4670,7 +4670,7 @@ struct SDataPageHeader {
 		fDirty = 0x0001,
 		fEmpty = 0x0002
 	};
-	struct RecPrefix {
+	struct RecPrefix { // @transient
 		static constexpr uint8 Signature_Used = 0x9A; // Сигнатура записи занятого блока
 		static constexpr uint8 Signature_Free = 0xA9; // Сигнатура свободного участка страницы
 		static constexpr uint8 Signature_End1 = 0xAA; // Сигнатура свободного участка завершающегося этим сигнатурным байтом
@@ -4683,25 +4683,10 @@ struct SDataPageHeader {
 		enum {
 			fDeleted = 0x04
 		};
-		RecPrefix() : PayloadSize(0), Flags(0), TotalSize(0)
-		{
-		}
-		void    SetPayload(uint size, uint flags)
-		{
-			PayloadSize = size;
-			TotalSize = 0;
-			Flags = flags;
-		}
-		void    SetTotalSize(uint totalSize, uint flags)
-		{
-			//assert(oneof3(padding, 1, 2, 3));
-			PayloadSize = 0;
-			Flags = flags;
-			if(totalSize >= 1 && totalSize <= 3) {
-				Flags |= fDeleted; // Ошметки 1..3 байта безусловно трактуем как неиспользуемые блоки
-			}
-			TotalSize = totalSize;
-		}
+		RecPrefix();
+		void    SetPayload(uint size, uint flags);
+		void    SetTotalSize(uint totalSize, uint flags);
+
 		uint   Flags; // Младшие 2 бита поля Flags используются как индикатор длины поля размера блока.
 			// b00 - 4bytes, b01 - 1byte, b10 - 2bytes, b11 - 3bytes
 		uint   PayloadSize; // Размер блока, доступный для использования.
@@ -4709,18 +4694,10 @@ struct SDataPageHeader {
 			// должен быть задан ненулевым только один из факторов: PayloadSize || TotalSize, поскольку в противном
 			// случае может возникнуть неоднозначность.
 	};
-	struct Stat {
-		Stat() : BlockCount(0), FreeBlockCount(0), UsableBlockCount(0), UsableBlockSize(0)
-		{
-		}
-		Stat & Z()
-		{
-			BlockCount = 0;
-			FreeBlockCount = 0;
-			UsableBlockCount = 0;
-			UsableBlockSize = 0;
-			return *this;
-		}
+	struct Stat { // @transient
+		Stat();
+		Stat & Z();
+
 		uint   BlockCount;       // Общее количество блоков на странице
 		uint   FreeBlockCount;   // Общее количество свободных блоков на странице
 		uint   UsableBlockCount; // Количество свободных блоков, чей размер позволяет их использовать для записи данных
@@ -4728,7 +4705,13 @@ struct SDataPageHeader {
 	};
 	bool   GetStat(Stat & rStat, TSVector <SRecPageFreeList::Entry> * pUsableBlockList) const;
 	bool   IsValid() const;
-	uint32 ReadRecPrefix(uint pos, RecPrefix & rPfx) const;
+	//
+	// Descr: Считывает префикс блока в позиции offset
+	// Returns:
+	//   0 - error
+	//  !0 - размер считанного префикса// 
+	//
+	uint32 ReadRecPrefix(uint offset, RecPrefix & rPfx) const;
 	//
 	// Descr: Вычисляет префикс блока, определяемого параметром rPfx. Поле rPfx.Size
 	//   задает payload-размер блока (без учета префикса).
@@ -4747,6 +4730,9 @@ struct SDataPageHeader {
 	// Descr: Служебная функция, записывающая префикс блока по смещению offset.
 	//   Аргумент rPfx должен определить либо TotalSize, либо PayloadSize, но не
 	//   то и другое одновременно (see EvaluateRecPrefix).
+	// Returns:
+	//   0 - error
+	//   !0 - Размер записанного префикса
 	//
 	uint32 WriteRecPrefix(uint offset, RecPrefix & rPfx);
 	//
@@ -4772,6 +4758,8 @@ struct SDataPageHeader {
 	//   !0 - значение rowid внесенной записи
 	//
 	uint64 Write(uint offset, const void * pData, uint dataLen, SRecPageFreeList::Entry * pNewFreeEntry);
+	uint64 Delete(uint offset, SRecPageFreeList::Entry * pNewFreeEntry);
+	int    MergeFreeEntries(TSVector <SRecPageFreeList::Entry> & rRemovedFreeEntryList, TSVector <SRecPageFreeList::Entry> & rNewFreeEntryList);
 	//
 	// Returns:
 	//   0 - error
@@ -4806,10 +4794,11 @@ struct SDataPageHeader {
 	uint32 PrevSeq;      // Номер предыдущей страницы, хранящей данные того же типа. 0 - для первой страницы
 	uint16 Flags;
 	uint16 FixedChunkSize; // Если GetType() == tFixedChunkPool, то >0 иначе - 0.
-	uint32 TotalSize;    // Общий размер страницы вместе с этим заголовком и sentinel'ами (если есть такие)
+	uint32 Size;           // Общий размер страницы вместе с этим заголовком и sentinel'ами (если есть такие)
 	//uint32 FreePos;      // Смещение, с которого начинается свободное пространство. Свободный размер = (TotalSize-FreePos)
 	uint32 Reserve;      // @reserve
 };
+#pragma pack(pop)
 
 class SRecPageManager {
 	//
@@ -4852,12 +4841,13 @@ public:
 	//
 	uint   Read(uint64 rowId, void * pBuf, size_t bufSize);
 	static bool TestSinglePage(uint pageSize);
+	SDataPageHeader * AllocatePage(uint32 type); // @really private (public for testing purposes)
+	int    WriteToPage(SDataPageHeader * pPage, uint64 rowId, const void * pData, size_t dataLen); // @really private (public for testing purposes)
+	int    GetFreeListForPage(const SDataPageHeader * pPage, TSVector <SRecPageFreeList::Entry> & rList) const; // @debug
 private:
 	SDataPageHeader * GetPage(uint32 seq);
-	SDataPageHeader * AllocatePage(uint32 type);
 	SDataPageHeader * QueryPageForReading(uint64 rowId, uint32 pageType, uint * pOffset);
 	int    ReleasePage(SDataPageHeader * pPage);
-	int    WriteToPage(SDataPageHeader * pPage, uint64 rowId, const void * pData, size_t dataLen);
 
 	const uint32 PageSize;
 	uint32 LastSeq;

@@ -1025,7 +1025,7 @@ bool FASTCALL PPComputer::CheckForFilt(const ComputerFilt * pFilt) const
 	return true; // @stub
 }
 
-PPComputerPacket::PPComputerPacket()
+PPComputerPacket::PPComputerPacket() : LinkFiles(PPOBJ_COMPUTER)
 {
 }
 
@@ -1658,6 +1658,12 @@ PPSwProgram::PPSwProgram()
 	THISZERO();
 }
 
+PPSwProgram & PPSwProgram::Z()
+{
+	THISZERO();
+	return *this;
+}
+
 bool FASTCALL PPSwProgram::IsEq(const PPSwProgram & rS) const
 {
 	return (ID == rS.ID && Flags == rS.Flags && CategoryID == rS.CategoryID && sstreq(Name, rS.Name) && sstreq(ExeFn, rS.ExeFn) && sstreq(Code, rS.Code));
@@ -1668,14 +1674,28 @@ bool FASTCALL PPSwProgram::CheckForFilt(const SwProgramFilt * pFilt) const
 	return true; // @stub
 }
 
-PPSwProgramPacket::PPSwProgramPacket()
+PPSwProgramPacket::PPSwProgramPacket() : LinkFiles(PPOBJ_SWPROGRAM)
 {
 }
 
-void PPSwProgramPacket::Init()
+PPSwProgramPacket::PPSwProgramPacket(const PPSwProgramPacket & rS) : LinkFiles(PPOBJ_SWPROGRAM)
 {
+	Copy(rS);
+}
+
+PPSwProgramPacket & FASTCALL PPSwProgramPacket::operator = (const PPSwProgramPacket & rS) 
+{
+	Copy(rS);
+	return *this;
+}
+
+PPSwProgramPacket & PPSwProgramPacket::Z()
+{
+	Rec.Z();
 	LinkFiles.Clear();
 	TagL.Destroy();
+	CategoryName_.Z(); // @v12.0.4
+	return *this;
 }
 
 bool FASTCALL PPSwProgramPacket::Copy(const PPSwProgramPacket & rS)
@@ -1683,11 +1703,13 @@ bool FASTCALL PPSwProgramPacket::Copy(const PPSwProgramPacket & rS)
 	Rec = rS.Rec;
 	TagL = rS.TagL;
 	LinkFiles = rS.LinkFiles;
+	CategoryName_ = rS.CategoryName_; // @v12.0.4
 	return true;
 }
 
 bool FASTCALL PPSwProgramPacket::IsEq(const PPSwProgramPacket & rS) const
 {
+	// Поле CategoryName_ не учитывается при сравнении поскольку временное.
 	return (Rec.IsEq(rS.Rec) && TagL.IsEq(rS.TagL));	
 }
 
@@ -1776,7 +1798,7 @@ private:
 		THROW(Get(*pID, &pack) > 0);
 	}
 	else
-		pack.Init();
+		pack.Z();
 	THROW(dlg->setDTS(&pack));
 	while(!valid_data && ExecView(dlg) == cmOK) {
 		if(dlg->getDTS(&pack)) {
@@ -1900,6 +1922,212 @@ int PPObjSwProgram::Get(PPID id, PPSwProgramPacket * pPack)
 	return ok;
 }
 
+/*static*/SJson * PPObjSwProgram::PackToJson(const PPSwProgramPacket & rPack)
+{
+	SJson * p_result = SJson::CreateObj();
+	if(p_result) {
+		Reference * p_ref = PPRef;
+		SString temp_buf;
+		p_result->InsertInt("id", rPack.Rec.ID);
+		if(rPack.Rec.CategoryID) {
+			Reference2Tbl::Rec cat_rec;
+			if(p_ref->GetItem(PPOBJ_SWPROGRAMCATEGORY, rPack.Rec.CategoryID, &cat_rec) > 0) {
+				p_result->InsertString("category", (temp_buf = cat_rec.ObjName).Transf(CTRANSF_INNER_TO_UTF8));
+			}
+		}
+		else {
+			p_result->InsertString("category", (temp_buf = "uncategorized").Transf(CTRANSF_INNER_TO_UTF8));
+		}
+		p_result->InsertString("title", (temp_buf = rPack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+		if(!isempty(rPack.Rec.ExeFn)) {
+			p_result->InsertString("exefile", (temp_buf = rPack.Rec.ExeFn).Transf(CTRANSF_INNER_TO_UTF8));
+		}
+	}
+	return p_result;
+}
+
+/*static*/int PPObjSwProgram::PackFromJson(const SJson * pJsObj, const char * pImgPathUtf8, PPSwProgramPacket & rPack)
+{
+	int    ok = 0;
+	rPack.Z();
+	if(SJson::IsObject(pJsObj)) {
+		SString temp_buf;
+		for(const SJson * p_cur = pJsObj->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->P_Child) {
+				if(p_cur->Text.IsEqiAscii("id")) {
+					rPack.Rec.ID = p_cur->P_Child->Text.ToLong();
+				}
+				else if(p_cur->Text.IsEqiAscii("category")) {
+					(rPack.CategoryName_ = p_cur->P_Child->Text).Transf(CTRANSF_UTF8_TO_INNER);
+				}
+				else if(p_cur->Text.IsEqiAscii("title")) {
+					(temp_buf = p_cur->P_Child->Text).Transf(CTRANSF_UTF8_TO_INNER);
+					STRNSCPY(rPack.Rec.Name, temp_buf);
+				}
+				else if(p_cur->Text.IsEqiAscii("exefile")) {
+					(temp_buf = p_cur->P_Child->Text).Transf(CTRANSF_UTF8_TO_INNER);
+					STRNSCPY(rPack.Rec.ExeFn, temp_buf);
+				}
+				else if(p_cur->Text.IsEqiAscii("picsymb")) {
+					temp_buf = p_cur->P_Child->Text;
+					if(pImgPathUtf8) {
+						SString img_file_name;
+						(img_file_name = pImgPathUtf8).Strip().SetLastSlash().Cat(temp_buf.Strip());
+						if(fileExists(img_file_name)) {
+							rPack.LinkFiles.Replace(0, img_file_name);
+						}
+					}
+				}
+			}
+		}
+		if(!isempty(rPack.Rec.Name)) {
+			ok = 1;
+		}
+		else
+			rPack.Z();
+	}
+	return ok;
+}
+
+SJson * PPObjSwProgram::ExportToJson()
+{
+	SJson * p_result = SJson::CreateObj();
+	Reference * p_ref = PPRef;
+	SString temp_buf;
+	{
+		SJson * p_js_list = SJson::CreateArr();
+		if(p_js_list) {
+			SwProgramFilt filt;
+			GoodsCore * p_tbl = P_Tbl;
+			PPIDArray result_list;
+			Goods2Tbl::Key2 k2;
+			PPObjGoods goods_obj;
+			PPIDArray goods_list;
+			BExtQuery q(p_tbl, 2);
+			DBQ * dbq = &(p_tbl->Kind == PPGDSK_SWPROGRAM);
+			q.select(p_tbl->ID, p_tbl->Name, p_tbl->Abbr, p_tbl->WrOffGrpID, p_tbl->GoodsTypeID, p_tbl->ManufID, p_tbl->Flags, 0L).where(*dbq);
+			MEMSZERO(k2);
+			k2.Kind = PPGDSK_SWPROGRAM;
+			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
+				PPSwProgram rec;
+				if(Helper_GetRec(p_tbl->data, &rec) && rec.CheckForFilt(&filt)) {
+					PPSwProgramPacket pack;
+					if(Get(rec.ID, &pack) > 0) {
+						SJson * p_js_item = PPObjSwProgram::PackToJson(pack);
+						if(p_js_item) {
+							p_js_list->InsertChild(p_js_item);
+							p_js_item = 0;
+						}
+					}
+				}
+			}
+			p_result->Insert("list", p_js_list);
+		}
+	}
+	//CATCH
+		//ZDELETE(p_result);
+	//ENDCATCH
+	return p_result;
+}
+
+int PPObjSwProgram::ImportFromJson(const SJson * pJs, const char * pImgPathUtf8)
+{
+	int    ok = -1;
+	SString img_file_name;
+	PPObjReference pgmcat_obj(PPOBJ_SWPROGRAMCATEGORY, 0);
+	if(SJson::IsObject(pJs)) {
+		const SJson * p_c = pJs->FindChildByKey("list");
+		if(SJson::IsArray(p_c)) {
+			PPTransaction tra(1);
+			THROW(tra);
+			for(const SJson * p_js_inner = p_c->P_Child; p_js_inner; p_js_inner = p_js_inner->P_Next) {
+				PPSwProgramPacket pack;
+				if(PPObjSwProgram::PackFromJson(p_js_inner, pImgPathUtf8, pack)) {
+					// @todo accept packet
+					if(!isempty(pack.Rec.Name)) {
+						PPID   ex_id = 0;
+						if(SearchByName(pack.Rec.Name, &ex_id, 0) > 0) {
+							PPSwProgramPacket ex_pack;
+							if(Get(ex_id, &ex_pack) > 0) {
+								if(ex_pack.LinkFiles.GetCount() == 0 && pack.LinkFiles.GetCount()) {
+									pack.LinkFiles.At(0, img_file_name);
+									if(fileExists(img_file_name)) {
+										ex_pack.LinkFiles.Replace(0, img_file_name);
+										THROW(Put(&ex_id, &ex_pack, 0));
+									}
+								}
+							}
+						}
+						else {
+							pack.Rec.ID = 0;
+							if(pack.CategoryName_.NotEmpty()) {
+								PPID cat_id = 0;
+								if(pgmcat_obj.SearchByName(pack.CategoryName_, &cat_id, 0) > 0) {
+									pack.Rec.CategoryID = cat_id;
+								}
+								else {
+									ReferenceTbl::Rec cat_rec;
+									STRNSCPY(cat_rec.ObjName, pack.CategoryName_);
+									if(pgmcat_obj.AddItem(&cat_id, &cat_rec, 0)) {
+										pack.Rec.CategoryID = cat_id;
+									}
+								}
+							}
+							{
+								PPID   new_id = 0;
+								THROW(Put(&new_id, &pack, 0));
+							}
+						}
+						ok = 1;
+					}
+				}
+			}
+			THROW(tra.Commit());
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int ImportSwProgram()
+{
+	enum {
+		ctlgroupFile = 1,
+		ctlgroupImgDir = 2
+	};
+	int    ok = -1;
+	SString file_name;
+	SString img_path;
+	TDialog * dlg = new TDialog(DLG_IMPSWPGM);
+	if(CheckDialogPtrErr(&dlg)) {
+		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_IMPSWPGM_FILE, CTL_IMPSWPGM_FILE, ctlgroupFile,
+			0, PPTXT_FILPAT_JSON, FileBrowseCtrlGroup::fbcgfFile);
+		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_IMPSWPGM_IMGDIR, CTL_IMPSWPGM_IMGDIR, ctlgroupImgDir,
+			0, PPTXT_FILPAT_JSON, FileBrowseCtrlGroup::fbcgfPath);
+		if(ExecView(dlg) == cmOK) {
+			dlg->getCtrlString(CTL_IMPSWPGM_FILE, file_name);
+			dlg->getCtrlString(CTL_IMPSWPGM_IMGDIR, img_path);
+			if(fileExists(file_name)) {
+				img_path.Transf(CTRANSF_INNER_TO_UTF8);
+				if(!SFile::IsDir(img_path)) {
+					SFsPath ps(file_name);
+					ps.Merge(SFsPath::fDrv|SFsPath::fDir, img_path);
+				}
+				PPObjSwProgram swpgm_obj;
+				SJson * p_js = SJson::ParseFile(file_name);
+				if(p_js) {
+					swpgm_obj.ImportFromJson(p_js, img_path);
+					ZDELETE(p_js);
+				}
+			}
+		}
+	}
+	delete dlg;
+	return ok;
+}
+//
+//
+//
 IMPLEMENT_PPFILT_FACTORY(SwProgram); SwProgramFilt::SwProgramFilt() : PPBaseFilt(PPFILT_SWPROGRAM, 0, 1)
 {
 	SetFlatChunk(offsetof(SwProgramFilt, ReserveStart), offsetof(SwProgramFilt, SrchStr) - offsetof(SwProgramFilt, ReserveStart));
@@ -2128,9 +2356,7 @@ int PPViewSwProgram::MakeList()
 	GoodsCore * p_tbl = Obj.P_Tbl;
 	PPIDArray result_list;
 	Goods2Tbl::Key2 k2;
-	//const  PPID single_owner_id = Filt.OwnerList.GetSingle();
 	PPObjGoods goods_obj;
-	//PPIDArray single_brand_list;
 	PPIDArray goods_list;
 	BExtQuery q(p_tbl, 2);
 	DBQ * dbq = &(p_tbl->Kind == PPGDSK_SWPROGRAM);
@@ -2138,7 +2364,6 @@ int PPViewSwProgram::MakeList()
 		P_DsList->clear();
 	else
 		P_DsList = new SArray(sizeof(BrwItem));
-	//dbq = ppcheckfiltid(dbq, p_tbl->ManufID, single_owner_id);
 	q.select(p_tbl->ID, p_tbl->Name, p_tbl->Abbr, p_tbl->WrOffGrpID, p_tbl->GoodsTypeID, p_tbl->ManufID, p_tbl->Flags, 0L).where(*dbq);
 	MEMSZERO(k2);
 	k2.Kind = PPGDSK_SWPROGRAM;
@@ -2159,3 +2384,4 @@ int PPViewSwProgram::MakeList()
 	CALLPTRMEMB(P_DsList, setPointer(0));
 	return ok;
 }
+

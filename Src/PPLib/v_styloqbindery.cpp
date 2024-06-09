@@ -375,7 +375,7 @@ int PPViewStyloQBindery::Invitation()
 		//	url.SetPort_(rsparam.MqbInitParam.Port);
 		//	url.SetComponent(InetUrl::cUserName, rsparam.MqbInitParam.Auth);
 		//	url.SetComponent(InetUrl::cPassword, rsparam.MqbInitParam.Secret);
-		//	url.Composite(InetUrl::stAll, rsparam.AccessPoint);
+		//	url.Compose(InetUrl::stAll, rsparam.AccessPoint);
 		//}
 		{
 			PPMqbClient::RoutingParamEntry rpe;

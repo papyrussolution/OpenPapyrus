@@ -2493,7 +2493,7 @@ int ScURL::HttpPatch(const InetUrl & rUrl, int mflags, const StrStrAssocArray * 
 	p_chunk = (struct curl_slist *)ComposeHeaderList(pHttpHeaderFields);
 	if(p_chunk)
 		curl_easy_setopt(_CURLH, CURLOPT_HTTPHEADER, p_chunk);
-	url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+	url_local.Compose(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "PATCH")));
 	THROW(SetCommonOptions(mflags, 0, 0))
@@ -2523,7 +2523,7 @@ int ScURL::HttpPatch(const InetUrl & rUrl, int mflags, const StrStrAssocArray * 
 	if(p_chunk)
 		curl_easy_setopt(_CURLH, CURLOPT_HTTPHEADER, p_chunk);
 	ComposeFieldList(pFields, flds_buf, &flds_count);
-	url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+	url_local.Compose(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "PATCH")));
 	THROW(SetCommonOptions(mflags, 0, 0))
@@ -2558,7 +2558,7 @@ int ScURL::HttpPost(const InetUrl & rUrl, int mflags, HttpForm & rForm, SFile * 
 	InnerUrlInfo url_info;
 	THROW(PrepareURL(url_local, InetUrl::protHttp, url_info));
 	{
-		url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+		url_local.Compose(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 		THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 256 * 1024, 0))
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_HTTPPOST, (struct curl_httppost *)rForm.FH)));
@@ -2581,7 +2581,7 @@ int ScURL::HttpPut(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pH
 	p_chunk = static_cast<struct curl_slist *>(ComposeHeaderList(pHttpHeaderFields));
 	if(p_chunk)
 		curl_easy_setopt(_CURLH, CURLOPT_HTTPHEADER, p_chunk);
-	url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+	url_local.Compose(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "PUT")));
 	THROW(SetCommonOptions(mflags, 0, 0))
@@ -2608,7 +2608,7 @@ int ScURL::HttpPost(const InetUrl & rUrl, int mflags, const StrStrAssocArray * p
 	p_chunk = static_cast<struct curl_slist *>(ComposeHeaderList(pHttpHeaderFields));
 	if(p_chunk)
 		curl_easy_setopt(_CURLH, CURLOPT_HTTPHEADER, p_chunk);
-	url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+	url_local.Compose(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "POST")));
 	THROW(SetCommonOptions(mflags, 0, 0))
@@ -2663,7 +2663,7 @@ int ScURL::HttpGet(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pH
 	InnerUrlInfo url_info;
 	THROW(PrepareURL(url_local, InetUrl::protHttp, url_info));
 	{
-		url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+		url_local.Compose(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 		THROW(SetCommonOptions(mflags, 0, 0))
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "GET")));
@@ -2936,7 +2936,7 @@ int ScURL::FtpList(const InetUrl & rUrl, int mflags, SFileEntryPool & rPool)
 			url_info.Path.SetLastDSlash();
 			url_local.SetComponent(InetUrl::cPath, url_info.Path);
 		}
-		url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+		url_local.Compose(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 256 * 1024, 0))
@@ -2992,7 +2992,7 @@ int ScURL::FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, con
 		//THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_TRANSFERTEXT, 1))); // @v10.7.10
 		{
 			SString url_buf;
-			url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), url_buf);
+			url_local.Compose(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), url_buf);
 			//url_buf.EncodeUrl(temp_buf.cptr(), 0); // @v10.7.10
 			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, url_buf.cptr())));
 		}
@@ -3043,7 +3043,7 @@ int ScURL::FtpGet(const InetUrl & rUrl, int mflags, const char * pLocalFile, SSt
 			}
 		}
 		{
-			url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+			url_local.Compose(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
 			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 		}
 	}
@@ -3073,7 +3073,7 @@ int ScURL::FtpDelete(const InetUrl & rUrl, int mflags)
 		file_name_to_delete = url_info.Path;
 		THROW(file_name_to_delete.NotEmptyS());
 		{
-			url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword|InetUrl::stPath), temp_buf); // @notebene InetUrl::stPath
+			url_local.Compose(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword|InetUrl::stPath), temp_buf); // @notebene InetUrl::stPath
 			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 		}
 	}
@@ -3103,7 +3103,7 @@ int ScURL::FtpDeleteDir(const InetUrl & rUrl, int mflags)
 		file_name_to_delete = url_info.Path;
 		THROW(file_name_to_delete.NotEmptyS());
 		{
-			url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword|InetUrl::stPath), temp_buf); // @notebene InetUrl::stPath
+			url_local.Compose(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword|InetUrl::stPath), temp_buf); // @notebene InetUrl::stPath
 			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 		}
 	}
@@ -3133,7 +3133,7 @@ int ScURL::FtpChangeDir(const InetUrl & rUrl, int mflags)
 	url_local.GetComponent(InetUrl::stPath, 0, path_to_cwd);  // @v10.8.2 @fix
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 0, 0))
 	{
-		url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword|InetUrl::stPath), temp_buf); // @notebene InetUrl::stPath
+		url_local.Compose(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword|InetUrl::stPath), temp_buf); // @notebene InetUrl::stPath
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	}
 	{
@@ -3177,7 +3177,7 @@ int ScURL::FtpCreateDir(const InetUrl & rUrl, int mflags)
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 0, 0));
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_FTP_CREATE_MISSING_DIRS, 1)));
 	{
-		url_local.Composite(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
+		url_local.Compose(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	}
 	THROW(Execute());
@@ -3195,7 +3195,7 @@ int ScURL::Pop3List(const InetUrl & rUrl, int mflags, LAssocArray & rList) // LI
 	THROW(PrepareURL(url_local, InetUrl::protPOP3, url_info));
 	{
 		url_local.SetComponent(InetUrl::cPath, 0);
-		url_local.Composite(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort, temp_buf);
+		url_local.Compose(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort, temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 		// @v11.3.8 @develop {
 		/* (doesn't work) if(temp_buf.CmpSuffix(".mail.ru", 1) == 0) {
@@ -3241,7 +3241,7 @@ int ScURL::Pop3Top(const InetUrl & rUrl, int mflags, uint msgN, uint maxLines, S
 	InnerUrlInfo url_info;
 	THROW(PrepareURL(url_local, InetUrl::protPOP3, url_info));
 	{
-		url_local.Composite(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort, temp_buf);
+		url_local.Compose(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort, temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0))
@@ -3273,7 +3273,7 @@ int ScURL::Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & r
 	THROW(PrepareURL(url_local, InetUrl::protPOP3, url_info));
 	{
 		url_local.SetComponent(InetUrl::cPath, temp_buf.Z().Cat(msgN));
-		url_local.Composite(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort|InetUrl::stPath, temp_buf);
+		url_local.Compose(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort|InetUrl::stPath, temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0));
@@ -3306,7 +3306,7 @@ int ScURL::Pop3Delete(const InetUrl & rUrl, int mflags, uint msgN)
 	THROW(PrepareURL(url_local, InetUrl::protPOP3, url_info));
 	{
 		url_local.SetComponent(InetUrl::cPath, temp_buf.Z().Cat(msgN));
-		url_local.Composite(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort|InetUrl::stPath, temp_buf);
+		url_local.Compose(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort|InetUrl::stPath, temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0))
@@ -3360,7 +3360,7 @@ int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, const SMailMessage & rMsg)
 	struct curl_slist * p_recipients = 0;
 	{
 		THROW(PrepareURL(url_local, InetUrl::protSMTP, url_info));
-		url_local.Composite(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort|InetUrl::stPath, temp_buf);
+		url_local.Compose(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort|InetUrl::stPath, temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_USERNAME, url_info.User.cptr())));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_PASSWORD, url_info.Password.cptr())));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
@@ -3562,7 +3562,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 								ps_temp.Merge(~SFsPath::fExt, local_path_dest);
 								if(curl.FtpGet(url_src, 0, local_path_dest, &temp_buf, 0)) {
 									AddS(temp_buf, &ri.DestPathP);
-									url_src.Composite(0, temp_buf);
+									url_src.Compose(0, temp_buf);
 									AddS(temp_buf, &ri.SrcPathP);
 									ResultList.insert(&ri);
 								}
@@ -3572,7 +3572,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 					else {
 						THROW(curl.FtpGet(url_src, ScURL::mfVerbose, local_path_dest, &temp_buf, 0));
 						AddS(temp_buf, &ri.DestPathP);
-						url_src.Composite(0, temp_buf);
+						url_src.Compose(0, temp_buf);
 						AddS(temp_buf, &ri.SrcPathP);
 						ResultList.insert(&ri);
 					}
@@ -3604,7 +3604,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 				{
 					ResultItem ri;
 					AddS(local_path_dest, &ri.DestPathP);
-					url_src.Composite(0, temp_buf);
+					url_src.Compose(0, temp_buf);
 					AddS(temp_buf, &ri.SrcPathP);
 					ResultList.insert(&ri);
 				}
@@ -3666,7 +3666,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 						if(pf) {
 							scfd.Proc = pf;
 							scfd.ExtraPtr = extraPtr;
-							url_src.Composite(InetUrl::stPort|InetUrl::stHost, _progress_src);
+							url_src.Compose(InetUrl::stPort|InetUrl::stHost, _progress_src);
 							_progress_dest = local_path_dest;
 
 							scfd.P_Src = _progress_src.cptr();

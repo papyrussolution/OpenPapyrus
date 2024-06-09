@@ -876,7 +876,7 @@ int PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID srcPosNod
 						if(ina_rec.GetPassword_(pw, sizeof(pw), FTPAEXSTR_PASSWORD))
 							url.SetComponent(InetUrl::cPassword, pw);
 					}
-					//url.Composite(InetUrl::stAll, url_buf);
+					//url.Compose(InetUrl::stAll, url_buf);
 					{
 						SFileEntryPool sfp;
 						c.FtpList(url, ScURL::mfVerbose, sfp);
@@ -5174,7 +5174,7 @@ int PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, StringSet
 			if(ina_rec.GetPassword_(pw, sizeof(pw), FTPAEXSTR_PASSWORD))
 				url.SetComponent(InetUrl::cPassword, pw);
 		}
-		url.Composite(InetUrl::stAll, url_buf);
+		url.Compose(InetUrl::stAll, url_buf);
 		if(c.FtpList(url, ScURL::mfTcpKeepAlive|ScURL::mfVerbose, ftp_file_list)) {
 			SFsPath ps;
 			SString dest_file_name;
@@ -5188,7 +5188,7 @@ int PPPosProtocol::PreprocessInputSource(PPID cnID, const char * pSrc, StringSet
 						single_file_url.GetComponent(InetUrl::cPath, 0, temp_buf);
 						temp_buf.SetLastDSlash().Cat(fe.Name);
 						single_file_url.SetComponent(InetUrl::cPath, temp_buf);
-						single_file_url.Composite(InetUrl::stAll, recieved_file_url);
+						single_file_url.Compose(InetUrl::stAll, recieved_file_url);
 						PPGetFilePath(PPPATH_IN, fe.Name, dest_file_name);
 						//
 						// Если файл с таким именем уже существует, то приклеиваем к наименованию цифровой суффикс

@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494822
+LastSignatureCode=2147494828
 LastAutoCodeList=1,12233;102,10177;103,10072;110,10000;111,12106;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10150;120,10005;1001,10000;121,10000;122,10000;123,10322;124,10347;125,10064
 
 [SignatureList]
@@ -2295,6 +2295,7 @@ ttl_settingsvc_vk=2147493959
 ttl_howtoprint=2147493978
 ttl_testdialog=2147493979
 ttl_goodsstructree=2147494486
+ttl_checkchzmark=2147494823
 specseriesfilt=2147493803
 objsynccmptotal=2147485485
 objsynccmptotal_count=2147485486
@@ -3000,6 +3001,7 @@ cmd_importtodofromvcal=2147486056
 cmd_importtsessuhtt=2147486057
 cmd_importworkbook=2147486058
 cmd_importccheck=2147494744
+cmd_importswprogram=2147494825
 cmd_indexphones=2147486059
 cmd_inetconncfg=2147486060
 cmd_inventory=2147486061
@@ -3237,6 +3239,7 @@ cmd_swprogram=2147494805
 cmd_swprogramcategory=2147494808
 cmd_computer=2147494816
 cmd_computercategory=2147494821
+cmd_checkchznmark=2147494824
 cmdpu_admin=2147486280
 cmdpu_salesanalyze=2147486281
 cmdpu_accounting=2147486282
@@ -9545,6 +9548,9 @@ importgoodsparam_defunit=2147492245
 importgoodsparam_phunit=2147492246
 importgoodsparam_flags=2147492247
 importgoodsparam_fskipzeroqtty=2147492248
+importswprogram=2147494826
+importswprogram_file=2147494827
+importswprogram_imgdir=2147494828
 pugl=2147494416
 pugl_singlewarewarn=2147492249
 pugl_multigoodswroffwarn=2147492250
