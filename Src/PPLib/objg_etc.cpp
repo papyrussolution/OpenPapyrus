@@ -1335,7 +1335,7 @@ public:
 		{
 			ImageBrowseCtrlGroup::Rec rec;
 			Data.LinkFiles.Init(PPOBJ_COMPUTER);
-			if(Data.Rec.Flags & BRNDF_HASIMAGES)
+			if(Data.Rec.Flags & GF_DERIVED_HASIMAGES)
 				Data.LinkFiles.Load(Data.Rec.ID, 0L);
 			Data.LinkFiles.At(0, rec.Path);
 			setGroupData(ctlgroupIbg, &rec);
@@ -1362,7 +1362,7 @@ public:
 				}
 				else
 					Data.LinkFiles.Remove(0);
-			SETFLAG(Data.Rec.Flags, BRNDF_HASIMAGES, Data.LinkFiles.GetCount());
+			SETFLAG(Data.Rec.Flags, GF_DERIVED_HASIMAGES, Data.LinkFiles.GetCount());
 		}
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
@@ -1556,7 +1556,7 @@ static int PPViewComputer_CellStyleFunc(const void * pData, long col, int paintA
 		preserve_id = id;
 		switch(ppvCmd) {
 			case PPVCMD_MOUSEHOVER:
-				if(id && static_cast<const BrwItem *>(pHdr)->Flags & BRNDF_HASIMAGES) {
+				if(id && static_cast<const BrwItem *>(pHdr)->Flags & GF_DERIVED_HASIMAGES) {
 					SString img_path;
 					ObjLinkFiles link_files(PPOBJ_COMPUTER);
 					link_files.Load(id, 0L);
@@ -1743,7 +1743,7 @@ public:
 		{
 			ImageBrowseCtrlGroup::Rec rec;
 			Data.LinkFiles.Init(PPOBJ_SWPROGRAM);
-			if(Data.Rec.Flags & BRNDF_HASIMAGES)
+			if(Data.Rec.Flags & GF_DERIVED_HASIMAGES)
 				Data.LinkFiles.Load(Data.Rec.ID, 0L);
 			Data.LinkFiles.At(0, rec.Path);
 			setGroupData(ctlgroupIbg, &rec);
@@ -1767,7 +1767,7 @@ public:
 				}
 				else
 					Data.LinkFiles.Remove(0);
-			SETFLAG(Data.Rec.Flags, BRNDF_HASIMAGES, Data.LinkFiles.GetCount());
+			SETFLAG(Data.Rec.Flags, GF_DERIVED_HASIMAGES, Data.LinkFiles.GetCount());
 		}
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
@@ -1989,7 +1989,7 @@ int PPObjSwProgram::Get(PPID id, PPSwProgramPacket * pPack)
 	return ok;
 }
 
-SJson * PPObjSwProgram::ExportToJson()
+SJson * PPObjSwProgram::ExportToJson(const char * pImgPath)
 {
 	SJson * p_result = SJson::CreateObj();
 	Reference * p_ref = PPRef;
@@ -2049,10 +2049,11 @@ int PPObjSwProgram::ImportFromJson(const SJson * pJs, const char * pImgPathUtf8)
 						if(SearchByName(pack.Rec.Name, &ex_id, 0) > 0) {
 							PPSwProgramPacket ex_pack;
 							if(Get(ex_id, &ex_pack) > 0) {
-								if(ex_pack.LinkFiles.GetCount() == 0 && pack.LinkFiles.GetCount()) {
+								if(pack.LinkFiles.GetCount() && (ex_pack.LinkFiles.GetCount() == 0 || !(ex_pack.Rec.Flags & GF_DERIVED_HASIMAGES))) {
 									pack.LinkFiles.At(0, img_file_name);
 									if(fileExists(img_file_name)) {
 										ex_pack.LinkFiles.Replace(0, img_file_name);
+										ex_pack.Rec.Flags |= GF_DERIVED_HASIMAGES;
 										THROW(Put(&ex_id, &ex_pack, 0));
 									}
 								}
@@ -2075,6 +2076,12 @@ int PPObjSwProgram::ImportFromJson(const SJson * pJs, const char * pImgPathUtf8)
 							}
 							{
 								PPID   new_id = 0;
+								if(pack.LinkFiles.GetCount()) {
+									pack.LinkFiles.At(0, img_file_name);
+									if(fileExists(img_file_name)) {
+										pack.Rec.Flags |= GF_DERIVED_HASIMAGES;
+									}
+								}
 								THROW(Put(&new_id, &pack, 0));
 							}
 						}
@@ -2089,34 +2096,77 @@ int PPObjSwProgram::ImportFromJson(const SJson * pJs, const char * pImgPathUtf8)
 	return ok;
 }
 
-int ImportSwProgram()
-{
+struct SwProgramImpExpParam {
+	SString FilePath;
+	SString ImgPath;
+};
+
+class SwProgramImpExpDialog : public TDialog {
 	enum {
 		ctlgroupFile = 1,
 		ctlgroupImgDir = 2
 	};
-	int    ok = -1;
-	SString file_name;
-	SString img_path;
-	TDialog * dlg = new TDialog(DLG_IMPSWPGM);
-	if(CheckDialogPtrErr(&dlg)) {
-		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_IMPSWPGM_FILE, CTL_IMPSWPGM_FILE, ctlgroupFile,
+	DECL_DIALOG_DATA(SwProgramImpExpParam);
+public:
+	SwProgramImpExpDialog() : TDialog(DLG_IMPSWPGM)
+	{
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_IMPSWPGM_FILE, CTL_IMPSWPGM_FILE, ctlgroupFile,
 			0, PPTXT_FILPAT_JSON, FileBrowseCtrlGroup::fbcgfFile);
-		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_IMPSWPGM_IMGDIR, CTL_IMPSWPGM_IMGDIR, ctlgroupImgDir,
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_IMPSWPGM_IMGDIR, CTL_IMPSWPGM_IMGDIR, ctlgroupImgDir,
 			0, PPTXT_FILPAT_JSON, FileBrowseCtrlGroup::fbcgfPath);
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		setCtrlString(CTL_IMPSWPGM_FILE, Data.FilePath);
+		setCtrlString(CTL_IMPSWPGM_IMGDIR, Data.ImgPath);
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		getCtrlString(CTL_IMPSWPGM_FILE, Data.FilePath);
+		getCtrlString(CTL_IMPSWPGM_IMGDIR, Data.ImgPath);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
+};
+
+int PPViewSwProgram::Export()
+{
+	int    ok = -1;
+	SwProgramImpExpParam param;
+	SwProgramImpExpDialog * dlg = new SwProgramImpExpDialog();
+	if(CheckDialogPtrErr(&dlg)) {
+		dlg->setDTS(&param);
 		if(ExecView(dlg) == cmOK) {
-			dlg->getCtrlString(CTL_IMPSWPGM_FILE, file_name);
-			dlg->getCtrlString(CTL_IMPSWPGM_IMGDIR, img_path);
-			if(fileExists(file_name)) {
-				img_path.Transf(CTRANSF_INNER_TO_UTF8);
-				if(!SFile::IsDir(img_path)) {
-					SFsPath ps(file_name);
-					ps.Merge(SFsPath::fDrv|SFsPath::fDir, img_path);
+			dlg->getDTS(&param);
+		}
+	}
+	delete dlg;
+	return ok;
+}
+
+int ImportSwProgram()
+{
+	int    ok = -1;
+	SwProgramImpExpParam param;
+	SwProgramImpExpDialog * dlg = new SwProgramImpExpDialog();
+	if(CheckDialogPtrErr(&dlg)) {
+		dlg->setDTS(&param);
+		if(ExecView(dlg) == cmOK) {
+			dlg->getDTS(&param);
+			if(fileExists(param.FilePath)) {
+				param.ImgPath.Transf(CTRANSF_INNER_TO_UTF8);
+				if(!SFile::IsDir(param.ImgPath)) {
+					SFsPath ps(param.FilePath);
+					ps.Merge(SFsPath::fDrv|SFsPath::fDir, param.ImgPath);
 				}
 				PPObjSwProgram swpgm_obj;
-				SJson * p_js = SJson::ParseFile(file_name);
+				SJson * p_js = SJson::ParseFile(param.FilePath);
 				if(p_js) {
-					swpgm_obj.ImportFromJson(p_js, img_path);
+					swpgm_obj.ImportFromJson(p_js, param.ImgPath);
 					ZDELETE(p_js);
 				}
 			}
@@ -2225,7 +2275,7 @@ static int PPViewSwProgram_CellStyleFunc(const void * pData, long col, int paint
 			const BroColumn & r_col = p_def->at(col);
 			if(col == 0) { // id
 				const BrwItem * p_item = static_cast<const BrwItem *>(pData);
-				if(p_item->Flags & BRNDF_HASIMAGES) { // @todo replace BRNDF_HASIMAGES with ...
+				if(p_item->Flags & GF_DERIVED_HASIMAGES) { // @todo replace GF_DERIVED_HASIMAGES with ...
 					pCellStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
 					pCellStyle->Color2 = GetColorRef(SClrGreen);
 					ok = 1;
@@ -2268,7 +2318,7 @@ static int PPViewSwProgram_CellStyleFunc(const void * pData, long col, int paint
 	int    ok = -1;
 	return ok;
 }
-	
+
 /*virtual*/int PPViewSwProgram::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
@@ -2277,8 +2327,12 @@ static int PPViewSwProgram_CellStyleFunc(const void * pData, long col, int paint
 		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		preserve_id = id;
 		switch(ppvCmd) {
+			case PPVCMD_EXPORT:
+				{
+				}
+				break;
 			case PPVCMD_MOUSEHOVER:
-				if(id && static_cast<const BrwItem *>(pHdr)->Flags & BRNDF_HASIMAGES) {
+				if(id && static_cast<const BrwItem *>(pHdr)->Flags & GF_DERIVED_HASIMAGES) {
 					SString img_path;
 					ObjLinkFiles link_files(PPOBJ_SWPROGRAM);
 					link_files.Load(id, 0L);

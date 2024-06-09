@@ -29301,45 +29301,47 @@ enum GoodsGroupTag {
 //
 // Флаги товаров
 //
-#define GF_INTVAL          0x00000001L // @transient Целочисленная единица измерения //
-#define GF_UNLIM           0x00000002L // @transient Неограниченный ресурс
-#define GF_ODD             0x00000004L // @transient Нестандартный товар
-#define GF_AUTOCOMPL       0x00000008L // @transient Автокомплект
-#define GF_GENERIC         0x00000010L // Обобщенный товар
+#define GF_INTVAL            0x00000001L // @transient Целочисленная единица измерения //
+#define GF_DERIVED_HASIMAGES 0x00000001L // @v12.0.4 Это флаг используется объектами данных, отличными от PPOBJ_GOODS и хранящимися в той же таблице goods2.
+	// Значение 0x01 нельзя так просто поменять, поскольку базы данных уже используют такое значение. До версии 12.0.4 применялась мнемоника BRNDF_HASIMAGES__ (теперь она удалена)
+#define GF_UNLIM             0x00000002L // @transient Неограниченный ресурс
+#define GF_ODD               0x00000004L // @transient Нестандартный товар
+#define GF_AUTOCOMPL         0x00000008L // @transient Автокомплект
+#define GF_GENERIC           0x00000010L // Обобщенный товар
 //
-#define GF_ABSEXCISE       0x00000020L // Obsolete Акциз в денежных единицах (не процентах)
-#define GF_ZEXCISE         0x00000040L // Obsolete Нулевой акциз (акциз не наследуется от группы)
-#define GF_ZVAT            0x00000080L // Obsolete Нулевой НДС (НДС не наследуется от группы)
+#define GF_ABSEXCISE         0x00000020L // Obsolete Акциз в денежных единицах (не процентах)
+#define GF_ZEXCISE           0x00000040L // Obsolete Нулевой акциз (акциз не наследуется от группы)
+#define GF_ZVAT              0x00000080L // Obsolete Нулевой НДС (НДС не наследуется от группы)
 //
-#define GF_TAXFACTOR       0x00000020L // ExtRec содержит ненулевой налоговый фактор
-#define GF_PRICEWOTAXES    0x00000040L // UC Цена реализации товара указана без всех операционных налогов
-#define GF_EXTPROP         0x00000080L // Товар имеет запись расширенных свойств (PPGoodsPacket::ExtString)
-#define GF_ALTGROUP        0x00000100L // Альтернативная группа
-#define GF_FOLDER          0x00000200L // Группа верхнего уровня //
-#define GF_PASSIV          0x00000400L // Пассивный товар
-#define GF_NODISCOUNT      0x00000800L // На товар не распространяется общая скидка
-#define GF_EXCLALTFOLD     0x00001000L // Папка, объединяющая непересекающиеся альтернативные группы
-#define GF_UNIQPCKGCODE    0x00002000L // Уникальный код пакета
-#define GF_DFLTPCKGTYPE    0x00004000L // Тип пакета по умолчанию
-#define GF_PCKG_AROWS      0x00008000L //
-#define GF_PCKG_ANEWROW    0x00010000L //
-#define GF_ASSETS          0x00020000L // @transient Основные фонды. Проекция флага GTF_ASSETS типа, которому принадлежит товар
-#define GF_WROFFBYPRICE    0x00040000L // Списывать основное средство исходя из остаточной стоимости
-#define GF_TRANSGLED       0x00080000L // @transient Признак передачи в пакете структуры GoodsLotExtData
-#define GF_VOLUMEVAL       0x00100000L // Объем упаковки поставки задается одним значением
-#define GF_TRANSQUOT       0x00200000L // @transient Пакет передачи предназначен для трансмиссии котировок
+#define GF_TAXFACTOR         0x00000020L // ExtRec содержит ненулевой налоговый фактор
+#define GF_PRICEWOTAXES      0x00000040L // UC Цена реализации товара указана без всех операционных налогов
+#define GF_EXTPROP           0x00000080L // Товар имеет запись расширенных свойств (PPGoodsPacket::ExtString)
+#define GF_ALTGROUP          0x00000100L // Альтернативная группа
+#define GF_FOLDER            0x00000200L // Группа верхнего уровня //
+#define GF_PASSIV            0x00000400L // Пассивный товар
+#define GF_NODISCOUNT        0x00000800L // На товар не распространяется общая скидка
+#define GF_EXCLALTFOLD       0x00001000L // Папка, объединяющая непересекающиеся альтернативные группы
+#define GF_UNIQPCKGCODE      0x00002000L // Уникальный код пакета
+#define GF_DFLTPCKGTYPE      0x00004000L // Тип пакета по умолчанию
+#define GF_PCKG_AROWS        0x00008000L //
+#define GF_PCKG_ANEWROW      0x00010000L //
+#define GF_ASSETS            0x00020000L // @transient Основные фонды. Проекция флага GTF_ASSETS типа, которому принадлежит товар
+#define GF_WROFFBYPRICE      0x00040000L // Списывать основное средство исходя из остаточной стоимости
+#define GF_TRANSGLED         0x00080000L // @transient Признак передачи в пакете структуры GoodsLotExtData
+#define GF_VOLUMEVAL         0x00100000L // Объем упаковки поставки задается одним значением
+#define GF_TRANSQUOT         0x00200000L // @transient Пакет передачи предназначен для трансмиссии котировок
 	// Сами товары не меняются. Не удаляются остутствующие в пакете, но присутствующие в базе котировки.
-#define GF_TEMPALTGRP_     0x00400000L //
-#define GF_USEINDEPWT      0x00800000L // Операции по товару ведуться параллельно в торговых и физических единицах
-#define GF_DYNAMIC         0x01000000L // Динамическая альтернативная группа
-#define GF_HASIMAGES       0x02000000L // К товару присоединены картинки
-#define GF_ABBREQNAME      0x04000000L // @transient Используется у элементов кэша для информации о том, что
+#define GF_TEMPALTGRP_       0x00400000L //
+#define GF_USEINDEPWT        0x00800000L // Операции по товару ведуться параллельно в торговых и физических единицах
+#define GF_DYNAMIC           0x01000000L // Динамическая альтернативная группа
+#define GF_HASIMAGES         0x02000000L // К товару присоединены картинки
+#define GF_ABBREQNAME        0x04000000L // @transient Используется у элементов кэша для информации о том, что
 	// сокращенное наименование эквивалентно полному.
-#define GF_EXCLVAT         0x08000000L // @transient Наследуется от типа товара (GTF_EXCLVAT) при извлечении через кэш
-#define GF_AUTOCREATE      0x10000000L // Признак того, что товар (группа) создан автоматически (например, при импорте внешнего документа, содержащего этот товар)
-#define GF_UNCLASSF        0x20000000L // Признак группы, бренда или иного контейнера, содержащего неклассифицированные товары.
+#define GF_EXCLVAT           0x08000000L // @transient Наследуется от типа товара (GTF_EXCLVAT) при извлечении через кэш
+#define GF_AUTOCREATE        0x10000000L // Признак того, что товар (группа) создан автоматически (например, при импорте внешнего документа, содержащего этот товар)
+#define GF_UNCLASSF          0x20000000L // Признак группы, бренда или иного контейнера, содержащего неклассифицированные товары.
 	// Используется для автоматической классификации.
-#define GF_WANTVETISCERT   0x40000000L // @v10.1.8 Требует сертификата на приход и отгрузку
+#define GF_WANTVETISCERT     0x40000000L // @v10.1.8 Требует сертификата на приход и отгрузку
 
 #define GF_TEMPALTGROUP      (GF_ALTGROUP|GF_TEMPALTGRP_) // Временная альтернативная группа
 #define GF_DB_FLAGS_GROUP    (GF_ALTGROUP|GF_FOLDER|GF_EXCLALTFOLD)
@@ -30810,7 +30812,7 @@ private:
 // PPObjBrand
 // Объект, управляющий информацией о товарных брэндах
 //
-#define BRNDF_HASIMAGES 0x00000001L
+// @v12.0.4 (replaced with GF_DERIVED_HASIMAGES) #define BRNDF_HASIMAGES__ 0x00000001L
 
 class BrandFilt : public PPBaseFilt {
 public:
@@ -31180,7 +31182,7 @@ public:
 	int    Get(PPID, PPSwProgramPacket *);
 	int    Put(PPID *, PPSwProgramPacket *, int use_ta);
 	virtual void * CreateObjListWin(uint aFlags, void * extraPtr);
-	SJson * ExportToJson();
+	SJson * ExportToJson(const char * pImgPath);
 	int    ImportFromJson(const SJson * pJs, const char * pImgPathUtf8);
 private:
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
@@ -31216,6 +31218,7 @@ private:
 	virtual void ViewTotal();
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    MakeList();
+	int    Export();
 
 	SArray * P_DsList;
 	SwProgramFilt Filt;

@@ -2812,7 +2812,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 					PPBrand    brand_rec;
 					THROW(brand_obj.Fetch(obj_id, &brand_rec) > 0);
 					obj_name = brand_rec.Name;
-					THROW_PP_S(brand_rec.Flags & BRNDF_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
+					THROW_PP_S(brand_rec.Flags & GF_DERIVED_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
 				}
 				else if(obj_type == PPOBJ_PERSON) {
 					PPObjPerson psn_obj;

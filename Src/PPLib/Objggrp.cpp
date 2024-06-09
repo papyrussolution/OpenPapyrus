@@ -2222,7 +2222,7 @@ public:
 		{
 			ImageBrowseCtrlGroup::Rec rec;
 			Data.LinkFiles.Init(PPOBJ_BRAND);
-			if(Data.Rec.Flags & BRNDF_HASIMAGES)
+			if(Data.Rec.Flags & GF_DERIVED_HASIMAGES)
 				Data.LinkFiles.Load(Data.Rec.ID, 0L);
 			Data.LinkFiles.At(0, rec.Path);
 			setGroupData(ctlgroupIbg, &rec);
@@ -2245,7 +2245,7 @@ public:
 				}
 				else
 					Data.LinkFiles.Remove(0);
-			SETFLAG(Data.Rec.Flags, BRNDF_HASIMAGES, Data.LinkFiles.GetCount());
+			SETFLAG(Data.Rec.Flags, GF_DERIVED_HASIMAGES, Data.LinkFiles.GetCount());
 		}
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
@@ -3121,7 +3121,7 @@ int PPViewBrand::CellStyleFunc_(const void * pData, long col, int paintAction, B
 			const BroColumn & r_col = p_def->at(col);
 			if(col == 0) { // id
 				const BrwItem * p_item = static_cast<const BrwItem *>(pData);
-				if(p_item->Flags & BRNDF_HASIMAGES) {
+				if(p_item->Flags & GF_DERIVED_HASIMAGES) {
 					pCellStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
 					pCellStyle->Color2 = GetColorRef(SClrGreen);
 					ok = 1;
@@ -3183,7 +3183,7 @@ int PPViewBrand::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				}
 				break;
 			case PPVCMD_MOUSEHOVER:
-				if(id && static_cast<const BrwItem *>(pHdr)->Flags & BRNDF_HASIMAGES) {
+				if(id && static_cast<const BrwItem *>(pHdr)->Flags & GF_DERIVED_HASIMAGES) {
 					SString img_path;
 					ObjLinkFiles link_files(PPOBJ_BRAND);
 					link_files.Load(id, 0L);

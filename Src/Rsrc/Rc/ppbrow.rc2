@@ -1536,6 +1536,7 @@ browser SWPROGRAM north(100), 3, 0, "@{view_swprogram}", OWNER|GRID, 0
 		DELETEITEM              : kbDel,   PPDV_DELETEFILE02, "@{delete}\tDelete"
 		TOTAL                   : kbF9,    PPDV_SIGMA02,      "@{totals}\tF9"
 		separator
+		EXPORT                  : kbF8,    PPDV_EXPORT01,     "@{export}\tF8"
 		SYSJ                    : kbCtrlJ, PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
 		separator
 		CHANGEFILT              : kbCtrlV, PPDV_FILTER01,     "@{filter}\tCtrl-V"
