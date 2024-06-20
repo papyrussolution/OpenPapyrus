@@ -1846,7 +1846,7 @@ static void TestRBNFRounding() {
 		return;
 	}
 	len = unum_formatDouble(fmt, 10.123456789, fmtbuf, FORMAT_BUF_CAPACITY, NULL, &status);
-	U_ASSERT(len < FORMAT_BUF_CAPACITY);
+	assert(len < FORMAT_BUF_CAPACITY);
 	(void)len;
 	if(U_FAILURE(status)) {
 		log_err_status(status, "unum_formatDouble 10.123456789 failed with %s\n", u_errorName(status));
@@ -1867,7 +1867,7 @@ static void TestRBNFRounding() {
 		log_err("UNUM_ROUNDING_MODE was not set -> %d\n", unum_getAttribute(fmt, UNUM_ROUNDING_MODE));
 	}
 	len = unum_formatDouble(fmt, 10.123456789, fmtbuf, FORMAT_BUF_CAPACITY, NULL, &status);
-	U_ASSERT(len < FORMAT_BUF_CAPACITY);
+	assert(len < FORMAT_BUF_CAPACITY);
 	if(U_FAILURE(status)) {
 		log_err_status(status, "unum_formatDouble 10.123456789 failed with %s\n", u_errorName(status));
 	}

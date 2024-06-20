@@ -193,7 +193,7 @@ bool GNameSearchHandler::handleMatch(int32_t matchLength, const CharacterNode * 
 					}
 				}
 				if(U_SUCCESS(status)) {
-					U_ASSERT(fResults != NULL);
+					assert(fResults != NULL);
 					GMatchInfo * gmatch = (GMatchInfo*)uprv_malloc(sizeof(GMatchInfo));
 					if(gmatch == NULL) {
 						status = U_MEMORY_ALLOCATION_ERROR;
@@ -432,14 +432,14 @@ UnicodeString &TZGNCore::getGenericLocationName(const UnicodeString & tzCanonica
  */
 const char16_t * TZGNCore::getGenericLocationName(const UnicodeString & tzCanonicalID) 
 {
-	U_ASSERT(!tzCanonicalID.isEmpty());
+	assert(!tzCanonicalID.isEmpty());
 	if(tzCanonicalID.length() > ZID_KEY_MAX) {
 		return NULL;
 	}
 	UErrorCode status = U_ZERO_ERROR;
 	char16_t tzIDKey[ZID_KEY_MAX + 1];
 	int32_t tzIDKeyLen = tzCanonicalID.extract(tzIDKey, ZID_KEY_MAX + 1, status);
-	U_ASSERT(status == U_ZERO_ERROR); // already checked length above
+	assert(status == U_ZERO_ERROR); // already checked length above
 	tzIDKey[tzIDKeyLen] = 0;
 	const char16_t * locname = (const char16_t *)uhash_get(fLocationNamesMap, tzIDKey);
 	if(locname) {
@@ -461,7 +461,7 @@ const char16_t * TZGNCore::getGenericLocationName(const UnicodeString & tzCanoni
 		if(isPrimary) {
 			// If this is the primary zone in the country, use the country name.
 			char countryCode[ULOC_COUNTRY_CAPACITY];
-			U_ASSERT(usCountryCode.length() < ULOC_COUNTRY_CAPACITY);
+			assert(usCountryCode.length() < ULOC_COUNTRY_CAPACITY);
 			int32_t ccLen = usCountryCode.extract(0, usCountryCode.length(), countryCode, sizeof(countryCode), US_INV);
 			countryCode[ccLen] = 0;
 
@@ -489,7 +489,7 @@ const char16_t * TZGNCore::getGenericLocationName(const UnicodeString & tzCanoni
 	if(U_SUCCESS(status)) {
 		// Cache the result
 		const char16_t * cacheID = ZoneMeta::findTimeZoneID(tzCanonicalID);
-		U_ASSERT(cacheID != NULL);
+		assert(cacheID != NULL);
 		if(locname == NULL) {
 			// gEmpty to indicate - no location name available
 			uhash_put(fLocationNamesMap, (void *)cacheID, (void *)gEmpty, &status);
@@ -516,7 +516,7 @@ const char16_t * TZGNCore::getGenericLocationName(const UnicodeString & tzCanoni
 
 UnicodeString &TZGNCore::formatGenericNonLocationName(const TimeZone& tz, UTimeZoneGenericNameType type, UDate date,
     UnicodeString & name) const {
-	U_ASSERT(type == UTZGNM_LONG || type == UTZGNM_SHORT);
+	assert(type == UTZGNM_LONG || type == UTZGNM_SHORT);
 	name.setToBogus();
 
 	const char16_t * uID = ZoneMeta::getCanonicalCLDRID(tz);
@@ -682,14 +682,14 @@ UnicodeString &TZGNCore::getPartialLocationName(const UnicodeString & tzCanonica
  */
 const char16_t * TZGNCore::getPartialLocationName(const UnicodeString & tzCanonicalID, const UnicodeString & mzID, bool isLong, const UnicodeString & mzDisplayName) 
 {
-	U_ASSERT(!tzCanonicalID.isEmpty());
-	U_ASSERT(!mzID.isEmpty());
-	U_ASSERT(!mzDisplayName.isEmpty());
+	assert(!tzCanonicalID.isEmpty());
+	assert(!mzID.isEmpty());
+	assert(!mzDisplayName.isEmpty());
 	PartialLocationKey key;
 	key.tzID = ZoneMeta::findTimeZoneID(tzCanonicalID);
 	key.mzID = ZoneMeta::findMetaZoneID(mzID);
 	key.isLong = isLong;
-	U_ASSERT(key.tzID != NULL && key.mzID != NULL);
+	assert(key.tzID != NULL && key.mzID != NULL);
 	const char16_t * uplname = (const char16_t *)uhash_get(fPartialLocationNamesMap, (void *)&key);
 	if(uplname) {
 		return uplname;
@@ -699,7 +699,7 @@ const char16_t * TZGNCore::getPartialLocationName(const UnicodeString & tzCanoni
 	ZoneMeta::getCanonicalCountry(tzCanonicalID, usCountryCode);
 	if(!usCountryCode.isEmpty()) {
 		char countryCode[ULOC_COUNTRY_CAPACITY];
-		U_ASSERT(usCountryCode.length() < ULOC_COUNTRY_CAPACITY);
+		assert(usCountryCode.length() < ULOC_COUNTRY_CAPACITY);
 		int32_t ccLen = usCountryCode.extract(0, usCountryCode.length(), countryCode, sizeof(countryCode), US_INV);
 		countryCode[ccLen] = 0;
 
@@ -1081,7 +1081,7 @@ TimeZoneGenericNames::~TimeZoneGenericNames()
 {
 	umtx_lock(&gTZGNLock);
 	{
-		U_ASSERT(fRef->refCount > 0);
+		assert(fRef->refCount > 0);
 		// Just decrement the reference count
 		fRef->refCount--;
 	}

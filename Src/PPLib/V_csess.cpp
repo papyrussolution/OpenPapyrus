@@ -2270,7 +2270,7 @@ int PPViewCSessExc::EditBaseFilt(PPBaseFilt * pFilt)
 			GetPeriodInput(dlg, CTL_CSESSEXC_PERIOD, &p_filt->Period);
 			dlg->getCtrlData(CTLSEL_CSESSEXC_NODE, &p_filt->CashNodeID);
 			dlg->getGroupData(GRP_GOODS, &rec);
-			p_filt->GoodsGrpID = rec.GrpID;
+			p_filt->GoodsGrpID = rec.GoodsGrpID;
 			p_filt->GoodsID    = rec.GoodsID;
 			dlg->GetClusterData(CTL_CSESSEXC_FLAGS, &p_filt->Flags);
 			ok = valid_data = 1;

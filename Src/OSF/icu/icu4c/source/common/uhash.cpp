@@ -170,7 +170,7 @@ static UHashTok _uhash_setElement(UHashtable * hash, UHashElement* e, int32_t ha
 static UHashTok _uhash_internalRemoveElement(UHashtable * hash, UHashElement* e) 
 {
 	UHashTok empty;
-	U_ASSERT(!IS_EMPTY_OR_DELETED(e->hashcode));
+	assert(!IS_EMPTY_OR_DELETED(e->hashcode));
 	--hash->count;
 	empty.pointer = NULL; empty.integer = 0;
 	return _uhash_setElement(hash, e, HASH_DELETED, empty, empty, 0);
@@ -178,9 +178,9 @@ static UHashTok _uhash_internalRemoveElement(UHashtable * hash, UHashElement* e)
 
 static void _uhash_internalSetResizePolicy(UHashtable * hash, enum UHashResizePolicy policy) 
 {
-	U_ASSERT(hash != NULL);
-	U_ASSERT(((int32_t)policy) >= 0);
-	U_ASSERT(((int32_t)policy) < 3);
+	assert(hash != NULL);
+	assert(((int32_t)policy) >= 0);
+	assert(((int32_t)policy) < 3);
 	hash->lowWaterRatio  = RESIZE_POLICY_RATIO_TABLE[policy * 2];
 	hash->highWaterRatio = RESIZE_POLICY_RATIO_TABLE[policy * 2 + 1];
 }
@@ -201,7 +201,7 @@ static void _uhash_allocate(UHashtable * hash,
 	UHashTok emptytok;
 	if(U_FAILURE(*status)) 
 		return;
-	U_ASSERT(primeIndex >= 0 && primeIndex < PRIMES_LENGTH);
+	assert(primeIndex >= 0 && primeIndex < PRIMES_LENGTH);
 	hash->primeIndex = static_cast<int8>(primeIndex);
 	hash->length = PRIMES[primeIndex];
 	p = hash->elements = (UHashElement*)uprv_malloc(sizeof(UHashElement) * hash->length);
@@ -226,8 +226,8 @@ static void _uhash_allocate(UHashtable * hash,
 static UHashtable * _uhash_init(UHashtable * result, UHashFunction * keyHash, UKeyComparator * keyComp, UValueComparator * valueComp, int32_t primeIndex, UErrorCode * status)
 {
 	if(U_FAILURE(*status)) return NULL;
-	U_ASSERT(keyHash != NULL);
-	U_ASSERT(keyComp != NULL);
+	assert(keyHash != NULL);
+	assert(keyComp != NULL);
 	result->keyHasher       = keyHash;
 	result->keyComparator   = keyComp;
 	result->valueComparator = valueComp;
@@ -377,8 +377,8 @@ static void _uhash_rehash(UHashtable * hash, UErrorCode * status)
 	for(i = oldLength - 1; i >= 0; --i) {
 		if(!IS_EMPTY_OR_DELETED(old[i].hashcode)) {
 			UHashElement * e = _uhash_find(hash, old[i].key, old[i].hashcode);
-			U_ASSERT(e != NULL);
-			U_ASSERT(e->hashcode == HASH_EMPTY);
+			assert(e != NULL);
+			assert(e->hashcode == HASH_EMPTY);
 			e->key = old[i].key;
 			e->value = old[i].value;
 			e->hashcode = old[i].hashcode;
@@ -399,7 +399,7 @@ static UHashTok _uhash_remove(UHashtable * hash, UHashTok key)
 	 */
 	UHashTok result;
 	UHashElement* e = _uhash_find(hash, key, hash->keyHasher(key));
-	U_ASSERT(e != NULL);
+	assert(e != NULL);
 	result.pointer = NULL;
 	result.integer = 0;
 	if(!IS_EMPTY_OR_DELETED(e->hashcode)) {
@@ -425,7 +425,7 @@ static UHashTok _uhash_put(UHashtable * hash, UHashTok key, UHashTok value, int8
 	if(U_FAILURE(*status)) {
 		goto err;
 	}
-	U_ASSERT(hash != NULL);
+	assert(hash != NULL);
 	if((hint & HINT_VALUE_POINTER) ? value.pointer == NULL : value.integer == 0 && (hint & HINT_ALLOW_ZERO) == 0) {
 		/* Disallow storage of NULL values, since NULL is returned by
 		 * get() to indicate an absent key.  Storing NULL == removing.
@@ -440,7 +440,7 @@ static UHashTok _uhash_put(UHashtable * hash, UHashTok key, UHashTok value, int8
 	}
 	hashcode = (*hash->keyHasher)(key);
 	e = _uhash_find(hash, key, hashcode);
-	U_ASSERT(e != NULL);
+	assert(e != NULL);
 	if(IS_EMPTY_OR_DELETED(e->hashcode)) {
 		/* Important: We must never actually fill the table up.  If we
 		 * do so, then _uhash_find() will return NULL, and we'll have
@@ -712,13 +712,13 @@ U_CAPI int32_t U_EXPORT2 uhash_iremovei(UHashtable * hash, int32_t key)
 U_CAPI void U_EXPORT2 uhash_removeAll(UHashtable * hash) {
 	int32_t pos = UHASH_FIRST;
 	const UHashElement * e;
-	U_ASSERT(hash != NULL);
+	assert(hash != NULL);
 	if(hash->count != 0) {
 		while((e = uhash_nextElement(hash, &pos)) != NULL) {
 			uhash_removeElement(hash, e);
 		}
 	}
-	U_ASSERT(hash->count == 0);
+	assert(hash->count == 0);
 }
 
 U_CAPI bool U_EXPORT2 uhash_containsKey(const UHashtable * hash, const void * key) {
@@ -757,7 +757,7 @@ U_CAPI const UHashElement* U_EXPORT2 uhash_nextElement(const UHashtable * hash, 
 	 * EMPTY and not DELETED.
 	 */
 	int32_t i;
-	U_ASSERT(hash != NULL);
+	assert(hash != NULL);
 	for(i = *pos + 1; i < hash->length; ++i) {
 		if(!IS_EMPTY_OR_DELETED(hash->elements[i].hashcode)) {
 			*pos = i;
@@ -770,8 +770,8 @@ U_CAPI const UHashElement* U_EXPORT2 uhash_nextElement(const UHashtable * hash, 
 
 U_CAPI void * U_EXPORT2 uhash_removeElement(UHashtable * hash, const UHashElement* e) 
 {
-	U_ASSERT(hash != NULL);
-	U_ASSERT(e != NULL);
+	assert(hash != NULL);
+	assert(e != NULL);
 	if(!IS_EMPTY_OR_DELETED(e->hashcode)) {
 		UHashElement * nce = (UHashElement*)e;
 		return _uhash_internalRemoveElement(hash, nce).pointer;

@@ -265,7 +265,7 @@ private:
 	{
 		const char16_t * pos = pos_;
 		int32_t leadUnit = *pos++;
-		// U_ASSERT(leadUnit>=kMinValueLead);
+		// assert(leadUnit>=kMinValueLead);
 		return leadUnit&kValueIsFinal ? readValue(pos, leadUnit&0x7fff) : readNodeValue(pos, leadUnit);
 	}
 
@@ -440,7 +440,7 @@ private:
 	}
 	static inline int32_t readNodeValue(const char16_t * pos, int32_t leadUnit) 
 	{
-		// U_ASSERT(kMinValueLead<=leadUnit && leadUnit<kValueIsFinal);
+		// assert(kMinValueLead<=leadUnit && leadUnit<kValueIsFinal);
 		int32_t value;
 		if(leadUnit<kMinTwoUnitNodeValueLead) {
 			value = (leadUnit>>6)-1;
@@ -455,7 +455,7 @@ private:
 	}
 	static inline const char16_t * skipNodeValue(const char16_t * pos, int32_t leadUnit) 
 	{
-		// U_ASSERT(kMinValueLead<=leadUnit && leadUnit<kValueIsFinal);
+		// assert(kMinValueLead<=leadUnit && leadUnit<kValueIsFinal);
 		if(leadUnit>=kMinTwoUnitNodeValueLead) {
 			if(leadUnit<kThreeUnitNodeValueLead) {
 				++pos;

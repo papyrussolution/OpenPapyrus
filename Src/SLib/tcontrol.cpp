@@ -29,10 +29,14 @@ SString & TStaticText::getText(SString & rBuf) const
 	return rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 }
 
-int TStaticText::setText(const char * s)
+int TStaticText::setText(const char * pText)
 {
 	int    ok = -1;
-	(Text = s).ShiftLeftChr('\003');
+	if(isempty(pText))
+		Text.Z();
+	else if(pText[0] != '@' || SLS.LoadString_(pText+1, Text) <= 0)
+		Text = pText;
+	Text.ShiftLeftChr('\003');
 	if(Parent) {
 		//
 		// Замещаем конструкцию '~c~' на '$c'

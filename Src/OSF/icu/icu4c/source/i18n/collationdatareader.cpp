@@ -116,7 +116,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 		    (reorderCodes[reorderCodesLength - reorderRangesLength - 1] & 0xffff0000) != 0) {
 			++reorderRangesLength;
 		}
-		U_ASSERT(reorderRangesLength < reorderCodesLength);
+		assert(reorderRangesLength < reorderCodesLength);
 		if(reorderRangesLength != 0) {
 			reorderCodesLength -= reorderRangesLength;
 			reorderRanges = reinterpret_cast<const uint32_t *>(reorderCodes + reorderCodesLength);

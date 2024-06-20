@@ -894,7 +894,7 @@ ICUNumberFormatService::~ICUNumberFormatService() {
 }
 
 static void U_CALLCONV initNumberFormatService() {
-	U_ASSERT(gService == NULL);
+	assert(gService == NULL);
 	ucln_i18n_registerCleanup(UCLN_I18N_NUMFMT, numfmt_cleanup);
 	gService = new ICUNumberFormatService();
 }
@@ -1136,7 +1136,7 @@ UDisplayContext NumberFormat::getContext(UDisplayContextType type, UErrorCode & 
 //
 static void U_CALLCONV nscacheInit() 
 {
-	U_ASSERT(NumberingSystem_cache == NULL);
+	assert(NumberingSystem_cache == NULL);
 	ucln_i18n_registerCleanup(UCLN_I18N_NUMFMT, numfmt_cleanup);
 	UErrorCode status = U_ZERO_ERROR;
 	NumberingSystem_cache = uhash_open(uhash_hashLong, uhash_compareLong, NULL, &status);

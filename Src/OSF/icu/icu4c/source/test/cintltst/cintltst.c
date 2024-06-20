@@ -624,7 +624,7 @@ static void ctst_freeAll()
 
 U_CFUNC bool assertSuccessCheck(const char * msg, UErrorCode * ec, bool possibleDataError) 
 {
-	U_ASSERT(ec!=NULL);
+	assert(ec!=NULL);
 	if(U_FAILURE(*ec)) {
 		if(possibleDataError) {
 			log_data_err("FAIL: %s (%s)\n", msg, u_errorName(*ec));
@@ -639,7 +639,7 @@ U_CFUNC bool assertSuccessCheck(const char * msg, UErrorCode * ec, bool possible
 
 U_CFUNC bool assertSuccess(const char * msg, UErrorCode * ec) 
 {
-	U_ASSERT(ec!=NULL);
+	assert(ec!=NULL);
 	return assertSuccessCheck(msg, ec, FALSE);
 }
 
@@ -684,7 +684,7 @@ U_CFUNC bool assertUEquals(const char * message, const char16_t * expected, cons
 			return FALSE;
 		}
 		char16_t curr = expected[i];
-		U_ASSERT(curr == actual[i]);
+		assert(curr == actual[i]);
 		if(curr == 0) {
 			break;
 		}

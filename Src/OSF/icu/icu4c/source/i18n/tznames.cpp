@@ -206,7 +206,7 @@ TimeZoneNamesDelegate::~TimeZoneNamesDelegate() {
 	umtx_lock(&gTimeZoneNamesLock);
 	{
 		if(fTZnamesCacheEntry) {
-			U_ASSERT(fTZnamesCacheEntry->refCount > 0);
+			assert(fTZnamesCacheEntry->refCount > 0);
 			// Just decrement the reference count
 			fTZnamesCacheEntry->refCount--;
 		}

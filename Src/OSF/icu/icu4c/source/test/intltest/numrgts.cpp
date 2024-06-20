@@ -2765,7 +2765,7 @@ void NumberFormatRegressionTest::TestJ691() {
 		char _msg[1000]; \
 		int32_t len = sprintf(_msg, "File %s, line %d: " #x "==" #y, __FILE__, __LINE__); \
 		(void)len;                                                         \
-		U_ASSERT(len < (int32_t)sizeof(_msg));                            \
+		assert(len < (int32_t)sizeof(_msg));                            \
 		assertEquals((const char *)_msg, x, y);                             \
 } UPRV_BLOCK_MACRO_END
 

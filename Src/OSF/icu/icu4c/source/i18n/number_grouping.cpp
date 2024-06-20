@@ -86,7 +86,7 @@ void Grouper::setLocaleData(const impl::ParsedPatternInfo &patternInfo, const Lo
 
 bool Grouper::groupAtPosition(int32_t position, const impl::DecimalQuantity &value) const 
 {
-	U_ASSERT(fGrouping1 > -2);
+	assert(fGrouping1 > -2);
 	if(fGrouping1 == -1 || fGrouping1 == 0) {
 		// Either -1 or 0 means "no grouping"
 		return false;

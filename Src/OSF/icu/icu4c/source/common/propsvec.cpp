@@ -321,7 +321,7 @@ U_CAPI void U_EXPORT2 upvec_compact(UPropsVectors * pv, UPVecCompactHandler * ha
 
 	rows = pv->rows;
 	columns = pv->columns;
-	U_ASSERT(columns>=3); /* upvec_open asserts this */
+	assert(columns>=3); /* upvec_open asserts this */
 	valueColumns = columns-2; /* not counting start & limit */
 
 	/* sort the properties vectors to find unique vector values */

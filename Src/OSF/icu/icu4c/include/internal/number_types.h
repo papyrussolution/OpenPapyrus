@@ -13,7 +13,7 @@
 #include "unicode/numsys.h"
 #include "unicode/numberformatter.h"
 #include "unicode/utf16.h"
-#include "uassert.h"
+//#include "uassert.h"
 #include "unicode/platform.h"
 #include "unicode/uniset.h"
 #include "standardplural.h"

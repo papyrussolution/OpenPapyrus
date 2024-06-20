@@ -138,7 +138,7 @@ const char16_t * CompactData::getPattern(int32_t magnitude,
 }
 
 void CompactData::getUniquePatterns(UVector &output, UErrorCode & status) const {
-	U_ASSERT(output.isEmpty());
+	assert(output.isEmpty());
 	// NOTE: In C++, this is done more manually with a UVector.
 	// In Java, we can take advantage of JDK HashSet.
 	for(auto pattern : patterns) {
@@ -175,7 +175,7 @@ void CompactData::CompactDataSink::put(const char * key, ResourceValue &value, b
 		// length of the key minus one.  We expect magnitudes to be less than MAX_DIGITS.
 		auto magnitude = static_cast<int8> (strlen(key) - 1);
 		int8 multiplier = data.multipliers[magnitude];
-		U_ASSERT(magnitude < COMPACT_MAX_DIGITS);
+		assert(magnitude < COMPACT_MAX_DIGITS);
 
 		// Iterate over the plural variants ("one", "other", etc)
 		ResourceTable pluralVariantsTable = value.getTable(status);
@@ -227,7 +227,7 @@ void CompactData::CompactDataSink::put(const char * key, ResourceValue &value, b
 			data.isEmpty = false;
 		}
 		else {
-			U_ASSERT(data.multipliers[magnitude] == multiplier);
+			assert(data.multipliers[magnitude] == multiplier);
 		}
 	}
 }
@@ -337,7 +337,7 @@ void CompactHandler::processQuantity(DecimalQuantity &quantity, MicroProps &micr
 			}
 		}
 		// It should be guaranteed that we found the entry.
-		U_ASSERT(i < precomputedModsLength);
+		assert(i < precomputedModsLength);
 	}
 	else {
 		// Unsafe code path.

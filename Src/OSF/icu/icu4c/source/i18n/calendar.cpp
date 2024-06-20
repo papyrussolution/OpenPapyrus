@@ -2211,7 +2211,7 @@ void Calendar::setTimeZone(const TimeZone& zone)
 
 const TimeZone&Calendar::getTimeZone() const
 {
-	U_ASSERT(fZone != NULL);
+	assert(fZone != NULL);
 	return *fZone;
 }
 
@@ -2588,7 +2588,7 @@ UCalendarDateFields Calendar::resolveFields(const UFieldResolutionTable* precede
 			int32_t lineStamp = kUnset;
 			// Skip over first entry if it is negative
 			for(int32_t i = ((precedenceTable[g][l][0]>=kResolveRemap) ? 1 : 0); precedenceTable[g][l][i]!=-1; ++i) {
-				U_ASSERT(precedenceTable[g][l][i] < UCAL_FIELD_COUNT);
+				assert(precedenceTable[g][l][i] < UCAL_FIELD_COUNT);
 				int32_t s = fStamp[precedenceTable[g][l][i]];
 				// If any field is unset then don't use this line
 				if(s == kUnset) {
@@ -2764,7 +2764,7 @@ void Calendar::computeTime(UErrorCode & status) {
 						status = U_ILLEGAL_ARGUMENT_ERROR;
 					}
 					else {
-						U_ASSERT(fSkippedWallTime == UCAL_WALLTIME_NEXT_VALID);
+						assert(fSkippedWallTime == UCAL_WALLTIME_NEXT_VALID);
 						// Adjust time to the next valid wall clock time.
 						// At this point, tmpTime is on or after the zone offset transition
 						// causing
@@ -2895,7 +2895,7 @@ int32_t Calendar::computeZoneOffset(double millis, double millisInDay, UErrorCod
 			int32_t tmpRaw, tmpDst;
 			tz.getOffset(tgmt - 6*60*60*1000, FALSE, tmpRaw, tmpDst, ec);
 			int32_t offsetDelta = (rawOffset + dstOffset) - (tmpRaw + tmpDst);
-			U_ASSERT(offsetDelta < -6*60*60*1000);
+			assert(offsetDelta < -6*60*60*1000);
 			if(offsetDelta < 0) {
 				sawRecentNegativeShift = TRUE;
 				// Negative shift within last 6 hours. When UCAL_WALLTIME_FIRST is used and the given

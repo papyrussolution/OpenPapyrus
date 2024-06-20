@@ -2500,18 +2500,17 @@ int CCheckCore::GetPaymList(PPID id, CcAmountList & rList)
 int CCheckCore::LoadPacket(PPID id, long flags, CCheckPacket * pPack)
 {
 	int    ok = -1;
-	pPack->Z(); // @v10.8.7
+	pPack->Z();
 	if(Search(id, &pPack->Rec) > 0) {
 		ok = 1;
 		MEMSZERO(pPack->Ext);
 		if(!(flags & lpfNoLines))
 			LoadLines(id, 0, pPack);
-		{
+		if(!(flags & lpfNoStrExt)) { // @v12.0.5
 			SString text_buf;
 			THROW(PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf));
 			text_buf.Transf(CTRANSF_UTF8_TO_INNER);
-			// @v10.3.9 pPack->UnpackLineTextExt(text_buf);
-			pPack->UnpackTextExt(text_buf); // @v10.3.9
+			pPack->UnpackTextExt(text_buf);
 		}
 		if(pPack->Rec.Flags & CCHKF_EXT) {
 			int r = SearchByID(P_Ext, 0, id, &pPack->Ext);
@@ -3595,11 +3594,10 @@ int CCheckCore::GetActiveExpendByLocList(const ObjIdListFilt * pLocList, DraftRc
 	return ok;
 }
 
-int CCheckCore::Helper_GetListByMark(const char * pText, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId, PPIDArray & rCcList, SBitArray * pSentList)
+// @v12.0.5
+int CCheckCore::Helper_GetListByMark2(TSCollection <ListByMarkEntry> & rList, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId)
 {
 	int    ok = -1;
-	rCcList.clear();
-	CALLPTRMEMB(pSentList, Clear());
 	SString temp_buf;
 	SString target_buf;
 	UnxTextRefCore & r_utrc = PPRef->UtrC;
@@ -3609,7 +3607,12 @@ int CCheckCore::Helper_GetListByMark(const char * pText, int markLnextTextId, co
 	{
 		PPID   min_id = 0;
 		if(pCcDate2MaxIdIndex) {
-			const LDATE first_date = plusdate(getcurdate_(), -static_cast<int>(backDays));
+			LDATE first_date = plusdate(getcurdate_(), -static_cast<int>(backDays));
+			for(uint lidx = 0; lidx < rList.getCount(); lidx++) {
+				const ListByMarkEntry * p_lbm_entry = rList.at(lidx);
+				if(checkdate(p_lbm_entry->OrgLotDate) && p_lbm_entry->OrgLotDate < first_date)
+					first_date = p_lbm_entry->OrgLotDate;
+			}
 			uint i = pCcDate2MaxIdIndex->getCount();
 			if(i) do {
 				const LAssoc & r_entry = pCcDate2MaxIdIndex->at(--i);
@@ -3626,23 +3629,108 @@ int CCheckCore::Helper_GetListByMark(const char * pText, int markLnextTextId, co
 			for(uint i = 0; i < text_by_row_list.getCount(); i++) {
 				StrAssocArray::Item item = text_by_row_list.at_WithoutParent(i);
 				temp_buf = item.Txt;
-				if(PPGetExtStrData(markLnextTextId, temp_buf, target_buf) > 0 && target_buf.CmpNC(pText) == 0) {
-					rCcList.add(iter_item.O.Id);
-					if(pSentList && sentLnextTextId) {
-						if(sc.GetExtStrData(sentLnextTextId, temp_buf))
-							pSentList->insert(1);
-						else
-							pSentList->insert(0);
+				if(PPGetExtStrData(markLnextTextId, temp_buf, target_buf) > 0) {
+					for(uint midx = 0; midx < rList.getCount(); midx++) {
+						ListByMarkEntry * p_list_item = rList.at(midx);
+						if(p_list_item) {
+							if(target_buf.IsEqiAscii(p_list_item->Mark)) {
+								CCheckPacket cc_pack;
+								if(LoadPacket(iter_item.O.Id, lpfNoStrExt, &cc_pack) > 0) {
+									uint    line_pos = 0;
+									if(cc_pack.SearchLine(item.Id, &line_pos)) {
+										const CCheckLineTbl::Rec & r_line_rec = cc_pack.GetLineC(line_pos);
+										CcMarkedEntry ccme;
+										ccme.CcID = iter_item.O.Id;
+										ccme.LineNo = item.Id;
+										ccme.Qtty = r_line_rec.Quantity;
+										SETFLAG(ccme.Flags, CcMarkedEntry::fSent, (sentLnextTextId && sc.GetExtStrData(sentLnextTextId, temp_buf) > 0));
+										p_list_item->CcList.insert(&ccme);
+										p_list_item->TotalOpQtty += r_line_rec.Quantity;
+										ok = 1;
+									}
+								}
+							}
+						}
 					}
-					ok = 1;
-					break;
 				}
 			}
 		}
 	}
+	return ok;
+}
+
+#if 0 // @v12.0.5 {
+int CCheckCore::Helper_GetListByMark(const char * pText, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId, PPIDArray & rCcList, SBitArray * pSentList)
+{
+	int    ok = -1;
+	rCcList.clear();
+	CALLPTRMEMB(pSentList, Clear());
+	if(!isempty(pText)) {
+		// @v12.0.5 {
+		TSCollection <ListByMarkEntry> list;
+		ListByMarkEntry * p_list_item = list.CreateNewItem();
+		if(p_list_item) {
+			STRNSCPY(p_list_item->Mark, pText);
+			ok = Helper_GetListByMark2(list, markLnextTextId, pCcDate2MaxIdIndex, backDays, sentLnextTextId);
+			if(ok > 0) {
+				assert(p_list_item->CcList.getCount());
+				//assert(!sentLnextTextId || p_list_item->SentList__ToRemove.getCount() == p_list_item->CcList.getCount());
+				{
+					//rCcList = p_list_item->CcIdList;
+					for(uint i = 0; i < p_list_item->CcList.getCount(); i++) {
+						rCcList.add(p_list_item->CcList.at(i).CcID);
+					}
+				}
+				ASSIGN_PTR(pSentList, p_list_item->SentList__ToRemove);
+			}
+		}
+		// } @v12.0.5 
+		/* @v12.0.5
+		SString temp_buf;
+		SString target_buf;
+		UnxTextRefCore & r_utrc = PPRef->UtrC;
+		TextRefEnumItem iter_item;
+		StrAssocArray text_by_row_list;
+		PPExtStrContainer sc;
+		{
+			PPID   min_id = 0;
+			if(pCcDate2MaxIdIndex) {
+				const LDATE first_date = plusdate(getcurdate_(), -static_cast<int>(backDays));
+				uint i = pCcDate2MaxIdIndex->getCount();
+				if(i) do {
+					const LAssoc & r_entry = pCcDate2MaxIdIndex->at(--i);
+					LDATE iter_dt;
+					iter_dt.v = static_cast<ulong>(r_entry.Key);
+					if(iter_dt <= first_date)
+						min_id = r_entry.Val;
+				} while(!min_id && i);
+			}
+			SEnum en = (min_id > 0) ? r_utrc.Enum(PPOBJ_CCHECK, PPTRPROP_CC_LNEXT, min_id) : r_utrc.Enum(PPOBJ_CCHECK, PPTRPROP_CC_LNEXT);
+			while(en.Next(&iter_item) > 0) {
+				CCheckPacket::Helper_UnpackTextExt(iter_item.S.Transf(CTRANSF_UTF8_TO_INNER), &sc, &text_by_row_list);
+				uint   pos = 0;
+				for(uint i = 0; i < text_by_row_list.getCount(); i++) {
+					StrAssocArray::Item item = text_by_row_list.at_WithoutParent(i);
+					temp_buf = item.Txt;
+					if(PPGetExtStrData(markLnextTextId, temp_buf, target_buf) > 0 && target_buf.CmpNC(pText) == 0) {
+						rCcList.add(iter_item.O.Id);
+						if(pSentList && sentLnextTextId) {
+							if(sc.GetExtStrData(sentLnextTextId, temp_buf))
+								pSentList->insert(1);
+							else
+								pSentList->insert(0);
+						}
+						ok = 1;
+						break;
+					}
+				}
+			}
+		}*/
+	}
 	assert(!pSentList || pSentList->getCount() == rCcList.getCount());
 	return ok;
 }
+#endif // } @v12.0.5
 
 int CCheckCore::GetListByUuid(const S_GUID & rUuid, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, PPIDArray & rCcList)
 {
@@ -3723,8 +3811,7 @@ int CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const char * p
 							}
 							else if(PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), text_buf) > 0) {
 								text_buf.Transf(CTRANSF_UTF8_TO_INNER);
-								// @v10.3.9 CCheckPacket::Helper_UnpackLineTextExt(text_buf, ln_text_ext);
-								CCheckPacket::Helper_UnpackTextExt(text_buf, 0, &ln_text_ext); // @v10.3.9
+								CCheckPacket::Helper_UnpackTextExt(text_buf, 0, &ln_text_ext);
 								CCheckPacket::Helper_GetLineTextExt(r_line_rec.RByCheck, CCheckPacket::lnextSerial, ln_text_ext, serial_buf);
 								if(serial_buf == pSerial)
 									result += r_line_rec.Quantity;
@@ -3938,8 +4025,7 @@ int CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCheckGoo
 					if(cc_id != prev_cc_id) {
 						THROW(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), temp_buf));
 						// (Использовать будем в виде utf8-строк) temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-                        // @v10.3.9 CCheckPacket::Helper_UnpackLineTextExt(temp_buf, cc_ln_text_ext);
-						CCheckPacket::Helper_UnpackTextExt(temp_buf, 0, &cc_ln_text_ext); // @v10.3.9 
+						CCheckPacket::Helper_UnpackTextExt(temp_buf, 0, &cc_ln_text_ext);
 					}
 					int16  dt_offs = static_cast<const ChkItem *>(chk_list.at(pos))->DtOffs;
 					PPID   serial_id = 0;

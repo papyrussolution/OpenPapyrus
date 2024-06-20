@@ -76,7 +76,7 @@ int32_t CollationElementIterator::getOffset() const
 			// Return the trailing CE offset while we are in the middle of a 64-bit CE.
 			++i;
 		}
-		U_ASSERT(i < offsets_->size());
+		assert(i < offsets_->size());
 		return offsets_->elementAti(i);
 	}
 	return iter_->getOffset();
@@ -420,7 +420,7 @@ public:
 		uint32_t lastHalf = getSecondHalf(p, lower32);
 		if(lastHalf == 0) {
 			lastHalf = getFirstHalf(p, lower32);
-			U_ASSERT(lastHalf != 0);
+			assert(lastHalf != 0);
 		}
 		else {
 			lastHalf |= 0xc0; // old-style continuation CE

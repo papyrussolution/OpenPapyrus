@@ -861,7 +861,7 @@ U_CAPI int32_t U_EXPORT2 uloc_setKeywordValue(const char * keywordName, const ch
 	startSearchHere = (char *)locale_getKeywordsStart(buffer);
 	if(startSearchHere == NULL || (startSearchHere[1]==0)) {
 		if(keywordValueLen == 0) { /* no keywords = nothing to remove */
-			U_ASSERT(*status != U_STRING_NOT_TERMINATED_WARNING);
+			assert(*status != U_STRING_NOT_TERMINATED_WARNING);
 			return bufLen;
 		}
 		needLen = bufLen+1+keywordNameLen+1+keywordValueLen;
@@ -881,7 +881,7 @@ U_CAPI int32_t U_EXPORT2 uloc_setKeywordValue(const char * keywordName, const ch
 		startSearchHere += keywordNameLen;
 		*startSearchHere++ = '=';
 		strcpy(startSearchHere, keywordValueBuffer);
-		U_ASSERT(*status != U_STRING_NOT_TERMINATED_WARNING);
+		assert(*status != U_STRING_NOT_TERMINATED_WARNING);
 		return needLen;
 	} /* end shortcut - no @ */
 
@@ -994,7 +994,7 @@ U_CAPI int32_t U_EXPORT2 uloc_setKeywordValue(const char * keywordName, const ch
 	if(!handledInputKeyAndValue || U_FAILURE(*status)) {
 		/* if input key/value specified removal of a keyword not present in locale, or
 		 * there was an error in CharString.append, leave original locale alone. */
-		U_ASSERT(*status != U_STRING_NOT_TERMINATED_WARNING);
+		assert(*status != U_STRING_NOT_TERMINATED_WARNING);
 		return bufLen;
 	}
 	// needLen = length of the part before '@'
@@ -1011,7 +1011,7 @@ U_CAPI int32_t U_EXPORT2 uloc_setKeywordValue(const char * keywordName, const ch
 		return needLen + appendLength;
 	}
 	needLen += updatedKeysAndValues.extract(startSearchHere, bufferCapacity - needLen, *status);
-	U_ASSERT(*status != U_STRING_NOT_TERMINATED_WARNING);
+	assert(*status != U_STRING_NOT_TERMINATED_WARNING);
 	return needLen;
 }
 

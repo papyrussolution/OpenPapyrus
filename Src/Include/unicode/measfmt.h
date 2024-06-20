@@ -240,10 +240,6 @@ public:
 	 */
 	virtual UClassID getDynamicClassID(void) const override;
 protected:
-	/**
-	 * Default constructor.
-	 * @stable ICU 3.0
-	 */
 	MeasureFormat();
 #ifndef U_HIDE_INTERNAL_API
 	/**
@@ -277,7 +273,6 @@ protected:
 	 * @internal.
 	 */
 	const NumberFormat& getCurrencyFormatInternal() const;
-
 	/**
 	 * ICU use only.
 	 * @internal.
@@ -309,8 +304,7 @@ private:
 	UnicodeString &formatNumeric(const Formattable * hms, // always length 3: [0] is hour; [1] is
 	                                                      // minute; [2] is second.
 	    int32_t bitMap, // 1=hour set, 2=minute set, 4=second set
-	    UnicodeString &appendTo,
-	    UErrorCode & status) const;
+	    UnicodeString &appendTo, UErrorCode & status) const;
 };
 
 U_NAMESPACE_END

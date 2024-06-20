@@ -1,16 +1,10 @@
+// collationsets.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-*******************************************************************************
-* Copyright (C) 2013-2014, International Business Machines
-* Corporation and others.  All Rights Reserved.
-*******************************************************************************
-* collationsets.h
-*
-* created on: 2013feb09
-* created by: Markus W. Scherer
-*/
-
+// Copyright (C) 2013-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2013feb09
+// created by: Markus W. Scherer
+//
 #ifndef __COLLATIONSETS_H__
 #define __COLLATIONSETS_H__
 
@@ -42,100 +36,98 @@ struct CollationData;
  */
 class TailoredSet : public UMemory {
 public:
-    TailoredSet(UnicodeSet *t)
-            : data(NULL), baseData(NULL),
-              tailored(t),
-              suffix(NULL),
-              errorCode(U_ZERO_ERROR) {}
-
-    void forData(const CollationData *d, UErrorCode & errorCode);
-
-    /**
-  * @return U_SUCCESS(errorCode) in C++, void in Java
-  * @internal only public for access by callback
-     */
-    bool handleCE32(UChar32 start, UChar32 end, uint32_t ce32);
-
+	TailoredSet(UnicodeSet * t) : data(NULL), baseData(NULL), tailored(t), suffix(NULL), errorCode(U_ZERO_ERROR) 
+	{
+	}
+	void forData(const CollationData * d, UErrorCode & errorCode);
+	/**
+	 * @return U_SUCCESS(errorCode) in C++, void in Java
+	 * @internal only public for access by callback
+	 */
+	bool handleCE32(UChar32 start, UChar32 end, uint32_t ce32);
 private:
-    void compare(UChar32 c, uint32_t ce32, uint32_t baseCE32);
-    void comparePrefixes(UChar32 c, const char16_t *p, const char16_t *q);
-    void compareContractions(UChar32 c, const char16_t *p, const char16_t *q);
+	void compare(UChar32 c, uint32_t ce32, uint32_t baseCE32);
+	void comparePrefixes(UChar32 c, const char16_t * p, const char16_t * q);
+	void compareContractions(UChar32 c, const char16_t * p, const char16_t * q);
 
-    void addPrefixes(const CollationData *d, UChar32 c, const char16_t *p);
-    void addPrefix(const CollationData *d, const UnicodeString & pfx, UChar32 c, uint32_t ce32);
-    void addContractions(UChar32 c, const char16_t *p);
-    void addSuffix(UChar32 c, const UnicodeString & sfx);
-    void add(UChar32 c);
+	void addPrefixes(const CollationData * d, UChar32 c, const char16_t * p);
+	void addPrefix(const CollationData * d, const UnicodeString & pfx, UChar32 c, uint32_t ce32);
+	void addContractions(UChar32 c, const char16_t * p);
+	void addSuffix(UChar32 c, const UnicodeString & sfx);
+	void add(UChar32 c);
 
-    /** Prefixes are reversed in the data structure. */
-    void setPrefix(const UnicodeString & pfx) {
-        unreversedPrefix = pfx;
-        unreversedPrefix.reverse();
-    }
-    void resetPrefix() {
-        unreversedPrefix.remove();
-    }
+	/** Prefixes are reversed in the data structure. */
+	void setPrefix(const UnicodeString & pfx) {
+		unreversedPrefix = pfx;
+		unreversedPrefix.reverse();
+	}
 
-    const CollationData *data;
-    const CollationData *baseData;
-    UnicodeSet *tailored;
-    UnicodeString unreversedPrefix;
-    const UnicodeString *suffix;
-    UErrorCode errorCode;
+	void resetPrefix() {
+		unreversedPrefix.remove();
+	}
+
+	const CollationData * data;
+	const CollationData * baseData;
+	UnicodeSet * tailored;
+	UnicodeString unreversedPrefix;
+	const UnicodeString * suffix;
+	UErrorCode errorCode;
 };
 
 class ContractionsAndExpansions : public UMemory {
 public:
-    class CESink : public UMemory {
-    public:
-        virtual ~CESink();
-        virtual void handleCE(int64_t ce) = 0;
-        virtual void handleExpansion(const int64_t ces[], int32_t length) = 0;
-    };
+	class CESink : public UMemory {
+public:
+		virtual ~CESink();
+		virtual void handleCE(int64_t ce) = 0;
+		virtual void handleExpansion(const int64_t ces[], int32_t length) = 0;
+	};
 
-    ContractionsAndExpansions(UnicodeSet *con, UnicodeSet *exp, CESink *s, bool prefixes)
-            : data(NULL),
-              contractions(con), expansions(exp),
-              sink(s),
-              addPrefixes(prefixes),
-              checkTailored(0),
-              suffix(NULL),
-              errorCode(U_ZERO_ERROR) {}
+	ContractionsAndExpansions(UnicodeSet * con, UnicodeSet * exp, CESink * s, bool prefixes)
+		: data(NULL),
+		contractions(con), expansions(exp),
+		sink(s),
+		addPrefixes(prefixes),
+		checkTailored(0),
+		suffix(NULL),
+		errorCode(U_ZERO_ERROR) {
+	}
 
-    void forData(const CollationData *d, UErrorCode & errorCode);
-    void forCodePoint(const CollationData *d, UChar32 c, UErrorCode & ec);
+	void forData(const CollationData * d, UErrorCode & errorCode);
+	void forCodePoint(const CollationData * d, UChar32 c, UErrorCode & ec);
 
-    // all following: @internal, only public for access by callback
+	// all following: @internal, only public for access by callback
 
-    void handleCE32(UChar32 start, UChar32 end, uint32_t ce32);
+	void handleCE32(UChar32 start, UChar32 end, uint32_t ce32);
 
-    void handlePrefixes(UChar32 start, UChar32 end, uint32_t ce32);
-    void handleContractions(UChar32 start, UChar32 end, uint32_t ce32);
+	void handlePrefixes(UChar32 start, UChar32 end, uint32_t ce32);
+	void handleContractions(UChar32 start, UChar32 end, uint32_t ce32);
 
-    void addExpansions(UChar32 start, UChar32 end);
-    void addStrings(UChar32 start, UChar32 end, UnicodeSet *set);
+	void addExpansions(UChar32 start, UChar32 end);
+	void addStrings(UChar32 start, UChar32 end, UnicodeSet * set);
 
-    /** Prefixes are reversed in the data structure. */
-    void setPrefix(const UnicodeString & pfx) {
-        unreversedPrefix = pfx;
-        unreversedPrefix.reverse();
-    }
-    void resetPrefix() {
-        unreversedPrefix.remove();
-    }
+	/** Prefixes are reversed in the data structure. */
+	void setPrefix(const UnicodeString & pfx) {
+		unreversedPrefix = pfx;
+		unreversedPrefix.reverse();
+	}
 
-    const CollationData *data;
-    UnicodeSet *contractions;
-    UnicodeSet *expansions;
-    CESink *sink;
-    bool addPrefixes;
-    int8 checkTailored;  // -1: collected tailored  +1: exclude tailored
-    UnicodeSet tailored;
-    UnicodeSet ranges;
-    UnicodeString unreversedPrefix;
-    const UnicodeString *suffix;
-    int64_t ces[Collation::MAX_EXPANSION_LENGTH];
-    UErrorCode errorCode;
+	void resetPrefix() {
+		unreversedPrefix.remove();
+	}
+
+	const CollationData * data;
+	UnicodeSet * contractions;
+	UnicodeSet * expansions;
+	CESink * sink;
+	bool addPrefixes;
+	int8 checkTailored; // -1: collected tailored  +1: exclude tailored
+	UnicodeSet tailored;
+	UnicodeSet ranges;
+	UnicodeString unreversedPrefix;
+	const UnicodeString * suffix;
+	int64_t ces[Collation::MAX_EXPANSION_LENGTH];
+	UErrorCode errorCode;
 };
 
 U_NAMESPACE_END

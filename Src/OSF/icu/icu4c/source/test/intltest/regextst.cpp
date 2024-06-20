@@ -5148,7 +5148,7 @@ void RegexTest::NamedCapture()
 
 	status = U_ZERO_ERROR;
 	group = pat->groupNumberFromName(UnicodeString("nosuch"), status);
-	U_ASSERT(status == U_REGEX_INVALID_CAPTURE_GROUP_NAME);
+	assert(status == U_REGEX_INVALID_CAPTURE_GROUP_NAME);
 
 	status = U_ZERO_ERROR;
 

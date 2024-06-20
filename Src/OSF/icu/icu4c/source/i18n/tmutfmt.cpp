@@ -524,7 +524,7 @@ void TimeUnitFormat::searchInLocaleChain(UTimeUnitFormatStyle style, const char 
 	char parentLocale[ULOC_FULLNAME_CAPACITY];
 	strcpy(parentLocale, localeName);
 	int32_t locNameLen;
-	U_ASSERT(countToPatterns != NULL);
+	assert(countToPatterns != NULL);
 	while((locNameLen = uloc_getParent(parentLocale, parentLocale, ULOC_FULLNAME_CAPACITY, &status)) >= 0) {
 		// look for pattern for srcPluralCount in locale tree
 		LocalUResourceBundlePointer rb(ures_open(U_ICUDATA_UNIT, parentLocale, &status));

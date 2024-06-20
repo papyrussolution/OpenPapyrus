@@ -181,8 +181,8 @@ static inline bool hasService(void)
 #endif /* UCONFIG_NO_SERVICE */
 
 static void U_CALLCONV initAvailableLocaleList(UErrorCode & status) {
-	U_ASSERT(availableLocaleListCount == 0);
-	U_ASSERT(availableLocaleList == NULL);
+	assert(availableLocaleListCount == 0);
+	assert(availableLocaleList == NULL);
 	// for now, there is a hardcoded list, so just walk through that list and set it up.
 	UResourceBundle * index = NULL;
 	StackUResourceBundle installed;
@@ -203,7 +203,7 @@ static void U_CALLCONV initAvailableLocaleList(UErrorCode & status) {
 				availableLocaleList[i++] = Locale(tempKey);
 			}
 		}
-		U_ASSERT(availableLocaleListCount == i);
+		assert(availableLocaleListCount == i);
 	}
 	ures_close(index);
 	ucln_i18n_registerCleanup(UCLN_I18N_COLLATOR, collator_cleanup);
@@ -565,8 +565,7 @@ UnicodeString & U_EXPORT2 Collator::getDisplayName(const Locale & objectLocale,
  * The task for determining the default collation strength and normalization mode
  * is left to the child class.
  */
-Collator::Collator()
-	: UObject()
+Collator::Collator() : UObject()
 {
 }
 

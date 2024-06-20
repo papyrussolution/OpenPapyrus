@@ -962,7 +962,7 @@ int32_t CjkBreakEngine::divideUpDictionaryRange(UText * inText, int32_t rangeSta
 		// Create a map from UnicodeString indices -> UText offsets.
 		utext_setNativeIndex(inText, rangeStart);
 		int32_t limit = rangeEnd;
-		U_ASSERT(limit <= utext_nativeLength(inText));
+		assert(limit <= utext_nativeLength(inText));
 		if(limit > utext_nativeLength(inText)) {
 			limit = (int32_t)utext_nativeLength(inText);
 		}
@@ -973,7 +973,7 @@ int32_t CjkBreakEngine::divideUpDictionaryRange(UText * inText, int32_t rangeSta
 		while(utext_getNativeIndex(inText) < limit) {
 			int32_t nativePosition = (int32_t)utext_getNativeIndex(inText);
 			UChar32 c = utext_next32(inText);
-			U_ASSERT(c != U_SENTINEL);
+			assert(c != U_SENTINEL);
 			inString.append(c);
 			while(inputMap->size() < inString.length()) {
 				inputMap->addElement(nativePosition, status);
@@ -1018,7 +1018,7 @@ int32_t CjkBreakEngine::divideUpDictionaryRange(UText * inText, int32_t rangeSta
 				}
 			}
 		}
-		U_ASSERT(normalizedMap->size() == normalizedInput.length());
+		assert(normalizedMap->size() == normalizedInput.length());
 		int32_t nativeEnd = inputMap.isValid() ? inputMap->elementAti(inString.length()) : inString.length()+rangeStart;
 		normalizedMap->addElement(nativeEnd, status);
 		inputMap = std::move(normalizedMap);
@@ -1040,7 +1040,7 @@ int32_t CjkBreakEngine::divideUpDictionaryRange(UText * inText, int32_t rangeSta
 		}
 		int32_t cpIdx = 0;
 		for(int32_t cuIdx = 0;; cuIdx = inString.moveIndex32(cuIdx, 1)) {
-			U_ASSERT(cuIdx >= cpIdx);
+			assert(cuIdx >= cpIdx);
 			if(hadExistingMap) {
 				inputMap->setElementAt(inputMap->elementAti(cuIdx), cpIdx);
 			}
@@ -1159,7 +1159,7 @@ int32_t CjkBreakEngine::divideUpDictionaryRange(UText * inText, int32_t rangeSta
 			t_boundary.addElement(i, status);
 			numBreaks++;
 		}
-		U_ASSERT(prev.elementAti(t_boundary.elementAti(numBreaks - 1)) == 0);
+		assert(prev.elementAti(t_boundary.elementAti(numBreaks - 1)) == 0);
 	}
 
 	// Add a break for the start of the dictionary range if there is not one
@@ -1176,12 +1176,12 @@ int32_t CjkBreakEngine::divideUpDictionaryRange(UText * inText, int32_t rangeSta
 	int32_t prevUTextPos = -1;
 	for(int32_t i = numBreaks-1; i >= 0; i--) {
 		int32_t cpPos = t_boundary.elementAti(i);
-		U_ASSERT(cpPos > prevCPPos);
+		assert(cpPos > prevCPPos);
 		int32_t utextPos =  inputMap.isValid() ? inputMap->elementAti(cpPos) : cpPos + rangeStart;
-		U_ASSERT(utextPos >= prevUTextPos);
+		assert(utextPos >= prevUTextPos);
 		if(utextPos > prevUTextPos) {
 			// Boundaries are added to foundBreaks output in ascending order.
-			U_ASSERT(foundBreaks.size() == 0 || foundBreaks.peeki() < utextPos);
+			assert(foundBreaks.size() == 0 || foundBreaks.peeki() < utextPos);
 			foundBreaks.push(utextPos, status);
 		}
 		else {

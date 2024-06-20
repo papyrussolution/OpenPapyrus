@@ -574,7 +574,7 @@ void CollationRuleParser::parseSetting(UErrorCode & errorCode) {
 				settings->setMaxVariable(value, 0, errorCode);
 				settings->variableTop = baseData->getLastPrimaryForGroup(
 					UCOL_REORDER_CODE_FIRST + value);
-				U_ASSERT(settings->variableTop != 0);
+				assert(settings->variableTop != 0);
 				ruleIndex = j;
 				return;
 			}

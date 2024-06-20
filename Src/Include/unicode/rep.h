@@ -198,15 +198,8 @@ public:
 	 * @stable ICU 2.6
 	 */
 	virtual Replaceable * clone() const;
-
 protected:
-
-	/**
-	 * Default constructor.
-	 * @stable ICU 2.4
-	 */
 	inline Replaceable();
-
 	/*
 	 * Assignment operator not declared. The compiler will provide one
 	 * which does nothing since this class does not contain any data members.
@@ -217,19 +210,16 @@ protected:
 	 * here would be to declare and empty-implement a protected or public one.
 	   Replaceable &Replaceable::operator = (const Replaceable &);
 	 */
-
 	/**
 	 * Virtual version of length().
 	 * @stable ICU 2.4
 	 */
 	virtual int32_t getLength() const = 0;
-
 	/**
 	 * Virtual version of charAt().
 	 * @stable ICU 2.4
 	 */
 	virtual char16_t getCharAt(int32_t offset) const = 0;
-
 	/**
 	 * Virtual version of char32At().
 	 * @stable ICU 2.4

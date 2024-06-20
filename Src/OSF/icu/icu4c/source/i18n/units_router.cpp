@@ -30,7 +30,7 @@ Precision UnitsRouter::parseSkeletonToPrecision(icu::UnicodeString precisionSkel
 		status = U_INVALID_FORMAT_ERROR;
 		return {};
 	}
-	U_ASSERT(precisionSkeleton[kSkelPrefixLen - 1] == u'/');
+	assert(precisionSkeleton[kSkelPrefixLen - 1] == u'/');
 	StringSegment segment(precisionSkeleton, false);
 	segment.adjustOffset(kSkelPrefixLen);
 	Precision result;
@@ -73,7 +73,7 @@ void UnitsRouter::init(const MeasureUnit &inputUnit, StringPiece region, StringP
 	    status);
 
 	for(int i = 0; i < preferencesCount; ++i) {
-		U_ASSERT(unitPreferences[i] != nullptr);
+		assert(unitPreferences[i] != nullptr);
 		const auto &preference = *unitPreferences[i];
 
 		MeasureUnitImpl complexTargetUnitImpl =
@@ -116,7 +116,7 @@ RouteResult UnitsRouter::route(double quantity, icu::number::impl::RoundingImpl 
 			break;
 		}
 	}
-	U_ASSERT(converterPreference != nullptr);
+	assert(converterPreference != nullptr);
 
 	// Set up the rounder for this preference's precision
 	if(rounder != nullptr && rounder->fPrecision.isBogus()) {

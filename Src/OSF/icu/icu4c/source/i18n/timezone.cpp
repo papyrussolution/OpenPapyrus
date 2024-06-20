@@ -502,7 +502,7 @@ static void U_CALLCONV initDefault()
 	// The code detecting the host time zone was separated from this
 	// and implemented as TimeZone::detectHostTimeZone()
 	TimeZone * default_zone = TimeZone::detectHostTimeZone();
-	U_ASSERT(DEFAULT_ZONE == NULL);
+	assert(DEFAULT_ZONE == NULL);
 	DEFAULT_ZONE = default_zone;
 }
 
@@ -606,17 +606,17 @@ static void U_CALLCONV initMap(USystemTimeZoneType type, UErrorCode & ec) {
 
 				switch(type) {
 					case UCAL_ZONE_TYPE_ANY:
-					    U_ASSERT(MAP_SYSTEM_ZONES == NULL);
+					    assert(MAP_SYSTEM_ZONES == NULL);
 					    MAP_SYSTEM_ZONES = m;
 					    LEN_SYSTEM_ZONES = numEntries;
 					    break;
 					case UCAL_ZONE_TYPE_CANONICAL:
-					    U_ASSERT(MAP_CANONICAL_SYSTEM_ZONES == NULL);
+					    assert(MAP_CANONICAL_SYSTEM_ZONES == NULL);
 					    MAP_CANONICAL_SYSTEM_ZONES = m;
 					    LEN_CANONICAL_SYSTEM_ZONES = numEntries;
 					    break;
 					case UCAL_ZONE_TYPE_CANONICAL_LOCATION:
-					    U_ASSERT(MAP_CANONICAL_SYSTEM_LOCATION_ZONES == NULL);
+					    assert(MAP_CANONICAL_SYSTEM_LOCATION_ZONES == NULL);
 					    MAP_CANONICAL_SYSTEM_LOCATION_ZONES = m;
 					    LEN_CANONICAL_SYSTEM_LOCATION_ZONES = numEntries;
 					    break;
@@ -1172,7 +1172,7 @@ UnicodeString &TimeZone::getDisplayName(bool inDaylight, EDisplayType style, con
 		}
 	}
 	else {
-		U_ASSERT(style == LONG || style == SHORT || style == SHORT_COMMONLY_USED);
+		assert(style == LONG || style == SHORT || style == SHORT_COMMONLY_USED);
 		UTimeZoneNameType nameType = UTZNM_UNKNOWN;
 		switch(style) {
 			case LONG:

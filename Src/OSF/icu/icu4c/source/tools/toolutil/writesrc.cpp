@@ -331,7 +331,7 @@ U_CAPI void U_EXPORT2 usrc_writeUCPTrie(FILE * f, const char * name, const UCPTr
 U_CAPI void U_EXPORT2 usrc_writeUnicodeSet(FILE * f, const USet * pSet, UTargetSyntax syntax) 
 {
 	// ccode is not yet supported
-	U_ASSERT(syntax == UPRV_TARGET_SYNTAX_TOML);
+	assert(syntax == UPRV_TARGET_SYNTAX_TOML);
 	// Write out a list of ranges
 	const UnicodeSet* set = UnicodeSet::fromUSet(pSet);
 	UnicodeSetIterator it(*set);
@@ -350,7 +350,7 @@ U_CAPI void U_EXPORT2 usrc_writeUnicodeSet(FILE * f, const USet * pSet, UTargetS
 			fprintf(f, ",\n");
 		}
 		else {
-			U_ASSERT(!seenFirstString);
+			assert(!seenFirstString);
 			UChar32 start = it.getCodepoint();
 			UChar32 end = it.getCodepointEnd();
 			fprintf(f, "  [0x%x, 0x%x],\n", start, end);
@@ -364,7 +364,7 @@ U_CAPI void U_EXPORT2 usrc_writeUCPMap(FILE * f,
     icu::ValueNameGetter * valueNameGetter,
     UTargetSyntax syntax) {
 	// ccode is not yet supported
-	U_ASSERT(syntax == UPRV_TARGET_SYNTAX_TOML);
+	assert(syntax == UPRV_TARGET_SYNTAX_TOML);
 	(void)syntax; // silence unused variable errors
 
 	// Print out list of ranges
@@ -440,7 +440,7 @@ U_CAPI void U_EXPORT2 usrc_writeStringAsASCII(FILE * f, const char16_t * ptr, in
 			fprintf(f, "%s", u8result.data());
 		}
 		else {
-			U_ASSERT(cp < 0x80);
+			assert(cp < 0x80);
 			char s[2] = {static_cast<char>(cp), 0};
 			fprintf(f, "%s", s);
 		}

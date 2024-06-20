@@ -258,9 +258,9 @@ void RBBISetBuilder::buildTrie() {
 }
 
 void RBBISetBuilder::mergeCategories(IntPair categories) {
-	U_ASSERT(categories.first >= 1);
-	U_ASSERT(categories.second > categories.first);
-	U_ASSERT((categories.first <  fDictCategoriesStart && categories.second <  fDictCategoriesStart) ||
+	assert(categories.first >= 1);
+	assert(categories.second > categories.first);
+	assert((categories.first <  fDictCategoriesStart && categories.second <  fDictCategoriesStart) ||
 	    (categories.first >= fDictCategoriesStart && categories.second >= fDictCategoriesStart));
 
 	for(RangeDescriptor * rd = fRangeList; rd != nullptr; rd = rd->fNext) {
@@ -553,7 +553,7 @@ RangeDescriptor::~RangeDescriptor()
 //  RangeDesriptor::split()
 //
 void RangeDescriptor::split(UChar32 where, UErrorCode & status) {
-	U_ASSERT(where>fStartChar && where<=fEndChar);
+	assert(where>fStartChar && where<=fEndChar);
 	RangeDescriptor * nr = new RangeDescriptor(*this, status);
 	if(nr == nullptr) {
 		status = U_MEMORY_ALLOCATION_ERROR;

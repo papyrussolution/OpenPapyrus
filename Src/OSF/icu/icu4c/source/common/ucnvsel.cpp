@@ -401,7 +401,7 @@ static int32_t ucnvsel_swap(const UDataSwapper * ds,
 		ds->swapInvChars(ds, inBytes + offset, count, outBytes + offset, status);
 		offset += count;
 
-		U_ASSERT(offset == size);
+		assert(offset == size);
 	}
 
 	return headerSize + size;

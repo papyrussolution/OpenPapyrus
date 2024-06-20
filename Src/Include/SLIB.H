@@ -3285,7 +3285,7 @@ class DataType {
 public:
 	explicit DataType(uint32 sz) : S(sz) {}
 	DataType() : S(0) {}
-	virtual uint32 size() const; // @v10.2.1 size_t-->uint32
+	virtual uint32 size() const;
 	virtual int    comp(const void * i1, const void * i2) const;
 	virtual char * tostr(const void *, long, char * b) const;
 	//
@@ -3326,7 +3326,7 @@ inline TYPEID GetSTypeID(LDATETIME) { return MKSTYPE(S_DATETIME, 8); }
 DataType & FASTCALL stype(TYPEID t, DataType *);
 TYPEID     FASTCALL bt2st(int baseType);
 int    FASTCALL btnumber(int bt);
-uint32 FASTCALL stsize(TYPEID t); // @v10.2.1 size_t-->uint32
+uint32 FASTCALL stsize(TYPEID t);
 int    FASTCALL stcomp(TYPEID t, const void * i1, const void * i2);
 char * FASTCALL sttostr(TYPEID t, const void * d, long f, char * b);
 int    FASTCALL stfromstr(TYPEID t, void * d, long f, const char * b);
@@ -3887,7 +3887,6 @@ public:
 
 extern const SPoint2F ZEROFPOINT; // @global
 
-// @v10.9.10 (replaced with SPoint2F::operator ==) int    FASTCALL operator == (SPoint2F p1, SPoint2F p2);
 bool   FASTCALL operator <  (SPoint2F p1, SPoint2F p2);
 bool   FASTCALL operator >  (SPoint2F p1, SPoint2F p2);
 SPoint2F FASTCALL operator +  (SPoint2F p, float);
@@ -5277,7 +5276,6 @@ bool   FASTCALL sisascii(const char * pS, size_t len);
 bool   FASTCALL sisascii(const wchar_t * pS, size_t len/* length of pS in characters (not bytes)*/);
 char * FASTCALL strip(char * pStr);
 char * FASTCALL chomp(char * pStr);
-// @v10.0.0 const  char * skipws(const char * pStr, size_t * pPos);
 //
 // Descr: Сдвигает все символы строки pStr вправо на n символов и освободившееся
 //   слева место забивает символами pad.
@@ -5338,9 +5336,6 @@ SString & FASTCALL FormatInt64(int64 value, SString & rBuf);
 SString & FASTCALL FormatUInt64(uint64 value, SString & rBuf);
 int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount);
 //
-//get string - used in network @vantonov
-// @v10.3.0 (unused) int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr = '\"');
-//
 // Функции для классификации и конвертации символов
 //
 template <class T> bool isdirslash(T c) { return oneof2(c, '/', '\\'); }
@@ -5380,7 +5375,6 @@ template <class T> bool isasciilwr(T ch) { return (ch >= 'a' && ch <= 'z'); }
 //template <class T> bool isasciialpha(T ch) { return (((uchar)(ch | 32) - 97) < 26U); }
 template <class T> bool isasciialpha(T ch) { return ((((uint)ch | 32) - 97) < 26U); }
 template <class T> bool isasciialnum(T ch) { return ((ch >= '0' && ch <= '9') || ((((uint)ch | 32) - 97) < 26U)); }
-// @v10.9.3 (replaced with isasciialpha) int    FASTCALL IsLetterASCII(int ch); // synonym of isasciialpha
 int    FASTCALL ToLower1251(int ch);
 int    FASTCALL ToUpper1251(int ch);
 char * FASTCALL strlwr1251(char *);
@@ -5408,7 +5402,7 @@ char * FASTCALL SCharToOem(char * pStr);
 // Descr: Серия специальных функций и макросов для унификации компиляции UNICODE и multibyte версий.
 //
 const wchar_t * FASTCALL SUcSwitchW(const char * pStr);
-const wchar_t * FASTCALL SUcSwitchW(const SString & rStr); // @v10.9.12
+const wchar_t * FASTCALL SUcSwitchW(const SString & rStr);
 const char * FASTCALL SUcSwitchW(const wchar_t * pStr);
 inline const char * FASTCALL SUcSwitchA(const char * pStr) { return pStr; }
 inline const wchar_t * FASTCALL SUcSwitchA(const wchar_t * pStr) { return pStr; }
@@ -5457,7 +5451,6 @@ inline const wchar_t * FASTCALL SUcSwitchA(const wchar_t * pStr) { return pStr; 
 #define NUM_MONTHES        12
 
 extern const uchar  daysPerMonth[NUM_MONTHES];
-// @v10.2.3 (static now) extern const char * monthNames[NUM_MONTHES];
 //
 // Functions for date formats convertion
 //
@@ -5603,8 +5596,6 @@ int    FASTCALL GetDayOfWeekByText(const char * pText);
 //
 // Time format convertion
 //
-// @v10.0.02 int   FASTCALL _encodetime(int h, int m, int s, int ts, void *, int);
-// @v10.0.02 int   FASTCALL _decodetime(int * h, int * m, int * s, int * ts, void *, int);
 void   STDCALL encodetime(int h, int m, int s, int ts, void *);
 void   STDCALL decodetime(int * h, int * m, int * s, int * ts, const void *);
 LTIME  STDCALL encodetime(int h, int m, int s, int ts);
@@ -5944,14 +5935,11 @@ private:
 };
 
 int	   pathToUNC(const char * pPath, SString & rUncPath);
-// @v10.5.6 char * replacePath(char * fileName, const char * newPath, int force);
-// @v10.5.6 char * replaceExt(char * fileName, const char * newExt, int force);
 char * setLastSlash(char *);
 char * rmvLastSlash(char *);
 bool   FASTCALL fileExists(const char * pFileName);
 int    driveValid(const char * path);
 int    pathValid(const char * pPath, int existOnly);
-// @v10.8.2 (unused) int    validFileName(const char * pFileName);
 //
 // Descr: формирует полное имя файла, состоящее из пути
 //   до исполняемого файла и имени pName с расширением pExt.
@@ -6034,7 +6022,6 @@ struct SDataMoveProgressInfo {
 typedef int (* PercentFunc)(long, long, const char *, int);
 
 int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMoveProgressProc, long shareMode, void * pExtra);
-// @v10.8.0 int compress(char *, char *, int, PercentFunc, ulong*);
 int PKZip(const char * pSrcPath, const char * pDestPath, const char * pZipDir);
 int DoCompress(const char * pSrc, const char * pDest, int64 * pFileSize, int compress, PercentFunc pf);
 //
@@ -6123,7 +6110,7 @@ void   FASTCALL SObfuscateBuffer(void * pBuf, size_t bufSize);
 //
 // Descr: Shortcut for the initializing Windows API structures
 //
-#define INITWINAPISTRUCT(p) { MEMSZERO(p); p.cbSize = sizeof(p); } // @v10.9.12
+#define INITWINAPISTRUCT(p) { MEMSZERO(p); p.cbSize = sizeof(p); }
 #define INITWINBITMAPINFO(p) { MEMSZERO(p); p.bmiHeader.biSize = sizeof(p.bmiHeader); } // @v11.0.2
 //
 // Descr: Меняет порядок байтов двухбайтового слова

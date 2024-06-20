@@ -537,7 +537,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
 						}
 						for(i = 0; i < 3; i++)
 							tail.Comma().CatChar('1'); // Разрешить продажи, возврат, отриц.остатки
-						/*@v11.9.10{*/if(gds_info.ChZnProdType == GTCHZNPT_DRAFTBEER) {
+						/*@v11.9.10{*/if(oneof2(gds_info.ChZnProdType, GTCHZNPT_DRAFTBEER, GTCHZNPT_DRAFTBEER_AWR)) { // @v12.0.5 GTCHZNPT_DRAFTBEER_AWR
 							tail.Comma().CatChar('0'); // без указания кол-ва
 						}
 						else /*}@v11.9.10*/{
@@ -615,12 +615,10 @@ int ACS_FRONTOL::ExportData(int updOnly)
 							// @v11.9.3 {
 							int mark_type = 1;
 							if(gds_info.Flags_ & (AsyncCashGoodsInfo::fGMarkedType|AsyncCashGoodsInfo::fGMarkedCode)) {
-								if(gds_info.ChZnProdType == GTCHZNPT_DRAFTBEER) {
+								if(oneof2(gds_info.ChZnProdType, GTCHZNPT_DRAFTBEER, GTCHZNPT_DRAFTBEER_AWR)) // @v12.0.5 GTCHZNPT_DRAFTBEER_AWR
 									mark_type = 18;
-								}
-								else if(gds_info.ChZnProdType == GTCHZNPT_BEER) { // @v12.0.4
+								else if(gds_info.ChZnProdType == GTCHZNPT_BEER) // @v12.0.4
 									mark_type = 17;
-								}
 							}
 							// } @v11.9.3 
                             tail.Cat(mark_type).Semicol();                                      // #55 Признак алкогольной продукции // @v11.9.3 1L-->mark_type
@@ -658,6 +656,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
 									case GTCHZNPT_FUR: mark_type = 2; break;
 									case GTCHZNPT_MILK: mark_type = 13; break; // @v11.3.5
 									case GTCHZNPT_WATER: mark_type = 15; break; // @v11.5.6
+									case GTCHZNPT_DRAFTBEER_AWR: mark_type = 18; break; // @v12.0.5
 									case GTCHZNPT_DRAFTBEER: mark_type = 18; break; // @v11.9.2
 									case GTCHZNPT_BEER: mark_type = 17; break; // @v12.0.3
 									default:
@@ -720,9 +719,8 @@ int ACS_FRONTOL::ExportData(int updOnly)
 						*/
 						int measure = 0;
 						//if(goods_iter.IsSimplifiedDraftBeer(gds_info.ID)) {
-						if(gds_info.ChZnProdType == GTCHZNPT_DRAFTBEER) {
+						if(oneof2(gds_info.ChZnProdType, GTCHZNPT_DRAFTBEER, GTCHZNPT_DRAFTBEER_AWR)) // @v12.0.5 GTCHZNPT_DRAFTBEER_AWR
 							measure = 11; // LITER
-						}
 						// } @v11.9.6 
 						tail.Cat(measure).Semicol(); // #66 Мера количества предмета расчета
 					}

@@ -282,14 +282,14 @@ void CollationBuilder::addReset(int32_t strength, const UnicodeString & str, con
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-	U_ASSERT(!str.isEmpty());
+	assert(!str.isEmpty());
 	if(str.charAt(0) == CollationRuleParser::POS_LEAD) {
 		ces[0] = getSpecialResetPosition(str, parserErrorReason, errorCode);
 		cesLength = 1;
 		if(U_FAILURE(errorCode)) {
 			return;
 		}
-		U_ASSERT((ces[0] & Collation::CASE_AND_QUATERNARY_MASK) == 0);
+		assert((ces[0] & Collation::CASE_AND_QUATERNARY_MASK) == 0);
 	}
 	else {
 		// normal reset to a character or string
@@ -309,7 +309,7 @@ void CollationBuilder::addReset(int32_t strength, const UnicodeString & str, con
 		return;
 	} // simple reset-at-position
 	// &[before strength]position
-	U_ASSERT(UCOL_PRIMARY <= strength && strength <= UCOL_TERTIARY);
+	assert(UCOL_PRIMARY <= strength && strength <= UCOL_TERTIARY);
 	int32_t index = findOrInsertNodeForCEs(strength, parserErrorReason, errorCode);
 	if(U_FAILURE(errorCode)) {
 		return;
@@ -381,7 +381,7 @@ void CollationBuilder::addReset(int32_t strength, const UnicodeString & str, con
 				}
 				return;
 			}
-			U_ASSERT(weight16 > Collation::BEFORE_WEIGHT16);
+			assert(weight16 > Collation::BEFORE_WEIGHT16);
 			// Reset to just before this node.
 			// Insert the preceding same-level explicit weight if it is not there already.
 			// Which explicit weight immediately precedes this one?
@@ -393,7 +393,7 @@ void CollationBuilder::addReset(int32_t strength, const UnicodeString & str, con
 				node = nodes.elementAti(i);
 				int32_t previousStrength = strengthFromNode(node);
 				if(previousStrength < strength) {
-					U_ASSERT(weight16 >= Collation::COMMON_WEIGHT16 || i == previousIndex);
+					assert(weight16 >= Collation::COMMON_WEIGHT16 || i == previousIndex);
 					// Either the reset element has an above-common weight and
 					// the parent node provides the implied common weight,
 					// or the reset element has a weight<=common in the node
@@ -436,7 +436,7 @@ void CollationBuilder::addReset(int32_t strength, const UnicodeString & str, con
 }
 
 uint32_t CollationBuilder::getWeight16Before(int32_t index, int64_t node, int32_t level) {
-	U_ASSERT(strengthFromNode(node) < level || !isTailoredNode(node));
+	assert(strengthFromNode(node) < level || !isTailoredNode(node));
 	// Collect the root CE weights if this node is for a root CE.
 	// If it is not, then return the low non-primary boundary for a tailored CE.
 	uint32_t t;
@@ -475,19 +475,19 @@ uint32_t CollationBuilder::getWeight16Before(int32_t index, int64_t node, int32_
 	}
 	else {
 		weight16 = rootElements.getTertiaryBefore(p, s, t);
-		U_ASSERT((weight16 & ~Collation::ONLY_TERTIARY_MASK) == 0);
+		assert((weight16 & ~Collation::ONLY_TERTIARY_MASK) == 0);
 	}
 	return weight16;
 }
 
 int64_t CollationBuilder::getSpecialResetPosition(const UnicodeString & str,
     const char *&parserErrorReason, UErrorCode & errorCode) {
-	U_ASSERT(str.length() == 2);
+	assert(str.length() == 2);
 	int64_t ce;
 	int32_t strength = UCOL_PRIMARY;
 	bool isBoundary = FALSE;
 	UChar32 pos = str.charAt(1) - CollationRuleParser::POS_BASE;
-	U_ASSERT(0 <= pos && pos <= CollationRuleParser::LAST_TRAILING);
+	assert(0 <= pos && pos <= CollationRuleParser::LAST_TRAILING);
 	switch(pos) {
 		case CollationRuleParser::FIRST_TERTIARY_IGNORABLE:
 		    // Quaternary CEs are not supported.
@@ -504,7 +504,7 @@ int64_t CollationBuilder::getSpecialResetPosition(const UnicodeString & str,
 		    int64_t node = nodes.elementAti(index);
 		    if((index = nextIndexFromNode(node)) != 0) {
 			    node = nodes.elementAti(index);
-			    U_ASSERT(strengthFromNode(node) <= UCOL_TERTIARY);
+			    assert(strengthFromNode(node) <= UCOL_TERTIARY);
 			    if(isTailoredNode(node) && strengthFromNode(node) == UCOL_TERTIARY) {
 				    return tempCEFromIndexAndStrength(index, UCOL_TERTIARY);
 			    }
@@ -533,7 +533,7 @@ int64_t CollationBuilder::getSpecialResetPosition(const UnicodeString & str,
 				    if(isTailoredNode(node)) {
 					    if(nodeHasBefore3(node)) {
 						    index = nextIndexFromNode(nodes.elementAti(nextIndexFromNode(node)));
-						    U_ASSERT(isTailoredNode(nodes.elementAti(index)));
+						    assert(isTailoredNode(nodes.elementAti(index)));
 					    }
 					    return tempCEFromIndexAndStrength(index, UCOL_SECONDARY);
 				    }
@@ -605,11 +605,11 @@ int64_t CollationBuilder::getSpecialResetPosition(const UnicodeString & str,
 				// because there are no root CEs with a boundary primary
 				// and non-common secondary/tertiary weights.
 				node = nodes.elementAti(index);
-				U_ASSERT(isTailoredNode(node));
+				assert(isTailoredNode(node));
 				ce = tempCEFromIndexAndStrength(index, strength);
 			}
 			else {
-				U_ASSERT(strength == UCOL_PRIMARY);
+				assert(strength == UCOL_PRIMARY);
 				uint32_t p = (uint32_t)(ce >> 32);
 				int32_t pIndex = rootElements.findPrimary(p);
 				bool isCompressible = baseData->isCompressiblePrimary(p);
@@ -631,7 +631,7 @@ int64_t CollationBuilder::getSpecialResetPosition(const UnicodeString & str,
 			if(nodeHasBefore3(node)) {
 				index = nextIndexFromNode(nodes.elementAti(nextIndexFromNode(node)));
 			}
-			U_ASSERT(isTailoredNode(nodes.elementAti(index)));
+			assert(isTailoredNode(nodes.elementAti(index)));
 			ce = tempCEFromIndexAndStrength(index, strength);
 		}
 	}
@@ -715,7 +715,7 @@ void CollationBuilder::addRelation(int32_t strength, const UnicodeString & prefi
 	if(strength != UCOL_IDENTICAL) {
 		// Find the node index after which we insert the new tailored node.
 		int32_t index = findOrInsertNodeForCEs(strength, parserErrorReason, errorCode);
-		U_ASSERT(cesLength > 0);
+		assert(cesLength > 0);
 		int64_t ce = ces[cesLength - 1];
 		if(strength == UCOL_PRIMARY && !isTempCE(ce) && (uint32_t)(ce >> 32) == 0) {
 			// There is no primary gap between ignorables and the space-first-primary.
@@ -786,7 +786,7 @@ int32_t CollationBuilder::findOrInsertNodeForCEs(int32_t strength, const char *&
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-	U_ASSERT(UCOL_PRIMARY <= strength && strength <= UCOL_QUATERNARY);
+	assert(UCOL_PRIMARY <= strength && strength <= UCOL_QUATERNARY);
 
 	// Find the last CE that is at least as "strong" as the requested difference.
 	// Note: Stronger is smaller (UCOL_PRIMARY=0).
@@ -824,12 +824,12 @@ int32_t CollationBuilder::findOrInsertNodeForRootCE(int64_t ce, int32_t strength
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-	U_ASSERT((uint8)(ce >> 56) != Collation::UNASSIGNED_IMPLICIT_BYTE);
+	assert((uint8)(ce >> 56) != Collation::UNASSIGNED_IMPLICIT_BYTE);
 
 	// Find or insert the node for each of the root CE's weights,
 	// down to the requested level/strength.
 	// Root CEs must have common=zero quaternary weights (for which we never insert any nodes).
-	U_ASSERT((ce & 0xc0) == 0);
+	assert((ce & 0xc0) == 0);
 	int32_t index = findOrInsertNodeForPrimary((uint32_t)(ce >> 32), errorCode);
 	if(strength >= UCOL_SECONDARY) {
 		uint32_t lower32 = (uint32_t)ce;
@@ -904,15 +904,15 @@ int32_t CollationBuilder::findOrInsertWeakNode(int32_t index, uint32_t weight16,
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-	U_ASSERT(0 <= index && index < nodes.size());
-	U_ASSERT(UCOL_SECONDARY <= level && level <= UCOL_TERTIARY);
+	assert(0 <= index && index < nodes.size());
+	assert(UCOL_SECONDARY <= level && level <= UCOL_TERTIARY);
 	if(weight16 == Collation::COMMON_WEIGHT16) {
 		return findCommonNode(index, level);
 	}
 	// If this will be the first below-common weight for the parent node,
 	// then we will also need to insert a common weight after it.
 	int64_t node = nodes.elementAti(index);
-	U_ASSERT(strengthFromNode(node) < level); // parent node is stronger
+	assert(strengthFromNode(node) < level); // parent node is stronger
 	if(weight16 != 0 && weight16 < Collation::COMMON_WEIGHT16) {
 		int32_t hasThisLevelBefore = level == UCOL_SECONDARY ? HAS_BEFORE2 : HAS_BEFORE3;
 		if((node & hasThisLevelBefore) == 0) {
@@ -974,7 +974,7 @@ int32_t CollationBuilder::insertTailoredNodeAfter(int32_t index, int32_t strengt
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-	U_ASSERT(0 <= index && index < nodes.size());
+	assert(0 <= index && index < nodes.size());
 	if(strength >= UCOL_SECONDARY) {
 		index = findCommonNode(index, UCOL_SECONDARY);
 		if(strength >= UCOL_TERTIARY) {
@@ -1002,9 +1002,9 @@ int32_t CollationBuilder::insertNodeBetween(int32_t index, int32_t nextIndex, in
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-	U_ASSERT(previousIndexFromNode(node) == 0);
-	U_ASSERT(nextIndexFromNode(node) == 0);
-	U_ASSERT(nextIndexFromNode(nodes.elementAti(index)) == nextIndex);
+	assert(previousIndexFromNode(node) == 0);
+	assert(nextIndexFromNode(node) == 0);
+	assert(nextIndexFromNode(nodes.elementAti(index)) == nextIndex);
 	// Append the new node and link it to the existing nodes.
 	int32_t newIndex = nodes.size();
 	node |= nodeFromPreviousIndex(index) | nodeFromNextIndex(nextIndex);
@@ -1024,7 +1024,7 @@ int32_t CollationBuilder::insertNodeBetween(int32_t index, int32_t nextIndex, in
 }
 
 int32_t CollationBuilder::findCommonNode(int32_t index, int32_t strength) const {
-	U_ASSERT(UCOL_SECONDARY <= strength && strength <= UCOL_TERTIARY);
+	assert(UCOL_SECONDARY <= strength && strength <= UCOL_TERTIARY);
 	int64_t node = nodes.elementAti(index);
 	if(strengthFromNode(node) >= strength) {
 		// The current node is no stronger.
@@ -1036,16 +1036,16 @@ int32_t CollationBuilder::findCommonNode(int32_t index, int32_t strength) const 
 	}
 	index = nextIndexFromNode(node);
 	node = nodes.elementAti(index);
-	U_ASSERT(!isTailoredNode(node) && strengthFromNode(node) == strength &&
+	assert(!isTailoredNode(node) && strengthFromNode(node) == strength &&
 	    weight16FromNode(node) < Collation::COMMON_WEIGHT16);
 	// Skip to the explicit common node.
 	do {
 		index = nextIndexFromNode(node);
 		node = nodes.elementAti(index);
-		U_ASSERT(strengthFromNode(node) >= strength);
+		assert(strengthFromNode(node) >= strength);
 	} while(isTailoredNode(node) || strengthFromNode(node) > strength ||
 	    weight16FromNode(node) < Collation::COMMON_WEIGHT16);
-	U_ASSERT(weight16FromNode(node) == Collation::COMMON_WEIGHT16);
+	assert(weight16FromNode(node) == Collation::COMMON_WEIGHT16);
 	return index;
 }
 
@@ -1063,7 +1063,7 @@ void CollationBuilder::setCaseBits(const UnicodeString & nfdString,
 	// We should not be able to get too many case bits because
 	// cesLength<=31==MAX_EXPANSION_LENGTH.
 	// 31 pairs of case bits fit into an int64_t without setting its sign bit.
-	U_ASSERT(numTailoredPrimaries <= 31);
+	assert(numTailoredPrimaries <= 31);
 
 	int64_t cases = 0;
 	if(numTailoredPrimaries > 0) {
@@ -1074,7 +1074,7 @@ void CollationBuilder::setCaseBits(const UnicodeString & nfdString,
 			parserErrorReason = "fetching root CEs for tailored string";
 			return;
 		}
-		U_ASSERT(baseCEsLength >= 0 && baseCEs.getCE(baseCEsLength) == Collation::NO_CE);
+		assert(baseCEsLength >= 0 && baseCEs.getCE(baseCEsLength) == Collation::NO_CE);
 
 		uint32_t lastCase = 0;
 		int32_t numBasePrimaries = 0;
@@ -1083,7 +1083,7 @@ void CollationBuilder::setCaseBits(const UnicodeString & nfdString,
 			if((ce >> 32) != 0) {
 				++numBasePrimaries;
 				uint32_t c = ((uint32_t)ce >> 14) & 3;
-				U_ASSERT(c == 0 || c == 2); // lowercase or uppercase, no mixed case in any base CE
+				assert(c == 0 || c == 2); // lowercase or uppercase, no mixed case in any base CE
 				if(numBasePrimaries < numTailoredPrimaries) {
 					cases |= (int64_t)c << ((numBasePrimaries - 1) * 2);
 				}
@@ -1252,7 +1252,7 @@ void CollationBuilder::addTailComposites(const UnicodeString & nfdPrefix, const 
 	int64_t newCEs[Collation::MAX_EXPANSION_LENGTH];
 	UnicodeSetIterator iter(composites);
 	while(iter.next()) {
-		U_ASSERT(!iter.isString());
+		assert(!iter.isString());
 		UChar32 composite = iter.getCodepoint();
 		nfd.getDecomposition(composite, decomp);
 		if(!mergeCompositeIntoString(nfdString, indexAfterLastStarter, composite, decomp,
@@ -1296,7 +1296,7 @@ bool CollationBuilder::mergeCompositeIntoString(const UnicodeString & nfdString,
 	if(U_FAILURE(errorCode)) {
 		return FALSE;
 	}
-	U_ASSERT(nfdString.char32At(indexAfterLastStarter - 1) == decomp.char32At(0));
+	assert(nfdString.char32At(indexAfterLastStarter - 1) == decomp.char32At(0));
 	int32_t lastStarterLength = decomp.moveIndex32(0, 1);
 	if(lastStarterLength == decomp.length()) {
 		// Singleton decompositions should be found by addWithClosure()
@@ -1334,7 +1334,7 @@ bool CollationBuilder::mergeCompositeIntoString(const UnicodeString & nfdString,
 			}
 			sourceChar = nfdString.char32At(sourceIndex);
 			sourceCC = nfd.getCombiningClass(sourceChar);
-			U_ASSERT(sourceCC != 0);
+			assert(sourceCC != 0);
 		}
 		// We consume a decomposition character in each iteration.
 		if(decompIndex >= decomp.length()) {
@@ -1380,9 +1380,9 @@ bool CollationBuilder::mergeCompositeIntoString(const UnicodeString & nfdString,
 	else if(decompIndex < decomp.length()) { // more characters from decomp, not from nfdString
 		newNFDString.append(decomp, decompIndex, 0x7fffffff);
 	}
-	U_ASSERT(nfd.isNormalized(newNFDString, errorCode));
-	U_ASSERT(fcd.isNormalized(newString, errorCode));
-	U_ASSERT(nfd.normalize(newString, errorCode) == newNFDString); // canonically equivalent
+	assert(nfd.isNormalized(newNFDString, errorCode));
+	assert(fcd.isNormalized(newString, errorCode));
+	assert(nfd.normalize(newString, errorCode) == newNFDString); // canonically equivalent
 	return TRUE;
 }
 
@@ -1412,7 +1412,7 @@ void CollationBuilder::closeOverComposites(UErrorCode & errorCode) {
 	UnicodeString nfdString;
 	UnicodeSetIterator iter(composites);
 	while(iter.next()) {
-		U_ASSERT(!iter.isString());
+		assert(!iter.isString());
 		nfd.getDecomposition(iter.getCodepoint(), nfdString);
 		cesLength = dataBuilder->getCEs(nfdString, ces, 0);
 		if(cesLength > Collation::MAX_EXPANSION_LENGTH) {
@@ -1448,7 +1448,7 @@ bool CollationBuilder::sameCEs(const int64_t ces1[], int32_t ces1Length,
 	if(ces1Length != ces2Length) {
 		return FALSE;
 	}
-	U_ASSERT(ces1Length <= Collation::MAX_EXPANSION_LENGTH);
+	assert(ces1Length <= Collation::MAX_EXPANSION_LENGTH);
 	for(int32_t i = 0; i < ces1Length; ++i) {
 		if(ces1[i] != ces2[i]) {
 			return FALSE;
@@ -1502,7 +1502,7 @@ void CollationBuilder::makeTailoredCEs(UErrorCode & errorCode) {
 			nextIndex = nextIndexFromNode(node);
 			int32_t strength = strengthFromNode(node);
 			if(strength == UCOL_QUATERNARY) {
-				U_ASSERT(isTailoredNode(node));
+				assert(isTailoredNode(node));
 #ifdef DEBUG_COLLATION_BUILDER
 				printf("      quat+     ");
 #endif
@@ -1538,10 +1538,10 @@ void CollationBuilder::makeTailoredCEs(UErrorCode & errorCode) {
 							}
 							else {
 								// [p, s] is tailored.
-								U_ASSERT(t == Collation::COMMON_WEIGHT16);
+								assert(t == Collation::COMMON_WEIGHT16);
 								tLimit = rootElements.getTertiaryBoundary();
 							}
-							U_ASSERT(tLimit == 0x4000 || (tLimit & ~Collation::ONLY_TERTIARY_MASK) == 0);
+							assert(tLimit == 0x4000 || (tLimit & ~Collation::ONLY_TERTIARY_MASK) == 0);
 							tertiaries.initForTertiary();
 							if(!tertiaries.allocWeights(t, tLimit, tCount)) {
 								errorCode = U_BUFFER_OVERFLOW_ERROR;
@@ -1551,7 +1551,7 @@ void CollationBuilder::makeTailoredCEs(UErrorCode & errorCode) {
 							tIsTailored = TRUE;
 						}
 						t = tertiaries.nextWeight();
-						U_ASSERT(t != 0xffffffff);
+						assert(t != 0xffffffff);
 					}
 					else {
 						t = weight16FromNode(node);
@@ -1587,7 +1587,7 @@ void CollationBuilder::makeTailoredCEs(UErrorCode & errorCode) {
 								}
 								else {
 									// p is a tailored primary.
-									U_ASSERT(s == Collation::COMMON_WEIGHT16);
+									assert(s == Collation::COMMON_WEIGHT16);
 									sLimit = rootElements.getSecondaryBoundary();
 								}
 								if(s == Collation::COMMON_WEIGHT16) {
@@ -1609,7 +1609,7 @@ void CollationBuilder::makeTailoredCEs(UErrorCode & errorCode) {
 								sIsTailored = TRUE;
 							}
 							s = secondaries.nextWeight();
-							U_ASSERT(s != 0xffffffff);
+							assert(s != 0xffffffff);
 						}
 						else {
 							s = weight16FromNode(node);
@@ -1620,7 +1620,7 @@ void CollationBuilder::makeTailoredCEs(UErrorCode & errorCode) {
 						}
 					}
 					else { /* UCOL_PRIMARY */
-						U_ASSERT(isTailoredNode(node));
+						assert(isTailoredNode(node));
 #ifdef DEBUG_COLLATION_BUILDER
 						printf("pri+            ");
 #endif
@@ -1640,7 +1640,7 @@ void CollationBuilder::makeTailoredCEs(UErrorCode & errorCode) {
 							pIsTailored = TRUE;
 						}
 						p = primaries.nextWeight();
-						U_ASSERT(p != 0xffffffff);
+						assert(p != 0xffffffff);
 						s = Collation::COMMON_WEIGHT16;
 						sIsTailored = FALSE;
 					}
@@ -1689,7 +1689,7 @@ public:
 
 	virtual ~CEFinalizer();
 	virtual int64_t modifyCE32(uint32_t ce32) const override {
-		U_ASSERT(!Collation::isSpecialCE32(ce32));
+		assert(!Collation::isSpecialCE32(ce32));
 		if(CollationBuilder::isTempCE32(ce32)) {
 			// retain case bits
 			return finalCEs[CollationBuilder::indexFromTempCE32(ce32)] | ((ce32 & 0xc0) << 8);

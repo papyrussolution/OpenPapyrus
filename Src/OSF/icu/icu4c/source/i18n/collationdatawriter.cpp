@@ -110,7 +110,7 @@ int32_t CollationDataWriter::write(bool isBase, const UVersionInfo dataVersion,
 		// For the root collator, we write an even number of indexes
 		// so that we start with an 8-aligned offset.
 		indexesLength = CollationDataReader::IX_TOTAL_SIZE + 1;
-		U_ASSERT(settings.reorderCodesLength == 0);
+		assert(settings.reorderCodesLength == 0);
 		hasMappings = TRUE;
 		unsafeBackwardSet = *data.unsafeBackwardSet;
 		fastLatinTableLength = data.fastLatinTableLength;
@@ -174,7 +174,7 @@ int32_t CollationDataWriter::write(bool isBase, const UVersionInfo dataVersion,
 		memcpy(&header.info, &dataInfo, sizeof(UDataInfo));
 		memcpy(header.info.dataVersion, dataVersion, sizeof(UVersionInfo));
 		headerSize = (int32_t)sizeof(header);
-		U_ASSERT((headerSize & 3) == 0); // multiple of 4 bytes
+		assert((headerSize & 3) == 0); // multiple of 4 bytes
 		if(hasMappings && data.cesLength != 0) {
 			// Sum of the sizes of the data items which are
 			// not automatically multiples of 8 bytes and which are placed before the CEs.
@@ -202,7 +202,7 @@ int32_t CollationDataWriter::write(bool isBase, const UVersionInfo dataVersion,
 	}
 
 	indexes[CollationDataReader::IX_INDEXES_LENGTH] = indexesLength;
-	U_ASSERT((settings.options & ~0xffff) == 0);
+	assert((settings.options & ~0xffff) == 0);
 	indexes[CollationDataReader::IX_OPTIONS] =
 	    data.numericPrimary | fastLatinVersion | settings.options;
 	indexes[CollationDataReader::IX_RESERVED2] = 0;
@@ -244,14 +244,14 @@ int32_t CollationDataWriter::write(bool isBase, const UVersionInfo dataVersion,
 		}
 		// The trie size should be a multiple of 8 bytes due to the way
 		// compactIndex2(UNewTrie2 *trie) currently works.
-		U_ASSERT((length & 7) == 0);
+		assert((length & 7) == 0);
 		totalSize += length;
 	}
 
 	indexes[CollationDataReader::IX_RESERVED8_OFFSET] = totalSize;
 	indexes[CollationDataReader::IX_CES_OFFSET] = totalSize;
 	if(hasMappings && data.cesLength != 0) {
-		U_ASSERT(((headerSize + totalSize) & 7) == 0);
+		assert(((headerSize + totalSize) & 7) == 0);
 		totalSize += data.cesLength * 8;
 	}
 

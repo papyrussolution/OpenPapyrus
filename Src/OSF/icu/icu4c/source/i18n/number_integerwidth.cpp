@@ -67,10 +67,10 @@ void IntegerWidth::apply(impl::DecimalQuantity& quantity, UErrorCode & status) c
 
 bool IntegerWidth::operator == (const IntegerWidth& other) const {
 	// Private operator==; do error and bogus checking first!
-	U_ASSERT(!fHasError);
-	U_ASSERT(!other.fHasError);
-	U_ASSERT(!isBogus());
-	U_ASSERT(!other.isBogus());
+	assert(!fHasError);
+	assert(!other.fHasError);
+	assert(!isBogus());
+	assert(!other.isBogus());
 	return fUnion.minMaxInt.fMinInt == other.fUnion.minMaxInt.fMinInt &&
 	       fUnion.minMaxInt.fMaxInt == other.fUnion.minMaxInt.fMaxInt;
 }

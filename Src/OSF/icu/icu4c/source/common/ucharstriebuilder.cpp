@@ -382,7 +382,7 @@ int32_t UCharsTrieBuilder::writeValueAndType(bool hasValue, int32_t value, int32
 
 int32_t UCharsTrieBuilder::writeDeltaTo(int32_t jumpTarget) {
 	int32_t i = ucharsLength-jumpTarget;
-	U_ASSERT(i>=0);
+	assert(i>=0);
 	if(i<=UCharsTrie::kMaxOneUnitDelta) {
 		return write(i);
 	}

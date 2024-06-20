@@ -154,13 +154,13 @@ struct MicroProps : public MicroPropsGenerator {
 		(void)status;
 		if(this == &micros) {
 			// Unsafe path: no need to perform a copy.
-			U_ASSERT(!exhausted);
+			assert(!exhausted);
 			micros.exhausted = true;
-			U_ASSERT(exhausted);
+			assert(exhausted);
 		}
 		else {
 			// Safe path: copy self into the output micros.
-			U_ASSERT(!exhausted);
+			assert(!exhausted);
 			micros = *this;
 		}
 	}

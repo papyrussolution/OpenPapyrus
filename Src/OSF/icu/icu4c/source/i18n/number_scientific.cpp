@@ -34,7 +34,7 @@ ScientificModifier::ScientificModifier() : fExponent(0), fHandler(nullptr)
 void ScientificModifier::set(int32_t exponent, const ScientificHandler * handler) 
 {
 	// ScientificModifier should be set only once.
-	U_ASSERT(fHandler == nullptr);
+	assert(fHandler == nullptr);
 	fExponent = exponent;
 	fHandler = handler;
 }

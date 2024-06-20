@@ -33,7 +33,7 @@ int32_t ClockMath::floorDivide(double numerator, int32_t denominator, int32_t& r
 double ClockMath::floorDivide(double dividend, double divisor, double& remainder) 
 {
 	// Only designed to work for positive divisors
-	U_ASSERT(divisor > 0);
+	assert(divisor > 0);
 	double quotient = floorDivide(dividend, divisor);
 	remainder = dividend - (quotient * divisor);
 	// N.B. For certain large dividends, on certain platforms, there
@@ -61,7 +61,7 @@ double ClockMath::floorDivide(double dividend, double divisor, double& remainder
 			remainder = dividend - (quotient * divisor);
 		}
 	}
-	U_ASSERT(0 <= remainder && remainder < divisor);
+	assert(0 <= remainder && remainder < divisor);
 	return quotient;
 }
 

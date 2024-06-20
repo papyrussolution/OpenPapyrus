@@ -63,12 +63,12 @@ bool U_CALLCONV characterproperties_cleanup()
 void U_CALLCONV initInclusion(UPropertySource src, UErrorCode & errorCode) 
 {
 	// This function is invoked only via umtx_initOnce().
-	U_ASSERT(0 <= src && src < UPROPS_SRC_COUNT);
+	assert(0 <= src && src < UPROPS_SRC_COUNT);
 	if(src == UPROPS_SRC_NONE) {
 		errorCode = U_INTERNAL_PROGRAM_ERROR;
 		return;
 	}
-	U_ASSERT(gInclusions[src].fSet == nullptr);
+	assert(gInclusions[src].fSet == nullptr);
 
 	LocalPointer<UnicodeSet> incl(new UnicodeSet());
 	if(incl.isNull()) {
@@ -184,9 +184,9 @@ const UnicodeSet * getInclusionsForSource(UPropertySource src, UErrorCode & erro
 
 void U_CALLCONV initIntPropInclusion(UProperty prop, UErrorCode & errorCode) {
 	// This function is invoked only via umtx_initOnce().
-	U_ASSERT(UCHAR_INT_START <= prop && prop < UCHAR_INT_LIMIT);
+	assert(UCHAR_INT_START <= prop && prop < UCHAR_INT_LIMIT);
 	int32_t inclIndex = UPROPS_SRC_COUNT + prop - UCHAR_INT_START;
-	U_ASSERT(gInclusions[inclIndex].fSet == nullptr);
+	assert(gInclusions[inclIndex].fSet == nullptr);
 	UPropertySource src = uprops_getSource(prop);
 	const UnicodeSet * incl = getInclusionsForSource(src, errorCode);
 	if(U_FAILURE(errorCode)) {

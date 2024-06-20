@@ -33,14 +33,14 @@ void TailoredSet::forData(const CollationData * d, UErrorCode & ec)
 	errorCode = ec; // Preserve info & warning codes.
 	data = d;
 	baseData = d->base;
-	U_ASSERT(baseData != NULL);
+	assert(baseData != NULL);
 	utrie2_enum(data->trie, NULL, enumTailoredRange, this);
 	ec = errorCode;
 }
 
 bool TailoredSet::handleCE32(UChar32 start, UChar32 end, uint32_t ce32) 
 {
-	U_ASSERT(ce32 != Collation::FALLBACK_CE32);
+	assert(ce32 != Collation::FALLBACK_CE32);
 	if(Collation::isSpecialCE32(ce32)) {
 		ce32 = data->getIndirectCE32(ce32);
 		if(ce32 == Collation::FALLBACK_CE32) {
@@ -115,13 +115,13 @@ void TailoredSet::compare(UChar32 c, uint32_t ce32, uint32_t baseCE32) {
 	int32_t tag;
 	if(Collation::isSpecialCE32(ce32)) {
 		tag = Collation::tagFromCE32(ce32);
-		U_ASSERT(tag != Collation::PREFIX_TAG);
-		U_ASSERT(tag != Collation::CONTRACTION_TAG);
+		assert(tag != Collation::PREFIX_TAG);
+		assert(tag != Collation::CONTRACTION_TAG);
 		// Currently, the tailoring data builder does not write offset tags.
 		// They might be useful for saving space,
 		// but they would complicate the builder,
 		// and in tailorings we assume that performance of tailored characters is more important.
-		U_ASSERT(tag != Collation::OFFSET_TAG);
+		assert(tag != Collation::OFFSET_TAG);
 	}
 	else {
 		tag = -1;
@@ -129,8 +129,8 @@ void TailoredSet::compare(UChar32 c, uint32_t ce32, uint32_t baseCE32) {
 	int32_t baseTag;
 	if(Collation::isSpecialCE32(baseCE32)) {
 		baseTag = Collation::tagFromCE32(baseCE32);
-		U_ASSERT(baseTag != Collation::PREFIX_TAG);
-		U_ASSERT(baseTag != Collation::CONTRACTION_TAG);
+		assert(baseTag != Collation::PREFIX_TAG);
+		assert(baseTag != Collation::CONTRACTION_TAG);
 	}
 	else {
 		baseTag = -1;
@@ -510,7 +510,7 @@ void ContractionsAndExpansions::handleCE32(UChar32 start, UChar32 end, uint32_t 
 			    ce32 = data->ce32s[Collation::indexFromCE32(ce32)];
 			    break;
 			case Collation::U0000_TAG:
-			    U_ASSERT(start == 0 && end == 0);
+			    assert(start == 0 && end == 0);
 			    // Fetch the normal ce32 for U+0000 and continue.
 			    ce32 = data->ce32s[0];
 			    break;
@@ -528,7 +528,7 @@ void ContractionsAndExpansions::handleCE32(UChar32 start, UChar32 end, uint32_t 
 						    return;
 					    }
 					    // Ignore the terminating non-CE.
-					    U_ASSERT(length >= 2 && iter.getCE(length - 1) == Collation::NO_CE);
+					    assert(length >= 2 && iter.getCE(length - 1) == Collation::NO_CE);
 					    sink->handleExpansion(iter.getCEs(), length - 1);
 				    }
 			    }
@@ -573,11 +573,11 @@ void ContractionsAndExpansions::handleContractions(UChar32 start, UChar32 end, u
 		// No match on the single code point.
 		// We are underneath a prefix, and the default mapping is just
 		// a fallback to the mappings for a shorter prefix.
-		U_ASSERT(!unreversedPrefix.isEmpty());
+		assert(!unreversedPrefix.isEmpty());
 	}
 	else {
 		ce32 = CollationData::readCE32(p); // Default if no suffix match.
-		U_ASSERT(!Collation::isContractionCE32(ce32));
+		assert(!Collation::isContractionCE32(ce32));
 		handleCE32(start, end, ce32);
 	}
 	UCharsTrie::Iterator suffixes(p + 2, 0, errorCode);

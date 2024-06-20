@@ -124,7 +124,7 @@ Norm * Norms::createNorm(UChar32 c) {
 
 void Norms::reorder(UnicodeString & mapping, BuilderReorderingBuffer &buffer) const {
 	int32_t length = mapping.length();
-	U_ASSERT(length<=Normalizer2Impl::MAPPING_LENGTH_MASK);
+	assert(length<=Normalizer2Impl::MAPPING_LENGTH_MASK);
 	const char16_t * s = mapping.getBuffer();
 	int32_t i = 0;
 	UChar32 c;

@@ -901,7 +901,7 @@ U_CFUNC void ucnv_extContinueMatchFromU(UConverter * cnv, UConverterFromUnicodeA
 		s = pArgs->source;
 		match = -match-2; /* remove 2 for the initial code point */
 		for(j = cnv->preFromULength; j<match; ++j) {
-			U_ASSERT(j>=0);
+			assert(j>=0);
 			cnv->preFromU[j] = *s++;
 		}
 		pArgs->source = s; /* same as *src=srcLimit; because we reached the end of input */

@@ -659,7 +659,7 @@ void RegexPattern::dumpOp(int32_t index) const
 		case URX_STRING_I:
 	    {
 		    int32_t lengthOp       = fCompiledPat->elementAti(index+1);
-		    U_ASSERT(URX_TYPE(lengthOp) == URX_STRING_LEN);
+		    assert(URX_TYPE(lengthOp) == URX_STRING_LEN);
 		    int32_t length = URX_VAL(lengthOp);
 		    UnicodeString str(fLiteralText, val, length);
 		    printf("%s", CStr(str)());

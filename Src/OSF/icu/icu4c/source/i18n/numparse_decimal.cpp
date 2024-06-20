@@ -106,7 +106,7 @@ bool DecimalMatcher::match(StringSegment& segment, ParsedNumber& result, int8 ex
 	}
 	else if(exponentSign != 0) {
 		// scientific notation always comes after the number
-		U_ASSERT(!result.quantity.bogus);
+		assert(!result.quantity.bogus);
 	}
 
 	// Initial offset before any character consumption.
@@ -270,7 +270,7 @@ bool DecimalMatcher::match(StringSegment& segment, ParsedNumber& result, int8 ex
 			// Invalid grouping sizes.
 			if(isGrouping && currGroupCount == 0) {
 				// Trailing grouping separators: these are taken care of below
-				U_ASSERT(currGroupSepType == 1);
+				assert(currGroupSepType == 1);
 			}
 			else if(requireGroupingMatch) {
 				// Strict mode: reject the parse
@@ -373,7 +373,7 @@ bool DecimalMatcher::match(StringSegment& segment, ParsedNumber& result, int8 ex
 		bool overflow = false;
 		if(digitsConsumed.fitsInLong()) {
 			int64_t exponentLong = digitsConsumed.toLong(false);
-			U_ASSERT(exponentLong >= 0);
+			assert(exponentLong >= 0);
 			if(exponentLong <= INT32_MAX) {
 				auto exponentInt = static_cast<int32_t>(exponentLong);
 				if(result.quantity.adjustMagnitude(exponentSign * exponentInt)) {
@@ -437,7 +437,7 @@ bool DecimalMatcher::validateGroup(int32_t sepType, int32_t count, bool isPrimar
 			}
 		}
 		else {
-			U_ASSERT(sepType == 2);
+			assert(sepType == 2);
 			// After the decimal separator.
 			return true;
 		}

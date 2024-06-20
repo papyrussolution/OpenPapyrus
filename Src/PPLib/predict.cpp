@@ -568,7 +568,7 @@ public:
 		GoodsCtrlGroup::Rec rec;
 		getGroupData(ctlgroupGoods, &rec);
 		Data.GoodsID = rec.GoodsID;
-		Data.GoodsGrpID = rec.GrpID;
+		Data.GoodsGrpID = rec.GoodsGrpID;
 		GetClusterData(CTL_PSALTST_GOODSSELKIND, &mode);
 		SETFLAG(Data.Flags, PrcssrPrediction::Param::fTestUpdatedItems, mode == 1);
 		{
@@ -701,7 +701,7 @@ int PredictionParamDialog::getDTS(PrcssrPrediction::Param * pData)
 	{
 		GoodsCtrlGroup::Rec ggrp_rec;
 		getGroupData(ctlgroupGoods, &ggrp_rec);
-		Data.GoodsGrpID = ggrp_rec.GrpID;
+		Data.GoodsGrpID = ggrp_rec.GoodsGrpID;
 		Data.GoodsID    = ggrp_rec.GoodsID;
 	}
 	GetClusterData(CTL_FILLSALESTBL_UPDATE, &Data.Replace);

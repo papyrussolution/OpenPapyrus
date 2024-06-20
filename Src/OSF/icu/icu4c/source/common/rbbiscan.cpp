@@ -297,7 +297,7 @@ bool RBBIRuleScanner::doParseActions(int32_t action)
 			    printNodeStack("end of rule");
 		    }
 #endif
-		    U_ASSERT(fNodeStackPtr == 1);
+		    assert(fNodeStackPtr == 1);
 		    RBBINode * thisRule = fNodeStack[fNodeStackPtr];
 
 		    // If this rule includes a look-ahead '/', add a endMark node to the
@@ -475,7 +475,7 @@ bool RBBIRuleScanner::doParseActions(int32_t action)
 			{
 				n = fNodeStack[fNodeStackPtr];
 				uint32_t v = u_charDigitValue(fC.fChar);
-				U_ASSERT(v < 10);
+				assert(v < 10);
 				n->fVal = n->fVal*10 + v;
 			}
 			break;
@@ -670,7 +670,7 @@ void RBBIRuleScanner::findSetFor(const UnicodeString & s, RBBINode * node, Unico
 	if(el) {
 		delete setToAdopt;
 		node->fLeftChild = el->val;
-		U_ASSERT(node->fLeftChild->fType == RBBINode::uset);
+		assert(node->fLeftChild->fType == RBBINode::uset);
 	}
 	else {
 		// Haven't seen this set before.
@@ -944,7 +944,7 @@ void RBBIRuleScanner::parse()
 			if(tableEl->fCharClass >= 128 && tableEl->fCharClass < 240 && // Table specs a char class &&
 			    fC.fEscaped == FALSE &&  //   char is not escaped &&
 			    fC.fChar != (UChar32)-1) {                       //   char is not EOF
-				U_ASSERT((tableEl->fCharClass-128) < SIZEOFARRAYi(fRuleSets));
+				assert((tableEl->fCharClass-128) < SIZEOFARRAYi(fRuleSets));
 				if(fRuleSets[tableEl->fCharClass-128].contains(fC.fChar)) {
 					// Table row specified a character class, or set of characters,
 					//   and the current char matches it.
@@ -1101,7 +1101,7 @@ void RBBIRuleScanner::scanSet()
 	}
 	// Verify that the set contains at least one code point.
 	//
-	U_ASSERT(uset != NULL);
+	assert(uset != NULL);
 	if(uset->isEmpty()) {
 		// This set is empty.
 		//  Make it an error, because it almost certainly is not what the user wanted.

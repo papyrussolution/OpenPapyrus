@@ -228,7 +228,7 @@ bool UVector32::expandCapacity(int32_t minimumCapacity, UErrorCode & status) {
 }
 
 void UVector32::setMaxCapacity(int32_t limit) {
-	U_ASSERT(limit >= 0);
+	assert(limit >= 0);
 	if(limit < 0) {
 		limit = 0;
 	}

@@ -438,7 +438,7 @@ int32_t umsg_autoQuoteApostrophe(const char16_t * pattern, int32_t patternLength
 		*ec = U_ILLEGAL_ARGUMENT_ERROR;
 		return -1;
 	}
-	U_ASSERT(destCapacity >= 0);
+	assert(destCapacity >= 0);
 	if(patternLength == -1)
 		patternLength = sstrleni(pattern);
 	for(int i = 0; i < patternLength; ++i) {
@@ -487,7 +487,7 @@ int32_t umsg_autoQuoteApostrophe(const char16_t * pattern, int32_t patternLength
 			default: // Never happens.
 			    break;
 		}
-		U_ASSERT(len >= 0);
+		assert(len >= 0);
 		MAppend(c);
 	}
 	// End of scan

@@ -236,7 +236,7 @@ static bool U_CALLCONV ures_cleanup(void)
 /** INTERNAL: Initializes the cache for resources */
 static void U_CALLCONV createCache(UErrorCode & status) 
 {
-	U_ASSERT(cache == NULL);
+	assert(cache == NULL);
 	cache = uhash_open(hashEntry, compareEntries, NULL, &status);
 	ucln_common_registerCleanup(UCLN_COMMON_URES, ures_cleanup);
 }
@@ -587,7 +587,7 @@ typedef enum UResOpenType UResOpenType;
 
 static UResourceDataEntry * entryOpen(const char * path, const char * localeID, UResOpenType openType, UErrorCode * status) 
 {
-	U_ASSERT(openType != URES_OPEN_DIRECT);
+	assert(openType != URES_OPEN_DIRECT);
 	UErrorCode intStatus = U_ZERO_ERROR;
 	UResourceDataEntry * r = NULL;
 	UResourceDataEntry * t1 = NULL;
@@ -926,7 +926,7 @@ UResourceBundle * getAliasTargetAsResourceBundle(const ResourceData &resData, Re
 	if(U_FAILURE(*status)) {
 		return resB;
 	}
-	U_ASSERT(RES_GET_TYPE(r) == URES_ALIAS);
+	assert(RES_GET_TYPE(r) == URES_ALIAS);
 	int32_t len = 0;
 	const char16_t * alias = res_getAlias(&resData, r, &len);
 	if(len <= 0) {

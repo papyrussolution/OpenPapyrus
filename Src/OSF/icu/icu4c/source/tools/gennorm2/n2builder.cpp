@@ -475,13 +475,13 @@ void Normalizer2DataBuilder::writeNorm16(UMutableCPTrie * norm16Trie, UChar32 st
 		    norm16 = Normalizer2Impl::MIN_NORMAL_MAYBE_YES+norm.cc*2; // ccc=0..255
 		    break;
 		case Norm::YES_YES_WITH_CC:
-		    U_ASSERT(norm.cc!=0);
+		    assert(norm.cc!=0);
 		    norm16 = Normalizer2Impl::MIN_YES_YES_WITH_CC-2+norm.cc*2; // ccc=1..255
 		    break;
 		default: // Should not occur.
 		    exit(U_INTERNAL_PROGRAM_ERROR);
 	}
-	U_ASSERT((norm16&1)==0);
+	assert((norm16&1)==0);
 	if(norm.hasCompBoundaryAfter) {
 		norm16 |= Normalizer2Impl::HAS_COMP_BOUNDARY_AFTER;
 	}
@@ -597,7 +597,7 @@ LocalUCPTriePointer Normalizer2DataBuilder::processData()
 	}
 
 	int32_t minNoNoDelta = getMinNoNoDelta();
-	U_ASSERT((minNoNoDelta&7)==0);
+	assert((minNoNoDelta&7)==0);
 	if(indexes[Normalizer2Impl::IX_LIMIT_NO_NO]>minNoNoDelta) {
 		slfprintf_stderr("gennorm2 error: data structure overflow, too much mapping composition data\n");
 		exit(U_BUFFER_OVERFLOW_ERROR);

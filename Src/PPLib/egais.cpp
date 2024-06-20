@@ -9,8 +9,6 @@
 // Специальное смещение для значений номеров строк, с помощью которого
 // решается проблема одиозных входящих идентификаторов строк документов (0, guid, текст, значение большие чем RowIdentDivider)
 //
-// @v10.8.3 (moved to PPConstParam::EgaisInRowIdentDivider) static const int16 RowIdentDivider = 27277; // @v9.8.9 10000-->27277
-
 /*
 #define BEDIUS_DESADV_OUT_SENDED            1 // Документ отправлен получателю в виде DESADV
 #define BEDIUS_DESADV_OUT_PROCESSED         2 // Документ, отправленный получателю в виде DESADV, принят EDI-сервером
@@ -51,7 +49,6 @@ BILL_EDI_USER_STATE
 	-- отказ                             brown       EdiOp == PPEDIOP_EGAIS_WAYBILL && BillCore::GetRecadvConfStatus() == PPEDI_RECADVCONF_STATUS_REJECT
 */
 static const char * P_TempOutputDirName = "temp-query";
-// @v10.8.3 (replaced with PPConst::P_BillNotePrefix_IntrExpnd) static const char * P_IntrExpndNotePrefix = "$INTREXPND";
 
 static SString & Egais_GetBillCode(const BillTbl::Rec & rRec, SString & rBuf)
 {
@@ -233,8 +230,8 @@ PPEgaisProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), Intr
 	switch(DocType) {
 		case PPEDIOP_EGAIS_QUERYCLIENTS:
 		case PPEDIOP_EGAIS_QUERYAP: P_Data = new StrStrAssocArray; break;
-		case PPEDIOP_EGAIS_QUERYRESENDDOC: // @v10.2.12
-		case PPEDIOP_EGAIS_QUERYRESTBCODE: // @v10.5.6
+		case PPEDIOP_EGAIS_QUERYRESENDDOC:
+		case PPEDIOP_EGAIS_QUERYRESTBCODE:
 		case PPEDIOP_EGAIS_QUERYFORMA:
 		case PPEDIOP_EGAIS_QUERYFORMB: 
 		case PPEDIOP_EGAIS_QUERYFORMF1: // @v11.2.12
@@ -256,8 +253,8 @@ PPEgaisProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), Intr
 		case PPEDIOP_EGAIS_WAYBILL_V4: // @v11.0.12
 		case PPEDIOP_EGAIS_WAYBILLACT:
 		case PPEDIOP_EGAIS_WAYBILLACT_V2:
-		case PPEDIOP_EGAIS_WAYBILLACT_V3: // @v10.0.0
-		case PPEDIOP_EGAIS_WAYBILLACT_V4: // @v11.0.12
+		case PPEDIOP_EGAIS_WAYBILLACT_V3:
+		case PPEDIOP_EGAIS_WAYBILLACT_V4:
 		case PPEDIOP_EGAIS_ACTCHARGEON:
 		case PPEDIOP_EGAIS_ACTCHARGEON_V2:
 		case PPEDIOP_EGAIS_ACTCHARGEONSHOP:
@@ -270,17 +267,17 @@ PPEgaisProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), Intr
 		case PPEDIOP_EGAIS_ACTWRITEOFFSHOP:
 		case PPEDIOP_EGAIS_TRANSFERTOSHOP:
 		case PPEDIOP_EGAIS_TRANSFERFROMSHOP:
-		case PPEDIOP_EGAIS_ACTFIXBARCODE: // @v10.9.0
-		case PPEDIOP_EGAIS_ACTUNFIXBARCODE: // @v10.9.0
+		case PPEDIOP_EGAIS_ACTFIXBARCODE:
+		case PPEDIOP_EGAIS_ACTUNFIXBARCODE:
 			P_Data = new PPBillPacket; break;
 		case PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG: P_Data = new ActInform; break;
 		case PPEDIOP_EGAIS_CONFIRMTICKET: P_Data = new ConfirmTicket(); break;
 		case PPEDIOP_EGAIS_REQUESTREPEALWB:
-		case PPEDIOP_EGAIS_REQUESTREPEALAWO: // @v10.0.07
+		case PPEDIOP_EGAIS_REQUESTREPEALAWO:
 		case PPEDIOP_EGAIS_CONFIRMREPEALWB: P_Data = new RepealWb(); break;
         case PPEDIOP_EGAIS_QUERYBARCODE:
 		case PPEDIOP_EGAIS_REPLYBARCODE: P_Data = new TSCollection <QueryBarcode>; break;
-		case PPEDIOP_EGAIS_REPLYRESTBCODE: P_Data = new ReplyRestBCode; break; // @v10.5.8
+		case PPEDIOP_EGAIS_REPLYRESTBCODE: P_Data = new ReplyRestBCode; break;
 	}
 }
 
@@ -289,8 +286,8 @@ PPEgaisProcessor::Packet::~Packet()
 	switch(DocType) {
 		case PPEDIOP_EGAIS_QUERYCLIENTS:
 		case PPEDIOP_EGAIS_QUERYAP: delete static_cast<StrStrAssocArray *>(P_Data); break;
-		case PPEDIOP_EGAIS_QUERYRESENDDOC: // @v10.2.12
-		case PPEDIOP_EGAIS_QUERYRESTBCODE: // @v10.5.6
+		case PPEDIOP_EGAIS_QUERYRESENDDOC:
+		case PPEDIOP_EGAIS_QUERYRESTBCODE:
 		case PPEDIOP_EGAIS_QUERYFORMA:
 		case PPEDIOP_EGAIS_QUERYFORMB: 
 		case PPEDIOP_EGAIS_QUERYFORMF1: // @v11.2.12
@@ -310,7 +307,7 @@ PPEgaisProcessor::Packet::~Packet()
 		case PPEDIOP_EGAIS_WAYBILL_V4: // @v11.0.12
 		case PPEDIOP_EGAIS_WAYBILLACT:
 		case PPEDIOP_EGAIS_WAYBILLACT_V2:
-		case PPEDIOP_EGAIS_WAYBILLACT_V3: // @v10.0.0
+		case PPEDIOP_EGAIS_WAYBILLACT_V3:
 		case PPEDIOP_EGAIS_WAYBILLACT_V4: // @v11.0.12
 		case PPEDIOP_EGAIS_ACTCHARGEON:
 		case PPEDIOP_EGAIS_ACTCHARGEON_V2:
@@ -324,17 +321,17 @@ PPEgaisProcessor::Packet::~Packet()
 		case PPEDIOP_EGAIS_ACTWRITEOFFSHOP:
 		case PPEDIOP_EGAIS_TRANSFERTOSHOP:
 		case PPEDIOP_EGAIS_TRANSFERFROMSHOP:
-		case PPEDIOP_EGAIS_ACTFIXBARCODE: // @v10.9.0
-		case PPEDIOP_EGAIS_ACTUNFIXBARCODE: // @v10.9.0
+		case PPEDIOP_EGAIS_ACTFIXBARCODE:
+		case PPEDIOP_EGAIS_ACTUNFIXBARCODE:
 			delete static_cast<PPBillPacket *>(P_Data); break;
 		case PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG: delete static_cast<ActInform *>(P_Data); break;
 		case PPEDIOP_EGAIS_CONFIRMTICKET: delete static_cast<ConfirmTicket *>(P_Data); break;
 		case PPEDIOP_EGAIS_REQUESTREPEALWB:
-		case PPEDIOP_EGAIS_REQUESTREPEALAWO: // @v10.0.07
+		case PPEDIOP_EGAIS_REQUESTREPEALAWO:
 		case PPEDIOP_EGAIS_CONFIRMREPEALWB: delete static_cast<RepealWb *>(P_Data); break;
         case PPEDIOP_EGAIS_QUERYBARCODE:
 		case PPEDIOP_EGAIS_REPLYBARCODE: delete static_cast<TSCollection <QueryBarcode> *>(P_Data); break;
-		case PPEDIOP_EGAIS_REPLYRESTBCODE: delete static_cast<ReplyRestBCode *>(P_Data); break; // @v10.5.8
+		case PPEDIOP_EGAIS_REPLYRESTBCODE: delete static_cast<ReplyRestBCode *>(P_Data); break;
 	}
 }
 
@@ -549,7 +546,6 @@ int PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack & rAck
     xmlParserCtxt * p_ctx = 0;
 	xmlDoc * p_doc = 0;
 	const int avl_size = pBuf ? static_cast<int>(pBuf->GetAvailableSize()) : 0;
-	// @v10.6.0 {
 	SString debug_log_buf;
 	{
 		// @debug {
@@ -560,7 +556,6 @@ int PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack & rAck
 		}
 		// } @debug
 	}
-	// } @v10.6.0
 	if(pBuf) {
 		SString temp_buf;
 		xmlNode * p_root = 0;
@@ -3047,8 +3042,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 									uint   ext_code_count = 0;
 									int    ext_code_exists = 0;
 									if(tag_list.GetCount()) {
-										// @v10.2.9 const int mmlr = Helper_MakeMarkList(lot_id, ss_ext_codes, &ext_code_count);
-										const int mmlr = P_LecT->GetMarkListByLot(lot_id, &ExclChrgOnMarks, ss_ext_codes, &ext_code_count); // @v10.2.9
+										const int mmlr = P_LecT->GetMarkListByLot(lot_id, &ExclChrgOnMarks, ss_ext_codes, &ext_code_count);
 										THROW(mmlr);
 										if(mmlr > 0)
 											ext_code_exists = 1;
@@ -3109,7 +3103,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 							n_h.PutInner(SXml::nst("ain", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT)));
 							// @v8.9.10 (Не хотят передавать свои примечания в ЕГАИС) n_h.PutInnerSkipEmpty("wb:Note", EncText(temp_buf = p_bp->Rec.Memo)); // Примечание
 						}
-						THROW_MEM(SETIFZ(P_LecT, new LotExtCodeCore)); // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
+						THROW_MEM(SETIFZ(P_LecT, new LotExtCodeCore));
 						{
 							SXml::WNode n_c(_doc, SXml::nst("ain", "Content"));
 							SString infa_ident;
@@ -3124,8 +3118,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 									uint   ext_code_count = 0;
 									int    ext_code_exists = 0;
 									if(tag_list.GetCount()) {
-										// @v10.2.9 const int mmlr = Helper_MakeMarkList(lot_id, ss_ext_codes, &ext_code_count);
-										const int mmlr = P_LecT->GetMarkListByLot(lot_id, &ExclChrgOnMarks, ss_ext_codes, &ext_code_count); // @v10.2.9
+										const int mmlr = P_LecT->GetMarkListByLot(lot_id, &ExclChrgOnMarks, ss_ext_codes, &ext_code_count);
 										THROW(mmlr);
 										if(mmlr > 0)
 											ext_code_exists = 1;
@@ -4360,7 +4353,6 @@ int PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPack)
 					if(SXml::IsName(p_c, "Position")) {
 						for(const xmlNode * p_pos = p_c->children; p_pos; p_pos = p_pos->next) {
 							if(SXml::GetContentByName(p_pos, "Identity", temp_buf)) {
-								// @v10.3.4 {
 								STRNSCPY(item.OrgRowIdent, temp_buf);
 								if(temp_buf.IsDec()) {
 									if(temp_buf == "0")
@@ -4371,19 +4363,12 @@ int PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPack)
 								else {
 									item.P = ++surrogate_line_ident;
 								}
-								// } @v10.3.4
-								/* @v10.3.4
-								if(temp_buf == "0")
-									item.P = RowIdentDivider; // @v9.8.9 10000-->RowIdentDivider
-								else
-									item.P = (temp_buf.ToLong() % RowIdentDivider); // @v9.6.9 (% 10000) // @v9.8.9 10000-->RowIdentDivider
-								*/
 							}
 							else if(SXml::GetContentByName(p_pos, "InformBRegId", temp_buf))
                                 STRNSCPY(item.Ident, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-							else if(SXml::GetContentByName(p_pos, "InformF2RegId", temp_buf)) // @v9.5.5 PPEDIOP_EGAIS_TTNINFORMF2REG
+							else if(SXml::GetContentByName(p_pos, "InformF2RegId", temp_buf)) // PPEDIOP_EGAIS_TTNINFORMF2REG
 								STRNSCPY(item.Ident, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-							else if(SXml::GetContentByName(p_pos, "BottlingDate", temp_buf)) // @v9.5.5
+							else if(SXml::GetContentByName(p_pos, "BottlingDate", temp_buf))
 								strtodate(temp_buf, DATF_ISO8601, &item.BottlingDate);
 						}
 						p_data->Items.insert(&item);
@@ -4580,7 +4565,7 @@ struct EgaisWayBillRowTags { // @flat
 	char    InformA[24];
 	char    InformB[24];
 	char    Serial[24];
-	char    OrgLineIdent[64]; // @v10.3.4
+	char    OrgLineIdent[64]; // 
 	char    GoodsCategory[8]; // @v11.3.5 Код категории алкогольной продукции
 	PPID    ManufID;
 };
@@ -4981,7 +4966,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 									STRNSCPY(rt.InformB, alc_ext.InformB);
 								rt.ManufID = alc_ext.MnfOrImpPsnID;
 								STRNSCPY(rt.Serial, serial.Strip());
-								STRNSCPY(rt.OrgLineIdent, org_line_ident); // @v10.3.4
+								STRNSCPY(rt.OrgLineIdent, org_line_ident);
 								STRNSCPY(rt.GoodsCategory, alc_ext.CategoryCode); // @v11.3.5
 								row_tags.insert(&rt);
 							}
@@ -5044,7 +5029,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 							tag_list.PutItemStrNE(PPTAG_LOT_FSRARLOTGOODSCODE, r_rt.GoodsCode);
 							tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFA, r_rt.InformA);
 							tag_list.PutItemStrNE(PPTAG_LOT_FSRARINFB, r_rt.InformB);
-							tag_list.PutItemStrNE(PPTAG_LOT_ORGLINEIDENT, r_rt.OrgLineIdent); // @v10.3.4
+							tag_list.PutItemStrNE(PPTAG_LOT_ORGLINEIDENT, r_rt.OrgLineIdent);
 							// @v11.3.5 {
 							if(Cfg.CategoryTagID && r_rt.GoodsCategory[0]) {
 								tag_list.PutItemStrNE(Cfg.CategoryTagID, r_rt.GoodsCategory);
@@ -5167,7 +5152,6 @@ int PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSCollection
 								if(diffdate(getcurdate_(), ex_bill_rec.Dt) > 14)
 									pPack->Flags |= Packet::fDoDelete;
 								//
-								// @v10.3.4 {
 								// Аварийный блок, восстанавливающий марки в принятом ранее документе если они не были сохранены
 								// (не стояла галка CCFLG2_USELOTXCODE в PPCommConfig) или что-то еще пошло не так.
 								//
@@ -5197,7 +5181,6 @@ int PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSCollection
 										}
 									}
 								}
-								// } @v10.3.4
 							}
 						}
 					}
@@ -5230,8 +5213,8 @@ int PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSCollection
 								if(p_src_tag_list) {
 									const ObjTagItem * p_infa_tag = p_src_tag_list->GetItem(PPTAG_LOT_FSRARINFA);
 									const ObjTagItem * p_infb_tag = p_src_tag_list->GetItem(PPTAG_LOT_FSRARINFB);
-									const ObjTagItem * p_egaiscode_tag = p_src_tag_list->GetItem(PPTAG_LOT_FSRARLOTGOODSCODE); // @v10.7.6
-									if(p_infa_tag || p_infb_tag || p_egaiscode_tag) { // @v10.7.6 p_egaiscode_tag
+									const ObjTagItem * p_egaiscode_tag = p_src_tag_list->GetItem(PPTAG_LOT_FSRARLOTGOODSCODE);
+									if(p_infa_tag || p_infb_tag || p_egaiscode_tag) { // p_egaiscode_tag
 										ObjTagList dest_tag_list;
 										const ObjTagList * p_dest_tag_list = 0;
 										switch(intr) {
@@ -5243,7 +5226,7 @@ int PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSCollection
 													do_update_wroff_pack = 1;
 												if(dest_tag_list.PutItemNZ(p_infb_tag, 0) > 0)
 													do_update_wroff_pack = 1;
-												if(dest_tag_list.PutItemNZ(p_egaiscode_tag, 0) > 0) // @v10.7.6
+												if(dest_tag_list.PutItemNZ(p_egaiscode_tag, 0) > 0)
 													do_update_wroff_pack = 1;
 												wroff_pack.P_MirrorLTagL->Set(i, &dest_tag_list);
 												break;
@@ -5254,7 +5237,7 @@ int PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, const TSCollection
 													do_update_wroff_pack = 1;
 												if(dest_tag_list.PutItemNZ(p_infb_tag, 0) > 0)
 													do_update_wroff_pack = 1;
-												if(dest_tag_list.PutItemNZ(p_egaiscode_tag, 0) > 0) // @v10.7.6
+												if(dest_tag_list.PutItemNZ(p_egaiscode_tag, 0) > 0)
 													do_update_wroff_pack = 1;
 												wroff_pack.LTagL.Set(i, &dest_tag_list);
 												break;
@@ -5644,14 +5627,13 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 							PPIDArray cc_list;
 							TSVector <LotExtCodeTbl::Rec> lec_rec_list;
 							const  PPID draft_rcpt_op_id = ACfg.Hdr.EgaisRcptOpID;
-							THROW_MEM(SETIFZ(P_LecT, new LotExtCodeCore)); // @v10.3.6
+							THROW_MEM(SETIFZ(P_LecT, new LotExtCodeCore));
 							for(cc_view.InitIteration(0); cc_view.NextIteration(&cc_item) > 0;) {
 								cc_list.add(cc_item.ID);
 							}
 							cc_list.sortAndUndup();
 							for(uint ccidx = 0; ccidx < cc_list.getCount(); ccidx++) {
 								const  PPID cc_id = cc_list.get(ccidx);
-								// @v10.8.7 (LoadPacket) cc_pack.Z();
 								bool  do_mark_ccheck = false; // @v11.8.2 Признак того, что на чек необходимо установить тег extssEgaisProcessingTag
 								SString processing_tag; // @v11.8.2
 								p_cc->LoadPacket(cc_id, 0, &cc_pack);
@@ -5800,8 +5782,8 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 																	THROW(ti.Init(&p_wroff_bp->Rec, 1));
 																	THROW(ti.SetupGoods(goods_id, 0));
 																	ti.Quantity_ = -wroff_qtty;
-																	ti.Cost  = ref_cost; // @v10.3.11
-																	ti.Price = ref_price; // @v10.3.11
+																	ti.Cost  = ref_cost;
+																	ti.Price = ref_price;
 																	THROW(p_wroff_bp->LoadTItem(&ti, 0, 0));
 																	{
 																		ObjTagList tag_list;
@@ -6011,7 +5993,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 										}
 									}
 									const double wroff_qtty = (r_ti.Quantity_ - current_lot_rest);
-									if(wroff_qtty > 0.0) { // @v10.4.3 (wroff_qtty >= 1.0)-->(wroff_qtty > 0.0)
+									if(wroff_qtty > 0.0) {
 										if(!p_wroff_bp) {
 											THROW_MEM(p_wroff_bp = new PPBillPacket);
 											THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
@@ -6171,7 +6153,7 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 			SString ref_a, ref_b, egais_code;
 			SString goods_name;
 			LongArray row_idx_list;
-			THROW_MEM(SETIFZ(P_LecT, new LotExtCodeCore)); // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
+			THROW_MEM(SETIFZ(P_LecT, new LotExtCodeCore));
 			// @v11.0.3 {
 			{
 				DateRange mark_charge_list_period;	
@@ -6219,7 +6201,7 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 							const double cwr_rest = r_cwr_item.Quantity_;
 							double shop_rest = 0.0;
 							PPID   lot_id = 0;
-							bool   is_lot_in_3format = false; // @v10.2.6
+							bool   is_lot_in_3format = false;
 							bool   is_beer = false; // @v11.2.0
 							ReceiptTbl::Rec lot_rec;
 							ref_b_lot_list.clear();
@@ -6231,12 +6213,10 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 								if(p_trfr->Rcpt.Search(temp_lot_id, &lot_rec) > 0 && lot_rec.LocID == loc_id && IsAlcGoods(lot_rec.GoodsID)) {
 									if(p_trfr->Rcpt.SearchOrigin(lot_rec.ID, &org_lot_id, 0, 0) && PreprocessGoodsItem(lot_rec.GoodsID, org_lot_id, 0, 0, agi) > 0) {
 										is_beer = LOGIC(PrcssrAlcReport::IsBeerCategoryCode(agi.CategoryCode)); // @v11.2.0
-										// @v10.2.6 {
 										const  PPID lot_bill_id = lot_rec.BillID;
 										TransferTbl::Rec trfr_rec;
 										for(DateIter di; p_trfr->EnumByLot(temp_lot_id, &di, &trfr_rec) > 0;) {
 											if(trfr_rec.BillID == lot_bill_id) {
-												// @v10.3.1 @fix {
 												int16 row_idx = 0;
 												int   row_is_found = 0;
 												for(int   rbb_iter = 0; !row_is_found && p_trfr->EnumItems(lot_bill_id, &rbb_iter, 0) > 0;) {
@@ -6245,8 +6225,6 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 														row_is_found = 1;
 												}
 												if(row_is_found) {
-													//const int16 rbb = trfr_rec.RByBill;
-													// } @v10.3.1 @fix
 													LotExtCodeTbl::Key2 k2;
 													MEMSZERO(k2);
 													k2.BillID = lot_bill_id;
@@ -6255,12 +6233,11 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 														if(P_LecT->data.Code[0])
 															is_lot_in_3format = 1;
 													} while(!is_lot_in_3format && P_LecT->search(2, &k2, spNext) &&
-														P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == row_idx); // @v10.5.8 @fix spGe-->spNext
+														P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == row_idx);
 													break;
 												}
 											}
 										}
-										// } @v10.2.6
 										lot_id = lot_rec.ID;
 										break;
 									}
@@ -6299,7 +6276,7 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 								temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().Eq().Cat(cwr_rest, MKSFMTD(0, 1, 0));
 								LogTextWithAddendum(PPTXT_EGAIS_CHARGEONSHOPBEERONLY, temp_buf);
 							}
-							else if(is_lot_in_3format) { // @v10.2.6
+							else if(is_lot_in_3format) {
 								//PPTXT_EGAIS_LOTFORWHRESTIN3F
 								temp_buf.Z().Cat(egais_code).CatDiv('-', 1).Cat(ref_b).Space().Eq().Cat(cwr_rest, MKSFMTD(0, 1, 0));
 								LogTextWithAddendum(PPTXT_EGAIS_LOTFORWHRESTIN3F, temp_buf);
@@ -6471,11 +6448,11 @@ int PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const DateRan
 		else if(oneof2(pPack->DocType, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2))
 			p_code_suffix = "-R1";
 		THROW(op_obj.GetEdiStockOp(&op_id, 1));
-		THROW(GetOpData(op_id, &op_rec) > 0); // @v9.6.5
+		THROW(GetOpData(op_id, &op_rec) > 0);
         {
 			period.SetDate(rest_dtm.d);
         	for(DateIter di(&period); !do_skip && P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
-				if(bill_rec.LocID == loc_id && (!p_code_suffix || (temp_buf = bill_rec.Code).CmpSuffix(p_code_suffix, 0) == 0)) { // @v10.1.0 // @v11.7.7 (bill_rec.LocID == loc_id &&)
+				if(bill_rec.LocID == loc_id && (!p_code_suffix || (temp_buf = bill_rec.Code).CmpSuffix(p_code_suffix, 0) == 0)) { // @v11.7.7 (bill_rec.LocID == loc_id &&)
 					LDATETIME ts;
 					if(PPRef->Ot.GetTag(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_CREATEDTM, &tag_item) > 0) {
 						if(tag_item.GetTimestamp(&ts) > 0 && diffdatetimesec(ts, rest_dtm) >= 0)
@@ -6804,7 +6781,7 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 						THROW(Helper_FinalizeNewPack(&p_new_pack, srcReplyPos, pPackList));
 						ok = 1;
 					}
-					else if(doc_type == PPEDIOP_EGAIS_REPLYRESTBCODE) { // @v10.5.8
+					else if(doc_type == PPEDIOP_EGAIS_REPLYRESTBCODE) {
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 						{
 							ReplyRestBCode * p_rrbc = static_cast<ReplyRestBCode *>(p_new_pack->P_Data);
@@ -6892,8 +6869,6 @@ int PPEgaisProcessor::GetDebugPath(PPID locID, SString & rPath)
     int    ok = 1;
     SString temp_buf;
     SString temp_path;
-	// @v10.6.5 SString url;
-	// @v10.6.5 THROW(GetURL(locID, url));
 	THROW(GetFSRARID(locID, temp_buf, 0));
     PPGetPath(PPPATH_TEMP, temp_path);
     temp_path.SetLastSlash().Cat("EGAIS").CatChar('-').Cat(temp_buf);
@@ -6958,8 +6933,7 @@ int PPEgaisProcessor::DebugReadInput(PPID locID)
 		ok = 0;
 	ENDCATCH
 	xmlFreeParserCtxt(p_ctx);
-	// @v10.6.5 CALLPTRMEMB(P_Logger, Save(PPFILNAM_EGAIS_LOG, 0));
-	PPEmbeddedLogger::Save(PPFILNAM_EGAIS_LOG, 0); // @v10.6.5
+	PPEmbeddedLogger::Save(PPFILNAM_EGAIS_LOG, 0);
     return ok;
 }
 
@@ -7165,7 +7139,7 @@ int PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor::Ticke
 			PPEDIOP_EGAIS_ACTWRITEOFF, PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_ACTWRITEOFF_V3, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP,
 			PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4,
 			PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3, PPEDIOP_EGAIS_WAYBILLACT_V4, PPEDIOP_EGAIS_ACTFIXBARCODE, PPEDIOP_EGAIS_ACTUNFIXBARCODE, 0);
-			// @v10.9.1 PPEDIOP_EGAIS_ACTFIXBARCODE, PPEDIOP_EGAIS_ACTUNFIXBARCODE // @v11.1.1 PPEDIOP_EGAIS_ACTWRITEOFF_V4
+			// @v11.1.1 PPEDIOP_EGAIS_ACTWRITEOFF_V4
 		if(pT->DocType == PPEDIOP_EGAIS_CONFIRMTICKET) {
 			temp_buf = pT->RegIdent;
 			p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, temp_buf, &bill_id_list);
@@ -7745,12 +7719,10 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 		}
 		{
 			if(last_rest_pos >= 0) {
-				// @v10.3.6 {
 				// Списание продаж по маркам
 				const Packet * p_pack = pack_list.at(last_rest_pos);
 				const PPBillPacket * p_bp = p_pack ? static_cast<const PPBillPacket *>(p_pack->P_Data) : 0;
 				THROW(Helper_CreateWriteOffShop(1, p_bp, pPeriod));
-				// } @v10.3.6
 			}
 			if(last_restshop_pos >= 0 && last_restshop_pos < pack_list.getCountI()) {
 				const Packet * p_pack = pack_list.at(last_restshop_pos);
@@ -7765,8 +7737,7 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 		ok = 0; // Сообщение об ошибке должно выводиться блоком, который вызывает PPEgaisProcessor::ReadInput
 	ENDCATCH
 	xmlFreeParserCtxt(p_ctx);
-	// @v10.6.5 CALLPTRMEMB(P_Logger, Save(PPFILNAM_EGAIS_LOG, 0));
-	PPEmbeddedLogger::Save(PPFILNAM_EGAIS_LOG, 0); // @v10.6.5
+	PPEmbeddedLogger::Save(PPFILNAM_EGAIS_LOG, 0);
 	return ok;
 }
 
@@ -8143,10 +8114,8 @@ int PPEgaisProcessor::GetBillListForTransmission(const PPBillIterchangeFilt & rP
 			base_op_list.add(Cfg.IntrExpndOpID);
 		if(flags & bilstfReturnToSuppl)
 			base_op_list.add(Cfg.SupplRetOpID);
-		// @v10.9.0 {
 		if(flags & bilstfFixBarcode)
 			base_op_list.add(PPOPK_EDI_CHARGEONWITHMARKS);
-		// } @v10.9.0
 		if(flags & bilstfLosses) {
 			base_op_list.add(Cfg.ExpndEtcOpID);
 			if(flags & bilstfV3)
@@ -8460,7 +8429,7 @@ int PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 			{ bilstfReadyForAck|bilstfLosses|bilstfV2,   PPEDIOP_EGAIS_ACTWRITEOFF_V2,    "ActWriteOff_v2" },
 			{ bilstfReadyForAck|bilstfLosses|bilstfV3,   PPEDIOP_EGAIS_ACTWRITEOFF_V3,    "ActWriteOff_v3" }, 
 			{ bilstfReadyForAck|bilstfWbRepealConf,      PPEDIOP_EGAIS_CONFIRMREPEALWB,   "ConfirmRepealWB" },
-			{ bilstfReadyForAck|bilstfFixBarcode,        PPEDIOP_EGAIS_ACTFIXBARCODE,     "ActFixBarCode" } // @v10.9.0
+			{ bilstfReadyForAck|bilstfFixBarcode,        PPEDIOP_EGAIS_ACTFIXBARCODE,     "ActFixBarCode" }
 		};
 		for(uint i = 0; i < SIZEOFARRAY(_BillTransmPatterns); i++) {
 			const PPEgaisProcessor::BillTransmissionPattern & r_pattern = _BillTransmPatterns[i];
@@ -8694,8 +8663,8 @@ int PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 			AddClusterAssoc(CTL_EGAISQ_WHAT,  9, PPEDIOP_EGAIS_QUERYCLIENTS+3000);
 			AddClusterAssoc(CTL_EGAISQ_WHAT, 10, PPEDIOP_EGAIS_NOTIFY_WBVER2);
 			AddClusterAssoc(CTL_EGAISQ_WHAT, 11, PPEDIOP_EGAIS_NOTIFY_WBVER3);
-			AddClusterAssoc(CTL_EGAISQ_WHAT, 12, PPEDIOP_EGAIS_QUERYRESENDDOC); // @v10.2.12
-			AddClusterAssoc(CTL_EGAISQ_WHAT, 13, PPEDIOP_EGAIS_QUERYRESTBCODE); // @v10.5.6
+			AddClusterAssoc(CTL_EGAISQ_WHAT, 12, PPEDIOP_EGAIS_QUERYRESENDDOC);
+			AddClusterAssoc(CTL_EGAISQ_WHAT, 13, PPEDIOP_EGAIS_QUERYRESTBCODE);
 			AddClusterAssoc(CTL_EGAISQ_WHAT, 14, PPEDIOP_EGAIS_NOTIFY_WBVER4); // @v11.0.12
 			SetClusterData(CTL_EGAISQ_WHAT, Data.DocType);
 			setCtrlString(CTL_EGAISQ_QADD, Data.ParamString);
@@ -8799,8 +8768,8 @@ int PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 						case PPEDIOP_EGAIS_NOTIFY_WBVER2: info_text_id = PPTXT_HINT_EGAIS_NOTIFY_WBVER2; break;
 						case PPEDIOP_EGAIS_NOTIFY_WBVER3: info_text_id = PPTXT_HINT_EGAIS_NOTIFY_WBVER3; break;
 						case PPEDIOP_EGAIS_NOTIFY_WBVER4: info_text_id = PPTXT_HINT_EGAIS_NOTIFY_WBVER4; break; // @v11.0.12
-						case PPEDIOP_EGAIS_QUERYRESENDDOC: info_text_id = PPTXT_HINT_EGAIS_QUERYRESENDDOC; break; // @v10.2.12
-						case PPEDIOP_EGAIS_QUERYRESTBCODE: info_text_id = PPTXT_HINT_EGAIS_QUERYRESTBCODE; break; // @v10.5.6
+						case PPEDIOP_EGAIS_QUERYRESENDDOC: info_text_id = PPTXT_HINT_EGAIS_QUERYRESENDDOC; break;
+						case PPEDIOP_EGAIS_QUERYRESTBCODE: info_text_id = PPTXT_HINT_EGAIS_QUERYRESTBCODE; break;
 					}
 				}
 				DisplayInfo(info_text_id ? PPLoadTextS(info_text_id, msg_buf).cptr() : 0);
@@ -8825,7 +8794,7 @@ int PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 				SetupStartUpInfo();
 				DisplayInfo(0);
 			}
-			else if(event.isCmd(cmLotFilt)) { // @v10.9.1
+			else if(event.isCmd(cmLotFilt)) {
 				LotFilt temp_filt;
 				RVALUEPTR(temp_filt, Data.P_LotFilt);
 				PPViewLot lot_view;
@@ -8985,7 +8954,6 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 				Helper_ExtractGoodsCodesFromBills(PPOPK_EDI_WRITEOFFSHOP, codes_for_products);
 			}
 			if(!db_was_cleared && rParam.DbActualizeFlags & (rParam._afQueryRefA|rParam._afQueryPerson|rParam._afQueryGoods)) {
-				// @v10.9.1 {
 				if(rParam.P_LotFilt && rParam.DbActualizeFlags & rParam._afQueryRefA) {
 					Reference * p_ref = PPRef;
 					PPViewLot lot_view;
@@ -8999,7 +8967,7 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 						}
 					}
 				}
-				else { // } @v10.9.1
+				else {
 					BExtQuery q(&P_RefC->RaC, 1);
 					EgaisRefATbl::Key1 k1;
 					MEMSZERO(k1);
@@ -9137,7 +9105,7 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 		else
 			do_report_error = 1;
 	}
-	else if(rParam.DocType == PPEDIOP_EGAIS_QUERYRESENDDOC) { // @v10.2.12
+	else if(rParam.DocType == PPEDIOP_EGAIS_QUERYRESENDDOC) {
 		Ack    ack;
 		Packet qp(rParam.DocType);
 		if(qp.P_Data) {
@@ -9148,7 +9116,7 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 				do_report_error = 1;
 		}
 	}
-	else if(rParam.DocType == PPEDIOP_EGAIS_QUERYRESTBCODE) { // @v10.5.6
+	else if(rParam.DocType == PPEDIOP_EGAIS_QUERYRESTBCODE) {
 		Ack    ack;
 		Packet qp(rParam.DocType);
 		if(qp.P_Data) {
@@ -10226,12 +10194,12 @@ int EgaisProductCore::Export(long fmt, const char * pFileName)
 	CMP_MEMBS(AlcCode);
 	CMP_MEMBS(ManufRarIdent);
 	CMP_MEMBS(ImporterRarIdent);
-	CMP_MEMBS(ShipperRarIdent); // @v10.9.5
-	CMP_MEMBS(ConsigneeRarIdent); // @v10.9.5
-	CMP_MEMBS(EgaisNumber); // @v10.9.5
-	CMP_MEMBS(TTNNumber); // @v10.9.5
-	CMP_MEMB(EgaisDate); // @v10.9.5
-	CMP_MEMB(TTNDate); // @v10.9.5
+	CMP_MEMBS(ShipperRarIdent);
+	CMP_MEMBS(ConsigneeRarIdent);
+	CMP_MEMBS(EgaisNumber);
+	CMP_MEMBS(TTNNumber);
+	CMP_MEMB(EgaisDate);
+	CMP_MEMB(TTNDate);
 	CMP_MEMB(CountryCode);
 	CMP_MEMB(Volume);
 	CMP_MEMB(BottlingDate);
@@ -10454,16 +10422,16 @@ int EgaisRefACore::Put(PPID * pID, const EgaisRefATbl::Rec * pRec, long * pConfl
 			EgaisRefATbl::Rec rec;
 			STRNSCPY(rec.RefACode, pRec->RefACode);
 			STRNSCPY(rec.AlcCode, pRec->AlcCode);
-			STRNSCPY(rec.EgaisNumber, pRec->EgaisNumber); // @v10.9.5
-			STRNSCPY(rec.TTNNumber, pRec->TTNNumber); // @v10.9.5
+			STRNSCPY(rec.EgaisNumber, pRec->EgaisNumber);
+			STRNSCPY(rec.TTNNumber, pRec->TTNNumber);
 			STRNSCPY(rec.ManufRarIdent, pRec->ManufRarIdent);
 			STRNSCPY(rec.ImporterRarIdent, pRec->ImporterRarIdent);
-			STRNSCPY(rec.ShipperRarIdent, pRec->ShipperRarIdent); // @v10.9.5
-			STRNSCPY(rec.ConsigneeRarIdent, pRec->ConsigneeRarIdent); // @v10.9.5
+			STRNSCPY(rec.ShipperRarIdent, pRec->ShipperRarIdent);
+			STRNSCPY(rec.ConsigneeRarIdent, pRec->ConsigneeRarIdent);
 			rec.CountryCode = pRec->CountryCode;
-			rec.EgaisDate = pRec->EgaisDate; // @v10.9.5
-			rec.ActualDate = pRec->ActualDate; // @v10.9.5
-			rec.TTNDate = pRec->TTNDate; // @v10.9.5
+			rec.EgaisDate = pRec->EgaisDate;
+			rec.ActualDate = pRec->ActualDate;
+			rec.TTNDate = pRec->TTNDate;
 			rec.Volume = pRec->Volume;
 			rec.BottlingDate = pRec->BottlingDate;
 			rec.Flags = pRec->Flags;

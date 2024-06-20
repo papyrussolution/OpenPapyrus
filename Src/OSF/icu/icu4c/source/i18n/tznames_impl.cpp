@@ -209,7 +209,7 @@ void TextTrieMap::put(const char16_t * key, void * value, UErrorCode & status) {
 		}
 		return;
 	}
-	U_ASSERT(fLazyContents != NULL);
+	assert(fLazyContents != NULL);
 	char16_t * s = const_cast<char16_t *>(key);
 	fLazyContents->addElementX(s, status);
 	if(U_FAILURE(status)) {
@@ -481,7 +481,7 @@ const char16_t * ZNStringPool::get(const char16_t * s, UErrorCode & status)
 	const int32_t length = sstrleni(s);
 	const int32_t remainingLength = POOL_CHUNK_SIZE - fChunks->fLimit;
 	if(remainingLength <= length) {
-		U_ASSERT(length < POOL_CHUNK_SIZE);
+		assert(length < POOL_CHUNK_SIZE);
 		if(length >= POOL_CHUNK_SIZE) {
 			status = U_INTERNAL_PROGRAM_ERROR;
 			return &EmptyString;
@@ -594,7 +594,7 @@ public:
 	{
 		if(fOwnsLocationName) {
 			const char16_t * locationName = fNames[UTZNM_INDEX_EXEMPLAR_LOCATION];
-			U_ASSERT(locationName != NULL);
+			assert(locationName != NULL);
 			uprv_free((void *)locationName);
 		}
 	}
@@ -605,7 +605,7 @@ private:
 		if(U_FAILURE(status)) {
 			return NULL;
 		}
-		U_ASSERT(names != NULL);
+		assert(names != NULL);
 		// Use the persistent ID as the resource key, so we can
 		// avoid duplications.
 		// TODO: Is there a more efficient way, like intern() in Java?
@@ -630,7 +630,7 @@ private:
 		if(U_FAILURE(status)) {
 			return NULL;
 		}
-		U_ASSERT(names != NULL);
+		assert(names != NULL);
 		// If necessary, compute the location name from the time zone name.
 		char16_t * locationName = NULL;
 		if(names[UTZNM_INDEX_EXEMPLAR_LOCATION] == NULL) {
@@ -751,9 +751,9 @@ struct ZNames::ZNamesLoader : public ResourceSink {
 
 	void loadNames(const UResourceBundle * zoneStrings, const char * key, UErrorCode & errorCode) 
 	{
-		U_ASSERT(zoneStrings != NULL);
-		U_ASSERT(key != NULL);
-		U_ASSERT(key[0] != '\0');
+		assert(zoneStrings != NULL);
+		assert(key != NULL);
+		assert(key[0] != '\0');
 		UErrorCode localStatus = U_ZERO_ERROR;
 		clear();
 		ures_getAllItemsWithFallback(zoneStrings, key, *this, localStatus);
@@ -938,12 +938,12 @@ bool ZNameSearchHandler::handleMatch(int32_t matchLength, const CharacterNode * 
 					}
 				}
 				if(U_SUCCESS(status)) {
-					U_ASSERT(fResults != NULL);
+					assert(fResults != NULL);
 					if(nameinfo->tzID) {
 						fResults->addZone(nameinfo->type, matchLength, UnicodeString(nameinfo->tzID, -1), status);
 					}
 					else {
-						U_ASSERT(nameinfo->mzID);
+						assert(nameinfo->mzID);
 						fResults->addMetaZone(nameinfo->type, matchLength, UnicodeString(nameinfo->mzID, -1),
 						    status);
 					}
@@ -1048,7 +1048,7 @@ void TimeZoneNamesImpl::loadStrings(const UnicodeString & tzCanonicalID, UErrorC
 	if(U_FAILURE(status)) {
 		return;
 	}
-	U_ASSERT(!mzIDs.isNull());
+	assert(!mzIDs.isNull());
 	const UnicodeString * mzID;
 	while(((mzID = mzIDs->snext(status)) != NULL) && U_SUCCESS(status)) {
 		loadMetaZoneNames(*mzID, status);
@@ -1126,7 +1126,7 @@ StringEnumeration * TimeZoneNamesImpl::_getAvailableMetaZoneIDs(const UnicodeStr
 		status = U_MEMORY_ALLOCATION_ERROR;
 	}
 	if(U_SUCCESS(status)) {
-		U_ASSERT(mzIDs != NULL);
+		assert(mzIDs != NULL);
 		for(int32_t i = 0; U_SUCCESS(status) && i < mappings->size(); i++) {
 			OlsonToMetaMappingEntry * map = (OlsonToMetaMappingEntry*)mappings->elementAt(i);
 			const char16_t * mzID = map->mzid;
@@ -1261,11 +1261,11 @@ ZNames* TimeZoneNamesImpl::loadMetaZoneNames(const UnicodeString & mzID, UErrorC
 	if(U_FAILURE(status)) {
 		return NULL;
 	}
-	U_ASSERT(mzID.length() <= ZID_KEY_MAX - MZ_PREFIX_LEN);
+	assert(mzID.length() <= ZID_KEY_MAX - MZ_PREFIX_LEN);
 
 	char16_t mzIDKey[ZID_KEY_MAX + 1];
 	mzID.extract(mzIDKey, ZID_KEY_MAX + 1, status);
-	U_ASSERT(U_SUCCESS(status)); // already checked length above
+	assert(U_SUCCESS(status)); // already checked length above
 	mzIDKey[mzID.length()] = 0;
 
 	void * mznames = uhash_get(fMZNamesMap, mzIDKey);
@@ -1293,11 +1293,11 @@ ZNames* TimeZoneNamesImpl::loadTimeZoneNames(const UnicodeString & tzID, UErrorC
 	if(U_FAILURE(status)) {
 		return NULL;
 	}
-	U_ASSERT(tzID.length() <= ZID_KEY_MAX);
+	assert(tzID.length() <= ZID_KEY_MAX);
 
 	char16_t tzIDKey[ZID_KEY_MAX + 1];
 	int32_t tzIDKeyLen = tzID.extract(tzIDKey, ZID_KEY_MAX + 1, status);
-	U_ASSERT(U_SUCCESS(status)); // already checked length above
+	assert(U_SUCCESS(status)); // already checked length above
 	tzIDKey[tzIDKeyLen] = 0;
 
 	void * tznames = uhash_get(fTZNamesMap, tzIDKey);
@@ -1557,7 +1557,7 @@ struct TimeZoneNamesImpl::ZoneStringsLoader : public ResourceSink {
 			return;
 		}
 		for(int32_t i = 0; timeZonesTable.getKeyAndValue(i, key, value); ++i) {
-			U_ASSERT(!value.isNoInheritanceMarker());
+			assert(!value.isNoInheritanceMarker());
 			if(value.getType() == URES_TABLE) {
 				consumeNamesTable(key, value, noFallback, status);
 			}
@@ -1606,7 +1606,7 @@ void TimeZoneNamesImpl::getDisplayNames(const UnicodeString & tzID,
 			return;
 		}
 	}
-	U_ASSERT(tznames != NULL);
+	assert(tznames != NULL);
 	// Load the values into the dest array
 	for(int i = 0; i < numTypes; i++) {
 		UTimeZoneNameType type = types[i];
@@ -1634,7 +1634,7 @@ void TimeZoneNamesImpl::getDisplayNames(const UnicodeString & tzID,
 					}
 				}
 			}
-			U_ASSERT(mznames != NULL);
+			assert(mznames != NULL);
 			if(mznames != EMPTY) {
 				name = ((ZNames*)mznames)->getName(type);
 			}
@@ -1971,8 +1971,8 @@ bool TZDBNameSearchHandler::handleMatch(int32_t matchLength, const CharacterNode
 				}
 			}
 			if(U_SUCCESS(status)) {
-				U_ASSERT(fResults != NULL);
-				U_ASSERT(match->mzID != NULL);
+				assert(fResults != NULL);
+				assert(match->mzID != NULL);
 				fResults->addMetaZone(ntype, matchLength, UnicodeString(match->mzID, -1), status);
 				if(U_SUCCESS(status) && matchLength > fMaxMatchLen) {
 					fMaxMatchLen = matchLength;
@@ -2208,7 +2208,7 @@ const TZDBNames* TZDBTimeZoneNames::getMetaZoneNames(const UnicodeString & mzID,
 	TZDBNames* tzdbNames = NULL;
 	char16_t mzIDKey[ZID_KEY_MAX + 1];
 	mzID.extract(mzIDKey, ZID_KEY_MAX + 1, status);
-	U_ASSERT(status == U_ZERO_ERROR); // already checked length above
+	assert(status == U_ZERO_ERROR); // already checked length above
 	mzIDKey[mzID.length()] = 0;
 	static UMutex gTZDBNamesMapLock;
 	umtx_lock(&gTZDBNamesMapLock);

@@ -1939,10 +1939,10 @@ bool DecimalFormat::fastFormatInt64(int64_t input, UnicodeString & output) const
 }
 
 void DecimalFormat::doFastFormatInt32(int32_t input, bool isNegative, UnicodeString & output) const {
-	U_ASSERT(fields->canUseFastFormat);
+	assert(fields->canUseFastFormat);
 	if(isNegative) {
 		output.append(fields->fastData.cpMinusSign);
-		U_ASSERT(input != INT32_MIN); // handled by callers
+		assert(input != INT32_MIN); // handled by callers
 		input = -input;
 	}
 	// Cap at int32_t to make the buffer small and operations fast.

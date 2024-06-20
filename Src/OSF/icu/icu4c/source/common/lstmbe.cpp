@@ -75,7 +75,7 @@ public:
 	// It is designed to directly use data from memory mapped resources.
 	void init(const int32_t* data, int32_t d1) 
 	{
-		U_ASSERT(IEEE_754 == 1);
+		assert(IEEE_754 == 1);
 		data_ = reinterpret_cast<const float*>(data);
 		d1_ = d1;
 	}
@@ -83,7 +83,7 @@ public:
 	virtual int32_t d1() const override { return d1_; }
 	virtual float get(int32_t i) const override 
 	{
-		U_ASSERT(i < d1_);
+		assert(i < d1_);
 		return data_[i];
 	}
 private:
@@ -112,7 +112,7 @@ public:
 	// It is designed to directly use data from memory mapped resources.
 	void init(const int32_t* data, int32_t d1, int32_t d2) 
 	{
-		U_ASSERT(IEEE_754 == 1);
+		assert(IEEE_754 == 1);
 		data_ = reinterpret_cast<const float*>(data);
 		d1_ = d1;
 		d2_ = d2;
@@ -122,14 +122,14 @@ public:
 	inline int32_t d2() const override { return d2_; }
 	float get(int32_t i, int32_t j) const override 
 	{
-		U_ASSERT(i < d1_);
-		U_ASSERT(j < d2_);
+		assert(i < d1_);
+		assert(j < d2_);
 		return data_[i * d2_ + j];
 	}
 	// Expose the ith row as a ConstArray1D
 	inline ConstArray1D row(int32_t i) const 
 	{
-		U_ASSERT(i < d1_);
+		assert(i < d1_);
 		return ConstArray1D(data_ + i * d2_, d2_);
 	}
 private:
@@ -177,7 +177,7 @@ public:
 	}
 
 	virtual float get(int32_t i) const override {
-		U_ASSERT(i < d1_);
+		assert(i < d1_);
 		return data_[i];
 	}
 
@@ -196,16 +196,16 @@ public:
 
 	// Slice part of the array to a new one.
 	inline Array1D slice(int32_t from, int32_t size) const {
-		U_ASSERT(from >= 0);
-		U_ASSERT(from < d1_);
-		U_ASSERT(from + size <= d1_);
+		assert(from >= 0);
+		assert(from < d1_);
+		assert(from + size <= d1_);
 		return Array1D(data_ + from, size);
 	}
 
 	// Add dot product of a 1D array and a 2D array into this one.
 	inline Array1D& addDotProduct(const ReadArray1D& a, const ReadArray2D& b) {
-		U_ASSERT(a.d1() == b.d1());
-		U_ASSERT(b.d2() == d1());
+		assert(a.d1() == b.d1());
+		assert(b.d2() == d1());
 		for(int32_t i = 0; i < d1(); i++) {
 			for(int32_t j = 0; j < a.d1(); j++) {
 				data_[i] += a.get(j) * b.get(j, i);
@@ -216,7 +216,7 @@ public:
 
 	// Hadamard Product the values of another array of the same size into this one.
 	inline Array1D& hadamardProduct(const ReadArray1D& a) {
-		U_ASSERT(a.d1() == d1());
+		assert(a.d1() == d1());
 		for(int32_t i = 0; i < d1(); i++) {
 			data_[i] *= a.get(i);
 		}
@@ -225,8 +225,8 @@ public:
 
 	// Add the Hadamard Product of two arrays of the same size into this one.
 	inline Array1D& addHadamardProduct(const ReadArray1D& a, const ReadArray1D& b) {
-		U_ASSERT(a.d1() == d1());
-		U_ASSERT(b.d1() == d1());
+		assert(a.d1() == d1());
+		assert(b.d1() == d1());
 		for(int32_t i = 0; i < d1(); i++) {
 			data_[i] += a.get(i) * b.get(i);
 		}
@@ -235,7 +235,7 @@ public:
 
 	// Add the values of another array of the same size into this one.
 	inline Array1D& add(const ReadArray1D& a) {
-		U_ASSERT(a.d1() == d1());
+		assert(a.d1() == d1());
 		for(int32_t i = 0; i < d1(); i++) {
 			data_[i] += a.get(i);
 		}
@@ -244,7 +244,7 @@ public:
 
 	// Assign the values of another array of the same size into this one.
 	inline Array1D& assign(const ReadArray1D& a) {
-		U_ASSERT(a.d1() == d1());
+		assert(a.d1() == d1());
 		for(int32_t i = 0; i < d1(); i++) {
 			data_[i] = a.get(i);
 		}
@@ -258,7 +258,7 @@ public:
 
 	// Apply tanh of a and store into this array.
 	inline Array1D& tanh(const Array1D& a) {
-		U_ASSERT(a.d1() == d1());
+		assert(a.d1() == d1());
 		for(int32_t i = 0; i < d1_; i++) {
 			data_[i] = std::tanh(a.get(i));
 		}
@@ -315,13 +315,13 @@ public:
 	virtual int32_t d2() const override { return d2_; }
 	virtual float get(int32_t i, int32_t j) const override 
 	{
-		U_ASSERT(i < d1_);
-		U_ASSERT(j < d2_);
+		assert(i < d1_);
+		assert(j < d2_);
 		return data_[i * d2_ + j];
 	}
 	inline Array1D row(int32_t i) const 
 	{
-		U_ASSERT(i < d1_);
+		assert(i < d1_);
 		return Array1D(data_ + i * d2_, d2_);
 	}
 	inline Array2D& clear() 
@@ -437,7 +437,7 @@ LSTMData::LSTMData(UResourceBundle * rb, UErrorCode & status) : fDict(nullptr), 
 	int32_t mat8_size = 2 * hunits * 4;
 #if U_DEBUG
 	int32_t mat9_size = 4;
-	U_ASSERT(data_len == mat1_size + mat2_size + mat3_size + mat4_size + mat5_size +
+	assert(data_len == mat1_size + mat2_size + mat3_size + mat4_size + mat5_size +
 	    mat6_size + mat7_size + mat8_size + mat9_size);
 #endif
 
@@ -530,7 +530,7 @@ void CodePointsVectorizer::vectorize(UText * text, int32_t startPos, int32_t end
 			// we can ignore the possibility of hitting supplementary code
 			// point.
 			str[0] = (char16_t)utext_next32(text);
-			U_ASSERT(!U_IS_SURROGATE(str[0]));
+			assert(!U_IS_SURROGATE(str[0]));
 			offsets.addElement(current, status);
 			indices.addElement(stringToIndex(str), status);
 		}

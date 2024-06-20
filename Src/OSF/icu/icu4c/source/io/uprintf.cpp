@@ -1,24 +1,13 @@
+// uprintf.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 1998-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *
- * File uprintf.cpp
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   11/19/98    stephen     Creation.
- *   03/12/99    stephen     Modified for new C API.
- *        Added conversion from default codepage.
- *   08/07/2003  george      Reunify printf implementations
- ******************************************************************************
- */
+// Copyright (C) 1998-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 11/19/98    stephen     Creation.
+// 03/12/99    stephen     Modified for new C API. Added conversion from default codepage.
+// 08/07/2003  george      Reunify printf implementations
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -44,8 +33,9 @@ static bool U_CALLCONV uprintf_cleanup(void)
 	return TRUE;
 }
 
-static void U_CALLCONV u_stdout_init() {
-	U_ASSERT(gStdOut ==  NULL);
+static void U_CALLCONV u_stdout_init() 
+{
+	assert(gStdOut ==  NULL);
 	gStdOut = u_finit(stdout, NULL, NULL);
 	ucln_io_registerCleanup(UCLN_IO_PRINTF, &uprintf_cleanup);
 }
@@ -56,21 +46,15 @@ U_CAPI UFILE * U_EXPORT2 u_get_stdout()
 	return gStdOut;
 }
 
-static int32_t U_EXPORT2 u_printf_write(void   * context,
-    const char16_t * str,
-    int32_t count)
+static int32_t U_EXPORT2 u_printf_write(void   * context, const char16_t * str, int32_t count)
 {
 	return u_file_write(str, count, (UFILE*)context);
 }
 
-static int32_t u_printf_pad_and_justify(void   * context,
-    const u_printf_spec_info    * info,
-    const char16_t * result,
-    int32_t resultLen)
+static int32_t u_printf_pad_and_justify(void   * context, const u_printf_spec_info    * info, const char16_t * result, int32_t resultLen)
 {
 	UFILE * output = (UFILE*)context;
 	int32_t written, i;
-
 	/* pad and justify, if needed */
 	if(info->fWidth != -1 && resultLen < info->fWidth) {
 		/* left justify */
@@ -93,26 +77,20 @@ static int32_t u_printf_pad_and_justify(void   * context,
 	else {
 		written = u_file_write(result, resultLen, output);
 	}
-
 	return written;
 }
 
-U_CAPI int32_t U_EXPORT2 u_fprintf(UFILE * f,
-    const char * patternSpecification,
-    ...)
+U_CAPI int32_t U_EXPORT2 u_fprintf(UFILE * f, const char * patternSpecification, ...)
 {
 	va_list ap;
 	int32_t count;
-
 	va_start(ap, patternSpecification);
 	count = u_vfprintf(f, patternSpecification, ap);
 	va_end(ap);
-
 	return count;
 }
 
-U_CAPI int32_t U_EXPORT2 u_printf(const char * patternSpecification,
-    ...)
+U_CAPI int32_t U_EXPORT2 u_printf(const char * patternSpecification, ...)
 {
 	va_list ap;
 	int32_t count;
@@ -122,22 +100,17 @@ U_CAPI int32_t U_EXPORT2 u_printf(const char * patternSpecification,
 	return count;
 }
 
-U_CAPI int32_t U_EXPORT2 u_fprintf_u(UFILE * f,
-    const char16_t * patternSpecification,
-    ...)
+U_CAPI int32_t U_EXPORT2 u_fprintf_u(UFILE * f, const char16_t * patternSpecification, ...)
 {
 	va_list ap;
 	int32_t count;
-
 	va_start(ap, patternSpecification);
 	count = u_vfprintf_u(f, patternSpecification, ap);
 	va_end(ap);
-
 	return count;
 }
 
-U_CAPI int32_t U_EXPORT2 u_printf_u(const char16_t * patternSpecification,
-    ...)
+U_CAPI int32_t U_EXPORT2 u_printf_u(const char16_t * patternSpecification, ...)
 {
 	va_list ap;
 	int32_t count;
@@ -148,15 +121,12 @@ U_CAPI int32_t U_EXPORT2 u_printf_u(const char16_t * patternSpecification,
 }
 
 U_CAPI int32_t U_EXPORT2  /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_vfprintf(UFILE * f,
-    const char * patternSpecification,
-    va_list ap)
+u_vfprintf(UFILE * f, const char * patternSpecification, va_list ap)
 {
 	int32_t count;
 	char16_t * pattern;
 	char16_t buffer[UFMT_DEFAULT_BUFFER_SIZE];
 	size_t size = strlen(patternSpecification) + 1;
-
 	/* convert from the default codepage to Unicode */
 	if(size >= MAX_UCHAR_BUFFER_SIZE(buffer)) {
 		pattern = (char16_t *)uprv_malloc(size * sizeof(char16_t));
@@ -168,15 +138,12 @@ u_vfprintf(UFILE * f,
 		pattern = buffer;
 	}
 	u_charsToUChars(patternSpecification, pattern, static_cast<int32_t>(size));
-
 	/* do the work */
 	count = u_vfprintf_u(f, pattern, ap);
-
 	/* clean up */
 	if(pattern != buffer) {
 		uprv_free(pattern);
 	}
-
 	return count;
 }
 
@@ -186,15 +153,11 @@ static const u_printf_stream_handler g_stream_handler = {
 };
 
 U_CAPI int32_t U_EXPORT2  /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_vfprintf_u(UFILE * f,
-    const char16_t * patternSpecification,
-    va_list ap)
+u_vfprintf_u(UFILE * f, const char16_t * patternSpecification, va_list ap)
 {
 	int32_t written = 0; /* haven't written anything yet */
-
 	/* parse and print the whole format string */
 	u_printf_parse(&g_stream_handler, patternSpecification, f, NULL, &f->str.fBundle, &written, ap);
-
 	/* return # of UChars written */
 	return written;
 }

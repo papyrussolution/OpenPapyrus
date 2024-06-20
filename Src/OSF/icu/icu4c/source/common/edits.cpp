@@ -429,14 +429,14 @@ int32_t Edits::Iterator::readLength(int32_t head) {
 		return head;
 	}
 	else if(head < LENGTH_IN_2TRAIL) {
-		U_ASSERT(index < length);
-		U_ASSERT(array[index] >= 0x8000);
+		assert(index < length);
+		assert(array[index] >= 0x8000);
 		return array[index++] & 0x7fff;
 	}
 	else {
-		U_ASSERT((index + 2) <= length);
-		U_ASSERT(array[index] >= 0x8000);
-		U_ASSERT(array[index + 1] >= 0x8000);
+		assert((index + 2) <= length);
+		assert(array[index] >= 0x8000);
+		assert(array[index + 1] >= 0x8000);
 		int32_t len = ((head & 1) << 30) |
 		    ((int32_t)(array[index] & 0x7fff) << 15) |
 		    (array[index + 1] & 0x7fff);
@@ -548,7 +548,7 @@ bool Edits::Iterator::next(bool onlyChanges, UErrorCode & errorCode) {
 		}
 	}
 	else {
-		U_ASSERT(u <= 0x7fff);
+		assert(u <= 0x7fff);
 		oldLength_ = readLength((u >> 6) & 0x3f);
 		newLength_ = readLength(u & 0x3f);
 		if(!coarse) {
@@ -564,7 +564,7 @@ bool Edits::Iterator::next(bool onlyChanges, UErrorCode & errorCode) {
 			newLength_ += ((u >> 9) & MAX_SHORT_CHANGE_NEW_LENGTH) * num;
 		}
 		else {
-			U_ASSERT(u <= 0x7fff);
+			assert(u <= 0x7fff);
 			oldLength_ += readLength((u >> 6) & 0x3f);
 			newLength_ += readLength(u & 0x3f);
 		}
@@ -600,7 +600,7 @@ bool Edits::Iterator::previous(UErrorCode & errorCode) {
 	if(remaining > 0) {
 		// Fine-grained iterator: Continue a sequence of compressed changes.
 		int32_t u = array[index];
-		U_ASSERT(MAX_UNCHANGED < u && u <= MAX_SHORT_CHANGE);
+		assert(MAX_UNCHANGED < u && u <= MAX_SHORT_CHANGE);
 		if(remaining <= (u & SHORT_CHANGE_NUM_MASK)) {
 			++remaining;
 			updatePreviousIndexes();
@@ -654,10 +654,10 @@ bool Edits::Iterator::previous(UErrorCode & errorCode) {
 		else {
 			// Back up to the head of the change, read the lengths,
 			// and reset the index to the head again.
-			U_ASSERT(index > 0);
+			assert(index > 0);
 			while((u = array[--index]) > 0x7fff) {
 			}
-			U_ASSERT(u > MAX_SHORT_CHANGE);
+			assert(u > MAX_SHORT_CHANGE);
 			int32_t headIndex = index++;
 			oldLength_ = readLength((u >> 6) & 0x3f);
 			newLength_ = readLength(u & 0x3f);
@@ -706,7 +706,7 @@ int32_t Edits::Iterator::findIndex(int32_t i, bool findSource, UErrorCode & erro
 			// Search backwards.
 			for(;;) {
 				bool hasPrevious = previous(errorCode);
-				U_ASSERT(hasPrevious); // because i>=0 and the first span starts at 0
+				assert(hasPrevious); // because i>=0 and the first span starts at 0
 				(void)hasPrevious; // avoid unused-variable warning
 				spanStart = findSource ? srcIndex : destIndex;
 				if(i >= spanStart) {
@@ -718,7 +718,7 @@ int32_t Edits::Iterator::findIndex(int32_t i, bool findSource, UErrorCode & erro
 					// spanStart is the start of the current span, first of the remaining ones.
 					spanLength = findSource ? oldLength_ : newLength_;
 					int32_t u = array[index];
-					U_ASSERT(MAX_UNCHANGED < u && u <= MAX_SHORT_CHANGE);
+					assert(MAX_UNCHANGED < u && u <= MAX_SHORT_CHANGE);
 					int32_t num = (u & SHORT_CHANGE_NUM_MASK) + 1 - remaining;
 					int32_t len = num * spanLength;
 					if(i >= (spanStart - len)) {

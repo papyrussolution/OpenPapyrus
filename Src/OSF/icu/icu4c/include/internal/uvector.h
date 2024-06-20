@@ -18,7 +18,7 @@
 #include "unicode/uobject.h"
 #include "cmemory.h"
 #include "uarrsort.h"
-#include "uelement.h"
+//#include "uelement.h"
 
 U_NAMESPACE_BEGIN
 

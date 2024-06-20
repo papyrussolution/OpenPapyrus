@@ -550,7 +550,7 @@ void PluralRuleParser::parse(const UnicodeString & ruleData, PluralRules * prule
 	if(U_FAILURE(status)) {
 		return;
 	}
-	U_ASSERT(ruleIndex == 0); // Parsers are good for a single use only!
+	assert(ruleIndex == 0); // Parsers are good for a single use only!
 	ruleSrc = &ruleData;
 
 	while(ruleIndex< ruleSrc->length()) {
@@ -564,12 +564,12 @@ void PluralRuleParser::parse(const UnicodeString & ruleData, PluralRules * prule
 		}
 		switch(type) {
 			case tAnd:
-			    U_ASSERT(curAndConstraint != nullptr);
+			    assert(curAndConstraint != nullptr);
 			    curAndConstraint = curAndConstraint->add(status);
 			    break;
 			case tOr:
 		    {
-			    U_ASSERT(currentChain != nullptr);
+			    assert(currentChain != nullptr);
 			    OrConstraint * orNode = currentChain->ruleHeader;
 			    while(orNode->next != nullptr) {
 				    orNode = orNode->next;
@@ -585,12 +585,12 @@ void PluralRuleParser::parse(const UnicodeString & ruleData, PluralRules * prule
 		    }
 		    break;
 			case tIs:
-			    U_ASSERT(curAndConstraint != nullptr);
-			    U_ASSERT(curAndConstraint->value == -1);
-			    U_ASSERT(curAndConstraint->rangeList == nullptr);
+			    assert(curAndConstraint != nullptr);
+			    assert(curAndConstraint->value == -1);
+			    assert(curAndConstraint->rangeList == nullptr);
 			    break;
 			case tNot:
-			    U_ASSERT(curAndConstraint != nullptr);
+			    assert(curAndConstraint != nullptr);
 			    curAndConstraint->negated = TRUE;
 			    break;
 
@@ -601,7 +601,7 @@ void PluralRuleParser::parse(const UnicodeString & ruleData, PluralRules * prule
 			case tWithin:
 			case tEqual:
 		    {
-			    U_ASSERT(curAndConstraint != nullptr);
+			    assert(curAndConstraint != nullptr);
 			    LocalPointer<UVector32> newRangeList(new UVector32(status), status);
 			    if(U_FAILURE(status)) {
 				    break;
@@ -616,7 +616,7 @@ void PluralRuleParser::parse(const UnicodeString & ruleData, PluralRules * prule
 		    }
 		    break;
 			case tNumber:
-			    U_ASSERT(curAndConstraint != nullptr);
+			    assert(curAndConstraint != nullptr);
 			    if((curAndConstraint->op==AndConstraint::MOD)&&
 				(curAndConstraint->opNum == -1 )) {
 				    curAndConstraint->opNum = getNumberValue(token);
@@ -654,14 +654,14 @@ void PluralRuleParser::parse(const UnicodeString & ruleData, PluralRules * prule
 				    status = U_UNEXPECTED_TOKEN;
 				    break;
 			    }
-			    U_ASSERT(curAndConstraint->rangeList->size() >= 2);
+			    assert(curAndConstraint->rangeList->size() >= 2);
 			    rangeLowIdx = curAndConstraint->rangeList->size();
 			    curAndConstraint->rangeList->addElement(-1, status); // range Low
 			    rangeHiIdx = curAndConstraint->rangeList->size();
 			    curAndConstraint->rangeList->addElement(-1, status); // range Hi
 			    break;
 			case tMod:
-			    U_ASSERT(curAndConstraint != nullptr);
+			    assert(curAndConstraint != nullptr);
 			    curAndConstraint->op = AndConstraint::MOD;
 			    break;
 			case tVariableN:
@@ -671,7 +671,7 @@ void PluralRuleParser::parse(const UnicodeString & ruleData, PluralRules * prule
 			case tVariableE:
 			case tVariableC:
 			case tVariableV:
-			    U_ASSERT(curAndConstraint != nullptr);
+			    assert(curAndConstraint != nullptr);
 			    curAndConstraint->digitsType = type;
 			    break;
 			case tKeyword:
@@ -958,7 +958,7 @@ AndConstraint* OrConstraint::add(UErrorCode & status)
 		while(curOrConstraint->next!=nullptr) {
 			curOrConstraint = curOrConstraint->next;
 		}
-		U_ASSERT(curOrConstraint->childNode == nullptr);
+		assert(curOrConstraint->childNode == nullptr);
 		curOrConstraint->childNode = new AndConstraint();
 		if(curOrConstraint->childNode == nullptr) {
 			status = U_MEMORY_ALLOCATION_ERROR;
@@ -1370,8 +1370,8 @@ void PluralRuleParser::getNextToken(UErrorCode & status)
 		    break;
 	}
 
-	U_ASSERT(ruleIndex <= ruleSrc->length());
-	U_ASSERT(curIndex <= ruleSrc->length());
+	assert(ruleIndex <= ruleSrc->length());
+	assert(curIndex <= ruleSrc->length());
 	token = UnicodeString(*ruleSrc, ruleIndex, curIndex-ruleIndex);
 	ruleIndex = curIndex;
 }

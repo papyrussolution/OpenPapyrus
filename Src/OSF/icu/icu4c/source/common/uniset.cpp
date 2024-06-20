@@ -9,7 +9,7 @@
 #include "unicode/symtable.h"
 #include "ruleiter.h"
 #include "patternprops.h"
-#include "uelement.h"
+//#include "uelement.h"
 #include "ustrfmt.h"
 #include "bmpset.h"
 #include "unisetspan.h"
@@ -1487,7 +1487,7 @@ UnicodeSet::UnicodeSet(const uint16 data[], int32_t dataLen, ESerialization seri
 		printf("<<32@%d+[%d] %lX\n", headerSize+bmpLength+i, i, list[i]);
 #endif
 	}
-	U_ASSERT(i == newLength);
+	assert(i == newLength);
 	if(i == 0 || list[i - 1] != UNICODESET_HIGH) {
 		list[i++] = UNICODESET_HIGH;
 	}

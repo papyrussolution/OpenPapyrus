@@ -655,7 +655,7 @@ bool isValidCE(const CollationRootElements &re, const CollationData &data,
 	}
 	// Other bytes just need to avoid the level separator.
 	// Trailing zeros are ok.
-	U_ASSERT(Collation::LEVEL_SEPARATOR_BYTE == 1);
+	assert(Collation::LEVEL_SEPARATOR_BYTE == 1);
 	if(p3 == Collation::LEVEL_SEPARATOR_BYTE || p4 == Collation::LEVEL_SEPARATOR_BYTE ||
 	    s2 == Collation::LEVEL_SEPARATOR_BYTE || t2 == Collation::LEVEL_SEPARATOR_BYTE) {
 		return FALSE;
@@ -734,7 +734,7 @@ public:
 				++index;
 				return next();
 			}
-			U_ASSERT(pri < p);
+			assert(pri < p);
 			// Return the next primary in this range.
 			bool isCompressible = data.isCompressiblePrimary(pri);
 			if((pri & 0xffff) == 0) {
@@ -926,7 +926,7 @@ void CollationTest::TestTailoredElements() {
 
 	UVector64 ces(errorCode);
 	LocalPointer<StringEnumeration> locales(Collator::getAvailableLocales());
-	U_ASSERT(locales.isValid());
+	assert(locales.isValid());
 	const char * localeID = "root";
 	do {
 		Locale locale(localeID);
@@ -1412,7 +1412,7 @@ bool CollationTest::getSortKeyParts(const char16_t * s, int32_t length,
 		return FALSE;
 	}
 	uint8_t part[32];
-	U_ASSERT(partSize <= SIZEOFARRAYi(part));
+	assert(partSize <= SIZEOFARRAYi(part));
 	UCharIterator iter;
 	uiter_setString(&iter, s, length);
 	uint32_t state[2] = { 0, 0 };
@@ -1567,7 +1567,7 @@ bool CollationTest::getMergedCollationKey(const char16_t * s, int32_t length,
 			}
 			dest = mergedKey.allocateInsteadAndReset(mergedKeyCapacity);
 		}
-		U_ASSERT(dest != NULL || mergedKeyCapacity == 0);
+		assert(dest != NULL || mergedKeyCapacity == 0);
 		if(key1Length == 0) {
 			// key2 is the sort key for the first segment.
 			memcpy(dest, key2Bytes, key2Length);

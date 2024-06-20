@@ -16,7 +16,7 @@ U_NAMESPACE_BEGIN ResourceTracer::~ResourceTracer() = default;
 
 void ResourceTracer::trace(const char * resType) const 
 {
-	U_ASSERT(fResB || fParent);
+	assert(fResB || fParent);
 	UTRACE_ENTRY(UTRACE_UDATA_RESOURCE);
 	UErrorCode status = U_ZERO_ERROR;
 	CharString filePath;
@@ -34,7 +34,7 @@ void ResourceTracer::trace(const char * resType) const
 
 void ResourceTracer::traceOpen() const 
 {
-	U_ASSERT(fResB);
+	assert(fResB);
 	UTRACE_ENTRY(UTRACE_UDATA_BUNDLE);
 	UErrorCode status = U_ZERO_ERROR;
 	CharString filePath;
@@ -65,7 +65,7 @@ CharString& ResourceTracer::getResPath(CharString& output, UErrorCode & status) 
 		output.append('/', status);
 		output.append(fResB->fResPath, status);
 		// removing the trailing /
-		U_ASSERT(output[output.length()-1] == '/');
+		assert(output[output.length()-1] == '/');
 		output.truncate(output.length()-1);
 	}
 	else {

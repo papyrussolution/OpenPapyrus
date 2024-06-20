@@ -61,13 +61,9 @@ class SimpleModifier;
  */
 class U_COMMON_API SimpleFormatter U_FINAL : public UMemory {
 public:
-	/**
-	 * Default constructor.
-	 * @stable ICU 57
-	 */
-	SimpleFormatter() : compiledPattern((char16_t)0) {
+	SimpleFormatter() : compiledPattern((char16_t)0) 
+	{
 	}
-
 	/**
 	 * Constructs a formatter from the pattern string.
 	 *
@@ -77,10 +73,10 @@ public:
 	 *                  Set to U_ILLEGAL_ARGUMENT_ERROR for bad argument syntax.
 	 * @stable ICU 57
 	 */
-	SimpleFormatter(const UnicodeString &pattern, UErrorCode & errorCode) {
+	SimpleFormatter(const UnicodeString &pattern, UErrorCode & errorCode) 
+	{
 		applyPattern(pattern, errorCode);
 	}
-
 	/**
 	 * Constructs a formatter from the pattern string.
 	 * The number of arguments checked against the given limits is the
@@ -95,31 +91,15 @@ public:
 	 *                  too few or too many arguments.
 	 * @stable ICU 57
 	 */
-	SimpleFormatter(const UnicodeString &pattern, int32_t min, int32_t max,
-	    UErrorCode & errorCode) {
+	SimpleFormatter(const UnicodeString &pattern, int32_t min, int32_t max, UErrorCode & errorCode) 
+	{
 		applyPatternMinMaxArguments(pattern, min, max, errorCode);
 	}
-
-	/**
-	 * Copy constructor.
-	 * @stable ICU 57
-	 */
-	SimpleFormatter(const SimpleFormatter &other)
-		: compiledPattern(other.compiledPattern) {
+	SimpleFormatter(const SimpleFormatter &other) : compiledPattern(other.compiledPattern) 
+	{
 	}
-
-	/**
-	 * Assignment operator.
-	 * @stable ICU 57
-	 */
 	SimpleFormatter & operator =(const SimpleFormatter& other);
-
-	/**
-	 * Destructor.
-	 * @stable ICU 57
-	 */
 	~SimpleFormatter();
-
 	/**
 	 * Changes this object according to the new pattern.
 	 *
@@ -133,7 +113,6 @@ public:
 	bool applyPattern(const UnicodeString & pattern, UErrorCode & errorCode) {
 		return applyPatternMinMaxArguments(pattern, 0, INT32_MAX, errorCode);
 	}
-
 	/**
 	 * Changes this object according to the new pattern.
 	 * The number of arguments checked against the given limits is the

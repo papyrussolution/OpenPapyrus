@@ -88,7 +88,7 @@ DecNum::DecNum() {
 DecNum::DecNum(const DecNum& other, UErrorCode & status) : fContext(other.fContext) 
 {
 	// Allocate memory for the new DecNum.
-	U_ASSERT(fContext.digits == other.fData.getCapacity());
+	assert(fContext.digits == other.fData.getCapacity());
 	if(fContext.digits > kDefaultDigits) {
 		void * p = fData.resize(fContext.digits, 0);
 		if(p == nullptr) {

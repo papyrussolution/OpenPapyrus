@@ -150,7 +150,7 @@ bool UVector64::expandCapacity(int32_t minimumCapacity, UErrorCode & status) {
 }
 
 void UVector64::setMaxCapacity(int32_t limit) {
-	U_ASSERT(limit >= 0);
+	assert(limit >= 0);
 	if(limit < 0) {
 		limit = 0;
 	}

@@ -424,7 +424,7 @@ static void testTrieUTF16(const char * testName,
 			U16_APPEND_UNSAFE(s, length, prevCP); /* start of the range */
 			values[countValues++] = value;
 		}
-		U_ASSERT(length < SIZEOFARRAYi(s) && countValues < SIZEOFARRAYi(values));
+		assert(length < SIZEOFARRAYi(s) && countValues < SIZEOFARRAYi(values));
 		c = checkRanges[i].limit;
 		prevCP = (prevCP+c)/2; /* middle of the range */
 		if(!ACCIDENTAL_SURROGATE_PAIR(s, length, prevCP)) {
@@ -566,7 +566,7 @@ static void testTrieUTF8(const char * testName,
 		else {
 			values[countValues++] = value;
 		}
-		U_ASSERT(length < SIZEOFARRAYi(s) && countValues < SIZEOFARRAYi(values));
+		assert(length < SIZEOFARRAYi(s) && countValues < SIZEOFARRAYi(values));
 		c = checkRanges[i].limit;
 		prevCP = (prevCP+c)/2; /* middle of the range */
 		U8_APPEND_UNSAFE(s, length, prevCP);
@@ -1371,7 +1371,7 @@ static void MuchDataTest()
 		umutablecptrie_close(mutableTrie);
 		return;
 	}
-	U_ASSERT(r <= SIZEOFARRAYi(checkRanges));
+	assert(r <= SIZEOFARRAYi(checkRanges));
 	testBuilder(testName, mutableTrie, checkRanges, r);
 	testTrieSerialize("much-data.16", mutableTrie, UCPTRIE_TYPE_FAST, UCPTRIE_VALUE_BITS_16, FALSE, checkRanges, r);
 	umutablecptrie_close(mutableTrie);

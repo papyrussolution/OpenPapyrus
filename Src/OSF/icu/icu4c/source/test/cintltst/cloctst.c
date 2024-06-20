@@ -1910,40 +1910,34 @@ static void TestKeywordVariants(void)
 				uenum_reset(keywords, &status);
 				while((keyword = uenum_next(keywords, &keywordLen, &status))) {
 					if(strcmp(keyword, testCases[i].expectedKeywords[j]) != 0) {
-						log_err("Expected to get keyword value %s, got %s\n",
-						    testCases[i].expectedKeywords[j],
-						    keyword);
+						log_err("Expected to get keyword value %s, got %s\n", testCases[i].expectedKeywords[j], keyword);
 					}
 					j++;
 				}
 			}
 			uenum_close(keywords);
 		}
-
 		status = U_ZERO_ERROR;
 		resultLen = uloc_getName(testCases[i].localeID, buffer, 256, &status);
 		(void)resultLen;
-		U_ASSERT(resultLen < 256);
+		assert(resultLen < 256);
 		if(U_SUCCESS(status)) {
 			if(testCases[i].expectedLocaleID == 0) {
-				log_err("Expected uloc_getName(\"%s\") to fail; got \"%s\"\n",
-				    testCases[i].localeID, buffer);
+				log_err("Expected uloc_getName(\"%s\") to fail; got \"%s\"\n", testCases[i].localeID, buffer);
 			}
 			else if(strcmp(testCases[i].expectedLocaleID, buffer) != 0) {
-				log_err("Expected uloc_getName(\"%s\") => \"%s\"; got \"%s\"\n",
-				    testCases[i].localeID, testCases[i].expectedLocaleID, buffer);
+				log_err("Expected uloc_getName(\"%s\") => \"%s\"; got \"%s\"\n", testCases[i].localeID, testCases[i].expectedLocaleID, buffer);
 			}
 		}
 		else {
 			if(testCases[i].expectedLocaleID != 0) {
-				log_err("Expected uloc_getName(\"%s\") => \"%s\"; but returned error: %s\n",
-				    testCases[i].localeID, testCases[i].expectedLocaleID, buffer, u_errorName(status));
+				log_err("Expected uloc_getName(\"%s\") => \"%s\"; but returned error: %s\n", testCases[i].localeID, testCases[i].expectedLocaleID, buffer, u_errorName(status));
 			}
 		}
 
 		status = U_ZERO_ERROR;
 		resultLen = uloc_getBaseName(testCases[i].localeID, buffer, 256, &status);
-		U_ASSERT(resultLen < 256);
+		assert(resultLen < 256);
 		if(U_SUCCESS(status)) {
 			if(testCases[i].expectedLocaleIDNoKeywords == 0) {
 				log_err("Expected uloc_getBaseName(\"%s\") to fail; got \"%s\"\n",
@@ -1963,7 +1957,7 @@ static void TestKeywordVariants(void)
 
 		status = U_ZERO_ERROR;
 		resultLen = uloc_canonicalize(testCases[i].localeID, buffer, 256, &status);
-		U_ASSERT(resultLen < 256);
+		assert(resultLen < 256);
 		if(U_SUCCESS(status)) {
 			if(testCases[i].expectedCanonicalID == 0) {
 				log_err("Expected uloc_canonicalize(\"%s\") to fail; got \"%s\"\n",

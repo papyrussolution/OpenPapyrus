@@ -860,7 +860,7 @@ static int32_t expandCompositCharAtBegin(char16_t * dest, int32_t sourceLength, 
 		if(countl>0 && isLamAlefChar(dest[i])) {
 			tempbuffer[j] = LAM_CHAR;
 			/* to ensure the array index is within the range */
-			U_ASSERT(dest[i] >= 0xFEF5u && dest[i]-0xFEF5u < SIZEOFARRAYi(convertLamAlef));
+			assert(dest[i] >= 0xFEF5u && dest[i]-0xFEF5u < SIZEOFARRAYi(convertLamAlef));
 			tempbuffer[j-1] = convertLamAlef[ dest[i] - 0xFEF5 ];
 			j--;
 			countl--;
@@ -1240,7 +1240,7 @@ static int32_t shapeUnicode(char16_t * dest, int32_t sourceLength,
 					}
 					else {
 						/* to ensure the array index is within the range */
-						U_ASSERT(dest[i] >= 0x064Bu && dest[i]-0x064Bu < SIZEOFARRAYi(IrrelevantPos));
+						assert(dest[i] >= 0x064Bu && dest[i]-0x064Bu < SIZEOFARRAYi(IrrelevantPos));
 						dest[i] =  0xFE70 + IrrelevantPos[(dest[i] - 0x064B)] + static_cast<char16_t>(Shape);
 					}
 				}
@@ -1541,7 +1541,7 @@ U_CAPI int32_t U_EXPORT2 u_shapeArabic(const char16_t * source, int32_t sourceLe
 		/*
 		 * TODO: (markus 2002aug01)
 		 * For as long as we always preflight the outputSize above
-		 * we should U_ASSERT(outputSize==destLength)
+		 * we should assert(outputSize==destLength)
 		 * except for the adjustment above before the tempbuffer allocation
 		 */
 

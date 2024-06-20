@@ -1379,7 +1379,7 @@ static void U_CALLCONV UConverter_toUnicode_ISCII_OFFSETS_LOGIC(UConverterToUnic
 				    i = 1;
 				    found = FALSE;
 				    for(; i<vowelSignESpecialCases[0][0]; i++) {
-					    U_ASSERT(i<SIZEOFARRAYi(vowelSignESpecialCases));
+					    assert(i<SIZEOFARRAYi(vowelSignESpecialCases));
 					    if(vowelSignESpecialCases[i][0]==(uint8)*contextCharToUnicode) {
 						    targetUniChar = vowelSignESpecialCases[i][1];
 						    found = TRUE;

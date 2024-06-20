@@ -127,7 +127,7 @@ void DecimalQuantity::clear() {
 
 void DecimalQuantity::setMinInteger(int32_t minInt) {
 	// Validation should happen outside of DecimalQuantity, e.g., in the Precision class.
-	U_ASSERT(minInt >= 0);
+	assert(minInt >= 0);
 
 	// Special behavior: do not set minInt to be less than what is already set.
 	// This is so significant digits rounding can set the integer length.
@@ -141,7 +141,7 @@ void DecimalQuantity::setMinInteger(int32_t minInt) {
 
 void DecimalQuantity::setMinFraction(int32_t minFrac) {
 	// Validation should happen outside of DecimalQuantity, e.g., in the Precision class.
-	U_ASSERT(minFrac >= 0);
+	assert(minFrac >= 0);
 
 	// Save values into internal state
 	// Negation is safe for minFrac/maxFrac because -Integer.MAX_VALUE > Integer.MIN_VALUE
@@ -150,7 +150,7 @@ void DecimalQuantity::setMinFraction(int32_t minFrac) {
 
 void DecimalQuantity::applyMaxInteger(int32_t maxInt) {
 	// Validation should happen outside of DecimalQuantity, e.g., in the Precision class.
-	U_ASSERT(maxInt >= 0);
+	assert(maxInt >= 0);
 
 	if(precision == 0) {
 		return;
@@ -180,12 +180,12 @@ void DecimalQuantity::roundToIncrement(double roundingIncrement, RoundingMode ro
 	// Do not call this method with an increment having only a 1 or a 5 digit!
 	// Use a more efficient call to either roundToMagnitude() or roundToNickel().
 	// Check a few popular rounding increments; a more thorough check is in Java.
-	U_ASSERT(roundingIncrement != 0.01);
-	U_ASSERT(roundingIncrement != 0.05);
-	U_ASSERT(roundingIncrement != 0.1);
-	U_ASSERT(roundingIncrement != 0.5);
-	U_ASSERT(roundingIncrement != 1);
-	U_ASSERT(roundingIncrement != 5);
+	assert(roundingIncrement != 0.01);
+	assert(roundingIncrement != 0.05);
+	assert(roundingIncrement != 0.1);
+	assert(roundingIncrement != 0.5);
+	assert(roundingIncrement != 1);
+	assert(roundingIncrement != 5);
 
 	DecNum incrementDN;
 	incrementDN.setTo(roundingIncrement, status);
@@ -247,7 +247,7 @@ void DecimalQuantity::negate() {
 }
 
 int32_t DecimalQuantity::getMagnitude() const {
-	U_ASSERT(precision != 0);
+	assert(precision != 0);
 	return scale + precision - 1;
 }
 
@@ -267,7 +267,7 @@ bool DecimalQuantity::adjustMagnitude(int32_t delta) {
 double DecimalQuantity::getPluralOperand(PluralOperand operand) const {
 	// If this assertion fails, you need to call roundToInfinity() or some other rounding method.
 	// See the comment at the top of this file explaining the "isApproximate" field.
-	U_ASSERT(!isApproximate);
+	assert(!isApproximate);
 
 	switch(operand) {
 		case PLURAL_OPERAND_I:
@@ -311,7 +311,7 @@ bool DecimalQuantity::hasIntegerValue() const {
 int32_t DecimalQuantity::getUpperDisplayMagnitude() const {
 	// If this assertion fails, you need to call roundToInfinity() or some other rounding method.
 	// See the comment in the header file explaining the "isApproximate" field.
-	U_ASSERT(!isApproximate);
+	assert(!isApproximate);
 
 	int32_t magnitude = scale + precision;
 	int32_t result = (lReqPos > magnitude) ? lReqPos : magnitude;
@@ -321,7 +321,7 @@ int32_t DecimalQuantity::getUpperDisplayMagnitude() const {
 int32_t DecimalQuantity::getLowerDisplayMagnitude() const {
 	// If this assertion fails, you need to call roundToInfinity() or some other rounding method.
 	// See the comment in the header file explaining the "isApproximate" field.
-	U_ASSERT(!isApproximate);
+	assert(!isApproximate);
 
 	int32_t magnitude = scale;
 	int32_t result = (rReqPos < magnitude) ? rReqPos : magnitude;
@@ -331,7 +331,7 @@ int32_t DecimalQuantity::getLowerDisplayMagnitude() const {
 int8 DecimalQuantity::getDigit(int32_t magnitude) const {
 	// If this assertion fails, you need to call roundToInfinity() or some other rounding method.
 	// See the comment at the top of this file explaining the "isApproximate" field.
-	U_ASSERT(!isApproximate);
+	assert(!isApproximate);
 
 	return getDigitPos(magnitude - scale);
 }
@@ -511,7 +511,7 @@ void DecimalQuantity::_setToDoubleFast(double n)
 }
 
 void DecimalQuantity::convertToAccurateDouble() {
-	U_ASSERT(origDouble != 0);
+	assert(origDouble != 0);
 	int32_t delta = origDelta;
 
 	// Call the slow oracle function (Double.toString in Java, DoubleToAscii in C++).
@@ -648,7 +648,7 @@ bool DecimalQuantity::fitsInLong(bool ignoreFraction) const {
 double DecimalQuantity::toDouble() const {
 	// If this assertion fails, you need to call roundToInfinity() or some other rounding method.
 	// See the comment in the header file explaining the "isApproximate" field.
-	U_ASSERT(!isApproximate);
+	assert(!isApproximate);
 
 	if(isNaN()) {
 		return NAN;
@@ -877,7 +877,7 @@ void DecimalQuantity::roundToMagnitude(int32_t magnitude, RoundingMode roundingM
 
 		// Perform truncation
 		if(position >= precision) {
-			U_ASSERT(trailingDigit == 0);
+			assert(trailingDigit == 0);
 			setBcdToZero();
 			scale = magnitude;
 		}
@@ -918,7 +918,7 @@ void DecimalQuantity::roundToMagnitude(int32_t magnitude, RoundingMode roundingM
 				shiftRight(bubblePos); // shift off the trailing 9s
 			}
 			int8 digit0 = getDigitPos(0);
-			U_ASSERT(digit0 != 9);
+			assert(digit0 != 9);
 			setDigitPos(0, static_cast<int8>(digit0 + 1));
 			precision += 1; // in case an extra digit got added
 		}
@@ -934,7 +934,7 @@ void DecimalQuantity::roundToInfinity() {
 }
 
 void DecimalQuantity::appendDigit(int8 value, int32_t leadingZeros, bool appendAsInteger) {
-	U_ASSERT(leadingZeros >= 0);
+	assert(leadingZeros >= 0);
 
 	// Zero requires special handling to maintain the invariant that the least-significant digit
 	// in the BCD is nonzero.
@@ -964,7 +964,7 @@ void DecimalQuantity::appendDigit(int8 value, int32_t leadingZeros, bool appendA
 }
 
 UnicodeString DecimalQuantity::toPlainString() const {
-	U_ASSERT(!isApproximate);
+	assert(!isApproximate);
 	UnicodeString sb;
 	if(isNegative()) {
 		sb.append(u'-');
@@ -998,7 +998,7 @@ UnicodeString DecimalQuantity::toPlainString() const {
 }
 
 UnicodeString DecimalQuantity::toScientificString() const {
-	U_ASSERT(!isApproximate);
+	assert(!isApproximate);
 	UnicodeString result;
 	if(isNegative()) {
 		result.append(u'-');
@@ -1062,7 +1062,7 @@ int8 DecimalQuantity::getDigitPos(int32_t position) const
 }
 
 void DecimalQuantity::setDigitPos(int32_t position, int8 value) {
-	U_ASSERT(position >= 0);
+	assert(position >= 0);
 	if(usingBytes) {
 		ensureCapacity(position + 1);
 		fBCD.bcdBytes.ptr[position] = value;
@@ -1113,7 +1113,7 @@ void DecimalQuantity::shiftRight(int32_t numDigits) {
 }
 
 void DecimalQuantity::popFromLeft(int32_t numDigits) {
-	U_ASSERT(numDigits <= precision);
+	assert(numDigits <= precision);
 	if(usingBytes) {
 		int i = precision - 1;
 		for(; i >= precision - numDigits; i--) {
@@ -1142,14 +1142,14 @@ void DecimalQuantity::setBcdToZero() {
 }
 
 void DecimalQuantity::readIntToBcd(int32_t n) {
-	U_ASSERT(n != 0);
+	assert(n != 0);
 	// ints always fit inside the long implementation.
 	uint64_t result = 0L;
 	int i = 16;
 	for(; n != 0; n /= 10, i--) {
 		result = (result >> 4) + ((static_cast<uint64_t>(n) % 10) << 60);
 	}
-	U_ASSERT(!usingBytes);
+	assert(!usingBytes);
 	fBCD.bcdLong = result >> (i * 4);
 	scale = 0;
 	precision = 16 - i;
@@ -1157,14 +1157,14 @@ void DecimalQuantity::readIntToBcd(int32_t n) {
 
 void DecimalQuantity::readLongToBcd(int64_t n) 
 {
-	U_ASSERT(n != 0);
+	assert(n != 0);
 	if(n >= 10000000000000000L) {
 		ensureCapacity();
 		int i = 0;
 		for(; n != 0L; n /= 10L, i++) {
 			fBCD.bcdBytes.ptr[i] = static_cast<int8>(n % 10);
 		}
-		U_ASSERT(usingBytes);
+		assert(usingBytes);
 		scale = 0;
 		precision = i;
 	}
@@ -1174,8 +1174,8 @@ void DecimalQuantity::readLongToBcd(int64_t n)
 		for(; n != 0L; n /= 10L, i--) {
 			result = (result >> 4) + ((n % 10) << 60);
 		}
-		U_ASSERT(i >= 0);
-		U_ASSERT(!usingBytes);
+		assert(i >= 0);
+		assert(!usingBytes);
 		fBCD.bcdLong = result >> (i * 4);
 		scale = 0;
 		precision = 16 - i;
@@ -1319,7 +1319,7 @@ void DecimalQuantity::switchStorage() {
 			fBCD.bcdBytes.ptr[i] = static_cast<int8>(bcdLong & 0xf);
 			bcdLong >>= 4;
 		}
-		U_ASSERT(usingBytes);
+		assert(usingBytes);
 	}
 }
 

@@ -1,18 +1,11 @@
+// ustream.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2001-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *  FILE NAME : ustream.cpp
- *
- *   Modification History:
- *
- *   Date        Name        Description
- *   06/25/2001  grhoten     Move iostream from unistr.h to here
- ******************************************************************************
- */
+// Copyright (C) 2001-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 06/25/2001  grhoten     Move iostream from unistr.h to here
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -23,7 +16,6 @@
 // console IO
 
 #define STD_NAMESPACE std::
-
 #define STD_OSTREAM STD_NAMESPACE ostream
 #define STD_ISTREAM STD_NAMESPACE istream
 
@@ -33,11 +25,9 @@ U_IO_API STD_OSTREAM & U_EXPORT2 operator<<(STD_OSTREAM& stream, const UnicodeSt
 {
 	if(str.length() > 0) {
 		char buffer[200];
-		UConverter * converter;
 		UErrorCode errorCode = U_ZERO_ERROR;
-
 		// use the default converter to convert chunks of text
-		converter = u_getDefaultConverter(&errorCode);
+		UConverter * converter = u_getDefaultConverter(&errorCode);
 		if(U_SUCCESS(errorCode)) {
 			const char16_t * us = str.getBuffer();
 			const char16_t * uLimit = us + str.length();
@@ -47,7 +37,6 @@ U_IO_API STD_OSTREAM & U_EXPORT2 operator<<(STD_OSTREAM& stream, const UnicodeSt
 				s = buffer;
 				ucnv_fromUnicode(converter, &s, sLimit, &us, uLimit, 0, FALSE, &errorCode);
 				*s = 0;
-
 				// write this chunk
 				if(s > buffer) {
 					stream << buffer;
@@ -56,7 +45,6 @@ U_IO_API STD_OSTREAM & U_EXPORT2 operator<<(STD_OSTREAM& stream, const UnicodeSt
 			u_releaseDefaultConverter(converter);
 		}
 	}
-
 /* stream.flush();*/
 	return stream;
 }
@@ -67,16 +55,13 @@ U_IO_API STD_ISTREAM & U_EXPORT2 operator>>(STD_ISTREAM& stream, UnicodeString &
 	if(stream.fail()) {
 		return stream;
 	}
-
 	/* ipfx should eat whitespace when ios::skipws is set */
 	char16_t uBuffer[16];
 	char buffer[16];
 	int32_t idx = 0;
-	UConverter * converter;
 	UErrorCode errorCode = U_ZERO_ERROR;
-
 	// use the default converter to convert chunks of text
-	converter = u_getDefaultConverter(&errorCode);
+	UConverter * converter = u_getDefaultConverter(&errorCode);
 	if(U_SUCCESS(errorCode)) {
 		char16_t * us = uBuffer;
 		const char16_t * uLimit = uBuffer + SIZEOFARRAYi(uBuffer);
@@ -85,7 +70,6 @@ U_IO_API STD_ISTREAM & U_EXPORT2 operator>>(STD_ISTREAM& stream, UnicodeString &
 		char16_t ch32;
 		bool initialWhitespace = TRUE;
 		bool continueReading = TRUE;
-
 		/* We need to consume one byte at a time to see what is considered whitespace. */
 		while(continueReading) {
 			ch = stream.get();
@@ -151,7 +135,6 @@ U_IO_API STD_ISTREAM & U_EXPORT2 operator>>(STD_ISTREAM& stream, UnicodeString &
 STOP_READING:
 		u_releaseDefaultConverter(converter);
 	}
-
 /* stream.flush();*/
 	return stream;
 }

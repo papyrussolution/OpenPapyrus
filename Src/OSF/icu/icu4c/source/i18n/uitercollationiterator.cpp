@@ -114,7 +114,7 @@ uint32_t FCDUIterCollationIterator::handleNextCE32(UChar32 &c, UErrorCode & erro
 		else if(state == ITER_IN_FCD_SEGMENT && pos != limit) {
 			c = iter.next(&iter);
 			++pos;
-			U_ASSERT(c >= 0);
+			assert(c >= 0);
 			break;
 		}
 		else if(state >= IN_NORM_ITER_AT_LIMIT && pos != normalized.length()) {
@@ -142,7 +142,7 @@ char16_t FCDUIterCollationIterator::handleGetTrailSurrogate() {
 		return (char16_t)trail;
 	}
 	else {
-		U_ASSERT(pos < normalized.length());
+		assert(pos < normalized.length());
 		char16_t trail;
 		if(U16_IS_TRAIL(trail = normalized[pos])) {
 			++pos;
@@ -183,7 +183,7 @@ UChar32 FCDUIterCollationIterator::nextCodePoint(UErrorCode & errorCode) {
 		else if(state == ITER_IN_FCD_SEGMENT && pos != limit) {
 			c = uiter_next32(&iter);
 			pos += U16_LENGTH(c);
-			U_ASSERT(c >= 0);
+			assert(c >= 0);
 			return c;
 		}
 		else if(state >= IN_NORM_ITER_AT_LIMIT && pos != normalized.length()) {
@@ -238,7 +238,7 @@ UChar32 FCDUIterCollationIterator::previousCodePoint(UErrorCode & errorCode) {
 		else if(state == ITER_IN_FCD_SEGMENT && pos != start) {
 			c = uiter_previous32(&iter);
 			pos -= U16_LENGTH(c);
-			U_ASSERT(c >= 0);
+			assert(c >= 0);
 			return c;
 		}
 		else if(state >= IN_NORM_ITER_AT_LIMIT && pos != 0) {
@@ -269,7 +269,7 @@ void FCDUIterCollationIterator::backwardNumCodePoints(int32_t num, UErrorCode & 
 }
 
 void FCDUIterCollationIterator::switchToForward() {
-	U_ASSERT(state == ITER_CHECK_BWD ||
+	assert(state == ITER_CHECK_BWD ||
 	    (state == ITER_IN_FCD_SEGMENT && pos == limit) ||
 	    (state >= IN_NORM_ITER_AT_LIMIT && pos == normalized.length()));
 	if(state == ITER_CHECK_BWD) {
@@ -303,7 +303,7 @@ bool FCDUIterCollationIterator::nextSegment(UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
 		return FALSE;
 	}
-	U_ASSERT(state == ITER_CHECK_FWD);
+	assert(state == ITER_CHECK_FWD);
 	// The input text [start..(iter index)[ passes the FCD check.
 	pos = iter.getIndex(&iter, UITER_CURRENT);
 	// Collect the characters being checked, in case they need to be normalized.
@@ -352,14 +352,14 @@ bool FCDUIterCollationIterator::nextSegment(UErrorCode & errorCode) {
 		}
 	}
 	limit = pos + s.length();
-	U_ASSERT(pos != limit);
+	assert(pos != limit);
 	iter.move(&iter, -s.length(), UITER_CURRENT);
 	state = ITER_IN_FCD_SEGMENT;
 	return TRUE;
 }
 
 void FCDUIterCollationIterator::switchToBackward() {
-	U_ASSERT(state == ITER_CHECK_FWD ||
+	assert(state == ITER_CHECK_FWD ||
 	    (state == ITER_IN_FCD_SEGMENT && pos == start) ||
 	    (state >= IN_NORM_ITER_AT_LIMIT && pos == 0));
 	if(state == ITER_CHECK_FWD) {
@@ -393,7 +393,7 @@ bool FCDUIterCollationIterator::previousSegment(UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
 		return FALSE;
 	}
-	U_ASSERT(state == ITER_CHECK_BWD);
+	assert(state == ITER_CHECK_BWD);
 	// The input text [(iter index)..limit[ passes the FCD check.
 	pos = iter.getIndex(&iter, UITER_CURRENT);
 	// Collect the characters being checked, in case they need to be normalized.
@@ -445,7 +445,7 @@ bool FCDUIterCollationIterator::previousSegment(UErrorCode & errorCode) {
 		}
 	}
 	start = pos - s.length();
-	U_ASSERT(pos != start);
+	assert(pos != start);
 	iter.move(&iter, s.length(), UITER_CURRENT);
 	state = ITER_IN_FCD_SEGMENT;
 	return TRUE;
@@ -453,7 +453,7 @@ bool FCDUIterCollationIterator::previousSegment(UErrorCode & errorCode) {
 
 bool FCDUIterCollationIterator::normalize(const UnicodeString & s, UErrorCode & errorCode) {
 	// NFD without argument checking.
-	U_ASSERT(U_SUCCESS(errorCode));
+	assert(U_SUCCESS(errorCode));
 	nfcImpl.decompose(s, normalized, errorCode);
 	return U_SUCCESS(errorCode);
 }

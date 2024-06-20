@@ -78,7 +78,6 @@ public:
 class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
 	std::unordered_set<std::string> stop_words;
 public:
-	/// Default constructor.
 	SimpleStopper() 
 	{
 	}
@@ -144,7 +143,6 @@ protected:
 	 */
 	uint   flags;
 public:
-	/** Default constructor. */
 	RangeProcessor() : slot(Xapian::BAD_VALUENO), flags(0) 
 	{
 	}
@@ -415,7 +413,6 @@ class XAPIAN_VISIBILITY_DEFAULT FieldProcessor : public Xapian::Internal::opt_in
 	/// Don't allow copying.
 	FieldProcessor(const FieldProcessor &);
 public:
-	/// Default constructor.
 	FieldProcessor() 
 	{
 	}

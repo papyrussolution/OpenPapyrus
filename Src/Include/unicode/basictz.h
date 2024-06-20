@@ -31,10 +31,6 @@ class UVector;
  */
 class U_I18N_API BasicTimeZone : public TimeZone {
 public:
-	/**
-	 * Destructor.
-	 * @stable ICU 3.8
-	 */
 	virtual ~BasicTimeZone();
 	/**
 	 * Clones this object polymorphically.
@@ -52,7 +48,6 @@ public:
 	 * @stable ICU 3.8
 	 */
 	virtual bool getNextTransition(UDate base, bool inclusive, TimeZoneTransition& result) const = 0;
-
 	/**
 	 * Gets the most recent time zone transition before the base time.
 	 * @param base      The base time.
@@ -185,33 +180,15 @@ protected:
 	};
 
 #endif  /* U_HIDE_INTERNAL_API */
-
-	/**
-	 * Default constructor.
-	 * @stable ICU 3.8
-	 */
 	BasicTimeZone();
-
 	/**
 	 * Construct a timezone with a given ID.
 	 * @param id a system time zone ID
 	 * @stable ICU 3.8
 	 */
 	BasicTimeZone(const UnicodeString &id);
-
-	/**
-	 * Copy constructor.
-	 * @param source the object to be copied.
-	 * @stable ICU 3.8
-	 */
 	BasicTimeZone(const BasicTimeZone& source);
-
-	/**
-	 * Copy assignment.
-	 * @stable ICU 3.8
-	 */
 	BasicTimeZone& operator = (const BasicTimeZone&) = default;
-
 	/**
 	 * Gets the set of TimeZoneRule instances applicable to the specified time and after.
 	 * @param start     The start date used for extracting time zone rules

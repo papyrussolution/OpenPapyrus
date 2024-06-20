@@ -585,24 +585,6 @@ int BillCore::GetExtraData(PPID id, PPBillExt * pExt)
 	return r;
 }
 
-/* @v10.1.12 (inlined)
-int BillCore::GetAdvanceRep(PPID id, PPAdvanceRep ** ppData)
-{
-	int    ok = 1;
-	PPAdvanceRep advrep;
-	if(!(*ppData))
-		(*ppData) = new PPAdvanceRep;
-	if((*ppData) == 0)
-		ok = PPSetErrorNoMem();
-	else if(PPRef->GetProperty(PPOBJ_BILL, id, BILLPRP_ADVANCEREP, &advrep, sizeof(advrep)) > 0)
-		memcpy(*ppData, &advrep, sizeof(advrep));
-	else {
-		memzero(*ppData, sizeof(PPAdvanceRep));
-		ok = -1;
-	}
-	return ok;
-}*/
-
 int BillCore::Extract(PPID id, PPBill * pInfo)
 {
 	int    ok = 1;
@@ -637,7 +619,6 @@ int BillCore::Extract(PPID id, PPBill * pInfo)
 			THROW(pInfo->SetFreight(0));
 	}
 	if(pInfo->Rec.Flags & BILLF_ADVANCEREP) {
-		//THROW(GetAdvanceRep(id, &pInfo->P_AdvRep));
 		PPAdvanceRep advrep;
 		THROW_MEM(SETIFZ(pInfo->P_AdvRep, new PPAdvanceRep));
 		if(p_ref->GetProperty(PPOBJ_BILL, id, BILLPRP_ADVANCEREP, &advrep, sizeof(advrep)) > 0) {
@@ -710,10 +691,8 @@ int BillCore::EditRec(PPID * pID, BillTbl::Rec * pRec, int use_ta)
 				DS.LogAction(PPACN_SCARDBINDUPD, PPOBJ_BILL, *pID, org_rec.SCardID, 0);
 			if(pRec->Object != org_rec.Object)
 				DS.LogAction(PPACN_UPDBILLOBJECT, PPOBJ_BILL, *pID, org_rec.Object, 0);
-			// @v10.8.3 {
 			if(!pRec->LinkBillID && org_rec.LinkBillID != 0)
 				DS.LogAction(PPACN_BILLUNLINK, PPOBJ_BILL, *pID, org_rec.LinkBillID, 0);
-			// } @v10.8.3 
 		}
 		else {
 			int    r = 0;
@@ -861,9 +840,7 @@ int BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 	CATCHZOK
 	return ok;
 }
-//
-// @v8.5.8 Новый вариант функции, включающий изменени поля BillTbl::Rec::PaymAmount
-//
+
 int BillCore::UpdatePaymAmount(PPID billID, PPID curID, double newAmt, double orgAmt)
 {
 	int    ok = 1;
@@ -876,7 +853,7 @@ int BillCore::UpdatePaymAmount(PPID billID, PPID curID, double newAmt, double or
 	{
 		const  double amt = R2(org_paym + newAmt - R2(orgAmt));
 		const  double paym = BR2(rec.Amount);
-		const  int is_neg = BIN(rec.Amount < 0.0); // @v10.3.3
+		const  int is_neg = BIN(rec.Amount < 0.0);
 		//
 		// Следующая проверка дублирует аналогичную в функции UpdateAmount,
 		// однако, мы ее делаем с тем, чтобы избежать сообщений о превышении
@@ -911,33 +888,6 @@ int BillCore::UpdatePaymAmount(PPID billID, PPID curID, double newAmt, double or
 	CATCHZOK
 	return ok;
 }
-
-#if 0 // @v8.5.8 Этот вариант заменен тем, что выше {
-int BillCore::UpdatePaymAmount(PPID billID, PPID curID, double newAmt, double orgAmt)
-{
-	int    ok = 1;
-	double org_paym = 0.0;
-	THROW(GetAmount(billID, PPAMT_PAYMENT, curID, &org_paym));
-	{
-		double amt = R2(org_paym + newAmt - R2(orgAmt));
-		double paym = BR2(data.Amount);
-		//
-		// Следующая проверка дублирует аналогичную в функции UpdateAmount,
-		// однако, мы ее делаем с тем, чтобы избежать сообщений о превышении
-		// оплаты над суммой документа в том случае, если ничего не изменилось.
-		//
-		if(amt != org_paym) {
-			AmtEntry ae(PPAMT_PAYMENT, curID, amt);
-			if(!(LConfig.Flags & CFGFLG_ALLOWOVERPAY))
-				THROW_PP(R2(paym - amt) >= 0, PPERR_EXTRAPAYM);
-			THROW(UpdateAmount(billID, &ae, 0));
-		}
-		THROW(SetRecFlag(billID, BILLF_PAYOUT, BIN(R2(paym - amt) <= 0.0), 0));
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } 0
 
 int BillCore::BreakOffLink(PPID linkBillID, PPID baseBillID, int linkKind, int use_ta)
 {

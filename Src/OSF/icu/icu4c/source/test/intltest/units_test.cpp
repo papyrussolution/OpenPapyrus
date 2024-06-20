@@ -549,9 +549,9 @@ void UnitsTest::testComplexUnitsConverter() {
 	// DBL_EPSILON is approximately 2.22E-16, and is the precision of double for
 	// values in the range [1.0, 2.0), but half the precision of double for
 	// [2.0, 4.0).
-	U_ASSERT(1.0 + DBL_EPSILON > 1.0);
-	U_ASSERT(2.0 - DBL_EPSILON < 2.0);
-	U_ASSERT(2.0 + DBL_EPSILON == 2.0);
+	assert(1.0 + DBL_EPSILON > 1.0);
+	assert(2.0 - DBL_EPSILON < 2.0);
+	assert(2.0 + DBL_EPSILON == 2.0);
 
 	struct TestCase {
 		const char * msg;

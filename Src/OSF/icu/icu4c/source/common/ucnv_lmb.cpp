@@ -705,8 +705,8 @@ static size_t LMBCSConversionWorker(UConverterDataLMBCS * extraInfo,    /* subco
 	uint32_t value;
 	ulmbcs_byte_t firstByte;
 
-	U_ASSERT(xcnv);
-	U_ASSERT(group<ULMBCS_GRP_UNICODE);
+	assert(xcnv);
+	assert(group<ULMBCS_GRP_UNICODE);
 
 	bytesConverted = ucnv_MBCSFromUChar32(xcnv, *pUniChar, &value, FALSE);
 
@@ -725,7 +725,7 @@ static size_t LMBCSConversionWorker(UConverterDataLMBCS * extraInfo,    /* subco
 	/* All initial byte values in lower ascii range should have been caught by now,
 	   except with the exception group.
 	 */
-	U_ASSERT((firstByte <= ULMBCS_C0END) || (firstByte >= ULMBCS_C1START) || (group == ULMBCS_GRP_EXCEPT));
+	assert((firstByte <= ULMBCS_C0END) || (firstByte >= ULMBCS_C1START) || (group == ULMBCS_GRP_EXCEPT));
 
 	/* use converted data: first write 0, 1 or two group bytes */
 	if(group != ULMBCS_GRP_EXCEPT && extraInfo->OptGroup != group) {

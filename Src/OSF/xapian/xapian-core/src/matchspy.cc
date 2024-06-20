@@ -130,7 +130,6 @@ public:
  */
 class StringAndFreqCmpByFreq {
 public:
-	/// Default constructor
 	StringAndFreqCmpByFreq() 
 	{
 	}

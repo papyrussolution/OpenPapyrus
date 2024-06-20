@@ -1318,7 +1318,7 @@ static int32_t getIntParam(UnicodeString name, UnicodeString & params, int32_t d
 		m.reset();
 		params = m.replaceFirst("", status);
 	}
-	//U_ASSERT(U_SUCCESS(status));
+	//assert(U_SUCCESS(status));
 	if(!U_SUCCESS(status)) {
 		val = defaultVal;
 	}

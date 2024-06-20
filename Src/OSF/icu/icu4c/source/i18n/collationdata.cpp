@@ -15,7 +15,7 @@ U_NAMESPACE_BEGIN
 
 uint32_t CollationData::getIndirectCE32(uint32_t ce32) const 
 {
-	U_ASSERT(Collation::isSpecialCE32(ce32));
+	assert(Collation::isSpecialCE32(ce32));
 	int32_t tag = Collation::tagFromCE32(ce32);
 	if(tag == Collation::DIGIT_TAG) {
 		// Fetch the non-numeric-collation CE32.
@@ -94,7 +94,7 @@ int64_t CollationData::getSingleCE(UChar32 c, UErrorCode & errorCode) const {
 			    ce32 = d->ce32s[Collation::indexFromCE32(ce32)];
 			    break;
 			case Collation::U0000_TAG:
-			    U_ASSERT(c == 0);
+			    assert(c == 0);
 			    // Fetch the normal ce32 for U+0000 and continue.
 			    ce32 = d->ce32s[0];
 			    break;
@@ -232,12 +232,12 @@ void CollationData::makeReorderRanges(const int32_t * reorder, int32_t length, b
 	}
 
 	// Never reorder special low and high primary lead bytes.
-	U_ASSERT(scriptStartsLength >= 2);
-	U_ASSERT(scriptStarts[0] == 0);
+	assert(scriptStartsLength >= 2);
+	assert(scriptStarts[0] == 0);
 	int32_t lowStart = scriptStarts[1];
-	U_ASSERT(lowStart == ((Collation::MERGE_SEPARATOR_BYTE + 1) << 8));
+	assert(lowStart == ((Collation::MERGE_SEPARATOR_BYTE + 1) << 8));
 	int32_t highLimit = scriptStarts[scriptStartsLength - 1];
-	U_ASSERT(highLimit == (Collation::TRAIL_WEIGHT_BYTE << 8));
+	assert(highLimit == (Collation::TRAIL_WEIGHT_BYTE << 8));
 
 	// Get the set of special reorder codes in the input list.
 	// This supports a fixed number of special reorder codes;
@@ -263,9 +263,9 @@ void CollationData::makeReorderRanges(const int32_t * reorder, int32_t length, b
 	int32_t skippedReserved = 0;
 	if(specials == 0 && reorder[0] == USCRIPT_LATIN && !latinMustMove) {
 		int32_t index = scriptsIndex[USCRIPT_LATIN];
-		U_ASSERT(index != 0);
+		assert(index != 0);
 		int32_t start = scriptStarts[index];
-		U_ASSERT(lowStart <= start);
+		assert(lowStart <= start);
 		skippedReserved = start - lowStart;
 		lowStart = start;
 	}

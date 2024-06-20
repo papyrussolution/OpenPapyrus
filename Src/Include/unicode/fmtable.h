@@ -62,10 +62,7 @@ public:
 	 * @stable ICU 2.4
 	 */
 	enum ISDATE { kIsDate };
-	/**
-	 * Default constructor
-	 * @stable ICU 2.4
-	 */
+	
 	Formattable(); // Type kLong, value 0
 	/**
 	 * Creates a Formattable object with a UDate instance.

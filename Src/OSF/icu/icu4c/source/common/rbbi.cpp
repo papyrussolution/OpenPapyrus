@@ -471,7 +471,7 @@ int32_t RuleBasedBreakIterator::first()
 		fBreakCache->populateNear(0, status);
 	}
 	fBreakCache->current();
-	U_ASSERT(fPosition == 0);
+	assert(fPosition == 0);
 	return 0;
 }
 /**
@@ -483,8 +483,8 @@ int32_t RuleBasedBreakIterator::last()
 	int32_t endPos = (int32_t)utext_nativeLength(&fText);
 	bool endShouldBeBoundary = isBoundary(endPos);  // Has side effect of setting iterator position.
 	(void)endShouldBeBoundary;
-	U_ASSERT(endShouldBeBoundary);
-	U_ASSERT(fPosition == endPos);
+	assert(endShouldBeBoundary);
+	assert(fPosition == endPos);
 	return endPos;
 }
 /**
@@ -789,7 +789,7 @@ int32_t RuleBasedBreakIterator::handleNext() {
 		//
 
 		// fNextState is a variable-length array.
-		U_ASSERT(category<fData->fHeader->fCatCount);
+		assert(category<fData->fHeader->fCatCount);
 		state = row->fNextState[category]; /*Not accessing beyond memory*/
 		row = (RowType*)
 		    // (statetable->fTableData + (statetable->fRowLen * state));
@@ -805,7 +805,7 @@ int32_t RuleBasedBreakIterator::handleNext() {
 		}
 		else if(accepting > ACCEPTING_UNCONDITIONAL) {
 			// Lookahead match is completed.
-			U_ASSERT(accepting < fData->fForwardTable->fLookAheadResultsSize);
+			assert(accepting < fData->fForwardTable->fLookAheadResultsSize);
 			int32_t lookaheadResult = fLookAheadMatches[accepting];
 			if(lookaheadResult >= 0) {
 				fRuleStatusIndex = row->fTagsIdx;
@@ -821,8 +821,8 @@ int32_t RuleBasedBreakIterator::handleNext() {
 		//       But there are line break test failures when trying this. Investigate.
 		//       Issue ICU-20837
 		uint16 rule = row->fLookAhead;
-		U_ASSERT(rule == 0 || rule > ACCEPTING_UNCONDITIONAL);
-		U_ASSERT(rule == 0 || rule < fData->fForwardTable->fLookAheadResultsSize);
+		assert(rule == 0 || rule > ACCEPTING_UNCONDITIONAL);
+		assert(rule == 0 || rule < fData->fForwardTable->fLookAheadResultsSize);
 		if(rule > ACCEPTING_UNCONDITIONAL) {
 			int32_t pos = (int32_t)UTEXT_GETNATIVEINDEX(&fText);
 			fLookAheadMatches[rule] = pos;
@@ -929,7 +929,7 @@ int32_t RuleBasedBreakIterator::handleSafePrevious(int32_t fromPosition) {
 		// State Transition - move machine to its next state
 		//
 		// fNextState is a variable-length array.
-		U_ASSERT(category<fData->fHeader->fCatCount);
+		assert(category<fData->fHeader->fCatCount);
 		state = row->fNextState[category]; /*Not accessing beyond memory*/
 		row = (RowType*)
 		    (stateTable->fTableData + (stateTable->fRowLen * state));
@@ -1051,7 +1051,7 @@ static void U_CALLCONV rbbiInit()
 
 static void U_CALLCONV initLanguageFactories() {
 	UErrorCode status = U_ZERO_ERROR;
-	U_ASSERT(gLanguageBreakFactories == NULL);
+	assert(gLanguageBreakFactories == NULL);
 	gLanguageBreakFactories = new UStack(_deleteFactory, NULL, status);
 	if(gLanguageBreakFactories != NULL && U_SUCCESS(status)) {
 		ICULanguageBreakFactory * builtIn = new ICULanguageBreakFactory(status);
@@ -1130,7 +1130,7 @@ const LanguageBreakEngine * RuleBasedBreakIterator::getLanguageBreakEngine(UChar
 		// first.
 		fLanguageBreakEngines->insertElementAt(fUnhandledBreakEngine, 0, status);
 		// If we can't insert it, or creation failed, get rid of it
-		U_ASSERT(!fLanguageBreakEngines->hasDeleter());
+		assert(!fLanguageBreakEngines->hasDeleter());
 		if(U_FAILURE(status)) {
 			ZDELETE(fUnhandledBreakEngine);
 			return NULL;

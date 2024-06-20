@@ -1475,12 +1475,9 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 				Amounts.Put(&r_amt_entry, 1, 1);
 		}
 	}
-	// @v10.2.9 THROW(XcL.Load(p_bobj->P_LotXcT, billID)); // @v9.8.11
-	// @v10.2.9 {
 	if(p_bobj->P_LotXcT) {
 		THROW(p_bobj->P_LotXcT->GetContainer(billID, XcL));
 	}
-	// } @v10.2.9
 	BTagL.Destroy();
 	THROW(p_bobj->GetTagList(billID, &BTagL));
 	CATCHZOK

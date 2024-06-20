@@ -472,7 +472,7 @@ void DecimalFormatSymbols::initialize() {
 	fIsCustomCurrencySymbol = FALSE;
 	fIsCustomIntlCurrencySymbol = FALSE;
 	fCodePointZero = 0x30;
-	U_ASSERT(fCodePointZero == fSymbols[kZeroDigitSymbol].char32At(0));
+	assert(fCodePointZero == fSymbols[kZeroDigitSymbol].char32At(0));
 	currPattern = nullptr;
 }
 

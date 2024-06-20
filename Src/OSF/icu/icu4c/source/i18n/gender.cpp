@@ -45,7 +45,7 @@ U_NAMESPACE_BEGIN
 void U_CALLCONV GenderInfo_initCache(UErrorCode & status) 
 {
 	ucln_i18n_registerCleanup(UCLN_I18N_GENDERINFO, gender_cleanup);
-	U_ASSERT(gGenderInfoCache == NULL);
+	assert(gGenderInfoCache == NULL);
 	if(U_FAILURE(status)) {
 		return;
 	}

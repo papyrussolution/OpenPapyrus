@@ -54,11 +54,11 @@ int PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 	SetupPPObjCombo(dlg, CTLSEL_GDSTYP_CVAT,     PPOBJ_AMOUNTTYPE, rec.AmtCVat,  OLW_CANINSERT, 0);
 	//SetupPPObjCombo(dlg, CTLSEL_GDSTYP_AWOG,     PPOBJ_ASSTWROFFGRP, rec.WrOffGrpID, OLW_CANINSERT, 0);
 	SetupPPObjCombo(dlg, CTLSEL_GDSTYP_PRICERESTR, PPOBJ_GOODSVALRESTR, rec.PriceRestrID, OLW_CANINSERT, 0);
-	SetupStringCombo(dlg, CTLSEL_GDSTYP_CHZNPT, PPTXT_CHZNPRODUCTTYPES, rec.ChZnProdType); // @v10.7.2
+	SetupStringCombo(dlg, CTLSEL_GDSTYP_CHZNPT, PPTXT_CHZNPRODUCTTYPES, rec.ChZnProdType);
 	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 0, GTF_UNLIMITED);
 	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 1, GTF_AUTOCOMPL);
 	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 2, GTF_ASSETS);
-	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 3, GTF_ADVANCECERT); // @v10.4.1
+	dlg->AddClusterAssoc(CTL_GDSTYP_UNLIM, 3, GTF_ADVANCECERT);
 	dlg->SetClusterData(CTL_GDSTYP_UNLIM, rec.Flags);
 
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  0, GTF_RPLC_COST);
@@ -1989,14 +1989,32 @@ int PPObjSwProgram::Get(PPID id, PPSwProgramPacket * pPack)
 	return ok;
 }
 
+/*static*/bool PPObjSwProgram::MakeImgSymb(SFileFormat fmt, PPID id, SString & rBuf)
+{
+	bool ok = false;
+	rBuf.Z();
+	if(id) {
+		rBuf.Cat("swprogram_img").CatChar('-').CatLongZ(id, 6);
+		SString & r_ext = SLS.AcquireRvlStr();
+		if(SFileFormat::GetExt(fmt, r_ext)) {
+			rBuf.Dot().Cat(r_ext);
+			ok = true;
+		}
+	}
+	return ok;
+}
+
 SJson * PPObjSwProgram::ExportToJson(const char * pImgPath)
 {
 	SJson * p_result = SJson::CreateObj();
 	Reference * p_ref = PPRef;
 	SString temp_buf;
+	SString img_file_name;
+	SString img_file_symb; // Имя (с расширением) файла изображения, скопированного в каталог pImgPath
 	{
 		SJson * p_js_list = SJson::CreateArr();
 		if(p_js_list) {
+			const bool is_img_path_valid = SFile::IsDir(pImgPath);
 			SwProgramFilt filt;
 			GoodsCore * p_tbl = P_Tbl;
 			PPIDArray result_list;
@@ -2015,6 +2033,24 @@ SJson * PPObjSwProgram::ExportToJson(const char * pImgPath)
 					if(Get(rec.ID, &pack) > 0) {
 						SJson * p_js_item = PPObjSwProgram::PackToJson(pack);
 						if(p_js_item) {
+							if(is_img_path_valid) {
+								pack.LinkFiles.Load(pack.Rec.ID, 0L);
+								if(pack.LinkFiles.GetCount()) { // @v12.0.5
+									pack.LinkFiles.At(0, img_file_name);
+									if(fileExists(img_file_name)) {
+										SFileFormat ff;
+										const int ffr = ff.Identify(img_file_name);
+										if(oneof2(ffr, 2, 3) && SImageBuffer::IsSupportedFormat(ff)) {
+											if(PPObjSwProgram::MakeImgSymb(ff, rec.ID, img_file_symb)) {
+												(temp_buf = pImgPath).SetLastSlash().Cat(img_file_symb);
+												if(SCopyFile(img_file_name, temp_buf, 0, FILE_SHARE_READ, 0)) {
+													p_js_item->InsertString("picsymb", img_file_symb);
+												}
+											}
+										}
+									}
+								}
+							}
 							p_js_list->InsertChild(p_js_item);
 							p_js_item = 0;
 						}
@@ -2107,13 +2143,19 @@ class SwProgramImpExpDialog : public TDialog {
 		ctlgroupImgDir = 2
 	};
 	DECL_DIALOG_DATA(SwProgramImpExpParam);
+	const uint64 UedImpExp;
 public:
-	SwProgramImpExpDialog() : TDialog(DLG_IMPSWPGM)
+	SwProgramImpExpDialog(uint64 uedImpExp) : TDialog(DLG_IMPSWPGM), UedImpExp(uedImpExp)
 	{
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_IMPSWPGM_FILE, CTL_IMPSWPGM_FILE, ctlgroupFile,
-			0, PPTXT_FILPAT_JSON, FileBrowseCtrlGroup::fbcgfFile);
+		long   file_flags = FileBrowseCtrlGroup::fbcgfFile;
+		if(UedImpExp == UED_IMPEXP_EXPORT) {
+			file_flags |= FileBrowseCtrlGroup::fbcgfAllowNExists;
+		}
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_IMPSWPGM_FILE, CTL_IMPSWPGM_FILE, ctlgroupFile, 0, PPTXT_FILPAT_JSON, file_flags);
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_IMPSWPGM_IMGDIR, CTL_IMPSWPGM_IMGDIR, ctlgroupImgDir,
 			0, PPTXT_FILPAT_JSON, FileBrowseCtrlGroup::fbcgfPath);
+		setTitle((UedImpExp == UED_IMPEXP_EXPORT) ? "@exportswprogram" : "@importswprogram");
+		setLabelText(CTL_IMPSWPGM_FILE, (UedImpExp == UED_IMPEXP_EXPORT) ? "@exportswprogram_file" : "@importswprogram_file");
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -2136,12 +2178,21 @@ public:
 int PPViewSwProgram::Export()
 {
 	int    ok = -1;
+	SString temp_buf;
 	SwProgramImpExpParam param;
-	SwProgramImpExpDialog * dlg = new SwProgramImpExpDialog();
+	SwProgramImpExpDialog * dlg = new SwProgramImpExpDialog(UED_IMPEXP_EXPORT);
 	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(&param);
 		if(ExecView(dlg) == cmOK) {
 			dlg->getDTS(&param);
+			SJson * p_js = Obj.ExportToJson(param.ImgPath);
+			if(p_js) {
+				p_js->ToStr(temp_buf);
+				SFile f_out(param.FilePath, SFile::mWrite);
+				if(f_out.IsValid()) {
+					f_out.Write(temp_buf.cptr(), temp_buf.Len());
+				}
+			}
 		}
 	}
 	delete dlg;
@@ -2152,7 +2203,7 @@ int ImportSwProgram()
 {
 	int    ok = -1;
 	SwProgramImpExpParam param;
-	SwProgramImpExpDialog * dlg = new SwProgramImpExpDialog();
+	SwProgramImpExpDialog * dlg = new SwProgramImpExpDialog(UED_IMPEXP_IMPORT);
 	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(&param);
 		if(ExecView(dlg) == cmOK) {
@@ -2328,8 +2379,7 @@ static int PPViewSwProgram_CellStyleFunc(const void * pData, long col, int paint
 		preserve_id = id;
 		switch(ppvCmd) {
 			case PPVCMD_EXPORT:
-				{
-				}
+				ok = Export();
 				break;
 			case PPVCMD_MOUSEHOVER:
 				if(id && static_cast<const BrwItem *>(pHdr)->Flags & GF_DERIVED_HASIMAGES) {

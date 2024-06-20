@@ -49,7 +49,7 @@ static bool U_CALLCONV i18n_cleanup(void)
 
 void ucln_i18n_registerCleanup(ECleanupI18NType type,
     cleanupFunc * func) {
-	U_ASSERT(UCLN_I18N_START < type && type < UCLN_I18N_COUNT);
+	assert(UCLN_I18N_START < type && type < UCLN_I18N_COUNT);
 	{
 		icu::Mutex m; // See ticket 10295 for discussion.
 		ucln_registerCleanup(UCLN_I18N, i18n_cleanup);

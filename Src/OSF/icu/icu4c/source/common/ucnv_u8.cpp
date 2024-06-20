@@ -753,7 +753,7 @@ moreBytes:
 			}
 		}
 	}
-	U_ASSERT(count>=0);
+	assert(count>=0);
 
 	if(U_SUCCESS(*pErrorCode) && source<sourceLimit) {
 		if(target==(const uint8 *)pFromUArgs->targetLimit) {

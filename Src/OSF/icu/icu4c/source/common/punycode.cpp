@@ -391,7 +391,7 @@ U_CAPI int32_t u_strFromPunycode(const char16_t * src, int32_t srcLength, char16
 		}
 	}
 	destLength = basicLength = destCPCount = j;
-	U_ASSERT(destLength>=0);
+	assert(destLength>=0);
 	while(j>0) {
 		b = src[--j];
 		if(!IS_BASIC(b)) {
@@ -547,7 +547,7 @@ U_CAPI int32_t u_strFromPunycode(const char16_t * src, int32_t srcLength, char16
 			}
 		}
 		destLength += cpLength;
-		U_ASSERT(destLength>=0);
+		assert(destLength>=0);
 		++i;
 	}
 	return u_terminateUChars(dest, destCapacity, destLength, pErrorCode);

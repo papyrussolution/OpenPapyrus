@@ -179,8 +179,8 @@ static bool U_CALLCONV isAcceptable(void * /*context*/, const char * /*type*/, c
 }
 
 static void U_CALLCONV loadCharNames(UErrorCode & status) {
-	U_ASSERT(uCharNamesData == NULL);
-	U_ASSERT(uCharNames == NULL);
+	assert(uCharNamesData == NULL);
+	assert(uCharNames == NULL);
 
 	uCharNamesData = udata_openChoice(NULL, DATA_TYPE, DATA_NAME, isAcceptable, NULL, &status);
 	if(U_FAILURE(status)) {

@@ -138,7 +138,7 @@ static void AssertAllPartsEqual(const char * messagePrefix,
 	int32_t prefixEnd = (int32_t)strlen(messagePrefix);
 	message[prefixEnd++] = ':';
 	message[prefixEnd++] = ' ';
-	U_ASSERT(prefixEnd < 256);
+	assert(prefixEnd < 256);
 
 #define AAPE_MSG(suffix) (uprv_strncpy(message+prefixEnd, suffix, 256-prefixEnd)-prefixEnd)
 

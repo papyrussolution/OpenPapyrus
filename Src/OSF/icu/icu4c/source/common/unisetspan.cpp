@@ -655,7 +655,7 @@ int32_t UnicodeSetStringSpan::span(const char16_t * s, int32_t length, USetSpanC
 				const UnicodeString & string = *(const UnicodeString *)strings.elementAt(i);
 				const char16_t * s16 = string.getBuffer();
 				int32_t length16 = string.length();
-				U_ASSERT(length > 0);
+				assert(length > 0);
 
 				// Try to match this string at pos-overlap..pos.
 				if(overlap>=LONG_SPAN) {
@@ -826,7 +826,7 @@ int32_t UnicodeSetStringSpan::spanBack(const char16_t * s, int32_t length, USetS
 				const UnicodeString & string = *(const UnicodeString *)strings.elementAt(i);
 				const char16_t * s16 = string.getBuffer();
 				int32_t length16 = string.length();
-				U_ASSERT(length > 0);
+				assert(length > 0);
 
 				// Try to match this string at pos-(length16-overlap)..pos-length16.
 				if(overlap>=LONG_SPAN) {
@@ -1380,7 +1380,7 @@ int32_t UnicodeSetStringSpan::spanNot(const char16_t * s, int32_t length) const 
 			const UnicodeString & string = *(const UnicodeString *)strings.elementAt(i);
 			const char16_t * s16 = string.getBuffer();
 			int32_t length16 = string.length();
-			U_ASSERT(length > 0);
+			assert(length > 0);
 			if(length16<=rest && matches16CPB(s, pos, length, s16, length16)) {
 				return pos; // There is a set element at pos.
 			}
@@ -1424,7 +1424,7 @@ int32_t UnicodeSetStringSpan::spanNotBack(const char16_t * s, int32_t length) co
 			const UnicodeString & string = *(const UnicodeString *)strings.elementAt(i);
 			const char16_t * s16 = string.getBuffer();
 			int32_t length16 = string.length();
-			U_ASSERT(length > 0);
+			assert(length > 0);
 			if(length16<=pos && matches16CPB(s, pos-length16, length, s16, length16)) {
 				return pos; // There is a set element at pos.
 			}

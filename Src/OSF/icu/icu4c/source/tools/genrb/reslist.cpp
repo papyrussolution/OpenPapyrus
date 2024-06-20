@@ -1218,7 +1218,7 @@ int32_t SRBRoot::addKeyBytes(const char * keyBytes, int32_t length, UErrorCode &
 	int32_t keypos;
 
 	// It is not legal to add new key bytes after compactKeys is run!
-	U_ASSERT(fKeyMap == nullptr);
+	assert(fKeyMap == nullptr);
 
 	if(U_FAILURE(errorCode)) {
 		return -1;
@@ -1476,7 +1476,7 @@ void SRBRoot::compactKeys(UErrorCode &errorCode) {
 						keys[newpos++] = keys[oldpos++];
 					}
 				}
-				U_ASSERT(i == keysCount);
+				assert(i == keysCount);
 			}
 			fKeysTop = newpos;
 			/* Re-sort once more, by old offsets for binary searching. */
@@ -1762,7 +1762,7 @@ void TableResource::applyFilter(const PathFilter& filter,
 			curr = prev;
 		}
 		else {
-			U_ASSERT(inclusion == PathFilter::EInclusion::PARTIAL);
+			assert(inclusion == PathFilter::EInclusion::PARTIAL);
 			// Recurse into the child
 			curr->applyFilter(filter, path, bundle);
 		}

@@ -245,7 +245,7 @@ bool LocalePriorityList::add(const Locale &locale, int32_t weight, UErrorCode & 
 	if(weight < WEIGHT_ONE) {
 		hasWeights = true;
 	}
-	U_ASSERT(uhash_count(map) == getLength());
+	assert(uhash_count(map) == getLength());
 	return true;
 }
 

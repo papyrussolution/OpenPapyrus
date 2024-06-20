@@ -4141,7 +4141,6 @@ PPServerSession::CmdRet PPServerSession::SetTimeSeriesStakeEnvironment(PPJobSrvR
 	return ret;
 }
 
-// @v10.2.3 {
 PPServerSession::CmdRet PPServerSession::SetTimeSeries(PPJobSrvReply & rReply)
 {
 	CmdRet ret = cmdretOK;
@@ -4177,8 +4176,6 @@ PPServerSession::CmdRet PPServerSession::SetTimeSeries(PPJobSrvReply & rReply)
 	ENDCATCH
 	return ret;
 }
-// } @v10.2.3
-
 /*
 	Сценарий теста:
 

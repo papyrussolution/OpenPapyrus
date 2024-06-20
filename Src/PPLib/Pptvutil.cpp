@@ -1723,27 +1723,6 @@ int STDCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char *
 	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, pAddendumList, initID) : 0;
 }
 
-/* @v9.5.0 // id = <string offset> + 1
-int SetupStringCombo(TDialog * dlg, uint ctlID, StringSet * pSs, long initID, uint flags)
-{
-	int    ok = 1;
-	ComboBox   * p_cb = 0;
-	ListWindow * p_lw = 0;
-	if((p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID))) != 0) {
-		uint   idx = 0;
-		long   id = 1;
-		SString item_buf;
-		THROW(p_lw = CreateListWindow(48, lbtDisposeData | lbtDblClkNotify));
-		for(idx = 0; pSs->get(&idx, item_buf);) {
-			p_lw->listBox()->addItem(id, item_buf);
-			id = idx + 1;
-		}
-		p_cb->setListWindow(p_lw, initID);
-	}
-	CATCHZOK
-	return ok;
-} @v9.5.0 */
-
 int STDCALL SetupStrAssocCombo(TWindow * dlg, uint ctlID, const StrAssocArray & rList, long initID, uint flags, size_t offs, int ownerDrawListBox)
 {
 	int    ok = 1;
@@ -8085,10 +8064,8 @@ int PPEditTextFile(const EditTextFileParam * pParam)
 		}
 		int    GetFileName(SString & rBuf)
 		{
-			// @v10.2.0 {
 			if(FileName.IsEmpty() && !FileID)
 				getCtrlString(CTL_OPENEDFILE_SELECT, FileName);
-			// } @v10.2.0
 			if(FileID == PPRFILE_VERHIST_LOG && FileName.NotEmpty()) {
 				SString db_path, log_path;
 				PPGetPath(PPPATH_LOG, log_path);

@@ -918,7 +918,7 @@ int32_t MessagePattern::parseArgNumber(const UnicodeString & s, int32_t start, i
 void MessagePattern::parseDouble(int32_t start, int32_t limit, bool allowInfinity, UParseError * parseError, UErrorCode & errorCode) 
 {
 	if(U_SUCCESS(errorCode)) {
-		U_ASSERT(start<limit);
+		assert(start<limit);
 		// fake loop for easy exit and single throw statement
 		for(;;) { /*loop doesn't iterate*/
 			// fast path for small integers and infinity

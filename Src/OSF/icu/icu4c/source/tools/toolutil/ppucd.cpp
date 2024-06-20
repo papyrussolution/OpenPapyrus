@@ -341,7 +341,7 @@ bool PreparsedUCD::parseProperty(UniProps &props, const char * field, UnicodeSet
 			}
 			if(0==uprv_stricmp(p, ppucdProperties[i].name)) {
 				prop = ppucdProperties[i].prop;
-				U_ASSERT(prop>=0);
+				assert(prop>=0);
 				break;
 			}
 		}

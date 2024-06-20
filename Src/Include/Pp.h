@@ -5316,7 +5316,8 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 	Acct   CashAcct;          // Счет кассы (для кассовой книги)
 	PPID   SupplAccSheet;     // Таблица статей поставщиков
 	PPID   SellAccSheet;      // Таблица статей покупателей
-	short  Reserve2;          // DefPayPeriod-->Reserve2 @attention: Это поле может не быть равным нулю.
+	short  CcListByMarkBackDays; // DefPayPeriod-->Reserve2 @attention: Это поле может не быть равным нулю 
+		// @v12.0.5 Reserve2-->CcListByMarkBackDays. Извлекается из pp.ini [config] CcListByMarkBackDays. default=14
 	short  IncomeCalcMethod;  // Метод расчета доходности операций (INCM_XXX)
 	PPID   AutoComplOp;       // Операция автокомплектации
 	long   Flags;             // CCFLG_XXX
@@ -10279,10 +10280,6 @@ public:
 	//
 	DECL_INVARIANT_C();
 	//
-	// Descr: Функция, обеспечивающая централизованный механиз распаковки текстовых расширений строк чека.
-	//
-	// @v10.3.9 (replaced with Helper_UnpackTextExt) static int Helper_UnpackLineTextExt(const SString & rBuf, StrAssocArray & rList);
-	//
 	// Descr: Функция, обеспечивающая централизованный механиз распаковки текстовых расширений чека и его строк.
 	//
 	static int  Helper_UnpackTextExt(const SString & rBuf, PPExtStrContainer * pSc, StrAssocArray * pList);
@@ -10401,11 +10398,8 @@ public:
 	double _OrdPrepay;     // @transient @!CheckPaneDialog::GetCheckInfo() Сумма предоплаты по заказу. Заполняется для чека заказа и для чека, связанного с заказом.
 	CCheckExtTbl::Rec Ext; // @transient Расширение записи чека
 	CCheckTbl::Rec Rec;    //
-	// @v10.9.0 SString UhttScHash;    // @transient Код доступа к информации о карте, синхронизированной с Universe-HTT
 private:
 	int    Helper_PackLineTextExt(SString & rResult) const;
-	// @v10.3.9 int    PackLineTextExt(SString & rResult) const;
-	// @v10.3.9 int    UnpackLineTextExt(const SString & rBuf);
 	int    UnpackTextExt(const SString & rBuf);
 
 	CCheckLineArray Items_; //
@@ -10418,7 +10412,7 @@ private:
 	//
 	StrAssocArray LnTextList;
 	LocationTbl::Rec * P_DlvrAddr; // @transient
-	void * P_Stirb; // @v10.9.0 @transient (SCardSpecialTreatment::IdentifyReplyBlock *)
+	void * P_Stirb; // @transient (SCardSpecialTreatment::IdentifyReplyBlock *)
 	TSVector <PreprocessChZnCodeResult> * P_PpChZnCodeResultList; // @v11.1.11 @transient
 };
 //
@@ -12834,11 +12828,6 @@ private:
 	void   _PrepareWriting(const BillTbl::Rec * pRec);
 	int    PutBillProp(PPID billID, PPID propID, long isThere, void *, size_t);
 	//
-	// Descr: извлекает из БД запись дополнительных полей авансового отчета.
-	//
-	// @v10.1.12 (inlined) int    GetAdvanceRep(PPID id, PPAdvanceRep ** ppData);
-		// @<<BillCore::Extract, ILBillPacket::Load
-	//
 	// Функция IsThereBill выясняет существует ли по складу locID за день dt
 	// хотя бы один документ относящийся к одной из операций в списке pOpList.
 	// Если pOpList == 0 или pOpList->getCount() == 0, тогда функция пытаетс
@@ -13006,7 +12995,16 @@ public:
 	//   Если поле pLotRec->PrevLotID == 0, то возвращает информацию из этой записи.
 	//
 	int    GetOriginDate(const ReceiptTbl::Rec * pLotRec, LDATE * pDate, PPID * pBillID = 0);
-	int    GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, int openedOnly, int nzRestOnly, LotArray * pRecList);
+	//
+	// Descr: Флаги функции Receipt::GetList
+	//
+	enum {
+		glfOpenedOnly      = 0x0001, // Возвращать только открытые лоты
+		glfNzRestOnly      = 0x0002, // Возвращать только лоты с ненулевым остатком
+		glfWithExtCodeOnly = 0x0004  // Возвращать только лоты, с которыми ассоциированы коды маркировки (неважно, егаис или чезн)
+	};
+
+	int    GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, /*int openedOnly, int nzRestOnly*/uint flags, LotArray * pRecList);
 	int    EnumLots(PPID goodsID, PPID locID, DateIter *, void * = 0);
 	int    EnumLastLots(PPID goodsID, PPID locID, LDATE *, long * oprno, ReceiptTbl::Rec * pRec = 0);
 	int    GetLastLot(PPID goodsID, PPID locID, LDATE date, ReceiptTbl::Rec * pLotRec);
@@ -13128,7 +13126,7 @@ protected:
 private:
 	int    Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, ReceiptTbl::Rec * pRec);
 	int    Helper_GetCurrentGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec);
-	int    Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, int closedTag, int nzRestOnly, LotArray * pRecList);
+	int    Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, /*int closedTag, int nzRestOnly,*/uint flags, LotArray * pRecList);
 	int    Helper_SearchOrigin(const ReceiptTbl::Rec * pInitLotRec, PPID lotID, PPID * pOrgLotID, ReceiptTbl::Rec * pThisRec, ReceiptTbl::Rec * pOrgRec);
 
 	int    IgnoreGpretMostRecentFlags; // В функции GetCurrentGoodsPrice игнорировать флаг
@@ -13147,6 +13145,7 @@ public:
 	int    GetContainer(PPID billID, PPLotExtCodeContainer & rC);
 	int    GetMarkListByLot(PPID lotID, const StringSet * pExcludeList, StringSet & rSsExtCodes, uint * pExtCodeCount);
 	int    GetRecListByMark(const char * pCode, TSVector<LotExtCodeTbl::Rec> & rList);
+	int    GetListByBillRow(PPID billID, int rbb, bool firstOnly, StringSet & rSs, uint * pCount);
 	int    FindMarkToTransfer(const char * pCode, PPID goodsID, PPID lotID, PPLotExtCodeContainer::MarkSet & rResult);
 };
 //
@@ -13652,16 +13651,16 @@ private:
 //
 #define CPTFREXSTR_SERIAL          1
 #define CPTFREXSTR_CLB             2
-#define CPTFREXSTR_LINKBILLROW     3 // @v10.5.7
-#define CPTFREXSTR_QRSEQACKSTATUS  4 // @v10.5.8
+#define CPTFREXSTR_LINKBILLROW     3
+#define CPTFREXSTR_QRSEQACKSTATUS  4
 
 struct CpTrfrExt {
 	CpTrfrExt();
 	char   PartNo[24];
 	char   Clb[24];
-	PPID   LinkBillID; // @v10.5.7 (PPOPT_DRAFTQUOTREQ) Ид связанного документа
-	int    LinkRbb;    // @v10.5.7 (PPOPT_DRAFTQUOTREQ) Номер строки связанного документа
-	int    QrSeqAckStatus; // @v10.5.8 Статус ответа поставщика на запрос: 1 - accepted, 2 - rejected
+	PPID   LinkBillID; // (PPOPT_DRAFTQUOTREQ) Ид связанного документа
+	int    LinkRbb;    // (PPOPT_DRAFTQUOTREQ) Номер строки связанного документа
+	int    QrSeqAckStatus; // Статус ответа поставщика на запрос: 1 - accepted, 2 - rejected
 		// Транслируется во флаги PPTransferItem::TFlags (tfQrSeqAccepted, tfQrSeqRejected)
 };
 
@@ -13954,7 +13953,6 @@ public:
 	//
 	int    GetLotPrices(ReceiptTbl::Rec * pLotRec, LDATE, long oprno = 0);
 	int    UpdateForward(PPID lotID, LDATE dt, long oprno, int check, double * pAdd, double * pPhAdd);
-	//int    CheckForward(PPID lotID, DATE dt, long oprno,
 	int    RecByBill(PPID billID, short * rByBill);
 	int    UpdateCascadeLot(PPID lotID, PPID ownBillID, TrUCL_Param * p, uint flags, int use_ta);
 	//
@@ -14095,8 +14093,8 @@ private:
 	int    Helper_RecalcLotCRest(PPID lotID, BExtInsert * pBei, int forceRebuild);
 	int    Helper_RecalcLotCRest2(PPID lotID, BExtInsert * pBei, int forceRebuild);
 
-	LotCurRestTbl  * P_LcrT; //
-	LotCurRest2Tbl * P_Lcr2T; // @v10.1.5
+	LotCurRestTbl  * P_LcrT;  //
+	LotCurRest2Tbl * P_Lcr2T; //
 public:
 	ReceiptCore  Rcpt;
 	CurRestTbl   CRest;
@@ -15225,7 +15223,7 @@ public:
 #define CCHKF_SPFINISHED   0x00001000L // Специальный признак окончательного финиширования чека. Применяется, например,
 	// для пометки факта доставки и(или) окончательной оплаты по чеку со стороны покупателя.
 	// @v9.7.8 @fix 0x00000800L-->0x00001000L
-#define CCHKF_TOREPRINT    0x00002000L // @v10.6.11 Флаг, устанавливаемый на чек, который не был правильно отпечатан и выбран для перепечатки.
+#define CCHKF_TOREPRINT    0x00002000L // Флаг, устанавливаемый на чек, который не был правильно отпечатан и выбран для перепечатки.
 	// При таком выборе чек получает флаги (CCHKF_SUSPENDED|CCHKF_TOREPRINT) после завершения перепечатки остается только флаг CCHKF_TOREPRINT.
 #define CCHKF_PAPERLESS    0x00004000L // @v11.3.6 Кассовый регистратор не должен печатать бумажный чек по этой записи
 #define CCHKF_SYNC         0x00010000L // Чек сформирован синхронной сессией
@@ -15286,7 +15284,7 @@ typedef TSVector <DraftRcptItem> DraftRcptArray;
 // Descr: Дескриптор статуса стола кафе.
 //
 struct CTableStatus { // @flat
-	CTableStatus(const CCheckViewItem * pCcItem = 0);
+	explicit CTableStatus(const CCheckViewItem * pCcItem = 0);
 	int    FASTCALL Displace(const CTableStatus & rNewItem);
 	enum {
 		sUnkn = 0,  // Не удалось определить статус стола
@@ -15315,7 +15313,6 @@ public:
 	static SString & FASTCALL MakeCodeString(const CCheckTbl::Rec *, uint options, SString &);
 	static int FASTCALL FetchCTableStatus(long tableNo, CTableStatus * pStatus);
 	static int FASTCALL FetchCTableOrderList(TSVector <CTableStatus> & rList);
-	// @v10.3.4 @useless static int RecognizeOrdBarcode(const char * pCode, PPID * pOrdCheckID);
 	static int Helper_GetPaymList(CCheckPaymTbl * pCpTbl, PPID id, CcAmountList & rList);
 	static int FASTCALL IsExtRecEq(const CCheckExtTbl::Rec & r1, const CCheckExtTbl::Rec & r2);
 
@@ -15338,6 +15335,7 @@ public:
 	int    GetListByExtFilt(const CCheckFilt & rFlt, ObjIdListFilt & rList);
 	int    GetListByCode(long cashN, long code, TSVector <CCheckTbl::Rec> * pRecList);
 	int    GetListByUuid(const S_GUID & rUuid, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, PPIDArray & rCcList);
+	int    GetListBySess(PPID sessID, long flags, PPIDArray & rList);
 	//
 	// Descr: Возвращает список идентификаторов чеков, обслуживающих чек заказа orderCheckID.
 	// Note: В подавляющем большинстве случаев список  будет либо пустым, либо будет содержать
@@ -15465,7 +15463,8 @@ public:
 	// Descr: Опции функции CCheckCore::LoadPacket
 	//
 	enum {
-		lpfNoLines     = 0x0001 // Не загружать строки чека
+		lpfNoLines     = 0x0001, // Не загружать строки чека
+		lpfNoStrExt    = 0x0002, // @v12.0.5 Не загружать строки расширения // 
 	};
 	//
 	// Descr: Загружает из базы данных пакет чека
@@ -15482,7 +15481,6 @@ public:
 	};
 	int    GetSessTotal(PPID sessID, long flags, CSessTotal *, BVATAccmArray * pVatList);
 	int    GroupingToGoodsLines(PPID sessID, CSessTotal *, CCheckGoodsArray *, long flags, int use_ta);
-	int    GetListBySess(PPID sessID, long flags, PPIDArray & rList);
 	int    RemoveSess(PPID sessID, int use_ta);
 	//
 	// Descr: Изменяет значение поля Flags записи с идентификатором checkID.
@@ -15583,8 +15581,49 @@ public:
 	//   с целью предотвращения повторной продажи отдной и той же марки.
 	//
 	int    MakeDate2MaxIdIndex(LAssocArray & rIndex);
+	//
+	// Descr: Элемент информации о маркировке товара, с которой ассоциирована строка кассового чека
+	//
+	struct CcMarkedEntry { // @flat
+		CcMarkedEntry() : CcID(0), LineNo(0), Flags(0), Qtty(0.0)
+		{
+		}
+		enum {
+			fSent = 0x0001 // Марка отправлена на учетный сервер (для егаис)
+		};
+		PPID   CcID;       // Идентификатор чека
+		int16  LineNo;     // Номер строки чека 
+		uint16 Flags;      // @flags
+		double Qtty;       // Количество. Qtty > 0 - продажа; Qtty < 0 - возврат
+	};
+	//
+	// Descr: Список строка кассовых чеков, ассоциированных с маркированным товаром
+	// 
+	struct ListByMarkEntry {
+		ListByMarkEntry() : OrgLotID(0), OrgLotDate(ZERODATE), Flags(0), TotalOpQtty(0.0)
+		{
+			Mark[0] = 0;
+		}
+		PPID   OrgLotID;    // IN  Ид начального лота, с которым пришла марка 
+		LDATE  OrgLotDate;  // IN  Дата начального лота, с которым пришла марка
+		uint   Flags;       // IN  @flags 
+		char   Mark[256];   // IN  Код маркировки
+		double TotalOpQtty; // OUT Суммарное операционное количество по всем встреченным строкам чеков (с учетом знака - see CcMarkedEntry::Qtty)
+		TSVector <CcMarkedEntry> CcList;
+		//SBitArray SentList__ToRemove; // @todo Это поле будет удалено в пользу флага CcMarkedEntry::fSent
+	};
+
 	// really private (used by PPObjCSession)
-	int    Helper_GetListByMark(const char * pText, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId, PPIDArray & rCcList, SBitArray * pSentList);
+	//
+	// Descr: Извлекает список идентификаторов чеков, хотя бы одна строка которых содержит код маркировки pText.
+	//   Код маркировки определяется по идентификатору строки расширения markLnextTextId.
+	//   Если задан дополнительный идентификатор строки расширения sentLnextTextId и ненулевой указатель pSentList
+	//   на битовый массив, то в массив pSentList заносится бит 1 в случае, если для строки чека, к которой привязана
+	//   искомая марка так же задана не пустая строка расширения sentLnextTextId. 
+	//   Этот трюк сделан ради марок егаис, информация о продаже которых была отправлена серверу егаис.
+	//
+	// @v12.0.5 int    Helper_GetListByMark(const char * pText, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId, PPIDArray & rCcList, SBitArray * pSentList);
+	int    Helper_GetListByMark2(TSCollection <ListByMarkEntry> & rList, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId); // @v12.0.5
 
 	CCheckLineTbl Lines;
 	CCheckPaymTbl PaymT;    // Таблица платежей по чекам
@@ -21920,7 +21959,7 @@ struct SlipLineParam {
 	int    UomId;         // @v11.9.5 Единица измерения SUOM_XXX
 	uint   UomFragm;      // @v11.2.6 Фрагментация единицы измерения товара
 	double Qtty;          // для regtoFiscal
-	double PhQtty;        // @v11.9.3 for chzn (ChZnProductType==GTCHZNPT_DRAFTBEER)
+	double PhQtty;        // @v11.9.3 for chzn (ChZnProductType==GTCHZNPT_DRAFTBEER || GTCHZNPT_DRAFTBEER_AWR)
 	double Price;         // для regtoFiscal
 	double VatRate;       // для regtoFiscal
 	int    PaymTermTag;   // для regtoFiscal @v10.4.1 CCheckPacket::PaymentTermTag
@@ -22017,6 +22056,13 @@ public:
 	//   Для такого товара, кроме прочего, не осуществляется предварительная проверка марки для ОФД 1.2.
 	//
 	static bool IsSimplifiedDraftBeerPosition(PPID posNodeID, PPID goodsID);
+	//
+	// Descr: Выясняет следует ли товар goodsID учитывать в контексте честного знака как
+	//   разливное пиво, списываемое в автоматическом режиме. Такой режим подразумевает
+	//   идентификацию кега, из которого разлито пиво по структуре товара goodsID и автоматический выбор
+	//   того кега, для которого не все пиво израсходовано (по маркам в кассовых чеках)
+	//
+	static bool IsAutoWriteOffDraftBeerPosition(PPID posNodeID, PPID goodsID);
 
 	PPSyncCashSession(PPID cnID, const char * pName, const char * pPort);
 	virtual ~PPSyncCashSession();
@@ -23988,6 +24034,7 @@ private:
 #define GTCHZNPT_WATER             10 // @v11.5.4 Вода питьевая //
 #define GTCHZNPT_ALTTOBACCO        11 // @v11.9.0 Альтернативная табачная продукция. Марки очень похожи на табак, но есть нюансы в обработке.
 #define GTCHZNPT_DRAFTBEER         12 // @v11.9.2 Пиво разливное
+#define GTCHZNPT_DRAFTBEER_AWR   1012 // @v12.0.5 Пиво разливное. Специальная модификация, предполагающая автоматическое списание 
 #define GTCHZNPT_DIETARYSUPPLEMENT 13 // @v11.9.6 БАДы
 #define GTCHZNPT_BEER              14 // @v12.0.3 Пиво фасованное 
 
@@ -29764,6 +29811,16 @@ public:
 	int    SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * pGoodsRec = 0, int adoptSearching = 0);
 	int    SearchBy2dBarcode(const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec);
 	bool   GetSimplifiedDraftBeerBarcode(PPID goodsID, SString & rCode); // @v11.9.3
+	//
+	// Descr: Для товара goodsID, если с ним ассоциирована структура (GSF_COMPL, GSF_PARTITIAL), находит основной компонент
+	//   этой структуры (PPGoodsStruc::GetMainItem) и считает соответствующий товар основным сырьевым компонентом для goodsID.
+	//   Функция реализована с целью обеспечить списание марок chzn для разливного пива, формируемого по структурам из кегов 
+	//   (возможно, где-то еще пригодится).
+	// Returns:
+	//   true - искомый основной сырьевой товар найден
+	//   false - не удалось найти искомый товар
+	//
+	bool   GetOriginalRawGoodsByStruc(PPID goodsID, PPID * pOriginalGoodsID); // @v12.0.5
 	bool   SelectValidBarcode(PPID goodsID, const PPIDArray * pStdList, SString & rCode);
 	//
 	// Descr: Определяет является ли код pCode весовым кодом какого-либо товара.
@@ -30266,6 +30323,7 @@ private:
 	int    Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk, PPEgaisProcessor * pEp, 
 		PPID arID, LDATETIME actualDtm, double qtty, RetailGoodsInfo * pInfo, long flags);
 	int    Helper_SearchByBarcodeAdopt(const char * pCode, int mode, StringSet & rProcessedList, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * pGoodsRec);
+	bool   Helper_GetOriginalRawGoodsByStruc(PPID goodsID, const PPIDArray * pValidBcStdList, PPID * pOriginalGoodsID, SString * pValidCode); // @v12.0.5
 
 	PPGoodsConfig * P_Cfg;
 	SCtrLite Sctr;
@@ -31175,7 +31233,8 @@ public:
 	static int Helper_GetRec(const Goods2Tbl::Rec & rGoodsRec, PPSwProgram * pRec);
 	static int Helper_SetRec(const PPSwProgram * pRec, Goods2Tbl::Rec & rGoodsRec);
 	static SJson * PackToJson(const PPSwProgramPacket & rPack);
-	static int PackFromJson(const SJson * pJs, const char * pImgPathUtf8, PPSwProgramPacket & rPack);
+	static int  PackFromJson(const SJson * pJs, const char * pImgPathUtf8, PPSwProgramPacket & rPack);
+	static bool MakeImgSymb(SFileFormat fmt, PPID id, SString & rBuf);
 
 	explicit PPObjSwProgram(void * extraPtr = 0);
 	~PPObjSwProgram();
@@ -33475,26 +33534,26 @@ struct SelAddBySampleParam {
 	enum {
 		fCopyBillCode   = 0x0001,
 		fNonInteractive = 0x0002,
-		fAll    = 0x0004, // @v10.0.02 Сформировать документы для всей выборки (только если выборка по
+		fAll            = 0x0004, // Сформировать документы для всей выборки (только если выборка по
 			// одному виду операции). Автоматически предполагате fNonInteractive
-		fRcptAllOnShipm = 0x0008  // @v10.4.12 При формировании отгрузки по заказу весь заказанный товар безусловно оприходовать.
+		fRcptAllOnShipm = 0x0008  // При формировании отгрузки по заказу весь заказанный товар безусловно оприходовать.
 	};
 	enum {
-		acnUndef       = -1, // Не определено
-		acnStd         =  0, // Стандартный документ по образцу
+		acnUndef               = -1, // Не определено
+		acnStd                 =  0, // Стандартный документ по образцу
 		acnShipmByOrder        =  1, // Отгрузка по заказу
 		acnDraftExpByOrder     =  2, // Драфт-расход по заказу
 		acnDraftRcpByOrder     =  3, // Драфт-приход по заказу
 		acnDraftExpRestByOrder =  4, // Драфт-расход по заказу (только не отгруженные позиции)
-		acnShipmAll    =  5, // Отгрузить весь оприходованный товар
+		acnShipmAll            =  5, // Отгрузить весь оприходованный товар
 		acnDraftExpByDraftRcpt =  6, // @v11.0.2 Драфт-расход по драфт-приходу
 		acnDraftRcptByDraftExp =  7, // @v11.0.2 Драфт-приход по драфт-расходу
 	};
 	long   Action;
 	PPID   OpID;
 	PPID   LocID;
-	PPID   QuotKindID; // @v10.0.02 Вид котировки для установки цен в создаваемом документе
-	LDATE  Dt;         // @v10.0.02 Дата нового документа. Если ZERODATE, то равняется документу образца
+	PPID   QuotKindID; // Вид котировки для установки цен в создаваемом документе
+	LDATE  Dt;         // Дата нового документа. Если ZERODATE, то равняется документу образца
 	long   Flags;
 	BillTbl::Rec SampleBillRec;
 };
@@ -33813,6 +33872,16 @@ public:
 	int    LoadRowTagListForDraft(PPID billID, PPLotTagContainer & rContainer);
 	int    GetClbNumberByLot(PPID lotID, int * isParentLot, SString & rBuf);
 	int    GetSerialNumberByLot(PPID lotID, SString & rBuf, int useCache);
+	//
+	// Descr: Функция выясняет существует ли хоть одна марка в таблице LotExtCodeTbl (P_LotXcT), связанная с лотом lotID.
+	//   Функция реализована как хелпер для Receipt::GetList в случае, если последняя вызывается с флагом ReceiptCore::glfWithExtCodeOnly.
+	// Returns:
+	//   >0 - с лотом lotID связана по крайней мере одна марка
+	//   <0 - не существует марок, ассоциированных с лотом lotID
+	//    0 - error
+	//
+	int    HasLotAnyMark(PPID lotID);
+	int    GetMarkListByLot(PPID lotID, StringSet & rSs);
 	int    GetTagListByLot(PPID lotID, int skipReserveTags, ObjTagList * pList);
 	int    SetClbNumberByLot(PPID lotID, const char *, int use_ta);
 		// @>>PPObjBill::SetTagNumberByLot
@@ -34364,7 +34433,7 @@ public:
 	TLP_MEMB(Transfer, trfr);
 	TLP_MEMB(CpTransfCore, P_CpTrfr);
 	TLP_MEMB(AdvBillItemTbl, P_AdvBI);
-	TLP_MEMB(LotExtCodeCore, P_LotXcT); // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
+	TLP_MEMB(LotExtCodeCore, P_LotXcT);
 private:
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  EditRights(uint, ObjRights *, EmbedDialog * pDlg = 0);
@@ -34863,7 +34932,7 @@ private:
 #define OPG_COSTBYPAYM        0x10000000L // Себестоимость элементов рассчитывать пропорционально оплаченной части документа оригинального лота (см. GGEF_COSTBYPAYM)
 #define OPG_INCLACCOPS        0x20000000L // Включать в отчет бухгалтерские документы
 #define OPG_SKIPNOUPDLOTREST  0x40000000L // Пропускать операции, не изменяющие товарные остатки (OPKF_NOUPDLOTREST)
-#define OPG_OPENEDDRAFTONLY   0x80000000L // @v10.1.10 Если по драфт-документам, то только по открытым (не списанным)
+#define OPG_OPENEDDRAFTONLY   0x80000000L // Если по драфт-документам, то только по открытым (не списанным)
 //
 // Descr: Фильтр для построения перекрестной отчетности
 //
@@ -35110,7 +35179,6 @@ public:
 		int    AddLine(PPID ccID, const Line & rLn);
 		int    Finish(PPID ccID, PPID * pNewCcID);
 	private:
-		// @v10.4.2 CCheckCore Cc;
 		PPObjCSession * P_CsObj;
 		PPObjCashNode CnObj;
 		PPObjLocation LocObj;
@@ -35355,8 +35423,24 @@ public:
 	//   <0 - не найдено ни одного чека
 	//   0  - ошибка
 	//
-	int    GetListByEgaisMark(const char * pText, PPIDArray & rCcList, SBitArray * pSentList);
-	int    GetListByChZnMark(const char * pText, PPIDArray & rCcList);
+	int    GetListByEgaisMark(TSCollection <CCheckCore::ListByMarkEntry> & rList);// 
+	int    GetListByChZnMark(TSCollection <CCheckCore::ListByMarkEntry> & rList);
+	static uint GetCcListByMarkBackDays(const TSCollection <CCheckCore::ListByMarkEntry> & rList);
+	//
+	// Descr: Структура, используемая для расчета остатка по марке честный знак по чековым операциям.
+	//
+	struct ChZnRest {
+		ChZnRest() : OrgLotID(0), OrgLotDate(ZERODATE), Rest(0.0)
+		{
+			Code[0] = 0;
+		}
+		PPID   OrgLotID;    // IN  Ид начального лота, с которым пришла марка 
+		LDATE  OrgLotDate;  // IN  Дата начального лота, с которым пришла марка
+		char   Code[256];   // IN  Код марки
+		double Rest;        // OUT Остаток
+	};
+
+	int    CalcRestByChZnMark(TSVector <ChZnRest> & rList); // @v12.0.5
 	//
 	// Descr: Возвращает список чеков по UUID.
 	//   Если возможно, то использует индексированные ассоциации {date; id} для быстрого
@@ -35384,34 +35468,9 @@ private:
 	PPEquipConfig * P_EqCfg; // @!GetEqCfg()
 public:
 	TLP_MEMB(CSessionCore, P_Tbl);
-	TLP_MEMB(CCheckCore, P_Cc); // @v10.4.2
+	TLP_MEMB(CCheckCore, P_Cc);
 	void * ExtraPtr;
 };
-//
-//
-//
-#if 0 // @v9.1.3 {
-class PPCSessComplexImpExpParam : public PPImpExpParam {
-public:
-	PPCSessComplexImpExpParam(uint recId = 0, long flags = 0);
-	int    Clear();
-	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
-	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
-
-	enum {
-		fSkinCSess  = 0x0001,
-		fSkipCCheck = 0x0002,
-		fSkipCCLine = 0x0004,
-		fSkipCCPaym = 0x0008
-	};
-	long   Flags;
-	SString CSessTag;
-	SString CCheckTag;
-	SString CCLineTag;
-	SString CCPaymTag;
-};
-#endif // } 0 @v9.1.3
 //
 // @ModuleDecl(PPObjSCardSeries)
 //
@@ -35430,8 +35489,9 @@ public:
 #define SCRDSF_TRANSFDISCOUNT    0x00000200L // Карты серии с таким флагом могут передавать значение скидки в новые карты выдельца любой серии (при создании)
 #define SCRDSF_PASSIVE           0x00000400L // Пассивная серия (не отображается в списках)
 #define SCRDSF_GROUP             0x00000800L // Серия верхнего уровня
-#define SCRDSF_RSRVPOOL          0x00001000L // @v10.2.7 Резервный пул
+#define SCRDSF_RSRVPOOL          0x00001000L // Резервный пул
 #define SCRDSF_ALLOWOWNERAUTOCR  0x00002000L // @v11.6.3 Допускается автоматическое создание персоналии-владельца
+#define SCRDSF_QUANTACCOUNTING   0x00004000L // @v12.0.5 Карты этой серии допускают количественный учет. Для кредитных и бонусных карт.
 //
 // Descr: Типы серий карт
 //
@@ -35440,8 +35500,8 @@ enum {
 	scstDiscount = 1, // Простые дисконтные карты
 	scstCredit,       // Кредитные карты
 	scstBonus,        // Бонусные карты
-	scstGroup,        // @v9.8.9 Серия верхнего уровня
-	scstRsrvPool      // @v10.2.7 Резервный пул для динамического сопоставления карт из него с телефоном или персоналией и переноса в действующую серию
+	scstGroup,        // Серия верхнего уровня
+	scstRsrvPool      // Резервный пул для динамического сопоставления карт из него с телефоном или персоналией и переноса в действующую серию
 };
 
 struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
@@ -52698,7 +52758,53 @@ private:
 
 	PPFiasReference Fr;
 };
-
+//
+// Descr: Группа управляющих элементов для выбора товара. Содержит собственно комбо-бокс для выбора товара, а так же
+//   комбо-бокс для выбора товарной группы.
+//
+class GoodsCtrlGroup : public CtrlGroup {
+public:
+	enum { // flags
+		disableEmptyGoods         = 0x0001, // Сообщать об ошибке если товар не выбран
+		enableSelUpLevel          = 0x0002, // Разрешать выбор группы верхнего уровня //
+		existsGoodsOnly           = 0x0004, // Выбирать только те товар, которые есть на складе
+		enableInsertGoods         = 0x0008, // Разрешить создание нового товара
+		activateGoodsListOnGroupSelection = 0x0010, // Активизировать список товаров при выборе группы
+		ignoreRtOnlyGroup         = 0x0020  // Игнорировать ограничение правам доступа единственной группы
+	};
+	struct Rec {
+		explicit Rec(PPID grpID = 0, PPID goodsID = 0, PPID locID = 0, uint flags = 0);
+		PPID   GoodsID;
+		PPID   GoodsGrpID; //
+		PPID   LocID;      // Склад (используется только если задан флаг existsGoodsOnly). Если 0, то предполагается текущий склад (LConfig.Location)
+		PPID   ArID;       // Контекстная статья для поиска товара по артикулу
+		uint   Flags;
+	};
+	GoodsCtrlGroup(uint _ctlsel_grp, uint _ctlsel_goods);
+	~GoodsCtrlGroup();
+	virtual int    setData(TDialog *, void *);
+	virtual int    getData(TDialog *, void *);
+	int    setFlagExistsOnly(TDialog *, int on);
+	int    setFlag(TDialog * pDlg, long flag, int on);
+	int    setFilt(TDialog * pDlg, const GoodsFilt * pFilt);
+private:
+	virtual void   handleEvent(TDialog *, TEvent &);
+	void   SetupCtrls(TDialog *);
+	uint   CtlselGrp;
+	uint   CtlselGoods;
+	uint   CtlGrp;
+	uint   CtlGoods;
+	uint   Flags;
+	PPID   LocID;
+	PPID   ArID;         // Контекстная статья для поиска товара по артикулу
+	PPID   TempAltGrpID;
+	GoodsFilt * P_Filt;
+};
+//
+// Descr: Группа управляющих элементов для выбора товара. Содержит собственно комбо-бокс для выбора товара, а так же
+//   комбо-бокс для выбора товарной группы. В отличии от GoodsCtrlGroup может содержать кнопку вызова фильтра товаров
+//   для расширенного выбора набора товаров.
+//
 class GoodsFiltCtrlGroup : public CtrlGroup {
 public:
 	struct Rec {
@@ -52706,7 +52812,7 @@ public:
 		PPID   GoodsID;
 		PPID   GoodsGrpID;
 		PPID   LocID;
-		long   Flags;
+		long   Flags;       // @flags GoodsCtrlGroup::
 		void * ExtraPtr;
 	};
 	GoodsFiltCtrlGroup(uint ctlselGoods, uint ctlselGGrp, uint cm);
@@ -52817,45 +52923,6 @@ private:
 	PPObjAccount AccObj;
 	PPBillPacket * P_Pack;
 	PPAccTurn      Data; // В форме идентификаторов
-};
-
-class GoodsCtrlGroup : public CtrlGroup {
-public:
-	enum { // flags
-		disableEmptyGoods         = 0x0001, // Сообщать об ошибке если товар не выбран
-		enableSelUpLevel          = 0x0002, // Разрешать выбор группы верхнего уровня //
-		existsGoodsOnly           = 0x0004, // Выбирать только те товар, которые есть на складе
-		enableInsertGoods         = 0x0008, // Разрешить создание нового товара
-		activateGoodsListOnGroupSelection = 0x0010, // Активизировать список товаров при выборе группы
-		ignoreRtOnlyGroup         = 0x0020  // Игнорировать ограничение правам доступа единственной группы
-	};
-	struct Rec {
-		explicit Rec(PPID grpID = 0, PPID goodsID = 0, PPID locID = 0, uint flags = 0);
-		PPID   GrpID;
-		PPID   GoodsID;
-		PPID   LocID;      // Склад (используется только если задан флаг existsGoodsOnly). Если 0, то предполагается текущий склад (LConfig.Location)
-		PPID   ArID;       // Контекстная статья для поиска товара по артикулу
-		uint   Flags;
-	};
-	GoodsCtrlGroup(uint _ctlsel_grp, uint _ctlsel_goods);
-	~GoodsCtrlGroup();
-	virtual int    setData(TDialog *, void *);
-	virtual int    getData(TDialog *, void *);
-	int    setFlagExistsOnly(TDialog *, int on);
-	int    setFlag(TDialog * pDlg, long flag, int on);
-	int    setFilt(TDialog * pDlg, const GoodsFilt * pFilt);
-private:
-	virtual void   handleEvent(TDialog *, TEvent &);
-	void   SetupCtrls(TDialog *);
-	uint   CtlselGrp;
-	uint   CtlselGoods;
-	uint   CtlGrp;
-	uint   CtlGoods;
-	uint   Flags;
-	PPID   LocID;
-	PPID   ArID;         // Контекстная статья для поиска товара по артикулу
-	PPID   TempAltGrpID;
-	GoodsFilt * P_Filt;
 };
 
 class DivisionCtrlGroup : public CtrlGroup {
@@ -59718,6 +59785,7 @@ int Convert11004(); // @v11.0.4 TSessLine
 int Convert11112(); // @v11.1.12 Bill
 int Convert11200(); // @v11.2.0 Соглашения с клиентами
 int Convert12000(); // @v12.0.0 Регистры (увеличились длины серии и номера регистра)
+int Convert12005(); // @v12.0.5 SCardOp (добавлены поля CtAmount & CtRest для количественного учета)
 int DoChargeSalary();
 int DoDebtRate();
 int DoBizScore(PPID bzsID);

@@ -75,14 +75,14 @@ namespace {
 
 void ByteSinkUtil::appendTwoBytes(UChar32 c, ByteSink &sink) 
 {
-	U_ASSERT(0x80 <= c && c <= 0x7ff); // 2-byte UTF-8
+	assert(0x80 <= c && c <= 0x7ff); // 2-byte UTF-8
 	char s8[2] = { (char)getTwoByteLead(c), (char)getTwoByteTrail(c) };
 	sink.Append(s8, 2);
 }
 
 void ByteSinkUtil::appendNonEmptyUnchanged(const uint8 * s, int32_t length, ByteSink &sink, uint32_t options, Edits * edits) 
 {
-	U_ASSERT(length > 0);
+	assert(length > 0);
 	CALLPTRMEMB(edits, addUnchanged(length));
 	if((options & U_OMIT_UNCHANGED_TEXT) == 0) {
 		sink.Append(reinterpret_cast<const char *>(s), length);

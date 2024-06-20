@@ -8,7 +8,7 @@
 #define __UNIQUECHARSTR_H__
 
 #include "charstr.h"
-#include "uassert.h"
+//#include "uassert.h"
 #include "uhash.h"
 
 U_NAMESPACE_BEGIN
@@ -83,7 +83,7 @@ public:
   * Otherwise nullptr.
      */
     const char *get(int32_t i) const {
-        U_ASSERT(isFrozen);
+        assert(isFrozen);
         return isFrozen && i > 0 ? strings->data() + i : nullptr;
     }
 

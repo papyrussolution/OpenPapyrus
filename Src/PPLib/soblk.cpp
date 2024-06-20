@@ -1105,8 +1105,8 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 	static const SIntToSymbTabEntry subcrit_titles[] = {
 		{ scID,      "ID"   },
 		{ scCode,    "CODE" },
-		{ scCode,    "SYMBOL" }, // @v10.1.6
-		{ scCode,    "SYMB" }, // @v10.1.6
+		{ scCode,    "SYMBOL" },
+		{ scCode,    "SYMB" },
 		{ scName,    "NAME" },
 		{ scDef,     "DEF"  },
 		{ scXml,     "XML"  },
@@ -3436,6 +3436,26 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					for(SEnum en = compcat_obj.P_Ref->Enum(ObjType, 0); en.Next(&compcat_rec) > 0;) {
 						THROW_SL(ResultList.Add(compcat_rec.ID, 0, compcat_rec.Name));
 					}
+				}
+			}
+			break;
+		case PPOBJ_SWPROGRAM: // @v12.0.5 @construction
+			if(Operator == oSelect) {
+				PPObjSwProgram pgm_obj;
+				Goods2Tbl::Rec _pgm_rec;
+				use_filt = 1;
+				if(IdList.getCount()) {
+					for(uint i = 0; i < IdList.getCount(); i++) {
+						if(pgm_obj.Search(IdList.at(i), &_pgm_rec) > 0)
+							THROW_SL(ResultList.Add(_pgm_rec.ID, 0, _pgm_rec.Name));
+					}
+					use_filt = 0;
+				}
+				if(use_filt) {
+					/*
+					for(SEnum en = pgm_obj.Enum(ObjType, 0); en.Next(&compcat_rec) > 0;) {
+						THROW_SL(ResultList.Add(compcat_rec.ID, 0, compcat_rec.Name));
+					}*/
 				}
 			}
 			break;

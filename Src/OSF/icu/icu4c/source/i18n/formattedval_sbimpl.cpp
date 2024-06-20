@@ -110,7 +110,7 @@ bool FormattedValueStringBuilderImpl::nextPositionImpl(ConstrainedFieldPosition&
 	int32_t nextSpanStart = -1;
 	if(spanIndicesCount > 0) {
 		int64_t si = cfpos.getInt64IterationContext();
-		U_ASSERT(si <= spanIndicesCount);
+		assert(si <= spanIndicesCount);
 		if(si < spanIndicesCount) {
 			nextSpanStart = spanIndices[static_cast<ptrdiff_t>(si)].start;
 		}
@@ -152,9 +152,9 @@ bool FormattedValueStringBuilderImpl::nextPositionImpl(ConstrainedFieldPosition&
 		// Special case: emit normalField if we are pointing at the end of spanField.
 		if(i > fString.fZero && prevIsSpan) {
 			int64_t si = cfpos.getInt64IterationContext() - 1;
-			U_ASSERT(si >= 0);
+			assert(si >= 0);
 			int32_t previ = i - spanIndices[static_cast<ptrdiff_t>(si)].length;
-			U_ASSERT(previ >= fString.fZero);
+			assert(previ >= fString.fZero);
 			Field prevField = fString.getFieldPtr()[previ];
 			if(prevField == Field(UFIELD_CATEGORY_LIST, ULISTFMT_ELEMENT_FIELD)) {
 				// Special handling for ULISTFMT_ELEMENT_FIELD
@@ -257,7 +257,7 @@ bool FormattedValueStringBuilderImpl::nextPositionImpl(ConstrainedFieldPosition&
 		prevIsNumeric = false;
 		prevIsInteger = false;
 	}
-	U_ASSERT(currField == kUndefinedField);
+	assert(currField == kUndefinedField);
 	// Always set the position to the end so that we don't revisit previous sections
 	cfpos.setState(cfpos.getCategory(), cfpos.getField(), fString.fLength, fString.fLength);
 	return false;
@@ -271,7 +271,7 @@ void FormattedValueStringBuilderImpl::appendSpanInfo(UFieldCategory category,
 	if(U_FAILURE(status)) {
 		return;
 	}
-	U_ASSERT(spanIndices.getCapacity() >= spanIndicesCount);
+	assert(spanIndices.getCapacity() >= spanIndicesCount);
 	if(spanIndices.getCapacity() == spanIndicesCount) {
 		if(!spanIndices.resize(spanIndicesCount * 2, spanIndicesCount)) {
 			status = U_MEMORY_ALLOCATION_ERROR;
@@ -290,7 +290,7 @@ void FormattedValueStringBuilderImpl::prependSpanInfo(UFieldCategory category,
 	if(U_FAILURE(status)) {
 		return;
 	}
-	U_ASSERT(spanIndices.getCapacity() >= spanIndicesCount);
+	assert(spanIndices.getCapacity() >= spanIndicesCount);
 	if(spanIndices.getCapacity() == spanIndicesCount) {
 		if(!spanIndices.resize(spanIndicesCount * 2, spanIndicesCount)) {
 			status = U_MEMORY_ALLOCATION_ERROR;

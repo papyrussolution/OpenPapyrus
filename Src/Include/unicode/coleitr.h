@@ -341,11 +341,6 @@ private:
     * @param status        the error code status.
     */
     CollationElementIterator(const CharacterIterator& sourceText, const RuleBasedCollator* order, UErrorCode & status);
-    /**
-    * Assignment operator
-    *
-    * @param other    the object to be copied
-    */
     const CollationElementIterator & operator = (const CollationElementIterator& other);
 
     CollationElementIterator(); // default constructor not implemented

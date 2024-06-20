@@ -1,17 +1,12 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- * Copyright (C) 1999-2013, International Business Machines Corporation and
- * others. All Rights Reserved.
- ******************************************************************************
- *   Date        Name        Description
- *   10/22/99    alan        Creation.
- **********************************************************************
- */
+// Copyright (C) 1999-2013, International Business Machines Corporation and others. All Rights Reserved.
+// Date        Name        Description
+// 10/22/99    alan        Creation.
+//
 #include <icu-internal.h>
 #pragma hdrstop
-#include "uelement.h"
+//#include "uelement.h"
 
 U_NAMESPACE_BEGIN
 
@@ -27,12 +22,12 @@ constexpr int8 HINT_KEY_INTEGER = 0;
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(UVector)
 
-UVector::UVector(UErrorCode & status) :
-	UVector(nullptr, nullptr, DEFAULT_CAPACITY, status) {
+UVector::UVector(UErrorCode & status) : UVector(nullptr, nullptr, DEFAULT_CAPACITY, status) 
+{
 }
 
-UVector::UVector(int32_t initialCapacity, UErrorCode & status) :
-	UVector(nullptr, nullptr, initialCapacity, status) {
+UVector::UVector(int32_t initialCapacity, UErrorCode & status) : UVector(nullptr, nullptr, initialCapacity, status) 
+{
 }
 
 UVector::UVector(UObjectDeleter * d, UElementsAreEqual * c, UErrorCode & status) :
@@ -40,8 +35,7 @@ UVector::UVector(UObjectDeleter * d, UElementsAreEqual * c, UErrorCode & status)
 }
 
 UVector::UVector(UObjectDeleter * d, UElementsAreEqual * c, int32_t initialCapacity, UErrorCode & status) :
-	deleter(d),
-	comparer(c)
+	deleter(d), comparer(c)
 {
 	if(U_FAILURE(status)) {
 		return;
@@ -86,7 +80,7 @@ void UVector::assign(const UVector& other, UElementAssigner * assign, UErrorCode
 
 // This only does something sensible if this object has a non-null comparer
 bool UVector::operator == (const UVector& other) const {
-	U_ASSERT(comparer != nullptr);
+	assert(comparer != nullptr);
 	if(count != other.count) return false;
 	if(comparer != nullptr) {
 		// Compare using this object's comparer
@@ -108,14 +102,14 @@ void UVector::addElementX(void * obj, UErrorCode & status) {
 }
 
 void UVector::addElement(void * obj, UErrorCode & status) {
-	U_ASSERT(deleter == nullptr);
+	assert(deleter == nullptr);
 	if(ensureCapacity(count + 1, status)) {
 		elements[count++].pointer = obj;
 	}
 }
 
 void UVector::adoptElement(void * obj, UErrorCode & status) {
-	U_ASSERT(deleter != nullptr);
+	assert(deleter != nullptr);
 	if(ensureCapacity(count + 1, status)) {
 		elements[count++].pointer = obj;
 	}
@@ -125,7 +119,7 @@ void UVector::adoptElement(void * obj, UErrorCode & status) {
 }
 
 void UVector::addElement(int32_t elem, UErrorCode & status) {
-	U_ASSERT(deleter == nullptr); // Usage error. Mixing up ints and pointers.
+	assert(deleter == nullptr); // Usage error. Mixing up ints and pointers.
 	if(ensureCapacity(count + 1, status)) {
 		elements[count].pointer = nullptr; // Pointers may be bigger than ints.
 		elements[count].integer = elem;
@@ -149,7 +143,7 @@ void UVector::setElementAt(void * obj, int32_t index) {
 }
 
 void UVector::setElementAt(int32_t elem, int32_t index) {
-	U_ASSERT(deleter == nullptr); // Usage error. Mixing up ints and pointers.
+	assert(deleter == nullptr); // Usage error. Mixing up ints and pointers.
 	if(0 <= index && index < count) {
 		elements[index].pointer = nullptr;
 		elements[index].integer = elem;
@@ -177,7 +171,7 @@ void UVector::insertElementAt(void * obj, int32_t index, UErrorCode & status) {
 }
 
 void UVector::insertElementAt(int32_t elem, int32_t index, UErrorCode & status) {
-	U_ASSERT(deleter == nullptr); // Usage error. Mixing up ints and pointers.
+	assert(deleter == nullptr); // Usage error. Mixing up ints and pointers.
 	// must have 0 <= index <= count
 	if(ensureCapacity(count + 1, status)) {
 		if(0 <= index && index <= count) {
@@ -491,7 +485,7 @@ void UVector::sortedInsert(void * obj, UElementComparator * compare, UErrorCode 
  * be sorted already.
  */
 void UVector::sortedInsert(int32_t obj, UElementComparator * compare, UErrorCode & ec) {
-	U_ASSERT(deleter == nullptr);
+	assert(deleter == nullptr);
 	UElement e {};
 	e.integer = obj;
 	sortedInsert(e, compare, ec);

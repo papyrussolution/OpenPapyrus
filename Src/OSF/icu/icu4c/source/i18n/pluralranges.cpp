@@ -122,7 +122,7 @@ LocalPointer<StandardPluralRanges>StandardPluralRanges::toPointer(UErrorCode & s
 void StandardPluralRanges::addPluralRange(StandardPlural::Form first,
     StandardPlural::Form second,
     StandardPlural::Form result) {
-	U_ASSERT(fTriplesLen < fTriples.getCapacity());
+	assert(fTriplesLen < fTriples.getCapacity());
 	fTriples[fTriplesLen] = {first, second, result};
 	fTriplesLen++;
 }

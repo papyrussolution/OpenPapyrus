@@ -683,14 +683,14 @@ bool LocalizedNumberFormatter::computeCompiled(UErrorCode & status) const {
 			status = U_MEMORY_ALLOCATION_ERROR;
 			return false;
 		}
-		U_ASSERT(fCompiled == nullptr);
+		assert(fCompiled == nullptr);
 		const_cast<LocalizedNumberFormatter*>(this)->fCompiled = compiled;
 		umtx_storeRelease(*callCount, INT32_MIN);
 		return true;
 	}
 	else if(currentCount < 0) {
 		// The data structure is already built; use it (fast path).
-		U_ASSERT(fCompiled != nullptr);
+		assert(fCompiled != nullptr);
 		return true;
 	}
 	else {

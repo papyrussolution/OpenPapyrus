@@ -1361,7 +1361,7 @@ static void setTimeZoneFilesDir(const char * path, UErrorCode & status)
 
 static void U_CALLCONV TimeZoneDataDirInitFn(UErrorCode & status) 
 {
-	U_ASSERT(gTimeZoneFilesDirectory == NULL);
+	assert(gTimeZoneFilesDirectory == NULL);
 	ucln_common_registerCleanup(UCLN_COMMON_PUTIL, putil_cleanup);
 	gTimeZoneFilesDirectory = new CharString();
 	if(gTimeZoneFilesDirectory == NULL) {

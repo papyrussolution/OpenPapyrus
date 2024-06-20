@@ -1,11 +1,10 @@
 // collationdatareader.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 2013-2015, International Business Machines Corporation and others.  All Rights Reserved.
- * created on: 2013feb07
- * created by: Markus W. Scherer
- */
+// Copyright (C) 2013-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2013feb07
+// created by: Markus W. Scherer
+// 
 #ifndef __COLLATIONDATAREADER_H__
 #define __COLLATIONDATAREADER_H__
 
@@ -94,11 +93,8 @@ struct U_I18N_API CollationDataReader /* all static */ {
 		IX_TOTAL_SIZE
 	};
 
-	static void read(const CollationTailoring * base, const uint8 * inBytes, int32_t inLength,
-	    CollationTailoring &tailoring, UErrorCode & errorCode);
-
+	static void read(const CollationTailoring * base, const uint8 * inBytes, int32_t inLength, CollationTailoring &tailoring, UErrorCode & errorCode);
 	static bool U_CALLCONV isAcceptable(void * context, const char * type, const char * name, const UDataInfo * pInfo);
-
 private:
 	CollationDataReader(); // no constructor
 };

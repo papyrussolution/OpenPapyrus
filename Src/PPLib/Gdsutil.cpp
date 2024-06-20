@@ -2823,7 +2823,7 @@ int PPObjGoods::SelectGoodsInPlaceOfRemoved(PPID rmvdGoodsID, PPID extGoodsID, P
 		}
 		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_RMVDGDS))));
 		dlg->addGroup(1, new GoodsCtrlGroup(CTLSEL_RMVDGDS_GOODSGRP, CTLSEL_RMVDGDS_GOODS));
-		goods_ctrl_grp.GrpID = goods_rec.ParentID;
+		goods_ctrl_grp.GoodsGrpID = goods_rec.ParentID;
 		goods_ctrl_grp.GoodsID = subst_id;
 		goods_ctrl_grp.Flags = GoodsCtrlGroup::enableInsertGoods;
 		dlg->setGroupData(1, &goods_ctrl_grp);

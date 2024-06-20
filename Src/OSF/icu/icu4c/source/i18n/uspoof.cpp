@@ -502,8 +502,8 @@ U_CAPI int32_t U_EXPORT2 uspoof_checkUnicodeString(const USpoofChecker * sc,
 
 namespace {
 int32_t checkImpl(const SpoofImpl* This, const UnicodeString & id, CheckResult* checkResult, UErrorCode * status) {
-	U_ASSERT(This != NULL);
-	U_ASSERT(checkResult != NULL);
+	assert(This != NULL);
+	assert(checkResult != NULL);
 	checkResult->clear();
 	int32_t result = 0;
 
@@ -695,7 +695,7 @@ U_CAPI int32_t U_EXPORT2 uspoof_getSkeletonUTF8(const USpoofChecker * sc,
 U_CAPI int32_t U_EXPORT2 uspoof_serialize(USpoofChecker * sc, void * buf, int32_t capacity, UErrorCode * status) {
 	SpoofImpl * This = SpoofImpl::validateThis(sc, *status);
 	if(This == NULL) {
-		U_ASSERT(U_FAILURE(*status));
+		assert(U_FAILURE(*status));
 		return 0;
 	}
 

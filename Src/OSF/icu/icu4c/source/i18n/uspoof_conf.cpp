@@ -290,7 +290,7 @@ void ConfusabledataBuilder::build(const char * confusables, int32_t confusablesL
 				uregex_end(fParseHexNum, 1, &status), status);
 			mapString->append(c);
 		}
-		U_ASSERT(mapString->length() >= 1);
+		assert(mapString->length() >= 1);
 
 		// Put the map (value) string into the string pool
 		// This a little like a Java intern() - any duplicates will be eliminated.
@@ -354,10 +354,10 @@ void ConfusabledataBuilder::build(const char * confusables, int32_t confusablesL
 		for(UChar32 keyChar = fKeySet->getRangeStart(range);
 		    keyChar <= fKeySet->getRangeEnd(range); keyChar++) {
 			SPUString * targetMapping = static_cast<SPUString *>(uhash_iget(fTable, keyChar));
-			U_ASSERT(targetMapping != NULL);
+			assert(targetMapping != NULL);
 
 			// Set an error code if trying to consume a long string.  Otherwise,
-			// codePointAndLengthToKey will abort on a U_ASSERT.
+			// codePointAndLengthToKey will abort on a assert.
 			if(targetMapping->fStr->length() > 256) {
 				status = U_ILLEGAL_ARGUMENT_ERROR;
 				return;
@@ -390,7 +390,7 @@ void ConfusabledataBuilder::build(const char * confusables, int32_t confusablesL
 //                Be careful with pointers.
 //
 void ConfusabledataBuilder::outputData(UErrorCode & status) {
-	U_ASSERT(fSpoofImpl->fSpoofData->fDataOwned == TRUE);
+	assert(fSpoofImpl->fSpoofData->fDataOwned == TRUE);
 
 	//  The Key Table
 	//     While copying the keys to the runtime array,
@@ -409,7 +409,7 @@ void ConfusabledataBuilder::outputData(UErrorCode & status) {
 		UChar32 codePoint = ConfusableDataUtils::keyToCodePoint(key);
 		(void)previousCodePoint; // Suppress unused variable warning.
 		// strictly greater because there can be only one entry per code point
-		U_ASSERT(codePoint > previousCodePoint);
+		assert(codePoint > previousCodePoint);
 		keys[i] = key;
 		previousCodePoint = codePoint;
 	}
@@ -420,7 +420,7 @@ void ConfusabledataBuilder::outputData(UErrorCode & status) {
 
 	// The Value Table, parallels the key table
 	int32_t numValues = fValueVec->size();
-	U_ASSERT(numKeys == numValues);
+	assert(numKeys == numValues);
 	uint16 * values =
 	    static_cast<uint16 *>(fSpoofImpl->fSpoofData->reserveSpace(numKeys*sizeof(uint16), status));
 	if(U_FAILURE(status)) {
@@ -428,7 +428,7 @@ void ConfusabledataBuilder::outputData(UErrorCode & status) {
 	}
 	for(i = 0; i<numValues; i++) {
 		uint32_t value = static_cast<uint32_t>(fValueVec->elementAti(i));
-		U_ASSERT(value < 0xffff);
+		assert(value < 0xffff);
 		values[i] = static_cast<uint16>(value);
 	}
 	rawData = fSpoofImpl->fSpoofData->fRawData;
@@ -448,7 +448,7 @@ void ConfusabledataBuilder::outputData(UErrorCode & status) {
 	}
 	fStringTable->extract(strings, stringsLength+1, status);
 	rawData = fSpoofImpl->fSpoofData->fRawData;
-	U_ASSERT(rawData->fCFUStringTable == 0);
+	assert(rawData->fCFUStringTable == 0);
 	rawData->fCFUStringTable = (int32_t)((char *)strings - (char *)rawData);
 	rawData->fCFUStringTableLen = stringsLength;
 	fSpoofImpl->fSpoofData->fCFUStrings = strings;

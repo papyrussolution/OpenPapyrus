@@ -133,7 +133,7 @@ public:
 						else {
 							// Unknown class of parse lenients
 							// TODO(ICU-20428): Make ICU automatically accept new classes?
-							U_ASSERT(FALSE);
+							assert(FALSE);
 						}
 						if(U_FAILURE(status)) {
 							return;
@@ -184,11 +184,11 @@ void U_CALLCONV initNumberParseUniSets(UErrorCode & status) {
 	}
 
 	// NOTE: It is OK for these assertions to fail if there was a no-data build.
-	U_ASSERT(gUnicodeSets[COMMA] != nullptr);
-	U_ASSERT(gUnicodeSets[STRICT_COMMA] != nullptr);
-	U_ASSERT(gUnicodeSets[PERIOD] != nullptr);
-	U_ASSERT(gUnicodeSets[STRICT_PERIOD] != nullptr);
-	U_ASSERT(gUnicodeSets[APOSTROPHE_SIGN] != nullptr);
+	assert(gUnicodeSets[COMMA] != nullptr);
+	assert(gUnicodeSets[STRICT_COMMA] != nullptr);
+	assert(gUnicodeSets[PERIOD] != nullptr);
+	assert(gUnicodeSets[STRICT_PERIOD] != nullptr);
+	assert(gUnicodeSets[APOSTROPHE_SIGN] != nullptr);
 
 	LocalPointer<UnicodeSet> otherGrouping(new UnicodeSet(UnicodeString(u"[٬‘\\u0020\\u00A0\\u2000-\\u200A\\u202F\\u205F\\u3000]"),
 		    status), status);
@@ -201,21 +201,21 @@ void U_CALLCONV initNumberParseUniSets(UErrorCode & status) {
 	gUnicodeSets[STRICT_ALL_SEPARATORS] = computeUnion(
 		STRICT_COMMA, STRICT_PERIOD, OTHER_GROUPING_SEPARATORS);
 
-	U_ASSERT(gUnicodeSets[MINUS_SIGN] != nullptr);
-	U_ASSERT(gUnicodeSets[PLUS_SIGN] != nullptr);
-	U_ASSERT(gUnicodeSets[PERCENT_SIGN] != nullptr);
-	U_ASSERT(gUnicodeSets[PERMILLE_SIGN] != nullptr);
+	assert(gUnicodeSets[MINUS_SIGN] != nullptr);
+	assert(gUnicodeSets[PLUS_SIGN] != nullptr);
+	assert(gUnicodeSets[PERCENT_SIGN] != nullptr);
+	assert(gUnicodeSets[PERMILLE_SIGN] != nullptr);
 
 	gUnicodeSets[INFINITY_SIGN] = new UnicodeSet(UnicodeString(u"[∞]"), status);
 	if(U_FAILURE(status)) {
 		return;
 	}
 
-	U_ASSERT(gUnicodeSets[DOLLAR_SIGN] != nullptr);
-	U_ASSERT(gUnicodeSets[POUND_SIGN] != nullptr);
-	U_ASSERT(gUnicodeSets[RUPEE_SIGN] != nullptr);
-	U_ASSERT(gUnicodeSets[YEN_SIGN] != nullptr);
-	U_ASSERT(gUnicodeSets[WON_SIGN] != nullptr);
+	assert(gUnicodeSets[DOLLAR_SIGN] != nullptr);
+	assert(gUnicodeSets[POUND_SIGN] != nullptr);
+	assert(gUnicodeSets[RUPEE_SIGN] != nullptr);
+	assert(gUnicodeSets[YEN_SIGN] != nullptr);
+	assert(gUnicodeSets[WON_SIGN] != nullptr);
 
 	gUnicodeSets[DIGITS] = new UnicodeSet(UnicodeString(u"[:digit:]"), status);
 	if(U_FAILURE(status)) {

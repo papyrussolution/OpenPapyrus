@@ -334,7 +334,7 @@ UnicodeString & Win32NumberFormat::format(int32_t numDigits, UnicodeString & app
 	va_end(args);
 
 	/* Just to make sure of the above statement, we add this assert */
-	U_ASSERT(result >=0);
+	assert(result >=0);
 	// The following code is not used because _vscwprintf isn't available on MinGW at the moment.
 	/*if(result < 0) {
 	    int newLength;

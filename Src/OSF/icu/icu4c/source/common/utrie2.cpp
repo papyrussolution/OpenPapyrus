@@ -388,7 +388,7 @@ static void enumEitherTrie(const UTrie2 * trie, UChar32 start, UChar32 limit, UT
 	if(trie->newTrie==NULL) {
 		/* frozen trie */
 		idx = trie->index;
-		U_ASSERT(idx != NULL); /* the following code assumes trie->newTrie is not NULL when idx is NULL */
+		assert(idx != NULL); /* the following code assumes trie->newTrie is not NULL when idx is NULL */
 		data32 = trie->data32;
 		index2NullOffset = trie->index2NullOffset;
 		nullBlock = trie->dataNullOffset;
@@ -397,7 +397,7 @@ static void enumEitherTrie(const UTrie2 * trie, UChar32 start, UChar32 limit, UT
 		/* unfrozen, mutable trie */
 		idx = NULL;
 		data32 = trie->newTrie->data;
-		U_ASSERT(data32 != NULL); /* the following code assumes idx is not NULL when data32 is NULL */
+		assert(data32 != NULL); /* the following code assumes idx is not NULL when data32 is NULL */
 		index2NullOffset = trie->newTrie->index2NullOffset;
 		nullBlock = trie->newTrie->dataNullOffset;
 	}

@@ -1861,7 +1861,7 @@ int32_t MeasureUnit::getAvailable(MeasureUnit * dest, int32_t destCapacity, UErr
 			++idx;
 		}
 	}
-	U_ASSERT(idx == SIZEOFARRAYi(gSubTypes));
+	assert(idx == SIZEOFARRAYi(gSubTypes));
 	return SIZEOFARRAYi(gSubTypes);
 }
 
@@ -1905,8 +1905,8 @@ StringEnumeration * MeasureUnit::getAvailableTypes(UErrorCode & errorCode) {
 
 bool MeasureUnit::findBySubType(StringPiece subType, MeasureUnit* output) {
 	// Sanity checking kCurrencyOffset and final entry in gOffsets
-	U_ASSERT(strcmp(gTypes[kCurrencyOffset], "currency") == 0);
-	U_ASSERT(gOffsets[SIZEOFARRAYi(gOffsets) - 1] == SIZEOFARRAYi(gSubTypes));
+	assert(strcmp(gTypes[kCurrencyOffset], "currency") == 0);
+	assert(gOffsets[SIZEOFARRAYi(gOffsets) - 1] == SIZEOFARRAYi(gSubTypes));
 
 	for(int32_t t = 0; t < SIZEOFARRAYi(gOffsets) - 1; t++) {
 		// Skip currency units
@@ -1936,16 +1936,16 @@ MeasureUnit * MeasureUnit::create(int typeId, int subTypeId, UErrorCode & status
 
 void MeasureUnit::initTime(const char * timeId) {
 	int32_t result = binarySearch(gTypes, 0, SIZEOFARRAYi(gTypes), "duration");
-	U_ASSERT(result != -1);
+	assert(result != -1);
 	fTypeId = result;
 	result = binarySearch(gSubTypes, gOffsets[fTypeId], gOffsets[fTypeId + 1], timeId);
-	U_ASSERT(result != -1);
+	assert(result != -1);
 	fSubTypeId = result - gOffsets[fTypeId];
 }
 
 void MeasureUnit::initCurrency(StringPiece isoCurrency) {
 	int32_t result = binarySearch(gTypes, 0, SIZEOFARRAYi(gTypes), "currency");
-	U_ASSERT(result != -1);
+	assert(result != -1);
 	fTypeId = result;
 	result = binarySearch(
 		gSubTypes, gOffsets[fTypeId], gOffsets[fTypeId + 1], isoCurrency);
@@ -1958,7 +1958,7 @@ void MeasureUnit::initCurrency(StringPiece isoCurrency) {
 		// malloc error: fall back to the undefined currency
 		result = binarySearch(
 			gSubTypes, gOffsets[fTypeId], gOffsets[fTypeId + 1], kDefaultCurrency8);
-		U_ASSERT(result != -1);
+		assert(result != -1);
 	}
 	fSubTypeId = result - gOffsets[fTypeId];
 }

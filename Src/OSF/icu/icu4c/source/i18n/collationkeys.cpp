@@ -103,7 +103,7 @@ public:
 	/** Appends all but the last byte to the sink. The last byte should be the 01 terminator. */
 	void appendTo(ByteSink &sink) const 
 	{
-		U_ASSERT(len > 0 && buffer[len - 1] == 1);
+		assert(len > 0 && buffer[len - 1] == 1);
 		sink.Append(reinterpret_cast<const char *>(buffer.getAlias()), len - 1);
 	}
 private:
@@ -124,7 +124,7 @@ void SortKeyLevel::appendByte(uint32_t b)
 }
 
 void SortKeyLevel::appendWeight16(uint32_t w) {
-	U_ASSERT((w & 0xffff) != 0);
+	assert((w & 0xffff) != 0);
 	uint8 b0 = (uint8)(w >> 8);
 	uint8 b1 = (uint8)w;
 	int32_t appendLength = (b1 == 0) ? 1 : 2;
@@ -137,7 +137,7 @@ void SortKeyLevel::appendWeight16(uint32_t w) {
 }
 
 void SortKeyLevel::appendWeight32(uint32_t w) {
-	U_ASSERT(w != 0);
+	assert(w != 0);
 	uint8 bytes[4] = { (uint8)(w >> 24), (uint8)(w >> 16), (uint8)(w >> 8), (uint8)w };
 	int32_t appendLength = (bytes[1] == 0) ? 1 : (bytes[2] == 0) ? 2 : (bytes[3] == 0) ? 3 : 4;
 	if((len + appendLength) <= buffer.getCapacity() || ensureCapacity(appendLength)) {
@@ -155,7 +155,7 @@ void SortKeyLevel::appendWeight32(uint32_t w) {
 }
 
 void SortKeyLevel::appendReverseWeight16(uint32_t w) {
-	U_ASSERT((w & 0xffff) != 0);
+	assert((w & 0xffff) != 0);
 	uint8 b0 = (uint8)(w >> 8);
 	uint8 b1 = (uint8)w;
 	int32_t appendLength = (b1 == 0) ? 1 : 2;
@@ -437,7 +437,7 @@ void CollationKeys::writeSortKeyUpToQuaternary(CollationIterator &iter,
 			}
 			else {
 				uint32_t c = (lower32 >> 8) & 0xff; // case bits & tertiary lead byte
-				U_ASSERT((c & 0xc0) != 0xc0);
+				assert((c & 0xc0) != 0xc0);
 				if((c & 0xc0) == 0 && c > Collation::LEVEL_SEPARATOR_BYTE) {
 					++commonCases;
 				}
@@ -497,7 +497,7 @@ void CollationKeys::writeSortKeyUpToQuaternary(CollationIterator &iter,
 
 		if((levels & Collation::TERTIARY_LEVEL_FLAG) != 0) {
 			uint32_t t = lower32 & tertiaryMask;
-			U_ASSERT((lower32 & 0xc000) != 0xc000);
+			assert((lower32 & 0xc000) != 0xc000);
 			if(t == Collation::COMMON_WEIGHT16) {
 				++commonTertiaries;
 			}
@@ -575,7 +575,7 @@ void CollationKeys::writeSortKeyUpToQuaternary(CollationIterator &iter,
 				}
 				else {
 					// Keep uppercase bits of tertiary CEs.
-					U_ASSERT(0x8600 <= t && t <= 0xbfff);
+					assert(0x8600 <= t && t <= 0xbfff);
 					t += 0x4000;
 				}
 				if(commonTertiaries != 0) {
@@ -670,7 +670,7 @@ void CollationKeys::writeSortKeyUpToQuaternary(CollationIterator &iter,
 		uint8 b = 0;
 		for(int32_t i = 0; i < length; ++i) {
 			uint8 c = (uint8)cases[i];
-			U_ASSERT((c & 0xf) == 0 && c != 0);
+			assert((c & 0xf) == 0 && c != 0);
 			if(b == 0) {
 				b = c;
 			}

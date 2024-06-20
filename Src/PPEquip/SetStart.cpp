@@ -581,6 +581,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 										case GTCHZNPT_FUR: mark_type = 2; break;
 										case GTCHZNPT_MILK: mark_type = 13; break;
 										case GTCHZNPT_WATER: mark_type = 15; break;
+										case GTCHZNPT_DRAFTBEER_AWR: mark_type = 18; break; // @v12.0.5
 										case GTCHZNPT_DRAFTBEER: mark_type = 18; break;
 										case GTCHZNPT_BEER: mark_type = 17; break;
 										default:

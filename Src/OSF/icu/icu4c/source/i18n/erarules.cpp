@@ -195,7 +195,7 @@ EraRules* EraRules::createInstance(const char * calType, bool includeTentativeEr
 					status = U_INVALID_FORMAT_ERROR;
 					return nullptr;
 				}
-				U_ASSERT(eraIdx == 0);
+				assert(eraIdx == 0);
 				startDates[eraIdx] = MIN_ENCODED_START;
 			}
 			else {

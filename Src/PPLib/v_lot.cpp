@@ -1365,7 +1365,6 @@ int PPViewLot::MakeLotListForEgaisRetReg2ToWh(PPEgaisProcessor & rEp, PPID opID,
 					for(uint i = 0; i < bp.GetTCount(); i++) {
 						const PPTransferItem & r_ti = bp.ConstTI(i);
 						if(r_ti.GoodsID > 0 && r_ti.LotID && rEp.IsAlcGoods(r_ti.GoodsID)) {
-							// @v10.3.6 {
 							int    is_lot_in_3format = 0;
 							if(p_lec_t) {
 								int16 row_idx = 0;
@@ -1386,7 +1385,6 @@ int PPViewLot::MakeLotListForEgaisRetReg2ToWh(PPEgaisProcessor & rEp, PPID opID,
 									} while(!is_lot_in_3format && p_lec_t->search(2, &k2, spGe) && p_lec_t->data.BillID == bp.Rec.ID && p_lec_t->data.RByBill == row_idx);
 								}
 							}
-							// } @v10.3.6 
 							if(!is_lot_in_3format) {
 								p_ref->Ot.GetTagStr(PPOBJ_LOT, r_ti.LotID, PPTAG_LOT_FSRARINFB, ref_b);
 								p_ref->Ot.GetTagStr(PPOBJ_LOT, r_ti.LotID, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
@@ -3238,9 +3236,6 @@ int PPLotExporter::Export(const LotViewItem * pItem)
 	sdr_lot.QttyPlus = pItem->QttyPlus;
 	sdr_lot.QttyMinus = pItem->QttyMinus;
 	sdr_lot.OrgLotDt = pItem->OrgLotDt;
-	// @v10.9.2 GetGoodsName(pItem->GoodsID, temp_buf);
-	// @v10.9.2 STRNSCPY(sdr_lot.GoodsName, temp_buf); // @v10.5.8
-	// @v10.9.2 {
 	{
 		Goods2Tbl::Rec goods_rec;
 		if(GObj.Fetch(pItem->GoodsID, &goods_rec) > 0) {
@@ -3256,7 +3251,6 @@ int PPLotExporter::Export(const LotViewItem * pItem)
 			}
 		}
 	}
-	// } @v10.9.2 
 	temp_buf = pItem->Serial;
 	p_bobj->ReleaseSerialFromUniqSuffix(temp_buf);
 	temp_buf.CopyTo(sdr_lot.Serial, sizeof(sdr_lot.Serial));
@@ -3303,7 +3297,6 @@ int PPLotExporter::Export(const LotViewItem * pItem)
 			}
 		}
 	}
-	// @v10.5.8 {
 	{
 		SdbField _f;
 		StringSet ss_ext_codes;
@@ -3324,16 +3317,11 @@ int PPLotExporter::Export(const LotViewItem * pItem)
 							row_is_found = 1;
 					}
 					if(row_is_found) {
-						LotExtCodeTbl::Key2 k2;
-						MEMSZERO(k2);
-						k2.BillID = lot_bill_id;
-						k2.RByBill = /*rbb*/row_idx;
-						if(p_lec->search(2, &k2, spGe) && p_lec->data.BillID == lot_bill_id && p_lec->data.RByBill == row_idx) do {
-							if(p_lec->data.Code[0] && !(p_lec->data.Flags & PPLotExtCodeContainer::fBox)) {
-								ext_code_count++;
-								ss_ext_codes.add(p_lec->data.Code);
-							}
-						} while(p_lec->search(2, &k2, spNext) && p_lec->data.BillID == lot_bill_id && p_lec->data.RByBill == row_idx);
+						StringSet local_ss;
+						uint local_count = 0;
+						p_lec->GetListByBillRow(lot_bill_id, row_idx, false, local_ss, &local_count);
+						ss_ext_codes.add(local_ss);
+						ext_code_count += local_count;
 						break;
 					}
 				}
@@ -3367,7 +3355,7 @@ int PPLotExporter::Export(const LotViewItem * pItem)
 				sdr_lot = org_sdr_lot;
 			}
 		}
-		else { // } @v10.5.8 
+		else {
 			Param.InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_lot);
 			THROW(P_IE->AppendRecord(&sdr_lot, sizeof(sdr_lot)));
 		}

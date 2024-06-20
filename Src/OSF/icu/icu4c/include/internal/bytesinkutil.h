@@ -9,7 +9,7 @@
 #include "unicode/bytestream.h"
 #include "unicode/edits.h"
 #include "cmemory.h"
-#include "uassert.h"
+//#include "uassert.h"
 
 U_NAMESPACE_BEGIN
 

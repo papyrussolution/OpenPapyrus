@@ -94,7 +94,7 @@ const icu::UnicodeString * EquivIterator::next()
 {
 	const icu::UnicodeString * _next = (const icu::UnicodeString *)_hash.get(*_current);
 	if(_next == NULL) {
-		U_ASSERT(_current == _start);
+		assert(_current == _start);
 		return NULL;
 	}
 	if(*_next == *_start) {
@@ -665,7 +665,7 @@ U_CAPI const char16_t * U_EXPORT2 ucurr_getName(const char16_t * currency,
 	// We no longer support choice format data in names.  Data should not contain choice patterns.
 	ASSIGN_PTR(isChoiceFormat, FALSE);
 	if(U_SUCCESS(ec2)) {
-		U_ASSERT(s != NULL);
+		assert(s != NULL);
 		return s;
 	}
 	// If we fail to find a match, use the ISO 4217 code
@@ -727,7 +727,7 @@ U_CAPI const char16_t * U_EXPORT2 ucurr_getPluralName(const char16_t * currency,
 		if(ec2 == U_USING_DEFAULT_WARNING || (ec2 == U_USING_FALLBACK_WARNING && *ec != U_USING_DEFAULT_WARNING)) {
 			*ec = ec2;
 		}
-		U_ASSERT(s != NULL);
+		assert(s != NULL);
 		return s;
 	}
 	// If we fail to find a match, use the ISO 4217 code
@@ -1067,19 +1067,19 @@ static int32_t binarySearch(const CurrencyNameStruct* currencyNames,
 						}
 						else {
 #ifdef UCURR_DEBUG
-							U_ASSERT(currencyNames[M].currencyName[indexInCurrencyNames] == key);
+							assert(currencyNames[M].currencyName[indexInCurrencyNames] == key);
 #endif
 							R = M;
 						}
 					}
 				}
 #ifdef UCURR_DEBUG
-				U_ASSERT(L == R);
+				assert(L == R);
 #endif
 				*begin = L;
 #ifdef UCURR_DEBUG
 				printf("begin = %d\n", *begin);
-				U_ASSERT(currencyNames[*begin].currencyName[indexInCurrencyNames] == key);
+				assert(currencyNames[*begin].currencyName[indexInCurrencyNames] == key);
 #endif
 
 				// Now for the second search, finding the least R such that
@@ -1100,14 +1100,14 @@ static int32_t binarySearch(const CurrencyNameStruct* currencyNames,
 						}
 						else {
 #ifdef UCURR_DEBUG
-							U_ASSERT(currencyNames[M].currencyName[indexInCurrencyNames] == key);
+							assert(currencyNames[M].currencyName[indexInCurrencyNames] == key);
 #endif
 							L = M + 1;
 						}
 					}
 				}
 #ifdef UCURR_DEBUG
-				U_ASSERT(L == R);
+				assert(L == R);
 #endif
 				if(currencyNames[R].currencyName[indexInCurrencyNames] > key) {
 					*end = R - 1;
@@ -2013,7 +2013,7 @@ static const UEnumeration gEnumCurrencyList = {
 U_CDECL_END
 
 static void U_CALLCONV initIsoCodes(UErrorCode & status) {
-	U_ASSERT(gIsoCodes == NULL);
+	assert(gIsoCodes == NULL);
 	ucln_common_registerCleanup(UCLN_COMMON_CURRENCY, currency_cleanup);
 
 	UHashtable * isoCodes = uhash_open(uhash_hashUChars, uhash_compareUChars, NULL, &status);
@@ -2057,7 +2057,7 @@ static void populateCurrSymbolsEquiv(icu::Hashtable * hash, UErrorCode & status)
 }
 
 static void U_CALLCONV initCurrSymbolsEquiv() {
-	U_ASSERT(gCurrSymbolsEquiv == NULL);
+	assert(gCurrSymbolsEquiv == NULL);
 	UErrorCode status = U_ZERO_ERROR;
 	ucln_common_registerCleanup(UCLN_COMMON_CURRENCY, currency_cleanup);
 	icu::Hashtable * temp = new icu::Hashtable(status);

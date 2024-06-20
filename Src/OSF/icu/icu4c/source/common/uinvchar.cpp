@@ -177,7 +177,7 @@ U_CAPI void U_EXPORT2 u_charsToUChars(const char * cs, char16_t * us, int32_t le
 	while(length > 0) {
 		c = (uint8)(*cs++);
 		u = (char16_t)CHAR_TO_UCHAR(c);
-		U_ASSERT((u!=0 || c==0)); /* only invariant chars converted? */
+		assert((u!=0 || c==0)); /* only invariant chars converted? */
 		*us++ = u;
 		--length;
 	}
@@ -189,7 +189,7 @@ U_CAPI void U_EXPORT2 u_UCharsToChars(const char16_t * us, char * cs, int32_t le
 	while(length > 0) {
 		u = *us++;
 		if(!UCHAR_IS_INVARIANT(u)) {
-			U_ASSERT(FALSE); /* Variant characters were used. These are not portable in ICU. */
+			assert(FALSE); /* Variant characters were used. These are not portable in ICU. */
 			u = 0;
 		}
 		*cs++ = (char)UCHAR_TO_CHAR(u);

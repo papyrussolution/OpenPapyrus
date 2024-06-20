@@ -3095,7 +3095,7 @@ static int32_t checkUEnumeration(const char * msg,
 	int32_t i = 0, n, j, bit;
 	int32_t seenMask = 0;
 
-	U_ASSERT(expectedCount >= 0 && expectedCount < 31); /* [sic] 31 not 32 */
+	assert(expectedCount >= 0 && expectedCount < 31); /* [sic] 31 not 32 */
 	n = uenum_count(iter, &ec);
 	if(!assertSuccess("count", &ec)) return -1;
 	log_verbose("%s = [", msg);

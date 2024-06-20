@@ -180,7 +180,7 @@ void RuleBasedCollator::adoptTailoring(CollationTailoring * t, UErrorCode & erro
 		t->deleteIfZeroRefCount();
 		return;
 	}
-	U_ASSERT(settings == NULL && data == NULL && tailoring == NULL && cacheEntry == NULL);
+	assert(settings == NULL && data == NULL && tailoring == NULL && cacheEntry == NULL);
 	cacheEntry = new CollationCacheEntry(t->actualLocale, t);
 	if(cacheEntry == NULL) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
@@ -233,7 +233,7 @@ RuleBasedCollator::operator == (const Collator &other) const {
 	}
 	bool thisIsRoot = data->base == NULL;
 	bool otherIsRoot = o.data->base == NULL;
-	U_ASSERT(!thisIsRoot || !otherIsRoot); // otherwise their data pointers should be ==
+	assert(!thisIsRoot || !otherIsRoot); // otherwise their data pointers should be ==
 	if(thisIsRoot != otherIsRoot) {
 		return false;
 	}
@@ -288,7 +288,7 @@ void RuleBasedCollator::setLocales(const Locale &requested, const Locale &valid,
 		actualLocaleIsSameAsValid = FALSE;
 	}
 	else {
-		U_ASSERT(actual == valid);
+		assert(actual == valid);
 		actualLocaleIsSameAsValid = TRUE;
 	}
 	// Do not modify tailoring.actualLocale:
@@ -543,7 +543,7 @@ Collator &RuleBasedCollator::setMaxVariable(UColReorderCode group, UErrorCode & 
 		group = (UColReorderCode)(UCOL_REORDER_CODE_FIRST + defaultSettings.getMaxVariable());
 	}
 	uint32_t varTop = data->getLastPrimaryForGroup(group);
-	U_ASSERT(varTop != 0);
+	assert(varTop != 0);
 	ownedSettings->setMaxVariable(value, defaultSettings.options, errorCode);
 	if(U_FAILURE(errorCode)) {
 		return *this;
@@ -619,7 +619,7 @@ void RuleBasedCollator::setVariableTop(uint32_t varTop, UErrorCode & errorCode) 
 			return;
 		}
 		uint32_t v = data->getLastPrimaryForGroup(group);
-		U_ASSERT(v != 0 && v >= varTop);
+		assert(v != 0 && v >= varTop);
 		varTop = v;
 		if(varTop != settings->variableTop) {
 			CollationSettings * ownedSettings = SharedObject::copyOnWrite(settings);

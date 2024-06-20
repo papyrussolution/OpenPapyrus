@@ -83,7 +83,7 @@ static bool U_CALLCONV smpdtfmt_cleanup(void)
 
 static void U_CALLCONV smpdtfmt_initSets(UErrorCode & status) {
 	ucln_i18n_registerCleanup(UCLN_I18N_SMPDTFMT, smpdtfmt_cleanup);
-	U_ASSERT(gStaticSets == NULL);
+	assert(gStaticSets == NULL);
 	gStaticSets = new SimpleDateFormatStaticSets(status);
 	if(gStaticSets == NULL) {
 		status = U_MEMORY_ALLOCATION_ERROR;

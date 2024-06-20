@@ -4060,7 +4060,9 @@ public:
 		int32  LinkObjID;
 		LDATE  FreezingStart;
 		LDATE  FreezingEnd;
-		uint8  Reserve[4]; // raw
+		int32  CtAmount;
+		int32  CtRest;
+		uint8  Reserve[8]; // raw
 	} data;
 	struct Key0 {
 		int32  SCardID;
@@ -4086,6 +4088,8 @@ public:
 	DBField LinkObjID;
 	DBField FreezingStart;
 	DBField FreezingEnd;
+	DBField CtAmount;
+	DBField CtRest;
 	DBField Reserve;
 };
 #pragma pack(pop)

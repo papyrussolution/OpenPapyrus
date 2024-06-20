@@ -41,7 +41,7 @@ static bool U_CALLCONV service_cleanup() {
 
 static void U_CALLCONV locale_utility_init(UErrorCode & status) {
 	using namespace icu;
-	U_ASSERT(LocaleUtility_cache == NULL);
+	assert(LocaleUtility_cache == NULL);
 	ucln_common_registerCleanup(UCLN_COMMON_SERVICE, service_cleanup);
 	LocaleUtility_cache = new Hashtable(status);
 	if(U_FAILURE(status)) {
@@ -122,7 +122,7 @@ UnicodeString &LocaleUtility::canonicalLocaleString(const UnicodeString * id, Un
 		char * buf = (char *)uprv_malloc(buflen);
 		char * canon = (buf == 0) ? 0 : (char *)uprv_malloc(buflen);
 		if(buf != 0 && canon != 0) {
-			U_ASSERT(id->extract(0, INT32_MAX, buf, buflen) < buflen);
+			assert(id->extract(0, INT32_MAX, buf, buflen) < buflen);
 			UErrorCode ec = U_ZERO_ERROR;
 			uloc_canonicalize(buf, canon, buflen, &ec);
 			if(U_SUCCESS(ec)) {

@@ -52,17 +52,9 @@ U_NAMESPACE_BEGIN
  */
 class U_COMMON_API ByteSink : public UMemory {
 public:
-	/**
-	 * Default constructor.
-	 * @stable ICU 4.2
-	 */
 	ByteSink() 
 	{
 	}
-	/**
-	 * Virtual destructor.
-	 * @stable ICU 4.2
-	 */
 	virtual ~ByteSink();
 	/**
 	 * Append "bytes[0,n-1]" to this.
@@ -71,7 +63,6 @@ public:
 	 * @stable ICU 4.2
 	 */
 	virtual void Append(const char * bytes, int32_t n) = 0;
-
 	/**
 	 * Appends n bytes to this. Same as Append().
 	 * Call AppendU8() with u8"string literals" which are const char * in C++11

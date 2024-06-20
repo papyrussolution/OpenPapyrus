@@ -126,7 +126,7 @@ U_CAPI int32_t U_EXPORT2 T_CString_integerToString(char * buffer, int32_t v, int
 	uint8 digit;
 	int32_t length = 0;
 	uint32_t uval;
-	U_ASSERT(radix>=2 && radix<=16);
+	assert(radix>=2 && radix<=16);
 	uval = (uint32_t)v;
 	if(v<0 && radix == 10) {
 		/* Only in base 10 do we conside numbers to be signed. */
@@ -157,7 +157,7 @@ U_CAPI int32_t U_EXPORT2 T_CString_int64ToString(char * buffer, int64_t v, uint3
 	uint8 digit;
 	int32_t length = 0;
 	uint64_t uval;
-	U_ASSERT(radix>=2 && radix<=16);
+	assert(radix>=2 && radix<=16);
 	uval = (uint64_t)v;
 	if(v<0 && radix == 10) {
 		/* Only in base 10 do we conside numbers to be signed. */

@@ -529,8 +529,8 @@ int64_t RegexMatcher::end64(int32_t group, UErrorCode &err) const
 		// Get the position within the stack frame of the variables for
 		//    this capture group.
 		int32_t groupOffset = fPattern->fGroupMap->elementAti(group-1);
-		U_ASSERT(groupOffset < fPattern->fFrameSize);
-		U_ASSERT(groupOffset >= 0);
+		assert(groupOffset < fPattern->fFrameSize);
+		assert(groupOffset >= 0);
 		e = fFrame->fExtra[groupOffset + 1];
 	}
 
@@ -639,7 +639,7 @@ bool RegexMatcher::find(UErrorCode & status)
 	}
 
 	UChar32 c;
-	U_ASSERT(startPos >= 0);
+	assert(startPos >= 0);
 
 	switch(fPattern->fStartType) {
 		case START_NO_INFO:
@@ -684,7 +684,7 @@ bool RegexMatcher::find(UErrorCode & status)
 		case START_SET:
 	    {
 		    // Match may start on any char from a pre-computed set.
-		    U_ASSERT(fPattern->fMinMatchLen > 0);
+		    assert(fPattern->fMinMatchLen > 0);
 		    UTEXT_SETNATIVEINDEX(fInputText, startPos);
 		    for(;;) {
 			    int64_t pos = startPos;
@@ -719,7 +719,7 @@ bool RegexMatcher::find(UErrorCode & status)
 		case START_CHAR:
 	    {
 		    // Match starts on exactly one char.
-		    U_ASSERT(fPattern->fMinMatchLen > 0);
+		    assert(fPattern->fMinMatchLen > 0);
 		    UChar32 theChar = fPattern->fInitialChar;
 		    UTEXT_SETNATIVEINDEX(fInputText, startPos);
 		    for(;;) {
@@ -912,7 +912,7 @@ bool RegexMatcher::findUsingChunk(UErrorCode & status)
 	}
 
 	UChar32 c;
-	U_ASSERT(startPos >= 0);
+	assert(startPos >= 0);
 
 	switch(fPattern->fStartType) {
 		case START_NO_INFO:
@@ -955,7 +955,7 @@ bool RegexMatcher::findUsingChunk(UErrorCode & status)
 		case START_SET:
 	    {
 		    // Match may start on any char from a pre-computed set.
-		    U_ASSERT(fPattern->fMinMatchLen > 0);
+		    assert(fPattern->fMinMatchLen > 0);
 		    for(;;) {
 			    int32_t pos = startPos;
 			    U16_NEXT(inputBuf, startPos, fActiveLimit, c); // like c = inputBuf[startPos++];
@@ -984,7 +984,7 @@ bool RegexMatcher::findUsingChunk(UErrorCode & status)
 		case START_CHAR:
 	    {
 		    // Match starts on exactly one char.
-		    U_ASSERT(fPattern->fMinMatchLen > 0);
+		    assert(fPattern->fMinMatchLen > 0);
 		    UChar32 theChar = fPattern->fInitialChar;
 		    for(;;) {
 			    int32_t pos = startPos;
@@ -1124,8 +1124,8 @@ UText * RegexMatcher::group(int32_t groupNum, UText * dest, int64_t &group_len, 
 	}
 	else {
 		int32_t groupOffset = fPattern->fGroupMap->elementAti(groupNum-1);
-		U_ASSERT(groupOffset < fPattern->fFrameSize);
-		U_ASSERT(groupOffset >= 0);
+		assert(groupOffset < fPattern->fFrameSize);
+		assert(groupOffset >= 0);
 		s = fFrame->fExtra[groupOffset];
 		e = fFrame->fExtra[groupOffset+1];
 	}
@@ -1134,7 +1134,7 @@ UText * RegexMatcher::group(int32_t groupNum, UText * dest, int64_t &group_len, 
 		// A capture group wasn't part of the match
 		return utext_clone(dest, fInputText, FALSE, TRUE, &status);
 	}
-	U_ASSERT(s <= e);
+	assert(s <= e);
 	group_len = e - s;
 
 	dest = utext_clone(dest, fInputText, FALSE, TRUE, &status);
@@ -1166,7 +1166,7 @@ UnicodeString RegexMatcher::group(int32_t groupNum, UErrorCode & status) const {
 	else {
 		int32_t extractLength = utext_extract(fInputText, groupStart, groupEnd, buf, length, &status);
 		result.releaseBuffer(extractLength);
-		U_ASSERT(length == extractLength);
+		assert(length == extractLength);
 	}
 	return result;
 }
@@ -1201,8 +1201,8 @@ int64_t RegexMatcher::appendGroup(int32_t groupNum, UText * dest, UErrorCode & s
 	}
 	else {
 		int32_t groupOffset = fPattern->fGroupMap->elementAti(groupNum-1);
-		U_ASSERT(groupOffset < fPattern->fFrameSize);
-		U_ASSERT(groupOffset >= 0);
+		assert(groupOffset < fPattern->fFrameSize);
+		assert(groupOffset >= 0);
 		s = fFrame->fExtra[groupOffset];
 		e = fFrame->fExtra[groupOffset+1];
 	}
@@ -1211,11 +1211,11 @@ int64_t RegexMatcher::appendGroup(int32_t groupNum, UText * dest, UErrorCode & s
 		// A capture group wasn't part of the match
 		return utext_replace(dest, destLen, destLen, NULL, 0, &status);
 	}
-	U_ASSERT(s <= e);
+	assert(s <= e);
 
 	int64_t deltaLen;
 	if(UTEXT_FULL_TEXT_IN_CHUNK(fInputText, fInputLength)) {
-		U_ASSERT(e <= fInputLength);
+		assert(e <= fInputLength);
 		deltaLen = utext_replace(dest, destLen, destLen, fInputText->chunkContents+s, (int32_t)(e-s), &status);
 	}
 	else {
@@ -2127,8 +2127,8 @@ int64_t RegexMatcher::start64(int32_t group, UErrorCode & status) const
 	}
 	else {
 		int32_t groupOffset = fPattern->fGroupMap->elementAti(group-1);
-		U_ASSERT(groupOffset < fPattern->fFrameSize);
-		U_ASSERT(groupOffset >= 0);
+		assert(groupOffset < fPattern->fFrameSize);
+		assert(groupOffset >= 0);
 		s = fFrame->fExtra[groupOffset];
 	}
 
@@ -2635,8 +2635,8 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    fp->fPatIdx++;
 			    opType    = URX_TYPE(op);
 			    int32_t stringLen = URX_VAL(op);
-			    U_ASSERT(opType == URX_STRING_LEN);
-			    U_ASSERT(stringLen >= 2);
+			    assert(opType == URX_STRING_LEN);
+			    assert(stringLen >= 2);
 
 			    const char16_t * patternString = litText+stringStartIdx;
 			    int32_t patternStringIndex = 0;
@@ -2688,16 +2688,16 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			//             opValue+2 - the start of a capture group whose end
 			//                          has not yet been reached (and might not ever be).
 			case URX_START_CAPTURE:
-			    U_ASSERT(opValue >= 0 && opValue < fFrameSize-3);
+			    assert(opValue >= 0 && opValue < fFrameSize-3);
 			    fp->fExtra[opValue+2] = fp->fInputIdx;
 			    break;
 
 			case URX_END_CAPTURE:
-			    U_ASSERT(opValue >= 0 && opValue < fFrameSize-3);
-			    U_ASSERT(fp->fExtra[opValue+2] >= 0); // Start pos for this group must be set.
+			    assert(opValue >= 0 && opValue < fFrameSize-3);
+			    assert(fp->fExtra[opValue+2] >= 0); // Start pos for this group must be set.
 			    fp->fExtra[opValue] = fp->fExtra[opValue+2];// Tentative start becomes real.
 			    fp->fExtra[opValue+1] = fp->fInputIdx; // End position
-			    U_ASSERT(fp->fExtra[opValue] <= fp->fExtra[opValue+1]);
+			    assert(fp->fExtra[opValue] <= fp->fExtra[opValue+1]);
 			    break;
 
 			case URX_DOLLAR:   //  $, test for End of line
@@ -2834,13 +2834,13 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 
 			case URX_CARET_M_UNIX: //  ^, test for start of line in mulit-line + Unix-line mode
 		    {
-			    U_ASSERT(fp->fInputIdx >= fAnchorStart);
+			    assert(fp->fInputIdx >= fAnchorStart);
 			    if(fp->fInputIdx <= fAnchorStart) {
 				    // We are at the start input.  Success.
 				    break;
 			    }
 			    // Check whether character just before the current pos is a new-line
-			    U_ASSERT(fp->fInputIdx <= fAnchorLimit);
+			    assert(fp->fInputIdx <= fAnchorLimit);
 			    UTEXT_SETNATIVEINDEX(fInputText, fp->fInputIdx);
 			    UChar32 c = UTEXT_PREVIOUS32(fInputText);
 			    if(c != 0x0a) {
@@ -3003,7 +3003,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 
 			    bool success = ((opValue & URX_NEG_SET) == URX_NEG_SET);
 			    opValue &= ~URX_NEG_SET;
-			    U_ASSERT(opValue > 0 && opValue < URX_LAST_SET);
+			    assert(opValue > 0 && opValue < URX_LAST_SET);
 
 			    UTEXT_SETNATIVEINDEX(fInputText, fp->fInputIdx);
 			    UChar32 c = UTEXT_NEXT32(fInputText);
@@ -3039,7 +3039,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 				    break;
 			    }
 
-			    U_ASSERT(opValue > 0 && opValue < URX_LAST_SET);
+			    assert(opValue > 0 && opValue < URX_LAST_SET);
 
 			    UTEXT_SETNATIVEINDEX(fInputText, fp->fInputIdx);
 
@@ -3074,7 +3074,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 
 				    // There is input left.  Pick up one char and test it for set membership.
 				    UChar32 c = UTEXT_NEXT32(fInputText);
-				    U_ASSERT(opValue > 0 && opValue < fSets->size());
+				    assert(opValue > 0 && opValue < fSets->size());
 				    if(c<256) {
 					    Regex8BitSet * s8 = &fPattern->fSets8[opValue];
 					    if(s8->contains(c)) {
@@ -3181,7 +3181,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    goto breakFromLoop;
 
 			case URX_JMP_SAV:
-			    U_ASSERT(opValue < fPattern->fCompiledPat->size());
+			    assert(opValue < fPattern->fCompiledPat->size());
 			    fp = StateSave(fp, fp->fPatIdx, status); // State save to loc following current
 			    fp->fPatIdx = opValue;         // Then JMP.
 			    break;
@@ -3192,13 +3192,13 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    // Destination of the JMP must be a URX_STO_INP_LOC, from which we get the
 			    //   data address of the input position at the start of the loop.
 		    {
-			    U_ASSERT(opValue > 0 && opValue < fPattern->fCompiledPat->size());
+			    assert(opValue > 0 && opValue < fPattern->fCompiledPat->size());
 			    int32_t stoOp = (int32_t)pat[opValue-1];
-			    U_ASSERT(URX_TYPE(stoOp) == URX_STO_INP_LOC);
+			    assert(URX_TYPE(stoOp) == URX_STO_INP_LOC);
 			    int32_t frameLoc = URX_VAL(stoOp);
-			    U_ASSERT(frameLoc >= 0 && frameLoc < fFrameSize);
+			    assert(frameLoc >= 0 && frameLoc < fFrameSize);
 			    int64_t prevInputIdx = fp->fExtra[frameLoc];
-			    U_ASSERT(prevInputIdx <= fp->fInputIdx);
+			    assert(prevInputIdx <= fp->fInputIdx);
 			    if(prevInputIdx < fp->fInputIdx) {
 				    // The match did make progress.  Repeat the loop.
 				    fp = StateSave(fp, fp->fPatIdx, status); // State save to loc following current
@@ -3212,7 +3212,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 
 			case URX_CTR_INIT:
 		    {
-			    U_ASSERT(opValue >= 0 && opValue < fFrameSize-2);
+			    assert(opValue >= 0 && opValue < fFrameSize-2);
 			    fp->fExtra[opValue] = 0;     //  Set the loop counter variable to zero
 
 			    // Pick up the three extra operands that CTR_INIT has, and
@@ -3222,9 +3222,9 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    int32_t loopLoc  = URX_VAL(pat[instrOperandLoc]);
 			    int32_t minCount = (int32_t)pat[instrOperandLoc+1];
 			    int32_t maxCount = (int32_t)pat[instrOperandLoc+2];
-			    U_ASSERT(minCount>=0);
-			    U_ASSERT(maxCount>=minCount || maxCount == -1);
-			    U_ASSERT(loopLoc>=fp->fPatIdx);
+			    assert(minCount>=0);
+			    assert(maxCount>=minCount || maxCount == -1);
+			    assert(loopLoc>=fp->fPatIdx);
 
 			    if(minCount == 0) {
 				    fp = StateSave(fp, loopLoc+1, status);
@@ -3240,15 +3240,15 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 
 			case URX_CTR_LOOP:
 		    {
-			    U_ASSERT(opValue>0 && opValue < fp->fPatIdx-2);
+			    assert(opValue>0 && opValue < fp->fPatIdx-2);
 			    int32_t initOp = (int32_t)pat[opValue];
-			    U_ASSERT(URX_TYPE(initOp) == URX_CTR_INIT);
+			    assert(URX_TYPE(initOp) == URX_CTR_INIT);
 			    int64_t * pCounter = &fp->fExtra[URX_VAL(initOp)];
 			    int32_t minCount  = (int32_t)pat[opValue+2];
 			    int32_t maxCount  = (int32_t)pat[opValue+3];
 			    (*pCounter)++;
 			    if((uint64_t)*pCounter >= (uint32_t)maxCount && maxCount != -1) {
-				    U_ASSERT(*pCounter == maxCount);
+				    assert(*pCounter == maxCount);
 				    break;
 			    }
 			    if(*pCounter >= minCount) {
@@ -3280,7 +3280,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			case URX_CTR_INIT_NG:
 		    {
 			    // Initialize a non-greedy loop
-			    U_ASSERT(opValue >= 0 && opValue < fFrameSize-2);
+			    assert(opValue >= 0 && opValue < fFrameSize-2);
 			    fp->fExtra[opValue] = 0;     //  Set the loop counter variable to zero
 
 			    // Pick up the three extra operands that CTR_INIT_NG has, and
@@ -3290,9 +3290,9 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    int32_t loopLoc  = URX_VAL(pat[instrOperandLoc]);
 			    int32_t minCount = (int32_t)pat[instrOperandLoc+1];
 			    int32_t maxCount = (int32_t)pat[instrOperandLoc+2];
-			    U_ASSERT(minCount>=0);
-			    U_ASSERT(maxCount>=minCount || maxCount == -1);
-			    U_ASSERT(loopLoc>fp->fPatIdx);
+			    assert(minCount>=0);
+			    assert(maxCount>=minCount || maxCount == -1);
+			    assert(loopLoc>fp->fPatIdx);
 			    if(maxCount == -1) {
 				    fp->fExtra[opValue+1] = fp->fInputIdx; //  Save initial input index for loop
 				                                           // breaking.
@@ -3310,9 +3310,9 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			case URX_CTR_LOOP_NG:
 		    {
 			    // Non-greedy {min, max} loops
-			    U_ASSERT(opValue>0 && opValue < fp->fPatIdx-2);
+			    assert(opValue>0 && opValue < fp->fPatIdx-2);
 			    int32_t initOp = (int32_t)pat[opValue];
-			    U_ASSERT(URX_TYPE(initOp) == URX_CTR_INIT_NG);
+			    assert(URX_TYPE(initOp) == URX_CTR_INIT_NG);
 			    int64_t * pCounter = &fp->fExtra[URX_VAL(initOp)];
 			    int32_t minCount  = (int32_t)pat[opValue+2];
 			    int32_t maxCount  = (int32_t)pat[opValue+3];
@@ -3322,7 +3322,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 				    // The loop has matched the maximum permitted number of times.
 				    //   Break out of here with no action.  Matching will
 				    //   continue with the following pattern.
-				    U_ASSERT(*pCounter == maxCount);
+				    assert(*pCounter == maxCount);
 				    break;
 			    }
 
@@ -3359,15 +3359,15 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 		    break;
 
 			case URX_STO_SP:
-			    U_ASSERT(opValue >= 0 && opValue < fPattern->fDataSize);
+			    assert(opValue >= 0 && opValue < fPattern->fDataSize);
 			    fData[opValue] = fStack->size();
 			    break;
 
 			case URX_LD_SP:
 		    {
-			    U_ASSERT(opValue >= 0 && opValue < fPattern->fDataSize);
+			    assert(opValue >= 0 && opValue < fPattern->fDataSize);
 			    int32_t newStackSize = (int32_t)fData[opValue];
-			    U_ASSERT(newStackSize <= fStack->size());
+			    assert(newStackSize <= fStack->size());
 			    int64_t * newFP = fStack->getBuffer() + newStackSize - fFrameSize;
 			    if(newFP == (int64_t*)fp) {
 				    break;
@@ -3383,10 +3383,10 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 
 			case URX_BACKREF:
 		    {
-			    U_ASSERT(opValue < fFrameSize);
+			    assert(opValue < fFrameSize);
 			    int64_t groupStartIdx = fp->fExtra[opValue];
 			    int64_t groupEndIdx   = fp->fExtra[opValue+1];
-			    U_ASSERT(groupStartIdx <= groupEndIdx);
+			    assert(groupStartIdx <= groupEndIdx);
 			    if(groupStartIdx < 0) {
 				    // This capture group has not participated in the match thus far,
 				    fp = (REStackFrame*)fStack->popFrame(fFrameSize); // FAIL, no match.
@@ -3429,10 +3429,10 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 
 			case URX_BACKREF_I:
 		    {
-			    U_ASSERT(opValue < fFrameSize);
+			    assert(opValue < fFrameSize);
 			    int64_t groupStartIdx = fp->fExtra[opValue];
 			    int64_t groupEndIdx   = fp->fExtra[opValue+1];
-			    U_ASSERT(groupStartIdx <= groupEndIdx);
+			    assert(groupStartIdx <= groupEndIdx);
 			    if(groupStartIdx < 0) {
 				    // This capture group has not participated in the match thus far,
 				    fp = (REStackFrame*)fStack->popFrame(fFrameSize); // FAIL, no match.
@@ -3484,7 +3484,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 
 			case URX_STO_INP_LOC:
 		    {
-			    U_ASSERT(opValue >= 0 && opValue < fFrameSize);
+			    assert(opValue >= 0 && opValue < fFrameSize);
 			    fp->fExtra[opValue] = fp->fInputIdx;
 		    }
 		    break;
@@ -3494,9 +3494,9 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    int32_t instrOperandLoc = (int32_t)fp->fPatIdx;
 			    fp->fPatIdx += 1;
 			    int32_t dataLoc  = URX_VAL(pat[instrOperandLoc]);
-			    U_ASSERT(dataLoc >= 0 && dataLoc < fFrameSize);
+			    assert(dataLoc >= 0 && dataLoc < fFrameSize);
 			    int64_t savedInputIdx = fp->fExtra[dataLoc];
-			    U_ASSERT(savedInputIdx <= fp->fInputIdx);
+			    assert(savedInputIdx <= fp->fInputIdx);
 			    if(savedInputIdx < fp->fInputIdx) {
 				    fp->fPatIdx = opValue;               // JMP
 			    }
@@ -3510,7 +3510,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 		    {
 			    // Entering a look around block.
 			    // Save Stack Ptr, Input Pos.
-			    U_ASSERT(opValue>=0 && opValue+3<fPattern->fDataSize);
+			    assert(opValue>=0 && opValue+3<fPattern->fDataSize);
 			    fData[opValue] = fStack->size();
 			    fData[opValue+1] = fp->fInputIdx;
 			    fData[opValue+2] = fActiveStart;
@@ -3524,10 +3524,10 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 		    {
 			    // Leaving a look-ahead block.
 			    //  restore Stack Ptr, Input Pos to positions they had on entry to block.
-			    U_ASSERT(opValue>=0 && opValue+3<fPattern->fDataSize);
+			    assert(opValue>=0 && opValue+3<fPattern->fDataSize);
 			    int32_t stackSize = fStack->size();
 			    int32_t newStackSize = (int32_t)fData[opValue];
-			    U_ASSERT(stackSize >= newStackSize);
+			    assert(stackSize >= newStackSize);
 			    if(stackSize > newStackSize) {
 				    // Copy the current top frame back to the new (cut back) top frame.
 				    //   This makes the capture groups from within the look-ahead
@@ -3546,8 +3546,8 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    //    been changed because of transparent bounds on a Region.
 			    fActiveStart = fData[opValue+2];
 			    fActiveLimit = fData[opValue+3];
-			    U_ASSERT(fActiveStart >= 0);
-			    U_ASSERT(fActiveLimit <= fInputLength);
+			    assert(fActiveStart >= 0);
+			    assert(fActiveLimit <= fInputLength);
 		    }
 		    break;
 
@@ -3585,7 +3585,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 				    fp->fPatIdx++;
 				    opType  = URX_TYPE(op);
 				    opValue = URX_VAL(op);
-				    U_ASSERT(opType == URX_STRING_LEN);
+				    assert(opType == URX_STRING_LEN);
 				    int32_t patternStringLen = opValue; // Length of the string from the pattern.
 
 				    UChar32 cPattern;
@@ -3626,7 +3626,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    // Entering a look-behind block.
 			    // Save Stack Ptr, Input Pos and active input region.
 			    //   TODO:  implement transparent bounds.  Ticket #6067
-			    U_ASSERT(opValue>=0 && opValue+4<fPattern->fDataSize);
+			    assert(opValue>=0 && opValue+4<fPattern->fDataSize);
 			    fData[opValue] = fStack->size();
 			    fData[opValue+1] = fp->fInputIdx;
 			    // Save input string length, then reset to pin any matches to end at
@@ -3654,11 +3654,11 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 				    // The max length need not be exact; it just needs to be >= actual maximum.
 				    maxML *= 3;
 			    }
-			    U_ASSERT(minML <= maxML);
-			    U_ASSERT(minML >= 0);
+			    assert(minML <= maxML);
+			    assert(minML >= 0);
 
 			    // Fetch (from data) the last input index where a match was attempted.
-			    U_ASSERT(opValue>=0 && opValue+4<fPattern->fDataSize);
+			    assert(opValue>=0 && opValue+4<fPattern->fDataSize);
 			    int64_t  &lbStartIdx = fData[opValue+4];
 			    if(lbStartIdx < 0) {
 				    // First time through loop.
@@ -3689,8 +3689,8 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 				    fp = (REStackFrame*)fStack->popFrame(fFrameSize);
 				    fActiveStart = fData[opValue+2];
 				    fActiveLimit = fData[opValue+3];
-				    U_ASSERT(fActiveStart >= 0);
-				    U_ASSERT(fActiveLimit <= fInputLength);
+				    assert(fActiveStart >= 0);
+				    assert(fActiveLimit <= fInputLength);
 				    break;
 			    }
 
@@ -3704,7 +3704,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			case URX_LB_END:
 			    // End of a look-behind block, after a successful match.
 		    {
-			    U_ASSERT(opValue>=0 && opValue+4<fPattern->fDataSize);
+			    assert(opValue>=0 && opValue+4<fPattern->fDataSize);
 			    if(fp->fInputIdx != fActiveLimit) {
 				    //  The look-behind expression matched, but the match did not
 				    //    extend all the way to the point that we are looking behind from.
@@ -3720,8 +3720,8 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    //   position being looked-behind.
 			    fActiveStart = fData[opValue+2];
 			    fActiveLimit = fData[opValue+3];
-			    U_ASSERT(fActiveStart >= 0);
-			    U_ASSERT(fActiveLimit <= fInputLength);
+			    assert(fActiveStart >= 0);
+			    assert(fActiveLimit <= fInputLength);
 		    }
 		    break;
 
@@ -3740,12 +3740,12 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    }
 			    int32_t continueLoc = (int32_t)pat[fp->fPatIdx++];
 			    continueLoc = URX_VAL(continueLoc);
-			    U_ASSERT(minML <= maxML);
-			    U_ASSERT(minML >= 0);
-			    U_ASSERT(continueLoc > fp->fPatIdx);
+			    assert(minML <= maxML);
+			    assert(minML >= 0);
+			    assert(continueLoc > fp->fPatIdx);
 
 			    // Fetch (from data) the last input index where a match was attempted.
-			    U_ASSERT(opValue>=0 && opValue+4<fPattern->fDataSize);
+			    assert(opValue>=0 && opValue+4<fPattern->fDataSize);
 			    int64_t  &lbStartIdx = fData[opValue+4];
 			    if(lbStartIdx < 0) {
 				    // First time through loop.
@@ -3775,8 +3775,8 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 				    //  a whole has succeeded.  Jump forward to the continue location
 				    fActiveStart = fData[opValue+2];
 				    fActiveLimit = fData[opValue+3];
-				    U_ASSERT(fActiveStart >= 0);
-				    U_ASSERT(fActiveLimit <= fInputLength);
+				    assert(fActiveStart >= 0);
+				    assert(fActiveLimit <= fInputLength);
 				    fp->fPatIdx = continueLoc;
 				    break;
 			    }
@@ -3791,7 +3791,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			case URX_LBN_END:
 			    // End of a negative look-behind block, after a successful match.
 		    {
-			    U_ASSERT(opValue>=0 && opValue+4<fPattern->fDataSize);
+			    assert(opValue>=0 && opValue+4<fPattern->fDataSize);
 			    if(fp->fInputIdx != fActiveLimit) {
 				    //  The look-behind expression matched, but the match did not
 				    //    extend all the way to the point that we are looking behind from.
@@ -3810,14 +3810,14 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    //   to the position being looked-behind.
 			    fActiveStart = fData[opValue+2];
 			    fActiveLimit = fData[opValue+3];
-			    U_ASSERT(fActiveStart >= 0);
-			    U_ASSERT(fActiveLimit <= fInputLength);
+			    assert(fActiveStart >= 0);
+			    assert(fActiveLimit <= fInputLength);
 
 			    // Restore original stack position, discarding any state saved
 			    //   by the successful pattern match.
-			    U_ASSERT(opValue>=0 && opValue+1<fPattern->fDataSize);
+			    assert(opValue>=0 && opValue+1<fPattern->fDataSize);
 			    int32_t newStackSize = (int32_t)fData[opValue];
-			    U_ASSERT(fStack->size() > newStackSize);
+			    assert(fStack->size() > newStackSize);
 			    fStack->setSize(newStackSize);
 
 			    //  FAIL, which will take control back to someplace
@@ -3832,7 +3832,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    //   This op scans through all matching input.
 			    //   The following LOOP_C op emulates stack unwinding if the following pattern fails.
 		    {
-			    U_ASSERT(opValue > 0 && opValue < fSets->size());
+			    assert(opValue > 0 && opValue < fSets->size());
 			    Regex8BitSet * s8 = &fPattern->fSets8[opValue];
 			    UnicodeSet * s  = (UnicodeSet*)fSets->elementAt(opValue);
 
@@ -3870,9 +3870,9 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    //   must follow.  It's operand is the stack location
 			    //   that holds the starting input index for the match of this [set]*
 			    int32_t loopcOp = (int32_t)pat[fp->fPatIdx];
-			    U_ASSERT(URX_TYPE(loopcOp) == URX_LOOP_C);
+			    assert(URX_TYPE(loopcOp) == URX_LOOP_C);
 			    int32_t stackLoc = URX_VAL(loopcOp);
-			    U_ASSERT(stackLoc >= 0 && stackLoc < fFrameSize);
+			    assert(stackLoc >= 0 && stackLoc < fFrameSize);
 			    fp->fExtra[stackLoc] = fp->fInputIdx;
 			    fp->fInputIdx = ix;
 
@@ -3931,9 +3931,9 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    //   must follow.  It's operand is the stack location
 			    //   that holds the starting input index for the match of this .*
 			    int32_t loopcOp = (int32_t)pat[fp->fPatIdx];
-			    U_ASSERT(URX_TYPE(loopcOp) == URX_LOOP_C);
+			    assert(URX_TYPE(loopcOp) == URX_LOOP_C);
 			    int32_t stackLoc = URX_VAL(loopcOp);
-			    U_ASSERT(stackLoc >= 0 && stackLoc < fFrameSize);
+			    assert(stackLoc >= 0 && stackLoc < fFrameSize);
 			    fp->fExtra[stackLoc] = fp->fInputIdx;
 			    fp->fInputIdx = ix;
 
@@ -3947,9 +3947,9 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 
 			case URX_LOOP_C:
 		    {
-			    U_ASSERT(opValue>=0 && opValue<fFrameSize);
+			    assert(opValue>=0 && opValue<fFrameSize);
 			    backSearchIndex = fp->fExtra[opValue];
-			    U_ASSERT(backSearchIndex <= fp->fInputIdx);
+			    assert(backSearchIndex <= fp->fInputIdx);
 			    if(backSearchIndex == fp->fInputIdx) {
 				    // We've backed up the input idx to the point that the loop started.
 				    // The loop is done.  Leave here without saving state.
@@ -3961,7 +3961,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status)
 			    //   and a state save to this instruction in case the following code fails again.
 			    //   (We're going backwards because this loop emulates stack unwinding, not
 			    //    the initial scan forward.)
-			    U_ASSERT(fp->fInputIdx > 0);
+			    assert(fp->fInputIdx > 0);
 			    UTEXT_SETNATIVEINDEX(fInputText, fp->fInputIdx);
 			    UChar32 prevC = UTEXT_PREVIOUS32(fInputText);
 			    fp->fInputIdx = UTEXT_GETNATIVEINDEX(fInputText);
@@ -4130,8 +4130,8 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    fp->fPatIdx++;
 			    opType    = URX_TYPE(op);
 			    stringLen = URX_VAL(op);
-			    U_ASSERT(opType == URX_STRING_LEN);
-			    U_ASSERT(stringLen >= 2);
+			    assert(opType == URX_STRING_LEN);
+			    assert(stringLen >= 2);
 
 			    const char16_t * pInp = inputBuf + fp->fInputIdx;
 			    const char16_t * pInpLimit = inputBuf + fActiveLimit;
@@ -4180,16 +4180,16 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			//             opValue+2 - the start of a capture group whose end
 			//                          has not yet been reached (and might not ever be).
 			case URX_START_CAPTURE:
-			    U_ASSERT(opValue >= 0 && opValue < fFrameSize-3);
+			    assert(opValue >= 0 && opValue < fFrameSize-3);
 			    fp->fExtra[opValue+2] = fp->fInputIdx;
 			    break;
 
 			case URX_END_CAPTURE:
-			    U_ASSERT(opValue >= 0 && opValue < fFrameSize-3);
-			    U_ASSERT(fp->fExtra[opValue+2] >= 0); // Start pos for this group must be set.
+			    assert(opValue >= 0 && opValue < fFrameSize-3);
+			    assert(fp->fExtra[opValue+2] >= 0); // Start pos for this group must be set.
 			    fp->fExtra[opValue] = fp->fExtra[opValue+2];// Tentative start becomes real.
 			    fp->fExtra[opValue+1] = fp->fInputIdx; // End position
-			    U_ASSERT(fp->fExtra[opValue] <= fp->fExtra[opValue+1]);
+			    assert(fp->fExtra[opValue] <= fp->fExtra[opValue+1]);
 			    break;
 
 			case URX_DOLLAR:   //  $, test for End of line
@@ -4325,13 +4325,13 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 
 			case URX_CARET_M_UNIX: //  ^, test for start of line in mulit-line + Unix-line mode
 		    {
-			    U_ASSERT(fp->fInputIdx >= fAnchorStart);
+			    assert(fp->fInputIdx >= fAnchorStart);
 			    if(fp->fInputIdx <= fAnchorStart) {
 				    // We are at the start input.  Success.
 				    break;
 			    }
 			    // Check whether character just before the current pos is a new-line
-			    U_ASSERT(fp->fInputIdx <= fAnchorLimit);
+			    assert(fp->fInputIdx <= fAnchorLimit);
 			    char16_t c = inputBuf[fp->fInputIdx - 1];
 			    if(c != 0x0a) {
 				    // Not at the start of a line.  Back-track out.
@@ -4487,7 +4487,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 
 			    bool success = ((opValue & URX_NEG_SET) == URX_NEG_SET);
 			    opValue &= ~URX_NEG_SET;
-			    U_ASSERT(opValue > 0 && opValue < URX_LAST_SET);
+			    assert(opValue > 0 && opValue < URX_LAST_SET);
 
 			    UChar32 c;
 			    U16_NEXT(inputBuf, fp->fInputIdx, fActiveLimit, c);
@@ -4519,7 +4519,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 				    break;
 			    }
 
-			    U_ASSERT(opValue > 0 && opValue < URX_LAST_SET);
+			    assert(opValue > 0 && opValue < URX_LAST_SET);
 
 			    UChar32 c;
 			    U16_NEXT(inputBuf, fp->fInputIdx, fActiveLimit, c);
@@ -4547,7 +4547,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 				    break;
 			    }
 
-			    U_ASSERT(opValue > 0 && opValue < fSets->size());
+			    assert(opValue > 0 && opValue < fSets->size());
 
 			    // There is input left.  Pick up one char and test it for set membership.
 			    UChar32 c;
@@ -4646,7 +4646,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    goto breakFromLoop;
 
 			case URX_JMP_SAV:
-			    U_ASSERT(opValue < fPattern->fCompiledPat->size());
+			    assert(opValue < fPattern->fCompiledPat->size());
 			    fp = StateSave(fp, fp->fPatIdx, status); // State save to loc following current
 			    fp->fPatIdx = opValue;         // Then JMP.
 			    break;
@@ -4657,13 +4657,13 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    // Destination of the JMP must be a URX_STO_INP_LOC, from which we get the
 			    //   data address of the input position at the start of the loop.
 		    {
-			    U_ASSERT(opValue > 0 && opValue < fPattern->fCompiledPat->size());
+			    assert(opValue > 0 && opValue < fPattern->fCompiledPat->size());
 			    int32_t stoOp = (int32_t)pat[opValue-1];
-			    U_ASSERT(URX_TYPE(stoOp) == URX_STO_INP_LOC);
+			    assert(URX_TYPE(stoOp) == URX_STO_INP_LOC);
 			    int32_t frameLoc = URX_VAL(stoOp);
-			    U_ASSERT(frameLoc >= 0 && frameLoc < fFrameSize);
+			    assert(frameLoc >= 0 && frameLoc < fFrameSize);
 			    int32_t prevInputIdx = (int32_t)fp->fExtra[frameLoc];
-			    U_ASSERT(prevInputIdx <= fp->fInputIdx);
+			    assert(prevInputIdx <= fp->fInputIdx);
 			    if(prevInputIdx < fp->fInputIdx) {
 				    // The match did make progress.  Repeat the loop.
 				    fp = StateSave(fp, fp->fPatIdx, status); // State save to loc following current
@@ -4677,7 +4677,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 
 			case URX_CTR_INIT:
 		    {
-			    U_ASSERT(opValue >= 0 && opValue < fFrameSize-2);
+			    assert(opValue >= 0 && opValue < fFrameSize-2);
 			    fp->fExtra[opValue] = 0;     //  Set the loop counter variable to zero
 
 			    // Pick up the three extra operands that CTR_INIT has, and
@@ -4687,9 +4687,9 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    int32_t loopLoc  = URX_VAL(pat[instrOperandLoc]);
 			    int32_t minCount = (int32_t)pat[instrOperandLoc+1];
 			    int32_t maxCount = (int32_t)pat[instrOperandLoc+2];
-			    U_ASSERT(minCount>=0);
-			    U_ASSERT(maxCount>=minCount || maxCount == -1);
-			    U_ASSERT(loopLoc>=fp->fPatIdx);
+			    assert(minCount>=0);
+			    assert(maxCount>=minCount || maxCount == -1);
+			    assert(loopLoc>=fp->fPatIdx);
 
 			    if(minCount == 0) {
 				    fp = StateSave(fp, loopLoc+1, status);
@@ -4705,15 +4705,15 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 
 			case URX_CTR_LOOP:
 		    {
-			    U_ASSERT(opValue>0 && opValue < fp->fPatIdx-2);
+			    assert(opValue>0 && opValue < fp->fPatIdx-2);
 			    int32_t initOp = (int32_t)pat[opValue];
-			    U_ASSERT(URX_TYPE(initOp) == URX_CTR_INIT);
+			    assert(URX_TYPE(initOp) == URX_CTR_INIT);
 			    int64_t * pCounter = &fp->fExtra[URX_VAL(initOp)];
 			    int32_t minCount  = (int32_t)pat[opValue+2];
 			    int32_t maxCount  = (int32_t)pat[opValue+3];
 			    (*pCounter)++;
 			    if((uint64_t)*pCounter >= (uint32_t)maxCount && maxCount != -1) {
-				    U_ASSERT(*pCounter == maxCount);
+				    assert(*pCounter == maxCount);
 				    break;
 			    }
 			    if(*pCounter >= minCount) {
@@ -4744,7 +4744,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			case URX_CTR_INIT_NG:
 		    {
 			    // Initialize a non-greedy loop
-			    U_ASSERT(opValue >= 0 && opValue < fFrameSize-2);
+			    assert(opValue >= 0 && opValue < fFrameSize-2);
 			    fp->fExtra[opValue] = 0;     //  Set the loop counter variable to zero
 
 			    // Pick up the three extra operands that CTR_INIT_NG has, and
@@ -4754,9 +4754,9 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    int32_t loopLoc  = URX_VAL(pat[instrOperandLoc]);
 			    int32_t minCount = (int32_t)pat[instrOperandLoc+1];
 			    int32_t maxCount = (int32_t)pat[instrOperandLoc+2];
-			    U_ASSERT(minCount>=0);
-			    U_ASSERT(maxCount>=minCount || maxCount == -1);
-			    U_ASSERT(loopLoc>fp->fPatIdx);
+			    assert(minCount>=0);
+			    assert(maxCount>=minCount || maxCount == -1);
+			    assert(loopLoc>fp->fPatIdx);
 			    if(maxCount == -1) {
 				    fp->fExtra[opValue+1] = fp->fInputIdx; //  Save initial input index for loop
 				                                           // breaking.
@@ -4774,9 +4774,9 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			case URX_CTR_LOOP_NG:
 		    {
 			    // Non-greedy {min, max} loops
-			    U_ASSERT(opValue>0 && opValue < fp->fPatIdx-2);
+			    assert(opValue>0 && opValue < fp->fPatIdx-2);
 			    int32_t initOp = (int32_t)pat[opValue];
-			    U_ASSERT(URX_TYPE(initOp) == URX_CTR_INIT_NG);
+			    assert(URX_TYPE(initOp) == URX_CTR_INIT_NG);
 			    int64_t * pCounter = &fp->fExtra[URX_VAL(initOp)];
 			    int32_t minCount  = (int32_t)pat[opValue+2];
 			    int32_t maxCount  = (int32_t)pat[opValue+3];
@@ -4786,7 +4786,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 				    // The loop has matched the maximum permitted number of times.
 				    //   Break out of here with no action.  Matching will
 				    //   continue with the following pattern.
-				    U_ASSERT(*pCounter == maxCount);
+				    assert(*pCounter == maxCount);
 				    break;
 			    }
 
@@ -4822,15 +4822,15 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 		    break;
 
 			case URX_STO_SP:
-			    U_ASSERT(opValue >= 0 && opValue < fPattern->fDataSize);
+			    assert(opValue >= 0 && opValue < fPattern->fDataSize);
 			    fData[opValue] = fStack->size();
 			    break;
 
 			case URX_LD_SP:
 		    {
-			    U_ASSERT(opValue >= 0 && opValue < fPattern->fDataSize);
+			    assert(opValue >= 0 && opValue < fPattern->fDataSize);
 			    int32_t newStackSize = (int32_t)fData[opValue];
-			    U_ASSERT(newStackSize <= fStack->size());
+			    assert(newStackSize <= fStack->size());
 			    int64_t * newFP = fStack->getBuffer() + newStackSize - fFrameSize;
 			    if(newFP == (int64_t*)fp) {
 				    break;
@@ -4846,10 +4846,10 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 
 			case URX_BACKREF:
 		    {
-			    U_ASSERT(opValue < fFrameSize);
+			    assert(opValue < fFrameSize);
 			    int64_t groupStartIdx = fp->fExtra[opValue];
 			    int64_t groupEndIdx   = fp->fExtra[opValue+1];
-			    U_ASSERT(groupStartIdx <= groupEndIdx);
+			    assert(groupStartIdx <= groupEndIdx);
 			    int64_t inputIndex = fp->fInputIdx;
 			    if(groupStartIdx < 0) {
 				    // This capture group has not participated in the match thus far,
@@ -4885,10 +4885,10 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 
 			case URX_BACKREF_I:
 		    {
-			    U_ASSERT(opValue < fFrameSize);
+			    assert(opValue < fFrameSize);
 			    int64_t groupStartIdx = fp->fExtra[opValue];
 			    int64_t groupEndIdx   = fp->fExtra[opValue+1];
-			    U_ASSERT(groupStartIdx <= groupEndIdx);
+			    assert(groupStartIdx <= groupEndIdx);
 			    if(groupStartIdx < 0) {
 				    // This capture group has not participated in the match thus far,
 				    fp = (REStackFrame*)fStack->popFrame(fFrameSize); // FAIL, no match.
@@ -4938,7 +4938,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 
 			case URX_STO_INP_LOC:
 		    {
-			    U_ASSERT(opValue >= 0 && opValue < fFrameSize);
+			    assert(opValue >= 0 && opValue < fFrameSize);
 			    fp->fExtra[opValue] = fp->fInputIdx;
 		    }
 		    break;
@@ -4948,9 +4948,9 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    int32_t instrOperandLoc = (int32_t)fp->fPatIdx;
 			    fp->fPatIdx += 1;
 			    int32_t dataLoc  = URX_VAL(pat[instrOperandLoc]);
-			    U_ASSERT(dataLoc >= 0 && dataLoc < fFrameSize);
+			    assert(dataLoc >= 0 && dataLoc < fFrameSize);
 			    int32_t savedInputIdx = (int32_t)fp->fExtra[dataLoc];
-			    U_ASSERT(savedInputIdx <= fp->fInputIdx);
+			    assert(savedInputIdx <= fp->fInputIdx);
 			    if(savedInputIdx < fp->fInputIdx) {
 				    fp->fPatIdx = opValue;               // JMP
 			    }
@@ -4964,7 +4964,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 		    {
 			    // Entering a look around block.
 			    // Save Stack Ptr, Input Pos.
-			    U_ASSERT(opValue>=0 && opValue+3<fPattern->fDataSize);
+			    assert(opValue>=0 && opValue+3<fPattern->fDataSize);
 			    fData[opValue] = fStack->size();
 			    fData[opValue+1] = fp->fInputIdx;
 			    fData[opValue+2] = fActiveStart;
@@ -4978,10 +4978,10 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 		    {
 			    // Leaving a look around block.
 			    //  restore Stack Ptr, Input Pos to positions they had on entry to block.
-			    U_ASSERT(opValue>=0 && opValue+3<fPattern->fDataSize);
+			    assert(opValue>=0 && opValue+3<fPattern->fDataSize);
 			    int32_t stackSize = fStack->size();
 			    int32_t newStackSize = (int32_t)fData[opValue];
-			    U_ASSERT(stackSize >= newStackSize);
+			    assert(stackSize >= newStackSize);
 			    if(stackSize > newStackSize) {
 				    // Copy the current top frame back to the new (cut back) top frame.
 				    //   This makes the capture groups from within the look-ahead
@@ -5000,8 +5000,8 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    //    been changed because of transparent bounds on a Region.
 			    fActiveStart = fData[opValue+2];
 			    fActiveLimit = fData[opValue+3];
-			    U_ASSERT(fActiveStart >= 0);
-			    U_ASSERT(fActiveLimit <= fInputLength);
+			    assert(fActiveStart >= 0);
+			    assert(fActiveLimit <= fInputLength);
 		    }
 		    break;
 
@@ -5031,7 +5031,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    fp->fPatIdx++;
 			    opType  = URX_TYPE(op);
 			    opValue = URX_VAL(op);
-			    U_ASSERT(opType == URX_STRING_LEN);
+			    assert(opType == URX_STRING_LEN);
 			    int32_t patternStringLen = opValue; // Length of the string from the pattern.
 
 			    UChar32 cText;
@@ -5068,7 +5068,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    // Entering a look-behind block.
 			    // Save Stack Ptr, Input Pos and active input region.
 			    //   TODO:  implement transparent bounds.  Ticket #6067
-			    U_ASSERT(opValue>=0 && opValue+4<fPattern->fDataSize);
+			    assert(opValue>=0 && opValue+4<fPattern->fDataSize);
 			    fData[opValue] = fStack->size();
 			    fData[opValue+1] = fp->fInputIdx;
 			    // Save input string length, then reset to pin any matches to end at
@@ -5091,11 +5091,11 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    //   of this op in the pattern.
 			    int32_t minML = (int32_t)pat[fp->fPatIdx++];
 			    int32_t maxML = (int32_t)pat[fp->fPatIdx++];
-			    U_ASSERT(minML <= maxML);
-			    U_ASSERT(minML >= 0);
+			    assert(minML <= maxML);
+			    assert(minML >= 0);
 
 			    // Fetch (from data) the last input index where a match was attempted.
-			    U_ASSERT(opValue>=0 && opValue+4<fPattern->fDataSize);
+			    assert(opValue>=0 && opValue+4<fPattern->fDataSize);
 			    int64_t  &lbStartIdx = fData[opValue+4];
 			    if(lbStartIdx < 0) {
 				    // First time through loop.
@@ -5122,8 +5122,8 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 				    fp = (REStackFrame*)fStack->popFrame(fFrameSize);
 				    fActiveStart = fData[opValue+2];
 				    fActiveLimit = fData[opValue+3];
-				    U_ASSERT(fActiveStart >= 0);
-				    U_ASSERT(fActiveLimit <= fInputLength);
+				    assert(fActiveStart >= 0);
+				    assert(fActiveLimit <= fInputLength);
 				    break;
 			    }
 
@@ -5137,7 +5137,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			case URX_LB_END:
 			    // End of a look-behind block, after a successful match.
 		    {
-			    U_ASSERT(opValue>=0 && opValue+4<fPattern->fDataSize);
+			    assert(opValue>=0 && opValue+4<fPattern->fDataSize);
 			    if(fp->fInputIdx != fActiveLimit) {
 				    //  The look-behind expression matched, but the match did not
 				    //    extend all the way to the point that we are looking behind from.
@@ -5153,8 +5153,8 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    //   position being looked-behind.
 			    fActiveStart = fData[opValue+2];
 			    fActiveLimit = fData[opValue+3];
-			    U_ASSERT(fActiveStart >= 0);
-			    U_ASSERT(fActiveLimit <= fInputLength);
+			    assert(fActiveStart >= 0);
+			    assert(fActiveLimit <= fInputLength);
 		    }
 		    break;
 
@@ -5168,12 +5168,12 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    int32_t maxML       = (int32_t)pat[fp->fPatIdx++];
 			    int32_t continueLoc = (int32_t)pat[fp->fPatIdx++];
 			    continueLoc = URX_VAL(continueLoc);
-			    U_ASSERT(minML <= maxML);
-			    U_ASSERT(minML >= 0);
-			    U_ASSERT(continueLoc > fp->fPatIdx);
+			    assert(minML <= maxML);
+			    assert(minML >= 0);
+			    assert(continueLoc > fp->fPatIdx);
 
 			    // Fetch (from data) the last input index where a match was attempted.
-			    U_ASSERT(opValue>=0 && opValue+4<fPattern->fDataSize);
+			    assert(opValue>=0 && opValue+4<fPattern->fDataSize);
 			    int64_t  &lbStartIdx = fData[opValue+4];
 			    if(lbStartIdx < 0) {
 				    // First time through loop.
@@ -5199,8 +5199,8 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 				    //  a whole has succeeded.  Jump forward to the continue location
 				    fActiveStart = fData[opValue+2];
 				    fActiveLimit = fData[opValue+3];
-				    U_ASSERT(fActiveStart >= 0);
-				    U_ASSERT(fActiveLimit <= fInputLength);
+				    assert(fActiveStart >= 0);
+				    assert(fActiveLimit <= fInputLength);
 				    fp->fPatIdx = continueLoc;
 				    break;
 			    }
@@ -5215,7 +5215,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			case URX_LBN_END:
 			    // End of a negative look-behind block, after a successful match.
 		    {
-			    U_ASSERT(opValue>=0 && opValue+4<fPattern->fDataSize);
+			    assert(opValue>=0 && opValue+4<fPattern->fDataSize);
 			    if(fp->fInputIdx != fActiveLimit) {
 				    //  The look-behind expression matched, but the match did not
 				    //    extend all the way to the point that we are looking behind from.
@@ -5234,14 +5234,14 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    //   to the position being looked-behind.
 			    fActiveStart = fData[opValue+2];
 			    fActiveLimit = fData[opValue+3];
-			    U_ASSERT(fActiveStart >= 0);
-			    U_ASSERT(fActiveLimit <= fInputLength);
+			    assert(fActiveStart >= 0);
+			    assert(fActiveLimit <= fInputLength);
 
 			    // Restore original stack position, discarding any state saved
 			    //   by the successful pattern match.
-			    U_ASSERT(opValue>=0 && opValue+1<fPattern->fDataSize);
+			    assert(opValue>=0 && opValue+1<fPattern->fDataSize);
 			    int32_t newStackSize = (int32_t)fData[opValue];
-			    U_ASSERT(fStack->size() > newStackSize);
+			    assert(fStack->size() > newStackSize);
 			    fStack->setSize(newStackSize);
 
 			    //  FAIL, which will take control back to someplace
@@ -5256,7 +5256,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    //   This op scans through all matching input.
 			    //   The following LOOP_C op emulates stack unwinding if the following pattern fails.
 		    {
-			    U_ASSERT(opValue > 0 && opValue < fSets->size());
+			    assert(opValue > 0 && opValue < fSets->size());
 			    Regex8BitSet * s8 = &fPattern->fSets8[opValue];
 			    UnicodeSet * s  = (UnicodeSet*)fSets->elementAt(opValue);
 
@@ -5295,9 +5295,9 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    //   must follow.  It's operand is the stack location
 			    //   that holds the starting input index for the match of this [set]*
 			    int32_t loopcOp = (int32_t)pat[fp->fPatIdx];
-			    U_ASSERT(URX_TYPE(loopcOp) == URX_LOOP_C);
+			    assert(URX_TYPE(loopcOp) == URX_LOOP_C);
 			    int32_t stackLoc = URX_VAL(loopcOp);
-			    U_ASSERT(stackLoc >= 0 && stackLoc < fFrameSize);
+			    assert(stackLoc >= 0 && stackLoc < fFrameSize);
 			    fp->fExtra[stackLoc] = fp->fInputIdx;
 			    fp->fInputIdx = ix;
 
@@ -5357,9 +5357,9 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    //   must follow.  It's operand is the stack location
 			    //   that holds the starting input index for the match of this .*
 			    int32_t loopcOp = (int32_t)pat[fp->fPatIdx];
-			    U_ASSERT(URX_TYPE(loopcOp) == URX_LOOP_C);
+			    assert(URX_TYPE(loopcOp) == URX_LOOP_C);
 			    int32_t stackLoc = URX_VAL(loopcOp);
-			    U_ASSERT(stackLoc >= 0 && stackLoc < fFrameSize);
+			    assert(stackLoc >= 0 && stackLoc < fFrameSize);
 			    fp->fExtra[stackLoc] = fp->fInputIdx;
 			    fp->fInputIdx = ix;
 
@@ -5373,9 +5373,9 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 
 			case URX_LOOP_C:
 		    {
-			    U_ASSERT(opValue>=0 && opValue<fFrameSize);
+			    assert(opValue>=0 && opValue<fFrameSize);
 			    backSearchIndex = (int32_t)fp->fExtra[opValue];
-			    U_ASSERT(backSearchIndex <= fp->fInputIdx);
+			    assert(backSearchIndex <= fp->fInputIdx);
 			    if(backSearchIndex == fp->fInputIdx) {
 				    // We've backed up the input idx to the point that the loop started.
 				    // The loop is done.  Leave here without saving state.
@@ -5387,7 +5387,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    //   and a state save to this instruction in case the following code fails again.
 			    //   (We're going backwards because this loop emulates stack unwinding, not
 			    //    the initial scan forward.)
-			    U_ASSERT(fp->fInputIdx > 0);
+			    assert(fp->fInputIdx > 0);
 			    UChar32 prevC;
 			    U16_PREV(inputBuf, 0, fp->fInputIdx, prevC); // !!!: should this 0 be one of f*Limit?
 

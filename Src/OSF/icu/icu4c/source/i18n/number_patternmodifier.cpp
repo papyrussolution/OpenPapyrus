@@ -38,7 +38,7 @@ void MutablePatternModifier::setSymbols(const DecimalFormatSymbols* symbols,
     const UNumberUnitWidth unitWidth,
     const PluralRules* rules,
     UErrorCode & status) {
-	U_ASSERT((rules != nullptr) == needsPlurals());
+	assert((rules != nullptr) == needsPlurals());
 	fSymbols = symbols;
 	fCurrencySymbols = {currency, symbols->getLocale(), *symbols, status};
 	fUnitWidth = unitWidth;
@@ -295,7 +295,7 @@ UnicodeString MutablePatternModifier::getSymbol(AffixPatternType type) const
 			// NOTE: This is the code path only for patterns containing "¤¤¤".
 		    // Plural currencies set via the API are formatted in LongNameHandler.
 		    // This code path is used by DecimalFormat via CurrencyPluralInfo.
-		    U_ASSERT(fPlural != StandardPlural::Form::COUNT);
+		    assert(fPlural != StandardPlural::Form::COUNT);
 		    return fCurrencySymbols.getPluralName(fPlural, localStatus);
 		case AffixPatternType::TYPE_CURRENCY_QUAD: return UnicodeString(u"\uFFFD");
 		case AffixPatternType::TYPE_CURRENCY_QUINT: return UnicodeString(u"\uFFFD");

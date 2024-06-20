@@ -706,7 +706,7 @@ UnicodeString getDeriveCompoundRule(Locale locale, const char * feature, const c
 	if(U_FAILURE(status)) {
 		return {};
 	}
-	U_ASSERT(!uVal.isBogus());
+	assert(!uVal.isBogus());
 	return uVal;
 }
 
@@ -802,7 +802,7 @@ UnicodeString calculateGenderForUnit(const Locale &locale, const MeasureUnit &un
 		int32_t startSlice = 0;
 		// inclusive
 		int32_t endSlice = mui.singleUnits.length()-1;
-		U_ASSERT(endSlice > 0); // Else it would not be COMPOUND
+		assert(endSlice > 0); // Else it would not be COMPOUND
 		if(mui.singleUnits[endSlice]->dimensionality < 0) {
 			// We have a -per- construct
 			UnicodeString perRule = getDeriveCompoundRule(locale, "gender", "per", status);
@@ -844,7 +844,7 @@ UnicodeString calculateGenderForUnit(const Locale &locale, const MeasureUnit &un
 				startSlice = endSlice;
 			}
 		}
-		U_ASSERT(startSlice == endSlice);
+		assert(startSlice == endSlice);
 		singleUnitIndex = startSlice;
 	}
 	else if(mui.complexity == UMEASURE_UNIT_MIXED) {
@@ -852,8 +852,8 @@ UnicodeString calculateGenderForUnit(const Locale &locale, const MeasureUnit &un
 		return {};
 	}
 	else {
-		U_ASSERT(mui.complexity == UMEASURE_UNIT_SINGLE);
-		U_ASSERT(mui.singleUnits.length() == 1);
+		assert(mui.complexity == UMEASURE_UNIT_SINGLE);
+		assert(mui.singleUnits.length() == 1);
 	}
 
 	// Now we know which singleUnit's gender we want
@@ -909,7 +909,7 @@ void LongNameHandler::forMeasureUnit(const Locale &loc,
 	//
 	// 1. If the unitId is empty or invalid, fail
 	// 2. Put the unitId into normalized order
-	U_ASSERT(fillIn != nullptr);
+	assert(fillIn != nullptr);
 
 	if(strcmp(unitRef.getType(), "") != 0) {
 		// Handling built-in units:
@@ -943,7 +943,7 @@ void LongNameHandler::forMeasureUnit(const Locale &loc,
 	else {
 		// Check if it is a MeasureUnit this constructor handles: this
 		// constructor does not handle mixed units
-		U_ASSERT(unitRef.getComplexity(status) != UMEASURE_UNIT_MIXED);
+		assert(unitRef.getComplexity(status) != UMEASURE_UNIT_MIXED);
 		forArbitraryUnit(loc, unitRef, width, unitDisplayCase, fillIn, status);
 		fillIn->rules = rules;
 		fillIn->parent = parent;
@@ -1095,8 +1095,8 @@ void LongNameHandler::processPatternTimes(MeasureUnitImpl &&productUnit,
 
 #if U_DEBUG
 	for(int32_t pluralIndex = 0; pluralIndex < ARRAY_LENGTH; pluralIndex++) {
-		U_ASSERT(outArray[pluralIndex].length() == 0);
-		U_ASSERT(!outArray[pluralIndex].isBogus());
+		assert(outArray[pluralIndex].length() == 0);
+		assert(!outArray[pluralIndex].isBogus());
 	}
 #endif
 
@@ -1196,7 +1196,7 @@ void LongNameHandler::processPatternTimes(MeasureUnitImpl &&productUnit,
 		const char * gender = getGenderString(getGenderForBuiltin(loc, simpleUnit, status), status);
 
 		// 4.3. If singleUnit starts with a dimensionality_prefix, such as 'square-'
-		U_ASSERT(singleUnit->dimensionality > 0);
+		assert(singleUnit->dimensionality > 0);
 		int32_t dimensionality = singleUnit->dimensionality;
 		UnicodeString dimensionalityPrefixPatterns[ARRAY_LENGTH];
 		if(dimensionality != 1) {
@@ -1263,7 +1263,7 @@ void LongNameHandler::processPatternTimes(MeasureUnitImpl &&productUnit,
 		//      singlePluralCategory, singleCaseVariant), such as "{0} metrem"
 		UnicodeString singleUnitArray[ARRAY_LENGTH];
 		// At this point we are left with a Simple Unit:
-		U_ASSERT(strcmp(singleUnit->build(status).getIdentifier(), singleUnit->getSimpleUnitID()) ==
+		assert(strcmp(singleUnit->build(status).getIdentifier(), singleUnit->getSimpleUnitID()) ==
 		    0);
 		getMeasureData(loc, singleUnit->build(status), width, singleCaseVariant, singleUnitArray,
 		    status);
@@ -1274,7 +1274,7 @@ void LongNameHandler::processPatternTimes(MeasureUnitImpl &&productUnit,
 
 		// Calculate output gender
 		if(!singleUnitArray[GENDER_INDEX].isBogus()) {
-			U_ASSERT(!singleUnitArray[GENDER_INDEX].isEmpty());
+			assert(!singleUnitArray[GENDER_INDEX].isEmpty());
 			UnicodeString uVal;
 
 			if(prefix != UMEASURE_PREFIX_ONE) {
@@ -1292,13 +1292,13 @@ void LongNameHandler::processPatternTimes(MeasureUnitImpl &&productUnit,
 				switch(timesGenderRule[0]) {
 					case u'0':
 					    if(singleUnitIndex == 0) {
-						    U_ASSERT(outArray[GENDER_INDEX].isBogus());
+						    assert(outArray[GENDER_INDEX].isBogus());
 						    outArray[GENDER_INDEX] = singleUnitArray[GENDER_INDEX];
 					    }
 					    break;
 					case u'1':
 					    if(singleUnitIndex == productUnit.singleUnits.length() - 1) {
-						    U_ASSERT(outArray[GENDER_INDEX].isBogus());
+						    assert(outArray[GENDER_INDEX].isBogus());
 						    outArray[GENDER_INDEX] = singleUnitArray[GENDER_INDEX];
 					    }
 				}
@@ -1356,7 +1356,7 @@ void LongNameHandler::processPatternTimes(MeasureUnitImpl &&productUnit,
 			}
 			else {
 				// Expect all units involved to have the same placeholder position
-				U_ASSERT(globalPlaceholder[pluralIndex] == placeholderPosition);
+				assert(globalPlaceholder[pluralIndex] == placeholderPosition);
 				// TODO(icu-units#28): Do we want to add a unit test that checks
 				// for consistent joiner chars? Probably not, given how
 				// inconsistent they are. File a CLDR ticket with examples?
@@ -1557,8 +1557,8 @@ void MixedUnitLongNameHandler::forMeasureUnit(const Locale &loc,
     const MicroPropsGenerator * parent,
     MixedUnitLongNameHandler * fillIn,
     UErrorCode & status) {
-	U_ASSERT(mixedUnit.getComplexity(status) == UMEASURE_UNIT_MIXED);
-	U_ASSERT(fillIn != nullptr);
+	assert(mixedUnit.getComplexity(status) == UMEASURE_UNIT_MIXED);
+	assert(fillIn != nullptr);
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -1611,7 +1611,7 @@ void MixedUnitLongNameHandler::forMeasureUnit(const Locale &loc,
 
 void MixedUnitLongNameHandler::processQuantity(DecimalQuantity &quantity, MicroProps &micros,
     UErrorCode & status) const {
-	U_ASSERT(fMixedUnitCount > 1);
+	assert(fMixedUnitCount > 1);
 	if(parent != nullptr) {
 		parent->processQuantity(quantity, micros, status);
 	}
@@ -1622,7 +1622,7 @@ const Modifier * MixedUnitLongNameHandler::getMixedUnitModifier(DecimalQuantity 
     MicroProps &micros,
     UErrorCode & status) const {
 	if(micros.mixedMeasuresCount == 0) {
-		U_ASSERT(micros.mixedMeasuresCount > 0); // Mixed unit: we must have more than one unit value
+		assert(micros.mixedMeasuresCount > 0); // Mixed unit: we must have more than one unit value
 		status = U_UNSUPPORTED_ERROR;
 		return &micros.helpers.emptyWeakModifier;
 	}
@@ -1725,7 +1725,7 @@ LongNameMultiplexer * LongNameMultiplexer::forMeasureUnits(const Locale &loc,
 	if(U_FAILURE(status)) {
 		return nullptr;
 	}
-	U_ASSERT(units.length() > 0);
+	assert(units.length() > 0);
 	if(result->fHandlers.resize(units.length()) == nullptr) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return nullptr;

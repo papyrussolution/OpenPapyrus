@@ -85,6 +85,12 @@ int SRecPageManager::GetFreeListForPage(const SDataPageHeader * pPage, TSVector 
 	return pPage ? Fl.GetListForPage(pPage->Seq, rList) : 0;
 }
 
+int SRecPageManager::VerifyFreeList() // @todo
+{
+	int    ok = 0;
+	return ok;
+}
+
 int SRecPageManager::WriteToPage(SDataPageHeader * pPage, uint64 rowId, const void * pData, size_t dataLen)
 {
 	int    ok = 1;
@@ -128,8 +134,43 @@ int SRecPageManager::Write(uint64 * pRowId, uint pageType, const void * pData, s
 	THROW(SRecPageManager::SplitRowId(p_free_entry->RowId, &seq, &offset));
 	THROW(p_page = GetPage(seq));
 	THROW(p_page->Seq == seq); // @todo @err
-	THROW(WriteToPage(p_page, p_free_entry->RowId, pData, dataLen));
-	ASSIGN_PTR(pRowId, p_free_entry->RowId);
+	{
+		const uint64 row_id = p_free_entry->RowId; // Функция WriteToPage изменит free_list и p_free_entry будет указывать
+			// уже на другие данные!
+		THROW(WriteToPage(p_page, row_id, pData, dataLen));
+		ASSIGN_PTR(pRowId, row_id);
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SRecPageManager::Delete(uint64 rowId)
+{
+	int    ok = 1;
+	uint   ofs = 0;
+	SDataPageHeader * p_page = QueryPageForWriting(rowId, 0/*pageType*/, &ofs);
+	if(p_page) {
+		SRecPageFreeList::Entry free_entry;
+		THROW(p_page->Delete(ofs, &free_entry));
+		{
+			TSVector <SRecPageFreeList::Entry> free_entry_list_to_remove;
+			TSVector <SRecPageFreeList::Entry> free_entry_list_to_add;
+			THROW(Fl.Put(p_page->Type, free_entry.RowId, free_entry.FreeSize));
+			THROW(p_page->MergeFreeEntries(free_entry_list_to_remove, free_entry_list_to_add));
+			{
+				for(uint i = 0; i < free_entry_list_to_remove.getCount(); i++) {
+					const SRecPageFreeList::Entry & r_fe = free_entry_list_to_remove.at(i);
+					THROW(Fl.Remove(p_page->Type, r_fe.RowId));
+				}
+			}
+			{
+				for(uint i = 0; i < free_entry_list_to_add.getCount(); i++) {
+					const SRecPageFreeList::Entry & r_fe = free_entry_list_to_add.at(i);
+					THROW(Fl.Put(p_page->Type, r_fe.RowId, r_fe.FreeSize));
+				}
+			}
+		}
+	}
 	CATCHZOK
 	return ok;
 }
@@ -177,7 +218,7 @@ int SRecPageManager::ReleasePage(SDataPageHeader * pPage)
 	return ok;
 }
 
-SDataPageHeader * SRecPageManager::QueryPageForReading(uint64 rowId, uint32 pageType, uint * pOffset)
+SDataPageHeader * SRecPageManager::Helper_QueryPage(uint64 rowId, uint32 pageType, uint * pOffset)
 {
 	SDataPageHeader * p_result = 0;
 	uint   ofs = 0;
@@ -193,6 +234,18 @@ SDataPageHeader * SRecPageManager::QueryPageForReading(uint64 rowId, uint32 page
 	}
 	ASSIGN_PTR(pOffset, ofs);
 	return p_result;
+}
+
+SDataPageHeader * SRecPageManager::QueryPageForReading(uint64 rowId, uint32 pageType, uint * pOffset)
+{
+	// @todo Эта функция должна содержать блокировку на чтение
+	return Helper_QueryPage(rowId, pageType, pOffset);
+}
+
+SDataPageHeader * SRecPageManager::QueryPageForWriting(uint64 rowId, uint32 pageType, uint * pOffset)
+{
+	// @todo Эта функция должна содержать блокировку на запись
+	return Helper_QueryPage(rowId, pageType, pOffset);
 }
 //
 //
@@ -237,6 +290,13 @@ bool SDataPageHeader::IsValid() const
 	return (Signature == SignatureValue && Size > 0 && /*FreePos < TotalSize &&*/(!FixedChunkSize || Type == tFixedChunkPool));
 }
 
+uint64 SDataPageHeader::MakeRowId(uint offset) const
+{
+	assert(Size > 0);
+	assert(Seq > 0);
+	return SRecPageManager::MakeRowId(Size, Seq, offset);
+}
+
 bool SDataPageHeader::GetStat(Stat & rStat, TSVector <SRecPageFreeList::Entry> * pUsableBlockList) const
 {
 	bool ok = true;
@@ -257,7 +317,7 @@ bool SDataPageHeader::GetStat(Stat & rStat, TSVector <SRecPageFreeList::Entry> *
 					rStat.UsableBlockCount++;
 					rStat.UsableBlockSize += pfx.PayloadSize;
 					if(pUsableBlockList) {
-						uint64 row_id = SRecPageManager::MakeRowId(Size, Seq, offs);
+						uint64 row_id = MakeRowId(offs);
 						THROW(row_id);
 						{
 							SRecPageFreeList::Entry ue(row_id, pfx.PayloadSize);
@@ -273,6 +333,41 @@ bool SDataPageHeader::GetStat(Stat & rStat, TSVector <SRecPageFreeList::Entry> *
 	}
 	CATCHZOK
 	return ok;
+}
+
+uint SDataPageHeader::RecPrefix::GetPrefixSize() const
+{
+	uint   result = 0;
+	if(TotalSize == 1) {
+		result = 1;
+	}
+	else if(TotalSize == 2) {
+		result = 2;
+	}
+	else if(TotalSize == 3) {
+		result = 3;
+	}
+	else if(TotalSize) {
+		if((Flags & 0x3) == 0) {
+			result = 2 + sizeof(uint32);
+		}
+		else if((Flags & 0x3) == 3) {
+			result = 2 + 3;
+		}
+		else if((Flags & 0x3) == 2) {
+			result = 2 + 2;
+		}
+		else if((Flags & 0x3) == 1) {
+			result = 2 + 1;
+		}
+		else {
+			// @error
+		}
+	}
+	else {
+		// @error
+	}
+	return result;	
 }
 
 uint32 SDataPageHeader::ReadRecPrefix(uint pos, RecPrefix & rPfx) const
@@ -466,6 +561,7 @@ uint32 SDataPageHeader::ReadRecPrefix(uint pos, RecPrefix & rPfx) const
 				pPfxBuf[1] = flags;
 		}
 	}
+	rPfx.Flags = flags;
 	ASSIGN_PTR(pFlags, flags);
 	// Проверочные asserions для минимальной уверенности, что все сделано правильно
 	assert(rPfx.TotalSize > 0);
@@ -514,14 +610,14 @@ uint64 SDataPageHeader::Write(uint offset, const void * pData, uint dataLen, SRe
 					SDataPageHeader::RecPrefix new_free_pfx;
 					const uint mobr = MarkOutBlock(next_position, (ex_rp.TotalSize - rp.TotalSize), &new_free_pfx);
 					THROW(mobr);
-					new_free_entry.RowId = SRecPageManager::MakeRowId(Size, Seq, next_position);
+					new_free_entry.RowId = MakeRowId(next_position);
 					new_free_entry.FreeSize = new_free_pfx.PayloadSize;
 				}
 				else {
 					assert(ex_rp.TotalSize == rp.TotalSize);
 				}
 			}
-			rowid = SRecPageManager::MakeRowId(Size, Seq, start_position);
+			rowid = MakeRowId(start_position);
 		}
 	}
 	CATCH
@@ -536,63 +632,81 @@ uint64 SDataPageHeader::Write(uint offset, const void * pData, uint dataLen, SRe
 int SDataPageHeader::MergeFreeEntries(TSVector <SRecPageFreeList::Entry> & rRemovedFreeEntryList, TSVector <SRecPageFreeList::Entry> & rNewFreeEntryList)
 {
 	int    ok = -1;
+	uint   total_block_size = 0;
+	uint   offs = sizeof(*this);
+	uint   sfbl[128]; // sequential free block list.
+	uint   sfbl_count = 0; // sequential free block list count
+	uint   sfbl_size = 0; // sequential free block list total size
+	TSVector <SRecPageFreeList::Entry> free_entry_to_remove_candidate_list;
 	THROW(IsValid());
-	{
-		uint   total_block_size = 0;
-		uint   offs = sizeof(*this);
-		uint   sfbl[128]; // sequential free block list.
-		uint   sfbl_count = 0; // sequential free block list count
-		uint   sfbl_size = 0; // sequential free block list total size
-		TSVector <SRecPageFreeList::Entry> free_entry_to_remove_candidate_list;
-		do {
-			RecPrefix pfx;
-			uint32 pfx_size = ReadRecPrefix(offs, pfx);
-			THROW(pfx_size);
-			total_block_size += pfx.TotalSize;
-			if(pfx.Flags & RecPrefix::fDeleted) {
-				if(sfbl_count >= SIZEOFARRAY(sfbl)) {
-					// @todo		
-					// Вероятность попадания сюда мизерная: количество последовательных свободных блоков
-					// должно превысить SIZEOFARRAY(sfbl). Тем не менее обработать этот случай надо.
-				}
-				else {
-					sfbl[sfbl_count++] = offs;
-					sfbl_size += pfx.TotalSize;
-					{
-						SRecPageFreeList::Entry free_entry_to_remove_candidate;
-						//free_entry_to_remove_candidate_list
-					}
+	do {
+		RecPrefix pfx;
+		uint32 pfx_size = ReadRecPrefix(offs, pfx);
+		THROW(pfx_size);
+		total_block_size += pfx.TotalSize;
+		if(pfx.Flags & RecPrefix::fDeleted) {
+			if(sfbl_count >= SIZEOFARRAY(sfbl)) {
+				// @todo		
+				// Вероятность попадания сюда мизерная: количество последовательных свободных блоков
+				// должно превысить SIZEOFARRAY(sfbl). Тем не менее обработать этот случай надо.
+			}
+			else {
+				sfbl[sfbl_count++] = offs;
+				sfbl_size += pfx.TotalSize;
+				if(pfx.PayloadSize) {
+					SRecPageFreeList::Entry free_entry_to_remove_candidate(MakeRowId(offs), pfx.PayloadSize);
+					free_entry_to_remove_candidate_list.insert(&free_entry_to_remove_candidate);
 				}
 			}
-			else if(sfbl_count) {
-				// merge sequential blocks
-				{
-					RecPrefix ex_rp;
-					uint32 ex_pfx_size = ReadRecPrefix(sfbl[0], ex_rp); // offset validation
-					THROW(ex_pfx_size);
-					{
-						RecPrefix rp;
-						rp.SetTotalSize(sfbl_size, RecPrefix::fDeleted);
-						uint32 pfx_sizes = WriteRecPrefix(sfbl[0], rp);
-						THROW(pfx_size);
-					}
-					for(uint i = 0; i < sfbl_count; i++) {
-						
-					}
-				}
-				//
-				sfbl_count = 0;
-				sfbl_size = 0;
-				free_entry_to_remove_candidate_list.clear();
-			}
-			offs += pfx.TotalSize;
-		} while(offs < Size);
-		THROW(offs == Size);
-		if(sfbl_count) {
-			// merge sequential blocks
 		}
-		THROW(total_block_size == (Size-sizeof(*this)));
+		else if(sfbl_count > 1) {
+			// merge sequential blocks
+			{
+				RecPrefix ex_rp;
+				RecPrefix new_rp;
+				uint32 ex_pfx_size = ReadRecPrefix(sfbl[0], ex_rp); // offset validation
+				THROW(ex_pfx_size);
+				THROW(MarkOutBlock(sfbl[0], sfbl_size, &new_rp));
+				{
+					SRecPageFreeList::Entry new_free_entry;
+					new_free_entry.RowId = MakeRowId(sfbl[0]);
+					new_free_entry.FreeSize = new_rp.PayloadSize;
+					rNewFreeEntryList.insert(&new_free_entry);
+				}
+				assert(free_entry_to_remove_candidate_list.getCount() <= sfbl_count);
+				for(uint i = 0; i < free_entry_to_remove_candidate_list.getCount(); i++) {
+					rRemovedFreeEntryList.insert(&free_entry_to_remove_candidate_list.at(i));
+				}
+			}
+			//
+			sfbl_count = 0;
+			sfbl_size = 0;
+			free_entry_to_remove_candidate_list.clear();
+		}
+		offs += pfx.TotalSize;
+	} while(offs < Size);
+	THROW(offs == Size);
+	if(sfbl_count > 1) {
+		// merge sequential blocks
+		{
+			RecPrefix ex_rp;
+			RecPrefix new_rp;
+			uint32 ex_pfx_size = ReadRecPrefix(sfbl[0], ex_rp); // offset validation
+			THROW(ex_pfx_size);
+			THROW(MarkOutBlock(sfbl[0], sfbl_size, &new_rp));
+			{
+				SRecPageFreeList::Entry new_free_entry;
+				new_free_entry.RowId = MakeRowId(sfbl[0]);
+				new_free_entry.FreeSize = new_rp.PayloadSize;
+				rNewFreeEntryList.insert(&new_free_entry);
+			}
+			assert(free_entry_to_remove_candidate_list.getCount() <= sfbl_count);
+			for(uint i = 0; i < free_entry_to_remove_candidate_list.getCount(); i++) {
+				rRemovedFreeEntryList.insert(&free_entry_to_remove_candidate_list.at(i));
+			}
+		}
 	}
+	THROW(total_block_size == (Size-sizeof(*this)));
 	CATCHZOK
 	return ok;
 }
@@ -610,19 +724,14 @@ uint64 SDataPageHeader::Delete(uint offset, SRecPageFreeList::Entry * pNewFreeEn
 		THROW(ex_rp.TotalSize > 3); // @todo @err (не может такого быть, что блок размером 3 или менее байта был занят)
 		{
 			RecPrefix new_rp;
-			new_rp.SetTotalSize(ex_rp.TotalSize, RecPrefix::fDeleted);
-			uint32 pfx_size = WriteRecPrefix(offset, new_rp);
-			THROW(pfx_size);
-			memzero(PTR8(this)+offset+pfx_size, new_rp.PayloadSize);
-			//
-			new_free_entry.RowId = SRecPageManager::MakeRowId(Size, Seq, offset);
+			THROW(MarkOutBlock(offset, ex_rp.TotalSize, &new_rp));
+			new_free_entry.RowId = MakeRowId(offset);
 			new_free_entry.FreeSize = new_rp.PayloadSize;
 		}
 	}
 	CATCH
 		rowid = 0;
-		new_free_entry.RowId = 0;
-		new_free_entry.FreeSize = 0;
+		new_free_entry.Z();
 	ENDCATCH
 	ASSIGN_PTR(pNewFreeEntry, new_free_entry);
 	return rowid;
@@ -870,23 +979,4 @@ const SRecPageFreeList::Entry * SRecPageFreeList::Get(uint32 type, uint32 reqSiz
 		}
 	}
 	return p_result;
-}
-
-/*static*/bool SRecPageManager::TestSinglePage(uint pageSize)
-{
-	bool    ok = true;
-	SRecPageManager mgr(pageSize);
-	SDataPageHeader * p_page = mgr.AllocatePage(SDataPageHeader::tRecord);
-	THROW(p_page);
-	{
-		SCollection data_list;
-		SDataPageHeader::Stat stat;
-		TSVector <SRecPageFreeList::Entry> free_list;
-		do {
-			
-			THROW(p_page->GetStat(stat, &free_list));
-		} while(stat.UsableBlockSize > 0);
-	}
-	CATCHZOK
-	return ok;
 }

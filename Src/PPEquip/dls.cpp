@@ -205,7 +205,6 @@ int DeviceLoadingStat::FinishLoading(PPID statID, int status, int use_ta)
 					THROW_DB(bei.insert(&dlso_rec));
 				}
 			}
-			// @v10.2.11 {
 			if(UpdatedBillList.getCount()) {
 				UpdatedBillList.sortAndUndup();
 				for(uint i = 0; i < UpdatedBillList.getCount(); i++) {
@@ -216,7 +215,6 @@ int DeviceLoadingStat::FinishLoading(PPID statID, int status, int use_ta)
 					THROW_DB(bei.insert(&dlso_rec));
 				}
 			}
-			// } @v10.2.11
 			THROW_DB(bei.flash());
 		}
 		StatID = 0;
@@ -468,7 +466,7 @@ int DLSFiltDialog::getDTS(DvcLoadingStatFilt * pData)
 	{
 		GoodsCtrlGroup::Rec ggrp_rec;
 		getGroupData(ctlgroupGoods, &ggrp_rec);
-		Data.GoodsGrpID = ggrp_rec.GrpID;
+		Data.GoodsGrpID = ggrp_rec.GoodsGrpID;
 		Data.GoodsID    = ggrp_rec.GoodsID;
 	}
 	ASSIGN_PTR(pData, Data);
@@ -945,7 +943,6 @@ int ViewDLSDetail(const DLSDetailFilt & rFilt)
 {
 	int    ok = 1;
 	PPViewDLSDetail * p_v = 0;
-	// @v10.2.11 {
 	if(rFilt.ObjType == PPOBJ_BILL) {
 		if(rFilt.BillList.getCount()) {
 			BillFilt filt;
@@ -953,7 +950,7 @@ int ViewDLSDetail(const DLSDetailFilt & rFilt)
 			filt.Flags |= BillFilt::fBillListOnly;
 			PPView::Execute(PPVIEW_BILL, &filt, 1, 0);
 		}
-	} // } @v10.2.11
+	}
 	else if(oneof2(rFilt.ObjType, PPOBJ_GOODS, PPOBJ_SCARD)) {
 		p_v = new PPViewDLSDetail;
 		PPWaitStart();

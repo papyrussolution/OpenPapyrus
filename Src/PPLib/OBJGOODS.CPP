@@ -3145,6 +3145,48 @@ bool PPObjGoods::SelectValidBarcode(PPID goodsID, const PPIDArray * pStdList, SS
 	return ok;
 }
 
+bool PPObjGoods::Helper_GetOriginalRawGoodsByStruc(PPID goodsID, const PPIDArray * pValidBcStdList, PPID * pOriginalGoodsID, SString * pValidCode) // @v12.0.5
+{
+	bool   ok = false;
+	PPID   result_goods_id = 0;
+	SString norm_code;
+	Goods2Tbl::Rec goods_rec;
+	if(Fetch(goodsID, &goods_rec) > 0) {
+		PPGoodsStruc::Ident gsi(goodsID, GSF_COMPL, GSF_PARTITIAL);
+		TSCollection <PPGoodsStruc> gs_list;
+		LoadGoodsStruc(gsi, gs_list);
+		for(uint gsidx = 0; !ok && gsidx < gs_list.getCount(); gsidx++) {
+			const PPGoodsStruc * p_gs = gs_list.at(gsidx);
+			norm_code.Z();
+			if(p_gs) {
+				uint gsitemidx = 0;
+				const PPGoodsStrucItem * p_gs_item = p_gs->GetMainItem(&gsitemidx);
+				Goods2Tbl::Rec result_goods_rec;
+				if(p_gs_item && Fetch(p_gs_item->GoodsID, &result_goods_rec) > 0) {
+					if(pValidBcStdList) {
+						if(SelectValidBarcode(p_gs_item->GoodsID, pValidBcStdList, norm_code)) {
+							result_goods_id = result_goods_rec.ID;
+							ok = true;							
+						}
+					}
+					else {
+						result_goods_id = result_goods_rec.ID;
+						ok = true;
+					}
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pOriginalGoodsID, result_goods_id);
+	ASSIGN_PTR(pValidCode, norm_code);
+	return ok;
+}
+
+bool PPObjGoods::GetOriginalRawGoodsByStruc(PPID goodsID, PPID * pOriginalGoodsID) // @v12.0.5
+{
+	return Helper_GetOriginalRawGoodsByStruc(goodsID, 0, pOriginalGoodsID, 0);
+}
+
 bool PPObjGoods::GetSimplifiedDraftBeerBarcode(PPID goodsID, SString & rCode) // @v11.9.3
 {
 	rCode.Z();
@@ -3159,6 +3201,11 @@ bool PPObjGoods::GetSimplifiedDraftBeerBarcode(PPID goodsID, SString & rCode) //
 			ok = true;
 		}
 		else {
+			PPID   org_raw_goods_id = 0;
+			if(Helper_GetOriginalRawGoodsByStruc(goodsID, &valid_bcstd_list, &org_raw_goods_id, &norm_code)) {
+				rCode = norm_code;
+				ok = true;
+			}
 			PPGoodsStruc::Ident gsi(goodsID, GSF_COMPL, GSF_PARTITIAL);
 			TSCollection <PPGoodsStruc> gs_list;
 			LoadGoodsStruc(gsi, gs_list);

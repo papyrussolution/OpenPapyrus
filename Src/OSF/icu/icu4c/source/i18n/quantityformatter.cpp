@@ -82,7 +82,7 @@ bool QuantityFormatter::isValid() const { return formatters[StandardPlural::OTHE
 
 const SimpleFormatter * QuantityFormatter::getByVariant(const char * variant) const 
 {
-	U_ASSERT(isValid());
+	assert(isValid());
 	int32_t pluralIndex = StandardPlural::indexOrOtherIndexFromString(variant);
 	const SimpleFormatter * pattern = formatters[pluralIndex];
 	SETIFZQ(pattern, formatters[StandardPlural::OTHER]);

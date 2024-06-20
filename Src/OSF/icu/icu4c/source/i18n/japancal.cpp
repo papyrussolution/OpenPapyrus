@@ -121,7 +121,7 @@ JapaneseCalendar::JapaneseCalendar(const JapaneseCalendar& source)
 {
 	UErrorCode status = U_ZERO_ERROR;
 	init(status);
-	U_ASSERT(U_SUCCESS(status));
+	assert(U_SUCCESS(status));
 }
 
 JapaneseCalendar& JapaneseCalendar::operator = (const JapaneseCalendar& right)
@@ -151,7 +151,7 @@ int32_t JapaneseCalendar::getDefaultMonthInYear(int32_t eyear)
 	int32_t eraStart[3] = { 0, 0, 0 };
 	UErrorCode status = U_ZERO_ERROR;
 	gJapaneseEraRules->getStartDate(era, eraStart, status);
-	U_ASSERT(U_SUCCESS(status));
+	assert(U_SUCCESS(status));
 	if(eyear == eraStart[0]) {
 		// Yes, we're in the first year of this era.
 		return eraStart[1] // month
@@ -169,7 +169,7 @@ int32_t JapaneseCalendar::getDefaultDayInMonth(int32_t eyear, int32_t month)
 	int32_t eraStart[3] = { 0, 0, 0 };
 	UErrorCode status = U_ZERO_ERROR;
 	gJapaneseEraRules->getStartDate(era, eraStart, status);
-	U_ASSERT(U_SUCCESS(status));
+	assert(U_SUCCESS(status));
 	if(eyear == eraStart[0]) {
 		if(month == eraStart[1] - 1) {
 			return eraStart[2];
@@ -197,7 +197,7 @@ int32_t JapaneseCalendar::handleGetExtendedYear()
 	else {
 		UErrorCode status = U_ZERO_ERROR;
 		int32_t eraStartYear = gJapaneseEraRules->getStartYear(internalGet(UCAL_ERA, gCurrentEra), status);
-		U_ASSERT(U_SUCCESS(status));
+		assert(U_SUCCESS(status));
 
 		// extended year is a gregorian year, where 1 = 1AD,  0 = 1BC, -1 = 2BC, etc
 		year = internalGet(UCAL_YEAR, 1) // pin to minimum of year 1 (first year)
@@ -257,7 +257,7 @@ int32_t JapaneseCalendar::handleGetLimit(UCalendarDateFields field, ELimitType l
 			{
 				UErrorCode status = U_ZERO_ERROR;
 				int32_t eraStartYear = gJapaneseEraRules->getStartYear(gCurrentEra, status);
-				U_ASSERT(U_SUCCESS(status));
+				assert(U_SUCCESS(status));
 				return GregorianCalendar::handleGetLimit(UCAL_YEAR, UCAL_LIMIT_MAXIMUM) - eraStartYear;
 			}
 			    default:

@@ -28,7 +28,7 @@
 #include "unicode/ures.h"
 #include "uvector.h"
 #include "hash.h"
-#include "uassert.h"
+//#include "uassert.h"
 
 /**
  * A FixedDecimal version of UPLRULES_NO_UNIQUE_VALUE used in PluralRulesTest

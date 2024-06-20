@@ -582,7 +582,7 @@ PPNamedObjAssoc2::PPNamedObjAssoc2()
 		// } @v11.5.9 
 		if(pData->Key && goods_obj.Fetch(pData->Key, &goods_rec) > 0)
 			if(goods_rec.Kind == PPGDSK_GROUP)
-				rec.GrpID = goods_rec.ID;
+				rec.GoodsGrpID = goods_rec.ID;
 			else
 				rec.GoodsID = goods_rec.ID;
 		rec.Flags |= GoodsCtrlGroup::enableSelUpLevel;
@@ -595,10 +595,10 @@ PPNamedObjAssoc2::PPNamedObjAssoc2()
 			dlg->disableCtrls(1, CTLSEL_G2OA_GOODSGRP, CTLSEL_G2OA_GOODS, 0);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			if(dlg->getGroupData(1, &rec)) {
-				if(!rec.GoodsID && !rec.GrpID)
+				if(!rec.GoodsID && !rec.GoodsGrpID)
 					PPErrorByDialog(dlg, CTLSEL_G2OA_GOODSGRP, PPERR_GOODSNEEDED);
 				else {
-					pData->Key = NZOR(rec.GoodsID, rec.GrpID);
+					pData->Key = NZOR(rec.GoodsID, rec.GoodsGrpID);
 					pData->Val = dlg->getCtrlLong(CTLSEL_G2OA_OBJ);
 					if(pData->Val)
 						ok = valid_data = 1;

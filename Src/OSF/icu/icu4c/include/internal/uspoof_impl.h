@@ -8,7 +8,7 @@
 #ifndef USPOOFIM_H
 #define USPOOFIM_H
 
-#include "uassert.h"
+//#include "uassert.h"
 #include "unicode/utypes.h"
 #include "unicode/uspoof.h"
 #include "unicode/uscript.h"
@@ -170,8 +170,8 @@ public:
 	inline static int32_t keyToLength(int32_t key) { return ((key & 0xff000000) >> 24) + 1; }
 	inline static int32_t codePointAndLengthToKey(UChar32 codePoint, int32_t length) 
 	{
-		U_ASSERT((codePoint & 0x00ffffff) == codePoint);
-		U_ASSERT(length <= 256);
+		assert((codePoint & 0x00ffffff) == codePoint);
+		assert(length <= 256);
 		return codePoint | ((length - 1) << 24);
 	}
 };

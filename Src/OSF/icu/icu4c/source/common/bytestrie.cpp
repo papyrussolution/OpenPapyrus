@@ -95,7 +95,7 @@ UStringTrieResult BytesTrie::branchNext(const uint8 * pos, int32_t length, int32
 		if(inByte==*pos++) {
 			UStringTrieResult result;
 			int32_t node = *pos;
-			U_ASSERT(node>=kMinValueLead);
+			assert(node>=kMinValueLead);
 			if(node&kValueIsFinal) {
 				// Leave the final value for getValue() to read.
 				result = USTRINGTRIE_FINAL_VALUE;
@@ -174,7 +174,7 @@ UStringTrieResult BytesTrie::nextImpl(const uint8 * pos, int32_t inByte)
 			// Skip intermediate value.
 			pos = skipValue(pos, node);
 			// The next node must not also be a value node.
-			U_ASSERT(*pos<kMinValueLead);
+			assert(*pos<kMinValueLead);
 		}
 	}
 	stop();
@@ -313,7 +313,7 @@ UStringTrieResult BytesTrie::next(const char * s, int32_t sLength) {
 				// Skip intermediate value.
 				pos = skipValue(pos, node);
 				// The next node must not also be a value node.
-				U_ASSERT(*pos<kMinValueLead);
+				assert(*pos<kMinValueLead);
 			}
 		}
 	}
@@ -413,7 +413,7 @@ int32_t BytesTrie::getNextBytes(ByteSink &out) const
 		else {
 			pos = skipValue(pos, node);
 			node = *pos++;
-			U_ASSERT(node<kMinValueLead);
+			assert(node<kMinValueLead);
 		}
 	}
 	if(node<kMinLinearMatch) {

@@ -2226,7 +2226,9 @@ table SCardOp {         // size=60 // @v7.7.12 48-->60
 	long   LinkObjID;   // @v7.7.12
 	date   FreezingStart; // @v8.6.4 (за счет резерва)
 	date   FreezingEnd;   // @v8.6.4 (за счет резерва)
-	raw    Reserve[4];  // @v7.7.12
+	long   CtAmount;      // @v12.0.5 Количественная величина операции (для кредитных карт, на которые начисляется как сумма, так и количество)
+	long   CtRest;        // @v12.0.5 Количественный остаток после операции (для кредитных карт, на которые начисляется как сумма, так и количество)
+	raw    Reserve[8];    // @v7.7.12 // @v12.0.5 [4]-->[8]
 index:
 	SCardID, Dt, Tm (unique mod);
 	// @v7.7.12 CheckID, Dt, Tm (unique mod); // @todo anysegnull

@@ -5,7 +5,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v10.5.8 #include <csoap.h>
 #include <ppsoapclient.h>
 
 struct UhttSearchGoodsParam {
@@ -458,7 +457,7 @@ int GoodsFiltCtrlGroup::IsGroupSelectionDisabled() const
 		else if(CtlselGoodsGrp && CtlselGoods) {
 			GoodsCtrlGroup::Rec rec;
 			THROW(pDlg->getGroupData(CtlselGoodsGrp, &rec));
-			Data.GoodsGrpID = rec.GrpID;
+			Data.GoodsGrpID = rec.GoodsGrpID;
 			Data.GoodsID    = rec.GoodsID;
 			Data.LocID      = rec.LocID;
 		}
@@ -2143,7 +2142,6 @@ IMPL_HANDLE_EVENT(GoodsVadDialog)
 			}
 		}
 	}
-	// @v10.2.3 {
 	else if(event.isCmd(cmInputUpdated)) {
 		if(event.isCtlEvent(CTL_GOODSVAD_SZWD) || event.isCtlEvent(CTL_GOODSVAD_SZLN) || event.isCtlEvent(CTL_GOODSVAD_SZHT) || event.isCtlEvent(CTL_GOODSVAD_PACKAGE)) {
 			if(!getCtrlUInt16(CTL_GOODSVAD_VOLUMEVAL)) {
@@ -2153,7 +2151,6 @@ IMPL_HANDLE_EVENT(GoodsVadDialog)
 			}
 		}
 	}
-	// } @v10.2.3
 	else if(event.wasFocusChanged3(CTL_GOODSVAD_SZWD, CTL_GOODSVAD_SZLN, CTL_GOODSVAD_SZHT)) {
 		getDimentions();
 		setCtrlReal(CTL_GOODSVAD_VOLUME, Data.Stock.CalcVolume(1));
@@ -2471,7 +2468,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 //
 // GoodsCtrlGroup
 //
-GoodsCtrlGroup::Rec::Rec(PPID grpID, PPID goodsID, PPID locID, uint flags) : GrpID(grpID), GoodsID(goodsID), LocID(locID), ArID(0), Flags(flags)
+GoodsCtrlGroup::Rec::Rec(PPID grpID, PPID goodsID, PPID locID, uint flags) : GoodsGrpID(grpID), GoodsID(goodsID), LocID(locID), ArID(0), Flags(flags)
 {
 }
 
@@ -2526,7 +2523,7 @@ int GoodsCtrlGroup::setFilt(TDialog * pDlg, const GoodsFilt * pFilt)
 	if(ok > 0) {
 		Rec rec;
 		getData(pDlg, &rec);
-		rec.GrpID = TempAltGrpID;
+		rec.GoodsGrpID = TempAltGrpID;
 		setData(pDlg, &rec);
 	}
 	CATCHZOK
@@ -2546,28 +2543,28 @@ int GoodsCtrlGroup::setData(TDialog * dlg, void * pData)
 	ArID  = p_rec->ArID;
 	if(LocID)
 		DS.SetLocation(LocID); // Текущий склад используется для определения списка товаров, которые есть на остатке //
-	if(p_rec->GrpID)
-		grp_id = labs(p_rec->GrpID);
+	if(p_rec->GoodsGrpID)
+		grp_id = labs(p_rec->GoodsGrpID);
 	else if(p_rec->GoodsID) {
 		Goods2Tbl::Rec goods_rec;
 		if(gobj.Fetch(p_rec->GoodsID, &goods_rec) > 0) {
 			if(goods_rec.Kind == PPGDSK_GROUP) {
-				p_rec->GrpID = p_rec->GoodsID;
+				p_rec->GoodsGrpID = p_rec->GoodsID;
 				p_rec->GoodsID = 0;
 			}
 			else
-				p_rec->GrpID = goods_rec.ParentID;
+				p_rec->GoodsGrpID = goods_rec.ParentID;
 		}
 		else
 			p_rec->GoodsID = 0;
-		grp_id = p_rec->GrpID;
+		grp_id = p_rec->GoodsGrpID;
 	}
 	if(!grp_id && !(Flags & ignoreRtOnlyGroup)) {
 		PPAccessRestriction accsr;
 		if(ObjRts.GetAccessRestriction(accsr).OnlyGoodsGrpID) {
 			Goods2Tbl::Rec gg_rec;
 			if(gobj.Fetch(accsr.OnlyGoodsGrpID, &gg_rec) > 0 && gg_rec.Kind == PPGDSK_GROUP) {
-				grp_id = p_rec->GrpID = accsr.OnlyGoodsGrpID;
+				grp_id = p_rec->GoodsGrpID = accsr.OnlyGoodsGrpID;
 				if(accsr.CFlags & PPAccessRestriction::cfStrictOnlyGoodsGrp)
 					disable_group_selection = 1;
 			}
@@ -2578,11 +2575,11 @@ int GoodsCtrlGroup::setData(TDialog * dlg, void * pData)
 	if(Flags & enableInsertGoods)
 		fl |= OLW_CANINSERT;
 	fl |= OLW_WORDSELECTOR;
-	SetupPPObjCombo(dlg, CtlselGrp, PPOBJ_GOODSGROUP, p_rec->GrpID, ((Flags & enableSelUpLevel) ? (fl|OLW_CANSELUPLEVEL) : fl), reinterpret_cast<void *>(prev_grp_level));
+	SetupPPObjCombo(dlg, CtlselGrp, PPOBJ_GOODSGROUP, p_rec->GoodsGrpID, ((Flags & enableSelUpLevel) ? (fl|OLW_CANSELUPLEVEL) : fl), reinterpret_cast<void *>(prev_grp_level));
 	if(disable_group_selection)
 		dlg->disableCtrl(CtlselGrp, 1);
 	{
-		const  PPID ext_id = (Flags & existsGoodsOnly) ? (p_rec->GrpID ? -labs(p_rec->GrpID) : LONG_MIN) : labs(p_rec->GrpID);
+		const  PPID ext_id = (Flags & existsGoodsOnly) ? (p_rec->GoodsGrpID ? -labs(p_rec->GoodsGrpID) : LONG_MIN) : labs(p_rec->GoodsGrpID);
 		fl = OLW_LOADDEFONOPEN;
 		if(Flags & enableInsertGoods)
 			fl |= OLW_CANINSERT;
@@ -2595,7 +2592,7 @@ int GoodsCtrlGroup::setData(TDialog * dlg, void * pData)
 int GoodsCtrlGroup::getData(TDialog * dlg, void * pData)
 {
 	Rec * p_rec = static_cast<Rec *>(pData);
-	dlg->getCtrlData(CtlselGrp,   &p_rec->GrpID);
+	dlg->getCtrlData(CtlselGrp,   &p_rec->GoodsGrpID);
 	dlg->getCtrlData(CtlselGoods, &p_rec->GoodsID);
 	return (p_rec->GoodsID == 0 && Flags & disableEmptyGoods) ? PPSetError(PPERR_GOODSNEEDED) : 1;
 }

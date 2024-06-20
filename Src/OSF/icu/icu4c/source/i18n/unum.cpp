@@ -131,7 +131,7 @@ U_CAPI UNumberFormat * U_EXPORT2 unum_clone(const UNumberFormat * fmt,
 	}
 	else {
 		const RuleBasedNumberFormat* rbnf = dynamic_cast<const RuleBasedNumberFormat*>(nf);
-		U_ASSERT(rbnf != NULL);
+		assert(rbnf != NULL);
 		res = rbnf->clone();
 	}
 
@@ -368,7 +368,7 @@ U_CAPI int32_t U_EXPORT2 unum_parseDecimal(const UNumberFormat * fmt,
 		*status = U_STRING_NOT_TERMINATED_WARNING;
 	}
 	else {
-		U_ASSERT(outBufLength > 0);
+		assert(outBufLength > 0);
 		strcpy(outBuf, sp.data());
 	}
 	return sp.size();
@@ -553,7 +553,7 @@ U_CAPI int32_t U_EXPORT2 unum_getTextAttribute(const UNumberFormat * fmt, UNumbe
 	}
 	else {
 		const RuleBasedNumberFormat* rbnf = dynamic_cast<const RuleBasedNumberFormat*>(nf);
-		U_ASSERT(rbnf != NULL);
+		assert(rbnf != NULL);
 		if(tag == UNUM_DEFAULT_RULESET) {
 			res = rbnf->getDefaultRuleSetName();
 		}
@@ -593,7 +593,7 @@ U_CAPI void U_EXPORT2 unum_setTextAttribute(UNumberFormat * fmt, UNumberFormatTe
 	}
 	else {
 		RuleBasedNumberFormat* rbnf = dynamic_cast<RuleBasedNumberFormat*>(nf);
-		U_ASSERT(rbnf != NULL);
+		assert(rbnf != NULL);
 		if(tag == UNUM_DEFAULT_RULESET) {
 			rbnf->setDefaultRuleSet(val, *status);
 		}
@@ -622,7 +622,7 @@ U_CAPI int32_t U_EXPORT2 unum_toPattern(const UNumberFormat * fmt, bool isPatter
 	}
 	else {
 		const RuleBasedNumberFormat* rbnf = dynamic_cast<const RuleBasedNumberFormat*>(nf);
-		U_ASSERT(rbnf != NULL);
+		assert(rbnf != NULL);
 		pat = rbnf->getRules();
 	}
 	return pat.extract(result, resultLength, *status);

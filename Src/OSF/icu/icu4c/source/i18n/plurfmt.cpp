@@ -446,7 +446,7 @@ int32_t PluralFormat::findSubMessage(const MessagePattern& pattern, int32_t part
 		if(type==UMSGPAT_PART_TYPE_ARG_LIMIT) {
 			break;
 		}
-		U_ASSERT(type==UMSGPAT_PART_TYPE_ARG_SELECTOR);
+		assert(type==UMSGPAT_PART_TYPE_ARG_SELECTOR);
 		// part is an ARG_SELECTOR followed by an optional explicit value, and then a message
 		if(MessagePattern::Part::hasNumericValue(pattern.getPartType(partIndex))) {
 			// explicit value like "=2"

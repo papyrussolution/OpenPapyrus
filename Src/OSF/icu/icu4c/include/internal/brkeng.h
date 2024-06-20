@@ -32,18 +32,8 @@ class DictionaryMatcher;
  */
 class LanguageBreakEngine : public UMemory {
 public:
-
-	/**
-	 * <p>Default constructor.</p>
-	 *
-	 */
 	LanguageBreakEngine();
-
-	/**
-	 * <p>Virtual destructor.</p>
-	 */
 	virtual ~LanguageBreakEngine();
-
 	/**
 	 * <p>Indicate whether this engine handles a particular character for
 	 * a particular kind of break.</p>
@@ -98,18 +88,8 @@ public:
  */
 class LanguageBreakFactory : public UMemory {
 public:
-
-	/**
-	 * <p>Default constructor.</p>
-	 *
-	 */
 	LanguageBreakFactory();
-
-	/**
-	 * <p>Virtual destructor.</p>
-	 */
 	virtual ~LanguageBreakFactory();
-
 	/**
 	 * <p>Find and return a LanguageBreakEngine that can find the desired
 	 * kind of break for the set of characters to which the supplied
@@ -149,18 +129,8 @@ private:
 	UnicodeSet    * fHandled;
 
 public:
-
-	/**
-	 * <p>Default constructor.</p>
-	 *
-	 */
 	UnhandledEngine(UErrorCode & status);
-
-	/**
-	 * <p>Virtual destructor.</p>
-	 */
 	virtual ~UnhandledEngine();
-
 	/**
 	 * <p>Indicate whether this engine handles a particular character for
 	 * a particular kind of break.</p>

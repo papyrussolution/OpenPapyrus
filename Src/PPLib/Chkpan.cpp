@@ -1959,10 +1959,8 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 						STRNSCPY(p_item->RemoteProcessingTa, r_db.TaIdent);
 					}
 				}
-				// @v10.2.3 {
 				for(uint sp = 0; addendum_msg_list.get(&sp, temp_buf);)
 					MsgToDisp_Add(temp_buf);
-				// } @v10.2.3
 			}
 		}
 		r_blk.Amount = R2(r_blk.Amount);
@@ -4415,17 +4413,13 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						PgsBlock pgsb(qtty);
 						pgsb.PriceBySerial = price;
 						pgsb.Serial = is_serial ? code : 0;
-						// @v10.6.10 {
 						if(gcsb.Flags & (gcsb.fMarkedCode | gcsb.fChZnCode))
 							pgsb.Flags |= PgsBlock::fMarkedBarcode;
-						// } @v10.6.10
-						// @v10.4.12 {
 						if(gcsb.Flags & gcsb.fChZnCode) {
 							if(gcsb.ChZnSerial[0])
 								pgsb.ChZnSerial = gcsb.ChZnSerial;
-							pgsb.ChZnMark = gcsb.Code; // @v10.6.10
+							pgsb.ChZnMark = gcsb.Code;
 						}
-						// } @v10.4.12
 						if(PreprocessGoodsSelection(goods_id, loc_id, pgsb) > 0)
 							SetupNewRow(goods_id, pgsb);
 					}
@@ -4455,11 +4449,11 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 									MessageError(PPERR_MANUALSCARDINPUTDISABLED, 0, eomBeep|eomStatusLine);
 							}
 							else
-								MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomMsgWindow); // @v10.0.03 eomStatusLine-->eomMsgWindow
+								MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomMsgWindow);
 						}
 					}
 					else
-						MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomMsgWindow); // @v10.0.03 eomStatusLine-->eomMsgWindow
+						MessageError(PPERR_GDSBYBARCODENFOUND, code, eomBeep|eomMsgWindow);
 				}
 				Flags &= ~fSuspSleepTimeout;
 				ClearInput(0);
@@ -4477,7 +4471,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 				MessageError(PPERR_CHKPAN_SCARDNEEDED, 0, eomBeep|eomStatusLine);
 			else if(!(OperRightsFlags & orfPrintCheck))
 				MessageError(PPERR_NORIGHTS, 0, eomBeep|eomStatusLine);
-			else if(!VerifyPrices()) // @v10.7.9
+			else if(!VerifyPrices())
 				MessageError(-1, 0, eomBeep|eomStatusLine);
 			else {
 				PosPaymentBlock paym_blk2(0, BonusMaxPart);
@@ -6813,12 +6807,10 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						if(!P_ChkPack->InsertItem(p_line->GoodsID, p_line->Quantity, intmnytodbl(p_line->Price), p_line->Dscnt))
 							PPErrorZ();
 						else {
-							// @v10.2.6 {
 							if(serial.NotEmpty())
 								P_ChkPack->SetLineTextExt(P_ChkPack->GetCount(), CCheckPacket::lnextSerial, serial);
 							if(egais_mark.NotEmpty())
 								P_ChkPack->SetLineTextExt(P_ChkPack->GetCount(), CCheckPacket::lnextEgaisMark, egais_mark);
-							// } @v10.2.6
 							// @v11.6.2 {
 							if(chzn_mark.NotEmpty())
 								P_ChkPack->SetLineTextExt(P_ChkPack->GetCount(), CCheckPacket::lnextChZnMark, chzn_mark);
@@ -9211,13 +9203,11 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 							PrcssrAlcReport::GoodsItem agi;
 							if(P_EgPrc->PreprocessGoodsItem(goodsID, 0, 0, 0, agi) && agi.StatusFlags & agi.stMarkWanted) {
 								is_mark_processed = 1;
-								// @v10.2.4 {
 								const TimeRange & r_rsat = P_EgPrc->GetConfig().E.RtlSaleAllwTime;
 								if(!r_rsat.IsZero() && !r_rsat.Check(getcurtime_())) {
 									ok = MessageError(PPERR_ALCRETAILPROHIBTIME, r_rsat.ToStr(TIMF_HM, temp_buf), eomBeep|eomStatusLine);
 								}
 								else {
-									// } @v10.2.4
 									SString egais_mark;
 									rBlk.Qtty = 1.0; // Маркированная алкогольная продукциия - строго по одной штуке на строку чека
 									if(PPEgaisProcessor::InputMark(&agi, egais_mark) > 0) {
@@ -9230,29 +9220,31 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 											dup_mark = true;
 										if(!dup_mark) {
 											if(CnExtFlags & CASHFX_CHECKEGAISMUNIQ) {
-												PPIDArray cc_list;
-												SBitArray sent_list;
+												//PPIDArray cc_list;
+												//SBitArray sent_list;
+												TSCollection <CCheckCore::ListByMarkEntry> lbm;
 												CCheckCore & r_cc = GetCc();
 												int    cc_even = 0;
 												temp_buf.Z();
-												if(CsObj.GetListByEgaisMark(egais_mark, cc_list, &sent_list) > 0) {
+												CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.CreateNewItem();
+												//THROW_SL(p_lbm_entry);
+												STRNSCPY(p_lbm_entry->Mark, egais_mark);
+												if(CsObj.GetListByEgaisMark(lbm) > 0) {
 													SString debug_msg_buf;
-													for(uint j = 0; j < cc_list.getCount(); j++) {
-														const  PPID cc_id = cc_list.get(j);
+													for(uint j = 0; j < p_lbm_entry->CcList.getCount(); j++) {
+														const CCheckCore::CcMarkedEntry & r_ccm_entry = p_lbm_entry->CcList.at(j);
+														const  PPID cc_id = r_ccm_entry.CcID;
 														CCheckTbl::Rec cc_rec;
 														if(r_cc.Search(cc_id, &cc_rec) > 0) {
-															// @v10.7.9 {
 															debug_msg_buf.Z().Cat("egais-mark").Colon().Cat(egais_mark).Space().
 																Cat("is found at").Space().Cat(cc_rec.Dt, DATF_YMD).Space().Cat(cc_rec.Tm, TIMF_HMS).Space().Cat(cc_rec.Code).Space().
 																CatHex(cc_rec.Flags);
 															PPLogMessage(PPFILNAM_DEBUG_LOG, debug_msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-															// } @v10.7.9
-															if(!(cc_rec.Flags & CCHKF_JUNK)) { // @v10.1.8 && !(cc_rec.Flags & CCHKF_JUNK)
-																// @v10.4.5 {
+															if(!(cc_rec.Flags & CCHKF_JUNK)) {
 																int   take_in_attention = 0;
 																CSessionTbl::Rec cs_rec;
 																PPCashNode cn_rec;
-																if(sent_list.get(j))
+																if(r_ccm_entry.Flags & CCheckCore::CcMarkedEntry::fSent)
 																	take_in_attention = 1;
 																else if(cc_rec.SessID) {
 																	//
@@ -9265,7 +9257,6 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 																		break;
 																	}
 																}
-																// } @v10.4.5
 																if(take_in_attention) {
 																	CCheckCore::MakeCodeString(&cc_rec, 0, temp_buf);
 																	if(cc_rec.Flags & CCHKF_RETURN)
@@ -9278,9 +9269,9 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 													}
 												}
 												if(cc_even & 1 && !F(fRetCheck))
-													ok = MessageError(PPERR_DUPEGAISMARKINOTHRCC, temp_buf.Space().Cat(egais_mark), eomBeep|eomStatusLine); // @v10.1.0
+													ok = MessageError(PPERR_DUPEGAISMARKINOTHRCC, temp_buf.Space().Cat(egais_mark), eomBeep|eomStatusLine);
 												else if(!(cc_even & 1) && F(fRetCheck))
-													ok = MessageError(PPERR_DUPEGAISMARKINOTHRCC, temp_buf.Space().Cat(egais_mark), eomBeep|eomStatusLine); // @v10.1.0
+													ok = MessageError(PPERR_DUPEGAISMARKINOTHRCC, temp_buf.Space().Cat(egais_mark), eomBeep|eomStatusLine);
 												else
 													rBlk.EgaisMark = egais_mark;
 											}
@@ -9288,15 +9279,29 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 												rBlk.EgaisMark = egais_mark;
 										}
 										else
-											ok = MessageError(PPERR_DUPEGAISMARKINCC, egais_mark, eomBeep|eomStatusLine); // @v10.1.0
+											ok = MessageError(PPERR_DUPEGAISMARKINCC, egais_mark, eomBeep|eomStatusLine);
 									}
 									else
 										ok = -1;
-									selectCtrl(CTL_CHKPAN_INPUT); // @v10.6.12
+									selectCtrl(CTL_CHKPAN_INPUT);
 								}
 							}
 						}
 						if(!is_mark_processed) {
+							// @v12.0.5 @construction {
+							if(0) {
+								const bool is_draft_beer_awr = PPSyncCashSession::IsAutoWriteOffDraftBeerPosition(CashNodeID, goodsID); // @v12.0.5
+								if(is_draft_beer_awr) {
+									PPID   org_draft_beer_goods_id = 0;
+									if(GObj.GetOriginalRawGoodsByStruc(goodsID, &org_draft_beer_goods_id)) {
+										PPObjBill * p_bobj = BillObj;
+										LotArray lot_list;
+										//p_bobj->trfr->Rcpt.GetList(org_draft_beer_goods_id, 0, 0, ZERODATE, 0, 0, )
+									}
+								}
+							}
+							// } @v12.0.5 
+							//
 							const bool is_simplified_draftbeer = PPSyncCashSession::IsSimplifiedDraftBeerPosition(CashNodeID, goodsID); // @v11.9.4
 							if((gt_rec.Flags & GTF_GMARKED || (rBlk.Flags & PgsBlock::fMarkedBarcode)) && !is_simplified_draftbeer) {
 								const int disable_chzn_mark_backtest = 0; // @v10.8.1 Проблемы с сигаретами - слишком много продаж и идентификация дубликатов занимает много времени // @v11.7.4 1-->0
@@ -9312,13 +9317,17 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 									}
 									if(!dup_mark) {
 										if(!disable_chzn_mark_backtest && (CnExtFlags & CASHFX_CHECKEGAISMUNIQ)) { // @v10.8.1 !disable_chzn_mark_backtest
-											PPIDArray cc_list;
+											TSCollection <CCheckCore::ListByMarkEntry> lbm;
+											//PPIDArray cc_list;
 											CCheckCore & r_cc = GetCc();
 											int    cc_even = 0;
 											temp_buf.Z();
-											if(CsObj.GetListByChZnMark(chzn_mark, cc_list) > 0) {
-												for(uint j = 0; j < cc_list.getCount(); j++) {
-													const  PPID cc_id = cc_list.get(j);
+											CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.CreateNewItem();
+											STRNSCPY(p_lbm_entry->Mark, chzn_mark);
+											if(CsObj.GetListByChZnMark(lbm) > 0) {
+												for(uint j = 0; j < p_lbm_entry->CcList.getCount(); j++) {
+													const  CCheckCore::CcMarkedEntry & r_ccm_entry = p_lbm_entry->CcList.at(j);
+													const  PPID cc_id = r_ccm_entry.CcID;
 													CCheckTbl::Rec cc_rec;
 													if(r_cc.Search(cc_id, &cc_rec) > 0 && !(cc_rec.Flags & CCHKF_JUNK)) {
 														CCheckCore::MakeCodeString(&cc_rec, 0, temp_buf);
@@ -9342,12 +9351,10 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 									else
 										ok = MessageError(PPERR_DUPCHZNMARKINCC, chzn_mark, eomBeep|eomStatusLine);
 								}
-								// @v10.8.0 {
 								else if(CnSpeciality != PPCashNode::spApteka)
 									ok = -1;
-								// } @v10.8.0 
 								if(imr != -1000)
-									selectCtrl(CTL_CHKPAN_INPUT); // @v10.6.12
+									selectCtrl(CTL_CHKPAN_INPUT);
 							}
 						}
 					}

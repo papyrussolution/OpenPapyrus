@@ -101,13 +101,13 @@ void CollationSettings::aliasReordering(const CollationData & data, const int32_
 			++firstSplitByteRangeIndex;
 		}
 		if(firstSplitByteRangeIndex == rangesLength) {
-			U_ASSERT(!reorderTableHasSplitBytes(table));
+			assert(!reorderTableHasSplitBytes(table));
 			minHighNoReorder = 0;
 			reorderRanges = NULL;
 			reorderRangesLength = 0;
 		}
 		else {
-			U_ASSERT(table[ranges[firstSplitByteRangeIndex] >> 24] == 0);
+			assert(table[ranges[firstSplitByteRangeIndex] >> 24] == 0);
 			minHighNoReorder = ranges[rangesLength - 1] & 0xffff0000;
 			reorderRanges = ranges + firstSplitByteRangeIndex;
 			reorderRangesLength = rangesLength - firstSplitByteRangeIndex;
@@ -143,8 +143,8 @@ void CollationSettings::setReordering(const CollationData & data,
 	// The first offset must be 0. The last offset must not be 0.
 	// Separators (at the low end) and trailing weights (at the high end)
 	// are never reordered.
-	U_ASSERT(rangesLength >= 2);
-	U_ASSERT((ranges[0] & 0xffff) == 0 && (ranges[rangesLength - 1] & 0xffff) != 0);
+	assert(rangesLength >= 2);
+	assert((ranges[0] & 0xffff) == 0 && (ranges[rangesLength - 1] & 0xffff) != 0);
 	minHighNoReorder = ranges[rangesLength - 1] & 0xffff0000;
 
 	// Write the lead byte permutation table.
@@ -192,7 +192,7 @@ void CollationSettings::setReorderArrays(const int32_t * codes, int32_t codesLen
 	}
 	int32_t * ownedCodes;
 	int32_t totalLength = codesLength + rangesLength;
-	U_ASSERT(totalLength > 0);
+	assert(totalLength > 0);
 	if(totalLength <= reorderCodesCapacity) {
 		ownedCodes = const_cast<int32_t *>(reorderCodes);
 	}
@@ -245,7 +245,7 @@ void CollationSettings::copyReorderingFrom(const CollationSettings &other, UErro
 }
 
 bool CollationSettings::reorderTableHasSplitBytes(const uint8 table[256]) {
-	U_ASSERT(table[0] == 0);
+	assert(table[0] == 0);
 	for(int32_t i = 1; i < 256; ++i) {
 		if(table[i] == 0) {
 			return TRUE;

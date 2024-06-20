@@ -186,7 +186,7 @@ uint32_t FCDUTF8CollationIterator::handleNextCE32(UChar32 &c, UErrorCode & error
 					return Collation::FFFD_CE32;
 				}
 				else {
-					U_ASSERT(c > 0xffff);
+					assert(c > 0xffff);
 					if(CollationFCD::hasTccc(U16_LEAD(c)) && pos != length && nextHasLccc()) {
 						pos -= 4;
 					}
@@ -216,7 +216,7 @@ uint32_t FCDUTF8CollationIterator::handleNextCE32(UChar32 &c, UErrorCode & error
 }
 
 bool FCDUTF8CollationIterator::nextHasLccc() const {
-	U_ASSERT(state == CHECK_FWD && pos != length);
+	assert(state == CHECK_FWD && pos != length);
 	// The lowest code point with ccc!=0 is U+0300 which is CC 80 in UTF-8.
 	// CJK U+4000..U+DFFF except U+Axxx are also FCD-inert. (Lead bytes E4..ED except EA.)
 	UChar32 c = u8[pos];
@@ -232,7 +232,7 @@ bool FCDUTF8CollationIterator::nextHasLccc() const {
 }
 
 bool FCDUTF8CollationIterator::previousHasTccc() const {
-	U_ASSERT(state == CHECK_BWD && pos != 0);
+	assert(state == CHECK_BWD && pos != 0);
 	UChar32 c = u8[pos - 1];
 	if(U8_IS_SINGLE(c)) {
 		return FALSE;
@@ -249,7 +249,7 @@ char16_t FCDUTF8CollationIterator::handleGetTrailSurrogate() {
 	if(state != IN_NORMALIZED) {
 		return 0;
 	}
-	U_ASSERT(pos < normalized.length());
+	assert(pos < normalized.length());
 	char16_t trail;
 	if(U16_IS_TRAIL(trail = normalized[pos])) {
 		++pos;
@@ -364,7 +364,7 @@ void FCDUTF8CollationIterator::backwardNumCodePoints(int32_t num, UErrorCode & e
 }
 
 void FCDUTF8CollationIterator::switchToForward() {
-	U_ASSERT(state == CHECK_BWD ||
+	assert(state == CHECK_BWD ||
 	    (state == IN_FCD_SEGMENT && pos == limit) ||
 	    (state == IN_NORMALIZED && pos == normalized.length()));
 	if(state == CHECK_BWD) {
@@ -395,7 +395,7 @@ bool FCDUTF8CollationIterator::nextSegment(UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
 		return FALSE;
 	}
-	U_ASSERT(state == CHECK_FWD && pos != length);
+	assert(state == CHECK_FWD && pos != length);
 	// The input text [start..pos[ passes the FCD check.
 	int32_t segmentStart = pos;
 	// Collect the characters being checked, in case they need to be normalized.
@@ -442,13 +442,13 @@ bool FCDUTF8CollationIterator::nextSegment(UErrorCode & errorCode) {
 	}
 	limit = pos;
 	pos = segmentStart;
-	U_ASSERT(pos != limit);
+	assert(pos != limit);
 	state = IN_FCD_SEGMENT;
 	return TRUE;
 }
 
 void FCDUTF8CollationIterator::switchToBackward() {
-	U_ASSERT(state == CHECK_FWD ||
+	assert(state == CHECK_FWD ||
 	    (state == IN_FCD_SEGMENT && pos == start) ||
 	    (state >= IN_NORMALIZED && pos == 0));
 	if(state == CHECK_FWD) {
@@ -479,7 +479,7 @@ bool FCDUTF8CollationIterator::previousSegment(UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
 		return FALSE;
 	}
-	U_ASSERT(state == CHECK_BWD && pos != 0);
+	assert(state == CHECK_BWD && pos != 0);
 	// The input text [pos..limit[ passes the FCD check.
 	int32_t segmentLimit = pos;
 	// Collect the characters being checked, in case they need to be normalized.
@@ -529,14 +529,14 @@ bool FCDUTF8CollationIterator::previousSegment(UErrorCode & errorCode) {
 	}
 	start = pos;
 	pos = segmentLimit;
-	U_ASSERT(pos != start);
+	assert(pos != start);
 	state = IN_FCD_SEGMENT;
 	return TRUE;
 }
 
 bool FCDUTF8CollationIterator::normalize(const UnicodeString & s, UErrorCode & errorCode) {
 	// NFD without argument checking.
-	U_ASSERT(U_SUCCESS(errorCode));
+	assert(U_SUCCESS(errorCode));
 	nfcImpl.decompose(s, normalized, errorCode);
 	return U_SUCCESS(errorCode);
 }

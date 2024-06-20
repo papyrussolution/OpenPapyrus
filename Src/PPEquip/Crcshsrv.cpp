@@ -140,8 +140,8 @@ private:
 	SString & MakeQueryBuf(LDATE dt, SString & rBuf) const;
 	SString & MakeQueryBufV10(LDATE dt, SString & rBuf, int isZRep) const;
 	int    QueryFile(int filTyp, const char * pQueryBuf, LDATE queryDate);
-	int    IsFileExists(uint fileId, const char * pSubDir); // @<<ACS_CRCSHSRV::IsReadyForExport
-	int    IsFileExists(const char * pFile, const char * pSubDir); // @<<ACS_CRCSHSRV::IsReadyForExport
+	bool   IsFileExists(uint fileId, const char * pSubDir); // @<<ACS_CRCSHSRV::IsReadyForExport
+	bool   IsFileExists(const char * pFile, const char * pSubDir); // @<<ACS_CRCSHSRV::IsReadyForExport
 	int    GetCashiersList();
 	int    SearchCardCode(SCardCore * pSc, const char * pCode, SCardTbl::Rec * pRec);
 	bool   GetFilesLocal();
@@ -228,18 +228,18 @@ public:
 
 REGISTER_CMT(CRCSHSRV, false, true);
 
-int ACS_CRCSHSRV::IsFileExists(uint fileId, const char * pSubDir)
+bool ACS_CRCSHSRV::IsFileExists(uint fileId, const char * pSubDir)
 {
 	SString path;
 	PPGetFilePath(PPPATH_OUT, fileId, path);
-	return BIN(DistributeFile_(path, 0/*pEndFileName*/, dfactCheckExistence, pSubDir, 0) > 0);
+	return (DistributeFile_(path, 0/*pEndFileName*/, dfactCheckExistence, pSubDir, 0) > 0);
 }
 
-int ACS_CRCSHSRV::IsFileExists(const char * pFile, const char * pSubDir)
+bool ACS_CRCSHSRV::IsFileExists(const char * pFile, const char * pSubDir)
 {
 	SString path;
 	PPGetFilePath(PPPATH_OUT, pFile, path);
-	return BIN(DistributeFile_(path, 0/*pEndFileName*/, dfactCheckExistence, pSubDir, 0) > 0);
+	return (DistributeFile_(path, 0/*pEndFileName*/, dfactCheckExistence, pSubDir, 0) > 0);
 }
 
 bool ACS_CRCSHSRV::GetFilesLocal()
@@ -272,12 +272,10 @@ int ACS_CRCSHSRV::IsReadyForExport()
 		else if(IsFileExists(CASHIERS_XML, SUBDIR_CASHIERS))
 			ready = 0;
 	}
-	else {
-		if(IsFileExists(PPFILNAM_CS_GOODS_DBF, 0))
-			ready = 0;
-		else if(IsFileExists(PPFILNAM_CS_BAR_DBF, 0))
-			ready = 0;
-	}
+	else if(IsFileExists(PPFILNAM_CS_GOODS_DBF, 0))
+		ready = 0;
+	else if(IsFileExists(PPFILNAM_CS_BAR_DBF, 0))
+		ready = 0;
 	return ready;
 }
 /*
@@ -379,8 +377,7 @@ static void FASTCALL AddTimeToFileName(SString & fName)
 {
 	const LTIME cur_time = getcurtime_();
 	SFsPath ps(fName);
-	// @v9.7.0 ps.Nam.CatLongZ(cur_time.hour(), 2).CatLongZ(cur_time.minut(), 2).CatLongZ(cur_time.sec(), 2);
-	ps.Nam.Cat(cur_time, TIMF_HMS|TIMF_NODIV); // @v9.7.0
+	ps.Nam.Cat(cur_time, TIMF_HMS|TIMF_NODIV);
 	ps.Merge(fName);
 }
 
@@ -586,7 +583,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 	PPID   sr_prodtagb_tag = 0;
 	PPID   prev_goods_id = 0;
 	SVector max_dis_list(sizeof(_MaxDisEntry));
-	SVector min_price_list(sizeof(_MinPriceEntry)); // @v10.6.4
+	SVector min_price_list(sizeof(_MinPriceEntry));
 	SVector chzntobacco_list(sizeof(_ChZnTobaccoEntry)); // @v12.0.2 Список кодов и идентификаторов табачных товаров (для специального plug-in'а для маркировки)
 	LDATETIME beg_dtm;
 	LDATETIME end_dtm;
@@ -656,14 +653,13 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 			STRNSCPY(pref_barcode, r_cur_entry.PrefBarCode);
 			AddCheckDigToBarcode(pref_barcode);
 			// @v12.0.2 {
-			if(oneof2(rGoodsInfo.ChZnProdType, GTCHZNPT_TOBACCO, GTCHZNPT_ALTTOBACCO)) {
+			if(oneof2(r_cur_entry.ChZnProdType, GTCHZNPT_TOBACCO, GTCHZNPT_ALTTOBACCO)) { // @v12.0.5 @fix rGoodsInfo-->
 				_ChZnTobaccoEntry _entry;
 				STRNSCPY(_entry.Barcode, pref_barcode);
 				_entry.GoodsID = r_cur_entry.ID; // @v12.0.4 @fix rGoodsInfo.ID-->r_cur_entry.ID
 				chzntobacco_list.insert(&_entry);
 			}
 			// } @v12.0.2 
-			// @v10.6.8 {
 			if(mode == 2) {
 				/*
 					<goods-catalog>
@@ -688,7 +684,6 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 				p_writer->EndElement();
 			}
 			else {
-			// } @v10.6.8
 				// @v11.4.4 {
 				if(goodsIdAsArticle) {
 					p_writer->StartElement("good", "marking-of-the-good", temp_buf.Z().Cat(r_cur_entry.ID)); 
@@ -696,11 +691,11 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 				else /* } @v11.4.4 */ {
 					p_writer->StartElement("good", "marking-of-the-good", pref_barcode);
 				}
-				if(oneof2(mode, 0, 2)) { // @v10.6.8 only 0 works
+				if(oneof2(mode, 0, 2)) { // only 0 works
 					if(rStoreIndex.NotEmpty())
 						p_writer->PutElement("shop-indices", rStoreIndex);
 				}
-				if(oneof2(mode, 0, 1)) { // @v10.6.7
+				if(oneof2(mode, 0, 1)) {
 					p_writer->PutElement("name", r_cur_entry.Name);
 					{
 						for(uint i = 0; i < barcodes.getCount(); i++) {
@@ -709,7 +704,6 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 								if(!is_weight && !is_spirit && !is_tobacco && !is_gift_card)
 									is_weight = gds_cfg.IsWghtPrefix(bc.Code);
 								AddCheckDigToBarcode(bc.Code);
-								// @v10.9.11 {
 								if(r_cur_entry.Flags_ & AsyncCashGoodsInfo::fGMarkedType) {
 									const char * p_mark_type = 0;
 									switch(r_cur_entry.ChZnProdType) {
@@ -719,19 +713,17 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 										case GTCHZNPT_PERFUMERY: p_mark_type = "PERFUMES"; break;
 										case GTCHZNPT_MILK: p_mark_type = "MILK"; break;
 										case GTCHZNPT_WATER: p_mark_type = "WATER"; break; // @v11.5.6
+										case GTCHZNPT_DRAFTBEER_AWR: p_mark_type = "DRAFT_BEER"; break; // @v12.0.5
 										case GTCHZNPT_DRAFTBEER: p_mark_type = "DRAFT_BEER"; break; // @v11.9.2
 										case GTCHZNPT_BEER: p_mark_type = "BEER"; break; // @v12.0.4
 									}
 									if(p_mark_type)
 										p_writer->PutElement("mark-type", p_mark_type);
 								}
-								// } @v10.9.11 
 								p_writer->StartElement("bar-code", "code", bc.Code);
-								// @v10.4.11 {
 								if((r_cur_entry.Flags_ & AsyncCashGoodsInfo::fGMarkedType) || IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED)) {
 									p_writer->AddAttrib("marked", "true");
 								}
-								// } @v10.4.11
 								// p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(r_cur_entry.Price));
 								// p_writer->PutElement("begin-date", beg_dtm);
 								// p_writer->PutElement("end-date", end_dtm);
@@ -745,7 +737,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					}
 					// тип товара:
 					// ProductPieceEntity - штучный, ProductWeightEntity - весовой и т.д.
-					if(is_spirit || r_cur_entry.ChZnProdType == GTCHZNPT_DRAFTBEER) { // @v11.9.2 (r_cur_entry.ChZnProdType == GTCHZNPT_DRAFTBEER)
+					if(is_spirit || oneof2(r_cur_entry.ChZnProdType, GTCHZNPT_DRAFTBEER, GTCHZNPT_DRAFTBEER_AWR)) { // @v11.9.2 (r_cur_entry.ChZnProdType == GTCHZNPT_DRAFTBEER)
 						p_writer->PutElement("product-type", "ProductSpiritsEntity");
 						tag1212 = 2; // @v11.2.0
 					}
@@ -907,10 +899,10 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					}
 					// } @v11.2.0 
 				}
-				if(oneof2(mode, 0, 2)) { // @v10.6.8 only 0 works
+				if(oneof2(mode, 0, 2)) { // only 0 works
 					if(do_process_lookbackprices) {
 						RealArray price_list;
-						if(pGoodsIter->GetDifferentPricesForLookBackPeriod(r_cur_entry.ID, r_cur_entry.Price, price_list) > 0 || (ModuleSubVer >= 2)) { // @v10.8.2 (ModuleSubVer >= 2)
+						if(pGoodsIter->GetDifferentPricesForLookBackPeriod(r_cur_entry.ID, r_cur_entry.Price, price_list) > 0 || (ModuleSubVer >= 2)) {
 							// @v12.0.2 assert(price_list.getCount());
 							p_writer->StartElement("plugin-property", "key", "mrc");
 							for(uint pi = 0; pi < price_list.getCount(); pi++) {
@@ -997,10 +989,8 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 				p_writer->PutElement("till-time", end_dtm.t);
 				p_writer->PutElement("deleted", LOGIC(p_entry->Deleted));
 				p_writer->PutElement("days-of-week", "MO TU WE TH FR SA SU");
-				// @v10.4.6 {
 				if(rStoreIndex.NotEmpty())
 					p_writer->PutElement("shop-indices", rStoreIndex); //<shop-indices>2</shop-indices>
-				// } @v10.4.6
 				p_writer->EndElement(); // </max-discount-restriction>
 				PPWaitPercent(i + 1, max_dis_list.getCount(), iter_msg);
 			}
@@ -1008,7 +998,6 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 		{
 			const char * p_type = "MIN_PRICE";
 			//
-			// @v10.6.4 {
 			// Выгрузка минимальных допустимых цен
 			//
 			if(min_price_list.getCount()) {
@@ -1068,7 +1057,6 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					p_writer->EndElement(); // </max-discount-restriction>
 				}
 			}
-			// } @v10.6.4
 		}
 	}
 	p_writer->EndElement(); // </goods-catalog>
@@ -1118,21 +1106,18 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		if(loc_cfg.StoreIdxTagID)
 			p_ref->Ot.GetTagStr(PPOBJ_LOCATION, cn_data.LocID, loc_cfg.StoreIdxTagID, store_index);
 	}
-	// @v10.4.12 {
-	/* @v10.6.3 (moved to Helper_ExportGoods_V10()) {
-		PPID   temp_tag_id = 0;
-		if(tag_obj.FetchBySymb("setretail-prodtagb", &temp_tag_id) > 0)
-			sr_prodtagb_tag = temp_tag_id;
-	}*/
-	// } @v10.4.12
-	// @v10.6.3 (moved to Helper_ExportGoods_V10()) rpe.Init(cn_data.LocID, 0, 0, ZERODATETIME, 0);
 	//const int check_dig  = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
 	THROW(DistributeFile_(0, 0/*pEndFileName*/, dfactCheckDestPaths, SUBDIR_PRODUCTS, 0));
 	THROW(DistributeFile_(0, 0/*pEndFileName*/, dfactCheckDestPaths, SUBDIR_CARDS, 0));
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_ADDTIMETOFILENAMES, &add_time_to_fname);
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_USENEWDSCNTCODEALG, &use_new_dscnt_code_alg);
-	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_DIFFGOODSEXPORT, &diff_goods_export); // @v10.6.3
+	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_DIFFGOODSEXPORT, &diff_goods_export);
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_GOODSIDASARTICLE, &goodsid_as_article); // @v11.4.4
+	{
+		// @v12.0.5 Проверка доступности каталога PPPATH_OUT
+		PPGetPath(PPPATH_OUT, temp_buf);
+		THROW_PP_S(SFile::IsDir(temp_buf.RmvLastSlash()), PPERR_DIRACCESSDENIED_CFGOUT, temp_buf);
+	}
 	THROW(PPGetFilePath(PPPATH_OUT, GOODS_XML,            path_goods));
 	THROW(PPGetFilePath(PPPATH_OUT, CASHIERS_XML,         path_cashiers));
 	THROW(PPGetFilePath(PPPATH_OUT, CARDS_XML,            path_cards));
@@ -1165,13 +1150,6 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	}
 	P_Dls->StartLoading(&StatID, dvctCashs, NodeID, 1);
 	PROFILE_START
-	/* @v10.6.3 (moved to Helper_ExportGoods_V10())
-	alc_cls_id = p_gds_iter->GetAlcoGoodsCls(&alc_proof, &alc_vol);
-	if(!(alc_proof.Len() || alc_vol.Len()) || obj_gdscls.Fetch(alc_cls_id, &gc_pack) <= 0)
-		alc_cls_id = 0;
-	tobacco_cls_id = p_gds_iter->GetTobaccoGoodsCls();
-	giftcard_cls_id = p_gds_iter->GetGiftCardGoodsCls();
-	*/
 	//
 	// Инициализируем список видов котировок, которые нам понадобятся от RetailGoodsExtractor для экспорта
 	//
@@ -1254,8 +1232,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 		PPObjSCardSeries scs_obj;
 		AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, StatID);
 		PPLoadText(PPTXT_EXPSCARD, iter_msg);
-		// @v10.7.11 PPGetWord(PPWORD_SERIES, 0, series_word);
-		PPLoadString("series", series_word); // @v10.7.11
+		PPLoadString("series", series_word);
 		scard_quot_ary.clear();
 		sp.Split(path_cards);
 		(name = sp.Nam).CatChar('_').CatLongZ(now_dtm.d.day(), 2).CatChar('-').CatLongZ(now_dtm.d.month(), 2).CatChar('-').CatLongZ(now_dtm.d.year(), 4).
@@ -1309,7 +1286,6 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 							p_writer->AddAttrib("amount", temp_buf.Z().Cat(info.Rec.Turnover, MKSFMTD(0, 2, NMBF_EXPLFLOAT)));
 							p_writer->AddAttrib("deleted", false);
 							//p_writer->AddAttrib("discountpercent", fdiv100i(info.Rec.PDis));
-							// @v10.1.0 p_writer->AddAttrib("card-type-guid", ser_ident); // @v9.4.1
 							p_writer->AddAttrib("percentage-discount", temp_buf.Z().Cat(fdiv100i(info.Rec.PDis), MKSFMTD(0, 2, NMBF_EXPLFLOAT)));
 							p_writer->AddAttrib("number", info.Rec.Code);
 							if(expiry.d != ZERODATE) {
@@ -1472,7 +1448,6 @@ public:
 		tSalesGroup,
 		tSalesGroupItems,
 		tCashUpd,
-		// @v9.2.5 tSignalAll // @v9.2.1
 	};
 	struct Info {
 		Info() : T(0), FilNamId(0), DbfResId(0), P_Tbl(0)
@@ -1527,7 +1502,6 @@ public:
 		THROW(List[pos++].Set(tSalesGroup,      PPFILNAM_CS_SALESGGRP_DBF,   DBFS_CRCS_SALESGGRP_EXPORT,  addTimeToName, 1));
 		THROW(List[pos++].Set(tSalesGroupItems, PPFILNAM_CS_SALESGGRPI_DBF,  DBFS_CRCS_SALESGGRPI_EXPORT, addTimeToName, 1));
 		THROW(List[pos++].Set(tCashUpd,         PPFILNAM_CS_CASH_UPD,        0, 0));
-		// @v9.2.5 THROW(List[pos++].Set(tSignalAll,       PPFILNAM_CS_SIGNALALL_DBF,   DBFS_CRCS_SIGNAL_ALL_EXPORT, 0, 1)); // @v9.2.1
 		CATCHZOK
 		return ok;
 	}
@@ -2668,15 +2642,6 @@ int ACS_CRCSHSRV::PrepareImpFileNameV10(int filTyp, const char * pName, const ch
 	return 1;
 }
 
-/* @v9.7.4 static void RemoveQuotations(char * pBuf)
-{
-	if(pBuf && pBuf[0] == '"' && pBuf[sstrlen(pBuf) - 1] == '"') {
-		strcpy(pBuf, pBuf + 1);
-		pBuf[sstrlen(pBuf) - 1] = 0;
-		strip(pBuf);
-	}
-} */
-
 static void ConvertCrystalRightsSetToCashierRights(long crystCshrRights, long * pCshrRights)
 {
 	int    i;
@@ -2715,7 +2680,7 @@ int ACS_CRCSHSRV::GetCashiersList()
 			StringSet ss(",");
 			RegisterFilt reg_flt;
 			LDATE  last_dt = plusdate(getcurdate_(), -1);
-			reg_flt.Oid.Obj = PPOBJ_PERSON; // @v10.0.1
+			reg_flt.Oid.Obj = PPOBJ_PERSON;
 			reg_flt.RegTypeID = tabnum_reg_id;
 			psn_obj.GetListByKind(r_eq_cfg.CshrsPsnKindID, &psn_ary, 0);
 			SFile  cf(PathCshrs, SFile::mRead);
@@ -2881,7 +2846,7 @@ int ACS_CRCSHSRV::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRan
 		dlg = new TDialog(DLG_SELSESSRNG);
 		if(CheckDialogPtrErr(&dlg)) {
 			SString dt_buf;
-			const LDATE oper_date = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+			const LDATE oper_date = getcurdate_();
 			ChkRepPeriod.SetDate(oper_date);
 			dlg->SetupCalPeriod(CTLCAL_DATERNG_PERIOD, CTL_DATERNG_PERIOD);
 			SetPeriodInput(dlg, CTL_DATERNG_PERIOD, &ChkRepPeriod);
@@ -3527,7 +3492,7 @@ int XmlReader::Next(Packet * pPack)
 											amount_type = CCAMTTYP_DELIVERY;
 										else if(val.IsEqiAscii("CashPaymentEntity")) // Сумма, полученная наличными (без учета сдачи)
 											amount_type = CCAMTTYP_NOTE;
-										else if(val.IsEqiAscii("com_mobimoney_plugin")) // @v10.1.0 Специальная сумма - заносится как банковская оплата
+										else if(val.IsEqiAscii("com_mobimoney_plugin")) // Специальная сумма - заносится как банковская оплата
 											amount_type = CCAMTTYP_BANK;
 									}
 									if(amount_type == CCAMTTYP_CRDCARD)
@@ -3754,13 +3719,11 @@ int ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char * pPa
 						item.Amount = (P_TmpCcTbl->data.Flags & CCHKF_RETURN) ? -item.Amount : item.Amount;
 						item.Discount = (item.Qtty) ? (item.Price - item.Amount / item.Qtty) : 0;
 						SetupTempCcLineRec(0, chk_id, hdr.ChkNum, P_TmpCcTbl->data.Dt, item.Div, goods_id);
-						// @v10.7.3 SetTempCcLineValues(0, item.Qtty, item.Amount / item.Qtty + item.Discount, item.Discount/*, item.Serial*/, 0/*pLnExtStrings*/);
-						// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
 						{
 							PPExtStrContainer ccl_ext_strings;
 							ccl_ext_strings.PutExtStrData(CCheckPacket::lnextSerial, item.Serial);
 							ccl_ext_strings.PutExtStrData(CCheckPacket::lnextEgaisMark, item.Mark); // @v11.4.0
-							THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, item.Qtty, item.Amount / item.Qtty + item.Discount, item.Discount/*, item.Serial*/, &ccl_ext_strings)); // @v10.7.3
+							THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, item.Qtty, item.Amount / item.Qtty + item.Discount, item.Discount/*, item.Serial*/, &ccl_ext_strings));
 						}
 						if(!P_TmpCcTbl->data.SCardID && scard_id)
 							THROW(AddTempCheckSCardID(chk_id, scard_id));
@@ -3908,7 +3871,8 @@ int ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * pWaitM
 					int    r   = 0;
 					PPID   id = 0;
 					long   fl  = (op[0] == 'R') ? CCHKF_RETURN : 0;
-					double sum = 0.0, dscnt = 0.0;
+					double sum = 0.0;
+					double dscnt = 0.0;
 					if(pZRepList) {
 						ZRep zrep_key;
 						zrep_key.CashCode = csh;
@@ -3981,9 +3945,7 @@ int ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * pWaitM
 					SetupTempCcLineRec(0, chk_id, chk_no, P_TmpCcTbl->data.Dt, div, goods_id);
 					if(!fldn_l_sum)
 						sum = price * qtty;
-					// @v10.7.3 SetTempCcLineValues(0, qtty, (sum + dscnt)/qtty, dscnt/qtty, 0/*pLnExtStrings*/);
-					// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
-					THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, (sum + dscnt)/qtty, dscnt/qtty, 0/*pLnExtStrings*/)); // @v10.7.3
+					THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, (sum + dscnt)/qtty, dscnt/qtty, 0/*pLnExtStrings*/));
 					if(banking) {
 						THROW(UpdateTempCheckFlags(chk_id, CCHKF_BANKING));
 					}
@@ -4151,9 +4113,7 @@ int ACS_CRCSHSRV::ConvertCheckRows(const char * pWaitMsg)
 					qtty = (P_TmpCcTbl->data.Flags & CCHKF_RETURN) ? -fabs(qtty) : fabs(qtty);
 					SetupTempCcLineRec(0, chk_id, cs_chkln.CheckNumber, P_TmpCcTbl->data.Dt, cs_chkln.Division, goods_id);
 					SETIFZ(sum, price * qtty);
-					// @v10.7.3 SetTempCcLineValues(0, qtty, (sum + dscnt)/qtty, dscnt/qtty, 0/*pLnExtStrings*/);
-					// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
-					THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, (sum + dscnt)/qtty, dscnt/qtty, 0/*pLnExtStrings*/)); // @v10.7.3
+					THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, (sum + dscnt)/qtty, dscnt/qtty, 0/*pLnExtStrings*/));
 					if(cs_chkln.IsBanking && !(P_TmpCcTbl->data.Flags & CCHKF_BANKING)) {
 						THROW(UpdateTempCheckFlags(chk_id, CCHKF_BANKING));
 					}
@@ -4418,7 +4378,7 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 	int    ok = -1, r = 1;
 	LDATE  oper_date, end = ChkRepPeriod.upp;
 	SString query_buf;
-	SETIFZ(end, plusdate(getcurdate_(), 2)); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	SETIFZ(end, plusdate(getcurdate_(), 2));
 	DbfTable * p_dbftz  = 0;
 	PPImpExp * p_ie_csz = 0;
 	for(oper_date = ChkRepPeriod.low; useLocalFiles || (r > 0 && oper_date <= end); oper_date = plusdate(oper_date, 1)) {
@@ -4447,8 +4407,7 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 				sp.Merge(data_path);
 				for(sd.Init(data_path); sd.Next(&sd_entry) > 0;) {
 					sd_entry.GetNameA(data_dir, data_path);
-					// @v10.1.1 Backup("zrep", data_path);
-					DrfL.Add("zrep", data_path); // @v10.1.1
+					DrfL.Add("zrep", data_path);
 					{
 						ZRep   zrep;
 						XmlZRepReader _rdr(data_path);
@@ -4457,7 +4416,6 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 							THROW_SL(pZRepList->insert(&zrep));
 						}
 					}
-					// @v10.1.1 SFile::Remove(data_path);
 				}
 			}
 			else if(Options & oUseAltImport) {
@@ -4583,7 +4541,7 @@ int ACS_CRCSHSRV::ImportSession(int)
 	LDATE  oper_date;
 	LDATE  end = ChkRepPeriod.upp;
 	SVector zrep_list(sizeof(ZRep));
-	SETIFZ(end, plusdate(getcurdate_(), 2)); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	SETIFZ(end, plusdate(getcurdate_(), 2));
 	PPLoadText(PPTXT_IMPORTCHECKS, wait_msg_tmpl);
 	THROW(CreateTables());
 	//
@@ -4607,10 +4565,8 @@ int ACS_CRCSHSRV::ImportSession(int)
 				sp.Merge(data_path);
 				for(SDirec sd(data_path); sd.Next(&sd_entry) > 0;) {
 					sd_entry.GetNameA(data_dir, data_path);
-					// @v10.1.1 Backup("chks", data_path);
-					DrfL.Add("chks", data_path); // @v10.1.1
+					DrfL.Add("chks", data_path);
 					THROW(ConvertWareListV10(&zrep_list, data_path, wait_msg));
-					// @v10.1.1 SFile::Remove(data_path);
 				}
 				/*
 				MakeQueryBufV10(oper_date, query_buf, 0);
@@ -4643,7 +4599,7 @@ int ACS_CRCSHSRV::ImportSession(int)
 				}
 				else {
 					if(!use_local_files) {
-						if(!(ModuleVer == 5 && ModuleSubVer >= 9)) { // @v9.2.7 В режиме 5.9 при посылке запроса на отчеты SetRetail возвращает все отчеты
+						if(!(ModuleVer == 5 && ModuleSubVer >= 9)) { // В режиме 5.9 при посылке запроса на отчеты SetRetail возвращает все отчеты
 							SDelay(2000);
 							if(r > 0)
 								THROW(r = QueryFile(filTypChkHeads, query_buf, oper_date));

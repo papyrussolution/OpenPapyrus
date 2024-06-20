@@ -1533,7 +1533,7 @@ static void _appendLDMLExtensionAsKeywords(const char * ldmlext, ExtensionListEn
 					}
 				}
 				else {
-					U_ASSERT(pBcpKey != NULL);
+					assert(pBcpKey != NULL);
 					/* within LDML type subtags */
 					if(pBcpType) {
 						bcpTypeLen += (len + 1);
@@ -1560,13 +1560,13 @@ static void _appendLDMLExtensionAsKeywords(const char * ldmlext, ExtensionListEn
 				const char * pKey = NULL; /* LDML key */
 				const char * pType = NULL; /* LDML type */
 				char bcpKeyBuf[3]; /* BCP key length is always 2 for now */
-				U_ASSERT(pBcpKey != NULL);
+				assert(pBcpKey != NULL);
 				if(bcpKeyLen >= (int32_t)sizeof(bcpKeyBuf)) {
 					/* the BCP key is invalid */
 					*status = U_ILLEGAL_ARGUMENT_ERROR;
 					return;
 				}
-				U_ASSERT(bcpKeyLen <= 2);
+				assert(bcpKeyLen <= 2);
 
 				uprv_strncpy(bcpKeyBuf, pBcpKey, bcpKeyLen);
 				bcpKeyBuf[bcpKeyLen] = 0;

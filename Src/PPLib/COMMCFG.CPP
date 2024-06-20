@@ -1,5 +1,5 @@
 // COMMCFG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2021, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2021, 2023, 2024
 // @codepage UTF-8
 //
 // Диалог редактирования общих параметров настройки
@@ -45,7 +45,7 @@ public:
 		THROW(getAcc(sel = CTL_COMMCFG_ASSETACC, &Data.AssetAcct));
 		GetClusterData(CTL_COMMCFG_FLAGS, &Data.Flags);
 		GetClusterData(CTL_COMMCFG_INCM,  &Data.IncomeCalcMethod);
-		Data.Reserve2 = 0;
+		// @v12.0.5 Data.Reserve2 = 0;
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
 		return ok;

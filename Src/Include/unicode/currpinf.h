@@ -55,17 +55,7 @@ public:
 	 * @stable ICU 4.2
 	 */
 	CurrencyPluralInfo(const Locale& locale, UErrorCode & status);
-	/**
-	 * Copy constructor
-	 *
-	 * @stable ICU 4.2
-	 */
 	CurrencyPluralInfo(const CurrencyPluralInfo& info);
-	/**
-	 * Assignment operator
-	 *
-	 * @stable ICU 4.2
-	 */
 	CurrencyPluralInfo& operator =(const CurrencyPluralInfo& info);
 	/**
 	 * Destructor
@@ -73,23 +63,8 @@ public:
 	 * @stable ICU 4.2
 	 */
 	virtual ~CurrencyPluralInfo();
-	/**
-	 * Equal operator.
-	 *
-	 * @stable ICU 4.2
-	 */
 	bool operator==(const CurrencyPluralInfo& info) const;
-	/**
-	 * Not equal operator
-	 *
-	 * @stable ICU 4.2
-	 */
 	bool operator !=(const CurrencyPluralInfo& info) const;
-	/**
-	 * Clone
-	 *
-	 * @stable ICU 4.2
-	 */
 	CurrencyPluralInfo* clone() const;
 	/**
 	 * Gets plural rules of this locale, used for currency plural format

@@ -1,24 +1,14 @@
+// ufile.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 1998-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *
- * File ufile.cpp
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   11/19/98    stephen     Creation.
- *   03/12/99    stephen     Modified for new C API.
- *   06/16/99    stephen     Changed T_LocaleBundle to u_locbund
- *   07/19/99    stephen     Fixed to use ucnv's default codepage.
- ******************************************************************************
- */
+// Copyright (C) 1998-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 11/19/98    stephen     Creation.
+// 03/12/99    stephen     Modified for new C API.
+// 06/16/99    stephen     Changed T_LocaleBundle to u_locbund
+// 07/19/99    stephen     Fixed to use ucnv's default codepage.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/platform.h"
@@ -55,11 +45,9 @@ static UFILE* finit_owner(FILE     * f, const char * locale, const char * codepa
 	memzero(result, sizeof(UFILE));
 	result->fFileno = fileno(f);
 	result->fFile = f;
-
 	result->str.fBuffer = result->fUCBuffer;
 	result->str.fPos    = result->fUCBuffer;
 	result->str.fLimit  = result->fUCBuffer;
-
 #if !UCONFIG_NO_FORMATTING
 	/* if locale is 0, use the default */
 	if(u_locbund_init(&result->str.fBundle, locale) == 0) {
@@ -213,7 +201,6 @@ U_CAPI UFILE* U_EXPORT2 u_fstropen(char16_t * stringBuf, int32_t capacity, const
 		return 0;
 	}
 #endif
-
 	return result;
 }
 
@@ -257,8 +244,7 @@ U_CAPI void u_frewind(UFILE * file)
 	}
 }
 
-U_CAPI void U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */
-u_fclose(UFILE * file)
+U_CAPI void U_EXPORT2 /* U_CAPI ... U_EXPORT2 added by Peter Kirk 17 Nov 2001 */ u_fclose(UFILE * file)
 {
 	if(file) {
 		u_fflush(file);
@@ -330,6 +316,5 @@ U_CAPI const UNumberFormat * U_EXPORT2 u_fgetNumberFormat(UFILE * file)
 {
 	return u_locbund_getNumberFormat(&file->str.fBundle, UNUM_DECIMAL);
 }
-
 #endif
 #endif

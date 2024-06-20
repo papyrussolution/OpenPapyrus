@@ -3393,9 +3393,7 @@ inline const char16_t* UnicodeString::getArrayStart() const
 {
 	return (fUnion.fFields.fLengthAndFlags&kUsingStackBuffer) ? fUnion.fStackFields.fBuffer : fUnion.fFields.fArray;
 }
-//
-// Default constructor
-//
+
 inline UnicodeString::UnicodeString() 
 { 
 	fUnion.fStackFields.fLengthAndFlags = kShortString; 

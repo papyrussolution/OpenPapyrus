@@ -155,6 +155,7 @@
 #include "bmpset.h"
 #include "uassert.h"
 #include "cstring.h"
+#include "uelement.h"
 #include "uvector.h"
 #include "uvectr32.h"
 #include "uvectr64.h"

@@ -367,9 +367,6 @@ void PPViewPredictSales::ViewTotal()
 	}
 }
 
-// @v11.4.4 #define GRP_GOODS 1
-// @v11.4.4 #define GRP_LOC   2
-
 int PPViewPredictSales::EditBaseFilt(PPBaseFilt * pBaseFilt /*PredictSalesFilt * pFilt*/)
 {
 	enum {
@@ -410,11 +407,11 @@ int PPViewPredictSales::EditBaseFilt(PPBaseFilt * pBaseFilt /*PredictSalesFilt *
 				PPErrorByDialog(dlg, CTL_PSALESFLT_PERIOD);
 			else if(dlg->getGroupData(ctlgroupGoods, &rec) > 0) {
 				if(!p_filt->GoodsIdList.IsExists()) {
-					filt.GoodsGrpID = rec.GrpID;
+					filt.GoodsGrpID = rec.GoodsGrpID;
 					filt.GoodsID    = rec.GoodsID;
 				}
 				else if(p_filt->GoodsIdList.GetSingle() && rec.GoodsID) {
-					filt.GoodsGrpID = rec.GrpID;
+					filt.GoodsGrpID = rec.GoodsGrpID;
 					filt.GoodsID    = rec.GoodsID;
 					filt.GoodsIdList.Set(0);
 					filt.GoodsIdList.Add(rec.GoodsID);

@@ -377,8 +377,8 @@ UnicodeString skeleton::generate(const MacroProps& macros, UErrorCode & status)
 
 MacroProps skeleton::parseSkeleton(const UnicodeString & skeletonString, int32_t& errOffset, UErrorCode & status) 
 {
-	U_ASSERT(U_SUCCESS(status));
-	U_ASSERT(kSerializedStemTrie != nullptr);
+	assert(U_SUCCESS(status));
+	assert(kSerializedStemTrie != nullptr);
 	// Add a trailing whitespace to the end of the skeleton string to make code cleaner.
 	UnicodeString tempSkeletonString(skeletonString);
 	tempSkeletonString.append(u' ');
@@ -477,13 +477,13 @@ MacroProps skeleton::parseSkeleton(const UnicodeString & skeletonString, int32_t
 		// Consume the separator:
 		segment.adjustOffset(U16_LENGTH(cp));
 	}
-	U_ASSERT(stem == STATE_NULL);
+	assert(stem == STATE_NULL);
 	return macros;
 }
 
 ParseState skeleton::parseStem(const StringSegment& segment, const UCharsTrie& stemTrie, SeenMacroProps& seen, MacroProps& macros, UErrorCode & status) 
 {
-	U_ASSERT(U_SUCCESS(status));
+	assert(U_SUCCESS(status));
 	// First check for "blueprint" stems, which start with a "signal char"
 	switch(segment.charAt(0)) {
 		case u'.':
@@ -672,7 +672,7 @@ ParseState skeleton::parseStem(const StringSegment& segment, const UCharsTrie& s
 
 ParseState skeleton::parseOption(ParseState stem, const StringSegment& segment, MacroProps& macros, UErrorCode & status) 
 {
-	U_ASSERT(U_SUCCESS(status));
+	assert(U_SUCCESS(status));
 	///// Required options: /////
 	switch(stem) {
 		case STATE_CURRENCY_UNIT: blueprint_helpers::parseCurrencyOption(segment, macros, status); return STATE_NULL;
@@ -916,7 +916,7 @@ void blueprint_helpers::generateCurrencyOption(const CurrencyUnit& currency, Uni
 
 void blueprint_helpers::parseMeasureUnitOption(const StringSegment& segment, MacroProps& macros,
     UErrorCode & status) {
-	U_ASSERT(U_SUCCESS(status));
+	assert(U_SUCCESS(status));
 	const UnicodeString stemString = segment.toTempUnicodeString();
 
 	// NOTE: The category (type) of the unit is guaranteed to be a valid subtag (alphanumeric)
@@ -975,7 +975,7 @@ void blueprint_helpers::parseMeasurePerUnitOption(const StringSegment& segment, 
 void blueprint_helpers::parseIdentifierUnitOption(const StringSegment& segment, MacroProps& macros,
     UErrorCode & status) {
 	// Need to do char <-> char16_t conversion...
-	U_ASSERT(U_SUCCESS(status));
+	assert(U_SUCCESS(status));
 	CharString buffer;
 	SKELETON_UCHAR_TO_CHAR(buffer, segment.toTempUnicodeString(), 0, segment.length(), status);
 
@@ -991,7 +991,7 @@ void blueprint_helpers::parseIdentifierUnitOption(const StringSegment& segment, 
 void blueprint_helpers::parseUnitUsageOption(const StringSegment &segment, MacroProps &macros,
     UErrorCode & status) {
 	// Need to do char <-> char16_t conversion...
-	U_ASSERT(U_SUCCESS(status));
+	assert(U_SUCCESS(status));
 	CharString buffer;
 	SKELETON_UCHAR_TO_CHAR(buffer, segment.toTempUnicodeString(), 0, segment.length(), status);
 	macros.usage.set(buffer.toStringPiece());
@@ -1001,7 +1001,7 @@ void blueprint_helpers::parseUnitUsageOption(const StringSegment &segment, Macro
 
 void blueprint_helpers::parseFractionStem(const StringSegment& segment, MacroProps& macros,
     UErrorCode & status) {
-	U_ASSERT(segment.charAt(0) == u'.');
+	assert(segment.charAt(0) == u'.');
 	int32_t offset = 1;
 	int32_t minFrac = 0;
 	int32_t maxFrac;
@@ -1068,7 +1068,7 @@ void blueprint_helpers::generateFractionStem(int32_t minFrac, int32_t maxFrac, U
 }
 
 void blueprint_helpers::parseDigitsStem(const StringSegment& segment, MacroProps& macros, UErrorCode & status) {
-	U_ASSERT(segment.charAt(0) == u'@');
+	assert(segment.charAt(0) == u'@');
 	int32_t offset = 0;
 	int32_t minSig = 0;
 	int32_t maxSig;
@@ -1125,7 +1125,7 @@ void blueprint_helpers::generateDigitsStem(int32_t minSig, int32_t maxSig, Unico
 }
 
 void blueprint_helpers::parseScientificStem(const StringSegment& segment, MacroProps& macros, UErrorCode & status) {
-	U_ASSERT(segment.charAt(0) == u'E');
+	assert(segment.charAt(0) == u'E');
 	{
 		int32_t offset = 1;
 		if(segment.length() == offset) {
@@ -1179,7 +1179,7 @@ fail:   void();
 }
 
 void blueprint_helpers::parseIntegerStem(const StringSegment& segment, MacroProps& macros, UErrorCode & status) {
-	U_ASSERT(segment.charAt(0) == u'0');
+	assert(segment.charAt(0) == u'0');
 	int32_t offset = 1;
 	for(; offset < segment.length(); offset++) {
 		if(segment.charAt(offset) != u'0') {
@@ -1252,7 +1252,7 @@ bool blueprint_helpers::parseFracSigOption(const StringSegment& segment, MacroPr
 			offset++;
 		}
 		else {
-			U_ASSERT(offset < segment.length());
+			assert(offset < segment.length());
 		}
 		if(offset < segment.length()) {
 			// Invalid digits option for fraction rounder
@@ -1366,7 +1366,7 @@ void blueprint_helpers::generateIntegerWidthOption(int32_t minInt, int32_t maxIn
 void blueprint_helpers::parseNumberingSystemOption(const StringSegment& segment, MacroProps& macros,
     UErrorCode & status) {
 	// Need to do char <-> char16_t conversion...
-	U_ASSERT(U_SUCCESS(status));
+	assert(U_SUCCESS(status));
 	CharString buffer;
 	SKELETON_UCHAR_TO_CHAR(buffer, segment.toTempUnicodeString(), 0, segment.length(), status);
 
@@ -1389,7 +1389,7 @@ void blueprint_helpers::generateNumberingSystemOption(const NumberingSystem& ns,
 void blueprint_helpers::parseScaleOption(const StringSegment& segment, MacroProps& macros,
     UErrorCode & status) {
 	// Need to do char <-> char16_t conversion...
-	U_ASSERT(U_SUCCESS(status));
+	assert(U_SUCCESS(status));
 	CharString buffer;
 	SKELETON_UCHAR_TO_CHAR(buffer, segment.toTempUnicodeString(), 0, segment.length(), status);
 

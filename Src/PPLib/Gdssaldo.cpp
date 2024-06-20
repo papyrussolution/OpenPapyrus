@@ -223,7 +223,7 @@ int PrcssrGoodsSaldo::EditParam(Param * pPar)
 			GoodsCtrlGroup::Rec rec;
 			if(!RVALUEPTR(Data, pData))
 				MEMSZERO(Data);
-			rec.GrpID   = Data.GoodsGrpID;
+			rec.GoodsGrpID = Data.GoodsGrpID;
 			rec.GoodsID = Data.GoodsID;
 			rec.Flags   = GoodsCtrlGroup::enableSelUpLevel;
 			setGroupData(ctlgroupGoods, &rec);
@@ -246,7 +246,7 @@ int PrcssrGoodsSaldo::EditParam(Param * pPar)
 			ushort v;
 			GoodsCtrlGroup::Rec rec;
 			THROW(getGroupData(ctlgroupGoods, &rec));
-			Data.GoodsGrpID = rec.GrpID;
+			Data.GoodsGrpID = rec.GoodsGrpID;
 			Data.GoodsID    = rec.GoodsID;
 			sel = CTL_GDSSALDO_GGRP;
 			THROW_PP_S(Data.GoodsGrpID, PPERR_GOODSGROUPNEEDED, GetGoodsName(rec.GoodsID, SLS.AcquireRvlStr())); // @v10.3.6 THROW_PP-->THROW_PP_S(..,GetGoodsName(rec.GoodsID))
@@ -275,7 +275,7 @@ int PrcssrGoodsSaldo::EditParam(Param * pPar)
 			memzero(last_calc_date, sizeof(last_calc_date));
 			if(getGroupData(ctlgroupGoods, &rec)) {
 				PPID   ar_id = getCtrlLong(CTLSEL_GDSSALDO_CNTRAGNT);
-				GSCore.GetLastCalcDate(rec.GrpID, rec.GoodsID, ar_id, 0 /*dlvrLocID*/, &dt);
+				GSCore.GetLastCalcDate(rec.GoodsGrpID, rec.GoodsID, ar_id, 0 /*dlvrLocID*/, &dt);
 				datefmt(&dt, DATF_DMY, last_calc_date);
 				setCtrlData(CTL_GDSSALDO_LASTCALC, &last_calc_date);
 			}

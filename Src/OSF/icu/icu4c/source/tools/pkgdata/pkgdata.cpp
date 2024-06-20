@@ -1059,7 +1059,7 @@ static int32_t pkg_installLibrary(const char * installDir, const char * targetDi
 	auto ret = snprintf(cmd, SMALL_BUFFER_MAX_SIZE, "cd %s && %s %s %s%s%s", targetDir,
 		pkgDataFlags[INSTALL_CMD], libFileNames[LIB_FILE_VERSION], installDir, PKGDATA_FILE_SEP_STRING, libFileNames[LIB_FILE_VERSION]);
 	(void)ret;
-	U_ASSERT(0 <= ret && ret < SMALL_BUFFER_MAX_SIZE);
+	assert(0 <= ret && ret < SMALL_BUFFER_MAX_SIZE);
 	result = runCommand(cmd);
 	if(result != 0) {
 		slfprintf_stderr("Error installing library. Failed command: %s\n", cmd);
@@ -1157,7 +1157,7 @@ static int32_t pkg_installFileMode(const char * installDir, const char * srcDir,
 					srcDir, PKGDATA_FILE_SEP_STRING, buffer,
 					installDir, PKGDATA_FILE_SEP_STRING, buffer);
 				(void)ret;
-				U_ASSERT(0 <= ret && ret < SMALL_BUFFER_MAX_SIZE);
+				assert(0 <= ret && ret < SMALL_BUFFER_MAX_SIZE);
 
 				result = runCommand(cmd);
 				if(result != 0) {
@@ -1605,14 +1605,14 @@ static int32_t pkg_createWithoutAssemblyCode(UPKGOptions * o, const char * targe
 						DATA_PREFIX[n],
 						newNameTmp);
 					(void)ret;
-					U_ASSERT(0 <= ret && ret < SMALL_BUFFER_MAX_SIZE);
+					assert(0 <= ret && ret < SMALL_BUFFER_MAX_SIZE);
 					ret = snprintf(dataName,
 						SMALL_BUFFER_MAX_SIZE,
 						"%s_%s",
 						o->shortName,
 						DATA_PREFIX[n]);
 					(void)ret;
-					U_ASSERT(0 <= ret && ret < SMALL_BUFFER_MAX_SIZE);
+					assert(0 <= ret && ret < SMALL_BUFFER_MAX_SIZE);
 				}
 				if(newName[0] != 0) {
 					break;

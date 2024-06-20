@@ -866,34 +866,15 @@ public:
 	    char * region, int32_t capacity, UErrorCode & status);
 
 protected:
-
-	/**
-	 * Default constructor.  ID is initialized to the empty string.
-	 * @stable ICU 2.0
-	 */
 	TimeZone();
-
 	/**
 	 * Construct a TimeZone with a given ID.
 	 * @param id a system time zone ID
 	 * @stable ICU 2.0
 	 */
 	TimeZone(const UnicodeString &id);
-
-	/**
-	 * Copy constructor.
-	 * @param source the object to be copied.
-	 * @stable ICU 2.0
-	 */
 	TimeZone(const TimeZone& source);
-
-	/**
-	 * Default assignment operator.
-	 * @param right the object to be copied.
-	 * @stable ICU 2.0
-	 */
 	TimeZone& operator = (const TimeZone& right);
-
 #ifndef U_HIDE_INTERNAL_API
 	/**
 	 * Utility function. For internally loading rule data.
@@ -914,7 +895,6 @@ private:
 	friend class ZoneMeta;
 
 	static TimeZone*        createCustomTimeZone(const UnicodeString &);// Creates a time zone based on the string.
-
 	/**
 	 * Finds the given ID in the Olson tzdata. If the given ID is found in the tzdata,
 	 * returns the pointer to the ID resource. This method is exposed through ZoneMeta class

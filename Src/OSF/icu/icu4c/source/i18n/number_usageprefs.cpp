@@ -121,12 +121,12 @@ void mixedMeasuresToMicros(const MaybeStackVector<Measure> &measures, DecimalQua
 			    micros->mixedMeasures[i] = measures[i]->getNumber().getInt64();
 			    break;
 			case Formattable::kDouble:
-			    U_ASSERT(micros->indexOfQuantity < 0);
+			    assert(micros->indexOfQuantity < 0);
 			    quantity->setToDouble(measures[i]->getNumber().getDouble());
 			    micros->indexOfQuantity = i;
 			    break;
 			default:
-			    U_ASSERT(0 == "Found a Measure Number which is neither a double nor an int");
+			    assert(0 == "Found a Measure Number which is neither a double nor an int");
 			    UPRV_UNREACHABLE_EXIT;
 			    break;
 		}

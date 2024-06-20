@@ -4105,8 +4105,8 @@ static decNumber * decAddOp(decNumber * res, const decNumber * lhs,
     #endif
 
 		/* add [A+B*m] or subtract [A+B*(-m)]  */
-		U_ASSERT(rhs->digits > 0);
-		U_ASSERT(lhs->digits > 0);
+		assert(rhs->digits > 0);
+		assert(lhs->digits > 0);
 		res->digits = decUnitAddSub(lhs->lsu, D2U(lhs->digits),
 			rhs->lsu, D2U(rhs->digits),
 			rhsshift, acc, mult)
@@ -5023,7 +5023,7 @@ static decNumber * decMultiplyOp(decNumber * res, const decNumber * lhs, const d
 
 			/* Make sure no signed int overflow below. This is always true */
 			/* if the given numbers have less digits than DEC_MAX_DIGITS. */
-			U_ASSERT((uint32_t)iacc <= INT32_MAX/sizeof(uLong));
+			assert((uint32_t)iacc <= INT32_MAX/sizeof(uLong));
 			needbytes = iacc*sizeof(uLong);
       #if DECDPUN==1
 			zoff = (iacc+7)/8; /* items to offset by  */
@@ -7025,7 +7025,7 @@ static void decSetCoeff(decNumber * dn, decContext * set, const Unit * lsu, Int 
 		if(cut==0) quot = *up; /* is at bottom of unit  */
 		else { /* cut>0 */ /* it's not at bottom of unit  */
       #if DECDPUN<=4
-			U_ASSERT(/* cut >= 0 &&*/ cut <= 4);
+			assert(/* cut >= 0 &&*/ cut <= 4);
 			quot = QUOT10(*up, cut);
 			rem = *up-quot*powers[cut];
       #else

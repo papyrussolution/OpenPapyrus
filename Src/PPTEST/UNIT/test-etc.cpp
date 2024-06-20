@@ -1070,6 +1070,7 @@ SLTEST_R(SRecPageManager)
 					pfx_wr.SetTotalSize(total_size, SDataPageHeader::RecPrefix::fDeleted);
 					const uint32 wr = p_page->WriteRecPrefix(page_offs, pfx_wr);
 					SLCHECK_NZ(wr);
+					SLCHECK_EQ(pfx_wr.PayloadSize+pfx_wr.GetPrefixSize(), pfx_wr.TotalSize);
 					const uint32 rr = p_page->ReadRecPrefix(page_offs, pfx_rd);
 					SLCHECK_NZ(rr);
 					SLCHECK_EQ(rr, wr);
@@ -1083,6 +1084,9 @@ SLTEST_R(SRecPageManager)
 		}
 	}
 	{
+		//
+		// Тестирование работы в рамках единственной страницы данных
+		//
 		const uint max_rec_size = 500;
 		const uint page_size = SKILOBYTE(512);
 		SCollection data_list;
@@ -1190,7 +1194,10 @@ SLTEST_R(SRecPageManager)
 					}
 					else {
 						; // @err
+
 					}
+					if(!CurrentStatus)
+						debug_mark = true;
 				}
 			}
 		}

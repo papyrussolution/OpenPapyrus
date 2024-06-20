@@ -3139,7 +3139,7 @@ getTrail:
 						}
 						else {
 							/* GB2312_1 or ISO-IR-165 */
-							U_ASSERT(cs0<UCNV_2022_MAX_CONVERTERS);
+							assert(cs0<UCNV_2022_MAX_CONVERTERS);
 							len2 = MBCS_FROM_UCHAR32_ISO2022(
 								converterData->myConverterArray[cs0],
 								sourceChar,
@@ -3166,7 +3166,7 @@ getTrail:
 							memcpy(buffer, escSeqCharsCN[cs], 4);
 						}
 						else {
-							U_ASSERT(cs >= CNS_11643_1);
+							assert(cs >= CNS_11643_1);
 							memcpy(buffer, escSeqCharsCN[CNS_11643 + (cs - CNS_11643_1)], 4);
 						}
 						len = 4;
@@ -3430,7 +3430,7 @@ getTrailByte:
 								    tempBufLen = 3;
 							    }
 							    else {
-								    U_ASSERT(tempState<UCNV_2022_MAX_CONVERTERS);
+								    assert(tempState<UCNV_2022_MAX_CONVERTERS);
 								    cnv = myData->myConverterArray[tempState];
 								    tempBuf[0] = (char)(mySourceChar);
 								    tempBuf[1] = (char)trailByte;

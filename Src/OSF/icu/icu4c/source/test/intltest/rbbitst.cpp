@@ -390,7 +390,7 @@ void TestParams::setUTF16(UErrorCode & status) {
 		}
 	}
 	textMap->addElement(dataToBreak.length(), status);
-	U_ASSERT(dataToBreak.length() + 1 == textMap->size());
+	assert(dataToBreak.length() + 1 == textMap->size());
 }
 
 void TestParams::setUTF8(UErrorCode & status) {
@@ -418,7 +418,7 @@ void TestParams::setUTF8(UErrorCode & status) {
 			textMap->addElement(-1, status);
 		}
 	}
-	U_ASSERT(utext_nativeLength(textToBreak) + 1 == textMap->size());
+	assert(utext_nativeLength(textToBreak) + 1 == textMap->size());
 }
 
 int32_t TestParams::getSrcLine(int32_t bp) {
@@ -1446,7 +1446,7 @@ std::string RBBIMonkeyKind::classNameFromCodepoint(const UChar32 c) {
 			return classNames[aClassNum];
 		}
 	}
-	U_ASSERT(FALSE); // This should not happen.
+	assert(FALSE); // This should not happen.
 	return "bad class name";
 }
 
@@ -3238,7 +3238,7 @@ static int32_t getIntParam(UnicodeString name, UnicodeString & params, int32_t d
 		m.reset();
 		params = m.replaceFirst("", status);
 	}
-	U_ASSERT(U_SUCCESS(status));
+	assert(U_SUCCESS(status));
 	return val;
 }
 
@@ -3855,7 +3855,7 @@ void RBBITest::RunMonkey(BreakIterator * bi, RBBIMonkeyKind &mk, const char * na
 			}
 			expectedBreaks[breakPos] = 1;
 			expectedCount++;
-			U_ASSERT(expectedCount<testText.length());
+			assert(expectedCount<testText.length());
 		}
 		// Find the break positions using forward iteration
 		memzero(forwardBreaks, sizeof(forwardBreaks));
@@ -3891,7 +3891,7 @@ void RBBITest::RunMonkey(BreakIterator * bi, RBBIMonkeyKind &mk, const char * na
 		}
 		// Find the break positions using isBoundary() tests.
 		memzero(isBoundaryBreaks, sizeof(isBoundaryBreaks));
-		U_ASSERT((int32_t)sizeof(isBoundaryBreaks) > testText.length());
+		assert((int32_t)sizeof(isBoundaryBreaks) > testText.length());
 		for(i = 0; i<=testText.length(); i++) {
 			isBoundaryBreaks[i] = bi->isBoundary(i);
 		}
@@ -4038,7 +4038,7 @@ void RBBITest::RunMonkey(BreakIterator * bi, RBBIMonkeyKind &mk, const char * na
 						mk.classNameFromCodepoint(c).c_str(),
 						mk.getAppliedRule(ci).c_str(), cName);
 					(void)ret;
-					U_ASSERT(0 <= ret && ret < SIZEOFARRAYi(buffer));
+					assert(0 <= ret && ret < SIZEOFARRAYi(buffer));
 
 					// Output the error
 					if(ci == i) {

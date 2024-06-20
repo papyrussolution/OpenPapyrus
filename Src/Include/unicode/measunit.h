@@ -364,16 +364,8 @@ public:
 	 * @stable ICU 3.0
 	 */
 	MeasureUnit();
-	/**
-	 * Copy constructor.
-	 * @stable ICU 3.0
-	 */
 	MeasureUnit(const MeasureUnit &other);
-	/**
-	 * Move constructor.
-	 * @stable ICU 67
-	 */
-	MeasureUnit(MeasureUnit &&other) noexcept;
+	MeasureUnit(MeasureUnit && other) noexcept;
 	/**
 	 * Construct a MeasureUnit from a CLDR Core Unit Identifier, defined in UTS
 	 * 35. (Core unit identifiers and mixed unit identifiers are supported, long
@@ -388,30 +380,14 @@ public:
 	 * @stable ICU 67
 	 */
 	static MeasureUnit forIdentifier(StringPiece identifier, UErrorCode & status);
-
-	/**
-	 * Copy assignment operator.
-	 * @stable ICU 3.0
-	 */
 	MeasureUnit & operator =(const MeasureUnit &other);
-
-	/**
-	 * Move assignment operator.
-	 * @stable ICU 67
-	 */
 	MeasureUnit & operator =(MeasureUnit &&other) noexcept;
-
 	/**
 	 * Returns a polymorphic clone of this object.  The result will
 	 * have the same class as returned by getDynamicClassID().
 	 * @stable ICU 3.0
 	 */
 	virtual MeasureUnit* clone() const;
-
-	/**
-	 * Destructor
-	 * @stable ICU 3.0
-	 */
 	virtual ~MeasureUnit();
 	/**
 	 * Equality operator.  Return true if this object is equal
@@ -435,13 +411,10 @@ public:
 	const char * getType() const;
 	/**
 	 * Get the sub type.
-	 *
 	 * If the unit does not have a subtype, the empty string is returned.
-	 *
 	 * @stable ICU 53
 	 */
 	const char * getSubtype() const;
-
 	/**
 	 * Get CLDR Unit Identifier for this MeasureUnit, as defined in UTS 35.
 	 *

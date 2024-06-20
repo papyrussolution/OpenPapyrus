@@ -79,7 +79,6 @@ public:
 	 * @param other	The object to move.
 	 */
 	DocumentSet & operator = (DocumentSet && other);
-	/// Default constructor
 	DocumentSet();
 	~DocumentSet();
 	/// Return the size of the DocumentSet
@@ -198,7 +197,6 @@ protected:
 	void set_weight(const std::string &term, double weight);
 
 public:
-	/// Default constructor
 	PointType() : magnitude(0.0) 
 	{
 	}
@@ -285,9 +283,7 @@ public:
  */
 class XAPIAN_VISIBILITY_DEFAULT Centroid : public PointType {
 public:
-	/// Default constructor
 	Centroid();
-
 	/** Constructor with Point argument
 	 *
 	 *  @param point	Point object to which Centroid object is

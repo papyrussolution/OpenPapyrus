@@ -1100,7 +1100,7 @@ void UnifiedCacheThread::exerciseByLocale(const Locale &locale) {
 	const UCTMultiThreadItem * origItem = NULL;
 	fCache->get(
 		LocaleCacheKey<UCTMultiThreadItem>(locale), fCache, origItem, status);
-	U_ASSERT(U_SUCCESS(status));
+	assert(U_SUCCESS(status));
 	IntlTest::gTest->assertEquals(WHERE, locale.getLanguage(), origItem->value);
 
 	// Fetch the same item again many times. We should always get the same
@@ -1133,7 +1133,7 @@ void MultithreadTest::TestUnifiedCache() {
 	UnifiedCache::getInstance(status);
 	UnifiedCache cache(status);
 	cache.setEvictionPolicy(2, 0, status);
-	U_ASSERT(U_SUCCESS(status));
+	assert(U_SUCCESS(status));
 
 	gCTMutex = new std::mutex();
 	gCTConditionVar = new std::condition_variable();

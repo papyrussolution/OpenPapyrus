@@ -17,7 +17,7 @@
 
 #include "unicode/utypes.h"
 #include "cmemory.h"
-#include "uelement.h"
+//#include "uelement.h"
 #include "unicode/localpointer.h"
 
 /**

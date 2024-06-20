@@ -1022,6 +1022,28 @@ int LotExtCodeCore::GetRecListByMark(const char * pCode, TSVector <LotExtCodeTbl
 	return ok;
 }
 
+int LotExtCodeCore::GetListByBillRow(PPID billID, int rbb, bool firstOnly, StringSet & rSs, uint * pCount)
+{
+	rSs.Z();
+	int    ok = -1;
+	uint   count = 0;
+	LotExtCodeTbl::Key2 k2;
+	MEMSZERO(k2);
+	k2.BillID = billID;
+	k2.RByBill = rbb;
+	if(search(2, &k2, spGe) && data.BillID == billID && data.RByBill == rbb) do {
+		if(data.Code[0] && !(data.Flags & PPLotExtCodeContainer::fBox)) {
+			ok = 1;
+			count++;
+			rSs.add(data.Code);
+			if(firstOnly)
+				break;
+		}
+	} while(search(2, &k2, spNext) && data.BillID == billID && data.RByBill == rbb);
+	ASSIGN_PTR(pCount, count);
+	return ok;
+}
+
 int LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, PPID lotID, PPLotExtCodeContainer::MarkSet & rResult)
 {
 	int    ok = -1;
@@ -1084,7 +1106,7 @@ int LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, PPID lo
 			}
 			THROW_PP_S(!goodsID || goods_detected, PPERR_EGAISMARKMISSGOODS, pCode);
 			THROW_PP_S(!lotID || lot_detected, PPERR_EGAISMARKMISSLOT, pCode);
-			THROW_PP_S(parity > 0, PPERR_EGAISMARKISEXHAUSTED, pCode); // @v10.3.0 @fix (parity >= 0)-->(parity > 0)
+			THROW_PP_S(parity > 0, PPERR_EGAISMARKISEXHAUSTED, pCode);
 			if(is_box) {
 				LotExtCodeTbl::Key2 k2;
 				MEMSZERO(k2);

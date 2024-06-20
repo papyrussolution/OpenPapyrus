@@ -73,7 +73,7 @@ public:
 
 	// Accounts for one more input code point read beyond the end of the marks buffer.
 	void incBeyond() {
-		U_ASSERT(!hasNext());
+		assert(!hasNext());
 		++pos;
 	}
 
@@ -375,7 +375,7 @@ void CollationIterator::appendCEsFromCE32(const CollationData * d, UChar32 c, ui
 				    break;
 			    }
 			case Collation::U0000_TAG:
-			    U_ASSERT(c == 0);
+			    assert(c == 0);
 			    if(forward && foundNULTerminator()) {
 				    // Handle NUL-termination. (Not needed in Java.)
 				    ceBuffer.append(Collation::NO_CE, errorCode);
@@ -424,8 +424,8 @@ void CollationIterator::appendCEsFromCE32(const CollationData * d, UChar32 c, ui
 			    }
 		    }
 			case Collation::LEAD_SURROGATE_TAG: {
-			    U_ASSERT(forward); // Backward iteration should never see lead surrogate code _unit_ data.
-			    U_ASSERT(U16_IS_LEAD(c));
+			    assert(forward); // Backward iteration should never see lead surrogate code _unit_ data.
+			    assert(U16_IS_LEAD(c));
 			    char16_t trail;
 			    if(U16_IS_TRAIL(trail = handleGetTrailSurrogate())) {
 				    c = U16_GET_SUPPLEMENTARY(c, trail);
@@ -447,11 +447,11 @@ void CollationIterator::appendCEsFromCE32(const CollationData * d, UChar32 c, ui
 			    break;
 		    }
 			case Collation::OFFSET_TAG:
-			    U_ASSERT(c >= 0);
+			    assert(c >= 0);
 			    ceBuffer.append(d->getCEFromOffsetCE32(c, ce32), errorCode);
 			    return;
 			case Collation::IMPLICIT_TAG:
-			    U_ASSERT(c >= 0);
+			    assert(c >= 0);
 			    if(U_IS_SURROGATE(c) && forbidSurrogateCodePoints()) {
 				    ce32 = Collation::FFFD_CE32;
 				    break;
@@ -617,7 +617,7 @@ uint32_t CollationIterator::nextCE32FromDiscontiguousContraction(const Collation
 
 	// First: Is a discontiguous contraction even possible?
 	uint16 fcd16 = d->getFCD16(c);
-	U_ASSERT(fcd16 > 0xff); // The caller checked this already, as a shortcut.
+	assert(fcd16 > 0xff); // The caller checked this already, as a shortcut.
 	UChar32 nextCp = nextSkippedCodePoint(errorCode);
 	if(nextCp < 0) {
 		// No further text.
@@ -804,8 +804,8 @@ void CollationIterator::appendNumericCEs(uint32_t ce32, bool forward, UErrorCode
 }
 
 void CollationIterator::appendNumericSegmentCEs(const char * digits, int32_t length, UErrorCode & errorCode) {
-	U_ASSERT(1 <= length && length <= 254);
-	U_ASSERT(length == 1 || digits[0] != 0);
+	assert(1 <= length && length <= 254);
+	assert(length == 1 || digits[0] != 0);
 	uint32_t numericPrimary = data->numericPrimary;
 	// Note: We use primary byte values 2..255: digits are not compressible.
 	if(length <= 7) {
@@ -852,7 +852,7 @@ void CollationIterator::appendNumericSegmentCEs(const char * digits, int32_t len
 		}
 		// original value > 1042489
 	}
-	U_ASSERT(length >= 7);
+	assert(length >= 7);
 
 	// The second primary byte value 132..255 indicates the number of digit pairs (4..127),
 	// then we generate primary bytes with those pairs.
@@ -975,7 +975,7 @@ int64_t CollationIterator::previousCEUnsafe(UChar32 c, UVector32 &offsets, UErro
 	numCpFwd = numBackward;
 	// Reset the forward iterator.
 	cesIndex = 0;
-	U_ASSERT(ceBuffer.length == 0);
+	assert(ceBuffer.length == 0);
 	// Go forward and collect the CEs.
 	int32_t offset = getOffset();
 	while(numCpFwd > 0) {
@@ -984,13 +984,13 @@ int64_t CollationIterator::previousCEUnsafe(UChar32 c, UVector32 &offsets, UErro
 		--numCpFwd;
 		// Append one or more CEs to the ceBuffer.
 		(void)nextCE(errorCode);
-		U_ASSERT(U_FAILURE(errorCode) || ceBuffer.get(ceBuffer.length - 1) != Collation::NO_CE);
+		assert(U_FAILURE(errorCode) || ceBuffer.get(ceBuffer.length - 1) != Collation::NO_CE);
 		// No need to loop for getting each expansion CE from nextCE().
 		cesIndex = ceBuffer.length;
 		// However, we need to write an offset for each CE.
 		// This is for CollationElementIterator::getOffset() to return
 		// intermediate offsets from the unsafe-backwards segment.
-		U_ASSERT(offsets.size() < ceBuffer.length);
+		assert(offsets.size() < ceBuffer.length);
 		offsets.addElement(offset, errorCode);
 		// For an expansion, the offset of each non-initial CE is the limit offset,
 		// consistent with forward iteration.
@@ -999,7 +999,7 @@ int64_t CollationIterator::previousCEUnsafe(UChar32 c, UVector32 &offsets, UErro
 			offsets.addElement(offset, errorCode);
 		}
 	}
-	U_ASSERT(offsets.size() == ceBuffer.length);
+	assert(offsets.size() == ceBuffer.length);
 	// End offset corresponding to just after the unsafe-backwards segment.
 	offsets.addElement(offset, errorCode);
 	// Reset the forward iteration limit

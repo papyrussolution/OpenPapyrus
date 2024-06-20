@@ -230,7 +230,7 @@ private:
 	{
 		const uint8 * pos = pos_;
 		int32_t leadByte = *pos++;
-		// U_ASSERT(leadByte>=kMinValueLead);
+		// assert(leadByte>=kMinValueLead);
 		return readValue(pos, leadByte>>1);
 	}
 	/**
@@ -373,7 +373,7 @@ private:
 	static int32_t readValue(const uint8 * pos, int32_t leadByte);
 	static inline const uint8 * skipValue(const uint8 * pos, int32_t leadByte) 
 	{
-		// U_ASSERT(leadByte>=kMinValueLead);
+		// assert(leadByte>=kMinValueLead);
 		if(leadByte>=(kMinTwoByteValueLead<<1)) {
 			if(leadByte<(kMinThreeByteValueLead<<1)) {
 				++pos;

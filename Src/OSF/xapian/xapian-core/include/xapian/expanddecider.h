@@ -28,7 +28,6 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDecider : public Xapian::Internal::opt_int
 	/// Don't allow copying.
 	ExpandDecider(const ExpandDecider &) = delete;
 public:
-	/// Default constructor.
 	ExpandDecider() 
 	{
 	}

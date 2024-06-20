@@ -351,7 +351,7 @@ int32_t SpoofImpl::findHiddenOverlay(const UnicodeString & input, UErrorCode&) c
 		uint8 combiningClass = u_getCombiningClass(cp);
 		// Skip over characters except for those with combining class 0 (non-combining characters) or with
 		// combining class 230 (same class as U+0307)
-		U_ASSERT(u_getCombiningClass(0x0307) == 230);
+		assert(u_getCombiningClass(0x0307) == 230);
 		if(combiningClass == 0 || combiningClass == 230) {
 			sawLeadCharacter = isIllegalCombiningDotLeadCharacter(cp);
 		}
@@ -389,7 +389,7 @@ UChar32 SpoofImpl::ScanHex(const char16_t * s, int32_t start, int32_t limit, UEr
 	if(U_FAILURE(status)) {
 		return 0;
 	}
-	U_ASSERT(limit-start > 0);
+	assert(limit-start > 0);
 	uint32_t val = 0;
 	for(int i = start; i < limit; i++) {
 		int digitVal = s[i] - 0x30;
@@ -399,7 +399,7 @@ UChar32 SpoofImpl::ScanHex(const char16_t * s, int32_t start, int32_t limit, UEr
 		if(digitVal>15) {
 			digitVal = 0xa + (s[i] - 0x61); // Lower Case 'a'
 		}
-		U_ASSERT(digitVal <= 0xf);
+		assert(digitVal <= 0xf);
 		val <<= 4;
 		val += digitVal;
 	}
@@ -598,7 +598,7 @@ SpoofData::SpoofData(UErrorCode & status) {
 	// The spoof header should already be sized to be a multiple of 16 bytes.
 	// Just in case it's not, round it up.
 	uint32_t initialSize = (sizeof(SpoofDataHeader) + 15) & ~15;
-	U_ASSERT(initialSize == sizeof(SpoofDataHeader));
+	assert(initialSize == sizeof(SpoofDataHeader));
 
 	fRawData = static_cast<SpoofDataHeader *>(uprv_malloc(initialSize));
 	fMemLimit = initialSize;

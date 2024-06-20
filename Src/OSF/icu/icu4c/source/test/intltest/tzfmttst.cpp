@@ -440,7 +440,7 @@ struct LocaleData {
 
 	void addTime(UDate amount, int32_t patIdx) {
 		Mutex lock;
-		U_ASSERT(patIdx < SIZEOFARRAYi(PATTERNS));
+		assert(patIdx < SIZEOFARRAYi(PATTERNS));
 		times[patIdx] += amount;
 	}
 };

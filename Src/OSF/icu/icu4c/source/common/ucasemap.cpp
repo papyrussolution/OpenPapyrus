@@ -104,7 +104,7 @@ namespace {
 /* append a full case mapping result, see UCASE_MAX_STRING_LENGTH */
 inline bool appendResult(int32_t cpLength, int32_t result, const char16_t * s, ByteSink &sink, uint32_t options, icu::Edits * edits, UErrorCode & errorCode) 
 {
-	U_ASSERT(U_SUCCESS(errorCode));
+	assert(U_SUCCESS(errorCode));
 	/* decode the result */
 	if(result<0) {
 		/* (not) original code point */
@@ -644,7 +644,7 @@ void toUpper(uint32_t options,
 			}
 			else {
 				// Find out first whether we are changing the text.
-				U_ASSERT(0x370 <= upper && upper <= 0x3ff); // 2-byte UTF-8, main Greek block
+				assert(0x370 <= upper && upper <= 0x3ff); // 2-byte UTF-8, main Greek block
 				change = (i + 2) > nextIndex ||
 				    src[i] != getTwoByteLead(upper) || src[i + 1] != getTwoByteTrail(upper) ||
 				    numYpogegrammeni > 0;

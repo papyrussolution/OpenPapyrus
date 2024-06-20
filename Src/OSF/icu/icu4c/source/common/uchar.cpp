@@ -483,7 +483,7 @@ U_CFUNC uint32_t u_getMainProperties(UChar32 c) {
 
 U_CFUNC uint32_t u_getUnicodeProperties(UChar32 c, int32_t column) 
 {
-	U_ASSERT(column>=0);
+	assert(column>=0);
 	if(column>=propsVectorsColumns) {
 		return 0;
 	}

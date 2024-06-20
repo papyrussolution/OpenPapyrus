@@ -192,7 +192,7 @@ U_CAPI UChar32 U_EXPORT2 utext_current32(UText * ut) {
 			trail = ut->chunkContents[ut->chunkOffset];
 		}
 		bool r = ut->pFuncs->access(ut, nativePosition, FALSE); // reverse iteration flag loads preceding chunk
-		U_ASSERT(r==TRUE);
+		assert(r==TRUE);
 		ut->chunkOffset = originalOffset;
 		if(!r) {
 			return U_SENTINEL;
@@ -910,7 +910,7 @@ static bool U_CALLCONV utf8TextAccess(UText * ut, int64_t index, bool forward) {
 			// Requested index is in this buffer.
 			u8b = (UTF8Buf*)ut->p; // the current buffer
 			mapIndex = ix - u8b->toUCharsMapStart;
-			U_ASSERT(mapIndex < (int32_t)sizeof(UTF8Buf::mapToUChars));
+			assert(mapIndex < (int32_t)sizeof(UTF8Buf::mapToUChars));
 			ut->chunkOffset = u8b->mapToUChars[mapIndex] - u8b->bufStartIdx;
 			return TRUE;
 		}
@@ -1005,11 +1005,11 @@ swapBuffers:
 		// Index into the (now current) chunk
 		// Use the map to set the chunk index.  It's more trouble than it's worth
 		//    to check whether native indexing can be used.
-		U_ASSERT(ix>=u8b->bufNativeStart);
-		U_ASSERT(ix<=u8b->bufNativeLimit);
+		assert(ix>=u8b->bufNativeStart);
+		assert(ix<=u8b->bufNativeLimit);
 		mapIndex = ix - u8b->toUCharsMapStart;
-		U_ASSERT(mapIndex>=0);
-		U_ASSERT(mapIndex<(int32_t)sizeof(u8b->mapToUChars));
+		assert(mapIndex>=0);
+		assert(mapIndex<(int32_t)sizeof(u8b->mapToUChars));
 		ut->chunkOffset = u8b->mapToUChars[mapIndex] - u8b->bufStartIdx;
 
 		return TRUE;
@@ -1041,7 +1041,7 @@ swapBuffersAndFail:
 	}
 	else {
 		ut->chunkOffset = 0;
-		U_ASSERT(ix == u8b->bufNativeStart);
+		assert(ix == u8b->bufNativeStart);
 	}
 	return FALSE;
 
@@ -1220,7 +1220,7 @@ fillReverse:
 			if(c<0x80) {
 				// Special case ASCII range for speed.
 				buf[destIx] = (char16_t)c;
-				U_ASSERT(toUCharsMapStart <= srcIx);
+				assert(toUCharsMapStart <= srcIx);
 				mapToUChars[srcIx - toUCharsMapStart] = (uint8)destIx;
 				mapToNative[destIx] = (uint8)(srcIx - toUCharsMapStart);
 			}
@@ -1252,7 +1252,7 @@ fillReverse:
 				do {
 					mapToUChars[sIx-- - toUCharsMapStart] = (uint8)destIx;
 				} while(sIx >= srcIx);
-				U_ASSERT(toUCharsMapStart <= (srcIx+1));
+				assert(toUCharsMapStart <= (srcIx+1));
 
 				// Set native indexing limit to be the current position.
 				//   We are processing a non-ascii, non-native-indexing char now;
@@ -1391,9 +1391,9 @@ static int64_t U_CALLCONV utf8TextMapOffsetToNative(const UText * ut)
 {
 	//
 	UTF8Buf * u8b = (UTF8Buf*)ut->p;
-	U_ASSERT(ut->chunkOffset>ut->nativeIndexingLimit && ut->chunkOffset<=ut->chunkLength);
+	assert(ut->chunkOffset>ut->nativeIndexingLimit && ut->chunkOffset<=ut->chunkLength);
 	int32_t nativeOffset = u8b->mapToNative[ut->chunkOffset + u8b->bufStartIdx] + u8b->toUCharsMapStart;
-	U_ASSERT(nativeOffset >= ut->chunkNativeStart && nativeOffset <= ut->chunkNativeLimit);
+	assert(nativeOffset >= ut->chunkNativeStart && nativeOffset <= ut->chunkNativeLimit);
 	return nativeOffset;
 }
 
@@ -1401,15 +1401,15 @@ static int64_t U_CALLCONV utf8TextMapOffsetToNative(const UText * ut)
 // Map a native index to the corresponding chunk offset
 //
 static int32_t U_CALLCONV utf8TextMapIndexToUTF16(const UText * ut, int64_t index64) {
-	U_ASSERT(index64 <= 0x7fffffff);
+	assert(index64 <= 0x7fffffff);
 	int32_t index = (int32_t)index64;
 	UTF8Buf * u8b = (UTF8Buf*)ut->p;
-	U_ASSERT(index>=ut->chunkNativeStart+ut->nativeIndexingLimit);
-	U_ASSERT(index<=ut->chunkNativeLimit);
+	assert(index>=ut->chunkNativeStart+ut->nativeIndexingLimit);
+	assert(index<=ut->chunkNativeLimit);
 	int32_t mapIndex = index - u8b->toUCharsMapStart;
-	U_ASSERT(mapIndex < (int32_t)sizeof(UTF8Buf::mapToUChars));
+	assert(mapIndex < (int32_t)sizeof(UTF8Buf::mapToUChars));
 	int32_t offset = u8b->mapToUChars[mapIndex] - u8b->bufStartIdx;
-	U_ASSERT(offset>=0 && offset<=ut->chunkLength);
+	assert(offset>=0 && offset<=ut->chunkLength);
 	return offset;
 }
 
@@ -1569,7 +1569,7 @@ static bool U_CALLCONV repTextAccess(UText * ut, int64_t index, bool forward) {
 
 	// clip the requested index to the limits of the text.
 	int32_t index32 = pinIndex(index, length);
-	U_ASSERT(index<=INT32_MAX);
+	assert(index<=INT32_MAX);
 
 	/*
 	 * Compute start/limit boundaries around index, for a segment of text
@@ -2134,7 +2134,7 @@ static UText * U_CALLCONV ucstrTextClone(UText * dest, const UText * src, bool d
 	//    it.
 	//
 	if(deep && U_SUCCESS(*status)) {
-		U_ASSERT(utext_nativeLength(dest) < INT32_MAX);
+		assert(utext_nativeLength(dest) < INT32_MAX);
 		int32_t len = (int32_t)utext_nativeLength(dest);
 
 		// The cloned string IS going to be NUL terminated, whether or not the original was.
@@ -2270,7 +2270,7 @@ static bool U_CALLCONV ucstrTextAccess(UText * ut, int64_t index, bool forward)
 		}
 	}
 breakout:
-	U_ASSERT(index<=INT32_MAX);
+	assert(index<=INT32_MAX);
 	ut->chunkOffset = (int32_t)index;
 
 	// Check whether request is at the start or end
@@ -2316,7 +2316,7 @@ static int32_t U_CALLCONV ucstrTextExtract(UText * ut, int64_t start, int64_t li
 			limit32         = si;
 			break;
 		}
-		U_ASSERT(di>=0); /* to ensure di never exceeds INT32_MAX, which must not happen logically */
+		assert(di>=0); /* to ensure di never exceeds INT32_MAX, which must not happen logically */
 		if(di<destCapacity) {
 			// only store if there is space.
 			dest[di] = s[si];
@@ -2501,7 +2501,7 @@ static bool U_CALLCONV charIterTextAccess(UText * ut, int64_t index, bool forwar
 			ut->chunkLength  = (int32_t)(ut->chunkNativeLimit)-(int32_t)(ut->chunkNativeStart);
 		}
 		ut->nativeIndexingLimit = ut->chunkLength;
-		U_ASSERT(ut->chunkOffset>=0 && ut->chunkOffset<=CIBufSize);
+		assert(ut->chunkOffset>=0 && ut->chunkOffset<=CIBufSize);
 	}
 	ut->chunkOffset = clippedIndex - (int32_t)ut->chunkNativeStart;
 	bool success = (forward ? ut->chunkOffset<ut->chunkLength : ut->chunkOffset>0);
@@ -2556,7 +2556,7 @@ static int32_t U_CALLCONV charIterTextExtract(UText * ut, int64_t start, int64_t
 	while(srci<limit32) {
 		UChar32 c = ci->next32PostInc();
 		int32_t len = U16_LENGTH(c);
-		U_ASSERT(desti+len>0); /* to ensure desti+len never exceeds MAX_INT32, which must not happen logically */
+		assert(desti+len>0); /* to ensure desti+len never exceeds MAX_INT32, which must not happen logically */
 		if(desti+len <= destCapacity) {
 			U16_APPEND_UNSAFE(dest, desti, c);
 			copyLimit = srci+len;

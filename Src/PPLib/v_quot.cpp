@@ -259,7 +259,7 @@ public:
 		setGroupData(ctlgroupLoc, &loc_rec);
 		setCtrlDate(CTL_QUOTFLT_EFFDATE, Data.EffDate);
 		SetPeriodInput(this, CTL_QUOTFLT_SETPRD, &Data.Period);
-		SetupSubstGoodsCombo(this, CTLSEL_QUOTFLT_SGG, Data.Sgg); // @v10.1.2
+		SetupSubstGoodsCombo(this, CTLSEL_QUOTFLT_SGG, Data.Sgg);
 		SetupCtrls();
 		return 1;
 	}
@@ -293,7 +293,7 @@ public:
 			Data.Flags &= ~QuotFilt::fCrosstab;
 		if(Data.Flags & QuotFilt::fOnlyAbsence)
 			Data.Flags &= ~QuotFilt::fAbsence;
-		getCtrlData(CTLSEL_QUOTFLT_SGG, &Data.Sgg); // @v10.1.2
+		getCtrlData(CTLSEL_QUOTFLT_SGG, &Data.Sgg);
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}

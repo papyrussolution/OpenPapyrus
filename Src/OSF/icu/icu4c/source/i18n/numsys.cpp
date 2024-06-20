@@ -111,7 +111,7 @@ NumberingSystem* U_EXPORT2 NumberingSystem::createInstance(const Locale & inLoca
 		status = U_ZERO_ERROR;
 	}
 	if(count > 0) { // @numbers keyword was specified in the locale
-		U_ASSERT(count < ULOC_KEYWORDS_CAPACITY);
+		assert(count < ULOC_KEYWORDS_CAPACITY);
 		buffer[count] = '\0'; // Make sure it is null terminated.
 		if(sstreq(buffer, gDefault) || sstreq(buffer, gNative) || sstreq(buffer, gTraditional) || sstreq(buffer, gFinance)) {
 			nsResolved = FALSE;
@@ -270,7 +270,7 @@ U_CFUNC bool U_CALLCONV numSysCleanup() {
 }
 
 U_CFUNC void initNumsysNames(UErrorCode & status) {
-	U_ASSERT(gNumsysNames == nullptr);
+	assert(gNumsysNames == nullptr);
 	ucln_i18n_registerCleanup(UCLN_I18N_NUMSYS, numSysCleanup);
 
 	// TODO: Simple array of UnicodeString objects, based on length of table resource?

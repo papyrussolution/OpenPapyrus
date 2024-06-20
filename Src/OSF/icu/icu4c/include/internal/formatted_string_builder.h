@@ -10,7 +10,7 @@
 
 //#include <cstdint>
 //#include <type_traits>
-#include "uassert.h"
+//#include "uassert.h"
 #include "fphdlimp.h"
 
 U_NAMESPACE_BEGIN
@@ -69,14 +69,14 @@ public:
 	int32_t codePointCount() const;
 	inline char16_t charAt(int32_t index) const 
 	{
-		U_ASSERT(index >= 0);
-		U_ASSERT(index < fLength);
+		assert(index >= 0);
+		assert(index < fLength);
 		return getCharPtr()[fZero + index];
 	}
 	inline Field fieldAt(int32_t index) const 
 	{
-		U_ASSERT(index >= 0);
-		U_ASSERT(index < fLength);
+		assert(index >= 0);
+		assert(index < fLength);
 		return getFieldPtr()[fZero + index];
 	}
 	UChar32 getFirstCodePoint() const;
@@ -167,8 +167,8 @@ private:
 
 static_assert(std::is_pod<FormattedStringBuilder::Field>::value, "Field should be a POD type for efficient initialization");
 
-constexpr FormattedStringBuilder::Field::Field(uint8 category, uint8 field) : bits((U_ASSERT(category <= 0xf),
-		    U_ASSERT(field <= 0xf), static_cast<uint8>((category << 4) | field))) 
+constexpr FormattedStringBuilder::Field::Field(uint8 category, uint8 field) : bits((assert(category <= 0xf),
+	assert(field <= 0xf), static_cast<uint8>((category << 4) | field))) 
 {
 }
 

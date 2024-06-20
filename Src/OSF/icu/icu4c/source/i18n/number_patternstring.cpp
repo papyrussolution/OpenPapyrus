@@ -136,7 +136,7 @@ void ParsedPatternInfo::consumePattern(const UnicodeString & patternString, UErr
 
 	// This class is not intended for writing twice!
 	// Use move assignment to overwrite instead.
-	U_ASSERT(state.offset == 0);
+	assert(state.offset == 0);
 
 	// pattern := subpattern (';' subpattern)?
 	currentSubpattern = &positive;
@@ -550,7 +550,7 @@ void PatternParser::patternInfoToProperties(DecimalFormatProperties& properties,
 		ignoreRounding = positive.hasCurrencySign;
 	}
 	else {
-		U_ASSERT(_ignoreRounding == IGNORE_ROUNDING_ALWAYS);
+		assert(_ignoreRounding == IGNORE_ROUNDING_ALWAYS);
 		ignoreRounding = true;
 	}
 
@@ -1037,7 +1037,7 @@ UnicodeString PatternStringUtils::convertLocalized(const UnicodeString & input, 
 				continue;
 			}
 			else {
-				U_ASSERT(state == 5);
+				assert(state == 5);
 				result.append(u'\'');
 				result.append(u'\'');
 				state = 4;
@@ -1080,7 +1080,7 @@ UnicodeString PatternStringUtils::convertLocalized(const UnicodeString & input, 
 			result.append(ch);
 		}
 		else {
-			U_ASSERT(state == 1 || state == 2 || state == 5);
+			assert(state == 1 || state == 2 || state == 5);
 			result.append(ch);
 			state = 2;
 		}
@@ -1122,7 +1122,7 @@ void PatternStringUtils::patternInfoToStringBuilder(const AffixPatternProvider& 
 		flags |= AffixPatternProvider::AFFIX_PREFIX;
 	}
 	if(plural != StandardPlural::Form::COUNT) {
-		U_ASSERT(plural == (AffixPatternProvider::AFFIX_PLURAL_MASK & plural));
+		assert(plural == (AffixPatternProvider::AFFIX_PLURAL_MASK & plural));
 		flags |= plural;
 	}
 

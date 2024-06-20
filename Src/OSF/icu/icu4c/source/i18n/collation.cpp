@@ -69,7 +69,7 @@ uint32_t Collation::decTwoBytePrimaryByOneStep(uint32_t basePrimary, bool isComp
 	// minus the step, modulo the number of usable byte values, plus the minimum.
 	// Reserve the PRIMARY_COMPRESSION_LOW_BYTE and high byte if necessary.
 	// Assume no further underflow for the first byte.
-	U_ASSERT(0 < step && step <= 0x7f);
+	assert(0 < step && step <= 0x7f);
 	int32_t byte2 = ((int32_t)(basePrimary >> 16) & 0xff) - step;
 	if(isCompressible) {
 		if(byte2 < 4) {
@@ -90,7 +90,7 @@ uint32_t Collation::decThreeBytePrimaryByOneStep(uint32_t basePrimary, bool isCo
 {
 	// Extract the third byte, minus the minimum byte value,
 	// minus the step, modulo the number of usable byte values, plus the minimum.
-	U_ASSERT(0 < step && step <= 0x7f);
+	assert(0 < step && step <= 0x7f);
 	int32_t byte3 = ((int32_t)(basePrimary >> 8) & 0xff) - step;
 	if(byte3 >= 2) {
 		return (basePrimary & 0xffff0000) | ((uint32_t)byte3 << 8);

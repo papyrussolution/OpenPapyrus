@@ -1843,7 +1843,7 @@ cleanupWritePartial:
 		delete initial;
 	}
 	if(transitionRules != nullptr) {
-		U_ASSERT(transitionRules->hasDeleter());
+		assert(transitionRules->hasDeleter());
 		delete transitionRules;
 	}
 }
@@ -2127,7 +2127,7 @@ void VTimeZone::writeZone(VTZWriter& w, BasicTimeZone& basictz,
 							dstFromDSTSavings,
 							false,
 							nextStart);
-						U_ASSERT(nextStartAvail);
+						assert(nextStartAvail);
 						if(nextStartAvail) {
 							writeFinalRule(w, TRUE, finalDstRule,
 							    dstFromOffset - dstFromDSTSavings, dstFromDSTSavings, nextStart, status);
@@ -2177,7 +2177,7 @@ void VTimeZone::writeZone(VTZWriter& w, BasicTimeZone& basictz,
 							stdFromDSTSavings,
 							false,
 							nextStart);
-						U_ASSERT(nextStartAvail);
+						assert(nextStartAvail);
 						if(nextStartAvail) {
 							writeFinalRule(w, FALSE, finalStdRule,
 							    stdFromOffset - stdFromDSTSavings, stdFromDSTSavings, nextStart, status);

@@ -48,7 +48,7 @@ bool U_CALLCONV cleanup() {
 
 void U_CALLCONV LocaleDistance::initLocaleDistance(UErrorCode & errorCode) {
 	// This function is invoked only via umtx_initOnce().
-	U_ASSERT(gLocaleDistance == nullptr);
+	assert(gLocaleDistance == nullptr);
 	const XLikelySubtags &likely = *XLikelySubtags::getSingleton(errorCode);
 	if(U_FAILURE(errorCode)) {
 		return;
@@ -119,7 +119,7 @@ int32_t LocaleDistance::getBestIndexAndDistance(const LSR &desired,
 		bool star = false;
 		int32_t distance = desLangDistance;
 		if(distance >= 0) {
-			U_ASSERT((distance & DISTANCE_IS_FINAL) == 0);
+			assert((distance & DISTANCE_IS_FINAL) == 0);
 			if(slIndex != 0) {
 				iter.resetToState64(desLangState);
 			}
@@ -144,7 +144,7 @@ int32_t LocaleDistance::getBestIndexAndDistance(const LSR &desired,
 			flags = 0;
 			star = true;
 		}
-		U_ASSERT(0 <= distance && distance <= 100);
+		assert(0 <= distance && distance <= 100);
 		// Round up the shifted threshold (if fraction bits are not 0)
 		// for comparison with un-shifted distances until we need fraction bits.
 		// (If we simply shifted non-zero fraction bits away, then we might ignore a language
@@ -264,13 +264,13 @@ int32_t LocaleDistance::getDesSuppScriptDistance(BytesTrie &iter, uint64_t start
 	}
 	if(distance < 0) {
 		UStringTrieResult result = iter.resetToState64(startState).next(u'*'); // <*, *>
-		U_ASSERT(USTRINGTRIE_HAS_VALUE(result));
+		assert(USTRINGTRIE_HAS_VALUE(result));
 		if(strcmp(desired, supported) == 0) {
 			distance = 0; // same script
 		}
 		else {
 			distance = iter.getValue();
-			U_ASSERT(distance >= 0);
+			assert(distance >= 0);
 		}
 		if(result == USTRINGTRIE_FINAL_VALUE) {
 			distance |= DISTANCE_IS_FINAL;
@@ -283,7 +283,7 @@ int32_t LocaleDistance::getRegionPartitionsDistance(BytesTrie &iter, uint64_t st
     const char * desiredPartitions, const char * supportedPartitions, int32_t threshold) {
 	char desired = *desiredPartitions++;
 	char supported = *supportedPartitions++;
-	U_ASSERT(desired != 0 && supported != 0);
+	assert(desired != 0 && supported != 0);
 	// See if we have single desired/supported partitions, from NUL-terminated
 	// partition strings without explicit length.
 	bool suppLengthGt1 = *supportedPartitions != 0; // gt1: more than 1 character
@@ -364,9 +364,9 @@ int32_t LocaleDistance::getFallbackRegionDistance(BytesTrie &iter, uint64_t star
 	UStringTrieResult result =
 #endif
 	iter.resetToState64(startState).next(u'*'); // <*, *>
-	U_ASSERT(USTRINGTRIE_HAS_VALUE(result));
+	assert(USTRINGTRIE_HAS_VALUE(result));
 	int32_t distance = iter.getValue();
-	U_ASSERT(distance >= 0);
+	assert(distance >= 0);
 	return distance;
 }
 
@@ -414,7 +414,7 @@ bool LocaleDistance::isParadigmLSR(const LSR &lsr) const {
 	// because it's easy.
 	// If there are many paradigm LSRs we should use a hash set
 	// with custom comparator and hasher.
-	U_ASSERT(paradigmLSRsLength <= 15);
+	assert(paradigmLSRsLength <= 15);
 	for(int32_t i = 0; i < paradigmLSRsLength; ++i) {
 		if(lsr.isEquivalentTo(paradigmLSRs[i])) {
 			return true;

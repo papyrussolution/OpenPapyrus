@@ -536,7 +536,7 @@ CLEANUP:
 		//copy the source to destination
 		if(dest && srcLength <= destCapacity) {
 			// srcLength should have already been set earlier.
-			U_ASSERT(srcLength >= 0);
+			assert(srcLength >= 0);
 			u_memmove(dest, src, srcLength);
 		}
 		reqLength = srcLength;

@@ -1,20 +1,11 @@
+// ucln_io.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *                                                         *
- * Copyright (C) 2001-2014, International Business Machines                   *
- *                Corporation and others. All Rights Reserved.                *
- *                                                         *
- ******************************************************************************
- *   file name:  ucln_io.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2006August11
- *   created by: George Rhoten
- */
+// Copyright (C) 2001-2014, International Business Machines Corporation and others. All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2006August11
+// created by: George Rhoten
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "ucln.h"
@@ -30,13 +21,11 @@
 
 /* Leave this copyright notice here! It needs to go somewhere in this library. */
 static const char copyright[] = U_COPYRIGHT_STRING;
-
 static cleanupFunc * gCleanupFunctions[UCLN_IO_COUNT];
 
 static bool U_CALLCONV io_cleanup(void)
 {
 	int32_t libType = UCLN_IO_START;
-
 	(void)copyright; // Suppress unused variable warning.
 	while(++libType<UCLN_IO_COUNT) {
 		if(gCleanupFunctions[libType]) {
@@ -50,9 +39,9 @@ static bool U_CALLCONV io_cleanup(void)
 	return TRUE;
 }
 
-void ucln_io_registerCleanup(ECleanupIOType type,
-    cleanupFunc * func) {
-	U_ASSERT(UCLN_IO_START < type && type < UCLN_IO_COUNT);
+void ucln_io_registerCleanup(ECleanupIOType type, cleanupFunc * func) 
+{
+	assert(UCLN_IO_START < type && type < UCLN_IO_COUNT);
 	{
 		icu::Mutex m; // See ticket 10295 for discussion.
 		ucln_registerCleanup(UCLN_IO, io_cleanup);
@@ -60,7 +49,6 @@ void ucln_io_registerCleanup(ECleanupIOType type,
 			gCleanupFunctions[type] = func;
 		}
 	}
-
 #if !UCLN_NO_AUTO_CLEANUP && (defined(UCLN_AUTO_ATEXIT) || defined(UCLN_AUTO_LOCAL))
 	ucln_registerAutomaticCleanup();
 #endif

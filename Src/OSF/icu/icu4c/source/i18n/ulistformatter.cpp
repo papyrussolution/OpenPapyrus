@@ -62,7 +62,7 @@ static UnicodeString * getUnicodeStrings(
 	UnicodeString * length4StackBuffer,
 	LocalArray<UnicodeString>&maybeOwner,
 	UErrorCode & status) {
-	U_ASSERT(U_SUCCESS(status));
+	assert(U_SUCCESS(status));
 	if(stringCount < 0 || (strings == NULL && stringCount > 0)) {
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return nullptr;

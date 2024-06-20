@@ -137,7 +137,7 @@ static bool U_CALLCONV regex_cleanup()
 
 static void U_CALLCONV initStaticSets(UErrorCode & status) 
 {
-	U_ASSERT(RegexStaticSets::gStaticSets == nullptr);
+	assert(RegexStaticSets::gStaticSets == nullptr);
 	ucln_i18n_registerCleanup(UCLN_I18N_REGEX, regex_cleanup);
 	RegexStaticSets::gStaticSets = new RegexStaticSets(&status);
 	if(U_FAILURE(status)) {

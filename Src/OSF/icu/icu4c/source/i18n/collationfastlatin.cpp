@@ -21,7 +21,7 @@ int32_t CollationFastLatin::getOptions(const CollationData * data, const Collati
 	if(table == NULL) {
 		return -1;
 	}
-	U_ASSERT(capacity == LATIN_LIMIT);
+	assert(capacity == LATIN_LIMIT);
 	if(capacity != LATIN_LIMIT) {
 		return -1;
 	}
@@ -110,7 +110,7 @@ int32_t CollationFastLatin::compareUTF16(const uint16 * table, const uint16 * pr
 	// Keep them in sync!
 	// Keep compareUTF16() and compareUTF8() in sync very closely!
 
-	U_ASSERT((table[0] >> 8) == VERSION);
+	assert((table[0] >> 8) == VERSION);
 	table += (table[0] & 0xff); // skip the header
 	uint32_t variableTop = (uint32_t)options >> 16; // see getOptions()
 	options &= 0xffff; // needed for CollationSettings::getStrength() to work
@@ -494,7 +494,7 @@ int32_t CollationFastLatin::compareUTF8(const uint16 * table, const uint16 * pri
     const uint8 * right, int32_t rightLength) {
 	// Keep compareUTF16() and compareUTF8() in sync very closely!
 
-	U_ASSERT((table[0] >> 8) == VERSION);
+	assert((table[0] >> 8) == VERSION);
 	table += (table[0] & 0xff); // skip the header
 	uint32_t variableTop = (uint32_t)options >> 16; // see RuleBasedCollator::getFastLatinOptions()
 	options &= 0xffff; // needed for CollationSettings::getStrength() to work
@@ -893,7 +893,7 @@ int32_t CollationFastLatin::compareUTF8(const uint16 * table, const uint16 * pri
 }
 
 uint32_t CollationFastLatin::lookup(const uint16 * table, UChar32 c) {
-	U_ASSERT(c > LATIN_MAX);
+	assert(c > LATIN_MAX);
 	if(PUNCT_START <= c && c < PUNCT_LIMIT) {
 		return table[c - PUNCT_START + LATIN_LIMIT];
 	}
@@ -911,7 +911,7 @@ uint32_t CollationFastLatin::lookup(const uint16 * table, UChar32 c) {
 uint32_t CollationFastLatin::lookupUTF8(const uint16 * table, UChar32 c,
     const uint8 * s8, int32_t &sIndex, int32_t sLength) {
 	// The caller handled ASCII and valid/supported Latin.
-	U_ASSERT(c > 0x7f);
+	assert(c > 0x7f);
 	int32_t i2 = sIndex + 1;
 	if(i2 < sLength || sLength < 0) {
 		uint8 t1 = s8[sIndex];
@@ -936,7 +936,7 @@ uint32_t CollationFastLatin::lookupUTF8Unsafe(const uint16 * table, UChar32 c,
     const uint8 * s8, int32_t &sIndex) {
 	// The caller handled ASCII.
 	// The string is well-formed and contains only supported characters.
-	U_ASSERT(c > 0x7f);
+	assert(c > 0x7f);
 	if(c <= LATIN_MAX_UTF8_LEAD) {
 		return table[((c - 0xc2) << 6) + s8[sIndex++]]; // 0080..017F
 	}
@@ -1075,7 +1075,7 @@ uint32_t CollationFastLatin::getSecondaries(uint32_t variableTop, uint32_t pair)
 			pair = TWO_COMMON_SEC_PLUS_OFFSET;
 		}
 		else {
-			U_ASSERT(ce >= MIN_LONG);
+			assert(ce >= MIN_LONG);
 			pair = 0; // variable
 		}
 	}
@@ -1121,7 +1121,7 @@ uint32_t CollationFastLatin::getCases(uint32_t variableTop, bool strengthIsPrima
 			pair = TWO_LOWER_CASES;
 		}
 		else {
-			U_ASSERT(ce >= MIN_LONG);
+			assert(ce >= MIN_LONG);
 			pair = 0; // variable
 		}
 	}
@@ -1178,7 +1178,7 @@ uint32_t CollationFastLatin::getTertiaries(uint32_t variableTop, bool withCaseBi
 			}
 		}
 		else {
-			U_ASSERT(ce >= MIN_LONG);
+			assert(ce >= MIN_LONG);
 			pair = 0; // variable
 		}
 	}
@@ -1215,7 +1215,7 @@ uint32_t CollationFastLatin::getQuaternaries(uint32_t variableTop, uint32_t pair
 			pair = TWO_SHORT_PRIMARIES_MASK;
 		}
 		else {
-			U_ASSERT(ce >= MIN_LONG);
+			assert(ce >= MIN_LONG);
 			pair &= TWO_LONG_PRIMARIES_MASK; // variable
 		}
 	}

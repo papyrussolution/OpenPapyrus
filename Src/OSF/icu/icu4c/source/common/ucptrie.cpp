@@ -146,11 +146,11 @@ U_CAPI UCPTrieValueWidth U_EXPORT2 ucptrie_getValueWidth(const UCPTrie * trie) {
 U_CAPI int32_t U_EXPORT2 ucptrie_internalSmallIndex(const UCPTrie * trie, UChar32 c) {
 	int32_t i1 = c >> UCPTRIE_SHIFT_1;
 	if(trie->type == UCPTRIE_TYPE_FAST) {
-		U_ASSERT(0xffff < c && c < trie->highStart);
+		assert(0xffff < c && c < trie->highStart);
 		i1 += UCPTRIE_BMP_INDEX_LENGTH - UCPTRIE_OMITTED_BMP_INDEX_1_LENGTH;
 	}
 	else {
-		U_ASSERT((uint32_t)c < (uint32_t)trie->highStart && trie->highStart > UCPTRIE_SMALL_LIMIT);
+		assert((uint32_t)c < (uint32_t)trie->highStart && trie->highStart > UCPTRIE_SMALL_LIMIT);
 		i1 += UCPTRIE_SMALL_INDEX_LENGTH;
 	}
 	int32_t i3Block = trie->index[
@@ -286,18 +286,18 @@ UChar32 getRange(const void * t, UChar32 start,
 			// Use the multi-stage index.
 			int32_t i1 = c >> UCPTRIE_SHIFT_1;
 			if(trie->type == UCPTRIE_TYPE_FAST) {
-				U_ASSERT(0xffff < c && c < trie->highStart);
+				assert(0xffff < c && c < trie->highStart);
 				i1 += UCPTRIE_BMP_INDEX_LENGTH - UCPTRIE_OMITTED_BMP_INDEX_1_LENGTH;
 			}
 			else {
-				U_ASSERT(c < trie->highStart && trie->highStart > UCPTRIE_SMALL_LIMIT);
+				assert(c < trie->highStart && trie->highStart > UCPTRIE_SMALL_LIMIT);
 				i1 += UCPTRIE_SMALL_INDEX_LENGTH;
 			}
 			i3Block = trie->index[
 				(int32_t)trie->index[i1] + ((c >> UCPTRIE_SHIFT_2) & UCPTRIE_INDEX_2_MASK)];
 			if(i3Block == prevI3Block && (c - start) >= UCPTRIE_CP_PER_INDEX_2_ENTRY) {
 				// The index-3 block is the same as the previous one, and filled with value.
-				U_ASSERT((c & (UCPTRIE_CP_PER_INDEX_2_ENTRY - 1)) == 0);
+				assert((c & (UCPTRIE_CP_PER_INDEX_2_ENTRY - 1)) == 0);
 				c += UCPTRIE_CP_PER_INDEX_2_ENTRY;
 				continue;
 			}
@@ -340,7 +340,7 @@ UChar32 getRange(const void * t, UChar32 start,
 			}
 			if(block == prevBlock && (c - start) >= dataBlockLength) {
 				// The block is the same as the previous one, and filled with value.
-				U_ASSERT((c & (dataBlockLength - 1)) == 0);
+				assert((c & (dataBlockLength - 1)) == 0);
 				c += dataBlockLength;
 			}
 			else {
@@ -400,7 +400,7 @@ UChar32 getRange(const void * t, UChar32 start,
 			}
 		} while(++i3 < i3BlockLength);
 	} while(c < trie->highStart);
-	U_ASSERT(haveValue);
+	assert(haveValue);
 	int32_t di = trie->dataLength - UCPTRIE_HIGH_VALUE_NEG_DATA_OFFSET;
 	uint32_t highValue = getValue(trie->data, valueWidth, di);
 	if(maybeFilterValue(highValue, trie->nullValue, nullValue,

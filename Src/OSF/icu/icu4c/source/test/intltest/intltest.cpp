@@ -1044,7 +1044,7 @@ void IntlTest::LL_message(UnicodeString message, bool newline)
 		32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,
 		32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32
 	};
-	U_ASSERT(1 + LL_indentlevel <= SIZEOFARRAYi(indentUChars));
+	assert(1 + LL_indentlevel <= SIZEOFARRAYi(indentUChars));
 	UnicodeString indent(FALSE, indentUChars, 1 + LL_indentlevel);
 
 	char buffer[30000];
@@ -1675,7 +1675,7 @@ float IntlTest::random(int32_t* seedp) {
 		iy = (*seedp);
 	}
 	j = (int32_t)(1 + 97.0*iy/RAND_M);
-	U_ASSERT(j>=1 && j<=97);
+	assert(j>=1 && j<=97);
 	iy = ir[j];
 	*seedp = (RAND_IA*(*seedp)+RAND_IC) % RAND_M;
 	ir[j] = (*seedp);
@@ -1835,8 +1835,8 @@ bool IntlTest::assertEquals(const char * message,
 
 bool IntlTest::assertEquals(const char * message, const char * expected, const char * actual) 
 {
-	U_ASSERT(expected != nullptr);
-	U_ASSERT(actual != nullptr);
+	assert(expected != nullptr);
+	assert(actual != nullptr);
 	if(!sstreq(expected, actual)) {
 		errln((UnicodeString)"FAIL: " + message + "; got \"" + actual + "\"; expected \"" + expected + "\"");
 		return FALSE;

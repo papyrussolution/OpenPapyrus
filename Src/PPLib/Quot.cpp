@@ -172,7 +172,7 @@ public:
 			{
 				GoodsCtrlGroup::Rec ggrp_rec;
 				getGroupData(ctlgroupGoods, &ggrp_rec);
-				SETIFZ(Data.GoodsGrpID, ggrp_rec.GrpID); // Если была выбрана динамическая группа выше, то не переопределяем ее.
+				SETIFZ(Data.GoodsGrpID, ggrp_rec.GoodsGrpID); // Если была выбрана динамическая группа выше, то не переопределяем ее.
 				Data.GoodsID    = ggrp_rec.GoodsID;
 			}
 		}

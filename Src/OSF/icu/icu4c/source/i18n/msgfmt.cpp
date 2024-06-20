@@ -22,7 +22,7 @@
 #include "messageimpl.h"
 #include "msgfmt_impl.h"
 #include "plurrule_impl.h"
-#include "uelement.h"
+//#include "uelement.h"
 #include "ustrfmt.h"
 #include "number_decimalquantity.h"
 //
@@ -1098,7 +1098,7 @@ UnicodeString MessageFormat::getLiteralStringUntilNextArgument(int32_t from) con
 			return b;
 		}
 		// Unexpected Part "part" in parsed message.
-		U_ASSERT(type==UMSGPAT_PART_TYPE_SKIP_SYNTAX || type==UMSGPAT_PART_TYPE_INSERT_CHAR);
+		assert(type==UMSGPAT_PART_TYPE_SKIP_SYNTAX || type==UMSGPAT_PART_TYPE_INSERT_CHAR);
 		prevIndex = part.getLimit();
 	}
 }
@@ -1132,7 +1132,7 @@ int32_t MessageFormat::findOtherSubMessage(int32_t partIndex) const {
 		if(type==UMSGPAT_PART_TYPE_ARG_LIMIT) {
 			break;
 		}
-		U_ASSERT(type==UMSGPAT_PART_TYPE_ARG_SELECTOR);
+		assert(type==UMSGPAT_PART_TYPE_ARG_SELECTOR);
 		// part is an ARG_SELECTOR followed by an optional explicit value, and then a message
 		if(msgPattern.partSubstringMatches(*part, other)) {
 			return partIndex;
@@ -1269,7 +1269,7 @@ Formattable* MessageFormat::parse(int32_t msgStart, const UnicodeString & source
 		}
 		// We do not support parsing Plural formats. (No REPLACE_NUMBER here.)
 		// Unexpected Part "part" in parsed message.
-		U_ASSERT(type==UMSGPAT_PART_TYPE_ARG_START);
+		assert(type==UMSGPAT_PART_TYPE_ARG_START);
 		int32_t argLimit = msgPattern.getLimitPartIndex(i);
 
 		UMessagePatternArgType argType = part->getArgType();

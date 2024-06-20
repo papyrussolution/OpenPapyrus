@@ -4933,7 +4933,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 		PPID   loc_id = _ARG_LONG(2);
 		const  SString & r_serial = _ARG_STR(3);
 		LotArray lot_list;
-		p_bobj->trfr->Rcpt.GetList(H.ID, loc_id, 0, dt, 0/*opened only*/, 0/*non-zero rest only*/, &lot_list);
+		p_bobj->trfr->Rcpt.GetList(H.ID, loc_id, 0, dt, 0, &lot_list);
 		double sum_cost = 0.0;
 		double sum_rest = 0.0;
 		SString temp_buf;

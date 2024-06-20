@@ -32,7 +32,7 @@ void SharedObject::removeRef() const
 {
 	const UnifiedCacheBase * cache = this->cachePtr;
 	int32_t updatedRefCount = umtx_atomic_dec(&hardRefCount);
-	U_ASSERT(updatedRefCount >= 0);
+	assert(updatedRefCount >= 0);
 	if(updatedRefCount == 0) {
 		if(cache)
 			cache->handleUnreferencedObject();

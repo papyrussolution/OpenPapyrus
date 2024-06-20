@@ -856,37 +856,48 @@ static int FASTCALL CR_MakeLocList(const GoodsRestParam & rP, PPIDArray * pList)
 	return ok;
 }
 
-int ReceiptCore::Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, int closedTag, int nzRestOnly, LotArray * pRecList)
+int ReceiptCore::Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, /*int closedTag, int nzRestOnly,*/uint flags, LotArray * pRecList)
 {
 	int    ok = 1;
+	PPObjBill * p_bobj = BillObj;
 	ReceiptTbl::Key3 k3;
 	MEMSZERO(k3);
 	BExtQuery q(this, 3);
 	DBQ * dbq = 0;
-	k3.Closed = closedTag;
-	k3.GoodsID = goodsID;
-	k3.LocID = locID;
-	dbq = &(this->Closed == (long)closedTag && this->GoodsID == goodsID);
-	dbq = ppcheckfiltid(dbq, this->LocID, locID);
-	if(beforeDt)
-		dbq = &(*dbq && this->Dt <= beforeDt);
-	dbq = ppcheckfiltid(dbq, this->SupplID, supplID);
-	if(nzRestOnly)
-		dbq = &(*dbq && this->Rest > 0.0);
-	q.selectAll().where(*dbq);
-	for(q.initIteration(false, &k3, spGe); q.nextIteration() > 0;) {
-		THROW_MEM(pRecList->insert(&data));
+	const long closed_tag = (flags & glfOpenedOnly) ? 0 : 1;
+	{
+		k3.Closed = /*closedTag*/closed_tag;
+		k3.GoodsID = goodsID;
+		k3.LocID = locID;
+		dbq = &(this->Closed == closed_tag && this->GoodsID == goodsID);
+		dbq = ppcheckfiltid(dbq, this->LocID, locID);
+		if(beforeDt)
+			dbq = &(*dbq && this->Dt <= beforeDt);
+		dbq = ppcheckfiltid(dbq, this->SupplID, supplID);
+		if(/*nzRestOnly*/flags & glfNzRestOnly)
+			dbq = &(*dbq && this->Rest > 0.0);
+		q.selectAll().where(*dbq);
+		for(q.initIteration(false, &k3, spGe); q.nextIteration() > 0;) {
+			if(flags & glfWithExtCodeOnly) {
+				if(p_bobj->HasLotAnyMark(data.ID) > 0) {
+					THROW_MEM(pRecList->insert(&data));
+				}
+			}
+			else {
+				THROW_MEM(pRecList->insert(&data));
+			}
+		}
 	}
 	CATCHZOK
 	return ok;
 }
 
-int ReceiptCore::GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, int openedOnly, int nzRestOnly, LotArray * pRecList)
+int ReceiptCore::GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, /*int openedOnly, int nzRestOnly*/uint flags, LotArray * pRecList)
 {
 	int    ok = 1;
-	THROW(Helper_GetList(goodsID, locID, supplID, beforeDt, 0, nzRestOnly, pRecList));
-	if(!openedOnly) {
-		THROW(Helper_GetList(goodsID, locID, supplID, beforeDt, 1, nzRestOnly, pRecList));
+	THROW(Helper_GetList(goodsID, locID, supplID, beforeDt, (flags | glfOpenedOnly)/*, nzRestOnly*/, pRecList));
+	if(!(flags | glfOpenedOnly)) {
+		THROW(Helper_GetList(goodsID, locID, supplID, beforeDt, (flags & ~glfOpenedOnly)/*, nzRestOnly*/, pRecList));
 	}
 	CATCHZOK
 	return ok;
@@ -894,7 +905,8 @@ int ReceiptCore::GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt,
 
 int Transfer::GetCurRest(GoodsRestParam & rP)
 {
-	int    ok = 1, r = 1;
+	int    ok = 1;
+	int    r = 1;
 	PPIDArray loc_list;
 	PROFILE_START
 	rP.InitVal();
@@ -920,11 +932,12 @@ int Transfer::GetCurRest(GoodsRestParam & rP)
 		}
 	}
 	else if(rP.GoodsID) {
-		const int opened_only = (rP.GoodsID < 0) ? 0 : 1;
+		//const int opened_only = (rP.GoodsID < 0) ? 0 : 1;
+		const uint  glf = ReceiptCore::glfNzRestOnly | ((rP.GoodsID < 0) ? 0 : ReceiptCore::glfOpenedOnly);
 		LotArray lot_list;
 		for(uint j = 0; j < loc_list.getCount(); j++) {
 			lot_list.clear();
-			THROW(Rcpt.GetList(rP.GoodsID, loc_list.get(j), rP.SupplID, ZERODATE, opened_only, 1, &lot_list));
+			THROW(Rcpt.GetList(rP.GoodsID, loc_list.get(j), rP.SupplID, ZERODATE, /*opened_only, 1*/glf, &lot_list));
 			for(uint i = 0; i < lot_list.getCount(); i++) {
 				const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
 				if((r_lot_rec.GoodsID >= 0) || !(r_lot_rec.Flags & LOTF_CLOSEDORDER)) {

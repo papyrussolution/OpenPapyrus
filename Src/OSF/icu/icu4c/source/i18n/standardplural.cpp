@@ -23,7 +23,7 @@ static const char * gKeywords[StandardPlural::COUNT] = { "zero", "one", "two", "
 
 const char * StandardPlural::getKeyword(Form p) 
 {
-	U_ASSERT(ZERO <= p && p < COUNT);
+	assert(ZERO <= p && p < COUNT);
 	return gKeywords[p];
 }
 

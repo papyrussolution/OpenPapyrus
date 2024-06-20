@@ -20,7 +20,6 @@ namespace Glass {
 
 	struct fragment {
 		char data[4];
-		// Default constructor.
 		fragment() 
 		{
 		}

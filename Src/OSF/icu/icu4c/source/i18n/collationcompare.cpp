@@ -174,7 +174,7 @@ UCollationResult CollationCompare::compareUpToQuaternary(CollationIterator &left
 				// Did we reach the end of either string?
 				// Both strings have the same number of merge separators,
 				// or else there would have been a primary-level difference.
-				U_ASSERT(left.getCE(leftLimit) == right.getCE(rightLimit));
+				assert(left.getCE(leftLimit) == right.getCE(rightLimit));
 				if(p == Collation::NO_CE_PRIMARY) {
 					break;
 				}
@@ -268,14 +268,14 @@ UCollationResult CollationCompare::compareUpToQuaternary(CollationIterator &left
 		do {
 			leftLower32 = (uint32_t)left.getCE(leftIndex++);
 			anyQuaternaries |= leftLower32;
-			U_ASSERT((leftLower32 & Collation::ONLY_TERTIARY_MASK) != 0 || (leftLower32 & 0xc0c0) == 0);
+			assert((leftLower32 & Collation::ONLY_TERTIARY_MASK) != 0 || (leftLower32 & 0xc0c0) == 0);
 			leftTertiary = leftLower32 & tertiaryMask;
 		} while(leftTertiary == 0);
 		uint32_t rightLower32, rightTertiary;
 		do {
 			rightLower32 = (uint32_t)right.getCE(rightIndex++);
 			anyQuaternaries |= rightLower32;
-			U_ASSERT((rightLower32 & Collation::ONLY_TERTIARY_MASK) != 0 || (rightLower32 & 0xc0c0) == 0);
+			assert((rightLower32 & Collation::ONLY_TERTIARY_MASK) != 0 || (rightLower32 & 0xc0c0) == 0);
 			rightTertiary = rightLower32 & tertiaryMask;
 		} while(rightTertiary == 0);
 		if(leftTertiary != rightTertiary) {

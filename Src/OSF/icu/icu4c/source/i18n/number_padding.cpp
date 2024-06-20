@@ -64,7 +64,7 @@ int32_t Padder::padAndApply(const Modifier &mod1, const Modifier &mod2,
     UErrorCode & status) const {
 	int32_t modLength = mod1.getCodePointCount() + mod2.getCodePointCount();
 	int32_t requiredPadding = fWidth - modLength - string.codePointCount();
-	U_ASSERT(leftIndex == 0 &&
+	assert(leftIndex == 0 &&
 	    rightIndex == string.length());  // fix the previous line to remove this assertion
 
 	int length = 0;

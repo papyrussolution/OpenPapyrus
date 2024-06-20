@@ -6572,6 +6572,52 @@ int PPObjBill::LoadRowTagListForDraft(PPID billID, PPLotTagContainer & rContaine
 	return ok;
 }
 
+int PPObjBill::GetMarkListByLot(PPID lotID, StringSet & rSs)
+{
+	rSs.Z();
+	int    ok = -1;
+	if(P_LotXcT) {
+		if(lotID) {
+			ReceiptTbl::Rec lot_rec;
+			if(trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
+				DateIter di;
+				TransferTbl::Rec trfr_rec;
+				if(trfr->EnumByLot(lotID, &di, &trfr_rec) > 0 && trfr_rec.Flags & PPTFR_RECEIPT) {
+					if(P_LotXcT->GetListByBillRow(trfr_rec.BillID, trfr_rec.RByBill, false, rSs, 0) > 0) {
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int PPObjBill::HasLotAnyMark(PPID lotID)
+{
+	int    ok = -1;
+	if(P_LotXcT) {
+		if(lotID) {
+			ReceiptTbl::Rec lot_rec;
+			if(trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
+				DateIter di;
+				TransferTbl::Rec trfr_rec;
+				if(trfr->EnumByLot(lotID, &di, &trfr_rec) > 0 && trfr_rec.Flags & PPTFR_RECEIPT) {
+					StringSet ss;
+					if(P_LotXcT->GetListByBillRow(trfr_rec.BillID, trfr_rec.RByBill, true, ss, 0) > 0) {
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
 int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 {
 	int    ok = 1;
@@ -6674,7 +6720,6 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 	if(P_LotXcT) {
 		SBuffer vxcl_buf;
 		THROW(P_LotXcT->GetContainer(pPack->Rec.ID, pPack->XcL));
-		// @v10.3.0 {
 		if(PPRef->GetPropSBuffer(Obj, pPack->Rec.ID, BILLPRP_VALXCL, vxcl_buf) > 0) {
 			bool   local_error = false;
 			SSerializeContext sctx;
@@ -6712,7 +6757,6 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 				pPack->_VXcL.Release();
 			}
 		}
-		// } @v10.3.0
 	}
 	pPack->BTagL.Destroy();
 	THROW(GetTagList(pPack->Rec.ID, &pPack->BTagL));
@@ -8568,17 +8612,12 @@ int PPObjBill::RemovePacket(PPID id, int use_ta)
 		THROW(r && P_Tbl->Remove(id, 0));
 		THROW(p_ref->PutPropVlrString(PPOBJ_BILL, id, PPPRP_BILLMEMO, 0));
 		THROW(p_ref->Ot.PutList(Obj, id, 0, 0));
-		// @v10.2.9 THROW(PPLotExtCodeContainer::RemoveAllByBill(P_LotXcT, id, 0)); // @v9.8.11
-		// @v10.2.9 {
 		if(P_LotXcT)
 			THROW(P_LotXcT->RemoveAllByBill(id, 0));
-		// } @v10.2.9
 		THROW(RemoveSync(id));
 		THROW(UnlockFRR(&frrl_tag, 0, 0));
 		if(!is_shadow) {
 			PPID   h_id = 0;
-			/* @v9.8.11 if(TLP(HistBill).IsOpened())
-				THROW(HistBill->PutPacket(&h_id, &hist_pack, 1, 0) > 0); */
 			if(State2 & stDoObjVer) {
 				if(p_ovc && p_ovc->InitSerializeContext(0)) {
 					THROW(p_ovc->Add(&h_id, PPObjID(Obj, id), &hist_buf, 0));

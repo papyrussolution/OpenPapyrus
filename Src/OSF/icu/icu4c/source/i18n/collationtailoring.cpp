@@ -17,9 +17,9 @@ CollationTailoring::CollationTailoring(const CollationSettings * baseSettings) :
 	ownedData(NULL), builder(NULL), memory(NULL), bundle(NULL), trie(NULL), unsafeBackwardSet(NULL), maxExpansions(NULL) 
 {
 	if(baseSettings) {
-		U_ASSERT(baseSettings->reorderCodesLength == 0);
-		U_ASSERT(baseSettings->reorderTable == NULL);
-		U_ASSERT(baseSettings->minHighNoReorder == 0);
+		assert(baseSettings->reorderCodesLength == 0);
+		assert(baseSettings->reorderTable == NULL);
+		assert(baseSettings->minHighNoReorder == 0);
 	}
 	else {
 		settings = new CollationSettings();

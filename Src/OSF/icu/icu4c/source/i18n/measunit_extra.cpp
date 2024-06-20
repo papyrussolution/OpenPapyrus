@@ -180,8 +180,8 @@ public:
 		// Collect keys from the table resource.
 		const char * simpleUnitID;
 		for(int32_t i = 0; table.getKeyAndValue(i, simpleUnitID, value); ++i) {
-			U_ASSERT(i < table.getSize());
-			U_ASSERT(outIndex < outSize);
+			assert(i < table.getSize());
+			assert(outIndex < outSize);
 			if(strcmp(simpleUnitID, "kilogram") == 0) {
 				// For parsing, we use "gram", the prefixless metric mass unit. We
 				// thus ignore the SI Base Unit of Mass: it exists due to being the
@@ -271,7 +271,7 @@ public:
 		}
 
 		for(int32_t i = 0; array.getValue(i, value); ++i) {
-			U_ASSERT(outIndex < outSize);
+			assert(outIndex < outSize);
 			ResourceTable table = value.getTable(status);
 			if(U_FAILURE(status)) {
 				return;
@@ -475,7 +475,7 @@ public:
 	// Calling getType() is invalid, resulting in an assertion failure, if Token
 	// value isn't positive.
 	Type getType() const {
-		U_ASSERT(fMatch > 0);
+		assert(fMatch > 0);
 		if(fMatch < kCompoundPartOffset) {
 			return TYPE_PREFIX;
 		}
@@ -492,33 +492,33 @@ public:
 	}
 
 	UMeasurePrefix getUnitPrefix() const {
-		U_ASSERT(getType() == TYPE_PREFIX);
+		assert(getType() == TYPE_PREFIX);
 		return static_cast<UMeasurePrefix>(fMatch - kPrefixOffset);
 	}
 
 	// Valid only for tokens with type TYPE_COMPOUND_PART.
 	int32_t getMatch() const {
-		U_ASSERT(getType() == TYPE_COMPOUND_PART);
+		assert(getType() == TYPE_COMPOUND_PART);
 		return fMatch;
 	}
 
 	int32_t getInitialCompoundPart() const {
 		// Even if there is only one InitialCompoundPart value, we have this
 		// function for the simplicity of code consistency.
-		U_ASSERT(getType() == TYPE_INITIAL_COMPOUND_PART);
+		assert(getType() == TYPE_INITIAL_COMPOUND_PART);
 		// Defensive: if this assert fails, code using this function also needs
 		// to change.
-		U_ASSERT(fMatch == INITIAL_COMPOUND_PART_PER);
+		assert(fMatch == INITIAL_COMPOUND_PART_PER);
 		return fMatch;
 	}
 
 	int8 getPower() const {
-		U_ASSERT(getType() == TYPE_POWER_PART);
+		assert(getType() == TYPE_POWER_PART);
 		return static_cast<int8>(fMatch - kPowerPartOffset);
 	}
 
 	int32_t getSimpleUnitIndex() const {
-		U_ASSERT(getType() == TYPE_SIMPLE_UNIT);
+		assert(getType() == TYPE_SIMPLE_UNIT);
 		return fMatch - kSimpleUnitOffset;
 	}
 
@@ -587,7 +587,7 @@ public:
 				if(result.singleUnits.length() == 2) {
 					// After appending two singleUnits, the complexity will be
 					// `UMEASURE_UNIT_COMPOUND`
-					U_ASSERT(result.complexity == UMEASURE_UNIT_COMPOUND);
+					assert(result.complexity == UMEASURE_UNIT_COMPOUND);
 					result.complexity = complexity;
 				}
 				else if(result.complexity != complexity) {
@@ -645,13 +645,13 @@ private:
 			else if(result == USTRINGTRIE_NO_VALUE) {
 				continue;
 			}
-			U_ASSERT(USTRINGTRIE_HAS_VALUE(result));
+			assert(USTRINGTRIE_HAS_VALUE(result));
 			match = fTrie.getValue();
 			previ = fIndex;
 			if(result == USTRINGTRIE_FINAL_VALUE) {
 				break;
 			}
-			U_ASSERT(result == USTRINGTRIE_INTERMEDIATE_VALUE);
+			assert(result == USTRINGTRIE_INTERMEDIATE_VALUE);
 			// continue;
 		}
 
@@ -699,7 +699,7 @@ private:
 		if(atStart) {
 			// Identifiers optionally start with "per-".
 			if(token.getType() == Token::TYPE_INITIAL_COMPOUND_PART) {
-				U_ASSERT(token.getInitialCompoundPart() == INITIAL_COMPOUND_PART_PER);
+				assert(token.getInitialCompoundPart() == INITIAL_COMPOUND_PART_PER);
 				fAfterPer = true;
 				result.dimensionality = -1;
 
@@ -823,7 +823,7 @@ U_CAPI int32_t U_EXPORT2 umeas_getPrefixPower(UMeasurePrefix unitPrefix) {
 	    unitPrefix <= UMEASURE_PREFIX_INTERNAL_MAX_BIN) {
 		return unitPrefix - UMEASURE_PREFIX_INTERNAL_ONE_BIN;
 	}
-	U_ASSERT(unitPrefix >= UMEASURE_PREFIX_INTERNAL_MIN_SI &&
+	assert(unitPrefix >= UMEASURE_PREFIX_INTERNAL_MIN_SI &&
 	    unitPrefix <= UMEASURE_PREFIX_INTERNAL_MAX_SI);
 	return unitPrefix - UMEASURE_PREFIX_ONE;
 }
@@ -833,7 +833,7 @@ U_CAPI int32_t U_EXPORT2 umeas_getPrefixBase(UMeasurePrefix unitPrefix) {
 	    unitPrefix <= UMEASURE_PREFIX_INTERNAL_MAX_BIN) {
 		return 1024;
 	}
-	U_ASSERT(unitPrefix >= UMEASURE_PREFIX_INTERNAL_MIN_SI &&
+	assert(unitPrefix >= UMEASURE_PREFIX_INTERNAL_MIN_SI &&
 	    unitPrefix <= UMEASURE_PREFIX_INTERNAL_MAX_SI);
 	return 10;
 }
@@ -946,7 +946,7 @@ const char * SingleUnitImpl::getSimpleUnitID() const {
 void SingleUnitImpl::appendNeutralIdentifier(CharString &result, UErrorCode & status) const {
 	int32_t absPower = std::abs(this->dimensionality);
 
-	U_ASSERT(absPower > 0); // "this function does not support the dimensionless single units";
+	assert(absPower > 0); // "this function does not support the dimensionless single units";
 
 	if(absPower == 1) {
 		// no-op

@@ -334,7 +334,7 @@ StringTrieBuilder::Node * StringTrieBuilder::registerNode(Node * newNode, UError
 	int32_t oldValue = // Only in debug mode to avoid a compiler warning about unused oldValue.
 #endif
 	uhash_puti(nodes, newNode, 1, &errorCode);
-	U_ASSERT(oldValue==0);
+	assert(oldValue==0);
 	if(U_FAILURE(errorCode)) {
 		delete newNode;
 		return NULL;
@@ -363,7 +363,7 @@ StringTrieBuilder::Node * StringTrieBuilder::registerFinalValue(int32_t value, U
 	int32_t oldValue = // Only in debug mode to avoid a compiler warning about unused oldValue.
 #endif
 	uhash_puti(nodes, newNode, 1, &errorCode);
-	U_ASSERT(oldValue==0);
+	assert(oldValue==0);
 	if(U_FAILURE(errorCode)) {
 		delete newNode;
 		return NULL;
@@ -540,7 +540,7 @@ void StringTrieBuilder::ListBranchNode::write(StringTrieBuilder &builder)
 		}
 		else {
 			// Write the delta to the start position of the sub-node.
-			U_ASSERT(equal[unitNumber]->getOffset()>0);
+			assert(equal[unitNumber]->getOffset()>0);
 			value = offset-equal[unitNumber]->getOffset();
 			isFinal = FALSE;
 		}
@@ -578,7 +578,7 @@ void StringTrieBuilder::SplitBranchNode::write(StringTrieBuilder &builder)
 	// Encode the greater-or-equal branch last because we do not jump for it at all.
 	greaterOrEqual->write(builder);
 	// Write this node.
-	U_ASSERT(lessThan->getOffset()>0);
+	assert(lessThan->getOffset()>0);
 	builder.writeDeltaTo(lessThan->getOffset()); // less-than
 	offset = builder.write(unit);
 }

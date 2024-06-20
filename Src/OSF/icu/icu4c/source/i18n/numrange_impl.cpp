@@ -381,7 +381,7 @@ void NumberRangeFormatterImpl::formatRange(UFormattedNumberRangeData& data,
 		return;
 	}
 	lengthInfix = lengthRange - lengthPrefix - lengthSuffix;
-	U_ASSERT(lengthInfix > 0);
+	assert(lengthInfix > 0);
 
 	// SPACING HEURISTIC
 	// Add spacing unless all modifiers are collapsed.
@@ -470,7 +470,7 @@ const Modifier&NumberRangeFormatterImpl::resolveModifierPlurals(const Modifier& 
 
 	// Get and return the new Modifier
 	const Modifier* mod = parameters.obj->getModifier(parameters.signum, resultPlural);
-	U_ASSERT(mod != nullptr);
+	assert(mod != nullptr);
 	return *mod;
 }
 

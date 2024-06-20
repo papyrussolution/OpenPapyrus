@@ -2137,7 +2137,7 @@ public:
 				if(!r) {
 					; // @todo @err
 				}
-				CcD2MiiBlk.IsLoaded = 1;
+				CcD2MiiBlk.IsLoaded = true;
 			}
 		}
 		rIndex = CcD2MiiBlk.Index;
@@ -2148,14 +2148,14 @@ public:
 	{
 		bool  result = false;
 		CcD2MiiBlk.Lck.ReadLock_();
-		result = LOGIC(CcD2MiiBlk.IsLoaded);
+		result = CcD2MiiBlk.IsLoaded;
 		CcD2MiiBlk.Lck.Unlock_();
 		return result;
 	}
 	void   DirtyCcDate2MaxIdIndex()
 	{
 		CcD2MiiBlk.Lck.WriteLock_();
-		CcD2MiiBlk.IsLoaded = 0;
+		CcD2MiiBlk.IsLoaded = false;
 		CcD2MiiBlk.Lck.Unlock_();
 	}
 private:
@@ -2238,20 +2238,45 @@ bool PPObjCSession::IsCcDate2MaxIdIndexLoaded()
 
 IMPL_OBJ_DIRTY(PPObjCSession, CSessCache);
 
-int PPObjCSession::GetListByEgaisMark(const char * pText, PPIDArray & rCcList, SBitArray * pSentList)
+/*static*/uint PPObjCSession::GetCcListByMarkBackDays(const TSCollection <CCheckCore::ListByMarkEntry> & rList)
 {
-	const uint back_days = 14; // @v11.8.3 90-->14
-	LAssocArray index;
-	LAssocArray * p_index = FetchCcDate2MaxIdIndex(index) ? &index : 0;
-	return P_Cc ? P_Cc->Helper_GetListByMark(pText, CCheckPacket::lnextEgaisMark, p_index, back_days, CCheckPacket::extssEgaisUrl, rCcList, pSentList) : 0;
+	int16 r = CConfig.CcListByMarkBackDays;
+	uint  result = (r > 0 && r <= (10 * 365)) ? static_cast<uint>(r) : 14;
+	const LDATE now_dt = getcurdate_();
+	for(uint i = 0; i < rList.getCount(); i++) {
+		const CCheckCore::ListByMarkEntry * p_entry = rList.at(i);
+		if(p_entry && checkdate(p_entry->OrgLotDate)) {
+			const long d = diffdate(now_dt, p_entry->OrgLotDate);
+			if(d > 0) {
+				SETMAX(result, static_cast<uint>(d));
+			}
+		}
+	}
+	return result;
 }
 
-int PPObjCSession::GetListByChZnMark(const char * pText, PPIDArray & rCcList)
+int PPObjCSession::GetListByEgaisMark(TSCollection <CCheckCore::ListByMarkEntry> & rList)
 {
-	const uint back_days = 14; // @v11.8.3 90-->14
+	// @v12.0.5 const uint back_days = 14; // @v11.8.3 90-->14
+	const uint back_days = PPObjCSession::GetCcListByMarkBackDays(rList); // @v12.0.5
 	LAssocArray index;
 	LAssocArray * p_index = FetchCcDate2MaxIdIndex(index) ? &index : 0;
-	return P_Cc ? P_Cc->Helper_GetListByMark(pText, CCheckPacket::lnextChZnMark, p_index, back_days, 0, rCcList, 0) : 0;
+	return P_Cc ? P_Cc->Helper_GetListByMark2(rList, CCheckPacket::lnextEgaisMark, p_index, back_days, CCheckPacket::extssEgaisUrl) : 0;
+}
+
+int PPObjCSession::GetListByChZnMark(TSCollection <CCheckCore::ListByMarkEntry> & rList)
+{
+	// @v12.0.5 const uint back_days = 14; // @v11.8.3 90-->14
+	const uint back_days = PPObjCSession::GetCcListByMarkBackDays(rList); // @v12.0.5
+	LAssocArray index;
+	LAssocArray * p_index = FetchCcDate2MaxIdIndex(index) ? &index : 0;
+	return P_Cc ? P_Cc->Helper_GetListByMark2(rList, CCheckPacket::lnextChZnMark, p_index, back_days, 0) : 0;
+}
+
+int PPObjCSession::CalcRestByChZnMark(TSVector <ChZnRest> & rList) // @v12.0.5
+{
+	int    ok = -1;
+	return ok;
 }
 
 int PPObjCSession::GetListByUuid(const S_GUID & rUuid, uint backDays, PPIDArray & rCcList)

@@ -196,7 +196,7 @@ RBBINode * RBBINode::flattenVariables()
 //
 void RBBINode::flattenSets() 
 {
-	U_ASSERT(fType != setRef);
+	assert(fType != setRef);
 	if(fLeftChild != NULL) {
 		if(fLeftChild->fType==setRef) {
 			RBBINode * setRefNode = fLeftChild;
@@ -234,7 +234,7 @@ void RBBINode::findNodes(UVector * dest, RBBINode::NodeType kind, UErrorCode & s
 	if(U_FAILURE(status)) {
 		return;
 	}
-	U_ASSERT(!dest->hasDeleter());
+	assert(!dest->hasDeleter());
 	if(fType == kind) {
 		dest->addElement(this, status);
 	}

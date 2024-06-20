@@ -908,7 +908,7 @@ Transliterator* U_EXPORT2 Transliterator::createInstance(const UnicodeString & I
 		return NULL;
 	}
 
-	U_ASSERT(list.size() > 0);
+	assert(list.size() > 0);
 	Transliterator* t = NULL;
 
 	if(list.size() > 1 || canonID.indexOf(ID_DELIM) >= 0) {
@@ -970,7 +970,7 @@ Transliterator* Transliterator::createBasicInstance(const UnicodeString & id,
 	// we handle aliases in a loop.  The max times through the loop is two.
 	// [alan]
 	while(alias != 0) {
-		U_ASSERT(t==0);
+		assert(t==0);
 		// Rule-based aliases are handled with TransliteratorAlias::
 		// parse(), followed by TransliteratorRegistry::reget().
 		// Other aliases are handled with TransliteratorAlias::create().
@@ -1322,7 +1322,7 @@ const UnicodeString & U_EXPORT2 Transliterator::getAvailableID(int32_t index) {
 		result = &registry->getAvailableID(index);
 	}
 	umtx_unlock(&registryMutex);
-	U_ASSERT(result != NULL); // fail if no registry
+	assert(result != NULL); // fail if no registry
 	return *result;
 }
 

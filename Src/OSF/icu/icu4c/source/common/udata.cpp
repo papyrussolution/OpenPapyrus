@@ -220,12 +220,12 @@ static void U_CALLCONV DataCacheElement_deleter(void * pDCEl)
 
 static void U_CALLCONV udata_initHashTable(UErrorCode &err) 
 {
-	U_ASSERT(gCommonDataCache == NULL);
+	assert(gCommonDataCache == NULL);
 	gCommonDataCache = uhash_open(uhash_hashChars, uhash_compareChars, NULL, &err);
 	if(U_FAILURE(err)) {
 		return;
 	}
-	U_ASSERT(gCommonDataCache != NULL);
+	assert(gCommonDataCache != NULL);
 	uhash_setValueDeleter(gCommonDataCache, DataCacheElement_deleter);
 	ucln_common_registerCleanup(UCLN_COMMON_UDATA, udata_cleanup);
 }

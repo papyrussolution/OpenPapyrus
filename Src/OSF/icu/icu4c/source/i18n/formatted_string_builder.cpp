@@ -249,9 +249,9 @@ void FormattedStringBuilder::writeTerminator(UErrorCode & status) {
 }
 
 int32_t FormattedStringBuilder::prepareForInsert(int32_t index, int32_t count, UErrorCode & status) {
-	U_ASSERT(index >= 0);
-	U_ASSERT(index <= fLength);
-	U_ASSERT(count >= 0);
+	assert(index >= 0);
+	assert(index <= fLength);
+	assert(count >= 0);
 	if(index == 0 && fZero - count >= 0) {
 		// Append to start
 		fZero -= count;
@@ -335,14 +335,14 @@ int32_t FormattedStringBuilder::prepareForInsertHelper(int32_t index, int32_t co
 		fZero = newZero;
 		fLength += count;
 	}
-	U_ASSERT((fZero + index) >= 0);
+	assert((fZero + index) >= 0);
 	return fZero + index;
 }
 
 int32_t FormattedStringBuilder::remove(int32_t index, int32_t count) {
 	// TODO: Reset the heap here?  (If the string after removal can fit on stack?)
 	int32_t position = index + fZero;
-	U_ASSERT(position >= 0);
+	assert(position >= 0);
 	uprv_memmove2(getCharPtr() + position,
 	    getCharPtr() + position + count,
 	    sizeof(char16_t) * (fLength - index - count));

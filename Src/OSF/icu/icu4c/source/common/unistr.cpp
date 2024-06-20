@@ -12,7 +12,7 @@
 // 
 #include <icu-internal.h>
 #pragma hdrstop
-#include "uelement.h"
+//#include "uelement.h"
 #include "ustr_imp.h"
 
 #if 0
@@ -1626,7 +1626,7 @@ bool UnicodeString::cloneArrayIfNeeded(int32_t newCapacity, int32_t growCapacity
 		int32_t oldLength = length();
 		int16 flags = fUnion.fFields.fLengthAndFlags;
 		if(flags&kUsingStackBuffer) {
-			U_ASSERT(!(flags&kRefCounted)); /* kRefCounted and kUsingStackBuffer are mutally exclusive */
+			assert(!(flags&kRefCounted)); /* kRefCounted and kUsingStackBuffer are mutally exclusive */
 			if(doCopyArray && growCapacity > US_STACKBUF_SIZE) {
 				// copy the stack buffer contents because it will be overwritten with
 				// fUnion.fFields values
@@ -1639,7 +1639,7 @@ bool UnicodeString::cloneArrayIfNeeded(int32_t newCapacity, int32_t growCapacity
 		}
 		else {
 			oldArray = fUnion.fFields.fArray;
-			U_ASSERT(oldArray != NULL); /* when stack buffer is not used, oldArray must have a non-NULL reference */
+			assert(oldArray != NULL); /* when stack buffer is not used, oldArray must have a non-NULL reference */
 		}
 		// allocate a new array
 		if(allocate(growCapacity) || (newCapacity < growCapacity && allocate(newCapacity))) {

@@ -58,10 +58,6 @@ public:
 	 * @stable ICU 3.0
 	 */
 	CurrencyAmount(const CurrencyAmount& other);
-	/**
-	 * Assignment operator
-	 * @stable ICU 3.0
-	 */
 	CurrencyAmount& operator =(const CurrencyAmount& other);
 	/**
 	 * Return a polymorphic clone of this object.  The result will
@@ -69,10 +65,6 @@ public:
 	 * @stable ICU 3.0
 	 */
 	virtual CurrencyAmount* clone() const override;
-	/**
-	 * Destructor
-	 * @stable ICU 3.0
-	 */
 	virtual ~CurrencyAmount();
 	/**
 	 * Returns a unique class ID for this object POLYMORPHICALLY.

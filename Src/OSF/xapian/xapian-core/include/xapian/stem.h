@@ -33,7 +33,6 @@ class XAPIAN_VISIBILITY_DEFAULT StemImplementation : public Xapian::Internal::in
 	/// Don't allow copying.
 	StemImplementation(const StemImplementation &) = delete;
 public:
-	/// Default constructor.
 	StemImplementation() 
 	{
 	}

@@ -1,13 +1,10 @@
 // collation.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2010-2015, International Business Machines Corporation and others.  All Rights Reserved.
- *******************************************************************************
- * created on: 2010oct27
- * created by: Markus W. Scherer
- */
+// Copyright (C) 2010-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2010oct27
+// created by: Markus W. Scherer
+//
 #ifndef __COLLATION_H__
 #define __COLLATION_H__
 

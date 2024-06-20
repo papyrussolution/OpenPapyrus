@@ -1,22 +1,12 @@
+// locbund.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 1998-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *
- * File locbund.cpp
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   11/18/98    stephen        Creation.
- *   12/10/1999  bobbyr(at)optiosoftware.com       Fix for memory leak + string allocation bugs
- *******************************************************************************
- */
+// Copyright (C) 1998-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 11/18/98    stephen        Creation.
+// 12/10/1999  bobbyr(at)optiosoftware.com       Fix for memory leak + string allocation bugs
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -63,13 +53,10 @@ static inline UNumberFormat * copyInvariantFormatter(ULocaleBundle * result, UNu
 
 U_CAPI ULocaleBundle * u_locbund_init(ULocaleBundle * result, const char * loc)
 {
-	int32_t len;
 	if(result) {
-		if(loc == NULL) {
-			loc = uloc_getDefault();
-		}
+		SETIFZQ(loc, uloc_getDefault());
 		memzero(result, sizeof(ULocaleBundle));
-		len = (int32_t)strlen(loc);
+		int32_t len = (int32_t)strlen(loc);
 		result->fLocale = (char *)uprv_malloc(len + 1);
 		if(result->fLocale == 0) {
 			return 0;
@@ -80,23 +67,19 @@ U_CAPI ULocaleBundle * u_locbund_init(ULocaleBundle * result, const char * loc)
 	return result;
 }
 
-/*U_CAPI ULocaleBundle *
-   u_locbund_new(const char *loc)
+/*U_CAPI ULocaleBundle * u_locbund_new(const char *loc)
    {
     ULocaleBundle *result = (ULocaleBundle*) uprv_malloc(sizeof(ULocaleBundle));
     return u_locbund_init(result, loc);
    }
 
-   U_CAPI ULocaleBundle *
-   u_locbund_clone(const ULocaleBundle *bundle)
+   U_CAPI ULocaleBundle * u_locbund_clone(const ULocaleBundle *bundle)
    {
     ULocaleBundle *result = (ULocaleBundle*)uprv_malloc(sizeof(ULocaleBundle));
     UErrorCode status = U_ZERO_ERROR;
     int32_t styleIdx;
-
     if(result == 0)
         return 0;
-
     result->fLocale = (char *) uprv_malloc(strlen(bundle->fLocale) + 1);
     if(result->fLocale == 0) {
         uprv_free(result);

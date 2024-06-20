@@ -96,7 +96,7 @@ static bool U_CALLCONV locale_cleanup(void)
 static void U_CALLCONV locale_init(UErrorCode & status) 
 {
 	U_NAMESPACE_USE
-	    U_ASSERT(gLocaleCache == NULL);
+	    assert(gLocaleCache == NULL);
 	gLocaleCache = new Locale[(int)eMAX_LOCALES];
 	if(gLocaleCache == NULL) {
 		status = U_MEMORY_ALLOCATION_ERROR;
@@ -642,9 +642,9 @@ void AliasDataBuilder::readLanguageAlias(UResourceBundle * alias, UniqueCharStri
 			// und_variant
 			Locale test(type);
 			// Assert no script in aliasFrom
-			U_ASSERT(test.getScript()[0] == '\0');
+			assert(test.getScript()[0] == '\0');
 			// Assert when language is und, no REGION in aliasFrom.
-			U_ASSERT(test.getLanguage()[0] != '\0' || test.getCountry()[0] == '\0');
+			assert(test.getLanguage()[0] != '\0' || test.getCountry()[0] == '\0');
 		},
 #else
 		[](const char *) {
@@ -665,8 +665,8 @@ void AliasDataBuilder::readScriptAlias(UResourceBundle * alias, UniqueCharString
 {
 	return readAlias(alias, strings, types, replacementIndexes, length,
 #if U_DEBUG
-		[] (const char * type) { U_ASSERT(strlen(type) == 4); },
-		[](const UnicodeString & replacement) { U_ASSERT(replacement.length() == 4); },
+		[] (const char * type) { assert(strlen(type) == 4); },
+		[](const UnicodeString & replacement) { assert(replacement.length() == 4); },
 #else
 		[](const char *) {},
 		[](const UnicodeString &) {},
@@ -684,7 +684,7 @@ void AliasDataBuilder::readTerritoryAlias(UResourceBundle * alias, UniqueCharStr
 {
 	return readAlias(alias, strings, types, replacementIndexes, length,
 #if U_DEBUG
-		[] (const char * type) { U_ASSERT(strlen(type) == 2 || strlen(type) == 3); },
+		[] (const char * type) { assert(strlen(type) == 2 || strlen(type) == 3); },
 #else
 		[](const char *) {},
 #endif
@@ -704,12 +704,12 @@ void AliasDataBuilder::readVariantAlias(UResourceBundle * alias, UniqueCharStrin
 	return readAlias(alias, strings, types, replacementIndexes, length,
 #if U_DEBUG
 		[] (const char * type) {
-			U_ASSERT(strlen(type) >= 4 && strlen(type) <= 8);
-			U_ASSERT(strlen(type) != 4 || (type[0] >= '0' && type[0] <= '9'));
+			assert(strlen(type) >= 4 && strlen(type) <= 8);
+			assert(strlen(type) != 4 || (type[0] >= '0' && type[0] <= '9'));
 		},
 		[](const UnicodeString & replacement) {
-			U_ASSERT(replacement.length() >= 4 && replacement.length() <= 8);
-			U_ASSERT(replacement.length() != 4 || (replacement.charAt(0) >= u'0' && replacement.charAt(0) <= u'9'));
+			assert(replacement.length() >= 4 && replacement.length() <= 8);
+			assert(replacement.length() != 4 || (replacement.charAt(0) >= u'0' && replacement.charAt(0) <= u'9'));
 		},
 #else
 		[](const char *) {
@@ -731,7 +731,7 @@ void AliasDataBuilder::readSubdivisionAlias(UResourceBundle * alias, UniqueCharS
 {
 	return readAlias(alias, strings, types, replacementIndexes, length,
 #if U_DEBUG
-		[] (const char * type) { U_ASSERT(strlen(type) >= 3 && strlen(type) <= 8); },
+		[] (const char * type) { assert(strlen(type) >= 3 && strlen(type) <= 8); },
 #else
 		[](const char *) {},
 #endif
@@ -1107,7 +1107,7 @@ bool AliasReplacer::replaceLanguage(bool checkLanguage, bool checkRegion,
 	    variant_index < variant_size;
 	    variant_index++) {
 		if(checkVariants) {
-			U_ASSERT(variant_index < variant_size);
+			assert(variant_index < variant_size);
 			searchVariant = (const char *)(variants.elementAt(variant_index));
 		}
 
@@ -1224,9 +1224,9 @@ bool AliasReplacer::replaceTerritory(UVector& toBeFreed, UErrorCode & status)
 			if(foundInReplacement != nullptr) {
 				// Assuming the case there are no three letter region code in
 				// the replacement of territoryAlias
-				U_ASSERT(foundInReplacement == replacement ||
+				assert(foundInReplacement == replacement ||
 				    *(foundInReplacement-1) == ' ');
-				U_ASSERT(foundInReplacement[len] == ' ' ||
+				assert(foundInReplacement[len] == ' ' ||
 				    foundInReplacement[len] == '\0');
 				item.adoptInsteadAndCheckErrorCode(
 					new CharString(foundInReplacement, (int32_t)len, status), status);
@@ -1247,7 +1247,7 @@ bool AliasReplacer::replaceTerritory(UVector& toBeFreed, UErrorCode & status)
 		replacedRegion = item->data();
 		toBeFreed.addElementX(item.orphan(), status);
 	}
-	U_ASSERT(!same(region, replacedRegion));
+	assert(!same(region, replacedRegion));
 	region = replacedRegion;
 	// The region is changed by data in territory alias.
 	return true;
@@ -1267,7 +1267,7 @@ bool AliasReplacer::replaceScript(UErrorCode & status)
 		// Found no replacement data for this script.
 		return false;
 	}
-	U_ASSERT(!same(script, replacement));
+	assert(!same(script, replacement));
 	script = replacement;
 	// The script is changed by data in script alias.
 	return true;
@@ -1286,7 +1286,7 @@ bool AliasReplacer::replaceVariant(UErrorCode & status)
 			// Found no replacement data for this variant.
 			continue;
 		}
-		U_ASSERT((strlen(replacement) >= 5 && strlen(replacement) <= 8) || (strlen(replacement) == 4 && replacement[0] >= '0' && replacement[0] <= '9'));
+		assert((strlen(replacement) >= 5 && strlen(replacement) <= 8) || (strlen(replacement) == 4 && replacement[0] >= '0' && replacement[0] <= '9'));
 		if(!same(variant, replacement)) {
 			variants.setElementAt((void *)replacement, i);
 			// Special hack to handle hepburn-heploc => alalc97
@@ -1425,7 +1425,7 @@ CharString&AliasReplacer::outputToString(CharString& out, UErrorCode status)
 		tmp.append(extensions, status);
 		Locale tmpLocale(tmp.data());
 		// only support x extension inside CLDR for now.
-		U_ASSERT(extensions[0] == 'x');
+		assert(extensions[0] == 'x');
 		out.append(tmpLocale.getName() + 1, status);
 	}
 	return out;
@@ -1437,7 +1437,7 @@ bool AliasReplacer::replace(const Locale & locale, CharString& out, UErrorCode &
 	if(U_FAILURE(status)) {
 		return false;
 	}
-	U_ASSERT(data != nullptr);
+	assert(data != nullptr);
 	out.clear();
 	language = locale.getLanguage();
 	if(!notEmpty(language)) {
@@ -1487,7 +1487,7 @@ bool AliasReplacer::replace(const Locale & locale, CharString& out, UErrorCode &
 	while(U_SUCCESS(status)) {
 		// Something wrong with the data cause looping here more than 10 times
 		// already.
-		U_ASSERT(changed < 5);
+		assert(changed < 5);
 		// From observation of key in data/misc/metadata.txt
 		// we know currently we only need to search in the following combination
 		// of fields for type in languageAlias:
@@ -1496,7 +1496,7 @@ bool AliasReplacer::replace(const Locale & locale, CharString& out, UErrorCode &
 		// * lang_variant
 		// * lang
 		// * und_variant
-		// This assumption is ensured by the U_ASSERT in readLanguageAlias
+		// This assumption is ensured by the assert in readLanguageAlias
 		//
 		//                      lang  REGION variant
 		if(replaceLanguage(true, true,  true,  stringsToBeFreed, status) ||
@@ -1553,7 +1553,7 @@ bool AliasReplacer::replace(const Locale & locale, CharString& out, UErrorCode &
 						}
 					}
 					else {
-						U_ASSERT(strcmp(key, "t") == 0);
+						assert(strcmp(key, "t") == 0);
 						if(replaceTransformedExtensions(value, replacement, status)) {
 							changed++;
 							temp.setKeywordValue(key, replacement.data(), status);
@@ -1601,7 +1601,7 @@ bool isKnownCanonicalizedLocale(const char * locale, UErrorCode & status)
 	if(U_FAILURE(status)) {
 		return false;
 	}
-	U_ASSERT(gKnownCanonicalized != nullptr);
+	assert(gKnownCanonicalized != nullptr);
 	return uhash_geti(gKnownCanonicalized, locale) != 0;
 }
 }  // namespace
@@ -1663,7 +1663,7 @@ Locale & Locale::init(const char * localeID, bool canonicalize)
 		    uloc_getName(localeID, fullName, sizeof(fullNameBuffer), &err);
 
 		if(err == U_BUFFER_OVERFLOW_ERROR || length >= (int32_t)sizeof(fullNameBuffer)) {
-			U_ASSERT(baseName == nullptr);
+			assert(baseName == nullptr);
 			/*Go to heap for the fullName if necessary*/
 			fullName = (char *)uprv_malloc(sizeof(char)*(length + 1));
 			if(fullName == 0) {
@@ -1741,7 +1741,7 @@ Locale & Locale::init(const char * localeID, bool canonicalize)
 				CharString replaced;
 				// Not sure it is already canonicalized
 				if(canonicalizeLocale(*this, replaced, err)) {
-					U_ASSERT(U_SUCCESS(err));
+					assert(U_SUCCESS(err));
 					// If need replacement, call init again.
 					init(replaced.data(), false);
 				}
@@ -1770,7 +1770,7 @@ Locale & Locale::init(const char * localeID, bool canonicalize)
 void Locale::initBaseName(UErrorCode & status) 
 {
 	if(U_SUCCESS(status)) {
-		U_ASSERT(baseName==NULL || baseName==fullName);
+		assert(baseName==NULL || baseName==fullName);
 		const char * atPtr = sstrchr(fullName, '@');
 		const char * eqPtr = sstrchr(fullName, '=');
 		if(atPtr && eqPtr && atPtr < eqPtr) {
@@ -2013,7 +2013,7 @@ const Locale & U_EXPORT2 Locale::getCanadaFrench(void) { return getLocale(eCANAD
 const Locale &Locale::getLocale(int locid)
 {
 	Locale * localeCache = getLocaleCache();
-	U_ASSERT((locid < eMAX_LOCALES)&&(locid>=0));
+	assert((locid < eMAX_LOCALES)&&(locid>=0));
 	if(localeCache == NULL) {
 		// Failure allocating the locale cache.
 		//   The best we can do is return a NULL reference.
@@ -2255,10 +2255,10 @@ void Locale::setKeywordValue(const char * keywordName, const char * keywordValue
 	int32_t bufferLength = smax((int32_t)(strlen(fullName) + 1), ULOC_FULLNAME_CAPACITY);
 	int32_t newLength = uloc_setKeywordValue(keywordName, keywordValue, fullName,
 		bufferLength, &status) + 1;
-	U_ASSERT(status != U_STRING_NOT_TERMINATED_WARNING);
+	assert(status != U_STRING_NOT_TERMINATED_WARNING);
 	/* Handle the case the current buffer is not enough to hold the new id */
 	if(status == U_BUFFER_OVERFLOW_ERROR) {
-		U_ASSERT(newLength > bufferLength);
+		assert(newLength > bufferLength);
 		char * newFullName = (char *)uprv_malloc(newLength);
 		if(newFullName == nullptr) {
 			status = U_MEMORY_ALLOCATION_ERROR;
@@ -2275,10 +2275,10 @@ void Locale::setKeywordValue(const char * keywordName, const char * keywordValue
 		fullName = newFullName;
 		status = U_ZERO_ERROR;
 		uloc_setKeywordValue(keywordName, keywordValue, fullName, newLength, &status);
-		U_ASSERT(status != U_STRING_NOT_TERMINATED_WARNING);
+		assert(status != U_STRING_NOT_TERMINATED_WARNING);
 	}
 	else {
-		U_ASSERT(newLength <= bufferLength);
+		assert(newLength <= bufferLength);
 	}
 	if(U_SUCCESS(status) && baseName == fullName) {
 		// May have added the first keyword, meaning that the fullName is no longer also the baseName.

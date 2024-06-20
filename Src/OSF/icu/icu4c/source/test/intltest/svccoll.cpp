@@ -483,7 +483,7 @@ int32_t CollationServiceTest::checkStringEnumeration(const char * msg,
     const char ** expected,
     int32_t expectedCount) {
 	UErrorCode ec = U_ZERO_ERROR;
-	U_ASSERT(expectedCount >= 0 && expectedCount < 31); // [sic] 31 not 32
+	assert(expectedCount >= 0 && expectedCount < 31); // [sic] 31 not 32
 	int32_t i = 0, idxAfterReset = 0, n = iter.count(ec);
 	assertSuccess("count", ec);
 	UnicodeString buf, buffAfterReset;

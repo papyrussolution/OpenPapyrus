@@ -4605,6 +4605,12 @@ public:
 		Entry() : RowId(0ULL), FreeSize(0)
 		{
 		}
+		Entry & Z()
+		{
+			RowId = 0ULL;
+			FreeSize = 0;
+			return *this;
+		}
 		uint64 RowId;    // Идентификатор позиции свободного блока
 		uint32 FreeSize; // Досупный полезный размер блока (PayloadSize)
 	};
@@ -4684,6 +4690,7 @@ struct SDataPageHeader {
 			fDeleted = 0x04
 		};
 		RecPrefix();
+		uint    GetPrefixSize() const;
 		void    SetPayload(uint size, uint flags);
 		void    SetTotalSize(uint totalSize, uint flags);
 
@@ -4705,6 +4712,7 @@ struct SDataPageHeader {
 	};
 	bool   GetStat(Stat & rStat, TSVector <SRecPageFreeList::Entry> * pUsableBlockList) const;
 	bool   IsValid() const;
+	uint64 MakeRowId(uint offset) const;
 	//
 	// Descr: Считывает префикс блока в позиции offset
 	// Returns:
@@ -4795,8 +4803,7 @@ struct SDataPageHeader {
 	uint16 Flags;
 	uint16 FixedChunkSize; // Если GetType() == tFixedChunkPool, то >0 иначе - 0.
 	uint32 Size;           // Общий размер страницы вместе с этим заголовком и sentinel'ами (если есть такие)
-	//uint32 FreePos;      // Смещение, с которого начинается свободное пространство. Свободный размер = (TotalSize-FreePos)
-	uint32 Reserve;      // @reserve
+	uint32 Reserve;        // @reserve
 };
 #pragma pack(pop)
 
@@ -4834,19 +4841,30 @@ public:
 	SRecPageManager(uint32 pageSize);
 	~SRecPageManager();
 	int    Write(uint64 * pRowId, uint pageType, const void * pData, size_t dataLen);
+	int    Delete(uint64 rowId);
 	//
 	// Returns:
 	//   0 - error
 	//  !0 - actual size of the read data
 	//
 	uint   Read(uint64 rowId, void * pBuf, size_t bufSize);
-	static bool TestSinglePage(uint pageSize);
 	SDataPageHeader * AllocatePage(uint32 type); // @really private (public for testing purposes)
 	int    WriteToPage(SDataPageHeader * pPage, uint64 rowId, const void * pData, size_t dataLen); // @really private (public for testing purposes)
 	int    GetFreeListForPage(const SDataPageHeader * pPage, TSVector <SRecPageFreeList::Entry> & rList) const; // @debug
+	//
+	// Descr: Отладочная функция верифицирующая список свободных блоков.
+	//   Делает 2 итерации:
+	//   1. Пробегает список свободных блоков и проверяет чтобы каждый элемент имел валидное соответствие на странице данных
+	//   2. Пробегает все страницы данных в поисках свободных блоков и проверяет, чтобы соответствующий элемент присутствовал
+	//      в списке свободных блоков. Если свободных элемент является мизерным, то он не должен быть в списке.
+	//      Кроме того, верифицирует отсутствие соседствующих свободных блоков (функция SDataPageHeader::MergeFreeEntries)
+	//
+	int    VerifyFreeList(); // @debug // @todo
 private:
 	SDataPageHeader * GetPage(uint32 seq);
+	SDataPageHeader * Helper_QueryPage(uint64 rowId, uint32 pageType, uint * pOffset);
 	SDataPageHeader * QueryPageForReading(uint64 rowId, uint32 pageType, uint * pOffset);
+	SDataPageHeader * QueryPageForWriting(uint64 rowId, uint32 pageType, uint * pOffset);
 	int    ReleasePage(SDataPageHeader * pPage);
 
 	const uint32 PageSize;

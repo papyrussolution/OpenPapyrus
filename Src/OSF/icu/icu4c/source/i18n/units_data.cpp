@@ -314,7 +314,7 @@ int32_t getPreferenceMetadataIndex(const MaybeStackVector<UnitPreferenceMetadata
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return -1;
 	}
-	U_ASSERT(foundCategory);
+	assert(foundCategory);
 	while(!foundUsage) {
 		int32_t lastDashIdx = desired.usage.lastIndexOf('-');
 		if(lastDashIdx > 0) {
@@ -333,8 +333,8 @@ int32_t getPreferenceMetadataIndex(const MaybeStackVector<UnitPreferenceMetadata
 			return -1;
 		}
 	}
-	U_ASSERT(foundCategory);
-	U_ASSERT(foundUsage);
+	assert(foundCategory);
+	assert(foundUsage);
 	if(!foundRegion) {
 		if(!sstreq(desired.region.data(), "001")) {
 			desired.region.truncate(0).append("001", status);
@@ -346,10 +346,10 @@ int32_t getPreferenceMetadataIndex(const MaybeStackVector<UnitPreferenceMetadata
 			return -1;
 		}
 	}
-	U_ASSERT(foundCategory);
-	U_ASSERT(foundUsage);
-	U_ASSERT(foundRegion);
-	U_ASSERT(idx >= 0);
+	assert(foundCategory);
+	assert(foundUsage);
+	assert(foundRegion);
+	assert(idx >= 0);
 	return idx;
 }
 } // namespace
@@ -431,7 +431,7 @@ void U_I18N_API UnitPreferences::getPreferencesFor(StringPiece category, StringP
 		preferenceCount = 0;
 		return;
 	}
-	U_ASSERT(idx >= 0); // Failures should have been taken care of by `status`.
+	assert(idx >= 0); // Failures should have been taken care of by `status`.
 	const UnitPreferenceMetadata * m = metadata_[idx];
 	outPreferences = unitPrefs_.getAlias() + m->prefsOffset;
 	preferenceCount = m->prefsCount;

@@ -2715,7 +2715,7 @@ int ImportStyloScannerEntriesForBillPacket(PPBillPacket & rBp, PPLotExtCodeConta
 	SString bill_text;
 	StringSet msg_list;
 	LotExtCodeCore * p_lotxct = p_bobj ? p_bobj->P_LotXcT : 0;
-	const int  dont_veryfy_mark = BIN(p_bobj && p_bobj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN); // @v10.8.0
+	const int  dont_veryfy_mark = BIN(p_bobj && p_bobj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN);
 	if(!oneof2(mode, issebpmodeLotExtCodes, issebpmodeValidLotExtCodes) || pLxc) {
 		StyloScannerEntryPool pool;
 		SString in_path;
@@ -2980,7 +2980,7 @@ public:
 							gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
 						if(!iemr && (ipczcr <= 0)) {
 							if(P_LotXcT) {
-								if(lot_id && P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0) // @v10.8.2 
+								if(lot_id && P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, set) > 0)
 									ok = 1;
 								else
 									continue;

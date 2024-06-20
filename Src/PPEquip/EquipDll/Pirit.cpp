@@ -207,31 +207,8 @@ struct CheckStruct {
 
 class PiritEquip {
 public:
-	PiritEquip() : SessID(0), LastError(0), FatalFlags(0), LastStatus(0), RetTknzr("\x1c")
-	{
-		// @v10.0.12 {
-		{
-			CommPortTimeouts cpt;
-			CommPort.GetTimeouts(&cpt);
-			cpt.Get_Delay = 20;
-			CommPort.SetTimeouts(&cpt);
-		}
-		// } @v10.0.12
-		Check.Z();
-		{
-			SString exe_file_name = SLS.GetExePath();
-			if(exe_file_name.NotEmptyS()) {
-				SFsPath ps;
-				ps.Split(exe_file_name);
-				ps.Nam = "pirit";
-				ps.Ext = "log";
-				ps.Merge(LogFileName);
-			}
-		}
-	}
-	~PiritEquip()
-	{
-	}
+	PiritEquip();
+	~PiritEquip();
 	int    RunOneCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize);
 	int    SetConnection();
 	int    CloseConnection();
@@ -247,6 +224,14 @@ public:
 	int    StartWork(bool force = false);
 	// Получаем текущие флаги ККМ
 	int    GetCurFlags(int numFlags, int & rFlags);
+	//
+	// 0 - Открыть документ
+	// 1 - Закрыть документ
+	// 2 - Печать фискальной строки
+	// 3 - Печать текстовой строки
+	// 4 - Аннулировать чек
+	// 5 - Внесение/изъятие наличности
+	//	
 	int    RunCheck(int opertype);
 	int    ReturnCheckParam(const SString & rInput, char * output, size_t size);
 	int    PutData(const char * pCommand, const char * pData);
@@ -386,6 +371,31 @@ private:
 };
 
 static PiritEquip * P_Pirit = 0;
+
+PiritEquip::PiritEquip() : SessID(0), LastError(0), FatalFlags(0), LastStatus(0), RetTknzr("\x1c")
+{
+	{
+		CommPortTimeouts cpt;
+		CommPort.GetTimeouts(&cpt);
+		cpt.Get_Delay = 20;
+		CommPort.SetTimeouts(&cpt);
+	}
+	Check.Z();
+	{
+		SString exe_file_name = SLS.GetExePath();
+		if(exe_file_name.NotEmptyS()) {
+			SFsPath ps;
+			ps.Split(exe_file_name);
+			ps.Nam = "pirit";
+			ps.Ext = "log";
+			ps.Merge(LogFileName);
+		}
+	}
+}
+
+PiritEquip::~PiritEquip()
+{
+}
 
 static const SIntToSymbTabEntry Pirit_ErrMsg[] = {
 	{ PIRIT_ERRSTATUSFORFUNC,    "Функция невыполнима при данном статусе ККМ"},
@@ -2330,7 +2340,7 @@ int PiritEquip::RunCheck(int opertype)
 		case 1: // Закрыть документ
 			// Проверяем наличие открытого документа
 			THROW(gcf_result = GetCurFlags(3, flag));
-			if((flag > 4) || (gcf_result < 3)) { // @v10.1.9 @fix (flag >> 4)-->(flag > 4)
+			if((flag > 4) || (gcf_result < 3)) {
 				const uint8 hb1 = (flag & 0x0F);
 				const uint8 hb2 = (flag & 0xF0);
 				if((gcf_result < 3) || (oneof2(hb1, 2, 3) && hb2 != 0x40)) { // Если открыт чек и не была произведена оплата, то операция оплаты
@@ -2350,7 +2360,6 @@ int PiritEquip::RunCheck(int opertype)
 						CreateStr("", in_data);
 						THROW(ExecCmd("47", in_data, out_data, r_error));
 					}
-					// @v10.4.6 {
 					in_data.Z();
 					if(Check.PaymCCrdCard != 0) {
 						CreateStr(13, in_data); // Тип оплаты // @v10.4.9 14-->13
@@ -2359,7 +2368,6 @@ int PiritEquip::RunCheck(int opertype)
 						CreateStr("", in_data);
 						THROW(ExecCmd("47", in_data, out_data, r_error));
 					}
-					// } @v10.4.6
 				}
 				/*
 					(Целое число) Флаг отрезки
@@ -2385,9 +2393,9 @@ int PiritEquip::RunCheck(int opertype)
 					CreateStr("", in_data); 
 				// } 
 				CreateStr(static_cast<int>(0), in_data); // @v10.1.9 (число) Разные флаги
-				CreateStr("", in_data); // @v10.8.11 Зарезервировано
-				CreateStr("", in_data); // @v10.8.11 Зарезервировано
-				CreateStr("", in_data); // @v10.8.11 Зарезервировано
+				CreateStr("", in_data); // Зарезервировано
+				CreateStr("", in_data); // Зарезервировано
+				CreateStr("", in_data); // Зарезервировано
 				if(Check.ChZnSid.NotEmpty()) {
 					CreateStr("mdlp", in_data); // Название дополнительного реквизита пользователя
 					str.Z().Cat("sid").Cat(Check.ChZnSid).CatChar('&');
@@ -2583,6 +2591,7 @@ int PiritEquip::RunCheck(int opertype)
 						case 4: product_type_bytes = 0x444D; break; // GTCHZNPT_MEDICINE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D
 						case 5: product_type_bytes = 0x444D; break; // @v10.9.7 GTCHZNPT_CARTIRE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D
 						case 12: product_type_bytes = 0x444D; break; // @v11.9.4 GTCHZNPT_DRAFTBEER
+						case 1012: product_type_bytes = 0x444D; break; // @v11.9.4 GTCHZNPT_DRAFTBEER_AWR
 						case 14: product_type_bytes = 0x444D; break; // @v12.0.3 GTCHZNPT_BEER
 						default: product_type_bytes = 0x444D; break; // @v11.0.5
 					}
@@ -2676,7 +2685,7 @@ int PiritEquip::RunCheck(int opertype)
 									{
 										if(Check.ChZnProdType == 4)
 											str = "020";
-										else if(Check.ChZnProdType == 12) // @v11.9.3 GTCHZNPT_DRAFTBEER
+										else if(oneof2(Check.ChZnProdType, 12, 1012)) // @v11.9.3 GTCHZNPT_DRAFTBEER // @v12.0.5 1012 (GTCHZNPT_DRAFTBEER_AWR)
 											str = "030";
 										else
 											str.Z();
@@ -2782,17 +2791,6 @@ int PiritEquip::RunCheck(int opertype)
 				const int do_check_ret = 1; // BIN(Check.Price == 0.0); // @v9.9.4 // @v11.2.3 =1
 				Check.Z();
 				THROW(ExecCmd("42", in_data, out_data, r_error)); // @v11.2.3
-				/* @v11.2.3 {
-					OpLogBlock __oplb(LogFileName, "42", 0);
-					THROWERR(PutData("42", in_data), PIRIT_NOTSENT);
-					if(do_check_ret) {
-						THROW(GetWhile(out_data, r_error));
-					}
-					else {
-						out_data.Z();
-						r_error = "00";
-					}
-				}*/
 				Check.Z();
 			}
 			break;

@@ -5361,33 +5361,28 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 					ArGoodsCodeTbl::Rec ar_code_rec;
 					BarcodeTbl::Rec bc_rec;
 					if(p_gitem->GTIN.NotEmpty()) {
-						if(GObj.SearchByBarcode(p_gitem->GTIN, &bc_rec, 0, 0) > 0) {
+						if(GObj.SearchByBarcode(p_gitem->GTIN, &bc_rec, 0, 0) > 0)
 							goods_id_by_gtin = bc_rec.GoodsID;
-						}
 						else if(p_gitem->GTIN.Len() == 14 && p_gitem->GTIN.C(0) == '0') {
 							(temp_buf = p_gitem->GTIN).ShiftLeft();
-							if(GObj.SearchByBarcode(temp_buf, &bc_rec, 0, 0) > 0) {
+							if(GObj.SearchByBarcode(temp_buf, &bc_rec, 0, 0) > 0)
 								goods_id_by_gtin = bc_rec.GoodsID;
-							}
 						}
 					}
 					if(p_bp->Rec.Object && p_gitem->BuyerCode.NotEmpty()) {
-						if(GObj.P_Tbl->SearchByArCode(p_bp->Rec.Object, p_gitem->BuyerCode, &ar_code_rec, 0) > 0) {
+						if(GObj.P_Tbl->SearchByArCode(p_bp->Rec.Object, p_gitem->BuyerCode, &ar_code_rec, 0) > 0)
 							goods_id_by_buyer_code = ar_code_rec.GoodsID;
-						}
 					}
 					if(p_gitem->SupplCode.NotEmpty()) {
 						// Код поставщика может быть задан как штрихкод. Причем, отличающийся от GTIN.
 						// Я черт его знает что это значит, но тем не менее сначала пытаемся трактовать
 						// код поставщика как штрихкод, а затем - как наш идентификатор товара.
-						if(GObj.SearchByBarcode(p_gitem->SupplCode, &bc_rec, 0, 0) > 0) {
+						if(GObj.SearchByBarcode(p_gitem->SupplCode, &bc_rec, 0, 0) > 0)
 							goods_id_by_suppl_code = bc_rec.GoodsID;
-						}
 						else {
-							PPID _my_id = p_gitem->SupplCode.ToLong();
-							if(_my_id && GObj.Search(_my_id, &goods_rec) > 0) {
+							const PPID _my_id = p_gitem->SupplCode.ToLong();
+							if(_my_id && GObj.Search(_my_id, &goods_rec) > 0)
 								goods_id_by_suppl_code = goods_rec.ID;
-							}
 						}
 					}
 					{

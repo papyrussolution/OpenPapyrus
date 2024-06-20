@@ -1373,7 +1373,7 @@ struct CalendarDataSink : public ResourceSink {
 		if(U_FAILURE(errorCode)) {
 			return;
 		}
-		U_ASSERT(!currentCalendarType.isEmpty());
+		assert(!currentCalendarType.isEmpty());
 
 		// Stores the resources to visit on the next calendar.
 		LocalPointer<UVector> resourcesToVisitNext(NULL);
@@ -1540,7 +1540,7 @@ struct CalendarDataSink : public ResourceSink {
 					}
 					stringMap->setValueDeleter(uprv_deleteUObject);
 				}
-				U_ASSERT(stringMap != NULL);
+				assert(stringMap != NULL);
 				int32_t valueStringSize;
 				const char16_t * valueString = value.getString(valueStringSize, errorCode);
 				if(U_FAILURE(errorCode)) {
@@ -1553,7 +1553,7 @@ struct CalendarDataSink : public ResourceSink {
 				}
 				continue;
 			}
-			U_ASSERT(stringMap == NULL);
+			assert(stringMap == NULL);
 			// Store the current path's length and append the current key to the path.
 			int32_t pathLength = path.length();
 			path.append(SOLIDUS).append(keyUString);
@@ -1616,7 +1616,7 @@ struct CalendarDataSink : public ResourceSink {
 				path.retainBetween(0, pathLength);
 				continue;
 			}
-			U_ASSERT(aliasType == NONE);
+			assert(aliasType == NONE);
 
 			// == Handle data ==
 			if(value.getType() == URES_ARRAY) {

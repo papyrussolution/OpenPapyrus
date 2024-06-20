@@ -747,7 +747,7 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 				}
 				else {
 					/* see implementation note before _fromUnicodeWithCallback() */
-					U_ASSERT(realSource==NULL);
+					assert(realSource==NULL);
 					*err = U_INTERNAL_PROGRAM_ERROR;
 				}
 			}
@@ -827,7 +827,7 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 					 */
 					if(realSource) {
 						int32_t length;
-						U_ASSERT(cnv->preFromULength==0);
+						assert(cnv->preFromULength==0);
 						length = (int32_t)(pArgs->sourceLimit-pArgs->source);
 						if(length > 0) {
 							u_memcpy(cnv->preFromU, pArgs->source, length);
@@ -1159,7 +1159,7 @@ static void _toUnicodeWithCallback(UConverterToUnicodeArgs * pArgs, UErrorCode *
 				}
 				else {
 					/* see implementation note before _fromUnicodeWithCallback() */
-					U_ASSERT(realSource==NULL);
+					assert(realSource==NULL);
 					*err = U_INTERNAL_PROGRAM_ERROR;
 				}
 			}
@@ -1233,7 +1233,7 @@ static void _toUnicodeWithCallback(UConverterToUnicodeArgs * pArgs, UErrorCode *
 					if(realSource) {
 						int32_t length;
 
-						U_ASSERT(cnv->preToULength==0);
+						assert(cnv->preToULength==0);
 
 						length = (int32_t)(pArgs->sourceLimit-pArgs->source);
 						if(length > 0) {

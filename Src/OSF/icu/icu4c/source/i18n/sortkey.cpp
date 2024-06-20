@@ -23,7 +23,7 @@
 
 #if !UCONFIG_NO_COLLATION
 
-#include "uelement.h"
+//#include "uelement.h"
 #include "ustr_imp.h"
 
 U_NAMESPACE_BEGIN
@@ -101,7 +101,7 @@ uint8 * CollationKey::reallocate(int32_t newCapacity, int32_t length) {
 }
 
 void CollationKey::setLength(int32_t newLength) {
-	// U_ASSERT(newLength >= 0 && newLength <= getCapacity());
+	// assert(newLength >= 0 && newLength <= getCapacity());
 	fFlagAndLength = (fFlagAndLength & 0x80000000) | newLength;
 	fHashCode = kInvalidHashCode;
 }

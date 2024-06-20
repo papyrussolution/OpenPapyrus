@@ -254,22 +254,10 @@ private:
 	 */
 	void setLength(int32_t newLength);
 
-	uint8 * getBytes() {
-		return (fFlagAndLength >= 0) ? fUnion.fStackBuffer : fUnion.fFields.fBytes;
-	}
-
-	const uint8 * getBytes() const {
-		return (fFlagAndLength >= 0) ? fUnion.fStackBuffer : fUnion.fFields.fBytes;
-	}
-
-	int32_t getCapacity() const {
-		return (fFlagAndLength >= 0) ? (int32_t)sizeof(fUnion) : fUnion.fFields.fCapacity;
-	}
-
-	int32_t getLength() const {
-		return fFlagAndLength & 0x7fffffff;
-	}
-
+	uint8 * getBytes() { return (fFlagAndLength >= 0) ? fUnion.fStackBuffer : fUnion.fFields.fBytes; }
+	const uint8 * getBytes() const { return (fFlagAndLength >= 0) ? fUnion.fStackBuffer : fUnion.fFields.fBytes; }
+	int32_t getCapacity() const { return (fFlagAndLength >= 0) ? (int32_t)sizeof(fUnion) : fUnion.fFields.fCapacity; }
+	int32_t getLength() const { return fFlagAndLength & 0x7fffffff; }
 	/**
 	 * Set the CollationKey to a "bogus" or invalid state
 	 * @return this CollationKey

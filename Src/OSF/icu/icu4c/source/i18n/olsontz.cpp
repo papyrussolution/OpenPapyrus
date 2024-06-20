@@ -431,7 +431,7 @@ void printTime(double ms) {
 #endif
 
 int64_t OlsonTimeZone::transitionTimeInSeconds(int16 transIdx) const {
-	U_ASSERT(transIdx >= 0 && transIdx < transitionCount());
+	assert(transIdx >= 0 && transIdx < transitionCount());
 
 	if(transIdx < transitionCountPre32) {
 		return (((int64_t)((uint32_t)transitionTimesPre32[transIdx << 1])) << 32)

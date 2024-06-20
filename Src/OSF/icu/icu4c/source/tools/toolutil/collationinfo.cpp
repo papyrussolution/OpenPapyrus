@@ -30,7 +30,7 @@ void CollationInfo::printSizes(int32_t sizeWithHeader, const int32_t indexes[])
 	}
 	length = getDataLength(indexes, CollationDataReader::IX_REORDER_TABLE_OFFSET);
 	if(length != 0) {
-		U_ASSERT(length >= 256);
+		assert(length >= 256);
 		printf("  reorder table:                %6ld\n", (long)length);
 	}
 	length = getDataLength(indexes, CollationDataReader::IX_TRIE_OFFSET);
@@ -85,7 +85,7 @@ void CollationInfo::printSizes(int32_t sizeWithHeader, const int32_t indexes[])
 
 	length = getDataLength(indexes, CollationDataReader::IX_COMPRESSIBLE_BYTES_OFFSET);
 	if(length != 0) {
-		U_ASSERT(length >= 256);
+		assert(length >= 256);
 		printf("  compressibleBytes:            %6ld\n", (long)length);
 	}
 

@@ -3898,6 +3898,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						THROW(Convert11112()); // @v11.1.12 Bill
 						THROW(Convert11200()); // @v11.2.0 Соглашения с клиентами
 						THROW(Convert12000()); // @v12.0.0 Регистры (увеличились длины серии и номера регистра)
+						THROW(Convert12005()); // @v12.0.5 SCardOp
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;
@@ -4203,7 +4204,6 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					r_cc.Flags2 |= CCFLG2_DONTUSE3TIERGMTX;
 				else
 					r_cc.Flags2 &= ~CCFLG2_DONTUSE3TIERGMTX; // @paranoic
-				// @v10.1.9 {
 				{
 					r_cc.Flags2 &= ~CCFLG2_USEVETIS;
 					PPAlbatrossConfig acfg;
@@ -4216,26 +4216,20 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						}
 					}
 				}
-				// } @v10.1.9
-				// @v10.5.9 {
 				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DEVELOPMENT, &(iv = 0)) > 0 && iv == 1)
 					r_cc.Flags2 |= CCFLG2_DEVELOPMENT;
 				else
 					r_cc.Flags2 &= ~CCFLG2_DEVELOPMENT;
-				// } @v10.5.9
-				// @v10.7.3 {
 				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_VERIFYARTOLOCMETHODS, &(iv = 0)) > 0 && iv == 1)
 					r_cc.Flags2 |= CCFLG2_VERIFYARTOLOCMETHS;
 				else
 					r_cc.Flags2 &= ~CCFLG2_VERIFYARTOLOCMETHS;
-				// } @v10.7.3
 				r_cc._InvcMergeTaxCalcAlg2Since = ZERODATE;
 				if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_INVCMERGETAXCALCALG2SINCE, sv) > 0) {
 					dt = strtodate_(sv, DATF_DMY);
 					if(checkdate(dt))
 						r_cc._InvcMergeTaxCalcAlg2Since = dt;
 				}
-				// @v10.7.9 {
 				r_cc.StringHistoryUsage = 0; // @v10.8.7 -1-->0
 				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_STRINGHISTORYUSAGE, &(iv = 0)) > 0) {
 					if(iv > 0)
@@ -4245,8 +4239,13 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					else
 						r_cc.StringHistoryUsage = 0;
 				}
-				// } @v10.7.9
-				// @v10.9.12 {
+				// @v12.0.5 {
+				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CCLISTBYMARKBACKDAYS, &(iv = 0)) > 0 && iv > 0 && iv <= (10 * 365)) {
+					r_cc.CcListByMarkBackDays = iv;
+				}
+				else
+					r_cc.CcListByMarkBackDays = 14;
+				// } @v12.0.5 
 				{
 					//#define CCFLG2_HIDEINVENTORYSTOCK  0x00010000L // @v10.9.12 Флаг, предписывающий скрывать значения учетных остатков
 						// инициируются по параметру в pp.ini [config] PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION
@@ -4285,7 +4284,6 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 							r_cc.Flags2 |= CCFLG2_HIDEINVENTORYSTOCK;
 					}
 				}
-				// } @v10.9.12
 				// @v11.3.7 {
 				if(CheckExtFlag(ECF_PAPERLESSCHEQUE) && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_PAPERLESSCHEQUE_FAKEEADDR, sv) && sv.NotEmptyS()) {
 					SNaturalTokenArray nta;
@@ -5502,6 +5500,7 @@ PPID PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 				case PPHS_WSCTL:          val = PPOBJ_COMPUTER; break; // @v11.7.3
 				case PPHS_COMPUTER:       val = PPOBJ_COMPUTER; break; // @v12.0.0 // synonym of PPHS_WSCTL
 				case PPHS_COMPUTERCATEGORY: val = PPOBJ_COMPUTERCATEGORY; break; // @v12.0.2
+				case PPHS_SWPROGRAM:      val = PPOBJ_SWPROGRAM; break; // @v12.0.5
 				default: PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb); break;
 			}
 			obj_type = LoWord(val);
@@ -5640,24 +5639,8 @@ int PPAdviseEvent::SetupAndAppendToVector(const PhnSvcChannelStatus & rS, int32 
 {
 	int    ok = 1;
 	if(action) {
-		// @v10.2.3 {
-		/*
-		SString outer_caller_id = chnl_status.CallerId;
-		if(chnl_status.BridgeId.NotEmpty()) {
-			PhnSvcChannelStatusPool bp;
-			PhnSvcChannelStatus local_status;
-			chnl_status_list.GetListWithSameBridge(chnl_status.BridgeId, -1, bp);
-			for(uint i = 0; i < bp.GetCount(); i++) {
-				if(bp.Get(i, local_status) && !local_status.Channel.IsEqiAscii(chnl_status.Channel)) {
-					outer_caller_id = local_status.CallerId;
-					break;
-				}
-			}
-		}
-		*/
-		// } @v10.2.3
 		Action = action;
-		Oid.Set(PPOBJ_PHONESERVICE, phnSvcID); // @v10.0.02
+		Oid.Set(PPOBJ_PHONESERVICE, phnSvcID);
 		Dtm = getcurdatetime_();
 		Priority = rS.Priority;
 		Duration = rS.Seconds;
@@ -5666,7 +5649,7 @@ int PPAdviseEvent::SetupAndAppendToVector(const PhnSvcChannelStatus & rS, int32 
 		rAev.AddS(rS.ConnectedLineNum, &ConnectedLineNumP);
 		rAev.AddS(rS.Context, &ContextP);
 		rAev.AddS(rS.Exten, &ExtenP);
-		rAev.AddS(rS.BridgeId, &BridgeP); // @v10.0.02
+		rAev.AddS(rS.BridgeId, &BridgeP);
 		//rAev.AddS(outer_caller_id, &ev.OuterCallerIdP); // @v10.2.3
 		rAev.insert(this);
 	}

@@ -54,7 +54,7 @@ U_CDECL_END
 namespace {
 // Cache some sets for other services -------------------------------------- ***
 void U_CALLCONV createUni32Set(UErrorCode & errorCode) {
-	U_ASSERT(uni32Singleton == NULL);
+	assert(uni32Singleton == NULL);
 	uni32Singleton = new UnicodeSet(UNICODE_STRING_SIMPLE("[:age=3.2:]"), errorCode);
 	if(uni32Singleton==NULL) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
@@ -264,7 +264,7 @@ void UnicodeSet::applyPattern(RuleCharacterIterator& chars,
 	bool invert = FALSE;
 	clear();
 	while(mode != 2 && !chars.atEnd()) {
-		U_ASSERT((lastItem == 0 && op == 0) || (lastItem == 1 && (op == 0 || op == u'-')) || (lastItem == 2 && (op == 0 || op == u'-' || op == u'&')));
+		assert((lastItem == 0 && op == 0) || (lastItem == 1 && (op == 0 || op == u'-')) || (lastItem == 2 && (op == 0 || op == u'-' || op == u'&')));
 		UChar32 c = 0;
 		bool literal = FALSE;
 		UnicodeSet* nested = 0; // alias - do not delete

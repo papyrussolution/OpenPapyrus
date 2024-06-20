@@ -118,13 +118,13 @@ SimpleModifier::SimpleModifier(const SimpleFormatter &simpleFormatter, Field fie
 	if(argLimit == 0) {
 		// No arguments in compiled pattern
 		fPrefixLength = fCompiledPattern.charAt(1) - ARG_NUM_LIMIT;
-		U_ASSERT(2 + fPrefixLength == fCompiledPattern.length());
+		assert(2 + fPrefixLength == fCompiledPattern.length());
 		// Set suffixOffset = -1 to indicate no arguments in compiled pattern.
 		fSuffixOffset = -1;
 		fSuffixLength = 0;
 	}
 	else {
-		U_ASSERT(argLimit == 1);
+		assert(argLimit == 1);
 		if(fCompiledPattern.charAt(1) != 0) {
 			// Found prefix
 			fPrefixLength = fCompiledPattern.charAt(1) - ARG_NUM_LIMIT;

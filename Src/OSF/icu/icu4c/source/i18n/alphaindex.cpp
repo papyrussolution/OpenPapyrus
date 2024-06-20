@@ -248,7 +248,7 @@ int32_t AlphabeticIndex::getRecordCount(UErrorCode & status)
 
 void AlphabeticIndex::initLabels(UVector &indexCharacters, UErrorCode & errorCode) const 
 {
-	U_ASSERT(indexCharacters.hasDeleter());
+	assert(indexCharacters.hasDeleter());
 	const Normalizer2 * nfkdNormalizer = Normalizer2::getNFKDInstance(errorCode);
 	if(U_FAILURE(errorCode)) {
 		return;
@@ -727,7 +727,7 @@ bool AlphabeticIndex::addChineseIndexCharacters(UErrorCode & errorCode) {
 	UnicodeSetIterator iter(contractions);
 	while(iter.next()) {
 		const UnicodeString & s = iter.getString();
-		U_ASSERT(s.startsWith(BASE, BASE_LENGTH));
+		assert(s.startsWith(BASE, BASE_LENGTH));
 		char16_t c = s.charAt(s.length() - 1);
 		if(0x41 <= c && c <= 0x5A) { // A-Z
 			// There are Pinyin labels, add ASCII A-Z labels as well.

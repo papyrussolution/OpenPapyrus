@@ -364,7 +364,7 @@ int32_t ChoiceFormat::findSubMessage(const MessagePattern &pattern, int32_t part
 			break;
 		}
 		// part is an ARG_INT or ARG_DOUBLE
-		U_ASSERT(MessagePattern::Part::hasNumericValue(type));
+		assert(MessagePattern::Part::hasNumericValue(type));
 		double boundary = pattern.getNumericValue(part);
 		// Fetch the ARG_SELECTOR character.
 		int32_t selectorIndex = pattern.getPatternIndex(partIndex++);

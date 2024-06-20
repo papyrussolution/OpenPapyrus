@@ -942,7 +942,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					if(Data.Rec.Kind == TECK_GENERAL)
 						Data.Rec.GoodsID = rec.GoodsID;
 					else if(Data.Rec.Kind == TECK_AUTO)
-						Data.Rec.GoodsID = rec.GrpID;
+						Data.Rec.GoodsID = rec.GoodsGrpID;
 					getCtrlData(CTLSEL_TECH_GSTRUC, &Data.Rec.GStrucID);
 					if(Data.Rec.Kind == TECK_GENERAL)
 						getCapacity();
@@ -1172,12 +1172,12 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					{
 						GoodsCtrlGroup::Rec rec;
 						THROW(getGroupData(ctlgroupGoods, &rec));
-						Data.Rec.GoodsID = NZOR(rec.GoodsID, rec.GrpID);
+						Data.Rec.GoodsID = NZOR(rec.GoodsID, rec.GoodsGrpID);
 					}
 					{
 						GoodsCtrlGroup::Rec rec;
 						THROW(getGroupData(ctlgroupPrevGoods, &rec));
-						Data.Rec.PrevGoodsID = NZOR(rec.GoodsID, rec.GrpID);
+						Data.Rec.PrevGoodsID = NZOR(rec.GoodsID, rec.GoodsGrpID);
 					}
 					{
 						LTIME tm;

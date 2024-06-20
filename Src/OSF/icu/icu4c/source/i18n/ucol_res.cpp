@@ -87,7 +87,7 @@ void CollationLoader::loadRules(const char * localeID, const char * collationTyp
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
-	U_ASSERT(collationType != NULL && *collationType != 0);
+	assert(collationType != NULL && *collationType != 0);
 	// Copy the type for lowercasing.
 	char type[16];
 	int32_t typeLength = static_cast<int32_t>(strlen(collationType));
@@ -211,7 +211,7 @@ const CollationCacheEntry * CollationLoader::loadFromLocale(UErrorCode & errorCo
 	if(U_FAILURE(errorCode)) {
 		return NULL;
 	}
-	U_ASSERT(bundle == NULL);
+	assert(bundle == NULL);
 	bundle = ures_openNoDefault(U_ICUDATA_COLL, locale.getBaseName(), &errorCode);
 	if(errorCode == U_MISSING_RESOURCE_ERROR) {
 		errorCode = U_USING_DEFAULT_WARNING;
@@ -242,7 +242,7 @@ const CollationCacheEntry * CollationLoader::loadFromBundle(UErrorCode & errorCo
 	if(U_FAILURE(errorCode)) {
 		return NULL;
 	}
-	U_ASSERT(collations == NULL);
+	assert(collations == NULL);
 	// There are zero or more tailorings in the collations table.
 	collations = ures_getByKey(bundle, "collations", NULL, &errorCode);
 	if(errorCode == U_MISSING_RESOURCE_ERROR) {
@@ -306,7 +306,7 @@ const CollationCacheEntry * CollationLoader::loadFromCollations(UErrorCode & err
 	if(U_FAILURE(errorCode)) {
 		return NULL;
 	}
-	U_ASSERT(data == NULL);
+	assert(data == NULL);
 	// Load the collations/type tailoring, with type fallback.
 	LocalUResourceBundlePointer localData(
 		ures_getByKeyWithFallback(collations, type, NULL, &errorCode));

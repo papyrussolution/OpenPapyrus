@@ -485,7 +485,7 @@ struct VetisBusinessEntity : public VetisNamedGenericVersioningEntity {
 		VetisNamedGenericVersioningEntity::operator = (rS);
 		EntityID = rS.EntityID;
 		Type = rS.Type;
-		NativePsnID = rS.NativePsnID; // @v10.5.0
+		NativePsnID = rS.NativePsnID;
 		FullName = rS.FullName;
 		Fio = rS.Fio;
 		Passport = rS.Passport;
@@ -757,13 +757,11 @@ struct VetisBatch {
 		Unit = rS.Unit;
 		DateOfProduction = rS.DateOfProduction;
 		ExpiryDate = rS.ExpiryDate;
-		// @v10.7.5 @fix ProductMarkingList = rS.ProductMarkingList;
-		TSCollection_Copy(ProductMarkingList, rS.ProductMarkingList); // @v10.7.5 @fix
+		TSCollection_Copy(ProductMarkingList, rS.ProductMarkingList);
 		Flags = rS.Flags;
-		// @v10.5.6 BatchID = rS.BatchID; // @v10.5.5
-		BatchIdList = rS.BatchIdList; // @v10.5.6
+		BatchIdList = rS.BatchIdList;
 		Origin = rS.Origin;
-		TSCollection_Copy(PackageList, rS.PackageList); // @v10.4.0
+		TSCollection_Copy(PackageList, rS.PackageList);
 		TSCollection_Copy(PackingList, rS.PackingList);
 		ZDELETE(P_Owner);
 		if(rS.P_Owner) {
@@ -780,15 +778,14 @@ struct VetisBatch {
 		SubProduct.Z();
 		ProductItem.Z();
 		Volume = 0.0;
-		AckVolume = 0.0; // @v10.5.8
+		AckVolume = 0.0;
 		PackingAmount = 0;
 		Unit.Z();
 		DateOfProduction.Z();
 		ExpiryDate.Z();
 		ProductMarkingList.freeAll();
 		Flags = 0;
-		// @v10.5.6 BatchID.Z(); // @v10.5.5
-		BatchIdList.Z(); // @v10.5.6
+		BatchIdList.Z();
 		Origin.Z();
 		PackageList.freeAll(); // @v10.4.0
 		PackingList.freeAll();
@@ -814,13 +811,13 @@ struct VetisBatch {
 		fLowGradeCargo  = 0x0002,
 		// Следующие 2 флага уточняют условия принятия входящей партии. Если ни один из флагов не
 		// установлен, то партия считается безусловно приятной.
-		fPartlyAccepted = 0x0004, // @v10.5.8 Партия частично принята
-		fRejected       = 0x0008  // @v10.5.8 Партия полностью отклонена
+		fPartlyAccepted = 0x0004, // Партия частично принята
+		fRejected       = 0x0008  // Партия полностью отклонена
 	};
 	long   Flags;
 	StringSet BatchIdList;
 	VetisBatchOrigin Origin;
-	TSCollection <VetisPackage> PackageList; // @v10.4.0
+	TSCollection <VetisPackage> PackageList;
 	TSCollection <VetisNamedGenericVersioningEntity> PackingList;
 	VetisBusinessEntity * P_Owner;
 };
@@ -1049,7 +1046,7 @@ struct VetisCertifiedConsignment {
 		TransportInfo = rS.TransportInfo;
 		TransportStorageType_id = rS.TransportStorageType_id;
 		TSCollection_Copy(RoutePointList, rS.RoutePointList);
-		TSCollection_Copy(CargoReloadingPointList, rS.CargoReloadingPointList); // @v10.5.4
+		TSCollection_Copy(CargoReloadingPointList, rS.CargoReloadingPointList);
 		Batch = rS.Batch;
 		return *this;
 	}
@@ -1260,7 +1257,8 @@ struct VetisVetDocument : public VetisDocument {
 			*P_CertifiedBatch = *rS.P_CertifiedBatch;
 		}
 		CertifiedConsignment = rS.CertifiedConsignment;
-		TSCollection_Copy(ReferencedDocumentList, rS.ReferencedDocumentList); // @v10.5.5
+		Authentication = rS.Authentication; // @v12.0.5 @fix
+		TSCollection_Copy(ReferencedDocumentList, rS.ReferencedDocumentList);
 		//TSCollection_Copy(ActivityLocationList, rS.ActivityLocationList);
 		return *this;
 	}
@@ -1422,7 +1420,7 @@ public:
 	enum {
 		signNone = 0,
 		signGetStockEntryList,
-		signGetStockEntryChangesList, // @v10.1.12
+		signGetStockEntryChangesList,
 		signGetBusinessEntity,
 		signGetBusinessEntityByGuid,
 		signGetAppliedUserAuthorityList,

@@ -8747,3 +8747,61 @@ public:
 };
 
 CONVERT_PROC(Convert12000, PPCvtRegister12000);
+//
+//
+//
+class PPCvtSCardOp12005 : public PPTableConversion {
+public:
+	virtual DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new SCardOpTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(SCardOpTbl::Rec));
+		}
+		return p_tbl;
+	}
+	virtual int ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	{
+		struct SCardOpRec_BeforePPCvtSCardOp12005 { // size=60
+			int32  SCardID;
+			LDATE  Dt;
+			LTIME  Tm;
+			int32  UserID;
+			int32  Flags;
+			double Amount;
+			double Rest;
+			int32  DestSCardID;
+			int32  LinkObjType;
+			int32  LinkObjID;
+			LDATE  FreezingStart;
+			LDATE  FreezingEnd;
+			uint8  Reserve[4]; // raw
+		};
+		SCardOpTbl::Rec * p_data = static_cast<SCardOpTbl::Rec *>(pTbl->getDataBuf());
+		const SCardOpRec_BeforePPCvtSCardOp12005 * p_old_rec = static_cast<const SCardOpRec_BeforePPCvtSCardOp12005 *>(pRec);
+		memzero(p_data, sizeof(*p_data));
+#define CPYFLD(f) p_data->f = p_old_rec->f
+		CPYFLD(SCardID);
+		CPYFLD(Dt);
+		CPYFLD(Tm);
+		CPYFLD(UserID);
+		CPYFLD(Flags);
+		CPYFLD(Amount);
+		CPYFLD(Rest);
+		CPYFLD(DestSCardID);
+		CPYFLD(LinkObjType);
+		CPYFLD(LinkObjID);
+		CPYFLD(FreezingStart);
+		CPYFLD(FreezingEnd);
+#undef CPYFLD
+		p_data->CtAmount = 0;
+		p_data->CtRest = 0;
+		memzero(p_data->Reserve, sizeof(p_data->Reserve));
+		return 1;
+	}
+};
+
+CONVERT_PROC(Convert12005, PPCvtSCardOp12005);

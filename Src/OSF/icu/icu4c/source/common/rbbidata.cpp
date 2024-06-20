@@ -112,7 +112,7 @@ void RBBIDataWrapper::init(const RBBIDataHeader * data, UErrorCode & status) {
 
 	fRuleSource   = ((char *)data + fHeader->fRuleSource);
 	fRuleString = UnicodeString::fromUTF8(StringPiece(fRuleSource, fHeader->fRuleSourceLen));
-	U_ASSERT(data->fRuleSourceLen > 0);
+	assert(data->fRuleSourceLen > 0);
 
 	fRuleStatusTable = (int32_t*)((char *)data + fHeader->fStatusTable);
 	fStatusMaxIdx    = data->fStatusTableLen / sizeof(int32_t);
@@ -131,7 +131,7 @@ void RBBIDataWrapper::init(const RBBIDataHeader * data, UErrorCode & status) {
 //
 RBBIDataWrapper::~RBBIDataWrapper() 
 {
-	U_ASSERT(fRefCount == 0);
+	assert(fRefCount == 0);
 	ucptrie_close(fTrie);
 	fTrie = nullptr;
 	if(fUDataMem)

@@ -445,9 +445,6 @@ int ABCAnlzFilt::GetGroupName(short abcGroup, char * pBuf, size_t bufLen)
 // } AHTOXA
 //
 //
-// @v11.4.4 #define GRP_GOODSFILT 1
-// @v11.4.4 #define GRP_LOC       2
-
 class GoodsOpAnlzFiltDialog : public WLDialog {
 	enum {
 		ctlgroupGoodsFilt = 1,

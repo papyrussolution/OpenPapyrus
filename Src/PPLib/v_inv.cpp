@@ -73,7 +73,7 @@ public:
 		RVALUEPTR(Data, pData);
 		{
 			GoodsCtrlGroup::Rec rec;
-			rec.GrpID   = Data.GoodsGrpID;
+			rec.GoodsGrpID = Data.GoodsGrpID;
 			rec.GoodsID = Data.GoodsID;
 			rec.Flags   = GoodsCtrlGroup::enableSelUpLevel;
 			setGroupData(ctlgroupGoods, &rec);
@@ -109,7 +109,7 @@ public:
 		{
 			GoodsCtrlGroup::Rec rec;
 			getGroupData(ctlgroupGoods, &rec);
-			Data.GoodsGrpID = rec.GrpID;
+			Data.GoodsGrpID = rec.GoodsGrpID;
 			Data.GoodsID    = rec.GoodsID;
 			//getCtrlData(CTLSEL_INVDIFFLT_GRP, &Data.GoodsGrpID);
 		}

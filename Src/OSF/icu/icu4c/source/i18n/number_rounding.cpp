@@ -25,7 +25,7 @@ void number::impl::parseIncrementOption(const StringSegment &segment,
     Precision &outPrecision,
     UErrorCode & status) {
 	// Need to do char <-> char16_t conversion...
-	U_ASSERT(U_SUCCESS(status));
+	assert(U_SUCCESS(status));
 	CharString buffer;
 	SKELETON_UCHAR_TO_CHAR(buffer, segment.toTempUnicodeString(), 0, segment.length(), status);
 
@@ -273,7 +273,7 @@ Precision Precision::withCurrency(const CurrencyUnit &currency, UErrorCode & sta
 	if(fType == RND_ERROR) {
 		return *this;
 	}                                     // no-op in error state
-	U_ASSERT(fType == RND_CURRENCY);
+	assert(fType == RND_CURRENCY);
 	const char16_t * isoCode = currency.getISOCurrency();
 	double increment = ucurr_getRoundingIncrementForUsage(isoCode, fUnion.currencyUsage, &status);
 	int32_t minMaxFrac = ucurr_getDefaultFractionDigitsForUsage(
@@ -394,7 +394,7 @@ bool RoundingImpl::isSignificantDigits() const {
 int32_t RoundingImpl::chooseMultiplierAndApply(impl::DecimalQuantity &input, const impl::MultiplierProducer &producer,
     UErrorCode & status) {
 	// Do not call this method with zero, NaN, or infinity.
-	U_ASSERT(!input.isZeroish());
+	assert(!input.isZeroish());
 
 	// Perform the first attempt at rounding.
 	int magnitude = input.getMagnitude();
@@ -532,8 +532,8 @@ void RoundingImpl::apply(impl::DecimalQuantity &value, UErrorCode & status) cons
 void RoundingImpl::apply(impl::DecimalQuantity &value, int32_t minInt, UErrorCode /*status*/) {
 	// This method is intended for the one specific purpose of helping print "00.000E0".
 	// Question: Is it useful to look at trailingZeroDisplay here?
-	U_ASSERT(isSignificantDigits());
-	U_ASSERT(value.isZeroish());
+	assert(isSignificantDigits());
+	assert(value.isZeroish());
 	value.setMinFraction(fPrecision.fUnion.fracSig.fMinSig - minInt);
 }
 

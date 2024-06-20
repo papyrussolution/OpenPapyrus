@@ -91,7 +91,7 @@ PPERR_FPE_ZERODIVIDE        "Деление на нуль в операции с
 PPERR_DBNOTACTIVE           "Btrieve или Brequest не загружен"
 #{
 	Сервер системы управления базами данных Pervasive SQL
-	не запущен или недоступен.
+	не запущен или не доступен.
 #}
 PPERR_UNCHANGABLEPERSONKIND        "Данный вид персоналии не может быть присвоен или удален произвольно"
 PPERR_DUPARTICLE                   "Дублирование номера статьи аналитического учета"
@@ -557,7 +557,7 @@ PPERR_PHUFORGOODSWOPHU             "Выбранный компонент стр
 PPERR_MISSPCKGLOC                  "Выбранный пакет относится к другому складу"
 PPERR_GTAXENTINTRSCT               "Пересечение периодов в элементах налоговой группы"
 PPERR_IMPORTUNDEFFLD               "Ошибка импорта: не определено одно из обязательных полей"
-PPERR_RPTNAVAILONDOS               "Отчет недоступен в DOS-версии системы"
+PPERR_RPTNAVAILONDOS               "Отчет не доступен в DOS-версии системы"
 PPERR_UNDEFTEMPPATH                "Не определен каталог TEMP в файле PP.INI ([path] temp=...)"
 PPERR_UNDEFPACKPATH                "Не определен каталог PACK в файле PP.INI ([path] pack=...)"
 PPERR_NEXISTPATH                   "Не найден каталог '%s'"
@@ -869,6 +869,7 @@ PPERR_PRCPAN_GOODSUNDEF            "В панели процессора не о
 PPERR_PRCPAN_PACKUNDEF             "Для выбранного товара не определена емкость упаковки"
 PPERR_INVTSESLINESIGN              "Недопустимый знак '%s' строки технологической сессии"
 PPERR_UNKNOWNPRCNAME               "Неизвестное имя или код процессора '%s'"
+PPERR_DIRACCESSDENIED_CFGOUT       "Каталог OUT '%s' недоступен" // @v12.0.5
 PPERR_DIRACCESSDENIED_W            "Каталог '%s' недоступен для записи"
 PPERR_FTPSRVREPLYERR               "FTP сервер вернул ошибку: %s"
 PPERR_BARLABELPRINTFAULT           "Ошибка печать этикетки"
@@ -3103,6 +3104,7 @@ PPINIPARAM_BLINDLOGINMODE                "blindloginmode" // @v11.3.12 [config] 
 	// система самостоятельно находит базу или базы данных, для которых это имя подходит и, если есть более одной базы - дает возможность выбрать.
 PPINIPARAM_DISABLESTQQRLOGIN             "disablestqqrlogin" // @v11.6.9 [config] Запрет авторизации по QR-коду через Stylo-Q
 PPINIPARAM_STYLOQSVCLOGGING              "StyloQSvcLoggin"   // @v11.9.2 [config]
+PPINIPARAM_CCLISTBYMARKBACKDAYS          "CcListByMarkBackDays" // @v12.0.5 Количество дней для отсчета назад от текущей даты для поиска марок в чеках
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT                   "at"
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT2                  "at2"
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT3                  "at3"
@@ -4950,7 +4952,7 @@ PPTXT_GLOBALSERVICELIST             "1,@{globalservice_twitter};2,@{globalservic
 6,@{globalservice_instagram};7,@{globalservice_uds};8,@{globalservice_uhtt};9,@{globalservice_shopify}"
 PPTXT_AGGRFUNCNAMELIST              "1,@{aggrfunc_count};2,@{aggrfunc_sum};3,@{aggrfunc_average};4,@{aggrfunc_min};5,@{aggrfunc_max};6,@{aggrfunc_stddev}"
 PPTXT_CHZNPRODUCTTYPES              "1,Изделия из меха;2,Табачные изделия;3,Обувь;4,Лекарственные средства;5,Автомобильные шины;6,Текстиль;7,Парфюмерия;\
-8,Молочная продукция;9,Ювелирные изделия;10,Вода питьевая;11,Альтернативная табачная продукция;12,Пиво разливное;13,Биологически-активные добавки;14,Пиво фасованное"
+8,Молочная продукция;9,Ювелирные изделия;10,Вода питьевая;11,Альтернативная табачная продукция;12,Пиво разливное;1012,Пиво разливное - автосписание;13,Биологически-активные добавки;14,Пиво фасованное"
 PPTXT_DEVICETIMEDIFFROMSYS          "@{attention} Время на регистраторе @datetime отличается от времени на компьютере"
 PPTXT_LOG_VK_NODEFIMG               "Изображение по-умолчанию не найдено!"
 PPTXT_LOG_VK_NODESCRFORGOODS        "Описание для товара '@goods_id' не найдено!"
@@ -13069,6 +13071,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @scardseries_scrdsf_group                 "Группирующая серия"
 @scardseries_scrdsf_allowownerautocr      "Разрешается автоматическое создание владельца"
 @scardseries_scrdsf_rsrvpool              "Резервный пул"
+@scardseries_scrdsf_quantaccounting       "Количественный учет по картам" // @v12.0.5
 @scardseries_symb                         "@{symbol}"
 @scardseries_symb_amp                     "Символ серии карт"
 @scardseries_tag                          "@{tag}"
@@ -15965,6 +15968,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @importswprogram                          "Импорт списка исполняемых программ"
 @importswprogram_file                     "Файл импорта"
 @importswprogram_imgdir                   "Каталог с изображениями"
+@exportswprogram                          "Экспорт списка исполняемых программ"
+@exportswprogram_file                     "Файл экспорта"
 
 @pugl                                     "Список дефицитных товарных позиций"
 @pugl_singlewarewarn                      "Остаток товара '%s' недостаточен для комплектации"
@@ -18174,6 +18179,7 @@ PPHS_WORLD                     "world"
 PPHS_WSCTL                     "wsctl" // @v11.7.2
 PPHS_COMPUTER                  "computer" // @v12.0.0
 PPHS_COMPUTERCATEGORY          "computercategory" // @v12.0.2
+PPHS_SWPROGRAM                 "swprogram" // @v12.0.5
 PPHS_LOGLOCKSTACK              "loglockstack"
 PPHS_PAYMENT                   "payment"
 PPHS_UNKN                      "unkn"

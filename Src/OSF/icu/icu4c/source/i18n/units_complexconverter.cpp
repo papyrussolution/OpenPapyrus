@@ -20,7 +20,7 @@ ComplexUnitsConverter::ComplexUnitsConverter(const MeasureUnitImpl &targetUnit,
 	if(U_FAILURE(status)) {
 		return;
 	}
-	U_ASSERT(units_.length() != 0);
+	assert(units_.length() != 0);
 
 	// Just borrowing a pointer to the instance
 	MeasureUnitImpl * biggestUnit = &units_[0]->unitImpl;
@@ -47,7 +47,7 @@ ComplexUnitsConverter::ComplexUnitsConverter(StringPiece inputUnitIdentifier,
 	MeasureUnitImpl outputUnits = MeasureUnitImpl::forIdentifier(outputUnitsIdentifier, status);
 
 	this->units_ = outputUnits.extractIndividualUnitsWithIndices(status);
-	U_ASSERT(units_.length() != 0);
+	assert(units_.length() != 0);
 
 	this->init(inputUnit, ConversionRates(status), status);
 }
@@ -60,7 +60,7 @@ ComplexUnitsConverter::ComplexUnitsConverter(const MeasureUnitImpl &inputUnit,
 		return;
 	}
 
-	U_ASSERT(units_.length() != 0);
+	assert(units_.length() != 0);
 
 	this->init(inputUnit, ratesInfo, status);
 }
@@ -123,7 +123,7 @@ void ComplexUnitsConverter::init(const MeasureUnitImpl &inputUnit,
 }
 
 bool ComplexUnitsConverter::greaterThanOrEqual(double quantity, double limit) const {
-	U_ASSERT(unitsConverters_.length() > 0);
+	assert(unitsConverters_.length() > 0);
 
 	// First converter converts to the biggest quantity.
 	double newQuantity = unitsConverters_[0]->convert(quantity);
@@ -206,7 +206,7 @@ MaybeStackVector<Measure> ComplexUnitsConverter::convert(double quantity,
 
 	// Transfer values into result and return:
 	for(int32_t i = 0, n = unitsConverters_.length(); i < n; ++i) {
-		U_ASSERT(tmpResult[i] != nullptr);
+		assert(tmpResult[i] != nullptr);
 		result.emplaceBackAndCheckErrorCode(status, *tmpResult[i]);
 		delete tmpResult[i];
 	}

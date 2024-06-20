@@ -11,7 +11,7 @@
 #include "unicode/utypes.h"
 #include "unicode/uobject.h"
 #include "unicode/uscript.h"
-#include "uelement.h"
+//#include "uelement.h"
 
 U_NAMESPACE_BEGIN
 //

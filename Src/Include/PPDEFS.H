@@ -11575,6 +11575,10 @@
 	#define CTLSEL_CHKCHZNMARK_GUA         (5 + WINDOWS_ID_BIAS)
 	#define CTL_CHKCHZNMARK_FLAGS          (6 + WINDOWS_ID_BIAS)
 	#define CTL_CHKCHZNMARK_LOGO           (7 + WINDOWS_ID_BIAS)
+	#define CTL_CHKCHZNMARK_GOODS          (8 + WINDOWS_ID_BIAS)
+	#define CTLSEL_CHKCHZNMARK_GOODS       (9 + WINDOWS_ID_BIAS)
+	#define CTL_CHKCHZNMARK_GGRP           (10 + WINDOWS_ID_BIAS)
+	#define CTLSEL_CHKCHZNMARK_GGRP        (11 + WINDOWS_ID_BIAS)
 #define DLG_IMPSWPGM              1443 // @v12.0.4 Диалог импорт списка исполняемых программ
 	#define CTL_IMPSWPGM_FILE              (1 + WINDOWS_ID_BIAS)
 	#define CTLBRW_IMPSWPGM_FILE           (2 + WINDOWS_ID_BIAS)

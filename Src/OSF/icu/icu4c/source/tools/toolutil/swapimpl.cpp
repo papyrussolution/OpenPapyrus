@@ -389,7 +389,7 @@ static int32_t U_CALLCONV ucase_swap(const UDataSwapper * ds,
 		ds->swapArray16(ds, inBytes+offset, count, outBytes+offset, pErrorCode);
 		offset += count;
 
-		U_ASSERT(offset==size);
+		assert(offset==size);
 	}
 
 	return headerSize+size;
@@ -499,7 +499,7 @@ static int32_t U_CALLCONV ubidi_swap(const UDataSwapper * ds,
 		count = indexes[UBIDI_IX_JG_LIMIT2]-indexes[UBIDI_IX_JG_START2];
 		offset += count;
 
-		U_ASSERT(offset==size);
+		assert(offset==size);
 	}
 
 	return headerSize+size;
@@ -717,14 +717,14 @@ static int32_t U_CALLCONV ulayout_swap(const UDataSwapper * ds,
 		for(int32_t i = ULAYOUT_IX_INPC_TRIE_TOP; i <= ULAYOUT_IX_TRIES_TOP; ++i) {
 			int32_t top = indexes[i];
 			count = top - offset;
-			U_ASSERT(count >= 0);
+			assert(count >= 0);
 			if(count >= 16) {
 				utrie_swapAnyVersion(ds, inBytes + offset, count, outBytes + offset, pErrorCode);
 			}
 			offset = top;
 		}
 
-		U_ASSERT(offset == size);
+		assert(offset == size);
 	}
 
 	return headerSize + size;
@@ -819,7 +819,7 @@ static int32_t U_CALLCONV uemoji_swap(const UDataSwapper * ds,
 		// Swap the code point trie.
 		top = indexes[EmojiProps::IX_CPTRIE_OFFSET + 1];
 		int32_t count = top - offset;
-		U_ASSERT(count >= 0);
+		assert(count >= 0);
 		if(count >= 16) {
 			utrie_swapAnyVersion(ds, inBytes + offset, count, outBytes + offset, pErrorCode);
 		}
@@ -832,7 +832,7 @@ static int32_t U_CALLCONV uemoji_swap(const UDataSwapper * ds,
 		ds->swapArray16(ds, inBytes + offset, top - offset, outBytes + offset, pErrorCode);
 		offset = top;
 
-		U_ASSERT(offset == size);
+		assert(offset == size);
 	}
 
 	return headerSize + size;

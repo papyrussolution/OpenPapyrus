@@ -6,10 +6,6 @@
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
-//
-//
-//static
-// @v10.5.5 (moved to PPConstParam) const uint32 PPObjSCard::FiltSignature = 0xfbefffffU;
 
 PPSCardPacket::PPSCardPacket() : PPExtStrContainer()
 {
@@ -1460,6 +1456,7 @@ int PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			AddClusterAssoc(CTL_SCARDSER_FLAGS, 5, SCRDSF_TRANSFDISCOUNT);
 			AddClusterAssoc(CTL_SCARDSER_FLAGS, 6, SCRDSF_PASSIVE);
 			AddClusterAssoc(CTL_SCARDSER_FLAGS, 7, SCRDSF_ALLOWOWNERAUTOCR); // @v11.6.3
+			AddClusterAssoc(CTL_SCARDSER_FLAGS, 8, SCRDSF_QUANTACCOUNTING); // @v12.0.5
 			SetClusterData(CTL_SCARDSER_FLAGS, Data.Rec.Flags);
 			//
 			SetupPPObjCombo(this, CTLSEL_SCARDSER_QUOTKIND, PPOBJ_QUOTKIND, Data.Rec.QuotKindID_s, OLW_CANINSERT, 0);
@@ -1528,18 +1525,16 @@ int PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 				Data.Rec.BonusChrgGrpID = 0;
 				Data.Rec.ChargeGoodsID = 0;
 			}
-			Data.Rec.RsrvPoolDestSerID = (Data.Rec.GetType() == scstRsrvPool) ? getCtrlLong(CTLSEL_SCARDSER_RPDEST) : 0; // @v10.2.8
+			Data.Rec.RsrvPoolDestSerID = (Data.Rec.GetType() == scstRsrvPool) ? getCtrlLong(CTLSEL_SCARDSER_RPDEST) : 0;
 			Data.Rec.PersonKindID = NZOR(Data.Rec.PersonKindID, PPPRK_CLIENT);
 			getCtrlData(sel = CTL_SCARDSER_PDIS, &pdis);
 			THROW_PP(pdis >= -300 && pdis <= 100, PPERR_USERINPUT);
-			Data.Rec.PDis = fmul100i(pdis); // @v10.2.9 @fix (long)(pdis * 100L)-->fmul100i(pdis)
+			Data.Rec.PDis = fmul100i(pdis);
 			getCtrlData(CTL_SCARDSER_MAXCRED, &Data.Rec.MaxCredit);
-			// @v10.5.5 {
 			{
 				double rval = getCtrlReal(sel = CTL_SCARDSER_FIXBON);
 				Data.Rec.FixedBonus = fmul100i(rval);
 			}
-			// } @v10.5.5
 			THROW(GetTimeRangeInput(this, CTL_SCARDSER_USAGETM, TIMF_HM, &Data.Eb.UsageTmStart, &Data.Eb.UsageTmEnd));
 			{
 				long   bonus_ext_rule = 0;
@@ -3394,13 +3389,11 @@ void SCardDialog::SetupSeries(PPID seriesID, PPID personID)
 	else
 		setCtrlLong(CTLSEL_SCARD_AUTOGOODS, Data.Rec.AutoGoodsID = 0);
 	disableCtrl(CTLSEL_SCARD_AUTOGOODS, !goods_grp_id);
-	// @v10.2.7 {
 	disableCtrl(CTL_SCARD_PHONE, scst == scstRsrvPool);
 	disableCtrl(CTLSEL_SCARD_PERSON, scst == scstRsrvPool);
 	disableCtrl(CTL_SCARD_PSW, scst == scstRsrvPool);
 	showCtrl(CTLSEL_SCARD_POOLDSER, scst == scstRsrvPool);
 	disableCtrl(CTLSEL_SCARD_POOLDSER, scst != scstRsrvPool);
-	// } @v10.2.7
 	showCtrl(CTL_SCARD_FIXBON, oneof2(scst, scstCredit, scstBonus)); // @v10.5.5
 	setStaticText(CTL_SCARD_ST_INFO, info_buf);
 }

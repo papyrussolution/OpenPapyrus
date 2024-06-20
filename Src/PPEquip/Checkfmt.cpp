@@ -1550,7 +1550,6 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 								STRNSCPY(pIter->Code, temp_buf);
 								if(P_Od->GObj.FetchTax(pIter->GoodsID, P_CcPack->Rec.Dt, 0, &tax_entry) > 0)
 									pIter->VatRate = tax_entry.GetVatRate();
-								// @v10.4.1 {
 								if(goods_rec.GoodsTypeID && P_Od->GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
 									chzn_product_type = gt_rec.ChZnProdType; // @v10.7.2
 									if(gt_rec.Flags & GTF_ADVANCECERT)
@@ -1565,7 +1564,6 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 									// } @v11.8.0 
 
 								}
-								// } @v10.4.1 
 								// @v11.9.3 {
 								if(PPSyncCashSession::IsSimplifiedDraftBeerPosition(P_CcPack->Rec.PosNodeID, pIter->GoodsID)) { 
 									SString draftbeer_code;
@@ -1586,7 +1584,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 										pIter->UomFragm = u_rec.Fragmentation;
 									//
 									// @v11.9.3 {
-									if(gt_rec.ChZnProdType == GTCHZNPT_DRAFTBEER) {
+									if(oneof2(gt_rec.ChZnProdType, GTCHZNPT_DRAFTBEER, GTCHZNPT_DRAFTBEER_AWR)) {
 										double ratio = 0.0;
 										if(P_Od->GObj.TranslateGoodsUnitToBase(goods_rec, SUOM_LITER, &ratio) > 0) {
 											pIter->PhQtty = pIter->Qtty * ratio;
@@ -2570,7 +2568,7 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 			sl_param.Price = CurIter.Price;
 			sl_param.VatRate = CurIter.VatRate;
 			sl_param.DivID = CurIter.DivID;
-			sl_param.PaymTermTag = CurIter.Ptt; // @v10.4.1
+			sl_param.PaymTermTag = CurIter.Ptt;
 			sl_param.SbjTermTag = CurIter.Stt; // @erikI v10.4.12
 			SETFLAG(sl_param.Flags, SlipLineParam::fDraftBeerSimplified, CurIter.IsSimplifiedDraftBeer); // @v11.9.3
 		}

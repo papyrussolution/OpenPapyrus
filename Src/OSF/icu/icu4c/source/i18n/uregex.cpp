@@ -1028,7 +1028,7 @@ int32_t RegexCImpl::appendReplacement(RegularExpression * regexp, const char16_t
 		destIdx += utext_extract(m->fInputText, m->fLastMatchEnd, m->fMatchStart,
 			dest ? &dest[destIdx] : NULL, REMAINING_CAPACITY(destIdx, capacity), &possibleOverflowError);
 	}
-	U_ASSERT(destIdx >= 0);
+	assert(destIdx >= 0);
 	// scan the replacement text, looking for substitutions ($n) and \escapes.
 	int32_t replIdx = 0;
 	while(replIdx < replacementLength && U_SUCCESS(*status)) {
@@ -1077,7 +1077,7 @@ int32_t RegexCImpl::appendReplacement(RegularExpression * regexp, const char16_t
 		// We've got a $.  Pick up the following capture group name or number.
 		// For numbers, consume only digits that produce a valid capture group for the pattern.
 		int32_t groupNum  = 0;
-		U_ASSERT(c == DOLLARSIGN);
+		assert(c == DOLLARSIGN);
 		UChar32 c32 = -1;
 		if(replIdx < replacementLength) {
 			U16_GET(replacementText, 0, replIdx, replacementLength, c32);
@@ -1245,7 +1245,7 @@ int32_t RegexCImpl::appendTail(RegularExpression    * regexp, char16_t ** destBu
 			srcIdx = utext_extract(m->fInputText, 0, nativeIdx, NULL, 0, &newStatus);
 		}
 		for(;;) {
-			U_ASSERT(destIdx >= 0);
+			assert(destIdx >= 0);
 			if(srcIdx == regexp->fTextLength) {
 				break;
 			}

@@ -1410,7 +1410,7 @@ static int32_t _cmpFold(const char16_t * s1, int32_t length1,
 	}
 	/* initialize */
 	if(matchLen1) {
-		U_ASSERT(matchLen2 != NULL);
+		assert(matchLen2 != NULL);
 		*matchLen1 = 0;
 		*matchLen2 = 0;
 	}
@@ -1519,7 +1519,7 @@ static int32_t _cmpFold(const char16_t * s1, int32_t length1,
 				 *      of stacks, the code above should check if the current
 				 *      code is at the end of all stacks.
 				 */
-				U_ASSERT(level1==1);
+				assert(level1==1);
 
 				/* is s1 at the end of the current stack? */
 				next1 = stack1[0].s;
@@ -1529,7 +1529,7 @@ static int32_t _cmpFold(const char16_t * s1, int32_t length1,
 					next2 = s2;
 				}
 				else if(s2==limit2) {
-					U_ASSERT(level2==1);
+					assert(level2==1);
 					/* is s2 at the end of the current stack? */
 					next2 = stack2[0].s;
 				}

@@ -70,7 +70,7 @@ std::mutex * UMutex::getMutex()
 			gListHead = this;
 		}
 	}
-	U_ASSERT(retPtr != nullptr);
+	assert(retPtr != nullptr);
 	return retPtr;
 }
 
@@ -133,7 +133,7 @@ U_COMMON_API bool U_EXPORT2 umtx_initImplPreInit(UInitOnce &uio) {
 			// Wait until it completes.
 			initCondition->wait(lock);
 		}
-		U_ASSERT(uio.fState == 2);
+		assert(uio.fState == 2);
 		return false;
 	}
 }

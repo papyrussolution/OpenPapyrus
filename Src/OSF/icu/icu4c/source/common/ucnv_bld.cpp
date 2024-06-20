@@ -1021,8 +1021,8 @@ U_CAPI int32_t U_EXPORT2 ucnv_flushCache()
 /* available converters list --------------------------------------------------- */
 
 static void U_CALLCONV initAvailableConvertersList(UErrorCode &errCode) {
-	U_ASSERT(gAvailableConverterCount == 0);
-	U_ASSERT(gAvailableConverters == NULL);
+	assert(gAvailableConverterCount == 0);
+	assert(gAvailableConverters == NULL);
 
 	ucnv_enableCleanup();
 	UEnumeration * allConvEnum = ucnv_openAllNames(&errCode);

@@ -442,7 +442,7 @@ int32_t BytesTrieBuilder::writeValueAndType(bool hasValue, int32_t value, int32_
 int32_t BytesTrieBuilder::writeDeltaTo(int32_t jumpTarget) 
 {
 	int32_t i = bytesLength-jumpTarget;
-	U_ASSERT(i>=0);
+	assert(i>=0);
 	if(i<=BytesTrie::kMaxOneByteDelta) {
 		return write(i);
 	}
@@ -454,7 +454,7 @@ int32_t BytesTrieBuilder::writeDeltaTo(int32_t jumpTarget)
 
 int32_t BytesTrieBuilder::internalEncodeDelta(int32_t i, char intBytes[]) 
 {
-	U_ASSERT(i>=0);
+	assert(i>=0);
 	if(i<=BytesTrie::kMaxOneByteDelta) {
 		intBytes[0] = (char)i;
 		return 1;

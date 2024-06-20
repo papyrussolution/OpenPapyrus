@@ -107,7 +107,7 @@ void ParsedNumber::populateFormattable(Formattable& output, parse_flags_t parseF
 			return;
 		}
 	}
-	U_ASSERT(!quantity.bogus);
+	assert(!quantity.bogus);
 	if(quantity.isZeroish() && quantity.isNegative() && !integerOnly) {
 		output.setDouble(-0.0);
 		return;

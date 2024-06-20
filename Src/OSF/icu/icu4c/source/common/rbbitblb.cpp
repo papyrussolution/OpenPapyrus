@@ -325,7 +325,7 @@ void RBBITableBuilder::addRuleRootNodes(UVector * dest, RBBINode * node)
 	if(node == NULL || U_FAILURE(*fStatus)) {
 		return;
 	}
-	U_ASSERT(!dest->hasDeleter());
+	assert(!dest->hasDeleter());
 	if(node->fRuleRoot) {
 		dest->addElement(node, *fStatus);
 		// Note: rules cannot nest. If we found a rule start node,
@@ -448,8 +448,8 @@ void RBBITableBuilder::bofFixup()
 	//    We will be adding things to the followPos set of the <bofNode>
 	//
 	RBBINode  * bofNode = fTree->fLeftChild->fLeftChild;
-	U_ASSERT(bofNode->fType == RBBINode::leafChar);
-	U_ASSERT(bofNode->fVal == 2);
+	assert(bofNode->fType == RBBINode::leafChar);
+	assert(bofNode->fVal == 2);
 
 	// Get all nodes that can be the start a match of the user-written rules
 	//  (excluding the fake bofNode)
@@ -577,7 +577,7 @@ void RBBITableBuilder::buildStateTable()
 			int32_t ux = 0;
 			bool UinDstates = FALSE;
 			if(U != NULL) {
-				U_ASSERT(U->size() > 0);
+				assert(U->size() > 0);
 				int ix;
 				for(ix = 0; ix<fDStates->size(); ix++) {
 					RBBIStateDescriptor * temp2;
@@ -652,8 +652,8 @@ void RBBITableBuilder::mapLookAheadRules() {
 			}
 			sawLookAheadNode = true;
 			int32_t ruleNum = node->fVal; // Set when rule was originally parsed.
-			U_ASSERT(ruleNum < fLookAheadRuleMap->size());
-			U_ASSERT(ruleNum > 0);
+			assert(ruleNum < fLookAheadRuleMap->size());
+			assert(ruleNum > 0);
 			int32_t laSlot = fLookAheadRuleMap->elementAti(ruleNum);
 			if(laSlot != 0) {
 				if(laSlotForState == 0) {
@@ -661,7 +661,7 @@ void RBBITableBuilder::mapLookAheadRules() {
 				}
 				else {
 					// TODO: figure out if this can fail, change to setting an error code if so.
-					U_ASSERT(laSlot == laSlotForState);
+					assert(laSlot == laSlotForState);
 				}
 			}
 		}
@@ -685,7 +685,7 @@ void RBBITableBuilder::mapLookAheadRules() {
 			int32_t ruleNum = node->fVal; // Set when rule was originally parsed.
 			int32_t existingVal = fLookAheadRuleMap->elementAti(ruleNum);
 			(void)existingVal;
-			U_ASSERT(existingVal == 0 || existingVal == laSlotForState);
+			assert(existingVal == 0 || existingVal == laSlotForState);
 			fLookAheadRuleMap->setElementAt(laSlotForState, ruleNum);
 		}
 	}
@@ -761,15 +761,15 @@ void RBBITableBuilder::flagLookAheadStates()
 	}
 	for(i = 0; i<lookAheadNodes.size(); i++) {
 		lookAheadNode = (RBBINode*)lookAheadNodes.elementAt(i);
-		U_ASSERT(lookAheadNode->fType == RBBINode::NodeType::lookAhead);
+		assert(lookAheadNode->fType == RBBINode::NodeType::lookAhead);
 
 		for(n = 0; n<fDStates->size(); n++) {
 			RBBIStateDescriptor * sd = (RBBIStateDescriptor*)fDStates->elementAt(n);
 			int32_t positionsIdx = sd->fPositions->indexOf(lookAheadNode);
 			if(positionsIdx >= 0) {
-				U_ASSERT(lookAheadNode == sd->fPositions->elementAt(positionsIdx));
+				assert(lookAheadNode == sd->fPositions->elementAt(positionsIdx));
 				uint32_t lookaheadSlot = fLookAheadRuleMap->elementAti(lookAheadNode->fVal);
-				U_ASSERT(sd->fLookAhead == 0 || sd->fLookAhead == lookaheadSlot);
+				assert(sd->fLookAhead == 0 || sd->fLookAhead == lookaheadSlot);
 				// if(sd->fLookAhead != 0 && sd->fLookAhead != lookaheadSlot) {
 				//     printf("%s:%d Bingo. sd->fLookAhead:%d   lookaheadSlot:%d\n",
 				//            __FILE__, __LINE__, sd->fLookAhead, lookaheadSlot);
@@ -931,8 +931,8 @@ void RBBITableBuilder::sortedAdd(UVector ** vector, int32_t val)
 //
 void RBBITableBuilder::setAdd(UVector * dest, UVector * source) 
 {
-	U_ASSERT(!dest->hasDeleter());
-	U_ASSERT(!source->hasDeleter());
+	assert(!dest->hasDeleter());
+	assert(!source->hasDeleter());
 	int32_t destOriginalSize = dest->size();
 	int32_t sourceSize       = source->size();
 	int32_t di   = 0;
@@ -1062,7 +1062,7 @@ void RBBITableBuilder::removeColumn(int32_t column) {
 	int32_t numStates = fDStates->size();
 	for(int32_t state = 0; state<numStates; state++) {
 		RBBIStateDescriptor * sd = (RBBIStateDescriptor*)fDStates->elementAt(state);
-		U_ASSERT(column < sd->fDtran->size());
+		assert(column < sd->fDtran->size());
 		sd->fDtran->removeElementAt(column);
 	}
 }
@@ -1133,8 +1133,8 @@ void RBBITableBuilder::removeState(IntPair duplStates)
 {
 	const int32_t keepState = duplStates.first;
 	const int32_t duplState = duplStates.second;
-	U_ASSERT(keepState < duplState);
-	U_ASSERT(duplState < fDStates->size());
+	assert(keepState < duplState);
+	assert(duplState < fDStates->size());
 	RBBIStateDescriptor * duplSD = (RBBIStateDescriptor*)fDStates->elementAt(duplState);
 	fDStates->removeElementAt(duplState);
 	delete duplSD;
@@ -1160,8 +1160,8 @@ void RBBITableBuilder::removeSafeState(IntPair duplStates)
 {
 	const int32_t keepState = duplStates.first;
 	const int32_t duplState = duplStates.second;
-	U_ASSERT(keepState < duplState);
-	U_ASSERT(duplState < fSafeTable->size());
+	assert(keepState < duplState);
+	assert(duplState < fSafeTable->size());
 
 	fSafeTable->removeElementAt(duplState); // Note that fSafeTable has a deleter function
 	                                        // and will auto-delete the removed element.
@@ -1266,22 +1266,22 @@ void RBBITableBuilder::exportTable(void * where)
 		RBBIStateDescriptor * sd = (RBBIStateDescriptor*)fDStates->elementAt(state);
 		RBBIStateTableRow   * row = (RBBIStateTableRow*)(table->fTableData + state*table->fRowLen);
 		if(use8BitsForTable()) {
-			U_ASSERT(sd->fAccepting <= 255);
-			U_ASSERT(sd->fLookAhead <= 255);
-			U_ASSERT(0 <= sd->fTagsIdx && sd->fTagsIdx <= 255);
+			assert(sd->fAccepting <= 255);
+			assert(sd->fLookAhead <= 255);
+			assert(0 <= sd->fTagsIdx && sd->fTagsIdx <= 255);
 			RBBIStateTableRow8 * r8 = (RBBIStateTableRow8*)row;
 			r8->fAccepting = sd->fAccepting;
 			r8->fLookAhead = sd->fLookAhead;
 			r8->fTagsIdx   = sd->fTagsIdx;
 			for(col = 0; col<catCount; col++) {
-				U_ASSERT(sd->fDtran->elementAti(col) <= kMaxStateFor8BitsTable);
+				assert(sd->fDtran->elementAti(col) <= kMaxStateFor8BitsTable);
 				r8->fNextState[col] = sd->fDtran->elementAti(col);
 			}
 		}
 		else {
-			U_ASSERT(sd->fAccepting <= 0xffff);
-			U_ASSERT(sd->fLookAhead <= 0xffff);
-			U_ASSERT(0 <= sd->fTagsIdx && sd->fTagsIdx <= 0xffff);
+			assert(sd->fAccepting <= 0xffff);
+			assert(sd->fLookAhead <= 0xffff);
+			assert(0 <= sd->fTagsIdx && sd->fTagsIdx <= 0xffff);
 			row->r16.fAccepting = sd->fAccepting;
 			row->r16.fLookAhead = sd->fLookAhead;
 			row->r16.fTagsIdx   = sd->fTagsIdx;
@@ -1364,7 +1364,7 @@ void RBBITableBuilder::buildSafeReverseTable(UErrorCode & status) {
 	// The String holds the nextState data only. The four leading fields of a row, fAccepting,
 	// fLookAhead, etc. are not needed for the safe table, and are omitted at this stage of building.
 
-	U_ASSERT(fSafeTable == nullptr);
+	assert(fSafeTable == nullptr);
 	LocalPointer<UVector> lpSafeTable(
 		new UVector(uprv_deleteUObject, uhash_compareUnicodeString, numCharClasses + 2, status), status);
 	if(U_FAILURE(status)) {
@@ -1475,7 +1475,7 @@ void RBBITableBuilder::exportSafeTable(void * where)
 			r8->fLookAhead = 0;
 			r8->fTagsIdx    = 0;
 			for(col = 0; col<catCount; col++) {
-				U_ASSERT(rowString->charAt(col) <= kMaxStateFor8BitsTable);
+				assert(rowString->charAt(col) <= kMaxStateFor8BitsTable);
 				r8->fNextState[col] = static_cast<uint8>(rowString->charAt(col));
 			}
 		}

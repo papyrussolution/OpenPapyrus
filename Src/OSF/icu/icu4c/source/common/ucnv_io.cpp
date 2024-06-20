@@ -214,7 +214,7 @@ static void U_CALLCONV initAliasData(UErrorCode &errCode)
 	uint32_t tableStart;
 	uint32_t currOffset;
 	ucln_common_registerCleanup(UCLN_COMMON_UCNV_IO, ucnv_io_cleanup);
-	U_ASSERT(gAliasData == NULL);
+	assert(gAliasData == NULL);
 	data = udata_openChoice(NULL, DATA_TYPE, DATA_NAME, isAcceptable, NULL, &errCode);
 	if(U_FAILURE(errCode)) {
 		return;

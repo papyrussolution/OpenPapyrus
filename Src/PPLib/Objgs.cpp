@@ -1630,7 +1630,7 @@ static int EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucItem * pI
 		dlg->getCtrlData(CTL_GSITEM_NETTO, &item.Netto);
 		dlg->getCtrlData(CTL_GSITEM_SYMB, item.Symb);
 		SETFLAG(item.Flags, GSIF_GOODSGROUP, dlg->getCtrlUInt16(CTL_GSITEM_GROUPONLY));
-		item.GoodsID = (item.Flags & GSIF_GOODSGROUP) ? rec.GrpID : rec.GoodsID;
+		item.GoodsID = (item.Flags & GSIF_GOODSGROUP) ? rec.GoodsGrpID : rec.GoodsID;
 		if(!item.GoodsID || gobj.Fetch(item.GoodsID, &goods_rec) <= 0)
 			PPErrorByDialog(dlg, CTLSEL_GSITEM_GOODS, (item.Flags & GSIF_GOODSGROUP) ? PPERR_GOODSGROUPNEEDED : PPERR_GOODSNEEDED);
 		else if(!item.SetEstimationString(temp_buf))

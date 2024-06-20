@@ -133,7 +133,7 @@ static UnicodeString & getWindowsFormat(int32_t lcid, bool currency, UnicodeStri
 	va_end(args);
 
 	/* Just to make sure of the above statement, we add this assert */
-	U_ASSERT(result >=0);
+	assert(result >=0);
 	// The following code is not used because _vscwprintf isn't available on MinGW at the moment.
 	/*if(result < 0) {
 	    int newLength;

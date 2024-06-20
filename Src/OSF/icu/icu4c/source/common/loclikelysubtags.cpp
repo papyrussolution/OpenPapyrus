@@ -268,7 +268,7 @@ bool U_CALLCONV cleanup() {
 
 void U_CALLCONV XLikelySubtags::initLikelySubtags(UErrorCode & errorCode) {
 	// This function is invoked only via umtx_initOnce().
-	U_ASSERT(gLikelySubtags == nullptr);
+	assert(gLikelySubtags == nullptr);
 	XLikelySubtagsData data(errorCode);
 	data.load(errorCode);
 	if(U_FAILURE(errorCode)) {
@@ -306,13 +306,13 @@ XLikelySubtags::XLikelySubtags(XLikelySubtagsData &data) :
 
 	// Cache the result of looking up language="und" encoded as "*", and "und-Zzzz" ("**").
 	UStringTrieResult result = trie.next(u'*');
-	U_ASSERT(USTRINGTRIE_HAS_NEXT(result));
+	assert(USTRINGTRIE_HAS_NEXT(result));
 	trieUndState = trie.getState64();
 	result = trie.next(u'*');
-	U_ASSERT(USTRINGTRIE_HAS_NEXT(result));
+	assert(USTRINGTRIE_HAS_NEXT(result));
 	trieUndZzzzState = trie.getState64();
 	result = trie.next(u'*');
-	U_ASSERT(USTRINGTRIE_HAS_VALUE(result));
+	assert(USTRINGTRIE_HAS_VALUE(result));
 	defaultLsrIndex = trie.getValue();
 	trie.reset();
 
@@ -451,7 +451,7 @@ LSR XLikelySubtags::maximize(const char * language, const char * script, const c
 			else {
 				iter.resetToState64(state);
 				value = trieNext(iter, "", 0);
-				U_ASSERT(value >= 0);
+				assert(value >= 0);
 				state = iter.getState64();
 			}
 		}
@@ -477,11 +477,11 @@ LSR XLikelySubtags::maximize(const char * language, const char * script, const c
 			else {
 				iter.resetToState64(state);
 				value = trieNext(iter, "", 0);
-				U_ASSERT(value > 0);
+				assert(value > 0);
 			}
 		}
 	}
-	U_ASSERT(value < lsrsLength);
+	assert(value < lsrsLength);
 	const LSR &result = lsrs[value];
 	if(*language == 0) {
 		language = "und";
@@ -598,7 +598,7 @@ int32_t XLikelySubtags::getLikelyIndex(const char * language, const char * scrip
 			else {
 				iter.resetToState64(state);
 				value = trieNext(iter, "", 0);
-				U_ASSERT(value >= 0);
+				assert(value >= 0);
 				state = iter.getState64();
 			}
 		}
@@ -609,9 +609,9 @@ int32_t XLikelySubtags::getLikelyIndex(const char * language, const char * scrip
 	}
 	else {
 		value = trieNext(iter, "", 0);
-		U_ASSERT(value > 0);
+		assert(value > 0);
 	}
-	U_ASSERT(value < lsrsLength);
+	assert(value < lsrsLength);
 	return value;
 }
 
@@ -644,7 +644,7 @@ int32_t XLikelySubtags::trieNext(BytesTrie &iter, const char * s, int32_t i) {
 		case USTRINGTRIE_NO_MATCH: return -1;
 		case USTRINGTRIE_NO_VALUE: return 0;
 		case USTRINGTRIE_INTERMEDIATE_VALUE:
-		    U_ASSERT(iter.getValue() == SKIP_SCRIPT);
+		    assert(iter.getValue() == SKIP_SCRIPT);
 		    return SKIP_SCRIPT;
 		case USTRINGTRIE_FINAL_VALUE: return iter.getValue();
 		default: return -1;
@@ -670,15 +670,15 @@ LSR XLikelySubtags::minimizeSubtags(const char * languageIn, const char * script
 	// value00 = lookup(result.language, "", "")
 	BytesTrie iter = new BytesTrie(trie);
 	int value = trieNext(iter, result.language, 0);
-	U_ASSERT(value >= 0);
+	assert(value >= 0);
 	if(value == 0) {
 		value = trieNext(iter, "", 0);
-		U_ASSERT(value >= 0);
+		assert(value >= 0);
 		if(value == 0) {
 			value = trieNext(iter, "", 0);
 		}
 	}
-	U_ASSERT(value > 0);
+	assert(value > 0);
 	LSR value00 = lsrs[value];
 	boolean favorRegionOk = false;
 	if(result.script.equals(value00.script)) { //script is default

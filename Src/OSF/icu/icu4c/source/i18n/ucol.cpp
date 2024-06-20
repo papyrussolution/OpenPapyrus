@@ -414,7 +414,7 @@ U_CAPI const char16_t * U_EXPORT2 ucol_getRules(const UCollator * coll, int32_t 
 	// OK to crash if coll==NULL: We do not want to check "this" pointers.
 	if(rbc || !coll) {
 		const UnicodeString & rules = rbc->getRules();
-		U_ASSERT(rules.getBuffer()[rules.length()] == 0);
+		assert(rules.getBuffer()[rules.length()] == 0);
 		*length = rules.length();
 		return rules.getBuffer();
 	}

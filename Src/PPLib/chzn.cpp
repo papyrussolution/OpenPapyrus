@@ -5,7 +5,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//#include <wininet.h>
 
 class ChZnInterface {
 public:
@@ -4166,11 +4165,13 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, Permissiv
 
 class CheckChZnMarkDialog : public TDialog {
 	enum {
-		ctlgroupIbg = 1
+		ctlgroupIbg   = 1,
+		ctlgroupGoods = 2
 	};
 public:
 	CheckChZnMarkDialog() : TDialog(DLG_CHKCHZNMARK), LinkFiles(0)
 	{
+		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_CHKCHZNMARK_GGRP, CTLSEL_CHKCHZNMARK_GOODS));
 		addGroup(ctlgroupIbg, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_CHKCHZNMARK_PIC,
 			cmAddImage, cmDelImage, 1, ImageBrowseCtrlGroup::fUseExtOpenDlg));
 		{
@@ -4178,6 +4179,8 @@ public:
 			CALLPTRMEMB(p_il, SetupMaxTextLen(4000));
 		}
 		SetupPPObjCombo(this, CTLSEL_CHKCHZNMARK_GUA, PPOBJ_GLOBALUSERACC, 0, 0);
+		GoodsCtrlGroup::Rec rec(0L, 0L, 0, 0);
+		setGroupData(ctlgroupGoods, &rec);
 	}
 private:
 	DECL_HANDLE_EVENT
@@ -4188,6 +4191,12 @@ private:
 		}
 		else if(event.isCmd(cmInputUpdated)) {
 			ProcessInputText();
+		}
+		else if(event.isCbSelected(CTLSEL_CHKCHZNMARK_GOODS)) {
+			const PPID goods_id = getCtrlLong(CTLSEL_CHKCHZNMARK_GOODS);
+			SString info_buf;
+			MakeGoodsInfo(goods_id, info_buf);
+			setCtrlString(CTL_CHKCHZNMARK_INFO, info_buf);
 		}
 		else
 			return;
@@ -4209,6 +4218,58 @@ private:
 				rResult.CatChar(c);
 		}
 		return rResult;
+	}
+	void    MakeGoodsInfo(PPID goodsID, SString & rBuf)
+	{
+		rBuf.Z();
+		SString temp_buf;
+		Goods2Tbl::Rec goods_rec;
+		if(GObj.Fetch(goodsID, &goods_rec) > 0)	{
+			PPGoodsType gt_rec;
+			if(goods_rec.GoodsTypeID && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.ChZnProdType) {
+				PPGetSubStrById(PPTXT_CHZNPRODUCTTYPES, gt_rec.ChZnProdType, temp_buf);
+				rBuf.Cat("chzn type").CatDiv(':', 2).Cat(temp_buf);
+				if(oneof2(gt_rec.ChZnProdType, GTCHZNPT_DRAFTBEER, GTCHZNPT_DRAFTBEER_AWR)) {
+					PPID   org_goods_id = 0;
+					if(GObj.GetOriginalRawGoodsByStruc(goodsID, &org_goods_id)) {
+						Goods2Tbl::Rec org_goods_rec;
+						if(GObj.Fetch(org_goods_id, &org_goods_rec) > 0) {
+							rBuf.CRB().Tab().Cat("org goods").CatDiv(':', 2).Cat(org_goods_rec.Name);
+							//
+							PPObjBill * p_bobj = BillObj;
+							LotExtCodeCore * p_lotxct = p_bobj->P_LotXcT;
+							PPObjCSession cs_obj;
+							if(p_lotxct) {
+								Transfer * p_trfr = p_bobj->trfr;
+								LotArray lot_list;
+								StringSet ss_ext_codes;
+								TSCollection <CCheckCore::ListByMarkEntry> lbm;
+								p_trfr->Rcpt.GetList(org_goods_id, 0, 0, ZERODATE, ReceiptCore::glfWithExtCodeOnly, &lot_list);
+								if(lot_list.getCount()) {
+									for(uint i = 0; i < lot_list.getCount(); i++) {
+										const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
+										if(p_bobj->GetMarkListByLot(r_lot_rec.ID, ss_ext_codes) > 0) {
+											for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
+												//int    Helper_GetListByMark2(TSCollection <ListByMarkEntry> & rList, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId); // @v12.0.5
+												//Cc.Helper_GetListByMark2()
+												CCheckCore::ListByMarkEntry * p_lmb_entry = lbm.CreateNewItem();
+												p_lmb_entry->OrgLotID = r_lot_rec.ID;
+												p_lmb_entry->OrgLotDate = r_lot_rec.Dt;
+												STRNSCPY(p_lmb_entry->Mark, temp_buf);
+											}
+										}
+									}
+									const uint back_days = PPObjCSession::GetCcListByMarkBackDays(lbm);
+									LAssocArray index;
+									LAssocArray * p_index = cs_obj.FetchCcDate2MaxIdIndex(index) ? &index : 0;
+									Cc.Helper_GetListByMark2(lbm, CCheckPacket::lnextChZnMark, p_index, back_days, 0);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	void    ProcessMark(const char * pOriginalText, bool imgScan, SString & rInfoBuf)
 	{
@@ -4357,6 +4418,8 @@ private:
 	}
 
 	ObjLinkFiles LinkFiles;
+	PPObjGoods GObj;
+	CCheckCore Cc;
 };
 
 /*static*/int PPChZnPrcssr::InteractiveCheck()

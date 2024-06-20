@@ -133,7 +133,7 @@ uint32_t CollationWeights::incWeight(uint32_t weight, int32_t length) const {
 			// Roll over, set this byte to the minimum and increment the previous one.
 			weight = setWeightByte(weight, length, minBytes[length]);
 			--length;
-			U_ASSERT(length > 0);
+			assert(length > 0);
 		}
 	}
 }
@@ -150,7 +150,7 @@ uint32_t CollationWeights::incWeightByOffset(uint32_t weight, int32_t length, in
 			weight = setWeightByte(weight, length, minBytes[length] + offset % countBytes(length));
 			offset /= countBytes(length);
 			--length;
-			U_ASSERT(length > 0);
+			assert(length > 0);
 		}
 	}
 }
@@ -181,8 +181,8 @@ static int32_t U_CALLCONV compareRanges(const void * /*context*/, const void * l
 }
 
 bool CollationWeights::getWeightRanges(uint32_t lowerLimit, uint32_t upperLimit) {
-	U_ASSERT(lowerLimit != 0);
-	U_ASSERT(upperLimit != 0);
+	assert(lowerLimit != 0);
+	assert(upperLimit != 0);
 
 	/* get the lengths of the limits */
 	int32_t lowerLength = lengthOfWeight(lowerLimit);
@@ -192,7 +192,7 @@ bool CollationWeights::getWeightRanges(uint32_t lowerLimit, uint32_t upperLimit)
 	printf("length of lower limit 0x%08lx is %ld\n", lowerLimit, lowerLength);
 	printf("length of upper limit 0x%08lx is %ld\n", upperLimit, upperLength);
 #endif
-	U_ASSERT(lowerLength>=middleLength);
+	assert(lowerLength>=middleLength);
 	// Permit upperLength<middleLength: The upper limit for secondaries is 0x10000.
 
 	if(lowerLimit>=upperLimit) {
@@ -291,20 +291,17 @@ bool CollationWeights::getWeightRanges(uint32_t lowerLimit, uint32_t upperLimit)
 					// lowerEnd>upperStart is only possible
 					// if the leading bytes are equal
 					// and lastByte(lowerEnd)>lastByte(upperStart).
-					U_ASSERT(truncateWeight(lowerEnd, length-1)==
-					    truncateWeight(upperStart, length-1));
+					assert(truncateWeight(lowerEnd, length-1)==truncateWeight(upperStart, length-1));
 					// Intersect these two ranges.
 					lower[length].end = upper[length].end;
-					lower[length].count =
-					    (int32_t)getWeightTrail(lower[length].end, length)-
-					    (int32_t)getWeightTrail(lower[length].start, length)+1;
+					lower[length].count = (int32_t)getWeightTrail(lower[length].end, length)-(int32_t)getWeightTrail(lower[length].start, length)+1;
 					// count might be <=0 in which case there is no room,
 					// and the range-collecting code below will ignore this range.
 					merged = TRUE;
 				}
 				else if(lowerEnd==upperStart) {
 					// Not possible, unless minByte==maxByte which is not allowed.
-					U_ASSERT(minBytes[length]<maxBytes[length]);
+					assert(minBytes[length]<maxBytes[length]);
 				}
 				else { /* lowerEnd<upperStart */
 					if(incWeight(lowerEnd, length)==upperStart) {
@@ -345,7 +342,6 @@ bool CollationWeights::getWeightRanges(uint32_t lowerLimit, uint32_t upperLimit)
 		}
 	}
 #endif
-
 	/* copy the ranges, shortest first, into the result array */
 	rangeCount = 0;
 	if(middle.count>0) {
@@ -366,7 +362,8 @@ bool CollationWeights::getWeightRanges(uint32_t lowerLimit, uint32_t upperLimit)
 	return rangeCount>0;
 }
 
-bool CollationWeights::allocWeightsInShortRanges(int32_t n, int32_t minLength) {
+bool CollationWeights::allocWeightsInShortRanges(int32_t n, int32_t minLength) 
+{
 	// See if the first few minLength and minLength+1 ranges have enough weights.
 	for(int32_t i = 0; i < rangeCount && ranges[i].length <= (minLength + 1); ++i) {
 		if(n <= ranges[i].count) {
@@ -438,7 +435,7 @@ bool CollationWeights::allocWeightsInMinLengthRanges(int32_t n, int32_t minLengt
 		// round up
 		++count2;
 		--count1;
-		U_ASSERT((count1 + count2 * nextCountBytes) >= n);
+		assert((count1 + count2 * nextCountBytes) >= n);
 	}
 
 	ranges[0].start = start;
@@ -545,7 +542,7 @@ uint32_t CollationWeights::nextWeight() {
 		else {
 			/* increment the weight for the next value */
 			range.start = incWeight(weight, range.length);
-			U_ASSERT(range.start <= range.end);
+			assert(range.start <= range.end);
 		}
 		return weight;
 	}

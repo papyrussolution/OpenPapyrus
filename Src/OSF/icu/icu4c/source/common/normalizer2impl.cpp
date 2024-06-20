@@ -50,7 +50,7 @@ inline uint8 leadByteForCP(UChar32 c) {
  */
 UChar32 codePointFromValidUTF8(const uint8 * cpStart, const uint8 * cpLimit) {
 	// Similar to U8_NEXT_UNSAFE(s, i, c).
-	U_ASSERT(cpStart < cpLimit);
+	assert(cpStart < cpLimit);
 	uint8 c = *cpStart;
 	switch(cpLimit-cpStart) {
 		case 1:
@@ -194,7 +194,7 @@ bool ReorderingBuffer::equals(const char16_t * otherStart, const char16_t * othe
 }
 
 bool ReorderingBuffer::equals(const uint8 * otherStart, const uint8 * otherLimit) const {
-	U_ASSERT((otherLimit - otherStart) <= INT32_MAX); // ensured by caller
+	assert((otherLimit - otherStart) <= INT32_MAX); // ensured by caller
 	int32_t length = (int32_t)(limit - start);
 	int32_t otherLength = (int32_t)(otherLimit - otherStart);
 	// For equal strings, UTF-8 is at least as long as UTF-16, and at most three times as long.
@@ -435,7 +435,7 @@ void Normalizer2Impl::init(const int32_t * inIndexes, const UCPTrie * inTrie,
 	minNoNoEmpty = static_cast<uint16>(inIndexes[IX_MIN_NO_NO_EMPTY]);
 	limitNoNo = static_cast<uint16>(inIndexes[IX_LIMIT_NO_NO]);
 	minMaybeYes = static_cast<uint16>(inIndexes[IX_MIN_MAYBE_YES]);
-	U_ASSERT((minMaybeYes & 7) == 0); // 8-aligned for noNoDelta bit fields
+	assert((minMaybeYes & 7) == 0); // 8-aligned for noNoDelta bit fields
 	centerNoNoDelta = (minMaybeYes >> DELTA_SHIFT) - MAX_DELTA - 1;
 
 	normTrie = inTrie;
@@ -734,7 +734,7 @@ bool Normalizer2Impl::decompose(UChar32 c, uint16 norm16,
 const uint8 * Normalizer2Impl::decomposeUTF8(uint32_t options,
     const uint8 * src, const uint8 * limit,
     ByteSink * sink, Edits * edits, UErrorCode & errorCode) const {
-	U_ASSERT(limit != nullptr);
+	assert(limit != nullptr);
 	UnicodeString s16;
 	uint8 minNoLead = leadByteForCP(minDecompNoCP);
 
@@ -892,7 +892,7 @@ const uint8 * Normalizer2Impl::decomposeShort(const uint8 * src, const uint8 * l
 		// so it gets copied unchanged in the fast path,
 		// and we stop the slow path where invalid UTF-8 begins.
 		// c >= 0 is the result of an algorithmic mapping.
-		U_ASSERT(c >= 0 || norm16 != INERT);
+		assert(c >= 0 || norm16 != INERT);
 		if(norm16 < minYesNo) {
 			if(c < 0) {
 				c = codePointFromValidUTF8(prevSrc, src);
@@ -1895,7 +1895,7 @@ void Normalizer2Impl::composeAndAppend(const char16_t * src, const char16_t * li
 
 bool Normalizer2Impl::composeUTF8(uint32_t options, bool onlyContiguous, const uint8 * src, const uint8 * limit, ByteSink * sink, Edits * edits, UErrorCode & errorCode) const 
 {
-	U_ASSERT(limit != nullptr);
+	assert(limit != nullptr);
 	UnicodeString s16;
 	uint8 minNoMaybeLead = leadByteForCP(minCompNoMaybeCP);
 	const uint8 * prevBoundary = src;
@@ -1988,7 +1988,7 @@ bool Normalizer2Impl::composeUTF8(uint32_t options, bool onlyContiguous, const u
 			// Jamo L: E1 84 80..92
 			// Jamo V: E1 85 A1..B5
 			// Jamo T: E1 86 A8..E1 87 82
-			U_ASSERT((src - prevSrc) == 3 && *prevSrc == 0xe1);
+			assert((src - prevSrc) == 3 && *prevSrc == 0xe1);
 			UChar32 prev = previousHangulOrJamo(prevBoundary, prevSrc);
 			if(prevSrc[1] == 0x85) {
 				// The current character is a Jamo Vowel,
@@ -2568,7 +2568,7 @@ static void U_CALLCONV initCanonIterData(Normalizer2Impl * impl, UErrorCode & er
 U_CDECL_END
 
 void InitCanonIterData::doInit(Normalizer2Impl * impl, UErrorCode & errorCode) {
-	U_ASSERT(impl->fCanonIterData == NULL);
+	assert(impl->fCanonIterData == NULL);
 	impl->fCanonIterData = new CanonIterData(errorCode);
 	if(impl->fCanonIterData == NULL) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
@@ -2634,7 +2634,7 @@ void Normalizer2Impl::makeCanonIterDataFromNorm16(UChar32 start, UChar32 end, co
 				c2 = mapAlgorithmic(c2, norm16_2);
 				norm16_2 = getRawNorm16(c2);
 				// No compatibility mappings for the CanonicalIterator.
-				U_ASSERT(!(isHangulLV(norm16_2) || isHangulLVT(norm16_2)));
+				assert(!(isHangulLV(norm16_2) || isHangulLVT(norm16_2)));
 			}
 			if(norm16_2 > minYesNo) {
 				// c decomposes, get everything from the variable-length extra data
@@ -2832,7 +2832,7 @@ U_CAPI int32_t U_EXPORT2 unorm2_swap(const UDataSwapper * ds,
 		/* no need to swap the uint8 smallFCD[] (new in formatVersion 2) */
 		nextOffset = indexes[Normalizer2Impl::IX_SMALL_FCD_OFFSET+1];
 		offset = nextOffset;
-		U_ASSERT(offset==size);
+		assert(offset==size);
 	}
 	return headerSize+size;
 }

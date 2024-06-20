@@ -165,7 +165,7 @@ bool TransliteratorAlias::isRuleBased() const { return type == RULES; }
 
 void TransliteratorAlias::parse(TransliteratorParser& parser, UParseError& pe, UErrorCode & ec) const 
 {
-	U_ASSERT(type == RULES);
+	assert(type == RULES);
 	if(U_FAILURE(ec)) {
 		return;
 	}
@@ -523,7 +523,7 @@ TransliteratorRegistry::~TransliteratorRegistry() {
 Transliterator* TransliteratorRegistry::get(const UnicodeString & ID,
     TransliteratorAlias*& aliasReturn,
     UErrorCode & status) {
-	U_ASSERT(aliasReturn == NULL);
+	assert(aliasReturn == NULL);
 	TransliteratorEntry * entry = find(ID);
 	return (entry == 0) ? 0
 	       : instantiateEntry(ID, entry, aliasReturn, status);
@@ -533,7 +533,7 @@ Transliterator* TransliteratorRegistry::reget(const UnicodeString & ID,
     TransliteratorParser& parser,
     TransliteratorAlias*& aliasReturn,
     UErrorCode & status) {
-	U_ASSERT(aliasReturn == NULL);
+	assert(aliasReturn == NULL);
 	TransliteratorEntry * entry = find(ID);
 
 	if(entry == 0) {
@@ -1250,7 +1250,7 @@ Transliterator* TransliteratorRegistry::instantiateEntry(const UnicodeString & I
     TransliteratorAlias* &aliasReturn,
     UErrorCode & status) {
 	Transliterator * t = 0;
-	U_ASSERT(aliasReturn == 0);
+	assert(aliasReturn == 0);
 
 	switch(entry->entryType) {
 		case TransliteratorEntry::RBT_DATA:

@@ -165,7 +165,7 @@ MutableCodePointTrie::MutableCodePointTrie(const MutableCodePointTrie &other, UE
 	memcpy(index, other.index, iLimit * 4);
 	memcpy(data, other.data, (size_t)other.dataLength * 4);
 	dataLength = other.dataLength;
-	U_ASSERT(other.index16 == nullptr);
+	assert(other.index16 == nullptr);
 }
 
 MutableCodePointTrie::~MutableCodePointTrie() 
@@ -369,7 +369,7 @@ UChar32 MutableCodePointTrie::getRange(UChar32 start, UCPMapValueFilter * filter
 		}
 		++i;
 	} while(c < highStart);
-	U_ASSERT(haveValue);
+	assert(haveValue);
 	if(maybeFilterValue(highValue, initialValue, nullValue,
 	    filter, context) != value) {
 		return c - 1;
@@ -459,7 +459,7 @@ int32_t MutableCodePointTrie::getDataBlock(int32_t i) {
 		int32_t iStart = i & ~(SMALL_DATA_BLOCKS_PER_BMP_BLOCK -1);
 		int32_t iLimit = iStart + SMALL_DATA_BLOCKS_PER_BMP_BLOCK;
 		do {
-			U_ASSERT(flags[iStart] == ALL_SAME);
+			assert(flags[iStart] == ALL_SAME);
 			writeBlock(data + newBlock, index[iStart]);
 			flags[iStart] = MIXED;
 			index[iStart++] = newBlock;
@@ -650,7 +650,7 @@ template <typename UIntA, typename UIntB>
 int32_t getOverlap(const UIntA * p, int32_t length,
     const UIntB * q, int32_t qStart, int32_t blockLength) {
 	int32_t overlap = blockLength - 1;
-	U_ASSERT(overlap <= length);
+	assert(overlap <= length);
 	q += qStart;
 	while(overlap > 0 && !equalBlocks(p + (length - overlap), q, overlap)) {
 		--overlap;
@@ -740,17 +740,17 @@ public:
 
 	/** Replaces the block which has the lowest reference count. */
 	void add(int32_t index, int32_t count, uint32_t value) {
-		U_ASSERT(length == CAPACITY);
+		assert(length == CAPACITY);
 		int32_t least = -1;
 		int32_t leastCount = I_LIMIT;
 		for(int32_t i = 0; i < length; ++i) {
-			U_ASSERT(values[i] != value);
+			assert(values[i] != value);
 			if(refCounts[i] < leastCount) {
 				least = i;
 				leastCount = refCounts[i];
 			}
 		}
-		U_ASSERT(least >= 0);
+		assert(least >= 0);
 		mostRecent = least;
 		indexes[least] = index;
 		values[least] = value;
@@ -892,7 +892,7 @@ private:
 
 	template <typename UInt>
 	void addEntry(const UInt * data, int32_t blockStart, uint32_t hashCode, int32_t dataIndex) {
-		U_ASSERT(0 <= dataIndex && dataIndex < (int32_t)mask);
+		assert(0 <= dataIndex && dataIndex < (int32_t)mask);
 		int32_t entryIndex = findEntry(data, data, blockStart, hashCode);
 		if(entryIndex < 0) {
 			table[~entryIndex] = (hashCode << shift) | (dataIndex + 1);
@@ -938,7 +938,7 @@ private:
 	}
 
 	inline int32_t nextIndex(int32_t initialEntryIndex, int32_t entryIndex) const {
-		// U_ASSERT(0 < initialEntryIndex && initialEntryIndex < length);
+		// assert(0 < initialEntryIndex && initialEntryIndex < length);
 		return (entryIndex + initialEntryIndex) % length;
 	}
 
@@ -992,13 +992,13 @@ int32_t MutableCodePointTrie::compactWholeDataBlocks(int32_t fastILimit, AllSame
 			}
 		}
 		else {
-			U_ASSERT(flags[i] == ALL_SAME);
+			assert(flags[i] == ALL_SAME);
 			if(inc > 1) {
 				// Do all of the fast-range data block's ALL_SAME parts have the same value?
 				bool allSame = true;
 				int32_t next_i = i + inc;
 				for(int32_t j = i + 1; j < next_i; ++j) {
-					U_ASSERT(flags[j] == ALL_SAME);
+					assert(flags[j] == ALL_SAME);
 					if(index[j] != value) {
 						allSame = false;
 						break;
@@ -1410,8 +1410,8 @@ int32_t MutableCodePointTrie::compactIndex(int32_t fastILimit, MixedBlocks &mixe
 			}
 		}
 		else {
-			U_ASSERT(f == I3_18);
-			U_ASSERT(hasLongI3Blocks);
+			assert(f == I3_18);
+			assert(hasLongI3Blocks);
 			// Encode an index-3 block that contains one or more data indexes exceeding 16 bits.
 			int32_t j = i;
 			int32_t jLimit = i + UCPTRIE_INDEX_3_BLOCK_LENGTH;
@@ -1480,8 +1480,8 @@ int32_t MutableCodePointTrie::compactIndex(int32_t fastILimit, MixedBlocks &mixe
 		// Set the index-2 table entry.
 		index2[i2Length++] = i3;
 	}
-	U_ASSERT(i2Length == index2Capacity);
-	U_ASSERT(indexLength <= index3Start + index3Capacity);
+	assert(i2Length == index2Capacity);
+	assert(indexLength <= index3Start + index3Capacity);
 
 	if(index3NullOffset < 0) {
 		index3NullOffset = UCPTRIE_NO_INDEX3_NULL_OFFSET;
@@ -1502,7 +1502,7 @@ int32_t MutableCodePointTrie::compactIndex(int32_t fastILimit, MixedBlocks &mixe
 		int32_t n;
 		if((i2Length - i) >= blockLength) {
 			// normal block
-			U_ASSERT(blockLength == UCPTRIE_INDEX_2_BLOCK_LENGTH);
+			assert(blockLength == UCPTRIE_INDEX_2_BLOCK_LENGTH);
 			n = mixedBlocks.findBlock(index16, index2, i);
 		}
 		else {
@@ -1533,8 +1533,8 @@ int32_t MutableCodePointTrie::compactIndex(int32_t fastILimit, MixedBlocks &mixe
 		// Set the index-1 table entry.
 		index16[i1++] = i2;
 	}
-	U_ASSERT(i1 == index3Start);
-	U_ASSERT(indexLength <= index16Capacity);
+	assert(i1 == index3Start);
+	assert(indexLength <= index16Capacity);
 
 #ifdef UCPTRIE_DEBUG
 	/* we saved some space */
@@ -1547,7 +1547,7 @@ int32_t MutableCodePointTrie::compactIndex(int32_t fastILimit, MixedBlocks &mixe
 
 int32_t MutableCodePointTrie::compactTrie(int32_t fastILimit, UErrorCode & errorCode) {
 	// Find the real highStart and round it up.
-	U_ASSERT((highStart & (UCPTRIE_CP_PER_INDEX_2_ENTRY - 1)) == 0);
+	assert((highStart & (UCPTRIE_CP_PER_INDEX_2_ENTRY - 1)) == 0);
 	highValue = get(MAX_UNICODE);
 	int32_t realHighStart = findHighStart();
 	realHighStart = (realHighStart + (UCPTRIE_CP_PER_INDEX_2_ENTRY - 1)) &
@@ -1604,7 +1604,7 @@ int32_t MutableCodePointTrie::compactTrie(int32_t fastILimit, UErrorCode & error
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-	U_ASSERT(newDataLength <= newDataCapacity);
+	assert(newDataLength <= newDataCapacity);
 	uprv_free(data);
 	data = newData;
 	dataCapacity = newDataCapacity;
@@ -1717,7 +1717,7 @@ UCPTrie * MutableCodePointTrie::build(UCPTrieType type, UCPTrieValueWidth valueW
 
 	// Calculate the total length of the UCPTrie as a single memory block.
 	length += sizeof(UCPTrie);
-	U_ASSERT((length & 3) == 0);
+	assert((length & 3) == 0);
 
 	uint8 * bytes = (uint8 *)uprv_malloc(length);
 	if(bytes == nullptr) {

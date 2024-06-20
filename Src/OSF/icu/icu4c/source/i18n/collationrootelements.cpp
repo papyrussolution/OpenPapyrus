@@ -17,14 +17,14 @@ int64_t CollationRootElements::lastCEWithPrimaryBefore(uint32_t p) const
 	if(!p) {
 		return 0;
 	}
-	U_ASSERT(p > elements[elements[IX_FIRST_PRIMARY_INDEX]]);
+	assert(p > elements[elements[IX_FIRST_PRIMARY_INDEX]]);
 	int32_t index = findP(p);
 	uint32_t q = elements[index];
 	uint32_t secTer;
 	if(p == (q & 0xffffff00)) {
 		// p == elements[index] is a root primary. Find the CE before it.
 		// We must not be in a primary range.
-		U_ASSERT((q & PRIMARY_STEP_MASK) == 0);
+		assert((q & PRIMARY_STEP_MASK) == 0);
 		secTer = elements[index - 1];
 		if((secTer & SEC_TER_DELTA_FLAG) == 0) {
 			// Primary CE just before p.
@@ -53,7 +53,7 @@ int64_t CollationRootElements::lastCEWithPrimaryBefore(uint32_t p) const
 			q = elements[++index];
 			if((q & SEC_TER_DELTA_FLAG) == 0) {
 				// We must not be in a primary range.
-				U_ASSERT((q & PRIMARY_STEP_MASK) == 0);
+				assert((q & PRIMARY_STEP_MASK) == 0);
 				break;
 			}
 			secTer = q;
@@ -72,7 +72,7 @@ int64_t CollationRootElements::firstCEWithPrimaryAtLeast(uint32_t p) const {
 			p = elements[++index];
 			if((p & SEC_TER_DELTA_FLAG) == 0) {
 				// First primary after p. We must not be in a primary range.
-				U_ASSERT((p & PRIMARY_STEP_MASK) == 0);
+				assert((p & PRIMARY_STEP_MASK) == 0);
 				break;
 			}
 		}
@@ -100,7 +100,7 @@ uint32_t CollationRootElements::getPrimaryBefore(uint32_t p, bool isCompressible
 	else {
 		// p is in a range, and not at the start.
 		uint32_t nextElement = elements[index + 1];
-		U_ASSERT(isEndOfPrimaryRange(nextElement));
+		assert(isEndOfPrimaryRange(nextElement));
 		step = (int32_t)nextElement & PRIMARY_STEP_MASK;
 	}
 	// Return the previous range primary.
@@ -126,18 +126,18 @@ uint32_t CollationRootElements::getSecondaryBefore(uint32_t p, uint32_t s) const
 		previousSec = Collation::BEFORE_WEIGHT16;
 		sec = getFirstSecTerForPrimary(index) >> 16;
 	}
-	U_ASSERT(s >= sec);
+	assert(s >= sec);
 	while(s > sec) {
 		previousSec = sec;
-		U_ASSERT((elements[index] & SEC_TER_DELTA_FLAG) != 0);
+		assert((elements[index] & SEC_TER_DELTA_FLAG) != 0);
 		sec = elements[index++] >> 16;
 	}
-	U_ASSERT(sec == s);
+	assert(sec == s);
 	return previousSec;
 }
 
 uint32_t CollationRootElements::getTertiaryBefore(uint32_t p, uint32_t s, uint32_t t) const {
-	U_ASSERT((t & ~Collation::ONLY_TERTIARY_MASK) == 0);
+	assert((t & ~Collation::ONLY_TERTIARY_MASK) == 0);
 	int32_t index;
 	uint32_t previousTer, secTer;
 	if(!p) {
@@ -162,15 +162,15 @@ uint32_t CollationRootElements::getTertiaryBefore(uint32_t p, uint32_t s, uint32
 		if((secTer >> 16) == s) {
 			previousTer = secTer;
 		}
-		U_ASSERT((elements[index] & SEC_TER_DELTA_FLAG) != 0);
+		assert((elements[index] & SEC_TER_DELTA_FLAG) != 0);
 		secTer = elements[index++] & ~SEC_TER_DELTA_FLAG;
 	}
-	U_ASSERT(secTer == st);
+	assert(secTer == st);
 	return previousTer & 0xffff;
 }
 
 uint32_t CollationRootElements::getPrimaryAfter(uint32_t p, int32_t index, bool isCompressible) const {
-	U_ASSERT(p == (elements[index] & 0xffffff00) || isEndOfPrimaryRange(elements[index + 1]));
+	assert(p == (elements[index] & 0xffffff00) || isEndOfPrimaryRange(elements[index + 1]));
 	uint32_t q = elements[++index];
 	int32_t step;
 	if((q & SEC_TER_DELTA_FLAG) == 0 && (step = (int32_t)q & PRIMARY_STEP_MASK) != 0) {
@@ -187,7 +187,7 @@ uint32_t CollationRootElements::getPrimaryAfter(uint32_t p, int32_t index, bool 
 		while((q & SEC_TER_DELTA_FLAG) != 0) {
 			q = elements[++index];
 		}
-		U_ASSERT((q & PRIMARY_STEP_MASK) == 0);
+		assert((q & PRIMARY_STEP_MASK) == 0);
 		return q;
 	}
 }
@@ -197,14 +197,14 @@ uint32_t CollationRootElements::getSecondaryAfter(int32_t index, uint32_t s) con
 	uint32_t secLimit;
 	if(index == 0) {
 		// primary = 0
-		U_ASSERT(s != 0);
+		assert(s != 0);
 		index = (int32_t)elements[IX_FIRST_SECONDARY_INDEX];
 		secTer = elements[index];
 		// Gap at the end of the secondary CE range.
 		secLimit = 0x10000;
 	}
 	else {
-		U_ASSERT(index >= (int32_t)elements[IX_FIRST_PRIMARY_INDEX]);
+		assert(index >= (int32_t)elements[IX_FIRST_PRIMARY_INDEX]);
 		secTer = getFirstSecTerForPrimary(index + 1);
 		// If this is an explicit sec/ter unit, then it will be read once more.
 		// Gap for secondaries of primary CEs.
@@ -228,7 +228,7 @@ uint32_t CollationRootElements::getTertiaryAfter(int32_t index, uint32_t s, uint
 	if(index == 0) {
 		// primary = 0
 		if(s == 0) {
-			U_ASSERT(t != 0);
+			assert(t != 0);
 			index = (int32_t)elements[IX_FIRST_TERTIARY_INDEX];
 			// Gap at the end of the tertiary CE range.
 			terLimit = 0x4000;
@@ -241,7 +241,7 @@ uint32_t CollationRootElements::getTertiaryAfter(int32_t index, uint32_t s, uint
 		secTer = elements[index] & ~SEC_TER_DELTA_FLAG;
 	}
 	else {
-		U_ASSERT(index >= (int32_t)elements[IX_FIRST_PRIMARY_INDEX]);
+		assert(index >= (int32_t)elements[IX_FIRST_PRIMARY_INDEX]);
 		secTer = getFirstSecTerForPrimary(index + 1);
 		// If this is an explicit sec/ter unit, then it will be read once more.
 		terLimit = getTertiaryBoundary();
@@ -249,7 +249,7 @@ uint32_t CollationRootElements::getTertiaryAfter(int32_t index, uint32_t s, uint
 	uint32_t st = (s << 16) | t;
 	for(;;) {
 		if(secTer > st) {
-			U_ASSERT((secTer >> 16) == s);
+			assert((secTer >> 16) == s);
 			return secTer & 0xffff;
 		}
 		secTer = elements[++index];
@@ -278,25 +278,25 @@ uint32_t CollationRootElements::getFirstSecTerForPrimary(int32_t index) const {
 
 int32_t CollationRootElements::findPrimary(uint32_t p) const {
 	// Requirement: p must occur as a root primary.
-	U_ASSERT((p & 0xff) == 0); // at most a 3-byte primary
+	assert((p & 0xff) == 0); // at most a 3-byte primary
 	int32_t index = findP(p);
 	// If p is in a range, then we just assume that p is an actual primary in this range.
 	// (Too cumbersome/expensive to check.)
 	// Otherwise, it must be an exact match.
-	U_ASSERT(isEndOfPrimaryRange(elements[index + 1]) || p == (elements[index] & 0xffffff00));
+	assert(isEndOfPrimaryRange(elements[index + 1]) || p == (elements[index] & 0xffffff00));
 	return index;
 }
 
 int32_t CollationRootElements::findP(uint32_t p) const {
 	// p need not occur as a root primary.
 	// For example, it might be a reordering group boundary.
-	U_ASSERT((p >> 24) != Collation::UNASSIGNED_IMPLICIT_BYTE);
+	assert((p >> 24) != Collation::UNASSIGNED_IMPLICIT_BYTE);
 	// modified binary search
 	int32_t start = (int32_t)elements[IX_FIRST_PRIMARY_INDEX];
-	U_ASSERT(p >= elements[start]);
+	assert(p >= elements[start]);
 	int32_t limit = length - 1;
-	U_ASSERT(elements[limit] >= PRIMARY_SENTINEL);
-	U_ASSERT(p < elements[limit]);
+	assert(elements[limit] >= PRIMARY_SENTINEL);
+	assert(p < elements[limit]);
 	while((start + 1) < limit) {
 		// Invariant: elements[start] and elements[limit] are primaries,
 		// and elements[start]<=p<=elements[limit].

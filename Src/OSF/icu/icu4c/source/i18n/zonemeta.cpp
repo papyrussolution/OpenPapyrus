@@ -231,7 +231,7 @@ const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tz
 	UErrorCode tmpStatus = U_ZERO_ERROR;
 	char16_t utzid[ZID_KEY_MAX + 1];
 	tzid.extract(utzid, ZID_KEY_MAX + 1, tmpStatus);
-	U_ASSERT(tmpStatus == U_ZERO_ERROR); // we checked the length of tzid already
+	assert(tmpStatus == U_ZERO_ERROR); // we checked the length of tzid already
 	if(!uprv_isInvariantUString(utzid, -1)) {
 		// All of known tz IDs are only containing ASCII invariant characters.
 		status = U_ILLEGAL_ARGUMENT_ERROR;
@@ -315,7 +315,7 @@ const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tz
 	ures_close(top);
 
 	if(U_SUCCESS(status)) {
-		U_ASSERT(canonicalID != NULL); // canocanilD must be non-NULL here
+		assert(canonicalID != NULL); // canocanilD must be non-NULL here
 
 		// Put the resolved canonical ID to the cache
 		umtx_lock(&gZoneMetaLock);
@@ -323,10 +323,10 @@ const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tz
 			const char16_t * idInCache = (const char16_t *)uhash_get(gCanonicalIDCache, utzid);
 			if(idInCache == NULL) {
 				const char16_t * key = ZoneMeta::findTimeZoneID(tzid);
-				U_ASSERT(key != NULL);
+				assert(key != NULL);
 				if(key) {
 					idInCache = (const char16_t *)uhash_put(gCanonicalIDCache, (void *)key, (void *)canonicalID, &status);
-					U_ASSERT(idInCache == NULL);
+					assert(idInCache == NULL);
 				}
 			}
 			if(U_SUCCESS(status) && isInputCanonical) {
@@ -335,7 +335,7 @@ const char16_t * U_EXPORT2 ZoneMeta::getCanonicalCLDRID(const UnicodeString & tz
 				if(canonicalInCache == NULL) {
 					canonicalInCache = (const char16_t *)uhash_put(gCanonicalIDCache,
 						(void *)canonicalID, (void *)canonicalID, &status);
-					U_ASSERT(canonicalInCache == NULL);
+					assert(canonicalInCache == NULL);
 				}
 			}
 		}
@@ -428,7 +428,7 @@ U_EXPORT2 ZoneMeta::getCanonicalCountry(const UnicodeString & tzid, UnicodeStrin
 		if(!cached) {
 			// We need to go through all zones associated with the region.
 			// This is relatively heavy operation.
-			U_ASSERT(sstrleni(region) == 2);
+			assert(sstrleni(region) == 2);
 			u_UCharsToChars(region, regionBuf, 2);
 			StringEnumeration * ids = TimeZone::createTimeZoneIDEnumeration(UCAL_ZONE_TYPE_CANONICAL_LOCATION, regionBuf, NULL, status);
 			int32_t idsLen = ids->count(status);
@@ -511,7 +511,7 @@ UnicodeString & U_EXPORT2 ZoneMeta::getMetazoneID(const UnicodeString & tzid, UD
 }
 
 static void U_CALLCONV olsonToMetaInit(UErrorCode & status) {
-	U_ASSERT(gOlsonToMeta == NULL);
+	assert(gOlsonToMeta == NULL);
 	ucln_i18n_registerCleanup(UCLN_I18N_ZONEMETA, zoneMeta_cleanup);
 	gOlsonToMeta = uhash_open(uhash_hashUChars, uhash_compareUChars, NULL, &status);
 	if(U_FAILURE(status)) {
@@ -730,8 +730,8 @@ UnicodeString & U_EXPORT2 ZoneMeta::getZoneIdByMetazone(const UnicodeString & mz
 }
 
 static void U_CALLCONV initAvailableMetaZoneIDs() {
-	U_ASSERT(gMetaZoneIDs == NULL);
-	U_ASSERT(gMetaZoneIDTable == NULL);
+	assert(gMetaZoneIDs == NULL);
+	assert(gMetaZoneIDTable == NULL);
 	ucln_i18n_registerCleanup(UCLN_I18N_ZONEMETA, zoneMeta_cleanup);
 
 	UErrorCode status = U_ZERO_ERROR;

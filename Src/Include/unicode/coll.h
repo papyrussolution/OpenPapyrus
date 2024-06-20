@@ -1049,7 +1049,6 @@ public:
 protected:
 
 	// Collator protected constructors -------------------------------------
-
 	/**
 	 * Default constructor.
 	 * Constructor is different from the old default Collator constructor.
@@ -1058,7 +1057,6 @@ protected:
 	 * @stable ICU 2.0
 	 */
 	Collator();
-
 #ifndef U_HIDE_DEPRECATED_API
 	/**
 	 * Constructor.
@@ -1071,17 +1069,9 @@ protected:
 	 * @deprecated ICU 2.4. Subclasses should use the default constructor
 	 * instead and handle the strength and normalization mode themselves.
 	 */
-	Collator(UCollationStrength collationStrength,
-	    UNormalizationMode decompositionMode);
+	Collator(UCollationStrength collationStrength, UNormalizationMode decompositionMode);
 #endif  /* U_HIDE_DEPRECATED_API */
-
-	/**
-	 * Copy constructor.
-	 * @param other Collator object to be copied from
-	 * @stable ICU 2.0
-	 */
 	Collator(const Collator& other);
-
 public:
 	/**
 	 * Used internally by registration to define the requested and valid locales.

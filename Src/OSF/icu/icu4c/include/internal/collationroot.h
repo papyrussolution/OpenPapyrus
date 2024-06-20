@@ -1,16 +1,10 @@
+// collationroot.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-*******************************************************************************
-* Copyright (C) 2012-2014, International Business Machines
-* Corporation and others.  All Rights Reserved.
-*******************************************************************************
-* collationroot.h
-*
-* created on: 2012dec17
-* created by: Markus W. Scherer
-*/
-
+// Copyright (C) 2012-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// created on: 2012dec17
+// created by: Markus W. Scherer
+// 
 #ifndef __COLLATIONROOT_H__
 #define __COLLATIONROOT_H__
 
@@ -34,7 +28,6 @@ public:
     static const CollationTailoring *getRoot(UErrorCode & errorCode);
     static const CollationData *getData(UErrorCode & errorCode);
     static const CollationSettings *getSettings(UErrorCode & errorCode);
-
 private:
     static void U_CALLCONV load(UErrorCode & errorCode);
 };

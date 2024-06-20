@@ -376,7 +376,7 @@ public:
 		Data.LocList = loccg_rec.LocList;
 		GoodsCtrlGroup::Rec goodscg_rec;
 		getGroupData(grpGoods, &goodscg_rec);
-		Data.GoodsGrpID = goodscg_rec.GrpID;
+		Data.GoodsGrpID = goodscg_rec.GoodsGrpID;
 		Data.GoodsID = goodscg_rec.GoodsID;
 		GetClusterData(CTL_LOCTRFILT_MODE, &Data.Mode);
 		ASSIGN_PTR(pData, Data);

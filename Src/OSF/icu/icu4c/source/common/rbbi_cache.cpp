@@ -50,7 +50,7 @@ bool RuleBasedBreakIterator::DictionaryCache::following(int32_t fromPos, int32_t
 			return FALSE;
 		}
 		r = fBreaks.elementAti(fPositionInCache);
-		U_ASSERT(r > fromPos);
+		assert(r > fromPos);
 		*result = r;
 		*statusIndex = fOtherRuleStatusIndex;
 		return TRUE;
@@ -78,7 +78,7 @@ bool RuleBasedBreakIterator::DictionaryCache::preceding(int32_t fromPos, int32_t
 	if(fromPos == fLimit) {
 		fPositionInCache = fBreaks.size() - 1;
 		if(fPositionInCache >= 0) {
-			U_ASSERT(fBreaks.elementAti(fPositionInCache) == fromPos);
+			assert(fBreaks.elementAti(fPositionInCache) == fromPos);
 		}
 	}
 
@@ -86,7 +86,7 @@ bool RuleBasedBreakIterator::DictionaryCache::preceding(int32_t fromPos, int32_t
 	if(fPositionInCache > 0 && fPositionInCache < fBreaks.size() && fBreaks.elementAti(fPositionInCache) == fromPos) {
 		--fPositionInCache;
 		r = fBreaks.elementAti(fPositionInCache);
-		U_ASSERT(r < fromPos);
+		assert(r < fromPos);
 		*result = r;
 		*statusIndex = ( r== fStart) ? fFirstRuleStatusIndex : fOtherRuleStatusIndex;
 		return TRUE;
@@ -168,7 +168,7 @@ void RuleBasedBreakIterator::DictionaryCache::populateDictionary(int32_t startPo
 
 	// printf("foundBreakCount = %d\n", foundBreakCount);
 	if(foundBreakCount > 0) {
-		U_ASSERT(foundBreakCount == fBreaks.size());
+		assert(foundBreakCount == fBreaks.size());
 		if(startPos < fBreaks.elementAti(0)) {
 			// The dictionary did not place a boundary at the start of the segment of text.
 			// Add one now. This should not commonly happen, but it would be easy for interactions
@@ -248,7 +248,7 @@ void RuleBasedBreakIterator::BreakCache::preceding(int32_t startPos, UErrorCode 
 			// seek() leaves the BreakCache positioned at the preceding boundary
 			//        if the requested position is between two boundaries.
 			// current() pushes the BreakCache position out to the BreakIterator itself.
-			U_ASSERT(startPos > fTextIdx);
+			assert(startPos > fTextIdx);
 			current();
 		}
 	}
@@ -314,10 +314,10 @@ bool RuleBasedBreakIterator::BreakCache::seek(int32_t pos) {
 			min = modChunkSize(probe + 1);
 		}
 	}
-	U_ASSERT(fBoundaries[max] > pos);
+	assert(fBoundaries[max] > pos);
 	fBufIdx = modChunkSize(max - 1);
 	fTextIdx = fBoundaries[fBufIdx];
-	U_ASSERT(fTextIdx <= pos);
+	assert(fTextIdx <= pos);
 	return TRUE;
 }
 
@@ -325,7 +325,7 @@ bool RuleBasedBreakIterator::BreakCache::populateNear(int32_t position, UErrorCo
 	if(U_FAILURE(status)) {
 		return FALSE;
 	}
-	U_ASSERT(position < fBoundaries[fStartBufIdx] || position > fBoundaries[fEndBufIdx]);
+	assert(position < fBoundaries[fStartBufIdx] || position > fBoundaries[fEndBufIdx]);
 
 	// Find a boundary somewhere in the vicinity of the requested position.
 	// Depending on the safe rules and the text data, it could be either before, at, or after
@@ -403,7 +403,7 @@ bool RuleBasedBreakIterator::BreakCache::populateNear(int32_t position, UErrorCo
 		return true;
 	}
 
-	U_ASSERT(fTextIdx == position);
+	assert(fTextIdx == position);
 	return true;
 }
 
@@ -536,16 +536,16 @@ bool RuleBasedBreakIterator::BreakCache::populatePreceding(UErrorCode & status) 
 			fBI->fDictionaryCache->populateDictionary(prevPosition, dictSegEndPosition, prevStatusIdx, positionStatusIdx);
 			while(fBI->fDictionaryCache->following(prevPosition, &position, &positionStatusIdx)) {
 				segmentHandledByDictionary = true;
-				U_ASSERT(position > prevPosition);
+				assert(position > prevPosition);
 				if(position >= fromPosition) {
 					break;
 				}
-				U_ASSERT(position <= dictSegEndPosition);
+				assert(position <= dictSegEndPosition);
 				fSideBuffer.addElement(position, status);
 				fSideBuffer.addElement(positionStatusIdx, status);
 				prevPosition = position;
 			}
-			U_ASSERT(position==dictSegEndPosition || position>=fromPosition);
+			assert(position==dictSegEndPosition || position>=fromPosition);
 		}
 
 		if(!segmentHandledByDictionary && position < fromPosition) {
@@ -578,8 +578,8 @@ bool RuleBasedBreakIterator::BreakCache::populatePreceding(UErrorCode & status) 
 }
 
 void RuleBasedBreakIterator::BreakCache::addFollowing(int32_t position, int32_t ruleStatusIdx, UpdatePositionValues update) {
-	U_ASSERT(position > fBoundaries[fEndBufIdx]);
-	U_ASSERT(ruleStatusIdx <= UINT16_MAX);
+	assert(position > fBoundaries[fEndBufIdx]);
+	assert(ruleStatusIdx <= UINT16_MAX);
 	int32_t nextIdx = modChunkSize(fEndBufIdx + 1);
 	if(nextIdx == fStartBufIdx) {
 		fStartBufIdx = modChunkSize(fStartBufIdx + 6); // TODO: experiment. Probably revert to 1.
@@ -596,13 +596,13 @@ void RuleBasedBreakIterator::BreakCache::addFollowing(int32_t position, int32_t 
 		// Retaining the original cache position.
 		// Check if the added boundary wraps around the buffer, and would over-write the original position.
 		// It's the responsibility of callers of this function to not add too many.
-		U_ASSERT(nextIdx != fBufIdx);
+		assert(nextIdx != fBufIdx);
 	}
 }
 
 bool RuleBasedBreakIterator::BreakCache::addPreceding(int32_t position, int32_t ruleStatusIdx, UpdatePositionValues update) {
-	U_ASSERT(position < fBoundaries[fStartBufIdx]);
-	U_ASSERT(ruleStatusIdx <= UINT16_MAX);
+	assert(position < fBoundaries[fStartBufIdx]);
+	assert(ruleStatusIdx <= UINT16_MAX);
 	int32_t nextIdx = modChunkSize(fStartBufIdx - 1);
 	if(nextIdx == fEndBufIdx) {
 		if(fBufIdx == fEndBufIdx && update == RetainCachePosition) {

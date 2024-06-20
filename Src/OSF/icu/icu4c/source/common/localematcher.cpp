@@ -466,7 +466,7 @@ LocaleMatcher::LocaleMatcher(const Builder &builder, UErrorCode & errorCode) : l
 			const LSR &lsr = lsrs[i];
 			if(defLSR == nullptr && builder.withDefault_) {
 				// Implicit default locale = first supported locale, if not turned off.
-				U_ASSERT(i == 0);
+				assert(i == 0);
 				def = &locale;
 				defLSR = &lsr;
 				order[i] = 1;

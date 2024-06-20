@@ -347,7 +347,7 @@ void FCDUTF16CollationIterator::backwardNumCodePoints(int32_t num, UErrorCode & 
 }
 
 void FCDUTF16CollationIterator::switchToForward() {
-	U_ASSERT(checkDir < 0 || (checkDir == 0 && pos == limit));
+	assert(checkDir < 0 || (checkDir == 0 && pos == limit));
 	if(checkDir < 0) {
 		// Turn around from backward checking.
 		start = segmentStart = pos;
@@ -382,7 +382,7 @@ bool FCDUTF16CollationIterator::nextSegment(UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
 		return FALSE;
 	}
-	U_ASSERT(checkDir > 0 && pos != limit);
+	assert(checkDir > 0 && pos != limit);
 	// The input text [segmentStart..pos[ passes the FCD check.
 	const char16_t * p = pos;
 	uint8 prevCC = 0;
@@ -414,13 +414,13 @@ bool FCDUTF16CollationIterator::nextSegment(UErrorCode & errorCode) {
 			break;
 		}
 	}
-	U_ASSERT(pos != limit);
+	assert(pos != limit);
 	checkDir = 0;
 	return TRUE;
 }
 
 void FCDUTF16CollationIterator::switchToBackward() {
-	U_ASSERT(checkDir > 0 || (checkDir == 0 && pos == start));
+	assert(checkDir > 0 || (checkDir == 0 && pos == start));
 	if(checkDir > 0) {
 		// Turn around from forward checking.
 		limit = segmentLimit = pos;
@@ -451,7 +451,7 @@ bool FCDUTF16CollationIterator::previousSegment(UErrorCode & errorCode) {
 	if(U_FAILURE(errorCode)) {
 		return FALSE;
 	}
-	U_ASSERT(checkDir < 0 && pos != start);
+	assert(checkDir < 0 && pos != start);
 	// The input text [pos..segmentLimit[ passes the FCD check.
 	const char16_t * p = pos;
 	uint8 nextCC = 0;
@@ -485,14 +485,14 @@ bool FCDUTF16CollationIterator::previousSegment(UErrorCode & errorCode) {
 			break;
 		}
 	}
-	U_ASSERT(pos != start);
+	assert(pos != start);
 	checkDir = 0;
 	return TRUE;
 }
 
 bool FCDUTF16CollationIterator::normalize(const char16_t * from, const char16_t * to, UErrorCode & errorCode) {
 	// NFD without argument checking.
-	U_ASSERT(U_SUCCESS(errorCode));
+	assert(U_SUCCESS(errorCode));
 	nfcImpl.decompose(from, to, normalized, (int32_t)(to - from), errorCode);
 	if(U_FAILURE(errorCode)) {
 		return FALSE;

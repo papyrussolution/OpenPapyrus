@@ -133,7 +133,7 @@ UStringEnumeration * U_EXPORT2 UStringEnumeration::fromUEnumeration(UEnumeration
 
 UStringEnumeration::UStringEnumeration(UEnumeration* _uenum) : uenum(_uenum) 
 {
-	U_ASSERT(_uenum != 0);
+	assert(_uenum != 0);
 }
 
 UStringEnumeration::~UStringEnumeration() 
@@ -318,7 +318,7 @@ U_CAPI UEnumeration* U_EXPORT2 uenum_openCharStringsEnumeration(const char * con
 			*ec = U_MEMORY_ALLOCATION_ERROR;
 		}
 		else {
-			U_ASSERT((char *)result==(char *)(&result->uenum));
+			assert((char *)result==(char *)(&result->uenum));
 			memcpy(result, &UCHARSTRENUM_VT, sizeof(UCHARSTRENUM_VT));
 			result->uenum.context = (void *)strings;
 			result->index = 0;
@@ -337,7 +337,7 @@ U_CAPI UEnumeration* U_EXPORT2 uenum_openUCharStringsEnumeration(const char16_t 
 			*ec = U_MEMORY_ALLOCATION_ERROR;
 		}
 		else {
-			U_ASSERT((char *)result==(char *)(&result->uenum));
+			assert((char *)result==(char *)(&result->uenum));
 			memcpy(result, &UCHARSTRENUM_U_VT, sizeof(UCHARSTRENUM_U_VT));
 			result->uenum.context = (void *)strings;
 			result->index = 0;

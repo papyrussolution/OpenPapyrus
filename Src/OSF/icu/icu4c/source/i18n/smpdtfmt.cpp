@@ -1129,7 +1129,7 @@ SimpleDateFormat::fgPatternIndexToDateFormatField[] = {
  */
 static inline void _appendSymbol(UnicodeString & dst, int32_t value, const UnicodeString * symbols, int32_t symbolsCount) 
 {
-	U_ASSERT(0 <= value && value < symbolsCount);
+	assert(0 <= value && value < symbolsCount);
 	if(0 <= value && value < symbolsCount) {
 		dst += symbols[value];
 	}
@@ -1137,7 +1137,7 @@ static inline void _appendSymbol(UnicodeString & dst, int32_t value, const Unico
 
 static inline void _appendSymbolWithMonthPattern(UnicodeString & dst, int32_t value, const UnicodeString * symbols, int32_t symbolsCount, const UnicodeString * monthPattern, UErrorCode & status) 
 {
-	U_ASSERT(0 <= value && value < symbolsCount);
+	assert(0 <= value && value < symbolsCount);
 	if(0 <= value && value < symbolsCount) {
 		if(monthPattern == NULL) {
 			dst += symbols[value];
@@ -1856,7 +1856,7 @@ void SimpleDateFormat::subFormat(UnicodeString & appendTo,
 		    }
 		    // Rule set exists, therefore periodType can't be UNKNOWN.
 		    // Get localized string.
-		    U_ASSERT(periodType != DayPeriodRules::DAYPERIOD_UNKNOWN);
+		    assert(periodType != DayPeriodRules::DAYPERIOD_UNKNOWN);
 		    UnicodeString * toAppend = NULL;
 		    int32_t index;
 		    // Note: "midnight" can be ambiguous as to whether it refers to beginning of day or end of day.
@@ -2301,7 +2301,7 @@ void SimpleDateFormat::parse(const UnicodeString & text, Calendar& cal, ParsePos
 					hourOfDay = 12;
 				}
 			}
-			U_ASSERT(0 <= hourOfDay && hourOfDay <= 23);
+			assert(0 <= hourOfDay && hourOfDay <= 23);
 
 			// If hour-of-day is 0 or 13 thru 23 then input time in unambiguously in 24-hour format.
 			if(hourOfDay == 0 || (13 <= hourOfDay && hourOfDay <= 23)) {
@@ -2746,7 +2746,7 @@ static int32_t matchStringWithOptionalDot(const UnicodeString & text, int32_t in
 	    0 /* default case option */,
 	    &matchLenText, &matchLenData,
 	    &sts);
-	U_ASSERT(U_SUCCESS(sts));
+	assert(U_SUCCESS(sts));
 
 	if(matchLenData == data.length() /* normal match */
 	 || (data.charAt(data.length() - 1) == 0x2e
@@ -3415,7 +3415,7 @@ int32_t SimpleDateFormat::subParse(const UnicodeString & text, int32_t& start, c
 	    }
 		case UDAT_AM_PM_MIDNIGHT_NOON_FIELD:
 	    {
-		    U_ASSERT(dayPeriod != NULL);
+		    assert(dayPeriod != NULL);
 		    int32_t ampmStart = subParse(text, start, 0x61, count,
 			    obeyCount, allowNegative, ambiguousYear, saveHebrewMonth, cal,
 			    patLoc, numericLeapMonthFormatter, tzTimeType);
@@ -3446,7 +3446,7 @@ int32_t SimpleDateFormat::subParse(const UnicodeString & text, int32_t& start, c
 	    }
 		case UDAT_FLEXIBLE_DAY_PERIOD_FIELD:
 	    {
-		    U_ASSERT(dayPeriod != NULL);
+		    assert(dayPeriod != NULL);
 		    int32_t newStart = 0;
 		    if(getBooleanAttribute(UDAT_PARSE_MULTIPLE_PATTERNS_FOR_MATCH, status) || count == 3) {
 			    if((newStart = matchDayPeriodStrings(text, start, fSymbols->fAbbreviatedDayPeriods, fSymbols->fAbbreviatedDayPeriodsCount, *dayPeriod)) > 0) {

@@ -68,9 +68,9 @@ void dumpEnumeratedProperty(UProperty uproperty, FILE * f)
 	usrc_writeUCPMap(f, umap, &valueNameGetter, UPRV_TARGET_SYNTAX_TOML);
 	fputs("\n", f);
 
-	U_ASSERT(u_getIntPropertyMinValue(uproperty) >= 0);
+	assert(u_getIntPropertyMinValue(uproperty) >= 0);
 	int32_t maxValue = u_getIntPropertyMaxValue(uproperty);
-	U_ASSERT(maxValue >= 0);
+	assert(maxValue >= 0);
 	UCPTrieValueWidth width = UCPTRIE_VALUE_BITS_32;
 	if(maxValue <= 0xff) {
 		width = UCPTRIE_VALUE_BITS_8;

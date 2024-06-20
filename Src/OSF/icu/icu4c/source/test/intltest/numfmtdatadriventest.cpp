@@ -419,7 +419,7 @@ bool NumberFormatDataDrivenTest::isParseCurrencyPass(const NumberFormatTestTuple
 		return FALSE;
 	}
 	UnicodeString currStr(currAmt->getISOCurrency());
-	U_ASSERT(currAmt->getNumber().getDecimalQuantity() != nullptr); // no doubles in currency tests
+	assert(currAmt->getNumber().getDecimalQuantity() != nullptr); // no doubles in currency tests
 	UnicodeString resultStr = currAmt->getNumber().getDecimalQuantity()->toScientificString();
 	if(tuple.output == "fail") {
 		appendErrorMessage.append(

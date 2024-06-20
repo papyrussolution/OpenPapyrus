@@ -121,12 +121,12 @@ bool SymbolsWrapper::isNumberingSystem() const {
 }
 
 const DecimalFormatSymbols * SymbolsWrapper::getDecimalFormatSymbols() const {
-	U_ASSERT(fType == SYMPTR_DFS);
+	assert(fType == SYMPTR_DFS);
 	return fPtr.dfs;
 }
 
 const NumberingSystem * SymbolsWrapper::getNumberingSystem() const {
-	U_ASSERT(fType == SYMPTR_NS);
+	assert(fType == SYMPTR_NS);
 	return fPtr.ns;
 }
 

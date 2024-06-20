@@ -12,7 +12,7 @@
 #pragma hdrstop
 #include "unicode/casemap.h"
 #include "ucasemap_imp.h"
-#include "uelement.h"
+//#include "uelement.h"
 
 U_NAMESPACE_BEGIN
 //
@@ -90,7 +90,7 @@ UnicodeString & UnicodeString::caseMap(int32_t caseLocale, uint32_t options, UCA
 			if(!cloneArrayIfNeeded(US_STACKBUF_SIZE, US_STACKBUF_SIZE, /* doCopyArray= */ FALSE)) {
 				return *this;
 			}
-			U_ASSERT(fUnion.fFields.fLengthAndFlags & kUsingStackBuffer);
+			assert(fUnion.fFields.fLengthAndFlags & kUsingStackBuffer);
 			buffer = fUnion.fStackFields.fBuffer;
 			capacity = US_STACKBUF_SIZE;
 		}

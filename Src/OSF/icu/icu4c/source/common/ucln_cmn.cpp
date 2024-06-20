@@ -55,7 +55,7 @@ U_CFUNC void ucln_common_registerCleanup(ECleanupCommonType type, cleanupFunc * 
 	// using the ICU global mutex for it.
 	//
 	// No other point in ICU uses std::call_once().
-	U_ASSERT(UCLN_COMMON_START < type && type < UCLN_COMMON_COUNT);
+	assert(UCLN_COMMON_START < type && type < UCLN_COMMON_COUNT);
 	if(type == UCLN_COMMON_MUTEX) {
 		gCommonCleanupFunctions[type] = func;
 	}
@@ -74,7 +74,7 @@ U_CFUNC void ucln_common_registerCleanup(ECleanupCommonType type, cleanupFunc * 
 
 U_CAPI void U_EXPORT2 ucln_registerCleanup(ECleanupLibraryType type, cleanupFunc * func)
 {
-	U_ASSERT(UCLN_START < type && type < UCLN_COMMON);
+	assert(UCLN_START < type && type < UCLN_COMMON);
 	if(UCLN_START < type && type < UCLN_COMMON) {
 		gLibCleanupFunctions[type] = func;
 	}

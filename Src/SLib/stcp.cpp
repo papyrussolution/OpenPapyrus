@@ -352,22 +352,12 @@ int TcpSocket::Select(int mode /* TcpSocket::mXXX */, int timeout, size_t * pAva
 			ok = SLS.SetError(SLERR_SOCK_WINSOCK);
 		else {
 			av_size = (size_t)r; // !!!
-			// @v10.2.3 {
 			if(p_rset && !FD_ISSET(S, p_rset)) {
 				ok = (SLibError = SLERR_SOCK_NONBLOCKINGRD, 0);
 			}
 			else if(p_wset && !FD_ISSET(S, p_wset)) {
 				ok = (SLibError = SLERR_SOCK_NONBLOCKINGWR, 0);
 			}
-			// } @v10.2.3 
-			/* @v10.2.3
-			if(!FD_ISSET(S, &set)) {
-				if(mode == mRead)
-					ok = (SLibError = SLERR_SOCK_NONBLOCKINGRD, 0);
-				else if(mode == mWrite)
-					ok = (SLibError = SLERR_SOCK_NONBLOCKINGWR, 0);
-			}
-			*/
 		}
 		ASSIGN_PTR(pAvailableSize, av_size);
 	}

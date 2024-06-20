@@ -1390,9 +1390,9 @@ const CEI * CEIBuffer::get(int32_t index)
 	//   that is allowed.
 	if(index != limitIx) {
 		UPRV_UNREACHABLE_ASSERT;
-		// TODO: In ICU 64 the above was changed from U_ASSERT to UPRV_UNREACHABLE,
+		// TODO: In ICU 64 the above was changed from assert to UPRV_UNREACHABLE,
 		// which unconditionally called abort(). However, there were cases in which it
-		// was being hit, so it was changed back to U_ASSERT per ICU-20680. In ICU 70,
+		// was being hit, so it was changed back to assert per ICU-20680. In ICU 70,
 		// we now use the new UPRV_UNREACHABLE_ASSERT to better indicate the situation.
 		// ICU-20792 tracks the follow-up work/further investigation on this.
 		return nullptr;
@@ -1427,9 +1427,9 @@ const CEI * CEIBuffer::getPrevious(int32_t index)
 	//   that is allowed.
 	if(index != limitIx) {
 		UPRV_UNREACHABLE_ASSERT;
-		// TODO: In ICU 64 the above was changed from U_ASSERT to UPRV_UNREACHABLE,
+		// TODO: In ICU 64 the above was changed from assert to UPRV_UNREACHABLE,
 		// which unconditionally called abort(). However, there were cases in which it
-		// was being hit, so it was changed back to U_ASSERT per ICU-20680. In ICU 70,
+		// was being hit, so it was changed back to assert per ICU-20680. In ICU 70,
 		// we now use the new UPRV_UNREACHABLE_ASSERT to better indicate the situation.
 		// ICU-20792 tracks the follow-up work/further investigation on this.
 		return nullptr;
@@ -1462,8 +1462,8 @@ static int32_t nextBoundaryAfter(UStringSearch * strsrch, int32_t startIndex, UE
 #if 0
 	const char16_t * text = strsrch->search->text;
 	int32_t textLen   = strsrch->search->textLength;
-	U_ASSERT(startIndex>=0);
-	U_ASSERT(startIndex<=textLen);
+	assert(startIndex>=0);
+	assert(startIndex<=textLen);
 	if(startIndex >= textLen) {
 		return startIndex;
 	}
@@ -1517,8 +1517,8 @@ static bool isBreakBoundary(UStringSearch * strsrch, int32_t index, UErrorCode &
 #if 0
 	const char16_t * text = strsrch->search->text;
 	int32_t textLen   = strsrch->search->textLength;
-	U_ASSERT(index>=0);
-	U_ASSERT(index<=textLen);
+	assert(index>=0);
+	assert(index<=textLen);
 	if(index>=textLen || index<=0) {
 		return TRUE;
 	}

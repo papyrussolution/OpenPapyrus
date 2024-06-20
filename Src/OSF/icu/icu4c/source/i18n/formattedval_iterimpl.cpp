@@ -39,7 +39,7 @@ Appendable& FormattedValueFieldPositionIteratorImpl::appendTo(Appendable& append
 
 bool FormattedValueFieldPositionIteratorImpl::nextPosition(ConstrainedFieldPosition& cfpos, UErrorCode&) const 
 {
-	U_ASSERT(fFields.size() % 4 == 0);
+	assert(fFields.size() % 4 == 0);
 	int32_t numFields = fFields.size() / 4;
 	int32_t i = static_cast<int32_t>(cfpos.getInt64IterationContext());
 	for(; i < numFields; i++) {

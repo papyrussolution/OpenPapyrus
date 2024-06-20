@@ -1828,7 +1828,6 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 					w_s.PutInner("lookbackprices", 0);
 					use_lookbackprices = 1;
 				}
-				// @v10.7.3 {
 				if(gt_rec.Flags & GTF_GMARKED)
 					w_s.PutInner("marked", 0);
 				const char * p_chzn_type = 0;
@@ -1843,12 +1842,13 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 					case GTCHZNPT_PERFUMERY: p_chzn_type = "perfumery"; break; // @v11.3.1
 					case GTCHZNPT_MILK: p_chzn_type = "milk"; break; // @v11.3.1
 					case GTCHZNPT_WATER: p_chzn_type = "water"; break; // @v11.5.6
+					case GTCHZNPT_DRAFTBEER_AWR: p_chzn_type = "draftbeer-awr"; break; // @v12.0.5
 					case GTCHZNPT_DRAFTBEER: p_chzn_type = "draftbeer"; break; // @v11.9.8
 					case GTCHZNPT_DIETARYSUPPLEMENT: p_chzn_type = "dietarysupplement"; break; // @v11.9.8
+					case GTCHZNPT_BEER: p_chzn_type = "beer"; break; // @v12.0.5
 				}
 				if(p_chzn_type)
 					w_s.PutInner("chznprodtype", p_chzn_type);
-				// } @v10.7.3 
 			}
 		}
 		if(rInfo.NoDis > 0) { // Значение <0 имеет специальный смысл
@@ -3212,8 +3212,12 @@ int PPPosProtocol::EndElement(const char * pName)
 						chznprodtype = GTCHZNPT_WATER;
 					else if(RdB.TagValue.IsEqiAscii("draftbeer")) // @v11.9.8
 						chznprodtype = GTCHZNPT_DRAFTBEER;
+					else if(RdB.TagValue.IsEqiAscii("draftbeer-awr")) // @v12.0.5
+						chznprodtype = GTCHZNPT_DRAFTBEER_AWR;
 					else if(RdB.TagValue.IsEqiAscii("dietarysupplement")) // @v11.9.8
 						chznprodtype = GTCHZNPT_DIETARYSUPPLEMENT;
+					else if(RdB.TagValue.IsEqiAscii("beer")) // @v12.0.5
+						chznprodtype = GTCHZNPT_BEER;
 					if(chznprodtype)
 						static_cast<GoodsBlock *>(p_item)->ChZnProdType = chznprodtype;
 				}

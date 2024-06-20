@@ -942,7 +942,7 @@ void TransliteratorParser::parseRules(const UnicodeString & rule, UTransDirectio
 
 			if(!parsingIDs) {
 				if(curData != NULL) {
-					U_ASSERT(!dataVector.hasDeleter());
+					assert(!dataVector.hasDeleter());
 					if(direction == UTRANS_FORWARD)
 						dataVector.addElement(curData, status);
 					else
@@ -1005,7 +1005,7 @@ void TransliteratorParser::parseRules(const UnicodeString & rule, UTransDirectio
 					status = U_MEMORY_ALLOCATION_ERROR;
 					return;
 				}
-				U_ASSERT(idBlockVector.hasDeleter());
+				assert(idBlockVector.hasDeleter());
 				if(direction == UTRANS_FORWARD)
 					idBlockVector.adoptElement(tempstr, status);
 				else

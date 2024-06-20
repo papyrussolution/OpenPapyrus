@@ -63,7 +63,7 @@ int SpecSerFiltDlg::getDTS(SpecSeriesFilt * pData)
 	ushort sel_ctl = 0;
 	GoodsCtrlGroup::Rec ggrp_rec;
 	getGroupData(ctlgroupGoods, &ggrp_rec);
-	Data.GoodsGrpID = ggrp_rec.GrpID;
+	Data.GoodsGrpID = ggrp_rec.GoodsGrpID;
 	Data.GoodsID    = ggrp_rec.GoodsID;
 	GetClusterData(CTL_SPCSERFLT_KIND, &Data.InfoKind);
 	THROW(GetPeriodInput(this, sel_ctl = CTL_SPCSERFLT_PERIOD, &Data.Period));

@@ -224,7 +224,7 @@ void NumberParserImpl::parse(const UnicodeString & input, int32_t start, bool gr
 	if(U_FAILURE(status)) {
 		return;
 	}
-	U_ASSERT(fFrozen);
+	assert(fFrozen);
 	// TODO: Check start >= 0 and start < input.length()
 	StringSegment segment(input, 0 != (fParseFlags & PARSE_FLAG_IGNORE_CASE));
 	segment.adjustOffset(start);

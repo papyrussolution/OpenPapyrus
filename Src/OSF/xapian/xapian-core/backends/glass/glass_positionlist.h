@@ -76,7 +76,6 @@ protected:
 	 */
 	void set_data(const std::string & data);
 public:
-	/// Default constructor.
 	GlassBasePositionList() 
 	{
 	}

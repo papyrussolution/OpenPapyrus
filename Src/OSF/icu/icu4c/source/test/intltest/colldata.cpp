@@ -516,7 +516,7 @@ int32_t CollData::minLengthInChars(const CEList * ceList, int32_t offset, int32_
 			}
 
 			if(ceList->matchesAt(offset, ceList2)) {
-				U_ASSERT(ceList2 != NULL);
+				assert(ceList2 != NULL);
 				int32_t clength = ceList2->size();
 				int32_t slength = string->length();
 				int32_t roffset = offset + clength;

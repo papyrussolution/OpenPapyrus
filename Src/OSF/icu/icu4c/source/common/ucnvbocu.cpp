@@ -274,7 +274,7 @@ static inline int32_t bocu1Prev(int32_t c) {
 static int32_t packDiff(int32_t diff) 
 {
 	int32_t result, m;
-	U_ASSERT(!DIFF_IS_SINGLE(diff)); /* assume we won't be called where diff==BOCU1_REACH_NEG_1=-64 */
+	assert(!DIFF_IS_SINGLE(diff)); /* assume we won't be called where diff==BOCU1_REACH_NEG_1=-64 */
 	if(diff>=BOCU1_REACH_NEG_1) {
 		/* mostly positive differences, and single-byte negative ones */
 #if 0   /* single-byte case handled in macros, see below */

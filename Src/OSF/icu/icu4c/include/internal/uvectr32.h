@@ -19,7 +19,7 @@
 #include "unicode/utypes.h"
 #include "unicode/uobject.h"
 #include "uhash.h"
-#include "uassert.h"
+//#include "uassert.h"
 
 U_NAMESPACE_BEGIN
 
@@ -242,7 +242,7 @@ inline int32_t *UVector32::reserveBlock(int32_t size, UErrorCode & status) {
 }
 
 inline int32_t *UVector32::popFrame(int32_t size) {
-    U_ASSERT(count >= size);
+    assert(count >= size);
     count -= size;
     if(count < 0) {
         count = 0;

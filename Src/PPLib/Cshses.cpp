@@ -127,6 +127,22 @@ void PPSyncCashSession::GetOfdFactors(OfdFactors & rP)
 	return yes;
 }
 
+/*static*/bool PPSyncCashSession::IsAutoWriteOffDraftBeerPosition(PPID posNodeID, PPID goodsID) // @v12.0.5
+{
+	bool yes = false;
+	PPObjGoods goods_obj;
+	Goods2Tbl::Rec goods_rec;
+	if(goods_obj.Fetch(goodsID, &goods_rec) > 0) {
+		PPGoodsType gt_rec;
+		if(goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+			if(gt_rec.ChZnProdType == GTCHZNPT_DRAFTBEER_AWR) {
+				yes = true;
+			}
+		}
+	}
+	return yes;
+}
+
 int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheckPacket * pPack)
 {
 	int    ok = -1;

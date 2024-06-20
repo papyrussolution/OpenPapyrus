@@ -974,7 +974,7 @@ struct DateTimePatternGenerator::AppendItemNamesSink : public ResourceSink {
 			UnicodeString & valueStr = dtpg.getMutableFieldDisplayName((UDateTimePatternField)i, UDATPG_WIDE);
 			if(valueStr.isEmpty()) {
 				valueStr = CAP_F;
-				U_ASSERT(i < 20);
+				assert(i < 20);
 				if(i < 10) {
 					// F0, F1, ..., F9
 					valueStr += (char16_t)(i+0x30);
@@ -2224,7 +2224,7 @@ void DateTimeMatcher::set(const UnicodeString & pattern, FormatParser* fp, PtnSk
 		skeletonResult.baseOriginal.populate(field, repeatChar, repeatCount);
 		int16 subField = row->type;
 		if(row->type > 0) {
-			U_ASSERT(value.length() < INT16_MAX);
+			assert(value.length() < INT16_MAX);
 			subField += static_cast<int16>(value.length());
 		}
 		skeletonResult.type[field] = subField;

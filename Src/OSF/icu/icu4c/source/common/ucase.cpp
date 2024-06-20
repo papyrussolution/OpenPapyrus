@@ -1034,7 +1034,7 @@ static bool isFollowedByDotAbove(UCaseContextIterator * iter, void * context)
 U_CAPI int32_t U_EXPORT2 ucase_toFullLower(UChar32 c, UCaseContextIterator * iter, void * context, const char16_t ** pString, int32_t loc) 
 {
 	// The sign of the result has meaning, input must be non-negative so that it can be returned as is.
-	U_ASSERT(c >= 0);
+	assert(c >= 0);
 	UChar32 result = c;
 	uint16 props = UTRIE2_GET16(&ucase_props_singleton.trie, c);
 	if(!UCASE_HAS_EXCEPTION(props)) {
@@ -1192,7 +1192,7 @@ static int32_t toUpperOrTitle(UChar32 c,
     int32_t loc,
     bool upperNotTitle) {
 	// The sign of the result has meaning, input must be non-negative so that it can be returned as is.
-	U_ASSERT(c >= 0);
+	assert(c >= 0);
 	UChar32 result = c;
 	uint16 props = UTRIE2_GET16(&ucase_props_singleton.trie, c);
 	if(!UCASE_HAS_EXCEPTION(props)) {
@@ -1435,7 +1435,7 @@ U_CAPI UChar32 U_EXPORT2 ucase_fold(UChar32 c, uint32_t options) {
 U_CAPI int32_t U_EXPORT2 ucase_toFullFolding(UChar32 c, const char16_t ** pString, uint32_t options) 
 {
 	// The sign of the result has meaning, input must be non-negative so that it can be returned as is.
-	U_ASSERT(c >= 0);
+	assert(c >= 0);
 	UChar32 result = c;
 	uint16 props = UTRIE2_GET16(&ucase_props_singleton.trie, c);
 	if(!UCASE_HAS_EXCEPTION(props)) {
