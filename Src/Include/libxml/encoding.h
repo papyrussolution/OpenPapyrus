@@ -148,36 +148,36 @@ struct xmlCharEncodingHandler {
 /*
  * Interfaces for encoding handlers.
  */
-XMLPUBFUN void xmlInitCharEncodingHandlers();
-XMLPUBFUN void xmlCleanupCharEncodingHandlers();
-XMLPUBFUN void xmlRegisterCharEncodingHandler(xmlCharEncodingHandler * handler);
-XMLPUBFUN xmlCharEncodingHandler * xmlGetCharEncodingHandler(xmlCharEncoding enc);
-XMLPUBFUN xmlCharEncodingHandler * FASTCALL xmlFindCharEncodingHandler(const char *name);
-XMLPUBFUN xmlCharEncodingHandler * xmlNewCharEncodingHandler(const char *name, xmlCharEncodingInputFunc input, xmlCharEncodingOutputFunc output);
+void xmlInitCharEncodingHandlers();
+void xmlCleanupCharEncodingHandlers();
+void xmlRegisterCharEncodingHandler(xmlCharEncodingHandler * handler);
+xmlCharEncodingHandler * xmlGetCharEncodingHandler(xmlCharEncoding enc);
+xmlCharEncodingHandler * FASTCALL xmlFindCharEncodingHandler(const char *name);
+xmlCharEncodingHandler * xmlNewCharEncodingHandler(const char *name, xmlCharEncodingInputFunc input, xmlCharEncodingOutputFunc output);
 /*
  * Interfaces for encoding names and aliases.
  */
-XMLPUBFUN int xmlAddEncodingAlias(const char *name, const char *alias);
-XMLPUBFUN int xmlDelEncodingAlias(const char *alias);
-XMLPUBFUN const char * xmlGetEncodingAlias(const char *alias);
-XMLPUBFUN void xmlCleanupEncodingAliases();
-XMLPUBFUN xmlCharEncoding xmlParseCharEncoding(const char *name);
-XMLPUBFUN const char * xmlGetCharEncodingName(xmlCharEncoding enc);
+int xmlAddEncodingAlias(const char *name, const char *alias);
+int xmlDelEncodingAlias(const char *alias);
+const char * xmlGetEncodingAlias(const char *alias);
+void xmlCleanupEncodingAliases();
+xmlCharEncoding xmlParseCharEncoding(const char *name);
+const char * xmlGetCharEncodingName(xmlCharEncoding enc);
 /*
  * Interfaces directly used by the parsers.
  */
-XMLPUBFUN xmlCharEncoding xmlDetectCharEncoding(const uchar *in, int len);
-XMLPUBFUN int xmlCharEncOutFunc(xmlCharEncodingHandler *handler, xmlBuffer * out, xmlBuffer * in);
-XMLPUBFUN int xmlCharEncInFunc(xmlCharEncodingHandler *handler, xmlBuffer * out, xmlBuffer * in);
-XMLPUBFUN int xmlCharEncFirstLine(xmlCharEncodingHandler *handler, xmlBuffer * out, xmlBuffer * in);
-XMLPUBFUN int xmlCharEncCloseFunc(xmlCharEncodingHandler *handler);
+xmlCharEncoding xmlDetectCharEncoding(const uchar *in, int len);
+int xmlCharEncOutFunc(xmlCharEncodingHandler *handler, xmlBuffer * out, xmlBuffer * in);
+int xmlCharEncInFunc(xmlCharEncodingHandler *handler, xmlBuffer * out, xmlBuffer * in);
+int xmlCharEncFirstLine(xmlCharEncodingHandler *handler, xmlBuffer * out, xmlBuffer * in);
+int xmlCharEncCloseFunc(xmlCharEncodingHandler *handler);
 /*
  * Export a few useful functions
  */
 #ifdef LIBXML_OUTPUT_ENABLED 
-	XMLPUBFUN int UTF8Toisolat1(uchar *out, int *outlen, const uchar *in, int *inlen);
+	int UTF8Toisolat1(uchar *out, int *outlen, const uchar *in, int *inlen);
 #endif
-XMLPUBFUN int isolat1ToUTF8(uchar *out, int *outlen, const uchar *in, int *inlen);
+int isolat1ToUTF8(uchar *out, int *outlen, const uchar *in, int *inlen);
 //#ifdef __cplusplus
 //}
 //#endif

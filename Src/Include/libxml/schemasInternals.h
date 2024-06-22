@@ -500,8 +500,8 @@ struct _xmlSchema {
     void * volatiles; /* Obsolete */
 };
 
-XMLPUBFUN void xmlSchemaFreeType(xmlSchemaType * type);
-XMLPUBFUN void xmlSchemaFreeWildcard(xmlSchemaWildcardPtr wildcard);
+void xmlSchemaFreeType(xmlSchemaType * type);
+void xmlSchemaFreeWildcard(xmlSchemaWildcardPtr wildcard);
 
 //#ifdef __cplusplus
 //}

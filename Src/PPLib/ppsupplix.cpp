@@ -6999,7 +6999,7 @@ int SfaHeineken::SendStocks()
 		GoodsRestFilt gr_filt;
 		GoodsRestViewItem gr_item;
 		SString ar_code;
-		gr_filt.Date = P.ExpPeriod.upp; // @v10.0.07 ZERODATE-->P.ExpPeriod.upp
+		gr_filt.Date = P.ExpPeriod.upp;
 		gr_filt.GoodsGrpID = Ep.GoodsGrpID;
 		gr_filt.LocList = P.LocList;
 		gr_filt.Flags |= GoodsRestFilt::fEachLocation;
@@ -7017,7 +7017,7 @@ int SfaHeineken::SendStocks()
 						new_entry.ForeignLocID = temp_buf.ToLong();
 						if(new_entry.ForeignLocID > 0) {
 							new_entry.Rest = R0i(gr_item.Rest);
-							// @v10.1.1 Специальная поправка для нештатного случая учета кегов (Unit = LITER, PhUnit = LITER, gse.Packege = keg's volume) {
+							// Специальная поправка для нештатного случая учета кегов (Unit = LITER, PhUnit = LITER, gse.Packege = keg's volume) {
 							Goods2Tbl::Rec goods_rec;
 							if(GObj.Fetch(gr_item.GoodsID, &goods_rec) > 0) {
 								double rt1 = 0.0;
@@ -7031,7 +7031,7 @@ int SfaHeineken::SendStocks()
 									}
 								}
 							}
-							// } @v10.1.1
+							// }
 							THROW_SL(list.insert(&new_entry));
 						}
 					}
@@ -10080,6 +10080,55 @@ public:
 	SString & MakeFileName(const char * pPrefix, const char * pInn, const char * pGln, const char * pDocNumber, SString & rBuf);
 	int    SendRest(StringSet & rSsFileName);
 	int    SendSales(StringSet & rSsFileName);
+	// @v12.0.5 @construction {
+	int    TransmitFiles(const StringSet & rFileNameSet)
+	{
+		const char * pp_pfx_list[] = { "customers", "debts", "movements", "products", "salesrefunds", "salesreps", "stocks", "warehouses", "trade_points" };
+		int    ok = -1;
+		SString temp_buf;
+		SString msg_buf;
+		SString file_name;
+		SString remote_addr;
+		SString accs_name;
+		SString accs_passw;
+		SString dest_root;
+		SUniformFileTransmParam uftp;
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssRemoteAddr, remote_addr);
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsName, accs_name);
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsPassw, accs_passw);
+		if(remote_addr.NotEmptyS()) {
+			(dest_root = remote_addr).SetLastDSlash().Cat("INBOX");
+			for(uint ssp = 0; rFileNameSet.get(&ssp, file_name);) {
+				if(fileExists(file_name)) {
+					SFsPath ps(file_name);
+					uftp.SrcPath = file_name;
+					const char * p_pfx = 0;
+					for(uint pidx = 0; !p_pfx && pidx < SIZEOFARRAY(pp_pfx_list); pidx++) {
+						if(ps.Nam.HasPrefix(pp_pfx_list[pidx])) {
+							p_pfx = pp_pfx_list[pidx];
+						}
+					}
+					if(p_pfx) {
+						(uftp.DestPath = dest_root).Cat(p_pfx);
+						uftp.AccsName = accs_name;
+						uftp.AccsPassword = accs_passw;
+						PPLoadTextS(PPTXT_SENDSUPPLIXDATA, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat(uftp.DestPath);
+						if(uftp.Run(0, 0)) {
+							PPLoadTextS(PPTXT_SUPPLIXDATASENT, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat(uftp.DestPath);
+							ok = 1;
+						}
+						else {
+							ok = PPSetError(PPERR_SLIB);
+							PPGetLastErrorMessage(1, temp_buf);
+							PPLoadTextS(PPTXT_SENDSUPPLIXDATAFAULT, msg_buf).CatDiv(':', 2).Cat(temp_buf);
+						}
+					}
+				}
+			}
+		}
+		return ok;
+	}
+	// } @v12.0.5 @construction
 private:
 	struct GoodsEntry {
 		GoodsEntry()
@@ -10246,10 +10295,11 @@ int Ostankino::SendRest(StringSet & rSsFileName)
 						<Наименование>Докторская ГОСТ вар ц/о в/у</Наименование>
 					*/
 					n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_LINENO), temp_buf.Z().Cat(i+1));
-					n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_AR), (temp_buf = r_goods_entry.ArCode).Transf(CTRANSF_INNER_TO_UTF8));
+					//XmlEncText(0);
+					n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_AR), XmlUtf8EncText(r_goods_entry.ArCode));
 					n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_QTTY), temp_buf.Z().Cat(gp.Total.Rest, MKSFMTD(0, 3, 0)));
-					n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_UOM), (temp_buf = r_goods_entry.UnitName).Transf(CTRANSF_INNER_TO_UTF8));
-					n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), (temp_buf = r_goods_entry.Name).Transf(CTRANSF_INNER_TO_UTF8));
+					n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_UOM), XmlUtf8EncText(r_goods_entry.UnitName));
+					n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), XmlUtf8EncText(r_goods_entry.Name));
 				}
 			}
 		}
@@ -10367,13 +10417,13 @@ int Ostankino::SendSales(StringSet & rSsFileName)
 				*/
 				{
 					SXml::WNode n_o(p_x, "DESADV");
-					n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_NUMBER), (temp_buf = p_pack->Code).Transf(CTRANSF_INNER_TO_UTF8));
+					n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_NUMBER), XmlUtf8EncText(p_pack->Code));
 					n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DATE), temp_buf.Z().Cat(p_pack->Dtm.d, DATF_ISO8601CENT));
 					n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELIVERYDATE), temp_buf.Z().Cat(p_pack->Dtm.d, DATF_ISO8601CENT));
 					{
 						BillTbl::Rec ord_bill_rec;
 						if(p_pack->OrderBillID && P_BObj->Search(p_pack->OrderBillID, &ord_bill_rec) > 0) {
-							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORDERNUMBER), (temp_buf = ord_bill_rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORDERNUMBER), XmlUtf8EncText(ord_bill_rec.Code));
 							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORDERDATE), temp_buf.Z().Cat(ord_bill_rec.Dt, DATF_ISO8601CENT));
 						}
 						else {
@@ -10395,15 +10445,15 @@ int Ostankino::SendSales(StringSet & rSsFileName)
 								<GLN_Партнер>531100696703</GLN_Партнер>
 								<АдресДоставки>173022, Новгородская обл, Великий Новгород г, Армейская ул, дом № 1</АдресДоставки>
 						*/
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CITY), (temp_buf = p_pack->ContractorCityName).Transf(CTRANSF_INNER_TO_UTF8));
+						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CITY), XmlUtf8EncText(p_pack->ContractorCityName));
 						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORGANIZATION), own_inn_buf);
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTOR), (temp_buf = p_pack->ContractorINN).Transf(CTRANSF_INNER_TO_UTF8));
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTORGLN), (temp_buf = p_pack->ContractorGLN).Transf(CTRANSF_INNER_TO_UTF8));
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTORNAME), (temp_buf = p_pack->ContractorName).Transf(CTRANSF_INNER_TO_UTF8));
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTORKPP), (temp_buf = p_pack->ContractorKPP).Transf(CTRANSF_INNER_TO_UTF8));
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTORADDR), (temp_buf = p_pack->ContractorAddrText).Transf(CTRANSF_INNER_TO_UTF8));
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_PARTNERGLN), (temp_buf = p_pack->DlvrLocGLN).Transf(CTRANSF_INNER_TO_UTF8));
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRADDR), (temp_buf = p_pack->DlvrAddrText).Transf(CTRANSF_INNER_TO_UTF8));
+						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTOR), XmlUtf8EncText(p_pack->ContractorINN));
+						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTORGLN), XmlUtf8EncText(p_pack->ContractorGLN));
+						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTORNAME), XmlUtf8EncText(p_pack->ContractorName));
+						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTORKPP), XmlUtf8EncText(p_pack->ContractorKPP));
+						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTORADDR), XmlUtf8EncText(p_pack->ContractorAddrText));
+						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_PARTNERGLN), XmlUtf8EncText(p_pack->DlvrLocGLN));
+						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRADDR), XmlUtf8EncText(p_pack->DlvrAddrText));
 						//
 						for(uint itmidx = 0; itmidx < p_pack->ItemList.getCount(); itmidx++) {
 							const BillPacket::Position & r_item = p_pack->ItemList.at(itmidx);
@@ -10427,7 +10477,7 @@ int Ostankino::SendSales(StringSet & rSsFileName)
 							const GoodsEntry * p_goods_entry = SearchGoodsEntry(GoodsList, r_item.GoodsID);
 							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_AR), p_goods_entry ? p_goods_entry->ArCode : "");
 							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_QTTY), temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, 0)));
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_UOM), (temp_buf = p_goods_entry->UnitName).Transf(CTRANSF_INNER_TO_UTF8));
+							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_UOM), XmlUtf8EncText(p_goods_entry->UnitName));
 							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_PRICE), temp_buf.Z().Cat(r_item.Cost, MKSFMTD_020));
 							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_DISCOUNT), 0);
 							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_AMOUNT), temp_buf.Z().Cat(r_item.CostWoVat * r_item.Qtty, MKSFMTD_020));
@@ -10435,7 +10485,7 @@ int Ostankino::SendSales(StringSet & rSsFileName)
 							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_VATSUM), temp_buf.Z().Cat(r_item.VatInCost * r_item.Qtty, MKSFMTD_020));
 							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_AMOUNTWITHVAT), temp_buf.Z().Cat(r_item.Cost * r_item.Qtty, MKSFMTD_020));
 							if(p_goods_entry)
-								(temp_buf = p_goods_entry->Name).Transf(CTRANSF_INNER_TO_UTF8);
+								temp_buf = XmlUtf8EncText(p_goods_entry->Name);
 							else
 								temp_buf.Z();
 							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), temp_buf);
@@ -11746,6 +11796,15 @@ int FASTCALL PrcssrSupplInterchange::ExecuteBlock::IsGoodsUsed(PPID goodsID) con
     return ok;
 }
 
+SString & PrcssrSupplInterchange::ExecuteBlock::XmlUtf8EncText(const char * pT)
+{
+	SString & r_text = SLS.AcquireRvlStr();
+	r_text = pT;
+	r_text.ReplaceChar('\x07', ' ');
+	XMLReplaceSpecSymb(r_text, "&<>\'");
+	return r_text.Transf(CTRANSF_INNER_TO_UTF8);
+}
+
 const PPIDArray * PrcssrSupplInterchange::ExecuteBlock::GetGoodsList() const
 	{ return (BaseState & bstGoodsListInited && !(BaseState & bstAnyGoods)) ? &GoodsList : 0; }
 void PrcssrSupplInterchange::ExecuteBlock::GetLogFileName(SString & rFileName) const
@@ -12196,12 +12255,10 @@ int PrcssrSupplInterchange::Run()
 				if(!cli.SendDebts())
 					logger.LogLastError();
 			}
-			// @v10.4.4 {
 			if(actions & SupplInterchangeFilt::opExportBills) {
 				if(!cli.SendReceipts())
 					logger.LogLastError();
 			}
-			// } @v10.4.4 
 			cli.GetLogFileName(log_file_name);
 			PPWaitStop();
 		}

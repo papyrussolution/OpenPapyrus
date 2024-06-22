@@ -4973,15 +4973,7 @@ int PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagL
 		}
 		if(goods_rec.UnitID) {
 			PPObjUnit u_obj;
-			u_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &rItem.UnpackedVolume); // @v10.1.1
-			/* @v10.1.1 if(goods_rec.UnitID == SUOM_LITER)
-				rItem.UnpackedVolume = 1.0;
-			else {
-				PPObjUnit u_obj;
-				PPUnit u_rec;
-				if(u_obj.Fetch(goods_rec.UnitID, &u_rec) > 0 && u_rec.BaseUnitID == SUOM_LITER)
-					rItem.UnpackedVolume = u_rec.BaseRatio;
-			}*/
+			u_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &rItem.UnpackedVolume);
 		}
 		{
 			GoodsStockExt gse;

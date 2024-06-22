@@ -4621,6 +4621,7 @@
     <ClInclude Include="..\SLib\libtiff\tif_fax3.h" />
     <ClInclude Include="..\SLib\libtiff\tif_predict.h" />
     <ClInclude Include="..\SLib\libtiff\uvcode.h" />
+    <ClInclude Include="..\SLib\libxml\libxml.h" />
     <ClInclude Include="..\SLib\LMDB\lmdb.h" />
     <ClInclude Include="..\SLib\LMDB\midl.h" />
     <ClInclude Include="..\SLib\lz4\lz4.h" />

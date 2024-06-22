@@ -2141,6 +2141,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 											case GTCHZNPT_MILK: marking_type = 0x444D; break; // @v11.3.12 Молоко
 											case GTCHZNPT_WATER: marking_type = 0x444D; break; // @v11.3.12 Вода
 											case GTCHZNPT_BEER: marking_type = 0x444D; break; // @v12.0.3 Пиво
+											case GTCHZNPT_ANTISEPTIC: marking_type = 0x444D; break; // @v12.0.5
 										}
 										if(marking_type >= 0) {
 											P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_NOMENCLATURE_TYPE, marking_type);

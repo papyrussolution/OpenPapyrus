@@ -15594,18 +15594,19 @@ public:
 		PPID   CcID;       // Идентификатор чека
 		int16  LineNo;     // Номер строки чека 
 		uint16 Flags;      // @flags
-		double Qtty;       // Количество. Qtty > 0 - продажа; Qtty < 0 - возврат
+		double Qtty;       // Количество. Qtty > 0 - продажа; Qtty < 0 - возврат (в торговых единицах)
 	};
 	//
 	// Descr: Список строка кассовых чеков, ассоциированных с маркированным товаром
 	// 
 	struct ListByMarkEntry {
-		ListByMarkEntry() : OrgLotID(0), OrgLotDate(ZERODATE), Flags(0), TotalOpQtty(0.0)
+		ListByMarkEntry() : OrgLotID(0), OrgLotDate(ZERODATE), OrgLotQtty(0.0), Flags(0), TotalOpQtty(0.0)
 		{
 			Mark[0] = 0;
 		}
 		PPID   OrgLotID;    // IN  Ид начального лота, с которым пришла марка 
 		LDATE  OrgLotDate;  // IN  Дата начального лота, с которым пришла марка
+		double OrgLotQtty;  // IN  Количество товара, поступившего с лотом (в торговых единицах).
 		uint   Flags;       // IN  @flags 
 		char   Mark[256];   // IN  Код маркировки
 		double TotalOpQtty; // OUT Суммарное операционное количество по всем встреченным строкам чеков (с учетом знака - see CcMarkedEntry::Qtty)
@@ -24037,6 +24038,7 @@ private:
 #define GTCHZNPT_DRAFTBEER_AWR   1012 // @v12.0.5 Пиво разливное. Специальная модификация, предполагающая автоматическое списание 
 #define GTCHZNPT_DIETARYSUPPLEMENT 13 // @v11.9.6 БАДы
 #define GTCHZNPT_BEER              14 // @v12.0.3 Пиво фасованное 
+#define GTCHZNPT_ANTISEPTIC        15 // @v12.0.5 Антисептик
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -40599,7 +40601,7 @@ public:
         int    InitGoodsList(long flags);
         int    FASTCALL IsGoodsUsed(PPID goodsID) const;
         const  PPIDArray * GetGoodsList() const;
-        // @v9.6.2 int    Debug_TestUtfText(const SString & rText, const char * pAddendum, PPLogger & rLogger);
+		SString & XmlUtf8EncText(const char * pT);
 
 		enum {
 			bstGoodsListInited = 0x0001, // Список товаров GoodsList инициализирован

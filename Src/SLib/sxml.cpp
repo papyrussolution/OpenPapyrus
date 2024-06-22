@@ -38,8 +38,7 @@ static const SpcSymbEntry SpcSymbTab[] = {
 
 void FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb)
 {
-	// @v10.9.7 SString temp_buf = rBuf;
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.9.7
+	SString & r_temp_buf = SLS.AcquireRvlStr();
 	r_temp_buf = rBuf; // @v10.9.7
 	const char * p_include = 0;
 	const char * p_exclude = 0;

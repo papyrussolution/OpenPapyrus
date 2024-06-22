@@ -4952,7 +4952,7 @@ PPTXT_GLOBALSERVICELIST             "1,@{globalservice_twitter};2,@{globalservic
 6,@{globalservice_instagram};7,@{globalservice_uds};8,@{globalservice_uhtt};9,@{globalservice_shopify}"
 PPTXT_AGGRFUNCNAMELIST              "1,@{aggrfunc_count};2,@{aggrfunc_sum};3,@{aggrfunc_average};4,@{aggrfunc_min};5,@{aggrfunc_max};6,@{aggrfunc_stddev}"
 PPTXT_CHZNPRODUCTTYPES              "1,Изделия из меха;2,Табачные изделия;3,Обувь;4,Лекарственные средства;5,Автомобильные шины;6,Текстиль;7,Парфюмерия;\
-8,Молочная продукция;9,Ювелирные изделия;10,Вода питьевая;11,Альтернативная табачная продукция;12,Пиво разливное;1012,Пиво разливное - автосписание;13,Биологически-активные добавки;14,Пиво фасованное"
+8,Молочная продукция;9,Ювелирные изделия;10,Вода питьевая;11,Альтернативная табачная продукция;12,Пиво разливное;1012,Пиво разливное - автосписание;13,Биологически-активные добавки;14,Пиво фасованное;15,Антисептики"
 PPTXT_DEVICETIMEDIFFROMSYS          "@{attention} Время на регистраторе @datetime отличается от времени на компьютере"
 PPTXT_LOG_VK_NODEFIMG               "Изображение по-умолчанию не найдено!"
 PPTXT_LOG_VK_NODESCRFORGOODS        "Описание для товара '@goods_id' не найдено!"

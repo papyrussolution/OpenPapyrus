@@ -37,26 +37,26 @@
 // 
 #define HTML_PI_NODE            XML_PI_NODE
 
-XMLPUBFUN htmlDocPtr htmlNewDoc(const xmlChar * URI, const xmlChar * ExternalID);
-XMLPUBFUN htmlDocPtr htmlNewDocNoDtD(const xmlChar * URI, const xmlChar * ExternalID);
-XMLPUBFUN const xmlChar * htmlGetMetaEncoding(htmlDocPtr doc);
-XMLPUBFUN int htmlSetMetaEncoding(htmlDocPtr doc, const xmlChar * encoding);
+htmlDocPtr htmlNewDoc(const xmlChar * URI, const xmlChar * ExternalID);
+htmlDocPtr htmlNewDocNoDtD(const xmlChar * URI, const xmlChar * ExternalID);
+const xmlChar * htmlGetMetaEncoding(htmlDocPtr doc);
+int htmlSetMetaEncoding(htmlDocPtr doc, const xmlChar * encoding);
 #ifdef LIBXML_OUTPUT_ENABLED
-	XMLPUBFUN void htmlDocDumpMemory(xmlDoc * cur, xmlChar ** mem, int * size);
-	XMLPUBFUN void htmlDocDumpMemoryFormat(xmlDoc * cur, xmlChar ** mem, int * size, int format);
-	XMLPUBFUN int htmlDocDump(FILE * f, xmlDoc * cur);
-	XMLPUBFUN int htmlSaveFile(const char * filename, xmlDoc * cur);
-	XMLPUBFUN int htmlNodeDump(xmlBuffer * buf, xmlDoc * doc, xmlNode * cur);
-	XMLPUBFUN void htmlNodeDumpFile(FILE * out, xmlDoc * doc, xmlNode * cur);
-	XMLPUBFUN int htmlNodeDumpFileFormat(FILE * out, xmlDoc * doc, xmlNode * cur, const char * encoding, int format);
-	XMLPUBFUN int htmlSaveFileEnc(const char * filename, xmlDoc * cur, const char * encoding);
-	XMLPUBFUN int htmlSaveFileFormat(const char * filename, xmlDoc * cur, const char * encoding, int format);
-	XMLPUBFUN void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNode * cur, const char * encoding, int format);
-	XMLPUBFUN void htmlDocContentDumpOutput(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding);
-	XMLPUBFUN void htmlDocContentDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding, int format);
-	XMLPUBFUN void htmlNodeDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNode * cur, const char * encoding);
+	void htmlDocDumpMemory(xmlDoc * cur, xmlChar ** mem, int * size);
+	void htmlDocDumpMemoryFormat(xmlDoc * cur, xmlChar ** mem, int * size, int format);
+	int htmlDocDump(FILE * f, xmlDoc * cur);
+	int htmlSaveFile(const char * filename, xmlDoc * cur);
+	int htmlNodeDump(xmlBuffer * buf, xmlDoc * doc, xmlNode * cur);
+	void htmlNodeDumpFile(FILE * out, xmlDoc * doc, xmlNode * cur);
+	int htmlNodeDumpFileFormat(FILE * out, xmlDoc * doc, xmlNode * cur, const char * encoding, int format);
+	int htmlSaveFileEnc(const char * filename, xmlDoc * cur, const char * encoding);
+	int htmlSaveFileFormat(const char * filename, xmlDoc * cur, const char * encoding, int format);
+	void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNode * cur, const char * encoding, int format);
+	void htmlDocContentDumpOutput(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding);
+	void htmlDocContentDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding, int format);
+	void htmlNodeDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNode * cur, const char * encoding);
 #endif /* LIBXML_OUTPUT_ENABLED */
-XMLPUBFUN int htmlIsBooleanAttr(const xmlChar * name);
+int htmlIsBooleanAttr(const xmlChar * name);
 
 //#ifdef __cplusplus
 //}

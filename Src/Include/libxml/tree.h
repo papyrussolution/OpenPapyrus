@@ -89,10 +89,10 @@ struct xmlBuf;
  * A few public routines for xmlBuf. As those are expected to be used
  * mostly internally the bulk of the routines are internal in buf.h
  */
-XMLPUBFUN xmlChar * FASTCALL xmlBufContent(const xmlBuf * buf);
-XMLPUBFUN xmlChar * FASTCALL xmlBufEnd(xmlBuf * buf);
-XMLPUBFUN size_t FASTCALL xmlBufUse(xmlBuf * buf);
-XMLPUBFUN size_t FASTCALL xmlBufShrink(xmlBuf * buf, size_t len);
+xmlChar * FASTCALL xmlBufContent(const xmlBuf * buf);
+xmlChar * FASTCALL xmlBufEnd(xmlBuf * buf);
+size_t FASTCALL xmlBufUse(xmlBuf * buf);
+size_t FASTCALL xmlBufShrink(xmlBuf * buf, size_t len);
 /*
  * LIBXML2_NEW_BUFFER:
  *
@@ -523,260 +523,260 @@ struct xmlDOMWrapCtxt {
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_XPATH_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED) || defined(LIBXML_DEBUG_ENABLED) || \
 	defined (LIBXML_HTML_ENABLED) || defined(LIBXML_SAX1_ENABLED) || defined(LIBXML_HTML_ENABLED) || defined(LIBXML_WRITER_ENABLED) || \
 	defined(LIBXML_DOCB_ENABLED) || defined(LIBXML_LEGACY_ENABLED)
-XMLPUBFUN int xmlValidateNCName(const xmlChar * value, int space);
+int xmlValidateNCName(const xmlChar * value, int space);
 #endif
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
-	XMLPUBFUN int xmlValidateQName(const xmlChar * value, int space);
-	XMLPUBFUN int xmlValidateName(const xmlChar * value, int space);
-	XMLPUBFUN int xmlValidateNMToken(const xmlChar * value, int space);
+	int xmlValidateQName(const xmlChar * value, int space);
+	int xmlValidateName(const xmlChar * value, int space);
+	int xmlValidateNMToken(const xmlChar * value, int space);
 #endif
-XMLPUBFUN xmlChar * FASTCALL xmlBuildQName(const xmlChar * ncname, const xmlChar * prefix, xmlChar * memory, int len);
-XMLPUBFUN xmlChar * FASTCALL xmlSplitQName2(const xmlChar * name, xmlChar ** prefix);
-XMLPUBFUN const xmlChar * xmlSplitQName3(const xmlChar * name, int * len);
+xmlChar * FASTCALL xmlBuildQName(const xmlChar * ncname, const xmlChar * prefix, xmlChar * memory, int len);
+xmlChar * FASTCALL xmlSplitQName2(const xmlChar * name, xmlChar ** prefix);
+const xmlChar * xmlSplitQName3(const xmlChar * name, int * len);
 /*
  * Handling Buffers, the old ones see @xmlBuf for the new ones.
  */
-XMLPUBFUN void xmlSetBufferAllocationScheme(xmlBufferAllocationScheme scheme);
-XMLPUBFUN xmlBufferAllocationScheme xmlGetBufferAllocationScheme();
-XMLPUBFUN xmlBuffer * xmlBufferCreate();
-XMLPUBFUN xmlBuffer * xmlBufferCreateSize(size_t size);
-XMLPUBFUN xmlBuffer * xmlBufferCreateStatic(void * mem, size_t size);
-XMLPUBFUN int xmlBufferResize(xmlBuffer * buf, uint size);
-XMLPUBFUN void FASTCALL xmlBufferFree(xmlBuffer * pBuf);
-XMLPUBFUN int xmlBufferDump(FILE * file, xmlBuffer * buf);
-XMLPUBFUN int FASTCALL xmlBufferAdd(xmlBuffer * buf, const xmlChar * str, int len);
-XMLPUBFUN int xmlBufferAddHead(xmlBuffer * buf, const xmlChar * str, int len);
-XMLPUBFUN int FASTCALL xmlBufferCat(xmlBuffer * pBuf, const xmlChar * pStr);
-XMLPUBFUN int FASTCALL xmlBufferCCat(xmlBuffer * pBuf, const char * pStr);
-XMLPUBFUN int xmlBufferShrink(xmlBuffer * buf, uint len);
-XMLPUBFUN int xmlBufferGrow(xmlBuffer * buf, uint len);
-XMLPUBFUN void xmlBufferEmpty(xmlBuffer * buf);
-XMLPUBFUN const xmlChar* xmlBufferContent(const xmlBuffer * buf);
-XMLPUBFUN xmlChar* xmlBufferDetach(xmlBuffer * buf);
-XMLPUBFUN void xmlBufferSetAllocationScheme(xmlBuffer * buf, xmlBufferAllocationScheme scheme);
-XMLPUBFUN int xmlBufferLength(const xmlBuffer * buf);
+void xmlSetBufferAllocationScheme(xmlBufferAllocationScheme scheme);
+xmlBufferAllocationScheme xmlGetBufferAllocationScheme();
+xmlBuffer * xmlBufferCreate();
+xmlBuffer * xmlBufferCreateSize(size_t size);
+xmlBuffer * xmlBufferCreateStatic(void * mem, size_t size);
+int xmlBufferResize(xmlBuffer * buf, uint size);
+void FASTCALL xmlBufferFree(xmlBuffer * pBuf);
+int xmlBufferDump(FILE * file, xmlBuffer * buf);
+int FASTCALL xmlBufferAdd(xmlBuffer * buf, const xmlChar * str, int len);
+int xmlBufferAddHead(xmlBuffer * buf, const xmlChar * str, int len);
+int FASTCALL xmlBufferCat(xmlBuffer * pBuf, const xmlChar * pStr);
+int FASTCALL xmlBufferCCat(xmlBuffer * pBuf, const char * pStr);
+int xmlBufferShrink(xmlBuffer * buf, uint len);
+int xmlBufferGrow(xmlBuffer * buf, uint len);
+void xmlBufferEmpty(xmlBuffer * buf);
+const xmlChar* xmlBufferContent(const xmlBuffer * buf);
+xmlChar* xmlBufferDetach(xmlBuffer * buf);
+void xmlBufferSetAllocationScheme(xmlBuffer * buf, xmlBufferAllocationScheme scheme);
+int xmlBufferLength(const xmlBuffer * buf);
 /*
  * Creating/freeing new structures.
  */
-XMLPUBFUN xmlDtd * xmlCreateIntSubset(xmlDoc * doc, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
-XMLPUBFUN xmlDtd * xmlNewDtd(xmlDoc * doc, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
-XMLPUBFUN xmlDtd * FASTCALL xmlGetIntSubset(const xmlDoc * doc);
-XMLPUBFUN void FASTCALL xmlFreeDtd(xmlDtd * pCur);
+xmlDtd * xmlCreateIntSubset(xmlDoc * doc, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
+xmlDtd * xmlNewDtd(xmlDoc * doc, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
+xmlDtd * FASTCALL xmlGetIntSubset(const xmlDoc * doc);
+void FASTCALL xmlFreeDtd(xmlDtd * pCur);
 #ifdef LIBXML_LEGACY_ENABLED
-XMLPUBFUN xmlNs * xmlNewGlobalNs(xmlDoc * doc, const xmlChar * href, const xmlChar * prefix);
+xmlNs * xmlNewGlobalNs(xmlDoc * doc, const xmlChar * href, const xmlChar * prefix);
 #endif /* LIBXML_LEGACY_ENABLED */
-XMLPUBFUN xmlNs * FASTCALL xmlNewNs(xmlNode * pNode, const xmlChar * href, const xmlChar * prefix);
-XMLPUBFUN void FASTCALL xmlFreeNs(xmlNs * cur);
-XMLPUBFUN void FASTCALL xmlFreeNsList(xmlNs * cur);
-XMLPUBFUN xmlDoc * xmlNewDoc(const xmlChar * version);
-XMLPUBFUN void FASTCALL xmlFreeDoc(xmlDoc * pDoc);
-XMLPUBFUN xmlAttr * FASTCALL xmlNewDocProp(xmlDoc * doc, const xmlChar * name, const xmlChar * value);
+xmlNs * FASTCALL xmlNewNs(xmlNode * pNode, const xmlChar * href, const xmlChar * prefix);
+void FASTCALL xmlFreeNs(xmlNs * cur);
+void FASTCALL xmlFreeNsList(xmlNs * cur);
+xmlDoc * xmlNewDoc(const xmlChar * version);
+void FASTCALL xmlFreeDoc(xmlDoc * pDoc);
+xmlAttr * FASTCALL xmlNewDocProp(xmlDoc * doc, const xmlChar * name, const xmlChar * value);
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_HTML_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
-	XMLPUBFUN xmlAttr * xmlNewProp(xmlNode * pNode, const xmlChar * name, const xmlChar * value);
+	xmlAttr * xmlNewProp(xmlNode * pNode, const xmlChar * name, const xmlChar * value);
 #endif
-XMLPUBFUN xmlAttr * xmlNewNsProp(xmlNode * pNode, xmlNs * ns, const xmlChar * name, const xmlChar * value);
-XMLPUBFUN xmlAttr * xmlNewNsPropEatName(xmlNode * pNode, xmlNs * ns, xmlChar * name, const xmlChar * value);
-XMLPUBFUN void xmlFreePropList(xmlAttr * cur);
-XMLPUBFUN void FASTCALL xmlFreeProp(xmlAttr * cur);
-XMLPUBFUN xmlAttr * xmlCopyProp(xmlNode * target, xmlAttr * cur);
-XMLPUBFUN xmlAttr * xmlCopyPropList(xmlNode * target, xmlAttr * cur);
+xmlAttr * xmlNewNsProp(xmlNode * pNode, xmlNs * ns, const xmlChar * name, const xmlChar * value);
+xmlAttr * xmlNewNsPropEatName(xmlNode * pNode, xmlNs * ns, xmlChar * name, const xmlChar * value);
+void xmlFreePropList(xmlAttr * cur);
+void FASTCALL xmlFreeProp(xmlAttr * cur);
+xmlAttr * xmlCopyProp(xmlNode * target, xmlAttr * cur);
+xmlAttr * xmlCopyPropList(xmlNode * target, xmlAttr * cur);
 #ifdef LIBXML_TREE_ENABLED
-XMLPUBFUN xmlDtd * xmlCopyDtd(xmlDtd * dtd);
+xmlDtd * xmlCopyDtd(xmlDtd * dtd);
 #endif /* LIBXML_TREE_ENABLED */
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
-XMLPUBFUN xmlDoc * xmlCopyDoc(xmlDoc * doc, int recursive);
+xmlDoc * xmlCopyDoc(xmlDoc * doc, int recursive);
 #endif /* defined(LIBXML_TREE_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED) */
 /*
  * Creating new nodes.
  */
-XMLPUBFUN xmlNode * FASTCALL xmlNewDocNode(xmlDoc * doc, xmlNs * ns, const xmlChar * name, const xmlChar * content);
-XMLPUBFUN xmlNode * xmlNewDocNodeEatName(xmlDoc * doc, xmlNs * ns, xmlChar * name, const xmlChar * content);
-XMLPUBFUN xmlNode * FASTCALL xmlNewNode(xmlNs * ns, const xmlChar * name);
-XMLPUBFUN xmlNode * xmlNewNodeEatName(xmlNs * ns, xmlChar * name);
+xmlNode * FASTCALL xmlNewDocNode(xmlDoc * doc, xmlNs * ns, const xmlChar * name, const xmlChar * content);
+xmlNode * xmlNewDocNodeEatName(xmlDoc * doc, xmlNs * ns, xmlChar * name, const xmlChar * content);
+xmlNode * FASTCALL xmlNewNode(xmlNs * ns, const xmlChar * name);
+xmlNode * xmlNewNodeEatName(xmlNs * ns, xmlChar * name);
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
-XMLPUBFUN xmlNode * xmlNewChild(xmlNode * parent, xmlNs * ns, const xmlChar * name, const xmlChar * content);
+xmlNode * xmlNewChild(xmlNode * parent, xmlNs * ns, const xmlChar * name, const xmlChar * content);
 #endif
-XMLPUBFUN xmlNode * xmlNewDocText(const xmlDoc * doc, const xmlChar * content);
-XMLPUBFUN xmlNode * xmlNewText(const xmlChar * content);
-XMLPUBFUN xmlNode * xmlNewDocPI(xmlDoc * doc, const xmlChar * name, const xmlChar * content);
-XMLPUBFUN xmlNode * xmlNewPI(const xmlChar * name, const xmlChar * content);
-XMLPUBFUN xmlNode * xmlNewDocTextLen(xmlDoc * doc, const xmlChar * content, int len);
-XMLPUBFUN xmlNode * FASTCALL xmlNewTextLen(const xmlChar * content, int len);
-XMLPUBFUN xmlNode * xmlNewDocComment(xmlDoc * doc, const xmlChar * content);
-XMLPUBFUN xmlNode * xmlNewComment(const xmlChar * content);
-XMLPUBFUN xmlNode * xmlNewCDataBlock(xmlDoc * doc, const xmlChar * content, int len);
-XMLPUBFUN xmlNode * xmlNewCharRef(xmlDoc * doc, const xmlChar * name);
-XMLPUBFUN xmlNode * xmlNewReference(const xmlDoc * doc, const xmlChar * name);
-XMLPUBFUN xmlNode * xmlCopyNode(xmlNode * pNode, int recursive);
-XMLPUBFUN xmlNode * xmlDocCopyNode(xmlNode * pNode, xmlDoc * doc, int recursive);
-XMLPUBFUN xmlNode * xmlDocCopyNodeList(xmlDoc * doc, xmlNode * pNode);
-XMLPUBFUN xmlNode * xmlCopyNodeList(xmlNode * pNode);
+xmlNode * xmlNewDocText(const xmlDoc * doc, const xmlChar * content);
+xmlNode * xmlNewText(const xmlChar * content);
+xmlNode * xmlNewDocPI(xmlDoc * doc, const xmlChar * name, const xmlChar * content);
+xmlNode * xmlNewPI(const xmlChar * name, const xmlChar * content);
+xmlNode * xmlNewDocTextLen(xmlDoc * doc, const xmlChar * content, int len);
+xmlNode * FASTCALL xmlNewTextLen(const xmlChar * content, int len);
+xmlNode * xmlNewDocComment(xmlDoc * doc, const xmlChar * content);
+xmlNode * xmlNewComment(const xmlChar * content);
+xmlNode * xmlNewCDataBlock(xmlDoc * doc, const xmlChar * content, int len);
+xmlNode * xmlNewCharRef(xmlDoc * doc, const xmlChar * name);
+xmlNode * xmlNewReference(const xmlDoc * doc, const xmlChar * name);
+xmlNode * xmlCopyNode(xmlNode * pNode, int recursive);
+xmlNode * xmlDocCopyNode(xmlNode * pNode, xmlDoc * doc, int recursive);
+xmlNode * xmlDocCopyNodeList(xmlDoc * doc, xmlNode * pNode);
+xmlNode * xmlCopyNodeList(xmlNode * pNode);
 #ifdef LIBXML_TREE_ENABLED
-XMLPUBFUN xmlNode * xmlNewTextChild(xmlNode * parent, xmlNs * ns, const xmlChar * name, const xmlChar * content);
-XMLPUBFUN xmlNode * xmlNewDocRawNode(xmlDoc * doc, xmlNs * ns, const xmlChar * name, const xmlChar * content);
-XMLPUBFUN xmlNode * xmlNewDocFragment(xmlDoc * doc);
+xmlNode * xmlNewTextChild(xmlNode * parent, xmlNs * ns, const xmlChar * name, const xmlChar * content);
+xmlNode * xmlNewDocRawNode(xmlDoc * doc, xmlNs * ns, const xmlChar * name, const xmlChar * content);
+xmlNode * xmlNewDocFragment(xmlDoc * doc);
 #endif /* LIBXML_TREE_ENABLED */
 // 
 // Navigating.
 // 
-XMLPUBFUN long xmlGetLineNo(const xmlNode * pNode);
+long xmlGetLineNo(const xmlNode * pNode);
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_DEBUG_ENABLED)
-XMLPUBFUN xmlChar * xmlGetNodePath(const xmlNode * pNode);
+xmlChar * xmlGetNodePath(const xmlNode * pNode);
 #endif /* defined(LIBXML_TREE_ENABLED) || defined(LIBXML_DEBUG_ENABLED) */
-XMLPUBFUN xmlNode * FASTCALL xmlDocGetRootElement(const xmlDoc * doc);
-XMLPUBFUN xmlNode * FASTCALL xmlGetLastChild(const xmlNode * parent);
-XMLPUBFUN int FASTCALL xmlNodeIsText(const xmlNode * pNode);
-XMLPUBFUN int FASTCALL xmlIsBlankNode(const xmlNode * pNode);
+xmlNode * FASTCALL xmlDocGetRootElement(const xmlDoc * doc);
+xmlNode * FASTCALL xmlGetLastChild(const xmlNode * parent);
+int FASTCALL xmlNodeIsText(const xmlNode * pNode);
+int FASTCALL xmlIsBlankNode(const xmlNode * pNode);
 // 
 // Changing the structure.
 // 
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_WRITER_ENABLED)
-	XMLPUBFUN xmlNode * xmlDocSetRootElement(xmlDoc * doc, xmlNode * root);
+	xmlNode * xmlDocSetRootElement(xmlDoc * doc, xmlNode * root);
 #endif
 #ifdef LIBXML_TREE_ENABLED
-	XMLPUBFUN void xmlNodeSetName(xmlNode * cur, const xmlChar * name);
+	void xmlNodeSetName(xmlNode * cur, const xmlChar * name);
 #endif
-XMLPUBFUN xmlNode * FASTCALL xmlAddChild(xmlNode * parent, xmlNode * cur);
-XMLPUBFUN xmlNode * xmlAddChildList(xmlNode * parent, xmlNode * cur);
+xmlNode * FASTCALL xmlAddChild(xmlNode * parent, xmlNode * cur);
+xmlNode * xmlAddChildList(xmlNode * parent, xmlNode * cur);
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_WRITER_ENABLED)
-	XMLPUBFUN xmlNode * xmlReplaceNode(xmlNode * old, xmlNode * cur);
+	xmlNode * xmlReplaceNode(xmlNode * old, xmlNode * cur);
 #endif
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_HTML_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED) || defined(LIBXML_XINCLUDE_ENABLED)
-	XMLPUBFUN xmlNode * FASTCALL xmlAddPrevSibling(xmlNode * cur, xmlNode * elem);
+	xmlNode * FASTCALL xmlAddPrevSibling(xmlNode * cur, xmlNode * elem);
 #endif
-XMLPUBFUN xmlNode * xmlAddSibling(xmlNode * cur, xmlNode * elem);
-XMLPUBFUN xmlNode * FASTCALL xmlAddNextSibling(xmlNode * cur, xmlNode * elem);
-XMLPUBFUN void FASTCALL xmlUnlinkNode(xmlNode * cur);
-XMLPUBFUN xmlNode * xmlTextMerge(xmlNode * first, xmlNode * second);
-XMLPUBFUN int xmlTextConcat(xmlNode * pNode, const xmlChar * content, int len);
-XMLPUBFUN void FASTCALL xmlFreeNodeList(xmlNode * cur);
-XMLPUBFUN void FASTCALL xmlFreeNode(xmlNode * pCur);
-XMLPUBFUN void FASTCALL xmlSetTreeDoc(xmlNode * tree, xmlDoc * doc);
-XMLPUBFUN void FASTCALL xmlSetListDoc(xmlNode * list, xmlDoc * doc);
+xmlNode * xmlAddSibling(xmlNode * cur, xmlNode * elem);
+xmlNode * FASTCALL xmlAddNextSibling(xmlNode * cur, xmlNode * elem);
+void FASTCALL xmlUnlinkNode(xmlNode * cur);
+xmlNode * xmlTextMerge(xmlNode * first, xmlNode * second);
+int xmlTextConcat(xmlNode * pNode, const xmlChar * content, int len);
+void FASTCALL xmlFreeNodeList(xmlNode * cur);
+void FASTCALL xmlFreeNode(xmlNode * pCur);
+void FASTCALL xmlSetTreeDoc(xmlNode * tree, xmlDoc * doc);
+void FASTCALL xmlSetListDoc(xmlNode * list, xmlDoc * doc);
 // 
 // Namespaces.
 // 
-XMLPUBFUN xmlNs * FASTCALL xmlSearchNs(xmlDoc * doc, xmlNode * pNode, const xmlChar * nameSpace);
-XMLPUBFUN xmlNs * xmlSearchNsByHref(xmlDoc * doc, xmlNode * pNode, const xmlChar * href);
+xmlNs * FASTCALL xmlSearchNs(xmlDoc * doc, xmlNode * pNode, const xmlChar * nameSpace);
+xmlNs * xmlSearchNsByHref(xmlDoc * doc, xmlNode * pNode, const xmlChar * href);
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_XPATH_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
-	XMLPUBFUN xmlNs ** xmlGetNsList(const xmlDoc * doc, const xmlNode * pNode);
+	xmlNs ** xmlGetNsList(const xmlDoc * doc, const xmlNode * pNode);
 #endif
-XMLPUBFUN void xmlSetNs(xmlNode * pNode, xmlNs * ns);
-XMLPUBFUN xmlNs * xmlCopyNamespace(xmlNs * cur);
-XMLPUBFUN xmlNs * xmlCopyNamespaceList(xmlNs * cur);
+void xmlSetNs(xmlNode * pNode, xmlNs * ns);
+xmlNs * xmlCopyNamespace(xmlNs * cur);
+xmlNs * xmlCopyNamespaceList(xmlNs * cur);
 // 
 // Changing the content.
 // 
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_XINCLUDE_ENABLED) ||	defined(LIBXML_SCHEMAS_ENABLED) || defined(LIBXML_HTML_ENABLED)
-	XMLPUBFUN xmlAttr * FASTCALL xmlSetProp(xmlNode * pNode, const xmlChar * name, const xmlChar * value);
-	XMLPUBFUN xmlAttr * FASTCALL xmlSetNsProp(xmlNode * pNode, xmlNs * ns, const xmlChar * name, const xmlChar * value);
+	xmlAttr * FASTCALL xmlSetProp(xmlNode * pNode, const xmlChar * name, const xmlChar * value);
+	xmlAttr * FASTCALL xmlSetNsProp(xmlNode * pNode, xmlNs * ns, const xmlChar * name, const xmlChar * value);
 #endif
-XMLPUBFUN xmlChar * FASTCALL xmlGetNoNsProp(const xmlNode * pNode, const xmlChar * name);
-XMLPUBFUN xmlChar * FASTCALL xmlGetProp(const xmlNode * pNode, const xmlChar * name);
-XMLPUBFUN xmlAttr * FASTCALL xmlHasProp(const xmlNode * pNode, const xmlChar * name);
-XMLPUBFUN xmlAttr * xmlHasNsProp(const xmlNode * pNode, const xmlChar * name, const xmlChar * nameSpace);
-XMLPUBFUN xmlChar * FASTCALL xmlGetNsProp(const xmlNode * pNode, const xmlChar * name, const xmlChar * nameSpace);
-XMLPUBFUN xmlNode * xmlStringGetNodeList(const xmlDoc * doc, const xmlChar * value);
-XMLPUBFUN xmlNode * xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, int len);
-XMLPUBFUN xmlChar * FASTCALL xmlNodeListGetString(xmlDoc * doc, const xmlNode * list, int inLine);
+xmlChar * FASTCALL xmlGetNoNsProp(const xmlNode * pNode, const xmlChar * name);
+xmlChar * FASTCALL xmlGetProp(const xmlNode * pNode, const xmlChar * name);
+xmlAttr * FASTCALL xmlHasProp(const xmlNode * pNode, const xmlChar * name);
+xmlAttr * xmlHasNsProp(const xmlNode * pNode, const xmlChar * name, const xmlChar * nameSpace);
+xmlChar * FASTCALL xmlGetNsProp(const xmlNode * pNode, const xmlChar * name, const xmlChar * nameSpace);
+xmlNode * xmlStringGetNodeList(const xmlDoc * doc, const xmlChar * value);
+xmlNode * xmlStringLenGetNodeList(const xmlDoc * doc, const xmlChar * value, int len);
+xmlChar * FASTCALL xmlNodeListGetString(xmlDoc * doc, const xmlNode * list, int inLine);
 #ifdef LIBXML_TREE_ENABLED
-	XMLPUBFUN xmlChar * xmlNodeListGetRawString(const xmlDoc * doc, const xmlNode * list, int inLine);
+	xmlChar * xmlNodeListGetRawString(const xmlDoc * doc, const xmlNode * list, int inLine);
 #endif
-XMLPUBFUN void xmlNodeSetContent(xmlNode * cur, const xmlChar * content);
+void xmlNodeSetContent(xmlNode * cur, const xmlChar * content);
 #ifdef LIBXML_TREE_ENABLED
-	XMLPUBFUN void xmlNodeSetContentLen(xmlNode * cur, const xmlChar * content, int len);
+	void xmlNodeSetContentLen(xmlNode * cur, const xmlChar * content, int len);
 #endif
-XMLPUBFUN void FASTCALL xmlNodeAddContent(xmlNode * cur, const xmlChar * content);
-XMLPUBFUN void FASTCALL xmlNodeAddContentLen(xmlNode * cur, const xmlChar * content, int len);
-XMLPUBFUN xmlChar * FASTCALL xmlNodeGetContent(const xmlNode * cur);
-XMLPUBFUN int xmlNodeBufGetContent(xmlBuffer * buffer, const xmlNode * cur);
-XMLPUBFUN int FASTCALL xmlBufGetNodeContent(xmlBuf * buf, const xmlNode * cur);
-XMLPUBFUN xmlChar * xmlNodeGetLang(const xmlNode * cur);
-XMLPUBFUN int xmlNodeGetSpacePreserve(const xmlNode * cur);
+void FASTCALL xmlNodeAddContent(xmlNode * cur, const xmlChar * content);
+void FASTCALL xmlNodeAddContentLen(xmlNode * cur, const xmlChar * content, int len);
+xmlChar * FASTCALL xmlNodeGetContent(const xmlNode * cur);
+int xmlNodeBufGetContent(xmlBuffer * buffer, const xmlNode * cur);
+int FASTCALL xmlBufGetNodeContent(xmlBuf * buf, const xmlNode * cur);
+xmlChar * xmlNodeGetLang(const xmlNode * cur);
+int xmlNodeGetSpacePreserve(const xmlNode * cur);
 #ifdef LIBXML_TREE_ENABLED
-	XMLPUBFUN void xmlNodeSetLang(xmlNode * cur, const xmlChar * lang);
-	XMLPUBFUN void xmlNodeSetSpacePreserve(xmlNode * cur, int val);
+	void xmlNodeSetLang(xmlNode * cur, const xmlChar * lang);
+	void xmlNodeSetSpacePreserve(xmlNode * cur, int val);
 #endif
-XMLPUBFUN xmlChar * FASTCALL xmlNodeGetBase(const xmlDoc * doc, const xmlNode * cur);
+xmlChar * FASTCALL xmlNodeGetBase(const xmlDoc * doc, const xmlNode * cur);
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_XINCLUDE_ENABLED)
-	XMLPUBFUN void xmlNodeSetBase(xmlNode * cur, const xmlChar * uri);
+	void xmlNodeSetBase(xmlNode * cur, const xmlChar * uri);
 #endif
 // 
 // Removing content.
 // 
-XMLPUBFUN int xmlRemoveProp(xmlAttr * cur);
+int xmlRemoveProp(xmlAttr * cur);
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
-	XMLPUBFUN int xmlUnsetNsProp(xmlNode * pNode, xmlNs * ns, const xmlChar * name);
-	XMLPUBFUN int xmlUnsetProp(xmlNode * pNode, const xmlChar * name);
+	int xmlUnsetNsProp(xmlNode * pNode, xmlNs * ns, const xmlChar * name);
+	int xmlUnsetProp(xmlNode * pNode, const xmlChar * name);
 #endif
 // 
 // Internal, don't use.
 // 
-XMLPUBFUN void FASTCALL xmlBufferWriteCHAR(xmlBuffer * buf, const xmlChar * string);
-XMLPUBFUN void FASTCALL xmlBufferWriteChar(xmlBuffer * pBuf, const char * pString);
-XMLPUBFUN void FASTCALL xmlBufferWriteQuotedString(xmlBuffer * buf, const xmlChar * string);
+void FASTCALL xmlBufferWriteCHAR(xmlBuffer * buf, const xmlChar * string);
+void FASTCALL xmlBufferWriteChar(xmlBuffer * pBuf, const char * pString);
+void FASTCALL xmlBufferWriteQuotedString(xmlBuffer * buf, const xmlChar * string);
 #ifdef LIBXML_OUTPUT_ENABLED
-	XMLPUBFUN void xmlAttrSerializeTxtContent(xmlBuffer * buf, xmlDoc * doc, xmlAttr * attr, const xmlChar * string);
+	void xmlAttrSerializeTxtContent(xmlBuffer * buf, xmlDoc * doc, xmlAttr * attr, const xmlChar * string);
 #endif
 #ifdef LIBXML_TREE_ENABLED
 	// 
 	// Namespace handling.
 	// 
-	XMLPUBFUN int xmlReconciliateNs(xmlDoc * doc, xmlNode * tree);
+	int xmlReconciliateNs(xmlDoc * doc, xmlNode * tree);
 #endif
 #ifdef LIBXML_OUTPUT_ENABLED
 // 
 // Saving.
 // 
-XMLPUBFUN void xmlDocDumpFormatMemory(xmlDoc * cur, xmlChar ** mem, int * size, int format);
-XMLPUBFUN void xmlDocDumpMemory(xmlDoc * cur, xmlChar ** mem, int * size);
-XMLPUBFUN void xmlDocDumpMemoryEnc(xmlDoc * out_doc, xmlChar ** doc_txt_ptr, int * doc_txt_len, const char * txt_encoding);
-XMLPUBFUN void xmlDocDumpFormatMemoryEnc(xmlDoc * out_doc, xmlChar ** doc_txt_ptr, int * doc_txt_len, const char * txt_encoding, int format);
-XMLPUBFUN int xmlDocFormatDump(FILE * f, xmlDoc * cur, int format);
-XMLPUBFUN int xmlDocDump(FILE * f, xmlDoc * cur);
-XMLPUBFUN void xmlElemDump(FILE * f, xmlDoc * doc, xmlNode * cur);
-XMLPUBFUN int xmlSaveFile(const char * filename, xmlDoc * cur);
-XMLPUBFUN int xmlSaveFormatFile(const char * filename, xmlDoc * cur, int format);
-XMLPUBFUN size_t xmlBufNodeDump(xmlBuf * buf, xmlDoc * doc, xmlNode * cur, int level, int format);
-XMLPUBFUN int xmlNodeDump(xmlBuffer * buf, xmlDoc * doc, xmlNode * cur, int level, int format);
-XMLPUBFUN int xmlSaveFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding);
-XMLPUBFUN int xmlSaveFormatFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding, int format);
-XMLPUBFUN void xmlNodeDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNode * cur, int level, int format, const char * encoding);
-XMLPUBFUN int xmlSaveFormatFileEnc(const char * filename, xmlDoc * cur, const char * encoding, int format);
-XMLPUBFUN int xmlSaveFileEnc(const char * filename, xmlDoc * cur, const char * encoding);
+void xmlDocDumpFormatMemory(xmlDoc * cur, xmlChar ** mem, int * size, int format);
+void xmlDocDumpMemory(xmlDoc * cur, xmlChar ** mem, int * size);
+void xmlDocDumpMemoryEnc(xmlDoc * out_doc, xmlChar ** doc_txt_ptr, int * doc_txt_len, const char * txt_encoding);
+void xmlDocDumpFormatMemoryEnc(xmlDoc * out_doc, xmlChar ** doc_txt_ptr, int * doc_txt_len, const char * txt_encoding, int format);
+int xmlDocFormatDump(FILE * f, xmlDoc * cur, int format);
+int xmlDocDump(FILE * f, xmlDoc * cur);
+void xmlElemDump(FILE * f, xmlDoc * doc, xmlNode * cur);
+int xmlSaveFile(const char * filename, xmlDoc * cur);
+int xmlSaveFormatFile(const char * filename, xmlDoc * cur, int format);
+size_t xmlBufNodeDump(xmlBuf * buf, xmlDoc * doc, xmlNode * cur, int level, int format);
+int xmlNodeDump(xmlBuffer * buf, xmlDoc * doc, xmlNode * cur, int level, int format);
+int xmlSaveFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding);
+int xmlSaveFormatFileTo(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding, int format);
+void xmlNodeDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNode * cur, int level, int format, const char * encoding);
+int xmlSaveFormatFileEnc(const char * filename, xmlDoc * cur, const char * encoding, int format);
+int xmlSaveFileEnc(const char * filename, xmlDoc * cur, const char * encoding);
 
 #endif /* LIBXML_OUTPUT_ENABLED */
 /*
  * XHTML
  */
-XMLPUBFUN int xmlIsXHTML(const xmlChar * systemID, const xmlChar * publicID);
+int xmlIsXHTML(const xmlChar * systemID, const xmlChar * publicID);
 /*
  * Compression.
  */
-XMLPUBFUN int xmlGetDocCompressMode(const xmlDoc * doc);
-XMLPUBFUN void xmlSetDocCompressMode(xmlDoc * doc, int mode);
-XMLPUBFUN int xmlGetCompressMode();
-XMLPUBFUN void xmlSetCompressMode(int mode);
+int xmlGetDocCompressMode(const xmlDoc * doc);
+void xmlSetDocCompressMode(xmlDoc * doc, int mode);
+int xmlGetCompressMode();
+void xmlSetCompressMode(int mode);
 /*
  * DOM-wrapper helper functions.
  */
-XMLPUBFUN xmlDOMWrapCtxtPtr xmlDOMWrapNewCtxt();
-XMLPUBFUN void xmlDOMWrapFreeCtxt(xmlDOMWrapCtxtPtr ctxt);
-XMLPUBFUN int xmlDOMWrapReconcileNamespaces(xmlDOMWrapCtxtPtr ctxt, xmlNode * elem, int options);
-XMLPUBFUN int xmlDOMWrapAdoptNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * pNode, xmlDoc * destDoc, xmlNode * destParent, int options);
-XMLPUBFUN int xmlDOMWrapRemoveNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * doc, xmlNode * pNode, int options);
-XMLPUBFUN int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * pNode, xmlNode ** clonedNode, xmlDoc * destDoc, xmlNode * destParent, int deep, int options);
+xmlDOMWrapCtxtPtr xmlDOMWrapNewCtxt();
+void xmlDOMWrapFreeCtxt(xmlDOMWrapCtxtPtr ctxt);
+int xmlDOMWrapReconcileNamespaces(xmlDOMWrapCtxtPtr ctxt, xmlNode * elem, int options);
+int xmlDOMWrapAdoptNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * pNode, xmlDoc * destDoc, xmlNode * destParent, int options);
+int xmlDOMWrapRemoveNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * doc, xmlNode * pNode, int options);
+int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlNode * pNode, xmlNode ** clonedNode, xmlDoc * destDoc, xmlNode * destParent, int deep, int options);
 
 #ifdef LIBXML_TREE_ENABLED
 /*
  * 5 interfaces from DOM ElementTraversal, but different in entities
  * traversal.
  */
-XMLPUBFUN unsigned long xmlChildElementCount(xmlNode * parent);
-XMLPUBFUN xmlNode * xmlNextElementSibling(xmlNode * pNode);
-XMLPUBFUN xmlNode * xmlFirstElementChild(xmlNode * parent);
-XMLPUBFUN xmlNode * xmlLastElementChild(xmlNode * parent);
-XMLPUBFUN xmlNode * xmlPreviousElementSibling(xmlNode * pNode);
+unsigned long xmlChildElementCount(xmlNode * parent);
+xmlNode * xmlNextElementSibling(xmlNode * pNode);
+xmlNode * xmlFirstElementChild(xmlNode * parent);
+xmlNode * xmlLastElementChild(xmlNode * parent);
+xmlNode * xmlPreviousElementSibling(xmlNode * pNode);
 #endif
 //#ifdef __cplusplus
 //}

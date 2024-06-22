@@ -1131,6 +1131,9 @@
     <ClInclude Include="..\SLib\fnv-503\fnv.h">
       <Filter>fnv-hash</Filter>
     </ClInclude>
+    <ClInclude Include="..\SLib\libxml\libxml.h">
+      <Filter>Header\libxml</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Osf\Asmlib\cachesize32.asm">

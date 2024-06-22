@@ -4234,7 +4234,47 @@ private:
 					if(GObj.GetOriginalRawGoodsByStruc(goodsID, &org_goods_id)) {
 						Goods2Tbl::Rec org_goods_rec;
 						if(GObj.Fetch(org_goods_id, &org_goods_rec) > 0) {
+							PPObjUnit unit_obj;
+							double main_goods_liter_ratio = 0.0;
+							double org_goods_liter_ratio = 0.0;
+							double main_goods_kg_ratio = 0.0;
+							double org_goods_kg_ratio = 0.0;
+
+							if(goods_rec.PhUnitID && goods_rec.PhUPerU > 0.0) {
+								unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_LITER, &main_goods_liter_ratio);
+								unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_KILOGRAM, &main_goods_kg_ratio);
+								assert(!((main_goods_liter_ratio != 0.0) && (main_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
+								main_goods_liter_ratio *= goods_rec.PhUPerU;
+								main_goods_kg_ratio *= goods_rec.PhUPerU;
+							}
+							else {
+								unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &main_goods_liter_ratio);
+								unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_KILOGRAM, &main_goods_kg_ratio);
+								assert(!((main_goods_liter_ratio != 0.0) && (main_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
+							}
+							if(org_goods_rec.PhUnitID && org_goods_rec.PhUPerU > 0.0) {
+								unit_obj.TranslateToBase(org_goods_rec.PhUnitID, SUOM_LITER, &org_goods_liter_ratio);
+								unit_obj.TranslateToBase(org_goods_rec.PhUnitID, SUOM_KILOGRAM, &org_goods_kg_ratio);
+								assert(!((org_goods_liter_ratio != 0.0) && (org_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
+								org_goods_liter_ratio *= org_goods_rec.PhUPerU;
+								org_goods_kg_ratio *= org_goods_rec.PhUPerU;
+							}
+							else {
+								unit_obj.TranslateToBase(org_goods_rec.UnitID, SUOM_LITER, &org_goods_liter_ratio);
+								unit_obj.TranslateToBase(org_goods_rec.UnitID, SUOM_KILOGRAM, &org_goods_kg_ratio);
+							}
+							PPID   base_unit_id = 0;
 							rBuf.CRB().Tab().Cat("org goods").CatDiv(':', 2).Cat(org_goods_rec.Name);
+							if(main_goods_liter_ratio > 0.0 && org_goods_liter_ratio > 0.0) {
+								base_unit_id = SUOM_LITER;
+								rBuf.CRB().Tab().Cat("phunit").Space().Cat("liter").Space().
+									CatEq("orgratio", org_goods_liter_ratio, MKSFMTD(0, 3, 0)).Space().CatEq("mainratio", main_goods_liter_ratio, MKSFMTD(0, 3, 0));
+							}
+							else if(main_goods_kg_ratio > 0.0 && org_goods_kg_ratio > 0.0) {
+								base_unit_id = SUOM_KILOGRAM;
+								rBuf.CRB().Tab().Cat("phunit").Space().Cat("kg").Space().
+									CatEq("orgratio", org_goods_liter_ratio, MKSFMTD(0, 3, 0)).Space().CatEq("mainratio", main_goods_liter_ratio, MKSFMTD(0, 3, 0));
+							}
 							//
 							PPObjBill * p_bobj = BillObj;
 							LotExtCodeCore * p_lotxct = p_bobj->P_LotXcT;
@@ -4252,10 +4292,11 @@ private:
 											for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
 												//int    Helper_GetListByMark2(TSCollection <ListByMarkEntry> & rList, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId); // @v12.0.5
 												//Cc.Helper_GetListByMark2()
-												CCheckCore::ListByMarkEntry * p_lmb_entry = lbm.CreateNewItem();
-												p_lmb_entry->OrgLotID = r_lot_rec.ID;
-												p_lmb_entry->OrgLotDate = r_lot_rec.Dt;
-												STRNSCPY(p_lmb_entry->Mark, temp_buf);
+												CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.CreateNewItem();
+												p_lbm_entry->OrgLotID = r_lot_rec.ID;
+												p_lbm_entry->OrgLotDate = r_lot_rec.Dt;
+												p_lbm_entry->OrgLotQtty = r_lot_rec.Quantity;
+												STRNSCPY(p_lbm_entry->Mark, temp_buf);
 											}
 										}
 									}
@@ -4263,6 +4304,26 @@ private:
 									LAssocArray index;
 									LAssocArray * p_index = cs_obj.FetchCcDate2MaxIdIndex(index) ? &index : 0;
 									Cc.Helper_GetListByMark2(lbm, CCheckPacket::lnextChZnMark, p_index, back_days, 0);
+									{
+										for(uint i = 0; i < lbm.getCount(); i++) {
+											const CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.at(i);
+											if(p_lbm_entry) {
+												double rest = 1.0;
+												char   unit_symb[32];
+												unit_symb[0] = 0;
+												if(base_unit_id == SUOM_LITER) {
+													rest = (rest * org_goods_liter_ratio) - (p_lbm_entry->TotalOpQtty * main_goods_liter_ratio);
+													STRNSCPY(unit_symb, "L");
+												}
+												else if(base_unit_id = SUOM_KILOGRAM) {
+													rest = (rest * org_goods_kg_ratio) - (p_lbm_entry->TotalOpQtty * main_goods_kg_ratio);
+													STRNSCPY(unit_symb, "KG");
+												}
+												rBuf.CRB().Tab().Cat("mark").CatDiv(':', 2).Cat(p_lbm_entry->Mark).Space().
+													Cat("rest").CatDiv(':', 2).Cat(rest, MKSFMTD(0, 3, 0)).Cat(unit_symb);
+											}
+										}
+									}
 								}
 							}
 						}

@@ -1256,42 +1256,14 @@ PPEgaisProcessor::~PPEgaisProcessor()
 {
 	P_UtmEntry = 0;
 	delete P_LecT;
-	// @v9.6.4 (useless) delete P_Dgq;
 	delete P_Las;
-	delete P_Taw; // @v9.7.5
-	// @v10.6.5 if(!(State & stOuterLogger)) delete P_Logger;
+	delete P_Taw;
 }
 
 int  PPEgaisProcessor::operator !() const { return BIN(State & stError); }
 void PPEgaisProcessor::SetTestSendingMode(int set) { SETFLAG(State, stTestSendingMode, set); }
 void PPEgaisProcessor::SetNonRvmTagMode(int set) { SETFLAG(State, stDontRemoveTags, set); }
 int  PPEgaisProcessor::CheckLic() const { return (State & stValidLic) ? 1 : PPSetError(PPERR_EGAIS_NOLIC); }
-
-#if 0 // @v10.6.5 {
-void FASTCALL PPEgaisProcessor::Log(const SString & rMsg)
-{
-	if(P_Logger)
-		P_Logger->Log(rMsg);
-	else if(State & stDirectFileLogging)
-		PPLogMessage(PPFILNAM_EGAIS_LOG, rMsg, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-}
-
-void PPEgaisProcessor::LogTextWithAddendum(int msgCode, const SString & rAddendum)
-{
-	if(msgCode) {
-		SString fmt_buf, msg_buf;
-		Log(msg_buf.Printf(PPLoadTextS(msgCode, fmt_buf), rAddendum.cptr()));
-	}
-}
-
-void PPEgaisProcessor::LogLastError()
-{
-	if(P_Logger)
-		P_Logger->LogLastError();
-	else if(State & stDirectFileLogging)
-		PPLogMessage(PPFILNAM_EGAIS_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
-}
-#endif // } 0 @v10.6.5
 
 const SString & FASTCALL PPEgaisProcessor::EncText(const char * pS)
 {

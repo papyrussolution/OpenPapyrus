@@ -22,16 +22,16 @@ enum xmlSaveOption {
 struct xmlSaveCtxt;
 //typedef xmlSaveCtxt * xmlSaveCtxtPtr;
 
-XMLPUBFUN xmlSaveCtxt * xmlSaveToFd(int fd, const char * encoding, int options);
-XMLPUBFUN xmlSaveCtxt * xmlSaveToFilename(const char * filename, const char * encoding, int options);
-XMLPUBFUN xmlSaveCtxt * xmlSaveToBuffer(xmlBuffer * buffer, const char * encoding, int options);
-XMLPUBFUN xmlSaveCtxt * xmlSaveToIO(xmlOutputWriteCallback iowrite, xmlOutputCloseCallback ioclose, void * ioctx, const char * encoding, int options);
-XMLPUBFUN long xmlSaveDoc(xmlSaveCtxt * ctxt, xmlDoc * doc);
-XMLPUBFUN long xmlSaveTree(xmlSaveCtxt * ctxt, xmlNode * pNode);
-XMLPUBFUN int xmlSaveFlush(xmlSaveCtxt * ctxt);
-XMLPUBFUN int xmlSaveClose(xmlSaveCtxt * ctxt);
-XMLPUBFUN int xmlSaveSetEscape(xmlSaveCtxt * ctxt, xmlCharEncodingOutputFunc escape);
-XMLPUBFUN int xmlSaveSetAttrEscape(xmlSaveCtxt * ctxt, xmlCharEncodingOutputFunc escape);
+xmlSaveCtxt * xmlSaveToFd(int fd, const char * encoding, int options);
+xmlSaveCtxt * xmlSaveToFilename(const char * filename, const char * encoding, int options);
+xmlSaveCtxt * xmlSaveToBuffer(xmlBuffer * buffer, const char * encoding, int options);
+xmlSaveCtxt * xmlSaveToIO(xmlOutputWriteCallback iowrite, xmlOutputCloseCallback ioclose, void * ioctx, const char * encoding, int options);
+long xmlSaveDoc(xmlSaveCtxt * ctxt, xmlDoc * doc);
+long xmlSaveTree(xmlSaveCtxt * ctxt, xmlNode * pNode);
+int xmlSaveFlush(xmlSaveCtxt * ctxt);
+int xmlSaveClose(xmlSaveCtxt * ctxt);
+int xmlSaveSetEscape(xmlSaveCtxt * ctxt, xmlCharEncodingOutputFunc escape);
+int xmlSaveSetAttrEscape(xmlSaveCtxt * ctxt, xmlCharEncodingOutputFunc escape);
 //#ifdef __cplusplus
 //}
 //#endif
