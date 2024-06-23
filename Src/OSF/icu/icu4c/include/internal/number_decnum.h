@@ -9,7 +9,7 @@
 
 #include "decNumber.h"
 #include "charstr.h"
-#include "bytesinkutil.h"
+//#include "bytesinkutil.h"
 
 U_NAMESPACE_BEGIN
 

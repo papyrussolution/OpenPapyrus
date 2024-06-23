@@ -365,12 +365,7 @@ public:
 	 * The empty string is equivalent to U_ICUDATA.
 	 */
 	ICUResourceBundleFactory(const UnicodeString & bundleName);
-
-	/**
-	 * Destructor
-	 */
 	virtual ~ICUResourceBundleFactory();
-
 protected:
 	/**
 	 * Return the supported IDs.  This is the set of all locale names in ICULocaleData.

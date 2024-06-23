@@ -1419,9 +1419,7 @@ public:
 	 * @stable ICU 4.4
 	 */
 	virtual bool isWeekend(void) const;
-
 protected:
-
 	/**
 	 * Constructs a Calendar with the default time zone as returned by
 	 * TimeZone::createInstance(), and the default locale.
@@ -1431,23 +1429,8 @@ protected:
 	 * @stable ICU 2.0
 	 */
 	Calendar(UErrorCode& success);
-
-	/**
-	 * Copy constructor
-	 *
-	 * @param source    Calendar object to be copied from
-	 * @stable ICU 2.0
-	 */
 	Calendar(const Calendar& source);
-
-	/**
-	 * Default assignment operator
-	 *
-	 * @param right    Calendar object to be copied
-	 * @stable ICU 2.0
-	 */
 	Calendar& operator = (const Calendar& right);
-
 	/**
 	 * Constructs a Calendar with the given time zone and locale. Clients are no longer
 	 * responsible for deleting the given time zone object after it's adopted.

@@ -119,28 +119,17 @@ public:
 	 * @param ec input-output error code
 	 */
 	OlsonTimeZone(const UResourceBundle * top, const UResourceBundle * res, const UnicodeString & tzid, UErrorCode & ec);
-	/**
-	 * Copy constructor
-	 */
 	OlsonTimeZone(const OlsonTimeZone& other);
-	/**
-	 * Destructor
-	 */
 	virtual ~OlsonTimeZone();
-	/**
-	 * Assignment operator
-	 */
 	OlsonTimeZone& operator =(const OlsonTimeZone& other);
 	/**
 	 * Returns true if the two TimeZone objects are equal.
 	 */
 	virtual bool operator ==(const TimeZone& other) const override;
-
 	/**
 	 * TimeZone API.
 	 */
 	virtual OlsonTimeZone* clone() const override;
-
 	/**
 	 * TimeZone API.
 	 */

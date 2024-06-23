@@ -16,7 +16,7 @@
  */
 #include <icu-internal.h>
 #pragma hdrstop
-#include "bytesinkutil.h"
+//#include "bytesinkutil.h"
 #include "ulocimp.h"
 
 static const UScriptCode JAPANESE[3] = { USCRIPT_KATAKANA, USCRIPT_HIRAGANA, USCRIPT_HAN };

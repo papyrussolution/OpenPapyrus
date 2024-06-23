@@ -61,10 +61,6 @@ public:
 	 * @stable ICU 64
 	 */
 	CurrencyUnit(StringPiece isoCode, UErrorCode & ec);
-	/**
-	 * Copy constructor
-	 * @stable ICU 3.0
-	 */
 	CurrencyUnit(const CurrencyUnit& other);
 	/**
 	 * Copy constructor from MeasureUnit. This constructor allows you to

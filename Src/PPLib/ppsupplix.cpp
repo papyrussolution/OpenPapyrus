@@ -7,6 +7,7 @@
 //
 // Export suppl data
 //
+#if 0 // @v12.0.5 (устарел очень давно - элиминируем) {
 SupplExpFilt::SupplExpFilt()
 {
 	Init();
@@ -118,6 +119,7 @@ int SupplExpFilt::OpListToCfg(/*PPSupplExchangeCfg*/PPSupplAgreement::ExchangePa
 	CATCHZOK
 	return ok;
 }
+#endif // } @v12.0.5 (устарел очень давно - элиминируем)
 
 class PPSupplExchange_Baltika : public PrcssrSupplInterchange::ExecuteBlock {
 public:
@@ -1375,13 +1377,13 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 					doc_type_idx = -1;
 			}
 			if(doc_type_idx >= 0) {
+				BillTbl::Rec bill_rec;
 				PPGetSubStr(PPTXT_BALTIKA_DOCTYPES, doc_type_idx, doc_type_str);
 				//
 				// Заполняем информацию о приходном драфт документе
 				//
 				if(doc_type_idx == BALTIKA_DOCTYPES_RECEIPT) {
 					if(item.LinkBillID != 0) {
-						BillTbl::Rec bill_rec;
 						if(P_BObj->Search(item.LinkBillID, &bill_rec) > 0) {
 							ord_num = bill_rec.Code;
 							ord_dt = bill_rec.Dt;
@@ -2175,7 +2177,7 @@ int PPSupplExchange_Baltika::Send()
 	return -1;
 }
 
-int EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
+/* @v12.0.5 @unused int EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
 {
 	class SupplExpFiltDialog : public TDialog {
 		DECL_DIALOG_DATA(SupplExpFilt);
@@ -2271,7 +2273,7 @@ int EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl)
 		PPObjArticle ArObj;
 	};
 	DIALOG_PROC_BODY_P1ERR(SupplExpFiltDialog, selOnlySuppl, pFilt)
-}
+}*/
 //
 //
 //
@@ -9363,6 +9365,7 @@ public:
 							PPGetLastErrorMessage(1, temp_buf);
 							PPLoadTextS(PPTXT_SENDSUPPLIXDATAFAULT, msg_buf).CatDiv(':', 2).Cat(temp_buf);
 						}
+						R_Logger.Log(msg_buf);
 					}
 				}
 			}
@@ -10083,7 +10086,6 @@ public:
 	// @v12.0.5 @construction {
 	int    TransmitFiles(const StringSet & rFileNameSet)
 	{
-		const char * pp_pfx_list[] = { "customers", "debts", "movements", "products", "salesrefunds", "salesreps", "stocks", "warehouses", "trade_points" };
 		int    ok = -1;
 		SString temp_buf;
 		SString msg_buf;
@@ -10102,14 +10104,8 @@ public:
 				if(fileExists(file_name)) {
 					SFsPath ps(file_name);
 					uftp.SrcPath = file_name;
-					const char * p_pfx = 0;
-					for(uint pidx = 0; !p_pfx && pidx < SIZEOFARRAY(pp_pfx_list); pidx++) {
-						if(ps.Nam.HasPrefix(pp_pfx_list[pidx])) {
-							p_pfx = pp_pfx_list[pidx];
-						}
-					}
-					if(p_pfx) {
-						(uftp.DestPath = dest_root).Cat(p_pfx);
+					{
+						uftp.DestPath = dest_root;
 						uftp.AccsName = accs_name;
 						uftp.AccsPassword = accs_passw;
 						PPLoadTextS(PPTXT_SENDSUPPLIXDATA, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat(uftp.DestPath);
@@ -10122,6 +10118,7 @@ public:
 							PPGetLastErrorMessage(1, temp_buf);
 							PPLoadTextS(PPTXT_SENDSUPPLIXDATAFAULT, msg_buf).CatDiv(':', 2).Cat(temp_buf);
 						}
+						R_Logger.Log(msg_buf);
 					}
 				}
 			}
@@ -11403,6 +11400,7 @@ int VladimirskiyStandard::TransmitFiles(const StringSet & rFileNameSet)
 					PPGetLastErrorMessage(1, temp_buf);
 					PPLoadTextS(PPTXT_SENDSUPPLIXDATAFAULT, msg_buf).CatDiv(':', 2).Cat(temp_buf);
 				}
+				R_Logger.Log(msg_buf);
 			}
 		}
 	}
@@ -11702,12 +11700,13 @@ int SupplInterchangeFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
     int    ok = -1;
     if(ver == RpvInvSignValue) {
+		/* @v12.0.5 этот блок устарел много лет как. Соответственно, класс SupplExpFilt так же элиминируется //
 		SupplExpFilt _prev_filt;
 		THROW(_prev_filt.Read(rBuf, 0));
 		*this = _prev_filt;
-		ok = 1;
+		ok = 1; */
     }
-    CATCHZOK
+    //CATCHZOK
     return ok;
 }
 
@@ -11718,7 +11717,7 @@ SupplInterchangeFilt & FASTCALL SupplInterchangeFilt::operator = (const SupplInt
 	return *this;
 }
 
-SupplInterchangeFilt & FASTCALL SupplInterchangeFilt::operator = (const SupplExpFilt & rS)
+/* @v12.0.5 SupplInterchangeFilt & FASTCALL SupplInterchangeFilt::operator = (const SupplExpFilt & rS)
 {
 	Init(1, 0);
 	SupplID = rS.SupplID;
@@ -11738,7 +11737,7 @@ SupplInterchangeFilt & FASTCALL SupplInterchangeFilt::operator = (const SupplExp
 	PutExtStrData(extssClientCode, rS.ClientCode);
 	LocList = rS.LocList;
 	return *this;
-}
+}*/
 //
 //
 //
@@ -11923,7 +11922,7 @@ int PrcssrSupplInterchange::Init(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SupplGoodsImport()
+/* @v12.0.5 @unused int SupplGoodsImport()
 {
 	int    ok = -1;
 	SupplExpFilt filt;
@@ -11945,7 +11944,7 @@ int SupplGoodsImport()
 	}
 	CATCHZOKPPERR
 	return ok;
-}
+}*/
 
 int DoSupplInterchange(SupplInterchangeFilt * pFilt)
 {
@@ -12022,7 +12021,7 @@ int PrcssrSupplInterchange::Run()
 				cli.SendSales(ss_file_name);
 			}
 			if(ss_file_name.getCount()) {
-				//cli.TransmitFiles(ss_file_name);
+				cli.TransmitFiles(ss_file_name);
 			}
 		}
 		else if(temp_buf.IsEqiAscii("MERCAPP-GAZPROMNEFT")) { // @v11.5.2

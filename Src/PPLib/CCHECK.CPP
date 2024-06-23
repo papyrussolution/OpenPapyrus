@@ -3641,7 +3641,7 @@ int CCheckCore::Helper_GetListByMark2(TSCollection <ListByMarkEntry> & rList, in
 										const CCheckLineTbl::Rec & r_line_rec = cc_pack.GetLineC(line_pos);
 										CcMarkedEntry ccme;
 										ccme.CcID = iter_item.O.Id;
-										ccme.LineNo = item.Id;
+										ccme.LineNo = static_cast<int16>(item.Id);
 										ccme.Qtty = r_line_rec.Quantity;
 										SETFLAG(ccme.Flags, CcMarkedEntry::fSent, (sentLnextTextId && sc.GetExtStrData(sentLnextTextId, temp_buf) > 0));
 										p_list_item->CcList.insert(&ccme);

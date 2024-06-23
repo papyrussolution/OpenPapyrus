@@ -1159,11 +1159,6 @@ private:
  */
 class U_I18N_API NumberFormatFactory : public UObject {
 public:
-
-	/**
-	 * Destructor
-	 * @stable ICU 3.0
-	 */
 	virtual ~NumberFormatFactory();
 	/**
 	 * Return true if this factory will be visible.  Default is true.

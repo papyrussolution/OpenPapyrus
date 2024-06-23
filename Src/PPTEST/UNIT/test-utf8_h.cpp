@@ -945,7 +945,7 @@ SLTEST_R(utf8_h)
 	//UTEST(utf8ncpy, check_no_buffer_overflow) 
 	{
 		utf8_int32_t i;
-		char buffer[11] = {0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd};
+		char buffer[11] = { '\xdd', '\xdd', '\xdd', '\xdd', '\xdd', '\xdd', '\xdd', '\xdd', '\xdd', '\xdd', '\xdd' };
 		SLCHECK_EQ(buffer, utf8ncpy(buffer, "foo", 10));
 		SLCHECK_EQ('f', buffer[0]);
 		SLCHECK_EQ('o', buffer[1]);

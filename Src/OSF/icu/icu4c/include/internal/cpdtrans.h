@@ -1,14 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 1999-2011, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   Date        Name        Description
- *   11/17/99    aliu        Creation.
- **********************************************************************
- */
+// Copyright (C) 1999-2011, International Business Machines Corporation and others.  All Rights Reserved.
+// Date        Name        Description
+// 11/17/99    aliu        Creation.
+// 
 #ifndef CPDTRANS_H
 #define CPDTRANS_H
 
@@ -22,7 +17,6 @@ U_NAMESPACE_BEGIN
 
 class U_COMMON_API UVector;
 class TransliteratorRegistry;
-
 /**
  * A transliterator that is composed of two or more other
  * transliterator objects linked together.  For example, if one
@@ -70,13 +64,7 @@ public:
 	 * direction with a NULL filter.
 	 */
 	CompoundTransliterator(const UnicodeString & id, UParseError& parseError, UErrorCode & status);
-	/**
-	 * Destructor.
-	 */
 	virtual ~CompoundTransliterator();
-	/**
-	 * Copy constructor.
-	 */
 	CompoundTransliterator(const CompoundTransliterator&);
 	/**
 	 * Transliterator API.

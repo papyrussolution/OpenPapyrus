@@ -135,27 +135,14 @@ public:
 	 * @stable ICU 2.0
 	 */
 	Formattable(const Formattable* arrayToCopy, int32_t count);
-
 	/**
 	 * Creates a Formattable object that adopts the given UObject.
 	 * @param objectToAdopt the UObject to set this object to
 	 * @stable ICU 3.0
 	 */
 	Formattable(UObject * objectToAdopt);
-
-	/**
-	 * Copy constructor.
-	 * @stable ICU 2.0
-	 */
 	Formattable(const Formattable&);
-
-	/**
-	 * Assignment operator.
-	 * @param rhs   The Formattable object to copy into this object.
-	 * @stable ICU 2.0
-	 */
 	Formattable&    operator =(const Formattable &rhs);
-
 	/**
 	 * Equality comparison.
 	 * @param other    the object to be compared with.
@@ -696,4 +683,3 @@ U_NAMESPACE_END
 #endif /* #if !UCONFIG_NO_FORMATTING */
 #endif /* U_SHOW_CPLUSPLUS_API */
 #endif //_FMTABLE
-//eof

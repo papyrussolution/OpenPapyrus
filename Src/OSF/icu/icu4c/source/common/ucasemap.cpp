@@ -12,7 +12,7 @@
 #pragma hdrstop
 #include "unicode/casemap.h"
 #include "unicode/ucasemap.h"
-#include "bytesinkutil.h"
+//#include "bytesinkutil.h"
 #include "ucase.h"
 #include "ucasemap_imp.h"
 #include "ustr_imp.h"

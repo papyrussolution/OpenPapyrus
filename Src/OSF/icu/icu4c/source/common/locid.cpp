@@ -18,7 +18,7 @@
 // 
 #include <icu-internal.h>
 #pragma hdrstop
-#include "bytesinkutil.h"
+//#include "bytesinkutil.h"
 #include "charstrmap.h"
 #include "ucln_cmn.h"
 #include "ulocimp.h"
@@ -80,7 +80,7 @@ static void U_CALLCONV deleteLocale(void * obj)
 	delete (icu::Locale*)obj;
 }
 
-static bool U_CALLCONV locale_cleanup(void)
+static bool U_CALLCONV locale_cleanup()
 {
 	U_NAMESPACE_USE
 	ZDELETEARRAY(gLocaleCache);
@@ -191,7 +191,7 @@ U_CFUNC void locale_set_default(const char * id)
 
 /* end */
 
-U_CFUNC const char * locale_get_default(void)
+U_CFUNC const char * locale_get_default()
 {
 	U_NAMESPACE_USE
 	return Locale::getDefault().getName();
@@ -1987,28 +1987,28 @@ const char * const* U_EXPORT2 Locale::getISOLanguages() { return uloc_getISOLang
 
 // Set the locale's data based on a posix id.
 void Locale::setFromPOSIXID(const char * posixID) { init(posixID, TRUE); }
-const Locale & U_EXPORT2 Locale::getRoot(void) { return getLocale(eROOT); }
-const Locale & U_EXPORT2 Locale::getEnglish(void) { return getLocale(eENGLISH); }
-const Locale & U_EXPORT2 Locale::getFrench(void) { return getLocale(eFRENCH); }
-const Locale & U_EXPORT2 Locale::getGerman(void) { return getLocale(eGERMAN); }
-const Locale & U_EXPORT2 Locale::getItalian(void) { return getLocale(eITALIAN); }
-const Locale & U_EXPORT2 Locale::getJapanese(void) { return getLocale(eJAPANESE); }
-const Locale & U_EXPORT2 Locale::getKorean(void) { return getLocale(eKOREAN); }
-const Locale & U_EXPORT2 Locale::getChinese(void) { return getLocale(eCHINESE); }
-const Locale & U_EXPORT2 Locale::getSimplifiedChinese(void) { return getLocale(eCHINA); }
-const Locale & U_EXPORT2 Locale::getTraditionalChinese(void) { return getLocale(eTAIWAN); }
-const Locale & U_EXPORT2 Locale::getFrance(void) { return getLocale(eFRANCE); }
-const Locale & U_EXPORT2 Locale::getGermany(void) { return getLocale(eGERMANY); }
-const Locale & U_EXPORT2 Locale::getItaly(void) { return getLocale(eITALY); }
-const Locale & U_EXPORT2 Locale::getJapan(void) { return getLocale(eJAPAN); }
-const Locale & U_EXPORT2 Locale::getKorea(void) { return getLocale(eKOREA); }
-const Locale & U_EXPORT2 Locale::getChina(void) { return getLocale(eCHINA); }
-const Locale & U_EXPORT2 Locale::getPRC(void) { return getLocale(eCHINA); }
-const Locale & U_EXPORT2 Locale::getTaiwan(void) { return getLocale(eTAIWAN); }
-const Locale & U_EXPORT2 Locale::getUK(void) { return getLocale(eUK); }
-const Locale & U_EXPORT2 Locale::getUS(void) { return getLocale(eUS); }
-const Locale & U_EXPORT2 Locale::getCanada(void) { return getLocale(eCANADA); }
-const Locale & U_EXPORT2 Locale::getCanadaFrench(void) { return getLocale(eCANADA_FRENCH); }
+const Locale & U_EXPORT2 Locale::getRoot() { return getLocale(eROOT); }
+const Locale & U_EXPORT2 Locale::getEnglish() { return getLocale(eENGLISH); }
+const Locale & U_EXPORT2 Locale::getFrench() { return getLocale(eFRENCH); }
+const Locale & U_EXPORT2 Locale::getGerman() { return getLocale(eGERMAN); }
+const Locale & U_EXPORT2 Locale::getItalian() { return getLocale(eITALIAN); }
+const Locale & U_EXPORT2 Locale::getJapanese() { return getLocale(eJAPANESE); }
+const Locale & U_EXPORT2 Locale::getKorean() { return getLocale(eKOREAN); }
+const Locale & U_EXPORT2 Locale::getChinese() { return getLocale(eCHINESE); }
+const Locale & U_EXPORT2 Locale::getSimplifiedChinese() { return getLocale(eCHINA); }
+const Locale & U_EXPORT2 Locale::getTraditionalChinese() { return getLocale(eTAIWAN); }
+const Locale & U_EXPORT2 Locale::getFrance() { return getLocale(eFRANCE); }
+const Locale & U_EXPORT2 Locale::getGermany() { return getLocale(eGERMANY); }
+const Locale & U_EXPORT2 Locale::getItaly() { return getLocale(eITALY); }
+const Locale & U_EXPORT2 Locale::getJapan() { return getLocale(eJAPAN); }
+const Locale & U_EXPORT2 Locale::getKorea() { return getLocale(eKOREA); }
+const Locale & U_EXPORT2 Locale::getChina() { return getLocale(eCHINA); }
+const Locale & U_EXPORT2 Locale::getPRC() { return getLocale(eCHINA); }
+const Locale & U_EXPORT2 Locale::getTaiwan() { return getLocale(eTAIWAN); }
+const Locale & U_EXPORT2 Locale::getUK() { return getLocale(eUK); }
+const Locale & U_EXPORT2 Locale::getUS() { return getLocale(eUS); }
+const Locale & U_EXPORT2 Locale::getCanada() { return getLocale(eCANADA); }
+const Locale & U_EXPORT2 Locale::getCanadaFrench() { return getLocale(eCANADA_FRENCH); }
 
 const Locale &Locale::getLocale(int locid)
 {
@@ -2026,7 +2026,7 @@ const Locale &Locale::getLocale(int locid)
    This function is defined this way in order to get around static
    initialization and static destruction.
  */
-Locale * Locale::getLocaleCache(void)
+Locale * Locale::getLocaleCache()
 {
 	UErrorCode status = U_ZERO_ERROR;
 	umtx_initOnce(gLocaleCacheInitOnce, locale_init, status);
@@ -2042,7 +2042,7 @@ private:
 	static const char fgClassID; /* Warning this is used beyond the typical RTTI usage. */
 public:
 	static UClassID U_EXPORT2 getStaticClassID() { return (UClassID)&fgClassID; }
-	virtual UClassID getDynamicClassID(void) const override { return getStaticClassID(); }
+	virtual UClassID getDynamicClassID() const override { return getStaticClassID(); }
 public:
 	KeywordEnumeration(const char * keys, int32_t keywordLen, int32_t currentIndex, UErrorCode & status)
 		: keywords((char *)&fgClassID), current((char *)&fgClassID), length(0) {

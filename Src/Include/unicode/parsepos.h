@@ -65,40 +65,13 @@ public:
 	ParsePosition(int32_t newIndex) : UObject(), index(newIndex), errorIndex(-1)
 	{
 	}
-	/**
-	 * Copy constructor
-	 * @param copy the object to be copied from.
-	 * @stable ICU 2.0
-	 */
 	ParsePosition(const ParsePosition & copy) : UObject(copy), index(copy.index), errorIndex(copy.errorIndex)
 	{
 	}
-	/**
-	 * Destructor
-	 * @stable ICU 2.0
-	 */
 	virtual ~ParsePosition();
-
-	/**
-	 * Assignment operator
-	 * @stable ICU 2.0
-	 */
 	inline ParsePosition&      operator = (const ParsePosition & copy);
-
-	/**
-	 * Equality operator.
-	 * @return true if the two parse positions are equal, false otherwise.
-	 * @stable ICU 2.0
-	 */
 	inline bool operator==(const ParsePosition& that) const;
-
-	/**
-	 * Equality operator.
-	 * @return true if the two parse positions are not equal, false otherwise.
-	 * @stable ICU 2.0
-	 */
 	inline bool operator !=(const ParsePosition& that) const;
-
 	/**
 	 * Clone this object.
 	 * Clones can be used concurrently in multiple threads.

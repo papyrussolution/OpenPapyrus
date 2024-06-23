@@ -296,10 +296,6 @@ public:
 	 * @internal
 	 */
 	CalendarAstronomer(double longitude, double latitude);
-	/**
-	 * Destructor
-	 * @internal
-	 */
 	~CalendarAstronomer();
 	//
 	// Time and date getters and setters

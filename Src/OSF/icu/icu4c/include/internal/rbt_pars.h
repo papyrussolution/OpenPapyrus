@@ -292,13 +292,7 @@ private:
 	/*static Transliterator* createBasicInstance(const UnicodeString & id, const UnicodeString * canonID);*/
 	friend class RuleHalf;
 	// Disallowed methods; no impl.
-	/**
-	 * Copy constructor
-	 */
-	TransliteratorParser(const TransliteratorParser&);
-	/**
-	 * Assignment operator
-	 */
+	TransliteratorParser(const TransliteratorParser &);
 	TransliteratorParser& operator =(const TransliteratorParser&);
 };
 

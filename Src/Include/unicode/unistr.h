@@ -2945,7 +2945,6 @@ public:
 	 * @stable ICU 3.2
 	 */
 	UnicodeString(const char * src, int32_t textLength, enum EInvariant inv);
-
 	/**
 	 * Copy constructor.
 	 *

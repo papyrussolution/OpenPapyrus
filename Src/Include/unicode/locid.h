@@ -289,10 +289,6 @@ public:
 	 * @stable ICU 63
 	 */
 	Locale(Locale&& other) U_NOEXCEPT;
-	/**
-	 * Destructor
-	 * @stable ICU 2.0
-	 */
 	virtual ~Locale();
 	/**
 	 * Replaces the entire contents of *this with the specified value.

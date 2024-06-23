@@ -49,7 +49,6 @@ public:
 	{
 		this->operator =(other);
 	}
-	// Assignment operator
 	IntMeasures & operator =(const IntMeasures &rhs) 
 	{
 		if(this == &rhs) {

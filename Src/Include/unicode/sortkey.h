@@ -1,32 +1,20 @@
+// sortkey.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *****************************************************************************
- * Copyright (C) 1996-2014, International Business Machines Corporation and others.
- * All Rights Reserved.
- *****************************************************************************
- *
- * File sortkey.h
- *
- * Created by: Helena Shih
- *
- * Modification History:
- *
- *  Date         Name          Description
- *
- *  6/20/97     helena      Java class name change.
- *  8/18/97     helena      Added internal API documentation.
- *  6/26/98     erm         Changed to use byte arrays and memcmp.
- *****************************************************************************
- */
-
+// Copyright (C) 1996-2014, International Business Machines Corporation and others. All Rights Reserved.
+// Created by: Helena Shih
+// Modification History:
+// Date         Name          Description
+// 6/20/97     helena      Java class name change.
+// 8/18/97     helena      Added internal API documentation.
+// 6/26/98     erm         Changed to use byte arrays and memcmp.
+// 
 #ifndef SORTKEY_H
 #define SORTKEY_H
 
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API
-
 /**
  * \file
  * \brief C++ API: Keys for comparing strings multiple times.
@@ -108,36 +96,16 @@ public:
 	 * @stable ICU 2.0
 	 */
 	CollationKey();
-
 	/**
 	 * Creates a collation key based on the collation key values.
 	 * @param values the collation key values
 	 * @param count number of collation key values, including trailing nulls.
 	 * @stable ICU 2.0
 	 */
-	CollationKey(const uint8*    values,
-	    int32_t count);
-
-	/**
-	 * Copy constructor.
-	 * @param other    the object to be copied.
-	 * @stable ICU 2.0
-	 */
+	CollationKey(const uint8*    values, int32_t count);
 	CollationKey(const CollationKey& other);
-
-	/**
-	 * Sort key destructor.
-	 * @stable ICU 2.0
-	 */
 	virtual ~CollationKey();
-
-	/**
-	 * Assignment operator
-	 * @param other    the object to be copied.
-	 * @stable ICU 2.0
-	 */
 	const CollationKey&   operator = (const CollationKey& other);
-
 	/**
 	 * Compare if two collation keys are the same.
 	 * @param source the collation key to compare to.
@@ -145,7 +113,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	bool operator==(const CollationKey& source) const;
-
 	/**
 	 * Compare if two collation keys are not the same.
 	 * @param source the collation key to compare to.
@@ -153,7 +120,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	bool operator !=(const CollationKey& source) const;
-
 	/**
 	 * Test to see if the key is in an invalid state. The key will be in an
 	 * invalid state if it couldn't allocate memory for some operation.
@@ -325,7 +291,5 @@ inline const uint8* CollationKey::getByteArray(int32_t &count) const
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_COLLATION */
-
 #endif /* U_SHOW_CPLUSPLUS_API */
-
 #endif

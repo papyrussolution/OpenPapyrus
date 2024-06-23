@@ -1,20 +1,11 @@
+// JAPANCAL.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ********************************************************************************
- * Copyright (C) 2003-2008, International Business Machines Corporation
- * and others. All Rights Reserved.
- ********************************************************************************
- *
- * File JAPANCAL.H
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   05/13/2003  srl         copied from gregocal.h
- ********************************************************************************
- */
-
+// Copyright (C) 2003-2008, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 05/13/2003  srl         copied from gregocal.h
+// 
 #ifndef JAPANCAL_H
 #define JAPANCAL_H
 
@@ -43,7 +34,7 @@ U_NAMESPACE_BEGIN
  * of that year were in the Showa era, e.g. "January 6, 64 Showa", while the rest
  * of the year was in the Heisei era, e.g. "January 7, 1 Heisei".  This class
  * handles this distinction correctly when computing dates.  However, in lenient
- * mode either form of date is acceptable as input. 
+ * mode either form of date is acceptable as input.
  * <p>
  * In modern times, eras have started on January 8, 1868 AD, Gregorian (Meiji),
  * July 30, 1912 (Taisho), December 25, 1926 (Showa), and January 7, 1989 (Heisei).  Constants
@@ -65,164 +56,141 @@ U_NAMESPACE_BEGIN
  */
 class JapaneseCalendar : public GregorianCalendar {
 public:
+	/**
+	 * Check environment variable.
+	 * @internal
+	 */
+	U_I18N_API static bool U_EXPORT2 enableTentativeEra();
 
-    /**
-  * Check environment variable. 
-  * @internal
-     */
-    U_I18N_API static bool U_EXPORT2 enableTentativeEra();
+	/**
+	 * Useful constants for JapaneseCalendar.
+	 * Exported for use by test code.
+	 * @internal
+	 */
+	U_I18N_API static uint32_t U_EXPORT2 getCurrentEra(); // the current era
+	/**
+	 * Constructs a JapaneseCalendar based on the current time in the default time zone
+	 * with the given locale.
+	 *
+	 * @param aLocale  The given locale.
+	 * @param success  Indicates the status of JapaneseCalendar object construction.
+	 *                 Returns U_ZERO_ERROR if constructed successfully.
+	 * @stable ICU 2.0
+	 */
+	JapaneseCalendar(const Locale & aLocale, UErrorCode & success);
+	virtual ~JapaneseCalendar();
+	JapaneseCalendar(const JapaneseCalendar& source);
+	JapaneseCalendar& operator =(const JapaneseCalendar& right);
+	/**
+	 * Create and return a polymorphic copy of this calendar.
+	 * @return    return a polymorphic copy of this calendar.
+	 * @internal
+	 */
+	virtual JapaneseCalendar* clone() const override;
+	/**
+	 * Return the extended year defined by the current fields.  In the
+	 * Japanese calendar case, this is equal to the equivalent extended Gregorian year.
+	 * @internal
+	 */
+	virtual int32_t handleGetExtendedYear() override;
 
-    /**
-  * Useful constants for JapaneseCalendar.
-  * Exported for use by test code.
-  * @internal
-     */
-    U_I18N_API static uint32_t U_EXPORT2 getCurrentEra(); // the current era
-
-    /**
-  * Constructs a JapaneseCalendar based on the current time in the default time zone
-  * with the given locale.
-     *
-  * @param aLocale  The given locale.
-  * @param success  Indicates the status of JapaneseCalendar object construction.
-  *                 Returns U_ZERO_ERROR if constructed successfully.
-  * @stable ICU 2.0
-     */
-    JapaneseCalendar(const Locale & aLocale, UErrorCode & success);
-
-
-    /**
-  * Destructor
-  * @internal
-     */
-    virtual ~JapaneseCalendar();
-
-    /**
-  * Copy constructor
-  * @param source    the object to be copied.
-  * @internal
-     */
-    JapaneseCalendar(const JapaneseCalendar& source);
-
-    /**
-  * Default assignment operator
-  * @param right    the object to be copied.
-  * @internal
-     */
-    JapaneseCalendar& operator = (const JapaneseCalendar& right);
-
-    /**
-  * Create and return a polymorphic copy of this calendar.
-  * @return    return a polymorphic copy of this calendar.
-  * @internal
-     */
-    virtual JapaneseCalendar* clone() const override;
-
-    /**
-  * Return the extended year defined by the current fields.  In the 
-  * Japanese calendar case, this is equal to the equivalent extended Gregorian year.
-  * @internal
-     */
-    virtual int32_t handleGetExtendedYear() override;
-
-    /**
-  * Return the maximum value that this field could have, given the current date.
-  * @internal
-     */
-    virtual int32_t getActualMaximum(UCalendarDateFields field, UErrorCode & status) const override;
-
+	/**
+	 * Return the maximum value that this field could have, given the current date.
+	 * @internal
+	 */
+	virtual int32_t getActualMaximum(UCalendarDateFields field, UErrorCode & status) const override;
 
 public:
-    /**
-  * Override Calendar Returns a unique class ID POLYMORPHICALLY. Pure virtual
-  * override. This method is to implement a simple version of RTTI, since not all C++
-  * compilers support genuine RTTI. Polymorphic operator == () and clone() methods call
-  * this method.
-     *
-  * @return   The class ID for this object. All objects of a given class have the
-  *           same class ID. Objects of other classes have different class IDs.
-  * @internal
-     */
-    virtual UClassID getDynamicClassID() const override;
+	/**
+	 * Override Calendar Returns a unique class ID POLYMORPHICALLY. Pure virtual
+	 * override. This method is to implement a simple version of RTTI, since not all C++
+	 * compilers support genuine RTTI. Polymorphic operator == () and clone() methods call
+	 * this method.
+	 *
+	 * @return   The class ID for this object. All objects of a given class have the
+	 *           same class ID. Objects of other classes have different class IDs.
+	 * @internal
+	 */
+	virtual UClassID getDynamicClassID() const override;
 
-    /**
-  * Return the class ID for this class. This is useful only for comparing to a return
-  * value from getDynamicClassID(). For example:
-     *
-  *      Base* polymorphic_pointer = createPolymorphicObject();
-  *      if(polymorphic_pointer->getDynamicClassID() ==
-  *          Derived::getStaticClassID()) ...
-     *
-  * @return   The class ID for all objects of this class.
-  * @internal
-     */
-    U_I18N_API static UClassID U_EXPORT2 getStaticClassID();
+	/**
+	 * Return the class ID for this class. This is useful only for comparing to a return
+	 * value from getDynamicClassID(). For example:
+	 *
+	 *      Base* polymorphic_pointer = createPolymorphicObject();
+	 *      if(polymorphic_pointer->getDynamicClassID() ==
+	 *          Derived::getStaticClassID()) ...
+	 *
+	 * @return   The class ID for all objects of this class.
+	 * @internal
+	 */
+	U_I18N_API static UClassID U_EXPORT2 getStaticClassID();
 
-    /**
-  * return the calendar type, "japanese".
-     *
-  * @return calendar type
-  * @internal
-     */
-    virtual const char * getType() const override;
+	/**
+	 * return the calendar type, "japanese".
+	 *
+	 * @return calendar type
+	 * @internal
+	 */
+	virtual const char * getType() const override;
 
-    /**
-  * @return false - no default century in Japanese
-  * @internal 
-     */
-    virtual bool haveDefaultCentury() const override;
+	/**
+	 * @return false - no default century in Japanese
+	 * @internal
+	 */
+	virtual bool haveDefaultCentury() const override;
 
-    /**
-  * Not used - no default century.
-  * @internal
-     */
-    virtual UDate defaultCenturyStart() const override;
-    /**
-  * Not used - no default century.
-  * @internal
-     */
-    virtual int32_t defaultCenturyStartYear() const override;
+	/**
+	 * Not used - no default century.
+	 * @internal
+	 */
+	virtual UDate defaultCenturyStart() const override;
+	/**
+	 * Not used - no default century.
+	 * @internal
+	 */
+	virtual int32_t defaultCenturyStartYear() const override;
 
 private:
-    JapaneseCalendar(); // default constructor not implemented
+	JapaneseCalendar(); // default constructor not implemented
 
 protected:
-    /** 
-  * Calculate the era for internal computation
-  * @internal
-     */
-    virtual int32_t internalGetEra() const override;
+	/**
+	 * Calculate the era for internal computation
+	 * @internal
+	 */
+	virtual int32_t internalGetEra() const override;
 
-    /**
-  * Compute fields from the JD
-  * @internal
-     */
-    virtual void handleComputeFields(int32_t julianDay, UErrorCode & status) override;
+	/**
+	 * Compute fields from the JD
+	 * @internal
+	 */
+	virtual void handleComputeFields(int32_t julianDay, UErrorCode & status) override;
 
-    /**
-  * Calculate the limit for a specified type of limit and field
-  * @internal
-     */
-    virtual int32_t handleGetLimit(UCalendarDateFields field, ELimitType limitType) const override;
+	/**
+	 * Calculate the limit for a specified type of limit and field
+	 * @internal
+	 */
+	virtual int32_t handleGetLimit(UCalendarDateFields field, ELimitType limitType) const override;
 
-    /***
-  * Called by computeJulianDay.  Returns the default month (0-based) for the year,
-  * taking year and era into account.  Will return the first month of the given era, if 
-  * the current year is an ascension year.
-  * @param eyear the extended year
-  * @internal
-     */
-    virtual int32_t getDefaultMonthInYear(int32_t eyear) override;
+	/***
+	 * Called by computeJulianDay.  Returns the default month (0-based) for the year,
+	 * taking year and era into account.  Will return the first month of the given era, if
+	 * the current year is an ascension year.
+	 * @param eyear the extended year
+	 * @internal
+	 */
+	virtual int32_t getDefaultMonthInYear(int32_t eyear) override;
 
-    /***
-  * Called by computeJulianDay.  Returns the default day (1-based) for the month,
-  * taking currently-set year and era into account.  Will return the first day of the given
-  * era, if the current month is an ascension year and month.
-  * @param eyear the extended year
-  * @param mon the month in the year
-  * @internal
-     */
-    virtual int32_t getDefaultDayInMonth(int32_t eyear, int32_t month) override;
+	/***
+	 * Called by computeJulianDay.  Returns the default day (1-based) for the month,
+	 * taking currently-set year and era into account.  Will return the first day of the given
+	 * era, if the current month is an ascension year and month.
+	 * @param eyear the extended year
+	 * @param mon the month in the year
+	 * @internal
+	 */
+	virtual int32_t getDefaultDayInMonth(int32_t eyear, int32_t month) override;
 };
 
 U_NAMESPACE_END
@@ -231,4 +199,3 @@ U_NAMESPACE_END
 
 #endif
 //eof
-

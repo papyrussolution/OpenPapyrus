@@ -6925,7 +6925,7 @@ cmd AddTask               { "@{doaddtodo}"                                 ICON_
 cmd ViewGoodsStruc        { "@{cmd_viewgoodsstruc}"                        none                  none cmViewGoodsStruc view = GoodsStruc }
 cmd ViewLogs              { "@{cmd_viewlogs}"                              none                  none cmViewLogs       }
 cmd ViewCSessDeficit      { "@{cmd_viewcsessdeficit}"                      none                  none cmViewCSessDeficit }
-cmd SupplGoodsImport      { "@{cmd_supplgoodsimport}"                      none                  none cmSupplGoodsImport }
+cmd SupplGoodsImport      { "@{cmd_supplgoodsimport}"                      none                  none cmSupplGoodsImport } // @eliminated since @v12.0.5
 cmd ExportDataForSuppl    { "@{cmd_exportdataforsuppl}"                    none                  none cmSupplInterchange }
 cmd SCardCfg              { "@{cmd_scardcfg}"                              none                  none cmSCardCfg       }
 cmd ViewStaffCalendar     { "@{cmd_staffcalendar}"                         ICON_STAFFCAL         none cmStaffCalendar  }

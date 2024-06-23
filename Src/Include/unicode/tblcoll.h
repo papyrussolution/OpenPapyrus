@@ -1,71 +1,47 @@
+// tblcoll.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- * Copyright (C) 1996-2016, International Business Machines Corporation and
- * others. All Rights Reserved.
- ******************************************************************************
- */
-
-/**
- * \file
- * \brief C++ API: The RuleBasedCollator class implements the Collator abstract base class.
- */
-
-/**
- * File tblcoll.h
- *
- * Created by: Helena Shih
- *
- * Modification History:
- *
- *  Date        Name        Description
- *  2/5/97      aliu        Added streamIn and streamOut methods.  Added
- *                          constructor which reads RuleBasedCollator object from
- *                          a binary file.  Added writeToFile method which streams
- *                          RuleBasedCollator out to a binary file.  The streamIn
- *                          and streamOut methods use istream and ostream objects
- *                          in binary mode.
- *  2/12/97     aliu        Modified to use TableCollationData sub-object to
- *                          hold invariant data.
- *  2/13/97     aliu        Moved several methods into this class from Collation.
- *                          Added a private RuleBasedCollator(Locale&) constructor,
- *                          to be used by Collator::createDefault().  General
- *                          clean up.
- *  2/20/97     helena      Added clone, operator==, operator!=, operator=, and copy
- *                          constructor and getDynamicClassID.
- *  3/5/97      aliu        Modified constructFromFile() to add parameter
- *                          specifying whether or not binary loading is to be
- *                          attempted.  This is required for dynamic rule loading.
- * 05/07/97     helena      Added memory allocation error detection.
- *  6/17/97     helena      Added IDENTICAL strength for compare, changed getRules to
- *                          use MergeCollation::getPattern.
- *  6/20/97     helena      Java class name change.
- *  8/18/97     helena      Added internal API documentation.
- * 09/03/97     helena      Added createCollationKeyValues().
- * 02/10/98     damiba      Added compare with "length" parameter
- * 08/05/98     erm         Synched with 1.2 version of RuleBasedCollator.java
- * 04/23/99     stephen     Removed EDecompositionMode, merged with
- *                          Normalizer::EMode
- * 06/14/99     stephen     Removed kResourceBundleSuffix
- * 11/02/99     helena      Collator performance enhancements.  Eliminates the
- *                          UnicodeString construction and special case for NO_OP.
- * 11/23/99     srl         More performance enhancements. Updates to NormalizerIterator
- *                          internal state management.
- * 12/15/99     aliu        Update to support Thai collation.  Move NormalizerIterator
- *                          to implementation file.
- * 01/29/01     synwee      Modified into a C++ wrapper which calls C API
- *                          (ucol.h)
- * 2012-2014    markus      Rewritten in C++ again.
- */
-
+// Copyright (C) 1996-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
+// C++ API: The RuleBasedCollator class implements the Collator abstract base class.
+//
+// Created by: Helena Shih
+// Modification History:
+// Date        Name        Description
+// 2/5/97      aliu        Added streamIn and streamOut methods.  Added
+//   constructor which reads RuleBasedCollator object from
+//   a binary file.  Added writeToFile method which streams
+//   RuleBasedCollator out to a binary file.  The streamIn
+//   and streamOut methods use istream and ostream objects in binary mode.
+// 2/12/97     aliu        Modified to use TableCollationData sub-object to hold invariant data.
+// 2/13/97     aliu        Moved several methods into this class from Collation.
+//   Added a private RuleBasedCollator(Locale&) constructor,
+//   to be used by Collator::createDefault().  General clean up.
+// 2/20/97     helena      Added clone, operator==, operator!=, operator=, and copy constructor and getDynamicClassID.
+// 3/5/97      aliu        Modified constructFromFile() to add parameter
+//   specifying whether or not binary loading is to be
+//   attempted.  This is required for dynamic rule loading.
+// 05/07/97     helena      Added memory allocation error detection.
+// 6/17/97     helena      Added IDENTICAL strength for compare, changed getRules to use MergeCollation::getPattern.
+// 6/20/97     helena      Java class name change.
+// 8/18/97     helena      Added internal API documentation.
+// 09/03/97     helena      Added createCollationKeyValues().
+// 02/10/98     damiba      Added compare with "length" parameter
+// 08/05/98     erm         Synched with 1.2 version of RuleBasedCollator.java
+// 04/23/99     stephen     Removed EDecompositionMode, merged with Normalizer::EMode
+// 06/14/99     stephen     Removed kResourceBundleSuffix
+// 11/02/99     helena      Collator performance enhancements.  Eliminates the UnicodeString construction and special case for NO_OP.
+// 11/23/99     srl         More performance enhancements. Updates to NormalizerIterator internal state management.
+// 12/15/99     aliu        Update to support Thai collation.  Move NormalizerIterator to implementation file.
+// 01/29/01     synwee      Modified into a C++ wrapper which calls C API (ucol.h)
+// 2012-2014    markus      Rewritten in C++ again.
+// 
 #ifndef TBLCOLL_H
 #define TBLCOLL_H
 
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API
-
 #if !UCONFIG_NO_COLLATION
 
 #include "unicode/coll.h"
@@ -76,27 +52,16 @@
 U_NAMESPACE_BEGIN
 
 struct CollationCacheEntry;
-
 struct CollationData;
-
 struct CollationSettings;
-
 struct CollationTailoring;
-
-/**
- * @stable ICU 2.0
- */
 class StringSearch;
-/**
- * @stable ICU 2.0
- */
 class CollationElementIterator;
 class CollationKey;
 class SortKeyByteSink;
 class UnicodeSet;
 class UnicodeString;
 class UVector64;
-
 /**
  * The RuleBasedCollator class provides the implementation of
  * Collator, using data-driven tables. The user can create a customized
@@ -172,18 +137,9 @@ public:
 	 * TODO: document & propose as public API
 	 * @internal
 	 */
-	RuleBasedCollator(const UnicodeString &rules,
-	    UParseError &parseError, UnicodeString &reason,
-	    UErrorCode & errorCode);
+	RuleBasedCollator(const UnicodeString &rules, UParseError &parseError, UnicodeString &reason, UErrorCode & errorCode);
 #endif  /* U_HIDE_INTERNAL_API */
-
-	/**
-	 * Copy constructor.
-	 * @param other the RuleBasedCollator object to be copied
-	 * @stable ICU 2.0
-	 */
 	RuleBasedCollator(const RuleBasedCollator &other);
-
 	/** Opens a collator from a collator binary image created using
 	 *  cloneBinary. Binary image used in instantiation of the
 	 *  collator remains owned by the user and should stay around for
@@ -861,7 +817,5 @@ private:
 U_NAMESPACE_END
 
 #endif  // !UCONFIG_NO_COLLATION
-
 #endif /* U_SHOW_CPLUSPLUS_API */
-
 #endif  // TBLCOLL_H

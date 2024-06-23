@@ -802,7 +802,7 @@ int PPApp::processCommand(uint cmd)
 		case cmAnalyzeObjSyncCmp:     AnalyzeObjSyncCmp(1);              break;
 		case cmCalcGoodsSaldo:        ProcessGoodsSaldo();               break;
 		// @v9.7.10 @obsolete case cmImportCurrList:        ImportCurrencyList();              break;
-		case cmSupplGoodsImport:      SupplGoodsImport();                break;
+		// @v12.0.5 @unused case cmSupplGoodsImport:      SupplGoodsImport();                break;
 		case cmSupplInterchange:      DoSupplInterchange(0);             break;
 		case cmAddressBook:           ViewAddressBook();                 break;
 		case cmCliBnkFmtCfg:		  SetupCliBnkFormats();		         break;

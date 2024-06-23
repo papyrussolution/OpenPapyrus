@@ -9084,6 +9084,136 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 //
 //
 //
+int CheckPaneDialog::ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rChZnBuf)
+{
+	rChZnBuf.Z();
+	int    ok = -1;
+	SString temp_buf;
+	Goods2Tbl::Rec goods_rec; // запись основного товара (который непосредственно продается)
+	Goods2Tbl::Rec org_goods_rec; // запись оригинального товара (из которого был произведен основной товар)
+	if(qtty != 0.0 && GObj.Fetch(goodsID, &goods_rec) > 0)	{
+		PPGoodsType gt_rec;
+		if(goods_rec.GoodsTypeID && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.ChZnProdType) {
+			//if(oneof2(gt_rec.ChZnProdType, GTCHZNPT_DRAFTBEER, GTCHZNPT_DRAFTBEER_AWR)) {
+			if(gt_rec.ChZnProdType == GTCHZNPT_DRAFTBEER_AWR) {
+				PPID   org_goods_id = 0;
+				PPObjUnit unit_obj;
+				double main_goods_liter_ratio = 0.0;
+				double org_goods_liter_ratio = 0.0;
+				double main_goods_kg_ratio = 0.0;
+				double org_goods_kg_ratio = 0.0;
+				if(goods_rec.PhUnitID && goods_rec.PhUPerU > 0.0) {
+					unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_LITER, &main_goods_liter_ratio);
+					unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_KILOGRAM, &main_goods_kg_ratio);
+					assert(!((main_goods_liter_ratio != 0.0) && (main_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
+					main_goods_liter_ratio *= goods_rec.PhUPerU;
+					main_goods_kg_ratio *= goods_rec.PhUPerU;
+				}
+				else {
+					unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &main_goods_liter_ratio);
+					unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_KILOGRAM, &main_goods_kg_ratio);
+					assert(!((main_goods_liter_ratio != 0.0) && (main_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
+				}
+				if(main_goods_liter_ratio <= 0.0 && main_goods_kg_ratio <= 0.0) {
+					// @todo Тут надо что-то в лог вывести
+				}
+				else if(!GObj.GetOriginalRawGoodsByStruc(goodsID, &org_goods_id) || GObj.Fetch(org_goods_id, &org_goods_rec) <= 0) {
+					// @todo Тут надо что-то в лог вывести
+				}
+				else {
+					if(org_goods_rec.PhUnitID && org_goods_rec.PhUPerU > 0.0) {
+						unit_obj.TranslateToBase(org_goods_rec.PhUnitID, SUOM_LITER, &org_goods_liter_ratio);
+						unit_obj.TranslateToBase(org_goods_rec.PhUnitID, SUOM_KILOGRAM, &org_goods_kg_ratio);
+						assert(!((org_goods_liter_ratio != 0.0) && (org_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
+						org_goods_liter_ratio *= org_goods_rec.PhUPerU;
+						org_goods_kg_ratio *= org_goods_rec.PhUPerU;
+					}
+					else {
+						unit_obj.TranslateToBase(org_goods_rec.UnitID, SUOM_LITER, &org_goods_liter_ratio);
+						unit_obj.TranslateToBase(org_goods_rec.UnitID, SUOM_KILOGRAM, &org_goods_kg_ratio);
+					}
+					PPID   base_unit_id = 0;
+					if(main_goods_liter_ratio > 0.0 && org_goods_liter_ratio > 0.0) {
+						base_unit_id = SUOM_LITER;
+					}
+					else if(main_goods_kg_ratio > 0.0 && org_goods_kg_ratio > 0.0) {
+						base_unit_id = SUOM_KILOGRAM;
+					}
+					if(!base_unit_id) {
+						// @todo Тут надо что-то в лог вывести
+					}
+					else {
+						PPObjBill * p_bobj = BillObj;
+						LotExtCodeCore * p_lotxct = p_bobj->P_LotXcT;
+						if(!p_lotxct) {
+							// @todo Тут надо что-то в лог вывести
+						}
+						else {
+							Transfer * p_trfr = p_bobj->trfr;
+							LotArray lot_list;
+							StringSet ss_ext_codes;
+							TSCollection <CCheckCore::ListByMarkEntry> lbm;
+							p_trfr->Rcpt.GetList(org_goods_id, 0, 0, ZERODATE, ReceiptCore::glfWithExtCodeOnly, &lot_list);
+							if(!lot_list.getCount()) {
+								// @todo Тут надо что-то в лог вывести
+							}
+							else {
+								for(uint i = 0; i < lot_list.getCount(); i++) {
+									const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
+									if(p_bobj->GetMarkListByLot(r_lot_rec.ID, ss_ext_codes) > 0) {
+										for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
+											//int    Helper_GetListByMark2(TSCollection <ListByMarkEntry> & rList, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId); // @v12.0.5
+											//Cc.Helper_GetListByMark2()
+											CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.CreateNewItem();
+											p_lbm_entry->OrgLotID = r_lot_rec.ID;
+											p_lbm_entry->OrgLotDate = r_lot_rec.Dt;
+											p_lbm_entry->OrgLotQtty = r_lot_rec.Quantity;
+											STRNSCPY(p_lbm_entry->Mark, temp_buf);
+										}
+									}
+								}
+								const uint back_days = PPObjCSession::GetCcListByMarkBackDays(lbm);
+								LAssocArray index;
+								LAssocArray * p_index = CsObj.FetchCcDate2MaxIdIndex(index) ? &index : 0;
+								GetCc().Helper_GetListByMark2(lbm, CCheckPacket::lnextChZnMark, p_index, back_days, 0);
+								{
+									double _local_qtty = 0.0;
+									if(base_unit_id == SUOM_LITER) {
+										_local_qtty = qtty * main_goods_liter_ratio;
+									}
+									else if(base_unit_id == SUOM_KILOGRAM) {
+										_local_qtty = qtty * main_goods_kg_ratio;
+									}
+									assert(_local_qtty != 0.0); // Выше мы проверили что qtty != 0.0 && (main_goods_liter_ratio > 0.0 || main_goods_kg_ratio > 0)
+									for(uint i = 0; ok < 0 && i < lbm.getCount(); i++) {
+										const CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.at(i);
+										if(p_lbm_entry) {
+											double rest = 0.0;
+											if(base_unit_id == SUOM_LITER) {
+												rest = (rest * org_goods_liter_ratio) - (p_lbm_entry->TotalOpQtty * main_goods_liter_ratio);
+											}
+											else if(base_unit_id = SUOM_KILOGRAM) {
+												rest = (rest * org_goods_kg_ratio) - (p_lbm_entry->TotalOpQtty * main_goods_kg_ratio);
+											}
+											assert(ok < 0); // мы не должны сюда попасть если ok > 0 (это - на случай, если ok инициализирована не верно либо еще где-то мы что-то не так сделали)
+											if(rest >= _local_qtty) {
+												// SUCCESS! Мы нашли марку, остаток по которой в физических единицах достаточен для продажи. Из цикла мы выскочим по условию (ok < 0)
+												rChZnBuf = p_lbm_entry->Mark; 
+												ok = 1;	
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, PgsBlock & rBlk)
 {
 	int    ok = -1;
@@ -9209,7 +9339,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 								}
 								else {
 									SString egais_mark;
-									rBlk.Qtty = 1.0; // Маркированная алкогольная продукциия - строго по одной штуке на строку чека
+									rBlk.Qtty = 1.0; // Маркированная алкогольная продукция - строго по одной штуке на строку чека
 									if(PPEgaisProcessor::InputMark(&agi, egais_mark) > 0) {
 										bool   dup_mark = false;
 										for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
@@ -9288,71 +9418,65 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 							}
 						}
 						if(!is_mark_processed) {
-							// @v12.0.5 @construction {
-							if(0) {
-								const bool is_draft_beer_awr = PPSyncCashSession::IsAutoWriteOffDraftBeerPosition(CashNodeID, goodsID); // @v12.0.5
-								if(is_draft_beer_awr) {
-									PPID   org_draft_beer_goods_id = 0;
-									if(GObj.GetOriginalRawGoodsByStruc(goodsID, &org_draft_beer_goods_id)) {
-										PPObjBill * p_bobj = BillObj;
-										LotArray lot_list;
-										//p_bobj->trfr->Rcpt.GetList(org_draft_beer_goods_id, 0, 0, ZERODATE, 0, 0, )
-									}
-								}
-							}
-							// } @v12.0.5 
-							//
 							const bool is_simplified_draftbeer = PPSyncCashSession::IsSimplifiedDraftBeerPosition(CashNodeID, goodsID); // @v11.9.4
 							if((gt_rec.Flags & GTF_GMARKED || (rBlk.Flags & PgsBlock::fMarkedBarcode)) && !is_simplified_draftbeer) {
-								const int disable_chzn_mark_backtest = 0; // @v10.8.1 Проблемы с сигаретами - слишком много продаж и идентификация дубликатов занимает много времени // @v11.7.4 1-->0
+								const int disable_chzn_mark_backtest = 0; // Проблемы с сигаретами - слишком много продаж и идентификация дубликатов занимает много времени // @v11.7.4 1-->0
 								if(!(CnSpeciality == PPCashNode::spApteka && (rBlk.Qtty > 0.0 && rBlk.Qtty < 1.0))) // @v11.6.9
-									rBlk.Qtty = 1.0; // Маркированная продукциия - строго по одной штуке на строку чека (исключение: аптека и остаток менее 1)
+									rBlk.Qtty = 1.0; // Маркированная продукция - строго по одной штуке на строку чека (исключение: аптека и остаток менее 1)
 								SString chzn_mark = rBlk.ChZnMark;
 								int imr = -1000; // Result of the function PPChZnPrcssr::InputMark() (-1000 - wasn't called)
-								if(chzn_mark.NotEmpty() || (imr = PPChZnPrcssr::InputMark(chzn_mark, 0, 0)) > 0) {
-									int    dup_mark = chzn_mark.IsEq(P.GetCur().ChZnMark);
-									for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
-										if(chzn_mark.IsEq(P.at(i).ChZnMark))
-											dup_mark = 1;
-									}
-									if(!dup_mark) {
-										if(!disable_chzn_mark_backtest && (CnExtFlags & CASHFX_CHECKEGAISMUNIQ)) { // @v10.8.1 !disable_chzn_mark_backtest
-											TSCollection <CCheckCore::ListByMarkEntry> lbm;
-											//PPIDArray cc_list;
-											CCheckCore & r_cc = GetCc();
-											int    cc_even = 0;
-											temp_buf.Z();
-											CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.CreateNewItem();
-											STRNSCPY(p_lbm_entry->Mark, chzn_mark);
-											if(CsObj.GetListByChZnMark(lbm) > 0) {
-												for(uint j = 0; j < p_lbm_entry->CcList.getCount(); j++) {
-													const  CCheckCore::CcMarkedEntry & r_ccm_entry = p_lbm_entry->CcList.at(j);
-													const  PPID cc_id = r_ccm_entry.CcID;
-													CCheckTbl::Rec cc_rec;
-													if(r_cc.Search(cc_id, &cc_rec) > 0 && !(cc_rec.Flags & CCHKF_JUNK)) {
-														CCheckCore::MakeCodeString(&cc_rec, 0, temp_buf);
-														if(cc_rec.Flags & CCHKF_RETURN)
-															cc_even--;
-														else
-															cc_even++;
+								// @v12.0.5 {
+								if(ChZnMarkAutoSelect(goodsID, rBlk.Qtty, chzn_mark) > 0) {
+									rBlk.ChZnMark = chzn_mark;
+									imr  = 1;
+								}
+								else {
+									// } @v12.0.5 
+									if(chzn_mark.NotEmpty() || (imr = PPChZnPrcssr::InputMark(chzn_mark, 0, 0)) > 0) {
+										int    dup_mark = chzn_mark.IsEq(P.GetCur().ChZnMark);
+										for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
+											if(chzn_mark.IsEq(P.at(i).ChZnMark))
+												dup_mark = 1;
+										}
+										if(!dup_mark) {
+											if(!disable_chzn_mark_backtest && (CnExtFlags & CASHFX_CHECKEGAISMUNIQ)) { // @v10.8.1 !disable_chzn_mark_backtest
+												TSCollection <CCheckCore::ListByMarkEntry> lbm;
+												//PPIDArray cc_list;
+												CCheckCore & r_cc = GetCc();
+												int    cc_even = 0;
+												temp_buf.Z();
+												CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.CreateNewItem();
+												STRNSCPY(p_lbm_entry->Mark, chzn_mark);
+												if(CsObj.GetListByChZnMark(lbm) > 0) {
+													for(uint j = 0; j < p_lbm_entry->CcList.getCount(); j++) {
+														const  CCheckCore::CcMarkedEntry & r_ccm_entry = p_lbm_entry->CcList.at(j);
+														const  PPID cc_id = r_ccm_entry.CcID;
+														CCheckTbl::Rec cc_rec;
+														if(r_cc.Search(cc_id, &cc_rec) > 0 && !(cc_rec.Flags & CCHKF_JUNK)) {
+															CCheckCore::MakeCodeString(&cc_rec, 0, temp_buf);
+															if(cc_rec.Flags & CCHKF_RETURN)
+																cc_even--;
+															else
+																cc_even++;
+														}
 													}
 												}
+												if(cc_even & 1 && !F(fRetCheck))
+													ok = MessageError(PPERR_DUPCHZNMARKINOTHRCC, temp_buf.Space().Cat(chzn_mark), eomBeep|eomStatusLine);
+												else if(!(cc_even & 1) && F(fRetCheck))
+													ok = MessageError(PPERR_DUPCHZNMARKINOTHRCC, temp_buf.Space().Cat(chzn_mark), eomBeep|eomStatusLine);
+												else
+													rBlk.ChZnMark = chzn_mark;
 											}
-											if(cc_even & 1 && !F(fRetCheck))
-												ok = MessageError(PPERR_DUPCHZNMARKINOTHRCC, temp_buf.Space().Cat(chzn_mark), eomBeep|eomStatusLine);
-											else if(!(cc_even & 1) && F(fRetCheck))
-												ok = MessageError(PPERR_DUPCHZNMARKINOTHRCC, temp_buf.Space().Cat(chzn_mark), eomBeep|eomStatusLine);
 											else
 												rBlk.ChZnMark = chzn_mark;
 										}
 										else
-											rBlk.ChZnMark = chzn_mark;
+											ok = MessageError(PPERR_DUPCHZNMARKINCC, chzn_mark, eomBeep|eomStatusLine);
 									}
-									else
-										ok = MessageError(PPERR_DUPCHZNMARKINCC, chzn_mark, eomBeep|eomStatusLine);
+									else if(CnSpeciality != PPCashNode::spApteka)
+										ok = -1;
 								}
-								else if(CnSpeciality != PPCashNode::spApteka)
-									ok = -1;
 								if(imr != -1000)
 									selectCtrl(CTL_CHKPAN_INPUT);
 							}

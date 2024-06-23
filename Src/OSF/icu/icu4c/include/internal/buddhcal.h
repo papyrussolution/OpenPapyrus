@@ -54,24 +54,9 @@ public:
 	 * @internal
 	 */
 	BuddhistCalendar(const Locale & aLocale, UErrorCode & success);
-	/**
-	 * Destructor
-	 * @internal
-	 */
 	virtual ~BuddhistCalendar();
-	/**
-	 * Copy constructor
-	 * @param source    the object to be copied.
-	 * @internal
-	 */
 	BuddhistCalendar(const BuddhistCalendar& source);
-	/**
-	 * Default assignment operator
-	 * @param right    the object to be copied.
-	 * @internal
-	 */
 	BuddhistCalendar& operator = (const BuddhistCalendar& right);
-
 	/**
 	 * Create and return a polymorphic copy of this calendar.
 	 * @return    return a polymorphic copy of this calendar.

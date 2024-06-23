@@ -1,19 +1,11 @@
+// udicttrie.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-*******************************************************************************
-*   Copyright (C) 2010-2012, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-*******************************************************************************
-*   file name:  udicttrie.h
-*   encoding:   UTF-8
-*   tab size:   8 (not used)
-*   indentation:4
-*
-*   created on: 2010dec17
-*   created by: Markus W. Scherer
-*/
-
+// Copyright (C) 2010-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2010dec17
+// created by: Markus W. Scherer
+//
 #ifndef __USTRINGTRIE_H__
 #define __USTRINGTRIE_H__
 
@@ -24,7 +16,6 @@
 
 #include "unicode/utypes.h"
 
-
 /**
  * Return values for BytesTrie::next(), UCharsTrie::next() and similar methods.
  * @see USTRINGTRIE_MATCHES
@@ -33,37 +24,37 @@
  * @stable ICU 4.8
  */
 enum UStringTrieResult {
-    /**
-     * The input unit(s) did not continue a matching string.
-     * Once current()/next() return USTRINGTRIE_NO_MATCH,
-     * all further calls to current()/next() will also return USTRINGTRIE_NO_MATCH,
-     * until the trie is reset to its original state or to a saved state.
-     * @stable ICU 4.8
-     */
-    USTRINGTRIE_NO_MATCH,
-    /**
-     * The input unit(s) continued a matching string
-     * but there is no value for the string so far.
-     * (It is a prefix of a longer string.)
-     * @stable ICU 4.8
-     */
-    USTRINGTRIE_NO_VALUE,
-    /**
-     * The input unit(s) continued a matching string
-     * and there is a value for the string so far.
-     * This value will be returned by getValue().
-     * No further input byte/unit can continue a matching string.
-     * @stable ICU 4.8
-     */
-    USTRINGTRIE_FINAL_VALUE,
-    /**
-     * The input unit(s) continued a matching string
-     * and there is a value for the string so far.
-     * This value will be returned by getValue().
-     * Another input byte/unit can continue a matching string.
-     * @stable ICU 4.8
-     */
-    USTRINGTRIE_INTERMEDIATE_VALUE
+	/**
+	 * The input unit(s) did not continue a matching string.
+	 * Once current()/next() return USTRINGTRIE_NO_MATCH,
+	 * all further calls to current()/next() will also return USTRINGTRIE_NO_MATCH,
+	 * until the trie is reset to its original state or to a saved state.
+	 * @stable ICU 4.8
+	 */
+	USTRINGTRIE_NO_MATCH,
+	/**
+	 * The input unit(s) continued a matching string
+	 * but there is no value for the string so far.
+	 * (It is a prefix of a longer string.)
+	 * @stable ICU 4.8
+	 */
+	USTRINGTRIE_NO_VALUE,
+	/**
+	 * The input unit(s) continued a matching string
+	 * and there is a value for the string so far.
+	 * This value will be returned by getValue().
+	 * No further input byte/unit can continue a matching string.
+	 * @stable ICU 4.8
+	 */
+	USTRINGTRIE_FINAL_VALUE,
+	/**
+	 * The input unit(s) continued a matching string
+	 * and there is a value for the string so far.
+	 * This value will be returned by getValue().
+	 * Another input byte/unit can continue a matching string.
+	 * @stable ICU 4.8
+	 */
+	USTRINGTRIE_INTERMEDIATE_VALUE
 };
 
 /**

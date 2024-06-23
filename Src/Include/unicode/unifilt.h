@@ -1,14 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-**********************************************************************
-* Copyright (C) 1999-2010, International Business Machines Corporation and others.
-* All Rights Reserved.
-**********************************************************************
-*   Date        Name        Description
-*   11/17/99    aliu        Creation.
-**********************************************************************
-*/
+// Copyright (C) 1999-2010, International Business Machines Corporation and others. All Rights Reserved.
+// Date        Name        Description
+// 11/17/99    aliu        Creation.
+//
 #ifndef UNIFILT_H
 #define UNIFILT_H
 
@@ -20,7 +15,7 @@
 #include "unicode/unimatch.h"
 
 /**
- * \file 
+ * \file
  * \brief C++ API: Unicode Filter
  */
 
@@ -63,67 +58,60 @@ U_NAMESPACE_BEGIN
  * @stable ICU 2.0
  */
 class U_COMMON_API UnicodeFilter : public UnicodeFunctor, public UnicodeMatcher {
-
 public:
-    /**
-     * Destructor
-     * @stable ICU 2.0
-     */
-    virtual ~UnicodeFilter();
+	virtual ~UnicodeFilter();
+	/**
+	 * Clones this object polymorphically.
+	 * The caller owns the result and should delete it when done.
+	 * @return clone, or nullptr if an error occurred
+	 * @stable ICU 2.4
+	 */
+	virtual UnicodeFilter* clone() const override = 0;
+	/**
+	 * Returns <tt>true</tt> for characters that are in the selected
+	 * subset.  In other words, if a character is <b>to be
+	 * filtered</b>, then <tt>contains()</tt> returns
+	 * <b><tt>false</tt></b>.
+	 * @stable ICU 2.0
+	 */
+	virtual bool contains(UChar32 c) const = 0;
 
-    /**
-     * Clones this object polymorphically.
-     * The caller owns the result and should delete it when done.
-     * @return clone, or nullptr if an error occurred
-     * @stable ICU 2.4
-     */
-    virtual UnicodeFilter* clone() const override = 0;
+	/**
+	 * UnicodeFunctor API.  Cast 'this' to a UnicodeMatcher* pointer
+	 * and return the pointer.
+	 * @stable ICU 2.4
+	 */
+	virtual UnicodeMatcher* toMatcher() const override;
 
-    /**
-     * Returns <tt>true</tt> for characters that are in the selected
-     * subset.  In other words, if a character is <b>to be
-     * filtered</b>, then <tt>contains()</tt> returns
-     * <b><tt>false</tt></b>.
-     * @stable ICU 2.0
-     */
-    virtual bool contains(UChar32 c) const = 0;
+	/**
+	 * Implement UnicodeMatcher API.
+	 * @stable ICU 2.4
+	 */
+	virtual UMatchDegree matches(const Replaceable& text,
+	    int32_t& offset,
+	    int32_t limit,
+	    bool incremental) override;
 
-    /**
-     * UnicodeFunctor API.  Cast 'this' to a UnicodeMatcher* pointer
-     * and return the pointer.
-     * @stable ICU 2.4
-     */
-    virtual UnicodeMatcher* toMatcher() const override;
+	/**
+	 * UnicodeFunctor API.  Nothing to do.
+	 * @stable ICU 2.4
+	 */
+	virtual void setData(const TransliterationRuleData*) override;
 
-    /**
-     * Implement UnicodeMatcher API.
-     * @stable ICU 2.4
-     */
-    virtual UMatchDegree matches(const Replaceable& text,
-                                 int32_t& offset,
-                                 int32_t limit,
-                                 bool incremental) override;
-
-    /**
-     * UnicodeFunctor API.  Nothing to do.
-     * @stable ICU 2.4
-     */
-    virtual void setData(const TransliterationRuleData*) override;
-
-    /**
-     * ICU "poor man's RTTI", returns a UClassID for this class.
-     *
-     * @stable ICU 2.2
-     */
-    static UClassID U_EXPORT2 getStaticClassID();
+	/**
+	 * ICU "poor man's RTTI", returns a UClassID for this class.
+	 *
+	 * @stable ICU 2.2
+	 */
+	static UClassID U_EXPORT2 getStaticClassID();
 
 protected:
 
-    /*
-     * Since this class has pure virtual functions,
-     * a constructor can't be used.
-     * @stable ICU 2.0
-     */
+	/*
+	 * Since this class has pure virtual functions,
+	 * a constructor can't be used.
+	 * @stable ICU 2.0
+	 */
 /*    UnicodeFilter();*/
 };
 

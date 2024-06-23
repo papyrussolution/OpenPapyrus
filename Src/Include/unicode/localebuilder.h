@@ -68,10 +68,6 @@ public:
 	 * @stable ICU 64
 	 */
 	LocaleBuilder();
-	/**
-	 * Destructor
-	 * @stable ICU 64
-	 */
 	virtual ~LocaleBuilder();
 	/**
 	 * Resets the <code>LocaleBuilder</code> to match the provided

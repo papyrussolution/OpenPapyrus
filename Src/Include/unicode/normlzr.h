@@ -187,10 +187,6 @@ public:
 	 * @deprecated ICU 56 Use Normalizer2 instead.
 	 */
 	Normalizer(const Normalizer& copy);
-	/**
-	 * Destructor
-	 * @deprecated ICU 56 Use Normalizer2 instead.
-	 */
 	virtual ~Normalizer();
 #endif  // U_FORCE_HIDE_DEPRECATED_API
 	//

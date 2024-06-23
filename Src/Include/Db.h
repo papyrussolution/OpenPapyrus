@@ -4612,7 +4612,7 @@ public:
 			return *this;
 		}
 		uint64 RowId;    // Идентификатор позиции свободного блока
-		uint32 FreeSize; // Досупный полезный размер блока (PayloadSize)
+		uint32 FreeSize; // Доступный полезный размер блока (PayloadSize)
 	};
 private:
 	class SingleTypeList : public TSVector <Entry> {
@@ -4656,7 +4656,7 @@ public:
 };
 
 #pragma pack(push, 1)
-struct SDataPageHeader {
+struct SDataPageHeader { // Size=32
 	static constexpr uint32 SignatureValue = 0x76AE0000U;
 	//
 	// Descr: Типы страниц

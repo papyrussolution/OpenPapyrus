@@ -2,7 +2,6 @@
 // License & terms of use: http://www.unicode.org/copyright.html
 // Copyright (C) 1999-2016 International Business Machines Corporation and others. All rights reserved.
 // 
-// 
 // Date        Name        Description
 // 10/22/99    alan        Creation.
 // 11/11/99    rgillam     Complete port from Java.
@@ -220,13 +219,7 @@ public:
 	 * @stable ICU 2.8
 	 */
 	RuleBasedBreakIterator(UDataMemory* image, UErrorCode & status);
-
-	/**
-	 * Destructor
-	 *  @stable ICU 2.0
-	 */
 	virtual ~RuleBasedBreakIterator();
-
 	/**
 	 * Assignment operator.  Sets this iterator to have the same behavior,
 	 * and iterate over the same text, as the one passed in.
@@ -235,7 +228,6 @@ public:
 	 *  @stable ICU 2.0
 	 */
 	RuleBasedBreakIterator& operator =(const RuleBasedBreakIterator& that);
-
 	/**
 	 * Equality operator.  Returns true if both BreakIterators are of the
 	 * same class, have the same behavior, and iterate over the same text.

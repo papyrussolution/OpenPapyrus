@@ -44,13 +44,7 @@ public:
 	 * the result as output.
 	 */
 	FunctionReplacer(Transliterator* adoptedTranslit, UnicodeFunctor* adoptedReplacer);
-	/**
-	 * Copy constructor.
-	 */
 	FunctionReplacer(const FunctionReplacer& other);
-	/**
-	 * Destructor
-	 */
 	virtual ~FunctionReplacer();
 	/**
 	 * Implement UnicodeFunctor

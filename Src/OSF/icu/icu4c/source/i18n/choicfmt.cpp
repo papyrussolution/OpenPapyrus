@@ -1,21 +1,18 @@
 // CHOICFMT.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 1997-2013, International Business Machines Corporation and others. All Rights Reserved.
- * Modification History:
- *   Date        Name        Description
- *   02/19/97    aliu        Converted from java.
- *   03/20/97    helena      Finished first cut of implementation and got rid
- *        of nextDouble/previousDouble and replaced with boolean array.
- *   4/10/97     aliu        Clean up.  Modified to work on AIX.
- *   06/04/97    helena      Fixed applyPattern(), toPattern() and not to include wchar.h.
- *   07/09/97    helena      Made ParsePosition into a class.
- *   08/06/97    nos         removed overloaded constructor, fixed 'format(array)'
- *   07/22/98    stephen     JDK 1.2 Sync - removed bool array (doubleFlags)
- *   02/22/99    stephen     Removed character literals for EBCDIC safety
- ********************************************************************************
- */
+// Copyright (C) 1997-2013, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 02/19/97    aliu        Converted from java.
+// 03/20/97    helena      Finished first cut of implementation and got rid of nextDouble/previousDouble and replaced with boolean array.
+// 4/10/97     aliu        Clean up.  Modified to work on AIX.
+// 06/04/97    helena      Fixed applyPattern(), toPattern() and not to include wchar.h.
+// 07/09/97    helena      Made ParsePosition into a class.
+// 08/06/97    nos         removed overloaded constructor, fixed 'format(array)'
+// 07/22/98    stephen     JDK 1.2 Sync - removed bool array (doubleFlags)
+// 02/22/99    stephen     Removed character literals for EBCDIC safety
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -445,7 +442,8 @@ double ChoiceFormat::parseArgument(const MessagePattern &pattern, int32_t partIn
 }
 
 int32_t ChoiceFormat::matchStringUntilLimitPart(const MessagePattern &pattern, int32_t partIndex, int32_t limitPartIndex,
-    const UnicodeString & source, int32_t sourceOffset) {
+    const UnicodeString & source, int32_t sourceOffset) 
+{
 	int32_t matchingSourceLength = 0;
 	const UnicodeString & msgString = pattern.getPatternString();
 	int32_t prevIndex = pattern.getPart(partIndex).getLimit();

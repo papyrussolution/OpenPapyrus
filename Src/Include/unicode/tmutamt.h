@@ -61,19 +61,8 @@ public:
 	 *                      U_ILLEGAL_ARGUMENT_ERROR.
 	 * @stable ICU 4.2
 	 */
-	TimeUnitAmount(double amount, TimeUnit::UTimeUnitFields timeUnitField,
-	    UErrorCode & status);
-
-	/**
-	 * Copy constructor
-	 * @stable ICU 4.2
-	 */
+	TimeUnitAmount(double amount, TimeUnit::UTimeUnitFields timeUnitField, UErrorCode & status);
 	TimeUnitAmount(const TimeUnitAmount& other);
-
-	/**
-	 * Assignment operator
-	 * @stable ICU 4.2
-	 */
 	TimeUnitAmount& operator =(const TimeUnitAmount& other);
 
 	/**
@@ -83,11 +72,6 @@ public:
 	 * @stable ICU 4.2
 	 */
 	virtual TimeUnitAmount* clone() const override;
-
-	/**
-	 * Destructor
-	 * @stable ICU 4.2
-	 */
 	virtual ~TimeUnitAmount();
 	/**
 	 * Equality operator.

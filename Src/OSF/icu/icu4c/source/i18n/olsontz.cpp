@@ -256,64 +256,46 @@ OlsonTimeZone::OlsonTimeZone(const UResourceBundle * top,
 	}
 }
 
-/**
- * Copy constructor
- */
-OlsonTimeZone::OlsonTimeZone(const OlsonTimeZone& other) :
-	BasicTimeZone(other), finalZone(0) {
+OlsonTimeZone::OlsonTimeZone(const OlsonTimeZone& other) : BasicTimeZone(other), finalZone(0) 
+{
 	*this = other;
 }
 
-/**
- * Assignment operator
- */
-OlsonTimeZone& OlsonTimeZone::operator = (const OlsonTimeZone& other) {
+OlsonTimeZone& OlsonTimeZone::operator = (const OlsonTimeZone& other) 
+{
 	if(this == &other) {
 		return *this;
 	}                                  // self-assignment: no-op
 	canonicalID = other.canonicalID;
-
 	transitionTimesPre32 = other.transitionTimesPre32;
 	transitionTimes32 = other.transitionTimes32;
 	transitionTimesPost32 = other.transitionTimesPost32;
-
 	transitionCountPre32 = other.transitionCountPre32;
 	transitionCount32 = other.transitionCount32;
 	transitionCountPost32 = other.transitionCountPost32;
-
 	typeCount = other.typeCount;
 	typeOffsets = other.typeOffsets;
 	typeMapData = other.typeMapData;
-
 	delete finalZone;
 	finalZone = (other.finalZone != 0) ? other.finalZone->clone() : 0;
-
 	finalStartYear = other.finalStartYear;
 	finalStartMillis = other.finalStartMillis;
-
 	clearTransitionRules();
-
 	return *this;
 }
 
-/**
- * Destructor
- */
-OlsonTimeZone::~OlsonTimeZone() {
+OlsonTimeZone::~OlsonTimeZone() 
+{
 	deleteTransitionRules();
 	delete finalZone;
 }
-
 /**
  * Returns true if the two TimeZone objects are equal.
  */
-bool OlsonTimeZone::operator == (const TimeZone& other) const {
-	return ((this == &other) ||
-	       (typeid(*this) == typeid(other) &&
-	       TimeZone::operator == (other) &&
-	       hasSameRules(other)));
+bool OlsonTimeZone::operator == (const TimeZone& other) const 
+{
+	return ((this == &other) || (typeid(*this) == typeid(other) && TimeZone::operator == (other) && hasSameRules(other)));
 }
-
 /**
  * TimeZone API.
  */

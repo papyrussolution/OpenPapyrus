@@ -341,7 +341,7 @@
 // @v5.5.1 #define cmSalChargeGrp      450 // Группы начислений зарплаты
 #define cmStaffCalendar                451 // Календари
 #define cmSCSIncasso                   452 // Инкассация (SyncCashSess)
-#define cmSupplGoodsImport             453 // Импорт товаров от поставщика
+#define cmSupplGoodsImport             453 // Импорт товаров от поставщика // @eliminated since @v12.0.5
 #define cmSupplInterchange             454 // Экспорт данных для поставщика // @v9.2.1 cmExportDataForSuppl-->cmSupplInterchange
 #define cmExportDataForSuppl           cmSupplInterchange // @obsolete
 #define cmSCardCfg                     455 // Конфигурация дисконтных карт

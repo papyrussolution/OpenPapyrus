@@ -1,14 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ********************************************************************
- *
- *   Copyright (C) 1997-2011, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ********************************************************************
- */
-
+// Copyright (C) 1997-2011, International Business Machines Corporation and others.  All Rights Reserved.
+//
 #ifndef CHARITER_H
 #define CHARITER_H
 
@@ -640,21 +633,12 @@ protected:
 	 * @stable ICU 2.0
 	 */
 	CharacterIterator(int32_t length, int32_t position);
-
 	/**
 	 * Constructor, just setting the length, start, end, and position fields in this base class.
 	 * @stable ICU 2.0
 	 */
 	CharacterIterator(int32_t length, int32_t textBegin, int32_t textEnd, int32_t position);
-
-	/**
-	 * Copy constructor.
-	 *
-	 * @param that The CharacterIterator to be copied
-	 * @stable ICU 2.0
-	 */
 	CharacterIterator(const CharacterIterator &that);
-
 	/**
 	 * Assignment operator.  Sets this CharacterIterator to have the same behavior,
 	 * as the one passed in.
@@ -663,26 +647,22 @@ protected:
 	 * @stable ICU 2.0
 	 */
 	CharacterIterator & operator = (const CharacterIterator &that);
-
 	/**
 	 * Base class text length field.
 	 * Necessary this for correct getText() and hashCode().
 	 * @stable ICU 2.0
 	 */
 	int32_t textLength;
-
 	/**
 	 * Base class field for the current position.
 	 * @stable ICU 2.0
 	 */
 	int32_t pos;
-
 	/**
 	 * Base class field for the start of the iteration range.
 	 * @stable ICU 2.0
 	 */
 	int32_t begin;
-
 	/**
 	 * Base class field for the end of the iteration range.
 	 * @stable ICU 2.0
@@ -701,5 +681,4 @@ inline int32_t CharacterIterator::getLength() const { return textLength; }
 U_NAMESPACE_END
 
 #endif /* U_SHOW_CPLUSPLUS_API */
-
 #endif

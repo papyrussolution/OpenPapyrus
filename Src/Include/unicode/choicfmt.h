@@ -216,11 +216,7 @@ public:
 	 * @param count Size of 'limits', 'closures', and 'formats' arrays
 	 * @deprecated ICU 49 Use MessageFormat instead, with plural and select arguments.
 	 */
-	ChoiceFormat(const double* limits,
-	    const bool* closures,
-	    const UnicodeString * formats,
-	    int32_t count);
-
+	ChoiceFormat(const double* limits, const bool* closures, const UnicodeString * formats, int32_t count);
 	/**
 	 * Copy constructor.
 	 *

@@ -124,15 +124,9 @@ public:
 	 * @see DateFormat#MONTH_FIELD
 	 * @stable ICU 2.0
 	 */
-	FieldPosition(int32_t field)
-		: UObject(), fField(field), fBeginIndex(0), fEndIndex(0) {
+	FieldPosition(int32_t field) : UObject(), fField(field), fBeginIndex(0), fEndIndex(0) 
+	{
 	}
-
-	/**
-	 * Copy constructor
-	 * @param copy the object to be copied from.
-	 * @stable ICU 2.0
-	 */
 	FieldPosition(const FieldPosition& copy) : UObject(copy), fField(copy.fField), fBeginIndex(copy.fBeginIndex), fEndIndex(copy.fEndIndex)
 	{
 	}

@@ -1,28 +1,17 @@
+// listformatter.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2012-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  listformatter.h
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 20120426
- *   created by: Umesh P. Nair
- */
-
+// Copyright (C) 2012-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 20120426
+// created by: Umesh P. Nair
+// 
 #ifndef __LISTFORMATTER_H__
 #define __LISTFORMATTER_H__
 
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API
-
 #if !UCONFIG_NO_FORMATTING
 
 #include "unicode/unistr.h"
@@ -35,11 +24,7 @@ U_NAMESPACE_BEGIN
 class FieldPositionHandler;
 class FormattedListData;
 class ListFormatter;
-
-/** @internal */
 class Hashtable;
-
-/** @internal */
 struct ListFormatInternal;
 
 /* The following can't be #ifndef U_HIDE_INTERNAL_API, needed for other .h file declarations */
@@ -89,45 +74,32 @@ public:
 	 * Default constructor; makes an empty FormattedList.
 	 * @stable ICU 64
 	 */
-	FormattedList() : fData(nullptr), fErrorCode(U_INVALID_STATE_ERROR) {
+	FormattedList() : fData(nullptr), fErrorCode(U_INVALID_STATE_ERROR) 
+	{
 	}
-
 	/**
 	 * Move constructor: Leaves the source FormattedList in an undefined state.
 	 * @stable ICU 64
 	 */
 	FormattedList(FormattedList&& src) U_NOEXCEPT;
-
-	/**
-	 * Destruct an instance of FormattedList.
-	 * @stable ICU 64
-	 */
 	virtual ~FormattedList() U_OVERRIDE;
-
 	/** Copying not supported; use move constructor instead. */
 	FormattedList(const FormattedList&) = delete;
-
 	/** Copying not supported; use move assignment instead. */
 	FormattedList& operator =(const FormattedList&) = delete;
-
 	/**
 	 * Move assignment: Leaves the source FormattedList in an undefined state.
 	 * @stable ICU 64
 	 */
 	FormattedList& operator =(FormattedList&& src) U_NOEXCEPT;
-
 	/** @copydoc FormattedValue::toString() */
 	UnicodeString toString(UErrorCode & status) const U_OVERRIDE;
-
 	/** @copydoc FormattedValue::toTempString() */
 	UnicodeString toTempString(UErrorCode & status) const U_OVERRIDE;
-
 	/** @copydoc FormattedValue::appendTo() */
 	Appendable &appendTo(Appendable& appendable, UErrorCode & status) const U_OVERRIDE;
-
 	/** @copydoc FormattedValue::nextPosition() */
 	bool nextPosition(ConstrainedFieldPosition& cfpos, UErrorCode & status) const U_OVERRIDE;
-
 private:
 	FormattedListData * fData;
 	UErrorCode fErrorCode;
@@ -141,7 +113,6 @@ private:
 
 	friend class ListFormatter;
 };
-
 /**
  * An immutable class for formatting a list, using data from CLDR (or supplied
  * separately).
@@ -154,19 +125,8 @@ private:
  */
 class U_I18N_API ListFormatter : public UObject {
 public:
-
-	/**
-	 * Copy constructor.
-	 * @stable ICU 52
-	 */
 	ListFormatter(const ListFormatter&);
-
-	/**
-	 * Assignment operator.
-	 * @stable ICU 52
-	 */
 	ListFormatter& operator =(const ListFormatter& other);
-
 	/**
 	 * Creates a ListFormatter appropriate for the default locale.
 	 *

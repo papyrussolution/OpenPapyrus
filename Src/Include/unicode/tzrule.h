@@ -4,16 +4,13 @@
 //
 #ifndef TZRULE_H
 #define TZRULE_H
-
 /**
  * \file
  * \brief C++ API: Time zone rule classes
  */
-
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API
-
 #if !UCONFIG_NO_FORMATTING
 
 #include "unicode/uobject.h"
@@ -620,20 +617,8 @@ public:
 	 */
 	TimeArrayTimeZoneRule(const UnicodeString & name, int32_t rawOffset, int32_t dstSavings,
 	    const UDate* startTimes, int32_t numStartTimes, DateTimeRule::TimeRuleType timeRuleType);
-
-	/**
-	 * Copy constructor.
-	 * @param source    The TimeArrayTimeZoneRule object to be copied.
-	 * @stable ICU 3.8
-	 */
 	TimeArrayTimeZoneRule(const TimeArrayTimeZoneRule& source);
-
-	/**
-	 * Destructor.
-	 * @stable ICU 3.8
-	 */
 	virtual ~TimeArrayTimeZoneRule();
-
 	/**
 	 * Clone this TimeArrayTimeZoneRule object polymorphically. The caller owns the result and
 	 * should delete it when done.

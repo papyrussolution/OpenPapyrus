@@ -1,28 +1,19 @@
+// SIMPLETZ.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ********************************************************************************
- * Copyright (C) 1997-2013, International Business Machines                     *
- * Corporation and others. All Rights Reserved.                                 *
- ********************************************************************************
- *
- * File SIMPLETZ.H
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   04/21/97    aliu        Overhauled header.
- *   08/10/98    stephen     JDK 1.2 sync
- *                           Added setStartRule() / setEndRule() overloads
- *                           Added hasSameRules()
- *   09/02/98    stephen     Added getOffset(monthLen)
- *                           Changed getOffset() to take UErrorCode
- *   07/09/99    stephen     Removed millisPerHour (unused, for HP compiler)
- *   12/02/99    aliu        Added TimeMode and constructor and setStart/EndRule
- *                           methods that take TimeMode. Added to docs.
- ********************************************************************************
- */
-
+// Copyright (C) 1997-2013, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 04/21/97    aliu        Overhauled header.
+// 08/10/98    stephen     JDK 1.2 sync
+//   Added setStartRule() / setEndRule() overloads
+//   Added hasSameRules()
+// 09/02/98    stephen     Added getOffset(monthLen)
+//   Changed getOffset() to take UErrorCode
+// 07/09/99    stephen     Removed millisPerHour (unused, for HP compiler)
+// 12/02/99    aliu        Added TimeMode and constructor and setStart/EndRule
+//   methods that take TimeMode. Added to docs.
+// 
 #ifndef SIMPLETZ_H
 #define SIMPLETZ_H
 
@@ -81,23 +72,8 @@ public:
 		STANDARD_TIME,
 		UTC_TIME
 	};
-
-	/**
-	 * Copy constructor
-	 * @param source the object to be copied.
-	 * @stable ICU 2.0
-	 */
 	SimpleTimeZone(const SimpleTimeZone& source);
-	/**
-	 * Default assignment operator
-	 * @param right    the object to be copied.
-	 * @stable ICU 2.0
-	 */
 	SimpleTimeZone& operator =(const SimpleTimeZone& right);
-	/**
-	 * Destructor
-	 * @stable ICU 2.0
-	 */
 	virtual ~SimpleTimeZone();
 	/**
 	 * Returns true if the two TimeZone objects are equal; that is, they have

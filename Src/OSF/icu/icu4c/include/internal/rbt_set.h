@@ -1,24 +1,20 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- * Copyright (C) 1999-2007, International Business Machines Corporation
- * and others. All Rights Reserved.
- **********************************************************************
- *   Date        Name        Description
- *   11/17/99    aliu        Creation.
- **********************************************************************
- */
+// Copyright (C) 1999-2007, International Business Machines Corporation and others. All Rights Reserved.
+// Date        Name        Description
+// 11/17/99    aliu        Creation.
+// 
+
 #ifndef RBT_SET_H
 #define RBT_SET_H
 
-#include "unicode/utypes.h"
+//#include "unicode/utypes.h"
 
 #if !UCONFIG_NO_TRANSLITERATION
 
-#include "unicode/uobject.h"
-#include "unicode/utrans.h"
-#include "uvector.h"
+//#include "unicode/uobject.h"
+//#include "unicode/utrans.h"
+//#include "uvector.h"
 
 U_NAMESPACE_BEGIN
 
@@ -28,7 +24,6 @@ class TransliterationRuleData;
 class UnicodeFilter;
 class UnicodeString;
 class UnicodeSet;
-
 /**
  * A set of rules for a <code>RuleBasedTransliterator</code>.
  * @author Alan Liu
@@ -62,23 +57,13 @@ class TransliterationRuleSet : public UMemory {
 	 * Length of the longest preceding context
 	 */
 	int32_t maxContextLength;
-
 public:
-
 	/**
 	 * Construct a new empty rule set.
 	 * @param status    Output parameter filled in with success or failure status.
 	 */
 	TransliterationRuleSet(UErrorCode & status);
-
-	/**
-	 * Copy constructor.
-	 */
 	TransliterationRuleSet(const TransliterationRuleSet&);
-
-	/**
-	 * Destructor.
-	 */
 	virtual ~TransliterationRuleSet();
 	/**
 	 * Change the data object that this rule belongs to.  Used

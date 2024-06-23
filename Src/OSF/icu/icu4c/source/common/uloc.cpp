@@ -21,7 +21,7 @@
 // 
 #include <icu-internal.h>
 #pragma hdrstop
-#include "bytesinkutil.h"
+//#include "bytesinkutil.h"
 #include "ustr_imp.h"
 #include "ulocimp.h"
 #include "locmap.h"

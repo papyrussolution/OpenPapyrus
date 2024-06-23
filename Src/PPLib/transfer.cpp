@@ -864,7 +864,7 @@ int ReceiptCore::Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LDATE be
 	MEMSZERO(k3);
 	BExtQuery q(this, 3);
 	DBQ * dbq = 0;
-	const long closed_tag = (flags & glfOpenedOnly) ? 0 : 1;
+	const int16 closed_tag = (flags & glfOpenedOnly) ? 0 : 1;
 	{
 		k3.Closed = /*closedTag*/closed_tag;
 		k3.GoodsID = goodsID;

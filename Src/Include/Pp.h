@@ -5548,7 +5548,9 @@ private:
 #define PPSCMD_WSCTL_TSESS            10132 // @v11.7.7  WSCTL Возвращает статус текущей сессии процессора
 #define PPSCMD_WSCTL_LOGOUT           10133 // @v11.7.7  WSCTL Выход из сеанса (без завершения текущей рабочей сессии)
 #define PPSCMD_WSCTL_QUERYPOLICY      10134 // @v11.7.12 WSCTL Запрос политики ограничений сеанса
-#define PPSCMD_WSCTL_QUERYPGMLIST     10135 // @v11.8.5  WSCTL Запрос списка программ для запуска на клиенткой машине
+#define PPSCMD_WSCTL_QUERYPGMLIST     10135 // @v11.8.5  WSCTL Запрос списка программ для запуска на клиентской машине. Строго говоря, этой команды быть не должно - 
+	// следует использовать общую команду SELECT, но я хочу быстрее все это сделать - через спец команду меньше работы (все инфраструктура уже заточена на штатный json-формат). 
+	// Однако в дальнейшем команду надо убрать и заменить на SELECT
 #define PPSCMD_WSCTL_REGISTRATION     10136 // @v11.9.10 WSCTL Регистрация клиента
 #define PPSCMD_WSCTL_REGISTERCOMPUTER 10137 // @v12.0.0 WSCTL Регистрация рабочей станции
 
@@ -23988,7 +23990,6 @@ public:
 	int    GetCounter(PPID dbid, long * counter, int use_ta);
 	int    GetUuid(PPID dbid, S_GUID * pUuid, int use_ta);
 	int    AcceptUuid(PPID dbid, const S_GUID & rUuid, int use_ta);
-	// @v10.4.11 (unused) int    CheckForConsolidDiv(PPID divID);
 	virtual int  RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
 private:
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
@@ -24015,9 +24016,9 @@ private:
 #define GTF_LOOKBACKPRICES 0x00002000L // На товары этого типа розничные цены могут дифференцироваться в зависимости от партии
 	// В России эта опция нужна для разрешения проблем с ценами на сигареты. При изменении максимальной розничной цены (МРЦ)
 	// ритейлеры вынуждены выбирать ту цену, которая отпечатана на пачке.
-#define GTF_ADVANCECERT    0x00004000L // @v10.4.1 Сертификат на последующую покупку товаров (главное назначение флага -
+#define GTF_ADVANCECERT    0x00004000L // Сертификат на последующую покупку товаров (главное назначение флага -
 	// сигнализировать при учете, что оплата такого товара является авансом, но не собственно покупкой).
-#define GTF_GMARKED        0x00008000L // @v10.4.11 Товары этого типа имеют государственную маркировку
+#define GTF_GMARKED        0x00008000L // Товары этого типа имеют государственную маркировку
 #define GTF_EXCISEPROFORMA 0x00010000L // @v11.7.10 Товары этого типа формально подакцизные (предприятие, ведущее учет, акциз не рассчитывает, 
 	// но передает специальную информацию о продаже таких товаров в надзорные органы)
 
@@ -24027,10 +24028,10 @@ private:
 #define GTCHZNPT_TOBACCO            2
 #define GTCHZNPT_SHOE               3
 #define GTCHZNPT_MEDICINE           4
-#define GTCHZNPT_CARTIRE            5 // @v10.9.7  Автомобильные шины
-#define GTCHZNPT_TEXTILE            6 // @v10.9.11 Текстиль
-#define GTCHZNPT_PERFUMERY          7 // @v10.9.11 Парфюмерия
-#define GTCHZNPT_MILK               8 // @v10.9.11 Молоко
+#define GTCHZNPT_CARTIRE            5 // Автомобильные шины
+#define GTCHZNPT_TEXTILE            6 // Текстиль
+#define GTCHZNPT_PERFUMERY          7 // Парфюмерия
+#define GTCHZNPT_MILK               8 // Молоко
 #define GTCHZNPT_JEWELRY            9 // @v11.4.9 Ювелирные изделия //
 #define GTCHZNPT_WATER             10 // @v11.5.4 Вода питьевая //
 #define GTCHZNPT_ALTTOBACCO        11 // @v11.9.0 Альтернативная табачная продукция. Марки очень похожи на табак, но есть нюансы в обработке.
@@ -40491,7 +40492,7 @@ private:
 // @todo (Исправить структуру (порядок полей, выравнивание, метод Init - THISZERO плохо из-за SString))
 //   Заменить на SupplInterchangeFilt
 //
-struct SupplExpFilt {
+/* @v12.0.5 (устарел очень давно - элиминируем) struct SupplExpFilt {
 	enum {
 		expBills  = 0x0001,
 		expRest   = 0x0002,
@@ -40530,13 +40531,13 @@ struct SupplExpFilt {
 	char   ClientCode[16];
 	SString EncodeStr;       // @anchor
 	ObjIdListFilt LocList;
-};
+};*/
 
 class SupplInterchangeFilt : public PPBaseFilt, public PPExtStrContainer {
 public:
     SupplInterchangeFilt();
 	SupplInterchangeFilt & FASTCALL operator = (const SupplInterchangeFilt & rS);
-	SupplInterchangeFilt & FASTCALL operator = (const SupplExpFilt & rS);
+	// @v12.0.5 SupplInterchangeFilt & FASTCALL operator = (const SupplExpFilt & rS);
 
 	enum { // @persistent
 		extssOpSymbol   = 1,
@@ -54332,7 +54333,7 @@ public:
 		ctrfForceInitGroupList = 0x0002  // Форсировать инициализацию списка товарных групп, ассоциированных с сенсорным монитором (независимо от ctrfTouchScreen)
 	};
 	CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, uint flags/*isTouchScreen*/, void * pDummy);
-	virtual ~CPosProcessor(); // @v10.3.2 @fix non-virtual-->virtual
+	virtual ~CPosProcessor();
 	enum {
 		eomMsgWindow = 1,
 		eomStatusLine,      // Сообщение выдается в строке состояния //
@@ -54384,7 +54385,7 @@ public:
 		enum {
 			fMarkedBarcode = 0x0001 // Товар был выбран по маркированному штрихкоду
 		};
-		long   Flags; // @v10.6.10
+		long   Flags; //
 		double Qtty;
 		double PriceBySerial; // Если PriceBySerial != 0 && Serial.Empty() это означает, что выбрана
 			// одна из look-back-price (фиксированные цены, меняющиеся со временем)
@@ -54408,10 +54409,9 @@ public:
 		double Amount;
 		double Discount;
 	};
-	CcTotal CalcTotal() const; // @v10.9.0
-	// @v10.9.0 void   CalcTotal(double * pTotal, double * pDiscount) const;
+	CcTotal CalcTotal() const;
 	double GetUsableBonus() const;
-	double GetBonusMaxPart() const; // @v10.9.0
+	double GetBonusMaxPart() const;
 	int    GetState() const { return State_p; }
 	bool   FASTCALL IsState(int s) const;
 	PPID   GetPosNodeID() const;
@@ -54616,9 +54616,9 @@ protected:
 	int    LoadModifiers(PPID goodsID, SaModif & rModif);
 	int    Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const CCheckItem & rCi, double & rBound) const;
 	int    CheckPriceRestrictions(PPID goodsID, const CCheckItem & rCi, double price, RealRange * pRange);
-	void   MsgToDisp_Clear(); // @v10.2.3
-	int    MsgToDisp_Add(const char * pMsg); // @v10.2.3
-	virtual int MsgToDisp_Show(); // @v10.2.3
+	void   MsgToDisp_Clear();
+	int    MsgToDisp_Add(const char * pMsg);
+	virtual int MsgToDisp_Show();
 	
 	struct GrpListItem { // @flat
 		GrpListItem();
@@ -54660,21 +54660,14 @@ protected:
 		double GetDiscount(double ccAmount) const;
 
 		long   Flags;
-		SCardSpecialTreatment::IdentifyReplyBlock CSTRB; // @v10.9.0
-		// @v10.9.0 long   SpcCardTreatment; // @v10.1.6 Ид специальной трактовки поведения карт (из серии)
-		PPID   OwnerID;          // @v10.2.4 Ид владельца карты
+		SCardSpecialTreatment::IdentifyReplyBlock CSTRB;
+		PPID   OwnerID;          // Ид владельца карты
 		double Discount;         // Скидка
 		double SettledDiscount;  // Установленная скидка (в процентах), в результате вызова CheckPaneDialog::SetupDiscount
-		// @v10.9.0 double OuterSvcRest;     // Остаток по карте, извлеченный из глобального сервиса (uhtt.ru, например). Актуально только для кредитных и
-			// бонусных карт, синхронизированных с Universe-HTT либо для карт со специальной трактовкой SpcCardTreatment.
 		double RestByCrdCard;
 		double UsableBonus;      //
 		double MaxCreditByCrdCard;
 		double AdditionalPayment;  // Доплата наличными
-		// @v10.9.0 char   UhttCode[32];      // Код карты в UHTT. Так как, сервер Universe-HTT может идентифицировать
-			// карту, добавляя к ней специальный префикс аккаунта, то необходимо сохранить полный номер
-			// карты в UHTT для того, чтобы осуществлять с ней операции.
-		// @v10.9.0 char   UhttHash[32];      // Код доступа к информации о карте, синхронизированной с Universe-HTT.
 		PPSCardSerRule * P_DisByAmtRule; //
 		RetailPriceExtractor::ExtQuotBlock * P_Eqb; //
 	private:
@@ -54875,7 +54868,7 @@ protected:
 	PPViewCCheck * P_CcView;
 	PPEgaisProcessor * P_EgPrc;
 	S_GUID SessUUID;
-	LAssocArray SpcTrtScsList; // @v10.9.0 Список серий карт со специальной трактовкой
+	LAssocArray SpcTrtScsList; // Список серий карт со специальной трактовкой
 };
 
 class CheckPaneDialog : public TDialog, public CPosProcessor {
@@ -54976,6 +54969,19 @@ private:
 	int    EditPrescription();
 	void   ViewStoragePlaces(PPID goodsId);
 	int    ConfirmPosPaymBank(/*double amount*/PosPaymentBlock & rPpl);
+	//
+	// Descr: Функция пытается найти марку чзн для автоматического списания (без ручного выбора)
+	//   На текущий момент функция работает только для товаров, 
+	//   имеющих тип чзн GTCHZNPT_DRAFTBEER_AWR (разливное пиво с разрешением автоматического выбора марки).
+	// ARG(goodsID IN): Ид продаваемого товара
+	// ARG(qtty IN): Количество продаваемого товара (в торговых единицах)
+	// ARG(rChZnBuf OUT): Буфер, в который вносится найденная (в случае успеха) марка 
+	// Returns:
+	//   >0 - функция нашла марку для автоматического списания //
+	//   <0 - не удалось найти подходящую марку либо товар не допускает такую операцию
+	//    0 - ошибка
+	//
+	int    ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rChZnBuf);
 
 	ExtGoodsSelDialog * P_EGSDlg;
 	long   AutoInputTolerance; // Мин среднее время (ms) между вводом символом, ниже которого считается, что данные были введены автоматическим средством ввода (напр. сканером штрихкодов)
@@ -59656,8 +59662,8 @@ int    ImportBills(PPBillImpExpParam * pBillParam, PPBillImpExpParam * pBRowPara
 int    ImportCChecks(PPCCheckImpExpParam * pParam);
 int    ImportEmailAccts();
 int    ExportEmailAccts(const PPIDArray * pMailAcctsList);
-int    SupplGoodsImport();
-int    EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl);
+// @v12.0.5 @unused int    SupplGoodsImport();
+// @v12.0.5 @unused int    EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl);
 int    DoSupplInterchange(SupplInterchangeFilt * pFilt);
 int    EditPriceListImpExpParams();
 int    EditDebtLimList(PPClientAgreement & rCliAgt);

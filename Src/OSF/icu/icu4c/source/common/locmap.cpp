@@ -29,7 +29,7 @@
 #include <icu-internal.h>
 #pragma hdrstop
 #include "locmap.h"
-#include "bytesinkutil.h"
+//#include "bytesinkutil.h"
 #include "ulocimp.h"
 #if U_PLATFORM_HAS_WIN32_API && UCONFIG_USE_WINDOWS_LCID_MAPPING_API
 	#include <winnls.h> // LCIDToLocaleName and LocaleNameToLCID

@@ -219,11 +219,6 @@ public:
 #endif  // U_FORCE_HIDE_DEPRECATED_API
 
 	// Collator public destructor -----------------------------------------
-
-	/**
-	 * Destructor
-	 * @stable ICU 2.0
-	 */
 	virtual ~Collator();
 
 	// Collator public methods --------------------------------------------
@@ -1157,10 +1152,6 @@ private:
  */
 class U_I18N_API CollatorFactory : public UObject {
 public:
-	/**
-	 * Destructor
-	 * @stable ICU 3.0
-	 */
 	virtual ~CollatorFactory();
 	/**
 	 * Return true if this factory is visible.  Default is true.

@@ -3,7 +3,7 @@
 
 #include <icu-internal.h>
 #pragma hdrstop
-#include "bytesinkutil.h"  // CharStringByteSink
+//#include "bytesinkutil.h"  // CharStringByteSink
 #include "ulocimp.h"
 
 U_NAMESPACE_BEGIN

@@ -663,26 +663,13 @@ public:
 	//
 	// boilerplate
 	//
-	/**
-	 * Copy constructor
-	 * @param rhs    the object to be copied from.
-	 * @stable ICU 2.6
-	 */
 	RuleBasedNumberFormat(const RuleBasedNumberFormat& rhs);
-
-	/**
-	 * Assignment operator
-	 * @param rhs    the object to be copied from.
-	 * @stable ICU 2.6
-	 */
 	RuleBasedNumberFormat& operator =(const RuleBasedNumberFormat& rhs);
-
 	/**
 	 * Release memory allocated for a RuleBasedNumberFormat when you are finished with it.
 	 * @stable ICU 2.6
 	 */
 	virtual ~RuleBasedNumberFormat();
-
 	/**
 	 * Clone this object polymorphically.  The caller is responsible
 	 * for deleting the result when done.
@@ -690,7 +677,6 @@ public:
 	 * @stable ICU 2.6
 	 */
 	virtual RuleBasedNumberFormat* clone() const override;
-
 	/**
 	 * Return true if the given Format objects are semantically equal.
 	 * Objects of different subclasses are considered unequal.

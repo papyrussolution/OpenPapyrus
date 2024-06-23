@@ -23,18 +23,8 @@ U_NAMESPACE_BEGIN
  */
 class LowercaseTransliterator : public CaseMapTransliterator {
 public:
-	/**
-	 * Constructs a transliterator.
-	 * @param loc the given locale.
-	 */
 	LowercaseTransliterator();
-	/**
-	 * Destructor.
-	 */
 	virtual ~LowercaseTransliterator();
-	/**
-	 * Copy constructor.
-	 */
 	LowercaseTransliterator(const LowercaseTransliterator&);
 	/**
 	 * Transliterator API.

@@ -32,15 +32,7 @@ public:
 	 * @param map the full case mapping function (see ucase.h)
 	 */
 	CaseMapTransliterator(const UnicodeString & id, UCaseMapFull * map);
-
-	/**
-	 * Destructor.
-	 */
 	virtual ~CaseMapTransliterator();
-
-	/**
-	 * Copy constructor.
-	 */
 	CaseMapTransliterator(const CaseMapTransliterator&);
 	/**
 	 * Transliterator API.

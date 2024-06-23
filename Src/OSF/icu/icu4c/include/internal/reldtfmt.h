@@ -1,22 +1,15 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2007-2016, International Business Machines Corporation and    *
- * others. All Rights Reserved.                                                *
- *******************************************************************************
- */
-
+// Copyright (C) 2007-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #ifndef RELDTFMT_H
 #define RELDTFMT_H
 
 #include "unicode/utypes.h"
-
 /**
  * \file
  * \brief C++ API: Format and parse relative dates and times.
  */
-
 #if !UCONFIG_NO_FORMATTING
 
 #include "unicode/datefmt.h"
@@ -28,10 +21,7 @@ U_NAMESPACE_BEGIN
 // forward declarations
 class DateFormatSymbols;
 class SimpleFormatter;
-
-// internal structure used for caching strings
-struct URelativeString;
-
+struct URelativeString; // internal structure used for caching strings
 /**
  * This class is normally accessed using the kRelative or k...Relative values of EStyle as
  * parameters to DateFormat::createDateInstance.
@@ -41,26 +31,12 @@ struct URelativeString;
  *
  * @internal ICU 3.8
  */
-
 class RelativeDateFormat : public DateFormat {
 public:
 	RelativeDateFormat(UDateFormatStyle timeStyle, UDateFormatStyle dateStyle, const Locale & locale, UErrorCode & status);
-
 	// overrides
-	/**
-	 * Copy constructor.
-	 * @internal ICU 3.8
-	 */
 	RelativeDateFormat(const RelativeDateFormat&);
-	/**
-	 * Assignment operator.
-	 * @internal ICU 3.8
-	 */
 	RelativeDateFormat& operator =(const RelativeDateFormat&);
-	/**
-	 * Destructor.
-	 * @internal ICU 3.8
-	 */
 	virtual ~RelativeDateFormat();
 	/**
 	 * Clone this Format object polymorphically. The caller owns the result and
@@ -79,7 +55,6 @@ public:
 	virtual bool operator ==(const Format& other) const override;
 
 	using DateFormat::format;
-
 	/**
 	 * Format a date or time, which is the standard millis since 24:00 GMT, Jan
 	 * 1, 1970. Overrides DateFormat pure virtual method.
@@ -96,10 +71,7 @@ public:
 	 * @return          Reference to 'appendTo' parameter.
 	 * @internal ICU 3.8
 	 */
-	virtual UnicodeString & format(Calendar& cal,
-	    UnicodeString & appendTo,
-	    FieldPosition& pos) const override;
-
+	virtual UnicodeString & format(Calendar& cal, UnicodeString & appendTo, FieldPosition& pos) const override;
 	/**
 	 * Format an object to produce a string. This method handles Formattable
 	 * objects with a UDate type. If a the Formattable object type is not a Date,
@@ -114,11 +86,7 @@ public:
 	 * @return          Reference to 'appendTo' parameter.
 	 * @internal ICU 3.8
 	 */
-	virtual UnicodeString & format(const Formattable& obj,
-	    UnicodeString & appendTo,
-	    FieldPosition& pos,
-	    UErrorCode & status) const override;
-
+	virtual UnicodeString & format(const Formattable& obj, UnicodeString & appendTo, FieldPosition& pos, UErrorCode & status) const override;
 	/**
 	 * Parse a date/time string beginning at the given parse position. For
 	 * example, a time text "07/10/96 4:5 PM, PDT" will be parsed into a Date
@@ -326,5 +294,4 @@ public:
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
 #endif // RELDTFMT_H

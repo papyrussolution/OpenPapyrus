@@ -14,7 +14,7 @@
 #if !UCONFIG_NO_NORMALIZATION
 
 #include "unicode/ucptrie.h"
-#include "bytesinkutil.h"
+//#include "bytesinkutil.h"
 #include "ucptrie_impl.h"
 #include "uset_imp.h"
 

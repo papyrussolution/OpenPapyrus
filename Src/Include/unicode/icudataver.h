@@ -1,19 +1,11 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 2009-2013, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- */
-
+// Copyright (C) 2009-2013, International Business Machines Corporation and others.  All Rights Reserved.
+//
 /**
  * \file
  * \brief C API: access to ICU Data Version number
  */
-
 #ifndef __ICU_DATA_VER_H__
 #define __ICU_DATA_VER_H__
 
@@ -35,5 +27,4 @@
  * @stable ICU 49
  */
 U_CAPI void U_EXPORT2 u_getDataVersion(UVersionInfo dataVersionFillin, UErrorCode * status);
-
 #endif

@@ -57,11 +57,6 @@ public:
 	CurrencyPluralInfo(const Locale& locale, UErrorCode & status);
 	CurrencyPluralInfo(const CurrencyPluralInfo& info);
 	CurrencyPluralInfo& operator =(const CurrencyPluralInfo& info);
-	/**
-	 * Destructor
-	 *
-	 * @stable ICU 4.2
-	 */
 	virtual ~CurrencyPluralInfo();
 	bool operator==(const CurrencyPluralInfo& info) const;
 	bool operator !=(const CurrencyPluralInfo& info) const;

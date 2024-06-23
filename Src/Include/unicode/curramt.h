@@ -53,10 +53,6 @@ public:
 	 * @stable ICU 3.0
 	 */
 	CurrencyAmount(double amount, ConstChar16Ptr isoCode, UErrorCode & ec);
-	/**
-	 * Copy constructor
-	 * @stable ICU 3.0
-	 */
 	CurrencyAmount(const CurrencyAmount& other);
 	CurrencyAmount& operator =(const CurrencyAmount& other);
 	/**

@@ -263,27 +263,9 @@ public:
 	 * @stable ICU 2.0
 	 */
 	GregorianCalendar(int32_t year, int32_t month, int32_t date, int32_t hour, int32_t minute, int32_t second, UErrorCode& success);
-
-	/**
-	 * Destructor
-	 * @stable ICU 2.0
-	 */
 	virtual ~GregorianCalendar();
-
-	/**
-	 * Copy constructor
-	 * @param source    the object to be copied.
-	 * @stable ICU 2.0
-	 */
 	GregorianCalendar(const GregorianCalendar& source);
-
-	/**
-	 * Default assignment operator
-	 * @param right    the object to be copied.
-	 * @stable ICU 2.0
-	 */
 	GregorianCalendar& operator =(const GregorianCalendar& right);
-
 	/**
 	 * Create and return a polymorphic copy of this calendar.
 	 * @return    return a polymorphic copy of this calendar.

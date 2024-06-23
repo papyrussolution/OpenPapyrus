@@ -23,18 +23,8 @@ U_NAMESPACE_BEGIN
  */
 class UppercaseTransliterator : public CaseMapTransliterator {
 public:
-	/**
-	 * Constructs a transliterator.
-	 * @param loc the given locale.
-	 */
 	UppercaseTransliterator();
-	/**
-	 * Destructor.
-	 */
 	virtual ~UppercaseTransliterator();
-	/**
-	 * Copy constructor.
-	 */
 	UppercaseTransliterator(const UppercaseTransliterator&);
 	/**
 	 * Transliterator API.
@@ -50,9 +40,6 @@ public:
 	 */
 	U_I18N_API static UClassID U_EXPORT2 getStaticClassID();
 private:
-	/**
-	 * Assignment operator.
-	 */
 	UppercaseTransliterator& operator =(const UppercaseTransliterator&);
 };
 

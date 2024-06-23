@@ -350,10 +350,6 @@ private:
 	 * @stable ICU 4.8
 	 */
 	virtual AlphabeticIndex &addLabels(const Locale &locale, UErrorCode & status);
-	/**
-	 * Destructor
-	 * @stable ICU 4.8
-	 */
 	virtual ~AlphabeticIndex();
 	/**
 	 * Builds an immutable, thread-safe version of this instance, without data records.
