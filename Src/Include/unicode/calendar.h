@@ -12,16 +12,14 @@
 // 8/19/2002  srl         Removed Javaisms
 // 11/07/2003  srl         Update, clean up documentation.
 // 
+// C++ API: Calendar object
+// 
 #ifndef CALENDAR_H
 #define CALENDAR_H
 
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API
-/**
- * \file
- * \brief C++ API: Calendar object
- */
 #if !UCONFIG_NO_FORMATTING
 
 #include "unicode/uobject.h"

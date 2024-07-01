@@ -85,9 +85,74 @@ int SRecPageManager::GetFreeListForPage(const SDataPageHeader * pPage, TSVector 
 	return pPage ? Fl.GetListForPage(pPage->Seq, rList) : 0;
 }
 
-int SRecPageManager::VerifyFreeList() // @todo
+int SRecPageManager::VerifyFreeList()
 {
-	int    ok = 0;
+	int    ok = 1;
+	{
+		// ѕеребираем все элементы списка свободных блоков и провер€ем их актуальность
+		const  uint slc = Fl.GetTypeCount();
+		for(uint i = 0; i < slc; i++) {
+			const SRecPageFreeList::SingleTypeList * p_stl = Fl.GetTypeListByIdx(i);
+			if(p_stl) {
+				for(uint bi = 0; bi < p_stl->getCount(); bi++) {
+					const SRecPageFreeList::Entry & r_fle = p_stl->at(bi);
+					uint   offset = 0;
+					SDataPageHeader * p_page = QueryPageForReading(r_fle.RowId, p_stl->GetType(), &offset);
+					if(!p_page) {
+						ok = 0; // @todo report error
+					}
+					else {
+						SDataPageHeader::RecPrefix pfx;
+						uint ps = p_page->ReadRecPrefix(offset, pfx);
+						if(ps == 0) {
+							ok = 0; // @todo report error
+						}
+						else if(!(pfx.Flags & SDataPageHeader::RecPrefix::fDeleted)) {
+							ok = 0; // @todo report error
+						}
+						else if(pfx.PayloadSize != r_fle.FreeSize) {
+							ok = 0; // @todo report error
+						}
+						ReleasePage(p_page);
+					}
+				}
+			}
+		}
+	}
+	if(ok) {
+		// “еперь перебираем все страницы и если на какой то из них есть свободное пространство,
+		// то ищем соответствие в списке свободных областей
+		for(uint seq = 1; seq < LastSeq; seq++) {
+			SDataPageHeader * p_page = QueryPageBySeqForReading(seq, 0);
+			if(p_page) {
+				SDataPageHeader::Stat stat;
+				TSVector <SRecPageFreeList::Entry> usable_block_list; 
+				if(p_page->GetStat(stat, &usable_block_list)) {
+					for(uint ubli = 0; ubli < usable_block_list.getCount(); ubli++) {
+						const SRecPageFreeList::Entry & r_entry = usable_block_list.at(ubli);
+						const SRecPageFreeList::SingleTypeList * p_stl = 0;
+						uint idx_in_list = 0;
+						if(Fl.SearchEntry(r_entry, &p_stl, &idx_in_list)) {
+							assert(p_stl);
+							assert(idx_in_list < p_stl->getCount());
+							if(p_stl->at(idx_in_list).FreeSize != r_entry.FreeSize) {
+								ok = 0; // @todo report error
+							}
+						}
+						else {
+							ok = 0; // @todo report error
+						}
+					}
+				}
+				else {
+					ok = 0; // @todo @err
+				}
+			}
+			else {
+				ok = 0; // @todo @err
+			}
+		}
+	}
 	return ok;
 }
 
@@ -120,7 +185,6 @@ int SRecPageManager::Write(uint64 * pRowId, uint pageType, const void * pData, s
 	//SDataPageHeader::RecPrefix pfx;
 	//pfx.SetPayload(dataLen, 0);
 	SDataPageHeader * p_page = 0;//QueryPageForWriting(pageType, dataLen);
-	uint   seq = 0;
 	uint   offset = 0;
 	const  SRecPageFreeList::Entry * p_free_entry = Fl.Get(pageType, dataLen);
 	if(!p_free_entry) {
@@ -131,9 +195,7 @@ int SRecPageManager::Write(uint64 * pRowId, uint pageType, const void * pData, s
 		}
 	}
 	THROW(p_free_entry);
-	THROW(SRecPageManager::SplitRowId(p_free_entry->RowId, &seq, &offset));
-	THROW(p_page = GetPage(seq));
-	THROW(p_page->Seq == seq); // @todo @err
+	THROW(p_page = QueryPageForWriting(p_free_entry->RowId, pageType, &offset));
 	{
 		const uint64 row_id = p_free_entry->RowId; // ‘ункци€ WriteToPage изменит free_list и p_free_entry будет указывать
 			// уже на другие данные!
@@ -218,19 +280,34 @@ int SRecPageManager::ReleasePage(SDataPageHeader * pPage)
 	return ok;
 }
 
+SDataPageHeader * SRecPageManager::Helper_QueryPage_BySeq(uint seq, uint32 pageType)
+{
+	SDataPageHeader * p_result = GetPage(seq);
+	if(p_result && pageType && p_result->Type != pageType) {
+		ReleasePage(p_result);
+		p_result = 0;
+	}
+	return p_result;
+}
+
+SDataPageHeader * SRecPageManager::QueryPageBySeqForReading(uint seq, uint32 pageType)
+{
+	return Helper_QueryPage_BySeq(seq, pageType);
+}
+
+SDataPageHeader * SRecPageManager::QueryPageBySeqForWriting(uint seq, uint32 pageType)
+{
+	return Helper_QueryPage_BySeq(seq, pageType);
+}
+
 SDataPageHeader * SRecPageManager::Helper_QueryPage(uint64 rowId, uint32 pageType, uint * pOffset)
 {
 	SDataPageHeader * p_result = 0;
 	uint   ofs = 0;
 	if(rowId) {
 		uint   seq = 0;
-		if(SplitRowId(rowId, &seq, &ofs)) {
-			p_result = GetPage(seq);
-			if(p_result && pageType && p_result->Type != pageType) {
-				ReleasePage(p_result);
-				p_result = 0;
-			}
-		}
+		if(SplitRowId(rowId, &seq, &ofs))
+			p_result = Helper_QueryPage_BySeq(seq, 0);
 	}
 	ASSIGN_PTR(pOffset, ofs);
 	return p_result;
@@ -844,6 +921,28 @@ uint SDataPageHeader::MarkOutBlock(uint offset, uint size, RecPrefix * pPfx)
 //
 //
 //
+IMPL_CMPFUNC(SRecPageFreeList_Entry, p1, p2)
+{
+	const uint64 r1 = static_cast<const SRecPageFreeList::Entry *>(p1)->RowId;
+	const uint64 r2 = static_cast<const SRecPageFreeList::Entry *>(p2)->RowId;
+	return CMPSIGN(r1, r2);
+}
+
+SRecPageFreeList::Entry::Entry(uint64 rowId, uint32 freeSize) : RowId(rowId), FreeSize(freeSize)
+{
+}
+		
+SRecPageFreeList::Entry::Entry() : RowId(0ULL), FreeSize(0)
+{
+}
+		
+SRecPageFreeList::Entry & SRecPageFreeList::Entry::Z()
+{
+	RowId = 0ULL;
+	FreeSize = 0;
+	return *this;
+}
+
 int SRecPageFreeList::SingleTypeList::Put(uint64 rowId, uint32 freeSize)
 {
 	int    ok = 0;
@@ -942,6 +1041,24 @@ int SRecPageFreeList::Put(uint32 type, uint64 rowId, uint32 freeSize)
 	}
 	if(p_list)
 		ok = p_list->Put(rowId, freeSize);
+	return ok;
+}
+
+bool SRecPageFreeList::SearchEntry(const Entry & rKey, const SingleTypeList ** ppList, uint * pIdxInList) const
+{
+	bool   ok = false;
+	for(uint i = 0; !ok && i < L.getCount(); i++) {
+		const SingleTypeList * p_list = L.at(i);
+		if(p_list) {
+			uint idx = 0;
+			if(p_list->lsearch(&rKey, &idx, PTR_CMPFUNC(SRecPageFreeList_Entry))) {
+				assert(p_list->at(idx).RowId == rKey.RowId);
+				ASSIGN_PTR(ppList, p_list);
+				ASSIGN_PTR(pIdxInList, idx);
+				ok = true;
+			}
+		}
+	}
 	return ok;
 }
 

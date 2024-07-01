@@ -40,6 +40,11 @@
                     android:fontFamily="sans-serif-medium"
                     android:textSize="10sp"/>
             </LinearLayout>
+            <ImageView android:id="@+id/CTL_NETWORKSTATE_INDICATOR"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_mobile_network_off">
+            </ImageView>
             <View style="@style/FakeView"/>
             <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonSearch"
                 android:layout_gravity="center_vertical|right"

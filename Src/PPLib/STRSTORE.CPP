@@ -1532,7 +1532,7 @@ int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStor
 				//
 				// Разбор идентификации строки {
 				//
-				TempBuf.Trim(pos).Strip(); // @v9.6.4 @fix TempBuf.Strip(pos).Strip()-->TempBuf.Trim(pos).Strip() @todo Необходима провека
+				TempBuf.Trim(pos).Strip();
 				rScan.Set(TempBuf, 0);
 				int    slang = -1;
 				int    is_ident = 0; // Признак того, что строка идентифицирована

@@ -5097,10 +5097,15 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_FILEFORMAT_HTML                 33006
 #define PPDV_FILEFORMAT_JSON                 33007
 #define PPDV_FILEFORMAT_XML                  33008
-#define PPDV_LOGOPAPYRUS                     33009
-#define PPDV_LOGOUDS                         33010
-#define PPDV_LOGOVK                          33011
-#define PPDV_LOGOVETIS                       33012
-#define PPDV_LOGOCHZN                        33013
-#define PPDV_LOGOGOOGLEMAPS01                33014
+#define PPDV_MOBILE_NETWORK_4G               33009
+#define PPDV_MOBILE_NETWORK_DISCONNECTED     33010
+#define PPDV_MOBILE_NETWORK_OFF              33011
+#define PPDV_MOBILE_NETWORK_UNSTABLE         33012
+#define PPDV_MOBILE_NETWORK_WIFI             33013
+#define PPDV_LOGOPAPYRUS                     33014
+#define PPDV_LOGOUDS                         33015
+#define PPDV_LOGOVK                          33016
+#define PPDV_LOGOVETIS                       33017
+#define PPDV_LOGOCHZN                        33018
+#define PPDV_LOGOGOOGLEMAPS01                33019
 

@@ -263,6 +263,34 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 	return p;
 }
 
+/*static*/SString & PPObject::MakeBlobSignature(const SBinaryChunk & rGlobalIdent, PPObjID oid, uint itemNumber, SString & rBuf)
+{
+	rBuf.Z();
+	const uint32 inner_file_number = static_cast<uint32>(itemNumber);
+	SBinaryChunk bc_sign;
+	bc_sign.Cat(rGlobalIdent);
+	bc_sign.Cat(&oid, sizeof(oid));
+	bc_sign.Cat(&inner_file_number, sizeof(inner_file_number));
+	const binary128 sign = SlHash::Md5(0, bc_sign.PtrC(), bc_sign.Len());
+	Base32_Encode(reinterpret_cast<const uint8 *>(&sign), sizeof(sign), rBuf);
+	while(rBuf.Last() == '=')
+		rBuf.TrimRight();
+	return rBuf;
+}
+
+/*static*/SString & PPObject::MakeBlobSignature(const SBinaryChunk & rGlobalIdent, const char * pResourceName, SString & rBuf)
+{
+	rBuf.Z();
+	SBinaryChunk bc_sign;
+	bc_sign.Cat(rGlobalIdent);
+	bc_sign.Cat(pResourceName, sstrlen(pResourceName));
+	const binary128 sign = SlHash::Md5(0, bc_sign.PtrC(), bc_sign.Len());
+	Base32_Encode(reinterpret_cast<const uint8 *>(&sign), sizeof(sign), rBuf);
+	while(rBuf.Last() == '=')
+		rBuf.TrimRight();
+	return rBuf;
+}
+
 PPObject::SerializeSignature::SerializeSignature() : S(0), V(0)
 {
 }

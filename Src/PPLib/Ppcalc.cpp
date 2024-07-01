@@ -949,21 +949,26 @@ int PosPaymentBlock::EditDialog2()
 			DisableClusterItem(CTL_CPPAYM_KIND, 0, BIN(Data.DisabledKinds & (1 << cpmCash)));
 			DisableClusterItem(CTL_CPPAYM_KIND, 1, BIN(Data.DisabledKinds & (1 << cpmBank)));
 			DisableClusterItem(CTL_CPPAYM_KIND, 2, BIN(Data.DisabledKinds & (1 << cpmIncorpCrd)));
-			disableCtrl(CTL_CPPAYM_CSHAMT, (Data.DisabledKinds & (1 << cpmCash))); // @v10.0.10
-			disableCtrl(CTL_CPPAYM_BNKAMT, (Data.DisabledKinds & (1 << cpmBank))); // @v10.0.10
-			disableCtrl(CTL_CPPAYM_CRDCARDAMT, (Data.DisabledKinds & (1 << cpmIncorpCrd))); // @v10.0.10
+			disableCtrl(CTL_CPPAYM_CSHAMT, (Data.DisabledKinds & (1 << cpmCash)));
+			disableCtrl(CTL_CPPAYM_BNKAMT, (Data.DisabledKinds & (1 << cpmBank)));
+			disableCtrl(CTL_CPPAYM_CRDCARDAMT, (Data.DisabledKinds & (1 << cpmIncorpCrd)));
 			SetupKind(cpmUndef);
 			setCtrlReal(CTL_CPPAYM_CSHAMT, Data.CcPl.Get(CCAMTTYP_CASH));
 			setCtrlReal(CTL_CPPAYM_BNKAMT, Data.CcPl.Get(CCAMTTYP_BANK));
 			setCtrlReal(CTL_CPPAYM_CRDCARDAMT, 0.0);
 			setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 1);
+			// @v12.0.6 {
+			AddClusterAssoc(CTL_CPPAYM_CASHLESSBPEQ, 0, Data.Flags & PosPaymentBlock::fCashlessBypassEq);
+			SetClusterData(CTL_CPPAYM_CASHLESSBPEQ, Data.Flags);
+			showCtrl(CTL_CPPAYM_CASHLESSBPEQ, (Data.Flags & PosPaymentBlock::fCashlessBypassEqEnabled));
+			// } @v12.0.6 
 			double bonus = Data.CcPl.GetBonusAmount(&ScObj);
 			if(R2(bonus) > 0.0099) {
 				SString text_buf;
 				PPLoadTextS(PPTXT_BONUSAVAILABLE, text_buf).CatDiv(':', 2).Cat(bonus, SFMT_MONEY);
 				SetClusterItemText(CTL_CPPAYM_USEBONUS, 0, text_buf);
-				SETFLAG(State, stEnableBonus, !(ScObj.GetConfig().Flags & PPSCardConfig::fDisableBonusByDefault)); // @v10.9.0
-				ToggleBonusAvailability(LOGIC(State & stEnableBonus), true/*force*/); // @v10.9.0
+				SETFLAG(State, stEnableBonus, !(ScObj.GetConfig().Flags & PPSCardConfig::fDisableBonusByDefault));
+				ToggleBonusAvailability(LOGIC(State & stEnableBonus), true/*force*/);
 				setCtrlUInt16(CTL_CPPAYM_USEBONUS, BIN(State & stEnableBonus));
 			}
 			else
@@ -1026,6 +1031,12 @@ int PosPaymentBlock::EditDialog2()
 				Data.Flags &= ~PosPaymentBlock::fPaperless;
 			}
 			// } @v11.3.6 
+			// @v12.0.6 {
+			if(Data.Flags & PosPaymentBlock::fCashlessBypassEqEnabled)
+				GetClusterData(CTL_CPPAYM_CASHLESSBPEQ, &Data.Flags);
+			else
+				SETFLAG(Data.Flags, PosPaymentBlock::fCashlessBypassEq, 0);
+			// } @v12.0.6 
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
@@ -1058,13 +1069,11 @@ int PosPaymentBlock::EditDialog2()
 									setCtrlData(CTL_CPPAYM_CRDCARD, sc_rec.Code);
 									double nv = Data.CcPl.Replace(CCAMTTYP_CRDCARD, 0.0, _id, CCAMTTYP_CASH, CCAMTTYP_BANK);
 									SetupAmount(0);
-									// @v10.9.0 {
 									{
 										setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 0);
 										setCtrlReal(CTL_CPPAYM_CRDCARDAMT, r_entry.Amount);
 										selectCtrl(CTL_CPPAYM_CRDCARDAMT);
 									}
-									// } @v10.9.0 
 									updateList(-1);
 									break;
 								}
@@ -1447,7 +1456,6 @@ int PosPaymentBlock::EditDialog2()
 		}
 		void   SetupKind(CheckPaymMethod outerKind)
 		{
-			// @v10.3.0 (never used) const int prev_kind = Data.Kind;
 			TCluster * p_clu = (TCluster *)getCtrlView(CTL_CPPAYM_KIND);
 			if(p_clu) {
 				SString temp_buf;

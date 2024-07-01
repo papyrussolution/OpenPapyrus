@@ -4062,7 +4062,8 @@ public:
 		LDATE  FreezingEnd;
 		int32  CtAmount;
 		int32  CtRest;
-		uint8  Reserve[8]; // raw
+		int32  CtGoodsID;
+		uint8  Reserve[4]; // raw
 	} data;
 	struct Key0 {
 		int32  SCardID;
@@ -4090,6 +4091,7 @@ public:
 	DBField FreezingEnd;
 	DBField CtAmount;
 	DBField CtRest;
+	DBField CtGoodsID;
 	DBField Reserve;
 };
 #pragma pack(pop)

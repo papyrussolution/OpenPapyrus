@@ -97,6 +97,7 @@ public:
 			PPID   TechID;
 			PPID   TSessID;
 			PPID   CompCatID; // @v12.0.4 Категория компьютера (для регистрации комьютера)
+			PPObjID Oid; // @v12.0.6 Идентификатор объекта для общего запроса (инициатор: PPSCMD_GETIMAGE)
 			MACAddr MacAdrList[4]; // Список mac-адресов для самоидентификации
 			double Amount;
 			char   NameTextUtf8[128]; // @v11.9.10
@@ -200,7 +201,22 @@ public:
 		//
 		loidStartProgramEntry         = 20000  // Стартовый идентификатор для иконок выбора программ. Первый layout идентифицируется как (loidStartProgramEntry+1)
 	};
-
+	//
+	// Descr: Информация о базе данных, к которой работает сеанс.
+	//   Заполняется запросом к серверу GETDBINFO
+	//
+	struct DbInfo {
+		DbInfo & Z()
+		{
+			Uuid.Z();
+			Symb.Z();
+			Ver.Z();
+			return *this;
+		}
+		S_GUID Uuid; // GUID базы данных
+		SString Symb; // Символ базы данных
+		SVerT Ver; // Версия сервера Papyrus
+	};
 	struct QuotKindEntry {
 		QuotKindEntry() : ID(0), Rank(0), DaysOfWeek(0)
 		{
@@ -277,6 +293,7 @@ public:
 		}
 		LDATETIME DtmActual; // Момент последней актуализации данных
 		int    S;
+		DbInfo Dbi; // @v12.0.6
 	};
 	//
 	// Descr: Информационный блок о состоянии процессора на сервере, с которым ассоциирована данная рабочая станция //
@@ -398,6 +415,31 @@ public:
 		LDATETIME DtmActual; // Момент последней актуализации данных
 		StrAssocArray L;
 	};
+	class DImageLoading : public DServerError { // @v12.0.6
+	public:
+		DImageLoading()
+		{
+		}
+		bool   FASTCALL Copy(const DImageLoading & rS)
+		{
+			DServerError::Copy(rS);
+			TSCollection_Copy(L, rS.L);
+			return true;
+		}
+		DImageLoading & Z()
+		{
+			return *this;
+		}
+		struct Entry {
+			Entry() : Status(0)
+			{
+			}
+			PPObjID Oid;
+			SBinaryChunk Img;
+			int    Status; // 0 - undef, -1 - error, 1 - ok
+		};
+		TSCollection <Entry> L; // Список идентификаторов объектов, ассоциированных с загруженными изображениями //
+	};
 	//
 	// Descr: Структура, описывающая текущее состояние системы.
 	//   Элементы структуры могут обновляються другими потоками.
@@ -433,7 +475,7 @@ public:
 				Lck.Unlock();
 			}
 			//
-			// Descr: Возвращает заблокированноу ссылку на объект.
+			// Descr: Возвращает заблокированную ссылку на объект.
 			// Attention: После того, как ссылка использована необходимо как можно скорее вызвать UnlockRef()
 			//   в противном случае вся работа системы остановится!
 			//
@@ -471,6 +513,7 @@ public:
 			syncdataRegistration,     // @v11.9.10 D_Reg Результат регистрации клиента
 			syncdataComputerCategoryList, // @v12.0.2 Результат извлечения списка категорий компьютеров
 			syncdataComputerRegistration, // @v12.0.4
+			syncdataImageLoading,         // @v12.0.6         
 		};
 
 		WsCtl_SelfIdentityBlock SidBlk;
@@ -485,10 +528,12 @@ public:
 		SyncEntry <DRegistration> D_Reg; // @v11.9.10
 		SyncEntry <DComputerCategoryList> D_CompCatList; // @v12.0.2
 		SyncEntry <DComputerRegistration> D_CompReg; // @v12.0.4
+		SyncEntry <DImageLoading> D_ImgLd; // @v12.0.6
 
 		State() : D_Prc(syncdataPrc), D_Test(syncdataTest), D_Acc(syncdataAccount), D_Prices(syncdataPrices), D_TSess(syncdataTSess), 
 			D_ConnStatus(syncdataJobSrvConnStatus), D_Auth(syncdataAuth), SelectedTecGoodsID(0), D_LastErr(syncdataServerError),
-			D_Reg(syncdataRegistration), D_CompCatList(syncdataComputerCategoryList), D_CompReg(syncdataComputerRegistration)
+			D_Reg(syncdataRegistration), D_CompCatList(syncdataComputerCategoryList), D_CompReg(syncdataComputerRegistration),
+			D_ImgLd(syncdataImageLoading)
 		{
 		}
 		PPID   GetSelectedTecGoodsID() const { return SelectedTecGoodsID; }
@@ -667,7 +712,7 @@ private:
 		virtual void Run();
 	private:
 		virtual void Startup();
-		int    Connect(PPJobSrvClient & rCli);
+		int    Connect(PPJobSrvClient & rCli, DbInfo * pDbInfo);
 		void   SendRequest(PPJobSrvClient & rCli, const WsCtlReqQueue::Req & rReq);
 		// Указатель на состояние блока управления панелью. При получении ответа от сервера
 		// наш поток будет вносить изменения в это состояние (защита блокировками подразумевается).
@@ -754,7 +799,7 @@ private:
 	int    QueryProgramList2(WsCtl_ProgramCollection & rPgmL, WsCtl_ClientPolicy & rPolicyL);
 	int    GetProgramListFromCache(WsCtl_ProgramCollection & rPgmL, WsCtl_ClientPolicy & rPolicyL);
 	void   LoadProgramList2();
-	static void LoadProgramImages(WsCtl_ProgramCollection & rPgmL, TextureCache & rTextureCache);
+	void   LoadProgramImages(WsCtl_ProgramCollection & rPgmL, TextureCache & rTextureCache);
 	void   EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayout & rTl);
 	int    ScreenItem_Logo(SUiLayout * pLoParent, int viewFlags) // loidLogo
 	{
@@ -1390,7 +1435,7 @@ WsCtl_ImGuiSceneBlock::WsCtl_CliSession::WsCtl_CliSession(const WsCtl_Config & r
 	PPJobSrvReply reply;
 	{
 		DConnectionStatus srv_conn_status;
-		srv_conn_status.S = Connect(cli);
+		srv_conn_status.S = Connect(cli, &srv_conn_status.Dbi);
 		if(!srv_conn_status.S)
 			srv_conn_status.SetupByLastError();
 		P_St->D_ConnStatus.SetData(srv_conn_status);
@@ -1436,7 +1481,7 @@ WsCtl_ImGuiSceneBlock::WsCtl_CliSession::WsCtl_CliSession(const WsCtl_Config & r
 			if(single_ev_count) {
 				if(!(cli.GetState() & PPJobSrvClient::stConnected)) {
 					DConnectionStatus srv_conn_status;
-					srv_conn_status.S = cli.Connect(JsP.Server, JsP.Port);
+					srv_conn_status.S = Connect(cli, &srv_conn_status.Dbi);
 					if(!srv_conn_status.S)
 						srv_conn_status.SetupByLastError();
 					P_St->D_ConnStatus.SetData(srv_conn_status);
@@ -1462,12 +1507,36 @@ WsCtl_ImGuiSceneBlock::WsCtl_CliSession::WsCtl_CliSession(const WsCtl_Config & r
 	SignalStartup();
 }
 
-int WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(PPJobSrvClient & rCli)
+int WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(PPJobSrvClient & rCli, DbInfo * pDbInfo)
 {
 	int    ok = 1;
+	SString temp_buf;
 	THROW(rCli.Connect(JsP.Server, JsP.Port));
 	if(JsP.DbSymb.NotEmpty() && JsP.User.NotEmpty()) {
 		THROW(rCli.Login(JsP.DbSymb, JsP.User, JsP.Password));
+		if(pDbInfo) {
+			pDbInfo->Z();
+			PPJobSrvReply reply;
+			if(rCli.ExecSrvCmd("GETDBINFO", PPConst::DefSrvCmdTerm, reply) && reply.StartReading(&temp_buf)) {
+				if(reply.CheckRepError()) {
+					//(st_data.Reply = "OK").CatDiv(':', 2).Cat(temp_buf);
+					SJson * p_js = SJson::Parse(temp_buf);
+					if(SJson::IsObject(p_js)) {
+						for(const SJson * p_cur = p_js->P_Child; p_cur; p_cur = p_cur->P_Next) {
+							if(p_cur->Text.IsEqiAscii("dbsymb")) {
+								pDbInfo->Symb = p_cur->P_Child->Text.Unescape();
+							}
+							else if(p_cur->Text.IsEqiAscii("dbuuid")) {
+								pDbInfo->Uuid.FromStr(p_cur->P_Child->Text);
+							}
+							else if(p_cur->Text.IsEqiAscii("server_version")) {
+								pDbInfo->Ver.FromStr(p_cur->P_Child->Text);
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -1477,6 +1546,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 {
 	PPJobSrvReply reply;
 	SString temp_buf;
+	SString cmd_buf;
 	switch(rReq.Cmd) {
 		case PPSCMD_HELLO:
 			if(P_St) {
@@ -1491,6 +1561,25 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				else
 					st_data.SetupByLastError();
 				P_St->D_Test.SetData(st_data);
+			}
+			break;
+		case PPSCMD_GETIMAGE: // @v12.0.6
+			if(P_St) {
+				if(rReq.P.Oid.Obj && rReq.P.Oid.Id) {
+					WsCtl_ImGuiSceneBlock::DImageLoading st_data;
+					P_St->D_ImgLd.GetData(st_data);
+					{
+						PPJobSrvCmd cmd;
+						cmd.StartWriting(PPSCMD_WSCTL_END_SESS);
+						GetObjectTitle(rReq.P.Oid.Obj, temp_buf);
+						cmd_buf.Z().Cat("GETIMAGE").Space().Cat(temp_buf).Space().Cat(rReq.P.Oid.Id);
+						if(rCli.ExecSrvCmd(cmd_buf, PPConst::DefSrvCmdTerm, reply)) {
+							if(reply.StartReading(&temp_buf)) {
+							}
+						}
+					}
+					P_St->D_ImgLd.SetData(st_data);
+				}
 			}
 			break;
 		case PPSCMD_WSCTL_END_SESS:
@@ -1870,7 +1959,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 				P_St->D_Prc.SetData(st_data);
 			}
 			break;
-		/* @v11.8.6
+		/*
 		case PPSCMD_WSCTL_QUERYPGMLIST: // @v11.8.5
 			if(P_St) {
 				WsCtl_ImGuiSceneBlock::DProgramList st_data;
@@ -2746,6 +2835,20 @@ int WsCtl_ImGuiSceneBlock::QueryProgramList2(WsCtl_ProgramCollection & rPgmL, Ws
 	return ok;
 }
 
+static int GetBlobStoragePath(SString & rBuf)
+{	
+	rBuf.Z();
+	int    ok = 0;
+	PPGetPath(PPPATH_WORKSPACE, rBuf);
+	if(rBuf.NotEmpty() && SFile::IsDir(rBuf)) {
+		rBuf.SetLastSlash().Cat("blob");
+		ok = 1;
+	}
+	else
+		rBuf.Z();
+	return ok;
+}
+
 void WsCtl_ImGuiSceneBlock::LoadProgramList2()
 {
 	SString temp_buf;
@@ -2814,12 +2917,12 @@ void WsCtl_ImGuiSceneBlock::LoadProgramList2()
 				}
 			}
 		}
-		WsCtl_ImGuiSceneBlock::LoadProgramImages(PgmL, Cache_Texture);
+		LoadProgramImages(PgmL, Cache_Texture);
 		PgmL.MakeCatList();
 	}
 }
 
-/*static*/void WsCtl_ImGuiSceneBlock::LoadProgramImages(WsCtl_ProgramCollection & rPgmL, TextureCache & rTextureCache)
+void WsCtl_ImGuiSceneBlock::LoadProgramImages(WsCtl_ProgramCollection & rPgmL, TextureCache & rTextureCache)
 {
 	SString pic_base_path;
 	SString temp_buf;
@@ -2827,10 +2930,34 @@ void WsCtl_ImGuiSceneBlock::LoadProgramList2()
 	pic_base_path.SetLastSlash().Cat("img").SetLastSlash();
 	if(pathValid(pic_base_path, 1)) {
 		//rTextureCache.SetBasePath(pic_base_path);
+		// @v12.0.6 {
+		SString blob_path;
+		GetBlobStoragePath(blob_path);
+		SFileStorage fs(blob_path);
+		// } @v12.0.6 
 		for(uint i = 0; i < rPgmL.getCount(); i++) {
 			WsCtl_ProgramEntry * p_pe = rPgmL.at(i);
 			if(p_pe) {
 				if(p_pe->PicSymb.NotEmpty()) {
+					int64  file_size = 0;
+					SPtrHandle fh = fs.GetFile(p_pe->PicSymb, &file_size);
+					if(!fh) {
+						// @v12.0.6 @todo
+						WsCtlReqQueue::Req req(PPSCMD_GETIMAGE);
+						req.P.Oid.Set(PPOBJ_SWPROGRAM, p_pe->ID);
+						P_CmdQ->Push(req);
+					}
+					if(fh) {
+						Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
+						if(p_cfe && p_cfe->Init(temp_buf)) {
+							if(p_cfe->Reload(true, &ImgRtb)) {
+								rTextureCache.Put(p_cfe);
+								p_cfe = 0; // ! prevent deletion below
+							}
+						}
+						delete p_cfe;
+					}
+					/*
 					(temp_buf = pic_base_path).Cat(p_pe->PicSymb);
 					if(fileExists(temp_buf)) {
 						Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
@@ -2841,7 +2968,7 @@ void WsCtl_ImGuiSceneBlock::LoadProgramList2()
 							}
 						}
 						delete p_cfe;
-					}
+					}*/
 				}
 			}
 		}
@@ -2852,19 +2979,21 @@ void WsCtl_ImGuiSceneBlock::PreprocessProgramList()
 {
 	class Worker_PgmListResolver : public PPThread {
 	public:
-		Worker_PgmListResolver(WsCtl_ProgramCollection & rPgmL, const WsCtl_ClientPolicy & rPolicy, TextureCache & rTextureCache) : 
-			PPThread(PPThread::kCasualJob, 0, 0), R_PgmL(rPgmL), Policy(rPolicy), R_TextureCache(rTextureCache)
+		Worker_PgmListResolver(WsCtl_ImGuiSceneBlock * pOwner, WsCtl_ProgramCollection & rPgmL, const WsCtl_ClientPolicy & rPolicy, TextureCache & rTextureCache) : 
+			PPThread(PPThread::kCasualJob, 0, 0), P_Owner(pOwner), R_PgmL(rPgmL), Policy(rPolicy), R_TextureCache(rTextureCache)
 		{
+			assert(P_Owner);
 		}
 		virtual void Run()
 		{
 			R_PgmL.Lck.Lock();
 			R_PgmL.Resolve(Policy);
 			R_PgmL.MakeCatList();
-			WsCtl_ImGuiSceneBlock::LoadProgramImages(R_PgmL, R_TextureCache);
+			P_Owner->LoadProgramImages(R_PgmL, R_TextureCache);
 			R_PgmL.Lck.Unlock();
 		}
 	private:
+		WsCtl_ImGuiSceneBlock * P_Owner;
 		WsCtl_ProgramCollection & R_PgmL;
 		WsCtl_ClientPolicy Policy; // copy of the original
 		TextureCache & R_TextureCache;

@@ -5181,7 +5181,7 @@ XLSORIENT;ONERECPERFILE;ENDSTR;XLSHDRLINESCOUNT;COLUMNSCOUNT;HDRTAG;HDRFORMULA;F
 DLLPATH;RECEIPTTAG;GLOBALNAME;BEERGRPID;ALCOLICSEREGID;TTNTAGID;MANUFTAGID;MANUFKPPREAGTAGID;\
 MANUFREGIONCODE;ISMANUFTAGID;GOODSKINDSYMB;XMLPREFIX;ALCOGRPID;GOODSKINDTAGID;OPERTYPE;GOODSVOLSYMB;MANUFINNID;BASEFLAGS;FTPACCSYMB;FTPACCID"
 // Метасимволы формул полей SdbField
-PPSSYM_IMPEXPFORMULA "EMPTY;RECNO;CURDATE_GERMAN;CURDATE;CURTIME;CURYEAR;CURMONTH;CURDAY;PERSONREGNUM;ARREGNUM;OBJTAG;ARREGDATE;CAT;CATS;OBJTAGRAW"
+PPSSYM_IMPEXPFORMULA "EMPTY;RECNO;CURDATE_GERMAN;CURDATE;CURTIME;CURYEAR;CURMONTH;CURDAY;PERSONREGNUM;ARREGNUM;OBJTAG;ARREGDATE;CAT;CATS;OBJTAGRAW;GOODSREST"
 // Метасимволы форматированного вывода (PPFormat)
 PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit;acc;article;loc;bill;prc;tech;tsess;period;salcharge;pperr;staffcal;psnopkind;debtdim;quotkind;scard;tag;objtitle;locaddr"
 #!}
@@ -10110,6 +10110,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cashnode_cashfx_bnkslipafterrcpt         "Банковский слип печатать после чека"
 @cashnode_cashfx_usegoodsmatrix           "@{usegoodsmatrix}"
 @cashnode_cashfx_syncopensesssoft         "Не передавать регистратору команду открытия сессии"
+@cashnode_cashfx_enablecashlessbpeq       "Разрешается проводить безналичную оплату в обход терминала"
 @cashnode_cashtype                        "Тип ККМ"
 @cashnode_curdate                         "@{currentdate}"
 @cashnode_cursess                         "ИД текущей сессии"
@@ -15516,6 +15517,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @pospaymblock_altcashreg                  "@{alternativeregistrar}"
 @pospaymblock_eaddr                       "@{ccheck_buyerseaddr}"
 @pospaymblock_paperless                   "Не печатать бумажный чек"
+@pospaymblock_cashlessbypassequip         "Не проводить через терминал"
 
 @posnodecmd                               "Операции по кассе"
 @posnodecmd_sync                          "@{posnode_sync}"
@@ -18294,6 +18296,7 @@ PPHS_ZIP                         "zip" // @v10.7.5
 PPHS_PREFERRED                   "preferred" // @v11.0.0
 PPHS_TIMEZONES                   "timezones" // @v11.3.6
 PPHS_EXECJOBIMM                  "execjobimmediately" // @v11.3.9
+PPHS_GETDBINFO                   "getdbinfo" // @v12.0.6 Команда job-server'а для получения информации о текущей базе данных
 #!}
 
 [124:hash] // PPSTR_HASHTOKEN_C

@@ -1,33 +1,22 @@
+// locid.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 1996-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *
- * File locid.h
- *
- * Created by: Helena Shih
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   02/11/97    aliu        Changed gLocPath to fgLocPath and added methods to
- *                           get and set it.
- *   04/02/97    aliu        Made operator!= inline; fixed return value of getName().
- *   04/15/97    aliu        Cleanup for AIX/Win32.
- *   04/24/97    aliu        Numerous changes per code review.
- *   08/18/98    stephen     Added tokenizeString(),changed getDisplayName()
- *   09/08/98    stephen     Moved definition of kEmptyString for Mac Port
- *   11/09/99    weiv        Added const char * getName() const;
- *   04/12/00    srl         removing unicodestring api's and cached hash code
- *   08/10/01    grhoten     Change the static Locales to accessor functions
- ******************************************************************************
- */
-
+// Copyright (C) 1996-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// Created by: Helena Shih
+// Modification History:
+// Date        Name        Description
+// 02/11/97    aliu        Changed gLocPath to fgLocPath and added methods to get and set it.
+// 04/02/97    aliu        Made operator!= inline; fixed return value of getName().
+// 04/15/97    aliu        Cleanup for AIX/Win32.
+// 04/24/97    aliu        Numerous changes per code review.
+// 08/18/98    stephen     Added tokenizeString(),changed getDisplayName()
+// 09/08/98    stephen     Moved definition of kEmptyString for Mac Port
+// 11/09/99    weiv        Added const char * getName() const;
+// 04/12/00    srl         removing unicodestring api's and cached hash code
+// 08/10/01    grhoten     Change the static Locales to accessor functions
+// 
+// C++ API: Locale ID object.
+// 
 #ifndef LOCID_H
 #define LOCID_H
 
@@ -43,11 +32,6 @@
 #include "unicode/putil.h"
 #include "unicode/uloc.h"
 
-/**
- * \file
- * \brief C++ API: Locale ID object.
- */
-
 U_NAMESPACE_BEGIN
 
 // Forward Declarations
@@ -55,7 +39,6 @@ void U_CALLCONV locale_available_init(); /**< @internal */
 
 class StringEnumeration;
 class UnicodeString;
-
 /**
  * A <code>Locale</code> object represents a specific geographical, political,
  * or cultural region. An operation that requires a <code>Locale</code> to perform

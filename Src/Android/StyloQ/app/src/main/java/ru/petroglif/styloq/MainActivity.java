@@ -585,12 +585,15 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 	private class ResetTouchedListItemIdx_TimerTask extends TimerTask {
 		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { SetTouchedItemIndex(-1); }}); }
 	}
+	private class UpdateNetworkStateIndicator_TimerTask extends TimerTask {
+		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { UpdateNetworkStateIndicator(); }}); }
+	}
 	private boolean NotifyListItemChanged(int idx)
 	{
 		boolean result = false;
 		View v = findViewById(R.id.serviceListView);
 		if(v != null && v instanceof RecyclerView) {
-			RecyclerView view = (RecyclerView) v;
+			RecyclerView view = (RecyclerView)v;
 			RecyclerView.Adapter adapter = view.getAdapter();
 			if(adapter != null && idx < adapter.getItemCount()) {
 				adapter.notifyItemChanged(idx);
@@ -598,6 +601,37 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 			}
 		}
 		return result;
+	}
+	void UpdateNetworkStateIndicator()
+	{
+		StyloQApp app_ctx = (StyloQApp)getApplication();
+		if(app_ctx != null) {
+			View v = findViewById(R.id.CTL_NETWORKSTATE_INDICATOR);
+			if(v != null && v instanceof ImageView) {
+				NetworkConnectionInfoManager.Status st = app_ctx.GetNetworkStatus();
+				if(st != null) {
+					int ir = 0;
+					if(st.Transp == NetworkConnectionInfoManager.Transport.Unavailable) {
+						ir = R.drawable.ic_mobile_network_off;
+					}
+					else if(st.Transp == NetworkConnectionInfoManager.Transport.Ethernet) {
+						ir = R.drawable.ic_mobile_network_wifi; // @todo сделать картинку
+					}
+					else if(st.Transp == NetworkConnectionInfoManager.Transport.WIFI) {
+						ir = R.drawable.ic_mobile_network_wifi;
+					}
+					else if(st.Transp == NetworkConnectionInfoManager.Transport.Cellular) {
+						ir = R.drawable.ic_mobile_network_4g;
+					}
+					else if(st.Transp == NetworkConnectionInfoManager.Transport.GenericAvailable) {
+						ir = R.drawable.ic_mobile_network_4g;
+					}
+					else
+						ir = R.drawable.ic_mobile_network_disconnected;
+					((ImageView)v).setImageResource(ir);
+				}
+			}
+		}
 	}
 	private void SetTouchedItemIndex(int idx)
 	{
@@ -732,6 +766,13 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 									}
 								}
 							}
+							// @v12.0.6 {
+							app_ctx.SetupNetworkStatusManager(this);
+							{
+								Timer tmr = new Timer();
+								tmr.schedule(new UpdateNetworkStateIndicator_TimerTask(), 12000);
+							}
+							// } @v12.0.6
 						} catch(StyloQException | PackageManager.NameNotFoundException e) {
 							;
 						}
@@ -1115,6 +1156,18 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 									button.setImageResource(R.drawable.ic_bell01);
 								else
 									button.setVisibility(View.GONE);
+							}
+						}
+					}
+				}
+				break;
+			case SLib.EV_ASYNCSET:
+				if(srcObj != null && srcObj instanceof String) {
+					if(((String)srcObj).equalsIgnoreCase("NetworkConnectionStatus")) {
+						if(subj != null && subj instanceof NetworkConnectionInfoManager.Status) {
+							StyloQApp app_ctx = (StyloQApp)getApplication();
+							if(app_ctx != null) {
+								app_ctx.SetNetworkStatus((NetworkConnectionInfoManager.Status)subj);
 							}
 						}
 					}

@@ -3845,10 +3845,8 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 	uint   v = 0;
 	double diff = 0.0;
 	rBlk.Init(this);
-	// @v10.0.10 {
 	if(Flags & fLockBankPaym)
 		rBlk.DisabledKinds |= (1 << cpmBank);
-	// } @v10.0.10
 	if(Flags & fSCardCredit && !(Flags & fSCardBonus) && CSt.GetID() && addpaym_r2 <= add_paym_epsilon) {
 		if(unified_paym_interface && ((credit_charge > 0.0) || non_crd_amt >= rBlk.GetTotal())) 
 			// @v11.1.10 (credit_charge > 0.0)-->(feqeps(credit_charge, 0.0, add_paym_epsilon))
@@ -3864,17 +3862,11 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 	else if(Flags & fBankingPayment && OperRightsFlags & orfBanking && !(Flags & fLockBankPaym)) { // @v10.0.10 !(Flags & fLockBankPaym)
 		rBlk.Kind = cpmBank;
 	}
-	/* @v10.0.11
-	else if(!(OperRightsFlags & orfBanking) || (CnFlags & CASHF_NOASKPAYMTYPE) ||
-		(!(Flags & fLockBankPaym) && !unified_paym_interface)) { // @v10.0.10 (!(Flags & fLockBankPaym) && !unified_paym_interface)
-		rBlk.Kind = cpmCash;
-	}
-	*/
 	else if(!(OperRightsFlags & orfBanking) || (CnFlags & CASHF_NOASKPAYMTYPE))
 		rBlk.Kind = cpmCash;
 	else if(unified_paym_interface)
 		rBlk.Kind = cpmUndef;
-	else if(Flags & fLockBankPaym) // @v10.0.11
+	else if(Flags & fLockBankPaym)
 		rBlk.Kind = cpmCash;
 	else if(interactive) {
 		if(SelectorDialog(DLG_CHKPAYM, CTL_CHKPAYM_METHOD, &v) > 0) {
@@ -3983,7 +3975,7 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 	return ok;
 }
 
-int CheckPaneDialog::ConfirmPosPaymBank(/*double amount*/PosPaymentBlock & rPpl)
+int CheckPaneDialog::ConfirmPosPaymBank(PosPaymentBlock & rPpl)
 {
 	class ConfirmPosPaymBankDialog : public TDialog {
 		DECL_DIALOG_DATA(PosPaymentBlock);
@@ -4011,6 +4003,11 @@ int CheckPaneDialog::ConfirmPosPaymBank(/*double amount*/PosPaymentBlock & rPpl)
 				showCtrl(CTLFRAME_POSPAYMBNK_PAPERLESS, 0);
 			}
 			setCtrlReal(CTL_POSPAYMBNK_AMOUNT, Data.AmtToPaym);
+			// @v12.0.6 {
+			AddClusterAssoc(CTL_POSPAYMBNK_CLBPEQ, 0, Data.Flags & PosPaymentBlock::fCashlessBypassEq);
+			SetClusterData(CTL_POSPAYMBNK_CLBPEQ, Data.Flags);
+			showCtrl(CTL_POSPAYMBNK_CLBPEQ, (Data.Flags & PosPaymentBlock::fCashlessBypassEqEnabled));
+			// } @v12.0.6 
 			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) { // @v11.3.7
 				if(Data.EAddr.IsEmpty())
 					Data.EAddr.SetEMail(DS.GetConstTLA().PaperlessCheque_FakeEAddr);
@@ -4042,6 +4039,12 @@ int CheckPaneDialog::ConfirmPosPaymBank(/*double amount*/PosPaymentBlock & rPpl)
 			}
 			else
 				Data.Flags &= ~PosPaymentBlock::fPaperless;
+			// @v12.0.6 {
+			if(Data.Flags & PosPaymentBlock::fCashlessBypassEqEnabled)
+				GetClusterData(CTL_POSPAYMBNK_CLBPEQ, &Data.Flags);
+			else
+				SETFLAG(Data.Flags, PosPaymentBlock::fCashlessBypassEq, 0);
+			// } @v12.0.6 
 			ASSIGN_PTR(pData, Data);
 			return ok;
 
@@ -4237,7 +4240,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 		else if(Flags & fSelByPrice)
 			SelectGoods__(sgmByPrice);
 		else if(GetInput()) {
-			const int auto_input = BIN(UiFlags & uifAutoInput);
+			const bool auto_input = LOGIC(UiFlags & uifAutoInput);
 			SString ss_code;
 			CCheckPacket::BarcodeIdentStruc bis;
 			if(Input.HasPrefixIAscii("TBL")) {
@@ -4476,6 +4479,8 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 			else {
 				PosPaymentBlock paym_blk2(0, BonusMaxPart);
 				if(CalculatePaymentList(paym_blk2, 1) > 0) {
+					// Следующий оператор должен следовать после CalculatePaymentList поскольку эта функция обнуляет флаги
+					SETFLAG(paym_blk2.Flags, PosPaymentBlock::fCashlessBypassEqEnabled, (CnExtFlags & CASHFX_ENABLECASHLESSBPEQ)); // @v12.0.6 
 					PPID   cc_id = 0;
 					CDispCommand(cdispcmdClear, 0, 0.0, 0.0);
 					CDispCommand(cdispcmdTotal, 0, paym_blk2.GetTotal(), 0.0);
@@ -4491,7 +4496,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 							}
 							break;
 						case cpmBank:
-							if(ConfirmPosPaymBank(/*paym_blk2.AmtToPaym*/paym_blk2)) {
+							if(ConfirmPosPaymBank(paym_blk2)) {
 								SString bnk_slip_buf;
 								int    bnk_paym_result = 1;
 								// @v11.9.8 {
@@ -4504,17 +4509,17 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 									P.Paperless = false;
 								}
 								// } @v11.9.8 
-								if(P_BNKTERM) {
+								if(P_BNKTERM && !((paym_blk2.Flags & PosPaymentBlock::fCashlessBypassEq) && (paym_blk2.Flags & PosPaymentBlock::fCashlessBypassEqEnabled))) {
 									const int r = (paym_blk2.AmtToPaym < 0) ? P_BNKTERM->Refund(-paym_blk2.AmtToPaym, bnk_slip_buf) : P_BNKTERM->Pay(paym_blk2.AmtToPaym, bnk_slip_buf);
 									if(!r) {
 										PPError();
 										bnk_paym_result = 0;
 									}
 								}
-								if(bnk_paym_result) { // @v10.9.0
-									PrintBankingSlip(0/*beforeReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип до чека
+								if(bnk_paym_result) {
+									PrintBankingSlip(0/*beforeReceipt*/, bnk_slip_buf); // Печатать банковский слип до чека
 									AcceptCheck(&cc_id, &paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
-									PrintBankingSlip(1/*afterReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип после чека
+									PrintBankingSlip(1/*afterReceipt*/, bnk_slip_buf); // Печатать банковский слип после чека
 								}
 							}
 							break;
@@ -4569,7 +4574,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 									}
 									// } @v11.3.6 
 									if(CsObj.GetEqCfg().Flags & PPEquipConfig::fUnifiedPaymentCfmBank &&
-										paym_blk2.CcPl.Get(CCAMTTYP_CASH) == 0.0 && !ConfirmPosPaymBank(/*paym_blk2.CcPl.Get(CCAMTTYP_BANK)*/paym_blk2)) {
+										paym_blk2.CcPl.Get(CCAMTTYP_CASH) == 0.0 && !ConfirmPosPaymBank(paym_blk2)) {
 										_again = 1;
 									}
 									else {
@@ -4577,14 +4582,14 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 										SString bnk_slip_buf;
 										_again = 0;
 										// @vmiller {
-										if(P_BNKTERM) { // Здесь не проверяю тип операции, потому что при смешанной оплате в paym_blk2.Kind будет стоять cpmCash
+										if(P_BNKTERM && !((paym_blk2.Flags & PosPaymentBlock::fCashlessBypassEq) && (paym_blk2.Flags & PosPaymentBlock::fCashlessBypassEqEnabled))) { 
+											// Здесь не проверяю тип операции, потому что при смешанной оплате в paym_blk2.Kind будет стоять cpmCash
 											for(uint i = 0; i < paym_blk2.CcPl.getCount(); i++) {
 												if(paym_blk2.CcPl.at(i).Type == CCAMTTYP_BANK) {
 													double bank_amt = paym_blk2.CcPl.at(i).Amount;
 													bnk_paym_result = (bank_amt > 0.0) ? P_BNKTERM->Pay(bank_amt, bnk_slip_buf) : P_BNKTERM->Refund(-bank_amt, bnk_slip_buf);
 													if(!bnk_paym_result)
 														PPError();
-													// @v10.9.11 else if(bnk_slip_buf.NotEmpty() && InitCashMachine() && P_CM) { P_CM->SyncPrintBnkTermReport(bnk_slip_buf); }
 													break;
 												}
 											}
@@ -8183,18 +8188,16 @@ int CheckPaneDialog::SelectSuspendedCheck()
 				if(dlg->getDTS(&sel_chk) && sel_chk.CheckID) {
 					CCheckTbl::Rec cc_rec;
 					if(GetCc().Search(sel_chk.CheckID, &cc_rec) > 0) {
-						// @v10.6.11 {
 						if(sel_chk.Flags & _SelCheck::fUnfinished) {
 							// ReprintCheck
 							PPID   cc_id = 0;
 							Flags |= fReprinting;
 							int r1 = RestoreSuspendedCheck(sel_chk.CheckID, 0/*pPack*/, 1/*unfinishedForReprinting*/);
 							if(r1)
-								r1 = AcceptCheck(&cc_id, &SelPack.AL_Const(), 0, 0.0, CPosProcessor::accmAveragePrinting); // @v10.7.3 0-->&SelPack.AL_Const()
+								r1 = AcceptCheck(&cc_id, &SelPack.AL_Const(), 0, 0.0, CPosProcessor::accmAveragePrinting);
 							Flags &= ~fReprinting;
 							THROW(r1);
 						}
-						// } @v10.6.11
 						else if(cc_rec.Flags & CCHKF_SUSPENDED && (!(cc_rec.Flags & CCHKF_JUNK) || GetCc().IsLostJunkCheck(sel_chk.CheckID, &SessUUID, 0))) {
 							chk_id = sel_chk.CheckID;
 							ok = 1;
@@ -9188,7 +9191,7 @@ int CheckPaneDialog::ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rCh
 									for(uint i = 0; ok < 0 && i < lbm.getCount(); i++) {
 										const CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.at(i);
 										if(p_lbm_entry) {
-											double rest = 0.0;
+											double rest = 1.0; // Независимо от того сколько пришло единиц по лоту, одна марка представляет одну торговую единицу!
 											if(base_unit_id == SUOM_LITER) {
 												rest = (rest * org_goods_liter_ratio) - (p_lbm_entry->TotalOpQtty * main_goods_liter_ratio);
 											}
@@ -12135,7 +12138,7 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 			pack.Rec.SessID = P_CM->GetCurSessID();
 			THROW(P_CM->TestPrintCheck(&pack));
 		}
-		if(is_ext_pack && P_CM_EXT) { // @v10.3.5 (&& P_CM_EXT)
+		if(is_ext_pack && P_CM_EXT) {
 			ext_pack.Rec.SessID = P_CM_EXT->GetCurSessID();
 			THROW(P_CM_EXT->TestPrintCheck(&ext_pack));
 		}

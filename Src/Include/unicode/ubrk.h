@@ -1,12 +1,8 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-******************************************************************************
-* Copyright (C) 1996-2015, International Business Machines Corporation and others.
-* All Rights Reserved.
-******************************************************************************
-*/
-
+// Copyright (C) 1996-2015, International Business Machines Corporation and others. All Rights Reserved.
+// C API: BreakIterator
+//
 #ifndef UBRK_H
 #define UBRK_H
 
@@ -15,12 +11,11 @@
 #include "unicode/utext.h"
 
 #if U_SHOW_CPLUSPLUS_API
-#include "unicode/localpointer.h"
+    #include "unicode/localpointer.h"
 #endif   // U_SHOW_CPLUSPLUS_API
 
 /**
- * A text-break iterator.
- *  For usage in C programs.
+ * A text-break iterator. For usage in C programs.
  */
 #ifndef UBRK_TYPEDEF_UBREAK_ITERATOR
 #define UBRK_TYPEDEF_UBREAK_ITERATOR
@@ -34,11 +29,7 @@
 #if !UCONFIG_NO_BREAK_ITERATION
 
 #include "unicode/parseerr.h"
-
 /**
- * \file
- * \brief C API: BreakIterator
- *
  * <h2> BreakIterator C API </h2>
  *
  * The BreakIterator C API defines  methods for finding the location

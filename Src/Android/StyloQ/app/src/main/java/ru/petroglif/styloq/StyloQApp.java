@@ -65,6 +65,7 @@ public class StyloQApp extends SLib.App {
 	private Timer SeenNotificationListProcessingTmr;
 	private AppUpdateManager AppUpdMgr;
 	private InstallStateUpdatedListener InstallStateUpdatedListener;
+	private NetworkConnectionInfoManager.Status NetworkStatus; // @v12.0.6
 
 	public StyloQApp()
 	{
@@ -1265,6 +1266,20 @@ public class StyloQApp extends SLib.App {
 			int height = display_metrics.heightPixels;
 			int width = display_metrics.widthPixels;
 		}
+	}
+	public void SetupNetworkStatusManager(SLib.EventHandler handler)
+	{
+		if(handler != null) {
+			NetworkConnectionInfoManager cmgr = new NetworkConnectionInfoManager(this, handler);
+		}
+	}
+	public void SetNetworkStatus(NetworkConnectionInfoManager.Status status)
+	{
+		NetworkStatus = status;
+	}
+	public NetworkConnectionInfoManager.Status GetNetworkStatus()
+	{
+		return NetworkStatus;
 	}
 	//
 	//

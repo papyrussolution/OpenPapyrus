@@ -1473,23 +1473,31 @@ int WsCtlSrvBlock::SendProgramList(bool mock, SString & rResult)
 //
 //
 //
-WsCtl_ProgramEntry::WsCtl_ProgramEntry()
+WsCtl_ProgramEntry::WsCtl_ProgramEntry() : ID(0), CategoryID(0), PicHashAlg(0)
 {
 }
 
 WsCtl_ProgramEntry & WsCtl_ProgramEntry::Z()
 {
+	ID = 0;
+	CategoryID = 0;
 	Title.Z();
 	ExeFileName.Z();
 	FullResolvedPath.Z();
 	PicSymb.Z();
+	PicHashAlg = 0; // @v12.0.6
+	PicHash.Z(); // @v12.0.6
 	return *this;
 }
 
 bool FASTCALL WsCtl_ProgramEntry::IsEq(const WsCtl_ProgramEntry & rS) const
 {
 	bool   eq = true;
-	if(Category != rS.Category)
+	if(ID != rS.ID)
+		eq = false;
+	else if(CategoryID != rS.CategoryID)
+		eq = false;
+	else if(Category != rS.Category)
 		eq = false;
 	else if(Title != rS.Title)
 		eq = false;
@@ -1497,6 +1505,12 @@ bool FASTCALL WsCtl_ProgramEntry::IsEq(const WsCtl_ProgramEntry & rS) const
 		eq = false;
 	else if(PicSymb != rS.PicSymb)
 		eq = false;
+	// @v12.0.6 {
+	else if(PicHashAlg != rS.PicHashAlg)
+		eq = false;
+	else if(PicHash != rS.PicHash)
+		eq = false;
+	// } @v12.0.6 
 	return eq;
 }
 
@@ -1504,10 +1518,23 @@ SJson * WsCtl_ProgramEntry::ToJsonObj(bool withResolvance) const
 {
 	SJson * p_result = SJson::CreateObj();
 	SString temp_buf;
+	if(ID) {
+		p_result->InsertInt("id", ID);
+	}
+	if(CategoryID) {
+		p_result->InsertInt("categoryid", CategoryID);
+	}
 	p_result->InsertString("category", (temp_buf = Category).Escape());
 	p_result->InsertString("title", (temp_buf = Title).Escape());
 	p_result->InsertString("exefile", (temp_buf = ExeFileName).Escape());
 	p_result->InsertString("picsymb", (temp_buf = PicSymb).Escape());
+	if(PicHashAlg && PicHash.Len()) {
+		if(SlHash::GetAlgorithmSymb(PicHashAlg, temp_buf)) {
+			p_result->InsertString("hashalg", temp_buf);
+			PicHash.Mime64(temp_buf);
+			p_result->InsertString("pichash", temp_buf.Escape());
+		}
+	}
 	if(withResolvance) {
 		if(FullResolvedPath.NotEmpty()) {
 			p_result->InsertString("resolvedpath", (temp_buf = FullResolvedPath).Escape());
@@ -1519,9 +1546,17 @@ SJson * WsCtl_ProgramEntry::ToJsonObj(bool withResolvance) const
 int WsCtl_ProgramEntry::FromJsonObj(const SJson * pJsObj)
 {
 	int    ok = 1;
+	SString temp_buf;
 	THROW(SJson::IsObject(pJsObj));
 	{
-		const SJson * p_c = pJsObj->FindChildByKey("title");
+		const SJson * p_c = 0;
+		p_c = pJsObj->FindChildByKey("id");
+		if(SJson::IsNumber(p_c))
+			ID = p_c->Text.ToLong();
+		p_c = pJsObj->FindChildByKey("categoryid");
+		if(SJson::IsNumber(p_c))
+			CategoryID = p_c->Text.ToLong();
+		p_c = pJsObj->FindChildByKey("title");
 		if(SJson::IsString(p_c))
 			(Title = p_c->Text).Unescape();
 		p_c = pJsObj->FindChildByKey("category");
@@ -1533,6 +1568,20 @@ int WsCtl_ProgramEntry::FromJsonObj(const SJson * pJsObj)
 		p_c = pJsObj->FindChildByKey("picsymb");
 		if(SJson::IsString(p_c))
 			(PicSymb = p_c->Text).Unescape();
+		{
+			p_c = pJsObj->FindChildByKey("hashalg");
+			if(SJson::IsString(p_c)) {
+				int hashalg = SlHash::IdentifyAlgorithmSymb((temp_buf = p_c->Text).Unescape());
+				if(hashalg) {
+					p_c = pJsObj->FindChildByKey("pichash");
+					if(SJson::IsString(p_c)) {
+						if(PicHash.FromMime64((temp_buf = p_c->Text).Unescape())) {
+							PicHashAlg = hashalg;
+						}
+					}
+				}
+			}
+		}
 		p_c = pJsObj->FindChildByKey("resolvedpath");
 		if(SJson::IsString(p_c))
 			(FullResolvedPath = p_c->Text).Unescape();

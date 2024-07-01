@@ -1,6 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 // Copyright (C) 1997-2011, International Business Machines Corporation and others.  All Rights Reserved.
+// C++ API: Character Iterator
 //
 #ifndef CHARITER_H
 #define CHARITER_H
@@ -11,10 +12,6 @@
 
 #include "unicode/uobject.h"
 #include "unicode/unistr.h"
-/**
- * \file
- * \brief C++ API: Character Iterator
- */
 
 U_NAMESPACE_BEGIN
 /**

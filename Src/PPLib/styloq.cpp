@@ -632,7 +632,7 @@ int StyloQFace::ToJson(bool forTransmission, SString & rResult) const
 						fmt_buf.Strip();
 						SFileFormat ff;
 						if(ff.IdentifyMime(fmt_buf) && SImageBuffer::IsSupportedFormat(ff))
-							PPStyloQInterchange::MakeBlobSignature(rOwnIdent, PPObjID(PPOBJ_STYLOQBINDERY, id), PPStyloQInterchange::InnerBlobN_Face, img_signature);
+							PPObject::MakeBlobSignature(rOwnIdent, PPObjID(PPOBJ_STYLOQBINDERY, id), PPStyloQInterchange::InnerBlobN_Face, img_signature);
 					}						
 				}
 			}
@@ -5807,7 +5807,7 @@ int StyloQCore::SetupPeerInstance(PPID * pID, int use_ta)
 				//
 				const char * p_svc_ident_mime = "Wn7M3JuxUaDpiCHlWiIStn+YYkQ="; // pft
 				SBinaryChunk svc_ident_test;
-				const int r = svc_ident_test.FromMime64(p_svc_ident_mime);
+				const bool r = svc_ident_test.FromMime64(p_svc_ident_mime);
 				SSecretTagPool last_test_pool;
 				assert(r);
 				for(uint gi = 0; gi < 10; gi++) {
@@ -9793,7 +9793,7 @@ bool PPStyloQInterchange::GetBlobInfo(const SBinaryChunk & rOwnIdent, PPObjID oi
 								rInfo.HashAlg = SHASHF_SHA256;
 								if(!(flags & gbifSignatureOnly))
 									SlHash::CalcBufferHash(rInfo.HashAlg, bc_img.Ptr(), bc_img.Len(), rInfo.Hash);
-								PPStyloQInterchange::MakeBlobSignature(rOwnIdent, oid, rInfo.BlobN, rInfo.Signature);
+								PPObject::MakeBlobSignature(rOwnIdent, oid, rInfo.BlobN, rInfo.Signature);
 								ASSIGN_PTR(pBlobBuf, bc_img);
 								ok = true;
 							}
@@ -9833,7 +9833,7 @@ bool PPStyloQInterchange::GetBlobInfo(const SBinaryChunk & rOwnIdent, PPObjID oi
 					if(f_in.IsValid() && ((flags & gbifSignatureOnly) || f_in.CalcHash(0, rInfo.HashAlg, rInfo.Hash))) {
 						rInfo.Oid = oid;
 						rInfo.BlobN = (ObjLinkFiles::SplitInnerFileName(rInfo.SrcPath, &fns) && fns.Cntr > 0) ? static_cast<uint32>(fns.Cntr) : 0;
-						PPStyloQInterchange::MakeBlobSignature(rOwnIdent, oid, rInfo.BlobN, rInfo.Signature);
+						PPObject::MakeBlobSignature(rOwnIdent, oid, rInfo.BlobN, rInfo.Signature);
 						ok = true;
 						if(pBlobBuf) {
 							STempBuffer blob_buf(SMEGABYTE(1));
@@ -12474,34 +12474,6 @@ int PPStyloQInterchange::ExecuteInvitationDialog(InterchangeParam & rData)
 	return ok;
 }
 
-/*static*/SString & PPStyloQInterchange::MakeBlobSignature(const SBinaryChunk & rOwnIdent, PPObjID oid, uint itemNumber, SString & rBuf)
-{
-	rBuf.Z();
-	const uint32 inner_file_number = static_cast<uint32>(itemNumber);
-	SBinaryChunk bc_sign;
-	bc_sign.Cat(rOwnIdent);
-	bc_sign.Cat(&oid, sizeof(oid));
-	bc_sign.Cat(&inner_file_number, sizeof(inner_file_number));
-	const binary128 sign = SlHash::Md5(0, bc_sign.PtrC(), bc_sign.Len());
-	Base32_Encode(reinterpret_cast<const uint8 *>(&sign), sizeof(sign), rBuf);
-	while(rBuf.Last() == '=')
-		rBuf.TrimRight();
-	return rBuf;
-}
-
-/*static*/SString & PPStyloQInterchange::MakeBlobSignature(const SBinaryChunk & rOwnIdent, const char * pResourceName, SString & rBuf)
-{
-	rBuf.Z();
-	SBinaryChunk bc_sign;
-	bc_sign.Cat(rOwnIdent);
-	bc_sign.Cat(pResourceName, sstrlen(pResourceName));
-	const binary128 sign = SlHash::Md5(0, bc_sign.PtrC(), bc_sign.Len());
-	Base32_Encode(reinterpret_cast<const uint8 *>(&sign), sizeof(sign), rBuf);
-	while(rBuf.Last() == '=')
-		rBuf.TrimRight();
-	return rBuf;
-}
-
 SJson * PPStyloQInterchange::MakeQuery_StoreBlob(const void * pBlobBuf, size_t blobSize, const SString & rSignature)
 {
 	SJson * p_js_result = SJson::CreateObj();
@@ -12798,7 +12770,7 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 											StyloQCore::StoragePacket own_pack;
 											SBinaryChunk bc_own_ident;
 											if(P_Ic->GetOwnPeerEntry(&own_pack) > 0 && own_pack.Pool.Get(SSecretTagPool::tagSvcIdent, &bc_own_ident)) {
-												PPStyloQInterchange::MakeBlobSignature(bc_own_ident, p_test_file_name, temp_buf);
+												PPObject::MakeBlobSignature(bc_own_ident, p_test_file_name, temp_buf);
 												SJson * p_js_query = P_Ic->MakeQuery_StoreBlob(blob_buf, actual_size, temp_buf);
 												if(p_js_query) {
 													SJson * p_js = 0;

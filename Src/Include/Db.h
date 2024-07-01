@@ -2042,7 +2042,7 @@ public:
 		attrDbUuid,         // (S_GUID) UUID базы данных (передается как строка в формате S_GUID::fmtIDL)
 		attrUserName,       // Имя пользователя для регистрации в базе данных
 		attrPassword,       // Пароль для регистрации в базе данных (хранится в зашифрованном виде)
-		attrServerUrl,      // @v10.9.2 URL хоста, на котором запущен сервер
+		attrServerUrl,      // URL хоста, на котором запущен сервер
 	};
 	static const char * GetDefaultDbSymb();
 	DbLoginBlock();
@@ -4599,22 +4599,25 @@ private:
 class SRecPageFreeList {
 public:
 	struct Entry { // @flat
-		Entry(uint64 rowId, uint32 freeSize) : RowId(rowId), FreeSize(freeSize)
+		Entry(uint64 rowId, uint32 freeSize);
+		Entry();
+		Entry & Z();
+		bool FASTCALL operator == (const Entry & rS) { return IsEq(rS); }
+		bool FASTCALL operator != (const Entry & rS) { return !IsEq(rS); }
+		bool FASTCALL IsEq(const Entry & rS) const
 		{
+			return (RowId == rS.RowId && FreeSize == rS.FreeSize);
 		}
-		Entry() : RowId(0ULL), FreeSize(0)
+		int  FASTCALL Cmp(const Entry & rS) const
 		{
+			int    si = 0;
+			CMPCASCADE2(si, this, &rS, RowId, FreeSize);
+			return si;
 		}
-		Entry & Z()
-		{
-			RowId = 0ULL;
-			FreeSize = 0;
-			return *this;
-		}
+
 		uint64 RowId;    // Идентификатор позиции свободного блока
 		uint32 FreeSize; // Доступный полезный размер блока (PayloadSize)
 	};
-private:
 	class SingleTypeList : public TSVector <Entry> {
 	public:
 		SingleTypeList(uint32 type) : TSVector <Entry>(), Type(type)
@@ -4642,6 +4645,7 @@ private:
 	private:
 		const uint32 Type; 
 	};
+private:
 	TSCollection <SingleTypeList> L;
 public:
 	static const Entry * FindOptimalFreeEntry(const TSVector <Entry> & rList, uint reqSize, uint * pTailSize);
@@ -4653,7 +4657,12 @@ public:
 	int    Remove(uint32 type, uint64 rowId) { return Put(type, rowId, 0U); }
 	const  Entry * Get(uint32 type, uint32 reqSize) const;
 	int    GetListForPage(uint pageSeq, TSVector <SRecPageFreeList::Entry> & rList) const; // @debug
+	uint   GetTypeCount() const { return L.getCount(); } // @debug
+	const SingleTypeList * GetTypeListByIdx(uint idx) const { return (idx < L.getCount()) ? L.at(idx) : 0; } // @debug
+	bool   SearchEntry(const Entry & rKey, const SingleTypeList ** ppList, uint * pIdxInList) const;
 };
+
+DECL_CMPFUNC(SRecPageFreeList_Entry);
 
 #pragma pack(push, 1)
 struct SDataPageHeader { // Size=32
@@ -4862,9 +4871,12 @@ public:
 	int    VerifyFreeList(); // @debug // @todo
 private:
 	SDataPageHeader * GetPage(uint32 seq);
+	SDataPageHeader * Helper_QueryPage_BySeq(uint seq, uint32 pageType);
 	SDataPageHeader * Helper_QueryPage(uint64 rowId, uint32 pageType, uint * pOffset);
 	SDataPageHeader * QueryPageForReading(uint64 rowId, uint32 pageType, uint * pOffset);
 	SDataPageHeader * QueryPageForWriting(uint64 rowId, uint32 pageType, uint * pOffset);
+	SDataPageHeader * QueryPageBySeqForReading(uint seq, uint32 pageType);
+	SDataPageHeader * QueryPageBySeqForWriting(uint seq, uint32 pageType);
 	int    ReleasePage(SDataPageHeader * pPage);
 
 	const uint32 PageSize;

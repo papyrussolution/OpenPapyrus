@@ -1909,6 +1909,13 @@ int PPObjSwProgram::Put(PPID * pID, PPSwProgramPacket * pPack, int use_ta)
 	return ok;
 }
 
+int PPObjSwProgram::Fetch(PPID id, PPSwProgram * pRec)
+{
+	Goods2Tbl::Rec goods_rec;
+	int    ok = PPObjGoods::Fetch(id, &goods_rec);
+	return (ok > 0) ? Helper_GetRec(goods_rec, pRec) : ok;
+}
+
 int PPObjSwProgram::Get(PPID id, PPSwProgramPacket * pPack)
 {
 	int    ok = PPObjGoods::Search(id);
@@ -2007,10 +2014,17 @@ int PPObjSwProgram::Get(PPID id, PPSwProgramPacket * pPack)
 SJson * PPObjSwProgram::ExportToJson(const char * pImgPath)
 {
 	SJson * p_result = SJson::CreateObj();
+	DbProvider * p_dict = CurDict;
 	Reference * p_ref = PPRef;
 	SString temp_buf;
 	SString img_file_name;
 	SString img_file_symb; // Имя (с расширением) файла изображения, скопированного в каталог pImgPath
+	S_GUID db_uuid;
+	const int hash_alg = SHASHF_SHA256;
+	p_dict->GetDbUUID(&db_uuid);
+	const SBinaryChunk bc_db_uuid(&db_uuid, sizeof(db_uuid));
+	SlHash::GetAlgorithmSymb(hash_alg, temp_buf);
+	const SString hash_alg_symb(temp_buf);
 	{
 		SJson * p_js_list = SJson::CreateArr();
 		if(p_js_list) {
@@ -2029,22 +2043,37 @@ SJson * PPObjSwProgram::ExportToJson(const char * pImgPath)
 			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 				PPSwProgram rec;
 				if(Helper_GetRec(p_tbl->data, &rec) && rec.CheckForFilt(&filt)) {
+					const PPObjID oid(PPOBJ_SWPROGRAM, rec.ID);
 					PPSwProgramPacket pack;
 					if(Get(rec.ID, &pack) > 0) {
 						SJson * p_js_item = PPObjSwProgram::PackToJson(pack);
 						if(p_js_item) {
-							if(is_img_path_valid) {
-								pack.LinkFiles.Load(pack.Rec.ID, 0L);
-								if(pack.LinkFiles.GetCount()) { // @v12.0.5
-									pack.LinkFiles.At(0, img_file_name);
-									if(fileExists(img_file_name)) {
-										SFileFormat ff;
-										const int ffr = ff.Identify(img_file_name);
-										if(oneof2(ffr, 2, 3) && SImageBuffer::IsSupportedFormat(ff)) {
-											if(PPObjSwProgram::MakeImgSymb(ff, rec.ID, img_file_symb)) {
-												(temp_buf = pImgPath).SetLastSlash().Cat(img_file_symb);
-												if(SCopyFile(img_file_name, temp_buf, 0, FILE_SHARE_READ, 0)) {
+							pack.LinkFiles.Load(pack.Rec.ID, 0L);
+							if(pack.LinkFiles.GetCount()) { // @v12.0.5
+								const uint blob_idx = 0;
+								pack.LinkFiles.At(blob_idx, img_file_name);
+								if(fileExists(img_file_name)) {
+									SFileFormat ff;
+									const int ffr = ff.Identify(img_file_name);
+									if(oneof2(ffr, 2, 3) && SImageBuffer::IsSupportedFormat(ff)) {
+										SFile f_in(img_file_name, SFile::mRead|SFile::mBinary);
+										SBinaryChunk hash;
+										if(f_in.CalcHash(0, hash_alg, hash)) {
+											if(f_in.IsValid()) {
+												if(is_img_path_valid) {
+													if(PPObjSwProgram::MakeImgSymb(ff, rec.ID, img_file_symb)) {
+														(temp_buf = pImgPath).SetLastSlash().Cat(img_file_symb);
+														if(SCopyFile(img_file_name, temp_buf, 0, FILE_SHARE_READ, 0)) {
+															p_js_item->InsertString("picsymb", img_file_symb);
+														}
+													}
+												}
+												else {
+													PPObject::MakeBlobSignature(bc_db_uuid, oid, blob_idx+1, img_file_symb);
 													p_js_item->InsertString("picsymb", img_file_symb);
+													p_js_item->InsertString("hashalg", hash_alg_symb);
+													hash.Mime64(temp_buf);
+													p_js_item->InsertString("pichash", temp_buf.Escape());
 												}
 											}
 										}

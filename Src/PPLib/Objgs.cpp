@@ -116,29 +116,32 @@ int PPGoodsStruc::SetKind(int kind)
 	int    ok = 1;
 	switch(kind) {
 		case kUndef:
-			Rec.Flags &= ~(GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL|GSF_SUBST|GSF_PRESENT|GSF_COMPLEX);
+			Rec.Flags &= ~(GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL|GSF_SUBST|GSF_PRESENT|GSF_COMPLEX|GSF_PRICEPLANNING);
 			break;
 		case kBOM:
-			Rec.Flags &= ~(GSF_PARTITIAL|GSF_SUBST|GSF_PRESENT|GSF_COMPLEX);
+			Rec.Flags &= ~(GSF_PARTITIAL|GSF_SUBST|GSF_PRESENT|GSF_COMPLEX|GSF_PRICEPLANNING);
 			if(!(Rec.Flags & (GSF_COMPL|GSF_DECOMPL)))
 				Rec.Flags |= GSF_COMPL;
 			break;
 		case kPart:
-			Rec.Flags &= ~(GSF_SUBST|GSF_PRESENT|GSF_COMPLEX);
+			Rec.Flags &= ~(GSF_SUBST|GSF_PRESENT|GSF_COMPLEX|GSF_PRICEPLANNING);
 			Rec.Flags |= GSF_PARTITIAL;
 			break;
 		case kSubst:
-			Rec.Flags &= ~(GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL|GSF_PRESENT|GSF_COMPLEX);
+			Rec.Flags &= ~(GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL|GSF_PRESENT|GSF_COMPLEX|GSF_PRICEPLANNING);
 			Rec.Flags |= GSF_SUBST;
 			break;
 		case kGift:
-			Rec.Flags &= ~(GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL|GSF_SUBST|GSF_COMPLEX);
+			Rec.Flags &= ~(GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL|GSF_SUBST|GSF_COMPLEX|GSF_PRICEPLANNING);
 			Rec.Flags |= GSF_PRESENT;
 			break;
 		case kComplex:
-			Rec.Flags &= ~(GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL|GSF_SUBST|GSF_PRESENT);
+			Rec.Flags &= ~(GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL|GSF_SUBST|GSF_PRESENT|GSF_PRICEPLANNING);
 			Rec.Flags |= GSF_COMPLEX;
 			break;
+		case kPricePlanning: // @v12.0.6 @construction
+			Rec.Flags &= ~(GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL|GSF_SUBST|GSF_PRESENT);
+			Rec.Flags |= GSF_PRICEPLANNING;
 		default:
 			ok = 0;
 			break;
@@ -160,6 +163,8 @@ int PPGoodsStruc::SetKind(int kind)
 		return kSubst;
 	else if(flags & GSF_PARTITIAL)
 		return kPart;
+	else if(flags & GSF_PRICEPLANNING) // @v12.0.6 @construction
+		return kPricePlanning;
 	else if(flags & (GSF_COMPL|GSF_DECOMPL))
 		return kBOM;
 	else

@@ -267,7 +267,7 @@ int SdFieldCorrListDialog::setupList()
 		else if(P_Rec->GetFieldByID(fld.ID, 0, &inner_fld) > 0)
 			sub = inner_fld.Name;
 		ss.add(sub);
-		if(fld.OuterFormula.NotEmpty()) // @v10.9.1
+		if(fld.OuterFormula.NotEmpty())
 			ss.add(sub.Z().CatChar('F').Colon().Cat(fld.OuterFormula).Transf(CTRANSF_OUTER_TO_INNER));
 		else
 			ss.add((sub = fld.Name).Transf(CTRANSF_OUTER_TO_INNER));
@@ -1470,7 +1470,7 @@ int PPImpExpParam::ParseFormula(int hdr, const SString & rPar, const SString & r
 int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList)
 {
 	int    ok = 1;
-	const  int preserve_win_coding = BIN(pFile->GetFlags() & SIniFile::fWinCoding);
+	const  bool preserve_win_coding = LOGIC(pFile->GetFlags() & SIniFile::fWinCoding);
 	SString ini_param;
 	SString par;
 	SString val;
@@ -1482,7 +1482,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 	SStrScan scan;
 	SdbField outer_fld, fld;
 	PPSymbTranslator tsl_par(PPSSYM_IMPEXPPAR);
-	long   cp = -1; // @v10.9.3
+	long   cp = -1;
 	Name = pSect;
 	memzero(&ImpExpParamDll, sizeof(ImpExpParamDllStruct));
 	InetAccID = 0;
@@ -1634,9 +1634,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 						THROW(ParseFormula(0, par, val));
 					}
 					else if(InrRec.GetFieldByName(par, &fld) > 0) {
-						/* @v10.3.11 if(pFile->GetFlags() & SIniFile::fWinCoding)
-							val.Transf(CTRANSF_INNER_TO_OUTER);*/
-						(temp_buf = val).Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12 TranslateString() умеет работать только с ANSI-строками
+						(temp_buf = val).Transf(CTRANSF_INNER_TO_OUTER); // TranslateString() умеет работать только с ANSI-строками
 						scan.Set(temp_buf, 0);
 						scan.Skip();
 						outer_fld.Z();
@@ -1653,9 +1651,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 						THROW_SL(OtrRec.AddField(&outer_fld.ID, &outer_fld));
 					}
 					else if(HdrInrRec.GetFieldByName(par, &fld) > 0) {
-						/* @v10.3.11 if(pFile->GetFlags() & SIniFile::fWinCoding)
-							val.Transf(CTRANSF_INNER_TO_OUTER);*/
-						(temp_buf = val).Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12 TranslateString() умеет работать только с ANSI-строками
+						(temp_buf = val).Transf(CTRANSF_INNER_TO_OUTER); // TranslateString() умеет работать только с ANSI-строками
 						scan.Set(temp_buf, 0);
 						outer_fld.Z();
 						outer_fld.ID = fld.ID;
@@ -1678,7 +1674,6 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 			}
 		}
 	}
-	// @v10.9.3 parameter CODEPAGE takes precedence over iefUtf8Codepage and iefOemText {
 	if(oneof2(cp, cp1251, cpANSI)) {
 		SETFLAG(TdfParam.Flags, TextDbFile::fCpUtf8, 0);
 		SETFLAG(TdfParam.Flags, TextDbFile::fCpOem, 0);
@@ -1694,7 +1689,6 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 		SETFLAG(TdfParam.Flags, TextDbFile::fCpOem, 0);
 		SETFLAG(XdfParam.Flags, XmlDbFile::Param::fUtf8Codepage, 1);
 	}
-	// }
 	if(fld_div.NotEmptyS()) {
 		if(TdfParam.Flags & TextDbFile::fVerticalRec)
 			TdfParam.VertRecTerm = fld_div;
@@ -2244,7 +2238,10 @@ const SString & PPImpExp::GetPreservedOrgFileName() const
 {
 	return PreserveOrgFileName;
 }
-
+//
+// Descr: Идентификаторы функций, применяемых при импорте/экспорте
+//   Символы функций находятся в текстовых ресурсах по мнемонике PPSSYM_IMPEXPFORMULA
+//
 enum {
 	iefrmEmpty=1,        // empty       Пустая строка
 	iefrmRecNo,          // recno       Номер текущей записи
@@ -2257,11 +2254,12 @@ enum {
 	iefrmPsnRegNum,      // personregnum(regtypesymb, person_id) Номер регистра по ид персоналии
 	iefrmArRegNum,       // arregnum(regtypesymb, article_id)    Номер регистра по ид аналитической статьи
 	iefrmObjTag,         // objtag(tagsymb, objtype, obj_id)     Текстовое значение тега объекта
-	iefrmArRegDate,      // @v8.1.1 arregdate(regtypesymb, article_id)   Дата регистра по ид аналитической статьи
-	iefrmCat,            // @v9.3.10 cat(...) Текстовая конкатенация списка аргументов (без вставки пробелов)
-	iefrmCats,           // @v9.3.10 cats(...) Текстовая конкатенация списка аргументов (со вставкой пробелов между каждой парой)
+	iefrmArRegDate,      // arregdate(regtypesymb, article_id)   Дата регистра по ид аналитической статьи
+	iefrmCat,            // cat(...) Текстовая конкатенация списка аргументов (без вставки пробелов)
+	iefrmCats,           // cats(...) Текстовая конкатенация списка аргументов (со вставкой пробелов между каждой парой)
 	iefrmObjTagRaw,      // @v11.8.1 objtagraw(tagsymb, objtype, obj_id) Текстовое значение тега объекта. За исключением типов OTTYP_OBJLINK, OTTYP_ENUM 
 		// для которых возвращается идентифицирующее целое значение.
+	iefrmGoodsRest,      // @v12.0.6 goodsrest(goodsid or goodscode, warehouseid or warehousecode) Возвращает остаток товара по заданному складу в торговых единицах
 };
 
 /*static*/int PPImpExp::ResolveVarName(const char * pSymb, const SdRecord & rRec, double * pVal)
@@ -2280,7 +2278,7 @@ enum {
 				if(oneof4(t, S_FLOAT, S_DEC, S_MONEY, S_INT)) {
 					fmt = SFMT_MONEY;
 					sttostr(inner_fld.T.Typ, p_fld_data, fmt, buf);
-					val = satof(buf); // @v10.7.9 atof-->satof
+					val = satof(buf);
 					ok = 1;
 				}
 			}
@@ -2346,15 +2344,13 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 		SString temp_buf, reg_type_symb;
 		SString temp_fld_name;
 		SdbField temp_fld;
-		char   dest_str_buf[2048]; // @v10.9.7 [1024]-->[2048]
+		char   dest_str_buf[2048];
 		PPSymbTranslator st(PPSSYM_IMPEXPFORMULA);
-		// @v10.9.4 (temp_buf = pFormula);// .Transf(CTRANSF_OUTER_TO_INNER); // @v10.3.12
-		SString input_buf(pFormula); // @v10.9.4 
+		SString input_buf(pFormula);
 		SStrScan scan(input_buf);
 		while(*scan != 0) {
 			if(scan.GetQuotedString(temp_buf)) {
-				// @v10.9.6 rResult.Cat(temp_buf.Transf(CTRANSF_OUTER_TO_INNER));
-				rResult.Cat(temp_buf); // @v10.9.6
+				rResult.Cat(temp_buf);
 			}
 			else {
 				char cc = scan[0];
@@ -2380,7 +2376,6 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 								PPID   reg_type_id = 0;
 								uint   _count = 0;
 								for(uint argp = 0; arg_list.get(&argp, temp_buf);) {
-									// @v10.9.1 {
 									(temp_fld_name = temp_buf).Strip();
 									if(temp_fld_name.C(0) == '\"' && temp_fld_name.Last() == '\"') {
 										temp_fld_name.TrimRight().ShiftLeft();
@@ -2399,7 +2394,6 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 											temp_buf = dest_str_buf;
 										}
 									}
-									// } @v10.9.1 
                                     if(sym == iefrmCats && _count)
 										rResult.Space();
 									temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
@@ -2419,7 +2413,6 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 									if(person_id && PPObjRegisterType::GetByCode(reg_type_symb, &reg_type_id) > 0) {
 										PPObjPerson psn_obj;
 										psn_obj.GetRegNumber(person_id, reg_type_id, temp_buf);
-										// @v10.9.6 temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 										rResult.Cat(temp_buf);
 									}
 								}
@@ -2437,7 +2430,6 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 									if(person_id && PPObjRegisterType::GetByCode(reg_type_symb, &reg_type_id) > 0) {
 										PPObjPerson psn_obj;
 										psn_obj.GetRegNumber(person_id, reg_type_id, temp_buf);
-										// @v10.9.6 temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 										rResult.Cat(temp_buf);
 									}
 								}
@@ -2461,13 +2453,60 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 								}
 							}
 							break;
+						case iefrmGoodsRest: // @v12.0.6
+							scan.IncrLen();
+							do_incr_len = 0;
+							if(GetArgList(scan, arg_list)) {
+								uint arg_p = 0;
+								SString goods_symb;
+								SString loc_symb;
+								if(arg_list.get(&arg_p, goods_symb)) {
+									PPID   goods_id = 0;
+									PPID   loc_id = 0;
+									PPObjGoods goods_obj;
+									BarcodeTbl::Rec bc_rec;
+									Goods2Tbl::Rec goods_rec;
+									if(goods_obj.SearchByBarcode(goods_symb, &bc_rec, &goods_rec) > 0) {
+										goods_id = goods_rec.ID;
+									}
+									else {
+										const PPID temp_id = goods_symb.ToLong();
+										if(temp_id && goods_obj.Fetch(temp_id, &goods_rec) > 0) {
+											goods_id = goods_rec.ID;
+										}
+									}
+									if(goods_id) {
+										if(arg_list.get(&arg_p, loc_symb)) {
+											PPObjLocation loc_obj;
+											LocationTbl::Rec loc_rec;
+											PPID   temp_id = 0;
+											if(loc_obj.P_Tbl->SearchCode(LOCTYP_WAREHOUSE, loc_symb, &temp_id, &loc_rec) > 0) {
+												loc_id = loc_rec.ID;
+											}
+											else {
+												temp_id = loc_symb.ToLong();
+												if(temp_id && loc_obj.Fetch(temp_id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WAREHOUSE) {
+													loc_id = loc_rec.ID;
+												}
+											}
+										}
+										GoodsRestParam gp;
+										gp.GoodsID = goods_id;
+										gp.LocID = loc_id;
+										BillObj->trfr->GetRest(gp);
+										rResult.Cat(gp.Total.Rest, MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_OMITEPS));
+									}
+								}
+							}
+							break;
 						case iefrmObjTag:
 						case iefrmObjTagRaw: // @v11.8.1
 							scan.IncrLen();
 							do_incr_len = 0;
 							if(GetArgList(scan, arg_list)) {
 								uint arg_p = 0;
-								SString tag_symb, obj_type_symb;
+								SString tag_symb;
+								SString obj_type_symb;
 								if(arg_list.get(&arg_p, tag_symb) && arg_list.get(&arg_p, obj_type_symb) && arg_list.get(&arg_p, temp_buf)) {
 									const  PPID obj_id = temp_buf.ToLong();
 									long   obj_type_ext = 0;
@@ -2483,7 +2522,6 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 											}
 											else
 												tag_item.GetStr(temp_buf);
-											// @v10.9.6 temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 											rResult.Cat(temp_buf);
 										}
 									}
@@ -2500,7 +2538,6 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 									if(P.InrRec.GetFieldByPos(pos, &inner_fld)) {
 										const void * p_fld_data = P.InrRec.GetDataC(pos);
 										if(p_fld_data) {
-											//char   buf[512];
 											long   fmt = 0;
 											int    t = GETSTYPE(inner_fld.T.Typ);
 											if(oneof3(t, S_FLOAT, S_DEC, S_MONEY))
@@ -2510,13 +2547,12 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 											else if(t == S_TIME)
 												fmt = MKSFMT(0, TIMF_HMS);
 											sttostr(inner_fld.T.Typ, p_fld_data, fmt, dest_str_buf);
-											// @v10.9.6 {
 											if(t == S_ZSTRING) {
 												(temp_buf = dest_str_buf).Transf(CTRANSF_OUTER_TO_INNER);
 												rResult.Cat(temp_buf);
 
 											}
-											else // } @v10.9.6 
+											else
 												rResult.Cat(dest_str_buf);
 										}
 									}
@@ -2537,13 +2573,9 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 				}
 			}
 		}
-		//rResult.Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12
 	}
-	//CATCHZOK
-	/*if(inner_expr_ctx)
-		delete p_expr_ctx;*/
 	if(P_ExprContext) {
-		p_expr_ctx->SetInnerContext(&own_expr_ctx);
+		p_expr_ctx->SetInnerContext(0); // @v12.0.6 @fix (&own_expr_ctx)-->(0)
 	}
 	return ok;
 }
@@ -2661,7 +2693,6 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 	for(uint i = 0; P.OtrRec.EnumFields(&i, &outer_fld);) {
 		void * p_outer_fld_buf = P.OtrRec.GetData(i-1);
 		THROW(p_outer_fld_buf);
-		// @v10.9.1 /* @v9.3.10 @construction
 		if(outer_fld.OuterFormula.NotEmpty()) {
 			if(outer_fld.ID) {
 				ResolveFormula(outer_fld.OuterFormula, pInnerBuf, bufLen, formula_result);
@@ -2674,7 +2705,6 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 			}
 		}
 		else {
-			// @v10.9.1 */
 			if(outer_fld.T.Flags & STypEx::fFormula) {
 				if(pDynRec) {
 					THROW_SL(pDynRec->GetFieldByPos(dyn_fld_pos, &inner_fld));
@@ -2683,10 +2713,8 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 							PTR32(temp_cbuf)[0] = 0;
 							sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
 							temp_buf = temp_cbuf;
-							if(P.TdfParam.Flags & TextDbFile::fCpOem) {
-								//SOemToChar(temp_cbuf);
+							if(P.TdfParam.Flags & TextDbFile::fCpOem)
 								temp_buf.ToChar();
-							}
 							else {
 								assert(P.TdfParam.Flags & TextDbFile::fCpUtf8);
 								temp_buf.Utf8ToChar();
@@ -2706,10 +2734,8 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 						PTR32(temp_cbuf)[0] = 0;
 						sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
 						temp_buf = temp_cbuf;
-						if(P.TdfParam.Flags & TextDbFile::fCpOem) {
-							//SOemToChar(temp_cbuf);
+						if(P.TdfParam.Flags & TextDbFile::fCpOem)
 							temp_buf.ToChar();
-						}
 						else {
 							assert(P.TdfParam.Flags & TextDbFile::fCpUtf8);
 							temp_buf.Utf8ToChar();

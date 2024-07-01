@@ -1,14 +1,10 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-	Copyright (C) 2009-2016, International Business Machines Corporation and others. All Rights Reserved.
-*/
+// Copyright (C) 2009-2016, International Business Machines Corporation and others. All Rights Reserved.
+// C API: Time zone transition classes
+//
 #ifndef __ZTRANS_H
 #define __ZTRANS_H
-/**
- * \file
- * \brief C API: Time zone transition classes
- */
 #include "unicode/utypes.h"
 
 #if !UCONFIG_NO_FORMATTING

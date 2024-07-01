@@ -10,16 +10,12 @@
 // 11/18/99    aliu        Made to inherit from Replaceable.  Added method handleReplaceBetween(); other methods unchanged.
 // 06/25/01    grhoten     Remove dependency on iostream.
 // 
+// C++ API: Unicode String
+// 
 #ifndef UNISTR_H
 #define UNISTR_H
-/**
- * \file
- * \brief C++ API: Unicode String
- */
 #include "unicode/utypes.h"
-
 #if U_SHOW_CPLUSPLUS_API
-
 #include <cstddef>
 #include "unicode/char16ptr.h"
 #include "unicode/rep.h"

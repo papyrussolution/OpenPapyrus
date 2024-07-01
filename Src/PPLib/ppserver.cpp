@@ -297,13 +297,14 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 		tQueryNaturalToken,
 		tGetArticleByPerson,
 		tGetPersonByArticle,
-		tLogLockStack, // @v9.8.1
-		tSetTimeSeries, // @v10.2.3
-		tGetReqQuotes,  // @v10.2.4
-		tSetTimeSeriesProp,   // @10.2.5
-		tSetTimeSeriesStkEnv, // @v10.2.10
-		tGetCommonMqsConfig,  // @v10.5.9
-		tExecJobImm           // @v11.3.9
+		tLogLockStack,
+		tSetTimeSeries,
+		tGetReqQuotes,
+		tSetTimeSeriesProp,
+		tSetTimeSeriesStkEnv,
+		tGetCommonMqsConfig,
+		tExecJobImm,          // @v11.3.9
+		tGetDbInfo,           // @v12.0.6 
 	};
 	enum {
 		cmdfNeedAuth = 0x0001, // Команда требует авторизованного сеанса
@@ -427,6 +428,7 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 		{ PPHS_SETTIMESERIESSTKENV      , /*"settimeseriesstkenv",*/       tSetTimeSeriesStkEnv,     PPSCMD_SETTIMESERIESSTKENV,   cmdfNeedAuth }, // @v10.2.10
 		{ PPHS_GETCOMMONMQSCONFIG       , /*"getcommonmqsconfig",*/        tGetCommonMqsConfig,      PPSCMD_GETCOMMONMQSCONFIG,    cmdfNeedAuth }, // @v10.5.9
 		{ PPHS_EXECJOBIMM               ,                                  tExecJobImm,              PPSCMD_EXECJOBIMM,                       0 }, // @v11.3.9
+		{ PPHS_GETDBINFO                ,                                  tGetDbInfo,               PPSCMD_GETDBINFO,                        0 }, // @v12.0.6
 	};
 	int    ok = 1;
 	size_t p = 0;
@@ -720,9 +722,9 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_PSNBYARID, rLine); // Необходимый параметр - идентификатор статьи
 			PutParam(1, Term);
 			break;
-		case tSetTimeSeries: // @v10.2.3
+		case tSetTimeSeries:
 			break;
-		case tSetTimeSeriesProp: // @v10.2.5
+		case tSetTimeSeriesProp:
 			// SETTIMESERIESPROP symb prop value
 			{
 				THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_TIMSERSYMB, rLine); // symb
@@ -733,11 +735,13 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 				PutParam(3, Term);
 			}
 			break;
-		case tGetCommonMqsConfig: // @v10.5.9
+		case tGetCommonMqsConfig:
 			break;
 		case tExecJobImm: // @v11.3.9
 			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_JOBID, rLine); // jobid
 			PutParam(1, Term);
+			break;
+		case tGetDbInfo: // @v12.0.6
 			break;
 		default:
 			err = PPERR_INVSERVERCMD;
@@ -2612,6 +2616,33 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				DS.SetThreadNotification(PPSession::stntText, temp_buf);
 			}
 			break;
+		case PPSCMD_GETDBINFO: // @v12.0.6
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				DbProvider * p_dict = CurDict;
+				THROW(p_dict);
+				{
+					SJson * p_js_reply = SJson::CreateObj();
+					{
+						p_dict->GetDbSymb(temp_buf);
+						temp_buf.ToUtf8();
+						p_js_reply->InsertString("dbsymb", temp_buf);
+					}
+					{
+						S_GUID uuid;
+						p_dict->GetDbUUID(&uuid);
+						uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+						p_js_reply->InsertString("dbuuid", temp_buf);
+					}			
+					{
+						DS.GetVersion().ToStr(temp_buf.Z());
+						p_js_reply->InsertString("server_version", temp_buf);
+					}
+					p_js_reply->ToStr(temp_buf);
+					rReply.SetString(temp_buf);
+				}
+			}
+			break;
 		case PPSCMD_LOGOUT:
 			State_PPws &= ~stLoggedIn;
 			rReply.SetAck();
@@ -2801,25 +2832,32 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				const  PPID obj_id = temp_buf.ToLong();
 				SString img_path, obj_name;
 				if(obj_type == PPOBJ_GOODS) {
-					PPObjGoods goods_obj;
-					Goods2Tbl::Rec goods_rec;
-					THROW(goods_obj.Fetch(obj_id, &goods_rec) > 0);
-					obj_name = goods_rec.Name;
-					THROW_PP_S(goods_rec.Flags & GF_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
+					PPObjGoods _obj;
+					Goods2Tbl::Rec _rec;
+					THROW(_obj.Fetch(obj_id, &_rec) > 0);
+					obj_name = _rec.Name;
+					THROW_PP_S(_rec.Flags & GF_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
 				}
 				else if(obj_type == PPOBJ_BRAND) {
-					PPObjBrand brand_obj;
-					PPBrand    brand_rec;
-					THROW(brand_obj.Fetch(obj_id, &brand_rec) > 0);
-					obj_name = brand_rec.Name;
-					THROW_PP_S(brand_rec.Flags & GF_DERIVED_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
+					PPObjBrand _obj;
+					PPBrand    _rec;
+					THROW(_obj.Fetch(obj_id, &_rec) > 0);
+					obj_name = _rec.Name;
+					THROW_PP_S(_rec.Flags & GF_DERIVED_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
+				}
+				else if(obj_type == PPOBJ_SWPROGRAM) {
+					PPObjSwProgram _obj;
+					PPSwProgram _rec;
+					THROW(_obj.Fetch(obj_id, &_rec) > 0);
+					obj_name = _rec.Name;
+					THROW_PP_S(_rec.Flags & GF_DERIVED_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
 				}
 				else if(obj_type == PPOBJ_PERSON) {
-					PPObjPerson psn_obj;
-					PersonTbl::Rec psn_rec;
-					THROW(psn_obj.Fetch(obj_id, &psn_rec) > 0);
-					obj_name = psn_rec.Name;
-					THROW_PP_S(psn_rec.Flags & PSNF_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
+					PPObjPerson _obj;
+					PersonTbl::Rec _rec;
+					THROW(_obj.Fetch(obj_id, &_rec) > 0);
+					obj_name = _rec.Name;
+					THROW_PP_S(_rec.Flags & PSNF_HASIMAGES, PPERR_OBJHASNTIMG, obj_name);
 				}
 				else if(obj_type == PPOBJ_TSESSION) {
 					PPObjTSession tses_obj;

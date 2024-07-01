@@ -1,14 +1,8 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2002-2012, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- */
-
+// Copyright (C) 2002-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// C++ API: String Enumeration
+//
 #ifndef STRENUM_H
 #define STRENUM_H
 
@@ -18,14 +12,7 @@
 
 #include "unicode/uobject.h"
 #include "unicode/unistr.h"
-
-/**
- * \file
- * \brief C++ API: String Enumeration
- */
-
 U_NAMESPACE_BEGIN
-
 /**
  * Base class for 'pure' C++ implementations of uenum api.  Adds a
  * method that returns the next UnicodeString since in C++ this can
@@ -46,8 +33,7 @@ U_NAMESPACE_BEGIN
  * return all types.  Returned strings are each terminated with a NUL.
  * Depending on the service data, they might also include embedded NUL
  * characters, so API is provided to optionally return the true
- * length, counting the embedded NULs but not counting the terminating
- * NUL.</p>
+ * length, counting the embedded NULs but not counting the terminating NUL.</p>
  *
  * <p>The pointers returned by next, unext, and snext become invalid
  * upon any subsequent call to the enumeration's destructor, next,
@@ -60,12 +46,7 @@ U_NAMESPACE_BEGIN
  */
 class U_COMMON_API StringEnumeration : public UObject {
 public:
-	/**
-	 * Destructor.
-	 * @stable ICU 2.4
-	 */
 	virtual ~StringEnumeration();
-
 	/**
 	 * Clone this object, an instance of a subclass of StringEnumeration.
 	 * Clones can be used concurrently in multiple threads.
@@ -79,7 +60,6 @@ public:
 	 * @stable ICU 2.8
 	 */
 	virtual StringEnumeration * clone() const;
-
 	/**
 	 * <p>Return the number of elements that the iterator traverses.  If
 	 * the iterator is out of sync with its service, status is set to
@@ -208,7 +188,6 @@ public:
 	 * @stable ICU 3.6
 	 */
 	virtual bool operator !=(const StringEnumeration& that) const;
-
 protected:
 	/**
 	 * UnicodeString field for use with default implementations and subclasses.
@@ -231,7 +210,6 @@ protected:
 	 * @stable ICU 2.8
 	 */
 	int32_t charsCapacity;
-
 	/**
 	 * Default constructor for use with default implementations and subclasses.
 	 * @stable ICU 2.8

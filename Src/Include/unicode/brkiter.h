@@ -9,16 +9,12 @@
 // 07/09/97    jfitz       Renamed BreakIterator and interface synced with JDK
 // 08/11/98    helena      Sync-up JDK1.2.
 // 01/13/2000  helena      Added UErrorCode parameter to createXXXInstance methods.
+// C++ API: Break Iterator.
 // 
 #ifndef BRKITER_H
 #define BRKITER_H
 
 #include "unicode/utypes.h"
-/**
- * \file
- * \brief C++ API: Break Iterator.
- */
-
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API

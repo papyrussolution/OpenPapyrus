@@ -24,11 +24,9 @@
 #include "unicode/uversion.h"
 #include "unicode/uconfig.h"
 #include <float.h>
-
 #if !U_NO_DEFAULT_INCLUDE_UTF_HEADERS
-#include "unicode/utf.h"
+	#include "unicode/utf.h"
 #endif
-
 /*!
  * \file
  * \brief Basic definitions for ICU, for both C and C++ APIs
@@ -44,14 +42,13 @@
  * @internal
  */
 #ifdef __cplusplus
-#ifndef U_SHOW_CPLUSPLUS_API
-#define U_SHOW_CPLUSPLUS_API 1
-#endif
+	#ifndef U_SHOW_CPLUSPLUS_API
+		#define U_SHOW_CPLUSPLUS_API 1
+	#endif
 #else
-#undef U_SHOW_CPLUSPLUS_API
-#define U_SHOW_CPLUSPLUS_API 0
+	#undef U_SHOW_CPLUSPLUS_API
+	#define U_SHOW_CPLUSPLUS_API 0
 #endif
-
 /** @{ API visibility control */
 
 /**

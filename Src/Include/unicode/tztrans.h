@@ -1,15 +1,10 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 // Copyright (C) 2007-2008, International Business Machines Corporation and others. All Rights Reserved.
-//                                                *
+// C++ API: Time zone transition
 //
 #ifndef TZTRANS_H
 #define TZTRANS_H
-/**
- * \file
- * \brief C++ API: Time zone transition
- */
-
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API

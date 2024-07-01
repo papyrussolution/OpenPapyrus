@@ -1,14 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (c) 2001-2011, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   Date        Name        Description
- *   11/19/2001  aliu        Creation.
- **********************************************************************
- */
+// Copyright (c) 2001-2011, International Business Machines Corporation and others.  All Rights Reserved.
+// Date        Name        Description
+// 11/19/2001  aliu        Creation.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/unimatch.h"
@@ -32,8 +27,8 @@ static const char16_t DIGITS[] = {
 
 U_NAMESPACE_BEGIN
 
-UnicodeString & ICU_Utility::appendNumber(UnicodeString & result, int32_t n,
-    int32_t radix, int32_t minDigits) {
+UnicodeString & ICU_Utility::appendNumber(UnicodeString & result, int32_t n, int32_t radix, int32_t minDigits) 
+{
 	if(radix < 2 || radix > 36) {
 		// Bogus radix
 		return result.append((char16_t)63 /*?*/);
@@ -64,11 +59,10 @@ UnicodeString & ICU_Utility::appendNumber(UnicodeString & result, int32_t n,
 	return result;
 }
 
-bool ICU_Utility::isUnprintable(UChar32 c) {
-	return !(c >= 0x20 && c <= 0x7E);
-}
+bool ICU_Utility::isUnprintable(UChar32 c) { return !(c >= 0x20 && c <= 0x7E); }
 
-bool ICU_Utility::shouldAlwaysBeEscaped(UChar32 c) {
+bool ICU_Utility::shouldAlwaysBeEscaped(UChar32 c) 
+{
 	if(c < 0x20) {
 		return true; // C0 control codes
 	}
@@ -92,15 +86,18 @@ bool ICU_Utility::shouldAlwaysBeEscaped(UChar32 c) {
 	}
 }
 
-bool ICU_Utility::escapeUnprintable(UnicodeString & result, UChar32 c) {
+bool ICU_Utility::escapeUnprintable(UnicodeString & result, UChar32 c) 
+{
 	if(isUnprintable(c)) {
 		escape(result, c);
 		return true;
 	}
-	return false;
+	else
+		return false;
 }
 
-UnicodeString & ICU_Utility::escape(UnicodeString & result, UChar32 c) {
+UnicodeString & ICU_Utility::escape(UnicodeString & result, UChar32 c) 
+{
 	result.append(BACKSLASH);
 	if(c & ~0xFFFF) {
 		result.append(UPPER_U);
@@ -118,7 +115,6 @@ UnicodeString & ICU_Utility::escape(UnicodeString & result, UChar32 c) {
 	result.append(DIGITS[0xF&c]);
 	return result;
 }
-
 /**
  * Returns the index of a character, ignoring quoted text.
  * For example, in the string "abc'hide'h", the 'h' in "hide" will not be
@@ -152,8 +148,8 @@ UnicodeString & ICU_Utility::escape(UnicodeString & result, UChar32 c) {
  * @return the index of the first non-white-space character at or
  * after pos, or str.length(), if there is none.
  */
-int32_t ICU_Utility::skipWhitespace(const UnicodeString & str, int32_t& pos,
-    bool advance) {
+int32_t ICU_Utility::skipWhitespace(const UnicodeString & str, int32_t& pos, bool advance) 
+{
 	int32_t p = pos;
 	const char16_t * s = str.getBuffer();
 	p = (int32_t)(PatternProps::skipWhiteSpace(s + p, str.length() - p) - s);
@@ -218,16 +214,18 @@ int32_t ICU_Utility::skipWhitespace(const UnicodeString & str, int32_t& pos,
  * @return true if 'ch' is seen preceded by zero or more
  * whitespace characters.
  */
-bool ICU_Utility::parseChar(const UnicodeString & id, int32_t& pos, char16_t ch) {
+bool ICU_Utility::parseChar(const UnicodeString & id, int32_t& pos, char16_t ch) 
+{
 	int32_t start = pos;
 	skipWhitespace(id, pos, TRUE);
-	if(pos == id.length() ||
-	    id.charAt(pos) != ch) {
+	if(pos == id.length() || id.charAt(pos) != ch) {
 		pos = start;
 		return FALSE;
 	}
-	++pos;
-	return TRUE;
+	else {
+		++pos;
+		return TRUE;
+	}
 }
 
 /**
@@ -246,22 +244,17 @@ bool ICU_Utility::parseChar(const UnicodeString & id, int32_t& pos, char16_t ch)
  * @param limit offset after last character to parse
  * @return index after last parsed character, or -1 on parse failure.
  */
-int32_t ICU_Utility::parsePattern(const UnicodeString & pat,
-    const Replaceable& text,
-    int32_t index,
-    int32_t limit) {
+int32_t ICU_Utility::parsePattern(const UnicodeString & pat, const Replaceable& text,
+    int32_t index, int32_t limit) 
+{
 	int32_t ipat = 0;
-
 	// empty pattern matches immediately
 	if(ipat == pat.length()) {
 		return index;
 	}
-
 	UChar32 cpat = pat.char32At(ipat);
-
 	while(index < limit) {
 		UChar32 c = text.char32At(index);
-
 		// parse \s*
 		if(cpat == 126 /*~*/) {
 			if(PatternProps::isWhiteSpace(c)) {
@@ -285,19 +278,17 @@ int32_t ICU_Utility::parsePattern(const UnicodeString & pat,
 			}
 			// fall thru; get next cpat
 		}
-
 		// match failure of literal
 		else {
 			return -1;
 		}
-
 		cpat = pat.char32At(ipat);
 	}
-
 	return -1; // text ended before end of pat
 }
 
-int32_t ICU_Utility::parseAsciiInteger(const UnicodeString & str, int32_t& pos) {
+int32_t ICU_Utility::parseAsciiInteger(const UnicodeString & str, int32_t& pos) 
+{
 	int32_t result = 0;
 	char16_t c;
 	while(pos < str.length() && (c = str.charAt(pos)) >= u'0' && c <= u'9') {
@@ -325,11 +316,9 @@ int32_t ICU_Utility::parseAsciiInteger(const UnicodeString & str, int32_t& pos) 
  * cleared out by, at the end, calling this method with a literal
  * character.
  */
-void ICU_Utility::appendToRule(UnicodeString & rule,
-    UChar32 c,
-    bool isLiteral,
-    bool escapeUnprintable,
-    UnicodeString & quoteBuf) {
+void ICU_Utility::appendToRule(UnicodeString & rule, UChar32 c,
+    bool isLiteral, bool escapeUnprintable, UnicodeString & quoteBuf) 
+{
 	// If we are escaping unprintables, then escape them outside
 	// quotes.  \u and \U are not recognized within quotes.  The same
 	// logic applies to literals, but literals are never escaped.
@@ -376,19 +365,16 @@ void ICU_Utility::appendToRule(UnicodeString & rule,
 			 */
 			if(c == SPACE) {
 				int32_t len = rule.length();
-				if(len > 0 && rule.charAt(len-1) != c) {
+				if(len > 0 && rule.charAt(len-1) != c)
 					rule.append(c);
-				}
 			}
 			else if(!escapeUnprintable || !ICU_Utility::escapeUnprintable(rule, c)) {
 				rule.append(c);
 			}
 		}
 	}
-
 	// Escape ' and '\' and don't begin a quote just for them
-	else if(quoteBuf.length() == 0 &&
-	    (c == APOSTROPHE || c == BACKSLASH)) {
+	else if(quoteBuf.length() == 0 && (c == APOSTROPHE || c == BACKSLASH)) {
 		rule.append(BACKSLASH);
 		rule.append(c);
 	}
@@ -396,8 +382,7 @@ void ICU_Utility::appendToRule(UnicodeString & rule,
 	// Specials (printable ascii that isn't [0-9a-zA-Z]) and
 	// whitespace need quoting.  Also append stuff to quotes if we are
 	// building up a quoted substring already.
-	else if(quoteBuf.length() > 0 ||
-	    (c >= 0x0021 && c <= 0x007E &&
+	else if(quoteBuf.length() > 0 || (c >= 0x0021 && c <= 0x007E &&
 	    !((c >= 0x0030 /*'0'*/ && c <= 0x0039 /*'9'*/) ||
 	    (c >= 0x0041 /*'A'*/ && c <= 0x005A /*'Z'*/) ||
 	    (c >= 0x0061 /*'a'*/ && c <= 0x007A /*'z'*/))) ||
@@ -408,7 +393,6 @@ void ICU_Utility::appendToRule(UnicodeString & rule,
 			quoteBuf.append(c);
 		}
 	}
-
 	// Otherwise just append
 	else {
 		rule.append(c);

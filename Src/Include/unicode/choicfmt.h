@@ -1,38 +1,24 @@
+// CHOICFMT.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ********************************************************************************
- *   Copyright (C) 1997-2013, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- ********************************************************************************
- *
- * File CHOICFMT.H
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   02/19/97    aliu        Converted from java.
- *   03/20/97    helena      Finished first cut of implementation and got rid
- *                           of nextDouble/previousDouble and replaced with
- *                           boolean array.
- *   4/10/97     aliu        Clean up.  Modified to work on AIX.
- *   8/6/97      nos         Removed overloaded constructor, member var 'buffer'.
- *   07/22/98    stephen     Removed operator!= (implemented in Format)
- ********************************************************************************
- */
-
+// Copyright (C) 1997-2013, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 02/19/97    aliu        Converted from java.
+// 03/20/97    helena      Finished first cut of implementation and got rid
+//   of nextDouble/previousDouble and replaced with boolean array.
+// 4/10/97     aliu        Clean up.  Modified to work on AIX.
+// 8/6/97      nos         Removed overloaded constructor, member var 'buffer'.
+// 07/22/98    stephen     Removed operator!= (implemented in Format)
+// 
+// C++ API: Choice Format.
+// 
 #ifndef CHOICFMT_H
 #define CHOICFMT_H
 
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API
-
-/**
- * \file
- * \brief C++ API: Choice Format.
- */
-
 #if !UCONFIG_NO_FORMATTING
 
 #include "unicode/fieldpos.h"

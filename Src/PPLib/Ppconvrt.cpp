@@ -8799,6 +8799,7 @@ public:
 #undef CPYFLD
 		p_data->CtAmount = 0;
 		p_data->CtRest = 0;
+		p_data->CtGoodsID = 0; // @v12.0.6
 		memzero(p_data->Reserve, sizeof(p_data->Reserve));
 		return 1;
 	}

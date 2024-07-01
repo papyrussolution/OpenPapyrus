@@ -1,27 +1,20 @@
+// appendable.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2011-2012, International Business Machines Corporation and others.  All Rights Reserved.
- *   file name:  appendable.h
- *   encoding:   UTF-8
- *   indentation:4
- *   created on: 2010dec07
- *   created by: Markus W. Scherer
- */
+// Copyright (C) 2011-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2010dec07
+// created by: Markus W. Scherer
+//
+// C++ API: Appendable class: Sink for Unicode code points and 16-bit code units (char16_ts).
+//
 #ifndef __APPENDABLE_H__
 #define __APPENDABLE_H__
-
-/**
- * \file
- * \brief C++ API: Appendable class: Sink for Unicode code points and 16-bit code units (char16_ts).
- */
 
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API
-
 #include "unicode/uobject.h"
-
 U_NAMESPACE_BEGIN
 
 class UnicodeString;

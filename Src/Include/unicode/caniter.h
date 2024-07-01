@@ -1,6 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 // Copyright (C) 1996-2014, International Business Machines Corporation and others. All Rights Reserved.
+// C++ API: Canonical Iterator
 //
 #ifndef CANITER_H
 #define CANITER_H
@@ -11,17 +12,12 @@
 #if !UCONFIG_NO_NORMALIZATION
 #include "unicode/uobject.h"
 #include "unicode/unistr.h"
-/**
- * \file
- * \brief C++ API: Canonical Iterator
- */
-
 /** Should permutation skip characters with combining class zero
  *  Should be either true or false. This is a compile time option
  *  @stable ICU 2.4
  */
 #ifndef CANITER_SKIP_ZEROES
-#define CANITER_SKIP_ZEROES true
+	#define CANITER_SKIP_ZEROES true
 #endif
 
 U_NAMESPACE_BEGIN
@@ -74,11 +70,6 @@ public:
 	 * @stable ICU 2.4
 	 */
 	CanonicalIterator(const UnicodeString &source, UErrorCode & status);
-
-	/** Destructor
-	 *  Cleans pieces
-	 * @stable ICU 2.4
-	 */
 	virtual ~CanonicalIterator();
 	/**
 	 * Gets the NFD form of the current source we are iterating over.
@@ -130,7 +121,6 @@ public:
 	 */
 	virtual UClassID getDynamicClassID() const override;
 private:
-	// ===================== PRIVATES ==============================
 	// private default constructor
 	CanonicalIterator();
 	/**
@@ -144,7 +134,6 @@ private:
 	 */
 	CanonicalIterator& operator = (const CanonicalIterator& other);
 
-	// fields
 	UnicodeString source;
 	bool done;
 	// 2 dimensional array holds the pieces of the string with

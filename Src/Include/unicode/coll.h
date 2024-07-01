@@ -1,49 +1,36 @@
+// coll.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 // Copyright (C) 1996-2016, International Business Machines Corporation and others.  All Rights Reserved.
 //
-/**
- * \file
- * \brief C++ API: Collation Service.
- */
-
-/**
- * File coll.h
- *
- * Created by: Helena Shih
- *
- * Modification History:
- *
- *  Date        Name        Description
- * 02/5/97      aliu        Modified createDefault to load collation data from
- *                          binary files when possible.  Added related methods
- *                          createCollationFromFile, chopLocale, createPathName.
- * 02/11/97     aliu        Added members addToCache, findInCache, and fgCache.
- * 02/12/97     aliu        Modified to create objects from RuleBasedCollator cache.
- *                          Moved cache out of Collation class.
- * 02/13/97     aliu        Moved several methods out of this class and into
- *                          RuleBasedCollator, with modifications.  Modified
- *                          createDefault() to call new RuleBasedCollator(Locale&)
- *                          constructor.  General clean up and documentation.
- * 02/20/97     helena      Added clone, operator==, operator!=, operator=, copy
- *                          constructor and getDynamicClassID.
- * 03/25/97     helena      Updated with platform independent data types.
- * 05/06/97     helena      Added memory allocation error detection.
- * 06/20/97     helena      Java class name change.
- * 09/03/97     helena      Added createCollationKeyValues().
- * 02/10/98     damiba      Added compare() with length as parameter.
- * 04/23/99     stephen     Removed EDecompositionMode, merged with
- *                          Normalizer::EMode.
- * 11/02/99     helena      Collator performance enhancements.  Eliminates the
- *                          UnicodeString construction and special case for NO_OP.
- * 11/23/99     srl         More performance enhancements. Inlining of
- *                          critical accessors.
- * 05/15/00     helena      Added version information API.
- * 01/29/01     synwee      Modified into a C++ wrapper which calls C apis
- *                          (ucol.h).
- * 2012-2014    markus      Rewritten in C++ again.
- */
-
+// C++ API: Collation Service.
+//
+// Created by: Helena Shih
+// Modification History:
+// Date        Name        Description
+// 02/5/97      aliu        Modified createDefault to load collation data from
+//   binary files when possible.  Added related methods
+//   createCollationFromFile, chopLocale, createPathName.
+// 02/11/97     aliu        Added members addToCache, findInCache, and fgCache.
+// 02/12/97     aliu        Modified to create objects from RuleBasedCollator cache. Moved cache out of Collation class.
+// 02/13/97     aliu        Moved several methods out of this class and into
+//   RuleBasedCollator, with modifications.  Modified
+//   createDefault() to call new RuleBasedCollator(Locale&)
+//   constructor.  General clean up and documentation.
+// 02/20/97     helena      Added clone, operator==, operator!=, operator=, copy
+//   constructor and getDynamicClassID.
+// 03/25/97     helena      Updated with platform independent data types.
+// 05/06/97     helena      Added memory allocation error detection.
+// 06/20/97     helena      Java class name change.
+// 09/03/97     helena      Added createCollationKeyValues().
+// 02/10/98     damiba      Added compare() with length as parameter.
+// 04/23/99     stephen     Removed EDecompositionMode, merged with Normalizer::EMode.
+// 11/02/99     helena      Collator performance enhancements.  Eliminates the UnicodeString construction and special case for NO_OP.
+// 11/23/99     srl         More performance enhancements. Inlining of critical accessors.
+// 05/15/00     helena      Added version information API.
+// 01/29/01     synwee      Modified into a C++ wrapper which calls C apis (ucol.h).
+// 2012-2014    markus      Rewritten in C++ again.
+// 
 #ifndef COLL_H
 #define COLL_H
 
@@ -242,7 +229,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	virtual bool operator==(const Collator& other) const;
-
 	/**
 	 * Returns true if "other" is not the same as "this".
 	 * Calls ! operator==(const Collator&) const which works for all subclasses.
@@ -251,7 +237,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	virtual bool operator !=(const Collator& other) const;
-
 	/**
 	 * Makes a copy of this object.
 	 * @return a copy of this object, owned by the caller
@@ -327,8 +312,7 @@ public:
 	 * than target
 	 * @deprecated ICU 2.6 use the overload with UErrorCode &
 	 */
-	virtual EComparisonResult compare(const UnicodeString & source,
-	    const UnicodeString & target) const;
+	virtual EComparisonResult compare(const UnicodeString & source, const UnicodeString & target) const;
 #endif  // U_FORCE_HIDE_DEPRECATED_API
 
 	/**
@@ -343,10 +327,7 @@ public:
 	 * than target
 	 * @stable ICU 2.6
 	 */
-	virtual UCollationResult compare(const UnicodeString & source,
-	    const UnicodeString & target,
-	    UErrorCode & status) const = 0;
-
+	virtual UCollationResult compare(const UnicodeString & source, const UnicodeString & target, UErrorCode & status) const = 0;
 #ifndef U_FORCE_HIDE_DEPRECATED_API
 	/**
 	 * Does the same thing as compare but limits the comparison to a specified
@@ -1033,14 +1014,9 @@ public:
 	 * @see ucol_keyHashCode
 	 * @stable ICU 2.1
 	 */
-	static int32_t U_EXPORT2 getBound(const uint8       * source,
-	    int32_t sourceLength,
-	    UColBoundMode boundType,
-	    uint32_t noOfLevels,
-	    uint8             * result,
-	    int32_t resultLength,
-	    UErrorCode          &status);
-
+	static int32_t U_EXPORT2 getBound(const uint8       * source, int32_t sourceLength,
+	    UColBoundMode boundType, uint32_t noOfLevels, uint8             * result,
+	    int32_t resultLength, UErrorCode          &status);
 protected:
 
 	// Collator protected constructors -------------------------------------

@@ -1,14 +1,8 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2011-2014 International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- */
-
+// Copyright (C) 2011-2014 International Business Machines Corporation and others.  All Rights Reserved.
+// C++ API: Index Characters
+//
 #ifndef INDEXCHARS_H
 #define INDEXCHARS_H
 
@@ -21,14 +15,7 @@
 #include "unicode/unistr.h"
 
 #if !UCONFIG_NO_COLLATION
-
-/**
- * \file
- * \brief C++ API: Index Characters
- */
-
 U_CDECL_BEGIN
-
 /**
  * Constants for Alphabetic Index Label Types.
  * The form of these enum constants anticipates having a plain C API

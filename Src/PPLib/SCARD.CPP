@@ -18,8 +18,10 @@ SCardCore::OpBlock & SCardCore::OpBlock::Init(SCardOpTbl::Rec * pRec)
 		SCardID = pRec->SCardID;
 		Dtm.Set(pRec->Dt, pRec->Tm);
 		LinkOi.Set(pRec->LinkObjType, pRec->LinkObjID);
+		CtAmount = pRec->CtAmount; // @v12.0.6
 		Amount = pRec->Amount;
 		PrevRest = pRec->Rest - pRec->Amount;
+		PrevCtRest = pRec->CtRest - pRec->CtAmount; // @v12.0.6
 		if(pRec->Flags & SCARDOPF_FREEZING) {
 			Flags |= fFreezing;
 			FreezingPeriod.Set(pRec->FreezingStart, pRec->FreezingEnd);

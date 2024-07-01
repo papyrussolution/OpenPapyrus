@@ -163,11 +163,15 @@ public:
 	bool   FASTCALL IsEq(const WsCtl_ProgramEntry & rS) const;
 	SJson * ToJsonObj(bool withResolvance) const;
 	int    FromJsonObj(const SJson * pJsObj);
+	PPID   ID;         // @v12.0.6 Идентификатор объекта в базе данных сервера
+	PPID   CategoryID; // @v12.0.6 Идентификатор категории в базе данных сервера
 	SString Category;         // utf8 Категория программы
 	SString Title;            // utf8 Отображаемый на экране заголовок программы
 	SString ExeFileName;      // utf8 Имя исполняемого файла (с расширением) 
 	SString FullResolvedPath; // @transient utf8 Полный путь к исполняемому файлу.
 	SString PicSymb;          // utf8 Символ изображения иконки //
+	int   PicHashAlg;         // @v12.0.6 Алгоритм хэша содержимого изображения // 
+	SBinaryChunk PicHash;     // @v12.0.6 Хэш содержимого изображения //
 };
 
 class WsCtl_ProgramCollection : public TSCollection <WsCtl_ProgramEntry> {

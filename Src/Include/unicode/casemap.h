@@ -2,6 +2,7 @@
 // © 2017 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 // created: 2017jan12 Markus W. Scherer
+// C++ API: Low-level C++ case mapping functions.
 //
 #ifndef __CASEMAP_H__
 #define __CASEMAP_H__
@@ -10,11 +11,6 @@
 #if U_SHOW_CPLUSPLUS_API
 #include "unicode/stringpiece.h"
 #include "unicode/uobject.h"
-/**
- * \file
- * \brief C++ API: Low-level C++ case mapping functions.
- */
-
 U_NAMESPACE_BEGIN
 
 class BreakIterator;

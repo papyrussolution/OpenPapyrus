@@ -1512,6 +1512,10 @@ static int EditExtDevices(PPSyncCashNode * pData)
 					setCtrlData(CTL_BNKTERM_PORT, Data.BnkTermPort);
 					setCtrlString(CTL_BNKTERM_PATH, Data.BnkTermPath);
 					setCtrlData(CTL_BNKTERM_PINPAD, &Data.BnkTermFlags);
+					// @v12.0.6 {
+					AddClusterAssoc(CTL_BNKTERM_FLAGS, 0, CASHFX_ENABLECASHLESSBPEQ);
+					SetClusterData(CTL_BNKTERM_FLAGS, Data.ExtFlags);
+					// } @v12.0.6 
 					return 1;
 				}
 				DECL_DIALOG_GETDTS()
@@ -1525,6 +1529,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 					getCtrlData(CTL_BNKTERM_PORT, Data.BnkTermPort);
 					getCtrlString(CTL_BNKTERM_PATH, Data.BnkTermPath);
 					getCtrlData(CTL_BNKTERM_PINPAD, &Data.BnkTermFlags);
+					GetClusterData(CTL_BNKTERM_FLAGS, &Data.ExtFlags); // @v12.0.6
 					ASSIGN_PTR(pData, Data);
 					return ok;
 				}

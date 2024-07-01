@@ -763,9 +763,9 @@ SString & SBinaryChunk::Mime64(SString & rBuf) const
 	return rBuf;
 }
 
-int SBinaryChunk::FromMime64(const char * pMimeString)
+bool SBinaryChunk::FromMime64(const char * pMimeString)
 {
-	int    ok = 0;
+	bool   ok = false;
 	Z();
 	if(!isempty(pMimeString)) {
 		const size_t in_len = strlen(pMimeString);

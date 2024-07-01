@@ -6,17 +6,12 @@
 // created on: 1999oct15
 // created by: Markus W. Scherer
 // 
+// C API:misc definitions. This file contains miscellaneous definitions for the C APIs.
+// 
 #ifndef UMISC_H
 #define UMISC_H
 
 #include "unicode/utypes.h"
-/**
- * \file
- * \brief  C API:misc definitions
- *
- *  This file contains miscellaneous definitions for the C APIs.
- */
-
 U_CDECL_BEGIN
 
 /** A struct representing a range of text containing a specific field

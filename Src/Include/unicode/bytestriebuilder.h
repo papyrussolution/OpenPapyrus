@@ -6,10 +6,8 @@
 // created on: 2010sep25
 // created by: Markus W. Scherer
 // 
-/**
- * \file
- * \brief C++ API: Builder for icu::BytesTrie
- */
+// C++ API: Builder for icu::BytesTrie
+//
 #ifndef __BYTESTRIEBUILDER_H__
 #define __BYTESTRIEBUILDER_H__
 

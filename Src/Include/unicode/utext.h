@@ -1,24 +1,13 @@
+// utext.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2004-2012, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  utext.h
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2004oct06
- *   created by: Markus W. Scherer
- */
-
+// Copyright (C) 2004-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2004oct06
+// created by: Markus W. Scherer
+//
 #ifndef __UTEXT_H__
 #define __UTEXT_H__
-
 /**
  * \file
  * \brief C API: Abstract Unicode Text API
@@ -47,7 +36,6 @@
  *     or system with a unique text storage format can implement a set of
  *     UText provider functions for that format, which will then allow
  *     ICU services to operate on that format.
- *
  *
  * <em>Iterating over text</em>
  *
@@ -148,13 +136,9 @@ U_CDECL_BEGIN
 struct UText;
 
 typedef struct UText UText; /**< C typedef for struct UText. @stable ICU 3.6 */
-
-/***************************************************************************************
- *
- *   C Functions for creating UText wrappers around various kinds of text strings.
- *
- ****************************************************************************************/
-
+//
+// C Functions for creating UText wrappers around various kinds of text strings.
+//
 /**
  * Close function for UText instances.
  * Cleans up, releases any resources being held by an open UText.
@@ -274,10 +258,8 @@ U_CAPI UText * U_EXPORT2 utext_openReplaceable(UText * ut, icu::Replaceable * re
 U_CAPI UText * U_EXPORT2 utext_openCharacterIterator(UText * ut, icu::CharacterIterator * ci, UErrorCode * status);
 
 #endif
-
 /**
- *  Clone a UText.  This is much like opening a UText where the source text is itself
- *  another UText.
+ *  Clone a UText.  This is much like opening a UText where the source text is itself another UText.
  *
  *  A deep clone will copy both the UText data structures and the underlying text.
  *  The original and cloned UText will operate completely independently; modifications
@@ -346,13 +328,9 @@ U_CAPI UText * U_EXPORT2 utext_clone(UText * dest, const UText * src, bool deep,
  *  @stable ICU 3.6
  */
 U_CAPI bool U_EXPORT2 utext_equals(const UText * a, const UText * b);
-
-/*****************************************************************************
-*
-*   Functions to work with the text represented by a UText wrapper
-*
-*****************************************************************************/
-
+//
+// Functions to work with the text represented by a UText wrapper
+//
 /**
  * Get the length of the text.  Depending on the characteristics
  * of the underlying text representation, this may be expensive.
@@ -365,7 +343,6 @@ U_CAPI bool U_EXPORT2 utext_equals(const UText * a, const UText * b);
  * @stable ICU 3.4
  */
 U_CAPI int64_t U_EXPORT2 utext_nativeLength(UText * ut);
-
 /**
  *  Return true if calculating the length of the text could be expensive.
  *  Finding the length of NUL terminated strings is considered to be expensive.
@@ -611,10 +588,8 @@ U_CAPI int64_t U_EXPORT2 utext_getPreviousNativeIndex(UText * ut);
  *
  * @stable ICU 3.4
  */
-U_CAPI int32_t U_EXPORT2 utext_extract(UText * ut,
-    int64_t nativeStart, int64_t nativeLimit,
-    char16_t * dest, int32_t destCapacity,
-    UErrorCode * status);
+U_CAPI int32_t U_EXPORT2 utext_extract(UText * ut, int64_t nativeStart, int64_t nativeLimit,
+    char16_t * dest, int32_t destCapacity, UErrorCode * status);
 
 /************************************************************************************
 *
@@ -712,15 +687,11 @@ U_CAPI int32_t U_EXPORT2 utext_extract(UText * ut,
 			utext_setNativeIndex((ut), (ix)); \
 		} \
 } UPRV_BLOCK_MACRO_END
-
-/************************************************************************************
-*
-*   Functions related to writing or modifying the text.
-*   These will work only with modifiable UTexts.  Attempting to
-*   modify a read-only UText will return an error status.
-*
-************************************************************************************/
-
+//
+// Functions related to writing or modifying the text.
+// These will work only with modifiable UTexts.  Attempting to
+// modify a read-only UText will return an error status.
+//
 /**
  *  Return true if the text can be written (modified) with utext_replace() or
  *  utext_copy().  For the text to be writable, the text provider must
@@ -778,13 +749,10 @@ U_CAPI bool U_EXPORT2 utext_hasMetaData(const UText * ut);
  *
  * @stable ICU 3.4
  */
-U_CAPI int32_t U_EXPORT2 utext_replace(UText * ut,
-    int64_t nativeStart, int64_t nativeLimit,
-    const char16_t * replacementText, int32_t replacementLength,
-    UErrorCode * status);
+U_CAPI int32_t U_EXPORT2 utext_replace(UText * ut, int64_t nativeStart, int64_t nativeLimit,
+    const char16_t * replacementText, int32_t replacementLength, UErrorCode * status);
 
 /**
- *
  * Copy or move a substring from one position to another within the text,
  * while retaining any metadata associated with the text.
  * This function is used to duplicate or reorder substrings.
@@ -815,12 +783,8 @@ U_CAPI int32_t U_EXPORT2 utext_replace(UText * ut,
  *
  * @stable ICU 3.4
  */
-U_CAPI void U_EXPORT2 utext_copy(UText * ut,
-    int64_t nativeStart, int64_t nativeLimit,
-    int64_t destIndex,
-    bool move,
-    UErrorCode * status);
-
+U_CAPI void U_EXPORT2 utext_copy(UText * ut, int64_t nativeStart, int64_t nativeLimit,
+    int64_t destIndex, bool move, UErrorCode * status);
 /**
  *  <p>
  *  Freeze a UText.  This prevents any modification to the underlying text itself
@@ -923,9 +887,7 @@ enum {
  *
  * @stable ICU 3.4
  */
-typedef UText * U_CALLCONV
-    UTextClone (UText * dest, const UText * src, bool deep, UErrorCode * status);
-
+typedef UText * U_CALLCONV UTextClone (UText * dest, const UText * src, bool deep, UErrorCode * status);
 /**
  * Function type declaration for UText.nativeLength().
  *
@@ -934,9 +896,7 @@ typedef UText * U_CALLCONV
  * @see UText
  * @stable ICU 3.4
  */
-typedef int64_t U_CALLCONV
-    UTextNativeLength (UText * ut);
-
+typedef int64_t U_CALLCONV UTextNativeLength (UText * ut);
 /**
  * Function type declaration for UText.access().  Get the description of the text chunk
  *  containing the text at a requested native index.  The UText's iteration
@@ -962,9 +922,7 @@ typedef int64_t U_CALLCONV
  * @see UText
  * @stable ICU 3.4
  */
-typedef bool U_CALLCONV
-    UTextAccess (UText * ut, int64_t nativeIndex, bool forward);
-
+typedef bool U_CALLCONV UTextAccess (UText * ut, int64_t nativeIndex, bool forward);
 /**
  * Function type declaration for UText.extract().
  *
@@ -992,12 +950,8 @@ typedef bool U_CALLCONV
  *
  * @stable ICU 3.4
  */
-typedef int32_t U_CALLCONV
-    UTextExtract (UText * ut,
-    int64_t nativeStart, int64_t nativeLimit,
-    char16_t * dest, int32_t destCapacity,
-    UErrorCode * status);
-
+typedef int32_t U_CALLCONV UTextExtract (UText * ut, int64_t nativeStart, int64_t nativeLimit,
+    char16_t * dest, int32_t destCapacity, UErrorCode * status);
 /**
  * Function type declaration for UText.replace().
  *
@@ -1027,12 +981,8 @@ typedef int32_t U_CALLCONV
  *
  * @stable ICU 3.4
  */
-typedef int32_t U_CALLCONV
-    UTextReplace (UText * ut,
-    int64_t nativeStart, int64_t nativeLimit,
-    const char16_t * replacementText, int32_t replacmentLength,
-    UErrorCode * status);
-
+typedef int32_t U_CALLCONV UTextReplace (UText * ut, int64_t nativeStart, int64_t nativeLimit,
+    const char16_t * replacementText, int32_t replacmentLength, UErrorCode * status);
 /**
  * Function type declaration for UText.copy().
  *
@@ -1061,13 +1011,8 @@ typedef int32_t U_CALLCONV
  *
  * @stable ICU 3.4
  */
-typedef void U_CALLCONV
-    UTextCopy (UText * ut,
-    int64_t nativeStart, int64_t nativeLimit,
-    int64_t nativeDest,
-    bool move,
-    UErrorCode * status);
-
+typedef void U_CALLCONV UTextCopy (UText * ut, int64_t nativeStart, int64_t nativeLimit,
+    int64_t nativeDest, bool move, UErrorCode * status);
 /**
  * Function type declaration for UText.mapOffsetToNative().
  * Map from the current char16_t offset within the current text chunk to
@@ -1081,8 +1026,7 @@ typedef void U_CALLCONV
  *
  * @stable ICU 3.4
  */
-typedef int64_t U_CALLCONV
-    UTextMapOffsetToNative (const UText * ut);
+typedef int64_t U_CALLCONV UTextMapOffsetToNative (const UText * ut);
 
 /**
  * Function type declaration for UText.mapIndexToUTF16().
@@ -1099,8 +1043,7 @@ typedef int64_t U_CALLCONV
  *
  * @stable ICU 3.4
  */
-typedef int32_t U_CALLCONV
-    UTextMapNativeIndexToUTF16 (const UText * ut, int64_t nativeIndex);
+typedef int32_t U_CALLCONV UTextMapNativeIndexToUTF16 (const UText * ut, int64_t nativeIndex);
 
 /**
  * Function type declaration for UText.utextClose().
@@ -1119,9 +1062,7 @@ typedef int32_t U_CALLCONV
  *
  * @stable ICU 3.4
  */
-typedef void U_CALLCONV
-    UTextClose (UText * ut);
-
+typedef void U_CALLCONV UTextClose (UText * ut);
 /**
  *   (public)  Function dispatch table for UText.
  *             Conceptually very much like a C++ Virtual Function Table.
@@ -1246,13 +1187,11 @@ struct UTextFuncs {
 	 */
 	UTextClose  * spare3;
 };
-
 /**
  * Function dispatch table for UText
  * @see UTextFuncs
  */
 typedef struct UTextFuncs UTextFuncs;
-
 /**
  *   UText struct.  Provides the interface between the generic UText access code
  *                  and the UText provider code that works on specific kinds of
@@ -1524,7 +1463,5 @@ U_NAMESPACE_BEGIN
     U_DEFINE_LOCAL_OPEN_POINTER(LocalUTextPointer, UText, utext_close);
 
 U_NAMESPACE_END
-
 #endif
-
 #endif

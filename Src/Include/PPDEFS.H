@@ -6096,6 +6096,8 @@
 	#define CTL_SCARDOP_EXPIRY           (16 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDOP_FRZPERIOD        (17 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SCARDOP_FRZPERIOD     (18 + WINDOWS_ID_BIAS)
+	#define CTL_SCARDOP_QTTY             (19 + WINDOWS_ID_BIAS) // @v12.0.6 Количественная операция
+	#define CTL_SCARDOP_ST_CTREST        (20 + WINDOWS_ID_BIAS) // @v12.0.6 Количественный остаток
 #define DLG_REQALTOBJ             551 // Выбор альтернативной статьи для зачета
 	#define CTL_REQALTOBJ_SHEET          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_REQALTOBJ_SHEET       (2 + WINDOWS_ID_BIAS)
@@ -9645,7 +9647,7 @@
 #define DLG_ORDERCHECKS              1147 // Редкатирование заказов столиков
 #define DLG_ORDERCHECKS_L            1148
 // CTL_SELCHECK_...
-#define DLG_CPPAYM                   1149 // CPPAYM Диалог приема оплаты в кассовой панели
+#define DLG_CPPAYM                   1149 // CPPAYM Диалог приема оплаты в кассовой панели // @v12.0.6 removed (replaced with DLG_CPPAYM2)
 	#define CTL_CPPAYM_KIND           (1 + WINDOWS_ID_BIAS)
 	#define CTL_CPPAYM_BNKAMT         (2 + WINDOWS_ID_BIAS)
 	#define CTL_CPPAYM_CSHAMT         (3 + WINDOWS_ID_BIAS)
@@ -9666,6 +9668,7 @@
 	#define CTL_CPPAYM_EADDRINF       (18 + WINDOWS_ID_BIAS)
 	#define CTL_CPPAYM_PAPERLESS      (19 + WINDOWS_ID_BIAS)
 	#define CTLFRAME_CPPAYM_PAPERLESS (20 + WINDOWS_ID_BIAS)
+	#define CTL_CPPAYM_CASHLESSBPEQ   (21 + WINDOWS_ID_BIAS) // @v12.0.6 checkbox
 // DLG_TAGVGUID                      1150
 #define DLG_QUOTKINDRESTR            1151 // Ограничения применимости вида котировки
 	#define CTL_QKRESTR_PERIOD        (1 + WINDOWS_ID_BIAS)
@@ -9837,6 +9840,7 @@
 	#define CTL_POSPAYMBNK_EADDRINF       (18 + WINDOWS_ID_BIAS)
 	#define CTL_POSPAYMBNK_PAPERLESS      (19 + WINDOWS_ID_BIAS)
 	#define CTLFRAME_POSPAYMBNK_PAPERLESS (20 + WINDOWS_ID_BIAS)
+	#define CTL_POSPAYMBNK_CLBPEQ         (21 + WINDOWS_ID_BIAS) // @12.0.6 checkbox cashless-bypass-equipment
 
 #define DLG_CHKPANROWOP              1172
 	#define CTL_CHKPANROWOP_VERB      (1 + WINDOWS_ID_BIAS)
@@ -9984,6 +9988,7 @@
 	#define CTL_BNKTERM_PATH			(5 + WINDOWS_ID_BIAS)
 	#define CTLBRW_BNKTERM_FILENAME		(6 + WINDOWS_ID_BIAS)
 	#define CTL_BNKTERM_PINPAD			(7 + WINDOWS_ID_BIAS)
+	#define CTL_BNKTERM_FLAGS           (8 + WINDOWS_ID_BIAS) // @v12.0.6
 #define DLG_SENDSMS				  1197
 	#define CTL_SENDSMS_TEXT			(1 + WINDOWS_ID_BIAS)
 	#define CTL_SENDSMS_SYMBCOUNT		(2 + WINDOWS_ID_BIAS)

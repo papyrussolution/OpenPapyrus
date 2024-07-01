@@ -9269,6 +9269,11 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_FILEFORMAT_HTML // @V11.9.11
 	PPDV_FILEFORMAT_JSON // @V11.9.11
 	PPDV_FILEFORMAT_XML // @V11.9.11
+	PPDV_MOBILE_NETWORK_4G            // @v12.0.6
+	PPDV_MOBILE_NETWORK_DISCONNECTED	 // @v12.0.6
+	PPDV_MOBILE_NETWORK_OFF           // @v12.0.6
+	PPDV_MOBILE_NETWORK_UNSTABLE	     // @v12.0.6
+	PPDV_MOBILE_NETWORK_WIFI          // @v12.0.6
 }
 //
 // Следующие изображения используются без замещения цвета

@@ -5464,7 +5464,7 @@ private:
 #define PPSCMD_SUSPEND                10028 // SUSPEND переводит сеанс в режим ожидания и возвращает ИД сеанса
 #define PPSCMD_RESUME                 10029 // RESUME переключает работу на сеанс с которым до этого было приостановлена
 	// работа (командой SUSPEND). Номером сеанса указывается параметром команды.
-#define PPSCMD_CONFIG                 10030 // CONFIG устанавливает конфигурационный параметр вказанный следующим за командой токеном.
+#define PPSCMD_CONFIG                 10030 // CONFIG устанавливает конфигурационный параметр указанный следующим за командой токеном.
 #define PPSCMD_REFRESHVIEW            10031 // Требование серверу обновить содержимое PPView, идентификатор которого передается с командой.
 #define PPSCMD_RFIDPRCSSR             10032
 #define PPSCMD_GETTDDO                10033 // Извлечение текста по шаблону TDDO
@@ -5553,6 +5553,7 @@ private:
 	// Однако в дальнейшем команду надо убрать и заменить на SELECT
 #define PPSCMD_WSCTL_REGISTRATION     10136 // @v11.9.10 WSCTL Регистрация клиента
 #define PPSCMD_WSCTL_REGISTERCOMPUTER 10137 // @v12.0.0 WSCTL Регистрация рабочей станции
+#define PPSCMD_GETDBINFO              10138 // @v12.0.6 Возвращает информацию о базе данных, в которой авторизован сеанс. Возвращает json
 
 #define PPSCMD_TEST                   11000 // Сеанс тестирования //
 #define PPSCMD___LASTIDENTIFIER       99999 // @v12.0.3 Максимальный допустимый идентификатор серверной команды. Этот лимит нужен для ситуативного 
@@ -8424,6 +8425,17 @@ struct PPObjPack {
 //
 class PPObject {
 public:
+	//
+	// Descr: Создает сигнатуру объекта данных, хранящегося вне базы данных. Сигнатура формируется как текст base32
+	//   бинарной конкатенации некоего глобального идентификатора rGlobalIdent, идентификатора объекта данных и 
+	//   порядкового номера относительно обеъекта данных (например, в случае если с одним объектом ассоциировано несколько blob'ов)
+	//
+	static SString & MakeBlobSignature(const SBinaryChunk & rGlobalIdent, PPObjID oid, uint itemNumber, SString & rBuf);
+	//
+	// Descr: Создает сигнатуру объекта данных, хранящегося вне базы данных. Сигнатура формируется как текст base32
+	//   бинарной конкатенации некоего глобального идентификатора rGlobalIdent и текстового представления имени ресурса pResourceName.
+	//
+	static SString & MakeBlobSignature(const SBinaryChunk & rGlobalIdent, const char * pResourceName, SString & rBuf);
 	//
 	// Descr: Сигнатура сериализации для объектных пакетов. Вводится начиная с версии @v11.1.12
 	//   для обратной совместимости при считывании старых версий пакетов. Важный элемент применения
@@ -13225,7 +13237,7 @@ public:
 	uint32 DiffParam;      // Флаги дифференциации записей (GoodsRestParam::_diffXXX)
 	LDATE  Date;
 	long   OprNo;          // Если Dt != 0 и OprNo > 0, то остаток по лотам брать до {Date, OprNo}
-	PPID   LocID;
+	PPID   LocID;          //
 	PPID   GoodsID;
 	PPID   SupplID;
 	PPID   AgentID;        // Агент, связанный с документом прихода товара (агент поставщика)
@@ -14884,8 +14896,8 @@ private:
 // Descr: Флаги операция по персональным картам
 //
 #define SCARDOPF_FREEZING      0x0004 // Операция приостановки действия карты
-#define SCARDOPF_NOTIFYSENDED  0x0008 // @v10.2.3 Связанному с картой контрагенту отправлено уведомление об операции (флаг нужен во избежании повторной рассылки)
-#define SCARDOPF_LEVELING      0x0010 // @v10.9.0 Технологическая операция выравнивания остатка по карте
+#define SCARDOPF_NOTIFYSENDED  0x0008 // Связанному с картой контрагенту отправлено уведомление об операции (флаг нужен во избежании повторной рассылки)
+#define SCARDOPF_LEVELING      0x0010 // Технологическая операция выравнивания остатка по карте
 
 class SCardCore : public SCardTbl {
 public:
@@ -14904,7 +14916,7 @@ public:
 				// операции недопустимо изменене даты/времени и установка карты-приемника (DestSCardID)
 			fRemove   = 0x0002, // @transient Признак требования удалить записи
 			fFreezing = 0x0004, // @persistent Операция приостановки действия карты
-			fLeveling = 0x0008  // @v10.9.0 @persistent Специальная операция выравнивания остатка по карте
+			fLeveling = 0x0008  // @persistent Специальная операция выравнивания остатка по карте
 		};
 		PPID   SCardID;
 		PPID   DestSCardID;
@@ -14912,14 +14924,18 @@ public:
 		LDATETIME Dtm;
 		DateRange FreezingPeriod;
 		long   Flags;
+		PPID   CtGoodsID;    // @v12.0.6 Если по карте действует количественный учет, то здесь - операционный идентификатор товара
 		double Amount;
+		long   CtAmount;     // @v12.0.6 Если по карте действует количественный учет, то здесь - операционное количество 
 		double PrevRest;     // @*SCardCore::GetOp() Остаток по карте SCardID перед операцией (Flags & fEdit)
 		double PrevDestRest; // @*SCardCore::GetOp() Остаток по карте DestSCardID перед операцией (Flags & fEdit)
+		long   PrevCtRest;   // @v12.0.6 Если по карте действует количественный учет, то здесь - остаток по карте SCardID перед операцией
+		long   PrevDestCtRest; // @v12.0.6 Если по карте действует количественный учет, то здесь - остаток по карте DestSCardID перед операцией
 	};
 	//
 	struct UpdateRestNotifyEntry { // @flat
 		PPID   SCardID;
-		LDATETIME OpDtm; // @v10.2.3
+		LDATETIME OpDtm;
 		double PrevRest;
 		double NewRest;
 	};
@@ -20832,6 +20848,7 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 #define CASHFX_KEEPORGCCUSER      0x00001000L // (sync)  При отложении-восстановлении чеков сохранять оригинального пользователя, создавшего чек.
 #define CASHFX_CREATEOBJSONIMP    0x00002000L // (async) Создавать объекты при импорте чеков
 #define CASHFX_PASSIVE            0x00004000L // Пассивный узел (не отображается в списках)
+#define CASHFX_ENABLECASHLESSBPEQ 0x00008000L // @v12.0.6 Допускается проведение безналичной оплаты в обход банковского терминала
 #define CASHFX_SEPARATERCPPRN     0x00010000L // (async) Загружать номера кассовых аппаратов
 #define CASHFX_INPGUESTCFTBL      0x00020000L // (sync) После выбора стола требовать ввода количества гостей
 #define CASHFX_DISABLEZEROSCARD   0x00040000L // (sync) Запрет операция без выбора персональной карты
@@ -20839,12 +20856,12 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 #define CASHFX_IGNLOOKBACKPRICES  0x00100000L // (async) Игноририровать обратный анализ доступных цены на специальные товары
 #define CASHFX_ABSTRGOODSALLOWED  0x00200000L // (sync) Допускается продажа абстрактного товара по цене (в конфигурации товаров должен быть указан DefGoodsID).
 #define CASHFX_EXTNODEASALT       0x00400000L // (sync) Дополнительный кассовый узел используется как альтернативный принтер
-#define CASHFX_IGNCONDQUOTS       0x00800000L // @v10.0.03 (async) Не использовать при расчете цен для загрузки условные котировки.
+#define CASHFX_IGNCONDQUOTS       0x00800000L // (async) Не использовать при расчете цен для загрузки условные котировки.
 	// Транслируется в установку флага RTLPF_IGNCONDQUOTS при вызове RetailPriceExtractor::Init()
-#define CASHFX_CHECKEGAISMUNIQ    0x01000000L // @v10.1.1 (sync) Проверять уникальность сканируемых акцизных марок (медленная операция)
+#define CASHFX_CHECKEGAISMUNIQ    0x01000000L // (sync) Проверять уникальность сканируемых акцизных марок (медленная операция)
 #define CASHFX_IGNPENNYFROMBCARD  0x02000000L // @erik @v10.6.12 игнорировать копейки при списывании бонусов с бонусной карты
-#define CASHFX_NOTIFYEQPTIMEMISM  0x04000000L // @v10.8.1 (sync) Информировать в кассовой панели о расхождении времени на регистраторе со временем на компьютере
-#define CASHFX_BNKSLIPAFTERRCPT   0x08000000L // @v10.9.11 (sync) Печатать банковский слип после кассового чека (иначе сначала слип, потом чек)
+#define CASHFX_NOTIFYEQPTIMEMISM  0x04000000L // (sync) Информировать в кассовой панели о расхождении времени на регистраторе со временем на компьютере
+#define CASHFX_BNKSLIPAFTERRCPT   0x08000000L // (sync) Печатать банковский слип после кассового чека (иначе сначала слип, потом чек)
 #define CASHFX_USEGOODSMATRIX     0x10000000L // @v11.2.8 Применять ограничения товарной матрицы в кассовой панели
 #define CASHFX_SYNCOPENSESSSOFT   0x20000000L // @v11.4.7 (sync) Открывать кассовую сессию без подачи соответствующей команды устройству.
 	// Причина: на некоторых устройствах функция открытия сессии влечет проблемы.
@@ -24199,11 +24216,8 @@ public:
 //
 #define GSF_COMPL          0x00000001L // Допускается комплектация     //
 #define GSF_DECOMPL        0x00000002L // Допускается разукомплектация //
-// @v6.7.5 @unused #define GSF_PCTCOREL       0x0004L // Количественные соотношения составляющих в процентах
 #define GSF_PARTITIAL      0x00000008L // Частичная структура
-#define GSF_NAMED          0x00000020L // Именованная структура.
-	// Однажды будучи присвоен, флаг GSF_NAMED не может быть отобран и такая //
-	// структура обязана иметь непустое уникальное имя.                      //
+#define GSF_NAMED          0x00000020L // Именованная структура. Однажды будучи присвоен, флаг GSF_NAMED не может быть отобран и такая структура обязана иметь непустое уникальное имя.
 #define GSF_OUTPWOVAT      0x00000040L // Выход без НДС
 #define GSF_FOLDER         0x00000080L // Структура верхнего уровня.
 #define GSF_CHILD          0x00000100L // Дочерняя структура (не может быть именованной)
@@ -24219,8 +24233,9 @@ public:
 #define GSF_OVRLAPGIFT     0x00010000L // Подарок с "перекрытием": такой подарок назначается независимо от того,
 	// что по некоторым позициям были выданы другие подарки. При этом два и более подарка с перекрытием взаимно исключаются.
 // #define GSF_RECOMPL        0x00020000L // @v10.0.06 Допускается рекомплектацию //
-#define GSF_AUTODECOMPL   0x000020000L // @v11.6.2 Допускается автоматическая декомплектация в случае дефицита одного или нескольких компонентов
+#define GSF_AUTODECOMPL    0x000020000L // @v11.6.2 Допускается автоматическая декомплектация в случае дефицита одного или нескольких компонентов
 	// в операциях списания техн сессий.
+#define GSF_PRICEPLANNING  0x000040000L // @v12.0.6 @construction Специальный вид структуры для планирования стоимости продаж
 //
 // Descr: Дескрипторы, определяющие специальные правила установки цен на товарные позиции,
 //   составляющие подарочную комбинацию.
@@ -24314,12 +24329,13 @@ public:
 	// Descr: Виды структур.
 	//
 	enum {
-		kUndef = 0, // Неопределенный
-		kBOM   = 1, // Комплектация/декомплектация //  GSF_COMPL|GSF_DECOMPL|GSF_RECOMPL
-		kPart,      // Частичная структура             GSF_PARTITIAL
-		kSubst,     // Подстановочная структура        GSF_SUBST
-		kGift,      // Подарочная //                   GSF_PRESENT
-		kComplex    // Комплекс                        GSF_COMPLEX
+		kUndef = 0,    // Неопределенный
+		kBOM   = 1,    // Комплектация/декомплектация //  GSF_COMPL|GSF_DECOMPL|GSF_RECOMPL
+		kPart,         // Частичная структура             GSF_PARTITIAL
+		kSubst,        // Подстановочная структура        GSF_SUBST
+		kGift,         // Подарочная //                   GSF_PRESENT
+		kComplex,      // Комплекс                        GSF_COMPLEX
+		kPricePlanning // @v12.0.6 @construction Планирование стоимости продаж GSF_PRICEPLANNING
 	};
 
 	static int FASTCALL IsSimpleQttyString(const char * pStr);
@@ -31241,8 +31257,9 @@ public:
 
 	explicit PPObjSwProgram(void * extraPtr = 0);
 	~PPObjSwProgram();
-	int    Get(PPID, PPSwProgramPacket *);
-	int    Put(PPID *, PPSwProgramPacket *, int use_ta);
+	int    Fetch(PPID id, PPSwProgram * pRec);
+	int    Get(PPID id, PPSwProgramPacket *);
+	int    Put(PPID * pID, PPSwProgramPacket *, int use_ta);
 	virtual void * CreateObjListWin(uint aFlags, void * extraPtr);
 	SJson * ExportToJson(const char * pImgPath);
 	int    ImportFromJson(const SJson * pJs, const char * pImgPathUtf8);
@@ -47503,8 +47520,6 @@ public:
 	//
 	static int   PrepareAhed(bool useCurrentSession);
 	static int   GetBlobStoragePath(SString & rBuf);
-	static SString & MakeBlobSignature(const SBinaryChunk & rOwnIdent, PPObjID oid, uint itemNumber, SString & rBuf);
-	static SString & MakeBlobSignature(const SBinaryChunk & rOwnIdent, const char * pResourceName, SString & rBuf);
 	//
 	// Descr: Имитирует исполнение команды с выводом данных в каталог OUT
 	// 
@@ -54232,9 +54247,11 @@ struct PosPaymentBlock {
 	double BonusMaxPart;
 	double AmtToPaym;      // Сумма к уплате (наличными или через банк). То есть, сумма чека за минусом доступных бонусов и остатка на кредитной карте.
 	enum {
-		fPaperless         = 0x0001, // Не печатать бумажный чек
-		fAltCashRegEnabled = 0x0002, // Разрешается использование альтернативного регистратора
-		fAltCashRegUse     = 0x0004  // Если (Flags & fAltCashRegEnabled) и (Flags & fAltCashRegUse) то печатать чека на альтернативном регистраторе
+		fPaperless               = 0x0001, // OUT Не печатать бумажный чек
+		fAltCashRegEnabled       = 0x0002, // IN  Разрешается использование альтернативного регистратора
+		fAltCashRegUse           = 0x0004, // OUT Если (Flags & fAltCashRegEnabled) и (Flags & fAltCashRegUse) то печатать чека на альтернативном регистраторе
+		fCashlessBypassEqEnabled = 0x0008, // @v12.0.6 IN  Безналичная оплата в обход банковского терминала разрешена
+		fCashlessBypassEq        = 0x0010, // @v12.0.6 OUT Безналичная оплата в обход банковского терминала
 	};
 	long   Flags;        // @v11.3.6
 	CCheckPacket::BueryEAddr_ EAddr;  // Электронный адрес покупателя (email or phone)
@@ -54968,7 +54985,7 @@ private:
 	int    EditMemo(const char * pDlvrPhone, const char * pChannel);
 	int    EditPrescription();
 	void   ViewStoragePlaces(PPID goodsId);
-	int    ConfirmPosPaymBank(/*double amount*/PosPaymentBlock & rPpl);
+	int    ConfirmPosPaymBank(PosPaymentBlock & rPpl);
 	//
 	// Descr: Функция пытается найти марку чзн для автоматического списания (без ручного выбора)
 	//   На текущий момент функция работает только для товаров, 
@@ -59572,7 +59589,7 @@ int    SynchronizeObjects(PPID dest);
 int    CorrectLotsCloseTags();
 int    CorrectLotSuppl();
 int    CorrectZeroQCertRefs();
-int    CorrectZeroDebtDimRefs(); // @v10.2.8
+int    CorrectZeroDebtDimRefs();
 int    CorrectAccturn();       // PPACC\C_ATURN.CPP
 int    EditQuotVal(PPQuot * pQ, int quotCls);
 int    EditQuotUpdDialog(QuotUpdFilt * pFilt);

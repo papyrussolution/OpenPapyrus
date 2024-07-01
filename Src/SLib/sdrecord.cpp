@@ -244,11 +244,9 @@ int SdbField::Helper_TranslateString(SStrScan & rScan, void * pData)
 			else
 				Name = tok_buf;
 		}
-		// @v10.9.1 {
 		else if(tok == TOK_FORMULA) {
 			OuterFormula = tok_buf;
 		}
-		// } @v10.9.1 
 		else if(tok == TOK_SLASH) {
 			if(prev_tok != TOK_SYMB)
 				ok = SLS.SetError(SLERR_SDREC_SYNTAX, (msg_buf = rScan.GetBuf(prev_offs)).Transf(CTRANSF_OUTER_TO_INNER));

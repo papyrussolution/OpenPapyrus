@@ -21,7 +21,7 @@ SlipLineParam & SlipLineParam::Z()
 	PhQtty = 0.0; // @v11.9.3
 	Price = 0.0;
 	VatRate = 0.0;
-	PaymTermTag = CCheckPacket::pttUndef; // @v10.4.1
+	PaymTermTag = CCheckPacket::pttUndef;
 	SbjTermTag = CCheckPacket::sttUndef;  // @erikH v10.4.12
 	DivID = 0;
 	FontSize = 0;
@@ -31,14 +31,14 @@ SlipLineParam & SlipLineParam::Z()
 	BarcodeStd = 0;
 	BarcodeWd = 0;
 	BarcodeHt = 0;
-	ChZnProductType = 0; // @v10.7.2
+	ChZnProductType = 0;
 	PpChZnR.Z(); // @v11.1.11
 	Text.Z();
 	Code.Z();
-	ChZnCode.Z(); // @v10.6.8
-	ChZnGTIN.Z(); // @v10.7.2
-	ChZnSerial.Z(); // @v10.7.2
-	ChZnSid.Z(); // @v10.8.12
+	ChZnCode.Z();
+	ChZnGTIN.Z();
+	ChZnSerial.Z();
+	ChZnSid.Z();
 	return *this;
 }
 //
@@ -70,7 +70,7 @@ public:
 			fSignBarcode = 0x0200, // Элемент представляет отображение штрихкода подписи чека (BarcodeId != 0)
 			fItemBarcode = 0x0400, // Элемент представляет отображение штрихкода товара (BarcodeId != 0)
 				// @#{fSignBarcode^fItemBarcode}
-			fFakeCcQr    = 0x0800  // @v9.6.11 Элемент представляет фейковый QR-код ОФД по чеку
+			fFakeCcQr    = 0x0800  // Элемент представляет фейковый QR-код ОФД по чеку
 		};
 		enum {
 			cEq = 1,
@@ -1506,10 +1506,10 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 			pIter->Price = 0.0;
 			pIter->UomId = 0; // @v11.9.5
 			pIter->UomFragm = 0; // @v11.2.6
-			pIter->ChZnCode[0] = 0; // @v10.7.0
-			pIter->ChZnGTIN[0] = 0;  // @v10.7.2
-			pIter->ChZnSerial[0] = 0; // @v10.7.2
-			pIter->ChZnPartN[0] = 0; // @v10.7.8
+			pIter->ChZnCode[0] = 0;
+			pIter->ChZnGTIN[0] = 0;
+			pIter->ChZnSerial[0] = 0;
+			pIter->ChZnPartN[0] = 0;
 			const PPSlipFormat::Zone * p_zone = pIter->P_Zone;
 			if(pIter->EntryNo < p_zone->getCountI()) {
 				const PPSlipFormat::Entry * p_entry = pIter->P_Entry = p_zone->at(pIter->EntryNo);
@@ -1522,12 +1522,10 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 					PPUnit phu_rec; // @v11.9.3
 					if(Src == srcCCheck) {
 						CCheckPacket::LineExt cc_ext;
-						// @v10.1.0 {
 						if((Flags & fSkipPrintingZeroPrice) && pIter->GetOuterZoneKind() == PPSlipFormat::Zone::kDetail) {
 							while(GetCurCheckItem(pIter, &cc_item) && (intmnytodbl(cc_item.Price) - cc_item.Dscnt) == 0.0)
 								pIter->SrcItemNo++;
 						}
-						// } @v10.1.0 
 						if(GetCurCheckItem(pIter, &cc_item, &cc_ext)) {
 							int   chzn_product_type = 0;
 							const double s  = intmnytodbl(cc_item.Price) * cc_item.Quantity;
@@ -2512,11 +2510,11 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 				sl_param.Kind = sl_param.lkSignBarcode;
 			sl_param.Text = CurIter.Text;
 			sl_param.Code = CurIter.Code;
-			sl_param.ChZnCode = CurIter.ChZnCode; // @v10.6.12
-			sl_param.ChZnGTIN = CurIter.ChZnGTIN; // @v10.6.12
-			sl_param.ChZnSerial = CurIter.ChZnSerial; // @v10.6.12
-			sl_param.ChZnPartN = CurIter.ChZnPartN; // @v10.7.8
-			sl_param.ChZnProductType = CurIter.ChZnProductType; // @v10.7.2
+			sl_param.ChZnCode = CurIter.ChZnCode;
+			sl_param.ChZnGTIN = CurIter.ChZnGTIN;
+			sl_param.ChZnSerial = CurIter.ChZnSerial;
+			sl_param.ChZnPartN = CurIter.ChZnPartN;
+			sl_param.ChZnProductType = CurIter.ChZnProductType;
 			// @v11.1.11 {
 			if(P_CcPack && sl_param.ChZnCode.NotEmpty()) {
 				const CCheckPacket::PreprocessChZnCodeResult * p_ppr = P_CcPack->GetLineChZnPreprocessResult(CurIter.SrcItemNo+1); 

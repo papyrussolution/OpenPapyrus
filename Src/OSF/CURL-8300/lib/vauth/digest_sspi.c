@@ -403,19 +403,14 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 	SecBuffer chlg_buf[5];
 	SecBufferDesc chlg_desc;
 	SECURITY_STATUS status;
-
 	(void)data;
-
 	/* Query the security package for DigestSSP */
-	status = s_pSecFn->QuerySecurityPackageInfo((TCHAR *)TEXT(SP_NAME_DIGEST),
-		&SecurityPackage);
+	status = s_pSecFn->QuerySecurityPackageInfo((TCHAR *)TEXT(SP_NAME_DIGEST), &SecurityPackage);
 	if(status != SEC_E_OK) {
 		failf(data, "SSPI: couldn't get auth info");
 		return CURLE_AUTH_ERROR;
 	}
-
 	token_max = SecurityPackage->cbMaxToken;
-
 	/* Release the package buffer as it is not required anymore */
 	s_pSecFn->FreeContextBuffer(SecurityPackage);
 
@@ -464,8 +459,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 		if(status == SEC_E_OK)
 			output_token_len = chlg_buf[4].cbBuffer;
 		else { /* delete the context so a new one can be made */
-			infof(data, "digest_sspi: MakeSignature failed, error 0x%08lx",
-			    (long)status);
+			infof(data, "digest_sspi: MakeSignature failed, error 0x%08lx", (long)status);
 			s_pSecFn->DeleteSecurityContext(digest->http_context);
 			ZFREE(digest->http_context);
 		}

@@ -1076,7 +1076,7 @@ struct _PPRights {         // @persistent @store(PropertyTbl)
 				const ObjRights * p_so2 = reinterpret_cast<const ObjRights *>(PTR8C(&rS + 1) + s2);
 				bool found = false;
 				for(uint s = 0; !found && s < ORTailSize;) {
-					const ObjRights * p_so = reinterpret_cast<const ObjRights *>(PTR8C(&p_s + 1) + s);
+					const ObjRights * p_so = reinterpret_cast<const ObjRights *>(PTR8C(p_s + 1) + s); // @v12.0.6 @fix &p_s-->p_s
 					if(p_so2->ObjType == p_so->ObjType) {
 						found = true;
 						// На равенство элементы проверялись выше
@@ -1138,8 +1138,8 @@ bool FASTCALL PPRights::IsEq(const PPRights & rS) const
 	const ObjRestrictArray * const pp_other_listlist[] = { rS.P_OpList, rS.P_LocList, rS.P_CfgList, rS.P_AccList, rS.P_PosList, rS.P_QkList };
 	assert(SIZEOFARRAY(pp_my_listlist) == SIZEOFARRAY(pp_other_listlist));
 	bool eq = true;
-	for(uint i = 0; !eq && i < SIZEOFARRAY(pp_my_listlist); i++) {
-		if((!pp_my_listlist[i] && !pp_other_listlist[i]) || (pp_my_listlist[i] && pp_other_listlist && pp_my_listlist[i]->IsEq(*pp_other_listlist[i]))) {
+	for(uint i = 0; eq && i < SIZEOFARRAY(pp_my_listlist); i++) { // @v12.0.6 @fix !eq-->eq
+		if((!pp_my_listlist[i] && !pp_other_listlist[i]) || (pp_my_listlist[i] && pp_other_listlist[i] && pp_my_listlist[i]->IsEq(*pp_other_listlist[i]))) {
 			;
 		}
 		else
