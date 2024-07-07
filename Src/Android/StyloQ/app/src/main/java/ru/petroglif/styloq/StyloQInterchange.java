@@ -228,8 +228,21 @@ public class StyloQInterchange {
 		}
 		@Override public void run()
 		{
-			SvcNotificationPoll(AppCtx); // @v11.5.10
-			DocStatusPoll(AppCtx);
+			// @v12.0.6 {
+			NetworkConnectionInfoManager.Status nws = AppCtx.GetNetworkStatus();
+			boolean disable_because_bad_network = true;
+			if(nws != null) {
+				if(nws.Transp == NetworkConnectionInfoManager.Transport.WIFI || nws.Transp == NetworkConnectionInfoManager.Transport.Ethernet)
+					disable_because_bad_network = false;
+				else if(nws.Transp == NetworkConnectionInfoManager.Transport.Cellular) {
+					if(nws.CellularQuality > 2)
+						disable_because_bad_network = false;
+				}
+			}
+			if(!disable_because_bad_network) /* } @v12.0.6 */ {
+				SvcNotificationPoll(AppCtx); // @v11.5.10
+				DocStatusPoll(AppCtx);
+			}
 		}
 	}
 	public static void SvcNotificationPoll(StyloQApp appCtx)

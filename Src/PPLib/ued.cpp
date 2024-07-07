@@ -221,21 +221,6 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 	return result;
 }
 
-/*static*/uint UED::GetRawDataBits(uint64 ued)
-{
-	uint   result = 0;
-	if(!IsMetaId(ued)) {
-		const uint32 hi_dword = HiDWord(ued);
-		if(hi_dword & 0x80000000U)
-			result = 56;
-		else if(hi_dword & 0x40000000)
-			result = 48;
-		else if(hi_dword)
-			result = 32;
-	}
-	return result;
-}
-
 /*static*/uint64 UED::GetMeta(uint64 ued)
 {
 	uint64 result = 0ULL;
@@ -258,7 +243,7 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 {
 	bool   ok = true;
 	uint64 raw_value = 0ULL;
-	uint   bits = GetRawDataBits(ued);
+	const  uint bits = GetRawDataBits(ued);
 	assert(oneof4(bits, 56, 48, 32, 0));
 	if(bits == 32)
 		raw_value = LoDWord(ued);	
@@ -276,10 +261,12 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 {
 	bool   ok = true;
 	uint32 raw_value = 0UL;
-	uint   bits = GetRawDataBits(ued);
+	const  uint  bits = GetRawDataBits(ued);
 	assert(oneof4(bits, 56, 48, 32, 0));
-	if(bits == 32)
-		raw_value = LoDWord(ued);	
+	if(bits == 32) {
+		raw_value = LoDWord(ued);
+		assert(raw_value == GetRawValue32(ued));
+	}
 	else
 		ok = false;
 	ASSIGN_PTR(pRawValue, raw_value);

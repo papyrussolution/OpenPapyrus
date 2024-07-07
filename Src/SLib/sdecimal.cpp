@@ -584,9 +584,9 @@ uint64 SDecimal::ToUed_NonConst(uint numBits) // @construction
 			}
 		}
 	}
-	CATCH
-		ued = 0; // @error @todo Уточнить идентификацию ошибки
-	ENDCATCH
+	//CATCH
+		//ued = 0; // @error @todo Уточнить идентификацию ошибки
+	//ENDCATCH
 	return ued;
 }
 

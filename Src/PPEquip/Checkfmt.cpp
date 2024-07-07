@@ -155,14 +155,14 @@ public:
 		uint16 IsSimplifiedDraftBeer; // @v11.9.3 Признак того, что строка ассоциирована с позицией чека, предполагающей упрощенный учет разливного пива в честном знаке.
 			// При этом полем Code содержит штрихкод этого пива (кега)
 		long   GoodsID;       //
-		CCheckPacket::PaymentTermTag Ptt; // @v10.4.1 Признак способа расчета (определяется типом товара)
+		CCheckPacket::PaymentTermTag Ptt; // Признак способа расчета (определяется типом товара)
 		CCheckPacket::SubjTermTag Stt;    // @erikD v10.4.12 Признак предмета расчета
 		char   Text[256];       //
 		char   Code[32];        //
-		char   ChZnCode[256];   // @v10.6.8 // @v11.2.3 [64]-->[256]
-		char   ChZnGTIN[16];    // @v10.7.2
-		char   ChZnSerial[32];  // @v10.7.2
-		char   ChZnPartN[32];   // @v10.7.8
+		char   ChZnCode[256];   // @v11.2.3 [64]-->[256]
+		char   ChZnGTIN[16];    // 
+		char   ChZnSerial[32];  // 
+		char   ChZnPartN[32];   // 
 		RECT   PictCoord;
 		const  Zone * P_Zone;
 		const  Entry * P_Entry;
@@ -258,8 +258,8 @@ private:
 		tokTextOutput,      // textoutput // @vmiller
 		tokBarcode,         // barcode width height [textabove|textbelow|textnone]
 		tokSignBarcode,     // signbarcode std width height [textabove|textbelow|textnone]
-		tokFakeCcQrCode,    // fakeccqrcode // @v9.6.11
-		tokElseIf,          // @v9.9.4 elseif
+		tokFakeCcQrCode,    // fakeccqrcode
+		tokElseIf,          // elseif
 		_tokLastWordToken   // @anchor
 	};
 
@@ -269,7 +269,7 @@ private:
 		srcCSession      // CSessionTbl::Rec
 	};
 	enum {
-		fSkipPrintingZeroPrice = 0x0001 // @v10.0.12 Проекция флага PPEquipConfig::fSkipPrintingZeroPrice
+		fSkipPrintingZeroPrice = 0x0001 // Проекция флага PPEquipConfig::fSkipPrintingZeroPrice
 	};
 	union {
 		const CCheckPacket * P_CcPack;
@@ -328,7 +328,7 @@ private:
 	int    IsWrap;
 	long   LastPictId;
 	int    Src;          // Источник данных
-	long   Flags;        // @v10.0.12
+	long   Flags;        // 
 	double RunningTotal; // Специальная накопительная сумма, используемая для правильного округления строк чека
 	OnLoginData * P_Od;
 	Iter   CurIter;
@@ -369,7 +369,7 @@ int PPSlipFormat::InitIteration(int zoneKind, Iter * pIter)
 {
 	uint   i;
 	SETIFZ(P_Od, new OnLoginData);
-	SETFLAG(Flags, fSkipPrintingZeroPrice, P_Od->CsObj.GetEqCfg().Flags & PPEquipConfig::fSkipPrintingZeroPrice); // @v10.0.12
+	SETFLAG(Flags, fSkipPrintingZeroPrice, P_Od->CsObj.GetEqCfg().Flags & PPEquipConfig::fSkipPrintingZeroPrice);
 	pIter->SrcItemNo = 0;
 	pIter->EntryNo = 0;
 	pIter->SrcItemsCount = -1;
@@ -534,8 +534,8 @@ enum {
 	symbDirector,          // DIRECTOR   Директор
 	symbAccountant,        // ACCOUNTANT Главный бухгалтер
 	symbClientExtName,     // CLIENTEXTNAME @erik v10.4.11
-	symbAmountBonus,       // @v10.6.5 AMOUNTBONUS
-	symbAmountWoBonus,     // @v10.6.5 AMOUNTWOBONUS 
+	symbAmountBonus,       // AMOUNTBONUS
+	symbAmountWoBonus,     // AMOUNTWOBONUS 
 	symbBuyerINN,          // @v11.0.4 BUYERINN
 	symbBuyerName          // @v11.0.4 BUYERNAME       
 };

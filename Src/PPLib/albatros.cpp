@@ -35,10 +35,8 @@ int AlbatrosConfigDialog::EditMqcConfig()
 			SString temp_buf;
 			Data.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
 			setCtrlString(CTL_MQCCFG_HOST, temp_buf);
-			// @v10.6.0 {
 			Data.GetExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, temp_buf);
 			setCtrlString(CTL_MQCCFG_VIRTHOST, temp_buf);
-			// } @v10.6.0 
 			Data.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
 			setCtrlString(CTL_MQCCFG_USER, temp_buf);
 			Data.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
@@ -53,10 +51,8 @@ int AlbatrosConfigDialog::EditMqcConfig()
 			SString temp_buf;
 			getCtrlString(CTL_MQCCFG_HOST, temp_buf);
 			Data.PutExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf.Strip());
-			// @v10.6.0 {
 			getCtrlString(CTL_MQCCFG_VIRTHOST, temp_buf);
 			Data.PutExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, temp_buf.Strip());
-			// } @v10.6.0
 			getCtrlString(CTL_MQCCFG_USER, temp_buf);
 			Data.PutExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf.Strip());
 			getCtrlString(CTL_MQCCFG_SECRET, temp_buf);
@@ -117,16 +113,14 @@ int AlbatrosConfigDialog::EditVetisConfig()
 		dlg->setCtrlString(CTL_VETISCFG_PASSW, temp_buf);
 		Data.GetExtStrData(ALBATROSEXSTR_VETISAPIKEY, temp_buf);
 		dlg->setCtrlString(CTL_VETISCFG_APIKEY, temp_buf);
-		// @v10.1.0 {
 		Data.GetExtStrData(ALBATROSEXSTR_VETISDOCTUSER, temp_buf);
 		dlg->setCtrlString(CTL_VETISCFG_DOCTUSER, temp_buf);
 		Data.GetPassword(ALBATROSEXSTR_VETISDOCTPASSW, temp_buf);
 		dlg->setCtrlString(CTL_VETISCFG_DOCTPASSW, temp_buf);
 		dlg->setCtrlData(CTL_VETISCFG_TIMEOUT, &Data.Hdr.VetisTimeout);
-		dlg->setCtrlData(CTL_VETISCFG_DOCCRTDELAY, &Data.Hdr.VetisCertDelay); // @v10.1.10
-		// } @v10.1.0
-		dlg->AddClusterAssoc(CTL_VETISCFG_FLAGS, 0, Data.Hdr.fVetisTestContour); // @v10.5.1
-		dlg->SetClusterData(CTL_VETISCFG_FLAGS, Data.Hdr.Flags); // @v10.5.1
+		dlg->setCtrlData(CTL_VETISCFG_DOCCRTDELAY, &Data.Hdr.VetisCertDelay);
+		dlg->AddClusterAssoc(CTL_VETISCFG_FLAGS, 0, Data.Hdr.fVetisTestContour);
+		dlg->SetClusterData(CTL_VETISCFG_FLAGS, Data.Hdr.Flags);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			dlg->getCtrlString(CTL_VETISCFG_USER, temp_buf);
 			Data.PutExtStrData(ALBATROSEXSTR_VETISUSER, temp_buf.Strip());
@@ -134,15 +128,13 @@ int AlbatrosConfigDialog::EditVetisConfig()
 			Data.SetPassword(ALBATROSEXSTR_VETISPASSW, temp_buf);
 			dlg->getCtrlString(CTL_VETISCFG_APIKEY, temp_buf);
 			Data.PutExtStrData(ALBATROSEXSTR_VETISAPIKEY, temp_buf);
-			// @v10.1.0 {
 			dlg->getCtrlString(CTL_VETISCFG_DOCTUSER, temp_buf);
 			Data.PutExtStrData(ALBATROSEXSTR_VETISDOCTUSER, temp_buf.Strip());
 			dlg->getCtrlString(CTL_VETISCFG_DOCTPASSW, temp_buf);
 			Data.SetPassword(ALBATROSEXSTR_VETISDOCTPASSW, temp_buf);
 			dlg->getCtrlData(CTL_VETISCFG_TIMEOUT, &Data.Hdr.VetisTimeout);
-			// } @v10.1.0
-			dlg->getCtrlData(CTL_VETISCFG_DOCCRTDELAY, &Data.Hdr.VetisCertDelay); // @v10.1.10
-			dlg->GetClusterData(CTL_VETISCFG_FLAGS, &Data.Hdr.Flags); // @v10.5.1
+			dlg->getCtrlData(CTL_VETISCFG_DOCCRTDELAY, &Data.Hdr.VetisCertDelay);
+			dlg->GetClusterData(CTL_VETISCFG_FLAGS, &Data.Hdr.Flags);
 			ok = 1;
 		}
 	}
@@ -222,7 +214,7 @@ int AlbatrosConfigDialog::setDTS(const PPAlbatrossConfig * pCfg)
 	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 2, PPAlbatrosCfgHdr::fUncondAcceptEdiIntrMov);
 	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 3, PPAlbatrosCfgHdr::fUseOwnEgaisObjects);
 	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 4, PPAlbatrosCfgHdr::fUseDateInBillAnalog);
-	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 5, PPAlbatrosCfgHdr::fStrictExpGtinCheck); // @v10.0.04
+	AddClusterAssoc(CTL_ALBTRCFG_FLAGS, 5, PPAlbatrosCfgHdr::fStrictExpGtinCheck);
 	SetClusterData(CTL_ALBTRCFG_FLAGS, Data.Hdr.Flags);
 	return ok;
 }
@@ -233,8 +225,6 @@ int AlbatrosConfigDialog::getDTS(PPAlbatrossConfig * pCfg)
 	getCtrlData(CTLSEL_ALBTRCFG_OPKINDID, &Data.Hdr.OpID);
 	getCtrlData(CTLSEL_ALBTRCFG_MAILACC,  &Data.Hdr.MailAccID);
 	getCtrlData(CTLSEL_ALBTRCFG_SMSACC,  &Data.Hdr.SmsAccID);
-	// @v10.5.12 @unused getCtrlString(CTL_ALBTRCFG_UHTTURN, temp_buf);
-	// @v10.5.12 @unused Data.PutExtStrData(ALBATROSEXSTR_UHTTURN, temp_buf);
 	getCtrlString(CTL_ALBTRCFG_UHTTURLPFX, temp_buf/*Data.UhttUrlPrefix*/);
 	Data.PutExtStrData(ALBATROSEXSTR_UHTTURLPFX, temp_buf);
 	getCtrlString(CTL_ALBTRCFG_UHTTACCOUNT, temp_buf/*Data.UhttAccount*/);
@@ -243,7 +233,6 @@ int AlbatrosConfigDialog::getDTS(PPAlbatrossConfig * pCfg)
 	Data.SetPassword(ALBATROSEXSTR_UHTTPASSW, temp_buf);
 	getCtrlString(CTL_ALBTRCFG_EGAISURL, temp_buf/*Data.EgaisServerURL*/);
 	Data.PutExtStrData(ALBATROSEXSTR_EGAISSRVURL, temp_buf);
-
 	getCtrlData(CTLSEL_ALBTRCFG_EDIORD, &Data.Hdr.EdiOrderOpID);
 	getCtrlData(CTLSEL_ALBTRCFG_EDIORDSP, &Data.Hdr.EdiOrderSpOpID);
 	getCtrlData(CTLSEL_ALBTRCFG_DESADV, &Data.Hdr.EdiDesadvOpID);
@@ -252,7 +241,6 @@ int AlbatrosConfigDialog::getDTS(PPAlbatrossConfig * pCfg)
 	getCtrlData(CTLSEL_ALBTRCFG_RCVTAG, &Data.Hdr.RcptTagID);
 	getCtrlData(CTLSEL_ALBTRCFG_TTNTAG, &Data.Hdr.TtnTagID);
 	GetClusterData(CTL_ALBTRCFG_FLAGS, &Data.Hdr.Flags);
-
 	ASSIGN_PTR(pCfg, Data);
 	return 1;
 }

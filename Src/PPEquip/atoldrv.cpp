@@ -456,9 +456,9 @@ private:
 			temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
 			P_Fptr10->SetSingleSettingProc(h, LIBFPTR_SETTING_PORT, temp_buf_u);
 			{
-				temp_buf.Z().Cat(Port).Strip(); // @v10.8.3 Strip()
+				temp_buf.Z().Cat(Port).Strip();
 				if(temp_buf.IsDec())
-					temp_buf.Z().Cat("com").Cat(Port); // @v10.8.3 "COM"-->"com"
+					temp_buf.Z().Cat("com").Cat(Port);
 				temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
 				P_Fptr10->SetSingleSettingProc(h, LIBFPTR_SETTING_COM_FILE, temp_buf_u);
 			}
@@ -488,8 +488,6 @@ private:
 		int    ok = 0;
 		rBlk.Flags = 0;
 		if(P_Fptr10) {
-			//libfptr_set_param_int(fptr, LIBFPTR_PARAM_DATA_TYPE, LIBFPTR_DT_STATUS);
-			//libfptr_query_data(fptr);
 			void * h = P_Fptr10->Handler;
 			P_Fptr10->SetParamIntProc(h, LIBFPTR_PARAM_DATA_TYPE, LIBFPTR_DT_STATUS);
 			P_Fptr10->QueryDataProc(h);
@@ -539,11 +537,9 @@ private:
 			P_Fptr10->QueryDataProc(h);
 			rBlk.Summator = P_Fptr10->GetParamDoubleProc(h, LIBFPTR_PARAM_SUM);
 			*/
-			// @v10.3.12 {
 			P_Fptr10->SetParamIntProc(h, LIBFPTR_PARAM_DATA_TYPE, LIBFPTR_DT_CASH_SUM);
 			P_Fptr10->QueryDataProc(h);
 			rBlk.Summator = P_Fptr10->GetParamDoubleProc(h, LIBFPTR_PARAM_SUM);
-			// } @v10.3.12 
 			ok = 1;
 		}
 		else if(P_Disp) {
@@ -857,13 +853,12 @@ SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) :
 		}
 	}
 	if(P_Fptr10) {
-		RefToIntrf++; // @v10.7.8
+		RefToIntrf++;
 	}
 	else {
-		// @v10.7.8 RefToIntrf++; 
 		SETIFZ(P_Disp, InitDisp());
 		if(P_Disp) {
-			RefToIntrf++; // @v10.7.8
+			RefToIntrf++;
 			{
 				temp_buf.Z().Cat("atol-driver").CatDiv(':', 2).Cat("mode").Space().Cat("dispatch-interface");
 				PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
@@ -880,7 +875,7 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 		RefToIntrf--;
 		if(RefToIntrf == 0) {
 			ZDELETE(P_Disp);
-			ZDELETE(P_Fptr10); // @v10.7.8
+			ZDELETE(P_Fptr10);
 		}
 	}
 }
@@ -1194,8 +1189,8 @@ ComDispInterface * SCS_ATOLDRV::InitDisp()
 		THROW(ASSIGN_ID_BY_NAME(p_disp, Scale) > 0);
 		THROW(ASSIGN_ID_BY_NAME(p_disp, PrintPurpose) > 0);
 		THROW(ASSIGN_ID_BY_NAME(p_disp, BarcodeControlCode) > 0);
-		THROW(ASSIGN_ID_BY_NAME(p_disp, TaxTypeNumber) > 0);          // @v10.0.03 1..5
-		THROW(ASSIGN_ID_BY_NAME(p_disp, OperatorName) > 0); // @v10.2.5
+		THROW(ASSIGN_ID_BY_NAME(p_disp, TaxTypeNumber) > 0); // 1..5
+		THROW(ASSIGN_ID_BY_NAME(p_disp, OperatorName) > 0);
 	}
 	CATCH
 		ZDELETE(p_disp);
@@ -1256,7 +1251,6 @@ int SCS_ATOLDRV::SetErrorMessage()
 	return ok;
 }
 
-// @v10.3.9 int SCS_ATOLDRV::InitChannel() { return -1; }
 int SCS_ATOLDRV::SetProp(uint propID, bool propValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
 int SCS_ATOLDRV::SetProp(uint propID, int propValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
 int SCS_ATOLDRV::SetProp(uint propID, long propValue) { return BIN(P_Disp && P_Disp->SetProperty(propID, propValue) > 0 && SetErrorMessage() == -1); }
@@ -1281,26 +1275,25 @@ int	SCS_ATOLDRV::PrintDiscountInfo(const CCheckPacket * pPack, uint flags)
 		SCardCore scc;
 		THROW(PrintText(prn_str.Z().CatCharN('-', CheckStrLen), 0, 0));
 		temp_str.Z().Cat(amt + dscnt, SFMT_MONEY);
-		// @v10.0.10 prn_str = "СУММА БЕЗ СКИДКИ"; // @cstr #0
-		PPLoadText(PPTXT_CCFMT_AMTWODISCOUNT, prn_str); // @v10.0.10 
-		prn_str.Transf(CTRANSF_INNER_TO_OUTER); // @v10.0.10 
+		PPLoadText(PPTXT_CCFMT_AMTWODISCOUNT, prn_str);
+		prn_str.Transf(CTRANSF_INNER_TO_OUTER);
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
 		THROW(PrintText(prn_str, 0, 0));
 		if(scc.Search(pPack->Rec.SCardID, 0) > 0) {
-			PPLoadText(PPTXT_CCFMT_CARD, prn_str); // @v10.0.10 
-			prn_str.Transf(CTRANSF_INNER_TO_OUTER); // @v10.0.10 
+			PPLoadText(PPTXT_CCFMT_CARD, prn_str);
+			prn_str.Transf(CTRANSF_INNER_TO_OUTER);
 			THROW(PrintText((prn_str/*= "КАРТА"*/).Space().Cat(scc.data.Code), 0, 0));
 			if(scc.data.PersonID && GetPersonName(scc.data.PersonID, temp_str) > 0) {
-				PPLoadText(PPTXT_CCFMT_CARDOWNER, prn_str); // @v10.0.10 
-				prn_str.Transf(CTRANSF_INNER_TO_OUTER); // @v10.0.10 
+				PPLoadText(PPTXT_CCFMT_CARDOWNER, prn_str);
+				prn_str.Transf(CTRANSF_INNER_TO_OUTER);
 				(prn_str/*= "ВЛАДЕЛЕЦ"*/).Space().Cat(temp_str.Transf(CTRANSF_INNER_TO_OUTER));
 				CutLongTail(prn_str);
 				THROW(PrintText(prn_str, 0, 0));
 			}
 		}
 		temp_str.Z().Cat(dscnt, SFMT_MONEY);
-		PPLoadText(PPTXT_CCFMT_DISCOUNT, prn_str); // @v10.0.10 
-		prn_str.Transf(CTRANSF_INNER_TO_OUTER); // @v10.0.10 
+		PPLoadText(PPTXT_CCFMT_DISCOUNT, prn_str);
+		prn_str.Transf(CTRANSF_INNER_TO_OUTER);
 		(prn_str/*= "СКИДКА"*/).Space().Cat(pcnt, MKSFMTD(0, (flags & PRNCHK_ROUNDINT) ? 0 : 1, NMBF_NOTRAILZ)).CatChar('%');
 		prn_str.CatCharN(' ', CheckStrLen - prn_str.Len() - temp_str.Len()).Cat(temp_str);
 		THROW(PrintText(prn_str, 0, 0));

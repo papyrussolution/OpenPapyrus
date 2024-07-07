@@ -79,10 +79,10 @@ SRecPageManager::~SRecPageManager()
 {
 }
 
-int SRecPageManager::GetFreeListForPage(const SDataPageHeader * pPage, TSVector <SRecPageFreeList::Entry> & rList) const
+int SRecPageManager::GetFreeListForPage(const SDataPage_ * pPage, TSVector <SRecPageFreeList::Entry> & rList) const
 {
 	rList.clear();
-	return pPage ? Fl.GetListForPage(pPage->Seq, rList) : 0;
+	return pPage ? Fl.GetListForPage(pPage->GetSeq(), rList) : 0;
 }
 
 int SRecPageManager::VerifyFreeList()
@@ -97,7 +97,7 @@ int SRecPageManager::VerifyFreeList()
 				for(uint bi = 0; bi < p_stl->getCount(); bi++) {
 					const SRecPageFreeList::Entry & r_fle = p_stl->at(bi);
 					uint   offset = 0;
-					SDataPageHeader * p_page = QueryPageForReading(r_fle.RowId, p_stl->GetType(), &offset);
+					SDataPage_ * p_page = QueryPageForReading(r_fle.RowId, p_stl->GetType(), &offset);
 					if(!p_page) {
 						ok = 0; // @todo report error
 					}
@@ -123,7 +123,7 @@ int SRecPageManager::VerifyFreeList()
 		// “еперь перебираем все страницы и если на какой то из них есть свободное пространство,
 		// то ищем соответствие в списке свободных областей
 		for(uint seq = 1; seq < LastSeq; seq++) {
-			SDataPageHeader * p_page = QueryPageBySeqForReading(seq, 0);
+			SDataPage_ * p_page = QueryPageBySeqForReading(seq, 0);
 			if(p_page) {
 				SDataPageHeader::Stat stat;
 				TSVector <SRecPageFreeList::Entry> usable_block_list; 
@@ -156,23 +156,23 @@ int SRecPageManager::VerifyFreeList()
 	return ok;
 }
 
-int SRecPageManager::WriteToPage(SDataPageHeader * pPage, uint64 rowId, const void * pData, size_t dataLen)
+int SRecPageManager::WriteToPage(SDataPage_ * pPage, uint64 rowId, const void * pData, size_t dataLen)
 {
 	int    ok = 1;
 	uint   seq = 0;
 	uint   offset = 0;
 	THROW(pPage);
 	THROW(SRecPageManager::SplitRowId(rowId, &seq, &offset));
-	assert(seq == pPage->Seq); // ¬ызывающа€ функци€ не должна была передать неверное сочетание параметров!
+	assert(pPage->VerifySeq(seq)); // ¬ызывающа€ функци€ не должна была передать неверное сочетание параметров!
 	{
 		SRecPageFreeList::Entry new_free_entry;
-		assert(offset >= sizeof(*pPage) && offset < pPage->Size);
+		assert(pPage->VerifyOffset(offset));
 		uint64 post_write_rowid = pPage->Write(offset, pData, dataLen, &new_free_entry);
 		THROW(post_write_rowid);
 		assert(post_write_rowid == rowId);
-		Fl.Remove(pPage->Type, post_write_rowid);
+		Fl.Remove(pPage->GetType(), post_write_rowid);
 		if(new_free_entry.RowId && new_free_entry.FreeSize > 3) {
-			Fl.Put(pPage->Type, new_free_entry.RowId, new_free_entry.FreeSize);
+			Fl.Put(pPage->GetType(), new_free_entry.RowId, new_free_entry.FreeSize);
 		}
 	}
 	CATCHZOK
@@ -182,16 +182,13 @@ int SRecPageManager::WriteToPage(SDataPageHeader * pPage, uint64 rowId, const vo
 int SRecPageManager::Write(uint64 * pRowId, uint pageType, const void * pData, size_t dataLen)
 {
 	int    ok = 1;
-	//SDataPageHeader::RecPrefix pfx;
-	//pfx.SetPayload(dataLen, 0);
-	SDataPageHeader * p_page = 0;//QueryPageForWriting(pageType, dataLen);
+	SDataPage_ * p_page = 0;
 	uint   offset = 0;
 	const  SRecPageFreeList::Entry * p_free_entry = Fl.Get(pageType, dataLen);
 	if(!p_free_entry) {
-		SDataPageHeader * p_new_page = AllocatePage(pageType);
+		SDataPage_ * p_new_page = AllocatePage(pageType);
 		if(p_new_page) {
 			p_free_entry = Fl.Get(pageType, dataLen);
-			//assert(p_free_entry->Seq == p_new_page->Seq);
 		}
 	}
 	THROW(p_free_entry);
@@ -203,32 +200,74 @@ int SRecPageManager::Write(uint64 * pRowId, uint pageType, const void * pData, s
 		ASSIGN_PTR(pRowId, row_id);
 	}
 	CATCHZOK
+	ReleasePage(p_page);
 	return ok;
 }
 
-int SRecPageManager::Delete(uint64 rowId)
+int SRecPageManager::UpdateOnPage(SDataPage_ * pPage, uint64 rowId, uint64 * pNewRowId, const void * pData, size_t dataLen) // @todo
+{
+	int    ok = 0;
+	uint   seq = 0;
+	uint   offset = 0;
+	THROW(pPage && pPage->IsConsistent());
+	THROW(SRecPageManager::SplitRowId(rowId, &seq, &offset));
+	assert(pPage->VerifySeq(seq)); // ¬ызывающа€ функци€ не должна была передать неверное сочетание параметров!
+	THROW(pPage->VerifySeq(seq));
+	{
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SRecPageManager::Update(uint64 rowId, uint64 * pNewRowId, uint pageType, const void * pData, size_t dataLen) // @todo
+{
+	//
+	// ‘ункци€ изменени€ записи. “ут может быть несколько вариантов:
+	// -- нова€ запись равна по размеру старой - все очень просто: переписываем данные и все
+	// -- нова€ запись больше по размеру чем стара€ - две возможные ветки:
+	//   -- после текущей записи на странице есть свободный блок, которого хватает дл€ измененной записи:
+	//     размечаем увеличенный блок и копируем в него данные. ќставшеес€ место в ранее свободном блоке
+	//     отправл€ем в список доступных блоков.
+	//   -- после текущей записи нет свободного блока: удал€ем текущую запись и вносим новую запись как обычно
+	//  -- нова€ запись меньше по размеру чем стара€: заново размечаем блок и копируем данные, освободившеес€
+	//    пространство кидаем в список свободных блоков
+	//
+	int    ok = 0;
+	uint   ofs = 0;
+	SDataPage_ * p_page = QueryPageForWriting(rowId, 0/*pageType*/, &ofs);
+	if(p_page) {
+		
+	}
+	return ok;
+}
+
+int SRecPageManager::DeleteFromPage(SDataPage_ * pPage, uint64 rowId)
 {
 	int    ok = 1;
-	uint   ofs = 0;
-	SDataPageHeader * p_page = QueryPageForWriting(rowId, 0/*pageType*/, &ofs);
-	if(p_page) {
+	uint   seq = 0;
+	uint   offset = 0;
+	THROW(pPage && pPage->IsConsistent());
+	THROW(SRecPageManager::SplitRowId(rowId, &seq, &offset));
+	assert(pPage->VerifySeq(seq)); // ¬ызывающа€ функци€ не должна была передать неверное сочетание параметров!
+	THROW(pPage->VerifySeq(seq));
+	{
 		SRecPageFreeList::Entry free_entry;
-		THROW(p_page->Delete(ofs, &free_entry));
+		THROW(pPage->Delete(offset, &free_entry));
 		{
 			TSVector <SRecPageFreeList::Entry> free_entry_list_to_remove;
 			TSVector <SRecPageFreeList::Entry> free_entry_list_to_add;
-			THROW(Fl.Put(p_page->Type, free_entry.RowId, free_entry.FreeSize));
-			THROW(p_page->MergeFreeEntries(free_entry_list_to_remove, free_entry_list_to_add));
+			THROW(Fl.Put(pPage->GetType(), free_entry.RowId, free_entry.FreeSize));
+			THROW(pPage->MergeFreeEntries(free_entry_list_to_remove, free_entry_list_to_add));
 			{
 				for(uint i = 0; i < free_entry_list_to_remove.getCount(); i++) {
 					const SRecPageFreeList::Entry & r_fe = free_entry_list_to_remove.at(i);
-					THROW(Fl.Remove(p_page->Type, r_fe.RowId));
+					THROW(Fl.Remove(pPage->GetType(), r_fe.RowId));
 				}
 			}
 			{
 				for(uint i = 0; i < free_entry_list_to_add.getCount(); i++) {
 					const SRecPageFreeList::Entry & r_fe = free_entry_list_to_add.at(i);
-					THROW(Fl.Put(p_page->Type, r_fe.RowId, r_fe.FreeSize));
+					THROW(Fl.Put(pPage->GetType(), r_fe.RowId, r_fe.FreeSize));
 				}
 			}
 		}
@@ -237,41 +276,54 @@ int SRecPageManager::Delete(uint64 rowId)
 	return ok;
 }
 
+int SRecPageManager::Delete(uint64 rowId)
+{
+	int    ok = 1;
+	uint   ofs = 0;
+	SDataPage_ * p_page = QueryPageForWriting(rowId, 0/*pageType*/, &ofs);
+	if(p_page) {
+		THROW(DeleteFromPage(p_page, rowId));
+	}
+	CATCHZOK
+	ReleasePage(p_page);
+	return ok;
+}
+
 uint SRecPageManager::Read(uint64 rowId, void * pBuf, size_t bufSize)
 {
 	uint   ofs = 0;
 	uint   actual_size = 0;
-	SDataPageHeader * p_page = QueryPageForReading(rowId, 0/*pageType*/, &ofs);
+	SDataPage_ * p_page = QueryPageForReading(rowId, 0/*pageType*/, &ofs);
 	if(p_page) {
 		actual_size = p_page->Read(ofs, pBuf, bufSize);
 	}
 	return actual_size;
 }
 
-SDataPageHeader * SRecPageManager::GetPage(uint32 seq)
+SDataPage_ * SRecPageManager::GetPage(uint32 seq)
 {
-	SDataPageHeader * p_result = 0;
+	SDataPage_ * p_result = 0;
 	for(uint32 i = 0; !p_result && i < L.getCount(); i++) {
-		SDataPageHeader * p_iter = L.at(i);
-		if(p_iter && p_iter->Seq == seq) {
+		SDataPage_ * p_iter = L.at(i);
+		if(p_iter && p_iter->VerifySeq(seq)) {
 			p_result = p_iter;
 		}
 	}
 	return p_result;
 }
 
-SDataPageHeader * SRecPageManager::AllocatePage(uint32 type)
+SDataPage_ * SRecPageManager::AllocatePage(uint32 type)
 {
 	SRecPageFreeList::Entry new_free_entry;
-	SDataPageHeader * p_new_page = SDataPageHeader::Allocate(type, ++LastSeq, PageSize, &new_free_entry);
-	if(p_new_page) {
+	SDataPage_ * p_new_page = new SDataPage_(type, ++LastSeq, PageSize, &new_free_entry);
+	if(p_new_page && p_new_page->IsConsistent()) {
 		L.insert(p_new_page);
 		Fl.Put(type, new_free_entry.RowId, new_free_entry.FreeSize);
 	}
 	return p_new_page;
 }
 
-int SRecPageManager::ReleasePage(SDataPageHeader * pPage)
+int SRecPageManager::ReleasePage(SDataPage_ * pPage)
 {
 	int    ok = -1;
 	if(pPage) {
@@ -280,29 +332,29 @@ int SRecPageManager::ReleasePage(SDataPageHeader * pPage)
 	return ok;
 }
 
-SDataPageHeader * SRecPageManager::Helper_QueryPage_BySeq(uint seq, uint32 pageType)
+SDataPage_ * SRecPageManager::Helper_QueryPage_BySeq(uint seq, uint32 pageType)
 {
-	SDataPageHeader * p_result = GetPage(seq);
-	if(p_result && pageType && p_result->Type != pageType) {
+	SDataPage_ * p_result = GetPage(seq);
+	if(p_result && !p_result->VerifyType(pageType)) {
 		ReleasePage(p_result);
 		p_result = 0;
 	}
 	return p_result;
 }
 
-SDataPageHeader * SRecPageManager::QueryPageBySeqForReading(uint seq, uint32 pageType)
+SDataPage_ * SRecPageManager::QueryPageBySeqForReading(uint seq, uint32 pageType)
 {
 	return Helper_QueryPage_BySeq(seq, pageType);
 }
 
-SDataPageHeader * SRecPageManager::QueryPageBySeqForWriting(uint seq, uint32 pageType)
+SDataPage_ * SRecPageManager::QueryPageBySeqForWriting(uint seq, uint32 pageType)
 {
 	return Helper_QueryPage_BySeq(seq, pageType);
 }
 
-SDataPageHeader * SRecPageManager::Helper_QueryPage(uint64 rowId, uint32 pageType, uint * pOffset)
+SDataPage_ * SRecPageManager::Helper_QueryPage(uint64 rowId, uint32 pageType, uint * pOffset)
 {
-	SDataPageHeader * p_result = 0;
+	SDataPage_ * p_result = 0;
 	uint   ofs = 0;
 	if(rowId) {
 		uint   seq = 0;
@@ -313,13 +365,13 @@ SDataPageHeader * SRecPageManager::Helper_QueryPage(uint64 rowId, uint32 pageTyp
 	return p_result;
 }
 
-SDataPageHeader * SRecPageManager::QueryPageForReading(uint64 rowId, uint32 pageType, uint * pOffset)
+SDataPage_ * SRecPageManager::QueryPageForReading(uint64 rowId, uint32 pageType, uint * pOffset)
 {
 	// @todo Ёта функци€ должна содержать блокировку на чтение
 	return Helper_QueryPage(rowId, pageType, pOffset);
 }
 
-SDataPageHeader * SRecPageManager::QueryPageForWriting(uint64 rowId, uint32 pageType, uint * pOffset)
+SDataPage_ * SRecPageManager::QueryPageForWriting(uint64 rowId, uint32 pageType, uint * pOffset)
 {
 	// @todo Ёта функци€ должна содержать блокировку на запись
 	return Helper_QueryPage(rowId, pageType, pOffset);
@@ -479,7 +531,7 @@ uint32 SDataPageHeader::ReadRecPrefix(uint pos, RecPrefix & rPfx) const
 		}
 		else if((rPfx.Flags & 0x3) == 3) {
 			pfx_size += 3;
-			rPfx.PayloadSize = *reinterpret_cast<const uint32 *>(ptr+2);
+			rPfx.PayloadSize = *reinterpret_cast<const uint32 *>(ptr+2) & 0x00ffffffU;
 			THROW(rPfx.PayloadSize < (1 << 24));
 			rPfx.TotalSize = rPfx.PayloadSize + pfx_size;
 		}
@@ -736,9 +788,9 @@ int SDataPageHeader::MergeFreeEntries(TSVector <SRecPageFreeList::Entry> & rRemo
 				}
 			}
 		}
-		else if(sfbl_count > 1) {
-			// merge sequential blocks
-			{
+		else {
+			if(sfbl_count > 1) {
+				// merge sequential blocks
 				RecPrefix ex_rp;
 				RecPrefix new_rp;
 				uint32 ex_pfx_size = ReadRecPrefix(sfbl[0], ex_rp); // offset validation
@@ -765,22 +817,20 @@ int SDataPageHeader::MergeFreeEntries(TSVector <SRecPageFreeList::Entry> & rRemo
 	THROW(offs == Size);
 	if(sfbl_count > 1) {
 		// merge sequential blocks
+		RecPrefix ex_rp;
+		RecPrefix new_rp;
+		uint32 ex_pfx_size = ReadRecPrefix(sfbl[0], ex_rp); // offset validation
+		THROW(ex_pfx_size);
+		THROW(MarkOutBlock(sfbl[0], sfbl_size, &new_rp));
 		{
-			RecPrefix ex_rp;
-			RecPrefix new_rp;
-			uint32 ex_pfx_size = ReadRecPrefix(sfbl[0], ex_rp); // offset validation
-			THROW(ex_pfx_size);
-			THROW(MarkOutBlock(sfbl[0], sfbl_size, &new_rp));
-			{
-				SRecPageFreeList::Entry new_free_entry;
-				new_free_entry.RowId = MakeRowId(sfbl[0]);
-				new_free_entry.FreeSize = new_rp.PayloadSize;
-				rNewFreeEntryList.insert(&new_free_entry);
-			}
-			assert(free_entry_to_remove_candidate_list.getCount() <= sfbl_count);
-			for(uint i = 0; i < free_entry_to_remove_candidate_list.getCount(); i++) {
-				rRemovedFreeEntryList.insert(&free_entry_to_remove_candidate_list.at(i));
-			}
+			SRecPageFreeList::Entry new_free_entry;
+			new_free_entry.RowId = MakeRowId(sfbl[0]);
+			new_free_entry.FreeSize = new_rp.PayloadSize;
+			rNewFreeEntryList.insert(&new_free_entry);
+		}
+		assert(free_entry_to_remove_candidate_list.getCount() <= sfbl_count);
+		for(uint i = 0; i < free_entry_to_remove_candidate_list.getCount(); i++) {
+			rRemovedFreeEntryList.insert(&free_entry_to_remove_candidate_list.at(i));
 		}
 	}
 	THROW(total_block_size == (Size-sizeof(*this)));
@@ -804,6 +854,7 @@ uint64 SDataPageHeader::Delete(uint offset, SRecPageFreeList::Entry * pNewFreeEn
 			THROW(MarkOutBlock(offset, ex_rp.TotalSize, &new_rp));
 			new_free_entry.RowId = MakeRowId(offset);
 			new_free_entry.FreeSize = new_rp.PayloadSize;
+			rowid = new_free_entry.RowId;
 		}
 	}
 	CATCH
@@ -904,7 +955,6 @@ uint SDataPageHeader::MarkOutBlock(uint offset, uint size, RecPrefix * pPfx)
 		p_result->Type = type;
 		p_result->Seq = seq;
 		p_result->Size = totalSize;
-		//p_result->FreePos = static_cast<uint32>(sizeof(SDataPageHeader));
 		uint mobr = p_result->MarkOutBlock(sizeof(SDataPageHeader), totalSize - sizeof(SDataPageHeader), &pfx);
 		assert(mobr);
 		if(!mobr) {

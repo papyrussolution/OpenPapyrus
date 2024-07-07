@@ -4713,7 +4713,10 @@ struct SDataPageHeader { // Size=32
 	struct Stat { // @transient
 		Stat();
 		Stat & Z();
-
+		//
+		// Descr: Возвращает true если страница, по которой получена статистика, полностью свободна
+		//
+		bool   IsPageFree() const { return (BlockCount == 1 && FreeBlockCount == 1 && UsableBlockCount == 1); }
 		uint   BlockCount;       // Общее количество блоков на странице
 		uint   FreeBlockCount;   // Общее количество свободных блоков на странице
 		uint   UsableBlockCount; // Количество свободных блоков, чей размер позволяет их использовать для записи данных
@@ -4775,6 +4778,7 @@ struct SDataPageHeader { // Size=32
 	//   !0 - значение rowid внесенной записи
 	//
 	uint64 Write(uint offset, const void * pData, uint dataLen, SRecPageFreeList::Entry * pNewFreeEntry);
+	int    Update(uint offset, const void * pData, uint dataLen);
 	uint64 Delete(uint offset, SRecPageFreeList::Entry * pNewFreeEntry);
 	int    MergeFreeEntries(TSVector <SRecPageFreeList::Entry> & rRemovedFreeEntryList, TSVector <SRecPageFreeList::Entry> & rNewFreeEntryList);
 	//
@@ -4816,6 +4820,54 @@ struct SDataPageHeader { // Size=32
 };
 #pragma pack(pop)
 
+class SDataPage_ {
+public:
+	SDataPage_(uint32 type, uint32 seq, uint totalSize, SRecPageFreeList::Entry * pNewFreeEntry)
+	{
+		P_H = SDataPageHeader::Allocate(type, seq, totalSize, pNewFreeEntry);
+	}
+	~SDataPage_()
+	{
+		ZFREE(P_H);
+	}
+	bool   IsConsistent() const { return LOGIC(P_H); }
+	bool   VerifySeq(uint seq) const { return (IsConsistent() && P_H->Seq == seq); }
+	bool   VerifyType(uint type) const { return (IsConsistent() && (!type || P_H->Type == type)); }
+	bool   VerifyOffset(uint offs) const { return (IsConsistent() && offs >= sizeof(SDataPageHeader) && offs < P_H->Size); }
+	uint   GetSeq() const { return IsConsistent() ? P_H->Seq : 0; }
+	uint   GetType() const { return IsConsistent() ? P_H->Type : _FFFF32; }
+	uint32 ReadRecPrefix(uint offset, SDataPageHeader::RecPrefix & rPfx) const
+	{
+		return IsConsistent() ? P_H->ReadRecPrefix(offset, rPfx) : 0;
+	}
+	uint32 WriteRecPrefix(uint offset, SDataPageHeader::RecPrefix & rPfx)
+	{
+		return IsConsistent() ? P_H->WriteRecPrefix(offset, rPfx) : 0;
+	}
+	bool   GetStat(SDataPageHeader::Stat & rStat, TSVector <SRecPageFreeList::Entry> * pUsableBlockList) const
+	{
+		return IsConsistent() ? P_H->GetStat(rStat, pUsableBlockList) : false;
+	}
+	uint64 Write(uint offset, const void * pData, uint dataLen, SRecPageFreeList::Entry * pNewFreeEntry)
+	{
+		return IsConsistent() ? P_H->Write(offset, pData, dataLen, pNewFreeEntry) : 0ULL;
+	}
+	uint64 Delete(uint offset, SRecPageFreeList::Entry * pNewFreeEntry)
+	{
+		return IsConsistent() ? P_H->Delete(offset, pNewFreeEntry) : 0ULL;
+	}
+	uint   Read(uint offset, void * pBuf, size_t bufSize)
+	{
+		return IsConsistent() ? P_H->Read(offset, pBuf, bufSize) : 0;
+	}
+	int    MergeFreeEntries(TSVector <SRecPageFreeList::Entry> & rRemovedFreeEntryList, TSVector <SRecPageFreeList::Entry> & rNewFreeEntryList)
+	{
+		return IsConsistent() ? P_H->MergeFreeEntries(rRemovedFreeEntryList, rNewFreeEntryList) : 0;
+	}
+private:
+	SDataPageHeader * P_H;
+};
+
 class SRecPageManager {
 	//
 	// Структура RowId:
@@ -4851,15 +4903,18 @@ public:
 	~SRecPageManager();
 	int    Write(uint64 * pRowId, uint pageType, const void * pData, size_t dataLen);
 	int    Delete(uint64 rowId);
+	int    Update(uint64 rowId, uint64 * pNewRowId, uint pageType, const void * pData, size_t dataLen); // @construction
 	//
 	// Returns:
 	//   0 - error
 	//  !0 - actual size of the read data
 	//
 	uint   Read(uint64 rowId, void * pBuf, size_t bufSize);
-	SDataPageHeader * AllocatePage(uint32 type); // @really private (public for testing purposes)
-	int    WriteToPage(SDataPageHeader * pPage, uint64 rowId, const void * pData, size_t dataLen); // @really private (public for testing purposes)
-	int    GetFreeListForPage(const SDataPageHeader * pPage, TSVector <SRecPageFreeList::Entry> & rList) const; // @debug
+	SDataPage_ * AllocatePage(uint32 type); // @really private (public for testing purposes)
+	int    WriteToPage(SDataPage_ * pPage, uint64 rowId, const void * pData, size_t dataLen); // @really private (public for testing purposes)
+	int    DeleteFromPage(SDataPage_ * pPage, uint64 rowId); // @really private (public for testing purposes)
+	int    UpdateOnPage(SDataPage_ * pPage, uint64 rowId, uint64 * pNewRowId, const void * pData, size_t dataLen);
+	int    GetFreeListForPage(const SDataPage_ * pPage, TSVector <SRecPageFreeList::Entry> & rList) const; // @debug
 	//
 	// Descr: Отладочная функция верифицирующая список свободных блоков.
 	//   Делает 2 итерации:
@@ -4868,20 +4923,20 @@ public:
 	//      в списке свободных блоков. Если свободных элемент является мизерным, то он не должен быть в списке.
 	//      Кроме того, верифицирует отсутствие соседствующих свободных блоков (функция SDataPageHeader::MergeFreeEntries)
 	//
-	int    VerifyFreeList(); // @debug // @todo
+	int    VerifyFreeList(); // @debug
 private:
-	SDataPageHeader * GetPage(uint32 seq);
-	SDataPageHeader * Helper_QueryPage_BySeq(uint seq, uint32 pageType);
-	SDataPageHeader * Helper_QueryPage(uint64 rowId, uint32 pageType, uint * pOffset);
-	SDataPageHeader * QueryPageForReading(uint64 rowId, uint32 pageType, uint * pOffset);
-	SDataPageHeader * QueryPageForWriting(uint64 rowId, uint32 pageType, uint * pOffset);
-	SDataPageHeader * QueryPageBySeqForReading(uint seq, uint32 pageType);
-	SDataPageHeader * QueryPageBySeqForWriting(uint seq, uint32 pageType);
-	int    ReleasePage(SDataPageHeader * pPage);
+	SDataPage_ * GetPage(uint32 seq);
+	SDataPage_ * Helper_QueryPage_BySeq(uint seq, uint32 pageType);
+	SDataPage_ * Helper_QueryPage(uint64 rowId, uint32 pageType, uint * pOffset);
+	SDataPage_ * QueryPageForReading(uint64 rowId, uint32 pageType, uint * pOffset);
+	SDataPage_ * QueryPageForWriting(uint64 rowId, uint32 pageType, uint * pOffset);
+	SDataPage_ * QueryPageBySeqForReading(uint seq, uint32 pageType);
+	SDataPage_ * QueryPageBySeqForWriting(uint seq, uint32 pageType);
+	int    ReleasePage(SDataPage_ * pPage);
 
 	const uint32 PageSize;
 	uint32 LastSeq;
-	TSCollection <SDataPageHeader> L;
+	TSCollection <SDataPage_> L;
 	SRecPageFreeList Fl;
 };
 //

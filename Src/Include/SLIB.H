@@ -3402,6 +3402,9 @@ struct SFormatParam {
 // Descr: Представление целочисленного диапазона (low..upp).
 //
 struct IntRange { // @persistent @size=8
+	IntRange() : low(0), upp(0)
+	{
+	}
 	IntRange & Z();
 	//
 	// Descr: Возвращает !0 если (this->low == 0 && this->upp == 0)

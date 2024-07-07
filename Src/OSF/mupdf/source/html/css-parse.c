@@ -29,14 +29,12 @@ fz_css * fz_new_css(fz_context * ctx)
 {
 	fz_pool * pool = fz_new_pool(ctx);
 	fz_css * css = NULL;
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		css = (fz_css *)fz_pool_alloc(ctx, pool, sizeof *css);
 		css->pool = pool;
 		css->rule = NULL;
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_drop_pool(ctx, pool);
 		fz_rethrow(ctx);
 	}

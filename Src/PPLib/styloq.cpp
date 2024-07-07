@@ -1679,7 +1679,12 @@ StyloQCommandList * StyloQCommandList::CreateSubListByContext(PPObjID oid, int b
 				else if(p_item->ObjTypeRestriction == PPOBJ_UNASSIGNED && oid.Obj == 0) // @v11.4.5
 					suited = true;
 				else if(p_item->ObjTypeRestriction == oid.Obj) {
-					if(!p_item->ObjGroupRestriction)
+					// @v12.0.6 {
+					if(p_item->ObjIdRestriction) {
+						if(p_item->ObjGroupRestriction == oid.Id)
+							suited = true;
+					} // } @v12.0.6 
+					else if(!p_item->ObjGroupRestriction)
 						suited = true;
 					else if(oid.Obj == PPOBJ_PERSON && psn_obj.P_Tbl->IsBelongsToKind(oid.Id, p_item->ObjGroupRestriction))
 						suited = true;
@@ -1687,7 +1692,12 @@ StyloQCommandList * StyloQCommandList::CreateSubListByContext(PPObjID oid, int b
 				else if(oid.Obj == PPOBJ_USR) {
 					PPSecur2 sec_rec;
 					if(p_item->ObjTypeRestriction == PPOBJ_PERSON && usr_obj.Search(oid.Id, &sec_rec) > 0 && sec_rec.PersonID) {
-						if(!p_item->ObjGroupRestriction) 
+						// @v12.0.6 {
+						if(p_item->ObjIdRestriction) {
+							if(p_item->ObjGroupRestriction == oid.Id)
+								suited = true;
+						} // } @v12.0.6 
+						else if(!p_item->ObjGroupRestriction) 
 							suited = true;
 						else if(psn_obj.P_Tbl->IsBelongsToKind(sec_rec.PersonID, p_item->ObjGroupRestriction))
 							suited = true;

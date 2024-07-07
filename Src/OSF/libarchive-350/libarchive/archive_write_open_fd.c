@@ -26,7 +26,7 @@ int archive_write_open_fd(Archive * a, int fd)
 	}
 	mine->fd = fd;
 #if defined(__CYGWIN__) || defined(_WIN32)
-	setmode(mine->fd, O_BINARY);
+	_setmode(mine->fd, O_BINARY);
 #endif
 	return (archive_write_open2(a, mine, file_open, reinterpret_cast<archive_write_callback *>(file_write), NULL, file_free));
 }

@@ -1232,11 +1232,6 @@ int CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 					}
 				}
 			}
-			/*else if(oneof5(fld_id, CCheckPacket::extssMemo, CCheckPacket::extssSign, CCheckPacket::extssEgaisUrl, 
-				CCheckPacket::extssRemoteProcessingTa, CCheckPacket::extssChZnProcessingTag)) {
-				CALLPTRMEMB(pSc, PutExtStrData(fld_id, temp_buf));
-				ok = 1;
-			}*/
 		}
 	}
 	return ok;
@@ -1281,7 +1276,7 @@ int CCheckPacket::SetLineExt(int pos /* 1.. */, const LineExt & rExt)
 			SETFLAG(r_le.Flags, r_le.fModifier,      rExt.Flags & rExt.fModifier);
 			SETFLAG(r_le.Flags, r_le.fPartOfComplex, rExt.Flags & rExt.fPartOfComplex);
 			SETFLAG(r_le.Flags, r_le.fQuotedByGift,  rExt.Flags & rExt.fQuotedByGift);
-			SETFLAG(r_le.Flags, r_le.fFixedPrice,    rExt.Flags & rExt.fFixedPrice); // @v10.1.7
+			SETFLAG(r_le.Flags, r_le.fFixedPrice,    rExt.Flags & rExt.fFixedPrice);
 			ok = 1;
 		}
 		else {

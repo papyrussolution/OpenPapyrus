@@ -80,9 +80,9 @@
 #define	lstat		__la_stat
 #define	open		__la_open
 #define	read		__la_read
-#if !defined(__BORLANDC__) && !defined(__WATCOMC__)
-	#define setmode		_setmode
-#endif
+//#if !defined(__BORLANDC__) && !defined(__WATCOMC__)
+	//#define setmode		_setmode
+//#endif
 #define	la_stat(path,stref)		__la_stat(path,stref)
 #if !defined(__WATCOMC__)
 	#if !defined(__BORLANDC__)

@@ -1,14 +1,15 @@
+//
+//
+#include <slib.h>
 #include "utf.h"
 
 #define bsearch jsU_bsearch
-#define nelem(a) (int)(sizeof (a) / sizeof (a)[0])
-
+//#define nelem(a) (int)(sizeof (a) / sizeof (a)[0])
 /*
  * alpha ranges -
  *	only covers ranges not in lower||upper
  */
-static const Rune __alpha2[] =
-{
+static const Rune __alpha2[] = {
 	0x00d8,	0x00f6,	/* Ø - ö */
 	0x00f8,	0x01f5,	/* ø - ǵ */
 	0x0250,	0x02a8,	/* ɐ - ʨ */
@@ -167,8 +168,7 @@ static const Rune __alpha2[] =
  * alpha singlets -
  *	only covers ranges not in lower||upper
  */
-static const Rune __alpha1[] =
-{
+static const Rune __alpha1[] = {
 	0x00aa,	/* ª */
 	0x00b5,	/* µ */
 	0x00ba,	/* º */

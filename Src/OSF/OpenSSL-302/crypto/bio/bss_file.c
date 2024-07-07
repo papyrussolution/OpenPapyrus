@@ -246,7 +246,7 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 #elif defined(OPENSSL_SYS_WIN32_CYGWIN)
 			    int fd = fileno((FILE*)ptr);
 			    if(!(num & BIO_FP_TEXT))
-				    setmode(fd, O_BINARY);
+				    _setmode(fd, O_BINARY);
 #endif
 		    }
 		    break;

@@ -3586,10 +3586,10 @@ private:
 	int    TidBrushRule;
 	int    TidPenGrid;
 	int    TidPenSubGrid;
-	int    TidPenLayoutBorder; // @v10.4.8
+	int    TidPenLayoutBorder;
 	int    TidPenLayoutEvenBorder; // @v11.2.2
 	int    TidPenLayoutOddBorder; // @v11.2.2
-	int    TidPenContainerCandidateBorder; // @v10.9.6
+	int    TidPenContainerCandidateBorder;
 };
 //
 //

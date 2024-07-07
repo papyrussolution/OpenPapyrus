@@ -121,12 +121,12 @@ static void Ap_join(js_State * J)
 			r = js_tostring(J, -1);
 		n += strlen(r);
 		if(k == 0) {
-			out = (char * volatile)js_malloc(J, n);
+			out = (char *)js_malloc(J, n);
 			strcpy(out, r);
 		}
 		else {
 			n += seplen;
-			out = (char * volatile)js_realloc(J, out, n);
+			out = (char *)js_realloc(J, out, n);
 			strcat(out, sep);
 			strcat(out, r);
 		}

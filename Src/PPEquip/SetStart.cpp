@@ -514,91 +514,55 @@ int ACS_SETSTART::ExportData(int updOnly)
 						tail.CatCharN(';', 6);                          // #24-#29 - Не используем
 						tail.Cat(strip(gds_info.LocPrnSymb)).Semicol(); // #30 - Символ локального принтера, ассоциированного с товаром
 						tail.CatCharN(';', 22);                         // #31-#52 - Не используем
-						if(goods_iter.GetAlcoGoodsExtension(gds_info.ID, 0, agi) > 0) {
-							tail.Cat(agi.CategoryCode).Semicol();                               // #53 Код вида алкогольной продукции
-                            tail.Cat(agi.Volume, MKSFMTD(0, 3, NMBF_NOZERO)).Semicol();         // #54 Емкость тары
-                            tail.Cat(1L).Semicol();                                             // #55 Признак алкогольной продукции
-                            tail.Cat((agi.StatusFlags & agi.stMarkWanted) ? 0L : 1L).Semicol(); // #56 Признак маркированной алкогольной продукции (0 - маркированная)
-                            tail.Cat(agi.Proof, MKSFMTD(0, 1, NMBF_NOZERO)).Semicol();          // #57 Крепость алкогольной продукции
-						}
-						else {
-							tail.Semicol();         // #53 Код вида алкогольной продукции
-							tail.Semicol();         // #54 Емкость тары
-							// @v10.9.0 {
-							{
-								/*
-									Тип номенклатуры: 
-											• 0 – обычный товар 
-											• 1 – алкогольная продукция 
-											• 2 – изделия из меха 
-											• 3 – лекарственные препараты 
-											• 4 – табачная продукция 
-											• 5 – обувь 
-											• 6 – лотерея 
-											• 7 – иная маркированная продукция 
-											• 8 – фототовары 
-											• 9 – парфюмерная продукция 
-											• 10 – шины 
-											• 11 – товары лёгкой промышленности 
-											• 12 – альтернативная табачная
-											  продукция 
-											• 101 – табачная продукция (Казахстан)
-								*/
-								/* @v12.0.4 (блок замещен ниже копией из модуля frontol.cpp)
-								int    identified_type = 0;
-								if(gds_info.Flags_ & gds_info.fGMarkedType) {
-									switch(gds_info.ChZnProdType) {
-										case GTCHZNPT_TOBACCO: 
-										case GTCHZNPT_ALTTOBACCO: // @v11.9.0
-											identified_type = 4; break; // табак : 4
-										// @v11.1.10 {
-										case GTCHZNPT_SHOE: identified_type = 5; break;
-										case GTCHZNPT_MEDICINE: identified_type = 3; break;
-										case GTCHZNPT_CARTIRE: identified_type = 10; break;
-										case GTCHZNPT_TEXTILE: identified_type = 11; break;
-										case GTCHZNPT_PERFUMERY: identified_type = 9; break;
-										case GTCHZNPT_MILK: identified_type = 13; break; // @v11.4.9
-										case GTCHZNPT_JEWELRY: identified_type = 14; break; // @v11.4.9
-										case GTCHZNPT_WATER: identified_type = 15; break; // @v11.5.6
-										// } @v11.1.10 
-										//case GTCHZNPT_BEER: identified_type = 15; break; // @v11.5.6
-									}
-								}
-								if(identified_type)
-									tail.Cat(identified_type); // #55 Тип маркированной продукции
-								*/
-								// @v12.0.4 (сделан copy-paste из модуля frontol.cpp) {
-								if(gds_info.Flags_ & gds_info.fGMarkedType) {
-									int mark_type = 0;
-									switch(gds_info.ChZnProdType) {
-										case GTCHZNPT_SHOE: mark_type = 5; break;
-										case GTCHZNPT_TEXTILE: mark_type = 11; break;
-										case GTCHZNPT_CARTIRE: mark_type = 10; break;
-										case GTCHZNPT_PERFUMERY: mark_type = 9; break;
-										case GTCHZNPT_TOBACCO: mark_type = 4; break; 
-										case GTCHZNPT_ALTTOBACCO: mark_type = 12; break;
-										case GTCHZNPT_MEDICINE: mark_type = 3; break;
-										case GTCHZNPT_FUR: mark_type = 2; break;
-										case GTCHZNPT_MILK: mark_type = 13; break;
-										case GTCHZNPT_WATER: mark_type = 15; break;
-										case GTCHZNPT_DRAFTBEER_AWR: mark_type = 18; break; // @v12.0.5
-										case GTCHZNPT_DRAFTBEER: mark_type = 18; break;
-										case GTCHZNPT_BEER: mark_type = 17; break;
-										case GTCHZNPT_ANTISEPTIC: mark_type = 20; break; // @v12.0.5
-										default:
-											if(gds_info.ChZnProdType)
-												mark_type = 7; // 7–иная маркированная продукция
-											break;
-									}
-									if(mark_type)
-										tail.Cat(mark_type); // #55 Признак алкогольной продукции
-								}
-								// } @v12.0.4 
-								tail.Semicol();         
+						{
+							char   alc_category_code[32];
+							double alc_volume = 0.0;
+							double alc_proof = 0.0;
+							long   _mark_type = 0L;
+							long   is_egais_marked_alc = -1L;
+							alc_category_code[0] = 0;
+							if(goods_iter.GetAlcoGoodsExtension(gds_info.ID, 0, agi) > 0) {
+								STRNSCPY(alc_category_code, agi.CategoryCode);
+								_mark_type = 1L;
+								alc_volume = agi.Volume;
+								alc_proof = agi.Proof;
+								is_egais_marked_alc = (agi.StatusFlags & agi.stMarkWanted) ? 0L : 1L; // Признак маркированной алкогольной продукции (0 - маркированная)
 							}
-							// } @v10.9.0 
-							tail.Semicol();         // #56 Признак маркированной алкогольной продукции (пока НЕТ)
-							tail.Semicol();         // #57 Крепость алкогольной продукции
+							tail.Cat(alc_category_code).Semicol(); // #53 Код вида алкогольной продукции
+							if(alc_volume > 0.0)
+								tail.Cat(alc_volume, MKSFMTD(0, 3, NMBF_NOZERO));
+							tail.Semicol();         // #54 Емкость тары
+							if(gds_info.Flags_ & gds_info.fGMarkedType) {
+								switch(gds_info.ChZnProdType) {
+									case GTCHZNPT_SHOE: _mark_type = 5; break;
+									case GTCHZNPT_TEXTILE: _mark_type = 11; break;
+									case GTCHZNPT_CARTIRE: _mark_type = 10; break;
+									case GTCHZNPT_PERFUMERY: _mark_type = 9; break;
+									case GTCHZNPT_TOBACCO: _mark_type = 4; break; 
+									case GTCHZNPT_ALTTOBACCO: _mark_type = 12; break;
+									case GTCHZNPT_MEDICINE: _mark_type = 3; break;
+									case GTCHZNPT_FUR: _mark_type = 2; break;
+									case GTCHZNPT_MILK: _mark_type = 13; break;
+									case GTCHZNPT_WATER: _mark_type = 15; break;
+									case GTCHZNPT_DRAFTBEER_AWR: _mark_type = 18; break; // @v12.0.5
+									case GTCHZNPT_DRAFTBEER: _mark_type = 18; break;
+									case GTCHZNPT_BEER: _mark_type = 17; break;
+									case GTCHZNPT_ANTISEPTIC: _mark_type = 20; break; // @v12.0.5
+									default:
+										if(!_mark_type && gds_info.ChZnProdType) // (!_mark_type): значение может быть выставлено выше в блоке if(goods_iter.GetAlcoGoodsExtension(gds_info.ID, 0, agi) > 0) {}
+											_mark_type = 7; // 7–иная маркированная продукция
+										break;
+								}
+								if(_mark_type)
+									tail.Cat(_mark_type); // #55 Признак алкогольной продукции
+							}
+							tail.Semicol();
+							if(is_egais_marked_alc >= 0)
+								tail.Cat(is_egais_marked_alc); // #56 Признак маркированной алкогольной продукции (0 - маркированная)
+							tail.Semicol();
+							if(alc_proof > 0.0)
+								tail.Cat(agi.Proof, MKSFMTD(0, 1, NMBF_NOZERO)); // #57 Крепость алкогольной продукции
+							tail.Semicol();
 						}
 					}
 					const size_t bclen = sstrlen(gds_info.BarCode);

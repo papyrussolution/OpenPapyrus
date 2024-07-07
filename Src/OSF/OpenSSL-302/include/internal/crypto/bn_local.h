@@ -381,7 +381,7 @@ struct bn_gencb_st {
 #define BN_UMULT_HIGH(a, b)   (BN_ULONG) asm ("umulh %a0,%a1,%v0", (a), (b))
 #elif defined(__GNUC__) && __GNUC__>=2
 #define BN_UMULT_HIGH(a, b)   ({     \
-		register BN_ULONG ret;          \
+		BN_ULONG ret;          \
 		asm ("umulh     %1,%2,%0"       \
 		: "=r" (ret)                \
 		: "r" (a), "r" (b));         \
@@ -390,7 +390,7 @@ struct bn_gencb_st {
 #elif defined(_ARCH_PPC64) && defined(SIXTY_FOUR_BIT_LONG)
 #if defined(__GNUC__) && __GNUC__>=2
 #define BN_UMULT_HIGH(a, b)   ({     \
-		register BN_ULONG ret;          \
+		BN_ULONG ret;          \
 		asm ("mulhdu    %0,%1,%2"       \
 		: "=r" (ret)                \
 		: "r" (a), "r" (b));         \
@@ -400,7 +400,7 @@ struct bn_gencb_st {
 	(defined(SIXTY_FOUR_BIT_LONG) || defined(SIXTY_FOUR_BIT))
 #if defined(__GNUC__) && __GNUC__>=2
 #define BN_UMULT_HIGH(a, b)   ({     \
-		register BN_ULONG ret, discard;  \
+		BN_ULONG ret, discard;  \
 		asm ("mulq      %3"             \
 		: "=a" (discard), "=d" (ret)  \
 		: "a" (a), "g" (b)           \
@@ -423,7 +423,7 @@ unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b, unsigned __int
 #elif defined(__mips) && (defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG))
 #if defined(__GNUC__) && __GNUC__>=2
 #define BN_UMULT_HIGH(a, b) ({       \
-		register BN_ULONG ret;          \
+		BN_ULONG ret;          \
 		asm ("dmultu    %1,%2"          \
 		: "=h" (ret)                \
 		: "r" (a), "r" (b) : "l");   \
@@ -436,7 +436,7 @@ unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b, unsigned __int
 #elif defined(__aarch64__) && defined(SIXTY_FOUR_BIT_LONG)
 #if defined(__GNUC__) && __GNUC__>=2
 #define BN_UMULT_HIGH(a, b)   ({     \
-		register BN_ULONG ret;          \
+		BN_ULONG ret;          \
 		asm ("umulh     %0,%1,%2"       \
 		: "=r" (ret)                \
 		: "r" (a), "r" (b));         \

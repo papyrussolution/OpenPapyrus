@@ -193,7 +193,7 @@ static int file_open(Archive * a, void * client_data)
 		 */
 		fd = 0;
 #if defined(__CYGWIN__) || defined(_WIN32)
-		setmode(0, O_BINARY);
+		_setmode(0, O_BINARY);
 #endif
 		filename = "";
 	}

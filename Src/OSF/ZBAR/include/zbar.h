@@ -1917,8 +1917,7 @@ static inline int zbar_decoder_parse_config(zbar_decoder_t * decoder, const char
  * specified symbology.
  * @since 0.11
  */
-extern uint zbar_decoder_get_configs(const zbar_decoder_t * decoder,
-    zbar_symbol_type_t symbology);
+extern uint zbar_decoder_get_configs(const zbar_decoder_t * decoder, zbar_symbol_type_t symbology);
 
 /** clear all decoder state.
  * any partial symbols are flushed

@@ -5102,10 +5102,14 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_MOBILE_NETWORK_OFF              33011
 #define PPDV_MOBILE_NETWORK_UNSTABLE         33012
 #define PPDV_MOBILE_NETWORK_WIFI             33013
-#define PPDV_LOGOPAPYRUS                     33014
-#define PPDV_LOGOUDS                         33015
-#define PPDV_LOGOVK                          33016
-#define PPDV_LOGOVETIS                       33017
-#define PPDV_LOGOCHZN                        33018
-#define PPDV_LOGOGOOGLEMAPS01                33019
+#define NETWORK_CELLULAR_SIGNAL_WEAK         33014
+#define NETWORK_CELLULAR_SIGNAL_OK           33015
+#define NETWORK_CELLULAR_SIGNAL_GOOD         33016
+#define NETWORK_CELLULAR_SIGNAL_EXCELLENT     33017
+#define PPDV_LOGOPAPYRUS                     33018
+#define PPDV_LOGOUDS                         33019
+#define PPDV_LOGOVK                          33020
+#define PPDV_LOGOVETIS                       33021
+#define PPDV_LOGOCHZN                        33022
+#define PPDV_LOGOGOOGLEMAPS01                33023
 

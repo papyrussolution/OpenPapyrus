@@ -3790,7 +3790,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					PPVersionInfo ver_inf(0);
 					const SVerT this_ver = ver_inf.GetVersion();
 					const SVerT this_db_min_ver = ver_inf.GetVersion(1);
-					// @v10.6.2 {
+
 					class DbrSignalFile {
 					public:
 						DbrSignalFile(const char * pPath, const SVerT & rVer)
@@ -3816,18 +3816,9 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						SString FileName;
 						SString FileName2;
 					};
-					// } @v10.6.2
-					/* @v10.6.2
-					SString dbr_signal_file_name;
-					{
-						int   mj, mn, rv;
-						this_ver.Get(&mj, &mn, &rv);
-                        (dbr_signal_file_name = data_path).SetLastSlash().Cat("dbr").
-							CatChar('-').CatLongZ(mj, 2).CatLongZ(mn, 2).CatLongZ(rv, 2).DotCat("signal");
-					}
-					if(!::fileExists(dbr_signal_file_name)) { */
-					DbrSignalFile dbr_signal(data_path, this_ver); // @v10.6.2
-					if(!dbr_signal.IsExists()) { // @v10.6.2
+
+					DbrSignalFile dbr_signal(data_path, this_ver);
+					if(!dbr_signal.IsExists()) {
 						THROW_PP(!GetSync().IsDBLocked(), PPERR_SYNCDBLOCKED);
 						debug_r = 8;
 						PPWaitStart();
@@ -3911,8 +3902,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 								THROW(verh.Write(data_path, &vh_info));
 							}
 						}
-                        // @v10.6.2 ::createEmptyFile(dbr_signal_file_name);
-						dbr_signal.Create(); // @v10.6.2
+						dbr_signal.Create();
 						PPWaitStop();
 					}
 				}
@@ -3962,11 +3952,9 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 			SLS.SetUiFlag(sluifUseLargeDialogs, 0);
 			if(!oneof2(logmode, logmService, logmEmptyBaseCreation)) {
 				int    pw_is_wrong = 1;
-				// @v10.1.10 {
 				if(usr_rec.ID != PPUSR_MASTER && checkdate(usr_rec.ExpiryDate)) {
 					THROW_PP_S(getcurdate_() <= usr_rec.ExpiryDate, PPERR_USRACCEXPIRED, usr_rec.Name);
 				}
-				// } @v10.1.10
 				if(onetimepass_user_id)
 					pw_is_wrong = 0;
 				else if(pw[0] && (r_lc.Flags & CFGFLG_SEC_CASESENSPASSW) ? !sstreq(pw, pPassword) : stricmp866(pw, pPassword)) {

@@ -2214,6 +2214,12 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 						if(exp_amount != 0.0 && exp_total_amount != 0.0) {
 							MEMSZERO(ebf_rec);
 							ebf_rec = rec;
+							// @v12.0.6 {
+							ebf_rec.Dt       = _dt;
+							ebf_rec.RcptDt   = _rcpt_dt;
+							ebf_rec.InvcDt   = _invc_dt;
+							ebf_rec.PaymDt   = _paym_dt;
+							// } @v12.0.6 
 							const double temp_scale = -fabs(scale * exp_amount / exp_total_amount);
 							set_vat_params_result = _SetVATParams(&ebf_rec, &vata, temp_scale, 0, sl_use_cost_vat_addendum);
 							LDBLTOMONEY(0.0, ebf_rec.Amount); // Доход

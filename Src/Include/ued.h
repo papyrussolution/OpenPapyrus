@@ -8,7 +8,7 @@ class PPLogger;
 
 class UED {
 public:
-	static bool IsMetaId(uint64 ued) { return (HiDWord(ued) == 1); }
+	static constexpr bool IsMetaId(uint64 ued) { return (HiDWord(ued) == 1); }
 	//
 	// Descr: ¬озвращает количество бит данных, доступных дл€ значени€ UED-величины в 
 	//   зависимости от мета-идентификатора.
@@ -20,7 +20,20 @@ public:
 	//   ≈сли аргумент €вл€етс€ meta-идентификатором или не €вл€етс€ валидным UED-значением,
 	//   то возвращает 0.
 	//
-	static uint GetRawDataBits(uint64 ued);
+	static constexpr uint GetRawDataBits(uint64 ued)
+	{
+		uint   result = 0;
+		if(!IsMetaId(ued)) {
+			const uint32 hi_dword = HiDWord(ued);
+			if(hi_dword & 0x80000000U)
+				result = 56;
+			else if(hi_dword & 0x40000000)
+				result = 48;
+			else if(hi_dword)
+				result = 32;
+		}
+		return result;
+	}
 	static bool BelongToMeta(uint64 ued, uint64 meta)
 	{
 		//return (IsMetaId(meta) && ((ued >> 32) & 0x00000000ffffffffULL) == (meta & 0x00000000ffffffffULL));
@@ -29,6 +42,12 @@ public:
 	static uint64 GetMeta(uint64 ued);
 	static bool   GetRawValue(uint64 ued, uint64 * pRawValue);
 	static bool   GetRawValue32(uint64 ued, uint32 * pRawValue);
+	static constexpr uint32 GetRawValue32(uint64 ued)
+	{
+		const  uint  bits = GetRawDataBits(ued);
+		assert(oneof4(bits, 56, 48, 32, 0));
+		return (bits == 32) ? LoDWord(ued) : 0;
+	}
 	static uint64 ApplyMetaToRawValue(uint64 meta, uint64 rawValue);
 	static uint64 ApplyMetaToRawValue32(uint64 meta, uint32 rawValue);
 

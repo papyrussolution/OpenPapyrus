@@ -227,17 +227,6 @@ int IsAccBelongToList(const Acct * pAcct, int side, const char * pList)
 	}
 	return found;
 }
-
-#if 0 // @v10.3.2 @unused {
-int IsSuitableAcc(const Acct * pAcc, int aco /* ACO_X */, Acct * pPattern)
-{
-	if(aco == ACO_1)
-		return (pAcc->ac == pPattern->ac) ? 1 : 0;
-	if(aco == ACO_2)
-		return (pAcc->ac == pPattern->ac && pAcc->sb == pPattern->sb) ? 1 : 0;
-	return (pAcc->ac == pPattern->ac && pAcc->sb == pPattern->sb && pAcc->ar == pPattern->ar) ? 1 : 0;
-}
-#endif // } 0
 //
 //
 //

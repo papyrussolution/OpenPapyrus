@@ -317,13 +317,13 @@ LUA_API int lua_getinfo(lua_State * L, const char * what, lua_Debug * ar) {
 ** =======================================================
 */
 
-static const char * getobjname(Proto * p, int lastpc, int reg,
-    const char ** name);
+static const char * getobjname(Proto * p, int lastpc, int reg, const char ** name);
 
 /*
 ** find a "name" for the RK value 'c'
 */
-static void kname(Proto * p, int pc, int c, const char ** name) {
+static void kname(Proto * p, int pc, int c, const char ** name) 
+{
 	if(ISK(c)) { /* is 'c' a constant? */
 		TValue * kvalue = &p->k[INDEXK(c)];
 		if(ttisstring(kvalue)) { /* literal constant? */

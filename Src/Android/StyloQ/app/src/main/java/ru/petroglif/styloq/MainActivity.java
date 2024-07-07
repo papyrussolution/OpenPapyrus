@@ -621,10 +621,17 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 						ir = R.drawable.ic_mobile_network_wifi;
 					}
 					else if(st.Transp == NetworkConnectionInfoManager.Transport.Cellular) {
-						ir = R.drawable.ic_mobile_network_4g;
+						if(st.CellularQuality == 4)
+							ir = R.drawable.ic_network_cellular_signal_excellent;
+						else if(st.CellularQuality == 3)
+							ir = R.drawable.ic_network_cellular_signal_good;
+						else if(st.CellularQuality == 2)
+							ir = R.drawable.ic_network_cellular_signal_ok;
+						else
+							ir = R.drawable.ic_network_cellular_signal_weak;
 					}
 					else if(st.Transp == NetworkConnectionInfoManager.Transport.GenericAvailable) {
-						ir = R.drawable.ic_mobile_network_4g;
+						ir = R.drawable.ic_network_cellular_signal_ok;
 					}
 					else
 						ir = R.drawable.ic_mobile_network_disconnected;
@@ -770,7 +777,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							app_ctx.SetupNetworkStatusManager(this);
 							{
 								Timer tmr = new Timer();
-								tmr.schedule(new UpdateNetworkStateIndicator_TimerTask(), 12000);
+								tmr.schedule(new UpdateNetworkStateIndicator_TimerTask(), 500, 12000);
 							}
 							// } @v12.0.6
 						} catch(StyloQException | PackageManager.NameNotFoundException e) {

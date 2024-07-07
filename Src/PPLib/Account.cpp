@@ -321,18 +321,11 @@ int AcctRel::ReplaceAcct(int oldAc, int oldSb, int newAc, int newSb)
 	MEMSZERO(k);
 	k.Ac = oldAc;
 	k.Sb = oldSb;
-	/* @v10.3.0 for(int sp = spGe; searchForUpdate(3, &k, sp) && k.Ac == oldAc && k.Sb == oldSb; sp = spGt) {
-		data.Ac = newAc;
-		data.Sb = newSb;
-		THROW_DB(updateRec()); // @sfu-r
-	}*/
-	// @v10.3.0 {
 	if(searchForUpdate(3, &k, spGe) && k.Ac == oldAc && k.Sb == oldSb) do {
 		data.Ac = newAc;
 		data.Sb = newSb;
 		THROW_DB(updateRec()); // @sfu-r
 	} while(searchForUpdate(3, &k, spNext) && k.Ac == oldAc && k.Sb == oldSb);
-	// } @v10.3.0 
 	THROW_DB(BTROKORNFOUND);
 	CATCHZOK
 	return ok;

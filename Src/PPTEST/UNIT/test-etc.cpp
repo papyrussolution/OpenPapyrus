@@ -1059,7 +1059,7 @@ SLTEST_R(SRecPageManager)
 	bool debug_mark = false;
 	{
 		SRecPageManager mgr(SMEGABYTE(4));
-		SDataPageHeader * p_page = mgr.AllocatePage(SDataPageHeader::tRecord);
+		SDataPage_ * p_page = mgr.AllocatePage(SDataPageHeader::tRecord);
 		if(p_page) {
 			const uint page_offs_list[] = { 32U, 65U, 130U, 259U, 517U };
 			for(uint ofsidx = 0; ofsidx < SIZEOFARRAY(page_offs_list); ofsidx++) {
@@ -1091,12 +1091,15 @@ SLTEST_R(SRecPageManager)
 		const uint page_size = SKILOBYTE(512);
 		SCollection data_list;
 		SRecPageManager mgr(page_size);
-		SDataPageHeader * p_page = mgr.AllocatePage(SDataPageHeader::tRecord);
+		SDataPage_ * p_page = mgr.AllocatePage(SDataPageHeader::tRecord);
 		SLCHECK_NZ(p_page);
 		if(p_page) {
 			SCollection data_list;
 			SDataPageHeader::Stat stat;
 			TSVector <SRecPageFreeList::Entry> free_list;
+			//
+			// Вставляем случайные записи сколько возможно
+			//
 			do {
 				uint rs = SLS.GetTLA().Rg.GetUniformIntPos(max_rec_size+1);
 				if(rs > 0) {		
@@ -1106,14 +1109,119 @@ SLTEST_R(SRecPageManager)
 						uint tail_size = 0;
 						const SRecPageFreeList::Entry * p_free_entry = SRecPageFreeList::FindOptimalFreeEntry(free_list, p_entry->Size, &tail_size);
 						if(p_free_entry) {
+							const uint64 rowid = p_free_entry->RowId;
 							SLCHECK_LE(p_entry->Size, p_free_entry->FreeSize);
-							int wr = mgr.WriteToPage(p_page, p_free_entry->RowId, p_entry+1, p_entry->Size);
+							int wr = mgr.WriteToPage(p_page, rowid, p_entry+1, p_entry->Size);
 							SLCHECK_NZ(wr > 0);
 							SLCHECK_NZ(p_page->GetStat(stat, &free_list));
+							p_entry->RowId = rowid;
+							data_list.insert(p_entry);
+							p_entry = 0;
 						}
+						else
+							SAlloc::F(p_entry);							
 					}
 				}
 			} while(CurrentStatus && stat.UsableBlockSize > 0);
+			{
+				//
+				// Проверяем вставленные записи
+				//
+				for(uint i = 0; i < data_list.getCount(); i++) {
+					const DataEntry * p_entry = static_cast<const DataEntry *>(data_list.at(i));
+					if(p_entry) {
+						uint8 rec_buf[max_rec_size*2];
+						uint  seq = 0;
+						uint  ofs = 0;
+						SLCHECK_NZ(SRecPageManager::SplitRowId(p_entry->RowId, &seq, &ofs));
+						const uint read_result = p_page->Read(ofs, rec_buf, sizeof(rec_buf));
+						SLCHECK_NZ(read_result);
+						if(read_result) {
+							SLCHECK_EQ(read_result, p_entry->Size);
+							SLCHECK_Z(memcmp(rec_buf, (p_entry+1), read_result));
+						}
+						if(!CurrentStatus)
+							debug_mark = true;
+					}
+				}
+			}
+			{
+				//
+				// Удаляем вставленные записи группами по 2 или 3 записи
+				// для проверки слияния свободных областей
+				//
+				int _2_3_trigger = 0; // 0 - 2 records to delete, 1 - 3 records to delete
+				uint recs_deleted = 0;
+				const uint org_recs_count = data_list.getCount();
+				while(data_list.getCount()) {
+					uint recs_to_delete = 0;
+					if(_2_3_trigger)
+						recs_to_delete = MIN(3U, data_list.getCount());
+					else
+						recs_to_delete = MIN(2U, data_list.getCount());
+					assert(oneof3(recs_to_delete, 1, 2, 3) && recs_to_delete <= data_list.getCount());
+					//
+					if(recs_to_delete == 3) {
+						// удаляем в порядке 3 - 1 - 2
+						uint64 rowid_list[3];
+						rowid_list[0] = static_cast<const DataEntry *>(data_list.at(2))->RowId;
+						rowid_list[1] = static_cast<const DataEntry *>(data_list.at(0))->RowId;
+						rowid_list[2] = static_cast<const DataEntry *>(data_list.at(1))->RowId;
+						for(uint j = 0; j < SIZEOFARRAY(rowid_list); j++) {
+							SLCHECK_NZ(mgr.DeleteFromPage(p_page, rowid_list[j]));
+							if(!CurrentStatus)
+								debug_mark = true;
+							SLCHECK_NZ(mgr.VerifyFreeList());
+							if(!CurrentStatus)
+								debug_mark = true;
+							recs_deleted++;
+						}
+						data_list.atFree(0);
+						data_list.atFree(0);
+						data_list.atFree(0);
+					}
+					else if(recs_to_delete == 2) {
+						// удаляем в порядке 2 - 1
+						uint64 rowid_list[2];
+						rowid_list[0] = static_cast<const DataEntry *>(data_list.at(1))->RowId;
+						rowid_list[1] = static_cast<const DataEntry *>(data_list.at(0))->RowId;
+						for(uint j = 0; j < SIZEOFARRAY(rowid_list); j++) {
+							SLCHECK_NZ(mgr.DeleteFromPage(p_page, rowid_list[j]));
+							if(!CurrentStatus)
+								debug_mark = true;
+							SLCHECK_NZ(mgr.VerifyFreeList());
+							if(!CurrentStatus)
+								debug_mark = true;
+							recs_deleted++;
+						}
+						data_list.atFree(0);
+						data_list.atFree(0);
+					}
+					else {
+						assert(recs_to_delete == 1);
+						// удаляем в порядке 2 - 1
+						uint64 rowid_list[1];
+						rowid_list[0] = static_cast<const DataEntry *>(data_list.at(0))->RowId;
+						for(uint j = 0; j < SIZEOFARRAY(rowid_list); j++) {
+							SLCHECK_NZ(mgr.DeleteFromPage(p_page, rowid_list[j]));
+							if(!CurrentStatus)
+								debug_mark = true;
+							SLCHECK_NZ(mgr.VerifyFreeList());
+							if(!CurrentStatus)
+								debug_mark = true;
+							recs_deleted++;
+						}
+						data_list.atFree(0);
+					}
+					//
+					_2_3_trigger = !_2_3_trigger;
+				}
+				{
+					SDataPageHeader::Stat st;
+					SLCHECK_NZ(p_page->GetStat(st, 0));
+					SLCHECK_NZ(st.IsPageFree());
+				}
+			}
 		}
 	}
 	{
@@ -1134,14 +1242,10 @@ SLTEST_R(SRecPageManager)
 						offset_list[offset_list_count++] = i;
 					}
 				}
-				{
-					SLCHECK_Z(SRecPageManager::MakeRowId(page_size, seq, page_size));
-					SLCHECK_Z(SRecPageManager::MakeRowId(page_size, 0, page_size-7));
-				}
+				SLCHECK_Z(SRecPageManager::MakeRowId(page_size, seq, page_size)); // ошибочное смещение
+				SLCHECK_Z(SRecPageManager::MakeRowId(page_size, 0, page_size-7)); // ошибочный номер страницы (0)
 				for(uint oi = 0; oi < offset_list_count; oi++) {
 					const uint offs = offset_list[oi];
-					//static uint64 MakeRowId(uint pageSize, uint pageSeq, uint offset);
-					//static int SplitRowId(uint64 rowId, uint pageSize, uint * pPageSeq, uint * pOffset);					
 					uint64 row_id = SRecPageManager::MakeRowId(page_size, seq, offs);
 					SLCHECK_NZ(row_id);
 					uint seq__ = 0;
@@ -1173,9 +1277,8 @@ SLTEST_R(SRecPageManager)
 							p_entry->RowId = row_id;
 							data_list.insert(p_entry);
 						}
-						else {
+						else
 							SAlloc::F(p_entry);
-						}
 					}
 				}
 			}
@@ -1188,13 +1291,8 @@ SLTEST_R(SRecPageManager)
 					const uint read_result = rm.Read(p_entry->RowId, rec_buf, sizeof(rec_buf));
 					SLCHECK_NZ(read_result);
 					if(read_result) {
-						; // @ok
 						SLCHECK_EQ(read_result, p_entry->Size);
 						SLCHECK_Z(memcmp(rec_buf, (p_entry+1), read_result));
-					}
-					else {
-						; // @err
-
 					}
 					if(!CurrentStatus)
 						debug_mark = true;

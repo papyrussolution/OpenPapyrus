@@ -1,6 +1,6 @@
 // UED-ID.H
-// version: 32
-// sha256: a06b8be01421615eb987daeb4e39dbec78e8846a8542d2a29bde3cb9c1db94ee
+// version: 34
+// sha256: 5e9cbeca2b7ff057db997ea47b5400d7c63f2e77ac1a15b6a66c2e3d93221a0b
 //
 #ifndef __UED_ID_H
 #define __UED_ID_H
@@ -2532,37 +2532,35 @@
 #define UED_META_BRAND                               0x10000004bULL
 #define UED_META_PACKAGE                             0x10000004cULL
 #define UED_META_AIRPORT                             0x10000004dULL
-#define UED_META_BARCODEENCODING                     0x10000004eULL
-	#define UED_BARCODEENCODING_CODE11                   0x4e00000001ULL
-	#define UED_BARCODEENCODING_INTERLEAVED2OF5          0x4e00000002ULL
-	#define UED_BARCODEENCODING_CODE39                   0x4e00000003ULL
-	#define UED_BARCODEENCODING_CODE49                   0x4e00000004ULL
-	#define UED_BARCODEENCODING_PDF417                   0x4e00000005ULL
-	#define UED_BARCODEENCODING_EAN8                     0x4e00000006ULL
-	#define UED_BARCODEENCODING_UPCE                     0x4e00000007ULL
-	#define UED_BARCODEENCODING_CODE93                   0x4e00000008ULL
-	#define UED_BARCODEENCODING_CODE128                  0x4e00000009ULL
-	#define UED_BARCODEENCODING_EAN13                    0x4e0000000aULL
-	#define UED_BARCODEENCODING_INDUSTIAL2OF5            0x4e0000000bULL
-	#define UED_BARCODEENCODING_STANDARD2OF5             0x4e0000000cULL
-	#define UED_BARCODEENCODING_ANSICODABAR              0x4e0000000dULL
-	#define UED_BARCODEENCODING_LOGMARS                  0x4e0000000eULL
-	#define UED_BARCODEENCODING_MSI                      0x4e0000000fULL
-	#define UED_BARCODEENCODING_PLESSEY                  0x4e00000010ULL
-	#define UED_BARCODEENCODING_UPCEAN_EXTENSION2        0x4e00000011ULL
-	#define UED_BARCODEENCODING_UPCEAN_EXTENSION5        0x4e00000012ULL
-	#define UED_BARCODEENCODING_UPCA                     0x4e00000013ULL
-	#define UED_BARCODEENCODING_POSTNET                  0x4e00000014ULL
-	#define UED_BARCODEENCODING_QRCODE                   0x4e00000015ULL
-	#define UED_BARCODEENCODING_DATAMATRIX               0x4e00000016ULL
-	#define UED_BARCODEENCODING_EAN2                     0x4e00000017ULL
-	#define UED_BARCODEENCODING_EAN5                     0x4e00000018ULL
-	#define UED_BARCODEENCODING_ISBN10                   0x4e00000019ULL
-	#define UED_BARCODEENCODING_ISBN13                   0x4e0000001aULL
-	#define UED_BARCODEENCODING_COMPOSITE                0x4e0000001bULL
-	#define UED_BARCODEENCODING_DATABAR                  0x4e0000001cULL
-	#define UED_BARCODEENCODING_DATABAR_EXP              0x4e0000001dULL
-	#define UED_BARCODEENCODING_CODABAR                  0x4e0000001eULL
+#define UED_META_BARCODESYMB                         0x10000004eULL
+	#define UED_BARCODESYMB_CODE11                       0x4e00000001ULL
+	#define UED_BARCODESYMB_INTERLEAVED2OF5              0x4e00000002ULL
+	#define UED_BARCODESYMB_CODE39                       0x4e00000003ULL
+	#define UED_BARCODESYMB_CODE49                       0x4e00000004ULL
+	#define UED_BARCODESYMB_PDF417                       0x4e00000005ULL
+	#define UED_BARCODESYMB_EAN8                         0x4e00000006ULL
+	#define UED_BARCODESYMB_UPCE                         0x4e00000007ULL
+	#define UED_BARCODESYMB_CODE93                       0x4e00000008ULL
+	#define UED_BARCODESYMB_CODE128                      0x4e00000009ULL
+	#define UED_BARCODESYMB_EAN13                        0x4e0000000aULL
+	#define UED_BARCODESYMB_IND2OF5                      0x4e0000000bULL
+	#define UED_BARCODESYMB_STD2OF5                      0x4e0000000cULL
+	#define UED_BARCODESYMB_ANSI                         0x4e0000000dULL
+	#define UED_BARCODESYMB_LOGMARS                      0x4e0000000eULL
+	#define UED_BARCODESYMB_MSI                          0x4e0000000fULL
+	#define UED_BARCODESYMB_PLESSEY                      0x4e00000010ULL
+	#define UED_BARCODESYMB_UPCEAN2EXT                   0x4e00000011ULL
+	#define UED_BARCODESYMB_UPCEAN5EXT                   0x4e00000012ULL
+	#define UED_BARCODESYMB_UPCA                         0x4e00000013ULL
+	#define UED_BARCODESYMB_POSTNET                      0x4e00000014ULL
+	#define UED_BARCODESYMB_QR                           0x4e00000015ULL
+	#define UED_BARCODESYMB_DATAMATRIX                   0x4e00000016ULL
+	#define UED_BARCODESYMB_AZTEC                        0x4e00000017ULL
+	#define UED_BARCODESYMB_DATABAR                      0x4e00000018ULL
+	#define UED_BARCODESYMB_MICROQR                      0x4e00000019ULL
+	#define UED_BARCODESYMB_ITF                          0x4e0000001aULL
+	#define UED_BARCODESYMB_MAXICODE                     0x4e0000001bULL
+	#define UED_BARCODESYMB_RMQR                         0x4e0000001cULL
 #define UED_META_COLORRGB                            0x10000004fULL
 	#define UED_COLORRGB_BLACK                           0x4fff000000ULL
 	#define UED_COLORRGB_NAVY                            0x4fff000080ULL

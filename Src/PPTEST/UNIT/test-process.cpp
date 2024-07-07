@@ -219,11 +219,11 @@ SLTEST_R(ReadWriteLock)
 				}
 				SDelay(rn%7);
 			}
-			CATCH
+			//CATCH
 				//if(lck)
 					//P_Lock->Unlock();
-				*P_Result = 0;
-			ENDCATCH
+				//*P_Result = 0;
+			//ENDCATCH
 		}
 		uint   Id;
 		ReadWriteLock * P_Lock;
@@ -591,8 +591,8 @@ SLTEST_R(SlProcess)
 	if(use_appcontainer) {
 		SLCHECK_NZ(ac.Delete());
 	}
-	CATCH
-		CurrentStatus = 0;
-	ENDCATCH
+	//CATCH
+		//CurrentStatus = 0;
+	//ENDCATCH
 	return CurrentStatus;
 }

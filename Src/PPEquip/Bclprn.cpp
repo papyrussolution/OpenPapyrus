@@ -1821,40 +1821,9 @@ int BarcodeLabelPrinter::PrintLabelUsb(PPID devType)
 	usb.Close();
 	return ok;
 }
-
 //
 // DatamaxLabelPrinter
 //
-/* @v10.9.10
-struct BarCStdToDatamaxEntry {
-	int8   Std;
-	int8   Chr;
-};
-
-static BarCStdToDatamaxEntry _BarCStdTab[] = {
-	{BARCSTD_CODE11,        0},
-	{BARCSTD_INTRLVD2OF5, 'D'},
-	{BARCSTD_CODE39,      'A'},
-	{BARCSTD_CODE49,        0},
-	{BARCSTD_PDF417,      'z'},
-	{BARCSTD_EAN8,        'G'},
-	{BARCSTD_UPCE,        'C'},
-	{BARCSTD_CODE93,      'O'},
-	{BARCSTD_CODE128,     'E'},
-	{BARCSTD_EAN13,       'F'},
-	{BARCSTD_IND2OF5,     'L'},
-	{BARCSTD_STD2OF5,     'J'},
-	{BARCSTD_ANSI,         0},
-	{BARCSTD_LOGMARS,      0},
-	{BARCSTD_MSI,          0},
-	{BARCSTD_PLESSEY,     'K'},
-	{BARCSTD_UPCEAN2EXT,  'M'},
-	{BARCSTD_UPCEAN5EXT,  'N'},
-	{BARCSTD_UPCA,        'B'},
-	{BARCSTD_POSTNET,     'p'}
-};
-*/
-// @v10.9.10 {
 static SIntToSymbTabEntry _BarCStdTab2[] = {
 	{BARCSTD_CODE11,       0  },
 	{BARCSTD_INTRLVD2OF5, "D" },
@@ -1876,9 +1845,8 @@ static SIntToSymbTabEntry _BarCStdTab2[] = {
 	{BARCSTD_UPCEAN5EXT,  "N" },
 	{BARCSTD_UPCA,        "B" },
 	{BARCSTD_POSTNET,     "p"   },
-	{BARCSTD_DATAMATRIX,  "W1c" } // @v10.9.10
+	{BARCSTD_DATAMATRIX,  "W1c" }
 };
-// } @v10.9.10 
 
 int DatamaxLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 {

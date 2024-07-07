@@ -81,9 +81,9 @@
 			#define strdup		_strdup
 		#endif
 	#endif
-	#if !defined(HAVE__SETMODE) && defined(HAVE_SETMODE)
-		#define _setmode	setmode
-	#endif
+	// @v12.0.6 #if !defined(HAVE__SETMODE) && defined(HAVE_SETMODE)
+		// @v12.0.6 #define _setmode	setmode
+	// @v12.0.6 #endif
 #endif
 /* @v10.8.5 slport.h 
 #ifndef HAVE_FSEEKO

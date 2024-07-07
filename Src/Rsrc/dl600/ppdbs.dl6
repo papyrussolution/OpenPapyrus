@@ -240,16 +240,11 @@ table ObjAssoc {           // size=84
 	long   ScndObjID;      // ИД вторичного объекта
 	long   InnerNum;       // Номер вторичного объекта по внутренней классификации
 	raw    Text[64];       // Наименование вторичного объекта (опционально) // @v6.2.2 string Name[48]-->raw Text[64]
-	// @v6.2.2 long   Val1;           //
-	// @v6.2.2 long   Val2;           //
-	// @v6.2.2 long   Val3;           //
-	// @v6.2.2 long   Val4;           //
 index:
 	ID (unique);
 	AsscType, PrmrObjID, ScndObjID (unique mod);
 	AsscType, ScndObjID, PrmrObjID (unique mod);
 	AsscType, PrmrObjID, InnerNum  (unique mod);
-	// @v6.2.2 AsscType, PrmrObjID, Name acs  (dup mod);
 file:
 	"objassoc.btr";
 	acstable = "rusncase.alt";

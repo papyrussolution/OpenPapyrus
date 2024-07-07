@@ -11833,6 +11833,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsstruc_kind_compl                    "Комплектация/декомплектация"
 @goodsstruc_kind_partial                  "Частичная структура"
 @goodsstruc_kind_complex                  "Комплекс"
+@goodsstruc_kind_priceplanning            "Планирование цены (construction)"
 @goodsstruc_cmd_expand                    "Расширить"
 @goodsstruc_info_belongtodyngen           "Структура принадлежит динамическому обобщению"
 @goodsstruc_reduct                        "Редуцировать" // cmd

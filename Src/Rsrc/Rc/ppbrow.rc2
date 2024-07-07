@@ -9274,6 +9274,10 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_MOBILE_NETWORK_OFF           // @v12.0.6
 	PPDV_MOBILE_NETWORK_UNSTABLE	     // @v12.0.6
 	PPDV_MOBILE_NETWORK_WIFI          // @v12.0.6
+	NETWORK_CELLULAR_SIGNAL_WEAK      // @v12.0.6
+	NETWORK_CELLULAR_SIGNAL_OK	      // @v12.0.6
+	NETWORK_CELLULAR_SIGNAL_GOOD	  // @v12.0.6
+	NETWORK_CELLULAR_SIGNAL_EXCELLENT // @v12.0.6
 }
 //
 // Следующие изображения используются без замещения цвета

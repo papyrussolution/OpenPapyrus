@@ -52,7 +52,7 @@ uint16_t * fz_seed48(fz_context *ctx, uint16_t *s)
 
 void fz_srand48(fz_context *ctx, int32_t seed)
 {
-	uint16_t p[3] = { 0x330e, seed, seed>>16 };
+	uint16 p[3] = { 0x330e, static_cast<uint16>(seed), static_cast<uint16>(seed>>16) };
 	fz_seed48(ctx, p);
 }
 

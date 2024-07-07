@@ -1501,7 +1501,7 @@
 //
 #define PPASS_ALTGOODSGRP       1L // Альтернативные группы товаров
 #define PPASS_BILLSET           2L // Набор документов                                ***
-#define PPASS_GOODSSTRUC        3L // Структура товара
+#define PPASS_GOODSSTRUC        3L // Компоненты структуры товара
 #define PPASS_GENGOODS          4L // Обобщенный товар
 #define PPASS_PERSONPOST        5L // Должность персоналии (в штатном расписании)
 #define PPASS_PAYMBILLPOOL      6L // Пул зачетных оплат                      ***
@@ -1522,8 +1522,9 @@
 #define PPASS_GOODS2CASHNODE   22L // Ассоциация товар(группа товаров)-кассовый узел
 #define PPASS_GOODS2WAREPLACE  23L // Ассоциация товар(группа товаров)-место хранения. Допускает дублирование: с одним товаром может быть сопоставлено более одного места хранения //
 // @v10.8.12 #define PPASS_AGTBILLPOOL      24L // @v7.0.0 @construction Пул документов, сопоставленных с документом соглашения //
-#define PPASS_CHECKINPSNTSES   25L // @v7.7.2
+#define PPASS_CHECKINPSNTSES   25L // PPCheckInPersonItem Регистрация персоналий в технологических сессиях
 #define PPASS_GOODSCOMP	       26L // Ассоциация товара и его компонента
+#define PPASS_GOODSSTRUC_AR    27L // @v12.0.6 Компоненты структуры товара (аналитические статьи)
 //
 // Категории документов. Применяются в PPViewBill.
 // Перечисление BrowseBillsType (pp.h) однозначно проецируется в эти константы.
@@ -3978,6 +3979,7 @@
 	#define CTL_GSITEM_FORMULA           (13 + WINDOWS_ID_BIAS)
 	#define CTL_GSITEM_GROUPONLY         (14 + WINDOWS_ID_BIAS)
 	#define CTL_GSITEM_NTBRTCOEF         (15 + WINDOWS_ID_BIAS)
+	#define CTL_GSITEM_SELOBJTYPE        (16 + WINDOWS_ID_BIAS) // @v12.0.6 radio-button выбора типа объекта для элемента планирования цены
 #define DLG_MSGNCMPL              287
 #define DLG_MSGZCMPL              288
 #define DLG_MSGNCMPL2             383
@@ -11589,6 +11591,7 @@
 	#define CTLBRW_IMPSWPGM_FILE           (2 + WINDOWS_ID_BIAS)
 	#define CTL_IMPSWPGM_IMGDIR            (3 + WINDOWS_ID_BIAS)
 	#define CTLBRW_IMPSWPGM_IMGDIR         (4 + WINDOWS_ID_BIAS)
+#define DLG_GSPPITEM              1444 // @v12.0.6 Элемент структуры товара (для структуры планирования цены)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

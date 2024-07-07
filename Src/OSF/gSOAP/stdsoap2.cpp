@@ -6115,11 +6115,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_begin_send(struct soap * soap)
    #ifndef UNDER_CE
     #ifndef WITH_FASTCGI
 	if(!soap_valid_socket(soap->socket)) /* Set win32 stdout or soap->sendfd to BINARY, e.g. to support DIME */
-     #ifdef __BORLANDC__
-		setmode(soap->sendfd, _O_BINARY);
-     #else
 		_setmode(soap->sendfd, _O_BINARY);
-     #endif
     #endif
    #endif
   #endif
@@ -12544,11 +12540,7 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_begin_recv(struct soap * soap)
   #ifndef UNDER_CE
    #ifndef WITH_FASTCGI
 	if(!soap_valid_socket(soap->socket))
-    #ifdef __BORLANDC__
-		setmode(soap->recvfd, _O_BINARY);
-    #else
 		_setmode(soap->recvfd, _O_BINARY);
-    #endif
    #endif
   #endif
  #endif

@@ -875,7 +875,7 @@ ZIP_EXTERN int64 zip_source_make_command_bitmap(zip_source_cmd_t cmd0, ...)
 		if(cmd < 0) {
 			break;
 		}
-		bitmap |= (int64)ZIP_SOURCE_MAKE_COMMAND_BITMASK(cmd);
+		bitmap |= ZIP_SOURCE_MAKE_COMMAND_BITMASK(cmd);
 	}
 	va_end(ap);
 	return bitmap;
@@ -949,10 +949,7 @@ static int64 window_read(zip_source_t * src, void * _ctx, void * data, uint64 le
 		    return 0;
 	    }
 		case ZIP_SOURCE_STAT:
-	    {
-		    zip_stat_t * st = static_cast<zip_stat_t *>(data);
-			return (_zip_stat_merge(st, &ctx->stat, &ctx->error) >= 0) ? 0 : -1;
-	    }
+			return (_zip_stat_merge(static_cast<zip_stat_t *>(data), &ctx->stat, &ctx->error) >= 0) ? 0 : -1;
 		case ZIP_SOURCE_SUPPORTS:
 		    return ctx->supports;
 		case ZIP_SOURCE_TELL:
@@ -969,28 +966,32 @@ zip_source_t * zip_source_window(zip_t * za, zip_source_t * src, uint64 start, u
 
 zip_source_t * _zip_source_window_new(zip_source_t * src, uint64 start, uint64 length, zip_stat_t * st, zip_error_t * error)
 {
-	struct ZipSourceWindow * ctx;
 	if(src == NULL || start + length < start) {
 		zip_error_set(error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}
-	if((ctx = static_cast<struct ZipSourceWindow *>(SAlloc::M(sizeof(*ctx)))) == NULL) {
-		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
-		return NULL;
-	}
-	ctx->start = start;
-	ctx->end = start + length;
-	zip_stat_init(&ctx->stat);
-	zip_error_init(&ctx->error);
-	ctx->supports = (zip_source_supports(src) & ZIP_SOURCE_SUPPORTS_SEEKABLE) | (zip_source_make_command_bitmap(ZIP_SOURCE_SUPPORTS, ZIP_SOURCE_TELL, -1));
-	ctx->needs_seek = LOGIC(ctx->supports & ZIP_SOURCE_MAKE_COMMAND_BITMASK(ZIP_SOURCE_SEEK));
-	if(st) {
-		if(_zip_stat_merge(&ctx->stat, st, error) < 0) {
-			SAlloc::F(ctx);
+	else {
+		struct ZipSourceWindow * ctx = static_cast<struct ZipSourceWindow *>(SAlloc::M(sizeof(*ctx)));
+		if(!ctx) {
+			zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 			return NULL;
 		}
+		else {
+			ctx->start = start;
+			ctx->end = start + length;
+			zip_stat_init(&ctx->stat);
+			zip_error_init(&ctx->error);
+			ctx->supports = (zip_source_supports(src) & ZIP_SOURCE_SUPPORTS_SEEKABLE) | (zip_source_make_command_bitmap(ZIP_SOURCE_SUPPORTS, ZIP_SOURCE_TELL, -1));
+			ctx->needs_seek = LOGIC(ctx->supports & ZIP_SOURCE_MAKE_COMMAND_BITMASK(ZIP_SOURCE_SEEK));
+			if(st) {
+				if(_zip_stat_merge(&ctx->stat, st, error) < 0) {
+					SAlloc::F(ctx);
+					return NULL;
+				}
+			}
+			return zip_source_layered_create(src, window_read, ctx, error);
+		}
 	}
-	return zip_source_layered_create(src, window_read, ctx, error);
 }
 
 int _zip_source_set_source_archive(zip_source_t * src, zip_t * za)

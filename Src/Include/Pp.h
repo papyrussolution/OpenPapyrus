@@ -4400,19 +4400,19 @@ private:
 // Стандарты штрихкодов
 // В квадратных скобках приведены коэффициенты печати широких и узких полос (Print ratio)
 //
-#define BARCSTD_CODE11           1 // Code 11 (USD-8)                [2:1 - 3:1]
-#define BARCSTD_INTRLVD2OF5      2 // Interleaved 2 of 5             [2:1 - 3:1]
-#define BARCSTD_CODE39           3 // Code 39 (USD-3 & 3 of 9)       [2:1 - 3:1]
-#define BARCSTD_CODE49           4 // Code 49                        [Fixed]
-#define BARCSTD_PDF417           5 // PDF417                         [Fixed]
-#define BARCSTD_EAN8             6 // EAN-8                          [Fixed]
-#define BARCSTD_UPCE             7 // UPC-E                          [Fixed]
-#define BARCSTD_CODE93           8 // Code 93 (USS-93)               [Fixed]
-#define BARCSTD_CODE128          9 // Code 128 (USD-6)               [Fixed]
-#define BARCSTD_EAN13           10 // EAN-13                         [Fixed]
-#define BARCSTD_IND2OF5         11 // Industial 2 of 5               [2:1 - 3:1]
-#define BARCSTD_STD2OF5         12 // Standard 2 of 5                [2:1 - 3:1]
-#define BARCSTD_ANSI            13 // ANSI Codabar (USD-4 & 2 of 7)  [2:1 - 3:1]
+#define BARCSTD_CODE11           UED::GetRawValue32(UED_BARCODESYMB_CODE11)/*1*/ // Code 11 (USD-8)                [2:1 - 3:1]
+#define BARCSTD_INTRLVD2OF5      UED::GetRawValue32(UED_BARCODESYMB_INTERLEAVED2OF5)/*2*/ // Interleaved 2 of 5             [2:1 - 3:1]
+#define BARCSTD_CODE39           UED::GetRawValue32(UED_BARCODESYMB_CODE39)/*3*/ // Code 39 (USD-3 & 3 of 9)       [2:1 - 3:1]
+#define BARCSTD_CODE49           UED::GetRawValue32(UED_BARCODESYMB_CODE49)/*4*/ // Code 49                        [Fixed]
+#define BARCSTD_PDF417           UED::GetRawValue32(UED_BARCODESYMB_PDF417)/*5*/ // PDF417                         [Fixed]
+#define BARCSTD_EAN8             UED::GetRawValue32(UED_BARCODESYMB_EAN8)/*6*/ // EAN-8                          [Fixed]
+#define BARCSTD_UPCE             UED::GetRawValue32(UED_BARCODESYMB_UPCE)/*7*/ // UPC-E                          [Fixed]
+#define BARCSTD_CODE93           UED::GetRawValue32(UED_BARCODESYMB_CODE93)/*8*/ // Code 93 (USS-93)               [Fixed]
+#define BARCSTD_CODE128          UED::GetRawValue32(UED_BARCODESYMB_CODE128)/*9*/ // Code 128 (USD-6)               [Fixed]
+#define BARCSTD_EAN13           UED::GetRawValue32(UED_BARCODESYMB_EAN13)/*10*/ // EAN-13                         [Fixed]
+#define BARCSTD_IND2OF5         UED::GetRawValue32(UED_BARCODESYMB_IND2OF5)/*11*/ // Industial 2 of 5               [2:1 - 3:1]
+#define BARCSTD_STD2OF5         UED::GetRawValue32(UED_BARCODESYMB_STD2OF5)/*12*/ // Standard 2 of 5                [2:1 - 3:1]
+#define BARCSTD_ANSI            UED::GetRawValue32(UED_BARCODESYMB_ANSI)/*13*/ // ANSI Codabar (USD-4 & 2 of 7)  [2:1 - 3:1]
 #define BARCSTD_LOGMARS         14 // LOGMARS                        [2:1 - 3:1]
 #define BARCSTD_MSI             15 // MSI                            [2:1 - 3:1]
 #define BARCSTD_PLESSEY         16 // Plessey                        [2:1 - 3:1]
@@ -10227,11 +10227,11 @@ public:
 	enum { // @persistent
 		lnextSerial     = 1, // Серийный номер
 		lnextEgaisMark  = 2, // Марка ЕГАИС
-		lnextRemoteProcessingTa = 3, // @v10.1.4 Символ транзакции удаленной обработки строки. Имеет специальное назначение,
+		lnextRemoteProcessingTa = 3, // Символ транзакции удаленной обработки строки. Имеет специальное назначение,
 			// сопряженное с предварительной обработкой чека перед проведением через удаленный сервис.
-		lnextChZnSerial = 4, // @v10.4.12 Серийный номер 'честный знак'
-		lnextChZnGtin   = 5, // @v10.4.12 GTIN считанный из кода 'честный знак'
-		lnextChZnMark   = 6, // @v10.6.9 Марка 'честный знак'
+		lnextChZnSerial = 4, // Серийный номер 'честный знак'
+		lnextChZnGtin   = 5, // GTIN считанный из кода 'честный знак'
+		lnextChZnMark   = 6, // Марка 'честный знак'
 	};
 	struct PreprocessChZnCodeResult { // @flat
 		PreprocessChZnCodeResult();
@@ -11517,19 +11517,6 @@ public:
 	// Descr: Очищает список плана платежей и затем вызывает функцию PPBill::AddPayDate
 	//
 	int    SetPayDate(LDATE dt, double amount);
-	//
-	// Descr: Устанавливает GUID документа в значение rGuid. Если rGuid.IsZero(), то удаляет то, что есть.
-	//
-	//int    SetGuid(const S_GUID & rGuid);
-	//
-	// Descr: Генерирует GUID документа и уставливает его в пакет функцией SetGuid
-	//
-	//int    GenerateGuid(S_GUID * pGuid);
-	//
-	// Descr: Извлекает GUID документа из пакета. Если пакет не содержит GUID, то
-	//   возвращает 0 и присваевает rGuid пустое значение.
-	//
-	//int    GetGuid(S_GUID & rGuid);
 	//
 	// Descr: Присваивает по указателю pFreight блок данных о фрайхте документа.
 	// ARG(pFreight IN): @#{vptr0}
@@ -24281,6 +24268,8 @@ struct PPGoodsStrucHeader2 { // @persistent @store(Reference2Tbl+)
 	// товарная группа. Это необходимо для специальных подарков, распространяемых на целую товарную группу.
 #define GSIF_IDENTICAL   0x0200L // Для подарочных структур: заданное количество применимо только для одинаковых позиций.
 #define GSIF_QUERYEXPLOT 0x0400L // При автоматическом внесении компонента в документ как расходной строки запрашивать выбор лота
+#define GSIF_ARTICLE     0x0800L // @v12.0.6 Вместо товара в поле PPGoodsStrucItem::GoodsID установлена аналитическая статья. 
+	// Используется в структурах планирования стоимости продаж (GSF_PRICEPLANNING)
 
 struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
 	//
@@ -24299,7 +24288,8 @@ struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
 	int    GetQtty(double complQtty, double * pItemQtty) const;
 	int    GetQttyAsPrice(double complPriceSum, double * pItemPrice) const;
 
-	PPID   GoodsID;
+	PPID   GoodsID;        // Если элемент принадлежит структуре типа PPGoodsStruc::kPricePlanning то здесь может быть аналитическая статья (соответствующая таблице AccSheetID)
+		// В этом случае Flags & GSIF_ARTICLE
 	long   Flags;          // GSIF_XXX Флаги
 	double Median;         // Среднее значение оценочного интервала
 	double Width;          // Ширина оценочного интервала
@@ -24309,10 +24299,14 @@ struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
 	// @construction PPID   PrefInnerGsID;  // Предпочтительная структура комплектации/декомплектации для внутреннего элемента
 		// @dbd_exchange Требуется синхронизация //
 	char   Symb[20];       // Символ элемента структуры (для ссылки из формул)
-	char   Formula__[64];    // @transient
+	PPID   ObjType;        // @v12.0.6 @todo @dbx Тип объекта, идентификатор которого указан в поле GoodsID.
+		// Это - переключатель, актуальный только для структур планирования цены товара. 
+		// Значение 0 трактуется как PPOBJ_GOODS (для обратной совместимости). Допускается: 0 || PPOBJ_GOODS || PPOBJ_ARTICLE
+	PPID   AccSheetID;     // @v12.0.6 @todo @dbx Таблица аналитический статей для указания статьи в поле ItemGoodsID (для PPGoodsStruc::kPricePlanning)
+	char   Formula__[64];      // @transient
 };
 
-class PPGoodsStruc {
+class PPGoodsStruc : public PPExtStrContainer { // @v12.0.6 унаследован от PPExtStrContainer с целью хранения текстовых строк расширения //
 public:
 	struct Ident {
 		explicit Ident(PPID goodsID = 0, long andF = 0, long notF = 0, LDATE = ZERODATE);
@@ -24420,7 +24414,7 @@ public:
 	// ARG(recursiveUnrollIncome IN): @v11.2.4 рекурсивно "раскручивать" входящие позиции, которые имеют собственную структуру декомплектации
 	//
 	int    InitCompleteData(PPID goodsID, double needQty, const PPBillPacket * pBillPack, PPComplBlock & rData, bool recursiveUnrollIncome);
-	int    InitCompleteData2(/*const PPTransferItem & rTi,*/PPID goodsID, double needQty, PPComplBlock & rData);
+	int    InitCompleteData2(PPID goodsID, double needQty, PPComplBlock & rData);
 	//
 	// Поле GoodsID не является неотъемлемой частью структуры товара, поскольку одна структура
 	// может принадлежать нескольким товарам. Это поле используется как справочное и может быть
@@ -54626,10 +54620,10 @@ protected:
 	// Descr: Определяет являются ли все товары, находящиеся в пакете pPack или, если pPack == 0, то в P,
 	//   специальными товарами начисления на карту scID.
 	// Returns:
-	//   !0 - пакет пуст либо все товары в нем - начисление на карту scID
-	//   0  - в пакете есть по крайней мере один обыкновенный товар (не начисляющий средства на карту scID)
+	//   true  - пакет пуст либо все товары в нем - начисление на карту scID
+	//   false - в пакете есть по крайней мере один обыкновенный товар (не начисляющий средства на карту scID)
 	//
-	int    IsOnlyChargeGoodsInPacket(PPID scID, const CCheckPacket * pPack);
+	bool   IsOnlyChargeGoodsInPacket(PPID scID, const CCheckPacket * pPack);
 	int    LoadModifiers(PPID goodsID, SaModif & rModif);
 	int    Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const CCheckItem & rCi, double & rBound) const;
 	int    CheckPriceRestrictions(PPID goodsID, const CCheckItem & rCi, double price, RealRange * pRange);

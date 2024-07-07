@@ -51,9 +51,8 @@ int archive_read_open_FILE(Archive * a, FILE * f)
 	}
 	else
 		mine->can_skip = 0;
-
 #if defined(__CYGWIN__) || defined(_WIN32)
-	setmode(fileno(mine->f), O_BINARY);
+	_setmode(fileno(mine->f), O_BINARY);
 #endif
 	archive_read_set_read_callback(a, reinterpret_cast<archive_read_callback *>(file_read));
 	archive_read_set_skip_callback(a, file_skip);

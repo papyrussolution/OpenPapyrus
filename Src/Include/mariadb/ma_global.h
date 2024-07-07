@@ -818,8 +818,7 @@ do { doubleget_union _tmp; \
 				  (((uint32) ((uchar) (A)[0])) << 24))
 /*
   Define-funktions for reading and storing in machine format from/to
-  short/long to/from some place in memory V should be a (not
-  register) variable, M is a pointer to byte
+  short/long to/from some place in memory V should be a (not register) variable, M is a pointer to byte
 */
 #ifdef HAVE_BIGENDIAN
 	#define ushortget(V,M)  do { V = (uint16) (((uint16) ((uchar) (M)[1]))+((uint16) ((uint16) (M)[0]) << 8)); } while(0)

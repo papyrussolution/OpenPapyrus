@@ -92,9 +92,7 @@ static void destroy_hb_shaper_data(fz_context * ctx, void * handle)
 	fz_hb_unlock(ctx);
 }
 
-static const hb_feature_t small_caps_feature[1] = {
-	{ HB_TAG('s', 'm', 'c', 'p'), 1, 0, -1 }
-};
+static const hb_feature_t small_caps_feature[1] = { { HB_TAG('s', 'm', 'c', 'p'), 1, 0U, _FFFF32 } };
 
 static int walk_string(string_walker * walker)
 {
@@ -103,14 +101,11 @@ static int walk_string(string_walker * walker)
 	int fterr;
 	int quickshape;
 	char lang[8];
-
 	walker->start = walker->end;
 	walker->end = walker->s;
 	walker->font = walker->next_font;
-
 	if(*walker->start == 0)
 		return 0;
-
 	/* Run through the string, encoding chars until we find one
 	 * that requires a different fallback font. */
 	while(*walker->s) {

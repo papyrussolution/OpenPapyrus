@@ -54,7 +54,7 @@ int archive_read_open_fd(Archive * a, int fd, size_t block_size)
 		mine->use_lseek = 1;
 	}
 #if defined(__CYGWIN__) || defined(_WIN32)
-	setmode(mine->fd, O_BINARY);
+	_setmode(mine->fd, O_BINARY);
 #endif
 	archive_read_set_read_callback(a, reinterpret_cast<archive_read_callback *>(file_read));
 	archive_read_set_skip_callback(a, file_skip);

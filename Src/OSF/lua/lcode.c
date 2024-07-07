@@ -602,7 +602,8 @@ static int code_loadbool(FuncState * fs, int A, int b, int jump) {
 ** check whether list has any jump that do not produce a value
 ** or produce an inverted value
 */
-static int need_value(FuncState * fs, int list) {
+static int need_value(FuncState * fs, int list) 
+{
 	for(; list != NO_JUMP; list = getjump(fs, list)) {
 		Instruction i = *getjumpcontrol(fs, list);
 		if(GET_OPCODE(i) != OP_TESTSET) return 1;
@@ -611,8 +612,7 @@ static int need_value(FuncState * fs, int list) {
 }
 
 /*
-** Ensures final expression result (including results from its jump
-** lists) is in register 'reg'.
+** Ensures final expression result (including results from its jump lists) is in register 'reg'.
 ** If expression has jumps, need to patch these jumps either to
 ** its final position or to "load" instructions (for those tests
 ** that do not produce values).
@@ -641,10 +641,10 @@ static void exp2reg(FuncState * fs, expdesc * e, int reg) {
 }
 
 /*
-** Ensures final expression result (including results from its jump
-** lists) is in next available register.
+** Ensures final expression result (including results from its jump lists) is in next available register.
 */
-void luaK_exp2nextreg(FuncState * fs, expdesc * e) {
+void luaK_exp2nextreg(FuncState * fs, expdesc * e) 
+{
 	luaK_dischargevars(fs, e);
 	freeexp(fs, e);
 	luaK_reserveregs(fs, 1);
@@ -652,8 +652,7 @@ void luaK_exp2nextreg(FuncState * fs, expdesc * e) {
 }
 
 /*
-** Ensures final expression result (including results from its jump
-** lists) is in some (any) register and return that register.
+** Ensures final expression result (including results from its jump lists) is in some (any) register and return that register.
 */
 int luaK_exp2anyreg(FuncState * fs, expdesc * e) {
 	luaK_dischargevars(fs, e);

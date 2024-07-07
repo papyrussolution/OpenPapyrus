@@ -367,10 +367,9 @@ typedef LONG volatile tsl_t;
 #endif
 #endif
 #endif
-
-/*********************************************************************
- * 68K/gcc assembly.
- *********************************************************************/
+//
+// 68K/gcc assembly.
+//
 #ifdef HAVE_MUTEX_68K_GCC_ASSEMBLY
 typedef uchar tsl_t;
 

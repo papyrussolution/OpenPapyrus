@@ -120,7 +120,7 @@ FILE * read_stdin()
 {
 	FILE * input_file = stdin;
 #ifdef USE_SETMODE              /* need to hack file mode? */
-	setmode(fileno(stdin), O_BINARY);
+	_setmode(fileno(stdin), O_BINARY);
 #endif
 #ifdef USE_FDOPEN               /* need to re-open in binary mode? */
 	if((input_file = fdopen(fileno(stdin), READ_BINARY)) == NULL) {
@@ -135,7 +135,7 @@ FILE * write_stdout()
 {
 	FILE * output_file = stdout;
 #ifdef USE_SETMODE              /* need to hack file mode? */
-	setmode(fileno(stdout), O_BINARY);
+	_setmode(fileno(stdout), O_BINARY);
 #endif
 #ifdef USE_FDOPEN               /* need to re-open in binary mode? */
 	if((output_file = fdopen(fileno(stdout), WRITE_BINARY)) == NULL) {

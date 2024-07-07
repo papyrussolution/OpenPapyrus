@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494833
+LastSignatureCode=2147494834
 LastAutoCodeList=1,12234;102,10177;103,10072;110,10000;111,12107;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10150;120,10005;1001,10000;121,10000;122,10000;123,10324;124,10347;125,10064
 
 [SignatureList]
@@ -5700,6 +5700,7 @@ goodsstruc_kind=2147488614
 goodsstruc_kind_compl=2147488615
 goodsstruc_kind_partial=2147488616
 goodsstruc_kind_complex=2147488617
+goodsstruc_kind_priceplanning=2147494834
 goodsstruc_cmd_expand=2147488618
 goodsstruc_info_belongtodyngen=2147488619
 goodsstruc_reduct=2147488620

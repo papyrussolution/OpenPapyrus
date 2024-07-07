@@ -1,6 +1,6 @@
 // PERSON.CPP
 // Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
-// @codepage windows-1251
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -30,8 +30,8 @@ PPPerson & PPPerson::Z()
 {
 	MEMSZERO(Rec);
 	SMemo.Z(); // @v11.1.12
-	Kinds.clear(); // @v10.6.12 freeAll()-->clear()
-	RelList.clear(); // @v10.6.12 freeAll()-->clear()
+	Kinds.Z();
+	RelList.clear();
 	return *this;
 }
 
@@ -129,7 +129,7 @@ PPPersonRelTypePacket::PPPersonRelTypePacket()
 void PPPersonRelTypePacket::Init()
 {
 	MEMSZERO(Rec);
-	InhRegTypeList.clear(); // @v10.6.12 freeAll()-->clear()
+	InhRegTypeList.Z();
 }
 
 PPPersonRelTypePacket & FASTCALL PPPersonRelTypePacket::operator = (const PPPersonRelTypePacket & s)
@@ -230,9 +230,9 @@ int PPObjPersonRelType::ProcessReservedItem(TVRez & rez)
 {
 	int    ok = 1, r;
 	SString name, symb;
-	PPID   id = (PPID)rez.getUINT();
+	const  PPID id = static_cast<PPID>(rez.getUINT());
 	rez.getString(name, 2);
-	PPExpandString(name, CTRANSF_UTF8_TO_INNER); // @v9.4.4
+	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 	rez.getString(symb, 2);
 	THROW(r = Search(id));
 	if(r < 0) {
@@ -260,9 +260,9 @@ private:
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Entry : public ObjCacheEntry {
-		int16  StatusRestriction; // Ограничение по статусу отношений (PPPersonRelType::ssXXX)
-		int16  Cardinality;       // Ограничение по множественности отношений (PPPersonRelType::cXXX)
-		long   Flags;             // Флаги (PPPersonRelType::fXXX)
+		int16  StatusRestriction; // РћРіСЂР°РЅРёС‡РµРЅРёРµ РїРѕ СЃС‚Р°С‚СѓСЃСѓ РѕС‚РЅРѕС€РµРЅРёР№ (PPPersonRelType::ssXXX)
+		int16  Cardinality;       // РћРіСЂР°РЅРёС‡РµРЅРёРµ РїРѕ РјРЅРѕР¶РµСЃС‚РІРµРЅРЅРѕСЃС‚Рё РѕС‚РЅРѕС€РµРЅРёР№ (PPPersonRelType::cXXX)
+		long   Flags;             // Р¤Р»Р°РіРё (PPPersonRelType::fXXX)
 		PPID   InhRegTypeList[8];
 	};
 };
@@ -474,7 +474,7 @@ int PPObjPersonRelType::GetPacket(PPID id, PPPersonRelTypePacket * pPack)
 {
 	int    ok = -1;
 	pPack->InhRegTypeList.freeAll();
-	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+	if(PPCheckGetObjPacketID(Obj, id)) {
 		ok = Search(id, &pPack->Rec);
 		if(ok > 0) {
 			THROW(P_Ref->GetPropArray(Obj, id, PRTPRP_INHREGLIST, &pPack->InhRegTypeList));
@@ -488,7 +488,7 @@ int PPObjPersonRelType::GetPacket(PPID id, PPPersonRelTypePacket * pPack)
 //
 PPELink::PPELink() : KindID(0)
 {
-	PTR32(Addr)[0] = 0;
+	Addr[0] = 0;
 }
 
 /*static*/int PPELinkArray::Helper_SetupNewEntry(PPID elinkType, const char * pValue, PPELink & rEntry)
@@ -655,7 +655,7 @@ int PPELinkArray::GetSinglePhone(SString & rBuf, uint * pPos) const
 				kind_id = r_item.KindID;
 				pos = c;
 				ok = 1;
-				break; // Предпочтительный номер однозначно нас устраивает. Выходим из цикла.
+				break; // РџСЂРµРґРїРѕС‡С‚РёС‚РµР»СЊРЅС‹Р№ РЅРѕРјРµСЂ РѕРґРЅРѕР·РЅР°С‡РЅРѕ РЅР°СЃ СѓСЃС‚СЂР°РёРІР°РµС‚. Р’С‹С…РѕРґРёРј РёР· С†РёРєР»Р°.
 			}
 			else if(oneof4(r_item.KindID, PPELK_WORKPHONE, PPELK_HOMEPHONE, PPELK_ALTPHONE, PPELK_MOBILE)) { // @v11.3.5 PPELK_MOBILE
 				kind_id = r_item.KindID;
@@ -712,8 +712,7 @@ PPPersonPacket::PPPersonPacket(const PPPersonPacket & rS) : PPPerson(rS), ObjTag
 
 PPPersonPacket::~PPPersonPacket()
 {
-	// @v11.5.5 destroy();
-	ZDELETE(P_SCardPack); // @v11.5.5
+	ZDELETE(P_SCardPack);
 }
 
 PPPersonPacket & PPPersonPacket::Z()
@@ -903,14 +902,6 @@ int PPPersonPacket::EnumDlvrLoc(uint * pPos, PPLocationPacket * pItem) const
 	}
 	else
 		return 0;
-	/*
-	PPLocationPacket * p_loc_pack;
-	if(DlvrLocList.enumItems(pPos, (void **)&p_loc_pack) > 0) {
-		ASSIGN_PTR(pItem, *p_loc_pack);
-		return 1;
-	}
-	return 0;
-	*/
 }
 
 int PPPersonPacket::GetDlvrLocByPos(uint pos, PPLocationPacket * pItem) const
@@ -1197,7 +1188,7 @@ int PersonCore::AddKind(PPID id, PPID kind, int use_ta)
 		STRNSCPY(Kind.data.Name, data.Name);
 		THROW_DB(Kind.insertRec());
 		//
-		// Если присвоенный вид не PPPRK_UNKNOWN, то отзываем у персоналии вид PPPRK_UNKNOWN
+		// Р•СЃР»Рё РїСЂРёСЃРІРѕРµРЅРЅС‹Р№ РІРёРґ РЅРµ PPPRK_UNKNOWN, С‚Рѕ РѕС‚Р·С‹РІР°РµРј Сѓ РїРµСЂСЃРѕРЅР°Р»РёРё РІРёРґ PPPRK_UNKNOWN
 		//
 		if(kind != PPPRK_UNKNOWN) {
 			THROW_DB(deleteFrom(&Kind, 0, Kind.PersonID == id && Kind.KindID == PPPRK_UNKNOWN));
@@ -1220,8 +1211,8 @@ int PersonCore::RemoveKind(PPID id, PPID kind, int use_ta)
 		else {
 			THROW_DB(deleteFrom(&Kind, 0, Kind.PersonID == id && Kind.KindID == kind));
 			//
-			// Если у персоналии не осталось ни одного вида, то автоматически присваиваем
-			// ей вид UNKNOWN.
+			// Р•СЃР»Рё Сѓ РїРµСЂСЃРѕРЅР°Р»РёРё РЅРµ РѕСЃС‚Р°Р»РѕСЃСЊ РЅРё РѕРґРЅРѕРіРѕ РІРёРґР°, С‚Рѕ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РїСЂРёСЃРІР°РёРІР°РµРј
+			// РµР№ РІРёРґ UNKNOWN.
 			//
 			THROW(r = GetKindList(id, 0));
 			if(r < 0)
