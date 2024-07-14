@@ -270,21 +270,16 @@ static void css_lex_uri(struct lexbuf * buf)
 static int css_lex(struct lexbuf * buf)
 {
 	int t;
-
 	// TODO: keyword escape sequences
-
 	buf->string_len = 0;
-
 restart:
 	if(buf->c == 0)
 		return EOF;
-
 	if(iswhite(buf->c)) {
 		while(iswhite(buf->c))
 			css_lex_next(buf);
 		return ' ';
 	}
-
 	if(css_lex_accept(buf, '/')) {
 		if(css_lex_accept(buf, '*')) {
 			while(buf->c) {
@@ -321,7 +316,6 @@ restart:
 		}
 		return '-';
 	}
-
 	if(css_lex_accept(buf, '.')) {
 		if(buf->c >= '0' && buf->c <= '9') {
 			css_push_char(buf, '.');
@@ -329,13 +323,11 @@ restart:
 		}
 		return '.';
 	}
-
 	if(css_lex_accept(buf, '#')) {
 		if(isnmchar(buf->c))
 			return css_lex_hash(buf);
 		return '#';
 	}
-
 	if(css_lex_accept(buf, '"'))
 		return css_lex_string(buf, '"');
 	if(css_lex_accept(buf, '\''))
@@ -412,10 +404,7 @@ static void white(struct lexbuf * buf)
 		next(buf);
 }
 
-static int iscond(int t)
-{
-	return t == ':' || t == '.' || t == '[' || t == CSS_HASH;
-}
+static int iscond(int t) { return t == ':' || t == '.' || t == '[' || t == CSS_HASH; }
 
 static fz_css_value * parse_term(struct lexbuf * buf)
 {
@@ -498,21 +487,17 @@ static fz_css_value * parse_expr(struct lexbuf * buf)
 static fz_css_property * parse_declaration(struct lexbuf * buf)
 {
 	fz_css_property * p;
-
 	if(buf->lookahead != CSS_KEYWORD)
 		fz_css_error(buf, "expected keyword in property");
 	p = fz_new_css_property(buf->ctx, buf->pool, buf->string, NULL, 0);
 	next(buf);
-
 	white(buf);
 	expect(buf, ':');
 	white(buf);
-
 	if(p)
 		p->value = parse_expr(buf);
 	else
 		(void)parse_expr(buf);
-
 	/* !important */
 	if(accept(buf, '!')) {
 		white(buf);
@@ -523,27 +508,21 @@ static fz_css_property * parse_declaration(struct lexbuf * buf)
 		next(buf);
 		white(buf);
 	}
-
 	return p;
 }
 
 static fz_css_property * parse_declaration_list(struct lexbuf * buf)
 {
 	fz_css_property * head, * tail = NULL, * p;
-
 	white(buf);
-
 	if(buf->lookahead == '}' || buf->lookahead == EOF)
 		return NULL;
-
 	p = parse_declaration(buf);
 	if(p)
 		tail = p;
 	head = tail;
-
 	while(accept(buf, ';')) {
 		white(buf);
-
 		if(buf->lookahead != '}' && buf->lookahead != ';' && buf->lookahead != EOF) {
 			p = parse_declaration(buf);
 			if(p) {
@@ -560,22 +539,18 @@ static fz_css_property * parse_declaration_list(struct lexbuf * buf)
 
 static char * parse_attrib_value(struct lexbuf * buf)
 {
-	char * s;
-
 	if(buf->lookahead == CSS_KEYWORD || buf->lookahead == CSS_STRING) {
-		s = fz_pool_strdup(buf->ctx, buf->pool, buf->string);
+		char * s = fz_pool_strdup(buf->ctx, buf->pool, buf->string);
 		next(buf);
 		white(buf);
 		return s;
 	}
-
 	fz_css_error(buf, "expected attribute value");
 }
 
 static fz_css_condition * parse_condition(struct lexbuf * buf)
 {
 	fz_css_condition * c;
-
 	if(accept(buf, ':')) {
 		(void)accept(buf, ':'); /* swallow css3 :: syntax and pretend it's a normal pseudo-class */
 		if(buf->lookahead != CSS_KEYWORD)
@@ -590,7 +565,6 @@ static fz_css_condition * parse_condition(struct lexbuf * buf)
 		}
 		return c;
 	}
-
 	if(accept(buf, '.')) {
 		if(buf->lookahead != CSS_KEYWORD)
 			fz_css_error(buf, "expected keyword after '.'");
@@ -598,17 +572,13 @@ static fz_css_condition * parse_condition(struct lexbuf * buf)
 		next(buf);
 		return c;
 	}
-
 	if(accept(buf, '[')) {
 		white(buf);
-
 		if(buf->lookahead != CSS_KEYWORD)
 			fz_css_error(buf, "expected keyword after '['");
 		c = fz_new_css_condition(buf->ctx, buf->pool, '[', buf->string, NULL);
 		next(buf);
-
 		white(buf);
-
 		if(accept(buf, '=')) {
 			c->type = '=';
 			c->val = parse_attrib_value(buf);
@@ -727,17 +697,14 @@ static fz_css_rule * parse_ruleset(struct lexbuf * buf)
 {
 	fz_css_selector * s = NULL;
 	fz_css_property * p = NULL;
-
-	fz_try(buf->ctx)
-	{
+	fz_try(buf->ctx) {
 		s = parse_selector_list(buf);
 		expect(buf, '{');
 		p = parse_declaration_list(buf);
 		expect(buf, '}');
 		white(buf);
 	}
-	fz_catch(buf->ctx)
-	{
+	fz_catch(buf->ctx) {
 		if(fz_caught(buf->ctx) != FZ_ERROR_SYNTAX)
 			fz_rethrow(buf->ctx);
 		while(buf->lookahead != EOF) {
@@ -816,9 +783,8 @@ static void parse_at_rule(struct lexbuf * buf)
 
 static fz_css_rule * parse_stylesheet(struct lexbuf * buf, fz_css_rule * chain)
 {
-	fz_css_rule * rule, ** nextp, * tail;
-
-	tail = chain;
+	fz_css_rule * rule, ** nextp;
+	fz_css_rule * tail = chain;
 	if(tail) {
 		while(tail->next)
 			tail = tail->next;
@@ -827,9 +793,7 @@ static fz_css_rule * parse_stylesheet(struct lexbuf * buf, fz_css_rule * chain)
 	else {
 		nextp = &tail;
 	}
-
 	white(buf);
-
 	while(buf->lookahead != EOF) {
 		if(accept(buf, '@')) {
 			if(buf->lookahead == CSS_KEYWORD && sstreq(buf->string, "page")) {
@@ -855,7 +819,6 @@ static fz_css_rule * parse_stylesheet(struct lexbuf * buf, fz_css_rule * chain)
 		}
 		white(buf);
 	}
-
 	return chain ? chain : tail;
 }
 

@@ -684,7 +684,7 @@ int PPExprParser::GetToken()
 				Next();
 			} while(isdec(Cur) || ((Cur == '.') && !dot));
 			*p = 0;
-			Number = satof(buf); // @v10.7.9 atof-->satof
+			Number = satof(buf);
 			Token  = tokNumber;
 		}
 		else if(Cur == '<') {

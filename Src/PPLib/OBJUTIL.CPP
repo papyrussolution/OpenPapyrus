@@ -115,20 +115,18 @@ static const ushort _Objects[] = {
 	PPOBJ_CAFETABLE,
 	PPOBJ_EDIPROVIDER,
 	PPOBJ_USREXCLRIGHTS,
-	PPOBJ_WORKBOOK,           // @v9.3.8
-	PPOBJ_FREIGHTPACKAGETYPE, // @v10.4.1
-	PPOBJ_TAXSYSTEMKIND,      // @v10.6.0
-	PPOBJ_TIMESERIES,         // @v10.7.4
-	PPOBJ_TSSMODEL,           // @v10.7.4
-	PPOBJ_EVENTSUBSCRIPTION,  // @v10.8.9
+	PPOBJ_WORKBOOK,
+	PPOBJ_FREIGHTPACKAGETYPE,
+	PPOBJ_TAXSYSTEMKIND,
+	PPOBJ_TIMESERIES,
+	PPOBJ_TSSMODEL,
+	PPOBJ_EVENTSUBSCRIPTION,
 	PPOBJ_STYLOQBINDERY,      // @v11.1.7
 	PPOBJ_SWPROGRAM,          // @v11.9.12
 	PPOBJ_SWPROGRAMCATEGORY,  // @v11.9.12
 	PPOBJ_COMPUTER,           // @v12.0.0
 	PPOBJ_COMPUTERCATEGORY,   // @v12.0.1
 };
-
-// @v10.9.4 #define _ObjectsCount (sizeof(_Objects) / sizeof(ushort/*PPID*/))
 
 static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 {
@@ -341,10 +339,8 @@ int PPObject::SerializeSignature::Write(SBuffer & rBuf) const
 	return ok;
 }
 
-/*static*/void FASTCALL PPObject::SetLastErrObj(PPID objType, PPID objID)
-	{ DS.GetTLA().LastErrObj.Set(objType, objID); }
-/*static*/int FASTCALL PPObject::RetRefsExistsErr(PPID objType, PPID objID)
-	{ return PPSetObjError(PPERR_REFSEXISTS, objType, objID); }
+/*static*/void FASTCALL PPObject::SetLastErrObj(PPID objType, PPID objID) { DS.GetTLA().LastErrObj.Set(objType, objID); }
+/*static*/int FASTCALL PPObject::RetRefsExistsErr(PPID objType, PPID objID) { return PPSetObjError(PPERR_REFSEXISTS, objType, objID); }
 
 /*static*/SString & PPObject::GetAcceptMsg(PPID objType, PPID objID, int upd, SString & rBuf)
 {
@@ -1425,7 +1421,6 @@ int STDCALL CatObjectName(PPID objType, PPID objID, SString & rBuf) // @v12.0.1 
 	return Implement_GetObjectName(objType, objID, rBuf, true);
 }
 
-
 SString & GetExtObjectName(const ObjIdListFilt & rObjList, PPID obj, size_t maxItems, SString & rBuf)
 {
 	if(rObjList.IsEmpty()) {
@@ -1523,18 +1518,9 @@ IMPL_CMPFUNC(Acct, k1, k2)
 	const Acct * a1 = static_cast<const Acct *>(k1);
 	Acct a2;
 	a2.FromStr(0, static_cast<const char *>(k2));
-	// @v10.3.1 {
 	int    si = 0;
 	CMPCASCADE2(si, a1, &a2, ac, sb);
 	return si;
-	// } @v10.3.1
-	/* @v10.3.1
-	if(a1->ac < a2.ac) return -1;
-	if(a1->ac > a2.ac) return  1;
-	if(a1->sb < a2.sb) return -1;
-	if(a1->sb > a2.sb) return  1; // @v10.3.1 @fix (<)-->(>)
-	return 0;
-	*/
 }
 
 ListWindow * FASTCALL GetPPObjList(PPID obj, uint flags, void * extraPtr)

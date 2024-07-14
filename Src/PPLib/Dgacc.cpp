@@ -297,17 +297,18 @@ void ArticleCtrlGroup::SetupAccSheet(TDialog * pDlg)
 
 void ArticleCtrlGroup::SetupOp(TDialog * pDlg)
 {
-	PPID   acs_id = 0, acs2_id = 0;
-	if(GetOpCommonAccSheet(Data.OpID, &acs_id, &acs2_id) > 0)
-		Data.AcsID = (Flags & fByOpAccSheet2) ? acs2_id : acs_id;
-	// @v8.4.1 {
-	else if(CtlselAcs)
-		Data.AcsID = 0;
+	if(Data.OpID) { // @v12.0.7
+		PPID   acs_id = 0;
+		PPID   acs2_id = 0;
+		if(GetOpCommonAccSheet(Data.OpID, &acs_id, &acs2_id) > 0)
+			Data.AcsID = (Flags & fByOpAccSheet2) ? acs2_id : acs_id;
+		else if(CtlselAcs)
+			Data.AcsID = 0;
+	}
 	if(CtlselAcs) {
 		pDlg->setCtrlLong(CtlselAcs, Data.AcsID);
 		pDlg->disableCtrl(CtlselAcs, BIN(Data.AcsID));
 	}
-	// } @v8.4.1
 	SetupAccSheet(pDlg);
 }
 

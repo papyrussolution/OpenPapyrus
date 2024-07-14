@@ -5,7 +5,6 @@
 #include <pp.h>
 #pragma hdrstop
 #include <sartre.h>
-#include <ued.h>
 // @v11.7.1 #include <locale.h>
 #include <unicode/urename.h>
 #include <unicode/ures.h>

@@ -1293,7 +1293,7 @@ private:
 public:
 	struct Data : public ObjCacheEntry {
 		double Discount;
-		double RoundingPrec;   // @v10.9.10 (Flags & QUOTKF_USEROUNDING) Точность округления
+		double RoundingPrec;   // (Flags & QUOTKF_USEROUNDING) Точность округления
 		DateRange Period;
 		IntRange AmtRestr;
 		PPID   OpID;
@@ -1302,7 +1302,7 @@ public:
 		int16  BeginTm;
 		int16  EndTm;
 		int16  Rank;
-		int16  RoundingDir;    // @v10.9.10 (Flags & QUOTKF_USEROUNDING) Направление округления (-1 down, +1 up, 0 nearest)
+		int16  RoundingDir;    // (Flags & QUOTKF_USEROUNDING) Направление округления (-1 down, +1 up, 0 nearest)
 		uint8  DaysOfWeek;
 		uint8  Pad[3];         // @alignment
 	};

@@ -10074,8 +10074,188 @@ private:
 };
 //
 // 
+// 
+class EfopMayTea : public PrcssrSupplInterchange::ExecuteBlock { // @v12.0.7 @construction
+public:
+	/*
+		Унифицированный формат обмена информацией о товарах (мастер-данные)
+			<Items>		
+			 <Item>		
+			   <SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у производителя
+			   <BrandName>Curtis</BrandName>	Строка (255 символов)	Бренд
+			   <ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
+			   <Status>Действует</Status>	Строка (50 символов)	Статус
+			  </Item>
+			</Items>
+		Унифицированный формат обмена информацией о адресах доставки (торговых точках)
+			<Buyers>		
+				<SourceCode>1235_1</SourceCode>	Строка (20 символов)	Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально. 
+				<Buyer>		
+					<BuyerBuyerCode>111</BuyerBuyerCode>	Строка (50 символов)	Код юридического лица  заказчика у дистрибутора
+					<INN>5900009920000</INN>	Строка (20 символов)	ИНН 
+					<KPP>5900009920000</KPP>	Строка (20 символов)	КПП 
+					<BuyerName>Юнек</BuyerName>	Строка (255 символов)	Название юридического лица  
+					<DeliveryPoints>		
+						<DeliveryPoint>		
+							<DeliveryPointBuyerCode>12345</DeliveryPointBuyerCode>	Строка (50 символов)	Код адреса доставки у дистрибутора
+							<RetailNetwork>Карусель</RetailNetwork>	Строка (128 символов)	Название сети. В случае отсутствия посылается пусто(“”)
+							<DeliveryPointName>Тест</DeliveryPointName>	Строка (255 символов)	Название адреса доставки заказчика (вывеска) . В случае отсутствия посылается пусто (“”)
+							<DlvAddressTypeID/>		Код типа (оставлять пустым) 
+							<Address>Ярославская область, Г. Ярославль, пр. Ленина, Д. 23</Address>	Строка (255 символов)	Адрес торговой точки
+							<ManagerBuyerCode>111</ManagerBuyerCode>	Строка (20 символов)	Код торгового представителя у дистрибутора
+							<ManagerName>Иванов Иван Иванович</ManagerName>	Строка (50 символов)	ФИО торгового представителя
+							<Status>Действует</Status>		Статус (действует, заблокирован)
+						</DeliveryPoint>
+					</DeliveryPoints>
+				</Buyer>		
+			</Buyers>		
+		Унифицированный формат обмена информацией о заказах
+			<Document-Orders>		
+				<SourceCode>1235_1</SourceCode>	Строка (20 символов) Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально.
+				<Document-Order>		
+					<Order-Header>		
+						<DocumentNumber>TEST016</DocumentNumber>	Строка (20 символов)	Номер заказа
+						<DocumentDate>25.08.2003</DocumentDate>	Формат ДД.ММ.ГГГГ	Дата заказа
+						<ExpectedDeliveryDate>25.08.2003</ExpectedDeliveryDate>	Формат ДД.ММ.ГГГГ	Ожидаемая дата поставки
+						<BuyerBuyerCode>111</BuyerBuyerCode>	Строка (50 символов)	Код юридического лица  заказчика у дистрибутора
+						<INN>5900009920000</INN>	Строка (20 символов)	ИНН заказчика
+						<BuyerName>Юнек</BuyerName>	Строка (255 символов)	Название юридического лица  
+						<DeliveryPointBuyerCode>12345</DeliveryPointBuyerCode>	Строка (50 символов)	Код адреса доставки заказчика у дистрибутора. В случае отсутствия посылается пусто.
+						<Address>150061, г. Ярославль, пр. Ленина, д. 23</Address>	Строка (255 символов)	Адрес торговой точки
+						<ManagerBuyerCode>111</ManagerBuyerCode>	Строка (20 символов)	Код торгового представителя у дистрибутора
+						<ManagerName>Иванов Иван Иванович</ManagerName>	Строка (50 символов)	ФИО торгового представителя
+						<OrderedSource>Да</OrderedSource>	Строка (20 символов)	признак источника заказа (сайт или сайт посредника или торговая команда). Допустимые значения Да/Нет
+						<OrderedSourceName>Maytea.com</OrderedSourceName>	Строка (255 символов)	Название сайта/Вывеска – источника заказа. Если OrderedSource=Нет, оставлять пустым
+					</Order-Header>		
+					<Items>		
+						<Item>		
+							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика
+							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
+							<OrderedQuantity>2.000</OrderedQuantity>	Число	Заказанное количество в пачках
+							<Amount>10</Amount>	Число	Стоимость в рублях с учетом НДС
+							<GrossWeight>11</GrossWeight>	Число	Вес брутто по строке в кг.
+							<PriceName>Базовый 2021</PriceName>	Строка (100 символов)	Прайс лист клиента , поле передающее спецификацию Название прайс листа клиента или тип цены. Т.е. Цена по прейскуранту до применения к отпускной цене каких либо дисконтов или компенсационных скидок
+							<PriceAmount>8</PriceAmount>	Число	Цена по прайс листу клиента  -  передающее в абсолютном значении номинал отпускной цены.
+						</Item>
+					</Items>
+				</Document-Order>
+			</Document-Orders>		
+		Унифицированный формат обмена информацией об остатках на складах
+			<Stocks>		
+				<SourceCode>1235_1</SourceCode>	Строка (20 символов) Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально.
+				<Stock>		
+					<WarehouseCode>TEST016</WarehouseCode>	Строка (50 символов)	Код склада у дистрибутора
+					<Date>25.08.2003</Date>	Формат ДД.ММ.ГГГГ	Дата – время московское
+					<Time>14:30</Time>	Формат ЧЧ:ММ	Время московское
+					<Items>		
+						<Item>		
+							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика Компания Май-Брендс
+							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
+							<Quantity>2.000</Quantity>	Число	Количество в пачках
+							<Amount>10</Amount>	Число	Стоимость в рублях согласно учетной политике дистрибутора
+							<GrossWeight>11</GrossWeight>	Число	Вес брутто по строке
+						</Item>		
+					</Items>		
+				</Stock>		
+			</Stocks>		
+		Унифицированный формат обмена информацией о накладных
+
+			<Document-Invoices>		
+				<SourceCode>1235_1</SourceCode>	Строка (20) символов)	Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс))
+				Код источника высылается каждому дистрибутору персонально.
+				<Document-Invoice>		
+					<Invoice-Header>		
+						<DocumentType>Invoice</DocumentType>	Строка (20 символов)	Тип накладной:
+							Invoice – накладная
+							InvoiceReturn - возврат товара из торговой точки дистрибутору
+							InvoiceMove – накладная на внутреннее перемещение
+							InvoiceReturnMove – возврат при внутреннем перемещении
+						<DocumentNumber>TEST016</DocumentNumber>	Строка (20 символов)	Номер накладной
+						<DocumentDate>25.08.2003</DocumentDate>	Формат ДД.ММ.ГГГГ	Дата накладной
+						<WarehouseAddress>TEST016</WarehouseAddress>	Строка (50 символов)	Адрес склада отгрузки (дистрибутора)
+						<BuyerBuyerCode>111</BuyerBuyerCode>	Строка (50 символов)	Код юридического лица  заказчика у дистрибутора
+						<INN>5900009920000</INN>	Строка (20 символов)	ИНН заказчика
+						<BuyerName>Юнек</BuyerName>	Строка (255 символов)	Название юридического лица  
+						<DeliveryPointBuyerCode>12345</DeliveryPointBuyerCode>	Строка (50 символов)	Код адреса доставки заказчика у дистрибутора. В случае отсутствия посылается пусто.
+						<Address>150061, г. Ярославль, пр. Ленина, д. 23</Address>	Строка (255 символов)	Адрес торговой точки
+						<ManagerBuyerCode>111</ManagerBuyerCode>	Строка (20 символов)	Код торгового представителя у дистрибутора
+						<ManagerName>Иванов Иван Иванович</ManagerName>	Строка (50 символов)	ФИО торгового представителя
+						<InvoiceNumber>027430200501356</InvoiceNumber>	Строка (50 символов)	Документ основание – ID документа, на основании которого сформирована накладная
+						<InvoiceSource>Да</InvoiceSource>	Строка (20 символов)	признак источника заказа (сайт или сайт посредника или торговая команда). Допустимые значения Да/Нет
+						<InvoiceSourceName>Maytea.com</InvoiceSourceName>	Строка (255 символов)	Название сайта/Вывеска – источника заказа. Если OrderedSource=Нет, оставлять пустым
+					</Invoice-Header>		
+					<Items>		
+						<Item>		
+							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика
+							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
+							<OrderedQuantity>2.000</OrderedQuantity>	Число	Заказанное количество в минимальных единицах (пачках). В случае возврата с минусом.
+							<Amount>60</Amount> Число	Сумма продажи в рублях с НДС. В случае возврата с минусом.
+							<GrossWeight>11</GrossWeight>	Число	Вес брутто по строке. В случае возврата с минусом.
+							<PriceName>Базовый 2021</PriceName>	Строка (100 символов)	Прайс лист клиента , поле передающее спецификацию Название прайс листа клиента или тип цены. Т.е. Цена по прейскуранту до применения к отпускной цене каких либо дисконтов или компенсационных скидок
+							<PriceAmount>8</PriceAmount>	Число	Цена по прайс листу клиента  -  передающее в абсолютном значении номинал отпускной цены.
+						</Item>		
+					</Items>		
+				</Document-Invoice>		
+			</Document-Invoices>		
+		Унифицированный формат обмена информацией о приходе товара
+			<Document-Receipts>		
+				<SourceCode>1235_1</SourceCode>	Строка (20 символов)	Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально.
+				<Document-Receipt>		
+					<Receipt-Header>		
+						<DocumentType>Receipt</DocumentType>	Строка (20 символов)	Тип документа:
+							Receipt – приходная накладная от Компании Май-Брендс к дистрибутору
+							ReceiptReturn – возврат товара  от дистрибутора в  Компанию Май-Брендс
+							ReceiptMove – приходная накладная при внутреннем перемещении
+							ReceiptReturnMove – возврат при внутреннем перемещении
+						<ReceiptNumber>TEST016</ReceiptNumber>	Строка (20 символов)	Номер приходной накладной
+						<DocumentDate>25.08.2003</DocumentDate>	Формат ДД.ММ.ГГГГ	Дата приходной накладной
+						<Date>25.08.2003</Date>	Формат ДД.ММ.ГГГГ	Фактическая дата поставки
+						<WarehouseAddress>TEST016</WarehouseAddress>	Строка (50 символов)	Адрес склада прихода  (дистрибутора)
+					</Receipt-Header>		
+					<Items>		
+						<Item>		
+							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика
+							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
+							<OrderedQuantity>2.000</OrderedQuantity>	Число	Заказанное количество в минимальных единицах (пачках). В случае возврата с минусом.
+							<Amount>60</Amount> Число	Сумма покупки в рублях с НДС. В случае возврата с минусом.
+							<GrossWeight>11</GrossWeight>	Число	Вес брутто по строке. В случае возврата с минусом.
+						</Item>		
+					</Items>		
+				</Document-Receipt>		
+			</Document-Receipts>		
+		Унифицированный формат обмена информацией о ПРАЙСАХ КЛИЕНТА
+			<Prices>		
+				<SourceCode>1235_1</SourceCode>	Строка (20 символов)	Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс))
+				Код источника высылается каждому дистрибутору персонально.
+				< Price>		
+					< PriceName> Весенний</ PriceName>	Строка (255 символов)	Название прайса
+					<DateFrom>01.01.2023</DateFrom>	Формат ДД.ММ.ГГГГ	Дата начала действия прайса. Если даты нет заполнять 01.01.1900 
+					<DateTo>30.04.2023</DateTo>	Формат ДД.ММ.ГГГГ	Дата окончания действия прайса. Если даты нет заполнять 01.01.2100
+					<Items>		
+						<Item>		
+							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика
+							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
+							<PriceAmount>150.00</PriceAmount> Число	Сумма прайса в рублях с НДС. 
+						</Item>		
+					</Items>		
+				</Price>		
+			</Prices >		
+	*/ 
+	EfopMayTea(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), TsHt(4096)
+	{
+	}
+	~EfopMayTea()
+	{
+	}
+private:
+	PPLogger & R_Logger;
+	SString TokBuf;
+	TokenSymbHashTable TsHt;
+};
 //
-class Ostankino : public PrcssrSupplInterchange::ExecuteBlock { // @v11.9.5 @construction
+// 
+//
+class Ostankino : public PrcssrSupplInterchange::ExecuteBlock { // @v11.9.5
 public:
 	Ostankino(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger);
 	~Ostankino();
@@ -11716,28 +11896,6 @@ SupplInterchangeFilt & FASTCALL SupplInterchangeFilt::operator = (const SupplInt
 	PPExtStrContainer::Copy(rS);
 	return *this;
 }
-
-/* @v12.0.5 SupplInterchangeFilt & FASTCALL SupplInterchangeFilt::operator = (const SupplExpFilt & rS)
-{
-	Init(1, 0);
-	SupplID = rS.SupplID;
-	ExpPeriod = rS.Period;
-	MaxTransmitSize = rS.MaxFileSizeKB;
-	SpcDisPct1 = static_cast<float>(rS.PctDis1);
-	SpcDisPct2 = static_cast<float>(rS.PctDis2);
-	SETFLAG(Actions, opExportStocks, rS.Flags & rS.expRest);
-	SETFLAG(Actions, opExportBills, rS.Flags & rS.expBills);
-	SETFLAG(Actions, opExportPrices, rS.Flags & rS.expPrice);
-	SETFLAG(Actions, opExportDebts, rS.Flags & rS.expSaldo);
-	SETFLAG(Actions, opExportGoodsDebts, rS.Flags & rS.expSaldo);
-	SETFLAG(Flags, fDeleteRecentBills, rS.Flags & rS.expDelRecentBills);
-	SETFLAG(Flags, fFlatStruc, rS.Flags & rS.expFlatStruc);
-	PutExtStrData(extssAddScheme, rS.AddScheme);
-	PutExtStrData(extssEncodeStr, rS.EncodeStr);
-	PutExtStrData(extssClientCode, rS.ClientCode);
-	LocList = rS.LocList;
-	return *this;
-}*/
 //
 //
 //
@@ -11921,30 +12079,6 @@ int PrcssrSupplInterchange::Init(const PPBaseFilt * pBaseFilt)
 	CATCHZOK
 	return ok;
 }
-
-/* @v12.0.5 @unused int SupplGoodsImport()
-{
-	int    ok = -1;
-	SupplExpFilt filt;
-	if(EditSupplExpFilt(&filt, 1) > 0) {
-		SString path;
-		if(PPOpenFile(PPTXT_FILPAT_GOODS_XML, path, 0, APPL->H_MainWnd) > 0) {
-			SupplInterchangeFilt six_filt;
-			six_filt = filt;
-			PrcssrSupplInterchange six_prc;
-			PrcssrSupplInterchange::ExecuteBlock eb;
-			THROW(six_prc.InitExecuteBlock(&six_filt, eb));
-			{
-				PPSupplExchange_Baltika s_e(eb);
-				THROW(s_e.Init());
-				THROW(s_e.Import(path));
-				ok = 1;
-			}
-		}
-	}
-	CATCHZOKPPERR
-	return ok;
-}*/
 
 int DoSupplInterchange(SupplInterchangeFilt * pFilt)
 {

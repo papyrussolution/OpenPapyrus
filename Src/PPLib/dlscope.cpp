@@ -736,12 +736,7 @@ int DlScope::GetFldConst(uint fldID, COption id, CtmExprConst * pConst) const
 	return ok;
 }
 
-/* @v10.6.7 struct DlScopePropIdAssoc {
-	int    Id;
-	const char * P_Text;
-};*/
-
-static const /*DlScopePropIdAssoc*/SIntToSymbTabEntry DlScopePropIdAssocList[] = {
+static const SIntToSymbTabEntry DlScopePropIdAssocList[] = {
 	{ DlScope::cuifLabelRect,  "labelrect" },
 	{ DlScope::cuifReadOnly,   "readonly" },
 	{ DlScope::cuifDisabled,   "disabled" },
@@ -754,34 +749,13 @@ static const /*DlScopePropIdAssoc*/SIntToSymbTabEntry DlScopePropIdAssocList[] =
 /*static*/int FASTCALL DlScope::GetPropSymb(int propId, SString & rSymb)
 {
 	return SIntToSymbTab_GetSymb(DlScopePropIdAssocList, SIZEOFARRAY(DlScopePropIdAssocList), propId, rSymb); // @v10.6.7
-	/* @v10.6.7 int    ok = 0;
-	rSymb.Z();
-	for(uint i = 0; !ok && i < SIZEOFARRAY(DlScopePropIdAssocList); i++)
-		if(DlScopePropIdAssocList[i].Id == propId) {
-			rSymb = DlScopePropIdAssocList[i].P_Text;
-			ok = 1;
-		}
-	return ok;*/
 }
 
 /*static*/int FASTCALL DlScope::ResolvePropName(const char * pName)
 {
-	// @v10.6.7 {
 	int    id = SIntToSymbTab_GetId(DlScopePropIdAssocList, SIZEOFARRAY(DlScopePropIdAssocList), pName);
 	if(!id)
 		PPSetError(PPERR_DL6_INVPROPSYMB);
-	// } @v10.6.7 
-	/* @v10.6.7 
-	int    id = 0;
-	for(uint i = 0; !id && i < SIZEOFARRAY(DlScopePropIdAssocList); i++)
-		if(strcmp(DlScopePropIdAssocList[i].P_Text, pName) == 0)
-			id = DlScopePropIdAssocList[i].Id;
-	// ...
-	//PPSetAddedMsgString(pName);
-	THROW_PP(id, PPERR_DL6_INVPROPSYMB);
-	CATCH
-		id = 0;
-	ENDCATCH*/
 	return id;
 }
 

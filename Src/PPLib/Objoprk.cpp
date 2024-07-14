@@ -2048,7 +2048,7 @@ void OprKindDialog::moreDialog()
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_CALCSTAXES, OPKF_AUTOWL, OPKF_USEPAYER, OPKF_RENT,
 					OPKF_FREIGHT, OPKF_ORDEXSTONLY, OPKF_ORDRESERVE, OPKF_ORDERBYLOC, OPKF_ATTACHFILES, OPKF_RESTRICTBYMTX, OPKF_NOCALCTIORD, 0L);
 				ext_options_list.addzlist(OPKFX_ALLOWPARTSTR, OPKFX_RESTRICTPRICE, OPKFX_IGNORECLISTOP,
-					OPKFX_AUTOGENUUID, OPKFX_WROFFTODRAFTORD, OPKFX_CANBEDECLINED, 0L); // @v10.3.5 OPKFX_CANBEDECLINED // @v10.0.02 OPKFX_WROFFTODRAFTORD
+					OPKFX_AUTOGENUUID, OPKFX_WROFFTODRAFTORD, OPKFX_CANBEDECLINED, 0L);
 				editOptions2(DLG_OPKMORE_ORD, 1, 0, &options_list, &ext_options_list);
 				break;
 			case PPOPT_PAYMENT:
@@ -3485,7 +3485,8 @@ bool FASTCALL IsOpBelongTo(PPID testOpID, PPID anotherOpID)
 int FASTCALL GetOpCommonAccSheet(PPID opID, PPID * pAccSheetID, PPID * pAccSheet2ID)
 {
 	int    ok = -1;
-	PPID   acc_sheet_id = 0, acc_sheet2_id = 0;
+	PPID   acc_sheet_id = 0;
+	PPID   acc_sheet2_id = 0;
 	PPOprKind opk;
 	if(GetOpData(opID, &opk)) {
 		if(opk.AccSheet2ID)

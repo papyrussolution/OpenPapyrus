@@ -5,7 +5,6 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <ued.h>
-#include <ued-id.h>
 #ifdef WIN32
 	#include <shlobj.h> // SHGetFolderPath and constants
 	#include <Shlwapi.h> // @v11.6.5

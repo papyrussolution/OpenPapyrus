@@ -470,13 +470,13 @@ int SCardCore::MakeCodeByTemplate(PPID seriesID, const char * pPattern, SString 
 struct SCardCodeTemplate {
 	SCardCodeTemplate() : RLen(0), AddCheckDig(0), CheckDigOffs(0)
 	{
-		R = 0;
+		// @v12.0.7 @ctr R = 0;
 	}
 	void   Reset()
 	{
 		Prefix.Z();
 		RLen = 0;
-		R = 0;
+		R.Z();
 		AddCheckDig = 0;
 		CheckDigOffs = 0;
 	}

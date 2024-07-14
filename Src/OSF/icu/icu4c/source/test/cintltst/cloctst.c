@@ -1,19 +1,11 @@
+// CLOCTST.C
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
-* COPYRIGHT:
-* Copyright (c) 1997-2016, International Business Machines Corporation and
-* others. All Rights Reserved.
-********************************************************************/
-/*****************************************************************************
- *
- * File CLOCTST.C
- *
- * Modification History:
- *        Name                     Description
- *     Madhu Katragadda            Ported for C API
- ******************************************************************************
- */
+// Copyright (c) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+// Name                     Description
+// Madhu Katragadda            Ported for C API
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "cloctst.h"
@@ -36,14 +28,11 @@ static void TestLanguageExemplarsFallbacks();
 static void TestDisplayNameBrackets();
 static void TestIllegalArgumentWhenNoDataWithNoSubstitute();
 static void Test21157CorrectTerminating();
-
 static void TestUnicodeDefines();
-
 static void TestIsRightToLeft();
 static void TestBadLocaleIDs();
 static void TestBug20370();
 static void TestBug20321UnicodeLocaleKey();
-
 static void TestUsingDefaultWarning();
 static void TestExcessivelyLongIDs();
 #if !UCONFIG_NO_FORMATTING
@@ -1934,7 +1923,6 @@ static void TestKeywordVariants(void)
 				log_err("Expected uloc_getName(\"%s\") => \"%s\"; but returned error: %s\n", testCases[i].localeID, testCases[i].expectedLocaleID, buffer, u_errorName(status));
 			}
 		}
-
 		status = U_ZERO_ERROR;
 		resultLen = uloc_getBaseName(testCases[i].localeID, buffer, 256, &status);
 		assert(resultLen < 256);

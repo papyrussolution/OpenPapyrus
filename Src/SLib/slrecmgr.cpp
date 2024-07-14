@@ -254,19 +254,18 @@ int SRecPageManager::DeleteFromPage(SDataPage_ * pPage, uint64 rowId)
 		SRecPageFreeList::Entry free_entry;
 		THROW(pPage->Delete(offset, &free_entry));
 		{
-			TSVector <SRecPageFreeList::Entry> free_entry_list_to_remove;
-			TSVector <SRecPageFreeList::Entry> free_entry_list_to_add;
+			SRecPageFreeList::UpdGroup fbug;
 			THROW(Fl.Put(pPage->GetType(), free_entry.RowId, free_entry.FreeSize));
-			THROW(pPage->MergeFreeEntries(free_entry_list_to_remove, free_entry_list_to_add));
+			THROW(pPage->MergeFreeEntries(fbug));
 			{
-				for(uint i = 0; i < free_entry_list_to_remove.getCount(); i++) {
-					const SRecPageFreeList::Entry & r_fe = free_entry_list_to_remove.at(i);
+				for(uint i = 0; i < fbug.ListToRemove.getCount(); i++) {
+					const SRecPageFreeList::Entry & r_fe = fbug.ListToRemove.at(i);
 					THROW(Fl.Remove(pPage->GetType(), r_fe.RowId));
 				}
 			}
 			{
-				for(uint i = 0; i < free_entry_list_to_add.getCount(); i++) {
-					const SRecPageFreeList::Entry & r_fe = free_entry_list_to_add.at(i);
+				for(uint i = 0; i < fbug.ListToAdd.getCount(); i++) {
+					const SRecPageFreeList::Entry & r_fe = fbug.ListToAdd.at(i);
 					THROW(Fl.Put(pPage->GetType(), r_fe.RowId, r_fe.FreeSize));
 				}
 			}
@@ -758,7 +757,7 @@ uint64 SDataPageHeader::Write(uint offset, const void * pData, uint dataLen, SRe
 	return rowid;
 }
 
-int SDataPageHeader::MergeFreeEntries(TSVector <SRecPageFreeList::Entry> & rRemovedFreeEntryList, TSVector <SRecPageFreeList::Entry> & rNewFreeEntryList)
+int SDataPageHeader::MergeFreeEntries(SRecPageFreeList::UpdGroup & rFbug)
 {
 	int    ok = -1;
 	uint   total_block_size = 0;
@@ -800,11 +799,11 @@ int SDataPageHeader::MergeFreeEntries(TSVector <SRecPageFreeList::Entry> & rRemo
 					SRecPageFreeList::Entry new_free_entry;
 					new_free_entry.RowId = MakeRowId(sfbl[0]);
 					new_free_entry.FreeSize = new_rp.PayloadSize;
-					rNewFreeEntryList.insert(&new_free_entry);
+					rFbug.ListToAdd.insert(&new_free_entry);
 				}
 				assert(free_entry_to_remove_candidate_list.getCount() <= sfbl_count);
 				for(uint i = 0; i < free_entry_to_remove_candidate_list.getCount(); i++) {
-					rRemovedFreeEntryList.insert(&free_entry_to_remove_candidate_list.at(i));
+					rFbug.ListToRemove.insert(&free_entry_to_remove_candidate_list.at(i));
 				}
 			}
 			//
@@ -826,11 +825,11 @@ int SDataPageHeader::MergeFreeEntries(TSVector <SRecPageFreeList::Entry> & rRemo
 			SRecPageFreeList::Entry new_free_entry;
 			new_free_entry.RowId = MakeRowId(sfbl[0]);
 			new_free_entry.FreeSize = new_rp.PayloadSize;
-			rNewFreeEntryList.insert(&new_free_entry);
+			rFbug.ListToAdd.insert(&new_free_entry);
 		}
 		assert(free_entry_to_remove_candidate_list.getCount() <= sfbl_count);
 		for(uint i = 0; i < free_entry_to_remove_candidate_list.getCount(); i++) {
-			rRemovedFreeEntryList.insert(&free_entry_to_remove_candidate_list.at(i));
+			rFbug.ListToRemove.insert(&free_entry_to_remove_candidate_list.at(i));
 		}
 	}
 	THROW(total_block_size == (Size-sizeof(*this)));

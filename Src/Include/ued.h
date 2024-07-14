@@ -4,6 +4,8 @@
 #ifndef __UED_H
 #define __UED_H
 
+#include <ued-id.h>
+
 class PPLogger;
 
 class UED {
@@ -14,7 +16,20 @@ public:
 	//   зависимости от мета-идентификатора.
 	//   ≈сли аргумент meta не €вл€етс€ мета-идентификатором, то возвращает 0.
 	//
-	static uint GetMetaRawDataBits(uint64 meta);
+	static constexpr uint GetMetaRawDataBits(uint64 meta)
+	{
+		uint   result = 0;
+		if(IsMetaId(meta)) {
+			const uint32 meta_lodw = LoDWord(meta);
+			if(meta_lodw & 0x80000000U)
+				result = 56;
+			else if(meta_lodw & 0x40000000U)
+				result = 48;
+			else 
+				result = 32;
+		}
+		return result;
+	}
 	//
 	// Descr: ¬озвращает количество бит данных, доступных дл€ значени€ UED.
 	//   ≈сли аргумент €вл€етс€ meta-идентификатором или не €вл€етс€ валидным UED-значением,
@@ -34,12 +49,27 @@ public:
 		}
 		return result;
 	}
-	static bool BelongToMeta(uint64 ued, uint64 meta)
+	static constexpr bool BelongToMeta(uint64 ued, uint64 meta)
 	{
-		//return (IsMetaId(meta) && ((ued >> 32) & 0x00000000ffffffffULL) == (meta & 0x00000000ffffffffULL));
 		return (IsMetaId(meta) && GetMeta(ued) == meta);
 	}
-	static uint64 GetMeta(uint64 ued);
+	static constexpr uint64 GetMeta(uint64 ued)
+	{
+		uint64 result = 0ULL;
+		if(IsMetaId(ued))
+			result = UED_META_META; // meta
+		else {
+			const uint32 dw_hi = HiDWord(ued);
+			const uint8  b_hi = static_cast<uint8>(dw_hi >> 24);
+			if(b_hi & 0x80)
+				result = (0x0000000100000000ULL | static_cast<uint64>(dw_hi & 0xff000000U));
+			else if(b_hi & 0x40)
+				result = (0x0000000100000000ULL | static_cast<uint64>(dw_hi & 0xffff0000U));
+			else if(dw_hi)
+				result = (0x0000000100000000ULL | static_cast<uint64>(dw_hi & 0x0fffffffU));
+		}
+		return result;
+	}
 	static bool   GetRawValue(uint64 ued, uint64 * pRawValue);
 	static bool   GetRawValue32(uint64 ued, uint32 * pRawValue);
 	static constexpr uint32 GetRawValue32(uint64 ued)

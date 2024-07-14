@@ -995,26 +995,14 @@ int PPBaseFilt::AddBranch(uint type, size_t offs, int32 extraId)
 	return BranchList.insert(&b) ? 1 : PPSetErrorSLib();
 }
 
-int FASTCALL PPBaseFilt::SetBranchSString(size_t offs)
-	{ return CheckBranchOffs(offs) ? AddBranch(Branch::tSString, offs, 0) : 0; }
-int FASTCALL PPBaseFilt::SetBranchSArray(size_t offs)
-	{ return CheckBranchOffs(offs) ? AddBranch(Branch::tSArray, offs, 0) : 0; }
-int FASTCALL PPBaseFilt::SetBranchSVector(size_t offs)
-	{ return CheckBranchOffs(offs) ? AddBranch(Branch::tSVector, offs, 0) : 0; }
-int FASTCALL PPBaseFilt::SetBranchObjIdListFilt(size_t offs)
-	{ return CheckBranchOffs(offs) ? AddBranch(Branch::tObjIdListFilt, offs, 0) : 0; }
-int FASTCALL PPBaseFilt::SetBranchStrAssocArray(size_t offs)
-	{ return CheckBranchOffs(offs) ? AddBranch(Branch::tStrAssocArray, offs, 0) : 0; }
-int PPBaseFilt::SetBranchBaseFiltPtr(int filtID, size_t offs)
-	{ return CheckBranchOffs(offs) ? AddBranch(Branch::tBaseFiltPtr, offs, filtID) : 0; }
-int FASTCALL PPBaseFilt::SetBranchDisplayExtList(size_t offs)
-	{ return CheckBranchOffs(offs) ? AddBranch(Branch::tDisplayExtList, offs, 0) : 0; }
-
-int FASTCALL PPBaseFilt::IsA(const PPBaseFilt * pS) const
-{
-	return (pS && pS->Signature == Signature) ? 1 : PPSetError(PPERR_FILTNEQTYPE);
-}
-
+int FASTCALL PPBaseFilt::SetBranchSString(size_t offs) { return CheckBranchOffs(offs) ? AddBranch(Branch::tSString, offs, 0) : 0; }
+int FASTCALL PPBaseFilt::SetBranchSArray(size_t offs) { return CheckBranchOffs(offs) ? AddBranch(Branch::tSArray, offs, 0) : 0; }
+int FASTCALL PPBaseFilt::SetBranchSVector(size_t offs) { return CheckBranchOffs(offs) ? AddBranch(Branch::tSVector, offs, 0) : 0; }
+int FASTCALL PPBaseFilt::SetBranchObjIdListFilt(size_t offs) { return CheckBranchOffs(offs) ? AddBranch(Branch::tObjIdListFilt, offs, 0) : 0; }
+int FASTCALL PPBaseFilt::SetBranchStrAssocArray(size_t offs) { return CheckBranchOffs(offs) ? AddBranch(Branch::tStrAssocArray, offs, 0) : 0; }
+int PPBaseFilt::SetBranchBaseFiltPtr(int filtID, size_t offs) { return CheckBranchOffs(offs) ? AddBranch(Branch::tBaseFiltPtr, offs, filtID) : 0; }
+int FASTCALL PPBaseFilt::SetBranchDisplayExtList(size_t offs) { return CheckBranchOffs(offs) ? AddBranch(Branch::tDisplayExtList, offs, 0) : 0; }
+int FASTCALL PPBaseFilt::IsA(const PPBaseFilt * pS) const { return (pS && pS->Signature == Signature) ? 1 : PPSetError(PPERR_FILTNEQTYPE); }
 long  PPBaseFilt::GetSignature() const { return Signature; }
 int32 PPBaseFilt::GetVer() const { return Ver; }
 

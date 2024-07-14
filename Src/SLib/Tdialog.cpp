@@ -10,7 +10,7 @@
 
 #define TV_DEBUG_STACK 0
 //
-CtrlGroup::CtrlGroup() : Id(0) {}
+CtrlGroup::CtrlGroup() : Id(0), State(0) {}
 CtrlGroup::~CtrlGroup() {}
 void CtrlGroup::handleEvent(TDialog*, TEvent&) {}
 int CtrlGroup::setData(TDialog*, void *) { return -1; }
@@ -553,7 +553,7 @@ IMPL_HANDLE_EVENT(TDialog)
 					is_list_win = true;
 					::EnableWindow(GetParent(PrevInStack), 0);
 				}
-				if(HW) { // @v10.8.1
+				if(HW) {
 					TEvent event;
 					this->handleEvent(event.setCmd(cmModalPostCreate, this)); // @recursion
 				}
@@ -658,24 +658,13 @@ IMPL_HANDLE_EVENT(TDialog)
 							DlgFlags &= ~fMouseResizing;
 							clearEvent(event);
 						}
-						// @v9.6.6 {
-						/*
-						else {
-							GetWindowRect(H(), &ToResizeRect);
-							ResizeDlgToRect(&ToResizeRect);
-							MEMSZERO(ResizedRect);
-							MEMSZERO(ToResizeRect);
-							DlgFlags &= ~fMouseResizing;
-							clearEvent(event);
-						}
-						*/
-						// } @v9.6.6 
 						break;
 				}
 				break;
 		}
 		for(uint i = 0; event.what && i < GrpCount; i++) {
-			CALLPTRMEMB(PP_Groups[i], handleEvent(this, event));
+			if(PP_Groups[i] && !PP_Groups[i]->IsPassive()) // @v12.0.7 (&& !PP_Groups[i]->IsPassive())
+				PP_Groups[i]->handleEvent(this, event);
 		}
 	}
 }

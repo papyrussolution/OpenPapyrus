@@ -4572,9 +4572,9 @@ PPServerSession::CmdRet PPServerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				break;
 			case PPSCMD_PUTNEXTFILEPART: ok = ReceiveFile(tfvNext, name, rReply); break;
 			case PPSCMD_TEST: ok = Testing(); break;
-			case PPSCMD_GETREQQUOTES: ok = GetReqQuotes(rReply); break; // @v10.2.4
-			case PPSCMD_SETTIMESERIES: ok = SetTimeSeries(rReply); break; // @v10.2.3
-			case PPSCMD_SETTIMESERIESPROP: // @v10.2.5
+			case PPSCMD_GETREQQUOTES: ok = GetReqQuotes(rReply); break;
+			case PPSCMD_SETTIMESERIES: ok = SetTimeSeries(rReply); break;
+			case PPSCMD_SETTIMESERIESPROP:
 				{
 					pEv->GetParam(1, db_symb);
 					pEv->GetParam(2, name);

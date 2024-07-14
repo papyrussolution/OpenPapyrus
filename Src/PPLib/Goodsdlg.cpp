@@ -1360,7 +1360,7 @@ void GoodsDialog::SetupAddedInfo()
 			else
 				title_buf.Z();
 		}
-		else if(temp_buf == "pricerestriction") { // @v10.7.9
+		else if(temp_buf == "pricerestriction") {
 			title_buf = "no price restriction";
 			if(Data.Rec.ID && Data.Rec.GoodsTypeID) {
 				PPObjGoodsType gt_obj;

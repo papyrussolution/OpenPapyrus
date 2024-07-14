@@ -2705,8 +2705,7 @@ int UnxTextRefCore::FilterIdList(PPID objType, int prop, const char * pPattern, 
 	}
 	else {
 		// Если базовый список идентификаторов не задан, то извлекаем тексты по всему множеству объектов
-		IntRange _range;
-		_range.Set(0, INT32_MAX);
+		IntRange _range(0, INT32_MAX);
 		ok = Helper_Filter(objType, prop, pPattern, _range, pFiltIdList, rResultIdList);
 	}
 	return ok;
@@ -2723,8 +2722,7 @@ int UnxTextRefCore::FilterIdRange(PPID objType, int prop, const char * pPattern,
 	}
 	else {
 		// Если базовый список идентификаторов не задан, то извлекаем тексты по всему множеству объектов
-		IntRange _range;
-		_range.Set(0, INT32_MAX);
+		IntRange _range(0, INT32_MAX);
 		ok = Helper_Filter(objType, prop, pPattern, _range, 0, rResultIdList);
 	}
 	return ok;

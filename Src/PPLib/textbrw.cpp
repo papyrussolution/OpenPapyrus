@@ -777,7 +777,6 @@ int SScEditorBase::SearchAndReplace(long flags)
 {
 	int    ok = -1;
 	SSearchReplaceParam param = LastSrParam;
-	IntRange sel;
 	int   ssz = 0;
 	if(param.Pattern.IsEmpty() || flags & srfUseDialog) {
 		ssz = GetSelectionText(param.Pattern);
@@ -789,6 +788,7 @@ int SScEditorBase::SearchAndReplace(long flags)
 		SString pattern = param.Pattern;
 		pattern.Transf(CTRANSF_INNER_TO_UTF8);
 		if(pattern.NotEmpty()) {
+			IntRange sel;
 			int    sci_srch_flags = 0;
 			int    _func = 0;
 			if(!(param.Flags & param.fNoCase))
@@ -809,10 +809,9 @@ int SScEditorBase::SearchAndReplace(long flags)
 			int    result = CallFunc(_func, sci_srch_flags, reinterpret_cast<intptr_t>(pattern.cptr()));
 			if(result >= 0) {
 				ok = 1;
-				int selend = CallFunc(SCI_GETSELECTIONEND);
+				const int selend = CallFunc(SCI_GETSELECTIONEND);
 				SetCurrentPos(selend);
 				CallFunc(SCI_SCROLLCARET);
-				IntRange sel;
 				SetSelection(&sel.Set(result, selend));
 				CallFunc(SCI_SEARCHANCHOR);
 			}

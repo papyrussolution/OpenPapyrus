@@ -13,12 +13,10 @@
 	#include <unicode\putil.h> // @v11.4.1
 #endif
 //
-//
-//
-// @v10.4.8 (replaced with PPConst::UseAdvEvQueue) #define USE_ADVEVQUEUE 1
 // @v11.7.3 (все константы стали static constexpr) const PPConstParam _PPConst;
 //
 //
+// Descr: Класс, управляющий определением словаря данных в формате описания языком DL600.
 //
 class DbDict_DL600 : public DbDictionary {
 public:
@@ -40,10 +38,7 @@ private:
 // Descr: Процедура создания словаря DbDict_DL600. Используется для установки
 //   функцией DbDictionary::SetCreateInstanceProc
 //
-/*static*/ DbDictionary * DbDict_DL600::CreateInstance(const char * pPath, long options)
-{
-	return new DbDict_DL600;
-}
+/*static*/ DbDictionary * DbDict_DL600::CreateInstance(const char * pPath, long options) { return new DbDict_DL600; }
 
 int DbDict_DL600::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 {
@@ -245,7 +240,6 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 							PrjTaskCore * t = p_todo_obj->P_Tbl;
 							PrjTaskTbl::Rec todo_rec;
 							if(check_new_task) {
-								// @v10.0.0 {
 								for(SEnum en = t->EnumByEmployer(employer, 0, 0); en.Next(&todo_rec) > 0;) {
 									if(!(todo_rec.Flags & TODOF_OPENEDBYEMPL) && !oneof2(todo_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED)) {
 										SString & r_temp_buf = SLS.AcquireRvlStr();
@@ -254,27 +248,6 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 										break;
 									}
 								}
-								// } @v10.0.0
-								/* @v10.0.0
-								PrjTaskTbl::Key4 k4;
-								MEMSZERO(k4);
-								k4.EmployerID = employer;
-								if(t->search(4, &k4, spGe) && t->data.EmployerID == employer) {
-									BExtQuery q(t, 4);
-									DBQ * dbq = 0;
-									dbq = ppcheckfiltid(dbq, t->EmployerID, employer);
-									q.select(t->EmployerID, t->Flags, t->Status, 0L).where(*dbq);
-									for(q.initIteration(false, &k4, spGe); q.nextIteration() > 0;) {
-										const PrjTaskTbl::Rec & r_rec = t->data;
-										if(!(r_rec.Flags & TODOF_OPENEDBYEMPL) && !oneof2(r_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED)) {
-											//PPGetWord(PPWORD_NEWTASK, 1, temp_buf);
-											PPLoadString("newtask", temp_buf);
-											APPL->AddStatusBarItem(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), ICON_NEWTASK, 0, cmPrjTask_ByStatus);
-											break;
-										}
-									}
-								}
-								*/
 							}
 							if(rmnd_incompl_task) {
 								DateRange period;
@@ -283,7 +256,6 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 								plusdate(&period.upp, abs(prj_cfg.RemindPrd.low), 0);
 								if(prj_cfg.RemindPrd.low != prj_cfg.RemindPrd.upp)
 									plusdate(&period.low, -abs(prj_cfg.RemindPrd.upp), 0);
-								// @v10.0.0 {
 								for(SEnum en = t->EnumByEmployer(employer, &period, 0); en.Next(&todo_rec) > 0;) {
 									if(!oneof2(todo_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED)) {
 										SString & r_temp_buf = SLS.AcquireRvlStr();
@@ -292,42 +264,18 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 										break;
 									}
 								}
-								// } @v10.0.0
-								/* @v10.0.0
-								MEMSZERO(k4);
-								k4.EmployerID = employer;
-								k4.Dt = period.low;
-								if(t->search(4, &k4, spGe) && t->data.EmployerID == employer && t->data.StartDt >= period.low) {
-									DBQ * dbq = 0;
-									dbq = ppcheckfiltid(dbq, t->EmployerID, employer);
-									dbq = &(*dbq && daterange(t->StartDt, &period));
-									BExtQuery q(t, 4);
-									q.select(t->EmployerID, t->StartDt, t->Status, 0L).where(*dbq);
-									for(q.initIteration(false, &k4, spGe); q.nextIteration() > 0;) {
-										const PrjTaskTbl::Rec & r_rec = t->data;
-										if(!oneof2(r_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED)) {
-											//PPGetWord(PPWORD_INCOMPLETETASK, 1, temp_buf);
-											PPLoadString("incompletetasks", temp_buf);
-											APPL->AddStatusBarItem(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), ICON_TASKREMINDER, 0, cmPrjTask_ByReminder);
-											break;
-										}
-									}
-								}
-								*/
 							}
 						}
 					}
 				}
 			}
 		}
-		// @v10.5.8 {
 		{
 			TWindow * p_phn_pane = static_cast<PPApp *>(APPL)->FindPhonePaneDialog();
 			if(p_phn_pane) {
 				APPL->AddStatusBarItem("Phone Pane", /*PPDV_PHONE03*/ICON_PHONE, 0, /*cmPrjTask_ByReminder*/cmOpenPhonePane);
 			}
 		}
-		// } @v10.5.8
 		if(DS.GetPrivateBasket()) {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
 			PPLoadString("privategoodsbasket", r_temp_buf);
@@ -392,8 +340,6 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 PPRevolver_StringSetSCD::PPRevolver_StringSetSCD(uint c) : TSRevolver <PPStringSetSCD>(c) {}
 StringSet & PPRevolver_StringSetSCD::Get() { return Implement_Get().Z(); }
 
-// @v10.9.12 (replaced with PPConst::Signature_PPThreadLocalArea) #define SIGN_PPTLA 0x7D08E311L
-
 PPThreadLocalArea::IdleCommand::IdleCommand(long repeatEachSeconds) : SCycleTimer(repeatEachSeconds * 1000)
 {
 }
@@ -432,8 +378,8 @@ PPThreadLocalArea::~PPThreadLocalArea()
 	ZDELETE(P_IfcCtx);
 	ZDELETE(P_SrDb);
 	ZDELETE(P_PhnSvcEvRespr);
-	ZDELETE(P_MqbEvRespr); // @v10.5.7
-	ZDELETE(P_SysMntnc); // @v10.6.1
+	ZDELETE(P_MqbEvRespr);
+	ZDELETE(P_SysMntnc);
 	Sign = 0;
 }
 
@@ -574,8 +520,8 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 		void   FASTCALL SetupPhoneEvent(PPNotifyEvent & rN, const PPAdviseEvent & rSrc, SString & rTempBuf)
 		{
 			rN.Clear();
-			rN.ObjType = rSrc.Oid.Obj; // @v10.0.02
-			rN.ObjID = rSrc.Oid.Id; // @v10.0.02
+			rN.ObjType = rSrc.Oid.Obj;
+			rN.ObjID = rSrc.Oid.Id;
 			rN.Action = rSrc.Action;
 			EvqList.GetS(rSrc.ChannelP, rTempBuf);
 			rN.PutExtStrData(rN.extssChannel, rTempBuf);
@@ -5339,7 +5285,7 @@ StringSet & PPSession::AcquireRvlSsSCD()
 
 void PPSession::ProcessIdle()
 {
-	ENTER_CRITICAL_SECTION // @v10.9.0
+	ENTER_CRITICAL_SECTION
 	PPThreadLocalArea & r_tla = GetTLA();
 	const uint c = r_tla.IdleCmdList.getCount();
 	for(uint i = 0; i < c; i++) {
@@ -5350,7 +5296,7 @@ void PPSession::ProcessIdle()
 				p_cmd->Run(prev);
 		}
 	}
-	LEAVE_CRITICAL_SECTION // @v10.9.0
+	LEAVE_CRITICAL_SECTION
 }
 
 PPSession::ObjIdentBlock::ObjIdentBlock() /*: SymbList(256, 1)*/ : P_ShT(0)
@@ -5426,6 +5372,7 @@ int PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 			case PPOBJ_GEOTRACKING: val = PPHS_GEOTRACKING; break; // @v10.1.5
 			case PPOBJ_STYLOQBINDERY: val = PPHS_STYLOQBINDERY; break; // @v11.3.4
 			case PPOBJ_COMPUTER: val = PPHS_WSCTL; break; // @v11.7.3
+			case PPOBJ_SWPROGRAM: val = PPHS_SWPROGRAM; break; // @v12.0.7
 		}
 		if(val)
 			ok = P_ObjIdentBlk->P_ShT->GetByAssoc(val, rBuf);
@@ -5482,13 +5429,14 @@ PPID PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 				case PPHS_TSESSION:       val = PPOBJ_TSESSION; break;
 				case PPHS_STYLOPALM:      val = PPOBJ_STYLOPALM; break;
 				case PPHS_STYLODEVICE:    val = PPOBJ_STYLOPALM; break;
-				case PPHS_GEOTRACKING:    val = PPOBJ_GEOTRACKING; break; // @v10.1.5
-				case PPHS_TAG:            val = PPOBJ_TAG; break; // @v10.9.4
+				case PPHS_GEOTRACKING:    val = PPOBJ_GEOTRACKING; break;
+				case PPHS_TAG:            val = PPOBJ_TAG; break;
 				case PPHS_STYLOQBINDERY:  val = PPOBJ_STYLOQBINDERY; break; // @v11.4.3
 				case PPHS_WSCTL:          val = PPOBJ_COMPUTER; break; // @v11.7.3
 				case PPHS_COMPUTER:       val = PPOBJ_COMPUTER; break; // @v12.0.0 // synonym of PPHS_WSCTL
 				case PPHS_COMPUTERCATEGORY: val = PPOBJ_COMPUTERCATEGORY; break; // @v12.0.2
 				case PPHS_SWPROGRAM:      val = PPOBJ_SWPROGRAM; break; // @v12.0.5
+				case PPHS_ARTICLE:        val = PPOBJ_ARTICLE; break; // @v12.0.7
 				default: PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb); break;
 			}
 			obj_type = LoWord(val);

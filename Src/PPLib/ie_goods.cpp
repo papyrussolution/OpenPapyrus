@@ -985,7 +985,6 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 		{
 			PPObjBill * p_bobj = BillObj;
 			ReceiptTbl::Rec rcpt_rec;
-			// @v10.7.5 {
 			{
 				GoodsRestParam rp;
 				rp.GoodsID = pPack->Rec.ID;
@@ -993,12 +992,9 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 				p_bobj->trfr->GetCurRest(rp);
 				sdr_goods.Rest = rp.Total.Rest;
 			}
-			// } @v10.7.5 
-			// @v10.9.2 {
 			double price_by_open_lot = 0.0;
 			::GetCurGoodsPrice(pPack->Rec.ID, Param.LocID, 0/*flags*/, &price_by_open_lot, 0);
-			// } @v10.9.2
-			if(p_bobj->trfr->Rcpt.GetLastLot(pPack->Rec.ID, Param.LocID, MAXDATE, &rcpt_rec) > 0) { // @v10.7.5 0-->Param.LocID
+			if(p_bobj->trfr->Rcpt.GetLastLot(pPack->Rec.ID, Param.LocID, MAXDATE, &rcpt_rec) > 0) {
 				QualityCertTbl::Rec qcert_rec;
 				sdr_goods.Price = rcpt_rec.Price;
 				sdr_goods.Cost  = rcpt_rec.Cost;
@@ -2169,7 +2165,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 					subcode.Key = subcode.Val = 0; // @error
 			}
 			TextFieldAnalyzer txt_anlzr;
-			Param.FileName.Transf(CTRANSF_INNER_TO_OUTER); // @v10.7.9
+			Param.FileName.Transf(CTRANSF_INNER_TO_OUTER);
 			THROW_MEM(P_IE = new PPImpExp(&Param, 0));
 			PPWaitStart();
 			PPLoadText(PPTXT_IMPGOODS, wait_msg);
@@ -2299,13 +2295,11 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 			else {
 				GoodsImportBillIdent bill_ident(&PsnObj, Param.SupplID);
 				bill_ident.GetFldSet(&ini_file, sect, 0);
-				// @v10.7.9 {
 				GoodsImportBillIdent bill_ident_negop(&PsnObj, 0); // экземпл€р GoodsImportBillIdent дл€ отрицательных остатков
 				bill_ident_negop.GetFldSet(&ini_file, sect, 0);
 				PPEquipConfig eq_cfg;
 				ReadEquipConfig(&eq_cfg);
-				const  PPID op_for_neg_rest_id = NZOR(eq_cfg.OpOnDfctThisLoc, eq_cfg.OpOnTempSess); // @v10.7.9
-				// } @v10.7.9 
+				const  PPID op_for_neg_rest_id = NZOR(eq_cfg.OpOnDfctThisLoc, eq_cfg.OpOnTempSess);
 				PPTransaction tra(use_ta);
 				THROW(tra);
 				if(IsHier)
@@ -2678,7 +2672,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 								}
 								if(AssignEgaisCode(sdr_rec, &pack, logger) > 0)
 									do_update = 1;
-								if(AssignFlags(sdr_rec, &pack) > 0) // @v10.3.4
+								if(AssignFlags(sdr_rec, &pack) > 0)
 									do_update = 1;
 								// @v11.6.10 {
 								{

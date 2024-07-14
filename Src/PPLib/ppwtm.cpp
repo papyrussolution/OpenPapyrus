@@ -1753,8 +1753,8 @@ int PPWhatmanWindow::ResizeState::Setup(int mode, const Loc & rLoc, int * pCurso
 //
 PPWhatmanWindow::ScrollBlock::ScrollBlock() : Flags(0), ScX(0), ScY(0)
 {
-	Rx = 0;
-	Ry = 0;
+	// @v12.0.7 (ctr) Rx = 0;
+	// @v12.0.7 (ctr) Ry = 0;
 }
 
 int PPWhatmanWindow::ScrollBlock::GetX() const 

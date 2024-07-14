@@ -6,8 +6,6 @@
 #include <pp.h>
 #pragma hdrstop
 #include <sartre.h>
-#include <ued.h>
-#include <ued-id.h>
 
 uint64 UedEncodeRange(uint64 upp, uint granulation, uint bits, double value);
 bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * pResult);

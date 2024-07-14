@@ -232,8 +232,7 @@ bool SRegExp2::Find(const char * pText, size_t textLen, uint flags, FindResult *
 		if(r >= 0) {
 			if(pResult) {
 				for(int i = 0; i < region.num_regs; i++) {
-					IntRange ritem;
-					ritem.Set(region.beg[i], region.end[i]);
+					IntRange ritem(region.beg[i], region.end[i]);
 					pResult->insert(&ritem);
 				}
 			}

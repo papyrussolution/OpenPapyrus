@@ -3601,9 +3601,16 @@ public:
 	virtual void handleEvent(TDialog *, TEvent &);
 	virtual int setData(TDialog *, void *);
 	virtual int getData(TDialog *, void *);
+	void    SetPassive() { State |= stPassive; } // @v12.0.7
+	void    SetActive() { State &= ~stPassive; } // @v12.0.7
+	bool    IsPassive() const { return LOGIC(State & stPassive); } // @v12.0.7
 private:
 	friend class TDialog;
+	enum {
+		stPassive = 0x0001 // Группа пассивная. То есть, не отвечает на сообщения методом handleEvent
+	};
 	uint   Id;
+	uint   State; // @v12.0.7
 };
 
 typedef int (* DialogPreProcFunc)(TDialog *, void * extraPtr);

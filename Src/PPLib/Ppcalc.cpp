@@ -218,37 +218,16 @@ double PPRound(double v, double prec, int dir)
 	const double r = v / prec;
 	const double _fl = floor(r);
 	const double _cl = ceil(r);
-	/* @v10.8.3 if(dir > 0)
-		return (prec * ((fabs(_fl-r) < __tolerance) ? _fl : _cl));
-	else if(dir < 0)
-		return (prec * ((fabs(_cl-r) < __tolerance) ? _cl : _fl)); */
-	// @v10.8.3 {
 	if(dir > 0)
 		return (prec * (feqeps(_fl, r, __tolerance) ? _fl : _cl));
 	else if(dir < 0)
 		return (prec * (feqeps(_cl, r, __tolerance) ? _cl : _fl));
-	// } @v10.8.3 
 	else {
 		const double down = prec * _fl;
 		const double up   = prec * _cl;
 		return ((2.0 * v - down - up) < (-__tolerance)) ? down : up;
 	}
 }
-
-/* @v10.9.11 (replced with PPObjQuotKind::RoundUpPrice)
-double RoundUpPrice(double v)
-{
-	int    dir = 0;
-	const  PPConfig & r_cfg = LConfig;
-	long   rd = (r_cfg.Flags & (CFGFLG_ROUNDUP | CFGFLG_ROUNDDOWN));
-	if(rd == 0 || rd == (CFGFLG_ROUNDUP | CFGFLG_ROUNDDOWN))
-		dir = 0;
-	else if(rd & CFGFLG_ROUNDUP)
-		dir = 1;
-	else if(rd & CFGFLG_ROUNDDOWN)
-		dir = -1;
-	return Round(v, r_cfg.RoundPrec, dir);
-}*/
 //
 //
 //
@@ -958,7 +937,7 @@ int PosPaymentBlock::EditDialog2()
 			setCtrlReal(CTL_CPPAYM_CRDCARDAMT, 0.0);
 			setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 1);
 			// @v12.0.6 {
-			AddClusterAssoc(CTL_CPPAYM_CASHLESSBPEQ, 0, Data.Flags & PosPaymentBlock::fCashlessBypassEq);
+			AddClusterAssoc(CTL_CPPAYM_CASHLESSBPEQ, 0, PosPaymentBlock::fCashlessBypassEq);
 			SetClusterData(CTL_CPPAYM_CASHLESSBPEQ, Data.Flags);
 			showCtrl(CTL_CPPAYM_CASHLESSBPEQ, (Data.Flags & PosPaymentBlock::fCashlessBypassEqEnabled));
 			// } @v12.0.6 

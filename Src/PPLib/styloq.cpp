@@ -1681,7 +1681,7 @@ StyloQCommandList * StyloQCommandList::CreateSubListByContext(PPObjID oid, int b
 				else if(p_item->ObjTypeRestriction == oid.Obj) {
 					// @v12.0.6 {
 					if(p_item->ObjIdRestriction) {
-						if(p_item->ObjGroupRestriction == oid.Id)
+						if(p_item->ObjIdRestriction == oid.Id) // @v12.0.7 @fix ObjGroupRestriction-->ObjIdRestriction
 							suited = true;
 					} // } @v12.0.6 
 					else if(!p_item->ObjGroupRestriction)
@@ -1694,7 +1694,7 @@ StyloQCommandList * StyloQCommandList::CreateSubListByContext(PPObjID oid, int b
 					if(p_item->ObjTypeRestriction == PPOBJ_PERSON && usr_obj.Search(oid.Id, &sec_rec) > 0 && sec_rec.PersonID) {
 						// @v12.0.6 {
 						if(p_item->ObjIdRestriction) {
-							if(p_item->ObjGroupRestriction == oid.Id)
+							if(p_item->ObjIdRestriction == oid.Id) // @v12.0.7 @fix ObjGroupRestriction-->ObjIdRestriction
 								suited = true;
 						} // } @v12.0.6 
 						else if(!p_item->ObjGroupRestriction) 

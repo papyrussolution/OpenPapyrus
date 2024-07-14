@@ -114,19 +114,138 @@ StrAssocArray * PPObjAmountType::CreateSelectorList(long options, const PPIDArra
 }
 
 class AmtTypeDialog : public TDialog {
+	DECL_DIALOG_DATA(PPAmountTypePacket);
 public:
 	AmtTypeDialog(PPObjAmountType * pObj) : TDialog(DLG_AMOUNTTYPE), P_Obj(pObj)
 	{
 	}
-	int    setDTS(const PPAmountTypePacket *);
-	int    getDTS(PPAmountTypePacket *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		ushort v = 0;
+		ComboBox * p_cb_tax = static_cast<ComboBox *>(getCtrlView(CTLSEL_AMOUNTTYPE_TAX));
+		const long flags = Data.Rec.Flags;
+		setCtrlData(CTL_AMOUNTTYPE_NAME, Data.Rec.Name);
+		setCtrlData(CTL_AMOUNTTYPE_SYMB, Data.Rec.Symb);
+		setCtrlData(CTL_AMOUNTTYPE_ID,   &Data.Rec.ID);
+		disableCtrl(CTL_AMOUNTTYPE_ID, (!PPMaster || Data.Rec.ID));
+		AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 0, PPAmountType::fErrOnDefault);
+		AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 1, PPAmountType::fManual);
+		AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 2, PPAmountType::fStaffAmount);
+		AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 3, PPAmountType::fFormula);
+		AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 4, PPAmountType::fDistribCost);
+		AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 5, PPAmountType::fEachTrfrItemFormula); // @v12.0.7
+		SetClusterData(CTL_AMOUNTTYPE_FLAGS, flags);
+		if(flags & PPAmountType::fTax)
+			v = 1;
+		else if(flags & PPAmountType::fInAmount)
+			v = 2;
+		else if(flags & PPAmountType::fOutAmount)
+			v = 3;
+		else
+			v = 0;
+		setCtrlData(CTL_AMOUNTTYPE_KIND, &v);
+		ushort replace = 0;
+		if(flags & PPAmountType::fReplaceCost)
+			replace = 1;
+		else if(flags & PPAmountType::fReplacePrice)
+			replace = 2;
+		else if(flags & PPAmountType::fReplaceDiscount)
+			replace = 3;
+		setCtrlData(CTL_AMOUNTTYPE_REPLACE, &replace);
+		if(p_cb_tax) {
+			SString word;
+			ListWindow * p_lw = CreateListWindow_Simple(lbtDblClkNotify|lbtFocNotify);
+			PPLoadString("vat", word);
+			p_lw->listBox()->addItem(GTAX_VAT, word);
+			PPLoadString("salestax", word);
+			p_lw->listBox()->addItem(GTAX_SALES, word);
+			p_cb_tax->setListWindow(p_lw);
+		}
+		SetupPPObjCombo(this, CTLSEL_AMOUNTTYPE_REFAMT, PPOBJ_AMOUNTTYPE, 0, 0, 0);
+		setCtrlData(CTLSEL_AMOUNTTYPE_TAX, &Data.Rec.Tax);
+		setCtrlString(CTL_AMOUNTTYPE_FORMULA, Data.Formula);
+		disableCtrl(CTL_AMOUNTTYPE_FORMULA, !BIN(flags & PPAmountType::fFormula));
+		if(flags & PPAmountType::fTax)
+			setCtrlReal(CTL_AMOUNTTYPE_TAXRATE, fdiv100i(Data.Rec.TaxRate)); // @divtax
+		else if(Data.Rec.IsComplementary())
+			setCtrlData(CTLSEL_AMOUNTTYPE_REFAMT, &Data.Rec.RefAmtTypeID);
+		disableCtrls(!(flags & PPAmountType::fTax), CTLSEL_AMOUNTTYPE_TAX, CTL_AMOUNTTYPE_TAXRATE, 0);
+		disableCtrl(CTLSEL_AMOUNTTYPE_REFAMT, !Data.Rec.IsComplementary());
+		disableCtrl(CTL_AMOUNTTYPE_REPLACE, (flags & (PPAmountType::fTax | PPAmountType::fManual)) ||
+			(Data.Rec.ID > 0 && Data.Rec.ID < 1000));  // Reserved amount types can't replace another
+		SetupCtrls();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1, sel = 0;
+		ushort v, replace;
+		getCtrlData(sel = CTL_AMOUNTTYPE_NAME, Data.Rec.Name);
+		THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
+		getCtrlData(CTL_AMOUNTTYPE_ID, &Data.Rec.ID);
+		THROW(P_Obj->CheckDupName(Data.Rec.ID, Data.Rec.Name));
+		getCtrlData(sel = CTL_AMOUNTTYPE_SYMB, Data.Rec.Symb);
+		THROW(P_Obj->CheckDupSymb(Data.Rec.ID, strip(Data.Rec.Symb)));
+		GetClusterData(CTL_AMOUNTTYPE_FLAGS, &Data.Rec.Flags);
+		v = getCtrlUInt16(CTL_AMOUNTTYPE_KIND);
+		Data.Rec.Flags &= ~(PPAmountType::fTax | PPAmountType::fInAmount | PPAmountType::fOutAmount);
+		if(v == 1)
+			Data.Rec.Flags |= PPAmountType::fTax;
+		else if(v == 2)
+			Data.Rec.Flags |= PPAmountType::fInAmount;
+		else if(v == 3)
+			Data.Rec.Flags |= PPAmountType::fOutAmount;
+		if(Data.Rec.Flags & PPAmountType::fTax) {
+			getCtrlData(sel = CTLSEL_AMOUNTTYPE_TAX, &Data.Rec.Tax);
+			double tax_rate = getCtrlReal(CTL_AMOUNTTYPE_TAXRATE);
+			Data.Rec.TaxRate = R0i(tax_rate * 100.0);
+			if(!PPMaster)
+				THROW(P_Obj->CheckDupTax(Data.Rec.ID, Data.Rec.Tax, Data.Rec.TaxRate));
+		}
+		else {
+			Data.Rec.Tax = 0;
+			Data.Rec.TaxRate = 0L;
+			if(Data.Rec.Flags & (PPAmountType::fInAmount | PPAmountType::fOutAmount)) {
+				getCtrlData(sel = CTLSEL_AMOUNTTYPE_REFAMT, &Data.Rec.RefAmtTypeID);
+				THROW_PP(Data.Rec.RefAmtTypeID, PPERR_REFAMTTYPENEEDED);
+			}
+		}
+		replace = getCtrlUInt16(CTL_AMOUNTTYPE_REPLACE);
+		Data.Rec.Flags &= ~PPAmountType::fReplaces;
+		if(!(Data.Rec.Flags & (PPAmountType::fTax | PPAmountType::fManual))) {
+			if(replace == 1)
+				Data.Rec.Flags |= PPAmountType::fReplaceCost;
+			else if(replace == 2)
+				Data.Rec.Flags |= PPAmountType::fReplacePrice;
+			else if(replace == 3)
+				Data.Rec.Flags |= PPAmountType::fReplaceDiscount;
+		}
+		if(Data.Rec.Flags & PPAmountType::fFormula)
+			getCtrlString(CTL_AMOUNTTYPE_FORMULA, Data.Formula);
+		else
+			Data.Formula.Z();
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
-	DECL_HANDLE_EVENT;
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isClusterClk(CTL_AMOUNTTYPE_FLAGS) || event.isClusterClk(CTL_AMOUNTTYPE_KIND) || event.isClusterClk(CTL_AMOUNTTYPE_REPLACE)) {
+			SetupCtrls();
+		}
+		else if(event.isCmd(cmDistribCost))
+			EditDistribParam();
+		else
+			return;
+		clearEvent(event);
+	}
 	void   SetupCtrls();
 	int    EditDistribParam();
 
 	PPObjAmountType * P_Obj;
-	PPAmountTypePacket Data;
 };
 
 int AmtTypeDialog::EditDistribParam()
@@ -157,24 +276,31 @@ int AmtTypeDialog::EditDistribParam()
 void AmtTypeDialog::SetupCtrls()
 {
 	ushort v;
+	const long preserve_flags = Data.Rec.Flags;
 	GetClusterData(CTL_AMOUNTTYPE_FLAGS, &Data.Rec.Flags);
+	// @v12.0.7 {
+	if(!(Data.Rec.Flags & PPAmountType::fFormula) && (preserve_flags & PPAmountType::fFormula))
+		Data.Rec.Flags &= ~PPAmountType::fEachTrfrItemFormula;
+	else if(Data.Rec.Flags & PPAmountType::fEachTrfrItemFormula)
+		Data.Rec.Flags |= PPAmountType::fFormula;
+	// } @v12.0.7 
 	//
 	// Запрет на признак замещающей суммы для ручных и распределенных сумм
 	//
 	if(Data.Rec.Flags & (PPAmountType::fManual|PPAmountType::fStaffAmount|PPAmountType::fDistribCost)) {
 		setCtrlUInt16(CTL_AMOUNTTYPE_REPLACE, 0);
 		disableCtrl(CTL_AMOUNTTYPE_REPLACE, 1);
-		DisableClusterItem(CTL_AMOUNTTYPE_FLAGS, 3, 1);
+		DisableClusterItem(CTL_AMOUNTTYPE_FLAGS, 3, true);
 		if(Data.Rec.Flags & PPAmountType::fFormula) {
 			Data.Rec.Flags &= ~PPAmountType::fFormula;
-			SetClusterData(CTL_AMOUNTTYPE_FLAGS, Data.Rec.Flags);
+			// @v12.0.7 (moved down) SetClusterData(CTL_AMOUNTTYPE_FLAGS, Data.Rec.Flags);
 		}
 	}
 	else {
 		disableCtrl(CTL_AMOUNTTYPE_REPLACE, 0);
-		DisableClusterItem(CTL_AMOUNTTYPE_FLAGS, 3, 0);
+		DisableClusterItem(CTL_AMOUNTTYPE_FLAGS, 3, false);
 	}
-	DisableClusterItem(CTL_AMOUNTTYPE_FLAGS, 1, BIN(Data.Rec.Flags & PPAmountType::fFormula));
+	DisableClusterItem(CTL_AMOUNTTYPE_FLAGS, 1, LOGIC(Data.Rec.Flags & PPAmountType::fFormula));
 	disableCtrl(CTL_AMOUNTTYPE_FORMULA, !BIN(Data.Rec.Flags & PPAmountType::fFormula));
 	//
 	//
@@ -188,7 +314,7 @@ void AmtTypeDialog::SetupCtrls()
 	DisableClusterItem(CTL_AMOUNTTYPE_FLAGS, 4, (v != 0));
 	if(v != 0 && Data.Rec.Flags & PPAmountType::fDistribCost) {
 		Data.Rec.Flags &= ~PPAmountType::fDistribCost;
-		SetClusterData(CTL_AMOUNTTYPE_FLAGS, Data.Rec.Flags);
+		// @v12.0.7 (moved down) SetClusterData(CTL_AMOUNTTYPE_FLAGS, Data.Rec.Flags);
 	}
 	//
 	if(v == 1) { // fTax
@@ -218,143 +344,23 @@ void AmtTypeDialog::SetupCtrls()
 	if(getCtrlUInt16(CTL_AMOUNTTYPE_REPLACE)) {
 		if(Data.Rec.Flags & (PPAmountType::fManual|PPAmountType::fStaffAmount|PPAmountType::fDistribCost)) {
 			Data.Rec.Flags &= ~(PPAmountType::fManual|PPAmountType::fStaffAmount|PPAmountType::fDistribCost);
-			SetClusterData(CTL_AMOUNTTYPE_FLAGS, Data.Rec.Flags);
+			// @v12.0.7 (moved down) SetClusterData(CTL_AMOUNTTYPE_FLAGS, Data.Rec.Flags);
 		}
 		disableCtrls(1, CTLSEL_AMOUNTTYPE_TAX, CTL_AMOUNTTYPE_TAXRATE, 0);
 	}
 	enableCommand(cmDistribCost, Data.Rec.Flags & PPAmountType::fDistribCost);
-}
-
-IMPL_HANDLE_EVENT(AmtTypeDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isClusterClk(CTL_AMOUNTTYPE_FLAGS) || event.isClusterClk(CTL_AMOUNTTYPE_KIND) ||
-		event.isClusterClk(CTL_AMOUNTTYPE_REPLACE)) {
-		SetupCtrls();
-	}
-	else if(event.isCmd(cmDistribCost))
-		EditDistribParam();
-	else
-		return;
-	clearEvent(event);
-}
-
-int AmtTypeDialog::setDTS(const PPAmountTypePacket * pData)
-{
-	Data = *pData;
-
-	ushort v = 0;
-	ComboBox * p_cb_tax = static_cast<ComboBox *>(getCtrlView(CTLSEL_AMOUNTTYPE_TAX));
-	const long flags = Data.Rec.Flags;
-	setCtrlData(CTL_AMOUNTTYPE_NAME, Data.Rec.Name);
-	setCtrlData(CTL_AMOUNTTYPE_SYMB, Data.Rec.Symb);
-	setCtrlData(CTL_AMOUNTTYPE_ID,   &Data.Rec.ID);
-	disableCtrl(CTL_AMOUNTTYPE_ID, (!PPMaster || Data.Rec.ID));
-	AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 0, PPAmountType::fErrOnDefault);
-	AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 1, PPAmountType::fManual);
-	AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 2, PPAmountType::fStaffAmount);
-	AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 3, PPAmountType::fFormula);
-	AddClusterAssoc(CTL_AMOUNTTYPE_FLAGS, 4, PPAmountType::fDistribCost);
-	SetClusterData(CTL_AMOUNTTYPE_FLAGS, flags);
-	if(flags & PPAmountType::fTax)
-		v = 1;
-	else if(flags & PPAmountType::fInAmount)
-		v = 2;
-	else if(flags & PPAmountType::fOutAmount)
-		v = 3;
-	else
-		v = 0;
-	setCtrlData(CTL_AMOUNTTYPE_KIND, &v);
-	ushort replace = 0;
-	if(flags & PPAmountType::fReplaceCost)
-		replace = 1;
-	else if(flags & PPAmountType::fReplacePrice)
-		replace = 2;
-	else if(flags & PPAmountType::fReplaceDiscount)
-		replace = 3;
-	setCtrlData(CTL_AMOUNTTYPE_REPLACE, &replace);
-	if(p_cb_tax) {
-		SString word;
-		ListWindow * p_lw = CreateListWindow_Simple(lbtDblClkNotify|lbtFocNotify);
-		PPLoadString("vat", word);
-		p_lw->listBox()->addItem(GTAX_VAT, word);
-		PPLoadString("salestax", word);
-		p_lw->listBox()->addItem(GTAX_SALES, word);
-		p_cb_tax->setListWindow(p_lw);
-	}
-	SetupPPObjCombo(this, CTLSEL_AMOUNTTYPE_REFAMT, PPOBJ_AMOUNTTYPE, 0, 0, 0);
-	setCtrlData(CTLSEL_AMOUNTTYPE_TAX, &Data.Rec.Tax);
-	setCtrlString(CTL_AMOUNTTYPE_FORMULA, Data.Formula);
-	disableCtrl(CTL_AMOUNTTYPE_FORMULA, !BIN(flags & PPAmountType::fFormula));
-	if(flags & PPAmountType::fTax)
-		setCtrlReal(CTL_AMOUNTTYPE_TAXRATE, fdiv100i(Data.Rec.TaxRate)); // @divtax
-	else if(Data.Rec.IsComplementary())
-		setCtrlData(CTLSEL_AMOUNTTYPE_REFAMT, &Data.Rec.RefAmtTypeID);
-	disableCtrls(!(flags & PPAmountType::fTax), CTLSEL_AMOUNTTYPE_TAX, CTL_AMOUNTTYPE_TAXRATE, 0);
-	disableCtrl(CTLSEL_AMOUNTTYPE_REFAMT, !Data.Rec.IsComplementary());
-	disableCtrl(CTL_AMOUNTTYPE_REPLACE, (flags & (PPAmountType::fTax | PPAmountType::fManual)) ||
-		(Data.Rec.ID > 0 && Data.Rec.ID < 1000));  // Reserved amount types can't replace another
-	SetupCtrls();
-	return 1;
-}
-
-int AmtTypeDialog::getDTS(PPAmountTypePacket * pData)
-{
-	int    ok = 1, sel = 0;
-	ushort v, replace;
-	getCtrlData(sel = CTL_AMOUNTTYPE_NAME, Data.Rec.Name);
-	THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
-	getCtrlData(CTL_AMOUNTTYPE_ID, &Data.Rec.ID);
-	THROW(P_Obj->CheckDupName(Data.Rec.ID, Data.Rec.Name));
-	getCtrlData(sel = CTL_AMOUNTTYPE_SYMB, Data.Rec.Symb);
-	THROW(P_Obj->CheckDupSymb(Data.Rec.ID, strip(Data.Rec.Symb)));
-	GetClusterData(CTL_AMOUNTTYPE_FLAGS, &Data.Rec.Flags);
-	v = getCtrlUInt16(CTL_AMOUNTTYPE_KIND);
-	Data.Rec.Flags &= ~(PPAmountType::fTax | PPAmountType::fInAmount | PPAmountType::fOutAmount);
-	if(v == 1)
-		Data.Rec.Flags |= PPAmountType::fTax;
-	else if(v == 2)
-		Data.Rec.Flags |= PPAmountType::fInAmount;
-	else if(v == 3)
-		Data.Rec.Flags |= PPAmountType::fOutAmount;
-	if(Data.Rec.Flags & PPAmountType::fTax) {
-		getCtrlData(sel = CTLSEL_AMOUNTTYPE_TAX, &Data.Rec.Tax);
-		double tax_rate = getCtrlReal(CTL_AMOUNTTYPE_TAXRATE);
-		Data.Rec.TaxRate = R0i(tax_rate * 100.0);
-		if(!PPMaster)
-			THROW(P_Obj->CheckDupTax(Data.Rec.ID, Data.Rec.Tax, Data.Rec.TaxRate));
-	}
-	else {
-		Data.Rec.Tax = 0;
-		Data.Rec.TaxRate = 0L;
-		if(Data.Rec.Flags & (PPAmountType::fInAmount | PPAmountType::fOutAmount)) {
-			getCtrlData(sel = CTLSEL_AMOUNTTYPE_REFAMT, &Data.Rec.RefAmtTypeID);
-			THROW_PP(Data.Rec.RefAmtTypeID, PPERR_REFAMTTYPENEEDED);
-		}
-	}
-	replace = getCtrlUInt16(CTL_AMOUNTTYPE_REPLACE);
-	Data.Rec.Flags &= ~PPAmountType::fReplaces;
-	if(!(Data.Rec.Flags & (PPAmountType::fTax | PPAmountType::fManual))) {
-		if(replace == 1)
-			Data.Rec.Flags |= PPAmountType::fReplaceCost;
-		else if(replace == 2)
-			Data.Rec.Flags |= PPAmountType::fReplacePrice;
-		else if(replace == 3)
-			Data.Rec.Flags |= PPAmountType::fReplaceDiscount;
-	}
-	if(Data.Rec.Flags & PPAmountType::fFormula)
-		getCtrlString(CTL_AMOUNTTYPE_FORMULA, Data.Formula);
-	else
-		Data.Formula.Z();
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
+	// @v12.0.7 {
+	if(!(Data.Rec.Flags & PPAmountType::fFormula))
+		Data.Rec.Flags &= ~PPAmountType::fEachTrfrItemFormula;
+	// } @v12.0.7 
+	SetClusterData(CTL_AMOUNTTYPE_FLAGS, Data.Rec.Flags); // @v12.0.7
 }
 
 int PPObjAmountType::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
-	int    r = cmCancel, valid_data = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	bool   is_new = false;
 	PPAmountTypePacket pack;
 	AmtTypeDialog * dlg = 0;

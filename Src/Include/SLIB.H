@@ -3405,6 +3405,9 @@ struct IntRange { // @persistent @size=8
 	IntRange() : low(0), upp(0)
 	{
 	}
+	IntRange(int _low, int _upp) : low(_low), upp(_upp)
+	{
+	}
 	IntRange & Z();
 	//
 	// Descr: Возвращает !0 если (this->low == 0 && this->upp == 0)
@@ -3490,14 +3493,12 @@ struct SSzChunk { // @flat @noctr @novtbl
 //
 //
 struct RealRange { // @persistent @flat @noctr @novtbl @size=16
-	/*
-	RealRange() : low(0.0), upp(0.0)
+	/*RealRange() : low(0.0), upp(0.0)
 	{
 	}
 	RealRange(double _lo, double _up) : low(_lo), upp(_up)
 	{
-	}
-	*/
+	}*/
 	bool   IsZero() const;
 	//
 	// Descr: Возвращает true если хоть один из компонентов экземпляра имеет значение NAN
@@ -7735,8 +7736,8 @@ ulong  _checksum__(const char *, size_t);
 //
 // MIME64 encoder/decoder
 //
-bool   STDCALL  Base64_Encode(const char * pIn, size_t inLen, char * pOut, size_t outMax, size_t * pOutLen);
-bool   STDCALL  Base64_Decode(const char * pIn, size_t inLen, char * pOut, size_t * pOutLen);
+bool   STDCALL Base64_Encode(const char * pIn, size_t inLen, char * pOut, size_t outMax, size_t * pOutLen);
+bool   STDCALL Base64_Decode(const char * pIn, size_t inLen, char * pOut, size_t * pOutLen);
 
 class MIME64 {
 public:

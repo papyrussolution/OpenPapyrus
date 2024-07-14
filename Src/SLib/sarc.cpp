@@ -4,8 +4,6 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <ued-id.h>
-//#include <ued.h>
 #include <..\osf\libzip\lib\zip.h>
 #include <..\slib\lz4\lz4frame.h>
 #include <..\slib\lz4\lz4.h>

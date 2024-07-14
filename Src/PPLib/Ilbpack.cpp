@@ -17,10 +17,7 @@ ILTI::ILTI(const PPTransferItem * pTI)
 	Init(pTI);
 }
 
-int ILTI::HasDeficit() const
-{
-	return BIN(fabs(Rest) >= BillCore::GetQttyEpsilon());
-}
+bool ILTI::HasDeficit() const { return (fabs(Rest) >= BillCore::GetQttyEpsilon()); }
 
 void ILTI::Setup(PPID goodsID, int sign, double qtty, double cost, double price)
 {
@@ -2101,8 +2098,7 @@ int BillTransmDeficit::AddRec(ILTI * pIlti, const char * pClbNumber, BillTbl::Re
 	return Tbl->insertRecBuf(&tdt_rec) ? 1 : PPSetErrorDB();
 }
 
-int BillTransmDeficit::UpdateRec(TempDeficitTbl::Rec * pTdtr,
-	ILTI * pIlti, const char * pClbNumber, BillTbl::Rec * pBillRec, double qtty)
+int BillTransmDeficit::UpdateRec(TempDeficitTbl::Rec * pTdtr, ILTI * pIlti, const char * pClbNumber, BillTbl::Rec * pBillRec, double qtty)
 {
 	double sum_qtty = R6(pTdtr->Req + qtty);
 	if(sum_qtty != 0.0) {

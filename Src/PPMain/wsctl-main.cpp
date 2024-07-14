@@ -1547,6 +1547,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 	PPJobSrvReply reply;
 	SString temp_buf;
 	SString cmd_buf;
+	bool   debug_mark = false; // @debug
 	switch(rReq.Cmd) {
 		case PPSCMD_HELLO:
 			if(P_St) {
@@ -1570,11 +1571,12 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 					P_St->D_ImgLd.GetData(st_data);
 					{
 						PPJobSrvCmd cmd;
-						cmd.StartWriting(PPSCMD_WSCTL_END_SESS);
-						GetObjectTitle(rReq.P.Oid.Obj, temp_buf);
+						cmd.StartWriting(PPSCMD_GETIMAGE);
+						DS.GetObjectTypeSymb(rReq.P.Oid.Obj, temp_buf);
 						cmd_buf.Z().Cat("GETIMAGE").Space().Cat(temp_buf).Space().Cat(rReq.P.Oid.Id);
 						if(rCli.ExecSrvCmd(cmd_buf, PPConst::DefSrvCmdTerm, reply)) {
 							if(reply.StartReading(&temp_buf)) {
+								debug_mark = true;
 							}
 						}
 					}
@@ -2190,7 +2192,6 @@ int WsCtl_ImGuiSceneBlock::SetScreen(int scr)
 	}
 	return ok;
 }
-
 
 SString & WsCtl_ImGuiSceneBlock::InputLabelPrefix(const char * pLabel)
 {

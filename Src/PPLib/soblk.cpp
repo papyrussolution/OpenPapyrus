@@ -191,7 +191,7 @@ private:
 		ZDELETEFAST(P_CurRateF);
 		ZDELETEFAST(P_UhttSCardOpF);
 		ZDELETEFAST(P_BillF);
-		ZDELETEFAST(P_GeoTrF); // @v10.1.5
+		ZDELETEFAST(P_GeoTrF);
 		ZDELETEFAST(P_DtGrF);
 		ZDELETEFAST(P_UhttStorF);
 		ZDELETEFAST(P_WorkbookF);
@@ -4538,7 +4538,6 @@ int Backend_SelectObjectBlock::ResolveCrit_Page(const SString & rArg)
 	SString start_buf, count_buf;
 	THROW_PP_S(Page.IsZero(), PPERR_CMDSEL_DBLDECL_PAGE, rArg);
 	temp_buf.Strip();
-	page = 0;
 	if(temp_buf.Divide(',', start_buf, count_buf) > 0) {
 		page.low = start_buf.ToLong();
 		int    c = count_buf.ToLong();

@@ -6,7 +6,6 @@
 #pragma hdrstop
 #include <Lm.h>
 #include <strstore.h>
-#include <ued.h>
 //
 // @prototype {
 //

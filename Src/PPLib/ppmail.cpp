@@ -266,9 +266,10 @@ int PPInternetAccount::SetMimedPassword_(const char * pPassword, int fldID /* = 
 	if(pwd_len) {
 		size_t len = 0;
 		char   out_buf[512];
-		MIME64 m64;
+		// @v12.0.7 MIME64 m64;
 		memzero(out_buf, sizeof(out_buf));
-		m64.Decode(pPassword, pwd_len, out_buf, &len);
+		// @v12.0.7 m64.Decode(pPassword, pwd_len, out_buf, &len);
+		Base64_Decode(pPassword, pwd_len, out_buf, &len); // @v12.0.7
 		ok = SetExtField(fldID, out_buf);
 	}
 	return ok;
@@ -301,8 +302,9 @@ int PPInternetAccount::GetMimedPassword_(char * pBuf, size_t bufLen, int fldID /
 		// } @v11.5.9 
 		if(temp_buf.Len() == (pw_buf_size * 3)) {
 			size_t out_len = 0;
-			MIME64 m64;
-			m64.Encode(temp_buf, temp_buf.Len(), out_buf, sizeof(out_buf), &out_len);
+			// @v12.0.7 MIME64 m64;
+			// @v12.0.7 m64.Encode(temp_buf, temp_buf.Len(), out_buf, sizeof(out_buf), &out_len);
+			Base64_Encode(temp_buf, temp_buf.Len(), out_buf, sizeof(out_buf), &out_len); // @v12.0.7 
 		}
 		strnzcpy(pBuf, out_buf, bufLen);
 	}
@@ -1860,7 +1862,7 @@ int PPEmailAcctsImporter::Import(PPLogger * pLogger, int useTa)
 						CatDiv(',', 2).CatEq("From", account_rec.FromAddress).
 						CatDiv(',', 2).CatEq("User", account_rec.RcvName);
 					msg.Printf(buf2, buf.cptr());
-					CALLPTRMEMB(pLogger, Log(msg)); // @v10.4.10 @fix Log(buf)-->Log(msg)
+					CALLPTRMEMB(pLogger, Log(msg));
 				}
 				imported++;
 			}

@@ -5960,6 +5960,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_prcplacelist                    "20,L,Места;30,L,@ware;20,L,@description"
 @lbt_opkgenlist                      "42,L,@oprkind;8,L,@flags"
 @lbt_goodsstruc                      "44,L,@component;12,R,@qtty;10,R,@netto;10,R,@price;10,R,@amount;4,C"
+@lbt_goodsstruc_pp                   "44,L,@component;20,L,@formula;10,@price;4,C" // @v12.0.7
 @lbt_extgoodsstruc                   "60,L,@appellation;15,L,@daterange"
 @lbt_barcodelist                     "24,L,@barcode;12,R,@qtty" // DLG_BARCODELIST
 @lbt_elinklist                       "27,L,@elinkkind;40,L,@address"
@@ -8529,6 +8530,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_personchznpmhost                    "ЧЕСТНЫЙ ЗНАК хост разрешительного режима"  // @v11.9.12
 @rtag_computeruuid                        "UUID компьютера" // @v12.0.0
 @rtag_extdlvrloccodetag                   "Тег дополнительного кода адреса доставки" // @v12.0.3
+@rtag_lot_chznintqtty                     "ЧЕСТНЫЙ ЗНАК целое число мест весового товара" // @v12.0.7
+@rtag_lot_prefsuppl                       "Предпочтительный поставщик для заказа"  // @v12.0.7
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -9618,6 +9621,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @amounttype_freplaces                     "@{no}"
 @amounttype_fstaffamount                  "@{staffamount_s}"
 @amounttype_ftax                          "Налоговая"
+@amounttype_feachtrfritemformula          "Рассчитывать формулу для каждой товарной строки"
 @amounttype_kindregular                   "Обыкновенная"
 @amounttype_kind                          "Вид суммы" // generic
 @amounttype_replacement                   "Замещающая сумма" // generic
@@ -10264,7 +10268,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 @ccextss_memo                              "@{memo}"
 @ccextss_sign                              "Сигнатура чека"
-@ccextss_egaisurl                          "URL ЕГАИС"
+@ccextss_egaisurl                          "URL @{brand_egais}"
 @ccextss_remoteprocessingta                "@{remotetransactionid}"
 @ccextss_chznprocessingtag                 "Тег процессинга честный знак"
 @ccextss_buyerinn                          "ИНН покупателя"
@@ -10275,7 +10279,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccextss_prescrdate                        "Медицинский рецепт - дата"
 @ccextss_prescrserial                      "Медицинский рецепт - серия"
 @ccextss_prescrnumber                      "Медицинский рецепт - номер"
-@ccextss_egaisprocessingtag                "Тег процессинга ЕГАИС"
+@ccextss_egaisprocessingtag                "Тег процессинга @{brand_egais}"
 @ccextss_sourcesymb                        "Символ источника импортированного чека"
 @ccextss_outerident                        "Внешний идентификатор импортированного чека"
 @ccextss_outerexttag                       "Дополнительный внешний тег импортированного чека"
@@ -11847,6 +11851,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 //
 @gsitem                                   "Структурный элемент товара"
 @gsitem2                                  "Компонент структуры" // То же, что и gsitem но используется в специализированных контекстах (а именно, нименование товара - компонента структуры)
+@gsitempp                                 "Компонент структуры планирования цены товара"
 @gsitem_goodsgroup                        "@{goodsgroup}" // generic
 @gsitem_goods                             "@{ware}"
 @gsitem_mainunit                          "@{munit_in_tr}" // generic
@@ -11904,6 +11909,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodstype_gtf_advancecert                "Авансовый сертификат"
 @goodstype_gtf_gmarked                    "@{gmarkedware}"
 @goodstype_gtf_exciseproforma             "Формально подакцизный"
+@goodstype_gtf_egaisautowo                "Автоматическое списание марок @{brand_egais}"
 
 @goodstype_id                             "@{id}"
 @goodstype_name                           "@{appellation}"
@@ -15500,6 +15506,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billbysampleparam_fnoninteractive        "Неинтерактивный режим"
 @billbysampleparam_fall                   "Для всей выборки документов"
 @billbysampleparam_frcptallonshipm        "Оприходовать весь заказанный товар"
+@billbysampleparam_frcptdfctonshipm       "Оприходовать недостающий заказанный товар"
 
 @pospaymblock                             "Оплата покупки"
 @pospaymblock_amount                      "К оплате"
@@ -18180,6 +18187,7 @@ PPHS_WEEKDAY                   "weekday"
 PPHS_WORKBOOK                  "workbook"
 PPHS_WORLD                     "world"
 PPHS_WSCTL                     "wsctl" // @v11.7.2
+PPHS_ARTICLE                   "article" // @v12.0.7
 PPHS_COMPUTER                  "computer" // @v12.0.0
 PPHS_COMPUTERCATEGORY          "computercategory" // @v12.0.2
 PPHS_SWPROGRAM                 "swprogram" // @v12.0.5

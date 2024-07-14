@@ -1,5 +1,5 @@
 // SARTR.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -13,7 +13,6 @@
 	#include <unicode\unumberformatter.h>
 #endif*/
 #include <sartre.h>
-//#include <ued.h>
 // @v11.7.1 #include <locale.h>
 //
 //

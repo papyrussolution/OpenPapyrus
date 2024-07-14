@@ -332,9 +332,6 @@ public:
 		setCtrlData(CTL_TSSMODEL_SYMB, Data.Rec.Symb);
 		setCtrlData(CTL_TSSMODEL_ID, &Data.Rec.ID);
 		setLongListValues(CTL_TSSMODEL_MFSL, Data.MainFrameSizeList);
-		// @v10.8.6 setLongListValues(CTL_TSSMODEL_IFSL, Data.InputFrameSizeList);
-		//int    setLongListValues(uint ctlId, const LongArray & rList)
-		// @v10.8.6 {
 		{
 			LongArray temp_list = Data.InputFrameSizeList;
 			temp_list.sortAndUndup();
@@ -345,7 +342,6 @@ public:
 			{
 				bool   is_first_term = true;
 				IntRange cur_range;
-				cur_range.Z();
 				for(uint i = 0; i < temp_list.getCount(); i++) {
 					long v = temp_list.get(i);
 					if(v > 0) {
@@ -391,9 +387,6 @@ public:
 				temp_buf.CatChar(']');
 			setCtrlString(CTL_TSSMODEL_IFSL, temp_buf);
 		}
-		// } @v10.8.6
-		// @v10.8.4 setLongListValues(CTL_TSSMODEL_MDQL, Data.MaxDuckQuantList);
-		// @v10.8.4 setLongListValues(CTL_TSSMODEL_TQL, Data.TargetQuantList);
 		{
 			temp_buf.Z();
 			for(uint sblidx = 0; sblidx < Data.StakeBoundList.getCount(); sblidx++) {
@@ -1746,8 +1739,7 @@ public:
 		if(_c > 1 && oneof3(useInitialSplitting, 4, 5, 6)) {
 			double total_max_result = 0.0;
 			TSVector <IntRange> pos_range_list;
-			IntRange work_range;
-			work_range.Set(0, _c-1);
+			IntRange work_range(0, _c-1);
 			uint   _first_idx = 0;
 			uint   _last_idx = _c-1;
 			int    do_break = 0; // Сигнал для выхода из функции из-за того, что приемлемых значений больше нет

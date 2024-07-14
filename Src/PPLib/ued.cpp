@@ -12,8 +12,6 @@
 	#include <unicode\unumberformatter.h>
 #endif
 //#include <sartre.h>
-#include <ued.h>
-#include <ued-id.h>
 #include <..\OSF\abseil\absl\numeric\int128.h>
 
 IMPL_INVARIANT_C(UedSetBase)
@@ -203,39 +201,6 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 	}
 	if(!result)
 		rScan.Pop(preserve_offs);
-	return result;
-}
-
-/*static*/uint UED::GetMetaRawDataBits(uint64 meta)
-{
-	uint   result = 0;
-	if(IsMetaId(meta)) {
-		const uint32 meta_lodw = LoDWord(meta);
-		if(meta_lodw & 0x80000000U)
-			result = 56;
-		else if(meta_lodw & 0x40000000U)
-			result = 48;
-		else 
-			result = 32;
-	}
-	return result;
-}
-
-/*static*/uint64 UED::GetMeta(uint64 ued)
-{
-	uint64 result = 0ULL;
-	if(IsMetaId(ued))
-		result = UED_META_META; // meta
-	else {
-		const uint32 dw_hi = HiDWord(ued);
-		const uint8  b_hi = static_cast<uint8>(dw_hi >> 24);
-		if(b_hi & 0x80)
-			result = (0x0000000100000000ULL | static_cast<uint64>(dw_hi & 0xff000000U));
-		else if(b_hi & 0x40)
-			result = (0x0000000100000000ULL | static_cast<uint64>(dw_hi & 0xffff0000U));
-		else if(dw_hi)
-			result = (0x0000000100000000ULL | static_cast<uint64>(dw_hi & 0x0fffffffU));
-	}
 	return result;
 }
 

@@ -4618,6 +4618,26 @@ public:
 		uint64 RowId;    // Идентификатор позиции свободного блока
 		uint32 FreeSize; // Доступный полезный размер блока (PayloadSize)
 	};
+	//
+	// Descr: Утилитная структура, используемая в качестве аргумента в функциях, которые могут
+	//   ликвидировать одни свободные блоки и формировать другие. К таким, например, относятся //
+	//   функции объединения свободных блоков, функции изменения записей, etc
+	//
+	class UpdGroup {
+	public:
+		UpdGroup()
+		{
+		}
+		UpdGroup & Z()
+		{
+			ListToRemove.clear();
+			ListToAdd.clear();
+			return *this;
+		}
+		TSVector <SRecPageFreeList::Entry> ListToRemove;
+		TSVector <SRecPageFreeList::Entry> ListToAdd;
+	};
+
 	class SingleTypeList : public TSVector <Entry> {
 	public:
 		SingleTypeList(uint32 type) : TSVector <Entry>(), Type(type)
@@ -4780,7 +4800,7 @@ struct SDataPageHeader { // Size=32
 	uint64 Write(uint offset, const void * pData, uint dataLen, SRecPageFreeList::Entry * pNewFreeEntry);
 	int    Update(uint offset, const void * pData, uint dataLen);
 	uint64 Delete(uint offset, SRecPageFreeList::Entry * pNewFreeEntry);
-	int    MergeFreeEntries(TSVector <SRecPageFreeList::Entry> & rRemovedFreeEntryList, TSVector <SRecPageFreeList::Entry> & rNewFreeEntryList);
+	int    MergeFreeEntries(SRecPageFreeList::UpdGroup & rFbug);
 	//
 	// Returns:
 	//   0 - error
@@ -4860,9 +4880,9 @@ public:
 	{
 		return IsConsistent() ? P_H->Read(offset, pBuf, bufSize) : 0;
 	}
-	int    MergeFreeEntries(TSVector <SRecPageFreeList::Entry> & rRemovedFreeEntryList, TSVector <SRecPageFreeList::Entry> & rNewFreeEntryList)
+	int    MergeFreeEntries(SRecPageFreeList::UpdGroup & rFbug)
 	{
-		return IsConsistent() ? P_H->MergeFreeEntries(rRemovedFreeEntryList, rNewFreeEntryList) : 0;
+		return IsConsistent() ? P_H->MergeFreeEntries(rFbug) : 0;
 	}
 private:
 	SDataPageHeader * P_H;

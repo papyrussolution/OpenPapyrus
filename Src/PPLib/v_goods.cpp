@@ -2090,7 +2090,8 @@ int PPViewGoods::RemoveAll()
 					break;
 				case GoodsMoveParam::aActionByFlags:
 					sel = CTL_REMOVEALL_FLAGS;
-					THROW_PP(Data.Flags & (GoodsMoveParam::fRemoveExtTextA|GoodsMoveParam::fRemoveExtTextB), PPERR_USERINPUT);
+					THROW_PP(Data.Flags & (GoodsMoveParam::fRemoveExtTextA|GoodsMoveParam::fRemoveExtTextB|
+						GoodsMoveParam::fRemoveExtTextC|GoodsMoveParam::fRemoveExtTextD|GoodsMoveParam::fRemoveExtTextE), PPERR_USERINPUT);
 					break;
 				case GoodsMoveParam::aActionByRule:
 					sel = CTL_REMOVEALL_RULE;

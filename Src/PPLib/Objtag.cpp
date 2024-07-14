@@ -885,7 +885,6 @@ int PPObjTag::MakeReserved(long flags)
 					pack.Rec.TagDataType = OTTYP_GUID;
 				else if(data_type_symb.IsEqiAscii("ENUM"))
 					pack.Rec.TagDataType = OTTYP_ENUM;
-				// @v10.9.4 {
 				else if(data_type_symb.HasPrefixIAscii("LINK:")) {
 					// link:tag:goods
 					PPID    link_obj_type = 0;
@@ -908,7 +907,6 @@ int PPObjTag::MakeReserved(long flags)
 						pack.Rec.LinkObjGrp = link_obj_type_group;
 					}
 				}
-				// } @v10.9.4 
 				if(pack.Rec.TagDataType) {
 					//
 					// Здесь нельзя использовать PutPacket поскольку добавляется запись
@@ -1035,17 +1033,21 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 			DisableClusterItem(CTL_OBJTAG_FLAGS, 3, (typ != OTTYP_ENUM));
 			ObjTagItem::GetTypeString(typ, Data.Rec.TagEnumID, typ_name_buf);
 			if(typ == OTTYP_OBJLINK) {
-				int    dsbl = 1;
+				bool   dsbl = true;
 				if(Data.Rec.TagEnumID == PPOBJ_PERSON) {
-					dsbl = 0;
+					dsbl = false;
 					SetupPPObjCombo(this, CTLSEL_OBJTAG_OBJGRP, PPOBJ_PERSONKIND, Data.Rec.LinkObjGrp, OLW_CANINSERT, 0);
 				}
-				else if(Data.Rec.TagEnumID == PPOBJ_GLOBALUSERACC) { // @v10.5.5
-					dsbl = 0;
+				else if(Data.Rec.TagEnumID == PPOBJ_ARTICLE) { // @v12.0.7
+					dsbl = false;
+					SetupPPObjCombo(this, CTLSEL_OBJTAG_OBJGRP, PPOBJ_ACCSHEET, Data.Rec.LinkObjGrp, OLW_CANINSERT, 0);
+				}
+				else if(Data.Rec.TagEnumID == PPOBJ_GLOBALUSERACC) {
+					dsbl = false;
 					SetupStringCombo(this, CTLSEL_OBJTAG_OBJGRP, PPTXT_GLOBALSERVICELIST, Data.Rec.LinkObjGrp);
 				}
-				else if(Data.Rec.TagEnumID == PPOBJ_TAG) { // @v10.9.4
-					dsbl = 0;
+				else if(Data.Rec.TagEnumID == PPOBJ_TAG) {
+					dsbl = false;
 					SetupObjListCombo(this, CTLSEL_OBJTAG_OBJGRP, Data.Rec.LinkObjGrp, 0);
 				}
 				else
@@ -1084,9 +1086,8 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 				Data.Rec.Flags &= ~OTF_HIERENUM;
 			}
 			if(Data.Rec.TagDataType == OTTYP_OBJLINK) {
-				if(Data.Rec.TagEnumID == PPOBJ_PERSON) {
+				if(oneof2(Data.Rec.TagEnumID, PPOBJ_PERSON, PPOBJ_ARTICLE))
 					getCtrlData(CTLSEL_OBJTAG_OBJGRP, &Data.Rec.LinkObjGrp);
-				}
 			}
 			THROW(CheckRecursion(Data.Rec.ID, Data.Rec.TagGroupID));
 			ASSIGN_PTR(pData, Data);
@@ -2247,13 +2248,15 @@ int TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 			break;
 		case OTTYP_OBJLINK:
 		case OTTYP_ENUM:
-			// @v10.9.4 {
 			if(tag.TagEnumID == PPOBJ_TAG) {
 				LinkTagFilt.Z();
 				LinkTagFilt.ObjTypeID = tag.LinkObjGrp;
 				SetupPPObjCombo(dlg, ValLnkCtl, tag.TagEnumID, pItem->Val.IntVal, OLW_CANINSERT, &LinkTagFilt);
 			} 
-			else /* } @v10.9.4 */ {
+			else if(tag.TagEnumID == PPOBJ_ARTICLE) { // @v12.0.7
+				SetupArCombo(dlg, ValLnkCtl, pItem->Val.IntVal, OLW_CANINSERT, tag.LinkObjGrp, sacfDisableIfZeroSheet);
+			}
+			else {
 				SetupPPObjCombo(dlg, ValLnkCtl, tag.TagEnumID, pItem->Val.IntVal, OLW_CANINSERT, reinterpret_cast<void *>(tag.LinkObjGrp));
 			}
 			break;

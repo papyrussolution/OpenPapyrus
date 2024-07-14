@@ -143,7 +143,6 @@ int PPDrvSberTrmnl::Pay(double amount, SString & rSlip)
 {
 	OpLogBlock __oplb("Bnk_emul.log", "Pay", 0);
 	return 1;
-
 }
 
 /*virtual*/int PPDrvSberTrmnl::ProcessCommand(const SString & rCmd, const char * pInputData, SString & rOutput)

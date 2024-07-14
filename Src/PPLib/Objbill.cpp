@@ -1836,18 +1836,23 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 		}
 		if(pParam->QuotKindID)
 			pack.QuotKindID = pParam->QuotKindID;
-		if(pParam->Flags & SelAddBySampleParam::fRcptAllOnShipm) {
+		if(pParam->Flags & (SelAddBySampleParam::fRcptAllOnShipm|SelAddBySampleParam::fRcptDfctOnShipm)) { // @v12.0.7 SelAddBySampleParam::fRcptDfctOnShipm
 			Goods2Tbl::Rec goods_rec;
-			int is_there_limited_goods = 0;
+			bool is_there_limited_goods = false;
 			for(uint i = 0; !is_there_limited_goods && i < sample_pack.GetTCount(); i++) {
 				if(GObj.Fetch(sample_pack.ConstTI(i).GoodsID, &goods_rec) > 0 && !(goods_rec.Flags & GF_UNLIM))
-					is_there_limited_goods = 1;
+					is_there_limited_goods = true;
 			}
 			if(is_there_limited_goods) {
 				PPID   rcpt_op_id = GetReceiptOp();
 				PPOprKind rcpt_op_rec;
 				PPID   rcpt_ar_id = 0;
 				PPBillPacket::SetupObjectBlock rcpt_sob;
+				// @v12.0.7 {
+				const  double ignore_epsilon = BillCore::GetQttyEpsilon();
+				DateRange lot_period;
+				lot_period.Set(ZERODATE, pack.Rec.Dt);
+				// } @v12.0.7 
 				THROW_PP(rcpt_op_id, PPERR_UNDEFRECEIPTOP);
 				THROW(rcpt_bpack.CreateBlank(rcpt_op_id, 0, loc_id, 1));
 				GetOpData(rcpt_op_id, &rcpt_op_rec);
@@ -1864,35 +1869,45 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 				}
 				THROW(rcpt_bpack.SetupObject(rcpt_ar_id, rcpt_sob));
 				{
-					// @v11.1.12 SString memo_buf;
 					PPObjBill::MakeCodeString(&sample_pack.Rec, PPObjBill::mcsAddObjName, temp_buf);
-					// @v11.1.12 (memo_buf = "@autoreceipt").Space().Cat(temp_buf);
-					// @v11.1.12 STRNSCPY(rcpt_bpack.Rec.Memo, memo_buf);
 					(rcpt_bpack.SMemo = "@autoreceipt").Space().Cat(temp_buf); // @v11.1.12
 				}
 				for(uint i = 0; i < sample_pack.GetTCount(); i++) {
 					const PPTransferItem & r_src_ti = sample_pack.ConstTI(i);
 					if(GObj.Fetch(r_src_ti.GoodsID, &goods_rec) > 0 && !(goods_rec.Flags & GF_UNLIM)) {
+						const PPID goods_id = labs(r_src_ti.GoodsID);
 						PPTransferItem ti;
 						LongArray row_idx_list;
 						ti.Init(&rcpt_bpack.Rec, 0, 0);
-						THROW(ti.SetupGoods(labs(r_src_ti.GoodsID)));
-						ti.RByBill = r_src_ti.RByBill;
-						ti.Quantity_ = fabs(r_src_ti.Quantity_);
-						ti.Cost = (r_src_ti.Cost > 0.0) ? r_src_ti.Cost : r_src_ti.Price;
-						ti.Price = r_src_ti.Price;
-						ti.Expiry = r_src_ti.Expiry;
-						THROW(rcpt_bpack.InsertRow(&ti, &row_idx_list));
-						{
-							ObjTagList rcpt_row_tag_list;
-							assert(row_idx_list.getCount() == 1);
-							const uint ti_pos = row_idx_list.get(0);
-							if(sample_pack.LTagL.GetTagStr(i, PPTAG_LOT_SN, temp_buf) > 0)
-								rcpt_row_tag_list.PutItemStr(PPTAG_LOT_SN, temp_buf);
-							if(sample_pack.LTagL.GetTagStr(i, PPTAG_LOT_CLB, temp_buf) > 0)
-								rcpt_row_tag_list.PutItemStr(PPTAG_LOT_CLB, temp_buf);
-							rcpt_bpack.LTagL.Set(ti_pos, &rcpt_row_tag_list);
-							pos_to_src_lot_list.Add(static_cast<long>(i), ti_pos);
+						// @v12.0.7 {
+						const  double req_qtty = fabs(r_src_ti.Quantity_);
+						double deficit = 0.0;
+						if(pParam->Flags & SelAddBySampleParam::fRcptDfctOnShipm) {
+							double rest = 0.0;
+							THROW(trfr->GetAvailableGoodsRest(goods_id, loc_id, lot_period, ignore_epsilon, &rest));
+							if(rest < req_qtty)
+								deficit = (req_qtty - rest);
+						}
+						// } @v12.0.7
+						if(!(pParam->Flags & SelAddBySampleParam::fRcptDfctOnShipm) || deficit > 0.0) {
+							THROW(ti.SetupGoods(goods_id));
+							ti.RByBill = r_src_ti.RByBill;
+							ti.Quantity_ = (pParam->Flags & SelAddBySampleParam::fRcptDfctOnShipm) ? deficit : req_qtty;
+							ti.Cost = (r_src_ti.Cost > 0.0) ? r_src_ti.Cost : r_src_ti.Price;
+							ti.Price = r_src_ti.Price;
+							ti.Expiry = r_src_ti.Expiry;
+							THROW(rcpt_bpack.InsertRow(&ti, &row_idx_list));
+							{
+								ObjTagList rcpt_row_tag_list;
+								assert(row_idx_list.getCount() == 1);
+								const uint ti_pos = row_idx_list.get(0);
+								if(sample_pack.LTagL.GetTagStr(i, PPTAG_LOT_SN, temp_buf) > 0)
+									rcpt_row_tag_list.PutItemStr(PPTAG_LOT_SN, temp_buf);
+								if(sample_pack.LTagL.GetTagStr(i, PPTAG_LOT_CLB, temp_buf) > 0)
+									rcpt_row_tag_list.PutItemStr(PPTAG_LOT_CLB, temp_buf);
+								rcpt_bpack.LTagL.Set(ti_pos, &rcpt_row_tag_list);
+								pos_to_src_lot_list.Add(static_cast<long>(i), ti_pos);
+							}
 						}
 					}
 				}
@@ -1912,8 +1927,7 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 			}
 		}
 		{
-			// @v10.4.12 {
-			if(pParam->Flags & (pParam->fNonInteractive|pParam->fRcptAllOnShipm)) { // @v10.5.0
+			if(pParam->Flags & (SelAddBySampleParam::fNonInteractive|SelAddBySampleParam::fRcptAllOnShipm|SelAddBySampleParam::fRcptDfctOnShipm)) {
 				for(uint i = 0; i < sample_pack.GetTCount(); i++) {
 					PPID   src_lot_id = 0;
 					if(p_rcpt_bpack) {
@@ -1925,18 +1939,10 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 					THROW(InsertShipmentItemByOrder(&pack, &sample_pack, i, src_lot_id, 0 /*noninteractive*/));
 				}
 			}
-			// @v10.4.12 {
 			if(pParam->Flags & pParam->fNonInteractive) {
-#if 0  // @v10.4.12 {
-				for(uint i = 0; i < sample_pack.GetTCount(); i++) {
-					THROW(InsertShipmentItemByOrder(&pack, &sample_pack, i, 0/*srcLotID*/, 0 /*noninteractive*/));
-				}
-#endif // } 0 @v10.4.12
-				// @v10.4.12 @fix (странно что никто не пожаловался - документ не проводился) {
 				THROW(pack.InitAmounts());
 				THROW(FillTurnList(&pack));
 				THROW(TurnPacket(&pack, 1)); 
-				// } @v10.4.12
 			}
 			else {
 				res = Helper_EditGoodsBill(pBillID, &pack);
@@ -7810,8 +7816,7 @@ int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 	pPack->ErrCause = pPack->ErrLine = 0;
 	if(pPack->Rec.OpID) { // Для теневого документа не проверяем период доступа
 		THROW(ObjRts.CheckBillDate(pPack->Rec));
-		// @v10.2.3 THROW(ObjRts.CheckOpID(pPack->Rec.OpID, PPR_INS));
-		THROW(CheckRightsWithOp(pPack->Rec.OpID, PPR_INS)); // @v10.2.3
+		THROW(CheckRightsWithOp(pPack->Rec.OpID, PPR_INS));
 		if(pPack->OpTypeID == PPOPT_CORRECTION)
 			GetCorrectionBackChain(pPack->Rec, correction_exp_chain);
 	}
@@ -8702,6 +8707,7 @@ int PPObjBill::SetupSpecialAmounts(PPBillPacket * pPack)
 			//
 			PPObjAmountType at_obj;
 			StrAssocArray fa_list;
+			PPAmountType at_rec;
 			if(at_obj.GetFormulaList(&fa_list) > 0) {
 				PPIDArray op_at_list;
 				SString formula;
@@ -8710,9 +8716,22 @@ int PPObjBill::SetupSpecialAmounts(PPBillPacket * pPack)
 						const  PPID at_id = op_at_list.get(i);
 						if(fa_list.GetText(at_id, formula) > 0) {
 							double value = 0.0;
-							THROW(PPCalcExpression(formula, &value, pPack, pPack->Rec.CurID, 0));
-							pPack->Amounts.Put(at_id, pPack->Rec.CurID, value, 0, 1);
-							ok = 1;
+							if(at_obj.Fetch(at_id, &at_rec) > 0) {
+								// @v12.0.7 {
+								if(at_rec.Flags & PPAmountType2::fEachTrfrItemFormula) {
+									for(uint tiidx = 0; tiidx < pPack->GetTCount(); tiidx++) {
+										GdsClsCalcExprContext ctx(&pPack->TI(tiidx), pPack);
+										double local_value = 0.0;
+										THROW(PPCalcExpression(formula, &local_value, &ctx));
+										value += local_value;
+									}
+								}
+								else { // } @v12.0.7 
+									THROW(PPCalcExpression(formula, &value, pPack, pPack->Rec.CurID, 0));
+								}
+								pPack->Amounts.Put(at_id, pPack->Rec.CurID, value, 0, 1);
+								ok = 1;
+							}
 						}
 					}
 				}

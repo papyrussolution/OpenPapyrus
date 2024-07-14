@@ -140,7 +140,6 @@
 #include <ppdbs.h>
 #include <ppdefs.h>
 #include <ued.h>
-#include <ued-id.h>
 #include <report.h>
 #include <snet.h>
 #include <stylopalm.h>
@@ -1251,7 +1250,7 @@ struct GdsClsCalcExprContext {
 	//
 	GdsClsCalcExprContext(PPID goodsID, PPID prevGoodsID);
 	GdsClsCalcExprContext(const PPTransferItem * pTi, const PPBillPacket * pBillPack);
-	GdsClsCalcExprContext(const CCheckItem * pCi); // @v10.7.6
+	GdsClsCalcExprContext(const CCheckItem * pCi);
 	GdsClsCalcExprContext(const TSessLineTbl::Rec * pTslRec); // @v11.0.7
 
 	const  PPGdsClsPacket * P_GcPack;
@@ -1259,7 +1258,7 @@ struct GdsClsCalcExprContext {
 	const  PPGoodsStruc * P_GsPack;
 	const  PPBillPacket * P_BillPack;
 	const  PPTransferItem * P_Ti;
-	const  CCheckItem * P_Ci; // @v10.7.6
+	const  CCheckItem * P_Ci;
 	const  TSessLineTbl::Rec * P_TslRec; // @v11.0.7
 	const  ReceiptTbl::Rec * P_LotRec; // @v11.1.12
 	PPID   TSessID;
@@ -4399,6 +4398,7 @@ private:
 //
 // Стандарты штрихкодов
 // В квадратных скобках приведены коэффициенты печати широких и узких полос (Print ratio)
+// @v12.0.7 Определения перестроены таким образом, чтобы напрямую формироваться из UED-констант
 //
 #define BARCSTD_CODE11           UED::GetRawValue32(UED_BARCODESYMB_CODE11)/*1*/ // Code 11 (USD-8)                [2:1 - 3:1]
 #define BARCSTD_INTRLVD2OF5      UED::GetRawValue32(UED_BARCODESYMB_INTERLEAVED2OF5)/*2*/ // Interleaved 2 of 5             [2:1 - 3:1]
@@ -4413,21 +4413,21 @@ private:
 #define BARCSTD_IND2OF5         UED::GetRawValue32(UED_BARCODESYMB_IND2OF5)/*11*/ // Industial 2 of 5               [2:1 - 3:1]
 #define BARCSTD_STD2OF5         UED::GetRawValue32(UED_BARCODESYMB_STD2OF5)/*12*/ // Standard 2 of 5                [2:1 - 3:1]
 #define BARCSTD_ANSI            UED::GetRawValue32(UED_BARCODESYMB_ANSI)/*13*/ // ANSI Codabar (USD-4 & 2 of 7)  [2:1 - 3:1]
-#define BARCSTD_LOGMARS         14 // LOGMARS                        [2:1 - 3:1]
-#define BARCSTD_MSI             15 // MSI                            [2:1 - 3:1]
-#define BARCSTD_PLESSEY         16 // Plessey                        [2:1 - 3:1]
-#define BARCSTD_UPCEAN2EXT      17 // UPC/EAN Extensions 2           [Fixed]
-#define BARCSTD_UPCEAN5EXT      18 // UPC/EAN Extensions 5           [Fixed]
-#define BARCSTD_UPCA            19 // UPCA                           [Fixed]
-#define BARCSTD_POSTNET         20 // PostNet                        [Fixed]
-#define BARCSTD_QR              21 // QR-code
-#define BARCSTD_DATAMATRIX      22 // @v10.9.10 DataMatrix
-#define BARCSTD_AZTEC           23 // @v11.9.2
-#define BARCSTD_DATABAR         24 // @v11.9.2
-#define BARCSTD_MICROQR         25 // @v11.9.2 MicroQR-code
-#define BARCSTD_ITF             26 // @v11.9.2
-#define BARCSTD_MAXICODE        27 // @v11.9.2
-#define BARCSTD_RMQR            28 // @v11.9.2
+#define BARCSTD_LOGMARS         UED::GetRawValue32(UED_BARCODESYMB_LOGMARS)/*14*/ // LOGMARS                        [2:1 - 3:1]
+#define BARCSTD_MSI             UED::GetRawValue32(UED_BARCODESYMB_MSI)/*15*/ // MSI                            [2:1 - 3:1]
+#define BARCSTD_PLESSEY         UED::GetRawValue32(UED_BARCODESYMB_PLESSEY)/*16*/ // Plessey                        [2:1 - 3:1]
+#define BARCSTD_UPCEAN2EXT      UED::GetRawValue32(UED_BARCODESYMB_UPCEAN2EXT)/*17*/ // UPC/EAN Extensions 2           [Fixed]
+#define BARCSTD_UPCEAN5EXT      UED::GetRawValue32(UED_BARCODESYMB_UPCEAN5EXT)/*18*/ // UPC/EAN Extensions 5           [Fixed]
+#define BARCSTD_UPCA            UED::GetRawValue32(UED_BARCODESYMB_UPCA)/*19*/ // UPCA                           [Fixed]
+#define BARCSTD_POSTNET         UED::GetRawValue32(UED_BARCODESYMB_POSTNET)/*20*/ // PostNet                        [Fixed]
+#define BARCSTD_QR              UED::GetRawValue32(UED_BARCODESYMB_QR)/*21*/ // QR-code
+#define BARCSTD_DATAMATRIX      UED::GetRawValue32(UED_BARCODESYMB_DATAMATRIX)/*22*/ // @v10.9.10 DataMatrix
+#define BARCSTD_AZTEC           UED::GetRawValue32(UED_BARCODESYMB_AZTEC)/*23*/ // @v11.9.2
+#define BARCSTD_DATABAR         UED::GetRawValue32(UED_BARCODESYMB_DATABAR)/*24*/ // @v11.9.2
+#define BARCSTD_MICROQR         UED::GetRawValue32(UED_BARCODESYMB_MICROQR)/*25*/ // @v11.9.2 MicroQR-code
+#define BARCSTD_ITF             UED::GetRawValue32(UED_BARCODESYMB_ITF)/*26*/ // @v11.9.2
+#define BARCSTD_MAXICODE        UED::GetRawValue32(UED_BARCODESYMB_MAXICODE)/*27*/ // @v11.9.2
+#define BARCSTD_RMQR            UED::GetRawValue32(UED_BARCODESYMB_RMQR)/*28*/ // @v11.9.2
 //
 // Конфигурация справочника товаров
 // sizeof(PPGoodsConfig) == PROPRECFIXSIZE
@@ -4461,8 +4461,8 @@ private:
 #define GCF_XCHG_SENDALTGROUP            0x00200000L  // Передавать в другие разделы альтернативные группы (не динамические) с содержимым
 #define GCF_XCHG_SENDATTACHMENT          0x00400000L  // Передавать в другие разделы привязанные к товарам файлы (обычно, изображения)
 #define GCF_IGNOREFOLDERMATRIX           0x00800000L  // Игнорировать значения товарной матрицы, установленные для товарных групп верхнего уровня
-#define GCF_XCHG_RCVSTRUCFROMDDONLY      0x01000000L  // @v10.2.1 Принимать изменения товарных стуктур только из диспетчерского раздела
-#define GCF_BANSTRUCCDONDECOMPL          0x02000000L  // @v10.4.6 Запрет на общий множитель для декомплектующих структур
+#define GCF_XCHG_RCVSTRUCFROMDDONLY      0x01000000L  // Принимать изменения товарных стуктур только из диспетчерского раздела
+#define GCF_BANSTRUCCDONDECOMPL          0x02000000L  // Запрет на общий множитель для декомплектующих структур
 #define GCF_XCHG_DONTRCVQUOTS            0x04000000L  // @v11.3.3 Не принимать котировки из другого раздела
 
 struct PPGoodsConfig { // @persistent @store(PropertyTbl)
@@ -10946,7 +10946,7 @@ struct ILTI { // @persistent(DBX) @size=80
 	//   полей Qtty и Rest (see ARG(qtty))
 	//
 	void   SetQtty(double qtty, double wtQtty = 0.0, long flags = 0);
-	int    HasDeficit() const;
+	bool   HasDeficit() const;
 
 	PPID   BillID;      // ->Bill.ID   Ссылка на заголок документа
 	PPID   GoodsID;     // ->Goods2.ID ИД товара
@@ -12094,7 +12094,7 @@ public:
 	//
 	void   SetLots(const PPTrfrArray & rS);
 	bool   FASTCALL SearchTI(int rByBill, uint * pPos) const;
-	int    UsesDistribCost() const;
+	bool   UsesDistribCost() const;
 	//
 	// Descr: заносит элемент pItem в список товарных строк документа
 	// ARG(pItem   IN): @#{ptr} указатель на элемент для вставки в список
@@ -18877,32 +18877,33 @@ struct PPAmountType2 {     // @persistent @store(Reference2Tbl+)
 	bool   IsTax(PPID taxID  /* GTAX_XXX */) const;
 	bool   IsComplementary() const;
 	enum {
-		fErrOnDefault = 0x0001, // Если сумма в документе отсутствует, то генерировать сообщение об ошибке
-		fManual       = 0x0002, // Сумма может быть введена в ручную.
+		fErrOnDefault        = 0x0001, // Если сумма в документе отсутствует, то генерировать сообщение об ошибке
+		fManual              = 0x0002, // Сумма может быть введена в ручную.
 			// Если флаг установлен, то допускается ручной ввод суммы.
 			// Если нет, то сумма расчитывается автоматически по содержанию
 			// документа. Исключение - номинальная сумма (PPAMT_MAIN).
 			// Она может быть как автоматической так и устанавливаемой в
 			// ручную в зависимости от вида операции.
-		fTax  = 0x0004, // Сумма налога. Если этот флаг установлен,
+		fTax                 = 0x0004, // Сумма налога. Если этот флаг установлен,
 			// то значение суммы отражает сумму налога Tax со ставкой (TaxRate*100) %,
 			// которым облагается данная операция.
 		//
 		// Назначение следующих трех флагов в том, чтобы можно было быстро определить итоговые
 		// обобщенные суммы GenCost, GenPrice, GenDiscount по товарному документу.
 		//
-		fReplaceCost     = 0x0010, // Замещает сумму в ценах поступления (Cost)
-		fReplacePrice    = 0x0020, // Замещает сумму в ценах реализациия (Price)
-		fReplaceDiscount = 0x0040, // Замещает скидку (Discount) @#{fReplaceCost^fReplacePrice^fReplaceDiscount}
-		fInAmount        = 0x0080, // Входящая сумма, комплементарная сумме RefAmtTypeID
-		fOutAmount       = 0x0100, // Исходящая сумма, комплементарная сумме RefAmtTypeID @#{fTax^fInAmount^fOutAmount}
-		fReplaces        = (fReplaceCost | fReplacePrice | fReplaceDiscount),
-		fStaffAmount     = 0x0200, // Штатная сумма (используется для расчета зарплаты)
-		fFormula = 0x0400, // С суммой ассоциирована формула.
-			// Если такая сумма определена в виде операции, то для документа
-			// значение этой суммы автоматически рассчитывается по указанной формуле.
-		fDistribCost     = 0x0800, // Распределять сумму на себестоимость строк товарного документа.
-		fDcNeg   = 0x1000  // На себестоимость строк документа распределяется отрицательное значение суммы (уменьшает себестоимость).
+		fReplaceCost         = 0x0010, // Замещает сумму в ценах поступления (Cost)
+		fReplacePrice        = 0x0020, // Замещает сумму в ценах реализациия (Price)
+		fReplaceDiscount     = 0x0040, // Замещает скидку (Discount) @#{fReplaceCost^fReplacePrice^fReplaceDiscount}
+		fInAmount            = 0x0080, // Входящая сумма, комплементарная сумме RefAmtTypeID
+		fOutAmount           = 0x0100, // Исходящая сумма, комплементарная сумме RefAmtTypeID @#{fTax^fInAmount^fOutAmount}
+		fReplaces            = (fReplaceCost | fReplacePrice | fReplaceDiscount),
+		fStaffAmount         = 0x0200, // Штатная сумма (используется для расчета зарплаты)
+		fFormula             = 0x0400, // С суммой ассоциирована формула.
+			// Если такая сумма определена в виде операции, то для документа значение этой суммы автоматически рассчитывается по указанной формуле.
+		fDistribCost         = 0x0800, // Распределять сумму на себестоимость строк товарного документа.
+		fDcNeg               = 0x1000, // На себестоимость строк документа распределяется отрицательное значение суммы (уменьшает себестоимость).
+		fEachTrfrItemFormula = 0x2000  // @v12.0.7 Если установлен, то формула суммы применяется к каждой товарной строке документа по-отдельности.
+			// Флаг имеет смысл только если установлен флаг fFormula. 
 	};
 	long   Tag;            // Const=PPOBJ_AMOUNTTYPE
 	long   ID;             // @id
@@ -18924,6 +18925,10 @@ struct PPAmountTypePacket {
 	int    FASTCALL IsEq(const PPAmountTypePacket & rS) const;
 
 	PPAmountType Rec;
+	//
+	// Замечание по использованию поля Formula:
+	//   Функция PPObjBill::SetupSpecialAmounts ...
+	//
 	SString Formula;
 };
 
@@ -24025,6 +24030,10 @@ private:
 #define GTF_GMARKED        0x00008000L // Товары этого типа имеют государственную маркировку
 #define GTF_EXCISEPROFORMA 0x00010000L // @v11.7.10 Товары этого типа формально подакцизные (предприятие, ведущее учет, акциз не рассчитывает, 
 	// но передает специальную информацию о продаже таких товаров в надзорные органы)
+#define GTF_EGAISAUTOWO    0x00020000L // @v12.0.7 Специальная опция, позволяющая автоматически определять марки егаис для списания при проведении
+	// кассового чека с товаром, имеющим тип с таким флагом. Сам товар может не идентифицироваться как алкогольный, но если он имеет комплектующую 
+	// товарную структуру, в которую входят алкогольные товары с марками, то формируется специальная алгоритмическая структура для списания долей этих товаров
+	// через егаис (see EgaisMarkAutoSelect)
 
 #define GTCHZNPT_UNKN              -1 // @v11.5.0 Специальное интерфейсное значение, используемое для обозначения того, что товар маркируемый, но категория в терминах честного знака не ясна
 #define GTCHZNPT_UNDEF              0
@@ -24967,9 +24976,9 @@ struct PPQuotKind2 { // @flat @persistent @store(Reference2Tbl+)
 	PPID   ID;             // @id
 	char   Name[48];       // @name
 	char   Symb[20];       //
-	char   Reserve[14];    // @reserve // @v10.9.10 [24]-->[14]
-	double RoundingPrec;   // @v10.9.10 (Flags & QUOTKF_USEROUNDING) Точность округления
-	int16  RoundingDir;    // @v10.9.10 (Flags & QUOTKF_USEROUNDING) Направление округления (-1 down, +1 up, 0 nearest)
+	char   Reserve[14];    // @reserve
+	double RoundingPrec;   // (Flags & QUOTKF_USEROUNDING) Точность округления
+	int16  RoundingDir;    // (Flags & QUOTKF_USEROUNDING) Направление округления (-1 down, +1 up, 0 nearest)
 	int16  SerialTerm;     // Ограничение на количество хранимых значений
 	int16  Reserve2;       // @alignment
 	IntRange AmtRestr;     // Диапазон суммы покупки, при которой действует этот вид котировки
@@ -30370,10 +30379,10 @@ public:
 		PPID   ArID;
 		PPID   CurID;
 		PPID   LotID; // @v11.1.12
-		long   Flags; // @v10.7.3
+		long   Flags; // 
 		double Qtty;
-		double Cost;  // @v10.7.3
-		double Price; // @v10.7.3
+		double Cost;  //
+		double Price; //
 		ReceiptCore::LotDimensions LotDim;
 	};
 	enum {
@@ -33546,11 +33555,12 @@ typedef TSCollection <PPGPaymentOrder> PPGPaymentOrderList;
 struct SelAddBySampleParam {
 	SelAddBySampleParam();
 	enum {
-		fCopyBillCode   = 0x0001,
-		fNonInteractive = 0x0002,
-		fAll            = 0x0004, // Сформировать документы для всей выборки (только если выборка по
+		fCopyBillCode    = 0x0001,
+		fNonInteractive  = 0x0002,
+		fAll             = 0x0004, // Сформировать документы для всей выборки (только если выборка по
 			// одному виду операции). Автоматически предполагате fNonInteractive
-		fRcptAllOnShipm = 0x0008  // При формировании отгрузки по заказу весь заказанный товар безусловно оприходовать.
+		fRcptAllOnShipm  = 0x0008, // При формировании отгрузки по заказу ВЕСЬ заказанный товар безусловно оприходовать.
+		fRcptDfctOnShipm = 0x0010, // @v12.0.7 При формировании отгрузки по заказу НЕДОСТАЮЩИЙ заказанный товар безусловно оприходовать.
 	};
 	enum {
 		acnUndef               = -1, // Не определено
@@ -53698,7 +53708,7 @@ struct TagDlgParam {
 	uint   ValImgCtl;
 	uint   ValIntCtl; // @v11.8.12
 private:
-	ObjTagFilt LinkTagFilt; // @v10.9.4 Для установки фильтра ссылочных тегов
+	ObjTagFilt LinkTagFilt; // Для установки фильтра ссылочных тегов
 };
 //
 //
@@ -53742,7 +53752,7 @@ protected:
 	int    getText(long itemN /* 0.. */, SString & rBuf);
 
 	uint   CtlList;
-	uint   ContextMenuID; // @v10.8.11
+	uint   ContextMenuID;
 	enum {
 		oHasOkButton   = 0x0001,
 		oHasEditButton = 0x0002,
@@ -54993,6 +55003,7 @@ private:
 	//    0 - ошибка
 	//
 	int    ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rChZnBuf);
+	int    EgaisMarkAutoSelect(PPID goodsID, double qtty, SString & rMarkBuf); // @v12.0.7
 
 	ExtGoodsSelDialog * P_EGSDlg;
 	long   AutoInputTolerance; // Мин среднее время (ms) между вводом символом, ниже которого считается, что данные были введены автоматическим средством ввода (напр. сканером штрихкодов)

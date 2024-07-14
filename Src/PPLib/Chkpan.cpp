@@ -251,7 +251,7 @@ void CPosProcessor::Packet::ClearCur()
 int CPosProcessor::Packet::ClearGift()
 {
 	int    ok = -1;
-	uint c = getCount();
+	uint   c = getCount();
 	if(c) do {
 		--c;
 		CCheckItem & r_item = at(c);
@@ -3991,7 +3991,7 @@ int CheckPaneDialog::ConfirmPosPaymBank(PosPaymentBlock & rPpl)
 			}
 			setCtrlReal(CTL_POSPAYMBNK_AMOUNT, Data.AmtToPaym);
 			// @v12.0.6 {
-			AddClusterAssoc(CTL_POSPAYMBNK_CLBPEQ, 0, Data.Flags & PosPaymentBlock::fCashlessBypassEq);
+			AddClusterAssoc(CTL_POSPAYMBNK_CLBPEQ, 0, PosPaymentBlock::fCashlessBypassEq);
 			SetClusterData(CTL_POSPAYMBNK_CLBPEQ, Data.Flags);
 			showCtrl(CTL_POSPAYMBNK_CLBPEQ, (Data.Flags & PosPaymentBlock::fCashlessBypassEqEnabled));
 			// } @v12.0.6 
@@ -9073,6 +9073,39 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 //
 //
 //
+int CheckPaneDialog::EgaisMarkAutoSelect(PPID goodsID, double qtty, SString & rMarkBuf) // @v12.0.7 @construction
+{
+	rMarkBuf.Z();
+	int    ok = -1;
+	Goods2Tbl::Rec goods_rec; // запись основного товара (который непосредственно продается)
+	Goods2Tbl::Rec org_goods_rec; // запись оригинального товара (из которого был произведен основной товар)
+	if(qtty != 0.0 && GObj.Fetch(goodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
+		PPGoodsType gt_rec;
+		if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_EGAISAUTOWO) {
+			PPObjUnit unit_obj;
+			double main_goods_liter_ratio = 0.0;
+			if(goods_rec.PhUnitID && goods_rec.PhUPerU > 0.0) {
+				unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_LITER, &main_goods_liter_ratio);
+				main_goods_liter_ratio *= goods_rec.PhUPerU;
+			}
+			else {
+				unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &main_goods_liter_ratio);
+			}
+			if(main_goods_liter_ratio > 0.0) {
+				PPGoodsStruc::Ident gsi(goodsID, GSF_COMPL, GSF_PARTITIAL);
+				TSCollection <PPGoodsStruc> gs_list;
+				GObj.LoadGoodsStruc(gsi, gs_list);
+				for(uint gsidx = 0; !ok && gsidx < gs_list.getCount(); gsidx++) {
+					const PPGoodsStruc * p_gs = gs_list.at(gsidx);
+					if(p_gs) {
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int CheckPaneDialog::ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rChZnBuf)
 {
 	rChZnBuf.Z();
@@ -9080,116 +9113,113 @@ int CheckPaneDialog::ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rCh
 	SString temp_buf;
 	Goods2Tbl::Rec goods_rec; // запись основного товара (который непосредственно продается)
 	Goods2Tbl::Rec org_goods_rec; // запись оригинального товара (из которого был произведен основной товар)
-	if(qtty != 0.0 && GObj.Fetch(goodsID, &goods_rec) > 0)	{
+	if(qtty != 0.0 && GObj.Fetch(goodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID)	{
 		PPGoodsType gt_rec;
-		if(goods_rec.GoodsTypeID && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.ChZnProdType) {
-			//if(oneof2(gt_rec.ChZnProdType, GTCHZNPT_DRAFTBEER, GTCHZNPT_DRAFTBEER_AWR)) {
-			if(gt_rec.ChZnProdType == GTCHZNPT_DRAFTBEER_AWR) {
-				PPID   org_goods_id = 0;
-				PPObjUnit unit_obj;
-				double main_goods_liter_ratio = 0.0;
-				double org_goods_liter_ratio = 0.0;
-				double main_goods_kg_ratio = 0.0;
-				double org_goods_kg_ratio = 0.0;
-				if(goods_rec.PhUnitID && goods_rec.PhUPerU > 0.0) {
-					unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_LITER, &main_goods_liter_ratio);
-					unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_KILOGRAM, &main_goods_kg_ratio);
-					assert(!((main_goods_liter_ratio != 0.0) && (main_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
-					main_goods_liter_ratio *= goods_rec.PhUPerU;
-					main_goods_kg_ratio *= goods_rec.PhUPerU;
+		if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.ChZnProdType == GTCHZNPT_DRAFTBEER_AWR) {
+			PPID   org_goods_id = 0;
+			PPObjUnit unit_obj;
+			double main_goods_liter_ratio = 0.0;
+			double org_goods_liter_ratio = 0.0;
+			double main_goods_kg_ratio = 0.0;
+			double org_goods_kg_ratio = 0.0;
+			if(goods_rec.PhUnitID && goods_rec.PhUPerU > 0.0) {
+				unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_LITER, &main_goods_liter_ratio);
+				unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_KILOGRAM, &main_goods_kg_ratio);
+				assert(!((main_goods_liter_ratio != 0.0) && (main_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
+				main_goods_liter_ratio *= goods_rec.PhUPerU;
+				main_goods_kg_ratio *= goods_rec.PhUPerU;
+			}
+			else {
+				unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &main_goods_liter_ratio);
+				unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_KILOGRAM, &main_goods_kg_ratio);
+				assert(!((main_goods_liter_ratio != 0.0) && (main_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
+			}
+			if(main_goods_liter_ratio <= 0.0 && main_goods_kg_ratio <= 0.0) {
+				// @todo Тут надо что-то в лог вывести
+			}
+			else if(!GObj.GetOriginalRawGoodsByStruc(goodsID, &org_goods_id) || GObj.Fetch(org_goods_id, &org_goods_rec) <= 0) {
+				// @todo Тут надо что-то в лог вывести
+			}
+			else {
+				if(org_goods_rec.PhUnitID && org_goods_rec.PhUPerU > 0.0) {
+					unit_obj.TranslateToBase(org_goods_rec.PhUnitID, SUOM_LITER, &org_goods_liter_ratio);
+					unit_obj.TranslateToBase(org_goods_rec.PhUnitID, SUOM_KILOGRAM, &org_goods_kg_ratio);
+					assert(!((org_goods_liter_ratio != 0.0) && (org_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
+					org_goods_liter_ratio *= org_goods_rec.PhUPerU;
+					org_goods_kg_ratio *= org_goods_rec.PhUPerU;
 				}
 				else {
-					unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &main_goods_liter_ratio);
-					unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_KILOGRAM, &main_goods_kg_ratio);
-					assert(!((main_goods_liter_ratio != 0.0) && (main_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
+					unit_obj.TranslateToBase(org_goods_rec.UnitID, SUOM_LITER, &org_goods_liter_ratio);
+					unit_obj.TranslateToBase(org_goods_rec.UnitID, SUOM_KILOGRAM, &org_goods_kg_ratio);
 				}
-				if(main_goods_liter_ratio <= 0.0 && main_goods_kg_ratio <= 0.0) {
-					// @todo Тут надо что-то в лог вывести
+				PPID   base_unit_id = 0;
+				if(main_goods_liter_ratio > 0.0 && org_goods_liter_ratio > 0.0) {
+					base_unit_id = SUOM_LITER;
 				}
-				else if(!GObj.GetOriginalRawGoodsByStruc(goodsID, &org_goods_id) || GObj.Fetch(org_goods_id, &org_goods_rec) <= 0) {
+				else if(main_goods_kg_ratio > 0.0 && org_goods_kg_ratio > 0.0) {
+					base_unit_id = SUOM_KILOGRAM;
+				}
+				if(!base_unit_id) {
 					// @todo Тут надо что-то в лог вывести
 				}
 				else {
-					if(org_goods_rec.PhUnitID && org_goods_rec.PhUPerU > 0.0) {
-						unit_obj.TranslateToBase(org_goods_rec.PhUnitID, SUOM_LITER, &org_goods_liter_ratio);
-						unit_obj.TranslateToBase(org_goods_rec.PhUnitID, SUOM_KILOGRAM, &org_goods_kg_ratio);
-						assert(!((org_goods_liter_ratio != 0.0) && (org_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
-						org_goods_liter_ratio *= org_goods_rec.PhUPerU;
-						org_goods_kg_ratio *= org_goods_rec.PhUPerU;
-					}
-					else {
-						unit_obj.TranslateToBase(org_goods_rec.UnitID, SUOM_LITER, &org_goods_liter_ratio);
-						unit_obj.TranslateToBase(org_goods_rec.UnitID, SUOM_KILOGRAM, &org_goods_kg_ratio);
-					}
-					PPID   base_unit_id = 0;
-					if(main_goods_liter_ratio > 0.0 && org_goods_liter_ratio > 0.0) {
-						base_unit_id = SUOM_LITER;
-					}
-					else if(main_goods_kg_ratio > 0.0 && org_goods_kg_ratio > 0.0) {
-						base_unit_id = SUOM_KILOGRAM;
-					}
-					if(!base_unit_id) {
+					PPObjBill * p_bobj = BillObj;
+					LotExtCodeCore * p_lotxct = p_bobj->P_LotXcT;
+					if(!p_lotxct) {
 						// @todo Тут надо что-то в лог вывести
 					}
 					else {
-						PPObjBill * p_bobj = BillObj;
-						LotExtCodeCore * p_lotxct = p_bobj->P_LotXcT;
-						if(!p_lotxct) {
+						Transfer * p_trfr = p_bobj->trfr;
+						LotArray lot_list;
+						StringSet ss_ext_codes;
+						TSCollection <CCheckCore::ListByMarkEntry> lbm;
+						p_trfr->Rcpt.GetList(org_goods_id, 0, 0, ZERODATE, ReceiptCore::glfWithExtCodeOnly, &lot_list);
+						if(!lot_list.getCount()) {
 							// @todo Тут надо что-то в лог вывести
 						}
 						else {
-							Transfer * p_trfr = p_bobj->trfr;
-							LotArray lot_list;
-							StringSet ss_ext_codes;
-							TSCollection <CCheckCore::ListByMarkEntry> lbm;
-							p_trfr->Rcpt.GetList(org_goods_id, 0, 0, ZERODATE, ReceiptCore::glfWithExtCodeOnly, &lot_list);
-							if(!lot_list.getCount()) {
-								// @todo Тут надо что-то в лог вывести
-							}
-							else {
-								for(uint i = 0; i < lot_list.getCount(); i++) {
-									const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
-									if(p_bobj->GetMarkListByLot(r_lot_rec.ID, ss_ext_codes) > 0) {
-										for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
-											//int    Helper_GetListByMark2(TSCollection <ListByMarkEntry> & rList, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId); // @v12.0.5
-											//Cc.Helper_GetListByMark2()
-											CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.CreateNewItem();
-											p_lbm_entry->OrgLotID = r_lot_rec.ID;
-											p_lbm_entry->OrgLotDate = r_lot_rec.Dt;
-											p_lbm_entry->OrgLotQtty = r_lot_rec.Quantity;
-											STRNSCPY(p_lbm_entry->Mark, temp_buf);
-										}
+							for(uint i = 0; i < lot_list.getCount(); i++) {
+								const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
+								if(p_bobj->GetMarkListByLot(r_lot_rec.ID, ss_ext_codes) > 0) {
+									for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
+										//int    Helper_GetListByMark2(TSCollection <ListByMarkEntry> & rList, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId); // @v12.0.5
+										//Cc.Helper_GetListByMark2()
+										CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.CreateNewItem();
+										p_lbm_entry->OrgLotID = r_lot_rec.ID;
+										p_lbm_entry->OrgLotDate = r_lot_rec.Dt;
+										p_lbm_entry->OrgLotQtty = r_lot_rec.Quantity;
+										STRNSCPY(p_lbm_entry->Mark, temp_buf);
 									}
 								}
-								const uint back_days = PPObjCSession::GetCcListByMarkBackDays(lbm);
-								LAssocArray index;
-								LAssocArray * p_index = CsObj.FetchCcDate2MaxIdIndex(index) ? &index : 0;
-								GetCc().Helper_GetListByMark2(lbm, CCheckPacket::lnextChZnMark, p_index, back_days, 0);
-								{
-									double _local_qtty = 0.0;
-									if(base_unit_id == SUOM_LITER) {
-										_local_qtty = qtty * main_goods_liter_ratio;
-									}
-									else if(base_unit_id == SUOM_KILOGRAM) {
-										_local_qtty = qtty * main_goods_kg_ratio;
-									}
-									assert(_local_qtty != 0.0); // Выше мы проверили что qtty != 0.0 && (main_goods_liter_ratio > 0.0 || main_goods_kg_ratio > 0)
-									for(uint i = 0; ok < 0 && i < lbm.getCount(); i++) {
-										const CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.at(i);
-										if(p_lbm_entry) {
-											double rest = 1.0; // Независимо от того сколько пришло единиц по лоту, одна марка представляет одну торговую единицу!
-											if(base_unit_id == SUOM_LITER) {
-												rest = (rest * org_goods_liter_ratio) - (p_lbm_entry->TotalOpQtty * main_goods_liter_ratio);
-											}
-											else if(base_unit_id = SUOM_KILOGRAM) {
-												rest = (rest * org_goods_kg_ratio) - (p_lbm_entry->TotalOpQtty * main_goods_kg_ratio);
-											}
-											assert(ok < 0); // мы не должны сюда попасть если ok > 0 (это - на случай, если ok инициализирована не верно либо еще где-то мы что-то не так сделали)
-											if(rest >= _local_qtty) {
-												// SUCCESS! Мы нашли марку, остаток по которой в физических единицах достаточен для продажи. Из цикла мы выскочим по условию (ok < 0)
-												rChZnBuf = p_lbm_entry->Mark; 
-												ok = 1;	
-											}
+							}
+							const uint back_days = PPObjCSession::GetCcListByMarkBackDays(lbm);
+							LAssocArray index;
+							LAssocArray * p_index = CsObj.FetchCcDate2MaxIdIndex(index) ? &index : 0;
+							GetCc().Helper_GetListByMark2(lbm, CCheckPacket::lnextChZnMark, p_index, back_days, 0);
+							{
+								double _local_qtty = 0.0;
+								if(base_unit_id == SUOM_LITER) {
+									_local_qtty = qtty * main_goods_liter_ratio;
+								}
+								else if(base_unit_id == SUOM_KILOGRAM) {
+									_local_qtty = qtty * main_goods_kg_ratio;
+								}
+								assert(_local_qtty != 0.0); // Выше мы проверили что qtty != 0.0 && (main_goods_liter_ratio > 0.0 || main_goods_kg_ratio > 0)
+								for(uint i = 0; ok < 0 && i < lbm.getCount(); i++) {
+									const CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.at(i);
+									if(p_lbm_entry) {
+										double rest = 1.0; // Независимо от того сколько пришло единиц по лоту, одна марка представляет одну торговую единицу!
+										if(base_unit_id == SUOM_LITER) {
+											rest = (rest * org_goods_liter_ratio) - (p_lbm_entry->TotalOpQtty * main_goods_liter_ratio);
+										}
+										else if(base_unit_id = SUOM_KILOGRAM) {
+											rest = (rest * org_goods_kg_ratio) - (p_lbm_entry->TotalOpQtty * main_goods_kg_ratio);
+										}
+										assert(ok < 0); // мы не должны сюда попасть если ok > 0 (это - на случай, если ok инициализирована не верно либо еще где-то мы что-то не так сделали)
+										if(rest >= _local_qtty) {
+											// SUCCESS! Мы нашли марку, остаток по которой в физических единицах достаточен для продажи. Из цикла мы выскочим по условию (ok < 0)
+											rChZnBuf = p_lbm_entry->Mark; 
+											ok = 1;	
 										}
 									}
 								}

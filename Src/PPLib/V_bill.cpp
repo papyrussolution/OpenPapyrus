@@ -3457,14 +3457,15 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 4, SelAddBySampleParam::acnDraftRcpByOrder);
 			SetClusterData(CTL_SELBBSMPL_WHAT, Data.Action);
 			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 0, SelAddBySampleParam::fCopyBillCode);
-			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 1, SelAddBySampleParam::fNonInteractive); // @v10.0.02
-			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 2, SelAddBySampleParam::fAll); // @v10.0.02
-			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 3, SelAddBySampleParam::fRcptAllOnShipm); // @v10.4.12
+			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 1, SelAddBySampleParam::fNonInteractive);
+			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 2, SelAddBySampleParam::fAll);
+			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 3, SelAddBySampleParam::fRcptAllOnShipm);
+			AddClusterAssoc(CTL_SELBBSMPL_FLAGS, 4, SelAddBySampleParam::fRcptDfctOnShipm); // @v12.0.7
 			SetClusterData(CTL_SELBBSMPL_FLAGS, Data.Flags);
-			DisableClusterItem(CTL_SELBBSMPL_FLAGS, 2, !AllowBulkMode || Data.Action == SelAddBySampleParam::acnStd); // @v10.0.02
+			DisableClusterItem(CTL_SELBBSMPL_FLAGS, 2, !AllowBulkMode || Data.Action == SelAddBySampleParam::acnStd);
 			SetupPPObjCombo(this, CTLSEL_SELBBSMPL_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
-			SetupPPObjCombo(this, CTLSEL_SELBBSMPL_QK, PPOBJ_QUOTKIND, Data.QuotKindID, 0, 0); // @v10.0.02
-			setCtrlDate(CTL_SELBBSMPL_DT, Data.Dt); // @v10.0.02
+			SetupPPObjCombo(this, CTLSEL_SELBBSMPL_QK, PPOBJ_QUOTKIND, Data.QuotKindID, 0, 0);
+			setCtrlDate(CTL_SELBBSMPL_DT, Data.Dt);
 			SetupOpCombo();
 			restoreFlags();
 			return 1;
@@ -3476,8 +3477,8 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 			GetClusterData(CTL_SELBBSMPL_SAMECODE, &Data.Flags);
 			getCtrlData(CTLSEL_SELBBSMPL_LOC, &Data.LocID);
 			getCtrlData(CTLSEL_SELBBSMPL_OP, &Data.OpID);
-			getCtrlData(CTLSEL_SELBBSMPL_QK, &Data.QuotKindID); // @v10.0.02
-			Data.Dt = getCtrlDate(CTL_SELBBSMPL_DT); // @v10.0.02
+			getCtrlData(CTLSEL_SELBBSMPL_QK, &Data.QuotKindID);
+			Data.Dt = getCtrlDate(CTL_SELBBSMPL_DT);
 			if(oneof4(Data.Action, SelAddBySampleParam::acnShipmByOrder, SelAddBySampleParam::acnDraftExpByOrder,
 				SelAddBySampleParam::acnDraftExpRestByOrder, SelAddBySampleParam::acnDraftRcpByOrder)) {
 				if(Data.OpID == 0)
@@ -3498,9 +3499,20 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 			int    process_reg = 0;
 			if(event.isClusterClk(CTL_SELBBSMPL_WHAT)) {
 				SetupOpCombo();
-				DisableClusterItem(CTL_SELBBSMPL_FLAGS, 2, !AllowBulkMode || Data.Action == SelAddBySampleParam::acnStd); // @v10.0.02
-				DisableClusterItem(CTL_SELBBSMPL_FLAGS, 3, !(Data.Action == SelAddBySampleParam::acnShipmByOrder)); // @v10.4.12
+				DisableClusterItem(CTL_SELBBSMPL_FLAGS, 2, !AllowBulkMode || Data.Action == SelAddBySampleParam::acnStd);
+				DisableClusterItem(CTL_SELBBSMPL_FLAGS, 3, !(Data.Action == SelAddBySampleParam::acnShipmByOrder));
+				DisableClusterItem(CTL_SELBBSMPL_FLAGS, 4, !(Data.Action == SelAddBySampleParam::acnShipmByOrder)); // @v12.0.7
 				process_reg = 1;
+				clearEvent(event);
+			}
+			if(event.isClusterClk(CTL_SELBBSMPL_FLAGS)) { // @v12.0.7
+				const long preserve_flags = Data.Flags;
+				GetClusterData(CTL_SELBBSMPL_FLAGS, &Data.Flags);
+				if((Data.Flags & SelAddBySampleParam::fRcptAllOnShipm) && !(preserve_flags & SelAddBySampleParam::fRcptAllOnShipm))
+					Data.Flags &= ~SelAddBySampleParam::fRcptDfctOnShipm;
+				else if((Data.Flags & SelAddBySampleParam::fRcptDfctOnShipm) && !(preserve_flags & SelAddBySampleParam::fRcptDfctOnShipm))
+					Data.Flags &= ~SelAddBySampleParam::fRcptAllOnShipm;
+				SetClusterData(CTL_SELBBSMPL_FLAGS, Data.Flags);
 				clearEvent(event);
 			}
 			else if(event.isCbSelected(CTLSEL_SELBBSMPL_OP)) {
@@ -3526,7 +3538,7 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 			long   flags = 0;
 			GetClusterData(CTL_SELBBSMPL_SAMECODE, &flags);
 			(param = WrParam_StoreFlags).CatChar('-').Cat(Data.OpID).CatChar('-').Cat(Data.Action);
-			val.Z().Cat(flags & (SelAddBySampleParam::fCopyBillCode|SelAddBySampleParam::fRcptAllOnShipm)); // @v10.5.0 SelAddBySampleParam::fRcptAllOnShipm
+			val.Z().Cat(flags & (SelAddBySampleParam::fCopyBillCode|SelAddBySampleParam::fRcptAllOnShipm|SelAddBySampleParam::fRcptDfctOnShipm));
 			reg_key.PutString(param, val);
 		}
 		void   restoreFlags()
@@ -3538,13 +3550,13 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 			long   action = 0;
 			GetClusterData(CTL_SELBBSMPL_WHAT, &action);
 			(param = WrParam_StoreFlags).CatChar('-').Cat(op_id).CatChar('-').Cat(action);
-			long   flags = 0;
 			if(reg_key.GetString(param, temp_buf)) {
 				long rf = satoi(temp_buf);
-				SETFLAGBYSAMPLE(flags, SelAddBySampleParam::fCopyBillCode, rf);
-				SETFLAGBYSAMPLE(flags, SelAddBySampleParam::fRcptAllOnShipm, rf); // @v10.5.0
+				SETFLAGBYSAMPLE(Data.Flags, SelAddBySampleParam::fCopyBillCode, rf);
+				SETFLAGBYSAMPLE(Data.Flags, SelAddBySampleParam::fRcptAllOnShipm, rf);
+				SETFLAGBYSAMPLE(Data.Flags, SelAddBySampleParam::fRcptDfctOnShipm, rf); // @v12.0.7
 			}
-			SetClusterData(CTL_SELBBSMPL_SAMECODE, flags);
+			SetClusterData(CTL_SELBBSMPL_SAMECODE, Data.Flags);
 		}
 		void   SetupOpCombo()
 		{
@@ -3645,7 +3657,7 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 								PPWaitStart();
 								for(uint i = 0; i < bill_id_list.getCount(); i++) {
 									const  PPID sample_bill_id = bill_id_list.get(i);
-									const int  local_result = P_BObj->AddExpendByOrder(&bill_id, sample_bill_id, &param); // @v10.4.12 sampleBillID-->sample_bill_id
+									const int  local_result = P_BObj->AddExpendByOrder(&bill_id, sample_bill_id, &param);
 									if(!local_result)
 										logger.LogLastError();
 									else if(local_result == cmOK) {

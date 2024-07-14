@@ -4018,10 +4018,7 @@ void PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 	}
 }
 
-int PPBillPacket::UsesDistribCost() const
-{
-	return BIN(OpTypeID == PPOPT_GOODSRECEIPT && CConfig.Flags & CCFLG_USEDISTRIBCOST);
-}
+bool PPBillPacket::UsesDistribCost() const { return (OpTypeID == PPOPT_GOODSRECEIPT && CConfig.Flags & CCFLG_USEDISTRIBCOST); }
 
 int PPBillPacket::DistributeExtCost()
 {
@@ -4157,7 +4154,7 @@ int FASTCALL PPBillPacket::InitAmounts(const AmtList * pList)
 			else if(OpTypeID == PPOPT_ACCTURN && subop == OPSUBT_POSCORRECTION && oneof3(atyp, PPAMT_CS_CASH, PPAMT_CS_BANK, PPAMT_CS_CSCARD)) // @v10.0.0
 				skip_amt = 1;
 			if(!skip_amt) {
-				PPAmountType amtt_rec;
+				PPAmountType2 amtt_rec;
 				if(amtt_obj.Fetch(atyp, &amtt_rec) > 0) {
 					if(amtt_rec.Flags & PPAmountType::fManual)
 						if(!(amtt_rec.Flags & PPAmountType::fTax) || !op_type_list.lsearch(OpTypeID))
