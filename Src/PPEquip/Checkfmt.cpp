@@ -444,7 +444,7 @@ int PPSlipFormat::GetCurCheckPaymItem(const Iter * pIter, CcAmountEntry * pPaymE
 
 int PPSlipFormat::GetCurBillItem(const Iter * pIter, PPTransferItem * pRec)
 {
-	if(pIter->SrcItemNo < static_cast<long>(P_BillPack->GetTCount())) {
+	if(pIter->SrcItemNo < P_BillPack->GetTCountI()) {
 		ASSIGN_PTR(pRec, P_BillPack->TI(pIter->SrcItemNo));
 		return 1;
 	}

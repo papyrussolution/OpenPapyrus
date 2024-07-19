@@ -2180,6 +2180,12 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 					LDBLTOMONEY(0.0, rec.Excise);   // Доход для налогообложения //
 					if(!skip && set_vat_params_result == 100) {
 						sl_cost_vat_addenum_rec = rec;
+						// @v12.0.8 @fix {
+						sl_cost_vat_addenum_rec.Dt       = _dt;
+						sl_cost_vat_addenum_rec.RcptDt   = _rcpt_dt;
+						sl_cost_vat_addenum_rec.InvcDt   = _invc_dt;
+						sl_cost_vat_addenum_rec.PaymDt   = _paym_dt;
+						// } @v12.0.8 @fix
 						sl_cost_vat_addenum_rec.LineSubType = 1;
 						_SetVATParams(&sl_cost_vat_addenum_rec, &vata, local_scale, 0, 2);
 						LDBLTOMONEY(0.0, sl_cost_vat_addenum_rec.Amount); // Доход

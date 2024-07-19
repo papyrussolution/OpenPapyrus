@@ -5358,7 +5358,7 @@ int PPEgaisProcessor::Helper_AcceptTtnRefB(const Packet * pPack, const TSCollect
 								bp.LTagL.SearchString(r_bitem.OrgRowIdent, PPTAG_LOT_ORGLINEIDENT, 0, potential_row_n_list);
 							if(potential_row_n_list.getCount() == 1) {
 								const long temp_row_idx = potential_row_n_list.get(0);
-								if(temp_row_idx >= 0 && temp_row_idx < static_cast<int>(bp.GetTCount()))
+								if(temp_row_idx >= 0 && temp_row_idx < bp.GetTCountI())
 									row_idx = temp_row_idx;
 							}
 							if(row_idx < 0 && r_bitem.P && r_bitem.Ident[0]) {
@@ -5368,7 +5368,7 @@ int PPEgaisProcessor::Helper_AcceptTtnRefB(const Packet * pPack, const TSCollect
 								}
 							}
 							if(row_idx >= 0) {
-								assert(row_idx >= 0 && row_idx < static_cast<int>(bp.GetTCount())); // @paranoic
+								assert(row_idx >= 0 && row_idx < bp.GetTCountI()); // @paranoic
 								PPTransferItem & r_ti = bp.TI(row_idx);
 								if(r_ti.RByBill == r_bitem.P) {
 									const ObjTagList * p_ex_tag_list = bp.LTagL.Get(row_idx);
@@ -6221,7 +6221,7 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 								if(cscr > 0) {
 									for(uint s = 0; s < csr_row_idx_list.getCount(); s++) {
 										const long csr_idx = csr_row_idx_list.get(s);
-										if(csr_idx >= 0 && csr_idx < static_cast<long>(pCurrentRestPack->GetTCount())) {
+										if(csr_idx >= 0 && csr_idx < pCurrentRestPack->GetTCountI()) {
 											const PPTransferItem & r_csr_ti = pCurrentRestPack->ConstTI(csr_idx);
 											THROW_SL(processed_csr_rows.add(csr_idx));
 											shop_rest += r_csr_ti.Quantity_;

@@ -3691,8 +3691,7 @@ struct PPSecur2 {          // @persistent @store(Reference2Tbl+)
 	char   Name[48];       // @name @!refname
 	char   Symb[20];       // @unused
 	char   Password[40];   // (USER only) Пароль (зашифрован и свернут в строку кодировкой MIME64)
-	// @v10.1.10 char   Reserve[4];     // @reserve
-	LDATE  ExpiryDate;     // @v10.1.10
+	LDATE  ExpiryDate;     // 
 	PPID   UerID;          // Исключение прав доступа для PPOBJ_USR
 	long   UerFlags;       // Флаги исключений прав доступа для PPOBJ_USREXCLRIGHTS
 	uint32 Crc;            // Контрольная сумма для гарантии того, что запись не была создана либо изменена вне сервисов системы.
@@ -12080,7 +12079,14 @@ public:
 		LongArray MergePosList; // Список позиций Lots (0..), слитых в одну в результате вызова MergeTI
 	};
 	int    EnumTItemsExt(TiIter * pIter, PPTransferItem * pTi, TiItemExt * pExt = 0);
+	//
+	// Descr: Возвращает количество товарных строк пакета
+	//
 	uint   GetTCount() const;
+	//
+	// Descr: Возвращает количество товарных строк пакета в виде целого числа со знаком (просто удобно если необходимо сравнение со знаковым числом)
+	//
+	int    GetTCountI() const; 
 	int    FASTCALL SetTPointer(int);
 	int    GetTPointer() const;
 	int    FASTCALL ChkTIdx(int) const;
@@ -19336,11 +19342,13 @@ public:
 #define OPKFX_DLVRLOCASWH      0x00000200L // Адрес доставки в приходных (и драфт-приходных) документах трактовать как склад-получатель
 #define OPKFX_SOURCESERIAL     0x00000400L // (драфт-приходы и модификация)  Допускает выбор серийного номера исходного лота
 #define OPKFX_IGNORECLISTOP    0x00000800L // Игнорировать признак STOP контрагента при создании документа
-#define OPKFX_AUTOGENUUID      0x00001000L // @v10.0.0 Автоматически генерировать UUID документа при создании.
-#define OPKFX_WROFFTODRAFTORD  0x00002000L // @v10.0.2 Специализированная операция заказа, списываемая в драфт-документ
+#define OPKFX_AUTOGENUUID      0x00001000L // Автоматически генерировать UUID документа при создании.
+#define OPKFX_WROFFTODRAFTORD  0x00002000L // Специализированная операция заказа, списываемая в драфт-документ
 #define OPKFX_PAYMENT_CASH     0x00004000L // @v10.5.9 @erik Наличный расчет по операции
 #define OPKFX_PAYMENT_NONCASH  0x00008000L // @v10.5.9 @erik Безналичный расчет по операции
 #define OPKFX_ACCAUTOVAT       0x00010000L // @v11.6.6 Для бухгалтерских документов автоматически расчитывать суммы налогов 
+#define OPKFX_MNGPREFSUPPL     0x00020000L // @v12.0.8 (для заказов и, возможно, для драфт-документов) Применяется функционал 
+	// администрирования предпочтительного поставщика для дозаказа товара поставщику.
 
 #define OPKF_PRT_INCINVC       0x00000001L // Входящая счет-фактура на предоплату
 #define OPKF_PRT_NEGINVC       0x00000002L // Счет-фактура с отрицательными суммами
@@ -34453,6 +34461,9 @@ public:
 	PPBillConfig Cfg;
 	PPObjOprKind * P_OpObj;
 	PPObjAccTurn * atobj;
+	PPObjLocation LocObj;
+	PPObjGoods GObj;
+	PPObjArticle ArObj;
 	TLP_MEMB(BillCore, P_Tbl);
 	TLP_MEMB(Transfer, trfr);
 	TLP_MEMB(CpTransfCore, P_CpTrfr);
@@ -34604,9 +34615,6 @@ private:
 	InventoryCore * P_InvT;
 	GoodsSaldoCore * P_GsT;
 	PPObjSCard * P_ScObj;
-	PPObjLocation LocObj;
-	PPObjGoods GObj;
-	PPObjArticle ArObj;
 };
 
 class PPObjAccTurn : public PPObject {

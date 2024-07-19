@@ -7739,12 +7739,12 @@ ulong  _checksum__(const char *, size_t);
 bool   STDCALL Base64_Encode(const char * pIn, size_t inLen, char * pOut, size_t outMax, size_t * pOutLen);
 bool   STDCALL Base64_Decode(const char * pIn, size_t inLen, char * pOut, size_t * pOutLen);
 
-class MIME64 {
+/* @v12.0.8 class MIME64 {
 public:
 	MIME64();
 	int    Encode(const void * pIn, size_t inLen, char * pOut, size_t outBufLen, size_t * pOutDataLen) const;
 	int    Decode(const char * pIn, size_t inLen, char * pOut, size_t * pOutDataLen) const;
-};
+};*/
 //
 // Descr: Кодирует бинарную последовательность pData длиной dataLen в строку rBuf
 //   в соответствии с base32-кодировкой.
@@ -12975,6 +12975,13 @@ public:
 	int    PutFile(const char * pName, const void * pBuf, size_t size);
 	int    PutFile(const char * pName, const char * pSourceFilePath);
 	SPtrHandle GetFile(const char * pName, int64 * pFileSize);
+	//
+	// Descr: Возвращает реальное имя файла с символом pName.
+	// Returns:
+	//   !0 - файл существует и его полное имя присвоено по ссылке rFilePath
+	//    0 - ошибка (строка по ссылке rFilePath обнулена)
+	//
+	int    GetFilePath(const char * pName, SString & rFilePath); // @v12.0.8
 	bool   Read(SPtrHandle handle, void * pBuf, size_t bufSize, size_t * pActualSize);
 	//
 	// Descr: Возвращает общий размер считанных с помощью манипулятора handle байт.

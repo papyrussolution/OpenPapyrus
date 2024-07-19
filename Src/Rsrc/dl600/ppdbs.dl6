@@ -2205,7 +2205,7 @@ file:
 //
 // Операции с персональными картами (для кредитных и бонусных карт).
 //
-table SCardOp {         // size=60 // @v7.7.12 48-->60
+table SCardOp {         // size=72 // @v7.7.12 48-->60 // @v12.0.6 60-->72
 	long   SCardID;     // ->SCard.ID
 	date   Dt;          //
 	time   Tm;          //

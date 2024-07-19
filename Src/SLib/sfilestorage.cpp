@@ -329,6 +329,17 @@ bool SFileStorage::CloseFile(SPtrHandle handle)
 	return ok;
 }
 
+int SFileStorage::GetFilePath(const char * pName, SString & rFilePath) // @v12.0.8
+{
+	rFilePath.Z();
+	int    ok = 1;
+	SString entry_name;
+	THROW(MakeFileEntry(pName, entry_name, false/*writing*/));
+	rFilePath = entry_name;
+	CATCHZOK
+	return ok;
+}
+
 SPtrHandle SFileStorage::GetFile(const char * pName, int64 * pFileSize)
 {
 	SPtrHandle result;

@@ -4720,6 +4720,7 @@ struct SDataPageHeader { // Size=32
 		};
 		RecPrefix();
 		uint    GetPrefixSize() const;
+		bool    IsDeleted() const { return LOGIC(Flags & fDeleted); }
 		void    SetPayload(uint size, uint flags);
 		void    SetTotalSize(uint totalSize, uint flags);
 
@@ -4782,7 +4783,7 @@ struct SDataPageHeader { // Size=32
 	//   заносится пара {rowId, payloadSize} нового свободного блока если записанные данные
 	//   (вместе со служебным префиксом) были меньше, нежели общий размер свободного блока по
 	//   смещению offset.
-	//   Если записанные данные точно соответствовали размеру блока или оствшийся "хвост" недостаточен
+	//   Если записанные данные точно соответствовали размеру блока или оставшийся "хвост" недостаточен
 	//   для того, чтобы в него что-нибудь в дальнейшем записать (1..3байта), то по указателю pNewFreeEntry заносится rowId
 	//   следующего блока и Size == 0. 
 	//   Если записанный блок заканчивает страницу, то по указателю pNewFreeEntry будет внесена пара {0, 0}
@@ -4855,6 +4856,7 @@ public:
 	bool   VerifyType(uint type) const { return (IsConsistent() && (!type || P_H->Type == type)); }
 	bool   VerifyOffset(uint offs) const { return (IsConsistent() && offs >= sizeof(SDataPageHeader) && offs < P_H->Size); }
 	uint   GetSeq() const { return IsConsistent() ? P_H->Seq : 0; }
+	uint   GetSize() const { return IsConsistent() ? P_H->Size : 0; }
 	uint   GetType() const { return IsConsistent() ? P_H->Type : _FFFF32; }
 	uint32 ReadRecPrefix(uint offset, SDataPageHeader::RecPrefix & rPfx) const
 	{
@@ -4883,6 +4885,10 @@ public:
 	int    MergeFreeEntries(SRecPageFreeList::UpdGroup & rFbug)
 	{
 		return IsConsistent() ? P_H->MergeFreeEntries(rFbug) : 0;
+	}
+	uint   MarkOutBlock(uint offset, uint size, SDataPageHeader::RecPrefix * pPfx)
+	{
+		return IsConsistent() ? P_H->MarkOutBlock(offset, size, pPfx) : 0;
 	}
 private:
 	SDataPageHeader * P_H;
@@ -4933,7 +4939,6 @@ public:
 	SDataPage_ * AllocatePage(uint32 type); // @really private (public for testing purposes)
 	int    WriteToPage(SDataPage_ * pPage, uint64 rowId, const void * pData, size_t dataLen); // @really private (public for testing purposes)
 	int    DeleteFromPage(SDataPage_ * pPage, uint64 rowId); // @really private (public for testing purposes)
-	int    UpdateOnPage(SDataPage_ * pPage, uint64 rowId, uint64 * pNewRowId, const void * pData, size_t dataLen);
 	int    GetFreeListForPage(const SDataPage_ * pPage, TSVector <SRecPageFreeList::Entry> & rList) const; // @debug
 	//
 	// Descr: Отладочная функция верифицирующая список свободных блоков.

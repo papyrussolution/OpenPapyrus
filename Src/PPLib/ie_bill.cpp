@@ -3520,7 +3520,7 @@ int PPBillImporter::Import(int useTa)
 							for(pos = 0; SearchNextRowForBill(bill, &seen_pos_list, &pos); pos++) {
 								const  Sdr_BRow & r_row = BillsRows.at(pos);
 								seen_pos_list.add(pos); // @v11.7.12
-								if(r_row.LineNo > 0 && r_row.LineNo <= (int)pack.GetTCount()) {
+								if(r_row.LineNo > 0 && r_row.LineNo <= pack.GetTCountI()) {
 									const uint ti_idx = r_row.LineNo-1;
 									bool  tag_list_updated = false;
 									ObjTagList * p_tag_list = pack.LTagL.Get(ti_idx);

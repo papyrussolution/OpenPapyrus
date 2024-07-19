@@ -289,7 +289,7 @@ static const char * Base64_Decode_Argon2(void * dst, size_t * dst_len, const cha
 //
 //
 //
-MIME64::MIME64()
+/* @v12.0.8 MIME64::MIME64()
 {
 }
 
@@ -365,7 +365,7 @@ int MIME64::Decode(const char * pIn, size_t inLen, char * pOut, size_t * pOutDat
 	ASSIGN_PTR(pOutDataLen, len);
 	CATCHZOK
 	return ok;
-}
+} @v12.0.8 */
 //
 //
 //
@@ -395,7 +395,7 @@ int MIME64::Decode(const char * pIn, size_t inLen, char * pOut, size_t * pOutDat
  * +--------+--------+
  *  octet 1 | octet 2
  */
-static int Base32_get_octet(int block)
+static FORCEINLINE int Base32_get_octet(int block)
 {
 	assert(block >= 0 && block < 8);
 	return (block*5) / 8;

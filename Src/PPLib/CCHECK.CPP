@@ -5366,8 +5366,8 @@ int CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CSessTot
 			if(fabs(to_adj_amt) > 0.01 && fabs(to_adj_amt) < 10.0 && oad.GetOptimal(oad_pos, &oad_ext_pos, 0, 0)) {
 				PPBillPacket adj_pack;
 				if(p_bobj->ExtractPacket(oad_ext_pos, &adj_pack) > 0) {
-					assert(oad_pos < static_cast<long>(adj_pack.GetTCount()));
-					if(oad_pos < static_cast<long>(adj_pack.GetTCount())) {
+					assert(oad_pos < adj_pack.GetTCountI());
+					if(oad_pos < adj_pack.GetTCountI()) {
 						const double org_amt = adj_pack.GetAmount(0);
 						PPTransferItem & r_ti = adj_pack.TI(oad_pos);
 						assert(r_ti.Qtty() != 0.0);

@@ -2939,7 +2939,7 @@ int BillDialog::setCurGroupData()
 		ca_cg_rec.Amount = P_Pack->GetAmount();
 		ca_cg_rec.CRate  = P_Pack->Amounts.Get(PPAMT_CRATE, P_Pack->Rec.CurID);
 		setGroupData(GRP_CURAMT, &ca_cg_rec);
-		disableCtrl(CTLSEL_BILL_CUR, BIN(P_Pack->Rec.ID && P_Pack->GetTCount() && P_Pack->OpTypeID != PPOPT_DRAFTQUOTREQ)); // @v10.5.8 (P_Pack->OpTypeID != PPOPT_DRAFTQUOTREQ)
+		disableCtrl(CTLSEL_BILL_CUR, BIN(P_Pack->Rec.ID && P_Pack->GetTCount() && P_Pack->OpTypeID != PPOPT_DRAFTQUOTREQ));
 		return 1;
 	}
 	else

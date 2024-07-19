@@ -720,7 +720,7 @@ int SCardCore::GetOpByLinkObj(PPObjID oid, TSVector <OpBlock> & rList) // @v9.8.
 	return ok;
 }
 
-int SCardCore::GetFreezingOpList(PPID cardID, TSVector <OpBlock> & rList) // @v9.8.4 TSArray-->TSVector
+int SCardCore::GetFreezingOpList(PPID cardID, TSVector <OpBlock> & rList)
 {
 	int    ok = -1;
 	rList.clear();

@@ -4056,7 +4056,7 @@ PPServerSession::CmdRet PPServerSession::ReceiveFile(int verb, const char * pPar
 					p_f = 0;   // Освобождать память под p_f уже после этого не следует
 					FtbList.insert(p_ftb);
 
-					ftb_pos_todel = (long)FtbList.getCount() - 1;
+					ftb_pos_todel = FtbList.getCountI() - 1;
 					rReply.WriteString(temp_buf.Z().Cat(blk.Cookie));
 				}
 				else {

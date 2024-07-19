@@ -19761,43 +19761,44 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,325,230,50,13
 END
 
-DLG_OPKMORE_ORD DIALOGEX 5, 16, 415, 242
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+DLG_OPKMORE_ORD DIALOGEX 5, 16, 475, 242
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@{oprkind_options} (@{roptype_goodsorder})"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     GROUPBOX        "@nominalamount",CTL_OPKMORE_AMOUNT,10,10,130,45,WS_GROUP
-    CONTROL         "@oprkind_implicitnominal",5298,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,20,85,10
-    CONTROL         "@intermcost",9394,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,30,85,10
-    CONTROL         "@intermprice",13490,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,40,85,10
-    GROUPBOX        "",CTL_OPKMORE_FLAGS,210,10,195,140,WS_GROUP
-    CONTROL         "@oprkind_opkf_needpayment",5297,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,216,20,184,10
-    CONTROL         "@oprkind_opkf_calcstaxes",9393,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,216,30,184,10
-    CONTROL         "@oprkind_opkf_autowl",13489,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,216,40,184,10
-    CONTROL         "@oprkind_opkf_advacc",17585,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,216,50,184,10
-    CONTROL         "@oprkind_opkf_rent",21681,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,216,60,184,10
-    CONTROL         "@oprkind_opkf_freight",25777,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,216,70,184,10
-    CONTROL         "@oprkind_opkf_ordexstonly",29873,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,216,80,184,10
-    CONTROL         "@oprkind_opkf_ordreserve",33969,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,216,90,184,10
-    CONTROL         "@oprkind_opkf_orderbyloc",38065,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,216,100,184,10
-    CONTROL         "@attachfiles",42161,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,216,110,184,10
-    CONTROL         "@oprkind_opkf_restrictbymtx",46257,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,216,120,184,10
-    CONTROL         "@oprkind_opkf_nocalctiord",50353,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,216,130,184,10
-    GROUPBOX        "",CTL_OPKMORE_EXTFLAGS,10,55,195,80,WS_GROUP
-    CONTROL         "@oprkind_opkfx_allowpartstr",5307,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,16,66,175,10
-    CONTROL         "@oprkind_opkfx_restrictprice",9403,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,16,74,180,10
-    CONTROL         "@oprkind_opkfx_ignoreclistop",13499,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,16,85,185,10
-    CONTROL         "@oprkind_opkfx_autogenuuid",17595,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,95,185,10
-    CONTROL         "@oprkind_opkfx_wrofftodraftord",21691,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,105,185,10
-    CONTROL         "@oprkind_opkfx_canbedeclined",25787,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,115,185,10
-    LTEXT           "@addobjappellation",4002,10,140,190,8
-    EDITTEXT        CTL_OPKMORE_OBJ2NAME,10,151,195,13,ES_AUTOHSCROLL
-    LTEXT           "@oprkind_extstr_amtformula",4003,10,166,195,8
-    EDITTEXT        CTL_OPKMORE_AMTFORMULA,10,177,300,13,ES_AUTOHSCROLL
-    LTEXT           "@oprkind_extstr_memotemplate",4004,10,191,195,8
-    EDITTEXT        CTL_OPKMORE_MEMO,10,201,300,13,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,190,220,51,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,260,220,51,13
+    CONTROL         "@oprkind_implicitnominal",5298,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,20,120,10
+    CONTROL         "@intermcost",9394,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,30,120,10
+    CONTROL         "@intermprice",13490,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,15,40,120,10
+    GROUPBOX        "",CTL_OPKMORE_FLAGS,270,10,195,140,WS_GROUP
+    CONTROL         "@oprkind_opkf_needpayment",5297,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,276,20,184,10
+    CONTROL         "@oprkind_opkf_calcstaxes",9393,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,276,30,184,10
+    CONTROL         "@oprkind_opkf_autowl",13489,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,276,40,184,10
+    CONTROL         "@oprkind_opkf_advacc",17585,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,276,50,184,10
+    CONTROL         "@oprkind_opkf_rent",21681,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,276,60,184,10
+    CONTROL         "@oprkind_opkf_freight",25777,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,276,70,184,10
+    CONTROL         "@oprkind_opkf_ordexstonly",29873,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,276,80,184,10
+    CONTROL         "@oprkind_opkf_ordreserve",33969,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,276,90,184,10
+    CONTROL         "@oprkind_opkf_orderbyloc",38065,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,276,100,184,10
+    CONTROL         "@attachfiles",42161,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,276,110,184,10
+    CONTROL         "@oprkind_opkf_restrictbymtx",46257,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,276,120,184,10
+    CONTROL         "@oprkind_opkf_nocalctiord",50353,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,276,130,184,10
+    GROUPBOX        "",CTL_OPKMORE_EXTFLAGS,10,55,255,95,WS_GROUP
+    CONTROL         "@oprkind_opkfx_allowpartstr",5307,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,16,66,245,10
+    CONTROL         "@oprkind_opkfx_restrictprice",9403,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,16,74,245,10
+    CONTROL         "@oprkind_opkfx_ignoreclistop",13499,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,16,85,245,10
+    CONTROL         "@oprkind_opkfx_autogenuuid",17595,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,95,245,10
+    CONTROL         "@oprkind_opkfx_wrofftodraftord",21691,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,105,245,10
+    CONTROL         "@oprkind_opkfx_canbedeclined",25787,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,115,245,10
+    CONTROL         "@oprkind_opkfx_mngprefsuppl",29883,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,125,245,10
+    LTEXT           "@addobjappellation",4002,10,160,190,8
+    EDITTEXT        CTL_OPKMORE_OBJ2NAME,10,170,195,13,ES_AUTOHSCROLL
+    LTEXT           "@oprkind_extstr_amtformula",4003,10,185,195,8
+    EDITTEXT        CTL_OPKMORE_AMTFORMULA,10,196,300,13,ES_AUTOHSCROLL
+    LTEXT           "@oprkind_extstr_memotemplate",4004,10,210,195,8
+    EDITTEXT        CTL_OPKMORE_MEMO,10,220,300,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,345,220,51,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,415,220,51,13
 END
 
 DLG_OPKMORE_RET DIALOGEX 36, 16, 351, 227
@@ -21572,6 +21573,16 @@ BEGIN
     CONTROL         "@printopgrouping_withdoclist",9393,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,20,25,190,10
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,105,50,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,165,50,50,13
+END
+
+DLG_SELOPREFSUPL DIALOGEX 72, 48, 475, 147
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "@ttl_selectprefsuppl"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    CONTROL         "",CTL_SELOPREFSUPL_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,0,5,475,120
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,350,130,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,415,130,50,13
 END
 
 DLG_PRNPLST DIALOGEX 88, 8, 177, 192
@@ -34433,7 +34444,7 @@ BEGIN
 
     DLG_OPKMORE_ORD, DIALOG
     BEGIN
-        RIGHTMARGIN, 315
+        RIGHTMARGIN, 375
         BOTTOMMARGIN, 227
     END
 
@@ -34714,6 +34725,12 @@ BEGIN
     DLG_SELOGPRN, DIALOG
     BEGIN
         RIGHTMARGIN, 172
+    END
+
+    DLG_SELOPREFSUPL, DIALOG
+    BEGIN
+        RIGHTMARGIN, 270
+        BOTTOMMARGIN, 110
     END
 
     DLG_PRNPLST, DIALOG
@@ -40468,6 +40485,11 @@ BEGIN
 END
 
 DLG_GSPPITEM AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_SELOPREFSUPL AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

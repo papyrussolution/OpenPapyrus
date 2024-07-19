@@ -1847,8 +1847,8 @@ void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 		dlg->setCtrlUInt16(CTL_OPKMORE_FLAGS, v);
 		//@erik v10.5.9 {
 		long paym_type_flg = 0;
-		const int is_cash_f = ext_options.lsearch(OPKFX_PAYMENT_CASH);
-		const int is_bank_f = ext_options.lsearch(OPKFX_PAYMENT_NONCASH);
+		const bool is_cash_f = ext_options.lsearch(OPKFX_PAYMENT_CASH);
+		const bool is_bank_f = ext_options.lsearch(OPKFX_PAYMENT_NONCASH);
 		assert((is_cash_f && is_bank_f) || (!is_cash_f && !is_bank_f));
 		if(is_cash_f && is_bank_f) {
 			paym_type_flg = 1; // если флаги есть, то не придется выполнять поиск еще раз. Далее просто проверим значение этой переменной
@@ -2048,7 +2048,7 @@ void OprKindDialog::moreDialog()
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_CALCSTAXES, OPKF_AUTOWL, OPKF_USEPAYER, OPKF_RENT,
 					OPKF_FREIGHT, OPKF_ORDEXSTONLY, OPKF_ORDRESERVE, OPKF_ORDERBYLOC, OPKF_ATTACHFILES, OPKF_RESTRICTBYMTX, OPKF_NOCALCTIORD, 0L);
 				ext_options_list.addzlist(OPKFX_ALLOWPARTSTR, OPKFX_RESTRICTPRICE, OPKFX_IGNORECLISTOP,
-					OPKFX_AUTOGENUUID, OPKFX_WROFFTODRAFTORD, OPKFX_CANBEDECLINED, 0L);
+					OPKFX_AUTOGENUUID, OPKFX_WROFFTODRAFTORD, OPKFX_CANBEDECLINED, OPKFX_MNGPREFSUPPL, 0L); // @v12.0.8 OPKFX_MNGPREFSUPPL
 				editOptions2(DLG_OPKMORE_ORD, 1, 0, &options_list, &ext_options_list);
 				break;
 			case PPOPT_PAYMENT:

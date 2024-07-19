@@ -8062,7 +8062,7 @@ void PPALDD_Bill::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 		PPObjBill * p_bobj = BillObj;
 		PPBillPacket pack;
 		if(p_bobj && p_bobj->ExtractPacket(H.ID, &pack) > 0)
-			_RET_INT = static_cast<int>(pack.GetTCount());
+			_RET_INT = pack.GetTCountI();
 		else
 			_RET_INT = 0;
 	}

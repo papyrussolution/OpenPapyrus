@@ -2312,7 +2312,7 @@ int PPBillPacket::RemoveRows(LongArray * pPositions, int lowStop)
 int PPBillPacket::SetupItemQuotInfo(int itemNo, PPID quotKindID, double quotValue, long flags)
 {
 	int    ok = 1;
-	if(itemNo >= 0 && itemNo < (int)GetTCount() && quotKindID) {
+	if(itemNo >= 0 && itemNo < GetTCountI() && quotKindID) {
 		if(SETIFZ(P_QuotSetupInfoList, new TSVector <QuotSetupInfoItem>)) {
 			uint   p = 0;
 			if(P_QuotSetupInfoList->lsearch(&itemNo, &p, CMPF_LONG)) {
@@ -3137,6 +3137,7 @@ static IMPL_CMPFUNC(PPTransferItem_RByBill, p1, p2)
 void  PPBillPacket::SortTI() { Lots.sort(PTR_CMPFUNC(PPTransferItem_RByBill)); }
 int   FASTCALL PPBillPacket::EnumTItems(uint * pI, PPTransferItem ** ppTI) const { return Lots.enumItems(pI, (void **)ppTI); }
 uint  PPBillPacket::GetTCount() const { return Lots.getCount(); }
+int   PPBillPacket::GetTCountI() const { return Lots.getCountI(); }
 int   PPBillPacket::GetTPointer() const { return static_cast<int>(Lots.getPointer()); }
 PPTransferItem & FASTCALL PPBillPacket::TI(uint p) const { return Lots.at(p); }
 const PPTransferItem & FASTCALL PPBillPacket::ConstTI(uint p) const { return Lots.at(p); }

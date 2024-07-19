@@ -5770,6 +5770,7 @@ int Convert7708()
 //
 //
 //
+#if 0 // @v12.0.8 {
 class PPCvtSCardOp7712 : public PPTableConversion {
 public:
 	virtual DBTable * CreateTableInstance(int * pNeedConversion)
@@ -5821,6 +5822,7 @@ public:
 		return 1;
 	}
 };
+#endif // } 0
 
 class PPCvtCSession7712 : public PPTableConversion {
 public:
@@ -5848,10 +5850,10 @@ int Convert7712()
 {
 	int    ok = 1;
 	PPWaitStart();
-	{
+	/* @v12.0.8 {
 		PPCvtSCardOp7712 cvt1;
 		ok = cvt1.Convert() ? 1 : PPErrorZ();
-	}
+	}*/
 	{
 		PPCvtCSession7712 cvt2;
 		ok = cvt2.Convert() ? 1 : PPErrorZ();
@@ -8759,7 +8761,9 @@ public:
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
 			RECORDSIZE recsz = p_tbl->getRecSize();
-			*pNeedConversion = BIN(recsz < sizeof(SCardOpTbl::Rec));
+			int16  num_keys;
+			p_tbl->getNumKeys(&num_keys);
+			*pNeedConversion = BIN(num_keys < 5 || recsz < sizeof(SCardOpTbl::Rec)); // @v12.0.8 Совмещена конвертация 7.7.12 с этой
 		}
 		return p_tbl;
 	}

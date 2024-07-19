@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494842
+LastSignatureCode=2147494846
 LastAutoCodeList=1,12234;102,10177;103,10072;110,10000;111,12107;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10150;120,10005;1001,10000;121,10000;122,10000;123,10325;124,10347;125,10064
 
 [SignatureList]
@@ -94,6 +94,7 @@ lbt_dblist=2147483733
 lbt_stqstatuslist=2147494603
 lbt_goodsrestbyloclist=2147494658
 lbt_ccextlist=2147494759
+lbt_selorderprefsuppl=2147494846
 entmanagementsys=2147483734
 pgmcopylic_owner=2147483735
 pgmcopylic_regnum=2147483736
@@ -878,6 +879,7 @@ supplier_pl=2147484369
 supplierid=2147484370
 suppliercode=2147484371
 supplierinn=2147494520
+prefsupplier=2147494845
 seller=2147484372
 client=2147484373
 client_pl=2147484374
@@ -2297,6 +2299,7 @@ ttl_howtoprint=2147493978
 ttl_testdialog=2147493979
 ttl_goodsstructree=2147494486
 ttl_checkchzmark=2147494823
+ttl_selectprefsuppl=2147494844
 specseriesfilt=2147493803
 objsynccmptotal=2147485485
 objsynccmptotal_count=2147485486
@@ -6165,6 +6168,7 @@ oprkind_opkfx_ignoreclistop=2147489048
 oprkind_opkfx_autogenuuid=2147489049
 oprkind_opkfx_wrofftodraftord=2147489050
 oprkind_opkfx_accautovat=2147494675
+oprkind_opkfx_mngprefsuppl=2147494843
 oprkind_prnorder=2147489051
 oprkind_prnorder_default=2147489052
 oprkind_prnorder_bygoods=2147489053

@@ -11598,6 +11598,8 @@
 	#define CTL_IMPSWPGM_IMGDIR            (3 + WINDOWS_ID_BIAS)
 	#define CTLBRW_IMPSWPGM_IMGDIR         (4 + WINDOWS_ID_BIAS)
 #define DLG_GSPPITEM              1444 // @v12.0.6 Элемент структуры товара (для структуры планирования цены)
+#define DLG_SELOPREFSUPL          1445 // @v12.0.8 Диалог выбора предпоичтительного поставщика для дозаказа в строках документа заказа
+	#define CTL_SELOPREFSUPL_LIST          (1 + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090
