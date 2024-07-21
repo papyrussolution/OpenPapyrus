@@ -365,7 +365,7 @@ int ArticleAutoAddDialog::fetch(int sp)
 int ArticleAutoAddDialog::save()
 {
 	long   n = getCtrlLong(CTL_ARTICLE_NUMBER);
-	int    r = ArObj.GetFreeArticle(&n, Rec.AccSheetID);
+	const  int  r = ArObj.GetFreeArticle(&n, Rec.AccSheetID);
 	if(r > 0)
 		Rec.Article = n;
 	else if(!r)
@@ -836,14 +836,17 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 //
 int PPObjArticle::EditDialog(ArticleDlgData * pData)
 {
-	int    ok = 1, r = 1, cm = cmCancel, valid_data = 0;
+	int    ok = 1;
+	int    r = 1;
+	int    cm = cmCancel;
+	int    valid_data = 0;
 	int    sel_linkobj = 0;
 	uint   dlg_id = 0;
 	long   old_ar_no = pData->Rec.Article;
 	PPAccSheet acs_rec;
 	ArticleDialog * dlg = 0;
-	PPObjAccSheet acc_sheet_obj;
-	THROW(acc_sheet_obj.Search(pData->Rec.AccSheetID, &acs_rec) > 0);
+	PPObjAccSheet acs_obj;
+	THROW(acs_obj.Search(pData->Rec.AccSheetID, &acs_rec) > 0);
 	if(pData->Options & ArticleDlgData::fAssocAccnt)
 		dlg_id = DLG_ARTICLEACC;
 	else if(acs_rec.Flags & ACSHF_USEALIASSUBST)

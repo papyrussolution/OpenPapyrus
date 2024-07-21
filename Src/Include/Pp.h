@@ -3371,12 +3371,11 @@ private:
 //
 #define OTF_NOZERO           0x0002 // Тег с нулевым значение удаляется //
 #define OTF_NMBRULE          0x0004 // Для тега с числовым значением определено правило
-#define OTF_WARNZERO         0x0008 // Нулевое или отрицательное значение тега является поводом для предупреждения //
-	// оператора (в документах, персональных операциях и т.д.)
-#define OTF_INHERITABLE      0x0010 // Наследуемый tag. Интерпретация флага зависит от типа объектов,
-	// к которому относится tag.
+#define OTF_WARNZERO         0x0008 // Нулевое или отрицательное значение тега является поводом для предупреждения оператора (в документах, персональных операциях и т.д.)
+#define OTF_INHERITABLE      0x0010 // Наследуемый tag. Интерпретация флага зависит от типа объектов, к которому относится tag.
 #define OTF_NOTICEINCASHPANE 0x0020 // Извещение в кассовой панели
 #define OTF_HIERENUM         0x0040 // Иерерхическое перечисление
+#define OTF_PASSIVE          0x0080 // @v12.0.8 Пассивный тег (не отображается в списках)
 
 struct PPObjectTag2 {   // @persistent @store(Reference2Tbl+)
 	PPObjectTag2();
@@ -17035,7 +17034,6 @@ struct ObjTagFilt {
 
 class PPObjTag : public PPObjReference {
 public:
-	// @v10.7.8 (unused) static int     EditEnumListDialog(PPTagEnumList *);
 	static int     CheckForTagFilt(PPID objType, PPID objID, const TagFilt * pFilt);
 	//
 	// Descr: Вспомогательная функция для извлечения тега объекта {objType; objID}
@@ -24394,7 +24392,7 @@ public:
 	//
 	// Descr: Перечисляет элементы структуры с вычислением количества, необходимого
 	//   для комплектации srcQtty единиц составного товара. Требуемое количество
-	//   возвращается по указателю pQtty. Для получения первого элемента по уазателю pPos
+	//   возвращается по указателю pQtty. Для получения первого элемента по указателю pPos
 	//   следует передать значение 0.
 	//   Функция, после каждого успешного вызова, увеличивает значение *pPos на единицу.
 	// Returns:
@@ -24962,6 +24960,7 @@ struct QuotKindFilt {
 	// ограничение (если есть) - максимальное количество хранимых значений.
 #define QUOTKF_NODIS          0x0100L // Если применяется этот вид котировки, то скидки по картам не действуют.
 #define QUOTKF_USEROUNDING    0x0200L // @v10.9.10 Применять округление значений котировок в соответствии с полями PPQuotKind2::RoundingPrec,  PPQuotKind2::RoundingDir
+#define QUOTKF_PASSIVE        0x0400L // @v12.0.8 Пассивный вид котировки (не отображается в списках)
 
 struct PPQuotKind2 { // @flat @persistent @store(Reference2Tbl+)
 	PPQuotKind2();
@@ -53727,15 +53726,16 @@ public:
 	// Descr: Флаги конструктора
 	//
 	enum {
-		fOnDblClkOk    = 0x0001, // При двойном щелчке, если выбран элемент списка завершать работу диалога как по cmOK
+		fOnDblClkOk            = 0x0001, // При двойном щелчке, если выбран элемент списка завершать работу диалога как по cmOK
 		fOmitSearchByFirstChar = 0x0002, // Не выводить окно поиска в ответ на нажатие символьной клавиши
-		fOwnerDraw     = 0x0004, // @v10.3.0 Если установлен, то конструктор вызывает SetOwnerDrawState()
-		fMultiselect   = 0x0008  // @v11.4.3 Допускается множественный выбор в списке
+		fOwnerDraw             = 0x0004, // Если установлен, то конструктор вызывает SetOwnerDrawState()
+		fMultiselect           = 0x0008  // @v11.4.3 Допускается множественный выбор в списке
 	};
 	PPListDialog(uint rezID, uint aCtlList, long flags = 0);
 	int    addStringToList(long id, const char * pText);
 	int    getSelection(long * pID);
-	void   updateList(long, int byPos = 1);
+	void   updateList(long pos);
+	void   updateListById(long id);
 protected:
 	DECL_HANDLE_EVENT;
 	virtual int  setupList();
@@ -55011,7 +55011,15 @@ private:
 	//    0 - ошибка
 	//
 	int    ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rChZnBuf);
+
+	struct EgaisMarkAutoSelectEntry {
+		PPID   GoodsID;
+		double Qtty;
+		SString Mark;
+	};
+
 	int    EgaisMarkAutoSelect(PPID goodsID, double qtty, SString & rMarkBuf); // @v12.0.7
+	int    Helper_EgaisMarkAutoSelect(PPID goodsID, double qtty, TSCollection <EgaisMarkAutoSelectEntry> & rResult);
 
 	ExtGoodsSelDialog * P_EGSDlg;
 	long   AutoInputTolerance; // Мин среднее время (ms) между вводом символом, ниже которого считается, что данные были введены автоматическим средством ввода (напр. сканером штрихкодов)

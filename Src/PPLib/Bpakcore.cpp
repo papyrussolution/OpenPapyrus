@@ -1947,15 +1947,19 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 {
 	int    ok = 1;
 	const  PPID preserve_ar_id = Rec.Object;
+	SString temp_buf;
+	PPOprKind op_rec;
 	rRet.Z();
 	ProcessFlags &= ~(pfRestrictByArCodes | pfSubCostOnSubPartStr);
 	LAssocArray rglist;
 	if(arID) {
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec ar_rec;
-		THROW(ar_obj.Search(arID, &ar_rec) > 0);
-		const  int    agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
 		PPID   acs_id = 0;
+		THROW(GetOpData(Rec.OpID, &op_rec) > 0); // @v12.0.8
+		THROW(ar_obj.Search(arID, &ar_rec) > 0);
+		THROW_PP_S(ar_rec.AccSheetID == op_rec.AccSheetID, PPERR_ARDONTBELONGOPACS, ar_rec.Name); // @v12.0.8
+		const  int    agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
 		rRet.PsnID = ObjectToPerson(arID, &acs_id);
 		rRet.Name = ar_rec.Name;
 		if(agt_kind == 1) {
@@ -1976,7 +1980,6 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 					ProcessFlags |= pfSubCostOnSubPartStr;
 			}
 		}
-		// @v10.1.12 {
 		if(OpTypeID == PPOPT_AGREEMENT) {
 			if(!P_Agt || P_Agt->IsEmpty()) {
 				SETIFZ(P_Agt, new Agreement);
@@ -1997,7 +2000,7 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 				}
 			}
 		}
-		else { // } @v10.1.12
+		else {
 			if(Rec.Flags & BILLF_GEXPEND || oneof2(OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
 				PPOprKind op_rec;
 				const  bool ignore_stop = ((rRet.Flags & SetupObjectBlock::fEnableStop) || (GetOpData(Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_IGNORECLISTOP));
@@ -2011,9 +2014,8 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 						GetDebtDim(&debt_dim_id);
 						is_stopped = rRet.CliAgt.IsStopped(debt_dim_id);
 						if(is_stopped > 0) {
-							SString debt_dim_name;
-							GetObjectName(PPOBJ_DEBTDIM, debt_dim_id, debt_dim_name);
-							stop_err_addedmsg.Colon().Cat(debt_dim_name);
+							GetObjectName(PPOBJ_DEBTDIM, debt_dim_id, temp_buf);
+							stop_err_addedmsg.Colon().Cat(temp_buf);
 						}
 					}
 					if(is_stopped < 0)
@@ -2075,7 +2077,6 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 		Rec.Object = arID;
 		if(GetTCount()) {
 			PPObjGoods goods_obj;
-			SString msg;
 			const int invp_act = DS.GetTLA().InvalidSupplDealQuotAction;
 			const PPCommConfig & r_ccfg = CConfig;
 			for(uint i = 0; i < GetTCount(); i++) {
@@ -2087,7 +2088,7 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 					goods_obj.GetSupplDeal(r_ti.GoodsID, qi, &sd, 1);
 					THROW_PP(!sd.IsDisabled, PPERR_GOODSRCPTDISABLED);
 					if(invp_act == PPSupplAgreement::invpaRestrict && (OpTypeID == PPOPT_GOODSRECEIPT || (Rec.OpID == r_ccfg.DraftRcptOp && r_ccfg.Flags2 & CCFLG2_USESDONPURCHOP))) {
-						THROW_PP_S(sd.CheckCost(r_ti.Cost), PPERR_SUPPLDEALVIOLATION, sd.Format(msg));
+						THROW_PP_S(sd.CheckCost(r_ti.Cost), PPERR_SUPPLDEALVIOLATION, sd.Format(temp_buf));
 					}
 				}
 			}
@@ -2999,7 +3000,7 @@ void PPBillPacket::CreateAccTurn(PPAccTurn & rAt) const
 int PPBillPacket::SetCurTransit(const PPCurTransit * pTrans)
 {
 	int    ok = 1;
-	PPOprKind opk;
+	PPOprKind op_rec;
 	double scale;
 	double in_tran_crate;
 	double out_tran_crate;
@@ -3011,7 +3012,7 @@ int PPBillPacket::SetCurTransit(const PPCurTransit * pTrans)
 	THROW_PP(pTrans->InCRate  > 0, PPERR_INVCRATE);
 	THROW_PP(pTrans->OutCRate > 0, PPERR_INVCRATE);
 	THROW_PP(pTrans->TransitCRate > 0, PPERR_INVCRATE);
-	GetOpData(pTrans->OpID, &opk);
+	GetOpData(pTrans->OpID, &op_rec);
 	Rec.ID      = pTrans->BillID;
 	STRNSCPY(Rec.Code, pTrans->BillCode);
 	Rec.Dt      = pTrans->Date;
@@ -3021,7 +3022,7 @@ int PPBillPacket::SetCurTransit(const PPCurTransit * pTrans)
 	// @v11.1.12 STRNSCPY(Rec.Memo, pTrans->Memo);
 	SMemo = pTrans->Memo; // @v11.1.12
 	Rec.CRate   = pTrans->TransitCRate;
-	if(opk.Flags & OPKF_SELLING) {
+	if(op_rec.Flags & OPKF_SELLING) {
 		Rec.CurID  = pTrans->OutCurID;
 		Rec.Amount = BR2(pTrans->OutCurAmount);
 	}
@@ -5761,9 +5762,9 @@ int PPBillPacket::SumAmounts(AmtList * pList, int fromDB)
 	long   btb_flags = 0;
 	BillTotalData total_data;
 	// @v11.6.6 {
-	PPOprKind opk;
-	if(Rec.OpID && GetOpData(Rec.OpID, &opk)) {
-		if(opk.Flags & OPKF_CALCSTAXES)
+	PPOprKind op_rec;
+	if(Rec.OpID && GetOpData(Rec.OpID, &op_rec)) {
+		if(op_rec.Flags & OPKF_CALCSTAXES)
 			btb_flags |= BTC_CALCSALESTAXES;
 	}
 	// } @v11.6.6 
@@ -5801,7 +5802,7 @@ int PPBillPacket::SumAmounts(AmtList * pList, int fromDB)
 				}
 		}
 		// @v11.6.6 {
-		if(opk.OpTypeID == PPOPT_ACCTURN && opk.ExtFlags & OPKFX_ACCAUTOVAT) {
+		if(op_rec.OpTypeID == PPOPT_ACCTURN && op_rec.ExtFlags & OPKFX_ACCAUTOVAT) {
 			const double nominal_amount = pList->Get(PPAMT_MAIN, 0L/*@curID*/);
 			if(nominal_amount != 0.0) {
 				PPID  virtual_goods_id = CConfig.PrepayInvoiceGoodsID;

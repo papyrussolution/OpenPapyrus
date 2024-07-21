@@ -1029,6 +1029,7 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 			AddClusterAssoc(CTL_OBJTAG_FLAGS, 1, OTF_INHERITABLE);
 			AddClusterAssoc(CTL_OBJTAG_FLAGS, 2, OTF_NOTICEINCASHPANE);
 			AddClusterAssoc(CTL_OBJTAG_FLAGS, 3, OTF_HIERENUM);
+			AddClusterAssoc(CTL_OBJTAG_FLAGS, 4, OTF_PASSIVE); // @v12.0.8
 			SetClusterData(CTL_OBJTAG_FLAGS, Data.Rec.Flags);
 			DisableClusterItem(CTL_OBJTAG_FLAGS, 3, (typ != OTTYP_ENUM));
 			ObjTagItem::GetTypeString(typ, Data.Rec.TagEnumID, typ_name_buf);

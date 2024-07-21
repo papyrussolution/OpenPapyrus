@@ -9073,33 +9073,61 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 //
 //
 //
+int CheckPaneDialog::Helper_EgaisMarkAutoSelect(PPID goodsID, double qtty, TSCollection <EgaisMarkAutoSelectEntry> & rResult) // @v12.0.7 @construction
+{
+	int    ok = -1;
+	if(P_EgPrc && qtty != 0.0) {
+		Goods2Tbl::Rec goods_rec; // запись основного товара (который непосредственно продается)
+		Goods2Tbl::Rec org_goods_rec; // запись оригинального товара (из которого был произведен основной товар)
+		PPGoodsType gt_rec;
+		PPObjUnit unit_obj;
+		double main_goods_liter_ratio = 0.0;
+		if(goods_rec.PhUnitID && goods_rec.PhUPerU > 0.0) {
+			unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_LITER, &main_goods_liter_ratio);
+			main_goods_liter_ratio *= goods_rec.PhUPerU;
+		}
+		else {
+			unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &main_goods_liter_ratio);
+		}
+		if(main_goods_liter_ratio > 0.0) {
+			PPGoodsStruc::Ident gsi(goodsID, GSF_COMPL, GSF_PARTITIAL);
+			TSCollection <PPGoodsStruc> gs_list;
+			GObj.LoadGoodsStruc(gsi, gs_list);
+			for(uint gsidx = 0; !ok && gsidx < gs_list.getCount(); gsidx++) {
+				const PPGoodsStruc * p_gs = gs_list.at(gsidx);
+				if(p_gs) {
+					PPGoodsStrucItem gs_item;
+					double item_qtty = 0.0;
+					for(uint gs_pos = 0; p_gs->EnumItemsExt(&gs_pos, &gs_item, 0, qtty, &item_qtty) > 0;) {
+						if(P_EgPrc->IsAlcGoods(gs_item.GoodsID)) {
+							EgaisMarkAutoSelectEntry * p_entry = rResult.CreateNewItem();
+							p_entry->GoodsID = gs_item.GoodsID;
+						}
+						else {
+							// здесь нужна рекурсивная процедура поиска алкогольных позиций в структуре gs_item.GoodsID
+							// @todo Helper_EgaisMarkAutoSelect(gs_item.GoodsID, qtty, rResult);
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int CheckPaneDialog::EgaisMarkAutoSelect(PPID goodsID, double qtty, SString & rMarkBuf) // @v12.0.7 @construction
 {
 	rMarkBuf.Z();
 	int    ok = -1;
-	Goods2Tbl::Rec goods_rec; // запись основного товара (который непосредственно продается)
-	Goods2Tbl::Rec org_goods_rec; // запись оригинального товара (из которого был произведен основной товар)
-	if(qtty != 0.0 && GObj.Fetch(goodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
-		PPGoodsType gt_rec;
-		if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_EGAISAUTOWO) {
-			PPObjUnit unit_obj;
-			double main_goods_liter_ratio = 0.0;
-			if(goods_rec.PhUnitID && goods_rec.PhUPerU > 0.0) {
-				unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_LITER, &main_goods_liter_ratio);
-				main_goods_liter_ratio *= goods_rec.PhUPerU;
-			}
-			else {
-				unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &main_goods_liter_ratio);
-			}
-			if(main_goods_liter_ratio > 0.0) {
-				PPGoodsStruc::Ident gsi(goodsID, GSF_COMPL, GSF_PARTITIAL);
-				TSCollection <PPGoodsStruc> gs_list;
-				GObj.LoadGoodsStruc(gsi, gs_list);
-				for(uint gsidx = 0; !ok && gsidx < gs_list.getCount(); gsidx++) {
-					const PPGoodsStruc * p_gs = gs_list.at(gsidx);
-					if(p_gs) {
-					}
-				}
+	TSCollection <EgaisMarkAutoSelectEntry> result_list;
+	if(P_EgPrc) {
+		Goods2Tbl::Rec goods_rec; // запись основного товара (который непосредственно продается)
+		Goods2Tbl::Rec org_goods_rec; // запись оригинального товара (из которого был произведен основной товар)
+		if(qtty != 0.0 && GObj.Fetch(goodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
+			PPGoodsType gt_rec;
+			if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_EGAISAUTOWO) {
+				if(Helper_EgaisMarkAutoSelect(goodsID, qtty, result_list) > 0)
+					ok = 1;
 			}
 		}
 	}

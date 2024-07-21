@@ -2015,7 +2015,12 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 			const LDATE new_bill_dt = pParam->Dt.getactual(sample_pack.Rec.Dt);
 			pack.Rec.Dt = (new_bill_dt > sample_pack.Rec.Dt) ? new_bill_dt : sample_pack.Rec.Dt;
 		}
-		THROW(pack.SetupObject(sample_pack.Rec.Object, sob));
+		if(sample_pack.Rec.Object) {
+			ArticleTbl::Rec ar_rec;
+			if(ArObj.Fetch(sample_pack.Rec.Object, &ar_rec) > 0 && ar_rec.AccSheetID == op_rec.AccSheetID) {
+				THROW(pack.SetupObject(sample_pack.Rec.Object, sob));
+			}
+		}
 		pack.SampleBillID = sampleBillID;
 		if(pack.Rec.SCardID == 0 && sample_pack.Rec.SCardID > 0)
 			pack.Rec.SCardID = sample_pack.Rec.SCardID;
@@ -2054,6 +2059,14 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 							if(new_ti.Price == 0.0)
 								new_ti.Price = price;
 							new_ti.Cost = lot_rec.Cost;
+						}
+						else { // @v12.0.8
+							QuotIdent qi(pack.Rec.LocID, 0, pack.Rec.CurID, pack.Rec.Object);
+							PPSupplDeal sd;
+							GObj.GetSupplDeal(p_ti->GoodsID, qi, &sd, 1);
+							if(sd.Cost > 0.0) {
+								new_ti.Cost = sd.Cost;
+							}
 						}
 					}
 					new_ti.SetupSign(pack.Rec.OpID);
@@ -8875,8 +8888,8 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 	SString msg_buf;
 	SString fmt_buf, temp_buf;
 	PPAccTurn at;
-	PPOprKind opk;
-	PPOprKind link_opk;
+	PPOprKind op_rec;
+	PPOprKind link_op_rec;
 	PPBillPacket shadow;
 	PPTransferItem * p_ti;
 	pPack->destroy();
@@ -8884,9 +8897,9 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 	THROW(P_Tbl->Extract(id, pPack));
 	THROW(GetPoolsMembership(id, pPack));
 	if(pPack->Rec.OpID) {
-		THROW(GetOpData(pPack->Rec.OpID, &opk));
-		pPack->OpTypeID  = opk.OpTypeID;
-		pPack->AccSheetID = opk.AccSheetID;
+		THROW(GetOpData(pPack->Rec.OpID, &op_rec));
+		pPack->OpTypeID  = op_rec.OpTypeID;
+		pPack->AccSheetID = op_rec.AccSheetID;
 	}
 	//
 	// Несмотря на то, что признаки товарной операции должны быть
@@ -8902,8 +8915,8 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 		msg_buf.Z().Cat(pPack->Rec.LinkBillID);
 		THROW(r = P_Tbl->Search(pPack->Rec.LinkBillID, &link_bill_rec));
 		THROW_PP_S(r > 0, PPERR_LINKBILLNFOUND, msg_buf);
-		THROW(GetOpData(link_bill_rec.OpID, &link_opk));
-		SETIFZ(pPack->AccSheetID, link_opk.AccSheetID);
+		THROW(GetOpData(link_bill_rec.OpID, &link_op_rec));
+		SETIFZ(pPack->AccSheetID, link_op_rec.AccSheetID);
 		if(pPack->OpTypeID == PPOPT_CORRECTION /*&& link_opk.OpTypeID == PPOPT_GOODSEXPEND*/) {
 			THROW_MEM(SETIFZ(pPack->P_LinkPack, new PPBillPacket));
 			pPack->P_LinkPack->destroy();

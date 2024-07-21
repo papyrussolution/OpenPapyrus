@@ -71,7 +71,6 @@ private:
 	bool   IsZeroPriceAllowed();
 	int    setupAllQuantity(int byLot);
 	void   setQuotSign();
-	// @v10.2.11 (unused) SArray * SelectGoodsByPrice(PPID loc, double price);
 	int    ProcessRevalOnAllLots(const PPTransferItem *);
 
 	PPObjBill * P_BObj;
@@ -90,7 +89,7 @@ private:
 		stAllowSupplSel   = 0x0004, // Позволяет выбор поставщика
 		stGoodsFixed      = 0x0008, // Фиксированный товар (выбран до входа в диалог)
 		stWasCostInput    = 0x0010,
-		stLockQttyAutoUpd = 0x0020 // @v10.2.4 Блокировка автоматического пересчета полей количества/емкость упаковки/количество упаковок
+		stLockQttyAutoUpd = 0x0020  // Блокировка автоматического пересчета полей количества/емкость упаковки/количество упаковок
 	};
 	long   St;
 	enum {
@@ -139,14 +138,12 @@ static int CanUpdateSuppl(const PPBillPacket * pBp, int itemNo)
 		else if(itemNo >= 0 && pBp->TI(itemNo).Flags & PPTFR_FORCESUPPL)
 			yes = 1;
 	}
-	// @v10.5.8 {
 	else if(pBp->OpTypeID == PPOPT_DRAFTQUOTREQ) {
 		PPOprKind op_rec;
 		GetOpData(pBp->Rec.OpID, &op_rec);
 		if(op_rec.AccSheetID && op_rec.AccSheetID == GetSupplAccSheet())
 			yes = 1;
 	}
-	// } @v10.5.8
 	return yes;
 }
 
@@ -244,7 +241,7 @@ int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData
 		case PPOPT_GOODSACK:    dlg_id = DLG_ACKITEM;       break;
 		case PPOPT_DRAFTRECEIPT:
 		case PPOPT_DRAFTTRANSIT: dlg_id = /*allow_suppl_sel ? DLG_SLOTITEM :*/ DLG_LOTITEM; break;
-		case PPOPT_DRAFTQUOTREQ: // @v10.5.7
+		case PPOPT_DRAFTQUOTREQ:
 			if(pInitData && pInitData->Flags & TIDIF_SEQQREQ) {
 				dlg_id = DLG_QUOTEREQSEQ;
 			}
@@ -435,8 +432,8 @@ TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opI
 	Ptb.SetBrush(brushQuotedPrice, SPaintObj::bsSolid, GetColorRef(SClrYellow), 0);
 	Ptb.SetBrush(brushQuotedPriceNoCancel, SPaintObj::bsSolid, GetColorRef(SClrLime), 0);
 	Ptb.SetBrush(brushPriceBelowCost, SPaintObj::bsSolid, GetColorRef(SClrAqua), 0);
-	Ptb.SetBrush(brushVetisUuidExists, SPaintObj::bsSolid, GetColorRef(SClrGreen), 0); // @v10.1.8
-	Ptb.SetBrush(brushVetisUuidAbsence, SPaintObj::bsSolid, GetColorRef(SClrRed), 0); // @v10.1.8
+	Ptb.SetBrush(brushVetisUuidExists, SPaintObj::bsSolid, GetColorRef(SClrGreen), 0);
+	Ptb.SetBrush(brushVetisUuidAbsence, SPaintObj::bsSolid, GetColorRef(SClrRed), 0);
 
 	MEMSZERO(Sd);
 	PPLoadText(PPTXT_TIDLG_STRINGS, Strings);
@@ -461,12 +458,10 @@ TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opI
 		if(GetOpName(opID, temp_buf) > 0)
 			setTitle(temp_buf);
 	}
-	// @v10.2.4 {
 	{
 		TInputLine * p_pk_inp = static_cast<TInputLine *>(getCtrlView(CTL_LOT_PACKS));
 		CALLPTRMEMB(p_pk_inp, setFormat(MKSFMTD(10, 6, NMBF_NOTRAILZ)));
 	}
-	// } @v10.2.4
 }
 
 int TrfrItemDialog::isModifPlus() const
@@ -516,11 +511,9 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 		disable_goods = 1;
 	if(OpTypeID == PPOPT_GOODSRETURN) {
 		disable_goods = 1;
-		disableCtrls(1, CTL_LOT_UNITPERPACK, CTL_LOT_COST, /*@v10.1.12 CTL_LOT_PRICE, CTL_LOT_DISCOUNT,*/ CTL_LOT_LOT, 0);
-		// @v10.1.12 {
+		disableCtrls(1, CTL_LOT_UNITPERPACK, CTL_LOT_COST, CTL_LOT_LOT, 0);
 		if(Item.Flags & PPTFR_PLUS)
 			disableCtrls(1, CTL_LOT_PRICE, CTL_LOT_DISCOUNT, 0);
-		// } @v10.1.12
 	}
 	else if(IsIntrExpndOp(OpID))
 		disableCtrl(CTL_LOT_COST, 1);
@@ -866,7 +859,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 						setupPriceLimit();
 					}
 					break;
-				case cmVetisMatch: // @v10.1.8
+				case cmVetisMatch:
 					if(Item.Flags & PPTFR_RECEIPT && CConfig.Flags2 & CCFLG2_USEVETIS && checkdate(P_Pack->Rec.Dt)) {
 						const  PPID suppl_person_id = ObjectToPerson(P_Pack->Rec.Object, 0);
 						if(suppl_person_id) {
@@ -1036,7 +1029,6 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 									}
 								}
 							}
-							// @v10.1.8 {
 							else if(getCtrlHandle(CTL_LOT_VETISIND) == p_dc->H_Ctl) {
 								SString temp_buf;
 								P_Pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf);
@@ -1049,7 +1041,6 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 									clearEvent(event);
 								}
 							}
-							// } @v10.1.8
 						}
 					}
 					return;
@@ -1321,7 +1312,8 @@ void TrfrItemDialog::setupCtrlsOnGoodsSelection()
 int TrfrItemDialog::replyGoodsSelection(int recurse)
 {
 	int    ok = 1;
-	int    r, again = 0;
+	int    r;
+	int    again = 0;
 	int    dir = 0;
 	int    all_lots_in_pckg = 0;
 	double quot = 0.0;
@@ -1432,6 +1424,10 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 			if(P_Trfr->Rcpt.GetLastLot(-labs(Item.GoodsID), -lid, sd, &lot_rec) > 0) {
 				Item.QCert = lot_rec.QCertID;
 				Item.UnitPerPack = lot_rec.UnitPerPack;
+			}
+			else { // @v12.0.8
+				const QuotIdent qi(Item.LocID, PPQUOTK_BASE, Item.CurID, P_Pack->Rec.Object);
+				THROW(r = GObj.GetQuot(Item.GoodsID, qi, 0.0, 0.0, &quot));
 			}
 		}
 	}
@@ -1645,11 +1641,11 @@ void TrfrItemDialog::setupQuantity(uint master, int readFlds)
 		}
 		else
 			NumPacks = 0.0;
-		if(master != CTL_LOT_UNITPERPACK) // @v10.2.4
+		if(master != CTL_LOT_UNITPERPACK)
 			setCtrlReal(CTL_LOT_UNITPERPACK, Item.UnitPerPack);
-		if(master != CTL_LOT_PACKS) // @v10.2.4
+		if(master != CTL_LOT_PACKS)
 			setCtrlReal(CTL_LOT_PACKS,       NumPacks);
-		if(master != CTL_LOT_QUANTITY) // @v10.2.4
+		if(master != CTL_LOT_QUANTITY)
 			setCtrlReal(CTL_LOT_QUANTITY,    Item.Quantity_);
 		if(Item.IsCorrectionExp()) {
 			const double eff_qtty = Item.GetEffCorrectionExpQtty();
@@ -1681,7 +1677,7 @@ void TrfrItemDialog::setupQuantity(uint master, int readFlds)
 			if(Item.Flags & PPTFR_INDEPPHQTTY)
 				getCtrlData(CTL_LOT_INDEPPHQTTY, &Item.WtQtty);
 		}
-		if(master != CTL_LOT_QUANTITY) // @v10.2.4
+		if(master != CTL_LOT_QUANTITY)
 			setCtrlReal(CTL_LOT_QUANTITY, Item.Qtty());
 	}
 	{
@@ -1694,12 +1690,10 @@ void TrfrItemDialog::setupQuantity(uint master, int readFlds)
 		setStaticText(CTL_LOT_PHQTTY, phq_txt);
 	}
 	setupRest();
-	// @v10.2.4 {
-	if(!(St & stLockQttyAutoUpd)) { // @v10.2.9
+	if(!(St & stLockQttyAutoUpd)) {
 		TInputLine * il = static_cast<TInputLine *>(getCtrlView(master));
 		CALLPTRMEMB(il, disableDeleteSelection(1));
 	}
-	// } @v10.2.4
 	CATCH
 		;
 	ENDCATCH
@@ -1735,8 +1729,7 @@ void TrfrItemDialog::setupVaPct()
 			getCtrlData(CTL_LOT_PRICE,    &pc);
 			getCtrlData(CTL_LOT_DISCOUNT, &ds);
 			if(Item.Cost > 0.0 && (pc - ds) > 0.0) {
-				// @v10.5.8 PPGetWord(PPWORD_PCTADDEDVAL, 0, out_buf);
-				PPLoadString("extrachargepct",  out_buf); // @v10.5.8
+				PPLoadString("extrachargepct",  out_buf);
 				out_buf.CatDiv(':', 2).Cat(100.0 * (pc - ds - Item.Cost) / Item.Cost, MKSFMTD(0, 1, 0));
 			}
 			else
@@ -1838,7 +1831,7 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 	Goods2Tbl::Rec grp_rec;
 	ushort v;
 	SString temp_buf;
-	St |= stLockQttyAutoUpd; // @v10.2.4
+	St |= stLockQttyAutoUpd;
 	Item  = *pItem;
 	Price = Item.Price;
 	setCtrlCost();
@@ -1969,7 +1962,6 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 		showCtrl(CTL_LOT_SOURCESERIAL, 0);
 		showButton(cmSourceSerial, 0);
 	}
-	// @v10.5.8 {
 	if(P_Pack->OpTypeID == PPOPT_DRAFTQUOTREQ && Item.Lbr.ID > 0) {
 		long   seqqrack = CHKXORFLAGS(Item.TFlags, PPTransferItem::tfQrSeqAccepted, PPTransferItem::tfQrSeqRejected);
 		AddClusterAssocDef(CTL_LOT_SEQQRACK, 0, 0);
@@ -1977,10 +1969,9 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 		AddClusterAssoc(CTL_LOT_SEQQRACK, 2, PPTransferItem::tfQrSeqRejected);
 		SetClusterData(CTL_LOT_SEQQRACK, seqqrack);
 	}
-	// } @v10.5.8
 	setupManuf();
 	CATCHZOK
-	St &= ~stLockQttyAutoUpd; // @v10.2.4
+	St &= ~stLockQttyAutoUpd;
 	return ok;
 }
 //
@@ -2145,7 +2136,7 @@ int TrfrItemDialog::CheckPrice()
 	{
 		RealRange range;
 		if(GetPriceRestrictions(&range) > 0) {
-			if(!range.CheckValEps(Item.NetPrice(), 1E-7)) { // @v10.2.12 // @v10.4.0 @fix ()-->(!)
+			if(!range.CheckValEps(Item.NetPrice(), 1E-7)) {
 				if(range.low > 0.0) {
 					msg.Z().Cat(range.low, SFMT_MONEY);
 					THROW_PP_S(Item.NetPrice() >= range.low, PPERR_PRICERESTRLOW, msg);
@@ -2372,7 +2363,6 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 			THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_CLB, ItemNo, clb_number));
 		}
 	}
-	// @v10.5.8 {
 	if(getCtrlView(CTL_LOT_SEQQRACK)) {
 		Item.TFlags &= ~(PPTransferItem::tfQrSeqAccepted|PPTransferItem::tfQrSeqRejected);
 		if(P_Pack->OpTypeID == PPOPT_DRAFTQUOTREQ && Item.Lbr.ID > 0) {
@@ -2383,7 +2373,6 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 				Item.TFlags |= PPTransferItem::tfQrSeqRejected;
 		}
 	}
-	// } @v10.5.8
 	getManuf();
 	*pItem = Item;
 	CATCH
@@ -2559,14 +2548,13 @@ int TrfrItemDialog::_SetupLot(bool dontSetupPriceByLot)
 	}
 	else
 	   	Rest = (Item.Flags & (PPTFR_RECEIPT | PPTFR_UNLIM)) ? Item.Quantity_ : 0.0;
-	if(!Item.QCert && Item.GoodsID && !(P_BObj->GetConfig().Flags & BCF_DONTINHQCERT) && (Item.Flags & PPTFR_RECEIPT)) // @v10.4.10 (Item.Flags & PPTFR_RECEIPT)
-		P_Trfr->Rcpt.GetLastQCert(labs(Item.GoodsID), Item.Date, Item.LocID, &Item.QCert, 0); // @v10.4.10 Item.Date // @v11.9.10 Item.LocID
+	if(!Item.QCert && Item.GoodsID && !(P_BObj->GetConfig().Flags & BCF_DONTINHQCERT) && (Item.Flags & PPTFR_RECEIPT))
+		P_Trfr->Rcpt.GetLastQCert(labs(Item.GoodsID), Item.Date, Item.LocID, &Item.QCert, 0);
 	setCtrlLong(CTLSEL_LOT_QCERT, Item.QCert);
 	{
 		QCertCtrlGroup::Rec qc_rec(Item.QCert);
 		setGroupData(ctlgroupQCert, &qc_rec);
 	}
-	// @v10.1.8 {
 	if(Item.Flags & PPTFR_RECEIPT) {
 		P_Pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf);
 		if(temp_buf.NotEmpty() || GObj.CheckFlag(Item.GoodsID, GF_WANTVETISCERT)) {
@@ -2583,7 +2571,6 @@ int TrfrItemDialog::_SetupLot(bool dontSetupPriceByLot)
 		showCtrl(CTL_LOT_VETISIND, 0);
 		showCtrl(CTL_LOT_VETISMATCHBUTTON, 0);
 	}
-	// } @v10.1.8
 	enableCommand(cmQCert, (Item.QCert && Item.LotID) || (Item.Flags & PPTFR_DRAFT));
 	setupQuantity(0, 0);
 	setCtrlData(CTL_LOT_EXPIRY, &Item.Expiry);
@@ -2780,7 +2767,7 @@ IMPL_CMPFUNC(SelLotBrowser_Entry_dt_oprno, i1, i2)
 			THROW(p_bobj->trfr->GetLotPrices(&lot_rec, billDate));
 		entry.Cost  = p_bobj->CheckRights(BILLRT_ACCSCOST) ? lot_rec.Cost : 0;
 		entry.Price = lot_rec.Price;
-		entry.Qtty  = lot_rec.Quantity; // @v10.1.0
+		entry.Qtty  = lot_rec.Quantity;
 		entry.Rest  = rest;
 		entry.GoodsID = labs(lot_rec.GoodsID);
 		entry.Expiry  = lot_rec.Expiry;
@@ -2882,14 +2869,13 @@ int SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				case 16: // VETIS UUID лота
 					{
 						ObjTagItem tag_item;
-						// @v10.3.8 if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_VETIS_UUID, &tag_item) > 0)
-						if(PPRef->Ot.GetTag(PPOBJ_LOT, p_item->LotID, PPTAG_LOT_VETIS_UUID, &tag_item) > 0) { // @v10.3.8
+						if(PPRef->Ot.GetTag(PPOBJ_LOT, p_item->LotID, PPTAG_LOT_VETIS_UUID, &tag_item) > 0) { // Здесь намеренно не применяем кэшированный доступ к тегам
 							tag_item.GetStr(temp_buf);
 						}
 						pBlk->Set(temp_buf);
 					}
 					break;
-				case 17: // @v10.2.12 Тег дата производства
+				case 17: // Тег дата производства
 					{
 						ObjTagItem tag_item;
 						if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_MANUFTIME, &tag_item) > 0) {
@@ -2930,7 +2916,6 @@ int SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					}
 				}
 			}
-			// @v10.4.4 {
 			else if(r_col.OrgOffs == 8) { // Expiry
 				const PPBillConfig & r_bcfg = p_bobj->GetConfig();
 				if(r_bcfg.WarnLotExpirFlags & r_bcfg.wlefIndicator) {
@@ -2940,7 +2925,6 @@ int SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					}
 				}
 			}
-			// } @v10.4.4
 			// @v11.1.8 {
 			else if(r_col.OrgOffs == 5) { // Serial
 				if(!isempty(p_item->Serial)) {
@@ -2998,7 +2982,7 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 				PPLoadString("ware", temp_buf);
 				insertColumn(at_pos++, temp_buf, 9, MKSTYPE(S_ZSTRING, 128), 0, BCO_CAPLEFT|BCO_USERPROC);
 			}
-			at_pos += 4; // @v10.1.3
+			at_pos += 4;
 			if(Flags & fShowBarcode) {
 				PPLoadString("barcode", temp_buf);
 				insertColumn(at_pos++, temp_buf, 13, MKSTYPE(S_ZSTRING, 20), 0, BCO_CAPLEFT|BCO_USERPROC);
@@ -3031,12 +3015,10 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 			PPLoadString("rtag_lotvetisuuid", temp_buf);
 			insertColumn(-1, temp_buf, 16, MKSTYPE(S_ZSTRING, 40), 0, BCO_CAPLEFT|BCO_USERPROC);
 		}
-		// @v10.2.10 {
 		if(Flags & fShowManufTime) {
 			PPLoadString("rtag_manuftime", temp_buf);
 			insertColumn(-1, temp_buf, 17, MKSTYPE(S_ZSTRING, 12), 0, BCO_CAPLEFT|BCO_USERPROC);
 		}
-		// } @v10.2.10
 	}
 	P_BObj = pBObj;
 	setInitPos(pos);
@@ -3048,7 +3030,7 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 		setSubTitle(single_serial);
 	BrowserDef * p_def = getDef();
 	CALLPTRMEMB(p_def, SetUserProc(SelLotBrowser::GetDataForBrowser, this));
-	SetCellStyleFunc(SelLotBrowser::StyleFunc, this); // @v10.4.3
+	SetCellStyleFunc(SelLotBrowser::StyleFunc, this);
 }
 
 SelLotBrowser::~SelLotBrowser() // @v11.1.8
@@ -3097,7 +3079,7 @@ IMPL_HANDLE_EVENT(SelLotBrowser)
 			EditObjTagValList(PPOBJ_LOT, p_entry->LotID, 0);
 		else if(event.isKeyDown(kbCtrlF3))
 			P_BObj->EditLotSystemInfo(p_entry->LotID);
-		else if(event.isKeyDown(kbCtrlA)) { // @v10.4.10
+		else if(event.isKeyDown(kbCtrlA)) {
 
 		}
 		else

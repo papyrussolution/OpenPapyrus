@@ -30,14 +30,10 @@ int PPInventoryOpEx::GetAccelInputMode() const
 void PPInventoryOpEx::SetAccelInputMode(int mode)
 {
 	if(mode == accsliCode) {
-		SETUPFLAGS(Flags, INVOPF_ACCELADDITEMS, INVOPF_ACCELADDITEMSQTTY); // @v10.6.1
-		// @v10.6.1 Flags |= INVOPF_ACCELADDITEMS;
-		// @v10.6.1 Flags &= ~INVOPF_ACCELADDITEMSQTTY;
+		SETUPFLAGS(Flags, INVOPF_ACCELADDITEMS, INVOPF_ACCELADDITEMSQTTY);
 	}
 	else if(mode == accsliCodeAndQtty) {
-		SETUPFLAGS(Flags, INVOPF_ACCELADDITEMSQTTY, INVOPF_ACCELADDITEMS); // @v10.6.1
-		// @v10.6.1 Flags &= ~INVOPF_ACCELADDITEMS;
-		// @v10.6.1 Flags |= INVOPF_ACCELADDITEMSQTTY;
+		SETUPFLAGS(Flags, INVOPF_ACCELADDITEMSQTTY, INVOPF_ACCELADDITEMS);
 	}
 	else {
 		Flags &= ~(INVOPF_ACCELADDITEMS|INVOPF_ACCELADDITEMSQTTY);
@@ -3277,9 +3273,9 @@ int FASTCALL GetOpName(PPID opID, SString & rBuf)
 
 int FASTCALL GetOpName(PPID op, char * buf, size_t buflen)
 {
-	PPOprKind opk;
-	if(op && GetOpData(op, &opk)) {
-		strnzcpy(buf, opk.Name, buflen);
+	PPOprKind op_rec;
+	if(op && GetOpData(op, &op_rec)) {
+		strnzcpy(buf, op_rec.Name, buflen);
 		return 1;
 	}
 	else {
@@ -3290,11 +3286,11 @@ int FASTCALL GetOpName(PPID op, char * buf, size_t buflen)
 
 int FASTCALL CheckOpFlags(PPID op, long andF, long notF)
 {
-	PPOprKind opk;
-	if(op && GetOpData(op, &opk))
-		if(andF && (opk.Flags & andF) != andF)
+	PPOprKind op_rec;
+	if(op && GetOpData(op, &op_rec))
+		if(andF && (op_rec.Flags & andF) != andF)
 			return 0;
-		else if(notF && (opk.Flags & notF) == notF)
+		else if(notF && (op_rec.Flags & notF) == notF)
 			return 0;
 		else
 			return 1;
@@ -3304,9 +3300,9 @@ int FASTCALL CheckOpFlags(PPID op, long andF, long notF)
 
 int FASTCALL CheckOpPrnFlags(PPID op, long andF)
 {
-	PPOprKind opk;
-	if(op && GetOpData(op, &opk))
-		return (andF && (opk.PrnFlags & andF) != andF) ? 0 : 1;
+	PPOprKind op_rec;
+	if(op && GetOpData(op, &op_rec))
+		return (andF && (op_rec.PrnFlags & andF) != andF) ? 0 : 1;
 	else
 		return 0;
 }
@@ -3314,32 +3310,33 @@ int FASTCALL CheckOpPrnFlags(PPID op, long andF)
 int FASTCALL EnumOperations(PPID opTypeID, PPID * pID, PPOprKind * pOpData)
 {
 	int    r;
-	PPOprKind rec;
-	while((r = PPRef->EnumItems(PPOBJ_OPRKIND, pID, &rec)) > 0)
-		if(!opTypeID || rec.OpTypeID == opTypeID) {
+	PPOprKind op_rec;
+	while((r = PPRef->EnumItems(PPOBJ_OPRKIND, pID, &op_rec)) > 0) {
+		if(!opTypeID || op_rec.OpTypeID == opTypeID) {
 			if(pOpData)
-				memcpy(pOpData, &rec, sizeof(PPOprKind));
+				memcpy(pOpData, &op_rec, sizeof(PPOprKind));
 			return 1;
 		}
+	}
 	return r ? -1 : 0;
 }
 
 PPID FASTCALL GetOpType(PPID opID, PPOprKind * pOpData)
 {
 	PPID   op_type_id = 0;
-	PPOprKind rec;
-	if(opID && GetOpData(opID, &rec))
-		op_type_id = rec.OpTypeID;
+	PPOprKind op_rec;
+	if(opID && GetOpData(opID, &op_rec))
+		op_type_id = op_rec.OpTypeID;
 	else
-		MEMSZERO(rec);
-	ASSIGN_PTR(pOpData, rec);
+		MEMSZERO(op_rec);
+	ASSIGN_PTR(pOpData, op_rec);
 	return op_type_id;
 }
 
 int FASTCALL GetOpSubType(PPID opID)
 {
-	PPOprKind rec;
-	return GetOpData(opID, &rec) ? rec.SubType : 0;
+	PPOprKind op_rec;
+	return GetOpData(opID, &op_rec) ? op_rec.SubType : 0;
 }
 
 PPID FASTCALL IsOpPaymOrRetn(PPID opID)
@@ -3487,28 +3484,31 @@ int FASTCALL GetOpCommonAccSheet(PPID opID, PPID * pAccSheetID, PPID * pAccSheet
 	int    ok = -1;
 	PPID   acc_sheet_id = 0;
 	PPID   acc_sheet2_id = 0;
-	PPOprKind opk;
-	if(GetOpData(opID, &opk)) {
-		if(opk.AccSheet2ID)
-			acc_sheet2_id = opk.AccSheet2ID;
-		if(opk.AccSheetID || GetOpData(opk.LinkOpID, &opk) > 0)
-			acc_sheet_id = opk.AccSheetID;
-		else if(opk.OpTypeID == PPOPT_GENERIC) {
+	PPOprKind op_rec;
+	if(GetOpData(opID, &op_rec)) {
+		if(op_rec.AccSheet2ID)
+			acc_sheet2_id = op_rec.AccSheet2ID;
+		if(op_rec.AccSheetID || GetOpData(op_rec.LinkOpID, &op_rec) > 0)
+			acc_sheet_id = op_rec.AccSheetID;
+		else if(op_rec.OpTypeID == PPOPT_GENERIC) {
 		   	PPIDArray op_list;
 			GetGenericOpList(opID, &op_list);
 			for(uint i = 0; i < op_list.getCount(); i++) {
-				PPID tmp_acc_sheet_id = 0, tmp_acc_sheet2_id = 0;
+				PPID   tmp_acc_sheet_id = 0;
+				PPID   tmp_acc_sheet2_id = 0;
 				GetOpCommonAccSheet(op_list.at(i), &tmp_acc_sheet_id, &tmp_acc_sheet2_id); // @recursion
-				if(acc_sheet2_id >= 0)
+				if(acc_sheet2_id >= 0) {
 					if(acc_sheet2_id == 0)
 						acc_sheet2_id = tmp_acc_sheet2_id;
 					else if(tmp_acc_sheet2_id && tmp_acc_sheet2_id != acc_sheet2_id)
 						acc_sheet2_id = -1;
-				if(acc_sheet_id >= 0)
+				}
+				if(acc_sheet_id >= 0) {
 					if(acc_sheet_id == 0)
 						acc_sheet_id = tmp_acc_sheet_id;
 					else if(tmp_acc_sheet_id && tmp_acc_sheet_id != acc_sheet_id)
 						acc_sheet_id = -1;
+				}
 			}
 		}
 	}

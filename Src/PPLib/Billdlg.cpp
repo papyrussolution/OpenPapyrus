@@ -622,7 +622,7 @@ private:
 	int    editPaymOrder(int forceUpdateRcvr);
 	int    EditFreight();
 	int    calcAmounts(double * _amt);
-	void   SetupInfoText(); // @v10.9.9 CTL_BILL_ST_SCARD
+	void   SetupInfoText(); // CTL_BILL_ST_SCARD
 	void   setupDebtText();
 	void   setupByCntragnt();
 	void   ReplyCntragntSelection(int force);
@@ -644,25 +644,14 @@ private:
 	void   SetupAgreementButton();
 	int    EditAgreement();
 	void   SetupPaymDateCtrls();
-	void   SetupMarks()
-	{
-		bool show_autorcpt_mark = false;
-		bool show_whitelabel_mark = false;
-		if(P_Pack) {
-			if(P_Pack->Rec.Flags & BILLF_WHITELABEL)
-				show_whitelabel_mark = true;
-			if(P_Pack->Rec.Flags2 & BILLF2_FORCEDRECEIPT)
-				show_autorcpt_mark = true;
-		}
-		showCtrl(CTL_BILL_IND_AUTORCPT, show_autorcpt_mark);
-		showCtrl(CTL_BILL_IND_WL, show_whitelabel_mark);
-	}
+	void   SetupMarks();
+
 	enum {
-		fPctDis    = 0x0001, // Признак того, что скидка указана в процентах
+		fPctDis            = 0x0001, // Признак того, что скидка указана в процентах
 		fExtMainCurAmount  = 0x0002, // Признак наличия в диалоге полей валюты и валютного курса (CTL_BILL_CUR, CTLSEL_BILL_CUR, CTL_BILL_CRATE, CTL_BILL_BASEAMT)
-		fEditMode  = 0x0004,
+		fEditMode          = 0x0004,
 		fHasAmtIDList      = 0x0008,
-		fModified  = 0x0010,
+		fModified          = 0x0010,
 		fSetupObj2ByCliAgt = 0x0020,
 		fCheckAgreement    = 0x0040, // Включается если в таблице статей установлено использование соглашений
 		fCheckCreditLim    = 0x0080, // Вид операции, возможно, требует проверки кредитного лимита
@@ -756,8 +745,7 @@ int EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 	uint   prn_form = 0;
 	BillDialog * dlg = 0;
 	uint   dlg_id = 0;
-	// @v10.2.3 THROW(r_rt.CheckOpID(pPack->Rec.OpID, PPR_READ));
-	THROW(p_bobj->CheckRightsWithOp(pPack->Rec.OpID, PPR_READ)); // @v10.2.3
+	THROW(p_bobj->CheckRightsWithOp(pPack->Rec.OpID, PPR_READ));
 	if(CheckOpFlags(pPack->Rec.OpID, OPKF_CURTRANSIT)) {
 		THROW(r = EditCurTransitBill(pPack));
 	}
@@ -769,8 +757,7 @@ int EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 		if(egbFlags & PPObjBill::efEdit && egbFlags & PPObjBill::efForceModify/*options == 2*/)
 			dlg->Flags |= BillDialog::fModified;
 		if(egbFlags & PPObjBill::efEdit/*options >= 1*/) {
-			// @v10.2.3 if(!p_bobj->CheckRights(PPR_MOD) || !r_rt.CheckBillDate(pPack->Rec.Dt) || !r_rt.CheckOpID(pPack->Rec.OpID, PPR_MOD)) {
-			if(!p_bobj->CheckRights(PPR_MOD) || !r_rt.CheckBillDate(pPack->Rec) || !p_bobj->CheckRightsWithOp(pPack->Rec.OpID, PPR_MOD)) { // @v10.2.3
+			if(!p_bobj->CheckRights(PPR_MOD) || !r_rt.CheckBillDate(pPack->Rec) || !p_bobj->CheckRightsWithOp(pPack->Rec.OpID, PPR_MOD)) {
 				dlg->enableCommand(cmOK, 0);
 				//options = 3;
 				egbFlags |= PPObjBill::efNoUpdNotif;
@@ -2286,7 +2273,7 @@ void BillDialog::ReplyCntragntSelection(int force)
 	PaymTerm = -1;             // Срок оплаты по документу (в днях), взятый из соглашения //
 	PayDateBase = 0;
 	SString add_msg;
-	PPID   client_id = force ? P_Pack->Rec.Object : getCtrlLong(CTLSEL_BILL_OBJECT);
+	const  PPID   client_id = force ? P_Pack->Rec.Object : getCtrlLong(CTLSEL_BILL_OBJECT);
 	const  int    to_force_update = BIN((force && client_id) || client_id != P_Pack->Rec.Object);
 	if(P_Pack->SampleBillID)
 		P_BObj->SetupQuot(P_Pack, client_id);
@@ -2399,19 +2386,44 @@ void BillDialog::ReplyCntragntSelection(int force)
 				ExecViewAndDestroy(dlg);
 			}
 		}
-		if(client_id && P_Pack->OpTypeID == PPOPT_GOODSRECEIPT && P_Pack->AccSheetID == GetSupplAccSheet() && P_Pack->GetTCount()) {
-			int is_there_force_suppl = 0;
-			uint i;
-			for(i = 0; !is_there_force_suppl && i < P_Pack->GetTCount(); i++) {
-				PPTransferItem & r_ti = P_Pack->TI(i);
-				if(r_ti.Flags & PPTFR_FORCESUPPL)
-					is_there_force_suppl = 1;
-			}
-			if(is_there_force_suppl && CONFIRM(PPCFM_REPLCTIFORCESUPPL)) {
-				for(i = 0; i < P_Pack->GetTCount(); i++) {
-					PPTransferItem & r_ti = P_Pack->TI(i);
-					if(r_ti.Flags & PPTFR_FORCESUPPL)
-						r_ti.Flags &= ~PPTFR_FORCESUPPL;
+		if(client_id) {
+			const uint tcount = P_Pack->GetTCount();
+			if(tcount) {
+				if(P_Pack->AccSheetID == GetSupplAccSheet()) {
+					if(P_Pack->OpTypeID == PPOPT_GOODSRECEIPT) {
+						bool is_there_force_suppl = false;
+						{
+							for(uint i = 0; !is_there_force_suppl && i < tcount; i++) {
+								PPTransferItem & r_ti = P_Pack->TI(i);
+								if(r_ti.Flags & PPTFR_FORCESUPPL)
+									is_there_force_suppl = true;
+							}
+						}
+						if(is_there_force_suppl && CONFIRM(PPCFM_REPLCTIFORCESUPPL)) {
+							for(uint i = 0; i < tcount; i++) {
+								PPTransferItem & r_ti = P_Pack->TI(i);
+								if(r_ti.Flags & PPTFR_FORCESUPPL)
+									r_ti.Flags &= ~PPTFR_FORCESUPPL;
+							}
+						}
+					}
+					else if(P_Pack->OpTypeID == PPOPT_DRAFTRECEIPT) { // @v12.0.8
+						//
+						// В случае, если мы устанавливаем поставщика в драфт-приходе и в какой-то строке цена поступления не определена,
+						// то применяем в этом случае контрактную цену поставщика (если такая есть)
+						//
+						for(uint i = 0; i < tcount; i++) {
+							PPTransferItem & r_ti = P_Pack->TI(i);
+							if(r_ti.Cost == 0.0) {
+								QuotIdent qi(P_Pack->Rec.LocID, 0, P_Pack->Rec.CurID, client_id);
+								PPSupplDeal sd;
+								GObj.GetSupplDeal(r_ti.GoodsID, qi, &sd, 1);
+								if(!sd.IsDisabled && sd.Cost > 0) {
+									r_ti.Cost = sd.Cost;
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -2540,6 +2552,20 @@ void BillDialog::SetupPaymDateCtrls()
 			enableCommand(cmBillPayPlan, 0);
 		}
 	}
+}
+
+void BillDialog::SetupMarks()
+{
+	bool show_autorcpt_mark = false;
+	bool show_whitelabel_mark = false;
+	if(P_Pack) {
+		if(P_Pack->Rec.Flags & BILLF_WHITELABEL)
+			show_whitelabel_mark = true;
+		if(P_Pack->Rec.Flags2 & BILLF2_FORCEDRECEIPT)
+			show_autorcpt_mark = true;
+	}
+	showCtrl(CTL_BILL_IND_AUTORCPT, show_autorcpt_mark);
+	showCtrl(CTL_BILL_IND_WL, show_whitelabel_mark);
 }
 
 void BillDialog::SetupInfoText()

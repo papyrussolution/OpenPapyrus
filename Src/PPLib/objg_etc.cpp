@@ -71,7 +71,7 @@ int PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  7, GTF_REQBARCODE);
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  8, GTF_QUASIUNLIM);
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS,  9, GTF_LOOKBACKPRICES);
-	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 10, GTF_GMARKED); // @v10.4.11
+	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 10, GTF_GMARKED);
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 11, GTF_EXCISEPROFORMA); // @v11.7.10
 	dlg->AddClusterAssoc(CTL_GDSTYP_FLAGS, 12, GTF_EGAISAUTOWO); // @v12.0.7
 	dlg->SetClusterData(CTL_GDSTYP_FLAGS, rec.Flags);
@@ -94,7 +94,7 @@ int PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 			dlg->getCtrlData(CTLSEL_GDSTYP_CVAT,     &rec.AmtCVat);
 			//dlg->getCtrlData(CTLSEL_GDSTYP_AWOG,   &rec.WrOffGrpID);
 			dlg->getCtrlData(CTLSEL_GDSTYP_PRICERESTR, &rec.PriceRestrID);
-			dlg->getCtrlData(CTLSEL_GDSTYP_CHZNPT, &rec.ChZnProdType); // @v10.7.2
+			dlg->getCtrlData(CTLSEL_GDSTYP_CHZNPT, &rec.ChZnProdType);
 			dlg->GetClusterData(CTL_GDSTYP_UNLIM, &rec.Flags);
 			dlg->GetClusterData(CTL_GDSTYP_FLAGS, &rec.Flags);
 			rec.StockTolerance = dlg->getCtrlReal(CTL_GDSTYP_STKTLR);

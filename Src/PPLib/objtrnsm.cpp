@@ -105,7 +105,7 @@ struct RestoreStackItem {
 				op_type_list.addzlist(PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, 0);
 				SetupOprKindCombo(this, CTLSEL_DBXCHGCFG_DROP, Data.DfctRcptOpID, OLW_CANINSERT, &op_type_list, 0);
 			}
-			SetupPPObjCombo(this, CTLSEL_DBXCHGCFG_SPCSGG, PPOBJ_GOODSGROUP, Data.SpcSubstGoodsGrpID, OLW_CANINSERT|OLW_CANSELUPLEVEL); // @v10.0.10
+			SetupPPObjCombo(this, CTLSEL_DBXCHGCFG_SPCSGG, PPOBJ_GOODSGROUP, Data.SpcSubstGoodsGrpID, OLW_CANINSERT|OLW_CANSELUPLEVEL);
 			setCtrlReal(CTL_DBXCHGCFG_PCTADD, R2(fdiv100i(Data.PctAdd)));
 			SetupCtrls(Data.Flags);
 			return 1;
@@ -125,7 +125,7 @@ struct RestoreStackItem {
 				THROW(GetOpData(Data.DfctRcptOpID, &op_rec) > 0);
 				THROW_PP(op_rec.AccSheetID == GetSupplAccSheet(), PPERR_DFCTRCPTOPACSNEQSUPPLACS);
 			}
-			getCtrlData(CTLSEL_DBXCHGCFG_SPCSGG, &Data.SpcSubstGoodsGrpID); // @v10.0.10
+			getCtrlData(CTLSEL_DBXCHGCFG_SPCSGG, &Data.SpcSubstGoodsGrpID);
 			Data.PctAdd = (long)(getCtrlReal(CTL_DBXCHGCFG_PCTADD) * 100.0);
 			ok = 1;
 			ASSIGN_PTR(pData, Data);

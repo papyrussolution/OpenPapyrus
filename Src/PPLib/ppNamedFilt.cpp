@@ -1,5 +1,5 @@
 // PPNAMEDFILT.CPP
-// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -24,7 +24,7 @@ PPNamedFilt & FASTCALL PPNamedFilt::operator = (const PPNamedFilt & s)
 	ViewSymb = s.ViewSymb;
 	Param = s.Param;
 	VD = s.VD;
-	DestGuaList = s.DestGuaList; // @v10.5.3
+	DestGuaList = s.DestGuaList;
 	return *this;
 }
 
@@ -32,7 +32,7 @@ int PPNamedFilt::Write(SBuffer & rBuf, long p) // @erik const -> notConst
 {
 	SSerializeContext sctx;
 	int    ok = 1;
-	Ver = Current_PPNamedFilt_Ver; // @v10.5.3
+	Ver = Current_PPNamedFilt_Ver;
 	THROW_SL(rBuf.Write(ID));
 	THROW_SL(rBuf.Write(Ver));
 	THROW_SL(rBuf.Write(ViewID));
@@ -48,9 +48,9 @@ int PPNamedFilt::Write(SBuffer & rBuf, long p) // @erik const -> notConst
 		//int PPNamedFilt::ViewDefinition::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 		THROW_SL(sctx.Serialize(+1, &VD.L, rBuf));
 		THROW_SL(VD.SStrGroup::SerializeS(+1, rBuf, &sctx));
-		THROW_SL(sctx.Serialize(+1, VD.StrucSymb, rBuf)); // @v10.6.7
+		THROW_SL(sctx.Serialize(+1, VD.StrucSymb, rBuf));
 	}
-	THROW(DestGuaList.Serialize(+1, rBuf, &sctx)); // @v10.5.3
+	THROW(DestGuaList.Serialize(+1, rBuf, &sctx));
 	CATCHZOK
 	return ok;
 }
@@ -61,7 +61,7 @@ int PPNamedFilt::Read(SBuffer & rBuf, long p)
 	THROW_SL(rBuf.Read(ID));
 	THROW_SL(rBuf.Read(Ver));
 	THROW_SL(rBuf.Read(ViewID));
-	THROW_SL(rBuf.Read(Flags)); // @v8.4.2 (за счет Reserve)
+	THROW_SL(rBuf.Read(Flags));
 	THROW_SL(rBuf.Read(Reserve, sizeof(Reserve)));
 	THROW_SL(rBuf.Read(Name));
 	THROW_SL(rBuf.Read(DbSymb));
@@ -73,16 +73,12 @@ int PPNamedFilt::Read(SBuffer & rBuf, long p)
 		//THROW(VD.Serialize(-1, rBuf, &sctx));
 		THROW_SL(sctx.Serialize(-1, &VD.L, rBuf));
 		THROW_SL(VD.SStrGroup::SerializeS(-1, rBuf, &sctx));
-		// @v10.6.7 {
 		if(Ver >= 3) {
 			THROW_SL(sctx.Serialize(-1, VD.StrucSymb, rBuf)); 
 		}
-		// } @v10.6.7 
-		// @v10.5.3 {
 		if(Ver > 1) {
 			THROW(DestGuaList.Serialize(-1, rBuf, &sctx));
 		}
-		// } @v10.5.3 
 	}
 	CATCHZOK
 	return ok;
@@ -1110,7 +1106,7 @@ public:
 		RVALUEPTR(Data, pData);
 		PPNamedFilt::ViewDefinition::Entry mobTypeClmn;
 		StringSet ss(SLBColumnDelim);
-		setCtrlString(CTL_MOBCLMNN_STRUC, Data.GetStrucSymb()); // @v10.6.7 
+		setCtrlString(CTL_MOBCLMNN_STRUC, Data.GetStrucSymb());
 		if(Data.GetStrucSymb().NotEmpty()) {
 			P_Dl600Scope = Dl600Ctx.GetScopeByName_Const(DlScope::kExpData, Data.GetStrucSymb());
 		}
@@ -1122,17 +1118,15 @@ public:
 			if(!addStringToList(id, ss.getBuf()))
 				ok = 0;
 		}
-		updateList(1, 1);
+		updateList(1);
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
-		// @v10.6.7 {
 		SString temp_buf;
 		getCtrlString(CTL_MOBCLMNN_STRUC, temp_buf);
 		Data.SetStrucSymb(temp_buf);
-		// } @v10.6.7
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}

@@ -961,6 +961,19 @@
 #define SLERR_VSLOC_ENUMINSTCALL_FAULT         784 //"ERROR: EnumInstances call failed (0x%08lx)"
 #define SLERR_VSLOC_NEXTINSTCALL_FAULT         785 //"ERROR: While enumerating instances, Next call failed (0x%08lx)"
 
+#define SLERR_RECMGR_INVROWID_POBW             801 // Invalid RowId: битовая ширина смещения на странице выходит за допустимые пределы
+#define SLERR_RECMGR_INVROWID_PDBWFIT          802 // Invalid RowId: битовая ширина смещения на странице не вписывается в размер страницы
+#define SLERR_RECMGR_INVROWID_PAGESEQLO        803 // Invalid RowId: номер страницы ниже допустимой величины
+#define SLERR_RECMGR_INVROWID_PAGESEQUP        804 // Invalid RowId: номер страницы выше допустимой величины
+#define SLERR_RECMGR_INVROWID_OFFSUP           805 // Invalid RowId: смещение выше допустимой величины
+#define SLERR_RECMGR_INVROWID_OFFSOUTOFPG      806 // Invalid RowId: смещение превышает размер странцы
+#define SLERR_RECMGR_INVPAGE_SIGNATURE         806 // Invalid page: signature
+#define SLERR_RECMGR_INVPAGE_ZEROSIZE          807 // Invalid page: size is zero
+#define SLERR_RECMGR_INVPAGE_FIXEDCHUNK        808 // Invalid page: нарушение в определении фиксированного размера записей
+#define SLERR_RECMGR_RECPFX_PAYLOADSIZE        809 // Invalid recprefix: недопустимый размер полезной нагрузки блока
+#define SLERR_RECMGR_RECPFX_SIGNATURE          810 // Invalid recprefix: недопустимая сигнатура в начале блока
+#define SLERR_RECMGR_RECPFX_FLAGS              811 // Invalid recprefix: недопустимые флаги заголовка блока
+
 #define SLERR_ERRNO_OFFSET                    2000 // Смещение с которого начинаются коды ошибок, соответствующие posix-мнемоникам (errno)
 #define SLERR_ERRNO_LAST                      2999 // Максимальное значение для posix errno (если я правильно понял, то errno не имеет официального максимуму потому использую свой собственный).
 

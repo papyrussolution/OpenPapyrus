@@ -1,5 +1,5 @@
 // GCT.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 // Построение перекрестной отчетности по товарным операциям
 //
@@ -179,8 +179,8 @@ int PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 	SString wait_msg;
 	IterCounter cntr;
 	GoodsGrpngEntry * e;
-	PPOprKind opk;
-	PPOprKind lopk;
+	PPOprKind op_rec;
+	PPOprKind link_op_rec;
 	GCTFilt f;
 	AdjGdsGrpng agg;
 	int    zero;
@@ -197,7 +197,7 @@ int PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 	dt = f.Period.low;
 	if(!dt)
 		THROW(BillObj->P_Tbl->GetFirstDate(0, &dt) > 0);
-	SETIFZ(f.Period.upp, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	SETIFZ(f.Period.upp, getcurdate_());
 	MEMSZERO(total);
 	if(Filt.Flags & OPG_DONTSHOWPRGRSBAR)
 		PPLoadText(PPTXT_CALCOPGRPNG, wait_msg);
@@ -219,23 +219,23 @@ int PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 			else if(IsIntrOp(e->OpID) == INTRRCPT)
 				entry.RcptIntr += e->Cost;
 			else {
-				THROW(GetOpData(e->OpID, &opk));
+				THROW(GetOpData(e->OpID, &op_rec));
 				if(e->OpTypeID == PPOPT_GOODSRECEIPT)
 					entry.RcptSuppl += e->Cost;
 				else if(e->Link == 0) {
 					if(CheckOpFlags(e->OpID, OPKF_PROFITABLE))
-						if(opk.AccSheetID)
+						if(op_rec.AccSheetID)
 							entry.XpndClient += e->Price;
 						else
 							entry.XpndRetail += e->Price;
 				}
 				else {
-					THROW(GetOpData(e->Link, &lopk));
+					THROW(GetOpData(e->Link, &link_op_rec));
 					if(e->OpTypeID == PPOPT_GOODSRETURN) {
-						if(lopk.OpTypeID == PPOPT_GOODSRECEIPT)
+						if(link_op_rec.OpTypeID == PPOPT_GOODSRECEIPT)
 							entry.RetSuppl += e->Cost;
-						else if(lopk.Flags & OPKF_PROFITABLE)
-							if(lopk.AccSheetID)
+						else if(link_op_rec.Flags & OPKF_PROFITABLE)
+							if(link_op_rec.AccSheetID)
 								entry.RetClient += e->Price;
 							else
 								entry.RetRetail += e->Price;

@@ -432,7 +432,7 @@ int PPViewArticle::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			uint   sel = 0;
 			long   temp_long = 0;
 			getCtrlData(sel = CTLSEL_ARTICLEFLT_ACCSID, &Data.AccSheetID);
-			THROW_PP(Data.AccSheetID != 0, PPERR_ACCSHEETNEEDED);
+			THROW_PP(Data.AccSheetID, PPERR_ACCSHEETNEEDED);
 			getCtrlData(CTL_ARTICLEFLT_ORDER, &Data.Order);
 			GetClusterData(CTL_ARTICLEFLT_FTCLOSED, &temp_long);
 			Data.Ft_Closed = (int16)temp_long;

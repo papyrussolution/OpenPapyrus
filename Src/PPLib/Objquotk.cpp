@@ -887,6 +887,7 @@ public:
 		AddClusterAssoc(CTL_QUOTKIND_FLAGS, 0, QUOTKF_NOTFORBILL);
 		AddClusterAssoc(CTL_QUOTKIND_FLAGS, 1, QUOTKF_EXTPRICEBYBASE);
 		AddClusterAssoc(CTL_QUOTKIND_FLAGS, 2, QUOTKF_RETAILED);
+		AddClusterAssoc(CTL_QUOTKIND_FLAGS, 3, QUOTKF_PASSIVE); // @v12.0.8
 		SetClusterData(CTL_QUOTKIND_FLAGS, Data.Rec.Flags);
 		{
 			SString restr_text;

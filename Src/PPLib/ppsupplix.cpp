@@ -10076,8 +10076,52 @@ private:
 // 
 // 
 class EfopMayTea : public PrcssrSupplInterchange::ExecuteBlock { // @v12.0.7 @construction
+	struct GoodsEntry {
+		GoodsEntry()
+		{
+			THISZERO();
+		}
+		PPID   ID;
+		char   ArCode[32];
+		char   Name[128];
+		char   Brand[128];
+	};
 public:
 	/*
+		Унифицированный формат обмена информацией о ПРАЙСАХ КЛИЕНТА
+			<Prices>		
+				<SourceCode>1235_1</SourceCode>	Строка (20 символов)	Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс))
+				Код источника высылается каждому дистрибутору персонально.
+				< Price>		
+					< PriceName> Весенний</ PriceName>	Строка (255 символов)	Название прайса
+					<DateFrom>01.01.2023</DateFrom>	Формат ДД.ММ.ГГГГ	Дата начала действия прайса. Если даты нет заполнять 01.01.1900 
+					<DateTo>30.04.2023</DateTo>	Формат ДД.ММ.ГГГГ	Дата окончания действия прайса. Если даты нет заполнять 01.01.2100
+					<Items>		
+						<Item>		
+							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика
+							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
+							<PriceAmount>150.00</PriceAmount> Число	Сумма прайса в рублях с НДС. 
+						</Item>		
+					</Items>		
+				</Price>		
+			</Prices >		
+	*/ 
+	EfopMayTea(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), TsHt(4096)
+	{
+	}
+	~EfopMayTea()
+	{
+	}
+	int    Init()
+	{
+		int    ok = 1;
+		THROW(MakeGoodsList(GoodsList));
+		CATCHZOK
+		return ok;
+	}
+	int    SendGoods(StringSet & rSsFileName)
+	{
+		/*
 		Унифицированный формат обмена информацией о товарах (мастер-данные)
 			<Items>		
 			 <Item>		
@@ -10087,6 +10131,13 @@ public:
 			   <Status>Действует</Status>	Строка (50 символов)	Статус
 			  </Item>
 			</Items>
+		*/
+		int    ok = -1;
+		return ok;
+	}
+	int    SendClients(StringSet & rSsFileName)
+	{
+		/*
 		Унифицированный формат обмена информацией о адресах доставки (торговых точках)
 			<Buyers>		
 				<SourceCode>1235_1</SourceCode>	Строка (20 символов)	Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально. 
@@ -10109,6 +10160,38 @@ public:
 					</DeliveryPoints>
 				</Buyer>		
 			</Buyers>		
+		*/
+		int    ok = -1;
+		return ok;
+	}
+	int    SendRest(StringSet & rSsFileName)
+	{
+		/*
+		Унифицированный формат обмена информацией об остатках на складах
+			<Stocks>		
+				<SourceCode>1235_1</SourceCode>	Строка (20 символов) Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально.
+				<Stock>		
+					<WarehouseCode>TEST016</WarehouseCode>	Строка (50 символов)	Код склада у дистрибутора
+					<Date>25.08.2003</Date>	Формат ДД.ММ.ГГГГ	Дата – время московское
+					<Time>14:30</Time>	Формат ЧЧ:ММ	Время московское
+					<Items>		
+						<Item>		
+							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика Компания Май-Брендс
+							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
+							<Quantity>2.000</Quantity>	Число	Количество в пачках
+							<Amount>10</Amount>	Число	Стоимость в рублях согласно учетной политике дистрибутора
+							<GrossWeight>11</GrossWeight>	Число	Вес брутто по строке
+						</Item>		
+					</Items>		
+				</Stock>		
+			</Stocks>		
+		*/
+		int    ok = -1;
+		return ok;
+	}
+	int    SendOrders(StringSet & rSsFileName)
+	{
+		/*
 		Унифицированный формат обмена информацией о заказах
 			<Document-Orders>		
 				<SourceCode>1235_1</SourceCode>	Строка (20 символов) Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально.
@@ -10139,27 +10222,48 @@ public:
 						</Item>
 					</Items>
 				</Document-Order>
-			</Document-Orders>		
-		Унифицированный формат обмена информацией об остатках на складах
-			<Stocks>		
-				<SourceCode>1235_1</SourceCode>	Строка (20 символов) Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально.
-				<Stock>		
-					<WarehouseCode>TEST016</WarehouseCode>	Строка (50 символов)	Код склада у дистрибутора
-					<Date>25.08.2003</Date>	Формат ДД.ММ.ГГГГ	Дата – время московское
-					<Time>14:30</Time>	Формат ЧЧ:ММ	Время московское
+			</Document-Orders>
+		*/
+		int    ok = -1;
+		return ok;
+	}
+	int    SendReceipts(StringSet & rSsFileName)
+	{
+		/*
+		Унифицированный формат обмена информацией о приходе товара
+			<Document-Receipts>		
+				<SourceCode>1235_1</SourceCode>	Строка (20 символов)	Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально.
+				<Document-Receipt>		
+					<Receipt-Header>		
+						<DocumentType>Receipt</DocumentType>	Строка (20 символов)	Тип документа:
+							Receipt – приходная накладная от Компании Май-Брендс к дистрибутору
+							ReceiptReturn – возврат товара  от дистрибутора в  Компанию Май-Брендс
+							ReceiptMove – приходная накладная при внутреннем перемещении
+							ReceiptReturnMove – возврат при внутреннем перемещении
+						<ReceiptNumber>TEST016</ReceiptNumber>	Строка (20 символов)	Номер приходной накладной
+						<DocumentDate>25.08.2003</DocumentDate>	Формат ДД.ММ.ГГГГ	Дата приходной накладной
+						<Date>25.08.2003</Date>	Формат ДД.ММ.ГГГГ	Фактическая дата поставки
+						<WarehouseAddress>TEST016</WarehouseAddress>	Строка (50 символов)	Адрес склада прихода  (дистрибутора)
+					</Receipt-Header>		
 					<Items>		
 						<Item>		
-							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика Компания Май-Брендс
+							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика
 							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
-							<Quantity>2.000</Quantity>	Число	Количество в пачках
-							<Amount>10</Amount>	Число	Стоимость в рублях согласно учетной политике дистрибутора
-							<GrossWeight>11</GrossWeight>	Число	Вес брутто по строке
+							<OrderedQuantity>2.000</OrderedQuantity>	Число	Заказанное количество в минимальных единицах (пачках). В случае возврата с минусом.
+							<Amount>60</Amount> Число	Сумма покупки в рублях с НДС. В случае возврата с минусом.
+							<GrossWeight>11</GrossWeight>	Число	Вес брутто по строке. В случае возврата с минусом.
 						</Item>		
 					</Items>		
-				</Stock>		
-			</Stocks>		
+				</Document-Receipt>		
+			</Document-Receipts>		
+		*/
+		int    ok = -1;
+		return ok;
+	}
+	int    SendInvoices(StringSet & rSsFileName)
+	{
+		/*
 		Унифицированный формат обмена информацией о накладных
-
 			<Document-Invoices>		
 				<SourceCode>1235_1</SourceCode>	Строка (20) символов)	Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс))
 				Код источника высылается каждому дистрибутору персонально.
@@ -10197,60 +10301,62 @@ public:
 					</Items>		
 				</Document-Invoice>		
 			</Document-Invoices>		
-		Унифицированный формат обмена информацией о приходе товара
-			<Document-Receipts>		
-				<SourceCode>1235_1</SourceCode>	Строка (20 символов)	Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально.
-				<Document-Receipt>		
-					<Receipt-Header>		
-						<DocumentType>Receipt</DocumentType>	Строка (20 символов)	Тип документа:
-							Receipt – приходная накладная от Компании Май-Брендс к дистрибутору
-							ReceiptReturn – возврат товара  от дистрибутора в  Компанию Май-Брендс
-							ReceiptMove – приходная накладная при внутреннем перемещении
-							ReceiptReturnMove – возврат при внутреннем перемещении
-						<ReceiptNumber>TEST016</ReceiptNumber>	Строка (20 символов)	Номер приходной накладной
-						<DocumentDate>25.08.2003</DocumentDate>	Формат ДД.ММ.ГГГГ	Дата приходной накладной
-						<Date>25.08.2003</Date>	Формат ДД.ММ.ГГГГ	Фактическая дата поставки
-						<WarehouseAddress>TEST016</WarehouseAddress>	Строка (50 символов)	Адрес склада прихода  (дистрибутора)
-					</Receipt-Header>		
-					<Items>		
-						<Item>		
-							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика
-							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
-							<OrderedQuantity>2.000</OrderedQuantity>	Число	Заказанное количество в минимальных единицах (пачках). В случае возврата с минусом.
-							<Amount>60</Amount> Число	Сумма покупки в рублях с НДС. В случае возврата с минусом.
-							<GrossWeight>11</GrossWeight>	Число	Вес брутто по строке. В случае возврата с минусом.
-						</Item>		
-					</Items>		
-				</Document-Receipt>		
-			</Document-Receipts>		
-		Унифицированный формат обмена информацией о ПРАЙСАХ КЛИЕНТА
-			<Prices>		
-				<SourceCode>1235_1</SourceCode>	Строка (20 символов)	Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс))
-				Код источника высылается каждому дистрибутору персонально.
-				< Price>		
-					< PriceName> Весенний</ PriceName>	Строка (255 символов)	Название прайса
-					<DateFrom>01.01.2023</DateFrom>	Формат ДД.ММ.ГГГГ	Дата начала действия прайса. Если даты нет заполнять 01.01.1900 
-					<DateTo>30.04.2023</DateTo>	Формат ДД.ММ.ГГГГ	Дата окончания действия прайса. Если даты нет заполнять 01.01.2100
-					<Items>		
-						<Item>		
-							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика
-							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
-							<PriceAmount>150.00</PriceAmount> Число	Сумма прайса в рублях с НДС. 
-						</Item>		
-					</Items>		
-				</Price>		
-			</Prices >		
-	*/ 
-	EfopMayTea(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), TsHt(4096)
-	{
+		*/
+		int    ok = -1;
+		return ok;
 	}
-	~EfopMayTea()
+	int    TransmitFiles(const StringSet & rFileNameSet)
 	{
+		int    ok = -1;
+		return ok;
 	}
 private:
+	const GoodsEntry * SearchGoodsEntry(const TSVector <GoodsEntry> & rGoodsList, PPID goodsID) const
+	{
+		uint   goods_idx = 0;
+		return rGoodsList.lsearch(&goodsID, &goods_idx, CMPF_LONG) ? &rGoodsList.at(goods_idx) : 0;
+	}
+	int MakeGoodsList(TSVector <GoodsEntry> & rGoodsList)
+	{
+		rGoodsList.clear();
+		int    ok = -1;
+		SString temp_buf;
+		GoodsFilt filt;
+		PPObjBrand brand_obj;
+		if(Ep.GoodsGrpID)
+			filt.GrpIDList.Add(Ep.GoodsGrpID);
+		else
+			filt.SupplID = P.SupplID;
+		GoodsIterator iter(&filt, 0);
+		Goods2Tbl::Rec goods_rec;
+		while(iter.Next(&goods_rec) > 0) {
+			GoodsEntry new_entry;
+			uint   goods_idx = 0;
+			new_entry.ID = goods_rec.ID;
+			const GoodsEntry * p_goods_entry = 0;
+			if(new_entry.ID && !SearchGoodsEntry(rGoodsList, new_entry.ID)) {
+				if(GObj.Search(new_entry.ID, &goods_rec) > 0) {
+					GoodsEntry oe;
+					oe.ID = new_entry.ID;
+					STRNSCPY(oe.Name, goods_rec.Name);
+					GObj.P_Tbl->GetArCode(P.SupplID, goods_rec.ID, temp_buf, 0);
+					if(temp_buf.NotEmpty()) {
+						STRNSCPY(oe.ArCode, temp_buf);
+						PPBrand brand_rec;
+						if(goods_rec.BrandID && brand_obj.Fetch(goods_rec.BrandID, &brand_rec) > 0) {
+							STRNSCPY(oe.Brand, brand_rec.Name);
+						}
+						rGoodsList.insert(&oe);
+					}
+				}
+			}
+		}
+		return ok;
+	}
 	PPLogger & R_Logger;
 	SString TokBuf;
 	TokenSymbHashTable TsHt;
+	TSVector <GoodsEntry> GoodsList;
 };
 //
 // 
@@ -12141,6 +12247,30 @@ int PrcssrSupplInterchange::Run()
 				cli.TransmitFiles(ss_file_name);
 			}
 			// } @v11.7.5 
+		}
+		else if(temp_buf.IsEqiAscii("EFOP-MAYTEA")) { // @v12.0.8
+			EfopMayTea cli(r_eb, logger);
+			const long actions = r_eb.P.Actions;
+			StringSet ss_file_name;
+			PPWaitStart();
+			THROW(cli.Init());
+			if(actions & SupplInterchangeFilt::opExportClients) {
+				cli.SendGoods(ss_file_name);
+				cli.SendClients(ss_file_name);
+			}
+			if(actions & SupplInterchangeFilt::opExportStocks) {
+				cli.SendRest(ss_file_name);
+			}
+			if(actions & SupplInterchangeFilt::opExportSales) {
+				cli.SendInvoices(ss_file_name);
+			}
+			if(actions & SupplInterchangeFilt::opExportBills) {
+				cli.SendOrders(ss_file_name);
+				cli.SendReceipts(ss_file_name);
+			}
+			if(ss_file_name.getCount()) {
+				cli.TransmitFiles(ss_file_name);
+			}
 		}
 		else if(temp_buf.IsEqiAscii("OSTANKINO")) { // @v11.9.7
 			Ostankino cli(r_eb, logger);

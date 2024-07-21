@@ -855,7 +855,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 		// @v12.0.8 {
 		if(cfgshowflags & cfgshowfPrefSuppl) {
 			insertColumn(_brw_pos++, PPLoadStringS("prefsupplier", temp_buf), 37, MKSTYPE(S_ZSTRING, 128), 0, BCO_USERPROC);
-			insertColumn(_brw_pos++, PPLoadStringS("dealprice", temp_buf), 38, T_DOUBLE, 0, BCO_USERPROC);
+			insertColumn(_brw_pos++, PPLoadStringS("dealprice", temp_buf), 38, T_DOUBLE, MKSFMTD(0, 2, NMBF_NOZERO), BCO_USERPROC);
 		}
 		// } @v12.0.8 
 	}
@@ -1652,9 +1652,19 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					pBlk->Set(temp_buf);
 					break;
 				case 38: // Контрактная цена предпочтительного поставщика // @v12.0.8
-					if(!is_total) {
+					real_val = 0.0;
+					if(!is_total && p_ti && p_ti->GoodsID) {
+						const ObjTagItem * p_tag = P_Pack->LTagL.GetTag(p_item->Pos, PPTAG_LOT_PREFSUPPL);
+						int    tag_int_val = 0;
+						if(p_tag && p_tag->GetInt(&tag_int_val)) {
+							const PPID suppl_id = tag_int_val;
+							const QuotIdent suppl_deal_qi(P_Pack->Rec.Dt, P_Pack->Rec.LocID, 0, 0, suppl_id);
+							PPSupplDeal sd;
+							GObj.GetSupplDeal(p_ti->GoodsID, suppl_deal_qi, &sd, 1);
+							real_val = sd.Cost;
+						}
 					}
-					pBlk->Set(0.0);
+					pBlk->Set(real_val);
 					break;
 				default:
 					ok = 0;
@@ -3826,21 +3836,32 @@ int BillItemBrowser::MakePrefSupplList(PPID goodsID, RAssocArray & rResultList)
 int BillItemBrowser::SelectPrefSuppl(uint rowId)
 {
 	class SelectPrefSupplDialog : public PPListDialog {
+		DECL_DIALOG_DATA(PPID);
 	public:
-		SelectPrefSupplDialog(const RAssocArray & rList) : PPListDialog(DLG_SELOPREFSUPL, CTL_SELOPREFSUPL_LIST), List(rList)
+		SelectPrefSupplDialog(const RAssocArray & rList) : PPListDialog(DLG_SELOPREFSUPL, CTL_SELOPREFSUPL_LIST, fOnDblClkOk), List(rList)
 		{
 			updateList(-1);
 		}
-		int getDTS(PPID * pSelSupplID)
+		DECL_DIALOG_SETDTS()
 		{
-			PPID   selected_id = 0;
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			uint pos = 0;
+			if(List.Search(Data, 0, &pos, 0)) {
+				updateList(static_cast<int>(pos));
+			}
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			Data = 0;
+			int    ok = 1;
 			long   sel = 0;
 			long   pos = 0;
-			int    ok = getCurItem(&pos, &sel);
-			if(pos < List.getCountI()) {
-				selected_id = List.at(pos).Key;
+			if(getCurItem(&pos, &sel) && pos < List.getCountI()) {
+				Data = List.at(pos).Key;
 			}
-			ASSIGN_PTR(pSelSupplID, static_cast<uint>(sel));
+			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
 	private:
@@ -3872,18 +3893,26 @@ int BillItemBrowser::SelectPrefSuppl(uint rowId)
 				assert(list.getCount());
 				SelectPrefSupplDialog * dlg = new SelectPrefSupplDialog(list);
 				if(CheckDialogPtrErr(&dlg)) {
+					PPID   sel_suppl_id = 0;
+					ObjTagList * p_org_tag_list = P_Pack->LTagL.Get(rowId);
+					ObjTagList tag_list;
+					if(p_org_tag_list)
+						tag_list = *p_org_tag_list;
+					{
+						const ObjTagItem * p_tag_item = tag_list.GetItem(PPTAG_LOT_PREFSUPPL);
+						if(p_tag_item && p_tag_item->GetInt(&sel_suppl_id) > 0) {
+							dlg->setDTS(&sel_suppl_id);
+						}
+					}
 					if(ExecView(dlg) == cmOK) {
-						PPID   sel_suppl_id = 0;
 						if(dlg->getDTS(&sel_suppl_id)) {
 							if(sel_suppl_id) {
-								ObjTagList * p_org_tag_list = P_Pack->LTagL.Get(rowId+1);
-								ObjTagList tag_list;
-								if(p_org_tag_list)
-									tag_list = *p_org_tag_list;
 								ObjTagItem tag_item;
 								if(tag_item.Init(PPTAG_LOT_PREFSUPPL)) {
-									
-									//P_Pack->LTagL.Set
+									tag_item.SetInt(PPTAG_LOT_PREFSUPPL, sel_suppl_id);
+									tag_list.PutItem(PPTAG_LOT_PREFSUPPL, &tag_item);
+									P_Pack->LTagL.Set(rowId, &tag_list);
+									ok = 1;
 								}
 							}
 						}
@@ -3896,7 +3925,6 @@ int BillItemBrowser::SelectPrefSuppl(uint rowId)
 			}
 		}
 	}
-	
 	return ok;
 }
 
@@ -4019,7 +4047,9 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 						if(goods_id) {
 							PPOprKind op_rec;
 							if(P_Pack->OpTypeID == PPOPT_GOODSORDER && GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_MNGPREFSUPPL) {
-								SelectPrefSuppl(static_cast<uint>(c));
+								if(SelectPrefSuppl(static_cast<uint>(c)) > 0) {
+									update(pos_cur);
+								}
 							}
 							else {
 								GObj.ViewGoodsRestByLocList(goods_id);

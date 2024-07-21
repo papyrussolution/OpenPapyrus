@@ -1311,7 +1311,7 @@ int PPObjTSession::GetPrevSession(const TSessionTbl::Rec & rSessRec, TSessionTbl
 		double qtty = 0;
 		THROW(gs_obj.Get(tecStrucID, &gs));
 		gs.GoodsID = tecGoodsID;
-		for(uint gs_pos = 0; (r = gs.EnumItemsExt(&gs_pos, &gs_item, tecGoodsID, tecQtty, &qtty)) > 0;)
+		for(uint gs_pos = 0; (r = gs.EnumItemsExt(&gs_pos, &gs_item, tecGoodsID, tecQtty, &qtty)) > 0;) {
 			if(tooling || (gs_item.Flags & GSIF_AUTOTSWROFF))
 				if(!pGoodsIdList || !pGoodsIdList->lsearch(gs_item.GoodsID)) {
 					long   oprno = 0;
@@ -1333,6 +1333,7 @@ int PPObjTSession::GetPrevSession(const TSessionTbl::Rec & rSessRec, TSessionTbl
 					THROW(PutLine(sessID, &oprno, &line_rec, 0));
 					ok = 1;
 				}
+		}
 		THROW(r);
 	}
 	CATCHZOK

@@ -348,7 +348,7 @@ IMPL_HANDLE_EVENT(PPListDialog)
 					p = i = 0;
 					int    r = addItem(&p, &i);
 					if(r == 2)
-						updateList(i, 0);
+						updateListById(i);
 					else if(r > 0)
 						updateList(p);
 				}
@@ -360,9 +360,12 @@ IMPL_HANDLE_EVENT(PPListDialog)
 				break;
 			case cmaEdit:
 				if(getCurItem(&p, &i) && editItem(p, i) > 0) {
-					const int  is_tree_list = BIN(p_box && p_box->IsTreeList());
+					const bool is_tree_list = (p_box && p_box->IsTreeList());
 					const long id = is_tree_list ? i : p;
-					updateList(id, !BIN(is_tree_list));
+					if(is_tree_list)
+						updateListById(id);
+					else
+						updateList(id);
 				}
 				break;
 			case cmaSendByMail:
@@ -380,11 +383,11 @@ IMPL_HANDLE_EVENT(PPListDialog)
 			case cmLBDblClk:
 				if(SmartListBox::IsValidS(p_box)) {
 					int    edit = 1;
-					int    is_tree_list = 0;
+					bool   is_tree_list = false;
 					PPID   cur_id = 0;
 					p_box->P_Def->getCurID(&cur_id);
 					if(p_box->IsTreeList()) {
-						is_tree_list = 1;
+						is_tree_list = true;
 						if(static_cast<const StdTreeListBoxDef *>(p_box->P_Def)->HasChildren(cur_id))
 							edit = 0;
 					}
@@ -394,7 +397,10 @@ IMPL_HANDLE_EVENT(PPListDialog)
 						}
 						else if(edit && getCurItem(&p, &i) && editItem(p, i) > 0) {
 							const long id = is_tree_list ? i : p;
-							updateList(id, !BIN(is_tree_list));
+							if(is_tree_list)
+								updateListById(id);
+							else
+								updateList(id);
 						}
 						else
 							return;
@@ -468,7 +474,7 @@ int PPListDialog::getSelection(long * pID)
 int PPListDialog::addStringToList(long itemId, const char * pText)
 	{ return (!P_Box || !P_Box->addItem(itemId, pText)) ? PPSetErrorSLib() : 1; }
 
-void PPListDialog::updateList(long pos, int byPos /*= 1*/)
+void PPListDialog::updateList(long pos)
 {
 	SmartListBox * p_box = P_Box;
 	if(p_box) {
@@ -476,10 +482,22 @@ void PPListDialog::updateList(long pos, int byPos /*= 1*/)
 		p_box->freeAll();
 		if(setupList()) {
 			p_box->Draw_();
-			if(byPos)
-		   		p_box->focusItem((pos < 0) ? sav_pos : pos);
-			else
-				p_box->Search_(&pos, 0, srchFirst|lbSrchByID);
+	   		p_box->focusItem((pos < 0) ? sav_pos : pos);
+		}
+		else
+			PPError();
+	}
+}
+
+void PPListDialog::updateListById(long pos)
+{
+	SmartListBox * p_box = P_Box;
+	if(p_box) {
+		const long sav_pos = p_box->P_Def ? p_box->P_Def->_curItem() : 0;
+		p_box->freeAll();
+		if(setupList()) {
+			p_box->Draw_();
+			p_box->Search_(&pos, 0, srchFirst|lbSrchByID);
 		}
 		else
 			PPError();

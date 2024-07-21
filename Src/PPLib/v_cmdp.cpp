@@ -612,8 +612,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 				setSmartListBoxOption(CTL_MENULIST_LIST, lbtSelNotify);
 				addGroup(ctlgroupImg, new ImageBrowseCtrlGroup(CTL_MENULIST_IMAGE, cmAddImage, cmDelImage, 1));
 				addGroup(ctlgroupBkgnd, new ColorCtrlGroup(CTL_MENULIST_BKGND, CTLSEL_MENULIST_BKGND, cmSelBkgnd, CTL_MENULIST_SELBKGND));
-				// @v10.9.3 disableCtrls(!IsMaster && ObjRts.CheckDesktopID(0, PPR_INS) == 0, CTL_MENULIST_EDASSCBTN, CTL_MENULIST_EDASSCCBTN, 0L);
-				disableCtrls(!CheckRight(PPR_INS), CTL_MENULIST_EDASSCBTN, CTL_MENULIST_EDASSCCBTN, 0L); // @v10.9.3 
+				disableCtrls(!CheckRight(PPR_INS), CTL_MENULIST_EDASSCBTN, CTL_MENULIST_EDASSCCBTN, 0L);
 			}
 			else if(CmdGrpC == cmdgrpcMenu) {
 				RECT   rect, img_rect;
@@ -626,7 +625,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 				showCtrl(CTL_MENULIST_IMAGE,      0);
 				showCtrl(STDCTL_IMGADDBUTTON,     0);
 				showCtrl(STDCTL_IMGDELBUTTON,     0);
-				showCtrl(STDCTL_IMGPSTBUTTON,     0); // @v10.9.3
+				showCtrl(STDCTL_IMGPSTBUTTON,     0);
 				showCtrl(CTL_MENULIST_BKGND,      0);
 				showCtrl(CTLSEL_MENULIST_BKGND,   0);
 				showCtrl(CTL_MENULIST_SELBKGND,   0);
@@ -649,7 +648,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 			SetClusterData(CTL_MENULIST_GRPFLAGS, static_cast<long>(Data.Flags));
 			AddClusterAssoc(CTL_MENULIST_FLAGS, 0, PPCommandItem::fBkgndGradient);
 			if(!!InitUuid)
-				updateList(List.GetSurrIdByUuid(InitUuid), 0);
+				updateListById(List.GetSurrIdByUuid(InitUuid));
 			else
 				updateList(-1);
 			getSelection(&cur_id);

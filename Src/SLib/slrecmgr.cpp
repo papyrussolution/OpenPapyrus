@@ -9,10 +9,10 @@
 {
 	uint  result = 0U;
 	const uint pobw = static_cast<uint>((rowId >> (RowIdBitWidth-4)) & 0xFULL) + 9;
-	THROW(pobw >= 9 && (pobw - 9) < 16); // @todo @err
+	THROW_S(pobw >= 9 && (pobw - 9) < 16, SLERR_RECMGR_INVROWID_POBW); // @todo @err
 	if(pageSize > 0) {
-		result = SBits::CeilLog2(pageSize);//(32 - SBits::Clz(pageSize)) - 1;
-		THROW(result == pobw); // @todo @err
+		result = SBits::CeilLog2(pageSize); //(32 - SBits::Clz(pageSize)) - 1;
+		THROW_S(result == pobw, SLERR_RECMGR_INVROWID_PDBWFIT); // @todo @err
 	}
 	else {
 		result = pobw;
@@ -57,10 +57,10 @@
 		const uint offset = static_cast<uint>(rowId & ofs_mask);
 		ASSIGN_PTR(pPageSeq, page_seq);
 		ASSIGN_PTR(pOffset, offset);
-		THROW(page_seq > 0); // @todo @err
-		THROW(page_seq < (1ULL << bits_page)); // @todo @err
-		THROW(offset < (1ULL << bits_offs)); // @todo @err
-		THROW(!pageSize || offset < pageSize); // @todo @err
+		THROW_S(page_seq > 0, SLERR_RECMGR_INVROWID_PAGESEQLO);
+		THROW_S(page_seq < (1ULL << bits_page), SLERR_RECMGR_INVROWID_PAGESEQLO);
+		THROW_S(offset < (1ULL << bits_offs), SLERR_RECMGR_INVROWID_OFFSUP);
+		THROW_S(!pageSize || offset < pageSize, SLERR_RECMGR_INVROWID_OFFSOUTOFPG);
 	}
 	CATCHZOK
 	return ok;
@@ -173,7 +173,9 @@ int SRecPageManager::WriteToPage(SDataPage_ * pPage, uint64 rowId, const void * 
 		THROW(Fl.Remove(pPage->GetType(), post_write_rowid));
 		THROW(Fl.Put(pPage->GetType(), new_free_entry.RowId, new_free_entry.FreeSize));
 	}
-	CATCHZOK
+	CATCH
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 
@@ -468,7 +470,13 @@ SDataPageHeader::Stat & SDataPageHeader::Stat::Z()
 
 bool SDataPageHeader::IsValid() const
 {
-	return (Signature == SignatureValue && Size > 0 && /*FreePos < TotalSize &&*/(!FixedChunkSize || Type == tFixedChunkPool));
+	bool   ok = true;
+	THROW_S(Signature == SignatureValue, SLERR_RECMGR_INVPAGE_SIGNATURE);
+	THROW_S(Size > 0, SLERR_RECMGR_INVPAGE_ZEROSIZE);
+	/*FreePos < TotalSize &&*/
+	THROW_S(!FixedChunkSize || Type == tFixedChunkPool, SLERR_RECMGR_INVPAGE_FIXEDCHUNK);
+	CATCHZOK
+	return ok;
 }
 
 uint64 SDataPageHeader::MakeRowId(uint offset) const
@@ -584,7 +592,7 @@ uint32 SDataPageHeader::ReadRecPrefix(uint pos, RecPrefix & rPfx) const
 		else if((rPfx.Flags & 0x3) == 3) {
 			pfx_size += 3;
 			rPfx.PayloadSize = *reinterpret_cast<const uint32 *>(ptr+2) & 0x00ffffffU;
-			THROW(rPfx.PayloadSize < (1 << 24));
+			THROW_S(rPfx.PayloadSize < (1 << 24), SLERR_RECMGR_RECPFX_PAYLOADSIZE);
 			rPfx.TotalSize = rPfx.PayloadSize + pfx_size;
 		}
 		else if((rPfx.Flags & 0x3) == 2) {
@@ -597,6 +605,12 @@ uint32 SDataPageHeader::ReadRecPrefix(uint pos, RecPrefix & rPfx) const
 			rPfx.PayloadSize = *reinterpret_cast<const uint8 *>(ptr+2);
 			rPfx.TotalSize = rPfx.PayloadSize + pfx_size;
 		}
+		else {
+			CALLEXCEPT_S(SLERR_RECMGR_RECPFX_FLAGS);
+		}
+	}
+	else {
+		CALLEXCEPT_S(SLERR_RECMGR_RECPFX_SIGNATURE);
 	}
 	CATCH
 		pfx_size = 0;

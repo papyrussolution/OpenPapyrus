@@ -3270,11 +3270,11 @@ int PPObjBHT::PrepareConfigData(const PPBhtTerminalPacket * pPack, StyloBhtIICon
 		for(uint i = 0; i < p_op_list->getCount(); i++) {
 			const SBIIOpInfo & op_info = pPack->P_SBIICfg->P_OpList->at(i);
 			long op_id = op_info.ToHostOpID;
-			PPOprKind op_data;
-			if(op_id && GetOpData(op_id, &op_data) > 0) {
+			PPOprKind op_rec;
+			if(op_id && GetOpData(op_id, &op_rec) > 0) {
 				Sdr_SBIIOpRestr sdr_op;
 				sdr_op.OpID     = op_info.OpID;
-				sdr_op.AccSheet = op_data.AccSheetID;
+				sdr_op.AccSheet = op_rec.AccSheetID;
 				sdr_op.ToBhtOp  = op_info.ToBhtOpID;
 				sdr_op.BhtOkCA  = op_info.BhtOkCancelActions;
 				sdr_op.BhtCfmA  = op_info.BhtCfmActions;
