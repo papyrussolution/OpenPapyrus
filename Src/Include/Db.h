@@ -573,7 +573,7 @@ private:
 		State(const State & rS);
 		State & operator = (const State & rS);
 		void   Reset();
-		int    Copy(const State & rS);
+		int    FASTCALL Copy(const State & rS);
 		int    SetParam(const Param * pParam);
 		int    FASTCALL IsRecTag(const char * pTag) const;
 		int    FASTCALL IsRecNode(const xmlNode * pNode) const;
@@ -4851,7 +4851,11 @@ public:
 	{
 		ZFREE(P_H);
 	}
-	bool   IsConsistent() const { return LOGIC(P_H); }
+	bool   IsConsistent() const 
+	{
+		assert(P_H);
+		return LOGIC(P_H); 
+	}
 	bool   VerifySeq(uint seq) const { return (IsConsistent() && P_H->Seq == seq); }
 	bool   VerifyType(uint type) const { return (IsConsistent() && (!type || P_H->Type == type)); }
 	bool   VerifyOffset(uint offs) const { return (IsConsistent() && offs >= sizeof(SDataPageHeader) && offs < P_H->Size); }

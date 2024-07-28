@@ -643,7 +643,7 @@ class PPExtStrContainer {
 public:
 	PPExtStrContainer();
 	PPExtStrContainer & Z();
-	int    FASTCALL Copy(const PPExtStrContainer & rS);
+	bool   FASTCALL Copy(const PPExtStrContainer & rS);
 	//
 	// Descr: Определяет эквивалентность объекта this объекту rS по множеству подстрок,
 	//   размером fldCount и с идентификаторами переданными в pFldList.
@@ -4077,7 +4077,7 @@ public:
 	//   0 - error.
 	//
 	int    SetQuot(const QuotIdent & rQi, double val, long flags, long minQtty, const DateRange * pPeriod); // minQtty - @v5.5.2 VADIM; minQtty < 0 - don`t update
-	int    FASTCALL SearchQi(const QuotIdent & rQi, uint * pPos) const;
+	bool   FASTCALL SearchQi(const QuotIdent & rQi, uint * pPos) const;
 	//
 	// Descr: Возвращает список позиций значений котировок, удовлетворяющих условиям rQi
 	// Returns:
@@ -10309,7 +10309,7 @@ public:
 	CCheckPacket & FASTCALL operator = (const CCheckPacket & rS);
 	CCheckPacket & Z();
 	int    IsEq(const CCheckPacket & rS, long options) const;
-	int    Copy(const CCheckPacket & rS);
+	int    FASTCALL Copy(const CCheckPacket & rS);
 	//
 	// Descr: Возвращает !0 если есть не пустые поля расширения чека (Ext).
 	//
@@ -10901,8 +10901,8 @@ public:
 		tfForceNoRcpt   = 0x0100,  // Корректировочный флаг, блокирующий установку признака PPTFR_RECEIPT
 			// функцией PPTransferItem::Init ради дополнения остатка существующего лота
 		tfProblemQuot   = 0x0200,  // Строка имеет проблемную котировку, выявленную при расценке либо при назначении цены по котировке
-		tfQrSeqAccepted = 0x0400,  // @v10.5.8 Последовательный котировочный запрос подтвержден поставщиком
-		tfQrSeqRejected = 0x0800,  // @v10.5.8 Последовательный котировочный запрос отклонен поставщиком
+		tfQrSeqAccepted = 0x0400,  // Последовательный котировочный запрос подтвержден поставщиком
+		tfQrSeqRejected = 0x0800,  // Последовательный котировочный запрос отклонен поставщиком
 	};
 	long   TFlags;      // @transient tfXXX Не сохраняемые в БД признаки строки.
 	LDATE  Expiry;      // Дата завершения пригодности товара к использованию
@@ -11256,8 +11256,8 @@ struct PPFreight { // @persistent @store(PropertyTbl)
 	double Cost;           // Стоимость фрахта
 	PPID   AgentID;        // ->Person.ID (Транспортные агентства)
 	PPID   ShipID;         // ->Ship.ID
-	PPID   Captain2ID;     // @v10.9.2 2-й командир транспорта
-	uint8  Reserve2[16];   // @v10.9.2
+	PPID   Captain2ID;     // 2-й командир транспорта
+	uint8  Reserve2[16];   // @reserve
 };
 #pragma pop
 //
@@ -11495,8 +11495,8 @@ private:
 	int    Helper_Add(int rowIdx, long boxId, int16 flags, const char * pCode, int doVerifyUniq, uint * pIdx);
     struct InnerItem { // @persistent
 		int16  RowIdx;
-        int16  Flags; // @v10.2.9 Sign-->Flags
-		int32  BoxId; // @v10.2.9
+        int16  Flags;
+		int32  BoxId;
         uint   CodeP;
     };
 };
@@ -11589,7 +11589,7 @@ public:
 		int32  ReserveVal1;
 		int32  ReserveVal2;
 	};
-	Agreement * P_Agt; // @v10.1.12
+	Agreement * P_Agt;
 };
 //
 // Пакет документа
@@ -11654,10 +11654,8 @@ public:
 // Флаги функции PPBillPacket::CalcTotal
 //
 #define BTC_CALCSALESTAXES  0x0001L // Рассчитывать налоги
-#define BTC_CALCOUTAMOUNTS  0x0002L // Рассчитывать суммы для вывода
-	// (В этом случае расчитывается только номинальная сумма и налоги по номинальной сумме).
-#define BTC_EXCLUDEVAT      0x0004L // При расчете налогов считать, что НДС
-	// отсутствует (if BTC_CALCOUTAMOUNTS only)
+#define BTC_CALCOUTAMOUNTS  0x0002L // Рассчитывать суммы для вывода (В этом случае расчитывается только номинальная сумма и налоги по номинальной сумме).
+#define BTC_EXCLUDEVAT      0x0004L // При расчете налогов считать, что НДС отсутствует (if BTC_CALCOUTAMOUNTS only)
 #define BTC_ONLYUNLIMGOODS  0x0008L // Рассчитывать суммы только для нелимитирумых товаров
 #define BTC_CALCNOMINALGVAT 0x0010L // Рассчитывает суммы налогов исходя из номинальной
 	// ставки НДС, определенной для товаров (не принимает во внимание налоговую группу по лоту
@@ -11675,7 +11673,7 @@ struct BillTotalData {
 
 	long   LinesCount;
 	long   GoodsCount;
-	long   Flags;
+	long   Flags;         // @flags (BillTotalData::fXXX)
 	double UnitsCount;
 	double PhUnitsCount;
 	double PackCount;
@@ -11710,13 +11708,11 @@ struct BillTotalData {
 #define ETIEF_SORTBYNAME      0x0100L // Сортировать по наименованию товара
 #define ETIEF_SORTBYCODE      0x0200L // Сортировать по коду
 #define ETIEF_SALDOFILTGRP    0x0400L // Перечислять также те товары из группы FiltGrpID
-	// которые не представлены в документе, но по которым есть ненулевое сальдо в разрезе
-	// контрагента по документу.
+	// которые не представлены в документе, но по которым есть ненулевое сальдо в разрезе контрагента по документу.
 #define ETIEF_LABELQUOTPRICE  0x0800L // @internal
 #define ETIEF_DISPOSE         0x1000L // Включить в итерацию информацию о размещении строк по складским ячейкам
 #define ETIEF_DONTUNITE       0x2000L // Безусловный запрет на объединение строк
-#define ETIEF_FORCEUNITEGOODS 0x4000L // Форсированное объединение строк с одинаковым товаром (без оглядки на дополнительные условия).
-	// ETIEF_DONTUNITE имеет приоритет над ETIEF_FORCEUNITEGOODS
+#define ETIEF_FORCEUNITEGOODS 0x4000L // Форсированное объединение строк с одинаковым товаром (без оглядки на дополнительные условия). ETIEF_DONTUNITE приоритетнее, чем ETIEF_FORCEUNITEGOODS
 
 #define SALDOLIST_POS_BIAS    100000
 
@@ -11770,8 +11766,7 @@ private:
 struct PUGI { // @transient
 	PUGI();
 	enum {
-		fTerminal = 0x0001 // Позиция является терминальной (не зависит от комплектации)
-			// Этот признак может быть установлен при формировании элемента по MRP-таблице
+		fTerminal = 0x0001 // Позиция является терминальной (не зависит от комплектации). Может быть установлен при формировании элемента по MRP-таблице.
 	};
 	uint   Pos;
 	PPID   GoodsID;
@@ -11843,7 +11838,7 @@ public:
 	double CalcCostPct;
 	TSVector <SupplSubstItem> SupplSubstList; // Список определителей подстановки поставщиков,
 		// применяемый для оприходования дефицита с привязкой к конкретным поставщикам.
-	SetLotManufTimeParam Slmt; // @v10.5.12 Параметры установки времени производства для лотов дефицита
+	SetLotManufTimeParam Slmt; // Параметры установки времени производства для лотов дефицита
 	static int BalanceSupplSubstList(TSVector <SupplSubstItem> & rList, double neededeQtty);
 };
 //
@@ -12099,6 +12094,11 @@ public:
 	//
 	void   SetLots(const PPTrfrArray & rS);
 	bool   FASTCALL SearchTI(int rByBill, uint * pPos) const;
+	//
+	// Descr: Возвращает идентификатор предпочтительного поставщика по строке.
+	//   Значение извлекается из зарезервированного тега PPTAG_LOT_PREFSUPPL.
+	//
+	PPID   GetPrefSupplForTi(uint tiIdx/*0..*/) const;
 	bool   UsesDistribCost() const;
 	//
 	// Descr: заносит элемент pItem в список товарных строк документа
@@ -12301,7 +12301,6 @@ public:
 	//
 	int    CheckLargeBill(int genWarn) const;
 
-
 	struct ConvertToCCheckParam {
 		ConvertToCCheckParam();
 		bool SetBuyersEAddr(int addrType, const char * pAddr);
@@ -12336,8 +12335,8 @@ public:
 	//   оказаться не актуальным.
 	//
 	int    ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPacket * pCheckPack) const;
-	int    SetCurTransit(const PPCurTransit * pTrans /* In */);
-	int    GetCurTransit(PPCurTransit * pTrans /* Out */) const;
+	int    SetCurTransit(const PPCurTransit * pTrans/*In*/);
+	int    GetCurTransit(PPCurTransit * pTrans/*Out*/) const;
 	int    AddPckg(LPackage *);
 	int    CalcPckgTotals();
 	//
@@ -12496,6 +12495,25 @@ private:
 		// опции ограничений на вставку соответствующих товаров в документ.
 	int16  SyncStatus; // Статус синхронизации документа с другими разделами. -2 - состояние не определено
 	int16  Reserve;    // @alignment
+};
+
+class PPBillPacketCollection : public TSCollection <PPBillPacket> {
+public:
+	PPBillPacketCollection();
+	PPBillPacketCollection(const PPBillPacketCollection & rS);
+	PPBillPacketCollection & FASTCALL operator = (const PPBillPacketCollection & rS);
+	bool FASTCALL Copy(const PPBillPacketCollection & rS);
+	PPBillPacket * SearchByObject(PPID arID) const;
+	//
+	// Descr: Ищет среди пакетов коллекции товарную строку, содержащую значение поля PPTransferItem::SrcIltiPos == srcIltiPos
+	//   В случае, если искомая строка найдена, то возвращает указатель на пакет документа, а по указателю pItIdx 
+	//   присваивает индекс строки [0..]
+	// Note: не зависимо от того, сколько пакетов и сколько их строк содержит искомое значение PPTransferItem::SrcIltiPos
+	//   функция найдет только первую встреченную строку и вернет ссылку на нее. Порядок перебора - естественный порядок
+	//   пакетов в коллекции и строк в пакете.
+	// ARG(srcIltiPos IN): Искомое значение PPTransferItem::SrcIltiPos [1..]
+	//
+	const PPBillPacket * Search_SrcIltiPos(uint srcIltiPos, uint * pTiIdx) const;
 };
 //
 // Intermediate Level Bill Packet
@@ -12900,7 +12918,7 @@ private:
 // ReceiptCore::GetCurrentGoodsPrice
 //
 #define GPRET_NOLOTS      -0x0100 // В системе нет ни одного лота с заданным товаром
-#define GPRET_ERROR        0 // Ошибка
+#define GPRET_ERROR             0 // Ошибка
 #define GPRET_OTHERLOC     0x0004 // На заданном складе лотов нет, но есть на других складах
 #define GPRET_CLOSEDLOTS   0x0002 // На заданном складе есть только закрытые лоты
 #define GPRET_PRESENT      0x0001 // На заданном складе имеется ненулевой остаток товара
@@ -31703,8 +31721,8 @@ public:
 	//   марки заносится в буфер *pProcessedMark. Если все же pMark имеет недопустимый формат, то
 	//   *pProcessedMark при выходе из функции содержит пустую строку.
 	//
-	static int FASTCALL IsEgaisMark(const char * pMark, SString * pProcessedMark);
-	static int ParseEgaisMark(const char * pMark, EgaisMarkBlock & rMb);
+	static bool FASTCALL IsEgaisMark(const char * pMark, SString * pProcessedMark);
+	static int  ParseEgaisMark(const char * pMark, EgaisMarkBlock & rMb);
 	//
 	// Descr: Определяет относится ли код категории алкогольной продукции pCode
 	//   к пиву и иной пивной продукции (пиво, пуаре, медовуха и пр.)
@@ -31932,8 +31950,8 @@ public:
 	void   PrintLabel(PPID);
 	void   ViewGenMembers(PPID);
 	int    RemoveAll();
-	int    IsAltFltGroup();
-	int    IsGenGoodsFlt();
+	bool   IsAltFltGroup();
+	bool   IsGenGoodsFlt() const;
 	int    ReplaceNames();
 	int    AddBarcodeCheckDigit();
 	int    AddGoodsFromBasket();
@@ -31965,6 +31983,7 @@ private:
 	int    InitGroupNamesList();
 	void   RemoveTempAltGroup();
 	int    NextInnerIteration(int initList, GoodsViewItem *);
+	void   Test_EgaisMarkAutoSelector(PPID goodsID);
 
 	struct GoodsMoveParam {
 		GoodsMoveParam();
@@ -31979,7 +31998,7 @@ private:
 			aMergeDiezNames,    //
 			aChgTaxGroup,       //
 			aChgGoodsType,      //
-			aAssignCodeByTemplate, // @v10.7.6
+			aAssignCodeByTemplate, //
 			aSetAlcoCategory    // @v11.3.8
 		};
 		enum {
@@ -31990,7 +32009,7 @@ private:
 			fRemoveExtTextC = 0x0010, //
 			fRemoveExtTextD = 0x0020, //
 			fRemoveExtTextE = 0x0040, //
-			fInit   = 0x0080  // Структура была иницализирована (может быть использована для редактирования)
+			fInit           = 0x0080  // Структура была иницализирована (может быть использована для редактирования)
 		};
 		long   Action;
 		PPID   DestGrpID;
@@ -32014,6 +32033,10 @@ private:
 	GoodsMoveParam GmParam;
 	static int DynFuncStrucType;
 	static int DynFuncAssocLoc; // @v11.5.8
+	enum {
+		stCtrlX     = 0x0002,
+	};
+	long   State; // @v12.0.9
 };
 //
 // @ModuleDecl(PPViewGoodsStruc)
@@ -34481,7 +34504,7 @@ private:
 
 		PPBillPacket SrcDraftPack;
 		const PPDraftOpEx * P_WrOffParam;
-		TSCollection <PPBillPacket> ResultList;
+		PPBillPacketCollection ResultList;
 		PUGL * P_DfctList;
 	};
 
@@ -37593,7 +37616,7 @@ private:
 	int    Helper_SetSessionState(TSessionTbl::Rec *, int newState, int checkOnly, int updateChilds);
 	int    Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger &, int use_ta);
 	int    SnapshotRest(PPID sessID, PPLogger &, int use_ta);
-	int    LoadExistedDeficitBills(PPID sessID, TSCollection <PPBillPacket> & rList, PPLogger & rLogger);
+	int    LoadExistedDeficitBills(PPID sessID, PPBillPacketCollection & rList, PPLogger & rLogger);
 	int    ConvertWrOffDeficit(PPID sessID, PPID locID, const PUGL * pDfctList, PPLogger & rLogger);
 	//
 	// Descr: Заносит в сессию строку, соответствующую расходу основного товара, если он
@@ -50429,7 +50452,7 @@ public:
 	DL2_Formula(const DL2_Formula &);
 	~DL2_Formula();  // no delete P_Stack (use destroy())
 	void   destroy();
-	int    Copy(const DL2_Formula *);
+	int    FASTCALL Copy(const DL2_Formula *);
 	bool   IsEmpty() const;
 	int    GetCount() const;
 	//
@@ -55011,15 +55034,7 @@ private:
 	//    0 - ошибка
 	//
 	int    ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rChZnBuf);
-
-	struct EgaisMarkAutoSelectEntry {
-		PPID   GoodsID;
-		double Qtty;
-		SString Mark;
-	};
-
-	int    EgaisMarkAutoSelect(PPID goodsID, double qtty, SString & rMarkBuf); // @v12.0.7
-	int    Helper_EgaisMarkAutoSelect(PPID goodsID, double qtty, TSCollection <EgaisMarkAutoSelectEntry> & rResult);
+	int    EgaisMarkAutoSelect(PPID goodsID, double qtty, SString & rMarkBuf); // @v12.0.7 @construction
 
 	ExtGoodsSelDialog * P_EGSDlg;
 	long   AutoInputTolerance; // Мин среднее время (ms) между вводом символом, ниже которого считается, что данные были введены автоматическим средством ввода (напр. сканером штрихкодов)
@@ -55501,7 +55516,7 @@ private:
 	SArray * P_CodeToPersonTab;
 	PPObjPerson * P_PsnObj; // Not owned by GoodsImportBillIdent
 	PPObjArticle * P_ArObj;
-	TSCollection <PPBillPacket> * P_PackList;
+	PPBillPacketCollection * P_PackList; // key: Rec.Dt; Rec.Object; Rec.Code
 };
 
 class HierArray : public SVector {
@@ -55513,8 +55528,8 @@ public:
 	HierArray();
 	const  HierArray::Item & at(uint i) const;
 	int    Add(const char * pCode, const char * pParentCode);
-	int    SearchParentOf(const char * pCode, char * pBuf, size_t bufLen) const;
-	int    IsThereChildOf(const char * pParentCode) const;
+	bool   SearchParentOf(const char * pCode, char * pBuf, size_t bufLen) const;
+	bool   IsThereChildOf(const char * pParentCode) const;
 };
 
 class PPGoodsImpExpParam : public PPImpExpParam {
@@ -56728,7 +56743,7 @@ public:
 		void   Clear();
 
 		long   P;
-		char   OrgRowIdent[64]; // @v10.3.4
+		char   OrgRowIdent[64];
 		char   Ident[24];
 		LDATE  BottlingDate;
 	};
@@ -56849,7 +56864,7 @@ public:
 		PPID   LocID;
 		SString ParamString;
 		SString InfoText; // @transient
-		LotFilt * P_LotFilt; // @v10.9.1 @transient
+		LotFilt * P_LotFilt; // @transient
 	};
 	//
 	// Descr: Типы ТТН
@@ -57035,11 +57050,9 @@ private:
 
 	enum {
 		stError     = 0x0001, // Во время выполнения какой-то функции произошла критическая ошибка
-		// @v10.6.5 stOuterLogger       = 0x0002, // Экземпляр PPLogger был передан из-вне (не следует разрушать P_Logger)
 		stValidLic  = 0x0004, // Присутствует лицензия на использование интерфейса с ЕГАИС
 		stTestSendingMode   = 0x0008, // Тестовый режим отправки сообщений. Фактически, сообщения в виде файлов копируются в каталог TEMP/EGAIX-XXX/OUT-TEST/
 		stDontRemoveTags    = 0x0010, // Опция, припятствующая удалению тегов с документов при получении отрицательных тикетов
-		// @v10.6.5 stDirectFileLogging = 0x0020, // Сообщения выводить непосредственно в файлы журналов (обходя P_Logger)
 		stUseEgaisVer3      = 0x0040, // Документы отправлять в 3-й версии формата
 		stUseEgaisVer4      = 0x0080, // @v11.0.12 Документы отправлять в 4-й версии формата
 	};
@@ -57048,9 +57061,107 @@ private:
 	SString EncBuf;
 	StringSet ExclChrgOnMarks; // Список марок, которые должны быть исключены при постановке лотов на баланс
 	PPLocAddrStruc * P_Las;
-	LotExtCodeCore * P_LecT; // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
+	LotExtCodeCore * P_LecT;
 	PPTextAnalyzerWrapper * P_Taw;
-	// @v10.6.5 PPLogger * P_Logger;
+};
+//
+// Descr: @v12.0.9 @construction Класс, реализующий функцию автоматического выбор марки егаис для списания в horeca
+//
+class EgaisMarkAutoSelector {
+public:
+	struct _MarkEntry {
+		_MarkEntry() : Rest(0.0)
+		{
+		}
+		SString Mark;
+		double Rest;
+	};
+
+	struct _TerminalEntry {
+		_TerminalEntry() : GoodsID(0), LotID(0), LotDate(ZERODATE), Qtty(0.0)
+		{
+		}
+		_TerminalEntry(const _TerminalEntry & rS)
+		{
+			Copy(rS);
+		}
+		_TerminalEntry & FASTCALL operator = (const _TerminalEntry & rS)
+		{
+			Copy(rS);
+			return *this;
+		}
+		bool   FASTCALL Copy(const _TerminalEntry & rS)
+		{
+			GoodsID = rS.GoodsID;
+			LotID = rS.LotID;
+			LotDate = rS.LotDate;
+			Qtty = rS.Qtty;
+			TSCollection_Copy(ML, rS.ML);
+			return true;
+		}
+		PPID   GoodsID;
+		PPID   LotID;
+		LDATE  LotDate;
+		double Qtty;
+		TSCollection <_MarkEntry> ML;
+	};
+	struct Entry {
+		//PPID   GoodsID;
+		//double Qtty;
+		//StringSet SsMark;
+		Entry()
+		{
+		}
+		Entry(const Entry & rS)
+		{
+			Copy(rS);
+		}
+		Entry & FASTCALL operator = (const Entry & rS)
+		{
+			Copy(rS);
+			return *this;
+		}
+		bool   FASTCALL Copy(const Entry & rS)
+		{
+			TSCollection_Copy(Te, rS.Te);
+			return true;
+		}
+		TSCollection <_TerminalEntry> Te;
+	};
+	class ResultBlock : public TSCollection <Entry> {
+	public:
+		ResultBlock(PPID goodsID, double qtty) : GoodsID(goodsID), Qtty(qtty), VolumeQtty(0.0)
+		{
+		}
+		ResultBlock(const ResultBlock & rS)
+		{
+			Copy(rS);
+		}
+		ResultBlock & FASTCALL operator = (const ResultBlock & rS)
+		{
+			Copy(rS);
+			return *this;
+		}
+		bool   FASTCALL Copy(const ResultBlock & rS)
+		{
+			GoodsID = rS.GoodsID;
+			Qtty = rS.Qtty;
+			VolumeQtty = rS.VolumeQtty;
+			TSCollection_Copy(*this, rS);
+			return true;
+		}
+		PPID   GoodsID; // Стартовый товар (который был продан)
+		double Qtty;    // Количество проданного стартового товара
+		double VolumeQtty; // Количество проданного стартового товара в литрах
+	};
+	EgaisMarkAutoSelector(PPEgaisProcessor * pEgPrc);
+	~EgaisMarkAutoSelector();
+	int    Run(ResultBlock & rResult);
+private:
+	int    Helper(PPID goodsID, double qtty, ResultBlock & rResult);
+
+	PPObjGoods GObj;
+	PPEgaisProcessor * P_EgPrc; // @notowned
 };
 //
 // Descr: Класс, реализующий высокоуровневые механизмы обмена с "честным знаком"
@@ -58781,7 +58892,7 @@ int    FASTCALL SetupObjListCombo(TDialog *, uint, PPID, const PPIDArray * pIncl
 enum {
 	sacfDisableIfZeroSheet   = 0x0001, // Заблокировать комбо-бокс если таблица статей не определена
 	sacfNonEmptyExchageParam = 0x0002, // Показывать только статьи с не пустой конфигурацией обмена в соглашении
-	sacfNonGeneric   = 0x0004  // Исключить выбор группирующих статей
+	sacfNonGeneric           = 0x0004  // Исключить выбор группирующих статей
 };
 
 int    FASTCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID accSheetID, long /*disableIfZeroSheet*/sacf /*= 0*/);
@@ -58908,7 +59019,7 @@ int    SelectPrinterFromWinPool(SString & rPrinter);
 struct SelBasketParam : public PPBasketCombine {
 	enum {
 		fUseGoodsRestAsQtty     = 0x0001,  // Количество товара в корзине выбирать из остатков товара
-		fNotSelPrice    = 0x0002,  // Запрет выбора цены
+		fNotSelPrice            = 0x0002,  // Запрет выбора цены
 		fFillUpToMinStock       = 0x0004,  // Попольнить до минимального остатка
 		fEnableFillUpToMinStock = 0x0008   // Если этот флаг не установлен, то опция fFillUpToMinStock будет недоступна
 	};
@@ -58916,11 +59027,9 @@ struct SelBasketParam : public PPBasketCombine {
 	int    StoreInReg(const char * pName) const;
 	int    RestoreFromReg(const char * pName);
 	long   SelPrice;     // IN/OUT Выбор вида цены, которая должна загружаться в корзину
-		// { 1 - цена поступления, 2 - номинальная цена реализации,
-		// 3 - чистая цена реализации (Price-Discount)}
+		// { 1 - цена поступления, 2 - номинальная цена реализации, 3 - чистая цена реализации (Price-Discount)}
 	long   SelReplace;   // IN/OUT Способ обработки непустой корзины
-		// {1 - очистить корзину, 2 - заменить существующие товары,
-		// 3 - сложить количества для существующих товаров}
+		// {1 - очистить корзину, 2 - заменить существующие товары, 3 - сложить количества для существующих товаров}
 	int16  Flags;        //
 	int16  Reserve;      // @alignment
 };

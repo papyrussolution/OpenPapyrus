@@ -1,5 +1,5 @@
 // SDRECORD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -403,11 +403,11 @@ SdRecord::SdRecord(long flags) : Items(sizeof(F))
 	Flags = flags;
 }
 
-SdRecord::SdRecord(const SdRecord & s) : Items(sizeof(F))
+SdRecord::SdRecord(const SdRecord & rS) : Items(sizeof(F))
 {
 	Init();
 	Flags = 0;
-	Copy(s);
+	Copy(rS);
 }
 
 SdRecord::~SdRecord()
@@ -415,9 +415,9 @@ SdRecord::~SdRecord()
 	DestroyDataBuf();
 }
 
-SdRecord & FASTCALL SdRecord::operator = (const SdRecord & s)
+SdRecord & FASTCALL SdRecord::operator = (const SdRecord & rS)
 {
-	Copy(s);
+	Copy(rS);
 	return *this;
 }
 

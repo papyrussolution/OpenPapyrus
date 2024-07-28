@@ -613,9 +613,9 @@ int FASTCALL PPQuotArray::SearchQiList(const QuotIdent & rQi, LongArray & rPosLi
 	return ok;
 }
 
-int FASTCALL PPQuotArray::SearchQi(const QuotIdent & rQi, uint * pPos) const
+bool FASTCALL PPQuotArray::SearchQi(const QuotIdent & rQi, uint * pPos) const
 {
-	int    ok = 0;
+	bool   ok = false;
 	uint   pos = 0;
 	const  uint c = getCount();
 	long   min_period_len = MAXLONG;
@@ -641,7 +641,7 @@ int FASTCALL PPQuotArray::SearchQi(const QuotIdent & rQi, uint * pPos) const
 									min_period_len = rq_len;
 									min_qtty_diff = qtty_diff;
 									pos = i;
-									ok = 1;
+									ok = true;
 								}
 							}
 						}
@@ -654,7 +654,7 @@ int FASTCALL PPQuotArray::SearchQi(const QuotIdent & rQi, uint * pPos) const
 							if(qtty_diff <= min_qtty_diff) {
 								min_qtty_diff = qtty_diff;
 								pos = i;
-								ok = 1;
+								ok = true;
 							}
 						}
 					}
@@ -690,7 +690,7 @@ int PPQuotArray::SearchNearest(const QuotIdent & rQi, uint * pPos) const
 {
 	QuotIdent temp(rQi);
 	SETIFZ(temp.Dt, getcurdate_());
-	int    r = SearchQi(temp, pPos);
+	bool   r = SearchQi(temp, pPos);
 	if(!r && (rQi.LocID || rQi.ArID)) {
 		if(rQi.ArID) {
 			temp.ArID = 0;
@@ -699,7 +699,7 @@ int PPQuotArray::SearchNearest(const QuotIdent & rQi, uint * pPos) const
 		}
 		if(!r && rQi.LocID) {
 			PPID   loc_id = rQi.LocID;
-			PPObjLocation loc_obj(SConstructorLite); // @v10.0.0 SConstructorLite
+			PPObjLocation loc_obj(SConstructorLite);
 			LocationTbl::Rec loc_rec;
 			do {
 				int    r2 = loc_obj.Fetch(loc_id, &loc_rec);
@@ -1030,7 +1030,7 @@ int QuotationCore::SetCurrList(const PPQuotArray & rQuotList, const PPQuotArray 
 					const  PPID loc_id = p_quot->LocID;
 					const  PPID ar_id = p_quot->ArID;
 					QuotIdent qi(loc_id, p_quot->Kind, p_quot->CurID, p_quot->ArID);
-					if(templ.SearchQi(qi, &(pos = 0)) > 0) {
+					if(templ.SearchQi(qi, &(pos = 0))) {
 						{
 							PPQuot & r_templ_q = templ.at(pos);
 							THROW(r = SetCurr(&r_templ_q.ID, p_quot, 0, 0));
@@ -2719,7 +2719,7 @@ int Quotation2Core::Set_(const PPQuotArray & rQList, long qtaID, const PPQuotArr
 						QuotIdent qi(loc_id, r_quot.Kind, r_quot.CurID, ar_id);
 						qi.SetIdentPeriod(&r_quot.Period);
 						qi.SetIdentQtty(&r_quot.MinQtty);
-						if(templ.SearchQi(qi, &(pos = 0)) > 0) {
+						if(templ.SearchQi(qi, &(pos = 0))) {
 							// @v11.3.0 {
 							if(updByTime) {
 								const PPQuot & r_templ_item = templ.at(pos);

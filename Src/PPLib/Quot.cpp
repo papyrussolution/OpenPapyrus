@@ -800,7 +800,7 @@ static int SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goodsID, PP
 								}
 								else {
 									PPQuot upd_q = *p_quot;
-									upd_q.Quot = PPObjQuotKind::RoundUpPrice(qk_id, upd_q.Quot * (1.0 + rFilt.QuotVal / 100.0)); // @v10.9.11 QuotKindRounding
+									upd_q.Quot = PPObjQuotKind::RoundUpPrice(qk_id, upd_q.Quot * (1.0 + rFilt.QuotVal / 100.0));
 									THROW_SL(p_dest_list->insert(&upd_q));
 								}
 								ok = 1;
@@ -816,7 +816,7 @@ static int SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goodsID, PP
 	return ok;
 }
 
-static int SetupQuotUpdRegBill(const QuotUpdFilt & rF, const PPQuotArray & rQList, TSCollection <PPBillPacket> & rPackList)
+static int SetupQuotUpdRegBill(const QuotUpdFilt & rF, const PPQuotArray & rQList, PPBillPacketCollection & rPackList)
 {
 	int    ok = -1;
 	if(rF.RegisterOpID) {
@@ -846,10 +846,9 @@ static int SetupQuotUpdRegBill(const QuotUpdFilt & rF, const PPQuotArray & rQLis
 	return ok;
 }
 
-static int FinishUpdateQuots(TSCollection <PPBillPacket> & rRegPackList, int use_ta)
+static int FinishUpdateQuots(PPBillPacketCollection & rRegPackList, int use_ta)
 {
 	const uint max_tries = 3;
-
 	int    ok = 1;
 	const uint _c = rRegPackList.getCount();
 	for(uint j = 0; j < _c; j++) {
@@ -897,22 +896,19 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 	}
 	while(pFilt || EditQuotUpdDialog(&flt) > 0) {
 		// @erik v10.5.8 { 
-		if(flt.Flags & QuotUpdFilt::fTest && CConfig.Flags2 & CCFLG2_DEVELOPMENT) { // @v10.5.9 (CConfig.Flags2 & CCFLG2_DEVELOPMENT)
+		if(flt.Flags & QuotUpdFilt::fTest && CConfig.Flags2 & CCFLG2_DEVELOPMENT) {
 			getcurdatetime(&date_time_test);
 			qc2_test.DumpCurrent(buf_before_test, qc2_test.dumpfIgnoreTimestamp,  &items_count_before_test);
 		}
 		// } @erik v10.5.8
-		TSCollection <PPBillPacket> reg_pack_list;
+		PPBillPacketCollection reg_pack_list;
 		flt.ByWhat = (flt.ByWhat == QuotUpdFilt::byDelete) ? QuotUpdFilt::byAbsVal : flt.ByWhat;
 		PPWaitStart();
 		flt.LocList.CopyTo(&loc_list);
-		// @v10.7.3 loc_list.sort();
-		// @v10.7.3 {
 		if(loc_list.getCount())
 			loc_list.sort();
 		else
 			loc_list.add(0L);
-		// } @v10.7.3 
 		if(flt.ByWhat == QuotUpdFilt::byLastReval) {
 			PPLogMessage(PPFILNAM_QUOTUPD_LOG, PPSTR_TEXT, PPTXT_LOG_QUOTUPD_BYLASTREVAL, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER);
 			PPID   kind = flt.QuotKindID;
@@ -946,13 +942,13 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 									double price = 0.0;
 									THROW(r = ::GetCurGoodsPrice(goods_id, p_ti->LocID, GPRET_MOSTRECENT, &price));
 									if(oneof2(r, GPRET_PRESENT, GPRET_CLOSEDLOTS)) {
-										QuotIdent qi(p_ti->LocID, kind, 0 /*@curID*/, 0 /* ArID */);
+										const QuotIdent qi(p_ti->LocID, kind, 0 /*@curID*/, 0 /* ArID */);
 										PPQuotArray qary(goods_id);
 										if(flt.AdvOptQuot == 0 || flt.IsQuotByAdvOptExists(&qary)) {
 											int    to_process = 1;
 											uint   pos = 0;
 											THROW(goods_obj.GetQuotList(goods_id, 0, qary));
-											int    is_exist = BIN(qary.SearchQi(qi, &pos) > 0);
+											const bool is_exist = qary.SearchQi(qi, &pos);
 											if(is_exist && qary.at(pos).IsRelative())
 												to_process = 0;
 											else if(flt.Flags & QuotUpdFilt::fExistOnly) {

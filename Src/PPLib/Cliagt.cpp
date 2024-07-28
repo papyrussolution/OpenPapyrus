@@ -48,7 +48,7 @@ int FASTCALL PPClientAgreement::IsEq(const PPClientAgreement & rS) const
 	CMP_FLD(RetLimPrd);
 	CMP_FLD(RetLimPart);
 	CMP_FLD(PaymDateBase);
-	CMP_FLD(EdiPrvID); // @v10.0.0
+	CMP_FLD(EdiPrvID);
 	CMP_FLD(Code_); // @v11.2.0
 	CMP_FLD(DefDuePeriodHour); // @v11.4.8
 #undef CMP_FLD
@@ -1309,7 +1309,7 @@ int FASTCALL PPSupplAgreement::OrderParamEntry::IsEq(const OrderParamEntry & rS)
 	CMP_FLD(LocID);
 	CMP_FLD(MngrID);
 	CMP_FLD(OrdPrdDays);
-	CMP_FLD(Fb.DuePrdDays); // @v8.5.2
+	CMP_FLD(Fb.DuePrdDays);
 	CMP_FLD(Dr);
 #undef CMP_FLD
 	return 1;

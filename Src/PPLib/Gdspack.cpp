@@ -30,8 +30,8 @@ PPGoodsPacket & PPGoodsPacket::Z()
 	MEMSZERO(Rec);
 	MEMSZERO(ExtRec);
 	Stock.Z();
-	Codes.clear(); // @v10.0.02 freeAll()-->clear()
-	ArCodes.clear(); // @v10.0.02 freeAll()-->clear()
+	Codes.clear();
+	ArCodes.clear();
 	ExtString.Z();
 	ZDELETE(P_Filt);
 	ZDELETE(P_Quots);
@@ -412,9 +412,9 @@ PPGdsClsPacket::PPGdsClsPacket()
 	// @v11.2.7 Init();
 }
 
-PPGdsClsPacket & FASTCALL PPGdsClsPacket::operator = (const PPGdsClsPacket & s)
+PPGdsClsPacket & FASTCALL PPGdsClsPacket::operator = (const PPGdsClsPacket & rS)
 {
-	Copy(s);
+	Copy(rS);
 	return *this;
 }
 

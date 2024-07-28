@@ -1488,7 +1488,7 @@ int STDCALL PPPutExtStrData(int fldID, SString & rLine, const SString & rBuf)
 //
 PPExtStrContainer::PPExtStrContainer() {}
 PPExtStrContainer & PPExtStrContainer::Z() { ExtString.Z(); return *this; }
-int    FASTCALL PPExtStrContainer::Copy(const PPExtStrContainer & rS) { ExtString = rS.ExtString; return 1; }
+bool   FASTCALL PPExtStrContainer::Copy(const PPExtStrContainer & rS) { ExtString = rS.ExtString; return true; }
 int    PPExtStrContainer::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
 int    PPExtStrContainer::PutExtStrData(int fldID, const char * pStr) { return PPPutExtStrData(fldID, ExtString, pStr); }
 int    PPExtStrContainer::SerializeB(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) { return pSCtx->Serialize(dir, ExtString, rBuf) ? 1 : PPSetErrorSLib(); }

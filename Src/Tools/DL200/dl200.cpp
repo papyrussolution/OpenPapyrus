@@ -1924,7 +1924,7 @@ int DL2_Formula::Read(FILE * pStream)
 	return ok;
 }
 
-int DL2_Formula::Copy(const DL2_Formula * pS)
+int FASTCALL DL2_Formula::Copy(const DL2_Formula * pS)
 {
 	destroy();
 	P_Stack = (uint8 *)SAlloc::M(pS->Size);

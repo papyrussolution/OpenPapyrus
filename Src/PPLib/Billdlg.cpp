@@ -3313,16 +3313,17 @@ int ChangeBillFlagsDialog(long * pSetFlags, long * pResetFlags, PPID * pStatusID
 			*pStatusID = 0;
 			dlg->disableCtrl(CTLSEL_BILLF_STATUS, 1);
 		}
-		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
+		for(bool valid_data = false; !valid_data && ExecView(dlg) == cmOK;) {
 			ushort    v1 = dlg->getCtrlUInt16(CTL_BILLF_SET);
 			ushort    v2 = dlg->getCtrlUInt16(CTL_BILLF_RESET);
-			valid_data = 1;
-			for(uint i = 0; i < 16; i++)
+			valid_data = true;
+			for(uint i = 0; i < 16; i++) {
 				if((v1 & v2) & (1U << i)) {
-					valid_data = 0;
+					valid_data = false;
 					PPError(PPERR_BILLFCONFLICT, 0);
 					break;
 				}
+			}
 			if(valid_data) {
 				dlg->GetClusterData(CTL_BILLF_SET, pSetFlags);
 				dlg->GetClusterData(CTL_BILLF_RESET, pResetFlags);
@@ -3363,9 +3364,9 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			PPIDArray worldobj_kind_list;
 			worldobj_kind_list.addzlist(WORLDOBJ_CITY, WORLDOBJ_CITYAREA, 0L);
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_ISSLOC,   PPOBJ_WORLD, Data.PortOfLoading,   OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
-				PPObjWorld::MakeExtraParam(worldobj_kind_list, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR -OLW_LOADDEFONOPEN
+				PPObjWorld::MakeExtraParam(worldobj_kind_list, 0, 0));
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_ARRIVLOC, PPOBJ_WORLD, Data.PortOfDischarge, OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
-				PPObjWorld::MakeExtraParam(worldobj_kind_list, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR -OLW_LOADDEFONOPEN
+				PPObjWorld::MakeExtraParam(worldobj_kind_list, 0, 0));
 			{
 				int    dlvr_loc_as_warehouse = 0;
 				if(oneof2(R_Pack.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_GOODSRECEIPT)) {
@@ -3437,7 +3438,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			strip(Data.Name);
 			getCtrlData(CTLSEL_FREIGHT_SHIP,     &Data.ShipID);
 			getCtrlData(CTLSEL_FREIGHT_CAPTAIN,  &Data.CaptainID);
-			getCtrlData(CTLSEL_FREIGHT_CAPTAIN2, &Data.Captain2ID); // @v10.9.2
+			getCtrlData(CTLSEL_FREIGHT_CAPTAIN2, &Data.Captain2ID);
 			getCtrlData(CTLSEL_FREIGHT_AGENT,    &Data.AgentID);
 			getCtrlData(CTLSEL_FREIGHT_ISSLOC,   &Data.PortOfLoading);
 			getCtrlData(CTLSEL_FREIGHT_ARRIVLOC, &Data.PortOfDischarge);

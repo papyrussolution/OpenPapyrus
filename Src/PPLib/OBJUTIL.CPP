@@ -1818,9 +1818,9 @@ int FASTCALL ObjLinkFiles::Copy(const ObjLinkFiles & rS)
 	return ok;
 }
 
-ObjLinkFiles & FASTCALL ObjLinkFiles::operator = (const ObjLinkFiles & rSrc)
+ObjLinkFiles & FASTCALL ObjLinkFiles::operator = (const ObjLinkFiles & rS)
 {
-	Copy(rSrc);
+	Copy(rS);
 	return *this;
 }
 

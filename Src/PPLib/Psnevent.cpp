@@ -206,9 +206,9 @@ int FASTCALL PPPsnEventPacket::Copy(const PPPsnEventPacket & rS)
 	return 1;
 }
 
-PPPsnEventPacket & FASTCALL PPPsnEventPacket::operator = (const PPPsnEventPacket & s)
+PPPsnEventPacket & FASTCALL PPPsnEventPacket::operator = (const PPPsnEventPacket & rS)
 {
-	Copy(s);
+	Copy(rS);
 	return *this;
 }
 

@@ -9,7 +9,6 @@
 
 PPBudgetPacket::PPBudgetPacket()
 {
-	// @v10.7.9 @ctr Init();
 }
 
 void PPBudgetPacket::Init()
@@ -81,10 +80,7 @@ BudgetItemCore::BudgetItemCore()
 {
 }
 
-int BudgetItemCore::Search(PPID id, void * pRec /*=0*/)
-{
-	return SearchByID(this, 0, id, pRec);
-}
+int BudgetItemCore::Search(PPID id, void * pRec/*=0*/) { return SearchByID(this, 0, id, pRec); }
 
 int BudgetItemCore::Search(PPID budgetID, PPID acc, PPID kind, LDATE dt, void * pRec)
 {
@@ -134,11 +130,11 @@ int BudgetItemCore::PutItem_(PPID * pID, BudgetItemTbl::Rec * pRec, int useTa)
 
 int BudgetItemCore::PutItem(PPID * pID, BudgetItemTbl::Rec * pRec, int useTa)
 {
-	int    ok = 1; //, ta = 0;
+	int    ok = 1;
 	double prev_amt = 0.0;
 	PPObjAccount obj_acct;
 	if(pID) {
-		int    del = BIN(*pID && pRec == 0);
+		const bool do_delete = (*pID && pRec == 0);
 		BudgetItemTbl::Rec prev_rec;
 		if(*pID)
 			Search(*pID, &prev_rec);
@@ -146,7 +142,7 @@ int BudgetItemCore::PutItem(PPID * pID, BudgetItemTbl::Rec * pRec, int useTa)
 			PPTransaction tra(useTa);
 			THROW(tra);
 			THROW(PutItem_(pID, pRec, 0));
-			if(del && prev_rec.ID) {
+			if(do_delete && prev_rec.ID) {
 				StrAssocArray child_list;
 				if(obj_acct.GetChildList(prev_rec.Acc, &child_list) > 0)
 					for(uint i = 0; i < child_list.getCount(); i++)
@@ -345,7 +341,7 @@ int PPObjBudget::PutPacket(PPID * pID, PPBudgetPacket * pPack, int use_ta)
 int PPObjBudget::GetChildBudgets(PPID parentID, PPIDArray * pChildList)
 {
 	int    ok = -1;
-	long h = 0;
+	long   h = 0;
 	PPBudget budget;
 	for(P_Ref->InitEnum(PPOBJ_BUDGET, 0, &h); P_Ref->NextEnum(h, &budget) > 0;) {
 		if(budget.ParentID == parentID) {
@@ -357,14 +353,25 @@ int PPObjBudget::GetChildBudgets(PPID parentID, PPIDArray * pChildList)
 }
 
 class BudgetScenDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPBudgetPacket);
 public:
 	BudgetScenDialog() : PPListDialog(DLG_LBXSEL, CTL_LBXSEL_LIST)
 	{
 		PPLoadString(PPSTR_TEXT, PPTXT_BUDGSCEN, BudgTitle);
 		setTitle(BudgTitle);
 	}
-	int setDTS(const PPBudgetPacket *);
-	int getDTS(PPBudgetPacket *);
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			Data.Init();
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	virtual int addItem(long *, long *);
 	virtual int delItem(long, long);
@@ -372,22 +379,7 @@ private:
 	virtual int setupList();
 
 	SString BudgTitle;
-	PPBudgetPacket Data;
 };
-
-int BudgetScenDialog::setDTS(const PPBudgetPacket * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		Data.Init();
-	updateList(-1);
-	return 1;
-}
-
-int BudgetScenDialog::getDTS(PPBudgetPacket * pData)
-{
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
 
 int BudgetScenDialog::addItem(long * pPos, long * pID)
 {
@@ -439,6 +431,7 @@ int BudgetScenDialog::setupList()
 #define GRP_CYCLE 1L
 
 class BudgetDialog : public TDialog {
+	DECL_DIALOG_DATA(PPBudgetPacket);
 public:
 	BudgetDialog() : TDialog(DLG_BUDGET)
 	{
@@ -447,85 +440,76 @@ public:
 		SetupCalPeriod(CTLCAL_BUDGET_PERIOD, CTL_BUDGET_PERIOD);
 		disableCtrl(CTL_BUDGET_ID, 1);
 	}
-	int setDTS(const PPBudgetPacket *);
-	int getDTS(PPBudgetPacket *);
-private:
-	DECL_HANDLE_EVENT;
-
-	PPBudgetPacket Data;
-	PPObjBudget    BudgObj;
-};
-
-IMPL_HANDLE_EVENT(BudgetDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isCmd(cmScenaries)) {
-		BudgetScenDialog * p_dlg = 0;
-		if(CheckDialogPtrErr(&(p_dlg = new BudgetScenDialog)) > 0) {
-			p_dlg->setDTS(&Data);
-			for(int valid_data = 0; !valid_data && ExecView(p_dlg) > 0;) {
-				if(p_dlg->getDTS(&Data) > 0)
-					valid_data = 1;
-				else
-					PPError();
-			}
+	DECL_DIALOG_SETDTS()
+	{
+		uint   idx = 0;
+		DateRange period;
+		CycleCtrlGroup::Rec cycle_rec;
+		if(!RVALUEPTR(Data, pData))
+			Data.Init();
+		if(Data.ScenList.getCount() == 0) {
+			PPBudget rec = Data.Rec;
+			PPGetWord(PPWORD_BASE, 0, rec.Name, sizeof(rec.Name));
+			Data.ScenList.insert(&rec);
 		}
-		delete p_dlg;
+		cycle_rec.C.Cycle = Data.Rec.Cycle;
+		setGroupData(GRP_CYCLE, &cycle_rec);
+		setCtrlString(CTL_BUDGET_CODE, SString(Data.Rec.Code));
+		setCtrlString(CTL_BUDGET_NAME, SString(Data.Rec.Name));
+		setCtrlData(CTL_BUDGET_ID, &Data.Rec.ID);
+		period.Set(Data.Rec.LowDt, Data.Rec.UppDt);
+		SetPeriodInput(this, CTL_BUDGET_PERIOD, &period);
+		disableCtrl(CTLCAL_BUDGET_PERIOD, BIN(Data.Rec.ID));
+		disableCtrls(BIN(Data.EnumItems(&idx, 0) > 0), CTL_BUDGET_PERIOD, CTLSEL_BUDGET_CYCLE, 0L);
+		return 1;
 	}
-}
-
-int BudgetDialog::setDTS(const PPBudgetPacket * pData)
-{
-	uint   idx = 0;
-	DateRange period;
-	CycleCtrlGroup::Rec cycle_rec;
-	if(!RVALUEPTR(Data, pData))
-		Data.Init();
-	if(Data.ScenList.getCount() == 0) {
-		PPBudget rec = Data.Rec;
-		PPGetWord(PPWORD_BASE, 0, rec.Name, sizeof(rec.Name));
-		Data.ScenList.insert(&rec);
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		CycleCtrlGroup::Rec cycle_rec;
+		DateRange period;
+		getCtrlData(CTL_BUDGET_CODE, Data.Rec.Code);
+		getCtrlData(sel = CTL_BUDGET_NAME, Data.Rec.Name);
+		getCtrlData(CTL_BUDGET_ID,  &Data.Rec.ID);
+		THROW_PP(sstrlen(Data.Rec.Name) > 0, PPERR_NAMENEEDED);
+		THROW(GetPeriodInput(this, sel = CTL_BUDGET_PERIOD, &period));
+		THROW_PP(!period.IsZero(), PPERR_INVPERIODINPUT);
+		Data.Rec.LowDt = period.low;
+		Data.Rec.UppDt = period.upp;
+		getGroupData(GRP_CYCLE, &cycle_rec);
+		Data.Rec.Cycle     = cycle_rec.C.Cycle;
+		ASSIGN_PTR(pData, Data);
+		CATCH
+			selectCtrl(sel);
+			ok = 0;
+		ENDCATCH
+		return ok;
 	}
-	cycle_rec.C.Cycle = Data.Rec.Cycle;
-	setGroupData(GRP_CYCLE, &cycle_rec);
-	setCtrlString(CTL_BUDGET_CODE, SString(Data.Rec.Code));
-	setCtrlString(CTL_BUDGET_NAME, SString(Data.Rec.Name));
-	setCtrlData(CTL_BUDGET_ID, &Data.Rec.ID);
-	period.Set(Data.Rec.LowDt, Data.Rec.UppDt);
-	SetPeriodInput(this, CTL_BUDGET_PERIOD, &period);
-	disableCtrl(CTLCAL_BUDGET_PERIOD, BIN(Data.Rec.ID));
-	disableCtrls(BIN(Data.EnumItems(&idx, 0) > 0), CTL_BUDGET_PERIOD, CTLSEL_BUDGET_CYCLE, 0L);
-	return 1;
-}
-
-int BudgetDialog::getDTS(PPBudgetPacket * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	CycleCtrlGroup::Rec cycle_rec;
-	DateRange period;
-	getCtrlData(CTL_BUDGET_CODE, Data.Rec.Code);
-	getCtrlData(sel = CTL_BUDGET_NAME, Data.Rec.Name);
-	getCtrlData(CTL_BUDGET_ID,  &Data.Rec.ID);
-	THROW_PP(sstrlen(Data.Rec.Name) > 0, PPERR_NAMENEEDED);
-	THROW(GetPeriodInput(this, sel = CTL_BUDGET_PERIOD, &period));
-	THROW_PP(!period.IsZero(), PPERR_INVPERIODINPUT);
-	Data.Rec.LowDt = period.low;
-	Data.Rec.UppDt = period.upp;
-
-	getGroupData(GRP_CYCLE, &cycle_rec);
-	Data.Rec.Cycle     = cycle_rec.C.Cycle;
-	ASSIGN_PTR(pData, Data);
-	CATCH
-		selectCtrl(sel);
-		ok = 0;
-	ENDCATCH
-	return ok;
-}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmScenaries)) {
+			BudgetScenDialog * p_dlg = 0;
+			if(CheckDialogPtrErr(&(p_dlg = new BudgetScenDialog)) > 0) {
+				p_dlg->setDTS(&Data);
+				for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
+					if(p_dlg->getDTS(&Data) > 0)
+						valid_data = 1;
+					else
+						PPError();
+				}
+			}
+			delete p_dlg;
+		}
+	}
+	PPObjBudget BudgObj;
+};
 
 int PPObjBudget::AddBySample(PPID * pID, PPID sampleID)
 {
-	int  ok = -1, ta = 0;
+	int    ok = -1;
 	PPBudgetPacket pack;
 	if(GetPacket(sampleID, &pack) > 0) {
 		LDATE sample_low_dt = pack.Rec.LowDt;
@@ -547,7 +531,7 @@ int PPObjBudget::AddBySample(PPID * pID, PPID sampleID)
 
 int PPObjBudget::AddLineBySample(PPID * pID, PPID sampleID)
 {
-	int  ok = -1, ta = 0;
+	int    ok = -1;
 	BudgetItemTbl::Rec rec;
 	if(ItemsTbl.Search(sampleID, &rec) > 0) {
 		rec.ID = 0;
@@ -563,9 +547,8 @@ int PPObjBudget::AddLineBySample(PPID * pID, PPID sampleID)
 
 int PPObjBudget::Helper_Edit(PPBudgetPacket * pPack)
 {
-	int    ok = -1, is_locked = 0;
+	int    ok = -1;
 	BudgetDialog * p_dlg = 0;
-
 	THROW(CheckRights(PPR_READ));
 	THROW(CheckDialogPtr(&(p_dlg = new BudgetDialog)));
 	p_dlg->setDTS(pPack);
@@ -848,9 +831,8 @@ int BudgetItemsDialog::getDTS(BudgetItemsList * pData)
 int PPObjBudget::Helper_EditLine(BudgetItemTbl::Rec * pRec)
 {
 	int    ok = -1;
-	uint cm = 0;
+	uint   cm = 0;
 	BudgetItemDialog * p_dlg = 0;
-
 	THROW_INVARG(pRec);
 	THROW(CheckDialogPtr(&(p_dlg = new BudgetItemDialog(this))));
 	p_dlg->setDTS(pRec);
@@ -1362,13 +1344,9 @@ void PPViewBudget::GetTabTitle(long tabID, SString & rBuf)
 			if(ObjBudg.Search(Filt.BudgetID, &budg_rec) > 0 && budg_rec.Cycle > 1) {
 				SString plan_word, fact_word, total_word;
 				DBFieldList total_list;
-
-				// @v9.0.2 PPGetWord(PPWORD_PLAN,  0, plan_word);
-				PPLoadString("plan", plan_word); // @v9.0.2
-				// @v9.0.2 PPGetWord(PPWORD_FACT,  0, fact_word);
-				PPLoadString("fact", fact_word); // @v9.0.2
+				PPLoadString("plan", plan_word);
+				PPLoadString("fact", fact_word);
 				PPGetWord(PPWORD_TOTAL, 0, total_word);
-
 				THROW_MEM(P_Ct = new BudgetItemsCrosstab(this));
 				P_Ct->SetTable(P_TempBudgItemTbl, P_TempBudgItemTbl->Dt);
 				P_Ct->AddIdxField(P_TempBudgItemTbl->Acc);

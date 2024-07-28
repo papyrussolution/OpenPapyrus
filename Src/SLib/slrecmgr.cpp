@@ -62,7 +62,9 @@
 		THROW_S(offset < (1ULL << bits_offs), SLERR_RECMGR_INVROWID_OFFSUP);
 		THROW_S(!pageSize || offset < pageSize, SLERR_RECMGR_INVROWID_OFFSOUTOFPG);
 	}
-	CATCHZOK
+	CATCH
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 
@@ -161,17 +163,20 @@ int SRecPageManager::WriteToPage(SDataPage_ * pPage, uint64 rowId, const void * 
 	int    ok = 1;
 	uint   seq = 0;
 	uint   offset = 0;
+	uint64 post_write_rowid = 0;
 	THROW(pPage);
 	THROW(SRecPageManager::SplitRowId(rowId, &seq, &offset));
 	assert(pPage->VerifySeq(seq)); // Вызывающая функция не должна была передать неверное сочетание параметров!
 	{
 		SRecPageFreeList::Entry new_free_entry;
 		assert(pPage->VerifyOffset(offset));
-		uint64 post_write_rowid = pPage->Write(offset, pData, dataLen, &new_free_entry);
+		post_write_rowid = pPage->Write(offset, pData, dataLen, &new_free_entry);
 		THROW(post_write_rowid);
 		assert(post_write_rowid == rowId);
 		THROW(Fl.Remove(pPage->GetType(), post_write_rowid));
-		THROW(Fl.Put(pPage->GetType(), new_free_entry.RowId, new_free_entry.FreeSize));
+		if(new_free_entry.RowId) {
+			THROW(Fl.Put(pPage->GetType(), new_free_entry.RowId, new_free_entry.FreeSize));
+		}
 	}
 	CATCH
 		ok = 0;
@@ -1143,22 +1148,25 @@ const  SRecPageFreeList::Entry * SRecPageFreeList::SingleTypeList::Get(uint32 re
 
 int SRecPageFreeList::Put(uint32 type, uint64 rowId, uint32 freeSize)
 {
-	int    ok = 0;
-	if(rowId) {
-		SingleTypeList * p_list = 0;
-		for(uint i = 0; !p_list && i < L.getCount(); i++) {
-			SingleTypeList * p_iter = L.at(i);
-			if(p_iter && p_iter->GetType() == type)
-				p_list = p_iter;
-		}
-		if(!p_list) {
-			SingleTypeList * p_new_list = new SingleTypeList(type);
-			L.insert(p_new_list);
-			p_list = p_new_list;
-		}
-		if(p_list)
-			ok = p_list->Put(rowId, freeSize);
+	int    ok = 1;
+	SingleTypeList * p_list = 0;
+	THROW(rowId); // @todo @err
+	for(uint i = 0; !p_list && i < L.getCount(); i++) {
+		SingleTypeList * p_iter = L.at(i);
+		if(p_iter && p_iter->GetType() == type)
+			p_list = p_iter;
 	}
+	if(!p_list) {
+		SingleTypeList * p_new_list = new SingleTypeList(type);
+		THROW(p_new_list);
+		THROW(L.insert(p_new_list));
+		p_list = p_new_list;
+	}
+	THROW(p_list);
+	THROW(p_list->Put(rowId, freeSize));
+	CATCH
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 

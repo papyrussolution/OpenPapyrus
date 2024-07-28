@@ -10586,3 +10586,126 @@ int PrcssrAlcReport::RefCollection::Store(int use_ta)
     CATCHZOK
 	return ok;
 }
+//
+//
+//
+EgaisMarkAutoSelector::EgaisMarkAutoSelector(PPEgaisProcessor * pEgPrc) : P_EgPrc(pEgPrc)
+{
+}
+
+EgaisMarkAutoSelector::~EgaisMarkAutoSelector()
+{
+}
+
+int EgaisMarkAutoSelector::Helper(PPID goodsID, double qtty, ResultBlock & rResult)
+{
+	int    ok = -1;
+	if(P_EgPrc && qtty != 0.0) {
+		PPObjBill * p_bobj = BillObj;
+		Transfer * p_trfr = p_bobj->trfr;
+		SString temp_buf;
+		SString mark_buf;
+		StringSet ss_ext_codes;
+		Goods2Tbl::Rec goods_rec; // запись основного товара (который непосредственно продается)
+		Goods2Tbl::Rec org_goods_rec; // запись оригинального товара (из которого был произведен основной товар)
+		PPGoodsType gt_rec;
+		PPObjUnit unit_obj;
+		double main_goods_liter_ratio = 0.0;
+		if(GObj.Fetch(goodsID, &goods_rec) > 0) {
+			if(goods_rec.PhUnitID && goods_rec.PhUPerU > 0.0) {
+				unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_LITER, &main_goods_liter_ratio);
+				main_goods_liter_ratio *= goods_rec.PhUPerU;
+			}
+			else {
+				unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &main_goods_liter_ratio);
+			}
+			if(main_goods_liter_ratio > 0.0) {
+				PPGoodsStruc::Ident gsi(goodsID, GSF_COMPL, GSF_PARTITIAL);
+				TSCollection <PPGoodsStruc> gs_list;
+				LotArray lot_list;
+				GObj.LoadGoodsStruc(gsi, gs_list);
+				for(uint gsidx = 0; gsidx < gs_list.getCount(); gsidx++) {
+					const PPGoodsStruc * p_gs = gs_list.at(gsidx);
+					if(p_gs) {
+						PPGoodsStrucItem gs_item;
+						double item_qtty = 0.0;
+						for(uint gs_pos = 0; p_gs->EnumItemsExt(&gs_pos, &gs_item, 0, qtty, &item_qtty) > 0;) {
+							if(P_EgPrc->IsAlcGoods(gs_item.GoodsID)) {
+								lot_list.clear();
+								p_trfr->Rcpt.GetList(gs_item.GoodsID, 0, 0, ZERODATE, ReceiptCore::glfWithExtCodeOnly, &lot_list);
+								if(lot_list.getCount()) {
+									Entry * p_entry = 0;
+									for(uint lotidx = 0; lotidx < lot_list.getCount(); lotidx++) {
+										const ReceiptTbl::Rec & r_lot_rec = lot_list.at(lotidx);
+										if(p_bobj->GetMarkListByLot(r_lot_rec.ID, ss_ext_codes) > 0) {
+											for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
+												const bool iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
+												if(iemr) {
+													assert(mark_buf.NotEmpty());
+													if(!p_entry) {
+														p_entry = rResult.CreateNewItem();
+														THROW_SL(p_entry);
+														{
+															_TerminalEntry * p_te = p_entry->Te.CreateNewItem();
+															THROW_SL(p_te);
+															p_te->GoodsID = gs_item.GoodsID;
+															p_te->Qtty = 0.0; // @todo
+														}
+													}
+													//p_entry->SsMark.add(mark_buf);
+													ok = 1;
+												}
+											}
+										}
+									}
+								}
+							}
+							else {
+								//int r = Helper(gs_item.GoodsID, qtty/*@wrong*/, rResult); // @recursion
+								//THROW(r);
+								//if(r > 0)
+								//	ok = 1;
+								PPGoodsStruc::Ident gsi_inner(gs_item.GoodsID, GSF_SUBST, 0);
+								TSCollection <PPGoodsStruc> gs_list_inner;
+								GObj.LoadGoodsStruc(gsi_inner, gs_list_inner);
+								for(uint gsinneridx = 0; gsinneridx < gs_list_inner.getCount(); gsinneridx++) {
+									const PPGoodsStruc * p_gs_inner = gs_list_inner.at(gsinneridx);
+									if(p_gs_inner) {
+										PPGoodsStrucItem gs_inner_item;
+										double inner_item_qtty = 0.0;
+										for(uint gs_inner_pos = 0; p_gs_inner->EnumItemsExt(&gs_inner_pos, &gs_inner_item, 0, qtty, &inner_item_qtty) > 0;) {
+											if(P_EgPrc->IsAlcGoods(gs_inner_item.GoodsID)) {
+												lot_list.clear();
+												p_trfr->Rcpt.GetList(gs_inner_item.GoodsID, 0, 0, ZERODATE, ReceiptCore::glfWithExtCodeOnly, &lot_list);
+												if(lot_list.getCount()) {
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int EgaisMarkAutoSelector::Run(ResultBlock & rResult)
+{
+	int    ok = -1;
+	if(P_EgPrc) {
+		Goods2Tbl::Rec goods_rec; // запись основного товара (который непосредственно продается)
+		if(rResult.Qtty != 0.0 && GObj.Fetch(rResult.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
+			PPGoodsType gt_rec;
+			if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_EGAISAUTOWO) {
+				if(Helper(rResult.GoodsID, rResult.Qtty, rResult) > 0)
+					ok = 1;
+			}
+		}
+	}
+	return ok;
+}

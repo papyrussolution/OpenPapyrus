@@ -59,9 +59,9 @@ SBuffer::SBuffer(size_t initSize, long flags) : Size(0), WrOffs(0), RdOffs(0), F
 		Alloc(initSize);
 }
 
-SBuffer::SBuffer(const SBuffer & s) : Size(0), WrOffs(0), RdOffs(0), Flags(0), P_Buf(0)
+SBuffer::SBuffer(const SBuffer & rS) : Size(0), WrOffs(0), RdOffs(0), Flags(0), P_Buf(0)
 {
-	Copy(s);
+	Copy(rS);
 }
 
 bool FASTCALL SBuffer::IsEq(const SBuffer & rS) const
@@ -74,9 +74,9 @@ bool FASTCALL SBuffer::IsEq(const SBuffer & rS) const
 	return ok;
 }
 
-SBuffer & FASTCALL SBuffer::operator = (const SBuffer & s)
+SBuffer & FASTCALL SBuffer::operator = (const SBuffer & rS)
 {
-	Copy(s);
+	Copy(rS);
 	return *this;
 }
 

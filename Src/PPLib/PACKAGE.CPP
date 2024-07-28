@@ -37,9 +37,9 @@ int FASTCALL LPackage::Copy(const LPackage & s)
 	return 1;
 }
 
-LPackage & FASTCALL LPackage::operator = (const LPackage & s)
+LPackage & FASTCALL LPackage::operator = (const LPackage & rS)
 {
-	Copy(s);
+	Copy(rS);
 	return *this;
 }
 

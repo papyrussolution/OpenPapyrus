@@ -2509,7 +2509,7 @@ void STextLayout::Reset()
 	SgList.clear();
 }
 
-int STextLayout::Copy(const STextLayout & rS)
+int FASTCALL STextLayout::Copy(const STextLayout & rS)
 {
 	Reset();
 	DefParaStyleIdent = rS.DefParaStyleIdent;

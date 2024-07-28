@@ -610,7 +610,8 @@ int BizScTemplDialog::moveItem(long pos, long id, int up)
 int BizScTemplDialog::EditCell()
 {
 	int    ok = -1;
-	long   col_id = 0L, row_id = 0L;
+	long   col_id = 0L;
+	long   row_id = 0L;
 	PPBizScTemplCell cell;
 	BizScTemplCellDialog * p_dlg = new BizScTemplCellDialog;
 	THROW(CheckDialogPtr(&p_dlg));

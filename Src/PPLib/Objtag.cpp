@@ -354,9 +354,9 @@ PPTagEnumList::PPTagEnumList(PPID enumID) : StrAssocArray(), EnumID(enumID), Fla
 {
 }
 
-PPTagEnumList & FASTCALL PPTagEnumList::operator = (const PPTagEnumList & s)
+PPTagEnumList & FASTCALL PPTagEnumList::operator = (const PPTagEnumList & rS)
 {
-	Copy(s);
+	Copy(rS);
 	return *this;
 }
 

@@ -1923,7 +1923,7 @@ public:
 
 	STextLayout();
 	void   Reset();
-	int    Copy(const STextLayout & rS);
+	int    FASTCALL Copy(const STextLayout & rS);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	const  SStringU & GetText() const;
 	int    SetText(const char * pText);

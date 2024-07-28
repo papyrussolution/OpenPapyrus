@@ -665,17 +665,18 @@ int HierArray::Add(const char * pCode, const char * pParentCode)
 	return insert(&item) ? 1 : PPSetErrorSLib();
 }
 
-int HierArray::SearchParentOf(const char * pCode, char * pBuf, size_t bufLen) const
+bool HierArray::SearchParentOf(const char * pCode, char * pBuf, size_t bufLen) const
 {
 	uint   pos = 0;
 	if(lsearch(pCode, &pos, PTR_CMPFUNC(Pchar))) {
 		strnzcpy(pBuf, at(pos).ParentCode,  bufLen);
-		return 1;
+		return true;
 	}
-	return 0;
+	else
+		return false;
 }
 
-int HierArray::IsThereChildOf(const char * pParentCode) const
+bool HierArray::IsThereChildOf(const char * pParentCode) const
 {
 	uint   pos = 0;
 	return lsearch(pParentCode, &pos, PTR_CMPFUNC(Pchar), offsetof(HierArray::Item, ParentCode));
@@ -791,7 +792,7 @@ GoodsImportBillIdent::~GoodsImportBillIdent()
 {
 	delete P_ArObj;
 	ZDELETE(P_PackList);
-	delete P_CodeToPersonTab; // @v10.3.0 @fix
+	delete P_CodeToPersonTab;
 }
 
 PPBillPacket * GoodsImportBillIdent::GetPacket(PPID opID, PPID locID)
@@ -800,8 +801,7 @@ PPBillPacket * GoodsImportBillIdent::GetPacket(PPID opID, PPID locID)
 	if(P_PackList) {
 		for(uint i = 0; i < P_PackList->getCount(); i++) {
 			PPBillPacket * p_temp_pack = P_PackList->at(i);
-			if(p_temp_pack->Rec.Dt == BillDate && p_temp_pack->Rec.Object == SupplID &&
-				stricmp(p_temp_pack->Rec.Code, BillCode) == 0) {
+			if(p_temp_pack->Rec.Dt == BillDate && p_temp_pack->Rec.Object == SupplID && stricmp(p_temp_pack->Rec.Code, BillCode) == 0) {
 				if(p_temp_pack->CheckLargeBill(0)) {
 					THROW(BillObj->__TurnPacket(p_temp_pack, 0, 1, 0));
 					THROW(p_temp_pack->CreateBlank(opID, 0, locID, 0));
@@ -818,7 +818,7 @@ PPBillPacket * GoodsImportBillIdent::GetPacket(PPID opID, PPID locID)
 	}
 	if(p_pack == 0) {
 		if(P_PackList == 0)
-			THROW_MEM(P_PackList = new TSCollection <PPBillPacket>);
+			THROW_MEM(P_PackList = new PPBillPacketCollection);
 		THROW_MEM(p_pack = new PPBillPacket);
 		THROW(p_pack->CreateBlank(opID, 0, locID, 0));
 		if(locID)

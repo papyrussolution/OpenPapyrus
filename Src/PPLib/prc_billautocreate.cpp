@@ -1,5 +1,5 @@
 // prc_billautocreate.cpp
-// Copyright (c) A.Sobolev 2017, 2020
+// Copyright (c) A.Sobolev 2017, 2020, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -41,8 +41,7 @@ static SString & MakeOrderAutocreationTag(const _OrdArEntry & rEntry, LDATE dt, 
 		Cat(rEntry.LocID).Dot().Cat(rEntry.MngrID).Dot().Cat(dt, MKSFMT(0, DATF_YMD|DATF_CENTURY|DATF_NODIV));
 }
 
-// static
-int PrcssrBillAutoCreate::CreateDraftBySupplOrders(const SStatFilt * pFilt)
+/*static*/int PrcssrBillAutoCreate::CreateDraftBySupplOrders(const SStatFilt * pFilt)
 {
 	_OrdArEntry ord_entry;
 	int    ok = 1, r = 0;
@@ -102,7 +101,7 @@ int PrcssrBillAutoCreate::CreateDraftBySupplOrders(const SStatFilt * pFilt)
 			}
 		}
 		{
-			TSCollection <PPBillPacket> bill_pack_list;
+			PPBillPacketCollection bill_pack_list;
 			{
 				const LDATE base_date = encodedate(1, 1, cur_dt.year());
 				for(uint i = 0; i < ar_list.getCount(); i++) {
@@ -124,7 +123,7 @@ int PrcssrBillAutoCreate::CreateDraftBySupplOrders(const SStatFilt * pFilt)
 							if(ord_entry.DuePrdDays >= 0)
 								p_pack->Rec.DueDate = plusdate(p_pack->Rec.Dt, ord_entry.DuePrdDays);
 							if(r > 0) {
-								int    skip = 0;
+								bool   skip = false;
 								MakeOrderAutocreationTag(ord_entry, doc_dt, temp_buf);
 								PPIDArray ex_bill_list;
                                 PPRef->Ot.SearchObjectsByStr(PPOBJ_BILL, PPTAG_BILL_AUTOCREATION, temp_buf, &ex_bill_list);
@@ -136,7 +135,7 @@ int PrcssrBillAutoCreate::CreateDraftBySupplOrders(const SStatFilt * pFilt)
 										PPObjBill::MakeCodeString(&ex_bill_rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, temp_buf);
 										msg_buf.Printf(PPLoadStringS(PPSTR_TEXT, PPTXT_SUPPLORDEXISTS, fmt_buf), temp_buf.cptr());
 										log.Log(msg_buf);
-										skip = 1;
+										skip = true;
 									}
                                 }
                                 if(!skip) {

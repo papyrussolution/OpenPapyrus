@@ -1117,10 +1117,9 @@ void GoodsListDialog::updateList()
 //
 //
 //
-PPViewGoods::PPViewGoods() : PPView(&GObj, &Filt, PPVIEW_GOODS, implUseQuickTagEditFunc, 0), P_G2OAssoc(0), P_TempTbl(0), P_Iter(0) // @v11.2.8 0-->&GObj; implUseQuickTagEditFunc
+PPViewGoods::PPViewGoods() : PPView(&GObj, &Filt, PPVIEW_GOODS, implUseQuickTagEditFunc, 0), P_G2OAssoc(0), P_TempTbl(0), P_Iter(0), State(0)
 {
 	Filt.GrpID = 0;
-	//CurrentViewOrder = OrdByDefault;
 }
 
 PPViewGoods::~PPViewGoods()
@@ -1144,8 +1143,8 @@ void PPViewGoods::RemoveTempAltGroup()
 }
 
 // @v11.2.8 PPObjGoods * PPViewGoods::GetObj() { return &GObj; }
-int PPViewGoods::IsAltFltGroup() { return (Filt.GrpID > 0 && PPObjGoodsGroup::IsAlt(Filt.GrpID) > 0); }
-int PPViewGoods::IsGenGoodsFlt() { return (Filt.GrpID > 0 && Filt.Flags & GoodsFilt::fGenGoods); }
+bool PPViewGoods::IsAltFltGroup() { return (Filt.GrpID > 0 && PPObjGoodsGroup::IsAlt(Filt.GrpID) > 0); }
+bool PPViewGoods::IsGenGoodsFlt() const { return (Filt.GrpID > 0 && Filt.Flags & GoodsFilt::fGenGoods); }
 
 PPBaseFilt * PPViewGoods::CreateFilt(const void * extraPtr) const
 {
@@ -1173,13 +1172,13 @@ int PPViewGoods::OnExecBrowser(PPViewBrowser * pBrw)
 	return -1;
 }
 
-static int FASTCALL HasImages(const void * pData)
+static bool FASTCALL HasImages(const void * pData)
 {
 	struct Goods_ {
 		long   ID;
 		long   Flags;
 	};
-	return pData ? BIN(static_cast<const Goods_ *>(pData)->Flags & GF_HASIMAGES) : 0;
+	return pData ? LOGIC(static_cast<const Goods_ *>(pData)->Flags & GF_HASIMAGES) : false;
 }
 
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
@@ -1823,6 +1822,7 @@ bool PPViewGoods::IsTempTblNeeded()
 int PPViewGoods::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
+	State &= ~stCtrlX; // @v12.0.9
 	RemoveTempAltGroup();
 	ZDELETE(P_Iter);
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -3963,6 +3963,38 @@ int PPViewGoods::ChangeOrder(PPViewBrowser * pW)
 	delete dlg;
 	return ok;
 }
+
+void PPViewGoods::Test_EgaisMarkAutoSelector(PPID goodsID)
+{
+	PPLogger logger;
+	PPEgaisProcessor ep(PPEgaisProcessor::cfUseVerByConfig, &logger, 0);
+	EgaisMarkAutoSelector s(&ep);
+	EgaisMarkAutoSelector::ResultBlock result_blk(goodsID, 1.0);
+	s.Run(result_blk);
+	if(result_blk.getCount()) {
+		SString temp_buf;
+		SString line_buf;
+		PPGetFilePath(PPPATH_OUT, "test-EgaisMarkAutoSelector.out", temp_buf);
+		SFile f_out(temp_buf, SFile::mWrite);
+		GetGoodsName(goodsID, temp_buf);
+		temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+		line_buf = temp_buf;
+		f_out.WriteLine(line_buf.CR());
+		for(uint i = 0; i < result_blk.getCount(); i++) {
+			const EgaisMarkAutoSelector::Entry * p_entry = result_blk.at(i);
+			if(p_entry) {
+				/* @construction
+				GetGoodsName(p_entry->GoodsID, temp_buf);
+				line_buf.Z().Tab().Cat(temp_buf).Tab().Cat(p_entry->Qtty, MKSFMT(0, 3, 0));
+				f_out.WriteLine(line_buf.CR());
+				for(uint ssp = 0; p_entry->SsMark.get(&ssp, temp_buf);) {
+					line_buf.Z().Tab(2).Cat(temp_buf);
+					f_out.WriteLine(line_buf.CR());
+				}*/
+			}
+		}
+	}
+}
 //
 //
 //
@@ -3994,6 +4026,19 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 						else if(r != -1 && pBrw)
 							pBrw->bottom();
 						ok = -1;
+					}
+					else if(PTR8C(pHdr)[0] == kbCtrlX) {
+						if(State & stCtrlX) {
+#ifndef NDEBUG
+							const void * p_cur_item = pBrw->getCurItem();
+							if(p_cur_item) {
+								Test_EgaisMarkAutoSelector(*static_cast<const PPID *>(p_cur_item));
+							}
+#endif
+							State &= ~stCtrlX;
+						}
+						else
+							State |= stCtrlX;
 					}
 					else
 						ok = -2;
@@ -4116,7 +4161,6 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				if(id)
 					GObj.EditGoodsStruc(id);
 				break;
-			// @v10.6.8 {
 			case PPVCMD_SIMILARITY:
 				ok = -1;
 				if(id && pBrw && pBrw->getDefC()) {
@@ -4169,7 +4213,6 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 					}
 				}
 				break;
-			// } @v10.6.8
 			case PPVCMD_ADDEDFIELDS:
 				ok = GObj.EditVad(id);
 				break;

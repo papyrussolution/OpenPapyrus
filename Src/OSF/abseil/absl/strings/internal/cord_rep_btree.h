@@ -685,8 +685,8 @@ inline CordRepBtree* CordRepBtree::New(CordRep* rep) {
 	return tree;
 }
 
-inline CordRepBtree* CordRepBtree::New(CordRepBtree* front,
-    CordRepBtree* back) {
+inline CordRepBtree* CordRepBtree::New(CordRepBtree* front, CordRepBtree* back) 
+{
 	assert(front->height() == back->height());
 	CordRepBtree* tree = new CordRepBtree;
 	tree->length = front->length + back->length;
@@ -696,7 +696,8 @@ inline CordRepBtree* CordRepBtree::New(CordRepBtree* front,
 	return tree;
 }
 
-inline void CordRepBtree::Unref(absl::Span<CordRep* const> edges) {
+inline void CordRepBtree::Unref(absl::Span<CordRep* const> edges) 
+{
 	for(CordRep* edge : edges) {
 		if(ABSL_PREDICT_FALSE(!edge->refcount.Decrement())) {
 			CordRep::Destroy(edge);
@@ -704,21 +705,23 @@ inline void CordRepBtree::Unref(absl::Span<CordRep* const> edges) {
 	}
 }
 
-inline CordRepBtree* CordRepBtree::CopyRaw() const {
+inline CordRepBtree* CordRepBtree::CopyRaw() const 
+{
 	auto* tree = static_cast<CordRepBtree*>(::operator new(sizeof(CordRepBtree)));
 	memcpy(static_cast<void*>(tree), this, sizeof(CordRepBtree));
 	new (&tree->refcount) RefcountAndFlags;
 	return tree;
 }
 
-inline CordRepBtree* CordRepBtree::Copy() const {
+inline CordRepBtree * CordRepBtree::Copy() const 
+{
 	CordRepBtree* tree = CopyRaw();
 	for(CordRep* rep : Edges()) CordRep::Ref(rep);
 	return tree;
 }
 
-inline CordRepBtree* CordRepBtree::CopyToEndFrom(size_t begin,
-    size_t new_length) const {
+inline CordRepBtree* CordRepBtree::CopyToEndFrom(size_t begin, size_t new_length) const 
+{
 	assert(begin >= this->begin());
 	assert(begin <= this->end());
 	CordRepBtree* tree = CopyRaw();

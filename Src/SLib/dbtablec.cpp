@@ -944,8 +944,7 @@ int FASTCALL DBTable::getPosition(DBRowId * pPos)
 
 int DBTable::getDirect(int idx, void * pKey, const DBRowId & rPos)
 {
-	// @v10.8.2 char   k[MAXKEYLEN];
-	BtrDbKey k; // @v10.8.2 
+	BtrDbKey k;
 	memcpy(k, &rPos, sizeof(rPos));
 #define sf (sfDirect)
 	int    ok = P_Db ? P_Db->Implement_Search(this, idx, k, 0, sf) : Btr_Implement_Search(idx, k, 0, sf);
@@ -976,8 +975,7 @@ int DBTable::rereadForUpdate(int idx, void * pKey)
 
 int DBTable::getDirectForUpdate(int idx, void * pKey, const DBRowId & rPos)
 {
-	// @v10.8.2 char   k[MAXKEYLEN];
-	BtrDbKey k; // @v10.8.2 
+	BtrDbKey k;
 	memcpy(k, &rPos, sizeof(rPos));
 #define sf (sfDirect|sfForUpdate)
 	int    ok = P_Db ? P_Db->Implement_Search(this, idx, k, 0, sf) : Btr_Implement_Search(idx, k, 0, sf);

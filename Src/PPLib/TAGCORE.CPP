@@ -494,22 +494,22 @@ void ObjTagItem::Destroy()
 	THISZERO();
 }
 
-int FASTCALL ObjTagItem::Copy(const ObjTagItem & src)
+int FASTCALL ObjTagItem::Copy(const ObjTagItem & rS)
 {
 	Destroy();
-	TagID       = src.TagID;
-	TagDataType = src.TagDataType;
-	TagEnumID   = src.TagEnumID;
+	TagID       = rS.TagID;
+	TagDataType = rS.TagDataType;
+	TagEnumID   = rS.TagEnumID;
 	if(oneof3(TagDataType, OTTYP_STRING, OTTYP_GUID, OTTYP_IMAGE))
-		Val.PStr = newStr(src.Val.PStr);
+		Val.PStr = newStr(rS.Val.PStr);
 	else
-		memcpy(&Val, &src.Val, sizeof(Val));
+		memcpy(&Val, &rS.Val, sizeof(Val));
 	return 1;
 }
 
-ObjTagItem & FASTCALL ObjTagItem::operator = (const ObjTagItem & src)
+ObjTagItem & FASTCALL ObjTagItem::operator = (const ObjTagItem & rS)
 {
-	Copy(src);
+	Copy(rS);
 	return *this;
 }
 
@@ -755,9 +755,9 @@ ObjTagList::ObjTagList() : SArray(sizeof(ObjTagItem), /*8,*/aryDataOwner|aryEach
 // Не используем унаследованный copy-constructor так как ObjTagList::Copy сама
 // все сделает правильно.
 //
-ObjTagList::ObjTagList(const ObjTagList & s) : SArray(sizeof(ObjTagItem), /*8,*/aryDataOwner|aryEachItem)
+ObjTagList::ObjTagList(const ObjTagList & rS) : SArray(sizeof(ObjTagItem), /*8,*/aryDataOwner|aryEachItem)
 {
-	Copy(s);
+	Copy(rS);
 }
 
 ObjTagList::~ObjTagList()
@@ -765,9 +765,9 @@ ObjTagList::~ObjTagList()
     freeAll();
 }
 
-ObjTagList & FASTCALL ObjTagList::operator = (const ObjTagList & s)
+ObjTagList & FASTCALL ObjTagList::operator = (const ObjTagList & rS)
 {
-	Copy(s);
+	Copy(rS);
 	return *this;
 }
 

@@ -1833,16 +1833,16 @@ void VetisApplicationBlock::Clear()
 	ErrList.freeAll();
 	FaultList.freeAll();
 	ProductItemList.freeAll();
-	ProductList.freeAll(); // @v10.5.2
-	SubProductList.freeAll(); // @v10.5.2
+	ProductList.freeAll();
+	SubProductList.freeAll();
 	EntItemList.freeAll();
 	BEntList.freeAll();
 	VetDocList.freeAll();
 	VetStockList.freeAll();
 	UnitList.freeAll();
 	PurposeList.freeAll();
-	CountryList.freeAll(); // @v10.5.1
-	RegionList.freeAll(); // @v10.5.1
+	CountryList.freeAll();
+	RegionList.freeAll();
 	R13RulesList.freeAll(); // @v11.0.11
 	MEMSZERO(ListResult);
 	AppData.Z();
@@ -1865,16 +1865,16 @@ int FASTCALL VetisApplicationBlock::Copy(const VetisApplicationBlock & rS)
 	TSCollection_Copy(ErrList, rS.ErrList);
 	TSCollection_Copy(FaultList, rS.FaultList);
 	TSCollection_Copy(ProductItemList, rS.ProductItemList);
-	TSCollection_Copy(ProductList, rS.ProductList); // @v10.5.2
-	TSCollection_Copy(SubProductList, rS.SubProductList); // @v10.5.2
+	TSCollection_Copy(ProductList, rS.ProductList);
+	TSCollection_Copy(SubProductList, rS.SubProductList);
 	TSCollection_Copy(EntItemList, rS.EntItemList);
 	TSCollection_Copy(BEntList, rS.BEntList);
 	TSCollection_Copy(VetDocList, rS.VetDocList);
 	TSCollection_Copy(VetStockList, rS.VetStockList);
 	TSCollection_Copy(UnitList, rS.UnitList);
 	TSCollection_Copy(PurposeList, rS.PurposeList);
-	TSCollection_Copy(CountryList, rS.CountryList); // @v10.5.1
-	TSCollection_Copy(RegionList, rS.RegionList); // @v10.5.1
+	TSCollection_Copy(CountryList, rS.CountryList);
+	TSCollection_Copy(RegionList, rS.RegionList);
 	TSCollection_Copy(R13RulesList, rS.R13RulesList); // @v11.0.11
 	ListResult = rS.ListResult;
 	AppData = rS.AppData;

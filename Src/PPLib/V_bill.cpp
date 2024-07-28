@@ -6556,7 +6556,7 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 				if((ok = WriteOffDraft(hdr.ID)) > 0)
 					update = 1;
 				break;
-			case PPVCMD_WROFFINVENTORY: // @v10.5.9
+			case PPVCMD_WROFFINVENTORY:
 				ok = -1;
 				if(hdr.ID && PPMessage(mfConf|mfYesNo, PPCFM_INVWRITEOFF) == cmYes) {
 					PPWaitStart();

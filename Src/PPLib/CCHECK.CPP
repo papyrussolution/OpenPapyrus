@@ -835,7 +835,7 @@ CCheckPacket & CCheckPacket::Z()
 	return *this;
 }
 
-int CCheckPacket::Copy(const CCheckPacket & rS)
+int FASTCALL CCheckPacket::Copy(const CCheckPacket & rS)
 {
 	int    ok = 1;
 	PPExtStrContainer::Copy(rS);
@@ -5162,7 +5162,7 @@ int CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pTotal)
 		PPObjGoods goods_obj;
 		CSessionTbl::Rec sess_rec;
 		PPCashNode cn_rec;
-		TSCollection <PPBillPacket> pack_list;
+		PPBillPacketCollection pack_list; // key: Rec.LocID; Rec.Dt
 		THROW_PP(!r_eq_cfg.OpOnDfctThisLoc || IsDraftOp(r_eq_cfg.OpOnDfctThisLoc), PPERR_INVCSESSDFCTOP);
 		THROW_PP(!r_eq_cfg.OpOnDfctOthrLoc || IsDraftOp(r_eq_cfg.OpOnDfctOthrLoc), PPERR_INVCSESSDFCTOP);
 		THROW(CS.Search(sessID, &sess_rec) > 0);

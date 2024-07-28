@@ -164,7 +164,6 @@ string UnicodeText::Repr::DebugString() const {
 
 	string result;
 	ss >> result;
-
 	return result;
 }
 
@@ -176,34 +175,33 @@ string UnicodeText::Repr::DebugString() const {
 UnicodeText::UnicodeText() {
 }
 
-// Copy constructor
-UnicodeText::UnicodeText(const UnicodeText& src) {
-	Copy(src);
-}
+UnicodeText::UnicodeText(const UnicodeText & rS) { Copy(rS); }
 
 // Substring constructor
-UnicodeText::UnicodeText(const UnicodeText::const_iterator& first,
-    const UnicodeText::const_iterator& last) {
+UnicodeText::UnicodeText(const UnicodeText::const_iterator& first, const UnicodeText::const_iterator& last) 
+{
 	assert(first <= last && "Incompatible iterators");
 	repr_.append(first.it_, static_cast<int>(last.it_ - first.it_));
 }
 
-string UnicodeText::UTF8Substring(const const_iterator& first,
-    const const_iterator& last) {
+string UnicodeText::UTF8Substring(const const_iterator& first, const const_iterator& last) 
+{
 	assert(first <= last && "Incompatible iterators");
 	return string(first.it_, last.it_ - first.it_);
 }
 
 // ----- Copy -----
 
-UnicodeText& UnicodeText::operator = (const UnicodeText& src) {
-	if(this != &src) {
-		Copy(src);
+UnicodeText& UnicodeText::operator = (const UnicodeText & rS) 
+{
+	if(this != &rS) {
+		Copy(rS);
 	}
 	return *this;
 }
 
-UnicodeText& UnicodeText::Copy(const UnicodeText& src) {
+UnicodeText& UnicodeText::Copy(const UnicodeText& src) 
+{
 	repr_.Copy(src.repr_.data_, src.repr_.size_);
 	return *this;
 }

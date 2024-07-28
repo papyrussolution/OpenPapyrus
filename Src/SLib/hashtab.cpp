@@ -319,7 +319,7 @@ int FASTCALL SymbHashTable::Copy(const SymbHashTable & rS)
 	int    ok = 1;
 	Clear();
 	THROW(HashTableBase::Copy(rS));
-	NamePool = rS.NamePool; // @v10.3.4 @fix
+	NamePool = rS.NamePool;
 	CATCHZOK
 	return ok;
 }

@@ -3551,7 +3551,7 @@ SString & PPObjTSession::MakeListName(const PPIDArray * pList, SString & rBuf)
 	return rBuf;
 }
 
-int PPObjTSession::LoadExistedDeficitBills(PPID sessID, TSCollection <PPBillPacket> & rList, PPLogger & rLogger)
+int PPObjTSession::LoadExistedDeficitBills(PPID sessID, PPBillPacketCollection & rList, PPLogger & rLogger)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
@@ -3592,7 +3592,7 @@ int PPObjTSession::ConvertWrOffDeficit(PPID sessID, PPID locID, const PUGL * pDf
 	PPEquipConfig eq_cfg;
 	ReadEquipConfig(&eq_cfg);
 	if(eq_cfg.OpOnDfctThisLoc || eq_cfg.OpOnDfctOthrLoc) {
-		TSCollection <PPBillPacket> pack_list;
+		PPBillPacketCollection pack_list; // key: Rec.LocID
 		THROW_PP(!eq_cfg.OpOnDfctThisLoc || IsDraftOp(eq_cfg.OpOnDfctThisLoc), PPERR_INVCSESSDFCTOP);
 		THROW_PP(!eq_cfg.OpOnDfctOthrLoc || IsDraftOp(eq_cfg.OpOnDfctOthrLoc), PPERR_INVCSESSDFCTOP);
 		THROW(r = LoadExistedDeficitBills(sessID, pack_list, rLogger));

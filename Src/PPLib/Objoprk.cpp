@@ -2611,10 +2611,8 @@ void OprKindDialog::editPoolOptions()
 //
 //
 //
-int PPObjOprKind::Browse(void * extraPtr)
-	{ return PPView::Execute(PPVIEW_OPRKIND, 0, 1, 0); }
-int PPObjOprKind::Edit(PPID * pID, void * extraPtr /*opTypeID*/)
-	{ return Edit(pID, reinterpret_cast<PPID>(extraPtr), 0); }
+int PPObjOprKind::Browse(void * extraPtr) { return PPView::Execute(PPVIEW_OPRKIND, 0, 1, 0); }
+int PPObjOprKind::Edit(PPID * pID, void * extraPtr /*opTypeID*/) { return Edit(pID, reinterpret_cast<PPID>(extraPtr), 0); }
 
 // non-virtual
 int PPObjOprKind::Edit(PPID * pID, long opTypeID, PPID linkOpID)
@@ -2637,9 +2635,9 @@ int PPObjOprKind::Edit(PPID * pID, long opTypeID, PPID linkOpID)
 			done = 1;
 	}
 	if(!done) {
-		for(int valid_data = 0; !valid_data && EditPacket(&pack) > 0;) {
+		for(bool valid_data = false; !valid_data && EditPacket(&pack) > 0;) {
 			THROW(PutPacket(pID, &pack, 1));
-			valid_data = 1;
+			valid_data = true;
 			r = cmOK;
 		}
 	}
@@ -2652,20 +2650,23 @@ int PPObjOprKind::EditPacket(PPOprKindPacket * pPack)
 	int    ok = -1;
 	uint   dlg_id = DLG_OPRKIND;
 	OprKindDialog * dlg = 0;
-	if(pPack->Rec.OpTypeID == PPOPT_WAREHOUSE)
-		dlg_id = DLG_OPRWMS;
-	else if(pPack->Rec.OpTypeID == PPOPT_INVENTORY)
-		dlg_id = DLG_OPRINV;
-	else if(pPack->Rec.OpTypeID == PPOPT_GENERIC) {
-		dlg_id = DLG_GENOPRKIND;
-		SETIFZ(pPack->P_GenList, new ObjRestrictArray);
-	}
-	else if(oneof4(pPack->Rec.OpTypeID, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) { // @v10.5.7 PPOPT_DRAFTQUOTREQ
-		dlg_id = DLG_OPRDRAFT;
-	}
-	else if(pPack->Rec.OpTypeID == PPOPT_ACCTURN) {
-		if(pPack->Rec.ID == 0)
-			pPack->Rec.Flags |= OPKF_EXTACCTURN;
+	switch(pPack->Rec.OpTypeID) {
+		case PPOPT_WAREHOUSE: dlg_id = DLG_OPRWMS; break;
+		case PPOPT_INVENTORY: dlg_id = DLG_OPRINV; break;
+		case PPOPT_GENERIC:
+			dlg_id = DLG_GENOPRKIND;
+			SETIFZ(pPack->P_GenList, new ObjRestrictArray);
+			break;
+		case PPOPT_DRAFTEXPEND:
+		case PPOPT_DRAFTRECEIPT:
+		case PPOPT_DRAFTTRANSIT:
+		case PPOPT_DRAFTQUOTREQ: dlg_id = DLG_OPRDRAFT; break;
+		case PPOPT_ACCTURN:
+			dlg_id = DLG_OPRKIND;
+			if(pPack->Rec.ID == 0)
+				pPack->Rec.Flags |= OPKF_EXTACCTURN;
+			break;
+		default: dlg_id = DLG_OPRKIND; break;
 	}
 	if(CheckDialogPtr(&(dlg = new OprKindDialog(dlg_id, pPack)))) {
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {

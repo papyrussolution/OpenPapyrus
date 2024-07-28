@@ -1639,14 +1639,10 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				case 37: // Предпочтительный поставщик // @v12.0.8
 					temp_buf.Z();
 					if(!is_total) {
-						const ObjTagItem * p_tag = P_Pack->LTagL.GetTag(p_item->Pos, PPTAG_LOT_PREFSUPPL);
-						int    tag_int_val = 0;
-						if(p_tag && p_tag->GetInt(&tag_int_val)) {
-							const PPID suppl_id = tag_int_val;
-							ArticleTbl::Rec ar_rec;
-							if(P_BObj->ArObj.Fetch(suppl_id, &ar_rec) > 0) {
-								temp_buf = ar_rec.Name;
-							}
+						const PPID suppl_id = P_Pack->GetPrefSupplForTi(p_item->Pos);
+						ArticleTbl::Rec ar_rec;
+						if(P_BObj->ArObj.Fetch(suppl_id, &ar_rec) > 0) {
+							temp_buf = ar_rec.Name;
 						}
 					}
 					pBlk->Set(temp_buf);
@@ -1654,10 +1650,8 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				case 38: // Контрактная цена предпочтительного поставщика // @v12.0.8
 					real_val = 0.0;
 					if(!is_total && p_ti && p_ti->GoodsID) {
-						const ObjTagItem * p_tag = P_Pack->LTagL.GetTag(p_item->Pos, PPTAG_LOT_PREFSUPPL);
-						int    tag_int_val = 0;
-						if(p_tag && p_tag->GetInt(&tag_int_val)) {
-							const PPID suppl_id = tag_int_val;
+						const PPID suppl_id = P_Pack->GetPrefSupplForTi(p_item->Pos);
+						if(suppl_id) {
 							const QuotIdent suppl_deal_qi(P_Pack->Rec.Dt, P_Pack->Rec.LocID, 0, 0, suppl_id);
 							PPSupplDeal sd;
 							GObj.GetSupplDeal(p_ti->GoodsID, suppl_deal_qi, &sd, 1);
@@ -2804,8 +2798,8 @@ int ImportStyloScannerEntriesForBillPacket(PPBillPacket & rBp, PPLotExtCodeConta
 									GtinStruc gts;
 									mark_buf.Z();
 									ean_buf.Z();
-									const int iemr = PrcssrAlcReport::IsEgaisMark(entry.Code, &mark_buf);
-									const int ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(entry.Code, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
+									const bool iemr = PrcssrAlcReport::IsEgaisMark(entry.Code, &mark_buf);
+									const int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(entry.Code, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
 									if(iemr || ipczcr > 0) {
 										if(ipczcr > 0)
 											gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
@@ -2999,8 +2993,8 @@ public:
 					// } @v11.0.0 
 					if(!done) {
 						GtinStruc gts;
-						const int iemr  = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-						const int ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
+						const bool iemr  = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
+						const int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
 						if(ipczcr > 0)
 							gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
 						if(!iemr && (ipczcr <= 0)) {
@@ -3067,8 +3061,8 @@ protected:
 			SString text_buf;
 			if(getCurItem(&cur_pos, &cur_id) && getText(cur_pos, text_buf)) {
 				GtinStruc gts;
-				const int iemr = PrcssrAlcReport::IsEgaisMark(text_buf, 0);
-				const int ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(text_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
+				const bool iemr = PrcssrAlcReport::IsEgaisMark(text_buf, 0);
+				const int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(text_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
 				if(!iemr && ipczcr > 0) {
 					SString serial_buf;
 					gts.GetToken(GtinStruc::fldGTIN14, &text_buf);
@@ -3509,8 +3503,8 @@ private:
 				// } @v11.3.2 
 				if(!done) {
 					GtinStruc gts;
-					const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-					const int ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
+					const bool iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
+					const int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
 					if(ipczcr > 0)
 						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
 					if(!iemr && ipczcr <= 0) {
@@ -3739,8 +3733,8 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 					// 080026600250673670340153552
 					SString mark_buf;
 					GtinStruc gts;
-					const int iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-					const int ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
+					const bool iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
+					const int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
 					if(ipczcr > 0)
 						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
 					if(!iemr && ipczcr <= 0) {

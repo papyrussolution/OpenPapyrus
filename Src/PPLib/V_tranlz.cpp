@@ -4793,30 +4793,28 @@ static int FASTCALL Base36ToAlcoCode(const SString & rS, SString & rBuf)
 	return ok;
 }
 
-/*static*/int FASTCALL PrcssrAlcReport::IsEgaisMark(const char * pMark, SString * pProcessedMark)
+/*static*/bool FASTCALL PrcssrAlcReport::IsEgaisMark(const char * pMark, SString * pProcessedMark)
 {
-	int    yes = 0;
+	bool   yes = false;
 	const  size_t len = sstrlen(pMark);
 	CALLPTRMEMB(pProcessedMark, Z());
-	if(oneof2(len, 68, 150)) { // @v10.0.12 (|| len == 150)
-		yes = 1;
+	if(oneof2(len, 68, 150)) {
+		yes = true;
 		SString temp_buf;
 		for(size_t i = 0; yes && i < len; i++) {
 			const char c = pMark[i];
-			// @v10.9.8 if(!isdec(c) && !(c >= 'A' && c <= 'Z') && !(c >= 'a' && c <= 'z')) {
-			if(!isasciialnum(c)) { // @v10.9.8
+			if(!isasciialnum(c)) {
 				if(pProcessedMark) {
 					temp_buf.Z().CatChar(c).Transf(CTRANSF_INNER_TO_OUTER);
 					KeyDownCommand kd;
 					uint   tc = kd.SetChar((uchar)temp_buf.C(0)) ? kd.GetChar() : 0; // Попытка транслировать латинский символ из локальной раскладки клавиатуры
-					// @v10.9.8 if((tc >= 'A' && tc <= 'Z') || (tc >= 'a' && tc <= 'z'))
-					if(isasciialnum(tc)) // @v10.9.8 // @fix Вероятно, ошибка была. Заменил (tc >= 'A' && tc <= 'Z') || (tc >= 'a' && tc <= 'z') на isasciialnum
+					if(isasciialnum(tc))
                         pProcessedMark->CatChar((char)tc);
 					else
-						yes = 0;
+						yes = false;
 				}
 				else
-					yes = 0;
+					yes = false;
 			}
 			else if(pProcessedMark)
 				pProcessedMark->CatChar(c);

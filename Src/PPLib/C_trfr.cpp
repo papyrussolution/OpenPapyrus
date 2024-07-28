@@ -2290,7 +2290,7 @@ int RecoverTransfer()
 		if(c) {
 			LDATE  first_date = ZERODATE;
 			PPID   loc_id = 0;
-			TSCollection <PPBillPacket> pack_list;
+			PPBillPacketCollection pack_list; // key: Rec.LocID
 			PPBillPacket * p_pack = 0;
 			PPWaitMsg("Recovering absence lots...");
 			abs_lot_list.sort();

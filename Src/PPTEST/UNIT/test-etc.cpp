@@ -1100,7 +1100,7 @@ SLTEST_R(SRecPageManager)
 			// -- удаляет все записи
 			// таким образом, в конце цикла страница пуста и мы можем повторить то же самое снова
 			//
-			for(uint iter_idx = 0; iter_idx < 20; iter_idx++) {
+			for(uint iter_idx = 0; iter_idx < 40; iter_idx++) {
 				SCollection data_list;
 				SDataPageHeader::Stat stat;
 				TSVector <SRecPageFreeList::Entry> free_list;
@@ -1122,8 +1122,10 @@ SLTEST_R(SRecPageManager)
 									debug_mark = true;
 								int wr = mgr.WriteToPage(p_page, rowid, p_entry+1, p_entry->Size);
 								SLCHECK_NZ(wr > 0);
-								if(!CurrentStatus)
+								if(!CurrentStatus) {
+									int slerr = SLibError;
 									debug_mark = true;
+								}
 								SLCHECK_NZ(p_page->GetStat(stat, &free_list));
 								if(!CurrentStatus)
 									debug_mark = true;

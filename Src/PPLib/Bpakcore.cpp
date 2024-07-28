@@ -1568,7 +1568,7 @@ int PPLotExtCodeContainer::ValidateCode(const char * pCode, const char * pBox, i
 		ok = 0;
 	}
 	else {
-		const int iemr = PrcssrAlcReport::IsEgaisMark(pCode, 0);
+		const  bool iemr = PrcssrAlcReport::IsEgaisMark(pCode, 0);
 		uint   inner_idx = 0;
 		if(Search(pCode, &row_idx, &inner_idx)) {
 			const InnerItem * p_item = static_cast<const InnerItem *>(SVector::at(inner_idx));
@@ -2401,6 +2401,56 @@ static double FASTCALL setsign(double v, int minus)
 	return minus ? -v : v;
 }
 //
+// PPBillPacketCollection
+//
+PPBillPacketCollection::PPBillPacketCollection() : TSCollection <PPBillPacket>()
+{
+}
+
+PPBillPacketCollection::PPBillPacketCollection(const PPBillPacketCollection & rS) : TSCollection <PPBillPacket>()
+{
+	Copy(rS);
+}
+
+PPBillPacketCollection & FASTCALL PPBillPacketCollection::operator = (const PPBillPacketCollection & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+bool FASTCALL PPBillPacketCollection::Copy(const PPBillPacketCollection & rS)
+{
+	return TSCollection_Copy(*this, rS);
+}
+
+PPBillPacket * PPBillPacketCollection::SearchByObject(PPID arID) const
+{
+	for(uint i = 0; i < getCount(); i++) {
+		PPBillPacket * p_item = at(i);
+		if(p_item && p_item->Rec.Object == arID)
+			return p_item;
+	}
+	return 0;
+}
+
+const PPBillPacket * PPBillPacketCollection::Search_SrcIltiPos(uint srcIltiPos, uint * pTiIdx) const
+{
+	const PPBillPacket * p_result = 0;
+	for(uint i = 0; !p_result && i < getCount(); i++) {
+		const PPBillPacket * p_pack = at(i);
+		if(p_pack) {
+			for(uint tiidx = 0; !p_result && tiidx < p_pack->GetTCount(); tiidx++) {
+				const PPTransferItem & r_ti = p_pack->ConstTI(tiidx);
+				if(r_ti.SrcIltiPos == srcIltiPos) {
+					p_result = p_pack;
+					ASSIGN_PTR(pTiIdx, tiidx);
+				}
+			}
+		}
+	}
+	return p_result;
+}
+// 
 // PPBillPacket
 //
 PPBillPacket::TiItemExt::TiItemExt()
@@ -3160,6 +3210,13 @@ bool FASTCALL PPBillPacket::SearchTI(int rByBill, uint * pPos) const
 	}
 	ASSIGN_PTR(pPos, pos);
 	return ok;
+}
+
+PPID PPBillPacket::GetPrefSupplForTi(uint tiIdx/*0..*/) const
+{
+	const ObjTagItem * p_tag = LTagL.GetTag(tiIdx, PPTAG_LOT_PREFSUPPL);
+	int    tag_int_val = 0;
+	return (p_tag && p_tag->GetInt(&tag_int_val)) ? tag_int_val : 0;
 }
 
 int PPBillPacket::LoadTItem(const PPTransferItem * pItem, const char * pClb, const char * pSerial)

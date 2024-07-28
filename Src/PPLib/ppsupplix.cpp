@@ -6791,9 +6791,6 @@ int SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <
 				if(outerDocType == 6 && !P_BObj->CheckStatusFlag(view_item.StatusID, BILSTF_READYFOREDIACK)) {
 					dont_send = 1; // Статус не позволяет отправку
 				}
-				/* @v10.3.3 (функция Helper_MakeBillEntry разберется) else if(p_ref->Ot.GetTagStr(PPOBJ_BILL, view_item.ID, bill_ack_tag_id, temp_buf) > 0) {
-					dont_send = 1; // не отправляем документы, которые уже были отправлены ранее
-				}*/
 				if(!dont_send) {
 					if(!Helper_MakeBillEntry(view_item.ID, outerDocType, rList, rToDeleteList))
 						R_Logger.LogLastError();
@@ -10082,10 +10079,340 @@ class EfopMayTea : public PrcssrSupplInterchange::ExecuteBlock { // @v12.0.7 @co
 			THISZERO();
 		}
 		PPID   ID;
+		double Brutto; // Масса брутто одной торговой единицы товара
 		char   ArCode[32];
 		char   Name[128];
 		char   Brand[128];
 	};
+	struct ClientEntry {
+		struct DlvrLoc {
+			PPID   ID;
+			PPID   AgentID;
+			SString Name;
+			SString Addr;
+			SString AgentName;
+		};
+		PPID   PsnID;
+		PPID   ArID;
+		char   INN[32];
+		char   KPP[32];
+		SString Name;
+		TSCollection <DlvrLoc> DlvrLocList;
+	};
+	struct BillPacket {
+		BillPacket() : ID(0), OrderBillID(0), Dt(ZERODATE), DueDt(ZERODATE), ContractorID(0), DlvrLocID(0), AgentID(0), LocID(0)
+		{
+			Code[0] = 0;
+			ContractorCityName[0] = 0;
+			ContractorINN[0] = 0;
+			ContractorKPP[0] = 0;
+			ContractorGLN[0] = 0;
+			DlvrLocGLN[0] = 0;
+		}
+		struct Position { // @flat
+			Position() : GoodsID(0), Qtty(0.0), Volume(0.0), Brutto(0.0), Amount(0.0), NominalPrice(0.0)
+			{
+				ArCode[0] = 0;
+			}
+			PPID   GoodsID;
+			char   ArCode[32];
+			double Qtty;
+			double Volume;
+			double Brutto;
+			double Amount;
+			double NominalPrice;
+		};
+		PPID   ID;
+		PPID   OrderBillID; // Ид документа заказа, по которому осуществляется отгрузка
+		char   Code[48];
+		char   ContractorCityName[48];
+		char   ContractorINN[16];
+		char   ContractorKPP[16];
+		char   ContractorGLN[16];
+		char   DlvrLocGLN[16];
+		LDATE  Dt;
+		LDATE  DueDt;
+		PPID   LocID;
+		PPID   ContractorID;
+		PPID   DlvrLocID;
+		PPID   AgentID;
+		SString ContractorName;
+		SString ContractorAddrText;
+		SString AgentName;
+		SString DlvrAddrText;
+		TSVector <Position> ItemList;
+	};
+	class BillPacketCollection : public TSCollection <BillPacket> {
+	public:
+		BillPacketCollection(PrcssrSupplInterchange::ExecuteBlock & rEb) : TSCollection <BillPacket>(), R_Eb(rEb)
+		{
+		}
+		PPIDArray ContractorList;
+		PPIDArray DlvrLocList;
+		PPIDArray AgentList;
+	private:
+		PrcssrSupplInterchange::ExecuteBlock & R_Eb;
+	};
+	int    AddClient(PPID psnID, PPID dlvrLocID)
+	{
+		int    ok = -1;
+		if(psnID) {
+			ClientEntry * p_founded_cli = 0;
+			ClientEntry::DlvrLoc * p_founded_dlvr_loc = 0;
+			{
+				for(uint i = 0; !p_founded_cli && i < ClientList.getCount(); i++) {
+					ClientEntry * p_entry = ClientList.at(i);
+					if(p_entry && p_entry->PsnID == psnID) {
+						p_founded_cli = p_entry;
+						if(dlvrLocID) {
+							for(uint j = 0; !p_founded_dlvr_loc && j < p_entry->DlvrLocList.getCount(); j++) {
+								ClientEntry::DlvrLoc * p_dl_entry = p_entry->DlvrLocList.at(j);
+								if(p_dl_entry && p_dl_entry->ID == dlvrLocID) {
+									p_founded_dlvr_loc = p_dl_entry;
+								}
+							}
+						}
+					}
+				}
+				if(!p_founded_cli) {
+					PPPersonPacket psn_pack;
+					if(PsnObj.GetPacket(p_founded_cli->PsnID, &psn_pack, 0) > 0) {
+						ClientEntry * p_new_entry = ClientList.CreateNewItem();
+						p_new_entry->PsnID = psn_pack.Rec.ID;
+						p_new_entry->Name = psn_pack.Rec.Name;
+						//p_new_entry->INN
+					}
+				}
+			}
+		}
+		return ok;
+	}
+	int    Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, const TSVector <GoodsEntry> & rGoodsList, BillPacketCollection & rList)
+	{
+		int    ok = -1;
+		const LDATETIME now_dtm = getcurdatetime_();
+		const PPID sell_acs_id = GetSellAccSheet();
+		Reference * p_ref = PPRef;
+		uint   new_pack_idx = 0;
+		SString temp_buf;
+		PPBillPacket pack__;
+		if(!pBp && P_BObj->ExtractPacket(billID, &pack__) > 0) {
+			pBp = &pack__;
+		}
+		if(pBp && pBp->Rec.Object) {
+			PPID   acs_id = 0;
+			const  PPID   psn_id = ObjectToPerson(pBp->Rec.Object, &acs_id);
+			SString unit_name;
+			PPPersonPacket psn_pack;
+			if(psn_id && PsnObj.GetPacket(psn_id, &psn_pack, 0) > 0) {
+				long   tiiterpos = 0;
+				StrAssocArray ti_pos_list;
+				PPTransferItem ti;
+				PPBillPacket::TiItemExt tiext;
+				for(TiIter tiiter(pBp, ETIEF_UNITEBYGOODS, 0); pBp->EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
+					tiiterpos++;
+					const GoodsEntry * p_goods_entry = SearchGoodsEntry(rGoodsList, ti.GoodsID);
+					//if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf.Z(), 0) > 0) {
+					if(p_goods_entry) {
+						//const  ObjEntry * p_entry = SearchGoodsEntry(rGoodsList, temp_buf.ToLong());
+						//if(p_entry)
+						temp_buf.Z().Cat(p_goods_entry->ID);
+						ti_pos_list.Add(tiiterpos, temp_buf, 0);
+					}
+				}
+				if(ti_pos_list.getCount()) {
+					SString contractor_mainloc_addr;
+					SString contractor_rloc_addr;
+					PPIDArray ord_bill_list;
+					PPLocationPacket loc_pack;
+					BillPacket * p_new_pack = rList.CreateNewItem(&new_pack_idx);
+					THROW_SL(p_new_pack);
+					if(P_BObj->P_Tbl->GetListOfOrdersByLading(pBp->Rec.ID, ord_bill_list) > 0) {
+						assert(ord_bill_list.getCount());
+						p_new_pack->OrderBillID = ord_bill_list.get(0);
+					}
+					if(psn_pack.Rec.RLoc && LocObj.GetPacket(psn_pack.Rec.RLoc, &loc_pack) > 0 && loc_pack.Type == LOCTYP_ADDRESS) {
+						LocationCore::GetAddress(loc_pack, 0, contractor_rloc_addr);
+					}
+					if(psn_pack.Rec.MainLoc && LocObj.GetPacket(psn_pack.Rec.MainLoc, &loc_pack) > 0 && loc_pack.Type == LOCTYP_ADDRESS) {
+						LocationCore::GetAddress(loc_pack, 0, contractor_mainloc_addr);
+					}
+					if(contractor_rloc_addr.NotEmpty())
+						p_new_pack->ContractorAddrText = contractor_rloc_addr;
+					else if(contractor_mainloc_addr.NotEmpty())
+						p_new_pack->ContractorAddrText = contractor_mainloc_addr;
+					p_new_pack->ContractorName = psn_pack.Rec.Name;
+					{
+						PPTransaction tra(1);
+						THROW(tra);
+						p_new_pack->ID = pBp->Rec.ID;
+						STRNSCPY(p_new_pack->Code, pBp->Rec.Code);
+						p_new_pack->Dt = pBp->Rec.Dt;
+						p_new_pack->DueDt = pBp->Rec.DueDate;
+						p_new_pack->LocID = pBp->Rec.LocID;
+						p_new_pack->ContractorID = psn_pack.Rec.ID;
+						const  PPID dlvr_loc_id = pBp->GetDlvrAddrID();
+						bool   dlvr_loc_pack_is_valid = false;
+						{
+							if(LocObj.GetPacket(dlvr_loc_id, &loc_pack) > 0 && loc_pack.Type == LOCTYP_ADDRESS) {
+								dlvr_loc_pack_is_valid = true;
+								p_new_pack->DlvrLocID = dlvr_loc_id;
+								LocationCore::GetAddress(loc_pack, 0, p_new_pack->DlvrAddrText);
+							}
+							else if(contractor_rloc_addr.NotEmpty()) {
+								dlvr_loc_pack_is_valid = true;
+								p_new_pack->DlvrLocID = psn_pack.Rec.RLoc;
+								p_new_pack->DlvrAddrText = contractor_rloc_addr;
+							}
+							else if(contractor_mainloc_addr.NotEmpty()) {
+								dlvr_loc_pack_is_valid = true;
+								p_new_pack->DlvrLocID = psn_pack.Rec.MainLoc;
+								p_new_pack->DlvrAddrText = contractor_mainloc_addr;
+							}
+							if(dlvr_loc_pack_is_valid) {
+								if(loc_pack.CityID) {
+									WorldTbl::Rec city_rec;
+									if(LocObj.FetchCity(loc_pack.CityID, &city_rec) > 0) {
+										STRNSCPY(p_new_pack->ContractorCityName, city_rec.Name);
+									}
+								}
+							}
+							if(dlvr_loc_pack_is_valid && loc_pack.Regs.GetRegNumber(PPREGT_TPID, now_dtm.d, temp_buf) > 0)
+								STRNSCPY(p_new_pack->ContractorINN, temp_buf);
+							else if(psn_pack.Regs.GetRegNumber(PPREGT_TPID, now_dtm.d, temp_buf) > 0)
+								STRNSCPY(p_new_pack->ContractorINN, temp_buf);
+							if(dlvr_loc_pack_is_valid && loc_pack.Regs.GetRegNumber(PPREGT_KPP, now_dtm.d, temp_buf) > 0)
+								STRNSCPY(p_new_pack->ContractorKPP, temp_buf);
+							else if(psn_pack.Regs.GetRegNumber(PPREGT_KPP, now_dtm.d, temp_buf) > 0)
+								STRNSCPY(p_new_pack->ContractorKPP, temp_buf);
+							if(psn_pack.Regs.GetRegNumber(PPREGT_GLN, now_dtm.d, temp_buf) > 0)
+								STRNSCPY(p_new_pack->ContractorGLN, temp_buf);
+							else
+								STRNSCPY(p_new_pack->ContractorGLN, temp_buf.Z().Cat(psn_pack.Rec.ID));
+							if(dlvr_loc_pack_is_valid && loc_pack.Regs.GetRegNumber(PPREGT_GLN, now_dtm.d, temp_buf) > 0)
+								STRNSCPY(p_new_pack->DlvrLocGLN, temp_buf);
+							else if(dlvr_loc_pack_is_valid)
+								STRNSCPY(p_new_pack->DlvrLocGLN, temp_buf.Z().Cat(dlvr_loc_id));
+							else 
+								STRNSCPY(p_new_pack->DlvrLocGLN, temp_buf.Z().Cat(psn_pack.Rec.ID));
+						}
+						{
+							PPID   agent_psn_id = 0;
+							PersonTbl::Rec agent_psn_rec;
+							if(agent_psn_id && PsnObj.Fetch(agent_psn_id, &agent_psn_rec) > 0) {
+								p_new_pack->AgentID = agent_psn_id;
+								p_new_pack->AgentName = agent_psn_rec.Name;
+							}
+						}
+						if(acs_id == sell_acs_id) {
+							ClientEntry * p_founded_cli = 0;
+							ClientEntry::DlvrLoc * p_founded_dlvr_loc = 0;
+							{
+								for(uint i = 0; !p_founded_cli && i < ClientList.getCount(); i++) {
+									ClientEntry * p_entry = ClientList.at(i);
+									if(p_entry && p_entry->PsnID == psn_id) {
+										p_founded_cli = p_entry;
+										if(p_new_pack->DlvrLocID) {
+											for(uint j = 0; !p_founded_dlvr_loc && j < p_entry->DlvrLocList.getCount(); j++) {
+												ClientEntry::DlvrLoc * p_dl_entry = p_entry->DlvrLocList.at(j);
+												if(p_dl_entry && p_dl_entry->ID == p_new_pack->DlvrLocID) {
+													p_founded_dlvr_loc = p_dl_entry;
+												}
+											}
+										}
+									}
+								}
+								if(!p_founded_cli) {
+									ClientEntry * p_new_entry = ClientList.CreateNewItem();
+									p_new_entry->PsnID = psn_pack.Rec.ID;
+									p_new_entry->Name = psn_pack.Rec.Name;
+									STRNSCPY(p_new_entry->INN, p_new_pack->ContractorINN);
+									STRNSCPY(p_new_entry->KPP, p_new_pack->ContractorKPP);
+									p_founded_cli = p_new_entry;
+								}
+								assert(p_founded_cli);
+								if(!p_founded_dlvr_loc && p_new_pack->DlvrLocID) {
+									ClientEntry::DlvrLoc * p_new_loc_entry = p_founded_cli->DlvrLocList.CreateNewItem();
+									p_new_loc_entry->ID = p_new_pack->DlvrLocID;
+									p_new_loc_entry->Addr = p_new_pack->ContractorAddrText;
+									(p_new_loc_entry->Name = p_new_pack->ContractorName).Space().CatChar('#').Cat(p_new_loc_entry->ID);
+								}
+							}
+						}
+						tiiterpos = 0;
+						for(TiIter tiiter(pBp, ETIEF_UNITEBYGOODS, 0); pBp->EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
+							tiiterpos++;
+							uint   pos_list_item_pos = 0;
+							if(ti_pos_list.GetText(tiiterpos, temp_buf) > 0) {
+								const long ware_ident = temp_buf.ToLong();
+								Goods2Tbl::Rec goods_rec;
+								const GoodsEntry * p_goods_entry = SearchGoodsEntry(rGoodsList, ti.GoodsID);
+								if(p_goods_entry && ware_ident > 0 && GObj.Fetch(ti.GoodsID, &goods_rec) > 0) {
+									BillPacket::Position item;
+									double vat_sum_in_full_price = 0.0;
+									item.GoodsID = goods_rec.ID;
+									STRNSCPY(item.ArCode, p_goods_entry->ArCode);
+									item.Qtty = fabs(ti.Quantity_);
+									item.Brutto = fabs(ti.Quantity_) * p_goods_entry->Brutto;
+									item.Amount = ti.NetPrice() * fabs(ti.Quantity_);
+									item.NominalPrice = fabs(ti.Price);
+									const GoodsEntry * p_goods_entry = SearchGoodsEntry(rGoodsList, ware_ident);
+									if(p_goods_entry) {
+										PPGoodsTaxEntry gte;
+										item.GoodsID = p_goods_entry->ID;
+										if(GObj.FetchTax(goods_rec.ID, pBp->Rec.Dt, 0, &gte) > 0) {
+											GObj.CalcCostVat(0, goods_rec.TaxGrpID, pBp->Rec.Dt, 1.0, ti.NetPrice(), &vat_sum_in_full_price, 0, 0, 16);
+											//item.CostWoVat = (item.Cost - vat_sum_in_full_price);
+											//item.VatInCost = vat_sum_in_full_price;
+											//item.VatRate = static_cast<double>(gte.VAT) / 100.0;
+										}
+										THROW_SL(p_new_pack->ItemList.insert(&item));
+										ok = 1;
+									}
+								}
+							}
+						}
+						assert(p_new_pack);
+						if(p_new_pack) {
+							if(ok > 0) {
+								//rList.SetupEntry(new_pack_idx, 0);
+							}
+							else {
+								rList.atFree(new_pack_idx);
+								p_new_pack = 0;
+							}
+						}
+						THROW(tra.Commit());
+					}
+				}
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	int    Helper_MakeBillList(PPID opID, PPID locID, const TSVector <GoodsEntry> & rGoodsList, BillPacketCollection & rList)
+	{
+		int    ok = -1;
+		if(opID) {
+			BillFilt b_filt;
+			PPViewBill b_view;
+			BillViewItem view_item;
+			PPBillPacket pack;
+			b_filt.OpID = opID;
+			//b_filt.LocList = P.LocList;
+			b_filt.LocList.SetSingle(locID);
+			b_filt.Period = P.ExpPeriod;
+			SETIFZ(b_filt.Period.low, encodedate(1, 1, 2022));
+			THROW(b_view.Init_(&b_filt));
+			for(b_view.InitIteration(PPViewBill::OrdByDefault); b_view.NextIteration(&view_item) > 0;) {
+				if(!Helper_MakeBillEntry(view_item.ID, 0, rGoodsList, rList))
+					R_Logger.LogLastError();
+			}
+			ok = 1;
+		}
+		CATCHZOK
+		return ok;		
+	}
 public:
 	/*
 		Унифицированный формат обмена информацией о ПРАЙСАХ КЛИЕНТА
@@ -10115,6 +10442,7 @@ public:
 	int    Init()
 	{
 		int    ok = 1;
+		Ep.GetExtStrData(Ep.extssClientCode, CliCode);
 		THROW(MakeGoodsList(GoodsList));
 		CATCHZOK
 		return ok;
@@ -10132,7 +10460,35 @@ public:
 			  </Item>
 			</Items>
 		*/
-		int    ok = -1;
+		int    ok = 1;
+		const  LDATETIME now_dtm = getcurdatetime_();
+		SString temp_buf;
+		SString out_file_name;
+		xmlTextWriter * p_x = 0;
+		temp_buf.Z().Cat("Items").Dot().Cat("xml");
+		PPGetPath(PPPATH_OUT, out_file_name);
+		out_file_name.SetLastSlash().Cat("efop-maytea");
+		SFile::CreateDir(out_file_name);
+		out_file_name.SetLastSlash().Cat(temp_buf);
+		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		{
+			SXml::WDoc _doc(p_x, cpUTF8);
+			SXml::WNode n_o(p_x, "Items");
+			for(uint i = 0; i < GoodsList.getCount(); i++) {
+				const GoodsEntry & r_entry = GoodsList.at(i);
+				Goods2Tbl::Rec goods_rec;
+				if(GObj.Search(r_entry.ID, &goods_rec) > 0) {
+					SXml::WNode n_i(p_x, "Item");
+					n_i.PutInner("SupplierItemCode", XmlUtf8EncText(r_entry.ArCode));
+					n_i.PutInner("BrandName", XmlUtf8EncText(r_entry.Brand));
+					n_i.PutInner("ItemDescription", XmlUtf8EncText(r_entry.Name));
+					PPLoadStringUtf8("valid", temp_buf);
+					n_i.PutInner("Status", temp_buf);
+				}
+			}
+		}
+		CATCHZOK
+		xmlFreeTextWriter(p_x);
 		return ok;
 	}
 	int    SendClients(StringSet & rSsFileName)
@@ -10161,7 +10517,52 @@ public:
 				</Buyer>		
 			</Buyers>		
 		*/
-		int    ok = -1;
+		int    ok = 1;
+		const  LDATETIME now_dtm = getcurdatetime_();
+		SString temp_buf;
+		SString out_file_name;
+		xmlTextWriter * p_x = 0;
+		temp_buf.Z().Cat("Distr_Buyers").Dot().Cat("xml");
+		PPGetPath(PPPATH_OUT, out_file_name);
+		out_file_name.SetLastSlash().Cat("efop-maytea");
+		SFile::CreateDir(out_file_name);
+		out_file_name.SetLastSlash().Cat(temp_buf);
+		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		{
+			SXml::WDoc _doc(p_x, cpUTF8);
+			SXml::WNode n_o(p_x, "Buyers");
+			n_o.PutInner("SourceCode", XmlUtf8EncText(CliCode));
+			for(uint cliidx = 0; cliidx < ClientList.getCount(); cliidx++) {
+				const ClientEntry * p_entry = ClientList.at(cliidx);
+				if(p_entry) {
+					SXml::WNode n_i(p_x, "Buyer");
+					n_i.PutInner("BuyerBuyerCode", temp_buf.Z().Cat(p_entry->PsnID));
+					n_i.PutInner("INN", XmlUtf8EncText(p_entry->INN));
+					n_i.PutInner("KPP", XmlUtf8EncText(p_entry->KPP));
+					n_i.PutInner("BuyerName", XmlUtf8EncText(p_entry->Name));
+					{
+						SXml::WNode n_dp(p_x, "DeliveryPoints");
+						for(uint dlidx = 0; dlidx < p_entry->DlvrLocList.getCount(); dlidx++) {
+							const ClientEntry::DlvrLoc * p_dl_entry = p_entry->DlvrLocList.at(dlidx);
+							if(p_dl_entry) {
+								SXml::WNode n_dpi(p_x, "DeliveryPoint");
+								n_dpi.PutInner("DeliveryPointBuyerCode", temp_buf.Z().Cat(p_dl_entry->ID));
+								n_dpi.PutInner("RetailNetwork", "");
+								n_dpi.PutInner("DeliveryPointName", XmlUtf8EncText(p_dl_entry->Name));
+								n_dpi.PutInner("DlvAddressTypeID", "");
+								n_dpi.PutInner("Address", XmlUtf8EncText(p_dl_entry->Addr));
+								n_dpi.PutInner("ManagerBuyerCode", "");
+								n_dpi.PutInner("ManagerName", "");
+								PPLoadStringUtf8("valid", temp_buf);
+								n_dpi.PutInner("Status", temp_buf);
+							}
+						}
+					}
+				}
+			}
+		}
+		CATCHZOK
+		xmlFreeTextWriter(p_x);
 		return ok;
 	}
 	int    SendRest(StringSet & rSsFileName)
@@ -10186,78 +10587,55 @@ public:
 				</Stock>		
 			</Stocks>		
 		*/
-		int    ok = -1;
-		return ok;
-	}
-	int    SendOrders(StringSet & rSsFileName)
-	{
-		/*
-		Унифицированный формат обмена информацией о заказах
-			<Document-Orders>		
-				<SourceCode>1235_1</SourceCode>	Строка (20 символов) Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально.
-				<Document-Order>		
-					<Order-Header>		
-						<DocumentNumber>TEST016</DocumentNumber>	Строка (20 символов)	Номер заказа
-						<DocumentDate>25.08.2003</DocumentDate>	Формат ДД.ММ.ГГГГ	Дата заказа
-						<ExpectedDeliveryDate>25.08.2003</ExpectedDeliveryDate>	Формат ДД.ММ.ГГГГ	Ожидаемая дата поставки
-						<BuyerBuyerCode>111</BuyerBuyerCode>	Строка (50 символов)	Код юридического лица  заказчика у дистрибутора
-						<INN>5900009920000</INN>	Строка (20 символов)	ИНН заказчика
-						<BuyerName>Юнек</BuyerName>	Строка (255 символов)	Название юридического лица  
-						<DeliveryPointBuyerCode>12345</DeliveryPointBuyerCode>	Строка (50 символов)	Код адреса доставки заказчика у дистрибутора. В случае отсутствия посылается пусто.
-						<Address>150061, г. Ярославль, пр. Ленина, д. 23</Address>	Строка (255 символов)	Адрес торговой точки
-						<ManagerBuyerCode>111</ManagerBuyerCode>	Строка (20 символов)	Код торгового представителя у дистрибутора
-						<ManagerName>Иванов Иван Иванович</ManagerName>	Строка (50 символов)	ФИО торгового представителя
-						<OrderedSource>Да</OrderedSource>	Строка (20 символов)	признак источника заказа (сайт или сайт посредника или торговая команда). Допустимые значения Да/Нет
-						<OrderedSourceName>Maytea.com</OrderedSourceName>	Строка (255 символов)	Название сайта/Вывеска – источника заказа. Если OrderedSource=Нет, оставлять пустым
-					</Order-Header>		
-					<Items>		
-						<Item>		
-							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика
-							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
-							<OrderedQuantity>2.000</OrderedQuantity>	Число	Заказанное количество в пачках
-							<Amount>10</Amount>	Число	Стоимость в рублях с учетом НДС
-							<GrossWeight>11</GrossWeight>	Число	Вес брутто по строке в кг.
-							<PriceName>Базовый 2021</PriceName>	Строка (100 символов)	Прайс лист клиента , поле передающее спецификацию Название прайс листа клиента или тип цены. Т.е. Цена по прейскуранту до применения к отпускной цене каких либо дисконтов или компенсационных скидок
-							<PriceAmount>8</PriceAmount>	Число	Цена по прайс листу клиента  -  передающее в абсолютном значении номинал отпускной цены.
-						</Item>
-					</Items>
-				</Document-Order>
-			</Document-Orders>
-		*/
-		int    ok = -1;
-		return ok;
-	}
-	int    SendReceipts(StringSet & rSsFileName)
-	{
-		/*
-		Унифицированный формат обмена информацией о приходе товара
-			<Document-Receipts>		
-				<SourceCode>1235_1</SourceCode>	Строка (20 символов)	Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально.
-				<Document-Receipt>		
-					<Receipt-Header>		
-						<DocumentType>Receipt</DocumentType>	Строка (20 символов)	Тип документа:
-							Receipt – приходная накладная от Компании Май-Брендс к дистрибутору
-							ReceiptReturn – возврат товара  от дистрибутора в  Компанию Май-Брендс
-							ReceiptMove – приходная накладная при внутреннем перемещении
-							ReceiptReturnMove – возврат при внутреннем перемещении
-						<ReceiptNumber>TEST016</ReceiptNumber>	Строка (20 символов)	Номер приходной накладной
-						<DocumentDate>25.08.2003</DocumentDate>	Формат ДД.ММ.ГГГГ	Дата приходной накладной
-						<Date>25.08.2003</Date>	Формат ДД.ММ.ГГГГ	Фактическая дата поставки
-						<WarehouseAddress>TEST016</WarehouseAddress>	Строка (50 символов)	Адрес склада прихода  (дистрибутора)
-					</Receipt-Header>		
-					<Items>		
-						<Item>		
-							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика
-							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
-							<OrderedQuantity>2.000</OrderedQuantity>	Число	Заказанное количество в минимальных единицах (пачках). В случае возврата с минусом.
-							<Amount>60</Amount> Число	Сумма покупки в рублях с НДС. В случае возврата с минусом.
-							<GrossWeight>11</GrossWeight>	Число	Вес брутто по строке. В случае возврата с минусом.
-						</Item>		
-					</Items>		
-				</Document-Receipt>		
-			</Document-Receipts>		
-		*/
-		int    ok = -1;
+		int    ok = 1;
+		const  LDATETIME now_dtm = getcurdatetime_();
+		SString temp_buf;
+		SString out_file_name;
+		xmlTextWriter * p_x = 0;
+		temp_buf.Z().Cat("Distr_Stocks").Dot().Cat("xml");
+		PPGetPath(PPPATH_OUT, out_file_name);
+		out_file_name.SetLastSlash().Cat("efop-maytea");
+		SFile::CreateDir(out_file_name);
+		out_file_name.SetLastSlash().Cat(temp_buf);
+		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		{
+			SXml::WDoc _doc(p_x, cpUTF8);
+			SXml::WNode n_o(p_x, "Stocks");
+			n_o.PutInner("SourceCode", XmlUtf8EncText(CliCode));
+			const LDATE stock_date = checkdate(P.ExpPeriod.upp) ? P.ExpPeriod.upp : now_dtm.d;
+			for(uint locidx = 0; locidx < Ep.WhList.GetCount(); locidx++) {
+				const PPID loc_id = Ep.WhList.Get(locidx);
+				LocationTbl::Rec loc_rec;
+				if(LocObj.Search(loc_id, &loc_rec) > 0) {
+					SXml::WNode n_s(p_x, "Stock");
+					n_s.PutInner("WarehouseCode", temp_buf.Z().Cat(loc_rec.ID));
+					n_s.PutInner("Date", temp_buf.Z().Cat(stock_date, DATF_GERMANCENT));
+					n_s.PutInner("Time", temp_buf.Z().Cat(now_dtm.t, TIMF_HM));
+					{
+						SXml::WNode n_items(p_x, "Items");
+						for(uint i = 0; i < GoodsList.getCount(); i++) {
+							const GoodsEntry & r_entry = GoodsList.at(i);
+							Goods2Tbl::Rec goods_rec;
+							if(GObj.Search(r_entry.ID, &goods_rec) > 0) {
+								GoodsRestParam gp;
+								gp.GoodsID = goods_rec.ID;
+								gp.Date = P.ExpPeriod.upp;
+								P.LocList.Get(gp.LocList);
+								P_BObj->trfr->GetRest(gp);
+								SXml::WNode n_i(p_x, "Item");
+								n_i.PutInner("SupplierItemCode", XmlUtf8EncText(r_entry.ArCode));
+								n_i.PutInner("ItemDescription", XmlUtf8EncText(r_entry.Name));
+								n_i.PutInner("Quantity", temp_buf.Z().Cat(gp.Total.Rest, MKSFMTD(0, 3, 0)));
+								n_i.PutInner("Amount", temp_buf.Z().Cat(gp.Total.Cost, MKSFMTD(0, 2, 0)));
+								n_i.PutInner("GrossWeight", temp_buf.Z().Cat(gp.Total.Rest * r_entry.Brutto, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
+							}
+						}
+					}
+				}
+			}
+		}
+		CATCHZOK
+		xmlFreeTextWriter(p_x);
 		return ok;
 	}
 	int    SendInvoices(StringSet & rSsFileName)
@@ -10302,7 +10680,258 @@ public:
 				</Document-Invoice>		
 			</Document-Invoices>		
 		*/
-		int    ok = -1;
+		int    ok = 1;
+		const  LDATETIME now_dtm = getcurdatetime_();
+		SString temp_buf;
+		SString out_file_name;
+		BillPacketCollection bill_list(*this);
+		xmlTextWriter * p_x = 0;
+		temp_buf.Z().Cat("Distr2_Invoices").Dot().Cat("xml");
+		PPGetPath(PPPATH_OUT, out_file_name);
+		out_file_name.SetLastSlash().Cat("efop-maytea");
+		SFile::CreateDir(out_file_name);
+		out_file_name.SetLastSlash().Cat(temp_buf);
+		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		{
+			for(uint i = 0; i < P.LocList.GetCount(); i++) {
+				const  PPID loc_id = P.LocList.Get(i);
+				THROW(Helper_MakeBillList(Ep.ExpendOp, loc_id, GoodsList, bill_list));
+			}
+		}
+		{
+			SXml::WDoc _doc(p_x, cpUTF8);
+			SXml::WNode n_o(p_x, "Document-Invoices");
+			n_o.PutInner("SourceCode", XmlUtf8EncText(CliCode));
+			for(uint billidx = 0; billidx < bill_list.getCount(); billidx++) {
+				const BillPacket * p_pack = bill_list.at(billidx);
+				if(p_pack) {
+					SXml::WNode n_s(p_x, "Document-Invoice");
+					{
+						SXml::WNode n_h(p_x, "Invoice-Header");
+						n_h.PutInner("DocumentType", "Invoice");
+						n_h.PutInner("DocumentNumber", XmlUtf8EncText(p_pack->Code));
+						n_h.PutInner("DocumentDate", temp_buf.Z().Cat(p_pack->Dt, DATF_GERMANCENT));
+						n_h.PutInner("WarehouseAddress", "");
+						n_h.PutInner("BuyerBuyerCode", "");
+						n_h.PutInner("INN", XmlUtf8EncText(p_pack->ContractorINN));
+						n_h.PutInner("BuyerName", XmlUtf8EncText(p_pack->ContractorName));
+						n_h.PutInner("DeliveryPointBuyerCode", "");
+						n_h.PutInner("Address", XmlUtf8EncText(p_pack->DlvrAddrText));
+						n_h.PutInner("ManagerBuyerCode", temp_buf.Z().Cat(p_pack->AgentID));
+						n_h.PutInner("ManagerName", XmlUtf8EncText(p_pack->AgentName));
+						n_h.PutInner("InvoiceNumber", XmlUtf8EncText(p_pack->Code));
+						n_h.PutInner("InvoiceSource", "");
+						n_h.PutInner("InvoiceSourceName", "");
+					}
+					{
+						SXml::WNode n_items(p_x, "Items");
+						for(uint itemidx = 0; itemidx < p_pack->ItemList.getCount(); itemidx++) {
+							const BillPacket::Position & r_item = p_pack->ItemList.at(itemidx);
+							const GoodsEntry * p_goods_entry = SearchGoodsEntry(GoodsList, r_item.GoodsID);
+							if(p_goods_entry) {
+								SXml::WNode n_i(p_x, "Item");
+								n_i.PutInner("SupplierItemCode", XmlUtf8EncText(r_item.ArCode));
+								n_i.PutInner("ItemDescription", XmlUtf8EncText(p_goods_entry->Name));
+								n_i.PutInner("OrderedQuantity", temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, 0)));
+								n_i.PutInner("Amount", temp_buf.Z().Cat(r_item.Amount, MKSFMTD(0, 2, 0)));
+								n_i.PutInner("GrossWeight", temp_buf.Z().Cat(r_item.Brutto, MKSFMTD(0, 3, 0)));
+								n_i.PutInner("PriceName", "base");
+								n_i.PutInner("PriceAmount", temp_buf.Z().Cat(r_item.NominalPrice, MKSFMTD(0, 2, 0)));
+							}
+						}
+					}
+				}
+			}
+		}
+		CATCHZOK
+		xmlFreeTextWriter(p_x);
+		return ok;
+	}
+	int    SendOrders(StringSet & rSsFileName)
+	{
+		/*
+		Унифицированный формат обмена информацией о заказах
+			<Document-Orders>		
+				<SourceCode>1235_1</SourceCode>	Строка (20 символов) Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально.
+				<Document-Order>		
+					<Order-Header>		
+						<DocumentNumber>TEST016</DocumentNumber>	Строка (20 символов)	Номер заказа
+						<DocumentDate>25.08.2003</DocumentDate>	Формат ДД.ММ.ГГГГ	Дата заказа
+						<ExpectedDeliveryDate>25.08.2003</ExpectedDeliveryDate>	Формат ДД.ММ.ГГГГ	Ожидаемая дата поставки
+						<BuyerBuyerCode>111</BuyerBuyerCode>	Строка (50 символов)	Код юридического лица  заказчика у дистрибутора
+						<INN>5900009920000</INN>	Строка (20 символов)	ИНН заказчика
+						<BuyerName>Юнек</BuyerName>	Строка (255 символов)	Название юридического лица  
+						<DeliveryPointBuyerCode>12345</DeliveryPointBuyerCode>	Строка (50 символов)	Код адреса доставки заказчика у дистрибутора. В случае отсутствия посылается пусто.
+						<Address>150061, г. Ярославль, пр. Ленина, д. 23</Address>	Строка (255 символов)	Адрес торговой точки
+						<ManagerBuyerCode>111</ManagerBuyerCode>	Строка (20 символов)	Код торгового представителя у дистрибутора
+						<ManagerName>Иванов Иван Иванович</ManagerName>	Строка (50 символов)	ФИО торгового представителя
+						<OrderedSource>Да</OrderedSource>	Строка (20 символов)	признак источника заказа (сайт или сайт посредника или торговая команда). Допустимые значения Да/Нет
+						<OrderedSourceName>Maytea.com</OrderedSourceName>	Строка (255 символов)	Название сайта/Вывеска – источника заказа. Если OrderedSource=Нет, оставлять пустым
+					</Order-Header>		
+					<Items>		
+						<Item>		
+							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика
+							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
+							<OrderedQuantity>2.000</OrderedQuantity>	Число	Заказанное количество в пачках
+							<Amount>10</Amount>	Число	Стоимость в рублях с учетом НДС
+							<GrossWeight>11</GrossWeight>	Число	Вес брутто по строке в кг.
+							<PriceName>Базовый 2021</PriceName>	Строка (100 символов)	Прайс лист клиента , поле передающее спецификацию Название прайс листа клиента или тип цены. Т.е. Цена по прейскуранту до применения к отпускной цене каких либо дисконтов или компенсационных скидок
+							<PriceAmount>8</PriceAmount>	Число	Цена по прайс листу клиента  -  передающее в абсолютном значении номинал отпускной цены.
+						</Item>
+					</Items>
+				</Document-Order>
+			</Document-Orders>
+		*/
+		int    ok = 1;
+		const  LDATETIME now_dtm = getcurdatetime_();
+		SString temp_buf;
+		SString out_file_name;
+		BillPacketCollection bill_list(*this);
+		xmlTextWriter * p_x = 0;
+		PPAlbatrossConfig  albtr_cfg;
+		const PPID order_op_id = (PPAlbatrosCfgMngr::Get(&albtr_cfg) > 0) ? albtr_cfg.Hdr.EdiOrderOpID : 0;
+		temp_buf.Z().Cat("Distr2_Orders").Dot().Cat("xml");
+		PPGetPath(PPPATH_OUT, out_file_name);
+		out_file_name.SetLastSlash().Cat("efop-maytea");
+		SFile::CreateDir(out_file_name);
+		out_file_name.SetLastSlash().Cat(temp_buf);
+		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		{
+			for(uint i = 0; i < P.LocList.GetCount(); i++) {
+				const  PPID loc_id = P.LocList.Get(i);
+				THROW(Helper_MakeBillList(order_op_id, loc_id, GoodsList, bill_list));
+			}
+		}
+		{
+			SXml::WDoc _doc(p_x, cpUTF8);
+			SXml::WNode n_o(p_x, "Document-Orders");
+			n_o.PutInner("SourceCode", XmlUtf8EncText(CliCode));
+			for(uint billidx = 0; billidx < bill_list.getCount(); billidx++) {
+				const BillPacket * p_pack = bill_list.at(billidx);
+				SXml::WNode n_s(p_x, "Document-Order");
+				{
+					SXml::WNode n_h(p_x, "Order-Header");
+					n_h.PutInner("DocumentNumber", XmlUtf8EncText(p_pack->Code));
+					n_h.PutInner("DocumentDate", temp_buf.Z().Cat(p_pack->Dt, DATF_GERMANCENT));
+					{
+						const LDATE due_date = checkdate(p_pack->DueDt) ? p_pack->DueDt : p_pack->Dt;
+						n_h.PutInner("ExpectedDeliveryDate", temp_buf.Z().Cat(due_date, DATF_GERMANCENT));
+					}
+					n_h.PutInner("BuyerBuyerCode", "");
+					n_h.PutInner("INN", XmlUtf8EncText(p_pack->ContractorINN));
+					n_h.PutInner("BuyerName", XmlUtf8EncText(p_pack->ContractorName));
+					n_h.PutInner("DeliveryPointBuyerCode", "");
+					n_h.PutInner("Address", "");
+					n_h.PutInner("ManagerBuyerCode", temp_buf.Z().Cat(p_pack->AgentID));
+					n_h.PutInner("ManagerName", XmlUtf8EncText(p_pack->AgentName));
+					n_h.PutInner("OrderedSource", "");
+					n_h.PutInner("OrderedSourceName", "");
+				}
+				{
+					SXml::WNode n_items(p_x, "Items");
+					for(uint itemidx = 0; itemidx < p_pack->ItemList.getCount(); itemidx++) {
+						const BillPacket::Position & r_item = p_pack->ItemList.at(itemidx);
+						const GoodsEntry * p_goods_entry = SearchGoodsEntry(GoodsList, r_item.GoodsID);
+						if(p_goods_entry) {
+							SXml::WNode n_i(p_x, "Item");
+							n_i.PutInner("SupplierItemCode", XmlUtf8EncText(r_item.ArCode));
+							n_i.PutInner("ItemDescription", XmlUtf8EncText(p_goods_entry->Name));
+							n_i.PutInner("OrderedQuantity", temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, 0)));
+							n_i.PutInner("Amount", temp_buf.Z().Cat(r_item.Amount, MKSFMTD(0, 2, 0)));
+							n_i.PutInner("GrossWeight", temp_buf.Z().Cat(r_item.Brutto, MKSFMTD(0, 3, 0)));
+							n_i.PutInner("PriceName", "base");
+							n_i.PutInner("PriceAmount", temp_buf.Z().Cat(r_item.NominalPrice, MKSFMTD(0, 2, 0)));
+						}
+					}
+				}
+			}
+		}
+		CATCHZOK
+		xmlFreeTextWriter(p_x);
+		return ok;
+	}
+	int    SendReceipts(StringSet & rSsFileName)
+	{
+		/*
+		Унифицированный формат обмена информацией о приходе товара
+			<Document-Receipts>		
+				<SourceCode>1235_1</SourceCode>	Строка (20 символов)	Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально.
+				<Document-Receipt>		
+					<Receipt-Header>		
+						<DocumentType>Receipt</DocumentType>	Строка (20 символов)	Тип документа:
+							Receipt – приходная накладная от Компании Май-Брендс к дистрибутору
+							ReceiptReturn – возврат товара  от дистрибутора в  Компанию Май-Брендс
+							ReceiptMove – приходная накладная при внутреннем перемещении
+							ReceiptReturnMove – возврат при внутреннем перемещении
+						<ReceiptNumber>TEST016</ReceiptNumber>	Строка (20 символов)	Номер приходной накладной
+						<DocumentDate>25.08.2003</DocumentDate>	Формат ДД.ММ.ГГГГ	Дата приходной накладной
+						<Date>25.08.2003</Date>	Формат ДД.ММ.ГГГГ	Фактическая дата поставки
+						<WarehouseAddress>TEST016</WarehouseAddress>	Строка (50 символов)	Адрес склада прихода  (дистрибутора)
+					</Receipt-Header>		
+					<Items>		
+						<Item>		
+							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика
+							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
+							<OrderedQuantity>2.000</OrderedQuantity>	Число	Заказанное количество в минимальных единицах (пачках). В случае возврата с минусом.
+							<Amount>60</Amount> Число	Сумма покупки в рублях с НДС. В случае возврата с минусом.
+							<GrossWeight>11</GrossWeight>	Число	Вес брутто по строке. В случае возврата с минусом.
+						</Item>		
+					</Items>		
+				</Document-Receipt>		
+			</Document-Receipts>		
+		*/
+		int    ok = 1;
+		const  LDATETIME now_dtm = getcurdatetime_();
+		SString temp_buf;
+		SString out_file_name;
+		BillPacketCollection bill_list(*this);
+		xmlTextWriter * p_x = 0;
+		temp_buf.Z().Cat("Distr_Receipts").Dot().Cat("xml");
+		PPGetPath(PPPATH_OUT, out_file_name);
+		out_file_name.SetLastSlash().Cat("efop-maytea");
+		SFile::CreateDir(out_file_name);
+		out_file_name.SetLastSlash().Cat(temp_buf);
+		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		{
+			for(uint i = 0; i < P.LocList.GetCount(); i++) {
+				const  PPID loc_id = P.LocList.Get(i);
+				THROW(Helper_MakeBillList(Ep.RcptOp, loc_id, GoodsList, bill_list));
+			}
+		}
+		{
+			SXml::WDoc _doc(p_x, cpUTF8);
+			SXml::WNode n_o(p_x, "Document-Receipts");
+			n_o.PutInner("SourceCode", XmlUtf8EncText(CliCode));
+			for(uint billidx = 0; billidx < bill_list.getCount(); billidx++) {
+				const BillPacket * p_pack = bill_list.at(billidx);
+				SXml::WNode n_s(p_x, "Document-Receipt");
+				{
+					SXml::WNode n_h(p_x, "Receipt-Header");
+					n_h.PutInner("DocumentType", "Receipt");
+					n_h.PutInner("ReceiptNumber", XmlUtf8EncText(p_pack->Code));
+					n_h.PutInner("DocumentDate", temp_buf.Z().Cat(p_pack->Dt, DATF_GERMANCENT));
+					n_h.PutInner("Date", temp_buf.Z().Cat(p_pack->Dt, DATF_GERMANCENT));
+					n_h.PutInner("WarehouseAddress", "");
+				}
+				{
+					SXml::WNode n_items(p_x, "Items");
+					for(uint itemidx = 0; itemidx < p_pack->ItemList.getCount(); itemidx++) {
+						const BillPacket::Position & r_item = p_pack->ItemList.at(itemidx);
+						const GoodsEntry * p_goods_entry = SearchGoodsEntry(GoodsList, r_item.GoodsID);
+						if(p_goods_entry) {
+							SXml::WNode n_i(p_x, "Item");
+							n_i.PutInner("SupplierItemCode", XmlUtf8EncText(r_item.ArCode));
+							n_i.PutInner("ItemDescription", XmlUtf8EncText(p_goods_entry->Name));
+							n_i.PutInner("OrderedQuantity", temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, 0)));
+							n_i.PutInner("Amount", temp_buf.Z().Cat(r_item.Amount, MKSFMTD(0, 2, 0)));
+							n_i.PutInner("GrossWeight", temp_buf.Z().Cat(r_item.Brutto, MKSFMTD(0, 3, 0)));
+						}
+					}
+				}
+			}
+		}
+		CATCHZOK
+		xmlFreeTextWriter(p_x);
 		return ok;
 	}
 	int    TransmitFiles(const StringSet & rFileNameSet)
@@ -10346,6 +10975,10 @@ private:
 						if(goods_rec.BrandID && brand_obj.Fetch(goods_rec.BrandID, &brand_rec) > 0) {
 							STRNSCPY(oe.Brand, brand_rec.Name);
 						}
+						GoodsStockExt gse;
+						if(GObj.P_Tbl->GetStockExt(goods_rec.ID, &gse, 1) > 0) {
+							oe.Brutto = gse.CalcBrutto(1.0);
+						}
 						rGoodsList.insert(&oe);
 					}
 				}
@@ -10354,9 +10987,11 @@ private:
 		return ok;
 	}
 	PPLogger & R_Logger;
+	SString CliCode;
 	SString TokBuf;
 	TokenSymbHashTable TsHt;
 	TSVector <GoodsEntry> GoodsList;
+	TSCollection <ClientEntry> ClientList;
 };
 //
 // 
@@ -10567,6 +11202,7 @@ int Ostankino::SendRest(StringSet & rSsFileName)
 					const GoodsEntry & r_goods_entry = GoodsList.at(i);
 					SXml::WNode n_g(p_x, Helper_GetToken(PPHSC_AGPLUS_GOODSITEMS_CAPS)); //ТОВАРЫ
 					GoodsRestParam gp;
+					gp.GoodsID = r_goods_entry.ID; // @v12.0.9 @fix (поверить не могу, что я не вставил этот критерий :( )
 					gp.Date = now_dtm.d;
 					P.LocList.Get(gp.LocList);
 					P_BObj->trfr->GetRest(gp);
@@ -12254,10 +12890,6 @@ int PrcssrSupplInterchange::Run()
 			StringSet ss_file_name;
 			PPWaitStart();
 			THROW(cli.Init());
-			if(actions & SupplInterchangeFilt::opExportClients) {
-				cli.SendGoods(ss_file_name);
-				cli.SendClients(ss_file_name);
-			}
 			if(actions & SupplInterchangeFilt::opExportStocks) {
 				cli.SendRest(ss_file_name);
 			}
@@ -12267,6 +12899,10 @@ int PrcssrSupplInterchange::Run()
 			if(actions & SupplInterchangeFilt::opExportBills) {
 				cli.SendOrders(ss_file_name);
 				cli.SendReceipts(ss_file_name);
+			}
+			if(actions & SupplInterchangeFilt::opExportClients) {
+				cli.SendGoods(ss_file_name);
+				cli.SendClients(ss_file_name);
 			}
 			if(ss_file_name.getCount()) {
 				cli.TransmitFiles(ss_file_name);

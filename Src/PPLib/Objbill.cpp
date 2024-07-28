@@ -1792,9 +1792,9 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 			loc_id = LConfig.Location;
 	}
 	if(loc_id) {
-		PPBillPacket rcpt_bpack;
-		PPBillPacket * p_rcpt_bpack = 0;
-		LAssocArray pos_to_src_lot_list; // Список ассоциаций номеров строк исходного документа с номерами строк p_rcpt_bpack, 
+		// PPBillPacket rcpt_bpack; // @v12.0.9 do-remove
+		PPBillPacketCollection rcpt_bpack_list; // @v12.0.9
+		// @v12.0.9 LAssocArray pos_to_src_lot_list; // Список ассоциаций номеров строк исходного документа с номерами строк p_rcpt_bpack, 
 			// для определения лотов, из которых необходимо расходовать товары.
 			// Используется при установленном флаге SelAddBySampleParam::fRcptAllOnShipm
 		PPBillPacket::SetupObjectBlock sob;
@@ -1844,9 +1844,10 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 					is_there_limited_goods = true;
 			}
 			if(is_there_limited_goods) {
-				PPID   rcpt_op_id = GetReceiptOp();
+				const  PPID   rcpt_op_id = GetReceiptOp();
 				PPOprKind rcpt_op_rec;
-				PPID   rcpt_ar_id = 0;
+				//PPID   rcpt_ar_id = 0;
+				PPID   default_suppl_id = 0;
 				PPBillPacket::SetupObjectBlock rcpt_sob;
 				// @v12.0.7 {
 				const  double ignore_epsilon = BillCore::GetQttyEpsilon();
@@ -1854,31 +1855,29 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 				lot_period.Set(ZERODATE, pack.Rec.Dt);
 				// } @v12.0.7 
 				THROW_PP(rcpt_op_id, PPERR_UNDEFRECEIPTOP);
-				THROW(rcpt_bpack.CreateBlank(rcpt_op_id, 0, loc_id, 1));
+				//THROW(rcpt_bpack.CreateBlank(rcpt_op_id, 0, loc_id, 1));
 				GetOpData(rcpt_op_id, &rcpt_op_rec);
-				rcpt_bpack.Rec.Dt = pack.Rec.Dt;
+				//rcpt_bpack.Rec.Dt = pack.Rec.Dt;
 				if(sample_pack.Rec.Object) {
 					ArticleTbl::Rec ar_rec;
 					PPID   temp_ar_id = 0;
 					if(ArObj.Fetch(sample_pack.Rec.Object, &ar_rec) > 0) {
 						if(ar_rec.AccSheetID == rcpt_op_rec.AccSheetID)
-							rcpt_ar_id = sample_pack.Rec.Object;
+							default_suppl_id = sample_pack.Rec.Object;
 						else if(ArObj.GetByPerson(rcpt_op_rec.AccSheetID, ObjectToPerson(sample_pack.Rec.Object, 0), &temp_ar_id) > 0)
-							rcpt_ar_id = temp_ar_id;
+							default_suppl_id = temp_ar_id;
 					}
 				}
-				THROW(rcpt_bpack.SetupObject(rcpt_ar_id, rcpt_sob));
-				{
-					PPObjBill::MakeCodeString(&sample_pack.Rec, PPObjBill::mcsAddObjName, temp_buf);
-					(rcpt_bpack.SMemo = "@autoreceipt").Space().Cat(temp_buf); // @v11.1.12
-				}
-				for(uint i = 0; i < sample_pack.GetTCount(); i++) {
-					const PPTransferItem & r_src_ti = sample_pack.ConstTI(i);
+				//THROW(rcpt_bpack.SetupObject(default_suppl_id, rcpt_sob));
+				//{
+					//PPObjBill::MakeCodeString(&sample_pack.Rec, PPObjBill::mcsAddObjName, temp_buf);
+					//(rcpt_bpack.SMemo = "@autoreceipt").Space().Cat(temp_buf); // @v11.1.12
+				//}
+				for(uint sample_pack_tiidx = 0; sample_pack_tiidx < sample_pack.GetTCount(); sample_pack_tiidx++) {
+					const PPTransferItem & r_src_ti = sample_pack.ConstTI(sample_pack_tiidx);
 					if(GObj.Fetch(r_src_ti.GoodsID, &goods_rec) > 0 && !(goods_rec.Flags & GF_UNLIM)) {
 						const PPID goods_id = labs(r_src_ti.GoodsID);
-						PPTransferItem ti;
 						LongArray row_idx_list;
-						ti.Init(&rcpt_bpack.Rec, 0, 0);
 						// @v12.0.7 {
 						const  double req_qtty = fabs(r_src_ti.Quantity_);
 						double deficit = 0.0;
@@ -1890,53 +1889,90 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 						}
 						// } @v12.0.7
 						if(!(pParam->Flags & SelAddBySampleParam::fRcptDfctOnShipm) || deficit > 0.0) {
+							PPTransferItem ti;
+							PPID   suppl_id = sample_pack.GetPrefSupplForTi(sample_pack_tiidx); // @v12.0.8
+							SETIFZ(suppl_id, default_suppl_id);
+							PPBillPacket * p_rcpt_bpack = rcpt_bpack_list.SearchByObject(suppl_id);
+							if(!p_rcpt_bpack) {
+								THROW_SL(p_rcpt_bpack = rcpt_bpack_list.CreateNewItem());
+								THROW(p_rcpt_bpack->CreateBlank(rcpt_op_id, 0, loc_id, 1));
+								THROW(p_rcpt_bpack->SetupObject(suppl_id, rcpt_sob));
+								p_rcpt_bpack->Rec.Dt = pack.Rec.Dt;
+								{
+									PPObjBill::MakeCodeString(&sample_pack.Rec, PPObjBill::mcsAddObjName, temp_buf);
+									(p_rcpt_bpack->SMemo = "@autoreceipt").Space().Cat(temp_buf);
+								}
+							}
+							ti.Init(&p_rcpt_bpack->Rec, 0, 0);
 							THROW(ti.SetupGoods(goods_id));
 							ti.RByBill = r_src_ti.RByBill;
 							ti.Quantity_ = (pParam->Flags & SelAddBySampleParam::fRcptDfctOnShipm) ? deficit : req_qtty;
-							ti.Cost = (r_src_ti.Cost > 0.0) ? r_src_ti.Cost : r_src_ti.Price;
+							{
+								PPSupplDeal supl_deal;
+								const QuotIdent suppl_deal_qi(p_rcpt_bpack->Rec.Dt, p_rcpt_bpack->Rec.LocID, 0, 0, suppl_id);
+								GObj.GetSupplDeal(ti.GoodsID, suppl_deal_qi, &supl_deal);
+								if(supl_deal.Cost > 0.0) {
+									ti.Cost = supl_deal.Cost;
+								}
+								else {
+									ti.Cost = (r_src_ti.Cost > 0.0) ? r_src_ti.Cost : r_src_ti.Price;
+								}
+							}
 							ti.Price = r_src_ti.Price;
 							ti.Expiry = r_src_ti.Expiry;
-							THROW(rcpt_bpack.InsertRow(&ti, &row_idx_list));
+							ti.SrcIltiPos = sample_pack_tiidx+1;
+							THROW(p_rcpt_bpack->InsertRow(&ti, &row_idx_list));
 							{
 								ObjTagList rcpt_row_tag_list;
 								assert(row_idx_list.getCount() == 1);
 								const uint ti_pos = row_idx_list.get(0);
-								if(sample_pack.LTagL.GetTagStr(i, PPTAG_LOT_SN, temp_buf) > 0)
+								if(sample_pack.LTagL.GetTagStr(sample_pack_tiidx, PPTAG_LOT_SN, temp_buf) > 0)
 									rcpt_row_tag_list.PutItemStr(PPTAG_LOT_SN, temp_buf);
-								if(sample_pack.LTagL.GetTagStr(i, PPTAG_LOT_CLB, temp_buf) > 0)
+								if(sample_pack.LTagL.GetTagStr(sample_pack_tiidx, PPTAG_LOT_CLB, temp_buf) > 0)
 									rcpt_row_tag_list.PutItemStr(PPTAG_LOT_CLB, temp_buf);
-								rcpt_bpack.LTagL.Set(ti_pos, &rcpt_row_tag_list);
-								pos_to_src_lot_list.Add(static_cast<long>(i), ti_pos);
+								p_rcpt_bpack->LTagL.Set(ti_pos, &rcpt_row_tag_list);
+								//pos_to_src_lot_list.Add(static_cast<long>(sample_pack_tiidx), ti_pos);
 							}
 						}
 					}
 				}
-				if(rcpt_bpack.GetTCount()) {
+				if(rcpt_bpack_list.getCount()) {
+					for(uint bpidx = 0; bpidx < rcpt_bpack_list.getCount(); bpidx++) {
+						PPBillPacket * p_rcpt_bpack_to_turn = rcpt_bpack_list.at(bpidx);
+						if(p_rcpt_bpack_to_turn && p_rcpt_bpack_to_turn->GetTCount()) {
+							THROW(p_rcpt_bpack_to_turn->InitAmounts());
+							THROW(FillTurnList(p_rcpt_bpack_to_turn));
+							THROW(TurnPacket(p_rcpt_bpack_to_turn, 1)); 
+						}
+					}
+				}
+				/*if(rcpt_bpack.GetTCount()) {
 					THROW(rcpt_bpack.InitAmounts());
 					THROW(FillTurnList(&rcpt_bpack));
 					THROW(TurnPacket(&rcpt_bpack, 1)); 
 					p_rcpt_bpack = &rcpt_bpack;
-					/*for(uint j = 0; j < rcpt_bpack.GetTCount(); j++) {
-						const PPTransferItem & r_ti = rcpt_bpack.ConstTI(j);
-						uint  pos = 0;
-						long  src_ti_pos = 0;
-						if(pos_to_src_lot_list.SearchByVal(j, &src_ti_pos, &pos)) {
-						}
-					}*/
-				}
+				}*/
 			}
 		}
 		{
 			if(pParam->Flags & (SelAddBySampleParam::fNonInteractive|SelAddBySampleParam::fRcptAllOnShipm|SelAddBySampleParam::fRcptDfctOnShipm)) {
-				for(uint i = 0; i < sample_pack.GetTCount(); i++) {
+				for(uint sample_pack_tiidx = 0; sample_pack_tiidx < sample_pack.GetTCount(); sample_pack_tiidx++) {
 					PPID   src_lot_id = 0;
-					if(p_rcpt_bpack) {
+					uint   rcpt_tiidx = 0;
+					const PPBillPacket * p_rcpt_bpack_ = rcpt_bpack_list.Search_SrcIltiPos(sample_pack_tiidx+1, &rcpt_tiidx);
+					if(p_rcpt_bpack_) {
+						assert(rcpt_tiidx < p_rcpt_bpack_->GetTCount());
+						const PPTransferItem & r_rcpt_ti = p_rcpt_bpack_->ConstTI(rcpt_tiidx);
+						src_lot_id = r_rcpt_ti.LotID;
+						assert(r_rcpt_ti.GoodsID == labs(sample_pack.ConstTI(sample_pack_tiidx).GoodsID));
+					}
+					/*if(p_rcpt_bpack) {
 						uint  pos = 0;
 						long  rcpt_ti_pos = 0;
-						if(pos_to_src_lot_list.Search(i, &rcpt_ti_pos, &pos))
+						if(pos_to_src_lot_list.Search(sample_pack_tiidx, &rcpt_ti_pos, &pos))
 							src_lot_id = p_rcpt_bpack->ConstTI(rcpt_ti_pos).LotID;
-					}
-					THROW(InsertShipmentItemByOrder(&pack, &sample_pack, i, src_lot_id, 0 /*noninteractive*/));
+					}*/
+					THROW(InsertShipmentItemByOrder(&pack, &sample_pack, sample_pack_tiidx, src_lot_id, 0 /*noninteractive*/));
 				}
 			}
 			if(pParam->Flags & pParam->fNonInteractive) {

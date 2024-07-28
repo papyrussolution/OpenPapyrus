@@ -8464,7 +8464,7 @@ public:
 //   известен способ создания и копирования элементов коллекции. Данная функция предполагает,
 //   что новые элементы создаются методом new а копируются штатным operator = ()
 //
-template <class T> int TSCollection_Copy(TSCollection <T> & rDest, const TSCollection <T> & rSrc)
+template <class T> bool TSCollection_Copy(TSCollection <T> & rDest, const TSCollection <T> & rSrc)
 {
 	rDest.freeAll();
 	for(uint i = 0; i < rSrc.getCount(); i++) {
@@ -8474,10 +8474,10 @@ template <class T> int TSCollection_Copy(TSCollection <T> & rDest, const TSColle
 			if(p_new_item)
 				*p_new_item = *p_src_item;
 			else
-				return 0;
+				return false;
 		}
 	}
-	return 1;
+	return true;
 }
 //
 // Descr: Сопоставляет две коллекции pC1 и pC2 на предмет равенства.
@@ -13219,7 +13219,7 @@ public:
 		Param(const Param & rS);
 		~Param();
 		Param & FASTCALL operator = (const Param & rS);
-		int    Copy(const Param & rS);
+		int    FASTCALL Copy(const Param & rS);
 		int    AddPathEntry(const SString & rValue);
 		int    AddRegEntry(const SString & rValue);
 		int    AddProfileEntry(const SString & rUser, const SString & rPassword);
@@ -14937,8 +14937,8 @@ public:
 	FShape(int kind = SHAPE_UNDEF);
 	FShape(const FShape & rS);
 	~FShape();
-	void  destroy();
-	int   FASTCALL Copy(const FShape & rS);
+	void   destroy();
+	int    FASTCALL Copy(const FShape & rS);
 	FShape & FASTCALL operator = (const FShape & rS);
 	FShape & FASTCALL operator = (const Rect &);
 	FShape & FASTCALL operator = (const RoundedRect &);

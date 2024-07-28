@@ -4918,7 +4918,7 @@ public:
 	int    getDTS(_SelCheck * pSelCheck);
 	void   SetList(const TSVector <CCheckViewItem> & rChkList);
 private:
-	void Helper_Constructor(CPosProcessor * pSrv, const AddedParam * pAddParam);
+	void   Helper_Constructor(CPosProcessor * pSrv, const AddedParam * pAddParam);
 	DECL_HANDLE_EVENT;
 	virtual int setupList();
 	virtual int addItem(long * pPos, long * pID);
@@ -4935,7 +4935,7 @@ private:
 	StrAssocArray FmtList;
 	TSVector <CCheckViewItem> ChkList;
 	TSVector <CCheckViewItem> PreserveOuterChkList;
-	TSCollection <PPBillPacket> BPackList; // @v11.8.7
+	PPBillPacketCollection BPackList; // @v11.8.7 key: Rec.ID
 	PPID   LastTopID/*LastChkID*/; // Последний активный идентификатор объекта (чека или документа) в основном списке
 	long   LastChkNo;
 	LDATE  LastDate;
@@ -8333,14 +8333,10 @@ void CheckPaneDialog::setupRetCheck(int ret)
 							r_cur_item.Quantity = -fabs(cclr.Quantity);
 							r_cur_item.Price    = intmnytodbl(cclr.Price);
 							r_cur_item.Discount = cclr.Dscnt;
-							// @v10.2.6 {
 							chk_pack.GetLineTextExt(1, CCheckPacket::lnextEgaisMark, temp_buf);
 							STRNSCPY(r_cur_item.EgaisMark, temp_buf);
-							// } @v10.2.6
-							// @v10.4.3 {
 							chk_pack.GetLineTextExt(1, CCheckPacket::lnextSerial, temp_buf);
 							STRNSCPY(r_cur_item.Serial, temp_buf);
-							// } @v10.4.3
 							// @v11.3.6 {
 							chk_pack.GetLineTextExt(1, CCheckPacket::lnextChZnSerial, temp_buf);
 							STRNSCPY(r_cur_item.ChZnSerial, temp_buf);
@@ -8432,8 +8428,7 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 					}
 				}
 				else {
-					// @v10.7.11 buf.Cat(PPGetWord(PPWORD_DISCOUNT, 0, temp_buf)).Space();
-					buf.Cat(PPLoadStringS("discount", temp_buf)).Space(); // @v10.7.11
+					buf.Cat(PPLoadStringS("discount", temp_buf)).Space();
 					buf.Cat(CSt.SettledDiscount, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar('%');
 					if(Flags & (fBankingPayment|fSCardCredit|fSCardBonus)) { // @bank_or_scard
 						if(CSt.AdditionalPayment > 0.0 && !(Flags & fSCardBonus)) {
@@ -8481,7 +8476,6 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 			buf.CatCharN(' ', 4);
 		buf.Cat(PPLoadStringS("rest", temp_buf)).CatDiv(':', 2).Cat(P.GetRest(), MKSFMTD(0, 3, NMBF_NOTRAILZ));
 	}
-	// @v10.3.9 {
 	if(Flags & fNoEdit) {
 		if(P_ChkPack) {
 			P_ChkPack->GetExtStrData(CCheckPacket::extssSign, temp_buf);
@@ -8497,7 +8491,6 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 			// } @v11.0.1 
 		}
 	}
-	// } @v10.3.9
 	setStaticText(CTL_CHKPAN_CAFE_STATUS, buf);
 	if(Flags & fNoEdit) {
 		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
@@ -9073,64 +9066,11 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 //
 //
 //
-int CheckPaneDialog::Helper_EgaisMarkAutoSelect(PPID goodsID, double qtty, TSCollection <EgaisMarkAutoSelectEntry> & rResult) // @v12.0.7 @construction
-{
-	int    ok = -1;
-	if(P_EgPrc && qtty != 0.0) {
-		Goods2Tbl::Rec goods_rec; // запись основного товара (который непосредственно продается)
-		Goods2Tbl::Rec org_goods_rec; // запись оригинального товара (из которого был произведен основной товар)
-		PPGoodsType gt_rec;
-		PPObjUnit unit_obj;
-		double main_goods_liter_ratio = 0.0;
-		if(goods_rec.PhUnitID && goods_rec.PhUPerU > 0.0) {
-			unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_LITER, &main_goods_liter_ratio);
-			main_goods_liter_ratio *= goods_rec.PhUPerU;
-		}
-		else {
-			unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &main_goods_liter_ratio);
-		}
-		if(main_goods_liter_ratio > 0.0) {
-			PPGoodsStruc::Ident gsi(goodsID, GSF_COMPL, GSF_PARTITIAL);
-			TSCollection <PPGoodsStruc> gs_list;
-			GObj.LoadGoodsStruc(gsi, gs_list);
-			for(uint gsidx = 0; !ok && gsidx < gs_list.getCount(); gsidx++) {
-				const PPGoodsStruc * p_gs = gs_list.at(gsidx);
-				if(p_gs) {
-					PPGoodsStrucItem gs_item;
-					double item_qtty = 0.0;
-					for(uint gs_pos = 0; p_gs->EnumItemsExt(&gs_pos, &gs_item, 0, qtty, &item_qtty) > 0;) {
-						if(P_EgPrc->IsAlcGoods(gs_item.GoodsID)) {
-							EgaisMarkAutoSelectEntry * p_entry = rResult.CreateNewItem();
-							p_entry->GoodsID = gs_item.GoodsID;
-						}
-						else {
-							// здесь нужна рекурсивная процедура поиска алкогольных позиций в структуре gs_item.GoodsID
-							// @todo Helper_EgaisMarkAutoSelect(gs_item.GoodsID, qtty, rResult);
-						}
-					}
-				}
-			}
-		}
-	}
-	return ok;
-}
-
 int CheckPaneDialog::EgaisMarkAutoSelect(PPID goodsID, double qtty, SString & rMarkBuf) // @v12.0.7 @construction
 {
 	rMarkBuf.Z();
 	int    ok = -1;
-	TSCollection <EgaisMarkAutoSelectEntry> result_list;
-	if(P_EgPrc) {
-		Goods2Tbl::Rec goods_rec; // запись основного товара (который непосредственно продается)
-		Goods2Tbl::Rec org_goods_rec; // запись оригинального товара (из которого был произведен основной товар)
-		if(qtty != 0.0 && GObj.Fetch(goodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
-			PPGoodsType gt_rec;
-			if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_EGAISAUTOWO) {
-				if(Helper_EgaisMarkAutoSelect(goodsID, qtty, result_list) > 0)
-					ok = 1;
-			}
-		}
-	}
+	// @todo
 	return ok;
 }
 

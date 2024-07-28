@@ -1,5 +1,5 @@
 // BITARRAY.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2004, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
+// Copyright (c) A.Sobolev 2000, 2001, 2004, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -12,10 +12,10 @@ SBitArray::SBitArray() : Count(0)
 	resetbitstring(P_Buf, Size);
 }
 
-SBitArray::SBitArray(const SBitArray & s) : Count(0)
+SBitArray::SBitArray(const SBitArray & rS) : Count(0)
 {
 	SBaseBuffer::Init();
-	Copy(s);
+	Copy(rS);
 }
 
 SBitArray::~SBitArray()
@@ -23,9 +23,9 @@ SBitArray::~SBitArray()
 	SBaseBuffer::Destroy();
 }
 
-SBitArray & FASTCALL SBitArray::operator = (const SBitArray & s)
+SBitArray & FASTCALL SBitArray::operator = (const SBitArray & rS)
 {
-	Copy(s);
+	Copy(rS);
 	return *this;
 }
 

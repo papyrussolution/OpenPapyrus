@@ -31,12 +31,12 @@ DlScope::DlScope(DLSYMBID id, uint kind, const char * pName, int prototype) : Sd
 #endif
 }
 
-DlScope::DlScope(const DlScope & s) :
+DlScope::DlScope(const DlScope & rS) :
 	SdRecord(), // Это - не copy-constructor так как функция копирования сделает работу, которую должен был выполнить copy-constructor базового класса
 	P_Parent(0), P_Base(0), P_IfaceBaseList(0), P_DbIdxSegFlags(0)
 {
 	FixDataBuf.Init();
-	Copy(s, 0);
+	Copy(rS, 0);
 }
 
 DlScope::~DlScope()
@@ -45,9 +45,9 @@ DlScope::~DlScope()
 	delete P_DbIdxSegFlags;
 }
 
-DlScope & FASTCALL DlScope::operator = (const DlScope & s)
+DlScope & FASTCALL DlScope::operator = (const DlScope & rS)
 {
-	Copy(s, 0);
+	Copy(rS, 0);
 	return *this;
 }
 

@@ -459,7 +459,8 @@ static const int16 AlbatrossStrIdList[] = { ALBATROSEXSTR_UHTTURN_unused, ALBATR
 
 int PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrossConfig * pCfg)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	SString tail;
 	SString temp_buf;
 	STempBuffer buffer(2048);

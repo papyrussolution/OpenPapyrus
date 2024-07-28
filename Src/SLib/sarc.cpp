@@ -1647,7 +1647,7 @@ SSystemBackup::Param & FASTCALL SSystemBackup::Param::operator = (const Param & 
 	return *this;
 }
 
-int SSystemBackup::Param::Copy(const Param & rS)
+int FASTCALL SSystemBackup::Param::Copy(const Param & rS)
 {
 	// Ver не копируем!
 	UedDataFormat = rS.UedDataFormat;

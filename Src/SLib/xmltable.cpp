@@ -43,7 +43,7 @@ void XmlDbFile::State::Reset()
 	P.Init(0, 0, 0, 0);
 }
 
-int XmlDbFile::State::Copy(const XmlDbFile::State & rS)
+int FASTCALL XmlDbFile::State::Copy(const XmlDbFile::State & rS)
 {
 	Pos = rS.Pos;
 	NumRecs = rS.NumRecs;
