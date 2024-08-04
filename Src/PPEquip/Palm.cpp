@@ -3297,12 +3297,12 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 			PPSetAddedMsgString(p_qk_tbl->getName());
 			for(i = 0; i < pPack->QkList__.GetCount(); i++) {
 				const  PPID qk_id = pPack->QkList__.Get(i);
-				PPQuotKind qk_rec;
-				if(qk_obj.Fetch(qk_id, &qk_rec) > 0) {
+				PPQuotKindPacket qk_pack;
+				if(qk_obj.Fetch(qk_id, &qk_pack) > 0) {
 					DbfRecord drec_qk(p_qk_tbl);
-					drec_qk.put(1, qk_rec.ID);
+					drec_qk.put(1, qk_pack.Rec.ID);
 					drec_qk.put(2, static_cast<long>(i+1));
-					drec_qk.put(3, qk_rec.Name);
+					drec_qk.put(3, qk_pack.Rec.Name);
 					THROW_PP(p_qk_tbl->appendRec(&drec_qk), PPERR_DBFWRFAULT);
 				}
 			}

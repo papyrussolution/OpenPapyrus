@@ -1815,8 +1815,8 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 			SJson * p_js_list = 0;
 			for(uint i = 0; i < qk_id_list.getCount(); i++) {
 				const  PPID qk_id = qk_id_list.get(i);
-				PPQuotKind2 qk_rec;
-				if(qk_obj.Fetch(qk_id, &qk_rec) > 0) {
+				PPQuotKindPacket qk_pack;
+				if(qk_obj.Fetch(qk_id, &qk_pack) > 0) {
 					if(export_zstock) {
 						mige_blk.GObj.P_Tbl->GetListByQuotKind(qk_id, single_loc_id, temp_list);
 						goods_list_by_qk.add(&temp_list);
@@ -1827,11 +1827,11 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 					}
 					SETIFZ(p_js_list, SJson::CreateArr());
 					SJson * p_jsobj = SJson::CreateObj();
-					p_jsobj->InsertInt("id", qk_rec.ID);
-					p_jsobj->InsertString("nm", (temp_buf = qk_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-					p_jsobj->InsertInt("rank", qk_rec.Rank); // @v11.6.8
+					p_jsobj->InsertInt("id", qk_pack.Rec.ID);
+					p_jsobj->InsertString("nm", (temp_buf = qk_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+					p_jsobj->InsertInt("rank", qk_pack.Rec.Rank); // @v11.6.8
 					p_js_list->InsertChild(p_jsobj);
-					qk_rec_list.insert(&qk_rec); // @v11.7.1
+					qk_rec_list.insert(&qk_pack.Rec); // @v11.7.1
 				}
 			}
 			pJs->InsertNz("quotkind_list", p_js_list);

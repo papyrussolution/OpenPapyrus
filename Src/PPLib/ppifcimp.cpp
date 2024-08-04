@@ -8714,8 +8714,8 @@ static PPID TranslateQuotKind(PpyQuotCat cat, long inQuotKindID)
 	}
 	{
 		PPObjQuotKind qk_obj;
-		PPQuotKind qk_rec;
-		THROW(qk_obj.Fetch(qk_id, &qk_rec) > 0);
+		PPQuotKindPacket qk_pack;
+		THROW(qk_obj.Fetch(qk_id, &qk_pack) > 0);
 	}
 	CATCH
 		qk_id = 0;

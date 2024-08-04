@@ -76,10 +76,7 @@ int PPQuotImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	SString params, fld_name, param_val;
 	THROW(PPImpExpParam::WriteIni(pFile, pSect));
 	THROW(PPLoadText(PPTXT_QUOTPARAMS, params));
-	struct I {
-		int    ID;
-		int32  Val;
-	} int_items[] = {
+	const LAssoc int_items[] = {
 		{PPQUOTPAR_QUOTKIND, QuotKindID},
 		{PPQUOTPAR_CURRENCY, CurrID},
 		{PPQUOTPAR_ARTICLE, ArID},
@@ -88,7 +85,7 @@ int PPQuotImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		{PPQUOTPAR_QUOTCAT, QuotCls} // @v11.4.2
 	};
 	for(uint i = 0; i < SIZEOFARRAY(int_items); i++) {
-		PPGetSubStr(params, int_items[i].ID, fld_name);
+		PPGetSubStr(params, int_items[i].Key, fld_name);
 		pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(int_items[i].Val), 1);
 	}
 	CATCHZOK
@@ -288,7 +285,6 @@ private:
 static int SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 {
 	const uint _rec_ident = PPREC_QUOTVAL;
-
 	int    ok = -1, valid_data = 0;
 	uint   p = 0;
 	long   id = 0;
@@ -335,7 +331,6 @@ static int SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 int PPQuotImporter::Run(const char * pCfgName, int use_ta)
 {
 	const uint _rec_ident = PPREC_QUOTVAL;
-
 	int    ok = 1, r = 0;
 	SString wait_msg, temp_buf, tok_buf;
 	ZDELETE(P_IE);
@@ -530,24 +525,21 @@ void PPGoodsImpExpParam::Clear()
 	if(dir > 0) {
 		if(SubCode.NotEmptyS())
 			param_list.Add(PPGOODSPAR_SUBCODE, temp_buf = SubCode);
-		if(AccSheetID)
-			param_list.Add(PPGOODSPAR_ACCSHEET, temp_buf.Z().Cat(AccSheetID));
-		if(SupplID)
-			param_list.Add(PPGOODSPAR_SUPPL, temp_buf.Z().Cat(SupplID));
-		if(DefUnitID)
-			param_list.Add(PPGOODSPAR_DEFUNIT, temp_buf.Z().Cat(DefUnitID));
-		if(PhUnitID)
-			param_list.Add(PPGOODSPAR_PHUNIT, temp_buf.Z().Cat(PhUnitID));
-		if(DefParentID)
-			param_list.Add(PPGOODSPAR_DEFPARENT, temp_buf.Z().Cat(DefParentID));
-		if(RcptOpID)
-			param_list.Add(PPGOODSPAR_RCPTOP, temp_buf.Z().Cat(RcptOpID));
-		if(Flags)
-			param_list.Add(PPGOODSPAR_FLAGS, temp_buf.Z().Cat(Flags));
-		if(LocID)
-			param_list.Add(PPGOODSPAR_LOC, temp_buf.Z().Cat(LocID));
-		if(MatrixAction)
-			param_list.Add(PPGOODSPAR_MATRIXACTION, temp_buf.Z().Cat(MatrixAction));
+		const LAssoc int_fld_list[] = {
+			{ AccSheetID, PPGOODSPAR_ACCSHEET },
+			{ SupplID, PPGOODSPAR_SUPPL },
+			{ DefUnitID, PPGOODSPAR_DEFUNIT },
+			{ PhUnitID, PPGOODSPAR_PHUNIT },
+			{ DefParentID, PPGOODSPAR_DEFPARENT },
+			{ RcptOpID, PPGOODSPAR_RCPTOP },
+			{ Flags, PPGOODSPAR_FLAGS },
+			{ LocID, PPGOODSPAR_LOC },
+			{ MatrixAction, PPGOODSPAR_MATRIXACTION },
+		};
+		for(uint i = 0; i < SIZEOFARRAY(int_fld_list); i++) {
+			if(int_fld_list[i].Key)
+				param_list.Add(int_fld_list[i].Val, temp_buf.Z().Cat(int_fld_list[i].Key));
+		}
 	}
 	THROW_SL(pSCtx->Serialize(dir, param_list, rTail));
 	if(dir < 0) {
@@ -740,7 +732,7 @@ IMPL_HANDLE_EVENT(GoodsImpExpDialog)
 void GoodsImpExpDialog::SetupCtrls(long direction)
 {
 	disableCtrls(direction == 0, CTL_IMPEXPGOODS_SUBCODE, CTLSEL_IMPEXPGOODS_SUPPL, CTLSEL_IMPEXPGOODS_UNIT, CTLSEL_IMPEXPGOODS_PHUNI,
-		CTLSEL_IMPEXPGOODS_GRP, CTLSEL_IMPEXPGOODS_OP, /* @v10.9.5 CTLSEL_IMPEXPGOODS_LOC,*/ CTL_IMPEXPGOODS_MXACT, 0L);
+		CTLSEL_IMPEXPGOODS_GRP, CTLSEL_IMPEXPGOODS_OP, CTL_IMPEXPGOODS_MXACT, 0L);
 	// @v11.6.2 {
 	const long idx_list[] = {0L, 1L, 2L, 3L, 4L, 5L};
 	DisableClusterItems(CTL_IMPEXPGOODS_FLAGS, LongArray(idx_list, SIZEOFARRAY(idx_list)), direction == 0);
@@ -998,7 +990,6 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 				QualityCertTbl::Rec qcert_rec;
 				sdr_goods.Price = rcpt_rec.Price;
 				sdr_goods.Cost  = rcpt_rec.Cost;
-				// @v10.7.5 sdr_goods.Rest  = rcpt_rec.Rest;
 				p_bobj->GetClbNumberByLot(rcpt_rec.ID, 0, temp_buf);
 				temp_buf.CopyTo(sdr_goods.Clb, sizeof(sdr_goods.Clb));
 				p_bobj->GetSerialNumberByLot(rcpt_rec.ID, temp_buf, 1);
@@ -1025,7 +1016,7 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 				sdr_goods.Price = extr_item.Price;
 				sdr_goods.Cost  = extr_item.Cost;
 			}
-			sdr_goods.PriceByOpenLot = (price_by_open_lot > 0.0) ? price_by_open_lot : sdr_goods.Price; // @v10.9.2
+			sdr_goods.PriceByOpenLot = (price_by_open_lot > 0.0) ? price_by_open_lot : sdr_goods.Price;
 		}
 		GetObjectName(PPOBJ_BRAND, pPack->Rec.BrandID, temp_buf);
 		temp_buf.CopyTo(sdr_goods.Brand, sizeof(sdr_goods.Brand));
@@ -1111,11 +1102,9 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 					STRNSCPY(sdr_goods.AddedCode, r_bc_rec.Code);
 					sdr_goods.AddedCodeQtty = r_bc_rec.Qtty;
 				}
-				// @v10.9.9 {
 				if(sdr_goods.PreferredCode[0] == 0 && IsInnerBarcodeType(r_bc_rec.BarcodeType, BARCODE_TYPE_PREFERRED)) {
 					STRNSCPY(sdr_goods.PreferredCode, r_bc_rec.Code);
 				}
-				// } @v10.9.9 
 			}
 		}
 		{
@@ -1176,27 +1165,20 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 			const LDATE cur_dt = getcurdate_();
 			sdr_goods.ExpiryFromCurDt = (sdr_goods.Expiry > cur_dt) ? diffdate(sdr_goods.Expiry, cur_dt) : 0;
 		}
-		//
-		// @v10.3.4 {
-		// дыруш
-		//
 		STRNSCPY(sdr_goods.FlgPassive, STextConst::GetBool(pPack->Rec.Flags & GF_PASSIV));
 		STRNSCPY(sdr_goods.FlgNoDiscount, STextConst::GetBool(pPack->Rec.Flags & GF_NODISCOUNT));
 		STRNSCPY(sdr_goods.FlgWantVetisCert, STextConst::GetBool(pPack->Rec.Flags & GF_WANTVETISCERT));
-		// } @v10.3.4 
 		P_IEGoods->GetParamConst().InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_goods);
 		{
 			GoodsContext::Param gcp;
             gcp.GoodsID = pPack->Rec.ID;
 			gcp.LocID = Param.LocID;
 			gcp.Qtty = 1.0;
-			// @v10.9.3 {
 			{
 				gcp.Price = sdr_goods.Price;
 				gcp.Cost = sdr_goods.Cost;
 				gcp.Flags |= (gcp.fCostSettled|gcp.fPriceSettled);
 			}
-			// } @v10.9.3 
 			GoodsContext ctx(gcp);
 			P_IEGoods->SetExprContext(&ctx);
 			THROW(P_IEGoods->AppendRecord(&sdr_goods, sizeof(sdr_goods)));
@@ -1249,7 +1231,7 @@ private:
 	int    CreateGoodsPacket(const Sdr_Goods2 & rRec, const char * pBarcode, PPGoodsPacket * pPack, PPLogger & rLogger);
 	int    AssignClassif(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack);
 	int    AssignEgaisCode(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack, PPLogger & rLogger);
-	int    AssignFlags(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack); // @v10.3.4
+	int    AssignFlags(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack);
 	int    Helper_ProcessDirForImages(const char * pPath, ImageFileBlock & rBlk);
 	void   SetupNameExt(PPGoodsPacket & rPack, const SString & rGoodsNameExt, const char * pExtLongNameLetter);
 
@@ -1726,7 +1708,7 @@ int PPGoodsImporter::PutUnit(const Sdr_Goods2 & rRec, PPID defPhUnitID, PPID def
 					*p = '.';
 				val_buf.CatChar(*p++);
 			}
-			double phperu = satof(val_buf); // @v10.7.9 atof-->satof
+			double phperu = satof(val_buf);
 			if(phperu > 0.0) {
 				temp_buf = rRec.PhUnitName;
 				if(temp_buf.NotEmptyS()) {
@@ -2050,7 +2032,7 @@ void PPGoodsImporter::SetupNameExt(PPGoodsPacket & rPack, const SString & rGoods
 	}
 }
 
-int PPGoodsImporter::AssignFlags(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack) 	// @v10.3.4 
+int PPGoodsImporter::AssignFlags(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack)
 {
 	const  long org_flags = pPack->Rec.Flags;
 	if(!isempty(rRec.FlgPassive)) {
@@ -2728,7 +2710,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 								else {
 									if(sdr_rec.MinStock > 0.0)
 										pack.Stock.SetMinStock(Param.LocID, sdr_rec.MinStock);
-									AssignFlags(sdr_rec, &pack); // @v10.3.4
+									AssignFlags(sdr_rec, &pack);
 									if(GObj.PutPacket(&goods_id, &pack, 0)) {
 										if(ar_code.NotEmpty()) {
 											//
@@ -2794,7 +2776,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 									ti.Price       = R2(fabs(sdr_rec.Price));
 									ti.QCert       = qcert_id;
 									ti.Expiry      = sdr_rec.Expiry;
-									if(ti.QCert || ti.Price || ti.Quantity_ || ti.UnitPerPack) { // @v10.7.9 @fix ti.Rest_-->ti.Quantity_
+									if(ti.QCert || ti.Price != 0.0 || ti.Quantity_ != 0.0 || ti.UnitPerPack != 0.0) {
 										THROW(p_pack->InsertRow(&ti, 0));
 										(temp_buf2 = sdr_rec.Clb).Strip();
 										if(temp_buf2.Len()) {
@@ -2808,7 +2790,6 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										}
 									}
 								}
-								// @v10.7.9 {
 								else if(__rest < 0.0 && op_for_neg_rest_id) {
 									PPTransferItem ti;
 									THROW(bill_ident_negop.Get(&sdr_rec, 0));
@@ -2820,7 +2801,6 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 									ti.Price       = R2(fabs(sdr_rec.Price));
 									THROW(p_pack->InsertRow(&ti, 0));
 								}
-								// } @v10.7.9 
 							}
 							if(oneof4(matrix_action, 0, 1, 1000, 1001)) {
 								PPQuot quot(goods_id);

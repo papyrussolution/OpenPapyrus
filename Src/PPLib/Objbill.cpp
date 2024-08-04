@@ -5109,7 +5109,7 @@ int PPObjBill::SelectQuotKind(PPBillPacket * pPack, const PPTransferItem * pTi, 
 	int    ok = -1;
 	QuotKindSelDialog * dlg = 0;
 	PPObjQuotKind qkobj;
-	PPQuotKind qk_rec;
+	PPQuotKindPacket qk_pack;
 	PPID   qk_id = 0;
 	PPIDArray ql;
 	double quot = 0.0;
@@ -5138,9 +5138,9 @@ int PPObjBill::SelectQuotKind(PPBillPacket * pPack, const PPTransferItem * pTi, 
 				QuotKindSelItem item;
 				MEMSZERO(item);
 				item.ID = ql.get(i);
-				if(qkobj.Fetch(item.ID, &qk_rec) > 0) {
-					STRNSCPY(item.Name, qk_rec.Name);
-					item.Rank = qk_rec.Rank;
+				if(qkobj.Fetch(item.ID, &qk_pack) > 0) {
+					STRNSCPY(item.Name, qk_pack.Rec.Name);
+					item.Rank = qk_pack.Rec.Rank;
 					const QuotIdent qi(QIDATE(pPack->Rec.Dt), loc_id, item.ID, pTi->CurID, pPack->Rec.Object);
 					if(GObj.GetQuotExt(goods_id, qi, cost, price, &quot, 1) > 0)
 						if(!q_ary.IsDisabled(qi, &ql, &parent_q_ary)) {
@@ -6631,16 +6631,14 @@ int PPObjBill::GetMarkListByLot(PPID lotID, StringSet & rSs)
 {
 	rSs.Z();
 	int    ok = -1;
-	if(P_LotXcT) {
-		if(lotID) {
-			ReceiptTbl::Rec lot_rec;
-			if(trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
-				DateIter di;
-				TransferTbl::Rec trfr_rec;
-				if(trfr->EnumByLot(lotID, &di, &trfr_rec) > 0 && trfr_rec.Flags & PPTFR_RECEIPT) {
-					if(P_LotXcT->GetListByBillRow(trfr_rec.BillID, trfr_rec.RByBill, false, rSs, 0) > 0) {
-						ok = 1;
-					}
+	if(P_LotXcT && lotID) {
+		ReceiptTbl::Rec lot_rec;
+		if(trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
+			DateIter di;
+			TransferTbl::Rec trfr_rec;
+			if(trfr->EnumByLot(lotID, &di, &trfr_rec) > 0 && trfr_rec.Flags & PPTFR_RECEIPT) {
+				if(P_LotXcT->GetListByBillRow(trfr_rec.BillID, trfr_rec.RByBill, false, rSs, 0) > 0) {
+					ok = 1;
 				}
 			}
 		}

@@ -648,7 +648,7 @@ int PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 	int    ok = 1;
 	id = labs(id);
 	pPack->Z();
-	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+	if(PPCheckGetObjPacketID(Obj, id)) {
 		ok = Search(id, &pPack->Rec);
 		if(ok > 0) {
 			if(pPack->Rec.PhUPerU == HUGE_VAL)

@@ -3725,9 +3725,8 @@ int PPBillPacket::GetQuotExt(const PPTransferItem & rTi, double * pPrice)
 			const QuotIdent qi(QIDATE(rTi.Date), rTi.LocID, qk_list.get(i), 0 /* curID */, 0 /* arID */);
 			if((r = goods_obj.GetQuotExt(labs(rTi.GoodsID), qi, rTi.Cost, *pPrice, &result, 1)) > 0) {
 				ok = r;
-				break; // @v10.2.12
+				break;
 			}
-			// @v10.2.12 (An unconditional 'break' within a loop) break;
 		}
 	}
 	ASSIGN_PTR(pPrice, result);

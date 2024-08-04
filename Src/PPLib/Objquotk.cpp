@@ -123,21 +123,49 @@ int PPQuotKind2::GetRestrText(SString & rBuf) const
 //
 PPQuotKindPacket::PPQuotKindPacket()
 {
-	// @v10.6.5 Init();
 }
 
-void PPQuotKindPacket::Init()
+PPQuotKindPacket & PPQuotKindPacket::Z()
 {
+	PPExtStrContainer::Z(); // @v12.0.10
 	MEMSZERO(Rec);
+	return *this;
 }
 
-int PPQuotKindPacket::GetCalculatedQuot(double cost, double basePrice, double * pQuot, long * pFlags) const
+int PPQuotKindPacket::GetCalculatedQuot(PPID goodsID, double cost, double basePrice, double * pQuot, long * pFlags) const
 {
 	int    ok = -1;
 	double quot = 0.0;
 	const  double discount = Rec.Discount;
 	const  long   flags    = Rec.Flags;
-	if(basePrice > 0.0 || (cost && flags & QUOTKF_PCTDISONCOST)) {
+	// @v12.0.10 {
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	GetExtStrData(extssFormula, r_temp_buf);
+	if(r_temp_buf.NotEmptyS()) {
+		SString formula(r_temp_buf);
+		PPGdsClsPacket gc_pack;
+		PPGoodsPacket goods_pack;
+		PPGdsClsPacket * p_gc_pack = 0;
+		PPGoodsPacket * p_goods_pack = 0;
+		if(goodsID) {
+			PPObjGoods goods_obj;
+			if(goods_obj.GetPacket(goodsID, &goods_pack, PPObjGoods::gpoSkipQuot) > 0) {
+				p_goods_pack = &goods_pack;
+				if(goods_pack.Rec.GdsClsID) {
+					PPObjGoodsClass gc_obj;
+					if(gc_obj.Fetch(goods_pack.Rec.GdsClsID, &gc_pack) > 0)
+						p_gc_pack = &gc_pack;
+				}
+			}
+		}
+		GdsClsCalcExprContext ctx(p_gc_pack, p_goods_pack);
+		double value = 0.0;
+		if(PPCalcExpression(formula, &value, &ctx) && value > 0.0) {
+			quot = value;
+			ok = 1;
+		}
+	}  // } @v12.0.10 
+	else if(basePrice > 0.0 || (cost && flags & QUOTKF_PCTDISONCOST)) {
 		if(discount != 0.0 || (flags & (QUOTKF_ABSDIS | QUOTKF_PCTDISONCOST))) {
 			if(flags & QUOTKF_ABSDIS)
 				quot = basePrice - discount;
@@ -145,19 +173,13 @@ int PPQuotKindPacket::GetCalculatedQuot(double cost, double basePrice, double * 
 				quot = cost - fdiv100r(cost * discount);
 			else
 				quot = basePrice - fdiv100r(basePrice * discount);
-			quot = PPObjQuotKind::RoundUpPrice(Rec.ID, quot); // @v10.9.11 QuotKindRounding
+			quot = PPObjQuotKind::RoundUpPrice(Rec.ID, quot);
 			ok = 1;
 		}
 	}
 	ASSIGN_PTR(pQuot, quot);
 	ASSIGN_PTR(pFlags, flags);
 	return ok;
-}
-
-PPQuotKindPacket & FASTCALL PPQuotKindPacket::operator = (const PPQuotKindPacket & aPack)
-{
-	Rec = aPack.Rec;
-	return *this;
 }
 //
 //
@@ -170,10 +192,7 @@ PPObjQuotKind::Special::Special(CtrOption ctrOption)
 	}
 }
 
-int FASTCALL PPObjQuotKind::Special::IsSupplDealKind(PPID qkID) const
-{
-	return oneof3(qkID, SupplDealID, SupplDevUpID, SupplDevDnID);
-}
+int FASTCALL PPObjQuotKind::Special::IsSupplDealKind(PPID qkID) const { return oneof3(qkID, SupplDealID, SupplDevUpID, SupplDevDnID); }
 
 int FASTCALL PPObjQuotKind::Special::GetCategory(PPID qkID) const
 {
@@ -214,9 +233,9 @@ void PPObjQuotKind::Special::GetDefaults(int quotCls, PPID qkID, PPID * pAcsID, 
 		default:
 			{
 				PPObjQuotKind qk_obj;
-				PPQuotKind qk_rec;
-				if(new_qk_id && qk_obj.Fetch(new_qk_id, &qk_rec) > 0 && qk_rec.AccSheetID)
-					acc_sheet_id = qk_rec.AccSheetID;
+				PPQuotKindPacket qk_pack;
+				if(new_qk_id && qk_obj.Fetch(new_qk_id, &qk_pack) > 0 && qk_pack.Rec.AccSheetID)
+					acc_sheet_id = qk_pack.Rec.AccSheetID;
 				else
 					acc_sheet_id = GetSellAccSheet();
 				qk_sel_extra = 1;
@@ -240,10 +259,10 @@ void PPObjQuotKind::Special::GetDefaults(int quotCls, PPID qkID, PPID * pAcsID, 
 	int    use_default_rounding = 1;
 	if(quotKindID) {
 		PPObjQuotKind qk_obj;
-		PPQuotKind qk_rec;
-		if(qk_obj.Fetch(quotKindID, &qk_rec) > 0 && qk_rec.Flags & QUOTKF_USEROUNDING) {
-			dir = qk_rec.RoundingDir;
-			prec = qk_rec.RoundingPrec;
+		PPQuotKindPacket qk_pack;
+		if(qk_obj.Fetch(quotKindID, &qk_pack) > 0 && qk_pack.Rec.Flags & QUOTKF_USEROUNDING) {
+			dir = qk_pack.Rec.RoundingDir;
+			prec = qk_pack.Rec.RoundingPrec;
 			use_default_rounding = 0;
 		}
 	}
@@ -270,8 +289,8 @@ int PPObjQuotKind::Classify(PPID id, int * pCls)
 {
 	int    ok = -1;
 	int    cls = PPQuot::clsGeneral;
-	PPQuotKind rec;
-	if(id && Fetch(id, &rec) > 0) {
+	PPQuotKindPacket qk_pack;
+	if(id && Fetch(id, &qk_pack) > 0) {
 		const PPObjQuotKind::Special spc(PPObjQuotKind::Special::ctrInitializeWithCache);
 		if(oneof2(id, spc.MtxID, spc.MtxRestrID))
 			cls = PPQuot::clsMtx;
@@ -301,7 +320,7 @@ int PPObjQuotKind::MakeReserved(long flags)
 		PPQuotKind temp_rec;
 		PPID   id = p_rez->getUINT();
 		p_rez->getString(name, 2);
-		PPExpandString(name, CTRANSF_UTF8_TO_INNER); // @v9.2.1
+		PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 		p_rez->getString(symb, 2);
 		pack.Rec.ID = id;
 		name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
@@ -331,10 +350,9 @@ int PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 			//
 			// Если котировка не матричная И ("не для документов" либо нам это безразлично)
 			//
-			if(id != matrix_qk_id && !(p_item->Flags & QUOTKF_NOTFORBILL) && p_item->Period.CheckDate(dt)) {
+			if(id != matrix_qk_id && (id != PPQUOTK_ESTBOMVALUE) && !(p_item->Flags & QUOTKF_NOTFORBILL) && p_item->Period.CheckDate(dt)) { // @v12.0.10 (id != PPQUOTK_ESTBOMVALUE)
 				//
-				// Если для вида котировки определен вид операции, то безусловно проверяем
-				// соответствие нашей операции этому виду.
+				// Если для вида котировки определен вид операции, то безусловно проверяем соответствие нашей операции этому виду.
 				//
 				if(p_item->OpID) {
 					if(IsOpBelongTo(opID, p_item->OpID))
@@ -349,10 +367,7 @@ int PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 							pList->addUnique(id);
 					}
 					else {
-						//
-						// Остальные виды операций безусловно могут использовать этот вид котировки
-						//
-						pList->addUnique(id);
+						pList->addUnique(id); // Остальные виды операций безусловно могут использовать этот вид котировки
 					}
 				}
 			}
@@ -360,8 +375,6 @@ int PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 	}
 	return pList->getCount() ? 1 : -1;
 }
-
-//IMPL_CMPFUNC(RankNName, i1, i2);
 
 IMPL_CMPFUNC(PPQuotKind_RankName, i1, i2)
 {
@@ -389,30 +402,30 @@ int PPObjQuotKind::ArrangeList(const LDATETIME & rDtm, PPIDArray & rQkList, long
 		uint i;
 		SArray qk_list(sizeof(PPQuotKind));
 		for(i = 0; i < c; i++) {
-			PPQuotKind qk_rec;
+			PPQuotKindPacket qk_pack;
 			const  PPID qk_id = rQkList.get(i);
-			if(Fetch(qk_id, &qk_rec) > 0) {
+			if(Fetch(qk_id, &qk_pack) > 0) {
 				int    suited = 1;
 				TimeRange tmr;
 				int    trcr = 0;
-				if(rDtm.t && qk_rec.GetTimeRange(tmr) && !(flags & RTLPF_USEQUOTWTIME && (trcr = tmr.Check(rDtm.t)) != 0))
+				if(rDtm.t && qk_pack.Rec.GetTimeRange(tmr) && !(flags & RTLPF_USEQUOTWTIME && (trcr = tmr.Check(rDtm.t)) != 0))
 					suited = 0;
-				else if(rDtm.d && !qk_rec.Period.IsZero()) {
-					if(!qk_rec.Period.CheckDate(rDtm.d))
+				else if(rDtm.d && !qk_pack.Rec.Period.IsZero()) {
+					if(!qk_pack.Rec.Period.CheckDate(rDtm.d))
 						suited = 0;
-					else if(qk_rec.HasWeekDayRestriction()) {
+					else if(qk_pack.Rec.HasWeekDayRestriction()) {
 						if(trcr == 2) {
-							if(!qk_rec.CheckWeekDay(plusdate(rDtm.d, -1)))
+							if(!qk_pack.Rec.CheckWeekDay(plusdate(rDtm.d, -1)))
 								suited = 0;
 						}
 						else {
-							if(!qk_rec.CheckWeekDay(rDtm.d))
+							if(!qk_pack.Rec.CheckWeekDay(rDtm.d))
 								suited = 0;
 						}
 					}
 				}
 				if(suited)
-					qk_list.insert(&qk_rec);
+					qk_list.insert(&qk_pack.Rec);
 			}
 		}
 		qk_list.sort(PTR_CMPFUNC(PPQuotKind_RankName));
@@ -473,11 +486,11 @@ int PPObjQuotKind::GetRetailQuotList(LDATETIME dtm, PPIDArray * pList, long flag
 {
 	int    ok = 1;
 	if(flags & RTLPF_USEQKCACHE) {
-		PPQuotKind qk_rec;
+		PPQuotKindPacket qk_pack;
 		PPIDArray list, tm_list;
 		FetchRtlList(list, tm_list);
 		if(flags & RTLPF_PRICEBYQUOT) {
-			if(Fetch(PPQUOTK_BASE, &qk_rec) > 0) {
+			if(Fetch(PPQUOTK_BASE, &qk_pack) > 0) {
 				PPID   id = PPQUOTK_BASE;
 				list.atInsert(0, &id);
 			}
@@ -486,36 +499,36 @@ int PPObjQuotKind::GetRetailQuotList(LDATETIME dtm, PPIDArray * pList, long flag
 		if(tmc && (dtm.d || dtm.t)) {
 			for(uint i = 0; i < tmc; i++) {
 				int    suited = 1;
-				if(Fetch(tm_list.get(i), &qk_rec) > 0) {
+				if(Fetch(tm_list.get(i), &qk_pack) > 0) {
 					TimeRange tmr;
 					int    trcr = 0;
 					if(flags & RTLPF_IGNCONDQUOTS) {
-						if(qk_rec.GetTimeRange(tmr) || !qk_rec.Period.IsZero() || qk_rec.HasWeekDayRestriction())
+						if(qk_pack.Rec.GetTimeRange(tmr) || !qk_pack.Rec.Period.IsZero() || qk_pack.Rec.HasWeekDayRestriction())
 							suited = 0;
 					}
 					else {
-						if(qk_rec.GetTimeRange(tmr) && dtm.t && !(flags & RTLPF_USEQUOTWTIME && (trcr = tmr.Check(dtm.t)) != 0))
+						if(qk_pack.Rec.GetTimeRange(tmr) && dtm.t && !(flags & RTLPF_USEQUOTWTIME && (trcr = tmr.Check(dtm.t)) != 0))
 							suited = 0;
 						else if(dtm.d) {
-							if(!qk_rec.Period.IsZero() && !qk_rec.Period.CheckDate(dtm.d))
+							if(!qk_pack.Rec.Period.IsZero() && !qk_pack.Rec.Period.CheckDate(dtm.d))
 								suited = 0;
-							else if(qk_rec.HasWeekDayRestriction()) {
+							else if(qk_pack.Rec.HasWeekDayRestriction()) {
 								if(trcr == 2) {
-									if(!qk_rec.CheckWeekDay(plusdate(dtm.d, -1)))
+									if(!qk_pack.Rec.CheckWeekDay(plusdate(dtm.d, -1)))
 										suited = 0;
 								}
 								else {
-									if(!qk_rec.CheckWeekDay(dtm.d))
+									if(!qk_pack.Rec.CheckWeekDay(dtm.d))
 										suited = 0;
 								}
 							}
 						}
-					} // @v10.0.01
+					}
 				}
 				else
 					suited = 0;
 				if(!suited)
-					list.freeByKey(qk_rec.ID, 0);
+					list.freeByKey(qk_pack.Rec.ID, 0);
 			}
 		}
 		ASSIGN_PTR(pList, list);
@@ -525,14 +538,15 @@ int PPObjQuotKind::GetRetailQuotList(LDATETIME dtm, PPIDArray * pList, long flag
 	return ok;
 }
 
-int PPObjQuotKind::GetCalculatedQuot(PPID id, double cost, double basePrice, double * pQuot, long * pFlags)
+int PPObjQuotKind::GetCalculatedQuot(PPID id, PPID goodsID, double cost, double basePrice, double * pQuot, long * pFlags)
 {
-	PPQuotKindPacket pack;
-	return (Fetch(id, &pack.Rec) > 0) ? pack.GetCalculatedQuot(cost, basePrice, pQuot, pFlags) : 0;
+	PPQuotKindPacket qk_pack;
+	return (Fetch(id, &qk_pack) > 0) ? qk_pack.GetCalculatedQuot(goodsID, cost, basePrice, pQuot, pFlags) : 0;
 }
 
 int PPObjQuotKind::IsPacketEq(const PPQuotKindPacket & rS1, const PPQuotKindPacket & rS2, long flags)
 {
+	const  int exfl[] = { PPQuotKindPacket::extssFormula }; // @v12.0.10
 #define CMP_MEMB(m)  if(rS1.Rec.m != rS2.Rec.m) return 0;
 #define CMP_MEMBS(m) if(!sstreq(rS1.Rec.m, rS2.Rec.m)) return 0;
 	CMP_MEMB(ID);
@@ -550,10 +564,12 @@ int PPObjQuotKind::IsPacketEq(const PPQuotKindPacket & rS1, const PPQuotKindPack
 	CMP_MEMB(Flags);
 	CMP_MEMB(OpID);
 	CMP_MEMB(AccSheetID);
-	CMP_MEMB(RoundingPrec);   // @v10.9.10
-	CMP_MEMB(RoundingDir);    // @v10.9.10
+	CMP_MEMB(RoundingPrec);
+	CMP_MEMB(RoundingDir);
 #undef CMP_MEMBS
 #undef CMP_MEMB
+	if(!rS1.PPExtStrContainer::IsEq(rS2, SIZEOFARRAY(exfl), exfl)) // @v12.0.10
+		return 0;
 	return 1;
 }
 
@@ -562,6 +578,14 @@ int PPObjQuotKind::GetPacket(PPID id, PPQuotKindPacket * pPack)
 	int    ok = 1;
 	PPQuotKindPacket pack;
 	THROW(Search(id, &pack.Rec) > 0);
+	// @v12.0.10 {
+	{
+		SString text_buf;
+		THROW(P_Ref->UtrC.GetText(TextRefIdent(Obj, id, PPTRPROP_QUOTKIND), text_buf));
+		text_buf.Transf(CTRANSF_UTF8_TO_INNER);
+		pack.SetBuffer(text_buf.Strip());
+	}
+	// } @v12.0.10 
 	ASSIGN_PTR(pPack, pack);
 	CATCHZOK
 	return ok;
@@ -570,6 +594,7 @@ int PPObjQuotKind::GetPacket(PPID id, PPQuotKindPacket * pPack)
 int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 {
 	int    ok = 1;
+	SString ext_buffer;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -581,6 +606,10 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 					THROW(CheckDupName(*pID, pPack->Rec.Name));
 					THROW(CheckRights(PPR_MOD));
 					THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
+					// @v12.0.10 {
+					(ext_buffer = pPack->GetBuffer()).Strip();
+					THROW(P_Ref->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_QUOTKIND), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+					// } @v12.0.10 
 				}
 			}
 			else {
@@ -589,15 +618,20 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 					PPObjGoods goods_obj;
 					THROW(goods_obj.P_Tbl->RemoveAllQuotForQuotKind(*pID, 0));
 					THROW(P_Ref->RemoveItem(Obj, *pID, 0));
+					THROW(P_Ref->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_QUOTKIND), static_cast<const wchar_t *>(0), 0)); // @v12.0.10
 					THROW(RemoveSync(*pID));
 				}
 			}
 		}
-		else {
+		else if(pPack) {
 			THROW(CheckRights(PPR_INS));
 			THROW(CheckDupName(*pID, pPack->Rec.Name));
 			*pID = pPack->Rec.ID;
 			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
+			// @v12.0.10 {
+			(ext_buffer = pPack->GetBuffer()).Strip();
+			THROW(P_Ref->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_QUOTKIND), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
+			// } @v12.0.10
 		}
 		THROW(tra.Commit());
 	}
@@ -642,6 +676,7 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 			THROW(tra);
 			THROW(goods_obj.P_Tbl->RemoveAllQuotForQuotKind(id, 0));
 			THROW(P_Ref->RemoveItem(Obj, id, 0));
+			THROW(P_Ref->UtrC.SetText(TextRefIdent(Obj, id, PPTRPROP_QUOTKIND), static_cast<const wchar_t *>(0), 0)); // @v12.0.10
 			THROW(RemoveSync(id));
 			THROW(tra.Commit());
 		}
@@ -656,10 +691,7 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 	return r;
 }
 
-int PPObjQuotKind::SearchSymb(PPID * pID, const char * pSymb)
-{
-	return P_Ref->SearchSymb(Obj, pID, pSymb, offsetof(PPQuotKind, Symb));
-}
+int PPObjQuotKind::SearchSymb(PPID * pID, const char * pSymb) { return P_Ref->SearchSymb(Obj, pID, pSymb, offsetof(PPQuotKind, Symb)); }
 
 StrAssocArray * PPObjQuotKind::MakeStrAssocList(void * extraPtr)
 {
@@ -693,16 +725,16 @@ SArray * PPObjQuotKind::MakeListByIDList(const PPIDArray * pList)
 	SArray * p_ary = 0;
 	THROW_MEM(p_ary = new SArray(sizeof(PPObjQuotKind::ListEntry)));
 	for(i = 0; i < pList->getCount(); i++) {
-		PPQuotKind qk_rec;
+		PPQuotKindPacket qk_pack;
 		PPID   qk_id = pList->at(i);
 		int    r;
-		if((r = Fetch(qk_id, &qk_rec)) > 0 || qk_id == PPQUOTK_BASE) {
+		if((r = Fetch(qk_id, &qk_pack)) > 0 || qk_id == PPQUOTK_BASE) {
 			MEMSZERO(entry);
 			entry.ID = qk_id;
 			if(r < 0)
 				PPLoadString("basequote", temp_buf);
 			else
-				temp_buf = qk_rec.Name;
+				temp_buf = qk_pack.Rec.Name;
 			STRNSCPY(entry.Name, temp_buf);
 			THROW_SL(p_ary->insert(&entry));
 		}
@@ -872,6 +904,7 @@ public:
 	}
 	DECL_DIALOG_SETDTS()
 	{
+		SString temp_buf;
 		PPIDArray  op_type_list;
 		RVALUEPTR(Data, pData);
 		setCtrlData(CTL_QUOTKIND_NAME, Data.Rec.Name);
@@ -889,10 +922,15 @@ public:
 		AddClusterAssoc(CTL_QUOTKIND_FLAGS, 2, QUOTKF_RETAILED);
 		AddClusterAssoc(CTL_QUOTKIND_FLAGS, 3, QUOTKF_PASSIVE); // @v12.0.8
 		SetClusterData(CTL_QUOTKIND_FLAGS, Data.Rec.Flags);
+		// @v12.0.10 {
 		{
-			SString restr_text;
-			Data.Rec.GetRestrText(restr_text);
-			setStaticText(CTL_QUOTKIND_ST_RESTR, restr_text);
+			Data.GetExtStrData(PPQuotKindPacket::extssFormula, temp_buf);
+			setCtrlString(CTL_QUOTKIND_FORMULA, temp_buf);
+		}
+		// } @v12.0.10 
+		{
+			Data.Rec.GetRestrText(temp_buf);
+			setStaticText(CTL_QUOTKIND_ST_RESTR, temp_buf);
 		}
 		// @v10.9.10 @construction {
 		{
@@ -920,6 +958,7 @@ public:
 	{
 		int    ok = 1;
 		uint   sel = 0;
+		SString temp_buf;
 		getCtrlData(sel = CTL_QUOTKIND_NAME, Data.Rec.Name);
 		THROW_PP(*strip(Data.Rec.Name) != 0, PPERR_NAMENEEDED);
 		THROW(P_ObjRef->CheckDupName(Data.Rec.ID, Data.Rec.Name));
@@ -929,6 +968,12 @@ public:
 		getCtrlData(CTLSEL_QUOTKIND_OP, &Data.Rec.OpID);
 		getCtrlData(CTLSEL_QUOTKIND_ACCSHEET, &Data.Rec.AccSheetID);
 		GetClusterData(CTL_QUOTKIND_FLAGS, &Data.Rec.Flags);
+		// @v12.0.10 {
+		{
+			getCtrlString(CTL_QUOTKIND_FORMULA, temp_buf);
+			Data.PutExtStrData(PPQuotKindPacket::extssFormula, temp_buf);
+		}
+		// } @v12.0.10 
 		GetDiscount(this, CTL_QUOTKIND_DISCOUNT, &Data.Rec);
 		getCtrlData(CTL_QUOTKIND_RANK,  &Data.Rec.Rank);
 		// @v10.9.10 @construction {
@@ -993,12 +1038,10 @@ private:
 		disableCtrl(CTL_QUOTKIND_PERIOD, Data.Rec.ID == PPQUOTK_BASE);
 		ShowCalCtrl(CTLCAL_QUOTKIND_PERIOD, this, !(Data.Rec.ID == PPQUOTK_BASE));
 		disableCtrl(CTL_QUOTKIND_TIMEPERIOD, Data.Rec.ID == PPQUOTK_BASE || not_retailed);
-		// @v10.9.10 {
 		{
 			const long rp = GetClusterData(CTL_QUOTKIND_RNDGDIR);
 			disableCtrl(CTL_QUOTKIND_RNDGPREC, rp == 0);
 		}
-		// } @v10.9.10 
 	}
 	void   SetTimePeriod(TDialog * pDlg);
 	int    GetTimePeriod(TDialog * pDlg);
@@ -1112,7 +1155,7 @@ int PPObjQuotKind::Edit(PPID * pID, void * extraPtr)
 		THROW(GetPacket(*pID, &pack) > 0);
 	}
 	else {
-		pack.Init();
+		pack.Z();
 	}
 	p_dlg->setDTS(&pack);
 	while(!valid_data && (r = ExecView(p_dlg)) == cmOK) {
@@ -1238,10 +1281,10 @@ SString & PPObjQuotKind::MakeCodeString(const PPQuot * pQuot, SString & rBuf)
 {
 	rBuf.Z();
 	if(pQuot) {
-		PPQuotKind qk_rec;
+		PPQuotKindPacket qk_pack;
 		SString temp_buf;
-		if(Fetch(pQuot->Kind, &qk_rec) > 0)
-			rBuf.Cat(qk_rec.Name);
+		if(Fetch(pQuot->Kind, &qk_pack) > 0)
+			rBuf.Cat(qk_pack.Rec.Name);
 		else
 			ideqvalstr(pQuot->Kind, rBuf);
 		rBuf.CatDiv('-', 1).Cat(GetGoodsName(pQuot->GoodsID, temp_buf));
@@ -1349,11 +1392,11 @@ int QuotKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjQuotKind qk_obj;
-	PPQuotKind rec;
-	if(qk_obj.Search(id, &rec) > 0) {
-#define CPY_FLD(Fld) p_cache_rec->Fld=rec.Fld
+	PPQuotKindPacket pack;
+	if(qk_obj.GetPacket(id, &pack) > 0) {
+#define CPY_FLD(Fld) p_cache_rec->Fld=pack.Rec.Fld
 		CPY_FLD(Discount);
-		CPY_FLD(RoundingPrec); // @v10.9.11
+		CPY_FLD(RoundingPrec);
 		CPY_FLD(Period);
 		CPY_FLD(AmtRestr);
 		CPY_FLD(OpID);
@@ -1362,10 +1405,21 @@ int QuotKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		CPY_FLD(BeginTm);
 		CPY_FLD(EndTm);
 		CPY_FLD(Rank);
-		CPY_FLD(RoundingDir); // @v10.9.11
+		CPY_FLD(RoundingDir);
 		CPY_FLD(DaysOfWeek);
 #undef CPY_FLD
-		ok = PutName(rec.Name, p_cache_rec);
+		// @v12.0.10 ok = PutName(pack.Rec.Name, p_cache_rec);
+		// @v12.0.10 {
+		PPStringSetSCD ss;
+		ss.add(pack.Rec.Name);
+		ss.add(pack.Rec.Symb);
+		{
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			pack.GetExtStrData(PPQuotKindPacket::extssFormula, r_temp_buf);
+			ss.add(r_temp_buf);
+		}
+		ok = PutName(ss.getBuf(), p_cache_rec);
+		// } @v12.0.10 
 	}
 	else
 		ok = -1;
@@ -1374,11 +1428,12 @@ int QuotKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 
 void QuotKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPQuotKind * p_data_rec = static_cast<PPQuotKind *>(pDataRec);
+	PPQuotKindPacket * p_data_pack = static_cast<PPQuotKindPacket *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
-	memzero(p_data_rec, sizeof(*p_data_rec));
-#define CPY_FLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
-	p_data_rec->Tag = PPOBJ_QUOTKIND;
+	//memzero(p_data_rec, sizeof(*p_data_rec));
+	p_data_pack->Z();
+#define CPY_FLD(Fld) p_data_pack->Rec.Fld=p_cache_rec->Fld
+	p_data_pack->Rec.Tag = PPOBJ_QUOTKIND;
 	CPY_FLD(ID);
 	CPY_FLD(Discount);
 	CPY_FLD(Period);
@@ -1390,10 +1445,26 @@ void QuotKindCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 	CPY_FLD(Flags);
 	CPY_FLD(AccSheetID);
 	CPY_FLD(AmtRestr);
-	CPY_FLD(RoundingPrec); // @v10.9.11
-	CPY_FLD(RoundingDir);  // @v10.9.11
+	CPY_FLD(RoundingPrec);
+	CPY_FLD(RoundingDir);
 #undef CPY_FLD
-	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
+	// @v12.0.10 GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
+	// @v12.0.10 {
+	{
+		char   temp_buf[1024];
+		GetName(pEntry, temp_buf, sizeof(temp_buf));
+		PPStringSetSCD ss;
+		ss.setBuf(temp_buf, sstrlen(temp_buf)+1);
+		uint   p = 0;
+		ss.get(&p, p_data_pack->Rec.Name, sizeof(p_data_pack->Rec.Name));
+		ss.get(&p, p_data_pack->Rec.Symb, sizeof(p_data_pack->Rec.Symb));
+		{
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			ss.get(&p, r_temp_buf);
+			p_data_pack->PutExtStrData(PPQuotKindPacket::extssFormula, r_temp_buf);
+		}
+	}
+	// } @v12.0.10
 }
 
 int QuotKindCache::FetchSpecialKinds(PPObjQuotKind::Special * pSk)
@@ -1418,7 +1489,7 @@ int QuotKindCache::FetchSpecialKinds(PPObjQuotKind::Special * pSk)
 	return 1;
 }
 
-IMPL_OBJ_FETCH(PPObjQuotKind, PPQuotKind, QuotKindCache);
+IMPL_OBJ_FETCH(PPObjQuotKind, PPQuotKindPacket, QuotKindCache); // @v12.0.10 PPQuotKind-->PPQuotKindPacket
 
 int PPObjQuotKind::FetchRtlList(PPIDArray & rList, PPIDArray & rTmList)
 {

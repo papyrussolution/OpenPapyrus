@@ -7275,7 +7275,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
 	PPObjQuotKind qk_obj;
-	PPQuotKind qk_rec;
+	PPQuotKindPacket qk_pack;
 	double ext_price = 0.0;
 	double upp = 0.0; // Емкость упаковки
 	int    tiamt;
@@ -7283,12 +7283,12 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 	uint   n = static_cast<uint>(I.nn);
 	const  PPID qk_id = p_pack->Ext.ExtPriceQuotKindID;
 	const  long exclude_tax_flags = H.fSupplIsVatExempt ? GTAXVF_VAT : 0L;
-	const  int  extprice_by_base = BIN(qk_obj.Fetch(qk_id, &qk_rec) > 0 && qk_rec.Flags & QUOTKF_EXTPRICEBYBASE);
+	const  bool extprice_by_base = (qk_obj.Fetch(qk_id, &qk_pack) > 0 && qk_pack.Rec.Flags & QUOTKF_EXTPRICEBYBASE);
 	int    treat_as_unlim = 0;
 	do {
 		price_chng = 1; // Цена изменилась по отношению к предыдущему лоту. Если не установлен флаг pfPrintChangedPriceOnly, то игнорируется.
 		treat_as_unlim = 0;
-		if(p_pack->EnumTItemsExt(&p_extra->Iter, &temp_ti, &p_extra->Item/*tiie*/) > 0) { // @v10.3.6 0-->&p_extra->Iter
+		if(p_pack->EnumTItemsExt(&p_extra->Iter, &temp_ti, &p_extra->Item/*tiie*/) > 0) {
 			n++;
 			p_ti = &temp_ti;
 			if(p_pack->ProcessFlags & PPBillPacket::pfPrintOnlyUnlimGoods && goods_obj.Fetch(p_ti->GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
@@ -7718,13 +7718,12 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 	double upp = 0.0; // Емкость упаковки
 	long   exclude_tax_flags = H.fSupplIsVatExempt ? GTAXVF_VAT : 0L;
 	int    tiamt;
-	// @v10.3.0 (never used) int    price_chng = 1;
 	uint   n = static_cast<uint>(I.nn);
 	PPObjGoods goods_obj;
 	PPObjQuotKind qk_obj;
-	PPQuotKind qk_rec;
+	PPQuotKindPacket qk_pack;
 	const  PPID qk_id = p_pack->Ext.ExtPriceQuotKindID;
-	const  int  extprice_by_base = BIN(qk_obj.Fetch(qk_id, &qk_rec) > 0 && qk_rec.Flags & QUOTKF_EXTPRICEBYBASE);
+	const  bool extprice_by_base = (qk_obj.Fetch(qk_id, &qk_pack) > 0 && qk_pack.Rec.Flags & QUOTKF_EXTPRICEBYBASE);
 	do {
 		if(p_pack->EnumTItemsExt(0, &temp_ti, &tiie) > 0) {
 			n++;

@@ -259,6 +259,7 @@
 				MENUITEM "@cmd_woodbreed",				cmWoodBreed
 			} */
 			MENUITEM "@cmd_transport",					cmTransport
+			MENUITEM "@cmd_rawmaterials",               cmRawMaterials // @v12.0.10
 			MENUITEM "@cmd_timeseries",                 cmTimeSeries // @v10.2.3
 			MENUITEM "@cmd_tssmodel",                   cmTssModel   // @v10.7.4
 		}

@@ -209,6 +209,98 @@ int SRecPageManager::Write(uint64 * pRowId, uint pageType, const void * pData, s
 	return ok;
 }
 
+int SRecPageManager::UpdateOnPage(SDataPage_ * pPage, uint64 rowId, uint pageType, const void * pData, size_t dataLen)
+{
+	int    ok = -1;
+	uint   seq = 0;
+	uint   ofs = 0;
+	SDataPageHeader::RecPrefix pfx;
+	SRecPageFreeList::UpdGroup ug;
+	THROW(pPage && pPage->IsConsistent());
+	THROW(SRecPageManager::SplitRowId(rowId, &seq, &ofs));
+	assert(pPage->VerifySeq(seq)); // Вызывающая функция не должна была передать неверное сочетание параметров!
+	THROW(pPage->VerifySeq(seq));
+	{
+		const uint   page_size = pPage->GetSize();
+		const uint32 pfx_size = pPage->ReadRecPrefix(ofs, pfx);
+		THROW(pfx_size);
+		THROW(!(pfx.Flags & SDataPageHeader::RecPrefix::fDeleted)); // Мы изменяем запись - следовательно блок не может свободным
+		if(pfx.PayloadSize == dataLen) {
+			SRecPageFreeList::Entry new_free_entry;
+			const uint64 post_write_rowid = pPage->Write(ofs, pData, dataLen, &new_free_entry);
+			THROW(post_write_rowid);
+			assert(post_write_rowid == rowId);
+			if(new_free_entry.RowId) {
+				THROW(Fl.Put(pPage->GetType(), new_free_entry.RowId, new_free_entry.FreeSize));
+			}
+			ok = 1; // everything is done
+		}
+		else if(pfx.PayloadSize > dataLen) {
+			SRecPageFreeList::Entry new_free_entry;
+			const uint64 post_write_rowid = pPage->Write(ofs, pData, dataLen, &new_free_entry);
+			THROW(post_write_rowid);
+			assert(post_write_rowid == rowId);
+			THROW(Fl.Put(pPage->GetType(), new_free_entry.RowId, new_free_entry.FreeSize));
+			{
+				SRecPageFreeList::UpdGroup fbug;
+				THROW(pPage->MergeFreeEntries(fbug));
+				{
+					for(uint i = 0; i < fbug.ListToRemove.getCount(); i++) {
+						const SRecPageFreeList::Entry & r_fe = fbug.ListToRemove.at(i);
+						THROW(Fl.Remove(pPage->GetType(), r_fe.RowId));
+					}
+				}
+				{
+					for(uint i = 0; i < fbug.ListToAdd.getCount(); i++) {
+						const SRecPageFreeList::Entry & r_fe = fbug.ListToAdd.at(i);
+						THROW(Fl.Put(pPage->GetType(), r_fe.RowId, r_fe.FreeSize));
+					}
+				}
+			}
+			ok = 1; // everything is done
+		}
+		else { // (pfx.PayloadSize < dataLen)
+			//bool do_insert_and_delete = true;
+			// Сначала проверим нет ли за изменяемым блоком свободного пространства...
+			const uint ofs_next = ofs + pfx.TotalSize;
+			if(ofs_next < page_size) {
+				SDataPageHeader::RecPrefix pfx_next;	
+				const uint32 pfx_next_size = pPage->ReadRecPrefix(ofs_next, pfx_next);
+				THROW(pfx_next_size);
+				if(pfx_next.IsDeleted()) {
+					// Предполагаем, что страница нормализована, то есть на ней нет двух или более последовательных свободных блоков
+					SDataPageHeader::RecPrefix hypot_pfx;
+					hypot_pfx.SetTotalSize(pfx.TotalSize + pfx_next.TotalSize, 0);
+					uint32 hypot_pfx_size = SDataPageHeader::EvaluateRecPrefix(hypot_pfx, 0, 0);
+					THROW(hypot_pfx_size);
+					if(hypot_pfx.PayloadSize >= dataLen) {
+						SDataPageHeader::RecPrefix new_rp;
+						SRecPageFreeList::Entry new_free_entry;
+						THROW(pPage->MarkOutBlock(ofs, hypot_pfx.TotalSize, &new_rp));
+						uint64 row_id_to_remove_from_fl = MakeRowId(page_size, pPage->GetSeq(), ofs_next);
+						THROW(row_id_to_remove_from_fl);
+						THROW(Fl.Remove(pPage->GetType(), row_id_to_remove_from_fl));
+						const uint64 post_write_rowid = pPage->Write(ofs, pData, dataLen, &new_free_entry);
+						THROW(post_write_rowid);
+						assert(post_write_rowid == rowId);
+						THROW(Fl.Put(pPage->GetType(), new_free_entry.RowId, new_free_entry.FreeSize));
+						ok = 1; // everything is done
+					}
+				}
+			}
+			else {
+				THROW(ofs_next == page_size); // @todo @err
+			}
+			assert(oneof2(ok, -1, 1)); // В этой точке ok не может быть равен 0 (только -1 или 1: нулевое значение устанавливается в CATCH ниже)
+			if(ok < 0) {
+				// Мы не смогли справиться с изменением записи в рамках одной страницы: дальнейшая работа на советсти вызывающей функции
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SRecPageManager::Update(uint64 rowId, uint64 * pNewRowId, uint pageType, const void * pData, size_t dataLen) // @todo
 {
 	//
@@ -229,75 +321,23 @@ int SRecPageManager::Update(uint64 rowId, uint64 * pNewRowId, uint pageType, con
 	//    заменой ссылок, что сильно усугубит падение производительности.
 	//
 	int    ok = 1;
-	uint   ofs = 0;
 	uint64 new_row_id = 0;
+	uint   ofs = 0;
 	SDataPage_ * p_page = QueryPageForWriting(rowId, 0/*pageType*/, &ofs);
-	SDataPageHeader::RecPrefix pfx;
-	SRecPageFreeList::UpdGroup ug;
-	THROW(p_page);
-	const uint32 pfx_size = p_page->ReadRecPrefix(ofs, pfx);
-	THROW(pfx_size);
-	THROW(!(pfx.Flags & SDataPageHeader::RecPrefix::fDeleted)); // Мы изменяем запись - следовательно блок не может свободным
-	if(pfx.PayloadSize == dataLen) {
-		SRecPageFreeList::Entry new_free_entry;
-		const uint64 post_write_rowid = p_page->Write(ofs, pData, dataLen, &new_free_entry);
-		THROW(post_write_rowid);
-		assert(post_write_rowid == rowId);
-		THROW(Fl.Put(p_page->GetType(), new_free_entry.RowId, new_free_entry.FreeSize));
-		new_row_id = rowId;
-	}
-	else if(pfx.PayloadSize > dataLen) {
-		SRecPageFreeList::Entry new_free_entry;
-		const uint64 post_write_rowid = p_page->Write(ofs, pData, dataLen, &new_free_entry);
-		THROW(post_write_rowid);
-		assert(post_write_rowid == rowId);
-		THROW(Fl.Put(p_page->GetType(), new_free_entry.RowId, new_free_entry.FreeSize));
-		new_row_id = rowId;
-	}
-	else { // (pfx.PayloadSize < dataLen)
-		bool do_insert_and_delete = true;
-		// Сначала проверим нет ли за изменяемым блоком свободного пространства...
-		const uint ofs_next = ofs + pfx.TotalSize;
-		if(ofs_next < p_page->GetSize()) {
-			SDataPageHeader::RecPrefix pfx_next;	
-			const uint32 pfx_next_size = p_page->ReadRecPrefix(ofs_next, pfx_next);
-			THROW(pfx_next_size);
-			if(pfx_next.IsDeleted()) {
-				// Предполагаем, что страница нормализована, то есть на ней нет двух или более последовательных свободных блоков
-				SDataPageHeader::RecPrefix hypot_pfx;
-				hypot_pfx.SetTotalSize(pfx.TotalSize + pfx_next.TotalSize, 0);
-				uint32 hypot_pfx_size = SDataPageHeader::EvaluateRecPrefix(hypot_pfx, 0, 0);
-				THROW(hypot_pfx_size);
-				if(hypot_pfx.PayloadSize >= dataLen) {
-					SDataPageHeader::RecPrefix new_rp;
-					SRecPageFreeList::Entry new_free_entry;
-					THROW(p_page->MarkOutBlock(ofs, hypot_pfx.TotalSize, &new_rp));
-					uint64 row_id_to_remove_from_fl = MakeRowId(p_page->GetSize(), p_page->GetSeq(), ofs_next);
-					THROW(row_id_to_remove_from_fl);
-					THROW(Fl.Remove(p_page->GetType(), row_id_to_remove_from_fl));
-					const uint64 post_write_rowid = p_page->Write(ofs, pData, dataLen, &new_free_entry);
-					THROW(post_write_rowid);
-					assert(post_write_rowid == rowId);
-					THROW(Fl.Put(p_page->GetType(), new_free_entry.RowId, new_free_entry.FreeSize));
-					new_row_id = rowId;
-					//
-					do_insert_and_delete = false; // мы все сделали: блок ниже не будет проводить процедуру удаления-вставки
-				}
-			}
-		}
-		else {
-			THROW(ofs_next == p_page->GetSize()); // @todo @err
-		}
-		if(do_insert_and_delete) {
-			THROW(DeleteFromPage(p_page, rowId)); // Здесь нельзя использовать Delete() поскольку возникнет двойное блокирование страницы
-			// Перед вызовом Write мы должны освободить страницу
-			ReleasePage(p_page);
-			p_page = 0; // обнуляем указатель чтобы ReleasePage ниже не пыталась второй раз освобождать его
-			THROW(Write(&new_row_id, pageType, pData, dataLen));
-		}
+	THROW(p_page && p_page->IsConsistent());
+	ok = UpdateOnPage(p_page, rowId, pageType, pData, dataLen);
+	THROW(ok);
+	if(ok < 0) {
+		THROW(DeleteFromPage(p_page, rowId)); // Здесь нельзя использовать Delete() поскольку возникнет двойное блокирование страницы
+		// Перед вызовом Write мы должны освободить страницу
+		ReleasePage(p_page);
+		p_page = 0; // обнуляем указатель чтобы ReleasePage ниже не пыталась второй раз освобождать его
+		THROW(Write(&new_row_id, pageType, pData, dataLen));
+		ok = 1;
 	}
 	CATCHZOK
 	ReleasePage(p_page);
+	ASSIGN_PTR(pNewRowId, new_row_id);
 	return ok;
 }
 
@@ -314,19 +354,21 @@ int SRecPageManager::DeleteFromPage(SDataPage_ * pPage, uint64 rowId)
 		SRecPageFreeList::Entry free_entry;
 		THROW(pPage->Delete(offset, &free_entry));
 		{
-			SRecPageFreeList::UpdGroup fbug;
 			THROW(Fl.Put(pPage->GetType(), free_entry.RowId, free_entry.FreeSize));
-			THROW(pPage->MergeFreeEntries(fbug));
 			{
-				for(uint i = 0; i < fbug.ListToRemove.getCount(); i++) {
-					const SRecPageFreeList::Entry & r_fe = fbug.ListToRemove.at(i);
-					THROW(Fl.Remove(pPage->GetType(), r_fe.RowId));
+				SRecPageFreeList::UpdGroup fbug;
+				THROW(pPage->MergeFreeEntries(fbug));
+				{
+					for(uint i = 0; i < fbug.ListToRemove.getCount(); i++) {
+						const SRecPageFreeList::Entry & r_fe = fbug.ListToRemove.at(i);
+						THROW(Fl.Remove(pPage->GetType(), r_fe.RowId));
+					}
 				}
-			}
-			{
-				for(uint i = 0; i < fbug.ListToAdd.getCount(); i++) {
-					const SRecPageFreeList::Entry & r_fe = fbug.ListToAdd.at(i);
-					THROW(Fl.Put(pPage->GetType(), r_fe.RowId, r_fe.FreeSize));
+				{
+					for(uint i = 0; i < fbug.ListToAdd.getCount(); i++) {
+						const SRecPageFreeList::Entry & r_fe = fbug.ListToAdd.at(i);
+						THROW(Fl.Put(pPage->GetType(), r_fe.RowId, r_fe.FreeSize));
+					}
 				}
 			}
 		}

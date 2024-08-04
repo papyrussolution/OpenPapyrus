@@ -748,7 +748,6 @@ static IMPL_DBE_PROC(dbqf_objname_arbyacc_i)
 
 static IMPL_DBE_PROC(dbqf_objname_loc_i)
 {
-	//dbqf_objname_i <PPObjLocation, LocationTbl::Rec> (option, result, params);
 	LocationTbl::Rec rec;
 	if(!DbeInitSize(option, result, sizeof(rec.Name))) {
 		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, rec.Name);
@@ -773,6 +772,21 @@ static IMPL_DBE_PROC(dbqf_objname_loc_i)
 	}
 }
 
+static IMPL_DBE_PROC(dbqf_objname_quotkind_i) 
+{ 
+	PPQuotKindPacket pack;
+	if(!DbeInitSize(option, result, sizeof(pack.Rec.Name))) {
+		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, pack.Rec.Name);
+		if(id) {
+			PPObjQuotKind _obj;
+			_obj.Fetch(id, &pack);
+			if(pack.Rec.Name[0] == 0)
+				ideqvalstr(id, pack.Rec.Name, sizeof(pack.Rec.Name));
+		}
+		result->InitForeignStr(pack.Rec.Name);
+	}
+}
+
 static IMPL_DBE_PROC(dbqf_objname_billstatus_i) { dbqf_objname_i <PPObjBillStatus, PPBillStatus> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_ar_i) { dbqf_objname_i <PPObjArticle, ArticleTbl::Rec> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_unit_i) { dbqf_objname_i <PPObjUnit, PPUnit> (option, result, params); }
@@ -782,7 +796,6 @@ static IMPL_DBE_PROC(dbqf_objname_person_i) { dbqf_objname_i <PPObjPerson, Perso
 static IMPL_DBE_PROC(dbqf_objname_staff_i) { dbqf_objname_i <PPObjStaffList, PPStaffEntry> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_staffcal_i) { dbqf_objname_i <PPObjStaffCal, PPStaffCal> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_accsheet_i) { dbqf_objname_i <PPObjAccSheet, PPAccSheet> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_quotkind_i) { dbqf_objname_i <PPObjQuotKind, PPQuotKind> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_cashnode_i) { dbqf_objname_i <PPObjCashNode, PPCashNode> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_psnopkind_i) { dbqf_objname_i <PPObjPsnOpKind, PPPsnOpKind> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_brand_i) { dbqf_objname_i <PPObjBrand, PPBrand> (option, result, params); }
@@ -1328,7 +1341,7 @@ int PPDbqFuncPool::IdObjNameSCardSer   	 = 0; //
 int PPDbqFuncPool::IdObjNameDebtDim    	 = 0; //
 int PPDbqFuncPool::IdDateTime          	 = 0; // (fldDate, fldTime)
 int PPDbqFuncPool::IdInventDiffQtty    	 = 0; //
-int PPDbqFuncPool::IdInventLnStatus    	 = 0; // @v10.5.8 (fldFlags, fldBillID)
+int PPDbqFuncPool::IdInventLnStatus    	 = 0; // (fldFlags, fldBillID)
 int PPDbqFuncPool::IdTSesLnPhQtty      	 = 0; //
 int PPDbqFuncPool::IdTSesLnFlags       	 = 0; //
 int PPDbqFuncPool::IdPercent           	 = 0; // (100 * fld1 / fld2)
@@ -1380,7 +1393,7 @@ int PPDbqFuncPool::IdBillAgentName       = 0; // (billID) Наименование агента по
 int PPDbqFuncPool::IdRegisterText        = 0; // (registerID) Текст описания регистрационного документа
 int PPDbqFuncPool::IdObjRegisterText     = 0; // (registerTypeID, objtype, objid)
 int PPDbqFuncPool::IdObjTagText  = 0; // (tagid, objid) Текстовое представление тега объекта
-int PPDbqFuncPool::IdObjTagText_NoCache  = 0; // @v10.3.8
+int PPDbqFuncPool::IdObjTagText_NoCache  = 0;
 int PPDbqFuncPool::IdDateRange   = 0; // 
 //int PPDbqFuncPool::IdObjNameOpTypeK    = 0; // 
 int PPDbqFuncPool::IdOidText     = 0; // (objType, objID) Текстовое представление полного OID
@@ -1388,9 +1401,9 @@ int PPDbqFuncPool::IdDateBase    = 0; // (dateValue, baseDate) Текстовое предста
 int PPDbqFuncPool::IdBillFrghtStrgLoc    = 0; // 
 int PPDbqFuncPool::IdSCardExtString      = 0; // (scardID, fldId)
 int PPDbqFuncPool::IdStrByStrGroupPos    = 0; // (position, (const SStrGroup *)) Возвращает строку из пула строк, идентифицируемую позицией position
-int PPDbqFuncPool::IdBillDate    = 0; // @v10.0.03
-int PPDbqFuncPool::IdUnxText     = 0; // @v10.7.2  
-int PPDbqFuncPool::IdIsTxtUuidEq = 0; // @v10.9.10
+int PPDbqFuncPool::IdBillDate    = 0;
+int PPDbqFuncPool::IdUnxText     = 0;
+int PPDbqFuncPool::IdIsTxtUuidEq = 0;
 int PPDbqFuncPool::IdArIsCatPerson       = 0; // @v11.1.9 (fldArticle, personCategoryID) Определяет соотносится ли статья fldArticle с персоналией, имеющей категорию personCategoryID
 int PPDbqFuncPool::IdObjMemoPerson       = 0; // @v11.1.12 (fldPersonID)
 int PPDbqFuncPool::IdObjMemoPersonEvent  = 0; // @v11.1.12 (fldPersonEventID)

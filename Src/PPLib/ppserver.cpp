@@ -3411,7 +3411,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 						}
 						if(goods_id_list.getCount()) {
 							PPObjQuotKind qk_obj;
-							PPQuotKind2 qk_rec;
+							PPQuotKindPacket qk_pack;
 							PPIDArray raw_qk_id_list;
 							PPIDArray qk_id_list;
 							SJson * p_js_goods_list = 0;
@@ -3469,18 +3469,18 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 									qk_obj.ArrangeList(getcurdatetime_(), qk_id_list, RTLPF_USEQUOTWTIME);
 									for(uint qki = 0; qki < qk_id_list.getCount(); qki++) {
 										const  PPID qk_id = qk_id_list.get(qki);
-										if(qk_obj.Fetch(qk_id, &qk_rec) > 0) {
+										if(qk_obj.Fetch(qk_id, &qk_pack) > 0) {
 											SJson * p_js_qk = SJson::CreateObj();
-											p_js_qk->InsertInt("id", qk_rec.ID);
-											p_js_qk->InsertString("nm", (temp_buf = qk_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
-											p_js_qk->InsertInt("rank", qk_rec.Rank);
-											if(qk_rec.DaysOfWeek) {
-												p_js_qk->InsertInt("daysofweek", qk_rec.DaysOfWeek);
+											p_js_qk->InsertInt("id", qk_pack.Rec.ID);
+											p_js_qk->InsertString("nm", (temp_buf = qk_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
+											p_js_qk->InsertInt("rank", qk_pack.Rec.Rank);
+											if(qk_pack.Rec.DaysOfWeek) {
+												p_js_qk->InsertInt("daysofweek", qk_pack.Rec.DaysOfWeek);
 											}
-											if(qk_rec.BeginTm || qk_rec.EndTm) {
-												p_js_qk->InsertString("begintm", temp_buf.Z().Cat(PTR8C(&qk_rec.BeginTm)[0]).Colon().Cat(PTR8C(&qk_rec.BeginTm)[1]));
-												if(qk_rec.EndTm)
-													p_js_qk->InsertString("endtm", temp_buf.Z().Cat(PTR8C(&qk_rec.EndTm)[0]).Colon().Cat(PTR8C(&qk_rec.EndTm)[1]));
+											if(qk_pack.Rec.BeginTm || qk_pack.Rec.EndTm) {
+												p_js_qk->InsertString("begintm", temp_buf.Z().Cat(PTR8C(&qk_pack.Rec.BeginTm)[0]).Colon().Cat(PTR8C(&qk_pack.Rec.BeginTm)[1]));
+												if(qk_pack.Rec.EndTm)
+													p_js_qk->InsertString("endtm", temp_buf.Z().Cat(PTR8C(&qk_pack.Rec.EndTm)[0]).Colon().Cat(PTR8C(&qk_pack.Rec.EndTm)[1]));
 											}
 											{
 												SETIFZQ(p_js_qk_list, SJson::CreateArr());

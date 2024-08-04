@@ -10629,14 +10629,15 @@ int EgaisMarkAutoSelector::Helper(PPID goodsID, double qtty, ResultBlock & rResu
 					if(p_gs) {
 						PPGoodsStrucItem gs_item;
 						double item_qtty = 0.0;
+						Entry * p_entry = 0;
 						for(uint gs_pos = 0; p_gs->EnumItemsExt(&gs_pos, &gs_item, 0, qtty, &item_qtty) > 0;) {
 							if(P_EgPrc->IsAlcGoods(gs_item.GoodsID)) {
 								lot_list.clear();
 								p_trfr->Rcpt.GetList(gs_item.GoodsID, 0, 0, ZERODATE, ReceiptCore::glfWithExtCodeOnly, &lot_list);
 								if(lot_list.getCount()) {
-									Entry * p_entry = 0;
 									for(uint lotidx = 0; lotidx < lot_list.getCount(); lotidx++) {
 										const ReceiptTbl::Rec & r_lot_rec = lot_list.at(lotidx);
+										_TerminalEntry * p_te = 0;
 										if(p_bobj->GetMarkListByLot(r_lot_rec.ID, ss_ext_codes) > 0) {
 											for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
 												const bool iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
@@ -10645,14 +10646,20 @@ int EgaisMarkAutoSelector::Helper(PPID goodsID, double qtty, ResultBlock & rResu
 													if(!p_entry) {
 														p_entry = rResult.CreateNewItem();
 														THROW_SL(p_entry);
-														{
-															_TerminalEntry * p_te = p_entry->Te.CreateNewItem();
-															THROW_SL(p_te);
-															p_te->GoodsID = gs_item.GoodsID;
-															p_te->Qtty = 0.0; // @todo
-														}
+														p_entry->GsID = p_gs->Rec.ID;
 													}
-													//p_entry->SsMark.add(mark_buf);
+													if(!p_te) {
+														p_te = p_entry->Te.CreateNewItem();
+														THROW_SL(p_te);
+														p_te->GoodsID = gs_item.GoodsID;
+														p_te->LotID = r_lot_rec.ID;
+														p_te->LotDate = r_lot_rec.Dt;
+														p_te->Qtty = r_lot_rec.Quantity;
+													}
+													_MarkEntry * p_me = p_te->ML.CreateNewItem();
+													THROW_SL(p_me);
+													p_me->Mark = mark_buf;
+													p_me->Rest = 1.0; // @?
 													ok = 1;
 												}
 											}
@@ -10673,11 +10680,42 @@ int EgaisMarkAutoSelector::Helper(PPID goodsID, double qtty, ResultBlock & rResu
 									if(p_gs_inner) {
 										PPGoodsStrucItem gs_inner_item;
 										double inner_item_qtty = 0.0;
+										Entry * p_entry = 0;
 										for(uint gs_inner_pos = 0; p_gs_inner->EnumItemsExt(&gs_inner_pos, &gs_inner_item, 0, qtty, &inner_item_qtty) > 0;) {
 											if(P_EgPrc->IsAlcGoods(gs_inner_item.GoodsID)) {
 												lot_list.clear();
 												p_trfr->Rcpt.GetList(gs_inner_item.GoodsID, 0, 0, ZERODATE, ReceiptCore::glfWithExtCodeOnly, &lot_list);
 												if(lot_list.getCount()) {
+													for(uint lotidx = 0; lotidx < lot_list.getCount(); lotidx++) {
+														const ReceiptTbl::Rec & r_lot_rec = lot_list.at(lotidx);
+														_TerminalEntry * p_te = 0;
+														if(p_bobj->GetMarkListByLot(r_lot_rec.ID, ss_ext_codes) > 0) {
+															for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
+																const bool iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
+																if(iemr) {
+																	assert(mark_buf.NotEmpty());
+																	if(!p_entry) {
+																		p_entry = rResult.CreateNewItem();
+																		THROW_SL(p_entry);
+																		p_entry->GsID = p_gs_inner->Rec.ID;
+																	}
+																	if(!p_te) {
+																		p_te = p_entry->Te.CreateNewItem();
+																		THROW_SL(p_te);
+																		p_te->GoodsID = gs_inner_item.GoodsID;
+																		p_te->LotID = r_lot_rec.ID;
+																		p_te->LotDate = r_lot_rec.Dt;
+																		p_te->Qtty = r_lot_rec.Quantity;
+																	}
+																	_MarkEntry * p_me = p_te->ML.CreateNewItem();
+																	THROW_SL(p_me);
+																	p_me->Mark = mark_buf;
+																	p_me->Rest = 1.0; // @?
+																	ok = 1;
+																}
+															}
+														}
+													}
 												}
 											}
 										}

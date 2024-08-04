@@ -492,6 +492,7 @@ int PPApp::processCommand(uint cmd)
 		case cmTaxSystemKind:        ShowObjects(PPOBJ_TAXSYSTEMKIND, 0);     break; // @v10.6.0
 		case cmSwProgramCategory:    ShowObjects(PPOBJ_SWPROGRAMCATEGORY, 0); break; // @v11.9.12
 		case cmComputerCategory:     ShowObjects(PPOBJ_COMPUTERCATEGORY, 0);  break; // @v12.0.1
+		case cmRawMaterials:         ShowObjects(PPOBJ_RAWMATERIAL, 0);       break; // @v12.0.10
 		case cmObjTag:               ShowTags_(PPOBJ_PERSON);                 break;
 		case cmLotTag:               ShowTags_(PPOBJ_LOT);                    break;
 		case cmBillTag:              ShowTags_(PPOBJ_BILL);                   break;

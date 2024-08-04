@@ -4113,6 +4113,7 @@ public:
 	//   0  - ошибка
 	//   1  - найдена подходящая котировка
 	//   2  - найдена подходящая котировка, но ее значение "Заблокирована"
+	//   3  - подходящая котировка не найдена, но значение вычислено по правилам, заданным в виде котировки // @v12.0.10
 	//   -1 - подходящая котировка не найдена (*pResult = 0)
 	//
 	int    GetResult(const QuotIdent & rIdent, double cost, double price, double * pResult) const;
@@ -17375,6 +17376,30 @@ protected:
 	virtual int  ProcessReservedItem(TVRez &);
 };
 //
+// @ModuleDecl(RawMaterial) // @v12.0.10
+//
+#pragma pack(push,1)
+struct PPRawMaterial {
+	PPRawMaterial();
+	long   Tag;            // Const=PPOBJ_RAWMATERIAL
+	long   ID;             // @id
+	char   Name[48];       // @name @!refname
+	char   Symb[20];
+	double Density;        // Плотность kg/cbm 
+	uint8  Reserve[56];    // @reserve
+	int32  Val1;
+	int32  Val2;
+};
+#pragma pack(pop)
+
+class PPObjRawMaterial : public PPObjReference {
+public:
+	PPObjRawMaterial(void * extraPtr = 0);
+	virtual int  Edit(PPID * pID, void * extraPtr);
+private:
+	virtual int  MakeReserved(long flags);
+};
+//
 // @ModuleDecl(PPObjNamedObjAssoc)
 //
 struct PPNamedObjAssoc2 {  // @persistent @store(Reference2Tbl+)
@@ -19229,6 +19254,7 @@ struct PPGdsClsPacket {
 	SString PhUPerU_Formula;
 	SString TaxMult_Formula;
 	SString Package_Formula;
+	SString Brutto_Formula; // @v12.0.10
 	SString LotDimQtty_Formula; // Формула пересчета размерностей лота в количество
 	PPGdsClsProp PropKind;
 	PPGdsClsProp PropGrade;
@@ -25029,12 +25055,14 @@ struct PPQuotKind2 { // @flat @persistent @store(Reference2Tbl+)
 		// Если AccSheetID == 0, то полагается, что таблица статей GetSellAccSheet() (покупатели)
 };
 
-class PPQuotKindPacket {
+class PPQuotKindPacket : public PPExtStrContainer { // @v12.0.10 унаследован от PPExtStrContainer с целью хранения текстовых строк расширения //
 public:
+	enum {
+		extssFormula = 1, // Формула для расчета значения котировки в случае, если явно значение не определено
+	};
 	PPQuotKindPacket();
-	void   Init();
-	int    GetCalculatedQuot(double cost, double basePrice, double * pQuot, long * pFlags) const;
-	PPQuotKindPacket & FASTCALL operator = (const PPQuotKindPacket &);
+	PPQuotKindPacket & Z();
+	int    GetCalculatedQuot(PPID goodsID, double cost, double basePrice, double * pQuot, long * pFlags) const;
 
 	PPQuotKind Rec;
 };
@@ -25055,6 +25083,8 @@ public:
 #define PPQC_MATRIX               3 // Товарная матрица
 #define PPQC_MATRIXRESTR          4 // Ограничение по товарной матрице
 #define PPQC_PREDICTCOEFF         5 // Поправочный коэффициент прогноза продаж
+
+#define PPTRPROP_QUOTKIND         (PPTRPROP_USER+1) // @v12.0.10 Строки расширения вида котировки
 
 class PPObjQuotKind : public PPObjReference {
 public:
@@ -25111,7 +25141,7 @@ public:
 	//   Поля инициализируемые в записи pRec:
 	//   {Tag, ID, Name, Discount, Period, BeginTm, EndTm, Rank, OpID, Flags, AccSheetID}
 	//
-	int    FASTCALL Fetch(PPID id, PPQuotKind * pRec);
+	int    FASTCALL Fetch(PPID id, PPQuotKindPacket * pRec); // @v12.0.10 PPQuotKind-->PPQuotKindPacket
 	int    FetchBySymb(const char * pSymb, PPID * pID);
 	//
 	// Descr: Идентифицирует класс вида котировки (PPQuot::clsXXX).
@@ -25145,7 +25175,7 @@ public:
 	int    GetPacket(PPID id, PPQuotKindPacket *);
 	int    PutPacket(PPID *, PPQuotKindPacket *, int use_ta);
 	int    SerializePacket(int dir, PPQuotKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
-	int    GetCalculatedQuot(PPID, double cost, double basePrice, double * pQuot, long * pFlags);
+	int    GetCalculatedQuot(PPID id, PPID goodsID, double cost, double basePrice, double * pQuot, long * pFlags);
 	//
 	// Descr: Создает список элементов типа PPObjQuotKind::ListEntry
 	//   Если addBaseQuotKindID != 0, тогда в список добавляется искусственная //
@@ -28203,7 +28233,7 @@ public:
 		long   Flags;
 	};
 	//
-	// Descr: Функции, использвемые в формулах (PPCalcExpression)
+	// Descr: Функции, используемые в формулах (PPCalcExpression)
 	//
 	enum {
 		funcCalDay        = EXRP_EVAL_FIRST_FUNC +  1, // cday(CalendarName[, ProjCalendarName[, period]])
@@ -32663,7 +32693,7 @@ public:
 	//
 	enum { // @persistent
 		extssAddedMsgSign = 1,
-		extssPort = 2,
+		extssPort         = 2,
 		extssPaths        = 3
 	};
 	PPScale2 Rec;
@@ -33935,6 +33965,14 @@ public:
 	//    0 - error
 	//
 	int    HasLotAnyMark(PPID lotID);
+	//
+	// Descr: Функция возвращает по ссылке rSs список марок (честный знак и егаис), ассоциированных с лотом lotID.
+	//   Сет rSs предварительно очищается функцией.
+	// Returns:
+	//   >0 - найдена по крайней мере одна марка, ассоциированная с лотом lotID
+	//   <0 - с лотом марки не ассоциированы
+	//    0 - ошибка (либо lotID == 0, либо this->P_LotXcT [type of LotExtCodeCore] == 0)
+	//
 	int    GetMarkListByLot(PPID lotID, StringSet & rSs);
 	int    GetTagListByLot(PPID lotID, int skipReserveTags, ObjTagList * pList);
 	int    SetClbNumberByLot(PPID lotID, const char *, int use_ta);
@@ -35813,7 +35851,7 @@ public:
 		extssMemo     = 1,
 		extssPassword = 2,
 		extssPhone    = 3, //
-		extssOuterId  = 4  // @v10.8.11 Если эмитентом карты является сторонняя организация, то здесь может быть указан ид карты, заданный эмитентом (guid, например)
+		extssOuterId  = 4  // Если эмитентом карты является сторонняя организация, то здесь может быть указан ид карты, заданный эмитентом (guid, например)
 	};
 	SCardTbl::Rec Rec;
 };
@@ -50733,7 +50771,7 @@ public:
 		funcCostVat       = EXRP_EVAL_FIRST_FUNC + 5, // costvat(x)
 		funcPriceByVat    = EXRP_EVAL_FIRST_FUNC + 6, // pricebyvat(x)
 		funcPriceVat      = EXRP_EVAL_FIRST_FUNC + 7, // pricevat(x)
-		funcHasWhiteLabel = EXRP_EVAL_FIRST_FUNC + 8, // haswhitelabel() // @v10.5.0
+		funcHasWhiteLabel = EXRP_EVAL_FIRST_FUNC + 8, // haswhitelabel()
 	};
 
 	BillContext(const PPBillPacket * p, PPID curID, uint advLineIdx);
@@ -57109,7 +57147,7 @@ public:
 		//PPID   GoodsID;
 		//double Qtty;
 		//StringSet SsMark;
-		Entry()
+		Entry() : GsID(0), IsOrList(false)
 		{
 		}
 		Entry(const Entry & rS)
@@ -57123,9 +57161,17 @@ public:
 		}
 		bool   FASTCALL Copy(const Entry & rS)
 		{
+			GsID = rS.GsID;
+			IsOrList = rS.IsOrList;
 			TSCollection_Copy(Te, rS.Te);
 			return true;
 		}
+		PPID   GsID; // Идентификатор структуры, из которой сформирован экземпляр this
+		bool   IsOrList; // Если true, то список Te определяет вариант "один-из", в противном случае это - терминальный элемент.
+		//
+		// Если this связан с конечным компонентом комплектующей структуры, то Te содержит единственный элемент,
+		// если this связан с точкой подстановочной структуры, то Te может содержать более одного елемента.
+		//
 		TSCollection <_TerminalEntry> Te;
 	};
 	class ResultBlock : public TSCollection <Entry> {

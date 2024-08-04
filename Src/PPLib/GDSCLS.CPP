@@ -7,26 +7,27 @@
 //
 // @ModuleDef(PPObjGoodsClass)
 //
-#define GDSCLS_EXTSTR_FLD_NAMECONV    1
-#define GDSCLS_EXTSTR_FLD_ABBRCONV    2
-#define GDSCLS_EXTSTR_FLD_PROPKIND    3
-#define GDSCLS_EXTSTR_FLD_PROPGRADE   4
-#define GDSCLS_EXTSTR_FLD_PROPADD     5
-#define GDSCLS_EXTSTR_FLD_DIM_NAME    6
-#define GDSCLS_EXTSTR_FLD_DIM_SCALE   7
-#define GDSCLS_EXTSTR_FLD_DIM_VALS    8
-#define GDSCLS_EXTSTR_FLD_PHPERUFORM  9
-#define GDSCLS_EXTSTR_FLD_TAXFACTOR  10
-#define GDSCLS_EXTSTR_FLD_PACKAGE    11
-#define GDSCLS_EXTSTR_FLD_PROPADD2   12
-#define GDSCLS_EXTSTR_FLD_LOTDIMQTTY 13
+#define GDSCLS_EXTSTR_FLD_NAMECONV       1
+#define GDSCLS_EXTSTR_FLD_ABBRCONV       2
+#define GDSCLS_EXTSTR_FLD_PROPKIND       3
+#define GDSCLS_EXTSTR_FLD_PROPGRADE      4
+#define GDSCLS_EXTSTR_FLD_PROPADD        5
+#define GDSCLS_EXTSTR_FLD_DIM_NAME       6
+#define GDSCLS_EXTSTR_FLD_DIM_SCALE      7
+#define GDSCLS_EXTSTR_FLD_DIM_VALS       8
+#define GDSCLS_EXTSTR_FLD_PHPERUFORM     9
+#define GDSCLS_EXTSTR_FLD_TAXFACTOR     10
+#define GDSCLS_EXTSTR_FLD_PACKAGE       11
+#define GDSCLS_EXTSTR_FLD_PROPADD2      12
+#define GDSCLS_EXTSTR_FLD_LOTDIMQTTY    13
+#define GDSCLS_EXTSTR_FLD_FORMULABRUTTO 14 // @v12.0.10
 
-#define GDSCLS_EXTSTR_FROM_NAME      21
-#define GDSCLS_EXTSTR_FROM_FORM      22
-#define GDSCLS_EXTSTR_FROM_PAR1      23
-#define GDSCLS_EXTSTR_FROM_PAR2      24
-#define GDSCLS_EXTSTR_FROM_PAR3      25
-#define GDSCLS_EXTSTR_FROM_FLAGS     40
+#define GDSCLS_EXTSTR_FROM_NAME         21
+#define GDSCLS_EXTSTR_FROM_FORM         22
+#define GDSCLS_EXTSTR_FROM_PAR1         23
+#define GDSCLS_EXTSTR_FROM_PAR2         24
+#define GDSCLS_EXTSTR_FROM_PAR3         25
+#define GDSCLS_EXTSTR_FROM_FLAGS        40
 //
 //
 //
@@ -74,6 +75,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjGoodsClass, PPGdsClsPacket);
 	PPPutExtStrData(GDSCLS_EXTSTR_FLD_TAXFACTOR,  rLine, pPack->TaxMult_Formula);
 	PPPutExtStrData(GDSCLS_EXTSTR_FLD_PACKAGE,    rLine, pPack->Package_Formula);
 	PPPutExtStrData(GDSCLS_EXTSTR_FLD_LOTDIMQTTY, rLine, pPack->LotDimQtty_Formula);
+	PPPutExtStrData(GDSCLS_EXTSTR_FLD_FORMULABRUTTO, rLine, pPack->Brutto_Formula); // @v12.0.10
 
 	THROW(PutProp(rLine, GDSCLS_EXTSTR_FLD_PROPKIND,  &pPack->PropKind));
 	THROW(PutProp(rLine, GDSCLS_EXTSTR_FLD_PROPGRADE, &pPack->PropGrade));
@@ -92,6 +94,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjGoodsClass, PPGdsClsPacket);
 	PPGetExtStrData(GDSCLS_EXTSTR_FLD_TAXFACTOR,  rLine, pPack->TaxMult_Formula);
 	PPGetExtStrData(GDSCLS_EXTSTR_FLD_PACKAGE,    rLine, pPack->Package_Formula);
 	PPGetExtStrData(GDSCLS_EXTSTR_FLD_LOTDIMQTTY, rLine, pPack->LotDimQtty_Formula);
+	PPGetExtStrData(GDSCLS_EXTSTR_FLD_FORMULABRUTTO, rLine, pPack->Brutto_Formula); // @v12.0.10
 	GetProp(rLine, GDSCLS_EXTSTR_FLD_PROPKIND,  &pPack->PropKind);
 	GetProp(rLine, GDSCLS_EXTSTR_FLD_PROPGRADE, &pPack->PropGrade);
 	GetProp(rLine, GDSCLS_EXTSTR_FLD_PROPADD,   &pPack->PropAdd);
@@ -315,6 +318,7 @@ public:
 		setCtrlString(CTL_GDSCLS_PHUPERU,   Data.PhUPerU_Formula);
 		setCtrlString(CTL_GDSCLS_TAXFACTOR, Data.TaxMult_Formula);
 		setCtrlString(CTL_GDSCLS_PACKAGE,   Data.Package_Formula);
+		setCtrlString(CTL_GDSCLS_BRUTTO,    Data.Brutto_Formula); // @v12.0.10
 		SetupPPObjCombo(this, CTLSEL_GDSCLS_UNIT, PPOBJ_UNIT, Data.Rec.DefUnitID, OLW_CANINSERT, reinterpret_cast<void *>(PPUnit::Trade));
 		SetupPPObjCombo(this, CTLSEL_GDSCLS_PHUNIT, PPOBJ_UNIT, Data.Rec.DefPhUnitID, OLW_CANINSERT, reinterpret_cast<void *>(PPUnit::Trade|PPUnit::Physical));
 		SetupPPObjCombo(this, CTLSEL_GDSCLS_GDSTYPE, PPOBJ_GOODSTYPE, Data.Rec.DefGoodsTypeID, OLW_CANINSERT);
@@ -347,6 +351,7 @@ public:
 		getCtrlString(CTL_GDSCLS_PHUPERU,  Data.PhUPerU_Formula);
 		getCtrlString(CTL_GDSCLS_TAXFACTOR,  Data.TaxMult_Formula);
 		getCtrlString(CTL_GDSCLS_PACKAGE,    Data.Package_Formula);
+		getCtrlString(CTL_GDSCLS_BRUTTO,     Data.Brutto_Formula); // @v12.0.10
 		getCtrlData(CTLSEL_GDSCLS_UNIT,    &Data.Rec.DefUnitID);
 		getCtrlData(CTLSEL_GDSCLS_PHUNIT,  &Data.Rec.DefPhUnitID);
 		getCtrlData(CTLSEL_GDSCLS_GDSTYPE, &Data.Rec.DefGoodsTypeID);
@@ -914,6 +919,7 @@ int GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		ss.add(gc_pack.PhUPerU_Formula);
 		ss.add(gc_pack.TaxMult_Formula);
 		ss.add(gc_pack.LotDimQtty_Formula);
+		ss.add(gc_pack.Brutto_Formula); // @v12.0.10
 		PutName(ss.getBuf(), p_cache_rec);
 	}
 	else
@@ -961,6 +967,7 @@ void GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 	ss.get(&p, p_data_pack->PhUPerU_Formula);
 	ss.get(&p, p_data_pack->TaxMult_Formula);
 	ss.get(&p, p_data_pack->LotDimQtty_Formula);
+	ss.get(&p, p_data_pack->Brutto_Formula); // @v12.0.10
 }
 
 int PPObjGoodsClass::Fetch(PPID id, PPGdsClsPacket * pRec)

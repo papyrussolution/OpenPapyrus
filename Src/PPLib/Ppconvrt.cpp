@@ -5227,7 +5227,7 @@ int ConvertQuot720()
 	int    ok = 1;
 	IterCounter cntr;
 	PPObjQuotKind qk_obj;
-	PPQuotKind qk_rec;
+	PPQuotKindPacket qk_pack;
 	QuotationCore qc;
 	Quotation2Core qc2;
 	QuotationTbl::Key0 k0;
@@ -5240,7 +5240,7 @@ int ConvertQuot720()
 		if(qc.search(0, &k0, spFirst)) {
 			do {
 				if(qc.data.Actual > 0) {
-					if(qk_obj.Fetch(qc.data.Kind, &qk_rec) > 0) {
+					if(qk_obj.Fetch(qc.data.Kind, &qk_pack) > 0) {
 						PPQuot q;
 						q.GetFromRec(qc.data);
 						THROW(qc2.Set(q, 0, 0, 0));

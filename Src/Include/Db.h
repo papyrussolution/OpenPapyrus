@@ -4933,6 +4933,19 @@ public:
 	~SRecPageManager();
 	int    Write(uint64 * pRowId, uint pageType, const void * pData, size_t dataLen);
 	int    Delete(uint64 rowId);
+	//
+	// Descr: Функция пытается изменить запись непосредственно на странице pPage. 
+	//   Это можно сделать в случае если новая запись меньше или равна по размеру оригиналу или
+	//   за блоком записи есть свободный блок, размер которого достаточен для операции.
+	//   Функция ни каким образом не может изменить местоположение записи на странице
+	//   по этому rowId записи остается неизменным.
+	// @really private (public for testing purposes) 
+	// Returns:
+	//   >0 - функции удалось изменить запись на странице
+	//   <0 - запись не может быть изменена в пределах одной страницы
+	//    0 - ошибка
+	//
+	int    UpdateOnPage(SDataPage_ * pPage, uint64 rowId, uint pageType, const void * pData, size_t dataLen);  
 	int    Update(uint64 rowId, uint64 * pNewRowId, uint pageType, const void * pData, size_t dataLen); // @construction
 	//
 	// Returns:

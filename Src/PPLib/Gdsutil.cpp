@@ -955,19 +955,19 @@ int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * p
 	return ok;
 }
 
-/*static*/int PPObjGoods::ProcessBomEstimatedValues() // @v11.7.11 @construction
+/*static*/int PPObjGoods::ProcessBomEstimatedValues() // @v11.7.11
 {
 	int    ok = -1;
 	const  LDATE now_date = getcurdate_();
 	PPObjQuotKind qk_obj;
-	PPQuotKind qk_rec;
+	PPQuotKindPacket qk_pack;
 	PPObjGoodsStruc gs_obj;
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
 	GoodsFilt goods_filt;
 	goods_filt.Flags |= GoodsFilt::fWithStrucOnly;
 	PPLogger logger;
-	if(qk_obj.Fetch(PPQUOTK_ESTBOMVALUE, &qk_rec) > 0) {
+	if(qk_obj.Fetch(PPQUOTK_ESTBOMVALUE, &qk_pack) > 0) {
 		PPID   loc_id = 0; // @todo Нужен перебор по складам. Вероятно, цикл следует инициировать для каждого товара по складам, на которых есть или были лоты этого товара.
 		SString temp_buf;
 		SString fmt_buf;
@@ -997,7 +997,7 @@ int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * p
 					}
 					else {
 						PPQuot q(goods_id);
-						q.Kind = qk_rec.ID;
+						q.Kind = qk_pack.Rec.ID;
 						q.LocID = loc_id;
 						q.Quot = bom_value;
 						THROW(goods_obj.P_Tbl->SetQuot(q, 0));
@@ -2675,11 +2675,11 @@ int PPObjGoods::Helper_GetQuotExt(PPID goodsID, const QuotIdent & rQi, double co
 			if((r = P_Tbl->GetQuot(goods_id, qi, cost, price, &price, useCache)) > 0) {
 				if(r == 2)
 					ok = r;
-				else if(qk_obj.GetCalculatedQuot(rQi.QuotKindID, 0, price, pResult, 0) > 0)
+				else if(qk_obj.GetCalculatedQuot(rQi.QuotKindID, goods_id, 0, price, pResult, 0) > 0)
 					ok = 1;
 			}
 		}
-		else if(qk_obj.GetCalculatedQuot(rQi.QuotKindID, cost, price, pResult, 0) > 0)
+		else if(qk_obj.GetCalculatedQuot(rQi.QuotKindID, goods_id, cost, price, pResult, 0) > 0)
 			ok = 1;
 	}
 	return ok;
@@ -2711,11 +2711,11 @@ int PPObjGoods::GetQuotExtByList(const PPQuotArray * pQList, const QuotIdent & r
 				QuotIdent qi = rQi;
 				qi.QuotKindID = PPQUOTK_BASE;
 				if((r = pQList->GetResult(qi, cost, price, &price)) > 0) {
-					if(qk_obj.GetCalculatedQuot(rQi.QuotKindID, 0, price, &result, 0) > 0)
+					if(qk_obj.GetCalculatedQuot(rQi.QuotKindID, pQList->GoodsID, 0, price, &result, 0) > 0)
 						ok = 1;
 				}
 			}
-			else if(qk_obj.GetCalculatedQuot(rQi.QuotKindID, cost, price, &result, 0) > 0)
+			else if(qk_obj.GetCalculatedQuot(rQi.QuotKindID, pQList->GoodsID, cost, price, &result, 0) > 0)
 				ok = 1;
 		}
 	}

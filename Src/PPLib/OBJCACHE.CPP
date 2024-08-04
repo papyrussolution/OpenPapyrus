@@ -128,7 +128,7 @@ int STDCALL ObjCache::PutName(const char * pName, ObjCacheEntry * pEntry)
 
 void STDCALL ObjCache::GetName(const ObjCacheEntry * pEntry, char * pBuf, size_t bufLen) const
 {
-	if(pBuf && pEntry) { // @v10.4.3
+	if(pBuf && pEntry) {
 		uint   sp = pEntry->NameIdx;
 		if(sp)
 			Ss.get(&sp, pBuf, bufLen);

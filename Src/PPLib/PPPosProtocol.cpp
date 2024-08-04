@@ -1917,9 +1917,9 @@ int PPPosProtocol::WriteQuotInfo(WriteBlock & rB, const char * pScopeXmlTag, PPI
     int    ok = -1;
 	SString temp_buf;
 	if(rInfo.Kind && rInfo.GoodsID) {
-		PPQuotKind qk_rec;
+		PPQuotKindPacket qk_pack;
 		Goods2Tbl::Rec goods_rec;
-		if(QkObj.Fetch(rInfo.Kind, &qk_rec) > 0 && GObj.Fetch(rInfo.GoodsID, &goods_rec) > 0) {
+		if(QkObj.Fetch(rInfo.Kind, &qk_pack) > 0 && GObj.Fetch(rInfo.GoodsID, &goods_rec) > 0) {
 			if(goods_rec.Kind == PPGDSK_GOODS || (goods_rec.Kind == PPGDSK_GROUP && !(goods_rec.Flags & GF_ALTGROUP))) {
 				SXml::WNode w_s(rB.P_Xw, pScopeXmlTag);
 				if(parentObj != PPOBJ_QUOTKIND) {

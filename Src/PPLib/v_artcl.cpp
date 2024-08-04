@@ -65,7 +65,7 @@ int PPViewArticle::UpdateTempTable(PPID arID)
 				rec.MaxCredit     = cli_agt.MaxCredit;
 				rec.ExtObjectID   = cli_agt.ExtObjectID;
 				rec.Flags = cli_agt.Flags;
-				STRNSCPY(rec.Code, cli_agt.Code_); // @v10.2.9 Code-->Code2 // @v11.2.0 cli_agt.Code2-->cli_agt.Code_
+				STRNSCPY(rec.Code, cli_agt.Code_); // @v11.2.0 cli_agt.Code2-->cli_agt.Code_
 				InitDebtLim(&rec, &cli_agt);
 				r = 1;
 			}
@@ -828,7 +828,7 @@ int PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 			case PPVCMD_TRANSMIT:
 				ok = Transmit(id);
 				break;
-			case PPVCMD_TB_CBX_SELECTED: // @v10.2.8
+			case PPVCMD_TB_CBX_SELECTED:
 				{
 					ok = -1;
 					PPID   acs_id = 0;
@@ -856,7 +856,7 @@ int PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 	return ok;
 }
 
-int PPViewArticle::OnExecBrowser(PPViewBrowser * pBrw) // @v10.2.8
+int PPViewArticle::OnExecBrowser(PPViewBrowser * pBrw)
 {
 	pBrw->SetupToolbarCombo(PPOBJ_ACCSHEET, Filt.AccSheetID, 0, 0);
 	return -1;
@@ -1031,12 +1031,10 @@ void PPViewArticle::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.PersonID) {
-			// @v10.7.10 pBrw->InsColumnWord(2, PPWORD_ACCSHEET, 5, 0L, MKSFMTD(20, 0, 0), 0);
-			pBrw->InsColumn(2, "@accsheet", 5, 0L, MKSFMTD(20, 0, 0), 0); // @v10.7.10
+			pBrw->InsColumn(2, "@accsheet", 5, 0L, MKSFMTD(20, 0, 0), 0);
 		}
 		if(Filt.Flags & ArticleFilt::fCheckObj) {
-			// @v10.7.10 pBrw->InsColumnWord(-1, PPWORD_MESSAGE, 18, 0L, MKSFMT(40, 0), 0);
-			pBrw->InsColumn(-1, "@message", 18, 0L, MKSFMT(40, 0), 0); // @v10.7.10
+			pBrw->InsColumn(-1, "@message", 18, 0L, MKSFMT(40, 0), 0);
 		}
 		/*
 		if(AgtProp == ARTPRP_SUPPLAGT)

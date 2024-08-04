@@ -507,11 +507,11 @@ int PPSCardSerPacket::Normalize()
 		// Кроме того, проверим виды котировок в списке на предмет того, чтобы они не принадлежали специальным видам.
 		//
 		PPObjQuotKind qk_obj;
-		PPQuotKind qk_rec;
+		PPQuotKindPacket qk_pack;
 		const PPObjQuotKind::Special qk_spc(PPObjQuotKind::Special::ctrInitializeWithCache);
 		for(uint i = 0; i < QuotKindList_.getCount(); i++) {
 			const  PPID qk_id = QuotKindList_.get(i);
-			if(qk_id && qk_obj.Fetch(qk_id, &qk_rec) > 0 && qk_spc.GetCategory(qk_id) == PPQC_PRICE)
+			if(qk_id && qk_obj.Fetch(qk_id, &qk_pack) > 0 && qk_spc.GetCategory(qk_id) == PPQC_PRICE)
 				temp_list.addUnique(qk_id);
 		}
 	}

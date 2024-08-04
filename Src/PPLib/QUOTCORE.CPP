@@ -276,22 +276,20 @@ static double __CalcSelling(PPID quotKindID, double cost, double pc)
 double PPQuot::CalcPrice(double cost, double price) const
 {
 	double val = 0.0;
-	// @v10.9.11 {
 	if(Flags & (fPctOnCost|fPctOnPrice))
-		val = __CalcSelling(Kind, (Flags & fPctOnPrice) ? price : cost, Quot); // @v10.9.11 QuotKindRounding
+		val = __CalcSelling(Kind, (Flags & fPctOnPrice) ? price : cost, Quot);
 	else if(Flags & fPctOnAddition)
-		val = PPObjQuotKind::RoundUpPrice(Kind, price + ((price - cost) * fdiv100r(Quot))); // @v10.9.11 QuotKindRounding
+		val = PPObjQuotKind::RoundUpPrice(Kind, price + ((price - cost) * fdiv100r(Quot)));
 	else {
-		// @v10.9.11 {
 		int    dir = 0;
 		double prec = 0.01;
 		int    use_default_rounding = 1;
 		if(Kind) {
 			PPObjQuotKind qk_obj;
-			PPQuotKind qk_rec;
-			if(qk_obj.Fetch(Kind, &qk_rec) > 0 && qk_rec.Flags & QUOTKF_USEROUNDING) {
-				dir = qk_rec.RoundingDir;
-				prec = qk_rec.RoundingPrec;
+			PPQuotKindPacket qk_pack;
+			if(qk_obj.Fetch(Kind, &qk_pack) > 0 && qk_pack.Rec.Flags & QUOTKF_USEROUNDING) {
+				dir = qk_pack.Rec.RoundingDir;
+				prec = qk_pack.Rec.RoundingPrec;
 				use_default_rounding = 0;
 			}
 		}
@@ -299,20 +297,7 @@ double PPQuot::CalcPrice(double cost, double price) const
 			val = R5(Quot);
 		else
 			val = PPRound(Quot, prec, dir);
-		// } @v10.9.11 
-		// @v10.9.11 val = R5(Quot); // @todo(QuotKindRounding)
 	}
-	// } @v10.9.11 
-	/* @v10.9.11
-	if(Flags & fPctOnPrice)
-		val = CalcSelling(price, Quot); // @todo(QuotKindRounding)
-	else if(Flags & fPctOnCost)
-		val = CalcSelling(cost, Quot); // @todo(QuotKindRounding)
-	else if(Flags & fPctOnAddition)
-		val = RoundUpPrice(price + ((price - cost) * fdiv100r(Quot))); // @todo(QuotKindRounding)
-	else
-		val = R5(Quot); // @todo(QuotKindRounding)
-	*/
 	return val;
 }
 
@@ -750,6 +735,20 @@ int PPQuotArray::GetResult(const QuotIdent & rIdent, double cost, double price, 
 		else {
 			q = r_quot.CalcPrice(cost, price);
 			ok = (r_quot.Flags & PPQuot::fPctDisabled) ? 2 : 1;
+		}
+	}
+	else { 
+		if(rIdent.QuotKindID) { // @v12.0.10
+			PPObjQuotKind qk_obj;
+			PPQuotKindPacket qk_pack;
+			if(qk_obj.Fetch(rIdent.QuotKindID, &qk_pack) > 0) {
+				double value = 0.0;
+				long   value_flags = 0;
+				if(qk_pack.GetCalculatedQuot(GoodsID, cost, price, &value, &value_flags) > 0) {
+					q = value;
+					ok = 3;
+				}
+			}
 		}
 	}
 	ASSIGN_PTR(pResult, q);
@@ -2881,9 +2880,9 @@ int Quotation2Core::Implement_Set(const PPQuot & rQ, long qtaID, int logSj, bool
 	Quotation2Tbl::Rec rec;
 	DBRowIdArray ri_list;
 	PPObjQuotKind qk_obj;
-	PPQuotKind qk_rec;
+	PPQuotKindPacket qk_pack;
 	const PPObjQuotKind::Special spc(PPObjQuotKind::Special::ctrInitializeWithCache);
-	THROW(qk_obj.Fetch(rQ.Kind, &qk_rec) > 0);
+	THROW(qk_obj.Fetch(rQ.Kind, &qk_pack) > 0);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);

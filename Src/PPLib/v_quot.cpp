@@ -395,9 +395,9 @@ void QuotFiltDialog::SetupCtrls()
 	{
 		PPID   acs_id = 0;
 		PPObjQuotKind qk_obj;
-		PPQuotKind qk_rec;
-		if(qk_obj.Fetch(Data.QuotKindID, &qk_rec) > 0)
-			acs_id = qk_rec.AccSheetID;
+		PPQuotKindPacket qk_pack;
+		if(qk_obj.Fetch(Data.QuotKindID, &qk_pack) > 0)
+			acs_id = qk_pack.Rec.AccSheetID;
 		SETIFZ(acs_id, PPObjQuotKind::GetDefaultAccSheetID(Data.QkCls));
 		if(acs_id != LastAccSheetID) {
 			if(Data.ArID) {
@@ -1799,9 +1799,9 @@ int PPViewQuot::EditItem(const BrwHdr * pHdr, int simple)
 	int    ok = -1;
 	PPID   acc_sheet_id = 0;
 	if(Filt.QuotKindID) {
-		PPQuotKind qk_rec;
-		if(QkObj.Fetch(Filt.QuotKindID, &qk_rec) > 0)
-			acc_sheet_id = qk_rec.AccSheetID;
+		PPQuotKindPacket qk_pack;
+		if(QkObj.Fetch(Filt.QuotKindID, &qk_pack) > 0)
+			acc_sheet_id = qk_pack.Rec.AccSheetID;
 	}
 	if(pHdr->GoodsID) {
 		if(Filt.Sgg) {

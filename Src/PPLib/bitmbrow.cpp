@@ -4496,7 +4496,7 @@ void BillItemBrowser::addItemExt(int mode)
 		const int opened_only = BIN(IsExpendOp(op_id) > 0 || op_type_id == PPOPT_GOODSREVAL || (op_type_id == PPOPT_GOODSORDER && CheckOpFlags(op_id, OPKF_ORDEXSTONLY)));
 		if(mode == 1) {
 			PPInputStringDialogParam isd_param;
-			isd_param.P_Wse = new TextHistorySelExtra("goodsnamefragment-common"); // @v10.7.8
+			isd_param.P_Wse = new TextHistorySelExtra("goodsnamefragment-common");
 			PPLoadText(PPTXT_SELGOODSBYNAME, isd_param.Title);
 			if(InputStringDialog(&isd_param, sub) > 0 && sub.NotEmptyS()) {
 				THROW(GObj.P_Tbl->GetListBySubstring(sub, &goods_list, -1));

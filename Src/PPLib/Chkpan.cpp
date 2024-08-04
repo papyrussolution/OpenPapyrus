@@ -8445,10 +8445,10 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 					const  PPID single_qk_id = CSt.P_Eqb->QkList.getSingle();
 					if(single_qk_id) {
 						PPObjQuotKind qk_obj;
-						PPQuotKind qk_rec;
+						PPQuotKindPacket qk_pack;
 						buf.Space().Cat(PPLoadStringS("quote", temp_buf)).CatDiv(':', 2);
-						if(qk_obj.Fetch(single_qk_id, &qk_rec) > 0)
-							buf.Cat(qk_rec.Name);
+						if(qk_obj.Fetch(single_qk_id, &qk_pack) > 0)
+							buf.Cat(qk_pack.Rec.Name);
 						else
 							ideqvalstr(single_qk_id, buf);
 					}

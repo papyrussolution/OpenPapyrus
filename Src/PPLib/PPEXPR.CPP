@@ -265,7 +265,7 @@ int BillContext::IsFunc(const char * pSymb, int * pFuncId)
 			func_id = funcPriceByVat;
 		else if(temp_buf == "pricevat")
 			func_id = funcPriceVat;
-		else if(temp_buf == "haswhitelabel") // @v10.5.0
+		else if(temp_buf == "haswhitelabel")
 			func_id = funcHasWhiteLabel;
 		else
 			PPSetError(PPERR_UNDEFGOODSFUNC, pSymb);
@@ -337,7 +337,7 @@ int BillContext::ResolveFunc(int funcId, FC & rFc)
 					result = p_vat_entry->AmountByVat;
 			}
 			break;
-		case funcHasWhiteLabel: // @v10.5.0
+		case funcHasWhiteLabel:
 			result = (P_Pack->Rec.Flags & BILLF_WHITELABEL) ? 1.0 : 0.0;
 			break;
 	}
@@ -754,7 +754,7 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 					Pos += next_pos;
 					Cur = P_S[Pos-1];
 					THROW(P_CFL->CalcFunc(func_id, &params, result, sizeof(result)));
-					*pResult = satof(result); // @v10.7.9 atof-->satof
+					*pResult = satof(result);
 				}
 				else {
 					//THROW_PP(P_Ctx, PPERR_ILLVAR);
@@ -1317,6 +1317,51 @@ int GoodsContext::ResolveGoodsAttr(const SString & rSymb, PPID goodsID, double *
 		else if(P_Pack)
 			v = P_Pack->Rec.PhUPerU;
 	}
+	else if(rSymb.IsEqiAscii("DENSITY")) { // @v12.0.10
+		// Переменная density работает следующим образом: перебираются перечисляемые компоненты класса товаров (kind, grade, addprop, addprop2),
+		// если какой-либо из этих компонентов ссылается на тип объекта "сырьевые материалы" (PPOBJ_RAWMATERIAL), то для товара
+		// извлекается соответствующее свойство и плотность материала трактуется как результат переменной.
+		// Если целевое свойство не найдено, то возвращается 0.0
+		double local_result = 0.0;
+		const PPGdsClsPacket * p_local_gc_pack = 0;
+		const GoodsExtTbl::Rec * p_local_ge_rec = 0;
+		PPGdsClsPacket gc_pack;
+		GoodsExtTbl::Rec ge_rec;
+		if(goodsID) {
+			if(GObj.FetchCls(goodsID, &goods_rec, &gc_pack) > 0) {
+				p_local_gc_pack = &gc_pack;
+				if(GObj.P_Tbl->GetExt(goodsID, &ge_rec) > 0)
+					p_local_ge_rec = &ge_rec;
+			}
+		}
+		else {
+			p_local_gc_pack = P_ClsPack;
+			if(P_Pack)
+				p_local_ge_rec = &P_Pack->ExtRec;
+		}
+		if(p_local_gc_pack && p_local_ge_rec) {
+			const int local_dim_ref_list[] = {PPGdsCls::eKind, PPGdsCls::eGrade, PPGdsCls::eAdd, PPGdsCls::eAdd2};
+			for(uint i = 0; i < SIZEOFARRAY(local_dim_ref_list); i++) {
+				PPObjID oid;
+				switch(local_dim_ref_list[i]) {
+					case PPGdsCls::eKind : oid.Set(p_local_gc_pack->PropKind.ItemsListID, p_local_ge_rec->KindID); break;
+					case PPGdsCls::eGrade: oid.Set(p_local_gc_pack->PropGrade.ItemsListID, p_local_ge_rec->GradeID); break;
+					case PPGdsCls::eAdd  : oid.Set(p_local_gc_pack->PropAdd.ItemsListID, p_local_ge_rec->AddObjID); break;
+					case PPGdsCls::eAdd2 : oid.Set(p_local_gc_pack->PropAdd2.ItemsListID, p_local_ge_rec->AddObj2ID); break;
+				}
+				if(oid.Obj == PPOBJ_RAWMATERIAL) {
+					if(oid.Id) {
+						PPObjRawMaterial rawm_obj;
+						PPRawMaterial rawm_rec;
+						if(rawm_obj.Search(oid.Id, &rawm_rec) > 0)
+							local_result = rawm_rec.Density;
+					}
+					break;
+				}
+			}
+		}
+		v = local_result;
+	}
 	else if(rSymb.IsEqiAscii("TYPE")) {
 		PPID   goods_type = (GObj.Fetch(goodsID, &goods_rec) > 0) ? goods_rec.GoodsTypeID : 0;
 		PPObjID oid;
@@ -1533,7 +1578,7 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 				if(ref.IsEqiAscii("cost")) {
 					if(P_Ti)
 						v = P_Ti->Cost;
-					else if(P.Flags & P.fCostSettled) // @v10.7.3
+					else if(P.Flags & P.fCostSettled)
 						v = P.Cost;
 					else
 						r = 0; // cost может быть суммой документа
@@ -1541,9 +1586,9 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 				else if(ref.IsEqiAscii("price")) {
 					if(P_Ti)
 						v = P_Ti->Price;
-					else if(P_Ci) // @v10.7.6
+					else if(P_Ci)
 						v = P_Ci->Price;
-					else if(P.Flags & P.fPriceSettled) // @v10.7.3
+					else if(P.Flags & P.fPriceSettled)
 						v = P.Price;
 					else
 						r = 0; // price может быть суммой документа
@@ -1551,7 +1596,7 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 				else if(ref.IsEqiAscii("discount")) {
 					if(P_Ti)
 						v = P_Ti->Discount;
-					else if(P_Ci) // @v10.7.6
+					else if(P_Ci)
 						v = P_Ci->Discount;
 					else
 						r = 0; // discount может быть суммой документа

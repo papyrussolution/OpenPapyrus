@@ -2164,7 +2164,6 @@ int PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPack, int
 		}
 		else {
 			THROW(CheckRightsModByID(pID));
-			// @v10.6.6 {
 			{
 				const ObjTagItem * p_guid_tag = pPack->TagL.GetItem(PPTAG_GUA_GUID);
 				if(!p_guid_tag) {
@@ -2176,7 +2175,6 @@ int PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPack, int
 					}
 				}
 			}
-			// } @v10.6.6 
 			if(_id) {
 				if(pPack->IsEq(org_pack))
 					ok = -1;
@@ -4356,7 +4354,7 @@ PPObjComputerCategory::PPObjComputerCategory(void * extraPtr) : PPObjReference(P
 	};
 	int    ok = 1;
 	int    r = cmCancel;
-	int    valid_data = 0;
+	bool   valid_data = false;
 	PPComputerCategory rec;
 	ComputerCategoryDialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));
@@ -4378,7 +4376,7 @@ PPObjComputerCategory::PPObjComputerCategory(void * extraPtr) : PPObjReference(P
 				PPErrorByDialog(dlg, CTL_COMPCAT_SYMB);
 			else if(StoreItem(Obj, *pID, &rec, 1)) {
 				Dirty(*pID);
-				valid_data = 1;
+				valid_data = true;
 			}
 			else
 				PPError();
@@ -4387,4 +4385,84 @@ PPObjComputerCategory::PPObjComputerCategory(void * extraPtr) : PPObjReference(P
 	CATCHZOKPPERR
 	delete dlg;
 	return ok ? r : 0;
+}
+//
+//
+//
+PPRawMaterial::PPRawMaterial()
+{
+	THISZERO();
+}
+
+PPObjRawMaterial::PPObjRawMaterial(void * extraPtr) : PPObjReference(PPOBJ_RAWMATERIAL, extraPtr)
+{
+}
+
+/*virtual*/int PPObjRawMaterial::Edit(PPID * pID, void * extraPtr)
+{
+	class RawMaterialDialog : public TDialog {
+		DECL_DIALOG_DATA(PPRawMaterial);
+	public:
+		RawMaterialDialog() : TDialog(DLG_RAWMAT)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			setCtrlLong(CTL_RAWMAT_ID, Data.ID);
+			setCtrlData(CTL_RAWMAT_NAME, Data.Name);
+			setCtrlData(CTL_RAWMAT_SYMB, Data.Symb);
+			setCtrlData(CTL_RAWMAT_DENS, &Data.Density);
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			getCtrlData(CTL_RAWMAT_NAME, Data.Name);
+			getCtrlData(CTL_RAWMAT_SYMB, Data.Symb);
+			getCtrlData(CTL_RAWMAT_DENS, &Data.Density);
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	};
+	int    ok = 1;
+	int    r = cmCancel;
+	bool   valid_data = false;
+	PPRawMaterial rec;
+	RawMaterialDialog * dlg = 0;
+	THROW(CheckRightsModByID(pID));
+	if(*pID) {
+		THROW(Search(*pID, &rec) > 0);
+	}
+	else {
+		MEMSZERO(rec);
+	}
+	THROW(CheckDialogPtr(&(dlg = new RawMaterialDialog)));
+	dlg->setDTS(&rec);
+	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
+		if(dlg->getDTS(&rec)) {
+			if(*pID)
+				*pID = rec.ID;
+			if(!CheckName(*pID, rec.Name, 0))
+				dlg->selectCtrl(CTL_COMPCAT_NAME);
+			else if(!CheckDupSymb(*pID, rec.Symb))
+				PPErrorByDialog(dlg, CTL_COMPCAT_SYMB);
+			else if(StoreItem(Obj, *pID, &rec, 1)) {
+				Dirty(*pID);
+				valid_data = true;
+			}
+			else
+				PPError();
+		}
+	}
+	CATCHZOKPPERR
+	delete dlg;
+	return ok ? r : 0;
+}
+
+/*virtual*/int PPObjRawMaterial::MakeReserved(long flags)
+{
+	int    ok = -1;
+	return ok;
 }

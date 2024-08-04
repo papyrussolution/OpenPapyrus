@@ -73,7 +73,7 @@ struct ExtParams_Before24 {
 /*virtual*/int GoodsFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
-	if(ver == -25) { // @v11.5.8 @construction
+	if(ver == -25) { // @v11.5.8
 		class GoodsFilt_v25 : public PPBaseFilt { // @persistent
 		public:
 			explicit GoodsFilt_v25() : PPBaseFilt(PPFILT_GOODS, 0, -25), P_SjF(0), P_TagF(0)
@@ -3974,7 +3974,9 @@ void PPViewGoods::Test_EgaisMarkAutoSelector(PPID goodsID)
 	if(result_blk.getCount()) {
 		SString temp_buf;
 		SString line_buf;
-		PPGetFilePath(PPPATH_OUT, "test-EgaisMarkAutoSelector.out", temp_buf);
+		SString file_name;
+		(file_name = "test-EgaisMarkAutoSelector").CatChar('-').Cat(goodsID).Dot().Cat("out");
+		PPGetFilePath(PPPATH_OUT, file_name, temp_buf);
 		SFile f_out(temp_buf, SFile::mWrite);
 		GetGoodsName(goodsID, temp_buf);
 		temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
@@ -3983,11 +3985,28 @@ void PPViewGoods::Test_EgaisMarkAutoSelector(PPID goodsID)
 		for(uint i = 0; i < result_blk.getCount(); i++) {
 			const EgaisMarkAutoSelector::Entry * p_entry = result_blk.at(i);
 			if(p_entry) {
-				/* @construction
-				GetGoodsName(p_entry->GoodsID, temp_buf);
-				line_buf.Z().Tab().Cat(temp_buf).Tab().Cat(p_entry->Qtty, MKSFMT(0, 3, 0));
+				temp_buf.Z().CatEq("struc-id", p_entry->GsID);
+				line_buf.Z().Tab().Cat(temp_buf);
 				f_out.WriteLine(line_buf.CR());
-				for(uint ssp = 0; p_entry->SsMark.get(&ssp, temp_buf);) {
+				for(uint eidx = 0; eidx < p_entry->Te.getCount(); eidx++) {
+					const EgaisMarkAutoSelector::_TerminalEntry * p_te = p_entry->Te.at(eidx);
+					if(p_te) {
+						GetGoodsName(p_te->GoodsID, temp_buf);
+						temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+						line_buf.Z().Tab(2).Cat(temp_buf).Space().CatEq("lotid", p_te->LotID).Space().Cat(p_te->LotDate, DATF_ISO8601).Space().CatEq("qty", p_te->Qtty, MKSFMTD(0, 3, 0));
+						f_out.WriteLine(line_buf.CR());
+						if(p_te->ML.getCount()) {
+							for(uint mlidx = 0; mlidx < p_te->ML.getCount(); mlidx++) {
+								const EgaisMarkAutoSelector::_MarkEntry * p_me = p_te->ML.at(mlidx);
+								if(p_me) {
+									line_buf.Z().Tab(3).Cat(p_me->Mark).Space().Cat(p_me->Rest, MKSFMTD(0, 3, 0));
+									f_out.WriteLine(line_buf.CR());
+								}
+							}
+						}
+					}
+				}
+				/*for(uint ssp = 0; p_entry->SsMark.get(&ssp, temp_buf);) {
 					line_buf.Z().Tab(2).Cat(temp_buf);
 					f_out.WriteLine(line_buf.CR());
 				}*/

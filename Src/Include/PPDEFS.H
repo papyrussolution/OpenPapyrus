@@ -1041,6 +1041,7 @@
 #define PPOBJ_SWPROGRAMCATEGORY  84L // @v11.9.12 Категория исполняемой программы. Простой вспомогательный справочник для объекта PPOBJ_SWPROGRAM
 #define PPOBJ_COMPUTERCATEGORY   85L // @v12.0.1 Категория компьютера. Простой вспомогательный справочник для объекта PPOBJ_COMPUTER
 	#define PPCOMPCAT_DEFAULT          1L // @v12.0.1 Зарезервированная запись категории компьютеров default
+#define PPOBJ_RAWMATERIAL        86L // @v12.0.10 Сырьевые материалы. Объект введен из-за необходимость рассчитывать параметры классифицированных товаров.
 #define PPOBJ_DYNAMICOBJS  100L // Список динамических объектов
 //
 // Отраслевые справочники
@@ -4346,6 +4347,7 @@
 	#define CTL_QUOTKIND_ST_RESTR        (14 + WINDOWS_ID_BIAS)
 	#define CTL_QUOTKIND_RNDGDIR         (15 + WINDOWS_ID_BIAS)
 	#define CTL_QUOTKIND_RNDGPREC        (16 + WINDOWS_ID_BIAS)
+	#define CTL_QUOTKIND_FORMULA         (17 + WINDOWS_ID_BIAS) // @v12.0.10
 #define DLG_GQUOT                 318 // GQUOT   Котировки товара
 #define DLG_GQUOTSC               682 // GQUOTSC Контрактные цены и отклонения по поставщикам
 #define DLG_GQUOTPC              1112 // GQUOTPC Поправочные коэффициенты прогноза продаж
@@ -5429,6 +5431,7 @@
 	#define CTL_GDSCLS_E_ADD2            (25 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLS_E_W               (26 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLS_SYMB              (27 + WINDOWS_ID_BIAS)
+	#define CTL_GDSCLS_BRUTTO            (28 + WINDOWS_ID_BIAS) // @v12.0.10 Формула для расчета брутто
 
 #define DLG_GDSCLSPROP            481 // Свойство класса товаров
 #define DLG_GDSCLSPROP2           697
@@ -11600,6 +11603,11 @@
 #define DLG_GSPPITEM              1444 // @v12.0.6 Элемент структуры товара (для структуры планирования цены)
 #define DLG_SELOPREFSUPL          1445 // @v12.0.8 Диалог выбора предпоичтительного поставщика для дозаказа в строках документа заказа
 	#define CTL_SELOPREFSUPL_LIST          (1 + WINDOWS_ID_BIAS)
+#define DLG_RAWMAT                1446 // @v12.0.10 PPOBJ_RAWMATERIAL  
+	#define CTL_RAWMAT_ID                  (1 + WINDOWS_ID_BIAS)
+	#define CTL_RAWMAT_NAME                (2 + WINDOWS_ID_BIAS)
+	#define CTL_RAWMAT_SYMB                (3 + WINDOWS_ID_BIAS)
+	#define CTL_RAWMAT_DENS                (4 + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

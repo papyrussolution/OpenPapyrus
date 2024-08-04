@@ -224,8 +224,12 @@ int ACS_FRONTOL::ExportData(int updOnly)
 	const  char * p_format = "%s\n";
 	PPID   prev_goods_id = 0 /*, stat_id = 0*/;
 	LAssocArray  grp_n_level_ary;
-	SString   f_str, tail, temp_buf, email_subj;
-	SString   path_goods, path_flag;
+	SString f_str;
+	SString tail;
+	SString temp_buf;
+	SString email_subj;
+	SString path_goods;
+	SString path_flag;
 	PPID      gc_alc_id = 0;
 	SString   gc_alc_code; // Код класса товаров, относящихся к алкоголю
 	PPIDArray alc_goods_list;
@@ -275,10 +279,8 @@ int ACS_FRONTOL::ExportData(int updOnly)
 	THROW_MEM(SETIFZ(P_Dls, new DeviceLoadingStat));
 	P_Dls->StartLoading(&StatID, dvctCashs, NodeID, 1);
 	PPWaitStart();
-	// @v10.8.4 THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_ATOL_IMP_TXT,  path_goods));
-	// @v10.8.4 THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_ATOL_IMP_FLAG, path_flag));
-	THROW(PPMakeTempFileName("frol", "txt", 0, path_goods)); // @v10.8.4 
-	THROW(PPMakeTempFileName("frol", "flg", 0, path_flag)); // @v10.8.4 
+	THROW(PPMakeTempFileName("frol", "txt", 0, path_goods));
+	THROW(PPMakeTempFileName("frol", "flg", 0, path_flag));
 	THROW_PP_S(p_file = fopen(path_flag, "w"), PPERR_CANTOPENFILE, path_flag);
 	SFile::ZClose(&p_file);
 	THROW_PP_S(p_file = fopen(path_goods, "w"), PPERR_CANTOPENFILE, path_goods);
@@ -771,7 +773,6 @@ int ACS_FRONTOL::ExportData(int updOnly)
 					fputs(f_str, p_file);
 				}
 			}
-			// @10.2.7 {
 			if(is_xpos) {
 				StringSet ma_ss;
 				ExportMarketingActions_XPos(updOnly, ma_ss);
@@ -779,10 +780,10 @@ int ACS_FRONTOL::ExportData(int updOnly)
 					fputs(f_str.CR(), p_file);
 				}
 			}
-			else { // } @10.2.7
+			else {
 				if(!SkipExportingDiscountSchemes && used_retail_quot.getCountVal(1)) { 
 					long   dscnt_code = 0;
-					PPQuotKind qk_rec;
+					PPQuotKindPacket qk_pack;
 					SString card_code_low, card_code_upp;
 					if(!updOnly) {
 						fputs((f_str = "$$$DELETEALLAUTODISCSCHMS").CR(), p_file);
@@ -790,9 +791,9 @@ int ACS_FRONTOL::ExportData(int updOnly)
 					fputs((f_str = "$$$ADDAUTODISCSCHMS").CR(), p_file);
 					for(i = 0; i < retail_quot_list.getCount(); i++) {
 						const  PPID qk_id = retail_quot_list.get(i);
-						if(used_retail_quot.get(i) && qk_obj.Fetch(qk_id, &qk_rec) > 0) {
+						if(used_retail_quot.get(i) && qk_obj.Fetch(qk_id, &qk_pack) > 0) {
 							f_str.Z().Cat(qk_id).Semicol();                       // #1 - код схемы внутренней авт.скидки
-							f_str.Cat(qk_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CatCharN(';', 2);     // #2 - наименование схемы, #3 - не используется //
+							f_str.Cat(qk_pack.Rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CatCharN(';', 2);     // #2 - наименование схемы, #3 - не используется //
 							f_str.CatChar('0').Semicol();                         // #4 - тип операции объединения (0 - не объединять)
 							THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 						}
@@ -812,10 +813,10 @@ int ACS_FRONTOL::ExportData(int updOnly)
 						f_str.Cat(++dscnt_code).Semicol();                // #2 - код скидки
 						// #3 - наименование скидки (код карты) {
 						temp_buf.Z();
-						if(qk_obj.Fetch(r_ent.QuotKindID, &qk_rec) > 0)
-							temp_buf.Cat(qk_rec.Name);
+						if(qk_obj.Fetch(r_ent.QuotKindID, &qk_pack) > 0)
+							temp_buf.Cat(qk_pack.Rec.Name);
 						else {
-							qk_rec.ID = 0;
+							qk_pack.Rec.ID = 0;
 							temp_buf.Cat("EXT DISCOUNT");
 						}
 						f_str.Cat(temp_buf).Semicol();
@@ -826,9 +827,9 @@ int ACS_FRONTOL::ExportData(int updOnly)
 						//
 						// #7-#8 Период действия цены
 						//
-						if(qk_rec.ID && !qk_rec.Period.IsZero()) {
-							f_str.Cat(qk_rec.Period.low, DATF_GERMANCENT).Semicol();
-							f_str.Cat(qk_rec.Period.upp, DATF_GERMANCENT).Semicol();
+						if(qk_pack.Rec.ID && !qk_pack.Rec.Period.IsZero()) {
+							f_str.Cat(qk_pack.Rec.Period.low, DATF_GERMANCENT).Semicol();
+							f_str.Cat(qk_pack.Rec.Period.upp, DATF_GERMANCENT).Semicol();
 						}
 						else
 							f_str.CatCharN(';', 2);
@@ -836,7 +837,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
 						//
 						//                                                       #10-#11 время начала и окончания действия скидки
 						//
-						if(qk_rec.ID && qk_rec.GetTimeRange(tmr))
+						if(qk_pack.Rec.ID && qk_pack.Rec.GetTimeRange(tmr))
 							f_str.Cat(tmr.low, TIMF_HMS).Semicol().Cat(tmr.upp, TIMF_HMS).Semicol();
 						else
 							f_str.CatCharN(';', 2);

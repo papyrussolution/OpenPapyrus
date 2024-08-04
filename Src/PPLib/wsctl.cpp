@@ -961,7 +961,7 @@ int WsCtlSrvBlock::GetQuotList(PPID goodsID, PPID locID, const PPIDArray & rRawQ
 	int    ok = -1;
 	Goods2Tbl::Rec goods_rec;
 	if(GObj.Fetch(goodsID, &goods_rec) > 0) {
-		PPQuotKind qk_rec;
+		PPQuotKindPacket qk_pack;
 		PPIDArray qk_list_intersection;
 		GObj.GetQuotList(goodsID, locID, rQList);
 		rQList.GetQuotKindIdList(qk_list_intersection);
@@ -973,7 +973,7 @@ int WsCtlSrvBlock::GetQuotList(PPID goodsID, PPID locID, const PPIDArray & rRawQ
 				do {
 					const PPQuot & r_q = rQList.at(--i);
 					if(qk_list_intersection.lsearch(r_q.Kind)) {
-						const int qkfr = QkObj.Fetch(r_q.Kind, &qk_rec);
+						const int qkfr = QkObj.Fetch(r_q.Kind, &qk_pack);
 						assert(qkfr > 0);
 						if(qkfr <= 0) {
 							rQList.atFree(i);

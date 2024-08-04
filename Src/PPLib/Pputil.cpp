@@ -2150,9 +2150,9 @@ static SString & CDECL Helper_PPFormat(const SString & rFmt, SString * pBuf, /*.
 						obj_id = va_arg(pArgList, PPID);
 						{
 							PPObjQuotKind qk_obj;
-							PPQuotKind qk_rec;
-							if(qk_obj.Fetch(obj_id, &qk_rec) > 0)
-								buf.Cat(qk_rec.Name);
+							PPQuotKindPacket qk_pack;
+							if(qk_obj.Fetch(obj_id, &qk_pack) > 0)
+								buf.Cat(qk_pack.Rec.Name);
 							else
 								ideqvalstr(obj_id, buf);
 						}

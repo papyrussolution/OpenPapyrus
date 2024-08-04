@@ -551,5 +551,6 @@
 #define cmComputerCategory             657 // @v12.0.1 Категории управляемых компьютеров (проект wsctl)
 #define cmCheckChZnMark                658 // @v12.0.4 Проверка марки честный знак
 #define cmImportSwProgram              659 // @v12.0.4 Импорт списка исполняемых программ (проект wsctl)
+#define cmRawMaterials                 660 // @v12.0.10 Справочник материалов (PPOBJ_RAWMATERIAL)
 
 #endif /* __PPMENU_H */

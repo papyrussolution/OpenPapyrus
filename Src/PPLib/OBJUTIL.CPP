@@ -126,6 +126,7 @@ static const ushort _Objects[] = {
 	PPOBJ_SWPROGRAMCATEGORY,  // @v11.9.12
 	PPOBJ_COMPUTER,           // @v12.0.0
 	PPOBJ_COMPUTERCATEGORY,   // @v12.0.1
+	PPOBJ_RAWMATERIAL,        // @v12.0.10
 };
 
 static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
@@ -141,6 +142,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_PERSONKIND    : p = new PPObjPersonKind(extraPtr); break;
 		case PPOBJ_PRSNCATEGORY: p = new PPObjPersonCat(extraPtr); break;
 		case PPOBJ_COMPUTERCATEGORY:  p = new PPObjComputerCategory(extraPtr); break; // @v12.0.1
+		case PPOBJ_RAWMATERIAL: p = new PPObjRawMaterial(extraPtr); break; // @v12.0.10
 		case PPOBJ_CURRATE     :
 		case PPOBJ_STAFFRANK   :
 		case PPOBJ_BNKACCTYPE  :

@@ -325,10 +325,7 @@ Section "Файлы приложения" SEC01
 		File "${SRC_TARGET}\PPSoapSfaHeineken.dll" ; @v9.9.9
 	!endif
 	File "${SRC_TARGET}\ppraw.res"
-	; @v8.9.8 File "${SRC_TARGET}\pprpt.res"
-	; @v5.8.8 File "${SRC_TARGET}\pp.str"
 	File "${SRC_TARGET}\pp.res"
-	; @v5.7.0 File "${SRC_TARGET}\dd.bin"
 	File "${SRC_TARGET}\ppexp.bin"
 	File "${SRC_TARGET}\ppifc.bin"
 	File "${SRC_TARGET}\ppdbs.bin"

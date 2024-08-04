@@ -427,6 +427,7 @@ PPGdsClsPacket & PPGdsClsPacket::Z()
 	TaxMult_Formula.Z();
 	Package_Formula.Z();
 	LotDimQtty_Formula.Z();
+	Brutto_Formula.Z(); // @v12.0.10
 	PropKind.Z();
 	PropGrade.Z();
 	PropAdd.Z();
@@ -448,6 +449,7 @@ int FASTCALL PPGdsClsPacket::Copy(const PPGdsClsPacket & s)
 	TaxMult_Formula = s.TaxMult_Formula;
 	Package_Formula = s.Package_Formula;
 	LotDimQtty_Formula = s.LotDimQtty_Formula;
+	Brutto_Formula = s.Brutto_Formula; // @v12.0.10
 	PropKind  = s.PropKind;
 	PropGrade = s.PropGrade;
 	PropAdd   = s.PropAdd;
@@ -619,7 +621,7 @@ int PPGdsClsPacket::GetDynGenFilt(const GoodsExtTbl::Rec * pRec, ClsdGoodsFilt *
 		ok = 1;
 	}
 	ASSIGN_PTR(pFilt, flt);
-	return ok; // @v10.6.0 @fix 1-->ok
+	return ok;
 }
 
 // @<<PPGdsClsPacket::GetNameByTemplate
@@ -729,13 +731,14 @@ int PPGdsClsPacket::CompleteGoodsPacket(PPGoodsPacket * pPack)
 		GetNameByTemplate(pPack, AbbrConv, pPack->Rec.Abbr, sizeof(pPack->Rec.Abbr));
 	else if(r > 0 || strip(pPack->Rec.Abbr)[0] == 0)
 		STRNSCPY(pPack->Rec.Abbr, pPack->Rec.Name);
-	if(pPack->Rec.UnitID == 0)
+	if(pPack->Rec.UnitID == 0) {
 		if(Rec.DefUnitID)
 			pPack->Rec.UnitID = Rec.DefUnitID;
 		else {
 			PPObjGoods goods_obj;
 			pPack->Rec.UnitID = goods_obj.GetConfig().DefUnitID;
 		}
+	}
 	if(Rec.DefPhUnitID) {
 		if(PhUPerU_Formula.NotEmptyS()) {
 			double phuperu = 0.0;
@@ -761,6 +764,12 @@ int PPGdsClsPacket::CompleteGoodsPacket(PPGoodsPacket * pPack)
 		GdsClsCalcExprContext ctx(this, pPack);
 		PPCalcExpression(Package_Formula, &package, &ctx);
 		pPack->Stock.Package = R6(package);
+	}
+	if(Brutto_Formula.NotEmptyS()) { // @v12.0.10
+		double brutto = 0.0;
+		GdsClsCalcExprContext ctx(this, pPack);
+		PPCalcExpression(Brutto_Formula, &brutto, &ctx);
+		pPack->Stock.Brutto = R0i(brutto * 1000.0);
 	}
 	SETIFZ(pPack->Rec.TaxGrpID,    Rec.DefTaxGrpID);
 	SETIFZ(pPack->Rec.GoodsTypeID, Rec.DefGoodsTypeID);

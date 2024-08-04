@@ -1463,11 +1463,12 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 						// Если документ привязан к конкретному поставщику (кроме прихода),
 						// то проверяем чтобы товар был оприходован от этого поставщика.
 						//
-						if(OpID == _PPOPK_SUPPLRET || (P_Pack->OpTypeID == PPOPT_GOODSREVAL && P_Pack->Rec.Object))
+						if(OpID == _PPOPK_SUPPLRET || (P_Pack->OpTypeID == PPOPT_GOODSREVAL && P_Pack->Rec.Object)) {
 							if(lot_rec.SupplID != P_Pack->Rec.Object) {
 								Rest = 0.0;
 								continue;
 							}
+						}
 						if(P_Pack->OpTypeID == PPOPT_GOODSREVAL && P_Pack->SearchLot(Item.LotID, 0)) {
 							Rest = 0.0;
 							continue;

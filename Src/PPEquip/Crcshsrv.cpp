@@ -1618,7 +1618,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 	PPObjUnit unit_obj;
 	PPUnit    unit_rec;
 	PPObjQuotKind qk_obj;
-	PPQuotKind    qk_rec;
+	PPQuotKindPacket qk_pack;
 	PPAsyncCashNode cn_data;
 	AsyncCashGoodsInfo gi;
 	AsyncCashGoodsGroupInfo grp_info;
@@ -1809,10 +1809,10 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 					dbfrGGQD.put(7, 2L);                             // Код обработки кол-ва (2 - на превышение)
 					dbfrGGQD.put(8, quot_by_qtty.MinQtty - 1);       // Кол-во, больше которого применяется скидка
 					dbfrGGQD.put(9, -quot_by_qtty.Quot);             // Процент скидки на кол-во товара
-					if(qk_obj.Fetch(quot_by_qtty.Kind, &qk_rec) <= 0)
-						MEMSZERO(qk_rec);
-					dbfrGGQD.put(10, GetDatetimeStrBeg(qk_rec.Period.low, qk_rec.BeginTm, dttm_str));
-					dbfrGGQD.put(11, GetDatetimeStrEnd(qk_rec.Period.upp, qk_rec.EndTm, dttm_str));
+					if(qk_obj.Fetch(quot_by_qtty.Kind, &qk_pack) <= 0)
+						qk_pack.Z();
+					dbfrGGQD.put(10, GetDatetimeStrBeg(qk_pack.Rec.Period.low, qk_pack.Rec.BeginTm, dttm_str));
+					dbfrGGQD.put(11, GetDatetimeStrEnd(qk_pack.Rec.Period.upp, qk_pack.Rec.EndTm, dttm_str));
 					THROW_PP(p_out_tbl_grpqtty_dscnt->appendRec(&dbfrGGQD), PPERR_DBFWRFAULT);
 				}
 			}
@@ -1836,8 +1836,8 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			qk_obj.GetRetailQuotList(ZERODATETIME, &temp_list, 0);
 			for(uint i = 0; i < temp_list.getCount(); i++) {
 				const  PPID qk_id = temp_list.get(i);
-				if(!gi.QuotList.Search(qk_id, 0, 0) && qk_obj.Fetch(qk_id, &qk_rec) > 0) {
-					if(qk_rec.GetTimeRange(tr) || qk_rec.HasWeekDayRestriction()) {
+				if(!gi.QuotList.Search(qk_id, 0, 0) && qk_obj.Fetch(qk_id, &qk_pack) > 0) {
+					if(qk_pack.Rec.GetTimeRange(tr) || qk_pack.Rec.HasWeekDayRestriction()) {
 						rtl_quot_list.addUnique(qk_id);
 						// gi.QuotList.Add(qk_id, 0, 1);
 					}
@@ -1943,13 +1943,13 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 								dbfrD.put(next_fld++, GetDscntCode(gi.ID, scard_quot_ary.at(i).Key, 0)); // Код скидки
 							else
 								dbfrD.put(next_fld++, (0x01000000L * old_dscnt_code_bias + gi.ID)); // Код скидки
-						if(qk_obj.Fetch(scard_quot_ary.at(i).Val, &qk_rec) <= 0)
-							MEMSZERO(qk_rec);
-						dbfrD.put(next_fld++, GetDatetimeStrBeg(qk_rec.Period.low, qk_rec.BeginTm, dttm_str));
-						dbfrD.put(next_fld++, GetDatetimeStrEnd(qk_rec.Period.upp, qk_rec.EndTm,   dttm_str));
-						if(qk_rec.HasWeekDayRestriction()) {
+						if(qk_obj.Fetch(scard_quot_ary.at(i).Val, &qk_pack) <= 0)
+							qk_pack.Z();
+						dbfrD.put(next_fld++, GetDatetimeStrBeg(qk_pack.Rec.Period.low, qk_pack.Rec.BeginTm, dttm_str));
+						dbfrD.put(next_fld++, GetDatetimeStrEnd(qk_pack.Rec.Period.upp, qk_pack.Rec.EndTm,   dttm_str));
+						if(qk_pack.Rec.HasWeekDayRestriction()) {
 							for(uint d = 0; d < 7; d++)
-								tempbuf[d] = (qk_rec.DaysOfWeek & (1 << d)) ? '1' : '0';
+								tempbuf[d] = (qk_pack.Rec.DaysOfWeek & (1 << d)) ? '1' : '0';
 						}
 						else {
 							for(uint d = 0; d < 7; d++)
@@ -1980,10 +1980,10 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 						dbfrGQD.put(3, 0L);                             // Тип скидки (0 - на кол-во)
 						dbfrGQD.put(4, quot_by_qtty.MinQtty);           // Кол-во, на которое применяется скидка
 						dbfrGQD.put(5, -quot_by_qtty.Quot);             // Процент скидки на кол-во товара
-						if(qk_obj.Fetch(quot_by_qtty.Kind, &qk_rec) <= 0)
-							MEMSZERO(qk_rec);
-						dbfrGQD.put(6, GetDatetimeStrBeg(qk_rec.Period.low, qk_rec.BeginTm, dttm_str));
-						dbfrGQD.put(7, GetDatetimeStrEnd(qk_rec.Period.upp, qk_rec.EndTm,   dttm_str));
+						if(qk_obj.Fetch(quot_by_qtty.Kind, &qk_pack) <= 0)
+							qk_pack.Z();
+						dbfrGQD.put(6, GetDatetimeStrBeg(qk_pack.Rec.Period.low, qk_pack.Rec.BeginTm, dttm_str));
+						dbfrGQD.put(7, GetDatetimeStrEnd(qk_pack.Rec.Period.upp, qk_pack.Rec.EndTm,   dttm_str));
 						THROW_PP(p_tbl->appendRec(&dbfrGQD), PPERR_DBFWRFAULT);
 					}
 				}
@@ -1999,14 +1999,14 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 					QuotIdent qi(loc_id, qk_id, 0, 0);
 					double quot = 0.0;
 					if(goods_obj.GetQuotExt(gi.ID, qi, gi.Cost, gi.Price, &quot, 1) > 0) {
-						if(quot > 0.0 && qk_obj.Fetch(qk_id, &qk_rec) > 0) {
+						if(quot > 0.0 && qk_obj.Fetch(qk_id, &qk_pack) > 0) {
 							double dscnt_sum = gi.Price - quot;
 							if(dscnt_sum != 0.0) {
 								DbfRecord dbfr(p_tbl);
 								dbfr.put(1, ltoa(gi.ID, tempbuf, 10));
-								if(qk_rec.HasWeekDayRestriction()) {
+								if(qk_pack.Rec.HasWeekDayRestriction()) {
 									for(uint d = 0; d < 7; d++)
-										tempbuf[d] = (qk_rec.DaysOfWeek & (1 << d)) ? '1' : '0';
+										tempbuf[d] = (qk_pack.Rec.DaysOfWeek & (1 << d)) ? '1' : '0';
 								}
 								else {
 									for(uint d = 0; d < 7; d++)
@@ -2017,8 +2017,8 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 								dbfr.put(3, GetDscntCode(gi.ID, qk_id, 1)); // Код скидки
 								dbfr.put(4, 0.0);       // Процент скидки
 								dbfr.put(5, dscnt_sum); // Сумма скидки
-								dbfr.put(6, GetDatetimeStrBeg(qk_rec.Period.low, qk_rec.BeginTm, dttm_str));
-								dbfr.put(7, GetDatetimeStrEnd(qk_rec.Period.upp, qk_rec.EndTm,   dttm_str));
+								dbfr.put(6, GetDatetimeStrBeg(qk_pack.Rec.Period.low, qk_pack.Rec.BeginTm, dttm_str));
+								dbfr.put(7, GetDatetimeStrEnd(qk_pack.Rec.Period.upp, qk_pack.Rec.EndTm,   dttm_str));
 								dbfr.put(8, 4L);
 								THROW_PP(p_tbl->appendRec(&dbfr), PPERR_DBFWRFAULT);
 							}
@@ -2150,7 +2150,7 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		PPUnit    unit_rec;
 		PPObjUnit unit_obj;
 		PPObjQuotKind qk_obj;
-		PPQuotKind    qk_rec;
+		PPQuotKindPacket qk_pack;
 		PPAsyncCashNode    cn_data;
 		AsyncCashGoodsInfo gi;
 		AsyncCashGoodsGroupInfo grp_info;
@@ -2342,12 +2342,12 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 						dbfrGGQD.put(7, 2L);                             // Код обработки кол-ва (2 - на превышение)
 						dbfrGGQD.put(8, quot_by_qtty.MinQtty - 1);       // Кол-во, больше которого применяется скидка
 						dbfrGGQD.put(9, -quot_by_qtty.Quot);             // Процент скидки на кол-во товара
-						if(qk_obj.Fetch(quot_by_qtty.Kind, &qk_rec) > 0) {
-							dttm_str.Z().Cat((qk_rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_rec.Period.low, DATF_GERMANCENT);
-							dttm_str.Space().Cat(encodetime(PTR8(&qk_rec.BeginTm)[0], PTR8(&qk_rec.BeginTm)[1], 0, 0), TIMF_HM);
+						if(qk_obj.Fetch(quot_by_qtty.Kind, &qk_pack) > 0) {
+							dttm_str.Z().Cat((qk_pack.Rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_pack.Rec.Period.low, DATF_GERMANCENT);
+							dttm_str.Space().Cat(encodetime(PTR8(&qk_pack.Rec.BeginTm)[0], PTR8(&qk_pack.Rec.BeginTm)[1], 0, 0), TIMF_HM);
 							dbfrGGQD.put(10, dttm_str);
-							dttm_str.Z().Cat((qk_rec.Period.upp == ZERODATE) ? encodedate(1, 1, 2050) : qk_rec.Period.upp, DATF_GERMANCENT);
-							dttm_str.Space().Cat(encodetime(PTR8(&qk_rec.EndTm)[0], PTR8(&qk_rec.EndTm)[1], 0, 0), TIMF_HM);
+							dttm_str.Z().Cat((qk_pack.Rec.Period.upp == ZERODATE) ? encodedate(1, 1, 2050) : qk_pack.Rec.Period.upp, DATF_GERMANCENT);
+							dttm_str.Space().Cat(encodetime(PTR8(&qk_pack.Rec.EndTm)[0], PTR8(&qk_pack.Rec.EndTm)[1], 0, 0), TIMF_HM);
 							dbfrGGQD.put(11, dttm_str);
 						}
 						else {
@@ -2446,12 +2446,12 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 								dbfrD.put(next_fld++, GetDscntCode(gi.ID, scard_quot_ary.at(i).Key, 0)); // Код скидки
 							else
 								dbfrD.put(next_fld++, (0x01000000L * old_dscnt_code_bias + gi.ID)); // Код скидки
-						if(qk_obj.Fetch(scard_quot_ary.at(i).Val, &qk_rec) > 0) {
-							dttm_str.Z().Cat((qk_rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_rec.Period.low, DATF_GERMAN | DATF_CENTURY);
-							dttm_str.Space().Cat(encodetime(*(char *)&qk_rec.BeginTm,*(((char *)&qk_rec.BeginTm) + 1), 0, 0), TIMF_HM);
+						if(qk_obj.Fetch(scard_quot_ary.at(i).Val, &qk_pack) > 0) {
+							dttm_str.Z().Cat((qk_pack.Rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_pack.Rec.Period.low, DATF_GERMAN | DATF_CENTURY);
+							dttm_str.Space().Cat(encodetime(*(char *)&qk_pack.Rec.BeginTm,*(((char *)&qk_pack.Rec.BeginTm) + 1), 0, 0), TIMF_HM);
 							dbfrD.put(next_fld++, dttm_str);
-							dttm_str.Z().Cat((qk_rec.Period.upp == ZERODATE) ? encodedate(1, 1, 2050) : qk_rec.Period.upp, DATF_GERMAN | DATF_CENTURY);
-							dttm_str.Space().Cat(encodetime(*(char *)&qk_rec.EndTm,*(((char *)&qk_rec.EndTm) + 1), 0, 0), TIMF_HM);
+							dttm_str.Z().Cat((qk_pack.Rec.Period.upp == ZERODATE) ? encodedate(1, 1, 2050) : qk_pack.Rec.Period.upp, DATF_GERMAN | DATF_CENTURY);
+							dttm_str.Space().Cat(encodetime(*(char *)&qk_pack.Rec.EndTm,*(((char *)&qk_pack.Rec.EndTm) + 1), 0, 0), TIMF_HM);
 							dbfrD.put(next_fld++, dttm_str);
 						}
 						else {
@@ -2477,12 +2477,12 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 							dbfrGQD.put(3, 0L);                             // Тип скидки (0 - на кол-во)
 							dbfrGQD.put(4, quot_by_qtty.MinQtty);           // Кол-во, на которое применяется скидка
 							dbfrGQD.put(5, -quot_by_qtty.Quot);             // Процент скидки на кол-во товара
-							if(qk_obj.Fetch(quot_by_qtty.Kind, &qk_rec) > 0) {
-								dttm_str.Z().Cat((qk_rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_rec.Period.low, DATF_GERMAN | DATF_CENTURY);
-								dttm_str.Space().Cat(encodetime(*(char *)&qk_rec.BeginTm,*(((char *)&qk_rec.BeginTm) + 1), 0, 0), TIMF_HM);
+							if(qk_obj.Fetch(quot_by_qtty.Kind, &qk_pack) > 0) {
+								dttm_str.Z().Cat((qk_pack.Rec.Period.low == ZERODATE) ? encodedate(1, 1, 2000) : qk_pack.Rec.Period.low, DATF_GERMAN | DATF_CENTURY);
+								dttm_str.Space().Cat(encodetime(*(char *)&qk_pack.Rec.BeginTm,*(((char *)&qk_pack.Rec.BeginTm) + 1), 0, 0), TIMF_HM);
 								dbfrGQD.put(6, dttm_str);
-								dttm_str.Z().Cat((qk_rec.Period.upp == ZERODATE) ? encodedate(1, 1, 2050) : qk_rec.Period.upp, DATF_GERMAN | DATF_CENTURY);
-								dttm_str.Space().Cat(encodetime(*(char *)&qk_rec.EndTm,*(((char *)&qk_rec.EndTm) + 1), 0, 0), TIMF_HM);
+								dttm_str.Z().Cat((qk_pack.Rec.Period.upp == ZERODATE) ? encodedate(1, 1, 2050) : qk_pack.Rec.Period.upp, DATF_GERMAN | DATF_CENTURY);
+								dttm_str.Space().Cat(encodetime(*(char *)&qk_pack.Rec.EndTm,*(((char *)&qk_pack.Rec.EndTm) + 1), 0, 0), TIMF_HM);
 								dbfrGQD.put(7, dttm_str);
 							}
 							else {

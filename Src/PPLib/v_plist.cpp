@@ -341,9 +341,9 @@ int PPViewPriceList::GetPriceByQuot(RecalcParamBlock * pRPB, PPID quotKindID, do
 	const  QuotIdent qi(pRPB->Dt, Filt.LocID, quotKindID, 0, Filt.ArticleID);
 	if(GObj.GetQuotExt(pRPB->GoodsID, qi, pRPB->Cost, pRPB->BasePrice, &price, 1) > 0) {
 		if(pRPB->GoodsPriceWoTaxes) {
-			PPQuotKind qk_rec;
+			PPQuotKindPacket qk_pack;
 			PPGoodsTaxEntry gtx;
-			const  PPID op_id = (pRPB->QkObj.Fetch(quotKindID, &qk_rec) > 0) ? qk_rec.OpID : 0;
+			const  PPID op_id = (pRPB->QkObj.Fetch(quotKindID, &qk_pack) > 0) ? qk_pack.Rec.OpID : 0;
 			if(GObj.FetchTax(pRPB->GoodsID, LConfig.OperDate, op_id, &gtx) > 0)
 				GObj.AdjPriceToTaxes(gtx.TaxGrpID, pRPB->TaxFactor, &price, 1);
 		}
@@ -729,8 +729,8 @@ int PPViewPriceList::UpdatePriceList(LDATE date, int rmvOld, int use_ta)
 			pl_iter = pl_ident;
 			while(Tbl.EnumLines(&pl_ident, &pl_iter) > 0) {
 				Goods2Tbl::Rec goods_rec;
-				PPQuotKind qk_rec;
-				if(rmvOld || GObj.Fetch(pl_iter.GoodsID, &goods_rec) < 0 || (pl_iter.QuotKindID > 0 && rpb.QkObj.Fetch(pl_iter.QuotKindID, &qk_rec) < 0)) {
+				PPQuotKindPacket qk_pack;
+				if(rmvOld || GObj.Fetch(pl_iter.GoodsID, &goods_rec) < 0 || (pl_iter.QuotKindID > 0 && rpb.QkObj.Fetch(pl_iter.QuotKindID, &qk_pack) < 0)) {
 					THROW(Tbl.RemoveLine(&pl_iter, 0));
 				}
 			}
