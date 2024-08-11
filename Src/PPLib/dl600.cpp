@@ -1,5 +1,5 @@
 // DL600.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1514,7 +1514,7 @@ DlContext::DlContext(int toCompile) : Tab(8192, 1), ScopeStack(sizeof(DLSYMBID))
 		AddType("bool",     MKSTYPE(S_LOGICAL, 4), 0);
 		AddType("int",      MKSTYPE(S_INT, 4),     MANGLE_BT_INT);
 		AddType("long",     MKSTYPE(S_INT, 4),     MANGLE_BT_LONG);
-		AddType("uint",     MKSTYPE(S_UBINARY, 4), MANGLE_BT_UINT);
+		AddType("uint",     MKSTYPE(S_UINT, 4),    MANGLE_BT_UINT);
 		AddType("char",     MKSTYPE(S_INT, 1),     MANGLE_BT_CHAR);
 		AddType("int8",     MKSTYPE(S_INT, 1),     MANGLE_BT_SCHAR);
 		AddType("int16",    MKSTYPE(S_INT, 2),     MANGLE_BT_SHRT);
@@ -1523,9 +1523,9 @@ DlContext::DlContext(int toCompile) : Tab(8192, 1), ScopeStack(sizeof(DLSYMBID))
 		AddType("autolong", MKSTYPE(S_AUTOINC, 4), MANGLE_BT_LONG);
 		AddType("int64",    MKSTYPE(S_INT64, 8),   0); // @v10.6.3 MKSTYPE(S_INT, 8)-->MKSTYPE(S_INT64, 8)
 		AddType("uint64",   MKSTYPE(S_UINT64, 8),  0); // @v11.9.2
-		AddType("uint8",    MKSTYPE(S_UBINARY, 1), MANGLE_BT_UCHAR);
-		AddType("uint16",   MKSTYPE(S_UBINARY, 2), MANGLE_BT_USHRT);
-		AddType("uint32",   MKSTYPE(S_UBINARY, 4), MANGLE_BT_ULONG);
+		AddType("uint8",    MKSTYPE(S_UINT, 1), MANGLE_BT_UCHAR);
+		AddType("uint16",   MKSTYPE(S_UINT, 2), MANGLE_BT_USHRT);
+		AddType("uint32",   MKSTYPE(S_UINT, 4), MANGLE_BT_ULONG);
 		AddType("float",    MKSTYPE(S_FLOAT, 4),   MANGLE_BT_FLOAT);
 		AddType("double",   MKSTYPE(S_FLOAT, 8),   MANGLE_BT_DBL);
 		AddType("money",    MKSTYPED(S_MONEY, 0, 0), 0);

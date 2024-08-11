@@ -829,10 +829,32 @@ SHistogram::~SHistogram()
 	delete P_Stat;
 }
 
-void SHistogram::Setup()
+bool FASTCALL SHistogram::Copy(const SHistogram & rS)
 {
-	BinList.freeAll();
-	ValList.freeAll();
+	Flags = rS.Flags;
+	BinList = rS.BinList;
+	ValList = rS.ValList;
+	LeftEdge = rS.LeftEdge;
+	Step = rS.Step;
+	DevWidthSigm = rS.DevWidthSigm;
+	DevBinCount = rS.DevBinCount;
+	DevMean = rS.DevMean;
+	DevWidth = rS.DevWidth;
+	if(rS.P_Stat) {
+		delete P_Stat;
+		P_Stat = new StatBase(*rS.P_Stat);
+	}
+	else {
+		ZDELETE(P_Stat);
+	}
+	return true;
+}
+
+//void SHistogram::Setup()
+SHistogram & SHistogram::Z()
+{
+	BinList.clear(); // @v12.0.11 freeAll()-->clear()
+	ValList.clear(); // @v12.0.11 freeAll()-->clear()
 	Flags = 0;
 	LeftEdge = 0.0;
 	Step = 0.0;
@@ -841,11 +863,12 @@ void SHistogram::Setup()
 	ZDELETE(P_Stat);
 	DevMean = 0.0;
 	DevWidth = 0.0;
+	return *this;
 }
 
 void SHistogram::SetupDynamic(double leftEdge, double step)
 {
-	Setup();
+	Z();
 	Flags |= fDynBins;
 	LeftEdge = leftEdge;
 	Step = step;
@@ -853,10 +876,9 @@ void SHistogram::SetupDynamic(double leftEdge, double step)
 
 void SHistogram::SetupDev(int even, double widthSigm, uint binCount)
 {
-	Setup();
+	Z();
 	Flags |= fDeviation;
 	P_Stat = new StatBase(0);
-	// @v10.2.10 P_Stat->Init(0);
 	if(even)
 		Flags |= fEven;
 	DevWidthSigm = widthSigm;
@@ -891,14 +913,16 @@ int SHistogram::GetBin(long binId, Val * pVal) const
 int SHistogram::GetBinByVal(double val, long * pBinId) const
 {
 	int    r = 0;
-	uint   c = BinList.getCount();
+	const  uint c = BinList.getCount();
 	long   val_id;
-	for(uint i = 0; i < c; i++)
-		if(val < BinList.at(i).Val) {
+	for(uint i = 0; i < c; i++) {
+		const double blval = BinList.at(i).Val;
+		if(val < blval) {
 			val_id = (i == 0) ? -MAXLONG : BinList.at(i-1).Key;
 			r = 1;
 			break;
 		}
+	}
 	if(!r) {
 		val_id = c ? BinList.at(c-1).Key : -MAXLONG;
 		r = 2;

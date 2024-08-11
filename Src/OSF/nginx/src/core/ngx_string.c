@@ -804,7 +804,7 @@ time_t FASTCALL ngx_atotm(const uchar * line, size_t n)
 
 ngx_int_t FASTCALL ngx_hextoi(const uchar * line, size_t n)
 {
-	uchar c, ch;
+	uchar ch;
 	ngx_int_t value, cutoff;
 	if(n == 0) {
 		return NGX_ERROR;
@@ -829,10 +829,12 @@ ngx_int_t FASTCALL ngx_hextoi(const uchar * line, size_t n)
 				value = value * 16 + (ch - '0');
 				continue;
 			}
-			c = (uchar)(ch | 0x20);
-			if(c >= 'a' && c <= 'f') {
-				value = value * 16 + (c - 'a' + 10);
-				continue;
+			{
+				uchar c = (uchar)(ch | 0x20);
+				if(c >= 'a' && c <= 'f') {
+					value = value * 16 + (c - 'a' + 10);
+					continue;
+				}
 			}
 			return NGX_ERROR;
 			*/

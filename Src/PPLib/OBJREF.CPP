@@ -2019,36 +2019,36 @@ PPGlobalUserAccPacket & PPGlobalUserAccPacket::Z()
 	return *this;
 }
 
-int FASTCALL PPGlobalUserAccPacket::IsEq(const PPGlobalUserAccPacket & rS) const
+bool FASTCALL PPGlobalUserAccPacket::IsEq(const PPGlobalUserAccPacket & rS) const
 {
 	const  int exfl[] = { extssAccessKey };
 #define NRECFLD(f) Rec.f != rS.Rec.f
 	if(NRECFLD(Tag))
-		return 0;
+		return false;
 	else if(NRECFLD(ID))
-		return 0;
+		return false;
 	else if(NRECFLD(LocalDbUuid))
-		return 0;
+		return false;
 	else if(NRECFLD(Flags))
-		return 0;
+		return false;
 	else if(NRECFLD(LocalUserID))
-		return 0;
+		return false;
 	else if(NRECFLD(PersonID))
-		return 0;
-	else if(NRECFLD(ServiceIdent)) // @v10.5.5
-		return 0;
+		return false;
+	else if(NRECFLD(ServiceIdent))
+		return false;
 	else if(stricmp(Rec.Name, rS.Rec.Name) != 0)
-		return 0;
+		return false;
 	else if(stricmp(Rec.Symb, rS.Rec.Symb) != 0)
-		return 0;
+		return false;
 	else if(stricmp(Rec.Password, rS.Rec.Password) != 0)
-		return 0;
+		return false;
 	else if(!TagL.IsEq(rS.TagL))
-		return 0;
+		return false;
 	else if(!PPExtStrContainer::IsEq(rS, SIZEOFARRAY(exfl), exfl)) // @v11.9.9
-		return 0;
+		return false;
 	else
-		return 1;
+		return true;
 #undef NRECFLD
 }
 
@@ -2370,7 +2370,7 @@ public:
 		RVALUEPTR(Data, pData);
 		SString temp_buf;
 		setCtrlData(CTL_GLOBUSERACC_NAME, Data.Rec.Name);
-		setCtrlData(CTL_GLOBUSERACC_SYMB, Data.Rec.Symb); // @v10.1.6
+		setCtrlData(CTL_GLOBUSERACC_SYMB, Data.Rec.Symb);
 		setCtrlLong(CTL_GLOBUSERACC_ID, Data.Rec.ID);
 		disableCtrl(CTL_GLOBUSERACC_ID, 1);
 		Data.Rec.LocalDbUuid.ToStr(S_GUID::fmtIDL, temp_buf);
@@ -2378,14 +2378,14 @@ public:
 		setCtrlLong(CTL_GLOBUSERACC_LOCALID, Data.Rec.LocalUserID);
 		enableCommand(cmOK, GuaObj.CheckRights(PPR_MOD));
 		SetupPPObjCombo(this, CTLSEL_GLOBUSERACC_PSN, PPOBJ_PERSON, Data.Rec.PersonID, 0, reinterpret_cast<void *>(cfg.PersonKindID));
-		SetupStringCombo(this, CTLSEL_GLOBUSERACC_SVC, PPTXT_GLOBALSERVICELIST, Data.Rec.ServiceIdent); // @v10.5.5
+		SetupStringCombo(this, CTLSEL_GLOBUSERACC_SVC, PPTXT_GLOBALSERVICELIST, Data.Rec.ServiceIdent);
 		//@erik {
 		if(!Data.Rec.ServiceIdent) {
 			disableCtrl(CTL_GS_SETTING, 1);
 		}
 		// } @erik
-		AddClusterAssoc(CTL_GLOBUSERACC_FLAGS, 0, PPGlobalUserAcc::fSandBox); // @v10.6.3
-		SetClusterData(CTL_GLOBUSERACC_FLAGS, Data.Rec.Flags); // @v10.6.3
+		AddClusterAssoc(CTL_GLOBUSERACC_FLAGS, 0, PPGlobalUserAcc::fSandBox);
+		SetClusterData(CTL_GLOBUSERACC_FLAGS, Data.Rec.Flags);
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()
@@ -2396,8 +2396,8 @@ public:
 		getCtrlString(sel = CTL_GLOBUSERACC_NAME, temp_buf);
 		THROW_PP(temp_buf.NotEmptyS(), PPERR_NAMENEEDED);
 		temp_buf.CopyTo(Data.Rec.Name, sizeof(Data.Rec.Name));
-		getCtrlString(sel = CTL_GLOBUSERACC_SYMB, temp_buf); // @v10.1.6
-		temp_buf.CopyTo(Data.Rec.Symb, sizeof(Data.Rec.Symb)); // @v10.1.6
+		getCtrlString(sel = CTL_GLOBUSERACC_SYMB, temp_buf);
+		temp_buf.CopyTo(Data.Rec.Symb, sizeof(Data.Rec.Symb));
 		getCtrlString(sel = CTL_GLOBUSERACC_DBUUID, temp_buf);
 		THROW_SL(Data.Rec.LocalDbUuid.FromStr(temp_buf));
 		Data.Rec.LocalUserID = getCtrlLong(CTL_GLOBUSERACC_LOCALID);
@@ -4394,14 +4394,116 @@ PPRawMaterial::PPRawMaterial()
 	THISZERO();
 }
 
+PPRawMaterialPacket::PPRawMaterialPacket()
+{
+}
+
+bool FASTCALL PPRawMaterialPacket::IsEq(const PPRawMaterialPacket & rS) const
+{
+#define NRECFLD(f) Rec.f != rS.Rec.f
+	if(NRECFLD(Tag))
+		return false;
+	else if(NRECFLD(ID))
+		return false;
+	else if(NRECFLD(Density))
+		return false;
+	else if(stricmp(Rec.Name, rS.Rec.Name) != 0)
+		return false;
+	else if(stricmp(Rec.Symb, rS.Rec.Symb) != 0)
+		return false;
+	else if(!TagL.IsEq(rS.TagL))
+		return false;
+	else
+		return true;
+#undef NRECFLD
+}
+
+PPRawMaterialPacket & PPRawMaterialPacket::Z()
+{
+	MEMSZERO(Rec);
+	TagL.Destroy();
+	return *this;
+}
+
 PPObjRawMaterial::PPObjRawMaterial(void * extraPtr) : PPObjReference(PPOBJ_RAWMATERIAL, extraPtr)
 {
+}
+
+int PPObjRawMaterial::PutPacket(PPID * pID, PPRawMaterialPacket * pPack, int use_ta)
+{
+	int    ok = 1;
+	PPID   _id = DEREFPTRORZ(pID);
+	const  bool is_new = (_id == 0);
+	const  bool is_removing = (_id != 0 && pPack == 0);
+	PPID   hid = 0;
+	SString ext_buffer;
+	PPRawMaterialPacket org_pack;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(_id) {
+			THROW(GetPacket(_id, &org_pack) > 0);
+		}
+		if(pPack == 0) {
+			if(*pID) {
+				THROW(CheckRights(PPR_DEL));
+				THROW(P_Ref->RemoveItem(Obj, _id, 0));
+				THROW(P_Ref->Ot.PutList(Obj, _id, 0, 0));
+				THROW(RemoveSync(_id));
+				DS.LogAction(PPACN_OBJRMV, Obj, *pID, hid, 0);
+			}
+		}
+		else {
+			THROW(CheckRightsModByID(pID));
+			if(_id) {
+				if(pPack->IsEq(org_pack))
+					ok = -1;
+				else {
+					if(!sstreq(pPack->Rec.Name, org_pack.Rec.Name))
+						THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, Obj, _id, pPack->Rec.Name, 0));
+					THROW(P_Ref->UpdateItem(Obj, _id, &pPack->Rec, 0/*logAction*/, 0));
+					THROW(P_Ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
+					DS.LogAction(PPACN_OBJUPD, Obj, _id, 0, 0);
+				}
+			}
+			else {
+				THROW(P_Ref->AddItem(Obj, &_id, &pPack->Rec, 0));
+				pPack->Rec.ID = _id;
+				THROW(P_Ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
+				THROW(SendObjMessage(DBMSG_GLOBALACCADDED, PPOBJ_ARTICLE, Obj, _id) == DBRPL_OK);
+				DS.LogAction(PPACN_OBJADD, Obj, _id, 0, 0);
+				ASSIGN_PTR(pID, _id);
+			}
+		}
+		THROW(tra.Commit());
+	}
+	CATCH
+		if(is_new) {
+			*pID = 0;
+			if(pPack)
+				pPack->Rec.ID = 0;
+		}
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+int PPObjRawMaterial::GetPacket(PPID id, PPRawMaterialPacket * pPack)
+{
+	int    ok = Search(id, &pPack->Rec);
+	if(ok > 0) {
+		pPack->TagL.Destroy();
+		THROW(P_Ref->Ot.GetList(Obj, id, &pPack->TagL));
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
 }
 
 /*virtual*/int PPObjRawMaterial::Edit(PPID * pID, void * extraPtr)
 {
 	class RawMaterialDialog : public TDialog {
-		DECL_DIALOG_DATA(PPRawMaterial);
+		DECL_DIALOG_DATA(PPRawMaterialPacket);
 	public:
 		RawMaterialDialog() : TDialog(DLG_RAWMAT)
 		{
@@ -4410,45 +4512,55 @@ PPObjRawMaterial::PPObjRawMaterial(void * extraPtr) : PPObjReference(PPOBJ_RAWMA
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
-			setCtrlLong(CTL_RAWMAT_ID, Data.ID);
-			setCtrlData(CTL_RAWMAT_NAME, Data.Name);
-			setCtrlData(CTL_RAWMAT_SYMB, Data.Symb);
-			setCtrlData(CTL_RAWMAT_DENS, &Data.Density);
+			setCtrlLong(CTL_RAWMAT_ID, Data.Rec.ID);
+			setCtrlData(CTL_RAWMAT_NAME, Data.Rec.Name);
+			setCtrlData(CTL_RAWMAT_SYMB, Data.Rec.Symb);
+			setCtrlData(CTL_RAWMAT_DENS, &Data.Rec.Density);
 			return ok;
 		}
 		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
-			getCtrlData(CTL_RAWMAT_NAME, Data.Name);
-			getCtrlData(CTL_RAWMAT_SYMB, Data.Symb);
-			getCtrlData(CTL_RAWMAT_DENS, &Data.Density);
+			getCtrlData(CTL_RAWMAT_NAME, Data.Rec.Name);
+			getCtrlData(CTL_RAWMAT_SYMB, Data.Rec.Symb);
+			getCtrlData(CTL_RAWMAT_DENS, &Data.Rec.Density);
 			ASSIGN_PTR(pData, Data);
 			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmTags)) {
+				Data.TagL.ObjType = PPOBJ_RAWMATERIAL;
+				Data.TagL.ObjID = Data.Rec.ID;
+				EditObjTagValList(&Data.TagL, 0);
+				clearEvent(event);
+			}
+			else
+				return;
 		}
 	};
 	int    ok = 1;
 	int    r = cmCancel;
 	bool   valid_data = false;
-	PPRawMaterial rec;
+	PPRawMaterialPacket pack;
 	RawMaterialDialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));
 	if(*pID) {
-		THROW(Search(*pID, &rec) > 0);
-	}
-	else {
-		MEMSZERO(rec);
+		THROW(GetPacket(*pID, &pack) > 0);
 	}
 	THROW(CheckDialogPtr(&(dlg = new RawMaterialDialog)));
-	dlg->setDTS(&rec);
+	dlg->setDTS(&pack);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
-		if(dlg->getDTS(&rec)) {
+		if(dlg->getDTS(&pack)) {
 			if(*pID)
-				*pID = rec.ID;
-			if(!CheckName(*pID, rec.Name, 0))
+				*pID = pack.Rec.ID;
+			if(!CheckName(*pID, pack.Rec.Name, 0))
 				dlg->selectCtrl(CTL_COMPCAT_NAME);
-			else if(!CheckDupSymb(*pID, rec.Symb))
+			else if(!CheckDupSymb(*pID, pack.Rec.Symb))
 				PPErrorByDialog(dlg, CTL_COMPCAT_SYMB);
-			else if(StoreItem(Obj, *pID, &rec, 1)) {
+			else if(PutPacket(pID, &pack, 1)) {
 				Dirty(*pID);
 				valid_data = true;
 			}

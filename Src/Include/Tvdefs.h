@@ -584,7 +584,7 @@ extern struct ODC OwnerDrawCtrls[32]; // @defined(TDIALOG.CPP)
 #define BCO_CAPTOP       0x00000080
 #define BCO_CAPBOTTOM    0x00000100
 #define BCO_CAPVCENTER   0x00000200
-#define BCO_SORTABLE     0x00000400 // @v10.6.3 По содержимому колонки допускается сортировка таблицы
+#define BCO_SORTABLE     0x00000400 // По содержимому колонки допускается сортировка таблицы
 #define BCO_USERPROC     0x00001000
 //#define BCO_SKIP       0x00002000
 #define BCO_DEFOPT       (BCO_CAPBOTTOM | BCO_CAPCENTER)

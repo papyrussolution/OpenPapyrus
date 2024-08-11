@@ -3138,7 +3138,7 @@ void PPViewBrand::PreprocessBrowser(PPViewBrowser * pBrw)
 		pBrw->SetDefUserProc(PPViewBrand::GetDataForBrowser, this);
 		pBrw->SetCellStyleFunc(PPViewBrand_CellStyleFunc, pBrw);
 		if(Filt.Flags & Filt.fShowGoodsCount) {
-			pBrw->InsColumn(-1, "@plucount", 3, MKSTYPE(S_UBINARY, 4), MKSFMT(10, ALIGN_RIGHT), BCO_USERPROC);
+			pBrw->InsColumn(-1, "@plucount", 3, MKSTYPE(S_UINT, 4), MKSFMT(10, ALIGN_RIGHT), BCO_USERPROC);
 		}
 	}
 }

@@ -2332,6 +2332,8 @@ PPERR_CHZNPMCDNHOSTSELECTIONFAULT   "Ошибка выбора доступно�
 PPERR_COMPIDENTAMBIG_GUIDMACADR     "Неоднозначность в идентификации компьютера по GUID и MAC-адресу (%s)"
 PPERR_COMPIDENTAMBIG_GUID           "Неоднозначность в идентификации компьютера по GUID (%s)"
 PPERR_COMPIDENTAMBIG_MACADR         "Неоднозначность в идентификации компьютера по MAC-адресу (%s)"
+PPERR_GCFORMBYSYMBNFOUND            "Формула класса товаров по символу не найдена (%s)"
+PPERR_GCHASNTFORMULALIST            "Класс товаров '%s' не содержит формул общего назначения"
 
 // LastError
 
@@ -11764,6 +11766,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 @goodsclassformula                        "Формула класса товаров"
 @goodsclassformula_name                   "@{appellation}"
+@goodsclassformula_symb                   "@{symbol}"
 @goodsclassformula_formula                "@{formula}"
 @goodsclassformula_var1name               "@{parameter} 1"
 @goodsclassformula_var2name               "@{parameter} 2"
@@ -18203,6 +18206,7 @@ PPHS_ARTICLE                   "article" // @v12.0.7
 PPHS_COMPUTER                  "computer" // @v12.0.0
 PPHS_COMPUTERCATEGORY          "computercategory" // @v12.0.2
 PPHS_SWPROGRAM                 "swprogram" // @v12.0.5
+PPHS_RAWMATERIAL               "rawmaterial" // @v12.0.11
 PPHS_LOGLOCKSTACK              "loglockstack"
 PPHS_PAYMENT                   "payment"
 PPHS_UNKN                      "unkn"

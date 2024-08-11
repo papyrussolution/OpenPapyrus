@@ -3567,7 +3567,6 @@ int PrcssrSartre::Run()
 	SString src_file_name;
 	PPLogger logger;
 	PPWaitStart();
-	THROW_SL(pathValid(P.SrcPath, 1));
 	{
 		char * p_loc = setlocale(LC_CTYPE, "rus_rus.1251");
 		//
@@ -3579,6 +3578,7 @@ int PrcssrSartre::Run()
 		}*/
 		if(P.Flags & P.fImportFlexia) {
 			SrDatabase db;
+			THROW_SL(pathValid(P.SrcPath, 1));
 			THROW(db.Open(0, SrDatabase::oWriteStatOnClose)); // @todo Режим открытия
 			{
 				SrImportParam impp;
@@ -3609,6 +3609,7 @@ int PrcssrSartre::Run()
 		}
 		if(P.Flags & P.fImportConcepts) {
 			SrDatabase db;
+			THROW_SL(pathValid(P.SrcPath, 1));			
 			THROW(db.Open(0, SrDatabase::oWriteStatOnClose)); // @todo Режим открытия
 			{
 				SrConceptParser parser(db);
@@ -3667,15 +3668,14 @@ int PrcssrSartre::Run()
 		if(P.Flags & P.fTestSyntaxParser) {
 			TestSyntax();
 		}
-		// @v10.9.5 {
 		if(P.Flags & P.fImport_UED_Llcc) {
 			UED_Import_Scripts(); // @v11.7.6
 			UED_ImportIcuNames(); // @v11.6.4
 			UED_Import_Atoms(); // @v11.5.11
 			UED_Import_PackageTypes(); // @v11.4.3
 			UED_Import_Lingua_LinguaLocus_Country_Currency(/*llccBaseListOnly*/0);
+			UED_Import_DataTypesCompatibleWithSLIB(); // @v12.0.11
 		}
-		// } @v10.9.5 
 		/*if(!TestImport_Words_MySpell())
 			ret = -1;*/
 		/*if(!TestImport_AncodeCollection())
@@ -6260,5 +6260,62 @@ int PrcssrSartre::UED_Import_Scripts() // @v11.7.7
 		}
 	}
 	ZDELETE(p_js);
+	return ok;
+}
+
+int PrcssrSartre::UED_Import_DataTypesCompatibleWithSLIB()
+{
+	int    ok = 1;
+	static const SIntToSymbTabEntry list[] = {
+		{ MKSTYPE(S_INT, 1), "int8" },
+		{ MKSTYPE(S_INT, 2), "int16" },
+		{ MKSTYPE(S_INT, 4), "int32" },
+		{ MKSTYPE(S_INT, 8), "int64" },
+		{ MKSTYPE(S_INT, 16), "int128" },
+		{ MKSTYPE(S_UINT, 1), "uint8" },
+		{ MKSTYPE(S_UINT, 2), "uint16" },
+		{ MKSTYPE(S_UINT, 4), "uint32" },
+		{ MKSTYPE(S_UINT, 8), "uint64" },
+		{ MKSTYPE(S_UINT, 16), "uint128" },
+	
+		{ MKSTYPE(S_LEINT, 2), "leint16" },
+		{ MKSTYPE(S_LEINT, 4), "leint32" },
+		{ MKSTYPE(S_LEINT, 8), "leint64" },
+		{ MKSTYPE(S_LEINT, 16), "leint128" },
+	
+		{ MKSTYPE(S_LEUINT, 2), "leuint16" },
+		{ MKSTYPE(S_LEUINT, 4), "leuint32" },
+		{ MKSTYPE(S_LEUINT, 8), "leuint64" },
+		{ MKSTYPE(S_LEUINT, 16), "leuint128" },
+	
+		{ MKSTYPE(S_BEINT, 2), "beint16" },
+		{ MKSTYPE(S_BEINT, 4), "beint32" },
+		{ MKSTYPE(S_BEINT, 8), "beint64" },
+		{ MKSTYPE(S_BEINT, 16), "beint128" },
+	
+		{ MKSTYPE(S_BEUINT, 2), "beuint16" },
+		{ MKSTYPE(S_BEUINT, 4), "beuint32" },
+		{ MKSTYPE(S_BEUINT, 8), "beuint64" },
+		{ MKSTYPE(S_BEUINT, 16), "beuint128" },
+
+		{ MKSTYPE(S_FLOAT, 2), "real16" },
+		{ MKSTYPE(S_FLOAT, 4), "real32" },
+		{ MKSTYPE(S_FLOAT, 8), "real64" },
+		{ MKSTYPE(S_FLOAT, 10), "real80" },
+		{ MKSTYPE(S_INT, 0), "int" }, // generic integer
+		{ MKSTYPE(S_FLOAT, 0), "real" }, // generic float
+	};
+	{
+		SString temp_buf;
+		PPGetFilePath(PPPATH_OUT, "ued-data_type.out", temp_buf);
+		SFile f_out(temp_buf, SFile::mWrite);
+		if(f_out.IsValid()) {
+			for(uint i = 0; i < SIZEOFARRAY(list); i++) {
+				uint64 ued = UED::ApplyMetaToRawValue32(UED_META_DATATYPE, list[i].Id);
+				temp_buf.Z().CatHex(ued).Space().CatQStr(list[i].P_Symb);
+				f_out.WriteLine(temp_buf.CR());
+			}
+		}
+	}
 	return ok;
 }

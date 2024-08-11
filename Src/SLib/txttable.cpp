@@ -1,5 +1,5 @@
 // TXTTABLE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -14,7 +14,7 @@ TextDbFile::Param::Param(long flags, const char * pFldDiv, const char * pVertRec
 	Init();
 	Flags = flags;
 	FldDiv = pFldDiv;
-	if(FldDiv.Cmp("\\t", 0) == 0 || FldDiv.Cmp("tab", 0) == 0)
+	if(FldDiv == "\\t" || FldDiv == "tab")
 		FldDiv.Z().Tab();
 	if(FldDiv.Strip().IsEmpty())
 		FldDiv.Semicol();
@@ -65,7 +65,6 @@ int TextDbFile::Param::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pC
 
 TextDbFile::TextDbFile() : State(0), EndPos(0), CurRec(-1)
 {
-	//@v10.3.12 (redundunt) P.Init();
 }
 
 TextDbFile::~TextDbFile()
@@ -97,7 +96,7 @@ int TextDbFile::Open(const char * pFileName, const Param * pParam, int readOnly)
 	F.Close();
 	if(pParam) {
 		P = *pParam;
-		if(P.FldDiv.Cmp("\\t", 0) == 0 || P.FldDiv.Cmp("tab", 0) == 0)
+		if(P.FldDiv == "\\t" || P.FldDiv == "tab")
 			P.FldDiv.Z().Tab();
 	}
 	EndPos = 0;
@@ -111,7 +110,7 @@ int TextDbFile::Open(const char * pFileName, const Param * pParam, int readOnly)
 		}
 	}
 	{
-		const long mode = readOnly ? (SFile::mRead|SFile::mBinary|SFile::mNoStd) : SFile::mReadWrite; // @v10.4.1 SFile::mNoStd
+		const long mode = readOnly ? (SFile::mRead|SFile::mBinary|SFile::mNoStd) : SFile::mReadWrite;
 		THROW(F.Open(pFileName, mode));
 	}
 	THROW(Scan());
@@ -238,13 +237,13 @@ int TextDbFile::Scan()
 							THROW(ParseFieldNameRec(line));
 						}
 						else {
-							if(line.NotEmpty()) { // @v10.7.9
+							if(line.NotEmpty()) {
 								THROW(RecPosList.insert(&pos));
 							}
 						}
 					}
 					else {
-						if(line.NotEmpty()) { // @v10.7.9
+						if(line.NotEmpty()) {
 							THROW(RecPosList.insert(&pos));
 						}
 					}
@@ -370,7 +369,7 @@ int TextDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 						line.Sub(offs, SFMTLEN(fld.OuterFormat), field_buf);
 						field_buf.Strip(); // @v5.3.4 Не уверен, что это правильный оператор.
 							// В общем случае следует использовать поле со всеми пробелами, однако
-							// случаи, когда лидирующие и хвостовые пробелы могут быть полезны
+							// ситуации, когда лидирующие и хвостовые пробелы могут быть полезны
 							// припомнить не смог, в то время как вред от них очевиден.
 						offs += SFMTLEN(fld.OuterFormat);
 						PutFieldDataToBuf(fld, field_buf, pDataBuf);
@@ -483,7 +482,7 @@ int TextDbFile::AppendHeader(const SdRecord & rRec, const void * pDataBuf)
 	THROW(CheckParam(rRec));
 	F.Seek(0, SEEK_END);
 	pos = F.Tell();
-	THROW_S_S(pos == 0 && !(State & stHeaderAdded), SLERR_TXTDB_MISSPLHEADER, F.GetName()); // @v7.4.1
+	THROW_S_S(pos == 0 && !(State & stHeaderAdded), SLERR_TXTDB_MISSPLHEADER, F.GetName());
 	{
 		//
 		// Если файл пустой, то добавляем специфицированное количество пустых строк

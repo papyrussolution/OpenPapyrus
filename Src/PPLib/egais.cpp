@@ -335,6 +335,12 @@ PPEgaisProcessor::Packet::~Packet()
 	}
 }
 
+LotExtCodeCore * PPEgaisProcessor::GetLecT() // @v12.0.11
+{ 
+	SETIFZQ(P_LecT, new LotExtCodeCore);
+	return P_LecT; 
+} 
+
 int PPEgaisProcessor::LogSended(const Packet & rPack)
 {
 	int    ok = -1;
@@ -1260,7 +1266,7 @@ PPEgaisProcessor::~PPEgaisProcessor()
 	delete P_Taw;
 }
 
-int  PPEgaisProcessor::operator !() const { return BIN(State & stError); }
+bool PPEgaisProcessor::operator !() const { return LOGIC(State & stError); }
 void PPEgaisProcessor::SetTestSendingMode(int set) { SETFLAG(State, stTestSendingMode, set); }
 void PPEgaisProcessor::SetNonRvmTagMode(int set) { SETFLAG(State, stDontRemoveTags, set); }
 int  PPEgaisProcessor::CheckLic() const { return (State & stValidLic) ? 1 : PPSetError(PPERR_EGAIS_NOLIC); }
@@ -10740,10 +10746,45 @@ int EgaisMarkAutoSelector::Run(ResultBlock & rResult)
 		if(rResult.Qtty != 0.0 && GObj.Fetch(rResult.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
 			PPGoodsType gt_rec;
 			if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_EGAISAUTOWO) {
-				if(Helper(rResult.GoodsID, rResult.Qtty, rResult) > 0)
+				if(Helper(rResult.GoodsID, rResult.Qtty, rResult) > 0) {
+					assert(rResult.getCount());
+					LotExtCodeCore * p_lotxct = P_EgPrc->GetLecT();
+					if(p_lotxct) {
+						TSCollection <CCheckCore::ListByMarkEntry> lbm;
+						for(uint i = 0; i < rResult.getCount(); i++) {
+							const EgaisMarkAutoSelector::Entry * p_entry = rResult.at(i);
+							if(p_entry && p_entry->Te.getCount()) {
+								for(uint eidx = 0; eidx < p_entry->Te.getCount(); eidx++) {
+									const EgaisMarkAutoSelector::_TerminalEntry * p_te = p_entry->Te.at(eidx);
+									if(p_te && p_te->ML.getCount()) {
+										for(uint mlidx = 0; mlidx < p_te->ML.getCount(); mlidx++) {
+											const EgaisMarkAutoSelector::_MarkEntry * p_me = p_te->ML.at(mlidx);
+											if(p_me) {
+												CCheckCore::ListByMarkEntry * p_cclbm_entry = lbm.CreateNewItem();
+												THROW_SL(p_cclbm_entry);
+												p_cclbm_entry->OrgLotID = p_te->LotID;
+												p_cclbm_entry->OrgLotDate = p_te->LotDate;
+												p_cclbm_entry->OrgLotQtty = p_te->Qtty;
+												STRNSCPY(p_cclbm_entry->Mark, p_me->Mark);
+											}
+										}
+									}
+								}
+							}
+						}
+						if(lbm.getCount()) {
+							PPObjCSession csobj;
+							const uint back_days = PPObjCSession::GetCcListByMarkBackDays(lbm);
+							LAssocArray index;
+							LAssocArray * p_index = csobj.FetchCcDate2MaxIdIndex(index) ? &index : 0;
+							csobj.P_Cc->Helper_GetListByMark2(lbm, CCheckPacket::lnextChZnMark, p_index, back_days, 0);
+						}
+					}
 					ok = 1;
+				}
 			}
 		}
 	}
+	CATCHZOK
 	return ok;
 }

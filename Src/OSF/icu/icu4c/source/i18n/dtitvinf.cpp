@@ -360,27 +360,22 @@ void DateIntervalInfo::initializeData(const Locale & locale, UErrorCode & status
 	status = U_ZERO_ERROR;
 
 	// Instantiate the resource bundles
-	UResourceBundle * rb, * calBundle;
-	rb = ures_open(nullptr, locName, &status);
+	UResourceBundle * calBundle;
+	UResourceBundle * rb = ures_open(nullptr, locName, &status);
 	if(U_FAILURE(status)) {
 		return;
 	}
 	calBundle = ures_getByKeyWithFallback(rb, gCalendarTag, nullptr, &status);
-
 	if(U_SUCCESS(status)) {
-		UResourceBundle * calTypeBundle, * itvDtPtnResource;
-
 		// Get the fallback pattern
 		const char16_t * resStr = nullptr;
 		int32_t resStrLen = 0;
-		calTypeBundle = ures_getByKeyWithFallback(calBundle, calendarTypeToUse, nullptr, &status);
-		itvDtPtnResource = ures_getByKeyWithFallback(calTypeBundle,
-			gIntervalDateTimePatternTag, nullptr, &status);
+		UResourceBundle * calTypeBundle = ures_getByKeyWithFallback(calBundle, calendarTypeToUse, nullptr, &status);
+		UResourceBundle * itvDtPtnResource = ures_getByKeyWithFallback(calTypeBundle, gIntervalDateTimePatternTag, nullptr, &status);
 		// TODO(ICU-20400): After the fixing, we should find the "fallback" from
 		// the rb directly by the path "calendar/${calendar}/intervalFormats/fallback".
 		if(U_SUCCESS(status)) {
-			resStr = ures_getStringByKeyWithFallback(itvDtPtnResource, gFallbackPatternTag,
-				&resStrLen, &status);
+			resStr = ures_getStringByKeyWithFallback(itvDtPtnResource, gFallbackPatternTag, &resStrLen, &status);
 		}
 
 		if(U_SUCCESS(status) && (resStr != nullptr)) {

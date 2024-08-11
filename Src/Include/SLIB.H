@@ -1019,20 +1019,20 @@
 #define S_CHAR               1
 #define S_INT                2
 #define S_FLOAT              3
-#define S_DATE               4
-#define S_TIME               5
-#define S_DEC                6
+#define S_DATE               4 // Дата в формате LDATE
+#define S_TIME               5 // Время в формате LTIME
+#define S_DEC                6 // Двоично-десятичное представление числа с фиксированной точкой в формате COBOL
 #define S_MONEY              7
 #define S_LOGICAL            8
 #define S_BOOL               S_LOGICAL
 #define S_NUMERIC            9
 // @v11.9.9 (unused) #define S_BFLOAT            10
-#define S_LSTRING           11
-#define S_ZSTRING           12
-#define S_NOTE              13      // Для BTRIEVE - символьное поле переменной длины (последнее в таблице), для SQL - VARCHAR. Максимальная бинарная (с завершающим нулем) длина специфицируется //
+#define S_LSTRING           11 // Текстовая строка в формате PASCAL (первый байт - длина, далее - символы)
+#define S_ZSTRING           12 // Тестовая строка, завершающаяся нулевым байтом
+#define S_NOTE              13 // Для BTRIEVE - символьное поле переменной длины (последнее в таблице), для SQL - VARCHAR. Максимальная бинарная (с завершающим нулем) длина специфицируется //
 #define S_LVAR              14
-#define S_UBINARY           15
-#define S_UINT              S_UBINARY
+#define S_UINT              15
+// @v12.0.11 #define S_UBINARY           S_UINT
 #define S_AUTOINC           16
 #define S_BIT               17
 #define S_STS               18
@@ -1053,9 +1053,17 @@
 #define S_FPOINT2           32      // Вещественная двумерная точка (x, y)
 #define S_WZSTRING          33      // Unicode-zstring
 #define S_UUID_             34      // (Суффиксное подчеркивание необходимо для отличия от class S_GUID)
-#define S_INT64             35      // @v10.6.3
-#define S_UINT64            36      // @v10.6.3
-#define S_COLOR_RGBA        37      // @v10.9.10 4-компонентное представление цвета ARGB class SColorBase
+#define S_INT64             35      // Этот тип, как и S_UINT64, избыточен. Введен из-за мелких нестыковок, возникающих при использовании S_INT(8)
+#define S_UINT64            36      // 
+#define S_COLOR_RGBA        37      // 4-компонентное представление цвета ARGB class SColorBase
+//
+// Следующие 4 типа введены для соблюдения логической целостности набора типов и проекции на набор данных UED. 
+// Практически использовать их в обозримом времени не планируется.
+//
+#define S_LEINT             38      // @v12.0.11 int low-endian
+#define S_LEUINT            39      // @v12.0.11 uint low-endian
+#define S_BEINT             40      // @v12.0.11 int big-endian
+#define S_BEUINT            41      // @v12.0.11 uint big-endian
 //
 #define S_FIRSTUSERTYPE     50
 //
@@ -1075,15 +1083,15 @@
 
 #define T_CHAR             MKSTYPE(S_CHAR,1)
 #define T_INT              MKSTYPE(S_INT,2)
-#define T_UINT             MKSTYPE(S_UBINARY,2)
-#define T_UINT16           MKSTYPE(S_UBINARY,2)
-#define T_UINT32           MKSTYPE(S_UBINARY,4)
-#define T_UINT64           MKSTYPE(S_UBINARY,8)
+#define T_UINT             MKSTYPE(S_UINT,2)
+#define T_UINT16           MKSTYPE(S_UINT,2)
+#define T_UINT32           MKSTYPE(S_UINT,4)
+#define T_UINT64           MKSTYPE(S_UINT,8)
 #define T_INT16            MKSTYPE(S_INT,2)
 #define T_INT32            MKSTYPE(S_INT,4)
 #define T_INT64            MKSTYPE(S_INT64 ,8) // @v10.6.3 MKSTYPE(S_INT ,8)-->MKSTYPE(S_INT64 ,8)
 #define T_LONG             MKSTYPE(S_INT,4)
-#define T_ULONG            MKSTYPE(S_UBINARY,4)
+#define T_ULONG            MKSTYPE(S_UINT,4)
 #define T_FLOAT            MKSTYPE(S_FLOAT,4)
 #define T_DOUBLE           MKSTYPE(S_FLOAT,8)
 #define T_MONEY            MKSTYPED(S_DEC,8,2)
@@ -1125,7 +1133,7 @@ typedef char   * BCD_T;
 typedef unsigned short      RECORDSIZE;
 typedef unsigned long       RECORDNUMBER;
 typedef unsigned char       xmlChar; // Определение из libxml и для libxml (libxml now includes slib.h)
-typedef int                 boolint; // @v10.5.2 Введен с целью унифицировать "рукотворные" целочисленные булевы типы в разных включенных библиотеках
+typedef int                 boolint; // Введен с целью унифицировать "рукотворные" целочисленные булевы типы в разных включенных библиотеках
 typedef int32               TYPEID;
 
 class  SBuffer;
@@ -13882,7 +13890,9 @@ public:
 	};
 	SHistogram();
 	~SHistogram();
-	void   Setup();
+	bool   FASTCALL Copy(const SHistogram & rS);
+	//void   Setup();
+	SHistogram & Z();
 	void   SetupDynamic(double leftEdge, double step);
 	void   SetupDev(int even, double widthSigm, uint binCount = 0);
 	int    AddBin(long binId, double lowBound);

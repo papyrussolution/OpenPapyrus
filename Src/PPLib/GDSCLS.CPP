@@ -6,6 +6,8 @@
 #pragma hdrstop
 //
 // @ModuleDef(PPObjGoodsClass)
+// 
+// Идентификаторы текстовых полей расширения класса товаров
 //
 #define GDSCLS_EXTSTR_FLD_NAMECONV       1
 #define GDSCLS_EXTSTR_FLD_ABBRCONV       2
@@ -21,13 +23,16 @@
 #define GDSCLS_EXTSTR_FLD_PROPADD2      12
 #define GDSCLS_EXTSTR_FLD_LOTDIMQTTY    13
 #define GDSCLS_EXTSTR_FLD_FORMULABRUTTO 14 // @v12.0.10
-
-#define GDSCLS_EXTSTR_FROM_NAME         21
-#define GDSCLS_EXTSTR_FROM_FORM         22
-#define GDSCLS_EXTSTR_FROM_PAR1         23
-#define GDSCLS_EXTSTR_FROM_PAR2         24
-#define GDSCLS_EXTSTR_FROM_PAR3         25
-#define GDSCLS_EXTSTR_FROM_FLAGS        40
+//
+// Идентификаторы полей формул класса товаров
+//
+#define GDSCLS_EXTSTR_FORM_NAME         21
+#define GDSCLS_EXTSTR_FORM_FORM         22
+#define GDSCLS_EXTSTR_FORM_PAR1         23
+#define GDSCLS_EXTSTR_FORM_PAR2         24
+#define GDSCLS_EXTSTR_FORM_PAR3         25
+#define GDSCLS_EXTSTR_FORM_SYMB         26 // @v12.0.11
+#define GDSCLS_EXTSTR_FORM_FLAGS        40
 //
 //
 //
@@ -522,16 +527,6 @@ IMPL_HANDLE_EVENT(GoodsClassDialog)
 								ushort v = 0;
 								getCtrlData(CTL_GDSCLS_FLAGS, &v);
 								SETFLAG(Data.Rec.Flags, PPGdsCls::fDupCombine, v & 0x02);
-								/* @v5.1.9 Для поддержки уникальности записей GoodsExt
-								 теперь используется специализированное поле UniqCntr
-								if(v & 0x02) {
-									Data.Rec.Flags &= ~PPGdsCls::fUsePropAdd;
-									setupCmdFlag(PPGdsCls::fUsePropAdd, CTL_GDSCLS_E_ADD, cmGdsClsAdd);
-									disableCtrl(CTL_GDSCLS_E_ADD, 1);
-								}
-								else
-									disableCtrl(CTL_GDSCLS_E_ADD, 0);
-								*/
 							}
 							break;
 						default:
@@ -627,31 +622,6 @@ int GoodsClassDialog::EditLotDimParam()
 	delete dlg;
 	return ok;
 }
-
-/*
-int GoodsClassDialog::editDynGenMask()
-{
-	int    ok = -1;
-	TDialog * dlg = new TDialog(DLG_GCDGM);
-	if(CheckDialogPtrErr(&dlg)) {
-		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 0, 1<<(PPGdsCls::eKind-1));
-		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 1, 1<<(PPGdsCls::eGrade-1));
-		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 2, 1<<(PPGdsCls::eAdd-1));
-		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 3, 1<<(PPGdsCls::eAdd2-1));
-		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 4, 1<<(PPGdsCls::eX-1));
-		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 5, 1<<(PPGdsCls::eY-1));
-		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 6, 1<<(PPGdsCls::eZ-1));
-		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 7, 1<<(PPGdsCls::eW-1));
-		dlg->SetClusterData(CTL_GCDGM_MASK, Data.Rec.DynGenMask);
-		if(ExecView(dlg) == cmOK)
-			dlg->GetClusterData(CTL_GCDGM_MASK, &Data.Rec.DynGenMask);
-	}
-	else
-		ok = 0;
-	delete dlg;
-	return ok;
-}
-*/
 
 int GoodsClassDialog::replyPropCmd(PPGdsClsProp * pData, int gcProp)
 {
@@ -752,7 +722,7 @@ int PPObjGoodsClass::UpdatePropObjType(PPID clsID, int gcProp, PPID prevObjType,
 int PPObjGoodsClass::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
-	int    valid_data = 0;
+	bool   valid_data = false;
 	bool   is_new = false;
 	const  PPID org_id = DEREFPTRORZ(pID);
 	PPObjGoods goods_obj;
@@ -780,7 +750,7 @@ int PPObjGoodsClass::Edit(PPID * pID, void * extraPtr)
 			else if(*strip(pack.Rec.Symb) && !P_Ref->CheckUniqueSymb(Obj, pack.Rec.ID, pack.Rec.Symb, offsetof(PPGdsCls, Symb)))
 				PPErrorByDialog(dlg, CTL_PALLET_SYMB);
 			else {
-				valid_data = 1;
+				valid_data = true;
 				LAssocArray bad_ref_list;
 				PPWaitStart();
 				{
@@ -809,10 +779,7 @@ int PPObjGoodsClass::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-int PPObjGoodsClass::Print(PPID id)
-{
-	return PPAlddPrint(REPORT_GOODSCLASSVIEW, PView((void *)0), 0);
-}
+int PPObjGoodsClass::Print(PPID id) { return PPAlddPrint(REPORT_GOODSCLASSVIEW, PView((void *)0), 0); }
 
 int PPObjGoodsClass::Browse(void * extraPtr)
 {
@@ -868,9 +835,9 @@ public:
 		uint16 FiltDlgID;
 		long   Flags;
 		int16  DynGenMask;
-		uint8  LotDimCount;    // 
-		uint8  Reserve[1];     // @alignment
-		PPID   LotDimUnitID;   // 
+		uint8  LotDimCount;
+		uint8  FormulaListCount; // @v12.0.11 Количество формул общего назначения. Поле необходимо для правильного извлечения формул из текстовой линии, хранящей строковые поля записи
+		PPID   LotDimUnitID;
 		PPID   KindID;
 		PPID   GradeID;
 		PPID   AddPropID;
@@ -910,6 +877,7 @@ int GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_cache_rec->ScaleY  = static_cast<int16>(gc_pack.DimY.Scale);
 		p_cache_rec->ScaleZ  = static_cast<int16>(gc_pack.DimZ.Scale);
 		p_cache_rec->ScaleW  = static_cast<int16>(gc_pack.DimW.Scale);
+		p_cache_rec->FormulaListCount = 0;
 
 		PPStringSetSCD ss;
 		ss.add(gc_pack.Rec.Name);
@@ -920,6 +888,18 @@ int GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		ss.add(gc_pack.TaxMult_Formula);
 		ss.add(gc_pack.LotDimQtty_Formula);
 		ss.add(gc_pack.Brutto_Formula); // @v12.0.10
+		// @v12.0.11 {
+		{
+			p_cache_rec->FormulaListCount = 0;
+			for(uint i = 0; i < 256 /*поле FormulaListCount 8-битное*/ && i < gc_pack.FormulaList.getCount(); i++) {
+				const char * p_f = gc_pack.FormulaList.at(i);
+				if(!isempty(p_f)) {
+					ss.add(p_f);
+					p_cache_rec->FormulaListCount++;
+				}
+			}
+		}
+		// } @v12.0.11 
 		PutName(ss.getBuf(), p_cache_rec);
 	}
 	else
@@ -968,6 +948,17 @@ void GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 	ss.get(&p, p_data_pack->TaxMult_Formula);
 	ss.get(&p, p_data_pack->LotDimQtty_Formula);
 	ss.get(&p, p_data_pack->Brutto_Formula); // @v12.0.10
+	// @v12.0.11 {
+	{
+		SString form_buf;
+		for(uint i = 0; i < p_cache_rec->FormulaListCount; i++) {
+			ss.get(&p, form_buf);
+			if(form_buf.NotEmpty()) {
+				p_data_pack->FormulaList.insert(newStr(form_buf));
+			}
+		}
+	}
+	// } @v12.0.11 
 }
 
 int PPObjGoodsClass::Fetch(PPID id, PPGdsClsPacket * pRec)
@@ -986,6 +977,7 @@ PPGdsClsFormula & PPGdsClsFormula::Z()
 {
 	Flags = 0;
 	Name.Z();
+	Symb.Z(); // @v12.0.11
 	Formula.Z();
 	Var1Name.Z();
 	Var2Name.Z();
@@ -996,30 +988,36 @@ PPGdsClsFormula & PPGdsClsFormula::Z()
 int FASTCALL PPGdsClsFormula::PutToBuffer(SString & rBuf) const
 {
 	rBuf.Z();
-	PPPutExtStrData(GDSCLS_EXTSTR_FROM_NAME, rBuf, Name);
-	PPPutExtStrData(GDSCLS_EXTSTR_FROM_FORM, rBuf, Formula);
-	PPPutExtStrData(GDSCLS_EXTSTR_FROM_PAR1, rBuf, Var1Name);
-	PPPutExtStrData(GDSCLS_EXTSTR_FROM_PAR2, rBuf, Var2Name);
-	PPPutExtStrData(GDSCLS_EXTSTR_FROM_PAR3, rBuf, Var3Name);
+	PPPutExtStrData(GDSCLS_EXTSTR_FORM_NAME, rBuf, Name);
+	PPPutExtStrData(GDSCLS_EXTSTR_FORM_SYMB, rBuf, Symb); // @v12.0.11
+	PPPutExtStrData(GDSCLS_EXTSTR_FORM_FORM, rBuf, Formula);
+	PPPutExtStrData(GDSCLS_EXTSTR_FORM_PAR1, rBuf, Var1Name);
+	PPPutExtStrData(GDSCLS_EXTSTR_FORM_PAR2, rBuf, Var2Name);
+	PPPutExtStrData(GDSCLS_EXTSTR_FORM_PAR3, rBuf, Var3Name);
 	SString temp_buf;
 	temp_buf.Cat(Flags);
-	PPPutExtStrData(GDSCLS_EXTSTR_FROM_FLAGS, rBuf, temp_buf);
+	PPPutExtStrData(GDSCLS_EXTSTR_FORM_FLAGS, rBuf, temp_buf);
 	return 1;
 }
 
 int FASTCALL PPGdsClsFormula::GetFromBuffer(const char * pBuf)
 {
-	SString temp_buf;
-	const SString line_buf(pBuf);
 	Z();
-	PPGetExtStrData(GDSCLS_EXTSTR_FROM_NAME, line_buf, Name);
-	PPGetExtStrData(GDSCLS_EXTSTR_FROM_FORM, line_buf, Formula);
-	PPGetExtStrData(GDSCLS_EXTSTR_FROM_PAR1, line_buf, Var1Name);
-	PPGetExtStrData(GDSCLS_EXTSTR_FROM_PAR2, line_buf, Var2Name);
-	PPGetExtStrData(GDSCLS_EXTSTR_FROM_PAR3, line_buf, Var3Name);
-	PPGetExtStrData(GDSCLS_EXTSTR_FROM_FLAGS, line_buf, temp_buf);
-	Flags = temp_buf.ToLong();
-	return 1;
+	int    ok = 0;
+	if(!isempty(pBuf)) {
+		SString temp_buf;
+		const SString line_buf(pBuf);
+		PPGetExtStrData(GDSCLS_EXTSTR_FORM_NAME, line_buf, Name);
+		PPGetExtStrData(GDSCLS_EXTSTR_FORM_SYMB, line_buf, Symb); // @v12.0.11
+		PPGetExtStrData(GDSCLS_EXTSTR_FORM_FORM, line_buf, Formula);
+		PPGetExtStrData(GDSCLS_EXTSTR_FORM_PAR1, line_buf, Var1Name);
+		PPGetExtStrData(GDSCLS_EXTSTR_FORM_PAR2, line_buf, Var2Name);
+		PPGetExtStrData(GDSCLS_EXTSTR_FORM_PAR3, line_buf, Var3Name);
+		PPGetExtStrData(GDSCLS_EXTSTR_FORM_FLAGS, line_buf, temp_buf);
+		Flags = temp_buf.ToLong();
+		ok = 1;
+	}
+	return ok;
 }
 
 int PPGdsClsPacket::PutFormula(int * pIdx, const PPGdsClsFormula * pForm)
@@ -1056,6 +1054,35 @@ int PPGdsClsPacket::GetFormula(int idx, PPGdsClsFormula * pForm) const
 	}
 }
 
+bool PPGdsClsPacket::GetFormulaBySymb(const char * pSymb, PPGdsClsFormula * pResult) const
+{
+	bool   ok = false;
+	if(!isempty(pSymb)) {
+		if(FormulaList.getCount()) {
+			PPGdsClsFormula f;
+			for(uint i = 0; i < FormulaList.getCount(); i++) {
+				const char * p_buf = FormulaList.at(i);
+				if(f.GetFromBuffer(p_buf)) {
+					if(f.Symb.IsEqiAscii(pSymb)) {
+						ASSIGN_PTR(pResult, f);
+						ok = true;
+					}
+				}
+			}
+			if(!ok) {
+				PPSetError(PPERR_GCFORMBYSYMBNFOUND, SLS.AcquireRvlStr().Cat(Rec.Name).CatParStr(pSymb));
+			}
+		}
+		else {
+			PPSetError(PPERR_GCHASNTFORMULALIST, Rec.Name);
+		}
+	}
+	else {
+		PPSetError(PPERR_GCFORMBYSYMBNFOUND, SLS.AcquireRvlStr().Cat(Rec.Name).CatParStr("{empty}"));
+	}
+	return ok;
+}
+
 int PPGdsClsPacket::SetDefaultFormula(int idx)
 {
 	const int cnt = FormulaList.getCountI();
@@ -1083,6 +1110,7 @@ static int EditGcFormula(PPGdsClsFormula * pForm)
 	if(CheckDialogPtrErr(&dlg)) {
 		PPGdsClsFormula form = *pForm;
 		dlg->setCtrlString(CTL_GDSCLSFORM_NAME, form.Name);
+		dlg->setCtrlString(CTL_GDSCLSFORM_SYMB, form.Symb); // @v12.0.11
 		dlg->setCtrlString(CTL_GDSCLSFORM_FORM, form.Formula);
 		dlg->setCtrlString(CTL_GDSCLSFORM_PAR1, form.Var1Name);
 		dlg->setCtrlString(CTL_GDSCLSFORM_PAR2, form.Var2Name);
@@ -1092,6 +1120,8 @@ static int EditGcFormula(PPGdsClsFormula * pForm)
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			dlg->getCtrlString(CTL_GDSCLSFORM_NAME, form.Name);
 			if(form.Name.NotEmptyS()) {
+				dlg->getCtrlString(CTL_GDSCLSFORM_SYMB, form.Symb); // @v12.0.11
+				// @todo проверить уникальность наименования и символа 
 				dlg->getCtrlString(CTL_GDSCLSFORM_FORM, form.Formula);
 				dlg->getCtrlString(CTL_GDSCLSFORM_PAR1, form.Var1Name);
 				dlg->getCtrlString(CTL_GDSCLSFORM_PAR2, form.Var2Name);
@@ -1218,12 +1248,12 @@ public:
 	}
 	int    setDTS(PPID goodsID, PPID tsessID);
 	int    getDTS(double * pResult);
-	void   setArg(int argIdx /* 1..3 */, double arg);
+	void   SetArg(int argIdx /* 1..3 */, double arg);
 private:
 	DECL_HANDLE_EVENT;
-	int    setupFormulaCombo();
-	void   setupFormula();
-	int    calc();
+	int    SetupFormulaCombo();
+	void   SetupFormula();
+	int    Calc();
 
 	PPObjGoods GObj;
 	PPObjGoodsClass GcObj;
@@ -1234,7 +1264,7 @@ private:
 	double Result;
 };
 
-void GcCalcDialog::setupFormula()
+void GcCalcDialog::SetupFormula()
 {
 	PPGdsClsFormula form;
 	long   idx = getCtrlLong(CTLSEL_GDSCLSCALC_FORM);
@@ -1251,17 +1281,17 @@ void GcCalcDialog::setupFormula()
 IMPL_HANDLE_EVENT(GcCalcDialog)
 {
 	if(event.isCmd(cmOK)) {
-		calc();
+		Calc();
 		clearEvent(event);
 	}
 	TDialog::handleEvent(event);
 	if(event.isCbSelected(CTLSEL_GDSCLSCALC_FORM)) {
-		setupFormula();
+		SetupFormula();
 		clearEvent(event);
 	}
 }
 
-int GcCalcDialog::calc()
+int GcCalcDialog::Calc()
 {
 	int    ok  = 0;
 	long   idx = 0;
@@ -1288,7 +1318,7 @@ int GcCalcDialog::calc()
 	return ok;
 }
 
-int GcCalcDialog::setupFormulaCombo()
+int GcCalcDialog::SetupFormulaCombo()
 {
 	int    ok = 1;
 	ComboBox   * p_cb = 0;
@@ -1307,13 +1337,13 @@ int GcCalcDialog::setupFormulaCombo()
 			}
 		p_cb->setListWindow(p_lw, NZOR(default_idx, single_idx));
 		if(single_idx)
-			setupFormula();
+			SetupFormula();
 	}
 	CATCHZOKPPERR
 	return ok;
 }
 
-void GcCalcDialog::setArg(int argIdx, double arg)
+void GcCalcDialog::SetArg(int argIdx, double arg)
 {
 	if(argIdx >= 1 && argIdx <= 3) {
 		long   idx = 0;
@@ -1324,7 +1354,7 @@ void GcCalcDialog::setArg(int argIdx, double arg)
 			uint ctl_id = CTL_GDSCLSCALC_PAR1 + argIdx - 1;
 			par_buf.Cat(arg, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 			setCtrlString(ctl_id, par_buf);
-			calc();
+			Calc();
 		}
 	}
 }
@@ -1336,7 +1366,7 @@ int GcCalcDialog::setDTS(PPID goodsID, PPID tsessID)
 	TSessID = tsessID;
 	if(GObj.GetPacket(goodsID, &Pack, PPObjGoods::gpoSkipQuot) > 0 && Pack.Rec.GdsClsID && GcObj.GetPacket(Pack.Rec.GdsClsID, &GcPack) > 0) {
 		if(GcPack.FormulaList.getCount()) {
-			setupFormulaCombo();
+			SetupFormulaCombo();
 			ok = 1;
 		}
 	}
@@ -1355,7 +1385,7 @@ int PPGoodsCalculator(PPID goodsID, PPID tsesID, int argIdx, double arg, double 
 	GcCalcDialog * dlg = new GcCalcDialog;
 	if(CheckDialogPtrErr(&dlg)) {
 		if(dlg->setDTS(goodsID, tsesID)) {
-			dlg->setArg(argIdx, arg);
+			dlg->SetArg(argIdx, arg);
 			ExecView(dlg);
 			ok = dlg->getDTS(pVal);
 		}

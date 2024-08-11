@@ -60,9 +60,9 @@ int ExprEvalContext::SetInnerContext(ExprEvalContext * pInner)
 	return ok;
 }
 
-int ExprEvalContext::SelfScanArgList() const { return BIN(ImplementFlags & fSelfScanArgList); }
-int ExprEvalContext::IsFunc(const char * pSymb, int * pFuncId) { return 0; }
-int ExprEvalContext::ResolveFunc(int funcId, FC & rFc) { return 0; }
+bool ExprEvalContext::SelfScanArgList() const { return LOGIC(ImplementFlags & fSelfScanArgList); }
+/*virtual*/int ExprEvalContext::IsFunc(const char * pSymb, int * pFuncId) { return 0; }
+/*virtual*/int ExprEvalContext::ResolveFunc(int funcId, FC & rFc) { return 0; }
 
 /*static*/int STDCALL PPExprParser::CalcExpression(const char * pStr, double * pResult, const PPCalcFuncList * pCFL, ExprEvalContext * pCtx)
 {
@@ -151,8 +151,7 @@ int BillSymbCache::DirtySymb(const char * pSymb)
 		for(uint n = 0, pos = 0; !ok && SymbSet.get(&pos, s); n++) {
 			if(stricmp866(s, pSymb) == 0) {
 				Data * p_entry = static_cast<Data *>(SearchByPos(n, 0));
-				// (@redundant) if(p_entry->F)
-					p_entry->F = 0;
+				p_entry->F = 0;
 			}
 		}
 	}
@@ -243,7 +242,7 @@ BillContext::BillContext(const PPBillPacket * p, PPID curID, uint advLineIdx) : 
 {
 }
 
-int BillContext::IsFunc(const char * pSymb, int * pFuncId)
+/*virtual*/int BillContext::IsFunc(const char * pSymb, int * pFuncId)
 {
 	// amountbyvat(x)
 	int    func_id = 0;
@@ -357,7 +356,7 @@ int BillContext::CalcTotalBlock()
 	return ok;
 }
 
-int BillContext::ProcessLink(PPID linkBillID, PPID amtID, int artefactSymb, PPID addCurID, int errOnDefault, double * pResult)
+int BillContext::ProcessLink(PPID linkBillID, PPID amtID, int artefactSymb, PPID addCurID, bool errOnDefault, double * pResult)
 {
 	int    ok = 1;
 	double result = 0.0;
@@ -366,7 +365,7 @@ int BillContext::ProcessLink(PPID linkBillID, PPID amtID, int artefactSymb, PPID
 		if(artefactSymb) {
 			BillTotalData btd;
 			PPBillPacket link_pack;
-			THROW(p_bobj->ExtractPacket(linkBillID, &link_pack) > 0); // @v9.4.3 @fix(>0)
+			THROW(p_bobj->ExtractPacket(linkBillID, &link_pack) > 0);
 			link_pack.CalcTotal(&btd, 0);
 			if(artefactSymb == ARTSYMB_QTTY)
 				result = btd.UnitsCount;
@@ -390,7 +389,7 @@ int BillContext::ProcessLink(PPID linkBillID, PPID amtID, int artefactSymb, PPID
 int BillContext::Resolve(const char * b, double * pResult)
 {
 	int    ok = 1, r, sel = CURR_BILL;
-	int    err_on_default = 0;
+	bool   err_on_default = false;
 	int    artefact_symb = 0; // ahtoxa
 	PPID   id = 0;
 	double val = 0.0;
@@ -399,21 +398,16 @@ int BillContext::Resolve(const char * b, double * pResult)
 	char * p_delim = const_cast<char *>(sstrchr(b, '.')); // @badcast
 	*pResult = 0;
 	if(p_delim) {
-		long   sLINK[2], sRCKN[2];
-		sLINK[0] = 0x4B4E494CL; // "LINK"
-		sLINK[1] = 0;
-		sRCKN[0] = 0x4E4B4352L; // "RCKN"
-		sRCKN[1] = 0;
 		*p_delim = 0;
 		STRNSCPY(sel_buf, b);
-		if(stricmp(b, reinterpret_cast<const char *>(&sLINK)) == 0)
+		if(sstreqi_ascii(b, "LINK"))
 			sel = LINK_BILL;
-		else if(stricmp(b, reinterpret_cast<const char *>(&sRCKN)) == 0)
+		else if(sstreqi_ascii(b, "RCKN"))
 			sel = RCKN_BILL;
 		else {
 			CALLEXCEPT_PP_S(PPERR_ILLVAR, b);
 		}
-		b   = p_delim+1;
+		b = p_delim+1;
 		*p_delim = '.';
 	}
 	if(sstreqi_ascii(b, "QTTY")) {
@@ -506,8 +500,21 @@ PPExprParser::State & FASTCALL PPExprParser::State::operator = (const PPExprPars
 	return *this;
 }
 
+PPExprParser::FuncBlock::FuncBlock() : Func(0)
+{
+}
+		
+int   PPExprParser::FuncBlock::GetFuncId() const { return Func; }
+void  PPExprParser::FuncBlock::SetFuncId(int f) { Func = f; }
+
+void  PPExprParser::FuncBlock::ClearSieve()
+{
+	Sieve.Z();
+	SieveVal.freeAll();
+}
+
 PPExprParser::PPExprParser(const char * pStr, const PPCalcFuncList * pCFL, ExprEvalContext * pContext) :
-	Token(0), Number(0.0), Pos(0), P_Ctx(pContext), P_CFL(pCFL), P_S(newStr(pStr)), Func(0)
+	Token(0), Number(0.0), Pos(0), P_Ctx(pContext), P_CFL(pCFL), P_S(newStr(pStr)), /*Func(0)*/Fb()
 {
 	Next();
 }
@@ -517,10 +524,7 @@ PPExprParser::~PPExprParser()
 	delete P_S;
 }
 
-int PPExprParser::Next()
-{
-	return P_S[Pos] ? (Cur = static_cast<int>(P_S[Pos++])) : (Cur = -1);
-}
+int PPExprParser::Next() { return P_S[Pos] ? (Cur = static_cast<int>(P_S[Pos++])) : (Cur = -1); }
 
 // sieve[1.0; 20000.0 ? 2.5; 40000 ? 4]
 // sieve[1.0; @pp:alc_price_limit]
@@ -529,8 +533,9 @@ int PPExprParser::GetSieve()
 {
 	int    ok = 1;
 	SString temp_buf, sub;
-	Sieve.Setup();
-	SieveVal.freeAll();
+	//Sieve.Z();
+	//SieveVal.freeAll();
+	Fb.ClearSieve();
 	while(oneof2(Cur, ' ', '\t'))
 		Next();
 	THROW_PP_S(Cur == '[', PPERR_INVEXPR, P_S);
@@ -569,12 +574,12 @@ int PPExprParser::GetSieve()
 					if(row.Get(0, bin)) {
 						++id;
 						if(row.Get(1, val)) {
-							Sieve.AddBin(id, bin);
-							SieveVal.Add(id, val, 0);
+							Fb.Sieve.AddBin(id, bin);
+							Fb.SieveVal.Add(id, val, 0);
 						}
 						else {
 							THROW_PP(was_default == 0, PPERR_SIEVEFUNC_DUPDEF);
-							SieveVal.Add(-MAXLONG, bin, 0);
+							Fb.SieveVal.Add(-MAXLONG, bin, 0);
 							was_default = 1;
 						}
 					}
@@ -583,12 +588,12 @@ int PPExprParser::GetSieve()
 			else {
 				++id;
 				if(sub.Divide('?', left, right) > 0) {
-					Sieve.AddBin(id, left.ToReal());
-					SieveVal.Add(id, right.ToReal(), 0);
+					Fb.Sieve.AddBin(id, left.ToReal());
+					Fb.SieveVal.Add(id, right.ToReal(), 0);
 				}
 				else {
 					THROW_PP(was_default == 0, PPERR_SIEVEFUNC_DUPDEF);
-					SieveVal.Add(-MAXLONG, left.ToReal(), 0);
+					Fb.SieveVal.Add(-MAXLONG, left.ToReal(), 0);
 					was_default = 1;
 				}
 			}
@@ -616,7 +621,7 @@ int PPExprParser::ResolveContextName(const char * pSymb, double * pResult)
 
 int PPExprParser::GetToken()
 {
-	char   buf[256];
+	char   buf[512];
 	char * p = buf;
 	Token = -1;
 	if(Cur > 0) {
@@ -633,7 +638,8 @@ int PPExprParser::GetToken()
 				Next();
 			}
 			*p = 0;
-			Func = 0;
+			//Func = 0;
+			Fb.SetFuncId(0);
 			Name = buf;
 			Token = tokName;
 		}
@@ -643,36 +649,57 @@ int PPExprParser::GetToken()
 				Next();
 			} while(isasciialnum(static_cast<uchar>(Cur)) || oneof2(Cur, '_', '.')); // @v11.4.9 isalnum-->isasciialnum
 			*p = 0;
-			Func = 0;
-			if(sstreqi_ascii(buf, "abs")) { Func = funcAbs; }
-			else if(sstreqi_ascii(buf, "sqrt")) { Func = funcSqrt; }
-			else if(sstreqi_ascii(buf, "sin"))   { Func = funcSin; }
-			else if(sstreqi_ascii(buf, "cos"))   { Func = funcCos; }
-			else if(sstreqi_ascii(buf, "tan"))   { Func = funcTan; }
-			else if(sstreqi_ascii(buf, "log"))   { Func = funcLog; } // @v11.0.2
-			else if(sstreqi_ascii(buf, "log10")) { Func = funcLog10; } // @v11.0.2
-			else if(sstreqi_ascii(buf, "round")) { Func = funcRound; }
-			else if(sstreqi_ascii(buf, "roundup")) { Func = funcRoundUp; }
-			else if(sstreqi_ascii(buf, "rounddown")) { Func = funcRoundDown; }
-			else if(sstreqi_ascii(buf, "rounddn")) { Func = funcRoundDown; }
-			else if(sstreqi_ascii(buf, "oid"))   { Func = funcOid; }
-			else if(sstreqi_ascii(buf, "pow"))   { Func = funcPow; }
-			else if(sstreqi_ascii(buf, "min"))   { Func = funcMin; }
-			else if(sstreqi_ascii(buf, "minz")) { Func = funcMinZ; }
-			else if(sstreqi_ascii(buf, "max"))   { Func = funcMax; }
-			else if(sstreqi_ascii(buf, "?"))     { Func = funcQuest; }
-			else if(sstreqi_ascii(buf, "eq"))    { Func = funcEq; }
-			else if(sstreqi_ascii(buf, "neq"))   { Func = funcNEq; }
-			else if(sstreqi_ascii(buf, "sieve")) {
-				Func = funcSieve;
-				THROW(GetSieve());
+			//Func = 0;
+			Fb.SetFuncId(0);
+			if(sstreqi_ascii(buf, "abs")) { Fb.SetFuncId(funcAbs); }
+			else if(sstreqi_ascii(buf, "sqrt")) { Fb.SetFuncId(funcSqrt); }
+			else if(sstreqi_ascii(buf, "sin"))   { Fb.SetFuncId(funcSin); }
+			else if(sstreqi_ascii(buf, "cos"))   { Fb.SetFuncId(funcCos); }
+			else if(sstreqi_ascii(buf, "tan"))   { Fb.SetFuncId(funcTan); }
+			else if(sstreqi_ascii(buf, "log"))   { Fb.SetFuncId(funcLog); } // @v11.0.2
+			else if(sstreqi_ascii(buf, "log10")) { Fb.SetFuncId(funcLog10); } // @v11.0.2
+			else if(sstreqi_ascii(buf, "round")) { Fb.SetFuncId(funcRound); }
+			else if(sstreqi_ascii(buf, "roundup")) { Fb.SetFuncId(funcRoundUp); }
+			else if(sstreqi_ascii(buf, "rounddown")) { Fb.SetFuncId(funcRoundDown); }
+			else if(sstreqi_ascii(buf, "rounddn")) { Fb.SetFuncId(funcRoundDown); }
+			else if(sstreqi_ascii(buf, "oid"))   { Fb.SetFuncId(funcOid); }
+			else if(sstreqi_ascii(buf, "pow"))   { Fb.SetFuncId(funcPow); }
+			else if(sstreqi_ascii(buf, "min"))   { Fb.SetFuncId(funcMin); }
+			else if(sstreqi_ascii(buf, "minz")) { Fb.SetFuncId(funcMinZ); }
+			else if(sstreqi_ascii(buf, "max"))   { Fb.SetFuncId(funcMax); }
+			else if(sstreqi_ascii(buf, "?"))     { Fb.SetFuncId(funcQuest); }
+			else if(sstreqi_ascii(buf, "eq"))    { Fb.SetFuncId(funcEq); }
+			else if(sstreqi_ascii(buf, "neq"))   { Fb.SetFuncId(funcNEq); }
+			else {
+				const char * p_tagexpr_symb = "tagexpr";
+				const uint tagexpr_symb_len = sstrlen(p_tagexpr_symb);
+				if(sstreqni_ascii(buf, "tagexpr", tagexpr_symb_len) && buf[tagexpr_symb_len] == '.') { // @v12.0.11
+					SString left, right;
+					const int dr = SString(buf).Divide('.', left, right);
+					assert(dr > 0);
+					assert(left.IsEqiAscii(p_tagexpr_symb));
+					if(dr > 0) {
+						Fb.SetFuncId(funcTagExpr); 
+						Fb.ExtToken = right;
+					}
+				} 
+				else if(sstreqi_ascii(buf, "sieve")) {
+					Fb.SetFuncId(funcSieve);
+					THROW(GetSieve());
+				}
+				else {
+					int    func_id = 0;
+					if(P_Ctx && P_Ctx->IsFunc(buf, &func_id)) {
+						Fb.SetFuncId(func_id);
+					}
+					else {
+						Fb.SetFuncId(0);
+						Name = buf;
+						Token = tokName;
+					}
+				}
 			}
-			else if(!P_Ctx || !P_Ctx->IsFunc(buf, &Func)) {
-				Func = 0;
-				Name = buf;
-				Token = tokName;
-			}
-			if(Func)
+			if(Fb.GetFuncId())
 				Token = tokFunc;
 		}
 		else if(isdec(Cur) || Cur == '.') {
@@ -725,11 +752,7 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 	int    ok = 1;
 	int    uminus = 0;
 	THROW(GetToken());
-	//
-	// Цикл для корректной обработки любого количества
-	// подряд идущих плюсов и минусов
-	//
-	while(oneof2(Token, '-', '+')) {
+	while(oneof2(Token, '-', '+')) { // Цикл для корректной обработки любого количества подряд идущих плюсов и минусов
 		if(Token == '-')
 			uminus++;
 		THROW(GetToken());
@@ -746,7 +769,10 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 		case tokName:
 			{
 				uint16 func_id = 0;
-				if(P_CFL && (func_id = P_CFL->SearchFuncByName(Name)) != 0) {
+				if(Name.IsEqiAscii("pi")) { // @v12.0.11
+					*pResult = SMathConst::Pi;
+				}
+				else if(P_CFL && (func_id = P_CFL->SearchFuncByName(Name)) != 0) {
 					StringSet params;
 					char   result[64];
 					size_t next_pos;
@@ -767,7 +793,7 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 			{
 				ExprEvalContext::FC fc;
 				// @v11.3.7 (@ctr) fc.Init();
-				const  int func = Func;
+				const  int func = Fb.GetFuncId();
 				size_t arg_list_offs = 0;
 				double first_arg = 0.0;
 				ReadArgString(fc.StrArg, &arg_list_offs);
@@ -875,15 +901,53 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 							{
 								StringSet ss(',', fc.StrArg);
 								THROW_PP(ss.get(&pos, obj_type_symb) && ss.get(&pos, obj_id_symb), PPERR_OIDFUNC_ARGCOUNT);
+								// @v12.0.11 Пытаемся трактовать obj_id_symb как выражение {
+								/*{
+									if(obj_id_symb.NotEmptyS()) {
+										long obj_id_as_int = obj_id_symb.ToLong();
+										if(obj_id_as_int) {
+											;
+										}
+										else {
+												
+										}
+									}
+								}*/
+								// } @v12.0.11
 								THROW(PPObject::Identify(obj_type_symb.Strip(), obj_id_symb.Strip(), &oid) > 0);
 								*pResult = static_cast<double>(oid);
+							}
+						}
+						break;
+					case funcTagExpr: // @v12.0.11
+						{
+							if(arg_count >= 1) {
+								PPObjID oid;
+								oid.FromDouble(first_arg);
+								if(Fb.ExtToken.NotEmpty()) {
+									PPObjTag tag_obj;
+									PPObjectTag tag_rec;
+									PPID   tag_id = 0;
+									THROW(tag_obj.FetchBySymb(Fb.ExtToken, &tag_id) > 0);
+									THROW(tag_obj.Fetch(tag_id, &tag_rec) > 0);
+									THROW(tag_rec.ObjTypeID == oid.Obj); // @todo @err
+									{
+										ObjTagCore & r_ot = PPRef->Ot;
+										SString expr_buf;
+										double local_result = 0.0;
+										r_ot.GetTagStr(oid.Obj, oid.Id, tag_id, expr_buf);
+										THROW(expr_buf.NotEmptyS()); // @todo @err
+										THROW(PPExprParser::CalcExpression(expr_buf, &local_result, 0, P_Ctx));
+										*pResult = local_result;
+									}
+								}
 							}
 						}
 						break;
 					case funcSieve:
 						{
 							long   bin_id = 0;
-							*pResult = Sieve.GetBinByVal(first_arg, &bin_id) ? SieveVal.Get(bin_id) : 0.0;
+							*pResult = Fb.Sieve.GetBinByVal(first_arg, &bin_id) ? Fb.SieveVal.Get(bin_id) : 0.0;
 						}
 						break;
 					default:
@@ -964,21 +1028,13 @@ int FASTCALL PPExprParser::GetTerm(double * pResult)
 	return ok;
 }
 
-static double FASTCALL quest(int condition)
-{
-	return condition ? 1.0 : 0.0;
-}
+static double FASTCALL quest(int condition) { return condition ? 1.0 : 0.0; }
 
 int FASTCALL PPExprParser::CalcExpr(double * pResult)
 {
 	int    ok = 1;
 	double result = 0.0;
-	//
-	// Сохраняем текущее состояние, критичное к рекурсивному вызову CalcExpr {
-	//
-	State save_state;
-	save_state = St;
-	// }
+	const State save_state(St); // Сохраняем текущее состояние, критичное к рекурсивному вызову CalcExpr
 	THROW(GetTerm(&result));
 	while(oneof8(Token, '+', '-', '<', '>', '=', tokLe, tokGe, tokNe)) {
 		double add = 0.0;
@@ -1118,7 +1174,7 @@ void GoodsContext::AllocGoodsStruc()
 	}
 }
 
-int GoodsContext::IsFunc(const char * pSymb, int * pFuncId)
+/*virtual*/int GoodsContext::IsFunc(const char * pSymb, int * pFuncId)
 {
 	int    func_id = 0;
 	SString temp_buf;
@@ -1418,7 +1474,8 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 			enum {
 				spcrefQuot = 1,
 				spcrefLotTag,
-				spcrefGoodsTag
+				spcrefGoodsTag,
+				spcrefGcFormula // @v12.0.11
 			};
 			int    spcref = 0;
 			int    ref_dim = 0;
@@ -1453,6 +1510,8 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 				spcref = spcrefLotTag;
 			else if(ref.IsEqiAscii("TAG"))
 				spcref = spcrefGoodsTag;
+			else if(ref.IsEqiAscii("GCFORMULA")) // @v12.0.11
+				spcref = spcrefGcFormula;
 			else {
 				AllocGoodsStruc();
 				if(P_Gs) {
@@ -1483,9 +1542,8 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 						// Возможно, ссылка является кодом группы
 						//
 						ref2.CatChar('@').Cat(ref);
-						if(GObj.P_Tbl->SearchBarcode(ref2, &bc_rec) > 0) {
+						if(GObj.P_Tbl->SearchBarcode(ref2, &bc_rec) > 0)
 							ref_goods_id = bc_rec.GoodsID;
-						}
 						//
 						// Ничего не помогает: ссылка не может быть разрешена
 						//
@@ -1510,7 +1568,7 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 					const  PPID   loc_id = P_BillPack ? P_BillPack->Rec.LocID : P.LocID;
 					const  PPID   cur_id = P_BillPack ? P_BillPack->Rec.CurID : P.CurID;
 					const  PPID   ar_id  = P_BillPack ? P_BillPack->Rec.Object : P.ArID;
-					const LDATE  _dt = P_BillPack ? P_BillPack->Rec.Dt : getcurdate_();
+					const  LDATE  _dt = P_BillPack ? P_BillPack->Rec.Dt : getcurdate_();
 					GObj.GetQuotExt(P.GoodsID, QuotIdent(QIDATE(_dt), loc_id, qk_id, cur_id, ar_id), cost, price, &v, 0);
 				}
 			}
@@ -1546,6 +1604,27 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 					ObjTagItem tag_item;
 					if(PPRef->Ot.GetTag(PPOBJ_GOODS, P.GoodsID, tag_id, &tag_item) > 0)
 						tag_item.GetReal(&v);
+				}
+			}
+			else if(spcref == spcrefGcFormula) { // @v12.0.11
+				const PPGdsClsPacket * p_local_gc_pack = 0;
+				PPGdsClsPacket gc_pack;
+				if(P_ClsPack)
+					p_local_gc_pack = P_ClsPack;
+				else if(P.GoodsID) {
+					Goods2Tbl::Rec goods_rec;
+					if(GObj.FetchCls(P.GoodsID, &goods_rec, &gc_pack) > 0) {
+						p_local_gc_pack = &gc_pack;
+					}
+				}
+				if(p_local_gc_pack) {
+					PPGdsClsFormula f;
+					THROW(p_local_gc_pack->GetFormulaBySymb(ref, &f));
+					if(f.Formula.NotEmpty()) {
+						double local_result = 0.0;
+						THROW(PPExprParser::CalcExpression(f.Formula, &local_result, 0, this));
+						v = local_result;
+					}
 				}
 			}
 			else if(ref.IsEqiAscii("QTTY") || ref.IsEqiAscii("QTY")) {
@@ -1763,7 +1842,7 @@ int PPCalcExpression(const char * pStr, double * pResult, GdsClsCalcExprContext 
 
 #if SLTEST_RUNNING // {
 
-SLTEST_R(PPExprParser)
+/*SLTEST_R(PPExprParser__)
 {
 	const double tolerance = 1.0e-14;
 
@@ -1789,6 +1868,6 @@ SLTEST_R(PPExprParser)
 		CurrentStatus = 0;
 	ENDCATCH
 	return CurrentStatus;
-}
+}*/
 
 #endif // } SLTEST_RUNNING

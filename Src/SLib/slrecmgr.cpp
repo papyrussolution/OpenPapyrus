@@ -209,7 +209,7 @@ int SRecPageManager::Write(uint64 * pRowId, uint pageType, const void * pData, s
 	return ok;
 }
 
-int SRecPageManager::UpdateOnPage(SDataPage_ * pPage, uint64 rowId, uint pageType, const void * pData, size_t dataLen)
+int SRecPageManager::UpdateOnPage(SDataPage_ * pPage, uint64 rowId, const void * pData, size_t dataLen)
 {
 	int    ok = -1;
 	uint   seq = 0;
@@ -283,7 +283,9 @@ int SRecPageManager::UpdateOnPage(SDataPage_ * pPage, uint64 rowId, uint pageTyp
 						const uint64 post_write_rowid = pPage->Write(ofs, pData, dataLen, &new_free_entry);
 						THROW(post_write_rowid);
 						assert(post_write_rowid == rowId);
-						THROW(Fl.Put(pPage->GetType(), new_free_entry.RowId, new_free_entry.FreeSize));
+						if(new_free_entry.RowId) {
+							THROW(Fl.Put(pPage->GetType(), new_free_entry.RowId, new_free_entry.FreeSize)); 
+						}
 						ok = 1; // everything is done
 					}
 				}
@@ -323,9 +325,9 @@ int SRecPageManager::Update(uint64 rowId, uint64 * pNewRowId, uint pageType, con
 	int    ok = 1;
 	uint64 new_row_id = 0;
 	uint   ofs = 0;
-	SDataPage_ * p_page = QueryPageForWriting(rowId, 0/*pageType*/, &ofs);
+	SDataPage_ * p_page = QueryPageForWriting(rowId, pageType, &ofs);
 	THROW(p_page && p_page->IsConsistent());
-	ok = UpdateOnPage(p_page, rowId, pageType, pData, dataLen);
+	ok = UpdateOnPage(p_page, rowId, pData, dataLen);
 	THROW(ok);
 	if(ok < 0) {
 		THROW(DeleteFromPage(p_page, rowId)); // Здесь нельзя использовать Delete() поскольку возникнет двойное блокирование страницы

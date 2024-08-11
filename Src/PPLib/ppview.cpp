@@ -1738,7 +1738,7 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 			if(pNf->VD.GetCount() > 0)
 				ep.P_ViewDef = &pNf->VD;
 			ep.Cp = cpUTF8;
-			if(format == SFileFormat::Xml || format == SFileFormat::Unkn) {
+			if(oneof2(format, SFileFormat::Xml, SFileFormat::Unkn)) {
 				THROW(p_xml_buf = xmlBufferCreate());
 				THROW(p_xml_writer = xmlNewTextWriterMemory(p_xml_buf, 0));
 				THROW(p_rtm->Helper_WriteXML(ep, p_xml_writer));

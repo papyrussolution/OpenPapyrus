@@ -511,7 +511,7 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 			break;
 		case S_LVAR:
 			break;
-		case S_UBINARY:
+		case S_UINT:
 			break;
 		case S_BIT:
 			break;

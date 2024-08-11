@@ -954,13 +954,13 @@ table GoodsExt {           // size=56
 	long   Z;              //
 	long   W;              //
 	long   AddObj2ID;      //
-	long   UniqCntr;       //
+	long   UniqCntr;       // Счетчик, обеспечивающий уникальность индекса #1
 	long   Reserve;        // @reserve
 	double TaxFactor;      // Множитель, на который умножается операционное количество для расчета налогов
 index:
-	GoodsID (unique mod);
+	GoodsID (unique mod); // #0
 	// @v5.1.9 GoodsClsID, KindID, GradeID, X, Y, Z, AddObjID (unique mod);
-	GoodsClsID, KindID, GradeID, X, Y, Z, AddObjID, AddObj2ID, W, UniqCntr (unique mod); // @v5.1.9
+	GoodsClsID, KindID, GradeID, X, Y, Z, AddObjID, AddObj2ID, W, UniqCntr (unique mod); // #1 @v5.1.9
 file:
 	"goodsext.btr";
 }

@@ -1824,12 +1824,21 @@ void FASTCALL CSessTotal::Add(const CSessTotal * pSubTotal)
 	WORetAmount    += pSubTotal->WORetAmount;
 	WORetBnkAmount += pSubTotal->WORetBnkAmount;
 	BnkDiscount    += pSubTotal->BnkDiscount;
-	AltRegCount    += pSubTotal->AltRegCount; // @v10.0.02
-	AltRegAmount   += pSubTotal->AltRegAmount; // @v10.0.02
+	AltRegCount    += pSubTotal->AltRegCount;
+	AltRegAmount   += pSubTotal->AltRegAmount;
 }
 //
 // CCheckCore
 //
+CCheckCore::CcMarkedEntry::CcMarkedEntry() : CcID(0), LineNo(0), Flags(0), Qtty(0.0)
+{
+}
+
+CCheckCore::ListByMarkEntry::ListByMarkEntry() : OrgLotID(0), OrgLotDate(ZERODATE), OrgLotQtty(0.0), Flags(0), TotalOpQtty(0.0)
+{
+	Mark[0] = 0;
+}
+
 /*static*/SString & FASTCALL CCheckCore::MakeCodeString(const CCheckTbl::Rec * pRec, uint options, SString & rBuf)
 {
 	rBuf.Z();
@@ -1901,7 +1910,7 @@ int CCheckCore::SearchByDateAndCode(long code, LDATE dt, int unprintedOnly, TSVe
 {
 	int    ok = -1;
 	if(pRecList) {
-		pRecList->clear(); // @v10.6.11 freeAll()-->clear()
+		pRecList->clear();
 		CCheckTbl::Key1  k1;
 		MEMSZERO(k1);
 		k1.Dt = dt;
@@ -3326,7 +3335,6 @@ int CCheckCore::GetSessTotal(PPID sessID, long flags, CSessTotal * pTotal, BVATA
 	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		if(!(data.Flags & CCHKF_SKIP) && (!(flags & gglfSkipUnprintedChecks) || (data.Flags & CCHKF_PRINTED))) {
 			if(flags & gglfUseFullCcPackets) {
-				// @v10.8.7 (LoadPacket) pack.Z();
 				if(LoadPacket(data.ID, 0, &pack) > 0) {
 					double fiscal = 0.0, nonfiscal = 0.0;
 					AddRecToSessTotal(&pack.Rec, pTotal);
@@ -3488,11 +3496,11 @@ int CCheckCore::ReplaceSCard(PPID destCardID, PPID srcCardID, int use_ta)
 		if(GetListByCard(destCardID, 0, &id_list) > 0) {
 			for(uint i = 0; i < id_list.getCount(); i++) {
 				const  PPID check_id = id_list.get(i);
-				if(SearchByID_ForUpdate(this, PPOBJ_CCHECK, check_id, 0) > 0) { // @v7.0.11 CCheckCore::Search-->::SearchByID_ForUpdate
+				if(SearchByID_ForUpdate(this, PPOBJ_CCHECK, check_id, 0) > 0) {
 					double amount = MONEYTOLDBL(data.Amount);
 					data.SCardID = srcCardID;
 					THROW_DB(updateRec()); // @sfu
-					if(!(data.Flags & (CCHKF_JUNK|CCHKF_SKIP))) { // @v7.0.11
+					if(!(data.Flags & (CCHKF_JUNK|CCHKF_SKIP))) {
 						THROW(Cards.AddTurnover(destCardID, -amount, 0));
 						THROW(Cards.AddTurnover(srcCardID, amount, 0));
 					}

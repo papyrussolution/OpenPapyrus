@@ -36,7 +36,7 @@ int FASTCALL SLib2BtrType(int t)
 			// Для правильной работы навигатора PSQL файлы словарей для RAW-полей должны
 			// иметь тип S_CHAR. Однако сейчас оставляем все по прежнему.
 			//
-			t = S_UBINARY; // @v8.7.0 S_CHAR-->S_UBINARY
+			t = S_UINT;
 		}
 		return t ? (t - 1) : 0;
 	}

@@ -639,12 +639,22 @@ PPObjID_Base PPObjID_Base::Set(PPID objType, PPID objID)
 bool PPObjID_Base::IsEq(PPID objType, PPID objID) const { return (Obj == objType && Id == objID); }
 bool FASTCALL PPObjID_Base::operator == (PPObjID_Base s) const { return (Obj == s.Obj && Id == s.Id); }
 bool FASTCALL PPObjID_Base::operator != (PPObjID_Base s) const { return (Obj != s.Obj || Id != s.Id); }
-PPObjID_Base::operator double() const { return ((Obj * 4.0E+9) + static_cast<double>(Id)); }
+
+
+double PPObjID_Base::ToDouble() const { return ((Obj * 4.0E+9) + static_cast<double>(Id)); }
+
+bool PPObjID_Base::FromDouble(double oid)
+{
+	Id = static_cast<long>(fmod(fabs(oid), 4.0E+9));
+	Obj = static_cast<long>(fabs(oid) / 4.0E+9);
+	return true;
+}
+
+PPObjID_Base::operator double() const { return ToDouble(); }
 
 PPObjID_Base & FASTCALL PPObjID_Base::operator = (double oid)
 {
-	Id = (long)fmod(fabs(oid), 4.0E+9);
-	Obj = (long)(fabs(oid) / 4.0E+9);
+	FromDouble(oid);
 	return *this;
 }
 

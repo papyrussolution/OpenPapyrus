@@ -412,6 +412,11 @@ PPGdsClsPacket::PPGdsClsPacket()
 	// @v11.2.7 Init();
 }
 
+PPGdsClsPacket::PPGdsClsPacket(const PPGdsClsPacket & rS)
+{
+	Copy(rS);
+}
+
 PPGdsClsPacket & FASTCALL PPGdsClsPacket::operator = (const PPGdsClsPacket & rS)
 {
 	Copy(rS);
@@ -440,27 +445,27 @@ PPGdsClsPacket & PPGdsClsPacket::Z()
 	return *this;
 }
 
-int FASTCALL PPGdsClsPacket::Copy(const PPGdsClsPacket & s)
+int FASTCALL PPGdsClsPacket::Copy(const PPGdsClsPacket & rS)
 {
-	Rec = s.Rec;
-	NameConv = s.NameConv;
-	AbbrConv = s.AbbrConv;
-	PhUPerU_Formula = s.PhUPerU_Formula;
-	TaxMult_Formula = s.TaxMult_Formula;
-	Package_Formula = s.Package_Formula;
-	LotDimQtty_Formula = s.LotDimQtty_Formula;
-	Brutto_Formula = s.Brutto_Formula; // @v12.0.10
-	PropKind  = s.PropKind;
-	PropGrade = s.PropGrade;
-	PropAdd   = s.PropAdd;
-	PropAdd2  = s.PropAdd2;
-	DimX = s.DimX;
-	DimY = s.DimY;
-	DimZ = s.DimZ;
-	DimW = s.DimW;
+	Rec = rS.Rec;
+	NameConv = rS.NameConv;
+	AbbrConv = rS.AbbrConv;
+	PhUPerU_Formula = rS.PhUPerU_Formula;
+	TaxMult_Formula = rS.TaxMult_Formula;
+	Package_Formula = rS.Package_Formula;
+	LotDimQtty_Formula = rS.LotDimQtty_Formula;
+	Brutto_Formula = rS.Brutto_Formula; // @v12.0.10
+	PropKind  = rS.PropKind;
+	PropGrade = rS.PropGrade;
+	PropAdd   = rS.PropAdd;
+	PropAdd2  = rS.PropAdd2;
+	DimX = rS.DimX;
+	DimY = rS.DimY;
+	DimZ = rS.DimZ;
+	DimW = rS.DimW;
 	FormulaList.freeAll();
-	for(uint i = 0; i < s.FormulaList.getCount(); i++)
-		FormulaList.insert(newStr(s.FormulaList.at(i)));
+	for(uint i = 0; i < rS.FormulaList.getCount(); i++)
+		FormulaList.insert(newStr(rS.FormulaList.at(i)));
 	return 1;
 }
 

@@ -914,12 +914,11 @@ int PPViewSalary::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 //
 class SalaryContext : public ExprEvalContext {
 public:
-	explicit SalaryContext(PrcssrSalary * pPrcssr)
-		{ P_Prcssr = pPrcssr; }
-	virtual int Resolve(const char * pSymb, double * pVal)
-		{ return P_Prcssr ? P_Prcssr->Expr_ResolveSymb(pSymb, pVal) : 0; }
-	virtual int IsFunc(const char * pSymb, int * pFuncId)
-		{ return P_Prcssr ? P_Prcssr->IsFunc(pSymb, pFuncId) : 0; }
+	explicit SalaryContext(PrcssrSalary * pPrcssr) : P_Prcssr(pPrcssr)
+	{
+	}
+	virtual int Resolve(const char * pSymb, double * pVal) { return P_Prcssr ? P_Prcssr->Expr_ResolveSymb(pSymb, pVal) : 0; }
+	virtual int IsFunc(const char * pSymb, int * pFuncId) { return P_Prcssr ? P_Prcssr->IsFunc(pSymb, pFuncId) : 0; }
 	virtual int ResolveFunc(int funcId, FC & rFc)
 	{
 		return P_Prcssr ? P_Prcssr->Expr_ResolveFunc(funcId,

@@ -2560,7 +2560,7 @@ int CPosProcessor::AutosaveCheck()
 			}
 			if(SuspCheckID && GetCc().Search(SuspCheckID, &epb.LastChkRec) > 0) {
 				// @debug {
-				if((epb.LastChkRec.Flags & (CCHKF_JUNK|CCHKF_SUSPENDED)) != (CCHKF_JUNK|CCHKF_SUSPENDED) && !reprint_regular) { // @v10.7.3 (!reprint_regular)
+				if((epb.LastChkRec.Flags & (CCHKF_JUNK|CCHKF_SUSPENDED)) != (CCHKF_JUNK|CCHKF_SUSPENDED) && !reprint_regular) {
 					PPSetError(PPERR_CCHKMUSTBEJUNK, CCheckCore::MakeCodeString(&epb.LastChkRec, 0, msg_buf));
 					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 				}
@@ -2886,7 +2886,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 			SETFLAG(pPack->Rec.Flags, CCHKF_SPFINISHED, P.Eccd.Flags & P.Eccd.fSpFinished);
 			SETFLAG(pPack->Rec.Flags, CCHKF_IMPORTED, P.Eccd.Flags & P.Eccd.fImported); // @v11.8.11
 			pPack->Ext.CreationDtm = P.Eccd.InitDtm;
-			pPack->Ext.CreationUserID = P.Eccd.InitUserID; // @v10.6.8
+			pPack->Ext.CreationUserID = P.Eccd.InitUserID;
 			SETFLAG(pPack->Rec.Flags, CCHKF_EXT, pPack->HasExt());
 			SETIFZ(pPack->Rec.Dt, now_dtm.d);
 			SETIFZ(pPack->Rec.Tm, now_dtm.t);
@@ -5455,7 +5455,7 @@ int SelCheckListDialog::SetupItemList()
 					}
 				}
 				{
-					const int to_disable = BIN(!(State & stSelToUnite) && (pack.Rec.Flags & CCHKF_SUSPENDED) && !(pack.Rec.Flags & CCHKF_JUNK));
+					const bool to_disable = (!(State & stSelToUnite) && (pack.Rec.Flags & CCHKF_SUSPENDED) && !(pack.Rec.Flags & CCHKF_JUNK));
 					enableCommand(cmSplitCheck, to_disable);
 					enableCommand(cmUniteChecks, to_disable);
 				}
@@ -8042,7 +8042,7 @@ int CPosProcessor::RestoreSuspendedCheck(PPID ccID, CCheckPacket * pPack, int un
 		if(unfinishedForReprinting) {
 			THROW_PP_S(!(_ccf & (CCHKF_SUSPENDED|CCHKF_PRINTED|CCHKF_JUNK)), PPERR_CCHKPRINTEDORSUSPENDED, msg_buf);
 			_ccf_to_update |= (CCHKF_TOREPRINT|CCHKF_JUNK);
-			SelPack = cc_pack; // @v10.7.3
+			SelPack = cc_pack;
 		}
 		else {
 			THROW_PP_S(_ccf & CCHKF_SUSPENDED && (!(_ccf & CCHKF_JUNK) || r_cc.IsLostJunkCheck(ccID, &SessUUID, 0)), PPERR_CCHKNOMORESUSPENDED, msg_buf);
@@ -9315,6 +9315,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 						}
 					}
 					if(ok > 0) {
+						const bool skip_unprinted_checks = LOGIC(CnFlags & CASHF_SKIPUNPRINTEDCHECKS); // @v12.0.11
 						int   is_mark_processed = 0;
 						if(oneof3(EgaisMode, 1, 2, 3) && P_EgPrc && P_EgPrc->IsAlcGoods(goodsID)) {
 							PrcssrAlcReport::GoodsItem agi;
@@ -9357,7 +9358,8 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 																Cat("is found at").Space().Cat(cc_rec.Dt, DATF_YMD).Space().Cat(cc_rec.Tm, TIMF_HMS).Space().Cat(cc_rec.Code).Space().
 																CatHex(cc_rec.Flags);
 															PPLogMessage(PPFILNAM_DEBUG_LOG, debug_msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-															if(!(cc_rec.Flags & CCHKF_JUNK)) {
+															// @v12.0.11 проверка на неотпечатанный чек если таковой считается неучетным
+															if(!(cc_rec.Flags & CCHKF_JUNK) && (!skip_unprinted_checks || (cc_rec.Flags & CCHKF_PRINTED))) { 
 																int   take_in_attention = 0;
 																CSessionTbl::Rec cs_rec;
 																PPCashNode cn_rec;
@@ -9426,7 +9428,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 												dup_mark = 1;
 										}
 										if(!dup_mark) {
-											if(!disable_chzn_mark_backtest && (CnExtFlags & CASHFX_CHECKEGAISMUNIQ)) { // @v10.8.1 !disable_chzn_mark_backtest
+											if(!disable_chzn_mark_backtest && (CnExtFlags & CASHFX_CHECKEGAISMUNIQ)) {
 												TSCollection <CCheckCore::ListByMarkEntry> lbm;
 												//PPIDArray cc_list;
 												CCheckCore & r_cc = GetCc();
@@ -9439,7 +9441,8 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 														const  CCheckCore::CcMarkedEntry & r_ccm_entry = p_lbm_entry->CcList.at(j);
 														const  PPID cc_id = r_ccm_entry.CcID;
 														CCheckTbl::Rec cc_rec;
-														if(r_cc.Search(cc_id, &cc_rec) > 0 && !(cc_rec.Flags & CCHKF_JUNK)) {
+														// @v12.0.11 проверка на неотпечатанный чек если таковой считается неучетным
+														if(r_cc.Search(cc_id, &cc_rec) > 0 && !(cc_rec.Flags & CCHKF_JUNK) && (!skip_unprinted_checks || (cc_rec.Flags & CCHKF_PRINTED))) {
 															CCheckCore::MakeCodeString(&cc_rec, 0, temp_buf);
 															if(cc_rec.Flags & CCHKF_RETURN)
 																cc_even--;

@@ -968,28 +968,27 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 	int    ok = 1;
 	IdleCmdList.insert(new IdleCmdUpdateStatusWin(UPD_STATUS_PERIOD));
 	IdleCmdList.insert(new IdleCmdQuitSession(10));
-	IdleCmdList.insert(new IdleCmdUpdateCaches(10)); // @v10.4.4 30-->10
+	IdleCmdList.insert(new IdleCmdUpdateCaches(10));
 	IdleCmdList.insert(new IdleCmdUpdateBizScoreOnDesktop(30));
-	IdleCmdList.insert(new IdleCmdUpdateObjList(25, PPOBJ_PRJTASK, PPAdviseBlock::evTodoChanged)); // @v10.4.4 5-->25
-	IdleCmdList.insert(new IdleCmdUpdateObjList(21, PPOBJ_BILL, PPAdviseBlock::evBillChanged)); // @v10.4.4 30-->21
-	IdleCmdList.insert(new IdleCmdUpdateObjList(23, PPOBJ_PERSONEVENT, PPAdviseBlock::evPsnEvChanged)); // @v10.4.4 5-->23
+	IdleCmdList.insert(new IdleCmdUpdateObjList(25, PPOBJ_PRJTASK, PPAdviseBlock::evTodoChanged));
+	IdleCmdList.insert(new IdleCmdUpdateObjList(21, PPOBJ_BILL, PPAdviseBlock::evBillChanged));
+	IdleCmdList.insert(new IdleCmdUpdateObjList(23, PPOBJ_PERSONEVENT, PPAdviseBlock::evPsnEvChanged));
 	IdleCmdList.insert(new IdleCmdUpdateTSessList(30, PPAdviseBlock::evTSessChanged));
-	IdleCmdList.insert(new IdleCmdUpdateObjList(27,  -1, PPAdviseBlock::evSysJournalChanged)); // @v10.4.4 5-->27
+	IdleCmdList.insert(new IdleCmdUpdateObjList(27,  -1, PPAdviseBlock::evSysJournalChanged));
 	IdleCmdList.insert(new IdleCmdUpdateLogsMon(10, -1, PPAdviseBlock::evLogsChanged)); // @note Это, похоже, просто Quartz
 	IdleCmdList.insert(new IdleCmdQuartz(PPAdviseBlock::evQuartz));
 	IdleCmdList.insert(new IdleCmdPhoneSvc(2, 0));
-	IdleCmdList.insert(new IdleCmdConfigUpdated(60, 0, PPAdviseBlock::evConfigChanged)); // @v10.3.1
+	IdleCmdList.insert(new IdleCmdConfigUpdated(60, 0, PPAdviseBlock::evConfigChanged));
 	{
 #ifdef NDEBUG
 		const long mqb_refresh_period = 73;
 #else
 		const long mqb_refresh_period = 17;
 #endif
-		IdleCmdList.insert(new IdleCmdMqb(mqb_refresh_period, PPAdviseBlock::evMqbMessage)); // @v10.5.7
+		IdleCmdList.insert(new IdleCmdMqb(mqb_refresh_period, PPAdviseBlock::evMqbMessage));
 	}
-	IdleCmdList.insert(new IdleCmdEventCreation(83)); // @v10.9.0
-// @v10.4.8 #if USE_ADVEVQUEUE==2
-	if(PPConst::UseAdvEvQueue == 2) { // @v10.4.8
+	IdleCmdList.insert(new IdleCmdEventCreation(83));
+	if(PPConst::UseAdvEvQueue == 2) {
 		class IdleCmdTestAdvEvQueue : public IdleCommand, private PPAdviseEventQueue::Client {
 		public:
 			IdleCmdTestAdvEvQueue() : IdleCommand(10)
@@ -1018,7 +1017,6 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 		};
 		IdleCmdList.insert(new IdleCmdTestAdvEvQueue); // @debug
 	}
-// @v10.4.8 #endif
 	return ok;
 }
 
@@ -5375,6 +5373,7 @@ int PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 			case PPOBJ_STYLOQBINDERY: val = PPHS_STYLOQBINDERY; break; // @v11.3.4
 			case PPOBJ_COMPUTER: val = PPHS_WSCTL; break; // @v11.7.3
 			case PPOBJ_SWPROGRAM: val = PPHS_SWPROGRAM; break; // @v12.0.7
+			case PPOBJ_RAWMATERIAL: val = PPHS_RAWMATERIAL; break; // @v12.0.11
 		}
 		if(val)
 			ok = P_ObjIdentBlk->P_ShT->GetByAssoc(val, rBuf);
@@ -5439,6 +5438,7 @@ PPID PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 				case PPHS_COMPUTERCATEGORY: val = PPOBJ_COMPUTERCATEGORY; break; // @v12.0.2
 				case PPHS_SWPROGRAM:      val = PPOBJ_SWPROGRAM; break; // @v12.0.5
 				case PPHS_ARTICLE:        val = PPOBJ_ARTICLE; break; // @v12.0.7
+				case PPHS_RAWMATERIAL:    val = PPOBJ_RAWMATERIAL; break; // @v12.0.11
 				default: PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb); break;
 			}
 			obj_type = LoWord(val);

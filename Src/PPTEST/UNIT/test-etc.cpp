@@ -1095,44 +1095,57 @@ public:
 		CATCHZOK
 		return ok;
 	}
+	//
+	// ARG(rMgr IN): ћенеджер записей
+	// ARG(pPage IN): —траница, в которую вставл€ютс€ записи
+	// ARG(maxRecSize IN): ћаксимальный размер записи (фактический размер генерируетс€ случайным образом, но не более maxRecSize)
+	// ARG(rDataList OUT):  оллекци€, в которую добавл€етс€ дубликат вставленной записи дл€ последующей верификации
+	//
 	int UpdateOnPage(SRecPageManager & rMgr, SDataPage_ * pPage, const uint maxRecSize, SCollection & rDataList, uint dataListEntryIdx)
 	{
+		assert(pPage != 0);
 		int    ok = 1;
 		uint   rs = SLS.GetTLA().Rg.GetUniformIntPos(maxRecSize+1);
 		assert(rs > 0);
+		SRecPageManager_DataEntry * p_entry = static_cast<SRecPageManager_DataEntry *>(rDataList.at(dataListEntryIdx));
+		assert(p_entry);
 		SRecPageManager_DataEntry * p_upd_entry = SRecPageManager_DataEntry::Generate(rs);
-		/* @construction
-		if(p_upd_entry) {
-			STempBuffer rec_buf(maxRecSize*2); // ¬ это буфер мы будем считывать записи дл€ верификации
-			int updr = rMgr.UpdateOnPage(pPage, rowid, page_type, p_upd_entry+1, p_upd_entry->Size);
-			THROW(updr);
-			{
-				SDataPageHeader::Stat st;
-				THROW(pPage->GetStat(st, 0));
-				THROW(st.BlockCount == 2U);
-			}
-			if(updr) {
-				p_upd_entry->RowId = rowid;
-				if(updr > 0) {
-					uint  seq = 0;
-					uint  ofs = 0;
-					THROW(SRecPageManager::SplitRowId(p_upd_entry->RowId, &seq, &ofs));
-					const uint read_result = pPage->Read(ofs, rec_buf, sizeof(rec_buf));
-					THROW(read_result);
-					if(read_result) {
-						THROW(read_result == p_upd_entry->Size);
-						THROW(memcmp(rec_buf, (p_upd_entry+1), read_result) == 0);
-					}
+		assert(p_upd_entry);
+		uint64 rowid = p_entry->RowId;
+		SDataPageHeader::Stat st;
+		STempBuffer rec_buf(maxRecSize*2); // ¬ это буфер мы будем считывать записи дл€ верификации
+		assert(rec_buf.IsValid());
+		const int updr = rMgr.UpdateOnPage(pPage, rowid, p_upd_entry+1, p_upd_entry->Size);
+		THROW(updr);
+		THROW(pPage->GetStat(st, 0));
+		{
+			p_upd_entry->RowId = rowid;
+			if(updr > 0) {
+				rDataList.atFree(dataListEntryIdx);
+				p_entry = 0;
+				rDataList.atInsert(dataListEntryIdx, p_upd_entry);
+
+				SRecPageManager_DataEntry * p_upd_entry2 = static_cast<SRecPageManager_DataEntry *>(rDataList.at(dataListEntryIdx));
+				assert(p_upd_entry2 == p_upd_entry);
+
+				uint  seq = 0;
+				uint  ofs = 0;
+				THROW(SRecPageManager::SplitRowId(p_upd_entry->RowId, &seq, &ofs));
+				const uint read_result = pPage->Read(ofs, rec_buf, rec_buf.GetSize());
+				THROW(read_result);
+				if(read_result) {
+					THROW(read_result == p_upd_entry->Size);
+					THROW(memcmp(rec_buf, (p_upd_entry+1), read_result) == 0);
 				}
 			}
-			{
-				SDataPageHeader::Stat st;
-				THROW(pPage->GetStat(st, 0));
-			}
-			THROW(rMgr.VerifyFreeList());
+			else
+				ok = -1; // Ќова€ запись слишком велика дл€ изменени€ в пределех одной страницы
 		}
-		@construction */
-		CATCHZOK
+		THROW(pPage->GetStat(st, 0));
+		THROW(rMgr.VerifyFreeList());
+		CATCH
+			ok = 0;
+		ENDCATCH
 		return ok;
 	}
 };
@@ -1290,29 +1303,7 @@ SLTEST_FIXTURE(SRecPageManager, SlTestFixtureRecPageManager)
 				// - ƒве последние записи:
 				//   -- ¬ставл€ем на страницу случайные записи насколько хватает места
 				//      ѕредпоследнюю запись пытаемс€ многократно изменить
-				{
-					//
-					// “естирование изменени€ последней записи на странице
-					//
-					SCollection data_list;
-					SDataPageHeader::Stat stat;
-					do {
-						int iopr = F.InsertOnPage(mgr, p_page, max_rec_size, data_list, stat);
-						SLCHECK_NZ(iopr);
-					} while(CurrentStatus && stat.UsableBlockSize > max_rec_size);
-					if(CurrentStatus) {
-						//
-						// “еперь вставл€ем последнюю запись, которую будем нещадно модифицировать
-						//
-						const uint preserve_data_list_count = data_list.getCount();
-						int iopr = F.InsertOnPage(mgr, p_page, max_rec_size, data_list, stat);
-						SLCHECK_NZ(iopr > 0);
-						SLCHECK_EQ(data_list.getCount(), preserve_data_list_count+1);
-						if(CurrentStatus) {
-							const uint64 rowid = static_cast<const SRecPageManager_DataEntry *>(data_list.at(data_list.getCount()-1))->RowId;
-						}
-					}
-				}
+				SCollection data_list;
 				{
 					//
 					// “естирование вставки и изменени€ единственной записи на странице
@@ -1331,42 +1322,67 @@ SLTEST_FIXTURE(SRecPageManager, SlTestFixtureRecPageManager)
 								int wr = mgr.WriteToPage(p_page, rowid, p_entry+1, p_entry->Size);
 								SLCHECK_NZ(wr > 0);
 								p_entry->RowId = rowid;
+								data_list.insert(p_entry);
+								p_entry = 0;
+								const uint data_list_idx = data_list.getCount()-1;
 								for(uint i = 0; i < 1000; i++) {
-									rs = SLS.GetTLA().Rg.GetUniformIntPos(max_rec_size+1);
-									if(rs > 0) {
-										SRecPageManager_DataEntry * p_upd_entry = SRecPageManager_DataEntry::Generate(rs);
-										if(p_upd_entry) {
-											int updr = mgr.UpdateOnPage(p_page, rowid, page_type, p_upd_entry+1, p_upd_entry->Size);
-											SLCHECK_NZ(updr);
-											{
-												SDataPageHeader::Stat st;
-												SLCHECK_NZ(p_page->GetStat(st, 0));
-												SLCHECK_EQ(st.BlockCount, 2U);
-											}
-											if(updr) {
-												p_upd_entry->RowId = rowid;
-												if(updr > 0) {
-													uint  seq = 0;
-													uint  ofs = 0;
-													SLCHECK_NZ(SRecPageManager::SplitRowId(p_upd_entry->RowId, &seq, &ofs));
-													const uint read_result = p_page->Read(ofs, rec_buf, sizeof(rec_buf));
-													SLCHECK_NZ(read_result);
-													if(read_result) {
-														SLCHECK_EQ(read_result, p_upd_entry->Size);
-														SLCHECK_Z(memcmp(rec_buf, (p_upd_entry+1), read_result));
-													}
-												}
-											}
-											{
-												SDataPageHeader::Stat st;
-												SLCHECK_NZ(p_page->GetStat(st, 0));
-											}
-											SLCHECK_NZ(mgr.VerifyFreeList());
-										}
-									}
+									int uopr = F.UpdateOnPage(mgr, p_page, max_rec_size, data_list, data_list_idx);
+									SLCHECK_NZ(uopr > 0); // «апись единственна€ по этому не может быть, что не хватило места на странице
 								}
 							}
 						}
+					}
+				}
+				{
+					//
+					// “естирование изменени€ последней записи на странице
+					//   вставл€ем записи до тех пор пока не останетс€ менее max_rec_size свободных байт
+					//   далее вставл€ем последнюю запись и модифицируем ее много раз
+					//
+					SDataPageHeader::Stat stat;
+					do {
+						int iopr = F.InsertOnPage(mgr, p_page, max_rec_size, data_list, stat);
+						SLCHECK_NZ(iopr);
+					} while(CurrentStatus && stat.UsableBlockSize > max_rec_size);
+					if(CurrentStatus) {
+						//
+						// “еперь вставл€ем последнюю запись, которую будем нещадно модифицировать
+						//
+						const uint preserve_data_list_count = data_list.getCount();
+						int iopr = 0;
+						do {
+							iopr = F.InsertOnPage(mgr, p_page, max_rec_size, data_list, stat);
+						} while(iopr < 0);
+						SLCHECK_NZ(iopr > 0);
+						SLCHECK_EQ(data_list.getCount(), preserve_data_list_count+1);
+						if(CurrentStatus) {
+							const uint data_list_idx = data_list.getCount()-1;
+							uint  success_count = 0;
+							uint  iter_no = 0;
+							for(; CurrentStatus && iter_no < 10000; iter_no++) {
+								int uopr = F.UpdateOnPage(mgr, p_page, max_rec_size, data_list, data_list_idx);
+								SLCHECK_NZ(uopr);
+								if(uopr > 0)
+									success_count++;
+							}
+							debug_mark = true;
+						}
+					}
+				}
+				{
+					// “еперь мы мен€ем произвольные записи на странице много раз
+					if(CurrentStatus) {
+						uint  success_count = 0;
+						uint  iter_no = 0;
+						for(; CurrentStatus && iter_no < 100000; iter_no++) {
+							uint   data_list_idx = SLS.GetTLA().Rg.GetUniformIntPos(data_list.getCount()+1)-1;
+							assert(data_list_idx < data_list.getCount());
+							int uopr = F.UpdateOnPage(mgr, p_page, max_rec_size, data_list, data_list_idx);
+							SLCHECK_NZ(uopr);
+							if(uopr > 0)
+								success_count++;
+						}
+						debug_mark = true;
 					}
 				}
 			}
@@ -1443,6 +1459,42 @@ SLTEST_FIXTURE(SRecPageManager, SlTestFixtureRecPageManager)
 				}
 			}
 		}
+	}
+	return CurrentStatus;
+}
+
+SLTEST_R(PPExprParser)
+{
+	struct TestExpr {
+		const char * P_Expr;
+		double EstResult;
+	};
+	const TestExpr expr_list_valid[] = {
+		//{ "sieve[0.0; 5?1; 6?2; 7?3](5.5)", 2.0 },
+		{ "0.719 = 0.7 + 0.019", 1.0 },
+		{ "0.719 != 0.7 + 0.019", 0.0 },
+		{ "0.719 != 0.7 * 0.019", 1.0 },
+		{ "1.5 > 1.4", 1.0 },
+		{ "0.5 > 1.4", 0.0 },
+		{ "0.5 >= 1.4", 0.0 },
+		{ "1.5 >= 1.5", 1.0 },
+		{ "1.5 >= 1.0001", 1.0 },
+		{ "-5 <= 0.0", 1.0 },
+		{ "-5 <= -2 * 2.5", 1.0 },
+		{ "-1.5 * 2 - 2 = -2 * 2.5", 1.0 },
+		{ "sin(pi/2)", sin(SMathConst::Pi/2.0) },
+		{ "cos(pi/4)", cos(SMathConst::Pi/4.0) },
+		{ "1", 1.0 },
+		{ "1 + 1000", 1001.0 },
+		{ "2 + 1000 * 7", 7002.0 },
+	};
+	const double tolerance = 1.0e-14;
+	for(uint i = 0; i < SIZEOFARRAY(expr_list_valid); i++) {
+		double result = 0.0;
+		const char * p_expr = expr_list_valid[i].P_Expr;
+		const double est_result = expr_list_valid[i].EstResult;
+		SLCHECK_NZ(PPExprParser::CalcExpression(p_expr, &result, 0/*const PPCalcFuncList * pFuncList*/, 0/*ExprEvalContext * pCtx*/));
+		SLCHECK_EQ_TOL(result, est_result, tolerance);
 	}
 	return CurrentStatus;
 }

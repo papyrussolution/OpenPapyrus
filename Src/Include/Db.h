@@ -2391,11 +2391,11 @@ public:
 #define BACKUPLOG_SUC_REMOVE        10 // Удаление резервной копии
 #define BACKUPLOG_ERROR             11 // Общая ошибка
 #define BACKUPLOG_ERR_DECOMPRESSCRC 12 // Ошибка распаковки файла (неверный CRC)
-#define BACKUPLOG_ERR_REMOVE        13 // @v10.8.6 Ошибка удаления резервной копии
+#define BACKUPLOG_ERR_REMOVE        13 // Ошибка удаления резервной копии
 //
 // callback function ptr
 //
-typedef int (*BackupLogFunc)(int, const char *, void * extraPtr); // @v10.8.2 long initParam-->void * extraPtr
+typedef int (*BackupLogFunc)(int, const char *, void * extraPtr);
 //
 //
 //
@@ -4945,7 +4945,7 @@ public:
 	//   <0 - запись не может быть изменена в пределах одной страницы
 	//    0 - ошибка
 	//
-	int    UpdateOnPage(SDataPage_ * pPage, uint64 rowId, uint pageType, const void * pData, size_t dataLen);  
+	int    UpdateOnPage(SDataPage_ * pPage, uint64 rowId, const void * pData, size_t dataLen);  
 	int    Update(uint64 rowId, uint64 * pNewRowId, uint pageType, const void * pData, size_t dataLen); // @construction
 	//
 	// Returns:

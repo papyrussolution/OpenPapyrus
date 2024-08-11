@@ -1133,7 +1133,7 @@ public:
 
 	ExprEvalContext();
 	virtual ~ExprEvalContext();
-	int    SelfScanArgList() const;
+	bool   SelfScanArgList() const;
 	int    SetInnerContext(ExprEvalContext * pInner);
 	virtual int Resolve(const char * pSymb, double * pVal) = 0;
 	//
@@ -1158,7 +1158,7 @@ protected:
 		fSelfScanArgList = 0x0001 // Контекст самостоятельно сканирует аргументы функции.
 	};
 	long   ImplementFlags;
-	ExprEvalContext * P_Next__; // @v9.3.3 Внутренний контекст, используемый, если не удается разрешить формулу (переменную) с помощью данного контекста
+	ExprEvalContext * P_Next__; // Внутренний контекст, используемый, если не удается разрешить формулу (переменную) с помощью данного контекста
 };
 //
 // Descr: Реализует разрешение формулы. Использует ExprEvelContext для разрешения переменных
@@ -1197,7 +1197,8 @@ private:
 		funcRoundUp,   // roundup(x, prec) округление до верхней границы
 		funcRoundDown, // rounddown(x, prec) округление до нижней границы
 		funcLog,       // log(a) натуральный логарифм
-		funcLog10      // log10(a) десятичный логарифм
+		funcLog10,     // log10(a) десятичный логарифм
+		funcTagExpr    // @v12.0.11 tagexpr(oid, tagsymb) выражение, заданное тегом с символом tagsymb объекта oid 
 	};
 	PPExprParser(const char *, const PPCalcFuncList *, ExprEvalContext *);
 	~PPExprParser();
@@ -1219,17 +1220,36 @@ private:
 		PPID   OidObjType;    // for oid()
 		PPID   OidObjTypeExt; // for oid()
 	};
+	class FuncBlock {
+	public:
+		FuncBlock();
+		FuncBlock & Z()
+		{
+			Func = 0;
+			ExtToken.Z();
+			ClearSieve();
+			return *this;
+		}
+		int   GetFuncId() const;
+		void  SetFuncId(int f);
+		void  ClearSieve();
 
+		int   Func;
+		SString ExtToken; // Используется для сложных конструкций. Введен ради tagexpr.tagsymb
+		SHistogram Sieve;
+		RAssocArray SieveVal;
+	};
 	int    Token;
 	double Number;
 	SString Name;
-	int    Func;
+	//int    Func;
 	int    Cur;
 	char * P_S;
 	size_t Pos;
 	State  St;
-	SHistogram Sieve;
-	RAssocArray SieveVal;
+	//SHistogram Sieve;
+	//RAssocArray SieveVal;
+	FuncBlock Fb;
 	const PPCalcFuncList * P_CFL;
 	ExprEvalContext * P_Ctx;
 };
@@ -2060,6 +2080,8 @@ public:
 	bool   IsEq(PPID objType, PPID objID) const;
 	bool   FASTCALL operator == (PPObjID_Base s) const;
 	bool   FASTCALL operator != (PPObjID_Base s) const;
+	double ToDouble() const;
+	bool   FromDouble(double oid);
 	operator double() const;
 	PPObjID_Base & FASTCALL operator = (double);
 	//
@@ -4420,7 +4442,7 @@ private:
 #define BARCSTD_UPCA            UED::GetRawValue32(UED_BARCODESYMB_UPCA)/*19*/ // UPCA                           [Fixed]
 #define BARCSTD_POSTNET         UED::GetRawValue32(UED_BARCODESYMB_POSTNET)/*20*/ // PostNet                        [Fixed]
 #define BARCSTD_QR              UED::GetRawValue32(UED_BARCODESYMB_QR)/*21*/ // QR-code
-#define BARCSTD_DATAMATRIX      UED::GetRawValue32(UED_BARCODESYMB_DATAMATRIX)/*22*/ // @v10.9.10 DataMatrix
+#define BARCSTD_DATAMATRIX      UED::GetRawValue32(UED_BARCODESYMB_DATAMATRIX)/*22*/ // DataMatrix
 #define BARCSTD_AZTEC           UED::GetRawValue32(UED_BARCODESYMB_AZTEC)/*23*/ // @v11.9.2
 #define BARCSTD_DATABAR         UED::GetRawValue32(UED_BARCODESYMB_DATABAR)/*24*/ // @v11.9.2
 #define BARCSTD_MICROQR         UED::GetRawValue32(UED_BARCODESYMB_MICROQR)/*25*/ // @v11.9.2 MicroQR-code
@@ -4527,8 +4549,8 @@ struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 #define BARCODE_TYPE_UNDEF        -1
 #define BARCODE_TYPE_COMMON        0
 #define BARCODE_TYPE_PREFERRED  1000 // Предпочтительный код. Когда необходим единственный код из списка, то код этим признаком используется с приоритетом.
-#define BARCODE_TYPE_MARKED    10000 // @v10.4.11 Маркированный код (на товар нанесена специальная марка тупого российского государства, которое обирает вдов и сирот, обогащая жирных придурков)
-#define BARCODE_TYPE_PREFMARK  11000 // @v10.4.11 
+#define BARCODE_TYPE_MARKED    10000 // Маркированный код (на товар нанесена специальная марка тупого российского государства, которое обирает вдов и сирот, обогащая жирных придурков)
+#define BARCODE_TYPE_PREFMARK  11000 // 
 //
 // Функции для работы с внутренними типами штрихкодов
 //
@@ -11039,7 +11061,7 @@ struct ILTI { // @persistent(DBX) @size=80
 	// Если этот флаг установлен, то смысл флагов BILLF2_EDIAR_AGR и BILLF2_EDIAR_DISAGR переключается на реакцию на
 	// запрос об отмене проведения.
 #define BILLF2_ROWLINKBYRBB  0x00000800L // @internal
-#define BILLF2_REVERSEDEBT   0x00001000L // @v10.3.3 Документ работает как реверсивная оплата или зачет: имеет отрицательную номинальную сумму оплачивает ее модулем другой документ
+#define BILLF2_REVERSEDEBT   0x00001000L // Документ работает как реверсивная оплата или зачет: имеет отрицательную номинальную сумму оплачивает ее модулем другой документ
 #define BILLF2_FORCEDRECEIPT 0x00002000L // @v11.1.12 Документ прихода товара, сформированный с целью форсированной компенсанции дефицита
 	// при приеме данных из другого раздела. До версии 11.1.12 такие документы индицировались специальным примечанием N2. Далее это примечание использоваться не будет.
 //
@@ -11079,8 +11101,8 @@ struct PPBillExt { // @persistent @store(PropertyTbl)
 	PPID   ExtPriceQuotKindID; // Вид котировки, используемый для печати дополнительной цены в накладных
 	PPID   SCardID;            // @transient Персональная карта, к которой привязан документ. Проекция поля BillTbl::Rec::SCardID
 	DateRange DuePeriod;       // @transient Период даты исполнения документа. Проекция BillFilt::DuePeriod
-	PPID   AgtBillID;          // @v10.1.12 @transient. Проекция BillTbl::Rec::AgtBillID
-	PPID   CcID;               // @v10.9.7  Ид чека, сформированного по этому документу для печати
+	PPID   AgtBillID;          // @transient. Проекция BillTbl::Rec::AgtBillID
+	PPID   CcID;               // Ид чека, сформированного по этому документу для печати
 	PPID   GoodsGroupID;       // @v11.0.11 @transient Проекция BillFilt::GoodsGroupID. Ид товарной группы, товары принадлежащие которой должны содержаться в документах.
 };
 //
@@ -11107,9 +11129,6 @@ protected:
 // Value added record for PPOBJ_BILL
 // Used if (BillTbl::Rec::Flags & BILLF_RENT)
 //
-// @v10.8.5 (replaced with PPRentCondition::fClosed)  #define RENTF_CLOSED    0x0001L // Закрытый договор
-// @v10.8.5 (replaced with PPRentCondition::fPercent) #define RENTF_PERCENT   0x0010L // Процентные начисления по ренте.
-
 #pragma pack(push,1)
 struct PPRentCondition {   // @size=48 @persistent @store(PropertyTbl[PPOBJ_BILL, @id, BILLPRP_RENT])
 	PPRentCondition(); // @v11.9.6
@@ -11224,8 +11243,8 @@ struct PPBankingOrder { // @persistent @store(PropertyTbl)
 	int16  PayerStatus;      // Статус плательщика (1..7, default 1)
 	// Part stored in variable tail of record
 	TaxMarkers Txm;
-	int16  FormalPurpose;    // @v10.7.9 Формальное назначение платежа (4byte-aligned with Txm)
-	uint8  Reserve[24];      // @v10.7.9 @reserve
+	int16  FormalPurpose;    // Формальное назначение платежа (4byte-aligned with Txm)
+	uint8  Reserve[24];      // @reserve
 };
 #pragma pop
 //
@@ -11552,7 +11571,7 @@ public:
 		// Особенность такой ассоциации заключается в том, что с одной строкой может быть связано от нуля до множества кодов.
 		// Кроме того, коды привязываются не к лотам, а именно к строкам документа.
 		// Списки кодов привязываются по индексу строки с базой 1 [1..]
-	PPLotExtCodeContainer _VXcL; // @v10.3.0 Валидирующий контейнер спецкодов. Применяется для проверки
+	PPLotExtCodeContainer _VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки
 		// кодов, поступивших с документом в XcL
 	SVerT  Ver; // Версия системы, которая создала сериализованную копию объекта
 	//
@@ -12452,9 +12471,7 @@ public:
 		pfForeignSync   = 0x00002000, // Пакет создан в рамках приема данных из другого раздела
 		pfIgnoreStatusRestr     = 0x00004000, // При изменении документа игнорировать ограничения статуса
 		pfForceRByBill  = 0x00008000, // Для новых строк документа использовать тот RByBill, который указан (не обнулять)
-		// @v10.9.1 (unused) pfNoLoadTrfr    = 0x00010000, // @v9.4.3 @construction При загрузке и обработке документа не следует загружать товарные строки
-		pfUpdateProhibited      = 0x00020000, // Проведение этого пакета функцией PPObjBill::UpdatePacket запрещено
-			// (например, по причене не полной загрузки).
+		pfUpdateProhibited      = 0x00020000, // Проведение этого пакета функцией PPObjBill::UpdatePacket запрещено (например, по причене не полной загрузки).
 		pfIgnoreOpRtList        = 0x00040000, // При изменении документа игнорировать ограничения списка доступных операций.
 			// Флаг устанавливается при рекурсивном вызове PPObjBill::UpdatePacket
 		pfZombie        = 0x00080000, // Документ восстановлен из истории версий (прямое изменение запрещено)
@@ -12843,7 +12860,7 @@ public:
 		char   Reserve[3];         // @reserve
 		PPID   AgentID;            // Агент      -> Article.ID
 		PPID   PayerID;            // Плательщик -> Article.ID
-		PPID   CcID;               // @v10.9.7 Ид чека, сформированного по этому документу для печати
+		PPID   CcID;               // Ид чека, сформированного по этому документу для печати
 	};
 private:
 	//
@@ -13227,9 +13244,9 @@ public:
 		fLabelOnly    = 0x00000040, // Только лоты, созданные помеченными документами
 		fPriceByQuot  = 0x00000080, // Цены по котировке
 		fCostByQuot   = 0x00000100, // Цены поступления по котировке
-		fRetailPrice  = 0x00000200, // @v10.3.2 Цены реализации рассчины по правилам, применяемым для определения розничных цен
+		fRetailPrice  = 0x00000200, // Цены реализации рассчины по правилам, применяемым для определения розничных цен
 		fCWoVat		  = 0x00004000, // Цены поступления без НДС
-		fPWoVat		  = 0x00008000, // @v10.6.6 Цены реализации без НДС
+		fPWoVat		  = 0x00008000, // Цены реализации без НДС
 		fZeroAgent    = 0x00010000, // Только с нулевым агентом поставщика
 	};
 	enum {
@@ -13271,7 +13288,7 @@ private:
 	LDATE  Md_;
 	long   Mo_;
 	PPID   GoodsTaxGrpID;
-	RetailPriceExtractor * P_Rpe; // @v10.3.2 @notowned
+	RetailPriceExtractor * P_Rpe; // @notowned
 };
 //
 //
@@ -13340,7 +13357,7 @@ struct PPLotFault { // @flat
 		EgaisCodeAlone,       // Лот содержит тег кода продукции ЕГАИС, но ни один товар не имеет такого кода
 		NoEgaisCode,          // Лот не содержит тега кода алкогольной продукции в то время как товар содержит такой код
 		NoEgaisCodeAmbig,     // Лот не содержит тега кода алкогольной продукции в то время как товар содержит более одного ЕГАИС-кода
-		ThereIsQCert          // @v10.4.10 У лота нет сертификата в то время как можно унаследовать сертификат от предыдущей партии
+		ThereIsQCert          // У лота нет сертификата в то время как можно унаследовать сертификат от предыдущей партии
 	};
 	int    Fault;
 	LDATE  Dt;
@@ -13722,9 +13739,9 @@ public:
 	// в список кодов товара, если ни один из товаров не содержит такой код
 #define TLRF_SETALCCODETOLOTS  0x0800 // Если товар содержит код алкогольной продукции, а лот - нет, то в тег лота
 	// PPTAG_LOT_FSRARLOTGOODSCODE переносить этот код.
-#define TLRF_SETINHQCERT       0x1000 // @v10.4.10 Устанавливать на лоты, у которых нет сертификатов, унаследованные от
+#define TLRF_SETINHQCERT       0x1000 // Устанавливать на лоты, у которых нет сертификатов, унаследованные от
 	// предыдущих приходов сертификаты.
-#define TLRF_SETALCOMANUF      0x2000 // @v10.9.1 Устанавливать импортера/производителя ЕГАИС по справкам А из внутренней базы данных
+#define TLRF_SETALCOMANUF      0x2000 // Устанавливать импортера/производителя ЕГАИС по справкам А из внутренней базы данных
 //
 // Флаги функции Transfer::MoveLotOps
 //
@@ -15065,8 +15082,8 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 		fUnifiedPaymentCfmBank     = 0x00010000, // Дополнительное подтверждение для оплаты по банку после унифицированной панели оплаты
 		fAutosaveSyncChecks        = 0x00020000, // Автоматически сохранять синхронные чеки при каждом изменении
 		fWrOffPartStrucs   = 0x00040000, // При списании кассовых сессий досписывать частичные структуры
-		fSkipPrintingZeroPrice     = 0x00080000, // @v10.0.12 В кассовых чеках не печатать строки с нулевой суммой
-		fAttachBillChecksToCSess   = 0x00100000, // @v10.9.9 При проведении чеков по документам привязывать эти чеки к текущей кассовой сессии
+		fSkipPrintingZeroPrice     = 0x00080000, // В кассовых чеках не печатать строки с нулевой суммой
+		fAttachBillChecksToCSess   = 0x00100000, // При проведении чеков по документам привязывать эти чеки к текущей кассовой сессии
 		fDisableSellSpoiledSeries  = 0x00200000  // @v11.1.8 Запрет выбора бракованной серии при продаже через кассовую панель
 	};
 	PPID   Tag;             // Const=PPOBJ_CONFIG
@@ -15137,12 +15154,12 @@ struct CSessTotal {
 	double BnkDiscount;    // Сумма безналичных скидок
 	double CSCardAmount;   // Сумма по корпоративным кредитным картам
 	double FiscalAmount;   // Фискальная сумма чеков
-	double AltRegAmount;   // @v10.0.02 Сумма чеков, проведенных через альтернативный регистратор
+	double AltRegAmount;   // Сумма чеков, проведенных через альтернативный регистратор
 	long   SaleCheckCount; // Количество чеков продаж
 	long   SaleBnkCount;   // Количество чеков продаж с оплатой через банк
 	long   RetCheckCount;  // Количество чеков возврата
 	long   RetBnkCount;    // Количество чеков возврата с оплатой через банк
-	long   AltRegCount;    // @v10.0.02 Количество чеков, проведенных через альтернативный регистратор
+	long   AltRegCount;    // Количество чеков, проведенных через альтернативный регистратор
 };
 
 struct CSessInfo {
@@ -15352,12 +15369,12 @@ public:
 	//   при создании экземпляра объекта.
 	// Note: В течении жизни объекта этот экземпляр конфигурации не меняется.
 	//
-	const  PPEquipConfig & GetEqCfg() const; // @v10.9.9
+	const  PPEquipConfig & GetEqCfg() const;
 	CheckOpJrnl * GetOpJrnl(); // @v11.6.2
 	int    Search(PPID, CCheckTbl::Rec * pRec = 0);
 	int    Search(PPID cashID, LDATE, LTIME, CCheckTbl::Rec * pRec = 0);
 	int    SearchByTimeAndCard(PPID cardID, LDATE, LTIME, CCheckTbl::Rec * pRec = 0);
-	int    SearchByDateAndCode(long code, LDATE dt, int unprintedOnly, TSVector <CCheckTbl::Rec> * pRecList); // @v10.6.11 SArray-->TSVector
+	int    SearchByDateAndCode(long code, LDATE dt, int unprintedOnly, TSVector <CCheckTbl::Rec> * pRecList);
 	int    SearchForwardZCheck(PPID cashID, LDATE, LTIME, CCheckTbl::Rec * pRec = 0);
 	int    GetExt(PPID id, CCheckExtTbl::Rec * pExt);
 	int    GetPaymList(PPID id, CcAmountList & rList);
@@ -15614,9 +15631,7 @@ public:
 	// Descr: Элемент информации о маркировке товара, с которой ассоциирована строка кассового чека
 	//
 	struct CcMarkedEntry { // @flat
-		CcMarkedEntry() : CcID(0), LineNo(0), Flags(0), Qtty(0.0)
-		{
-		}
+		CcMarkedEntry();
 		enum {
 			fSent = 0x0001 // Марка отправлена на учетный сервер (для егаис)
 		};
@@ -15629,10 +15644,7 @@ public:
 	// Descr: Список строка кассовых чеков, ассоциированных с маркированным товаром
 	// 
 	struct ListByMarkEntry {
-		ListByMarkEntry() : OrgLotID(0), OrgLotDate(ZERODATE), OrgLotQtty(0.0), Flags(0), TotalOpQtty(0.0)
-		{
-			Mark[0] = 0;
-		}
+		ListByMarkEntry();
 		PPID   OrgLotID;    // IN  Ид начального лота, с которым пришла марка 
 		LDATE  OrgLotDate;  // IN  Дата начального лота, с которым пришла марка
 		double OrgLotQtty;  // IN  Количество товара, поступившего с лотом (в торговых единицах).
@@ -15667,7 +15679,7 @@ private:
 
 	CCheckExtTbl * P_Ext;
 	CheckOpJrnl * P_ChkOpJrnl;
-	PPEquipConfig EqCfg; // @v10.9.9 Коль скоро конструктор все равно читает конфигурацию, оставим ее здесь.
+	PPEquipConfig EqCfg; // Коль скоро конструктор все равно читает конфигурацию, оставим ее здесь.
 };
 //
 // Descr: Вспомогательная структура, используемая для быстрого извлечения и
@@ -15768,7 +15780,6 @@ protected:
 	CSessionCore CS;
 	CCheckCore   CC;
 	CGoodsLine   GL;
-	// @v10.9.9 (теперь будем использовать экземпляр конфигурации из CCheckCore) PPEquipConfig EqCfg;
 private:
 	int    TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int isRet, OptimalAmountDamper * pOad);
 	int    ConvertSign(const int sign, const  PPID sessID, const  PPID locID, const void * pData, CSessTotal * pTotal, OptimalAmountDamper * pOad);
@@ -16354,7 +16365,6 @@ protected:
 
 class PPCommandGroup : public PPCommandFolder {
 public:
-	// @v10.9.3 enum { tDesk = 1, tMenu = 2 };
 	PPCommandGroup();
 	//
 	// Descr: Конструктор создает новый экземпляр объекта с заданными атрибутами.
@@ -16994,7 +17004,7 @@ protected:
 	int    Serialize_(int dir, ReferenceTbl::Rec * pPack, void * stream, ObjTransmContext * pCtx);
 public:
 	void * ExtraPtr;
-	Reference * P_Ref; // Equal to extern PPRef // @v10.9.3 ref-->P_Ref
+	Reference * P_Ref; // Equal to extern PPRef
 };
 //
 // @ModuleDecl(PPObjDynamicObjs)
@@ -17236,7 +17246,7 @@ struct EventFilt : public PPBaseFilt {
 	PPID   UserID;
 	PPID   GlobalUserID;
 	PPID   ObjType;
-	PPID   EventSubscrID;   // @v10.9.1
+	PPID   EventSubscrID;
 	long   StatusFlags;
 	long   Flags;
 	long   SortOrd;
@@ -17251,7 +17261,7 @@ struct EventViewItem { // @flat
 	long   Status;
 	long   UserID;         // 0 - for all
 	long   GlobalUserID;   // 0 - for all
-	PPID   EventSubscrID;  // @v10.9.1
+	PPID   EventSubscrID;
 	PPObjID Oid;
 	long   Flags;
 };
@@ -17392,10 +17402,21 @@ struct PPRawMaterial {
 };
 #pragma pack(pop)
 
+class PPRawMaterialPacket {
+public:
+	PPRawMaterialPacket();
+	PPRawMaterialPacket & Z();
+	bool   FASTCALL IsEq(const PPRawMaterialPacket & rS) const;
+	PPRawMaterial Rec;
+	ObjTagList TagL;        // Список тегов
+};
+
 class PPObjRawMaterial : public PPObjReference {
 public:
 	PPObjRawMaterial(void * extraPtr = 0);
 	virtual int  Edit(PPID * pID, void * extraPtr);
+	int    PutPacket(PPID * pID, PPRawMaterialPacket * pPack, int use_ta);
+	int    GetPacket(PPID id, PPRawMaterialPacket * pPack);
 private:
 	virtual int  MakeReserved(long flags);
 };
@@ -17763,7 +17784,7 @@ public:
 		double VolumeCurrent;  // Невыполненный объем
 		double PriceOpen;      // Цена, указанная в ордере
 		double PriceCurrent;   // Текущая цена по символу ордера
-		double Profit;         // @v10.3.5 Текущая прибыль в валюте счета
+		double Profit;         // Текущая прибыль в валюте счета
 		double SL;             // Уровень Stop Loss
 		double TP;             // Уровень Take Profit
 		double PriceStopLimit; // Цена постановки Limit ордера при срабатывании StopLimit ордера
@@ -17847,7 +17868,7 @@ public:
 
 	const Tick * FASTCALL SearchTickBySymb(const char * pSymb) const;
 
-	TerminalInfo Term; // @v10.5.4
+	TerminalInfo Term;
 	AccountInfo Acc;
 	TSVector <Tick>  TL; // Список последних тиков по выбранному набору инструментов
 	TSVector <Stake> SL; // Список текущих ордеров на счету Acc
@@ -17872,9 +17893,9 @@ struct PPTssModel { // @persistent @store(Reference2Tbl)
 		fOptRangeMulti     = 0x0004, // Для каждого триплета {frame; sl; tp} подбираются несколько оптимальных секторов (иначе - единственный)
 		fOptRangeStepAsMkPart_     = 0x0008, // Параметр OptRangeStep задан в миллионных долях от мощности выборки
 		fTrendErrLimitAsMedianPart = 0x0010, // Параметр InitTrendErrLimit задан в медианных долях
-		fRemoveLowProfitStrategies = 0x0020, // @v10.7.5 Перед селекцией контейнера стратегий убирать тех кандидатов, чья доходность меньше лимита.
+		fRemoveLowProfitStrategies = 0x0020, // Перед селекцией контейнера стратегий убирать тех кандидатов, чья доходность меньше лимита.
 			// Методика вычисления лимита (предварительно) такая: среднее значение доходности всех кандидатов минус 3 дисперсии.
-		fSeparateInpFrameSizes     = 0x0040  // @v10.8.6 Каждый элемент PPTssModelPacket::InputFrameSizeList расчитывается полным
+		fSeparateInpFrameSizes     = 0x0040  // Каждый элемент PPTssModelPacket::InputFrameSizeList расчитывается полным
 			// циклом с последующим сравнением результатов и выбором лучшего набора стратегий.
 			// При вводе такой список обрамляется скобками []. Например [240, 300, 360]
 	};
@@ -17882,10 +17903,9 @@ struct PPTssModel { // @persistent @store(Reference2Tbl)
 		tcAmount       = 0, // Абсолютный объем выигрыша
 		tcVelocity     = 1, // Скорость выигрыша
 		tcWinRatio     = 2, // Вероятность выигрыша (количество выигрышей деленных на количество точек в секторе)
-		tcAngularRatio = 3, // @v10.7.9 Угловая вероятность выигрыша (количество выигрышей деленных на радианный угол сектора)
+		tcAngularRatio = 3, // Угловая вероятность выигрыша (количество выигрышей деленных на радианный угол сектора)
 	};
 	//
-	// @v10.7.6
 	// Descr: Варианты определения шага поиска оптимальных диапазонов
 	//
 	enum {
@@ -17904,33 +17924,28 @@ struct PPTssModel { // @persistent @store(Reference2Tbl)
 		sppsVelocity   = 3,
 		sppsCqaFactor  = 4, // Значение CQA
 		sppsShuffle    = 5, // Случайное перемешивание
-		sppsStakeCount = 6  // @v10.7.9 Количество ставок, полученных при генерации стратегии (критерий основывается на предположении, что
+		sppsStakeCount = 6  // Количество ставок, полученных при генерации стратегии (критерий основывается на предположении, что
 			// чем больше таких ставок, тем больше доверия вызывает стратегия).
 	};
 	uint16 BestSubsetDimention;
 	uint16 BestSubsetMaxPhonyIters;
 	uint8  BestSubsetOptChunk;      // 0 || 1 || 3 || 7 || 15
-	uint8  MainFrameRangeCount;     // @v10.4.9 Количество сегментов, на которые разбивается все множество значений магистрального тренда для подбора стратегий
-	// @v10.8.9 uint16 DefTargetQuant;          // @v10.4.2
-	uint16 Reserve5;                // @v10.8.9
-	uint16 OptRangeStep_;           // @v10.4.7
-	uint16 OptRangeMultiLimit;      // @v10.4.7
-	uint16 OptRangeStepCount;       // @v10.7.5
-	uint16 OptRangeMaxExtProbe;     // @v10.7.3 @default=1 Максимальное количество попыток расширения оптимального интервала значений регрессии
-	int16  OptTargetCriterion;      // @v10.4.6 tcXXX
-	// @v10.7.10 int16  ChaosFactor;             // @v10.7.1 Фактор случайности при выборе стратегии в промилле.
-	uint16 Reserve3;                // @v10.7.10
+	uint8  MainFrameRangeCount;     // Количество сегментов, на которые разбивается все множество значений магистрального тренда для подбора стратегий
+	uint16 Reserve5;                //
+	uint16 OptRangeStep_;           //
+	uint16 OptRangeMultiLimit;      //
+	uint16 OptRangeStepCount;       //
+	uint16 OptRangeMaxExtProbe;     // @default=1 Максимальное количество попыток расширения оптимального интервала значений регрессии
+	int16  OptTargetCriterion;      // tcXXX
+	uint16 Reserve3;                //
 	LDATE  UseDataSince;            // Модель строить по данным, начиная с указанной даты включительно (если checkdate(UseDataSince))
 	double InitTrendErrLimit_;      //
-	double InitMainTrendErrLimit;   // @v10.7.0
-	double MinWinRate;              // @v10.4.2 Минимальное отношение выигрышей для стратегий, попадающих в финальную выборку
-	double OverallWinRateLimit;     // @v10.7.0 Минимальное отношение выигрышей для всего множества отобранных стратегий
-	uint8  OptRangeStep_Measure;    // @v10.7.6 orsXXX
-	uint8  StrategyPoolSortOrder;   // @v10.7.7 Порядок сортировки пула стратегий перед селекцией
-	// @v10.8.6 uint8  CqaMatchPromille;        // @v10.7.7 Точность равенства факторов CQA стратегий при котором они считаются идентичными,
-		// что является поводом для удаления из пула стратегий самых малодоходных из них перед селекцией. Если 0, то не проверять на соответствие этому фактору.
-	uint8  Reserve4[2];             // @v10.8.6 // @v10.8.9 [1]-->[2]
-	// @v10.8.9 uint8  MinSimilItems;           // @v10.7.7 Минимальное количество одновременно подходящих стратегий с разными дистанциями тренда. (<=0) == 1
+	double InitMainTrendErrLimit;   //
+	double MinWinRate;              // Минимальное отношение выигрышей для стратегий, попадающих в финальную выборку
+	double OverallWinRateLimit;     // Минимальное отношение выигрышей для всего множества отобранных стратегий
+	uint8  OptRangeStep_Measure;    // orsXXX
+	uint8  StrategyPoolSortOrder;   // Порядок сортировки пула стратегий перед селекцией
+	uint8  Reserve4[2];             // 
 	long   Flags;
 	long   Reserve1;
 	long   Reserve2;
@@ -17954,16 +17969,16 @@ public:
 		uint8  AdoptSlShiftDn;
 		uint8  AdoptSlShiftUp;
 		uint8  AdoptTpFinishShiftUp;
-		uint8  AdoptTpFixed; // @v10.8.1
-		double MaxStakeCountVariation; // @v10.8.3 Максимальный коэфф вариации по количеству ставок для пула сессий.
-		uint8  Reserve[56]; // @v10.8.3 [56]-->[48]
+		uint8  AdoptTpFixed;           //
+		double MaxStakeCountVariation; // Максимальный коэфф вариации по количеству ставок для пула сессий.
+		uint8  Reserve[56];
 	};
 	Extension E;
 	LongArray MainFrameSizeList;    // Список дистанций магистрального тренда
 	LongArray InputFrameSizeList;   // Список дистанций рабочих трендов (не включает период магистрального тренда)
 	LongArray MaxDuckQuantList_Obsolete; // Список допустимых величин MaxDuck в квантах // @v10.8.4 Не используется (оставлен из-за персистентности)
 	LongArray TargetQuantList_Obsolete;  // Список допустимых величин Target в квантах  // @v10.8.4 Не используется (оставлен из-за персистентности)
-	LAssocArray StakeBoundList;     // @v10.7.3 Пары {TP, SL} работающие вместо списков MaxDuckQuantList, TargetQuantList.
+	LAssocArray StakeBoundList;     // Пары {TP, SL} работающие вместо списков MaxDuckQuantList, TargetQuantList.
 		// То есть, если StakeBoundList не пустой, то MaxDuckQuantList, TargetQuantList не используются
 };
 
@@ -17988,7 +18003,7 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 		tUnkn   = 0,
 		tForex  = 1,
 		tStocks = 2,
-		tCrypto = 3 // @v10.8.7
+		tCrypto = 3
 	};
 	int    FASTCALL IsEq(const PPTimeSeries & rS) const;
 	PPID   Tag;            // Const=PPOBJ_TIMESERIES
@@ -18003,12 +18018,12 @@ struct PPTimeSeries { // @persistent @store(Reference2Tbl)
 	double AvgSpread;      //
 	uint32 OptMaxDuck;     // Оптимальная глубина проседания (в квантах) при длинной ставке
 	uint32 OptMaxDuck_S;   // Оптимальная глубина проседания (в квантах) при короткой ставке
-	uint16 PeakAvgQuant;   // @v10.3.3
-	uint16 PeakAvgQuant_S; // @v10.3.3
-	uint16 TargetQuant;    // @v10.4.2
+	uint16 PeakAvgQuant;   //
+	uint16 PeakAvgQuant_S; //
+	uint16 TargetQuant;    //
 	long   Flags;          //
-	long   Type;           // @v10.5.6 PPTimeSeries::kXXX
-	PPID   TssModelID;     // @v10.7.5 ->Reference(PPOBJ_TSSMODEL)
+	long   Type;           // PPTimeSeries::kXXX
+	PPID   TssModelID;     // ->Reference(PPOBJ_TSSMODEL)
 };
 //
 // Descr: Пакет временной серии. Содержит основную запись и дополнительные свойства.
@@ -18026,11 +18041,11 @@ public:
 		bool   FASTCALL IsEq(const Extension & rS) const;
 		double MarginManual; // Торговая маржина, используемая для расчетов и устанавливаемая в ручную.
 			// Требуется в случае, если необходимое для расчетов значение отличается от того, что возвращается торговым сервером.
-		double FixedStakeVolume;  // @v10.6.3 Фиксированный размер ставки (не привязанный к доступному объему и коэффициенту запаса)
-		double AvgLocalDeviation; // @v10.7.1 Среднее локальное отклонение для всей выборки. Локальное отклонение
+		double FixedStakeVolume;  // Фиксированный размер ставки (не привязанный к доступному объему и коэффициенту запаса)
+		double AvgLocalDeviation; // Среднее локальное отклонение для всей выборки. Локальное отклонение
 			// считается по Config.E.LocalDevPtCount точкам как стандартное отклонение. Необходимо для идентификации
 			// аномальных смещений где недопустимо делать ставки.
-		LDATE  UseDataForStrategiesSince; // @v10.7.2 Дата, начиная с которой можно рассматривать данные для построения стратегий
+		LDATE  UseDataForStrategiesSince; // Дата, начиная с которой можно рассматривать данные для построения стратегий
 		uint8  Reserve[40];
 	};
 	PPTimeSeries Rec;
@@ -18042,8 +18057,6 @@ public:
 	struct Config { // @persistent
 		enum {
 			fTestMode    = 0x0001,
-			// @v10.8.0 fUseStakeMode2       = 0x0002, // @v10.3.3
-			// @v10.8.0 fUseStakeMode3       = 0x0004, // @v10.3.3
 			fAllowReverse        = 0x0008, // Допускается реверс ставки при наличии предпочтительной стратегии в обратном направлении
 			fVerifMode   = 0x0010, // Режим верификации данных
 			fIgnoreStrangeStakes = 0x0020, // При расчете ставок игнорировать установленные ставки, сделанные не нами (то есть ручные или сделанные другим роботом)
@@ -18075,20 +18088,19 @@ public:
 		double MinPerDayPotential;
 		struct ExtBlock {
 			ExtBlock();
-			uint32 MaxAvgTimeSec; // @v10.3.3 Предельное среднее время в секундах
-			int32  TsFlashTimer;  // @v10.3.3 default(600) Период времени (секунд) по истечении которого необходимо сбросить накопленные серии в БД
-			int32  MinLossQuantForReverse;  // @v10.4.2 Минимальное количество квантов потерь для реверса ставки
-			int32  MinAgeSecondsForReverse; // @v10.4.2 Минимальный возраст ставки для реверса (в секундах)
-			int32  TerminalTimeAdjustment;  // @v10.5.5 Поправка времени терминала для сравнения с текущим моментом (в секундах)
-			int16  LocalDevPtCount;         // @v10.7.1 Количество точек, по которым считается локальная девиация исходных данных
-			int16  LDMT_Factor;             // @v10.7.1 Фактор ограничения девиации при выставлении ставки: макс произведение
+			uint32 MaxAvgTimeSec; // Предельное среднее время в секундах
+			int32  TsFlashTimer;  // default(600) Период времени (секунд) по истечении которого необходимо сбросить накопленные серии в БД
+			int32  MinLossQuantForReverse;  // Минимальное количество квантов потерь для реверса ставки
+			int32  MinAgeSecondsForReverse; // Минимальный возраст ставки для реверса (в секундах)
+			int32  TerminalTimeAdjustment;  // Поправка времени терминала для сравнения с текущим моментом (в секундах)
+			int16  LocalDevPtCount;         // Количество точек, по которым считается локальная девиация исходных данных
+			int16  LDMT_Factor;             // Фактор ограничения девиации при выставлении ставки: макс произведение
 				// локальной девиации на ошибку магистрального тренда в промилле.
-			//@v10.7.10 int32  ChaosFactor; // @v10.7.1
-			uint32 Reserve3;    // @v10.7.10
-			float  MainTrendMaxErrRel; // @v10.7.2 Максимальная относительная ошибка магистрального тренда при выставлении ставки.
-			uint16 TestCount;   // @v10.7.7 Количество повторных тестов, выполняемых функцией TsSimulateStrategyContainer()
-			uint16 Reserve2;    // @v10.7.7 @alignment
-			uint8  Reserve[28]; // @v10.4.2 [56]-->[48] @v10.7.1 [40]-->[36] // @v10.7.2 [36]-->[32] // @v10.7.7 [32]-->[28]
+			uint32 Reserve3;
+			float  MainTrendMaxErrRel; // Максимальная относительная ошибка магистрального тренда при выставлении ставки.
+			uint16 TestCount;   // Количество повторных тестов, выполняемых функцией TsSimulateStrategyContainer()
+			uint16 Reserve2;    // @alignment
+			uint8  Reserve[28];
 		};
 		ExtBlock   E;
 		TSVector <Entry> List;
@@ -18098,13 +18110,12 @@ public:
 			fAllowLong    = 0x0001,
 			fAllowShort   = 0x0002,
 			fDisableStake = 0x0004,
-			fTestPurpose  = 0x0008  // @v10.4.0 Специальный флаг, указывающий на то, что серверу требуются данные
-				// для тестирония текущих значений.
+			fTestPurpose  = 0x0008  // Специальный флаг, указывающий на то, что серверу требуются данные для тестирония текущих значений.
 		};
 		PPID   TsID;
 		char   Ticker[32];
 		long   Flags;
-		long   ExtraCount; // @v10.4.9 Дополнительное количество значение, затребованное сервером (главным образом, для тестирования)
+		long   ExtraCount; // Дополнительное количество значение, затребованное сервером (главным образом, для тестирования)
 		LDATETIME LastValTime;
 	};
 	struct TrendEntry {
@@ -18119,11 +18130,11 @@ public:
 
 		const  uint Stride;
 		const  uint NominalCount;
-		double ErrAvg;        // @v10.3.12 Средняя ошибка регрессии
-		double SpikeQuant_r;  // @v10.4.10 Квант расчета для периода NominalCount
-		double ErrLimitByPel; // @v10.7.4 Локальный предел ошибки рассчитанный на основе частичного предела ошибки.
+		double ErrAvg;        // Средняя ошибка регрессии
+		double SpikeQuant_r;  // Квант расчета для периода NominalCount
+		double ErrLimitByPel; // Локальный предел ошибки рассчитанный на основе частичного предела ошибки.
 		RealArray TL;
-		RealArray ErrL;       // @v10.3.12 Ошибки регрессии
+		RealArray ErrL;       // Ошибки регрессии
 	};
 	struct CommonTsParamBlock {
 		CommonTsParamBlock();
@@ -18147,33 +18158,29 @@ public:
 	struct StrategyResultValueEx : public StrategyResultValue { // @transient
 		StrategyResultValueEx();
 		StrategyResultValueEx & Z();
-		double SlVal;           // @v10.8.5 Абсолютное значение stop-limit
-		double TpVal;           // @v10.8.5 Абсолютное значение take-profit
+		double SlVal;           // Абсолютное значение stop-limit
+		double TpVal;           // Абсолютное значение take-profit
 		double Peak;            // Максимальное значение, которого достигла котировка в течении сессии
 		double Bottom;          // Минимальное значение, которого достигла котировка в течении сессии
-		double Clearance;       // @v10.8.5 Минимальный зазор в течении сессии (квантов). При выигрыше это минимальная разница между sl и ближайшей точкой хода,
+		double Clearance;       // Минимальный зазор в течении сессии (квантов). При выигрыше это минимальная разница между sl и ближайшей точкой хода,
 			// при проигрыше - минимальная разница между tp и ближайшей точкой хода
-		uint   StartPoint;      // @10.7.9 Точка ряда, на которой алгоритм TsCalcStrategyResult2 начал работу
+		uint   StartPoint;      // Точка ряда, на которой алгоритм TsCalcStrategyResult2 начал работу
 		uint   LastPoint;       // Точка ряда, на которой алгоритм TsCalcStrategyResult2 закончил работу
-		STimeChunk TmR;         // @v10.4.11
-		int    StrategyIdx;     // @v10.4.11 [0..], (<0) - undefined. Strategy index at the StrategyContainer
-		double OptFactor;       // @v10.4.11
-		double OptFactor2;      // @v10.4.11
-		double TrendErr;        // @v10.4.11
-		double TrendErrRel;     // @v10.4.11
-		double MainTrendErr;    // @v10.6.12
-		double MainTrendErrRel; // @v10.6.12
-		// @v10.8.9 double LocalDeviation;  // @v10.7.1
-		// @v10.8.9 double LocalDeviation2; // @v10.7.1
-		uint8  Reserve[16]; // @v10.8.9
+		STimeChunk TmR;         // 
+		int    StrategyIdx;     // [0..], (<0) - undefined. Strategy index at the StrategyContainer
+		double OptFactor;       // 
+		double OptFactor2;      // 
+		double TrendErr;        // 
+		double TrendErrRel;     // 
+		double MainTrendErr;    // 
+		double MainTrendErrRel; // 
+		uint8  Reserve[16];
 	};
 	struct OptimalFactorRange : public RealRange { // @persistent @flat
 		OptimalFactorRange();
 		OptimalFactorRange & Z();
 		double GetAngularRange() const;
 		uint32 Count;      // Количество элементов исходного ряда, входящих в диапазон при тестировании
-		// @v10.8.9 uint   Opt2Stride; // @v10.4.7
-		//float  TrendErrLowLim; // @v10.8.9 @experimental Если >0.0 то это - нижняя граница ошибки регрессии (очень спорно)
 		uint32 Reserve;
 		double Result;
 	};
@@ -18182,8 +18189,8 @@ public:
 		OptimalFactorRange_WithPositions & Z();
 		uint   LoPos;
 		uint   UpPos;
-		uint   GenSeq; // @v10.7.9 Порядок генерации при поиске оптимального фактора регрессия/выигрыш
-		uint   GenPtCount; // @v10.7.11 Количество точек в выборке, по которой генерируются диапазоны
+		uint   GenSeq;     // Порядок генерации при поиске оптимального фактора регрессия/выигрыш
+		uint   GenPtCount; // Количество точек в выборке, по которой генерируются диапазоны
 	};
 	struct TsDensityMapEntry { // @persistent
 		TsDensityMapEntry();
@@ -18213,9 +18220,9 @@ public:
 		double UEF;
 		double GenTEA;
 		double GenTED;
-		double CADF; // @v10.8.12
+		double CADF;
 		double TrendErrRel;
-		RealRange AngleR; // @v10.8.10
+		RealRange AngleR;
 	};
 	class TsDensityMap : public TSVector <TsDensityMapEntry> {
 	public:
@@ -18275,8 +18282,7 @@ public:
 		int    CalcResult2(/*const DateTimeArray & rTmList, const RealArray & rValList*/const PPObjTimeSeries::CommonTsParamBlock & rCtspb, uint valueIdx, PPObjTimeSeries::StrategyResultValueEx & rV) const;
 		enum {
 			bfShort        = 0x0001, // Стратегия для short-торговли
-			// @v10.4.5 bfOptRanges4 = 0x0002  // Оптимальные диапазоны OptDeltaRange и OptDelta2Range сформированы для StakeMode=4
-			bfBrokenRow    = 0x0002, // @v10.8.9 Флаг означающий, что при расчете последний результат стратегии оказался неопределенным из-за обрыва ряда
+			bfBrokenRow    = 0x0002, // Флаг означающий, что при расчете последний результат стратегии оказался неопределенным из-за обрыва ряда
 			bfDynMainTrend = 0x0004  // @v11.4.5 (construction-approach) Стратегия строится только по малому тренду с одновременным вычислением величины основного (большого) тренда.
 				// После расчета наборы стратегий группируются по близости величины основного тренда.
 		};
@@ -19201,10 +19207,10 @@ struct PPGdsClsFormula {
 	int    FASTCALL PutToBuffer(SString & rBuf) const;
 	int    FASTCALL GetFromBuffer(const char * pBuf);
 	enum {
-		fDefault = 0x0001 // Формула по умолчанию (в диалоге расчета, если
-			// существует более одной формулы, эта формула устанавливается автоматом //
+		fDefault = 0x0001 // Формула по умолчанию (в диалоге расчета, если существует более одной формулы, эта формула устанавливается автоматом //
 	};
 	SString Name;
+	SString Symb;     // @v12.0.11 Символ для ссылки на формулу  
 	SString Formula;
 	SString Var1Name; // "@1"
 	SString Var2Name; // "@2"
@@ -19214,6 +19220,7 @@ struct PPGdsClsFormula {
 
 struct PPGdsClsPacket {
 	PPGdsClsPacket();
+	PPGdsClsPacket(const PPGdsClsPacket & rS);
 	PPGdsClsPacket & FASTCALL operator = (const PPGdsClsPacket &);
 	PPGdsClsPacket & Z();
 	int    FASTCALL Copy(const PPGdsClsPacket &);
@@ -19238,6 +19245,14 @@ struct PPGdsClsPacket {
 	//
 	int    PutFormula(int * pIdx, const PPGdsClsFormula *);
 	int    GetFormula(int idx, PPGdsClsFormula *) const;
+	//
+	// Descr: Находит в пакете формулу по символу pSymb.
+	//   Если в пакете есть более одной формулы с искомым символом, то функция вернет только первую по порядку их расположения в списке FormulaList
+	// Returns:
+	//   true - формула по символу pSymb найдена
+	//   false - формула не найдена
+	//
+	bool   GetFormulaBySymb(const char * pSymb, PPGdsClsFormula *) const;
 	int    PutFormulaListToBuf(SString & rBuf) const;
 	int    GetFormulaListFromBuf(const char *);
 	//
@@ -19507,8 +19522,8 @@ struct PPInventoryOpEx {   // @persistent @store(PropertyTbl)
 	int16  AmountCalcMethod; // Метод расчета цен
 	int16  AutoFillMethod;   // Метод автозаполнени
 	int16  Reserve2;         //
-	char   Reserve3[36];     // @v10.5.9 [40]-->[36]
-	long   OnWrOffStatusID;  // @v10.5.9 Статус, устанавливаемый при списании документа
+	char   Reserve3[36];     // 
+	long   OnWrOffStatusID;  // Статус, устанавливаемый при списании документа
 	long   Flags;            // INVOPF_XXX
 	long   Reserve4;         //
 };
@@ -19541,8 +19556,7 @@ struct PPDebtInventOpEx {    // @persistent @store(PropertyTbl)
 #define ROXF_REQALTOBJ       0x0100L // If !automat then request user for alternate object for reckoning
 #define ROXF_THISALTOBJONLY  0x0200L // Зачитывать документы только по той же дополнительной статье документа
 	// Если доп статья нулевая, то зачитывать только на нулевые доп статьи
-#define ROXF_RECKONNEGONLY   0x0400L // @v10.3.2 Операция трактуется как зачетная только при отрицательной номинальной
-	// сумме документа (сумма зачета при этом меняет знак на положительный)
+#define ROXF_RECKONNEGONLY   0x0400L // Операция трактуется как зачетная только при отрицательной номинальной сумме документа (сумма зачета при этом меняет знак на положительный)
 
 #define ROX_HDR_DW_COUNT     8
 
@@ -19780,7 +19794,7 @@ private:
 #define BILSTF_LOCK_PAYMENT           0x0040 // Не учитывать документ как оплату
 #define BILSTF_LOCDISPOSE             0x0080 // Автоматически размещать товарный документ по ячейкам склада после установки этого статуса.
 #define BILSTF_READYFOREDIACK         0x0100 // Документ с таким статусом готов к отправке по нему подтверждения провайдеру EDI
-#define BILSTF_STRICTPRICECONSTRAINS  0x0200 // @v10.2.5 Для документов с таким статусом включается блокировка проведения если какая-либо из цен реализации
+#define BILSTF_STRICTPRICECONSTRAINS  0x0200 // Для документов с таким статусом включается блокировка проведения если какая-либо из цен реализации
 	// нарушает ограничения, заданные в товарных типах.
 //
 // Флаги обязательности атрибутов документа
@@ -19814,7 +19828,7 @@ struct PPBillStatus2 {     // @persistent @store(Reference2Tbl+)
 	char   Name[48];       // @name @!refname
 	char   Symb[20];       // Символ статуса
 	char   Reserve[44];    // @reserve
-	SColor IndColor;       // @v10.2.4 Цвет, которым подствечиваются документы с этим статусом
+	SColor IndColor;       // Цвет, которым подствечиваются документы с этим статусом
 	PPID   CounterID;      // Счетчик, по которому назначается номер документа при присвоении данного статуса
 	PPID   RestrictOpID;   // Вид операции (возможно, обобщенный) документам которого может быть присвоен данный статус.
 	int16  Rank;           //
@@ -20256,7 +20270,7 @@ public:
 		extssAccessKey = 1 // @v11.9.9 Это поле замещает тег PPTAG_GUA_ACCESSKEY из-за того, что ключ может не поместиться в 127 символов.
 	};
 	PPGlobalUserAccPacket();
-	int    FASTCALL IsEq(const PPGlobalUserAccPacket & rS) const;
+	bool   FASTCALL IsEq(const PPGlobalUserAccPacket & rS) const;
 	PPGlobalUserAccPacket & Z();
 	int    SetAccessKey(const char * pValue);
 	int    GetAccessKey(SString & rValue) const;
@@ -30445,7 +30459,7 @@ public:
 		funcVatPlus   = EXRP_EVAL_FIRST_FUNC +  2, // vatplus(x)
 		funcVatMinus  = EXRP_EVAL_FIRST_FUNC +  3, // vatminus(x)
 		funcGetQuot   = EXRP_EVAL_FIRST_FUNC +  4, // getquot(qk_symb)
-		funcGetQuotCP = EXRP_EVAL_FIRST_FUNC +  5  // getquotcp(qk_symb, cost, price)
+		funcGetQuotCP = EXRP_EVAL_FIRST_FUNC +  5, // getquotcp(qk_symb, cost, price)
 	};
 
 	GoodsContext(GdsClsCalcExprContext * pCtx);
@@ -30470,7 +30484,7 @@ private:
 	const  PPGoodsStruc * P_Gs;
 	const  PPBillPacket * P_BillPack;
 	const  PPTransferItem * P_Ti;
-	const  CCheckItem * P_Ci; // @v10.7.6
+	const  CCheckItem * P_Ci;
 	const  TSessLineTbl::Rec * P_TslRec; // @v11.0.7
 	PPObjGoods GObj;
 	PPObjTSession * P_TSesObj;
@@ -33276,7 +33290,7 @@ struct CfmReckoningParam {
 #define BCF_RETINHERITFREIGHT      0x02000000L  // Связанный документ возврата наследует фрахт от основного документа
 #define BCF_PICKLOTS               0x04000000L  // В товарных документах на расход предпочтение - подбору лота, а не товара
 #define BCF_INHSERIAL              0x08000000L  // Наследовать в приходах серийный номер от последнего лота
-#define BCF_DONTVERIFEXTCODECHAIN  0x10000000L  // @v10.8.0 Не проверять цепочки кодов расширения лотов при расходе
+#define BCF_DONTVERIFEXTCODECHAIN  0x10000000L  // Не проверять цепочки кодов расширения лотов при расходе
 #define BCF_NEWDOCBYFILTUSEFLTDATE 0x20000000L  // @v11.1.7 При создании документа по фильтру к документу применять верхнюю дату периода фильтра. Иначе - текущую системную.
 
 struct PPBillConfig {        // @persistent @store(cvt:PropertyTbl)
@@ -50780,7 +50794,7 @@ public:
 	virtual int ResolveFunc(int funcId, FC & rFc);
 private:
 	int    CalcTotalBlock();
-	int    ProcessLink(PPID linkBillID, PPID amtID, int artefactSymb, PPID addCurID, int errOnDefault, double * pResult);
+	int    ProcessLink(PPID linkBillID, PPID amtID, int artefactSymb, PPID addCurID, bool errOnDefault, double * pResult);
 
 	const  PPBillPacket * P_Pack;
 	BillTotalData Bt;
@@ -52217,6 +52231,7 @@ private:
 	int    UED_Import_Atoms();
 	int    UED_ImportIcuNames();
 	int    UED_Import_Scripts();
+	int    UED_Import_DataTypesCompatibleWithSLIB();
 
 	PrcssrSartreFilt P;
 };
@@ -56936,7 +56951,7 @@ public:
 
 	PPEgaisProcessor(long cflags, PPLogger * pOuterLogger, int __reserve);
 	~PPEgaisProcessor();
-	int    operator !() const;
+	bool   operator !() const;
 	void   SetTestSendingMode(int set);
 	void   SetNonRvmTagMode(int set);
 	int    CheckLic() const;
@@ -57009,6 +57024,7 @@ public:
 	int    SendBills(const PPBillIterchangeFilt & rP);
 	int    CreateActChargeOnBill(PPID * pBillID, int ediOp, PPID locID, LDATE restDate, const PPIDArray & rLotList, int use_ta);
 	int    CollectRefs();
+	LotExtCodeCore * GetLecT(); // @v12.0.11
 private:
 	struct BillTransmissionPattern {
 		long   Flags;
@@ -57144,9 +57160,6 @@ public:
 		TSCollection <_MarkEntry> ML;
 	};
 	struct Entry {
-		//PPID   GoodsID;
-		//double Qtty;
-		//StringSet SsMark;
 		Entry() : GsID(0), IsOrList(false)
 		{
 		}
@@ -57166,7 +57179,7 @@ public:
 			TSCollection_Copy(Te, rS.Te);
 			return true;
 		}
-		PPID   GsID; // Идентификатор структуры, из которой сформирован экземпляр this
+		PPID   GsID;     // Идентификатор структуры, из которой сформирован экземпляр this
 		bool   IsOrList; // Если true, то список Te определяет вариант "один-из", в противном случае это - терминальный элемент.
 		//
 		// Если this связан с конечным компонентом комплектующей структуры, то Te содержит единственный элемент,
