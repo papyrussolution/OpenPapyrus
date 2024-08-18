@@ -34,6 +34,7 @@ public class StyloQConfig {
 	public static int tagCliFlags        = 13; // @v11.6.0 StyloQConfig::clifXXX Флаги клиента на стороне сервиса. То есть, после сопоставления клиента, сервис может
 		// присвоить ему какие-либо флаги, например, с целью наделить его какими-то полномочиями
 	public static int tagNotificationActualDays = 14; // @v11.7.4 (private config) Количество дней актуальности уведомлений
+	public static int tagUserFlags       = 15; // @v12.0.11 StyloQConfig::userfXXX Флаги пользовательского сеанса. Хранятся только на стороне этого приложения (сервису не передаются).
 	// } @persistent
 	// Роли записи
 	public static int roleUndef          = 0;
@@ -52,6 +53,10 @@ public class StyloQConfig {
 	public static int clifSvcGPS            = 0x0002; // Клиенту разрешается установить GPS-координаты сервиса
 	public static int clifPsnAdrGPS         = 0x0004; // Клиенту разрешается устанавливать GPS-координаты адресов доставки перосналий (контакты, покупатели etc)
 	public static int clifShareDoc          = 0x0008; // @v11.9.0 Клиенту разрешается делиться документами
+	//
+	// Descr: Флаги для тега tagUserFlags
+	//
+	public static int userfNetworkDisabled  = 0x0001; // @v12.0.11 Пользователь намеренно отключил функции сетевого обмена
 
 	private Map<Integer, String> L;
 
@@ -94,6 +99,7 @@ public class StyloQConfig {
 			TagList.add(new SLib.IntToStrAssoc(tagRole,  "role")); // @v11.2.8
 			TagList.add(new SLib.IntToStrAssoc(tagCliFlags,  "cliflags")); // @v11.6.0
 			TagList.add(new SLib.IntToStrAssoc(tagNotificationActualDays,  "notificationactualdays")); // @v11.7.4
+			TagList.add(new SLib.IntToStrAssoc(tagUserFlags,  "userflags")); // @v12.0.11
 		}
 		return TagList;
 	}

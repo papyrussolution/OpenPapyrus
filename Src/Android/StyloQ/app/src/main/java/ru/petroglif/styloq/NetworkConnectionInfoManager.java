@@ -14,6 +14,7 @@ public class NetworkConnectionInfoManager {
 		Ethernet, // Доступна сеть ethernet
 		WIFI, // Доступна сеть wifi
 		Cellular, // Доступна сеть посредством сотового оператора
+		UserDisabled // @v12.0.11 Пользователь запретил использование сети в приложении
 	}
 	public static class Status {
 		Status()

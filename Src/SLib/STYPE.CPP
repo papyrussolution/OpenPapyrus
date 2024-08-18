@@ -1,5 +1,5 @@
 // STYPE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2019, 2020, 2022, 2023
+// Copyright (c) Sobolev A. 1995, 1996, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2019, 2020, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -30,7 +30,7 @@ DataType & FASTCALL stype(TYPEID t, DataType * pT)
 }
 
 int    FASTCALL btnumber(int bt) { return oneof3(bt, BTS_INT, BTS_REAL, BTS_INT64_); }
-uint32 FASTCALL stsize(TYPEID t) { DataType _t; return stype(t, &_t).size(); } // @v10.2.1 size_t-->uint32
+uint32 FASTCALL stsize(TYPEID t) { DataType _t; return stype(t, &_t).size(); }
 int    FASTCALL stcomp(TYPEID t, const void * i1, const void * i2) { DataType _t; return stype(t, &_t).comp(i1, i2); }
 char * FASTCALL sttostr(TYPEID t, const void * d, long f, char * b) { DataType _t; return stype(t, &_t).tostr(d, f, b); }
 int    FASTCALL stfromstr(TYPEID t, void * d, long f, const char * b) { DataType _t; return stype(t, &_t).fromstr(d, f, b); }
@@ -207,10 +207,7 @@ void STypEx::Init()
 	THISZERO();
 }
 
-int STypEx::IsPure() const
-{
-	return BIN(Mod == 0 && !(Flags & (fStruct|fOf)));
-}
+bool STypEx::IsPure() const { return (Mod == 0 && !(Flags & (fStruct|fOf))); }
 
 bool FASTCALL STypEx::IsEq(const STypEx & s) const
 {
@@ -221,34 +218,34 @@ bool FASTCALL STypEx::IsEq(const STypEx & s) const
 	return false;
 }
 
-int FASTCALL STypEx::IsZStr(size_t * pLen) const
+bool FASTCALL STypEx::IsZStr(size_t * pLen) const
 {
 	if(IsPure() && GETSTYPE(Typ) == S_ZSTRING) {
 		ASSIGN_PTR(pLen, GETSSIZE(Typ));
-		return 1;
+		return true;
 	}
 	else
-		return 0;
+		return false;
 }
 
-int FASTCALL STypEx::IsWZStr(size_t * pLen) const
+bool FASTCALL STypEx::IsWZStr(size_t * pLen) const
 {
 	if(IsPure() && GETSTYPE(Typ) == S_WZSTRING) {
 		ASSIGN_PTR(pLen, GETSSIZE(Typ)/sizeof(wchar_t));
-		return 1;
+		return true;
 	}
 	else
-		return 0;
+		return false;
 }
 
-int FASTCALL STypEx::IsRaw(size_t * pLen) const
+bool FASTCALL STypEx::IsRaw(size_t * pLen) const
 {
 	if(IsPure() && GETSTYPE(Typ) == S_RAW) {
 		ASSIGN_PTR(pLen, GETSSIZE(Typ));
-		return 1;
+		return true;
 	}
 	else
-		return 0;
+		return false;
 }
 
 TYPEID STypEx::GetDbFieldType() const
@@ -376,7 +373,7 @@ SString & GetBinaryTypeString(TYPEID typ, int style, SString & rBuf, const char 
 			else
 				(type_text = "int_invalid_size_").Cat(sz);
 			break;
-		case S_INT64: type_text = "int64"; break; // @v10.6.3
+		case S_INT64: type_text = "int64"; break;
 		case S_UINT64: type_text = "uint64"; break; // @v11.9.2
 		case S_LOGICAL: type_text = "bool"; break;
 		case S_UINT:
@@ -508,7 +505,7 @@ SString & FASTCALL GetBaseTypeString(int baseTyp, long flags, SString & rBuf)
 	switch(baseTyp) {
 		case BTS_STRING: rBuf = (flags & BTSF_NATIVE) ? "Строка" : "string"; break;
 		case BTS_INT: rBuf = (flags & BTSF_NATIVE) ? "Целое число" : "integer"; break;
-		case BTS_INT64_: rBuf = (flags & BTSF_NATIVE) ? "Целое число" : "integer"; break; // @v10.6.3
+		case BTS_INT64_: rBuf = (flags & BTSF_NATIVE) ? "Целое число" : "integer"; break;
 		case BTS_REAL: rBuf = (flags & BTSF_NATIVE) ? "Число" : "real"; break;
 		case BTS_DATE: rBuf = (flags & BTSF_NATIVE) ? "Дата" : "date"; break;
 		case BTS_TIME: rBuf = (flags & BTSF_NATIVE) ? "Время" : "time"; break;

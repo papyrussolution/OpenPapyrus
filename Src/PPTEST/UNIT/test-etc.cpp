@@ -1469,7 +1469,11 @@ SLTEST_R(PPExprParser)
 		const char * P_Expr;
 		double EstResult;
 	};
+	// sieve[0,45;100?0,40;500?0,3](lottag.manufprice)
 	const TestExpr expr_list_valid[] = {
+		{ "sieve[0,45;100?0,40;500?0,3](200.1)", 0.4 },
+		{ "sieve[0,45;100?0,40;500?0,3](100)", 0.4 },
+		{ "sieve[0,45;100?0,40;500?0,3](99.99)", 0.45 },
 		//{ "sieve[0.0; 5?1; 6?2; 7?3](5.5)", 2.0 },
 		{ "0.719 = 0.7 + 0.019", 1.0 },
 		{ "0.719 != 0.7 + 0.019", 0.0 },

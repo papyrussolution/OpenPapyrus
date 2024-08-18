@@ -2469,6 +2469,36 @@ browser DRAFTWROFFS south(73), 1, 0, "Документы списания драфт-документа (%s)", 
 		TOTAL            :  kbF9,       PPDV_SIGMA02,         "@{totals}\tF9"
 	}
 }
+//
+// Таблица документов списания заказа и сопутствующих документов
+//
+browser ORDERACCOMPLISH south(56), 1, 0, "@{doclink_ordaccomplish} (%s)", OWNER|GRID, 0 // @v12.0.11
+{
+	"@date",       1, date, DATF_DMY,   8, BCO_USERPROC
+	"@billno",     2, zstring(24),   0,  7, BCO_USERPROC
+	"@status",     3, zstring(48),   0, 12, BCO_USERPROC
+	"@oprkind",    4, zstring(48),   0, 12, BCO_USERPROC
+	"@contractor", 9, zstring(128),  0, 20, BCO_USERPROC
+	"@amount",     5, double,        NMBF_NOZERO, 10.2, BCO_USERPROC
+	"@memo",       8, zstring(256),  0, 60, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		EDITITEM         :  kbEnter,    PPDV_EDITFILE02,        "@{doeditdocument}\tEnter"
+		ADDITEM          :  kbIns,      PPDV_ADDFILE02,         "@{doadddocument}\tInsert"
+		ADDBYSAMPLE      :  kbAltF2,    PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
+		DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,      "@{doremovebill}\tDelete"
+		CHANGESTATUS     :  kbCtrlF6,   TBBM_SWITCH,            "@{dochangebillstatus}\tCtrl-F6"
+		SETWLABEL        :  kbF8,       TBBM_MARK,              "@{dowhitelabel}\tF8"
+		separator
+		TOGGLE           :  kbCtrlT,    PPDV_TOGGLE01,          "@{dotoggleviewmode}\tCtrl-T"
+		VIEWOP           :  kbCtrlQ,    PPDV_OPLIST,            "@{oprkind}\tCtrl-Q"
+		ACCTURNSBYBILL   :  kbCtrlA,    TBBM_ACCTURNSBYBILL,    "@{accturnsbybill}\tCtrl-A"
+		PRINT            :  kbF7,       PPDV_PRINTER01,         "@{printcurrentdocument}\tF7"
+		POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,          "@{printcheck_toposregistrar}\tCtrl-Z"
+		PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,         "@{printselectionofdocuments}\tAlt-F7"
+		separator
+		TOTAL            :  kbF9,       PPDV_SIGMA02,           "@{totals}\tF9"
+	}
+}
 
 browser SHIPMANLZ north(100), 3, 1, "@view_shipmanalyze", OWNER|GRID, 0
 {

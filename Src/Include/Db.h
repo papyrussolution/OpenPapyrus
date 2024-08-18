@@ -175,7 +175,7 @@ public:
 		uint   NamePos;
 		uint   DescrPos;
 		uint   InnerFormulaPos;
-		uint   OuterFormulaPos; // @v10.9.1 @Attention! могут возникнуть побочные эффекты из-за сериализации
+		uint   OuterFormulaPos; // @Attention! могут возникнуть побочные эффекты из-за сериализации
 	};
 	enum {
 		fAllowDupID   = 0x0001, // При добавлении полей класс не следит за тем, чтобы их идентификаторы были уникальными внутри записи.
@@ -383,7 +383,6 @@ private:
 	SVector Items;           // @persistent
 	StringSet StringPool;    // @persistent
 	size_t RecSize;          // @transient
-	// @v10.8.4 mutable SString TempBuf; // @transient @allocreuse
 	void * P_DataBuf;        // @transient
 	size_t OuterDataBufSize; // @transient
 	int    IsDataBufOwner;   // @transient Если !0, то экземпляр является владельцем буфера данных

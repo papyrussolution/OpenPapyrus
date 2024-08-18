@@ -608,11 +608,13 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 		if(app_ctx != null) {
 			View v = findViewById(R.id.CTL_NETWORKSTATE_INDICATOR);
 			if(v != null && v instanceof ImageView) {
+				int ir = 0;
 				NetworkConnectionInfoManager.Status st = app_ctx.GetNetworkStatus();
-				if(st != null) {
-					int ir = 0;
+				if(app_ctx.IsNetworkDisabled())
+					ir = R.drawable.ic_mobile_network_off;
+				else if(st != null) {
 					if(st.Transp == NetworkConnectionInfoManager.Transport.Unavailable) {
-						ir = R.drawable.ic_mobile_network_off;
+						ir = R.drawable.ic_mobile_network_disconnected;
 					}
 					else if(st.Transp == NetworkConnectionInfoManager.Transport.Ethernet) {
 						ir = R.drawable.ic_mobile_network_wifi; // @todo сделать картинку
@@ -635,8 +637,8 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					}
 					else
 						ir = R.drawable.ic_mobile_network_disconnected;
-					((ImageView)v).setImageResource(ir);
 				}
+				((ImageView)v).setImageResource(ir);
 			}
 		}
 	}
@@ -949,6 +951,11 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 						}
 					} catch(StyloQException exn) {
 					}
+				}
+				else if(view_id == R.id.CTL_NETWORKSTATE_INDICATOR) { // @v12.0.11
+					StyloQApp app_ctx = (StyloQApp)getApplication();
+					app_ctx.ToggleNetworkDisabledTag();
+					UpdateNetworkStateIndicator();
 				}
 				else if(view_id == R.id.tbButtonFaces) {
 					Intent intent = new Intent(this, FaceListActivity.class);

@@ -616,7 +616,7 @@ int GCTIterator::InitQuery(int cpMode)
 						BExtQuery q(p_bt, 2, 256);
 						q.select(p_bt->ID, p_bt->Code, p_bt->Dt, p_bt->DueDate, p_bt->OpID, p_bt->Object,
 							p_bt->Flags, p_bt->LocID, 0L).where(p_bt->OpID == op_id && daterange(p_bt->Dt, &Period) &&
-							daterange(p_bt->DueDate, &Filt.DueDatePeriod)); // @v10.0.04 DueDate
+							daterange(p_bt->DueDate, &Filt.DueDatePeriod));
 						for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 							if(CheckBillForFilt(p_bt->data)) {
 								BillList.add(p_bt->data.ID);

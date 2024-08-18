@@ -1897,6 +1897,7 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 								THROW_SL(p_rcpt_bpack = rcpt_bpack_list.CreateNewItem());
 								THROW(p_rcpt_bpack->CreateBlank(rcpt_op_id, 0, loc_id, 1));
 								THROW(p_rcpt_bpack->SetupObject(suppl_id, rcpt_sob));
+								p_rcpt_bpack->SetPoolMembership(PPBillPacket::bpkOrdAccomplish, sampleBillID); // @v12.0.11
 								p_rcpt_bpack->Rec.Dt = pack.Rec.Dt;
 								{
 									PPObjBill::MakeCodeString(&sample_pack.Rec, PPObjBill::mcsAddObjName, temp_buf);
@@ -7972,8 +7973,14 @@ int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 		}
 		pPack->ErrCause = pPack->ErrLine = 0;
 		THROW(ProcessShadowPacket(pPack, 0));
-		if(pPack->PaymBillID)
+		if(pPack->PaymBillID) {
 			THROW(P_Tbl->UpdatePool(pPack->Rec.ID, PPASS_PAYMBILLPOOL, pPack->PaymBillID, 0));
+		}
+		// @v12.0.11 {
+		if(pPack->OrderPoolBillID) {
+			THROW(P_Tbl->UpdatePool(pPack->Rec.ID, PPASS_ORDACCOMPBILLPOOL, pPack->OrderPoolBillID, 0));
+		}
+		// } @v12.0.11 
 		if(pPack->CSessID) {
 			long   pool_type = 0;
 			if(pPack->Rec.Flags & BILLF_CSESSWROFF)
@@ -8228,8 +8235,8 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 				const long preserve_tflags = p_ti->TFlags;
 				THROW(p_ti->Init(&pPack->Rec, /*full_update*/0));
 				SETFLAGBYSAMPLE(p_ti->TFlags, PPTransferItem::tfForceNew, preserve_tflags);
-				SETFLAGBYSAMPLE(p_ti->TFlags, PPTransferItem::tfQrSeqAccepted, preserve_tflags); // @v10.5.8
-				SETFLAGBYSAMPLE(p_ti->TFlags, PPTransferItem::tfQrSeqRejected, preserve_tflags); // @v10.5.8
+				SETFLAGBYSAMPLE(p_ti->TFlags, PPTransferItem::tfQrSeqAccepted, preserve_tflags);
+				SETFLAGBYSAMPLE(p_ti->TFlags, PPTransferItem::tfQrSeqRejected, preserve_tflags);
 				if(full_update)
 					p_ti->TFlags |= (PPTransferItem::tfForceReplace|PPTransferItem::tfForceNew);
 			}
@@ -8276,14 +8283,12 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 						STRNSCPY(cte.Clb, clb);
 						pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb);
 						STRNSCPY(cte.PartNo, clb);
-						// @v10.5.8 {
 						cte.LinkBillID = p_ti->Lbr.ID; 
 						cte.LinkRbb = p_ti->Lbr.RByBill;
 						if(p_ti->TFlags & PPTransferItem::tfQrSeqAccepted)
 							cte.QrSeqAckStatus = 1;
 						else if(p_ti->TFlags & PPTransferItem::tfQrSeqRejected)
 							cte.QrSeqAckStatus = 2;
-						// } @v10.5.8
 						THROW(P_CpTrfr->PutItem(p_ti, 0 /*forceRByBill*/, &cte, 0));
 						ufp_counter.TiAddCount++;
 					}
@@ -8457,6 +8462,11 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		if(pPack->PaymBillID) {
 			THROW(P_Tbl->UpdatePool(pPack->Rec.ID, PPASS_PAYMBILLPOOL, pPack->PaymBillID, 0));
 		}
+		// @v12.0.11 {
+		if(pPack->OrderPoolBillID) {
+			THROW(P_Tbl->UpdatePool(pPack->Rec.ID, PPASS_ORDACCOMPBILLPOOL, pPack->OrderPoolBillID, 0));
+		}
+		// } @v12.0.11 
 		{
 			PPIDArray  pool_list;
 			if(P_Tbl->GetPoolOwnerList(pPack->Rec.ID, PPASS_OPBILLPOOL, &pool_list) > 0) {
@@ -8706,6 +8716,7 @@ int PPObjBill::Helper_GetPoolMembership(PPID id, const PPBillPacket * pPack, lon
 int PPObjBill::GetPoolsMembership(PPID id, PPBillPacket * pPack)
 {
 	Helper_GetPoolMembership(id, pPack, 0, PPASS_PAYMBILLPOOL, &pPack->PaymBillID);
+	Helper_GetPoolMembership(id, pPack, 0, PPASS_ORDACCOMPBILLPOOL, &pPack->OrderPoolBillID); // @v12.0.11
 	if(Helper_GetPoolMembership(id, pPack, BILLF_CSESSWROFF, PPASS_CSESSBILLPOOL, &pPack->CSessID) < 0)
 		if(Helper_GetPoolMembership(id, pPack, BILLF_CDFCTWROFF,  PPASS_CSDBILLPOOL, &pPack->CSessID) < 0)
 			if(Helper_GetPoolMembership(id, pPack, BILLF_TSESSWROFF, PPASS_TSESSBILLPOOL, &pPack->CSessID) < 0)

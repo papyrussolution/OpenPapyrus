@@ -2589,7 +2589,6 @@ struct LDATE { // @noctr
 		cInvalid           // Дата имеет недопустимое значение
 	};
 	operator unsigned long() const { return v; }
-	// @v10.3.4 (replaced with GetOleDate()) operator OleDate() const;
 	OleDate GetOleDate() const;
 	time_t GetTimeT() const;
 	LDATE  Z() { v = 0; return *this; }
@@ -3268,11 +3267,11 @@ private:
 struct STypEx { // @persistent @size=16
 	DECL_INVARIANT_C();
 	void   Init();
-	int    IsPure() const;
+	bool   IsPure() const;
 	bool   FASTCALL IsEq(const STypEx &) const;
-	int    FASTCALL IsZStr(size_t * pLen) const;
-	int    FASTCALL IsWZStr(size_t * pLen) const;
-	int    FASTCALL IsRaw(size_t * pLen) const;
+	bool   FASTCALL IsZStr(size_t * pLen) const;
+	bool   FASTCALL IsWZStr(size_t * pLen) const;
+	bool   FASTCALL IsRaw(size_t * pLen) const;
 	size_t GetBinSize() const;
 	TYPEID GetDbFieldType() const;
 	enum {

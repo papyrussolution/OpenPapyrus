@@ -703,7 +703,7 @@ int SdRecord::AddField(uint * pID, const SdbField * pFld)
 	f.NamePos = 0;
 	f.DescrPos = 0;
 	f.InnerFormulaPos = 0;
-	f.OuterFormulaPos = 0; // @v10.9.1
+	f.OuterFormulaPos = 0;
 	if(pID && (*pID || (pFld->T.Flags & STypEx::fZeroID))) {
 		uint   pos = 0;
 		if(Items.lsearch(&pID, &pos, CMPF_LONG) && !(Flags & fAllowDupID)) {
@@ -735,7 +735,7 @@ int SdRecord::AddField(uint * pID, const SdbField * pFld)
 				msg_buf.Dot();
 			// } @v11.9.8 
 			msg_buf.Cat(temp_buf.Transf(CTRANSF_OUTER_TO_INNER));
-			SLS.SetAddedMsgString(msg_buf); // @v10.1.11 .Transf(CTRANSF_OUTER_TO_INNER)
+			SLS.SetAddedMsgString(msg_buf);
 			CALLEXCEPTV(SLERR_SDREC_DUPFLDNAME);
 		}
 		else {
@@ -749,11 +749,9 @@ int SdRecord::AddField(uint * pID, const SdbField * pFld)
 					StringPool.add(temp_buf, &f.InnerFormulaPos);
 			}
 			{
-				// @v10.9.1 {
 				temp_buf = pFld->OuterFormula;
 				if(temp_buf.NotEmptyS())
 					StringPool.add(temp_buf, &f.OuterFormulaPos);
-				// } @v10.9.1 
 			}
 			THROW(Items.insert(&f));
 			SetupOffsets();
@@ -845,7 +843,7 @@ int FASTCALL SdRecord::GetFieldByPos(uint pos, SdbField * pFld) const
 			StringPool.getnz(p_item->NamePos, pFld->Name);
 			StringPool.getnz(p_item->DescrPos, pFld->Descr);
 			StringPool.getnz(p_item->InnerFormulaPos, pFld->InnerFormula);
-			StringPool.getnz(p_item->OuterFormulaPos, pFld->OuterFormula); // @v10.9.1
+			StringPool.getnz(p_item->OuterFormulaPos, pFld->OuterFormula);
 		}
 	}
 	else

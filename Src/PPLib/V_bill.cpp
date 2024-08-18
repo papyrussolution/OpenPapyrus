@@ -3920,6 +3920,9 @@ int PPViewBill::ViewPayments(PPID billID, int kind)
 			}
 			THROW(p_v->Browse(0));
 		}
+		else if(GetOpType(bill_rec.OpID) == PPOPT_GOODSORDER) { // @v12.0.11
+			ok = P_BObj->ViewPayments(billID, LinkedBillFilt::lkOrdAccomplish);
+		}
 		else if(IsDraftOp(bill_rec.OpID)) {
 			ok = P_BObj->ViewPayments(billID, LinkedBillFilt::lkWrOffDraft);
 		}

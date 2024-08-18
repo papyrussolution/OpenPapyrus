@@ -2921,8 +2921,8 @@ PPINIPARAM_BARCODELOWPRIORITY          "BarcodeLowPriority"
 PPINIPARAM_SHTRIHFRPASSWORD            "ShtrihFRPassword"
 PPINIPARAM_SHTRIHFRNOUSECONTPRN        "ShtrihFRNoUseContPrn"
 PPINIPARAM_SHTRIHFRCONNECTPARAM        "ShtrihFRConnectParam"
-PPINIPARAM_SHTRIHFRSCARDPAYMENTRY      "ShtrihFRSCardPaymEntry" // @v10.6.2
-PPINIPARAM_SHTRIHFRUSEFNMETHODS        "ShtrihFRUseFnMethods"   // @v10.7.2
+PPINIPARAM_SHTRIHFRSCARDPAYMENTRY      "ShtrihFRSCardPaymEntry"
+PPINIPARAM_SHTRIHFRUSEFNMETHODS        "ShtrihFRUseFnMethods"
 PPINIPARAM_SHTRIH_USEGOODSLOCASSOC     "UseGoodsLocAssocToExtCashNode"
 PPINIPARAM_SHTRIHFRNOTUSEWEIGHTSENSOR  "ShtrihFRNotUseWeightSensor"
 PPINIPARAM_SHTRIHMFRK_TIMEOUT          "Shtrih_MFRK_Timeout"
@@ -2961,7 +2961,7 @@ PPINIPARAM_SCARD_DEFPERSON             "SCardDefPerson"
 PPINIPARAM_SUPPLEXP_BILLFILEMAXSIZE    "SupplExpBillFileMaxSize"
 PPINIPARAM_CRYSTAL_ADDTIMETOFILENAMES  "SetR_AddTimeToFileNames"
 PPINIPARAM_CRYSTAL_USENEWDSCNTCODEALG  "SetR_UseNewDscntCodeAlg"
-PPINIPARAM_CRYSTAL_DIFFGOODSEXPORT     "SetR_DiffGoodsExport" // @v10.6.3
+PPINIPARAM_CRYSTAL_DIFFGOODSEXPORT     "SetR_DiffGoodsExport"
 PPINIPARAM_CRYSTAL_GOODSIDASARTICLE    "SetR_GoodsIdAsArticle" // @v11.4.4
 PPINIPARAM_PSALES_GOODSQUANT           "PSales_GoodsQuant"
 PPINIPARAM_DEBUGTRFRERROR              "debug_trfr_error"
@@ -3068,9 +3068,9 @@ PPINIPARAM_SARTREDB_MAXLOCKOBJS_RO       "sartredb_maxlockobjs_ro"
 PPINIPARAM_SARTREDB_LOGBUFSIZE           "sartredb_logbufsize"
 PPINIPARAM_TSSTAKE_INPUTFRAMESIZE        "input_frame_size"
 PPINIPARAM_TSSTAKE_MAXDUCKQUANT          "max_duck_quant"
-PPINIPARAM_TSSTAKE_STAKEBOUNDS           "stake_bounds" // @v10.7.3
+PPINIPARAM_TSSTAKE_STAKEBOUNDS           "stake_bounds"
 PPINIPARAM_TSSTAKE_INITTRENDERRLIMIT     "init_trend_err_limit"
-PPINIPARAM_TSSTAKE_PARTTRENDERRLIMIT     "partitial_trend_err_limit" // @v10.7.4
+PPINIPARAM_TSSTAKE_PARTTRENDERRLIMIT     "partitial_trend_err_limit"
 PPINIPARAM_TSSTAKE_INITMAINTRENDERRLIMIT "init_main_trend_err_limit"
 PPINIPARAM_TSSTAKE_BESTSUBSETDIMESION    "best_subset_dimension"
 PPINIPARAM_TSSTAKE_BESTSUBSETMAXPHONY    "best_subset_max_phony_iters"
@@ -3087,7 +3087,7 @@ PPINIPARAM_TSSTAKE_OPTRANGE_STEP         "opt_range_step"
 PPINIPARAM_TSSTAKE_OPTRANGE_STEPMKPART   "opt_range_stepmkpart"
 PPINIPARAM_TSSTAKE_OPTRANGEMULTI         "opt_range_multi"
 PPINIPARAM_TSSTAKE_OPTRANGEMULTI_LIMIT   "opt_range_multi_limit"
-PPINIPARAM_TSSTAKE_OPTRANGE_MAXEXTPROBE  "opt_range_max_ext_probe" // @v10.7.3
+PPINIPARAM_TSSTAKE_OPTRANGE_MAXEXTPROBE  "opt_range_max_ext_probe"
 PPINIPARAM_TSSTAKE_MAINFRAMESIZE         "main_frame_size"
 PPINIPARAM_TSSTAKE_MAINFRAMERANGECOUNT   "main_frame_range_count"
 PPINIPARAM_TSSTAKE_CHAOSFACTOR           "chaos_factor"
@@ -3095,13 +3095,13 @@ PPINIPARAM_METTLER_DEBUG                 "mettler_debug"
 PPINIPARAM_VETIS_OUTGOINGALG2            "vetis_outgoing_alg2"
 PPINIPARAM_VETIS_LOGTALK                 "vetis_logtalk" // @v11.1.6
 PPINIPARAM_SYSMAINTPROB_MQSCONFIG        "SysMaintenanceProb_MqsConfig" // @v10.6.2 @construction
-PPINIPARAM_PATH_CRYPTOPRO_BAD            "ctyptopro" // @v10.6.3 [path] путь до каталога с исполняемыми файлами Крипто-Про
-PPINIPARAM_PATH_CRYPTOPRO                "cryptopro" // @v10.6.3 [path] путь до каталога с исполняемыми файлами Крипто-Про
-PPINIPARAM_VERIFYARTOLOCMETHODS          "verifyartolocmethods" // @v10.7.3 [config] Отладочный параметр для верификации функций преобразования статей в склады и наоборот
-PPINIPARAM_STRINGHISTORYUSAGE            "stringhistoryusage"   // @v10.7.9 [config] Использование истории ввода строк (0 - disabled, 1 - enabled, -1 - by UI config)
-PPINIPARAM_EXPCHZNGTINSER                "expchzngtinser"       // @v10.9.9 [config] Экспортировать марку честный знак как GTIN+SERIAL без остальной части
+PPINIPARAM_PATH_CRYPTOPRO_BAD            "ctyptopro" // [path] путь до каталога с исполняемыми файлами Крипто-Про
+PPINIPARAM_PATH_CRYPTOPRO                "cryptopro" // [path] путь до каталога с исполняемыми файлами Крипто-Про
+PPINIPARAM_VERIFYARTOLOCMETHODS          "verifyartolocmethods" // [config] Отладочный параметр для верификации функций преобразования статей в склады и наоборот
+PPINIPARAM_STRINGHISTORYUSAGE            "stringhistoryusage"   // [config] Использование истории ввода строк (0 - disabled, 1 - enabled, -1 - by UI config)
+PPINIPARAM_EXPCHZNGTINSER                "expchzngtinser"       // [config] Экспортировать марку честный знак как GTIN+SERIAL без остальной части
 PPINIPARAM_EXPNALOGRUPLAINADDR           "expnalogruplainaddr"  // @v11.5.11 [config] Экспортировать в форматах nalog.ru простой адрес без разбивки по элементам
-PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION "inventorystockviewrestriction" // @v10.9.12 [config] Список пользователей (по именам), которым недоступен просмотр учетного остатка в строках инвентаризации
+PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION "inventorystockviewrestriction" // [config] Список пользователей (по именам), которым недоступен просмотр учетного остатка в строках инвентаризации
 PPINIPARAM_PAPERLESSCHEQUE               "paperlesscheque" // @v11.3.7 [config] Разрешение на использование функции безбумажной печати чеков
 PPINIPARAM_PAPERLESSCHEQUE_FAKEEADDR     "paperlesscheque_fakeeaddr" // @v11.3.7 [config] Фейковый электронный адрес для отправки безбумажного чека.
 PPINIPARAM_BLINDLOGINMODE                "blindloginmode" // @v11.3.12 [config] "слепой" режим авторизации: пользователь не видит список баз данных. после ввода имени и пароля
@@ -3127,7 +3127,7 @@ PPFILNAM_PP_STR                "pp.str"
 PPFILNAM_EMPTY_ZIP             "empty.zip"
 PPFILNAM_PPSYNC_BIN            "ppsync.bin"
 PPFILNAM_PROBLEMS_LOG          "dbxrecv.log"
-PPFILNAM_DBXSEND_LOG           "dbxsend.log" // @v9.8.10
+PPFILNAM_DBXSEND_LOG           "dbxsend.log" // Журнал сообщений о передаче данных в другие разделы БД
 PPFILNAM_BALANCE_LOG           "balance.log"
 PPFILNAM_LOTERR_LOG            "loterr.log"
 PPFILNAM_ABSLOTS_LOG           "abslots.log"
@@ -3135,7 +3135,7 @@ PPFILNAM_ACCTURN_LOG           "accturn.log"
 PPFILNAM_ABSGOODS_LOG          "absgoods.log"
 PPFILNAM_CCHKERR_LOG           "cchkerr.log" // Журнал ошибок, возникающих в связи с обработкой чеков
 PPFILNAM_CCVERR_LOG            "ccverr.log" // Файл с ошибками, выявленными функцией PPViewCCheck::Recover()
-PPFILNAM_GSTRUCERR_LOG         "gstrucerr.log" // @v10.0.10 Файл с ошибками, выявленными функцией PPViewGoodsStruc::Recover()
+PPFILNAM_GSTRUCERR_LOG         "gstrucerr.log" // Файл с ошибками, выявленными функцией PPViewGoodsStruc::Recover()
 PPFILNAM_ERR_LOG               "pperror.log"
 PPFILNAM_INFO_LOG              "ppinfo.log"
 PPFILNAM_DEBUG_LOG             "debug.log"
@@ -3161,7 +3161,7 @@ PPFILNAM_BALTIKA_LOG           "baltika.log"
 PPFILNAM_QUOTUPD_LOG           "quotupd.log"
 PPFILNAM_PAYMLINK_LOG          "paymlink.log"
 PPFILNAM_EGAIS_LOG             "egais.log"
-PPFILNAM_CHZN_LOG              "chzn.log" // @v10.6.5
+PPFILNAM_CHZN_LOG              "chzn.log" // Журнал сообщений при обмене с системой честный знак
 PPFILNAM_ABSACCOUNTS_LOG       "absacct.log"
 PPFILNAM_IE_CASH_LOG           "ie_cash.log"
 PPFILNAM_CURRESTERR_LOG        "curresterr.log"
@@ -3347,11 +3347,11 @@ PPFILNAM_DEBUG_AEQ_LOG         "debug-aeq.log"
 PPFILNAM_TEST_LOG              "test.log"
 PPFILNAM_CHZNTALK_LOG          "chzn-talk.log"
 PPFILNAM_MENUDESKLOCK          "menudesklock.lck"
-PPFILNAM_ATOLDRV_LOG           "atoldrv.log" // @v10.7.12
-PPFILNAM_UDSTALK_LOG           "uds-talk.log" // @v10.8.11
+PPFILNAM_ATOLDRV_LOG           "atoldrv.log"
+PPFILNAM_UDSTALK_LOG           "uds-talk.log"
 PPFILNAM_MERCAPP_LOG           "mercapp.log" // @v11.5.2
-PPFILNAM_NOIMAGE               "nophoto.png" // @v10.9.4
-PPFILNAM_VKTALK_LOG            "vk-talk.log" // @v10.9.6
+PPFILNAM_NOIMAGE               "nophoto.png"
+PPFILNAM_VKTALK_LOG            "vk-talk.log"
 PPFILNAM_STYLOQSVC_LOG         "styloqsvc.log" // @v11.6.11
 PPFILNAM_STYLOQSVCTALK_LOG     "styloqsvc-talk.log" // @v11.9.2
 PPFILNAM_EDI_LOG               "edi.log" // @v12.0.2 В этом файле сохраняются результаты унифицированного обмена EDI (see PPBillImporter::DoFullEdiProcess)
@@ -3568,7 +3568,7 @@ PPTXT_CMT                          "6,Эмулятор (синхронный);19
 PPTXT_BCPT /!/                         "1,ZEBRA;2,DATAMAX;3,ELTRON;4,WINDOWS"
 PPTXT_SCLT                             "1,CAS Electronics;2,Масса-К;3,Mettler Toledo;4,Кассовый сервер Кристалл;5,Весовой терминал ТВ;6,DIGI;7,Bizerba;8,Штрих-Принт;9,CAS CL5000J;10,Группа весов;11,Экспорт в файл;12,Штрих PC200 CE"
 PPTXT_VANTYPE                          "1,Замороженный;2,Охлажденный;3,Охлаждаемый;4,Вентилируемый"
-PPTXT_LINKBILLVIEWKINDS                "1,@{doclink_payment};2,@{doclink_chargepaym};3,Зачеты по документу;4,Зачитывающие документы;6,@{doclink_writeoffdraft};7,@{doclink_correction};8,Заказы, к которым привязана отгрузка"
+PPTXT_LINKBILLVIEWKINDS                "1,@{doclink_payment};2,@{doclink_chargepaym};3,Зачеты по документу;4,Зачитывающие документы;6,@{doclink_writeoffdraft};7,@{doclink_correction};8,Заказы, к которым привязана отгрузка;9,Документы списания заказа"
 PPTXT_PRNTYPE                          "1,Epson;2,PCL-принтер"
 PPTXT_IMPGOODSGRP                      "Конвертация товарных групп"
 PPTXT_IMPPERSON                        "Конвертация персоналий"
@@ -9484,6 +9484,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @doclink_paymandreturn                    "" // doclink_payment || doclink_return
 @doclink_edirecadv                        "" // BLNK_EDIRECADV
 @doclink_correction                       "Документы корректировки" // BLNK_CORRECTION
+@doclink_ordaccomplish                    "Документы списания заказа" // @v12.0.11
 
 @accturntempl                             "Шаблон бухгалтерской проводки"
 @accturntempl_subst                       "Объекты для подстановки"
@@ -18647,6 +18648,8 @@ PPHSC_RU_EDIOP_ORDER           "Заказ" // @v11.9.5 SBIS (note: точно �
 PPHSC_RU_EDIOP_ORDRSP          "ПодтверждениеЗаказа" // @v11.9.9 SBIS
 PPHSC_RU_EDIOP_ORDRSP_NM       "подтверждение_заказа" // @v11.9.9 SBIS Вариант для атрибута "Имя" тега <Файл> (клянусь, я не знаю кто разрабатывает эти говно-стандарты - видимо, еноты какие-то).
 PPHSC_RU_CURRENCY              "Валюта" // @v11.9.9 SBIS
+PPHSC_RU_YES                   "Да" // @v12.0.11
+PPHSC_RU_NO                    "Нет" // @v12.0.11
 //
 // Далее следуют 16 типов документов, используемых системой VETIS. Текст точно соответствует xsd спецификации dictionary_v2.0.xsd.
 // Номер после PPHSC_VETIS_DOCTYP_ точно соответствует значению enum в спецификации (хотя, это, скорее всего, и не важно).

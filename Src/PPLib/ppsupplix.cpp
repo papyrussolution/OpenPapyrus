@@ -10712,15 +10712,15 @@ public:
 						n_h.PutInner("DocumentNumber", XmlUtf8EncText(p_pack->Code));
 						n_h.PutInner("DocumentDate", temp_buf.Z().Cat(p_pack->Dt, DATF_GERMANCENT));
 						n_h.PutInner("WarehouseAddress", "");
-						n_h.PutInner("BuyerBuyerCode", "");
+						n_h.PutInner("BuyerBuyerCode", temp_buf.Z().Cat(p_pack->ContractorID));
 						n_h.PutInner("INN", XmlUtf8EncText(p_pack->ContractorINN));
 						n_h.PutInner("BuyerName", XmlUtf8EncText(p_pack->ContractorName));
-						n_h.PutInner("DeliveryPointBuyerCode", "");
+						n_h.PutInner("DeliveryPointBuyerCode", temp_buf.Z().Cat(p_pack->DlvrLocID));
 						n_h.PutInner("Address", XmlUtf8EncText(p_pack->DlvrAddrText));
 						n_h.PutInner("ManagerBuyerCode", temp_buf.Z().Cat(p_pack->AgentID));
 						n_h.PutInner("ManagerName", XmlUtf8EncText(p_pack->AgentName));
 						n_h.PutInner("InvoiceNumber", XmlUtf8EncText(p_pack->Code));
-						n_h.PutInner("InvoiceSource", "");
+						n_h.PutInner("InvoiceSource", XmlUtf8EncText(PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_NO, temp_buf)));
 						n_h.PutInner("InvoiceSourceName", "");
 					}
 					{
@@ -10824,7 +10824,7 @@ public:
 					n_h.PutInner("Address", "");
 					n_h.PutInner("ManagerBuyerCode", temp_buf.Z().Cat(p_pack->AgentID));
 					n_h.PutInner("ManagerName", XmlUtf8EncText(p_pack->AgentName));
-					n_h.PutInner("OrderedSource", "");
+					n_h.PutInner("OrderedSource", XmlUtf8EncText(PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_NO, temp_buf)));
 					n_h.PutInner("OrderedSourceName", "");
 				}
 				{

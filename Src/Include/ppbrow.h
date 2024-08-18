@@ -193,423 +193,425 @@
 	#define HELP_BROWSER_CHARGES                                 76
 #define BROWSER_DRAFTWROFFS                             77 // Документы списания драфт-документа (%s)
 	#define HELP_BROWSER_DRAFTWROFFS                             77
-#define BROWSER_SHIPMANLZ                               78 // @view_shipmanalyze
-	#define HELP_BROWSER_SHIPMANLZ                               78
-#define BROWSER_SHIPMANLZBYBILL                         79 // @view_shipmanalyze
-	#define HELP_BROWSER_SHIPMANLZBYBILL                         79
-#define BROWSER_PSALESGOODS                             80 // @{view_predictsales} (%s)
-	#define HELP_BROWSER_PSALESGOODS                             80
+#define BROWSER_ORDERACCOMPLISH                         78 // @{doclink_ordaccomplish} (%s)
+	#define HELP_BROWSER_ORDERACCOMPLISH                         78
+#define BROWSER_SHIPMANLZ                               79 // @view_shipmanalyze
+	#define HELP_BROWSER_SHIPMANLZ                               79
+#define BROWSER_SHIPMANLZBYBILL                         80 // @view_shipmanalyze
+	#define HELP_BROWSER_SHIPMANLZBYBILL                         80
+#define BROWSER_PSALESGOODS                             81 // @{view_predictsales} (%s)
+	#define HELP_BROWSER_PSALESGOODS                             81
 #define TOOLBAR_TRFRANLZ                      38
-#define BROWSER_GOODSCARD                               81 // @{view_trfranlz_goodscard} {%s}
-	#define HELP_BROWSER_GOODSCARD                               81
-#define BROWSER_TRFRANLZ                                82 // @{view_trfranlz}
-	#define HELP_BROWSER_TRFRANLZ                                82
-#define BROWSER_TRFRGR_G                                83 // @{view_opgrouping} @{_bygoods}
-	#define HELP_BROWSER_TRFRGR_G                                83
-#define BROWSER_TRFRGR_CT_G                             84 // @{view_opgrouping} @{_bygoods}
-	#define HELP_BROWSER_TRFRGR_CT_G                             84
-#define BROWSER_TRFRGR_CT_G2                            85 // @{view_opgrouping} @{_bygoods}
-	#define HELP_BROWSER_TRFRGR_CT_G2                            85
-#define BROWSER_TRFRGR_CT_P                             86 // @{view_opgrouping} @{_bycontractor}
-	#define HELP_BROWSER_TRFRGR_CT_P                             86
-#define BROWSER_TRFRGR_CT_PD                            87 // @{view_opgrouping} по контрагенту с разбивкой по адресу доставк
-	#define HELP_BROWSER_TRFRGR_CT_PD                            87
-#define BROWSER_TRFRGR_CT_GP                            88 // @{view_opgrouping} по товару и контрагенту
-	#define HELP_BROWSER_TRFRGR_CT_GP                            88
-#define BROWSER_TRFRGR_CT_GPD                           89 // @{view_opgrouping} по товару и контрагенту с разбивкой по адрес
-	#define HELP_BROWSER_TRFRGR_CT_GPD                           89
-#define BROWSER_TRFRGR_GS                               90 // @{view_opgrouping} @{_bygoods}
-	#define HELP_BROWSER_TRFRGR_GS                               90
-#define BROWSER_TRFRGR_P                                91 // @{view_opgrouping} @{_bycontractor}
-	#define HELP_BROWSER_TRFRGR_P                                91
-#define BROWSER_TRFRGR_PS                               92 // @{view_opgrouping} @{_bycontractor}
-	#define HELP_BROWSER_TRFRGR_PS                               92
-#define BROWSER_TRFRGR_PD                               93 // @{view_opgrouping} по контрагенту и дате
-	#define HELP_BROWSER_TRFRGR_PD                               93
-#define BROWSER_TRFRGR_GP                               94 // @{view_opgrouping} по товару и контрагенту
-	#define HELP_BROWSER_TRFRGR_GP                               94
-#define BROWSER_TRFRGR_GPD                              95 // @{view_opgrouping} по товару контрагенту и дате
-	#define HELP_BROWSER_TRFRGR_GPD                              95
-#define BROWSER_TRFRGR_GB                               96 // @{view_opgrouping} по товару и документу
-	#define HELP_BROWSER_TRFRGR_GB                               96
-#define BROWSER_TRFRGR_DPAG                             97 // @{view_opgrouping} по дате, контрагенту, агенту и товару
-	#define HELP_BROWSER_TRFRGR_DPAG                             97
-#define BROWSER_TRFRGR_BP                               98 // @{view_opgrouping} по документу, контрагенту
-	#define HELP_BROWSER_TRFRGR_BP                               98
-#define BROWSER_TRFRANLZ_GC                             99 // @{view_trfranlz}
-	#define HELP_BROWSER_TRFRANLZ_GC                             99
-#define BROWSER_GOODSTURNOVER_BYLOC                    100 // @{view_goodstrnovr}
-	#define HELP_BROWSER_GOODSTURNOVER_BYLOC                    100
-#define BROWSER_GOODSTURNOVER                          101 // @{view_goodstrnovr}
-	#define HELP_BROWSER_GOODSTURNOVER                          101
-#define BROWSER_GOODSREST                              102 // @{view_goodsrest} {%s}
-	#define HELP_BROWSER_GOODSREST                              102
-#define BROWSER_GOODSREST_UPP                          103 // @{view_goodsrest} {%s}
-	#define HELP_BROWSER_GOODSREST_UPP                          103
-#define BROWSER_GOODSRESTORDER                         104 // @{view_goodsrest} с заказами {%s}
-	#define HELP_BROWSER_GOODSRESTORDER                         104
-#define BROWSER_BCGDSREST                              105 // @{view_goodsrest} со штрихкодами {%s}
-	#define HELP_BROWSER_BCGDSREST                              105
-#define BROWSER_BCGDSRESTORDER                         106 // @{view_goodsrest} со штрихкодами {%s}
-	#define HELP_BROWSER_BCGDSRESTORDER                         106
-#define BROWSER_GOODSREST_PRGN                         107 // @{view_goodsrest} с прогнозом продаж за период {%s}
-	#define HELP_BROWSER_GOODSREST_PRGN                         107
-#define BROWSER_GOODSRESTORDER_PRGN                    108 // @{view_goodsrest} с заказами и прогнозом продаж за период {%s}
-	#define HELP_BROWSER_GOODSRESTORDER_PRGN                    108
-#define BROWSER_GOODSREST_CROSSTAB                     109 // @{view_goodsrest} за период {%s} с табуляцией
-	#define HELP_BROWSER_GOODSREST_CROSSTAB                     109
-#define BROWSER_GOODSTAXANLZ                           110 // @{view_goodstaxanalyze}
-	#define HELP_BROWSER_GOODSTAXANLZ                           110
-#define BROWSER_GOODSTAXANLZ_D                         111 // @{view_goodstaxanalyze}
-	#define HELP_BROWSER_GOODSTAXANLZ_D                         111
-#define BROWSER_GOODSTAXANLZ_PIL                       112 // @{view_goodstaxanalyze_indledger_ru} по приходам
-	#define HELP_BROWSER_GOODSTAXANLZ_PIL                       112
-#define BROWSER_GOODSMOV                               113 // @{view_goodsmov} {%s}
-	#define HELP_BROWSER_GOODSMOV                               113
-#define BROWSER_GOODSMOV_CT                            114 // @{view_goodsmov2} {%s}
-	#define HELP_BROWSER_GOODSMOV_CT                            114
-#define BROWSER_OPGRPNG                                115 // @{opgrouping} {%s}
-	#define HELP_BROWSER_OPGRPNG                                115
-#define BROWSER_OPGRPNGCYCLE                           116 // @{opgrouping} {%s}
-	#define HELP_BROWSER_OPGRPNGCYCLE                           116
-#define BROWSER_BILLOPGRPNG                            117 // @{opgrouping_bydocs} {%s}
-	#define HELP_BROWSER_BILLOPGRPNG                            117
-#define BROWSER_BILLOPGRPNGCYCLE                       118 // @{opgrouping_bydocs}
-	#define HELP_BROWSER_BILLOPGRPNGCYCLE                       118
-#define BROWSER_BILLOPGRPNGEXT                         119 // @{opgrouping_bydocs} {%s}
-	#define HELP_BROWSER_BILLOPGRPNGEXT                         119
-#define BROWSER_BILLOPGRPNGCYCLEEXT                    120 // @{opgrouping_bydocs}
-	#define HELP_BROWSER_BILLOPGRPNGCYCLEEXT                    120
-#define BROWSER_GOODSOPER                              121 // Товарный отчет {%s}
-	#define HELP_BROWSER_GOODSOPER                              121
-#define BROWSER_GOODSOPER_REVAL                        122 // Товарный отчет по переоценке {%s}
-	#define HELP_BROWSER_GOODSOPER_REVAL                        122
-#define BROWSER_GOODSOPER_PLAN                         123 // @{view_goodsopanalyze_tradeplan} {%s}
-	#define HELP_BROWSER_GOODSOPER_PLAN                         123
-#define BROWSER_INOUTANLZ                              124 // Анализ вход/выход {%s}
-	#define HELP_BROWSER_INOUTANLZ                              124
-#define BROWSER_INTRREVAL                              125 // Изменения цен при межскладском перемещении
-	#define HELP_BROWSER_INTRREVAL                              125
-#define BROWSER_ABCANLZ                                126 // %s c группировкой ABC
-	#define HELP_BROWSER_ABCANLZ                                126
-#define BROWSER_GOODSOPER_PRICEDEV                     127 // Товарный отчет с отклонением цен {%s}
-	#define HELP_BROWSER_GOODSOPER_PRICEDEV                     127
-#define BROWSER_GOODSOPER_CMPWITHRECEIPT               128 // Товарный отчет со сравнением с документами списания {%s}
-	#define HELP_BROWSER_GOODSOPER_CMPWITHRECEIPT               128
-#define BROWSER_GOODSOPER_COMPARE                      129 // Сравнительный товарный отчет {%s}
-	#define HELP_BROWSER_GOODSOPER_COMPARE                      129
-#define BROWSER_GOODSOPER_CROSSTAB                     130 // Товарный отчет {%s} с табуляцией
-	#define HELP_BROWSER_GOODSOPER_CROSSTAB                     130
-#define BROWSER_SYSJ                                   131 // @{view_sysjournal}
-	#define HELP_BROWSER_SYSJ                                   131
-#define BROWSER_SYSJ_OBJ                               132 // @{view_sysjournal}
-	#define HELP_BROWSER_SYSJ_OBJ                               132
-#define BROWSER_SYSJ_SUBST                             133 // @{view_sysjournal}
-	#define HELP_BROWSER_SYSJ_SUBST                             133
-#define BROWSER_GTAJ                                   134 // @{gtajournal}
-	#define HELP_BROWSER_GTAJ                                   134
-#define BROWSER_GTAJ_OBJ                               135 // @{gtajournal}
-	#define HELP_BROWSER_GTAJ_OBJ                               135
-#define BROWSER_GEOTRACKING                            136 // Гео-треки
-	#define HELP_BROWSER_GEOTRACKING                            136
-#define BROWSER_LOGSMON                                137 // @{view_logsmonitor}
-	#define HELP_BROWSER_LOGSMON                                137
-#define BROWSER_PLINES                                 138 // @{pricelist} {%s}
-	#define HELP_BROWSER_PLINES                                 138
-#define BROWSER_PLINES_BYALLQUOTS                      139 // @{pricelist} {%s}
-	#define HELP_BROWSER_PLINES_BYALLQUOTS                      139
-#define BROWSER_QCERT                                  140 // @{qcert}
-	#define HELP_BROWSER_QCERT                                  140
+#define BROWSER_GOODSCARD                               82 // @{view_trfranlz_goodscard} {%s}
+	#define HELP_BROWSER_GOODSCARD                               82
+#define BROWSER_TRFRANLZ                                83 // @{view_trfranlz}
+	#define HELP_BROWSER_TRFRANLZ                                83
+#define BROWSER_TRFRGR_G                                84 // @{view_opgrouping} @{_bygoods}
+	#define HELP_BROWSER_TRFRGR_G                                84
+#define BROWSER_TRFRGR_CT_G                             85 // @{view_opgrouping} @{_bygoods}
+	#define HELP_BROWSER_TRFRGR_CT_G                             85
+#define BROWSER_TRFRGR_CT_G2                            86 // @{view_opgrouping} @{_bygoods}
+	#define HELP_BROWSER_TRFRGR_CT_G2                            86
+#define BROWSER_TRFRGR_CT_P                             87 // @{view_opgrouping} @{_bycontractor}
+	#define HELP_BROWSER_TRFRGR_CT_P                             87
+#define BROWSER_TRFRGR_CT_PD                            88 // @{view_opgrouping} по контрагенту с разбивкой по адресу доставк
+	#define HELP_BROWSER_TRFRGR_CT_PD                            88
+#define BROWSER_TRFRGR_CT_GP                            89 // @{view_opgrouping} по товару и контрагенту
+	#define HELP_BROWSER_TRFRGR_CT_GP                            89
+#define BROWSER_TRFRGR_CT_GPD                           90 // @{view_opgrouping} по товару и контрагенту с разбивкой по адрес
+	#define HELP_BROWSER_TRFRGR_CT_GPD                           90
+#define BROWSER_TRFRGR_GS                               91 // @{view_opgrouping} @{_bygoods}
+	#define HELP_BROWSER_TRFRGR_GS                               91
+#define BROWSER_TRFRGR_P                                92 // @{view_opgrouping} @{_bycontractor}
+	#define HELP_BROWSER_TRFRGR_P                                92
+#define BROWSER_TRFRGR_PS                               93 // @{view_opgrouping} @{_bycontractor}
+	#define HELP_BROWSER_TRFRGR_PS                               93
+#define BROWSER_TRFRGR_PD                               94 // @{view_opgrouping} по контрагенту и дате
+	#define HELP_BROWSER_TRFRGR_PD                               94
+#define BROWSER_TRFRGR_GP                               95 // @{view_opgrouping} по товару и контрагенту
+	#define HELP_BROWSER_TRFRGR_GP                               95
+#define BROWSER_TRFRGR_GPD                              96 // @{view_opgrouping} по товару контрагенту и дате
+	#define HELP_BROWSER_TRFRGR_GPD                              96
+#define BROWSER_TRFRGR_GB                               97 // @{view_opgrouping} по товару и документу
+	#define HELP_BROWSER_TRFRGR_GB                               97
+#define BROWSER_TRFRGR_DPAG                             98 // @{view_opgrouping} по дате, контрагенту, агенту и товару
+	#define HELP_BROWSER_TRFRGR_DPAG                             98
+#define BROWSER_TRFRGR_BP                               99 // @{view_opgrouping} по документу, контрагенту
+	#define HELP_BROWSER_TRFRGR_BP                               99
+#define BROWSER_TRFRANLZ_GC                            100 // @{view_trfranlz}
+	#define HELP_BROWSER_TRFRANLZ_GC                            100
+#define BROWSER_GOODSTURNOVER_BYLOC                    101 // @{view_goodstrnovr}
+	#define HELP_BROWSER_GOODSTURNOVER_BYLOC                    101
+#define BROWSER_GOODSTURNOVER                          102 // @{view_goodstrnovr}
+	#define HELP_BROWSER_GOODSTURNOVER                          102
+#define BROWSER_GOODSREST                              103 // @{view_goodsrest} {%s}
+	#define HELP_BROWSER_GOODSREST                              103
+#define BROWSER_GOODSREST_UPP                          104 // @{view_goodsrest} {%s}
+	#define HELP_BROWSER_GOODSREST_UPP                          104
+#define BROWSER_GOODSRESTORDER                         105 // @{view_goodsrest} с заказами {%s}
+	#define HELP_BROWSER_GOODSRESTORDER                         105
+#define BROWSER_BCGDSREST                              106 // @{view_goodsrest} со штрихкодами {%s}
+	#define HELP_BROWSER_BCGDSREST                              106
+#define BROWSER_BCGDSRESTORDER                         107 // @{view_goodsrest} со штрихкодами {%s}
+	#define HELP_BROWSER_BCGDSRESTORDER                         107
+#define BROWSER_GOODSREST_PRGN                         108 // @{view_goodsrest} с прогнозом продаж за период {%s}
+	#define HELP_BROWSER_GOODSREST_PRGN                         108
+#define BROWSER_GOODSRESTORDER_PRGN                    109 // @{view_goodsrest} с заказами и прогнозом продаж за период {%s}
+	#define HELP_BROWSER_GOODSRESTORDER_PRGN                    109
+#define BROWSER_GOODSREST_CROSSTAB                     110 // @{view_goodsrest} за период {%s} с табуляцией
+	#define HELP_BROWSER_GOODSREST_CROSSTAB                     110
+#define BROWSER_GOODSTAXANLZ                           111 // @{view_goodstaxanalyze}
+	#define HELP_BROWSER_GOODSTAXANLZ                           111
+#define BROWSER_GOODSTAXANLZ_D                         112 // @{view_goodstaxanalyze}
+	#define HELP_BROWSER_GOODSTAXANLZ_D                         112
+#define BROWSER_GOODSTAXANLZ_PIL                       113 // @{view_goodstaxanalyze_indledger_ru} по приходам
+	#define HELP_BROWSER_GOODSTAXANLZ_PIL                       113
+#define BROWSER_GOODSMOV                               114 // @{view_goodsmov} {%s}
+	#define HELP_BROWSER_GOODSMOV                               114
+#define BROWSER_GOODSMOV_CT                            115 // @{view_goodsmov2} {%s}
+	#define HELP_BROWSER_GOODSMOV_CT                            115
+#define BROWSER_OPGRPNG                                116 // @{opgrouping} {%s}
+	#define HELP_BROWSER_OPGRPNG                                116
+#define BROWSER_OPGRPNGCYCLE                           117 // @{opgrouping} {%s}
+	#define HELP_BROWSER_OPGRPNGCYCLE                           117
+#define BROWSER_BILLOPGRPNG                            118 // @{opgrouping_bydocs} {%s}
+	#define HELP_BROWSER_BILLOPGRPNG                            118
+#define BROWSER_BILLOPGRPNGCYCLE                       119 // @{opgrouping_bydocs}
+	#define HELP_BROWSER_BILLOPGRPNGCYCLE                       119
+#define BROWSER_BILLOPGRPNGEXT                         120 // @{opgrouping_bydocs} {%s}
+	#define HELP_BROWSER_BILLOPGRPNGEXT                         120
+#define BROWSER_BILLOPGRPNGCYCLEEXT                    121 // @{opgrouping_bydocs}
+	#define HELP_BROWSER_BILLOPGRPNGCYCLEEXT                    121
+#define BROWSER_GOODSOPER                              122 // Товарный отчет {%s}
+	#define HELP_BROWSER_GOODSOPER                              122
+#define BROWSER_GOODSOPER_REVAL                        123 // Товарный отчет по переоценке {%s}
+	#define HELP_BROWSER_GOODSOPER_REVAL                        123
+#define BROWSER_GOODSOPER_PLAN                         124 // @{view_goodsopanalyze_tradeplan} {%s}
+	#define HELP_BROWSER_GOODSOPER_PLAN                         124
+#define BROWSER_INOUTANLZ                              125 // Анализ вход/выход {%s}
+	#define HELP_BROWSER_INOUTANLZ                              125
+#define BROWSER_INTRREVAL                              126 // Изменения цен при межскладском перемещении
+	#define HELP_BROWSER_INTRREVAL                              126
+#define BROWSER_ABCANLZ                                127 // %s c группировкой ABC
+	#define HELP_BROWSER_ABCANLZ                                127
+#define BROWSER_GOODSOPER_PRICEDEV                     128 // Товарный отчет с отклонением цен {%s}
+	#define HELP_BROWSER_GOODSOPER_PRICEDEV                     128
+#define BROWSER_GOODSOPER_CMPWITHRECEIPT               129 // Товарный отчет со сравнением с документами списания {%s}
+	#define HELP_BROWSER_GOODSOPER_CMPWITHRECEIPT               129
+#define BROWSER_GOODSOPER_COMPARE                      130 // Сравнительный товарный отчет {%s}
+	#define HELP_BROWSER_GOODSOPER_COMPARE                      130
+#define BROWSER_GOODSOPER_CROSSTAB                     131 // Товарный отчет {%s} с табуляцией
+	#define HELP_BROWSER_GOODSOPER_CROSSTAB                     131
+#define BROWSER_SYSJ                                   132 // @{view_sysjournal}
+	#define HELP_BROWSER_SYSJ                                   132
+#define BROWSER_SYSJ_OBJ                               133 // @{view_sysjournal}
+	#define HELP_BROWSER_SYSJ_OBJ                               133
+#define BROWSER_SYSJ_SUBST                             134 // @{view_sysjournal}
+	#define HELP_BROWSER_SYSJ_SUBST                             134
+#define BROWSER_GTAJ                                   135 // @{gtajournal}
+	#define HELP_BROWSER_GTAJ                                   135
+#define BROWSER_GTAJ_OBJ                               136 // @{gtajournal}
+	#define HELP_BROWSER_GTAJ_OBJ                               136
+#define BROWSER_GEOTRACKING                            137 // Гео-треки
+	#define HELP_BROWSER_GEOTRACKING                            137
+#define BROWSER_LOGSMON                                138 // @{view_logsmonitor}
+	#define HELP_BROWSER_LOGSMON                                138
+#define BROWSER_PLINES                                 139 // @{pricelist} {%s}
+	#define HELP_BROWSER_PLINES                                 139
+#define BROWSER_PLINES_BYALLQUOTS                      140 // @{pricelist} {%s}
+	#define HELP_BROWSER_PLINES_BYALLQUOTS                      140
+#define BROWSER_QCERT                                  141 // @{qcert}
+	#define HELP_BROWSER_QCERT                                  141
 #define TOOLBAR_VATBOOK                       39
-#define BROWSER_VATSELL                                141 // @{salesledger}
-	#define HELP_BROWSER_VATSELL                                141
-#define BROWSER_VATBUY                                 142 // @{purchaseledger}
-	#define HELP_BROWSER_VATBUY                                 142
-#define BROWSER_SIMPLELEDGER                           143 // @{incnexpsimplifiedledger}
-	#define HELP_BROWSER_SIMPLELEDGER                           143
-#define BROWSER_QUOT                                   144 // @{view_quot}
-	#define HELP_BROWSER_QUOT                                   144
-#define BROWSER_QUOT_AR                                145 // @{view_quot} - %s
-	#define HELP_BROWSER_QUOT_AR                                145
-#define BROWSER_QUOT_LOC                               146 // @{view_quot} - %s
-	#define HELP_BROWSER_QUOT_LOC                               146
-#define BROWSER_QUOT_CROSSTAB                          147 // @{view_quot} - %s
-	#define HELP_BROWSER_QUOT_CROSSTAB                          147
-#define BROWSER_QUOT_SER                               148 // @{view_quot_ser} (%s)
-	#define HELP_BROWSER_QUOT_SER                               148
-#define BROWSER_CCHECK                                 149 // @{poscheck_pl}
-	#define HELP_BROWSER_CCHECK                                 149
+#define BROWSER_VATSELL                                142 // @{salesledger}
+	#define HELP_BROWSER_VATSELL                                142
+#define BROWSER_VATBUY                                 143 // @{purchaseledger}
+	#define HELP_BROWSER_VATBUY                                 143
+#define BROWSER_SIMPLELEDGER                           144 // @{incnexpsimplifiedledger}
+	#define HELP_BROWSER_SIMPLELEDGER                           144
+#define BROWSER_QUOT                                   145 // @{view_quot}
+	#define HELP_BROWSER_QUOT                                   145
+#define BROWSER_QUOT_AR                                146 // @{view_quot} - %s
+	#define HELP_BROWSER_QUOT_AR                                146
+#define BROWSER_QUOT_LOC                               147 // @{view_quot} - %s
+	#define HELP_BROWSER_QUOT_LOC                               147
+#define BROWSER_QUOT_CROSSTAB                          148 // @{view_quot} - %s
+	#define HELP_BROWSER_QUOT_CROSSTAB                          148
+#define BROWSER_QUOT_SER                               149 // @{view_quot_ser} (%s)
+	#define HELP_BROWSER_QUOT_SER                               149
+#define BROWSER_CCHECK                                 150 // @{poscheck_pl}
+	#define HELP_BROWSER_CCHECK                                 150
 #define TOOLBAR_CCHECKGRP                     40
-#define BROWSER_CCHECKGRP_TM                           150 // @{view_ccheck} с группировкой по часам
-	#define HELP_BROWSER_CCHECKGRP_TM                           150
-#define BROWSER_CCHECKGRP_DT                           151 // @{view_ccheck} @{_groupedbydate}
-	#define HELP_BROWSER_CCHECKGRP_DT                           151
-#define BROWSER_CCHECKGRP_DAYOFWEEK                    152 // @{view_ccheck} с группировкой по дням недели
-	#define HELP_BROWSER_CCHECKGRP_DAYOFWEEK                    152
-#define BROWSER_CCHECKGRP_DOWNTIME                     153 // @{view_ccheck} с группировкой по дням недели и часам
-	#define HELP_BROWSER_CCHECKGRP_DOWNTIME                     153
-#define BROWSER_CCHECKGRP_CASH                         154 // @{view_ccheck} с группировкой по кассам
-	#define HELP_BROWSER_CCHECKGRP_CASH                         154
-#define BROWSER_CCHECKGRP_CASHNODE                     155 // @{view_ccheck} @{_groupedbygoods}
-	#define HELP_BROWSER_CCHECKGRP_CASHNODE                     155
-#define BROWSER_CCHECKGRP_CARD                         156 // @{view_ccheck} с группировкой по картам
-	#define HELP_BROWSER_CCHECKGRP_CARD                         156
-#define BROWSER_CCHECKGRP_DSCNTPCT                     157 // @{view_ccheck} с группировкой по процентам скидки
-	#define HELP_BROWSER_CCHECKGRP_DSCNTPCT                     157
-#define BROWSER_CCHECKGRP_AMOUNT                       158 // @{view_ccheck} с группировкой по суммам
-	#define HELP_BROWSER_CCHECKGRP_AMOUNT                       158
-#define BROWSER_CCHECKGRP_QTTY                         159 // @{view_ccheck} с группировкой по количеству
-	#define HELP_BROWSER_CCHECKGRP_QTTY                         159
-#define BROWSER_CCHECKGRP_LNCOUNT                      160 // @{view_ccheck} с группировкой по количеству строк
-	#define HELP_BROWSER_CCHECKGRP_LNCOUNT                      160
-#define BROWSER_CCHECKGRP_GOODS                        161 // @{view_ccheck} @{_groupedbygoods}
-	#define HELP_BROWSER_CCHECKGRP_GOODS                        161
-#define BROWSER_CCHECKGRP_CASHIERS                     162 // @{view_ccheck} с группировкой по кассирам
-	#define HELP_BROWSER_CCHECKGRP_CASHIERS                     162
-#define BROWSER_CCHECKGRP_AGENTS                       163 // @{view_ccheck} с группировкой по агентам
-	#define HELP_BROWSER_CCHECKGRP_AGENTS                       163
-#define BROWSER_CCHECKGRP_ADDR                         164 // @{view_ccheck} с группировкой по адресам доставки
-	#define HELP_BROWSER_CCHECKGRP_ADDR                         164
-#define BROWSER_CCHECKGRP_GUESTCOUNT                   165 // @{view_ccheck} с группировкой по количеству гостей
-	#define HELP_BROWSER_CCHECKGRP_GUESTCOUNT                   165
-#define BROWSER_CCHECKGRP_TABLENO                      166 // @{view_ccheck} с группировкой по номеру стола
-	#define HELP_BROWSER_CCHECKGRP_TABLENO                      166
-#define BROWSER_CCHECKGRP_DIV                          167 // @{view_ccheck} с группировкой по отделам
-	#define HELP_BROWSER_CCHECKGRP_DIV                          167
-#define BROWSER_CCHECK_GOODSCORR                       168 // @{view_ccheck_goodscorr}
-	#define HELP_BROWSER_CCHECK_GOODSCORR                       168
-#define BROWSER_CCHECKGRP_AGENTSNHOUR                  169 // @{view_ccheck} с группировкой по агентам и часам
-	#define HELP_BROWSER_CCHECKGRP_AGENTSNHOUR                  169
-#define BROWSER_CCHECK_CT                              170 // @{view_ccheck} @{_groupedbygoods}
-	#define HELP_BROWSER_CCHECK_CT                              170
-#define BROWSER_PSNEV                                  171 // @{personevent_pl} {%s}
-	#define HELP_BROWSER_PSNEV                                  171
-#define BROWSER_PSNEVBYPSN                             172 // @{personevent_pl} {%s}
-	#define HELP_BROWSER_PSNEVBYPSN                             172
-#define BROWSER_PSNEVSUBST                             173 // @{personevent_pl} с подстановкой {%s}
-	#define HELP_BROWSER_PSNEVSUBST                             173
-#define BROWSER_STAFFLIST                              174 // @{stafflist} {%s}
-	#define HELP_BROWSER_STAFFLIST                              174
-#define BROWSER_PERSONPOST                             175 // @{view_staffpost} {%s}
-	#define HELP_BROWSER_PERSONPOST                             175
-#define BROWSER_STAFF                                  176 // @{view_stafflist} {%s}
-	#define HELP_BROWSER_STAFF                                  176
-#define BROWSER_SALARY                                 177 // @{salaryaccrual}
-	#define HELP_BROWSER_SALARY                                 177
-#define BROWSER_SALARYCT                               178 // @{salaryaccrual}
-	#define HELP_BROWSER_SALARYCT                               178
-#define BROWSER_STAFFCAL_DT                            179 // @{view_staffcal} {%s}
-	#define HELP_BROWSER_STAFFCAL_DT                            179
-#define BROWSER_STAFFCAL_OBJ                           180 // @{view_staffcal} {%s}
-	#define HELP_BROWSER_STAFFCAL_OBJ                           180
-#define BROWSER_STAFFCAL_DTGRP                         181 // @{view_staffcal} @{_groupedbydate} {%s}
-	#define HELP_BROWSER_STAFFCAL_DTGRP                         181
-#define BROWSER_CURRATE                                182 // @{view_currate}
-	#define HELP_BROWSER_CURRATE                                182
+#define BROWSER_CCHECKGRP_TM                           151 // @{view_ccheck} с группировкой по часам
+	#define HELP_BROWSER_CCHECKGRP_TM                           151
+#define BROWSER_CCHECKGRP_DT                           152 // @{view_ccheck} @{_groupedbydate}
+	#define HELP_BROWSER_CCHECKGRP_DT                           152
+#define BROWSER_CCHECKGRP_DAYOFWEEK                    153 // @{view_ccheck} с группировкой по дням недели
+	#define HELP_BROWSER_CCHECKGRP_DAYOFWEEK                    153
+#define BROWSER_CCHECKGRP_DOWNTIME                     154 // @{view_ccheck} с группировкой по дням недели и часам
+	#define HELP_BROWSER_CCHECKGRP_DOWNTIME                     154
+#define BROWSER_CCHECKGRP_CASH                         155 // @{view_ccheck} с группировкой по кассам
+	#define HELP_BROWSER_CCHECKGRP_CASH                         155
+#define BROWSER_CCHECKGRP_CASHNODE                     156 // @{view_ccheck} @{_groupedbygoods}
+	#define HELP_BROWSER_CCHECKGRP_CASHNODE                     156
+#define BROWSER_CCHECKGRP_CARD                         157 // @{view_ccheck} с группировкой по картам
+	#define HELP_BROWSER_CCHECKGRP_CARD                         157
+#define BROWSER_CCHECKGRP_DSCNTPCT                     158 // @{view_ccheck} с группировкой по процентам скидки
+	#define HELP_BROWSER_CCHECKGRP_DSCNTPCT                     158
+#define BROWSER_CCHECKGRP_AMOUNT                       159 // @{view_ccheck} с группировкой по суммам
+	#define HELP_BROWSER_CCHECKGRP_AMOUNT                       159
+#define BROWSER_CCHECKGRP_QTTY                         160 // @{view_ccheck} с группировкой по количеству
+	#define HELP_BROWSER_CCHECKGRP_QTTY                         160
+#define BROWSER_CCHECKGRP_LNCOUNT                      161 // @{view_ccheck} с группировкой по количеству строк
+	#define HELP_BROWSER_CCHECKGRP_LNCOUNT                      161
+#define BROWSER_CCHECKGRP_GOODS                        162 // @{view_ccheck} @{_groupedbygoods}
+	#define HELP_BROWSER_CCHECKGRP_GOODS                        162
+#define BROWSER_CCHECKGRP_CASHIERS                     163 // @{view_ccheck} с группировкой по кассирам
+	#define HELP_BROWSER_CCHECKGRP_CASHIERS                     163
+#define BROWSER_CCHECKGRP_AGENTS                       164 // @{view_ccheck} с группировкой по агентам
+	#define HELP_BROWSER_CCHECKGRP_AGENTS                       164
+#define BROWSER_CCHECKGRP_ADDR                         165 // @{view_ccheck} с группировкой по адресам доставки
+	#define HELP_BROWSER_CCHECKGRP_ADDR                         165
+#define BROWSER_CCHECKGRP_GUESTCOUNT                   166 // @{view_ccheck} с группировкой по количеству гостей
+	#define HELP_BROWSER_CCHECKGRP_GUESTCOUNT                   166
+#define BROWSER_CCHECKGRP_TABLENO                      167 // @{view_ccheck} с группировкой по номеру стола
+	#define HELP_BROWSER_CCHECKGRP_TABLENO                      167
+#define BROWSER_CCHECKGRP_DIV                          168 // @{view_ccheck} с группировкой по отделам
+	#define HELP_BROWSER_CCHECKGRP_DIV                          168
+#define BROWSER_CCHECK_GOODSCORR                       169 // @{view_ccheck_goodscorr}
+	#define HELP_BROWSER_CCHECK_GOODSCORR                       169
+#define BROWSER_CCHECKGRP_AGENTSNHOUR                  170 // @{view_ccheck} с группировкой по агентам и часам
+	#define HELP_BROWSER_CCHECKGRP_AGENTSNHOUR                  170
+#define BROWSER_CCHECK_CT                              171 // @{view_ccheck} @{_groupedbygoods}
+	#define HELP_BROWSER_CCHECK_CT                              171
+#define BROWSER_PSNEV                                  172 // @{personevent_pl} {%s}
+	#define HELP_BROWSER_PSNEV                                  172
+#define BROWSER_PSNEVBYPSN                             173 // @{personevent_pl} {%s}
+	#define HELP_BROWSER_PSNEVBYPSN                             173
+#define BROWSER_PSNEVSUBST                             174 // @{personevent_pl} с подстановкой {%s}
+	#define HELP_BROWSER_PSNEVSUBST                             174
+#define BROWSER_STAFFLIST                              175 // @{stafflist} {%s}
+	#define HELP_BROWSER_STAFFLIST                              175
+#define BROWSER_PERSONPOST                             176 // @{view_staffpost} {%s}
+	#define HELP_BROWSER_PERSONPOST                             176
+#define BROWSER_STAFF                                  177 // @{view_stafflist} {%s}
+	#define HELP_BROWSER_STAFF                                  177
+#define BROWSER_SALARY                                 178 // @{salaryaccrual}
+	#define HELP_BROWSER_SALARY                                 178
+#define BROWSER_SALARYCT                               179 // @{salaryaccrual}
+	#define HELP_BROWSER_SALARYCT                               179
+#define BROWSER_STAFFCAL_DT                            180 // @{view_staffcal} {%s}
+	#define HELP_BROWSER_STAFFCAL_DT                            180
+#define BROWSER_STAFFCAL_OBJ                           181 // @{view_staffcal} {%s}
+	#define HELP_BROWSER_STAFFCAL_OBJ                           181
+#define BROWSER_STAFFCAL_DTGRP                         182 // @{view_staffcal} @{_groupedbydate} {%s}
+	#define HELP_BROWSER_STAFFCAL_DTGRP                         182
+#define BROWSER_CURRATE                                183 // @{view_currate}
+	#define HELP_BROWSER_CURRATE                                183
 #define TOOLBAR_CSESS                         41
-#define BROWSER_CSESS                                  183 // @{view_csess} {%s}
-	#define HELP_BROWSER_CSESS                                  183
-#define BROWSER_CSESS_EXT                              184 // @{view_csessext}
-	#define HELP_BROWSER_CSESS_EXT                              184
-#define BROWSER_CSESSEXC                               185 // @{view_csessexc}
-	#define HELP_BROWSER_CSESSEXC                               185
-#define BROWSER_OBJSYNC                                186 // @{view_objsync} {%s}
-	#define HELP_BROWSER_OBJSYNC                                186
-#define BROWSER_OBJSYNCQUEUE                           187 // @{view_objsyncqueue}
-	#define HELP_BROWSER_OBJSYNCQUEUE                           187
+#define BROWSER_CSESS                                  184 // @{view_csess} {%s}
+	#define HELP_BROWSER_CSESS                                  184
+#define BROWSER_CSESS_EXT                              185 // @{view_csessext}
+	#define HELP_BROWSER_CSESS_EXT                              185
+#define BROWSER_CSESSEXC                               186 // @{view_csessexc}
+	#define HELP_BROWSER_CSESSEXC                               186
+#define BROWSER_OBJSYNC                                187 // @{view_objsync} {%s}
+	#define HELP_BROWSER_OBJSYNC                                187
+#define BROWSER_OBJSYNCQUEUE                           188 // @{view_objsyncqueue}
+	#define HELP_BROWSER_OBJSYNCQUEUE                           188
 #define TOOLBAR_SCARD                         42
-#define BROWSER_SCARD                                  188 // @{scard_pl} {%s}
-	#define HELP_BROWSER_SCARD                                  188
-#define BROWSER_SCARDCRD                               189 // @{crdcard_pl} {%s}
-	#define HELP_BROWSER_SCARDCRD                               189
-#define BROWSER_SCARDCRD_TRNOVR                        190 // @{crdcard_pl} {%s}
-	#define HELP_BROWSER_SCARDCRD_TRNOVR                        190
-#define BROWSER_PAYMPLAN                               191 // @{paymplan}
-	#define HELP_BROWSER_PAYMPLAN                               191
-#define BROWSER_PAYMPLAN_CROSSTAB                      192 // @{paymplan}
-	#define HELP_BROWSER_PAYMPLAN_CROSSTAB                      192
-#define BROWSER_ADVANCEREPITEM                         193 // @{advbillitem_advrep_pl} {%s}
-	#define HELP_BROWSER_ADVANCEREPITEM                         193
-#define BROWSER_WARRANTITEM                            194 // @{advbillitem_warrant_pl} {%s}
-	#define HELP_BROWSER_WARRANTITEM                            194
-#define BROWSER_DEBTINVITEM                            195 // @{advbillitem_debtinventory_pl} {%s}
-	#define HELP_BROWSER_DEBTINVITEM                            195
-#define BROWSER_SCARDOP                                196 // @{view_scardop} {%s}
-	#define HELP_BROWSER_SCARDOP                                196
-#define BROWSER_SYNCCMP                                197 // Сравнение синхронизации объектов
-	#define HELP_BROWSER_SYNCCMP                                197
-#define BROWSER_ASSET                                  198 // @view_asset
-	#define HELP_BROWSER_ASSET                                  198
-#define BROWSER_ASSETOPER                              199 // @{view_asset} {%s}
-	#define HELP_BROWSER_ASSETOPER                              199
-#define BROWSER_SSTAT                                  200 // @{view_sstat} {%s}
-	#define HELP_BROWSER_SSTAT                                  200
-#define BROWSER_SSTAT_CYCLE                            201 // @{view_sstat} {%s}
-	#define HELP_BROWSER_SSTAT_CYCLE                            201
-#define BROWSER_SSTAT_CT                               202 // @{view_sstat} {%s}
-	#define HELP_BROWSER_SSTAT_CT                               202
-#define BROWSER_SSTAT_SORD                             203 // @{ordertosuppliercalculation} {%s}
-	#define HELP_BROWSER_SSTAT_SORD                             203
-#define BROWSER_SSTAT_SORD_CT                          204 // @{ordertosuppliercalculation} {%s}
-	#define HELP_BROWSER_SSTAT_SORD_CT                          204
-#define BROWSER_FREIGHT                                205 // @{freight}
-	#define HELP_BROWSER_FREIGHT                                205
-#define BROWSER_FREIGHT_LAGG                           206 // @{freight}
-	#define HELP_BROWSER_FREIGHT_LAGG                           206
-#define BROWSER_PROJECT                                207 // @{project_pl}
-	#define HELP_BROWSER_PROJECT                                207
-#define BROWSER_PRJPHASE                               208 // @{prjphase_pl} '%s'
-	#define HELP_BROWSER_PRJPHASE                               208
-#define BROWSER_PRJTASK                                209 // @{prjtask_pl} {%s}
-	#define HELP_BROWSER_PRJTASK                                209
-#define BROWSER_PRJTASK_DATEHOURCT                     210 // Задачи с табуляцией Дата/Час
-	#define HELP_BROWSER_PRJTASK_DATEHOURCT                     210
-#define BROWSER_PRJTASK_CLIENTDATECT                   211 // Задачи с табуляцией Клиент/Дата
-	#define HELP_BROWSER_PRJTASK_CLIENTDATECT                   211
-#define BROWSER_PRJTASK_EMPLOYERDATECT                 212 // Задачи с табуляцией @{executor}/@{date}
-	#define HELP_BROWSER_PRJTASK_EMPLOYERDATECT                 212
-#define BROWSER_PRJTASK_CLIENTEMPLOYERCT               213 // Задачи с табуляцией @{client}/@{executor}
-	#define HELP_BROWSER_PRJTASK_CLIENTEMPLOYERCT               213
-#define BROWSER_PRJTASKTEMPL                           214 // @{prjtasktemplate_pl} {%s}
-	#define HELP_BROWSER_PRJTASKTEMPL                           214
-#define BROWSER_GBILLCMP                               215 // @{docomparedocuments} %s
-	#define HELP_BROWSER_GBILLCMP                               215
-#define BROWSER_OPRKIND                                216 // @{view_oprkind}
-	#define HELP_BROWSER_OPRKIND                                216
-#define BROWSER_COMPLETE                               217 // @{productcomposition} {%s}
-	#define HELP_BROWSER_COMPLETE                               217
-#define BROWSER_MRPTAB                                 218 // @{mrptable_pl} {%s}
-	#define HELP_BROWSER_MRPTAB                                 218
-#define BROWSER_MRPLINE                                219 // @{view_mrpline} [%s]
-	#define HELP_BROWSER_MRPLINE                                219
-#define BROWSER_MRPLINE_SUBST                          220 // @{view_mrpline_subst} '%s'
-	#define HELP_BROWSER_MRPLINE_SUBST                          220
-#define BROWSER_PROCESSOR                              221 // @{view_processor} {%s}
-	#define HELP_BROWSER_PROCESSOR                              221
-#define BROWSER_TECH                                   222 // @{view_tech} {%s}
-	#define HELP_BROWSER_TECH                                   222
-#define BROWSER_TECHTOOLING                            223 // @{reconftech_pl} {%s}
-	#define HELP_BROWSER_TECHTOOLING                            223
-#define BROWSER_TSESSION                               224 // @{tsession_pl} {%s}
-	#define HELP_BROWSER_TSESSION                               224
-#define BROWSER_TSUBSESSION                            225 // @{tsubsession_pl} {%s}
-	#define HELP_BROWSER_TSUBSESSION                            225
-#define BROWSER_TSESS_MANUFPLAN                        226 // @{productionplan_pl} {%s}
-	#define HELP_BROWSER_TSESS_MANUFPLAN                        226
-#define BROWSER_TSESSLINE                              227 // @{view_tsessionlines} {%s}
-	#define HELP_BROWSER_TSESSLINE                              227
-#define BROWSER_TSESSLINEGOODS                         228 // @{view_tsessionlines} @{_bygoods} {%s}
-	#define HELP_BROWSER_TSESSLINEGOODS                         228
-#define BROWSER_TSESSLINEREST                          229 // @{view_tsessionlines_rest} {%s}
-	#define HELP_BROWSER_TSESSLINEREST                          229
-#define BROWSER_TSESSANLZ                              230 // @{view_tsessanlz}
-	#define HELP_BROWSER_TSESSANLZ                              230
-#define BROWSER_GOODSTOOBJASSC                         231 // @{association_pl} @{ware}-%s
-	#define HELP_BROWSER_GOODSTOOBJASSC                         231
-#define BROWSER_DLSTAT                                 232 // @{view_dvcloadingstat} %s
-	#define HELP_BROWSER_DLSTAT                                 232
-#define BROWSER_DLS_GOODS                              233 // Статистика по загрузке товаров: %s
-	#define HELP_BROWSER_DLS_GOODS                              233
-#define BROWSER_DLS_SCARDS                             234 // Статистика по загрузке карт: %s
-	#define HELP_BROWSER_DLS_SCARDS                             234
-#define BROWSER_PRICEANLZ                              235 // Анализ сравнения цен {%s}
-	#define HELP_BROWSER_PRICEANLZ                              235
-#define BROWSER_REPORT                                 236 // @cmd_report
-	#define HELP_BROWSER_REPORT                                 236
-#define BROWSER_PRCBUSY                                237 // @{view_prcbusy} {%s}
-	#define HELP_BROWSER_PRCBUSY                                237
-#define BROWSER_PRCFREE                                238 // @{freeprocessor_pl} {%s}
-	#define HELP_BROWSER_PRCFREE                                238
-#define BROWSER_OBJLIKENESS                            239 // @{view_objlikeness} {%s}
-	#define HELP_BROWSER_OBJLIKENESS                            239
-#define BROWSER_SCALE                                  240 // @{scales}
-	#define HELP_BROWSER_SCALE                                  240
-#define BROWSER_CASHNODE                               241 // @{view_cashnode}
-	#define HELP_BROWSER_CASHNODE                               241
-#define BROWSER_BIZSCORE                               242 // @bizscore_pl
-	#define HELP_BROWSER_BIZSCORE                               242
-#define BROWSER_BIZSCOREVAL                            243 // @{view_bizscoreval}
-	#define HELP_BROWSER_BIZSCOREVAL                            243
-#define BROWSER_DEBTORSTAT                             244 // @{view_debtorstat}
-	#define HELP_BROWSER_DEBTORSTAT                             244
-#define BROWSER_LOCTRANSF                              245 // @{view_loctransf} {%s}
-	#define HELP_BROWSER_LOCTRANSF                              245
-#define BROWSER_LOCTRANSFREST                          246 // Состояние складских ячеек {%s}
-	#define HELP_BROWSER_LOCTRANSFREST                          246
-#define BROWSER_LOCTRANSF_EMPTY                        247 // Пустые складские ячейки {%s}
-	#define HELP_BROWSER_LOCTRANSF_EMPTY                        247
-#define BROWSER_LOCTRANSF_DISP                         248 // Складское размещение документов {%s}
-	#define HELP_BROWSER_LOCTRANSF_DISP                         248
-#define BROWSER_PALM                                   249 // КПК
-	#define HELP_BROWSER_PALM                                   249
-#define BROWSER_SERVERSTAT                             250 // @{view_serverstat} %s
-	#define HELP_BROWSER_SERVERSTAT                             250
-#define BROWSER_AMOUNTTYPE                             251 // @{view_amounttype}
-	#define HELP_BROWSER_AMOUNTTYPE                             251
-#define BROWSER_REGISTERTYPE                           252 // @{view_registertype}
-	#define HELP_BROWSER_REGISTERTYPE                           252
-#define BROWSER_BUDGET                                 253 // Бюджеты
-	#define HELP_BROWSER_BUDGET                                 253
-#define BROWSER_BUDGETITEMS_CROSSTAB                   254 // @{budgetitem_pl}
-	#define HELP_BROWSER_BUDGETITEMS_CROSSTAB                   254
-#define BROWSER_BUDGET_ITEMS                           255 // @{budgetitem_pl}
-	#define HELP_BROWSER_BUDGET_ITEMS                           255
-#define BROWSER_BIZSCTEMPL                             256 // @{view_bizsctempl}
-	#define HELP_BROWSER_BIZSCTEMPL                             256
-#define BROWSER_BIZSCVALBYTEMPL                        257 // @{view_bizscvalbytempl} {%s}
-	#define HELP_BROWSER_BIZSCVALBYTEMPL                        257
-#define BROWSER_CHKOPJ                                 258 // @{view_checkopjrnl}
-	#define HELP_BROWSER_CHKOPJ                                 258
-#define BROWSER_STOCKOPT_ITEMS                         259 // @view_stockopt
-	#define HELP_BROWSER_STOCKOPT_ITEMS                         259
-#define BROWSER_STOCKOPT_RESULT                        260 // Результат оптимизации товарных запасов
-	#define HELP_BROWSER_STOCKOPT_RESULT                        260
-#define BROWSER_DIALOG                                 261 // @{view_dialog}
-	#define HELP_BROWSER_DIALOG                                 261
-#define BROWSER_SPECSERIES                             262 // @{view_specseries}
-	#define HELP_BROWSER_SPECSERIES                             262
-#define BROWSER_GLOBALUSERACC                          263 // @{globaluseracc_pl}
-	#define HELP_BROWSER_GLOBALUSERACC                          263
-#define BROWSER_DBDIV                                  264 // @{dbdiv_pl}
-	#define HELP_BROWSER_DBDIV                                  264
-#define BROWSER_TIMESERIES                             265 // @{timeseries_p}
-	#define HELP_BROWSER_TIMESERIES                             265
-#define BROWSER_TIMSERDETAIL                           266 // @{timeseries_p}
-	#define HELP_BROWSER_TIMSERDETAIL                           266
-#define BROWSER_TIMSERSTRATEGIES                       267 // @{timeseries_p}
-	#define HELP_BROWSER_TIMSERSTRATEGIES                       267
-#define BROWSER_EVENT                                  268 // Events
-	#define HELP_BROWSER_EVENT                                  268
-#define BROWSER_USERMENU                               269 // UserMenu
-	#define HELP_BROWSER_USERMENU                               269
-#define BROWSER_DBMONITOR                              270 // Монитор базы данных
-	#define HELP_BROWSER_DBMONITOR                              270
-#define BROWSER_SUPRWARE                               271 // @{view_suprware}
-	#define HELP_BROWSER_SUPRWARE                               271
-#define BROWSER_USERPROFILE                            272 // @{view_userprofile}
-	#define HELP_BROWSER_USERPROFILE                            272
-#define BROWSER_JOB                                    273 // @{jobtask_pl}
-	#define HELP_BROWSER_JOB                                    273
-#define BROWSER_PHNSVCMONITOR                          274 // @{view_phnsvcmonitor}
-	#define HELP_BROWSER_PHNSVCMONITOR                          274
-#define BROWSER_TSSTKENVMONITOR                        275 // TSSTKENVMONITOR
-	#define HELP_BROWSER_TSSTKENVMONITOR                        275
-#define BROWSER_VETISDOCUMENT                          276 // @{view_vetisdocument}
-	#define HELP_BROWSER_VETISDOCUMENT                          276
-#define BROWSER_QUOTEREQANALYZE                        277 // @{view_quotereqanalyze}
-	#define HELP_BROWSER_QUOTEREQANALYZE                        277
-#define BROWSER_FILESYSTEM                             278 // 
-	#define HELP_BROWSER_FILESYSTEM                             278
-#define BROWSER_ALCODECLRU_MOV                         279 // @{view_alcodeclru}
-	#define HELP_BROWSER_ALCODECLRU_MOV                         279
-#define BROWSER_ALCODECLRU_RCPT                        280 // @{view_alcodeclru}
-	#define HELP_BROWSER_ALCODECLRU_RCPT                        280
-#define BROWSER_ALCODECLRU_DETAIL                      281 // @{view_alcodeclru}
-	#define HELP_BROWSER_ALCODECLRU_DETAIL                      281
-#define BROWSER_STYLOQBINDERY                          282 // @{view_styloqbindery}
-	#define HELP_BROWSER_STYLOQBINDERY                          282
-#define BROWSER_STYLOQCOMMANDS                         283 // @{view_styloqcommands}
-	#define HELP_BROWSER_STYLOQCOMMANDS                         283
+#define BROWSER_SCARD                                  189 // @{scard_pl} {%s}
+	#define HELP_BROWSER_SCARD                                  189
+#define BROWSER_SCARDCRD                               190 // @{crdcard_pl} {%s}
+	#define HELP_BROWSER_SCARDCRD                               190
+#define BROWSER_SCARDCRD_TRNOVR                        191 // @{crdcard_pl} {%s}
+	#define HELP_BROWSER_SCARDCRD_TRNOVR                        191
+#define BROWSER_PAYMPLAN                               192 // @{paymplan}
+	#define HELP_BROWSER_PAYMPLAN                               192
+#define BROWSER_PAYMPLAN_CROSSTAB                      193 // @{paymplan}
+	#define HELP_BROWSER_PAYMPLAN_CROSSTAB                      193
+#define BROWSER_ADVANCEREPITEM                         194 // @{advbillitem_advrep_pl} {%s}
+	#define HELP_BROWSER_ADVANCEREPITEM                         194
+#define BROWSER_WARRANTITEM                            195 // @{advbillitem_warrant_pl} {%s}
+	#define HELP_BROWSER_WARRANTITEM                            195
+#define BROWSER_DEBTINVITEM                            196 // @{advbillitem_debtinventory_pl} {%s}
+	#define HELP_BROWSER_DEBTINVITEM                            196
+#define BROWSER_SCARDOP                                197 // @{view_scardop} {%s}
+	#define HELP_BROWSER_SCARDOP                                197
+#define BROWSER_SYNCCMP                                198 // Сравнение синхронизации объектов
+	#define HELP_BROWSER_SYNCCMP                                198
+#define BROWSER_ASSET                                  199 // @view_asset
+	#define HELP_BROWSER_ASSET                                  199
+#define BROWSER_ASSETOPER                              200 // @{view_asset} {%s}
+	#define HELP_BROWSER_ASSETOPER                              200
+#define BROWSER_SSTAT                                  201 // @{view_sstat} {%s}
+	#define HELP_BROWSER_SSTAT                                  201
+#define BROWSER_SSTAT_CYCLE                            202 // @{view_sstat} {%s}
+	#define HELP_BROWSER_SSTAT_CYCLE                            202
+#define BROWSER_SSTAT_CT                               203 // @{view_sstat} {%s}
+	#define HELP_BROWSER_SSTAT_CT                               203
+#define BROWSER_SSTAT_SORD                             204 // @{ordertosuppliercalculation} {%s}
+	#define HELP_BROWSER_SSTAT_SORD                             204
+#define BROWSER_SSTAT_SORD_CT                          205 // @{ordertosuppliercalculation} {%s}
+	#define HELP_BROWSER_SSTAT_SORD_CT                          205
+#define BROWSER_FREIGHT                                206 // @{freight}
+	#define HELP_BROWSER_FREIGHT                                206
+#define BROWSER_FREIGHT_LAGG                           207 // @{freight}
+	#define HELP_BROWSER_FREIGHT_LAGG                           207
+#define BROWSER_PROJECT                                208 // @{project_pl}
+	#define HELP_BROWSER_PROJECT                                208
+#define BROWSER_PRJPHASE                               209 // @{prjphase_pl} '%s'
+	#define HELP_BROWSER_PRJPHASE                               209
+#define BROWSER_PRJTASK                                210 // @{prjtask_pl} {%s}
+	#define HELP_BROWSER_PRJTASK                                210
+#define BROWSER_PRJTASK_DATEHOURCT                     211 // Задачи с табуляцией Дата/Час
+	#define HELP_BROWSER_PRJTASK_DATEHOURCT                     211
+#define BROWSER_PRJTASK_CLIENTDATECT                   212 // Задачи с табуляцией Клиент/Дата
+	#define HELP_BROWSER_PRJTASK_CLIENTDATECT                   212
+#define BROWSER_PRJTASK_EMPLOYERDATECT                 213 // Задачи с табуляцией @{executor}/@{date}
+	#define HELP_BROWSER_PRJTASK_EMPLOYERDATECT                 213
+#define BROWSER_PRJTASK_CLIENTEMPLOYERCT               214 // Задачи с табуляцией @{client}/@{executor}
+	#define HELP_BROWSER_PRJTASK_CLIENTEMPLOYERCT               214
+#define BROWSER_PRJTASKTEMPL                           215 // @{prjtasktemplate_pl} {%s}
+	#define HELP_BROWSER_PRJTASKTEMPL                           215
+#define BROWSER_GBILLCMP                               216 // @{docomparedocuments} %s
+	#define HELP_BROWSER_GBILLCMP                               216
+#define BROWSER_OPRKIND                                217 // @{view_oprkind}
+	#define HELP_BROWSER_OPRKIND                                217
+#define BROWSER_COMPLETE                               218 // @{productcomposition} {%s}
+	#define HELP_BROWSER_COMPLETE                               218
+#define BROWSER_MRPTAB                                 219 // @{mrptable_pl} {%s}
+	#define HELP_BROWSER_MRPTAB                                 219
+#define BROWSER_MRPLINE                                220 // @{view_mrpline} [%s]
+	#define HELP_BROWSER_MRPLINE                                220
+#define BROWSER_MRPLINE_SUBST                          221 // @{view_mrpline_subst} '%s'
+	#define HELP_BROWSER_MRPLINE_SUBST                          221
+#define BROWSER_PROCESSOR                              222 // @{view_processor} {%s}
+	#define HELP_BROWSER_PROCESSOR                              222
+#define BROWSER_TECH                                   223 // @{view_tech} {%s}
+	#define HELP_BROWSER_TECH                                   223
+#define BROWSER_TECHTOOLING                            224 // @{reconftech_pl} {%s}
+	#define HELP_BROWSER_TECHTOOLING                            224
+#define BROWSER_TSESSION                               225 // @{tsession_pl} {%s}
+	#define HELP_BROWSER_TSESSION                               225
+#define BROWSER_TSUBSESSION                            226 // @{tsubsession_pl} {%s}
+	#define HELP_BROWSER_TSUBSESSION                            226
+#define BROWSER_TSESS_MANUFPLAN                        227 // @{productionplan_pl} {%s}
+	#define HELP_BROWSER_TSESS_MANUFPLAN                        227
+#define BROWSER_TSESSLINE                              228 // @{view_tsessionlines} {%s}
+	#define HELP_BROWSER_TSESSLINE                              228
+#define BROWSER_TSESSLINEGOODS                         229 // @{view_tsessionlines} @{_bygoods} {%s}
+	#define HELP_BROWSER_TSESSLINEGOODS                         229
+#define BROWSER_TSESSLINEREST                          230 // @{view_tsessionlines_rest} {%s}
+	#define HELP_BROWSER_TSESSLINEREST                          230
+#define BROWSER_TSESSANLZ                              231 // @{view_tsessanlz}
+	#define HELP_BROWSER_TSESSANLZ                              231
+#define BROWSER_GOODSTOOBJASSC                         232 // @{association_pl} @{ware}-%s
+	#define HELP_BROWSER_GOODSTOOBJASSC                         232
+#define BROWSER_DLSTAT                                 233 // @{view_dvcloadingstat} %s
+	#define HELP_BROWSER_DLSTAT                                 233
+#define BROWSER_DLS_GOODS                              234 // Статистика по загрузке товаров: %s
+	#define HELP_BROWSER_DLS_GOODS                              234
+#define BROWSER_DLS_SCARDS                             235 // Статистика по загрузке карт: %s
+	#define HELP_BROWSER_DLS_SCARDS                             235
+#define BROWSER_PRICEANLZ                              236 // Анализ сравнения цен {%s}
+	#define HELP_BROWSER_PRICEANLZ                              236
+#define BROWSER_REPORT                                 237 // @cmd_report
+	#define HELP_BROWSER_REPORT                                 237
+#define BROWSER_PRCBUSY                                238 // @{view_prcbusy} {%s}
+	#define HELP_BROWSER_PRCBUSY                                238
+#define BROWSER_PRCFREE                                239 // @{freeprocessor_pl} {%s}
+	#define HELP_BROWSER_PRCFREE                                239
+#define BROWSER_OBJLIKENESS                            240 // @{view_objlikeness} {%s}
+	#define HELP_BROWSER_OBJLIKENESS                            240
+#define BROWSER_SCALE                                  241 // @{scales}
+	#define HELP_BROWSER_SCALE                                  241
+#define BROWSER_CASHNODE                               242 // @{view_cashnode}
+	#define HELP_BROWSER_CASHNODE                               242
+#define BROWSER_BIZSCORE                               243 // @bizscore_pl
+	#define HELP_BROWSER_BIZSCORE                               243
+#define BROWSER_BIZSCOREVAL                            244 // @{view_bizscoreval}
+	#define HELP_BROWSER_BIZSCOREVAL                            244
+#define BROWSER_DEBTORSTAT                             245 // @{view_debtorstat}
+	#define HELP_BROWSER_DEBTORSTAT                             245
+#define BROWSER_LOCTRANSF                              246 // @{view_loctransf} {%s}
+	#define HELP_BROWSER_LOCTRANSF                              246
+#define BROWSER_LOCTRANSFREST                          247 // Состояние складских ячеек {%s}
+	#define HELP_BROWSER_LOCTRANSFREST                          247
+#define BROWSER_LOCTRANSF_EMPTY                        248 // Пустые складские ячейки {%s}
+	#define HELP_BROWSER_LOCTRANSF_EMPTY                        248
+#define BROWSER_LOCTRANSF_DISP                         249 // Складское размещение документов {%s}
+	#define HELP_BROWSER_LOCTRANSF_DISP                         249
+#define BROWSER_PALM                                   250 // КПК
+	#define HELP_BROWSER_PALM                                   250
+#define BROWSER_SERVERSTAT                             251 // @{view_serverstat} %s
+	#define HELP_BROWSER_SERVERSTAT                             251
+#define BROWSER_AMOUNTTYPE                             252 // @{view_amounttype}
+	#define HELP_BROWSER_AMOUNTTYPE                             252
+#define BROWSER_REGISTERTYPE                           253 // @{view_registertype}
+	#define HELP_BROWSER_REGISTERTYPE                           253
+#define BROWSER_BUDGET                                 254 // Бюджеты
+	#define HELP_BROWSER_BUDGET                                 254
+#define BROWSER_BUDGETITEMS_CROSSTAB                   255 // @{budgetitem_pl}
+	#define HELP_BROWSER_BUDGETITEMS_CROSSTAB                   255
+#define BROWSER_BUDGET_ITEMS                           256 // @{budgetitem_pl}
+	#define HELP_BROWSER_BUDGET_ITEMS                           256
+#define BROWSER_BIZSCTEMPL                             257 // @{view_bizsctempl}
+	#define HELP_BROWSER_BIZSCTEMPL                             257
+#define BROWSER_BIZSCVALBYTEMPL                        258 // @{view_bizscvalbytempl} {%s}
+	#define HELP_BROWSER_BIZSCVALBYTEMPL                        258
+#define BROWSER_CHKOPJ                                 259 // @{view_checkopjrnl}
+	#define HELP_BROWSER_CHKOPJ                                 259
+#define BROWSER_STOCKOPT_ITEMS                         260 // @view_stockopt
+	#define HELP_BROWSER_STOCKOPT_ITEMS                         260
+#define BROWSER_STOCKOPT_RESULT                        261 // Результат оптимизации товарных запасов
+	#define HELP_BROWSER_STOCKOPT_RESULT                        261
+#define BROWSER_DIALOG                                 262 // @{view_dialog}
+	#define HELP_BROWSER_DIALOG                                 262
+#define BROWSER_SPECSERIES                             263 // @{view_specseries}
+	#define HELP_BROWSER_SPECSERIES                             263
+#define BROWSER_GLOBALUSERACC                          264 // @{globaluseracc_pl}
+	#define HELP_BROWSER_GLOBALUSERACC                          264
+#define BROWSER_DBDIV                                  265 // @{dbdiv_pl}
+	#define HELP_BROWSER_DBDIV                                  265
+#define BROWSER_TIMESERIES                             266 // @{timeseries_p}
+	#define HELP_BROWSER_TIMESERIES                             266
+#define BROWSER_TIMSERDETAIL                           267 // @{timeseries_p}
+	#define HELP_BROWSER_TIMSERDETAIL                           267
+#define BROWSER_TIMSERSTRATEGIES                       268 // @{timeseries_p}
+	#define HELP_BROWSER_TIMSERSTRATEGIES                       268
+#define BROWSER_EVENT                                  269 // Events
+	#define HELP_BROWSER_EVENT                                  269
+#define BROWSER_USERMENU                               270 // UserMenu
+	#define HELP_BROWSER_USERMENU                               270
+#define BROWSER_DBMONITOR                              271 // Монитор базы данных
+	#define HELP_BROWSER_DBMONITOR                              271
+#define BROWSER_SUPRWARE                               272 // @{view_suprware}
+	#define HELP_BROWSER_SUPRWARE                               272
+#define BROWSER_USERPROFILE                            273 // @{view_userprofile}
+	#define HELP_BROWSER_USERPROFILE                            273
+#define BROWSER_JOB                                    274 // @{jobtask_pl}
+	#define HELP_BROWSER_JOB                                    274
+#define BROWSER_PHNSVCMONITOR                          275 // @{view_phnsvcmonitor}
+	#define HELP_BROWSER_PHNSVCMONITOR                          275
+#define BROWSER_TSSTKENVMONITOR                        276 // TSSTKENVMONITOR
+	#define HELP_BROWSER_TSSTKENVMONITOR                        276
+#define BROWSER_VETISDOCUMENT                          277 // @{view_vetisdocument}
+	#define HELP_BROWSER_VETISDOCUMENT                          277
+#define BROWSER_QUOTEREQANALYZE                        278 // @{view_quotereqanalyze}
+	#define HELP_BROWSER_QUOTEREQANALYZE                        278
+#define BROWSER_FILESYSTEM                             279 // 
+	#define HELP_BROWSER_FILESYSTEM                             279
+#define BROWSER_ALCODECLRU_MOV                         280 // @{view_alcodeclru}
+	#define HELP_BROWSER_ALCODECLRU_MOV                         280
+#define BROWSER_ALCODECLRU_RCPT                        281 // @{view_alcodeclru}
+	#define HELP_BROWSER_ALCODECLRU_RCPT                        281
+#define BROWSER_ALCODECLRU_DETAIL                      282 // @{view_alcodeclru}
+	#define HELP_BROWSER_ALCODECLRU_DETAIL                      282
+#define BROWSER_STYLOQBINDERY                          283 // @{view_styloqbindery}
+	#define HELP_BROWSER_STYLOQBINDERY                          283
+#define BROWSER_STYLOQCOMMANDS                         284 // @{view_styloqcommands}
+	#define HELP_BROWSER_STYLOQCOMMANDS                         284
 
 //
 // PPVIEW COMMAND definitions

@@ -240,7 +240,7 @@ int PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt) > 0);
 	GbList.clear();
 	PPWaitStart();
-	THROW(Tbl = CreateTempFile()); // @v10.7.3 
+	THROW(Tbl = CreateTempFile());
 	if(Filt.OpID) {
 		PPID   op_type = GetOpType(Filt.OpID);
 		if(oneof3(op_type, PPOPT_GOODSORDER, PPOPT_GOODSACK, PPOPT_GOODSEXPEND)) {
@@ -255,7 +255,6 @@ int PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 			Filt.TranslateToBillFilt(&flt);
 			THROW(bv.Init_(&flt));
 			THROW(bv.GetBillIDList(&bill_list));
-			// @v10.7.3 THROW(Tbl = CreateTempFile());
 			{
 				uint i;
 				PPTransaction tra(ppDbDependTransaction, 1);

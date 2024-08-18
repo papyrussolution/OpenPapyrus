@@ -62,8 +62,8 @@ public:
 		double PckgCount;
 		double OrderQtty;   // Заказанное количество, соответсвтующее данному документу отгрузки
 		long   MarkCount;   // Количество марок, ассоциированных со строками
-		PPID   PrefSupplID; // @v12.0.8 Предпочтительный поставщик
-		double PrefSupplCPrice; // @v12.0.8 Контрактная цена предпочтительного поставщика
+		//PPID   PrefSupplID; // @v12.0.8 Предпочтительный поставщик
+		//double PrefSupplCPrice; // @v12.0.8 Контрактная цена предпочтительного поставщика
 	};
 	BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket *, PPBillPacket * pMainPack, int pckgPos, int asSelector, int editMode);
 	~BillItemBrowser();
@@ -165,7 +165,13 @@ private:
 	int    ValidateExtCodeList();
 	int    Sort(const LongArray * pSortColIdxList);
 	int    PostprocessModifItemAdding(const PPTransferItem & rTi, uint pos, int sign, bool recursive);
-
+	enum {
+		cfgshowfBarcode   = 0x0001,
+		cfgshowfSerial    = 0x0002,
+		cfgshowfMargin    = 0x0004,
+		cfgshowfArCode    = 0x0008,
+		cfgshowfPrefSuppl = 0x0010, // @v12.0.8
+	};
 	enum {
 		stOrderSelector    = 0x0002, // Броузер используется как селектор из заказа
 		stAltView          = 0x0004, // Альтернативный просмотр строк товарного документа
@@ -179,6 +185,7 @@ private:
 		stTagPreKey        = 0x0800  // @v11.2.9 Нажата клавиша, предваряющая последующее нажатие горячей клавиши для редактирования тега.
 	};
 	long   State;
+	long   CfgShowFlags; // @v12.0.11
 	int    AsSelector;
 	int    EditMode;
 	int    CurLine; // Отслеживает номер текущей строки в функции BillItemBrowser::_GetDataForBrowser
@@ -307,11 +314,11 @@ public:
 	}
 	bool   HasUpp; // По крайней мере одна строка имеет не нулевую емкость упаковки
 private:
-	int    FASTCALL GetItemByPos(long itemPos) const
+	bool   FASTCALL GetItemByPos(long itemPos) const
 	{
 		uint   pos = 0;
 		P_Item = lsearch(&itemPos, &pos, CMPF_LONG) ? static_cast<BillGoodsBrwItem *>(at(pos)) : 0;
-		return BIN(P_Item);
+		return LOGIC(P_Item);
 	}
 	mutable BillGoodsBrwItem * P_Item; // Временный указатель
 	LAssocArray CodeStatusList;
@@ -753,7 +760,7 @@ int BillItemBrowser::CheckRows()
 BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p,
 	PPBillPacket * pMainPack /* Продажа по ордеру */, int pckgPos, int asSelector, int editMode) :
 	AsSelector(asSelector), EditMode(editMode), BrowserWindow(rezID, static_cast<SArray *>(0)),
-	P_BObj(pBObj), P_T(P_BObj->trfr), P_SpcCore(0), P_Pack(p), P_Pckg(0), State(0), OrderBillID(0),
+	P_BObj(pBObj), P_T(P_BObj->trfr), P_SpcCore(0), P_Pack(p), P_Pckg(0), State(0), CfgShowFlags(0), OrderBillID(0),
 	NewGoodsGrpID(0), CurLine(-1000), P_LinkPack(pMainPack), P_Ec(0)
 {
 	SETFLAG(State, stOrderSelector, P_LinkPack);
@@ -765,7 +772,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 	}
 	SString temp_buf;
 	// @v11.5.12 {
-	enum {
+	/* @v12.0.11 enum {
 		cfgshowfBarcode   = 0x0001,
 		cfgshowfSerial    = 0x0002,
 		cfgshowfMargin    = 0x0004,
@@ -773,52 +780,53 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 		cfgshowfPrefSuppl = 0x0010, // @v12.0.8
 	};
 	uint   cfgshowflags = 0;
+	*/
 	const  bool use_argoods_code = LOGIC(CConfig.Flags & CCFLG_USEARGOODSCODE);
 	const  UserInterfaceSettings uis = APPL->GetUiSettings();
 	if(uis.BillItemTableFlags & UserInterfaceSettings::bitfShowMargin)
-		cfgshowflags |= cfgshowfMargin;
+		CfgShowFlags |= cfgshowfMargin;
 	if(uis.BillItemTableFlags & UserInterfaceSettings::bitfUseCommCfgForBarcodeSerialOptions) {
 		if(P_BObj->Cfg.Flags & BCF_SHOWBARCODESINGBLINES) {
 			if(State & stAltView && use_argoods_code)
-				cfgshowflags |= cfgshowfArCode;
+				CfgShowFlags |= cfgshowfArCode;
 			else
-				cfgshowflags |= cfgshowfBarcode;
+				CfgShowFlags |= cfgshowfBarcode;
 		}
 		if(P_BObj->Cfg.Flags & BCF_SHOWSERIALSINGBLINES)
-			cfgshowflags |= cfgshowfSerial;
+			CfgShowFlags |= cfgshowfSerial;
 	}
 	else {
 		if(uis.BillItemTableFlags & UserInterfaceSettings::bitfShowBarcode) {
 			if(State & stAltView && use_argoods_code)
-				cfgshowflags |= cfgshowfArCode;
+				CfgShowFlags |= cfgshowfArCode;
 			else
-				cfgshowflags |= cfgshowfBarcode;
+				CfgShowFlags |= cfgshowfBarcode;
 		}
 		if(uis.BillItemTableFlags & UserInterfaceSettings::bitfShowSerial)
-			cfgshowflags |= cfgshowfSerial;
+			CfgShowFlags |= cfgshowfSerial;
 	}
 	// @v12.0.8 {
 	if(P_Pack->OpTypeID == PPOPT_GOODSORDER) {
 		PPOprKind op_rec;
 		if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_MNGPREFSUPPL) {
-			cfgshowflags |= cfgshowfPrefSuppl;
+			CfgShowFlags |= cfgshowfPrefSuppl;
 		}
 	}
 	// } @v12.0.8 
 	{
 		uint   _brw_pos = 2;
-		if(cfgshowflags & cfgshowfArCode) {
+		if(CfgShowFlags & cfgshowfArCode) {
 			PPGetWord(PPWORD_ARGOODSCODE, 0, temp_buf);
 			insertColumn(_brw_pos++, temp_buf, 27, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC); // @conflict #27
 		}
-		if(cfgshowflags & cfgshowfBarcode) {
+		if(CfgShowFlags & cfgshowfBarcode) {
 			PPLoadString("barcode", temp_buf);
 			insertColumn(_brw_pos++, temp_buf, 27, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC); // @conflict #27
 		}
-		if(cfgshowflags & cfgshowfSerial) {
+		if(CfgShowFlags & cfgshowfSerial) {
 			insertColumn(_brw_pos++, PPLoadStringS("serial", temp_buf), 28, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC);
 		}
-		if(cfgshowflags & cfgshowfMargin) {
+		if(CfgShowFlags & cfgshowfMargin) {
 			BrowserDef * p_def = getDef();
 			if(p_def) {
 				/*
@@ -853,9 +861,10 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 			}
 		}
 		// @v12.0.8 {
-		if(cfgshowflags & cfgshowfPrefSuppl) {
+		if(CfgShowFlags & cfgshowfPrefSuppl) {
 			insertColumn(_brw_pos++, PPLoadStringS("prefsupplier", temp_buf), 37, MKSTYPE(S_ZSTRING, 128), 0, BCO_USERPROC);
 			insertColumn(_brw_pos++, PPLoadStringS("dealprice", temp_buf), 38, T_DOUBLE, MKSFMTD(0, 2, NMBF_NOZERO), BCO_USERPROC);
+			insertColumn(_brw_pos++, PPLoadStringS("rest", temp_buf), 20, T_DOUBLE, MKSFMTD(0, 2, NMBF_NOZERO), BCO_USERPROC); // @v12.0.11
 		}
 		// } @v12.0.8 
 	}
@@ -980,9 +989,9 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 					State |= stShowLinkQtty;
 					{
 						int    at_pos = 1;
-						if(cfgshowflags & cfgshowfBarcode)
+						if(CfgShowFlags & cfgshowfBarcode)
 							at_pos++;
-						if(cfgshowflags & cfgshowfSerial)
+						if(CfgShowFlags & cfgshowfSerial)
 							at_pos++;
 						PPLoadString("linkedqtty", temp_buf);
 						insertColumn(at_pos+1, temp_buf, 23, MKSTYPE(S_FLOAT, 8), MKSFMTD(0, 6, NMBF_NOTRAILZ|NMBF_NOZERO), BCO_USERPROC);
@@ -1478,6 +1487,13 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 									real_val = 0.0;
 								p_list->SetRest(p_item->Pos, real_val);
 							}
+							else if(CfgShowFlags & cfgshowfPrefSuppl) { // @v12.0.11
+								if(!(ClGoodsRec.Flags & GF_UNLIM) && P_Pack)
+									P_Pack->GoodsRest(labs(p_ti->GoodsID), 0, -1, &real_val);
+								else
+									real_val = 0.0;
+								p_list->SetRest(p_item->Pos, real_val);
+							}
 							else
 								real_val = 0.0;
 						}
@@ -1751,7 +1767,6 @@ void BillItemBrowser::update(int pos)
 		BillGoodsBrwItemArray * p_list = 0;
 		PROFILE(p_list = static_cast<BillGoodsBrwItemArray *>(MakeList()));
 		if(p_list) {
-			// @v10.6.3 {
 			if(is_sorting_needed) {
 				p_list->sort(PTR_CMPFUNC(BillGoodsBrwItem), this);
 				if(org_current_pos_in_bill >= 0) {
@@ -1759,7 +1774,6 @@ void BillItemBrowser::update(int pos)
 					org_current_pos = p_list->lsearch(&org_current_pos_in_bill, &lp, CMPF_LONG) ? static_cast<long>(lp) : -1;
 				}
 			}
-			// } @v10.6.3 
 			p_def->SetUserProc(BillItemBrowser::GetDataForBrowser, this);
 			// {
             p_def->setArray(p_list, 0, 1);
@@ -1772,10 +1786,10 @@ void BillItemBrowser::update(int pos)
 				int    phqtty_col = -1;
 				int    upp_col = -1;
 				int    ordqtty_col = -1;
-				int    mark_count_col = -1; // @v10.9.2
+				int    mark_count_col = -1;
 				int    vetis_uuid_col = -1;
-				int    egais_refb_col = -1; // @v10.8.4
-				int    egais_code_col = -1; // @v10.8.4
+				int    egais_refb_col = -1;
+				int    egais_code_col = -1;
 				for(uint i = 0; i < p_def->getCount(); i++) {
 					const BroColumn & r_col = p_def->at(i);
 					switch(r_col.Offs) {
@@ -1787,9 +1801,9 @@ void BillItemBrowser::update(int pos)
 						case 30: setup_quot_info_col = static_cast<int>(i); break;
 						case 31: ordqtty_col = static_cast<int>(i); break;
 						case 32: vetis_uuid_col = static_cast<int>(i); break;
-						case 33: egais_refb_col = static_cast<int>(i); break; // @v10.8.4
-						case 34: egais_code_col = static_cast<int>(i); break; // @v10.8.4
-						case 35: mark_count_col = static_cast<int>(i); break; // @v10.9.2
+						case 33: egais_refb_col = static_cast<int>(i); break;
+						case 34: egais_code_col = static_cast<int>(i); break;
+						case 35: mark_count_col = static_cast<int>(i); break;
 					}
 				}
 				if(Total.ExtCost != 0.0) {
@@ -3561,7 +3575,7 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 	public:
 		LotXCodeListDialog(/*const*/PPBillPacket * pPack, int rowIdx) : LotXCodeListDialog_Base(DLG_LOTXCLIST, CTL_LOTXCLIST_LIST, pPack, rowIdx, fOmitSearchByFirstChar)
 		{
-			ContextMenuID = CTRLMENU_LOTXCODELIST; // @v10.9.0
+			ContextMenuID = CTRLMENU_LOTXCODELIST;
 		}
 	private:
 		DECL_HANDLE_EVENT
@@ -3730,7 +3744,6 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 					PPErrorByDialog(dlg, sel);
 				}
 				else {
-					// 080026600250673670340153552
 					SString mark_buf;
 					GtinStruc gts;
 					const bool iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
@@ -3822,6 +3835,7 @@ int BillItemBrowser::MakePrefSupplList(PPID goodsID, RAssocArray & rResultList)
 					ok = 1;
 				}
 			}
+			rResultList.SortByVal(); // @v12.0.11
 		}
 	}
 	return ok;

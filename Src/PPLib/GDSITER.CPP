@@ -20,8 +20,24 @@ GoodsIterator::Ext & GoodsIterator::Ext::Z()
 
 /*static*/int FASTCALL GoodsIterator::GetListByGroup(PPID grpID, PPIDArray * pList)
 {
-	GoodsIterator iter(grpID, 0);
-	return (!iter.P_List || pList->copy(*iter.P_List)) ? 1 : PPSetErrorSLib();
+	int    ok = 1;
+	GoodsIterator giter(grpID, 0);
+	// @v12.0.11 return (!giter.P_List || pList->copy(*giter.P_List)) ? 1 : PPSetErrorSLib();
+	// @v12.0.11 {
+	if(giter.P_IterQuery == 0 && giter.P_List) {
+		THROW_SL(pList->copy(*giter.P_List));
+	}
+	else {
+		PPIDArray tmp_ary;
+		Goods2Tbl::Rec grec;
+		while(giter.Next(&grec) > 0) {
+			THROW_SL(tmp_ary.add(grec.ID));
+		}
+		THROW_SL(pList->copy(tmp_ary));
+	}
+	CATCHZOK
+	return ok;
+	// } @v12.0.11 
 }
 
 /*static*/int FASTCALL GoodsIterator::GetListByFilt(const GoodsFilt * pFilt, PPIDArray * pList, PPIDArray * pDupDynGrpList)
@@ -501,7 +517,7 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 				THROW_SL(temp_list.add(t->data.ID));
 			THROW(IntersectByTempList(P_List, &temp_list, &do_intersect));
 		}
-		if(!(Filt.Flags & Filt.fWoBrand)) { // @v10.6.8 
+		if(!(Filt.Flags & Filt.fWoBrand)) {
 			const ObjIdListFilt & r_brand_list = Filt.GetResultBrandList();
 			if(r_brand_list.GetCount()) {
 				temp_list.clear();
@@ -619,7 +635,6 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 			}
 		}
 	}
-	// @v10.6.8 {
 	if(Filt.Flags & Filt.fWoBrand) { 
 		// Индекс по бренду (#3) в таблице Goods2 не содержит нулевых значение, по-этому здесь не получится 
 		// использовать перебор по индексу.
@@ -636,7 +651,6 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 			} while(lidx);
 		}
 	}
-	// } @v10.6.8 
 	if(Filt.Flags & GoodsFilt::fActualOnly) {
 		THROW_MEM(P_ActualHash = new UintHashTable);
 		UnlimTypeList.clear();

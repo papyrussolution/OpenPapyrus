@@ -1520,7 +1520,7 @@ int BillCore::UpdatePool(PPID billID, PPID pullType, PPID pullOwnerID, int use_t
 	ObjAssocTbl::Rec assc_rec;
 	Reference * p_ref = PPRef;
 	if(p_ref->Assc.Search(pullType, pullOwnerID, billID, &assc_rec) > 0) {
-		ObjAssocTbl::Rec org_assc_rec = assc_rec;
+		const ObjAssocTbl::Rec org_assc_rec(assc_rec);
 		assc_id = assc_rec.ID;
 		memzero(assc_rec.Text, max_va_sz);
 		if(memcmp(&assc_rec, &org_assc_rec, sizeof(assc_rec)) != 0)

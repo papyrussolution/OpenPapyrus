@@ -11965,17 +11965,18 @@ enum {
 class PPBillPacket : public PPBill {
 public:
 	enum PoolKind {
-		bpkNone  = -1, // Отсутствует принадлежность пулу
-		bpkOpBill = 0, // Управляемый пул документов (принадлежит документу)
-		bpkReckon = 1, // Зачитывающие документы
-		bpkCSess,      // Документы списания кассовой сессии
-		bpkTSess,      // Документы списания технологической сессии
-		bpkCSessDfct,  // Документы покрытия дефицита по кассовым сессиям
-		bpkTSessDfct,  // Документы покрытия дефицита по технологическим сессиям
-		bpkTodo,       // Документы, привязанные к задачам
-		bpkPrj,        // Документы, привязанные к проектам
-		bpkPrjPhase,   // Документы, привязанные к фазма проектов
-		bpkTSessPaym   // Документы оплаты технологической сессии. Проецируется в тот же тип ассоциации пулов документов, что и bpkTSess.
+		bpkNone  = -1,    // Отсутствует принадлежность пулу
+		bpkOpBill = 0,    // Управляемый пул документов (принадлежит документу)
+		bpkReckon = 1,    // Зачитывающие документы
+		bpkCSess,         // Документы списания кассовой сессии
+		bpkTSess,         // Документы списания технологической сессии
+		bpkCSessDfct,     // Документы покрытия дефицита по кассовым сессиям
+		bpkTSessDfct,     // Документы покрытия дефицита по технологическим сессиям
+		bpkTodo,          // Документы, привязанные к задачам
+		bpkPrj,           // Документы, привязанные к проектам
+		bpkPrjPhase,      // Документы, привязанные к фазма проектов
+		bpkTSessPaym,     // Документы оплаты технологической сессии. Проецируется в тот же тип ассоциации пулов документов, что и bpkTSess.
+		bpkOrdAccomplish, // @v12.0.11 Сопутствующие документы списания товарного заказа в отгрузку
 	};
 
 	static PPBillPacket::PoolKind ObjAssocToPoolKind(PPID assocID);
@@ -12442,6 +12443,7 @@ public:
 	TSVector <QuotSetupInfoItem> * P_QuotSetupInfoList;
 	PPLotTagContainer * P_MirrorLTagL; // Список тегов зеркальных лотов (созданных при межскладском перемещении)
 	PPID   PaymBillID;         // @*PPObjBill::ExtractPacket Платежный документ (зачеты).
+	PPID   OrderPoolBillID;    // @v12.0.11 @*PPObjBill::ExtractPacket Документ заказа, для которого данный документ является членом пула сопутствующих документов списания //
 	PPID   CSessID;            // Кассовая или технологическая сессия, которую списывает документ
 	PPID   SampleBillID;       // Документ, по образцу которого создается this документ
 	//
@@ -39372,8 +39374,9 @@ public:
 		lkReckon         =   3,  // Зачеты по документу
 		lkByReckon       =   4,  // Зачитывающие документы
 		lkWrOffDraft     =   6,  // Документы списания драфт-документа
-		lkCorrection     =   7,  // @v10.3.1 Документы корректировки
-		lkOrdersByLading =   8,  // @v10.8.4 Документы заказа, к которым привязана данная отгрузка
+		lkCorrection     =   7,  // Документы корректировки
+		lkOrdersByLading =   8,  // Документы заказа, к которым привязана данная отгрузка
+		lkOrdAccomplish  =   9,  // @v12.0.11 Сопутствующие документы списания заказа в отгрузку
 		lkSelection      = 100   // Режим выбора просмотра связанных документов при котором программа
 			// самостоятельно пытается выбрать существующие связанные документы и при неоднозначности предоставляет выбор пользователю
 	};
@@ -57124,35 +57127,17 @@ private:
 class EgaisMarkAutoSelector {
 public:
 	struct _MarkEntry {
-		_MarkEntry() : Rest(0.0)
-		{
-		}
+		_MarkEntry();
 		SString Mark;
 		double Rest;
 	};
 
 	struct _TerminalEntry {
-		_TerminalEntry() : GoodsID(0), LotID(0), LotDate(ZERODATE), Qtty(0.0)
-		{
-		}
-		_TerminalEntry(const _TerminalEntry & rS)
-		{
-			Copy(rS);
-		}
-		_TerminalEntry & FASTCALL operator = (const _TerminalEntry & rS)
-		{
-			Copy(rS);
-			return *this;
-		}
-		bool   FASTCALL Copy(const _TerminalEntry & rS)
-		{
-			GoodsID = rS.GoodsID;
-			LotID = rS.LotID;
-			LotDate = rS.LotDate;
-			Qtty = rS.Qtty;
-			TSCollection_Copy(ML, rS.ML);
-			return true;
-		}
+		_TerminalEntry();
+		_TerminalEntry(const _TerminalEntry & rS);
+		_TerminalEntry & FASTCALL operator = (const _TerminalEntry & rS);
+		bool   FASTCALL Copy(const _TerminalEntry & rS);
+
 		PPID   GoodsID;
 		PPID   LotID;
 		LDATE  LotDate;
@@ -57160,27 +57145,14 @@ public:
 		TSCollection <_MarkEntry> ML;
 	};
 	struct Entry {
-		Entry() : GsID(0), IsOrList(false)
-		{
-		}
-		Entry(const Entry & rS)
-		{
-			Copy(rS);
-		}
-		Entry & FASTCALL operator = (const Entry & rS)
-		{
-			Copy(rS);
-			return *this;
-		}
-		bool   FASTCALL Copy(const Entry & rS)
-		{
-			GsID = rS.GsID;
-			IsOrList = rS.IsOrList;
-			TSCollection_Copy(Te, rS.Te);
-			return true;
-		}
+		Entry();
+		Entry(const Entry & rS);
+		Entry & FASTCALL operator = (const Entry & rS);
+		bool   FASTCALL Copy(const Entry & rS);
+
 		PPID   GsID;     // Идентификатор структуры, из которой сформирован экземпляр this
-		bool   IsOrList; // Если true, то список Te определяет вариант "один-из", в противном случае это - терминальный элемент.
+		//bool   IsOrList; // Если true, то список Te определяет вариант "один-из", в противном случае это - терминальный элемент.
+		//uint8  Reserve[3]; // @alignment
 		//
 		// Если this связан с конечным компонентом комплектующей структуры, то Te содержит единственный элемент,
 		// если this связан с точкой подстановочной структуры, то Te может содержать более одного елемента.
@@ -57189,26 +57161,11 @@ public:
 	};
 	class ResultBlock : public TSCollection <Entry> {
 	public:
-		ResultBlock(PPID goodsID, double qtty) : GoodsID(goodsID), Qtty(qtty), VolumeQtty(0.0)
-		{
-		}
-		ResultBlock(const ResultBlock & rS)
-		{
-			Copy(rS);
-		}
-		ResultBlock & FASTCALL operator = (const ResultBlock & rS)
-		{
-			Copy(rS);
-			return *this;
-		}
-		bool   FASTCALL Copy(const ResultBlock & rS)
-		{
-			GoodsID = rS.GoodsID;
-			Qtty = rS.Qtty;
-			VolumeQtty = rS.VolumeQtty;
-			TSCollection_Copy(*this, rS);
-			return true;
-		}
+		ResultBlock(PPID goodsID, double qtty);
+		ResultBlock(const ResultBlock & rS);
+		ResultBlock & FASTCALL operator = (const ResultBlock & rS);
+		bool   FASTCALL Copy(const ResultBlock & rS);
+
 		PPID   GoodsID; // Стартовый товар (который был продан)
 		double Qtty;    // Количество проданного стартового товара
 		double VolumeQtty; // Количество проданного стартового товара в литрах
@@ -57217,10 +57174,29 @@ public:
 	~EgaisMarkAutoSelector();
 	int    Run(ResultBlock & rResult);
 private:
+	struct RefBEntry { // @flat
+		RefBEntry()
+		{
+			THISZERO();
+		}
+		PPID   LocID;
+		PPID   StockBillID;
+		LDATE  StockBillDt;
+		int    StockBillRbb;
+		PPID   GoodsID;
+		char   RefB[64];
+		double Rest;
+	};
+	static bool SearchRefBEntry(const TSVector <RefBEntry> & rList, const RefBEntry & rKey, uint * pPos);
+	static bool SearchRefB(const TSVector <RefBEntry> & rList, const char * pRefB, uint * pPos);
 	int    Helper(PPID goodsID, double qtty, ResultBlock & rResult);
+	int    Helper_ProcessLot(PPID goodsStrucID, const ReceiptTbl::Rec & rLotRec, double phQtty, Entry ** ppEntry, ResultBlock & rResult);
+	int    GetRecentEgaisStock(TSVector <RefBEntry> & rResultList);
 
 	PPObjGoods GObj;
 	PPEgaisProcessor * P_EgPrc; // @notowned
+	TSVector <RefBEntry> RecentEgaisStock;
+	bool   IsInitialized;
 };
 //
 // Descr: Класс, реализующий высокоуровневые механизмы обмена с "честным знаком"

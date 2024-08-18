@@ -2487,6 +2487,7 @@ void PPBillPacket::Helper_Init()
 	P_LinkPack = 0;
 	P_Outer  = 0;
 	PaymBillID = 0;
+	OrderPoolBillID = 0; // @v12.0.11
 	OutAmtType = 0;
 	CSessID = 0;
 	SampleBillID = 0;
@@ -2534,6 +2535,7 @@ void PPBillPacket::destroy()
 	P_Outer = 0;
 	ZDELETE(P_MirrorLTagL);
 	PaymBillID = 0;
+	OrderPoolBillID = 0; // @v12.0.11
 	CSessID = 0;
 	SampleBillID = 0;
 	ZDELETE(P_PckgList);
@@ -2571,6 +2573,7 @@ int FASTCALL PPBillPacket::Copy(const PPBillPacket & rS)
 	_FLD(AccSheetID);
 	_FLD(Counter);
 	_FLD(PaymBillID);
+	_FLD(OrderPoolBillID); // @v12.0.11
 	_FLD(CSessID);
 	_FLD(SampleBillID);
 	_FLD(ProcessFlags);
@@ -3258,6 +3261,7 @@ void FASTCALL PPBillPacket::SetQuantitySign(int minus)
 		case PPASS_PRJBILLPOOL: return bpkPrj;
 		case PPASS_PRJPHASEBILLPOOL: return bpkPrjPhase;
 		case PPASS_TSDBILLPOOL: return bpkTSessDfct;
+		case PPASS_ORDACCOMPBILLPOOL: return bpkOrdAccomplish; // @v12.0.11
 	}
 	return bpkNone;
 }
@@ -3274,6 +3278,7 @@ void FASTCALL PPBillPacket::SetQuantitySign(int minus)
 		case bpkPrj: return PPASS_PRJBILLPOOL;
 		case bpkPrjPhase: return PPASS_PRJPHASEBILLPOOL;
 		case bpkTSessDfct: return PPASS_TSDBILLPOOL;
+		case bpkOrdAccomplish: return PPASS_ORDACCOMPBILLPOOL; // @v12.0.11
 	}
 	return 0;
 }
@@ -3303,6 +3308,9 @@ void PPBillPacket::SetPoolMembership(PoolKind poolKind, PPID poolID)
 		case bpkTSessPaym:
 			SETFLAG(Rec.Flags2, BILLF2_TSESSPAYM, poolID);
 			CSessID = poolID;
+			break;
+		case bpkOrdAccomplish: // @v12.0.11 @construction
+			OrderPoolBillID = poolID;
 			break;
 	}
 }

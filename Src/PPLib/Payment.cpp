@@ -58,12 +58,12 @@ SArray * PPObjBill::MakePaymentList(PPID id, int kind)
 	BillTbl::Rec bill_rec;
 	double debt, total = 0.0;
 	DateIter  diter;
-	PPIDArray ord_bill_list; // @v10.8.4
+	PPIDArray ord_bill_list;
 	SArray  * p_ary = 0;
 	THROW_MEM(p_ary = new SArray(sizeof(entry)));
 	THROW(P_Tbl->Search(id, &bill_rec) > 0);
 	debt = BR2(bill_rec.Amount);
-	if(kind == LinkedBillFilt::lkOrdersByLading) { // @v10.8.4 Документы заказа, к которым привязана отгрузка
+	if(kind == LinkedBillFilt::lkOrdersByLading) { // Документы заказа, к которым привязана отгрузка
 		P_Tbl->GetListOfOrdersByLading(id, ord_bill_list);
 		ord_bill_list.setPointer(0);
 	}
@@ -72,7 +72,7 @@ SArray * PPObjBill::MakePaymentList(PPID id, int kind)
 			case LinkedBillFilt::lkPayments:   blnk = (BLNK_PAYMRETN | BLNK_CHARGEPAYM); break;
 			case LinkedBillFilt::lkCharge:     blnk = BLNK_CHARGE; break;
 			case LinkedBillFilt::lkWrOffDraft: blnk = BLNK_WROFFDRAFT; break;
-			case LinkedBillFilt::lkCorrection: blnk = BLNK_CORRECTION; break; // @v10.3.1
+			case LinkedBillFilt::lkCorrection: blnk = BLNK_CORRECTION; break;
 			default: blnk = BLNK_PAYMRETN; break;
 		}
 	}
@@ -127,6 +127,9 @@ SArray * PPObjBill::MakePaymentList(PPID id, int kind)
 							break;
 					}
 				}
+				break;
+			case LinkedBillFilt::lkOrdAccomplish: // @v12.0.11 
+				// @todo
 				break;
 		}
 		if(r > 0) {
@@ -297,6 +300,10 @@ int PPViewLinkedBill::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				MemoList.GetText(bill_rec.ID, temp_buf);
 				pBlk->Set(temp_buf);
 				break;
+			case 9: // @v12.0.11 @contractor 
+				GetArticleName(bill_rec.Object, temp_buf);
+				pBlk->Set(temp_buf);
+				break;
 		}
 	}
 	return ok;
@@ -339,11 +346,17 @@ SArray  * PPViewLinkedBill::CreateBrowserArray(uint * pBrwId, SString * pSubTitl
 			if(CheckOpFlags(Rec.OpID, OPKF_RECKON))
 				P_BObj->P_Tbl->GetAmount(Filt.BillID, PPAMT_PAYMENT, Rec.CurID, &PrevPaym);
 			break;
+		case LinkedBillFilt::lkByReckon: // @v12.0.11
+			brw_id = BROWSER_PAYMENTS; // @todo Конкретизировать браузер
+			break;
 		case LinkedBillFilt::lkCorrection:
 			brw_id = BROWSER_PAYMENTS;
 			break;
-		case LinkedBillFilt::lkOrdersByLading: // @v10.8.4
+		case LinkedBillFilt::lkOrdersByLading:
 			brw_id = BROWSER_PAYMENTS; // @todo Конкретизировать браузер
+			break;
+		case LinkedBillFilt::lkOrdAccomplish: // @v12.0.11 
+			brw_id = BROWSER_ORDERACCOMPLISH;
 			break;
 		default:
 			ZDELETE(p_array);
@@ -372,23 +385,30 @@ int PPViewLinkedBill::MakeList()
 	BillTbl::Rec bill_rec;
 	double debt;
 	double total = 0.0;
-	PPIDArray ord_bill_list; // @v10.8.4
+	PPIDArray ord_bill_list;
+	PPIDArray shpm_bill_list; // @v12.0.11 Список документов отгрузки по заказу
 	DateIter  diter;
 	THROW(P_BObj->Search(Filt.BillID, &bill_rec) > 0);
 	{
 		double na = BR2(bill_rec.Amount);
-		debt = (na < 0.0) ? -na : na; // @v10.3.3 na --> ((na < 0.0) ? -na : na)
+		debt = (na < 0.0) ? -na : na;
 	}
-	if(Filt.Kind__ == LinkedBillFilt::lkOrdersByLading) { // @v10.8.4 Документы заказа, к которым привязана отгрузка
+	if(Filt.Kind__ == LinkedBillFilt::lkOrdersByLading) { // Документы заказа, к которым привязана отгрузка
 		p_bt->GetListOfOrdersByLading(Filt.BillID, ord_bill_list);
 		ord_bill_list.setPointer(0);
+	}
+	else if(Filt.Kind__ == LinkedBillFilt::lkOrdAccomplish) { // @v12.0.11
+		DateRange shipm_period;
+		shipm_period.Z();
+		P_BObj->GetShipmByOrder(Filt.BillID, &shipm_period, &shpm_bill_list);
+		shpm_bill_list.setPointer(0);
 	}
 	else {
 		switch(Filt.Kind__) {
 			case LinkedBillFilt::lkPayments: blnk = (BLNK_PAYMRETN | BLNK_CHARGEPAYM); break;
 			case LinkedBillFilt::lkCharge: blnk = BLNK_CHARGE; break;
 			case LinkedBillFilt::lkWrOffDraft: blnk = BLNK_WROFFDRAFT; break;
-			case LinkedBillFilt::lkCorrection: blnk = BLNK_CORRECTION; break; // @v10.3.1
+			case LinkedBillFilt::lkCorrection: blnk = BLNK_CORRECTION; break;
 			default: blnk = BLNK_PAYMRETN; break;
 		}
 	}
@@ -433,7 +453,7 @@ int PPViewLinkedBill::MakeList()
 				r = p_bt->EnumLinks(Filt.BillID, &diter, blnk, &bill_rec);
 				link_kind = 3;
 				break;
-			case LinkedBillFilt::lkOrdersByLading: // @v10.8.4 Документы заказа, к которым привязана отгрузка
+			case LinkedBillFilt::lkOrdersByLading: // Документы заказа, к которым привязана отгрузка
 				{
 					r = -1;
 					while(ord_bill_list.getPointer() < ord_bill_list.getCount()) {
@@ -442,6 +462,26 @@ int PPViewLinkedBill::MakeList()
 						r = p_bt->Search(ord_bill_id, &bill_rec);
 						if(r > 0)
 							break;
+					}
+				}
+				break;
+			case LinkedBillFilt::lkOrdAccomplish: // @v12.0.11 
+				// @todo
+				{
+					r = -1;
+					if(shpm_bill_list.getPointer() < shpm_bill_list.getCount()) {
+						while(shpm_bill_list.getPointer() < shpm_bill_list.getCount()) {
+							PPID   shpm_bill_id = shpm_bill_list.get(shpm_bill_list.getPointer());
+							shpm_bill_list.incPointer();
+							r = p_bt->Search(shpm_bill_id, &bill_rec);
+							if(r > 0)
+								break;
+						}
+					}
+					else {
+						do {
+							r = p_bt->EnumMembersOfPool(PPASS_ORDACCOMPBILLPOOL, Filt.BillID, &member_id);
+						} while(r > 0 && P_BObj->Search(member_id, &bill_rec) <= 0);
 					}
 				}
 				break;
@@ -487,17 +527,10 @@ int PPViewLinkedBill::MakeList()
 	}
 	List.sort(CMPF_LONG);
 	if(Filt.Kind__ != LinkedBillFilt::lkCharge) {
-		// @v10.3.6 {
 		for(uint i = 0; i < List.getCount(); i++) {
 			Entry & r_entry = List.at(i);
 			r_entry.Rest = (debt -= r_entry.Payment);
 		}
-		// } @v10.3.6 
-		/* @v10.3.6 
-		Entry * p_entry;
-		for(uint i = 0; List.enumItems(&i, (void **)&p_entry);)
-			p_entry->Rest = (debt -= p_entry->Payment);
-		*/
 	}
 	CATCHZOK
 	return ok;
@@ -666,10 +699,15 @@ int PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				}
 				else if(Filt.Kind__ == LinkedBillFilt::lkPayments) {
 					PrevKind = Filt.Kind__;
-					Filt.Kind__ = LinkedBillFilt::lkByReckon;
+					Filt.Kind__ = LinkedBillFilt::lkReckon;
 					ok = 1;
 				}
 				else if(Filt.Kind__ == LinkedBillFilt::lkReckon) {
+					PrevKind = Filt.Kind__;
+					Filt.Kind__ = LinkedBillFilt::lkByReckon;
+					ok = 1;
+				}
+				else if(Filt.Kind__ == LinkedBillFilt::lkByReckon) { // @v12.0.11
 					PrevKind = Filt.Kind__;
 					Filt.Kind__ = LinkedBillFilt::lkCorrection;
 					ok = 1;
@@ -681,9 +719,20 @@ int PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				}
 				else if(Filt.Kind__ == LinkedBillFilt::lkOrdersByLading) {
 					PrevKind = Filt.Kind__;
+					Filt.Kind__ = LinkedBillFilt::lkOrdAccomplish;
+					ok = 1;
+				}
+				else if(Filt.Kind__ == LinkedBillFilt::lkOrdAccomplish) { // @v12.0.11
+					PrevKind = Filt.Kind__;
 					Filt.Kind__ = LinkedBillFilt::lkPayments;
 					ok = 1;
 				}
+				// @v12.0.11 {
+				if(ok > 0) {
+					ok = ChangeFilt(1, pBrw);
+					p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
+				}
+				// } @v12.0.11 
 				break;
 			case PPVCMD_PAYMENT:
 				ok = -1;
@@ -707,14 +756,14 @@ int PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 			case PPVCMD_PRINT: ok = Print(pHdr); break;
 			case PPVCMD_POSPRINTBYBILL: P_BObj->PosPrintByBill(bill_id); break;
 			case PPVCMD_PRINTLIST: ok = Print(0); break;
-			case PPVCMD_TB_CBX_SELECTED: // @v10.3.0
+			case PPVCMD_TB_CBX_SELECTED:
 				{
 					ok = -1;
 					PPID   kind = 0;
 					if(pBrw && pBrw->GetToolbarComboData(&kind) && Filt.Kind__ != kind) {
 						Filt.Kind__ = kind;
 						ok = ChangeFilt(1, pBrw);
-						p_def = static_cast<AryBrowserDef *>(pBrw->getDef()); // @v10.3.1
+						p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 					}
 				}
 				break;
@@ -816,10 +865,8 @@ int PPObjBill::Reckon(PPID paymBillID, PPID debtBillID, PPID reckonOpID, PPID * 
 		P_Tbl->GetAmount(paymBillID, PPAMT_MAIN,    cur_id, &amt_paym);
 		P_Tbl->GetAmount(paymBillID, PPAMT_PAYMENT, cur_id, &amt_tmp);
 		amt_paym  -= amt_tmp;
-		// @v10.3.2 {
 		if(negativePayment)
 			amt_paym = -amt_paym;
-		// } @v10.3.2
 		P_Tbl->GetAmount(debtBillID, PPAMT_PAYMENT, cur_id, &amt_tmp);
 		amt_debt   = BR2(bill_rec.Amount) - amt_tmp;
 		amt_reckon = MIN(amt_debt, amt_paym);
@@ -852,11 +899,9 @@ int PPObjBill::Reckon(PPID paymBillID, PPID debtBillID, PPID reckonOpID, PPID * 
 			THROW(FillTurnList(&pack));
 			THROW(TurnPacket(&pack, 0));
 			ASSIGN_PTR(pReckonBillID, pack.Rec.ID);
-			// @v10.3.3 {
 			if(negativePayment && !(paym_bill_rec.Flags2 & BILLF2_REVERSEDEBT)) {
 				THROW(P_Tbl->SetRecFlag2(paymBillID, BILLF2_REVERSEDEBT, 1, 0));
 			}
-			// } @v10.3.3 
 		}
 		else
 			ok = -1;

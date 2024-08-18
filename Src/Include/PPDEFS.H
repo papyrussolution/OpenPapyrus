@@ -1506,32 +1506,33 @@
 //
 // Типы ассоциаций
 //
-#define PPASS_ALTGOODSGRP       1L // Альтернативные группы товаров
-#define PPASS_BILLSET           2L // Набор документов                                ***
-#define PPASS_GOODSSTRUC        3L // Компоненты структуры товара
-#define PPASS_GENGOODS          4L // Обобщенный товар
-#define PPASS_PERSONPOST        5L // Должность персоналии (в штатном расписании)
-#define PPASS_PAYMBILLPOOL      6L // Пул зачетных оплат                      ***
-#define PPASS_OPBILLPOOL        7L // Операционный пул документов             ***
-#define PPASS_CSESSBILLPOOL     8L // Пул документов списания кассовой сессии ***
-#define PPASS_GOODSBASKET      10L // Корзина товаров
-#define PPASS_GROUPARTICLE     11L // Группирующая статья аналитического учета
-#define PPASS_ADDRESSBOOK      12L // Адресная книга (На каждого пользователя своя)
-#define PPASS_PERSONREL        13L // Связи между персоналиями (managed by PersonCore)
-#define PPASS_TSESSBILLPOOL    14L // Пул документов списания технологической сессии ***
-#define PPASS_GOODS2LOC        15L // Ассоциация товар(группа товаров)-склад
-#define PPASS_CSDBILLPOOL      16L // Пул документов покрытия дефицита по кассовым сессиям
-#define PPASS_GOODS2SUPPL      17L // Ассоциация товар (группа товаров)-поставщик
-#define PPASS_TODOBILLPOOL     18L // Пул документов по задачам
-#define PPASS_PRJBILLPOOL      19L // Пул документов по проектам
-#define PPASS_PRJPHASEBILLPOOL 20L // Пул документов по фазам проектов
-#define PPASS_TSDBILLPOOL      21L // Пул документов покрытия дефицита по технологическим сессиям
-#define PPASS_GOODS2CASHNODE   22L // Ассоциация товар(группа товаров)-кассовый узел
-#define PPASS_GOODS2WAREPLACE  23L // Ассоциация товар(группа товаров)-место хранения. Допускает дублирование: с одним товаром может быть сопоставлено более одного места хранения //
+#define PPASS_ALTGOODSGRP        1L // Альтернативные группы товаров
+#define PPASS_BILLSET            2L // Набор документов                                ***
+#define PPASS_GOODSSTRUC         3L // Компоненты структуры товара
+#define PPASS_GENGOODS           4L // Обобщенный товар
+#define PPASS_PERSONPOST         5L // Должность персоналии (в штатном расписании)
+#define PPASS_PAYMBILLPOOL       6L // Пул зачетных оплат                      ***
+#define PPASS_OPBILLPOOL         7L // Операционный пул документов             ***
+#define PPASS_CSESSBILLPOOL      8L // Пул документов списания кассовой сессии ***
+#define PPASS_GOODSBASKET       10L // Корзина товаров
+#define PPASS_GROUPARTICLE      11L // Группирующая статья аналитического учета
+#define PPASS_ADDRESSBOOK       12L // Адресная книга (На каждого пользователя своя)
+#define PPASS_PERSONREL         13L // Связи между персоналиями (managed by PersonCore)
+#define PPASS_TSESSBILLPOOL     14L // Пул документов списания технологической сессии ***
+#define PPASS_GOODS2LOC         15L // Ассоциация товар(группа товаров)-склад
+#define PPASS_CSDBILLPOOL       16L // Пул документов покрытия дефицита по кассовым сессиям
+#define PPASS_GOODS2SUPPL       17L // Ассоциация товар (группа товаров)-поставщик
+#define PPASS_TODOBILLPOOL      18L // Пул документов по задачам
+#define PPASS_PRJBILLPOOL       19L // Пул документов по проектам
+#define PPASS_PRJPHASEBILLPOOL  20L // Пул документов по фазам проектов
+#define PPASS_TSDBILLPOOL       21L // Пул документов покрытия дефицита по технологическим сессиям
+#define PPASS_GOODS2CASHNODE    22L // Ассоциация товар(группа товаров)-кассовый узел
+#define PPASS_GOODS2WAREPLACE   23L // Ассоциация товар(группа товаров)-место хранения. Допускает дублирование: с одним товаром может быть сопоставлено более одного места хранения //
 // @v10.8.12 #define PPASS_AGTBILLPOOL      24L // @v7.0.0 @construction Пул документов, сопоставленных с документом соглашения //
-#define PPASS_CHECKINPSNTSES   25L // PPCheckInPersonItem Регистрация персоналий в технологических сессиях
-#define PPASS_GOODSCOMP	       26L // Ассоциация товара и его компонента
-#define PPASS_GOODSSTRUC_AR    27L // @v12.0.6 Компоненты структуры товара (аналитические статьи)
+#define PPASS_CHECKINPSNTSES    25L // PPCheckInPersonItem Регистрация персоналий в технологических сессиях
+#define PPASS_GOODSCOMP	        26L // Ассоциация товара и его компонента
+#define PPASS_GOODSSTRUC_AR     27L // @v12.0.6 Компоненты структуры товара (аналитические статьи)
+#define PPASS_ORDACCOMPBILLPOOL 28L // @v12.0.11 Пул документов, сопуствующих списанию заказа в отгрузку
 //
 // Категории документов. Применяются в PPViewBill.
 // Перечисление BrowseBillsType (pp.h) однозначно проецируется в эти константы.

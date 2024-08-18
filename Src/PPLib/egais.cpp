@@ -10595,12 +10595,132 @@ int PrcssrAlcReport::RefCollection::Store(int use_ta)
 //
 //
 //
-EgaisMarkAutoSelector::EgaisMarkAutoSelector(PPEgaisProcessor * pEgPrc) : P_EgPrc(pEgPrc)
+EgaisMarkAutoSelector::_MarkEntry::_MarkEntry() : Rest(0.0)
+{
+}
+
+EgaisMarkAutoSelector::_TerminalEntry::_TerminalEntry() : GoodsID(0), LotID(0), LotDate(ZERODATE), Qtty(0.0)
+{
+}
+
+EgaisMarkAutoSelector::_TerminalEntry::_TerminalEntry(const _TerminalEntry & rS)
+{
+	Copy(rS);
+}
+
+EgaisMarkAutoSelector::_TerminalEntry & FASTCALL EgaisMarkAutoSelector::_TerminalEntry::operator = (const _TerminalEntry & rS)
+{
+	Copy(rS);
+	return *this;
+}
+		
+bool FASTCALL EgaisMarkAutoSelector::_TerminalEntry::Copy(const EgaisMarkAutoSelector::_TerminalEntry & rS)
+{
+	GoodsID = rS.GoodsID;
+	LotID = rS.LotID;
+	LotDate = rS.LotDate;
+	Qtty = rS.Qtty;
+	TSCollection_Copy(ML, rS.ML);
+	return true;
+}
+
+EgaisMarkAutoSelector::Entry::Entry() : GsID(0)
+{
+}
+		
+EgaisMarkAutoSelector::Entry::Entry(const Entry & rS)
+{
+	Copy(rS);
+}
+
+EgaisMarkAutoSelector::Entry & FASTCALL EgaisMarkAutoSelector::Entry::operator = (const Entry & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+bool FASTCALL EgaisMarkAutoSelector::Entry::Copy(const Entry & rS)
+{
+	GsID = rS.GsID;
+	TSCollection_Copy(Te, rS.Te);
+	return true;
+}
+
+EgaisMarkAutoSelector::ResultBlock::ResultBlock(PPID goodsID, double qtty) : GoodsID(goodsID), Qtty(qtty), VolumeQtty(0.0)
+{
+}
+		
+EgaisMarkAutoSelector::ResultBlock::ResultBlock(const ResultBlock & rS)
+{
+	Copy(rS);
+}
+		
+EgaisMarkAutoSelector::ResultBlock & FASTCALL EgaisMarkAutoSelector::ResultBlock::operator = (const ResultBlock & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+bool FASTCALL EgaisMarkAutoSelector::ResultBlock::Copy(const ResultBlock & rS)
+{
+	GoodsID = rS.GoodsID;
+	Qtty = rS.Qtty;
+	VolumeQtty = rS.VolumeQtty;
+	TSCollection_Copy(*this, rS);
+	return true;
+}
+
+EgaisMarkAutoSelector::EgaisMarkAutoSelector(PPEgaisProcessor * pEgPrc) : P_EgPrc(pEgPrc), IsInitialized(false)
 {
 }
 
 EgaisMarkAutoSelector::~EgaisMarkAutoSelector()
 {
+}
+
+int EgaisMarkAutoSelector::Helper_ProcessLot(PPID goodsStrucID, const ReceiptTbl::Rec & rLotRec, double phQtty, Entry ** ppEntry, ResultBlock & rResult)
+{
+	assert(ppEntry);
+	int    ok = -1;
+	SString temp_buf;
+	ObjTagCore & r_tagc = PPRef->Ot;
+	if(r_tagc.GetTagStr(PPOBJ_LOT, rLotRec.ID, PPTAG_LOT_FSRARINFB, temp_buf) > 0) {
+		uint  refb_idx = 0;
+		if(SearchRefB(RecentEgaisStock, temp_buf, &refb_idx)) {
+			PPObjBill * p_bobj = BillObj;
+			_TerminalEntry * p_te = 0;
+			SString mark_buf;
+			StringSet ss_ext_codes;
+			if(p_bobj->GetMarkListByLot(rLotRec.ID, ss_ext_codes) > 0) {
+				for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
+					const bool iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
+					if(iemr) {
+						assert(mark_buf.NotEmpty());
+						if(!(*ppEntry)) {
+							(*ppEntry) = rResult.CreateNewItem();
+							THROW_SL(*ppEntry);
+							(*ppEntry)->GsID = goodsStrucID;
+						}
+						if(!p_te) {
+							p_te = (*ppEntry)->Te.CreateNewItem();
+							THROW_SL(p_te);
+							p_te->GoodsID = rLotRec.GoodsID;
+							p_te->LotID = rLotRec.ID;
+							p_te->LotDate = rLotRec.Dt;
+							p_te->Qtty = rLotRec.Quantity;
+						}
+						_MarkEntry * p_me = p_te->ML.CreateNewItem();
+						THROW_SL(p_me);
+						p_me->Mark = mark_buf;
+						p_me->Rest = 1.0; // @?
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 int EgaisMarkAutoSelector::Helper(PPID goodsID, double qtty, ResultBlock & rResult)
@@ -10613,10 +10733,12 @@ int EgaisMarkAutoSelector::Helper(PPID goodsID, double qtty, ResultBlock & rResu
 		SString mark_buf;
 		StringSet ss_ext_codes;
 		Goods2Tbl::Rec goods_rec; // запись основного товара (который непосредственно продается)
+		Goods2Tbl::Rec inner_goods_rec;
 		Goods2Tbl::Rec org_goods_rec; // запись оригинального товара (из которого был произведен основной товар)
 		PPGoodsType gt_rec;
 		PPObjUnit unit_obj;
 		double main_goods_liter_ratio = 0.0;
+		double inner_goods_liter_ratio = 0.0;
 		if(GObj.Fetch(goodsID, &goods_rec) > 0) {
 			if(goods_rec.PhUnitID && goods_rec.PhUPerU > 0.0) {
 				unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_LITER, &main_goods_liter_ratio);
@@ -10626,6 +10748,7 @@ int EgaisMarkAutoSelector::Helper(PPID goodsID, double qtty, ResultBlock & rResu
 				unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &main_goods_liter_ratio);
 			}
 			if(main_goods_liter_ratio > 0.0) {
+				ObjTagCore & r_tagc = PPRef->Ot;
 				PPGoodsStruc::Ident gsi(goodsID, GSF_COMPL, GSF_PARTITIAL);
 				TSCollection <PPGoodsStruc> gs_list;
 				LotArray lot_list;
@@ -10635,90 +10758,52 @@ int EgaisMarkAutoSelector::Helper(PPID goodsID, double qtty, ResultBlock & rResu
 					if(p_gs) {
 						PPGoodsStrucItem gs_item;
 						double item_qtty = 0.0;
-						Entry * p_entry = 0;
 						for(uint gs_pos = 0; p_gs->EnumItemsExt(&gs_pos, &gs_item, 0, qtty, &item_qtty) > 0;) {
-							if(P_EgPrc->IsAlcGoods(gs_item.GoodsID)) {
-								lot_list.clear();
-								p_trfr->Rcpt.GetList(gs_item.GoodsID, 0, 0, ZERODATE, ReceiptCore::glfWithExtCodeOnly, &lot_list);
-								if(lot_list.getCount()) {
-									for(uint lotidx = 0; lotidx < lot_list.getCount(); lotidx++) {
-										const ReceiptTbl::Rec & r_lot_rec = lot_list.at(lotidx);
-										_TerminalEntry * p_te = 0;
-										if(p_bobj->GetMarkListByLot(r_lot_rec.ID, ss_ext_codes) > 0) {
-											for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
-												const bool iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-												if(iemr) {
-													assert(mark_buf.NotEmpty());
-													if(!p_entry) {
-														p_entry = rResult.CreateNewItem();
-														THROW_SL(p_entry);
-														p_entry->GsID = p_gs->Rec.ID;
-													}
-													if(!p_te) {
-														p_te = p_entry->Te.CreateNewItem();
-														THROW_SL(p_te);
-														p_te->GoodsID = gs_item.GoodsID;
-														p_te->LotID = r_lot_rec.ID;
-														p_te->LotDate = r_lot_rec.Dt;
-														p_te->Qtty = r_lot_rec.Quantity;
-													}
-													_MarkEntry * p_me = p_te->ML.CreateNewItem();
-													THROW_SL(p_me);
-													p_me->Mark = mark_buf;
-													p_me->Rest = 1.0; // @?
+							if(GObj.Fetch(gs_item.GoodsID, &inner_goods_rec) > 0) {
+								if(inner_goods_rec.PhUnitID && inner_goods_rec.PhUPerU > 0.0) {
+									unit_obj.TranslateToBase(inner_goods_rec.PhUnitID, SUOM_LITER, &inner_goods_liter_ratio);
+									inner_goods_liter_ratio *= inner_goods_rec.PhUPerU;
+								}
+								else {
+									unit_obj.TranslateToBase(inner_goods_rec.UnitID, SUOM_LITER, &inner_goods_liter_ratio);
+								}
+								if(inner_goods_liter_ratio > 0.0) {
+									Entry * p_entry_component = 0;
+									if(P_EgPrc->IsAlcGoods(gs_item.GoodsID)) {
+										lot_list.clear();
+										p_trfr->Rcpt.GetList(gs_item.GoodsID, 0, 0, ZERODATE, ReceiptCore::glfWithExtCodeOnly, &lot_list);
+										if(lot_list.getCount()) {
+											for(uint lotidx = 0; lotidx < lot_list.getCount(); lotidx++) {
+												const ReceiptTbl::Rec & r_lot_rec = lot_list.at(lotidx);
+												double inner_phqtty = item_qtty * inner_goods_liter_ratio;
+												const int plr = Helper_ProcessLot(p_gs->Rec.ID, r_lot_rec, inner_phqtty, &p_entry_component, rResult);
+												THROW(plr);
+												if(plr > 0)
 													ok = 1;
-												}
 											}
 										}
 									}
-								}
-							}
-							else {
-								//int r = Helper(gs_item.GoodsID, qtty/*@wrong*/, rResult); // @recursion
-								//THROW(r);
-								//if(r > 0)
-								//	ok = 1;
-								PPGoodsStruc::Ident gsi_inner(gs_item.GoodsID, GSF_SUBST, 0);
-								TSCollection <PPGoodsStruc> gs_list_inner;
-								GObj.LoadGoodsStruc(gsi_inner, gs_list_inner);
-								for(uint gsinneridx = 0; gsinneridx < gs_list_inner.getCount(); gsinneridx++) {
-									const PPGoodsStruc * p_gs_inner = gs_list_inner.at(gsinneridx);
-									if(p_gs_inner) {
-										PPGoodsStrucItem gs_inner_item;
-										double inner_item_qtty = 0.0;
-										Entry * p_entry = 0;
-										for(uint gs_inner_pos = 0; p_gs_inner->EnumItemsExt(&gs_inner_pos, &gs_inner_item, 0, qtty, &inner_item_qtty) > 0;) {
-											if(P_EgPrc->IsAlcGoods(gs_inner_item.GoodsID)) {
-												lot_list.clear();
-												p_trfr->Rcpt.GetList(gs_inner_item.GoodsID, 0, 0, ZERODATE, ReceiptCore::glfWithExtCodeOnly, &lot_list);
-												if(lot_list.getCount()) {
-													for(uint lotidx = 0; lotidx < lot_list.getCount(); lotidx++) {
-														const ReceiptTbl::Rec & r_lot_rec = lot_list.at(lotidx);
-														_TerminalEntry * p_te = 0;
-														if(p_bobj->GetMarkListByLot(r_lot_rec.ID, ss_ext_codes) > 0) {
-															for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
-																const bool iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-																if(iemr) {
-																	assert(mark_buf.NotEmpty());
-																	if(!p_entry) {
-																		p_entry = rResult.CreateNewItem();
-																		THROW_SL(p_entry);
-																		p_entry->GsID = p_gs_inner->Rec.ID;
-																	}
-																	if(!p_te) {
-																		p_te = p_entry->Te.CreateNewItem();
-																		THROW_SL(p_te);
-																		p_te->GoodsID = gs_inner_item.GoodsID;
-																		p_te->LotID = r_lot_rec.ID;
-																		p_te->LotDate = r_lot_rec.Dt;
-																		p_te->Qtty = r_lot_rec.Quantity;
-																	}
-																	_MarkEntry * p_me = p_te->ML.CreateNewItem();
-																	THROW_SL(p_me);
-																	p_me->Mark = mark_buf;
-																	p_me->Rest = 1.0; // @?
+									else {
+										PPGoodsStruc::Ident gsi_inner(gs_item.GoodsID, GSF_SUBST, 0);
+										TSCollection <PPGoodsStruc> gs_list_inner;
+										GObj.LoadGoodsStruc(gsi_inner, gs_list_inner);
+										for(uint gsinneridx = 0; gsinneridx < gs_list_inner.getCount(); gsinneridx++) {
+											const PPGoodsStruc * p_gs_inner = gs_list_inner.at(gsinneridx);
+											if(p_gs_inner) {
+												PPGoodsStrucItem gs_inner_item;
+												double inner_item_qtty = 0.0;
+												for(uint gs_inner_pos = 0; p_gs_inner->EnumItemsExt(&gs_inner_pos, &gs_inner_item, 0, item_qtty, &inner_item_qtty) > 0;) {
+													if(P_EgPrc->IsAlcGoods(gs_inner_item.GoodsID)) {
+														lot_list.clear();
+														p_trfr->Rcpt.GetList(gs_inner_item.GoodsID, 0, 0, ZERODATE, ReceiptCore::glfWithExtCodeOnly, &lot_list);
+														if(lot_list.getCount()) {
+															for(uint lotidx = 0; lotidx < lot_list.getCount(); lotidx++) {
+																const ReceiptTbl::Rec & r_lot_rec = lot_list.at(lotidx);
+																double inner_phqtty = 1.0; // @todo
+																const int plr = Helper_ProcessLot(p_gs_inner->Rec.ID, r_lot_rec, inner_phqtty, &p_entry_component, rResult);
+																THROW(plr);
+																if(plr > 0)
 																	ok = 1;
-																}
 															}
 														}
 													}
@@ -10738,6 +10823,132 @@ int EgaisMarkAutoSelector::Helper(PPID goodsID, double qtty, ResultBlock & rResu
 	return ok;
 }
 
+/*static*/bool EgaisMarkAutoSelector::SearchRefBEntry(const TSVector <RefBEntry> & rList, const RefBEntry & rKey, uint * pPos)
+{
+	bool result = false;
+	uint idx = 0;
+	if(rList.getCount() && !isempty(rKey.RefB)) {
+		for(uint i = 0; !result && i < rList.getCount(); i++) {
+			const RefBEntry & r_item = rList.at(i);
+			if(sstreqi_ascii(r_item.RefB, rKey.RefB)) {
+				idx = i;
+				result = true;
+			}
+		}
+	}
+	ASSIGN_PTR(pPos, idx);
+	return result;
+}
+
+/*static*/bool EgaisMarkAutoSelector::SearchRefB(const TSVector <RefBEntry> & rList, const char * pRefB, uint * pPos)
+{
+	bool result = false;
+	uint idx = 0;
+	if(rList.getCount() && !isempty(pRefB)) {
+		for(uint i = 0; !result && i < rList.getCount(); i++) {
+			const RefBEntry & r_item = rList.at(i);
+			if(sstreqi_ascii(r_item.RefB, pRefB)) {
+				idx = i;
+				result = true;
+			}
+		}
+	}
+	ASSIGN_PTR(pPos, idx);
+	return result;
+}
+
+int EgaisMarkAutoSelector::GetRecentEgaisStock(TSVector <RefBEntry> & rResultList)
+{
+	int    ok = -1;
+	SString temp_buf;
+	PPID   stock_op_id = 0; // Вид операции фиксации остатков егаис (драфт-документ, чаще всего это - PPOPK_EDI_STOCK)
+	PPObjOprKind op_obj;
+	{
+		PPID   op_id = 0;
+		if(op_obj.GetEdiStockOp(&op_id, 1)) {
+			stock_op_id = op_id;
+		}
+	}
+	if(stock_op_id) {
+		PPObjBill * p_bobj = BillObj;
+		BillCore * p_billc = p_bobj->P_Tbl;
+		ObjTagCore & r_tagc = PPRef->Ot;
+#ifdef NDEBUG
+		const long back_days = 1;
+#else
+		const long back_days = 60;
+#endif
+		const char * p_code_suffix = "-R1";
+		PPIDArray loc_list;
+		LAssocArray loc_to_date_list;
+		LDATE recent_date = ZERODATE;
+		BillTbl::Rec bill_rec;
+		{
+			BillTbl::Key2 k2;
+			k2.OpID = stock_op_id;
+			k2.Dt   = MAXDATE;
+			k2.BillNo = MAXLONG;
+			const long max_days_for_survey = 30;
+			if(p_billc->search(2, &k2, spLe) && k2.OpID == stock_op_id) do {
+				p_billc->copyBufTo(&bill_rec);
+				if(!p_code_suffix || (temp_buf = bill_rec.Code).CmpSuffix(p_code_suffix, 0) == 0) {
+					if(!recent_date)
+						recent_date = bill_rec.Dt;
+					else if(diffdate(recent_date, bill_rec.Dt) > max_days_for_survey) {
+						break;
+					}
+					{
+						uint _p = 0;
+						if(loc_to_date_list.Search(bill_rec.LocID, &_p)) {
+							;
+						}
+						else {
+							loc_to_date_list.Add(bill_rec.LocID, static_cast<long>(static_cast<ulong>(bill_rec.Dt)));
+						}
+					}
+				}
+			} while(p_billc->search(2, &k2, spNext) && k2.OpID == stock_op_id);
+		}
+		for(uint i = 0; i < loc_to_date_list.getCount(); i++) {
+			const PPID loc_id = loc_to_date_list.at(i).Key;
+			LDATE dt;
+			dt.v = static_cast<ulong>(loc_to_date_list.at(i).Val);
+			DateRange period;
+			period.Set(dt, dt);
+			for(DateIter di(&period); p_billc->EnumByOpr(stock_op_id, &di, &bill_rec) > 0;) {
+				if(bill_rec.LocID == loc_id && (!p_code_suffix || (temp_buf = bill_rec.Code).CmpSuffix(p_code_suffix, 0) == 0)) {
+					PPBillPacket bpack;
+					if(p_bobj->ExtractPacket(bill_rec.ID, &bpack) > 0) {
+						for(uint tidx = 0; tidx < bpack.GetTCount(); tidx++) {
+							const PPTransferItem & r_ti = bpack.ConstTI(tidx);
+							bpack.LTagL.GetNumber(PPTAG_LOT_FSRARINFB, tidx, temp_buf);
+							if(temp_buf.NotEmptyS()) {
+								RefBEntry rbentry;
+								STRNSCPY(rbentry.RefB, temp_buf);
+								rbentry.GoodsID = r_ti.GoodsID;
+								rbentry.LocID = bpack.Rec.LocID;
+								rbentry.StockBillID = bpack.Rec.ID;
+								rbentry.StockBillDt = bpack.Rec.Dt;
+								rbentry.StockBillRbb = r_ti.RByBill;
+								rbentry.Rest = fabs(r_ti.Quantity_);
+								uint found_idx = 0;
+								if(SearchRefBEntry(rResultList, rbentry, &found_idx)) {
+									rResultList.at(found_idx).Rest = rbentry.Rest;
+								}
+								else {
+									rResultList.insert(&rbentry);
+								}
+								ok = 1;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int EgaisMarkAutoSelector::Run(ResultBlock & rResult)
 {
 	int    ok = -1;
@@ -10746,7 +10957,11 @@ int EgaisMarkAutoSelector::Run(ResultBlock & rResult)
 		if(rResult.Qtty != 0.0 && GObj.Fetch(rResult.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
 			PPGoodsType gt_rec;
 			if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_EGAISAUTOWO) {
-				if(Helper(rResult.GoodsID, rResult.Qtty, rResult) > 0) {
+				if(!IsInitialized) {
+					GetRecentEgaisStock(RecentEgaisStock);
+				}
+				const int r = Helper(rResult.GoodsID, rResult.Qtty, rResult);
+				if(r > 0) {
 					assert(rResult.getCount());
 					LotExtCodeCore * p_lotxct = P_EgPrc->GetLecT();
 					if(p_lotxct) {

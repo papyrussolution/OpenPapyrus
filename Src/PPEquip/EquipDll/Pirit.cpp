@@ -1451,8 +1451,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					CreateStr(0.0, in_data);
 				}
 				else {
-					// @v10.4.8 CreateStr(fabs(blk.Vat18Amt), in_data);
-					CreateStr(fabs(blk.Vat20Amt), in_data); // @v10.4.8
+					CreateStr(fabs(blk.Vat20Amt), in_data);
 					CreateStr(fabs(blk.Vat10Amt), in_data);
 					CreateStr(fabs(blk.Vat0Amt), in_data);
 					CreateStr(fabs(blk.VatFreeAmt), in_data);
@@ -1484,7 +1483,6 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			double _vat_rate = 0.0;
 			int   is_vat_free = 0;
 			SetLastItems(cmd, 0);
-			// @v10.1.2 THROW(StartWork());
 			Check.Qtty = (pb.Get("QUANTITY", param_val) > 0) ? param_val.ToReal() : 0.0;
 			Check.PhQtty = (pb.Get("PHQTTY", param_val) > 0) ? param_val.ToReal() : 0.0; // @v11.9.3
 			if(pb.Get("UOMID", param_val) > 0) // @v11.9.5
@@ -1500,15 +1498,15 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.Text = param_val;
 			if(pb.Get("CODE", param_val) > 0)
 				Check.Code = param_val;
-			if(pb.Get("CHZNCODE", param_val) > 0) // @v10.6.12
+			if(pb.Get("CHZNCODE", param_val) > 0)
 				Check.ChZnCode = param_val;
-			if(pb.Get("CHZNGTIN", param_val) > 0) // @v10.7.2
+			if(pb.Get("CHZNGTIN", param_val) > 0)
 				Check.ChZnGTIN = param_val;
-			if(pb.Get("CHZNSERIAL", param_val) > 0) // @v10.7.2
+			if(pb.Get("CHZNSERIAL", param_val) > 0)
 				Check.ChZnSerial = param_val;
-			if(pb.Get("CHZNPARTN", param_val) > 0) // @v10.7.8
+			if(pb.Get("CHZNPARTN", param_val) > 0)
 				Check.ChZnPartN = param_val;
-			if(pb.Get("CHZNPRODTYPE", param_val) > 0) // @v10.7.2
+			if(pb.Get("CHZNPRODTYPE", param_val) > 0)
 				Check.ChZnProdType = param_val.ToLong();
 			if(pb.Get("CHZNPPRESULT", param_val) > 0) // @v11.1.11
 				Check.ChZnPpResult = param_val.ToLong();
@@ -1525,7 +1523,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				if(param_val.IsEmpty() || param_val.IsEqiAscii("yes") || param_val.IsEqiAscii("true") || param_val == "1")
 					is_vat_free = 1;
 			}
-			if(pb.Get("PAYMENTTERMTAG", param_val) > 0) { // @v10.4.1
+			if(pb.Get("PAYMENTTERMTAG", param_val) > 0) {
 				static const SIntToSymbTabEntry ptt_list[] = {
 					{1, "PTT_FULL_PREPAY" },
 					{2, "PTT_PREPAY" },
@@ -1591,7 +1589,6 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		}
 		else if(cmd.IsEqiAscii("PRINTTEXT")) {
 			SetLastItems(cmd, 0);
-			// @v10.1.0 THROW(StartWork());
 			if(pb.Get("FONTSIZE", param_val) > 0)
 				Check.FontSize = param_val.ToLong();
 			if(pb.Get("TEXT", param_val) > 0)
@@ -1682,7 +1679,6 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		}
 		else if(cmd.IsEqiAscii("INCASHMENT")) {
 			SetLastItems(cmd, pInputData);
-			// @v10.1.9 THROW(StartWork());
 			if(pb.Get("AMOUNT", param_val) > 0)
 				Check.IncassAmt = param_val.ToReal();
 			THROW(RunCheck(5));
@@ -1691,7 +1687,6 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			SetLastItems(0, 0);
 			THROW(OpenBox());
 		}
-		// @v10.8.1 {
 		else if(cmd.IsEqiAscii("GETDEVICETIME")) {
 			SString date_buf;
 			SString time_buf;
@@ -1707,7 +1702,6 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			memcpy(pOutputData, str, outSize);
 			//CashDateTime.Z().Cat("Текущая дата на ККМ").CatDiv(':', 2).Cat(date).Space().Cat("Текущее время на ККМ").CatDiv(':', 2).Cat(time);
 		}
-		// } @v10.8.1
 		else if(cmd.IsEqiAscii("GETECRSTATUS")) {
 			THROW(GetStatus(str));
 			if(outSize < str.BufSize()) {
@@ -2509,7 +2503,7 @@ int PiritEquip::RunCheck(int opertype)
 					5 	Комиссионер
 					6 	Агент
 			*/
-			THROW(GetCurFlags(3, flag)); // @v10.7.9 (moved up)
+			THROW(GetCurFlags(3, flag));
 			{
 				uint16 product_type_bytes = 0;
 				uint8  chzn_1162_bytes[128];
@@ -2768,24 +2762,33 @@ int PiritEquip::RunCheck(int opertype)
 					}
 				}
 			}
-			// @v10.7.9 (moved up) THROW(GetCurFlags(3, flag));
 			in_data.Z();
 			(str = Check.Text).Trim(220); // [0..224]
-			CreateStr(str, in_data); // Название товара      // @v9.5.7 ""-->Check.Text
+			CreateStr(str, in_data); // Название товара
 			(str = Check.Code).Trim(13); // [0..18]
-			CreateStr(str, in_data); // Артикул или штрихкод // @v9.5.7 ""-->Check.Code
-			CreateStr(Check.Qtty, in_data);
-			// @vmiller comment
-			/*FormatPaym(Check.Price, str);
-			CreateStr(str, in_data);*/
-			CreateStr(Check.Price, in_data); // @vmiller
-			CreateStr((int)Check.Tax, in_data); // Номер налоговой ставки // @v9.7.1 0-->Check.Tax
+			CreateStr(str, in_data); // Артикул или штрихкод
+			{
+				/* @construction 
+				double qtty = 0.0;
+				double price = 0.0;
+				if(Check.ChZnProdType == 1012 && Check.PhQtty > 0.0 && Check.UomId == SUOM_LITER) { // @v12.0.11 GTCHZNPT_DRAFTBEER_AWR
+					CreateStr(Check.PhQtty, in_data);
+				}
+				else*/ {
+					CreateStr(Check.Qtty, in_data);
+				}
+				// @vmiller comment
+				/*FormatPaym(Check.Price, str);
+				CreateStr(str, in_data);*/
+				CreateStr(Check.Price, in_data); // @vmiller
+			}
+			CreateStr((int)Check.Tax, in_data); // Номер налоговой ставки
 			CreateStr((int)0, in_data);    // Номер товарной позиции
 			CreateStr(Check.Department, in_data); // Номер секции
-			CreateStr((int)0, in_data);    // @v10.4.1 пустой параметр (integer)
-			CreateStr("", in_data);        // @v10.4.1 пустой параметр (string)
-			CreateStr(0.0, in_data);       // @v10.4.1 скидка (real)
-			CreateStr(Check.Ptt, in_data); // @v10.4.1 признак способа расчета (integer)
+			CreateStr((int)0, in_data);    // пустой параметр (integer)
+			CreateStr("", in_data);        // пустой параметр (string)
+			CreateStr(0.0, in_data);       // скидка (real)
+			CreateStr(Check.Ptt, in_data); // признак способа расчета (integer)
 			CreateStr(Check.Stt, in_data); // @erikO v10.4.12 Признак предмета расчета(integer)
 			{
 				const int do_check_ret = 1; // BIN(Check.Price == 0.0); // @v9.9.4 // @v11.2.3 =1
