@@ -75,9 +75,9 @@ private:
 
 	PPObjBill * P_BObj;
 	Transfer  * P_Trfr;
-	PPObjGoodsType GTObj;
-	PPObjGoods     GObj;
-	PPObjTag       TagObj;
+	// @v12.0.12 PPObjGoodsType GtObj;
+	PPObjGoods GObj;
+	PPObjTag   TagObj;
 	PPBillPacket * P_Pack;
 	PPTransferItem Item;
 	const PPTransferItem * P_OrderItem; // Указатель на строку заказа. Передается извне и не изменяется методами класса.

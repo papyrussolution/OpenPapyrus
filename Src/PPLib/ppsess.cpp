@@ -3217,7 +3217,7 @@ private:
 	}
 	virtual void Run()
 	{
-		const int   do_debug_log = 0; // @debug
+		const bool  do_debug_log = false; // @debug
 		const long  pollperiod_phnsvc = 1000;
 		const long  pollperiod_sj = 3000;
 		const long  pollperiod_mqc = 500;
@@ -3225,9 +3225,9 @@ private:
 		EvPollTiming pt_phnsvc(pollperiod_phnsvc, false);
 		EvPollTiming pt_mqc(pollperiod_mqc, false);
 		EvPollTiming pt_purge(3600000, true); // этот тайминг не надо исполнять при запуске. Потому registerImmediate = 1
-		const int  use_sj_scan_alg2 = 0;
+		const bool  use_sj_scan_alg2 = true; // @v12.0.12 false-->true
 		SString msg_buf, temp_buf;
-		DBRowId last_sj_rowid; // @v10.4.4
+		DBRowId last_sj_rowid;
 		PPAdviseEventVector temp_list;
 		PhnSvcChannelStatusPool chnl_status_list;
 		PhnSvcChannelStatus chnl_status;
@@ -3239,11 +3239,9 @@ private:
 		AsteriskAmiClient * p_phnsvc_cli = CreatePhnSvcClient(0);
 		LDATETIME sj_since;
 		const long __cycle_hs = (p_mqb_cli ? 37 : (p_phnsvc_cli ? 83 : 293)); // Период таймера в сотых долях секунды (37)
-		// @v10.6.0 {
 		int    queue_stat_flags_inited = 0;
 		SETFLAG(State, stPhnSvc, p_phnsvc_cli);
 		SETFLAG(State, stMqb, p_mqb_cli);
-		// } @v10.6.0
 		THROW(DS.OpenDictionary2(&LB, PPSession::odfDontInitSync));
 		THROW_MEM(P_Sj = new SysJournal);
 		if(use_sj_scan_alg2) {
@@ -3290,10 +3288,11 @@ private:
 						}
 						if(pt_sj.IsTime()) {
 							if(SETIFZ(p_queue, DS.GetAdviseEventQueue(0))) {
-								// @v10.6.0 {
-								// Мы вынуждены устанавливать флаги статистики очереди в рабочем цикле из-за
-								// того, что в момент старта потока очередь может еще и не существовать.
 								if(!queue_stat_flags_inited) {
+									//
+									// Мы вынуждены устанавливать флаги статистики очереди в рабочем цикле из-за
+									// того, что в момент старта потока очередь может еще и не существовать 
+									//
 									if(State & (stMqb|stPhnSvc)) {
 										PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(0);
 										if(p_queue) {
@@ -3307,7 +3306,6 @@ private:
 									}
 									queue_stat_flags_inited = 1;
 								}
-								// } @v10.6.0
 								LDATETIME last_ev_dtm = ZERODATETIME;
 								SysJournalTbl::Key0 k0, k0_;
 								if(use_sj_scan_alg2) {
@@ -3323,6 +3321,7 @@ private:
 										}
 									}
 									else {
+										P_Sj->getDirect(0, &k0, last_sj_rowid); // @v12.0.12
 										while(P_Sj->search(0, &k0, spNext)) {
 											PPAdviseEvent ev;
 											ev = P_Sj->data;

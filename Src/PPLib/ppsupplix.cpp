@@ -11223,6 +11223,13 @@ int Ostankino::SendRest(StringSet & rSsFileName)
 			}
 		}
 	}
+	// @v12.0.12 @fix {
+	{
+		xmlFreeTextWriter(p_x);
+		p_x = 0;
+		rSsFileName.add(out_file_name); 
+	}
+	// } @v12.0.12 @fix 
 	CATCHZOK
 	xmlFreeTextWriter(p_x);
 	return ok;

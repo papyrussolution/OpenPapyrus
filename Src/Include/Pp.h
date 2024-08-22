@@ -437,6 +437,7 @@ class StyloQDocumentPrereqParam;
 class StyloQPersonEventParam;
 class PPObjTech;
 class PPBillImporter;
+class EgaisMarkAutoSelector;
 
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef int32 PPID; // @v11.6.8 long-->int32
@@ -10246,13 +10247,13 @@ public:
 	// Descr: Идентификаторы текстовых расширений строк чека
 	//
 	enum { // @persistent
-		lnextSerial     = 1, // Серийный номер
-		lnextEgaisMark  = 2, // Марка ЕГАИС
+		lnextSerial             = 1, // Серийный номер
+		lnextEgaisMark          = 2, // Марка ЕГАИС
 		lnextRemoteProcessingTa = 3, // Символ транзакции удаленной обработки строки. Имеет специальное назначение,
 			// сопряженное с предварительной обработкой чека перед проведением через удаленный сервис.
-		lnextChZnSerial = 4, // Серийный номер 'честный знак'
-		lnextChZnGtin   = 5, // GTIN считанный из кода 'честный знак'
-		lnextChZnMark   = 6, // Марка 'честный знак'
+		lnextChZnSerial         = 4, // Серийный номер 'честный знак'
+		lnextChZnGtin           = 5, // GTIN считанный из кода 'честный знак'
+		lnextChZnMark           = 6, // Марка 'честный знак'
 	};
 	struct PreprocessChZnCodeResult { // @flat
 		PreprocessChZnCodeResult();
@@ -15654,6 +15655,7 @@ public:
 		char   Mark[256];   // IN  Код маркировки
 		double TotalOpQtty; // OUT Суммарное операционное количество по всем встреченным строкам чеков (с учетом знака - see CcMarkedEntry::Qtty)
 		TSVector <CcMarkedEntry> CcList;
+		void * P_Extra;     // IN @v12.0.12 Указатель, используемый для привязки внешних данных к этому элементу. 
 		//SBitArray SentList__ToRemove; // @todo Это поле будет удалено в пользу флага CcMarkedEntry::fSent
 	};
 
@@ -24099,7 +24101,7 @@ private:
 #define GTF_EGAISAUTOWO    0x00020000L // @v12.0.7 Специальная опция, позволяющая автоматически определять марки егаис для списания при проведении
 	// кассового чека с товаром, имеющим тип с таким флагом. Сам товар может не идентифицироваться как алкогольный, но если он имеет комплектующую 
 	// товарную структуру, в которую входят алкогольные товары с марками, то формируется специальная алгоритмическая структура для списания долей этих товаров
-	// через егаис (see EgaisMarkAutoSelect)
+	// через егаис.
 
 #define GTCHZNPT_UNKN              -1 // @v11.5.0 Специальное интерфейсное значение, используемое для обозначения того, что товар маркируемый, но категория в терминах честного знака не ясна
 #define GTCHZNPT_UNDEF              0
@@ -50764,7 +50766,7 @@ private:
 	long   State;
 	long   Flags;
 	PPIDArray GoodsList;
-	PPObjGoodsType  GTObj;
+	PPObjGoodsType  GtObj;
 	PPObjGoods      GObj;
 	PPObjAmountType ATObj;
 	BillTotalData * P_Data;
@@ -54975,6 +54977,7 @@ protected:
 	CCheckPacket * P_ChkPack;
 	PPViewCCheck * P_CcView;
 	PPEgaisProcessor * P_EgPrc;
+	EgaisMarkAutoSelector * P_EgMas; // @v12.0.12
 	S_GUID SessUUID;
 	LAssocArray SpcTrtScsList; // Список серий карт со специальной трактовкой
 };
@@ -55090,7 +55093,6 @@ private:
 	//    0 - ошибка
 	//
 	int    ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rChZnBuf);
-	int    EgaisMarkAutoSelect(PPID goodsID, double qtty, SString & rMarkBuf); // @v12.0.7 @construction
 
 	ExtGoodsSelDialog * P_EGSDlg;
 	long   AutoInputTolerance; // Мин среднее время (ms) между вводом символом, ниже которого считается, что данные были введены автоматическим средством ввода (напр. сканером штрихкодов)
@@ -57149,26 +57151,34 @@ public:
 		Entry(const Entry & rS);
 		Entry & FASTCALL operator = (const Entry & rS);
 		bool   FASTCALL Copy(const Entry & rS);
+		const _TerminalEntry * SelectMark(uint * pMarkEntryIdx) const;
 
 		PPID   GsID;     // Идентификатор структуры, из которой сформирован экземпляр this
-		//bool   IsOrList; // Если true, то список Te определяет вариант "один-из", в противном случае это - терминальный элемент.
-		//uint8  Reserve[3]; // @alignment
 		//
 		// Если this связан с конечным компонентом комплектующей структуры, то Te содержит единственный элемент,
-		// если this связан с точкой подстановочной структуры, то Te может содержать более одного елемента.
+		// если this связан с точкой подстановочной структуры, то Te может содержать более одного элемента.
 		//
 		TSCollection <_TerminalEntry> Te;
 	};
-	class ResultBlock : public TSCollection <Entry> {
+	class DocItem : public TSCollection <Entry> {
 	public:
-		ResultBlock(PPID goodsID, double qtty);
-		ResultBlock(const ResultBlock & rS);
-		ResultBlock & FASTCALL operator = (const ResultBlock & rS);
-		bool   FASTCALL Copy(const ResultBlock & rS);
+		DocItem();
+		DocItem(long itemId, PPID goodsID, double qtty);
+		DocItem(const DocItem & rS);
+		DocItem & FASTCALL operator = (const DocItem & rS);
+		bool   FASTCALL Copy(const DocItem & rS);
 
+		long   ItemId;  // Идентификатор для ссылки на исходный документ
 		PPID   GoodsID; // Стартовый товар (который был продан)
 		double Qtty;    // Количество проданного стартового товара
 		double VolumeQtty; // Количество проданного стартового товара в литрах
+	};
+	class ResultBlock : public TSCollection <DocItem> {
+	public:
+		ResultBlock();
+		ResultBlock(const ResultBlock & rS);
+		ResultBlock & FASTCALL operator = (const ResultBlock & rS);
+		bool   FASTCALL Copy(const ResultBlock & rS);
 	};
 	EgaisMarkAutoSelector(PPEgaisProcessor * pEgPrc);
 	~EgaisMarkAutoSelector();
@@ -57189,8 +57199,8 @@ private:
 	};
 	static bool SearchRefBEntry(const TSVector <RefBEntry> & rList, const RefBEntry & rKey, uint * pPos);
 	static bool SearchRefB(const TSVector <RefBEntry> & rList, const char * pRefB, uint * pPos);
-	int    Helper(PPID goodsID, double qtty, ResultBlock & rResult);
-	int    Helper_ProcessLot(PPID goodsStrucID, const ReceiptTbl::Rec & rLotRec, double phQtty, Entry ** ppEntry, ResultBlock & rResult);
+	int    Helper(PPID goodsID, double qtty, DocItem & rResult);
+	int    Helper_ProcessLot(PPID goodsStrucID, const ReceiptTbl::Rec & rLotRec, double qtty, Entry ** ppEntry, DocItem & rResult);
 	int    GetRecentEgaisStock(TSVector <RefBEntry> & rResultList);
 
 	PPObjGoods GObj;

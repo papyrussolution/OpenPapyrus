@@ -439,7 +439,7 @@ private:
 	GoodsCore     G2Tbl;
 	GoodsTbl      GTbl;
 	GoodsGroupTbl GGTbl;
-	PPObjGoodsTax GTObj;
+	PPObjGoodsTax GtxObj;
 	ObjSyncTbl    SyncTbl;
 };
 
@@ -557,7 +557,7 @@ int GoodsConvertion270::ConvertGroupRec(GoodsGroupTbl::Rec * grec, Goods2Tbl::Re
 	}
 	if(grec->VATax != 0 || grec->Excise != 0) {
    	    PPID gtax_id = 0;
-		GTObj.GetByScheme(&gtax_id, grec->VATax, 0, grec->Excise, 0, 0/*use_ta*/);
+		GtxObj.GetByScheme(&gtax_id, grec->VATax, 0, grec->Excise, 0, 0/*use_ta*/);
 	   	g2rec->TaxGrpID = gtax_id;
 	}
 	return ok;
@@ -594,7 +594,7 @@ int GoodsConvertion270::ConvertGoodsRec(GoodsTbl::Rec * grec, Goods2Tbl::Rec * g
 		}
 		else
 			sales_tax = grec->Excise;
-		GTObj.GetByScheme(&gtax_id, grec->VATax, excise, sales_tax, (abs_excise ? GTAXF_ABSEXCISE : 0), 0/*use_ta*/);
+		GtxObj.GetByScheme(&gtax_id, grec->VATax, excise, sales_tax, (abs_excise ? GTAXF_ABSEXCISE : 0), 0/*use_ta*/);
 		g2rec->TaxGrpID = gtax_id;
 	}
 	return ok;

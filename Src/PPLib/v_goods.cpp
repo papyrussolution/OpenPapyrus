@@ -3966,50 +3966,61 @@ int PPViewGoods::ChangeOrder(PPViewBrowser * pW)
 
 void PPViewGoods::Test_EgaisMarkAutoSelector(PPID goodsID)
 {
-	PPLogger logger;
-	PPEgaisProcessor ep(PPEgaisProcessor::cfUseVerByConfig, &logger, 0);
-	EgaisMarkAutoSelector s(&ep);
-	EgaisMarkAutoSelector::ResultBlock result_blk(goodsID, 1.0);
-	s.Run(result_blk);
-	if(result_blk.getCount()) {
-		SString temp_buf;
-		SString line_buf;
-		SString file_name;
-		(file_name = "test-EgaisMarkAutoSelector").CatChar('-').Cat(goodsID).Dot().Cat("out");
-		PPGetFilePath(PPPATH_OUT, file_name, temp_buf);
-		SFile f_out(temp_buf, SFile::mWrite);
-		GetGoodsName(goodsID, temp_buf);
-		temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
-		line_buf = temp_buf;
-		f_out.WriteLine(line_buf.CR());
-		for(uint i = 0; i < result_blk.getCount(); i++) {
-			const EgaisMarkAutoSelector::Entry * p_entry = result_blk.at(i);
-			if(p_entry) {
-				temp_buf.Z().CatEq("struc-id", p_entry->GsID);
-				line_buf.Z().Tab().Cat(temp_buf);
-				f_out.WriteLine(line_buf.CR());
-				for(uint eidx = 0; eidx < p_entry->Te.getCount(); eidx++) {
-					const EgaisMarkAutoSelector::_TerminalEntry * p_te = p_entry->Te.at(eidx);
-					if(p_te) {
-						GetGoodsName(p_te->GoodsID, temp_buf);
-						temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
-						line_buf.Z().Tab(2).Cat(temp_buf).Space().CatEq("lotid", p_te->LotID).Space().Cat(p_te->LotDate, DATF_ISO8601).Space().CatEq("qty", p_te->Qtty, MKSFMTD(0, 3, 0));
-						f_out.WriteLine(line_buf.CR());
-						if(p_te->ML.getCount()) {
-							for(uint mlidx = 0; mlidx < p_te->ML.getCount(); mlidx++) {
-								const EgaisMarkAutoSelector::_MarkEntry * p_me = p_te->ML.at(mlidx);
-								if(p_me) {
-									line_buf.Z().Tab(3).Cat(p_me->Mark).Space().Cat(p_me->Rest, MKSFMTD(0, 3, 0));
+	if(goodsID) {
+		PPLogger logger;
+		PPEgaisProcessor ep(PPEgaisProcessor::cfUseVerByConfig, &logger, 0);
+		EgaisMarkAutoSelector s(&ep);
+		EgaisMarkAutoSelector::ResultBlock result_blk;//(goodsID, 1.0);
+		EgaisMarkAutoSelector::DocItem * p_result_item = result_blk.CreateNewItem();
+		p_result_item->ItemId = 1;
+		p_result_item->GoodsID = goodsID;
+		p_result_item->Qtty = 1.0;
+		s.Run(result_blk);
+		if(result_blk.getCount()) {
+			SString temp_buf;
+			SString line_buf;
+			SString file_name;
+			(file_name = "test-EgaisMarkAutoSelector").CatChar('-').Cat(goodsID).Dot().Cat("out");
+			PPGetFilePath(PPPATH_OUT, file_name, temp_buf);
+			SFile f_out(temp_buf, SFile::mWrite);
+			GetGoodsName(goodsID, temp_buf);
+			temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+			line_buf = temp_buf;
+			f_out.WriteLine(line_buf.CR());
+			for(uint i = 0; i < result_blk.getCount(); i++) {
+				const EgaisMarkAutoSelector::DocItem * p_item = result_blk.at(i);
+				if(p_item) {
+					for(uint ei = 0; ei < p_item->getCount(); ei++) {
+						const EgaisMarkAutoSelector::Entry * p_entry = p_item->at(ei);
+						if(p_entry) {
+							temp_buf.Z().CatEq("struc-id", p_entry->GsID);
+							line_buf.Z().Tab().Cat(temp_buf);
+							f_out.WriteLine(line_buf.CR());
+							for(uint eidx = 0; eidx < p_entry->Te.getCount(); eidx++) {
+								const EgaisMarkAutoSelector::_TerminalEntry * p_te = p_entry->Te.at(eidx);
+								if(p_te) {
+									GetGoodsName(p_te->GoodsID, temp_buf);
+									temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+									line_buf.Z().Tab(2).Cat(temp_buf).Space().CatEq("lotid", p_te->LotID).Space().Cat(p_te->LotDate, DATF_ISO8601).Space().CatEq("qty", p_te->Qtty, MKSFMTD(0, 3, 0));
 									f_out.WriteLine(line_buf.CR());
+									if(p_te->ML.getCount()) {
+										for(uint mlidx = 0; mlidx < p_te->ML.getCount(); mlidx++) {
+											const EgaisMarkAutoSelector::_MarkEntry * p_me = p_te->ML.at(mlidx);
+											if(p_me) {
+												line_buf.Z().Tab(3).Cat(p_me->Mark).Space().Cat(p_me->Rest, MKSFMTD(0, 3, 0));
+												f_out.WriteLine(line_buf.CR());
+											}
+										}
+									}
 								}
 							}
+							/*for(uint ssp = 0; p_entry->SsMark.get(&ssp, temp_buf);) {
+								line_buf.Z().Tab(2).Cat(temp_buf);
+								f_out.WriteLine(line_buf.CR());
+							}*/
 						}
 					}
 				}
-				/*for(uint ssp = 0; p_entry->SsMark.get(&ssp, temp_buf);) {
-					line_buf.Z().Tab(2).Cat(temp_buf);
-					f_out.WriteLine(line_buf.CR());
-				}*/
 			}
 		}
 	}

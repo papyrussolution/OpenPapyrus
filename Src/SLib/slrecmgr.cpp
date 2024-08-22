@@ -1,5 +1,6 @@
 // SLRECMGR.CPP
 // Copyright (c) A.Sobolev 2024
+// @codepage UTF-8
 // @experimental
 //
 #include <slib-internal.h>
@@ -91,7 +92,7 @@ int SRecPageManager::VerifyFreeList()
 {
 	int    ok = 1;
 	{
-		// Перебираем все элементы списка свободных блоков и проверяем их актуальность
+		// РџРµСЂРµР±РёСЂР°РµРј РІСЃРµ СЌР»РµРјРµРЅС‚С‹ СЃРїРёСЃРєР° СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ Рё РїСЂРѕРІРµСЂСЏРµРј РёС… Р°РєС‚СѓР°Р»СЊРЅРѕСЃС‚СЊ
 		const  uint slc = Fl.GetTypeCount();
 		for(uint i = 0; i < slc; i++) {
 			const SRecPageFreeList::SingleTypeList * p_stl = Fl.GetTypeListByIdx(i);
@@ -122,8 +123,8 @@ int SRecPageManager::VerifyFreeList()
 		}
 	}
 	if(ok) {
-		// Теперь перебираем все страницы и если на какой то из них есть свободное пространство,
-		// то ищем соответствие в списке свободных областей
+		// РўРµРїРµСЂСЊ РїРµСЂРµР±РёСЂР°РµРј РІСЃРµ СЃС‚СЂР°РЅРёС†С‹ Рё РµСЃР»Рё РЅР° РєР°РєРѕР№ С‚Рѕ РёР· РЅРёС… РµСЃС‚СЊ СЃРІРѕР±РѕРґРЅРѕРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ,
+		// С‚Рѕ РёС‰РµРј СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РІ СЃРїРёСЃРєРµ СЃРІРѕР±РѕРґРЅС‹С… РѕР±Р»Р°СЃС‚РµР№
 		for(uint seq = 1; seq < LastSeq; seq++) {
 			SDataPage_ * p_page = QueryPageBySeqForReading(seq, 0);
 			if(p_page) {
@@ -166,7 +167,7 @@ int SRecPageManager::WriteToPage(SDataPage_ * pPage, uint64 rowId, const void * 
 	uint64 post_write_rowid = 0;
 	THROW(pPage);
 	THROW(SRecPageManager::SplitRowId(rowId, &seq, &offset));
-	assert(pPage->VerifySeq(seq)); // Вызывающая функция не должна была передать неверное сочетание параметров!
+	assert(pPage->VerifySeq(seq)); // Р’С‹Р·С‹РІР°СЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ РЅРµ РґРѕР»Р¶РЅР° Р±С‹Р»Р° РїРµСЂРµРґР°С‚СЊ РЅРµРІРµСЂРЅРѕРµ СЃРѕС‡РµС‚Р°РЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ!
 	{
 		SRecPageFreeList::Entry new_free_entry;
 		assert(pPage->VerifyOffset(offset));
@@ -199,8 +200,8 @@ int SRecPageManager::Write(uint64 * pRowId, uint pageType, const void * pData, s
 	THROW(p_free_entry);
 	THROW(p_page = QueryPageForWriting(p_free_entry->RowId, pageType, &offset));
 	{
-		const uint64 row_id = p_free_entry->RowId; // Функция WriteToPage изменит free_list и p_free_entry будет указывать
-			// уже на другие данные!
+		const uint64 row_id = p_free_entry->RowId; // Р¤СѓРЅРєС†РёСЏ WriteToPage РёР·РјРµРЅРёС‚ free_list Рё p_free_entry Р±СѓРґРµС‚ СѓРєР°Р·С‹РІР°С‚СЊ
+			// СѓР¶Рµ РЅР° РґСЂСѓРіРёРµ РґР°РЅРЅС‹Рµ!
 		THROW(WriteToPage(p_page, row_id, pData, dataLen));
 		ASSIGN_PTR(pRowId, row_id);
 	}
@@ -218,13 +219,13 @@ int SRecPageManager::UpdateOnPage(SDataPage_ * pPage, uint64 rowId, const void *
 	SRecPageFreeList::UpdGroup ug;
 	THROW(pPage && pPage->IsConsistent());
 	THROW(SRecPageManager::SplitRowId(rowId, &seq, &ofs));
-	assert(pPage->VerifySeq(seq)); // Вызывающая функция не должна была передать неверное сочетание параметров!
+	assert(pPage->VerifySeq(seq)); // Р’С‹Р·С‹РІР°СЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ РЅРµ РґРѕР»Р¶РЅР° Р±С‹Р»Р° РїРµСЂРµРґР°С‚СЊ РЅРµРІРµСЂРЅРѕРµ СЃРѕС‡РµС‚Р°РЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ!
 	THROW(pPage->VerifySeq(seq));
 	{
 		const uint   page_size = pPage->GetSize();
 		const uint32 pfx_size = pPage->ReadRecPrefix(ofs, pfx);
 		THROW(pfx_size);
-		THROW(!(pfx.Flags & SDataPageHeader::RecPrefix::fDeleted)); // Мы изменяем запись - следовательно блок не может свободным
+		THROW(!(pfx.Flags & SDataPageHeader::RecPrefix::fDeleted)); // РњС‹ РёР·РјРµРЅСЏРµРј Р·Р°РїРёСЃСЊ - СЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ Р±Р»РѕРє РЅРµ РјРѕР¶РµС‚ СЃРІРѕР±РѕРґРЅС‹Рј
 		if(pfx.PayloadSize == dataLen) {
 			SRecPageFreeList::Entry new_free_entry;
 			const uint64 post_write_rowid = pPage->Write(ofs, pData, dataLen, &new_free_entry);
@@ -261,14 +262,14 @@ int SRecPageManager::UpdateOnPage(SDataPage_ * pPage, uint64 rowId, const void *
 		}
 		else { // (pfx.PayloadSize < dataLen)
 			//bool do_insert_and_delete = true;
-			// Сначала проверим нет ли за изменяемым блоком свободного пространства...
+			// РЎРЅР°С‡Р°Р»Р° РїСЂРѕРІРµСЂРёРј РЅРµС‚ Р»Рё Р·Р° РёР·РјРµРЅСЏРµРјС‹Рј Р±Р»РѕРєРѕРј СЃРІРѕР±РѕРґРЅРѕРіРѕ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР°...
 			const uint ofs_next = ofs + pfx.TotalSize;
 			if(ofs_next < page_size) {
 				SDataPageHeader::RecPrefix pfx_next;	
 				const uint32 pfx_next_size = pPage->ReadRecPrefix(ofs_next, pfx_next);
 				THROW(pfx_next_size);
 				if(pfx_next.IsDeleted()) {
-					// Предполагаем, что страница нормализована, то есть на ней нет двух или более последовательных свободных блоков
+					// РџСЂРµРґРїРѕР»Р°РіР°РµРј, С‡С‚Рѕ СЃС‚СЂР°РЅРёС†Р° РЅРѕСЂРјР°Р»РёР·РѕРІР°РЅР°, С‚Рѕ РµСЃС‚СЊ РЅР° РЅРµР№ РЅРµС‚ РґРІСѓС… РёР»Рё Р±РѕР»РµРµ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹С… СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ
 					SDataPageHeader::RecPrefix hypot_pfx;
 					hypot_pfx.SetTotalSize(pfx.TotalSize + pfx_next.TotalSize, 0);
 					uint32 hypot_pfx_size = SDataPageHeader::EvaluateRecPrefix(hypot_pfx, 0, 0);
@@ -293,9 +294,9 @@ int SRecPageManager::UpdateOnPage(SDataPage_ * pPage, uint64 rowId, const void *
 			else {
 				THROW(ofs_next == page_size); // @todo @err
 			}
-			assert(oneof2(ok, -1, 1)); // В этой точке ok не может быть равен 0 (только -1 или 1: нулевое значение устанавливается в CATCH ниже)
+			assert(oneof2(ok, -1, 1)); // Р’ СЌС‚РѕР№ С‚РѕС‡РєРµ ok РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРµРЅ 0 (С‚РѕР»СЊРєРѕ -1 РёР»Рё 1: РЅСѓР»РµРІРѕРµ Р·РЅР°С‡РµРЅРёРµ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РІ CATCH РЅРёР¶Рµ)
 			if(ok < 0) {
-				// Мы не смогли справиться с изменением записи в рамках одной страницы: дальнейшая работа на советсти вызывающей функции
+				// РњС‹ РЅРµ СЃРјРѕРіР»Рё СЃРїСЂР°РІРёС‚СЊСЃСЏ СЃ РёР·РјРµРЅРµРЅРёРµРј Р·Р°РїРёСЃРё РІ СЂР°РјРєР°С… РѕРґРЅРѕР№ СЃС‚СЂР°РЅРёС†С‹: РґР°Р»СЊРЅРµР№С€Р°СЏ СЂР°Р±РѕС‚Р° РЅР° СЃРѕРІРµС‚СЃС‚Рё РІС‹Р·С‹РІР°СЋС‰РµР№ С„СѓРЅРєС†РёРё
 			}
 		}
 	}
@@ -306,21 +307,21 @@ int SRecPageManager::UpdateOnPage(SDataPage_ * pPage, uint64 rowId, const void *
 int SRecPageManager::Update(uint64 rowId, uint64 * pNewRowId, uint pageType, const void * pData, size_t dataLen) // @todo
 {
 	//
-	// Функция изменения записи. Тут может быть несколько вариантов:
-	// -- новая запись равна по размеру старой - все очень просто: переписываем данные и все
-	// -- новая запись больше по размеру чем старая - две возможные ветки:
-	//   -- после текущей записи на странице есть свободный блок, которого хватает для измененной записи:
-	//     размечаем увеличенный блок и копируем в него данные. Оставшееся место в ранее свободном блоке
-	//     отправляем в список доступных блоков.
-	//   -- после текущей записи нет свободного блока: удаляем текущую запись и вносим новую запись как обычно
-	//  -- новая запись меньше по размеру чем старая: заново размечаем блок и копируем данные, освободившееся
-	//    пространство кидаем в список свободных блоков
-	//    Здесь есть небольшая дилемма: с точки зрения эффективности использования пространства страниц
-	//    правильно было бы найти наиболее оптимальный с позиции остатка свободный участок среди
-	//    всех страниц данных. Если же смотреть с позиции скорости испольнения, то будет выгоднее
-	//    резместить новую запись там же и оставшийся "хвост" каким бы он ни был кинуть в список свободных.
-	//    Мы воспользуемся вторым методом поскольку перенос записи на другую страницу будет сопровождаться //
-	//    заменой ссылок, что сильно усугубит падение производительности.
+	// Р¤СѓРЅРєС†РёСЏ РёР·РјРµРЅРµРЅРёСЏ Р·Р°РїРёСЃРё. РўСѓС‚ РјРѕР¶РµС‚ Р±С‹С‚СЊ РЅРµСЃРєРѕР»СЊРєРѕ РІР°СЂРёР°РЅС‚РѕРІ:
+	// -- РЅРѕРІР°СЏ Р·Р°РїРёСЃСЊ СЂР°РІРЅР° РїРѕ СЂР°Р·РјРµСЂСѓ СЃС‚Р°СЂРѕР№ - РІСЃРµ РѕС‡РµРЅСЊ РїСЂРѕСЃС‚Рѕ: РїРµСЂРµРїРёСЃС‹РІР°РµРј РґР°РЅРЅС‹Рµ Рё РІСЃРµ
+	// -- РЅРѕРІР°СЏ Р·Р°РїРёСЃСЊ Р±РѕР»СЊС€Рµ РїРѕ СЂР°Р·РјРµСЂСѓ С‡РµРј СЃС‚Р°СЂР°СЏ - РґРІРµ РІРѕР·РјРѕР¶РЅС‹Рµ РІРµС‚РєРё:
+	//   -- РїРѕСЃР»Рµ С‚РµРєСѓС‰РµР№ Р·Р°РїРёСЃРё РЅР° СЃС‚СЂР°РЅРёС†Рµ РµСЃС‚СЊ СЃРІРѕР±РѕРґРЅС‹Р№ Р±Р»РѕРє, РєРѕС‚РѕСЂРѕРіРѕ С…РІР°С‚Р°РµС‚ РґР»СЏ РёР·РјРµРЅРµРЅРЅРѕР№ Р·Р°РїРёСЃРё:
+	//     СЂР°Р·РјРµС‡Р°РµРј СѓРІРµР»РёС‡РµРЅРЅС‹Р№ Р±Р»РѕРє Рё РєРѕРїРёСЂСѓРµРј РІ РЅРµРіРѕ РґР°РЅРЅС‹Рµ. РћСЃС‚Р°РІС€РµРµСЃСЏ РјРµСЃС‚Рѕ РІ СЂР°РЅРµРµ СЃРІРѕР±РѕРґРЅРѕРј Р±Р»РѕРєРµ
+	//     РѕС‚РїСЂР°РІР»СЏРµРј РІ СЃРїРёСЃРѕРє РґРѕСЃС‚СѓРїРЅС‹С… Р±Р»РѕРєРѕРІ.
+	//   -- РїРѕСЃР»Рµ С‚РµРєСѓС‰РµР№ Р·Р°РїРёСЃРё РЅРµС‚ СЃРІРѕР±РѕРґРЅРѕРіРѕ Р±Р»РѕРєР°: СѓРґР°Р»СЏРµРј С‚РµРєСѓС‰СѓСЋ Р·Р°РїРёСЃСЊ Рё РІРЅРѕСЃРёРј РЅРѕРІСѓСЋ Р·Р°РїРёСЃСЊ РєР°Рє РѕР±С‹С‡РЅРѕ
+	//  -- РЅРѕРІР°СЏ Р·Р°РїРёСЃСЊ РјРµРЅСЊС€Рµ РїРѕ СЂР°Р·РјРµСЂСѓ С‡РµРј СЃС‚Р°СЂР°СЏ: Р·Р°РЅРѕРІРѕ СЂР°Р·РјРµС‡Р°РµРј Р±Р»РѕРє Рё РєРѕРїРёСЂСѓРµРј РґР°РЅРЅС‹Рµ, РѕСЃРІРѕР±РѕРґРёРІС€РµРµСЃСЏ
+	//    РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РєРёРґР°РµРј РІ СЃРїРёСЃРѕРє СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ
+	//    Р—РґРµСЃСЊ РµСЃС‚СЊ РЅРµР±РѕР»СЊС€Р°СЏ РґРёР»РµРјРјР°: СЃ С‚РѕС‡РєРё Р·СЂРµРЅРёСЏ СЌС„С„РµРєС‚РёРІРЅРѕСЃС‚Рё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° СЃС‚СЂР°РЅРёС†
+	//    РїСЂР°РІРёР»СЊРЅРѕ Р±С‹Р»Рѕ Р±С‹ РЅР°Р№С‚Рё РЅР°РёР±РѕР»РµРµ РѕРїС‚РёРјР°Р»СЊРЅС‹Р№ СЃ РїРѕР·РёС†РёРё РѕСЃС‚Р°С‚РєР° СЃРІРѕР±РѕРґРЅС‹Р№ СѓС‡Р°СЃС‚РѕРє СЃСЂРµРґРё
+	//    РІСЃРµС… СЃС‚СЂР°РЅРёС† РґР°РЅРЅС‹С…. Р•СЃР»Рё Р¶Рµ СЃРјРѕС‚СЂРµС‚СЊ СЃ РїРѕР·РёС†РёРё СЃРєРѕСЂРѕСЃС‚Рё РёСЃРїРѕР»СЊРЅРµРЅРёСЏ, С‚Рѕ Р±СѓРґРµС‚ РІС‹РіРѕРґРЅРµРµ
+	//    СЂРµР·РјРµСЃС‚РёС‚СЊ РЅРѕРІСѓСЋ Р·Р°РїРёСЃСЊ С‚Р°Рј Р¶Рµ Рё РѕСЃС‚Р°РІС€РёР№СЃСЏ "С…РІРѕСЃС‚" РєР°РєРёРј Р±С‹ РѕРЅ РЅРё Р±С‹Р» РєРёРЅСѓС‚СЊ РІ СЃРїРёСЃРѕРє СЃРІРѕР±РѕРґРЅС‹С….
+	//    РњС‹ РІРѕСЃРїРѕР»СЊР·СѓРµРјСЃСЏ РІС‚РѕСЂС‹Рј РјРµС‚РѕРґРѕРј РїРѕСЃРєРѕР»СЊРєСѓ РїРµСЂРµРЅРѕСЃ Р·Р°РїРёСЃРё РЅР° РґСЂСѓРіСѓСЋ СЃС‚СЂР°РЅРёС†Сѓ Р±СѓРґРµС‚ СЃРѕРїСЂРѕРІРѕР¶РґР°С‚СЊСЃСЏ //
+	//    Р·Р°РјРµРЅРѕР№ СЃСЃС‹Р»РѕРє, С‡С‚Рѕ СЃРёР»СЊРЅРѕ СѓСЃСѓРіСѓР±РёС‚ РїР°РґРµРЅРёРµ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚Рё.
 	//
 	int    ok = 1;
 	uint64 new_row_id = 0;
@@ -330,10 +331,10 @@ int SRecPageManager::Update(uint64 rowId, uint64 * pNewRowId, uint pageType, con
 	ok = UpdateOnPage(p_page, rowId, pData, dataLen);
 	THROW(ok);
 	if(ok < 0) {
-		THROW(DeleteFromPage(p_page, rowId)); // Здесь нельзя использовать Delete() поскольку возникнет двойное блокирование страницы
-		// Перед вызовом Write мы должны освободить страницу
+		THROW(DeleteFromPage(p_page, rowId)); // Р—РґРµСЃСЊ РЅРµР»СЊР·СЏ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Delete() РїРѕСЃРєРѕР»СЊРєСѓ РІРѕР·РЅРёРєРЅРµС‚ РґРІРѕР№РЅРѕРµ Р±Р»РѕРєРёСЂРѕРІР°РЅРёРµ СЃС‚СЂР°РЅРёС†С‹
+		// РџРµСЂРµРґ РІС‹Р·РѕРІРѕРј Write РјС‹ РґРѕР»Р¶РЅС‹ РѕСЃРІРѕР±РѕРґРёС‚СЊ СЃС‚СЂР°РЅРёС†Сѓ
 		ReleasePage(p_page);
-		p_page = 0; // обнуляем указатель чтобы ReleasePage ниже не пыталась второй раз освобождать его
+		p_page = 0; // РѕР±РЅСѓР»СЏРµРј СѓРєР°Р·Р°С‚РµР»СЊ С‡С‚РѕР±С‹ ReleasePage РЅРёР¶Рµ РЅРµ РїС‹С‚Р°Р»Р°СЃСЊ РІС‚РѕСЂРѕР№ СЂР°Р· РѕСЃРІРѕР±РѕР¶РґР°С‚СЊ РµРіРѕ
 		THROW(Write(&new_row_id, pageType, pData, dataLen));
 		ok = 1;
 	}
@@ -350,7 +351,7 @@ int SRecPageManager::DeleteFromPage(SDataPage_ * pPage, uint64 rowId)
 	uint   offset = 0;
 	THROW(pPage && pPage->IsConsistent());
 	THROW(SRecPageManager::SplitRowId(rowId, &seq, &offset));
-	assert(pPage->VerifySeq(seq)); // Вызывающая функция не должна была передать неверное сочетание параметров!
+	assert(pPage->VerifySeq(seq)); // Р’С‹Р·С‹РІР°СЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ РЅРµ РґРѕР»Р¶РЅР° Р±С‹Р»Р° РїРµСЂРµРґР°С‚СЊ РЅРµРІРµСЂРЅРѕРµ СЃРѕС‡РµС‚Р°РЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ!
 	THROW(pPage->VerifySeq(seq));
 	{
 		SRecPageFreeList::Entry free_entry;
@@ -470,13 +471,13 @@ SDataPage_ * SRecPageManager::Helper_QueryPage(uint64 rowId, uint32 pageType, ui
 
 SDataPage_ * SRecPageManager::QueryPageForReading(uint64 rowId, uint32 pageType, uint * pOffset)
 {
-	// @todo Эта функция должна содержать блокировку на чтение
+	// @todo Р­С‚Р° С„СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° СЃРѕРґРµСЂР¶Р°С‚СЊ Р±Р»РѕРєРёСЂРѕРІРєСѓ РЅР° С‡С‚РµРЅРёРµ
 	return Helper_QueryPage(rowId, pageType, pOffset);
 }
 
 SDataPage_ * SRecPageManager::QueryPageForWriting(uint64 rowId, uint32 pageType, uint * pOffset)
 {
-	// @todo Эта функция должна содержать блокировку на запись
+	// @todo Р­С‚Р° С„СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° СЃРѕРґРµСЂР¶Р°С‚СЊ Р±Р»РѕРєРёСЂРѕРІРєСѓ РЅР° Р·Р°РїРёСЃСЊ
 	return Helper_QueryPage(rowId, pageType, pOffset);
 }
 //
@@ -499,7 +500,7 @@ void SDataPageHeader::RecPrefix::SetTotalSize(uint totalSize, uint flags)
 	PayloadSize = 0;
 	Flags = flags;
 	if(totalSize >= 1 && totalSize <= 3) {
-		Flags |= fDeleted; // Ошметки 1..3 байта безусловно трактуем как неиспользуемые блоки
+		Flags |= fDeleted; // РћС€РјРµС‚РєРё 1..3 Р±Р°Р№С‚Р° Р±РµР·СѓСЃР»РѕРІРЅРѕ С‚СЂР°РєС‚СѓРµРј РєР°Рє РЅРµРёСЃРїРѕР»СЊР·СѓРµРјС‹Рµ Р±Р»РѕРєРё
 	}
 	TotalSize = totalSize;
 }
@@ -576,34 +577,19 @@ bool SDataPageHeader::GetStat(Stat & rStat, TSVector <SRecPageFreeList::Entry> *
 uint SDataPageHeader::RecPrefix::GetPrefixSize() const
 {
 	uint   result = 0;
-	if(TotalSize == 1) {
-		result = 1;
-	}
-	else if(TotalSize == 2) {
-		result = 2;
-	}
-	else if(TotalSize == 3) {
-		result = 3;
-	}
-	else if(TotalSize) {
-		if((Flags & 0x3) == 0) {
-			result = 2 + sizeof(uint32);
-		}
-		else if((Flags & 0x3) == 3) {
-			result = 2 + 3;
-		}
-		else if((Flags & 0x3) == 2) {
-			result = 2 + 2;
-		}
-		else if((Flags & 0x3) == 1) {
-			result = 2 + 1;
-		}
-		else {
-			// @error
-		}
-	}
-	else {
-		// @error
+	switch(TotalSize) {
+		case 0: /* @error */ break;
+		case 1: result = 1; break;
+		case 2: result = 2; break;
+		case 3: result = 3; break;
+		default:
+			switch(Flags & 0x3) {
+				case 0: result = 2 + sizeof(uint32); break;
+				case 3: result = 2 + 3; break;
+				case 2: result = 2 + 2; break;
+				case 1: result = 2 + 1; break;
+			}
+			break;
 	}
 	return result;	
 }
@@ -612,54 +598,59 @@ uint32 SDataPageHeader::ReadRecPrefix(uint pos, RecPrefix & rPfx) const
 {
 	uint32 pfx_size = 0;
 	const uint8 * ptr = PTR8C(this)+pos;
-	if(ptr[0] == RecPrefix::Signature_End1) {
-		pfx_size = 1;
-		rPfx.Flags |= RecPrefix::fDeleted;
-		rPfx.TotalSize = 1;
-		rPfx.PayloadSize = 0;
-	}
-	else if(ptr[0] == RecPrefix::Signature_End2) {
-		pfx_size = 2;
-		rPfx.Flags |= RecPrefix::fDeleted;
-		rPfx.TotalSize = 2;
-		rPfx.PayloadSize = 0;
-	}
-	else if(ptr[0] == RecPrefix::Signature_End3) {
-		pfx_size = 3;
-		rPfx.Flags |= RecPrefix::fDeleted;
-		rPfx.TotalSize = 3;
-		rPfx.PayloadSize = 0;
-	}
-	else if(oneof2(ptr[0], RecPrefix::Signature_Used, RecPrefix::Signature_Free)) {
-		pfx_size = 2;
-		rPfx.Flags = ptr[1];
-		if((rPfx.Flags & 0x3) == 0) {
-			pfx_size += sizeof(uint32);
-			rPfx.PayloadSize = *reinterpret_cast<const uint32 *>(ptr+2);
-			rPfx.TotalSize = rPfx.PayloadSize + pfx_size;
-		}
-		else if((rPfx.Flags & 0x3) == 3) {
-			pfx_size += 3;
-			rPfx.PayloadSize = *reinterpret_cast<const uint32 *>(ptr+2) & 0x00ffffffU;
-			THROW_S(rPfx.PayloadSize < (1 << 24), SLERR_RECMGR_RECPFX_PAYLOADSIZE);
-			rPfx.TotalSize = rPfx.PayloadSize + pfx_size;
-		}
-		else if((rPfx.Flags & 0x3) == 2) {
-			pfx_size += 2;
-			rPfx.PayloadSize = *reinterpret_cast<const uint16 *>(ptr+2);
-			rPfx.TotalSize = rPfx.PayloadSize + pfx_size;
-		}
-		else if((rPfx.Flags & 0x3) == 1) {
-			pfx_size += 1;
-			rPfx.PayloadSize = *reinterpret_cast<const uint8 *>(ptr+2);
-			rPfx.TotalSize = rPfx.PayloadSize + pfx_size;
-		}
-		else {
-			CALLEXCEPT_S(SLERR_RECMGR_RECPFX_FLAGS);
-		}
-	}
-	else {
-		CALLEXCEPT_S(SLERR_RECMGR_RECPFX_SIGNATURE);
+	switch(ptr[0]) {
+		case RecPrefix::Signature_End1:
+			pfx_size = 1;
+			rPfx.Flags |= RecPrefix::fDeleted;
+			rPfx.TotalSize = 1;
+			rPfx.PayloadSize = 0;
+			break;
+		case RecPrefix::Signature_End2:
+			pfx_size = 2;
+			rPfx.Flags |= RecPrefix::fDeleted;
+			rPfx.TotalSize = 2;
+			rPfx.PayloadSize = 0;
+			break;
+		case RecPrefix::Signature_End3:
+			pfx_size = 3;
+			rPfx.Flags |= RecPrefix::fDeleted;
+			rPfx.TotalSize = 3;
+			rPfx.PayloadSize = 0;
+			break;
+		case RecPrefix::Signature_Used:
+		case RecPrefix::Signature_Free:
+			pfx_size = 2;
+			rPfx.Flags = ptr[1];
+			switch(rPfx.Flags & 0x3) {
+				case 0:
+					pfx_size += sizeof(uint32);
+					rPfx.PayloadSize = *reinterpret_cast<const uint32 *>(ptr+2);
+					rPfx.TotalSize = rPfx.PayloadSize + pfx_size;
+					break;
+				case 3:
+					pfx_size += 3;
+					rPfx.PayloadSize = *reinterpret_cast<const uint32 *>(ptr+2) & 0x00ffffffU;
+					THROW_S(rPfx.PayloadSize < (1 << 24), SLERR_RECMGR_RECPFX_PAYLOADSIZE);
+					rPfx.TotalSize = rPfx.PayloadSize + pfx_size;
+					break;
+				case 2:
+					pfx_size += 2;
+					rPfx.PayloadSize = *reinterpret_cast<const uint16 *>(ptr+2);
+					rPfx.TotalSize = rPfx.PayloadSize + pfx_size;
+					break;
+				case 1:
+					pfx_size += 1;
+					rPfx.PayloadSize = *reinterpret_cast<const uint8 *>(ptr+2);
+					rPfx.TotalSize = rPfx.PayloadSize + pfx_size;
+					break;
+				/* (no way) default:
+					CALLEXCEPT_S(SLERR_RECMGR_RECPFX_FLAGS);
+					break;*/
+			}
+			break;
+		default:
+			CALLEXCEPT_S(SLERR_RECMGR_RECPFX_SIGNATURE);
+			break;
 	}
 	CATCH
 		pfx_size = 0;
@@ -674,7 +665,7 @@ uint32 SDataPageHeader::ReadRecPrefix(uint pos, RecPrefix & rPfx) const
 	uint8 signature = 0;
 	if(rPfx.PayloadSize == 0) {
 		//
-		// Этот блок обрабатывает случай, когда известен rPfx.TotalSize но не определен rPfx.PayloadSize
+		// Р­С‚РѕС‚ Р±Р»РѕРє РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СЃР»СѓС‡Р°Р№, РєРѕРіРґР° РёР·РІРµСЃС‚РµРЅ rPfx.TotalSize РЅРѕ РЅРµ РѕРїСЂРµРґРµР»РµРЅ rPfx.PayloadSize
 		//
 		uint   payload_size = 0;
 		if(rPfx.TotalSize == 1) {
@@ -760,7 +751,7 @@ uint32 SDataPageHeader::ReadRecPrefix(uint pos, RecPrefix & rPfx) const
 	}
 	else {
 		//
-		// Этот блок обрабатывает случай, когда известен rPfx.PayloadSize но не определен rPfx.TotalSize
+		// Р­С‚РѕС‚ Р±Р»РѕРє РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СЃР»СѓС‡Р°Р№, РєРѕРіРґР° РёР·РІРµСЃС‚РµРЅ rPfx.PayloadSize РЅРѕ РЅРµ РѕРїСЂРµРґРµР»РµРЅ rPfx.TotalSize
 		//
 		assert(rPfx.TotalSize == 0);
 		uint   total_size = 0;
@@ -807,7 +798,7 @@ uint32 SDataPageHeader::ReadRecPrefix(uint pos, RecPrefix & rPfx) const
 	}
 	rPfx.Flags = flags;
 	ASSIGN_PTR(pFlags, flags);
-	// Проверочные asserions для минимальной уверенности, что все сделано правильно
+	// РџСЂРѕРІРµСЂРѕС‡РЅС‹Рµ asserions РґР»СЏ РјРёРЅРёРјР°Р»СЊРЅРѕР№ СѓРІРµСЂРµРЅРЅРѕСЃС‚Рё, С‡С‚Рѕ РІСЃРµ СЃРґРµР»Р°РЅРѕ РїСЂР°РІРёР»СЊРЅРѕ
 	assert(rPfx.TotalSize > 0);
 	assert(rPfx.TotalSize > rPfx.PayloadSize);
 	assert(rPfx.TotalSize <= 3 || rPfx.PayloadSize > 0);
@@ -891,8 +882,8 @@ int SDataPageHeader::MergeFreeEntries(SRecPageFreeList::UpdGroup & rFbug)
 		if(pfx.Flags & RecPrefix::fDeleted) {
 			if(sfbl_count >= SIZEOFARRAY(sfbl)) {
 				// @todo		
-				// Вероятность попадания сюда мизерная: количество последовательных свободных блоков
-				// должно превысить SIZEOFARRAY(sfbl). Тем не менее обработать этот случай надо.
+				// Р’РµСЂРѕСЏС‚РЅРѕСЃС‚СЊ РїРѕРїР°РґР°РЅРёСЏ СЃСЋРґР° РјРёР·РµСЂРЅР°СЏ: РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹С… СЃРІРѕР±РѕРґРЅС‹С… Р±Р»РѕРєРѕРІ
+				// РґРѕР»Р¶РЅРѕ РїСЂРµРІС‹СЃРёС‚СЊ SIZEOFARRAY(sfbl). РўРµРј РЅРµ РјРµРЅРµРµ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ СЌС‚РѕС‚ СЃР»СѓС‡Р°Р№ РЅР°РґРѕ.
 			}
 			else {
 				sfbl[sfbl_count++] = offs;
@@ -962,8 +953,8 @@ uint64 SDataPageHeader::Delete(uint offset, SRecPageFreeList::Entry * pNewFreeEn
 		RecPrefix ex_rp;
 		uint32 ex_pfx_size = ReadRecPrefix(offset, ex_rp); // offset validation
 		THROW(ex_pfx_size);
-		THROW(!(ex_rp.Flags & RecPrefix::fDeleted)); // @todo @err (блок уже помечен как свободный)
-		THROW(ex_rp.TotalSize > 3); // @todo @err (не может такого быть, что блок размером 3 или менее байта был занят)
+		THROW(!(ex_rp.Flags & RecPrefix::fDeleted)); // @todo @err (Р±Р»РѕРє СѓР¶Рµ РїРѕРјРµС‡РµРЅ РєР°Рє СЃРІРѕР±РѕРґРЅС‹Р№)
+		THROW(ex_rp.TotalSize > 3); // @todo @err (РЅРµ РјРѕР¶РµС‚ С‚Р°РєРѕРіРѕ Р±С‹С‚СЊ, С‡С‚Рѕ Р±Р»РѕРє СЂР°Р·РјРµСЂРѕРј 3 РёР»Рё РјРµРЅРµРµ Р±Р°Р№С‚Р° Р±С‹Р» Р·Р°РЅСЏС‚)
 		{
 			RecPrefix new_rp;
 			THROW(MarkOutBlock(offset, ex_rp.TotalSize, &new_rp));

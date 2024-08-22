@@ -1470,24 +1470,18 @@ int CCheckPacket::InsertItem(const CCheckItem & rItem)
 		if(rItem.EgaisMark[0]) {
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextEgaisMark, rItem.EgaisMark));
 		}
-		// @v10.1.6 {
 		if(rItem.RemoteProcessingTa[0]) {
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextRemoteProcessingTa, rItem.RemoteProcessingTa));
 		}
-		// } @v10.1.6
-		// @v10.4.12 {
 		if(rItem.ChZnGtin[0]) {
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnGtin, rItem.ChZnGtin));
 		}
 		if(rItem.ChZnSerial[0]) {
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnSerial, rItem.ChZnSerial));
 		}
-		// } @v10.4.12 
-		// @v10.6.9 {
 		if(rItem.ChZnMark[0]) {
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnMark, rItem.ChZnMark));
 		}
-		// } @v10.6.9 
 		{
 			LineExt le;
 			le.Queue = rItem.Queue;
@@ -1495,7 +1489,7 @@ int CCheckPacket::InsertItem(const CCheckItem & rItem)
 			SETFLAG(le.Flags, le.fModifier, rItem.Flags & cifModifier);
 			SETFLAG(le.Flags, le.fPartOfComplex, rItem.Flags & cifPartOfComplex);
 			SETFLAG(le.Flags, le.fQuotedByGift,  rItem.Flags & cifQuotedByGift);
-			SETFLAG(le.Flags, le.fFixedPrice,    rItem.Flags & cifFixedPrice); // @v10.1.7
+			SETFLAG(le.Flags, le.fFixedPrice,    rItem.Flags & cifFixedPrice);
 			THROW(SetLineExt(idx, le));
 		}
 	}
@@ -1834,7 +1828,7 @@ CCheckCore::CcMarkedEntry::CcMarkedEntry() : CcID(0), LineNo(0), Flags(0), Qtty(
 {
 }
 
-CCheckCore::ListByMarkEntry::ListByMarkEntry() : OrgLotID(0), OrgLotDate(ZERODATE), OrgLotQtty(0.0), Flags(0), TotalOpQtty(0.0)
+CCheckCore::ListByMarkEntry::ListByMarkEntry() : OrgLotID(0), OrgLotDate(ZERODATE), OrgLotQtty(0.0), Flags(0), TotalOpQtty(0.0), P_Extra(0)
 {
 	Mark[0] = 0;
 }

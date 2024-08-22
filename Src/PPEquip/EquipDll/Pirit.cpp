@@ -2768,19 +2768,18 @@ int PiritEquip::RunCheck(int opertype)
 			(str = Check.Code).Trim(13); // [0..18]
 			CreateStr(str, in_data); // Артикул или штрихкод
 			{
-				/* @construction 
 				double qtty = 0.0;
 				double price = 0.0;
 				if(Check.ChZnProdType == 1012 && Check.PhQtty > 0.0 && Check.UomId == SUOM_LITER) { // @v12.0.11 GTCHZNPT_DRAFTBEER_AWR
-					CreateStr(Check.PhQtty, in_data);
+					qtty = Check.PhQtty;
+					price = R2((Check.Qtty * Check.Price) / Check.PhQtty);
 				}
-				else*/ {
-					CreateStr(Check.Qtty, in_data);
+				else {
+					qtty = Check.Qtty;
+					price = Check.Price;
 				}
-				// @vmiller comment
-				/*FormatPaym(Check.Price, str);
-				CreateStr(str, in_data);*/
-				CreateStr(Check.Price, in_data); // @vmiller
+				CreateStr(qtty, in_data);
+				CreateStr(price, in_data);
 			}
 			CreateStr((int)Check.Tax, in_data); // Номер налоговой ставки
 			CreateStr((int)0, in_data);    // Номер товарной позиции

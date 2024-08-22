@@ -31,6 +31,29 @@ BrandingText " "
 !define MUI_ABORTWARNING
 !define MUI_ICON   "${SRC_ROOT}\SRC\RSRC\ICO\P2.ICO"
 !define MUI_UNICON "${SRC_ROOT}\SRC\RSRC\ICO\P2.ICO"
+;
+; Утилита, собираемая проектом VersionSelector
+;
+!define VERSELDLL  "versel.dll"
+
+Function .onInit
+	IfFileExists "$SYSDIR\${VERSELDLL}" 0 +2
+	Delete "$SYSDIR\${VERSELDLL}"
+FunctionEnd
+
+Function SelectDir
+	!insertmacro InstallLib DLL NOSHARED NOREBOOT_NOTPROTECTED ${VERSELDLL} $SYSDIR\${VERSELDLL} $SYSDIR
+	Push $2
+	Push $1
+	Push $0
+	StrCpy $0 "1" ${NSIS_MAX_STRLEN}
+	System::Call 'versel::SelectVersion(i $HWNDPARENT,t r0r2,i 0) i.r1'
+	StrCmp $1 '1' 0 +2
+	StrCpy $INSTDIR $2
+	Pop $0
+	Pop $1
+	Pop $2
+FunctionEnd
 
 Section "Файлы приложения" SEC01
 	SetOutPath "${DIR_BIN}"

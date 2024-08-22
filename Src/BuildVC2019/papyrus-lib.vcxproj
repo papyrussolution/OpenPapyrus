@@ -1406,6 +1406,7 @@
     <ClCompile Include="..\PPLib\Loadtrfr.cpp" />
     <ClCompile Include="..\PPLib\LOCATION.CPP" />
     <ClCompile Include="..\PPLib\loctransf.cpp" />
+    <ClCompile Include="..\PPLib\marketplace.cpp" />
     <ClCompile Include="..\PPLib\mrp.cpp" />
     <ClCompile Include="..\PPLib\Nmbtotxt.cpp" />
     <ClCompile Include="..\PPLib\Objacct.cpp" />

@@ -1115,7 +1115,7 @@ void CPosProcessor::GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & 
 //
 //
 CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, uint ctrFlags/*isTouchScreen*/, void * pDummy) : CashNodeID(cashNodeID),
-	P_CcView(0), P_TSesObj(0), P_EgPrc(0), P_CM(0), P_CM_EXT(0), P_CM_ALT(0), P_GTOA(0), P_ChkPack(pOuterPack), P_DivGrpList(0),
+	P_CcView(0), P_TSesObj(0), P_EgPrc(0), P_EgMas(0), P_CM(0), P_CM_EXT(0), P_CM_ALT(0), P_GTOA(0), P_ChkPack(pOuterPack), P_DivGrpList(0),
 	Flags(0), EgaisMode(0), ChZnPermissiveMode(0), BonusMaxPart(1.0), OperRightsFlags(0), OrgOperRights(0), SuspCheckID(0), CheckID(checkID), AuthAgentID(0),
 	AbstractGoodsID(0), ExtCnLocID(0), ExtCashNodeID(0), AltRegisterID(0), TouchScreenID(0), ScaleID(0), CnPhnSvcID(0), UiFlags(0),
 	State_p(0), LastGrpListUpdTime(ZERODATETIME)
@@ -1125,6 +1125,13 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 	SETFLAG(Flags, fNoEdit, (P_ChkPack || !CashNodeID));
 	PPCashNode cn_rec;
 	CnObj.Search(CashNodeID, &cn_rec);
+	CnName = cn_rec.Name;
+	CnSymb = cn_rec.Symb;
+	CnFlags = cn_rec.Flags & (CASHF_SELALLGOODS|CASHF_USEQUOT|CASHF_NOASKPAYMTYPE|CASHF_SHOWREST|CASHF_KEYBOARDWKEY|CASHF_WORKWHENLOCK|CASHF_DISABLEZEROAGENT|
+		CASHF_UNIFYGDSATCHECK|CASHF_UNIFYGDSTOPRINT|CASHF_CHECKFORPRESENT|CASHF_ABOVEZEROSALE|CASHF_SYNC|CASHF_SKIPUNPRINTEDCHECKS);
+	CnExtFlags = cn_rec.ExtFlags;
+	CnSpeciality = static_cast<long>(cn_rec.Speciality);
+	CnLocID = cn_rec.LocID;
 	if(cn_rec.Flags & CASHF_SYNC) {
 		PPSyncCashNode cn_pack;
 		if(CnObj.GetSync(CashNodeID, &cn_pack) > 0) {
@@ -1139,6 +1146,20 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 					if(EgaisMode == 2)
 						egcf |= PPEgaisProcessor::cfDebugMode;
 					P_EgPrc = new PPEgaisProcessor(egcf, 0, 0);
+					// @v12.0.12 {
+					if(CnSpeciality == PPCashNode::spCafe) {
+						PPObjGoodsType gt_obj;
+						PPGoodsType gt_rec;
+						bool is_there_egais_auto_wo_flags = false;
+						for(SEnum en = gt_obj.Enum(0); !is_there_egais_auto_wo_flags && en.Next(&gt_rec) > 0;) {
+							if(gt_rec.Flags & GTF_EGAISAUTOWO) {
+								is_there_egais_auto_wo_flags = true;
+							}
+						}
+						if(is_there_egais_auto_wo_flags)
+							P_EgMas = new EgaisMarkAutoSelector(P_EgPrc); 
+					}
+					// } @v12.0.12 
 				}
 			}
 			// @v11.4.5 {
@@ -1151,13 +1172,6 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 			// } @v11.4.5 
 		}
 	}
-	CnName = cn_rec.Name;
-	CnSymb = cn_rec.Symb;
-	CnFlags = cn_rec.Flags & (CASHF_SELALLGOODS|CASHF_USEQUOT|CASHF_NOASKPAYMTYPE|CASHF_SHOWREST|CASHF_KEYBOARDWKEY|CASHF_WORKWHENLOCK|CASHF_DISABLEZEROAGENT|
-		CASHF_UNIFYGDSATCHECK|CASHF_UNIFYGDSTOPRINT|CASHF_CHECKFORPRESENT|CASHF_ABOVEZEROSALE|CASHF_SYNC|CASHF_SKIPUNPRINTEDCHECKS);
-	CnExtFlags = cn_rec.ExtFlags;
-	CnSpeciality = static_cast<long>(cn_rec.Speciality);
-	CnLocID = cn_rec.LocID;
 	{
 		SVector temp_list(sizeof(PPGenCashNode::DivGrpAssc));
 		if(PPRef->GetPropArray(PPOBJ_CASHNODE, CashNodeID, CNPRP_DIVGRPASSC, &temp_list) > 0 && temp_list.getCount())
@@ -1221,6 +1235,7 @@ CPosProcessor::~CPosProcessor()
 	delete P_DivGrpList;
 	delete P_TSesObj;
 	delete P_CcView;
+	delete P_EgMas; // @v12.0.12 зависит от P_EgPrc по этому удаляем до P_EgPrc
 	delete P_EgPrc;
 }
 
@@ -2527,7 +2542,7 @@ int CPosProcessor::AutosaveCheck()
 	int    ok = 1;
 	Reference * p_ref = PPRef;
 	const  bool turn_check_before_printing = true;
-	const  bool reprint_regular = BIN(mode == accmAveragePrinting && Flags & fReprinting);
+	const  bool reprint_regular = (mode == accmAveragePrinting && Flags & fReprinting);
 	int    was_turned_before_printing = 0;
 	SString before_printing_check_text;
 	SString msg_buf;
@@ -2656,49 +2671,117 @@ int CPosProcessor::AutosaveCheck()
 			epb.ExtPack.PackTextExt(org_ext_cctext);
 			bool   dont_accept_ccode_from_printer = false;
 			if(mode == accmRegular) {
-				if(oneof2(EgaisMode, 1, 2)) {
-					if(EgaisMode == 1) {
-						dont_accept_ccode_from_printer = true;
-					}
-					if(P_EgPrc) {
-						//
-						// Перед передачей в ЕГАИС необходимо предварительное проведение чеков
-						// для того, что бы сформировались значения номеров чеков.
-						// Однако, это не исключает коллизию, возникающую в случае, если после
-						// успешного проведения через ЕГАИС фискальный регистратор при печати
-						// присвоит чеку собственный номер. При этом получится так, что в БД и
-						// фискальной памяти будут хранится не те номера, которые были переданы в ЕГАИС.
-						//
-						if(turn_check_before_printing && !was_turned_before_printing && (mode != accmAveragePrinting || reprint_regular)) {
-							THROW(StoreCheck(&epb.Pack, (epb.Flags & epb.fIsExtPack) ? &epb.ExtPack : 0, mode));
-							CCheckCore::MakeCodeString(&epb.Pack.Rec, 0, before_printing_check_text);
-							was_turned_before_printing = 1;
-						}
+				if(oneof3(EgaisMode, 1, 2, 3)) {
+					// @v12.0.12 {
+					if(P_EgMas) {
+						EgaisMarkAutoSelector::ResultBlock rb;
+						PPObjGoodsType gt_obj;
+						PPGoodsType gt_rec;
+						Goods2Tbl::Rec goods_rec;
 						{
-							PPEgaisProcessor::Ack eg_ack;
-							PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck before", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
-							THROW(P_EgPrc->PutCCheck(epb.Pack, CnLocID, eg_ack));
-							//PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck after", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
-                            if(eg_ack.Sign[0] && eg_ack.SignSize) {
-								msg_buf.Z().CatN(reinterpret_cast<const char *>(eg_ack.Sign), eg_ack.SignSize);
-                                epb.Pack.PutExtStrData(CCheckPacket::extssSign, msg_buf);
-                            }
-							//PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck after 1 step more", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
-                            if(eg_ack.Url.NotEmpty()) {
-								epb.Pack.PutExtStrData(CCheckPacket::extssEgaisUrl, eg_ack.Url);
-                            }
-							//PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck after 2 step more", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
+							for(uint i = 0; i < P.getCount(); i++) {
+								const CCheckItem & r_cc_item = P.at(i);
+								if(GObj.Fetch(r_cc_item.GoodsID, &goods_rec) > 0 && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_EGAISAUTOWO) {
+									EgaisMarkAutoSelector::DocItem * p_di = rb.CreateNewItem();
+									if(p_di) {
+										p_di->ItemId = i+1;
+										p_di->GoodsID = goods_rec.ID;
+										p_di->Qtty = fabs(r_cc_item.Quantity);
+									}
+								}
+							}
 						}
-						if(epb.Flags & epb.fIsExtPack) {
-							PPEgaisProcessor::Ack eg_ack;
-							THROW(P_EgPrc->PutCCheck(epb.ExtPack, ExtCnLocID, eg_ack));
-                            if(eg_ack.Sign[0] && eg_ack.SignSize) {
-								msg_buf.Z().CatN(reinterpret_cast<const char *>(eg_ack.Sign), eg_ack.SignSize);
-                                epb.ExtPack.PutExtStrData(CCheckPacket::extssSign, msg_buf);
-                            }
-                            if(eg_ack.Url.NotEmpty()) {
-								epb.ExtPack.PutExtStrData(CCheckPacket::extssEgaisUrl, eg_ack.Url);
-                            }
+						if(rb.getCount()) {
+							int r = P_EgMas->Run(rb);
+							if(r > 0) {
+								CCheckPacket cc_shadow_egais;
+								bool is_ccs_inited = false;
+								for(uint i = 0; i < rb.getCount(); i++) {
+									const EgaisMarkAutoSelector::DocItem * p_di = rb.at(i);
+									if(p_di) {
+										for(uint eidx = 0; eidx < p_di->getCount(); eidx++) {
+											// Каждый EgaisMarkAutoSelector::Entry - соответствует одной строке суррогатного чека для егаис
+											const EgaisMarkAutoSelector::Entry * p_e = p_di->at(eidx);
+											if(p_e) {
+												uint mark_entry_idx = 0;
+												const EgaisMarkAutoSelector::_TerminalEntry * p_te = p_e->SelectMark(&mark_entry_idx);
+												if(p_te) {
+													assert(mark_entry_idx < p_te->ML.getCount());
+													const EgaisMarkAutoSelector::_MarkEntry * p_me = p_te->ML.at(mark_entry_idx);
+													if(p_me) {
+														assert(p_me->Mark.NotEmpty());
+														if(!is_ccs_inited) {
+															cc_shadow_egais.Rec.Code = epb.Pack.Rec.Code;
+															cc_shadow_egais.Rec.PosNodeID = PPPOSN_SHADOW;
+															cc_shadow_egais.Rec.Dt = epb.Pack.Rec.Dt;
+															cc_shadow_egais.Rec.Tm = epb.Pack.Rec.Tm;
+															is_ccs_inited = true;
+														}
+														CCheckItem cc_item;
+														cc_item.GoodsID = p_te->GoodsID;
+														cc_item.Quantity = fabs(p_te->Qtty);
+														STRNSCPY(cc_item.EgaisMark, p_me->Mark);
+														cc_shadow_egais.InsertItem(cc_item);
+													}
+												}
+											}
+										}
+									}
+								}
+								if(is_ccs_inited) {
+									CCheckCore & r_cc = GetCc();
+									if(r_cc.TurnCheck(&cc_shadow_egais, 1)) {
+										
+									}
+								}
+							}
+						}
+					}
+					// } @v12.0.12 
+					if(oneof2(EgaisMode, 1, 2)) {
+						if(EgaisMode == 1) {
+							dont_accept_ccode_from_printer = true;
+						}
+						if(P_EgPrc) {
+							//
+							// Перед передачей в ЕГАИС необходимо предварительное проведение чеков
+							// для того, что бы сформировались значения номеров чеков.
+							// Однако, это не исключает коллизию, возникающую в случае, если после
+							// успешного проведения через ЕГАИС фискальный регистратор при печати
+							// присвоит чеку собственный номер. При этом получится так, что в БД и
+							// фискальной памяти будут хранится не те номера, которые были переданы в ЕГАИС.
+							//
+							if(turn_check_before_printing && !was_turned_before_printing && (mode != accmAveragePrinting || reprint_regular)) {
+								THROW(StoreCheck(&epb.Pack, (epb.Flags & epb.fIsExtPack) ? &epb.ExtPack : 0, mode));
+								CCheckCore::MakeCodeString(&epb.Pack.Rec, 0, before_printing_check_text);
+								was_turned_before_printing = 1;
+							}
+							{
+								PPEgaisProcessor::Ack eg_ack;
+								PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck before", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
+								THROW(P_EgPrc->PutCCheck(epb.Pack, CnLocID, eg_ack));
+								//PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck after", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
+								if(eg_ack.Sign[0] && eg_ack.SignSize) {
+									msg_buf.Z().CatN(reinterpret_cast<const char *>(eg_ack.Sign), eg_ack.SignSize);
+									epb.Pack.PutExtStrData(CCheckPacket::extssSign, msg_buf);
+								}
+								//PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck after 1 step more", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
+								if(eg_ack.Url.NotEmpty()) {
+									epb.Pack.PutExtStrData(CCheckPacket::extssEgaisUrl, eg_ack.Url);
+								}
+								//PPLogMessage(PPFILNAM_DEBUG_LOG, "P_EgPrc->PutCCheck after 2 step more", LOGMSGF_DIRECTOUTP); // @v10.6.0 @debug
+							}
+							if(epb.Flags & epb.fIsExtPack) {
+								PPEgaisProcessor::Ack eg_ack;
+								THROW(P_EgPrc->PutCCheck(epb.ExtPack, ExtCnLocID, eg_ack));
+								if(eg_ack.Sign[0] && eg_ack.SignSize) {
+									msg_buf.Z().CatN(reinterpret_cast<const char *>(eg_ack.Sign), eg_ack.SignSize);
+									epb.ExtPack.PutExtStrData(CCheckPacket::extssSign, msg_buf);
+								}
+								if(eg_ack.Url.NotEmpty()) {
+									epb.ExtPack.PutExtStrData(CCheckPacket::extssEgaisUrl, eg_ack.Url);
+								}
+							}
 						}
 					}
 				}
@@ -4348,7 +4431,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 					MessageError(PPERR_NORIGHTS, 0, eomBeep|eomStatusLine);
 				else {
 					int    r = -1; // r == 1000 - операция невозможна из-за несоблюдения какого-то условия //
-					char   code[256]; // @v10.8.1 [128]-->[256]
+					char   code[256];
 					int    is_serial = 0; // !0 если code является подходящим серийным номером
 					double qtty = 1.0;
 					double price = 0.0;
@@ -9066,14 +9149,6 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 //
 //
 //
-int CheckPaneDialog::EgaisMarkAutoSelect(PPID goodsID, double qtty, SString & rMarkBuf) // @v12.0.7 @construction
-{
-	rMarkBuf.Z();
-	int    ok = -1;
-	// @todo
-	return ok;
-}
-
 int CheckPaneDialog::ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rChZnBuf)
 {
 	rChZnBuf.Z();

@@ -341,5 +341,6 @@
     <ClCompile Include="..\PPLib\ued.cpp" />
     <ClCompile Include="..\PPLib\zxing_client.cpp" />
     <ClCompile Include="..\PPLib\imgui-support.cpp" />
+    <ClCompile Include="..\PPLib\marketplace.cpp" />
   </ItemGroup>
 </Project>

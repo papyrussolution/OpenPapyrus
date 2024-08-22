@@ -588,6 +588,8 @@
 	// Набор сумм по строкам расширения бухгалтерских документов
 	#define PPAMT_ADLN_MAIN     41L // Номинальная сумма строки расширения //
 #define PPOBJ_CASHNODE           17L  // $ Расчетные кассовые узлы
+	#define PPPOSN_SHADOW              101L // @v12.0.12 Идентификатор теневого узла, к которому привязываются образы настоящих чеков. Такие образы формируются //
+		// для специальных целей.
 	//
 	// Extra records of PPOBJ_CASHNODE
 	#define CNPRP_EXTRA          1L  // Дополнительная запись
@@ -11605,7 +11607,7 @@
 #define DLG_GSPPITEM              1444 // @v12.0.6 Элемент структуры товара (для структуры планирования цены)
 #define DLG_SELOPREFSUPL          1445 // @v12.0.8 Диалог выбора предпоичтительного поставщика для дозаказа в строках документа заказа
 	#define CTL_SELOPREFSUPL_LIST          (1 + WINDOWS_ID_BIAS)
-#define DLG_RAWMAT                1446 // @v12.0.10 PPOBJ_RAWMATERIAL  
+#define DLG_RAWMAT                1446 // @v12.0.10 PPOBJ_RAWMATERIAL
 	#define CTL_RAWMAT_ID                  (1 + WINDOWS_ID_BIAS)
 	#define CTL_RAWMAT_NAME                (2 + WINDOWS_ID_BIAS)
 	#define CTL_RAWMAT_SYMB                (3 + WINDOWS_ID_BIAS)

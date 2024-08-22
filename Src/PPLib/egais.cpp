@@ -10646,7 +10646,54 @@ bool FASTCALL EgaisMarkAutoSelector::Entry::Copy(const Entry & rS)
 	return true;
 }
 
-EgaisMarkAutoSelector::ResultBlock::ResultBlock(PPID goodsID, double qtty) : GoodsID(goodsID), Qtty(qtty), VolumeQtty(0.0)
+const EgaisMarkAutoSelector::_TerminalEntry * EgaisMarkAutoSelector::Entry::SelectMark(uint * pMarkEntryIdx) const
+{
+	const EgaisMarkAutoSelector::_TerminalEntry * p_result = 0;
+	for(uint i = 0; !p_result && i < Te.getCount(); i++) {
+		const _TerminalEntry * p_te = Te.at(i);
+		if(p_te) {
+			for(uint j = 0; !p_result && j < p_te->ML.getCount(); j++) {
+				const _MarkEntry * p_me = p_te->ML.at(j);
+				if(p_me && p_me->Rest >= p_te->Qtty) {
+					ASSIGN_PTR(pMarkEntryIdx, j);
+					p_result = p_te;
+				}
+			}
+		}
+	}
+	return p_result;
+}
+
+EgaisMarkAutoSelector::DocItem::DocItem() : ItemId(0), GoodsID(0), Qtty(0.0), VolumeQtty(0.0)
+{
+}
+
+EgaisMarkAutoSelector::DocItem::DocItem(long itemId, PPID goodsID, double qtty) : ItemId(itemId), GoodsID(goodsID), Qtty(qtty), VolumeQtty(0.0)
+{
+}
+
+EgaisMarkAutoSelector::DocItem::DocItem(const DocItem & rS)
+{
+	Copy(rS);
+}
+
+EgaisMarkAutoSelector::DocItem & FASTCALL EgaisMarkAutoSelector::DocItem::operator = (const DocItem & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+bool FASTCALL EgaisMarkAutoSelector::DocItem::Copy(const DocItem & rS)
+{
+	ItemId = rS.ItemId;
+	GoodsID = rS.GoodsID;
+	Qtty = rS.Qtty;
+	VolumeQtty = rS.VolumeQtty;
+	TSCollection_Copy(*this, rS);
+	return true;
+}
+
+EgaisMarkAutoSelector::ResultBlock::ResultBlock()
 {
 }
 		
@@ -10663,9 +10710,6 @@ EgaisMarkAutoSelector::ResultBlock & FASTCALL EgaisMarkAutoSelector::ResultBlock
 
 bool FASTCALL EgaisMarkAutoSelector::ResultBlock::Copy(const ResultBlock & rS)
 {
-	GoodsID = rS.GoodsID;
-	Qtty = rS.Qtty;
-	VolumeQtty = rS.VolumeQtty;
 	TSCollection_Copy(*this, rS);
 	return true;
 }
@@ -10678,7 +10722,7 @@ EgaisMarkAutoSelector::~EgaisMarkAutoSelector()
 {
 }
 
-int EgaisMarkAutoSelector::Helper_ProcessLot(PPID goodsStrucID, const ReceiptTbl::Rec & rLotRec, double phQtty, Entry ** ppEntry, ResultBlock & rResult)
+int EgaisMarkAutoSelector::Helper_ProcessLot(PPID goodsStrucID, const ReceiptTbl::Rec & rLotRec, double qtty, Entry ** ppEntry, DocItem & rResult)
 {
 	assert(ppEntry);
 	int    ok = -1;
@@ -10707,7 +10751,7 @@ int EgaisMarkAutoSelector::Helper_ProcessLot(PPID goodsStrucID, const ReceiptTbl
 							p_te->GoodsID = rLotRec.GoodsID;
 							p_te->LotID = rLotRec.ID;
 							p_te->LotDate = rLotRec.Dt;
-							p_te->Qtty = rLotRec.Quantity;
+							p_te->Qtty = qtty;
 						}
 						_MarkEntry * p_me = p_te->ML.CreateNewItem();
 						THROW_SL(p_me);
@@ -10723,7 +10767,7 @@ int EgaisMarkAutoSelector::Helper_ProcessLot(PPID goodsStrucID, const ReceiptTbl
 	return ok;
 }
 
-int EgaisMarkAutoSelector::Helper(PPID goodsID, double qtty, ResultBlock & rResult)
+int EgaisMarkAutoSelector::Helper(PPID goodsID, double qtty, DocItem & rResult)
 {
 	int    ok = -1;
 	if(P_EgPrc && qtty != 0.0) {
@@ -10733,7 +10777,6 @@ int EgaisMarkAutoSelector::Helper(PPID goodsID, double qtty, ResultBlock & rResu
 		SString mark_buf;
 		StringSet ss_ext_codes;
 		Goods2Tbl::Rec goods_rec; // запись основного товара (который непосредственно продается)
-		Goods2Tbl::Rec inner_goods_rec;
 		Goods2Tbl::Rec org_goods_rec; // запись оригинального товара (из которого был произведен основной товар)
 		PPGoodsType gt_rec;
 		PPObjUnit unit_obj;
@@ -10759,48 +10802,55 @@ int EgaisMarkAutoSelector::Helper(PPID goodsID, double qtty, ResultBlock & rResu
 						PPGoodsStrucItem gs_item;
 						double item_qtty = 0.0;
 						for(uint gs_pos = 0; p_gs->EnumItemsExt(&gs_pos, &gs_item, 0, qtty, &item_qtty) > 0;) {
+							Goods2Tbl::Rec inner_goods_rec;
 							if(GObj.Fetch(gs_item.GoodsID, &inner_goods_rec) > 0) {
-								if(inner_goods_rec.PhUnitID && inner_goods_rec.PhUPerU > 0.0) {
-									unit_obj.TranslateToBase(inner_goods_rec.PhUnitID, SUOM_LITER, &inner_goods_liter_ratio);
-									inner_goods_liter_ratio *= inner_goods_rec.PhUPerU;
-								}
-								else {
-									unit_obj.TranslateToBase(inner_goods_rec.UnitID, SUOM_LITER, &inner_goods_liter_ratio);
-								}
-								if(inner_goods_liter_ratio > 0.0) {
-									Entry * p_entry_component = 0;
-									if(P_EgPrc->IsAlcGoods(gs_item.GoodsID)) {
+								Entry * p_entry_component = 0;
+								if(P_EgPrc->IsAlcGoods(gs_item.GoodsID)) {
+									if(inner_goods_rec.PhUnitID && inner_goods_rec.PhUPerU > 0.0) {
+										unit_obj.TranslateToBase(inner_goods_rec.PhUnitID, SUOM_LITER, &inner_goods_liter_ratio);
+										inner_goods_liter_ratio *= inner_goods_rec.PhUPerU;
+									}
+									else
+										unit_obj.TranslateToBase(inner_goods_rec.UnitID, SUOM_LITER, &inner_goods_liter_ratio);
+									if(inner_goods_liter_ratio > 0.0) {
 										lot_list.clear();
 										p_trfr->Rcpt.GetList(gs_item.GoodsID, 0, 0, ZERODATE, ReceiptCore::glfWithExtCodeOnly, &lot_list);
 										if(lot_list.getCount()) {
 											for(uint lotidx = 0; lotidx < lot_list.getCount(); lotidx++) {
 												const ReceiptTbl::Rec & r_lot_rec = lot_list.at(lotidx);
-												double inner_phqtty = item_qtty * inner_goods_liter_ratio;
-												const int plr = Helper_ProcessLot(p_gs->Rec.ID, r_lot_rec, inner_phqtty, &p_entry_component, rResult);
+												const int plr = Helper_ProcessLot(p_gs->Rec.ID, r_lot_rec, item_qtty, &p_entry_component, rResult);
 												THROW(plr);
 												if(plr > 0)
 													ok = 1;
 											}
 										}
 									}
-									else {
-										PPGoodsStruc::Ident gsi_inner(gs_item.GoodsID, GSF_SUBST, 0);
-										TSCollection <PPGoodsStruc> gs_list_inner;
-										GObj.LoadGoodsStruc(gsi_inner, gs_list_inner);
-										for(uint gsinneridx = 0; gsinneridx < gs_list_inner.getCount(); gsinneridx++) {
-											const PPGoodsStruc * p_gs_inner = gs_list_inner.at(gsinneridx);
-											if(p_gs_inner) {
-												PPGoodsStrucItem gs_inner_item;
-												double inner_item_qtty = 0.0;
-												for(uint gs_inner_pos = 0; p_gs_inner->EnumItemsExt(&gs_inner_pos, &gs_inner_item, 0, item_qtty, &inner_item_qtty) > 0;) {
-													if(P_EgPrc->IsAlcGoods(gs_inner_item.GoodsID)) {
+								}
+								else {
+									PPGoodsStruc::Ident gsi_inner(gs_item.GoodsID, GSF_SUBST, 0);
+									TSCollection <PPGoodsStruc> gs_list_inner;
+									GObj.LoadGoodsStruc(gsi_inner, gs_list_inner);
+									for(uint gsinneridx = 0; gsinneridx < gs_list_inner.getCount(); gsinneridx++) {
+										const PPGoodsStruc * p_gs_inner = gs_list_inner.at(gsinneridx);
+										if(p_gs_inner) {
+											PPGoodsStrucItem gs_inner_item;
+											double inner_item_qtty = 0.0;
+											for(uint gs_inner_pos = 0; p_gs_inner->EnumItemsExt(&gs_inner_pos, &gs_inner_item, 0, item_qtty, &inner_item_qtty) > 0;) {
+												Goods2Tbl::Rec subst_goods_rec;
+												if(GObj.Fetch(gs_inner_item.GoodsID, &subst_goods_rec) > 0 && P_EgPrc->IsAlcGoods(gs_inner_item.GoodsID)) {
+													if(subst_goods_rec.PhUnitID && subst_goods_rec.PhUPerU > 0.0) {
+														unit_obj.TranslateToBase(subst_goods_rec.PhUnitID, SUOM_LITER, &inner_goods_liter_ratio);
+														inner_goods_liter_ratio *= subst_goods_rec.PhUPerU;
+													}
+													else
+														unit_obj.TranslateToBase(subst_goods_rec.UnitID, SUOM_LITER, &inner_goods_liter_ratio);
+													if(inner_goods_liter_ratio > 0.0) {
 														lot_list.clear();
 														p_trfr->Rcpt.GetList(gs_inner_item.GoodsID, 0, 0, ZERODATE, ReceiptCore::glfWithExtCodeOnly, &lot_list);
 														if(lot_list.getCount()) {
 															for(uint lotidx = 0; lotidx < lot_list.getCount(); lotidx++) {
 																const ReceiptTbl::Rec & r_lot_rec = lot_list.at(lotidx);
-																double inner_phqtty = 1.0; // @todo
-																const int plr = Helper_ProcessLot(p_gs_inner->Rec.ID, r_lot_rec, inner_phqtty, &p_entry_component, rResult);
+																const int plr = Helper_ProcessLot(p_gs_inner->Rec.ID, r_lot_rec, inner_item_qtty, &p_entry_component, rResult);
 																THROW(plr);
 																if(plr > 0)
 																	ok = 1;
@@ -10954,48 +11004,59 @@ int EgaisMarkAutoSelector::Run(ResultBlock & rResult)
 	int    ok = -1;
 	if(P_EgPrc) {
 		Goods2Tbl::Rec goods_rec; // запись основного товара (который непосредственно продается)
-		if(rResult.Qtty != 0.0 && GObj.Fetch(rResult.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
-			PPGoodsType gt_rec;
-			if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_EGAISAUTOWO) {
-				if(!IsInitialized) {
-					GetRecentEgaisStock(RecentEgaisStock);
-				}
-				const int r = Helper(rResult.GoodsID, rResult.Qtty, rResult);
-				if(r > 0) {
-					assert(rResult.getCount());
-					LotExtCodeCore * p_lotxct = P_EgPrc->GetLecT();
-					if(p_lotxct) {
-						TSCollection <CCheckCore::ListByMarkEntry> lbm;
-						for(uint i = 0; i < rResult.getCount(); i++) {
-							const EgaisMarkAutoSelector::Entry * p_entry = rResult.at(i);
-							if(p_entry && p_entry->Te.getCount()) {
-								for(uint eidx = 0; eidx < p_entry->Te.getCount(); eidx++) {
-									const EgaisMarkAutoSelector::_TerminalEntry * p_te = p_entry->Te.at(eidx);
-									if(p_te && p_te->ML.getCount()) {
-										for(uint mlidx = 0; mlidx < p_te->ML.getCount(); mlidx++) {
-											const EgaisMarkAutoSelector::_MarkEntry * p_me = p_te->ML.at(mlidx);
-											if(p_me) {
-												CCheckCore::ListByMarkEntry * p_cclbm_entry = lbm.CreateNewItem();
-												THROW_SL(p_cclbm_entry);
-												p_cclbm_entry->OrgLotID = p_te->LotID;
-												p_cclbm_entry->OrgLotDate = p_te->LotDate;
-												p_cclbm_entry->OrgLotQtty = p_te->Qtty;
-												STRNSCPY(p_cclbm_entry->Mark, p_me->Mark);
+		for(uint itemidx = 0; itemidx < rResult.getCount(); itemidx++) {
+			DocItem * p_item = rResult.at(itemidx);
+			if(p_item && p_item->Qtty != 0.0 && GObj.Fetch(p_item->GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
+				PPGoodsType gt_rec;
+				if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_EGAISAUTOWO) {
+					if(!IsInitialized) {
+						GetRecentEgaisStock(RecentEgaisStock);
+					}
+					const int r = Helper(p_item->GoodsID, p_item->Qtty, *p_item);
+					if(r > 0) {
+						assert(rResult.getCount());
+						LotExtCodeCore * p_lotxct = P_EgPrc->GetLecT();
+						if(p_lotxct) {
+							TSCollection <CCheckCore::ListByMarkEntry> lbm;
+							for(uint i = 0; i < rResult.getCount(); i++) {
+								const EgaisMarkAutoSelector::Entry * p_entry = p_item->at(i);
+								if(p_entry && p_entry->Te.getCount()) {
+									for(uint eidx = 0; eidx < p_entry->Te.getCount(); eidx++) {
+										const EgaisMarkAutoSelector::_TerminalEntry * p_te = p_entry->Te.at(eidx);
+										if(p_te && p_te->ML.getCount()) {
+											for(uint mlidx = 0; mlidx < p_te->ML.getCount(); mlidx++) {
+												EgaisMarkAutoSelector::_MarkEntry * p_me = p_te->ML.at(mlidx);
+												if(p_me) {
+													CCheckCore::ListByMarkEntry * p_cclbm_entry = lbm.CreateNewItem();
+													THROW_SL(p_cclbm_entry);
+													p_cclbm_entry->OrgLotID = p_te->LotID;
+													p_cclbm_entry->OrgLotDate = p_te->LotDate;
+													p_cclbm_entry->OrgLotQtty = p_te->Qtty;
+													p_cclbm_entry->P_Extra = p_me;
+													STRNSCPY(p_cclbm_entry->Mark, p_me->Mark);
+												}
 											}
 										}
 									}
 								}
 							}
+							if(lbm.getCount()) {
+								PPObjCSession csobj;
+								const uint back_days = PPObjCSession::GetCcListByMarkBackDays(lbm);
+								LAssocArray index;
+								LAssocArray * p_index = csobj.FetchCcDate2MaxIdIndex(index) ? &index : 0;
+								csobj.P_Cc->Helper_GetListByMark2(lbm, CCheckPacket::lnextEgaisMark, p_index, back_days, 0);
+								for(uint lbmidx = 0; lbmidx < lbm.getCount(); lbmidx++) {
+									const CCheckCore::ListByMarkEntry * p_cclbm_entry = lbm.at(lbmidx);
+									if(p_cclbm_entry && p_cclbm_entry->P_Extra) {
+										EgaisMarkAutoSelector::_MarkEntry * p_me = static_cast<EgaisMarkAutoSelector::_MarkEntry *>(p_cclbm_entry->P_Extra);
+										p_me->Rest -= p_cclbm_entry->TotalOpQtty;
+									}
+								}
+							}
 						}
-						if(lbm.getCount()) {
-							PPObjCSession csobj;
-							const uint back_days = PPObjCSession::GetCcListByMarkBackDays(lbm);
-							LAssocArray index;
-							LAssocArray * p_index = csobj.FetchCcDate2MaxIdIndex(index) ? &index : 0;
-							csobj.P_Cc->Helper_GetListByMark2(lbm, CCheckPacket::lnextChZnMark, p_index, back_days, 0);
-						}
+						ok = 1;
 					}
-					ok = 1;
 				}
 			}
 		}

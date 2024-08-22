@@ -1549,7 +1549,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 								if(P_Od->GObj.FetchTax(pIter->GoodsID, P_CcPack->Rec.Dt, 0, &tax_entry) > 0)
 									pIter->VatRate = tax_entry.GetVatRate();
 								if(goods_rec.GoodsTypeID && P_Od->GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
-									chzn_product_type = gt_rec.ChZnProdType; // @v10.7.2
+									chzn_product_type = gt_rec.ChZnProdType;
 									if(gt_rec.Flags & GTF_ADVANCECERT)
 										pIter->Ptt = CCheckPacket::pttAdvance;
 									//@erikL v10.4.12 {

@@ -5683,7 +5683,7 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 				PPGoodsType gt_rec;
 				if(SETIFZ(gt_id, goods_rec.GoodsTypeID) && gt_id != PPGT_DEFAULT) {
 					oddgoods = 1;
-					if(GTObj.Fetch(gt_id, &gt_rec) > 0) {
+					if(GtObj.Fetch(gt_id, &gt_rec) > 0) {
 						if(gt_rec.Flags & GTF_EXCLAMOUNT)
 							exclamount = 1;
 						SetupStdAmount(PPAMT_BUYING,  gt_rec.AmtCost, cq, cq, (gt_rec.Flags & GTF_RPLC_COST), in_out);

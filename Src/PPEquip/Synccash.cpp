@@ -832,12 +832,12 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						else {
 							THROW(ArrAdd(Arr_In, DVCPARAM_VATRATE, fabs(sl_param.VatRate)));
 						}
-						if(sl_param.ChZnCode.NotEmptyS()) { // @v10.7.0
-							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCODE, sl_param.ChZnCode)); // @v10.6.12
-							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNGTIN, sl_param.ChZnGTIN)); // @v10.7.2
-							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSERIAL, sl_param.ChZnSerial)); // @v10.7.2
-							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPARTN, sl_param.ChZnPartN)); // @v10.7.8
-							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPRODTYPE, sl_param.ChZnProductType)); // @v10.7.2
+						if(sl_param.ChZnCode.NotEmptyS()) {
+							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCODE, sl_param.ChZnCode));
+							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNGTIN, sl_param.ChZnGTIN));
+							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSERIAL, sl_param.ChZnSerial));
+							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPARTN, sl_param.ChZnPartN));
+							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPRODTYPE, sl_param.ChZnProductType));
 							// @v11.1.11 {
 							if(sl_param.PpChZnR.LineIdx > 0) {
 								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPPRESULT, sl_param.PpChZnR.CheckResult)); // @v11.1.11 Результат проверки марки честный знак на фазе препроцессинга
@@ -1002,22 +1002,19 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 			THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 		}
 		Arr_In.Z();
-		// @v10.4.7 @fix {
 		if(flags & PRNCHK_RETURN) {
 			if(amt_bnk != 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, fabs(amt_bnk))) }
 			if(amt_cash != 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, fabs(amt_cash))); }
-			if(amt_ccrd != 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCCRD, fabs(amt_ccrd))); } // @v10.4.1
+			if(amt_ccrd != 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCCRD, fabs(amt_ccrd))); }
 		}
-		else /* } @v10.4.7 @fix */ {
+		else {
 			if(amt_bnk > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, amt_bnk)) }
 			if(amt_cash > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, amt_cash)); }
-			if(amt_ccrd > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCCRD, amt_ccrd)); } // @v10.4.1
+			if(amt_ccrd > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCCRD, amt_ccrd)); }
 		}
 		{
-			// @v10.8.12 {
 			if(ofdf.Sid.NotEmpty())
 				THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSID, ofdf.Sid));
-			// } @v10.8.12
 		}
 		// @v11.3.6 {
 		if(buyers_email.NotEmptyS()) {
