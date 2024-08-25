@@ -338,9 +338,9 @@ int GetMACAddrList(MACAddrArray * pList)
 	if(!err || err == ERROR_BUFFER_OVERFLOW) {
 		p_info = static_cast<IP_ADAPTER_INFO *>(SAlloc::C(size, 1));
 		err = ProcPool_IpHlpApi::GetAdaptersInfo(p_info, &size);
-		if(err == 0)
+		if(err == 0) {
 			for(IP_ADAPTER_INFO * p_iter = p_info; p_iter; p_iter = p_iter->Next) {
-				if(p_iter->Type == MIB_IF_TYPE_ETHERNET) {
+				if(oneof2(p_iter->Type, MIB_IF_TYPE_ETHERNET, IF_TYPE_IEEE80211)) { // @v12.0.12 IF_TYPE_IEEE80211
 					MACAddr ma;
 					if(p_iter->AddressLength == sizeof(ma.D)) {
 						memcpy(ma.D, p_iter->Address, sizeof(ma.D));
@@ -349,6 +349,7 @@ int GetMACAddrList(MACAddrArray * pList)
 					}
 				}
 			}
+		}
 	}
 	SAlloc::F(p_info);
 	return ok;

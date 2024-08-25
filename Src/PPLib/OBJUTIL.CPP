@@ -1661,7 +1661,7 @@ int FASTCALL ShowObjects(PPID obj, void * extraPtr)
 int FASTCALL SearchObject(PPID obj, PPID id, void * b)
 {
 	int    r = -1;
-	if(obj)
+	if(obj) {
 		if(id) {
 			PPObject * ppobj = GetPPObject(obj, 0);
 			r = ppobj ? ppobj->Search(id, b) : 0;
@@ -1669,6 +1669,7 @@ int FASTCALL SearchObject(PPID obj, PPID id, void * b)
 		}
 		else
 			PPSetObjError(PPERR_OBJNFOUND, obj, id);
+	}
 	return r;
 }
 
@@ -1697,7 +1698,7 @@ int PPSelectObject(PPID objType, PPID * pObjID, uint titleID, void * extraPtr)
 		SETIFZQ(width, 216);
 		SETIFZQ(height, 144);
 		// } @v11.9.4 
-		p_lw->changeBounds(TRect(0, 0, width, height)); // @v10.9.4 TRect(0, 0, 96, 36)-->TRect(0, 0, 160, 64) // @v11.1.9 (0, 0, 160, 64)-->(0, 0, 216, 144)
+		p_lw->changeBounds(TRect(0, 0, width, height));
 		p_lw->ViewOptions |= (ofCenterX | ofCenterY);
 		if(ExecView(p_lw) == cmOK) {
 			p_lw->getResult(&id);

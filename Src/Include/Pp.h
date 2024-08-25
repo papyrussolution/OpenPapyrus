@@ -15253,13 +15253,13 @@ public:
 #define CCHKF_PREPRINT     0x00000001L // По чеку распечатан счет
 #define CCHKF_ORDER        0x00000002L // Чек заказа стола
 #define CCHKF_CLOSEDORDER  0x00000004L // Закрытый заказ стола (на этот чек заказа есть как минимум одна ссылка от чека продажи).
-#define CCHKF_ADDINCORPCRD 0x00000008L // В оплату чека включена дополнительная кредитная карта.
+// @v12.0.12 #define CCHKF_ADDINCORPCRD 0x00000008L // В оплату чека включена дополнительная кредитная карта.
 	// ИД этой карты хранится в поле CCheckExtTbl::AddCrdCardID, а сумма, списываемая с нее - в поле CCheckExtTbl::AddCrdCardPaym.
 	// Доп кредитная карта никогда не применяется для начисления на нее денег.
 #define CCHKF_DELIVERY     0x00000010L // Чек с опцией доставки (в расширении может быть введен адрес и указано время доставки)
 #define CCHKF_BONUSCARD    0x00000020L // Чек проведен по бонусной карте. Этот флаг (кроме всего прочего) влияет на интерпретацию сумм оплаты.
 #define CCHKF_PAYMLIST     0x00000040L // Чек имеет список оплат.
-	// Если этот флаг установлен, флаги CCHKF_BANKING, CCHKF_ADDPAYM, CCHKF_ADDINCORPCRD и поля CCheckExt::AddPaym, CCheckExt::AddCrdCardID, CCheckExt::AddCrdCardPaym
+	// Если этот флаг установлен, флаги CCHKF_BANKING, CCHKF_ADDPAYM, /*CCHKF_ADDINCORPCRD*/ и поля CCheckExt::AddPaym, CCheckExt::AddCrdCardID, CCheckExt::AddCrdCardPaym
 	// утрачивают смысл (не принимаются в рассмотрение).
 #define CCHKF_TEMPREPLACE  0x00000080L // Пометка временного чека, который должен заместить чек с таким же номером в кассовой сессии
 #define CCHKF_IMPORTED     0x00000100L // Обозначает синхронный чек, импортированный из внешней системы
@@ -21120,7 +21120,7 @@ public:
 	PPID   CustDispType;     // Тип дисплея покупателя //
 	char   CustDispPort[8];  // Имя порта дисплея покупателя (COM)
 	uint16 CustDispFlags;	 // cdfXXX
-	int16  EgaisMode;        // Режим работы с УТМ ЕГАИС. 0 - не использовать, 1 - использовать, 2 - тестовый режим
+	int16  EgaisMode;        // Режим работы с УТМ ЕГАИС. 0 - не использовать, 1 - использовать, 2 - тестовый режим, 3 - только сканировать марку
 	long   BnkTermType;		 // Тип банковского терминала
 	uint16 BnkTermLogNum;	 // Логический номер банковского терминала
 	uint16 BnkTermFlags;	 // btfXXX
@@ -54928,10 +54928,11 @@ protected:
 	long   UiFlags;          // CheckPaneDialog::uifXXX Флаги пользовательского интерфейса
 	int    State_p;          // CheckPaneDialog::sXXX
 	long   OperRightsFlags;  // CheckPaneDialog::orfXXX
-	int    EgaisMode;        // Режим работы с ЕГАИС (0 - нет, 1 - использовать, 2 - тестовый режим).
+	int    EgaisMode;        // Режим работы с ЕГАИС (0 - нет, 1 - использовать, 2 - тестовый режим, 3 - только сканировать марку).
 		// Извлекается из записи синхронного кассового узла (PPSyncCashNode::EgaisMode)
 		// Если EgaisMode != 0 и !(Flags & fNoEdit), то в конструкторе создается *P_EgPrc.
 	int    ChZnPermissiveMode; // @v11.9.12 Режим работы с разрешительным режимом честный знак.
+	PPID   ChZnGuaID;        // @v12.0.12 
 	double BonusMaxPart;     // @*CPosProcessor::CPosProcessor()
 	long   OrgOperRights;    // Права доступа установленные в конструкторе либо по ключу.
 		// Так как агент может переопределять права доступа, то при изменении агента OperRightsFlags
@@ -56982,7 +56983,7 @@ public:
     int    Write(Packet & rPack, PPID locID, const char * pFileName);
     int    Write(Packet & rPack, PPID locID, SBuffer & rBuffer);
     int    PutQuery(PPEgaisProcessor::Packet & rPack, PPID locID, const char * pUrlSuffix, PPEgaisProcessor::Ack & rAck);
-    int    PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisProcessor::Ack & rAck);
+    int    PutCCheck(const CCheckPacket & rPack, PPID locID, bool horecaAutoWo, PPEgaisProcessor::Ack & rAck);
     PPEgaisProcessor::Packet * GetReply(const PPEgaisProcessor::Reply & rReply);
 	int    AcceptDoc(PPEgaisProcessor::Reply & rR, const char * pFileName);
 	int    DeleteDoc(PPEgaisProcessor::Reply & rR);

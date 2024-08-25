@@ -1414,9 +1414,9 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			Data.EgaisMode = static_cast<int16>(GetClusterData(CTL_EXTDEV_EGAISMODE));
 			getCtrlData(CTLSEL_EXTDEV_CHZNGUA, &Data.ChZnGuaID); // @v11.9.12
 			Data.ChZnPermissiveMode = static_cast<int16>(GetClusterData(CTL_EXTDEV_CHZNPM)); // @v11.9.12
-			GetClusterData(CTL_EXTDEV_CHKEGMUNIQ, &Data.ExtFlags); // @v10.1.1
-			getCtrlString(sel = CTL_EXTDEV_DRVVER, temp_buf); // @v10.0.03
-			THROW(Data.DrvVerFromStr(temp_buf)); // @v10.0.03
+			GetClusterData(CTL_EXTDEV_CHKEGMUNIQ, &Data.ExtFlags);
+			getCtrlString(sel = CTL_EXTDEV_DRVVER, temp_buf);
+			THROW(Data.DrvVerFromStr(temp_buf));
 			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;

@@ -1974,6 +1974,7 @@ PPERR_APNCORR_N_INV                 "Номер корреспондирующе
 PPERR_APNCORR_N_DUP                 "Номер корреспондирующего кассового узла должен быть уникальным"
 PPERR_APNCORR_UUID_DUP              "UUID корреспондирующего кассового узла должен быть уникальным"
 PPERR_ALCRETAILPROHIBTIME           "Розничная продажа алкоголя в это время запрещена (%s)"
+PPERR_CHZNMARKPMFAULT               "Ошибка валидации марки '%s' разрешительным режимом честный знак"
 //
 // Decl Struc Parsing
 //
@@ -6835,6 +6836,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bank_pl                             "Банки"
 @bankcode                            "Код банка"
 @bankname                            "Наименование банка"
+@marketplace                         "Маркетплейс"
+@marketplace_pl                      "Маркетплейсы"
 @owner                               "Владелец"
 @scardowner                          "Владелец карты"
 @scardownername                      "Наименование владельца карты"

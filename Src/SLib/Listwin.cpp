@@ -238,6 +238,7 @@ int ListWindow::getSingle(long * pVal)
 
 void ListWindow::MoveWindow(HWND linkHwnd, long right)
 {
+	
 	uint   list_ctl = IsTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
 	HWND   h_list = GetDlgItem(H(), list_ctl);
 	RECT   link_rect, list_rect;
@@ -259,7 +260,22 @@ void ListWindow::MoveWindow(HWND linkHwnd, long right)
 	int    x  = link_rect.left;
 	// @v11.9.4 int    w  = (ViewSize.x > 0) ? ViewSize.x : (link_rect.right - link_rect.left); // @v11.9.4 ViewSize.x
 	HWND   h_scroll = IsTreeList() ? 0 : GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1));
-
+	// @v12.0.12 {
+	// Это - исследование путей решения проблемы неверного размещения вертикального скрол-бара 
+	/*
+	bool   debug_mark = false; // @debug
+	HWND   v_scroll = 0; 
+	{
+		SCROLLBARINFO sbi;
+		INITWINAPISTRUCT(sbi);
+		if(::GetScrollBarInfo(Parent, OBJID_VSCROLL, &sbi)) {
+			debug_mark = true;
+		}
+		else if(::GetScrollBarInfo(H(), OBJID_VSCROLL, &sbi)) {
+			debug_mark = true;
+		}
+	}*/
+	// } @v12.0.12
 	if(GetSystemMetrics(SM_CYFULLSCREEN) > link_rect.bottom+h)
 		::MoveWindow(H(), x, link_rect.bottom, _width, h, 1);
 	else

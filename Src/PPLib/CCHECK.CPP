@@ -3102,8 +3102,7 @@ int CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
 		}
 		{
 			SString text_buf;
-			// @v10.3.9 pPack->PackLineTextExt(text_buf);
-			pPack->PackTextExt(text_buf); // @v10.3.9
+			pPack->PackTextExt(text_buf);
 			//
 			// @v11.8.10 Проявляются какие-то странные явления: в некоторых чеках возникают текстовые поля из других чеков.
 			// Я не понимаю точно в чем дело, но на всякий случай сделаю контрольное удаление записи текстового расширения //
@@ -4257,7 +4256,7 @@ int CCheckCore::GetTrnovrBySCard(PPID cardID, int alg /*PPObjSCard::gtalgXXX*/, 
 					if(amt > 0.0) { // Sell
 						if(alg != PPObjSCard::gtalgForBonus) {
 							CCheckExtTbl::Rec ext_rec;
-							if(data.Flags & (CCHKF_ADDPAYM|CCHKF_ADDINCORPCRD) && GetExt(data.ID, &ext_rec) > 0) {
+							if(data.Flags & (CCHKF_ADDPAYM/*@v12.0.12 |CCHKF_ADDINCORPCRD */) && GetExt(data.ID, &ext_rec) > 0) {
 								//
 								// При доплате по дополнительной карте сумма этой доплаты хранится с минусом.
 								//

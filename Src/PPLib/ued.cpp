@@ -1749,6 +1749,7 @@ int SrUedContainer_Base::WriteProps(const char * pFileName, const SBinaryChunk *
 		TSCollection <PropIdxEntry> prop_list;
 		if(GetPropList(prop_list) > 0) {
 			SString line_buf;
+			SString comment_buf;
 			SString temp_buf;
 			THROW_PP_S(!isempty(pFileName), PPERR_INVPARAM_EXT, __FUNCTION__"/pFileName");
 			THROW(LinguaLocusMeta); // @todo @err
@@ -1764,32 +1765,40 @@ int SrUedContainer_Base::WriteProps(const char * pFileName, const SBinaryChunk *
 							const LAssoc & r_ref = p_entry->RefList.at(refidx);
 							if(PropS.Get(r_ref.Key, r_ref.Val, local_prop_set)) {
 								line_buf.Z();
+								comment_buf.Z();
+								line_buf.CatHex(p_entry->Ued);
 								if(SearchBaseId(p_entry->Ued, temp_buf)) {
-									line_buf.Cat(temp_buf);
+									comment_buf.Cat(temp_buf);
 								}
 								else {
-									line_buf.CatChar('%').CatHex(p_entry->Ued); // @todo @err
+									comment_buf.CatChar('%').CatHex(p_entry->Ued); // @todo @err
 								}
 								if(p_entry->LocaleId) {
 									uint64 ued_locus = UED::ApplyMetaToRawValue32(LinguaLocusMeta, p_entry->LocaleId);
 									if(SearchBaseId(ued_locus, temp_buf)) {
 										line_buf.Space().Cat(temp_buf);
+										comment_buf.Space().Cat(temp_buf);
 									}
-									else
+									else {
 										line_buf.Space().CatChar('%').CatHex(ued_locus); // @todo @err
+										comment_buf.Space().CatChar('%').CatHex(ued_locus); // @todo @err
+									}
 								}
 								line_buf.Colon();
+								comment_buf.Colon();
 								//
 								for(uint j = 0; j < local_prop_set.GetLimbCount(); j++) {
 									uint64 ued_prop = local_prop_set.Get(j);
 									if(SearchBaseId(ued_prop, temp_buf)) {
-										line_buf.Space().Cat(temp_buf);
+										line_buf.Space().CatHex(ued_prop);
+										comment_buf.Space().Cat(temp_buf);
 									}
 									else if(UED::BelongToMeta(ued_prop, UED_META_STRINGREF)) {
 										uint64 raw_value = 0;
 										if(UED::GetRawValue(ued_prop, &raw_value)) {
 											GetS((uint)raw_value, temp_buf);
 											line_buf.Space().CatQStr(temp_buf);
+											comment_buf.Space().CatQStr(temp_buf);
 										}
 									}
 									else if(UED::BelongToMeta(ued_prop, UED_META_DECIMAL)) {
@@ -1797,13 +1806,17 @@ int SrUedContainer_Base::WriteProps(const char * pFileName, const SBinaryChunk *
 										SDecimal dcml;
 										dcml.FromUed(ued_prop, bits);
 										dcml.ToStr(0, temp_buf);
-										line_buf.Space().Cat(temp_buf);
+										line_buf.Space().CatHex(ued_prop);
+										comment_buf.Space().Cat(temp_buf);
 									}
-									else
-										line_buf.Space().CatChar('%').CatHex(ued_prop); // @todo @err
+									else {
+										line_buf.Space().CatHex(ued_prop);
+										comment_buf.Space().CatChar('%').CatHex(ued_prop); // @todo @err
+									}
 								}
 							}
-							f_out.WriteLine(line_buf.CR());
+							temp_buf.Z().Cat(line_buf).Space().Cat("//").Space().Cat(comment_buf).CR();
+							f_out.WriteLine(temp_buf);
 						}
 					}
 				}

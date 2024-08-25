@@ -4595,8 +4595,8 @@ public:
 	void   FASTCALL setDef(ListBoxDef * pDef);
 	void   setCompFunc(CompFunc f);
 	ListWindowSmartListBox * listBox() const;
-	void   MoveWindow(HWND linkHwnd, long right); // @v10.7.7 int-->void
-	void   MoveWindow(const RECT & rRect); // @v10.7.7 int-->void
+	void   MoveWindow(HWND linkHwnd, long right);
+	void   MoveWindow(const RECT & rRect);
 	ListBoxDef * getDef() const { return P_Def; }
 	void   SetToolbar(uint tbId);
 	uint   GetToolbar() const { return TbId; }

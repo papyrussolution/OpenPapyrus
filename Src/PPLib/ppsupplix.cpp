@@ -10297,7 +10297,7 @@ class EfopMayTea : public PrcssrSupplInterchange::ExecuteBlock { // @v12.0.7 @co
 								STRNSCPY(p_new_pack->DlvrLocGLN, temp_buf.Z().Cat(psn_pack.Rec.ID));
 						}
 						{
-							PPID   agent_psn_id = 0;
+							const PPID agent_psn_id = ObjectToPerson(pBp->Ext.AgentID, 0);
 							PersonTbl::Rec agent_psn_rec;
 							if(agent_psn_id && PsnObj.Fetch(agent_psn_id, &agent_psn_rec) > 0) {
 								p_new_pack->AgentID = agent_psn_id;

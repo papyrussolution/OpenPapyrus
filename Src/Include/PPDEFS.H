@@ -443,6 +443,7 @@
 	#define PPPRK_VESSELSAGENT  14L // Транспортные брокеры
 	#define PPPRK_CAPTAIN       15L // Командиры транспортных средств
 	#define PPPRK_DTO           16L // @v9.8.0 Операторы передачи данных
+	#define PPPRK_MARKETPLACE   17L // @v12.0.12 Маркетплейсы
 
 #define PPOBJ_PRSNSTATUS          9L  // $ Юридические статусы персоналий
 	#define PPPRS_PRIVATE        1L // Физическое лицо

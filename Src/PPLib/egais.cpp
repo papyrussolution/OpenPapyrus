@@ -600,7 +600,7 @@ int PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack & rAck
 	return ok;
 }
 
-int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisProcessor::Ack & rAck)
+int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool horecaAutoWo, PPEgaisProcessor::Ack & rAck)
 {
 	const int omit_nonmarked_goods = 1;
 
@@ -687,7 +687,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 				SXml::WNode n_docs(_doc, SXml::nst("ns", "Documents"));
 					n_docs.PutAttrib(SXml::nst_xmlns("xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
 					n_docs.PutAttrib(SXml::nst_xmlns("ns"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/WB_DOC_SINGLE_01"));
-					n_docs.PutAttrib(SXml::nst_xmlns("ck"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ChequeV3"));
+					n_docs.PutAttrib(SXml::nst_xmlns("ck"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ChequeV4")); // @v12.0.12 WEGAIS/ChequeV3-->WEGAIS/ChequeV4
 					n_docs.PutAttrib(SXml::nst_xmlns("oref"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ClientRef_v2"));
 					n_docs.PutAttrib(SXml::nst_xmlns("pref"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ProductRef_v2"));
 				{
@@ -698,7 +698,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 					{
 						SXml::WNode n_doc(_doc, SXml::nst("ns", "Document"));
 						{
-							SXml::WNode n_chk(_doc, SXml::nst("ns", "ChequeV3"));
+							SXml::WNode n_chk(_doc, SXml::nst("ns", "ChequeV4")); // @v12.0.12 ChequeV3-->ChequeV4
 							n_chk.PutInner(SXml::nst("ck", "Identity"), temp_buf.Z().Cat(rPack.Rec.ID));
 							{
 								SXml::WNode n_httn(_doc, SXml::nst("ck", "Header"));
@@ -737,28 +737,60 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, PPEgaisP
 												rPack.GetLineTextExt(_pos+1, CCheckPacket::lnextEgaisMark, mark_buf);
 												assert(IsEgaisMark(mark_buf, 0)); // @paranoic
 												//
-												SXml::WNode n_b(_doc, SXml::nst("ck", "Bottle"));
-												n_b.PutInner(SXml::nst("ck", "Barcode"), mark_buf);
-												{
-													GObj.GetSingleBarcode(r_item.GoodsID, 0, temp_buf);
-													result_barcode.Z();
-													int    dbr = 0; // Результат диагностики штрихкода
-													if(temp_buf.NotEmptyS()) {
-														int    diag = 0, std = 0;
-														dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
+												if(horecaAutoWo) {
+													SXml::WNode n_b(_doc, SXml::nst("ck", "Catering"));
+													n_b.PutInner(SXml::nst("ck", "Barcode"), mark_buf);
+													{
+														GObj.GetSingleBarcode(r_item.GoodsID, 0, temp_buf);
+														result_barcode.Z();
+														int    dbr = 0; // Результат диагностики штрихкода
+														if(temp_buf.NotEmptyS()) {
+															int    diag = 0, std = 0;
+															dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
+														}
+														if(dbr == 0 || !oneof4(result_barcode.Len(), 8, 12, 13, 14))
+															result_barcode = "4600000000008"; // dummy ean
+														n_b.PutInner(SXml::nst("ck", "EAN"), result_barcode);
 													}
-													if(dbr == 0 || !oneof4(result_barcode.Len(), 8, 12, 13, 14))
-														result_barcode = "4600000000008"; // dummy ean
-													n_b.PutInner(SXml::nst("ck", "EAN"), result_barcode);
+													{
+														double _p = fabs(intmnytodbl(r_item.Price) - r_item.Dscnt);
+														temp_buf.Z().Cat(_p, MKSFMTD_020);
+														n_b.PutInner(SXml::nst("ck", "Price"), temp_buf);
+													}
+													{
+														double _qtty = r_item.Quantity;
+														double _vol_ml = 0.0;
+														if(agi.Volume > 0.0) {
+															_vol_ml = (_qtty * agi.Volume) * 1000.0;
+														}
+														temp_buf.Z().Cat(R0i(_vol_ml));
+														n_b.PutInner(SXml::nst("ck", "Volume"), temp_buf);
+													}
 												}
-												{
-													double _p = fabs(intmnytodbl(r_item.Price) - r_item.Dscnt);
-													temp_buf.Z().Cat(_p, MKSFMTD_020);
-													n_b.PutInner(SXml::nst("ck", "Price"), temp_buf);
+												else {
+													SXml::WNode n_b(_doc, SXml::nst("ck", "Bottle"));
+													n_b.PutInner(SXml::nst("ck", "Barcode"), mark_buf);
+													{
+														GObj.GetSingleBarcode(r_item.GoodsID, 0, temp_buf);
+														result_barcode.Z();
+														int    dbr = 0; // Результат диагностики штрихкода
+														if(temp_buf.NotEmptyS()) {
+															int    diag = 0, std = 0;
+															dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
+														}
+														if(dbr == 0 || !oneof4(result_barcode.Len(), 8, 12, 13, 14))
+															result_barcode = "4600000000008"; // dummy ean
+														n_b.PutInner(SXml::nst("ck", "EAN"), result_barcode);
+													}
+													{
+														double _p = fabs(intmnytodbl(r_item.Price) - r_item.Dscnt);
+														temp_buf.Z().Cat(_p, MKSFMTD_020);
+														n_b.PutInner(SXml::nst("ck", "Price"), temp_buf);
+													}
+													//<ck:Barcode>22N000008XSG44YI5IC0P7T8091700102571956QFBDLJ8NXQXV7NU55ANSSPYCRAUET</ck:Barcode>
+													//<ck:EAN>4607136136823</ck:EAN>
+													//<ck:Price>543.22</ck:Price>
 												}
-												//<ck:Barcode>22N000008XSG44YI5IC0P7T8091700102571956QFBDLJ8NXQXV7NU55ANSSPYCRAUET</ck:Barcode>
-												//<ck:EAN>4607136136823</ck:EAN>
-												//<ck:Price>543.22</ck:Price>
 											}
 										}
 									}
@@ -11018,7 +11050,7 @@ int EgaisMarkAutoSelector::Run(ResultBlock & rResult)
 						LotExtCodeCore * p_lotxct = P_EgPrc->GetLecT();
 						if(p_lotxct) {
 							TSCollection <CCheckCore::ListByMarkEntry> lbm;
-							for(uint i = 0; i < rResult.getCount(); i++) {
+							for(uint i = 0; i < p_item->getCount(); i++) {
 								const EgaisMarkAutoSelector::Entry * p_entry = p_item->at(i);
 								if(p_entry && p_entry->Te.getCount()) {
 									for(uint eidx = 0; eidx < p_entry->Te.getCount(); eidx++) {

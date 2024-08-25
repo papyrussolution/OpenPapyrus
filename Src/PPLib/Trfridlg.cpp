@@ -52,7 +52,7 @@ private:
 	void   editQCertData();
 	void   GenerateSerial(); // called by handleEvent() on F2 (P_Current->Id == CTL_LOT_SERIAL)
 	void   calcPrice();
-	int    isModifPlus() const;
+	bool   IsModifPlus() const;
 	PPID   GetQuotLocID();
 	int    CheckPrice();
 	int    GetPriceRestrictions(RealRange * pRange);
@@ -61,8 +61,8 @@ private:
 	// Descr: Возвращает !0 если с редактируемой строкой может быть сопоставлен серийный номер или иные теги.
 	//   Применяется для определения возможности редактировать серийный номер или иные теги.
 	//
-	int    IsTaggedItem() const { return BIN(oneof4(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, PPOPT_GOODSORDER, PPOPT_DRAFTQUOTREQ) || isModifPlus()); }
-	int    IsSourceSerialUsed();
+	bool   IsTaggedItem() const { return (oneof4(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, PPOPT_GOODSORDER, PPOPT_DRAFTQUOTREQ) || IsModifPlus()); }
+	bool   IsSourceSerialUsed();
 	int    GetGoodsListSuitableForSourceSerial(PPID goodsID, PPIDArray & rList);
 	int    readQttyFld(uint master, uint ctl, double * val);
 	int    CheckQuantityForIntVal();
@@ -75,7 +75,6 @@ private:
 
 	PPObjBill * P_BObj;
 	Transfer  * P_Trfr;
-	// @v12.0.12 PPObjGoodsType GtObj;
 	PPObjGoods GObj;
 	PPObjTag   TagObj;
 	PPBillPacket * P_Pack;
@@ -464,10 +463,7 @@ TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opI
 	}
 }
 
-int TrfrItemDialog::isModifPlus() const
-{
-	return BIN(OpTypeID == PPOPT_GOODSMODIF && Item.Flags & PPTFR_PLUS);
-}
+bool TrfrItemDialog::IsModifPlus() const { return (OpTypeID == PPOPT_GOODSMODIF && (Item.Flags & PPTFR_PLUS)); }
 
 void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 {
@@ -521,7 +517,7 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 		St |= stGoodsFixed;
 		disableCtrls(1, CTLSEL_LOT_GOODSGRP, CTLSEL_LOT_GOODS, 0);
 	}
-	if(!(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) || isModifPlus()) || !Item.GoodsID) {
+	if(!(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) || IsModifPlus()) || !Item.GoodsID) {
 		disableCtrls(1, CTL_LOT_EXPIRY, CTLCAL_LOT_EXPIRY, CTLSEL_LOT_QCERT, 0);
 		setCtrlReadOnly(CTL_LOT_CLB, 1);
 		setCtrlReadOnly(CTL_LOT_SERIAL, 1);
@@ -1395,14 +1391,14 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 	// просто найти (или не найти) последний лот (хоть открытый, хоть закрытый)
 	// чтобы скопировать из него некоторые параметры.
 	//
-	else if(oneof3(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSACK, PPOPT_GOODSORDER) || P_Pack->IsDraft() || isModifPlus()) {
+	else if(oneof3(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSACK, PPOPT_GOODSORDER) || P_Pack->IsDraft() || IsModifPlus()) {
 		const  PPID  lid = Item.LocID;
 		const  PPID  lot_id = Item.LotID;
 		const  LDATE sd = MAXDATE;
 		Item.LotID = 0;
 		dir = 2; // Don't enumerate lots
 		Price = 0.0;
-		if(ItemNo < 0 && isModifPlus() && P_BObj->GetConfig().Flags & BCF_AUTOCOMPLOUTBYQUOT) {
+		if(ItemNo < 0 && IsModifPlus() && P_BObj->GetConfig().Flags & BCF_AUTOCOMPLOUTBYQUOT) {
 			const QuotIdent qi(Item.LocID, PPQUOTK_BASE, Item.CurID, P_Pack->Rec.Object);
 			THROW(r = GObj.GetQuot(Item.GoodsID, qi, 0.0, 0.0, &quot));
 		}
@@ -1533,7 +1529,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 	setupRest();
 	if(Item.GoodsID) {
 		{
-			const int enbl_lot_ctrl = BIN(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) || isModifPlus());
+			const int enbl_lot_ctrl = BIN(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) || IsModifPlus());
 			disableCtrls(!enbl_lot_ctrl, CTL_LOT_EXPIRY, CTLCAL_LOT_EXPIRY, CTLSEL_LOT_QCERT, CTL_LOT_CLB, 0);
 			setCtrlReadOnly(CTL_LOT_CLB, !enbl_lot_ctrl);
 			setCtrlReadOnly(CTL_LOT_SERIAL, !enbl_lot_ctrl);
@@ -1814,14 +1810,14 @@ int TrfrItemDialog::getManuf()
 	return ok;
 }
 
-int TrfrItemDialog::IsSourceSerialUsed()
+bool TrfrItemDialog::IsSourceSerialUsed()
 {
-	int    yes = 0;
+	bool   yes = false;
 	if(P_Pack && IsTaggedItem() && getCtrlView(CTL_LOT_SOURCESERIAL)) {
 		PPOprKind op_rec;
 		PPObjectTag tag_rec;
 		if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_SOURCESERIAL && TagObj.Fetch(PPTAG_LOT_SOURCESERIAL, &tag_rec) > 0)
-			yes = 1;
+			yes = true;
 	}
 	return yes;
 }
@@ -2106,14 +2102,11 @@ int PPObjBill::GetPriceRestrictions(PPID goodsID, PPID lotID, double cost, doubl
 
 int TrfrItemDialog::GetPriceRestrictions(RealRange * pRange)
 {
-	int    ok = -1;
 	RealRange range;
 	range.SetVal(0.0);
 	PPOprKind op_rec;
 	GetOpData(OpID, &op_rec);
-	if(op_rec.ExtFlags & OPKFX_RESTRICTPRICE) {
-		ok = P_BObj->GetPriceRestrictions(*P_Pack, Item, ItemNo, &range);
-	}
+	int    ok = (op_rec.ExtFlags & OPKFX_RESTRICTPRICE) ? P_BObj->GetPriceRestrictions(*P_Pack, Item, ItemNo, &range) : -1;
 	ASSIGN_PTR(pRange, range);
 	return ok;
 }
@@ -2126,7 +2119,7 @@ int TrfrItemDialog::CheckPrice()
 	if(OpTypeID == PPOPT_GOODSRECEIPT || (P_Pack->Rec.OpID == r_ccfg.DraftRcptOp && r_ccfg.Flags2 & CCFLG2_USESDONPURCHOP)) {
 		int    ret = Sd.CheckCost(Item.Cost);
 		if(!ret) {
-			int    invp_act = DS.GetTLA().InvalidSupplDealQuotAction;
+			const int invp_act = DS.GetTLA().InvalidSupplDealQuotAction;
 			if(invp_act == PPSupplAgreement::invpaWarning)
 				ret = CONFIRM(PPCFM_INVSUPPLDEAL);
 			else if(invp_act == PPSupplAgreement::invpaDoNothing)
@@ -2160,7 +2153,9 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	int    sel = 0;
 	int    no_err_msg = 0;
 	long   o;
-	double neck, ph_neck, extra_qtty = 0L;
+	double neck;
+	double ph_neck;
+	double extra_qtty = 0L;
 	double cur_price = TR5(Item.CurPrice);
 	double ct = TR5(Item.Cost);
 	double pc = TR5(Item.Price);
@@ -2249,7 +2244,7 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 		if(OpTypeID == PPOPT_GOODSORDER) {
 			// @v9.2.9 ds = 0.0;
 		}
-		else if(!isModifPlus()) {
+		else if(!IsModifPlus()) {
 			sel = CTL_LOT_COST;
 			THROW_PP(Item.GetOrgCost() >= 0.0, PPERR_INVCOST);
 		}
@@ -2616,10 +2611,7 @@ void TrfrItemDialog::SetupInheritedSerial()
 	}
 }
 
-PPID TrfrItemDialog::GetQuotLocID()
-{
-	return IsIntrExpndOp(OpID) ? PPObjLocation::ObjToWarehouse(P_Pack->Rec.Object) : P_Pack->Rec.LocID;
-}
+PPID TrfrItemDialog::GetQuotLocID() { return IsIntrExpndOp(OpID) ? PPObjLocation::ObjToWarehouse(P_Pack->Rec.Object) : P_Pack->Rec.LocID; }
 
 void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 {
@@ -2640,8 +2632,9 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 		}
 	}
 	else if(Item.GoodsID && oneof3(OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
-		double quot = 0.0, dis;
-		int    gqr = 0; // @v9.9.2 Результат извлечения котировки (для правильной обработки нулевого значения котировки)
+		double quot = 0.0;
+		double dis;
+		int    gqr = 0; // Результат извлечения котировки (для правильной обработки нулевого значения котировки)
 		const  PPID loc_id = GetQuotLocID();
 		if(loc_id) {
 			quot = Item.Price;

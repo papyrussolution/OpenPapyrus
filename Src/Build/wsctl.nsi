@@ -1,6 +1,6 @@
 ; WSCTL.NSI @construction
 ; Copyright (c) A.Sobolev 2024
-; РЎРєСЂРёРїС‚ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РґРёСЃС‚СЂРёР±СѓС‚РёРІР° РєРѕРјРїРѕРЅРµРЅС‚Р° WSCTL
+; Скрипт для создания дистрибутива компонента WSCTL
 ;
 !define PRODUCT_PUBLISHER "A.Fokin, A.Sobolev"
 !define PRODUCT_WEB_SITE "http://www.petroglif.ru"
@@ -21,7 +21,7 @@
 
 SetCompressor lzma
 Caption "${PRODUCT_NAME} Setup"
-XPStyle on
+;XPStyle on
 BrandingText " "
 
 !define MUI_VERBOSE 4
@@ -32,7 +32,7 @@ BrandingText " "
 !define MUI_ICON   "${SRC_ROOT}\SRC\RSRC\ICO\P2.ICO"
 !define MUI_UNICON "${SRC_ROOT}\SRC\RSRC\ICO\P2.ICO"
 ;
-; РЈС‚РёР»РёС‚Р°, СЃРѕР±РёСЂР°РµРјР°СЏ РїСЂРѕРµРєС‚РѕРј VersionSelector
+; Утилита, собираемая проектом VersionSelector
 ;
 !define VERSELDLL  "versel.dll"
 
@@ -54,8 +54,21 @@ Function SelectDir
 	Pop $1
 	Pop $2
 FunctionEnd
+;
+; Welcome page
+;
+!define MUI_WELCOMEPAGE_TITLE          "Вас приветствует мастер установки ${PRODUCT_NAME}"
+!define MUI_WELCOMEFINISHPAGE_BITMAP   "${SRC_ROOT}\Src\Rsrc\Bitmap\nsis-welcome-02.bmp"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "${SRC_ROOT}\Src\Rsrc\Bitmap\nsis-welcome-02.bmp"
+!insertmacro MUI_PAGE_WELCOME
+;
+; License page
+;
+!insertmacro MUI_PAGE_LICENSE "${SRC_ROOT}\SRC\Doc\LicenseAgreement.rtf"
 
-Section "Р¤Р°Р№Р»С‹ РїСЂРёР»РѕР¶РµРЅРёСЏ" SEC01
+!insertmacro MUI_PAGE_DIRECTORY
+
+Section "Файлы приложения" SEC01
 	SetOutPath "${DIR_BIN}"
 	SetOverwrite on
 	File "${SRC_TARGET}\wsctl.exe"

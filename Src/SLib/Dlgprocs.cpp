@@ -276,7 +276,7 @@ void TDialog::RemoveUnusedControls()
 				event.mouse.WhereY = HIWORD(lParam);
 				p_dlg->handleEvent(event);
 			}
-			break; // @v10.3.2 @fix (отсутствовал break)
+			break;
 		case WM_VKEYTOITEM:
 			if(PassMsgToCtrl(hwndDlg, uMsg, wParam, lParam) == -1) {
 				p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
@@ -288,8 +288,7 @@ void TDialog::RemoveUnusedControls()
 			PassMsgToCtrl(hwndDlg, uMsg, wParam, lParam);
 			return 0;
 		case WM_USER_KEYDOWN:
-			// @v11.2.8 if((wParam >= VK_F1 && wParam <= VK_F12) || (wParam >= 48 && wParam <= 57) || (wParam >= 65 && wParam <= 90) || (wParam >= 97 && wParam <= 122)) {
-			if(checkirangef(wParam, VK_F1, VK_F12) || checkirangef(wParam, 48, 57) || checkirangef(wParam, 65, 90) || checkirangef(wParam, 97, 122)) { // @v11.2.8 
+			if(checkirangef(wParam, VK_F1, VK_F12) || checkirangef(wParam, 48, 57) || checkirangef(wParam, 65, 90) || checkirangef(wParam, 97, 122)) {
 				TDialog * p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 				KeyDownCommand key_cmd;
 				key_cmd.State = 0;

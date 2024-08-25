@@ -1044,7 +1044,10 @@ int PPCashMachine::SyncPrintCheck(CCheckPacket * pCcPack, int addSummator)
 		// @v11.9.12 {
 		{
 			const PPSyncCashNode & r_cn = P_SyncIntrf->GetPosNode();
-			if(oneof2(r_cn.ChZnPermissiveMode, PPSyncCashNode::chznpmSoft, PPSyncCashNode::chznpmStrict)) {
+			// @v12.0.12 Здесь мы оставляем блок для случая r_cn.ChZnPermissiveMode == PPSyncCashNode::chznpmSoft,
+			// случай r_cn.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict теперь обрабатывается при сканировании марки
+			// @v12.0.12 if(oneof2(r_cn.ChZnPermissiveMode, PPSyncCashNode::chznpmSoft, PPSyncCashNode::chznpmStrict)) {
+			if(r_cn.ChZnPermissiveMode == PPSyncCashNode::chznpmSoft) { // @v12.0.12
 				if(r_cn.ChZnGuaID) {
 					PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection check_code_list;
 					PPObjGoods goods_obj;
