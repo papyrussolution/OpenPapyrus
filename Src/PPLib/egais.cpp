@@ -687,7 +687,12 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 				SXml::WNode n_docs(_doc, SXml::nst("ns", "Documents"));
 					n_docs.PutAttrib(SXml::nst_xmlns("xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
 					n_docs.PutAttrib(SXml::nst_xmlns("ns"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/WB_DOC_SINGLE_01"));
-					n_docs.PutAttrib(SXml::nst_xmlns("ck"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ChequeV4")); // @v12.0.12 WEGAIS/ChequeV3-->WEGAIS/ChequeV4
+					if(horecaAutoWo) {
+						n_docs.PutAttrib(SXml::nst_xmlns("ck"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ChequeV4")); // @v12.0.12 WEGAIS/ChequeV3-->WEGAIS/ChequeV4
+					}
+					else {
+						n_docs.PutAttrib(SXml::nst_xmlns("ck"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ChequeV3"));
+					}
 					n_docs.PutAttrib(SXml::nst_xmlns("oref"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ClientRef_v2"));
 					n_docs.PutAttrib(SXml::nst_xmlns("pref"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ProductRef_v2"));
 				{
@@ -698,7 +703,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 					{
 						SXml::WNode n_doc(_doc, SXml::nst("ns", "Document"));
 						{
-							SXml::WNode n_chk(_doc, SXml::nst("ns", "ChequeV4")); // @v12.0.12 ChequeV3-->ChequeV4
+							SXml::WNode n_chk(_doc, SXml::nst("ns", horecaAutoWo ? "ChequeV4" : "ChequeV3")); // @v12.0.12 ChequeV3-->ChequeV4
 							n_chk.PutInner(SXml::nst("ck", "Identity"), temp_buf.Z().Cat(rPack.Rec.ID));
 							{
 								SXml::WNode n_httn(_doc, SXml::nst("ck", "Header"));

@@ -734,10 +734,7 @@ int STestSuite::ReportTestEntry(int title, const Entry * pEntry)
 	return ok;
 }
 
-const SString & STestSuite::GetTabFileName() const
-{
-	return TabFileName;
-}
+const SString & STestSuite::GetTabFileName() const { return TabFileName; }
 
 const STestSuite::Entry * STestSuite::GetCurEntry() const
 {

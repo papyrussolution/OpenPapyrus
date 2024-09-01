@@ -5379,7 +5379,7 @@ class BillCache : public ObjCacheHash {
 public:
 	struct Data : public ObjCacheEntry { // size=48+16 // @v8.8.0 44-->48 // @v10.0.04 48-->52 // @v10.3.8 52-->56
 		LDATE  Dt;
-		long   BillNo; // @v10.3.8
+		long   BillNo;
 		PPID   OpID;
 		PPID   LocID;
 		PPID   Object;
@@ -5390,9 +5390,9 @@ public:
 		int16  EdiOp;
 		long   Flags;
 		long   Flags2;
-		LDATE  DueDate; // @v10.0.04
+		LDATE  DueDate;
 		double Amount;
-		PPID   CurID;   // @v10.5.8
+		PPID   CurID;
 	};
 	BillCache() : ObjCacheHash(PPOBJ_BILL, sizeof(Data),
 		(DS.CheckExtFlag(ECF_SYSSERVICE) ? (12*1024*1024) : (4*1024U*1024U)),
@@ -5602,7 +5602,7 @@ int BillCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 		if(id && p_bobj->Search(id, &rec) > 0) {
 			#define FLD(f) p_cache_rec->f = rec.f
 			FLD(Dt);
-			FLD(BillNo); // @v10.3.8
+			FLD(BillNo);
 			FLD(OpID);
 			FLD(LocID);
 			FLD(Object);
@@ -5612,9 +5612,9 @@ int BillCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
 			FLD(EdiOp);
 			FLD(Flags);
 			FLD(Flags2);
-			FLD(DueDate); // @v10.0.04
+			FLD(DueDate);
 			FLD(Amount);
-			FLD(CurID); // @v10.5.8
+			FLD(CurID);
 			#undef FLD
 
 			MultTextBlock b;
@@ -5634,7 +5634,7 @@ void BillCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	#define FLD(f) p_data_rec->f = p_cache_rec->f
 	FLD(ID);
 	FLD(Dt);
-	FLD(BillNo); // @v10.3.8
+	FLD(BillNo);
 	FLD(OpID);
 	FLD(LocID);
 	FLD(Object);
@@ -5644,9 +5644,9 @@ void BillCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 	FLD(EdiOp);
 	FLD(Flags);
 	FLD(Flags2);
-	FLD(DueDate); // @v10.0.04
+	FLD(DueDate);
 	FLD(Amount);
-	FLD(CurID); // @v10.5.8
+	FLD(CurID);
 	#undef FLD
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Code, sizeof(p_data_rec->Code));

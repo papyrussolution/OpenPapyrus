@@ -2444,7 +2444,7 @@ int PPViewBrowser::Advise(int kind, PPID action, PPID objType, long flags)
 	PPAdviseBlock adv_blk;
 	adv_blk.Kind = kind;
 	adv_blk.TId = DS.GetConstTLA().GetThreadID();
-	adv_blk.Action = action; // @v10.8.12
+	adv_blk.Action = action;
 	adv_blk.ObjType = objType;
 	adv_blk.Proc = PPViewBrowser::HandleNotifyEvent;
 	adv_blk.ProcExtPtr = this;

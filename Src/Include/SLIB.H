@@ -9412,7 +9412,6 @@ public:
 	// Descr: Строит суффиксный массив для быстрого поиска строк.
 	//
 	int    BuildSaIndex();
-	// @v10.7.11 int    Test_Cmp(const TaggedStringArray_obsolete &, int * pNEqPos) const;
 	static int Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const LAssoc * p2, StrAssocArray * pArray, LAssocArray * pRecurTracer); // @reallyprivate
 protected:
 	CompFunc TextCmpProc;

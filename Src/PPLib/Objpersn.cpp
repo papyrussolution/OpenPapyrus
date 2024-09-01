@@ -58,10 +58,7 @@
 	}
 #endif // } 0
 
-SString & FASTCALL GetMainOrgName(SString & rBuf)
-{
-	return (rBuf = DS.GetConstTLA().MainOrgName);
-}
+SString & FASTCALL GetMainOrgName(SString & rBuf) { return (rBuf = DS.GetConstTLA().MainOrgName); }
 
 int FASTCALL GetMainOrgID(PPID * pID)
 {
@@ -162,7 +159,6 @@ int GetUserByPerson(PPID psnID, PPID * pUserID)
 //
 SlVCard::Rec::Rec() : BirthDay(ZERODATE)
 {
-	//Init();
 }
 
 void SlVCard::Rec::Init()
@@ -329,7 +325,7 @@ struct TaggedString_obsolete {
 	static size_t BufSize() { return (sizeof(TaggedString_obsolete)-sizeof(long)); }
 	TaggedString_obsolete() : Id(0)
 	{
-		PTR32(Txt)[0] = 0;
+		Txt[0] = 0;
 	}
 	long   Id;
 	char   Txt[64];
@@ -352,24 +348,7 @@ public:
 		STRNSCPY(entry.Txt, pStr);
 		return insert(&entry);
 	}
-	// @v10.7.11 int    Search(long id, uint * pPos, int binary = 0) const;
-	//
-	// Descr: Ищет в массиве элемент, текст которого совпадает с параметром pTxt.
-	//   поиск не чувствителен к регистру.
-	//   Если в массиве содержится более одного элемента, соответствующего
-	//   критерию то найден будет только самый первый.
-	// Returns:
-	//   !0 - элемент найден
-	//   0  - элемент не найден
-	//
-	// @v10.7.11 int    SearchByText(const char * pTxt, uint * pPos) const;
-	// @v10.7.11 int    Get(long id, char * pBuf, size_t bufLen, int binary = 0) const;
-	// @v10.7.11 int    Get(long id, SString & rBuf, int binary = 0) const;
-	// @v10.7.11 void   SortByID();
-	// @v10.7.11 void   SortByText();
 };
-
-// @v10.7.10 const char * PersonAddImageFolder = "PersonAddImageFolder";
 
 struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 	size_t GetSize() const { return (sizeof(*this) + ExtStrSize); }
@@ -450,7 +429,6 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 		}
 		THROW(PPObject::Helper_PutConfig(prop_cfg_id, cfg_obj_type, is_new, p_cfg, sz, 0));
 		{
-			// @v10.7.11 {
 			if(pCfg) {
 				TaggedStringArray_obsolete temp_list;
 				for(uint i = 0; i < pCfg->DlvrAddrExtFldList.getCount(); i++) {
@@ -464,8 +442,6 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 			else {
 				THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, 0, 0));
 			}
-			// } @v10.7.11
-			// @v10.7.11 THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, (pCfg ? &pCfg->DlvrAddrExtFldList : 0), 0));
 		}
 		THROW(p_ref->PutPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONDETECTIONLIST, (pCfg ? &pCfg->NewClientDetectionList : 0), 0)); // @vmiller
 		THROW(tra.Commit());
@@ -533,15 +509,12 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 		ok = -1;
 	}
 	{
-		// @v10.7.11 {
 		pCfg->DlvrAddrExtFldList.Z();
 		TaggedStringArray_obsolete temp_list;
 		THROW(p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, &temp_list));
 		for(uint i = 0; i < temp_list.getCount(); i++) {
 			pCfg->DlvrAddrExtFldList.Add(temp_list.at(i).Id, temp_list.at(i).Txt);
 		}
-		// } @v10.7.11
-		// @v10.7.11 THROW(p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONCFGEXTFLDLIST, &pCfg->DlvrAddrExtFldList));
 	}
 	THROW(p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_PERSONDETECTIONLIST, &pCfg->NewClientDetectionList)); // @vmiller
 	CATCHZOK
@@ -550,7 +523,7 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 }
 
 class ExtFieldsDialog : public PPListDialog {
-	DECL_DIALOG_DATA(StrAssocArray); // @v10.7.11 TaggedStringArray-->StrAssocArray
+	DECL_DIALOG_DATA(StrAssocArray);
 public:
 	ExtFieldsDialog() : PPListDialog(DLG_DLVREXTFLDS, CTL_LBXSEL_LIST)
 	{
@@ -582,7 +555,7 @@ private:
 int ExtFieldsDialog::Edit(SStringTag * pItem)
 {
 	class ExtFldCfgDialog : public TDialog {
-		DECL_DIALOG_DATA(SStringTag); // @v10.7.11 TaggedString-->SStringTag
+		DECL_DIALOG_DATA(SStringTag);
 	public:
 		explicit ExtFldCfgDialog(int isNew) : TDialog(DLG_EXTFLDCFG)
 		{
@@ -668,8 +641,7 @@ int ExtFieldsDialog::editItem(long pos, long id)
 	return ok;
 }
 
-int ExtFieldsDialog::delItem(long pos, long id)
-	{ return Data.AtFree(pos); }
+int ExtFieldsDialog::delItem(long pos, long id) { return Data.AtFree(pos); }
 
 int ExtFieldsDialog::setupList()
 {
@@ -678,7 +650,6 @@ int ExtFieldsDialog::setupList()
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; i < Data.getCount(); i++) {
 		ss.Z();
-		//TaggedString item = Data.at(i);
 		StrAssocArray::Item item = Data.Get(i);
 		ss.add(temp_buf.Z().Cat(item.Id));
 		ss.add(item.Txt);
@@ -689,8 +660,10 @@ int ExtFieldsDialog::setupList()
 	}
 	return ok;
 }
-
+//
+// Descr: Диалог редактирования списка признаков новых клиентов
 // @vmiller
+//
 class NewPersMarksDialog : public PPListDialog {
 	DECL_DIALOG_DATA(TSVector <PPPersonConfig::NewClientDetectionItem>);
 public:
@@ -722,6 +695,11 @@ private:
 
 class NewPersMarksFieldDialog : public TDialog {
 	DECL_DIALOG_DATA(PPPersonConfig::NewClientDetectionItem);
+	PPIDArray * MakeOpTypeList(PPIDArray & rList) const
+	{
+		rList.Z().addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_GENERIC, PPOPT_DRAFTQUOTREQ, 0L);
+		return &rList;
+	}
 public:
 	explicit NewPersMarksFieldDialog(int isNew) : TDialog(DLG_NEWCNTCF)
 	{
@@ -733,9 +711,7 @@ public:
 			MEMSZERO(Data);
 		if(Data.Oi.Obj == PPOBJ_OPRKIND) {
 			PPIDArray op_type_list;
-			op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_DRAFTRECEIPT,
-				PPOPT_DRAFTEXPEND, PPOPT_GENERIC, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
-			SetupOprKindCombo(this, CTLSEL_NEWCNTCF_OPKIND, Data.Oi.Id, 0, &op_type_list, 0);
+			SetupOprKindCombo(this, CTLSEL_NEWCNTCF_OPKIND, Data.Oi.Id, 0, MakeOpTypeList(op_type_list), 0);
 		}
 		else if(Data.Oi.Obj == PPOBJ_PERSONOPKIND) {
 			Data.Oi.Obj = PPOBJ_PERSONOPKIND;
@@ -773,9 +749,7 @@ private:
 						{
 							Data.Oi.Obj = obj_type;
 							PPIDArray op_type_list;
-							op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
-								PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_GENERIC, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
-							SetupOprKindCombo(this, CTLSEL_NEWCNTCF_OPKIND, Data.Oi.Id = 0, 0, &op_type_list, 0);
+							SetupOprKindCombo(this, CTLSEL_NEWCNTCF_OPKIND, Data.Oi.Id = 0, 0, MakeOpTypeList(op_type_list), 0);
 						}
 						break;
 					case PPOBJ_SCARDSERIES:
@@ -855,7 +829,7 @@ int NewPersMarksDialog::addItem(long * pPos, long * pID)
 int NewPersMarksDialog::editItem(long pos, long id)
 {
 	SString str;
-	return (pos >= 0 && pos < (long)Data.getCount()) ? Edit(&Data.at(pos), str) : -1;
+	return (pos >= 0 && pos < Data.getCountI()) ? Edit(&Data.at(pos), str) : -1;
 }
 
 int NewPersMarksDialog::delItem(long pos, long id)
@@ -924,8 +898,7 @@ void PPPersonConfig::Init()
 	memzero(this, offsetof(PPPersonConfig, TopFolder));
 	TopFolder.Z();
 	AddImageFolder.Z();
-	// @v10.7.11 DlvrAddrExtFldList.freeAll();
-	DlvrAddrExtFldList.Z(); // @v10.7.11
+	DlvrAddrExtFldList.Z();
 	NewClientDetectionList.freeAll();
 }
 
@@ -960,9 +933,9 @@ void PPPersonConfig::Init()
 			AddClusterAssoc(CTL_PSNCFG_FLAGS, 3, PPPersonConfig::fShowPsnImageAfterCmdAssoc);
 			AddClusterAssoc(CTL_PSNCFG_FLAGS, 4, PPPersonConfig::fSyncMergeRegList);
 			AddClusterAssoc(CTL_PSNCFG_FLAGS, 5, PPPersonConfig::fSendAttachment);
-			AddClusterAssoc(CTL_PSNCFG_FLAGS, 6, PPPersonConfig::fSyncAppendAbsKinds); // @v10.3.0
+			AddClusterAssoc(CTL_PSNCFG_FLAGS, 6, PPPersonConfig::fSyncAppendAbsKinds);
 			SetClusterData(CTL_PSNCFG_FLAGS, Data.Flags);
-			SetTimeRangeInput(this, CTL_PSNCFG_SMSPRTR, TIMF_HM, &Data.SmsProhibitedTr); // @v10.2.3
+			SetTimeRangeInput(this, CTL_PSNCFG_SMSPRTR, TIMF_HM, &Data.SmsProhibitedTr);
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()
@@ -974,7 +947,7 @@ void PPPersonConfig::Init()
 			getCtrlData(CTL_PSNCFG_CALQUANT,    &Data.StaffCalQuant);
 			getCtrlData(CTL_PSNCFG_SMSTIMEOUT,  &Data.SendSmsSamePersonTimeout);
 			GetClusterData(CTL_PSNCFG_FLAGS,    &Data.Flags);
-			GetTimeRangeInput(this, CTL_PSNCFG_SMSPRTR, TIMF_HM, &Data.SmsProhibitedTr); // @v10.2.3
+			GetTimeRangeInput(this, CTL_PSNCFG_SMSPRTR, TIMF_HM, &Data.SmsProhibitedTr);
 			getCtrlString(CTL_PSNCFG_IMGFOLDER,  Data.AddImageFolder);
 			THROW_PP_S(!Data.AddImageFolder.Len() || pathValid(Data.AddImageFolder, 1), PPERR_DIRNOTEXISTS, Data.AddImageFolder);
 			ASSIGN_PTR(pData, Data);
@@ -1042,14 +1015,14 @@ void PPPersonConfig::Init()
 TLP_IMPL(PPObjPerson, PersonCore, P_Tbl);
 
 PPObjPerson::PPObjPerson(SCtrLite sctr) : PPObject(PPOBJ_PERSON), LocObj(sctr), P_ArObj(0), P_PrcObj(0), P_ScObj(0), ExtraPtr(0),
-	DoObjVer_Person(CConfig.Flags2 & CCFLG2_USEHISTPERSON) // @v10.5.3
+	DoObjVer_Person(CConfig.Flags2 & CCFLG2_USEHISTPERSON)
 {
 	TLP_OPEN(P_Tbl);
 	Cfg.Flags &= ~PPPersonConfig::fValid;
 }
 
 PPObjPerson::PPObjPerson(void * extraPtr) : PPObject(PPOBJ_PERSON), LocObj(), P_ArObj(new PPObjArticle), P_PrcObj(new PPObjProcessor), P_ScObj(0), ExtraPtr(extraPtr),
-	DoObjVer_Person(CConfig.Flags2 & CCFLG2_USEHISTPERSON) // @v10.5.3
+	DoObjVer_Person(CConfig.Flags2 & CCFLG2_USEHISTPERSON)
 {
 	TLP_OPEN(P_Tbl);
 	Cfg.Flags &= ~PPPersonConfig::fValid;
@@ -1300,12 +1273,10 @@ int PPObjPerson::GetCountry(PPID id, PPID * pCountryID, PPCountryBlock * pBlk)
 						(pBlk->Abbr = reg_rec.Num).Strip();
 					if(reg_list.GetRegister(PPREGT_COUNTRYCODE, 0, &reg_rec) > 0) {
 						(pBlk->Code = reg_rec.Num).Strip();
-						// @v9.7.8 {
 						// Россия = 643
 						pBlk->IsNative = 1;
 						if(pBlk->Code.NotEmpty() && DS.GetConstTLA().MainOrgCountryCode != pBlk->Code)
 							pBlk->IsNative = 0;
-						// } @v9.7.8
 					}
 				}
 				(pBlk->Name = rec.Name).Strip();
@@ -1364,16 +1335,16 @@ int PPObjPerson::GetAddress(PPID id, SString & rBuf)
 //
 PPBank::PPBank() : ID(0)
 {
-	PTR32(Name)[0] = 0;
-	PTR32(BIC)[0] = 0;
-	PTR32(CorrAcc)[0] = 0;
-	PTR32(City)[0] = 0;
-	PTR32(ExtName)[0] = 0;
+	Name[0] = 0;
+	BIC[0] = 0;
+	CorrAcc[0] = 0;
+	City[0] = 0;
+	ExtName[0] = 0;
 }
 
 BnkAcctData::BnkAcctData(long initFlags) : InitFlags(initFlags), BnkAcctID(0), OwnerID(0)
 {
-	PTR32(Acct)[0] = 0;
+	Acct[0] = 0;
 }
 
 int BnkAcctData::Format(const char * pTitle, char * pBuf, size_t bufLen) const
@@ -1404,17 +1375,17 @@ int BnkAcctData::Format(const char * pTitle, char * pBuf, size_t bufLen) const
 
 PersonReq::PersonReq() : Flags(0), AddrID(0), RAddrID(0), SrchRegTypeID(0)
 {
-	PTR32(Name)[0] = 0;
-	PTR32(ExtName)[0] = 0;
-	PTR32(Addr)[0] = 0;
-	PTR32(RAddr)[0] = 0;
-	PTR32(Phone1)[0] = 0;
-	PTR32(TPID)[0] = 0;
-	PTR32(KPP)[0] = 0;
-	PTR32(OKONF)[0] = 0;
-	PTR32(OKPO)[0] = 0;
-	PTR32(SrchCode)[0] = 0;
-	PTR32(Memo)[0] = 0;
+	Name[0] = 0;
+	ExtName[0] = 0;
+	Addr[0] = 0;
+	RAddr[0] = 0;
+	Phone1[0] = 0;
+	TPID[0] = 0;
+	KPP[0] = 0;
+	OKONF[0] = 0;
+	OKPO[0] = 0;
+	SrchCode[0] = 0;
+	Memo[0] = 0;
 }
 //
 //
@@ -1557,7 +1528,7 @@ int PPObjPerson::GetListByRegNumber(PPID regTypeID, PPID kindID, const char * pS
 	int    ok = 1;
 	SString msg_buf;
 	RegisterFilt reg_flt;
-	reg_flt.Oid.Obj = PPOBJ_PERSON; // @v10.0.1
+	reg_flt.Oid.Obj = PPOBJ_PERSON;
 	reg_flt.RegTypeID = regTypeID;
 	reg_flt.SerPattern = pSerial;
 	reg_flt.NmbPattern = pNumber;
@@ -1611,7 +1582,7 @@ int PPObjPerson::GetRegList(PPID personID, RegisterArray * pList, int useInherit
 								RegisterTbl::Rec reg_rec = r_item;
 								reg_rec.Flags |= PREGF_INHERITED;
 								pList->insert(&reg_rec);
-								ok = 1; // @v9.2.9 @fix
+								ok = 1;
 							}
 						}
 					}
@@ -4862,14 +4833,11 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 		if(kind_id <= 0) {
 			kind_id = SelectPersonKind();
 			if(kind_id > 0) {
-				// @v10.5.11 InitEditBlock(kind_id, rBlk);
-				// @v10.5.11 {
 				EditBlock temp_blk;
 				InitEditBlock(kind_id, temp_blk);
 				rBlk.InitKindID = temp_blk.InitKindID;
 				rBlk.InitStatusID = temp_blk.InitStatusID;
 				rBlk.ShortDialog = temp_blk.ShortDialog;
-				// } @v10.5.11
 				kind_id = rBlk.InitKindID;
 			}
 			else
@@ -5051,10 +5019,7 @@ void PsnSelAnalogDialog::setSrchString(const char * pStr)
 		setupList();
 }
 
-void PsnSelAnalogDialog::getResult(PPID * pID)
-{
-	ASSIGN_PTR(pID, Selection);
-}
+void PsnSelAnalogDialog::getResult(PPID * pID) { ASSIGN_PTR(pID, Selection); }
 
 void PsnSelAnalogDialog::setupList()
 {
@@ -5065,12 +5030,32 @@ void PsnSelAnalogDialog::setupList()
 		p_list->freeAll();
 		if(sap.NamePattern.NotEmptyS()) {
 			PPIDArray id_list;
+			PPObjIDArray oid_byphone_list;
 			PersonTbl::Rec rec;
 			P_PsnObj->GetListByPattern(&sap, &id_list);
-			for(uint i = 0; i < id_list.getCount(); i++) {
-				const  PPID psn_id = id_list.get(i);
-				if(P_PsnObj->Search(psn_id, &rec) > 0)
-					p_list->addItem(psn_id, rec.Name);
+			// @v12.1.0 {
+			P_PsnObj->LocObj.P_Tbl->SearchPhoneObjList(sap.NamePattern, 0, oid_byphone_list); 
+			if(oid_byphone_list.getCount()) {
+				for(uint i = 0; i < oid_byphone_list.getCount(); i++) {
+					const PPObjID oid = oid_byphone_list.at(i);
+					if(oid.Obj == PPOBJ_PERSON) {
+						id_list.add(oid.Id);
+					}
+					else if(oid.Obj == PPOBJ_LOCATION) {
+						LocationTbl::Rec loc_rec;
+						if(P_PsnObj->LocObj.Fetch(oid.Id, &loc_rec) > 0 && loc_rec.OwnerID) {
+							id_list.add(loc_rec.OwnerID);
+						}
+					}
+				}
+			}
+			// } @v12.1.0 
+			{
+				for(uint i = 0; i < id_list.getCount(); i++) {
+					const  PPID psn_id = id_list.get(i);
+					if(P_PsnObj->Search(psn_id, &rec) > 0)
+						p_list->addItem(psn_id, rec.Name);
+				}
 			}
 		}
 		p_list->Draw_();

@@ -3122,15 +3122,23 @@ private:
 
 int Test_ListSelectionDialog()
 {
-	return ListSelectionDialog::Exec();
+	int    ok = 0;
+	ok = ListSelectionDialog::Exec();
+	return ok;
 }
 
 /*static*/int ListSelectionDialog::Exec()
 {
 	int    ok = -1;
+	ListSelectionDialog * p_win = 0;
+	const UiDescription * p_uid = SLS.GetUiDescription();
+	const SUiLayout * p_lo = 0;
 	TRect  b;
 	b.set(0, 0, 295, 440); 
-	ListSelectionDialog * p_win = new ListSelectionDialog("A title");
+	THROW(p_uid);
+	p_lo = p_uid->GetLayoutBySymbC("listdialog");
+	THROW(p_lo);
+	p_win = new ListSelectionDialog("A title");
 	THROW_MEM(p_win);
 	p_win->setBounds(b);
 	//p_win->setDTS(&rData);
@@ -3188,28 +3196,36 @@ void ListSelectionDialog::CreateLayout()
 			}
 		}		
 	};
-
-	SUiLayout * p_lo_result = new SUiLayout();
+	SUiLayout * p_lo_result = 0;
 	{
+		const UiDescription * p_uid = SLS.GetUiDescription();
+		if(p_uid) {
+			const SUiLayout * p_lo = p_uid->GetLayoutBySymbC("listdialog");
+			if(p_lo)
+				p_lo_result = new SUiLayout(*p_lo);
+		}
+	}
+	/*{
 		SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
 		p_lo_result->SetLayoutBlock(alb);
 	}
 	{
 		SUiLayout * p_lo_list = p_lo_result->InsertItem(0, 0);
-	}
-	{
-		SUiLayoutParam alb_buttons(DIREC_HORZ, 0, SUiLayoutParam::alignEnd);
-		alb_buttons.GrowFactor = 1.0f;
-		alb_buttons.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-		SUiLayout * p_lo_buttons = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_Buttons, 0)), &alb_buttons);
+	}*/
+	if(p_lo_result) {
+		//SUiLayoutParam alb_buttons(DIREC_HORZ, 0, SUiLayoutParam::alignEnd);
+		//alb_buttons.GrowFactor = 1.0f;
+		//alb_buttons.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+		//SUiLayout * p_lo_buttons = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_Buttons, 0)), &alb_buttons);
+		SUiLayout * p_lo_footer = p_lo_result->FindBySymb("listdialog_footer");
 		{
 			SUiLayoutParam alb;
 			alb.GrowFactor = 1.0f;
 			alb.SetFixedSizeY(FixedCtrlHeight);
 			alb.Margin.Set(def_margin);
-			InnerBlock::InsertButtonLayout(this, p_lo_buttons, CTL_CALENDAR_TODAY, alb, 1.0f);
-			InnerBlock::InsertButtonLayout(this, p_lo_buttons, STDCTL_OKBUTTON, alb, 1.0f);
-			InnerBlock::InsertButtonLayout(this, p_lo_buttons, STDCTL_CANCELBUTTON, alb, 1.0f);
+			InnerBlock::InsertButtonLayout(this, p_lo_footer, CTL_CALENDAR_TODAY, alb, 1.0f);
+			InnerBlock::InsertButtonLayout(this, p_lo_footer, STDCTL_OKBUTTON, alb, 1.0f);
+			InnerBlock::InsertButtonLayout(this, p_lo_footer, STDCTL_CANCELBUTTON, alb, 1.0f);
 		}
 	}
 	P_Lfc = p_lo_result;
@@ -3227,69 +3243,63 @@ void ListSelectionDialog::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 			const SDrawFigure * p_fig = 0;
 			SPaintToolBox * p_tb = APPL->GetUiToolBox();
 			if(p_tb) {
-				//if(p_lo_extra) {
-					SString text_utf8;
-					SString symb;
-					// Прежде всего закрасим фон
-					rCanv.Rect(lo_rect, 0, TProgram::tbiListBkgBrush);
-					if(pen_ident) {
-						/*if(pLo == P_LoFocused) {
-							pen_ident = TProgram::tbiIconAccentColor;
-						}*/
-						rCanv.Rect(lo_rect);
-						rCanv.Stroke(pen_ident, 0);
-					}
-					if(brush_ident) {
-						rCanv.Rect(lo_rect);
-						rCanv.Fill(brush_ident, 0);
-					}
-					if(p_fig) {
-						const uint _w = 16;
-						const uint _h = 16;
-						SImageBuffer ib(_w, _h);
-						{
-							if(!tool_item.ReplacedColor.IsEmpty()) {
-								SColor replacement_color = p_tb->GetColor(TProgram::tbiIconRegColor);
-								rCanv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
-							}
-							LMatrix2D mtx;
-							SViewPort vp;
-							rCanv.Fill(SColor(192, 192, 192, 255), 0); // Прозрачный фон
-							rCanv.PushTransform();
-							p_fig->GetViewPort(&vp);
-							rCanv.PushTransform();
-							rCanv.AddTransform(vp.GetMatrix(lo_rect, mtx));
-							rCanv.Draw(p_fig);
-							rCanv.PopTransform();
+				SString text_utf8;
+				SString symb;
+				// Прежде всего закрасим фон
+				rCanv.Rect(lo_rect, 0, TProgram::tbiListBkgBrush);
+				if(pen_ident) {
+					/*if(pLo == P_LoFocused) {
+						pen_ident = TProgram::tbiIconAccentColor;
+					}*/
+					rCanv.Rect(lo_rect);
+					rCanv.Stroke(pen_ident, 0);
+				}
+				if(brush_ident) {
+					rCanv.Rect(lo_rect);
+					rCanv.Fill(brush_ident, 0);
+				}
+				if(p_fig) {
+					const uint _w = 16;
+					const uint _h = 16;
+					SImageBuffer ib(_w, _h);
+					{
+						if(!tool_item.ReplacedColor.IsEmpty()) {
+							SColor replacement_color = p_tb->GetColor(TProgram::tbiIconRegColor);
+							rCanv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
 						}
+						LMatrix2D mtx;
+						SViewPort vp;
+						rCanv.Fill(SColor(192, 192, 192, 255), 0); // Прозрачный фон
+						rCanv.PushTransform();
+						p_fig->GetViewPort(&vp);
+						rCanv.PushTransform();
+						rCanv.AddTransform(vp.GetMatrix(lo_rect, mtx));
+						rCanv.Draw(p_fig);
+						rCanv.PopTransform();
 					}
-					if(text_utf8.NotEmpty()) {
-						/*if(FontId > 0) {
-							SDrawContext dctx = rCanv;
-							if(CStyleId <= 0) {
-								int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
-								CStyleId = r_tb.CreateCStyle(0, FontId, TProgram::tbiBlackPen, tool_text_brush_id);
-							}
-							if(CStyleFocusId <= 0) {
-								int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
-								CStyleFocusId = r_tb.CreateCStyle(0, FontId, TProgram::tbiWhitePen, tool_text_brush_id);
-							}
-							SParaDescr pd;
-							pd.Flags |= SParaDescr::fJustCenter;
-							int    tid_para = p_tb->CreateParagraph(0, &pd);
-							STextLayout tlo;
-							tlo.SetText(text_utf8);
-							tlo.SetOptions(STextLayout::fOneLine|STextLayout::fVCenter, tid_para, (brush_ident == TProgram::tbiListFocBrush) ? CStyleFocusId : CStyleId);
-							tlo.SetBounds(lo_rect);
-							tlo.Arrange(dctx, r_tb);
-							rCanv.DrawTextLayout(&tlo);
-						}*/					
-					}
-				//}
-				//else {
-					//rCanv.Rect(lo_rect);
-					//rCanv.Stroke(TProgram::tbiBlackPen, 1);
-				//}
+				}
+				if(text_utf8.NotEmpty()) {
+					/*if(FontId > 0) {
+						SDrawContext dctx = rCanv;
+						if(CStyleId <= 0) {
+							int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
+							CStyleId = r_tb.CreateCStyle(0, FontId, TProgram::tbiBlackPen, tool_text_brush_id);
+						}
+						if(CStyleFocusId <= 0) {
+							int    tool_text_brush_id = 0; //SPaintToolBox::rbr3DFace;
+							CStyleFocusId = r_tb.CreateCStyle(0, FontId, TProgram::tbiWhitePen, tool_text_brush_id);
+						}
+						SParaDescr pd;
+						pd.Flags |= SParaDescr::fJustCenter;
+						int    tid_para = p_tb->CreateParagraph(0, &pd);
+						STextLayout tlo;
+						tlo.SetText(text_utf8);
+						tlo.SetOptions(STextLayout::fOneLine|STextLayout::fVCenter, tid_para, (brush_ident == TProgram::tbiListFocBrush) ? CStyleFocusId : CStyleId);
+						tlo.SetBounds(lo_rect);
+						tlo.Arrange(dctx, r_tb);
+						rCanv.DrawTextLayout(&tlo);
+					}*/					
+				}
 			}
 		}
 		for(uint ci = 0; ci < pLo->GetChildrenCount(); ci++) {
@@ -8242,7 +8252,7 @@ int PPEditTextFile(const EditTextFileParam * pParam)
 //
 //
 //
-int BigTextDialog(uint maxLen, const char * pTitle, SString & rText)
+int BigTextDialog(uint maxLen, const char * pWindowTitle, const char * pSubTitle, SString & rText)
 {
 	class __BigTextDialog : public TDialog {
 	public:
@@ -8280,7 +8290,8 @@ int BigTextDialog(uint maxLen, const char * pTitle, SString & rText)
     int    ok = -1;
     __BigTextDialog * dlg = new __BigTextDialog(maxLen);
     if(CheckDialogPtrErr(&dlg)) {
-		dlg->setTitle(pTitle);
+		dlg->setTitle(pWindowTitle);
+		dlg->setCtrlString(CTL_BIGTXTEDIT_TITLE, SLS.AcquireRvlStr() = pSubTitle);
 		dlg->setDTS(&rText);
 		if(ExecView(dlg)) {
 			dlg->getDTS(&rText);
@@ -8363,13 +8374,44 @@ IMPL_DIALOG_GETDTS(ExtStrContainerListDialog)
 	SString title_buf;
 	for(uint i = 0; i < DescrListCount; i++) {
 		const int fld_id = P_DescrList[i].Id;
-		if(Data.GetExtStrData(fld_id, temp_buf) > 0) {
+		// @v12.1.0 if(Data.GetExtStrData(fld_id, temp_buf) > 0) {
+			Data.GetExtStrData(fld_id, temp_buf); // @v12.1.0
 			ss.Z();
 			PPLoadString(P_DescrList[i].P_Symb, title_buf);
 			ss.add(title_buf);
 			ss.add(temp_buf);
 			addStringToList(fld_id, ss.getBuf());
-		}
+		// @v12.1.0 }
 	}
 	return 1;
+}
+
+
+/*virtual*/int ExtStrContainerListDialog::addItem(long * pos, long * id)
+{
+	int    ok = -1;
+	return ok;
+}
+
+/*virtual*/int ExtStrContainerListDialog::editItem(long pos, long id)
+{
+	int    ok = -1;
+	if(pos >= 0 && pos < DescrListCount) {
+		SString temp_buf;
+		SString title_buf;		
+		const int fld_id = P_DescrList[pos].Id;
+		PPLoadString(P_DescrList[pos].P_Symb, title_buf);
+		Data.GetExtStrData(fld_id, temp_buf);
+		if(BigTextDialog(1024, 0, title_buf, temp_buf) > 0) {
+			Data.PutExtStrData(fld_id, temp_buf);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+/*virtual*/int ExtStrContainerListDialog::delItem(long pos, long id)
+{
+	int    ok = -1;
+	return ok;
 }

@@ -1989,8 +1989,9 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
+	Test_ListSelectionDialog();
 	//TestGtinStruc();
-	PPChZnPrcssr::Test();
+	//PPChZnPrcssr::Test();
 	//GumboTest();
 	//Test_SSystemBackup();
 	//TestPow10Tab();
@@ -2001,7 +2002,6 @@ int DoConstructionTest()
 	//PPStyloQInterchange::PrepareAhed(true);
 	//TestCRC();
 	//PPStyloQInterchange::ExecuteIndexingRequest(true/*useCurrentSession*/);
-	//Test_ListSelectionDialog();
 	//ImportYYE("/DEV/Resource/Data/yeda");
 	//DoTest_PThr4w();
 	//TestMqc();

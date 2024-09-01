@@ -892,6 +892,8 @@ public:
 	//   nonconstant-версия.
 	//
 	SUiLayout * FindById(int id);
+	const  SUiLayout * FindBySymbC(const char * pSymb) const;
+	SUiLayout * FindBySymb(const char * pSymb);
 	//
 	// Descr: Вычисляет полную ширину элемента без рассмотрения его внутренних компонентов.
 	//   Полная ширина включает собственно ширину, а так же левые и правые поля и набивки
@@ -1357,6 +1359,10 @@ public:
 	SColor GetColorR(const SColorSet * pColorSet, const char * pColorSymb, const SColor defaultC) const;
 	int    GetColor(const char * pColorSetSymb, const char * pColorSymb, SColor & rC) const;
 	const  SFontSource * GetFontSourceC(const char * pSymb) const;
+	const  SUiLayout * GetLayoutBySymbC(const char * pSymb) const;
+	SUiLayout * GetLayoutBySymb(const char * pSymb);
+	const  SUiLayout * GetLayoutByIdC(int id) const;
+	SUiLayout * GetLayoutById(int id);
 	void   SetSourceFileName(const char * pFileName);
 	const  char * GetSourceFileName() const;
 	//

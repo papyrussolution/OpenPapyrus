@@ -453,8 +453,8 @@ DRAFTBEER HORECA @v11.9.4
 		}
 		else /*if(temp_buf.HasPrefix("01") || temp_buf.HasPrefix("(01)") || temp_buf.HasPrefix("\x1D" "01"))*/ {
 			size_t serial_len_variant_idx = 0;
-			rS.AddSpecialStopChar(0x1D); // @v10.9.9
-			rS.AddSpecialStopChar(0xE8); // @v10.9.9
+			rS.AddSpecialStopChar(0x1D);
+			rS.AddSpecialStopChar(0xE8);
 			rS.AddOnlyToken(GtinStruc::fldGTIN14);
 			rS.AddOnlyToken(GtinStruc::fldSerial);
 			if(code_len == 83) {
@@ -466,14 +466,14 @@ DRAFTBEER HORECA @v11.9.4
 			rS.AddOnlyToken(GtinStruc::fldPart);
 			rS.AddOnlyToken(GtinStruc::fldAddendumId);
 			rS.AddOnlyToken(GtinStruc::fldUSPS); //
-			rS.SetSpecialFixedToken(GtinStruc::fldUSPS, 4); // @v10.9.10
+			rS.SetSpecialFixedToken(GtinStruc::fldUSPS, 4);
 			rS.AddOnlyToken(GtinStruc::fldInner1);
-			rS.SetSpecialFixedToken(GtinStruc::fldInner1, 1000/*UNTIL EOL*/); // @v10.9.0
+			rS.SetSpecialFixedToken(GtinStruc::fldInner1, 1000/*UNTIL EOL*/);
 			rS.AddOnlyToken(GtinStruc::fldInner2);
 			rS.SetSpecialFixedToken(GtinStruc::fldInner2, 1000/*UNTIL EOL*/); // @v11.4.11
 			rS.AddOnlyToken(GtinStruc::fldSscc18);
 			rS.AddOnlyToken(GtinStruc::fldExpiryDate);
-			rS.AddOnlyToken(GtinStruc::fldManufDate); // @v10.8.2
+			rS.AddOnlyToken(GtinStruc::fldManufDate);
 			rS.AddOnlyToken(GtinStruc::fldVariant);
 			//rS.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
 			//rS.AddOnlyToken(GtinStruc::fldPrice);

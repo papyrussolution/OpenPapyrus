@@ -1512,6 +1512,7 @@
 #define PPCMD_PROCESSUED                            1350
 #define PPCMD_PROCESSBOMESTIMATEDVALUES             1351
 #define PPCMD_IMPORTCCHECKS                         1352
+#define PPCMD_TESTMARKETPLACE                       1353
 //
 // PPJOB definitions
 //

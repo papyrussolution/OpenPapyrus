@@ -1975,6 +1975,7 @@ PPERR_APNCORR_N_DUP                 "Номер корреспондирующе
 PPERR_APNCORR_UUID_DUP              "UUID корреспондирующего кассового узла должен быть уникальным"
 PPERR_ALCRETAILPROHIBTIME           "Розничная продажа алкоголя в это время запрещена (%s)"
 PPERR_CHZNMARKPMFAULT               "Ошибка валидации марки '%s' разрешительным режимом честный знак"
+PPERR_CHZNMARKPMFAULT_SOLD          "Ошибка валидации марки '%s' разрешительным режимом честный знак - марка уже была продана"
 //
 // Decl Struc Parsing
 //
@@ -3356,6 +3357,7 @@ PPFILNAM_VKTALK_LOG            "vk-talk.log"
 PPFILNAM_STYLOQSVC_LOG         "styloqsvc.log" // @v11.6.11
 PPFILNAM_STYLOQSVCTALK_LOG     "styloqsvc-talk.log" // @v11.9.2
 PPFILNAM_EDI_LOG               "edi.log" // @v12.0.2 В этом файле сохраняются результаты унифицированного обмена EDI (see PPBillImporter::DoFullEdiProcess)
+PPFILNAM_MRKTPLCWBTALK_LOG     "mpwb-talk.log" // @v12.1.0
 
 #!} // dont_translate
 
@@ -4954,7 +4956,7 @@ PPTXT_CANTCREATEWAREWONAME          "При импорте документа н
 //PPTXT_EGAIS_GOODSCREATED            "Создан товар '%s'"
 PPTXT_WAREAUTOCREATED               "Создан товар '%s'"
 PPTXT_GLOBALSERVICELIST             "1,@{globalservice_twitter};2,@{globalservice_facebook};3,@{globalservice_vk};4,@{globalservice_vetis};5,@{brand_chzn};\
-6,@{globalservice_instagram};7,@{globalservice_uds};8,@{globalservice_uhtt};9,@{globalservice_shopify}"
+6,@{globalservice_instagram};7,@{globalservice_uds};8,@{globalservice_uhtt};9,@{globalservice_shopify};10,@{globalservice_wildberries}"
 PPTXT_AGGRFUNCNAMELIST              "1,@{aggrfunc_count};2,@{aggrfunc_sum};3,@{aggrfunc_average};4,@{aggrfunc_min};5,@{aggrfunc_max};6,@{aggrfunc_stddev}"
 PPTXT_CHZNPRODUCTTYPES              "1,Изделия из меха;2,Табачные изделия;3,Обувь;4,Лекарственные средства;5,Автомобильные шины;6,Текстиль;7,Парфюмерия;\
 8,Молочная продукция;9,Ювелирные изделия;10,Вода питьевая;11,Альтернативная табачная продукция;12,Пиво разливное;1012,Пиво разливное - автосписание;13,Биологически-активные добавки;14,Пиво фасованное;15,Антисептики"
@@ -6013,6 +6015,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @globalservice_uds                   "UDS"
 @globalservice_uhtt                  "@{brand_uhtt}"
 @globalservice_shopify               "Shopify"
+@globalservice_wildberries           "Wildberries"
 
 @papyrusversion                      "Версия Papyrus"
 @testapp_path                        "Тестовое Приложение" // @v11.8.2 Подкаталог рабочего каталога ppy, в котором размещается тестовое приложение SlTestApp.exe
@@ -9259,6 +9262,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_computercategory                     "@{computercategory_pl}"
 @cmd_checkchznmark                        "Проверка марки честный знак"
 @cmd_rawmaterials                         "@{rawmaterial_pl}"
+@cmd_testmarketplace                      "Тестирование интерфейса с маркетплейсами"
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
@@ -12609,7 +12613,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @personreltype_inhregtypelist             "Типы наследуемых регистров"
 
 @personselectanalog                       "Выбор персоналии по аналогу"
-@personselectanalog_input                 "Введите строку, соответствующую имени искомой персоналии"
+@personselectanalog_input                 "Введите строку, соответствующую имени или телефону искомой персоналии"
 
 @phoneservice_dvctype                     "@{devicetype}"
 @phoneservice_flags                       "@{flags}"

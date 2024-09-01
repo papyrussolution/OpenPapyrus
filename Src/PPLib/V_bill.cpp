@@ -31,7 +31,7 @@ IMPLEMENT_PPFILT_FACTORY(Bill); BillFilt::BillFilt() : PPBaseFilt(PPFILT_BILL, 0
 	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(BillFilt, P_ContractorPsnTagF)); // @v11.9.6
 	//
 	Init(1, 0);
-	Bbt = bbtUndef; // @v10.9.1
+	Bbt = bbtUndef;
 }
 
 int BillFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
@@ -539,14 +539,12 @@ void FASTCALL BillFilt::SetupBrowseBillsType(BrowseBillsType bbt)
 			Flags &= ~(fOrderOnly | fAccturnOnly | fPoolOnly | fInvOnly | fDraftOnly);
 			Flags |= fWmsOnly;
 			break;
-		default: // @v10.9.4
+		default:
 			bbt = bbtUndef;
 			break;
 	}
-	Bbt = bbt; // @v10.9.4
+	Bbt = bbt;
 }
-
-// @v11.4.4 #define GRP_LOC 1
 
 class BillFiltDialog : public WLDialog {
 	enum {
@@ -611,6 +609,8 @@ void BillFiltDialog::viewOptions()
 			{ BillFilt::dliAlcoLic,            0x0010 },
 			{ BillFilt::dliDlvrAddr,           0x0020 },
 			{ BillFilt::dliTSessLinkTo,        0x0040 }, // @v11.6.12
+			{ BillFilt::dliStdAmtCost,         0x0080 }, // @v12.1.0 Стандартная сумма в ценах поступления // 
+			{ BillFilt::dliStdAmtPrice,        0x0100 }, // @v12.1.0 Стандартная сумма в ценах реализации //
 		};
 		// PPViewDisplayExtList Dl
 		uint i;
@@ -623,7 +623,7 @@ void BillFiltDialog::viewOptions()
 		dlg->SetClusterData(CTL_BILLFLTVOPT_FLAGS, flags);
 		{
 			PrcssrAlcReport::Config arp_cfg;
-			const int enbl_alclic = BIN(PrcssrAlcReport::ReadConfig(&arp_cfg) > 0 && arp_cfg.AlcLicRegTypeID);
+			const bool enbl_alclic = (PrcssrAlcReport::ReadConfig(&arp_cfg) > 0 && arp_cfg.AlcLicRegTypeID);
 			dlg->DisableClusterItem(CTL_BILLFLTVOPT_FLAGS, 4, !enbl_alclic);
 		}
 		if(ExecView(dlg) == cmOK) {
@@ -2701,7 +2701,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 					}
 				}
 				else if(r_col.OrgOffs == 4) { // Memo
-					SString & r_memos = SLS.AcquireRvlStr(); // @v10.0.01
+					SString & r_memos = SLS.AcquireRvlStr();
 					if(P_BObj->FetchExtMemo(p_hdr->ID, r_memos) > 0)
 						ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrDarkgreen));
 					// @v11.2.3 {
@@ -2728,12 +2728,10 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 							else if(bill_rec.Flags & BILLF_WRITEDOFF)
 								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrOrange));
 						}
-						// @v10.0.01 {
 						else if(op_type_id == PPOPT_GOODSORDER) {
 							if(bill_rec.Flags & BILLF_CLOSEDORDER)
 								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrOrange));
 						}
-						// } @v10.0.01
 						{
 							const int edi_user_status = P_BObj->GetEdiUserStatus(bill_rec);
 							if(edi_user_status) {
@@ -2759,14 +2757,12 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 								ok = pStyle->SetRightFigCircleColor(edi_color);
 							}
 						}
-						// @v10.2.4 {
 						if(bill_rec.StatusID) {
 							PPBillStatus bs_rec;
 							PPObjBillStatus bs_obj;
 							if(bs_obj.Fetch(bill_rec.StatusID, &bs_rec) > 0 && !bs_rec.IndColor.IsEmpty())
 								ok = pStyle->SetFullCellColor(bs_rec.IndColor);
 						}
-						// } @v10.2.4
 					}
 				}
 			}
@@ -2824,8 +2820,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 					PPID   bs_id = 0;
 					if(bs_obj.EnumItems(&bs_id, 0) > 0) {
 						//
-						// Определен по крайней мере один статус документа,
-						// следовательно в таблице нужна колонка статуса документа
+						// Определен по крайней мере один статус документа, следовательно в таблице нужна колонка статуса документа
 						//
 						pBrw->InsColumn(bs_col, "@status", 10, 0, MKSFMT(6, 0), 0);
 						debt_col++;
@@ -2846,19 +2841,34 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 					pBrw->InsColumn(de_col++, "@issuedate", 11, 0, MKSFMT(0, DATF_DMY), 0);
 				if(Filt.Dl.GetItemByDataId(BillFilt::dliFreightArrivalDate, 0)) // #12
 					pBrw->InsColumn(de_col++, "@arrivaldate", 12, 0, MKSFMT(0, DATF_DMY), 0);
+				//
 			}
 			if(p_def) {
 				int    next_pos = -1;
-				const int org_offs_ar = 6;
-				const int org_offs_memo = 4;
+				constexpr int org_offs_ar = 6;
+				constexpr int org_offs_memo = 4;
+				constexpr int org_offs_amt = 3; // @v12.1.0
 				int    ar_pos = -1;
 				int    memo_pos = -1;
+				int    amt_pos = -1;
 				for(uint i = 0; i < p_def->getCount(); i++) {
-					if(p_def->at(i).OrgOffs == org_offs_ar)
-						ar_pos = i;
-					else if(p_def->at(i).OrgOffs == org_offs_memo)
-						memo_pos = i;
+					switch(p_def->at(i).OrgOffs) {
+						case org_offs_ar: ar_pos = i; break;
+						case org_offs_memo: memo_pos = i; break;
+						case org_offs_amt: amt_pos = i; break;
+					}
 				}
+				// @v12.1.0 {
+				if(amt_pos >= 0) {
+					int    amt_next_pos = amt_pos;
+					if(Filt.Dl.GetItemByDataId(BillFilt::dliStdAmtCost, 0)) {
+						pBrw->InsColumn(amt_next_pos++, "@sumcost", 19, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0);
+					}
+					if(Filt.Dl.GetItemByDataId(BillFilt::dliStdAmtPrice, 0)) {
+						pBrw->InsColumn(amt_next_pos++, "@sumprice", 20, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0);
+					}
+				}
+				// } @v12.1.0 
 				if(ar_pos >= 0)
 					next_pos = ar_pos+1;
 				else if(memo_pos >= 0)
@@ -2885,12 +2895,10 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 		if(Filt.Sel)
 			pBrw->search2(&Filt.Sel, CMPF_LONG, srchFirst, 0);
 	}
-	// @v10.9.0 {
 	else if(Filt.Sel) {
 		if(CheckIDForFilt(Filt.Sel, 0))
 			pBrw->search2(&Filt.Sel, CMPF_LONG, srchFirst, 0);
 	}
-	// } @v10.9.0 
 	if(Filt.PoolBillID && Filt.AssocID)
 		caption = 6;
 	else if(Filt.Flags & BillFilt::fOrderOnly) {
@@ -2952,6 +2960,8 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_strgloc;
 	DBE    dbe_bill_memo; // @v11.1.12
 	DBE    dbe_tsess_linkto; // @v11.6.12
+	DBE    dbe_amt_cost; // @v12.1.0
+	DBE    dbe_amt_price; // @v12.1.0
 	uint   brw_id = 0;
 	int    pool_op = 0;
 	int    tbl_count = 0;
@@ -3104,7 +3114,7 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				q->addField(dbe_strgloc); // #17
 			}
 			// @v11.6.12 {
-			{ // @construction
+			{
 				dbe_tsess_linkto.init();
 				if(Filt.Dl.GetItemByDataId(BillFilt::dliTSessLinkTo, 0)) {
 					dbe_tsess_linkto.push(bll->ID);
@@ -3115,6 +3125,30 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				q->addField(dbe_tsess_linkto); // #18
 			}
 			// } @v11.6.12
+			// @v12.1.0 {
+			{
+				dbe_amt_cost.init();
+				dbe_amt_price.init();
+				if(Filt.Dl.GetItemByDataId(BillFilt::dliStdAmtCost, 0)) {
+					dbe_amt_cost.push(bll->ID);
+					dbe_amt_cost.push(dbconst(PPAMT_BUYING));
+					dbe_amt_cost.push(static_cast<DBFunc>(PPDbqFuncPool::IdBillAmount));
+				}
+				else {
+					dbe_amt_cost.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
+				}
+				if(Filt.Dl.GetItemByDataId(BillFilt::dliStdAmtPrice, 0)) {
+					dbe_amt_price.push(bll->ID);
+					dbe_amt_price.push(dbconst(PPAMT_SELLING));
+					dbe_amt_price.push(static_cast<DBFunc>(PPDbqFuncPool::IdBillAmount));
+				}
+				else {
+					dbe_amt_price.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
+				}
+				q->addField(dbe_amt_cost); // #19
+				q->addField(dbe_amt_price); // #20
+			}
+			// } @v12.1.0
 			tbl_l[tbl_count++] = t_amt;
 			q->from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], tbl_l[6], tbl_l[7], 0L);
 			//
@@ -3153,7 +3187,7 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			dbq = ppcheckflag(dbq, bll->Flags, BILLF_RMVEXCISE, Filt.Ft_STax);
 			dbq = ppcheckflag(dbq, bll->Flags, BILLF_CLOSEDORDER, Filt.Ft_ClosedOrder);
 			dbq = ppcheckflag(dbq, bll->Flags2, BILLF2_DECLINED, Filt.Ft_Declined);
-			dbq = ppcheckflag(dbq, bll->Flags, BILLF_CHECK, Filt.Ft_CheckPrintStatus); // @v10.7.0
+			dbq = ppcheckflag(dbq, bll->Flags, BILLF_CHECK, Filt.Ft_CheckPrintStatus);
 			{
 				DBE * p_dbe_1 = 0;
 				DBE * p_dbe_2 = 0;

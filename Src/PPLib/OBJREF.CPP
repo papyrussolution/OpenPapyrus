@@ -2513,7 +2513,7 @@ private:
 		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(&Data);
 			if(ExecView(dlg) == cmOK) {
-				;
+				dlg->getDTS(&Data);
 			}
 		}
 		delete dlg;

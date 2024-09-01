@@ -10466,6 +10466,7 @@
 	#define CTLCAL_BIZPRCRT_PERIOD     (14 + WINDOWS_ID_BIAS)
 #define DLG_BIGTXTEDIT            1268
 	#define CTL_BIGTXTEDIT_TEXT        (1 + WINDOWS_ID_BIAS)
+	#define CTL_BIGTXTEDIT_TITLE       (2 + WINDOWS_ID_BIAS)
 #define DLG_VER2HTM               1269
 	#define CTL_VER2HTM_INFILE         (1 + WINDOWS_ID_BIAS)
 	#define CTLBRW_VER2HTM_INFILE      (2 + WINDOWS_ID_BIAS)
@@ -11613,6 +11614,10 @@
 	#define CTL_RAWMAT_NAME                (2 + WINDOWS_ID_BIAS)
 	#define CTL_RAWMAT_SYMB                (3 + WINDOWS_ID_BIAS)
 	#define CTL_RAWMAT_DENS                (4 + WINDOWS_ID_BIAS)
+#define DLG_TESTMRKTPLC           1447 // @v12.1.0 Параметры тестирования интерфейсов с маркетплейсами
+	#define CTL_TESTMRKTPLC_GUA            (1 + WINDOWS_ID_BIAS)  
+	#define CTLSEL_TESTMRKTPLC_GUA         (2 + WINDOWS_ID_BIAS)
+	#define CTL_TESTMRKTPLC_TEXT           (3 + WINDOWS_ID_BIAS)  
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

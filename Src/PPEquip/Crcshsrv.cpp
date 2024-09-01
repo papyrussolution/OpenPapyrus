@@ -631,7 +631,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 			const AsyncCashGoodsInfo & r_cur_entry = prev_gds_info;
 			const  bool is_spirit    = (pGoodsIter->GetAlcoGoodsExtension(r_cur_entry.ID, 0, agi) > 0);
 			const  bool is_tobacco   = (tobacco_cls_id && tobacco_cls_id == r_cur_entry.GdsClsID);
-			const  bool is_gift_card = BIN(giftcard_cls_id && giftcard_cls_id == r_cur_entry.GdsClsID);
+			const  bool is_gift_card = (giftcard_cls_id && giftcard_cls_id == r_cur_entry.GdsClsID);
 			int    tag1212 = 0; // @v11.2.0
 			int    do_process_lookbackprices = 0;
 			int    is_weight = 0;

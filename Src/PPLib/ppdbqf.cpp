@@ -247,6 +247,17 @@ static IMPL_DBE_PROC(dbqf_billdate_i)
 		result->init(ZERODATE);
 }
 
+static IMPL_DBE_PROC(dbqf_billamount_ii)
+{
+	double amt = 0.0;
+	PPID   bill_id  = params[0].lval;
+	long   amt_type = params[1].lval;
+	if(bill_id > 0 && amt_type > 0) {
+		BillObj->P_Tbl->GetAmount(bill_id, amt_type, 0, &amt);
+	}
+	result->init(amt);
+}
+
 static IMPL_DBE_PROC(dbqf_billfrghtarrvldt_i)
 {
 	PPFreight freight;
@@ -1411,6 +1422,7 @@ int PPDbqFuncPool::IdTechCapacity        = 0; // @v11.3.10 (fldPrcID, fldCapacit
 int PPDbqFuncPool::IdTSessBillLinkTo     = 0; // @v11.6.12
 int PPDbqFuncPool::IdTSessBillLinkTo_Text = 0; // @v11.6.12
 int PPDbqFuncPool::IdBillMemoSubStr       = 0; // @v11.7.4
+int PPDbqFuncPool::IdBillAmount           = 0; // @v12.1.0 (fldBillID, amountType)
 
 static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 {
@@ -1709,6 +1721,7 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdTSessBillLinkTo,      BTS_INT,    dbqf_tsessbilllinkto_i,      1, BTS_INT)); // @v11.6.12
 	THROW(DbqFuncTab::RegisterDyn(&IdTSessBillLinkTo_Text, BTS_STRING, dbqf_tsessbilllinkto_text_i, 1, BTS_INT)); // @v11.6.12
 	THROW(DbqFuncTab::RegisterDyn(&IdBillMemoSubStr,       BTS_INT,    dbqf_billmemosubstr_is,      2, BTS_INT, BTS_STRING)); // @v11.7.4
+	THROW(DbqFuncTab::RegisterDyn(&IdBillAmount,           BTS_REAL,   dbqf_billamount_ii,          2, BTS_INT, BTS_INT)); // @v12.1.0
 	CATCHZOK
 	return ok;
 }

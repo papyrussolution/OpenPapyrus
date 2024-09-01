@@ -2128,16 +2128,15 @@ IMPL_HANDLE_EVENT(GoodsVadDialog)
 		const ExtStrCtlEntry * p_entry = GetExtStrEntryByCtl(curr_id);
 		if(p_entry) {
 			SString title_buf;
+			SString subtitle_buf;
+			title_buf = Data.Rec.Name;
             if(p_entry->LabelId) {
 				SString ex_titles;
 				PPObjGoods::ReadGoodsExTitles(Data.Rec.ParentID, ex_titles);
-				PPGetExtStrData(p_entry->FldId, ex_titles, temp_buf);
-				if(Data.Rec.Name[0])
-					(title_buf = Data.Rec.Name).CatDiv('-', 1);
-				title_buf.Cat(temp_buf);
+				PPGetExtStrData(p_entry->FldId, ex_titles, subtitle_buf);
             }
 			getCtrlString(curr_id, temp_buf.Z());
-			if(BigTextDialog(MaxExtTextLen, title_buf, temp_buf) > 0) {
+			if(BigTextDialog(MaxExtTextLen, title_buf, subtitle_buf, temp_buf) > 0) {
                 setCtrlString(curr_id, temp_buf);
 			}
 		}

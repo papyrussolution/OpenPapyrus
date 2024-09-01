@@ -1778,6 +1778,37 @@ const SFontSource * UiDescription::GetFontSourceC(const char * pSymb) const
 	return p_result;
 }
 
+const SUiLayout * UiDescription::GetLayoutBySymbC(const char * pSymb) const
+{
+	const SUiLayout * p_result = 0;
+	if(!isempty(pSymb)) {
+		for(uint i = 0; !p_result && i < LoList.getCount(); i++) {
+			const SUiLayout * p_item = LoList.at(i);
+			if(p_item && p_item->GetSymb().IsEqiAscii(pSymb)) {
+				p_result = p_item;
+			}
+		}
+	}
+	return p_result;
+}
+
+const SUiLayout * UiDescription::GetLayoutByIdC(int id) const
+{
+	const  SUiLayout * p_result = 0;
+	if(id) {
+		for(uint i = 0; !p_result && i < LoList.getCount(); i++) {
+			const SUiLayout * p_item = LoList.at(i);
+			if(p_item && p_item->GetID() == id) {
+				p_result = p_item;
+			}
+		}
+	}
+	return p_result;
+}
+
+SUiLayout * UiDescription::GetLayoutBySymb(const char * pSymb) { return const_cast<SUiLayout *>(GetLayoutBySymbC(pSymb)); }
+SUiLayout * UiDescription::GetLayoutById(int id) { return const_cast<SUiLayout *>(GetLayoutByIdC(id)); }
+
 SJson * UiDescription::ToJsonObj() const
 {
 	SJson * p_result = SJson::CreateObj();

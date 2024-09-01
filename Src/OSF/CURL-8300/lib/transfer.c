@@ -573,9 +573,7 @@ static CURLcode readwrite_data(struct Curl_easy * data,
 				 * of actual data it wrote to the client.
 				 */
 				CURLcode extra;
-				CHUNKcode res =
-				    Curl_httpchunk_read(data, k->str, nread, &nread, &extra);
-
+				CHUNKcode res = Curl_httpchunk_read(data, k->str, nread, &nread, &extra);
 				if(CHUNKE_OK < res) {
 					if(CHUNKE_PASSTHRU_ERROR == res) {
 						failf(data, "Failed reading the chunked-encoded stream");
@@ -589,13 +587,9 @@ static CURLcode readwrite_data(struct Curl_easy * data,
 				if(CHUNKE_STOP == res) {
 					/* we're done reading chunks! */
 					k->keepon &= ~KEEP_RECV; /* read no more */
-
-					/* N number of bytes at the end of the str buffer that weren't
-					   written to the client. */
+					/* N number of bytes at the end of the str buffer that weren't written to the client. */
 					if(conn->chunk.datasize) {
-						infof(data, "Leftovers after chunking: % "
-						    CURL_FORMAT_CURL_OFF_T "u bytes",
-						    conn->chunk.datasize);
+						infof(data, "Leftovers after chunking: % " CURL_FORMAT_CURL_OFF_T "u bytes", conn->chunk.datasize);
 					}
 				}
 				/* If it returned OK, we just keep going */
@@ -608,9 +602,7 @@ static CURLcode readwrite_data(struct Curl_easy * data,
 				DEBUGF(infof(data, "Increasing bytecount by %zu", headlen));
 				k->bytecount += headlen;
 			}
-
-			if((-1 != k->maxdownload) &&
-			    (k->bytecount + nread >= k->maxdownload)) {
+			if((-1 != k->maxdownload) && (k->bytecount + nread >= k->maxdownload)) {
 				excess = (size_t)(k->bytecount + nread - k->maxdownload);
 				if(excess > 0 && !k->ignorebody) {
 					infof(data,
@@ -622,11 +614,9 @@ static CURLcode readwrite_data(struct Curl_easy * data,
 					    excess, k->size, k->maxdownload, k->bytecount);
 					connclose(conn, "excess found in a read");
 				}
-
 				nread = (ssize_t)(k->maxdownload - k->bytecount);
 				if(nread < 0) /* this should be unusual */
 					nread = 0;
-
 				/* HTTP/3 over QUIC should keep reading until QUIC connection
 				   is closed.  In contrast to HTTP/2 which can stop reading
 				   from TCP connection, HTTP/3 over QUIC needs ACK from server
@@ -635,30 +625,19 @@ static CURLcode readwrite_data(struct Curl_easy * data,
 					k->keepon &= ~KEEP_RECV; /* we're done reading */
 				}
 			}
-
 			k->bytecount += nread;
 			max_recv -= nread;
-
 			Curl_pgrsSetDownloadCounter(data, k->bytecount);
-
 			if(!k->chunk && (nread || k->badheader || is_empty_data)) {
 				/* If this is chunky transfer, it was already written */
-
 				if(k->badheader && !k->ignorebody) {
-					/* we parsed a piece of data wrongly assuming it was a header
-					   and now we output it as body instead */
+					/* we parsed a piece of data wrongly assuming it was a header and now we output it as body instead */
 					size_t headlen = Curl_dyn_len(&data->state.headerb);
-
 					/* Don't let excess data pollute body writes */
 					if(k->maxdownload == -1 || (curl_off_t)headlen <= k->maxdownload)
-						result = Curl_client_write(data, CLIENTWRITE_BODY,
-							Curl_dyn_ptr(&data->state.headerb),
-							headlen);
+						result = Curl_client_write(data, CLIENTWRITE_BODY, Curl_dyn_ptr(&data->state.headerb), headlen);
 					else
-						result = Curl_client_write(data, CLIENTWRITE_BODY,
-							Curl_dyn_ptr(&data->state.headerb),
-							(size_t)k->maxdownload);
-
+						result = Curl_client_write(data, CLIENTWRITE_BODY, Curl_dyn_ptr(&data->state.headerb), (size_t)k->maxdownload);
 					if(result)
 						goto out;
 				}
@@ -691,64 +670,51 @@ static CURLcode readwrite_data(struct Curl_easy * data,
 		if(conn->handler->readwrite && excess) {
 			/* Parse the excess data */
 			k->str += nread;
-
 			if(&k->str[excess] > &buf[data->set.buffer_size]) {
 				/* the excess amount was too excessive(!), make sure
 				   it doesn't read out of buffer */
 				excess = &buf[data->set.buffer_size] - k->str;
 			}
 			nread = (ssize_t)excess;
-
 			result = conn->handler->readwrite(data, conn, &nread, &readmore);
 			if(result)
 				goto out;
-
 			if(readmore)
 				k->keepon |= KEEP_RECV; /* we're not done reading */
 			break;
 		}
-
 		if(is_empty_data) {
-			/* if we received nothing, the server closed the connection and we
-			   are done */
+			/* if we received nothing, the server closed the connection and we are done */
 			k->keepon &= ~KEEP_RECV;
 		}
-
 		if((k->keepon & KEEP_RECV_PAUSE) || !(k->keepon & KEEP_RECV)) {
 			/* this is a paused or stopped transfer */
 			break;
 		}
 	} while((max_recv > 0) && data_pending(data) && maxloops--);
-
 	if(maxloops <= 0 || max_recv <= 0) {
 		/* we mark it as read-again-please */
 		data->state.dselect_bits = CURL_CSELECT_IN;
 		*comeback = TRUE;
 	}
-
-	if(((k->keepon & (KEEP_RECV|KEEP_SEND)) == KEEP_SEND) &&
-	    (conn->bits.close || data_eof_handled)) {
+	if(((k->keepon & (KEEP_RECV|KEEP_SEND)) == KEEP_SEND) && (conn->bits.close || data_eof_handled)) {
 		/* When we've read the entire thing and the close bit is set, the server
 		   may now close the connection. If there's now any kind of sending going
 		   on from our side, we need to stop that immediately. */
 		infof(data, "we are done reading and this is set to close, stop send");
 		k->keepon &= ~KEEP_SEND; /* no writing anymore either */
 	}
-
 out:
 	if(result)
 		DEBUGF(infof(data, "readwrite_data() -> %d", result));
 	return result;
 }
 
-CURLcode Curl_done_sending(struct Curl_easy * data,
-    struct SingleRequest * k)
+CURLcode Curl_done_sending(struct Curl_easy * data, struct SingleRequest * k)
 {
 	k->keepon &= ~KEEP_SEND; /* we're done writing */
-
 	/* These functions should be moved into the handler struct! */
 	Curl_conn_ev_data_done_send(data);
-
 	return CURLE_OK;
 }
 
@@ -759,14 +725,11 @@ CURLcode Curl_done_sending(struct Curl_easy * data,
 
 static void win_update_buffer_size(curl_socket_t sockfd)
 {
-	int result;
 	ULONG ideal;
 	DWORD ideallen;
-	result = WSAIoctl(sockfd, SIO_IDEAL_SEND_BACKLOG_QUERY, 0, 0,
-		&ideal, sizeof(ideal), &ideallen, 0, 0);
+	int result = WSAIoctl(sockfd, SIO_IDEAL_SEND_BACKLOG_QUERY, 0, 0, &ideal, sizeof(ideal), &ideallen, 0, 0);
 	if(result == 0) {
-		setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF,
-		    (const char *)&ideal, sizeof(ideal));
+		setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, (const char *)&ideal, sizeof(ideal));
 	}
 }
 
@@ -774,15 +737,12 @@ static void win_update_buffer_size(curl_socket_t sockfd)
 #define win_update_buffer_size(x)
 #endif
 
-#define curl_upload_refill_watermark(data) \
-	((ssize_t)((data)->set.upload_buffer_size >> 5))
+#define curl_upload_refill_watermark(data) ((ssize_t)((data)->set.upload_buffer_size >> 5))
 
 /*
  * Send data to upload to the server, when the socket is writable.
  */
-static CURLcode readwrite_upload(struct Curl_easy * data,
-    struct connectdata * conn,
-    int * didwhat)
+static CURLcode readwrite_upload(struct Curl_easy * data, struct connectdata * conn, int * didwhat)
 {
 	ssize_t i, si;
 	ssize_t bytes_written;
@@ -790,13 +750,10 @@ static CURLcode readwrite_upload(struct Curl_easy * data,
 	ssize_t nread; /* number of bytes read */
 	bool sending_http_headers = FALSE;
 	struct SingleRequest * k = &data->req;
-
 	*didwhat |= KEEP_SEND;
-
 	do {
 		curl_off_t nbody;
 		ssize_t offset = 0;
-
 		if(0 != k->upload_present &&
 		    k->upload_present < curl_upload_refill_watermark(data) &&
 		    !k->upload_chunky &&/*(variable sized chunked header; append not safe)*/
@@ -1805,9 +1762,7 @@ void Curl_setup_transfer(struct Curl_easy * data,   /* transfer */
     int sockindex,          /* socket index to read from or -1 */
     curl_off_t size,        /* -1 if unknown at this point */
     bool getheader,         /* TRUE if header parsing is wanted */
-    int writesockindex      /* socket index to write to, it may very well be
-                               the same we read from. -1 disables */
-    )
+    int writesockindex      /* socket index to write to, it may very well be the same we read from. -1 disables */)
 {
 	struct SingleRequest * k = &data->req;
 	struct connectdata * conn = data->conn;

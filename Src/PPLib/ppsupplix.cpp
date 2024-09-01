@@ -1,5 +1,6 @@
 // PPSUPPLIX.CPP
 // Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// @codepage UTF-8 // @v12.1.0 win1251-->utf8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -7,7 +8,7 @@
 //
 // Export suppl data
 //
-#if 0 // @v12.0.5 (устарел очень давно - элиминируем) {
+#if 0 // @v12.0.5 (СѓСЃС‚Р°СЂРµР» РѕС‡РµРЅСЊ РґР°РІРЅРѕ - СЌР»РёРјРёРЅРёСЂСѓРµРј) {
 SupplExpFilt::SupplExpFilt()
 {
 	Init();
@@ -119,7 +120,7 @@ int SupplExpFilt::OpListToCfg(/*PPSupplExchangeCfg*/PPSupplAgreement::ExchangePa
 	CATCHZOK
 	return ok;
 }
-#endif // } @v12.0.5 (устарел очень давно - элиминируем)
+#endif // } @v12.0.5 (СѓСЃС‚Р°СЂРµР» РѕС‡РµРЅСЊ РґР°РІРЅРѕ - СЌР»РёРјРёРЅРёСЂСѓРµРј)
 
 class PPSupplExchange_Baltika : public PrcssrSupplInterchange::ExecuteBlock {
 public:
@@ -160,7 +161,7 @@ private:
 
 	const  long HorecaDlvrAddrOffs = 100000000L;
 	PPID   KegUnitID;
-	PPID   DlvrAddrExtFldID; // Идентификатор дополнительного поля адреса доставки, хранящего код адреса у получателя отчета
+	PPID   DlvrAddrExtFldID; // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРіРѕ РїРѕР»СЏ Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё, С…СЂР°РЅСЏС‰РµРіРѕ РєРѕРґ Р°РґСЂРµСЃР° Сѓ РїРѕР»СѓС‡Р°С‚РµР»СЏ РѕС‚С‡РµС‚Р°
 	SStrCollection  Files;
 	PPObjGoodsClass GCObj;
 };
@@ -211,7 +212,7 @@ public:
 		MaxTransmitSize = maxTransmitSize;
 	}
 	//
-	// Note: Функция должна вызываться (при необходимости) до Init()
+	// Note: Р¤СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° РІС‹Р·С‹РІР°С‚СЊСЃСЏ (РїСЂРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё) РґРѕ Init()
 	//
 	void   SetAddedScheme(uint addedRecType, const char * pScheme)
 	{
@@ -231,7 +232,7 @@ public:
 		if(!RVALUEPTR(Filt, pFilt))
 			Filt.Init();
 		*/
-		FileName = pFile; // Инициализация FileName до вызова InitExportParam
+		FileName = pFile; // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ FileName РґРѕ РІС‹Р·РѕРІР° InitExportParam
 		if(headRecType) {
 			HeadRecType = headRecType;
 			InitExportParam(p, headRecType);
@@ -258,7 +259,7 @@ public:
 	{
 		int    ok = 1;
 		PPImpExpParam p;
-		FileName = pFile; // Инициализация FileName до вызова InitExportParam
+		FileName = pFile; // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ FileName РґРѕ РІС‹Р·РѕРІР° InitExportParam
 		if(headRecType) {
 			HeadRecType = headRecType;
 			InitExportParam(p, headRecType);
@@ -626,7 +627,7 @@ int PPSupplExchange_Baltika::Export(PPLogger & rLogger)
 	return ok;
 }
 
-const char * PPSupplExchange_Baltika::GetEaText() const { return (Ep.ProtVer == 0) ? "ea" : "кг"; }
+const char * PPSupplExchange_Baltika::GetEaText() const { return (Ep.ProtVer == 0) ? "ea" : "РєРі"; }
 
 int PPSupplExchange_Baltika::ExportPrice()
 {
@@ -679,7 +680,7 @@ IMPL_CMPFUNC(Sdr_Baltika_RestPartLine, i1, i2)
 void PPSupplExchange_Baltika::GetInfoByLot(PPID lotID, const PPTransferItem * pTi, LDATE * pBillDt, LDATE * pCreateDt, LDATE * pExpiry, SString * pSerial)
 {
 	//
-	// @v8.6.10 Извлечение срока годности скорректировано так, чтобы приоритет был у даты, установленной у порожденного лота против оригинального
+	// @v8.6.10 РР·РІР»РµС‡РµРЅРёРµ СЃСЂРѕРєР° РіРѕРґРЅРѕСЃС‚Рё СЃРєРѕСЂСЂРµРєС‚РёСЂРѕРІР°РЅРѕ С‚Р°Рє, С‡С‚РѕР±С‹ РїСЂРёРѕСЂРёС‚РµС‚ Р±С‹Р» Сѓ РґР°С‚С‹, СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕР№ Сѓ РїРѕСЂРѕР¶РґРµРЅРЅРѕРіРѕ Р»РѕС‚Р° РїСЂРѕС‚РёРІ РѕСЂРёРіРёРЅР°Р»СЊРЅРѕРіРѕ
 	//
 	PPID   org_lot_id = 0;
 	LDATE  crt_dt = ZERODATE;
@@ -812,7 +813,7 @@ int PPSupplExchange_Baltika::ExportRestParties()
 				}
 			}
 		}
-		else { // Экспортируем остатки разливного пива
+		else { // Р­РєСЃРїРѕСЂС‚РёСЂСѓРµРј РѕСЃС‚Р°С‚РєРё СЂР°Р·Р»РёРІРЅРѕРіРѕ РїРёРІР°
 			uint items_count = wotarebeerrest_list.getCount();
 			TSVector <Sdr_Baltika_RestPartLine> items_list;
 			for(uint j = 0; j < items_count; j++) {
@@ -972,7 +973,7 @@ int PPSupplExchange_Baltika::ExportRest()
 				}
 			}
 		}
-		else { // Экспортируем остатки слабоалкогольной продукции и разливного пива
+		else { // Р­РєСЃРїРѕСЂС‚РёСЂСѓРµРј РѕСЃС‚Р°С‚РєРё СЃР»Р°Р±РѕР°Р»РєРѕРіРѕР»СЊРЅРѕР№ РїСЂРѕРґСѓРєС†РёРё Рё СЂР°Р·Р»РёРІРЅРѕРіРѕ РїРёРІР°
 			RAssocArray * p_rest_list = (loc_list.at(i) == weakalc_locid) ? &weakalcrest_list : &wotarebeerrest_list;
 			uint items_count = p_rest_list->getCount();
 			TSVector <Sdr_SupplRestLine> items_list;
@@ -1129,7 +1130,7 @@ int PPSupplExchange_Baltika::GetBarcode(PPID goodsID, char * pBuf, size_t bufSiz
 				mult = barcode_list.at(i).Qtty;
 			}
 			/*
-			GObj.GetSingleBarcode(goodsID, barcode); // @todo сделать перебор всех штрихкодов
+			GObj.GetSingleBarcode(goodsID, barcode); // @todo СЃРґРµР»Р°С‚СЊ РїРµСЂРµР±РѕСЂ РІСЃРµС… С€С‚СЂРёС…РєРѕРґРѕРІ
 			if(barcode.Len() <= 0 || (barcode.C(0) != '=' && barcode.C(0) != '*'))
 				barcode = 0;
 			*/
@@ -1221,8 +1222,8 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 			if(tag_rec.ObjTypeID == PPOBJ_BILL && tag_rec.TagDataType == OTTYP_STRING)
 				order_number_tag_id = tag_rec.ID;
 		}
-		if(obj_tag.SearchBySymb("BALTIKA-PROMO-LABEL", &(temp_id = 0), &tag_rec) > 0) { // @v10.3.11
-			if(tag_rec.ObjTypeID == PPOBJ_BILL && oneof2(tag_rec.TagDataType, OTTYP_STRING, OTTYP_ENUM)) // @v10.4.0 OTTYP_ENUM
+		if(obj_tag.SearchBySymb("BALTIKA-PROMO-LABEL", &(temp_id = 0), &tag_rec) > 0) {
+			if(tag_rec.ObjTypeID == PPOBJ_BILL && oneof2(tag_rec.TagDataType, OTTYP_STRING, OTTYP_ENUM))
 				promo_tag_id = tag_rec.ID;
 		}
 	}
@@ -1333,14 +1334,14 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 				dlvr_addr_id = bpack.GetDlvrAddrID();
 			else if(PsnObj.Search(client_id, &psn_rec) > 0)
 				dlvr_addr_id = NZOR(psn_rec.RLoc, psn_rec.MainLoc);
-			/* Сначала нужно выяснить, будем ли выгружать данную накладную. Поэтому блок перенесен
+			/* РЎРЅР°С‡Р°Р»Р° РЅСѓР¶РЅРѕ РІС‹СЏСЃРЅРёС‚СЊ, Р±СѓРґРµРј Р»Рё РІС‹РіСЂСѓР¶Р°С‚СЊ РґР°РЅРЅСѓСЋ РЅР°РєР»Р°РґРЅСѓСЋ. РџРѕСЌС‚РѕРјСѓ Р±Р»РѕРє РїРµСЂРµРЅРµСЃРµРЅ
 			if(client_id && dlvr_addr_id)
 				if(dlvr_addr_list.lsearch(&dlvr_addr_id, 0, CMPF_LONG, sizeof(long)) <= 0)
 					dlvr_addr_list.Add(client_id, dlvr_addr_id, 0);
 			*/
 		}
 		//
-		// Определяем тип передаваемого документа
+		// РћРїСЂРµРґРµР»СЏРµРј С‚РёРї РїРµСЂРµРґР°РІР°РµРјРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 		//
 		{
 			int    doc_type_idx = -1;
@@ -1362,16 +1363,16 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 				doc_type_idx = BALTIKA_DOCTYPES_LOSSES;
 			else if(invrcpt_op_list.lsearch(item.OpID))
 				doc_type_idx = BALTIKA_DOCTYPES_INVENTORY;
-			// не будем учитывать межскладское перемещение, если товар - слабый алкоголь или разливуха
+			// РЅРµ Р±СѓРґРµРј СѓС‡РёС‚С‹РІР°С‚СЊ РјРµР¶СЃРєР»Р°РґСЃРєРѕРµ РїРµСЂРµРјРµС‰РµРЅРёРµ, РµСЃР»Рё С‚РѕРІР°СЂ - СЃР»Р°Р±С‹Р№ Р°Р»РєРѕРіРѕР»СЊ РёР»Рё СЂР°Р·Р»РёРІСѓС…Р°
 			if(oneof2(doc_type_idx, BALTIKA_DOCTYPES_MOVINGTO, BALTIKA_DOCTYPES_MOVINGFROM) && oneof2(rExpParam, expWeakAlc, expWoTareBeer))
 				doc_type_idx = -1;
 			//
-			// Если это перемещение с консигнационного склада, то пока не проставили правильное примечание, такой документ не трогаем
+			// Р•СЃР»Рё СЌС‚Рѕ РїРµСЂРµРјРµС‰РµРЅРёРµ СЃ РєРѕРЅСЃРёРіРЅР°С†РёРѕРЅРЅРѕРіРѕ СЃРєР»Р°РґР°, С‚Рѕ РїРѕРєР° РЅРµ РїСЂРѕСЃС‚Р°РІРёР»Рё РїСЂР°РІРёР»СЊРЅРѕРµ РїСЂРёРјРµС‡Р°РЅРёРµ, С‚Р°РєРѕР№ РґРѕРєСѓРјРµРЅС‚ РЅРµ С‚СЂРѕРіР°РµРј
 			//
 			if(doc_type_idx == BALTIKA_DOCTYPES_MOVINGFROM) {
 				from_consig_loc = GetConsigLocInfo(&item, consig_loc_grp, &consig_parent_dt, consig_parent_code);
 				//
-				// Документ перемещения с консигнационного склада. Но у него в примечании не проставлен номер родительского документа и дата, поэтому пропустим его
+				// Р”РѕРєСѓРјРµРЅС‚ РїРµСЂРµРјРµС‰РµРЅРёСЏ СЃ РєРѕРЅСЃРёРіРЅР°С†РёРѕРЅРЅРѕРіРѕ СЃРєР»Р°РґР°. РќРѕ Сѓ РЅРµРіРѕ РІ РїСЂРёРјРµС‡Р°РЅРёРё РЅРµ РїСЂРѕСЃС‚Р°РІР»РµРЅ РЅРѕРјРµСЂ СЂРѕРґРёС‚РµР»СЊСЃРєРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° Рё РґР°С‚Р°, РїРѕСЌС‚РѕРјСѓ РїСЂРѕРїСѓСЃС‚РёРј РµРіРѕ
 				//
 				if(from_consig_loc == -1)
 					doc_type_idx = -1;
@@ -1380,7 +1381,7 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 				BillTbl::Rec bill_rec;
 				PPGetSubStr(PPTXT_BALTIKA_DOCTYPES, doc_type_idx, doc_type_str);
 				//
-				// Заполняем информацию о приходном драфт документе
+				// Р—Р°РїРѕР»РЅСЏРµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїСЂРёС…РѕРґРЅРѕРј РґСЂР°С„С‚ РґРѕРєСѓРјРµРЅС‚Рµ
 				//
 				if(doc_type_idx == BALTIKA_DOCTYPES_RECEIPT) {
 					if(item.LinkBillID != 0) {
@@ -1407,11 +1408,11 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 			RetailPriceExtractor rtl_price_extr(bpack.Rec.LocID, 0, obj_id, ZERODATETIME, RTLPF_GETCURPRICE);
 			RetailPriceExtractor::ExtQuotBlock eqb(Ep.PriceQuotID);
 			RetailPriceExtractor price_by_quot_extr(bpack.Rec.LocID, &eqb, obj_id, ZERODATETIME, RTLPF_PRICEBYQUOT);
-			if(promo_tag_id && bpack.BTagL.GetItemStr(promo_tag_id, temp_buf) > 0) { // temp_buf содержит код скидки (ShareId)
+			if(promo_tag_id && bpack.BTagL.GetItemStr(promo_tag_id, temp_buf) > 0) { // temp_buf СЃРѕРґРµСЂР¶РёС‚ РєРѕРґ СЃРєРёРґРєРё (ShareId)
 				promo_label = temp_buf;
 			}
 			for(bpack.InitExtTIter(0/*ETIEF_UNITEBYGOODS*/); bpack.EnumTItemsExt(0, &trfr_item) > 0;) {
-				// если операция имеет тип - модификация товара, то будем рассматривать только приходные строчки
+				// РµСЃР»Рё РѕРїРµСЂР°С†РёСЏ РёРјРµРµС‚ С‚РёРї - РјРѕРґРёС„РёРєР°С†РёСЏ С‚РѕРІР°СЂР°, С‚Рѕ Р±СѓРґРµРј СЂР°СЃСЃРјР°С‚СЂРёРІР°С‚СЊ С‚РѕР»СЊРєРѕ РїСЂРёС…РѕРґРЅС‹Рµ СЃС‚СЂРѕС‡РєРё
 				int check_modif_op = (GetOpType(item.OpID) == PPOPT_GOODSMODIF) ? BIN(trfr_item.Flags & PPTFR_PLUS) : 1;
 				if(check_modif_op && (GObj.BelongToGroup(trfr_item.GoodsID, Ep.GoodsGrpID) > 0 ||
 					(weakalc_ggrpid && GObj.BelongToGroup(trfr_item.GoodsID, weakalc_ggrpid) > 0) ||
@@ -1533,9 +1534,9 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 									promo_rec.DocumentDate = line_rec.DocumentDate;
 									STRNSCPY(promo_rec.WareId, line_rec.WareId);
 						
-									STRNSCPY(promo_rec.ShareId, promo_label); // ShareId zstring(24) "Код скидки: [Cooler, Contract, Sellin, PricePromo]
+									STRNSCPY(promo_rec.ShareId, promo_label); // ShareId zstring(24) "РљРѕРґ СЃРєРёРґРєРё: [Cooler, Contract, Sellin, PricePromo]
 									temp_buf.Z().Cat(bpack.Rec.Dt.year()).CatChar('-').CatLongZ(bpack.Rec.Dt.month(), 2);
-									STRNSCPY(promo_rec.ShareDate, temp_buf); // Год/Месяц Скидки  в формате ГГГГ_ММ  (2018-01)
+									STRNSCPY(promo_rec.ShareDate, temp_buf); // Р“РѕРґ/РњРµСЃСЏС† РЎРєРёРґРєРё  РІ С„РѕСЂРјР°С‚Рµ Р“Р“Р“Р“_РњРњ  (2018-01)
 									promo_rec.DiscountSum = (nominal_price - line_rec.Price) * temp_qtty_val;
 									promo_rec.DiscountPercent = 100.0 * promo_rec.DiscountSum / (nominal_price * temp_qtty_val);
 									promo_item_list.insert(&promo_rec);
@@ -1546,7 +1547,7 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 								if(!dlvr_addr_list.lsearch(&dlvr_addr_id, 0, CMPF_LONG, sizeof(long)))
 									dlvr_addr_list.Add(client_id, dlvr_addr_id, 0);
 							//
-							// Дополнительная информация по строке документа
+							// Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ РїРѕ СЃС‚СЂРѕРєРµ РґРѕРєСѓРјРµРЅС‚Р°
 							//
 							{
 								SString serial;
@@ -1570,7 +1571,7 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 									if(item.OpID == Ep.MovInOp)
 										PPGetSubStr(PPTXT_BALTIKA_DOCTYPES, BALTIKA_DOCTYPES_MOVINGFROM, add_link_op_str);
 									else {
-										// Межскладские перемещения документов с консигнационного склада будем разбивать, на мескладской расход и приход товара от поставщика
+										// РњРµР¶СЃРєР»Р°РґСЃРєРёРµ РїРµСЂРµРјРµС‰РµРЅРёСЏ РґРѕРєСѓРјРµРЅС‚РѕРІ СЃ РєРѕРЅСЃРёРіРЅР°С†РёРѕРЅРЅРѕРіРѕ СЃРєР»Р°РґР° Р±СѓРґРµРј СЂР°Р·Р±РёРІР°С‚СЊ, РЅР° РјРµСЃРєР»Р°РґСЃРєРѕР№ СЂР°СЃС…РѕРґ Рё РїСЂРёС…РѕРґ С‚РѕРІР°СЂР° РѕС‚ РїРѕСЃС‚Р°РІС‰РёРєР°
 										if(from_consig_loc)
 											PPGetSubStr(PPTXT_BALTIKA_DOCTYPES, BALTIKA_DOCTYPES_RECEIPT, add_link_op_str);
 										else
@@ -1598,7 +1599,7 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 					if(item.OpID == Ep.MovInOp)
 						PPGetSubStr(PPTXT_BALTIKA_DOCTYPES, BALTIKA_DOCTYPES_MOVINGFROM, add_link_op_str);
 					else {
-						// Межскладские перемещения документов с консигнационного склада будем разбивать, на мескладской расход и приход товара от поставщика
+						// РњРµР¶СЃРєР»Р°РґСЃРєРёРµ РїРµСЂРµРјРµС‰РµРЅРёСЏ РґРѕРєСѓРјРµРЅС‚РѕРІ СЃ РєРѕРЅСЃРёРіРЅР°С†РёРѕРЅРЅРѕРіРѕ СЃРєР»Р°РґР° Р±СѓРґРµРј СЂР°Р·Р±РёРІР°С‚СЊ, РЅР° РјРµСЃРєР»Р°РґСЃРєРѕР№ СЂР°СЃС…РѕРґ Рё РїСЂРёС…РѕРґ С‚РѕРІР°СЂР° РѕС‚ РїРѕСЃС‚Р°РІС‰РёРєР°
 						if(from_consig_loc)
 							PPGetSubStr(PPTXT_BALTIKA_DOCTYPES, BALTIKA_DOCTYPES_RECEIPT, add_link_op_str);
 						else
@@ -1815,28 +1816,28 @@ int PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, const c
 									PPID   ar_id = 0;
 									Sdr_BaltikaSaldoAggregate sdr_saldo_aggr;
 									ArObj.P_Tbl->PersonToArticle(psn_rec.ID, acs_id, &ar_id);
-									sdr_saldo_aggr.SaldoDate = _curdt; //           date                "Дата, за которую экспортируются данные";
+									sdr_saldo_aggr.SaldoDate = _curdt; //           date                "Р”Р°С‚Р°, Р·Р° РєРѕС‚РѕСЂСѓСЋ СЌРєСЃРїРѕСЂС‚РёСЂСѓСЋС‚СЃСЏ РґР°РЅРЅС‹Рµ";
 									temp_buf.Z().Cat(psn_rec.ID);
 									STRNSCPY(sdr_saldo_aggr.CompanyId, temp_buf);
 									temp_buf.Z().Cat(loc_id);
-									STRNSCPY(sdr_saldo_aggr.AddressId, temp_buf); // zstring(24)         "Код клиента";
-									// @optional sdr_saldo_aggr.ProductId            zstring(24)         "Код продукта";
-									// @optional sdr_saldo_aggr.ProductName          zstring(128)        "Название продукта";
+									STRNSCPY(sdr_saldo_aggr.AddressId, temp_buf); // zstring(24)         "РљРѕРґ РєР»РёРµРЅС‚Р°";
+									// @optional sdr_saldo_aggr.ProductId            zstring(24)         "РљРѕРґ РїСЂРѕРґСѓРєС‚Р°";
+									// @optional sdr_saldo_aggr.ProductName          zstring(128)        "РќР°Р·РІР°РЅРёРµ РїСЂРѕРґСѓРєС‚Р°";
 									if(ArObj.GetClientAgreement(ar_id, cli_agt, 0) > 0) {
 										sdr_saldo_aggr.mCreditLimit = cli_agt.MaxCredit;
 									}
 									sdr_saldo_aggr.mCustInvoice = debt_item.Debt; //   double format(10.2) "mCustInvoice";
 									// @optional sdr_saldo_aggr.mCustInvoiceAllow = 0.0; //  double format(10.2) "mCustInvoiceAllow";
 									sdr_saldo_aggr.mCustInvoiceOverdue = debt_item.ExpiryDebt;
-									// @optional sdr_saldo_aggr.mCustReturn          double format(10.2) "Возврат поставщику";
+									// @optional sdr_saldo_aggr.mCustReturn          double format(10.2) "Р’РѕР·РІСЂР°С‚ РїРѕСЃС‚Р°РІС‰РёРєСѓ";
 									// @optional sdr_saldo_aggr.mDebtDocBank         double format(10.2) "mDebtDocBank";
 									// @optional sdr_saldo_aggr.mDebtDocCash         double format(10.2) "mDebtDocCash";
 									// @optional sdr_saldo_aggr.mDebtDocCopy         double format(10.2) "mDebtDocCopy";
 									// @optional sdr_saldo_aggr.mReturnableDebt      double format(10.2) "mReturnableDebt";
 									// @optional sdr_saldo_aggr.mVendInvoice         double format(10.2) "mVendInvoice";
-									// @optional sdr_saldo_aggr.mVendReturn          double format(10.2) "Возврат от покупателя";
+									// @optional sdr_saldo_aggr.mVendReturn          double format(10.2) "Р’РѕР·РІСЂР°С‚ РѕС‚ РїРѕРєСѓРїР°С‚РµР»СЏ";
 									// @optional sdr_saldo_aggr.mCredDoc             double format(10.2) "mCredDoc";
-									// @optional sdr_saldo_aggr.mTotalBalance        double format(10.2) "Итого баланс";
+									// @optional sdr_saldo_aggr.mTotalBalance        double format(10.2) "РС‚РѕРіРѕ Р±Р°Р»Р°РЅСЃ";
 									THROW(_WriteRec(_doc, rd_saldo_aggr, &sdr_saldo_aggr));
 									processed_debt_id_list.add(loc_id);
 								}
@@ -1931,12 +1932,12 @@ int PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, const c
 															sdr_saldo_ware.Summ = 0.0;
 														}
 														ltoa(psn_id, sdr_saldo_ware.CompanyId, 10);
-														//memzero(sdr_saldo_ware.AddressId, sizeof(sdr_saldo_ware.AddressId)); // не указываем, так как передаем тару
+														//memzero(sdr_saldo_ware.AddressId, sizeof(sdr_saldo_ware.AddressId)); // РЅРµ СѓРєР°Р·С‹РІР°РµРј, С‚Р°Рє РєР°Рє РїРµСЂРµРґР°РµРј С‚Р°СЂСѓ
 														temp_buf.Z();
 														if(dlvr_loc_id)
 															temp_buf.Cat(dlvr_loc_id);
-														STRNSCPY(sdr_saldo_ware.AddressId, temp_buf); // zstring(24)         "Код клиента";
-														memzero(sdr_saldo_ware.FACode,    sizeof(sdr_saldo_ware.FACode));    // (код оборудования) не указываем, так как передаем тару
+														STRNSCPY(sdr_saldo_ware.AddressId, temp_buf); // zstring(24)         "РљРѕРґ РєР»РёРµРЅС‚Р°";
+														memzero(sdr_saldo_ware.FACode,    sizeof(sdr_saldo_ware.FACode));    // (РєРѕРґ РѕР±РѕСЂСѓРґРѕРІР°РЅРёСЏ) РЅРµ СѓРєР°Р·С‹РІР°РµРј, С‚Р°Рє РєР°Рє РїРµСЂРµРґР°РµРј С‚Р°СЂСѓ
 														THROW(_WriteRec(_doc, rd_saldo_ware, &sdr_saldo_ware));
 														//THROW(soap_e.AppendRecT(PPREC_BALTIKASALDOWARE, &rec_saldo, sizeof(rec_saldo), is_first_rec, 0, "CRMSaldoWare"));
 													}
@@ -2475,7 +2476,7 @@ int PPSupplExchange_Baltika::Import(const char * pPath)
 class iSalesPepsi : public PrcssrSupplInterchange::ExecuteBlock {
 public:
 	struct ResultItem {
-		int   Status; // 0 - error, 1 - ок
+		int   Status; // 0 - error, 1 - РѕРє
 		SString ItemDescr;
 		SString ErrMsg;
 	};
@@ -2540,7 +2541,7 @@ private:
 		stGoodsMappingInited = 0x0004
 	};
 	long   State;
-	long   UnknAgentID; // @v10.8.11 Специальный идентификатор агента, не закрепленного за поставщиком 
+	long   UnknAgentID; // @v10.8.11 РЎРїРµС†РёР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р°РіРµРЅС‚Р°, РЅРµ Р·Р°РєСЂРµРїР»РµРЅРЅРѕРіРѕ Р·Р° РїРѕСЃС‚Р°РІС‰РёРєРѕРј 
 	SDynLibrary * P_Lib;
 	void * P_DestroyFunc;
 	SString SvcUrl;
@@ -2771,7 +2772,7 @@ int iSalesPepsi::SetGoodsArCode(PPID goodsID, const char * pArCode, int use_ta)
 				assert(ex_goods_rec.ID == ex_ac_rec.GoodsID);
 				assert(ex_goods_rec.ID != goodsID);
 				THROW(GObj.P_Tbl->SetArCode(ex_goods_rec.ID, P.SupplID, 0, 0, 0));
-				//PPTXT_LOG_SUPPLIX_RESETARCODE "Для товара '@goods' снят код по статье '@article' =@zstr поскольку должен быть перенесен на другой товар '@goods'"
+				//PPTXT_LOG_SUPPLIX_RESETARCODE "Р”Р»СЏ С‚РѕРІР°СЂР° '@goods' СЃРЅСЏС‚ РєРѕРґ РїРѕ СЃС‚Р°С‚СЊРµ '@article' =@zstr РїРѕСЃРєРѕР»СЊРєСѓ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РїРµСЂРµРЅРµСЃРµРЅ РЅР° РґСЂСѓРіРѕР№ С‚РѕРІР°СЂ '@goods'"
 				R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_RESETARCODE, &msg_buf, ex_goods_rec.ID, P.SupplID, new_ar_code.cptr(), goodsID));
 				ok = 2;
 			}
@@ -2922,9 +2923,9 @@ int iSalesPepsi::ReceiveReceipts()
 	PPSoapClientSession sess;
 	SString temp_buf;
 	SString msg_buf;
-	SString src_receipt_code; // Необходимо сохранять дабы после акцепта сформировать подтверждение
+	SString src_receipt_code; // РќРµРѕР±С…РѕРґРёРјРѕ СЃРѕС…СЂР°РЅСЏС‚СЊ РґР°Р±С‹ РїРѕСЃР»Рµ Р°РєС†РµРїС‚Р° СЃС„РѕСЂРјРёСЂРѕРІР°С‚СЊ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ
 	TSCollection <iSalesBillPacket> * p_result;
-	TSCollection <iSalesTransferStatus> status_list; // Список статусов приема заказов. Это список отправляется серверу в ответ на прием заказов
+	TSCollection <iSalesTransferStatus> status_list; // РЎРїРёСЃРѕРє СЃС‚Р°С‚СѓСЃРѕРІ РїСЂРёРµРјР° Р·Р°РєР°Р·РѕРІ. Р­С‚Рѕ СЃРїРёСЃРѕРє РѕС‚РїСЂР°РІР»СЏРµС‚СЃСЏ СЃРµСЂРІРµСЂСѓ РІ РѕС‚РІРµС‚ РЅР° РїСЂРёРµРј Р·Р°РєР°Р·РѕРІ
 	ISALESGETORDERLIST_PROC func = 0;
 	DateRange period;
 	SString tech_buf;
@@ -3047,9 +3048,9 @@ int iSalesPepsi::ReceiveVDocs()
 	PPSoapClientSession sess;
 	SString temp_buf;
 	SString msg_buf;
-	SString src_order_code; // Необходимо сохранять дабы после акцепта сформировать подтверждение
+	SString src_order_code; // РќРµРѕР±С…РѕРґРёРјРѕ СЃРѕС…СЂР°РЅСЏС‚СЊ РґР°Р±С‹ РїРѕСЃР»Рµ Р°РєС†РµРїС‚Р° СЃС„РѕСЂРјРёСЂРѕРІР°С‚СЊ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ
 	TSCollection <iSalesBillPacket> * p_result = 0;
-	TSCollection <iSalesTransferStatus> status_list; // Список статусов приема заказов. Это список отправляется серверу в ответ на прием заказов
+	TSCollection <iSalesTransferStatus> status_list; // РЎРїРёСЃРѕРє СЃС‚Р°С‚СѓСЃРѕРІ РїСЂРёРµРјР° Р·Р°РєР°Р·РѕРІ. Р­С‚Рѕ СЃРїРёСЃРѕРє РѕС‚РїСЂР°РІР»СЏРµС‚СЃСЏ СЃРµСЂРІРµСЂСѓ РІ РѕС‚РІРµС‚ РЅР° РїСЂРёРµРј Р·Р°РєР°Р·РѕРІ
 	ISALESGETORDERLIST_PROC func = 0;
 	DateRange period;
 	SString tech_buf;
@@ -3084,7 +3085,7 @@ int iSalesPepsi::ReceiveVDocs()
 		PPID   op_id = 0;
 		{
 			//
-			// Первая встреченная операция с типом PPOPT_DRAFTRECEIPT и подтипом OPSUBT_RETURNREQ считается искомой
+			// РџРµСЂРІР°СЏ РІСЃС‚СЂРµС‡РµРЅРЅР°СЏ РѕРїРµСЂР°С†РёСЏ СЃ С‚РёРїРѕРј PPOPT_DRAFTRECEIPT Рё РїРѕРґС‚РёРїРѕРј OPSUBT_RETURNREQ СЃС‡РёС‚Р°РµС‚СЃСЏ РёСЃРєРѕРјРѕР№
 			//
 			for(PPID enop_id = 0; EnumOperations(PPOPT_DRAFTRECEIPT, &enop_id, &op_rec) > 0;) {
 				if(op_rec.SubType == OPSUBT_RETURNREQ) {
@@ -3096,7 +3097,7 @@ int iSalesPepsi::ReceiveVDocs()
 		if(op_id) {
 			for(uint i = 0; i < p_result->getCount(); i++) {
 				const iSalesBillPacket * p_src_pack = p_result->at(i);
-				if(p_src_pack && p_src_pack->Status == 0) { // (p_src_pack->Status == 0) отмененные заказы не проводить
+				if(p_src_pack && p_src_pack->Status == 0) { // (p_src_pack->Status == 0) РѕС‚РјРµРЅРµРЅРЅС‹Рµ Р·Р°РєР°Р·С‹ РЅРµ РїСЂРѕРІРѕРґРёС‚СЊ
 					BillTbl::Rec ex_bill_rec;
 					PPID   ex_bill_id = 0;
 					PPBillPacket pack;
@@ -3273,7 +3274,7 @@ int iSalesPepsi::GetOrderFilesFromMailServer(PPID mailAccID, const char * pDestP
 
 // @v11.3.6 @construction {
 /*
-Пример файла в csv-формате для резервного приема заказов через email
+РџСЂРёРјРµСЂ С„Р°Р№Р»Р° РІ csv-С„РѕСЂРјР°С‚Рµ РґР»СЏ СЂРµР·РµСЂРІРЅРѕРіРѕ РїСЂРёРµРјР° Р·Р°РєР°Р·РѕРІ С‡РµСЂРµР· email
 --------------------
 r01;Order No;83542-180322-134410-17948383;-180322-134410-20438;1C_PAYER_ID;20438
 r02;;;0.07
@@ -3283,7 +3284,7 @@ r05;GPIDCR;80917084;Route;RU6890
 r06;1C CR Code;;1C_Warehouse_ID;101;Doc_Attributes;;;;;
 r07;Comments;;
 r08;Product;Product Name;Category;Product Quantity;Product unit code;Promo Applied;1C product code;UOM;Promo discount;Promo discount without VAT;Promo Desc;isales_Product_Code;Price for one Unit;Amount_without_VAT;Price for one Unit with VAT;Amount_with_VAT
-r09;340033481;Чудо ЙогФр ЯгоднМорож 2.4% 270г БП 15Х;МОЛОЧНЫЕ ПРОДУКТЫ;1.00;EA;;407212;1004;0.0000000000;0.0000000000;;18252;58.9454550000;58.9454550000;64.8400000000;64.8400000000
+r09;340033481;Р§СѓРґРѕ Р™РѕРіР¤СЂ РЇРіРѕРґРЅРњРѕСЂРѕР¶ 2.4% 270Рі Р‘Рџ 15РҐ;РњРћР›РћР§РќР«Р• РџР РћР”РЈРљРўР«;1.00;EA;;407212;1004;0.0000000000;0.0000000000;;18252;58.9454550000;58.9454550000;64.8400000000;64.8400000000
 */
 int iSalesPepsi::ReceiveOrder_Csv(const char * pInBuf, size_t inBufLen)
 {
@@ -3296,7 +3297,7 @@ int iSalesPepsi::ReceiveOrder_Csv(const char * pInBuf, size_t inBufLen)
 			if(!isempty(pInBuf)) {
 				for(size_t p = 0; p < inBufLen; p++) {
 					if(pInBuf[p] == 0) {
-						// Здесь result не инкрементируем дабы при следующем вызове функции не оказаться "за нулем".
+						// Р—РґРµСЃСЊ result РЅРµ РёРЅРєСЂРµРјРµРЅС‚РёСЂСѓРµРј РґР°Р±С‹ РїСЂРё СЃР»РµРґСѓСЋС‰РµРј РІС‹Р·РѕРІРµ С„СѓРЅРєС†РёРё РЅРµ РѕРєР°Р·Р°С‚СЊСЃСЏ "Р·Р° РЅСѓР»РµРј".
 						break;
 					}
 					else {
@@ -3342,7 +3343,7 @@ int iSalesPepsi::ReceiveOrder_Csv(const char * pInBuf, size_t inBufLen)
 					uint ssp = 0;
 					if(ss.get(&ssp, token)) {
 						if(token.IsEqiAscii("r01")) {
-							// ID агента iSales-Дата-Время-Код клиента iSales
+							// ID Р°РіРµРЅС‚Р° iSales-Р”Р°С‚Р°-Р’СЂРµРјСЏ-РљРѕРґ РєР»РёРµРЅС‚Р° iSales
 							// r01;Order No;83542-180322-134410-17948383;-180322-134410-20438;1C_PAYER_ID;20438
 							for(prev_token = token; ss.get(&ssp, token); prev_token = token) {
 								if(prev_token.IsEqiAscii("Order No")) {
@@ -3458,7 +3459,7 @@ int iSalesPepsi::ReceiveOrder_Csv(const char * pInBuf, size_t inBufLen)
 							// r08;Product;Product Name;Category;Product Quantity;Product unit code;Promo Applied;1C product code;UOM;Promo discount;Promo discount without VAT;Promo Desc;isales_Product_Code;Price for one Unit;Amount_without_VAT;Price for one Unit with VAT;Amount_with_VAT
 						}
 						else if(token.IsEqiAscii("r09")) {
-							// r09;340033481;Чудо ЙогФр ЯгоднМорож 2.4% 270г БП 15Х;МОЛОЧНЫЕ ПРОДУКТЫ;1.00;EA;;407212;1004;0.0000000000;0.0000000000;;18252;58.9454550000;58.9454550000;64.8400000000;64.8400000000
+							// r09;340033481;Р§СѓРґРѕ Р™РѕРіР¤СЂ РЇРіРѕРґРЅРњРѕСЂРѕР¶ 2.4% 270Рі Р‘Рџ 15РҐ;РњРћР›РћР§РќР«Р• РџР РћР”РЈРљРўР«;1.00;EA;;407212;1004;0.0000000000;0.0000000000;;18252;58.9454550000;58.9454550000;64.8400000000;64.8400000000
 							PPTransferItem ti;
 							PPID   native_goods_id = 0;
 							PPID   native_unit_id = 0;
@@ -3533,7 +3534,7 @@ int iSalesPepsi::ReceiveOrder_Csv(const char * pInBuf, size_t inBufLen)
 			}
 			if(pack.GetTCount()) {
 				TSCollection <iSalesBillPacket> * p_result = 0;
-				TSCollection <iSalesTransferStatus> status_list; // Список статусов приема заказов. Это список отправляется серверу в ответ на прием заказов
+				TSCollection <iSalesTransferStatus> status_list; // РЎРїРёСЃРѕРє СЃС‚Р°С‚СѓСЃРѕРІ РїСЂРёРµРјР° Р·Р°РєР°Р·РѕРІ. Р­С‚Рѕ СЃРїРёСЃРѕРє РѕС‚РїСЂР°РІР»СЏРµС‚СЃСЏ СЃРµСЂРІРµСЂСѓ РІ РѕС‚РІРµС‚ РЅР° РїСЂРёРµРј Р·Р°РєР°Р·РѕРІ
 				pack.SetupEdiAttributes(PPEDIOP_SALESORDER, "ISALES-PEPSI", /*p_src_pack->iSalesId*/isales_ident);
 				pack.InitAmounts();
 				THROW(P_BObj->TurnPacket(&pack, 1));
@@ -3558,9 +3559,9 @@ int iSalesPepsi::ReceiveOrders()
 	PPSoapClientSession sess;
 	SString temp_buf;
 	SString msg_buf;
-	SString src_order_code; // Необходимо сохранять дабы после акцепта сформировать подтверждение
+	SString src_order_code; // РќРµРѕР±С…РѕРґРёРјРѕ СЃРѕС…СЂР°РЅСЏС‚СЊ РґР°Р±С‹ РїРѕСЃР»Рµ Р°РєС†РµРїС‚Р° СЃС„РѕСЂРјРёСЂРѕРІР°С‚СЊ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ
 	TSCollection <iSalesBillPacket> * p_result = 0;
-	TSCollection <iSalesTransferStatus> status_list; // Список статусов приема заказов. Это список отправляется серверу в ответ на прием заказов
+	TSCollection <iSalesTransferStatus> status_list; // РЎРїРёСЃРѕРє СЃС‚Р°С‚СѓСЃРѕРІ РїСЂРёРµРјР° Р·Р°РєР°Р·РѕРІ. Р­С‚Рѕ СЃРїРёСЃРѕРє РѕС‚РїСЂР°РІР»СЏРµС‚СЃСЏ СЃРµСЂРІРµСЂСѓ РІ РѕС‚РІРµС‚ РЅР° РїСЂРёРµРј Р·Р°РєР°Р·РѕРІ
 	ISALESGETORDERLIST_PROC func = 0;
 	DateRange period;
 	SString tech_buf;
@@ -3596,7 +3597,7 @@ int iSalesPepsi::ReceiveOrders()
 		if(op_id && GetOpData(op_id, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
 			for(uint i = 0; i < p_result->getCount(); i++) {
 				const iSalesBillPacket * p_src_pack = p_result->at(i);
-				if(p_src_pack && p_src_pack->Status == 0) { // (p_src_pack->Status == 0) отмененные заказы не проводить
+				if(p_src_pack && p_src_pack->Status == 0) { // (p_src_pack->Status == 0) РѕС‚РјРµРЅРµРЅРЅС‹Рµ Р·Р°РєР°Р·С‹ РЅРµ РїСЂРѕРІРѕРґРёС‚СЊ
 					BillTbl::Rec ex_bill_rec;
 					PPID   ex_bill_id = 0;
 					PPBillPacket pack;
@@ -3871,7 +3872,7 @@ int iSalesPepsi::SendDebts()
 		uint   first_idx_by_date = 0;
 		LDATE  prev_date = ZERODATE;
 		const  uint _c = outer_debt_list.getCount();
-		for(i = 0; i <= _c; i++) { // (<=) - последняя итерация
+		for(i = 0; i <= _c; i++) { // (<=) - РїРѕСЃР»РµРґРЅСЏСЏ РёС‚РµСЂР°С†РёСЏ
 			const iSalesBillDebt * p_outer_bill = (i < _c) ? outer_debt_list.at(i) : 0;
 			if(p_outer_bill || i == _c) {
 				if(i == _c || (prev_date && p_outer_bill->Dtm.d != prev_date)) {
@@ -4110,9 +4111,9 @@ int iSalesPepsi::SendStocks()
 				/*
 					struct iSalesStockCountingItem {
 						SString OuterCode;
-						int   Type; // Тип остатков: 0 - годные, 1 - брак, 2 - резерв
-						int   UnitCode; // 0 - штука, 1 - коробка, 2 - условная коробка
-						double Qtty; // Количество на остатке
+						int   Type; // РўРёРї РѕСЃС‚Р°С‚РєРѕРІ: 0 - РіРѕРґРЅС‹Рµ, 1 - Р±СЂР°Рє, 2 - СЂРµР·РµСЂРІ
+						int   UnitCode; // 0 - С€С‚СѓРєР°, 1 - РєРѕСЂРѕР±РєР°, 2 - СѓСЃР»РѕРІРЅР°СЏ РєРѕСЂРѕР±РєР°
+						double Qtty; // РљРѕР»РёС‡РµСЃС‚РІРѕ РЅР° РѕСЃС‚Р°С‚РєРµ
 					};
 				*/
 				iSalesStockCountingItem * p_new_item = p_loc_item->Items.CreateNewItem(); // new iSalesStockCountingItem;
@@ -4134,15 +4135,15 @@ int iSalesPepsi::SendStocks()
 			temp_buf.DotCat("csv");
 			PPGetFilePath(PPPATH_OUT, temp_buf, check_file_name);
 			SFile f_check(check_file_name, SFile::mWrite);
-			//№ п/п	Наименование поля	Комментарии
-			//1	Код дистрибьютора iSales	константа = 118
-			//2	Дата и время формирования выгрузки	значение на момент формирования выгрузки(выполнение запроса)
-			//3	Код склада дистрибьютора 1С	
-			//4	Код продукта 1С	
-			//5	Код продукта iSales	
-			//6	Наименование продукта 1С	
-			//7	Тип остатка	брак/не брак
-			//8	Кол-во продукта на остатке в шуках	значение >0
+			//в„– Рї/Рї	РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїРѕР»СЏ	РљРѕРјРјРµРЅС‚Р°СЂРёРё
+			//1	РљРѕРґ РґРёСЃС‚СЂРёР±СЊСЋС‚РѕСЂР° iSales	РєРѕРЅСЃС‚Р°РЅС‚Р° = 118
+			//2	Р”Р°С‚Р° Рё РІСЂРµРјСЏ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ РІС‹РіСЂСѓР·РєРё	Р·РЅР°С‡РµРЅРёРµ РЅР° РјРѕРјРµРЅС‚ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ РІС‹РіСЂСѓР·РєРё(РІС‹РїРѕР»РЅРµРЅРёРµ Р·Р°РїСЂРѕСЃР°)
+			//3	РљРѕРґ СЃРєР»Р°РґР° РґРёСЃС‚СЂРёР±СЊСЋС‚РѕСЂР° 1РЎ	
+			//4	РљРѕРґ РїСЂРѕРґСѓРєС‚Р° 1РЎ	
+			//5	РљРѕРґ РїСЂРѕРґСѓРєС‚Р° iSales	
+			//6	РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїСЂРѕРґСѓРєС‚Р° 1РЎ	
+			//7	РўРёРї РѕСЃС‚Р°С‚РєР°	Р±СЂР°Рє/РЅРµ Р±СЂР°Рє
+			//8	РљРѕР»-РІРѕ РїСЂРѕРґСѓРєС‚Р° РЅР° РѕСЃС‚Р°С‚РєРµ РІ С€СѓРєР°С…	Р·РЅР°С‡РµРЅРёРµ >0
 			SString own_code;
 			Goods2Tbl::Rec goods_rec;
 			Ep.GetExtStrData(Ep.extssClientCode, own_code);
@@ -4184,7 +4185,7 @@ int iSalesPepsi::SendStocks()
 				{
 					SString tech_buf;
 					Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
-					//PPTXT_LOG_SUPPLIX_EXPSTOCK_E   "Экспортированы остатки поставщику @zstr '@article'. Количество элементов с ошибками: @int"
+					//PPTXT_LOG_SUPPLIX_EXPSTOCK_E   "Р­РєСЃРїРѕСЂС‚РёСЂРѕРІР°РЅС‹ РѕСЃС‚Р°С‚РєРё РїРѕСЃС‚Р°РІС‰РёРєСѓ @zstr '@article'. РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ СЃ РѕС€РёР±РєР°РјРё: @int"
 					PPFormatT(PPTXT_LOG_SUPPLIX_EXPSTOCK_E, &msg_buf, tech_buf.cptr(), P.SupplID, err_item_count);
 					PPWaitMsg(msg_buf);
 					if(err_item_count)
@@ -4224,7 +4225,7 @@ void iSalesPepsi::Helper_Parse_iSalesIdent(const SString & rIdent, SString & rCo
 	ASSIGN_PTR(pDate, dt);
 }
 //
-// Если outerDocType < 0, то это - отмена документа
+// Р•СЃР»Рё outerDocType < 0, С‚Рѕ СЌС‚Рѕ - РѕС‚РјРµРЅР° РґРѕРєСѓРјРµРЅС‚Р°
 //
 int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outerDocType, const PPIDArray * pRegisteredAgentList, TSCollection <iSalesBillPacket> & rList)
 {
@@ -4243,9 +4244,9 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 		long   tiiterpos = 0;
 		SString temp_buf;
 		SString cancel_code;
-		SString cli_addr_code; // Буфер для кода клиента (торговой точки)
-		SString cli_face_code; // Буфер для кода клиента
-		SString own_code; // Наш код в системе поставщика
+		SString cli_addr_code; // Р‘СѓС„РµСЂ РґР»СЏ РєРѕРґР° РєР»РёРµРЅС‚Р° (С‚РѕСЂРіРѕРІРѕР№ С‚РѕС‡РєРё)
+		SString cli_face_code; // Р‘СѓС„РµСЂ РґР»СЏ РєРѕРґР° РєР»РёРµРЅС‚Р°
+		SString own_code; // РќР°С€ РєРѕРґ РІ СЃРёСЃС‚РµРјРµ РїРѕСЃС‚Р°РІС‰РёРєР°
 		SysJournalTbl::Rec sj_rec;
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
 		Ep.GetExtStrData(Ep.extssClientCode, own_code);
@@ -4272,7 +4273,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 		}
 		if(do_cancel || ti_pos_list.getCount()) {
 			int    skip = 0;
-			bool   is_own_order = false; // !0 если документ выписан по заказу, импортированному из iSales
+			bool   is_own_order = false; // !0 РµСЃР»Рё РґРѕРєСѓРјРµРЅС‚ РІС‹РїРёСЃР°РЅ РїРѕ Р·Р°РєР°Р·Сѓ, РёРјРїРѕСЂС‚РёСЂРѕРІР°РЅРЅРѕРјСѓ РёР· iSales
 			PPBillPacket order_pack;
 			cli_face_code.Z();
 			cli_addr_code.Z();
@@ -4281,9 +4282,9 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 			PPObjQuotKind qk_obj;
 			PPID   special_qk_id = 0;
 			PPID    _temp_qk_id = 0;
-			// @v11.0.10 Базовая цена реализации, определяемая поставщиком и применяемая для расчетов производных цен реализации дистрибьютора.
-			// Здесь она нам нужна для идентификации размера промо-скидки, о котором необходимо отчитаться перед поставщиком.
-			// Используется в том случае, когда отгрузка сформирована НЕ по заказу из iSales. В случае привязки отгрузки к заказу iSales эта котировка не используется.
+			// @v11.0.10 Р‘Р°Р·РѕРІР°СЏ С†РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё, РѕРїСЂРµРґРµР»СЏРµРјР°СЏ РїРѕСЃС‚Р°РІС‰РёРєРѕРј Рё РїСЂРёРјРµРЅСЏРµРјР°СЏ РґР»СЏ СЂР°СЃС‡РµС‚РѕРІ РїСЂРѕРёР·РІРѕРґРЅС‹С… С†РµРЅ СЂРµР°Р»РёР·Р°С†РёРё РґРёСЃС‚СЂРёР±СЊСЋС‚РѕСЂР°.
+			// Р—РґРµСЃСЊ РѕРЅР° РЅР°Рј РЅСѓР¶РЅР° РґР»СЏ РёРґРµРЅС‚РёС„РёРєР°С†РёРё СЂР°Р·РјРµСЂР° РїСЂРѕРјРѕ-СЃРєРёРґРєРё, Рѕ РєРѕС‚РѕСЂРѕРј РЅРµРѕР±С…РѕРґРёРјРѕ РѕС‚С‡РёС‚Р°С‚СЊСЃСЏ РїРµСЂРµРґ РїРѕСЃС‚Р°РІС‰РёРєРѕРј.
+			// РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РєРѕРіРґР° РѕС‚РіСЂСѓР·РєР° СЃС„РѕСЂРјРёСЂРѕРІР°РЅР° РќР• РїРѕ Р·Р°РєР°Р·Сѓ РёР· iSales. Р’ СЃР»СѓС‡Р°Рµ РїСЂРёРІСЏР·РєРё РѕС‚РіСЂСѓР·РєРё Рє Р·Р°РєР°Р·Сѓ iSales СЌС‚Р° РєРѕС‚РёСЂРѕРІРєР° РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.
 			const   PPID isales_support_discount_qk =  (qk_obj.SearchBySymb("ISALES-SUPPORT", &_temp_qk_id, 0) > 0) ? _temp_qk_id : 0;
 			//
 			BillTbl::Rec link_bill_rec;
@@ -4364,7 +4365,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 			pBp->Pays.GetLast(&p_new_pack->DueDate, 0, 0);
 			p_new_pack->Status = BIN(do_cancel);
 			p_new_pack->Memo.Z();
-			if(outerDocType == 6) { // Приход (подтверждение)
+			if(outerDocType == 6) { // РџСЂРёС…РѕРґ (РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ)
 				p_new_pack->SellerCode.Z().Cat(psn_id);
 				p_new_pack->ShipFrom.Z().Cat(psn_id);
 				p_new_pack->PayerCode = own_code;
@@ -4383,7 +4384,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 					p_new_ref->Dtm.Z();
 				}
 			}
-			else if(outerDocType == 5) { // Возврат или корректировка
+			else if(outerDocType == 5) { // Р’РѕР·РІСЂР°С‚ РёР»Рё РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєР°
 				p_new_pack->SellerCode = cli_addr_code /*cli_face_code*/;
 				p_new_pack->ShipFrom = cli_addr_code;
 				p_new_pack->PayerCode = own_code;
@@ -4401,13 +4402,13 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 					p_new_ref->Dtm.Set(link_bill_rec.Dt, ZEROTIME);
 				}
 				else {
-					p_new_pack->DocType = 4; // Не привязанный возврат имеет отдельный тип
+					p_new_pack->DocType = 4; // РќРµ РїСЂРёРІСЏР·Р°РЅРЅС‹Р№ РІРѕР·РІСЂР°С‚ РёРјРµРµС‚ РѕС‚РґРµР»СЊРЅС‹Р№ С‚РёРї
 				}
 			}
-			else { // Продажа
+			else { // РџСЂРѕРґР°Р¶Р°
 				p_new_pack->SellerCode = own_code;
 				p_new_pack->ShipFrom = own_code;
-				// В некоторых случаях PayerCode - код персоналии, в некоторых - адреса доставки. Тут нужна настройка в конфигурации. Пока просто фиксированное значение.
+				// Р’ РЅРµРєРѕС‚РѕСЂС‹С… СЃР»СѓС‡Р°СЏС… PayerCode - РєРѕРґ РїРµСЂСЃРѕРЅР°Р»РёРё, РІ РЅРµРєРѕС‚РѕСЂС‹С… - Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё. РўСѓС‚ РЅСѓР¶РЅР° РЅР°СЃС‚СЂРѕР№РєР° РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё. РџРѕРєР° РїСЂРѕСЃС‚Рѕ С„РёРєСЃРёСЂРѕРІР°РЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ.
 				p_new_pack->PayerCode = cli_addr_code /*cli_face_code*/;
 				p_new_pack->ShipTo = cli_addr_code;
 				p_new_pack->SrcLocCode.Cat(pBp->Rec.LocID);
@@ -4514,10 +4515,10 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 							}
 							// @v11.0.10 {
 							else if(isales_support_discount_qk) {
-								// Специальный случай: отгрузка выписана не по заказу iSales но к ней применяется промо-скидка.
-								// Размер скидки определяется разницей между опорной ценой реализации (isales_support_discount_qk) и
-								// полной ценой продажи, если последняя меньше опорной цены.
-								// Если мы встречаем описанные условия, то имитируем относительную скидку по заказу ord_part_dis
+								// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№: РѕС‚РіСЂСѓР·РєР° РІС‹РїРёСЃР°РЅР° РЅРµ РїРѕ Р·Р°РєР°Р·Сѓ iSales РЅРѕ Рє РЅРµР№ РїСЂРёРјРµРЅСЏРµС‚СЃСЏ РїСЂРѕРјРѕ-СЃРєРёРґРєР°.
+								// Р Р°Р·РјРµСЂ СЃРєРёРґРєРё РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ СЂР°Р·РЅРёС†РµР№ РјРµР¶РґСѓ РѕРїРѕСЂРЅРѕР№ С†РµРЅРѕР№ СЂРµР°Р»РёР·Р°С†РёРё (isales_support_discount_qk) Рё
+								// РїРѕР»РЅРѕР№ С†РµРЅРѕР№ РїСЂРѕРґР°Р¶Рё, РµСЃР»Рё РїРѕСЃР»РµРґРЅСЏСЏ РјРµРЅСЊС€Рµ РѕРїРѕСЂРЅРѕР№ С†РµРЅС‹.
+								// Р•СЃР»Рё РјС‹ РІСЃС‚СЂРµС‡Р°РµРј РѕРїРёСЃР°РЅРЅС‹Рµ СѓСЃР»РѕРІРёСЏ, С‚Рѕ РёРјРёС‚РёСЂСѓРµРј РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅСѓСЋ СЃРєРёРґРєСѓ РїРѕ Р·Р°РєР°Р·Сѓ ord_part_dis
 								double quot = 0.0;
 								if(GObj.GetQuotExt(ti.GoodsID, QuotIdent(ti.LocID, isales_support_discount_qk, 0, ar_id), &quot, 0) > 0 && quot > 0.0 && org_net_price < quot)
 									ord_part_dis = R6((quot - org_net_price) / quot);
@@ -4548,7 +4549,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 								(p_new_item->Country = "RU").Transf(CTRANSF_INNER_TO_UTF8);
 						}
 						p_new_item->CLB.Z();
-						p_new_item->UnitCode = NZOR(Ep.Fb.DefUnitID, 1004); // @v10.8.9 1004-->NZOR(Ep.Fb.DefUnitID, 1004)
+						p_new_item->UnitCode = NZOR(Ep.Fb.DefUnitID, 1004);
 						p_new_item->Qtty = qtty;
 						p_new_item->Memo.Z();
 						{
@@ -4648,7 +4649,7 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 		S_GUID test_uuid;
 		PPViewBill b_view;
 		BillTbl::Rec bill_rec;
-		PPIDArray force_bill_list; // Список документов которые надо послать снова
+		PPIDArray force_bill_list; // РЎРїРёСЃРѕРє РґРѕРєСѓРјРµРЅС‚РѕРІ РєРѕС‚РѕСЂС‹Рµ РЅР°РґРѕ РїРѕСЃР»Р°С‚СЊ СЃРЅРѕРІР°
 		BillFilt b_filt;
 		BillViewItem view_item;
 		PPBillPacket pack;
@@ -4662,7 +4663,7 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 		SETIFZ(b_filt.Period.low, encodedate(1, 1, 2020)); // @v10.8.8 2016-->2020
 		{
 			PPIDArray upd_bill_list;
-			PPIDArray rmvd_bill_list; // @v10.9.2 Список документов, которые были удалены
+			PPIDArray rmvd_bill_list; // @v10.9.2 РЎРїРёСЃРѕРє РґРѕРєСѓРјРµРЅС‚РѕРІ, РєРѕС‚РѕСЂС‹Рµ Р±С‹Р»Рё СѓРґР°Р»РµРЅС‹
 			if(!(P.Flags & P.fTestMode)) { // @v10.9.1
 				SString org_isales_code;
 				LDATETIME since;
@@ -4674,7 +4675,7 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 				}
 				{
 					//
-					// Отправка информации об отмене документов-зомби (удаленных)
+					// РћС‚РїСЂР°РІРєР° РёРЅС„РѕСЂРјР°С†РёРё РѕР± РѕС‚РјРµРЅРµ РґРѕРєСѓРјРµРЅС‚РѕРІ-Р·РѕРјР±Рё (СѓРґР°Р»РµРЅРЅС‹С…)
 					//
 					ObjVersioningCore * p_ovc = PPRef->P_OvT;
 					if(p_ovc && p_ovc->InitSerializeContext(1)) {
@@ -4703,11 +4704,11 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 				for(uint i = 0; i < upd_bill_list.getCount(); i++) {
 					const  PPID upd_bill_id = upd_bill_list.get(i);
 					//
-					// Теги PPTAG_BILL_EDIACK используются так же для обмена с ЕГАИС.
-					// Дабы отличить документ isales от ЕГАИС попытаемся преобразовать значение
-					// тега в GUID. Если не получилось - значит не ЕГАИС.
-					// Метод очень плохой, но пока оставим так.
-					// @v9.5.7 В конфигурацию обмена данными добавлен спец тег для этого.
+					// РўРµРіРё PPTAG_BILL_EDIACK РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ С‚Р°Рє Р¶Рµ РґР»СЏ РѕР±РјРµРЅР° СЃ Р•Р“РђРРЎ.
+					// Р”Р°Р±С‹ РѕС‚Р»РёС‡РёС‚СЊ РґРѕРєСѓРјРµРЅС‚ isales РѕС‚ Р•Р“РђРРЎ РїРѕРїС‹С‚Р°РµРјСЃСЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ Р·РЅР°С‡РµРЅРёРµ
+					// С‚РµРіР° РІ GUID. Р•СЃР»Рё РЅРµ РїРѕР»СѓС‡РёР»РѕСЃСЊ - Р·РЅР°С‡РёС‚ РЅРµ Р•Р“РђРРЎ.
+					// РњРµС‚РѕРґ РѕС‡РµРЅСЊ РїР»РѕС…РѕР№, РЅРѕ РїРѕРєР° РѕСЃС‚Р°РІРёРј С‚Р°Рє.
+					// @v9.5.7 Р’ РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ РѕР±РјРµРЅР° РґР°РЅРЅС‹РјРё РґРѕР±Р°РІР»РµРЅ СЃРїРµС† С‚РµРі РґР»СЏ СЌС‚РѕРіРѕ.
 					//
 					if(p_ref->Ot.GetTagStr(PPOBJ_BILL, upd_bill_id, bill_ack_tag_id, org_isales_code) > 0 && !test_uuid.FromStr(org_isales_code)) {
 						if(P_BObj->Search(upd_bill_id, &bill_rec) > 0 && IsOpBelongTo(bill_rec.OpID, b_filt.OpID) && b_filt.LocList.CheckID(bill_rec.LocID)) {
@@ -4756,11 +4757,11 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 			if(!force_bill_list.bsearch(view_item.ID)) { 
 				int    dont_send = 0;
 				if(outerDocType == 6 && !P_BObj->CheckStatusFlag(view_item.StatusID, BILSTF_READYFOREDIACK))
-					dont_send = 1; // Статус не допускает отправку
+					dont_send = 1; // РЎС‚Р°С‚СѓСЃ РЅРµ РґРѕРїСѓСЃРєР°РµС‚ РѕС‚РїСЂР°РІРєСѓ
 				else {
-					if(!(P.Flags & P.fTestMode)) { // @v10.9.0 При подготовке файла сверки нельзя пропускать документы, которые уже были отправлены
+					if(!(P.Flags & P.fTestMode)) { // @v10.9.0 РџСЂРё РїРѕРґРіРѕС‚РѕРІРєРµ С„Р°Р№Р»Р° СЃРІРµСЂРєРё РЅРµР»СЊР·СЏ РїСЂРѕРїСѓСЃРєР°С‚СЊ РґРѕРєСѓРјРµРЅС‚С‹, РєРѕС‚РѕСЂС‹Рµ СѓР¶Рµ Р±С‹Р»Рё РѕС‚РїСЂР°РІР»РµРЅС‹
 						if(p_ref->Ot.GetTagStr(PPOBJ_BILL, view_item.ID, bill_ack_tag_id, temp_buf) > 0 && !test_uuid.FromStr(temp_buf))
-							dont_send = 1; // не отправляем документы, которые уже были отправлены ранее
+							dont_send = 1; // РЅРµ РѕС‚РїСЂР°РІР»СЏРµРј РґРѕРєСѓРјРµРЅС‚С‹, РєРѕС‚РѕСЂС‹Рµ СѓР¶Рµ Р±С‹Р»Рё РѕС‚РїСЂР°РІР»РµРЅС‹ СЂР°РЅРµРµ
 					}
 				}
 				if(!dont_send)
@@ -4772,7 +4773,7 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 				const  PPID force_bill_id = force_bill_list.get(i);
 				if(P_BObj->Search(force_bill_id, &bill_rec) > 0) {
 					if(outerDocType == 6 && !P_BObj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK)) {
-						// Статус не позволяет отправку
+						// РЎС‚Р°С‚СѓСЃ РЅРµ РїРѕР·РІРѕР»СЏРµС‚ РѕС‚РїСЂР°РІРєСѓ
 					}
 					else {
 						Helper_MakeBillEntry(bill_rec.ID, 0, outerDocType, pRegisteredAgentList, rList);
@@ -4788,8 +4789,8 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 int iSalesPepsi::SendInvoices()
 {
 	/*
-		Возврат обратной реализацией (4) – это документ, без привязки к расходной накладной, и тут также не нужно передавать теги REFS (<DOC_TP> = 4)
-		Возврат по акту (5) – это документ, c привязкой к расходной накладной, в тегах REFS в этом случае должны быть данные с номером расходной накладной, датой накладной, и тип документа расх. накладная = 1 (<DOC_TP> = 5)
+		Р’РѕР·РІСЂР°С‚ РѕР±СЂР°С‚РЅРѕР№ СЂРµР°Р»РёР·Р°С†РёРµР№ (4) вЂ“ СЌС‚Рѕ РґРѕРєСѓРјРµРЅС‚, Р±РµР· РїСЂРёРІСЏР·РєРё Рє СЂР°СЃС…РѕРґРЅРѕР№ РЅР°РєР»Р°РґРЅРѕР№, Рё С‚СѓС‚ С‚Р°РєР¶Рµ РЅРµ РЅСѓР¶РЅРѕ РїРµСЂРµРґР°РІР°С‚СЊ С‚РµРіРё REFS (<DOC_TP> = 4)
+		Р’РѕР·РІСЂР°С‚ РїРѕ Р°РєС‚Сѓ (5) вЂ“ СЌС‚Рѕ РґРѕРєСѓРјРµРЅС‚, c РїСЂРёРІСЏР·РєРѕР№ Рє СЂР°СЃС…РѕРґРЅРѕР№ РЅР°РєР»Р°РґРЅРѕР№, РІ С‚РµРіР°С… REFS РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РґР°РЅРЅС‹Рµ СЃ РЅРѕРјРµСЂРѕРј СЂР°СЃС…РѕРґРЅРѕР№ РЅР°РєР»Р°РґРЅРѕР№, РґР°С‚РѕР№ РЅР°РєР»Р°РґРЅРѕР№, Рё С‚РёРї РґРѕРєСѓРјРµРЅС‚Р° СЂР°СЃС…. РЅР°РєР»Р°РґРЅР°СЏ = 1 (<DOC_TP> = 5)
 	*/
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -4901,31 +4902,31 @@ int iSalesPepsi::SendInvoices()
 	}
 	{
 		/*
-			№ п/п	Наименование поля	Комментарии
-			1	Код дистрибьютора iSales	константа = id dealer
-			2	Дата и время формирования выгрузки	значение на момент формирования выгрузки (выполнение запроса)
-			3	Тип документа	возможные значения: 1- расходная накладная, 5 - возврат, 4 – приход
-			4	Номер документа в 1С	
-			5	Дата документа 1С	
-			6	Номер заказа iSales	заполняется для расходных накладных
-			7	Код контрагента в 1С	не заполняется для приходного документа
-			8	Код торговой точки 1С	не заполняется для приходного документа
-			9	Наименование клиента 1С	не заполняется для приходного документа
-			10	Код агента 1С	не заполняется для приходного документа
-			11	ФИО агента 1С	не заполняется для приходного документа
-			12	Код продукта 1С	
-			13	Код продукта iSales	может быть пустым, если продукт не замапплен
-			14	Наименование продукта 1С	
-			15	Кол-во продукта по документу в штуках	
-			16	Сумма в руб с НДС по продукту в документе	
-			17	Сумма в руб без НДС по продукту в документе	
-			18	Процент скидки по продукту в документе	процент скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
-			19	Сумма скидки в руб с НДС по продукту в документе	сумма скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
-			20	Сумма долга в руб c НДС по документу	неоплаченная сумма по документу в целом, значение дублируется для каждой строки(продукта) документа; поле не заполняется для приходного документа
-			21	Номер заказа SAP для приходного документа	номер заказа (SAP#) приходного документа, полученного из iSales, заполняется только для приходных документов
-			22	Номер расходного документа SAP (iDoc) для приходного документа	номер SAP для приходного документа, полученного из iSales, заполняется только для приходных документов
-			23	Код поставщика 1С	заполняется только для приходных документов
-			24	Наименование поставщика 1С	заполняется только для приходных документов
+			в„– Рї/Рї	РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїРѕР»СЏ	РљРѕРјРјРµРЅС‚Р°СЂРёРё
+			1	РљРѕРґ РґРёСЃС‚СЂРёР±СЊСЋС‚РѕСЂР° iSales	РєРѕРЅСЃС‚Р°РЅС‚Р° = id dealer
+			2	Р”Р°С‚Р° Рё РІСЂРµРјСЏ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ РІС‹РіСЂСѓР·РєРё	Р·РЅР°С‡РµРЅРёРµ РЅР° РјРѕРјРµРЅС‚ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ РІС‹РіСЂСѓР·РєРё (РІС‹РїРѕР»РЅРµРЅРёРµ Р·Р°РїСЂРѕСЃР°)
+			3	РўРёРї РґРѕРєСѓРјРµРЅС‚Р°	РІРѕР·РјРѕР¶РЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ: 1- СЂР°СЃС…РѕРґРЅР°СЏ РЅР°РєР»Р°РґРЅР°СЏ, 5 - РІРѕР·РІСЂР°С‚, 4 вЂ“ РїСЂРёС…РѕРґ
+			4	РќРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р° РІ 1РЎ	
+			5	Р”Р°С‚Р° РґРѕРєСѓРјРµРЅС‚Р° 1РЎ	
+			6	РќРѕРјРµСЂ Р·Р°РєР°Р·Р° iSales	Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ СЂР°СЃС…РѕРґРЅС‹С… РЅР°РєР»Р°РґРЅС‹С…
+			7	РљРѕРґ РєРѕРЅС‚СЂР°РіРµРЅС‚Р° РІ 1РЎ	РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+			8	РљРѕРґ С‚РѕСЂРіРѕРІРѕР№ С‚РѕС‡РєРё 1РЎ	РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+			9	РќР°РёРјРµРЅРѕРІР°РЅРёРµ РєР»РёРµРЅС‚Р° 1РЎ	РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+			10	РљРѕРґ Р°РіРµРЅС‚Р° 1РЎ	РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+			11	Р¤РРћ Р°РіРµРЅС‚Р° 1РЎ	РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+			12	РљРѕРґ РїСЂРѕРґСѓРєС‚Р° 1РЎ	
+			13	РљРѕРґ РїСЂРѕРґСѓРєС‚Р° iSales	РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј, РµСЃР»Рё РїСЂРѕРґСѓРєС‚ РЅРµ Р·Р°РјР°РїРїР»РµРЅ
+			14	РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїСЂРѕРґСѓРєС‚Р° 1РЎ	
+			15	РљРѕР»-РІРѕ РїСЂРѕРґСѓРєС‚Р° РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ РІ С€С‚СѓРєР°С…	
+			16	РЎСѓРјРјР° РІ СЂСѓР± СЃ РќР”РЎ РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ	
+			17	РЎСѓРјРјР° РІ СЂСѓР± Р±РµР· РќР”РЎ РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ	
+			18	РџСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ	РїСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё РїРѕ РїСЂРѕРјРѕ-Р°РєС†РёСЏРј РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РґРѕ РїСЂРёРјРµРЅРµРЅРёСЏ Р°Р»РіРѕСЂРёС‚РјР° СЂР°Р·РјР°Р·С‹РІР°РЅРёСЏ СЃРєРёРґРєРё РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ, РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+			19	РЎСѓРјРјР° СЃРєРёРґРєРё РІ СЂСѓР± СЃ РќР”РЎ РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ	СЃСѓРјРјР° СЃРєРёРґРєРё РїРѕ РїСЂРѕРјРѕ-Р°РєС†РёСЏРј РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РґРѕ РїСЂРёРјРµРЅРµРЅРёСЏ Р°Р»РіРѕСЂРёС‚РјР° СЂР°Р·РјР°Р·С‹РІР°РЅРёСЏ СЃРєРёРґРєРё РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ, РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+			20	РЎСѓРјРјР° РґРѕР»РіР° РІ СЂСѓР± c РќР”РЎ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ	РЅРµРѕРїР»Р°С‡РµРЅРЅР°СЏ СЃСѓРјРјР° РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ РІ С†РµР»РѕРј, Р·РЅР°С‡РµРЅРёРµ РґСѓР±Р»РёСЂСѓРµС‚СЃСЏ РґР»СЏ РєР°Р¶РґРѕР№ СЃС‚СЂРѕРєРё(РїСЂРѕРґСѓРєС‚Р°) РґРѕРєСѓРјРµРЅС‚Р°; РїРѕР»Рµ РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+			21	РќРѕРјРµСЂ Р·Р°РєР°Р·Р° SAP РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°	РЅРѕРјРµСЂ Р·Р°РєР°Р·Р° (SAP#) РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°, РїРѕР»СѓС‡РµРЅРЅРѕРіРѕ РёР· iSales, Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ РїСЂРёС…РѕРґРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
+			22	РќРѕРјРµСЂ СЂР°СЃС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° SAP (iDoc) РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°	РЅРѕРјРµСЂ SAP РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°, РїРѕР»СѓС‡РµРЅРЅРѕРіРѕ РёР· iSales, Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ РїСЂРёС…РѕРґРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
+			23	РљРѕРґ РїРѕСЃС‚Р°РІС‰РёРєР° 1РЎ	Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ РїСЂРёС…РѕРґРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
+			24	РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїРѕСЃС‚Р°РІС‰РёРєР° 1РЎ	Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ РїСЂРёС…РѕРґРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
 		*/
 		SString check_file_name;
 		SString line_buf;
@@ -4998,14 +4999,14 @@ int iSalesPepsi::SendInvoices()
 								line_buf.Tab(3);
 							}
 						}
-						line_buf.Cat(p_bill_item->AgentCode).Tab(); // 10	Код агента 1С	не заполняется для приходного документа
+						line_buf.Cat(p_bill_item->AgentCode).Tab(); // 10	РљРѕРґ Р°РіРµРЅС‚Р° 1РЎ	РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 						{
 							const  PPID agent_id = p_bill_item->AgentCode.ToLong();
 							if(agent_id)
 								GetPersonName(agent_id, temp_buf);
 							else
 								temp_buf.Z();
-							line_buf.Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).Tab(); // 11	ФИО агента 1С	не заполняется для приходного документа
+							line_buf.Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).Tab(); // 11	Р¤РРћ Р°РіРµРЅС‚Р° 1РЎ	РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 						}
 						line_buf.Cat(p_item->NativeGoodsCode).Tab();
 						line_buf.Cat(p_item->OuterGoodsCode).Tab();
@@ -5047,34 +5048,34 @@ int iSalesPepsi::SendInvoices()
 								gross_sum = p_main_amt_entry->GrossSum;
 								net_sum = p_main_amt_entry->NetSum;
 							}
-							line_buf.Cat(gross_sum, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab();    // 16 Сумма в руб с НДС по продукту в документе	
-							line_buf.Cat(net_sum,   MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab();    // 17 Сумма в руб без НДС по продукту в документе	
-							line_buf.Cat(discount_pct, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 18 Процент скидки по продукту в документе	процент скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
-							line_buf.Cat(discount_amt, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 19 Сумма скидки в руб с НДС по продукту в документе	сумма скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
+							line_buf.Cat(gross_sum, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab();    // 16 РЎСѓРјРјР° РІ СЂСѓР± СЃ РќР”РЎ РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ	
+							line_buf.Cat(net_sum,   MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab();    // 17 РЎСѓРјРјР° РІ СЂСѓР± Р±РµР· РќР”РЎ РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ	
+							line_buf.Cat(discount_pct, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 18 РџСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ	РїСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё РїРѕ РїСЂРѕРјРѕ-Р°РєС†РёСЏРј РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РґРѕ РїСЂРёРјРµРЅРµРЅРёСЏ Р°Р»РіРѕСЂРёС‚РјР° СЂР°Р·РјР°Р·С‹РІР°РЅРёСЏ СЃРєРёРґРєРё РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ, РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+							line_buf.Cat(discount_amt, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 19 РЎСѓРјРјР° СЃРєРёРґРєРё РІ СЂСѓР± СЃ РќР”РЎ РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ	СЃСѓРјРјР° СЃРєРёРґРєРё РїРѕ РїСЂРѕРјРѕ-Р°РєС†РёСЏРј РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РґРѕ РїСЂРёРјРµРЅРµРЅРёСЏ Р°Р»РіРѕСЂРёС‚РјР° СЂР°Р·РјР°Р·С‹РІР°РЅРёСЏ СЃРєРёРґРєРё РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ, РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 							/*if(p_main_amt_entry) {
-								line_buf.Cat(p_main_amt_entry->GrossSum, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 16	Сумма в руб с НДС по продукту в документе	
-								line_buf.Cat(p_main_amt_entry->NetSum, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab();   // 17	Сумма в руб без НДС по продукту в документе	
+								line_buf.Cat(p_main_amt_entry->GrossSum, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 16	РЎСѓРјРјР° РІ СЂСѓР± СЃ РќР”РЎ РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ	
+								line_buf.Cat(p_main_amt_entry->NetSum, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab();   // 17	РЎСѓРјРјР° РІ СЂСѓР± Р±РµР· РќР”РЎ РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ	
 							}
 							else {
-								line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 16	Сумма в руб с НДС по продукту в документе	
-								line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 17	Сумма в руб без НДС по продукту в документе	
+								line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 16	РЎСѓРјРјР° РІ СЂСѓР± СЃ РќР”РЎ РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ	
+								line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 17	РЎСѓРјРјР° РІ СЂСѓР± Р±РµР· РќР”РЎ РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ	
 							}
 							if(p_discount_amt_entry) { // @v11.1.4
 								const double _discount_pct = fdivnz(p_discount_amt_entry->DiscGrossSum, p_discount_amt_entry->GrossSum) * 100.0;
-								line_buf.Cat(_discount_pct, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 18 Процент скидки по продукту в документе	процент скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
-								line_buf.Cat(p_discount_amt_entry->DiscGrossSum, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 19 Сумма скидки в руб с НДС по продукту в документе	сумма скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
+								line_buf.Cat(_discount_pct, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 18 РџСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ	РїСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё РїРѕ РїСЂРѕРјРѕ-Р°РєС†РёСЏРј РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РґРѕ РїСЂРёРјРµРЅРµРЅРёСЏ Р°Р»РіРѕСЂРёС‚РјР° СЂР°Р·РјР°Р·С‹РІР°РЅРёСЏ СЃРєРёРґРєРё РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ, РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+								line_buf.Cat(p_discount_amt_entry->DiscGrossSum, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 19 РЎСѓРјРјР° СЃРєРёРґРєРё РІ СЂСѓР± СЃ РќР”РЎ РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ	СЃСѓРјРјР° СЃРєРёРґРєРё РїРѕ РїСЂРѕРјРѕ-Р°РєС†РёСЏРј РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РґРѕ РїСЂРёРјРµРЅРµРЅРёСЏ Р°Р»РіРѕСЂРёС‚РјР° СЂР°Р·РјР°Р·С‹РІР°РЅРёСЏ СЃРєРёРґРєРё РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ, РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 							}
 							else {
-								line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 18 Процент скидки по продукту в документе	процент скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
-								line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 19 Сумма скидки в руб с НДС по продукту в документе	сумма скидки по промо-акциям по продукту до применения алгоритма размазывания скидки по документу, не заполняется для приходного документа
+								line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 18 РџСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ	РїСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё РїРѕ РїСЂРѕРјРѕ-Р°РєС†РёСЏРј РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РґРѕ РїСЂРёРјРµРЅРµРЅРёСЏ Р°Р»РіРѕСЂРёС‚РјР° СЂР°Р·РјР°Р·С‹РІР°РЅРёСЏ СЃРєРёРґРєРё РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ, РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+								line_buf.Cat(0.0, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 19 РЎСѓРјРјР° СЃРєРёРґРєРё РІ СЂСѓР± СЃ РќР”РЎ РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РІ РґРѕРєСѓРјРµРЅС‚Рµ	СЃСѓРјРјР° СЃРєРёРґРєРё РїРѕ РїСЂРѕРјРѕ-Р°РєС†РёСЏРј РїРѕ РїСЂРѕРґСѓРєС‚Сѓ РґРѕ РїСЂРёРјРµРЅРµРЅРёСЏ Р°Р»РіРѕСЂРёС‚РјР° СЂР°Р·РјР°Р·С‹РІР°РЅРёСЏ СЃРєРёРґРєРё РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ, РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 							}*/
-							line_buf.Cat(debt_amount, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 20 Сумма долга в руб c НДС по документу	неоплаченная сумма по документу в целом, значение дублируется для каждой строки(продукта) документа; поле не заполняется для приходного документа
+							line_buf.Cat(debt_amount, MKSFMTD(0, 2, NMBF_DECCOMMA)).Tab(); // 20 РЎСѓРјРјР° РґРѕР»РіР° РІ СЂСѓР± c РќР”РЎ РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ	РЅРµРѕРїР»Р°С‡РµРЅРЅР°СЏ СЃСѓРјРјР° РїРѕ РґРѕРєСѓРјРµРЅС‚Сѓ РІ С†РµР»РѕРј, Р·РЅР°С‡РµРЅРёРµ РґСѓР±Р»РёСЂСѓРµС‚СЃСЏ РґР»СЏ РєР°Р¶РґРѕР№ СЃС‚СЂРѕРєРё(РїСЂРѕРґСѓРєС‚Р°) РґРѕРєСѓРјРµРЅС‚Р°; РїРѕР»Рµ РЅРµ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 						}
 						{
-							line_buf.Tab(); // 21	Номер заказа SAP для приходного документа	номер заказа (SAP#) приходного документа, полученного из iSales, заполняется только для приходных документов
-							line_buf.Tab(); // 22	Номер расходного документа SAP (iDoc) для приходного документа	номер SAP для приходного документа, полученного из iSales, заполняется только для приходных документов
-							line_buf.Tab(); // 23	Код поставщика 1С	заполняется только для приходных документов
-							line_buf.Tab(); // 24	Наименование поставщика 1С	заполняется только для приходных документов
+							line_buf.Tab(); // 21	РќРѕРјРµСЂ Р·Р°РєР°Р·Р° SAP РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°	РЅРѕРјРµСЂ Р·Р°РєР°Р·Р° (SAP#) РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°, РїРѕР»СѓС‡РµРЅРЅРѕРіРѕ РёР· iSales, Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ РїСЂРёС…РѕРґРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
+							line_buf.Tab(); // 22	РќРѕРјРµСЂ СЂР°СЃС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° SAP (iDoc) РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°	РЅРѕРјРµСЂ SAP РґР»СЏ РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°, РїРѕР»СѓС‡РµРЅРЅРѕРіРѕ РёР· iSales, Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ РїСЂРёС…РѕРґРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
+							line_buf.Tab(); // 23	РљРѕРґ РїРѕСЃС‚Р°РІС‰РёРєР° 1РЎ	Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ РїСЂРёС…РѕРґРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
+							line_buf.Tab(); // 24	РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїРѕСЃС‚Р°РІС‰РёРєР° 1РЎ	Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ РїСЂРёС…РѕРґРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
 						}
 						f_check.WriteLine(line_buf.CR());
 					}
@@ -5109,7 +5110,7 @@ int iSalesPepsi::SendInvoices()
 				TSCollection <iSalesPepsi::ResultItem> result_list;
 				ParseResultString(*p_result, result_list, &err_item_count);
 				{
-					//PPTXT_LOG_SUPPLIX_EXPBILL_E   "Экспортировано @int документов поставщику @zstr '@article'. Количество документов с ошибками: @int"
+					//PPTXT_LOG_SUPPLIX_EXPBILL_E   "Р­РєСЃРїРѕСЂС‚РёСЂРѕРІР°РЅРѕ @int РґРѕРєСѓРјРµРЅС‚РѕРІ РїРѕСЃС‚Р°РІС‰РёРєСѓ @zstr '@article'. РљРѕР»РёС‡РµСЃС‚РІРѕ РґРѕРєСѓРјРµРЅС‚РѕРІ СЃ РѕС€РёР±РєР°РјРё: @int"
 					const long __count = outp_packet.getPointer();
 					total_error_count += err_item_count;
 					PPFormatT(PPTXT_LOG_SUPPLIX_EXPBILL_E, &msg_buf, __count, tech_buf.cptr(), P.SupplID, total_error_count);
@@ -5193,7 +5194,7 @@ private:
 	SString UserName;
 	SString Password;
 	//
-	// Следующие 2 строки используются для инициализации заголовка запросов
+	// РЎР»РµРґСѓСЋС‰РёРµ 2 СЃС‚СЂРѕРєРё РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РґР»СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё Р·Р°РіРѕР»РѕРІРєР° Р·Р°РїСЂРѕСЃРѕРІ
 	//
 	SString SalesOrg;
 	SString Wareh;
@@ -5296,9 +5297,9 @@ int SapEfes::ReceiveOrders()
 	SString temp_buf;
 	SString added_param;
 	SString msg_buf;
-	SString src_order_code; // Необходимо сохранять дабы после акцепта сформировать подтверждение
+	SString src_order_code; // РќРµРѕР±С…РѕРґРёРјРѕ СЃРѕС…СЂР°РЅСЏС‚СЊ РґР°Р±С‹ РїРѕСЃР»Рµ Р°РєС†РµРїС‚Р° СЃС„РѕСЂРјРёСЂРѕРІР°С‚СЊ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ
 	TSCollection <SapEfesOrder> * p_result = 0;
-	TSCollection <SapEfesBillStatus> status_list; // Список статусов приема заказов. Это список отправляется серверу в ответ на прием заказов
+	TSCollection <SapEfesBillStatus> status_list; // РЎРїРёСЃРѕРє СЃС‚Р°С‚СѓСЃРѕРІ РїСЂРёРµРјР° Р·Р°РєР°Р·РѕРІ. Р­С‚Рѕ СЃРїРёСЃРѕРє РѕС‚РїСЂР°РІР»СЏРµС‚СЃСЏ СЃРµСЂРІРµСЂСѓ РІ РѕС‚РІРµС‚ РЅР° РїСЂРёРµРј Р·Р°РєР°Р·РѕРІ
 	SapEfesCallHeader sech;
 	EFESGETSALESORDERSYNCLIST_PROC func = 0;
 	EFESSETSALESORDERSTATUSSYNC_PROC func_status = 0;
@@ -5330,7 +5331,7 @@ int SapEfes::ReceiveOrders()
 	}
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	{
-		//PPTXT_LOG_SUPPLIX_IMPORD_E    "Импортировано @int заказов @zstr"
+		//PPTXT_LOG_SUPPLIX_IMPORD_E    "РРјРїРѕСЂС‚РёСЂРѕРІР°РЅРѕ @int Р·Р°РєР°Р·РѕРІ @zstr"
 		PPFormatT(PPTXT_LOG_SUPPLIX_IMPORD_E, &msg_buf, (long)p_result->getCount(), tech_buf.cptr());
 		//R_Logger.Log(msg_buf);
 		PPWaitMsg(msg_buf);
@@ -5347,14 +5348,14 @@ int SapEfes::ReceiveOrders()
 				const SapEfesOrder * p_src_pack = p_result->at(i);
 				if(!p_src_pack || !checkdate(p_src_pack->Date.d)) {
 					if(p_src_pack)
-						THROW(MakeOrderReply(status_list, p_src_pack, 0, "E0007")); // Ошибка
+						THROW(MakeOrderReply(status_list, p_src_pack, 0, "E0007")); // РћС€РёР±РєР°
 				}
 				else {
 					int    skip = 0;
 					PPID   ex_bill_id = 0;
 					PPID   dlvr_loc_id = 0;
-					PPID   contractor_by_loc_ar_id = 0; // Контрагент идентифицированный по адресу доставки
-					PPID   contractor_ar_id = 0; // Контрагент, идентифицированный собственно по коду контрагента
+					PPID   contractor_by_loc_ar_id = 0; // РљРѕРЅС‚СЂР°РіРµРЅС‚ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅРЅС‹Р№ РїРѕ Р°РґСЂРµСЃСѓ РґРѕСЃС‚Р°РІРєРё
+					PPID   contractor_ar_id = 0; // РљРѕРЅС‚СЂР°РіРµРЅС‚, РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°РЅРЅС‹Р№ СЃРѕР±СЃС‚РІРµРЅРЅРѕ РїРѕ РєРѕРґСѓ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
 					Goods2Tbl::Rec goods_rec;
 					LocationTbl::Rec loc_rec;
 					PersonTbl::Rec psn_rec;
@@ -5414,7 +5415,7 @@ int SapEfes::ReceiveOrders()
 						skip = 1;
 					}
 					if(skip) {
-						THROW(MakeOrderReply(status_list, p_src_pack, 0, "E0007")); // Ошибка
+						THROW(MakeOrderReply(status_list, p_src_pack, 0, "E0007")); // РћС€РёР±РєР°
 					}
 					else {
 						if(!dlvr_loc_id) {
@@ -5484,7 +5485,7 @@ int SapEfes::ReceiveOrders()
 								THROW(MakeOrderReply(status_list, p_src_pack, pack.Rec.ID, "E0008"));
 							}
 							else {
-								THROW(MakeOrderReply(status_list, p_src_pack, 0, "E0007")); // Ошибка
+								THROW(MakeOrderReply(status_list, p_src_pack, 0, "E0007")); // РћС€РёР±РєР°
 							}
 						}
 					}
@@ -5677,7 +5678,7 @@ int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & r
 		SString loc_code;
 		SString isales_code;
 		PPViewBill b_view;
-		//PPIDArray to_cancel_bill_list; // Список документов, по которым следует отослать отмену поставок
+		//PPIDArray to_cancel_bill_list; // РЎРїРёСЃРѕРє РґРѕРєСѓРјРµРЅС‚РѕРІ, РїРѕ РєРѕС‚РѕСЂС‹Рј СЃР»РµРґСѓРµС‚ РѕС‚РѕСЃР»Р°С‚СЊ РѕС‚РјРµРЅСѓ РїРѕСЃС‚Р°РІРѕРє
 		PPIDArray order_id_list;
 		BillFilt b_filt;
 		BillViewItem view_item;
@@ -5709,7 +5710,7 @@ int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & r
 								}
 								if(!is_t_goods) {
 									//
-									// Если в документе не осталось ни одной строки нашего товара, то - в список на удаление
+									// Р•СЃР»Рё РІ РґРѕРєСѓРјРµРЅС‚Рµ РЅРµ РѕСЃС‚Р°Р»РѕСЃСЊ РЅРё РѕРґРЅРѕР№ СЃС‚СЂРѕРєРё РЅР°С€РµРіРѕ С‚РѕРІР°СЂР°, С‚Рѕ - РІ СЃРїРёСЃРѕРє РЅР° СѓРґР°Р»РµРЅРёРµ
 									//
 									rToCancelBillList.add(upd_bill_id);
 								}
@@ -5728,7 +5729,7 @@ int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & r
 				PPBillPacket pack;
 				PPFreight freight;
 				if(P_BObj->ExtractPacket(bill_id, &pack) > 0) {
-					int    is_own_order = 0; // !0 если документ выписан по заказу, импортированному от поставщика
+					int    is_own_order = 0; // !0 РµСЃР»Рё РґРѕРєСѓРјРµРЅС‚ РІС‹РїРёСЃР°РЅ РїРѕ Р·Р°РєР°Р·Сѓ, РёРјРїРѕСЂС‚РёСЂРѕРІР°РЅРЅРѕРјСѓ РѕС‚ РїРѕСЃС‚Р°РІС‰РёРєР°
 					StrAssocArray ti_pos_list;
 					PPTransferItem ti;
 					PPBillPacket::TiItemExt tiext;
@@ -6131,13 +6132,13 @@ private:
 		LDATETIME Dtm;
 		LDATETIME DlvrDtm;
 		int    ForeignDlvrAddrID;
-		double PaidSum;     // Сумма инкассации
-		int    UserID;      // Идентификатор пользователя, создавшего заказ
-		int    WarehouseID; // Идентификатор склада дистрибьютора
+		double PaidSum;     // РЎСѓРјРјР° РёРЅРєР°СЃСЃР°С†РёРё
+		int    UserID;      // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ, СЃРѕР·РґР°РІС€РµРіРѕ Р·Р°РєР°Р·
+		int    WarehouseID; // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРєР»Р°РґР° РґРёСЃС‚СЂРёР±СЊСЋС‚РѕСЂР°
 		SString ForeignDlvrAddrText;
 		SString Memo;
-		SString PaidNumber; // Номер кассового ордера
-		SString UserName;   // Фамилия Имя Отчество торгового представителя
+		SString PaidNumber; // РќРѕРјРµСЂ РєР°СЃСЃРѕРІРѕРіРѕ РѕСЂРґРµСЂР°
+		SString UserName;   // Р¤Р°РјРёР»РёСЏ РРјСЏ РћС‚С‡РµСЃС‚РІРѕ С‚РѕСЂРіРѕРІРѕРіРѕ РїСЂРµРґСЃС‚Р°РІРёС‚РµР»СЏ
 		TSCollection <Item> ItemList;
 	};
 	int    PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
@@ -6409,8 +6410,8 @@ int SfaHeineken::ReceiveOrders()
 				LocationTbl::Rec loc_rec;
 				PersonTbl::Rec psn_rec;
 				PPID   wh_id = 0;
-				PPID   dlvr_loc_id = 0; // Ид адреса доставки
-				PPID   ar_id = 0; // Ид заказчика (статья)
+				PPID   dlvr_loc_id = 0; // РРґ Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё
+				PPID   ar_id = 0; // РРґ Р·Р°РєР°Р·С‡РёРєР° (СЃС‚Р°С‚СЊСЏ)
 				p_src_pack->Uuid.ToStr(S_GUID::fmtIDL, bill_uuid_text);
 				if(p_src_pack->WarehouseID) {
 					temp_buf.Z().Cat(p_src_pack->WarehouseID);
@@ -6478,7 +6479,7 @@ int SfaHeineken::ReceiveOrders()
 								pack.Ext.AgentID = agent_id;
 							}
 							else {
-								// PPTXT_LOG_SUPPLIX_CLLTAGNTTOORD     "Не удалось сопоставить с заказом агента '@zstr'"
+								// PPTXT_LOG_SUPPLIX_CLLTAGNTTOORD     "РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕРїРѕСЃС‚Р°РІРёС‚СЊ СЃ Р·Р°РєР°Р·РѕРј Р°РіРµРЅС‚Р° '@zstr'"
                                 temp_buf.Space().CatParStr(p_src_pack->UserName);
 								R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_CLLTAGNTTOORD, &msg_buf, temp_buf.cptr()));
 							}
@@ -6611,7 +6612,7 @@ int SfaHeineken::Helper_MakeDeliveryList(PPBillPacket & rPack, const StrAssocArr
 				p_new_item->Count = fabs(ti.Quantity_);
 				double ratio = 0.0;
 				if(GObj.TranslateGoodsUnitToBase(goods_rec, SUOM_LITER, &ratio) > 0)
-					p_new_item->Volume = fabs(ti.Quantity_) * ratio / 100.0; // гекталитры
+					p_new_item->Volume = fabs(ti.Quantity_) * ratio / 100.0; // РіРµРєС‚Р°Р»РёС‚СЂС‹
 				else
 					p_new_item->Volume = 0.0;
 				p_new_item->Amount = ti.CalcAmount();
@@ -6685,10 +6686,9 @@ int SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollectio
 				}
 			}
 			if(order_uuid.IsZero() && inner_order_code.IsEmpty()) {
-				(inner_order_code = bill_code).CatChar('-').Cat("ORD"); // @v10.0.08
-				// @v10.0.08 R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_EBILLHASNTORDER, &msg_buf, bill_text.cptr()));
+				(inner_order_code = bill_code).CatChar('-').Cat("ORD");
 			}
-			/* @v10.0.08 else */if(!dlvr_addr_id) {
+			if(!dlvr_addr_id) {
 				R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_EBILLHASNTDLVRLOC, &msg_buf, bill_text.cptr()));
 			}
 			else {
@@ -6702,14 +6702,14 @@ int SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollectio
 				p_new_entry->Code = bill_code;
 				p_new_entry->Dt = checkdate(pack.Ext.InvoiceDate) ? pack.Ext.InvoiceDate : pack.Rec.Dt;
 				if(is_own_order) {
-					// TSCollection <SfaHeinekenOrderDelivery> OrderList; // Если доставка по заказу из системы Jeans
+					// TSCollection <SfaHeinekenOrderDelivery> OrderList; // Р•СЃР»Рё РґРѕСЃС‚Р°РІРєР° РїРѕ Р·Р°РєР°Р·Сѓ РёР· СЃРёСЃС‚РµРјС‹ Jeans
 					SfaHeinekenInvoice::OrderDelivery * p_o = p_new_entry->OrderList.CreateNewItem();
 					THROW_SL(p_o);
 					p_o->OrderUuid = order_uuid;
 					THROW(Helper_MakeDeliveryList(pack, ti_pos_list, p_o->DeliveryList));
 				}
 				else if(foreign_dlvr_addr_id) {
-					// TSCollection <SfaHeinekenDistributorDelivery> DistributorDeliveryList; // Если доставка вне заказа из системы Jeans, по ТТ из системы Jeans
+					// TSCollection <SfaHeinekenDistributorDelivery> DistributorDeliveryList; // Р•СЃР»Рё РґРѕСЃС‚Р°РІРєР° РІРЅРµ Р·Р°РєР°Р·Р° РёР· СЃРёСЃС‚РµРјС‹ Jeans, РїРѕ РўРў РёР· СЃРёСЃС‚РµРјС‹ Jeans
 					SfaHeinekenInvoice::DistributorDelivery * p_o = p_new_entry->DistributorDeliveryList.CreateNewItem();
 					THROW_SL(p_o);
 					(p_o->InnerOrderCode = inner_order_code).Transf(CTRANSF_INNER_TO_UTF8);
@@ -6717,7 +6717,7 @@ int SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollectio
 					THROW(Helper_MakeDeliveryList(pack, ti_pos_list, p_o->DeliveryList));
 				}
 				else {
-					// TSCollection <SfaHeinekenSalePointDelivery> DistributorSalePointDeliveryList; // Если доставка вне заказа из системы Jeans, по торговой точке, остсутствующей в системе Jeans
+					// TSCollection <SfaHeinekenSalePointDelivery> DistributorSalePointDeliveryList; // Р•СЃР»Рё РґРѕСЃС‚Р°РІРєР° РІРЅРµ Р·Р°РєР°Р·Р° РёР· СЃРёСЃС‚РµРјС‹ Jeans, РїРѕ С‚РѕСЂРіРѕРІРѕР№ С‚РѕС‡РєРµ, РѕСЃС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РµР№ РІ СЃРёСЃС‚РµРјРµ Jeans
 					SfaHeinekenInvoice::SalePointDelivery * p_o = p_new_entry->DistributorSalePointDeliveryList.CreateNewItem();
 					THROW_SL(p_o);
 					if(outerDocType == 6) {
@@ -6731,7 +6731,7 @@ int SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollectio
 					else
 						(p_o->InnerOrderCode = inner_order_code).Transf(CTRANSF_INNER_TO_UTF8);
 					p_o->InnerDlvrLocID = dlvr_addr_id;
-					p_o->ForeignLocID = foreign_warehouse_id; // @v10.0.08
+					p_o->ForeignLocID = foreign_warehouse_id;
 					{
 						PPLocationPacket loc_pack;
 						THROW(LocObj.GetPacket(dlvr_addr_id, &loc_pack) > 0);
@@ -6772,7 +6772,7 @@ int SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <
 		S_GUID test_uuid;
 		PPViewBill b_view;
 		BillTbl::Rec bill_rec;
-		PPIDArray force_bill_list; // Список документов которые надо послать снова
+		PPIDArray force_bill_list; // РЎРїРёСЃРѕРє РґРѕРєСѓРјРµРЅС‚РѕРІ РєРѕС‚РѕСЂС‹Рµ РЅР°РґРѕ РїРѕСЃР»Р°С‚СЊ СЃРЅРѕРІР°
 		BillFilt b_filt;
 		BillViewItem view_item;
 		PPBillPacket pack;
@@ -6789,7 +6789,7 @@ int SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <
 			if(!force_bill_list.bsearch(view_item.ID)) {
 				int    dont_send = 0;
 				if(outerDocType == 6 && !P_BObj->CheckStatusFlag(view_item.StatusID, BILSTF_READYFOREDIACK)) {
-					dont_send = 1; // Статус не позволяет отправку
+					dont_send = 1; // РЎС‚Р°С‚СѓСЃ РЅРµ РїРѕР·РІРѕР»СЏРµС‚ РѕС‚РїСЂР°РІРєСѓ
 				}
 				if(!dont_send) {
 					if(!Helper_MakeBillEntry(view_item.ID, outerDocType, rList, rToDeleteList))
@@ -6802,7 +6802,7 @@ int SfaHeineken::Helper_MakeBillList(PPID opID, int outerDocType, TSCollection <
 				const  PPID force_bill_id = force_bill_list.get(i);
 				if(P_BObj->Search(force_bill_id, &bill_rec) > 0) {
 					if(outerDocType == 6 && !P_BObj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK)) {
-						// Статус не позволяет отправку
+						// РЎС‚Р°С‚СѓСЃ РЅРµ РїРѕР·РІРѕР»СЏРµС‚ РѕС‚РїСЂР°РІРєСѓ
 					}
 					else {
 						if(!Helper_MakeBillEntry(bill_rec.ID, outerDocType, rList, rToDeleteList))
@@ -7016,7 +7016,7 @@ int SfaHeineken::SendStocks()
 						new_entry.ForeignLocID = temp_buf.ToLong();
 						if(new_entry.ForeignLocID > 0) {
 							new_entry.Rest = R0i(gr_item.Rest);
-							// Специальная поправка для нештатного случая учета кегов (Unit = LITER, PhUnit = LITER, gse.Packege = keg's volume) {
+							// РЎРїРµС†РёР°Р»СЊРЅР°СЏ РїРѕРїСЂР°РІРєР° РґР»СЏ РЅРµС€С‚Р°С‚РЅРѕРіРѕ СЃР»СѓС‡Р°СЏ СѓС‡РµС‚Р° РєРµРіРѕРІ (Unit = LITER, PhUnit = LITER, gse.Packege = keg's volume) {
 							Goods2Tbl::Rec goods_rec;
 							if(GObj.Fetch(gr_item.GoodsID, &goods_rec) > 0) {
 								double rt1 = 0.0;
@@ -7049,7 +7049,7 @@ int SfaHeineken::SendStocks()
 }
 //
 // @v11.5.2 
-// Интеграция с сервисом Газпром-нефть
+// РРЅС‚РµРіСЂР°С†РёСЏ СЃ СЃРµСЂРІРёСЃРѕРј Р“Р°Р·РїСЂРѕРј-РЅРµС„С‚СЊ
 //
 struct GazpromNeftGoodsPacket {
 	GazpromNeftGoodsPacket() : Ident(0), Weight(0.0), Capacity(0.0), IsActive(true), PackingTypeId(0)
@@ -7151,9 +7151,9 @@ struct GazpromNeftBillPacket {
 	PPID   ID;
 	S_GUID Uuid;
 	char   Code[32];
-	char   GpnCode[32]; // Для приходных документов: номер входящей накладной
+	char   GpnCode[32]; // Р”Р»СЏ РїСЂРёС…РѕРґРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ: РЅРѕРјРµСЂ РІС…РѕРґСЏС‰РµР№ РЅР°РєР»Р°РґРЅРѕР№
 	LDATETIME Dtm;
-	LDATETIME GpnDtm; // Для приходных документов: дата входящей накладной
+	LDATETIME GpnDtm; // Р”Р»СЏ РїСЂРёС…РѕРґРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ: РґР°С‚Р° РІС…РѕРґСЏС‰РµР№ РЅР°РєР»Р°РґРЅРѕР№
 	ClientPacket Client;
 	TSVector <Position> ItemList;
 };
@@ -7246,11 +7246,11 @@ public:
 		{
 		}
 		int    Result; // 1 - ok, 0 - error
-		int    Status; // В случае ошибки mercapp возвращает значение статуса
-		StringSet SsErrMsg; // Список сообщений об ошибке
+		int    Status; // Р’ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё mercapp РІРѕР·РІСЂР°С‰Р°РµС‚ Р·РЅР°С‡РµРЅРёРµ СЃС‚Р°С‚СѓСЃР°
+		StringSet SsErrMsg; // РЎРїРёСЃРѕРє СЃРѕРѕР±С‰РµРЅРёР№ РѕР± РѕС€РёР±РєРµ
 	};
 	//
-	// @note: В общем, функция должна быть private, но чтоб написать ее нужен тест. Потому и public
+	// @note: Р’ РѕР±С‰РµРј, С„СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ private, РЅРѕ С‡С‚РѕР± РЅР°РїРёСЃР°С‚СЊ РµРµ РЅСѓР¶РµРЅ С‚РµСЃС‚. РџРѕС‚РѕРјСѓ Рё public
 	//
 	static int ParseReply(const SString & rReplyText, ReplyBlock & rBlk);
 private:
@@ -7318,7 +7318,7 @@ private:
 					(temp_buf = pBp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
 					STRNSCPY(p_new_pack->Code, temp_buf);
 					p_new_pack->Dtm.Set(pBp->Rec.Dt, ZEROTIME);
-					p_new_pack->Dtm.t.settotalsec(pBp->Rec.ID % SlConst::SecsPerDay); // @v11.6.11 Устанавливаем суррогатное значение времени для обеспечения уникальности  
+					p_new_pack->Dtm.t.settotalsec(pBp->Rec.ID % SlConst::SecsPerDay); // @v11.6.11 РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЃСѓСЂСЂРѕРіР°С‚РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РІСЂРµРјРµРЅРё РґР»СЏ РѕР±РµСЃРїРµС‡РµРЅРёСЏ СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚Рё  
 					{
 						S_GUID uuid;
 						if(!pBp->GetGuid(uuid) || uuid.IsZero()) {
@@ -7533,8 +7533,8 @@ SString & GazpromNeft::MakeHeaderFields(const char * pToken, StrStrAssocArray * 
 int GazpromNeft::Auth()
 {
 	int    ok = -1;
-	// 1.	Авторизация                    POST /login-api/api/v1/Auth/login
-	// 2.	Получение расширенного токена  POST /login-api/api/v1/Auth/extended-token
+	// 1.	РђРІС‚РѕСЂРёР·Р°С†РёСЏ                    POST /login-api/api/v1/Auth/login
+	// 2.	РџРѕР»СѓС‡РµРЅРёРµ СЂР°СЃС€РёСЂРµРЅРЅРѕРіРѕ С‚РѕРєРµРЅР°  POST /login-api/api/v1/Auth/extended-token
 	SString temp_buf;
 	SString url_buf;
 	SString req_buf;
@@ -7553,8 +7553,8 @@ int GazpromNeft::Auth()
 		{
 			/*
 				{
-					"userName": "string", -- логин
-					"password": "string" -- пароль
+					"userName": "string", -- Р»РѕРіРёРЅ
+					"password": "string" -- РїР°СЂРѕР»СЊ
 				}
 			*/
 			// extssAccsName
@@ -7611,10 +7611,10 @@ int GazpromNeft::Auth()
 		{
 			/*
 				{
-					"accessToken":"eyJh…", -- токен для дальнейшей работы с API
+					"accessToken":"eyJhвЂ¦", -- С‚РѕРєРµРЅ РґР»СЏ РґР°Р»СЊРЅРµР№С€РµР№ СЂР°Р±РѕС‚С‹ СЃ API
 					"tokenType": "Bearer",
 					"expiresIn": "14400",
-					"refeshToken": " eyJh…"
+					"refeshToken": " eyJhвЂ¦"
 				}
 			*/
 			// extssAccsName
@@ -7806,7 +7806,7 @@ int GazpromNeft::GetProducts(bool useStorage)
 			ScURL c;
 			PPGetFilePath(PPPATH_OUT, "gazpromneft-goods.txt", temp_buf);
 			SFile f_out(temp_buf, SFile::mWrite);
-			bool  more = false; // Если true, то надо сделать новую итерацию для извлечения очередной порции данных
+			bool  more = false; // Р•СЃР»Рё true, С‚Рѕ РЅР°РґРѕ СЃРґРµР»Р°С‚СЊ РЅРѕРІСѓСЋ РёС‚РµСЂР°С†РёСЋ РґР»СЏ РёР·РІР»РµС‡РµРЅРёСЏ РѕС‡РµСЂРµРґРЅРѕР№ РїРѕСЂС†РёРё РґР°РЅРЅС‹С…
 			int   page_no = 1;
 			do {
 				more = false;
@@ -7821,22 +7821,22 @@ int GazpromNeft::GetProducts(bool useStorage)
 				MakeHeaderFields(AccessToken, &hdr_flds, hdr_buf);
 				{
 					/*
-						Параметр	Тип данных	Описание
+						РџР°СЂР°РјРµС‚СЂ	РўРёРї РґР°РЅРЅС‹С…	РћРїРёСЃР°РЅРёРµ
 						--------------------------------
-						Enabled	Boolean	Фильтр по признаку «Enabled»
-						IsActive	Boolean	Фильтр по признаку «Активный»
-						CapacityFrom	number	Емкость от
-						CapacityTo	Number	Емкость до
-						Search	String	Фильтр по названию
-						SegmentIds	Array[integer]	Фильтр по сегменту
-						TypeIds	array[string]	Фильтр по типу
-						BrandIds	array[string]	Фильтр по бренду
-						SegmentConsumerIds	array[string]	Фильтр по потребительскому сегменту
-						BrandLineIds	array[string]	Фильтр по линейке
-						Sort	String	Сортировка по названию поля
-						Direction	integer	Сортировка по возрастанию/убыванию
-						Page	Integer	Номер страницы
-						Size	Integer	Количество элементов на странице
+						Enabled	Boolean	Р¤РёР»СЊС‚СЂ РїРѕ РїСЂРёР·РЅР°РєСѓ В«EnabledВ»
+						IsActive	Boolean	Р¤РёР»СЊС‚СЂ РїРѕ РїСЂРёР·РЅР°РєСѓ В«РђРєС‚РёРІРЅС‹Р№В»
+						CapacityFrom	number	Р•РјРєРѕСЃС‚СЊ РѕС‚
+						CapacityTo	Number	Р•РјРєРѕСЃС‚СЊ РґРѕ
+						Search	String	Р¤РёР»СЊС‚СЂ РїРѕ РЅР°Р·РІР°РЅРёСЋ
+						SegmentIds	Array[integer]	Р¤РёР»СЊС‚СЂ РїРѕ СЃРµРіРјРµРЅС‚Сѓ
+						TypeIds	array[string]	Р¤РёР»СЊС‚СЂ РїРѕ С‚РёРїСѓ
+						BrandIds	array[string]	Р¤РёР»СЊС‚СЂ РїРѕ Р±СЂРµРЅРґСѓ
+						SegmentConsumerIds	array[string]	Р¤РёР»СЊС‚СЂ РїРѕ РїРѕС‚СЂРµР±РёС‚РµР»СЊСЃРєРѕРјСѓ СЃРµРіРјРµРЅС‚Сѓ
+						BrandLineIds	array[string]	Р¤РёР»СЊС‚СЂ РїРѕ Р»РёРЅРµР№РєРµ
+						Sort	String	РЎРѕСЂС‚РёСЂРѕРІРєР° РїРѕ РЅР°Р·РІР°РЅРёСЋ РїРѕР»СЏ
+						Direction	integer	РЎРѕСЂС‚РёСЂРѕРІРєР° РїРѕ РІРѕР·СЂР°СЃС‚Р°РЅРёСЋ/СѓР±С‹РІР°РЅРёСЋ
+						Page	Integer	РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹
+						Size	Integer	РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РЅР° СЃС‚СЂР°РЅРёС†Рµ
 
 					*/
 					/*
@@ -7994,7 +7994,7 @@ int GazpromNeft::GetClients()
 		ScURL c;
 		PPGetFilePath(PPPATH_OUT, "gazpromneft-clients.txt", temp_buf);
 		SFile f_out(temp_buf, SFile::mWrite);
-		bool  more = false; // Если true, то надо сделать новую итерацию для извлечения очередной порции данных
+		bool  more = false; // Р•СЃР»Рё true, С‚Рѕ РЅР°РґРѕ СЃРґРµР»Р°С‚СЊ РЅРѕРІСѓСЋ РёС‚РµСЂР°С†РёСЋ РґР»СЏ РёР·РІР»РµС‡РµРЅРёСЏ РѕС‡РµСЂРµРґРЅРѕР№ РїРѕСЂС†РёРё РґР°РЅРЅС‹С…
 		int   page_no = 1;
 		do {
 			more = false;
@@ -8153,7 +8153,7 @@ int GazpromNeft::ParseReply(const SString & rReplyText, ReplyBlock & rBlk)
 				result = 1;
 			}
 			else {
-				//[{"message":"Период закрыт, загрузка данных разрешена с 01.03.2023","payload":{"warehouseId":"74ba162f-4b90-4609-8012-463fdf49b362","uploadDate":"2023-01-09T11:25:17+00:00"}}]
+				//[{"message":"РџРµСЂРёРѕРґ Р·Р°РєСЂС‹С‚, Р·Р°РіСЂСѓР·РєР° РґР°РЅРЅС‹С… СЂР°Р·СЂРµС€РµРЅР° СЃ 01.03.2023","payload":{"warehouseId":"74ba162f-4b90-4609-8012-463fdf49b362","uploadDate":"2023-01-09T11:25:17+00:00"}}]
 				for(const SJson * p_inr = p_js_reply->P_Child; p_inr; p_inr = p_inr->P_Next) {
 					if(p_inr->IsObject()) {
 						for(const SJson * p_js_err_obj = p_inr->P_Child; p_js_err_obj; p_js_err_obj = p_js_err_obj->P_Next) {
@@ -8236,7 +8236,7 @@ int GazpromNeft::SendSellout_SingleDoc(const GazpromNeftBillPacket * pPack, cons
 		js_result.InsertString("uploadDate", temp_buf);
 
 		SJson * p_js_list = new SJson(SJson::tARRAY);
-		SJson * p_js_clilist = new SJson(SJson::tOBJECT); // Список по одному клиенту
+		SJson * p_js_clilist = new SJson(SJson::tOBJECT); // РЎРїРёСЃРѕРє РїРѕ РѕРґРЅРѕРјСѓ РєР»РёРµРЅС‚Сѓ
 		SJson * p_js_doc_list = new SJson(SJson::tARRAY);
 		{
 			SJson * p_js_client = new SJson(SJson::tOBJECT);
@@ -8264,8 +8264,8 @@ int GazpromNeft::SendSellout_SingleDoc(const GazpromNeftBillPacket * pPack, cons
 			p_js_doc->InsertString("externalId", temp_buf.Z().Cat(pPack->Uuid, S_GUID::fmtIDL));
 			p_js_doc->InsertString("number", (temp_buf = pPack->Code).Escape());
 			{
-				// Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
-				// Но... они иногда передумывают, из-за этого - специальная "галка" (SupplInterchangeFilt::fExportTimeAsNominal).
+				// Р­С‚Рѕ С‡С‚Рѕ-С‚Рѕ РїР°СЂР°РґРѕРєСЃР°Р»СЊРЅРѕРµ! Р“Р°Р·РїСЂРѕРјРЅРµС„С‚СЊ С‚СЂРµР±СѓРµС‚ С‡С‚РѕР± РґР°С‚Р° РґРѕРєСѓРјРµРЅС‚Р° СЃРѕРІРїР°РґР°Р»Р° СЃ РґР°С‚РѕР№ РІС‹РіСЂСѓР·РєРё.
+				// РќРѕ... РѕРЅРё РёРЅРѕРіРґР° РїРµСЂРµРґСѓРјС‹РІР°СЋС‚, РёР·-Р·Р° СЌС‚РѕРіРѕ - СЃРїРµС†РёР°Р»СЊРЅР°СЏ "РіР°Р»РєР°" (SupplInterchangeFilt::fExportTimeAsNominal).
 				//temp_buf.Z().Cat((P.Flags & SupplInterchangeFilt::fExportTimeAsNominal) ? now_dtm : p_item->Dtm, DATF_ISO8601CENT, 0).CatChar('Z'); 
 				temp_buf.Z().Cat(pPack->Dtm, DATF_ISO8601CENT, 0).CatChar('Z'); 
 				p_js_doc->InsertString("dateTime", temp_buf);
@@ -8341,7 +8341,7 @@ int GazpromNeft::SendSellout_SingleDoc(const GazpromNeftBillPacket * pPack, cons
 								ok = 1;
 							}
 							else if(prr < 0) {
-								//PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT     "Ошибка передачи документов сервису поставщика"
+								//PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT     "РћС€РёР±РєР° РїРµСЂРµРґР°С‡Рё РґРѕРєСѓРјРµРЅС‚РѕРІ СЃРµСЂРІРёСЃСѓ РїРѕСЃС‚Р°РІС‰РёРєР°"
 								PPLoadText(PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT, msg_buf);
 								if(rb.SsErrMsg.getCount()) {
 									uint ssp = 0;
@@ -8390,7 +8390,7 @@ int GazpromNeft::SendSellout_ListDoc(const TSCollection <GazpromNeftBillPacket> 
 				const GazpromNeftBillPacket * p_prev_doc = listidx ? rList.at(listidx-1) : 0;
 				assert(!p_prev_doc || p_h_doc->Client.Uuid != p_prev_doc->Client.Uuid);
 				SJson * p_js_doc_list = new SJson(SJson::tARRAY);
-				SJson * p_js_clilist = new SJson(SJson::tOBJECT); // Список по одному клиенту
+				SJson * p_js_clilist = new SJson(SJson::tOBJECT); // РЎРїРёСЃРѕРє РїРѕ РѕРґРЅРѕРјСѓ РєР»РёРµРЅС‚Сѓ
 				{
 					SJson * p_js_client = new SJson(SJson::tOBJECT);
 					//p_js_client->InsertString("internalId", "");
@@ -8425,8 +8425,8 @@ int GazpromNeft::SendSellout_ListDoc(const TSCollection <GazpromNeftBillPacket> 
 						p_js_doc->InsertString("externalId", temp_buf.Z().Cat(p_inner_doc->Uuid, S_GUID::fmtIDL));
 						p_js_doc->InsertString("number", (temp_buf = p_inner_doc->Code).Escape());
 						{
-							// Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
-							// Но... они иногда передумывают, из-за этого - специальная "галка" (SupplInterchangeFilt::fExportTimeAsNominal).
+							// Р­С‚Рѕ С‡С‚Рѕ-С‚Рѕ РїР°СЂР°РґРѕРєСЃР°Р»СЊРЅРѕРµ! Р“Р°Р·РїСЂРѕРјРЅРµС„С‚СЊ С‚СЂРµР±СѓРµС‚ С‡С‚РѕР± РґР°С‚Р° РґРѕРєСѓРјРµРЅС‚Р° СЃРѕРІРїР°РґР°Р»Р° СЃ РґР°С‚РѕР№ РІС‹РіСЂСѓР·РєРё.
+							// РќРѕ... РѕРЅРё РёРЅРѕРіРґР° РїРµСЂРµРґСѓРјС‹РІР°СЋС‚, РёР·-Р·Р° СЌС‚РѕРіРѕ - СЃРїРµС†РёР°Р»СЊРЅР°СЏ "РіР°Р»РєР°" (SupplInterchangeFilt::fExportTimeAsNominal).
 							//temp_buf.Z().Cat((P.Flags & SupplInterchangeFilt::fExportTimeAsNominal) ? now_dtm : p_item->Dtm, DATF_ISO8601CENT, 0).CatChar('Z'); 
 							temp_buf.Z().Cat(p_inner_doc->Dtm, DATF_ISO8601CENT, 0).CatChar('Z'); 
 							p_js_doc->InsertString("dateTime", temp_buf);
@@ -8506,7 +8506,7 @@ int GazpromNeft::SendSellout_ListDoc(const TSCollection <GazpromNeftBillPacket> 
 									ok = 1;
 								}
 								else if(prr < 0) {
-									//PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT     "Ошибка передачи документов сервису поставщика"
+									//PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT     "РћС€РёР±РєР° РїРµСЂРµРґР°С‡Рё РґРѕРєСѓРјРµРЅС‚РѕРІ СЃРµСЂРІРёСЃСѓ РїРѕСЃС‚Р°РІС‰РёРєР°"
 									PPLoadText(PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT, msg_buf);
 									if(rb.SsErrMsg.getCount()) {
 										uint ssp = 0;
@@ -8602,7 +8602,7 @@ int GazpromNeft::SendSellin_SingleDoc(const GazpromNeftBillPacket * pPack, const
 			{
 				PPLoadText(PPTXT_SENDDOCTOSUPPLIXSVC, msg_buf);
 				temp_buf.Z().Cat("sellin").Space().Cat(pPack->Dtm.d, DATF_DMY).Space().Cat(pPack->Code).CatDiv('-', 1).Cat(pPack->Client.Name);
-				msg_buf.CatDiv(':', 2).Cat(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // Функция Helper_MakeBillList сформировала текстовые строки списка данных в формате utf-8
+				msg_buf.CatDiv(':', 2).Cat(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // Р¤СѓРЅРєС†РёСЏ Helper_MakeBillList СЃС„РѕСЂРјРёСЂРѕРІР°Р»Р° С‚РµРєСЃС‚РѕРІС‹Рµ СЃС‚СЂРѕРєРё СЃРїРёСЃРєР° РґР°РЅРЅС‹С… РІ С„РѕСЂРјР°С‚Рµ utf-8
 				R_Logger.Log(msg_buf);
 			}
 			SJson * p_js_doc = new SJson(SJson::tOBJECT);
@@ -8617,7 +8617,7 @@ int GazpromNeft::SendSellin_SingleDoc(const GazpromNeftBillPacket * pPack, const
 				//if(r_item.Volume > 0.0)
 					//p_js_item->InsertString("Volume", temp_buf.Z().Cat(r_item.Volume, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
 				if(r_item.Weight > 0.0) {
-					// Масса должна быть в тоннах
+					// РњР°СЃСЃР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РІ С‚РѕРЅРЅР°С…
 					p_js_item->InsertString("weight", temp_buf.Z().Cat(r_item.Weight/1000.0, MKSFMTD(0, 3, NMBF_NOTRAILZ))); 
 					//p_js_item->InsertDouble("weight", r_item.Weight/1000.0, MKSFMTD(0, 3, NMBF_NOTRAILZ)); 
 				}
@@ -8629,8 +8629,8 @@ int GazpromNeft::SendSellin_SingleDoc(const GazpromNeftBillPacket * pPack, const
 			p_js_doc->Insert("positions", p_js_item_list);
 			p_js_item_list = 0;
 			{
-				// Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
-				// Но... они иногда передумывают, из-за этого - специальная "галка" (SupplInterchangeFilt::fExportTimeAsNominal).
+				// Р­С‚Рѕ С‡С‚Рѕ-С‚Рѕ РїР°СЂР°РґРѕРєСЃР°Р»СЊРЅРѕРµ! Р“Р°Р·РїСЂРѕРјРЅРµС„С‚СЊ С‚СЂРµР±СѓРµС‚ С‡С‚РѕР± РґР°С‚Р° РґРѕРєСѓРјРµРЅС‚Р° СЃРѕРІРїР°РґР°Р»Р° СЃ РґР°С‚РѕР№ РІС‹РіСЂСѓР·РєРё.
+				// РќРѕ... РѕРЅРё РёРЅРѕРіРґР° РїРµСЂРµРґСѓРјС‹РІР°СЋС‚, РёР·-Р·Р° СЌС‚РѕРіРѕ - СЃРїРµС†РёР°Р»СЊРЅР°СЏ "РіР°Р»РєР°" (SupplInterchangeFilt::fExportTimeAsNominal).
 				//temp_buf.Z().Cat((P.Flags & SupplInterchangeFilt::fExportTimeAsNominal) ? now_dtm : pPack->Dtm, DATF_ISO8601CENT, 0).Cat(".145Z"); 
 				temp_buf.Z().Cat(pPack->Dtm, DATF_ISO8601CENT, 0).Cat(".145Z"); 
 				p_js_doc->InsertString("invoiceDate", temp_buf);
@@ -8690,7 +8690,7 @@ int GazpromNeft::SendSellin_SingleDoc(const GazpromNeftBillPacket * pPack, const
 									ok = 1;
 								}
 								else if(prr < 0) {
-									//PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT     "Ошибка передачи документов сервису поставщика"
+									//PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT     "РћС€РёР±РєР° РїРµСЂРµРґР°С‡Рё РґРѕРєСѓРјРµРЅС‚РѕРІ СЃРµСЂРІРёСЃСѓ РїРѕСЃС‚Р°РІС‰РёРєР°"
 									PPLoadText(PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT, msg_buf);
 									if(rb.SsErrMsg.getCount()) {
 										uint ssp = 0;
@@ -8738,7 +8738,7 @@ int GazpromNeft::SendSellin_ListDoc(const TSCollection <GazpromNeftBillPacket> &
 				{
 					PPLoadText(PPTXT_SENDDOCTOSUPPLIXSVC, msg_buf);
 					temp_buf.Z().Cat("sellin").Space().Cat(p_doc->Dtm.d, DATF_DMY).Space().Cat(p_doc->Code).CatDiv('-', 1).Cat(p_doc->Client.Name);
-					msg_buf.CatDiv(':', 2).Cat(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // Функция Helper_MakeBillList сформировала текстовые строки списка данных в формате utf-8
+					msg_buf.CatDiv(':', 2).Cat(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // Р¤СѓРЅРєС†РёСЏ Helper_MakeBillList СЃС„РѕСЂРјРёСЂРѕРІР°Р»Р° С‚РµРєСЃС‚РѕРІС‹Рµ СЃС‚СЂРѕРєРё СЃРїРёСЃРєР° РґР°РЅРЅС‹С… РІ С„РѕСЂРјР°С‚Рµ utf-8
 					R_Logger.Log(msg_buf);
 				}
 				{
@@ -8754,7 +8754,7 @@ int GazpromNeft::SendSellin_ListDoc(const TSCollection <GazpromNeftBillPacket> &
 						//if(r_item.Volume > 0.0)
 							//p_js_item->InsertString("Volume", temp_buf.Z().Cat(r_item.Volume, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
 						if(r_item.Weight > 0.0) {
-							// Масса должна быть в тоннах
+							// РњР°СЃСЃР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РІ С‚РѕРЅРЅР°С…
 							p_js_item->InsertString("weight", temp_buf.Z().Cat(r_item.Weight/1000.0, MKSFMTD(0, 3, NMBF_NOTRAILZ))); 
 							//p_js_item->InsertDouble("weight", r_item.Weight/1000.0, MKSFMTD(0, 3, NMBF_NOTRAILZ)); 
 						}
@@ -8766,8 +8766,8 @@ int GazpromNeft::SendSellin_ListDoc(const TSCollection <GazpromNeftBillPacket> &
 					p_js_doc->Insert("positions", p_js_item_list);
 					p_js_item_list = 0;
 					{
-						// Это что-то парадоксальное! Газпромнефть требует чтоб дата документа совпадала с датой выгрузки.
-						// Но... они иногда передумывают, из-за этого - специальная "галка" (SupplInterchangeFilt::fExportTimeAsNominal).
+						// Р­С‚Рѕ С‡С‚Рѕ-С‚Рѕ РїР°СЂР°РґРѕРєСЃР°Р»СЊРЅРѕРµ! Р“Р°Р·РїСЂРѕРјРЅРµС„С‚СЊ С‚СЂРµР±СѓРµС‚ С‡С‚РѕР± РґР°С‚Р° РґРѕРєСѓРјРµРЅС‚Р° СЃРѕРІРїР°РґР°Р»Р° СЃ РґР°С‚РѕР№ РІС‹РіСЂСѓР·РєРё.
+						// РќРѕ... РѕРЅРё РёРЅРѕРіРґР° РїРµСЂРµРґСѓРјС‹РІР°СЋС‚, РёР·-Р·Р° СЌС‚РѕРіРѕ - СЃРїРµС†РёР°Р»СЊРЅР°СЏ "РіР°Р»РєР°" (SupplInterchangeFilt::fExportTimeAsNominal).
 						//temp_buf.Z().Cat((P.Flags & SupplInterchangeFilt::fExportTimeAsNominal) ? now_dtm : pPack->Dtm, DATF_ISO8601CENT, 0).Cat(".145Z"); 
 						temp_buf.Z().Cat(p_doc->Dtm, DATF_ISO8601CENT, 0).Cat(".145Z"); 
 						p_js_doc->InsertString("invoiceDate", temp_buf);
@@ -8821,7 +8821,7 @@ int GazpromNeft::SendSellin_ListDoc(const TSCollection <GazpromNeftBillPacket> &
 										ok = 1;
 									}
 									else if(prr < 0) {
-										//PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT     "Ошибка передачи документов сервису поставщика"
+										//PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT     "РћС€РёР±РєР° РїРµСЂРµРґР°С‡Рё РґРѕРєСѓРјРµРЅС‚РѕРІ СЃРµСЂРІРёСЃСѓ РїРѕСЃС‚Р°РІС‰РёРєР°"
 										PPLoadText(PPTXT_SUPPLIXSVCACCEPTSDOCSFAULT, msg_buf);
 										if(rb.SsErrMsg.getCount()) {
 											uint ssp = 0;
@@ -8944,7 +8944,7 @@ int GazpromNeft::SendRest()
 	PPIDArray goods_list;
 	PPIDArray loc_list;
 	LocationTbl::Rec loc_rec;
-	uint   result_loc_count = 0; // Счетчик, по нулевому значению которого мы поймем, что результат пустой и стало быть надо сообщить об ошибке
+	uint   result_loc_count = 0; // РЎС‡РµС‚С‡РёРє, РїРѕ РЅСѓР»РµРІРѕРјСѓ Р·РЅР°С‡РµРЅРёСЋ РєРѕС‚РѕСЂРѕРіРѕ РјС‹ РїРѕР№РјРµРј, С‡С‚Рѕ СЂРµР·СѓР»СЊС‚Р°С‚ РїСѓСЃС‚РѕР№ Рё СЃС‚Р°Р»Рѕ Р±С‹С‚СЊ РЅР°РґРѕ СЃРѕРѕР±С‰РёС‚СЊ РѕР± РѕС€РёР±РєРµ
 	//const LDATETIME now_dtm = getcurdatetime_();
 	DateRange period = P.ExpPeriod;
 	if(!checkdate(period.low))
@@ -9145,105 +9145,105 @@ const GazpromNeftGoodsPacket * GazpromNeft::SearchGoodsEntry(int64 ident) const
 class AgentPlus : public PrcssrSupplInterchange::ExecuteBlock { // @v11.6.5 @construction
 public:
 	/*
-		Наименование пакета	Каталог FTP	Название файла
+		РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїР°РєРµС‚Р°	РљР°С‚Р°Р»РѕРі FTP	РќР°Р·РІР°РЅРёРµ С„Р°Р№Р»Р°
 		----------------------------------------------
-		Контрагенты               customers      Customers_20190910120358.xml
-			code          Строка Да  Код клиента -однозначный идентификатор контрагента, уникален;
-			name          Строка Да  Наименование юр лица, сокращенное для отражения на планшете
-			fullname      Строка Нет Полное наименование контрагента
-			inn           Строка Да  Инн юридического лица
-			kpp           Строка Нет КПП юридического лица
-			address       Строка Нет Юридический адрес юридического лица
-		Торговые точки            trade_points   Trade_points_20190910120358.xml
-			code          Строка Да  Код торговой точки – уникальный идентификатор, позволяющий однозначно идентифицировать ТТ;
-			customercode  Строка Да  Идентификатор контрагента, должен обязательно присутствовать в пакете Контрагенты;
-			address       Строка Да  Адрес торговой точки
-			price         Строка Да  Код прайс листа, для торговой точки; Должен быть в файле Prices;
-		Товары                    products       Products_20190910120358.xml
-			code          Строка Да  Код номенклатуры, в учетной системе дистрибьютера, позволяющий однозначно определить товар;
-			name          Строка Да  Наименование товара
-			suppliercode  Строка Нет Код производителя
-			vat           Число  Да  Ставка НДС 
-			price_group   Строка Нет Код ценовой группы, к которой принадлежит товар, должен быть в файле price_groups;
-		Ценовые группы            price_groups   price_groups_20190910120358.xml
-			code          Строка Да  Код ценовой группы;
-			name          Строка Да  Название ценовой группы
-		Склады                    warehouses     warehouses_20190910120358.xml
-			code          Строка Да  Код склада, уникален, позволяет однозначное идентифицировать склад;
-			name          Строка Да  Наименование склада
-			discount      Число  Нет Скидки, распространяемая на склад, все остальные скидки при установке данной скидки – не учитываются;
-		Торговые представители    salesreps      Salesreps_20190910120358.xml
-			code          Строка Да  Код торгового представителя
-			name          Строка Да  ФИО торгового представителя
-		Остатки товаров           stocks         stocks_20190910120358.xml
-			date          Дата   Да  Дата остатков
-			warehousecode Строка Да  Код склада
-			productcode   Строка Да  Код продукта
-			quantity      Число  Да  Количество товара
-		Цены номенклатуры         prices         prices_20190910120358.xml
-			code          Строка Да  Уникальный код прайс листа
-			name          Строка Да  Наименование прайс листа
-			isactive      Булево Да  Признак активности
-			vatIn         Булево Да  Признак, Тип цен включает НДС;
-			products      Элемент_XML Да Список цен, по номенклатуре;
-				productcode Строка Да   Код номенклатуры;
-				price       Число  Да   Стоимость позиции, в данном виде цен;
-		Скидки номенклатуры       discounts      discounts_20190910120358.xml
-			customertype  Число  Да  Содержит описание назначения, на кого распространяется скидка
-				Возможные значения:
-				"1,000" – Скидка распространяется на контрагента;
-				"2,000" – скидка распространяется на торговую точку
-			customercode  Строка Да  Код назначения торговой скидки, на кого она распространяется; Код контрагента или торговой точки;
-			producttype   Число  Да  Содержит описание назначения, на что распространяется скидка
-				Возможные значения:
-				"1,000" – Скидка распространяется на товар;
-				"2,000" – скидка распространяется на ценовую группу;
-			productcode   Число  Да  Код назначения, на что распространяется, скидка; Код номенклатуры, или ценовой группы;
-			discount      Число  Да  Процент скидки, если число указано в отрицательном формате, это означает что это наценка;
-		Дебиторская задолженность debts          debts_20190910120358.xml
-			customercode   Строка Да  Код контрагента
-			tradepointcode Строка Да  Код торговой точки
-			documentnumber Строка Да  Номер документа, для идентификации клиентом;
-			documentdate   Дата   Да  Дата документа дебиторской задолженности;
-			paymentdate    Дата   Да  Дата оплаты;
-			debtsum        Число  Да  Сумма задолженности
-		Продажи                   salesrefunds   salesrefunds_20190910120358.xml
+		РљРѕРЅС‚СЂР°РіРµРЅС‚С‹               customers      Customers_20190910120358.xml
+			code          РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ РєР»РёРµРЅС‚Р° -РѕРґРЅРѕР·РЅР°С‡РЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°, СѓРЅРёРєР°Р»РµРЅ;
+			name          РЎС‚СЂРѕРєР° Р”Р°  РќР°РёРјРµРЅРѕРІР°РЅРёРµ СЋСЂ Р»РёС†Р°, СЃРѕРєСЂР°С‰РµРЅРЅРѕРµ РґР»СЏ РѕС‚СЂР°Р¶РµРЅРёСЏ РЅР° РїР»Р°РЅС€РµС‚Рµ
+			fullname      РЎС‚СЂРѕРєР° РќРµС‚ РџРѕР»РЅРѕРµ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
+			inn           РЎС‚СЂРѕРєР° Р”Р°  РРЅРЅ СЋСЂРёРґРёС‡РµСЃРєРѕРіРѕ Р»РёС†Р°
+			kpp           РЎС‚СЂРѕРєР° РќРµС‚ РљРџРџ СЋСЂРёРґРёС‡РµСЃРєРѕРіРѕ Р»РёС†Р°
+			address       РЎС‚СЂРѕРєР° РќРµС‚ Р®СЂРёРґРёС‡РµСЃРєРёР№ Р°РґСЂРµСЃ СЋСЂРёРґРёС‡РµСЃРєРѕРіРѕ Р»РёС†Р°
+		РўРѕСЂРіРѕРІС‹Рµ С‚РѕС‡РєРё            trade_points   Trade_points_20190910120358.xml
+			code          РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ С‚РѕСЂРіРѕРІРѕР№ С‚РѕС‡РєРё вЂ“ СѓРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ, РїРѕР·РІРѕР»СЏСЋС‰РёР№ РѕРґРЅРѕР·РЅР°С‡РЅРѕ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ РўРў;
+			customercode  РЎС‚СЂРѕРєР° Р”Р°  РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°, РґРѕР»Р¶РµРЅ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РїСЂРёСЃСѓС‚СЃС‚РІРѕРІР°С‚СЊ РІ РїР°РєРµС‚Рµ РљРѕРЅС‚СЂР°РіРµРЅС‚С‹;
+			address       РЎС‚СЂРѕРєР° Р”Р°  РђРґСЂРµСЃ С‚РѕСЂРіРѕРІРѕР№ С‚РѕС‡РєРё
+			price         РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ РїСЂР°Р№СЃ Р»РёСЃС‚Р°, РґР»СЏ С‚РѕСЂРіРѕРІРѕР№ С‚РѕС‡РєРё; Р”РѕР»Р¶РµРЅ Р±С‹С‚СЊ РІ С„Р°Р№Р»Рµ Prices;
+		РўРѕРІР°СЂС‹                    products       Products_20190910120358.xml
+			code          РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ РЅРѕРјРµРЅРєР»Р°С‚СѓСЂС‹, РІ СѓС‡РµС‚РЅРѕР№ СЃРёСЃС‚РµРјРµ РґРёСЃС‚СЂРёР±СЊСЋС‚РµСЂР°, РїРѕР·РІРѕР»СЏСЋС‰РёР№ РѕРґРЅРѕР·РЅР°С‡РЅРѕ РѕРїСЂРµРґРµР»РёС‚СЊ С‚РѕРІР°СЂ;
+			name          РЎС‚СЂРѕРєР° Р”Р°  РќР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР°
+			suppliercode  РЎС‚СЂРѕРєР° РќРµС‚ РљРѕРґ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ
+			vat           Р§РёСЃР»Рѕ  Р”Р°  РЎС‚Р°РІРєР° РќР”РЎ 
+			price_group   РЎС‚СЂРѕРєР° РќРµС‚ РљРѕРґ С†РµРЅРѕРІРѕР№ РіСЂСѓРїРїС‹, Рє РєРѕС‚РѕСЂРѕР№ РїСЂРёРЅР°РґР»РµР¶РёС‚ С‚РѕРІР°СЂ, РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РІ С„Р°Р№Р»Рµ price_groups;
+		Р¦РµРЅРѕРІС‹Рµ РіСЂСѓРїРїС‹            price_groups   price_groups_20190910120358.xml
+			code          РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ С†РµРЅРѕРІРѕР№ РіСЂСѓРїРїС‹;
+			name          РЎС‚СЂРѕРєР° Р”Р°  РќР°Р·РІР°РЅРёРµ С†РµРЅРѕРІРѕР№ РіСЂСѓРїРїС‹
+		РЎРєР»Р°РґС‹                    warehouses     warehouses_20190910120358.xml
+			code          РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ СЃРєР»Р°РґР°, СѓРЅРёРєР°Р»РµРЅ, РїРѕР·РІРѕР»СЏРµС‚ РѕРґРЅРѕР·РЅР°С‡РЅРѕРµ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ СЃРєР»Р°Рґ;
+			name          РЎС‚СЂРѕРєР° Р”Р°  РќР°РёРјРµРЅРѕРІР°РЅРёРµ СЃРєР»Р°РґР°
+			discount      Р§РёСЃР»Рѕ  РќРµС‚ РЎРєРёРґРєРё, СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏРµРјР°СЏ РЅР° СЃРєР»Р°Рґ, РІСЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ СЃРєРёРґРєРё РїСЂРё СѓСЃС‚Р°РЅРѕРІРєРµ РґР°РЅРЅРѕР№ СЃРєРёРґРєРё вЂ“ РЅРµ СѓС‡РёС‚С‹РІР°СЋС‚СЃСЏ;
+		РўРѕСЂРіРѕРІС‹Рµ РїСЂРµРґСЃС‚Р°РІРёС‚РµР»Рё    salesreps      Salesreps_20190910120358.xml
+			code          РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ С‚РѕСЂРіРѕРІРѕРіРѕ РїСЂРµРґСЃС‚Р°РІРёС‚РµР»СЏ
+			name          РЎС‚СЂРѕРєР° Р”Р°  Р¤РРћ С‚РѕСЂРіРѕРІРѕРіРѕ РїСЂРµРґСЃС‚Р°РІРёС‚РµР»СЏ
+		РћСЃС‚Р°С‚РєРё С‚РѕРІР°СЂРѕРІ           stocks         stocks_20190910120358.xml
+			date          Р”Р°С‚Р°   Р”Р°  Р”Р°С‚Р° РѕСЃС‚Р°С‚РєРѕРІ
+			warehousecode РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ СЃРєР»Р°РґР°
+			productcode   РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ РїСЂРѕРґСѓРєС‚Р°
+			quantity      Р§РёСЃР»Рѕ  Р”Р°  РљРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂР°
+		Р¦РµРЅС‹ РЅРѕРјРµРЅРєР»Р°С‚СѓСЂС‹         prices         prices_20190910120358.xml
+			code          РЎС‚СЂРѕРєР° Р”Р°  РЈРЅРёРєР°Р»СЊРЅС‹Р№ РєРѕРґ РїСЂР°Р№СЃ Р»РёСЃС‚Р°
+			name          РЎС‚СЂРѕРєР° Р”Р°  РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїСЂР°Р№СЃ Р»РёСЃС‚Р°
+			isactive      Р‘СѓР»РµРІРѕ Р”Р°  РџСЂРёР·РЅР°Рє Р°РєС‚РёРІРЅРѕСЃС‚Рё
+			vatIn         Р‘СѓР»РµРІРѕ Р”Р°  РџСЂРёР·РЅР°Рє, РўРёРї С†РµРЅ РІРєР»СЋС‡Р°РµС‚ РќР”РЎ;
+			products      Р­Р»РµРјРµРЅС‚_XML Р”Р° РЎРїРёСЃРѕРє С†РµРЅ, РїРѕ РЅРѕРјРµРЅРєР»Р°С‚СѓСЂРµ;
+				productcode РЎС‚СЂРѕРєР° Р”Р°   РљРѕРґ РЅРѕРјРµРЅРєР»Р°С‚СѓСЂС‹;
+				price       Р§РёСЃР»Рѕ  Р”Р°   РЎС‚РѕРёРјРѕСЃС‚СЊ РїРѕР·РёС†РёРё, РІ РґР°РЅРЅРѕРј РІРёРґРµ С†РµРЅ;
+		РЎРєРёРґРєРё РЅРѕРјРµРЅРєР»Р°С‚СѓСЂС‹       discounts      discounts_20190910120358.xml
+			customertype  Р§РёСЃР»Рѕ  Р”Р°  РЎРѕРґРµСЂР¶РёС‚ РѕРїРёСЃР°РЅРёРµ РЅР°Р·РЅР°С‡РµРЅРёСЏ, РЅР° РєРѕРіРѕ СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏРµС‚СЃСЏ СЃРєРёРґРєР°
+				Р’РѕР·РјРѕР¶РЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ:
+				"1,000" вЂ“ РЎРєРёРґРєР° СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏРµС‚СЃСЏ РЅР° РєРѕРЅС‚СЂР°РіРµРЅС‚Р°;
+				"2,000" вЂ“ СЃРєРёРґРєР° СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏРµС‚СЃСЏ РЅР° С‚РѕСЂРіРѕРІСѓСЋ С‚РѕС‡РєСѓ
+			customercode  РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ РЅР°Р·РЅР°С‡РµРЅРёСЏ С‚РѕСЂРіРѕРІРѕР№ СЃРєРёРґРєРё, РЅР° РєРѕРіРѕ РѕРЅР° СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏРµС‚СЃСЏ; РљРѕРґ РєРѕРЅС‚СЂР°РіРµРЅС‚Р° РёР»Рё С‚РѕСЂРіРѕРІРѕР№ С‚РѕС‡РєРё;
+			producttype   Р§РёСЃР»Рѕ  Р”Р°  РЎРѕРґРµСЂР¶РёС‚ РѕРїРёСЃР°РЅРёРµ РЅР°Р·РЅР°С‡РµРЅРёСЏ, РЅР° С‡С‚Рѕ СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏРµС‚СЃСЏ СЃРєРёРґРєР°
+				Р’РѕР·РјРѕР¶РЅС‹Рµ Р·РЅР°С‡РµРЅРёСЏ:
+				"1,000" вЂ“ РЎРєРёРґРєР° СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏРµС‚СЃСЏ РЅР° С‚РѕРІР°СЂ;
+				"2,000" вЂ“ СЃРєРёРґРєР° СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏРµС‚СЃСЏ РЅР° С†РµРЅРѕРІСѓСЋ РіСЂСѓРїРїСѓ;
+			productcode   Р§РёСЃР»Рѕ  Р”Р°  РљРѕРґ РЅР°Р·РЅР°С‡РµРЅРёСЏ, РЅР° С‡С‚Рѕ СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏРµС‚СЃСЏ, СЃРєРёРґРєР°; РљРѕРґ РЅРѕРјРµРЅРєР»Р°С‚СѓСЂС‹, РёР»Рё С†РµРЅРѕРІРѕР№ РіСЂСѓРїРїС‹;
+			discount      Р§РёСЃР»Рѕ  Р”Р°  РџСЂРѕС†РµРЅС‚ СЃРєРёРґРєРё, РµСЃР»Рё С‡РёСЃР»Рѕ СѓРєР°Р·Р°РЅРѕ РІ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕРј С„РѕСЂРјР°С‚Рµ, СЌС‚Рѕ РѕР·РЅР°С‡Р°РµС‚ С‡С‚Рѕ СЌС‚Рѕ РЅР°С†РµРЅРєР°;
+		Р”РµР±РёС‚РѕСЂСЃРєР°СЏ Р·Р°РґРѕР»Р¶РµРЅРЅРѕСЃС‚СЊ debts          debts_20190910120358.xml
+			customercode   РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
+			tradepointcode РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ С‚РѕСЂРіРѕРІРѕР№ С‚РѕС‡РєРё
+			documentnumber РЎС‚СЂРѕРєР° Р”Р°  РќРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р°, РґР»СЏ РёРґРµРЅС‚РёС„РёРєР°С†РёРё РєР»РёРµРЅС‚РѕРј;
+			documentdate   Р”Р°С‚Р°   Р”Р°  Р”Р°С‚Р° РґРѕРєСѓРјРµРЅС‚Р° РґРµР±РёС‚РѕСЂСЃРєРѕР№ Р·Р°РґРѕР»Р¶РµРЅРЅРѕСЃС‚Рё;
+			paymentdate    Р”Р°С‚Р°   Р”Р°  Р”Р°С‚Р° РѕРїР»Р°С‚С‹;
+			debtsum        Р§РёСЃР»Рѕ  Р”Р°  РЎСѓРјРјР° Р·Р°РґРѕР»Р¶РµРЅРЅРѕСЃС‚Рё
+		РџСЂРѕРґР°Р¶Рё                   salesrefunds   salesrefunds_20190910120358.xml
 
-			tradepointcode Строка   Да Код торговой точки
-			customercode   Строка   Да Код контрагента
-			number         Строка   Да Номер документа продажи/возврата
-			date           Дата     Да Дата документа продажи/возврата
-			employeecode   Строка   Да Код торгового представителя
-			warehousecode  Строка   Да Код склада
-			type           Строка   Да Операция Продажа/возврат
-
-			Items:
-				productcode Строка Да Код товара
-				counts      Число  Да Количество
-				summ        Число  Да Сумма без НДС
-				vatsumm     Число  Да Сумма НДС
-
-		Движения товаров          movements      movements_20190910120358.xml
-			date            Дата   Да  Дата операции движения
-			warehousecode   Строка Да  склада
-			transaction     Строка Да  Вид движения
-			productcode     Строка Да  Код товара
-			quantity        Число  Да  Количество
-		Заказ покупателя          orders         Order_UD00000737_20190910120358.xml
-			number          Строка Да  Номер заказа в учетной системе производителя
-			date            Дата   Да  Дата создания заказа
-			customercode    Строка Да  Код контрагента
-			tradepointcode  Строка Да  Код торговой точки
-			deliverydate    Дата   Да  Дата
-			warehousecode   Строка Да  Код склада
-			comment         Строка Нет Комментарий к заказу;
+			tradepointcode РЎС‚СЂРѕРєР°   Р”Р° РљРѕРґ С‚РѕСЂРіРѕРІРѕР№ С‚РѕС‡РєРё
+			customercode   РЎС‚СЂРѕРєР°   Р”Р° РљРѕРґ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
+			number         РЎС‚СЂРѕРєР°   Р”Р° РќРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р° РїСЂРѕРґР°Р¶Рё/РІРѕР·РІСЂР°С‚Р°
+			date           Р”Р°С‚Р°     Р”Р° Р”Р°С‚Р° РґРѕРєСѓРјРµРЅС‚Р° РїСЂРѕРґР°Р¶Рё/РІРѕР·РІСЂР°С‚Р°
+			employeecode   РЎС‚СЂРѕРєР°   Р”Р° РљРѕРґ С‚РѕСЂРіРѕРІРѕРіРѕ РїСЂРµРґСЃС‚Р°РІРёС‚РµР»СЏ
+			warehousecode  РЎС‚СЂРѕРєР°   Р”Р° РљРѕРґ СЃРєР»Р°РґР°
+			type           РЎС‚СЂРѕРєР°   Р”Р° РћРїРµСЂР°С†РёСЏ РџСЂРѕРґР°Р¶Р°/РІРѕР·РІСЂР°С‚
 
 			Items:
-				productcode Строка Да  Код товара
-				counts      Число  Да  Количество в заказе;
-				price       Число  Да  Цена клиента без НДС
-				vat         Число  Да  Ставка НДС
-				summ        Число  Да  Сумма по строке, с НДС 
+				productcode РЎС‚СЂРѕРєР° Р”Р° РљРѕРґ С‚РѕРІР°СЂР°
+				counts      Р§РёСЃР»Рѕ  Р”Р° РљРѕР»РёС‡РµСЃС‚РІРѕ
+				summ        Р§РёСЃР»Рѕ  Р”Р° РЎСѓРјРјР° Р±РµР· РќР”РЎ
+				vatsumm     Р§РёСЃР»Рѕ  Р”Р° РЎСѓРјРјР° РќР”РЎ
+
+		Р”РІРёР¶РµРЅРёСЏ С‚РѕРІР°СЂРѕРІ          movements      movements_20190910120358.xml
+			date            Р”Р°С‚Р°   Р”Р°  Р”Р°С‚Р° РѕРїРµСЂР°С†РёРё РґРІРёР¶РµРЅРёСЏ
+			warehousecode   РЎС‚СЂРѕРєР° Р”Р°  СЃРєР»Р°РґР°
+			transaction     РЎС‚СЂРѕРєР° Р”Р°  Р’РёРґ РґРІРёР¶РµРЅРёСЏ
+			productcode     РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ С‚РѕРІР°СЂР°
+			quantity        Р§РёСЃР»Рѕ  Р”Р°  РљРѕР»РёС‡РµСЃС‚РІРѕ
+		Р—Р°РєР°Р· РїРѕРєСѓРїР°С‚РµР»СЏ          orders         Order_UD00000737_20190910120358.xml
+			number          РЎС‚СЂРѕРєР° Р”Р°  РќРѕРјРµСЂ Р·Р°РєР°Р·Р° РІ СѓС‡РµС‚РЅРѕР№ СЃРёСЃС‚РµРјРµ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ
+			date            Р”Р°С‚Р°   Р”Р°  Р”Р°С‚Р° СЃРѕР·РґР°РЅРёСЏ Р·Р°РєР°Р·Р°
+			customercode    РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ РєРѕРЅС‚СЂР°РіРµРЅС‚Р°
+			tradepointcode  РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ С‚РѕСЂРіРѕРІРѕР№ С‚РѕС‡РєРё
+			deliverydate    Р”Р°С‚Р°   Р”Р°  Р”Р°С‚Р°
+			warehousecode   РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ СЃРєР»Р°РґР°
+			comment         РЎС‚СЂРѕРєР° РќРµС‚ РљРѕРјРјРµРЅС‚Р°СЂРёР№ Рє Р·Р°РєР°Р·Сѓ;
+
+			Items:
+				productcode РЎС‚СЂРѕРєР° Р”Р°  РљРѕРґ С‚РѕРІР°СЂР°
+				counts      Р§РёСЃР»Рѕ  Р”Р°  РљРѕР»РёС‡РµСЃС‚РІРѕ РІ Р·Р°РєР°Р·Рµ;
+				price       Р§РёСЃР»Рѕ  Р”Р°  Р¦РµРЅР° РєР»РёРµРЅС‚Р° Р±РµР· РќР”РЎ
+				vat         Р§РёСЃР»Рѕ  Р”Р°  РЎС‚Р°РІРєР° РќР”РЎ
+				summ        Р§РёСЃР»Рѕ  Р”Р°  РЎСѓРјРјР° РїРѕ СЃС‚СЂРѕРєРµ, СЃ РќР”РЎ 
 	*/
 	struct WhEntry { // @flat
 		WhEntry() : ID(0)
@@ -9258,7 +9258,7 @@ public:
 			PriceGroupCode[0] = 0;
 		}
 		PPID   ID;
-		char   SupplCode[24]; // Код производителя //
+		char   SupplCode[24]; // РљРѕРґ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ //
 		double VatRate;
 		char   PriceGroupCode[24];
 	};
@@ -9271,11 +9271,11 @@ public:
 		LDATE  Dt;
 		PPID   GoodsID;
 		double InRest;
-		double Mov_Tk01; // 1 - Поступления
-		double Mov_Tk02; // 2 - Списание-расход - брак, прочие списания
-		double Mov_Tk03; // 3 - Возвраты поставщику
-		double Mov_Tk04; // 4 - Перемещение
-		double Mov_Tk05; // 5 - Оприходование - прочие поступления
+		double Mov_Tk01; // 1 - РџРѕСЃС‚СѓРїР»РµРЅРёСЏ
+		double Mov_Tk02; // 2 - РЎРїРёСЃР°РЅРёРµ-СЂР°СЃС…РѕРґ - Р±СЂР°Рє, РїСЂРѕС‡РёРµ СЃРїРёСЃР°РЅРёСЏ
+		double Mov_Tk03; // 3 - Р’РѕР·РІСЂР°С‚С‹ РїРѕСЃС‚Р°РІС‰РёРєСѓ
+		double Mov_Tk04; // 4 - РџРµСЂРµРјРµС‰РµРЅРёРµ
+		double Mov_Tk05; // 5 - РћРїСЂРёС…РѕРґРѕРІР°РЅРёРµ - РїСЂРѕС‡РёРµ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ
 		double OutRest;
 	};
 	static IMPL_CMPFUNC(StockEntry, i1, i2)
@@ -9725,10 +9725,10 @@ public:
 						n_i.PutAttrib("employeecode", temp_buf.Z().Cat(p_item->AgentID));
 						n_i.PutAttrib("warehousecode", temp_buf.Z().Cat(p_item->LocID));
 						{
-							// Мы здесь используем предопределенные токены, применяемые для обмена с ЕГАИС, так как они по смыслу и
-							// буквально совпадают с требованиями Agent Plust (за исключением прописной первой буквы - надеемся, что это проскочит).
-							//PPHSC_RU_EGAIS_SALE            "Продажа" // @v11.0.11 Тип операции кассового чека, передаваемого в ЕГАИС
-							//PPHSC_RU_EGAIS_RETOFSALE       "Возврат" // @v11.0.11 Тип операции кассового чека, передаваемого в ЕГАИС
+							// РњС‹ Р·РґРµСЃСЊ РёСЃРїРѕР»СЊР·СѓРµРј РїСЂРµРґРѕРїСЂРµРґРµР»РµРЅРЅС‹Рµ С‚РѕРєРµРЅС‹, РїСЂРёРјРµРЅСЏРµРјС‹Рµ РґР»СЏ РѕР±РјРµРЅР° СЃ Р•Р“РђРРЎ, С‚Р°Рє РєР°Рє РѕРЅРё РїРѕ СЃРјС‹СЃР»Сѓ Рё
+							// Р±СѓРєРІР°Р»СЊРЅРѕ СЃРѕРІРїР°РґР°СЋС‚ СЃ С‚СЂРµР±РѕРІР°РЅРёСЏРјРё Agent Plust (Р·Р° РёСЃРєР»СЋС‡РµРЅРёРµРј РїСЂРѕРїРёСЃРЅРѕР№ РїРµСЂРІРѕР№ Р±СѓРєРІС‹ - РЅР°РґРµРµРјСЃСЏ, С‡С‚Рѕ СЌС‚Рѕ РїСЂРѕСЃРєРѕС‡РёС‚).
+							//PPHSC_RU_EGAIS_SALE            "РџСЂРѕРґР°Р¶Р°" // @v11.0.11 РўРёРї РѕРїРµСЂР°С†РёРё РєР°СЃСЃРѕРІРѕРіРѕ С‡РµРєР°, РїРµСЂРµРґР°РІР°РµРјРѕРіРѕ РІ Р•Р“РђРРЎ
+							//PPHSC_RU_EGAIS_RETOFSALE       "Р’РѕР·РІСЂР°С‚" // @v11.0.11 РўРёРї РѕРїРµСЂР°С†РёРё РєР°СЃСЃРѕРІРѕРіРѕ С‡РµРєР°, РїРµСЂРµРґР°РІР°РµРјРѕРіРѕ РІ Р•Р“РђРРЎ
 							PPLoadStringS(PPSTR_HASHTOKEN_C, p_item->IsRefund ? PPHSC_RU_EGAIS_RETOFSALE : PPHSC_RU_EGAIS_SALE, temp_buf);
 							n_i.PutAttrib("type", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 						}
@@ -9750,8 +9750,8 @@ public:
 		return ok;
 	}
 	//
-	// ARG(rExclOpList IN): Используется для исключения операций, попавших в продажи, из списка прочих документов.
-	// ARG(rList OUT): Результирующий список.
+	// ARG(rExclOpList IN): РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РёСЃРєР»СЋС‡РµРЅРёСЏ РѕРїРµСЂР°С†РёР№, РїРѕРїР°РІС€РёС… РІ РїСЂРѕРґР°Р¶Рё, РёР· СЃРїРёСЃРєР° РїСЂРѕС‡РёС… РґРѕРєСѓРјРµРЅС‚РѕРІ.
+	// ARG(rList OUT): Р РµР·СѓР»СЊС‚РёСЂСѓСЋС‰РёР№ СЃРїРёСЃРѕРє.
 	//
 	int      PrepareMovementData(const PPIDArray & rExclList, TSVector <StockEntry> & rList)
 	{
@@ -9800,11 +9800,11 @@ public:
 					new_entry.InRest = p_in_rest ? p_in_rest->Quantity : 0.0;
 					new_entry.OutRest = p_out_rest ? p_out_rest->Quantity : 0.0;
 					// 
-					// double Mov_Tk01; // 1 - Поступления
-					// double Mov_Tk02; // 2 - Списание-расход - брак, прочие списания
-					// double Mov_Tk03; // 3 - Возвраты поставщику
-					// double Mov_Tk04; // 4 - Перемещение
-					// double Mov_Tk05; // 5 - Оприходование - прочие поступления
+					// double Mov_Tk01; // 1 - РџРѕСЃС‚СѓРїР»РµРЅРёСЏ
+					// double Mov_Tk02; // 2 - РЎРїРёСЃР°РЅРёРµ-СЂР°СЃС…РѕРґ - Р±СЂР°Рє, РїСЂРѕС‡РёРµ СЃРїРёСЃР°РЅРёСЏ
+					// double Mov_Tk03; // 3 - Р’РѕР·РІСЂР°С‚С‹ РїРѕСЃС‚Р°РІС‰РёРєСѓ
+					// double Mov_Tk04; // 4 - РџРµСЂРµРјРµС‰РµРЅРёРµ
+					// double Mov_Tk05; // 5 - РћРїСЂРёС…РѕРґРѕРІР°РЅРёРµ - РїСЂРѕС‡РёРµ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ
 					//
 					for(uint ggaidx = 0; ggaidx < gga.getCount(); ggaidx++) {
 						auto & r_entry = gga.at(ggaidx);
@@ -9827,7 +9827,7 @@ public:
 										new_entry.Mov_Tk02 += fabs(r_entry.Quantity);
 									}
 									else if(op_rec.AccSheetID && op_rec.AccSheetID == suppl_acs_id) {
-										new_entry.Mov_Tk03 += fabs(r_entry.Quantity); // Возвраты поставщику
+										new_entry.Mov_Tk03 += fabs(r_entry.Quantity); // Р’РѕР·РІСЂР°С‚С‹ РїРѕСЃС‚Р°РІС‰РёРєСѓ
 									}
 								}
 							}
@@ -9913,7 +9913,7 @@ public:
 		SString out_file_name;
 		LDATE  last_date = ZERODATE; 
 		{
-			// Остатки надо выгружать только на последнюю дату периода. Находим максимальную дату в списке:
+			// РћСЃС‚Р°С‚РєРё РЅР°РґРѕ РІС‹РіСЂСѓР¶Р°С‚СЊ С‚РѕР»СЊРєРѕ РЅР° РїРѕСЃР»РµРґРЅСЋСЋ РґР°С‚Сѓ РїРµСЂРёРѕРґР°. РќР°С…РѕРґРёРј РјР°РєСЃРёРјР°Р»СЊРЅСѓСЋ РґР°С‚Сѓ РІ СЃРїРёСЃРєРµ:
 			for(uint i = 0; i < rList.getCount(); i++) {
 				const auto & r_item = rList.at(i);
 				SETMAX(last_date, r_item.Dt);
@@ -10004,7 +10004,7 @@ public:
 private:
 	SString & MakeFileName(const char * pPacketName, SString & rBuf)
 	{
-		//ИмяПакета_ yyyyMMddHHmmss
+		//РРјСЏРџР°РєРµС‚Р°_ yyyyMMddHHmmss
 		const LDATETIME now_dtm = getcurdatetime_();
 		rBuf.Z().Cat(pPacketName).CatChar('_').Cat(now_dtm.d, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat(now_dtm.t, TIMF_HMS|TIMF_NODIV).Dot().Cat("xml");
 		return rBuf;
@@ -10079,7 +10079,7 @@ class EfopMayTea : public PrcssrSupplInterchange::ExecuteBlock { // @v12.0.7 @co
 			THISZERO();
 		}
 		PPID   ID;
-		double Brutto; // Масса брутто одной торговой единицы товара
+		double Brutto; // РњР°СЃСЃР° Р±СЂСѓС‚С‚Рѕ РѕРґРЅРѕР№ С‚РѕСЂРіРѕРІРѕР№ РµРґРёРЅРёС†С‹ С‚РѕРІР°СЂР°
 		char   ArCode[32];
 		char   Name[128];
 		char   Brand[128];
@@ -10123,7 +10123,7 @@ class EfopMayTea : public PrcssrSupplInterchange::ExecuteBlock { // @v12.0.7 @co
 			double NominalPrice;
 		};
 		PPID   ID;
-		PPID   OrderBillID; // Ид документа заказа, по которому осуществляется отгрузка
+		PPID   OrderBillID; // РРґ РґРѕРєСѓРјРµРЅС‚Р° Р·Р°РєР°Р·Р°, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РѕС‚РіСЂСѓР·РєР°
 		char   Code[48];
 		char   ContractorCityName[48];
 		char   ContractorINN[16];
@@ -10415,19 +10415,19 @@ class EfopMayTea : public PrcssrSupplInterchange::ExecuteBlock { // @v12.0.7 @co
 	}
 public:
 	/*
-		Унифицированный формат обмена информацией о ПРАЙСАХ КЛИЕНТА
+		РЈРЅРёС„РёС†РёСЂРѕРІР°РЅРЅС‹Р№ С„РѕСЂРјР°С‚ РѕР±РјРµРЅР° РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ РџР РђР™РЎРђРҐ РљР›РР•РќРўРђ
 			<Prices>		
-				<SourceCode>1235_1</SourceCode>	Строка (20 символов)	Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс))
-				Код источника высылается каждому дистрибутору персонально.
+				<SourceCode>1235_1</SourceCode>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ РёСЃС‚РѕС‡РЅРёРєР° (РєРѕРґ Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР° Сѓ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ (РљРѕРјРїР°РЅРёСЏ РњР°Р№-Р‘СЂРµРЅРґСЃ))
+				РљРѕРґ РёСЃС‚РѕС‡РЅРёРєР° РІС‹СЃС‹Р»Р°РµС‚СЃСЏ РєР°Р¶РґРѕРјСѓ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂСѓ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕ.
 				< Price>		
-					< PriceName> Весенний</ PriceName>	Строка (255 символов)	Название прайса
-					<DateFrom>01.01.2023</DateFrom>	Формат ДД.ММ.ГГГГ	Дата начала действия прайса. Если даты нет заполнять 01.01.1900 
-					<DateTo>30.04.2023</DateTo>	Формат ДД.ММ.ГГГГ	Дата окончания действия прайса. Если даты нет заполнять 01.01.2100
+					< PriceName> Р’РµСЃРµРЅРЅРёР№</ PriceName>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	РќР°Р·РІР°РЅРёРµ РїСЂР°Р№СЃР°
+					<DateFrom>01.01.2023</DateFrom>	Р¤РѕСЂРјР°С‚ Р”Р”.РњРњ.Р“Р“Р“Р“	Р”Р°С‚Р° РЅР°С‡Р°Р»Р° РґРµР№СЃС‚РІРёСЏ РїСЂР°Р№СЃР°. Р•СЃР»Рё РґР°С‚С‹ РЅРµС‚ Р·Р°РїРѕР»РЅСЏС‚СЊ 01.01.1900 
+					<DateTo>30.04.2023</DateTo>	Р¤РѕСЂРјР°С‚ Р”Р”.РњРњ.Р“Р“Р“Р“	Р”Р°С‚Р° РѕРєРѕРЅС‡Р°РЅРёСЏ РґРµР№СЃС‚РІРёСЏ РїСЂР°Р№СЃР°. Р•СЃР»Рё РґР°С‚С‹ РЅРµС‚ Р·Р°РїРѕР»РЅСЏС‚СЊ 01.01.2100
 					<Items>		
 						<Item>		
-							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика
-							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
-							<PriceAmount>150.00</PriceAmount> Число	Сумма прайса в рублях с НДС. 
+							<SupplierItemCode>123456</SupplierItemCode>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ С‚РѕРІР°СЂР° Сѓ РїРѕСЃС‚Р°РІС‰РёРєР°
+							<ItemDescription>Curtis Green 10 Рї.</ItemDescription>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	РќР°Р·РІР°РЅРёРµ
+							<PriceAmount>150.00</PriceAmount> Р§РёСЃР»Рѕ	РЎСѓРјРјР° РїСЂР°Р№СЃР° РІ СЂСѓР±Р»СЏС… СЃ РќР”РЎ. 
 						</Item>		
 					</Items>		
 				</Price>		
@@ -10450,13 +10450,13 @@ public:
 	int    SendGoods(StringSet & rSsFileName)
 	{
 		/*
-		Унифицированный формат обмена информацией о товарах (мастер-данные)
+		РЈРЅРёС„РёС†РёСЂРѕРІР°РЅРЅС‹Р№ С„РѕСЂРјР°С‚ РѕР±РјРµРЅР° РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ С‚РѕРІР°СЂР°С… (РјР°СЃС‚РµСЂ-РґР°РЅРЅС‹Рµ)
 			<Items>		
 			 <Item>		
-			   <SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у производителя
-			   <BrandName>Curtis</BrandName>	Строка (255 символов)	Бренд
-			   <ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
-			   <Status>Действует</Status>	Строка (50 символов)	Статус
+			   <SupplierItemCode>123456</SupplierItemCode>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ С‚РѕРІР°СЂР° Сѓ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ
+			   <BrandName>Curtis</BrandName>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	Р‘СЂРµРЅРґ
+			   <ItemDescription>Curtis Green 10 Рї.</ItemDescription>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	РќР°Р·РІР°РЅРёРµ
+			   <Status>Р”РµР№СЃС‚РІСѓРµС‚</Status>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	РЎС‚Р°С‚СѓСЃ
 			  </Item>
 			</Items>
 		*/
@@ -10472,20 +10472,24 @@ public:
 		out_file_name.SetLastSlash().Cat(temp_buf);
 		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 		{
-			SXml::WDoc _doc(p_x, cpUTF8);
+			SXml::WDoc _doc(p_x, cp1251);
 			SXml::WNode n_o(p_x, "Items");
 			for(uint i = 0; i < GoodsList.getCount(); i++) {
 				const GoodsEntry & r_entry = GoodsList.at(i);
 				Goods2Tbl::Rec goods_rec;
 				if(GObj.Search(r_entry.ID, &goods_rec) > 0) {
 					SXml::WNode n_i(p_x, "Item");
-					n_i.PutInner("SupplierItemCode", XmlUtf8EncText(r_entry.ArCode));
-					n_i.PutInner("BrandName", XmlUtf8EncText(r_entry.Brand));
-					n_i.PutInner("ItemDescription", XmlUtf8EncText(r_entry.Name));
-					PPLoadStringUtf8("valid", temp_buf);
-					n_i.PutInner("Status", temp_buf);
+					n_i.PutInner("SupplierItemCode", XmlCp1251EncText(r_entry.ArCode));
+					n_i.PutInner("BrandName", XmlCp1251EncText(r_entry.Brand));
+					n_i.PutInner("ItemDescription", XmlCp1251EncText(r_entry.Name));
+					n_i.PutInner("Status", PPLoadStringS("valid", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
 				}
 			}
+		}
+		{
+			xmlFreeTextWriter(p_x);
+			p_x = 0;
+			rSsFileName.add(out_file_name); 
 		}
 		CATCHZOK
 		xmlFreeTextWriter(p_x);
@@ -10494,24 +10498,24 @@ public:
 	int    SendClients(StringSet & rSsFileName)
 	{
 		/*
-		Унифицированный формат обмена информацией о адресах доставки (торговых точках)
+		РЈРЅРёС„РёС†РёСЂРѕРІР°РЅРЅС‹Р№ С„РѕСЂРјР°С‚ РѕР±РјРµРЅР° РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ Р°РґСЂРµСЃР°С… РґРѕСЃС‚Р°РІРєРё (С‚РѕСЂРіРѕРІС‹С… С‚РѕС‡РєР°С…)
 			<Buyers>		
-				<SourceCode>1235_1</SourceCode>	Строка (20 символов)	Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально. 
+				<SourceCode>1235_1</SourceCode>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ РёСЃС‚РѕС‡РЅРёРєР° (РєРѕРґ Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР° Сѓ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ (РљРѕРјРїР°РЅРёСЏ РњР°Р№-Р‘СЂРµРЅРґСЃ)) РљРѕРґ РёСЃС‚РѕС‡РЅРёРєР° РІС‹СЃС‹Р»Р°РµС‚СЃСЏ РєР°Р¶РґРѕРјСѓ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂСѓ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕ. 
 				<Buyer>		
-					<BuyerBuyerCode>111</BuyerBuyerCode>	Строка (50 символов)	Код юридического лица  заказчика у дистрибутора
-					<INN>5900009920000</INN>	Строка (20 символов)	ИНН 
-					<KPP>5900009920000</KPP>	Строка (20 символов)	КПП 
-					<BuyerName>Юнек</BuyerName>	Строка (255 символов)	Название юридического лица  
+					<BuyerBuyerCode>111</BuyerBuyerCode>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ СЋСЂРёРґРёС‡РµСЃРєРѕРіРѕ Р»РёС†Р°  Р·Р°РєР°Р·С‡РёРєР° Сѓ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР°
+					<INN>5900009920000</INN>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РРќРќ 
+					<KPP>5900009920000</KPP>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РљРџРџ 
+					<BuyerName>Р®РЅРµРє</BuyerName>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	РќР°Р·РІР°РЅРёРµ СЋСЂРёРґРёС‡РµСЃРєРѕРіРѕ Р»РёС†Р°  
 					<DeliveryPoints>		
 						<DeliveryPoint>		
-							<DeliveryPointBuyerCode>12345</DeliveryPointBuyerCode>	Строка (50 символов)	Код адреса доставки у дистрибутора
-							<RetailNetwork>Карусель</RetailNetwork>	Строка (128 символов)	Название сети. В случае отсутствия посылается пусто(“”)
-							<DeliveryPointName>Тест</DeliveryPointName>	Строка (255 символов)	Название адреса доставки заказчика (вывеска) . В случае отсутствия посылается пусто (“”)
-							<DlvAddressTypeID/>		Код типа (оставлять пустым) 
-							<Address>Ярославская область, Г. Ярославль, пр. Ленина, Д. 23</Address>	Строка (255 символов)	Адрес торговой точки
-							<ManagerBuyerCode>111</ManagerBuyerCode>	Строка (20 символов)	Код торгового представителя у дистрибутора
-							<ManagerName>Иванов Иван Иванович</ManagerName>	Строка (50 символов)	ФИО торгового представителя
-							<Status>Действует</Status>		Статус (действует, заблокирован)
+							<DeliveryPointBuyerCode>12345</DeliveryPointBuyerCode>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё Сѓ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР°
+							<RetailNetwork>РљР°СЂСѓСЃРµР»СЊ</RetailNetwork>	РЎС‚СЂРѕРєР° (128 СЃРёРјРІРѕР»РѕРІ)	РќР°Р·РІР°РЅРёРµ СЃРµС‚Рё. Р’ СЃР»СѓС‡Р°Рµ РѕС‚СЃСѓС‚СЃС‚РІРёСЏ РїРѕСЃС‹Р»Р°РµС‚СЃСЏ РїСѓСЃС‚Рѕ(вЂњвЂќ)
+							<DeliveryPointName>РўРµСЃС‚</DeliveryPointName>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	РќР°Р·РІР°РЅРёРµ Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё Р·Р°РєР°Р·С‡РёРєР° (РІС‹РІРµСЃРєР°) . Р’ СЃР»СѓС‡Р°Рµ РѕС‚СЃСѓС‚СЃС‚РІРёСЏ РїРѕСЃС‹Р»Р°РµС‚СЃСЏ РїСѓСЃС‚Рѕ (вЂњвЂќ)
+							<DlvAddressTypeID/>		РљРѕРґ С‚РёРїР° (РѕСЃС‚Р°РІР»СЏС‚СЊ РїСѓСЃС‚С‹Рј) 
+							<Address>РЇСЂРѕСЃР»Р°РІСЃРєР°СЏ РѕР±Р»Р°СЃС‚СЊ, Р“. РЇСЂРѕСЃР»Р°РІР»СЊ, РїСЂ. Р›РµРЅРёРЅР°, Р”. 23</Address>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	РђРґСЂРµСЃ С‚РѕСЂРіРѕРІРѕР№ С‚РѕС‡РєРё
+							<ManagerBuyerCode>111</ManagerBuyerCode>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ С‚РѕСЂРіРѕРІРѕРіРѕ РїСЂРµРґСЃС‚Р°РІРёС‚РµР»СЏ Сѓ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР°
+							<ManagerName>РРІР°РЅРѕРІ РРІР°РЅ РРІР°РЅРѕРІРёС‡</ManagerName>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	Р¤РРћ С‚РѕСЂРіРѕРІРѕРіРѕ РїСЂРµРґСЃС‚Р°РІРёС‚РµР»СЏ
+							<Status>Р”РµР№СЃС‚РІСѓРµС‚</Status>		РЎС‚Р°С‚СѓСЃ (РґРµР№СЃС‚РІСѓРµС‚, Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ)
 						</DeliveryPoint>
 					</DeliveryPoints>
 				</Buyer>		
@@ -10529,17 +10533,17 @@ public:
 		out_file_name.SetLastSlash().Cat(temp_buf);
 		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 		{
-			SXml::WDoc _doc(p_x, cpUTF8);
+			SXml::WDoc _doc(p_x, cp1251);
 			SXml::WNode n_o(p_x, "Buyers");
-			n_o.PutInner("SourceCode", XmlUtf8EncText(CliCode));
+			n_o.PutInner("SourceCode", XmlCp1251EncText(CliCode));
 			for(uint cliidx = 0; cliidx < ClientList.getCount(); cliidx++) {
 				const ClientEntry * p_entry = ClientList.at(cliidx);
 				if(p_entry) {
 					SXml::WNode n_i(p_x, "Buyer");
 					n_i.PutInner("BuyerBuyerCode", temp_buf.Z().Cat(p_entry->PsnID));
-					n_i.PutInner("INN", XmlUtf8EncText(p_entry->INN));
-					n_i.PutInner("KPP", XmlUtf8EncText(p_entry->KPP));
-					n_i.PutInner("BuyerName", XmlUtf8EncText(p_entry->Name));
+					n_i.PutInner("INN", XmlCp1251EncText(p_entry->INN));
+					n_i.PutInner("KPP", XmlCp1251EncText(p_entry->KPP));
+					n_i.PutInner("BuyerName", XmlCp1251EncText(p_entry->Name));
 					{
 						SXml::WNode n_dp(p_x, "DeliveryPoints");
 						for(uint dlidx = 0; dlidx < p_entry->DlvrLocList.getCount(); dlidx++) {
@@ -10548,18 +10552,22 @@ public:
 								SXml::WNode n_dpi(p_x, "DeliveryPoint");
 								n_dpi.PutInner("DeliveryPointBuyerCode", temp_buf.Z().Cat(p_dl_entry->ID));
 								n_dpi.PutInner("RetailNetwork", "");
-								n_dpi.PutInner("DeliveryPointName", XmlUtf8EncText(p_dl_entry->Name));
+								n_dpi.PutInner("DeliveryPointName", XmlCp1251EncText(p_dl_entry->Name));
 								n_dpi.PutInner("DlvAddressTypeID", "");
-								n_dpi.PutInner("Address", XmlUtf8EncText(p_dl_entry->Addr));
+								n_dpi.PutInner("Address", XmlCp1251EncText(p_dl_entry->Addr));
 								n_dpi.PutInner("ManagerBuyerCode", "");
 								n_dpi.PutInner("ManagerName", "");
-								PPLoadStringUtf8("valid", temp_buf);
-								n_dpi.PutInner("Status", temp_buf);
+								n_dpi.PutInner("Status", PPLoadStringS("valid", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
 							}
 						}
 					}
 				}
 			}
+		}
+		{
+			xmlFreeTextWriter(p_x);
+			p_x = 0;
+			rSsFileName.add(out_file_name); 
 		}
 		CATCHZOK
 		xmlFreeTextWriter(p_x);
@@ -10568,20 +10576,20 @@ public:
 	int    SendRest(StringSet & rSsFileName)
 	{
 		/*
-		Унифицированный формат обмена информацией об остатках на складах
+		РЈРЅРёС„РёС†РёСЂРѕРІР°РЅРЅС‹Р№ С„РѕСЂРјР°С‚ РѕР±РјРµРЅР° РёРЅС„РѕСЂРјР°С†РёРµР№ РѕР± РѕСЃС‚Р°С‚РєР°С… РЅР° СЃРєР»Р°РґР°С…
 			<Stocks>		
-				<SourceCode>1235_1</SourceCode>	Строка (20 символов) Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально.
+				<SourceCode>1235_1</SourceCode>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ) РљРѕРґ РёСЃС‚РѕС‡РЅРёРєР° (РєРѕРґ Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР° Сѓ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ (РљРѕРјРїР°РЅРёСЏ РњР°Р№-Р‘СЂРµРЅРґСЃ)) РљРѕРґ РёСЃС‚РѕС‡РЅРёРєР° РІС‹СЃС‹Р»Р°РµС‚СЃСЏ РєР°Р¶РґРѕРјСѓ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂСѓ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕ.
 				<Stock>		
-					<WarehouseCode>TEST016</WarehouseCode>	Строка (50 символов)	Код склада у дистрибутора
-					<Date>25.08.2003</Date>	Формат ДД.ММ.ГГГГ	Дата – время московское
-					<Time>14:30</Time>	Формат ЧЧ:ММ	Время московское
+					<WarehouseCode>TEST016</WarehouseCode>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ СЃРєР»Р°РґР° Сѓ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР°
+					<Date>25.08.2003</Date>	Р¤РѕСЂРјР°С‚ Р”Р”.РњРњ.Р“Р“Р“Р“	Р”Р°С‚Р° вЂ“ РІСЂРµРјСЏ РјРѕСЃРєРѕРІСЃРєРѕРµ
+					<Time>14:30</Time>	Р¤РѕСЂРјР°С‚ Р§Р§:РњРњ	Р’СЂРµРјСЏ РјРѕСЃРєРѕРІСЃРєРѕРµ
 					<Items>		
 						<Item>		
-							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика Компания Май-Брендс
-							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
-							<Quantity>2.000</Quantity>	Число	Количество в пачках
-							<Amount>10</Amount>	Число	Стоимость в рублях согласно учетной политике дистрибутора
-							<GrossWeight>11</GrossWeight>	Число	Вес брутто по строке
+							<SupplierItemCode>123456</SupplierItemCode>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ С‚РѕРІР°СЂР° Сѓ РїРѕСЃС‚Р°РІС‰РёРєР° РљРѕРјРїР°РЅРёСЏ РњР°Р№-Р‘СЂРµРЅРґСЃ
+							<ItemDescription>Curtis Green 10 Рї.</ItemDescription>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	РќР°Р·РІР°РЅРёРµ
+							<Quantity>2.000</Quantity>	Р§РёСЃР»Рѕ	РљРѕР»РёС‡РµСЃС‚РІРѕ РІ РїР°С‡РєР°С…
+							<Amount>10</Amount>	Р§РёСЃР»Рѕ	РЎС‚РѕРёРјРѕСЃС‚СЊ РІ СЂСѓР±Р»СЏС… СЃРѕРіР»Р°СЃРЅРѕ СѓС‡РµС‚РЅРѕР№ РїРѕР»РёС‚РёРєРµ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР°
+							<GrossWeight>11</GrossWeight>	Р§РёСЃР»Рѕ	Р’РµСЃ Р±СЂСѓС‚С‚Рѕ РїРѕ СЃС‚СЂРѕРєРµ
 						</Item>		
 					</Items>		
 				</Stock>		
@@ -10599,9 +10607,9 @@ public:
 		out_file_name.SetLastSlash().Cat(temp_buf);
 		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 		{
-			SXml::WDoc _doc(p_x, cpUTF8);
+			SXml::WDoc _doc(p_x, cp1251);
 			SXml::WNode n_o(p_x, "Stocks");
-			n_o.PutInner("SourceCode", XmlUtf8EncText(CliCode));
+			n_o.PutInner("SourceCode", XmlCp1251EncText(CliCode));
 			const LDATE stock_date = checkdate(P.ExpPeriod.upp) ? P.ExpPeriod.upp : now_dtm.d;
 			for(uint locidx = 0; locidx < Ep.WhList.GetCount(); locidx++) {
 				const PPID loc_id = Ep.WhList.Get(locidx);
@@ -10623,8 +10631,8 @@ public:
 								P.LocList.Get(gp.LocList);
 								P_BObj->trfr->GetRest(gp);
 								SXml::WNode n_i(p_x, "Item");
-								n_i.PutInner("SupplierItemCode", XmlUtf8EncText(r_entry.ArCode));
-								n_i.PutInner("ItemDescription", XmlUtf8EncText(r_entry.Name));
+								n_i.PutInner("SupplierItemCode", XmlCp1251EncText(r_entry.ArCode));
+								n_i.PutInner("ItemDescription", XmlCp1251EncText(r_entry.Name));
 								n_i.PutInner("Quantity", temp_buf.Z().Cat(gp.Total.Rest, MKSFMTD(0, 3, 0)));
 								n_i.PutInner("Amount", temp_buf.Z().Cat(gp.Total.Cost, MKSFMTD(0, 2, 0)));
 								n_i.PutInner("GrossWeight", temp_buf.Z().Cat(gp.Total.Rest * r_entry.Brutto, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
@@ -10634,6 +10642,11 @@ public:
 				}
 			}
 		}
+		{
+			xmlFreeTextWriter(p_x);
+			p_x = 0;
+			rSsFileName.add(out_file_name); 
+		}
 		CATCHZOK
 		xmlFreeTextWriter(p_x);
 		return ok;
@@ -10641,40 +10654,40 @@ public:
 	int    SendInvoices(StringSet & rSsFileName)
 	{
 		/*
-		Унифицированный формат обмена информацией о накладных
+		РЈРЅРёС„РёС†РёСЂРѕРІР°РЅРЅС‹Р№ С„РѕСЂРјР°С‚ РѕР±РјРµРЅР° РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ РЅР°РєР»Р°РґРЅС‹С…
 			<Document-Invoices>		
-				<SourceCode>1235_1</SourceCode>	Строка (20) символов)	Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс))
-				Код источника высылается каждому дистрибутору персонально.
+				<SourceCode>1235_1</SourceCode>	РЎС‚СЂРѕРєР° (20) СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ РёСЃС‚РѕС‡РЅРёРєР° (РєРѕРґ Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР° Сѓ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ (РљРѕРјРїР°РЅРёСЏ РњР°Р№-Р‘СЂРµРЅРґСЃ))
+				РљРѕРґ РёСЃС‚РѕС‡РЅРёРєР° РІС‹СЃС‹Р»Р°РµС‚СЃСЏ РєР°Р¶РґРѕРјСѓ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂСѓ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕ.
 				<Document-Invoice>		
 					<Invoice-Header>		
-						<DocumentType>Invoice</DocumentType>	Строка (20 символов)	Тип накладной:
-							Invoice – накладная
-							InvoiceReturn - возврат товара из торговой точки дистрибутору
-							InvoiceMove – накладная на внутреннее перемещение
-							InvoiceReturnMove – возврат при внутреннем перемещении
-						<DocumentNumber>TEST016</DocumentNumber>	Строка (20 символов)	Номер накладной
-						<DocumentDate>25.08.2003</DocumentDate>	Формат ДД.ММ.ГГГГ	Дата накладной
-						<WarehouseAddress>TEST016</WarehouseAddress>	Строка (50 символов)	Адрес склада отгрузки (дистрибутора)
-						<BuyerBuyerCode>111</BuyerBuyerCode>	Строка (50 символов)	Код юридического лица  заказчика у дистрибутора
-						<INN>5900009920000</INN>	Строка (20 символов)	ИНН заказчика
-						<BuyerName>Юнек</BuyerName>	Строка (255 символов)	Название юридического лица  
-						<DeliveryPointBuyerCode>12345</DeliveryPointBuyerCode>	Строка (50 символов)	Код адреса доставки заказчика у дистрибутора. В случае отсутствия посылается пусто.
-						<Address>150061, г. Ярославль, пр. Ленина, д. 23</Address>	Строка (255 символов)	Адрес торговой точки
-						<ManagerBuyerCode>111</ManagerBuyerCode>	Строка (20 символов)	Код торгового представителя у дистрибутора
-						<ManagerName>Иванов Иван Иванович</ManagerName>	Строка (50 символов)	ФИО торгового представителя
-						<InvoiceNumber>027430200501356</InvoiceNumber>	Строка (50 символов)	Документ основание – ID документа, на основании которого сформирована накладная
-						<InvoiceSource>Да</InvoiceSource>	Строка (20 символов)	признак источника заказа (сайт или сайт посредника или торговая команда). Допустимые значения Да/Нет
-						<InvoiceSourceName>Maytea.com</InvoiceSourceName>	Строка (255 символов)	Название сайта/Вывеска – источника заказа. Если OrderedSource=Нет, оставлять пустым
+						<DocumentType>Invoice</DocumentType>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РўРёРї РЅР°РєР»Р°РґРЅРѕР№:
+							Invoice вЂ“ РЅР°РєР»Р°РґРЅР°СЏ
+							InvoiceReturn - РІРѕР·РІСЂР°С‚ С‚РѕРІР°СЂР° РёР· С‚РѕСЂРіРѕРІРѕР№ С‚РѕС‡РєРё РґРёСЃС‚СЂРёР±СѓС‚РѕСЂСѓ
+							InvoiceMove вЂ“ РЅР°РєР»Р°РґРЅР°СЏ РЅР° РІРЅСѓС‚СЂРµРЅРЅРµРµ РїРµСЂРµРјРµС‰РµРЅРёРµ
+							InvoiceReturnMove вЂ“ РІРѕР·РІСЂР°С‚ РїСЂРё РІРЅСѓС‚СЂРµРЅРЅРµРј РїРµСЂРµРјРµС‰РµРЅРёРё
+						<DocumentNumber>TEST016</DocumentNumber>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РќРѕРјРµСЂ РЅР°РєР»Р°РґРЅРѕР№
+						<DocumentDate>25.08.2003</DocumentDate>	Р¤РѕСЂРјР°С‚ Р”Р”.РњРњ.Р“Р“Р“Р“	Р”Р°С‚Р° РЅР°РєР»Р°РґРЅРѕР№
+						<WarehouseAddress>TEST016</WarehouseAddress>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	РђРґСЂРµСЃ СЃРєР»Р°РґР° РѕС‚РіСЂСѓР·РєРё (РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР°)
+						<BuyerBuyerCode>111</BuyerBuyerCode>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ СЋСЂРёРґРёС‡РµСЃРєРѕРіРѕ Р»РёС†Р°  Р·Р°РєР°Р·С‡РёРєР° Сѓ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР°
+						<INN>5900009920000</INN>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РРќРќ Р·Р°РєР°Р·С‡РёРєР°
+						<BuyerName>Р®РЅРµРє</BuyerName>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	РќР°Р·РІР°РЅРёРµ СЋСЂРёРґРёС‡РµСЃРєРѕРіРѕ Р»РёС†Р°  
+						<DeliveryPointBuyerCode>12345</DeliveryPointBuyerCode>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё Р·Р°РєР°Р·С‡РёРєР° Сѓ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР°. Р’ СЃР»СѓС‡Р°Рµ РѕС‚СЃСѓС‚СЃС‚РІРёСЏ РїРѕСЃС‹Р»Р°РµС‚СЃСЏ РїСѓСЃС‚Рѕ.
+						<Address>150061, Рі. РЇСЂРѕСЃР»Р°РІР»СЊ, РїСЂ. Р›РµРЅРёРЅР°, Рґ. 23</Address>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	РђРґСЂРµСЃ С‚РѕСЂРіРѕРІРѕР№ С‚РѕС‡РєРё
+						<ManagerBuyerCode>111</ManagerBuyerCode>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ С‚РѕСЂРіРѕРІРѕРіРѕ РїСЂРµРґСЃС‚Р°РІРёС‚РµР»СЏ Сѓ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР°
+						<ManagerName>РРІР°РЅРѕРІ РРІР°РЅ РРІР°РЅРѕРІРёС‡</ManagerName>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	Р¤РРћ С‚РѕСЂРіРѕРІРѕРіРѕ РїСЂРµРґСЃС‚Р°РІРёС‚РµР»СЏ
+						<InvoiceNumber>027430200501356</InvoiceNumber>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	Р”РѕРєСѓРјРµРЅС‚ РѕСЃРЅРѕРІР°РЅРёРµ вЂ“ ID РґРѕРєСѓРјРµРЅС‚Р°, РЅР° РѕСЃРЅРѕРІР°РЅРёРё РєРѕС‚РѕСЂРѕРіРѕ СЃС„РѕСЂРјРёСЂРѕРІР°РЅР° РЅР°РєР»Р°РґРЅР°СЏ
+						<InvoiceSource>Р”Р°</InvoiceSource>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РїСЂРёР·РЅР°Рє РёСЃС‚РѕС‡РЅРёРєР° Р·Р°РєР°Р·Р° (СЃР°Р№С‚ РёР»Рё СЃР°Р№С‚ РїРѕСЃСЂРµРґРЅРёРєР° РёР»Рё С‚РѕСЂРіРѕРІР°СЏ РєРѕРјР°РЅРґР°). Р”РѕРїСѓСЃС‚РёРјС‹Рµ Р·РЅР°С‡РµРЅРёСЏ Р”Р°/РќРµС‚
+						<InvoiceSourceName>Maytea.com</InvoiceSourceName>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	РќР°Р·РІР°РЅРёРµ СЃР°Р№С‚Р°/Р’С‹РІРµСЃРєР° вЂ“ РёСЃС‚РѕС‡РЅРёРєР° Р·Р°РєР°Р·Р°. Р•СЃР»Рё OrderedSource=РќРµС‚, РѕСЃС‚Р°РІР»СЏС‚СЊ РїСѓСЃС‚С‹Рј
 					</Invoice-Header>		
 					<Items>		
 						<Item>		
-							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика
-							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
-							<OrderedQuantity>2.000</OrderedQuantity>	Число	Заказанное количество в минимальных единицах (пачках). В случае возврата с минусом.
-							<Amount>60</Amount> Число	Сумма продажи в рублях с НДС. В случае возврата с минусом.
-							<GrossWeight>11</GrossWeight>	Число	Вес брутто по строке. В случае возврата с минусом.
-							<PriceName>Базовый 2021</PriceName>	Строка (100 символов)	Прайс лист клиента , поле передающее спецификацию Название прайс листа клиента или тип цены. Т.е. Цена по прейскуранту до применения к отпускной цене каких либо дисконтов или компенсационных скидок
-							<PriceAmount>8</PriceAmount>	Число	Цена по прайс листу клиента  -  передающее в абсолютном значении номинал отпускной цены.
+							<SupplierItemCode>123456</SupplierItemCode>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ С‚РѕРІР°СЂР° Сѓ РїРѕСЃС‚Р°РІС‰РёРєР°
+							<ItemDescription>Curtis Green 10 Рї.</ItemDescription>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	РќР°Р·РІР°РЅРёРµ
+							<OrderedQuantity>2.000</OrderedQuantity>	Р§РёСЃР»Рѕ	Р—Р°РєР°Р·Р°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РІ РјРёРЅРёРјР°Р»СЊРЅС‹С… РµРґРёРЅРёС†Р°С… (РїР°С‡РєР°С…). Р’ СЃР»СѓС‡Р°Рµ РІРѕР·РІСЂР°С‚Р° СЃ РјРёРЅСѓСЃРѕРј.
+							<Amount>60</Amount> Р§РёСЃР»Рѕ	РЎСѓРјРјР° РїСЂРѕРґР°Р¶Рё РІ СЂСѓР±Р»СЏС… СЃ РќР”РЎ. Р’ СЃР»СѓС‡Р°Рµ РІРѕР·РІСЂР°С‚Р° СЃ РјРёРЅСѓСЃРѕРј.
+							<GrossWeight>11</GrossWeight>	Р§РёСЃР»Рѕ	Р’РµСЃ Р±СЂСѓС‚С‚Рѕ РїРѕ СЃС‚СЂРѕРєРµ. Р’ СЃР»СѓС‡Р°Рµ РІРѕР·РІСЂР°С‚Р° СЃ РјРёРЅСѓСЃРѕРј.
+							<PriceName>Р‘Р°Р·РѕРІС‹Р№ 2021</PriceName>	РЎС‚СЂРѕРєР° (100 СЃРёРјРІРѕР»РѕРІ)	РџСЂР°Р№СЃ Р»РёСЃС‚ РєР»РёРµРЅС‚Р° , РїРѕР»Рµ РїРµСЂРµРґР°СЋС‰РµРµ СЃРїРµС†РёС„РёРєР°С†РёСЋ РќР°Р·РІР°РЅРёРµ РїСЂР°Р№СЃ Р»РёСЃС‚Р° РєР»РёРµРЅС‚Р° РёР»Рё С‚РёРї С†РµРЅС‹. Рў.Рµ. Р¦РµРЅР° РїРѕ РїСЂРµР№СЃРєСѓСЂР°РЅС‚Сѓ РґРѕ РїСЂРёРјРµРЅРµРЅРёСЏ Рє РѕС‚РїСѓСЃРєРЅРѕР№ С†РµРЅРµ РєР°РєРёС… Р»РёР±Рѕ РґРёСЃРєРѕРЅС‚РѕРІ РёР»Рё РєРѕРјРїРµРЅСЃР°С†РёРѕРЅРЅС‹С… СЃРєРёРґРѕРє
+							<PriceAmount>8</PriceAmount>	Р§РёСЃР»Рѕ	Р¦РµРЅР° РїРѕ РїСЂР°Р№СЃ Р»РёСЃС‚Сѓ РєР»РёРµРЅС‚Р°  -  РїРµСЂРµРґР°СЋС‰РµРµ РІ Р°Р±СЃРѕР»СЋС‚РЅРѕРј Р·РЅР°С‡РµРЅРёРё РЅРѕРјРёРЅР°Р» РѕС‚РїСѓСЃРєРЅРѕР№ С†РµРЅС‹.
 						</Item>		
 					</Items>		
 				</Document-Invoice>		
@@ -10699,9 +10712,9 @@ public:
 			}
 		}
 		{
-			SXml::WDoc _doc(p_x, cpUTF8);
+			SXml::WDoc _doc(p_x, cp1251);
 			SXml::WNode n_o(p_x, "Document-Invoices");
-			n_o.PutInner("SourceCode", XmlUtf8EncText(CliCode));
+			n_o.PutInner("SourceCode", XmlCp1251EncText(CliCode));
 			for(uint billidx = 0; billidx < bill_list.getCount(); billidx++) {
 				const BillPacket * p_pack = bill_list.at(billidx);
 				if(p_pack) {
@@ -10709,18 +10722,18 @@ public:
 					{
 						SXml::WNode n_h(p_x, "Invoice-Header");
 						n_h.PutInner("DocumentType", "Invoice");
-						n_h.PutInner("DocumentNumber", XmlUtf8EncText(p_pack->Code));
+						n_h.PutInner("DocumentNumber", XmlCp1251EncText(p_pack->Code));
 						n_h.PutInner("DocumentDate", temp_buf.Z().Cat(p_pack->Dt, DATF_GERMANCENT));
 						n_h.PutInner("WarehouseAddress", "");
 						n_h.PutInner("BuyerBuyerCode", temp_buf.Z().Cat(p_pack->ContractorID));
-						n_h.PutInner("INN", XmlUtf8EncText(p_pack->ContractorINN));
-						n_h.PutInner("BuyerName", XmlUtf8EncText(p_pack->ContractorName));
+						n_h.PutInner("INN", XmlCp1251EncText(p_pack->ContractorINN));
+						n_h.PutInner("BuyerName", XmlCp1251EncText(p_pack->ContractorName));
 						n_h.PutInner("DeliveryPointBuyerCode", temp_buf.Z().Cat(p_pack->DlvrLocID));
-						n_h.PutInner("Address", XmlUtf8EncText(p_pack->DlvrAddrText));
+						n_h.PutInner("Address", XmlCp1251EncText(p_pack->DlvrAddrText));
 						n_h.PutInner("ManagerBuyerCode", temp_buf.Z().Cat(p_pack->AgentID));
-						n_h.PutInner("ManagerName", XmlUtf8EncText(p_pack->AgentName));
-						n_h.PutInner("InvoiceNumber", XmlUtf8EncText(p_pack->Code));
-						n_h.PutInner("InvoiceSource", XmlUtf8EncText(PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_NO, temp_buf)));
+						n_h.PutInner("ManagerName", XmlCp1251EncText(p_pack->AgentName));
+						n_h.PutInner("InvoiceNumber", XmlCp1251EncText(p_pack->Code));
+						n_h.PutInner("InvoiceSource", XmlCp1251EncText(PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_NO, temp_buf)));
 						n_h.PutInner("InvoiceSourceName", "");
 					}
 					{
@@ -10730,8 +10743,8 @@ public:
 							const GoodsEntry * p_goods_entry = SearchGoodsEntry(GoodsList, r_item.GoodsID);
 							if(p_goods_entry) {
 								SXml::WNode n_i(p_x, "Item");
-								n_i.PutInner("SupplierItemCode", XmlUtf8EncText(r_item.ArCode));
-								n_i.PutInner("ItemDescription", XmlUtf8EncText(p_goods_entry->Name));
+								n_i.PutInner("SupplierItemCode", XmlCp1251EncText(r_item.ArCode));
+								n_i.PutInner("ItemDescription", XmlCp1251EncText(p_goods_entry->Name));
 								n_i.PutInner("OrderedQuantity", temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, 0)));
 								n_i.PutInner("Amount", temp_buf.Z().Cat(r_item.Amount, MKSFMTD(0, 2, 0)));
 								n_i.PutInner("GrossWeight", temp_buf.Z().Cat(r_item.Brutto, MKSFMTD(0, 3, 0)));
@@ -10743,6 +10756,11 @@ public:
 				}
 			}
 		}
+		{
+			xmlFreeTextWriter(p_x);
+			p_x = 0;
+			rSsFileName.add(out_file_name); 
+		}
 		CATCHZOK
 		xmlFreeTextWriter(p_x);
 		return ok;
@@ -10750,33 +10768,33 @@ public:
 	int    SendOrders(StringSet & rSsFileName)
 	{
 		/*
-		Унифицированный формат обмена информацией о заказах
+		РЈРЅРёС„РёС†РёСЂРѕРІР°РЅРЅС‹Р№ С„РѕСЂРјР°С‚ РѕР±РјРµРЅР° РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ Р·Р°РєР°Р·Р°С…
 			<Document-Orders>		
-				<SourceCode>1235_1</SourceCode>	Строка (20 символов) Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально.
+				<SourceCode>1235_1</SourceCode>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ) РљРѕРґ РёСЃС‚РѕС‡РЅРёРєР° (РєРѕРґ Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР° Сѓ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ (РљРѕРјРїР°РЅРёСЏ РњР°Р№-Р‘СЂРµРЅРґСЃ)) РљРѕРґ РёСЃС‚РѕС‡РЅРёРєР° РІС‹СЃС‹Р»Р°РµС‚СЃСЏ РєР°Р¶РґРѕРјСѓ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂСѓ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕ.
 				<Document-Order>		
 					<Order-Header>		
-						<DocumentNumber>TEST016</DocumentNumber>	Строка (20 символов)	Номер заказа
-						<DocumentDate>25.08.2003</DocumentDate>	Формат ДД.ММ.ГГГГ	Дата заказа
-						<ExpectedDeliveryDate>25.08.2003</ExpectedDeliveryDate>	Формат ДД.ММ.ГГГГ	Ожидаемая дата поставки
-						<BuyerBuyerCode>111</BuyerBuyerCode>	Строка (50 символов)	Код юридического лица  заказчика у дистрибутора
-						<INN>5900009920000</INN>	Строка (20 символов)	ИНН заказчика
-						<BuyerName>Юнек</BuyerName>	Строка (255 символов)	Название юридического лица  
-						<DeliveryPointBuyerCode>12345</DeliveryPointBuyerCode>	Строка (50 символов)	Код адреса доставки заказчика у дистрибутора. В случае отсутствия посылается пусто.
-						<Address>150061, г. Ярославль, пр. Ленина, д. 23</Address>	Строка (255 символов)	Адрес торговой точки
-						<ManagerBuyerCode>111</ManagerBuyerCode>	Строка (20 символов)	Код торгового представителя у дистрибутора
-						<ManagerName>Иванов Иван Иванович</ManagerName>	Строка (50 символов)	ФИО торгового представителя
-						<OrderedSource>Да</OrderedSource>	Строка (20 символов)	признак источника заказа (сайт или сайт посредника или торговая команда). Допустимые значения Да/Нет
-						<OrderedSourceName>Maytea.com</OrderedSourceName>	Строка (255 символов)	Название сайта/Вывеска – источника заказа. Если OrderedSource=Нет, оставлять пустым
+						<DocumentNumber>TEST016</DocumentNumber>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РќРѕРјРµСЂ Р·Р°РєР°Р·Р°
+						<DocumentDate>25.08.2003</DocumentDate>	Р¤РѕСЂРјР°С‚ Р”Р”.РњРњ.Р“Р“Р“Р“	Р”Р°С‚Р° Р·Р°РєР°Р·Р°
+						<ExpectedDeliveryDate>25.08.2003</ExpectedDeliveryDate>	Р¤РѕСЂРјР°С‚ Р”Р”.РњРњ.Р“Р“Р“Р“	РћР¶РёРґР°РµРјР°СЏ РґР°С‚Р° РїРѕСЃС‚Р°РІРєРё
+						<BuyerBuyerCode>111</BuyerBuyerCode>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ СЋСЂРёРґРёС‡РµСЃРєРѕРіРѕ Р»РёС†Р°  Р·Р°РєР°Р·С‡РёРєР° Сѓ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР°
+						<INN>5900009920000</INN>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РРќРќ Р·Р°РєР°Р·С‡РёРєР°
+						<BuyerName>Р®РЅРµРє</BuyerName>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	РќР°Р·РІР°РЅРёРµ СЋСЂРёРґРёС‡РµСЃРєРѕРіРѕ Р»РёС†Р°  
+						<DeliveryPointBuyerCode>12345</DeliveryPointBuyerCode>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё Р·Р°РєР°Р·С‡РёРєР° Сѓ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР°. Р’ СЃР»СѓС‡Р°Рµ РѕС‚СЃСѓС‚СЃС‚РІРёСЏ РїРѕСЃС‹Р»Р°РµС‚СЃСЏ РїСѓСЃС‚Рѕ.
+						<Address>150061, Рі. РЇСЂРѕСЃР»Р°РІР»СЊ, РїСЂ. Р›РµРЅРёРЅР°, Рґ. 23</Address>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	РђРґСЂРµСЃ С‚РѕСЂРіРѕРІРѕР№ С‚РѕС‡РєРё
+						<ManagerBuyerCode>111</ManagerBuyerCode>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ С‚РѕСЂРіРѕРІРѕРіРѕ РїСЂРµРґСЃС‚Р°РІРёС‚РµР»СЏ Сѓ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР°
+						<ManagerName>РРІР°РЅРѕРІ РРІР°РЅ РРІР°РЅРѕРІРёС‡</ManagerName>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	Р¤РРћ С‚РѕСЂРіРѕРІРѕРіРѕ РїСЂРµРґСЃС‚Р°РІРёС‚РµР»СЏ
+						<OrderedSource>Р”Р°</OrderedSource>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РїСЂРёР·РЅР°Рє РёСЃС‚РѕС‡РЅРёРєР° Р·Р°РєР°Р·Р° (СЃР°Р№С‚ РёР»Рё СЃР°Р№С‚ РїРѕСЃСЂРµРґРЅРёРєР° РёР»Рё С‚РѕСЂРіРѕРІР°СЏ РєРѕРјР°РЅРґР°). Р”РѕРїСѓСЃС‚РёРјС‹Рµ Р·РЅР°С‡РµРЅРёСЏ Р”Р°/РќРµС‚
+						<OrderedSourceName>Maytea.com</OrderedSourceName>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	РќР°Р·РІР°РЅРёРµ СЃР°Р№С‚Р°/Р’С‹РІРµСЃРєР° вЂ“ РёСЃС‚РѕС‡РЅРёРєР° Р·Р°РєР°Р·Р°. Р•СЃР»Рё OrderedSource=РќРµС‚, РѕСЃС‚Р°РІР»СЏС‚СЊ РїСѓСЃС‚С‹Рј
 					</Order-Header>		
 					<Items>		
 						<Item>		
-							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика
-							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
-							<OrderedQuantity>2.000</OrderedQuantity>	Число	Заказанное количество в пачках
-							<Amount>10</Amount>	Число	Стоимость в рублях с учетом НДС
-							<GrossWeight>11</GrossWeight>	Число	Вес брутто по строке в кг.
-							<PriceName>Базовый 2021</PriceName>	Строка (100 символов)	Прайс лист клиента , поле передающее спецификацию Название прайс листа клиента или тип цены. Т.е. Цена по прейскуранту до применения к отпускной цене каких либо дисконтов или компенсационных скидок
-							<PriceAmount>8</PriceAmount>	Число	Цена по прайс листу клиента  -  передающее в абсолютном значении номинал отпускной цены.
+							<SupplierItemCode>123456</SupplierItemCode>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ С‚РѕРІР°СЂР° Сѓ РїРѕСЃС‚Р°РІС‰РёРєР°
+							<ItemDescription>Curtis Green 10 Рї.</ItemDescription>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	РќР°Р·РІР°РЅРёРµ
+							<OrderedQuantity>2.000</OrderedQuantity>	Р§РёСЃР»Рѕ	Р—Р°РєР°Р·Р°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РІ РїР°С‡РєР°С…
+							<Amount>10</Amount>	Р§РёСЃР»Рѕ	РЎС‚РѕРёРјРѕСЃС‚СЊ РІ СЂСѓР±Р»СЏС… СЃ СѓС‡РµС‚РѕРј РќР”РЎ
+							<GrossWeight>11</GrossWeight>	Р§РёСЃР»Рѕ	Р’РµСЃ Р±СЂСѓС‚С‚Рѕ РїРѕ СЃС‚СЂРѕРєРµ РІ РєРі.
+							<PriceName>Р‘Р°Р·РѕРІС‹Р№ 2021</PriceName>	РЎС‚СЂРѕРєР° (100 СЃРёРјРІРѕР»РѕРІ)	РџСЂР°Р№СЃ Р»РёСЃС‚ РєР»РёРµРЅС‚Р° , РїРѕР»Рµ РїРµСЂРµРґР°СЋС‰РµРµ СЃРїРµС†РёС„РёРєР°С†РёСЋ РќР°Р·РІР°РЅРёРµ РїСЂР°Р№СЃ Р»РёСЃС‚Р° РєР»РёРµРЅС‚Р° РёР»Рё С‚РёРї С†РµРЅС‹. Рў.Рµ. Р¦РµРЅР° РїРѕ РїСЂРµР№СЃРєСѓСЂР°РЅС‚Сѓ РґРѕ РїСЂРёРјРµРЅРµРЅРёСЏ Рє РѕС‚РїСѓСЃРєРЅРѕР№ С†РµРЅРµ РєР°РєРёС… Р»РёР±Рѕ РґРёСЃРєРѕРЅС‚РѕРІ РёР»Рё РєРѕРјРїРµРЅСЃР°С†РёРѕРЅРЅС‹С… СЃРєРёРґРѕРє
+							<PriceAmount>8</PriceAmount>	Р§РёСЃР»Рѕ	Р¦РµРЅР° РїРѕ РїСЂР°Р№СЃ Р»РёСЃС‚Сѓ РєР»РёРµРЅС‚Р°  -  РїРµСЂРµРґР°СЋС‰РµРµ РІ Р°Р±СЃРѕР»СЋС‚РЅРѕРј Р·РЅР°С‡РµРЅРёРё РЅРѕРјРёРЅР°Р» РѕС‚РїСѓСЃРєРЅРѕР№ С†РµРЅС‹.
 						</Item>
 					</Items>
 				</Document-Order>
@@ -10803,28 +10821,28 @@ public:
 			}
 		}
 		{
-			SXml::WDoc _doc(p_x, cpUTF8);
+			SXml::WDoc _doc(p_x, cp1251);
 			SXml::WNode n_o(p_x, "Document-Orders");
-			n_o.PutInner("SourceCode", XmlUtf8EncText(CliCode));
+			n_o.PutInner("SourceCode", XmlCp1251EncText(CliCode));
 			for(uint billidx = 0; billidx < bill_list.getCount(); billidx++) {
 				const BillPacket * p_pack = bill_list.at(billidx);
 				SXml::WNode n_s(p_x, "Document-Order");
 				{
 					SXml::WNode n_h(p_x, "Order-Header");
-					n_h.PutInner("DocumentNumber", XmlUtf8EncText(p_pack->Code));
+					n_h.PutInner("DocumentNumber", XmlCp1251EncText(p_pack->Code));
 					n_h.PutInner("DocumentDate", temp_buf.Z().Cat(p_pack->Dt, DATF_GERMANCENT));
 					{
 						const LDATE due_date = checkdate(p_pack->DueDt) ? p_pack->DueDt : p_pack->Dt;
 						n_h.PutInner("ExpectedDeliveryDate", temp_buf.Z().Cat(due_date, DATF_GERMANCENT));
 					}
 					n_h.PutInner("BuyerBuyerCode", "");
-					n_h.PutInner("INN", XmlUtf8EncText(p_pack->ContractorINN));
-					n_h.PutInner("BuyerName", XmlUtf8EncText(p_pack->ContractorName));
+					n_h.PutInner("INN", XmlCp1251EncText(p_pack->ContractorINN));
+					n_h.PutInner("BuyerName", XmlCp1251EncText(p_pack->ContractorName));
 					n_h.PutInner("DeliveryPointBuyerCode", "");
 					n_h.PutInner("Address", "");
 					n_h.PutInner("ManagerBuyerCode", temp_buf.Z().Cat(p_pack->AgentID));
-					n_h.PutInner("ManagerName", XmlUtf8EncText(p_pack->AgentName));
-					n_h.PutInner("OrderedSource", XmlUtf8EncText(PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_NO, temp_buf)));
+					n_h.PutInner("ManagerName", XmlCp1251EncText(p_pack->AgentName));
+					n_h.PutInner("OrderedSource", XmlCp1251EncText(PPLoadStringS(PPSTR_HASHTOKEN_C, PPHSC_RU_NO, temp_buf)));
 					n_h.PutInner("OrderedSourceName", "");
 				}
 				{
@@ -10834,8 +10852,8 @@ public:
 						const GoodsEntry * p_goods_entry = SearchGoodsEntry(GoodsList, r_item.GoodsID);
 						if(p_goods_entry) {
 							SXml::WNode n_i(p_x, "Item");
-							n_i.PutInner("SupplierItemCode", XmlUtf8EncText(r_item.ArCode));
-							n_i.PutInner("ItemDescription", XmlUtf8EncText(p_goods_entry->Name));
+							n_i.PutInner("SupplierItemCode", XmlCp1251EncText(r_item.ArCode));
+							n_i.PutInner("ItemDescription", XmlCp1251EncText(p_goods_entry->Name));
 							n_i.PutInner("OrderedQuantity", temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, 0)));
 							n_i.PutInner("Amount", temp_buf.Z().Cat(r_item.Amount, MKSFMTD(0, 2, 0)));
 							n_i.PutInner("GrossWeight", temp_buf.Z().Cat(r_item.Brutto, MKSFMTD(0, 3, 0)));
@@ -10846,6 +10864,11 @@ public:
 				}
 			}
 		}
+		{
+			xmlFreeTextWriter(p_x);
+			p_x = 0;
+			rSsFileName.add(out_file_name); 
+		}
 		CATCHZOK
 		xmlFreeTextWriter(p_x);
 		return ok;
@@ -10853,28 +10876,28 @@ public:
 	int    SendReceipts(StringSet & rSsFileName)
 	{
 		/*
-		Унифицированный формат обмена информацией о приходе товара
+		РЈРЅРёС„РёС†РёСЂРѕРІР°РЅРЅС‹Р№ С„РѕСЂРјР°С‚ РѕР±РјРµРЅР° РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ РїСЂРёС…РѕРґРµ С‚РѕРІР°СЂР°
 			<Document-Receipts>		
-				<SourceCode>1235_1</SourceCode>	Строка (20 символов)	Код источника (код адреса доставки дистрибутора у производителя (Компания Май-Брендс)) Код источника высылается каждому дистрибутору персонально.
+				<SourceCode>1235_1</SourceCode>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ РёСЃС‚РѕС‡РЅРёРєР° (РєРѕРґ Р°РґСЂРµСЃР° РґРѕСЃС‚Р°РІРєРё РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР° Сѓ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏ (РљРѕРјРїР°РЅРёСЏ РњР°Р№-Р‘СЂРµРЅРґСЃ)) РљРѕРґ РёСЃС‚РѕС‡РЅРёРєР° РІС‹СЃС‹Р»Р°РµС‚СЃСЏ РєР°Р¶РґРѕРјСѓ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂСѓ РїРµСЂСЃРѕРЅР°Р»СЊРЅРѕ.
 				<Document-Receipt>		
 					<Receipt-Header>		
-						<DocumentType>Receipt</DocumentType>	Строка (20 символов)	Тип документа:
-							Receipt – приходная накладная от Компании Май-Брендс к дистрибутору
-							ReceiptReturn – возврат товара  от дистрибутора в  Компанию Май-Брендс
-							ReceiptMove – приходная накладная при внутреннем перемещении
-							ReceiptReturnMove – возврат при внутреннем перемещении
-						<ReceiptNumber>TEST016</ReceiptNumber>	Строка (20 символов)	Номер приходной накладной
-						<DocumentDate>25.08.2003</DocumentDate>	Формат ДД.ММ.ГГГГ	Дата приходной накладной
-						<Date>25.08.2003</Date>	Формат ДД.ММ.ГГГГ	Фактическая дата поставки
-						<WarehouseAddress>TEST016</WarehouseAddress>	Строка (50 символов)	Адрес склада прихода  (дистрибутора)
+						<DocumentType>Receipt</DocumentType>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РўРёРї РґРѕРєСѓРјРµРЅС‚Р°:
+							Receipt вЂ“ РїСЂРёС…РѕРґРЅР°СЏ РЅР°РєР»Р°РґРЅР°СЏ РѕС‚ РљРѕРјРїР°РЅРёРё РњР°Р№-Р‘СЂРµРЅРґСЃ Рє РґРёСЃС‚СЂРёР±СѓС‚РѕСЂСѓ
+							ReceiptReturn вЂ“ РІРѕР·РІСЂР°С‚ С‚РѕРІР°СЂР°  РѕС‚ РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР° РІ  РљРѕРјРїР°РЅРёСЋ РњР°Р№-Р‘СЂРµРЅРґСЃ
+							ReceiptMove вЂ“ РїСЂРёС…РѕРґРЅР°СЏ РЅР°РєР»Р°РґРЅР°СЏ РїСЂРё РІРЅСѓС‚СЂРµРЅРЅРµРј РїРµСЂРµРјРµС‰РµРЅРёРё
+							ReceiptReturnMove вЂ“ РІРѕР·РІСЂР°С‚ РїСЂРё РІРЅСѓС‚СЂРµРЅРЅРµРј РїРµСЂРµРјРµС‰РµРЅРёРё
+						<ReceiptNumber>TEST016</ReceiptNumber>	РЎС‚СЂРѕРєР° (20 СЃРёРјРІРѕР»РѕРІ)	РќРѕРјРµСЂ РїСЂРёС…РѕРґРЅРѕР№ РЅР°РєР»Р°РґРЅРѕР№
+						<DocumentDate>25.08.2003</DocumentDate>	Р¤РѕСЂРјР°С‚ Р”Р”.РњРњ.Р“Р“Р“Р“	Р”Р°С‚Р° РїСЂРёС…РѕРґРЅРѕР№ РЅР°РєР»Р°РґРЅРѕР№
+						<Date>25.08.2003</Date>	Р¤РѕСЂРјР°С‚ Р”Р”.РњРњ.Р“Р“Р“Р“	Р¤Р°РєС‚РёС‡РµСЃРєР°СЏ РґР°С‚Р° РїРѕСЃС‚Р°РІРєРё
+						<WarehouseAddress>TEST016</WarehouseAddress>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	РђРґСЂРµСЃ СЃРєР»Р°РґР° РїСЂРёС…РѕРґР°  (РґРёСЃС‚СЂРёР±СѓС‚РѕСЂР°)
 					</Receipt-Header>		
 					<Items>		
 						<Item>		
-							<SupplierItemCode>123456</SupplierItemCode>	Строка (50 символов)	Код товара у поставщика
-							<ItemDescription>Curtis Green 10 п.</ItemDescription>	Строка (255 символов)	Название
-							<OrderedQuantity>2.000</OrderedQuantity>	Число	Заказанное количество в минимальных единицах (пачках). В случае возврата с минусом.
-							<Amount>60</Amount> Число	Сумма покупки в рублях с НДС. В случае возврата с минусом.
-							<GrossWeight>11</GrossWeight>	Число	Вес брутто по строке. В случае возврата с минусом.
+							<SupplierItemCode>123456</SupplierItemCode>	РЎС‚СЂРѕРєР° (50 СЃРёРјРІРѕР»РѕРІ)	РљРѕРґ С‚РѕРІР°СЂР° Сѓ РїРѕСЃС‚Р°РІС‰РёРєР°
+							<ItemDescription>Curtis Green 10 Рї.</ItemDescription>	РЎС‚СЂРѕРєР° (255 СЃРёРјРІРѕР»РѕРІ)	РќР°Р·РІР°РЅРёРµ
+							<OrderedQuantity>2.000</OrderedQuantity>	Р§РёСЃР»Рѕ	Р—Р°РєР°Р·Р°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РІ РјРёРЅРёРјР°Р»СЊРЅС‹С… РµРґРёРЅРёС†Р°С… (РїР°С‡РєР°С…). Р’ СЃР»СѓС‡Р°Рµ РІРѕР·РІСЂР°С‚Р° СЃ РјРёРЅСѓСЃРѕРј.
+							<Amount>60</Amount> Р§РёСЃР»Рѕ	РЎСѓРјРјР° РїРѕРєСѓРїРєРё РІ СЂСѓР±Р»СЏС… СЃ РќР”РЎ. Р’ СЃР»СѓС‡Р°Рµ РІРѕР·РІСЂР°С‚Р° СЃ РјРёРЅСѓСЃРѕРј.
+							<GrossWeight>11</GrossWeight>	Р§РёСЃР»Рѕ	Р’РµСЃ Р±СЂСѓС‚С‚Рѕ РїРѕ СЃС‚СЂРѕРєРµ. Р’ СЃР»СѓС‡Р°Рµ РІРѕР·РІСЂР°С‚Р° СЃ РјРёРЅСѓСЃРѕРј.
 						</Item>		
 					</Items>		
 				</Document-Receipt>		
@@ -10899,16 +10922,16 @@ public:
 			}
 		}
 		{
-			SXml::WDoc _doc(p_x, cpUTF8);
+			SXml::WDoc _doc(p_x, cp1251);
 			SXml::WNode n_o(p_x, "Document-Receipts");
-			n_o.PutInner("SourceCode", XmlUtf8EncText(CliCode));
+			n_o.PutInner("SourceCode", XmlCp1251EncText(CliCode));
 			for(uint billidx = 0; billidx < bill_list.getCount(); billidx++) {
 				const BillPacket * p_pack = bill_list.at(billidx);
 				SXml::WNode n_s(p_x, "Document-Receipt");
 				{
 					SXml::WNode n_h(p_x, "Receipt-Header");
 					n_h.PutInner("DocumentType", "Receipt");
-					n_h.PutInner("ReceiptNumber", XmlUtf8EncText(p_pack->Code));
+					n_h.PutInner("ReceiptNumber", XmlCp1251EncText(p_pack->Code));
 					n_h.PutInner("DocumentDate", temp_buf.Z().Cat(p_pack->Dt, DATF_GERMANCENT));
 					n_h.PutInner("Date", temp_buf.Z().Cat(p_pack->Dt, DATF_GERMANCENT));
 					n_h.PutInner("WarehouseAddress", "");
@@ -10920,8 +10943,8 @@ public:
 						const GoodsEntry * p_goods_entry = SearchGoodsEntry(GoodsList, r_item.GoodsID);
 						if(p_goods_entry) {
 							SXml::WNode n_i(p_x, "Item");
-							n_i.PutInner("SupplierItemCode", XmlUtf8EncText(r_item.ArCode));
-							n_i.PutInner("ItemDescription", XmlUtf8EncText(p_goods_entry->Name));
+							n_i.PutInner("SupplierItemCode", XmlCp1251EncText(r_item.ArCode));
+							n_i.PutInner("ItemDescription", XmlCp1251EncText(p_goods_entry->Name));
 							n_i.PutInner("OrderedQuantity", temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, 0)));
 							n_i.PutInner("Amount", temp_buf.Z().Cat(r_item.Amount, MKSFMTD(0, 2, 0)));
 							n_i.PutInner("GrossWeight", temp_buf.Z().Cat(r_item.Brutto, MKSFMTD(0, 3, 0)));
@@ -10930,6 +10953,11 @@ public:
 				}
 			}
 		}
+		{
+			xmlFreeTextWriter(p_x);
+			p_x = 0;
+			rSsFileName.add(out_file_name); 
+		}
 		CATCHZOK
 		xmlFreeTextWriter(p_x);
 		return ok;
@@ -10937,6 +10965,42 @@ public:
 	int    TransmitFiles(const StringSet & rFileNameSet)
 	{
 		int    ok = -1;
+		SString temp_buf;
+		SString msg_buf;
+		SString file_name;
+		SString remote_addr;
+		SString accs_name;
+		SString accs_passw;
+		SString dest_root;
+		SUniformFileTransmParam uftp;
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssRemoteAddr, remote_addr);
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsName, accs_name);
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsPassw, accs_passw);
+		if(remote_addr.NotEmptyS()) {
+			dest_root = remote_addr;
+			for(uint ssp = 0; rFileNameSet.get(&ssp, file_name);) {
+				if(fileExists(file_name)) {
+					SFsPath ps(file_name);
+					uftp.SrcPath = file_name;
+					{
+						uftp.DestPath = dest_root;
+						uftp.AccsName = accs_name;
+						uftp.AccsPassword = accs_passw;
+						PPLoadTextS(PPTXT_SENDSUPPLIXDATA, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat(uftp.DestPath);
+						if(uftp.Run(0, 0)) {
+							PPLoadTextS(PPTXT_SUPPLIXDATASENT, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat(uftp.DestPath);
+							ok = 1;
+						}
+						else {
+							ok = PPSetError(PPERR_SLIB);
+							PPGetLastErrorMessage(1, temp_buf);
+							PPLoadTextS(PPTXT_SENDSUPPLIXDATAFAULT, msg_buf).CatDiv(':', 2).Cat(temp_buf);
+						}
+						R_Logger.Log(msg_buf);
+					}
+				}
+			}
+		}
 		return ok;
 	}
 private:
@@ -11004,7 +11068,6 @@ public:
 	SString & MakeFileName(const char * pPrefix, const char * pInn, const char * pGln, const char * pDocNumber, SString & rBuf);
 	int    SendRest(StringSet & rSsFileName);
 	int    SendSales(StringSet & rSsFileName);
-	// @v12.0.5 @construction {
 	int    TransmitFiles(const StringSet & rFileNameSet)
 	{
 		int    ok = -1;
@@ -11046,7 +11109,6 @@ public:
 		}
 		return ok;
 	}
-	// } @v12.0.5 @construction
 private:
 	struct GoodsEntry {
 		GoodsEntry()
@@ -11083,7 +11145,7 @@ private:
 			double VatRate;
 		};
 		PPID   ID;
-		PPID   OrderBillID; // Ид документа заказа, по которому осуществляется отгрузка
+		PPID   OrderBillID; // РРґ РґРѕРєСѓРјРµРЅС‚Р° Р·Р°РєР°Р·Р°, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РѕС‚РіСЂСѓР·РєР°
 		char   Code[48];
 		char   ContractorCityName[48];
 		char   ContractorINN[16];
@@ -11144,12 +11206,12 @@ SString & Ostankino::MakeFileName(const char * pPrefix, const char * pInn, const
 	/*
 		DESADV_532111776395_3522003778_00000024420.xml 
 
-		DESADV – вид выгружаемого документа 
-		532111776395 – ИНН организации
-		3522003778 – GLN торговой точки
-		00000024420 – Номер документа
+		DESADV вЂ“ РІРёРґ РІС‹РіСЂСѓР¶Р°РµРјРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° 
+		532111776395 вЂ“ РРќРќ РѕСЂРіР°РЅРёР·Р°С†РёРё
+		3522003778 вЂ“ GLN С‚РѕСЂРіРѕРІРѕР№ С‚РѕС‡РєРё
+		00000024420 вЂ“ РќРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р°
 
-		Если уникальность номера заказа и реализации менее года – в конце имени файла указывается дата документа, например: 
+		Р•СЃР»Рё СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ РЅРѕРјРµСЂР° Р·Р°РєР°Р·Р° Рё СЂРµР°Р»РёР·Р°С†РёРё РјРµРЅРµРµ РіРѕРґР° вЂ“ РІ РєРѕРЅС†Рµ РёРјРµРЅРё С„Р°Р№Р»Р° СѓРєР°Р·С‹РІР°РµС‚СЃСЏ РґР°С‚Р° РґРѕРєСѓРјРµРЅС‚Р°, РЅР°РїСЂРёРјРµСЂ: 
 
 		DESADV_532111776395_3522003778_00000024420_20181025.xml 
 
@@ -11175,13 +11237,13 @@ int Ostankino::SendRest(StringSet & rSsFileName)
 	}
 	//
 	/*
-		Имя файла выгрузки фактических остатков: 
+		РРјСЏ С„Р°Р№Р»Р° РІС‹РіСЂСѓР·РєРё С„Р°РєС‚РёС‡РµСЃРєРёС… РѕСЃС‚Р°С‚РєРѕРІ: 
 
-		ACTREM_532111776395_20180530.xml, где 
+		ACTREM_532111776395_20180530.xml, РіРґРµ 
 
-		ACTREM – вид выгружаемого документа 
-		532111776395 – ИНН организации
-		20180530 – дата выгрузки данных из учетной системы
+		ACTREM вЂ“ РІРёРґ РІС‹РіСЂСѓР¶Р°РµРјРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° 
+		532111776395 вЂ“ РРќРќ РѕСЂРіР°РЅРёР·Р°С†РёРё
+		20180530 вЂ“ РґР°С‚Р° РІС‹РіСЂСѓР·РєРё РґР°РЅРЅС‹С… РёР· СѓС‡РµС‚РЅРѕР№ СЃРёСЃС‚РµРјС‹
 	*/
 	//
 	temp_buf.Z().Cat("ACTREM").CatChar('_').Cat(own_inn_buf).CatChar('_').Cat(now_dtm.d, DATF_ISO8601CENT|DATF_NODIV).Dot().Cat("xml");
@@ -11194,24 +11256,24 @@ int Ostankino::SendRest(StringSet & rSsFileName)
 		SXml::WDoc _doc(p_x, cpUTF8);
 		{
 			SXml::WNode n_o(p_x, "ACTREM");
-			n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DATE), temp_buf.Z().Cat(now_dtm.d, DATF_ISO8601CENT)); //Дата
+			n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DATE), temp_buf.Z().Cat(now_dtm.d, DATF_ISO8601CENT)); //Р”Р°С‚Р°
 			{
 				SXml::WNode n_h(p_x, "HEAD");
-				n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORGANIZATION), own_inn_buf); //Организация
+				n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORGANIZATION), own_inn_buf); //РћСЂРіР°РЅРёР·Р°С†РёСЏ
 				for(uint i = 0; i < GoodsList.getCount(); i++) {
 					const GoodsEntry & r_goods_entry = GoodsList.at(i);
-					SXml::WNode n_g(p_x, Helper_GetToken(PPHSC_AGPLUS_GOODSITEMS_CAPS)); //ТОВАРЫ
+					SXml::WNode n_g(p_x, Helper_GetToken(PPHSC_AGPLUS_GOODSITEMS_CAPS)); //РўРћР’РђР Р«
 					GoodsRestParam gp;
-					gp.GoodsID = r_goods_entry.ID; // @v12.0.9 @fix (поверить не могу, что я не вставил этот критерий :( )
+					gp.GoodsID = r_goods_entry.ID; // @v12.0.9 @fix (РїРѕРІРµСЂРёС‚СЊ РЅРµ РјРѕРіСѓ, С‡С‚Рѕ СЏ РЅРµ РІСЃС‚Р°РІРёР» СЌС‚РѕС‚ РєСЂРёС‚РµСЂРёР№ :( )
 					gp.Date = now_dtm.d;
 					P.LocList.Get(gp.LocList);
 					P_BObj->trfr->GetRest(gp);
 					/*
-						<НомерСтроки>2</НомерСтроки>
-						<Артикул>1001010014002</Артикул>
-						<Количество>7.567</Количество>
-						<ЕдиницаИзмерения>KGM</ЕдиницаИзмерения>
-						<Наименование>Докторская ГОСТ вар ц/о в/у</Наименование>
+						<РќРѕРјРµСЂРЎС‚СЂРѕРєРё>2</РќРѕРјРµСЂРЎС‚СЂРѕРєРё>
+						<РђСЂС‚РёРєСѓР»>1001010014002</РђСЂС‚РёРєСѓР»>
+						<РљРѕР»РёС‡РµСЃС‚РІРѕ>7.567</РљРѕР»РёС‡РµСЃС‚РІРѕ>
+						<Р•РґРёРЅРёС†Р°РР·РјРµСЂРµРЅРёСЏ>KGM</Р•РґРёРЅРёС†Р°РР·РјРµСЂРµРЅРёСЏ>
+						<РќР°РёРјРµРЅРѕРІР°РЅРёРµ>Р”РѕРєС‚РѕСЂСЃРєР°СЏ Р“РћРЎРў РІР°СЂ С†/Рѕ РІ/Сѓ</РќР°РёРјРµРЅРѕРІР°РЅРёРµ>
 					*/
 					n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_LINENO), temp_buf.Z().Cat(i+1));
 					//XmlEncText(0);
@@ -11286,145 +11348,74 @@ int Ostankino::SendSales(StringSet & rSsFileName)
 						local_gln_buf = "empty-gln";
 					MakeFileName("DESADV", own_inn_buf, local_gln_buf, p_pack->Code, temp_buf);
 				}
-				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+				temp_buf.Transf(CTRANSF_INNER_TO_UTF8); // @v12.1.0 CTRANSF_INNER_TO_OUTER-->CTRANSF_INNER_TO_UTF8
 				PPGetPath(PPPATH_OUT, out_file_name);
 				out_file_name.SetLastSlash().Cat("ostankino");
 				SFile::CreateDir(out_file_name);
 				out_file_name.SetLastSlash().Cat(temp_buf);
 				THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
-				SXml::WDoc _doc(p_x, cpUTF8);
-				/*
-				<?xml version="1.0" encoding="UTF-8"?>
-					<DESADV>
-						<Номер>00000024420</Номер>
-						<Дата>2018-05-16</Дата>
-						<ДатаПоставки>2018-05-16</ДатаПоставки>
-						<НомерЗаказа>NKTD-008196</НомерЗаказа>
-						<ДатаЗаказа>2018-05-16</ДатаЗаказа>
-						<ВалютаЗаказа>RUB</ВалютаЗаказа>
-						<HEAD>
-							<Город>Тверь</Город>
-							<Организация>532111776395</Организация>
-							<Контрагент>5311006967</Контрагент>
-							<GLN_Контрагент>531100696700</GLN_Контрагент>
-							<КонтрагентНаименование>Ассорти ООО</КонтрагентНаименование>
-							<КПП_Контрагент>531101001</КПП_Контрагент>
-							<КонтрагентАдрес>174353, Новгородская обл, Окуловский р-н, Окуловка г, Больничный пер, дом № 1</КонтрагентАдрес>
-							<GLN_Партнер>531100696703</GLN_Партнер>
-							<АдресДоставки>173022, Новгородская обл, Великий Новгород г, Армейская ул, дом № 1</АдресДоставки>
-							<ТОВАРЫ>
-								<НомерСтроки>1</НомерСтроки>
-								<Артикул>1001022373678</Артикул>
-								<Количество>2.071</Количество>
-								<ЕдиницаИзмерения>KGM</ЕдиницаИзмерения>
-								<Цена>220.2</Цена>
-								<Скидка/>
-								<Сумма>414.57</Сумма>
-								<СтавкаНДС>10%</СтавкаНДС>
-								<CуммаНДС>41.46</CуммаНДС>
-								<CуммаСНДС>456.03</CуммаСНДС>
-								<Наименование>Сосиски Сочные п/о мгс  2*2</Наименование>
-							</ТОВАРЫ>
-							<ТОВАРЫ>
-								<НомерСтроки>2</НомерСтроки>
-								<Артикул>1001012744174</Артикул>
-								<Количество>1.887</Количество>
-								<ЕдиницаИзмерения>KGM</ЕдиницаИзмерения>
-								<Цена>195.31</Цена>
-								<Скидка/>
-								<Сумма>335.05</Сумма>
-								<СтавкаНДС>10%</СтавкаНДС>
-								<CуммаНДС>33.5</CуммаНДС>
-								<CуммаСНДС>368.55</CуммаСНДС>
-								<Наименование>к Завтраку  вар б/о мгс 1*4</Наименование>
-							</ТОВАРЫ>
-						</HEAD>
-					</DESADV> 
-				*/
 				{
-					SXml::WNode n_o(p_x, "DESADV");
-					n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_NUMBER), XmlUtf8EncText(p_pack->Code));
-					n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DATE), temp_buf.Z().Cat(p_pack->Dtm.d, DATF_ISO8601CENT));
-					n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELIVERYDATE), temp_buf.Z().Cat(p_pack->Dtm.d, DATF_ISO8601CENT));
+					SXml::WDoc _doc(p_x, cpUTF8);
 					{
-						BillTbl::Rec ord_bill_rec;
-						if(p_pack->OrderBillID && P_BObj->Search(p_pack->OrderBillID, &ord_bill_rec) > 0) {
-							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORDERNUMBER), XmlUtf8EncText(ord_bill_rec.Code));
-							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORDERDATE), temp_buf.Z().Cat(ord_bill_rec.Dt, DATF_ISO8601CENT));
+						SXml::WNode n_o(p_x, "DESADV");
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_NUMBER), XmlUtf8EncText(p_pack->Code));
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DATE), temp_buf.Z().Cat(p_pack->Dtm.d, DATF_ISO8601CENT));
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELIVERYDATE), temp_buf.Z().Cat(p_pack->Dtm.d, DATF_ISO8601CENT));
+						{
+							BillTbl::Rec ord_bill_rec;
+							if(p_pack->OrderBillID && P_BObj->Search(p_pack->OrderBillID, &ord_bill_rec) > 0) {
+								n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORDERNUMBER), XmlUtf8EncText(ord_bill_rec.Code));
+								n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORDERDATE), temp_buf.Z().Cat(ord_bill_rec.Dt, DATF_ISO8601CENT));
+							}
+							else {
+								n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORDERNUMBER), 0);
+								n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORDERDATE), 0);
+							}
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORDERCURRENCY), "RUB");
 						}
-						else {
-							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORDERNUMBER), 0);
-							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORDERDATE), 0);
+						{
+							SXml::WNode n_h(p_x, "HEAD");
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CITY), XmlUtf8EncText(p_pack->ContractorCityName));
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORGANIZATION), own_inn_buf);
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTOR), XmlUtf8EncText(p_pack->ContractorINN));
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTORGLN), XmlUtf8EncText(p_pack->ContractorGLN));
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTORNAME), XmlUtf8EncText(p_pack->ContractorName));
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTORKPP), XmlUtf8EncText(p_pack->ContractorKPP));
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTORADDR), XmlUtf8EncText(p_pack->ContractorAddrText));
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_PARTNERGLN), XmlUtf8EncText(p_pack->DlvrLocGLN));
+							n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRADDR), XmlUtf8EncText(p_pack->DlvrAddrText));
+							//
+							for(uint itmidx = 0; itmidx < p_pack->ItemList.getCount(); itmidx++) {
+								const BillPacket::Position & r_item = p_pack->ItemList.at(itmidx);
+								SXml::WNode n_goods(p_x, Helper_GetToken(PPHSC_AGPLUS_GOODSITEMS_CAPS));
+								//n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_GOODS), temp_buf.Z().Cat(r_item.GoodsUuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // РќРѕРјРµРЅРєР»Р°С‚СѓСЂР°
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_LINENO), temp_buf.Z().Cat(itmidx+1));
+								const GoodsEntry * p_goods_entry = SearchGoodsEntry(GoodsList, r_item.GoodsID);
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_AR), p_goods_entry ? p_goods_entry->ArCode : "");
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_QTTY), temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, 0)));
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_UOM), XmlUtf8EncText(p_goods_entry->UnitName));
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_PRICE), temp_buf.Z().Cat(r_item.Cost, MKSFMTD_020));
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_DISCOUNT), 0);
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_AMOUNT), temp_buf.Z().Cat(r_item.CostWoVat * r_item.Qtty, MKSFMTD_020));
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_VATRATE), temp_buf.Z().Cat(r_item.VatRate, MKSFMTD(0, 0, 0)).CatChar('%')); // @v12.0.4 @fix .CatChar('%')
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_VATSUM), temp_buf.Z().Cat(r_item.VatInCost * r_item.Qtty, MKSFMTD_020));
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_AMOUNTWITHVAT), temp_buf.Z().Cat(r_item.Cost * r_item.Qtty, MKSFMTD_020));
+								if(p_goods_entry)
+									temp_buf = XmlUtf8EncText(p_goods_entry->Name);
+								else
+									temp_buf.Z();
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), temp_buf);
+							}
 						}
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORDERCURRENCY), "RUB");
+						(temp_buf = p_pack->DlvrAddrText).Transf(CTRANSF_INNER_TO_UTF8);
+						temp_buf.Z();
 					}
-					{
-						SXml::WNode n_h(p_x, "HEAD");
-						/*
-								<Город>Тверь</Город>
-								<Организация>532111776395</Организация>
-								<Контрагент>5311006967</Контрагент>
-								<GLN_Контрагент>531100696700</GLN_Контрагент>
-								<КонтрагентНаименование>Ассорти ООО</КонтрагентНаименование>
-								<КПП_Контрагент>531101001</КПП_Контрагент>
-								<КонтрагентАдрес>174353, Новгородская обл, Окуловский р-н, Окуловка г, Больничный пер, дом № 1</КонтрагентАдрес>
-								<GLN_Партнер>531100696703</GLN_Партнер>
-								<АдресДоставки>173022, Новгородская обл, Великий Новгород г, Армейская ул, дом № 1</АдресДоставки>
-						*/
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CITY), XmlUtf8EncText(p_pack->ContractorCityName));
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_ORGANIZATION), own_inn_buf);
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTOR), XmlUtf8EncText(p_pack->ContractorINN));
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTORGLN), XmlUtf8EncText(p_pack->ContractorGLN));
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTORNAME), XmlUtf8EncText(p_pack->ContractorName));
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTORKPP), XmlUtf8EncText(p_pack->ContractorKPP));
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTORADDR), XmlUtf8EncText(p_pack->ContractorAddrText));
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_PARTNERGLN), XmlUtf8EncText(p_pack->DlvrLocGLN));
-						n_h.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRADDR), XmlUtf8EncText(p_pack->DlvrAddrText));
-						//
-						for(uint itmidx = 0; itmidx < p_pack->ItemList.getCount(); itmidx++) {
-							const BillPacket::Position & r_item = p_pack->ItemList.at(itmidx);
-							SXml::WNode n_goods(p_x, Helper_GetToken(PPHSC_AGPLUS_GOODSITEMS_CAPS));
-							/*
-								<НомерСтроки>2</НомерСтроки>
-								<Артикул>1001012744174</Артикул>
-								<Количество>1.887</Количество>
-								<ЕдиницаИзмерения>KGM</ЕдиницаИзмерения>
-								<Цена>195.31</Цена>
-								<Скидка/>
-								<Сумма>335.05</Сумма>
-								<СтавкаНДС>10%</СтавкаНДС>
-								<CуммаНДС>33.5</CуммаНДС>
-								<CуммаСНДС>368.55</CуммаСНДС>
-								<Наименование>к Завтраку  вар б/о мгс 1*4</Наименование>
-							*/
-							//n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_GOODS), temp_buf.Z().Cat(r_item.GoodsUuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // Номенклатура
-								
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_LINENO), temp_buf.Z().Cat(itmidx+1));
-							const GoodsEntry * p_goods_entry = SearchGoodsEntry(GoodsList, r_item.GoodsID);
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_AR), p_goods_entry ? p_goods_entry->ArCode : "");
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_QTTY), temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, 0)));
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_UOM), XmlUtf8EncText(p_goods_entry->UnitName));
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_PRICE), temp_buf.Z().Cat(r_item.Cost, MKSFMTD_020));
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_DISCOUNT), 0);
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_AMOUNT), temp_buf.Z().Cat(r_item.CostWoVat * r_item.Qtty, MKSFMTD_020));
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_VATRATE), temp_buf.Z().Cat(r_item.VatRate, MKSFMTD(0, 0, 0)).CatChar('%')); // @v12.0.4 @fix .CatChar('%')
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_VATSUM), temp_buf.Z().Cat(r_item.VatInCost * r_item.Qtty, MKSFMTD_020));
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_AMOUNTWITHVAT), temp_buf.Z().Cat(r_item.Cost * r_item.Qtty, MKSFMTD_020));
-							if(p_goods_entry)
-								temp_buf = XmlUtf8EncText(p_goods_entry->Name);
-							else
-								temp_buf.Z();
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), temp_buf);
-						}
-					}
-					(temp_buf = p_pack->DlvrAddrText).Transf(CTRANSF_INNER_TO_UTF8);
-					temp_buf.Z();
 				}
-			}
-			{
-				xmlFreeTextWriter(p_x);
-				p_x = 0;
-				rSsFileName.add(out_file_name); 
+				{
+					xmlFreeTextWriter(p_x);
+					p_x = 0;
+					rSsFileName.add(out_file_name); 
+				}
 			}
 		}
 	}
@@ -12071,7 +12062,7 @@ int VladimirskiyStandard::SendRest(StringSet & rSsFileName)
 					for(uint date_idx = 0; date_idx < date_list.getCount(); date_idx++) {
 						const LDATE iter_dt = date_list.at(date_idx);
 						SXml::WNode n_o(p_x, "Object");
-						temp_buf.Z().Cat(iter_dt, DATF_ISO8601CENT).CatChar('T').Cat("00:00:00"); // Здесь дата остатков в формате 2021-09-16T00:00:00
+						temp_buf.Z().Cat(iter_dt, DATF_ISO8601CENT).CatChar('T').Cat("00:00:00"); // Р—РґРµСЃСЊ РґР°С‚Р° РѕСЃС‚Р°С‚РєРѕРІ РІ С„РѕСЂРјР°С‚Рµ 2021-09-16T00:00:00
 						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_PERIOD), temp_buf);
 						for(uint i = 0; i < stock_list.getCount(); i++) {
 							const StockEntry & r_entry = stock_list.at(i);
@@ -12084,13 +12075,13 @@ int VladimirskiyStandard::SendRest(StringSet & rSsFileName)
 									p_goods_item = &goods_list.at(goods_idx);
 									p_loc_item = &loc_list.at(loc_idx);
 									SXml::WNode n_g(p_x, Helper_GetToken(PPHSC_AGPLUS_GOODSITEMS));
-									n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_GOODS), temp_buf.Z().Cat(p_goods_item->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // Номенклатура GUID
-									n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_WAREHOUSE), temp_buf.Z().Cat(p_loc_item->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // Склад GUID
-									n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_OPNAME), ""); // ИмяВидаОперации (empty)
-									n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_STOCK_BEG), temp_buf.Z().Cat(r_entry.InRest, MKSFMTD(0, 6, NMBF_NOTRAILZ))); // НачальныйОстаток
-									n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_MOVIN), temp_buf.Z().Cat(r_entry.Input, MKSFMTD(0, 6, NMBF_NOTRAILZ))); // Приход
-									n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_MOVOUT), temp_buf.Z().Cat(r_entry.Output, MKSFMTD(0, 6, NMBF_NOTRAILZ))); // Расход
-									n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_STOCK_END), temp_buf.Z().Cat(r_entry.OutRest, MKSFMTD(0, 6, NMBF_NOTRAILZ))); // КонечныйОстаток
+									n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_GOODS), temp_buf.Z().Cat(p_goods_item->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // РќРѕРјРµРЅРєР»Р°С‚СѓСЂР° GUID
+									n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_WAREHOUSE), temp_buf.Z().Cat(p_loc_item->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // РЎРєР»Р°Рґ GUID
+									n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_OPNAME), ""); // РРјСЏР’РёРґР°РћРїРµСЂР°С†РёРё (empty)
+									n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_STOCK_BEG), temp_buf.Z().Cat(r_entry.InRest, MKSFMTD(0, 6, NMBF_NOTRAILZ))); // РќР°С‡Р°Р»СЊРЅС‹Р№РћСЃС‚Р°С‚РѕРє
+									n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_MOVIN), temp_buf.Z().Cat(r_entry.Input, MKSFMTD(0, 6, NMBF_NOTRAILZ))); // РџСЂРёС…РѕРґ
+									n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_MOVOUT), temp_buf.Z().Cat(r_entry.Output, MKSFMTD(0, 6, NMBF_NOTRAILZ))); // Р Р°СЃС…РѕРґ
+									n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_STOCK_END), temp_buf.Z().Cat(r_entry.OutRest, MKSFMTD(0, 6, NMBF_NOTRAILZ))); // РљРѕРЅРµС‡РЅС‹Р№РћСЃС‚Р°С‚РѕРє
 								}
 							}
 						}
@@ -12179,11 +12170,11 @@ int VladimirskiyStandard::SendSales(StringSet & rSsFileName)
 						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_FULLNAME), temp_buf);
 						LocationCore::GetAddress(loc_pack, 0, addr_buf);
 						addr_buf.Transf(CTRANSF_INNER_TO_UTF8);
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC_ADR), addr_buf); // АдресДоставкиТТ
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC_EMAIL), ""); // АдресЭлектроннойПочтыТТ
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC_PHONE), ""); // ТелефонТТ
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC_RADR), addr_buf); // ФактАдресТТ
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_LEVEL), "0"); // Уровень
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC_ADR), addr_buf); // РђРґСЂРµСЃР”РѕСЃС‚Р°РІРєРёРўРў
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC_EMAIL), ""); // РђРґСЂРµСЃР­Р»РµРєС‚СЂРѕРЅРЅРѕР№РџРѕС‡С‚С‹РўРў
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC_PHONE), ""); // РўРµР»РµС„РѕРЅРўРў
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC_RADR), addr_buf); // Р¤Р°РєС‚РђРґСЂРµСЃРўРў
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_LEVEL), "0"); // РЈСЂРѕРІРµРЅСЊ
 						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELEMARK), "false");
 						{
 							// @v11.7.4 {
@@ -12197,7 +12188,7 @@ int VladimirskiyStandard::SendSales(StringSet & rSsFileName)
 								}
 							}
 							// } @v11.7.4 
-							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_MANAGER), agent_name); // Менеджер
+							n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_MANAGER), agent_name); // РњРµРЅРµРґР¶РµСЂ
 						}
 					}						
 				}
@@ -12218,7 +12209,7 @@ int VladimirskiyStandard::SendSales(StringSet & rSsFileName)
 						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_FULLNAME), (temp_buf = psn_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
 						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_LEVEL), "0");
 						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_KPP), "");
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_LEGAL_PRIV), ""); // Как вариант "Юр. лицо"
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_LEGAL_PRIV), ""); // РљР°Рє РІР°СЂРёР°РЅС‚ "Р®СЂ. Р»РёС†Рѕ"
 						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DELEMARK), "false");
 					}
 				}
@@ -12247,32 +12238,32 @@ int VladimirskiyStandard::SendSales(StringSet & rSsFileName)
 					const BillPacket * p_pack = bill_list.at(docidx);
 					if(p_pack) {
 						SXml::WNode n_o(p_x, "Object");
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DOCREF), temp_buf.Z().Cat(p_pack->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // СсылкаДокумента
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DOCREF), temp_buf.Z().Cat(p_pack->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // РЎСЃС‹Р»РєР°Р”РѕРєСѓРјРµРЅС‚Р°
 						temp_buf = Helper_GetToken(PPHSC_AGPLUS_DOCTYP_SALE);
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DOCTYPE), temp_buf); // ТипДокумента
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DOCTYPE), temp_buf); // РўРёРїР”РѕРєСѓРјРµРЅС‚Р°
 						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DATE), temp_buf.Z().Cat(p_pack->Dtm, DATF_ISO8601CENT, 0)); // 
 						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_NUMBER), temp_buf.Z().Cat(p_pack->Code).Transf(CTRANSF_INNER_TO_UTF8)); // 
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC), temp_buf.Z().Cat(p_pack->DlvrLocUuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // ТорговаяТочка
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTOR), temp_buf.Z().Cat(p_pack->ContractorUuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // Контрагент
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRLOC), temp_buf.Z().Cat(p_pack->DlvrLocUuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // РўРѕСЂРіРѕРІР°СЏРўРѕС‡РєР°
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_CONTRACTOR), temp_buf.Z().Cat(p_pack->ContractorUuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // РљРѕРЅС‚СЂР°РіРµРЅС‚
 						(temp_buf = p_pack->DlvrAddrText).Transf(CTRANSF_INNER_TO_UTF8);
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRADDR), temp_buf); // АдресДоставки
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_DLVRADDR), temp_buf); // РђРґСЂРµСЃР”РѕСЃС‚Р°РІРєРё
 						temp_buf.Z();
 						if(!!p_pack->AgentUuid) {
 							temp_buf.Cat(p_pack->AgentUuid, S_GUID::fmtIDL|S_GUID::fmtLower);
 						}
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_AGENT), temp_buf); // Агент
-						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_AGTDOC), ""); // ДокументОснование
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_AGENT), temp_buf); // РђРіРµРЅС‚
+						n_o.PutInner(Helper_GetToken(PPHSC_AGPLUS_AGTDOC), ""); // Р”РѕРєСѓРјРµРЅС‚РћСЃРЅРѕРІР°РЅРёРµ
 						for(uint itmidx = 0; itmidx < p_pack->ItemList.getCount(); itmidx++) {
 							const BillPacket::Position & r_item = p_pack->ItemList.at(itmidx);
 							SXml::WNode n_goods(p_x, Helper_GetToken(PPHSC_AGPLUS_GOODSITEMS));
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_GOODS), temp_buf.Z().Cat(r_item.GoodsUuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // Номенклатура
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_QTTY), temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ))); // Количество
+							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_GOODS), temp_buf.Z().Cat(r_item.GoodsUuid, S_GUID::fmtIDL|S_GUID::fmtLower)); // РќРѕРјРµРЅРєР»Р°С‚СѓСЂР°
+							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_QTTY), temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ))); // РљРѕР»РёС‡РµСЃС‚РІРѕ
 							(temp_buf = r_item.UnitName).Transf(CTRANSF_INNER_TO_UTF8);
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_UOM), temp_buf); // ЕдиницаИзмерения
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_COEFF), temp_buf.Z().Cat(r_item.KgPerUnit, MKSFMTD(0, 3, 0))); // Коэффициент
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_WEIGHT), temp_buf.Z().Cat(r_item.Qtty * r_item.KgPerUnit, MKSFMTD(0, 3, 0))); // Вес
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_AMOUNT), temp_buf.Z().Cat(r_item.Cost * r_item.Qtty, MKSFMTD_020)); // Сумма
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_PRICE), temp_buf.Z().Cat(r_item.Cost, MKSFMTD_020)); // Цена
+							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_UOM), temp_buf); // Р•РґРёРЅРёС†Р°РР·РјРµСЂРµРЅРёСЏ
+							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_COEFF), temp_buf.Z().Cat(r_item.KgPerUnit, MKSFMTD(0, 3, 0))); // РљРѕСЌС„С„РёС†РёРµРЅС‚
+							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_WEIGHT), temp_buf.Z().Cat(r_item.Qtty * r_item.KgPerUnit, MKSFMTD(0, 3, 0))); // Р’РµСЃ
+							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_AMOUNT), temp_buf.Z().Cat(r_item.Cost * r_item.Qtty, MKSFMTD_020)); // РЎСѓРјРјР°
+							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_PRICE), temp_buf.Z().Cat(r_item.Cost, MKSFMTD_020)); // Р¦РµРЅР°
 						}
 						//
 					}
@@ -12629,7 +12620,7 @@ int SupplInterchangeFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
     int    ok = -1;
     if(ver == RpvInvSignValue) {
-		/* @v12.0.5 этот блок устарел много лет как. Соответственно, класс SupplExpFilt так же элиминируется //
+		/* @v12.0.5 СЌС‚РѕС‚ Р±Р»РѕРє СѓСЃС‚Р°СЂРµР» РјРЅРѕРіРѕ Р»РµС‚ РєР°Рє. РЎРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ, РєР»Р°СЃСЃ SupplExpFilt С‚Р°Рє Р¶Рµ СЌР»РёРјРёРЅРёСЂСѓРµС‚СЃСЏ //
 		SupplExpFilt _prev_filt;
 		THROW(_prev_filt.Read(rBuf, 0));
 		*this = _prev_filt;
@@ -12709,6 +12700,15 @@ SString & PrcssrSupplInterchange::ExecuteBlock::XmlUtf8EncText(const char * pT)
 	r_text.ReplaceChar('\x07', ' ');
 	XMLReplaceSpecSymb(r_text, "&<>\'");
 	return r_text.Transf(CTRANSF_INNER_TO_UTF8);
+}
+
+SString & PrcssrSupplInterchange::ExecuteBlock::XmlCp1251EncText(const char * pT)
+{
+	SString & r_text = SLS.AcquireRvlStr();
+	r_text = pT;
+	r_text.ReplaceChar('\x07', ' ');
+	XMLReplaceSpecSymb(r_text, "&<>\'");
+	return r_text.Transf(CTRANSF_INNER_TO_OUTER);
 }
 
 const PPIDArray * PrcssrSupplInterchange::ExecuteBlock::GetGoodsList() const
@@ -12911,8 +12911,10 @@ int PrcssrSupplInterchange::Run()
 				cli.SendGoods(ss_file_name);
 				cli.SendClients(ss_file_name);
 			}
-			if(ss_file_name.getCount()) {
-				cli.TransmitFiles(ss_file_name);
+			if(!(r_eb.P.Flags & SupplInterchangeFilt::fTestMode)) { // @v12.1.0
+				if(ss_file_name.getCount()) {
+					cli.TransmitFiles(ss_file_name);
+				}
 			}
 		}
 		else if(temp_buf.IsEqiAscii("OSTANKINO")) { // @v11.9.7
@@ -12927,8 +12929,10 @@ int PrcssrSupplInterchange::Run()
 			if(actions & SupplInterchangeFilt::opExportSales) {
 				cli.SendSales(ss_file_name);
 			}
-			if(ss_file_name.getCount()) {
-				cli.TransmitFiles(ss_file_name);
+			if(!(r_eb.P.Flags & SupplInterchangeFilt::fTestMode)) { // @v12.1.0
+				if(ss_file_name.getCount()) {
+					cli.TransmitFiles(ss_file_name);
+				}
 			}
 		}
 		else if(temp_buf.IsEqiAscii("MERCAPP-GAZPROMNEFT")) { // @v11.5.2
@@ -12997,7 +13001,7 @@ int PrcssrSupplInterchange::Run()
 			iSalesPepsi cli(r_eb, logger);
 			TSCollection <iSalesRoutePacket> routs;
 			PPWaitStart();
-			THROW(cli.Init()); // ООО "ПепсиКо Холдингс"
+			THROW(cli.Init()); // РћРћРћ "РџРµРїСЃРёРљРѕ РҐРѕР»РґРёРЅРіСЃ"
 			if(r_eb.P.Actions & (SupplInterchangeFilt::opExportBills|SupplInterchangeFilt::opExportStocks|
 				SupplInterchangeFilt::opExportPrices|SupplInterchangeFilt::opImportDesadv|SupplInterchangeFilt::opImportOrders))
 				r_eb.P.Actions |= SupplInterchangeFilt::opImportGoods;
@@ -13040,7 +13044,7 @@ int PrcssrSupplInterchange::Run()
 				// @v11.3.6 {
 				{
 					//
-					// Аварийный канал передачи заказов: почтовые сообщения //
+					// РђРІР°СЂРёР№РЅС‹Р№ РєР°РЅР°Р» РїРµСЂРµРґР°С‡Рё Р·Р°РєР°Р·РѕРІ: РїРѕС‡С‚РѕРІС‹Рµ СЃРѕРѕР±С‰РµРЅРёСЏ //
 					//
 					PPObjTag tag_obj;
 					PPObjectTag tag_rec;

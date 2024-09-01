@@ -1552,6 +1552,7 @@ public:
 	static int IdTSessBillLinkTo;   // @v11.6.12 (fldBillID)
 	static int IdTSessBillLinkTo_Text; // @v11.6.12 (fldBillID)
 	static int IdBillMemoSubStr;    // @v11.7.4 (fldBillID, const char *) Определяет, содержит ли примечание к документу заданную подстроку
+	static int IdBillAmount;        // @v12.1.0 (fldBillID, amountType)
 
 	static int Register();
 	static void STDCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
@@ -12657,7 +12658,7 @@ public:
 	int    PutItemMemo(PPID id, SString * pBuf, int use_ta); // @v11.1.12
 	SString & GetItemMemo(PPID id, SString & rBuf); // @v11.1.12
 	int    GetAmountList(PPID billID, AmtList * pList);
-	int    GetAmount(PPID, PPID amtTypeID, PPID curID, double *);
+	int    GetAmount(PPID billID, PPID amtTypeID, PPID curID, double *);
 	//
 	// Descr: Проверяет наличие ссылки на тип суммы amtTypeID в таблице Amounts
 	//   (BillAmountTbl).
@@ -20245,6 +20246,7 @@ struct PPGlobalUserAccConfig {
 #define PPGLS_UDS           7 // @v10.8.9 Сервис UDS (бонусная система, интернет-магазин)
 #define PPGLS_UNIVERSEHTT   8 // @v10.9.4 Сервис Universe-HTT (бонусная система, интернет-магазин и др.)
 #define PPGLS_SHOPIFY       9 // @v10.9.4 @construction
+#define PPGLS_WILDBERRIES  10 // @v12.1.0 @construction
 
 #define PPTRPROP_GUAEXT    (PPTRPROP_USER+1) // @v11.9.9 Суб-идентификатор записи текстовых расширений глобальной учетной записи
 
@@ -39126,7 +39128,9 @@ public:
 		dliAgentName,                 // Наименование агента по документу
 		dliAlcoLic,                   // Регистр алкогольной лицензии, ассоциированный (прямо или косвенно) с документом
 		dliDlvrAddr,                  // Адрес доставки
-		dliTSessLinkTo                // @v11.6.12 Тех сессия, к которой привязан документ
+		dliTSessLinkTo,               // @v11.6.12 Тех сессия, к которой привязан документ
+		dliStdAmtCost,                // @v12.1.0 @construction Стандартная сумма в ценах поступления // 
+		dliStdAmtPrice,               // @v12.1.0 @construction Стандартная сумма в ценах реализации //
 	};
 	char   ReserveStart[20]; // @anchor @v11.0.11 [32]-->[28] // @v11.1.9 [28]-->[24] // @v11.9.4 [24]-->[20]
 	PPID   FreightPortOfDischarge; // @v11.9.4 @construction Порт (пункт) разгрузки (из фрахта документа) //
@@ -40711,6 +40715,7 @@ public:
         int    FASTCALL IsGoodsUsed(PPID goodsID) const;
         const  PPIDArray * GetGoodsList() const;
 		SString & XmlUtf8EncText(const char * pT);
+		SString & XmlCp1251EncText(const char * pT);
 
 		enum {
 			bstGoodsListInited = 0x0001, // Список товаров GoodsList инициализирован
@@ -53902,6 +53907,9 @@ public:
 	DECL_DIALOG_GETDTS();
 private:
 	virtual int  setupList();
+	virtual int  addItem(long * pos, long * id);
+	virtual int  editItem(long pos, long id);
+	virtual int  delItem(long pos, long id);
 	const bool ReadOnly;
 };
 
@@ -59560,7 +59568,7 @@ struct DateAddDialogParam {
 int    DateAddDialog(DateAddDialogParam * pData);
 int    InputQttyDialog(const char * pTitle, const char * pInputTitle, double *);
 int    InputNumberDialog(const char * pTitle, const char * pInpTitle, double & rValue);
-int    BigTextDialog(uint maxLen, const char * pTitle, SString & rText);
+int    BigTextDialog(uint maxLen, const char * pWindowTitle, const char * pSubTitle, SString & rText);
 //
 // Descr: Устанавливает в строке комбо-бокса текст 'Список'
 //

@@ -85,5 +85,46 @@
 			"barcode_preferred_bg": "#green",
 			"barcode_preferred_fg": "#white"
 		}
+	],
+	"layout_list": [
+		{
+			"id": 10001,
+			"symb": "listdialog",
+			"size": "540, 335",
+			"justifycontent": "start",
+			"aligncontent": "stretch",
+			"alignitems": "stretch",
+			"alignself": "auto",
+			"shrinkfactor": 1,
+			"children": [
+				{
+					"symb": "listdialog_header",
+					"size": "100%, 64",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "center",
+					"gravityy": "top",
+					"shrinkfactor": 1
+				},
+				{
+					"symb": "listdialog_footer",
+					"size": "100%, 64",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "center",
+					"gravityy": "bottom",
+					"shrinkfactor": 1
+				},
+				{
+					"symb": "listdialog_body",
+					"size": "100%, 100%",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "center",
+					"gravityy": "center",
+					"shrinkfactor": 1
+				}
+			]
+		}
 	]
 }

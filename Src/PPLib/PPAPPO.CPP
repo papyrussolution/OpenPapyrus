@@ -28,6 +28,7 @@ int TestLogWindow(); // pplog.cpp
 int TestTddo2(); // tddo2.cpp
 int TestVetis(); // vetis.cpp
 int TestMqc(); // ppmqc.cpp
+int TestMarketplace(); // marketplace.cpp
 int RecoverAbsenceTrfr();
 int PPValidateXml();
 int OpenPhonePane();
@@ -906,6 +907,7 @@ int PPApp::processCommand(uint cmd)
 		case cmTestTddo2:               TestTddo2(); break; // @v9.8.3
 		case cmTestVetis:               TestVetis(); break; // @v9.8.9
 		case cmTestMqc:                 TestMqc();   break; // @v10.5.7
+		case cmTestMarketplace:         TestMarketplace(); break; // @v12.1.0
 		case cmCheckChZnMark:           PPChZnPrcssr::InteractiveCheck(); break; // @v12.0.4
 		case cmConvertLatexToHtml:      PPTex2Html(); break;
 		case cmConvertVersionToHtml:    PPVer2Html(); break;

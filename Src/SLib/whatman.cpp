@@ -719,11 +719,9 @@ int TWhatman::MoveObject(TWhatmanObject * pObj, const TRect & rRect)
 		else {
 			ok = pObj->SetBounds(rRect);
 		}
-		// @v10.9.10 {
 		if(ok > 0 && pObj->HasOption(TWhatmanObject::oContainer)) {
 			ArrangeLayoutContainer(static_cast<WhatmanObjectLayoutBase *>(pObj));
 		}
-		// } @v10.9.10 
 	}
 	return ok;
 }
@@ -1042,7 +1040,6 @@ SUiLayout * TWhatman::Helper_CreateLayout(SUiLayout * pParentLayout, WhatmanObje
 							p_iter_item->SetSymb(p_iter_obj->GetIdentSymb()); // @v11.7.10
 							if(p_iter_obj->HasOption(TWhatmanObject::oContainer)) {
 								THROW(Helper_CreateLayout(p_iter_item, static_cast<WhatmanObjectLayoutBase *>(p_iter_obj), rRecurList)); // @recursion
-								//THROW(Helper_ArrangeLayoutContainer(p_iter_item, static_cast<WhatmanObjectLayoutBase *>(p_iter_obj))); // @recursion
 							}
 							//ok = 1;
 						}
@@ -1338,10 +1335,10 @@ int TWhatman::SetTool(int toolId, int paintObjIdent)
 		case toolBrushRule:  TidBrushRule = paintObjIdent; break;
 		case toolPenGrid:    TidPenGrid = paintObjIdent; break;
 		case toolPenSubGrid: TidPenSubGrid = paintObjIdent; break;
-		case toolPenLayoutBorder: TidPenLayoutBorder = paintObjIdent; break; // @v10.4.8
+		case toolPenLayoutBorder: TidPenLayoutBorder = paintObjIdent; break;
 		case toolPenLayoutEvenBorder: TidPenLayoutEvenBorder = paintObjIdent; break; // @v11.2.2
 		case toolPenLayoutOddBorder: TidPenLayoutOddBorder = paintObjIdent; break; // @v11.2.2
-		case toolPenContainerCandidateBorder: TidPenContainerCandidateBorder = paintObjIdent; break; // @v10.9.6
+		case toolPenContainerCandidateBorder: TidPenContainerCandidateBorder = paintObjIdent; break;
 		default: ok = 0; break;
 	}
 	return ok;
@@ -1360,10 +1357,10 @@ int TWhatman::GetTool(int toolId) const
 		case toolBrushRule: return TidBrushRule;
 		case toolPenGrid: return TidPenGrid;
 		case toolPenSubGrid: return TidPenSubGrid;
-		case toolPenLayoutBorder: return TidPenLayoutBorder; // @v10.4.8
+		case toolPenLayoutBorder: return TidPenLayoutBorder;
 		case toolPenLayoutEvenBorder: return TidPenLayoutEvenBorder; // @v11.2.2
 		case toolPenLayoutOddBorder: return TidPenLayoutOddBorder; // @v11.2.2
-		case toolPenContainerCandidateBorder: return TidPenContainerCandidateBorder; // @v10.9.6
+		case toolPenContainerCandidateBorder: return TidPenContainerCandidateBorder;
 	}
 	return 0;
 }

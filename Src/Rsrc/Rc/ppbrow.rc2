@@ -7087,6 +7087,7 @@ cmd StyloQCommands        { "@{cmd_styloqcommands}"                        none 
 cmd ProcessUED            { "@{cmd_processued}"                            none                   none cmProcessUED } // @v11.6.6
 cmd ProcessBomEstimatedValues { "@{cmd_processbomestimatedvalues}"         none                   none cmProcessBomEstimatedValues } // @v11.8.0
 cmd ImportCChecks         { "@{cmd_importccheck}"                          none                   none cmImportCChecks } // @v11.8.5
+cmd TestMarketplace       { "@{cmd_testmarketplace}"                       none                   none cmTestMarketplace } // @v12.1.0
 //
 // -------------- Описания серверных задач
 //

@@ -1969,20 +1969,14 @@ static int errParseTest(const char * filename, const char * result, const char *
 // 
 static void processNode(FILE * out, xmlTextReader * reader) 
 {
-	const xmlChar * name, * value;
-	int type, empty;
-	type = xmlTextReaderNodeType(reader);
-	empty = xmlTextReaderIsEmptyElement(reader);
-	name = xmlTextReaderConstName(reader);
+	const xmlChar * value;
+	int type = xmlTextReaderNodeType(reader);
+	int empty = xmlTextReaderIsEmptyElement(reader);
+	const xmlChar * name = xmlTextReaderConstName(reader);
 	if(name == NULL)
 		name = BAD_CAST "--";
 	value = xmlTextReaderConstValue(reader);
-	fprintf(out, "%d %d %s %d %d",
-	    xmlTextReaderDepth(reader),
-	    type,
-	    name,
-	    empty,
-	    xmlTextReaderHasValue(reader));
+	fprintf(out, "%d %d %s %d %d", xmlTextReaderDepth(reader), type, name, empty, xmlTextReaderHasValue(reader));
 	if(value == NULL)
 		fprintf(out, "\n");
 	else {
@@ -1995,10 +1989,8 @@ static int streamProcessTest(const char * filename, const char * result, const c
 	int ret;
 	char * temp = NULL;
 	FILE * t = NULL;
-
 	if(reader == NULL)
 		return(-1);
-
 	nb_tests++;
 	if(result != NULL) {
 		temp = resultFilename(filename, "", ".res");
@@ -2087,7 +2079,6 @@ static int streamParseTest(const char * filename, const char * result, const cha
 	xmlFreeTextReader(reader);
 	return(ret);
 }
-
 /**
  * walkerParseTest:
  * @filename: the file to parse
@@ -2370,21 +2361,16 @@ static int xptrDocTest(const char * filename,
  *
  * Returns 0 in case of success, an error code otherwise
  */
-static int xmlidDocTest(const char * filename,
-    const char * result,
-    const char * err,
-    int options) {
+static int xmlidDocTest(const char * filename, const char * result, const char * err, int options) 
+{
 	int res = 0;
 	int ret = 0;
 	char * temp;
-
-	xpathDocument = xmlReadFile(filename, NULL,
-		options | XML_PARSE_DTDATTR | XML_PARSE_NOENT);
+	xpathDocument = xmlReadFile(filename, NULL, options | XML_PARSE_DTDATTR | XML_PARSE_NOENT);
 	if(xpathDocument == NULL) {
 		fprintf(stderr, "Failed to load %s\n", filename);
 		return(-1);
 	}
-
 	temp = resultFilename(filename, "", ".res");
 	if(temp == NULL) {
 		fprintf(stderr, "Out of memory\n");
@@ -2397,9 +2383,7 @@ static int xmlidDocTest(const char * filename,
 		free(temp);
 		return(-1);
 	}
-
 	testXPath("id('bar')", 0, 0);
-
 	fclose(xpathOutput);
 	if(result != NULL) {
 		ret = compareFiles(temp, result);
@@ -2408,13 +2392,11 @@ static int xmlidDocTest(const char * filename,
 			res = 1;
 		}
 	}
-
 	if(temp != NULL) {
 		unlink(temp);
 		free(temp);
 	}
 	xmlFreeDoc(xpathDocument);
-
 	if(err != NULL) {
 		ret = compareFileMem(err, testErrors, testErrorsSize);
 		if(ret != 0) {
@@ -2427,19 +2409,14 @@ static int xmlidDocTest(const char * filename,
 
 #endif /* LIBXML_DEBUG_ENABLED */
 #endif /* XPATH */
-/************************************************************************
-*									*
-*			URI based tests					*
-*									*
-************************************************************************/
-
-static void handleURI(const char * str, const char * base, FILE * o) {
+//
+// URI based tests
+//
+static void handleURI(const char * str, const char * base, FILE * o) 
+{
 	int ret;
-	xmlURIPtr uri;
 	xmlChar * res = NULL;
-
-	uri = xmlCreateURI();
-
+	xmlURI * uri = xmlCreateURI();
 	if(base == NULL) {
 		ret = xmlParseURIReference(uri, str);
 		if(ret != 0)
@@ -2473,16 +2450,12 @@ static void handleURI(const char * str, const char * base, FILE * o) {
  *
  * Returns 0 in case of success, an error code otherwise
  */
-static int uriCommonTest(const char * filename,
-    const char * result,
-    const char * err,
-    const char * base) {
-	char * temp;
+static int uriCommonTest(const char * filename, const char * result, const char * err, const char * base) 
+{
 	FILE * o, * f;
 	char str[1024];
 	int res = 0, i, ret;
-
-	temp = resultFilename(filename, "", ".res");
+	char * temp = resultFilename(filename, "", ".res");
 	if(temp == NULL) {
 		fprintf(stderr, "Out of memory\n");
 		fatalError();
@@ -2503,7 +2476,6 @@ static int uriCommonTest(const char * filename,
 		}
 		return(-1);
 	}
-
 	while(1) {
 		/*
 		 * read one line in string buffer.

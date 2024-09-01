@@ -889,11 +889,11 @@ int PPJobPool::PutJobItem(PPID * pID, const PPJob * pJob)
 			}
 			//
 			P_Mngr->UpdateLastId(potential_id);
-			p_job->ID = potential_id; // @v7.7.9 (max_id+1)-->(++P_Mngr->LastId)
+			p_job->ID = potential_id;
 		}
 		THROW_SL(insert(p_job));
 		ASSIGN_PTR(pID, p_job->ID);
-		ok = 1; // @v10.4.3 @fix
+		ok = 1;
 	}
 	CATCHZOK
 	return ok;
@@ -910,20 +910,9 @@ PPJobHandler::~PPJobHandler()
 {
 }
 
-int PPJobHandler::EditParam(SBuffer * pParam, void * extraPtr)
-{
-	return CheckParamBuf(pParam, 0);
-}
-
-int PPJobHandler::Run(SBuffer * pParam, void * extraPtr)
-{
-	return 1;
-}
-
-void PPJobHandler::SetJobDbSymb(const char * pJobDbSymb)
-{
-	(JobDbSymb = pJobDbSymb).Strip();
-}
+int PPJobHandler::EditParam(SBuffer * pParam, void * extraPtr) { return CheckParamBuf(pParam, 0); }
+int PPJobHandler::Run(SBuffer * pParam, void * extraPtr) { return 1; }
+void PPJobHandler::SetJobDbSymb(const char * pJobDbSymb) { (JobDbSymb = pJobDbSymb).Strip(); }
 
 int PPJobHandler::CheckParamBuf(const SBuffer * pBuf, size_t neededSize) const
 {
@@ -938,11 +927,7 @@ int PPJobHandler::CheckParamBuf(const SBuffer * pBuf, size_t neededSize) const
 	return ok;
 }
 
-// @v5.7 ANDREW
-const PPJobDescr & PPJobHandler::GetDescr()
-{
-	return D;
-}
+const PPJobDescr & PPJobHandler::GetDescr() { return D; }
 //
 //
 // prototype @defined(filtrnsm.cpp)
@@ -1098,7 +1083,8 @@ public:
 	}
 	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
-		int    ok = -1, r = 0;
+		int    ok = -1;
+		int    r = 0;
 		PalmPaneData param;
 		const size_t sav_offs = pParam->GetRdOffs();
 		param.LocID = param.LocID ? param.LocID : LConfig.Location;
@@ -1389,6 +1375,7 @@ struct CashNodeParam {
 };
 
 class CashNodeDialog : public TDialog {
+	DECL_DIALOG_DATA(CashNodeParam);
 public:
 	CashNodeDialog() : TDialog(DLG_SELCNODE)
 	{
@@ -1398,8 +1385,6 @@ public:
 private:
 	int    GetPeriod();
 	int    SetPeriod();
-
-	CashNodeParam Data;
 };
 
 int CashNodeDialog::setDTS(const CashNodeParam * pData)
@@ -1412,10 +1397,11 @@ int CashNodeDialog::setDTS(const CashNodeParam * pData)
 	PPObjCashNode cn_obj;
 	if(!RVALUEPTR(Data, pData))
 		Data.Init();
-	for(id = 0; (r = cn_obj.EnumItems(&id, &node)) > 0;)
+	for(id = 0; (r = cn_obj.EnumItems(&id, &node)) > 0;) {
 		if(PPCashMachine::IsAsyncCMT(node.CashType)) {
 			THROW_SL(node_list.Add(id, node.Name));
 		}
+	}
 	THROW(r);
 	SetupStrAssocCombo(this, CTLSEL_SELCNODE_CNODE, node_list, Data.CashNodeID, 0);
 	SetPeriod();

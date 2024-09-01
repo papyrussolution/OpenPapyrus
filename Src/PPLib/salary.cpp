@@ -1596,14 +1596,15 @@ int PrcssrSalary::Helper_CalcPayment(PPID opID, const DateRange & rPeriod, int k
 	const PPIDArray & rArList, const PPIDArray * pExtBillList, const FuncDescr & rFc, double * pResult)
 {
 	int    ok = 1;
+	PPObjBill * p_bobj = BillObj;
 	double result = 0.0;
 	SString fmt_buf, msg_buf;
 	for(uint i = 0; i < rArList.getCount(); i++) {
 		const  PPID ar_id = rArList.get(i);
 		BillTbl::Rec bill_rec, paym_rec;
-		for(DateIter di(&rPeriod); BillObj->P_Tbl->EnumByOpr(opID, &di, &paym_rec) > 0;) {
+		for(DateIter di(&rPeriod); p_bobj->P_Tbl->EnumByOpr(opID, &di, &paym_rec) > 0;) {
 			int    r = -1;
-			THROW(r = BillObj->P_Tbl->Search(paym_rec.LinkBillID, &bill_rec));
+			THROW(r = p_bobj->P_Tbl->Search(paym_rec.LinkBillID, &bill_rec));
 			if(r > 0) {
 				if(kind == 0) {
 					if(bill_rec.Object != ar_id)
@@ -1623,14 +1624,14 @@ int PrcssrSalary::Helper_CalcPayment(PPID opID, const DateRange & rPeriod, int k
 					if(rFc.Flags & FuncDescr::fLink) {
 						bill_id = bill_rec.ID;
 						if(rFc.AmtID)
-							BillObj->P_Tbl->GetAmount(bill_id, rFc.AmtID, 0, &amt);
+							p_bobj->P_Tbl->GetAmount(bill_id, rFc.AmtID, 0, &amt);
 						else
 							amt = bill_rec.Amount;
 					}
 					else {
 						bill_id = paym_rec.ID;
 						if(rFc.AmtID)
-							BillObj->P_Tbl->GetAmount(bill_id, rFc.AmtID, 0, &amt);
+							p_bobj->P_Tbl->GetAmount(bill_id, rFc.AmtID, 0, &amt);
 						else
 							amt = paym_rec.Amount;
 					}

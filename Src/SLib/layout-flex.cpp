@@ -961,6 +961,29 @@ const SUiLayout * SUiLayout::FindByIdC(int id) const
 
 SUiLayout * SUiLayout::FindById(int id) { return const_cast<SUiLayout *>(FindByIdC(id)); }
 
+const SUiLayout * SUiLayout::FindBySymbC(const char * pSymb) const
+{
+	const SUiLayout * p_result = 0;
+	if(!isempty(pSymb)) {
+		if(Symb.IsEqiAscii(pSymb)) {
+			p_result = this;
+		}
+		else {
+			const uint _cc = GetChildrenCount();
+			if(_cc) {
+				for(uint i = 0; !p_result && i < _cc; i++) {
+					const SUiLayout * p_child = GetChildC(i);
+					if(p_child)
+						p_result = p_child->FindBySymbC(pSymb); // @recursion
+				}
+			}
+		}
+	}
+	return p_result;
+}
+
+SUiLayout * SUiLayout::FindBySymb(const char * pSymb) { return const_cast<SUiLayout *>(FindBySymbC(pSymb)); }
+
 /*static*/void * SUiLayout::GetManagedPtr(SUiLayout * pItem) { return pItem ? pItem->managed_ptr : 0; }
 /*static*/void * SUiLayout::GetParentsManagedPtr(SUiLayout * pItem) { return pItem ? GetManagedPtr(pItem->P_Parent) : 0; }
 
@@ -1236,20 +1259,9 @@ int SUiLayout::FatherKillMe()
 	return ok;
 }
 
-uint SUiLayout::GetChildrenCount() const
-{
-	return SVectorBase::GetCount(P_Children);
-}
-
-SUiLayout * SUiLayout::GetChild(uint idx)
-{
-	return (idx < SVectorBase::GetCount(P_Children)) ? P_Children->at(idx) : 0;
-}
-
-const  SUiLayout * SUiLayout::GetChildC(uint idx) const
-{
-	return (idx < SVectorBase::GetCount(P_Children)) ? P_Children->at(idx) : 0;
-}
+uint SUiLayout::GetChildrenCount() const { return SVectorBase::GetCount(P_Children); }
+SUiLayout * SUiLayout::GetChild(uint idx) { return (idx < SVectorBase::GetCount(P_Children)) ? P_Children->at(idx) : 0; }
+const  SUiLayout * SUiLayout::GetChildC(uint idx) const { return (idx < SVectorBase::GetCount(P_Children)) ? P_Children->at(idx) : 0; }
 
 void SUiLayout::SetCallbacks(FlexSelfSizingProc selfSizingCb, FlexSetupProc setupCb, void * managedPtr)
 {

@@ -54,11 +54,9 @@
  * blocks of data.  Remaining, bare CRs are changed to LFs.  The possibly new
  * size of the data is returned.
  */
-static size_t convert_lineends(struct Curl_easy * data,
-    char * startPtr, size_t size)
+static size_t convert_lineends(struct Curl_easy * data, char * startPtr, size_t size)
 {
 	char * inPtr, * outPtr;
-
 	/* sanity check */
 	if(!startPtr || (size < 1)) {
 		return size;
@@ -137,16 +135,11 @@ static size_t convert_lineends(struct Curl_easy * data,
  * If the write would block (CURLE_AGAIN), it returns CURLE_OK and
  * (*nwritten == 0). Otherwise we return regular CURLcode value.
  */
-CURLcode Curl_nwrite(struct Curl_easy * data,
-    int sockindex,
-    const void * buf,
-    size_t blen,
-    ssize_t * pnwritten)
+CURLcode Curl_nwrite(struct Curl_easy * data, int sockindex, const void * buf, size_t blen, ssize_t * pnwritten)
 {
 	ssize_t nwritten;
 	CURLcode result = CURLE_OK;
 	struct connectdata * conn;
-
 	assert(sockindex >= 0 && sockindex < 2);
 	assert(pnwritten);
 	assert(data);
@@ -175,7 +168,6 @@ CURLcode Curl_nwrite(struct Curl_easy * data,
 	else {
 		assert(nwritten >= 0);
 	}
-
 	*pnwritten = nwritten;
 	return result;
 }
@@ -187,15 +179,10 @@ CURLcode Curl_nwrite(struct Curl_easy * data,
  * If the write would block (CURLE_AGAIN), we return CURLE_OK and
  * (*written == 0). Otherwise we return regular CURLcode value.
  */
-CURLcode Curl_write(struct Curl_easy * data,
-    curl_socket_t sockfd,
-    const void * mem,
-    size_t len,
-    ssize_t * written)
+CURLcode Curl_write(struct Curl_easy * data, curl_socket_t sockfd, const void * mem, size_t len, ssize_t * written)
 {
 	struct connectdata * conn;
 	int num;
-
 	assert(data);
 	assert(data->conn);
 	conn = data->conn;
@@ -203,10 +190,7 @@ CURLcode Curl_write(struct Curl_easy * data,
 	return Curl_nwrite(data, num, mem, len, written);
 }
 
-static CURLcode pausewrite(struct Curl_easy * data,
-    int type,                        /* what type of data */
-    const char * ptr,
-    size_t len)
+static CURLcode pausewrite(struct Curl_easy * data, int type/* what type of data */, const char * ptr, size_t len)
 {
 	/* signalled to pause sending on this connection, but since we have data
 	   we want to send we need to dup it to save a copy for when the sending
@@ -215,9 +199,7 @@ static CURLcode pausewrite(struct Curl_easy * data,
 	struct UrlState * s = &data->state;
 	uint i;
 	bool newtype = TRUE;
-
 	Curl_conn_ev_data_pause(data, TRUE);
-
 	if(s->tempcount) {
 		for(i = 0; i< s->tempcount; i++) {
 			if(s->tempwrite[i].type == type) {
@@ -228,25 +210,20 @@ static CURLcode pausewrite(struct Curl_easy * data,
 		}
 		assert(i < 3);
 		if(i >= 3)
-			/* There are more types to store than what fits: very bad */
-			return CURLE_OUT_OF_MEMORY;
+			return CURLE_OUT_OF_MEMORY; /* There are more types to store than what fits: very bad */
 	}
 	else
 		i = 0;
-
 	if(newtype) {
 		/* store this information in the state struct for later use */
 		Curl_dyn_init(&s->tempwrite[i].b, DYN_PAUSE_BUFFER);
 		s->tempwrite[i].type = type;
 		s->tempcount++;
 	}
-
 	if(Curl_dyn_addn(&s->tempwrite[i].b, (uchar *)ptr, len))
 		return CURLE_OUT_OF_MEMORY;
-
 	/* mark the connection as RECV paused */
 	k->keepon |= KEEP_RECV_PAUSE;
-
 	return CURLE_OK;
 }
 
@@ -254,10 +231,7 @@ static CURLcode pausewrite(struct Curl_easy * data,
  * client write callback(s) and takes care of pause requests from the
  * callbacks.
  */
-static CURLcode chop_write(struct Curl_easy * data,
-    int type,
-    char * optr,
-    size_t olen)
+static CURLcode chop_write(struct Curl_easy * data, int type, char * optr, size_t olen)
 {
 	struct connectdata * conn = data->conn;
 	curl_write_callback writeheader = NULL;
@@ -265,15 +239,11 @@ static CURLcode chop_write(struct Curl_easy * data,
 	char * ptr = optr;
 	size_t len = olen;
 	void * writebody_ptr = data->set.out;
-
 	if(!len)
 		return CURLE_OK;
-
-	/* If reading is paused, append this data to the already held data for this
-	   type. */
+	/* If reading is paused, append this data to the already held data for this type. */
 	if(data->req.keepon & KEEP_RECV_PAUSE)
 		return pausewrite(data, type, ptr, len);
-
 	/* Determine the callback(s) to use. */
 	if(type & CLIENTWRITE_BODY) {
 #ifdef USE_WEBSOCKETS
@@ -285,26 +255,21 @@ static CURLcode chop_write(struct Curl_easy * data,
 #endif
 		writebody = data->set.fwrite_func;
 	}
-	if((type & CLIENTWRITE_HEADER) &&
-	    (data->set.fwrite_header || data->set.writeheader)) {
+	if((type & CLIENTWRITE_HEADER) && (data->set.fwrite_header || data->set.writeheader)) {
 		/*
 		 * Write headers to the same callback or to the especially setup
 		 * header callback function (added after version 7.7.1).
 		 */
-		writeheader =
-		    data->set.fwrite_header? data->set.fwrite_header: data->set.fwrite_func;
+		writeheader = data->set.fwrite_header? data->set.fwrite_header: data->set.fwrite_func;
 	}
-
 	/* Chop data, write chunks. */
 	while(len) {
 		size_t chunklen = len <= CURL_MAX_WRITE_SIZE? len: CURL_MAX_WRITE_SIZE;
-
 		if(writebody) {
 			size_t wrote;
 			Curl_set_in_callback(data, true);
 			wrote = writebody(ptr, 1, chunklen, writebody_ptr);
 			Curl_set_in_callback(data, false);
-
 			if(CURL_WRITEFUNC_PAUSE == wrote) {
 				if(conn->handler->flags & PROTOPT_NONETWORK) {
 					/* Protocols that work without network cannot be paused. This is
@@ -320,47 +285,33 @@ static CURLcode chop_write(struct Curl_easy * data,
 				return CURLE_WRITE_ERROR;
 			}
 		}
-
 		ptr += chunklen;
 		len -= chunklen;
 	}
-
 #ifndef CURL_DISABLE_HTTP
 	/* HTTP header, but not status-line */
-	if((conn->handler->protocol & PROTO_FAMILY_HTTP) &&
-	    (type & CLIENTWRITE_HEADER) && !(type & CLIENTWRITE_STATUS) ) {
-		uchar htype = (uchar)
-		    (type & CLIENTWRITE_CONNECT ? CURLH_CONNECT :
-		    (type & CLIENTWRITE_1XX ? CURLH_1XX :
-		    (type & CLIENTWRITE_TRAILER ? CURLH_TRAILER :
-		    CURLH_HEADER)));
+	if((conn->handler->protocol & PROTO_FAMILY_HTTP) && (type & CLIENTWRITE_HEADER) && !(type & CLIENTWRITE_STATUS) ) {
+		uchar htype = (uchar)(type & CLIENTWRITE_CONNECT ? CURLH_CONNECT : (type & CLIENTWRITE_1XX ? CURLH_1XX : (type & CLIENTWRITE_TRAILER ? CURLH_TRAILER : CURLH_HEADER)));
 		CURLcode result = Curl_headers_push(data, optr, htype);
 		if(result)
 			return result;
 	}
 #endif
-
 	if(writeheader) {
 		size_t wrote;
-
 		Curl_set_in_callback(data, true);
 		wrote = writeheader(optr, 1, olen, data->set.writeheader);
 		Curl_set_in_callback(data, false);
-
 		if(CURL_WRITEFUNC_PAUSE == wrote)
 			/* here we pass in the HEADER bit only since if this was body as well
 			   then it was passed already and clearly that didn't trigger the
 			   pause, so this is saved for later with the HEADER bit only */
-			return pausewrite(data, CLIENTWRITE_HEADER |
-				   (type & (CLIENTWRITE_STATUS|CLIENTWRITE_CONNECT|
-				   CLIENTWRITE_1XX|CLIENTWRITE_TRAILER)),
-				   optr, olen);
+			return pausewrite(data, CLIENTWRITE_HEADER|(type & (CLIENTWRITE_STATUS|CLIENTWRITE_CONNECT|CLIENTWRITE_1XX|CLIENTWRITE_TRAILER)), optr, olen);
 		if(wrote != olen) {
 			failf(data, "Failed writing header");
 			return CURLE_WRITE_ERROR;
 		}
 	}
-
 	return CURLE_OK;
 }
 
@@ -373,16 +324,11 @@ static CURLcode chop_write(struct Curl_easy * data,
    local character encoding.  This is a problem and should be changed in
    the future to leave the original data alone.
  */
-CURLcode Curl_client_write(struct Curl_easy * data,
-    int type,
-    char * ptr,
-    size_t len)
+CURLcode Curl_client_write(struct Curl_easy * data, int type, char * ptr, size_t len)
 {
 #if !defined(CURL_DISABLE_FTP) && defined(CURL_DO_LINEEND_CONV)
 	/* FTP data may need conversion. */
-	if((type & CLIENTWRITE_BODY) &&
-	    (data->conn->handler->protocol & PROTO_FAMILY_FTP) &&
-	    data->conn->proto.ftpc.transfertype == 'A') {
+	if((type & CLIENTWRITE_BODY) && (data->conn->handler->protocol & PROTO_FAMILY_FTP) && data->conn->proto.ftpc.transfertype == 'A') {
 		/* convert end-of-line markers */
 		len = convert_lineends(data, ptr, len);
 	}
