@@ -122,7 +122,7 @@ struct Config {
 struct CheckStruct {
 	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Qtty(0.0), PhQtty(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), UomId(0), UomFragm(0), 
 		TaxSys(0), Tax(0), PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0), ChZnProdType(0), ChZnPpResult(0), ChZnPpStatus(0), //@erik v10.4.12 add "Stt(0),"
-		Timestamp(ZERODATETIME) /*@v11.2.3*/, PrescrDate(ZERODATE)/*@v11.8.0*/
+		Timestamp(ZERODATETIME) /*@v11.2.3*/, PrescrDate(ZERODATE)/*@v11.8.0*/, ChZnPm_ReqTimestamp(0ULL)/*@v12.1.1*/
 	{
 	}
 	CheckStruct & Z()
@@ -133,25 +133,27 @@ struct CheckStruct {
 		Price = 0.0;
 		Department = 0;
 		Tax = 0;
-		Ptt = 0; // @v10.4.1
+		Ptt = 0;
 		Stt = 0; // @erik v10.4.12
 		UomId = 0; // @v11.9.5
 		UomFragm = 0; // @v11.2.5
-		TaxSys = -1; // @v10.6.3 // @v10.6.4 0-->-1
+		TaxSys = -1;
 		Text.Z();
 		Code.Z();
-		ChZnCode.Z(); // @v10.6.12
-		ChZnGTIN.Z(); // @v10.7.2
-		ChZnSerial.Z(); // @v10.7.2
-		ChZnPartN.Z(); // @v10.7.8
-		ChZnSid.Z(); // @v10.8.12
+		ChZnCode.Z();
+		ChZnGTIN.Z();
+		ChZnSerial.Z();
+		ChZnPartN.Z();
+		ChZnSid.Z();
 		DraftBeerSimplifiedCode.Z(); // @v11.9.4
 		PaymCash = 0.0;
 		PaymBank = 0.0;
 		IncassAmt = 0.0;
-		ChZnProdType = 0; // @v10.7.2
+		ChZnProdType = 0;
 		ChZnPpResult = 0; // @v11.1.11
 		ChZnPpStatus = 0; // @v11.1.11
+		ChZnPm_ReqId.Z();  // @v12.1.1
+		ChZnPm_ReqTimestamp = 0; // @v12.1.1
 		Timestamp.Z(); // @v11.2.3
 		BuyersEmail.Z(); // @v11.3.6
 		BuyersPhone.Z(); // @v11.3.6
@@ -189,6 +191,8 @@ struct CheckStruct {
 	double IncassAmt;
 	int    ChZnPpResult; // @v11.1.11 Результат проверки марки честный знак на фазе препроцессинга
 	int    ChZnPpStatus; // @v11.1.11 Статус, присвоенный марке честный знак на фазе препроцессинга
+	S_GUID ChZnPm_ReqId;  // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
+	int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
 	LDATETIME Timestamp; // @v11.2.3 Дата и время чека
 	SString Text;
 	SString Code;        //
@@ -1514,6 +1518,20 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.ChZnPpStatus = param_val.ToLong();
 			if(pb.Get("CHZNSID", param_val) > 0) // @v11.2.4
 				Check.ChZnSid = param_val;
+			// @v12.1.1 {
+			{
+				if(pb.Get("CHZNPMREQID", param_val) > 0) {
+					S_GUID uuid;
+					if(uuid.FromStr(param_val))
+						Check.ChZnPm_ReqId = uuid;
+				}
+				if(pb.Get("CHZNPMREQTIMESTAMP", param_val) > 0) {
+					int64 ts = param_val.ToInt64();
+					if(ts != 0)
+						Check.ChZnPm_ReqTimestamp = ts;
+				}
+			}
+			// } @v12.1.1 
 			if(pb.Get("UOMFRAGM", param_val) > 0) // @v11.2.5
 				Check.UomFragm = inrangeordefault(param_val.ToLong(), 1L, 100000L, 0L);
 			if(pb.Get("VATRATE", param_val) > 0) {
@@ -2716,13 +2734,22 @@ int PiritEquip::RunCheck(int opertype)
 												if(Check.PrescrSerial.NotEmpty())
 													str.CatChar('&').CatEq("ps", Check.PrescrSerial);
 												str.CatChar('&').CatEq("dn", Check.PrescrNumber);
-												if(checkdate(Check.PrescrDate)) {
+												if(checkdate(Check.PrescrDate))
 													str.CatChar('&').CatEq("dd", Check.PrescrDate, DATF_DMY|DATF_NODIV);
-												}
 											}
 											// } @v11.8.0 
-											str.CatChar('&');
 										}
+										// @v12.1.1 {
+										if(!Check.ChZnPm_ReqId.IsZero() && Check.ChZnPm_ReqTimestamp) {
+											if(str.NotEmpty() && str.Last() != '&')
+												str.CatChar('&');
+											str.CatEq("UUID", Check.ChZnPm_ReqId, S_GUID::fmtIDL|S_GUID::fmtLower);
+											str.CatChar('&');
+											str.CatEq("Time", Check.ChZnPm_ReqTimestamp);
+										}
+										// } @v12.1.1
+										if(str.NotEmpty())
+											str.CatChar('&');
 										CreateStr(str, in_data); // #18 (tag 1265) Значение отраслевого реквизита. Значение определяется отраслевым НПА. 
 											// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 									}

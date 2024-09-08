@@ -661,6 +661,17 @@ int FASTCALL SStrScan::GetXDigits(SString & rBuf)
     return ok;
 }
 
+int FASTCALL SStrScan::GetHex(SString & rBuf)
+{
+	if(InitReHex() && P_ReHex->Find(this, 0)) {
+		Get(rBuf);
+		IncrLen();
+		return 1;
+	}
+	else
+		return 0;
+}
+
 int FASTCALL SStrScan::GetDigits(SString & rBuf)
 {
     int    ok = 0;
@@ -793,17 +804,6 @@ int FASTCALL SStrScan::GetLine(SEOLFormat eolf, SString & rBuf)
 			ok = -1;
 	}
 	return ok;
-}
-
-int FASTCALL SStrScan::GetHex(SString & rBuf)
-{
-	if(InitReHex() && P_ReHex->Find(this, 0)) {
-		Get(rBuf);
-		IncrLen();
-		return 1;
-	}
-	else
-		return 0;
 }
 
 int SStrScan::GetDate(long datefmt, LDATE & rDate)

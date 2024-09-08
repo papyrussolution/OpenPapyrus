@@ -525,9 +525,9 @@
 	#define PPOPK_EDI_ACTCHARGEONSHOP   16L // Постановка лотов на баланс торгового зала в ЕГАИС (регистр 2)
 	#define PPOPK_EDI_WRITEOFFSHOP      17L // Списание с баланса торгового зала в ЕГАИС (регистр 2)
 		// @v10.3.5 Если документ содержит специальную метку, то это - автоматическое списание реализации по акцизным маркам
-	#define PPOPK_EDI_ORDERRSP          18L // @v10.2.11 Драфт-операция подтверждения заказа, переденного в EDI
-	#define PPOPK_EDI_WROFFWITHMARKS    19L // @v10.3.6  Драфт-операция списание с остатков ЕГАИС акцизных марок
-	#define PPOPK_EDI_CHARGEONWITHMARKS 20L // @v10.9.0  Драфт-операция постановки на баланс маркированной продукции
+	#define PPOPK_EDI_ORDERRSP          18L // Драфт-операция подтверждения заказа, переденного в EDI
+	#define PPOPK_EDI_WROFFWITHMARKS    19L // Драфт-операция списание с остатков ЕГАИС акцизных марок
+	#define PPOPK_EDI_CHARGEONWITHMARKS 20L // Драфт-операция постановки на баланс маркированной продукции
 	#define PPOPK_UNASSIGNED          1000L // Специальный идентификатор
 	//
 	// Extra records of PPOBJ_OPRKIND
@@ -1426,6 +1426,8 @@
 #define PPTAG_LOT_PREFSUPPL            115L // @v12.0.7 Предпочтительный поставщик для строки заказа. Тут - сложный бизнес-процесс. Идея в том, что при обработке заказа
 	// от покупателя, в случае дроп-шиппинга и т.д. менеджер должен решить у кого он будет закупать заказанный товар. Приняв решение (опустим детали того, как он будет
 	// принимать это решение), менеджер установит этот тег в строку заказа и система сформирует документ прихода (или еще какой), связанный с этим поставщиком.
+#define PPTAG_PERSON_MARKETPLACESYMB   116L // @v12.1.1 Зарезервированный символ конкретного маркетплейса, присваиваемый персоналии, относящейся к виду 'Маркетплейс'
+	// для того, чтобы можно было взаимодействовать с api этого маркетплейса.
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -11615,9 +11617,9 @@
 	#define CTL_RAWMAT_SYMB                (3 + WINDOWS_ID_BIAS)
 	#define CTL_RAWMAT_DENS                (4 + WINDOWS_ID_BIAS)
 #define DLG_TESTMRKTPLC           1447 // @v12.1.0 Параметры тестирования интерфейсов с маркетплейсами
-	#define CTL_TESTMRKTPLC_GUA            (1 + WINDOWS_ID_BIAS)  
+	#define CTL_TESTMRKTPLC_GUA            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TESTMRKTPLC_GUA         (2 + WINDOWS_ID_BIAS)
-	#define CTL_TESTMRKTPLC_TEXT           (3 + WINDOWS_ID_BIAS)  
+	#define CTL_TESTMRKTPLC_TEXT           (3 + WINDOWS_ID_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

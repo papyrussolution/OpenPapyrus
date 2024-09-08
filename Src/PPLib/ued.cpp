@@ -950,7 +950,7 @@ static IMPL_CMPFUNC(SrUedContainer_TextEntry, p1, p2)
 {
 	const SrUedContainer_Base::TextEntry * p_e1 = static_cast<const SrUedContainer_Base::TextEntry *>(p1);
 	const SrUedContainer_Base::TextEntry * p_e2 = static_cast<const SrUedContainer_Base::TextEntry *>(p2);
-	RET_CMPCASCADE2(p_e1, p_e2, Locale, Id);
+	RET_CMPCASCADE2(p_e1, p_e2, Locale, Ued);
 }
 
 SrUedContainer_Base::SrUedContainer_Base() : LinguaLocusMeta(0), Ht(1024*32, 0), LastSymbHashId(0), PropIdx(4096, 0)
@@ -1015,47 +1015,59 @@ bool SrUedContainer_Base::SearchSymbHashId(uint32 symbHashId, SString & rSymb) c
 	return Ht.GetByAssoc(symbHashId, rSymb);
 }
 
+int SrUedContainer_Base::GetLocaleIdBySymb(const char * pSymb, uint32 * pLocaleId, uint srcLineNo, PPLogger * pLogger) const
+{
+	int    ok = 1;
+	assert(pLocaleId);
+	THROW(pLocaleId); // @todo @err
+	{
+		SString temp_buf;
+		SString locale_buf;
+		(locale_buf = pSymb).ToLower();
+		uint64 locale_id = SearchBaseSymb(locale_buf, LinguaLocusMeta);
+		if(!locale_id) {
+			ok = PPSetError(PPERR_UED_SYMBFORMETANOTFOUND, 
+				temp_buf.Z().Cat("line").CatDiv(':', 2).Cat(srcLineNo).Space().
+				Cat(locale_buf).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
+			if(pLogger)
+				pLogger->LogLastError();
+			else
+				CALLEXCEPT();
+		}
+		else {
+			const bool btm_result = UED::BelongToMeta(locale_id, LinguaLocusMeta);
+			if(!btm_result) {
+				ok = PPSetError(PPERR_UED_VALUENOTBELONGTOMETA, 
+					temp_buf.Z().Cat("line").CatDiv(':', 2).Cat(srcLineNo).Space().
+					CatHex(locale_id).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
+				if(pLogger)
+					pLogger->LogLastError();
+				else
+					CALLEXCEPT();
+			}
+			{
+				//r_e.Locale = UED::MakeShort(locale_id, LinguaLocusMeta);
+				assert(UED::GetMeta(locale_id) == LinguaLocusMeta);
+				bool grvr = UED::GetRawValue32(locale_id, pLocaleId);
+				assert(grvr);
+				assert(*pLocaleId);
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SrUedContainer_Base::ReplaceSurrogateLocaleId(const SymbHashTable & rT, uint32 surrLocaleId, uint32 * pRealLocaleId, uint lineNo, PPLogger * pLogger)
 {
 	int    ok = 1;
 	assert(pRealLocaleId);
 	THROW(pRealLocaleId); // @todo @err
 	if(surrLocaleId) {
-		SString temp_buf;
 		SString locale_buf;
 		THROW(rT.GetByAssoc(surrLocaleId, locale_buf));
-		{
-			uint64 locale_id = SearchBaseSymb(locale_buf, LinguaLocusMeta);
-			if(!locale_id) {
-				ok = PPSetError(PPERR_UED_SYMBFORMETANOTFOUND, 
-					temp_buf.Z().Cat("line").CatDiv(':', 2).Cat(lineNo).Space().
-					Cat(locale_buf).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
-				if(pLogger)
-					pLogger->LogLastError();
-				else
-					CALLEXCEPT();
-			}
-			else {
-				const bool btm_result = UED::BelongToMeta(locale_id, LinguaLocusMeta);
-				if(!btm_result) {
-					ok = PPSetError(PPERR_UED_VALUENOTBELONGTOMETA, 
-						temp_buf.Z().Cat("line").CatDiv(':', 2).Cat(lineNo).Space().
-						CatHex(locale_id).Space().Cat("->").Space().CatHex(LinguaLocusMeta));
-					if(pLogger)
-						pLogger->LogLastError();
-					else
-						CALLEXCEPT();
-				}
-				{
-					//r_e.Locale = UED::MakeShort(locale_id, LinguaLocusMeta);
-					assert(UED::GetMeta(locale_id) == LinguaLocusMeta);
-					bool grvr = UED::GetRawValue32(locale_id, pRealLocaleId);
-					assert(grvr);
-					assert(*pRealLocaleId);
-					ok = 1;
-				}
-			}
-		}
+		THROW(GetLocaleIdBySymb(locale_buf, pRealLocaleId, lineNo, pLogger));
 	}
 	else
 		ok = -1;
@@ -1094,14 +1106,14 @@ int SrUedContainer_Base::ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPL
 			assert(p_pp);
 			if(p_pp) {
 				uint32 real_locale_id = 0;
-				const int rslr = ReplaceSurrogateLocaleId(rT, p_pp->LocaleId, &real_locale_id, p_pp->LineNo, pLogger);
+				const int rslr = ReplaceSurrogateLocaleId(rT, p_pp->Locale, &real_locale_id, p_pp->LineNo, pLogger);
 				if(rslr > 0) {
 					assert(real_locale_id);
-					p_pp->LocaleId = real_locale_id;
+					p_pp->Locale = real_locale_id;
 				}
 				else if(rslr < 0) {
 					assert(real_locale_id == 0);
-					p_pp->LocaleId = real_locale_id;
+					p_pp->Locale = real_locale_id;
 				}
 				else {
 					ok = 0;
@@ -1153,14 +1165,15 @@ int SrUedContainer_Base::PropertySet::Get(uint idx, uint count, UedSetBase & rLi
 	return ok;
 }
 
-SrUedContainer_Base::ProtoPropList_SingleUed::ProtoPropList_SingleUed(uint64 ued, int localeId) : TSCollection <ProtoProp>(), Ued(ued), LocaleId(localeId)
+SrUedContainer_Base::ProtoPropList_SingleUed::ProtoPropList_SingleUed(uint64 ued, uint localeId) : 
+	UedLocaleEntry(ued, localeId), TSCollection <ProtoProp>()
 {
 }
 		
-void SrUedContainer_Base::ProtoPropList_SingleUed::Init(uint64 ued, int localeId)
+void SrUedContainer_Base::ProtoPropList_SingleUed::Init(uint64 ued, uint localeId)
 {
 	Ued = ued;
-	LocaleId = localeId;
+	Locale = localeId;
 	freeAll();
 }
 
@@ -1169,7 +1182,7 @@ SrUedContainer_Base::ProtoProp * SrUedContainer_Base::ProtoPropList_SingleUed::C
 	ProtoProp * p_new_entry = CreateNewItem();
 	if(p_new_entry) {
 		p_new_entry->Ued = Ued;
-		p_new_entry->LocaleId = LocaleId;
+		p_new_entry->Locale = Locale;
 	}
 	return p_new_entry;
 }
@@ -1458,7 +1471,7 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, PPLogger
 					else
 						scan_ok = false;
 					if(scan_ok) {
-						uint ssc = ss.getCount();
+						const uint ssc = ss.getCount();
 						if(oneof2(ssc, 2, 3)) {
 							uint64 id = 0;
 							int   lang_id = 0;
@@ -1526,11 +1539,11 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, PPLogger
 									if(lang_id) {
 										TextEntry new_entry;
 										new_entry.LineNo = line_no; // @v11.7.8
-										new_entry.Id = id;
+										new_entry.Ued = id;
 										new_entry.Locale = lang_id;
 										AddS(text_buf, &new_entry.TextP);
 										TL.insert(&new_entry);
-										last_key.Set(new_entry.Id, new_entry.Locale);
+										last_key.Set(new_entry.Ued, new_entry.Locale);
 									}
 								}
 							}
@@ -1654,7 +1667,7 @@ int SrUedContainer_Base::ProcessProperties()
 					{
 						PropIdxEntry key;
 						key.Ued = p_pp->Ued;
-						key.LocaleId = p_pp->LocaleId;
+						key.Locale = p_pp->Locale;
 						uint ks = 0;
 						const void * p_key = key.GetHashKey(0, &ks);
 						PropIdxEntry * p_idx_entry = PropIdx.Get(p_key, ks);
@@ -1664,7 +1677,7 @@ int SrUedContainer_Base::ProcessProperties()
 						else {
 							PropIdxEntry * p_new_idx_entry = new PropIdxEntry;
 							p_new_idx_entry->Ued = p_pp->Ued;
-							p_new_idx_entry->LocaleId = p_pp->LocaleId;
+							p_new_idx_entry->Locale = p_pp->Locale;
 							p_new_idx_entry->RefList.Add(prop_idx, prop_limb_count);
 							PropIdx.Put(p_new_idx_entry, true);
 						}
@@ -1742,6 +1755,66 @@ int SrUedContainer_Base::ProcessProperties()
 	return result;
 }
 
+bool SrUedContainer_Base::ReadSingleProp(SStrScan & rScan)
+{
+	bool   ok = true;
+	UedLocaleEntry ued_entry;
+	//uint64 ued = 0;
+	SString temp_buf;
+	SString lingua_buf;
+	rScan.Skip();
+	THROW(rScan.GetXDigits(temp_buf));
+	ued_entry.Ued = sxtou64(temp_buf);
+	rScan.Skip();
+	if(rScan.GetIdent(temp_buf)) {
+		lingua_buf = temp_buf;
+		rScan.Skip();
+		THROW(GetLocaleIdBySymb(lingua_buf, &ued_entry.Locale, 0/*srcLineNo*/, 0/*pLogger*/));
+	}
+	THROW(rScan.IncrChr(':'));
+	rScan.Skip();
+	while(!rScan.IsEnd()) {
+		if(rScan.GetQuotedString(temp_buf)) {
+		}
+		else if(rScan.GetXDigits(temp_buf)) {
+		}
+		else {
+			ok = false;
+			break;
+		}
+		rScan.Skip();
+	}
+	CATCHZOK
+	return ok;
+}
+
+int  SrUedContainer_Base::ReadProps(const char * pFileName)
+{
+	int    ok = 1;
+	SString line_buf;
+	SStrScan scan;
+	SFile  f_in(pFileName, SFile::mRead);
+	THROW(f_in.IsValid());
+	while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+		uint comment_pos = 0;
+		if(line_buf.Search("//", 0, 0, &comment_pos)) {
+			line_buf.Trim(comment_pos).Strip();
+		}
+		if(line_buf.NotEmpty()) {
+			scan.Set(line_buf, 0U);
+			if(ReadSingleProp(scan)) {
+				;
+			}
+			else {
+				// @todo @err
+				CALLEXCEPT();
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SrUedContainer_Base::WriteProps(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash)
 {
 	int    ok = 1;
@@ -1773,8 +1846,8 @@ int SrUedContainer_Base::WriteProps(const char * pFileName, const SBinaryChunk *
 								else {
 									comment_buf.CatChar('%').CatHex(p_entry->Ued); // @todo @err
 								}
-								if(p_entry->LocaleId) {
-									uint64 ued_locus = UED::ApplyMetaToRawValue32(LinguaLocusMeta, p_entry->LocaleId);
+								if(p_entry->Locale) {
+									uint64 ued_locus = UED::ApplyMetaToRawValue32(LinguaLocusMeta, p_entry->Locale);
 									if(SearchBaseId(ued_locus, temp_buf)) {
 										line_buf.Space().Cat(temp_buf);
 										comment_buf.Space().Cat(temp_buf);
@@ -1853,7 +1926,7 @@ int SrUedContainer_Base::WriteSource(const char * pFileName, const SBinaryChunk 
 		{
 			for(uint i = 0; i < TL.getCount(); i++) {
 				const TextEntry & r_e = TL.at(i);
-				line_buf.Z().CatHex(r_e.Id).Space();
+				line_buf.Z().CatHex(r_e.Ued).Space();
 				assert(r_e.Locale);
 				uint64 ued_locus = UED::ApplyMetaToRawValue32(LinguaLocusMeta, r_e.Locale);
 				assert(ued_locus);

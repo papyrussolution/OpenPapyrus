@@ -1038,20 +1038,36 @@ int CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 		if(pItem) {
 			const  int _pos = *pPos; // *Pos была увеличена на 1 функцией enumItems()
 			uint   ep = 0;
-			SString serial;
+			SString temp_buf;
 			pItem->Z() = *p_item;
-			GetLineTextExt(_pos, CCheckPacket::lnextSerial, serial);
-			serial.CopyTo(pItem->Serial, sizeof(pItem->Serial));
-			GetLineTextExt(_pos, CCheckPacket::lnextEgaisMark, serial);
-			serial.CopyTo(pItem->EgaisMark, sizeof(pItem->EgaisMark));
-			GetLineTextExt(_pos, CCheckPacket::lnextRemoteProcessingTa, serial); // @v10.1.6
-			serial.CopyTo(pItem->RemoteProcessingTa, sizeof(pItem->RemoteProcessingTa)); // @v10.1.6
-			GetLineTextExt(_pos, CCheckPacket::lnextChZnGtin, serial); // @v10.4.12
-			serial.CopyTo(pItem->ChZnGtin, sizeof(pItem->ChZnGtin)); // @v10.4.12
-			GetLineTextExt(_pos, CCheckPacket::lnextChZnSerial, serial); // @v10.4.12
-			serial.CopyTo(pItem->ChZnSerial, sizeof(pItem->ChZnSerial)); // @v10.4.12
-			GetLineTextExt(_pos, CCheckPacket::lnextChZnMark, serial); // @v10.6.9
-			serial.CopyTo(pItem->ChZnMark, sizeof(pItem->ChZnMark)); // @v10.6.9
+			GetLineTextExt(_pos, CCheckPacket::lnextSerial, temp_buf);
+			temp_buf.CopyTo(pItem->Serial, sizeof(pItem->Serial));
+			GetLineTextExt(_pos, CCheckPacket::lnextEgaisMark, temp_buf);
+			temp_buf.CopyTo(pItem->EgaisMark, sizeof(pItem->EgaisMark));
+			GetLineTextExt(_pos, CCheckPacket::lnextRemoteProcessingTa, temp_buf);
+			temp_buf.CopyTo(pItem->RemoteProcessingTa, sizeof(pItem->RemoteProcessingTa));
+			GetLineTextExt(_pos, CCheckPacket::lnextChZnGtin, temp_buf);
+			temp_buf.CopyTo(pItem->ChZnGtin, sizeof(pItem->ChZnGtin));
+			GetLineTextExt(_pos, CCheckPacket::lnextChZnSerial, temp_buf);
+			temp_buf.CopyTo(pItem->ChZnSerial, sizeof(pItem->ChZnSerial));
+			GetLineTextExt(_pos, CCheckPacket::lnextChZnMark, temp_buf);
+			temp_buf.CopyTo(pItem->ChZnMark, sizeof(pItem->ChZnMark));
+			// @v12.1.1 {
+			{
+				S_GUID chzn_pm_req_id;
+				int64  chzn_pm_req_timestamp = 0;
+				GetLineTextExt(_pos, CCheckPacket::lnextChZnPm_ReqId, temp_buf);
+				if(temp_buf.NotEmptyS())
+					chzn_pm_req_id.FromStr(temp_buf);
+				GetLineTextExt(_pos, CCheckPacket::lnextChZnPm_ReqTimestamp, temp_buf);
+				if(temp_buf.NotEmptyS())
+					chzn_pm_req_timestamp = temp_buf.ToInt64();
+				if(chzn_pm_req_timestamp && !chzn_pm_req_id.IsZero()) {
+					pItem->ChZnPm_ReqId = chzn_pm_req_id;
+					pItem->ChZnPm_ReqTimestamp = chzn_pm_req_timestamp;
+				}
+			}
+			// } @v12.1.1 
 			if(ExtList.lsearch(&_pos, &ep, CMPF_LONG)) {
 				const LineExt & r_le = ExtList.at(ep);
 				pItem->Queue = r_le.Queue;
@@ -1059,7 +1075,7 @@ int CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 				SETFLAG(pItem->Flags, cifModifier, r_le.Flags & r_le.fModifier);
 				SETFLAG(pItem->Flags, cifPartOfComplex, r_le.Flags & r_le.fPartOfComplex);
 				SETFLAG(pItem->Flags, cifQuotedByGift,  r_le.Flags & r_le.fQuotedByGift);
-				SETFLAG(pItem->Flags, cifFixedPrice,    r_le.Flags & r_le.fFixedPrice); // @v10.1.7
+				SETFLAG(pItem->Flags, cifFixedPrice,    r_le.Flags & r_le.fFixedPrice);
 			}
 		}
 		return 1;
@@ -1482,6 +1498,16 @@ int CCheckPacket::InsertItem(const CCheckItem & rItem)
 		if(rItem.ChZnMark[0]) {
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnMark, rItem.ChZnMark));
 		}
+		// @v12.1.1 {
+		if(!rItem.ChZnPm_ReqId.IsZero() && rItem.ChZnPm_ReqTimestamp) {
+			SString temp_buf;
+			rItem.ChZnPm_ReqId.ToStr(S_GUID::fmtPlain, temp_buf);
+			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnPm_ReqId, temp_buf));
+			//
+			temp_buf.Z().Cat(rItem.ChZnPm_ReqTimestamp);
+			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnPm_ReqTimestamp, temp_buf));
+		}
+		// } @v12.1.1 
 		{
 			LineExt le;
 			le.Queue = rItem.Queue;

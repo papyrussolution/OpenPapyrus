@@ -10051,12 +10051,14 @@ struct CCheckItem { // @transient
 	int8   Queue;           // Очередность подачи
 	int8   Reserve[1];      // @alignment // @v11.5.8 [3]-->[1]
 	int16  RByCheck;        // @v11.5.8 Проекция поля CCheckLineTbl::Rec::RByCheck
+	S_GUID ChZnPm_ReqId;        // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
+	int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
 	char   BarCode[24];     //
 	char   GoodsName[128];  //
-	char   Serial[32];      // @v10.2.10 [24]-->[32]
-	char   ChZnGtin[16];    // @v10.4.12 Gtin код товара, считанный из марки 'честный знак'
-	char   ChZnSerial[24];  // @v10.4.11 Серийный номер маркировки 'честный знак'.
-	char   ChZnMark[156];   // @v10.6.9 Марка 'честный знак'
+	char   Serial[32];      // 
+	char   ChZnGtin[16];    // Gtin код товара, считанный из марки 'честный знак'
+	char   ChZnSerial[24];  // Серийный номер маркировки 'честный знак'.
+	char   ChZnMark[156];   // Марка 'честный знак'
 	char   EgaisMark[156];  // Марка алкогольной продукции ЕГАИС // @v10.1.6 [80]-->[156]
 	char   RemoteProcessingTa[64]; // @v10.1.6 Идентификатор, подтверджающий удаленную обработку строки
 };
@@ -10248,13 +10250,15 @@ public:
 	// Descr: Идентификаторы текстовых расширений строк чека
 	//
 	enum { // @persistent
-		lnextSerial             = 1, // Серийный номер
-		lnextEgaisMark          = 2, // Марка ЕГАИС
-		lnextRemoteProcessingTa = 3, // Символ транзакции удаленной обработки строки. Имеет специальное назначение,
+		lnextSerial              = 1, // Серийный номер
+		lnextEgaisMark           = 2, // Марка ЕГАИС
+		lnextRemoteProcessingTa  = 3, // Символ транзакции удаленной обработки строки. Имеет специальное назначение,
 			// сопряженное с предварительной обработкой чека перед проведением через удаленный сервис.
-		lnextChZnSerial         = 4, // Серийный номер 'честный знак'
-		lnextChZnGtin           = 5, // GTIN считанный из кода 'честный знак'
-		lnextChZnMark           = 6, // Марка 'честный знак'
+		lnextChZnSerial          = 4, // Серийный номер 'честный знак'
+		lnextChZnGtin            = 5, // GTIN считанный из кода 'честный знак'
+		lnextChZnMark            = 6, // Марка 'честный знак'
+		lnextChZnPm_ReqId        = 7, // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
+		lnextChZnPm_ReqTimestamp = 8, // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
 	};
 	struct PreprocessChZnCodeResult { // @flat
 		PreprocessChZnCodeResult();
@@ -20241,10 +20245,10 @@ struct PPGlobalUserAccConfig {
 #define PPGLS_FACEBOOK      2 //
 #define PPGLS_VK            3 //
 #define PPGLS_VETIS         4 //
-#define PPGLS_CHZN          5 // @v10.6.1 честный знак
-#define PPGLS_INSTAGRAM     6 // @v10.8.9
-#define PPGLS_UDS           7 // @v10.8.9 Сервис UDS (бонусная система, интернет-магазин)
-#define PPGLS_UNIVERSEHTT   8 // @v10.9.4 Сервис Universe-HTT (бонусная система, интернет-магазин и др.)
+#define PPGLS_CHZN          5 // честный знак
+#define PPGLS_INSTAGRAM     6 // 
+#define PPGLS_UDS           7 // Сервис UDS (бонусная система, интернет-магазин)
+#define PPGLS_UNIVERSEHTT   8 // Сервис Universe-HTT (бонусная система, интернет-магазин и др.)
 #define PPGLS_SHOPIFY       9 // @v10.9.4 @construction
 #define PPGLS_WILDBERRIES  10 // @v12.1.0 @construction
 
@@ -20262,7 +20266,7 @@ struct PPGlobalUserAcc {
 	char   Symb[20];       // Символ //
 	S_GUID_Base LocalDbUuid; // GUID локальной базы данных
 	char   Password[40];   // Пароль (зашифрован и свернут в строку кодировкой MIME64)
-	PPID   ServiceIdent;   // @v10.5.5 Идентификатор сервиса, с которым связана запись
+	PPID   ServiceIdent;   // Идентификатор сервиса, с которым связана запись
 	long   Flags;          // @flags
 	long   LocalUserID;    // Ид пользователя, относительно локальной базы данных
 	PPID   PersonID;       // -->Person.ID
@@ -20658,6 +20662,9 @@ public:
 	explicit PPObjAccSheet(void * extraPtr = 0);
 	virtual int  Edit(PPID * pID, void * extraPtr);
 	int    FASTCALL Fetch(PPID id, PPAccSheet * pRec);
+	//
+	// Descr: возвращает >0 если таблица статей acsID ассоциирована с объектами типа objType.
+	//
 	int    IsAssoc(PPID acsID, PPID objType, PPAccSheet *);
 	int    IsLinkedToMainOrg(PPID acsID);
 private:
@@ -22051,18 +22058,20 @@ struct SlipLineParam {
 	int    BarcodeStd;    // BARCSTD_XXX Стандарт штрихкода
 	int    BarcodeWd;     // Ширина штрихкода (в точках)
 	int    BarcodeHt;     // Высота штрихкода (в точках)
-	int    ChZnProductType; // @v10.7.2
+	int    ChZnProductType; //
 	TRect  PictCoord;     // Координаты изображения
 	CCheckPacket::PreprocessChZnCodeResult PpChZnR; // @v11.1.11 Результат препроцессинга марки честный знак. Если PpChZnR.LineIdx == 0, то препроцессинга не было.
 	SString FontName;     // Наименование гарнитуры шрифта (для обычного принтера)
 	SString PictPath;     // Путь к файлу изображения
 	SString Text;         // 
 	SString Code;         // 
-	SString ChZnCode;     // @v10.6.8 Маркировка товара маркой честный знак
-	SString ChZnGTIN;     // @v10.7.2
-	SString ChZnSerial;   // @v10.7.2
-	SString ChZnPartN;    // @v10.7.8 Номер партии в марке честный знак
-	SString ChZnSid;      // @v10.8.12 Ид предприятия для передачи в честный знак
+	SString ChZnCode;     // Маркировка товара маркой честный знак
+	SString ChZnGTIN;     // 
+	SString ChZnSerial;   // 
+	SString ChZnPartN;    // Номер партии в марке честный знак
+	SString ChZnSid;      // Ид предприятия для передачи в честный знак
+	S_GUID ChZnPm_ReqId;  // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
+	int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
 };
 
 struct SlipDocCommonParam {
@@ -54510,9 +54519,11 @@ public:
 		double AbstractPrice; // Цена, определенная оператором, без выбора товара.
 		SString Serial;
 		SString EgaisMark;
-		SString ChZnMark;     // @v10.6.9 Марка 'честный знак'
-		SString ChZnGtin;     // @v10.4.12 GTIN код товара, считанный из марки 'честный знак'
-		SString ChZnSerial;   // @v10.4.12 Серийный номер марки 'честный знак'
+		SString ChZnMark;     // Марка 'честный знак'
+		SString ChZnGtin;     // GTIN код товара, считанный из марки 'честный знак'
+		SString ChZnSerial;   // Серийный номер марки 'честный знак'
+		S_GUID ChZnPm_ReqId;        // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
+		int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
 	};
 	//int    SetupNewRow(PPID goodsID, double qtty, double priceBySerial, const char * pSerial, PPID giftID = 0);
 	int    SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID = 0);
@@ -56190,7 +56201,7 @@ public:
 	PPID   OpID;
 	PPID   LocID;
 	PPID   PosNodeID;
-	PPID   GuaID;        // @v10.6.5 Глобальная учетная запись
+	PPID   GuaID;        // Глобальная учетная запись
 	DateRange Period;    // Период за который следует импортировать документы
 	PPBillImpExpParam BillParam;
 	PPBillImpExpParam BRowParam;
@@ -56337,6 +56348,7 @@ private:
 //   Другие диалоги могут наследовать упарвляющие элементы и поведение этого диалога.
 //
 class ImpExpParamDialog : public TDialog {
+	DECL_DIALOG_DATA(PPImpExpParam);
 public:
 	enum {
 		fDisableImport = 0x0001,
@@ -56348,8 +56360,6 @@ public:
 	int    getDTS(PPImpExpParam *);
 protected:
 	DECL_HANDLE_EVENT;
-
-	PPImpExpParam Data;
 	long   Flags;
 	int    EnableExcelImpExp;
 };
@@ -56379,6 +56389,7 @@ private:
 //
 //
 class GoodsImpExpDialog : public ImpExpParamDialog {
+	DECL_DIALOG_DATA(PPGoodsImpExpParam);
 public:
 	GoodsImpExpDialog();
 	int    setDTS(const PPGoodsImpExpParam * pData);
@@ -56386,13 +56397,12 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls(long direction);
-
-	PPGoodsImpExpParam Data;
 };
 //
 //
 //
 class QuotImpExpDialog : public ImpExpParamDialog {
+	DECL_DIALOG_DATA(PPQuotImpExpParam);
 public:
 	QuotImpExpDialog();
 	int    setDTS(const PPQuotImpExpParam * pData);
@@ -56401,7 +56411,6 @@ private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls(long direction);
 
-	PPQuotImpExpParam Data;
 	const PPObjQuotKind::Special QkSpc; // @v11.4.2
 	PPObjQuotKind QkObj; // @v11.4.2
 };
@@ -56409,50 +56418,47 @@ private:
 //
 //
 class PersonImpExpDialog : public ImpExpParamDialog {
+	DECL_DIALOG_DATA(PPPersonImpExpParam);
 public:
 	PersonImpExpDialog();
 	int    setDTS(const PPPersonImpExpParam * pData);
 	int    getDTS(PPPersonImpExpParam * pData);
-private:
-	PPPersonImpExpParam Data;
 };
 //
 //
 //
 class PhoneListImpExpDialog : public ImpExpParamDialog {
+	DECL_DIALOG_DATA(PPPhoneListImpExpParam);
 public:
 	PhoneListImpExpDialog();
 	int    setDTS(const PPPhoneListImpExpParam * pData);
 	int    getDTS(PPPhoneListImpExpParam * pData);
-private:
-	PPPhoneListImpExpParam Data;
 };
 //
 //
 //
 class SCardImpExpDialog : public ImpExpParamDialog {
+	DECL_DIALOG_DATA(PPSCardImpExpParam);
 public:
 	SCardImpExpDialog();
 	int    setDTS(const PPSCardImpExpParam * pData);
 	int    getDTS(PPSCardImpExpParam * pData);
-private:
-	PPSCardImpExpParam Data;
 };
 //
 //
 //
 class LotImpExpDialog : public ImpExpParamDialog {
+	DECL_DIALOG_DATA(PPLotImpExpParam);
 public:
 	LotImpExpDialog();
 	int    setDTS(const PPLotImpExpParam * pData);
 	int    getDTS(PPLotImpExpParam * pData);
-private:
-	PPLotImpExpParam Data;
 };
 //
 //
 //
 class BillHdrImpExpDialog : public ImpExpParamDialog {
+	DECL_DIALOG_DATA(PPBillImpExpParam);
 public:
 	BillHdrImpExpDialog();
 	int    setDTS(const PPBillImpExpParam * pData);
@@ -56460,11 +56466,10 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls(long direction);
-
-	PPBillImpExpParam Data;
 };
 
 class CCheckImpExpDialog : public ImpExpParamDialog {
+	DECL_DIALOG_DATA(PPCCheckImpExpParam);
 public:
 	CCheckImpExpDialog();
 	int    setDTS(const PPCCheckImpExpParam * pData);
@@ -56472,8 +56477,6 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls(long direction);
-
-	PPCCheckImpExpParam Data;
 };
 //
 // Descr: Вспомогательный класс, обеспечивающий однообразную запись в журналы
@@ -56507,16 +56510,16 @@ public:
 		SString DesadvBillCode;
 		LDATE   DesadvBillDate;
 		int     AllRowsAccepted;
-		PPID    WrOffBillID; // @v10.2.12 Ид документа списания (если Bp - драфт-документ, как и должно быть в большинстве случаев)
-		PPID    OrderBillID; // @v10.2.12 Ид документа заказа, на основании которого был сформирован DESADV, которому соответствует данный RECADV
+		PPID    WrOffBillID; // Ид документа списания (если Bp - драфт-документ, как и должно быть в большинстве случаев)
+		PPID    OrderBillID; // Ид документа заказа, на основании которого был сформирован DESADV, которому соответствует данный RECADV
 		RAssocArray DesadvQttyList; // Отгруженные количества, ассоциированные с индексом строки (1..) в документе this->Bp
-		RAssocArray RecadvQttyList; // @v10.2.12 Принятые количества, ассоциированные с индексом строки (1..) в документе this->Bp
+		RAssocArray RecadvQttyList; // Принятые количества, ассоциированные с индексом строки (1..) в документе this->Bp
 		//
 		// Заказанные количества, ассоциированные с индексом строки (1..) в документе DESADV.
 		// Так как при отправке RECADV однозначно сопоставить строку заказа со строкой DESADV (теоретически) можеть быть сложно,
 		// то при возникновении неоднозначностей модуль распределяет такие значения пропорционально.
 		//
-		RAssocArray OrderedQttyList; // @v10.3.0
+		RAssocArray OrderedQttyList;
 	};
 	struct Packet {
 		explicit Packet(int docType);
@@ -57571,8 +57574,8 @@ public:
 		icacnLoadUpdated     = 0x0001,
 		icacnLoadAllDocs     = 0x0002,
 		icacnLoadStock       = 0x0004,
-		icacnPrepareOutgoing = 0x0008, // @v10.7.8
-		icacnSendOutgoing    = 0x0010, // @v10.7.8
+		icacnPrepareOutgoing = 0x0008,
+		icacnSendOutgoing    = 0x0010,
 		icacnRefsImport      = 0x0020  // @v11.0.10
 	};
 	enum {
@@ -57668,7 +57671,7 @@ private:
 	static int DynFuncVetDType;
 	static int DynFuncVetStockByDoc;
 	static int DynFuncVetUUID;  //@erik v10.4.11
-	static int DynFuncCheckExpiry; // @v10.6.3
+	static int DynFuncCheckExpiry;
 	static int DynFuncCheckLocation; // @v11.5.8
 
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
@@ -57706,7 +57709,6 @@ private:
 int   EditCmdItem(const PPCommandGroup * pDesktop, PPCommand * pData, /*int isDesktopCommand*/PPCommandGroupCategory kind);
 int   EditName(SString & rName);
 int   EditCommandGroup(PPCommandGroup * pData, /*long initID*/const S_GUID & rInitUuid, PPCommandGroupCategory kind);
-// @v10.9.3 int   EditMenusFromFile();
 //HMENU PPLoadMenu(TVRez * rez, long menuID, int fromRc, int * pNotFound);
 HMENU PPLoadCommandMenu(const S_GUID & rUuid, int * pNotFound);
 HMENU PPLoadResourceMenu(TVRez * rez, long menuID, int * pNotFound);

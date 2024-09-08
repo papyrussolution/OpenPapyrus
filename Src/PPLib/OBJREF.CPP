@@ -1121,7 +1121,7 @@ int PPObjUnit::ProcessReservedItem(TVRez & rez)
 	SString flags;
 	PPID   id = static_cast<PPID>(rez.getUINT());
 	rez.getString(name, 2);
-	PPExpandString(name, CTRANSF_UTF8_TO_INNER); // @v9.4.4
+	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 	rez.getString(abbr, 2);
 	rez.getString(flags, 2);
 	THROW(r = Search(id));
@@ -1187,7 +1187,7 @@ int PPObjPersonStatus::Edit(PPID * pID, void * extraPtr)
 	int    ok = 1;
 	int    r = cmCancel, valid_data = 0;
 	ushort v = 0;
-	PPPersonStatus rec;
+	PPPersonStatus2 rec;
 	TDialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));
 	dlg = new TDialog(DLG_PSNST);

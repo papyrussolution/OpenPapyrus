@@ -6388,11 +6388,9 @@ int SfaHeineken::ReceiveOrders()
 	THROW(P_Lib);
 	THROW_SL(func = reinterpret_cast<SFAHEINEKENGETORDERS_PROC>(P_Lib->GetProcAddr("SfaHeineken_GetOrders")));
 	sess.Setup(SvcUrl, UserName, Password);
-	// @v10.0.1 {
 	if(checkdate(P.ExpPeriod.low) && P.ExpPeriod.upp == P.ExpPeriod.low) {
 		query_date = P.ExpPeriod.low;
 	}
-	// } @v10.0.1
 	p_result = func(sess, query_date, 0/*demo*/);
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	ParseOrdersPacket(p_result, &reply_info, result_list);
@@ -6450,7 +6448,6 @@ int SfaHeineken::ReceiveOrders()
 				if(wh_id && dlvr_loc_id && ar_id) {
 					int    skip = 0;
 					PPBillPacket pack;
-					//BillTbl::Rec ex_bill_rec;
 					PPID   ex_bill_id = 0;
 					Goods2Tbl::Rec goods_rec;
 					PPBillPacket::SetupObjectBlock sob;

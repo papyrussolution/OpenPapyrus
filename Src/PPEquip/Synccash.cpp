@@ -240,14 +240,26 @@ SCS_SYNCCASH::~SCS_SYNCCASH()
 
 static int FASTCALL ArrAdd(StrAssocArray & rArr, int pos, int val)
 {
-	SString & r_str = SLS.AcquireRvlStr(); // @v9.9.4 SLS.AcquireRvlStr
+	SString & r_str = SLS.AcquireRvlStr();
 	return rArr.Add(pos, r_str.Z().Cat(val), 1) ? 1 : PPSetErrorSLib();
 }
 
 static int FASTCALL ArrAdd(StrAssocArray & rArr, int pos, double val)
 {
-	SString & r_str = SLS.AcquireRvlStr(); // @v9.9.4 SLS.AcquireRvlStr
+	SString & r_str = SLS.AcquireRvlStr();
 	return rArr.Add(pos, r_str.Z().Cat(val), 1) ? 1 : PPSetErrorSLib();
+}
+
+static int FASTCALL ArrAdd(StrAssocArray & rArr, int pos, int64 val) // @v12.1.1
+{
+	SString & r_str = SLS.AcquireRvlStr();
+	return rArr.Add(pos, r_str.Z().Cat(val), 1) ? 1 : PPSetErrorSLib();
+}
+
+static int FASTCALL ArrAdd(StrAssocArray & rArr, int pos, const S_GUID & rVal) // @v12.1.1
+{
+	SString & r_str = SLS.AcquireRvlStr();
+	return rArr.Add(pos, r_str.Z().Cat(rVal, S_GUID::fmtIDL), 1) ? 1 : PPSetErrorSLib();
 }
 
 static int FASTCALL ArrAdd(StrAssocArray & rArr, int pos, const char * str)
@@ -771,7 +783,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTIMESTAMP, temp_buf));
 					}
 					// } @v11.2.3 
-					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
+					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id));
 					temp_buf.Z();
 					if(!ofdf.OfdVer_.IsEmpty())
 						ofdf.OfdVer_.ToStr(temp_buf);
@@ -848,8 +860,13 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							if(ofdf.Sid.NotEmpty())
 								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSID, ofdf.Sid));
 							// } @v11.2.4
+							// @v12.1.1 {
+							if(!sl_param.ChZnPm_ReqId.IsZero() && sl_param.ChZnPm_ReqTimestamp != 0) {
+								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMREQID, sl_param.ChZnPm_ReqId));
+								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMREQTIMESTAMP, sl_param.ChZnPm_ReqTimestamp));
+							}
+							// } @v12.1.1
 						}
-						// @v10.4.1 {
 						if(sl_param.PaymTermTag != CCheckPacket::pttUndef) {
 							uint   str_id = 0;
 							switch(sl_param.PaymTermTag) {
@@ -866,7 +883,6 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 								THROW(ArrAdd(Arr_In, DVCPARAM_PAYMENTTERMTAG, temp_buf));
 							}
 						}
-						// } @v10.4.1
 						// @erikJ v10.4.12 {
 						if(sl_param.SbjTermTag != CCheckPacket::sttUndef) {
 							uint   str_id = 0;

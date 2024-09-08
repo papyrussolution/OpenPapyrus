@@ -2603,7 +2603,6 @@ int SCS_ATOLDRV::PrintZReportCopy(const CSessInfo * pInfo)
 	THROW_INVARG(pInfo);
 	THROW(Connect(&stb));
 	THROW(AllowPrintOper_Fptr10());
-	// @v10.3.4 @fix (лишний вызов) THROW(Connect());
 	if(P_Disp) {
 		THROW(SetProp(Mode, MODE_REGISTER));
 		//THROW(GetProp(CharLineLength, &CheckStrLen));
@@ -2725,7 +2724,7 @@ int SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 			if(!(Flags & sfDontUseCutter))
 				CutPaper(0);
 			else
-				SDelay(1000); // @v10.8.9
+				SDelay(1000);
 		}
 	}
 	CATCH

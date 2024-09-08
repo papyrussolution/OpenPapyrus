@@ -125,7 +125,9 @@ private:
 	static uint64 Helper_SetRaw_DecimalString(uint64 meta, const char * pT, uint flagsBits, uint flags);
 	static bool   Helper_GetRaw_DecimalString(uint64 meta, uint64 ued, SString & rT, uint flagsBits, uint * pFlags);
 };
-
+//
+// Descr: Базовый класс, реализующий упорядоченный набор ued-идентификаторов
+//
 class UedSetBase : private SBaseBuffer {
 public:
 	DECL_INVARIANT_C();
@@ -149,16 +151,34 @@ private:
 //
 class SrUedContainer_Base : public SStrGroup {
 public:
+	//
+	// Descr: Вспомогательная структура, содержащая значение UED сопоставленное с идентификатором локали.
+	//   Часто применяется при разборе исходных файлов.
+	//
+	struct UedLocaleEntry {
+		UedLocaleEntry() : Ued(0ULL), Locale(0U)
+		{
+		}
+		UedLocaleEntry(uint64 ued, uint locale) : Ued(ued), Locale(locale)
+		{
+		}
+		UedLocaleEntry & Z()
+		{
+			Ued = 0ULL;
+			Locale = 0U;
+			return *this;
+		}
+		uint64 Ued;
+		uint32 Locale;
+	};
 	struct BaseEntry {
 		uint64 Id;
 		uint32 SymbHashId;
-		uint32 LineNo; // @v11.7.8 Номер строки исходного файла, с которой начинается определение.
+		uint32 LineNo; // Номер строки исходного файла, с которой начинается определение.
 	};
-	struct TextEntry {
-		uint64 Id;
-		uint32 Locale;
+	struct TextEntry : public UedLocaleEntry {
 		uint32 TextP;
-		uint32 LineNo; // @v11.7.8 Номер строки исходного файла, с которой начинается определение.
+		uint32 LineNo; // Номер строки исходного файла, с которой начинается определение.
 	};
 	enum {
 		canonfnIds = 1,
@@ -173,7 +193,7 @@ public:
 	int    Verify(const char * pPath, long ver, SBinaryChunk * pHash) const;
 	uint64 SearchSymb(const char * pSymb, uint64 meta) const;
 	//
-	// Descr: Флаги функции Recoginaze
+	// Descr: Флаги функции Recognize
 	//
 	enum {
 		rfDraft       = 0x0001, // Не искать соответствия символов
@@ -192,14 +212,14 @@ protected:
 	};
 
 	int    ReadSource(const char * pFileName, uint flags, PPLogger * pLogger);
+	int    ReadProps(const char * pFileName);
 	int    WriteSource(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash);
 	int    WriteProps(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash);
 	uint64 SearchBaseSymb(const char * pSymb, uint64 meta) const;
 	bool   SearchBaseId(uint64 id, SString & rSymb) const;
 	bool   SearchSymbHashId(uint32 symbHashId, SString & rSymb) const;
 	//
-	// Descr: Распознает простую конструкцию символа сущности в одном из двух
-	//   вариантов:
+	// Descr: Распознает простую конструкцию символа сущности в одном из двух вариантов:
 	//   symb или meta.symb
 	// Note: Функция не пытается определить достоверность символов. То есть
 	//   не ищет их среди определений.
@@ -213,23 +233,19 @@ protected:
 	// Descr: Определитель свойства сущности, сохраняемый в препроцессинговом виде
 	//   так как финишная обработка требует знаний о всем массиве сущностей.
 	//
-	struct ProtoProp {
-		ProtoProp() : Ued(0), LocaleId(0), LineNo(0)
+	struct ProtoProp : public UedLocaleEntry {
+		ProtoProp() : LineNo(0)
 		{
 		}
-		uint64 Ued;
-		uint32 LocaleId; // Если свойство задано для языкового определения сущности, то здесь - 
-			// идентификатор соответствующего локуса.
+		// Если свойство задано для языкового определения сущности, то UedLocaleEntry::Locale - идентификатор соответствующего локуса.
 		uint32 LineNo; // Номер строки, на которой начинается определение свойства.
 		StringSet Prop; // The first item - property symb, other - arguments
 	};
-	class ProtoPropList_SingleUed : public TSCollection <ProtoProp> {
+	class ProtoPropList_SingleUed : public UedLocaleEntry, public TSCollection <ProtoProp> {
 	public:
-		ProtoPropList_SingleUed(uint64 ued, int localeId);
-		void Init(uint64 ued, int localeId);
+		ProtoPropList_SingleUed(uint64 ued, uint localeId);
+		void Init(uint64 ued, uint localeId);
 		ProtoProp * Create();
-		uint64 Ued;
-		int    LocaleId;
 	};
 	class PropertyListParsingBlock {
 	public:
@@ -251,17 +267,12 @@ protected:
 		int    State;  // Внутренний идентификатор состояния разбора.
 		ProtoPropList_SingleUed PL;
 	};
-	struct PropIdxEntry {
-		PropIdxEntry() : Ued(0), LocaleId(0)
-		{
-		}
+	struct PropIdxEntry : public UedLocaleEntry {
 		const void * GetHashKey(const void * pCtx, uint * pSize) const // hash-table support
 		{
-			ASSIGN_PTR(pSize, sizeof(Ued)+sizeof(LocaleId));
+			ASSIGN_PTR(pSize, sizeof(Ued)+sizeof(Locale));
 			return this;
 		}
-		uint64 Ued;
-		uint   LocaleId;
 		LAssocArray RefList; // Список позиций в PropertySet
 	};
 	//
@@ -284,10 +295,15 @@ protected:
 	int    GetPropList(TSCollection <PropIdxEntry> & rList) const;
 private:
 	uint64 SearchBaseIdBySymbId(uint symbId, uint64 meta) const;
+	int    GetLocaleIdBySymb(const char * pSymb, uint32 * pLocaleId, uint srcLineNo, PPLogger * pLogger) const;
 	int    ReplaceSurrogateLocaleId(const SymbHashTable & rT, uint32 surrLocaleId, uint32 * pRealLocaleId, uint lineNo, PPLogger * pLogger);
 	int    ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPLogger * pLogger);
 	int    RegisterProtoPropList(const ProtoPropList_SingleUed & rList);
 	int    ProcessProperties();
+	//
+	// Descr: Хелпер, считывающий одно свойство из файла standalone-описания свойств
+	//
+	bool   ReadSingleProp(SStrScan & rScan);
 	uint64 LinguaLocusMeta;
 	SymbHashTable Ht; // Хэш-таблица символов из списка BL
 	uint   LastSymbHashId;

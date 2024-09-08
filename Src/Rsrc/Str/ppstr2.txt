@@ -1976,6 +1976,7 @@ PPERR_APNCORR_UUID_DUP              "UUID корреспондирующего �
 PPERR_ALCRETAILPROHIBTIME           "Розничная продажа алкоголя в это время запрещена (%s)"
 PPERR_CHZNMARKPMFAULT               "Ошибка валидации марки '%s' разрешительным режимом честный знак"
 PPERR_CHZNMARKPMFAULT_SOLD          "Ошибка валидации марки '%s' разрешительным режимом честный знак - марка уже была продана"
+PPERR_CHZNMARKPMFAULT_EXPIRY        "Ошибка валидации марки '%s' разрешительным режимом честный знак - срок годности товара истек"
 //
 // Decl Struc Parsing
 //
@@ -5836,25 +5837,25 @@ DVCPARAM_LABEL                 "LABEL"
 DVCPARAM_CODE                  "CODE"
 DVCPARAM_VATRATE               "VATRATE"
 DVCPARAM_VATFREE               "VATFREE"
-DVCPARAM_PREPAY	               "PREPAY"         // @v10.0.0
-DVCPARAM_POSTPAY	           "POSTPAY"        // @v10.0.0
-DVCPARAM_RECKONPAY	           "RECKONPAY"      // @v10.0.0
-DVCPARAM_DATE	               "DATE"           // @v10.0.0
-DVCPARAM_TAXSYSTEM             "TAXSYSTEM"      // @v10.6.3
-DVCPARAM_VATAMOUNT18	       "VATAMOUNT18"    // @v10.0.0
-DVCPARAM_VATAMOUNT10	       "VATAMOUNT10"    // @v10.0.0
-DVCPARAM_VATAMOUNT00	       "VATAMOUNT00"    // @v10.0.0
-DVCPARAM_VATAMOUNT20           "VATAMOUNT20"    // @v10.4.8
-DVCPARAM_VATFREEAMOUNT	       "VATFREEAMOUNT"  // @v10.0.0
+DVCPARAM_PREPAY	               "PREPAY"
+DVCPARAM_POSTPAY	           "POSTPAY"
+DVCPARAM_RECKONPAY	           "RECKONPAY"
+DVCPARAM_DATE	               "DATE"
+DVCPARAM_TAXSYSTEM             "TAXSYSTEM"
+DVCPARAM_VATAMOUNT18	       "VATAMOUNT18"
+DVCPARAM_VATAMOUNT10	       "VATAMOUNT10"
+DVCPARAM_VATAMOUNT00	       "VATAMOUNT00"
+DVCPARAM_VATAMOUNT20           "VATAMOUNT20"
+DVCPARAM_VATFREEAMOUNT	       "VATFREEAMOUNT"
 DVCPARAM_LOGGING               "LOGGING"        // @v11.5.0
-DVCPARAM_CHZNCODE              "CHZNCODE"       // @v10.6.8 Маркировка товара маркой честный знак
-DVCPARAM_CHZNGTIN              "CHZNGTIN"       // @v10.7.2 GTIN марки честный знак
-DVCPARAM_CHZNSERIAL            "CHZNSERIAL"     // @v10.7.2 Серия марки честный знак
-DVCPARAM_CHZNPARTN             "CHZNPARTN"      // @v10.7.8 Номер партии в марке честный знак
-DVCPARAM_CHZNPRODTYPE          "CHZNPRODTYPE"   // @v10.7.2 Тип продукта честный знак
-DVCPARAM_CHZNSID               "CHZNSID"        // @v10.8.12 Ид предприятия для передачи в честный знак
-DVCPARAM_PAYMCCRD              "PAYMCCRD"       // @v10.4.1 Оплата корпоративной кредитной картой
-DVCPARAM_PAYMENTTERMTAG        "PAYMENTTERMTAG" // @v10.4.1
+DVCPARAM_CHZNCODE              "CHZNCODE"       // Маркировка товара маркой честный знак
+DVCPARAM_CHZNGTIN              "CHZNGTIN"       // GTIN марки честный знак
+DVCPARAM_CHZNSERIAL            "CHZNSERIAL"     // Серия марки честный знак
+DVCPARAM_CHZNPARTN             "CHZNPARTN"      // Номер партии в марке честный знак
+DVCPARAM_CHZNPRODTYPE          "CHZNPRODTYPE"   // Тип продукта честный знак
+DVCPARAM_CHZNSID               "CHZNSID"        // Ид предприятия для передачи в честный знак
+DVCPARAM_PAYMCCRD              "PAYMCCRD"       // Оплата корпоративной кредитной картой
+DVCPARAM_PAYMENTTERMTAG        "PAYMENTTERMTAG" //
 DVCPARAM_SUBJTERMTAG           "SUBJTERMTAG"    // @erik v10.4.12
 DVCPARAM_PTT_UNDEF             "PTT_UNDEF"          //
 DVCPARAM_PTT_FULL_PREPAY       "PTT_FULL_PREPAY"    // Предоплата 100% (Полная предварительная оплата до момента передачи предмета расчета)
@@ -5897,6 +5898,8 @@ DVCPARAM_PRESCRDATE                   "PRESCRDATE"   // @v11.8.0 // Рецепт
 DVCPARAM_PRESCRSERIAL                 "PRESCRSERIAL" // @v11.8.0 // Рецепт: Серия
 DVCPARAM_PRESCRNUMB                   "PRESCRNUMB"   // @v11.8.0 // Рецепт: Номер
 DVCPARAM_DRAFTBEERSIMPLIFIED          "DRAFTBEERSIMPLIFIED" // @v11.9.3 Признак упрощенного режима проведения продажи разливного пива через честный знак. В качестве значения передается штрихкод позиции.
+DVCPARAM_CHZNPMREQID                  "CHZNPMREQID"         // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
+DVCPARAM_CHZNPMREQTIMESTAMP           "CHZNPMREQTIMESTAMP"  // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
 
 [120]
 IMPEXPCMD_ORDRSP        "ORDRSP"
@@ -8549,6 +8552,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_extdlvrloccodetag                   "Тег дополнительного кода адреса доставки" // @v12.0.3
 @rtag_lot_chznintqtty                     "ЧЕСТНЫЙ ЗНАК целое число мест весового товара" // @v12.0.7
 @rtag_lot_prefsuppl                       "Предпочтительный поставщик для заказа"  // @v12.0.7
+@rtag_person_marketplacesymb              "Символ маркетплейса" // @v12.1.1
 //
 // Зарезервированные типы регистрационных документов
 //

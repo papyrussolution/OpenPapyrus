@@ -39,6 +39,8 @@ SlipLineParam & SlipLineParam::Z()
 	ChZnGTIN.Z();
 	ChZnSerial.Z();
 	ChZnSid.Z();
+	ChZnPm_ReqId.Z();  // @v12.1.1
+	ChZnPm_ReqTimestamp = 0; // @v12.1.1
 	return *this;
 }
 //
@@ -163,6 +165,8 @@ public:
 		char   ChZnGTIN[16];    // 
 		char   ChZnSerial[32];  // 
 		char   ChZnPartN[32];   // 
+		S_GUID ChZnPm_ReqId;  // @v12.1.1
+		int64  ChZnPm_ReqTimestamp; // @v12.1.1
 		RECT   PictCoord;
 		const  Zone * P_Zone;
 		const  Entry * P_Entry;
@@ -1510,6 +1514,8 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 			pIter->ChZnGTIN[0] = 0;
 			pIter->ChZnSerial[0] = 0;
 			pIter->ChZnPartN[0] = 0;
+			pIter->ChZnPm_ReqId.Z();  // @v12.1.1
+			pIter->ChZnPm_ReqTimestamp = 0; // @v12.1.1
 			const PPSlipFormat::Zone * p_zone = pIter->P_Zone;
 			if(pIter->EntryNo < p_zone->getCountI()) {
 				const PPSlipFormat::Entry * p_entry = pIter->P_Entry = p_zone->at(pIter->EntryNo);
@@ -1598,8 +1604,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 								}
 								// } @v11.2.6 
 							}
-							pIter->ChZnProductType = chzn_product_type; // @v10.7.2
-							// @v10.6.12 {
+							pIter->ChZnProductType = chzn_product_type;
 							P_CcPack->GetLineTextExt(pIter->SrcItemNo+1, CCheckPacket::lnextChZnMark, temp_buf); 
 							if(temp_buf.NotEmptyS()) {
 								GtinStruc gts;
@@ -1610,14 +1615,13 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 									//STRNSCPY(pIter->ChZnCode, temp_buf); // @v11.1.11
 									STRNSCPY(pIter->ChZnCode, reconstructed_org); // @v11.2.0
 									if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-										STRNSCPY(pIter->ChZnGTIN, temp_buf); // @v10.7.2
+										STRNSCPY(pIter->ChZnGTIN, temp_buf);
 										// @v11.1.11 result_chzn_code.Cat(temp_buf);
 										if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
 											// @v11.1.11 result_chzn_code.Cat(temp_buf);
 											// @v11.1.11 STRNSCPY(pIter->ChZnCode, result_chzn_code);
-											STRNSCPY(pIter->ChZnSerial, temp_buf); // @v10.7.2
+											STRNSCPY(pIter->ChZnSerial, temp_buf);
 										}
-										// @v10.7.8 {
 										if(gts.GetToken(GtinStruc::fldPart, &temp_buf)) {
 											if(isempty(pIter->ChZnSerial)) {
 												// @v11.1.11 result_chzn_code.Cat(temp_buf);
@@ -1625,11 +1629,20 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 											}
 											STRNSCPY(pIter->ChZnPartN, temp_buf); 
 										}
-										// } @v10.7.8 
 									}
+									// @v12.1.1 {
+									{
+										P_CcPack->GetLineTextExt(pIter->SrcItemNo+1, CCheckPacket::lnextChZnPm_ReqId, temp_buf); 
+										if(temp_buf.NotEmptyS()) {
+											pIter->ChZnPm_ReqId.FromStr(temp_buf);
+											P_CcPack->GetLineTextExt(pIter->SrcItemNo+1, CCheckPacket::lnextChZnPm_ReqTimestamp, temp_buf); 
+											if(temp_buf.NotEmptyS())
+												pIter->ChZnPm_ReqTimestamp = temp_buf.ToInt64();
+										}
+									}
+									// } @v12.1.1 
 								}
 							}
-							// } @v10.6.12 
 						}
 					}
 					else if(Src == srcGoodsBill) {
@@ -1638,7 +1651,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							pIter->Price = R2(fabs(ti.NetPrice()));
 							pIter->VatRate = 0.0;
 							pIter->GoodsID = labs(ti.GoodsID);
-							pIter->Ptt = CCheckPacket::pttUndef; // @v10.4.1
+							pIter->Ptt = CCheckPacket::pttUndef;
 							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
 								STRNSCPY(pIter->Text, goods_rec.Name);
 								P_Od->GObj.GetSingleBarcode(pIter->GoodsID, 0, temp_buf);
@@ -2454,7 +2467,7 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 
 int PPSlipFormat::Init(const char * pFileName, const char * pFormatName, SlipDocCommonParam * pParam)
 {
-	SlipDocCommonParam  sdc_param;
+	SlipDocCommonParam sdc_param;
 	MEMSZERO(sdc_param);
 	int    ok = Parse(pFileName, pFormatName);
 	if(ok > 0) {
@@ -2524,6 +2537,10 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 				}
 				else
 					sl_param.PpChZnR.Z(); // @paranoic
+				// @v12.1.1 {
+				sl_param.ChZnPm_ReqId = CurIter.ChZnPm_ReqId;
+				sl_param.ChZnPm_ReqTimestamp = CurIter.ChZnPm_ReqTimestamp;
+				// } @v12.1.1 
 			}
 			// } @v11.1.11 
 			{

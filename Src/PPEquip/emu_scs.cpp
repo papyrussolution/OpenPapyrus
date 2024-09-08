@@ -374,47 +374,6 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	return ok;
 }
 
-#if 0 // @v10.0.0 {
-/*virtual*/int SCS_SYNCSYM::PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN) // @removed
-{
-	int     ok = 1;
-	if(PrinterPort.Len()) {
-		SString buf;
-		SlipDocCommonParam sdc_param;
-		THROW_INVARG(pPack);
-		if(P_SlipFmt) {
-			int      r = 0;
-			SString  line_buf;
-			const SString  format_name = (multiplier) ? "CCheckRet" : "CCheck";
-			SlipLineParam sl_param;
-			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
-			if(r > 0) {
-				SString buf;
-				PrnLinesArray prn_list;
-				TextOutput = sdc_param.TextOutput; // @vmiller
-				for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
-					PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
-					THROW_SL(p_prn_ls);
-					p_prn_ls->PrnBuf = line_buf;
-					p_prn_ls->Param = sl_param;
-				}
-				buf.Z().Dot();
-				sl_param.Init();
-				{
-					PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
-					THROW_SL(p_prn_ls);
-					p_prn_ls->PrnBuf = buf;
-					p_prn_ls->Param  = sl_param;
-				}
-				SendToPrinter(&prn_list);
-			}
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } 0 @v10.0.0
-
 /*virtual*/int SCS_SYNCSYM::PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int     ok = 1;

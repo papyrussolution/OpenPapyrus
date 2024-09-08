@@ -966,11 +966,12 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 			ScURL c;
 			SString req;
 			url.RmvLastSlash().Slash().Cat("xml");
-			// @v11.0.11 {
-			if(Cfg.E.Flags & Config::fEgaisVer4Fmt) {
+			if(horecaAutoWo) { // @v12.1.1
+				url.CatChar('?').CatEq("type", "ChequeV4");
+			}
+			else if(Cfg.E.Flags & Config::fEgaisVer4Fmt) { // @v11.0.11
 				url.CatChar('?').CatEq("type", "ChequeV3"); // Это - не ошибка! Версия протокола 4, а версия чеков 3
 			}
-			// } @v11.0.11 
 			SFile wr_stream(ack_buf, SFile::mWrite);
 			ScURL::HttpForm hf;
 			{

@@ -41,7 +41,7 @@ int PPViewPalm::CheckForFilt(const PPStyloPalm * pRec)
 		if(!CheckFiltID(Filt.GroupID, pRec->GroupID))
 			return 0;
 		if(pRec->GroupID) {
-			PPStyloPalm rec;
+			PPStyloPalm2 rec;
 			MEMSZERO(rec);
 			if(ObjPalm.Search(pRec->GroupID, &rec) > 0) {
 				ord_op_id = rec.OrderOpID;

@@ -3230,31 +3230,42 @@ bool PPObjGoods::GetSimplifiedDraftBeerBarcode(PPID goodsID, SString & rCode) //
 int PPObjGoods::SearchByBarcode(const char * pCode, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * b, int adoptSearching)
 {
 	int    r = 1;
-	const  int bcchkdig = BIN(GetConfig().Flags & GCF_BCCHKDIG);
-	SString bc, org_bc, temp_buf;
-	(org_bc = pCode).Strip();
-	const size_t init_len = org_bc.Len();
-	bc = org_bc;
-	StringSet processed_list;
-	processed_list.add(bc);
-	r = P_Tbl->SearchByBarcode(bc, pBcRec, b);
-	if(r < 0 && adoptSearching) {
-		// mode: 1, 2, 3, 4, 5
-		static const int mode_list[] = { 1, 2, 3, 4, 5 };
-		for(uint i = 0; r < 0 && i < SIZEOFARRAY(mode_list); i++) {
-			if(Helper_SearchByBarcodeAdopt(pCode, mode_list[i], processed_list, pBcRec, b) > 0)
-				r = 1;
+	if(isempty(pCode)) {
+		r = -1;
+	}
+	else {
+		// @v12.1.1 const  int bcchkdig = BIN(GetConfig().Flags & GCF_BCCHKDIG);
+		SString org_bc;
+		(org_bc = pCode).Strip();
+		if(org_bc.IsEmpty()) {
+			r = -1;
 		}
-		if(CConfig.Flags & CCFLG_DEBUG) {
-			temp_buf.Z().Cat("SearchByBarcode");
-			if(r > 0)
-				temp_buf.Eq().Cat(bc);
-			else
-				temp_buf.Cat("=#0");
-			temp_buf.CatDiv(':', 0);
-			for(uint ssp = 0; processed_list.get(&ssp, bc);)
-				temp_buf.Space().Cat(bc);
-			PPLogMessage(PPFILNAM_DEBUG_LOG, temp_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+		else {
+			const size_t init_len = org_bc.Len();
+			SString bc(org_bc);
+			StringSet processed_list;
+			processed_list.add(bc);
+			r = P_Tbl->SearchByBarcode(bc, pBcRec, b);
+			if(r < 0 && adoptSearching) {
+				// mode: 1, 2, 3, 4, 5
+				static const int mode_list[] = { 1, 2, 3, 4, 5 };
+				for(uint i = 0; r < 0 && i < SIZEOFARRAY(mode_list); i++) {
+					if(Helper_SearchByBarcodeAdopt(pCode, mode_list[i], processed_list, pBcRec, b) > 0)
+						r = 1;
+				}
+				if(CConfig.Flags & CCFLG_DEBUG) {
+					SString temp_buf;
+					temp_buf.Z().Cat("SearchByBarcode");
+					if(r > 0)
+						temp_buf.Eq().Cat(bc);
+					else
+						temp_buf.Cat("=#0");
+					temp_buf.CatDiv(':', 0);
+					for(uint ssp = 0; processed_list.get(&ssp, bc);)
+						temp_buf.Space().Cat(bc);
+					PPLogMessage(PPFILNAM_DEBUG_LOG, temp_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+				}
+			}
 		}
 	}
 	return r;

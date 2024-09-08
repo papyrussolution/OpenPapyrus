@@ -11813,8 +11813,18 @@ struct SStrScan : public SRegExpSet {
 	//   GetNumber вернет 0.
 	//
 	int    FASTCALL GetDotPrefixedNumber(SString & rBuf);
+	//
+	// Descr: Считывает шестнадцатиричное число с опциональным знаком (+/-) и опциональным же
+	//   префиксом "0x".
+	//
 	int    FASTCALL GetHex(SString & rBuf);
+	//
+	// Descr: Считывает последовательность десятичных цифр (0-9).
+	//
 	int    FASTCALL GetDigits(SString & rBuf);
+	//
+	// Descr: Считывает последовательность шестнадцатиричных цифр (0-9a-fA-F).
+	//
 	int    FASTCALL GetXDigits(SString & rBuf); // @v11.4.1
 	int    FASTCALL GetEMail(SString & rBuf);
 	int    GetDate(long datefmt, LDATE & rDate);

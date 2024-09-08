@@ -1174,8 +1174,8 @@ int PPObjArticle::GetByPersonList(PPID accSheetID, const PPIDArray * pPsnList, P
 			}
 		}
 		else {
-			PPAccSheet acs_rec;
 			PPObjAccSheet acs_obj;
+			PPAccSheet acs_rec;
 			for(SEnum en = acs_obj.P_Ref->EnumByIdxVal(PPOBJ_ACCSHEET, 1, link_obj_type); en.Next(&acs_rec) > 0;) {
 				if(acs_rec.Assoc == link_obj_type)
 					THROW(GetByPersonList(acs_rec.ID, pPsnList, pArList)); // @recursion

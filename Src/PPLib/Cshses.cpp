@@ -866,7 +866,7 @@ int PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pH
 			q.getRecPosition(&rec_pos);
 			ext_strings.Z();
 			sbuf.Z(); // @v11.0.2 @fix
-			if(r_rec.ExtTextSize > 0) { // @v10.7.3
+			if(r_rec.ExtTextSize > 0) {
 				THROW_DB(t->getDirect(dbtidx, 0, rec_pos)); // @v11.0.2
 				t->readLobData(t->VT, sbuf);
 				t->destroyLobData(t->VT);
@@ -899,7 +899,12 @@ int PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pH
 			THROW_DB(bei.insert(&line_rec));
 			{
 				CclExtTextItem * p_ccln_extt_item = 0;
-				const int lnextf_list[] = { CCheckPacket::lnextSerial, CCheckPacket::lnextEgaisMark, CCheckPacket::lnextChZnMark, CCheckPacket::lnextRemoteProcessingTa };
+				const int lnextf_list[] = { 
+					CCheckPacket::lnextSerial, 
+					CCheckPacket::lnextEgaisMark, 
+					CCheckPacket::lnextChZnMark, 
+					CCheckPacket::lnextRemoteProcessingTa 
+				};
 				for(uint lnefidx = 0; lnefidx < SIZEOFARRAY(lnextf_list); lnefidx++) {
 					ext_strings.GetExtStrData(lnextf_list[lnefidx], temp_buf);
 					if(temp_buf.NotEmptyS()) {

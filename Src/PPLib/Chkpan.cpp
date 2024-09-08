@@ -542,7 +542,7 @@ int FASTCALL CPosProcessor::Packet::NextIteration(CCheckItem * pItem)
 //
 //
 //
-CPosProcessor::PgsBlock::PgsBlock(double qtty) : Flags(0), Qtty((qtty != 0.0) ? qtty : 1.0), PriceBySerial(0.0), AbstractPrice(0.0)
+CPosProcessor::PgsBlock::PgsBlock(double qtty) : Flags(0), Qtty((qtty != 0.0) ? qtty : 1.0), PriceBySerial(0.0), AbstractPrice(0.0), ChZnPm_ReqTimestamp(0)
 {
 }
 //
@@ -625,7 +625,7 @@ CPosProcessor::CardState & CPosProcessor::CardState::Z()
 	MaxCreditByCrdCard = 0.0;
 	AdditionalPayment = 0.0;
 	SCardID = 0;
-	PTR32(Code)[0] = 0;
+	Code[0] = 0;
 	return *this;
 }
 
@@ -6959,7 +6959,6 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					}
 				}
 			}
-			// @v10.5.9 clearEvent(event);
 			return;
 		}
 		else if(TVCMD == cmDefault && isCurrCtlID(CTL_CHKPAN_INPUT)) {
@@ -9296,9 +9295,10 @@ int CheckPaneDialog::ChZnMarkAutoSelect(PPID goodsID, double qtty, SString & rCh
 	return ok;
 }
 
-int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, PgsBlock & rBlk)
+int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, PgsBlock & rBlk)
 {
 	int    ok = -1;
+	const  LDATETIME now_dtm = getcurdatetime_();
 	SString temp_buf;
 	Goods2Tbl::Rec goods_rec;
 	if(GObj.Fetch(goodsID, &goods_rec) > 0) { // @v11.2.8 CheckMatrix
@@ -9312,7 +9312,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 		}
 		else if(sc_id && IsOnlyChargeGoodsInPacket(sc_id, 0)) {
 			SCardTbl::Rec sc_rec;
-			if(ScObj.Search(sc_id, &sc_rec) > 0 && !ScObj.CheckRestrictions(&sc_rec, 0, getcurdatetime_()))
+			if(ScObj.Search(sc_id, &sc_rec) > 0 && !ScObj.CheckRestrictions(&sc_rec, 0, now_dtm))
 				ok = MessageError(PPERR_CHKPAN_SCINVONGOODS, sc_rec.Code, eomBeep | eomPopup/*eomStatusLine*/);
 		}
 		if(ok) {
@@ -9388,7 +9388,9 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 
 					}*/
 					// } @v12.0.12 
-					if(Flags & fSelSerial && rBlk.Serial.IsEmpty() && rBlk.ChZnMark.IsEmpty()) { // @v12.0.12 Если указана марка то смысла выбирать серию нет
+					const SString preserve_chzn_mark(rBlk.ChZnMark);
+					const SString preserve_egais_mark(rBlk.EgaisMark);
+					if(Flags & fSelSerial && rBlk.Serial.IsEmpty() /*&& rBlk.ChZnMark.IsEmpty()*/) { // @v12.0.12 Если указана марка то смысла выбирать серию нет // @v12.1.1 это была плохая идея :(
 						const int r = SelectSerial(goodsID, rBlk.Serial, &rBlk.PriceBySerial);
 						ok = (r > 0 || r == -2) ? 1 : -1;
 					}
@@ -9619,8 +9621,16 @@ int CheckPaneDialog::PreprocessGoodsSelection(const  PPID goodsID, PPID locID, P
 												if(p_cle->ErrorCode != 0) {
 													ok = MessageError(PPERR_CHZNMARKPMFAULT, chzn_mark, eomBeep|eomStatusLine);
 												}
-												else if(p_cle->Flags & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold) {
+												/* @debug else if(p_cle->Flags & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold) {
 													ok = MessageError(PPERR_CHZNMARKPMFAULT_SOLD, chzn_mark, eomBeep|eomStatusLine);
+												}
+												else if(checkdate(p_cle->ExpiryDtm.d) && now_dtm.d >= p_cle->ExpiryDtm.d) { // @v12.1.1
+													ok = MessageError(PPERR_CHZNMARKPMFAULT_EXPIRY, chzn_mark, eomBeep|eomStatusLine);
+												}*/
+												else { // @v12.1.1
+													// OK
+													rBlk.ChZnPm_ReqId = check_code_list.ReqId;
+													rBlk.ChZnPm_ReqTimestamp = check_code_list.ReqTimestamp;
 												}
 											}
 										}
@@ -11603,8 +11613,10 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 						SETFLAG(r_item.Flags, cifPriceBySerial, serial_price_tag);
 						STRNSCPY(r_item.Serial, rBlk.Serial);
 						STRNSCPY(r_item.EgaisMark, rBlk.EgaisMark);
-						STRNSCPY(r_item.ChZnSerial, rBlk.ChZnSerial); // @v10.4.12
-						STRNSCPY(r_item.ChZnMark, rBlk.ChZnMark); // @v10.6.9
+						STRNSCPY(r_item.ChZnSerial, rBlk.ChZnSerial);
+						STRNSCPY(r_item.ChZnMark, rBlk.ChZnMark);
+						r_item.ChZnPm_ReqId = rBlk.ChZnPm_ReqId; // @v12.1.1
+						r_item.ChZnPm_ReqTimestamp = rBlk.ChZnPm_ReqTimestamp; // @v12.1.1
 						if(giftID) {
 							r_item.Flags |= cifGift;
 							r_item.GiftID = giftID;
@@ -11614,11 +11626,9 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 								r_item.Flags |= cifGiftDiscount;
 							}
 						}
-						// @v10.7.6 {
 						if(!CheckPriceRestrictions(goodsID, r_item, r_item.Price, 0)) {
 							ok = MessageError(-1, 0, eomStatusLine|eomBeep);
 						}
-						// } @v10.7.6
 						if(ok) {
 							P.CurPos = P.getCount();
 							if(CalcRestByCrdCard_(1)) {
@@ -13021,7 +13031,8 @@ int CheckPaneDialog::LoadChkInP(PPID chkinpID, PPID goodsID, double qtty)
 int CCheckPane(PPID cashNodeID, PPID chkID, const char * pInitLine, long flags)
 {
 	MemLeakTracer mlt;
-	int    ok = 1, is_touch_screen = 0;
+	int    ok = 1;
+	int    is_touch_screen = 0;
 	const  PPID sav_loc_id = LConfig.Location;
 	CCheckPacket pack;
 	CheckPaneDialog * dlg = 0;
