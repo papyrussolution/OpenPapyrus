@@ -563,6 +563,14 @@ public:
 	virtual ~PPMarketplaceInterface_Wildberries()
 	{
 	}
+	virtual int Init(PPID guaID)
+	{
+		int    ok = PPMarketplaceInterface::Init(guaID);
+		if(ok > 0) {
+			RequestWarehouseList(WhList);
+		}
+		return ok;
+	}
 	//
 	// Methods
 	//
@@ -576,11 +584,13 @@ public:
 	int   RequestSupplies();
 	int   RequestAcceptanceReport(const DateRange & rPeriod);
 	int   UploadWare();
+	int   RequestWareList();
 
 	int   CreateWarehouse(PPID * pID, int64 outerId, const char * pOuterName, const char * pAddress, int use_ta);
 	const Warehouse * SearchWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName) const;
 	int   CreateWare(PPID * pID, const WareBase & rWare, int use_ta);
 	int   ImportOrders();
+	int   ImportReceipts();
 private:
 	SString & MakeHeaderFields(const char * pToken, StrStrAssocArray * pHdrFlds, SString & rBuf)
 	{
@@ -632,6 +642,7 @@ private:
 		methSupplyOrders,     // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/supplies/{supplyId}/orders Получить сборочные задания в поставке
 		methAcceptanceReport, // apiAnalytics   https://seller-analytics-api.wildberries.ru/api/v1/analytics/acceptance-report
 		methGoodsPrices,      // apiDiscountsPrices https://discounts-prices-api.wildberries.ru/api/v2/list/goods/filter
+		methContentCardsList, // apiContent https://content-api.wildberries.ru/content/v2/get/cards/list
 	};
 	bool MakeTargetUrl_(int meth, int * pReq/*SHttpProtocol::reqXXX*/, SString & rResult) const
 	{
@@ -668,6 +679,7 @@ private:
 			{ methSupplyOrders, apiMarketplace, SHttpProtocol::reqGet, "api/v3/supplies" }, // /{supplyId}/orders
 			{ methAcceptanceReport, apiAnalytics, SHttpProtocol::reqGet, "api/v1/analytics/acceptance-report" },
 			{ methGoodsPrices, apiDiscountsPrices, SHttpProtocol::reqGet, "api/v2/list/goods/filter" },
+			{ methContentCardsList, apiContent, SHttpProtocol::reqPost, "content/v2/get/cards/list" },
 		};
 		//https://content-api.wildberries.ru/content/v2/cards/upload
 		//https://discounts-prices-api.wildberries.ru/api/v2/upload/task
@@ -738,6 +750,7 @@ private:
 	}
 	SString Token;
 	PPGlobalServiceLogTalkingHelper Lth;
+	TSCollection <Warehouse> WhList;
 };
 
 int PPMarketplaceInterface::Init(PPID guaID)
@@ -787,6 +800,101 @@ int PPMarketplaceInterface_Wildberries::RequestWarehouseList(TSCollection <Wareh
 										rList.atFree(new_item_pos);
 									}
 								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPMarketplaceInterface_Wildberries::RequestWareList()
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString url_buf;
+	SString req_buf;
+	StrStrAssocArray hdr_flds;
+	THROW(Helper_InitRequest(methContentCardsList, url_buf, hdr_flds));
+	{
+		/*
+			{
+				"settings": {
+					"sort": {
+						"ascending": false
+					},
+					"filter": {
+						"textSearch": "",
+						"allowedCategoriesOnly": true,
+						"tagIDs": [],
+						"objectIDs": [],
+						"brands": [],
+						"imtID": 0,
+						"withPhoto": -1
+					},
+					"cursor": {
+						"updatedAt": "",
+						"nmID": 0,
+						"limit": 11
+					}
+				}
+			}
+		*/
+		SJson json_req(SJson::tOBJECT);
+		/*{
+			SJson * p_js_sort = new SJson(SJson::tOBJECT);
+			p_js_sort->InsertBool("ascending", "true");
+			json_req.Insert("sort", p_js_sort);
+		}*/
+		{
+			SJson * p_js_filt = new SJson(SJson::tOBJECT);
+			p_js_filt->InsertInt("withPhoto", -1);
+			//p_js_filt->InsertString("textSearch", "");
+			//p_js_filt->InsertBool("allowedCategoriesOnly", true);
+			//p_js_filt->InsertInt("imtID", 0);
+			json_req.Insert("filter", p_js_filt);
+		}
+		{
+			SJson * p_js_cursor = new SJson(SJson::tOBJECT);
+			//p_js_cursor->InsertString("updatedAt", "");
+			//p_js_cursor->InsertInt("nmID", 0);
+			p_js_cursor->InsertInt("limit", 100);
+			json_req.Insert("cursor", p_js_cursor);
+		}
+		THROW_SL(json_req.ToStr(req_buf));
+	}
+	{
+		ScURL c;
+		SString reply_buf;
+		SBuffer ack_buf;
+		SFile wr_stream(ack_buf, SFile::mWrite);
+		url_buf.CatChar('?').CatEq("locale", "ru");
+		Lth.Log("req", url_buf, temp_buf.Z());
+		InetUrl url(url_buf);
+		THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
+		THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+		{
+			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+			if(p_ack_buf) {
+				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+				Lth.Log("rep", 0, reply_buf);
+				{
+					SJson * p_js_reply = SJson::Parse(reply_buf);
+					if(SJson::IsArray(p_js_reply)) {
+						for(const SJson * p_js_item = p_js_reply->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+							if(SJson::IsObject(p_js_item)) {
+								/*
+								uint   new_item_pos = 0;
+								Warehouse * p_new_item = rList.CreateNewItem(&new_item_pos);
+								if(p_new_item) {
+									if(!p_new_item->FromJsonObj(p_js_item)) {
+										rList.atFree(new_item_pos);
+									}
+								}
+								*/
 							}
 						}
 					}
@@ -1297,6 +1405,22 @@ int PPMarketplaceInterface_Wildberries::CreateWare(PPID * pID, const WareBase & 
 	return ok;
 }
 
+int PPMarketplaceInterface_Wildberries::ImportReceipts()
+{
+	int    ok = -1;
+	TSCollection <PPMarketplaceInterface_Wildberries::Income> income_list;
+	RequestIncomes(income_list);
+	if(income_list.getCount()) {
+		for(uint i = 0; i < income_list.getCount(); i++) {
+			const Income * p_wb_income = income_list.at(i);
+			if(p_wb_income) {
+				
+			}
+		}
+	}
+	return ok;
+}
+
 int PPMarketplaceInterface_Wildberries::ImportOrders()
 {
 	int    ok = -1;
@@ -1309,8 +1433,8 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 		{
 			PPObjBill * p_bobj = BillObj;
 			SString bill_code;
-			TSCollection <PPMarketplaceInterface_Wildberries::Warehouse> wh_list;
-			RequestWarehouseList(wh_list);
+			//TSCollection <PPMarketplaceInterface_Wildberries::Warehouse> wh_list;
+			//RequestWarehouseList(wh_list);
 			for(uint i = 0; i < order_list.getCount(); i++) {
 				const PPMarketplaceInterface_Wildberries::Sale * p_wb_order = order_list.at(i);
 				if(p_wb_order) {
@@ -1325,7 +1449,7 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 						Goods2Tbl::Rec goods_rec;
 						PPBillPacket::SetupObjectBlock sob;
 						if(p_wb_order->WarehouseName.NotEmpty()) {
-							const Warehouse * p_wh = SearchWarehouseByName(wh_list, p_wb_order->WarehouseName);
+							const Warehouse * p_wh = SearchWarehouseByName(WhList, p_wb_order->WarehouseName);
 							if(p_wh) {
 								int r = CreateWarehouse(&wh_id, p_wh->ID, p_wh->Name, p_wh->Address, 1);
 							}
@@ -1400,7 +1524,10 @@ int TestMarketplace()
 			TSCollection <PPMarketplaceInterface_Wildberries::Sale> sale_list;
 			//TSCollection <PPMarketplaceInterface_Wildberries::Sale> order_list;
 			TSCollection <PPMarketplaceInterface_Wildberries::Income> income_list;
+
 			int r = 0;
+			r = ifc.RequestWareList();
+			//
 			DateRange period;
 			period.SetPredefined(PREDEFPRD_LASTMONTH, ZERODATE);
 			r = ifc.ImportOrders();

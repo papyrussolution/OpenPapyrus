@@ -3947,6 +3947,7 @@ int64 FASTCALL satoi64(const wchar_t * pT)
 
 long  SString::ToLong() const { return (L > 1) ? satoi(P_Buf) : 0; }
 int64 SString::ToInt64() const { return (L > 1) ? satoi64(P_Buf) : 0; }
+uint64 SString::ToUInt64() const { return (L > 1) ? sxtou64(P_Buf) : 0; }
 
 double SString::ToReal() const
 {

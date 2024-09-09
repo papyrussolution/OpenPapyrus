@@ -4273,6 +4273,7 @@ public:
 	long   ToLong() const;
 	ulong  ToULong() const;
 	int64  ToInt64() const;
+	uint64 ToUInt64() const;
 	//
 	// Descr: Преобразует строку this в числовое значение типа double.
 	//   Функция предварительно делает небольшую обработку строки, заменяя запятую на точку и удаляя разделители
@@ -11715,14 +11716,6 @@ protected:
 // Descr: Структура, управляющая сканированным участком строки
 //
 struct SStrScan : public SRegExpSet {
-	enum {
-		wsSpace   = 0x0001,
-		wsTab     = 0x0002,
-		wsNewLine = 0x0004,
-		wsComma   = 0x0008,
-		wsSemicol = 0x0010
-	};
-
 	explicit SStrScan(const char * pBuf = 0, size_t offs = 0);
 	~SStrScan();
 	SStrScan & Z();
@@ -11894,10 +11887,24 @@ struct SStrScan : public SRegExpSet {
 	//   меняет текущую позицию.
 	//
 	int    FASTCALL IncrChr(int chr);
+	//
+	// Descr: Символы или классы символов, которые следует пропускать функциями Skip
+	//
+	enum {
+		wsSpace   = 0x0001,
+		wsTab     = 0x0002,
+		wsNewLine = 0x0004,
+		wsComma   = 0x0008,
+		wsSemicol = 0x0010
+	};
+	//
+	// Descr: Пропускает символы, определенные параметром ws (see enum SStrScan::wsXXX).
+	//
 	SStrScan & FASTCALL Skip(int ws);
 	SStrScan & Skip(int ws, uint * pLineCount);
 	//
-	// Descr: В большинстве случаев Skip(int) вызывается с параметром (wsSpace|wsTab) потому
+	// Descr: Пропускает символы пробела и табуляции.
+	//   В большинстве случаев Skip(int) вызывается с параметром (wsSpace|wsTab) потому
 	//   для оптимизации кода сделана эта функция.
 	//
 	SStrScan & Skip(); // wsSpace|wsTab

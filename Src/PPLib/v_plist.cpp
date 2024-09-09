@@ -431,8 +431,6 @@ int SelectPriceListImportCfg(PPPriceListImpExpParam * pParam, int forExport)
 	return ok;
 }
 
-// @v9.8.4 typedef TSVector <Sdr_PriceList> Sdr_PriceListArray; // @v9.8.4 TSArray-->TSVector
-
 class PPPriceListImporter {
 public:
 	PPPriceListImporter() : P_View(0)
@@ -471,7 +469,8 @@ int PPPriceListImporter::Init(PPViewPriceList * pView, const PPPriceListImpExpPa
 
 int PPPriceListImporter::Run()
 {
-	int    ok = -1, goods_resolved = 0;
+	int    ok = -1;
+	int    goods_resolved = 0;
 	uint   i;
 	long   count = 0;
 	SString temp_buf;
@@ -480,10 +479,10 @@ int PPPriceListImporter::Run()
 	PPLogger logger;
 	const PriceListFilt * p_filt = P_View ? static_cast<const PriceListFilt *>(P_View->GetBaseFilt()) : 0;
 	ArticleCore  art_tbl;
-	PPID   ar_id = (p_filt) ? p_filt->ArticleID : 0;
+	const PPID ar_id = p_filt ? p_filt->ArticleID : 0;
 	PPImpExp ie(&Param, 0);
 	PPObjGoods gobj;
-	const  int use_ar_goodscode = BIN(CConfig.Flags & CCFLG_USEARGOODSCODE);
+	const  bool use_ar_goodscode = LOGIC(CConfig.Flags & CCFLG_USEARGOODSCODE);
 	PPWaitStart();
 	THROW(ie.OpenFileForReading(0));
 	ie.GetNumRecs(&count);
@@ -561,7 +560,7 @@ double PPViewPriceList::GetRest(PPID goodsID)
 		gp.GoodsID     = goodsID;
 		gp.CalcMethod  = GoodsRestParam::pcmSum;
 		gp.Date        = Filt.Dt;
-		if(State & stFiltArIsSupple) // @v9.3.4
+		if(State & stFiltArIsSupple)
 			gp.SupplID = Filt.ArticleID;
 		gp.LocID       = Filt.LocID;
 		P_BObj->trfr->GetRest(gp);
@@ -710,8 +709,7 @@ int PPViewPriceList::UpdatePriceList(LDATE date, int rmvOld, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(Tbl.Search(Filt.PListID, &plist_rec) > 0);
-		if((date && date != plist_rec.Dt) || Tbl.data.GoodsGrpID != Filt.GoodsGrpID ||
-			(Tbl.data.Flags & PLISTF_EXCLGGRP) != (Filt.Flags & PLISTF_EXCLGGRP) ||
+		if((date && date != plist_rec.Dt) || Tbl.data.GoodsGrpID != Filt.GoodsGrpID || (Tbl.data.Flags & PLISTF_EXCLGGRP) != (Filt.Flags & PLISTF_EXCLGGRP) ||
 			(Tbl.data.Flags & PLISTF_PRESENTONLY) != (Filt.Flags & PLISTF_PRESENTONLY)) {
 			Filt.Dt = date;
 			Tbl.data.Dt = date;
@@ -1240,7 +1238,7 @@ int PPViewPriceList::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 				ok = -1;
 				{
 					PPID   goods_grp_id = NewGoodsGrpID;
-					long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+					long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
 					if(Filt.Flags & PLISTF_PRESENTONLY) 
 						egsd_flags |= ExtGoodsSelDialog::fExistsOnly;
 					ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, goods_grp_id, egsd_flags);
@@ -1291,12 +1289,6 @@ int PPViewPriceList::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 				ok = -1;
 				ConvertLinesToBasket();
 				break;
-			/* @v7.6.0
-			case PPVCMD_POSTALBATROS:
-				ok = -1;
-				SendPList();
-				break;
-			*/
 			case PPVCMD_EXPORTUHTT:
 				ok = -1;
 				ExportUhtt();
@@ -2632,6 +2624,7 @@ int PPViewPriceList::Export()
 	return ok;
 }
 
+#if 0 // @v12.1.2 {
 int PPViewPriceList::Export_Pre9302()
 {
 	int    ok = -1;
@@ -2764,6 +2757,7 @@ int PPViewPriceList::Export_Pre9302()
 	PPWaitStop();
 	return ok;
 }
+#endif // } 0 @v12.1.2
 
 int PPViewPriceList::ExportUhtt()
 {
@@ -2944,8 +2938,7 @@ int PPALDD_PriceListData::NextIteration(PPIterID iterId)
 	I.Expiry      = item.Expiry;
 	I.GoodsCode   = item.GoodsCode;
 	if(H.FltAddPct != 0) {
-		// @v10.9.11 I.Price = CalcSelling(I.Price, H.FltAddPct);
-		I.Price = PPObjQuotKind::RoundUpPrice(0, I.Price + I.Price * fdiv100r(H.FltAddPct)); // @v10.9.11 
+		I.Price = PPObjQuotKind::RoundUpPrice(0, I.Price + I.Price * fdiv100r(H.FltAddPct));
 	}
 	STRNSCPY(I.GoodsName, item.GoodsName_);
 	STRNSCPY(I.ExtGroupName, item.GoodsGrpName_);

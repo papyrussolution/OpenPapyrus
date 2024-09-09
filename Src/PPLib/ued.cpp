@@ -1764,7 +1764,7 @@ bool SrUedContainer_Base::ReadSingleProp(SStrScan & rScan)
 	SString lingua_buf;
 	rScan.Skip();
 	THROW(rScan.GetXDigits(temp_buf));
-	ued_entry.Ued = sxtou64(temp_buf);
+	ued_entry.Ued = temp_buf.ToUInt64();
 	rScan.Skip();
 	if(rScan.GetIdent(temp_buf)) {
 		lingua_buf = temp_buf;
@@ -1775,14 +1775,31 @@ bool SrUedContainer_Base::ReadSingleProp(SStrScan & rScan)
 	rScan.Skip();
 	while(!rScan.IsEnd()) {
 		if(rScan.GetQuotedString(temp_buf)) {
+			uint   sp = 0;
+			AddS(temp_buf, &sp);
+			uint64 ued = UED::ApplyMetaToRawValue(UED_META_STRINGREF, sp);
+			if(ued) {
+				//raw_prop_list.insert(&ued);
+			}
+			else {
+				//local_fault = true;
+			}
 		}
 		else if(rScan.GetXDigits(temp_buf)) {
+			uint64 ued = temp_buf.ToUInt64();
 		}
 		else {
 			ok = false;
 			break;
 		}
 		rScan.Skip();
+	}
+	if(ok) {
+		PropIdxEntry * p_new_idx_entry = new PropIdxEntry;
+		p_new_idx_entry->Ued = ued_entry.Ued;
+		p_new_idx_entry->Locale = ued_entry.Locale;
+		// @construction p_new_idx_entry->RefList.Add(prop_idx, prop_limb_count);
+		PropIdx.Put(p_new_idx_entry, true);
 	}
 	CATCHZOK
 	return ok;

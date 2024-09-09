@@ -41655,7 +41655,7 @@ public:
 	int    GetLastQCertID(PPID goodsID, LDATE dt, PPID * pQCertID);
 	int    SendPList();
 	int    Export();
-	int    Export_Pre9302();
+	// @v12.1.2 int    Export_Pre9302();
 	int    ExportUhtt();
 	int    ConvertLinesToBasket();
 	int    ConvertBasketToLines();

@@ -10995,7 +10995,7 @@ int EgaisMarkAutoSelector::GetRecentEgaisStock(TSVector <RefBEntry> & rResultLis
 						}
 					}
 				}
-			} while(p_billc->search(2, &k2, spNext) && k2.OpID == stock_op_id);
+			} while(p_billc->search(2, &k2, spPrev) && k2.OpID == stock_op_id); // @v12.1.2 @fix spNext-->spPrev
 		}
 		for(uint i = 0; i < loc_to_date_list.getCount(); i++) {
 			const PPID loc_id = loc_to_date_list.at(i).Key;

@@ -10959,6 +10959,58 @@ public:
 		xmlFreeTextWriter(p_x);
 		return ok;
 	}
+	int    SendPrices(StringSet & rSsFileName)
+	{
+		int    ok = 1;
+		const  LDATETIME now_dtm = getcurdatetime_();
+		SString temp_buf;
+		SString out_file_name;
+		BillPacketCollection bill_list(*this);
+		xmlTextWriter * p_x = 0;
+		temp_buf.Z().Cat("Distr_Prices").Dot().Cat("xml");
+		PPGetPath(PPPATH_OUT, out_file_name);
+		out_file_name.SetLastSlash().Cat("efop-maytea");
+		SFile::CreateDir(out_file_name);
+		out_file_name.SetLastSlash().Cat(temp_buf);
+		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		{
+			SXml::WDoc _doc(p_x, cp1251);
+			SXml::WNode n_o(p_x, "Prices");
+			n_o.PutInner("SourceCode", XmlCp1251EncText(CliCode));
+			{
+				SXml::WNode n_h(p_x, "Price");
+				n_h.PutInner("PriceName", "base");
+				n_h.PutInner("DateFrom", "01.01.1900");
+				n_h.PutInner("DateTo", "01.01.2100");
+				{
+					SXml::WNode n_il(p_x, "Items");
+					for(uint i = 0; i < GoodsList.getCount(); i++) {
+						const GoodsEntry & r_entry = GoodsList.at(i);
+						Goods2Tbl::Rec goods_rec;
+						if(GObj.Search(r_entry.ID, &goods_rec) > 0) {
+							double price = 0.0;
+							ReceiptTbl::Rec lot_rec;
+							::GetCurGoodsPrice(goods_rec.ID, /*loc_id*/0, GPRET_MOSTRECENT, &price, &lot_rec);
+							if(price > 0.0) {
+								SXml::WNode n_i(p_x, "Item");
+								n_i.PutInner("SupplierItemCode", XmlCp1251EncText(r_entry.ArCode));
+								n_i.PutInner("ItemDescription", XmlCp1251EncText(r_entry.Name));
+								n_i.PutInner("PriceAmount", temp_buf.Z().Cat(price, MKSFMTD(0, 2, 0)));
+							}
+						}
+					}
+				}
+			}
+		}
+		{
+			xmlFreeTextWriter(p_x);
+			p_x = 0;
+			rSsFileName.add(out_file_name); 
+		}
+		CATCHZOK
+		xmlFreeTextWriter(p_x);
+		return ok;
+	}
 	int    TransmitFiles(const StringSet & rFileNameSet)
 	{
 		int    ok = -1;
@@ -12906,6 +12958,7 @@ int PrcssrSupplInterchange::Run()
 			}
 			if(actions & SupplInterchangeFilt::opExportClients) {
 				cli.SendGoods(ss_file_name);
+				cli.SendPrices(ss_file_name); // @v12.1.2
 				cli.SendClients(ss_file_name);
 			}
 			if(!(r_eb.P.Flags & SupplInterchangeFilt::fTestMode)) { // @v12.1.0

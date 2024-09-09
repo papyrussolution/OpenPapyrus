@@ -9621,12 +9621,12 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 												if(p_cle->ErrorCode != 0) {
 													ok = MessageError(PPERR_CHZNMARKPMFAULT, chzn_mark, eomBeep|eomStatusLine);
 												}
-												/* @debug else if(p_cle->Flags & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold) {
+												else if(p_cle->Flags & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold) {
 													ok = MessageError(PPERR_CHZNMARKPMFAULT_SOLD, chzn_mark, eomBeep|eomStatusLine);
 												}
 												else if(checkdate(p_cle->ExpiryDtm.d) && now_dtm.d >= p_cle->ExpiryDtm.d) { // @v12.1.1
 													ok = MessageError(PPERR_CHZNMARKPMFAULT_EXPIRY, chzn_mark, eomBeep|eomStatusLine);
-												}*/
+												}
 												else { // @v12.1.1
 													// OK
 													rBlk.ChZnPm_ReqId = check_code_list.ReqId;
