@@ -1035,6 +1035,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 									case GTCHZNPT_DRAFTBEER: marking_type = 0x444D; break; // @v12.0.4
 									case GTCHZNPT_TEXTILE: marking_type = 0x444D; break; // @v12.0.4
 									case GTCHZNPT_ANTISEPTIC: marking_type = 0x444D; break; // @v12.0.5
+									case GTCHZNPT_MEDICALDEVICES: marking_type = 0x444D; break; // @v12.1.2
 								}
 								if(marking_type) {
 									/* @v12.0.4

@@ -3217,9 +3217,55 @@ bool FASTCALL PPBillPacket::SearchTI(int rByBill, uint * pPos) const
 
 PPID PPBillPacket::GetPrefSupplForTi(uint tiIdx/*0..*/) const
 {
-	const ObjTagItem * p_tag = LTagL.GetTag(tiIdx, PPTAG_LOT_PREFSUPPL);
+	// int    FetchTag(PPID objID, PPID tagID, ObjTagItem * pItem);
+	const  ObjTagItem * p_tag = LTagL.GetTag(tiIdx, PPTAG_LOT_PREFSUPPL);
 	int    tag_int_val = 0;
 	return (p_tag && p_tag->GetInt(&tag_int_val)) ? tag_int_val : 0;
+}
+
+int PPBillPacket::SetupPrefSupplForTi(uint tiIdx/*0..*/, PPID supplID)
+{
+	int    ok = -1;
+	if(tiIdx < GetTCount()) {
+		PPTransferItem & r_ti = TI(tiIdx);
+		if(supplID) {
+			ObjTagItem tag_item;
+			if(tag_item.Init(PPTAG_LOT_PREFSUPPL)) {
+				PPID   org_suppl_id = 0;
+				ObjTagList * p_org_tag_list = LTagL.Get(tiIdx);
+				ObjTagList tag_list;
+				if(p_org_tag_list)
+					tag_list = *p_org_tag_list;
+				{
+					const ObjTagItem * p_tag_item = tag_list.GetItem(PPTAG_LOT_PREFSUPPL);
+					if(p_tag_item && p_tag_item->GetInt(&org_suppl_id) > 0) {
+						;
+					}
+				}
+				if(supplID != org_suppl_id) {
+					tag_item.SetInt(PPTAG_LOT_PREFSUPPL, supplID);
+					tag_list.PutItem(PPTAG_LOT_PREFSUPPL, &tag_item);
+					LTagL.Set(tiIdx, &tag_list);
+					{ // @v12.1.2 
+						const QuotIdent suppl_deal_qi(Rec.Dt, Rec.LocID, 0, 0, supplID);
+						PPSupplDeal sd;
+						PPObjGoods goods_obj;
+						goods_obj.GetSupplDeal(labs(r_ti.GoodsID), suppl_deal_qi, &sd, 1);
+						r_ti.Cost = sd.Cost;
+					}
+					ok = 1;
+				}
+				else
+					ok = -1;
+			}
+		}
+		else {
+			r_ti.Cost = 0.0;
+		}
+	}
+	else
+		ok = 0;
+	return ok;
 }
 
 int PPBillPacket::LoadTItem(const PPTransferItem * pItem, const char * pClb, const char * pSerial)
@@ -4272,9 +4318,9 @@ int FASTCALL PPBillPacket::InitAmounts(int fromDB)
 	return InitAmounts(&al);
 }
 
-int PPBillPacket::SearchGoods(PPID goodsID, uint * pPos) const
+bool PPBillPacket::SearchGoods(PPID goodsID, uint * pPos) const
 {
-	int    r = Lots.lsearch(&goodsID, pPos, CMPF_LONG, offsetof(PPTransferItem, GoodsID));
+	bool r = Lots.lsearch(&goodsID, pPos, CMPF_LONG, offsetof(PPTransferItem, GoodsID));
 	if(!r) {
 		goodsID = -goodsID;
 		r = Lots.lsearch(&goodsID, pPos, CMPF_LONG, offsetof(PPTransferItem, GoodsID));
@@ -4295,10 +4341,10 @@ int PPBillPacket::HasOneOfGoods(const ObjIdListFilt & rList) const
 	return yes;
 }
 
-int PPBillPacket::SearchLot(PPID lotID, uint * pPos) const
+bool PPBillPacket::SearchLot(PPID lotID, uint * pPos) const
 	{ return Lots.lsearch(&lotID, pPos, CMPF_LONG, offsetof(PPTransferItem, LotID)); }
-int PPBillPacket::SearchShLot(PPID lotID, uint * pPos) const
-	{ return P_ShLots ? P_ShLots->lsearch(&lotID, pPos, CMPF_LONG, offsetof(PPTransferItem, LotID)) : 0; }
+bool PPBillPacket::SearchShLot(PPID lotID, uint * pPos) const
+	{ return P_ShLots ? P_ShLots->lsearch(&lotID, pPos, CMPF_LONG, offsetof(PPTransferItem, LotID)) : false; }
 
 void PPBillPacket::AdjustLotQtty(PPID lotID, const PPTransferItem * pItem, int pos, double * pQtty) const
 {
@@ -4515,7 +4561,7 @@ int PPBillPacket::CalcModifCost()
 				if(p_ti->Price == 0)
 					p_ti->Price = cost;
 				if(P_Outer && p_ti->LotID < 0)
-					for(uint pos = 0; P_Outer->SearchLot(p_ti->LotID, &pos) > 0; pos++)
+					for(uint pos = 0; P_Outer->SearchLot(p_ti->LotID, &pos); pos++)
 						P_Outer->TI(pos).Cost = p_ti->Cost;
 			}
 		}

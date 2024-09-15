@@ -717,6 +717,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 										case GTCHZNPT_DRAFTBEER: p_mark_type = "DRAFT_BEER"; break; // @v11.9.2
 										case GTCHZNPT_BEER: p_mark_type = "BEER"; break; // @v12.0.4
 										case GTCHZNPT_ANTISEPTIC: p_mark_type = "ANTISEPTIC"; break; // @v12.0.5
+										case GTCHZNPT_MEDICALDEVICES: p_mark_type = "MEDICAL_DEVICES"; break; // @v12.1.2
 									}
 									if(p_mark_type)
 										p_writer->PutElement("mark-type", p_mark_type);

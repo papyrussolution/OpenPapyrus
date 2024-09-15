@@ -9378,7 +9378,7 @@ int PPALDD_BnkPaymOrder::InitData(PPFilt & rFilt, long rsrv)
 		STRNSCPY(H.RcvrAcc,       bnk_data.Acct);
 		H.BnkPaymMethod = pack->P_PaymOrder->BnkPaymMethod;
 		H.BnkQueueing   = pack->P_PaymOrder->BnkQueueing;
-		H.FormalPurpose = pack->P_PaymOrder->FormalPurpose; // @v10.7.9
+		H.FormalPurpose = pack->P_PaymOrder->FormalPurpose;
 		H.PayerStatus   = pack->P_PaymOrder->PayerStatus;
 		{
 			temp_buf.Z();

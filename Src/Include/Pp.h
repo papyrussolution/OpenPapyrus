@@ -12126,6 +12126,7 @@ public:
 	//   Значение извлекается из зарезервированного тега PPTAG_LOT_PREFSUPPL.
 	//
 	PPID   GetPrefSupplForTi(uint tiIdx/*0..*/) const;
+	int    SetupPrefSupplForTi(uint tiIdx/*0..*/, PPID supplID);
 	bool   UsesDistribCost() const;
 	//
 	// Descr: заносит элемент pItem в список товарных строк документа
@@ -12229,7 +12230,7 @@ public:
 	int    CalcModifCost();
 	int    CalcTotal(BillTotalData *, long btcFlags /* BTC_XXX */);
 	int    CalcTotal(BillTotalData *, PPID goodsTypeID, long btcFlags /* BTC_XXX */);
-	int    SearchGoods(PPID goodsID, uint * pPos) const;
+	bool   SearchGoods(PPID goodsID, uint * pPos) const;
 	int    HasOneOfGoods(const ObjIdListFilt & rList) const;
 	//
 	// Descr: Опции функции CheckGoodsForRestrictions()
@@ -12267,8 +12268,8 @@ public:
 	// ARG(pRetBlk OUT): Указатель на блок, в который записывается информация о проверке
 	//
 	int    CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, double qtty, long flags, CgrRetBlock * pRetBlk);
-	int    SearchLot(PPID lotID, uint * pPos) const;
-	int    SearchShLot(PPID lotID, uint * pPos) const;
+	bool   SearchLot(PPID lotID, uint * pPos) const;
+	bool   SearchShLot(PPID lotID, uint * pPos) const;
 	//
 	// Следующие две функции определяют остаток по заданному лоту и заказному лоту соответственно
 	// в контексте пакета. Вместе с идентификатором лота и указателем на остаток им необходимо
@@ -24132,6 +24133,7 @@ private:
 #define GTCHZNPT_DIETARYSUPPLEMENT 13 // @v11.9.6 БАДы
 #define GTCHZNPT_BEER              14 // @v12.0.3 Пиво фасованное 
 #define GTCHZNPT_ANTISEPTIC        15 // @v12.0.5 Антисептик
+#define GTCHZNPT_MEDICALDEVICES    16 // @v12.1.2 Изделия медицинского назначения
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -34541,6 +34543,11 @@ public:
 	//   стоимости тарифицируемой транзакции с кредитной карты, ассоциированной с глобальной учетной записью.
 	//
 	int    CheckInGta(const PPGta & rGta, int use_ta);
+	//
+	// Descr: Утилитная функция, определяющая изменилась ли цена в строке документа pTi по сравнению с предыдущим
+	//   лотом того же товара. Используется при печати документа со специальными опциями.
+	//
+	bool   IsPriceChanged(const PPTransferItem * pTi, long procFlags);
 	//
 	// Descr: Конвертация UUID'ов документов из записей Property в ObjTag
 	//

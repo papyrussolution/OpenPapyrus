@@ -439,8 +439,9 @@ int PPTransferItem::SetupLot(PPID lotID, const ReceiptTbl::Rec * pLotRec, uint f
 			Suppl = pLotRec->SupplID;
 		if(Flags & PPTFR_RECEIPT)
 			LotDate = Date;
-		else
+		else {
 			THROW(p_trfr->Rcpt.GetOriginDate(pLotRec, &LotDate));
+		}
 		if(Flags & PPTFR_REVAL) {
 			long oprno = MAXLONG;
 			if(BillID && RByBill > 0) {
@@ -478,7 +479,7 @@ int PPTransferItem::SetupLot(PPID lotID, const ReceiptTbl::Rec * pLotRec, uint f
 			}
 			if(IsLotRet()) {
 	   		    Cost = c;
-				if(!IsCorrectionExp()) { // @v9.4.3
+				if(!IsCorrectionExp()) {
 					if(!(Flags & PPTFR_MODIF && Flags & PPTFR_PLUS) && Price >= 0.0)
 						Discount += (p - Price);
 					else

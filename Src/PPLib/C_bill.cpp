@@ -174,12 +174,16 @@ int PPObjBill::GatherPayments()
 int PPObjBill::CheckAmounts(PPID id, PPLogger & rLogger)
 {
 	int    ok = 1;
-	double bamt, ramt;
+	double bamt;
+	double ramt;
 	AmtList al;
 	PPBillPacket pack;
 	THROW(ExtractPacketWithFlags(id, &pack, BPLD_SKIPTRFR) > 0);
 	if(pack.Rec.OpID && !oneof3(pack.OpTypeID, PPOPT_ACCTURN, PPOPT_PAYMENT, PPOPT_INVENTORY)) {
-		SString log_buf, fmt_buf, bill_buf, amt_buf;
+		SString log_buf;
+		SString fmt_buf;
+		SString bill_buf;
+		SString amt_buf;
 		pack.Rec.Flags |= BILLF_NOLOADTRFR;
 		THROW(pack.SumAmounts(&al, 1));
 		for(uint i = 0; i < al.getCount(); i++) {
@@ -253,17 +257,34 @@ int RecalcBillTurns(int checkAmounts)
 	int    frrl_tag = 0, r;
 	PPLogger logger;
 	BillRecalcParam flt;
-	flt.Period.SetDate(getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	flt.Period.SetDate(getcurdate_());
 	THROW(r = RecalcBillDialog((checkAmounts ? DLG_CHKBAMT : DLG_RECLCTRN), &flt));
 	if(r == cmOK) {
 		DateIter diter(&flt.Period);
 		{
+			bool   do_process_contract_by_pref_suppl = false; // @v12.1.2
 			PPViewBill bill_view;
 			BillFilt bill_flt;
 			BillViewItem view_item;
 			bill_flt.Bbt = bbtRealTypes;
 			bill_flt.Period = flt.Period;
 			bill_flt.OpID = flt.OpID;
+			// @v12.1.2 {
+			SString temp_buf;
+			SString bill_buf;
+			SString fmt_buf;
+			PPObjGoods goods_obj;
+			PPObjTag tag_obj;
+			PPObjectTag tag_rec;
+			if(flt.OpID && GetOpType(flt.OpID) == PPOPT_GOODSORDER) {
+				PPOprKind op_rec;
+				if(GetOpData(flt.OpID, &op_rec) && op_rec.ExtFlags & OPKFX_MNGPREFSUPPL) {
+					if(tag_obj.Fetch(PPTAG_LOT_PREFSUPPL, &tag_rec) > 0) {
+						do_process_contract_by_pref_suppl = true;
+					}
+				}
+			}
+			// } @v12.1.2 
 			PPWaitStart();
 			bill_view.Init_(&bill_flt);
 			if(!checkAmounts) {
@@ -272,6 +293,50 @@ int RecalcBillTurns(int checkAmounts)
 			}
 			for(bill_view.InitIteration(PPViewBill::OrdByDefault); bill_view.NextIteration(&view_item) > 0;) {
 				THROW(PPCheckUserBreak());
+				// @v12.1.2 {
+				// Здесь мы обрабатываем весьма специфический случай: установку цен поступления в строках заказов по контрактной цене, в случае,
+				// если заказ имеет опцию установки предпочтительного поставщика.
+				if(do_process_contract_by_pref_suppl) {
+					if(view_item.OpID == flt.OpID) { // @paranoic
+						PPBillPacket bpack;
+						if(p_bobj->ExtractPacket(view_item.ID, &bpack) > 0) {
+							bool do_update = false;
+							for(uint i = 0; i < bpack.GetTCount(); i++) {
+								PPTransferItem & r_ti = bpack.TI(i);
+								PPID   pref_suppl_id = 0;
+								ObjTagList * p_tag_list = bpack.LTagL.Get(i);
+								if(p_tag_list) {
+									const ObjTagItem * p_tag_item = p_tag_list->GetItem(PPTAG_LOT_PREFSUPPL);
+									if(p_tag_item && p_tag_item->GetInt(&pref_suppl_id) > 0) {
+										if(pref_suppl_id && r_ti.Cost == 0.0) {
+											const QuotIdent suppl_deal_qi(bpack.Rec.Dt, bpack.Rec.LocID, 0, 0, pref_suppl_id);
+											PPSupplDeal sd;
+											goods_obj.GetSupplDeal(labs(r_ti.GoodsID), suppl_deal_qi, &sd, 1);
+											if(sd.Cost > 0.0) {
+												if(PPLoadString(PPMSG_ERROR, PPERR_ORDCOSTBYPREFSUPPLNSETTLED, fmt_buf)) {
+													p_bobj->MakeCodeString(&bpack.Rec, 1, bill_buf);
+													GetArticleName(pref_suppl_id, temp_buf);
+													bill_buf.CatDiv('-', 1).CatEq("rbb", r_ti.RByBill).Space().CatEq("suppl", temp_buf);
+
+													temp_buf.Z().Printf(fmt_buf, bill_buf.cptr());
+													logger.Log(temp_buf);
+												}
+												r_ti.Cost = sd.Cost;
+												do_update = true;
+											}
+										}
+									}
+								}
+							}
+							if(do_update && !checkAmounts) {
+								THROW(bpack.InitAmounts());
+								THROW(p_bobj->FillTurnList(&bpack));
+								THROW(p_bobj->UpdatePacket(&bpack, 0));
+							}
+						}
+					}
+				}
+				// } @v12.1.2 
 				if(checkAmounts) {
 					THROW(p_bobj->CheckAmounts(view_item.ID, logger));
 				}

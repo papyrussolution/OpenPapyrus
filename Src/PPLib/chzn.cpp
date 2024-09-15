@@ -3991,7 +3991,7 @@ int PPChZnPrcssr::PermissiveModeInterface::CheckCodeList(const char * pHost, con
 									}
 									else if(p_js_f->Text.IsEqiAscii("productionDate")) {
 										SJson::GetChildTextUnescaped(p_js_f, temp_buf);
-										strtodatetime(temp_buf, &new_item.ExpiryDtm, DATF_ISO8601CENT, 0);
+										strtodatetime(temp_buf, &new_item.ProductionDtm, DATF_ISO8601CENT, 0); // @v12.1.2 @fix new_item.ExpiryDtm-->new_item.ProductionDtm
 									}
 									else if(p_js_f->Text.IsEqiAscii("errorCode")) {
 										new_item.ErrorCode = p_js_f->P_Child->Text.ToLong();

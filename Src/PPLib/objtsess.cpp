@@ -3974,7 +3974,7 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 								if(rcpt_core.GetLastLot(ilti.GoodsID, -bill_pack.Rec.LocID, bill_pack.Rec.Dt, &lot_rec) > 0)
 									is_last_lot = 1;
 							}
-							if(p_link_bill_pack && p_link_bill_pack->SearchGoods(ilti.GoodsID, &link_pos) > 0) {
+							if(p_link_bill_pack && p_link_bill_pack->SearchGoods(ilti.GoodsID, &link_pos)) {
 								const PPTransferItem & ti = p_link_bill_pack->ConstTI(link_pos);
 								cost  = ti.Cost;
 								price = ti.NetPrice();

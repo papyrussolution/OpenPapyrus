@@ -435,7 +435,7 @@ int BillItemBrowser::SubtractRetsFromLinkPack()
 			if(bill_rec.ID != P_Pack->Rec.ID) {
 				for(int rbybill = 0; P_BObj->trfr->EnumItems(bill_rec.ID, &rbybill, &ti) > 0;) {
 					double sub_qtty = ti.Quantity_;
-					for(uint pos = 0; sub_qtty > 0.0 && P_LinkPack->SearchLot(ti.LotID, &pos) > 0; pos++) {
+					for(uint pos = 0; sub_qtty > 0.0 && P_LinkPack->SearchLot(ti.LotID, &pos); pos++) {
 						PPTransferItem & r_ti = P_LinkPack->TI(pos);
 						const double decr = MIN(-r_ti.Quantity_, sub_qtty);
 						r_ti.Quantity_ += decr;
@@ -917,7 +917,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 				}
 				else {
 					if(p_link_ti->LotID) {
-						int    used = P_Pack->SearchLot(p_link_ti->LotID, 0);
+						const bool used = P_Pack->SearchLot(p_link_ti->LotID, 0);
 						if(used)
 							p_link_ti->Flags |= 0x80000000L;
 					}
@@ -933,7 +933,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 				for(i = 0; P_LinkPack->EnumTItems(&i, &p_link_ti);) {
 					if(p_link_ti->LotID) {
 						ReceiptTbl::Rec rr;
-						int    used = P_Pack->SearchLot(p_link_ti->LotID, 0);
+						const bool used = P_Pack->SearchLot(p_link_ti->LotID, 0);
 						THROW(P_T->Rcpt.Search(p_link_ti->LotID, &rr) > 0);
 						if(rr.Closed && !used)
 							P_LinkPack->RemoveRow(--i);
@@ -1837,7 +1837,6 @@ void BillItemBrowser::update(int pos)
 						view->removeColumn(ordqtty_col);
 					}*/
 				}
-				// @v10.9.2 {
 				if(Total.MarkCount) {
 					if(mark_count_col < 0) {
 						if(ordqtty_col >= 0)
@@ -1849,7 +1848,6 @@ void BillItemBrowser::update(int pos)
 						insertColumn(mark_count_col, "Marks", 35, T_LONG, MKSFMT(0, NMBF_NOZERO), BCO_USERPROC|BCO_CAPRIGHT);
 					}
 				}
-				// } @v10.9.2 
 				if(P_Pack->P_QuotSetupInfoList) {
 					if(setup_quot_info_col < 0) {
 						insertColumn(-1, "SetupQuotInfo", 30, MKSTYPE(S_ZSTRING, 16), ALIGN_CENTER, BCO_USERPROC|BCO_CAPLEFT);
@@ -1861,24 +1859,18 @@ void BillItemBrowser::update(int pos)
 						view->removeColumn(setup_quot_info_col);
 					}*/
 				}
-				// @v10.1.8 {
 				if(Total.Flags & Total.fHasVetisGuid && vetis_uuid_col < 0)
 					insertColumn(-1, "VetisCert", 32, MKSTYPE(S_ZSTRING, 48), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
-				// } @v10.1.8
-				// @v10.8.4 {
 				if(Total.Flags & Total.fHasEgaisRefB && egais_refb_col < 0)
 					insertColumn(-1, "RefB", 33, MKSTYPE(S_ZSTRING, 20), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
 				if(Total.Flags & Total.fHasEgaisCode && egais_code_col < 0)
 					insertColumn(-1, "EGAIS-Code", 34, MKSTYPE(S_ZSTRING, 24), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
-				// } @v10.8.4 
 			}
-			// @v10.6.3 {
 			{
 				for(uint cidx = 0; cidx < getDef()->getCount(); cidx++) {
 					getDef()->at(cidx).Options |= BCO_SORTABLE;
 				}
 			}
-			// } @v10.6.3 
 			if(pos == pos_cur && org_current_pos >= 0)
 				go(org_current_pos);
 			else if(pos == pos_bottom)
@@ -1894,26 +1886,28 @@ int BillItemBrowser::_moveItem(int srcRowIdx)
 {
 	int    ok = 1;
 	uint   i = 0;
-	int    s = 0;
 	ReceiptTbl::Rec lot_rec;
 	PPTransferItem newitem;
 	PPTransferItem * p_ti = &P_LinkPack->TI(srcRowIdx);
+	bool   s = false;
 	if(p_ti->LotID)
-		s = P_Pack->SearchLot(p_ti->LotID, &i) ? 0 : 1;
+		s = !P_Pack->SearchLot(p_ti->LotID, &i);
 	else if(p_ti->GoodsID)
-		s = P_Pack->SearchGoods(p_ti->GoodsID, &i) ? 0 : 1;
+		s = !P_Pack->SearchGoods(p_ti->GoodsID, &i);
 	else
-		s = 0;
+		s = false;
 	if(s && !(p_ti->Flags & 0x80000000L)) {
-		double qtty = 0.0, price = 0.0;
-		if(!(State & stExpndOnReturn))
-			for(uint j = 0, r = 1; r; j++) {
+		double qtty = 0.0;
+		double price = 0.0;
+		if(!(State & stExpndOnReturn)) {
+			bool r = true;
+			for(uint j = 0; r; j++) {
 				if(p_ti->LotID)
 					r = P_LinkPack->SearchLot(p_ti->LotID, &j);
 				else if(p_ti->GoodsID)
 					r = P_LinkPack->SearchGoods(p_ti->GoodsID, &j);
 				else
-					r = 0;
+					r = false;
 				if(r) {
 					PPTransferItem & r_temp_ti = P_LinkPack->TI(j);
 					double temp_q = fabs(r_temp_ti.Quantity_);
@@ -1924,6 +1918,7 @@ int BillItemBrowser::_moveItem(int srcRowIdx)
 					}
 				}
 			}
+		}
 		newitem = *p_ti;
 		THROW(newitem.Init(&P_Pack->Rec));
 		if(p_ti->LotID && P_T->Rcpt.Search(p_ti->LotID, &lot_rec) > 0 && P_T->GetLotPrices(&lot_rec, P_Pack->Rec.Dt)) {
@@ -2469,7 +2464,7 @@ void BillItemBrowser::delItem()
 				for(DateIter diter; P_BObj->P_Tbl->EnumLinks(P_Pack->Rec.ID, &diter, BLNK_RETURN, &bill_rec) > 0;) {
 					PPBillPacket ret_pack;
 					THROW(P_BObj->ExtractPacket(bill_rec.ID, &ret_pack) > 0);
-					THROW_PP(ret_pack.SearchLot(p_ti->LotID, &(i = 0)) <= 0, PPERR_DELLOTWRET);
+					THROW_PP(!ret_pack.SearchLot(p_ti->LotID, &(i = 0)), PPERR_DELLOTWRET);
 				}
 			}
 			if(p_ti->BillID && p_ti->RByBill) {
@@ -3894,7 +3889,8 @@ int BillItemBrowser::SelectPrefSuppl(uint rowId)
 	};
 	int    ok = -1;
 	if(rowId < P_Pack->GetTCount()) {
-		const PPID goods_id = labs(P_Pack->ConstTI(rowId).GoodsID);
+		PPTransferItem & r_ti = P_Pack->TI(rowId);
+		const PPID goods_id = labs(r_ti.GoodsID);
 		if(goods_id) {
 			RAssocArray list;
 			if(MakePrefSupplList(goods_id, list) > 0) {
@@ -3902,27 +3898,16 @@ int BillItemBrowser::SelectPrefSuppl(uint rowId)
 				SelectPrefSupplDialog * dlg = new SelectPrefSupplDialog(list);
 				if(CheckDialogPtrErr(&dlg)) {
 					PPID   sel_suppl_id = 0;
-					ObjTagList * p_org_tag_list = P_Pack->LTagL.Get(rowId);
-					ObjTagList tag_list;
-					if(p_org_tag_list)
-						tag_list = *p_org_tag_list;
 					{
-						const ObjTagItem * p_tag_item = tag_list.GetItem(PPTAG_LOT_PREFSUPPL);
-						if(p_tag_item && p_tag_item->GetInt(&sel_suppl_id) > 0) {
+						ObjTagList * p_tag_list = P_Pack->LTagL.Get(rowId);
+						const ObjTagItem * p_tag_item = p_tag_list ? p_tag_list->GetItem(PPTAG_LOT_PREFSUPPL) : 0;
+						if(p_tag_item && p_tag_item->GetInt(&sel_suppl_id) > 0)
 							dlg->setDTS(&sel_suppl_id);
-						}
 					}
 					if(ExecView(dlg) == cmOK) {
 						if(dlg->getDTS(&sel_suppl_id)) {
-							if(sel_suppl_id) {
-								ObjTagItem tag_item;
-								if(tag_item.Init(PPTAG_LOT_PREFSUPPL)) {
-									tag_item.SetInt(PPTAG_LOT_PREFSUPPL, sel_suppl_id);
-									tag_list.PutItem(PPTAG_LOT_PREFSUPPL, &tag_item);
-									P_Pack->LTagL.Set(rowId, &tag_list);
-									ok = 1;
-								}
-							}
+							P_Pack->SetupPrefSupplForTi(rowId, sel_suppl_id);
+							ok = 1;
 						}
 					}
 					ZDELETE(dlg);

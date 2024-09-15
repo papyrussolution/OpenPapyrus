@@ -759,6 +759,8 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 													}
 													{
 														double _p = fabs(intmnytodbl(r_item.Price) - r_item.Dscnt);
+														if(_p <= 0.0)
+															_p = 200.0;
 														temp_buf.Z().Cat(_p, MKSFMTD_020);
 														n_b.PutInner(SXml::nst("ck", "Price"), temp_buf);
 													}

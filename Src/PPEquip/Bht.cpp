@@ -4517,7 +4517,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 								}
 								if(ilti.Cost == 0 && pack.Rec.LinkBillID) {
 									uint ti_pos = 0;
-									if(link_pack.SearchGoods(sdr_brow.GoodsID, &ti_pos) > 0)
+									if(link_pack.SearchGoods(sdr_brow.GoodsID, &ti_pos))
 										ilti.Cost = link_pack.TI(ti_pos).Cost;
 								}
 								{

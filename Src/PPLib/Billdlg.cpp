@@ -696,12 +696,12 @@ static uint GetBillDialogID(const PPBillPacket * pack, uint * pPrnForm)
 				return DLG_ATWROFF;
 			else
 				return DLG_ATEXT;
-		case PPOPT_AGREEMENT: return DLG_AGTBILL; // @v10.1.12
+		case PPOPT_AGREEMENT: return DLG_AGTBILL;
 		case PPOPT_PAYMENT: return DLG_PAYMENT;
 		case PPOPT_CHARGE : return /*DLG_CHARGE*/DLG_PAYMENT;
 		case PPOPT_DRAFTRECEIPT:
 		case PPOPT_DRAFTTRANSIT:
-		case PPOPT_DRAFTQUOTREQ: // @v10.5.7
+		case PPOPT_DRAFTQUOTREQ:
 		case PPOPT_GOODSRECEIPT:
 			return (IsIntrOp(pack->Rec.OpID) == INTRRCPT) ? DLG_INTRRCPT : DLG_RCPTBILL;
 		case PPOPT_DRAFTEXPEND:

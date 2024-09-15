@@ -627,10 +627,9 @@ int PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 				uint ciltif = CILTIF_USESUBST|CILTIF_USESUBST_STRUCONLY|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE;
 				if(!(CcFlags & CCFLG_NOADJPRWROFFDRAFT))
 					ciltif |= CILTIF_CAREFULLYALIGNPRICE;
-				local_row_pos_list.clear(); // @v10.6.0
-				THROW(ConvertILTI(&ilti, p_pack, &local_row_pos_list, ciltif, serial_buf)); // @v10.6.0 rows-->local_row_pos_list
-				rows.add(&local_row_pos_list); // @v10.6.0
-				// @v10.6.0 {
+				local_row_pos_list.clear();
+				THROW(ConvertILTI(&ilti, p_pack, &local_row_pos_list, ciltif, serial_buf));
+				rows.add(&local_row_pos_list);
 				if(IsIntrExpndOp(p_pack->Rec.OpID)) {
 					for(uint i = 0; i < local_row_pos_list.getCount(); i++) {
 						const uint row_pos = local_row_pos_list.at(i);
@@ -640,7 +639,6 @@ int PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 						p_pack->LTagL.Set(row_pos, tag_list.GetCount() ? &tag_list : 0);
 					}
 				}
-				// } @v10.6.0 
 				if(ilti.HasDeficit()) {
 					THROW(temp_pugl.Add(&ilti, rBlk.SrcDraftPack.Rec.LocID, i, p_pack->Rec.Dt));
 					incomplete = 1;

@@ -2736,6 +2736,7 @@ int CPosProcessor::AutosaveCheck()
 										// Для проведения чека через егаис нам нужен реальный кассовый узел, а не фейковый, каковым является PPPOSN_SHADOW
 										const PPID preserve_cn_id = cc_shadow_egais.Rec.PosNodeID;
 										cc_shadow_egais.Rec.PosNodeID = epb.Pack.Rec.PosNodeID;
+										cc_shadow_egais.Rec.SessID = epb.Pack.Rec.SessID; // @v12.1.2
 										//
 										bool local_do_update = false;
 										PPEgaisProcessor::Ack eg_ack;

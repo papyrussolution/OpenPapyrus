@@ -707,16 +707,16 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 	int    ok = -1;
 	LongArray row_idx_list;
 	if(pOrderPack->ChkTIdx(orderItemIdx)) {
+		const  PPTransferItem * p_ord_item = &pOrderPack->TI(orderItemIdx);
+		const  PPID loc_id = pPack->Rec.LocID;
+		const  PPID goods_id = labs(p_ord_item->GoodsID);
 		DateIter diter;
 		int    zero_rest = 1;
-		PPID   loc_id = pPack->Rec.LocID;
 		double rest;
 		double qtty;
 		double reserve = 0.0; // Количество, занятое резервирующими заказами
 		PPTransferItem ti;
 		PPTransferItem * tmp_sti = 0;
-		PPTransferItem * p_ord_item = & pOrderPack->TI(orderItemIdx);
-		PPID     goods_id = labs(p_ord_item->GoodsID);
 		Goods2Tbl::Rec goods_rec;
 		LotArray lot_list;
 		PPID   isales_support_discount_qk = -1; // @v11.0.6 Опорная котировка для расчета скидки по заказам iSales
@@ -747,7 +747,6 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 			}
 			lot_list.clear();
 			trfr->Rcpt.GetListOfOpenedLots(-1, goods_id, loc_id, pPack->Rec.Dt, &lot_list);
-			// @v10.4.12 {
 			if(srcLotID) {
 				//
 				// Если вызывающая функция задала лот, из которого следует расходовать товар, 
@@ -757,7 +756,6 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 				if(lot_list.lsearch(&srcLotID, &src_lot_pos, CMPF_LONG) && src_lot_pos != 0)
 					lot_list.swap(src_lot_pos, 0);
 			}
-			// } @v10.4.12 
 			for(uint lotidx = 0; lotidx < lot_list.getCount() && qtty > 0.0; lotidx++) {
 				const ReceiptTbl::Rec & r_lot_rec = lot_list.at(lotidx);
 				THROW(pPack->BoundsByLot(r_lot_rec.ID, 0, -1, &rest, 0));
@@ -828,8 +826,7 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 						ti.Discount = ti.Price - p_ord_item->NetPrice();
 					ti.OrdLotID = p_ord_item->LotID; // @ordlotid
 					ti.Flags   |= PPTFR_ONORDER;
-					// @v10.5.0 ti.Quantity_ = -rest; // @v10.4.12 @fix rest-->-rest
-					ti.Quantity_ = interactive ? rest : -rest; // @v10.5.0
+					ti.Quantity_ = interactive ? rest : -rest;
 					{
 						uint   sh_lot_row_pos = 0;
 						//
@@ -8534,7 +8531,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		if(pPack->P_ACPack && pPack->P_ACPack->GetTCount()) {
 			for(i = 0; pPack->EnumTItems(&i, &p_ti);) {
 				if(p_ti->Flags & PPTFR_AUTOCOMPL && p_ti->LotID > 0) {
-			   	    if(pPack->P_ACPack->SearchLot(p_ti->LotID, &(pos = 0)) > 0) {
+			   	    if(pPack->P_ACPack->SearchLot(p_ti->LotID, &(pos = 0))) {
 				   	    PPTransferItem & acti = pPack->P_ACPack->TI(pos);
 						acti.LotID = p_ti->LotID = acti.ACLinkLotID;
    	                    acti.ACLinkLotID = 0;

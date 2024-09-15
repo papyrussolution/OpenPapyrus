@@ -1,5 +1,5 @@
 // PRNBILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -547,26 +547,22 @@ static int PrintInvoice(PPBillPacket * pPack, int prnflags)
 	return ok;
 }
 
-static int IsPriceChanged(const PPTransferItem * pTi, long procFlags)
+bool PPObjBill::IsPriceChanged(const PPTransferItem * pTi, long procFlags)
 {
-	int price_chng = 1; // Цена изменилась по отношению к предыдущему лоту. Если не установлен флаг pfPrintChangedPriceOnly, то игнорируется.
+	bool price_chng = true; // Цена изменилась по отношению к предыдущему лоту. Если не установлен флаг pfPrintChangedPriceOnly, то игнорируется.
 	if(procFlags & PPBillPacket::pfPrintChangedPriceOnly) {
 		//
 		// Будем печатать только те товары, цены на которые изменились.
 		//
-		PPObjBill * p_bobj = BillObj;
-		ReceiptCore * p_rcpt = (p_bobj && p_bobj->trfr) ? &p_bobj->trfr->Rcpt : 0;
-		if(p_rcpt) {
-			ReceiptTbl::Rec prev_rec, rec;
-			if(p_rcpt->Search(pTi->LotID, &rec) > 0) {
-				int r = p_rcpt->GetPreviousLot(rec.GoodsID, rec.LocID, rec.Dt, rec.OprNo, &prev_rec);
-				price_chng = BIN(r <= 0 || rec.Price != prev_rec.Price);
-				if(!price_chng) {
-					double prev_rest = 0.0;
-					p_bobj->trfr->GetRest(prev_rec.ID, rec.Dt, rec.OprNo, &prev_rest, 0);
-					if(prev_rest <= 0.0)
-						price_chng = 1;
-				}
+		ReceiptTbl::Rec prev_rec, rec;
+		if(trfr->Rcpt.Search(pTi->LotID, &rec) > 0) {
+			int r = trfr->Rcpt.GetPreviousLot(rec.GoodsID, rec.LocID, rec.Dt, rec.OprNo, &prev_rec);
+			price_chng = (r <= 0 || rec.Price != prev_rec.Price);
+			if(!price_chng) {
+				double prev_rest = 0.0;
+				trfr->GetRest(prev_rec.ID, rec.Dt, rec.OprNo, &prev_rest, 0);
+				if(prev_rest <= 0.0)
+					price_chng = true;
 			}
 		}
 	}
@@ -587,11 +583,11 @@ static int PrintBillImages(const PPBillPacket * pPack, int prnFlags)
 			ObjTagList tag_list;
 			p_bobj->GetTagListByLot(org_lot_id, 1, &tag_list);
 			const uint tag_count = tag_list.GetCount();
-			if(IsPriceChanged(p_ti, pPack->ProcessFlags) > 0) {
+			if(p_bobj->IsPriceChanged(p_ti, pPack->ProcessFlags)) {
 				for(uint j = 0; j < tag_count; j++) {
 					const ObjTagItem * p_item = tag_list.GetItemByPos(j);
 					if(p_item && p_item->TagDataType == OTTYP_IMAGE) {
-						if(p_item->GetStr(path = 0) > 0 && path.NotEmptyS() && fileExists(path))
+						if(p_item->GetStr(path) > 0 && path.NotEmptyS() && fileExists(path))
 							THROW(prn.PrintImage(path));
 					}
 				}
@@ -649,7 +645,7 @@ int STDCALL Helper_PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, long *
 		ok = PPAlddPrint(rpt_id, PPFilt(pPack), &env);
 	}
 	else if(pPack->OpTypeID == PPOPT_CORRECTION) {
-		const  int is_exp_correction = BIN(pPack->P_LinkPack && pPack->P_LinkPack->OpTypeID == PPOPT_GOODSEXPEND); // @v10.3.8
+		const  bool is_exp_correction = (pPack->P_LinkPack && pPack->P_LinkPack->OpTypeID == PPOPT_GOODSEXPEND);
 		ok = PPAlddPrint(is_exp_correction ? REPORT_INVOICECORR_EXP : REPORT_INVOICECORR, PPFilt(pPack), &env);
 	}
 	else if(pPack->OpTypeID == PPOPT_INVENTORY) {

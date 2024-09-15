@@ -1930,21 +1930,24 @@ int PPObjArticle::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace,
 
 int PPObjArticle::GetMainOrgAsSuppl(PPID * pID, int processAbsense, int use_ta)
 {
-	int    ok = 1, r;
-	PPID   i, sheet_id = GetSupplAccSheet();
-	THROW(sheet_id);
+	int    ok = 1;
+	PPID   i;
+	const  PPID   acs_id = GetSupplAccSheet();
+	THROW(acs_id);
 	THROW(GetMainOrgID(&i) > 0);
-	if((r = P_Tbl->SearchObjRef(sheet_id, i)) > 0)
-		*pID = P_Tbl->data.ID;
-	else if(r)
-		if(processAbsense) {
-			THROW(CreateObjRef(pID, sheet_id, i, 0, use_ta));
+	{
+		int    r = P_Tbl->SearchObjRef(acs_id, i);
+		THROW(r);
+		if(r > 0)
+			*pID = P_Tbl->data.ID;
+		else if(r) {
+			if(processAbsense) {
+				THROW(CreateObjRef(pID, acs_id, i, 0, use_ta));
+			}
+			else {
+				CALLEXCEPT_PP(PPERR_MAINORGASSUPPL);
+			}
 		}
-		else {
-			CALLEXCEPT_PP(PPERR_MAINORGASSUPPL);
-		}
-	else {
-		CALLEXCEPT();
 	}
 	CATCHZOK
 	return ok;

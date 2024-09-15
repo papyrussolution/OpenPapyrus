@@ -1731,6 +1731,7 @@ static const SIntToSymbTabEntry ChZnPtList[] = {
 	{ GTCHZNPT_DIETARYSUPPLEMENT, "dietarysupplement" },
 	{ GTCHZNPT_BEER, "beer" },
 	{ GTCHZNPT_ANTISEPTIC, "antiseptic" },
+	{ GTCHZNPT_MEDICALDEVICES, "medicaldevices" }, // @v12.1.2
 };
 
 int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashGoodsInfo & rInfo, const PPQuotArray * pQList)

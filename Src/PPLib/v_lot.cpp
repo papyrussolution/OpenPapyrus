@@ -14,7 +14,7 @@ int LotFilt::InitInstance()
 		offsetof(LotFilt, Reserve)-offsetof(LotFilt, ReserveStart)+sizeof(Reserve));
 	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(LotFilt, P_TagF));
 	SetBranchSString(offsetof(LotFilt, ExtString));
-	SetBranchObjIdListFilt(offsetof(LotFilt, LocList)); // @v10.6.8
+	SetBranchObjIdListFilt(offsetof(LotFilt, LocList));
 	return Init(1, 0);
 }
 
@@ -23,7 +23,7 @@ IMPLEMENT_PPFILT_FACTORY(Lot); LotFilt::LotFilt() : PPBaseFilt(PPFILT_LOT, 0, 3)
 	InitInstance();
 }
 
-LotFilt::LotFilt(const LotFilt & rS) : PPBaseFilt(PPFILT_LOT, 0, 3) // @v10.6.8 1-->3
+LotFilt::LotFilt(const LotFilt & rS) : PPBaseFilt(PPFILT_LOT, 0, 3)
 {
 	InitInstance();
 	Copy(&rS, 1);
@@ -1049,23 +1049,29 @@ int PPViewLot::RecoverLots()
 
 int PPViewLot::EditLot(PPID id)
 {
-	int    ok = 0, valid = 0;
-	uint   pos = 0, del = 0;
+	int    ok = 0;
+	int    valid = 0;
+	uint   pos = 0;
+	uint   del = 0;
 	LotViewItem lvi;
 	PPBillPacket billp;
 	PPTransferItem * p_ti;
-	double cost, price, qtty, upp;
+	double cost;
+	double price;
+	double qtty;
+	double upp;
 	TDialog * dlg = 0;
 	SString goods_name, suppl_name;
 	THROW(GetItem(id, &lvi) > 0)
 	THROW(P_BObj->ExtractPacket(lvi.BillID, &billp) > 0)
-	if(billp.SearchLot(id, &pos) == 0)
+	if(billp.SearchLot(id, &pos) == 0) {
 		if(IsIntrExpndOp(billp.Rec.OpID)) {
-			THROW_PP(billp.SearchLot(lvi.PrevLotID, &pos) > 0, PPERR_LOTNOTBELONGTOBILL);
+			THROW_PP(billp.SearchLot(lvi.PrevLotID, &pos), PPERR_LOTNOTBELONGTOBILL);
 		}
 		else {
 			CALLEXCEPT_PP(PPERR_LOTNOTBELONGTOBILL);
 		}
+	}
 	//THROW_PP(billp.SearchLot(id, &pos) > 0, PPERR_LOTNOTBELONGTOBILL);
 	p_ti  = &billp.TI(pos);
 	qtty  = p_ti->Quantity_;
