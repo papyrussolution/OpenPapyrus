@@ -466,7 +466,6 @@ int PPViewLinkedBill::MakeList()
 				}
 				break;
 			case LinkedBillFilt::lkOrdAccomplish: // @v12.0.11 
-				// @todo
 				{
 					r = -1;
 					if(shpm_bill_list.getPointer() < shpm_bill_list.getCount()) {
@@ -634,7 +633,8 @@ int PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				if(bill_id && P_BObj->Search(bill_id, &bill_rec) > 0) {
 					int    done = 0;
 					uint   v = 0;
-					if(oneof3(Filt.Kind__, LinkedBillFilt::lkPayments, LinkedBillFilt::lkReckon, LinkedBillFilt::lkWrOffDraft)) {
+					if(oneof4(Filt.Kind__, LinkedBillFilt::lkPayments, LinkedBillFilt::lkReckon, 
+						LinkedBillFilt::lkWrOffDraft, LinkedBillFilt::lkOrdAccomplish)) { // @v12.1.3 LinkedBillFilt::lkOrdAccomplish
 						if(!IsOpPaymOrRetn(bill_rec.OpID) && SelectorDialog(DLG_SELRMVPAYM, CTL_SELRMVPAYM_WHAT, &v) > 0) {
 							if(v == 1) {
 								const Entry * p_entry = static_cast<const Entry *>(pHdr);

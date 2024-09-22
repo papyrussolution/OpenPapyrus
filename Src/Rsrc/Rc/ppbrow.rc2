@@ -7088,6 +7088,7 @@ cmd ProcessUED            { "@{cmd_processued}"                            none 
 cmd ProcessBomEstimatedValues { "@{cmd_processbomestimatedvalues}"         none                   none cmProcessBomEstimatedValues } // @v11.8.0
 cmd ImportCChecks         { "@{cmd_importccheck}"                          none                   none cmImportCChecks } // @v11.8.5
 cmd TestMarketplace       { "@{cmd_testmarketplace}"                       none                   none cmTestMarketplace } // @v12.1.0
+cmd MarketplaceInterchange { "@{cmd_marketplaceinterchange}"               PPDV_MARKETPLACE01     PPDV_MARKETPLACE01 cmMarketplaceInterchange } // @v12.1.3
 //
 // -------------- Описания серверных задач
 //
@@ -7285,6 +7286,7 @@ filter StyloQIncomingListParam { "@{filter_styloqincominglistparam}" } // @v11.4
 filter StyloQDocumentPrereqParam { "@{filter_styloqdocumentparam}" } // @v11.5.0
 view   SwProgram { "@{view_swprogram}" } // @v11.9.11
 view   Computer  { "@{view_computer}" } // @v12.0.0
+filter MarketplaceInterchange    { "@{filter_marketplaceinterchange}" } // @v12.1.3
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //
@@ -9305,10 +9307,11 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_MOBILE_NETWORK_OFF           // @v12.0.6
 	PPDV_MOBILE_NETWORK_UNSTABLE	     // @v12.0.6
 	PPDV_MOBILE_NETWORK_WIFI          // @v12.0.6
-	NETWORK_CELLULAR_SIGNAL_WEAK      // @v12.0.6
-	NETWORK_CELLULAR_SIGNAL_OK	      // @v12.0.6
-	NETWORK_CELLULAR_SIGNAL_GOOD	  // @v12.0.6
-	NETWORK_CELLULAR_SIGNAL_EXCELLENT // @v12.0.6
+	PPDV_NETWORK_CELLULAR_SIGNAL_WEAK      // @v12.0.6
+	PPDV_NETWORK_CELLULAR_SIGNAL_OK	      // @v12.0.6
+	PPDV_NETWORK_CELLULAR_SIGNAL_GOOD	  // @v12.0.6
+	PPDV_NETWORK_CELLULAR_SIGNAL_EXCELLENT // @v12.0.6
+	PPDV_MARKETPLACE01                // @v12.1.3
 }
 //
 // Следующие изображения используются без замещения цвета

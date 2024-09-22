@@ -74,13 +74,14 @@ public:
 
 	struct ColumnPosBlock {
 		ColumnPosBlock() : GoodsPos(-2), QttyPos(-2), CostPos(-2), PricePos(-2), SerialPos(-2), QuotInfoPos(-2), CodePos(-2), LinkQttyPos(-2), 
-			OrdQttyPos(-2), ShippedQttyPos(-2), VetisCertPos(-2)
+			OrdQttyPos(-2), ShippedQttyPos(-2), VetisCertPos(-2), PrefSupplPos(-2), PrefSupplCPricePos(-2)
 		{
 		}
 		bool   IsEmpty() const
 		{
 			return (GoodsPos < 0 && QttyPos < 0 && CostPos < 0 && PricePos < 0 && SerialPos < 0 &&
-				QuotInfoPos < 0 && CodePos < 0 && LinkQttyPos < 0 && OrdQttyPos < 0 && ShippedQttyPos < 0 && VetisCertPos < 0);
+				QuotInfoPos < 0 && CodePos < 0 && LinkQttyPos < 0 && OrdQttyPos < 0 && ShippedQttyPos < 0 && VetisCertPos < 0 &&
+				PrefSupplPos < 0 && PrefSupplCPricePos < 0);
 		}
 		long   GoodsPos; // @v11.5.8
 		long   QttyPos;
@@ -148,7 +149,7 @@ private:
 	void   viewPckgItems(bool activateNewRow);
 	int    getCurItemPos();
 	void   selectPckg(PPID goodsID);
-	int    isAllGoodsInPckg(PPID goodsID);
+	bool   isAllGoodsInPckg(PPID goodsID);
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	enum {
@@ -471,6 +472,8 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 					case 32: rBlk.VetisCertPos = static_cast<long>(i); break;
 					//case 33: rBlk.VetisCertPos = static_cast<long>(i); break;
 					//case 34: rBlk.VetisCertPos = static_cast<long>(i); break;
+					case 37: rBlk.PrefSupplPos = static_cast<long>(i); break; // @v12.1.3
+					case 38: rBlk.PrefSupplCPricePos = static_cast<long>(i); break; // @v12.1.3
 				}
 			}
 			ok = rBlk.IsEmpty() ? -1 : 1;
@@ -560,6 +563,14 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 								ok = 1;
 							}
 						}
+					}
+					else if(col == posblk.PrefSupplCPricePos) { // @v12.1.3
+						//pStyle->Color = GetColorRef(SClrBeige);
+						//ok = 1;
+					}
+					else if(col == posblk.PrefSupplPos) { // @v12.1.3
+						//pStyle->Color = GetColorRef(SClrBeige);
+						//ok = 1;
 					}
 					/* @construction
 					else if(col == link_qtty_pos) {
@@ -771,6 +782,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 		AlcoGoodsClsID = (PrcssrAlcReport::ReadConfig(&parc) > 0) ? parc.E.AlcGoodsClsID : 0;
 	}
 	SString temp_buf;
+	BrowserDef * p_def = getDef();
 	// @v11.5.12 {
 	/* @v12.0.11 enum {
 		cfgshowfBarcode   = 0x0001,
@@ -827,7 +839,6 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 			insertColumn(_brw_pos++, PPLoadStringS("serial", temp_buf), 28, MKSTYPE(S_ZSTRING, 20), 0, BCO_USERPROC);
 		}
 		if(CfgShowFlags & cfgshowfMargin) {
-			BrowserDef * p_def = getDef();
 			if(p_def) {
 				/*
 					//  3 - Цена поступления // *
@@ -864,6 +875,22 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 		if(CfgShowFlags & cfgshowfPrefSuppl) {
 			insertColumn(_brw_pos++, PPLoadStringS("prefsupplier", temp_buf), 37, MKSTYPE(S_ZSTRING, 128), 0, BCO_USERPROC);
 			insertColumn(_brw_pos++, PPLoadStringS("dealprice", temp_buf), 38, T_DOUBLE, MKSFMTD(0, 2, NMBF_NOZERO), BCO_USERPROC);
+			// @v12.1.3 {
+			{
+				bool is_cost_col_found = false;
+				if(p_def) {
+					for(uint ci = 0; !is_cost_col_found && ci < p_def->getCount(); ci++) {
+						const BroColumn & r_col = p_def->at(ci);
+						if(r_col.OrgOffs == 3) {
+							is_cost_col_found = true;
+						}
+					}
+				}
+				if(!is_cost_col_found) {
+					insertColumn(_brw_pos++, PPLoadStringS("termcost", temp_buf), 3, T_DOUBLE, MKSFMTD(0, 2, NMBF_NOZERO), BCO_USERPROC);
+				}
+			}
+			// } @v12.1.3 
 			insertColumn(_brw_pos++, PPLoadStringS("rest", temp_buf), 20, T_DOUBLE, MKSFMTD(0, 2, NMBF_NOZERO), BCO_USERPROC); // @v12.0.11
 		}
 		// } @v12.0.8 
@@ -2016,7 +2043,7 @@ int BillItemBrowser::_moveItem2(int srcRowIdx)
 
 int BillItemBrowser::addItemByOrder(const PPBillPacket * pOrderPack, int line)
 {
-	int    ok = P_BObj->InsertShipmentItemByOrder(P_Pack, pOrderPack, line, 0/*srcLotID*/, 1);
+	int    ok = P_BObj->InsertShipmentItemByOrder(P_Pack, pOrderPack, line, 0/*srcLotID*/, 0.0, 1/*interactive*/);
 	if(ok > 0 && !P_Pack->Rec.SCardID && pOrderPack->Rec.SCardID > 0)
 		P_Pack->Rec.SCardID = pOrderPack->Rec.SCardID;
 	return ok;
@@ -4394,14 +4421,16 @@ int BillItemBrowser::selectOrder()
 		PPOprKind op_rec;
 		flt.Period.upp = P_Pack->Rec.Dt;
 		PPID   op_id = 0;
-		for(PPID id = 0; (r = EnumOperations(PPOPT_GOODSORDER, &id, &op_rec)) > 0;)
-			if(op_rec.AccSheetID == P_Pack->AccSheetID)
+		for(PPID id = 0; (r = EnumOperations(PPOPT_GOODSORDER, &id, &op_rec)) > 0;) {
+			if(op_rec.AccSheetID == P_Pack->AccSheetID) {
 				if(op_id == 0)
 					op_id = id;
 				else {
 					op_id = 0;
 					break;
 				}
+			}
+		}
 		flt.OpID = op_id;
 		flt.ObjectID = P_Pack->Rec.Object;
 		//flt.LocID  = P_Pack->Rec.Location;
@@ -4416,9 +4445,9 @@ int BillItemBrowser::selectOrder()
 		return ((OrderBillID = P_Pack->SampleBillID), 1);
 }
 
-int BillItemBrowser::isAllGoodsInPckg(PPID goodsID)
+bool BillItemBrowser::isAllGoodsInPckg(PPID goodsID)
 {
-	int    all_lots_in_pckg = 0;
+	bool   all_lots_in_pckg = false;
 	//
 	// Проверка на то, чтобы хотя бы один лот товара был не в пакете
 	// Если весь товар в пакетах, то предлагаем выбрать пакет
@@ -4426,13 +4455,14 @@ int BillItemBrowser::isAllGoodsInPckg(PPID goodsID)
 	if(goodsID && (CConfig.Flags & CCFLG_USEGOODSPCKG) && !oneof2(P_Pack->OpTypeID, PPOPT_GOODSORDER, PPOPT_GOODSRECEIPT)) {
 		LotArray lot_list;
 		P_T->Rcpt.GetListOfOpenedLots(1, goodsID, P_Pack->Rec.LocID, P_Pack->Rec.Dt, &lot_list);
-		for(uint i = 0; i < lot_list.getCount(); i++)
-			if(P_BObj->IsLotInPckg(lot_list.at(i).ID) > 0)
-				all_lots_in_pckg = 1;
+		for(uint i = 0; i < lot_list.getCount(); i++) {
+			if(P_BObj->IsLotInPckg(lot_list.at(i).ID))
+				all_lots_in_pckg = true;
 			else {
-				all_lots_in_pckg = 0;
+				all_lots_in_pckg = false;
 				break;
 			}
+		}
 	}
 	return all_lots_in_pckg;
 }

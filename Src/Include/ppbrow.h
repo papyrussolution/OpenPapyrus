@@ -1513,6 +1513,7 @@
 #define PPCMD_PROCESSBOMESTIMATEDVALUES             1351
 #define PPCMD_IMPORTCCHECKS                         1352
 #define PPCMD_TESTMARKETPLACE                       1353
+#define PPCMD_MARKETPLACEINTERCHANGE                1354
 //
 // PPJOB definitions
 //
@@ -1923,6 +1924,7 @@
 #define PPVIEW_COMPUTER                              1340
 	#define PPFILT_COMPUTER                              1341
 	#define PPVIEWITEM_COMPUTER                              1342
+#define PPFILT_MARKETPLACEINTERCHANGE                1351
 //
 // RECORD definitions
 //
@@ -5105,14 +5107,15 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_MOBILE_NETWORK_OFF              33011
 #define PPDV_MOBILE_NETWORK_UNSTABLE         33012
 #define PPDV_MOBILE_NETWORK_WIFI             33013
-#define NETWORK_CELLULAR_SIGNAL_WEAK         33014
-#define NETWORK_CELLULAR_SIGNAL_OK           33015
-#define NETWORK_CELLULAR_SIGNAL_GOOD         33016
-#define NETWORK_CELLULAR_SIGNAL_EXCELLENT     33017
-#define PPDV_LOGOPAPYRUS                     33018
-#define PPDV_LOGOUDS                         33019
-#define PPDV_LOGOVK                          33020
-#define PPDV_LOGOVETIS                       33021
-#define PPDV_LOGOCHZN                        33022
-#define PPDV_LOGOGOOGLEMAPS01                33023
+#define PPDV_NETWORK_CELLULAR_SIGNAL_WEAK     33014
+#define PPDV_NETWORK_CELLULAR_SIGNAL_OK      33015
+#define PPDV_NETWORK_CELLULAR_SIGNAL_GOOD     33016
+#define PPDV_NETWORK_CELLULAR_SIGNAL_EXCELLENT     33017
+#define PPDV_MARKETPLACE01                   33018
+#define PPDV_LOGOPAPYRUS                     33019
+#define PPDV_LOGOUDS                         33020
+#define PPDV_LOGOVK                          33021
+#define PPDV_LOGOVETIS                       33022
+#define PPDV_LOGOCHZN                        33023
+#define PPDV_LOGOGOOGLEMAPS01                33024
 

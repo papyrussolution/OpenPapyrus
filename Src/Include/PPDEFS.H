@@ -458,6 +458,7 @@
 	#define PPPRS_STATE         10L // Государственная организация //
 	#define PPPRS_LEGAL         11L // Юридическое лицо
 	#define PPPRS_COUNTRY       12L // Государство
+	#define PPPRS_REGION        13L // @v12.1.3 Регион государства
 #define PPOBJ_STAFFRANK          10L  // #
 	#define PPSFR_DIRECTOR       1L // Первое лицо (Директор, Ген. Директор и тд)
 	#define PPSFR_ACCOUNTANT     2L // Главный бухгалтер
@@ -1088,6 +1089,17 @@
 	#define ARTPRP_DEBTLIMLIST2  6L  // @v7.1.5 Список долговых лимитов версии 7.1.5 и выше
 	#define ARTPRP_SUPPLAGT2     7L  // @v8.5.0 Новый формат хранения соглашения с поставщиком
 	#define ARTPRP_CLIAGT2       8L  // @v11.2.0 Новый формат соглашения с клиентом об условиях торговли
+	//
+	// @v12.1.3
+	// Зарезервированные номера статей для специализированных случаев
+	// Символы с префиксом ARTN_MRKTPLCACC_ обозначают зарезервированные номера статей расходов и доходов в расчетах с маркетплейсом.
+	// Наименования этих статей перечислены в строке PPTXT_ACCSHEET_MP_AR_NAMES. Статьи создаются автоматически в модуле marketplace.cpp
+	//
+	#define ARTN_MRKTPLCACC_COMMISSION   1 // Комиссионное вознаграждение
+	#define ARTN_MRKTPLCACC_ACQUIRING    2 // Стоимость эквайринга
+	#define ARTN_MRKTPLCACC_STORAGE      3 // Стоимость хранения
+	#define ARTN_MRKTPLCACC_ACCEPTANCE   4 // Стоимость приемки на склад хранения
+	#define ARTN_MRKTPLCACC_CORRECTION   5 // Коррекция баланса
 #define PPOBJ_ACCOUNT_PRE9004 1007L  // Бухгалтерские счета (балансовые) // @v9.0.4 Заменен на PPOBJ_ACCOUNT2
 	//
 	// Extra records of PPOBJ_ACCOUNT
@@ -1368,41 +1380,41 @@
 #define PPTAG_PERSON_VETISUUID       66L // UUID предприятия в системе Меркурий (интерфейс ВЕТИС) // в терминах ВЕТИС - business-entity GUID (не UUID)
 #define PPTAG_GUA_LOGIN              67L // Строка авторизации для глобальной учетной записи. Необходим в том случае,
 	// если эта строка не может быть помещена в наименование записи из-за нарушения требования уникальности либо максимальной длины.
-#define PPTAG_GOODS_UUID             68L // @v10.0.04 UUID товара
-#define PPTAG_BILL_EDIRECADVRCV      69L // @v10.0.05 Информация о RECADV полученном в ответ на отправленный DESADV
-#define PPTAG_BILL_EDIDESADVSENT     70L // @v10.0.06 Информация об отправленном DESADV
-#define PPTAG_BILL_EDIORDRSPSENT     71L // @v10.0.06 Информация об отправленном ORDRSP
-#define PPTAG_BILL_EDIALCDESADVSENT  72L // @v10.0.06 Информация об отправленном ALCODESADV
-#define PPTAG_BILL_EDIINVOICSENT     73L // @v10.0.06 Информация об отправленном INVOIC
-#define PPTAG_PERSON_VETISISSUUID__unused   74L // @v10.0.08 Vetis IssuerUUID предприятия в системе Меркурий (интерфейс ВЕТИС)
-#define PPTAG_PERSON_VETISUSER       75L // @v10.0.08 Vetis initiator в системе Меркурий (интерфейс ВЕТИС)
-#define PPTAG_LOT_VETIS_UUID         76L // @v9.8.7 ВЕТИС-идент входящей (произведенной) партии
-#define PPTAG_LOC_VETIS_GUID         77L // @v10.1.0 ВЕТИС-идент локации (склад или адрес доставки) // в терминах ВЕТИС - enterprise GUID (не UUID)
-#define PPTAG_GUA_SECRET             78L // @v10.1.3 Строка секрета авторизации для глобальной учетной записи. Необходим в том случае,
+#define PPTAG_GOODS_UUID             68L // UUID товара
+#define PPTAG_BILL_EDIRECADVRCV      69L // Информация о RECADV полученном в ответ на отправленный DESADV
+#define PPTAG_BILL_EDIDESADVSENT     70L // Информация об отправленном DESADV
+#define PPTAG_BILL_EDIORDRSPSENT     71L // Информация об отправленном ORDRSP
+#define PPTAG_BILL_EDIALCDESADVSENT  72L // Информация об отправленном ALCODESADV
+#define PPTAG_BILL_EDIINVOICSENT     73L // Информация об отправленном INVOIC
+#define PPTAG_PERSON_VETISISSUUID__unused   74L // Vetis IssuerUUID предприятия в системе Меркурий (интерфейс ВЕТИС)
+#define PPTAG_PERSON_VETISUSER       75L // Vetis initiator в системе Меркурий (интерфейс ВЕТИС)
+#define PPTAG_LOT_VETIS_UUID         76L // ВЕТИС-идент входящей (произведенной) партии
+#define PPTAG_LOC_VETIS_GUID         77L // ВЕТИС-идент локации (склад или адрес доставки) // в терминах ВЕТИС - enterprise GUID (не UUID)
+#define PPTAG_GUA_SECRET             78L // Строка секрета авторизации для глобальной учетной записи. Необходим в том случае,
 	// если эта строка не может быть помещена в штатный пароль записи из-за нарушения требования максимальной длины, либо по каким-то иным причинам.
-#define PPTAG_GOODS_VETISPURPOSE     79L // @v10.1.12 Цель отгрузки товара для ВЕТИС. Размещение этого признака в товаре
+#define PPTAG_GOODS_VETISPURPOSE     79L // Цель отгрузки товара для ВЕТИС. Размещение этого признака в товаре
 	// спорно, однако, на момент создания это - быстрое решение проблемы автоматической дифференциации целей отгрузки
 	// в зависимости от товара.
-// @postponed #define PPTAG_LOC_VETIS_ENTITYGUID  80L // @v10.2.1 GUID предприятия в системе Меркурий (интерфейс ВЕТИС) // в терминах ВЕТИС - business-entity GUID (не UUID). Имеет приоритет перед PPTAG_PERSON_VETISUUID
-// @postponed #define PPTAG_LOC_VETISUSER         81L // @v10.2.1 Vetis initiator в системе Меркурий (интерфейс ВЕТИС). Имеет приоритет перед PPTAG_PERSON_VETISUSER
-#define PPTAG_GOODS_TRANSPVANTYPE    82L // @v10.2.11 Тип транспортного фургона для отправки данных в Меркурий
-#define PPTAG_BILL_EDIORDERSENT      83L // @v10.2.11 Информация об отправленном ORDER
-#define PPTAG_BILL_EDIORDRSPRCV      84L // @v10.2.11 Информация об ORDRSP, полученном в ответ на отправленный ORDER
-#define PPTAG_LOT_ORGLINEIDENT       85L // @v10.3.4 Оригинальный идентификатор строки документа. Используется в случае, если идент импортированного документа
+// @postponed #define PPTAG_LOC_VETIS_ENTITYGUID  80L // GUID предприятия в системе Меркурий (интерфейс ВЕТИС) // в терминах ВЕТИС - business-entity GUID (не UUID). Имеет приоритет перед PPTAG_PERSON_VETISUUID
+// @postponed #define PPTAG_LOC_VETISUSER         81L // Vetis initiator в системе Меркурий (интерфейс ВЕТИС). Имеет приоритет перед PPTAG_PERSON_VETISUSER
+#define PPTAG_GOODS_TRANSPVANTYPE    82L // Тип транспортного фургона для отправки данных в Меркурий
+#define PPTAG_BILL_EDIORDERSENT      83L // Информация об отправленном ORDER
+#define PPTAG_BILL_EDIORDRSPRCV      84L // Информация об ORDRSP, полученном в ответ на отправленный ORDER
+#define PPTAG_LOT_ORGLINEIDENT       85L // Оригинальный идентификатор строки документа. Используется в случае, если идент импортированного документа
 	// не может быть представлена целым числом [1..30000]
-#define PPTAG_LOT_FREIGHTPACKAGE     86L // @v10.4.1 Транспортная упаковка. Структурированная информация сжата в строку.
-#define PPTAG_GOODS_VETISGUID        87L // @v10.5.1 GUID товара в справочнике ВЕТИС
-#define PPTAG_GUA_GUID                  88L // @v10.5.3 GUID глобальной учетной записи
-#define PPTAG_GUA_ACCESSKEY             89L // @v10.5.5 Ключ доступа к глобальному ресурсу (не путать с паролем или секретом)
-#define PPTAG_LOT_LINKBILLROW           90L // @v10.5.7 Связанная строка документа
-#define PPTAG_GUA_CERTSUBJCN            91L // @v10.6.3 CN субъекта сертификата электронной подписи
-#define PPTAG_PERSON_CHZNCODE           92L // @v10.6.4 Код контрагента в честном знаке
-#define PPTAG_LOC_CHZNCODE              93L // @v10.6.4 Код локации в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE но имеет приоритет при идентификации)
-#define PPTAG_GUA_CHZNCODE              94L // @v10.6.5 Код своего предприятия в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE, PPTAG_LOC_CHZNCODE но имеет меньший приоритет при идентификации)
-#define PPTAG_GUA_PROTOCOL              95L // @v10.7.10 Протокол либо версия протокола обмена с сервисом, к которому привязана запись.
-#define PPTAG_GUA_OUTERWAREIDTAG        96L // @v10.9.4  Ссылка на тег товара, содержащий внешний идентификатор
-#define PPTAG_GUA_SOCIALGROUPCODE       97L // @v10.9.6  Код группы в социальной сети
-#define PPTAG_GUA_SOCIALPAGECODE        98L // @v10.9.6  Код страницы в социальной сети
+#define PPTAG_LOT_FREIGHTPACKAGE     86L // Транспортная упаковка. Структурированная информация сжата в строку.
+#define PPTAG_GOODS_VETISGUID        87L // GUID товара в справочнике ВЕТИС
+#define PPTAG_GUA_GUID                  88L // GUID глобальной учетной записи
+#define PPTAG_GUA_ACCESSKEY             89L // Ключ доступа к глобальному ресурсу (не путать с паролем или секретом)
+#define PPTAG_LOT_LINKBILLROW           90L // Связанная строка документа
+#define PPTAG_GUA_CERTSUBJCN            91L // CN субъекта сертификата электронной подписи
+#define PPTAG_PERSON_CHZNCODE           92L // Код контрагента в честном знаке
+#define PPTAG_LOC_CHZNCODE              93L // Код локации в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE но имеет приоритет при идентификации)
+#define PPTAG_GUA_CHZNCODE              94L // Код своего предприятия в честном знаке (назначение тоже что и PPTAG_PERSON_CHZNCODE, PPTAG_LOC_CHZNCODE но имеет меньший приоритет при идентификации)
+#define PPTAG_GUA_PROTOCOL              95L // Протокол либо версия протокола обмена с сервисом, к которому привязана запись.
+#define PPTAG_GUA_OUTERWAREIDTAG        96L // Ссылка на тег товара, содержащий внешний идентификатор
+#define PPTAG_GUA_SOCIALGROUPCODE       97L // Код группы в социальной сети
+#define PPTAG_GUA_SOCIALPAGECODE        98L // Код страницы в социальной сети
 #define PPTAG_LOC_VETIS_REGIONGUID      99L // @v11.0.10 ВЕТИС-идент региона локации (склад или адрес доставки) // в терминах ВЕТИС - region GUID (не UUID)
 #define PPTAG_BILL_LONGCODE            100L // @v11.0.12 (надеюсь, временный тег) Если номер документа, поступившего из-вне длиннее sizeof(Bill:Code)-1 то полный номер сохраняется в этом теге
 #define PPTAG_POSNODE_OFDVER           101L // @v11.1.9  Версия ОФД на аппарате (аппаратах), с которой работает кассовый узел
@@ -1428,6 +1440,10 @@
 	// принимать это решение), менеджер установит этот тег в строку заказа и система сформирует документ прихода (или еще какой), связанный с этим поставщиком.
 #define PPTAG_PERSON_MARKETPLACESYMB   116L // @v12.1.1 Зарезервированный символ конкретного маркетплейса, присваиваемый персоналии, относящейся к виду 'Маркетплейс'
 	// для того, чтобы можно было взаимодействовать с api этого маркетплейса.
+#define PPTAG_GUA_ACCOUNT              117L // @v12.1.3 Бухгалтерский счет, связанный с глобальной учетной записью, для учета движения средств. 
+	// Кейс следующий: если глобальная учетная запись ассоциирована с каким-то внешним сервисом, который открывает для нас счет, по которому
+	// осуществляется движение и существует возможность вывести наши средства, то мы заводим некоторый счет (возможно, регистровый) и отображаем
+	// на нем движение средств.
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -11620,6 +11636,9 @@
 	#define CTL_TESTMRKTPLC_GUA            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TESTMRKTPLC_GUA         (2 + WINDOWS_ID_BIAS)
 	#define CTL_TESTMRKTPLC_TEXT           (3 + WINDOWS_ID_BIAS)
+#define DLG_MRKTPLCIX             1448 // @v12.1.3 Параметры обмена с маркетплейсом
+	#define CTL_MRKTPLCIX_GUA              (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_MRKTPLCIX_GUA           (2 + WINDOWS_ID_BIAS)	
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

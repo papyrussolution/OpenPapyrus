@@ -4443,7 +4443,13 @@ public:
 	SString & FASTCALL SetIfEmpty(const SString & rS);
 	int    IsAscii() const;
 	bool   IsLegalUtf8() const;
+	//
+	// Descr: Возвращает true если все символы строки либо ascii либо относятся к диапазонам таблицы cp866.
+	//
 	bool   IsCp866() const;
+	//
+	// Descr: Возвращает true если все символы строки либо ascii либо относятся к диапазонам таблицы cp1251.
+	//
 	bool   IsCp1251() const;
 	bool   CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion);
 	//

@@ -353,6 +353,7 @@
 			// @v9.2.1 MENUITEM "@cmd_supplgoodsimport",				cmSupplGoodsImport
 			MENUITEM "@cmd_supplinterchange",				cmSupplInterchange
 			MENUITEM "@cmd_vetisinerchange",                cmVetisInterchange // @v10.1.2
+			MENUITEM "@cmd_marketplaceinterchange",         cmMarketplaceInterchange // @v12.1.3
 		}
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_vetisdocument"                       cmVetisDocument

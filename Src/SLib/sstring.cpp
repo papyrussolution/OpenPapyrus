@@ -20,7 +20,7 @@ const wchar_t * FASTCALL SUcSwitchW(const char * pStr)
 	return r_temp_buf_u.CopyFromMb_OUTER(pStr, sstrlen(pStr)).ucptr();
 }
 
-const wchar_t * FASTCALL SUcSwitchW(const SString & rStr) // @v10.9.12
+const wchar_t * FASTCALL SUcSwitchW(const SString & rStr)
 {
 	SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
 	return r_temp_buf_u.CopyFromMb_OUTER(rStr, rStr.Len()).ucptr();
@@ -5142,17 +5142,7 @@ SStringU & SStringU::Sub(size_t startPos, size_t len, SStringU & rBuf) const
 
 int SString::IsAscii() const
 {
-	return sisascii(P_Buf, Len()); // @v10.9.7
-	/* @v10.9.7
-	int    ok = 1;
-	const  size_t _len = Len();
-	for(size_t idx = 0; ok && idx < _len; idx++) {
-		const uint8 * p = reinterpret_cast<const uint8 *>(P_Buf+idx);
-		if(*p >= 0x80)
-			ok = 0;
-	}
-	return ok;
-	*/
+	return sisascii(P_Buf, Len());
 }
 
 bool SString::IsCp866() const
@@ -5160,7 +5150,8 @@ bool SString::IsCp866() const
 	bool   ok = true;
 	const  size_t _len = Len();
 	for(size_t i = 0; ok && i < _len; i++) {
-		if(!IsLetter866(P_Buf[i]))
+		const char c = P_Buf[i];
+		if((c & 0x80) && !IsLetter866(c)) // @v12.1.3 (c & 0x80) && 
 			ok = false;
 	}
 	return ok;
@@ -5171,7 +5162,8 @@ bool SString::IsCp1251() const
 	bool   ok = true;
 	const  size_t _len = Len();
 	for(size_t i = 0; ok && i < _len; i++) {
-		if(!IsLetter1251(P_Buf[i]))
+		const char c = P_Buf[i];
+		if((c & 0x80) && !IsLetter1251(c)) // @v12.1.3 (c & 0x80) && 
 			ok = false;
 	}
 	return ok;

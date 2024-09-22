@@ -3383,17 +3383,21 @@ int FASTCALL _IsSellingOp(PPID opID)
 int FASTCALL IsIntrOp(PPID opID)
 {
 	int    r = 0;
-	PPOprKind opk;
-	if(opID == PPOPK_INTREXPEND)
-		r = INTREXPND;
-	else if(opID == PPOPK_INTRRECEIPT)
-		r = INTRRCPT;
-	else if(opID && GetOpData(opID, &opk))
-		if(opk.AccSheetID == LConfig.LocAccSheetID)
-			if(opk.OpTypeID == PPOPT_GOODSEXPEND)
-				r = INTREXPND;
-			else if(opk.OpTypeID == PPOPT_GOODSRECEIPT)
-				r = INTRRCPT;
+	if(opID) {
+		PPOprKind opk;
+		if(opID == PPOPK_INTREXPEND)
+			r = INTREXPND;
+		else if(opID == PPOPK_INTRRECEIPT)
+			r = INTRRCPT;
+		else if(GetOpData(opID, &opk)) {
+			if(opk.AccSheetID == LConfig.LocAccSheetID) {
+				if(opk.OpTypeID == PPOPT_GOODSEXPEND)
+					r = INTREXPND;
+				else if(opk.OpTypeID == PPOPT_GOODSRECEIPT)
+					r = INTRRCPT;
+			}
+		}
+	}
 	return r;
 }
 

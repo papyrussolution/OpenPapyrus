@@ -2174,7 +2174,7 @@ int PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
-	const  int do_index_phones = BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR);
+	const  bool do_index_phones = LOGIC(CConfig.Flags2 & CCFLG2_INDEXEADDR);
 	SString temp_buf;
 	THROW_MEM(SETIFZ(P_RegObj, new PPObjRegister()));
 	{

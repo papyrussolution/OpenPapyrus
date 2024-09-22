@@ -2700,7 +2700,7 @@ int PiritEquip::RunCheck(int opertype)
 										else if(oneof2(Check.ChZnProdType, 12, 1012)) // @v11.9.3 GTCHZNPT_DRAFTBEER // @v12.0.5 1012 (GTCHZNPT_DRAFTBEER_AWR)
 											str = "030";
 										else
-											str.Z();
+											str = "030"; // @v12.1.3 .Z()-->"030"
 										CreateStr(str, in_data); // #15 (tag 1262) Идентификатор ФОИВ. Значение определяется ФНС РФ. Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 									}
 									// @v11.9.3 str.Z().Cat(checkdate(Check.Timestamp.d) ? Check.Timestamp.d : getcurdate_(), DATF_DMY|DATF_NODIV|DATF_CENTURY); // @v11.2.3 // @v11.2.7

@@ -702,7 +702,7 @@ void PPObjBill::DiagGoodsTurnError(const PPBillPacket * pPack)
 	}
 }
 
-int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacket * pOrderPack, int orderItemIdx, PPID srcLotID, int interactive)
+int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacket * pOrderPack, int orderItemIdx, PPID srcLotID, double maxQtty, int interactive)
 {
 	int    ok = -1;
 	LongArray row_idx_list;
@@ -712,8 +712,8 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 		const  PPID goods_id = labs(p_ord_item->GoodsID);
 		DateIter diter;
 		int    zero_rest = 1;
-		double rest;
-		double qtty;
+		double rest = 0.0;
+		double qtty = 0.0;
 		double reserve = 0.0; // Количество, занятое резервирующими заказами
 		PPTransferItem ti;
 		PPTransferItem * tmp_sti = 0;
@@ -722,6 +722,10 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 		PPID   isales_support_discount_qk = -1; // @v11.0.6 Опорная котировка для расчета скидки по заказам iSales
 		THROW(GObj.Fetch(goods_id, &goods_rec) > 0);
 		THROW(pPack->RestByOrderLot(p_ord_item->LotID, 0, -1, &qtty));
+		// @v12.1.2 {
+		if(maxQtty > 0.0 && qtty > maxQtty)
+			qtty = maxQtty;
+		// } @v12.1.2 
 		if(pPack->CheckGoodsForRestrictions(-1, goods_id, TISIGN_MINUS, qtty, PPBillPacket::cgrfAll, 0)) {
 			//
 			// Если данная отгрузка осуществляется по резервирующему заказу, то
@@ -1970,7 +1974,7 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 						if(pos_to_src_lot_list.Search(sample_pack_tiidx, &rcpt_ti_pos, &pos))
 							src_lot_id = p_rcpt_bpack->ConstTI(rcpt_ti_pos).LotID;
 					}*/
-					THROW(InsertShipmentItemByOrder(&pack, &sample_pack, sample_pack_tiidx, src_lot_id, 0 /*noninteractive*/));
+					THROW(InsertShipmentItemByOrder(&pack, &sample_pack, sample_pack_tiidx, src_lot_id, 0.0, 0/*noninteractive*/));
 				}
 			}
 			if(pParam->Flags & pParam->fNonInteractive) {
@@ -2249,7 +2253,7 @@ PPObjBill::AddBlock::AddBlock(const AddBlock * pBlk)
 int PPObjBill::AddRetBillByLot(PPID lotID)
 {
 	int    ok = -1;
-	PPID   save_loc_id = LConfig.Location;
+	const  PPID preserve_loc_id = LConfig.Location;
 	ReceiptTbl::Rec lot_rec;
 	if(lotID && trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
 		BillTbl::Rec bill_rec;
@@ -2268,13 +2272,15 @@ int PPObjBill::AddRetBillByLot(PPID lotID)
 		}
 	}
 	CATCHZOKPPERR
-	DS.SetLocation(save_loc_id);
+	DS.SetLocation(preserve_loc_id);
 	return ok;
 }
 
 int PPObjBill::AddRetBill(PPID op, long link, PPID locID)
 {
-	int    r = 1, ok = 1, res = cmCancel;
+	int    ok = 1;
+	int    r = 1;
+	int    res = cmCancel;
 	PPID   bill_id = 0;
 	BillTbl::Rec link_rec;
 	PPBillPacket pack;
@@ -7425,10 +7431,7 @@ int PPObjBill::InitPckg(LPackage * pPckg)
 	return ok;
 }
 
-int PPObjBill::IsLotInPckg(PPID lotID)
-{
-	return BIN(CcFlags & CCFLG_USEGOODSPCKG && lotID && P_PckgT->GetLotLink(lotID, 0, 0) > 0);
-}
+bool PPObjBill::IsLotInPckg(PPID lotID) { return (CcFlags & CCFLG_USEGOODSPCKG && lotID && P_PckgT->GetLotLink(lotID, 0, 0) > 0); }
 
 int PPObjBill::CheckPckgCodeUnique(const LPackage * pPckg, PPBillPacket * pPack)
 {
@@ -7506,7 +7509,8 @@ int PPObjBill::LoadPckgList(PPBillPacket * pPack)
 		THROW_MEM(p_pckg_list = new LPackageList);
 		while(pPack->EnumTItems(&i, &p_ti)) {
 			if(p_ti->Flags & PPTFR_PCKG) {
-				uint  j, lot_pos;
+				uint  j;
+				uint  lot_pos;
 				int   idx;
 				PPID  lot_id = 0;
 				LPackage pckg;
@@ -7521,7 +7525,7 @@ int PPObjBill::LoadPckgList(PPBillPacket * pPack)
 				pckg.Cost    = p_ti->Cost;
 				pckg.Price   = p_ti->Price;
 				for(j = 0; pckg.EnumItems(&j, &idx, &lot_id);) {
-					int found = 0;
+					bool found = false;
 					//
 					// If package mounted in this bill or transfered to other location,
 					// then relink package item to source lots
@@ -7532,11 +7536,12 @@ int PPObjBill::LoadPckgList(PPBillPacket * pPack)
 							lot_rec.PrevLotID /*&& lot_rec.BillID == pPack->Rec.ID*/, PPERR_INVLOTREFINPCKG);
 						lot_id = lot_rec.PrevLotID;
 					}
-					for(lot_pos = 0; !found && pPack->SearchLot(lot_id, &lot_pos);)
+					for(lot_pos = 0; !found && pPack->SearchLot(lot_id, &lot_pos);) {
 						if(pPack->ConstTI(lot_pos).Flags & PPTFR_PCKGGEN) {
 							pckg.UpdateItem(j-1, lot_pos, lot_id);
-							found = 1;
+							found = true;
 						}
+					}
 					THROW_PP(found, PPERR_INVLOTREFINPCKG);
 				}
 				THROW(p_pckg_list->Add(&pckg));
@@ -8566,6 +8571,7 @@ int PPObjBill::RemovePacket(PPID id, int use_ta)
 	int    rbybill = 0;
 	int    is_inventory = 0;
 	PPID   paym_link_id = 0;
+	PPID   ord_link_id = 0; // @v12.1.3 Документ заказа - владелец пула документов списания заказа
 	PPID   pull_member_id;
 	PPID   op_type_id = 0;
 	SString bill_code;
@@ -8581,7 +8587,7 @@ int PPObjBill::RemovePacket(PPID id, int use_ta)
 		SBuffer hist_buf;
 		BillUserProfileCounter ufp_counter;
 		PPUserFuncProfiler ufp(GetBillOpUserProfileFunc(brec.OpID, PPACN_RMVBILL));
-		const int is_shadow = BIN(brec.OpID == 0);
+		const bool is_shadow = (brec.OpID == 0);
 		if(!is_shadow) { // Для теневого документа не проверяем период доступа и права на удаление
 			THROW(CheckRightsWithOp(brec.OpID, PPR_DEL));
 			THROW(r_rt.CheckBillDate(brec));
@@ -8602,6 +8608,7 @@ int PPObjBill::RemovePacket(PPID id, int use_ta)
 			p_inv_tbl = &GetInvT();
 		}
 		IsMemberOfPool(id, PPASS_PAYMBILLPOOL, &paym_link_id);
+		IsMemberOfPool(id, PPASS_ORDACCOMPBILLPOOL, &ord_link_id); // @v12.1.3
 		THROW(PPStartTransaction(&ta, use_ta));
 		THROW(LockFRR(brec.Dt, &frrl_tag, 0));
 		{
@@ -8645,18 +8652,29 @@ int PPObjBill::RemovePacket(PPID id, int use_ta)
 		}
 		// @v9.8.11 (из-за условия возможно, что какие-то свойства удалены не будут) if(brec.Flags & BILLF_EXTRA)
 			THROW(p_ref->RemoveProperty(PPOBJ_BILL, id, 0, 0));
-		if(is_inventory)
+		if(is_inventory) {
 			THROW(p_inv_tbl->Remove(id, 0));
-		if(paym_link_id)
+		}
+		if(paym_link_id) {
 			THROW(P_Tbl->RemoveFromPool(id, PPASS_PAYMBILLPOOL, paym_link_id, 0));
-		if(brec.Flags & BILLF_CSESSWROFF)
+		}
+		// @v12.1.3 {
+		if(ord_link_id) {
+			THROW(P_Tbl->RemoveFromPool(id, PPASS_ORDACCOMPBILLPOOL, ord_link_id, 0));
+		}
+		// } @v12.1.3 
+		if(brec.Flags & BILLF_CSESSWROFF) {
 			THROW(P_Tbl->RemoveFromPool(id, PPASS_CSESSBILLPOOL, 0L, 0));
-		if(brec.Flags & BILLF_CDFCTWROFF)
+		}
+		if(brec.Flags & BILLF_CDFCTWROFF) {
 			THROW(P_Tbl->RemoveFromPool(id, PPASS_CSDBILLPOOL, 0L, 0));
-		if(brec.Flags & BILLF_TSESSWROFF || brec.Flags2 & BILLF2_TSESSPAYM)
+		}
+		if(brec.Flags & BILLF_TSESSWROFF || brec.Flags2 & BILLF2_TSESSPAYM) {
 			THROW(P_Tbl->RemoveFromPool(id, PPASS_TSESSBILLPOOL, 0L, 0));
-		if(brec.Flags & BILLF_TDFCTWROFF)
+		}
+		if(brec.Flags & BILLF_TDFCTWROFF) {
 			THROW(P_Tbl->RemoveFromPool(id, PPASS_TSDBILLPOOL, 0L, 0));
+		}
 		{
 			PPIDArray  pool_list;
 			if(P_Tbl->GetPoolOwnerList(id, PPASS_OPBILLPOOL, &pool_list) > 0)
@@ -9684,7 +9702,7 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 							else
 								sym = 0;
 							break;
-						case PPSYM_DLVRLOCTAG: // @v10.4.2
+						case PPSYM_DLVRLOCTAG:
 							if(p[next] == '.') {
 								char   tag_symb[64];
 								p += (next+1);
@@ -9719,12 +9737,12 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 							subst_buf = pk->Rec.Code; // @v11.1.12 
 							break;
 						case PPSYM_DATE: subst_buf.Cat(pk->Rec.Dt, DATF_DMY); break;
-						case PPSYM_DUEDATE: // @v10.4.8
+						case PPSYM_DUEDATE:
 							if(checkdate(pk->Rec.DueDate))
 								subst_buf.Cat(pk->Rec.DueDate, DATF_DMY);
 							break;
 						case PPSYM_FGDATE: subst_buf.Cat(pk->Rec.Dt, DATF_DMY|DATF_CENTURY|DATF_NODIV); break;
-						case PPSYM_FGDUEDATE: // @v10.4.8
+						case PPSYM_FGDUEDATE:
 							subst_buf.Cat(pk->Rec.DueDate, DATF_DMY|DATF_CENTURY|DATF_NODIV);
 							break;
 						case PPSYM_PAYDATE:
@@ -9755,8 +9773,8 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 							break;
 						case PPSYM_LOCATION: GetLocationName(pk->Rec.LocID, subst_buf); break;
 						case PPSYM_OBJECT:   GetArticleName(pk->Rec.Object, subst_buf); break;
-						case PPSYM_OBJINN: // @v10.5.0
-						case PPSYM_OBJKPP: // @v10.5.0
+						case PPSYM_OBJINN:
+						case PPSYM_OBJKPP:
 							if(pk->Rec.Object) {
 								const  PPID psn_id = ObjectToPerson(pk->Rec.Object);
 								if(psn_id) {
@@ -9766,7 +9784,6 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 								}
 							}
 							break;
-						// @v10.7.3 {
 						case PPSYM_OBJ2INN:     // @obj2inn ИНН персоналии, ассоциированной со дополнительной статьей документа
 						case PPSYM_OBJ2KPP:     // @obj2kpp КПП персоналии, ассоциированной со дополнительной статьей документа
 							if(pk->Rec.Object2) {
@@ -9778,7 +9795,6 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 								}
 							}
 							break;
-						// } @v10.7.3
 						case PPSYM_BILLOBJ2: GetArticleName(pk->Rec.Object2, subst_buf); break;
 						case PPSYM_DLVRLOCCODE:
 							if(pk->GetDlvrAddrID() && LocObj.Fetch(pk->GetDlvrAddrID(), &loc_rec) > 0)
@@ -9865,7 +9881,7 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 								//
 								// В @v5.7.12 номера есть только у соглашений с покупателями
 								//
-								subst_buf = agt_blk.P_CliAgt->Code_; // @v10.2.9 Code-->Code2 // @v11.2.0 Code2-->Code_
+								subst_buf = agt_blk.P_CliAgt->Code_; // @v11.2.0 Code2-->Code_
 							}
 							break;
 						case PPSYM_AGTDATE:

@@ -4317,6 +4317,50 @@ public:
 
 IMPLEMENT_CMD_HDL_FACTORY(IMPORTFIAS);
 //
+// 
+// 
+class CMD_HDL_CLS(MARKETPLACEINTERCHANGE) : public PPCommandHandler {
+public:
+	CMD_HDL_CLS(MARKETPLACEINTERCHANGE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		if(pParam) {
+			PrcssrMarketplaceInterchange prc;
+			MarketplaceInterchangeFilt filt;
+			if(!filt.Read(*pParam, 0))
+				prc.InitParam(&filt);
+			if(prc.EditParam(&filt) > 0) {
+				if(filt.Write(pParam->Z(), 0)) {
+					ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		if(pParam) {
+			MarketplaceInterchangeFilt filt;
+			if(filt.Read(*pParam, 0)) {
+				PrcssrMarketplaceInterchange prc;
+				if(!prc.Init(&filt) || !prc.Run())
+					ok = PPErrorZ();
+			}
+			else
+				ok = DoMarketplaceInterchange();
+		}
+		else
+			ok = DoMarketplaceInterchange();
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(MARKETPLACEINTERCHANGE);
+//
 //
 //
 class CMD_HDL_CLS(SUPPLINTERCHANGE) : public PPCommandHandler {
@@ -4641,7 +4685,7 @@ public:
 IMPLEMENT_CMD_HDL_FACTORY(OPENTEXTFILE);
 //
 //
-class CMD_HDL_CLS(SETSCARDBYRULE) : public PPCommandHandler { // @v10.8.8 
+class CMD_HDL_CLS(SETSCARDBYRULE) : public PPCommandHandler {
 public:
 	CMD_HDL_CLS(SETSCARDBYRULE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{

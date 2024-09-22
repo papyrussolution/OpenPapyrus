@@ -303,14 +303,14 @@
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
-COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
-COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
-rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
-COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
+COPY /Y $(IntDir)PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)PP.RES+$(IntDir)\PPMENU.RES $(OutDir)PP.RES
+rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
+COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -338,14 +338,14 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
-COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
-COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
-rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
-COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
+COPY /Y $(IntDir)PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)PP.RES+$(IntDir)\PPMENU.RES $(OutDir)PP.RES
+rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
+COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -369,14 +369,14 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
-COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
-COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
-rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
-COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
+COPY /Y $(IntDir)PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)PP.RES+$(IntDir)\PPMENU.RES $(OutDir)PP.RES
+rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
+COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -397,14 +397,14 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
-COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
-COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
-rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
-COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
+COPY /Y $(IntDir)PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)PP.RES+$(IntDir)\PPMENU.RES $(OutDir)PP.RES
+rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
+COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -428,14 +428,14 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
-COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
-COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
-rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
-COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
+COPY /Y $(IntDir)PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)PP.RES+$(IntDir)\PPMENU.RES $(OutDir)PP.RES
+rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
+COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -459,14 +459,14 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
-COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
-COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
-rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
-COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
+COPY /Y $(IntDir)PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)PP.RES+$(IntDir)\PPMENU.RES $(OutDir)PP.RES
+rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
+COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -490,14 +490,14 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
-COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
-COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
-rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
-COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
+COPY /Y $(IntDir)PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)PP.RES+$(IntDir)\PPMENU.RES $(OutDir)PP.RES
+rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
+COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -521,14 +521,14 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
-COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
-COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
-rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
-COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
+COPY /Y $(IntDir)PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)PP.RES+$(IntDir)\PPMENU.RES $(OutDir)PP.RES
+rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
+COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -552,14 +552,14 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
-COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
-COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
-rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
-COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
+COPY /Y $(IntDir)PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)PP.RES+$(IntDir)\PPMENU.RES $(OutDir)PP.RES
+rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
+COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -583,14 +583,14 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
-COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
-COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
-rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
-COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
+COPY /Y $(IntDir)PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)PP.RES+$(IntDir)\PPMENU.RES $(OutDir)PP.RES
+rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
+COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -614,14 +614,14 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
-COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
-COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
-rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
-COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
+COPY /Y $(IntDir)PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)PP.RES+$(IntDir)\PPMENU.RES $(OutDir)PP.RES
+rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
+COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -645,14 +645,14 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
     </Link>
     <PostBuildEvent>
       <Message>Make resources</Message>
-      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
-COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
-COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
-rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
-COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
+COPY /Y $(IntDir)PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)PP.RES+$(IntDir)\PPMENU.RES $(OutDir)PP.RES
+rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
+COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
 </Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -661,28 +661,28 @@ COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">
     <PostBuildEvent>
-      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
-COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
-COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
-rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
-COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
+COPY /Y $(IntDir)PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)PP.RES+$(IntDir)\PPMENU.RES $(OutDir)PP.RES
+rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
+COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
 </Command>
       <Message>Make resources</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
     <PostBuildEvent>
-      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)\ppdlg.rc+$(IntDir)\ppdata.rc+$(IntDir)\charry.rc+$(IntDir)\pphelp.rc $(IntDir)\pp.rc
-..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)\PP.RC
-..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPMENU.RC
-rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)\PPRPT.RC
-COPY /Y $(IntDir)\PP.RES $(OutDir)\PPRAW.RES
-COPY /B /Y $(IntDir)\PP.RES+$(IntDir)\PPMENU.RES $(OutDir)\PP.RES
-rem COPY $(IntDir)\PPRPT.RES $(OutDir)\PPRPT.RES
-COPY /Y $(IntDir)\ppbrow-dv.wta $(OutDir)\ppdv.wta
+      <Command>COPY /B /Y $(IntDir)\ppbrow.rc+$(IntDir)ppdlg.rc+$(IntDir)ppdata.rc+$(IntDir)charry.rc+$(IntDir)pphelp.rc $(IntDir)pp.rc
+..\..\TOOLS\MSVS2015\RC -dWIN32 -r -i..\INCLUDE $(IntDir)PP.RC
+..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPMENU.RC
+rem ..\..\TOOLS\MSVS2015\RC -r -i..\INCLUDE $(IntDir)PPRPT.RC
+COPY /Y $(IntDir)PP.RES $(OutDir)\PPRAW.RES
+COPY /B /Y $(IntDir)PP.RES+$(IntDir)\PPMENU.RES $(OutDir)PP.RES
+rem COPY $(IntDir)PPRPT.RES $(OutDir)PPRPT.RES
+COPY /Y $(IntDir)ppbrow-dv.wta $(OutDir)ppdv.wta
 </Command>
       <Message>Make resources</Message>
     </PostBuildEvent>

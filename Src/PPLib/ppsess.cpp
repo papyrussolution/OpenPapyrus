@@ -1972,7 +1972,8 @@ static void InitTest()
 	STATIC_ASSERT(sizeof(PPQuotKind) == sizeof(Reference2Tbl::Rec)); // @v11.7.1
 	STATIC_ASSERT(sizeof(PPBizScore2) == sizeof(Reference2Tbl::Rec)); // @v11.9.1
 	STATIC_ASSERT(sizeof(PPComputerCategory) == sizeof(Reference2Tbl::Rec)); // @v12.0.10
-	STATIC_ASSERT(sizeof(PPRawMaterial) == sizeof(Reference2Tbl::Rec)); // @v12.0.10	
+	STATIC_ASSERT(sizeof(PPRawMaterial) == sizeof(Reference2Tbl::Rec)); // @v12.0.10
+	STATIC_ASSERT(sizeof(PPGlobalUserAcc) == sizeof(Reference2Tbl::Rec)); // @v12.1.3
 	{
         PPAccount::_A_ a1;
         PPAccount::_A_ a2;
@@ -5373,6 +5374,7 @@ int PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 			case PPOBJ_COMPUTER: val = PPHS_WSCTL; break; // @v11.7.3
 			case PPOBJ_SWPROGRAM: val = PPHS_SWPROGRAM; break; // @v12.0.7
 			case PPOBJ_RAWMATERIAL: val = PPHS_RAWMATERIAL; break; // @v12.0.11
+			case PPOBJ_ACCOUNT2: val = PPHS_ACCOUNT; break; // @v12.1.3
 		}
 		if(val)
 			ok = P_ObjIdentBlk->P_ShT->GetByAssoc(val, rBuf);
@@ -5438,6 +5440,7 @@ PPID PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 				case PPHS_SWPROGRAM:      val = PPOBJ_SWPROGRAM; break; // @v12.0.5
 				case PPHS_ARTICLE:        val = PPOBJ_ARTICLE; break; // @v12.0.7
 				case PPHS_RAWMATERIAL:    val = PPOBJ_RAWMATERIAL; break; // @v12.0.11
+				case PPHS_ACCOUNT:        val = PPOBJ_ACCOUNT2; break; // @v12.1.3
 				default: PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb); break;
 			}
 			obj_type = LoWord(val);

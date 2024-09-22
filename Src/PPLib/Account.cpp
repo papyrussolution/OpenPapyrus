@@ -158,23 +158,24 @@ int ArticleCore::GetListByGroup(PPID grpArID, PPIDArray * pList)
 	return ok;
 }
 
-int ArticleCore::_SearchNum(PPID accSheetID, long articleNo, int spMode, void * b)
+int ArticleCore::_SearchNum(PPID accSheetID, long articleNo, int spMode, ArticleTbl::Rec * pRec)
 {
 	ArticleTbl::Key1 k;
 	k.AccSheetID = accSheetID;
 	k.Article = articleNo;
 	if(search(1, &k, spMode) && k.AccSheetID == accSheetID)
-		return (copyBufTo(b), 1);
-	return (BTROKORNFOUND) ? (PPErrCode = PPERR_ARTICLENFOUND, -1) : PPSetErrorDB();
+		return (copyBufTo(pRec), 1);
+	else
+		return (BTROKORNFOUND) ? (PPErrCode = PPERR_ARTICLENFOUND, -1) : PPSetErrorDB();
 }
 
-int ArticleCore::SearchFreeNum(PPID accSheetID, long * pAr, void * b)
+int ArticleCore::SearchFreeNum(PPID accSheetID, long * pAr, ArticleTbl::Rec * pRec)
 {
 	int    r;
 	if(*pAr)
-		r = _SearchNum(accSheetID, *pAr, spEq, b);
+		r = _SearchNum(accSheetID, *pAr, spEq, pRec);
 	else {
-		r = _SearchNum(accSheetID, MAXLONG, spLt, b);
+		r = _SearchNum(accSheetID, MAXLONG, spLt, pRec);
 		if(r > 0)
 			*pAr = data.Article+1;
 		else if(r < 0)
@@ -217,25 +218,10 @@ int ArticleCore::LocationToArticle(PPID locID, PPID accSheetID, PPID * pArID)
 	return ok;
 }
 
-int ArticleCore::SearchNum(PPID sheet, long ar, void * b)
-{
-	return _SearchNum(sheet, ar, ar ? spEq : spGe, b);
-}
-
-int ArticleCore::Add(PPID * pID, void * b, int use_ta)
-{
-	return AddObjRecByID(this, PPOBJ_ARTICLE, pID, b, use_ta);
-}
-
-int ArticleCore::Update(PPID id, const void * pRec, int use_ta)
-{
-	return UpdateByID(this, PPOBJ_ARTICLE, id, pRec, use_ta);
-}
-
-int ArticleCore::Remove(PPID id, int use_ta)
-{
-   return RemoveByID(this, id, use_ta);
-}
+int ArticleCore::SearchNum(PPID sheet, long ar, ArticleTbl::Rec * pRec) { return _SearchNum(sheet, ar, ar ? spEq : spGe, pRec); }
+int ArticleCore::Add(PPID * pID, void * b, int use_ta) { return AddObjRecByID(this, PPOBJ_ARTICLE, pID, b, use_ta); }
+int ArticleCore::Update(PPID id, const void * pRec, int use_ta) { return UpdateByID(this, PPOBJ_ARTICLE, id, pRec, use_ta); }
+int ArticleCore::Remove(PPID id, int use_ta) { return RemoveByID(this, id, use_ta); }
 //
 // AcctRel
 //

@@ -1772,7 +1772,7 @@ int PPObjPerson::FormatRegister(PPID id, PPID regTypeID, char * buf, size_t bufl
 	return -1;
 }
 
-PPObjPerson::ResolverParam::ResolverParam() : Flags(0), KindID(0)
+PPObjPerson::ResolverParam::ResolverParam() : Flags(0), KindID(0), StatusID(0)
 {
 	AttrPriorityList.addzlist(attrUUID, attrGLN, attrINN, attrPhone, attrEMail, attrCommonName, 0);
 }
@@ -1816,7 +1816,7 @@ public:
 		rResult.sortAndUndup();
 		return rResult.getCount();
 	}
-	int    ArrangeResultList(LongArray & rResult) const
+	int    ArrangeResultList(PPObjPerson & rObj, const PPObjPerson::ResolverParam & rP, LongArray & rResult) const
 	{
 		int    ok = -1;
 		rResult.sortAndUndup(); // Параноидальная страховка
@@ -1848,9 +1848,22 @@ public:
 			{
 				rResult.Z();
 				for(uint j = 0; j < temp_list.getCount(); j++) {
-					rResult.add(temp_list.at(j).Key);
+					const PPID _id = temp_list.at(j).Key;
+					// @v12.1.3 Введена проверка на принадлежность выбранных персоналий виду и статусу (если заданы)
+					PersonTbl::Rec psn_rec;
+					if(rObj.Fetch(_id, &psn_rec) > 0) {
+						bool do_skip = false;
+						if(rP.StatusID && psn_rec.Status != rP.StatusID) {
+							do_skip = true;
+						}
+						if(rP.KindID && rObj.P_Tbl->IsBelongsToKind(_id, rP.KindID)) {
+							do_skip = true;
+						}
+						if(!do_skip)
+							rResult.add(_id);
+					}
 				}
-				assert(rResult.getCount() == _org_count);
+				// @v12.1.3 assert(rResult.getCount() == _org_count);
 			}
 			ok = 1;
 		}
@@ -1956,7 +1969,7 @@ int PPObjPerson::Resolve(const ResolverParam & rP, PPIDArray & rCandidateIdList,
 		LongArray ulist;
 		resolve_list.GetUniteList(ulist);
 		if(ulist.getCount()) {
-			resolve_list.ArrangeResultList(ulist);
+			resolve_list.ArrangeResultList(*this, rP, ulist);
 			// Первый элемент списка ulist - самый значимый
 			rCandidateIdList.add(&ulist);
 			ok = 1;
@@ -1965,12 +1978,21 @@ int PPObjPerson::Resolve(const ResolverParam & rP, PPIDArray & rCandidateIdList,
 			if(rP.Flags & rP.fCreateIfNFound) {
 				if(rP.CommonName.NotEmpty()) {
 					PPObjPersonKind pk_obj;
+					PPPersonKind pk_rec;
 					PPPersonPacket pack;
 					STRNSCPY(pack.Rec.Name, rP.CommonName);
+					PPID   assigned_kind_id = 0;
 					if(rP.KindID && pk_obj.Fetch(rP.KindID, 0) > 0)
-						pack.Kinds.add(rP.KindID);
+						assigned_kind_id = rP.KindID;
 					else
-						pack.Kinds.add(PPPRK_UNKNOWN);
+						assigned_kind_id = PPPRK_UNKNOWN;
+					pack.Kinds.add(assigned_kind_id);
+					if(rP.StatusID)
+						pack.Rec.Status = rP.StatusID;
+					else if(pk_obj.Fetch(assigned_kind_id, &pk_rec) > 0 && pk_rec.DefStatusID)
+						pack.Rec.Status = pk_rec.DefStatusID;
+					else
+						pack.Rec.Status = PPPRS_LEGAL; // @?
 					if(!!rP.Uuid) {
 						ObjTagItem tag_item;
 						if(tag_item.SetGuid(PPTAG_PERSON_UUID, &rP.Uuid))

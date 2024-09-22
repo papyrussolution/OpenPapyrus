@@ -553,5 +553,6 @@
 #define cmImportSwProgram              659 // @v12.0.4 Импорт списка исполняемых программ (проект wsctl)
 #define cmRawMaterials                 660 // @v12.0.10 Справочник материалов (PPOBJ_RAWMATERIAL)
 #define cmTestMarketplace              661 // @v12.1.0 Тестирование механизмов работы с маркетплейсами @cmd_testmarketplace
+#define cmMarketplaceInterchange       662 // @v12.1.3 Обмен данными с маркетплейсом
 
 #endif /* __PPMENU_H */

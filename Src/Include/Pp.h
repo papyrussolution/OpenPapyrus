@@ -438,6 +438,7 @@ class StyloQPersonEventParam;
 class PPObjTech;
 class PPBillImporter;
 class EgaisMarkAutoSelector;
+class PPMarketplaceInterface;
 
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef int32 PPID; // @v11.6.8 long-->int32
@@ -9825,13 +9826,13 @@ public:
 	// Descr: Если в функции SearchNum параметр articleNo равен 0, то
 	//   ищется первая статья для таблицы accSheetID.
 	//
-	int    SearchNum(PPID accSheetID, long articleNo, void * = 0);
-	int    SearchFreeNum(PPID accSheetID, long * pArticleNo, void * = 0);
+	int    SearchNum(PPID accSheetID, long articleNo, ArticleTbl::Rec * pRec = 0);
+	int    SearchFreeNum(PPID accSheetID, long * pArticleNo, ArticleTbl::Rec * pRec = 0);
 	int    SearchObjRef(PPID accSheetID, PPID objID, ArticleTbl::Rec * pRec = 0);
 	int    PersonToArticle(PPID personID, PPID accSheetID, PPID * pArID);
 	int    LocationToArticle(PPID personID, PPID accSheetID, PPID * pArID);
 private:
-	int    _SearchNum(PPID accSheetID, long articleNo, int spMode, void * = 0);
+	int    _SearchNum(PPID accSheetID, long articleNo, int spMode, ArticleTbl::Rec * pRec = 0);
 };
 //
 // Descr: Вспомогательная структура для обработки сумм документа
@@ -20258,8 +20259,7 @@ struct PPGlobalUserAccConfig {
 struct PPGlobalUserAcc {
 	PPGlobalUserAcc();
 	enum {
-		fSandBox = 0x0001 // @v10.6.3 Запись используется для доступа к тестовому ресурсу. Введен из-за того,
-			// что тестовые ресурсы могут отличаться по спецификации обмена и адресу.
+		fSandBox = 0x0001 // Запись используется для доступа к тестовому ресурсу. Введен из-за того, что тестовые ресурсы могут отличаться по спецификации обмена и адресу.
 	};
 	long   Tag;            // Const=PPOBJ_GLOBALUSERACC
 	long   ID;             // @id
@@ -21648,8 +21648,7 @@ public:
 // Флаги элемента группирующего счета
 //
 #define ACGF_ACO1GRP        0x0001L // Группировать по счету 1-го порядка
-#define ACGF_ACO2GRP        0x0002L // Группировать по счету 2-го порядка
-	// !(flags & (ACGF_ACO1GRP | ACGF_ACO2GRP)) - терминальный счет
+#define ACGF_ACO2GRP        0x0002L // Группировать по счету 2-го порядка !(flags & (ACGF_ACO1GRP | ACGF_ACO2GRP)) - терминальный счет
 #define ACGF_NEGATIVE       0x0004L // Изменять знак при суммировании
 
 int FASTCALL GetAcoByGenFlags(long);
@@ -21669,8 +21668,8 @@ struct PPAccount { // @persistent
 	PPID   MainOrgID;
 	PPID   CurID;
 	PPID   ParentID;
-	int16  Type;
-	int16  Kind;
+	int16  Type;        // ACY_XXX
+	int16  Kind;        // 
 	long   Flags;
 	LDATE  OpenDate;
 	LDATE  Frrl_Date;
@@ -26855,6 +26854,7 @@ public:
 		};
 		long   Flags;
 		PPID   KindID;
+		PPID   StatusID; // @v12.1.3 Юридический статус персоналии
 		S_GUID Uuid;
 		SString CommonName;
 		SString INN;
@@ -34176,7 +34176,11 @@ public:
 	//   строку в документ (например, из-за недостатка товара pItem->GoodsID).
 	//
 	int    ConvertILTI(ILTI *, PPBillPacket *, LongArray * pRows, uint, const char * pSerial, const GoodsReplacementArray * pGri = 0);
-	int    InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacket * pOrderPack, int orderItemIdx, PPID srcLotID, int interactive);
+	//
+	// ARG(maxQtty IN): Максимальное количество, которое необходимо вставить в документ pPack по заказу pOrderPack.
+	//   Если maxQtty <= 0.0, то это трактуется как "вставляй столько, сколько заказано".
+	//
+	int    InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacket * pOrderPack, int orderItemIdx, PPID srcLotID, double maxQtty, int interactive);
 	int    AdjustIntrPrice(const PPBillPacket * pPack, PPID goodsID, double * pAdjPrice);
 	int    CmpSnrWithLotSnr(PPID lotID, const char * pSerial, bool serialIsRefB);
 	int    ConvertBasket(const PPBasketPacket & rBasket, PPBillPacket * pPack);
@@ -34402,7 +34406,7 @@ public:
 	int    SelectPckgByCode(const char * pCode, PPID locID, PPID * pPckgID);
 	int    SelectPckg(PckgFilt * pFilt, PPID * pPckgID);
 	int    ViewPckgDetail(PPID pckgID);
-	int    IsLotInPckg(PPID lotID);
+	bool   IsLotInPckg(PPID lotID);
 	int    CheckPckgCodeUnique(const LPackage *, PPBillPacket *);
 	int    CorrectPckgCloseTag();
 	int    InitMirrorPckg(PPID billID, const LPackage * pSrc, LPackage * pDest);
@@ -40766,6 +40770,37 @@ private:
 	long   State;
 	ExecuteBlock * P_Eb;
     PPObjArticle ArObj;
+};
+//
+// 
+// 
+class MarketplaceInterchangeFilt : public PPBaseFilt {
+public:
+	MarketplaceInterchangeFilt();
+	MarketplaceInterchangeFilt & FASTCALL operator = (const MarketplaceInterchangeFilt & rS);
+
+    uint8  ReserveStart[128]; // @anchor
+	PPID   GuaID;
+	long   Actions;
+    long   Flags;
+	long   Reserve;          // @anchor	
+};
+
+class PrcssrMarketplaceInterchange {
+public:
+	PrcssrMarketplaceInterchange();
+	~PrcssrMarketplaceInterchange();
+	int    InitParam(PPBaseFilt * pBaseFilt);
+	int    EditParam(PPBaseFilt * pBaseFilt);
+	int    Init(const PPBaseFilt * pBaseFilt);
+	int    Run();
+private:
+	enum {
+		stInited = 0x0001
+	};
+	PPMarketplaceInterface * P_Ifc;
+	long   State;
+	PPLogger Logger;
 };
 //
 // @ModuleDecl(PPViewGoodsRest)
@@ -59875,6 +59910,7 @@ int    ExportEmailAccts(const PPIDArray * pMailAcctsList);
 // @v12.0.5 @unused int    SupplGoodsImport();
 // @v12.0.5 @unused int    EditSupplExpFilt(SupplExpFilt * pFilt, int selOnlySuppl);
 int    DoSupplInterchange(SupplInterchangeFilt * pFilt);
+int    DoMarketplaceInterchange();
 int    EditPriceListImpExpParams();
 int    EditDebtLimList(PPClientAgreement & rCliAgt);
 int    EditCheckInPersonItem(const PPCheckInPersonConfig * pCfg, PPCheckInPersonItem * pData);

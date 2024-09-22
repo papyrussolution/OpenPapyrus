@@ -374,10 +374,12 @@ int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData
 	while(!valid_data && (skip_dlg || (r = ExecView(dlg)) == cmOK)) {
 		double extra_qtty = 0.0;
 		valid_data = dlg->getDTS(p_item, &extra_qtty);
-		if(valid_data && r_cfg.Flags & CFGFLG_UNIQUELOT)
-			for(i = 0; valid_data && rPack.EnumTItems(&i, &p_ti);)
-				if((i-1) != (uint)itemNo && p_ti->LotID && p_ti->LotID == p_item->LotID)
+		if(valid_data && r_cfg.Flags & CFGFLG_UNIQUELOT) {
+			for(i = 0; valid_data && rPack.EnumTItems(&i, &p_ti);) {
+				if((i-1) != (uint)itemNo && p_ti->LotID && p_ti->LotID == p_item->LotID) 
 					valid_data = (PPError(PPERR_DUPLOTSINPACKET, 0), 0);
+			}
+		}
 		if(ccfgflags & CCFLG_CHECKSPOILAGE && valid_data && oneof2(rPack.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND)) {
 			SString serial;
 			SETIFZ(p_spc_core, new SpecSeriesCore);
@@ -419,9 +421,6 @@ int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData
 	return r;
 }
 
-// @v11.4.4 #define GRP_QCERT  1
-// @v11.4.4 #define GRP_LOC    2
-
 TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opID), OpTypeID(GetOpType(opID)),
 	InitGoodsGrpID(0), GoodsGrpID(0), P_BObj(BillObj), Rest(0.0), OrdRest(0.0), OrdReserved(0.0), MinQtty(0.0), MaxQtty(0.0),
 	NumPacks(0.0), OrgQtty(0.0), OrgPrice(0.0), EditMode(0), ItemNo(0), P_Pack(0), P_OrderItem(0), St(0)
@@ -436,7 +435,6 @@ TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opI
 
 	MEMSZERO(Sd);
 	PPLoadText(PPTXT_TIDLG_STRINGS, Strings);
-	// @v11.3.2 @obsolete setCtrlOption(CTL_LOT_STREST, ofFramed, 1);
 	addGroup(ctlgroupQCert, new QCertCtrlGroup(CTL_LOT_QCERT));
 	SetupCalDate(CTLCAL_LOT_EXPIRY, CTL_LOT_EXPIRY);
 	PPSetupCtrlMenu(this, CTL_LOT_GOODSGRP, CTLMNU_LOT_GOODSGRP, CTRLMENU_TI_GOODS);
@@ -450,8 +448,16 @@ TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opI
 		SetCtrlState(CTL_LOT_COST, sfVisible, false);
 		SetCtrlState(CTLMNU_LOT_COST, sfVisible, false);
 	}
-	else
+	else {
+		// @v12.1.3 {
+		// В этой версии в диалог строки заказа включено поле цены поступления, но только для случая управления предпочтительным поставщиком
+		PPOprKind2 op_rec;
+		if(GetOpType(OpID, &op_rec) == PPOPT_GOODSORDER) {
+			SetCtrlState(CTL_LOT_COST, sfVisible, LOGIC(op_rec.ExtFlags & OPKFX_MNGPREFSUPPL));
+		}
+		// } @v12.1.3 
 		PPSetupCtrlMenu(this, CTL_LOT_COST, CTLMNU_LOT_COST, CTRLMENU_TI_COST);
+	}
 	{
 		SString temp_buf;
 		if(GetOpName(opID, temp_buf) > 0)
@@ -468,7 +474,8 @@ bool TrfrItemDialog::IsModifPlus() const { return (OpTypeID == PPOPT_GOODSMODIF 
 void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 {
 	const PPConfig & r_cfg = LConfig;
-	int    disable_goods = 0;
+	bool   disable_goods = false;
+	bool   disable_cost = false; // @v12.1.3
 	disableCtrls(1, CTL_LOT_OLDCOST, CTL_LOT_OLDPRICE, CTL_LOT_ASSETEXPL, 0);
 	if(!(r_cfg.Flags & CFGFLG_USEPACKAGE))
 		disableCtrls(1, CTL_LOT_UNITPERPACK, CTL_LOT_PACKS, 0);
@@ -503,16 +510,20 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 				disableCtrl(CTL_LOT_PRICE, 1);
 		}
 	}
-	if((Item.Flags & PPTFR_ONORDER) || (EditMode && (!(Item.Flags & (PPTFR_RECEIPT|PPTFR_DRAFT)) || !P_BObj->CheckRights(BILLRT_MODGOODS))))
-		disable_goods = 1;
+	if((Item.Flags & PPTFR_ONORDER) || (EditMode && (!(Item.Flags & (PPTFR_RECEIPT|PPTFR_DRAFT)) || !P_BObj->CheckRights(BILLRT_MODGOODS)))) {
+		disable_goods = true;
+	}
 	if(OpTypeID == PPOPT_GOODSRETURN) {
-		disable_goods = 1;
-		disableCtrls(1, CTL_LOT_UNITPERPACK, CTL_LOT_COST, CTL_LOT_LOT, 0);
+		disable_goods = true;
+		disable_cost = true;
+		disableCtrls(1, CTL_LOT_UNITPERPACK, /* @v12.1.3 CTL_LOT_COST,*/CTL_LOT_LOT, 0);
 		if(Item.Flags & PPTFR_PLUS)
 			disableCtrls(1, CTL_LOT_PRICE, CTL_LOT_DISCOUNT, 0);
 	}
-	else if(IsIntrExpndOp(OpID))
-		disableCtrl(CTL_LOT_COST, 1);
+	else if(IsIntrExpndOp(OpID)) {
+		disable_cost = true; // @v12.1.3 
+		// @v12.1.3 disableCtrl(CTL_LOT_COST, 1);
+	}
 	if(disable_goods || St & stGoodsFixed) {
 		St |= stGoodsFixed;
 		disableCtrls(1, CTLSEL_LOT_GOODSGRP, CTLSEL_LOT_GOODS, 0);
@@ -526,11 +537,14 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 		disableCtrl(CTL_LOT_PRICE, 0);
 		selectCtrl(CTL_LOT_PRICE);
 	}
-	if(Item.CurID)
+	if(Item.CurID) {
 		if(Item.Flags & PPTFR_SELLING)
 			disableCtrls(1, CTL_LOT_PRICE, CTL_LOT_DISCOUNT, 0);
-		else
-			disableCtrl(CTL_LOT_COST, 1);
+		else {
+			disable_cost = true; // @v12.1.3 
+			// @v12.1.3 disableCtrl(CTL_LOT_COST, 1);
+		}
+	}
 	else
 		disableCtrl(CTL_LOT_CURPRICE, 1);
 	//
@@ -541,10 +555,13 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 			disableCtrl(CTL_LOT_QUANTITY, 1);
 		if(!Item.IsRecomplete()) {
 			disableCtrl(CTL_LOT_INDEPPHQTTY, 1);
-			if(CheckOpFlags(OpID, OPKF_DENYREVALCOST, 0))
-				disableCtrl(CTL_LOT_COST, 1);
+			if(CheckOpFlags(OpID, OPKF_DENYREVALCOST, 0)) {
+				disable_cost = true; // @v12.1.3 
+				// @v12.1.3 disableCtrl(CTL_LOT_COST, 1);
+			}
 		}
 	}
+	disableCtrl(CTL_LOT_COST, disable_cost); // @v12.1.3
 	setupCtrlsOnGoodsSelection();
 }
 //
@@ -640,11 +657,12 @@ void TrfrItemDialog::setupCurPrice()
 		if(Item.Flags & PPTFR_REVAL) {
 			ctl_id = (Item.Flags & PPTFR_SELLING) ? CTL_LOT_PRICE : CTL_LOT_COST;
 		}
-		else if(Item.Flags & PPTFR_SELLING)
+		else if(Item.Flags & PPTFR_SELLING) {
 			if(LConfig.Flags & CFGFLG_DISCOUNTBYSUM)
 				ctl_id = CTL_LOT_PRICE;
 			else
 				setCtrlReal(CTL_LOT_DISCOUNT, TR5(Item.Price - base_price));
+		}
 		else
 			ctl_id = CTL_LOT_COST;
 		if(ctl_id) {
@@ -1441,7 +1459,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 				lot_rec = lot_list.at(lot_idx++);
 				Item.LotID = lot_rec.ID;
 				all_lots_in_pckg = 0;
-				if(Item.Flags & PPTFR_MINUS && P_BObj->IsLotInPckg(Item.LotID) > 0) {
+				if(Item.Flags & PPTFR_MINUS && P_BObj->IsLotInPckg(Item.LotID)) {
 					all_lots_in_pckg = 1;
 					continue;
 				}

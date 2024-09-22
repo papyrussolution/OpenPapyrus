@@ -2643,7 +2643,7 @@ file:
 	access=1;
 }
 //
-// Descr: Таблица статей бухгалтерских счетов
+// Descr: Аналитические статьи бухгалтерских счетов
 //   Список таблиц хранится в таб Reference (ObjType = PPOBJ_ACCSHEET).
 //
 table Article {            // size=160

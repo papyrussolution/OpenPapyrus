@@ -5407,8 +5407,6 @@ public:
 	virtual int    bottom();
 	virtual long   GetRecsCount() const;
 	virtual const  void * FASTCALL getRow(long) const;
-	// @v10.9.0 virtual int   FASTCALL getData(void *);
-	// @v10.9.0 virtual int   FASTCALL setData(void *);
 	virtual int    refresh();
 	virtual int    search(const void * pPattern, CompFunc, int srchMode, int srchCol);
 	virtual int    search2(const void * pSrchData, CompFunc, int srchMode, size_t offs);
@@ -5430,7 +5428,6 @@ public:
 	SString & getFullText(long row, int column, SString & rBuf);
 	SString & getFullText(const void * pRowData, int column, SString & rBuf);
 	char * getMultiLinesText(long, int, char *, uint = 0, uint * = 0);
-	// @v10.6.3 (unused) int    setText(long, int, const char *);
 	long   _topItem() const { return topItem; }
 	long   _curItem() const { return curItem; }
 	long   _curFrameItem() const { return (curItem - topItem); }

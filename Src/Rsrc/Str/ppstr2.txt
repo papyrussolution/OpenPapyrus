@@ -2684,7 +2684,7 @@ PPINF_EGAISSHOPRETURNCR    "Создан документ возврата с р
 101  "Породы древесины"
 1000 /!/ "#UNASSIGNED"
 1001 "@{country}"
-1002 "Регион"
+1002 "@{region}"
 1003 "@{city}"
 1004 "@{person}"
 1005 "@{bankaccount}"
@@ -5053,6 +5053,9 @@ PPTXT_PRESSTOAUTHANDSTART            "Нажмите чтобы авторизо
 PPTXT_SELECTEDTARIFF                 "Выбранный тариф" // @v11.9.2 wsctl
 PPTXT_STARTSESSION                   "Начать работу" // @v11.9.2 wsctl
 PPTXT_CREATEBILL_HINT_ORDDTGTNOW     "Документ заказа, по которому вы собираетесь создать отгрузку, выписан будущей датой"
+
+PPTXT_ACCSHEET_MP_NAME               "Операции на маркетплейсах"
+PPTXT_ACCSHEET_MP_AR_NAMES           "1,Комиссионное вознаграждение;2,Стоимость эквайринга;3,Стоимость хранения;4,Стоимость приемки на склад хранения;5,Коррекция баланса"
 //
 // LastText
 
@@ -8554,6 +8557,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_lot_chznintqtty                     "ЧЕСТНЫЙ ЗНАК целое число мест весового товара" // @v12.0.7
 @rtag_lot_prefsuppl                       "Предпочтительный поставщик для заказа"  // @v12.0.7
 @rtag_person_marketplacesymb              "Символ маркетплейса" // @v12.1.1
+@rtag_gua_account                         "Счет глобальной учетной записи" // @v12.1.3
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -8748,6 +8752,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @filter_ver2htmlparam                     "Параметры конвертации Version.txt в HTML"
 @filter_billtransmitparam                 "Параметры передачи документов"
 @filter_supplinterchange                  "Параметры обмена данными с поставщиком"
+@filter_marketplaceinterchange            "Параметры обмена данными с маркетплейсом"
 @filter_gct                               "Фильтр перебора операций"
 @filter_prcssrosm                         "Параметры обработки файла @{brand_openstreetmap}"
 @filter_billautocreateparam               "Параметры автоматического создания документов"
@@ -9268,6 +9273,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_checkchznmark                        "Проверка марки честный знак"
 @cmd_rawmaterials                         "@{rawmaterial_pl}"
 @cmd_testmarketplace                      "Тестирование интерфейса с маркетплейсами"
+@cmd_marketplaceinterchange               "Обмен данными с маркетплейсом"
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
@@ -18220,6 +18226,7 @@ PPHS_COMPUTER                  "computer" // @v12.0.0
 PPHS_COMPUTERCATEGORY          "computercategory" // @v12.0.2
 PPHS_SWPROGRAM                 "swprogram" // @v12.0.5
 PPHS_RAWMATERIAL               "rawmaterial" // @v12.0.11
+PPHS_ACCOUNT                   "account" // @v12.1.3
 PPHS_LOGLOCKSTACK              "loglockstack"
 PPHS_PAYMENT                   "payment"
 PPHS_UNKN                      "unkn"

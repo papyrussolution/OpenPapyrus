@@ -1888,7 +1888,7 @@ int PPViewLot::CreateTempTable()
 	long   nr = 0;
 	THROW(p_temp_tbl = CreateTempFile <TempLotTbl> ());
 	{
-		const long period_threshould = 180; // @v9.0.0
+		const long period_threshould = 180;
 		BExtInsert bei(p_temp_tbl);
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
@@ -1970,12 +1970,8 @@ int PPViewLot::InitIteration(IterOrder order)
 		THROW(CreateTempTable());
 	}
 	if(P_TempTbl) {
-		// @v10.6.8 char   key[MAXKEYLEN];
-		// @v10.6.8 char   key_[MAXKEYLEN];
-		// @v10.6.8 memzero(key, sizeof(key));
-		// @v10.6.8 memzero(key_, sizeof(key_));
-		BtrDbKey key_; // @v10.6.8
-		BtrDbKey key__; // @v10.6.8
+		BtrDbKey key_;
+		BtrDbKey key__;
 		int    idx = 0;
 		if(oneof2(order, OrdByDefault, OrdByID))
 			idx = 0;
@@ -2332,7 +2328,6 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 			const LotFilt * p_filt = static_cast<const LotFilt *>(p_view->GetBaseFilt());
 			const PPViewLot::BrwHdr * p_hdr = static_cast<const PPViewLot::BrwHdr *>(pData);
 			const BroColumn & r_col = p_def->at(col);
-			// @v10.4.3 {
 			if(r_col.OrgOffs == 0) { // ID
 				const TagFilt & r_tag_filt = p_view->P_BObj->GetConfig().LotTagIndFilt;
 				if(!r_tag_filt.IsEmpty()) {
@@ -2341,8 +2336,6 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 						ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
 				}
 			}
-			// } @v10.4.3 
-			// @v10.4.4 {
 			else if(r_col.OrgOffs == 10) { // Expiry
 				const PPBillConfig & r_bcfg = p_view->P_BObj->GetConfig();
 				if(r_bcfg.WarnLotExpirFlags & r_bcfg.wlefIndicator) {
@@ -2359,7 +2352,6 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 					}
 				}
 			}
-			// } @v10.4.4 
 			else {
 				const long qtty_col  = 4;
 				const long cost_col  = p_filt->Operation.IsZero() ? 7 : 8;
@@ -2392,12 +2384,14 @@ void PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
 		if(Filt.Flags & LotFilt::fOrders) {
 			SString word;
 			pBrw->LoadToolbarResource(TOOLBAR_ORDLOTS);
-			PPLoadString("ordered", word);
-			pBrw->SetColumnTitle(6, word); // @v11.4.4 @fix 3-->6
-			PPLoadString("orderer", word);
-			pBrw->SetColumnTitle(5, word); // @v11.4.4 @fix 4-->5
-			if(Filt.Flags & LotFilt::fShowBillStatus)
+			pBrw->SetColumnTitle(6, PPLoadStringS("ordered", word)); // @v11.4.4 @fix 3-->6
+			pBrw->SetColumnTitle(5, PPLoadStringS("orderer", word)); // @v11.4.4 @fix 4-->5
+			if(Filt.Flags & LotFilt::fShowBillStatus) {
 				pBrw->InsColumn(-1, "@status", 16, 0, MKSFMT(10, 0), BCO_CAPLEFT); // @v11.1.6 #15-->#16
+			}
+			{
+				
+			}
 		}
 		{
 			DBQBrowserDef * p_def = static_cast<DBQBrowserDef *>(pBrw->getDef());
@@ -2555,9 +2549,6 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbq = & (*dbq && daterange(rcp->Dt, &Filt.Period));
 		if(oneof2(Filt.ClosedTag, 1, 2))
 			dbq = &(*dbq && rcp->Closed == ((Filt.ClosedTag == 1) ? 0L : 1L));
-		/* @v10.6.8 if(Filt.LocID)
-			dbq = ppcheckfiltid(dbq, rcp->LocID, Filt.LocID);
-		else */
 		if(LocList.getCount())
 			dbq = & (*dbq && ppidlist(rcp->LocID, &LocList));
 		dbq = ppcheckfiltid(dbq, rcp->SupplID, SupplList.GetSingle());
@@ -2599,9 +2590,9 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		// } @v11.4.4 
 		q = &selectbycell(c, fld_list);
 		q->from(rcp, 0L).where(*dbq);
-		if(/*Filt.LocID*/LocList.getSingle() && Filt.GoodsID && Filt.ClosedTag)
+		if(LocList.getSingle() && Filt.GoodsID && Filt.ClosedTag)
 			q->orderBy(rcp->Closed, rcp->GoodsID, rcp->LocID, rcp->Dt, rcp->OprNo, 0L);
-		else if(/*Filt.LocID*/LocList.getSingle() && Filt.ClosedTag)
+		else if(LocList.getSingle() && Filt.ClosedTag)
 			q->orderBy(rcp->LocID, rcp->Closed, rcp->Dt, rcp->OprNo, 0L);
 		else if(Filt.QCertID)
 			q->orderBy(rcp->QCertID, rcp->Dt, rcp->OprNo, 0L);
@@ -2617,7 +2608,7 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	THROW(CheckQueryPtr(q));
 	{
 		SString sub_title, temp_buf;
-		int    ord = BIN(Filt.Flags & LotFilt::fOrders);
+		const bool ord = LOGIC(Filt.Flags & LotFilt::fOrders);
 		if(ord) {
 			PPLoadString("orders", temp_buf);
 			sub_title.CatDivIfNotEmpty('-', 1).Cat(temp_buf);
