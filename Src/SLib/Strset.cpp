@@ -417,7 +417,6 @@ void StringSet::sortAndUndup()
 			str = p_item;
 		}
 	}
-	assert(getCount() == org_count); // @v11.4.8 дорогая проверка (из-за getCount()), но в релизе ее не будет 
 }
 
 int StringSet::reverse()

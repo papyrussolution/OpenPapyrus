@@ -536,8 +536,9 @@ int PPObjBill::GetCurRate(PPID curID, LDATE * pDt, double * pRate)
 	return GetCurRate(curID, r_cfg.BaseRateTypeID, r_cfg.BaseCurID, pDt, pRate);
 }
 
-int PPObjBill::GetShipmByOrder(PPID orderID, const DateRange * pRange, PPIDArray * pList)
+int PPObjBill::GetShipmByOrder(PPID orderID, const DateRange * pRange, PPIDArray & rList)
 {
+	rList.Z();
 	int    ok = 1;
 	BillTbl * p_tbl = P_Tbl;
 	BillTbl::Key3 k3;
@@ -547,9 +548,8 @@ int PPObjBill::GetShipmByOrder(PPID orderID, const DateRange * pRange, PPIDArray
 	k3.Object = orderID;
 	k3.Dt   = pRange ? pRange->low : ZERODATE;
 	k3.BillNo = 0;
-	pList->clear();
 	for(q.initIteration(false, &k3, spGt); ok && q.nextIteration() > 0;)
-		if(!pList->addUnique(p_tbl->data.LinkBillID))
+		if(!rList.addUnique(p_tbl->data.LinkBillID))
 			ok = 0;
 	return ok;
 }
@@ -2521,7 +2521,9 @@ static void FASTCALL _processFlags(TDialog * dlg, long flags)
 
 int PPObjBill::EditGenericAccTurn(PPBillPacket * pPack, long flags)
 {
-	int    ok = 1, r = 0, valid_data = 0;
+	int    ok = 1;
+	int    r = 0;
+	int    valid_data = 0;
 	PPAccTurn at;
 	AccTurnDialog * dlg = 0;
 	uint   dlg_id = 0;
@@ -3298,7 +3300,7 @@ int PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID, const PPLot
 						for(long n = (long)low; !f && n <= (long)upp; n++) {
 							memzero(pttrn, sizeof(pttrn));
 							sprintf(pttrn, "%s%0*ld", pfx, (int)r_len, n);
-							if(pExclList && pExclList->SearchString(pttrn, PPTAG_LOT_SN, 0, frlist) > 0)
+							if(pExclList && pExclList->SearchString(pttrn, PPTAG_LOT_SN, 0, frlist))
 								continue;
 							else {
 								f = 1;
@@ -7950,7 +7952,7 @@ int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 				if(ac_link_lot_id) { // Inner packet
 					if(r) {
 						pti->ACLinkLotID = ac_link_lot_id;
-						for(pos = 0; pPack->P_Outer->SearchLot(ac_link_lot_id, &pos) > 0; pos++)
+						for(pos = 0; pPack->P_Outer->SearchLot(ac_link_lot_id, &pos); pos++)
 							pPack->P_Outer->TI(pos).LotID = pti->LotID;
 					}
 					else
@@ -9016,7 +9018,7 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 		if(pPack->IsDraft()) {
 			if(P_CpTrfr) {
 				THROW(P_CpTrfr->LoadItems(id, pPack, pGoodsList));
-				THROW(LoadClbList(pPack, 2)); // @v10.0.0 force 0-->2
+				THROW(LoadClbList(pPack, 2));
 			}
 		}
 		else {

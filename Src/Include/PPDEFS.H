@@ -503,7 +503,7 @@
 		// без посредничества главной организации.
 	#define PPOPT_DRAFTQUOTREQ  22L // @v10.5.7 Запрос котировок (запрос на возможность, сроки и стоимость поставки товаров)
 #define PPOBJ_OPRKIND            12L  // $ Виды операций
-	#define PPOPK_GENERICACCTURN         1L // Общая бух. проводка
+	#define PPOPK_GENERICACCTURN         1L // Общая бухгалтерская проводка
 	#define PPOPK_RECEIPT                2L // Прием товара от поставщика
 	#define PPOPK_SELL                   3L // Продажа товара именованному клиенту
 	#define PPOPK_RETAIL                 4L // Продажа в розницу неименованному клиенту
@@ -529,6 +529,7 @@
 	#define PPOPK_EDI_ORDERRSP          18L // Драфт-операция подтверждения заказа, переденного в EDI
 	#define PPOPK_EDI_WROFFWITHMARKS    19L // Драфт-операция списание с остатков ЕГАИС акцизных марок
 	#define PPOPK_EDI_CHARGEONWITHMARKS 20L // Драфт-операция постановки на баланс маркированной продукции
+	#define PPOPK_GENERICREGACCTURN     21L // Общая регистровая бухгалтерская проводка
 	#define PPOPK_UNASSIGNED          1000L // Специальный идентификатор
 	//
 	// Extra records of PPOBJ_OPRKIND
@@ -587,6 +588,10 @@
 	#define PPAMT_CS_CASH       24L // Сумма кассовой сессии, оплаченная наличными
 	#define PPAMT_CS_BANK       25L // Сумма кассовой сессии, оплаченная безналично
 	#define PPAMT_CS_CSCARD     26L // Сумма кассовой сессии, оплаченная корпоративными кредитными картами
+	#define PPAMT_MP_ACCEPTANCE 27L // @v12.1.4 Стоимость приемки товара на складе маркетплейса
+	#define PPAMT_MP_STORAGE    28L // @v12.1.4 Стоимость хранения товара на складе маркетплейса
+	#define PPAMT_MP_COMMISSION 29L // @v12.1.4 Сумма комиссионного вознаграждения маркетплейса
+	#define PPAMT_MP_SELLERPART 30L // @v12.1.4 Сумма, перечисляемая маркетплейсом продавцу за проданный товар
 	// Набор сумм по строкам расширения бухгалтерских документов
 	#define PPAMT_ADLN_MAIN     41L // Номинальная сумма строки расширения //
 #define PPOBJ_CASHNODE           17L  // $ Расчетные кассовые узлы
@@ -1100,6 +1105,7 @@
 	#define ARTN_MRKTPLCACC_STORAGE      3 // Стоимость хранения
 	#define ARTN_MRKTPLCACC_ACCEPTANCE   4 // Стоимость приемки на склад хранения
 	#define ARTN_MRKTPLCACC_CORRECTION   5 // Коррекция баланса
+	#define ARTN_MRKTPLCACC_DEDUCTION    6 // Удержания //
 #define PPOBJ_ACCOUNT_PRE9004 1007L  // Бухгалтерские счета (балансовые) // @v9.0.4 Заменен на PPOBJ_ACCOUNT2
 	//
 	// Extra records of PPOBJ_ACCOUNT
@@ -1444,6 +1450,7 @@
 	// Кейс следующий: если глобальная учетная запись ассоциирована с каким-то внешним сервисом, который открывает для нас счет, по которому
 	// осуществляется движение и существует возможность вывести наши средства, то мы заводим некоторый счет (возможно, регистровый) и отображаем
 	// на нем движение средств.
+#define PPTAG_LOT_ORGORDERIDENT        118L // @v12.1.4 Оригинальный идентификатор заказа. Обычно импортируемый идентификатор строки заказа. 
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -2714,6 +2721,8 @@
 	#define CTL_LOT_VETISIND            (73 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_VETISMATCHBUTTON    (74 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_SEQQRACK            (75 + WINDOWS_ID_BIAS)
+	#define CTL_LOT_PCFORWTQTY          (76 + WINDOWS_ID_BIAS) // @v12.1.4 Очень специфичное поле ввода: количество мест для весового маркируемого товара.
+		// Отображается в тег строки документа PPTAG_LOT_CHZNINTQTTY
 
 // Однотипные диалоги заполнения документов
 #define DLG_BILL                  101

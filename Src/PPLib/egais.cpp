@@ -760,7 +760,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 													{
 														double _p = fabs(intmnytodbl(r_item.Price) - r_item.Dscnt);
 														if(_p <= 0.0)
-															_p = 200.0;
+															_p = 1000.0;
 														temp_buf.Z().Cat(_p, MKSFMTD_020);
 														n_b.PutInner(SXml::nst("ck", "Price"), temp_buf);
 													}
@@ -6263,8 +6263,8 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 							}
 							{
 								LongArray csr_row_idx_list;
-								const int cscr = pCurrentRestPack->LTagL.SearchString(egais_code, PPTAG_LOT_FSRARLOTGOODSCODE, 0, csr_row_idx_list);
-								if(cscr > 0) {
+								const bool cscr = pCurrentRestPack->LTagL.SearchString(egais_code, PPTAG_LOT_FSRARLOTGOODSCODE, 0, csr_row_idx_list);
+								if(cscr) {
 									for(uint s = 0; s < csr_row_idx_list.getCount(); s++) {
 										const long csr_idx = csr_row_idx_list.get(s);
 										if(csr_idx >= 0 && csr_idx < pCurrentRestPack->GetTCountI()) {

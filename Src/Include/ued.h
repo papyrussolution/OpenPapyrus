@@ -208,7 +208,9 @@ protected:
 	// Descr: Флаги функции ReadSource
 	//
 	enum {
-		rfDebug = 0x0001
+		rsfDebug       = 0x0001,
+		rsfCompileTime = 0x0002  // Считываются исходные данные в режиме предварительной компиляции. Если не установлен, то
+			// считывание осуществляется в run-time-режиме.
 	};
 
 	int    ReadSource(const char * pFileName, uint flags, PPLogger * pLogger);
@@ -300,6 +302,7 @@ private:
 	int    ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPLogger * pLogger);
 	int    RegisterProtoPropList(const ProtoPropList_SingleUed & rList);
 	int    ProcessProperties();
+	int    Helper_PutProperties(const UedLocaleEntry & rUedEntry, const TSVector <uint64> & rRawPropList);
 	//
 	// Descr: Хелпер, считывающий одно свойство из файла standalone-описания свойств
 	//

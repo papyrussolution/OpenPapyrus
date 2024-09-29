@@ -944,9 +944,9 @@ const ObjTagItem * PPLotTagContainer::GetTag(int rowIdx, PPID tagID) const
 	return (lsearch(&key, &pos, CMPF_LONG)) ? static_cast<const Item *>(at(pos))->List.GetItem(tagID) : 0;
 }
 
-int PPLotTagContainer::SearchString(const char * pPattern, PPID tagID, long flags, LongArray & rRowIdxList) const
+bool PPLotTagContainer::SearchString(const char * pPattern, PPID tagID, long flags, LongArray & rRowIdxList) const
 {
-	int    ok = 0;
+	bool ok = false;
 	rRowIdxList.clear();
 	if(!isempty(pPattern)) {
 		SString temp_buf;
@@ -957,7 +957,7 @@ int PPLotTagContainer::SearchString(const char * pPattern, PPID tagID, long flag
 				p_tag->GetStr(temp_buf);
 				if(temp_buf.CmpNC(pPattern) == 0) {
 					rRowIdxList.add(p_item->RowIdx);
-					ok = 1;
+					ok = true;
 				}
 			}
 		}
@@ -3043,11 +3043,12 @@ void PPBillPacket::CreateAccTurn(PPAccTurn & rAt) const
 	rAt.BillID = Rec.ID;
 	rAt.Opr    = Rec.OpID;
 	PPOprKind op_rec;
-	if(GetOpData(Rec.OpID, &op_rec) > 0)
+	if(GetOpData(Rec.OpID, &op_rec) > 0) {
 		if(op_rec.SubType == OPSUBT_REGISTER)
 			rAt.Flags |= PPAF_REGISTER;
 		else
 			SETFLAG(rAt.Flags, PPAF_OUTBAL, CheckOpFlags(Rec.OpID, OPKF_OUTBALACCTURN));
+	}
 }
 
 int PPBillPacket::SetCurTransit(const PPCurTransit * pTrans)

@@ -492,6 +492,7 @@ public:
 	int   ProcessRows(TSVector <PossibilityRange> * pPrL)
 	{
 		int    ok = 1;
+		bool   debug_mark = false;
 		uint   ridx;
 		UlongArray min_vat_div_list;
 		UlongArray step_mult_list;
@@ -513,11 +514,17 @@ public:
 					_sl = 0;
 				}
 				else if(_sl > 0) {
-					SETMIN(_sl, 2);
+					// @v12.1.4 SETMIN(_sl, 2);
+					// @v12.1.4 {
+					if(_sl > 2) {
+						debug_mark = true;
+					}
+					// } @v12.1.4 
 					_step_mult = static_cast<ulong>(R0(fpow10i(_sl+1) / _part_qtty));
 				}
 				assert(_step_mult != 0);
-				uint   vdp = 4 + _sl;
+				// @v12.1.4 uint   vdp = 4 + _sl;
+				uint   vdp = 4 + MIN(_sl, 2); // @v12.1.4
 				ulong  min_vat_div = GetMinVatDivisor(fdiv100r(VatRate), vdp);
 				RowPrecList.add(static_cast<long>(vdp));
 				min_vat_div_list.insert(&min_vat_div);

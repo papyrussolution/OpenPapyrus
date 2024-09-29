@@ -281,7 +281,7 @@ int PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 						PPIDArray shipments;
 						DateRange shipm_period;
 						shipm_period.Z();
-						if(BObj->GetShipmByOrder(bill_id, &shipm_period, &shipments) > 0) {
+						if(BObj->GetShipmByOrder(bill_id, &shipm_period, shipments) > 0) {
 							for(uint j = 0; j < shipments.getCount(); j++)
 								if(BObj->Search(shipments.at(j), &shipm_bill_rec) > 0) {
 									for(int r_by_bill = 0; BObj->trfr->EnumItems(shipm_bill_rec.ID, &r_by_bill, &shipm_ti) > 0;) {

@@ -2160,6 +2160,26 @@ bool PPObjGoods::IsZeroPriceAllowed(PPID goodsID)
 	return yes;
 }
 
+bool PPObjGoods::IsChZnCtWtGoods(PPID goodsID) // @v12.1.4
+{
+	bool   result = false;
+	Goods2Tbl::Rec goods_rec;
+	if(Fetch(goodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
+		PPGoodsType gt_rec;
+		if(FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+			if(gt_rec.Flags & GTF_GMARKED && gt_rec.ChZnProdType == GTCHZNPT_MILK) {
+				double ratio_liter = 0.0;
+				double ratio_kg = 0.0;
+				PPObjUnit unit_obj;
+				if(unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &ratio_liter) > 0 || unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_KILOGRAM, &ratio_kg) > 0) {
+					result = true;
+				}
+			}
+		}
+	}
+	return result;
+}
+
 int PPObjGoods::MultTaxFactor(PPID goodsID, double * pVal)
 {
 	if(CConfig.Flags & CCFLG_USEGDSCLS) {

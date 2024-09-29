@@ -389,6 +389,86 @@ SLTEST_FIXTURE(SVector, TestFixtureSArray)
 		}
 	}
 	// } @v11.7.0 
+	{
+		// @v12.1.3 Тест перемещения элементов внутри вектора
+		const uint _count = 100;
+		class VectorBuilder {
+		public:
+			static void Build(TSVector <int> & rV)
+			{
+				for(int i = 1; i <= _count; i++) {
+					rV.insert(&i);
+				}
+			}
+		};
+		{
+			TSVector <int> v;
+			VectorBuilder::Build(v);
+			for(uint i = 0; i < v.getCount()-1; i++) {
+				uint new_pos = 0;
+				SLCHECK_NZ(v.moveItem(i, 0, &new_pos));
+				SLCHECK_EQ(new_pos, i+1);
+				for(uint j = 0; j < v.getCount(); j++) {
+					if(j == new_pos) {
+						assert(v.at(j) == 1);
+						SLCHECK_EQ(v.at(j), 1);
+					}
+					else if(j < new_pos) {
+						if(j > 0) {
+							assert(v.at(j) == v.at(j-1)+1);
+							SLCHECK_EQ(v.at(j), v.at(j-1)+1);
+						}
+					}
+					else if(j > new_pos+1) {
+						assert(v.at(j) == v.at(j-1)+1);
+						SLCHECK_EQ(v.at(j), v.at(j-1)+1);
+					}
+				}
+			}
+		}
+		{
+			TSVector <int> v;
+			VectorBuilder::Build(v);
+			uint i = v.getCount();
+			if(i) do {
+				i--;
+				uint new_pos = 0;
+				SLCHECK_NZ(v.moveItem(i, 1, &new_pos));
+				SLCHECK_EQ(new_pos, i-1);
+				for(uint j = 0; j < v.getCount(); j++) {
+					if(j == new_pos) {
+						assert(v.at(j) == _count);
+						SLCHECK_EQ(v.at(j), static_cast<int>(_count));
+					}
+					else if(j > new_pos+1) {
+						assert(v.at(j) == v.at(j-1)+1);
+						SLCHECK_EQ(v.at(j), v.at(j-1)+1);
+					}
+					else if(j > 0 && j < new_pos) {
+						assert(v.at(j) == v.at(j-1)+1);
+						SLCHECK_EQ(v.at(j), v.at(j-1)+1);
+					}
+				}
+			} while(i > 1);
+		}
+		{
+			TSVector <int> v;
+			VectorBuilder::Build(v);
+			SLCHECK_EQ(v.at(0), 1);
+			v.moveItemTo(0, _count-1);
+			SLCHECK_EQ(v.at(_count-1), 1);
+			v.moveItemTo(_count-1, 1);
+			SLCHECK_EQ(v.at(1), 1);
+			v.moveItemTo(_count-1, 0);
+			SLCHECK_EQ(v.at(0), 100);
+			{
+				// Этот блок зависит от верхних операторов - будьте внимательны, если поменяете действия выше!
+				SLCHECK_EQ(v.at(50-1), 49);
+				v.moveItemTo(50-1, 51);
+				SLCHECK_EQ(v.at(51), 49);
+			}
+		}
+	}
 	return CurrentStatus;
 }
 

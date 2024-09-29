@@ -1574,7 +1574,12 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, PPLogger
 	Ht.BuildAssoc();
 	THROW_SL(temporary_linglocus_tab.BuildAssoc());
 	THROW(ReplaceSurrogateLocaleIds(temporary_linglocus_tab, pLogger));
-	THROW(ProcessProperties());
+	if(flags & rsfCompileTime) {
+		THROW(ProcessProperties());
+	}
+	else {
+		// THROW(ReadProps(0));
+	}
 	CATCHZOK
 	return ok;
 }
@@ -1594,6 +1599,37 @@ int SrUedContainer_Base::GetPropList(TSCollection <PropIdxEntry> & rList) const
 			}
 		}
 	}
+	return ok;
+}
+
+int SrUedContainer_Base::Helper_PutProperties(const UedLocaleEntry & rUedEntry, const TSVector <uint64> & rRawPropList)
+{
+	int    ok = 1;
+	if(rUedEntry.Ued != 0ULL && rRawPropList.getCount()) {
+		uint prop_idx = 0;
+		const uint prop_limb_count = rRawPropList.getCount();
+		PropS.Add(static_cast<uint64 *>(rRawPropList.dataPtr()), prop_limb_count, &prop_idx);
+		{
+			PropIdxEntry key;
+			key.Ued = rUedEntry.Ued;
+			key.Locale = rUedEntry.Locale;
+			uint ks = 0;
+			const void * p_key = key.GetHashKey(0, &ks);
+			PropIdxEntry * p_idx_entry = PropIdx.Get(p_key, ks);
+			if(p_idx_entry) {
+				p_idx_entry->RefList.Add(prop_idx, prop_limb_count);
+			}
+			else {
+				PropIdxEntry * p_new_idx_entry = new PropIdxEntry;
+				p_new_idx_entry->Ued = rUedEntry.Ued;
+				p_new_idx_entry->Locale = rUedEntry.Locale;
+				p_new_idx_entry->RefList.Add(prop_idx, prop_limb_count);
+				PropIdx.Put(p_new_idx_entry, true);
+			}
+		}
+	}
+	else
+		ok = -1;
 	return ok;
 }
 
@@ -1660,29 +1696,7 @@ int SrUedContainer_Base::ProcessProperties()
 				}
 			}
 			if(!local_fault) {
-				if(raw_prop_list.getCount()) {
-					uint prop_idx = 0;
-					const uint prop_limb_count = raw_prop_list.getCount();
-					PropS.Add(static_cast<uint64 *>(raw_prop_list.dataPtr()), prop_limb_count, &prop_idx);
-					{
-						PropIdxEntry key;
-						key.Ued = p_pp->Ued;
-						key.Locale = p_pp->Locale;
-						uint ks = 0;
-						const void * p_key = key.GetHashKey(0, &ks);
-						PropIdxEntry * p_idx_entry = PropIdx.Get(p_key, ks);
-						if(p_idx_entry) {
-							p_idx_entry->RefList.Add(prop_idx, prop_limb_count);
-						}
-						else {
-							PropIdxEntry * p_new_idx_entry = new PropIdxEntry;
-							p_new_idx_entry->Ued = p_pp->Ued;
-							p_new_idx_entry->Locale = p_pp->Locale;
-							p_new_idx_entry->RefList.Add(prop_idx, prop_limb_count);
-							PropIdx.Put(p_new_idx_entry, true);
-						}
-					}
-				}
+				Helper_PutProperties(*p_pp, raw_prop_list);
 			}
 		}
 	}
@@ -1759,7 +1773,7 @@ bool SrUedContainer_Base::ReadSingleProp(SStrScan & rScan)
 {
 	bool   ok = true;
 	UedLocaleEntry ued_entry;
-	//uint64 ued = 0;
+	TSVector <uint64> raw_prop_list;
 	SString temp_buf;
 	SString lingua_buf;
 	rScan.Skip();
@@ -1779,14 +1793,15 @@ bool SrUedContainer_Base::ReadSingleProp(SStrScan & rScan)
 			AddS(temp_buf, &sp);
 			uint64 ued = UED::ApplyMetaToRawValue(UED_META_STRINGREF, sp);
 			if(ued) {
-				//raw_prop_list.insert(&ued);
+				raw_prop_list.insert(&ued);
 			}
 			else {
-				//local_fault = true;
+				ok = false;
 			}
 		}
 		else if(rScan.GetXDigits(temp_buf)) {
 			uint64 ued = temp_buf.ToUInt64();
+			raw_prop_list.insert(&ued);
 		}
 		else {
 			ok = false;
@@ -1795,11 +1810,7 @@ bool SrUedContainer_Base::ReadSingleProp(SStrScan & rScan)
 		rScan.Skip();
 	}
 	if(ok) {
-		PropIdxEntry * p_new_idx_entry = new PropIdxEntry;
-		p_new_idx_entry->Ued = ued_entry.Ued;
-		p_new_idx_entry->Locale = ued_entry.Locale;
-		// @construction p_new_idx_entry->RefList.Add(prop_idx, prop_limb_count);
-		PropIdx.Put(p_new_idx_entry, true);
+		Helper_PutProperties(ued_entry, raw_prop_list);
 	}
 	CATCHZOK
 	return ok;
@@ -2133,7 +2144,7 @@ bool SrUedContainer_Ct::GenerateSourceDecl_Java(const char * pFileName, uint ver
 				def_value.Z().Cat("0x").CatHex(r_be.Id).Cat("L");
 				temp_buf.Z().Tab().Cat("public static final long").Space().Cat(def_symb).Eq().Space().Cat(def_value).Semicol().CR();
 				genf.WriteLine(temp_buf);
-				if(r_be.Id != 0x0000000100000001ULL) { // super-meta wich identifies other meta's
+				if(r_be.Id != /*0x0000000100000001ULL*/UED_META_META) { // super-meta wich identifies other meta's
 					//gen.IndentInc();
 					for(uint j = 0; j < BL.getCount(); j++) {
 						const BaseEntry & r_be_inner = BL.at(j);
@@ -2429,7 +2440,7 @@ SrUedContainer_Ct::~SrUedContainer_Ct()
 
 int SrUedContainer_Ct::Read(const char * pFileName, PPLogger * pLogger)
 {
-	return SrUedContainer_Base::ReadSource(pFileName, 0, pLogger);
+	return SrUedContainer_Base::ReadSource(pFileName, rsfCompileTime, pLogger);
 }
 
 int SrUedContainer_Ct::Write(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash)

@@ -268,6 +268,8 @@ int ObjTagItem::SetInt(PPID tagID, long lVal)
 		}
 		else if(TagDataType == OTTYP_NUMBER)
 			Val.RealVal = lVal;
+		else if(TagDataType == OTTYP_INT) // @v12.1.4
+			Val.IntVal = lVal;
 		else if(oneof3(TagDataType, OTTYP_BOOL, OTTYP_ENUM, OTTYP_OBJLINK))
 			Val.IntVal = lVal;
 		else if(TagDataType == OTTYP_DATE)
@@ -292,10 +294,12 @@ int ObjTagItem::SetReal(PPID tagID, double rVal)
 		}
 		else if(TagDataType == OTTYP_NUMBER)
 			Val.RealVal = rVal;
+		else if(TagDataType == OTTYP_INT) // @v12.1.4
+			Val.IntVal = static_cast<long>(rVal);
 		else if(oneof3(TagDataType, OTTYP_BOOL, OTTYP_ENUM, OTTYP_OBJLINK))
-			Val.IntVal = (long)rVal;
+			Val.IntVal = static_cast<long>(rVal);
 		else if(TagDataType == OTTYP_DATE)
-			Val.DtVal.v = (long)rVal;
+			Val.DtVal.v = static_cast<long>(rVal);
 		else if(TagDataType == OTTYP_TIMESTAMP) {
 			OleDate od;
 			od.v = rVal;

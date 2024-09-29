@@ -1,5 +1,5 @@
 // IE_BILL.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Starodub, A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -443,7 +443,7 @@ int DocNalogRu_Reader::ReadFile(const char * pFileName, FileInfo & rHeader, TSCo
 														if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_PACKCODE), temp_buf) > 0) {
 															p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
 														}
-														else if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_KIZ), temp_buf) > 0) { // @v10.8.7
+														else if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_KIZ), temp_buf) > 0) {
 															p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
 														}
 														else if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_TPACKCODE), temp_buf) > 0) { // @v11.5.1
@@ -681,7 +681,6 @@ int DocNalogRu_Reader::ReadParticipant(const xmlNode * pNode, Participant & rRes
 					GetAttr(p_n2, PPHSC_RU_INNJUR, rResult.INN);
 					GetAttr(p_n2, PPHSC_RU_KPP, rResult.KPP);
 				}
-				// @v10.8.4 {
 				else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_PRIVEINFO))) {
 					GetAttr(p_n2, PPHSC_RU_INNPHS, rResult.INN);
 					GetAttr(p_n2, PPHSC_RU_KPP, rResult.KPP);
@@ -693,7 +692,6 @@ int DocNalogRu_Reader::ReadParticipant(const xmlNode * pNode, Participant & rRes
 						}
 					}
 				}
-				// } @v10.8.4
 			}
 		}
 		else if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_ADDRESS))) {
@@ -811,14 +809,13 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 		if(extraPtr) {
 			const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(extraPtr);
 			PPObjBill * p_bobj = BillObj;
-			ps.Nam.Transf(CTRANSF_OUTER_TO_INNER); // @v10.3.11
+			ps.Nam.Transf(CTRANSF_OUTER_TO_INNER);
 			if(p_bobj && p_bobj->SubstText(p_pack, ps.Nam, temp_buf) == 2) {
-				// @v10.3.11 temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				ps.Nam = temp_buf;
 				use_ps = 1;
 				ok = 100;
 			}
-			ps.Nam.Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.11
+			ps.Nam.Transf(CTRANSF_INNER_TO_OUTER);
 		}
 		char   cntr[128];
 		uint   cn = 0;
@@ -1186,15 +1183,12 @@ IMPL_HANDLE_EVENT(BillHdrImpExpDialog)
 
 void BillHdrImpExpDialog::SetupCtrls(long direction /* 0 - import, 1 - export */)
 {
-	// @v10.7.11 disableCtrls(direction == 0, CTL_IMPEXPBILH_FLAGS, CTLSEL_IMPEXPBILH_IMPOP, 0);
-	// @v10.7.11 disableCtrl(CTL_IMPEXPBILH_FLAGS, direction == 0);
 	disableCtrl(CTLSEL_IMPEXPBILH_IMPOP, direction == 0);
 	disableCtrl(CTL_IMPEXPBILH_OUTRFMTV, direction == 1); // @v11.6.5
 	// @v11.8.6 (при импорте теперь тег тоже нужен) disableCtrl(CTLSEL_IMPEXPBILH_REGTAG, direction == 1); // @v11.6.5
 	showCtrl(CTL_IMPEXPBILH_OUTRFMTV, direction == 0); // @v11.6.5
 	// @v11.8.6 (при импорте теперь тег тоже нужен) showCtrl(CTLSEL_IMPEXPBILH_REGTAG, direction == 0); // @v11.6.5
 	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 0, direction == 0);
-	// @v10.7.11 DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 1, direction == 0 && !(Data.Flags & PPBillImpExpParam::fImpRowsFromSameFile));
 	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 3, direction);
 	{
 		long pf = getCtrlLong(CTLSEL_IMPEXPBILH_PDFMT);
@@ -1219,8 +1213,8 @@ int BillHdrImpExpDialog::setDTS(const PPBillImpExpParam * pData)
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 1, PPBillImpExpParam::fImpExpRowsOnly);
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 2, PPBillImpExpParam::fRestrictByMatrix);
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 3, PPBillImpExpParam::fExpOneByOne);
-	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 4, PPBillImpExpParam::fDontIdentGoodsByName); // @v10.5.0
-	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 5, PPBillImpExpParam::fCreateAbsenceGoods); // @v10.4.12 @v10.5.0 4-->5
+	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 4, PPBillImpExpParam::fDontIdentGoodsByName);
+	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 5, PPBillImpExpParam::fCreateAbsenceGoods);
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 6, PPBillImpExpParam::fChZnMarkAsCDATA); // @v11.5.0
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 7, PPBillImpExpParam::fChZnMarkGTINSER); // @v11.5.0
 	AddClusterAssoc(CTL_IMPEXPBILH_FLAGS, 8, PPBillImpExpParam::fUseExtGoodsName); // @v11.7.12
@@ -1372,7 +1366,7 @@ PPBillImpExpBaseProcessBlock & PPBillImpExpBaseProcessBlock::Z()
 	OpID = 0;
 	LocID = 0;
 	PosNodeID = 0;
-	GuaID = 0; // @v10.6.5
+	GuaID = 0;
 	Period.Z();
 	Tp.Reset();
 	return *this;
@@ -1417,10 +1411,8 @@ int PPBillImpExpBaseProcessBlock::SerializeParam(int dir, SBuffer & rBuf, SSeria
         THROW_SL(pCtx->Serialize(dir, Tp.InetAccID, rBuf));
         THROW_SL(pCtx->Serialize(dir, Tp.AddrList, rBuf));
         THROW_SL(pCtx->Serialize(dir, Tp.Subject, rBuf));
-		// @v10.6.5 {
 		if(dir > 0 || is_ver_ok >= 2)
 			THROW_SL(pCtx->Serialize(dir, GuaID, rBuf));
-		// } @v10.6.5
 	}
 	CATCHZOK
 	return ok;
@@ -1479,7 +1471,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				disableCtrls((P_Data->Flags & (PPBillImpExpBaseProcessBlock::fUhttImport|
 					PPBillImpExpBaseProcessBlock::fEgaisImpExp|PPBillImpExpBaseProcessBlock::fChZnImpExp)), CTLSEL_IEBILLSEL_BILL, CTLSEL_IEBILLSEL_BROW, 0);
 				disableCtrls((P_Data->Flags & (PPBillImpExpBaseProcessBlock::fEgaisImpExp|PPBillImpExpBaseProcessBlock::fChZnImpExp)), CTLSEL_IEBILLSEL_OP, 0L);
-				disableCtrls(!(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp), CTLSEL_IEBILLSEL_GUA, 0L); // @v10.6.5
+				disableCtrls(!(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp), CTLSEL_IEBILLSEL_GUA, 0L);
 				//
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 0, PPBillImpExpBaseProcessBlock::fTestMode);
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 1, PPBillImpExpBaseProcessBlock::fDontRemoveTags);
@@ -1487,11 +1479,9 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				AddClusterAssoc(CTL_IEBILLSEL_FLAGS, 3, PPBillImpExpBaseProcessBlock::fEgaisVer4); // @v11.0.12
 				SetClusterData(CTL_IEBILLSEL_FLAGS, P_Data->Flags);
 				DisableClusterItem(CTL_IEBILLSEL_FLAGS, 2, !(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp));
-				// @v10.6.5 {
 				if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp) {
 					SetupPPObjCombo(this, CTLSEL_IEBILLSEL_GUA, PPOBJ_GLOBALUSERACC, P_Data->GuaID, 0, reinterpret_cast<void *>(0));
 				}
-				// } @v10.6.5
 			}
 			else {
 				disableCtrls(1, CTLSEL_IEBILLSEL_OP, CTLSEL_IEBILLSEL_LOC, CTL_IEBILLSEL_PERIOD, 0L);
@@ -1508,7 +1498,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 					setGroupData(ctlgroupEmailList, &grp_rec);
 				}
 				setCtrlString(CTL_IEBILLSEL_MAILSUBJ, P_Data->Tp.Subject);
-				SetupWordSelector(CTL_IEBILLSEL_MAILSUBJ, new TextHistorySelExtra("emailsubj-exportbills-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.7
+				SetupWordSelector(CTL_IEBILLSEL_MAILSUBJ, new TextHistorySelExtra("emailsubj-exportbills-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
 			}
 			CATCHZOKPPERR
 			return ok;
@@ -1528,10 +1518,8 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				P_Data->OpID = getCtrlLong(CTLSEL_IEBILLSEL_OP);
 				P_Data->LocID = getCtrlLong(CTLSEL_IEBILLSEL_LOC);
 				SETIFZ(P_Data->LocID, LConfig.Location);
-				// @v10.6.5 {
 				if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp)
 					P_Data->GuaID = getCtrlLong(CTLSEL_IEBILLSEL_GUA);
-				// } @v10.6.5
 				if(!(P_Data->Flags & (PPBillImpExpBaseProcessBlock::fEgaisImpExp|PPBillImpExpBaseProcessBlock::fChZnImpExp)) && !is_full_edi_process) {
 					THROW_PP(P_Data->OpID, PPERR_INVOPRKIND);
 				}
@@ -1600,7 +1588,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 			// @vmiller {
 			if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp) {
 				// Заполняем списком типов документов
-				long   id = 0; // @v10.3.12 uint-->long
+				long   id = 0;
 				uint   p;
 				HdrList.Z();
 				SString buf;
@@ -1630,14 +1618,14 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 			// @vmiller {
 			if(event.isClusterClk(CTL_IEBILLSEL_TECH)) {
 				if(P_Data) {
-					long   id = 0; // @v10.3.12 uint-->long
+					long   id = 0;
 					uint   p = 0;
 					SString sect;
 					SString buf;
 					PPBillImpExpParam param;
 					GetTech();
 					disableCtrls(0, CTLSEL_IEBILLSEL_BILL, CTLSEL_IEBILLSEL_BROW, 0L);
-					disableCtrls(!(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp), CTLSEL_IEBILLSEL_GUA, 0L); // @v10.6.5
+					disableCtrls(!(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp), CTLSEL_IEBILLSEL_GUA, 0L);
 					disableCtrls((P_Data->Flags & (PPBillImpExpBaseProcessBlock::fUhttImport|
 						PPBillImpExpBaseProcessBlock::fEgaisImpExp|PPBillImpExpBaseProcessBlock::fChZnImpExp)), CTLSEL_IEBILLSEL_BILL, CTLSEL_IEBILLSEL_BROW, 0L);
 					if(P_Data->Flags & (PPBillImpExpBaseProcessBlock::fEdiImpExp|PPBillImpExpBaseProcessBlock::fPaymOrdersExp))
@@ -1659,11 +1647,9 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 						}
 						SetupStrAssocCombo(this, CTLSEL_IEBILLSEL_BILL, HdrList, id, 0);
 					}
-					// @v10.6.5 {
 					else if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp) {
 						SetupPPObjCombo(this, CTLSEL_IEBILLSEL_GUA, PPOBJ_GLOBALUSERACC, P_Data->GuaID, 0, reinterpret_cast<void *>(0));
 					}
-					// } @v10.6.5
 					else {
 						HdrList.Z();
 						if(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_BILL, &param, &HdrList, Import ? 2 : 1) > 0) {
@@ -2107,7 +2093,6 @@ int PPBillImporter::RunUhttImport()
 						PPCashNode cn_rec;
 						if(cn_obj.Search(PosNodeID, &cn_rec) > 0) {
 							CCheckPacket cc_pack;
-							// @v10.8.7 @ctr cc_pack.Init();
 							cc_pack.Rec.PosNodeID = PosNodeID;
 							// @v8.4.7 @fix (отложенный чек не должен быть привязан к сессии) cc_pack.Rec.SessID = cn_rec.CurSessID;
 							cc_pack.Rec.Dt = p_uhtt_pack->Dtm;
@@ -2552,8 +2537,8 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 		const uint barcode_count = SplitBarcodeList(brow_.Barcode, barcode_buf, barcode_list); // @v11.4.5
 		STRNSCPY(brow_.Barcode, barcode_buf);
 		(temp_buf = brow_.GoodsName).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(brow_.GoodsName, sizeof(brow_.GoodsName));
-		(temp_buf = brow_.GoodsGroup).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(brow_.GoodsGroup, sizeof(brow_.GoodsGroup)); // @v10.5.0
-		(temp_buf = brow_.BrandName).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(brow_.BrandName, sizeof(brow_.BrandName)); // @v10.5.3
+		(temp_buf = brow_.GoodsGroup).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(brow_.GoodsGroup, sizeof(brow_.GoodsGroup));
+		(temp_buf = brow_.BrandName).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(brow_.BrandName, sizeof(brow_.BrandName));
 		(temp_buf = brow_.ArCode).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(brow_.ArCode, sizeof(brow_.ArCode)); // @v11.4.4
 		if(mode == 1/*linkByLastInsBill*/)
 			STRNSCPY(brow_.BillID, Bills.at(Bills.getCount() - 1).ID);
@@ -2629,13 +2614,13 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 								goods_id = bcrec.GoodsID;
 						}
 					}
-					if(!goods_id && !(BillParam.Flags & BillParam.fDontIdentGoodsByName) && GObj.SearchByName(brow_.GoodsName, &id) > 0) // @v10.5.0 fDontIdentGoodsByName
+					if(!goods_id && !(BillParam.Flags & BillParam.fDontIdentGoodsByName) && GObj.SearchByName(brow_.GoodsName, &id) > 0)
 						goods_id = id;
 					// } @v11.4.5 
 					#if 0 // @v11.4.5 {
 					if(brow_.Barcode[0] && GObj.SearchByBarcode(brow_.Barcode, &bcrec, 0, 1/*adoptSearching*/) > 0)
 						goods_id = bcrec.GoodsID;
-					else if(!(BillParam.Flags & BillParam.fDontIdentGoodsByName) && GObj.SearchByName(brow_.GoodsName, &id) > 0) // @v10.5.0 fDontIdentGoodsByName
+					else if(!(BillParam.Flags & BillParam.fDontIdentGoodsByName) && GObj.SearchByName(brow_.GoodsName, &id) > 0)
 						goods_id = id;
 					#endif // } 0 @v11.4.5
 				}
@@ -2770,7 +2755,7 @@ int PPBillImporter::AssignFnFieldToRecord(const /*StrAssocArray*/PPImpExpParam::
 							pRecRow->BillDate = dt;
 						}
 						break;
-					case PPSYM_DUEDATE: // @v10.4.8
+					case PPSYM_DUEDATE:
 						{
 							strtodate(token_text, DATF_DMY, &dt);
 							if(checkdate(dt)) {
@@ -2786,7 +2771,7 @@ int PPBillImporter::AssignFnFieldToRecord(const /*StrAssocArray*/PPImpExpParam::
 							pRecRow->BillDate = dt;
 						}
 						break;
-					case PPSYM_FGDUEDATE: // @v10.4.8
+					case PPSYM_FGDUEDATE:
 						{
 							strtodate(token_text, DATF_DMY|DATF_CENTURY|DATF_NODIV, &dt);
 							if(checkdate(dt)) {
@@ -2825,7 +2810,7 @@ int PPBillImporter::AssignFnFieldToRecord(const /*StrAssocArray*/PPImpExpParam::
 						pRecHdr->DlvrAddrID = token_text.ToLong();
 						pRecRow->DlvrAddrID = token_text.ToLong();
 						break;
-					case PPSYM_DLVRLOCTAG: // @v10.4.1
+					case PPSYM_DLVRLOCTAG:
 						if(!isempty(token_text)) {
 							PPObjectTag tag_rec;
 							if(TagObj.Fetch(ext_id, &tag_rec) > 0) {
@@ -3369,14 +3354,12 @@ int PPBillImporter::Import(int useTa)
 			if(!r_row.GoodsID) {
 				ResolveGoodsItem item;
 				STRNSCPY(item.GoodsName, r_row.GoodsName);
-				STRNSCPY(item.GroupName, r_row.GoodsGroup); // @v10.5.0
-				STRNSCPY(item.BrandName, r_row.BrandName); // @v10.5.3
-				item.VatRate = r_row.VatRate; // @v10.5.9
+				STRNSCPY(item.GroupName, r_row.GoodsGroup);
+				STRNSCPY(item.BrandName, r_row.BrandName);
+				item.VatRate = r_row.VatRate;
 				STRNSCPY(item.Barcode, r_row.Barcode);
-				// @v10.4.12 {
 				(temp_buf = r_row.LotManuf).Transf(CTRANSF_OUTER_TO_INNER);
 				STRNSCPY(item.ManufName, temp_buf);
-				// } @v10.4.12
 				item.Quantity = r_row.Quantity;
 				if(r_row.CntragID && r_row.ArCode[0]) {
 					item.ArID = r_row.CntragID;
@@ -3387,7 +3370,6 @@ int PPBillImporter::Import(int useTa)
 			}
 		}
 		if(goods_list.getCount()) {
-			// @v10.4.12 {
 			assert(goods_list.getCount() == unres_pos_list.getCount());
 			if(BillParam.Flags & PPBillImpExpParam::fCreateAbsenceGoods) {
 				if(r_gcfg.DefGroupID && r_gcfg.DefUnitID) {
@@ -3456,9 +3438,8 @@ int PPBillImporter::Import(int useTa)
 					assert(goods_list.getCount() == unres_pos_list.getCount());
 				}
 			}
-			// } @v10.4.12
 			if(goods_list.getCount()) {
-				if(DS.CheckExtFlag(ECF_SYSSERVICE)) // @v10.1.0
+				if(DS.CheckExtFlag(ECF_SYSSERVICE))
 					ok = -1;
 				else {
 					if(ResolveGoodsDlg(&goods_list, RESOLVEGF_SHOWBARCODE|RESOLVEGF_MAXLIKEGOODS|RESOLVEGF_SHOWEXTDLG) > 0) {
@@ -3777,7 +3758,7 @@ int PPBillImporter::Import(int useTa)
 									RealRange price_range;
 									if(P_BObj->GetPriceRestrictions(pack, ti, new_item_pos, &price_range) > 0) {
 										PPTransferItem & r_ti = pack.TI(new_item_pos);
-										if(!price_range.CheckValEps(r_ti.Price, 1E-7)) { // @v10.2.12
+										if(!price_range.CheckValEps(r_ti.Price, 1E-7)) {
 											if(price_range.low > 0.0 && r_ti.Price < price_range.low) {
 												PPFormatT(PPTXT_LOG_IMPBILLPRICEBOUNDLO, &msg_buf, ti.GoodsID, r_ti.Price, price_range.low);
 												Logger.Log(msg_buf);
@@ -4319,8 +4300,6 @@ int PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack)
 				pPack->SetPayDate(pBill->PaymDate, pBill->Amount);
 			// @v11.1.12 STRNSCPY(pPack->Rec.Memo, (temp_buf = pBill->Memo).Transf(CTRANSF_OUTER_TO_INNER));
 			pPack->SMemo = (temp_buf = pBill->Memo).Transf(CTRANSF_OUTER_TO_INNER); // @v11.1.12
-			// @v10.9.6 (temp_buf = pPack->Rec.Code).Transf(CTRANSF_OUTER_TO_INNER);
-			// @v10.9.6 STRNSCPY(pPack->Rec.Code, temp_buf);
 			(temp_buf = pPack->Ext.InvoiceCode).Transf(CTRANSF_OUTER_TO_INNER);
 			STRNSCPY(pPack->Ext.InvoiceCode, temp_buf);
 			{
@@ -4555,7 +4534,7 @@ int PPBillImporter::DoFullEdiProcess()
 				if(temp_id_list.getCount()) {
 					// temp_id_list содержит идентификаторы поставщиков, которые, согласно соглашению, используют данного провайдера
 					prc.SendOrders(be_filt, temp_id_list);
-					prc.SendRECADV(be_filt, temp_id_list); // @v10.2.12
+					prc.SendRECADV(be_filt, temp_id_list);
 				}
 			}
 			{
@@ -5005,7 +4984,7 @@ int PPBillImporter::Run()
 			PPWaitStop();
 		}
 	}
-	else if(Flags & PPBillImporter::fChZnImpExp) { // @v10.6.4
+	else if(Flags & PPBillImporter::fChZnImpExp) {
 		PPChZnPrcssr prcssr(&Logger);
 		PPChZnPrcssr::Param param;
 		param.GuaID = GuaID;
@@ -5142,7 +5121,7 @@ int PPBillImporter::Run()
 									msg_buf.Space().CatEq("INN", p_seller->INN);
 							}
 							PPSetError(PPERR_CANTIDENTIMPBILLAR, msg_buf);
-							Logger.LogLastError(); // @v10.8.2
+							Logger.LogLastError();
 							skip = 1;
 						}
 						if(!skip) {
@@ -5212,7 +5191,6 @@ int PPBillImporter::Run()
 								}
 								// } @v11.5.3 
 								if(!goods_id) {
-									// @v10.8.8 {
 									if(p_item->GoodsName.NotEmpty() && GObj.SearchByName(p_item->GoodsName, &goods_id, &goods_rec) > 0) {
 										assert(goods_id == goods_rec.ID);
 										if(barcode.NotEmpty()) {
@@ -5221,7 +5199,7 @@ int PPBillImporter::Run()
 										}
 									}
 									else {
-										assert(goods_id == 0); // } @v10.8.8
+										assert(goods_id == 0);
 										ResolveGoodsItem rgi;
 										// @v11.5.3 {
 										if(ar_code.NotEmpty()) {
@@ -5273,7 +5251,6 @@ int PPBillImporter::Run()
 									ti.Quantity_ = p_item->Qtty;
 									if(p_item->Price > 0.0)
 										ti.Cost = p_item->Price;
-									// @v10.8.2 {
 									else if(p_item->PriceSum > 0.0) {
 										ti.Cost = R5(fabs(p_item->PriceSum / p_item->Qtty));
 									}
@@ -5285,19 +5262,15 @@ int PPBillImporter::Run()
 											ti.Cost = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT) / fabs(p_item->Qtty);
 										}
 									}
-									// } @v10.8.2
 									else if(p_item->PriceWoVat > 0.0) {
 										GTaxVect vect;
 										PPGoodsTaxEntry gtx;
 										if(GObj.GTxObj.FetchByID(goods_rec.TaxGrpID, &gtx) > 0) {
-											vect.Calc_(&gtx, p_item->PriceWoVat, 1.0, GTAXVF_AFTERTAXES, 0); // @v10.8.1 @fix (p_item->PriceSumWoVat, p_item->Qtty)-->(p_item->PriceWoVat, 1.0)
+											vect.Calc_(&gtx, p_item->PriceWoVat, 1.0, GTAXVF_AFTERTAXES, 0);
 											ti.Cost = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT);
 										}
 									}
-									{
-										// @v10.9.7 @todo Автоматом установить цену реализации (например, по расценке)
-										THROW(P_BObj->SetupImportedPrice(&pack, &ti, 0)); // @v11.6.4
-									}
+									THROW(P_BObj->SetupImportedPrice(&pack, &ti, 0)); // @v11.6.4
 									// @v11.5.11 {
 									{
 										const  PPID op_type_id = GetOpType(pack.Rec.OpID);
@@ -5657,7 +5630,7 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 			THROW(pImpExpDll->InitExportIter(sessId, obj_id));
 		}
 		else {
-			if(!(BillParam.Flags & BillParam.fImpExpRowsOnly)) { // @v10.4.6
+			if(!(BillParam.Flags & BillParam.fImpExpRowsOnly)) {
 				BillExpExprEvalContext expr_ctx(pPack, P_IEBill->GetParamConst().InrRec);
 				P_IEBill->SetExprContext(&expr_ctx);
 				THROW(BillRecToBill(pPack, &bill));
@@ -5668,8 +5641,8 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 		for(uint i = 0; pPack->EnumTItems(&i, &p_ti) > 0;) {
 			const  PPID goods_id = labs(p_ti->GoodsID);
 			Goods2Tbl::Rec goods_rec;
-			Goods2Tbl::Rec gg_rec; // @v10.5.0
-			Goods2Tbl::Rec brand_rec; // @v10.5.3
+			Goods2Tbl::Rec gg_rec;
+			Goods2Tbl::Rec brand_rec;
 			Sdr_BRow brow;
 			BarcodeArray bcd_ary;
 			STRNSCPY(brow.BillID, bill.ID);
@@ -5679,21 +5652,17 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 			if(GObj.Fetch(goods_id, &goods_rec) <= 0)
 				MEMSZERO(goods_rec);
 			(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.GoodsName, sizeof(brow.GoodsName));
-			// @v10.5.0 {
 			if(goods_rec.ParentID && GObj.Fetch(goods_rec.ParentID, &gg_rec) > 0)
 				(temp_buf = gg_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.GoodsGroup, sizeof(brow.GoodsGroup));
-			// } @v10.5.0
-			// @v10.5.3 {
 			if(goods_rec.BrandID && GObj.Fetch(goods_rec.BrandID, &brand_rec) > 0)
 				(temp_buf = brand_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.BrandName, sizeof(brow.BrandName));
-			// } @v10.5.3
 			if(use_ar_code) {
 				if(GObj.P_Tbl->GetArCode(pPack->Rec.Object, goods_id, temp_buf, 0) > 0) {
-					temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v10.4.5
+					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 					temp_buf.CopyTo(brow.ArCode, sizeof(brow.ArCode));
 				}
 				if(GObj.P_Tbl->GetArCode(0, goods_id, temp_buf, 0) > 0) {
-					temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v10.4.5
+					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 					temp_buf.CopyTo(brow.ArCodeOwn, sizeof(brow.ArCodeOwn));
 				}
 			}
@@ -6612,7 +6581,7 @@ DocNalogRu_Generator::DocNalogRu_Generator() : P_X(0), P_Doc(0), Flags(0), State
 	
 	PPIniFile ini_file;
 	int    iv = 0;
-	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_EXPCHZNGTINSER, &iv) > 0 && iv == 1) // @v10.9.9
+	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_EXPCHZNGTINSER, &iv) > 0 && iv == 1)
 		Flags |= fExpChZnMarksGTINSER;
 	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_EXPNALOGRUPLAINADDR, &iv) > 0 && iv == 1) // @v11.5.11
 		Flags |= fExpPlainAddr;
@@ -6714,7 +6683,6 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 	const int tiamt = (rBp.OutAmtType == TIAMT_COST) ? TIAMT_COST : ((rBp.OutAmtType == TIAMT_PRICE) ? TIAMT_PRICE : TIAMT_AMOUNT);
 	SXml::WNode n_t(P_X, GetToken_Ansi(correction ? PPHSC_RU_CORRINVOICETAB : PPHSC_RU_INVOICETAB));
 	for(uint item_idx = 0; item_idx < rBp.GetTCount(); item_idx++) {
-		
 		// <СведТов НалСт="18%" НомСтр="1" НаимТов="Товар" ОКЕИ_Тов="796" КолТов="5" ЦенаТов="1.00" СтТовБезНДС="5.00" СтТовУчНал="5.90">
 		/* Для корректирующего документа:
 		<СведТов 
@@ -6861,7 +6829,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 			n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREQTTY_AFTER), temp_buf);
 		}
 		else {
-			temp_buf.Z().Cat(qtty_local, MKSFMTD_030); // @v10.6.10  MKSFMTD(0, 6, NMBF_NOTRAILZ)-->MKSFMTD_020
+			temp_buf.Z().Cat(qtty_local, MKSFMTD_030);
 			n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREQTTY), temp_buf);
 		}
 		{
@@ -6995,7 +6963,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 					<xs:enumeration value="без НДС"/>
 				</xs:restriction>
 				*/
-				vect.CalcTI(r_ti, rBp.Rec.OpID, tiamt, exclude_tax_flags); // @v10.9.6 TIAMT_PRICE-->tiamt
+				vect.CalcTI(r_ti, rBp.Rec.OpID, tiamt, exclude_tax_flags);
 				{
 					if(rHi.Flags & FileInfo::fVatFree)
 						temp_buf.Z().Cat(GetToken_Ansi(PPHSC_RU_NOVAT_VAL));
@@ -7005,7 +6973,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 				}
 				//
 				const double amt_wo_tax = vect.GetValue(GTAXVF_AFTERTAXES);
-				n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREPRICE), temp_buf.Z().Cat(amt_wo_tax / fabs(r_ti.Quantity_), MKSFMTD_020)); // @v10.6.10 MKSFMTD(0, 11, NMBF_NOTRAILZ)-->MKSFMTD_020
+				n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREPRICE), temp_buf.Z().Cat(amt_wo_tax / fabs(r_ti.Quantity_), MKSFMTD_020));
 				//
 				total_amt_wovat += amt_wo_tax;
 				n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTWOVAT), temp_buf.Z().Cat(amt_wo_tax, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
@@ -7030,7 +6998,6 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 				}
 			}
 		}
-		// @v10.6.11 {
 		{
 			SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_WAREEXTRAINFO));
 			// !!! <ДопСведТов ПрТовРаб="3" КодТов="00000000027" НаимЕдИзм="шт"/>
@@ -7044,6 +7011,15 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 			}
 			if(!correction) // @v11.7.1 (Для корректировки не нужно)
 				n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WARETYPE), "1"); // @v11.4.11 ПрТовРаб="1"
+			// @v12.1.4 {
+			int   chzn_int_qty = 0;
+			{
+				const ObjTagItem * p_local_tag_item = rBp.LTagL.GetTag(item_idx, PPTAG_LOT_CHZNINTQTTY);
+				int   temp_int = 0;
+				if(p_local_tag_item && p_local_tag_item->GetInt(&temp_int) && temp_int > 0 && temp_int < 100)
+					chzn_int_qty = temp_int;
+			}
+			// } @v12.1.4
 			// @v11.4.10 {
 			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREARTICLE), temp_buf.Z().Cat(goods_id)); // @v11.5.10 Собственный идентификатор (по специальной просьбе)
 			if(!correction) { // @v11.7.10 (Для корректировки не нужно)
@@ -7053,7 +7029,15 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 						assert(barcode_for_marking.Len() < 14);
 						if(chzn_prod_type == GTCHZNPT_MILK && is_weighted_ware) { // @v11.9.7
 							// Для весовой молочной продукции указывается количество упаковок - пока пишем фиксированную единицу
-							(temp_buf = barcode_for_marking).PadLeft(14-barcode_for_marking.Len(), '0').Insert(0, "02").Cat("37").Cat("1");
+							(temp_buf = barcode_for_marking).PadLeft(14-barcode_for_marking.Len(), '0').Insert(0, "02").Cat("37"); // @v12.1.4 .Cat("1");
+							// @v12.1.4 {
+							if(chzn_int_qty > 0 && chzn_int_qty < 100) {
+								temp_buf.Cat(chzn_int_qty);
+							}
+							else {
+								temp_buf.Cat("1");
+							}
+							// } @v12.1.4 
 							SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
 							n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
 						}
@@ -7099,7 +7083,13 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 							if(!is_mark_accepted && chzn_prod_type == GTCHZNPT_MILK && is_weighted_ware) {
 								gts.GetToken(GtinStruc::fldGTIN14, &chzn_gtin14_buf);
 								if(chzn_gtin14_buf.NotEmpty()) {
-									temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("37").Cat("01"/*Указываем пока одну единицу - дальше посмотрим что делать*/);
+									temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("37"); // @v12.1.4 .Cat("01"/*Указываем пока одну единицу - дальше посмотрим что делать*/);
+									// @v12.1.4 {
+									if(chzn_int_qty > 0 && chzn_int_qty < 100)
+										temp_buf.CatLongZ(chzn_int_qty, 2);
+									else
+										temp_buf.Cat("01");
+									// } @v12.1.4
 									n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
 									is_mark_accepted = true;
 								}
@@ -7155,7 +7145,6 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 					}
 				}
 			}
-			// } @v10.6.11
 		}
 		// @v11.5.9 {
 		if(!correction) {
@@ -7761,15 +7750,8 @@ DocNalogRu_WriteBillBlock::DocNalogRu_WriteBillBlock(const PPBillImpExpParam & r
 	ENDCATCH
 }
 
-const SString & FASTCALL DocNalogRu_WriteBillBlock::GetToken(long tokId) 
-{ 
-	return G.GetToken_Ansi(tokId); 
-}
-
-const SString & FASTCALL DocNalogRu_WriteBillBlock::EncText(const SString & rS) 
-{ 
-	return G.EncText(rS); 
-}
+const SString & FASTCALL DocNalogRu_WriteBillBlock::GetToken(long tokId) { return G.GetToken_Ansi(tokId); }
+const SString & FASTCALL DocNalogRu_WriteBillBlock::EncText(const SString & rS) { return G.EncText(rS); }
 
 DocNalogRu_WriteBillBlock::~DocNalogRu_WriteBillBlock()
 {
@@ -7950,7 +7932,7 @@ int DocNalogRu_WriteBillBlock::Do_DP_REZRUISP(SString & rResultFileName)
 			G.Underwriter(0);
 		}
 		G.EndDocument();
-		rResultFileName = _Hi.FileName; // @v10.9.8
+		rResultFileName = _Hi.FileName;
 	}
 	//CATCHZOK
 	return ok;
@@ -7959,7 +7941,7 @@ int DocNalogRu_WriteBillBlock::Do_DP_REZRUISP(SString & rResultFileName)
 int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 {
 	int    ok = 1;
-	rResultFileName.Z(); // @v10.9.8
+	rResultFileName.Z();
 	{
 		SString temp_buf;
 		THROW(IsValid());
@@ -8381,7 +8363,7 @@ int DocNalogRu_WriteBillBlock::Do_Invoice(SString & rResultFileName)
 			G.Underwriter(0);
 		}
 		G.EndDocument();
-		rResultFileName = _Hi.FileName; // @v10.9.8
+		rResultFileName = _Hi.FileName;
 	}
 	return ok;
 }
@@ -8410,7 +8392,7 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 			DocNalogRu_Generator::File f(G, _Hi);
 			GetMainOrgName(temp_buf);
 			DocNalogRu_Generator::DocumentInfo docinfo;
-			docinfo.KND = "1115131"; // @v10.6.10 1115125-->1115131
+			docinfo.KND = "1115131";
 			docinfo.Subj = temp_buf;
 			DocNalogRu_Generator::Document d(G, docinfo);
 			// СЧФ - счет-фактура, применяемый при расчетах по налогу на добавленную стоимость;
@@ -8701,7 +8683,7 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 			G.Underwriter(0);
 		}
 		G.EndDocument();
-		rResultFileName = _Hi.FileName; // @v10.9.8
+		rResultFileName = _Hi.FileName;
 	}
 	//CATCHZOK
 	return ok;
@@ -8710,7 +8692,7 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 int WriteBill_ExportMarks(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName)
 {
 	int    ok = 1;
-	rResultFileName.Z(); // @v10.9.8
+	rResultFileName.Z();
 	SString file_name;
 	SString temp_buf;
 	SString output;
@@ -8763,6 +8745,6 @@ int WriteBill_ExportMarks(const PPBillImpExpParam & rParam, const PPBillPacket &
 		if(f_out.IsValid())
 			f_out.WriteLine(output);
 	}
-	rResultFileName = rFileName; // @v10.9.8
+	rResultFileName = rFileName;
 	return ok;
 }

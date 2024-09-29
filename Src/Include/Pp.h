@@ -10036,7 +10036,7 @@ struct CCheckItem { // @transient
 	double GetAmount() const;
 	int    SetupGiftQuot(double quot, int forceZero);
 	int    ResetGiftQuot();
-	int    CanMerge(const CCheckPacket * pPack, const CCheckItem & rItem) const;
+	bool   CanMerge(const CCheckPacket * pPack, const CCheckItem & rItem) const;
 
 	PPID   GoodsID;         //
 	double Quantity;        //
@@ -11401,7 +11401,7 @@ public:
 	ObjTagList * FASTCALL Get(int rowIdx /*0..*/) const;
 	int    Set(int rowIdx /*0..*/, const ObjTagList *);
 	const ObjTagItem * GetTag(int rowIdx, PPID tagID) const;
-	int    SearchString(const char * pPattern, PPID tagID, long flags, LongArray & rRowIdxList) const;
+	bool   SearchString(const char * pPattern, PPID tagID, long flags, LongArray & rRowIdxList) const;
 	int    GetTagStr(int rowIdx, PPID tagID, SString & rBuf) const;
 	void   RemovePosition(int rowIdx);
 	int    ReplacePosition(int rowIdx, int newRowIdx);
@@ -19766,7 +19766,12 @@ public:
 	int    GetEdiShopChargeOnOp(PPID * pID, int use_ta);
 	int    GetEdiWrOffShopOp(PPID * pID, int use_ta);
 	int    GetEdiWrOffWithMarksOp(PPID * pID, int use_ta);
-	int    GetEdiChargeOnWithMarksOp(PPID * pID, int use_ta); // @v10.9.0
+	int    GetEdiChargeOnWithMarksOp(PPID * pID, int use_ta);
+	//
+	// Descr: Возвращает идентификатор зарезервированного вида операции общей бух проводки для регистрового счета.
+	//   Если операция не существует, то будет создана.
+	//
+	int    GetGenericAccTurnForRegisterOp(PPID * pID, int use_ta);
 private:
 	struct ReservedOpCreateBlock {
 		ReservedOpCreateBlock();
@@ -19774,6 +19779,7 @@ private:
 		PPID   OpTypeID;
 		uint   NameTxtId;
 		PPID   AccSheetID;
+		int    SubType; // @v12.1.4
 		long   Flags;
 		const char * P_Symb;
 		const char * P_CodeTempl;
@@ -21636,7 +21642,7 @@ public:
 	int    IsPrinter();
 };
 //
-//
+// Флаги бухгалтерских счетов
 //
 #define ACF_FREEREST        0x0001L // Даже имея субсчета и (или) статьи, счет допускает прямые проводки
 #define ACF_HASBRANCH       0x0002L // Счет имеет субсчет(а)
@@ -30207,6 +30213,15 @@ public:
 	int    FetchGoodsType(PPID goodsTypeID, PPGoodsType * pGtRec);
 	bool   IsZeroPriceAllowed(PPID goodsID);
 	//
+	// Descr: Функция выясняет является ли товар goodsID маркируемой развесной молочной продукцией, для которой 
+	//   дополнительно необходимо количественное значение числа отгружаемых мест.
+	// Note: Если кратко, то суть проблемы в том, что ебаный честный знак требует от оптовиков что бы сыры, сметана и прочая
+	//   молочная хуйня, отгружаемая литрами или килограммами содержала какую-то целочисленную величину, сопоставляемую
+	//   с суррогатной маркой, отправляемой вместе с накладной. В общем, в этом лучше на разбираться - это все следствие
+	//   того, что вся рашка ебнулась окончательно и бесповоротно.
+	//
+	bool   IsChZnCtWtGoods(PPID goodsID); // @v12.1.4
+	//
 	// Descr: Извлекает запись единицы измерения unitID из кэша.
 	//
 	int    FetchUnit(PPID unitID, PPUnit * pUnitRec); // @>>PPObjUnit::Fetch
@@ -34191,7 +34206,7 @@ public:
 	//   В результате конвертации документ srcID удаляется, и создается документ с ид *pDestID.
 	//
 	int    ConvertGenAccturnToExtAccBill(PPID srcID, PPID * pDestID, const CvtAt2Ab_Param * pParam, int use_ta);
-	int    GetShipmByOrder(PPID orderID, const DateRange *, PPIDArray *);
+	int    GetShipmByOrder(PPID orderID, const DateRange *, PPIDArray & rList);
 	int    EnumMembersOfPool(PPID poolType, PPID poolOwnerID, PPID * pMemberID, BillTbl::Rec * pRec = 0);
 	int    IsMemberOfPool(PPID billID, PPID poolType, PPID * pPullOwnerID);
 		// @>>P_Tbl->IsMemberOfPool(PPID billID, PPID poolType, PPID * pPullOwnerID)

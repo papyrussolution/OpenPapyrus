@@ -657,7 +657,7 @@ SJson * PPStyloQInterchange::ProcessCommand_RequestDocumentStatusList(const SBin
 											{
 												DateRange shipm_period;
 												shipm_period.Z();
-												if(p_bobj->GetShipmByOrder(my_id, &shipm_period, &shipments) > 0) {
+												if(p_bobj->GetShipmByOrder(my_id, &shipm_period, shipments) > 0) {
 													if(shipments.getCount()) {
 														new_status = StyloQCore::styloqdocstEXECUTED;
 													}

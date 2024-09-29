@@ -177,6 +177,52 @@ PPID PPMarketplaceInterface::Helper_GetMarketplaceOpsAccSheetID(bool createIfNEx
 PPID PPMarketplaceInterface::Helper_GetMarketplaceOpsAccount(bool createIfNExists, int use_ta)
 {
 	PPID   acc_id = 0;
+	SString temp_buf;
+	PPObjAccount acc_obj;
+	PPAccount acc_rec;
+	PPID acs_id = 0;
+	PPObjTag tag_obj;
+	PPObjectTag tag_rec;
+	PPObjGlobalUserAcc gua_obj;
+	const PPID gua_id = GuaPack.Rec.ID;
+	THROW(tag_obj.Fetch(PPTAG_GUA_ACCOUNT, &tag_rec) > 0); // @todo @err (создание зарезервированных объектов)
+	if(gua_id) {
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		acs_id = Helper_GetMarketplaceOpsAccSheetID(createIfNExists, true/*createArticles*/, 0);
+		THROW(acs_id);
+		{
+			const ObjTagItem * p_tag_item = GuaPack.TagL.GetItem(PPTAG_GUA_ACCOUNT);
+			int    intval = 0;
+			if(p_tag_item && p_tag_item->GetInt(&intval) && acc_obj.Search(intval, &acc_rec) > 0) {
+				acc_id = acc_rec.ID;
+			}
+			else if(createIfNExists) {
+				PPAccountPacket acc_pack;
+				(temp_buf = "Marketplace account").CatDiv('-', 1).Cat(GuaPack.Rec.Name);
+				STRNSCPY(acc_pack.Rec.Name, temp_buf);
+				acc_pack.Rec.Type = ACY_REGISTER;
+				acc_pack.Rec.Kind = ACT_ACTIVE;
+				acc_pack.Rec.Flags |= ACF_SYSNUMBER;
+				acc_pack.Rec.AccSheetID = acs_id;
+				THROW(acc_obj.GenerateNumber(&acc_pack.Rec));
+				assert(acc_id == 0);
+				THROW(acc_obj.PutPacket(&acc_id, &acc_pack, 0));
+				{
+					assert(acc_id);
+					ObjTagItem tag_item;
+					tag_item.Init(PPTAG_GUA_ACCOUNT);
+					tag_item.SetInt(PPTAG_GUA_ACCOUNT, acc_id);
+					THROW(PPRef->Ot.PutTag(PPOBJ_GLOBALUSERACC, GuaPack.Rec.ID, &tag_item, 0));
+					THROW(gua_obj.GetPacket(gua_id, &GuaPack) > 0); // Повторно извлекаем пакет глобальной учетной записи ибо там теперь новый тег
+				}
+			}
+		}
+		THROW(tra.Commit());
+	}
+	CATCH
+		acc_id = 0;
+	ENDCATCH
 	return acc_id;
 }
 
@@ -370,311 +416,14 @@ public:
 		SString Sticker; // Идентификатор стикера
 		SString GNumber; // Номер заказа
 		SString SrID;    // Уникальный идентификатор заказа. Примечание для использующих API Маркетплейс: srid равен rid в ответах методов сборочных заданий.
+			// Проецируется на тег PPTAG_LOT_ORGORDERIDENT
 	};
 	
 	struct SalesRepDbpEntry { // SalesReportDetailedByPeriod
-		SalesRepDbpEntry() : RepId(0), RepType(0), CrDate(ZERODATE), RrdId(0), IncomeID(0), OrderDtm(ZERODATETIME), SaleDtm(ZERODATETIME), RrDtm(ZERODATETIME),
-			ShkId(0), RId(0), Ppvz_OfficeId(0), Ppvz_SupplierId(0), DeliveryCount(0), ReturnCount(0),
-			Qtty(0.0), RetailPrice(0.0), RetailAmount(0.0), SalePct(0.0), CommissionPct(0.0), RetailPriceWithDiscount(0.0), DeliveryAmount(0.0),
-			ProductDiscount(0.0), Ppvz_Spp_Prc(0.0), Ppvz_Kvw_Prc_Base(0.0), Ppvz_Kvw_Prc(0.0), Sup_Rating_Prc_Up(0.0), IS_Kgvp_V2(0.0), Ppvz_Sales_Commission(0.0),
-			Ppvz_For_Pay(0.0), Ppvz_Reward(0.0), AcquiringFee(0.0), AcquiringPct(0.0), Ppvz_Vw(0.0), Ppvz_Vw_Vat(0.0), Penalty(0.0), AdditionalPayment(0.0), RebillLogisticCost(0.0),
-			StorageFee(0.0), Deduction(0.0), Acceptance(0.0)
-		{
-			Period.Z();
-			CurrencySymb[0] = 0;
-		}
-		SalesRepDbpEntry & Z()
-		{
-			Period.Z();
-			CurrencySymb[0] = 0;
-			RepId = 0;
-			RepType = 0;
-			CrDate.Z();
-			RrdId = 0;
-			IncomeID = 0;
-			OrderDtm.Z();
-			SaleDtm.Z();
-			RrDtm.Z();
-			ShkId = 0;
-			RId = 0;
-			Ppvz_OfficeId = 0;
-			Ppvz_SupplierId = 0;
-			DeliveryCount = 0;
-			ReturnCount = 0;
-			Qtty = 0.0;
-			RetailPrice = 0.0;
-			RetailAmount = 0.0;
-			SalePct = 0.0;
-			CommissionPct = 0.0;
-			RetailPriceWithDiscount = 0.0;
-			DeliveryAmount = 0.0;
-			ProductDiscount = 0.0;
-			Ppvz_Spp_Prc = 0.0;
-			Ppvz_Kvw_Prc_Base = 0.0;
-			Ppvz_Kvw_Prc = 0.0;
-			Sup_Rating_Prc_Up = 0.0;
-			IS_Kgvp_V2 = 0.0;
-			Ppvz_Sales_Commission = 0.0;
-			Ppvz_For_Pay = 0.0;
-			Ppvz_Reward = 0.0;
-			AcquiringFee = 0.0;
-			AcquiringPct = 0.0;
-			Ppvz_Vw = 0.0;
-			Ppvz_Vw_Vat = 0.0;
-			Penalty = 0.0;
-			AdditionalPayment = 0.0;
-			RebillLogisticCost = 0.0;
-			StorageFee = 0.0;
-			Deduction = 0.0;
-			Acceptance = 0.0;
-			SupplierContractCode.Z();
-			SrID.Z();
-			Ware.Z();
-			DocTypeName.Z();
-			Warehouse.Z();
-			SupplOpName.Z();
-			BoxTypeName.Z();
-			SupplPromo.Z();
-			AcquiringBank.Z();
-			Ppvz_OfficeName.Z();
-			Ppvz_SupplierName.Z();
-			Ppvz_Inn.Z();
-			Clb.Z();
-			BonusTypeName.Z();
-			Sticker.Z();
-			Country.Z();
-			RebillLogisticOrg.Z();
-			Kiz.Z();
-			return *this;
-		}
-		bool FromJsonObj(const SJson * pJs)
-		{
-			Z();
-			bool   ok = false;
-			if(pJs && pJs->Type == SJson::tOBJECT) {
-				SString temp_buf;
-				for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
-					if(p_cur->Text.IsEqiAscii("realizationreport_id")) {
-						RepId = p_cur->P_Child->Text.ToInt64();
-					}
-					else if(p_cur->Text.IsEqiAscii("date_from")) {
-						LDATETIME dtm;
-						if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
-							Period.low = dtm.d;
-						}
-					}
-					else if(p_cur->Text.IsEqiAscii("date_to")) {
-						LDATETIME dtm;
-						if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
-							Period.upp = dtm.d;
-						}
-					}
-					else if(p_cur->Text.IsEqiAscii("create_dt")) {
-						LDATETIME dtm;
-						if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
-							CrDate = dtm.d;
-						}
-					}
-					else if(p_cur->Text.IsEqiAscii("currency_name")) {
-						STRNSCPY(CurrencySymb, p_cur->P_Child->Text);
-					}
-					else if(p_cur->Text.IsEqiAscii("suppliercontract_code")) {
-						SupplierContractCode = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("rrd_id")) {
-						RrdId = p_cur->P_Child->Text.ToInt64();
-					}
-					else if(p_cur->Text.IsEqiAscii("gi_id")) {
-						IncomeID = p_cur->P_Child->Text.ToInt64();
-					}
-					else if(p_cur->Text.IsEqiAscii("subject_name")) {
-						Ware.Name = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("nm_id")) {
-						Ware.ID = p_cur->P_Child->Text.ToInt64();
-					}
-					else if(p_cur->Text.IsEqiAscii("brand_name")) {
-						Ware.Brand = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("sa_name")) {
-						Ware.SupplArticle = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("ts_name")) {
-						Ware.TechSize = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("barcode")) {
-						Ware.Barcode = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("doc_type_name")) {
-						DocTypeName = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("quantity")) {
-						Qtty = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("retail_price")) {
-						RetailPrice = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("retail_amount")) {
-						RetailAmount = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("sale_percent")) {
-						SalePct = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("commission_percent")) {
-						CommissionPct = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("office_name")) {
-						Warehouse = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("supplier_oper_name")) {
-						SupplOpName = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("order_dt")) {
-						LDATETIME dtm;
-						if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
-							OrderDtm = dtm;
-						}
-					}
-					else if(p_cur->Text.IsEqiAscii("sale_dt")) {
-						LDATETIME dtm;
-						if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
-							SaleDtm = dtm;
-						}
-					}
-					else if(p_cur->Text.IsEqiAscii("rr_dt")) {
-						LDATETIME dtm;
-						if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
-							RrDtm = dtm;
-						}
-					}
-					else if(p_cur->Text.IsEqiAscii("shk_id")) {
-						ShkId = p_cur->P_Child->Text.ToInt64();
-					}
-					else if(p_cur->Text.IsEqiAscii("retail_price_withdisc_rub")) {
-						RetailPriceWithDiscount = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("delivery_amount")) {
-						DeliveryCount = p_cur->P_Child->Text.ToLong();
-					}
-					else if(p_cur->Text.IsEqiAscii("return_amount")) {
-						ReturnCount = p_cur->P_Child->Text.ToLong();
-					}
-					else if(p_cur->Text.IsEqiAscii("delivery_rub")) {
-						DeliveryAmount = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("gi_box_type_name")) {
-						BoxTypeName = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("product_discount_for_report")) {
-						ProductDiscount = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("supplier_promo")) {
-						SupplPromo = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("rid")) {
-						RId = p_cur->P_Child->Text.ToInt64();
-					}
-					else if(p_cur->Text.IsEqiAscii("ppvz_spp_prc")) {
-						Ppvz_Spp_Prc = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("ppvz_kvw_prc_base")) {
-						Ppvz_Kvw_Prc_Base = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("ppvz_kvw_prc")) {
-						Ppvz_Kvw_Prc = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("sup_rating_prc_up")) {
-						Sup_Rating_Prc_Up = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("is_kgvp_v2")) {
-						IS_Kgvp_V2 = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("ppvz_sales_commission")) {
-						Ppvz_Sales_Commission = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("ppvz_for_pay")) {
-						Ppvz_For_Pay = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("ppvz_reward")) {
-						Ppvz_Reward = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("acquiring_fee")) {
-						AcquiringFee = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("acquiring_percent")) {
-						AcquiringPct = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("acquiring_bank")) {
-						AcquiringBank = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("ppvz_vw")) {
-						Ppvz_Vw = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("ppvz_vw_nds")) {
-						Ppvz_Vw_Vat = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("ppvz_office_id")) {
-						Ppvz_OfficeId = p_cur->P_Child->Text.ToLong();
-					}
-					else if(p_cur->Text.IsEqiAscii("ppvz_office_name")) {
-						Ppvz_OfficeName = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("ppvz_supplier_id")) {
-						Ppvz_SupplierId = p_cur->P_Child->Text.ToLong();
-					}
-					else if(p_cur->Text.IsEqiAscii("ppvz_supplier_name")) {
-						Ppvz_SupplierName = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("ppvz_inn")) {
-						Ppvz_Inn = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("declaration_number")) {
-						Clb = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("bonus_type_name")) {
-						BonusTypeName = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("sticker_id")) {
-						Sticker = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("site_country")) {
-						Country = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("penalty")) {
-						Penalty = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("additional_payment")) {
-						AdditionalPayment = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("rebill_logistic_cost")) {
-						RebillLogisticCost = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("rebill_logistic_org")) {
-						RebillLogisticOrg = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("kiz")) {
-						Kiz = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("storage_fee")) {
-						StorageFee = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("deduction")) {
-						Deduction = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("acceptance")) {
-						Acceptance = p_cur->P_Child->Text.ToReal();
-					}
-					else if(p_cur->Text.IsEqiAscii("srid")) {
-						SrID = p_cur->P_Child->Text;
-					}
-					else if(p_cur->Text.IsEqiAscii("report_type")) {
-						RepType = p_cur->P_Child->Text.ToLong();
-					}
-				}
-				ok = true;
-			}
-			return ok;
-		}
+		SalesRepDbpEntry();
+		SalesRepDbpEntry & Z();
+		bool FromJsonObj(const SJson * pJs);
+
 		int64  RepId;                 // realizationreport_id Номер отчёта
 		int    RepType;               // report_type integer Тип отчёта: 1 — стандартный, 2 — для уведомления о выкупе
 		DateRange Period;             // date_from, date_to
@@ -684,6 +433,7 @@ public:
 		int64  RrdId;                 // rrd_id Номер строки
 		int64  IncomeID;              // gi_id Номер поставки
 		SString SrID;                 // srid string Уникальный идентификатор заказа. Примечание для использующих API Marketplace: srid равен rid в ответах методов сборочных заданий.
+			// Проецируется на тег PPTAG_LOT_ORGORDERIDENT
 		WareBase Ware;                // Наименования полей отличаются от таких же в других методах!
 			/*
 				subject_name string Предмет
@@ -705,7 +455,7 @@ public:
 		LDATETIME OrderDtm;             // order_dt <date-time> Дата заказа. Присылается с явным указанием часового пояса
 		LDATETIME SaleDtm;              // sale_dt <date-time> Дата продажи. Присылается с явным указанием часового пояса
 		LDATETIME RrDtm;                // rr_dt <date-time> Дата операции. Присылается с явным указанием часового пояса
-		int64  ShkId;                   // shk_id Штрих-код (я не понял что это за код такой)
+		int64  ShkId;                   // shk_id Штрих-код. Это - Sticker из заказа и продажи. 
 		SString BoxTypeName;            // gi_box_type_name Тип коробов
 		SString SupplPromo;             // supplier_promo number
 		int64  RId;                     // Уникальный идентификатор заказа 
@@ -778,6 +528,8 @@ public:
 	int   RequestSupplies();
 	int   RequestAcceptanceReport(const DateRange & rPeriod);
 	int   RequestSalesReportDetailedByPeriod(const DateRange & rPeriod, TSCollection <SalesRepDbpEntry> & rList);
+	int   RequestBalance();
+	int   RequestDocumentsList();
 	int   UploadWare();
 	int   RequestWareList();
 
@@ -797,13 +549,14 @@ private:
 	PPID  CreateReceipt(int64 incomeId, LDATE dt, PPID locID, PPID goodsID, double qtty, int use_ta);
 	PPID  CreateBuyer(const Sale * pSaleEntry, int use_ta);
 	PPID  CreateWare(const WareBase & rWare, int use_ta);
+	int   FindShipmentBillByOrderIdent(const char * pOrgOrdIdent, PPIDArray & rShipmBillIdList);
 	//
 	// Descr: 
 	// Returns:
 	//   0 - error
 	//   >0 - ид лота, к которому должна быть привязана продажа
 	//
-	PPID  AdjustReceiptOnExpend(int64 incomeId, LDATE dt, PPID locID, PPID goodsID, double neededQtty, int use_ta);
+	PPID  AdjustReceiptOnExpend(int64 incomeId, LDATE dt, PPID locID, PPID goodsID, double neededQtty, double nominalPrice, int use_ta);
 	SString & MakeHeaderFields(const char * pToken, StrStrAssocArray * pHdrFlds, SString & rBuf)
 	{
 		StrStrAssocArray hdr_flds;
@@ -838,6 +591,7 @@ private:
 		apiContent,
 		apiMarketplace,
 		apiAnalytics,
+		apiDocuments,
 	};
 	enum {
 		methCommission = 1,   // apiCommon
@@ -856,6 +610,8 @@ private:
 		methAcceptanceReport, // apiAnalytics   https://seller-analytics-api.wildberries.ru/api/v1/analytics/acceptance-report
 		methGoodsPrices,      // apiDiscountsPrices https://discounts-prices-api.wildberries.ru/api/v2/list/goods/filter
 		methContentCardsList, // apiContent https://content-api.wildberries.ru/content/v2/get/cards/list
+		methBalance,          // apiAdvert https://advert-api.wildberries.ru/adv/v1/balance
+		methDocumentsList,    // apiDocuments https://documents-api.wildberries.ru/api/v1/documents/list 
 	};
 	bool MakeTargetUrl_(int meth, int * pReq/*SHttpProtocol::reqXXX*/, SString & rResult) const
 	{
@@ -869,7 +625,8 @@ private:
 			{ apiDiscountsPrices, "discounts-prices-api" },
 			{ apiContent, "content-api" },
 			{ apiMarketplace, "marketplace-api" },
-			{ apiAnalytics, "seller-analytics-api" }
+			{ apiAnalytics, "seller-analytics-api" },
+			{ apiDocuments, "documents-api" },
 		};
 		struct MethEntry {
 			int    Meth;
@@ -894,6 +651,8 @@ private:
 			{ methAcceptanceReport, apiAnalytics, SHttpProtocol::reqGet, "api/v1/analytics/acceptance-report" },
 			{ methGoodsPrices, apiDiscountsPrices, SHttpProtocol::reqGet, "api/v2/list/goods/filter" },
 			{ methContentCardsList, apiContent, SHttpProtocol::reqPost, "content/v2/get/cards/list" },
+			{ methBalance, apiAdvert, SHttpProtocol::reqGet, "adv/v1/balance" },
+			{ methDocumentsList, apiDocuments, SHttpProtocol::reqGet, "api/v1/documents/list" },
 		};
 		//https://content-api.wildberries.ru/content/v2/cards/upload
 		//https://discounts-prices-api.wildberries.ru/api/v2/upload/task
@@ -1323,6 +1082,311 @@ bool PPMarketplaceInterface_Wildberries::Sale::FromJsonObj(const SJson * pJs)
 				if(SJson::GetBoolean(p_cur->P_Child) == 1) {
 					Flags |= fIsCancel;
 				}
+			}
+		}
+		ok = true;
+	}
+	return ok;
+}
+
+PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::SalesRepDbpEntry() : RepId(0), RepType(0), CrDate(ZERODATE), RrdId(0), IncomeID(0), OrderDtm(ZERODATETIME), SaleDtm(ZERODATETIME), RrDtm(ZERODATETIME),
+	ShkId(0), RId(0), Ppvz_OfficeId(0), Ppvz_SupplierId(0), DeliveryCount(0), ReturnCount(0),
+	Qtty(0.0), RetailPrice(0.0), RetailAmount(0.0), SalePct(0.0), CommissionPct(0.0), RetailPriceWithDiscount(0.0), DeliveryAmount(0.0),
+	ProductDiscount(0.0), Ppvz_Spp_Prc(0.0), Ppvz_Kvw_Prc_Base(0.0), Ppvz_Kvw_Prc(0.0), Sup_Rating_Prc_Up(0.0), IS_Kgvp_V2(0.0), Ppvz_Sales_Commission(0.0),
+	Ppvz_For_Pay(0.0), Ppvz_Reward(0.0), AcquiringFee(0.0), AcquiringPct(0.0), Ppvz_Vw(0.0), Ppvz_Vw_Vat(0.0), Penalty(0.0), AdditionalPayment(0.0), RebillLogisticCost(0.0),
+	StorageFee(0.0), Deduction(0.0), Acceptance(0.0)
+{
+	Period.Z();
+	CurrencySymb[0] = 0;
+}
+		
+PPMarketplaceInterface_Wildberries::SalesRepDbpEntry & PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::Z()
+{
+	Period.Z();
+	CurrencySymb[0] = 0;
+	RepId = 0;
+	RepType = 0;
+	CrDate.Z();
+	RrdId = 0;
+	IncomeID = 0;
+	OrderDtm.Z();
+	SaleDtm.Z();
+	RrDtm.Z();
+	ShkId = 0;
+	RId = 0;
+	Ppvz_OfficeId = 0;
+	Ppvz_SupplierId = 0;
+	DeliveryCount = 0;
+	ReturnCount = 0;
+	Qtty = 0.0;
+	RetailPrice = 0.0;
+	RetailAmount = 0.0;
+	SalePct = 0.0;
+	CommissionPct = 0.0;
+	RetailPriceWithDiscount = 0.0;
+	DeliveryAmount = 0.0;
+	ProductDiscount = 0.0;
+	Ppvz_Spp_Prc = 0.0;
+	Ppvz_Kvw_Prc_Base = 0.0;
+	Ppvz_Kvw_Prc = 0.0;
+	Sup_Rating_Prc_Up = 0.0;
+	IS_Kgvp_V2 = 0.0;
+	Ppvz_Sales_Commission = 0.0;
+	Ppvz_For_Pay = 0.0;
+	Ppvz_Reward = 0.0;
+	AcquiringFee = 0.0;
+	AcquiringPct = 0.0;
+	Ppvz_Vw = 0.0;
+	Ppvz_Vw_Vat = 0.0;
+	Penalty = 0.0;
+	AdditionalPayment = 0.0;
+	RebillLogisticCost = 0.0;
+	StorageFee = 0.0;
+	Deduction = 0.0;
+	Acceptance = 0.0;
+	SupplierContractCode.Z();
+	SrID.Z();
+	Ware.Z();
+	DocTypeName.Z();
+	Warehouse.Z();
+	SupplOpName.Z();
+	BoxTypeName.Z();
+	SupplPromo.Z();
+	AcquiringBank.Z();
+	Ppvz_OfficeName.Z();
+	Ppvz_SupplierName.Z();
+	Ppvz_Inn.Z();
+	Clb.Z();
+	BonusTypeName.Z();
+	Sticker.Z();
+	Country.Z();
+	RebillLogisticOrg.Z();
+	Kiz.Z();
+	return *this;
+}
+		
+bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJson * pJs)
+{
+	Z();
+	bool   ok = false;
+	if(pJs && pJs->Type == SJson::tOBJECT) {
+		SString temp_buf;
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("realizationreport_id")) {
+				RepId = p_cur->P_Child->Text.ToInt64();
+			}
+			else if(p_cur->Text.IsEqiAscii("date_from")) {
+				LDATETIME dtm;
+				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+					Period.low = dtm.d;
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("date_to")) {
+				LDATETIME dtm;
+				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+					Period.upp = dtm.d;
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("create_dt")) {
+				LDATETIME dtm;
+				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+					CrDate = dtm.d;
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("currency_name")) {
+				STRNSCPY(CurrencySymb, p_cur->P_Child->Text);
+			}
+			else if(p_cur->Text.IsEqiAscii("suppliercontract_code")) {
+				SupplierContractCode = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("rrd_id")) {
+				RrdId = p_cur->P_Child->Text.ToInt64();
+			}
+			else if(p_cur->Text.IsEqiAscii("gi_id")) {
+				IncomeID = p_cur->P_Child->Text.ToInt64();
+			}
+			else if(p_cur->Text.IsEqiAscii("subject_name")) {
+				Ware.Name = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("nm_id")) {
+				Ware.ID = p_cur->P_Child->Text.ToInt64();
+			}
+			else if(p_cur->Text.IsEqiAscii("brand_name")) {
+				Ware.Brand = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("sa_name")) {
+				Ware.SupplArticle = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("ts_name")) {
+				Ware.TechSize = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("barcode")) {
+				Ware.Barcode = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("doc_type_name")) {
+				DocTypeName = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("quantity")) {
+				Qtty = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("retail_price")) {
+				RetailPrice = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("retail_amount")) {
+				RetailAmount = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("sale_percent")) {
+				SalePct = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("commission_percent")) {
+				CommissionPct = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("office_name")) {
+				Warehouse = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("supplier_oper_name")) {
+				SupplOpName = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("order_dt")) {
+				LDATETIME dtm;
+				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+					OrderDtm = dtm;
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("sale_dt")) {
+				LDATETIME dtm;
+				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+					SaleDtm = dtm;
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("rr_dt")) {
+				LDATETIME dtm;
+				if(strtodatetime(p_cur->P_Child->Text, &dtm, DATF_ISO8601CENT, TIMF_HMS)) {
+					RrDtm = dtm;
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("shk_id")) {
+				ShkId = p_cur->P_Child->Text.ToInt64();
+			}
+			else if(p_cur->Text.IsEqiAscii("retail_price_withdisc_rub")) {
+				RetailPriceWithDiscount = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("delivery_amount")) {
+				DeliveryCount = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("return_amount")) {
+				ReturnCount = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("delivery_rub")) {
+				DeliveryAmount = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("gi_box_type_name")) {
+				BoxTypeName = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("product_discount_for_report")) {
+				ProductDiscount = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("supplier_promo")) {
+				SupplPromo = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("rid")) {
+				RId = p_cur->P_Child->Text.ToInt64();
+			}
+			else if(p_cur->Text.IsEqiAscii("ppvz_spp_prc")) {
+				Ppvz_Spp_Prc = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("ppvz_kvw_prc_base")) {
+				Ppvz_Kvw_Prc_Base = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("ppvz_kvw_prc")) {
+				Ppvz_Kvw_Prc = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("sup_rating_prc_up")) {
+				Sup_Rating_Prc_Up = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("is_kgvp_v2")) {
+				IS_Kgvp_V2 = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("ppvz_sales_commission")) {
+				Ppvz_Sales_Commission = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("ppvz_for_pay")) {
+				Ppvz_For_Pay = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("ppvz_reward")) {
+				Ppvz_Reward = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("acquiring_fee")) {
+				AcquiringFee = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("acquiring_percent")) {
+				AcquiringPct = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("acquiring_bank")) {
+				AcquiringBank = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("ppvz_vw")) {
+				Ppvz_Vw = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("ppvz_vw_nds")) {
+				Ppvz_Vw_Vat = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("ppvz_office_id")) {
+				Ppvz_OfficeId = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("ppvz_office_name")) {
+				Ppvz_OfficeName = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("ppvz_supplier_id")) {
+				Ppvz_SupplierId = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("ppvz_supplier_name")) {
+				Ppvz_SupplierName = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("ppvz_inn")) {
+				Ppvz_Inn = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("declaration_number")) {
+				Clb = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("bonus_type_name")) {
+				BonusTypeName = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("sticker_id")) {
+				Sticker = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("site_country")) {
+				Country = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("penalty")) {
+				Penalty = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("additional_payment")) {
+				AdditionalPayment = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("rebill_logistic_cost")) {
+				RebillLogisticCost = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("rebill_logistic_org")) {
+				RebillLogisticOrg = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("kiz")) {
+				Kiz = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("storage_fee")) {
+				StorageFee = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("deduction")) {
+				Deduction = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("acceptance")) {
+				Acceptance = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("srid")) {
+				SrID = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("report_type")) {
+				RepType = p_cur->P_Child->Text.ToLong();
 			}
 		}
 		ok = true;
@@ -1794,6 +1858,98 @@ int PPMarketplaceInterface_Wildberries::RequestSales(TSCollection <Sale> & rList
 	return ok;
 }
 
+int PPMarketplaceInterface_Wildberries::RequestDocumentsList()
+{
+	//rList.freeAll();
+	int    ok = 1;
+	SString temp_buf;
+	SString url_buf;
+	StrStrAssocArray hdr_flds;
+	THROW(Helper_InitRequest(methDocumentsList, url_buf, hdr_flds));
+	{
+		ScURL c;
+		SString reply_buf;
+		SBuffer ack_buf;
+		SFile wr_stream(ack_buf, SFile::mWrite);
+		THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
+		Lth.Log("req", url_buf, temp_buf.Z());
+		THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+		{
+			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+			if(p_ack_buf) {
+				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+				Lth.Log("rep", 0, reply_buf);
+				{
+					SJson * p_js_reply = SJson::Parse(reply_buf);
+					if(SJson::IsArray(p_js_reply)) {
+						for(const SJson * p_js_item = p_js_reply->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+							if(SJson::IsObject(p_js_item)) {
+								/*
+								uint   new_item_pos = 0;
+								Sale * p_new_item = rList.CreateNewItem(&new_item_pos);
+								if(p_new_item) {
+									if(!p_new_item->FromJsonObj(p_js_item)) {
+										rList.atFree(new_item_pos);
+									}
+								}
+								*/
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPMarketplaceInterface_Wildberries::RequestBalance()
+{
+	//rList.freeAll();
+	int    ok = 1;
+	SString temp_buf;
+	SString url_buf;
+	StrStrAssocArray hdr_flds;
+	THROW(Helper_InitRequest(methBalance, url_buf, hdr_flds));
+	{
+		ScURL c;
+		SString reply_buf;
+		SBuffer ack_buf;
+		SFile wr_stream(ack_buf, SFile::mWrite);
+		THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
+		Lth.Log("req", url_buf, temp_buf.Z());
+		THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+		{
+			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+			if(p_ack_buf) {
+				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+				Lth.Log("rep", 0, reply_buf);
+				{
+					SJson * p_js_reply = SJson::Parse(reply_buf);
+					if(SJson::IsArray(p_js_reply)) {
+						for(const SJson * p_js_item = p_js_reply->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+							if(SJson::IsObject(p_js_item)) {
+								/*
+								uint   new_item_pos = 0;
+								Sale * p_new_item = rList.CreateNewItem(&new_item_pos);
+								if(p_new_item) {
+									if(!p_new_item->FromJsonObj(p_js_item)) {
+										rList.atFree(new_item_pos);
+									}
+								}
+								*/
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPMarketplaceInterface_Wildberries::RequestSalesReportDetailedByPeriod(const DateRange & rPeriod, TSCollection <SalesRepDbpEntry> & rList)
 {
 	rList.freeAll();
@@ -1970,7 +2126,6 @@ const PPMarketplaceInterface_Wildberries::Warehouse * PPMarketplaceInterface_Wil
 	return p_result;
 }
 
-//int PPMarketplaceInterface_Wildberries::CreateWare(PPID * pID, const WareBase & rWare, int use_ta) // @construction
 PPID PPMarketplaceInterface_Wildberries::CreateWare(const WareBase & rWare, int use_ta) 
 {
 	PPID   result_id = 0;
@@ -2228,7 +2383,7 @@ int PPMarketplaceInterface_Wildberries::ImportReceipts()
 	return ok;
 }
 
-PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(int64 incomeId, LDATE dt, PPID locID, PPID goodsID, double neededQtty, int use_ta)
+PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(int64 incomeId, LDATE dt, PPID locID, PPID goodsID, double neededQtty, double nominalPrice, int use_ta)
 {
 	PPID   result_lot_id = 0;
 	PPObjBill * p_bobj = BillObj;
@@ -2248,6 +2403,7 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(int64 incomeId, L
 			}
 			if(lot_id) {
 				bool   do_update = false;
+				double adj_price = lot_rec.Price;
 				double adj_qtty = lot_rec.Quantity;
 				LDATE  adj_date = lot_rec.Dt;
 
@@ -2270,9 +2426,13 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(int64 incomeId, L
 					adj_qtty = lot_rec.Quantity + (neededQtty - down_lim);
 					do_update = true;
 				}
+				if(nominalPrice > 0.0 && nominalPrice != lot_rec.Price) {
+					adj_price = nominalPrice;
+					do_update = true;
+				}
 				if(do_update) {
 					PPBillPacket rcpt_bill_pack;
-					THROW(p_bobj->ExtractPacket(rcpt_bill_id, &rcpt_bill_pack) > 0);
+					THROW(p_bobj->ExtractPacketWithFlags(rcpt_bill_id, &rcpt_bill_pack, BPLD_FORCESERIALS) > 0);
 					{
 						uint   ti_pos = 0;
 						THROW(rcpt_bill_pack.SearchLot(lot_id, &ti_pos));
@@ -2281,6 +2441,9 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(int64 incomeId, L
 						}
 						if(adj_qtty) {
 							rcpt_bill_pack.TI(ti_pos).Quantity_ = adj_qtty;
+						}
+						if(adj_price > 0.0) {
+							rcpt_bill_pack.TI(ti_pos).Price = adj_price;
 						}
 						THROW(p_bobj->UpdatePacket(&rcpt_bill_pack, 1/*use_ta*/));
 					}
@@ -2302,8 +2465,11 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(int64 incomeId, L
 int PPMarketplaceInterface_Wildberries::ImportSales()
 {
 	int    ok = -1;
+	bool   debug_mark = false; // @debug
 	PPObjBill * p_bobj = BillObj;
 	SString temp_buf;
+	SString fmt_buf;
+	SString msg_buf;
 	TSCollection <PPMarketplaceInterface_Wildberries::Sale> sale_list;
 	const PPID order_op_id = GetOrderOpID();
 	const PPID sale_op_id = GetSaleOpID();
@@ -2328,6 +2494,7 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 		SString ord_bill_code;
 		SString serial_buf;
 		SString ord_serial_buf;
+		SString org_order_ident; // Оригинальный идентификатор строки заказа
 		for(uint i = 0; i < sale_list.getCount(); i++) {
 			const PPMarketplaceInterface_Wildberries::Sale * p_wb_item = sale_list.at(i);
 			if(p_wb_item) {
@@ -2339,7 +2506,7 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 				}
 				else if(p_bobj->P_Tbl->SearchByCode(ord_bill_code, order_op_id, ZERODATE, &ord_bill_rec) > 0) {
 					PPBillPacket ord_pack;
-					THROW(p_bobj->ExtractPacket(ord_bill_rec.ID, &ord_pack) > 0);
+					THROW(p_bobj->ExtractPacketWithFlags(ord_bill_rec.ID, &ord_pack, BPLD_FORCESERIALS) > 0);
 					{
 						PPID   ar_id = 0;
 						PPID   wh_id = 0;
@@ -2350,13 +2517,16 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 						if(p_wb_item->WarehouseName.NotEmpty()) {
 							const Warehouse * p_wh = SearchWarehouseByName(WhList, p_wb_item->WarehouseName);
 							if(p_wh) {
-								int r = CreateWarehouse(&wh_id, p_wh->ID, p_wh->Name, p_wh->Address, 1);
+								CreateWarehouse(&wh_id, p_wh->ID, p_wh->Name, p_wh->Address, 1);
 							}
 						}
 						if(!wh_id)
 							wh_id = LConfig.Location;
 						ar_id = CreateBuyer(p_wb_item, 1/*use_ta*/);
-						if(pack.CreateBlank_WithoutCode(sale_op_id, 0, wh_id, 1)) {
+						if(!pack.CreateBlank_WithoutCode(sale_op_id, 0, wh_id, 1)) {
+							CALLPTRMEMB(P_Logger, LogLastError());
+						}
+						else {
 							const double sold_quantity = 1.0; // 
 							pack.Rec.Dt = checkdate(p_wb_item->Dtm.d) ? p_wb_item->Dtm.d : getcurdate_();
 							STRNSCPY(pack.Rec.Code, bill_code);
@@ -2370,34 +2540,59 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 							//
 							PPID   goods_id = CreateWare(p_wb_item->Ware, 1/*use_ta*/);
 							if(goods_id) {
-								//ord_pack.S
-								PPID   lot_id = AdjustReceiptOnExpend(p_wb_item->IncomeID, pack.Rec.Dt, wh_id, goods_id, sold_quantity, 1/*use_ta*/);
+								double nominal_price = 0.0;
+								if(p_wb_item->PriceWithDiscount > 0.0)
+									nominal_price = p_wb_item->PriceWithDiscount;
+								else if(p_wb_item->TotalPrice > 0.0)
+									nominal_price = p_wb_item->TotalPrice;
+								else
+									nominal_price = p_wb_item->FinishedPrice;
+								PPID   lot_id = AdjustReceiptOnExpend(p_wb_item->IncomeID, pack.Rec.Dt, wh_id, goods_id, sold_quantity, nominal_price, 1/*use_ta*/);
 								if(lot_id) {
 									uint   ord_ti_idx = 0; // [1..]
+									org_order_ident.Z(); // Оригинальный идентификатор строки заказа
 									for(uint oti = 0; !ord_ti_idx && oti < ord_pack.GetTCount(); oti++) {
 										const PPTransferItem & r_ord_ti = ord_pack.ConstTI(oti);
 										if(labs(r_ord_ti.GoodsID) == goods_id) {
-											if(p_wb_item->IncomeID != 0) {
-												ord_pack.LTagL.GetNumber(PPTAG_LOT_SN, oti, ord_serial_buf);
+											ord_pack.LTagL.GetNumber(PPTAG_LOT_SN, oti, ord_serial_buf);
+											ord_pack.LTagL.GetNumber(PPTAG_LOT_ORGORDERIDENT, oti, org_order_ident);
+											if(p_wb_item->SrID.NotEmpty()) {
+												if(org_order_ident.IsEqiUtf8(p_wb_item->SrID)) {
+													ord_ti_idx = oti+1;
+												}
+											}
+											else if(p_wb_item->IncomeID != 0) {
 												if(ord_serial_buf.ToInt64() == p_wb_item->IncomeID) {
 													ord_ti_idx = oti+1;
 												}
 											}
 										}
 									}
-									if(ord_ti_idx) {
+									if(!ord_ti_idx) {
+										// @todo @err
+										// Не удалось найти заказ, который закрывается документом продажи %s
+										PPLoadText(PPTXT_MP_ORDERFORSALESITEMNFOUND, fmt_buf);
+										(temp_buf = bill_code).CatDiv('-', 1).Cat(p_wb_item->Dtm.d, DATF_DMY);
+										msg_buf.Printf(fmt_buf, temp_buf.cptr());
+										CALLPTRMEMB(P_Logger, Log(msg_buf));
+									}
+									else {
 										if(p_bobj->InsertShipmentItemByOrder(&pack, &ord_pack, static_cast<int>(ord_ti_idx)-1, lot_id/*srcLotID*/, 1.0, 0)) {
 											//assert(row_idx_list.getCount() == 1);
 											const long new_row_idx = 0;//row_idx_list.get(0);
 											pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, temp_buf.Z().Cat(p_wb_item->IncomeID));
+											pack.LTagL.AddNumber(PPTAG_LOT_ORGORDERIDENT, new_row_idx, temp_buf.Z().Cat(p_wb_item->SrID));
 											pack.InitAmounts();
+											if(p_wb_item->ForPay > 0.0) {
+												pack.Amounts.Put(PPAMT_MP_SELLERPART, 0, p_wb_item->ForPay, 1, 1);
+											}
 											p_bobj->FillTurnList(&pack);
 											if(p_bobj->TurnPacket(&pack, 1)) {
 												CALLPTRMEMB(P_Logger, LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0));
 												ok = 1;
 											}
 											else {
-												// @todo @err
+												CALLPTRMEMB(P_Logger, LogLastError());
 											}
 										}
 										/*
@@ -2422,9 +2617,6 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 											}
 										}*/
 									}
-								}
-								else {
-									// @todo @err
 								}
 							}
 							else {
@@ -2456,10 +2648,10 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 		{
 			SString bill_code;
 			LongArray seen_idx_list;
-			for(uint i = 0; i < order_list.getCount(); i++) {
-				if(!seen_idx_list.lsearch(static_cast<long>(i))) {
-					seen_idx_list.add(static_cast<long>(i));
-					const PPMarketplaceInterface_Wildberries::Sale * p_wb_item = order_list.at(i);
+			for(uint ord_list_idx = 0; ord_list_idx < order_list.getCount(); ord_list_idx++) {
+				if(!seen_idx_list.lsearch(static_cast<long>(ord_list_idx))) {
+					seen_idx_list.add(static_cast<long>(ord_list_idx));
+					const PPMarketplaceInterface_Wildberries::Sale * p_wb_item = order_list.at(ord_list_idx);
 					if(p_wb_item) {
 						bill_code.Z().Cat(p_wb_item->GNumber);
 						if(p_bobj->P_Tbl->SearchByCode(bill_code, order_op_id, ZERODATE, 0) > 0) {
@@ -2474,9 +2666,8 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 							PPBillPacket::SetupObjectBlock sob;
 							if(p_wb_item->WarehouseName.NotEmpty()) {
 								const Warehouse * p_wh = SearchWarehouseByName(WhList, p_wb_item->WarehouseName);
-								if(p_wh) {
-									int r = CreateWarehouse(&wh_id, p_wh->ID, p_wh->Name, p_wh->Address, 1);
-								}
+								if(p_wh)
+									CreateWarehouse(&wh_id, p_wh->ID, p_wh->Name, p_wh->Address, 1);
 							}
 							if(!wh_id)
 								wh_id = LConfig.Location;
@@ -2502,36 +2693,42 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 									ti.GoodsID = goods_id;
 									ti.Price = p_wb_item->FinishedPrice;
 									ti.Quantity_ = 1.0;
-									{
-										//
-										// Если покупатель заказал несколько штук одного и того же, то каждая штука
-										// будет задана отдельным документом заказа, но все эти документы будут содержать одно и то же значение GNumber
-										//
-										double sum_price = p_wb_item->FinishedPrice * 1.0;
-										double sum_qtty = 1.0;
-										bool   is_there_other_items = false;
-										for(uint j = i+1; j < order_list.getCount(); j++) {
-											const PPMarketplaceInterface_Wildberries::Sale * p_wb_item_inner = order_list.at(j);
-											if(p_wb_item_inner && p_wb_item_inner->GNumber.IsEqiUtf8(p_wb_item->GNumber)) {
-												if(!seen_idx_list.lsearch(static_cast<long>(j))) {
-													seen_idx_list.add(static_cast<long>(j));
-													ti.Quantity_ += 1.0;
-													sum_price += (p_wb_item_inner->FinishedPrice * 1.0);
-													sum_qtty += 1.0;
-													is_there_other_items = true;
+									if(pack.InsertRow(&ti, &row_idx_list)) {
+										{
+											assert(row_idx_list.getCount() == 1);
+											const long new_row_idx = row_idx_list.get(0);
+											pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, temp_buf.Z().Cat(p_wb_item->IncomeID));
+											pack.LTagL.AddNumber(PPTAG_LOT_ORGORDERIDENT, new_row_idx, p_wb_item->SrID);
+										}
+										{
+											//
+											// Если покупатель заказал несколько штук одного и того же, то каждая штука
+											// будет задана отдельным документом заказа, но все эти документы будут содержать одно и то же значение GNumber
+											//
+											for(uint j = ord_list_idx+1; j < order_list.getCount(); j++) {
+												const PPMarketplaceInterface_Wildberries::Sale * p_wb_item_inner = order_list.at(j);
+												if(p_wb_item_inner && p_wb_item_inner->GNumber.IsEqiUtf8(p_wb_item->GNumber)) {
+													if(!seen_idx_list.lsearch(static_cast<long>(j))) {
+														seen_idx_list.add(static_cast<long>(j));
+														PPTransferItem ti_inner;
+														ti_inner.GoodsID = goods_id;
+														ti_inner.Price = p_wb_item_inner->FinishedPrice;
+														ti_inner.Quantity_ = 1.0;
+														row_idx_list.Z();
+														if(pack.InsertRow(&ti_inner, &row_idx_list)) {
+															assert(row_idx_list.getCount() == 1);
+															const long new_row_idx = row_idx_list.get(0);
+															pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, temp_buf.Z().Cat(p_wb_item_inner->IncomeID));
+															pack.LTagL.AddNumber(PPTAG_LOT_ORGORDERIDENT, new_row_idx, p_wb_item_inner->SrID);															
+														}
+													}
 												}
 											}
 										}
-										if(is_there_other_items) {
-											assert(sum_qtty == ti.Quantity_);
-											ti.Price = sum_price / sum_qtty;
+										//
+										if(p_wb_item->Flags & Sale::fIsCancel) {
+											pack.Rec.Flags2 |= BILLF2_DECLINED;
 										}
-									}
-									if(pack.InsertRow(&ti, &row_idx_list)) {
-										//pack.Se
-										assert(row_idx_list.getCount() == 1);
-										const long new_row_idx = row_idx_list.get(0);
-										pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, temp_buf.Z().Cat(p_wb_item->IncomeID));
 										pack.InitAmounts();
 										p_bobj->FillTurnList(&pack);
 										if(p_bobj->TurnPacket(&pack, 1)) {
@@ -2554,24 +2751,311 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 	return ok;
 }
 
+int PPMarketplaceInterface_Wildberries::FindShipmentBillByOrderIdent(const char * pOrgOrdIdent, PPIDArray & rShipmBillIdList)
+{
+	int    ok = -1;
+	rShipmBillIdList.Z();
+	if(!isempty(pOrgOrdIdent)) {
+		Reference * p_ref = PPRef;
+		PPObjBill * p_bobj = BillObj;
+		Transfer * p_trfr = p_bobj->trfr;
+		PPIDArray lot_id_list;
+		PPIDArray temp_list;
+		p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_ORGORDERIDENT, pOrgOrdIdent, &lot_id_list);
+		if(lot_id_list.getCount()) {
+			PPIDArray bill_id_list;
+			for(uint i = 0; i < lot_id_list.getCount(); i++) {
+				const PPID ord_lot_id = lot_id_list.get(i);
+				ReceiptTbl::Rec ord_lot_rec;
+				if(p_trfr->Rcpt.Search(ord_lot_id, &ord_lot_rec) > 0) {
+					p_bobj->GetShipmByOrder(ord_lot_rec.BillID, 0/*DateRange*/, temp_list);
+					bill_id_list.add(&temp_list);
+				}
+			}
+			if(bill_id_list.getCount()) {
+				bill_id_list.sortAndUndup();
+				for(uint i = 0; i < bill_id_list.getCount(); i++) {
+					const PPID bill_id = bill_id_list.get(i);
+					PPLotTagContainer ltc;
+					p_bobj->LoadRowTagListForDraft(bill_id, ltc);
+					LongArray row_idx_list;
+					if(ltc.SearchString(pOrgOrdIdent, PPTAG_LOT_ORGORDERIDENT, 0, row_idx_list)) {
+						rShipmBillIdList.add(bill_id);
+					}
+					//ltc.GetTagStr(ln-1, PPTAG_LOT_FSRARINFB, ref_b);
+					//ltc.GetTagStr(ln-1, PPTAG_LOT_FSRARLOTGOODSCODE, egais_code_by_mark);					
+				}
+				if(rShipmBillIdList.getCount() == 1) {
+					ok = 1;
+				}
+				else if(rShipmBillIdList.getCount() > 1) {
+					ok = -2;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
+	const  LDATETIME now_dtm = getcurdatetime_();
+	SString temp_buf;
 	TSCollection <PPMarketplaceInterface_Wildberries::SalesRepDbpEntry> sales_rep_dbp_list;
 	DateRange period;
+	PPID   acc_id = 0;
+	PPID   acs_id = 0;
+	PPID   op_id = 0;
+	PPObjBill * p_bobj = BillObj;
+	Transfer * p_trfr = p_bobj->trfr;
+	PPObjOprKind op_obj;
+	PPObjAccSheet acs_obj;
+	PPObjAccount acc_obj;
+	PPObjTag tag_obj;
+	PPObjGlobalUserAcc gua_obj;
 	{
-		const PPID acs_id = Helper_GetMarketplaceOpsAccSheetID(true/*createIfNExists*/, true/*createArticles*/, 1);
+		PPTransaction tra(1);
+		THROW(tra);
+		acs_id = Helper_GetMarketplaceOpsAccSheetID(true/*createIfNExists*/, true/*createArticles*/, 0);
 		THROW(acs_id);
+		{
+			acc_id = Helper_GetMarketplaceOpsAccount(true, 0);
+			THROW(acc_id);
+		}
+		op_obj.GetGenericAccTurnForRegisterOp(&op_id, 0/*use_ta*/);
+		THROW(op_id);
+		THROW(tra.Commit());
 	}
 	period.low.encode(1, 5, 2024);
-	period.upp = getcurdate_();
+	period.upp = now_dtm.d;
 	int r = RequestSalesReportDetailedByPeriod(period, sales_rep_dbp_list);
 	if(sales_rep_dbp_list.getCount()) {
-		const PPID acs_id = Helper_GetMarketplaceOpsAccSheetID(true/*createIfNExists*/, true/*createArticles*/, 1);
-		THROW(acs_id);
-
+		// PPTXT_MPWB_NATIVEOPS                 "1,Возмещение издержек по перевозке/по складским операциям с товаром;2,Логистика;3,Пересчет платной приемки;4,Продажа;5,Удержание;6,Хранение"
+		enum {
+			nativeopCargo       = 1, // Возмещение издержек по перевозке/по складским операциям с товаром
+			nativeopLogistics   = 2, // Логистика
+			nativeopAcceptance  = 3, // Пересчет платной приемки
+			nativeopSales       = 4, // Продажа
+			nativeopDeduction   = 5, // Удержание
+			nativeopStorage     = 6, // Хранение
+		};
+		PPLoadTextUtf8(PPTXT_MPWB_NATIVEOPS, temp_buf);
+		const StringSet ss_native_ops(';', temp_buf);
+		SString id_buf;
+		SString text_buf;
+		PPIDArray shipm_bill_id_list;
+		LongArray seen_pos_list; // список обработанных позиций массива sales_rep_dbp_list. 
+		StringSet ss_order_ident;
+		const char * p_empty_sr_ident_symb = "$empty-sr-id";
+		{
+			for(uint i = 0; i < sales_rep_dbp_list.getCount(); i++) {
+				const SalesRepDbpEntry * p_entry = sales_rep_dbp_list.at(i);
+				if(p_entry) {
+					temp_buf.Z();
+					if(p_entry->SrID.NotEmpty()) {
+						temp_buf = p_entry->SrID;
+					}
+					else {
+						temp_buf = p_empty_sr_ident_symb;
+					}
+					ss_order_ident.add(temp_buf);
+				}
+			}
+			ss_order_ident.sortAndUndup();
+		}
+		SString sr_ident;
+		for(uint ssp = 0; ss_order_ident.get(&ssp, sr_ident);) {
+			const bool is_empty_sr_ident = (sr_ident == p_empty_sr_ident_symb);
+			const int fsr = is_empty_sr_ident ? -1 : FindShipmentBillByOrderIdent(sr_ident, shipm_bill_id_list);
+			PPID  shipm_bill_id = 0;
+			PPBillPacket bpack;
+			bool is_bpack_updated = false;
+			double freight_amount = 0.0;
+			if(fsr > 0) {
+				assert(shipm_bill_id_list.getCount() == 1);
+				shipm_bill_id = shipm_bill_id_list.get(0);
+				if(p_bobj->ExtractPacketWithFlags(shipm_bill_id, &bpack, BPLD_FORCESERIALS) > 0) {
+					;					
+				}
+				else {
+					;
+				}
+			}
+			for(uint i = 0; i < sales_rep_dbp_list.getCount(); i++) {
+				const SalesRepDbpEntry * p_entry = sales_rep_dbp_list.at(i);
+				if(p_entry && ((is_empty_sr_ident && p_entry->SrID.IsEmpty()) || p_entry->SrID == sr_ident)) {
+					int   native_op_id = 0;
+					for(uint ssp = 0; !native_op_id && ss_native_ops.get(&ssp, temp_buf);) {
+						if(temp_buf.Divide(',', id_buf, text_buf) > 0 && text_buf.IsEqiUtf8(p_entry->SupplOpName)) {
+							native_op_id = id_buf.ToLong();
+						}
+					}
+					if(native_op_id) {
+						PPID  loc_id = 0;
+						ArticleTbl::Rec ar_rec;
+						if(p_entry->Warehouse.NotEmpty()) {
+							const Warehouse * p_wh = SearchWarehouseByName(WhList, p_entry->Warehouse);
+							if(p_wh) {
+								int r = CreateWarehouse(&loc_id, p_wh->ID, p_wh->Name, p_wh->Address, 1);
+							}
+						}
+						SETIFZ(loc_id, LConfig.Location);
+						switch(native_op_id) {
+							case nativeopCargo:
+								// ppvz_vw, ppvz_vw_nds, rebill_logistic_cost
+								// Насколько я понял из изучения материала, rebill_logistic_cost == ppvz_vw + ppvz_vw_nds
+								if(bpack.Rec.ID) {
+									double delivery_amount = p_entry->RebillLogisticCost;
+									if(delivery_amount > 0.0) {
+										freight_amount += delivery_amount;
+									}
+								}
+								break;
+							case nativeopLogistics:
+								// delivery_amount, delivery_rub, 
+								if(bpack.Rec.ID) {
+									double delivery_amount = p_entry->DeliveryAmount;
+									if(delivery_amount > 0.0) {
+										freight_amount += delivery_amount;
+									}
+								}
+								break;
+							case nativeopAcceptance:
+								// acceptance
+								if(p_entry->Acceptance != 0.0) {
+									temp_buf.Z().Cat(p_entry->RrdId);
+									BillTbl::Rec ex_bill_rec;
+									if(p_bobj->P_Tbl->SearchByCode(temp_buf, op_id, ZERODATE, &ex_bill_rec) > 0) {
+										;
+									}
+									else {
+										PPBillPacket bpack_at;
+										{
+											PPTransaction tra(1);
+											THROW(tra);
+											bpack_at.CreateBlank_WithoutCode(op_id, 0, loc_id, 0);
+											bpack_at.Rec.Dt = checkdate(p_entry->RrDtm.d) ? p_entry->RrDtm.d : (checkdate(p_entry->CrDate) ? p_entry->CrDate : now_dtm.d);
+											STRNSCPY(bpack_at.Rec.Code, temp_buf);
+											if(ArObj.P_Tbl->SearchNum(acs_id, ARTN_MRKTPLCACC_ACCEPTANCE, &ar_rec) > 0) {
+												PPAccTurn at;
+												bpack_at.CreateAccTurn(at);
+												at.DbtID.ac = acc_id;
+												at.DbtID.ar = ar_rec.ID;
+												at.DbtSheet = acs_id;
+												at.Amount = p_entry->Acceptance;
+												bpack_at.Turns.insert(&at);
+												bpack_at.Rec.Amount = at.Amount;
+												THROW(p_bobj->TurnPacket(&bpack_at, 0));
+											}
+											THROW(tra.Commit());
+										}
+									}
+								}
+								break;
+							case nativeopSales:
+								// quantity, retail_price, retail_price_withdisc_rub, retail_amount, commission_percent, ppvz_spp_prc, ppvz_kvw_prc_base, ppvz_kvw_prc, 
+								// ppvz_sales_commission, ppvz_for_pay, acquiring_fee, acquiring_percent, ppvz_vw, ppvz_vw_nds	
+								if(bpack.Rec.ID) {
+									if(p_entry->Ppvz_For_Pay != 0.0) {
+										bpack.Amounts.Put(PPAMT_MP_SELLERPART, 0, p_entry->Ppvz_For_Pay, 1, 1);
+										is_bpack_updated = true;
+									}
+									if(p_entry->Ppvz_Vw != 0.0) {
+										bpack.Amounts.Put(PPAMT_MP_COMMISSION, 0, fabs(p_entry->Ppvz_Vw + p_entry->Ppvz_Vw_Vat), 1, 1);
+										is_bpack_updated = true;
+									}
+								}
+								break;
+							case nativeopDeduction:
+								// deduction
+								if(p_entry->Deduction != 0.0) {
+									temp_buf.Z().Cat(p_entry->RrdId);
+									BillTbl::Rec ex_bill_rec;
+									if(p_bobj->P_Tbl->SearchByCode(temp_buf, op_id, ZERODATE, &ex_bill_rec) > 0) {
+										;
+									}
+									else {
+										PPBillPacket bpack_at;
+										{
+											PPTransaction tra(1);
+											THROW(tra);
+											bpack_at.CreateBlank_WithoutCode(op_id, 0, loc_id, 0);
+											bpack_at.Rec.Dt = checkdate(p_entry->RrDtm.d) ? p_entry->RrDtm.d : (checkdate(p_entry->CrDate) ? p_entry->CrDate : now_dtm.d);
+											STRNSCPY(bpack_at.Rec.Code, temp_buf);
+											if(ArObj.P_Tbl->SearchNum(acs_id, ARTN_MRKTPLCACC_DEDUCTION, &ar_rec) > 0) {
+												PPAccTurn at;
+												bpack_at.CreateAccTurn(at);
+												at.DbtID.ac = acc_id;
+												at.DbtID.ar = ar_rec.ID;
+												at.DbtSheet = acs_id;
+												at.Amount = p_entry->Deduction;
+												bpack_at.Turns.insert(&at);
+												bpack_at.Rec.Amount = at.Amount;
+												if(p_entry->BonusTypeName.NotEmpty()) {
+													(bpack_at.SMemo = p_entry->BonusTypeName).Transf(CTRANSF_UTF8_TO_INNER);
+												}
+												THROW(p_bobj->TurnPacket(&bpack_at, 0));
+											}
+											THROW(tra.Commit());
+										}
+									}
+								}
+								break;
+							case nativeopStorage:
+								// storage_fee
+								if(p_entry->StorageFee != 0.0) {
+									temp_buf.Z().Cat(p_entry->RrdId);
+									BillTbl::Rec ex_bill_rec;
+									if(p_bobj->P_Tbl->SearchByCode(temp_buf, op_id, ZERODATE, &ex_bill_rec) > 0) {
+										;
+									}
+									else {
+										PPBillPacket bpack_at;
+										{
+											PPTransaction tra(1);
+											THROW(tra);
+											bpack_at.CreateBlank_WithoutCode(op_id, 0, loc_id, 0);
+											bpack_at.Rec.Dt = checkdate(p_entry->RrDtm.d) ? p_entry->RrDtm.d : (checkdate(p_entry->CrDate) ? p_entry->CrDate : now_dtm.d);
+											STRNSCPY(bpack_at.Rec.Code, temp_buf);
+											if(ArObj.P_Tbl->SearchNum(acs_id, ARTN_MRKTPLCACC_STORAGE, &ar_rec) > 0) {
+												PPAccTurn at;
+												bpack_at.CreateAccTurn(at);
+												at.DbtID.ac = acc_id;
+												at.DbtID.ar = ar_rec.ID;
+												at.DbtSheet = acs_id;
+												at.Amount = p_entry->StorageFee;
+												bpack_at.Turns.insert(&at);
+												bpack_at.Rec.Amount = at.Amount;
+												THROW(p_bobj->TurnPacket(&bpack_at, 0));
+											}
+											THROW(tra.Commit());
+										}
+									}
+								}
+								break;
+						}
+					}
+				}
+			}
+			if(freight_amount != 0.0) {
+				bpack.Amounts.Put(PPAMT_FREIGHT, 0L, freight_amount, 1/*ignoreZero*/, 1/*replace*/);
+				is_bpack_updated = true;
+			}
+			if(is_bpack_updated) {
+				//bpack.InitAmounts();
+				p_bobj->FillTurnList(&bpack);
+				if(!p_bobj->UpdatePacket(&bpack, 1)) {
+					CALLPTRMEMB(P_Logger, LogLastError());
+				}
+			}
+		}
 	}
-	CATCHZOK
+	CATCH
+		CALLPTRMEMB(P_Logger, LogLastError());
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 
@@ -2611,6 +3095,8 @@ int TestMarketplace()
 			TSCollection <PPMarketplaceInterface_Wildberries::SalesRepDbpEntry> sales_rep_dbp_list;
 
 			int r = 0;
+			r = ifc.RequestDocumentsList();
+			r = ifc.RequestBalance();
 			r = ifc.RequestWareList();
 			//
 			DateRange period;
@@ -2740,6 +3226,7 @@ int PrcssrMarketplaceInterchange::Run()
 		p_ifc_wb->ImportReceipts();
 		p_ifc_wb->ImportOrders();
 		p_ifc_wb->ImportSales();
+		p_ifc_wb->ImportFinancialTransactions();
 	}
 	CATCHZOK
 	return ok;

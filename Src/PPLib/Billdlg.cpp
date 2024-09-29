@@ -199,9 +199,10 @@ IMPL_HANDLE_EVENT(AccTurnDialog)
 		if(P_Pack) {
 			// @v11.6.6 {
 			double nominal_amount = 0.0;
+			AmtList  al;
 			getDTS(0);
 			P_Pack->InitAmounts(0);
-			P_Pack->SumAmounts(0, 0);
+			P_Pack->SumAmounts(&al, 0); // @v12.1.4 @fix 0-->&al
 			// } @v11.6.6 
 			EditBillTaxes(&P_Pack->Amounts, getCtrlReal(CTL_ATURN_AMOUNT));
 		}

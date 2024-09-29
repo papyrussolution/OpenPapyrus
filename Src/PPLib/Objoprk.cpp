@@ -884,6 +884,7 @@ int PPObjOprKind::Helper_GetReservedOp(PPID * pID, const ReservedOpCreateBlock &
         STRNSCPY(op_pack.Rec.Symb, rBlk.P_Symb);
         op_pack.Rec.AccSheetID = rBlk.AccSheetID;
         op_pack.Rec.OpTypeID = rBlk.OpTypeID;
+		op_pack.Rec.SubType = static_cast<int16>(rBlk.SubType); // @v12.1.4
 		op_pack.Rec.Flags |= rBlk.Flags;
 		op_pack.OpCntrPack.Init(0);
 		STRNSCPY(op_pack.OpCntrPack.Head.CodeTemplate, rBlk.P_CodeTempl);
@@ -967,7 +968,7 @@ int PPObjOprKind::GetEdiWrOffWithMarksOp(PPID * pID, int use_ta)
 	return Helper_GetReservedOp(pID, blk, use_ta);
 }
 
-int PPObjOprKind::GetEdiChargeOnWithMarksOp(PPID * pID, int use_ta) // @v10.9.0
+int PPObjOprKind::GetEdiChargeOnWithMarksOp(PPID * pID, int use_ta)
 {
 	ReservedOpCreateBlock blk;
 	blk.OpID = PPOPK_EDI_CHARGEONWITHMARKS;
@@ -976,6 +977,19 @@ int PPObjOprKind::GetEdiChargeOnWithMarksOp(PPID * pID, int use_ta) // @v10.9.0
 	blk.Flags = 0;
 	blk.P_Symb = "EDICHRGONWITHMARKS";
 	blk.P_CodeTempl = "EDICOM%05";
+	return Helper_GetReservedOp(pID, blk, use_ta);
+}
+
+int PPObjOprKind::GetGenericAccTurnForRegisterOp(PPID * pID, int use_ta) // @v12.1.4
+{
+	ReservedOpCreateBlock blk;
+	blk.OpID = PPOPK_GENERICREGACCTURN;
+	blk.OpTypeID = PPOPT_ACCTURN;
+	blk.NameTxtId = PPTXT_OPK_GENERICREGACCTURN;
+	blk.Flags = 0;
+	blk.SubType = OPSUBT_REGISTER;
+	blk.P_Symb = "GENERICREGACCTURN";
+	blk.P_CodeTempl = "%06";
 	return Helper_GetReservedOp(pID, blk, use_ta);
 }
 

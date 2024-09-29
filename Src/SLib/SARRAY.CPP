@@ -387,6 +387,46 @@ int SVectorBase::moveItem(uint pos, int dir, uint * pNewPos)
 	return ok;
 }
 
+int SVectorBase::moveItemTo(uint srcPos, uint destPos)
+{
+	int    ok = 0;
+	if(srcPos < getCount() && destPos <= getCount()) {
+		if(srcPos == destPos) {
+			ok = -1;
+		}
+		else if(srcPos < destPos) {
+			ok = 1;
+			uint pos = srcPos;
+			while(ok && pos < destPos) {
+				uint new_pos = 0;
+				const int r = moveItem(pos, 0/*forward*/, &new_pos);
+				assert(r);
+				assert(new_pos == pos+1);
+				pos = new_pos;
+				if(!r)
+					ok = 0;
+			}
+			assert(pos == destPos);
+		}
+		else {
+			assert(srcPos > destPos);
+			ok = 1;
+			uint pos = srcPos;
+			while(ok && pos > destPos) {
+				uint new_pos = 0;
+				const int r = moveItem(pos, 1/*backward*/, &new_pos);
+				assert(r);
+				assert(new_pos == pos-1);
+				pos = new_pos;
+				if(!r)
+					ok = 0;
+			}
+			assert(pos == destPos);
+		}
+	}
+	return ok;
+}
+
 int SVectorBase::shuffle()
 {
 	int    ok = 1;

@@ -776,7 +776,8 @@ private:
 
 int AccountDialog::validate()
 {
-	int    r = 1, err = 1;
+	int    r = 1;
+	int    err = 1;
 	uint   sel = 0;
 	PPObjAccount accobj;
 	if(*strip(AccPack.Rec.Name) == 0) {

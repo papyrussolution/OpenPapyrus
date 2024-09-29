@@ -551,9 +551,9 @@ int CCheckItem::ResetGiftQuot()
 	return ok;
 }
 
-int CCheckItem::CanMerge(const CCheckPacket * pPack, const CCheckItem & rItem) const
+bool CCheckItem::CanMerge(const CCheckPacket * pPack, const CCheckItem & rItem) const
 {
-	return BIN(rItem.Price == Price && rItem.Discount == Discount && !(rItem.Flags & cifGiftDiscount) &&
+	return (rItem.Price == Price && rItem.Discount == Discount && !(rItem.Flags & cifGiftDiscount) &&
 		!(rItem.Flags & cifModifier) && !(Flags & cifModifier) &&
 		(!(pPack->Rec.Flags & CCHKF_SUSPENDED) || (rItem.Flags & cifIsPrinted) == (Flags & cifIsPrinted)) &&
 		rItem.Division == Division && rItem.Queue == Queue && sstreq(rItem.Serial, Serial) && 

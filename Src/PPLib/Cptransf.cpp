@@ -605,7 +605,8 @@ int PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 	// то предпринимаем попытку сформировать комплектацию, способную покрыть
 	// дефицит, после чего вновь пытаемся списать документ.
 	//
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	int    incomplete = 0;
 	int    try_again = 0;
 	PUGL   temp_pugl;

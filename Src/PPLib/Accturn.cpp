@@ -946,8 +946,7 @@ int AccTurnCore::_ProcessAcct(int side, PPID curID, const AcctID & rAcctId, PPID
 		acct.ar = 0;
 	SetupAccTurnParam(p, side, kind);
 	//
-	// Ищем ссылку на соответствие {счет, статья} в AcctRel
-	// и если ссылки нет, то открываем новую
+	// Ищем ссылку на соответствие {счет, статья} в AcctRel и если ссылки нет, то открываем новую
 	//
 	THROW(r = AcctIDToRel(&rAcctId, pAccRelID));
 	if(r > 0) {

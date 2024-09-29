@@ -400,7 +400,7 @@ int PPViewLinkedBill::MakeList()
 	else if(Filt.Kind__ == LinkedBillFilt::lkOrdAccomplish) { // @v12.0.11
 		DateRange shipm_period;
 		shipm_period.Z();
-		P_BObj->GetShipmByOrder(Filt.BillID, &shipm_period, &shpm_bill_list);
+		P_BObj->GetShipmByOrder(Filt.BillID, &shipm_period, shpm_bill_list);
 		shpm_bill_list.setPointer(0);
 	}
 	else {

@@ -8124,6 +8124,14 @@ public:
 	//        либо (dir != 0 && pos == 0).
 	//
 	int    moveItem(uint pos, int dir, uint * pNewPos); // @>>SArray::swap
+	//
+	// Descr: перемещает элемент, находящийся в позиции srcPos, в позицию destPos.
+	// Returns:
+	//   >0 - перемещение осуществлено успешно.
+	//   <0 - ничего не произошло поскольку srcPos == destPos
+	//    0 - ошибка позиционирования: либо srcPos >= getCount() либо destPos >= getCount();
+	//
+	int    moveItemTo(uint srcPos, uint destPos);
 	int    ordInsert(const void *, uint *, CompFunc, void * pExtraData = 0);
 	//
 	// Descr: осуществляет бинарный поиск по всем записям массива.

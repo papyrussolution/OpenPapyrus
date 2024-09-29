@@ -63,6 +63,9 @@ private:
 	//
 	bool   IsTaggedItem() const { return (oneof4(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, PPOPT_GOODSORDER, PPOPT_DRAFTQUOTREQ) || IsModifPlus()); }
 	bool   IsSourceSerialUsed();
+	bool   IsChZnCtWtEnabled(); // @v12.1.4
+	void   SetChZnCtWt(); // @v12.1.4
+	void   GetChZnCtWt(); // @v12.1.4
 	int    GetGoodsListSuitableForSourceSerial(PPID goodsID, PPIDArray & rList);
 	int    readQttyFld(uint master, uint ctl, double * val);
 	int    CheckQuantityForIntVal();
@@ -925,6 +928,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 				case cmTags:
 					{
 						getManuf();
+						GetChZnCtWt(); // @v12.1.4
 						ObjTagList tag_list;
 						ObjTagList * p_list = P_Pack->LTagL.Get(ItemNo);
 						RVALUEPTR(tag_list, p_list);
@@ -935,6 +939,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 							P_Pack->LTagL.Set(ItemNo, &tag_list);
 							setupPriceLimit();
 							setupManuf();
+							SetChZnCtWt(); // @v12.1.4
 						}
 					}
 					break;
@@ -1299,9 +1304,60 @@ int TrfrItemDialog::CheckQuantityForIntVal()
 		return 1;
 }
 
+bool TrfrItemDialog::IsChZnCtWtEnabled() // @v12.1.4
+{
+	bool result = GObj.IsChZnCtWtGoods(Item.GoodsID);
+	if(result) {
+		PPObjTag tag_obj;
+		PPObjectTag tag_rec;
+		if(tag_obj.Fetch(PPTAG_LOT_CHZNINTQTTY, &tag_rec) <= 0)
+			result = false;
+	}
+	return result;
+}
+
+void TrfrItemDialog::SetChZnCtWt() // @v12.1.4
+{
+	if(getCtrlView(CTL_LOT_PCFORWTQTY)) {
+		double ctwtqty = 0.0;
+		if(IsChZnCtWtEnabled()) {
+			const ObjTagList * p_tag_list = P_Pack->LTagL.Get(ItemNo);
+			if(p_tag_list) {
+				const ObjTagItem * p_tag_item = p_tag_list->GetItem(PPTAG_LOT_CHZNINTQTTY);
+				if(p_tag_item && p_tag_item->GetReal(&ctwtqty) > 0) {
+					;
+				}
+			}
+		}
+		setCtrlReal(CTL_LOT_PCFORWTQTY, ctwtqty);
+	}
+}
+
+void TrfrItemDialog::GetChZnCtWt() // @v12.1.4
+{
+	if(getCtrlView(CTL_LOT_PCFORWTQTY)) {
+		double ctwtqty = getCtrlReal(CTL_LOT_PCFORWTQTY);
+		if(IsChZnCtWtEnabled()) {
+			ObjTagList * p_org_tag_list = P_Pack->LTagL.Get(ItemNo);
+			ObjTagList tag_list;
+			RVALUEPTR(tag_list, p_org_tag_list);
+			{
+				ObjTagItem * p_tag_item = 0;
+				ObjTagItem tag_item;
+				if(ctwtqty > 0.0) {
+					if(tag_item.SetReal(PPTAG_LOT_CHZNINTQTTY, ctwtqty))
+						p_tag_item = &tag_item;
+				}
+				tag_list.PutItem(PPTAG_LOT_CHZNINTQTTY, p_tag_item);
+			}
+			P_Pack->LTagL.Set(ItemNo, &tag_list);
+		}
+	}
+}
+
 void TrfrItemDialog::setupCtrlsOnGoodsSelection()
 {
-	int    allow_dim_button = 0;
+	bool   allow_dim_button = false;
 	SString tax_grp_name;
 	Goods2Tbl::Rec goods_rec;
 	setStaticText(CTL_LOT_ST_PHQTTY, 0);
@@ -1313,11 +1369,12 @@ void TrfrItemDialog::setupCtrlsOnGoodsSelection()
 		if(goods_rec.GdsClsID) {
 			PPGdsClsPacket gc_pack;
 			if(GObj.FetchCls(goods_rec.ID, 0, &gc_pack) > 0 && gc_pack.Rec.LotDimCount > 0)
-                allow_dim_button = 1;
+                allow_dim_button = true;
 		}
 	}
 	showCtrl(CTL_LOT_PHQTTY, !(Item.Flags & PPTFR_INDEPPHQTTY));
 	showCtrl(CTL_LOT_INDEPPHQTTY, Item.Flags & PPTFR_INDEPPHQTTY);
+	showCtrl(CTL_LOT_PCFORWTQTY, IsChZnCtWtEnabled()); // @v12.1.4
 	showButton(cmLotDim, allow_dim_button);
 	setStaticText(CTL_LOT_ST_GOODSTAXGRP, tax_grp_name);
 	setQuotSign();
@@ -1947,7 +2004,7 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 		THROW(replyGoodsSelection(0));
 	}
 	else if(OpTypeID == PPOPT_GOODSRECEIPT) {
-		QuotIdent qi(Item.LocID, 0, Item.CurID, P_Pack->Rec.Object);
+		const QuotIdent qi(Item.LocID, 0, Item.CurID, P_Pack->Rec.Object);
 		GObj.GetSupplDeal(Item.GoodsID, qi, &Sd, 1);
 	}
 	if(P_Pack) {
@@ -1985,6 +2042,7 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 		SetClusterData(CTL_LOT_SEQQRACK, seqqrack);
 	}
 	setupManuf();
+	SetChZnCtWt(); // @v12.1.4
 	CATCHZOK
 	St &= ~stLockQttyAutoUpd;
 	return ok;
@@ -2388,6 +2446,7 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 		}
 	}
 	getManuf();
+	GetChZnCtWt(); // @v12.1.4
 	*pItem = Item;
 	CATCH
 		if(!no_err_msg)
@@ -2515,7 +2574,7 @@ int TrfrItemDialog::_SetupLot(bool dontSetupPriceByLot)
 		if(Item.Flags & PPTFR_REVAL) {
 			// Предварительная попытка разрешить рекомплектацию лотов, которые не были перед этим
 			// скомплектованы. Это оказалось актуально при учете ОС.
-			for(uint pos = 0; P_Pack->SearchLot(Item.LotID, &pos) > 0; pos++) {
+			for(uint pos = 0; P_Pack->SearchLot(Item.LotID, &pos); pos++) {
 				THROW_PP(pos == static_cast<uint>(ItemNo), PPERR_DUPLOTREVAL);
 			}
 			if(Item.RevalCost == 0.0)
