@@ -2292,11 +2292,10 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 									ar2_main_org_id = ObjectToPerson(p_bp->Rec.Object2, 0);
 								if(IsIntrExpndOp(p_bp->Rec.OpID)) {
 									consignee_psn_id = main_org_id;
-									consignee_loc_id = PPObjLocation::ObjToWarehouse_IgnoreRights(p_bp->Rec.Object); // @v10.7.6 ObjToWarehouse-->ObjToWarehouse_IgnoreRights
+									consignee_loc_id = PPObjLocation::ObjToWarehouse_IgnoreRights(p_bp->Rec.Object);
 									shipper_psn_id = main_org_id;
 									shipper_loc_id = p_bp->Rec.LocID;
 									is_intrexpend = 1;
-									// @v10.7.6 {
 									{
 										SString ar_name;
 										SString loc_name;
@@ -2305,7 +2304,6 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 										(temp_buf = bill_text).Space().Cat("-->").Space().Cat(ar_name).Space().CatChar('[').Cat(loc_name).CatChar(']');
 										LogTextWithAddendum(PPTXT_EGAIS_DEBUG_INTREXPND, temp_buf);
 									}
-									// } @v10.7.6
 								}
 								else {
 									consignee_psn_id = ObjectToPerson(p_bp->Rec.Object, 0);

@@ -346,7 +346,7 @@ int AccTurnCore::ConvertRec(const AccTurnTbl::Rec * pRec, PPAccTurn * pAturn, in
 		pAturn->CrdSheet = acc_rec.AccSheetID;
 	}
 	pAturn->Date    = pRec->Dt;
-	pAturn->BillID  = pRec->Bill;
+	pAturn->BillID  = pRec->BillID;
 	pAturn->RByBill = pRec->RByBill;
 	pAturn->CurID   = cur_id;
 	pAturn->CRate   = 0.0;
@@ -810,7 +810,7 @@ int AccTurnCore::_Turn(const PPAccTurn * pAt, PPID accRel, PPID corrAccRel, cons
 	data.Acc     = accRel;
 	data.Dt      = pAt->Date;
 	data.OprNo   = oprno;
-	data.Bill    = pAt->BillID;
+	data.BillID  = pAt->BillID;
 	data.RByBill = pAt->RByBill;
 	data.CorrAcc = corrAccRel;
 	LDBLTOMONEY(rest, data.Rest);
@@ -824,10 +824,10 @@ int AccTurnCore::EnumByBill(PPID billID, int * pRByBill, PPAccTurn * pAt)
 {
 	int    ok = -1;
 	AccTurnTbl::Key0 k0;
-	k0.Bill    = billID;
+	k0.BillID  = billID;
 	k0.Reverse = 0;
 	k0.RByBill = *pRByBill;
-	if(search(0, &k0, spGt) && k0.Bill == billID && k0.Reverse == 0) {
+	if(search(0, &k0, spGt) && k0.BillID == billID && k0.Reverse == 0) {
 		*pRByBill = k0.RByBill;
 		ok = pAt ? ConvertRec(0, pAt, 0) : 1;
 	}
@@ -842,18 +842,18 @@ int AccTurnCore::_RecByBill(PPID billID, short * pRByBill)
 	AccTurnTbl::Key0 k0;
 	if(*pRByBill == 0) {
 		spMode     = spLt;
-		k0.Bill    = billID /*+1*/;
+		k0.BillID  = billID /*+1*/;
 		k0.Reverse = 0;
 		k0.RByBill = BASE_RBB_BIAS /*0*/;
 	}
 	else {
 		spMode     = spEq;
-		k0.Bill    = billID;
+		k0.BillID  = billID;
 		k0.Reverse = 0;
 		k0.RByBill = *pRByBill;
 	}
 	if(search(0, &k0, spMode)) {
-		if(k0.Bill == billID)
+		if(k0.BillID == billID)
 			*pRByBill = k0.RByBill+1;
 		else if(*pRByBill)
 			return PPSetError(PPERR_TURNBYBILLNFOUND);
@@ -1033,7 +1033,7 @@ int AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, double c
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		k0.Bill    = billID;
+		k0.BillID  = billID;
 		k0.RByBill = rByBill;
 		k0.Reverse = 0;
 		if(!search(0, &k0, spEq)) {
@@ -1064,7 +1064,7 @@ int AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, double c
 			THROW_DB(updateRec()); // @sfu
 		}
 		if(!zero_crd_acc) {
-			k0.Bill    = billID;
+			k0.BillID  = billID;
 			k0.RByBill = rByBill;
 			k0.Reverse = 1;
 			if(!search(0, &k0, spEq)) {
@@ -1089,7 +1089,7 @@ int AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, double c
 		if(!zero_crd_acc)
 			THROW(_RollbackTurn(PPCREDIT, date, crd_oprno, crd_acc_id, crd_rel_id, _amt));
 		if(rByBill <= BASE_RBB_BIAS) {
-			k0.Bill    = billID;
+			k0.BillID  = billID;
 			k0.RByBill = rByBill+BASE_RBB_BIAS;
 			k0.Reverse = 0;
 			if(search(0, &k0, spEq)) {
@@ -1339,7 +1339,7 @@ int AccTurnCore::SearchArticleRef(PPID _id, int removeUnusedRel, PPID * pBillID)
 			MEMSZERO(atk);
 			atk.Acc = rel_rec.ID;
 			if(search(1, &atk, spGt) && atk.Acc == rel_rec.ID) {
-				bill_id = data.Bill;
+				bill_id = data.BillID;
 				ok = 1;
 			}
 			else {
@@ -1401,9 +1401,9 @@ int AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCo
 				if(acc_rec.Type != ACY_BAL && crd_rel_id == 0)
 					zero_crd_acc = 1;
 			}
-			else if(MsgProc(PPERR_EATURN_BL_2ACC, rec.Acc, rec.Bill, rec.Dt, rec.OprNo, paramPtr) > 0) {
+			else if(MsgProc(PPERR_EATURN_BL_2ACC, rec.Acc, rec.BillID, rec.Dt, rec.OprNo, paramPtr) > 0) {
 				if(flags & ATRPRF_RMVZEROACCLINK)
-					THROW(RollbackTurn(rec.Bill, rec.RByBill, 0));
+					THROW(RollbackTurn(rec.BillID, rec.RByBill, 0));
 				continue;
 			}
 			else
@@ -1411,7 +1411,7 @@ int AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCo
 		}
 		if(!zero_crd_acc) {
 			DBRowId pos;
-			k0.Bill    = rec.Bill;
+			k0.BillID  = rec.BillID;
 			k0.RByBill = rec.RByBill;
 			k0.Reverse = reverse ? 0 : 1;
 			if(!search(0, &k0, spEq))
@@ -1426,7 +1426,7 @@ int AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCo
 				}
 			}
 			if(msg_code) {
-				if(MsgProc(msg_code, rec.Acc, rec.Bill, rec.Dt, rec.OprNo, paramPtr) <= 0)
+				if(MsgProc(msg_code, rec.Acc, rec.BillID, rec.Dt, rec.OprNo, paramPtr) <= 0)
 					break;
 				if(flags & ATRPRF_REPAIRMIRROR) {
 					if(msg_code == PPERR_EATURN_NOMIRROR) {
@@ -1464,10 +1464,10 @@ int AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCo
 		if(reverse == 0) {
 			msg_code = 0;
 			if(flags & ATRPRF_CHECKBILLLINK) {
-				THROW(r = BillObj->Search(rec.Bill));
+				THROW(r = BillObj->Search(rec.BillID));
 				if(r < 0) {
 					msg_code = PPERR_EATURN_BL_2BILL;
-					if(MsgProc(msg_code, rec.Acc, rec.Bill, rec.Dt, rec.OprNo, paramPtr) <= 0)
+					if(MsgProc(msg_code, rec.Acc, rec.BillID, rec.Dt, rec.OprNo, paramPtr) <= 0)
 						break;
 				}
 			}
@@ -1475,12 +1475,12 @@ int AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCo
 				THROW(r = AccRel.Search(rec.Acc));
 				if(r < 0) {
 					msg_code = PPERR_EATURN_BL_2ACC;
-					if(MsgProc(msg_code, rec.Acc, rec.Bill, rec.Dt, rec.OprNo, paramPtr) <= 0)
+					if(MsgProc(msg_code, rec.Acc, rec.BillID, rec.Dt, rec.OprNo, paramPtr) <= 0)
 						break;
 				}
 			}
 			if((msg_code == PPERR_EATURN_BL_2BILL && flags & ATRPRF_RMVZEROBILLLINK) || (msg_code == PPERR_EATURN_BL_2ACC && flags & ATRPRF_RMVZEROACCLINK)) {
-				THROW(RollbackTurn(rec.Bill, rec.RByBill, 0));
+				THROW(RollbackTurn(rec.BillID, rec.RByBill, 0));
 			}
 		}
 		count++;

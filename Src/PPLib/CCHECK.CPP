@@ -949,7 +949,7 @@ int CCheckPacket::SetGuid(const S_GUID * pUuid)
 	int    ok = 1;
 	SString temp_buf;
 	S_GUID org_uuid;
-	if(pUuid && !pUuid->IsZero()) {
+	if(!S_GUID::IsEmpty(pUuid)) {
 		pUuid->ToStr(S_GUID::fmtPlain|S_GUID::fmtLower, temp_buf);
 		PutExtStrData(extssUuid, temp_buf);
 	}
@@ -3877,7 +3877,7 @@ int CCheckCore::IsLostJunkCheck(PPID id, const S_GUID * pExtUuid, PPSession::Reg
 	if(PPRef->Ot.GetTag(PPOBJ_CCHECK, id, PPTAG_CCHECK_JS_UUID, &tag_item) > 0) {
 		S_GUID sess_uuid;
 		if(tag_item.GetGuid(&sess_uuid)) {
-			if(pExtUuid && !pExtUuid->IsZero()) {
+			if(!S_GUID::IsEmpty(pExtUuid)) {
 				if(sess_uuid == *pExtUuid) {
 					if(pSessData) {
 						pSessData->Flags |= PPSession::RegSessData::fExtraUUID;

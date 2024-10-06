@@ -4386,7 +4386,7 @@ public:
 	int    ReplaceStrR(const char * pPattern, const char * pReplacer, int once);
 	//
 	// Descr: В строке this замещает подстроки pPattern подстроками pReplacer.
-	//   Если once != 0, то производит толко одну замену с начала строки.
+	//   Если once != 0, то производит только одну замену с начала строки.
 	// Returns:
 	//   *this.
 	//
@@ -6998,6 +6998,7 @@ public:
 //
 class S_GUID_Base { // @persistent @noctr @size=16
 public:
+	static bool IsEmpty(const S_GUID_Base * pS) { return (!pS || pS->IsZero()); }
 	S_GUID_Base & FASTCALL Init(REFIID);
 	operator const GUID & () const;
 	enum {

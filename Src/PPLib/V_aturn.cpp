@@ -443,9 +443,9 @@ int PPViewAccturn::InitIteration()
 	if(Filt.Flags & AccturnFilt::fLastOnly && Filt.BillID) {
 		AccTurnTbl::Key0 k0;
 		MEMSZERO(k0);
-		k0.Bill = Filt.BillID;
+		k0.BillID = Filt.BillID;
 		THROW_MEM(P_IterQuery = new BExtQuery(P_ATC, 0));
-		P_IterQuery->selectAll().where(P_ATC->Bill == Filt.BillID && P_ATC->Reverse == 0L);
+		P_IterQuery->selectAll().where(P_ATC->BillID == Filt.BillID && P_ATC->Reverse == 0L);
 		P_IterQuery->initIteration(false, &k0, spGe);
 	}
 	else if(Filt.GrpAco) {
@@ -471,7 +471,7 @@ int PPViewAccturn::InitIteration()
 		}
 		dbq = & (*dbq && realrange(P_ATC->Amount, min_amt, max_amt) && P_ATC->Reverse == 0L);
 		if(P_TmpBillTbl)
-			dbq = & (*dbq && P_TmpBillTbl->PrmrID == P_ATC->Bill);
+			dbq = & (*dbq && P_TmpBillTbl->PrmrID == P_ATC->BillID);
 		P_IterQuery->where(*dbq);
 		k2.Dt    = Filt.Period.low;
 		k2.OprNo = 0;
@@ -827,7 +827,7 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 		PPDbqFuncPool::InitObjNameFunc(dbe_oprkind, PPDbqFuncPool::IdObjNameOprKind, bll->OpID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_acc_dbt, PPDbqFuncPool::IdObjNameAcctRel, at->Acc);
 		PPDbqFuncPool::InitObjNameFunc(dbe_acc_crd, PPDbqFuncPool::IdObjNameAcctRel, at->CorrAcc);
-		PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoBill, at->Bill); // @v11.1.12
+		PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoBill, at->BillID); // @v11.1.12
 		{
 			dbe_rel_restrict.init();
 			dbe_rel_restrict.push(at->Acc);
@@ -838,7 +838,7 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 			dbe_rel_restrict.push(static_cast<DBFunc>(PPViewAccturn::DynFuncCheckRelRestrictions));
 		}
 		q = & select(
-			at->Bill,               // #00
+			at->BillID,             // #00
 			at->Dt,                 // #01
 			at->RByBill,            // #02
 			bll->Code,              // #03
@@ -852,12 +852,12 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 			0L);
 		if(p_tmp_bill_t) {
 			q->from(p_tmp_bill_t, at, bll, 0L);
-			dbq = & (at->Bill == p_tmp_bill_t->PrmrID);
+			dbq = & (at->BillID == p_tmp_bill_t->PrmrID);
 		}
 		else {
 			q->from(at, bll, 0L);
 			if(Filt.Flags & AccturnFilt::fLastOnly && Filt.BillID)
-				dbq = & (*dbq && at->Bill == Filt.BillID && at->Reverse == 0L);
+				dbq = & (*dbq && at->BillID == Filt.BillID && at->Reverse == 0L);
 			else
 				dbq = & daterange(at->Dt, &Filt.Period);
 		}
@@ -868,12 +868,12 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 		}
 		dbq = & (*dbq && realrange(at->Amount, min_amt, max_amt) && (at->Reverse == 0L));
 		if(OpList.getCount())
-			dbq = &(*dbq && bll->ID == at->Bill && ppidlist(bll->OpID, &OpList));
+			dbq = &(*dbq && bll->ID == at->BillID && ppidlist(bll->OpID, &OpList));
 		else
-			dbq = &(*dbq && (bll->ID += at->Bill));
+			dbq = &(*dbq && (bll->ID += at->BillID));
 		q->where(*dbq);
 		if(Filt.Flags & AccturnFilt::fLastOnly && Filt.BillID)
-			q->orderBy(at->Bill, 0L);
+			q->orderBy(at->BillID, 0L);
 		else
 			q->orderBy(at->Dt, at->OprNo, 0L);
 	}

@@ -2093,10 +2093,8 @@ int PPGlobalUserAccPacket::GetAccessKey(SString & rValue) const
 	THROW(CheckDialogPtr(&dlg));
 	SetupPPObjCombo(dlg, CTLSEL_GUACFG_OWNERKIND, PPOBJ_PERSONKIND, cfg.PersonKindID, OLW_CANINSERT, 0);
 	SetupPPObjCombo(dlg, CTLSEL_GUACFG_SCARDSER,  PPOBJ_SCARDSERIES, cfg.SCardSerID, OLW_CANINSERT, 0);
-	// @v10.6.6 {
 	dlg->AddClusterAssoc(CTL_GUACFG_FLAGS, 0, PPGlobalUserAccConfig::fAutoCreateGUID);
 	dlg->SetClusterData(CTL_GUACFG_FLAGS, cfg.Flags);
-	// } @v10.6.6 
 	while(ok < 0 && ExecView(dlg) == cmOK) {
 		THROW(CheckCfgRights(PPCFGOBJ_GLOBALUSERACC, PPR_MOD, 0));
 		dlg->getCtrlData(CTLSEL_GUACFG_OWNERKIND, &cfg.PersonKindID);

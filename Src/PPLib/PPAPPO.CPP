@@ -722,7 +722,8 @@ int PPApp::processCommand(uint cmd)
 		case cmGlobalAccCfg:         PPObjGlobalUserAcc::EditConfig();  break;
 		case cmWorkbookCfg:          PPObjWorkbook::EditConfig();       break;
 		case cmAlcReportCfg:         PrcssrAlcReport::EditConfig();     break;
-		case cmTimeSeriesConfig:     PPObjTimeSeries::EditConfig(0);    break; // @v10.3.1
+		case cmTimeSeriesConfig:     PPObjTimeSeries::EditConfig(0);    break;
+		case cmMarketplaceCfg:       PrcssrMarketplaceInterchange::EditConfig(); break; // @v12.1.5
 		case cmResetOpCounters:      PPObjOpCounter::ResetAll();        break;
 		case cmCorrectLotsCloseTags: CorrectLotsCloseTags();            break;
 		case cmCorrectLotSuppl:      CorrectLotSuppl();                 break;

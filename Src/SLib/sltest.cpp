@@ -1,5 +1,5 @@
 // SLTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Test Suits
 //
@@ -776,7 +776,7 @@ int STestSuite::Run(const char * pIniFileName)
 			FN_SLTEST_FACTORY f = reinterpret_cast<FN_SLTEST_FACTORY>(GetProcAddress(SLS.GetHInst(), ffn));
 			if(f) {
 				CaseBuffer.Z();
-				/*// @v9.0.8*/ assert(Mht.CalcStat(&p_entry->HeapBefore));
+				assert(Mht.CalcStat(&p_entry->HeapBefore));
 				p_case = f(this);
 				if(p_case) {
 					int64 tm_start, tm_finish;
@@ -829,7 +829,7 @@ int STestSuite::Run(const char * pIniFileName)
 						}
 					}
 					ZDELETE(p_case);
-					/*// @v9.0.8*/ assert(Mht.CalcStat(&p_entry->HeapAfter));
+					assert(Mht.CalcStat(&p_entry->HeapAfter));
 				}
 			}
 			else { // @v5.7 ANDREW сообщение о том, что функция теста не найдена {

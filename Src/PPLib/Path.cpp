@@ -334,8 +334,7 @@ int PPPaths::Get(PPID securType, PPID securID)
 	uint   s;
 	//
 	// Каталоги TEMP, LOG, PACK могут быть устанавлены до считывания из базы данных.
-	// В этом случае не допускаем переписывания уже установленных значений теми, что указаны
-	// в конфигурации.
+	// В этом случае не допускаем переписывания уже установленных значений теми, что указаны в конфигурации.
 	//
 	SString temp_path;
 	SString log_path;
@@ -344,13 +343,35 @@ int PPPaths::Get(PPID securType, PPID securID)
 	SString sartredb_path;
 	SString reportdata_path;
 	SString workspace_path;
+	// @v12.1.5 {
+	struct IdToBufAssoc {
+		PPID   PathID;
+		SString Buf;
+	};
+	IdToBufAssoc id_to_buf_list[] = {
+		{ PPPATH_TEMP, temp_path },
+		{ PPPATH_LOG, log_path },
+		{ PPPATH_PACK, pack_path },
+		{ PPPATH_SPII, spii_path },
+		{ PPPATH_SARTREDB, sartredb_path },
+		{ PPPATH_REPORTDATA, reportdata_path },
+		{ PPPATH_WORKSPACE, workspace_path },
+	};
+	{
+		for(uint i = 0; i < SIZEOFARRAY(id_to_buf_list); i++) {
+			GetPath(id_to_buf_list[i].PathID, 0, id_to_buf_list[i].Buf);
+		}
+	}
+	// } @v12.1.5 
+	/* @v12.1.5 
 	GetPath(PPPATH_TEMP, 0, temp_path);
 	GetPath(PPPATH_LOG, 0, log_path);
 	GetPath(PPPATH_PACK, 0, pack_path);
 	GetPath(PPPATH_SPII, 0, spii_path);
 	GetPath(PPPATH_SARTREDB, 0, sartredb_path);
 	GetPath(PPPATH_REPORTDATA, 0, reportdata_path);
-	GetPath(PPPATH_WORKSPACE, 0, workspace_path); // @v10.6.1
+	GetPath(PPPATH_WORKSPACE, 0, workspace_path);
+	*/
 	PathItem * p = 0;
 	THROW(Resize(sz));
 	THROW(r = p_ref->GetConfig(securType, securID, PPPRP_PATHS, P, sz));
@@ -399,6 +420,15 @@ int PPPaths::Get(PPID securType, PPID securID)
 	//
 	// Восстановление значений сохраненных ранее TEMP и LOG каталогов
 	//
+	// @v12.1.5 {
+	{
+		for(uint i = 0; i < SIZEOFARRAY(id_to_buf_list); i++) {
+			if(id_to_buf_list[i].Buf.NotEmptyS())
+				SetPath(id_to_buf_list[i].PathID, id_to_buf_list[i].Buf, 0, 1);	
+		}
+	}
+	// } @v12.1.5 
+	/* @v12.1.5
 	if(temp_path.NotEmptyS())
 		SetPath(PPPATH_TEMP, temp_path, 0, 1);
 	if(log_path.NotEmptyS())
@@ -411,10 +441,9 @@ int PPPaths::Get(PPID securType, PPID securID)
 		SetPath(PPPATH_SARTREDB, sartredb_path, 0, 1);
 	if(reportdata_path.NotEmptyS())
 		SetPath(PPPATH_REPORTDATA, reportdata_path, 0, 1);
-	// @v10.6.1 {
 	if(workspace_path.NotEmptyS())
 		SetPath(PPPATH_WORKSPACE, workspace_path, 0, 1);
-	// } @v10.6.1
+	*/
 	CATCHZOK
 	return ok;
 }

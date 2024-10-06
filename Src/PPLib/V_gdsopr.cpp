@@ -454,7 +454,7 @@ public:
 	GoodsOpAnlzFiltDialog() : WLDialog(DLG_GOODSOPR, CTL_BILLFLT_LABEL)
 	{
 		addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(0, CTLSEL_BILLFLT_GGRP, cmGoodsFilt));
-		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_BILLFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
+		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_BILLFLT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0)); // @v12.1.5 LocationCtrlGroup::fEnableSelUpLevel
 		SetupCalPeriod(CTLCAL_BILLFLT_PERIOD, CTL_BILLFLT_PERIOD);
 	}
 	int    setDTS(const GoodsOpAnalyzeFilt *);
@@ -1183,6 +1183,7 @@ int PPViewGoodsOpAnalyze::Init_(const PPBaseFilt * pFilt)
 	ZDELETE(P_GoodsList);
 	Counter.Init();
 	Total.Init();
+	LocList_.Set(0); // @v12.1.5
 	State &= ~(sTotalInited | sFiltAltGrp | sFiltExclFolder | sReval);
 	BExtQuery::ZDelete(&P_IterQuery);
 	Bsp.Init(Filt.Sgb);
@@ -1240,6 +1241,26 @@ int PPViewGoodsOpAnalyze::Init_(const PPBaseFilt * pFilt)
 		Cf = PTR_CMPFUNC(GoaCacheItem);
 		Cf_UniqItem = PTR_CMPFUNC(GoaUniqItem);
 	}
+	// @v12.1.5 {
+	{
+		//
+		// Инициализируем список складов, по которым следует поднимать выборку. Учитываются доступные склады в правах доступа.
+		//
+		LocList_.Set(0);
+		PPIDArray temp_loc_list;
+		if(Filt.LocList.GetCount() == 0) {
+			bool is_loclist_restricted = false;
+			LocObj.GetWarehouseList(&temp_loc_list, &is_loclist_restricted);
+			if(is_loclist_restricted)
+				LocList_.Set(&temp_loc_list);
+		}
+		else {
+			const PPIDArray & r_loc_list = Filt.LocList.Get();
+			LocObj.ResolveWarehouseList(&r_loc_list, temp_loc_list);
+			LocList_.Set(&temp_loc_list);
+		}
+	}
+	// } @v12.1.5 
 	THROW(CreateTempTable(ufp_factor));
 	CalcTotal(&Total);
 	ufp.SetFactor(0, ufp_factor[0]);
@@ -1491,7 +1512,7 @@ int FASTCALL PPViewGoodsOpAnalyze::CheckBillRec(const BillTbl::Rec * pRec)
 		return 0;
 	if(!CheckFiltID(Filt.Object2, pRec->Object2))
 		return 0;
-	if(!Filt.LocList.CheckID(pRec->LocID))
+	if(!LocList_.CheckID(pRec->LocID))
 		return 0;
 	if(Filt.ObjCityID) {
 		psn_id = ObjectToPerson(pRec->Object);
@@ -1528,8 +1549,8 @@ int PPViewGoodsOpAnalyze::InitGoodsRestView(PPViewGoodsRest * pGrView)
 	gr_filt.Date = Filt.RestCalcDate;
 	if(Filt.Flags & GoodsOpAnalyzeFilt::fEachLocation)
 		gr_filt.Flags |= GoodsRestFilt::fEachLocation;
-	else if(Filt.LocList.IsExists())
-		gr_filt.LocList = Filt.LocList;
+	else if(LocList_.IsExists())
+		gr_filt.LocList = LocList_;
 	if(Filt.Flags & GoodsOpAnalyzeFilt::fCalcOrder)
 		gr_filt.Flags |= GoodsRestFilt::fCalcOrder;
 	if(Filt.Flags & GoodsOpAnalyzeFilt::fShowSStatSales)
@@ -2135,7 +2156,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 		PPTransferItem * p_ti;
 		for(i = 0; P_TradePlanPacket->enumItems(&i, (void **)&p_ti);) {
 			int r;
-			blk.LocID = (f & GoodsOpAnalyzeFilt::fEachLocation) ? p_ti->LocID : Filt.LocList.GetSingle();
+			blk.LocID = (f & GoodsOpAnalyzeFilt::fEachLocation) ? p_ti->LocID : LocList_.GetSingle();
 			THROW(r = PreprocessTi(p_ti, 0, subst_bill_val, &blk));
 			if(r > 0)
 				THROW(AddItem(&blk));
@@ -2222,7 +2243,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			if(Filt.IsLeadedInOutAnalyze()) {
 				GCTFilt gct_filt;
 				gct_filt.GoodsList = Filt.GoodsIdList;
-				gct_filt.LocList = Filt.LocList;
+				gct_filt.LocList = LocList_;
 				gct_filt.Period = Filt.Period;
 				gct_filt.Flags |= OPG_FORCEBILLCACHE;
 				if(op_list.getCount() == 1) {
@@ -2409,8 +2430,8 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 					int    r = 0;
 					if(Filt.Flags & GoodsOpAnalyzeFilt::fEachLocation)
 						r = gr_view.GetItem(rec.GoodsID, rec.LocID, &gr_item);
-					else if(Filt.LocList.GetCount() == 1)
-						r = gr_view.GetItem(rec.GoodsID, &Filt.LocList, &gr_item);
+					else if(LocList_.GetCount() == 1)
+						r = gr_view.GetItem(rec.GoodsID, &LocList_, &gr_item);
 					else
 						r = gr_view.GetItem(rec.GoodsID, 0L, &gr_item);
 					if(r > 0) {
@@ -2430,7 +2451,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 							if(Filt.Flags & GoodsOpAnalyzeFilt::fEachLocation)
 								loc_list.Add(rec.LocID);
 							else
-								loc_list = Filt.LocList;
+								loc_list = LocList_;
 							PredictSalesStat stat;
 							if(gr_view.GetGoodsStat(rec.GoodsID, loc_list, &stat) > 0) {
 								P_TempTbl->data.OldPrice = stat.GetAverage(PSSV_QTTY);
@@ -2966,7 +2987,7 @@ void PPViewGoodsOpAnalyze::InitAddingBlock(const PPBillPacket * pPack, double pa
 		BIN(pBlk->Flags & GoaAddingBlock::fProfitable && f & GoodsOpAnalyzeFilt::fPriceWithoutExcise));
 	pBlk->ArID  = (f & GoodsOpAnalyzeFilt::fIntrReval) ? pPack->Rec.Object : 0L;
 	pBlk->OpID  = pPack->Rec.OpID;
-	pBlk->LocID = (f & GoodsOpAnalyzeFilt::fEachLocation) ? pPack->Rec.LocID : Filt.LocList.GetSingle();
+	pBlk->LocID = (f & GoodsOpAnalyzeFilt::fEachLocation) ? pPack->Rec.LocID : LocList_.GetSingle();
 	pBlk->BillSign = (Filt.OpGrpID == GoodsOpAnalyzeFilt::ogSelected && sign) ? sign : 1;
 	pBlk->Sign = sign;
 	pBlk->Part = part;
@@ -3250,7 +3271,7 @@ int PPViewGoodsOpAnalyze::ViewDetail(PPID locID, PPID goodsID, short abcGroup, i
 		if(locID)
 			lot_flt.LocList.Add(locID);
 		else
-			lot_flt.LocList = Filt.LocList;
+			lot_flt.LocList = LocList_;
 		if(!ViewLots(&lot_flt, 0, 1))
 			ok = 0;
 	}
@@ -3997,7 +4018,7 @@ int PPViewGoodsOpAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 						if(Filt.Flags & GoodsOpAnalyzeFilt::fEachLocation)
 							P_TrfrFilt->LocList.Z().Add(hdr.LocID);
 						else
-							P_TrfrFilt->LocList = Filt.LocList;
+							P_TrfrFilt->LocList = LocList_;
 						P_TrfrFilt->SupplID = Filt.SupplID;
 						P_TrfrFilt->AgentList.Set(0);
 						P_TrfrFilt->AgentList.Add(Filt.AgentID);
@@ -4017,7 +4038,7 @@ int PPViewGoodsOpAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 					if(Filt.Flags & GoodsOpAnalyzeFilt::fEachLocation)
             			op_grpng_flt.LocList.Add(hdr.LocID);
 					else
-						op_grpng_flt.LocList = Filt.LocList;
+						op_grpng_flt.LocList = LocList_;
 					op_grpng_flt.SupplID = Filt.SupplID;
 					op_grpng_flt.GoodsID = hdr.GoodsID;
 					ViewOpGrouping(&op_grpng_flt);
@@ -4026,7 +4047,7 @@ int PPViewGoodsOpAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 			case PPVCMD_ADDTOBASKET:
 				ok = -1;
 				if(!Filt.Sgg && !Filt.Sgb)
-					AddGoodsToBasket(hdr.GoodsID, Filt.LocList.GetSingle());
+					AddGoodsToBasket(hdr.GoodsID, LocList_.GetSingle());
 				break;
 			case PPVCMD_ADDALLTOBASKET:
 				ok = -1;

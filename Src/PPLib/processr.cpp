@@ -1944,9 +1944,11 @@ int PPObjProcessor::AddListItem(StrAssocArray * pList, ProcessorTbl::Rec * pRec,
 	return ok;
 }
 
-StrAssocArray * PPObjProcessor::MakeStrAssocList(void * extraPtr /*parentID*/)
+int PPObjProcessor::GetList(long parentIdent, StrAssocArray & rList)
 {
-	const  PPID outer_parent_id = reinterpret_cast<PPID>(extraPtr);
+	rList.Z();
+	int    ok = 1;
+	const  PPID outer_parent_id = parentIdent;//reinterpret_cast<PPID>(extraPtr);
 	union {
 		ProcessorTbl::Key1 k1;
 		ProcessorTbl::Key2 k2;
@@ -1954,12 +1956,12 @@ StrAssocArray * PPObjProcessor::MakeStrAssocList(void * extraPtr /*parentID*/)
 	const  PPID  parent_id = (outer_parent_id & ~PRCEXDF_GROUP);
 	const  long  kind = (outer_parent_id & PRCEXDF_GROUP) ? PPPRCK_GROUP : PPPRCK_PROCESSOR;
 	int    idx = parent_id ? 1 : 2;
-	StrAssocArray * p_list = new StrAssocArray;
+	//StrAssocArray * p_list = new StrAssocArray;
 	ProcessorTbl * p_t = P_Tbl;
 	DBQ  * dbq = 0;
 	BExtQuery q(p_t, idx);
 
-	THROW_MEM(p_list);
+	//THROW_MEM(p_list);
 	dbq = &(*dbq && p_t->Kind == kind);
 	dbq = ppcheckfiltid(dbq, p_t->ParentID, parent_id);
 	q.select(p_t->ID, p_t->ParentID, p_t->Name, p_t->Flags, 0L).where(*dbq);
@@ -1972,16 +1974,25 @@ StrAssocArray * PPObjProcessor::MakeStrAssocList(void * extraPtr /*parentID*/)
 		p_t->copyBufTo(&rec);
 		if(!(rec.Flags & PRCF_PASSIVE)) {
 			//THROW_SL(p_list->Add(rec.ID, rec.Name));
-			THROW(AddListItem(p_list, &rec, 0));
+			THROW(AddListItem(&rList, &rec, 0));
 		}
 	}
-	p_list->SortByText();
-	CATCH
-		ZDELETE(p_list);
-	ENDCATCH
-	if(p_list) {
+	rList.SortByText();
+	CATCHZOK
+	{
 		LongArray recur_bad_array;
-		p_list->RemoveRecursion(&recur_bad_array);
+		rList.RemoveRecursion(&recur_bad_array);
+	}
+	return ok;
+}
+
+StrAssocArray * PPObjProcessor::MakeStrAssocList(void * extraPtr /*parentID*/)
+{
+	StrAssocArray * p_list = new StrAssocArray;
+	if(p_list) {
+		if(!GetList(reinterpret_cast<PPID>(extraPtr), *p_list)) {
+			ZDELETE(p_list);
+		}
 	}
 	return p_list;
 }

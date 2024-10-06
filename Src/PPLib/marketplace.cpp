@@ -12,43 +12,21 @@ public:
 	virtual int Init(PPID guaID);
 	//
 	int    GetMarketplacePerson(PPID * pID, int use_ta);
-	//
-	// Descr: Возвращает идентификатор таблицы аналитического учета, соответствующей маркетплейсам (вид персоналий PPPRK_MARKETPLACE).
-	// Returns:
-	//   0 - искомая таблица не найдена
-	//  >0 - идентификатор искомой таблицы аналитических статей
-	//
-	PPID   GetMarketplaceAccSheetID();
-	//
-	// Descr: Возвращает идентификатор таблицы аналитического учета, содержащей статьи операций на маркетплейсах.
-	// Note: таблица имеет символ MARKETPLACE-OPS
-	// Returns:
-	//   0 - искомая таблица не найдена
-	//  >0 - идентификатор искомой таблицы аналитических статей
-	//
-	PPID   GetMarketplaceOpsAccSheetID();
 	const  char * GetSymbol() const { return P_Symbol; }
 protected:
-	PPMarketplaceInterface(const char * pSymbol, PPLogger * pOuterLogger);
-	PPID   GetOrderOpID();
-	PPID   GetSaleOpID();
-	PPID   Helper_GetMarketplaceOpsAccSheetID(bool createIfNExists, bool createArticles, int use_ta);
-	PPID   Helper_GetMarketplaceOpsAccount(bool createIfNExists, int use_ta);
+	PPMarketplaceInterface(const char * pSymbol, PrcssrMarketplaceInterchange & rPrc);
 
 	uint    State;
-	PPGlobalUserAccPacket GuaPack;
-	//
 	PPObjPerson PsnObj;
 	PPObjGoods GObj;
 	PPObjArticle ArObj;
-	PPLogger * P_Logger;
+	PrcssrMarketplaceInterchange & R_Prc;
 private:
 	const  char * P_Symbol;
-	PPID   OrderOpID;
-	PPID   SaleOpID;
 };
 
-PPMarketplaceInterface::PPMarketplaceInterface(const char * pSymbol, PPLogger * pOuterLogger) : P_Symbol(pSymbol), State(0), OrderOpID(0), SaleOpID(0), P_Logger(pOuterLogger)
+PPMarketplaceInterface::PPMarketplaceInterface(const char * pSymbol, PrcssrMarketplaceInterchange & rPrc) : 
+	P_Symbol(pSymbol), State(0), R_Prc(rPrc)
 {
 }
 
@@ -56,181 +34,6 @@ PPMarketplaceInterface::PPMarketplaceInterface(const char * pSymbol, PPLogger * 
 {
 }
 	
-PPID PPMarketplaceInterface::GetOrderOpID()
-{
-	PPID   result_id = 0;
-	if(OrderOpID > 0) {
-		result_id = OrderOpID;
-	}
-	else {
-		if(OrderOpID == 0) {
-			PPAlbatrossConfig albtr_cfg;
-			result_id = (PPAlbatrosCfgMngr::Get(&albtr_cfg) > 0) ? albtr_cfg.Hdr.OpID : 0;
-			if(result_id == 0)
-				OrderOpID = -1; // Индицирует факт того, что вид операции заказа получить не удается.
-			else
-				OrderOpID = result_id;
-		}
-	}
-	return result_id;
-}
-	
-PPID PPMarketplaceInterface::GetSaleOpID()
-{
-	PPID   result_id = 0;
-	if(SaleOpID > 0)
-		result_id = SaleOpID;
-	else {
-		if(SaleOpID == 0) {
-			const PPID order_op_id = GetOrderOpID();
-			PPOprKind order_op_rec;
-			if(order_op_id) {
-				if(GetOpData(order_op_id, &order_op_rec) > 0) {
-					PPOprKind op_rec;
-					for(PPID iter_op_id = 0; !result_id && EnumOperations(PPOPT_GOODSEXPEND, &iter_op_id, &op_rec) > 0;) {
-						if(op_rec.Flags & OPKF_ONORDER && op_rec.AccSheetID == order_op_rec.AccSheetID) {
-							result_id = op_rec.ID;
-						}
-					}
-				}
-			}
-			if(result_id == 0)
-				SaleOpID = -1; // Индицирует факт того, что вид операции продажи получить не удается.
-			else
-				SaleOpID = result_id;
-		}
-	}
-	return result_id;
-}
-
-PPID PPMarketplaceInterface::GetMarketplaceAccSheetID()
-{
-	PPID   acs_id = 0;
-	Reference * p_ref = PPRef;
-	PPAccSheet2 acs_rec;
-	for(SEnum en = p_ref->EnumByIdxVal(PPOBJ_ACCSHEET, 1, PPOBJ_PERSON); !acs_id && en.Next(&acs_rec) > 0;) {
-		if(acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MARKETPLACE) {
-			acs_id = acs_rec.ID;
-		}
-	}
-	return acs_id;
-}
-
-PPID PPMarketplaceInterface::Helper_GetMarketplaceOpsAccSheetID(bool createIfNExists, bool createArticles, int use_ta)
-{
-//PPTXT_ACCSHEET_MP_NAME               "Операции на маркетплейсах"
-//PPTXT_ACCSHEET_MP_AR_NAMES           "1,Комиссионное вознаграждение;2,Стоимость эквайринга;3,Стоимость хранения;4,Стоимость приемки на склад хранения"
-	const char * p_symb = "MARKETPLACE-OPS";
-	PPID   acs_id = 0;
-	Reference * p_ref = PPRef;
-	SString temp_buf;
-	PPObjAccSheet acs_obj;
-	PPAccSheet2 acs_rec;
-	{
-		PPTransaction tra(use_ta);
-		THROW(tra);
-		if(acs_obj.SearchBySymb(p_symb, &acs_id, &acs_rec) > 0) {
-			;
-		}
-		else if(createIfNExists) {
-			MEMSZERO(acs_rec);
-			PPLoadText(PPTXT_ACCSHEET_MP_NAME, temp_buf);
-			STRNSCPY(acs_rec.Name, temp_buf);
-			STRNSCPY(acs_rec.Symb, p_symb);
-			acs_rec.Assoc = 0;
-			acs_rec.ObjGroup = 0;
-			acs_rec.Flags = 0;
-			THROW(p_ref->AddItem(PPOBJ_ACCSHEET, &acs_id, &acs_rec, 0));		
-		}
-		if(acs_id && createArticles) {
-			SString id_buf;
-			SString nm_buf;
-			PPLoadText(PPTXT_ACCSHEET_MP_AR_NAMES, temp_buf);
-			StringSet ss(';', temp_buf);
-			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-				if(temp_buf.Divide(',', id_buf, nm_buf) > 0) {
-					long ar_n = id_buf.ToLong();
-					if(ar_n > 0 && nm_buf.NotEmptyS()) {
-						ArticleTbl::Rec ar_rec;
-						const int snr = ArObj.P_Tbl->SearchNum(acs_id, ar_n, &ar_rec);
-						if(snr < 0) {
-							PPID new_id = 0;
-							MEMSZERO(ar_rec);
-							ar_rec.Article = ar_n;
-							ar_rec.ObjID = ar_n;
-							ar_rec.AccSheetID = acs_id;
-							STRNSCPY(ar_rec.Name, nm_buf);
-							THROW(ArObj.P_Tbl->Add(&new_id, &ar_rec, 0));
-						}
-					}
-				}
-			}
-		}
-		THROW(tra.Commit());
-	}
-	CATCH
-		acs_id = 0;
-	ENDCATCH
-	return acs_id;
-}
-
-PPID PPMarketplaceInterface::Helper_GetMarketplaceOpsAccount(bool createIfNExists, int use_ta)
-{
-	PPID   acc_id = 0;
-	SString temp_buf;
-	PPObjAccount acc_obj;
-	PPAccount acc_rec;
-	PPID acs_id = 0;
-	PPObjTag tag_obj;
-	PPObjectTag tag_rec;
-	PPObjGlobalUserAcc gua_obj;
-	const PPID gua_id = GuaPack.Rec.ID;
-	THROW(tag_obj.Fetch(PPTAG_GUA_ACCOUNT, &tag_rec) > 0); // @todo @err (создание зарезервированных объектов)
-	if(gua_id) {
-		PPTransaction tra(use_ta);
-		THROW(tra);
-		acs_id = Helper_GetMarketplaceOpsAccSheetID(createIfNExists, true/*createArticles*/, 0);
-		THROW(acs_id);
-		{
-			const ObjTagItem * p_tag_item = GuaPack.TagL.GetItem(PPTAG_GUA_ACCOUNT);
-			int    intval = 0;
-			if(p_tag_item && p_tag_item->GetInt(&intval) && acc_obj.Search(intval, &acc_rec) > 0) {
-				acc_id = acc_rec.ID;
-			}
-			else if(createIfNExists) {
-				PPAccountPacket acc_pack;
-				(temp_buf = "Marketplace account").CatDiv('-', 1).Cat(GuaPack.Rec.Name);
-				STRNSCPY(acc_pack.Rec.Name, temp_buf);
-				acc_pack.Rec.Type = ACY_REGISTER;
-				acc_pack.Rec.Kind = ACT_ACTIVE;
-				acc_pack.Rec.Flags |= ACF_SYSNUMBER;
-				acc_pack.Rec.AccSheetID = acs_id;
-				THROW(acc_obj.GenerateNumber(&acc_pack.Rec));
-				assert(acc_id == 0);
-				THROW(acc_obj.PutPacket(&acc_id, &acc_pack, 0));
-				{
-					assert(acc_id);
-					ObjTagItem tag_item;
-					tag_item.Init(PPTAG_GUA_ACCOUNT);
-					tag_item.SetInt(PPTAG_GUA_ACCOUNT, acc_id);
-					THROW(PPRef->Ot.PutTag(PPOBJ_GLOBALUSERACC, GuaPack.Rec.ID, &tag_item, 0));
-					THROW(gua_obj.GetPacket(gua_id, &GuaPack) > 0); // Повторно извлекаем пакет глобальной учетной записи ибо там теперь новый тег
-				}
-			}
-		}
-		THROW(tra.Commit());
-	}
-	CATCH
-		acc_id = 0;
-	ENDCATCH
-	return acc_id;
-}
-
-PPID PPMarketplaceInterface::GetMarketplaceOpsAccSheetID()
-{
-	return Helper_GetMarketplaceOpsAccSheetID(false, false, 0);
-}
-
 int PPMarketplaceInterface::GetMarketplacePerson(PPID * pID, int use_ta)
 {
 	int    ok = -1;
@@ -239,9 +42,9 @@ int PPMarketplaceInterface::GetMarketplacePerson(PPID * pID, int use_ta)
 	SString temp_buf;
 	PPObjPersonKind pk_obj;
 	PPPersonKind pk_rec;
-	THROW(pk_obj.Fetch(person_kind, &pk_rec) > 0); // @todo @err (этот вид персоналий должен быть создан вызовом функции созднания зарезервированных объектов)
+	THROW(pk_obj.Fetch(person_kind, &pk_rec) > 0); // @todo @err (этот вид персоналий должен быть создан вызовом функции создания зарезервированных объектов)
 	{
-		PPID   acs_id = GetMarketplaceAccSheetID();
+		PPID   acs_id = R_Prc.GetMarketplaceAccSheetID();
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		{
@@ -300,11 +103,18 @@ public:
 		bool FromJsonObj(const SJson * pJs);
 
 		enum {
-			fAcceptsQR = 0x0001
+			fAcceptsQR = 0x0001,
+			fSelected  = 0x0002  // Признак того, что склад уже выбран продавцом
 		};
 		long   ID; // Идентификатор склада на маркетплейсе (не в нашей базе данных!)
 		uint   Flags;
+		int    CargoType; // Тип товара, который принимает склад:
+			// 1 - обычный; 2 - СГТ (Сверхгабаритный товар); 3 - КГТ (Крупногабаритный товар). Не используется на данный момент.
+		int    DeliveryType; // Тип доставки, который принимает склад:
+			// 1 - доставка на склад Wildberries; 2 - доставка силами продавца; 3 - доставка курьером WB
+		uint64 UedGeoLoc;
 		SString Name;
+		SString City;
 		SString Address;
 	};
 	struct WareBase {
@@ -501,7 +311,7 @@ public:
 		double Acceptance;            // acceptance number Стоимость платной приёмки
 	};
 
-	PPMarketplaceInterface_Wildberries(PPLogger * pOuterLogger) : PPMarketplaceInterface("WILDBERRIES", pOuterLogger), Lth(PPFILNAM_MRKTPLCWBTALK_LOG)
+	PPMarketplaceInterface_Wildberries(PrcssrMarketplaceInterchange & rPrc) : PPMarketplaceInterface("WILDBERRIES", rPrc), Lth(PPFILNAM_MRKTPLCWBTALK_LOG)
 	{
 	}
 	virtual ~PPMarketplaceInterface_Wildberries()
@@ -511,7 +321,7 @@ public:
 	{
 		int    ok = PPMarketplaceInterface::Init(guaID);
 		if(ok > 0) {
-			RequestWarehouseList(WhList);
+			FetchWarehouseList(WhList);
 		}
 		return ok;
 	}
@@ -519,7 +329,20 @@ public:
 	// Methods
 	//
 	int   RequestCommission();
+	//
+	// Замечание по поводу методов RequestWarehouseList и RequestWarehouseList2.
+	// Первый использует метод WB https://supplies-api.wildberries.ru/api/v1/warehouses,
+	// второй - https://marketplace-api.wildberries.ru/api/v3/offices.
+	// Я не понимаю кто все это там делал, но оба метода возвращают разные количества складов, с
+	// несовместимыми идентификаторами и разными наименованиями. При этом все методы WB предоставляют только
+	// наименованования скадов и далеко не всегда наименование в виде ссылки может быть сопоставлено
+	// с каким-либо складом, возвращенным хоть первым, хоть вторым методом.
+	// 
+	// Короче говоря, сейчас будем закладываться на первый вариант (methWarehouses aka https://supplies-api.wildberries.ru/api/v1/warehouses)
+	// а дальше посмотрим.
+	//
 	int   RequestWarehouseList(TSCollection <Warehouse> & rList);
+	int   RequestWarehouseList2(TSCollection <Warehouse> & rList);
 	int   RequestGoodsPrices();
 	int   RequestIncomes(TSCollection <Income> & rList);
 	int   RequestStocks(TSCollection <Stock> & rList);
@@ -534,12 +357,17 @@ public:
 	int   RequestWareList();
 
 	int   CreateWarehouse(PPID * pID, int64 outerId, const char * pOuterName, const char * pAddress, int use_ta);
-	const Warehouse * SearchWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName) const;
+	const Warehouse * SearchWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, bool adoptive) const;
+	int   ResolveWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, PPID defaultID, PPID * pResultID);
 	int   ImportOrders();
 	int   ImportReceipts();
 	int   ImportSales();
 	int   ImportFinancialTransactions();
 private:
+	int   GetLocalCachePath(SString & rBuf);
+	int   FetchWarehouseList(TSCollection <Warehouse> & rList);
+	int   ParseJson_WarehouseList(const SJson * pJs, TSCollection <Warehouse> & rList);
+	int   Helper_RequestWarehouseList(int meth/*methWarehouses||methWarehouses2*/, TSCollection <Warehouse> & rList, const char * pFileNameToStoreJson);
 	//
 	// Descr: 
 	// Returns:
@@ -557,6 +385,7 @@ private:
 	//   >0 - ид лота, к которому должна быть привязана продажа
 	//
 	PPID  AdjustReceiptOnExpend(int64 incomeId, LDATE dt, PPID locID, PPID goodsID, double neededQtty, double nominalPrice, int use_ta);
+	int   SearchOriginalLotForMp(int64 incomeId, LDATE dt, PPID locID, PPID goodsID, PPID * pResultLotID);
 	SString & MakeHeaderFields(const char * pToken, StrStrAssocArray * pHdrFlds, SString & rBuf)
 	{
 		StrStrAssocArray hdr_flds;
@@ -599,6 +428,7 @@ private:
 		methTariffPallet,     // apiCommon
 		methTariffReturn,     // apiCommon
 		methWarehouses,       // apiSupplies
+		methWarehouses2,      // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/offices
 		methIncomes,          // apiStatistics
 		methStocks,           // apiStatistics
 		methOrders,           // apiStatistics
@@ -640,6 +470,7 @@ private:
 			{ methTariffPallet, apiCommon, 0, "" },
 			{ methTariffReturn, apiCommon, 0, "" },
 			{ methWarehouses, apiSupplies, SHttpProtocol::reqGet, "api/v1/warehouses" },
+			{ methWarehouses2, apiMarketplace, SHttpProtocol::reqGet, "api/v3/offices" },
 			{ methIncomes, apiStatistics, SHttpProtocol::reqGet, "api/v1/supplier/incomes" },
 			{ methStocks, apiStatistics, SHttpProtocol::reqGet, "api/v1/supplier/stocks" },
 			{ methOrders, apiStatistics, SHttpProtocol::reqGet, "api/v1/supplier/orders" },
@@ -707,9 +538,9 @@ private:
 		int    ok = 0;
 		rUrlBuf.Z();
 		rHdrFlds.Z();
-		if(GuaPack.Rec.ServiceIdent == PPGLS_WILDBERRIES) {
+		if(R_Prc.GetGuaPack().Rec.ServiceIdent == PPGLS_WILDBERRIES) {
 			SString token;
-			if(GuaPack.GetAccessKey(token) > 0) {
+			if(R_Prc.GetGuaPack().GetAccessKey(token) > 0) {
 				//InetUrl url(MakeTargetUrl_(qAuthLogin, &req, url_buf));
 				int   req = 0;
 				if(MakeTargetUrl_(meth, &req/*SHttpProtocol::reqXXX*/, rUrlBuf)) {
@@ -724,23 +555,28 @@ private:
 	SString Token;
 	PPGlobalServiceLogTalkingHelper Lth;
 	TSCollection <Warehouse> WhList;
+	PPIDArray MpLocList; // Список идентификаторов складов маркетплейса, применяемых при обработке документов
+	LAssocArray MpLotToOwnLotAssocList; // Специализированный кэш, хранящий ассоциации между лотами на складах маркетплейса и лотами,
+		// из которых они образовались на собственных складах. Фактически, этот массив кэширует результат работы функции SearchOriginalLotForMp
 };
 
 int PPMarketplaceInterface::Init(PPID guaID)
 {
 	int    ok = 1;
+	/*
 	PPObjGlobalUserAcc gua_obj;
 	if(gua_obj.GetPacket(guaID, &GuaPack) > 0) {
 		; // ok
 	}
 	else
 		ok = 0;
+	*/
 	return ok;
 }
 //
 //
 //
-PPMarketplaceInterface_Wildberries::Warehouse::Warehouse() : ID(0), Flags(0)
+PPMarketplaceInterface_Wildberries::Warehouse::Warehouse() : ID(0), Flags(0), UedGeoLoc(0ULL), CargoType(0), DeliveryType(0)
 {
 }
 		
@@ -748,7 +584,11 @@ PPMarketplaceInterface_Wildberries::Warehouse & PPMarketplaceInterface_Wildberri
 {
 	ID = 0;
 	Flags = 0;
+	UedGeoLoc = 0ULL;
+	CargoType = 0;
+	DeliveryType = 0;
 	Name.Z();
+	City.Z();
 	Address.Z();
 	return *this;
 }
@@ -759,6 +599,7 @@ bool PPMarketplaceInterface_Wildberries::Warehouse::FromJsonObj(const SJson * pJ
 	bool   ok = false;
 	if(pJs && pJs->Type == SJson::tOBJECT) {
 		SString temp_buf;
+		SGeoPosLL geoloc;
 		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("ID")) {
 				ID = p_cur->P_Child->Text.ToLong();
@@ -766,8 +607,23 @@ bool PPMarketplaceInterface_Wildberries::Warehouse::FromJsonObj(const SJson * pJ
 			else if(p_cur->Text.IsEqiAscii("name")) {
 				Name = p_cur->P_Child->Text;
 			}
+			else if(p_cur->Text.IsEqiAscii("city")) {
+				City = p_cur->P_Child->Text;
+			}
 			else if(p_cur->Text.IsEqiAscii("address")) {
 				Address = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("longitude")) {
+				geoloc.Lon = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("latitude")) {
+				geoloc.Lat = p_cur->P_Child->Text.ToReal();
+			}
+			else if(p_cur->Text.IsEqiAscii("cargoType")) {
+				CargoType = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("deliveryType")) {
+				DeliveryType = p_cur->P_Child->Text.ToLong();
 			}
 			else if(p_cur->Text.IsEqiAscii("workTime")) {
 				;
@@ -776,7 +632,12 @@ bool PPMarketplaceInterface_Wildberries::Warehouse::FromJsonObj(const SJson * pJ
 				if(SJson::GetBoolean(p_cur->P_Child) == 1)
 					Flags |= fAcceptsQR;
 			}
+			else if(p_cur->Text.IsEqiAscii("selected")) {
+				if(SJson::GetBoolean(p_cur->P_Child) == 1)
+					Flags |= fSelected;
+			}
 		}
+		UedGeoLoc = UED::SetRaw_GeoLoc(geoloc);
 		ok = true;
 	}
 	return ok;
@@ -1394,40 +1255,105 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 	return ok;
 }
 
-int PPMarketplaceInterface_Wildberries::RequestWarehouseList(TSCollection <Warehouse> & rList)
+int PPMarketplaceInterface_Wildberries::GetLocalCachePath(SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 1;
+	SString cache_path;
+	PPGetPath(PPPATH_WORKSPACE, cache_path);	
+	cache_path.SetLastSlash().Cat("cache").SetLastSlash().Cat("data").SetLastSlash().Cat("wildberries");
+	if(SFile::CreateDir(cache_path))
+		rBuf = cache_path;
+	else
+		ok = 0;
+	return ok;
+}
+
+int PPMarketplaceInterface_Wildberries::ParseJson_WarehouseList(const SJson * pJs, TSCollection <Warehouse> & rList)
 {
 	rList.freeAll();
+	int    ok = 0;
+	if(SJson::IsArray(pJs)) {
+		for(const SJson * p_js_item = pJs->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+			if(SJson::IsObject(p_js_item)) {
+				uint   new_item_pos = 0;
+				Warehouse * p_new_item = rList.CreateNewItem(&new_item_pos);
+				if(p_new_item) {
+					if(p_new_item->FromJsonObj(p_js_item)) {
+						ok = 1;
+					}
+					else {
+						rList.atFree(new_item_pos);
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int PPMarketplaceInterface_Wildberries::FetchWarehouseList(TSCollection <Warehouse> & rList)
+{
 	int    ok = 1;
-	SString temp_buf;
-	SString url_buf;
-	StrStrAssocArray hdr_flds;
-	THROW(Helper_InitRequest(methWarehouses, url_buf, hdr_flds));
-	{
-		ScURL c;
-		SString reply_buf;
-		SBuffer ack_buf;
-		SFile wr_stream(ack_buf, SFile::mWrite);
-		THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
-		Lth.Log("req", url_buf, temp_buf.Z());
-		THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+	bool   do_request = true;
+	const  LDATETIME now_dtm = getcurdatetime_();
+	SString local_cache_path;
+	if(GetLocalCachePath(local_cache_path)) {
+		local_cache_path.SetLastSlash().Cat("warehouselist.json");
+		SFile::Stat st;
+		if(SFile::GetStat(local_cache_path, 0, &st, 0)) {
+			LDATETIME file_dtm;
+			file_dtm.SetNs100(st.ModTm_);
+			long s = diffdatetimesec(now_dtm, file_dtm);
+			if(s <= (3 * 24 * 3600)) {
+				SJson * p_js = SJson::ParseFile(local_cache_path);
+				if(ParseJson_WarehouseList(p_js, rList)) {
+					do_request = false;
+				}
+				delete p_js;
+			}
+		}
+	}
+	if(do_request) {
+		ok = Helper_RequestWarehouseList(methWarehouses, rList, local_cache_path);
+	}
+	return ok;
+}
+
+int PPMarketplaceInterface_Wildberries::Helper_RequestWarehouseList(int meth/*methWarehouses||methWarehouses2*/, TSCollection <Warehouse> & rList, const char * pFileNameToStoreJson)
+{
+	rList.freeAll();
+	int    ok = 0;
+	SJson * p_js_reply = 0;
+	assert(oneof2(meth, methWarehouses, methWarehouses2));
+	if(oneof2(meth, methWarehouses, methWarehouses2)) {
+		SString temp_buf;
+		SString url_buf;
+		StrStrAssocArray hdr_flds;
+		THROW(Helper_InitRequest(meth, url_buf, hdr_flds));
 		{
-			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
-			if(p_ack_buf) {
-				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-				Lth.Log("rep", 0, reply_buf);
-				{
-					SJson * p_js_reply = SJson::Parse(reply_buf);
-					if(SJson::IsArray(p_js_reply)) {
-						for(const SJson * p_js_item = p_js_reply->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
-							if(SJson::IsObject(p_js_item)) {
-								uint   new_item_pos = 0;
-								Warehouse * p_new_item = rList.CreateNewItem(&new_item_pos);
-								if(p_new_item) {
-									if(!p_new_item->FromJsonObj(p_js_item)) {
-										rList.atFree(new_item_pos);
-									}
+			ScURL c;
+			SString reply_buf;
+			SBuffer ack_buf;
+			SFile wr_stream(ack_buf, SFile::mWrite);
+			THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
+			Lth.Log("req", url_buf, temp_buf.Z());
+			THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+			{
+				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+				if(p_ack_buf) {
+					reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+					Lth.Log("rep", 0, reply_buf);
+					{
+						p_js_reply = SJson::Parse(reply_buf);
+						if(ParseJson_WarehouseList(p_js_reply, rList)) {
+							if(!isempty(pFileNameToStoreJson)) {
+								SFile f_cache(pFileNameToStoreJson, SFile::mWrite);
+								if(f_cache.IsValid()) {
+									f_cache.Write(reply_buf.cptr(), reply_buf.Len());
 								}
 							}
+							ok = 1;
 						}
 					}
 				}
@@ -1435,12 +1361,24 @@ int PPMarketplaceInterface_Wildberries::RequestWarehouseList(TSCollection <Wareh
 		}
 	}
 	CATCHZOK
+	delete p_js_reply;
 	return ok;
+}
+
+int PPMarketplaceInterface_Wildberries::RequestWarehouseList(TSCollection <Warehouse> & rList)
+{
+	return Helper_RequestWarehouseList(methWarehouses, rList, 0);
+}
+
+int PPMarketplaceInterface_Wildberries::RequestWarehouseList2(TSCollection <Warehouse> & rList)
+{
+	return Helper_RequestWarehouseList(methWarehouses2, rList, 0);
 }
 
 int PPMarketplaceInterface_Wildberries::RequestWareList()
 {
 	int    ok = 1;
+	SJson * p_js_reply = 0;
 	SString temp_buf;
 	SString url_buf;
 	SString req_buf;
@@ -1509,7 +1447,7 @@ int PPMarketplaceInterface_Wildberries::RequestWareList()
 				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				Lth.Log("rep", 0, reply_buf);
 				{
-					SJson * p_js_reply = SJson::Parse(reply_buf);
+					p_js_reply = SJson::Parse(reply_buf);
 					if(SJson::IsArray(p_js_reply)) {
 						for(const SJson * p_js_item = p_js_reply->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
 							if(SJson::IsObject(p_js_item)) {
@@ -1530,6 +1468,7 @@ int PPMarketplaceInterface_Wildberries::RequestWareList()
 		}
 	}
 	CATCHZOK
+	delete p_js_reply;
 	return ok;
 }
 
@@ -1537,6 +1476,7 @@ int PPMarketplaceInterface_Wildberries::RequestGoodsPrices()
 {
 	//rList.freeAll();
 	int    ok = 1;
+	SJson * p_js_reply = 0;
 	SString temp_buf;
 	SString url_buf;
 	StrStrAssocArray hdr_flds;
@@ -1556,7 +1496,7 @@ int PPMarketplaceInterface_Wildberries::RequestGoodsPrices()
 				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				Lth.Log("rep", 0, reply_buf);
 				{
-					SJson * p_js_reply = SJson::Parse(reply_buf);
+					p_js_reply = SJson::Parse(reply_buf);
 					if(SJson::IsArray(p_js_reply)) {
 						for(const SJson * p_js_item = p_js_reply->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
 							if(SJson::IsObject(p_js_item)) {
@@ -1577,6 +1517,7 @@ int PPMarketplaceInterface_Wildberries::RequestGoodsPrices()
 		}
 	}
 	CATCHZOK
+	delete p_js_reply;
 	return ok;
 }
 
@@ -1613,6 +1554,7 @@ int PPMarketplaceInterface_Wildberries::RequestIncomes(TSCollection <Income> & r
 {
 	rList.freeAll();
 	int    ok = 1;
+	SJson * p_js_reply = 0;
 	SString temp_buf;
 	SString url_buf;
 	StrStrAssocArray hdr_flds;
@@ -1632,7 +1574,7 @@ int PPMarketplaceInterface_Wildberries::RequestIncomes(TSCollection <Income> & r
 				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				Lth.Log("rep", 0, reply_buf);
 				{
-					SJson * p_js_reply = SJson::Parse(reply_buf);
+					p_js_reply = SJson::Parse(reply_buf);
 					if(SJson::IsArray(p_js_reply)) {
 						for(const SJson * p_js_item = p_js_reply->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
 							if(SJson::IsObject(p_js_item)) {
@@ -1651,6 +1593,7 @@ int PPMarketplaceInterface_Wildberries::RequestIncomes(TSCollection <Income> & r
 		}
 	}
 	CATCHZOK
+	delete p_js_reply;
 	return ok;
 }
 
@@ -1658,6 +1601,7 @@ int PPMarketplaceInterface_Wildberries::RequestStocks(TSCollection <Stock> & rLi
 {
 	rList.freeAll();
 	int    ok = 1;
+	SJson * p_js_reply = 0;
 	SString temp_buf;
 	SString url_buf;
 	StrStrAssocArray hdr_flds;
@@ -1677,7 +1621,7 @@ int PPMarketplaceInterface_Wildberries::RequestStocks(TSCollection <Stock> & rLi
 				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				Lth.Log("rep", 0, reply_buf);
 				{
-					SJson * p_js_reply = SJson::Parse(reply_buf);
+					p_js_reply = SJson::Parse(reply_buf);
 					if(SJson::IsArray(p_js_reply)) {
 						for(const SJson * p_js_item = p_js_reply->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
 							if(SJson::IsObject(p_js_item)) {
@@ -1706,6 +1650,7 @@ int PPMarketplaceInterface_Wildberries::RequestStocks(TSCollection <Stock> & rLi
 		}
 	}
 	CATCHZOK
+	delete p_js_reply;
 	return ok;
 }
 
@@ -1772,6 +1717,7 @@ int PPMarketplaceInterface_Wildberries::RequestOrders(TSCollection <Sale> & rLis
 {
 	rList.freeAll();
 	int    ok = 1;
+	SJson * p_js_reply = 0;
 	SString temp_buf;
 	SString url_buf;
 	StrStrAssocArray hdr_flds;
@@ -1791,7 +1737,7 @@ int PPMarketplaceInterface_Wildberries::RequestOrders(TSCollection <Sale> & rLis
 				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				Lth.Log("rep", 0, reply_buf);
 				{
-					SJson * p_js_reply = SJson::Parse(reply_buf);
+					p_js_reply = SJson::Parse(reply_buf);
 					if(SJson::IsArray(p_js_reply)) {
 						for(const SJson * p_js_item = p_js_reply->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
 							if(SJson::IsObject(p_js_item)) {
@@ -1810,6 +1756,7 @@ int PPMarketplaceInterface_Wildberries::RequestOrders(TSCollection <Sale> & rLis
 		}
 	}
 	CATCHZOK
+	delete p_js_reply;
 	return ok;
 }
 
@@ -1817,6 +1764,7 @@ int PPMarketplaceInterface_Wildberries::RequestSales(TSCollection <Sale> & rList
 {
 	rList.freeAll();
 	int    ok = 1;
+	SJson * p_js_reply = 0;
 	SString temp_buf;
 	SString url_buf;
 	StrStrAssocArray hdr_flds;
@@ -1836,7 +1784,7 @@ int PPMarketplaceInterface_Wildberries::RequestSales(TSCollection <Sale> & rList
 				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				Lth.Log("rep", 0, reply_buf);
 				{
-					SJson * p_js_reply = SJson::Parse(reply_buf);
+					p_js_reply = SJson::Parse(reply_buf);
 					if(SJson::IsArray(p_js_reply)) {
 						for(const SJson * p_js_item = p_js_reply->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
 							if(SJson::IsObject(p_js_item)) {
@@ -1855,6 +1803,7 @@ int PPMarketplaceInterface_Wildberries::RequestSales(TSCollection <Sale> & rList
 		}
 	}
 	CATCHZOK
+	delete p_js_reply;
 	return ok;
 }
 
@@ -1862,6 +1811,7 @@ int PPMarketplaceInterface_Wildberries::RequestDocumentsList()
 {
 	//rList.freeAll();
 	int    ok = 1;
+	SJson * p_js_reply = 0;
 	SString temp_buf;
 	SString url_buf;
 	StrStrAssocArray hdr_flds;
@@ -1880,7 +1830,7 @@ int PPMarketplaceInterface_Wildberries::RequestDocumentsList()
 				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				Lth.Log("rep", 0, reply_buf);
 				{
-					SJson * p_js_reply = SJson::Parse(reply_buf);
+					p_js_reply = SJson::Parse(reply_buf);
 					if(SJson::IsArray(p_js_reply)) {
 						for(const SJson * p_js_item = p_js_reply->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
 							if(SJson::IsObject(p_js_item)) {
@@ -1901,6 +1851,7 @@ int PPMarketplaceInterface_Wildberries::RequestDocumentsList()
 		}
 	}
 	CATCHZOK
+	delete p_js_reply;
 	return ok;
 }
 
@@ -1908,6 +1859,7 @@ int PPMarketplaceInterface_Wildberries::RequestBalance()
 {
 	//rList.freeAll();
 	int    ok = 1;
+	SJson * p_js_reply = 0;
 	SString temp_buf;
 	SString url_buf;
 	StrStrAssocArray hdr_flds;
@@ -1926,7 +1878,7 @@ int PPMarketplaceInterface_Wildberries::RequestBalance()
 				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				Lth.Log("rep", 0, reply_buf);
 				{
-					SJson * p_js_reply = SJson::Parse(reply_buf);
+					p_js_reply = SJson::Parse(reply_buf);
 					if(SJson::IsArray(p_js_reply)) {
 						for(const SJson * p_js_item = p_js_reply->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
 							if(SJson::IsObject(p_js_item)) {
@@ -1947,6 +1899,7 @@ int PPMarketplaceInterface_Wildberries::RequestBalance()
 		}
 	}
 	CATCHZOK
+	delete p_js_reply;
 	return ok;
 }
 
@@ -1954,6 +1907,7 @@ int PPMarketplaceInterface_Wildberries::RequestSalesReportDetailedByPeriod(const
 {
 	rList.freeAll();
 	int    ok = 1;
+	SJson * p_js_reply = 0;
 	SString temp_buf;
 	SString url_buf;
 	StrStrAssocArray hdr_flds;
@@ -2011,7 +1965,7 @@ int PPMarketplaceInterface_Wildberries::RequestSalesReportDetailedByPeriod(const
 				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				Lth.Log("rep", 0, reply_buf);
 				{
-					SJson * p_js_reply = SJson::Parse(reply_buf);
+					p_js_reply = SJson::Parse(reply_buf);
 					if(SJson::IsArray(p_js_reply)) {
 						for(const SJson * p_js_item = p_js_reply->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
 							if(SJson::IsObject(p_js_item)) {
@@ -2042,6 +1996,7 @@ int PPMarketplaceInterface_Wildberries::RequestSalesReportDetailedByPeriod(const
 		}
 	}
 	CATCHZOK
+	delete p_js_reply;
 	return ok;
 }
 
@@ -2101,9 +2056,7 @@ int PPMarketplaceInterface_Wildberries::CreateWarehouse(PPID * pID, int64 outerI
 					loc_pack.Flags |= LOCF_MANUALADDR;
 				}
 				THROW(r_loc_obj.PutPacket(&result_id, &loc_pack, 0));
-				if(P_Logger) {
-					P_Logger->LogAcceptMsg(PPOBJ_LOCATION, result_id, 0);
-				}
+				R_Prc.GetLogger().LogAcceptMsg(PPOBJ_LOCATION, result_id, 0);
 				ok = 2;
 			}
 		}
@@ -2114,16 +2067,66 @@ int PPMarketplaceInterface_Wildberries::CreateWarehouse(PPID * pID, int64 outerI
 	return ok;
 }
 
-const PPMarketplaceInterface_Wildberries::Warehouse * PPMarketplaceInterface_Wildberries::SearchWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName) const
+const PPMarketplaceInterface_Wildberries::Warehouse * PPMarketplaceInterface_Wildberries::SearchWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, bool adoptive) const
 {
 	const Warehouse * p_result = 0;
-	for(uint i = 0; !p_result && i < rWhList.getCount(); i++) {
-		const Warehouse * p_iter = rWhList.at(i);
-		if(p_iter && p_iter->Name.IsEqiUtf8(pWhName)) {
-			p_result = p_iter;
+	SString key_buf(pWhName);
+	key_buf.Strip();
+	{
+		for(uint i = 0; !p_result && i < rWhList.getCount(); i++) {
+			const Warehouse * p_iter = rWhList.at(i);
+			if(p_iter && p_iter->Name.IsEqiUtf8(key_buf))
+				p_result = p_iter;
+		}
+	}
+	if(!p_result && adoptive) {
+		SString temp_buf;
+		key_buf.Utf8ToLower().ReplaceStr("(", " ", 0).ReplaceStr(")", " ", 0).ReplaceStr("  ", " ", 0).Strip();
+		{
+			LongArray eqpfx_list;
+			for(uint i = 0; !p_result && i < rWhList.getCount(); i++) {
+				const Warehouse * p_iter = rWhList.at(i);
+				if(p_iter) {
+					(temp_buf = p_iter->Name).Utf8ToLower().ReplaceStr("(", " ", 0).ReplaceStr(")", " ", 0).ReplaceStr("  ", " ", 0).Strip();
+					if(temp_buf.IsEq(key_buf))
+						p_result = p_iter;
+					else if(temp_buf.HasPrefix(key_buf)) {
+						eqpfx_list.add(i);
+					}
+				}
+			}
+			if(!p_result) {
+				if(eqpfx_list.getCount() == 1) {
+					p_result = rWhList.at(eqpfx_list.get(0));
+				}
+			}
 		}
 	}
 	return p_result;
+}
+
+int PPMarketplaceInterface_Wildberries::ResolveWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, PPID defaultID, PPID * pResultID)
+{
+	int    ok = -1;
+	PPID   wh_id = 0;
+	if(!isempty(pWhName)) {
+		const Warehouse * p_wh = SearchWarehouseByName(WhList, pWhName, true);
+		if(p_wh) {
+			if(CreateWarehouse(&wh_id, p_wh->ID, p_wh->Name, p_wh->Address, 1) > 0) {
+				assert(wh_id > 0);
+				MpLocList.addUnique(wh_id);
+				ok = 1;
+			}
+		}
+	}
+	if(!wh_id) {
+		if(defaultID) {
+			wh_id = defaultID;
+			ok = 2;
+		}
+	}
+	ASSIGN_PTR(pResultID, wh_id);
+	return ok;
 }
 
 PPID PPMarketplaceInterface_Wildberries::CreateWare(const WareBase & rWare, int use_ta) 
@@ -2138,7 +2141,7 @@ PPID PPMarketplaceInterface_Wildberries::CreateWare(const WareBase & rWare, int 
 	}
 	else if(rWare.Name.NotEmpty()) {
 		const PPGoodsConfig & r_cfg = GObj.GetConfig();
-		const PPID acs_id = GetMarketplaceAccSheetID();
+		const PPID acs_id = R_Prc.GetMarketplaceAccSheetID();
 		SString goods_name(rWare.Name);
 		SString ar_code;
 		PPID   mp_ar_id = 0;
@@ -2205,9 +2208,7 @@ PPID PPMarketplaceInterface_Wildberries::CreateWare(const WareBase & rWare, int 
 					goods_pack.Rec.UnitID = r_cfg.DefUnitID;
 					goods_pack.Rec.ParentID = r_cfg.DefGroupID;
 					THROW(GObj.PutPacket(&result_id, &goods_pack, 0/*use_ta*/));
-					if(P_Logger) {
-						P_Logger->LogAcceptMsg(PPOBJ_GOODS, result_id, 0);
-					}
+					R_Prc.GetLogger().LogAcceptMsg(PPOBJ_GOODS, result_id, 0);
 				}
 				THROW(tra.Commit());
 			}
@@ -2223,7 +2224,7 @@ PPID PPMarketplaceInterface_Wildberries::CreateBuyer(const Sale * pSaleEntry, in
 {
 	PPID  result_ar_id = 0;
 	if(pSaleEntry) {
-		const  PPID sale_op_id = GetSaleOpID();
+		const  PPID sale_op_id = R_Prc.GetSaleOpID();
 		if(sale_op_id) {
 			PPOprKind op_rec;
 			if(GetOpData(sale_op_id, &op_rec) > 0) {
@@ -2281,6 +2282,9 @@ PPID PPMarketplaceInterface_Wildberries::CreateReceipt(int64 incomeId, LDATE dt,
 	SString temp_buf;
 	const  PPID rcpt_op_id = CConfig.ReceiptOp;
 	PPID   suppl_id = 0;
+	PPID   own_lot_id = 0;
+	double adj_cost = 0.0;
+	double adj_price = 0.0;
 	SString bill_code;
 	PPBillPacket::SetupObjectBlock sob;
 	PPBillPacket pack;
@@ -2288,6 +2292,15 @@ PPID PPMarketplaceInterface_Wildberries::CreateReceipt(int64 incomeId, LDATE dt,
 	THROW(rcpt_op_id); // @todo @err
 	THROW(checkdate(dt)); 
 	bill_code.Z().Cat(incomeId);
+	{
+		ReceiptTbl::Rec own_lot_rec;
+		if(SearchOriginalLotForMp(incomeId, dt, locID, goodsID, &own_lot_id) > 0) {
+			if(p_bobj->trfr->Rcpt.Search(own_lot_id, &own_lot_rec) > 0) {
+				adj_cost = own_lot_rec.Cost;
+				adj_price = own_lot_rec.Price;
+			}							
+		}
+	}
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -2305,8 +2318,8 @@ PPID PPMarketplaceInterface_Wildberries::CreateReceipt(int64 incomeId, LDATE dt,
 			PPTransferItem ti;
 			LongArray row_idx_list;
 			ti.GoodsID = goodsID;
-			ti.Cost = 0.0;
-			ti.Price = 0.0;
+			ti.Cost = adj_cost;
+			ti.Price = adj_price;
 			ti.Quantity_ = fabs(qtty);
 			THROW(pack.InsertRow(&ti, &row_idx_list));
 			//pack.Se
@@ -2319,7 +2332,9 @@ PPID PPMarketplaceInterface_Wildberries::CreateReceipt(int64 incomeId, LDATE dt,
 			assert(pack.GetTCount() == 1);
 			THROW(pack.GetTCount() == 1);
 			result_lot_id = pack.ConstTI(0).LotID;
-			CALLPTRMEMB(P_Logger, LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0));
+			if(own_lot_id)
+				MpLotToOwnLotAssocList.Add(result_lot_id, own_lot_id);
+			R_Prc.GetLogger().LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
 		}
 		THROW(tra.Commit());
 	}
@@ -2345,25 +2360,18 @@ int PPMarketplaceInterface_Wildberries::ImportReceipts()
 		for(uint i = 0; i < income_list.getCount(); i++) {
 			const Income * p_wb_item = income_list.at(i);
 			if(p_wb_item) {
+				PPID   wh_id = 0;
+				ResolveWarehouseByName(WhList, p_wb_item->WarehouseName, LConfig.Location, &wh_id);
 				bill_code.Z().Cat(p_wb_item->IncomeID);
 				if(p_bobj->P_Tbl->SearchByCode(bill_code, rcpt_op_id, ZERODATE, 0) > 0) {
 					// Поступление на склад '%s' уже акцептировано ранее
 					;
 				}
 				else {
-					PPID   wh_id = 0;
 					PPBillPacket pack;
 					PPID   ex_bill_id = 0;
 					Goods2Tbl::Rec goods_rec;
 					PPBillPacket::SetupObjectBlock sob;
-					if(p_wb_item->WarehouseName.NotEmpty()) {
-						const Warehouse * p_wh = SearchWarehouseByName(WhList, p_wb_item->WarehouseName);
-						if(p_wh) {
-							int r = CreateWarehouse(&wh_id, p_wh->ID, p_wh->Name, p_wh->Address, 1);
-						}
-					}
-					if(!wh_id)
-						wh_id = LConfig.Location;
 					PPID   goods_id = CreateWare(p_wb_item->Ware, 1/*use_ta*/);
 					if(goods_id) {
 						const LDATE dt = checkdate(p_wb_item->Dtm.d) ? p_wb_item->Dtm.d : getcurdate_();
@@ -2380,6 +2388,57 @@ int PPMarketplaceInterface_Wildberries::ImportReceipts()
 		}
 	}
 	CATCHZOK
+	return ok;
+}
+
+int PPMarketplaceInterface_Wildberries::SearchOriginalLotForMp(int64 incomeId, LDATE dt, PPID locID, PPID goodsID, PPID * pResultLotID)
+{
+	int    ok = -1;
+	PPID   target_lot_id = 0;
+	Reference * p_ref = PPRef;
+	SString temp_buf;
+	if(goodsID) {
+		PPID   transf_op_id = R_Prc.GetConfig().TransferToMpOpID;
+		if(transf_op_id) {
+			PPObjBill * p_bobj = BillObj;
+			BillCore * p_billc = p_bobj->P_Tbl;
+			Transfer * p_trfr = p_bobj->trfr;
+			LDATE recent_date = ZERODATE;
+			BillTbl::Rec bill_rec;
+			BillTbl::Key2 k2;
+			k2.OpID = transf_op_id;
+			k2.Dt   = dt;
+			k2.BillNo = MAXLONG;
+			const long max_days_for_survey = 30;
+			PPID   last_suitable_lot_id_without_serial = 0;
+			PPIDArray candidate_lot_list_by_serial;
+			SString serial_buf;
+			if(incomeId) {
+				serial_buf.Z().Cat(incomeId);
+				p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_SN, serial_buf, &candidate_lot_list_by_serial);
+			}
+			if(p_billc->search(2, &k2, spLe) && k2.OpID == transf_op_id) do {
+				const PPID bill_id = p_billc->data.ID;
+				PPTransferItem ti;
+				for(int rbb = 0; p_trfr->EnumItems(bill_id, &rbb, &ti) > 0;) {
+					if(ti.GoodsID == goodsID) {
+						SETIFZ(last_suitable_lot_id_without_serial, ti.LotID);
+						if(serial_buf.NotEmpty() && candidate_lot_list_by_serial.getCount()) {
+							if(candidate_lot_list_by_serial.lsearch(ti.LotID)) {
+								target_lot_id = ti.LotID;
+							}
+						}
+					}
+				}
+			} while(!target_lot_id && p_billc->search(2, &k2, spPrev) && k2.OpID == transf_op_id);
+			ReceiptTbl::Rec target_lot_rec;
+			SETIFZ(target_lot_id, last_suitable_lot_id_without_serial);
+			if(target_lot_id && p_trfr->Rcpt.Search(target_lot_id, &target_lot_rec) > 0) {
+				ok = 1;
+			}
+		}
+	}
+	ASSIGN_PTR(pResultLotID, target_lot_id);
 	return ok;
 }
 
@@ -2402,6 +2461,25 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(int64 incomeId, L
 				}
 			}
 			if(lot_id) {
+				double adj_cost = 0.0;
+				{
+					uint   _pos = 0;
+					PPID   own_lot_id = 0;
+					ReceiptTbl::Rec own_lot_rec;
+					if(MpLotToOwnLotAssocList.Search(lot_id, &own_lot_id, &_pos)) {
+						if(p_bobj->trfr->Rcpt.Search(own_lot_id, &own_lot_rec) > 0) {
+							adj_cost = own_lot_rec.Cost;
+						}
+					}
+					else {
+						if(SearchOriginalLotForMp(incomeId, dt, locID, goodsID, &own_lot_id) > 0) {
+							if(p_bobj->trfr->Rcpt.Search(own_lot_id, &own_lot_rec) > 0) {
+								MpLotToOwnLotAssocList.Add(lot_id, own_lot_id);
+								adj_cost = own_lot_rec.Cost;
+							}							
+						}
+					}
+				}
 				bool   do_update = false;
 				double adj_price = lot_rec.Price;
 				double adj_qtty = lot_rec.Quantity;
@@ -2430,6 +2508,9 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(int64 incomeId, L
 					adj_price = nominalPrice;
 					do_update = true;
 				}
+				if(adj_cost > 0.0 && adj_cost != lot_rec.Cost) {
+					do_update = true;
+				}
 				if(do_update) {
 					PPBillPacket rcpt_bill_pack;
 					THROW(p_bobj->ExtractPacketWithFlags(rcpt_bill_id, &rcpt_bill_pack, BPLD_FORCESERIALS) > 0);
@@ -2444,6 +2525,9 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(int64 incomeId, L
 						}
 						if(adj_price > 0.0) {
 							rcpt_bill_pack.TI(ti_pos).Price = adj_price;
+						}
+						if(adj_cost > 0.0) {
+							rcpt_bill_pack.TI(ti_pos).Cost = adj_cost;
 						}
 						THROW(p_bobj->UpdatePacket(&rcpt_bill_pack, 1/*use_ta*/));
 					}
@@ -2466,27 +2550,14 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 {
 	int    ok = -1;
 	bool   debug_mark = false; // @debug
+	Reference * p_ref = PPRef;
 	PPObjBill * p_bobj = BillObj;
 	SString temp_buf;
 	SString fmt_buf;
 	SString msg_buf;
 	TSCollection <PPMarketplaceInterface_Wildberries::Sale> sale_list;
-	const PPID order_op_id = GetOrderOpID();
-	const PPID sale_op_id = GetSaleOpID();
-	/*
-	PPID   op_id = 0;
-	PPOprKind order_op_rec;
-	THROW(order_op_id); // @todo @err
-	THROW(GetOpData(order_op_id, &order_op_rec) > 0);
-	{
-		PPOprKind op_rec;
-		for(PPID iter_op_id = 0; !op_id && EnumOperations(PPOPT_GOODSEXPEND, &iter_op_id, &op_rec) > 0;) {
-			if(op_rec.Flags & OPKF_ONORDER && op_rec.AccSheetID == order_op_rec.AccSheetID) {
-				op_id = op_rec.ID;
-			}
-		}
-	}
-	*/
+	const PPID order_op_id = R_Prc.GetOrderOpID();
+	const PPID sale_op_id = R_Prc.GetSaleOpID();
 	THROW(sale_op_id); // @todo @err
 	RequestSales(sale_list);
 	if(sale_list.getCount()) {
@@ -2495,36 +2566,51 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 		SString serial_buf;
 		SString ord_serial_buf;
 		SString org_order_ident; // Оригинальный идентификатор строки заказа
+		PPIDArray mp_lot_list; // Список идентификаторов лотов на маркетплейсе, "увиденных" при обработке документов
 		for(uint i = 0; i < sale_list.getCount(); i++) {
 			const PPMarketplaceInterface_Wildberries::Sale * p_wb_item = sale_list.at(i);
 			if(p_wb_item) {
+				PPID   wh_id = 0;
+				const  double seller_part_amount = p_wb_item->ForPay;
 				BillTbl::Rec ord_bill_rec;
+				BillTbl::Rec ex_bill_rec;
+				ResolveWarehouseByName(WhList, p_wb_item->WarehouseName, LConfig.Location, &wh_id);
 				bill_code.Z().Cat(p_wb_item->SaleId);
 				ord_bill_code.Z().Cat(p_wb_item->GNumber);
-				if(p_bobj->P_Tbl->SearchByCode(bill_code, sale_op_id, ZERODATE, 0) > 0) {
-					// Документ уже акцептирован
+				if(p_bobj->P_Tbl->SearchByCode(bill_code, sale_op_id, ZERODATE, &ex_bill_rec) > 0) {
+					// Документ уже акцептирован.
+					// Увы, все равно придется его открыть - нужен список лотов, которые он использует и, возможно, надо установить какие-то суммы.
+					PPBillPacket ex_pack;
+					THROW(p_bobj->ExtractPacketWithFlags(ex_bill_rec.ID, &ex_pack, BPLD_FORCESERIALS) > 0);
+					{
+						for(uint tiidx = 0; tiidx < ex_pack.GetTCount(); tiidx++) {
+							const PPID lot_id = ex_pack.ConstTI(tiidx).LotID;
+							if(lot_id > 0)
+								mp_lot_list.add(lot_id);
+						}
+					}
+					if(seller_part_amount > 0.0) {
+						double ex_seller_part_amount = ex_pack.Amounts.Get(PPAMT_MP_SELLERPART, 0);
+						if(ex_seller_part_amount != seller_part_amount) {
+							ex_pack.Amounts.Put(PPAMT_MP_SELLERPART, 0, seller_part_amount, 1, 1);
+							p_bobj->FillTurnList(&ex_pack);
+							if(!p_bobj->UpdatePacket(&ex_pack, 1)) {
+								R_Prc.GetLogger().LogLastError();
+							}
+						}
+					}
 				}
 				else if(p_bobj->P_Tbl->SearchByCode(ord_bill_code, order_op_id, ZERODATE, &ord_bill_rec) > 0) {
 					PPBillPacket ord_pack;
 					THROW(p_bobj->ExtractPacketWithFlags(ord_bill_rec.ID, &ord_pack, BPLD_FORCESERIALS) > 0);
 					{
-						PPID   ar_id = 0;
-						PPID   wh_id = 0;
 						PPBillPacket pack;
 						PPID   ex_bill_id = 0;
 						Goods2Tbl::Rec goods_rec;
 						PPBillPacket::SetupObjectBlock sob;
-						if(p_wb_item->WarehouseName.NotEmpty()) {
-							const Warehouse * p_wh = SearchWarehouseByName(WhList, p_wb_item->WarehouseName);
-							if(p_wh) {
-								CreateWarehouse(&wh_id, p_wh->ID, p_wh->Name, p_wh->Address, 1);
-							}
-						}
-						if(!wh_id)
-							wh_id = LConfig.Location;
-						ar_id = CreateBuyer(p_wb_item, 1/*use_ta*/);
+						PPID   ar_id = CreateBuyer(p_wb_item, 1/*use_ta*/);
 						if(!pack.CreateBlank_WithoutCode(sale_op_id, 0, wh_id, 1)) {
-							CALLPTRMEMB(P_Logger, LogLastError());
+							R_Prc.GetLogger().LogLastError();
 						}
 						else {
 							const double sold_quantity = 1.0; // 
@@ -2549,6 +2635,7 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 									nominal_price = p_wb_item->FinishedPrice;
 								PPID   lot_id = AdjustReceiptOnExpend(p_wb_item->IncomeID, pack.Rec.Dt, wh_id, goods_id, sold_quantity, nominal_price, 1/*use_ta*/);
 								if(lot_id) {
+									mp_lot_list.add(lot_id);
 									uint   ord_ti_idx = 0; // [1..]
 									org_order_ident.Z(); // Оригинальный идентификатор строки заказа
 									for(uint oti = 0; !ord_ti_idx && oti < ord_pack.GetTCount(); oti++) {
@@ -2574,48 +2661,27 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 										PPLoadText(PPTXT_MP_ORDERFORSALESITEMNFOUND, fmt_buf);
 										(temp_buf = bill_code).CatDiv('-', 1).Cat(p_wb_item->Dtm.d, DATF_DMY);
 										msg_buf.Printf(fmt_buf, temp_buf.cptr());
-										CALLPTRMEMB(P_Logger, Log(msg_buf));
+										R_Prc.GetLogger().Log(msg_buf);
+									}
+									else if(p_bobj->InsertShipmentItemByOrder(&pack, &ord_pack, static_cast<int>(ord_ti_idx)-1, lot_id/*srcLotID*/, 1.0, 0)) {
+										const long new_row_idx = 0;//row_idx_list.get(0);
+										pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, temp_buf.Z().Cat(p_wb_item->IncomeID));
+										pack.LTagL.AddNumber(PPTAG_LOT_ORGORDERIDENT, new_row_idx, temp_buf.Z().Cat(p_wb_item->SrID));
+										pack.InitAmounts();
+										if(p_wb_item->ForPay > 0.0) {
+											pack.Amounts.Put(PPAMT_MP_SELLERPART, 0, p_wb_item->ForPay, 1, 1);
+										}
+										p_bobj->FillTurnList(&pack);
+										if(p_bobj->TurnPacket(&pack, 1)) {
+											R_Prc.GetLogger().LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
+											ok = 1;
+										}
+										else {
+											R_Prc.GetLogger().LogLastError();
+										}
 									}
 									else {
-										if(p_bobj->InsertShipmentItemByOrder(&pack, &ord_pack, static_cast<int>(ord_ti_idx)-1, lot_id/*srcLotID*/, 1.0, 0)) {
-											//assert(row_idx_list.getCount() == 1);
-											const long new_row_idx = 0;//row_idx_list.get(0);
-											pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, temp_buf.Z().Cat(p_wb_item->IncomeID));
-											pack.LTagL.AddNumber(PPTAG_LOT_ORGORDERIDENT, new_row_idx, temp_buf.Z().Cat(p_wb_item->SrID));
-											pack.InitAmounts();
-											if(p_wb_item->ForPay > 0.0) {
-												pack.Amounts.Put(PPAMT_MP_SELLERPART, 0, p_wb_item->ForPay, 1, 1);
-											}
-											p_bobj->FillTurnList(&pack);
-											if(p_bobj->TurnPacket(&pack, 1)) {
-												CALLPTRMEMB(P_Logger, LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0));
-												ok = 1;
-											}
-											else {
-												CALLPTRMEMB(P_Logger, LogLastError());
-											}
-										}
-										/*
-										PPTransferItem ti;
-										LongArray row_idx_list;
-										ti.GoodsID = goods_id;
-										ti.Price = p_wb_item->FinishedPrice;
-										ti.Quantity_ = sold_quantity;
-										ti.SetupLot(lot_id, 0, 0);
-										if(pack.InsertRow(&ti, &row_idx_list)) {
-											//pack.Se
-											assert(row_idx_list.getCount() == 1);
-											const long new_row_idx = row_idx_list.get(0);
-											pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, temp_buf.Z().Cat(p_wb_item->IncomeID));
-											pack.InitAmounts();
-											p_bobj->FillTurnList(&pack);
-											if(p_bobj->TurnPacket(&pack, 1)) {
-												ok = 1;
-											}
-											else {
-												// @todo @err
-											}
-										}*/
+										R_Prc.GetLogger().LogLastError();
 									}
 								}
 							}
@@ -2627,6 +2693,57 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 				}
 				else {
 					// Документ заказа не найден
+					PPLoadText(PPTXT_MP_ORDERFORSALESITEMNFOUND, fmt_buf);
+					(temp_buf = bill_code).CatDiv('-', 1).Cat(p_wb_item->Dtm.d, DATF_DMY);
+					msg_buf.Printf(fmt_buf, temp_buf.cptr());
+					R_Prc.GetLogger().Log(msg_buf);
+				}
+			}
+		}
+		if(mp_lot_list.getCount()) {
+			mp_lot_list.sortAndUndup();
+			for(uint i = 0; i < mp_lot_list.getCount(); i++) {
+				const PPID lot_id = mp_lot_list.get(i);
+				ReceiptTbl::Rec lot_rec;
+				if(p_bobj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
+					if(lot_rec.Cost == 0.0) {
+						double adj_cost = 0.0;
+						{
+							uint   _pos = 0;
+							PPID   own_lot_id = 0;
+							ReceiptTbl::Rec own_lot_rec;
+							if(MpLotToOwnLotAssocList.Search(lot_id, &own_lot_id, &_pos)) {
+								if(p_bobj->trfr->Rcpt.Search(own_lot_id, &own_lot_rec) > 0) {
+									adj_cost = own_lot_rec.Cost;
+								}
+							}
+							else {
+								PPID   own_lot_id = 0;
+								int64  income_id = 0;
+								if(p_ref->Ot.GetTagStr(PPOBJ_LOT, lot_id, PPTAG_LOT_SN, temp_buf) > 0) {
+									income_id = temp_buf.ToInt64();
+								}
+								if(SearchOriginalLotForMp(income_id, lot_rec.Dt, lot_rec.LocID, lot_rec.GoodsID, &own_lot_id) > 0) {
+									if(p_bobj->trfr->Rcpt.Search(own_lot_id, &own_lot_rec) > 0) {
+										MpLotToOwnLotAssocList.Add(lot_id, own_lot_id);
+										adj_cost = own_lot_rec.Cost;
+									}							
+								}
+							}
+						}
+						if(adj_cost > 0.0) {
+							PPBillPacket rcpt_bpack;
+							if(p_bobj->ExtractPacketWithFlags(lot_rec.BillID, &rcpt_bpack, BPLD_FORCESERIALS) > 0) {
+								uint   tiidx = 0;
+								if(rcpt_bpack.SearchLot(lot_id, &tiidx)) {
+									rcpt_bpack.TI(tiidx).Cost = adj_cost;
+									rcpt_bpack.InitAmounts();
+									p_bobj->FillTurnList(&rcpt_bpack);
+									THROW(p_bobj->UpdatePacket(&rcpt_bpack, 1));
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -2643,7 +2760,7 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 	TSCollection <PPMarketplaceInterface_Wildberries::Sale> order_list;
 	RequestOrders(order_list);
 	if(order_list.getCount()) {
-		const PPID order_op_id = GetOrderOpID();
+		const PPID order_op_id = R_Prc.GetOrderOpID();
 		THROW(order_op_id); // @todo @err
 		{
 			SString bill_code;
@@ -2653,25 +2770,18 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 					seen_idx_list.add(static_cast<long>(ord_list_idx));
 					const PPMarketplaceInterface_Wildberries::Sale * p_wb_item = order_list.at(ord_list_idx);
 					if(p_wb_item) {
+						PPID   wh_id = 0;
+						ResolveWarehouseByName(WhList, p_wb_item->WarehouseName, LConfig.Location, &wh_id);
 						bill_code.Z().Cat(p_wb_item->GNumber);
 						if(p_bobj->P_Tbl->SearchByCode(bill_code, order_op_id, ZERODATE, 0) > 0) {
 							;
 						}
 						else {
-							PPID   wh_id = 0;
-							PPID   ar_id = 0;
 							PPBillPacket pack;
 							PPID   ex_bill_id = 0;
 							Goods2Tbl::Rec goods_rec;
 							PPBillPacket::SetupObjectBlock sob;
-							if(p_wb_item->WarehouseName.NotEmpty()) {
-								const Warehouse * p_wh = SearchWarehouseByName(WhList, p_wb_item->WarehouseName);
-								if(p_wh)
-									CreateWarehouse(&wh_id, p_wh->ID, p_wh->Name, p_wh->Address, 1);
-							}
-							if(!wh_id)
-								wh_id = LConfig.Location;
-							ar_id = CreateBuyer(p_wb_item, 1/*use_ta*/);
+							PPID   ar_id = CreateBuyer(p_wb_item, 1/*use_ta*/);
 							if(pack.CreateBlank_WithoutCode(order_op_id, 0, wh_id, 1)) {
 								pack.Rec.Dt = checkdate(p_wb_item->Dtm.d) ? p_wb_item->Dtm.d : getcurdate_();
 								STRNSCPY(pack.Rec.Code, bill_code);
@@ -2732,11 +2842,11 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 										pack.InitAmounts();
 										p_bobj->FillTurnList(&pack);
 										if(p_bobj->TurnPacket(&pack, 1)) {
-											CALLPTRMEMB(P_Logger, LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0));
+											R_Prc.GetLogger().LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
 											ok = 1;
 										}
 										else {
-											CALLPTRMEMB(P_Logger, LogLastError());
+											R_Prc.GetLogger().LogLastError();
 										}
 									}
 								}
@@ -2818,10 +2928,10 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 	{
 		PPTransaction tra(1);
 		THROW(tra);
-		acs_id = Helper_GetMarketplaceOpsAccSheetID(true/*createIfNExists*/, true/*createArticles*/, 0);
+		acs_id = R_Prc.Helper_GetMarketplaceOpsAccSheetID(true/*createIfNExists*/, true/*createArticles*/, 0);
 		THROW(acs_id);
 		{
-			acc_id = Helper_GetMarketplaceOpsAccount(true, 0);
+			acc_id = R_Prc.Helper_GetMarketplaceOpsAccount(true, 0);
 			THROW(acc_id);
 		}
 		op_obj.GetGenericAccTurnForRegisterOp(&op_id, 0/*use_ta*/);
@@ -2895,13 +3005,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 					if(native_op_id) {
 						PPID  loc_id = 0;
 						ArticleTbl::Rec ar_rec;
-						if(p_entry->Warehouse.NotEmpty()) {
-							const Warehouse * p_wh = SearchWarehouseByName(WhList, p_entry->Warehouse);
-							if(p_wh) {
-								int r = CreateWarehouse(&loc_id, p_wh->ID, p_wh->Name, p_wh->Address, 1);
-							}
-						}
-						SETIFZ(loc_id, LConfig.Location);
+						ResolveWarehouseByName(WhList, p_entry->Warehouse, LConfig.Location, &loc_id);
 						switch(native_op_id) {
 							case nativeopCargo:
 								// ppvz_vw, ppvz_vw_nds, rebill_logistic_cost
@@ -2944,7 +3048,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 												at.DbtID.ac = acc_id;
 												at.DbtID.ar = ar_rec.ID;
 												at.DbtSheet = acs_id;
-												at.Amount = p_entry->Acceptance;
+												at.Amount = -fabs(p_entry->Acceptance);
 												bpack_at.Turns.insert(&at);
 												bpack_at.Rec.Amount = at.Amount;
 												THROW(p_bobj->TurnPacket(&bpack_at, 0));
@@ -2990,7 +3094,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 												at.DbtID.ac = acc_id;
 												at.DbtID.ar = ar_rec.ID;
 												at.DbtSheet = acs_id;
-												at.Amount = p_entry->Deduction;
+												at.Amount = -fabs(p_entry->Deduction);
 												bpack_at.Turns.insert(&at);
 												bpack_at.Rec.Amount = at.Amount;
 												if(p_entry->BonusTypeName.NotEmpty()) {
@@ -3025,7 +3129,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 												at.DbtID.ac = acc_id;
 												at.DbtID.ar = ar_rec.ID;
 												at.DbtSheet = acs_id;
-												at.Amount = p_entry->StorageFee;
+												at.Amount = -fabs(p_entry->StorageFee);
 												bpack_at.Turns.insert(&at);
 												bpack_at.Rec.Amount = at.Amount;
 												THROW(p_bobj->TurnPacket(&bpack_at, 0));
@@ -3047,13 +3151,13 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 				//bpack.InitAmounts();
 				p_bobj->FillTurnList(&bpack);
 				if(!p_bobj->UpdatePacket(&bpack, 1)) {
-					CALLPTRMEMB(P_Logger, LogLastError());
+					R_Prc.GetLogger().LogLastError();
 				}
 			}
 		}
 	}
 	CATCH
-		CALLPTRMEMB(P_Logger, LogLastError());
+		R_Prc.GetLogger().LogLastError();
 		ok = 0;
 	ENDCATCH
 	return ok;
@@ -3083,42 +3187,49 @@ int TestMarketplace()
 	}
 	if(do_test) {
 		PPID   mp_psn_id = 0;
-		PPLogger logger;
-		PPMarketplaceInterface_Wildberries ifc(&logger);
-		const int gmppr = ifc.GetMarketplacePerson(&mp_psn_id, 1);
-		if(ifc.Init(gua_id)) {
-			//TSCollection <PPMarketplaceInterface_Wildberries::Warehouse> wh_list;
-			TSCollection <PPMarketplaceInterface_Wildberries::Stock> stock_list;
-			//TSCollection <PPMarketplaceInterface_Wildberries::Sale> sale_list;
-			//TSCollection <PPMarketplaceInterface_Wildberries::Sale> order_list;
-			//TSCollection <PPMarketplaceInterface_Wildberries::Income> income_list;
-			TSCollection <PPMarketplaceInterface_Wildberries::SalesRepDbpEntry> sales_rep_dbp_list;
+		//PPLogger logger;
+		PrcssrMarketplaceInterchange prc;
+		MarketplaceInterchangeFilt filt;
+		filt.GuaID = gua_id;
+		if(prc.Init(&filt)) {
+			PPMarketplaceInterface * p_ifc = prc.GetIfc();
+			if(p_ifc) {
+				PPMarketplaceInterface_Wildberries * p_ifc_wb = static_cast<PPMarketplaceInterface_Wildberries *>(p_ifc);
+				const int gmppr = p_ifc_wb->GetMarketplacePerson(&mp_psn_id, 1);
+				TSCollection <PPMarketplaceInterface_Wildberries::Warehouse> wh_list2;
+				TSCollection <PPMarketplaceInterface_Wildberries::Stock> stock_list;
+				//TSCollection <PPMarketplaceInterface_Wildberries::Sale> sale_list;
+				//TSCollection <PPMarketplaceInterface_Wildberries::Sale> order_list;
+				//TSCollection <PPMarketplaceInterface_Wildberries::Income> income_list;
+				TSCollection <PPMarketplaceInterface_Wildberries::SalesRepDbpEntry> sales_rep_dbp_list;
 
-			int r = 0;
-			r = ifc.RequestDocumentsList();
-			r = ifc.RequestBalance();
-			r = ifc.RequestWareList();
-			//
-			DateRange period;
-			period.SetPredefined(PREDEFPRD_LASTMONTH, ZERODATE);
-			r = ifc.ImportReceipts();
-			r = ifc.ImportOrders();
-			r = ifc.ImportSales();
-			//r = ifc.RequestWarehouseList(wh_list);
-			r = ifc.RequestAcceptanceReport(period);
-			r = ifc.RequestSupplies();
-			//r = ifc.RequestIncomes(income_list);
-			r = ifc.RequestCommission();
-			r = ifc.RequestStocks(stock_list);
-			//r = ifc.RequestOrders(order_list);
-			//r = ifc.RequestSales(sale_list);
-			r = ifc.RequestGoodsPrices();
-			{
-				//period.SetPredefined(PREDEFPRD_LASTMONTH, ZERODATE);
-				//period.low.encode(1, 5, 2024);
-				//period.upp = getcurdate_();
-				//r = ifc.RequestSalesReportDetailedByPeriod(period, sales_rep_dbp_list);
-				r = ifc.ImportFinancialTransactions();
+				int r = 0;
+				r = p_ifc_wb->RequestWarehouseList2(wh_list2);
+				r = p_ifc_wb->RequestDocumentsList();
+				r = p_ifc_wb->RequestBalance();
+				r = p_ifc_wb->RequestWareList();
+				//
+				DateRange period;
+				period.SetPredefined(PREDEFPRD_LASTMONTH, ZERODATE);
+				r = p_ifc_wb->ImportReceipts();
+				r = p_ifc_wb->ImportOrders();
+				r = p_ifc_wb->ImportSales();
+				//r = p_ifc_wb->RequestWarehouseList(wh_list);
+				r = p_ifc_wb->RequestAcceptanceReport(period);
+				r = p_ifc_wb->RequestSupplies();
+				//r = p_ifc_wb->RequestIncomes(income_list);
+				r = p_ifc_wb->RequestCommission();
+				r = p_ifc_wb->RequestStocks(stock_list);
+				//r = p_ifc_wb->RequestOrders(order_list);
+				//r = p_ifc_wb->RequestSales(sale_list);
+				r = p_ifc_wb->RequestGoodsPrices();
+				{
+					//period.SetPredefined(PREDEFPRD_LASTMONTH, ZERODATE);
+					//period.low.encode(1, 5, 2024);
+					//period.upp = getcurdate_();
+					//r = p_ifc_wb->RequestSalesReportDetailedByPeriod(period, sales_rep_dbp_list);
+					r = p_ifc_wb->ImportFinancialTransactions();
+				}
 			}
 		}
 	}
@@ -3139,6 +3250,124 @@ MarketplaceInterchangeFilt & FASTCALL MarketplaceInterchangeFilt::operator = (co
 {
 	PPBaseFilt::Copy(&rS, 0);
 	return *this;
+}
+
+PPMarketplaceConfig::PPMarketplaceConfig() : Tag(PPOBJ_CONFIG), ID(PPCFG_MAIN), Prop(PPPRP_MRKTPLCCFG), OrderOpID(0), SalesOpID(0), TransferToMpOpID(0), Flags(0)
+{
+	memzero(Reserve, sizeof(Reserve));
+	memzero(Reserve2, sizeof(Reserve2));
+}
+
+PPMarketplaceConfig & PPMarketplaceConfig::Z()
+{
+	Tag = PPOBJ_CONFIG;
+	ID = PPCFG_MAIN;
+	Prop = PPPRP_MRKTPLCCFG;
+	OrderOpID = 0;
+	SalesOpID = 0;
+	TransferToMpOpID = 0;
+	Flags = 0;
+	return *this;
+}
+
+bool PPMarketplaceConfig::IsEq_ForStorage(const PPMarketplaceConfig & rS) const
+{
+	return (OrderOpID == rS.OrderOpID && SalesOpID == rS.SalesOpID && TransferToMpOpID == rS.TransferToMpOpID);
+}
+
+/*static*/int FASTCALL PrcssrMarketplaceInterchange::ReadConfig(PPMarketplaceConfig * pCfg)
+{
+	static_assert(sizeof(PPMarketplaceConfig) == PROPRECFIXSIZE);
+	int    r = PPRef->GetPropMainConfig(PPPRP_MRKTPLCCFG, pCfg, sizeof(*pCfg));
+	if(r > 0) {
+		if(pCfg)
+			pCfg->Flags |= PPMarketplaceConfig::fValid;
+	}
+	else {
+		memzero(pCfg, sizeof(*pCfg));
+	}
+	return r;
+}
+
+/*static*/int FASTCALL PrcssrMarketplaceInterchange::WriteConfig(PPMarketplaceConfig * pCfg, int use_ta)
+{
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	PPMarketplaceConfig org_cfg;
+	const  int  rcr = ReadConfig(&org_cfg);
+	const  bool is_exists = (rcr > 0);
+	PPTransaction tra(1);
+	THROW(tra);
+	if(pCfg) {
+		if(pCfg->IsEq_ForStorage(org_cfg)) {
+			;
+		}
+		else {
+			PPMarketplaceConfig cfg(*pCfg);
+			cfg.Flags &= ~PPMarketplaceConfig::fValid; // transient-flag
+			THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_MRKTPLCCFG, &cfg, sizeof(cfg), 0));
+			DS.LogAction(is_exists ? PPACN_CONFIGUPDATED : PPACN_CONFIGCREATED, PPCFGOBJ_MARKETPLACE, 0, 0, 0);
+		}
+	}
+	else {
+		THROW(p_ref->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_MRKTPLCCFG, 0, 0, 0));
+	}
+	THROW(tra.Commit());
+	CATCHZOK
+	return ok;
+}
+
+/*static*/int PrcssrMarketplaceInterchange::EditConfig()
+{
+	class MpConfigDialog : public TDialog {
+		DECL_DIALOG_DATA(PPMarketplaceConfig);
+	public:
+		MpConfigDialog() : TDialog(DLG_MPCFG)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			PPIDArray op_type_list;
+			RVALUEPTR(Data, pData);
+			op_type_list.Z().add(PPOPT_GOODSORDER);
+			SetupOprKindCombo(this, CTLSEL_MPCFG_ORDEROP, Data.OrderOpID, 0, &op_type_list, 0);
+			op_type_list.Z().add(PPOPT_GOODSEXPEND);
+			SetupOprKindCombo(this, CTLSEL_MPCFG_SALEOP, Data.SalesOpID, 0, &op_type_list, 0);
+			op_type_list.Z().add(PPOPT_GOODSEXPEND);
+			SetupOprKindCombo(this, CTLSEL_MPCFG_TRANSFOP, Data.TransferToMpOpID, 0, &op_type_list, 0);
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			getCtrlData(CTLSEL_MPCFG_ORDEROP, &Data.OrderOpID);
+			getCtrlData(CTLSEL_MPCFG_SALEOP, &Data.SalesOpID);
+			getCtrlData(CTLSEL_MPCFG_TRANSFOP, &Data.TransferToMpOpID);
+			//
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	};
+
+	int    ok = -1;
+	int    is_new = 0;
+	PPMarketplaceConfig cfg;
+	MpConfigDialog * dlg = new MpConfigDialog();
+	THROW(CheckCfgRights(PPCFGOBJ_MARKETPLACE, PPR_READ, 0));
+	THROW(is_new = ReadConfig(&cfg));
+	THROW(CheckDialogPtr(&dlg));
+	dlg->setDTS(&cfg);
+	while(ok < 0 && ExecView(dlg) == cmOK) {
+		if(dlg->getDTS(&cfg)) {
+			THROW(CheckCfgRights(PPCFGOBJ_MARKETPLACE, PPR_MOD, 0));
+			THROW(WriteConfig(&cfg, 1));
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	delete dlg;
+	return ok;
 }
 
 PrcssrMarketplaceInterchange::PrcssrMarketplaceInterchange() : P_Ifc(0), State(0)
@@ -3189,21 +3418,211 @@ int PrcssrMarketplaceInterchange::InitParam(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
+PPID PrcssrMarketplaceInterchange::GetOrderOpID()
+{
+	PPID   result_id = 0;
+	if(Cfg.OrderOpID > 0) {
+		result_id = Cfg.OrderOpID;
+	}
+	else {
+		if(Cfg.OrderOpID == 0) {
+			PPAlbatrossConfig albtr_cfg;
+			result_id = (PPAlbatrosCfgMngr::Get(&albtr_cfg) > 0) ? albtr_cfg.Hdr.OpID : 0;
+			if(result_id == 0)
+				Cfg.OrderOpID = -1; // Индицирует факт того, что вид операции заказа получить не удается.
+			else
+				Cfg.OrderOpID = result_id;
+		}
+	}
+	return result_id;
+}
+
+PPID PrcssrMarketplaceInterchange::GetSaleOpID()
+{
+	PPID   result_id = 0;
+	if(Cfg.SalesOpID > 0)
+		result_id = Cfg.SalesOpID;
+	else {
+		if(Cfg.SalesOpID == 0) {
+			const PPID order_op_id = GetOrderOpID();
+			PPOprKind order_op_rec;
+			if(order_op_id) {
+				if(GetOpData(order_op_id, &order_op_rec) > 0) {
+					PPOprKind op_rec;
+					for(PPID iter_op_id = 0; !result_id && EnumOperations(PPOPT_GOODSEXPEND, &iter_op_id, &op_rec) > 0;) {
+						if(op_rec.Flags & OPKF_ONORDER && op_rec.AccSheetID == order_op_rec.AccSheetID) {
+							result_id = op_rec.ID;
+						}
+					}
+				}
+			}
+			if(result_id == 0)
+				Cfg.SalesOpID = -1; // Индицирует факт того, что вид операции продажи получить не удается.
+			else
+				Cfg.SalesOpID = result_id;
+		}
+	}
+	return result_id;
+}
+
+PPID PrcssrMarketplaceInterchange::GetMarketplaceAccSheetID()
+{
+	PPID   acs_id = 0;
+	Reference * p_ref = PPRef;
+	PPAccSheet2 acs_rec;
+	for(SEnum en = p_ref->EnumByIdxVal(PPOBJ_ACCSHEET, 1, PPOBJ_PERSON); !acs_id && en.Next(&acs_rec) > 0;) {
+		if(acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MARKETPLACE) {
+			acs_id = acs_rec.ID;
+		}
+	}
+	return acs_id;
+}
+
+PPID PrcssrMarketplaceInterchange::Helper_GetMarketplaceOpsAccSheetID(bool createIfNExists, bool createArticles, int use_ta)
+{
+//PPTXT_ACCSHEET_MP_NAME               "Операции на маркетплейсах"
+//PPTXT_ACCSHEET_MP_AR_NAMES           "1,Комиссионное вознаграждение;2,Стоимость эквайринга;3,Стоимость хранения;4,Стоимость приемки на склад хранения"
+	const char * p_symb = "MARKETPLACE-OPS";
+	PPID   acs_id = 0;
+	Reference * p_ref = PPRef;
+	SString temp_buf;
+	PPObjAccSheet acs_obj;
+	PPAccSheet2 acs_rec;
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(acs_obj.SearchBySymb(p_symb, &acs_id, &acs_rec) > 0) {
+			;
+		}
+		else if(createIfNExists) {
+			MEMSZERO(acs_rec);
+			PPLoadText(PPTXT_ACCSHEET_MP_NAME, temp_buf);
+			STRNSCPY(acs_rec.Name, temp_buf);
+			STRNSCPY(acs_rec.Symb, p_symb);
+			acs_rec.Assoc = 0;
+			acs_rec.ObjGroup = 0;
+			acs_rec.Flags = 0;
+			THROW(p_ref->AddItem(PPOBJ_ACCSHEET, &acs_id, &acs_rec, 0));		
+		}
+		if(acs_id && createArticles) {
+			SString id_buf;
+			SString nm_buf;
+			PPLoadText(PPTXT_ACCSHEET_MP_AR_NAMES, temp_buf);
+			StringSet ss(';', temp_buf);
+			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+				if(temp_buf.Divide(',', id_buf, nm_buf) > 0) {
+					long ar_n = id_buf.ToLong();
+					if(ar_n > 0 && nm_buf.NotEmptyS()) {
+						ArticleTbl::Rec ar_rec;
+						const int snr = ArObj.P_Tbl->SearchNum(acs_id, ar_n, &ar_rec);
+						if(snr < 0) {
+							PPID new_id = 0;
+							MEMSZERO(ar_rec);
+							ar_rec.Article = ar_n;
+							ar_rec.ObjID = ar_n;
+							ar_rec.AccSheetID = acs_id;
+							STRNSCPY(ar_rec.Name, nm_buf);
+							THROW(ArObj.P_Tbl->Add(&new_id, &ar_rec, 0));
+						}
+					}
+				}
+			}
+		}
+		THROW(tra.Commit());
+	}
+	CATCH
+		acs_id = 0;
+	ENDCATCH
+	return acs_id;
+}
+
+PPID PrcssrMarketplaceInterchange::Helper_GetMarketplaceOpsAccount(bool createIfNExists, int use_ta)
+{
+	PPID   acc_id = 0;
+	SString temp_buf;
+	PPObjAccount acc_obj;
+	PPAccount acc_rec;
+	PPID acs_id = 0;
+	PPObjTag tag_obj;
+	PPObjectTag tag_rec;
+	const PPID gua_id = GetGuaPack().Rec.ID;
+	THROW(tag_obj.Fetch(PPTAG_GUA_ACCOUNT, &tag_rec) > 0); // @todo @err (создание зарезервированных объектов)
+	if(gua_id) {
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		acs_id = Helper_GetMarketplaceOpsAccSheetID(createIfNExists, true/*createArticles*/, 0);
+		THROW(acs_id);
+		{
+			const ObjTagItem * p_tag_item = GetGuaPack().TagL.GetItem(PPTAG_GUA_ACCOUNT);
+			int    intval = 0;
+			if(p_tag_item && p_tag_item->GetInt(&intval) && acc_obj.Search(intval, &acc_rec) > 0) {
+				acc_id = acc_rec.ID;
+			}
+			else if(createIfNExists) {
+				PPAccountPacket acc_pack;
+				(temp_buf = "Marketplace account").CatDiv('-', 1).Cat(GetGuaPack().Rec.Name);
+				STRNSCPY(acc_pack.Rec.Name, temp_buf);
+				acc_pack.Rec.Type = ACY_REGISTER;
+				acc_pack.Rec.Kind = ACT_ACTIVE;
+				acc_pack.Rec.Flags |= ACF_SYSNUMBER;
+				acc_pack.Rec.AccSheetID = acs_id;
+				THROW(acc_obj.GenerateNumber(&acc_pack.Rec));
+				assert(acc_id == 0);
+				THROW(acc_obj.PutPacket(&acc_id, &acc_pack, 0));
+				{
+					assert(acc_id);
+					ObjTagItem tag_item;
+					tag_item.Init(PPTAG_GUA_ACCOUNT);
+					tag_item.SetInt(PPTAG_GUA_ACCOUNT, acc_id);
+					THROW(PPRef->Ot.PutTag(PPOBJ_GLOBALUSERACC, GetGuaPack().Rec.ID, &tag_item, 0));
+					THROW(ReloadGuaPack()); // Повторно извлекаем пакет глобальной учетной записи ибо там теперь новый тег
+				}
+			}
+		}
+		THROW(tra.Commit());
+	}
+	CATCH
+		acc_id = 0;
+	ENDCATCH
+	return acc_id;
+}
+
+PPID PrcssrMarketplaceInterchange::GetMarketplaceOpsAccSheetID()
+{
+	return Helper_GetMarketplaceOpsAccSheetID(false, false, 0);
+}
+
+int PrcssrMarketplaceInterchange::ReloadGuaPack()
+{
+	int    ok = 1;
+	PPObjGlobalUserAcc gua_obj;
+	THROW(gua_obj.GetPacket(GuaPack.Rec.ID, &GuaPack) > 0);
+	CATCHZOK
+	return ok;
+}
+
 int PrcssrMarketplaceInterchange::Init(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	PPObjGlobalUserAcc gua_obj;
-	PPGlobalUserAccPacket gua_pack;
 	MarketplaceInterchangeFilt temp_filt;
 	State &= ~stInited;
 	ZDELETE(P_Ifc);
 	THROW(temp_filt.IsA(pBaseFilt));
 	temp_filt = *static_cast<const MarketplaceInterchangeFilt *>(pBaseFilt);
 	THROW(temp_filt.GuaID); // @todo @err
-	THROW(gua_obj.GetPacket(temp_filt.GuaID, &gua_pack) > 0);
-	if(gua_pack.Rec.ServiceIdent == PPGLS_WILDBERRIES) {
+	THROW(gua_obj.GetPacket(temp_filt.GuaID, &GuaPack) > 0);
+	{
+		int rcr = ReadConfig(&Cfg);
+		THROW(rcr);
+		if(rcr < 0) {
+			Cfg.OrderOpID = GetOrderOpID();
+			Cfg.SalesOpID = GetSaleOpID();
+		}
+	}
+	if(GuaPack.Rec.ServiceIdent == PPGLS_WILDBERRIES) {
 		PPID   mp_psn_id = 0;
-		P_Ifc = new PPMarketplaceInterface_Wildberries(&Logger);
+		P_Ifc = new PPMarketplaceInterface_Wildberries(*this);
 		THROW_SL(P_Ifc);
 		const int gmppr = P_Ifc->GetMarketplacePerson(&mp_psn_id, 1);
 		THROW(P_Ifc->Init(temp_filt.GuaID));
@@ -3221,14 +3640,20 @@ int PrcssrMarketplaceInterchange::Run()
 	int    ok = -1;
 	THROW(State & stInited); // @todo @err
 	THROW(P_Ifc); // @todo @err
+	PPWait(1);
 	{
 		PPMarketplaceInterface_Wildberries * p_ifc_wb = static_cast<PPMarketplaceInterface_Wildberries *>(P_Ifc);
+		Logger.LogString(PPTXT_MP_PROCESSING_RECEIPTS, 0);
 		p_ifc_wb->ImportReceipts();
+		Logger.LogString(PPTXT_MP_PROCESSING_ORDERS, 0);
 		p_ifc_wb->ImportOrders();
+		Logger.LogString(PPTXT_MP_PROCESSING_SALES, 0);
 		p_ifc_wb->ImportSales();
+		Logger.LogString(PPTXT_MP_PROCESSING_FINTRANSACTIONS, 0);
 		p_ifc_wb->ImportFinancialTransactions();
 	}
 	CATCHZOK
+	PPWait(0);
 	return ok;
 }
 

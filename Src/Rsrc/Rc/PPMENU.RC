@@ -487,6 +487,7 @@
 			MENUITEM "@cmd_globalacccfg",					cmGlobalAccCfg
 			MENUITEM "@cmd_workbookcfg",					cmWorkbookCfg
 			MENUITEM "@cmd_alcreportcfg",					cmAlcReportCfg
+			MENUITEM "@cmd_marketplacecfg",                 cmMarketplaceCfg
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_draftcreaterules",				cmDraftCreateRules
 			MENUITEM SEPARATOR

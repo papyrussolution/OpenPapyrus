@@ -244,6 +244,13 @@ SLTEST_R(GUID) // @v11.7.11
 		SLCHECK_Z(u2);
 	}
 	{
+		S_GUID u;
+		SLCHECK_NZ(S_GUID::IsEmpty(0));
+		SLCHECK_NZ(S_GUID::IsEmpty(&u));
+		u.Generate();
+		SLCHECK_NZ(!S_GUID::IsEmpty(&u));
+	}
+	{
 		const char * p_guid_text1 = "{076A7660-6891-4E8B-A9D7-E7A8B074267B}";
 		const char * p_guid_text2 = "076A7660-6891-4E8B-A9D7-E7A8B074267B";
 		const char * p_guid_text3 = "076a7660-6891-4e8b-a9d7-e7a8b074267b";

@@ -1233,7 +1233,7 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 					draft_transit_only = 0;
 		}
 		if(!draft_transit_only) {
-			if(Filt.LocList.IsExists() && Filt.LocList.GetCount()) {
+			if(Filt.LocList.GetCount()) {
 				PPIDArray full_loc_list;
 				LocObj.GetWarehouseList(&full_loc_list, 0);
 				THROW(LocObj.ResolveWarehouseList(&Filt.LocList.Get(), LocList_));

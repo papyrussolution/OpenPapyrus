@@ -835,9 +835,10 @@ int PPObjLocation::MakeListByType(PPID locType, PPID parentID, long zeroParentId
 	return ok;
 }
 
-StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zeroParentId)
+int PPObjLocation::GetList(const LocationFilt * pLocFilt, long zeroParentId, StrAssocArray & rList)
 {
-	StrAssocArray * p_list = new StrAssocArray;
+	rList.Z();
+	int    ok = 1;
 	SString temp_buf;
 	int    f = 0;
 	const  LocationFilt * p_filt = 0; // NZOR(pLocFilt, &CurrFilt);
@@ -858,7 +859,7 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 	if(p_filt->LocType == LOCTYP_ADDRESS && p_filt->GetExField(LocationFilt::exfPhone, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 		uint i;
 		SString phone_buf;
-		temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
+		temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
 		PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone_buf);
 		LongArray _pl;
 		P_Tbl->SearchPhoneIndex(phone_buf, 0, _pl);
@@ -867,22 +868,21 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 			LocationTbl::Rec loc_rec;
 			if(P_Tbl->GetEAddr(_pl.get(i), &ea_rec) > 0) {
 				if(ea_rec.LinkObjType == PPOBJ_LOCATION && Search(ea_rec.LinkObjID, &loc_rec) > 0 && loc_rec.Type == LOCTYP_ADDRESS) {
-					THROW_SL(p_list->Add(loc_rec.ID, 0, loc_rec.Name, 1));
+					THROW_SL(rList.Add(loc_rec.ID, 0, loc_rec.Name, 1));
 				}
 			}
 		}
 	}
 	else {
-		THROW(MakeListByType(p_filt->LocType, parent_id, zeroParentId, f, p_list));
+		THROW(MakeListByType(p_filt->LocType, parent_id, zeroParentId, f, &rList));
 		if(oneof2(p_filt->LocType, LOCTYP_WHCOLUMN, LOCTYP_WHCELL)) {
-			THROW(MakeListByType(LOCTYP_WHZONE, parent_id, zeroParentId, f, p_list));
+			THROW(MakeListByType(LOCTYP_WHZONE, parent_id, zeroParentId, f, &rList));
 		}
 		else if(oneof2(p_filt->LocType, LOCTYP_WAREHOUSE, LOCTYP_WAREHOUSEGROUP)) {
 			//
-			// Добавляем все группы складов (предыдущий цикл мог пропустить
-			// те группы, которые не имеют дочерних элементов.
+			// Добавляем все группы складов (предыдущий цикл мог пропустить те группы, которые не имеют дочерних элементов.
 			//
-			THROW(MakeListByType(LOCTYP_WAREHOUSEGROUP, parent_id, zeroParentId, f, p_list));
+			THROW(MakeListByType(LOCTYP_WAREHOUSEGROUP, parent_id, zeroParentId, f, &rList));
 			{
 				const uint elc = p_filt->ExtLocList.GetCount();
 				if(elc) {
@@ -906,7 +906,7 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 									else
 										ideqvalstr(ext_loc_id, temp_buf);
 								}
-								p_list->Add(ext_loc_id, 0, temp_buf);
+								rList.Add(ext_loc_id, 0, temp_buf);
 							}
 						}
 					}
@@ -920,20 +920,20 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 		PPLoadText(PPTXT_ALLWAREHOUSES, temp_buf.Z());
 		temp_buf.CopyTo(loc_rec.Name, sizeof(loc_rec.Name));
 		PPIDArray recur_trace;
-		THROW(AddListItem(p_list, &loc_rec, 0, &recur_trace));
+		THROW(AddListItem(&rList, &loc_rec, 0, &recur_trace));
 	}
-	p_list->SortByText();
+	rList.SortByText();
 	// @debug {
 #if 0 // {
 	{
 		SString line_buf;
-		for(uint i = 0; i < p_list->getCount(); i++) {
+		for(uint i = 0; i < rList.getCount(); i++) {
 			line_buf.Z();
-			StrAssocArray::Item item = p_list->at(i);
+			StrAssocArray::Item item = rList.Get(i);
 			if(item.ParentId) {
 				uint pos = 0;
-				if(p_list->Search(item.ParentId, &pos) > 0) {
-					StrAssocArray::Item par_item = p_list->at(pos);
+				if(rList.Search(item.ParentId, &pos) > 0) {
+					StrAssocArray::Item par_item = rList.Get(pos);
 					line_buf.Cat(par_item.Txt).Semicol();
 				}
 			}
@@ -943,16 +943,21 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 	}
 #endif // } 0
 	// } @debug
-	CATCH
-		ZDELETE(p_list);
-	ENDCATCH
+	CATCHZOK
+	return ok;
+}
+
+StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zeroParentId)
+{
+	StrAssocArray * p_list = new StrAssocArray;
+	if(p_list) {
+		if(!GetList(pLocFilt, zeroParentId, *p_list))
+			ZDELETE(p_list);
+	}
 	return p_list;
 }
 
-StrAssocArray * PPObjLocation::MakeStrAssocList(void * extraPtr)
-{
-	return MakeList_(0, 0);
-}
+StrAssocArray * PPObjLocation::MakeStrAssocList(void * extraPtr) { return MakeList_(0, 0); }
 
 int PPObjLocation::AssignImages(ListBoxDef * pDef)
 {
@@ -2360,7 +2365,7 @@ int PPObjLocation::PutGuid(PPID id, const S_GUID * pUuid, int use_ta)
 	PPObjTag tagobj;
 	PPObjectTag tag_rec;
 	THROW_PP(tagobj.Fetch(tag_id, &tag_rec) > 0, abs_err_msg_id);
-	if(pUuid && !pUuid->IsZero()) {
+	if(!S_GUID::IsEmpty(pUuid)) {
 		THROW(Search(id, &_rec) > 0);
 	}
 	{

@@ -52,12 +52,18 @@ public:
 				Data.Flags &= ~ACSHF_AUTOCREATART;
 			}
 			else {
-				if(Data.Assoc == PPOBJ_PERSON)
+				if(Data.Assoc == PPOBJ_PERSON) {
 					Data.ObjGroup = getCtrlLong(CTLSEL_ACCSHEET_GROUP);
-				else if(Data.Assoc == PPOBJ_LOCATION)
+					Data.WarehouseGroup = 0;
+				}
+				else if(Data.Assoc == PPOBJ_LOCATION) {
 					Data.ObjGroup = LOCTYP_WAREHOUSE;
-				else
+					Data.WarehouseGroup = getCtrlLong(CTLSEL_ACCSHEET_GROUP); // @v12.1.5
+				}
+				else {
 					Data.ObjGroup = 0;
+					Data.WarehouseGroup = 0;
+				}
 				GetClusterData(CTL_ACCSHEET_FLAGS, &Data.Flags);
 				ushort v = getCtrlUInt16(CTL_ACCSHEET_AGTKIND);
 				Data.Flags &= ~(ACSHF_USECLIAGT | ACSHF_USESUPPLAGT);
@@ -82,17 +88,6 @@ private:
 IMPL_HANDLE_EVENT(AccSheetDialog)
 {
 	TDialog::handleEvent(event);
-	/* @v11.3.12 if(event.isClusterClk(CTL_ACCSHEET_ASSOC)) {
-		const  PPID old_assoc = Data.Assoc;
-		GetClusterData(CTL_ACCSHEET_ASSOC, &Data.Assoc);
-		if(Data.Assoc != old_assoc) {
-			SETFLAG(Data.Flags, ACSHF_AUTOCREATART, oneof2(Data.Assoc, PPOBJ_PERSON, PPOBJ_LOCATION));
-			Data.ObjGroup = 0;
-			setupAssoc();
-		}
-		clearEvent(event);
-	}*/
-	// @v11.3.12 {
 	if(event.isCbSelected(CTLSEL_ACCSHEET_ASSCOBJ)) {
 		const  PPID preserve_assoc = Data.Assoc;
 		Data.Assoc = getCtrlLong(CTLSEL_ACCSHEET_ASSCOBJ);
@@ -103,7 +98,6 @@ IMPL_HANDLE_EVENT(AccSheetDialog)
 		}
 		clearEvent(event);
 	}
-	// } @v11.3.12 
 }
 
 void AccSheetDialog::checkLink()
@@ -131,17 +125,22 @@ int AccSheetDialog::setupAssoc()
 		Data.Assoc = PPOBJ_ACCOUNT2;
 	assc_objtype_list.addzlist(PPOBJ_PERSON, PPOBJ_LOCATION, PPOBJ_ACCOUNT2, PPOBJ_GLOBALUSERACC, PPOBJ_PROCESSOR, 0L);
 	SetupObjListCombo(this, CTLSEL_ACCSHEET_ASSCOBJ, Data.Assoc, &assc_objtype_list);
-	//AddClusterAssocDef(CTL_ACCSHEET_ASSOC,  0, 0);
-	//AddClusterAssoc(CTL_ACCSHEET_ASSOC,  1, PPOBJ_PERSON);
-	//AddClusterAssoc(CTL_ACCSHEET_ASSOC,  2, PPOBJ_LOCATION);
-	//AddClusterAssoc(CTL_ACCSHEET_ASSOC,  3, PPOBJ_ACCOUNT2);
-	//AddClusterAssoc(CTL_ACCSHEET_ASSOC,  4, PPOBJ_GLOBALUSERACC);
-	//SetClusterData(CTL_ACCSHEET_ASSOC, Data.Assoc);
-	disableCtrl(CTLSEL_ACCSHEET_GROUP, !(Data.Assoc == PPOBJ_PERSON));
-	if(Data.Assoc == PPOBJ_PERSON)
-		SetupPPObjCombo(this, CTLSEL_ACCSHEET_GROUP, groupObjType(), Data.ObjGroup, OLW_CANINSERT, 0);
-	else
-		setCtrlLong(CTL_ACCSHEET_GROUP, 0);
+	{
+		bool   disable_combo = true;
+		if(Data.Assoc == PPOBJ_PERSON) {
+			SetupPPObjCombo(this, CTLSEL_ACCSHEET_GROUP, groupObjType(), Data.ObjGroup, OLW_CANINSERT, 0);
+			disable_combo = false;
+		}
+		else if(Data.Assoc == PPOBJ_LOCATION) { // @v12.1.5
+			LocationFilt filt;
+			filt.LocType = LOCTYP_WAREHOUSEGROUP;
+			SetupLocationCombo(this, CTLSEL_ACCSHEET_GROUP, Data.WarehouseGroup, 0, &filt);
+			disable_combo = false;
+		}
+		else
+			setCtrlLong(CTL_ACCSHEET_GROUP, 0);
+		disableCtrl(CTLSEL_ACCSHEET_GROUP, disable_combo);
+	}
 	AddClusterAssoc(CTL_ACCSHEET_FLAGS, 0, ACSHF_AUTOCREATART);
 	AddClusterAssoc(CTL_ACCSHEET_FLAGS, 1, ACSHF_USEALIASSUBST);
 	SetClusterData(CTL_ACCSHEET_FLAGS, Data.Flags);

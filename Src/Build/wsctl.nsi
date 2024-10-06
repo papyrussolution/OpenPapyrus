@@ -2,6 +2,8 @@
 ; Copyright (c) A.Sobolev 2024
 ; Скрипт для создания дистрибутива компонента WSCTL
 ;
+!define BASEPROD_NAME "WSCTL"
+
 !define PRODUCT_PUBLISHER "A.Fokin, A.Sobolev"
 !define PRODUCT_WEB_SITE "http://www.petroglif.ru"
 !define SRC_REDIST               "${SRC_ROOT}\src\redist"
@@ -32,7 +34,7 @@ BrandingText " "
 !define MUI_ICON   "${SRC_ROOT}\SRC\RSRC\ICO\P2.ICO"
 !define MUI_UNICON "${SRC_ROOT}\SRC\RSRC\ICO\P2.ICO"
 ;
-; Утилита, собираемая проектом VersionSelector
+; “тилита, собираемаЯ проектом VersionSelector
 ;
 !define VERSELDLL  "versel.dll"
 
@@ -65,8 +67,34 @@ FunctionEnd
 ; License page
 ;
 !insertmacro MUI_PAGE_LICENSE "${SRC_ROOT}\SRC\Doc\LicenseAgreement.rtf"
-
+;
+; Components page
+;
+!insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
+;
+; Start menu page
+;
+var ICONS_GROUP
+
+!define MUI_STARTMENUPAGE_NODISABLE
+!define MUI_STARTMENUPAGE_DEFAULTFOLDER "${BASEPROD_NAME}"
+!define MUI_STARTMENUPAGE_REGISTRY_ROOT "${PRODUCT_UNINST_ROOT_KEY}"
+!define MUI_STARTMENUPAGE_REGISTRY_KEY "${PRODUCT_UNINST_KEY}"
+!define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "${PRODUCT_STARTMENU_REGVAL}"
+!insertmacro MUI_PAGE_STARTMENU Application $ICONS_GROUP
+;
+; Instfiles page
+;
+!insertmacro MUI_PAGE_INSTFILES
+;
+; Finish page
+;
+!define MUI_FINISHPAGE_TITLE "Завершение работы мастера установки ${PRODUCT_NAME}"
+!insertmacro MUI_PAGE_FINISH	
+!insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_LANGUAGE "Russian"
+
 
 Section "Файлы приложения" SEC01
 	SetOutPath "${DIR_BIN}"
@@ -83,6 +111,28 @@ Section "Файлы приложения" SEC01
 	File "${SRC_TARGET}\icudt70.dll"
 	File "${SRC_TARGET}\icudt70l.dat"
 SectionEnd
+
+Section -PPALDD SEC_PPALDD
+	SetOutPath "$INSTDIR\DD"
+	SetOverwrite on
+	File "${SRC_ROOT}\SRC\RSRC\BITMAP\nophoto.png"
+	;
+	; Fonts
+	;
+	SetOutPath "$INSTDIR\DD\Font"
+	File "${SRC_ROOT}\SRC\RSRC\Font\imgui\Cousine-Regular.ttf"
+	File "${SRC_ROOT}\SRC\RSRC\Font\imgui\DroidSans.ttf"
+	File "${SRC_ROOT}\SRC\RSRC\Font\imgui\Karla-Regular.ttf"
+	File "${SRC_ROOT}\SRC\RSRC\Font\imgui\ProggyClean.ttf"
+	File "${SRC_ROOT}\SRC\RSRC\Font\imgui\ProggyTiny.ttf"
+	File "${SRC_ROOT}\SRC\RSRC\Font\imgui\Roboto-Medium.ttf"
+	;
+	; Styles
+	;
+	SetOutPath "$INSTDIR\DD\UID"
+	File "${SRC_ROOT}\SRC\RSRC\Style\uid-papyrus.json"
+	File "${SRC_ROOT}\SRC\RSRC\Style\uid-wsctl.json"
+SectionEnd	
 
 Section Uninstall
 SectionEnd

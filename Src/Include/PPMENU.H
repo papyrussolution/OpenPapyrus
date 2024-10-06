@@ -554,5 +554,6 @@
 #define cmRawMaterials                 660 // @v12.0.10 Справочник материалов (PPOBJ_RAWMATERIAL)
 #define cmTestMarketplace              661 // @v12.1.0 Тестирование механизмов работы с маркетплейсами @cmd_testmarketplace
 #define cmMarketplaceInterchange       662 // @v12.1.3 Обмен данными с маркетплейсом
+#define cmMarketplaceCfg               663 // @v12.1.5 Конфигурация маркетплейсов
 
 #endif /* __PPMENU_H */

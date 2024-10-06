@@ -4424,15 +4424,15 @@ private:
 // В квадратных скобках приведены коэффициенты печати широких и узких полос (Print ratio)
 // @v12.0.7 Определения перестроены таким образом, чтобы напрямую формироваться из UED-констант
 //
-#define BARCSTD_CODE11           UED::GetRawValue32(UED_BARCODESYMB_CODE11)/*1*/ // Code 11 (USD-8)                [2:1 - 3:1]
-#define BARCSTD_INTRLVD2OF5      UED::GetRawValue32(UED_BARCODESYMB_INTERLEAVED2OF5)/*2*/ // Interleaved 2 of 5             [2:1 - 3:1]
-#define BARCSTD_CODE39           UED::GetRawValue32(UED_BARCODESYMB_CODE39)/*3*/ // Code 39 (USD-3 & 3 of 9)       [2:1 - 3:1]
-#define BARCSTD_CODE49           UED::GetRawValue32(UED_BARCODESYMB_CODE49)/*4*/ // Code 49                        [Fixed]
-#define BARCSTD_PDF417           UED::GetRawValue32(UED_BARCODESYMB_PDF417)/*5*/ // PDF417                         [Fixed]
-#define BARCSTD_EAN8             UED::GetRawValue32(UED_BARCODESYMB_EAN8)/*6*/ // EAN-8                          [Fixed]
-#define BARCSTD_UPCE             UED::GetRawValue32(UED_BARCODESYMB_UPCE)/*7*/ // UPC-E                          [Fixed]
-#define BARCSTD_CODE93           UED::GetRawValue32(UED_BARCODESYMB_CODE93)/*8*/ // Code 93 (USS-93)               [Fixed]
-#define BARCSTD_CODE128          UED::GetRawValue32(UED_BARCODESYMB_CODE128)/*9*/ // Code 128 (USD-6)               [Fixed]
+#define BARCSTD_CODE11          UED::GetRawValue32(UED_BARCODESYMB_CODE11)/*1*/ // Code 11 (USD-8)                [2:1 - 3:1]
+#define BARCSTD_INTRLVD2OF5     UED::GetRawValue32(UED_BARCODESYMB_INTERLEAVED2OF5)/*2*/ // Interleaved 2 of 5             [2:1 - 3:1]
+#define BARCSTD_CODE39          UED::GetRawValue32(UED_BARCODESYMB_CODE39)/*3*/ // Code 39 (USD-3 & 3 of 9)       [2:1 - 3:1]
+#define BARCSTD_CODE49          UED::GetRawValue32(UED_BARCODESYMB_CODE49)/*4*/ // Code 49                        [Fixed]
+#define BARCSTD_PDF417          UED::GetRawValue32(UED_BARCODESYMB_PDF417)/*5*/ // PDF417                         [Fixed]
+#define BARCSTD_EAN8            UED::GetRawValue32(UED_BARCODESYMB_EAN8)/*6*/ // EAN-8                          [Fixed]
+#define BARCSTD_UPCE            UED::GetRawValue32(UED_BARCODESYMB_UPCE)/*7*/ // UPC-E                          [Fixed]
+#define BARCSTD_CODE93          UED::GetRawValue32(UED_BARCODESYMB_CODE93)/*8*/ // Code 93 (USS-93)               [Fixed]
+#define BARCSTD_CODE128         UED::GetRawValue32(UED_BARCODESYMB_CODE128)/*9*/ // Code 128 (USD-6)               [Fixed]
 #define BARCSTD_EAN13           UED::GetRawValue32(UED_BARCODESYMB_EAN13)/*10*/ // EAN-13                         [Fixed]
 #define BARCSTD_IND2OF5         UED::GetRawValue32(UED_BARCODESYMB_IND2OF5)/*11*/ // Industial 2 of 5               [2:1 - 3:1]
 #define BARCSTD_STD2OF5         UED::GetRawValue32(UED_BARCODESYMB_STD2OF5)/*12*/ // Standard 2 of 5                [2:1 - 3:1]
@@ -13828,7 +13828,7 @@ public:
 	int    GetOprNo(LDATE, long * pOprNo);
 	//
 	// Если EnumItems возвращает значение > 0 (найдена очередная запись),
-	// то в таблице Rcpt запись установлена по ид-ру PPTransferItem::LotID
+	// то в таблице Rcpt запись установлена по идентификатору PPTransferItem::LotID
 	//
 	int    EnumItems(PPID billID, int * rByBill, PPTransferItem *);
 	int    EnumByLot(PPID lotID, LDATE *, long *, TransferTbl::Rec * = 0);
@@ -20232,7 +20232,7 @@ public:
 //
 struct PPGlobalUserAccConfig {
 	enum {
-		fValid  = 0x0001, // @transient Структура извлечена из базы данных
+		fValid          = 0x0001, // @transient Структура извлечена из базы данных
 		fAutoCreateGUID = 0x0002  // @v10.6.6 Автоматически создавать тег собственного GUID'а для новых записей
 	};
 	PPID   Tag;            // Const=PPOBJ_CONFIG
@@ -20656,7 +20656,8 @@ struct PPAccSheet2 {       // @persistent @store(Reference2Tbl+)
 	long   ID;             // @id
 	char   Name[48];       // @name
 	char   Symb[20];       //
-	char   Reserve1[52];   // @reserve
+	char   Reserve1[48];   // @reserve // @v12.1.5 [52]-->[48]
+	PPID   WarehouseGroup; // @v12.1.5 Если Assoc == PPOBJ_LOCATION, то в этом поле может быть задана группирующая запись складов, с которыми ассоциируются статьи этой таблицы
 	PPID   BinArID;        // Статья для сброса остатков по закрываемым статьям
 	PPID   CodeRegTypeID;  // ИД типа регистрационного документа, идентифицирующего персоналию, соответствующую статье.
 	long   Flags;          // ACSHF_XXX
@@ -26153,6 +26154,7 @@ public:
 	int    GetCityByName(const char * pName, PPID * pCityID);
 	int    FetchCity(PPID cityID, WorldTbl::Rec * pRec);
 	int    FetchCityByAddr(PPID locID, WorldTbl::Rec * pRec);
+	int    GetList(const LocationFilt * pLocFilt, long zeroParentId, StrAssocArray & rList);
 	StrAssocArray * MakeList_(const LocationFilt * pLocFilt, long zeroParentId = 0);
 	//
 	struct CreateWhLocParam {
@@ -36773,6 +36775,7 @@ public:
 	//
 	int    GetChildIDList(PPID prcID, int recur, PPIDArray * pList); // @recursion
 	int    GetListByOwnerGuaID(PPID guaID, PPIDArray & rList);
+	int    GetList(long parentIdent, StrAssocArray & rList);
 	//
 	// Descr: Выясняет, принадлежит ли процессор prcID переключаемой группе.
 	//   Если да, то возвращает >0 и заполняет список pSwitchPrcList идентификаторами
@@ -37065,7 +37068,7 @@ private:
 	void   ShortSort(SArray * pPrcList) const;
 };
 
-struct PPTSessConfig {     // @persistent @store(PropertyTbl)
+struct PPTSessConfig { // @persistent @store(PropertyTbl)
 	PPTSessConfig();
 	DECL_INVARIANT_C();
 
@@ -40788,7 +40791,27 @@ private:
 };
 //
 // 
-// 
+//
+struct PPMarketplaceConfig { // @construction
+	PPMarketplaceConfig();
+	PPMarketplaceConfig & Z();
+	bool   IsEq_ForStorage(const PPMarketplaceConfig & rS) const;
+
+	enum {
+		fValid = 0x0001 // @transient Структура извлечена из базы данных
+	};
+
+	PPID   Tag;            // Const=PPOBJ_CONFIG
+	PPID   ID;             // Const=PPCFG_MAIN
+	PPID   Prop;           // Const=PPPRP_MRKTPLCCFG
+	uint32 Flags;          // @flags
+	PPID   OrderOpID;      // Вид операции заказа на маркетплейсе  
+	PPID   SalesOpID;      // Вид операции продажи на маркетплейсе  
+	PPID   TransferToMpOpID; // Вид операции передачи товара на маркетплейс (не совмещенная внутренняя передача, поскольку приходы на склады мп осущетсвляются сепаратно)
+	uint8  Reserve[48];    // @reserve 
+	long   Reserve2[2];    // @reserve
+};
+
 class MarketplaceInterchangeFilt : public PPBaseFilt {
 public:
 	MarketplaceInterchangeFilt();
@@ -40803,18 +40826,51 @@ public:
 
 class PrcssrMarketplaceInterchange {
 public:
+	static int  FASTCALL ReadConfig(PPMarketplaceConfig *);
+	static int  FASTCALL WriteConfig(PPMarketplaceConfig *, int use_ta);
+	static int  EditConfig();
+
 	PrcssrMarketplaceInterchange();
 	~PrcssrMarketplaceInterchange();
 	int    InitParam(PPBaseFilt * pBaseFilt);
 	int    EditParam(PPBaseFilt * pBaseFilt);
 	int    Init(const PPBaseFilt * pBaseFilt);
 	int    Run();
+	//
+	const PPMarketplaceConfig & GetConfig() const { return Cfg; }
+	const PPGlobalUserAccPacket & GetGuaPack() const { return GuaPack; }
+	PPLogger & GetLogger() { return Logger; }
+	PPMarketplaceInterface * GetIfc() { return P_Ifc; }
+	PPID   GetOrderOpID();
+	PPID   GetSaleOpID();
+	//
+	// Descr: Возвращает идентификатор таблицы аналитического учета, соответствующей маркетплейсам (вид персоналий PPPRK_MARKETPLACE).
+	// Returns:
+	//   0 - искомая таблица не найдена
+	//  >0 - идентификатор искомой таблицы аналитических статей
+	//
+	PPID   GetMarketplaceAccSheetID();
+	//
+	// Descr: Возвращает идентификатор таблицы аналитического учета, содержащей статьи операций на маркетплейсах.
+	// Note: таблица имеет символ MARKETPLACE-OPS
+	// Returns:
+	//   0 - искомая таблица не найдена
+	//  >0 - идентификатор искомой таблицы аналитических статей
+	//
+	PPID   GetMarketplaceOpsAccSheetID();
+	PPID   Helper_GetMarketplaceOpsAccSheetID(bool createIfNExists, bool createArticles, int use_ta);
+	PPID   Helper_GetMarketplaceOpsAccount(bool createIfNExists, int use_ta);
 private:
+	int    ReloadGuaPack();
+
 	enum {
 		stInited = 0x0001
 	};
 	PPMarketplaceInterface * P_Ifc;
 	long   State;
+	PPGlobalUserAccPacket GuaPack;
+	PPMarketplaceConfig Cfg;
+	PPObjArticle ArObj;
 	PPLogger Logger;
 };
 //
@@ -43075,6 +43131,7 @@ private:
 
 	OpGroupingFilt Filt;
 	PPCycleArray CycleList;
+	ObjIdListFilt LocList_;    // @v12.1.5
 	TempOpGrpngTbl * P_TempTbl;
 	TempOpGrpngTbl * P_TempStatTbl;
 	TempOpGrpngTbl::Rec  GdsOpTotal;
@@ -44203,10 +44260,10 @@ private:
 
 	TrfrAnlzFilt Filt; // @viewstatefilt
 	enum {
-		fAsGoodsCard       = 0x0001,  // Работает как карточка товара с расчетом остатка после каждой операции
-		fShowSaldo = 0x0002,  // Рассчитывать и показывать товарное сальдо по операциям с клиентом
-		fAccsCost  = 0x0004,  // Разрешен доступ к ценам поступления //
-		fOnceInited        = 0x0008   // Объект как минимум один раз был инициализирован вызовом Init_
+		fAsGoodsCard = 0x0001,  // Работает как карточка товара с расчетом остатка после каждой операции
+		fShowSaldo   = 0x0002,  // Рассчитывать и показывать товарное сальдо по операциям с клиентом
+		fAccsCost    = 0x0004,  // Разрешен доступ к ценам поступления //
+		fOnceInited  = 0x0008   // Объект как минимум один раз был инициализирован вызовом Init_
 	};
 	long   Flags;         // @viewstate
 	double InRest;        // @viewstate
@@ -44599,6 +44656,7 @@ private:
 	long   State;
 	SArray * P_Cache;
 	SArray * P_Uniq;
+	ObjIdListFilt LocList_; // @v12.1.5
 	UintHashTable * P_GoodsList;         // @*PPViewGoodsOpAnalyze::Init_
 	GoodsGroupIterator  * P_GGIter;
 	IterOrder CurrentViewOrder;
@@ -55276,6 +55334,7 @@ class PPImpExpParam {
 public:
 	static PPImpExpParam * FASTCALL CreateInstance(const char * pIehSymb, long flags);
 	static PPImpExpParam * FASTCALL CreateInstance(uint recId, long flags);
+	static PPImpExpParam * FASTCALL CreateInstance(const SdRecord & rSdRec, long flags);
 	explicit PPImpExpParam(uint recID = 0, long flags = 0);
 	virtual ~PPImpExpParam();
 	int    Init(int import = 0);

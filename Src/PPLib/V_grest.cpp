@@ -376,7 +376,7 @@ int PPViewGoodsRest::Init_(const PPBaseFilt * pFilt)
 		SellOpID = CConfig.RetailOp;
 		Total.Init();
 		ZDELETE(P_Predictor);
-		ZDELETE(P_Rpe); // @v10.3.2
+		ZDELETE(P_Rpe);
 		GoodsIDs.Clear();
 		StrPool.ClearS();
 		SubstPriceQuotList.clear(); // @v11.7.11
@@ -384,7 +384,6 @@ int PPViewGoodsRest::Init_(const PPBaseFilt * pFilt)
 			Filt.Flags |= GoodsRestFilt::fNullRest;
 		if(Filt.Flags & GoodsRestFilt::fNoZeroOrderOnly)
 			Filt.Flags |= GoodsRestFilt::fCalcOrder;
-		// @v10.3.2 {
 		if(Filt.Flags2 & GoodsRestFilt::f2RetailPrice && (Filt.GetQuotUsage() != 1 || !Filt.QuotKindID)) {
 			const  PPID loc_id = Filt.LocList.GetSingle();
 			if(loc_id) {
@@ -393,7 +392,6 @@ int PPViewGoodsRest::Init_(const PPBaseFilt * pFilt)
 				P_Rpe = new RetailPriceExtractor(loc_id, &eqb, 0, ZERODATETIME, rtlpf);
 			}
 		}
-		// } @v10.3.2
 		Goods2Tbl::Rec gg_rec;
 		if(Filt.GoodsGrpID && GObj.Fetch(Filt.GoodsGrpID, &gg_rec) > 0) {
 			if(gg_rec.Flags & GF_FOLDER && gg_rec.Flags & GF_EXCLALTFOLD)
@@ -487,10 +485,8 @@ int PPViewGoodsRest::ViewLots(PPID __id, const BrwHdr * pHdr, int orderLots)
 			}
 			else {
 				temp_loc_id = (pHdr || item.Rest > 0.0) ? loc_id : 0;
-				// @v10.6.11 {
 				if(!LocList.GetSingle() && !(Filt.Flags & GoodsRestFilt::fEachLocation))
 					temp_loc_id = 0;
-				// } @v10.6.11 
 				if(P_Ct && (!loc_id || (!LocList.GetSingle() && !(Filt.Flags & GoodsRestFilt::fEachLocation))))
 					temp_loc_id = 0;
 			}
@@ -605,10 +601,8 @@ int GoodsRestFiltDlg::setDTS(const GoodsRestFilt * pFilt)
 	AddClusterAssoc(CTL_GOODSREST_BYQUOT2, 1, 1);
 	AddClusterAssoc(CTL_GOODSREST_BYQUOT2, 2, 2);
 	SetClusterData(CTL_GOODSREST_BYQUOT2, Data.GetQuotUsage());
-	// @v10.3.2 {
 	AddClusterAssoc(CTL_GOODSREST_RTLPRICES, 0, GoodsRestFilt::f2RetailPrice);
 	SetClusterData(CTL_GOODSREST_RTLPRICES, Data.Flags2);
-	// } @v10.3.2
 	AddClusterAssoc(CTL_GOODSREST_SPLIT, 0, GoodsRestParam::_diffCost);
 	AddClusterAssoc(CTL_GOODSREST_SPLIT, 1, GoodsRestParam::_diffPrice);
 	AddClusterAssoc(CTL_GOODSREST_SPLIT, 2, GoodsRestParam::_diffPack);
@@ -665,7 +659,7 @@ int GoodsRestFiltDlg::getDTS(GoodsRestFilt * pFilt)
 		const long quot_usage = GetClusterData(CTL_GOODSREST_BYQUOT2);
 		Data.SetQuotUsage(quot_usage);
 	}
-	GetClusterData(CTL_GOODSREST_RTLPRICES, &Data.Flags2); // @v10.3.2
+	GetClusterData(CTL_GOODSREST_RTLPRICES, &Data.Flags2);
 	if(Data.Flags & GoodsRestFilt::fNullRestsOnly)
 		Data.Flags |= GoodsRestFilt::fNullRest;
 	Data.DiffParam = GetClusterData(CTL_GOODSREST_SPLIT);
@@ -831,7 +825,7 @@ IMPL_HANDLE_EVENT(GoodsRestWPrgnFltDlg)
 	TDialog::handleEvent(event);
 	if(event.isKeyDown(kbF2)) {
 		LDATE  dt = getCtrlDate(CTL_GRWPRGNFLT_DATE);
-		SETIFZ(dt, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+		SETIFZ(dt, getcurdate_());
 		TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_GRWPRGNFLT_PRGNPRD));
 		const int num_days = p_il ? satoi(p_il->getText()) : 0;
 		if(num_days > 0 && dt) {
@@ -1186,7 +1180,7 @@ int PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRest::Cac
 					rec.RestInDays = (long)roundnev(rec.Quantity * stat.GetTrnovr(PSSV_QTTY), 0);
 					if(Filt.ExhaustTerm) {
 						if(rec.Quantity <= 0.0) {
-							LDATE  this_date = NZOR(Filt.Date, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+							LDATE  this_date = NZOR(Filt.Date, getcurdate_());
 							LDATE  last_date = ZERODATE;
 							TransferTbl::Rec trfr_rec;
 							LDATE before_dt = this_date;
@@ -1552,7 +1546,7 @@ int PPViewGoodsRest::GetLastLot_p(PPID goodsID, PPID locID, PPID supplID, LDATE 
 int PPViewGoodsRest::GetLastLot_(PPID goodsID, PPID locID, ReceiptTbl::Rec & rRec)
 {
 	MEMSZERO(rRec);
-	int    ok = GetLastLot_p(goodsID, locID, Filt.SupplID, getcurdate_(), &rRec); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	int    ok = GetLastLot_p(goodsID, locID, Filt.SupplID, getcurdate_(), &rRec);
 	const  int quot_usage = (Filt.QuotKindID > 0) ? Filt.GetQuotUsage() : 0;
 	if(oneof2(quot_usage, 1, 2)) {
 		const QuotIdent qi(NZOR(locID, Filt.LocList.GetSingle()), Filt.QuotKindID);
@@ -1969,7 +1963,6 @@ int PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl::Rec &
 			ok = -1;
 	}
 	if(ok > 0 && Filt.BrandID) {
-		// @v10.6.4 Goods2Tbl::Rec goods_rec;
 		if(GObj.Fetch(labs(goods_id), &goods_rec) <= 0 || goods_rec.BrandID != Filt.BrandID)
 			ok = -1;
 	}
@@ -2003,8 +1996,7 @@ int PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl::Rec &
 			if(Filt.CalcMethod == GoodsRestParam::pcmMostRecent)
 				::GetCurGoodsPrice(goods_id, rRec.LocID, GPRET_MOSTRECENT, &grci.Price, 0);
 			const int quot_usage = (Filt.QuotKindID > 0) ? Filt.GetQuotUsage() : 0;
-			if((rRec.Flags & (LOTF_COSTWOVAT|LOTF_PRICEWOTAXES)) || oneof2(quot_usage, 1, 2) || P_Rpe) { // @v10.3.2 P_Rpe
-				// @v10.3.2 {
+			if((rRec.Flags & (LOTF_COSTWOVAT|LOTF_PRICEWOTAXES)) || oneof2(quot_usage, 1, 2) || P_Rpe) {
 				if(P_Rpe) {
 					assert(Filt.Flags2 & Filt.f2RetailPrice);
 					assert(quot_usage != 1);
@@ -2014,7 +2006,6 @@ int PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl::Rec &
 					else
 						grci.Price = 0.0; // Явно сигнализируем о том, что цены нет
 				}
-				// } @v10.3.2
 				if(oneof2(quot_usage, 1, 2)) {
 					double qv = 0.0;
 					const QuotIdent qi(rRec.LocID, Filt.QuotKindID);
@@ -2148,7 +2139,6 @@ IMPL_CMPFUNC(ReceiptTbl_DtOprNo, i1, i2) { RET_CMPCASCADE2(static_cast<const Rec
 
 PPViewGoodsRest::LotQueryBlock::LotQueryBlock() : Idx(-1), SpMode(-1), Reverse(0), P_Q(0)
 {
-	// @v10.6.8 @ctr memzero(Key, sizeof(Key));
 }
 
 PPViewGoodsRest::LotQueryBlock::~LotQueryBlock()
@@ -2592,7 +2582,7 @@ int PPViewGoodsRest::CreateTempTable(int use_ta, double * pPrfMeasure)
 			prf_measure_coeff *= 1.05;
 			period = Filt.DraftRcptPrd;
 			if(period.IsZero())
-				period.Set(getcurdate_(), ZERODATE); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+				period.Set(getcurdate_(), ZERODATE);
 			THROW(P_BObj->GetDraftRcptList(&period, (loc_list_empty ? 0 : &LocList.Get()), &DraftRcptList));
 		}
 	}
@@ -2861,11 +2851,9 @@ int PPViewGoodsRest::InitIterQuery(PPID grpID)
 	BExtQuery::ZDelete(&P_IterQuery);
 	TempGoodsRestTbl * p_t = P_Tbl;
 	if(p_t) {
-		// @v10.6.8 char   k_[MAXKEYLEN];
-		BtrDbKey k__; // @v10.6.8
+		BtrDbKey k__;
 		TempGoodsRestTbl::Key2 k2;
 		int    sp_mode = spFirst;
-   		// @v10.6.8 @ctr memzero(k_, sizeof(k_));
 		void * k = k__;
 		DBQ * dbq = 0;
 		if(Filt.ExhaustTerm > 0) {
@@ -3205,7 +3193,7 @@ int PPViewGoodsRest::ViewPrediction(PPID goodsID, PPID /*locID*/)
 	if(!(Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) && DateRangeDialog(0, 0, &prd) > 0) {
 		if(prd.IsZero()) {
 			const LDATE now_date = getcurdate_();
-			prd.Set(now_date, plusdate(now_date, 6)); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+			prd.Set(now_date, plusdate(now_date, 6));
 		}
 		Filt.PrgnPeriod = prd;
 		double predict = 0.0;
@@ -3442,8 +3430,7 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 			deficit_col = minstock_col = 3;
 		draft_rcpt_col = deficit_col;
 		if(Flags & fAccsCost) {
-			// @v10.5.8 pBrw->InsColumnWord(-1, PPWORD_PCTADDEDVAL, 17, 0, fmt_pct, 0);
-			pBrw->InsColumn(-1, "@extrachargepct",  17, 0, fmt_pct, 0); // @v10.5.8
+			pBrw->InsColumn(-1, "@extrachargepct",  17, 0, fmt_pct, 0);
 		}
 		if(Filt.Flags & GoodsRestFilt::fCalcCVat && Flags & fAccsCost)
 			pBrw->InsColumn(-1, "@vatc", 27, 0, fmt_amt, 0);
@@ -3460,8 +3447,7 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 		if(Filt.Sgg)
 			pBrw->InsColumnWord(-1, PPWORD_SUBSTASSCCOUNT, 20, 0, fmt_qtty, 0);
 		if(!Filt.Sgg && Filt.Flags & GoodsRestFilt::fShowMinStock) {
-			// @v10.5.9 pBrw->InsColumnWord(minstock_col, PPWORD_MINSTOCK, 21, 0, fmt_qtty, 0);
-			pBrw->InsColumn(minstock_col, "@minstock", 21, 0, fmt_qtty, 0); // @v10.5.9
+			pBrw->InsColumn(minstock_col, "@minstock", 21, 0, fmt_qtty, 0);
 		}
 		{
 			int    _col = 1;
@@ -3780,7 +3766,7 @@ int PPViewGoodsRest::ExportUhtt(int silent)
 			//@erik v10.7.13 {
 			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_CH, 0, PPGLS_UNIVERSEHTT);
 			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_CH, 1, PPGLS_VK);
-			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_CH, 2, PPGLS_UDS); // @v10.9.4
+			dlg->AddClusterAssoc(CTL_GRESTUHTTEXP_CH, 2, PPGLS_UDS);
 			dlg->SetClusterData(CTL_GRESTUHTTEXP_CH, global_service);
 			// } @erik v10.7.13
 			*/

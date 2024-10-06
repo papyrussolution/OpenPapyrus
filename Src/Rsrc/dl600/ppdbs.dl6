@@ -2773,7 +2773,7 @@ table AccTurn {            // size=44
 	long   Bal;            // ->Account.ID  Ид. балансового счета
 	date   Dt;             // Дата операции
 	long   OprNo;          // Номер записи за день (1..)
-	long   Bill;           // ->Bill.ID     Связанный док. учета
+	long   BillID;         // ->Bill.ID     Связанный док. учета // @v12.1.5 Bill-->BillID
 	int16  RByBill;        // Номер записи для документа Bill
 		// Для проводок покрытия валютных операций базовой валютой
 		// значение RByBill имеет смещение BASE_RBB_BIAS = 1000 (ppdefs.h)
@@ -2782,7 +2782,7 @@ table AccTurn {            // size=44
 	money  Amount[8];      // Сумма проводки
 	money  Rest[8];        // Остаток по счету после проводки
 index:
-	Bill, Reverse, RByBill (unique);
+	BillID, Reverse, RByBill (unique);
 	Acc, Dt, OprNo (unique mod);
 	Dt, OprNo (unique);
 	Bal, Dt, OprNo (unique mod);

@@ -329,6 +329,7 @@
 #define PPPRP_ALCREPORTCFG         140L  // Конфигурация алкогольной декларации
 #define PPPRP_TSSTAKECFG           141L  // PPObjTimeSeries
 #define PPPRP_CCDATETOMAXIDINDEX   142L  // @v11.7.4 (Не конфигурация!) Индекс соответствий {дата чека}->{максимальный ид} для быстрого поиска расширенных данных по чекам.
+#define PPPRP_MRKTPLCCFG           143L  // @v12.1.5 Конфигурация маркетплейсов
 //
 // Layout of extra record of access rights
 //
@@ -400,6 +401,7 @@
 #define PPCFGOBJ_WORKBOOK         (PPOBJ_FIRST_CFG_OBJ + 31)
 #define PPCFGOBJ_ALCREPORT        (PPOBJ_FIRST_CFG_OBJ + 32)
 #define PPCFGOBJ_TIMESERIES       (PPOBJ_FIRST_CFG_OBJ + 33) // @v10.3.1
+#define PPCFGOBJ_MARKETPLACE      (PPOBJ_FIRST_CFG_OBJ + 34) // @v12.1.5
 //
 #define PPOBJ_CONFIG              1L  // $(PPSecur) Конфигурация системы
 	#define PPCFG_MAIN           1L
@@ -11648,6 +11650,13 @@
 #define DLG_MRKTPLCIX             1448 // @v12.1.3 Параметры обмена с маркетплейсом
 	#define CTL_MRKTPLCIX_GUA              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_MRKTPLCIX_GUA           (2 + WINDOWS_ID_BIAS)	
+#define DLG_MPCFG                 1449 // @v12.1.5 Конфигурация работы с маркетплейсами
+	#define CTL_MPCFG_ORDEROP              (1 + WINDOWS_ID_BIAS) 
+	#define CTLSEL_MPCFG_ORDEROP           (2 + WINDOWS_ID_BIAS) 
+	#define CTL_MPCFG_SALEOP               (3 + WINDOWS_ID_BIAS) 
+	#define CTLSEL_MPCFG_SALEOP            (4 + WINDOWS_ID_BIAS) 
+	#define CTL_MPCFG_TRANSFOP             (5 + WINDOWS_ID_BIAS) 
+	#define CTLSEL_MPCFG_TRANSFOP          (6 + WINDOWS_ID_BIAS) 
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

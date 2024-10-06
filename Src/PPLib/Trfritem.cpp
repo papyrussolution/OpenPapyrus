@@ -211,7 +211,7 @@ int PPTransferItem::Init(const BillTbl::Rec * pBillRec, int zeroRByBill, int for
 			intr = 1;
 			if(IsIntrExpndOp(op_id))
 				Flags |= PPTFR_UNITEINTR;
-			CorrLoc = PPObjLocation::ObjToWarehouse_IgnoreRights(pBillRec->Object); // @v10.0.05 ObjToWarehouse-->ObjToWarehouse_IgnoreRights
+			CorrLoc = PPObjLocation::ObjToWarehouse_IgnoreRights(pBillRec->Object);
 			THROW_PP(!(LocID && CorrLoc == LocID), PPERR_PRIMEQFOREIN);
 		}
 		else if(op_type_id == PPOPT_GOODSREVAL) {

@@ -1858,7 +1858,7 @@ int PPViewTSessLine::AddItemExt(PPID tsesID, PPViewBrowser * pBrw)
 		if(!TSesObj.CheckRights(TSESRT_ADDLINE))
 			ok = PPErrorZ();
 		else {
-			long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+			const long egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
 			if(CheckDialogPtrErr(&(dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID, egsd_flags)))) {
 				TIDlgInitData tidi;
 				PPIDArray goods_list;
@@ -1871,7 +1871,7 @@ int PPViewTSessLine::AddItemExt(PPID tsesID, PPViewBrowser * pBrw)
 				}
 				else
 					MEMSZERO(tses_rec);
-				const int free_goods_sel = BIN(TSesObj.GetConfig().Flags & PPTSessConfig::fFreeGoodsSelection);
+				const bool free_goods_sel = LOGIC(TSesObj.GetConfig().Flags & PPTSessConfig::fFreeGoodsSelection);
 				if(!free_goods_sel && TSesObj.GetGoodsStrucList(tsesID, 1, 0, &tgs_list) > 0 && tgs_list.GetGoodsList(&goods_list) > 0) {
 					dlg->setSelectionByGoodsList(&goods_list);
 					dlg->setDTS(&tidi);

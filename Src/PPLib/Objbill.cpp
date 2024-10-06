@@ -126,7 +126,7 @@ TLP_IMPL(PPObjBill, BillCore, P_Tbl);
 TLP_IMPL(PPObjBill, Transfer, trfr);
 TLP_IMPL(PPObjBill, CpTransfCore, P_CpTrfr);
 TLP_IMPL(PPObjBill, AdvBillItemTbl, P_AdvBI);
-TLP_IMPL(PPObjBill, LotExtCodeCore, P_LotXcT); // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
+TLP_IMPL(PPObjBill, LotExtCodeCore, P_LotXcT);
 
 PPObjBill::PPObjBill(void * extraPtr) : PPObject(PPOBJ_BILL), CcFlags(CConfig.Flags), P_CpTrfr(0),
 	P_AdvBI(0), P_InvT(0), P_GsT(0), P_ScObj(0), /*HistBill(0),*/ P_LotXcT(0), P_Cr(0), ExtraPtr(extraPtr),
@@ -224,7 +224,7 @@ int PPObjBill::PutGuid(PPID id, const S_GUID * pUuid, int use_ta)
 	PPObjTag tagobj;
 	PPObjectTag tag_rec;
 	THROW_PP(tagobj.Fetch(tag_id, &tag_rec) > 0, abs_err_msg_id);
-	if(pUuid && !pUuid->IsZero()) {
+	if(!S_GUID::IsEmpty(pUuid)) {
 		THROW(Search(id, &_rec) > 0);
 	}
 	{
@@ -3508,8 +3508,6 @@ struct __PPBillConfig {    // @persistent @store(PropertyTbl)
 	uint8  Reserve2[16];       // @reserve @v10.4.4 [20]-->[16]
 };
 
-// @v10.7.10 replaced with (PPConstParam::WrParam_BillAddFilesFolder) const char * BillAddFilesFolder = "BillAddFilesFolder";
-
 /*static*/int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
 {
 	int    ok = -1;
@@ -3568,14 +3566,12 @@ struct __PPBillConfig {    // @persistent @store(PropertyTbl)
 				pCfg->TagIndFilt.Init(1, 0);
 				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 			}
-			// @v10.4.3 {
 			if(pCfg->Ver.IsGt(10, 4, 2)) {
 				if(!pCfg->LotTagIndFilt.Read(ser_buf, 0)) {
 					pCfg->LotTagIndFilt.Init(1, 0);
 					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 				}
 			}
-			// } @v10.4.3
 		}
 		{
 			size_t buf_size = 0;
@@ -3798,13 +3794,11 @@ public:
 		}
 		setCtrlData(CTL_BILLCFG_LOWDEBTDATE, &Data.LowDebtCalcDate);
 		setCtrlString(CTL_BILLCFG_FILESFOLDER, Data.AddFilesFolder);
-		// @v10.4.4 {
 		AddClusterAssoc(CTL_BILLCFG_WLEF, 0, Data.wlefIndicator);
 		AddClusterAssoc(CTL_BILLCFG_WLEF, 1, Data.wlefDisalbePosOp);
 		AddClusterAssoc(CTL_BILLCFG_WLEF, 2, Data.wlefDisableBillOp);
 		SetClusterData(CTL_BILLCFG_WLEF, Data.WarnLotExpirFlags);
 		setCtrlData(CTL_BILLCFG_WLED, &Data.WarnLotExpirDays);
-		// } @v10.4.4
 		return ok;
 	}
 	int getDTS(DlgDataType * pData)
@@ -3817,10 +3811,8 @@ public:
 		getCtrlData(sel = CTL_BILLCFG_LOWDEBTDATE,  &Data.LowDebtCalcDate);
 		THROW_SL(checkdate(Data.LowDebtCalcDate, 1));
 		getCtrlString(CTL_BILLCFG_FILESFOLDER, Data.AddFilesFolder);
-		// @v10.4.4 {
 		Data.WarnLotExpirFlags = static_cast<uint16>(GetClusterData(CTL_BILLCFG_WLEF));
 		getCtrlData(CTL_BILLCFG_WLED, &Data.WarnLotExpirDays);
-		// } @v10.4.4
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
 		return ok;

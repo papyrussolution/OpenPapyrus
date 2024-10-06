@@ -115,10 +115,6 @@ PPViewAccAnlz::~PPViewAccAnlz()
 //
 //
 //
-// @v11.4.4 #define GRP_ACC   1
-// @v11.4.4 #define GRP_CYCLE 2
-// @v11.4.4 #define GRP_LOC   3
-
 class AccAnlzFiltDialog : public WLDialog {
 	enum {
 		ctlgroupAcc   = 1,
@@ -294,17 +290,15 @@ private:
 		else if(event.isCmd(cmaMore)) {
 			TDialog * dlg = new TDialog(DLG_ACCANLZ2);
 			if(CheckDialogPtrErr(&dlg)) {
-				getDTS(0); // @v10.5.0
+				getDTS(0);
 				SetupPPObjCombo(dlg, CTLSEL_ACCANLZ_LOC, PPOBJ_LOCATION, Data.LocID, OLW_CANSELUPLEVEL, 0);
 				SetupArCombo(dlg, CTLSEL_ACCANLZ_AGENT, Data.AgentID, OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
-				// @v10.5.0 {
 				PPID  psn_id = 0;
 				if(Data.Aco == ACO_3 && Data.AcctId.ar) {
 					psn_id = ObjectToPerson(Data.AcctId.ar, 0);
 					// SetupLocationCombo(dlg, CTLSEL_ACCANLZ_DLVRLOC, Filt.DlvrLocID, 0, LOCTYP_ADDRESS, psn_id);
 					PsnObj.SetupDlvrLocCombo(dlg, CTLSEL_ACCANLZ_DLVRLOC, psn_id, Data.DlvrLocID);
 				}
-				// } @v10.5.0
 				dlg->AddClusterAssocDef(CTL_ACCANLZ_ORDER,  0, PPViewAccAnlz::OrdByDefault);
 				dlg->AddClusterAssoc(CTL_ACCANLZ_ORDER,  1, PPViewAccAnlz::OrdByBillCode_Date);
 				dlg->AddClusterAssoc(CTL_ACCANLZ_ORDER,  2, PPViewAccAnlz::OrdByCorrAcc_Date);
@@ -406,8 +400,7 @@ private:
 		{
 			PPObjPersonRelType rel_obj;
 			PPPersonRelType rel_item;
-			// @v10.5.9 PPGetWord(PPWORD_RELATION, 0, word_rel);
-			PPLoadString("relation", word_rel); // @v10.5.9
+			PPLoadString("relation", word_rel);
 			for(PPID rel_id = 0; rel_obj.EnumItems(&rel_id, &rel_item) > 0;)
 				if(rel_item.Cardinality & (PPPersonRelType::cOneToOne | PPPersonRelType::cManyToOne)) {
 					(buf = word_rel).Colon().Cat(rel_item.Name);
@@ -648,7 +641,7 @@ int PPViewAccAnlz::FetchBill(PPID billID, BillEntry * pEntry)
 			pEntry->OpID = rec.OpID;
 			pEntry->Object2ID = rec.Object2;
 			pEntry->Flags = rec.Flags;
-			pEntry->LinkBillID = rec.LinkBillID; // @v10.5.2
+			pEntry->LinkBillID = rec.LinkBillID;
 			pEntry->AgentID = 0;
 			if(Filt.AgentID || Filt.CorAco == AccAnlzFilt::aafgByAgent) {
 				PPBillExt bext_rec;
@@ -773,19 +766,19 @@ int PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnu
 		if(!(Filt.Flags & AccAnlzFilt::fGroupByCorAcc) && Filt.CorAco) {
 			switch(Filt.CorAco) {
 				case AccAnlzFilt::aafgByOp:
-					if(Filt.CorAcc.ar && (FetchBill(rec.Bill, &bill_entry) <= 0 || Filt.CorAcc.ar != bill_entry.OpID))
+					if(Filt.CorAcc.ar && (FetchBill(rec.BillID, &bill_entry) <= 0 || Filt.CorAcc.ar != bill_entry.OpID))
 						continue;
 					break;
 				case AccAnlzFilt::aafgByLoc:
-					if(Filt.CorAcc.ar && (FetchBill(rec.Bill, &bill_entry) <= 0 || Filt.CorAcc.ar != bill_entry.LocID))
+					if(Filt.CorAcc.ar && (FetchBill(rec.BillID, &bill_entry) <= 0 || Filt.CorAcc.ar != bill_entry.LocID))
 						continue;
 					break;
 				case AccAnlzFilt::aafgByExtObj:
-					if(Filt.CorAcc.ar && (FetchBill(rec.Bill, &bill_entry) <= 0 || Filt.CorAcc.ar != bill_entry.Object2ID))
+					if(Filt.CorAcc.ar && (FetchBill(rec.BillID, &bill_entry) <= 0 || Filt.CorAcc.ar != bill_entry.Object2ID))
 						continue;
 					break;
 				case AccAnlzFilt::aafgByAgent:
-					if(Filt.CorAcc.ar && (FetchBill(rec.Bill, &bill_entry) <= 0 || Filt.CorAcc.ar != bill_entry.AgentID))
+					if(Filt.CorAcc.ar && (FetchBill(rec.BillID, &bill_entry) <= 0 || Filt.CorAcc.ar != bill_entry.AgentID))
 						continue;
 					break;
 				default:
@@ -795,7 +788,7 @@ int PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnu
 			}
 		}
 		if(Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || Filt.AgentID || Filt.Object2ID || EffDlvrLocID)
-			if(FetchBill(rec.Bill, &bill_entry) > 0) {
+			if(FetchBill(rec.BillID, &bill_entry) > 0) {
 				if(Filt.AgentID && bill_entry.AgentID != Filt.AgentID)
 					continue;
 				if(Filt.Object2ID && bill_entry.Object2ID != Filt.Object2ID)
@@ -804,15 +797,13 @@ int PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnu
 					continue;
 				if(Filt.LocID && bill_entry.LocID != Filt.LocID && loc_obj.IsMemberOfGroup(bill_entry.LocID, Filt.LocID) <= 0)
 					continue;
-				// @v10.5.0 {
 				if(EffDlvrLocID) {
 					PPFreight freight;
-					if(!(P_BObj->FetchFreight(rec.Bill, &freight) > 0 && freight.DlvrAddrID == EffDlvrLocID)) {
-						if(!(bill_entry.LinkBillID && P_BObj->FetchFreight(bill_entry.LinkBillID, &freight) > 0 && freight.DlvrAddrID == EffDlvrLocID)) // @v10.5.2
+					if(!(P_BObj->FetchFreight(rec.BillID, &freight) > 0 && freight.DlvrAddrID == EffDlvrLocID)) {
+						if(!(bill_entry.LinkBillID && P_BObj->FetchFreight(bill_entry.LinkBillID, &freight) > 0 && freight.DlvrAddrID == EffDlvrLocID))
 							continue;
 					}
 				}
-				// } @v10.5.0
 			}
 			else
 				continue;
@@ -863,16 +854,16 @@ int IterProc_CrtTmpAATbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 {
 	int    ok = 1;
 	PPID   cur_id = 0;
-	IterProcParam_CrtTmpTbl & p = *static_cast<IterProcParam_CrtTmpTbl *>(extraPtr);
+	IterProcParam_CrtTmpTbl & r_blk = *static_cast<IterProcParam_CrtTmpTbl *>(extraPtr);
 	TempAccAnlzTbl::Rec trec;
 	AcctRelTbl::Rec arel_rec;
 	trec.Dt      = pRec->Dt;
 	trec.OprNo   = pRec->OprNo;
-	trec.BillID  = pRec->Bill;
+	trec.BillID  = pRec->BillID;
 	trec.Reverse = pRec->Reverse;
 	trec.ThisAccRelID = pRec->Acc;
-	trec.Acc     = pRec->CorrAcc;
-	if(p.P_ATC->AccRel.Fetch(pRec->CorrAcc, &arel_rec) > 0) {
+	trec.Acc     = r_blk.IsRegister ? pRec->Acc : pRec->CorrAcc; // @v12.1.5 pRec->CorrAcc-->(r_blk.IsRegister ? pRec->Acc : pRec->CorrAcc)
+	if(r_blk.P_ATC->AccRel.Fetch(/*pRec->CorrAcc*/trec.Acc, &arel_rec) > 0) {
 		if(ObjRts.CheckAccID(arel_rec.AccID, PPR_READ)) {
 			trec.Ac  = arel_rec.Ac;
 			trec.Sb  = arel_rec.Sb;
@@ -885,44 +876,50 @@ int IterProc_CrtTmpAATbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 		}
 		trec.CurID = cur_id = arel_rec.CurID;
 	}
-	else
-		trec.Ar  = pRec->CorrAcc;
-	double tmp = MONEYTOLDBL(pRec->Amount);
-	if(p.IsRegister) {
-		if(tmp > 0.0)
-			p.Total->AddTrnovr(1, cur_id, tmp);
-		else
-			p.Total->AddTrnovr(0, cur_id, -tmp);
-		p.Total->Count++;
+	else {
+		trec.Ar  = /*pRec->CorrAcc*/trec.Acc;
+	}
+	double iter_amount = MONEYTOLDBL(pRec->Amount);
+	if(r_blk.IsRegister) {
+		if(iter_amount > 0.0) {
+			trec.Dbt = iter_amount;
+			r_blk.Total->AddTrnovr(1, cur_id, iter_amount);
+		}
+		else {
+			trec.Crd = -iter_amount;
+			r_blk.Total->AddTrnovr(0, cur_id, -iter_amount);
+		}
+		r_blk.Total->Count++;
 	}
 	else if(pRec->Reverse) {
-		p.Total->CrdTrnovr.Add(1L, cur_id, 1L);
-		p.Total->AddTrnovr(0, cur_id, tmp);
-		trec.Crd = tmp;
-		tmp = -tmp;
+		r_blk.Total->CrdTrnovr.Add(1L, cur_id, 1L);
+		r_blk.Total->AddTrnovr(0, cur_id, iter_amount);
+		trec.Crd = iter_amount;
+		iter_amount = -iter_amount;
 	}
 	else {
-		p.Total->DbtTrnovr.Add(1L, cur_id, 1L);
-		p.Total->AddTrnovr(1, cur_id, tmp);
-		trec.Dbt = tmp;
+		r_blk.Total->DbtTrnovr.Add(1L, cur_id, 1L);
+		r_blk.Total->AddTrnovr(1, cur_id, iter_amount);
+		trec.Dbt = iter_amount;
 	}
-	p.Total->Count++;
-	p.InRest.Add(0, cur_id, tmp);
-	trec.Rest = p.InRest.Get(0, cur_id);
-	if(p.Filt->InitOrder == PPViewAccAnlz::OrdByBillCode_Date) {
+	r_blk.Total->Count++;
+	r_blk.InRest.Add(0, cur_id, iter_amount);
+	trec.Rest = r_blk.InRest.Get(0, cur_id);
+	if(r_blk.Filt->InitOrder == PPViewAccAnlz::OrdByBillCode_Date) {
 		BillTbl::Rec bill_rec;
-		if(p.P_BObj->Fetch(trec.BillID, &bill_rec) > 0) {
+		if(r_blk.P_BObj->Fetch(trec.BillID, &bill_rec) > 0) {
 			// @v11.1.12 STRNSCPY(trec.OrdData, p.P_BObj->P_Tbl->GetCode(bill_rec.Code));
 			STRNSCPY(trec.OrdData, bill_rec.Code); // @v11.1.12 
 		}
 	}
-	else if(p.Filt->InitOrder == PPViewAccAnlz::OrdByCorrAcc_Date) {
+	else if(r_blk.Filt->InitOrder == PPViewAccAnlz::OrdByCorrAcc_Date) {
+		/* @v12.1.5 ??? я не помню зачем я сделал этот блок когда бы то ни было
 		SString temp_buf;
-		temp_buf.CatLongZ(trec.Ac, 4).CatLongZ(trec.Sb, 4).CatLongZ(trec.Ar, 6).CatLongZ(trec.CurID, 6).
-			CopyTo(trec.OrdData, sizeof(trec.OrdData));
+		temp_buf.CatLongZ(trec.Ac, 4).CatLongZ(trec.Sb, 4).CatLongZ(trec.Ar, 6).CatLongZ(trec.CurID, 6).CopyTo(trec.OrdData, sizeof(trec.OrdData));
+		*/
 	}
-	if(p.Bei)
-		THROW_DB(p.Bei->insert(&trec));
+	if(r_blk.Bei)
+		THROW_DB(r_blk.Bei->insert(&trec));
 	CATCHZOK
 	return ok;
 }
@@ -945,7 +942,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 	else
 		return 1;
 	if(p.Filt->CorAco == AccAnlzFilt::aafgByOp) {
-		if(p.P_BObj->Fetch(pRec->Bill, &bill_rec) > 0 && r_orts.CheckOpID(bill_rec.OpID, PPR_READ)) {
+		if(p.P_BObj->Fetch(pRec->BillID, &bill_rec) > 0 && r_orts.CheckOpID(bill_rec.OpID, PPR_READ)) {
 			trec.Ar       = bill_rec.OpID;
 			trec.AccRelID = bill_rec.OpID;
 			GetOpName(bill_rec.OpID, temp_buf);
@@ -953,7 +950,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 		}
 	}
 	else if(p.Filt->CorAco == AccAnlzFilt::aafgByLoc) {
-		if(p.P_BObj->Fetch(pRec->Bill, &bill_rec) > 0 && r_orts.CheckLocID(bill_rec.LocID, 0)) {
+		if(p.P_BObj->Fetch(pRec->BillID, &bill_rec) > 0 && r_orts.CheckLocID(bill_rec.LocID, 0)) {
 			trec.Ar       = bill_rec.LocID;
 			trec.AccRelID = bill_rec.LocID;
 			GetLocationName(bill_rec.LocID, temp_buf);
@@ -961,7 +958,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 		}
 	}
 	else if(p.Filt->CorAco == AccAnlzFilt::aafgByExtObj) {
-		if(p.P_BObj->Fetch(pRec->Bill, &bill_rec) > 0) {
+		if(p.P_BObj->Fetch(pRec->BillID, &bill_rec) > 0) {
 			trec.Ar       = bill_rec.Object2;
 			trec.AccRelID = bill_rec.Object2;
 			GetArticleName(bill_rec.Object2, temp_buf);
@@ -971,7 +968,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 	else if(p.Filt->CorAco == AccAnlzFilt::aafgByAgent) {
 		PPBillExt bext_rec;
 		PPID   agent_id = 0;
-		if(p.P_BObj->FetchExt(pRec->Bill, &bext_rec) > 0)
+		if(p.P_BObj->FetchExt(pRec->BillID, &bext_rec) > 0)
 			agent_id = bext_rec.AgentID;
 		trec.Ar       = agent_id;
 		trec.AccRelID = agent_id;
@@ -1061,9 +1058,9 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 	ExpiryDate = ZERODATE;
 	IterFlags = 0;
 	IsGenAcc = 0;
-	IsGenAr = 0; // @v9.5.9
+	IsGenAr = 0;
 	IsRegister = 0;
-	EffDlvrLocID = 0; // @v10.5.0
+	EffDlvrLocID = 0;
 	ExtGenAccList.freeAll();
 
 	int    ok = 1;
@@ -1084,11 +1081,9 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 	ZDELETE(P_TmpATTbl);
 	Total.Init();
 	CycleList.init2(&Filt.Period, &Filt.Cycl);
-	// @v10.5.0 {
 	if(Filt.DlvrLocID && Filt.Aco == ACO_3 && Filt.AcctId.ar) {
 		EffDlvrLocID = Filt.DlvrLocID;
 	}
-	// } @v10.5.0
 	if(!(Filt.Flags & AccAnlzFilt::fTotalOnly && (Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || EffDlvrLocID))) {
 		THROW(AdjustPeriodToRights(Filt.Period, 0));
 	}
@@ -1109,12 +1104,10 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 		else if(acc_rec.Type == ACY_REGISTER)
 			IsRegister = 1;
 	}
-	// @v9.5.9 {
 	if(ArObj.Fetch(Filt.AcctId.ar, &ar_rec) > 0 && ar_rec.Flags & ARTRF_GROUP) {
 		IsGenAr = 1;
 		ArObj.P_Tbl->GetListByGroup(Filt.AcctId.ar, &gen_ar_list);
 	}
-	// } @v9.5.9
 	Filt.CurID = (Filt.Flags & AccAnlzFilt::fAllCurrencies) ? -1 : Filt.CurID;
 	if(Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || EffDlvrLocID) {
 		Total.InRest.freeAll();
@@ -1164,7 +1157,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 		int    is_person_rel = 0;
 		ArticleTbl::Rec ar_rec;
 		PPAccSheet acs_rec;
-		TSVector <AcctRelTbl::Rec> acr_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <AcctRelTbl::Rec> acr_list;
 		THROW(P_TmpATTbl = CreateTempATFile());
 		THROW(AccObj.Fetch(Filt.AccID, &acc_rec) > 0);
 		THROW_PP(acc_rec.AccSheetID, PPERR_ACCHASNTSHEET);
@@ -1200,7 +1193,6 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 					}
 				}
 			}
-			// @v9.5.9 {
 			else if(IsGenAr) {
 				for(uint i = 0; i < gen_ar_list.getCount(); i++) {
 					const  PPID ar_id = gen_ar_list.get(i);
@@ -1209,7 +1201,6 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 					}
 				}
 			}
-			// } @v9.5.9
 			else if(Filt.SingleArID) {
 				if(GetAcctRel(Filt.AccID, Filt.SingleArID, &acr_rec, 1) > 0)
 					THROW_SL(acr_list.insert(&acr_rec));
@@ -1290,14 +1281,13 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 							else if(Filt.Flags & AccAnlzFilt::fSpprZSaldo && rec.OutRest == 0.0)
 								continue;
 						THROW_DB(bei.insert(&rec));
-						Total.Count++; // @v10.1.9
+						Total.Count++;
 					}
 				}
 				PPWaitPercent(i2+1, acr_list.getCount());
 			}
 			THROW_DB(bei.flash());
 		}
-		// @v10.1.9 Total.Count = acr_list.getCount();
 		//
 		// Без вызова этой функции печать оборотной ведомости выдает
 		// непонятно откуда взявшуюся ошибку "Счет не найден"
@@ -1343,7 +1333,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 	}
 	else {
 		Filt.Flags &= ~AccAnlzFilt::fTrnovrBySuppl;
-		if(!IsGenAcc && !IsGenAr) // @v9.5.9 (&& !IsGenAr)
+		if(!IsGenAcc && !IsGenAr)
 			THROW(P_ATC->IdentifyAcc(&Filt.Aco, &Filt.AccID, Filt.CurID, Filt.SubstRelTypeID, &acc_list));
 		param.IsRegister = IsRegister;
 		param.P_BObj = P_BObj;
@@ -1386,7 +1376,6 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 					}
 				}
 			}
-			// @v9.5.9 {
 			else if(IsGenAr) {
 				for(uint i = 0; i < gen_ar_list.getCount(); i++) {
 					AcctID temp_acct_id;
@@ -1398,15 +1387,15 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 					}
 				}
 			}
-			// } @v9.5.9
 			else {
 				aco_list.Add(Filt.AccID, Filt.Aco, 0);
 			}
+			PPIDArray __acc_list;
 			for(uint i = 0; ok > 0 && i < aco_list.getCount(); i++) {
 				long   aco = aco_list.at(i).Val;
 				PPID   acc_id = aco_list.at(i).Key;
 				int    sign = (aco < 0) ? -1 : 1;
-				PPIDArray __acc_list;
+				__acc_list.Z();
 				aco = abs(aco);
 				THROW(P_ATC->IdentifyAcc(&aco, &acc_id, Filt.CurID, Filt.SubstRelTypeID, &__acc_list));
 				if(!__acc_list.isList()) {
@@ -1538,8 +1527,7 @@ int PPViewAccAnlz::InitIteration()
 			P_IterQuery->initIteration(false, p_key, spGe);
 		}
 		else {
-			// @v10.6.8 char   k[MAXKEYLEN];
-			BtrDbKey k_; // @v10.6.8 
+			BtrDbKey k_;
 			if(Filt.Flags & (AccAnlzFilt::fGroupByCorAcc|AccAnlzFilt::fTrnovrBySheet) || Filt.Cycl.Cycle) {
 				THROW_MEM(P_IterQuery = new BExtQuery(P_TmpATTbl, 1));
 			}
@@ -1547,7 +1535,6 @@ int PPViewAccAnlz::InitIteration()
 				THROW_MEM(P_IterQuery = new BExtQuery(P_TmpAATbl, 0));
 			}
 			P_IterQuery->selectAll();
-			// @v10.6.8 memzero(k, sizeof(k));
 			P_IterQuery->initIteration(false, k_, spFirst);
 		}
 	}
@@ -1567,7 +1554,7 @@ int FASTCALL PPViewAccAnlz::NextIteration(AccAnlzViewItem * pItem)
 				P_ATC->copyBufTo(&rec);
 				item.Dt      = rec.Dt;
 				item.OprNo   = rec.OprNo;
-				item.BillID  = rec.Bill;
+				item.BillID  = rec.BillID;
 				item.RByBill = rec.RByBill;
 				item.Reverse = rec.Reverse;
 				item.AccID   = Filt.AccID;
@@ -1735,54 +1722,70 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 	else {
 		if(IsRegister) {
-			DBE * dbe_crd = 0;
-			THROW(CheckTblPtr(rat = new AccTurnTbl));
-			THROW(CheckTblPtr(rt = new AcctRelTbl));
-			{
-				/* @v9.6.1
-				dbe_ar.init();
-				dbe_ar.push(rt->ArticleID);
-				dbe_ar.push(rt->AccID);
-				dbe_ar.push(static_cast<DBFunc>(PPDbqFuncPool::IdObjNameArByAcc));
-				*/
-				PPDbqFuncPool::InitFunc2Arg(dbe_ar, PPDbqFuncPool::IdObjNameArByAcc, rt->ArticleID, rt->AccID); // @v9.6.1
+			if(Filt.Aco == ACO_3) {
+				DBE * dbe_crd = 0;
+				THROW(CheckTblPtr(rat = new AccTurnTbl));
+				THROW(CheckTblPtr(rt = new AcctRelTbl));
+				PPDbqFuncPool::InitFunc2Arg(dbe_ar, PPDbqFuncPool::IdObjNameArByAcc, rt->ArticleID, rt->AccID);
+				dbe_crd = & (rat->Amount * -1);
+				PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, rat->BillID);
+				PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, rat->BillID);
+				q = & select(
+					rat->Dt,       // #00
+					rat->OprNo,    // #01
+					rat->BillID,   // #02
+					rat->Acc,      // #03
+					rt->AccID,     // #04
+					dbe_bill_code, // #05
+					dbe_ar,        // #06
+					rat->Amount,   // #07
+					*dbe_crd,      // #08
+					rat->Rest,     // #09
+					dbe_bill_memo, // #10
+					0L).from(rat, rt, 0L);
+				delete dbe_crd;
+				dbq = & (daterange(rat->Dt, &Filt.Period) && rt->ID == rat->Acc);
+				brw_id = BROWSER_ACCREGISTEROPS;
+				if(Filt.Aco == ACO_3)
+					q->where(rat->Acc == Filt.AccID && *dbq).orderBy(rat->Acc, rat->Dt, rat->OprNo, 0L);
+				else // if(Filt.Aco == ACO_2)
+					q->where(rat->Bal == Filt.AccID && *dbq).orderBy(rat->Bal, rat->Dt, rat->OprNo, 0L);
 			}
-			dbe_crd = & (rat->Amount * -1);
-			PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, rat->Bill);
-			PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, rat->Bill);
-			q = & select(
-				rat->Dt,       // #00
-				rat->OprNo,    // #01
-				rat->Bill,     // #02
-				rat->Acc,      // #03
-				rt->AccID,     // #04
-				dbe_bill_code, // #05
-				dbe_ar,        // #06
-				rat->Amount,   // #07
-				*dbe_crd,      // #08
-				rat->Rest,     // #09
-				dbe_bill_memo, // #10
-				0L).from(rat, rt, 0L);
-			delete dbe_crd;
-			dbq = & (daterange(rat->Dt, &Filt.Period) && rt->ID == rat->Acc);
-			brw_id = BROWSER_ACCREGISTEROPS;
-			if(Filt.Aco == ACO_3)
-				q->where(rat->Acc == Filt.AccID && *dbq).orderBy(rat->Acc, rat->Dt, rat->OprNo, 0L);
-			else // if(Filt.Aco == ACO_2)
-				q->where(rat->Bal == Filt.AccID && *dbq).orderBy(rat->Bal, rat->Dt, rat->OprNo, 0L);
+			else { // if(Filt.Aco == ACO_2 || Filt.Aco == ACO_1)
+				//DBE * dbe_crd = 0;
+				THROW(CheckTblPtr(att = new TempAccAnlzTbl(P_TmpAATbl->GetName()))); // @v12.1.5
+				//THROW(CheckTblPtr(rat = new AccTurnTbl));
+				THROW(CheckTblPtr(rt = new AcctRelTbl));
+				PPDbqFuncPool::InitFunc2Arg(dbe_ar, PPDbqFuncPool::IdObjNameArByAcc, rt->ArticleID, rt->AccID);
+				//dbe_crd = & (att->Amount * -1);
+				PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, att->BillID);
+				PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, att->BillID);
+				q = & select(
+					att->Dt,       // #00
+					att->OprNo,    // #01
+					att->BillID,   // #02
+					att->Acc,      // #03
+					rt->AccID,     // #04
+					dbe_bill_code, // #05
+					dbe_ar,        // #06
+					//att->Amount,   // #07
+					att->Dbt,      // #07
+					//*dbe_crd,      // #08
+					att->Crd,      // #08
+					att->Rest,     // #09
+					dbe_bill_memo, // #10
+					0L).from(att, rt, 0L);
+				//delete dbe_crd;
+				//dbq = & (daterange(att->Dt, &Filt.Period) /*&& (rt->ID += att->Acc)*/);
+				brw_id = BROWSER_ACCREGISTEROPS;
+				//q->where(rat->Bal == Filt.AccID && *dbq).orderBy(rat->Bal, rat->Dt, rat->OprNo, 0L);
+				q->where((rt->ID += att->Acc));
+			}
 		}
 		else {
 			THROW(CheckTblPtr(att = new TempAccAnlzTbl(P_TmpAATbl->GetName())));
 			THROW(CheckTblPtr(rt = new AcctRelTbl));
-			{
-				/* @v9.6.1
-				dbe_ar.init();
-				dbe_ar.push(rt->ArticleID);
-				dbe_ar.push(rt->AccID);
-				dbe_ar.push(static_cast<DBFunc>(PPDbqFuncPool::IdObjNameArByAcc));
-				*/
-				PPDbqFuncPool::InitFunc2Arg(dbe_ar, PPDbqFuncPool::IdObjNameArByAcc, rt->ArticleID, rt->AccID); // @v9.6.1
-			}
+			PPDbqFuncPool::InitFunc2Arg(dbe_ar, PPDbqFuncPool::IdObjNameArByAcc, rt->ArticleID, rt->AccID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, att->CurID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, att->BillID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, att->BillID);

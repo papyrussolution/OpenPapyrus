@@ -12930,7 +12930,7 @@ int CheckPaneDialog::LoadTSession(PPID tsessID)
 		SetupAgent(attrib.AgentID, 0);
 		if(attrib.SCardID)
 			AcceptSCard(attrib.SCardID, 0, 0);
-		const int do_setup_price = BIN(P_TSesObj->GetConfig().Flags & PPTSessConfig::fSetupCcPricesInCPane);
+		const bool do_setup_price = LOGIC(P_TSesObj->GetConfig().Flags & PPTSessConfig::fSetupCcPricesInCPane);
 		for(SEnum en = P_TSesObj->P_Tbl->EnumLines(tsessID); en.Next(&ln_rec) > 0;) {
 			if(ln_rec.Sign < 0) {
 				PgsBlock pgsb(fabs(ln_rec.Qtty));

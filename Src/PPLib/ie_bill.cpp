@@ -225,6 +225,34 @@ int DocNalogRu_Reader::ReadFile(const char * pFileName, FileInfo & rHeader, TSCo
 		SString extra_val;
 		SString norm_barcode; // @v11.4.2 нормализованное представление штрихкода (только как параметр-заглушка для DiagBarcode)
 		THROW(p_ctx = xmlNewParserCtxt());
+		// @v12.1.6 @construction {
+#if 0 // {
+		{
+			SFileFormat ff;
+			const int fir = ff.Identify(pFileName, 0);
+			if(fir == 3 && ff == SFileFormat::Zip) {
+				SFileEntryPool fep;
+				int    arc_format = 0;
+				if(SArchive::List(SArchive::providerLA, &arc_format, pFileName, 0, fep) > 0) {
+					SFileEntryPool::Entry fe;
+					SString arc_sub;
+					for(uint i = 0; i < fep.GetCount(); i++) {
+						if(fep.Get(i, &fe, &arc_sub) > 0) {
+							SFsPath::NormalizePath(arc_sub, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf);
+								/*
+								H = SArchive::OpenArchiveEntry(SArchive::providerLA, left_buf, right_buf);
+								if(!!H) {
+									T = tArchive;
+									ok = 1;
+								}*/
+								//break;
+						}
+					}
+				}
+			}
+		}
+#endif // } 0
+		// } @v12.1.6
 		{
 			SFile f_in(pFileName, SFile::mRead);
 			int64 fs = 0;
@@ -7030,14 +7058,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 						if(chzn_prod_type == GTCHZNPT_MILK && is_weighted_ware) { // @v11.9.7
 							// Для весовой молочной продукции указывается количество упаковок - пока пишем фиксированную единицу
 							(temp_buf = barcode_for_marking).PadLeft(14-barcode_for_marking.Len(), '0').Insert(0, "02").Cat("37"); // @v12.1.4 .Cat("1");
-							// @v12.1.4 {
-							if(chzn_int_qty > 0 && chzn_int_qty < 100) {
-								temp_buf.Cat(chzn_int_qty);
-							}
-							else {
-								temp_buf.Cat("1");
-							}
-							// } @v12.1.4 
+							temp_buf.Cat((chzn_int_qty > 0 && chzn_int_qty < 100) ? chzn_int_qty : 1); // @v12.1.4
 							SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
 							n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
 						}

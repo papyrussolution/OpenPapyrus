@@ -3568,7 +3568,7 @@ int PPObjPerson::PutGuid(PPID id, const S_GUID * pUuid, int use_ta)
 	PPObjTag tagobj;
 	PPObjectTag tag_rec;
 	THROW_PP(tagobj.Fetch(tag_id, &tag_rec) > 0, abs_err_msg_id);
-	if(pUuid && !pUuid->IsZero()) {
+	if(!S_GUID::IsEmpty(pUuid)) {
 		THROW(Search(id, &_rec) > 0);
 	}
 	{

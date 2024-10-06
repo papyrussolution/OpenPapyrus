@@ -409,9 +409,9 @@ int PrcssrAbsentBill::ScanAccturn(SArray * pList)
 	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		AccTurnTbl::Rec rec;
 		p_at->copyBufTo(&rec);
-		if(P_BObj->Search(rec.Bill) <= 0) {
+		if(P_BObj->Search(rec.BillID) <= 0) {
 			AbsentEntry entry;
-			entry.ID    = rec.Bill;
+			entry.ID    = rec.BillID;
 			entry.Dt    = rec.Dt;
 			entry.Flags |= AbsentEntry::fByAccTurn;
 			uint pos = 0;

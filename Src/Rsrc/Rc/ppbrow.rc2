@@ -1741,9 +1741,12 @@ browser ACCREGISTEROPS north(100), 1, 0, "Операции по бухгалтерскому регистру {%
 		EDITITEM     :  kbEnter, PPDV_EDITFILE02,   "@{edit}\tEnter"
 		ADDITEM      :  kbIns,   PPDV_ADDFILE02,    "@{add}\tInsert"
 		DELETEITEM   :  kbDel,   PPDV_DELETEFILE02, "@{delete}\tDelete"
+		GRAPH        :  kbCtrlN, PPDV_PLOT01,       "@{plot}\tCtrl-N"
 		PRINT        :  kbF7,    PPDV_PRINTER01,    "@{print}\tF7"
 		TOTAL        :  kbF9,    PPDV_SIGMA02,      "@{totals}\tF9"
-		REFRESH      :  kbCtrlV, PPDV_REFRESH01,    "@{refresh}\tCtrl-V"
+		separator
+		CHANGEFILT   :  kbCtrlV, PPDV_FILTER01,     "@{filter}\tCtrl-V"
+		REFRESH      :  kbCtrlZ, PPDV_REFRESH01,    "@{refresh}\tCtrl-Z"
 	}
 }
 

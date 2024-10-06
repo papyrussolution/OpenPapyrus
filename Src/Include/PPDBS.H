@@ -5091,7 +5091,7 @@ public:
 		int32  Bal;
 		LDATE  Dt;
 		int32  OprNo;
-		int32  Bill;
+		int32  BillID;
 		int16  RByBill;
 		int16  Reverse;
 		int32  CorrAcc;
@@ -5099,7 +5099,7 @@ public:
 		char   Rest[8];    // money[8.2]
 	} data;
 	struct Key0 {
-		int32  Bill;
+		int32  BillID;
 		int16  Reverse;
 		int16  RByBill;
 	};
@@ -5121,7 +5121,7 @@ public:
 	DBField Bal;
 	DBField Dt;
 	DBField OprNo;
-	DBField Bill;
+	DBField BillID;
 	DBField RByBill;
 	DBField Reverse;
 	DBField CorrAcc;

@@ -514,19 +514,6 @@ int EditXlsDbFileParam(ExcelDbFile::Param * pData)
 //
 //
 //
-/*static*/PPImpExpParam * FASTCALL PPImpExpParam::CreateInstance(uint recId, long flags)
-{
-	PPImpExpParam * p_param = 0;
-	SdRecord rec;
-	SString temp_buf;
-	THROW(LoadSdRecord(recId, &rec, 1));
-	p_param = CreateInstance((temp_buf = rec.Name).ToUpper(), flags);
-	CATCH
-		ZDELETE(p_param);
-	ENDCATCH
-	return p_param;
-}
-
 /*static*/PPImpExpParam * FASTCALL PPImpExpParam::CreateInstance(const char * pSymb, long flags)
 {
 	PPImpExpParam * p_param = 0;
@@ -545,6 +532,25 @@ int EditXlsDbFileParam(ExcelDbFile::Param * pData)
 	else
 		PPSetError(PPERR_PPIMPEXPHDLSYMBUNDEF);
 	return p_param;
+}
+
+/*static*/PPImpExpParam * FASTCALL PPImpExpParam::CreateInstance(const SdRecord & rSdRec, long flags)
+{
+	PPImpExpParam * p_param = 0;
+	if(rSdRec.Name.NotEmpty()) {
+		SString temp_buf;
+		p_param = CreateInstance((temp_buf = rSdRec.Name).ToUpper(), flags);
+	}
+	CATCH
+		ZDELETE(p_param);
+	ENDCATCH
+	return p_param;
+}
+
+/*static*/PPImpExpParam * FASTCALL PPImpExpParam::CreateInstance(uint recId, long flags)
+{
+	SdRecord rec;
+	return LoadSdRecord(recId, &rec, 1) ? CreateInstance(rec, flags) : 0;
 }
 
 ImpExpParamDllStruct::ImpExpParamDllStruct() : BeerGrpID(0), AlcoGrpID(0), AlcoLicenseRegID(0), TTNTagID(0), ManufTagID(0),
@@ -3439,43 +3445,49 @@ int ImpExpCfgsListDialog::setupList()
 					PPIniFile ini_file(ini_file_name, is_exists ? 0 : 1, 1, 1);
 					THROW(ini_file.IsValid());
 					PROFILE(THROW(ini_file.GetSections(&all_sections)));
-					for(uint p = 0; all_sections.get(&p, section);) {
-						THROW(p_param->Init());
-						PROFILE(THROW(LoadSdRecord(CfgsList.Get(CfgPos).Id, &p_param->InrRec)));
-						PROFILE_START
-						if(p_param->ProcessName(3, section)) {
-							p_param->OtrRec.Clear();
-							p_param->FileName.Z();
-							const int r = p_param->ReadIni(&ini_file, section, 0);
-							if(r) {
-								PROFILE_START
-								uint sect_id = 0;
-								Sections.add(section, &sect_id);
-								p_param->ProcessName(2, sect = section);
-								if(!sect.HasPrefixIAscii("DLL_")) { // @vmiller
-									ss.Z();
-									ss.add(sect);
-									ss.add(p_param->Direction ? "Import" : "Export");
-									switch(p_param->DataFormat) {
-										case PPImpExpParam::dfText:  sub = "Text";  break;
-										case PPImpExpParam::dfDbf:   sub = "Dbf";   break;
-										case PPImpExpParam::dfXml:   sub = "Xml";   break;
-										case PPImpExpParam::dfSoap:  sub = "SOAP";  break;
-										case PPImpExpParam::dfExcel: sub = "Excel"; break;
-										default: sub = "Unknown"; break;
-									}
-									ss.add(sub);
-									ss.add(p_param->FileName);
-									THROW(addStringToList(sect_id, ss.getBuf()));
-								} // @vmiller
-								PROFILE_END
+					{
+						for(uint p = 0; all_sections.get(&p, section);) {
+						}
+					}
+					{
+						for(uint p = 0; all_sections.get(&p, section);) {
+							THROW(p_param->Init());
+							PROFILE(THROW(LoadSdRecord(CfgsList.Get(CfgPos).Id, &p_param->InrRec)));
+							PROFILE_START
+							if(p_param->ProcessName(3, section)) {
+								p_param->OtrRec.Clear();
+								p_param->FileName.Z();
+								const int r = p_param->ReadIni(&ini_file, section, 0);
+								if(r) {
+									PROFILE_START
+									uint sect_id = 0;
+									Sections.add(section, &sect_id);
+									p_param->ProcessName(2, sect = section);
+									if(!sect.HasPrefixIAscii("DLL_")) { // @vmiller
+										ss.Z();
+										ss.add(sect);
+										ss.add(p_param->Direction ? "Import" : "Export");
+										switch(p_param->DataFormat) {
+											case PPImpExpParam::dfText:  sub = "Text";  break;
+											case PPImpExpParam::dfDbf:   sub = "Dbf";   break;
+											case PPImpExpParam::dfXml:   sub = "Xml";   break;
+											case PPImpExpParam::dfSoap:  sub = "SOAP";  break;
+											case PPImpExpParam::dfExcel: sub = "Excel"; break;
+											default: sub = "Unknown"; break;
+										}
+										ss.add(sub);
+										ss.add(p_param->FileName);
+										THROW(addStringToList(sect_id, ss.getBuf()));
+									} // @vmiller
+									PROFILE_END
+								}
+								else
+									PPError();
 							}
-							else
-								PPError();
+							PROFILE_END
 						}
 						PROFILE_END
 					}
-					PROFILE_END
 				}
 			}
 		}

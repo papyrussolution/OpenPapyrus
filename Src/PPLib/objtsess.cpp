@@ -219,11 +219,9 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 			THROW_MEM(p_cfg);
 			THROW(r = p_ref->GetPropMainConfig(prop_cfg_id, p_cfg, sz));
 		}
-		// @v10.7.11 {
 		pCfg->Tag = PPOBJ_CONFIG;
 		pCfg->ID = PPCFG_MAIN;
 		pCfg->Prop = prop_cfg_id;
-		// } @v10.7.11 
 		if(r > 0) {
 			pCfg->Flags = p_cfg->Flags;
 			pCfg->IdleAccSheetID = p_cfg->IdleAccSheetID;
@@ -538,7 +536,7 @@ static SIntToSymbTabEntry TSessStatusSymbList[] = {
 		PPTSessConfig cfg;
 		PPObjTSession::ReadConfig(&cfg);
 		if(cfg.MinIdleCont > 0) {
-			long   cont = GetContinuation(pRec);
+			const long cont = GetContinuation(pRec);
 			if(cont && cont < cfg.MinIdleCont)
 				ok = 1;
 		}
@@ -1082,7 +1080,7 @@ int PPObjTSession::PutLine(PPID sessID, long * pOprNo, TSessLineTbl::Rec * pRec,
 int PPObjTSession::Helper_PutLine(PPID sessID, long * pOprNo, TSessLineTbl::Rec * pRec, long options, int use_ta)
 {
 	int    ok = 1;
-	const  int use_price = BIN(GetConfig().Flags & PPTSessConfig::fUsePricing);
+	const  bool use_price = LOGIC(GetConfig().Flags & PPTSessConfig::fUsePricing);
 	PPID   main_goods_id = 0;
 	double qtty = 0.0;
 	double amount = 0.0;
@@ -1174,7 +1172,6 @@ int PPObjTSession::Helper_PutLine(PPID sessID, long * pOprNo, TSessLineTbl::Rec 
 			THROW_DB(P_Tbl->updateRecBuf(&sess_rec));
 		}
 		if(!(options & hploInner)) {
-			// @v10.0.07 {
 			if(tec_rec.Flags & TECF_RVRSCMAINGOODS && !(options & hploInner)) {
 				TSessionPacket ts_pack;
 				if(GetPacket(sessID, &ts_pack, gpoLoadLines) > 0) {
@@ -1188,7 +1185,6 @@ int PPObjTSession::Helper_PutLine(PPID sessID, long * pOprNo, TSessLineTbl::Rec 
 					}
 				}
 			}
-			// } @v10.0.07
 			if(use_price && sess_rec.SCardID && ScObj.Search(sess_rec.SCardID, &sc_rec) > 0) {
 				THROW(SetupDiscount(sessID, 1, fdiv100i(sc_rec.PDis), 0));
 			}

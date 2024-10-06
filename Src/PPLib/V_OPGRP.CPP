@@ -74,11 +74,14 @@ enum {
 
 int PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 {
-	int    ok = 1, done = 0, create_stat = 0;
+	int    ok = 1;
+	int    done = 0;
+	int    create_stat = 0;
 	SString temp_buf;
 	PPLogger logger;
 	TempOpGrpngTbl * p_tbl = 0;
-	OpGroupingFilt prev_filt = Filt;
+	OpGroupingFilt prev_filt;
+	prev_filt = Filt;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_ViewTrfrAnlz);
@@ -108,6 +111,24 @@ int PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 		MEMSZERO(LastOutRest);
 		GdsOpTotal.Dt = plusdate(NZOR(Filt.Period.upp, Filt.Period.low), 1);
 		GdsOpTotal.OpID = OPGRPNG_TOTAL_ID;
+		// @v12.1.5 {
+		{
+			LocList_.Set(0);
+			PPObjLocation loc_obj;
+			PPIDArray temp_loc_list;
+			if(Filt.LocList.GetCount() == 0) {
+				bool is_loclist_restricted = false;
+				loc_obj.GetWarehouseList(&temp_loc_list, &is_loclist_restricted);
+				if(is_loclist_restricted)
+					LocList_.Set(&temp_loc_list);
+			}
+			else {
+				const PPIDArray & r_loc_list = Filt.LocList.Get();
+				loc_obj.ResolveWarehouseList(&r_loc_list, temp_loc_list);
+				LocList_.Set(&temp_loc_list);
+			}
+		}
+		// } @v12.1.5 
 		if(!PPLoadText(PPTXT_GOODSOPRTOTAL, temp_buf))
 			PPGetWord(PPWORD_TOTAL, 0, temp_buf);
 		STRNSCPY(GdsOpTotal.OpName, temp_buf);
@@ -115,7 +136,7 @@ int PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 		{
 			uint   cycle_no = 0;
 			BExtInsert bei(p_tbl);
-			TSVector <DateRange> period_list; // @v9.8.4 TSArray-->TSVector
+			TSVector <DateRange> period_list;
 			if(!Filt.Cycl)
 				period_list.insert(&Filt.Period);
 			else
@@ -133,7 +154,7 @@ int PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 				gct_flt.LotsPeriod = Filt.LotsPeriod;
 				gct_flt.ShipmentPeriod = Filt.ShipmentPeriod;
 				gct_flt.OpID       = Filt.OpID;
-				gct_flt.LocList    = Filt.LocList;
+				gct_flt.LocList    = LocList_;
 				gct_flt.SupplID    = Filt.SupplID;
 				gct_flt.SupplAgentID = Filt.SupplAgentID;
 				gct_flt.ArList.Add(Filt.ArID);
@@ -462,7 +483,7 @@ int PPViewOpGrouping::CreateStatList(LAssocArray * pOpList, TSVector <OpGrouping
 		PPIDArray date_list;
 		OpGroupingViewItem item;
 		LAssocArray proxi_op_list;
-		TSVector <OpGroupingViewItem> proxi_item_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <OpGroupingViewItem> proxi_item_list;
 		SETIFZ(pOpList, &proxi_op_list);
 		SETIFZ(pItemList, &proxi_item_list);
 		for(InitIteration(); NextIteration(&item) > 0;) {
@@ -536,7 +557,7 @@ public:
 		addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(CTLSEL_GTO_GOODS, CTLSEL_GTO_GGRP, cmGoodsFilt));
 		addGroup(ctlgroupCycle, new CycleCtrlGroup(CTLSEL_GTO_CYCLE, CTL_GTO_NUMCYCLES, CTL_GTO_PERIOD));
 		SetupCalPeriod(CTLCAL_GTO_PERIOD, CTL_GTO_PERIOD);
-		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GTO_LOC, 0, 0, cmLocList, 0, 0, 0));
+		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GTO_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0)); // @v12.1.5 LocationCtrlGroup::fEnableSelUpLevel
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -811,8 +832,7 @@ int PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			if(oneof2(p_tbl->data.OpID, OPGRPNG_INREST, OPGRPNG_OUTREST)) {
 				if(Filt.GoodsID) {
 					LotFilt  lot_flt;
-					// @v10.6.8 lot_flt.LocID      = Filt.LocList.GetSingle();
-					lot_flt.LocList = Filt.LocList; // @v10.6.8
+					lot_flt.LocList    = LocList_;
 					lot_flt.SupplID    = Filt.SupplID;
 					lot_flt.GoodsGrpID = Filt.GoodsGrpID;
 					lot_flt.GoodsID    = Filt.GoodsID;
@@ -822,7 +842,7 @@ int PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
 					GoodsRestFilt  gr_flt;
 					gr_flt.Date = (p_tbl->data.OpID == OPGRPNG_INREST) ?
 						(detail_period.low ? plusdate(detail_period.low, -1) : encodedate(1, 1, 1900)) : detail_period.upp;
-					gr_flt.LocList     = Filt.LocList;
+					gr_flt.LocList     = LocList_;
 					gr_flt.SupplID     = Filt.SupplID;
 					gr_flt.GoodsGrpID  = Filt.GoodsGrpID;
 					gr_flt.AgentID     = Filt.SupplAgentID;
@@ -832,12 +852,12 @@ int PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			else if(!Filt.GoodsGrpID && !Filt.GoodsID && !Filt.SupplAgentID) {
 				BillFilt bill_flt;
 				bill_flt.Period   = detail_period;
-				bill_flt.LocList  = Filt.LocList;
+				bill_flt.LocList  = LocList_;
 				bill_flt.ObjectID = p_tbl->data.ObjectID;
 				bill_flt.OpID     = p_tbl->data.OpID;
 				if(bill_flt.OpID == PPOPK_INTRRECEIPT) {
 					bill_flt.LocList.Set(0);
-					bill_flt.ObjectID = PPObjLocation::WarehouseToObj(Filt.LocList.GetSingle());
+					bill_flt.ObjectID = PPObjLocation::WarehouseToObj(LocList_.GetSingle());
 				}
 				SETFLAG(bill_flt.Flags, BillFilt::fLabelOnly, Filt.Flags & OpGroupingFilt::fLabelOnly);
 				bill_flt.Flags |= BillFilt::fAllCurrencies;
@@ -847,7 +867,7 @@ int PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			else /*if(Filt.GoodsID)*/ {
 				TrfrAnlzFilt tra_flt;
 				tra_flt.Period     = detail_period;
-				tra_flt.LocList    = Filt.LocList;
+				tra_flt.LocList    = LocList_;
 				tra_flt.OpID       = p_tbl->data.OpID;
 				tra_flt.SupplID    = Filt.SupplID;
 				tra_flt.GoodsGrpID = Filt.GoodsGrpID;
@@ -855,7 +875,7 @@ int PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				tra_flt.SupplAgentID = Filt.SupplAgentID;
 				if(tra_flt.OpID == PPOPK_INTRRECEIPT) {
 					tra_flt.LocList.Z();
-					tra_flt.ArList.Add(PPObjLocation::WarehouseToObj(Filt.LocList.GetSingle()));
+					tra_flt.ArList.Add(PPObjLocation::WarehouseToObj(LocList_.GetSingle()));
 					PPIDArray op_list;
 					for(PPID op_id = 0; EnumOperations(0L, &op_id, 0) > 0;) {
 						const int dir = IsIntrOp(op_id);
@@ -878,13 +898,13 @@ int PPViewOpGrouping::InitBillList(PPID opID)
 	if(Filt.GoodsGrpID || Filt.GoodsID) {
 		TrfrAnlzFilt  tra_flt;
 		tra_flt.Period     = Filt.Period;
-		tra_flt.LocList    = Filt.LocList;
+		tra_flt.LocList    = LocList_;
 		tra_flt.OpID       = opID;
 		tra_flt.GoodsGrpID = Filt.GoodsGrpID;
 		tra_flt.GoodsID = Filt.GoodsID;
 		if(tra_flt.OpID == PPOPK_INTRRECEIPT) {
 			tra_flt.LocList.Z();
-			tra_flt.ArList.Add(PPObjLocation::WarehouseToObj(Filt.LocList.GetSingle()));
+			tra_flt.ArList.Add(PPObjLocation::WarehouseToObj(LocList_.GetSingle()));
 			PPIDArray op_list;
 			for(PPID op_id = 0; EnumOperations(0L, &op_id, 0) > 0;) {
 				const int dir = IsIntrOp(op_id);
@@ -903,12 +923,12 @@ int PPViewOpGrouping::InitBillList(PPID opID)
 	else {
 		BillFilt  bill_flt;
 		bill_flt.Period   = Filt.Period;
-		bill_flt.LocList  = Filt.LocList;
+		bill_flt.LocList  = LocList_;
 		bill_flt.ObjectID = Filt.ArID;
 		bill_flt.OpID     = opID;
 		if(bill_flt.OpID == PPOPK_INTRRECEIPT) {
 			bill_flt.LocList.Set(0);
-			bill_flt.ObjectID = PPObjLocation::WarehouseToObj(Filt.LocList.GetSingle());
+			bill_flt.ObjectID = PPObjLocation::WarehouseToObj(LocList_.GetSingle());
 		}
 		SETFLAG(bill_flt.Flags, BillFilt::fLabelOnly, Filt.Flags & OpGroupingFilt::fLabelOnly);
 		SETFLAG(bill_flt.Flags, BillFilt::fAllCurrencies, 1);

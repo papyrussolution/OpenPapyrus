@@ -1,5 +1,5 @@
 // PPMQC.CPP
-// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -162,7 +162,7 @@ int PPMqbClient::RoutingParamEntry::SetupReserved(int rsrv, const char * pDomain
 		case rtrsrvPapyrusPosProtocol:
 			{
 				THROW_S_S(!isempty(pDomain), SLERR_INVPARAM, __FUNCTION__"/pDomain");
-				THROW(pDestGuid && !pDestGuid->IsZero());
+				THROW(!S_GUID::IsEmpty(pDestGuid));
 				QueueName.Z().Cat(symb).Dot().Cat(pDomain).Dot().Cat(*pDestGuid, S_GUID::fmtIDL|S_GUID::fmtLower);
 				(RoutingKey = pDomain).Dot().Cat(*pDestGuid, S_GUID::fmtIDL|S_GUID::fmtLower);
 				ExchangeName = symb;
@@ -174,7 +174,7 @@ int PPMqbClient::RoutingParamEntry::SetupReserved(int rsrv, const char * pDomain
 		case rtrsrvStyloView:
 			{
 				THROW_S_S(!isempty(pDomain), SLERR_INVPARAM, __FUNCTION__"/pDomain");
-				THROW(pDestGuid && !pDestGuid->IsZero());
+				THROW(!S_GUID::IsEmpty(pDestGuid));
 				QueueName.Z().Cat(symb).Dot().Cat(pDomain).Dot().Cat(*pDestGuid, S_GUID::fmtIDL|S_GUID::fmtLower);
 				(RoutingKey = pDomain).Dot().Cat(*pDestGuid, S_GUID::fmtIDL|S_GUID::fmtLower);
 				ExchangeName = symb;

@@ -167,7 +167,8 @@ int AmtList::Add(const AmtEntry * pEntry, int ignoreZero)
 {
 	uint pos = 0;
 	if(Search(pEntry->AmtTypeID, pEntry->CurID, &pos)) {
-		at(pos).Amt += pEntry->Amt;
+		AmtEntry & r_entry = at(pos);
+		r_entry.Amt += pEntry->Amt;
 		return 1;
 	}
 	else

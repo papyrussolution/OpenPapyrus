@@ -267,7 +267,6 @@ public class CommandListActivity extends SLib.SlActivity {
 		if(app_ctx != null) {
 			try {
 				if(cmdItem.BaseCmdId == StyloQCommand.sqbcPersonEvent) {
-					// @construction
 					PersonEvent pe = new PersonEvent();
 					pe.SrcCmdItem = cmdItem;
 					pe.CurrentGeoLoc = geoPos;
@@ -478,11 +477,15 @@ public class CommandListActivity extends SLib.SlActivity {
 											boolean force_update_cmd_is_visible = false;
 											switch(prestatus.S) {
 												case StyloQCommand.prestatusQueryNeeded:
-													rcid = R.drawable.ic_generic_server;
+													if(app_ctx.IsNetworkDisabled())
+														rcid = R.drawable.ic_generic_server_unavailable;
+													else
+														rcid = R.drawable.ic_generic_server;
 													break;
 												case StyloQCommand.prestatusActualResultStored:
 													rcid = R.drawable.ic_generic_document;
-													force_update_cmd_is_visible = true;
+													if(!app_ctx.IsNetworkDisabled())
+														force_update_cmd_is_visible = true;
 													break;
 												case StyloQCommand.prestatusPending:
 													rcid = R.drawable.ic_stopwatch;
