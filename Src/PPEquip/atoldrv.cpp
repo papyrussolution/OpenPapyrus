@@ -1787,6 +1787,9 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 										p_js_item->Insert("imcParams", p_js_imcparams);
 									}
 								}
+								/*
+								@todo industryInfo
+								*/
 							}
 							else {
 								//uint8 fptr10_mark_buf[512];
@@ -2111,7 +2114,6 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 							const double pp = R2(_p);
 							debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
 							if(P_Fptr10) {
-								// @v10.7.12 {
 								uint8 fptr10_mark_buf[512];
 								int   mark_buf_data_len = 0;
 								if(sl_param.ChZnProductType && sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()) {
@@ -2173,7 +2175,6 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 										}
 									}
 								}
-								// } @v10.7.12 
 								temp_buf_u.CopyFromMb_OUTER(goods_name, goods_name.Len());
 								P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_COMMODITY_NAME, temp_buf_u);
 								P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_PRICE, pp);
@@ -2184,7 +2185,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 									const double vatrate = fabs(sl_param.VatRate);
 									if(vatrate == 18.0)
 										tax_type_number = LIBFPTR_TAX_VAT18;
-									else if(vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
+									else if(vatrate == 20.0)
 										tax_type_number = LIBFPTR_TAX_VAT20;
 									else if(vatrate == 10.0)
 										tax_type_number = LIBFPTR_TAX_VAT10;

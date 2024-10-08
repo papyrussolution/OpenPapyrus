@@ -5855,6 +5855,22 @@ char * STDCALL Sl_Curl_InetNtop(int af, const void * pSrc, char * pBuf, size_t b
 int   STDCALL strtotime(const char * pBuf, long fmt, LTIME * pTime); // @>>::strtok
 int   STDCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long timFmt);
 //
+// @v12.1.6
+// Descr: Универсальный (хе-хе) определитель ошибки. Введен с целью унифицировать подходы к информированию об ошибках 
+//   в сложных случаях, когда комплексная функция может инициировать несколько ошибок, каждая из которых находится в каком-то 
+//   заданном месте.
+// 
+struct SCompoundError {
+	SCompoundError();
+	SCompoundError & Z();
+
+	uint   LocIdent; // Тип локации, в которой обнаружена ошибка. Полностью определяется контекстом. 0 - неопределенное значение.
+	int64  ItemI;    // Целочисленный локатор ошибки (номер строки, например)
+	IntRange ItemR;  // Целочисленный диапазонный локатор ошибки (например, первый и последний символ подстроки, где находится проблема синтаксического разбора)
+	int    Code;     // Целочисленный код ошибки.
+	SString Descr;   // Строковое описание ошибки. Кодировка текста полностью определяется контекстом.
+};
+//
 // Descr: Обобщанная структура поля данных. Используется в основном для работы
 //   с таблицами баз данных.
 // Note: Перенесено из db.h для реализации универсального сериализатора данных SSerializeContext.
@@ -13199,7 +13215,6 @@ public:
     int    AddEntry(const char * pSrcFileName, const char * pName, int flags);
     int    AddEntries(const char * pMask, int flags);
 private:
-	// @v10.4.4
 #if 1 // @construction {
 	struct LaCbBlock {
 		LaCbBlock(SArchive * pMaster, size_t bufSize);
@@ -13214,7 +13229,6 @@ private:
 	static int     cdecl LaCbClose(Archive * pA, void * pClientData);
 	//archive_seek_callback
 #endif // } 0 @construction
-	// } @v10.4.4
 	struct EntryBlock {
 		static constexpr uint MagicValue = 0x57BE8004U;
 
@@ -13227,7 +13241,7 @@ private:
 		void * H;
 	};
 	int    Helper_AddEntries(const SString & rRoot, const SString & rSub, const SString & rMask, int flags);
-	static int ConvertLaEntry(void * pLaEntry, SFileEntryPool::Entry & rFe);
+	static int ConvertLaEntry(void * pLaEntry, SFileEntryPool::Entry & rFe, SString * pFullPath); // @v12.1.6 (SString * pFullPath)
 	static int Implement_Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath);
 
 	const  int Provider;

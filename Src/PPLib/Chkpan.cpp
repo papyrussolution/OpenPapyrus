@@ -6786,16 +6786,13 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 	if(TVCOMMAND) {
 		if(TVCMD == cmInputUpdated)
 			IdleClock = clock(); // Не обрабатываем это сообщение, а лишь прерываем таймаут засыпания //
-		// @v10.8.1 {
 		else if(TVCMD == cmModalPostCreate) {
 			if(!(Flags & fNoEdit) && CnExtFlags & CASHFX_NOTIFYEQPTIMEMISM) {
 				if(InitCashMachine() && P_CM) {
 					SString fmt_buf;
 					SString msg_buf;
 					LDATETIME device_dtm = ZERODATETIME;
-					// @v10.9.8 PPSyncCashSession * p_ifc = P_CM->SyncInterface();
-					// @v10.9.8 const int gdtr = p_ifc->GetDeviceTime(&device_dtm);
-					const int gdtr = P_CM->SyncGetDeviceTime(&device_dtm); // @v10.9.8
+					const int gdtr = P_CM->SyncGetDeviceTime(&device_dtm);
 					// @v10.8.9 @debug {
 					(msg_buf = "GetDeviceTime").CatDiv(':', 2).Cat(gdtr).Space().Cat(device_dtm, DATF_ISO8601CENT, 0);
 					PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
@@ -6809,11 +6806,9 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 								SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
 						}
 					}
-					// @v10.9.8 ZDELETE(p_ifc); // @v10.8.8 @fix
 				}
 			}
 		}
-		// } @v10.8.1 
 		else if(TVCMD == cmCtlColor) {
 			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 			if(p_dc) {
@@ -7312,7 +7307,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 									PPBillPacket::ConvertToCCheckParam param;
 									param.PosNodeID = CashNodeID;
 									param.LocID = CnLocID;
-									const int ctcr = bpack.ConvertToCheck2(param, &ccpack);
+									const int ctcr = bpack.ConvertToCheck2(param, &ccpack, 0);
 									if(ctcr > 0) {
 										const S_GUID cc_uuid(SCtrGenerate_);
 										S_GUID bill_uuid;
@@ -9599,7 +9594,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 										GtinStruc gts;
 										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
 											uint clp = 0;
-											CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
+											//CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
 											PPChZnPrcssr::ReconstructOriginalChZnCode(gts, temp_buf);
 											PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.CreateNewItem(&clp);
 											if(p_cle) {

@@ -4837,7 +4837,7 @@ static int SelectPrintPoolVerb(int * pVerb)
 	return ok;
 }
 
-int PPViewBill::PrintBill(PPID billID /* @v10.0.0, int addCashSummator*/)
+int PPViewBill::PrintBill(PPID billID)
 {
 	int    ok = 1;
 	PPBillPacket pack;
@@ -5025,8 +5025,6 @@ int PPViewBill::UpdateAttributes()
 					PPBillPacket pack;
 					if(P_BObj->ExtractPacket(bill_id, &pack) > 0) {
 						int    do_upd = 0;
-						// @v10.3.0 (never used) const long org_rec_flags = pack.Rec.Flags;
-						// @v10.3.0 (never used) const long org_rec_flags2 = pack.Rec.Flags2;
 						if(ua.ObjectID && pack.Rec.Object != ua.ObjectID) {
 							pack.Rec.Object = ua.ObjectID;
 							do_upd = 1;
@@ -6688,11 +6686,11 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 						ViewGoodsBillCmp(hdr.ID, rh_bill_list, 0);
 				}
 				break;
-			case PPVCMD_ATTACHBILLTOBILL:  ok = AttachBill(hdr.ID, pBrw); break; // @v10.3.5
+			case PPVCMD_ATTACHBILLTOBILL:  ok = AttachBill(hdr.ID, pBrw); break;
 			case PPVCMD_TRANSMIT:          ok = Transmit(hdr.ID, 0); break;
 			case PPVCMD_TRANSMITCHARRY:    ok = Transmit(hdr.ID, 1); break;
 			case PPVCMD_EXPORT:            ok = ExportGoodsBill(0, 0); break;
-			case PPVCMD_PRINT:             ok = PrintBill(hdr.ID/*@v10.0.0 , 1*/); break;
+			case PPVCMD_PRINT:             ok = PrintBill(hdr.ID); break;
 			case PPVCMD_PRINTLIST:         ok = Print(); break;
 			case PPVCMD_PRINTINFOLIST:     ok = PrintBillInfoList(); break;
 			case PPVCMD_PRINTALLBILLS:     ok = PrintAllBills(); break;

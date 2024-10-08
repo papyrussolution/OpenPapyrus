@@ -4049,20 +4049,16 @@ void ObjTagSelExtra::SetupLotSerialParam(PPID locID, long flags)
 
 StrAssocArray * ObjTagSelExtra::GetList(const char * pText)
 {
-	const int by_lot_serial = BIN(ObjType == PPOBJ_LOT && TagID == PPTAG_LOT_SN);
+	const bool by_lot_serial = (ObjType == PPOBJ_LOT && TagID == PPTAG_LOT_SN);
 	PPObjBill * p_bobj = BillObj;
-	SString pattern, temp_buf, obj_name_buf;
+	SString temp_buf, obj_name_buf;
 	StrAssocArray * p_list = 0;
-	pattern = pText;
+	SString pattern(pText);
 	if(pattern.Len()) {
-		int    srch_substr = BIN(pattern.C(0) == '*');
+		const bool srch_substr = (pattern.C(0) == '*');
 		size_t len = pattern.ShiftLeftChr('*').Len();
 		if(len >= MinSymbCount) {
-			const StrAssocArray * p_full_list = 0;
-			if(by_lot_serial)
-				p_full_list = p_bobj->GetFullSerialList();
-			else
-				p_full_list = &TextBlock;
+			const StrAssocArray * p_full_list = by_lot_serial ? p_bobj->GetFullSerialList() : &TextBlock;
 			if(p_full_list) {
 				p_list = new StrAssocArray;
 				if(p_list) {
@@ -8396,7 +8392,7 @@ IMPL_DIALOG_GETDTS(ExtStrContainerListDialog)
 /*virtual*/int ExtStrContainerListDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
-	if(pos >= 0 && pos < DescrListCount) {
+	if(pos >= 0 && pos < static_cast<long>(DescrListCount)) {
 		SString temp_buf;
 		SString title_buf;		
 		const int fld_id = P_DescrList[pos].Id;

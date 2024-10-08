@@ -8460,6 +8460,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ramtt_mp_storage     "Маркетплейс: стоимость хранения на складе"
 @ramtt_mp_commission  "Маркетплейс: комиссионное вознаграждение"
 @ramtt_mp_sellerpart  "Маркетплейс: доля продавца"
+@ramtt_mp_acquiring   "Маркетплейс: стоимость экваринга"
 //
 // Наименование зарезервированных тегов
 //

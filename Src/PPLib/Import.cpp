@@ -3278,17 +3278,14 @@ int PrcssrPersonImport::Run()
 		long   accepted_count = 0;
 		IterCounter cntr;
 		Sdr_Person rec;
-		// @v10.9.1 {
 		SdRecord dyn_rec;
 		SdbField dyn_fld;
 		THROW(ie.InitDynRec(&dyn_rec));
-		// } @v10.9.1
 		PPTransaction tra(1);
 		THROW(tra);
 		cntr.Init(numrecs);
 		while(ie.ReadRecord(&rec, sizeof(rec), &dyn_rec) > 0) {
 			IeParam.InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &rec);
-			// @v10.9.1 {
 			ObjTagList tag_list;
 			if(dyn_rec.GetCount()) {
 				SStrScan scan;
@@ -3361,7 +3358,6 @@ int PrcssrPersonImport::Run()
 					}
 				}
 			}
-			// } @v10.9.1
 			int    do_turn = 1; // Импортированный пакет следует сохранить в БД
 			int    is_office = 0;
 			PPID   psn_id = 0, ps_id = 0;

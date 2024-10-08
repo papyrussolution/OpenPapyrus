@@ -458,9 +458,7 @@ static bool FindErrorLocations(const ModulusPoly& errorLocator, std::vector<int>
 	return e == numErrors;
 }
 
-static std::vector<int> FindErrorMagnitudes(const ModulusPoly& errorEvaluator,
-    const ModulusPoly& errorLocator,
-    const std::vector<int>& errorLocations)
+static std::vector<int> FindErrorMagnitudes(const ModulusPoly& errorEvaluator, const ModulusPoly& errorLocator, const std::vector<int>& errorLocations)
 {
 	const ModulusGF& field = GetModulusGF();
 	int errorLocatorDegree = errorLocator.degree();
@@ -468,7 +466,6 @@ static std::vector<int> FindErrorMagnitudes(const ModulusPoly& errorEvaluator,
 	for(int i = 1; i <= errorLocatorDegree; i++) {
 		formalDerivativeCoefficients[errorLocatorDegree - i] = field.multiply(i, errorLocator.coefficient(i));
 	}
-
 	ModulusPoly formalDerivative(field, formalDerivativeCoefficients);
 	// This is directly applying Forney's Formula
 	std::vector<int> result(errorLocations.size());

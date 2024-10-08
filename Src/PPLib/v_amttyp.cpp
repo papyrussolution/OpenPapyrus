@@ -106,14 +106,17 @@ int PPViewAmountType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 int PPViewAmountType::MakeListEntry(const PPAmountTypePacket * pPack, AmountTypeViewItem * pItem)
 {
 	int    ok = -1;
-	if(pPack && pItem) {
-		pItem->ID   = pPack->Rec.ID;
-		pItem->RefAmtTypeID = pPack->Rec.IsComplementary() ? pPack->Rec.RefAmtTypeID : 0;
-		pItem->Flags        = pPack->Rec.Flags;
-		pItem->Tax  = (pPack->Rec.Flags & PPAmountType::fTax) ? pPack->Rec.Tax : 0;
-		pItem->TaxRate      = (pPack->Rec.Flags & PPAmountType::fTax) ? ((double)pPack->Rec.TaxRate) / 100 : 0;
-		pPack->Formula.CopyTo(pItem->Formula, sizeof(pItem->Formula));
-		ok = 1;
+	if(pItem) {
+		memzero(pItem, sizeof(*pItem));
+		if(pPack) {
+			pItem->ID   = pPack->Rec.ID;
+			pItem->RefAmtTypeID = pPack->Rec.IsComplementary() ? pPack->Rec.RefAmtTypeID : 0;
+			pItem->Flags = pPack->Rec.Flags;
+			pItem->Tax   = (pPack->Rec.Flags & PPAmountType::fTax) ? pPack->Rec.Tax : 0;
+			pItem->TaxRate = (pPack->Rec.Flags & PPAmountType::fTax) ? ((double)pPack->Rec.TaxRate) / 100 : 0;
+			pPack->Formula.CopyTo(pItem->Formula, sizeof(pItem->Formula));
+			ok = 1;
+		}
 	}
 	return ok;
 }
@@ -384,9 +387,8 @@ int PPViewAmountType::Transmit(int isCharry)
 
 int PPViewAmountType::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
-	int        ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
-	PPIDArray  id_list;
-	PPID       id = (pHdr) ? *static_cast<const  PPID *>(pHdr) : 0;
+	int    ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
+	PPID   id = (pHdr) ? *static_cast<const  PPID *>(pHdr) : 0;
 	if(ok == -2) {
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
@@ -399,9 +401,26 @@ int PPViewAmountType::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 		}
 	}
 	if(ok > 0 && oneof5(ppvCmd, PPVCMD_ADDITEM, PPVCMD_EDITITEM, PPVCMD_DELETEITEM, PPVCMD_REFRESHBYPERIOD, PPVCMD_REFRESH)) {
-		FetchData(id);
+		//FetchData(id);
 		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
-		CALLPTRMEMB(p_def, setArray(new SArray(Data), 0, 1));
+		// @v12.1.6 CALLPTRMEMB(p_def, setArray(new SArray(Data), 0, 1));
+		// @v12.1.6 {
+		if(p_def) {
+			LongArray id_list;
+			PPID   last_id = 0;
+			if(GetLastUpdatedObjects(id, id_list) > 0) {
+				for(uint i = 0; i < id_list.getCount(); i++) {
+					last_id = id_list.get(i);
+					FetchData(last_id);
+				}
+			}
+			if(last_id) {
+				p_def->setArray(new SArray(Data), 0, 1);
+				if(ppvCmd != PPVCMD_DELETEITEM)
+					pBrw->search2(&last_id, CMPF_LONG, srchFirst, 0);
+			}
+		}
+		// } @v12.1.6 
 		ok = 1;
 	}
 	return ok;
@@ -410,13 +429,12 @@ int PPViewAmountType::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 int PPViewAmountType::FetchData(long id)
 {
 	int    ok = 1;
-	AmountTypeViewItem item;
 	if(id == 0) {
 		Data.freeAll();
 		for(PPID id = 0; ObjAmtT.EnumItems(&id, 0) > 0;) {
 			PPAmountTypePacket pack;
 			if(ObjAmtT.GetPacket(id, &pack) > 0 && CheckForFilt(&pack) > 0) {
-				MEMSZERO(item);
+				AmountTypeViewItem item;
 				MakeListEntry(&pack, &item);
 				THROW_SL(Data.insert(&item));
 			}
@@ -427,7 +445,7 @@ int PPViewAmountType::FetchData(long id)
 		const bool found = Data.lsearch(&id, &pos, CMPF_LONG);
 		PPAmountTypePacket pack;
 		if(ObjAmtT.GetPacket(id, &pack) > 0 && CheckForFilt(&pack) > 0) {
-			MEMSZERO(item);
+			AmountTypeViewItem item;
 			MakeListEntry(&pack, &item);
 			if(found)
 				*static_cast<AmountTypeViewItem *>(Data.at(pos)) = item;

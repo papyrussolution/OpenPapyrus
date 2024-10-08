@@ -212,7 +212,7 @@ DocNalogRu_Reader::DocNalogRu_Reader() : DocNalogRu_Base()
 {
 }
 
-int DocNalogRu_Reader::ReadFile(const char * pFileName, FileInfo & rHeader, TSCollection <DocumentInfo> & rDocList)
+int DocNalogRu_Reader::ReadSingleXmlFile(const char * pFileName, FileInfo & rHeader, TSCollection <DocumentInfo> & rDocList)
 {
 	int    ok = -1;
 	xmlParserCtxt * p_ctx = 0;
@@ -225,34 +225,6 @@ int DocNalogRu_Reader::ReadFile(const char * pFileName, FileInfo & rHeader, TSCo
 		SString extra_val;
 		SString norm_barcode; // @v11.4.2 нормализованное представление штрихкода (только как параметр-заглушка для DiagBarcode)
 		THROW(p_ctx = xmlNewParserCtxt());
-		// @v12.1.6 @construction {
-#if 0 // {
-		{
-			SFileFormat ff;
-			const int fir = ff.Identify(pFileName, 0);
-			if(fir == 3 && ff == SFileFormat::Zip) {
-				SFileEntryPool fep;
-				int    arc_format = 0;
-				if(SArchive::List(SArchive::providerLA, &arc_format, pFileName, 0, fep) > 0) {
-					SFileEntryPool::Entry fe;
-					SString arc_sub;
-					for(uint i = 0; i < fep.GetCount(); i++) {
-						if(fep.Get(i, &fe, &arc_sub) > 0) {
-							SFsPath::NormalizePath(arc_sub, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf);
-								/*
-								H = SArchive::OpenArchiveEntry(SArchive::providerLA, left_buf, right_buf);
-								if(!!H) {
-									T = tArchive;
-									ok = 1;
-								}*/
-								//break;
-						}
-					}
-				}
-			}
-		}
-#endif // } 0
-		// } @v12.1.6
 		{
 			SFile f_in(pFileName, SFile::mRead);
 			int64 fs = 0;
@@ -5084,10 +5056,38 @@ int PPBillImporter::Run()
 		THROW_PP_S(BillParam.ImpOpID, PPERR_UNDEFBILLIMPOP, CfgNameBill);
 		THROW(GetOpData(BillParam.ImpOpID, &op_rec) > 0);
 		THROW(BillParam.PreprocessImportFileSpec(ss_files));
-		for(uint ssfp = 0; ss_files.get(&ssfp, temp_buf);) {
-			if(fileExists(temp_buf)) {
+		for(uint ssfp = 0; ss_files.get(&ssfp, file_name);) {
+			if(fileExists(file_name)) {
 				DocNalogRu_Reader::FileInfo fi;
-				reader.ReadFile(temp_buf, fi, doc_list);
+				// @v12.1.6 @construction {
+				/*{
+					SFileFormat ff;
+					const int fir = ff.Identify(file_name, 0);
+					if(fir == 3 && ff == SFileFormat::Zip) {
+						SFileEntryPool fep;
+						int    arc_format = 0;
+						if(SArchive::List(SArchive::providerLA, &arc_format, file_name, 0, fep) > 0) {
+							SFileEntryPool::Entry fe;
+							SString arc_sub;
+							SString arc_sub_filename;
+							SString dest_path;
+							for(uint i = 0; i < fep.GetCount(); i++) {
+								if(fep.Get(i, &fe, &arc_sub) > 0) {
+									SFsPath::NormalizePath(arc_sub, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf);
+									arc_sub = temp_buf;
+									SFsPath ps(arc_sub);
+									ps.Merge(SFsPath::fNam|SFsPath::fExt, arc_sub_filename);
+									if(SFile::WildcardMatch("on_*.xml", arc_sub_filename)) {
+										PPGetPath(PPPATH_TEMP, dest_path);
+										SArchive::Inflate(SArchive::providerLA, file_name, 0, arc_sub, dest_path);
+									}
+								}
+							}
+						}
+					}
+				}*/
+				// } @v12.1.6
+				reader.ReadSingleXmlFile(file_name, fi, doc_list);
 			}
 		}
 		{

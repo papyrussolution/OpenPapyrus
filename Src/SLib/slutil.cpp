@@ -1,5 +1,5 @@
 // SLUTIL.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -313,4 +313,20 @@ SProfile::Measure::Measure() : Start(SLS.GetProfileTime())
 uint64 SProfile::Measure::Get()
 {
 	return (SLS.GetProfileTime() - Start);
+}
+//
+//
+//
+SCompoundError::SCompoundError() : LocIdent(0), ItemI(0LL), Code(0)
+{
+}
+
+SCompoundError & SCompoundError::Z()
+{
+	LocIdent = 0;
+	ItemI = 0LL;
+	ItemR.Z();
+	Code = 0;
+	Descr.Z();
+	return *this;
 }

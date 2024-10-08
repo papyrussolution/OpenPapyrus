@@ -12698,7 +12698,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 					PPObjBill::SelectLotParam::fShowQtty|PPObjBill::SelectLotParam::fShowPhQtty|PPObjBill::SelectLotParam::fShowVetisTag;
 				if(bill_id) {
 					PPBillPacket bp;
-					THROW(p_bobj->ExtractPacketWithFlags(bill_id, &bp, BPLD_LOCK) > 0); // @v10.3.11 BPLD_LOCK
+					THROW(p_bobj->ExtractPacketWithFlags(bill_id, &bp, BPLD_LOCK) > 0);
 					{
 						locked_bill_list.add(bill_id);
 						int    do_update_bpack = 0;

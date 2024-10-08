@@ -1019,7 +1019,8 @@ int PPObjOprKind::GetGenericAccTurnForRegisterOp(PPID * pID, int use_ta) // @v12
 			PPIDArray acs_id_list;
 			{
 				ReservedOpCreateBlock blk;
-				PPID   op_id = blk.OpID = PPOPK_GENERICACCTURN;
+				PPID   op_id = PPOPK_GENERICACCTURN;
+				blk.OpID = PPOPK_GENERICACCTURN;
 				blk.OpTypeID = PPOPT_ACCTURN;
 				blk.NameTxtId = PPTXT_OPK_COMM_GENERICACCTURN;
 				blk.Flags = 0;
@@ -1029,7 +1030,8 @@ int PPObjOprKind::GetGenericAccTurnForRegisterOp(PPID * pID, int use_ta) // @v12
 			}
 			{
 				ReservedOpCreateBlock blk;
-				PPID   op_id = blk.OpID = PPOPK_RETAIL;
+				PPID   op_id = PPOPK_RETAIL;
+				blk.OpID = PPOPK_RETAIL;
 				blk.OpTypeID = PPOPT_GOODSEXPEND;
 				blk.NameTxtId = PPTXT_OPK_COMM_RETAIL;
 				blk.Flags = OPKF_PROFITABLE|OPKF_GEXPEND|OPKF_SELLING;
@@ -1048,7 +1050,8 @@ int PPObjOprKind::GetGenericAccTurnForRegisterOp(PPID * pID, int use_ta) // @v12
 				if(acs_id_list.getCount()) {
 					{
 						ReservedOpCreateBlock blk;
-						PPID   op_id = blk.OpID = PPOPK_RECEIPT;
+						PPID   op_id = PPOPK_RECEIPT;
+						blk.OpID = PPOPK_RECEIPT;
 						blk.OpTypeID = PPOPT_GOODSRECEIPT;
 						blk.NameTxtId = PPTXT_OPK_COMM_RECEIPT;
 						blk.AccSheetID = acs_id_list.get(0);
@@ -1059,7 +1062,8 @@ int PPObjOprKind::GetGenericAccTurnForRegisterOp(PPID * pID, int use_ta) // @v12
 					}
 					{
 						ReservedOpCreateBlock blk;
-						PPID   op_id = blk.OpID = 0;
+						PPID   op_id = 0;
+						blk.OpID = 0;
 						blk.OpTypeID = PPOPT_DRAFTRECEIPT;
 						blk.NameTxtId = PPTXT_OPK_COMM_PURCHASE;
 						blk.AccSheetID = acs_id_list.get(0);
@@ -1081,7 +1085,8 @@ int PPObjOprKind::GetGenericAccTurnForRegisterOp(PPID * pID, int use_ta) // @v12
 				if(acs_id_list.getCount()) {
 					{
 						ReservedOpCreateBlock blk;
-						PPID   op_id = blk.OpID = PPOPK_SELL;
+						PPID   op_id = PPOPK_SELL;
+						blk.OpID = PPOPK_SELL;
 						blk.OpTypeID = PPOPT_GOODSEXPEND;
 						blk.NameTxtId = PPTXT_OPK_COMM_SALE;
 						blk.AccSheetID = acs_id_list.get(0);
@@ -1114,7 +1119,8 @@ int PPObjOprKind::GetGenericAccTurnForRegisterOp(PPID * pID, int use_ta) // @v12
 				if(acs_id_list.getCount()) {
 					{
 						ReservedOpCreateBlock blk;
-						PPID   op_id = blk.OpID = PPOPK_INTREXPEND;
+						PPID   op_id = PPOPK_INTREXPEND;
+						blk.OpID = PPOPK_INTREXPEND;
 						blk.OpTypeID = PPOPT_GOODSEXPEND;
 						blk.NameTxtId = PPTXT_OPK_COMM_INTREXPEND;
 						blk.AccSheetID = acs_id_list.get(0);
@@ -1125,7 +1131,8 @@ int PPObjOprKind::GetGenericAccTurnForRegisterOp(PPID * pID, int use_ta) // @v12
 					}
 					{
 						ReservedOpCreateBlock blk;
-						PPID   op_id = blk.OpID = PPOPK_INTRRECEIPT;
+						PPID   op_id = PPOPK_INTRRECEIPT;
+						blk.OpID = PPOPK_INTRRECEIPT;
 						blk.OpTypeID = PPOPT_GOODSRECEIPT;
 						blk.NameTxtId = PPTXT_OPK_COMM_INTRRECEIPT;
 						blk.AccSheetID = acs_id_list.get(0);

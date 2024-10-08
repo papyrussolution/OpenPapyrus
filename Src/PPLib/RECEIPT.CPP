@@ -1083,7 +1083,7 @@ int LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, PPID lo
 									if(goodsID && trfr_rec.GoodsID == goodsID)
 										goods_detected = 1;
 								}
-								else if(trfr_rec.CorrLoc && p_bobj->trfr->SearchByBill(r_rec.BillID, 1, rbb_target, &trfr_rec) > 0) { // @v10.7.3
+								else if(trfr_rec.CorrLoc && p_bobj->trfr->SearchByBill(r_rec.BillID, 1, rbb_target, &trfr_rec) > 0) {
 									if(lotID && trfr_rec.LotID == lotID)
 										lot_detected = 1;
 									if(goodsID && trfr_rec.GoodsID == goodsID)

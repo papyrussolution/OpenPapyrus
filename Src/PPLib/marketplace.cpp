@@ -2570,6 +2570,9 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 		for(uint i = 0; i < sale_list.getCount(); i++) {
 			const PPMarketplaceInterface_Wildberries::Sale * p_wb_item = sale_list.at(i);
 			if(p_wb_item) {
+				if(p_wb_item->SrID.IsEqiAscii("9047889103344706579.0.4")) {
+					debug_mark = true;
+				}
 				PPID   wh_id = 0;
 				const  double seller_part_amount = p_wb_item->ForPay;
 				BillTbl::Rec ord_bill_rec;
@@ -2665,6 +2668,13 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 									}
 									else if(p_bobj->InsertShipmentItemByOrder(&pack, &ord_pack, static_cast<int>(ord_ti_idx)-1, lot_id/*srcLotID*/, 1.0, 0)) {
 										const long new_row_idx = 0;//row_idx_list.get(0);
+										ReceiptTbl::Rec lot_rec;
+										if(p_bobj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
+											PPTransferItem & r_ti = pack.TI(new_row_idx);
+											r_ti.Cost = lot_rec.Cost;
+											r_ti.Price = lot_rec.Price;
+											r_ti.Discount = (r_ti.Price - p_wb_item->FinishedPrice);
+										}
 										pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, temp_buf.Z().Cat(p_wb_item->IncomeID));
 										pack.LTagL.AddNumber(PPTAG_LOT_ORGORDERIDENT, new_row_idx, temp_buf.Z().Cat(p_wb_item->SrID));
 										pack.InitAmounts();
@@ -2910,6 +2920,7 @@ int PPMarketplaceInterface_Wildberries::FindShipmentBillByOrderIdent(const char 
 int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 {
 	int    ok = -1;
+	bool   debug_mark = false;
 	Reference * p_ref = PPRef;
 	const  LDATETIME now_dtm = getcurdatetime_();
 	SString temp_buf;
@@ -2977,6 +2988,9 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 		}
 		SString sr_ident;
 		for(uint ssp = 0; ss_order_ident.get(&ssp, sr_ident);) {
+			if(sr_ident.IsEqiAscii("9047889103344706579.0.4")) {
+				debug_mark = true;
+			}
 			const bool is_empty_sr_ident = (sr_ident == p_empty_sr_ident_symb);
 			const int fsr = is_empty_sr_ident ? -1 : FindShipmentBillByOrderIdent(sr_ident, shipm_bill_id_list);
 			PPID  shipm_bill_id = 0;
@@ -3002,7 +3016,10 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 							native_op_id = id_buf.ToLong();
 						}
 					}
-					if(native_op_id) {
+					if(!native_op_id) {
+						// @todo Написать что-то в лог
+					}
+					else {
 						PPID  loc_id = 0;
 						ArticleTbl::Rec ar_rec;
 						ResolveWarehouseByName(WhList, p_entry->Warehouse, LConfig.Location, &loc_id);
@@ -3068,6 +3085,10 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 									}
 									if(p_entry->Ppvz_Vw != 0.0) {
 										bpack.Amounts.Put(PPAMT_MP_COMMISSION, 0, fabs(p_entry->Ppvz_Vw + p_entry->Ppvz_Vw_Vat), 1, 1);
+										is_bpack_updated = true;
+									}
+									if(p_entry->AcquiringFee != 0.0) {
+										bpack.Amounts.Put(PPAMT_MP_ACQUIRING, 0, fabs(p_entry->AcquiringFee), 1, 1);
 										is_bpack_updated = true;
 									}
 								}

@@ -5484,7 +5484,7 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 							//const int rdr = ReadDocument(temp_buf, rList);
 							DocNalogRu_Reader::FileInfo fi;
 							TSCollection <DocNalogRu_Reader::DocumentInfo> temp_doc_list;
-							if(Reader.ReadFile(temp_buf, fi, temp_doc_list) > 0) {
+							if(Reader.ReadSingleXmlFile(temp_buf, fi, temp_doc_list) > 0) {
 								for(uint i = 0; i < temp_doc_list.getCount(); i++) {
 									THROW(ProcessDocument(temp_doc_list.at(i), rList));
 								}

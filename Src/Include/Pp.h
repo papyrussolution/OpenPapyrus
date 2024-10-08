@@ -12337,7 +12337,8 @@ public:
 			fCash      = 0x0001,
 			fBank      = 0x0002,
 			fPrepay    = 0x0004,
-			fPaperless = 0x0008 // @v11.3.7
+			fPaperless = 0x0008, // @v11.3.7
+			fDoChZnPm  = 0x0010, // @v12.1.6 Осуществлять проверку марок разрешительным режимом чзн 
 		};
 		PPID   PosNodeID;
 		int    PaymType;
@@ -12363,7 +12364,7 @@ public:
 	//   не известно время жизни созданного объекта CCheckPacket в памяти - номер последнего чека может
 	//   оказаться не актуальным.
 	//
-	int    ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPacket * pCheckPack) const;
+	int    ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPacket * pCheckPack, TSCollection <SCompoundError> * pErrList) const;
 	int    SetCurTransit(const PPCurTransit * pTrans/*In*/);
 	int    GetCurTransit(PPCurTransit * pTrans/*Out*/) const;
 	int    AddPckg(LPackage *);
@@ -56053,7 +56054,7 @@ protected:
 class DocNalogRu_Reader : public DocNalogRu_Base {
 public:
 	DocNalogRu_Reader();
-	int    ReadFile(const char * pFileName, FileInfo & rHeader, TSCollection <DocumentInfo> & rDocList);
+	int    ReadSingleXmlFile(const char * pFileName, FileInfo & rHeader, TSCollection <DocumentInfo> & rDocList);
 private:
 	// Читает атрибуты тега <??? Идентиф="key" Значен="val"/>
 	int    ReadExtraValue(const xmlNode * pNode, SString & rKey, SString & rVal);

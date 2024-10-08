@@ -793,7 +793,6 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 					}
 					blk.TrfrRec = tr;
 				}
-				// @v10.7.5 {
 				else if(rF.Flags & OPG_MERGECORRECTION) {
 					uint cid_pos = 0;
 					long cid = 0;
@@ -820,7 +819,6 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 						}
 					}
 				}
-				// } @v10.7.5
 				if(PPObjGoodsTax::Fetch(taxGrpID, pTrfrRec->Dt, op_id, &gtx) > 0)
 					l_tax_grp_id = gtx.TaxGrpID;
 				if(!(rF.Flags & OPG_ADJPAYM)) {

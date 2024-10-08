@@ -900,7 +900,7 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 	return ok;
 }
 
-int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPacket * pCheckPack) const // @v11.8.8 @construction
+int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPacket * pCheckPack, TSCollection <SCompoundError> * pErrList) const // @v11.8.8
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -978,25 +978,73 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 				PPLotExtCodeContainer::MarkSet lotxcode_set;
 				GtinStruc gts;
 				SString serial;
+				SString chzn_mark;
 				for(uint i = 0; i < GetTCount(); i++) {
 					const PPTransferItem & r_ti = ConstTI(i);
 					LTagL.GetNumber(PPTAG_LOT_SN, i, serial); // @v11.8.9
 					const double org_qtty = fabs(r_ti.Quantity_);
 					double qtty_ = org_qtty;
 					const double n_pr = r_ti.NetPrice();
+					chzn_mark.Z();
 					{
 						XcL.Get(i+1, 0, lotxcode_set);
 						lotxcode_set.GetByBoxID(0, ss);
 						const double _one = 1.0;
-						for(uint ssp = 0; qtty_ >= _one && ss.get(&ssp, temp_buf);) {
-							if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+						for(uint ssp = 0; qtty_ >= _one && ss.get(&ssp, chzn_mark);) {
+							S_GUID chznpm_reqid;        // ответ разрешительного режима чзн: уникальный идентификатор запроса
+							int64  chznpm_reqtimestamp = 0; // ответ разрешительного режима чзн: дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
+							if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(chzn_mark, gts, 0)) > 0) {
+								/* @construction // @v12.1.6 {
+								assert(chzn_mark.NotEmpty());
+								bool   chznpm_ok = true;
+								if(cn_rec.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && cn_rec.ChZnGuaID) {
+									PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection check_code_list;
+									{
+										uint clp = 0;
+										//CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
+										PPChZnPrcssr::ReconstructOriginalChZnCode(gts, chzn_mark);
+										PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.CreateNewItem(&clp);
+										if(p_cle) {
+											p_cle->OrgMark = temp_buf;
+											p_cle->OrgRowId = 0;
+										}
+									}
+									if(check_code_list.getCount()) {
+										PPChZnPrcssr::PmCheck(cn_rec.ChZnGuaID, 0, check_code_list);
+										for(uint i = 0; i < check_code_list.getCount(); i++) {
+											const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.at(i);
+											if(p_cle) {
+												//debug_mark = true;
+												if(p_cle->ErrorCode != 0) {
+													ok = MessageError(PPERR_CHZNMARKPMFAULT, chzn_mark, eomBeep|eomStatusLine);
+													chznpm_ok = false;
+												}
+												else if(p_cle->Flags & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold) {
+													ok = MessageError(PPERR_CHZNMARKPMFAULT_SOLD, chzn_mark, eomBeep|eomStatusLine);
+												}
+												else if(checkdate(p_cle->ExpiryDtm.d) && now_dtm.d >= p_cle->ExpiryDtm.d) { // @v12.1.1
+													ok = MessageError(PPERR_CHZNMARKPMFAULT_EXPIRY, chzn_mark, eomBeep|eomStatusLine);
+												}
+												else {
+													// OK
+													chznpm_reqid = check_code_list.ReqId;
+													chznpm_reqtimestamp = check_code_list.ReqTimestamp;
+												}
+											}
+										}
+									}
+								}*/
+								// } @v12.1.6
+
 								THROW(cp.InsertItem(r_ti.GoodsID, _one, n_pr, 0.0, rParam.DivisionN));
 								const int cp_idx = static_cast<int>(cp.GetCount());
 								cc_amount += R2(n_pr * _one);
 								dscnt += R2(r_ti.Discount * _one);
 								qtty_ -= _one;
-								cp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnMark, temp_buf);
+								cp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnMark, chzn_mark);
 								cp.SetLineTextExt(cp_idx, CCheckPacket::lnextSerial, serial); // @v11.8.9
+								//lnextChZnPm_ReqId        = 7, // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
+								//lnextChZnPm_ReqTimestamp = 8, // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
 							}
 						}
 						if(qtty_ > 0.0) {
@@ -1488,7 +1536,9 @@ int PPObjBill::PosPrintByBill(PPID billID)
 					// Длинное тело процедуры формирования чека по пакету документа перенесено в функцию PPBillPacket::ConvertToCheck2
 					//
 					PPWaitStart();
-					const int ctcr = pack.ConvertToCheck2(param, &cp);
+					TSCollection <SCompoundError> err_list; // @v12.1.6
+					param.Flags_ |= PPBillPacket::ConvertToCCheckParam::fDoChZnPm; // @v12.1.6
+					const int ctcr = pack.ConvertToCheck2(param, &cp, &err_list);
 					if(ctcr > 0) {
 						{
 							long  code = 1;
@@ -1713,7 +1763,7 @@ int PPObjBill::AddExpendByReceipt(PPID * pBillID, PPID sampleBillID, const SelAd
 	THROW(ExtractPacket(sampleBillID, &sample_pack) > 0);
 	THROW_PP(pParam->OpID > 0, PPERR_INVOPRKIND);
 	op_type = GetOpType(pParam->OpID, &op_rec);
-	THROW_PP(oneof3(op_type, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_DRAFTEXPEND), PPERR_INVOPRKIND); // @v10.9.1 PPOPT_DRAFTEXPEND
+	THROW_PP(oneof3(op_type, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_DRAFTEXPEND), PPERR_INVOPRKIND);
 	THROW(pack.CreateBlank(pParam->OpID, 0, sample_pack.Rec.LocID, 1));
 	pack.Rec.LocID = sample_pack.Rec.LocID;
 	GetOpCommonAccSheet(sample_pack.Rec.OpID, &org_acc_sheet_id, 0);
@@ -1739,7 +1789,6 @@ int PPObjBill::AddExpendByReceipt(PPID * pBillID, PPID sampleBillID, const SelAd
 					if(sample_pack.LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb) > 0)
 						pack.LTagL.AddNumber(PPTAG_LOT_SN, &rows, clb);
 				}
-				// @v10.8.1 {
 				// Если приходная операция превращается в расходную и количество единиц в строке расхода точно равно
 				// количеству единиц в приходе, то мы имеем право перенести все марки из прихода в расход
 				if(ti.Flags & PPTFR_MINUS && fabs(down) == fabs(p_ti->Quantity_) && rows.getCount() == 1) {
@@ -1748,7 +1797,6 @@ int PPObjBill::AddExpendByReceipt(PPID * pBillID, PPID sampleBillID, const SelAd
 					if(lotxcode_set.GetCount())
 						pack.XcL.Set_2(rows.at(0)+1, &lotxcode_set);
 				}
-				// } @v10.8.1
 			}
 		}
 	}
@@ -2419,8 +2467,7 @@ int PPObjBill::EditGoodsBill(PPID id, const EditParam * pExtraParam)
 	PPBillPacket pack;
 	if(pExtraParam)
 		egbf |= pExtraParam->Flags;
-	// @v10.1.8 SETFLAG(flags, BPLD_FORCESERIALS, (Cfg.Flags & BCF_SHOWSERIALSINGBLINES));
-	flags |= BPLD_FORCESERIALS; // @v10.1.8
+	flags |= BPLD_FORCESERIALS;
 	THROW(ExtractPacketWithFlags(id, &pack, flags));
 	DS.SetLocation(pack.Rec.LocID);
 	if(GetOpType(pack.Rec.OpID) == PPOPT_INVENTORY) {
@@ -8854,7 +8901,7 @@ int PPObjBill::GetOrderLotForTransfer(const TransferTbl::Rec & rTrfrRec, PPID * 
 }
 
 int PPObjBill::ExtractPacket(PPID id, PPBillPacket * pPack)
-	{ return Helper_ExtractPacket(id, pPack, 0, 0); }
+	{ return Helper_ExtractPacket(id, pPack, 0, 0); } 
 int PPObjBill::ExtractPacketWithFlags(PPID id, PPBillPacket * pPack, uint fl /* BPLD_XXX */)
 	{ return Helper_ExtractPacket(id, pPack, fl, 0); }
 int PPObjBill::ExtractPacketWithRestriction(PPID id, PPBillPacket * pPack, uint fl /* BPLD_XXX */, const PPIDArray * pGoodsList)
@@ -8935,12 +8982,14 @@ int PPObjBill::DoesContainGoods(PPID id, const PPIDArray & rGoodsList)
 
 int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, const PPIDArray * pGoodsList)
 {
+	fl |= BPLD_FORCESERIALS; // @v12.1.6 
 	int    ok = 1;
 	int    r;
 	int    rbybill = 0;
 	uint   i;
+	SString temp_buf;
 	SString msg_buf;
-	SString fmt_buf, temp_buf;
+	SString fmt_buf;
 	PPAccTurn at;
 	PPOprKind op_rec;
 	PPOprKind link_op_rec;

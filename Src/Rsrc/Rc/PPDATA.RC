@@ -858,7 +858,7 @@ ROD_BNKACCTYPE PP_RCDATA {
 // { ID, Name, Symb }
 //
 ROD_AMOUNTTYPE PP_RCDATA {
-	30,
+	31,
 	 1, "@{ramtt_main}\0",          "Amount\0",   1,
 	 2, "@{ramtt_buying}\0",        "Cost\0",     0,
 	 3, "@{ramtt_selling}\0",       "Price\0",    0,
@@ -889,6 +889,7 @@ ROD_AMOUNTTYPE PP_RCDATA {
 	28, "@{ramtt_mp_storage}\0",    "MT_STORAGE\0", 0,
 	29, "@{ramtt_mp_commission}\0", "MT_COMMISSION\0", 0
 	30, "@{ramtt_mp_sellerpart}\0", "MT_SELLERPART\0", 0
+	31, "@{ramtt_mp_acquiring}\0",  "MT_ACQUIRING\0", 0 // @v12.1.6 Стоимость экваринга на стороне маркетплейса, котороую маркетплейс переносит на поставщика
 };
 //
 // Зарезервированные событийные метки

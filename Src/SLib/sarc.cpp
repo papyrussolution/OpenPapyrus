@@ -221,7 +221,7 @@ struct SArc_Bz2_Block {
 	SString FileName;
 };
 
-/*static*/int SArchive::ConvertLaEntry(void * pLaEntry, SFileEntryPool::Entry & rFe)
+/*static*/int SArchive::ConvertLaEntry(void * pLaEntry, SFileEntryPool::Entry & rFe, SString * pFullPath)
 {
 	int    ok = 1;
 	if(pLaEntry) {
@@ -259,6 +259,10 @@ struct SArc_Bz2_Block {
 			//long   mtmnsec = archive_entry_mtime_nsec(p_entry);
 			rFe.ModTm_ = SUniTime_Internal::EpochToNs100(mtm);
 		}
+		// @v12.1.6 {
+		if(pFullPath)
+			rFe.GetFullPath(*pFullPath);
+		// } @v12.1.6 
 	}
 	else
 		ok = 0;
@@ -287,7 +291,7 @@ struct SArc_Bz2_Block {
 					ArchiveEntry * p_entry = 0;
 					SFileEntryPool::Entry fep_entry;
 					while(archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK) {
-						ConvertLaEntry(p_entry, fep_entry);
+						ConvertLaEntry(p_entry, fep_entry, 0);
 						rPool.Add(fep_entry, SFileEntryPool::scanfKeepCase);
 					}				
 				}
@@ -432,7 +436,7 @@ static void extract(const char *filename)
 			SString entry_name;
 			SFsPath::NormalizePath(pEntryName, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, arc_sub);
 			while(!h && archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK) {
-				ConvertLaEntry(p_entry, fep_entry);
+				ConvertLaEntry(p_entry, fep_entry, 0);
 				fep_entry.GetFullPath(entry_name);
 				if(SFsPath::NormalizePath(entry_name, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf).IsEqiUtf8(arc_sub)) {
 					EntryBlock * p_blk = new EntryBlock(provider, p_larc);
@@ -542,16 +546,20 @@ static void extract(const char *filename)
 			SFsPath ps;
 			SString base_path;
 			SString final_path;
+			SString fepentry_full_path;
 			if(!isempty(pDestPath)) {
 				(base_path = pDestPath).Strip().RmvLastSlash();
 			}
 			else
 				base_path.Z();
 			while(archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK) {
-				ConvertLaEntry(p_entry, fep_entry);
+				ConvertLaEntry(p_entry, fep_entry, &temp_buf);
+				SFsPath::NormalizePath(temp_buf, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, fepentry_full_path);
 				bool suited = false;
 				if(!isempty(pWildcard)) {
-					if(SFile::WildcardMatch(pWildcard, fep_entry.Name))
+					if(fepentry_full_path.IsEqiUtf8(pWildcard)) // @v12.1.6
+						suited = true;
+					else if(SFile::WildcardMatch(pWildcard, fep_entry.Name))
 						suited = true;
 				}
 				else
