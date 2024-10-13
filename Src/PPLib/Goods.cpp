@@ -2341,9 +2341,7 @@ int GoodsCore::CheckGoodsForExclusiveAltGrp(PPID goodsID, PPID altGrpID)
 		GetGroupTerminalList(parent_id, &term_grp_list, 0);
 		alt_grp_list.intersect(&term_grp_list);
 		if(alt_grp_list.getCount()) {
-			// @v9.4.9 PPObject::SetLastErrObj(PPOBJ_GOODS, alt_grp_list.at(0));
-			// @v9.4.9 ok = PPSetError(PPERR_DUPEXCLALTGRPMEMBER);
-			ok = PPSetObjError(PPERR_DUPEXCLALTGRPMEMBER, PPOBJ_GOODS, alt_grp_list.at(0)); // @v9.4.9
+			ok = PPSetObjError(PPERR_DUPEXCLALTGRPMEMBER, PPOBJ_GOODS, alt_grp_list.at(0));
 		}
 	}
 	return ok;
@@ -2518,10 +2516,7 @@ int GoodsCore::Helper_BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID, PPIDArr
 	return r;
 }
 
-int GoodsCore::BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID)
-{
-	return Helper_BelongToGroup(id, grp, pSubGrpID, 0);
-}
+int GoodsCore::BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID) { return Helper_BelongToGroup(id, grp, pSubGrpID, 0); }
 
 int GoodsCore::BelongToGen(PPID goodsID, PPID * pGenID, ObjAssocTbl::Rec * b)
 {

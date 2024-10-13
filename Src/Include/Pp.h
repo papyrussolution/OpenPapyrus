@@ -1443,8 +1443,7 @@ public:
 	static int IdObjNameOprKind;    // (fldOpID)
 	static int IdObjNameLoc;        // (fldLocID)
 	static int IdObjNameAr;         // (fldArID)
-	static int IdObjNameArByAcc;    // (fldArID, fldAccID) Если у пользователя нет прав на доступ к счету fldAccID,
-		// то выдается пустое имя статьи fldArID //
+	static int IdObjNameArByAcc;    // (fldArID, fldAccID) Если у пользователя нет прав на доступ к счету fldAccID, то выдается пустое имя статьи fldArID //
 	static int IdObjNameUser;       // (fldUserID)
 	static int IdObjNameGlobalUser; // (fldGlobalUserID)
 	static int IdObjNameUnit;       // (fldUnitID)
@@ -1488,7 +1487,7 @@ public:
 	static int IdDateTime;          // (fldDate, fldTime)
 	static int IdDurationToTime;    // (fldLong)
 	static int IdInventDiffQtty;    // (fldFlags, fldDiffQtty)
-	static int IdInventLnStatus;    // @v10.5.8 (fldFlags, fldBillID)
+	static int IdInventLnStatus;    // (fldFlags, fldBillID)
 	static int IdTSesLnPhQtty;      // (fldGoodsID, fldFlags, fldQtty, fldWtQtty)
 	static int IdTSesLnFlags;       // (fldFlags)
 	static int IdPercent;           // (fldDividend, fldDivisor) =(100 * div / divisor)
@@ -1533,6 +1532,10 @@ public:
 	static int IdBillFrghtDlvrAddr; // (billID)
 	static int IdGetAgrmntSymbol;   // @vmiller
 	static int IdBillAgentName;     // (billID) Наименование агента по документу (извлекается из записи расширения документа)
+	static int IdBillStatusName;    // (billID) Наименование статуса документа
+	static int IdCheckBillAgent;    // @v12.1.6 (billID, agentID) Определяет, равен ли атрибут 'Agent' документа с идентификатором, равным первому аргументу, значению второго аргумента функции.
+	static int IdCheckBillFlag;     // @v12.1.6 (billID, flag) Определяет установку флага (BillTbl::Flags) у документа с заданным идентификатором
+	static int IdCheckBillFlag2;    // @v12.1.6 (billID, flag) Определяет установку флага2 (BillTbl::Flags2) у документа с заданным идентификатором
 	static int IdRegisterText;      // (registerID) Текст описания регистрационного документа
 	static int IdObjRegisterText;   // (registerTypeID, objtype, objid) Текст описания регистрационного документа типа registerTypeID полученного по объекту {objtype, objid}
 	static int IdObjTagText;        // (tagid, objid) Текстовое представление тега объекта
@@ -1543,9 +1546,9 @@ public:
 	static int IdBillFrghtStrgLoc;  // (billID)
 	static int IdSCardExtString;    // (scardID, fldId)
 	static int IdStrByStrGroupPos;  // (position, (const SStrGroup *)) Возвращает строку из пула строк, идентифицируемую позицией position
-	static int IdBillDate;          // @v10.0.03 (billID) Дата документа по его идентификатору
-	static int IdUnxText;           // @v10.7.2 (fldObjType, fldObjID, fldTxtProp)
-	static int IdIsTxtUuidEq;       // @v10.9.10 (fldUUID_s, GUID) Определяет эксвивалентность строкового представления GUID значению второго аргумента
+	static int IdBillDate;          // (billID) Дата документа по его идентификатору
+	static int IdUnxText;           // (fldObjType, fldObjID, fldTxtProp)
+	static int IdIsTxtUuidEq;       // (fldUUID_s, GUID) Определяет эквивалентность строкового представления GUID значению второго аргумента
 	static int IdArIsCatPerson;     // @v11.1.9 (fldArticle, personCategoryID) Определяет соотносится ли статья fldArticle с персоналией, имеющей категорию personCategoryID
 	static int IdObjMemoPerson;     // @v11.1.12 (fldPersonID)
 	static int IdObjMemoPersonEvent; // @v11.1.12 (fldPersonEventID)
@@ -3476,7 +3479,15 @@ public:
 	int    FASTCALL GetReal(double *) const;
 	int    FASTCALL GetStr(SString &) const;
 	int    FASTCALL GetDate(LDATE *) const;
-	bool   FASTCALL GetGuid(S_GUID *) const;
+	//
+	// Descr: Получает значение типа S_GUID из тега.
+	//   Результат функции считается успешным в случае, если тип тега OTTYP_GUID или OTTYP_STRING, а
+	//   значение может быть благополучно преобразовано к S_GUID. В этом случае функция возвращает true,
+	//   а по указателю pData (если он не нулевой) присваивается полученное значение.
+	//   Если перечисленные критерии успешности не выполнены, то функция возвращает false, а 
+	//   по указателю pData (если он не нулевой) присваивается пустое значение.
+	//
+	bool   FASTCALL GetGuid(S_GUID * pData) const;
 	int    FASTCALL GetTimestamp(LDATETIME *) const;
 	int    GetEnumData(long * pID, long * pParentID, SString * pTxt, SString * pSymb) const;
 	int    AddReal(double rVal);
@@ -3593,8 +3604,10 @@ public:
 	//
 	int    GenerateGuid(S_GUID * pGuid);
 	//
-	// Descr: Извлекает GUID объекта из пакета. Если пакет не содержит GUID, то
-	//   возвращает false и присваевает rGuid пустое значение.
+	// Descr: Извлекает GUID объекта из пакета. Считает, что этот тег идентифицируется значением this->GuidTagID.
+	//   Если пакет не содержит GUID, то возвращает false и присваивает rGuid пустое значение.
+	//   Если пакет содержит тег GuidTagID, но значение этого тега не может быть валидным образом преобразовано к S_GUID,
+	//   то возвращает false и присваивает rGuid пустое значение.
 	//
 	bool   GetGuid(S_GUID & rGuid) const;
 protected:
@@ -9044,12 +9057,12 @@ public:
 	//
 	enum {
 		srrNothing       = -1, // Нет ни одного подходящего регистра
-		srrError =  0, // Ошибка
+		srrError         =  0, // Ошибка
 		srrEmptyDateCrit =  1, // Критерий даты не задан (dt == ZERODATE)
 		srrSingle        =  2, // Есть только один регистр, удовлетворяющий критериям
 		srrMinStartDist  =  3, // Выбран регистр с минимальным расстоянием от даты начала действия
 		srrMaxExpiryDist =  4, // Выбран регистр с максимальным расстоянием до даты истечения срока действия
-		srrAmbig =  5  // Есть более одного регистра, удовлетворящего критериям, с параметрами, не позволяющими
+		srrAmbig         =  5  // Есть более одного регистра, удовлетворящего критериям, с параметрами, не позволяющими
 			// выбрать наиболее оптимальный вариант - выбран самый первый.
 	};
 	//
@@ -9200,8 +9213,8 @@ private:
 #define PSNF_CTRBANK              0x00000002L // Центральный банк страны (только банки)
 #define PSNF_HASIMAGES            0x00000004L // К объекту присоединены картинки
 #define PSNF_NONOTIFICATIONS      0x00000008L // Запрет на рассылку для этой персоналии
-#define PSNF_GENDER_MALE          0x00000010L // @v10.9.0 Физическое лицо мужского пола
-#define PSNF_GENDER_FEMALE        0x00000020L // @v10.9.0 Физическое лицо женского пола
+#define PSNF_GENDER_MALE          0x00000010L // Физическое лицо мужского пола
+#define PSNF_GENDER_FEMALE        0x00000020L // Физическое лицо женского пола
 #define PSNF_DONTSENDCCHECK       0x00000040L // @v11.3.5 Запрет на отправку чека по электронной почте или SMS
 
 #define MAXSAMEPSNREL  4 // Максимальное число отношений между одинаковыми персоналиями
@@ -12869,8 +12882,8 @@ public:
 		LDATE  PaymBillDate;       // Дата  платежного документа (для печати в счете-фактуре)
 		uint8  CvtTag;             // 1 - признак конвертации v6.4.6
 		char   Reserve[3];         // @reserve
-		PPID   AgentID;            // Агент      -> Article.ID
-		PPID   PayerID;            // Плательщик -> Article.ID
+		PPID   AgentID;            // Агент      ->Article.ID
+		PPID   PayerID;            // Плательщик ->Article.ID
 		PPID   CcID;               // Ид чека, сформированного по этому документу для печати
 	};
 private:
@@ -13279,7 +13292,7 @@ public:
 	PPID   LocID;          //
 	PPID   GoodsID;
 	PPID   SupplID;
-	PPID   AgentID;        // Агент, связанный с документом прихода товара (агент поставщика)
+	PPID   AgentID;        // ->Article.ID Агент, связанный с документом прихода товара (агент поставщика)
 	PPID   QuotKindID;     //
 	PPID   DiffLotTagID;   // Тип тега лотов, по значениям которого следует дифференцировать отчет
 	PPIDArray LocList;
@@ -19981,6 +19994,38 @@ private:
 // @ModuleDecl(PPObjBizScore)
 //
 //
+// Индикаторы бизнес-показателей
+// 
+#define PPBZSI_NONE                    0 //
+#define PPBZSI_AMOUNT                  1 // "amount"    kBill, kPaym, kCCheck, kGoodsRest, kDebt, kBizScore
+#define PPBZSI_COST                    2 // "cost"      kBill, kPaym, kCCheck, kGoodsRest
+#define PPBZSI_PRICE                   3 // "price"     kBill, kPaym, kCCheck, kGoodsRest
+#define PPBZSI_DISCOUNT                4 // "discount"  kBill, kCCheck
+#define PPBZSI_NETPRICE                5 // "netprice"  kBill, kPaym, kCCheck, kGoodsRest
+#define PPBZSI_MARGIN                  6 // "margin"    kBill, kPaym, kCCheck, kGoodsRest
+#define PPBZSI_PCTINCOME               7 // "pctincome" kBill, kPaym, kCCheck, kGoodsRest
+#define PPBZSI_PCTMARGIN               8 // "pctmargin" kBill, kPaym, kCCheck, kGoodsRest
+#define PPBZSI_COUNT                   9 // "count"     kBill, kPaym, kCCheck, kGoodsRest, kPersonEvent, kDebt, kBizScore
+#define PPBZSI_AVERAGE                10 // "average"   kBizScore
+#define PPBZSI_MPACCEPTANCE           11 // @v12.1.6 "MPACCEPTANCE" Стоимость приемки товара на складе маркетплейса
+#define PPBZSI_MPSTORAGE              12 // @v12.1.6 "MPSTORAGE" Стоимость хранения товара на складе маркетплейса
+#define PPBZSI_MPCOMMISSION           13 // @v12.1.6 "MPCOMMISSION" Сумма комиссионного вознаграждения маркетплейса
+#define PPBZSI_MPCOMMISSIONPCT        14 // @v12.1.6 "MPCOMMISSIONPCT" Процент комиссионного вознаграждения маркетплейса от суммы продажи
+#define PPBZSI_MPSELLERSPART          15 // @v12.1.6 "MPSELLERSPART" Сумма, перечисляемая маркетплейсом продавцу за проданный товар
+#define PPBZSI_MPSELLERSPARTPCT       16 // @v12.1.6 "MPSELLERSPARTPCT" Процент доли, перечисляемоей маркетплейсом продавцу за проданный товар, от суммы продажи
+#define PPBZSI_MPACQUIRING            17 // @v12.1.6 "MPACQUIRING" Стоимость экваринга на стороне маркетплейса, котороую маркетплейс переносит на поставщика 
+#define PPBZSI_MPACQUIRINGPCT         18 // @v12.1.6 "MPACQUIRINGPCT" Процент доли экваринга на стороне маркетплейса, котороую маркетплейс переносит на поставщика, от суммы продажи
+#define PPBZSI_ORDCOUNT               19 // @v12.1.6 "ordcount"  Количество документов заказа
+#define PPBZSI_ORDQTTY                20 // @v12.1.6 "ordqtty"   Заказанное количество торговых единиц  
+#define PPBZSI_SALECOUNT              21 // @v12.1.6 "salecount" Количество документов продажи
+#define PPBZSI_SALEQTTY               22 // @v12.1.6 "saleqtty"  Проданное количество торговых единиц 
+#define PPBZSI_ORDCANCELLEDCOUNT      23 // @v12.1.6 "ordcancelledcount" Количество заказоы которые были отменены
+#define PPBZSI_ORDCANCELLEDQTTY       24 // @v12.1.6 "ordcancelledqtty"  Количество торговых единиц товара, заказы на которые были отменены
+#define PPBZSI_ORDSHIPMDELAYDAYSAVG   25 // @v12.1.6 "ordshipmdelaydaysavg"   Средний период между заказом и продажей в днях
+#define PPBZSI_ORDSHIPMDELAYDAYSMIN   26 // @v12.1.6 "ordshipmdelaydaysmin"   Минимальный период между заказом и продажей в днях  
+#define PPBZSI_ORDSHIPMDELAYDAYSMAX   27 // @v12.1.6 "ordshipmdelaydaysmax"   Максимальный период между заказом и продажей в днях  
+#define PPBZSI_SUPPLSHIPMDELAYDAYSAVG 28 // @v12.1.6 "supplshipmdelaydaysavg" Средний период между поставкой и продажей в днях
+//
 // Флаги значений бизнес-показателей
 //
 #define BISCVF_BOUNDLOW  0x0001 // Значение выходит за нижнюю допустимую границу
@@ -20048,6 +20093,9 @@ struct PPBizScore2Packet {
 
 class PPObjBizScore : public PPObjReference {
 public:
+	static const char * GetBzsiSymb(int bzsi, SString & rBuf);
+	static int RecognizeBzsiSymb(const char * pSymb);
+
 	explicit PPObjBizScore(void * extraPtr = 0);
 	~PPObjBizScore();
 	virtual int  Edit(PPID * pID, void * extraPtr /*userID*/);
@@ -20172,6 +20220,21 @@ struct BizScoreValFilt : public PPBaseFilt {
 struct BizScoreValTotal {
 	long   Count;
 	double Sum;
+};
+
+struct BzsVal { // @v12.1.6 
+	BzsVal() : Bzsi(0), Val(0.0)
+	{
+	}
+	long   Bzsi;
+	double Val;
+};
+
+class BzsValVector : public TSVector <BzsVal> { // @v12.1.6
+public:
+	BzsValVector() : TSVector <BzsVal>()
+	{
+	}
 };
 
 typedef BizScoreTbl::Rec BizScoreValViewItem;
@@ -22740,7 +22803,7 @@ public:
 		char   Code[12];
 		LDATE  Dt;
 		PPID   ClientID;
-		PPID   AgentID;        //
+		PPID   AgentID;        // ->Article.ID
 		PPID   DlvrAddrID;
 		PPID   QuotKindID;
 		double Amount;
@@ -31773,7 +31836,7 @@ public:
 				// списания излишков и недостач.
             TimeRange RtlSaleAllwTime;   // @v10.2.4 Время, в течении которого разрешена розничная торговля алкоголем
 			PPID   ManufOpID;            // @v10.6.3 Вид операции производства (PPOPT_GOODSMODIF). Используется для обмена с ВЕТИС
-			PPID   SupplAgentID;         // @v11.0.8 Агент поставщика
+			PPID   SupplAgentID;         // @v11.0.8 ->Article.ID Агент поставщика
 			uint8  Reserve[20];          // @v10.2.4 [36]-->[28] // @v10.6.3 [28]-->[24] // @v11.0.8 [24]-->[20]
 		};
 		ExtBlock  E;                 // @anchor
@@ -35119,7 +35182,7 @@ public:
 	PPID   GoodsID;               //
 	PPID   ExtGoodsTypeID;        // Used only if (!GoodsGrpID && !GoodsID && !SupplID)
 	PPID   BrandID;               // Торговая марка
-	PPID   SupplAgentID;          //
+	PPID   SupplAgentID;          // ->Article.ID
 	GCTSoftRestrict SoftRestrict; //
 	long   Flags;                 // OPG_XXX
 	long   Order;                 // GCTFilt::ordByXXX
@@ -37253,7 +37316,7 @@ public:
 	struct WrOffAttrib {
 		PPID   ArID;
 		PPID   Ar2ID;
-		PPID   AgentID;
+		PPID   AgentID; // ->Article.ID
 		PPID   SCardID;
 	};
 	static int  FASTCALL ReadConfig(PPTSessConfig *);
@@ -38806,9 +38869,9 @@ public:
 	int    CalcValues(long colId, long rowId, BizScoreCore * pBizScTbl, RealArray & rValList);
 
 	PPBizScTempl Rec;
-	TSVector <PPBizScTemplCol>  Cols; // @v10.9.0 TSArray-->TSVector
-	TSVector <PPBizScTemplRow>  Rows; // @v10.9.0 TSArray-->TSVector
-	TSVector <PPBizScTemplCell> Cells; // @v10.9.0 TSArray-->TSVector
+	TSVector <PPBizScTemplCol>  Cols;
+	TSVector <PPBizScTemplRow>  Rows;
+	TSVector <PPBizScTemplCell> Cells;
 };
 
 class PPObjBizScTempl : public PPObjReference {
@@ -39890,7 +39953,6 @@ public:
 	int    GetExtssData(int fldID, SString & rBuf) const;
 	int    PutExtssData(int fldID, const char * pBuf);
 	enum {
-		// @v10.6.8 @unused fEmptyPeriod        = 0x00000004,
 		fWithoutQCert       = 0x00000008, // Показывать только лоты, у которых нет сертификата
 		fOrders             = 0x00000010, // Лоты заказов
 		fCostAbovePrice     = 0x00000020, // Только лоты, у которых цена поступления больше цены реализации
@@ -39907,7 +39969,9 @@ public:
 		fShowPriceDev       = 0x00010000, // Показывать признак отклонения цены от предыдущего лота этого товара по этому же складу
 		fRestByPaym         = 0x00020000, // Спец опция: остаток рассчитывается как количество товара, не оплаченного поставщику.
 		fInitOrgLot         = 0x00040000, // @v8.3.7 @construction Если установлен, то итератор инициализируте поле LotViewItem::OrgLotID
-		fLotfPrWoTaxes      = 0x00080000  // Показывать только лоты, у которых установлен флаг LOTF_PRICEWOTAXES
+		fLotfPrWoTaxes      = 0x00080000, // Показывать только лоты, у которых установлен флаг LOTF_PRICEWOTAXES
+		fCancelledOrdersOnly = 0x00100000, // @v12.1.6 Только отмененные заказы
+		fShowAgent          = 0x00200000, // @v12.1.6 Показывать агента (вероятно, это актуально только для лотов заказов)
 	};
 	//
 	// Descr: Идентификаторы текстовых субполей, содержащихся в строке ExtString
@@ -39932,11 +39996,14 @@ public:
 	enum {
 		exvaNone = 0,
 		exvaEgaisTags,
-		exvaVetisTags
+		exvaVetisTags,
+		exvaOrdPrefSupplModel, // @v12.1.6 Отображение заказов для учетной модели с предпочтельным поставщиком (отгрузка "с колес")
+		exvaOrdMarketplace     // @v12.1.6 Отображение заказов на маркетплейсе
 	};
-	uint8  ReserveStart[16]; // @#0 @anchor !Использовать начиная со старших адресов // @v11.4.4 [20]-->[16]
+	uint8  ReserveStart[12]; // @#0 @anchor !Использовать начиная со старших адресов // @v11.4.4 [20]-->[16] // @v12.1. [16]-->[12]
+	PPID   AgentID;          // @v12.1.6 ->Article.ID
 	PPID   SupplPsnCategoryID; // @v11.4.4 Категория персоналии, соответствующей поставщику лота (клиенту в случае с лотами заказов)
-	long   ExtViewAttr;      // @v10.1.4 Параметр, определяющий набор дополнительных столбцов для отображения в таблице
+	long   ExtViewAttr;      // Параметр, определяющий набор дополнительных столбцов для отображения в таблице
 	int16  CostDevRestr;     // LotFilt::drXXX
 	int16  PriceDevRestr;    // LotFilt::drXXX
 	PPID   ParentLotID;      // Ид лота, дочерние лоты которого следует выбрать. Если это поле не нулевое, то все остальные критерии не работают.
@@ -40030,6 +40097,7 @@ public:
 	int    GetItem(PPID, LotViewItem *);
 	int    CalcTotal(LotTotal::Status, LotTotal * pTotal);
 	int    ViewBillInfo(PPID billID);
+	int    CheckForFilt(const ReceiptTbl::Rec & rRec);
 private:
 	static int   CalcChildLots(const ReceiptTbl::Rec *, void * extraPtr);
 	static int   CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
@@ -44384,34 +44452,35 @@ struct GoodsOpAnalyzeFilt : public PPBaseFilt {
 	GoodsOpAnalyzeFilt();
 	virtual int Describe(long flags, SString & rBuff) const;
 	SString & FASTCALL GetOpName(SString & rName) const;
-	int    FASTCALL IsValidABCGroup(short abcGroup) const;
+	bool   FASTCALL IsValidABCGroup(short abcGroup) const;
 	//
 	// Descr: Возвращает !0 если фильтр предполагает расчет анализа вход/выход с заданными лидирующими товарами
 	//   (OpGrpID == ogInOutAnalyze && Flags & fLeaderInOutGoods && GoodsIdList.GetCount())
 	//
-	int    IsLeadedInOutAnalyze() const;
+	bool   IsLeadedInOutAnalyze() const;
 	void   ZeroCompareItems();
 	void   FASTCALL AddTradePlanBillID(PPID);
 
 	enum { // OpGrp
-		ogSelected  = 0,      // На выбор (opr)
-		ogIncoming  = 1,      // Все операции, приносящие доход (расход товара)
-		ogProfitable        = 2,      // Все доходные операции, включая возвраты
-		ogPayed     = 3,      // Все оплаченные доходные операции
-		ogInOutAnalyze      = 4       // Анализ вход-выход (по обобщенной операции или по модификации)
+		ogSelected                = 0, // На выбор (opr)
+		ogIncoming                = 1, // Все операции, приносящие доход (расход товара)
+		ogProfitable              = 2, // Все доходные операции, включая возвраты
+		ogPayed                   = 3, // Все оплаченные доходные операции
+		ogInOutAnalyze            = 4, // Анализ вход-выход (по обобщенной операции или по модификации)
+		ogMarketplaceSalesAnalyze = 5, // @v12.1.6 Анализ продаж на маркетплейсе
 	};
 	enum {
-		fLabelOnly   = 0x00000001, // Только по WL-документам
-		fDiffByPrice = 0x00000002, // Разбивать по ценам реализации
+		fLabelOnly           = 0x00000001, // Только по WL-документам
+		fDiffByPrice         = 0x00000002, // Разбивать по ценам реализации
 		fDiffByNetPrice      = 0x00000004, // Разбивать по чистым ценам реализации
-		fIntrReval   = 0x00000008, // Разница цен при межскладском перемещении
+		fIntrReval           = 0x00000008, // Разница цен при межскладском перемещении
 		fPriceWithoutExcise  = 0x00000010, // Из цены реализации вычитать акциз
-		fUseABCAnlz  = 0x00000020, // Использовать ABC анализ
-		fCalcRest    = 0x00000040, // Рассчитывать колонку остатков
+		fUseABCAnlz          = 0x00000020, // Использовать ABC анализ
+		fCalcRest            = 0x00000040, // Рассчитывать колонку остатков
 		fPriceDeviation      = 0x00000080, // Отклонение цен
 		fDisplayWoPacks      = 0x00000100, // Количество показывать без упаковок
 		fEachLocation        = 0x00000200, // Раздельно по каждому складу
-		fCalcOrder   = 0x00000400, // Рассчитывать незакрытые заказы (количество)
+		fCalcOrder           = 0x00000400, // Рассчитывать незакрытые заказы (количество)
 		fShowSStatSales      = 0x00000800, // Показывать средне-дневные продажи из статистики продаж
 		fCompareWithReceipt  = 0x00001000, // Сравнивать с документами закупки
 		fUnprofitableGoods   = 0x00002000, // Убыточные товары
@@ -44421,11 +44490,11 @@ struct GoodsOpAnalyzeFilt : public PPBaseFilt {
 		fTradePlanObjAsSuppl = 0x00020000, // @internal Интерпретировать контрагента документов плана продаж как поставщика (план продаж по поставщикам)
 		fTradePlanGoodsOnly  = 0x00040000, // Показывать только те позиции, которые есть в торговом плане
 		fAddNzRestItems      = 0x00080000, // Дополнить отчет позициями, которые есть на остатке (при наличии флага fCalcRest)
-		fCrosstab    = 0x00100000, // Кросстаб
+		fCrosstab            = 0x00100000, // Кросстаб
 		fABCAnlzByGGrps      = 0x00200000, // ABC анализ рассчитывать для каждой товарной группы отдельно
-		fCalcCVat    = 0x00400000, // Рассчитывать валовую сумму НДС в ценах поступления //
-		fCalcPVat    = 0x00800000, // Рассчитывать валовую сумму НДС в ценах реализации //
-		fLeaderInOutGoods    = 0x01000000  // @10.2.2 Список товаров GoodsIdList является ведущим для анализа вход/выход
+		fCalcCVat            = 0x00400000, // Рассчитывать валовую сумму НДС в ценах поступления //
+		fCalcPVat            = 0x00800000, // Рассчитывать валовую сумму НДС в ценах реализации //
+		fLeaderInOutGoods    = 0x01000000  // Список товаров GoodsIdList является ведущим для анализа вход/выход
 	};
 	//
 	// Ид. дополнительных полей товарного точета по операции
@@ -44652,7 +44721,7 @@ private:
 		sFiltExclFolder = 0x0002,        // @*PPViewGoodsOpAnalyze::Init_
 		sTotalInited    = 0x0004,
 		sAccsCost       = 0x0008,
-		sReval  = 0x0010         // Отчет строится по операции переоценки
+		sReval          = 0x0010         // Отчет строится по операции переоценки
 	};
 	long   State;
 	SArray * P_Cache;
@@ -50416,28 +50485,49 @@ public:
 	int    PutToStr(SString & rBuf) const;
 
 	enum {
-		kMetavar = 1,      // Метапеременная //
-		kBill,             // Документы
-		kPaym,             // Оплаты по документам
-		kCCheck,           // Кассовые чеки
-		kGoodsRest,        // Остатки товаров
-		kPersonEvent,      // Персональные события //
-		kDebt,             // Долги
-		kBizScore          // Бизнес-показатели
+		kMetavar     = 1, // Метапеременная //
+		kBill        = 2, // Документы
+		kPaym        = 3, // Оплаты по документам
+		kCCheck      = 4, // Кассовые чеки
+		kGoodsRest   = 5, // Остатки товаров
+		kPersonEvent = 6, // Персональные события //
+		kDebt        = 7, // Долги
+		kBizScore    = 8, // Бизнес-показатели
+		kMarketplace = 9, // @v12.1.6 Торговля через маркетплейс
 	};
+	/* @v12.1.6 (replaced with PPBZSI-constants)
 	enum {
-		subNone = 0,       //
-		subAmount,         // "amount"    kBill, kPaym, kCCheck, kGoodsRest, kDebt, kBizScore
-		subCost,           // "cost"      kBill, kPaym, kCCheck, kGoodsRest
-		subPrice,          // "price"     kBill, kPaym, kCCheck, kGoodsRest
-		subDiscount,       // "discount"  kBill, kCCheck
-		subNetPrice,       // "netprice"  kBill, kPaym, kCCheck, kGoodsRest
-		subMargin,         // "margin"    kBill, kPaym, kCCheck, kGoodsRest
-		subPctIncome,      // "pctincome" kBill, kPaym, kCCheck, kGoodsRest
-		subPctMargin,      // "pctmargin" kBill, kPaym, kCCheck, kGoodsRest
-		subCount,          // "count"     kBill, kPaym, kCCheck, kGoodsRest, kPersonEvent, kDebt, kBizScore
-		subAverage         // "average"   kBizScore
-	};
+		subNone              =  0, //
+		subAmount            =  1, // "amount"    kBill, kPaym, kCCheck, kGoodsRest, kDebt, kBizScore
+		subCost              =  2, // "cost"      kBill, kPaym, kCCheck, kGoodsRest
+		subPrice             =  3, // "price"     kBill, kPaym, kCCheck, kGoodsRest
+		subDiscount          =  4, // "discount"  kBill, kCCheck
+		subNetPrice          =  5, // "netprice"  kBill, kPaym, kCCheck, kGoodsRest
+		subMargin            =  6, // "margin"    kBill, kPaym, kCCheck, kGoodsRest
+		subPctIncome         =  7, // "pctincome" kBill, kPaym, kCCheck, kGoodsRest
+		subPctMargin         =  8, // "pctmargin" kBill, kPaym, kCCheck, kGoodsRest
+		subCount             =  9, // "count"     kBill, kPaym, kCCheck, kGoodsRest, kPersonEvent, kDebt, kBizScore
+		subAverage           = 10, // "average"   kBizScore
+
+		subMpAcceptance           = 11, // @v12.1.6 Стоимость приемки товара на складе маркетплейса
+		subMpStorage              = 12, // @v12.1.6 Стоимость хранения товара на складе маркетплейса
+		subMpCommission           = 13, // @v12.1.6 Сумма комиссионного вознаграждения маркетплейса
+		subMpCommissionPct        = 14, // @v12.1.6 Процент комиссионного вознаграждения маркетплейса от суммы продажи
+		subMpSellersPart          = 15, // @v12.1.6 Сумма, перечисляемая маркетплейсом продавцу за проданный товар
+		subMpSellersPartPct       = 16, // @v12.1.6 Процент доли, перечисляемоей маркетплейсом продавцу за проданный товар, от суммы продажи
+		subMpAcquiring            = 17, // @v12.1.6 Стоимость экваринга на стороне маркетплейса, котороую маркетплейс переносит на поставщика 
+		subMpAcquiringPct         = 18, // @v12.1.6 Процент доли экваринга на стороне маркетплейса, котороую маркетплейс переносит на поставщика, от суммы продажи
+		subOrdCount               = 19, // "ordcount"  Количество документов заказа
+		subOrdQtty                = 20, // "ordqtty"   Заказанное количество торговых единиц  
+		subSaleCount              = 21, // "salecount" Количество документов продажи
+		subSaleQtty               = 22, // "saleqtty"  Проданное количество торговых единиц 
+		subOrdCancelledCount      = 23, // "ordcancelledcount" Количество заказоы которые были отменены
+		subOrdCancelledQtty       = 24, // "ordcancelledqtty"  Количество торговых единиц товара, заказы на которые были отменены
+		subOrdShipmDelayDaysAvg   = 25, // "ordshipmdelaydaysavg"   Средний период между заказом и продажей в днях
+		subOrdShipmDelayDaysMin   = 26, // "ordshipmdelaydaysmin"   Минимальный период между заказом и продажей в днях  
+		subOrdShipmDelayDaysMax   = 27, // "ordshipmdelaydaysmax"   Максимальный период между заказом и продажей в днях  
+		subSupplShipmDelayDaysAvg = 28, // "supplshipmdelaydaysavg" Средний период между поставкой и продажей в днях
+	};*/
 	enum {
 		subsubAverage      // "average"   kBill, kPaym, kCCheck, kGoodsRest
 	};

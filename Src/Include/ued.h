@@ -7,6 +7,7 @@
 #include <ued-id.h>
 
 class PPLogger;
+struct MACAddr;
 
 class UED {
 public:
@@ -80,6 +81,8 @@ public:
 
 	static uint64 SetRaw_Int(uint64 meta, int64 val);
 	static bool   GetRaw_Int(uint64 ued, int64 & rVal);
+	static uint64 SetRaw_MacAddr(const MACAddr & rVal);
+	static bool   GetRaw_MacAddr(uint64 ued, MACAddr & rVal);
 	static uint64 SetRaw_GeoLoc(const SGeoPosLL & rGeoPos);
 	static bool   GetRaw_GeoLoc(uint64 ued, SGeoPosLL & rGeoPos);
 	static uint64 SetRaw_PlanarAngleDeg(double deg);

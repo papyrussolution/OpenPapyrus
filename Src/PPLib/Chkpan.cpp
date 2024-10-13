@@ -7311,22 +7311,20 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 									if(ctcr > 0) {
 										const S_GUID cc_uuid(SCtrGenerate_);
 										S_GUID bill_uuid;
-										bool bill_uuid_tag_settled = false;
-										if(bpack.GetGuid(bill_uuid)) {
-											bill_uuid_tag_settled = true;
-										}
-										else {
+										//bool bill_uuid_tag_settled = false;
+										if(!bpack.GetGuid(bill_uuid)) {
 											bpack.GenerateGuid(&bill_uuid);
 											ObjTagItem tag;
 											if(tag.SetGuid(PPTAG_BILL_UUID, &bill_uuid) && PPRef->Ot.PutTag(PPOBJ_BILL, bill_id, &tag, 1)) {
-												bill_uuid_tag_settled = true;
+												;//bill_uuid_tag_settled = true;
 											}
 											else {
+												bill_uuid.Z();
 												PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_USER|LOGMSGF_DBINFO|LOGMSGF_COMP);
 											}
 										}
 										ccpack.SetGuid(&cc_uuid);
-										if(bill_uuid_tag_settled) {
+										if(/*bill_uuid_tag_settled*/!!bill_uuid) {
 											bill_uuid.ToStr(S_GUID::fmtIDL, temp_buf);
 											ccpack.PutExtStrData(CCheckPacket::extssLinkBillUuid, temp_buf);
 										}

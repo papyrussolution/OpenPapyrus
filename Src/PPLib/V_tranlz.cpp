@@ -4884,7 +4884,7 @@ static int FASTCALL Base36ToAlcoCode(const SString & rS, SString & rBuf)
 {
 	int    yes = 0;
 	if(!isempty(pCode)) {
-		static const char * pp_bc_list[] = { "500", "510", "520", "261", "262", "263"};
+		static const char * pp_bc_list[] = { "500", "510", "520", "261", "262", "263", "2613" }; // @v12.1.6 2613
 		for(uint i = 0; !yes && i < SIZEOFARRAY(pp_bc_list); i++) {
 			if(sstreq(pCode, pp_bc_list[i]))
 				yes = 1;

@@ -167,29 +167,29 @@ int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData
 				SetBranchSString(offsetof(LotFilt_v2, ExtString));
 				Init(1, 0);
 			}
-			uint8  ReserveStart[20]; // @#0 @anchor !Использовать начиная со старших адресов
-			long   ExtViewAttr;      // @v10.1.4 Параметр, определяющий набор дополнительных столбцов для отображения в таблице
-			int16  CostDevRestr;     // LotFilt::drXXX
-			int16  PriceDevRestr;    // LotFilt::drXXX
-			PPID   ParentLotID;      // Ид лота, дочерние лоты которого следует выбрать. Если это поле не нулевое, то все остальные критерии не работают.
-			DateRange Period;        // Период поступления лотов
-			DateRange Operation;     // Операционный период (показывает остаток на начало, приход, расход, остаток на конец этого периода)
-			DateRange ExpiryPrd;     // Период истечения срока годности по лотам
-			DateRange QcExpiryPrd;   // Период истечения срока действия сертификатов
-			PPID   LocID_Obsolete;   // ->Location.ID // @v10.6.8 obsolete(replaced with LocList)
-			PPID   SupplID;          // ->Article.ID
-			PPID   GoodsGrpID;       // ->Goods2.ID
-			PPID   GoodsID;          // ->Goods2.ID
-			PPID   QCertID;          // ->QCert.ID  Только лоты, к которым привязан этот сертификат
-			PPID   InTaxGrpID;       // Налоговая группа, ассоциированная с лотом
-			long   Flags;            // Флаги (LotFilt::fXXX)
-			uint   ClosedTag;        // 0 - all, 1 - opened, 2 - closed
-			uint8  Reserve2[32];     // @reserve
-			RealRange CostRange;     // Диапазон цен поступления //
-			RealRange PriceRange;    // Диапазон цен реализации  //
-			long   Reserve;          // @anchor
-			TagFilt * P_TagF;        // Фильтр по тегам
-			SString ExtString;       // Дополнительные текстовые поля фильтра
+			uint8  ReserveStart[20];
+			long   ExtViewAttr;
+			int16  CostDevRestr;
+			int16  PriceDevRestr;
+			PPID   ParentLotID;
+			DateRange Period;
+			DateRange Operation;
+			DateRange ExpiryPrd;
+			DateRange QcExpiryPrd;
+			PPID   LocID_Obsolete;
+			PPID   SupplID;
+			PPID   GoodsGrpID;
+			PPID   GoodsID;
+			PPID   QCertID;
+			PPID   InTaxGrpID;
+			long   Flags;
+			uint   ClosedTag;
+			uint8  Reserve2[32];
+			RealRange CostRange;
+			RealRange PriceRange;
+			long   Reserve;
+			TagFilt * P_TagF;
+			SString ExtString;
 		};
 		LotFilt_v2 fv2;
 		THROW(fv2.Read(rBuf, 0));
@@ -376,9 +376,8 @@ public:
 		const  PPID suppl_acs_id = (Data.Flags & LotFilt::fOrders) ? GetSellAccSheet() : GetSupplAccSheet();
 		setCtrlData(CTL_FLTLOT_CLOSED, &Data.ClosedTag);
 		{
-			// @v10.6.8 SetupPPObjCombo(this, CTLSEL_FLTLOT_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
-			LocationCtrlGroup::Rec loc_rec(&Data.LocList); // @v10.6.8 
-			setGroupData(ctrgroupLoc, &loc_rec); // @v10.6.8 
+			LocationCtrlGroup::Rec loc_rec(&Data.LocList);
+			setGroupData(ctrgroupLoc, &loc_rec);
 		}
 		SetupPPObjCombo(this, CTLSEL_FLTLOT_SPPLPSNCAT, PPOBJ_PRSNCATEGORY, pData->SupplPsnCategoryID, 0); // @v11.4.4
 		if((Data.Flags & LotFilt::fOrders) || BillObj->CheckRights(BILLOPRT_ACCSSUPPL, 1)) // @v11.4.4 @fix (Data.Flags & LotFilt::fOrders ||)
@@ -386,8 +385,11 @@ public:
 		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
 		setGroupData(ctlgroupGoodsFilt, &gf_rec);
 		if(Data.Flags & LotFilt::fOrders) {
+			SetupArCombo(this, CTLSEL_FLTLOT_AGENT,  Data.AgentID,  OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet); // @v12.1.6
 			AddClusterAssoc(CTL_FLTLOT_FLAGS, 0, LotFilt::fShowBillStatus);
 			AddClusterAssoc(CTL_FLTLOT_FLAGS, 1, LotFilt::fShowSerialN);
+			AddClusterAssoc(CTL_FLTLOT_FLAGS, 2, LotFilt::fShowAgent); // @v12.1.6
+			AddClusterAssoc(CTL_FLTLOT_FLAGS, 3, LotFilt::fCancelledOrdersOnly); // @v12.1.6
 		}
 		else {
 			AddClusterAssoc(CTL_FLTLOT_FLAGS,  0, LotFilt::fWithoutQCert);
@@ -418,18 +420,20 @@ public:
 			THROW(AdjustPeriodToRights(Data.Operation, 1));
 		getCtrlData(CTL_FLTLOT_CLOSED,   &Data.ClosedTag);
 		{
-			// @v10.6.8 getCtrlData(CTLSEL_FLTLOT_LOC,   &Data.LocID);
-			// @v10.6.8 {
 			LocationCtrlGroup::Rec loc_rec;
 			getGroupData(ctrgroupLoc, &loc_rec);
 			Data.LocList = loc_rec.LocList;
-			// } @v10.6.8 
 		}
 		getCtrlData(CTLSEL_FLTLOT_SPPLPSNCAT, &Data.SupplPsnCategoryID); // @v11.4.4
 		getCtrlData(CTLSEL_FLTLOT_SUPPL, &Data.SupplID);
 		THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
 		Data.GoodsGrpID = gf_rec.GoodsGrpID;
 		Data.GoodsID    = gf_rec.GoodsID;
+		// @v12.1.6 {
+		if(Data.Flags & LotFilt::fOrders) {
+			getCtrlData(CTLSEL_FLTLOT_AGENT, &Data.AgentID);
+		}
+		// } @v12.1.6 
 		GetClusterData(CTL_FLTLOT_FLAGS, &Data.Flags);
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERR
@@ -485,12 +489,10 @@ IMPL_HANDLE_EVENT(LotFiltDialog)
 			dlg->AddClusterAssoc(CTL_FLTLOT_PDEVRESTR, 2, LotFilt::drAbove);
 			dlg->AddClusterAssoc(CTL_FLTLOT_PDEVRESTR, 3, LotFilt::drAny);
 			dlg->SetClusterData(CTL_FLTLOT_PDEVRESTR, temp_data.PriceDevRestr);
-			// @v10.1.4 {
 			dlg->AddClusterAssoc(CTL_FLTLOT_EXTVIEWATTR, 0, LotFilt::exvaNone);
 			dlg->AddClusterAssoc(CTL_FLTLOT_EXTVIEWATTR, 1, LotFilt::exvaEgaisTags);
 			dlg->AddClusterAssoc(CTL_FLTLOT_EXTVIEWATTR, 2, LotFilt::exvaVetisTags);
 			dlg->SetClusterData(CTL_FLTLOT_EXTVIEWATTR, temp_data.ExtViewAttr);
-			// } @v10.1.4
 			while(ok < 0 && ExecView(dlg) == cmOK)
 				if(!(temp_data.Flags & LotFilt::fOrders)) {
 					if(!GetPeriodInput(dlg, CTL_FLTLOT_EXPIRY, &temp_data.ExpiryPrd))
@@ -507,7 +509,7 @@ IMPL_HANDLE_EVENT(LotFiltDialog)
 						dlg->GetClusterData(CTL_FLTLOT_SHOWPRICEDEV, &temp_data.Flags);
 						dlg->GetClusterData(CTL_FLTLOT_CDEVRESTR, &temp_data.CostDevRestr);
 						dlg->GetClusterData(CTL_FLTLOT_PDEVRESTR, &temp_data.PriceDevRestr);
-						dlg->GetClusterData(CTL_FLTLOT_EXTVIEWATTR, &temp_data.ExtViewAttr); // @v10.1.4
+						dlg->GetClusterData(CTL_FLTLOT_EXTVIEWATTR, &temp_data.ExtViewAttr);
 
 						Data = temp_data;
 						ok = 1;
@@ -1172,6 +1174,7 @@ int PPViewLot::Init_(const PPBaseFilt * pFilt)
 
 	int    ok = 1;
 	SString temp_buf;
+	PPObjLocation loc_obj;
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Period.Actualize(ZERODATE);
 	Filt.ExpiryPrd.Actualize(ZERODATE);
@@ -1192,29 +1195,20 @@ int PPViewLot::Init_(const PPBaseFilt * pFilt)
 	// Учитываются доступные склады в правах доступа.
 	//
 	LocList.freeAll();
-	// @v10.6.8 {
 	if(Filt.LocID_Obsolete && Filt.LocList.IsEmpty())
 		Filt.LocList.Add(Filt.LocID_Obsolete);
 	if(Filt.LocList.IsEmpty()) {
-		PPObjLocation loc_obj;
 		loc_obj.GetWarehouseList(&LocList, 0);
 	}
 	else {
-		for(uint locidx = 0; locidx < Filt.LocList.GetCount(); locidx++) {
+		const PPIDArray & r_loc_list = Filt.LocList.Get();
+		loc_obj.ResolveWarehouseList(&r_loc_list, LocList); // @v12.1.5
+		/*@v12.1.6 for(uint locidx = 0; locidx < Filt.LocList.GetCount(); locidx++) {
 			const  PPID loc_id = Filt.LocList.Get(locidx);
 			if(loc_id && ObjRts.CheckLocID(loc_id, 0))
 				LocList.add(loc_id);
-		}
+		}*/
 	}
-	// } @v10.6.8 
-	/* @v10.6.8
-	if(Filt.LocID == 0) {
-		PPObjLocation loc_obj;
-		loc_obj.GetWarehouseList(&LocList);
-	}
-	else if(ObjRts.CheckLocID(Filt.LocID, 0))
-		LocList.add(Filt.LocID);
-	*/
 	if(Filt.ParentLotID) {
 		P_Tbl->GatherChilds(Filt.ParentLotID, &Itd.IdList, 0, 0);
 	}
@@ -2106,72 +2100,95 @@ int PPViewLot::InitIteration(IterOrder order)
 	return ok;
 }
 
+int PPViewLot::CheckForFilt(const ReceiptTbl::Rec & rRec)
+{
+	int    ok = 1;
+	SString temp_buf;
+	THROW(!Filt.GoodsID || labs(rRec.GoodsID) == labs(Filt.GoodsID));
+	THROW(!(Filt.Flags & LotFilt::fOrders && Filt.ClosedTag == 1) || !(rRec.Flags & LOTF_CLOSEDORDER));
+	THROW(!(Filt.Flags & LotFilt::fLotfPrWoTaxes) || (rRec.Flags & LOTF_PRICEWOTAXES));
+	THROW(!(State & stFiltSerial) || Itd.IdBySerialList.lsearch(rRec.ID));
+	THROW(!(Filt.Flags & LotFilt::fCostAbovePrice) || dbl_cmp(rRec.Cost, rRec.Price) > 0);
+	THROW(!SupplList.GetCount() || SupplList.CheckID(rRec.SupplID));
+	THROW(!LocList.getCount() || LocList.lsearch(rRec.LocID));
+	if(Filt.Flags & LotFilt::fCancelledOrdersOnly) {
+		BillTbl::Rec bill_rec;
+		THROW(P_BObj->Fetch(rRec.BillID, &bill_rec) > 0 && (bill_rec.Flags2 & BILLF2_DECLINED));
+	}
+	if(Filt.AgentID) {
+		PPBillExt bill_ext;
+		THROW(P_BObj->FetchExt(rRec.BillID, &bill_ext) > 0 && bill_ext.AgentID == Filt.AgentID);	
+	}
+	if(Filt.SupplPsnCategoryID) {
+		THROW(rRec.SupplID);
+		{
+			const  PPID psn_id = ObjectToPerson(rRec.SupplID, 0);
+			PersonTbl::Rec psn_rec;
+			THROW(psn_id && PsnObj.Fetch(psn_id, &psn_rec) > 0 && psn_rec.CatID == Filt.SupplPsnCategoryID);
+		}
+	}
+	if(!Filt.QcExpiryPrd.IsZero() && rRec.QCertID) {
+		QualityCertTbl::Rec qc_rec;
+		if(QcObj.Search(rRec.QCertID, &qc_rec) > 0) {
+			THROW(Filt.QcExpiryPrd.CheckDate(qc_rec.Expiry));
+		}
+	}
+	if(Filt.Flags & LotFilt::fWithoutClb) {
+		const int ret_value = P_BObj->GetClbNumberByLot(rRec.ID, 0, temp_buf);
+		THROW(ret_value < 0);
+		{
+			PPID   country_id = 0;
+			PPCountryBlock cb;
+			int    r = GObj.GetManufCountry(rRec.GoodsID, 0, &country_id, &cb);
+			if(cb.IsNative || (r == 1 && Itd.NativeCntryList.lsearch(country_id)) || (r == 2 && Itd.PsnNativeCntryList.lsearch(country_id))) {
+				// Если у лота нет ГТД, но товар произведен в родной стране (NativeCountry), то ГТД и не нужен, потому считаем, что такой лот 
+				// не должен попадать в выборку 'лоты без ГТД'
+				CALLEXCEPT();
+			}
+		}
+	}
+	THROW(PPObjTag::CheckForTagFilt(PPOBJ_LOT, rRec.ID, Filt.P_TagF) > 0);
+	THROW(!(Filt.Flags & LotFilt::fDeadLots) || P_BObj->trfr->IsDeadLot(rRec.ID) > 0);
+	if(Filt.Flags & LotFilt::fOnlySpoilage) {
+		//
+		// На нужны только те лоты, которые имеют серийный номер и этот серийный номер перечислен в списке негодных.
+		// Кроме того, если найденная запись списка 'негодных' серий имеет ссылку на товар, а наш лот относится к другому товару, то уходим.
+		// @todo Пока перестраивал и писал комментарии заметил, что тут ошибка: надо извлечь из P_SpoilTbl все записи с заданной серией 
+		// и если среди них есть хоть одна с пустым ид товара или с ид товара равным rRec.GoodsID то считать, что наша серия 'негодная'
+		//
+		P_BObj->GetSerialNumberByLot(rRec.ID, temp_buf, 1);
+		THROW(temp_buf.NotEmpty());
+		{
+			SpecSeries2Tbl::Rec ss_rec;
+			if(P_SpoilTbl->SearchBySerial(SPCSERIK_SPOILAGE, temp_buf, &ss_rec) > 0 && (!ss_rec.GoodsID || labs(ss_rec.GoodsID) == labs(rRec.GoodsID))) {
+				;
+			}
+			else {
+				CALLEXCEPT();
+			}
+		}
+	}
+	if(Filt.GoodsGrpID) {
+		THROW(GObj.BelongToGroup(rRec.GoodsID, Filt.GoodsGrpID, 0) > 0);
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPViewLot::AcceptViewItem(const ReceiptTbl::Rec & rLotRec, LotViewItem * pItem)
 {
 	int    ok = -1;
+	BillTbl::Rec bill_rec;
 	LotViewItem item;
 	MEMSZERO(item);
 	SString temp_buf;
-	if(Filt.Flags & LotFilt::fOrders && Filt.ClosedTag == 1 && rLotRec.Flags & LOTF_CLOSEDORDER)
-		return -1;
-	if(Filt.Flags & LotFilt::fLotfPrWoTaxes && !(rLotRec.Flags & LOTF_PRICEWOTAXES))
-		return -1;
-	if((State & stFiltSerial) && !Itd.IdBySerialList.lsearch(rLotRec.ID))
-		return -1;
-	else if(Filt.Flags & LotFilt::fCostAbovePrice && dbl_cmp(rLotRec.Cost, rLotRec.Price) <= 0)
-		return -1;
-	else if(SupplList.GetCount() > 1 && !SupplList.CheckID(rLotRec.SupplID))
-		return -1;
-	else if(LocList.getCount() > 1 && !LocList.lsearch(rLotRec.LocID)) // @v11.2.12
-		return -1;
-	// @v11.4.4 {
-	else if(Filt.SupplPsnCategoryID) {
-		if(rLotRec.SupplID) {
-			const  PPID psn_id = ObjectToPerson(rLotRec.SupplID, 0);
-			PersonTbl::Rec psn_rec;
-			if(!(psn_id && PsnObj.Fetch(psn_id, &psn_rec) > 0 && psn_rec.CatID == Filt.SupplPsnCategoryID))
-				return -1;
-		}
-		else
-			return -1;
-	}
-	// } @v11.4.4
-	else if(!Filt.QcExpiryPrd.IsZero()) {
-		if(rLotRec.QCertID && QcObj.Search(rLotRec.QCertID) > 0 && !Filt.QcExpiryPrd.CheckDate(QcObj.P_Tbl->data.Expiry))
-			return -1;
-	}
-	if(Filt.Flags & LotFilt::fWithoutClb) {
-		int    ret_value = P_BObj->GetClbNumberByLot(rLotRec.ID, 0, temp_buf);
-		if(ret_value > 0)
-			return -1;
-		else if(ret_value < 0) {
-			PPID   country_id = 0;
-			int    r = GObj.GetManufCountry(rLotRec.GoodsID, 0, &country_id, 0);
-			THROW(r);
-			if((r == 1 && Itd.NativeCntryList.lsearch(country_id)) || (r == 2 && Itd.PsnNativeCntryList.lsearch(country_id)))
-				return -1;
-		}
-	}
-	if(Filt.Flags & LotFilt::fDeadLots && P_BObj->trfr->IsDeadLot(rLotRec.ID) < 0)
-		return -1;
-	if(Filt.Flags & LotFilt::fOnlySpoilage || Filt.Flags & LotFilt::fShowSerialN) {
-		int    skip = 1;
-		SpecSeries2Tbl::Rec ss_rec;
-		THROW(P_BObj->GetSerialNumberByLot(rLotRec.ID, temp_buf, 1));
-		if(!(Filt.Flags & LotFilt::fOnlySpoilage) || P_SpoilTbl->SearchBySerial(SPCSERIK_SPOILAGE, temp_buf, &ss_rec) > 0) {
-			skip = 0;
-			if(Filt.Flags & LotFilt::fOnlySpoilage) {
-				if(ss_rec.GoodsID && labs(ss_rec.GoodsID) != labs(rLotRec.GoodsID))
-					skip = 1;
-			}
-		}
-		if(skip)
-			return -1;
-		else
-			temp_buf.CopyTo(item.Serial, sizeof(item.Serial));
-	}
-	if(Filt.GoodsID || GObj.BelongToGroup(rLotRec.GoodsID, Filt.GoodsGrpID, 0) > 0) {
+	if(CheckForFilt(rLotRec)) {
+		bool   do_skip = false;
 		*static_cast<ReceiptTbl::Rec *>(&item) = rLotRec;
+		if(Filt.Flags & LotFilt::fShowSerialN) {
+			P_BObj->GetSerialNumberByLot(rLotRec.ID, temp_buf, 1);
+			temp_buf.CopyTo(item.Serial, sizeof(item.Serial));
+		}
 		if(!Filt.Operation.IsZero()) {
 			const  LDATE low_date = Filt.Operation.low ? plusdate(Filt.Operation.low, -1) : ZERODATE;
 			if(Filt.Flags & LotFilt::fRestByPaym) {
@@ -2198,8 +2215,9 @@ int PPViewLot::AcceptViewItem(const ReceiptTbl::Rec & rLotRec, LotViewItem * pIt
 						int r = P_BObj->GetPayoutPartOfLot(rLotRec.ID, *P_PplBlkEnd, &part);
 						item.EndRest = (r == 1) ? ((item.Cost * item.Quantity) * (1.0 - part)) : 0.0;
 					}
-					if(R6(item.BegRest - item.EndRest) == 0.0)
-						return -1;
+					if(R6(item.BegRest - item.EndRest) == 0.0) {
+						do_skip = true;
+					}
 					else {
 						const double diff = item.EndRest - item.BegRest;
 						item.QttyPlus  = (diff > 0.0) ? diff : 0.0;
@@ -2218,17 +2236,19 @@ int PPViewLot::AcceptViewItem(const ReceiptTbl::Rec & rLotRec, LotViewItem * pIt
 						item.QttyMinus += fabs(trfr_rec.Quantity);
 					is_empty = 0;
 				}
-				if(is_empty && Filt.Flags & LotFilt::fSkipNoOp)
-					return -1;
-
-				LDATE  tmpdt = low_date;
-				if(tmpdt >= rLotRec.Dt)
-					P_BObj->trfr->GetRest(rLotRec.ID, tmpdt, &item.BegRest);
-				tmpdt = Filt.Operation.upp;
-				if(tmpdt == 0)
-					item.EndRest = rLotRec.Rest;
-				else if(tmpdt < rLotRec.CloseDate)
-					P_BObj->trfr->GetRest(rLotRec.ID, tmpdt, &item.EndRest);
+				if(is_empty && Filt.Flags & LotFilt::fSkipNoOp) {
+					do_skip = true;
+				}
+				else {
+					LDATE  tmpdt = low_date;
+					if(tmpdt >= rLotRec.Dt)
+						P_BObj->trfr->GetRest(rLotRec.ID, tmpdt, &item.BegRest);
+					tmpdt = Filt.Operation.upp;
+					if(tmpdt == 0)
+						item.EndRest = rLotRec.Rest;
+					else if(tmpdt < rLotRec.CloseDate)
+						P_BObj->trfr->GetRest(rLotRec.ID, tmpdt, &item.EndRest);
+				}
 			}
 		}
 		if(Filt.Flags & (LotFilt::fInitOrgLot|LotFilt::fCheckOriginLotDate)) {
@@ -2243,17 +2263,16 @@ int PPViewLot::AcceptViewItem(const ReceiptTbl::Rec & rLotRec, LotViewItem * pIt
 			item.OrgLotDt = org_rec.Dt;
 			if(Filt.Flags & LotFilt::fCheckOriginLotDate) {
 				if(!org_rec.ID || !Filt.Period.CheckDate(org_rec.Dt))
-					return -1;
+					do_skip = true;
 				else
 					item.OrgLotDt = org_rec.Dt;
 			}
 		}
-		if(PPObjTag::CheckForTagFilt(PPOBJ_LOT, rLotRec.ID, Filt.P_TagF) <= 0)
-			return -1;
-		ASSIGN_PTR(pItem, item);
-		ok = 1;
+		if(!do_skip)
+			ok = 1;
 	}
 	CATCHZOK
+	ASSIGN_PTR(pItem, item);
 	return ok;
 }
 
@@ -2354,8 +2373,8 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 			}
 			else {
 				const long qtty_col  = 4;
-				const long cost_col  = p_filt->Operation.IsZero() ? 7 : 8;
-				const long price_col = p_filt->Operation.IsZero() ? 8 : 9;
+				const long cost_col  = 8;
+				const long price_col = 9;
 				if(p_hdr->SFlags && oneof3(col, qtty_col, cost_col, price_col)) {
 					if(col == qtty_col && p_hdr->SFlags & LOTSF_FIRST)
 						ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrBlue));
@@ -2386,29 +2405,37 @@ void PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
 			pBrw->LoadToolbarResource(TOOLBAR_ORDLOTS);
 			pBrw->SetColumnTitle(6, PPLoadStringS("ordered", word)); // @v11.4.4 @fix 3-->6
 			pBrw->SetColumnTitle(5, PPLoadStringS("orderer", word)); // @v11.4.4 @fix 4-->5
-			if(Filt.Flags & LotFilt::fShowBillStatus) {
+			/* @v12.1.6 (see below) if(Filt.Flags & LotFilt::fShowBillStatus) {
 				pBrw->InsColumn(-1, "@status", 16, 0, MKSFMT(10, 0), BCO_CAPLEFT); // @v11.1.6 #15-->#16
 			}
-			{
-				
-			}
+			if(Filt.Flags & LotFilt::fShowAgent) {
+				pBrw->InsColumn(-1, "@agent", 17, 0, MKSFMT(48, 0), BCO_CAPLEFT); // @v12.1.6
+			}*/
 		}
 		{
 			DBQBrowserDef * p_def = static_cast<DBQBrowserDef *>(pBrw->getDef());
 			const DBQuery * p_q = p_def ? p_def->getQuery() : 0;
 			if(p_q) {
 				if(Filt.Flags & LotFilt::fShowSerialN) {
-					uint fld_no = P_TempTbl ? 15 : 13; // @v11.1.6 #+1
+					uint fld_no = 15;
 					pBrw->InsColumn(-1, "@serial", fld_no, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPLEFT);
 				}
+				// @v12.1.6 {
+				if(Filt.Flags & LotFilt::fShowBillStatus) {
+					pBrw->InsColumn(-1, "@status", 16, 0, MKSFMT(10, 0), BCO_CAPLEFT);
+				}
+				if(Filt.Flags & LotFilt::fShowAgent) {
+					pBrw->InsColumn(-1, "@agent", 17, 0, MKSFMT(48, 0), BCO_CAPLEFT);
+				}
+				// } @v12.1.6 
 				if(Filt.ExtViewAttr == LotFilt::exvaEgaisTags) {
-					uint fld_no = P_TempTbl ? 17 : 14; // @v11.1.1 @fix #+1
+					uint fld_no = 18;
 					pBrw->InsColumn(-1, "@rtag_fsrarinfalotcode",  fld_no++, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPLEFT);
 					pBrw->InsColumn(-1, "@rtag_fsrarinfblotcode",  fld_no++, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPLEFT);
 					pBrw->InsColumn(-1, "@rtag_fsrarlotgoodscode", fld_no++, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPLEFT);
 				}
 				else if(Filt.ExtViewAttr == LotFilt::exvaVetisTags) {
-					uint fld_no = P_TempTbl ? 17 : 14; // @v11.1.6 #+1
+					uint fld_no = 18;
 					pBrw->InsColumn(-1, "@rtag_lotvetisuuid", fld_no++, 0, MKSFMT(40, ALIGN_LEFT), BCO_CAPLEFT);
 				}
 			}
@@ -2437,8 +2464,15 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_vetis_vdocuuid;
 	DBE    dbe_bill_code; // @v11.1.6
 	DBE    dbe_chkpsncat; // @v11.4.4
+	DBE    dbe_agentname; // @v12.1.6
+	DBE    dbe_empty; // @v12.1.6
+	DBE    dbe_billstatus; // @v12.1.6
 	DBQ  * dbq = 0;
 	DBQuery * q = 0;
+	{
+		dbe_empty.init();
+		dbe_empty.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
+	}
 	if(!P_TempTbl && IsTempTblNeeded())
 		THROW(CreateTempTable());
 	THROW(CheckTblPtr(rcp = new ReceiptTbl));
@@ -2455,6 +2489,26 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_closedate.push(rcp->CloseDate);
 		dbe_closedate.push(static_cast<DBFunc>(PPDbqFuncPool::IdLotCloseDate));
 	}
+	// @v12.1.6 {
+	{
+		dbe_billstatus.init();
+		if(Filt.Flags & LotFilt::fShowBillStatus) {
+			dbe_billstatus.push(rcp->BillID);
+			dbe_billstatus.push(static_cast<DBFunc>(PPDbqFuncPool::IdBillStatusName));
+		}
+		else
+			dbe_billstatus.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
+	}
+	{
+		dbe_agentname.init();
+		if(Filt.Flags & LotFilt::fShowAgent) {
+			dbe_agentname.push(rcp->BillID);
+			dbe_agentname.push(static_cast<DBFunc>(PPDbqFuncPool::IdBillAgentName));
+		}
+		else
+			dbe_agentname.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
+	}
+	// } @v12.1.6 
 	if(P_TempTbl) {
 		THROW(CheckTblPtr(tt = new TempLotTbl(P_TempTbl->GetName())));
 		dbq = &(rcp->ID == tt->LotID);
@@ -2482,21 +2536,23 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			fld_list[c++].E = dbe_serial; // #15 // @v11.1.6 #+1
 		}
 		else {
-			fld_list[c++].C.init(static_cast<const char *>(0)); // #15 @stub // @v11.1.6 #+1
+			fld_list[c++].E = dbe_empty; // #15 @stub // @v11.1.6 #+1
 		}
-		fld_list[c++].F = tt->BillStatus; // #16 // @v11.1.6 #+1
+		// @v12.1.6 fld_list[c++].F = tt->BillStatus; // #16 // @v11.1.6 #+1
+		fld_list[c++].E = dbe_billstatus;             // #16 // @v11.1.6 #+1 // @v12.1.6
+		fld_list[c++].E = dbe_agentname;              // #17 // @v12.1.6
 		if(Filt.ExtViewAttr == LotFilt::exvaEgaisTags) {
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_a, PPTAG_LOT_FSRARINFA, tt->LotID); // #17 // @v11.1.6 #+1
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_a, PPTAG_LOT_FSRARINFA, tt->LotID); // #18 // @v11.1.6 #+1 // @v12.1.6 #+1
 			fld_list[c++].E = dbe_egais_ref_a;
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_b, PPTAG_LOT_FSRARINFB, tt->LotID); // #18 // @v11.1.6 #+1
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_b, PPTAG_LOT_FSRARINFB, tt->LotID); // #19 // @v11.1.6 #+1 // @v12.1.6 #+1
 			fld_list[c++].E = dbe_egais_ref_b;
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_prodcode, PPTAG_LOT_FSRARLOTGOODSCODE, tt->LotID); // #19 // @v11.1.6 #+1
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_prodcode, PPTAG_LOT_FSRARLOTGOODSCODE, tt->LotID); // #20 // @v11.1.6 #+1 // @v12.1.6 #+1
 			fld_list[c++].E = dbe_egais_prodcode;
 			//DBE    dbe_egais_manuf;
 			//DBE    dbe_egais_prodtypecode;
 		}
 		else if(Filt.ExtViewAttr == LotFilt::exvaVetisTags) {
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_vetis_vdocuuid, PPTAG_LOT_VETIS_UUID, rcp->ID); // #17 // @v11.1.6 #+1
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_vetis_vdocuuid, PPTAG_LOT_VETIS_UUID, rcp->ID); // #18 // @v11.1.6 #+1 // @v12.1.6 #+1
 			fld_list[c++].E = dbe_vetis_vdocuuid;
 		}
 		q = &selectbycell(c, fld_list);
@@ -2523,25 +2579,29 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		fld_list[c++].F = rcp->Expiry;    // #10
 		fld_list[c++].E = dbe_closedate;  // #11
 		fld_list[c++].E = dbe_bill_code;  // #12 // @v11.1.6 
+		fld_list[c++].E = dbe_empty;      // #13 // @v12.1.6 Для выравнивания нумерации полей между вариантами с P_TempTbl и без оной
+		fld_list[c++].E = dbe_empty;      // #14 // @v12.1.6 Для выравнивания нумерации полей между вариантами с P_TempTbl и без оной
 		if(Filt.Flags & LotFilt::fShowSerialN) {
 			PPDbqFuncPool::InitObjTagTextFunc(dbe_serial, PPTAG_LOT_SN, rcp->ID);
-			fld_list[c++].E = dbe_serial; // #13 // @v11.1.6 #+1
+			fld_list[c++].E = dbe_serial; // #15 // @v11.1.6 #+1 // @v12.1.6 #+2
 		}
 		else {
-			fld_list[c++].C.init(static_cast<const char *>(0)); // #13 @stub // @v11.1.6 #+1
+			fld_list[c++].E = dbe_empty;  // #15 @stub // @v11.1.6 #+1 // @v12.1.6 #+2
 		}
+		fld_list[c++].E = dbe_billstatus; // #16 @v12.1.6
+		fld_list[c++].E = dbe_agentname;  // #17 // @v12.1.6
 		if(Filt.ExtViewAttr == LotFilt::exvaEgaisTags) {
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_a, PPTAG_LOT_FSRARINFA, rcp->ID); // #14 // @v11.1.6 #+1
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_a, PPTAG_LOT_FSRARINFA, rcp->ID); // #18 // @v11.1.6 #+1 // @v12.1.6 #+4
 			fld_list[c++].E = dbe_egais_ref_a;
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_b, PPTAG_LOT_FSRARINFB, rcp->ID); // #15 // @v11.1.6 #+1
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_b, PPTAG_LOT_FSRARINFB, rcp->ID); // #19 // @v11.1.6 #+1 // @v12.1.6 #+4
 			fld_list[c++].E = dbe_egais_ref_b;
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_prodcode, PPTAG_LOT_FSRARLOTGOODSCODE, rcp->ID); // #16 // @v11.1.6 #+1
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_prodcode, PPTAG_LOT_FSRARLOTGOODSCODE, rcp->ID); // #20 // @v11.1.6 #+1 // @v12.1.6 #+4
 			fld_list[c++].E = dbe_egais_prodcode;
 			//DBE    dbe_egais_manuf;
 			//DBE    dbe_egais_prodtypecode;
 		}
 		else if(Filt.ExtViewAttr == LotFilt::exvaVetisTags) {
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_vetis_vdocuuid, PPTAG_LOT_VETIS_UUID, rcp->ID, 0/*dontUseCache*/); // #14 // @v11.1.6 #+1
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_vetis_vdocuuid, PPTAG_LOT_VETIS_UUID, rcp->ID, 0/*dontUseCache*/); // #18 // @v11.1.6 #+1 // @v12.1.6 #+4
 			fld_list[c++].E = dbe_vetis_vdocuuid;
 		}
 		if(Filt.QCertID || (Filt.Flags & LotFilt::fWithoutQCert))
@@ -2555,6 +2615,14 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbq = & (*dbq && realrange(rcp->Cost, Filt.CostRange.low, Filt.CostRange.upp) && realrange(rcp->Price, Filt.PriceRange.low, Filt.PriceRange.upp));
 		if(Filt.Flags & LotFilt::fCostAbovePrice)
 			dbq = & (*dbq && rcp->Cost > rcp->Price);
+		if(Filt.Flags & LotFilt::fCancelledOrdersOnly) { // @v12.1.6
+			DBE dbe_iscancelled_bill;
+			dbe_iscancelled_bill.init();
+			dbe_iscancelled_bill.push(rcp->BillID);
+			dbe_iscancelled_bill.push(dbconst(BILLF2_DECLINED));
+			dbe_iscancelled_bill.push(static_cast<DBFunc>(PPDbqFuncPool::IdCheckBillFlag2));
+			dbq = & (*dbq && dbe_iscancelled_bill == 1L);
+		}
 		if(Filt.Flags & LotFilt::fWithoutExpiry)
 			dbq = & (*dbq && rcp->Expiry == 0L);
 		else {

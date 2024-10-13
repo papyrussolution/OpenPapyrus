@@ -2729,7 +2729,9 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrOrange));
 						}
 						else if(op_type_id == PPOPT_GOODSORDER) {
-							if(bill_rec.Flags & BILLF_CLOSEDORDER)
+							if(bill_rec.Flags2 & BILLF2_DECLINED) // @v12.1.6
+								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrGrey));
+							else if(bill_rec.Flags & BILLF_CLOSEDORDER)
 								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrOrange));
 						}
 						{

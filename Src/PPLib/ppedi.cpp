@@ -764,9 +764,9 @@ int TestGtinStruc()
 					// gts.SetSpecialMinLenToken(GtinStruc::fldPart, 5); // @v10.9.6
 					gts.AddOnlyToken(GtinStruc::fldAddendumId);
 					gts.AddOnlyToken(GtinStruc::fldUSPS);
-					gts.SetSpecialFixedToken(GtinStruc::fldUSPS, 4); // @v10.9.10
+					gts.SetSpecialFixedToken(GtinStruc::fldUSPS, 4);
 					gts.AddOnlyToken(GtinStruc::fldInner1);
-					gts.SetSpecialFixedToken(GtinStruc::fldInner1, 1000/*UNTIL EOL*/); // @v10.9.0
+					gts.SetSpecialFixedToken(GtinStruc::fldInner1, 1000/*UNTIL EOL*/);
 					gts.AddOnlyToken(GtinStruc::fldInner2);
 					gts.SetSpecialFixedToken(GtinStruc::fldInner2, 1000/*UNTIL EOL*/); // @v11.4.11
 					gts.AddOnlyToken(GtinStruc::fldSscc18);
@@ -776,8 +776,8 @@ int TestGtinStruc()
 					gts.AddOnlyToken(GtinStruc::fldMutualCode);
 					//gts.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
 					//gts.AddOnlyToken(GtinStruc::fldPrice);
-					gts.AddSpecialStopChar(0x1D); // @v10.9.9
-					gts.AddSpecialStopChar(0xE8); // @v10.9.9
+					gts.AddSpecialStopChar(0x1D);
+					gts.AddSpecialStopChar(0xE8);
 					int pr = gts.Parse(original_text);
 					if(gts.GetToken(GtinStruc::fldGTIN14, 0)) {
 						while(pr != 1 && serial_len_variant_idx < SIZEOFARRAY(serial_len_variant_list)) {

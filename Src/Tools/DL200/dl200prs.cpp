@@ -79,37 +79,37 @@ public:
 			double result = 0.0;
 			double netprice = 0.0;
 			switch(rS.Sub) {
-				case DL2_Score::subAmount:
+				case PPBZSI_AMOUNT:
 					result = Total.Sum;
 					break;
-				case DL2_Score::subCost:
+				case PPBZSI_COST:
 					result = Total.Amounts.Get(PPAMT_BUYING, 0);
 					break;
-				case DL2_Score::subPrice:
+				case PPBZSI_PRICE:
 					result = Total.Amounts.Get(PPAMT_SELLING, 0);
 					break;
-				case DL2_Score::subDiscount:
+				case PPBZSI_DISCOUNT:
 					result = Total.Amounts.Get(PPAMT_DISCOUNT, 0);
 					break;
-				case DL2_Score::subNetPrice:
+				case PPBZSI_NETPRICE:
 					result = Total.Amounts.Get(PPAMT_SELLING, 0) - Total.Amounts.Get(PPAMT_DISCOUNT, 0);
 					break;
-				case DL2_Score::subMargin:
+				case PPBZSI_MARGIN:
 					cost = Total.Amounts.Get(PPAMT_BUYING, 0);
 					netprice = Total.Amounts.Get(PPAMT_SELLING, 0) - Total.Amounts.Get(PPAMT_DISCOUNT, 0);
 					result = netprice - cost;
 					break;
-				case DL2_Score::subPctIncome:
+				case PPBZSI_PCTINCOME:
 					cost = Total.Amounts.Get(PPAMT_BUYING, 0);
 					netprice = Total.Amounts.Get(PPAMT_SELLING, 0) - Total.Amounts.Get(PPAMT_DISCOUNT, 0);
 					result = fdivnz(netprice - cost, cost);
 					break;
-				case DL2_Score::subPctMargin:
+				case PPBZSI_PCTMARGIN:
 					cost = Total.Amounts.Get(PPAMT_BUYING, 0);
 					netprice = Total.Amounts.Get(PPAMT_SELLING, 0) - Total.Amounts.Get(PPAMT_DISCOUNT, 0);
 					result = fdivnz(netprice - cost, netprice);
 					break;
-				case DL2_Score::subCount:
+				case PPBZSI_COUNT:
 					result = Total.Count;
 					break;
 				default:
@@ -190,15 +190,15 @@ public:
 		{
 			double result = 0.0;
 			switch(rS.Sub) {
-				case DL2_Score::subAmount:    result = Total.Amount; break;
-				case DL2_Score::subCost:      result = Total.Amount; break;
-				case DL2_Score::subPrice:     result = Total.Amount + Total.Discount; break;
-				case DL2_Score::subDiscount:  result = Total.Discount; break;
-				case DL2_Score::subNetPrice:  result = Total.Amount; break;
-				case DL2_Score::subMargin:    break;
-				case DL2_Score::subPctIncome: break;
-				case DL2_Score::subPctMargin: break;
-				case DL2_Score::subCount:     result = Total.Count; break;
+				case PPBZSI_AMOUNT:    result = Total.Amount; break;
+				case PPBZSI_COST:      result = Total.Amount; break;
+				case PPBZSI_PRICE:     result = Total.Amount + Total.Discount; break;
+				case PPBZSI_DISCOUNT:  result = Total.Discount; break;
+				case PPBZSI_NETPRICE:  result = Total.Amount; break;
+				case PPBZSI_MARGIN:    break;
+				case PPBZSI_PCTINCOME: break;
+				case PPBZSI_PCTMARGIN: break;
+				case PPBZSI_COUNT:     result = Total.Count; break;
 				default:                      result = Total.Amount; break;
 			}
 			p_ci = new DL2_CI;
@@ -265,17 +265,17 @@ public:
 		{
 			double result = 0.0;
 			switch(rS.Sub) {
-				case DL2_Score::subCount:    result = Total.Count; break;
-				case DL2_Score::subAmount:   result = Total.SumPrice; break;
-				case DL2_Score::subCost:     result = Total.SumCost; break;
-				case DL2_Score::subPrice:    result = Total.SumPrice; break;
-				case DL2_Score::subDiscount: break;
-				case DL2_Score::subNetPrice: break;
-				case DL2_Score::subMargin:   result = Total.SumPrice - Total.SumCost; break;
-				case DL2_Score::subPctIncome:
+				case PPBZSI_COUNT:    result = Total.Count; break;
+				case PPBZSI_AMOUNT:   result = Total.SumPrice; break;
+				case PPBZSI_COST:     result = Total.SumCost; break;
+				case PPBZSI_PRICE:    result = Total.SumPrice; break;
+				case PPBZSI_DISCOUNT: break;
+				case PPBZSI_NETPRICE: break;
+				case PPBZSI_MARGIN:   result = Total.SumPrice - Total.SumCost; break;
+				case PPBZSI_PCTINCOME:
 					result = 100.0 * fdivnz(Total.SumPrice - Total.SumCost, Total.SumCost);
 					break;
-				case DL2_Score::subPctMargin:
+				case PPBZSI_PCTMARGIN:
 					result = 100.0 * fdivnz(Total.SumPrice - Total.SumCost, Total.SumPrice);
 					break;
 				default: result = Total.SumPrice; break;
@@ -340,11 +340,11 @@ public:
 		{
 			double result = 0.0;
 			switch(rS.Sub) {
-				case DL2_Score::subNone:
-				case DL2_Score::subAmount:
+				case PPBZSI_NONE:
+				case PPBZSI_AMOUNT:
 					result = Total.TDebt.Get(0, 0);
 					break;
-				case DL2_Score::subCount:
+				case PPBZSI_COUNT:
 					result = Total.Count;
 					break;
 				default:
@@ -409,10 +409,10 @@ public:
 		{
 			double result = 0.0;
 			switch(rS.Sub) {
-				case DL2_Score::subNone:
-				case DL2_Score::subAmount: result = Total.Sum; break;
-				case DL2_Score::subCount:  result = Total.Count; break;
-				case DL2_Score::subAverage: result = fdivnz(Total.Sum, Total.Count); break;
+				case PPBZSI_NONE:
+				case PPBZSI_AMOUNT: result = Total.Sum; break;
+				case PPBZSI_COUNT:  result = Total.Count; break;
+				case PPBZSI_AVERAGE: result = fdivnz(Total.Sum, Total.Count); break;
 				default: result = Total.Sum; break;
 			}
 			p_ci = new DL2_CI;

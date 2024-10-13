@@ -32,7 +32,6 @@ struct MACAddr : public TSBinary <6> { // @persistent @size=6
 	//  >0 - адрес this больше адреса s
 	//
 	int    FASTCALL Cmp(const MACAddr & s) const;
-	//uint8  Addr[6];
 };
 
 class MACAddrArray : public TSVector <MACAddr> {

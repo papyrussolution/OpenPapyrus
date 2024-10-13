@@ -1689,6 +1689,10 @@
 #define PPEDIOP_EGAIS_REPLYFORM1              81 // @v11.3.4
 #define PPEDIOP_EGAIS_REPLYFORM2              82 // @v11.3.4
 //
+#define PPEDIOP_MRKTPLC_RECEIPT              101 // @v12.1.6 Поступление товара на склад маркетплейса
+#define PPEDIOP_MRKTPLC_ORDER                102 // @v12.1.6 Заказ от покупателя, поступивший на маркетплейс
+#define PPEDIOP_MRKTPLC_SALE                 103 // @v12.1.6 Продажа покупателю маркетплейсом
+//
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
 //
 #define PPEDI_RECADV_STATUS_UNDEF             0 // Не определен
@@ -2908,9 +2912,13 @@
 	#define CTL_FLTLOT_SHOWPRICEDEV     (25 + WINDOWS_ID_BIAS)
 	#define CTL_FLTLOT_CDEVRESTR        (26 + WINDOWS_ID_BIAS)
 	#define CTL_FLTLOT_PDEVRESTR        (27 + WINDOWS_ID_BIAS)
-	#define CTL_FLTLOT_EXTVIEWATTR      (28 + WINDOWS_ID_BIAS)
+	#define CTL_FLTLOT_EXTVIEWATTR      (28 + WINDOWS_ID_BIAS) // Выбор варианта отображения для обычных лотов (не заказов)
 	#define CTL_FLTLOT_SPPLPSNCAT       (29 + WINDOWS_ID_BIAS) // @v11.4.4
 	#define CTLSEL_FLTLOT_SPPLPSNCAT    (30 + WINDOWS_ID_BIAS) // @v11.4.4
+	#define CTL_FLTLOT_ORDEXTVIEWATR    (31 + WINDOWS_ID_BIAS) // @v12.1.6 Выбор варианта отображения для заказов //
+	#define CTL_FLTLOT_ORDVIEWFLAGS     (32 + WINDOWS_ID_BIAS) // @v12.1.6 Дополнительные флаги опций отображения // 
+	#define CTL_FLTLOT_AGENT            (33 + WINDOWS_ID_BIAS) // @v12.1.6 
+	#define CTLSEL_FLTLOT_AGENT         (34 + WINDOWS_ID_BIAS) // @v12.1.6 
 #define DLG_BILLFLT               131 // Фильтр реестра товарных документов
 #define DLG_BILLFLTEXT            275 // (@obsolete v3.6.4) Расширение фильтра документов
 #define DLG_BILLPREAMB            514 // Преамбула для ввода документа по коду операции и контрагента
@@ -11658,6 +11666,7 @@
 	#define CTLSEL_MPCFG_SALEOP            (4 + WINDOWS_ID_BIAS) 
 	#define CTL_MPCFG_TRANSFOP             (5 + WINDOWS_ID_BIAS) 
 	#define CTLSEL_MPCFG_TRANSFOP          (6 + WINDOWS_ID_BIAS) 
+#define DLG_FLTORDLOTEXT          1450 // @v12.1.6 Расширение фильтра лотов заказов
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

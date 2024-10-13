@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "854711363404",
+    "project_id": "stylo-q",
+    "storage_bucket": "stylo-q.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:854711363404:android:3702ac194e9c14788cd1e9",
+        "android_client_info": {
+          "package_name": "ru.petroglif.styloq"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCd59CqfTC0si1Vna1JqrDSPbtobiFe4YY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

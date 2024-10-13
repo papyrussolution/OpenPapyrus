@@ -26,25 +26,24 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 
-bool EqualsIgnoreCase(absl::string_view piece1,
-    absl::string_view piece2) noexcept {
-	return (piece1.size() == piece2.size() &&
-	       0 == absl::strings_internal::memcasecmp(piece1.data(), piece2.data(),
-	       piece1.size()));
+bool EqualsIgnoreCase(absl::string_view piece1, absl::string_view piece2) noexcept 
+{
+	return (piece1.size() == piece2.size() && 0 == absl::strings_internal::memcasecmp(piece1.data(), piece2.data(), piece1.size()));
 	// memcasecmp uses absl::ascii_tolower().
 }
 
-bool StrContainsIgnoreCase(absl::string_view haystack,
-    absl::string_view needle) noexcept {
+bool StrContainsIgnoreCase(absl::string_view haystack, absl::string_view needle) noexcept 
+{
 	while(haystack.size() >= needle.size()) {
-		if(StartsWithIgnoreCase(haystack, needle)) return true;
+		if(StartsWithIgnoreCase(haystack, needle)) 
+			return true;
 		haystack.remove_prefix(1);
 	}
 	return false;
 }
 
-bool StrContainsIgnoreCase(absl::string_view haystack,
-    char needle) noexcept {
+bool StrContainsIgnoreCase(absl::string_view haystack, char needle) noexcept 
+{
 	char upper_needle = absl::ascii_toupper(static_cast<unsigned char>(needle));
 	char lower_needle = absl::ascii_tolower(static_cast<unsigned char>(needle));
 	if(upper_needle == lower_needle) {

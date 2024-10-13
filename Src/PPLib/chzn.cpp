@@ -451,7 +451,7 @@ DRAFTBEER HORECA @v11.9.4
 				ok = SNTOK_CHZN_SURROGATE_GTIN;
 			}
 		}
-		else /*if(temp_buf.HasPrefix("01") || temp_buf.HasPrefix("(01)") || temp_buf.HasPrefix("\x1D" "01"))*/ {
+		if(!ok) /*else*/ /*if(temp_buf.HasPrefix("01") || temp_buf.HasPrefix("(01)") || temp_buf.HasPrefix("\x1D" "01"))*/ { // @v12.1.6 else-->if(!ok)
 			size_t serial_len_variant_idx = 0;
 			rS.AddSpecialStopChar(0x1D);
 			rS.AddSpecialStopChar(0xE8);

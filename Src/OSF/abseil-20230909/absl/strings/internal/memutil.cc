@@ -21,13 +21,12 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace strings_internal {
-int memcasecmp(const char* s1, const char* s2, size_t len) {
+int memcasecmp(const char* s1, const char* s2, size_t len) 
+{
 	const unsigned char* us1 = reinterpret_cast<const unsigned char*>(s1);
 	const unsigned char* us2 = reinterpret_cast<const unsigned char*>(s2);
-
 	for(size_t i = 0; i < len; i++) {
-		const int diff =
-		    int{static_cast<unsigned char>(absl::ascii_tolower(us1[i]))} -
+		const int diff = int{static_cast<unsigned char>(absl::ascii_tolower(us1[i]))} -
 		int{static_cast<unsigned char>(absl::ascii_tolower(us2[i]))};
 		if(diff != 0) return diff;
 	}

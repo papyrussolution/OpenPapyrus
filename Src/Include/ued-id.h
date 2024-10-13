@@ -1,9 +1,9 @@
-// UED-ID-TEMP.H
-// version: 35
-// sha256: e4e857834b6a904bfacd0093364da64d517c02b0fc328f66a10c9de429661911
+// UED-ID.H
+// version: 36
+// sha256: 30e57f6807209c82ededb4610622268085372e2295a608dc2a01fc98fa6e8173
 //
-#ifndef __UED_ID_TEMP_H
-#define __UED_ID_TEMP_H
+#ifndef __UED_ID_H
+#define __UED_ID_H
 
 #define UED_META_META                                0x100000001ULL
 #define UED_META_PREDEFVALUE                         0x100000002ULL
@@ -3660,6 +3660,7 @@
 #define UED_META_FIXEDPOINT16                        0x1400c0000ULL
 #define UED_META_DATASIZE                            0x1400d0000ULL
 #define UED_META_IP4                                 0x1400e0000ULL
+#define UED_META_MACADDR                             0x1400f0000ULL
 #define UED_META_PHONENUMBER                         0x140100000ULL
 #define UED_META_STRINGREF                           0x140110000ULL
 #define UED_META_RANGE_DATE                          0x140120000ULL
@@ -3692,4 +3693,4 @@
 #define UED_META_INTEGER                             0x197000000ULL
 #define UED_META_DECIMAL                             0x198000000ULL
 
-#endif // __UED_ID_TEMP_H
+#endif // __UED_ID_H

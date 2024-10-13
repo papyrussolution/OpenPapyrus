@@ -1290,39 +1290,8 @@ int DL2_Score::GetFromStr(const char * pStr, size_t * pOffs)
 			if(scan[0] == '.') {
 				scan.Incr();
 				THROW(scan.GetIdent(temp_buf.Z()));
-				if(temp_buf.IsEqiAscii("amount")) {
-					Sub = subAmount;
-				}
-				else if(temp_buf.IsEqiAscii("cost")) {
-					Sub = subCost;
-				}
-				else if(temp_buf.IsEqiAscii("price")) {
-					Sub = subPrice;
-				}
-				else if(temp_buf.IsEqiAscii("discount")) {
-					Sub = subDiscount;
-				}
-				else if(temp_buf.IsEqiAscii("netprice")) {
-					Sub = subNetPrice;
-				}
-				else if(temp_buf.IsEqiAscii("margin")) {
-					Sub = subMargin;
-				}
-				else if(temp_buf.IsEqiAscii("pctincome")) {
-					Sub = subPctIncome;
-				}
-				else if(temp_buf.IsEqiAscii("pctmargin")) {
-					Sub = subPctMargin;
-				}
-				else if(temp_buf.IsEqiAscii("count")) {
-					Sub = subCount;
-				}
-				else if(temp_buf.IsEqiAscii("average")) {
-					Sub = subAverage;
-				}
-				else {
-					CALLEXCEPT(); // @error
-				}
+				Sub = PPObjBizScore::RecognizeBzsiSymb(temp_buf);
+				THROW(Sub); // @todo @error
 			}
 			offs = scan.Offs;
 			THROW(ScanArgList(scan, &offs));
@@ -1352,19 +1321,11 @@ int DL2_Score::PutToStr(SString & rBuf) const
 	}
 	if(Sub) {
 		rBuf.Dot();
-		switch(Sub) {
-			case subAmount:         rBuf.Cat("amount"); break;
-			case subCost:           rBuf.Cat("cost"); break;
-			case subPrice:          rBuf.Cat("price"); break;
-			case subDiscount:       rBuf.Cat("discount"); break;
-			case subNetPrice:       rBuf.Cat("netprice"); break;
-			case subMargin:         rBuf.Cat("margin"); break;
-			case subPctIncome:      rBuf.Cat("pctincome"); break;
-			case subPctMargin:      rBuf.Cat("pctmargin"); break;
-			case subCount:          rBuf.Cat("count"); break;
-			case subAverage:        rBuf.Cat("average"); break;
-			default: rBuf.CatEq("ERROR", Sub); break;
-		}
+		SString temp_buf;
+		if(PPObjBizScore::GetBzsiSymb(Sub, temp_buf))
+			rBuf.Cat(temp_buf);
+		else
+			rBuf.CatEq("ERROR", Sub);
 	}
 	rBuf.CatChar('(');
 	{

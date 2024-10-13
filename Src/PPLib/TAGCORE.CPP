@@ -234,8 +234,16 @@ bool FASTCALL ObjTagItem::GetGuid(S_GUID * pGuid) const
 {
 	bool   ok = false;
 	if(oneof2(TagDataType, OTTYP_GUID, OTTYP_STRING)) {
-		CALLPTRMEMB(pGuid, FromStr(Val.PStr));
-		ok = true;
+		S_GUID temp_guid;
+		if(temp_guid.FromStr(Val.PStr)) {
+			//CALLPTRMEMB(pGuid, FromStr(Val.PStr));
+			ASSIGN_PTR(pGuid, temp_guid);
+			ok = true;
+		}
+		else {
+			PPSetErrorSLib();
+			CALLPTRMEMB(pGuid, Z());
+		}
 	}
 	else {
 		PPSetError(PPERR_INVOBJTAGTYPE, "GUID");
@@ -1123,7 +1131,7 @@ int ObjTagCore::GetTagStr(PPID objType, PPID objID, PPID tagID, SString & rBuf)
 {
 	int    ok = -1;
 	rBuf.Z();
-	if(tagID) { // @v10.3.3
+	if(tagID) {
 		ObjTagItem item;
 		int    r = GetTag(objType, objID, tagID, &item);
 		if(r > 0 && item.GetStr(rBuf) && rBuf.NotEmptyS())

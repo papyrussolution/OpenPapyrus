@@ -5,6 +5,50 @@
 #include <pp.h>
 #pragma hdrstop
 
+static const SIntToSymbTabEntry BzsISymList[] = { // @v12.1.6
+	//{ PPBZSI_NONE,                   "" },
+	{ PPBZSI_AMOUNT,                 "amount" },
+	{ PPBZSI_COST,                   "cost" },
+	{ PPBZSI_PRICE,                  "price" },
+	{ PPBZSI_DISCOUNT,               "discount" },
+	{ PPBZSI_NETPRICE,               "netprice" },
+	{ PPBZSI_MARGIN,                 "margin" },
+	{ PPBZSI_PCTINCOME,              "pctincome" },
+	{ PPBZSI_PCTMARGIN,              "pctmargin" },
+	{ PPBZSI_COUNT,                  "count" },
+	{ PPBZSI_AVERAGE,                "average" },
+	{ PPBZSI_MPACCEPTANCE,           "mpacceptance" },
+	{ PPBZSI_MPSTORAGE,              "mpstorage" },
+	{ PPBZSI_MPCOMMISSION,           "mpcommission" },
+	{ PPBZSI_MPCOMMISSIONPCT,        "mpcommissionpct" },
+	{ PPBZSI_MPSELLERSPART,          "mpsellerspart" },
+	{ PPBZSI_MPSELLERSPARTPCT,       "mpsellerspartpct" },
+	{ PPBZSI_MPACQUIRING,            "mpacquiring" },
+	{ PPBZSI_MPACQUIRINGPCT,         "mpacquiringpct" },
+	{ PPBZSI_ORDCOUNT,               "ordcount" },
+	{ PPBZSI_ORDQTTY,                "ordqtty" },
+	{ PPBZSI_SALECOUNT,              "salecount" },
+	{ PPBZSI_SALEQTTY,               "saleqtty" },
+	{ PPBZSI_ORDCANCELLEDCOUNT,      "ordcancelledcount" },
+	{ PPBZSI_ORDCANCELLEDQTTY,       "ordcancelledqtty" },
+	{ PPBZSI_ORDSHIPMDELAYDAYSAVG,   "ordshipmdelaydaysavg" },
+	{ PPBZSI_ORDSHIPMDELAYDAYSMIN,   "ordshipmdelaydaysmin" },
+	{ PPBZSI_ORDSHIPMDELAYDAYSMAX,   "ordshipmdelaydaysmax" },
+	{ PPBZSI_SUPPLSHIPMDELAYDAYSAVG, "supplshipmdelaydaysavg" },
+};
+
+/*static*/const char * PPObjBizScore::GetBzsiSymb(int bzsi, SString & rBuf)
+{
+	const char * p_result = SIntToSymbTab_GetSymbPtr(BzsISymList, SIZEOFARRAY(BzsISymList), bzsi);
+	(rBuf = p_result);
+	return p_result;
+}
+
+/*static*/int PPObjBizScore::RecognizeBzsiSymb(const char * pSymb)
+{
+	return SIntToSymbTab_GetId(BzsISymList, SIZEOFARRAY(BzsISymList), pSymb);
+}
+
 PPBizScore::PPBizScore()
 {
 	THISZERO();
@@ -194,25 +238,38 @@ public:
 		// В зависимости от выбранного примитива активируем/блокируем остальные параметры
 		DisableControls(id);
 		//
-
-		// Выбор модификатора
 		ushort v = 0;
+		// Выбор модификатора
+		/* @v12.1.
 		switch(Data.Sub) {
-			case DL2_Score::subAmount: v = 1; break;
-			case DL2_Score::subCost: v = 2; break;
-			case DL2_Score::subPrice: v = 3; break;
-			case DL2_Score::subDiscount: v = 4; break;
-			case DL2_Score::subNetPrice: v = 5; break;
-			case DL2_Score::subMargin: v = 6; break;
-			case DL2_Score::subPctIncome: v = 7; break;
-			case DL2_Score::subPctMargin: v = 8; break;
-			case DL2_Score::subCount: v = 9; break;
-			case DL2_Score::subAverage: v = 10; break;
+			case PPBZSI_AMOUNT: v = 1; break;
+			case PPBZSI_COST: v = 2; break;
+			case PPBZSI_PRICE: v = 3; break;
+			case PPBZSI_DISCOUNT: v = 4; break;
+			case PPBZSI_NETPRICE: v = 5; break;
+			case PPBZSI_MARGIN: v = 6; break;
+			case PPBZSI_PCTINCOME: v = 7; break;
+			case PPBZSI_PCTMARGIN: v = 8; break;
+			case PPBZSI_COUNT: v = 9; break;
+			case PPBZSI_AVERAGE: v = 10; break;
 			default: v = 0; break;
 		}
 		setCtrlData(CTL_BIZPRCRT_MODIF, &v);
-		//
-
+		*/
+		// @v12.1.6 {
+		AddClusterAssocDef(CTL_BIZPRCRT_MODIF,  0, PPBZSI_NONE);
+		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  1, PPBZSI_AMOUNT);
+		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  2, PPBZSI_COST);
+		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  3, PPBZSI_PRICE);
+		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  4, PPBZSI_DISCOUNT);
+		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  5, PPBZSI_NETPRICE);
+		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  6, PPBZSI_MARGIN);
+		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  7, PPBZSI_PCTINCOME);
+		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  8, PPBZSI_PCTMARGIN);
+		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  9, PPBZSI_COUNT);
+		AddClusterAssoc(CTL_BIZPRCRT_MODIF, 10, PPBZSI_AVERAGE);
+		SetClusterData(CTL_BIZPRCRT_MODIF, Data.Sub);
+		// } @v12.1.6 
 		// Аргументы
 		PPID   loc_id = 0;
 		SetPeriodInput(this, CTL_BIZPRCRT_PERIOD, &Data.Period);
@@ -253,21 +310,23 @@ private:
 			clearEvent(event);
 		}
 		if(event.isClusterClk(CTL_BIZPRCRT_MODIF)) {
+			GetClusterData(CTL_BIZPRCRT_MODIF, &Data.Sub); // @v12.1.6
+			/* @v12.1.
 			ushort v = 0;
 			getCtrlData(CTL_BIZPRCRT_MODIF, &(v = 0));
 			switch(v) {
-				case 1: Buf_Data.Sub = DL2_Score::subAmount; break;
-				case 2: Buf_Data.Sub = DL2_Score::subCost; break;
-				case 3: Buf_Data.Sub = DL2_Score::subPrice; break;
-				case 4: Buf_Data.Sub = DL2_Score::subDiscount; break;
-				case 5: Buf_Data.Sub = DL2_Score::subNetPrice; break;
-				case 6: Buf_Data.Sub = DL2_Score::subMargin; break;
-				case 7: Buf_Data.Sub = DL2_Score::subPctIncome; break;
-				case 8: Buf_Data.Sub = DL2_Score::subPctMargin; break;
-				case 9: Buf_Data.Sub = DL2_Score::subCount; break;
-				case 10: Buf_Data.Sub = DL2_Score::subAverage; break;
-				default: Buf_Data.Sub = DL2_Score::subNone; break;
-			}
+				case 1: Buf_Data.Sub = PPBZSI_AMOUNT; break;
+				case 2: Buf_Data.Sub = PPBZSI_COST; break;
+				case 3: Buf_Data.Sub = PPBZSI_PRICE; break;
+				case 4: Buf_Data.Sub = PPBZSI_DISCOUNT; break;
+				case 5: Buf_Data.Sub = PPBZSI_NETPRICE; break;
+				case 6: Buf_Data.Sub = PPBZSI_MARGIN; break;
+				case 7: Buf_Data.Sub = PPBZSI_PCTINCOME; break;
+				case 8: Buf_Data.Sub = PPBZSI_PCTMARGIN; break;
+				case 9: Buf_Data.Sub = PPBZSI_COUNT; break;
+				case 10: Buf_Data.Sub = PPBZSI_AVERAGE; break;
+				default: Buf_Data.Sub = PPBZSI_NONE; break;
+			}*/
 			Buf_Data.PutToStr(Str_Buf);
 			setCtrlString(CTL_BIZPRCRT_RESULT, Str_Buf);
 			clearEvent(event);

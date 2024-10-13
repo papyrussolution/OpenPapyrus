@@ -1961,11 +1961,13 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 								PPSupplDeal supl_deal;
 								const QuotIdent suppl_deal_qi(p_rcpt_bpack->Rec.Dt, p_rcpt_bpack->Rec.LocID, 0, 0, suppl_id);
 								GObj.GetSupplDeal(ti.GoodsID, suppl_deal_qi, &supl_deal);
+								if(r_src_ti.Cost > 0.0) // @v12.1.6
+									ti.Cost = r_src_ti.Cost;
 								if(supl_deal.Cost > 0.0) {
 									ti.Cost = supl_deal.Cost;
 								}
 								else {
-									ti.Cost = (r_src_ti.Cost > 0.0) ? r_src_ti.Cost : r_src_ti.Price;
+									ti.Cost = /*@v12.1.6 (r_src_ti.Cost > 0.0) ? r_src_ti.Cost :*/r_src_ti.Price;
 								}
 							}
 							ti.Price = r_src_ti.Price;

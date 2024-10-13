@@ -63,12 +63,10 @@ int ProcPool_IpHlpApi::PtRelease()
 
 MACAddr::MACAddr() : TSBinary<6>()
 {
-	//memzero(Addr, sizeof(Addr));
 }
 
 MACAddr::MACAddr(const MACAddr & rS) : TSBinary<6>(rS)
 {
-	//memcpy(Addr, rS.Addr, sizeof(Addr));
 }
 
 /*MACAddr & FASTCALL MACAddr::operator = (const MACAddr & rS)
@@ -178,13 +176,11 @@ static int GetMacByIP(const SString & rIP, MACAddr * pMAC)
 	return ok;
 }
 
-typedef TSCollection <InetAddr> InetAddrArray;
-
 #define RES_NET    0L
 #define RES_DOMAIN 1L
 #define RES_HOST   2L
 
-int GetIPAddrList(int Level, LPNETRESOURCE lpNet, InetAddrArray * pAddrs)
+int GetIPAddrList(int Level, LPNETRESOURCE lpNet, TSCollection <InetAddr> * pAddrs)
 {
 	int    ok = 1;
 	DWORD  size = 0, count = 0, i = 0, j = 0;
@@ -267,7 +263,7 @@ int GetFirstHostByMACAddr(const MACAddr * pMAC, InetAddr * pAddr)
 	return Helper_GetFirstHostByMacAddr(RES_NET, 0, pMAC, pAddr);
 	/*
 	int    ok = -1;
-	InetAddrArray ary;
+	TSCollection <InetAddr> ary;
 	if(GetIPAddrList(RES_NET, NULL, &ary) > 0) {
 		SString ip;
 		for(uint i = 0; ok == -1 && i < ary.getCount(); i++) {

@@ -150,12 +150,18 @@ public:
 		double Discount;
 		uint   Flags;
 	};
+
+	static SString & MakeSerialIdent(int64 incomeId, const WareBase & rWare, SString & rBuf)
+	{
+		return rBuf.Z().Cat(incomeId).CatChar('-').Cat(rWare.ID);
+	}
+
 	struct Income  {
 		Income();
 		Income & Z();
 		bool FromJsonObj(const SJson * pJs);
 
-		int64   IncomeID;
+		int64  IncomeID;
 		LDATETIME Dtm;
 		LDATETIME DtmLastChange;
 		SString Number; // Номер УПД
@@ -349,6 +355,7 @@ public:
 	int   RequestOrders(TSCollection <Sale> & rList);
 	int   RequestSales(TSCollection <Sale> & rList);
 	int   RequestSupplies();
+	int   RequestReturns();
 	int   RequestAcceptanceReport(const DateRange & rPeriod);
 	int   RequestSalesReportDetailedByPeriod(const DateRange & rPeriod, TSCollection <SalesRepDbpEntry> & rList);
 	int   RequestBalance();
@@ -368,13 +375,14 @@ private:
 	int   FetchWarehouseList(TSCollection <Warehouse> & rList);
 	int   ParseJson_WarehouseList(const SJson * pJs, TSCollection <Warehouse> & rList);
 	int   Helper_RequestWarehouseList(int meth/*methWarehouses||methWarehouses2*/, TSCollection <Warehouse> & rList, const char * pFileNameToStoreJson);
+	int   InsertReceiptItem(PPBillPacket & rPack, const char * pSerial, PPID goodsID, double qtty);
 	//
 	// Descr: 
 	// Returns:
 	//   0 - error
 	//   >0 - ид лота
 	//
-	PPID  CreateReceipt(int64 incomeId, LDATE dt, PPID locID, PPID goodsID, double qtty, int use_ta);
+	PPID  CreateReceipt(int64 incomeId, const WareBase & rWare, LDATE dt, PPID locID, PPID goodsID, double qtty, int use_ta);
 	PPID  CreateBuyer(const Sale * pSaleEntry, int use_ta);
 	PPID  CreateWare(const WareBase & rWare, int use_ta);
 	int   FindShipmentBillByOrderIdent(const char * pOrgOrdIdent, PPIDArray & rShipmBillIdList);
@@ -384,8 +392,8 @@ private:
 	//   0 - error
 	//   >0 - ид лота, к которому должна быть привязана продажа
 	//
-	PPID  AdjustReceiptOnExpend(int64 incomeId, LDATE dt, PPID locID, PPID goodsID, double neededQtty, double nominalPrice, int use_ta);
-	int   SearchOriginalLotForMp(int64 incomeId, LDATE dt, PPID locID, PPID goodsID, PPID * pResultLotID);
+	PPID  AdjustReceiptOnExpend(const Sale & rWbItem, LDATE dt, PPID locID, PPID goodsID, double neededQtty, double nominalPrice, int use_ta);
+	int   SearchOriginalLotForMp(const char * pSerial, LDATE dt, PPID locID, PPID goodsID, PPID * pResultLotID);
 	SString & MakeHeaderFields(const char * pToken, StrStrAssocArray * pHdrFlds, SString & rBuf)
 	{
 		StrStrAssocArray hdr_flds;
@@ -442,6 +450,7 @@ private:
 		methContentCardsList, // apiContent https://content-api.wildberries.ru/content/v2/get/cards/list
 		methBalance,          // apiAdvert https://advert-api.wildberries.ru/adv/v1/balance
 		methDocumentsList,    // apiDocuments https://documents-api.wildberries.ru/api/v1/documents/list 
+		methReturns,          // apiAnalytics   https://seller-analytics-api.wildberries.ru/api/v1/analytics/goods-return
 	};
 	bool MakeTargetUrl_(int meth, int * pReq/*SHttpProtocol::reqXXX*/, SString & rResult) const
 	{
@@ -484,6 +493,7 @@ private:
 			{ methContentCardsList, apiContent, SHttpProtocol::reqPost, "content/v2/get/cards/list" },
 			{ methBalance, apiAdvert, SHttpProtocol::reqGet, "adv/v1/balance" },
 			{ methDocumentsList, apiDocuments, SHttpProtocol::reqGet, "api/v1/documents/list" },
+			{ methReturns, apiAnalytics, SHttpProtocol::reqGet, "api/v1/analytics/goods-return" },
 		};
 		//https://content-api.wildberries.ru/content/v2/cards/upload
 		//https://discounts-prices-api.wildberries.ru/api/v2/upload/task
@@ -1682,6 +1692,39 @@ int PPMarketplaceInterface_Wildberries::RequestSupplies()
 	return ok;	
 }
 
+int PPMarketplaceInterface_Wildberries::RequestReturns()
+{
+	int    ok = 1;
+	const  LDATETIME now_dtm = getcurdatetime_();
+	SString temp_buf;
+	SString url_buf;
+	StrStrAssocArray hdr_flds;
+	DateRange period;
+	period.upp = plusdate(now_dtm.d, -30);
+	period.low = plusdate(now_dtm.d, -60);
+	THROW(Helper_InitRequest(methReturns, url_buf, hdr_flds));
+	{
+		ScURL c;
+		SString reply_buf;
+		SBuffer ack_buf;
+		SFile wr_stream(ack_buf, SFile::mWrite);
+		THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
+		temp_buf.Z().CatEq("dateFrom", period.low, DATF_ISO8601CENT).CatChar('&').CatEq("dateTo", period.upp, DATF_ISO8601CENT);
+		url_buf.CatChar('?').Cat(temp_buf);
+		Lth.Log("req", url_buf, temp_buf.Z());
+		THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+		{
+			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+			if(p_ack_buf) {
+				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+				Lth.Log("rep", 0, reply_buf);
+			}
+		}
+	}
+	CATCHZOK
+	return ok;	
+}
+
 int PPMarketplaceInterface_Wildberries::RequestAcceptanceReport(const DateRange & rPeriod)
 {
 	int    ok = 1;
@@ -1775,7 +1818,7 @@ int PPMarketplaceInterface_Wildberries::RequestSales(TSCollection <Sale> & rList
 		SBuffer ack_buf;
 		SFile wr_stream(ack_buf, SFile::mWrite);
 		THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
-		url_buf.CatChar('?').CatEq("dateFrom", encodedate(1, 1, 2024), DATF_ISO8601CENT);
+		url_buf.CatChar('?').CatEq("dateFrom", encodedate(1, 1, 2024), DATF_ISO8601CENT).CatChar('&').CatEq("flag", 0);
 		Lth.Log("req", url_buf, temp_buf.Z());
 		THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
 		{
@@ -1794,6 +1837,18 @@ int PPMarketplaceInterface_Wildberries::RequestSales(TSCollection <Sale> & rList
 									if(!p_new_item->FromJsonObj(p_js_item)) {
 										rList.atFree(new_item_pos);
 									}
+								}
+							}
+						}
+					}
+					if(rList.getCount()) {
+						PPGetFilePath(PPPATH_OUT, "mpwb-sales_order_type.txt", temp_buf);
+						SFile f_out(temp_buf, SFile::mWrite);
+						for(uint i = 0; i < rList.getCount(); i++) {
+							const Sale * p_item = rList.at(i);
+							if(p_item) {
+								if(p_item->OrderType.NotEmpty()) {
+									f_out.WriteLine((temp_buf = p_item->OrderType).CR());
 								}
 							}
 						}
@@ -2139,78 +2194,87 @@ PPID PPMarketplaceInterface_Wildberries::CreateWare(const WareBase & rWare, int 
 		assert(goods_rec.ID > 0 && bc_rec.GoodsID > 0 && goods_rec.ID == bc_rec.GoodsID); // @paranoic
 		result_id = goods_rec.ID;
 	}
-	else if(rWare.Name.NotEmpty()) {
-		const PPGoodsConfig & r_cfg = GObj.GetConfig();
-		const PPID acs_id = R_Prc.GetMarketplaceAccSheetID();
-		SString goods_name(rWare.Name);
-		SString ar_code;
-		PPID   mp_ar_id = 0;
-		PPID   temp_id = 0;
-		if(rWare.ID)
-			ar_code.Cat(rWare.ID);
-		if(goods_name.IsLegalUtf8()) {
-			goods_name.Transf(CTRANSF_UTF8_TO_INNER);
+	else {
+		SString name_buf;
+		if(rWare.Name.NotEmpty())
+			name_buf = rWare.Name;
+		if(rWare.SupplArticle.NotEmpty()) {
+			name_buf.CatDivIfNotEmpty('-', 1).Cat(rWare.SupplArticle);
 		}
-		if(rWare.Barcode.IsEmpty() && GObj.SearchByName(goods_name, &temp_id, &goods_rec) > 0) {
-			result_id = goods_rec.ID;
-		}
-		else {
-			PPID   mp_psn_id = 0;
-			PPObjBrand brand_obj;
-			{
-				PPTransaction tra(use_ta);
-				THROW(tra);
-				GetMarketplacePerson(&mp_psn_id, 0/*use_ta*/);
-				if(ar_code.NotEmpty() && acs_id) {
-					if(mp_psn_id) {
-						ArObj.P_Tbl->PersonToArticle(mp_psn_id, acs_id, &mp_ar_id);
-						if(mp_ar_id) {
-							ArGoodsCodeTbl::Rec ar_code_rec;
-							if(GObj.P_Tbl->SearchByArCode(mp_ar_id, ar_code, &ar_code_rec, &goods_rec) > 0) {
-								result_id = goods_rec.ID;
-							}
-						}
-					}
-				}
-				if(!result_id) {
-					PPGoodsPacket goods_pack;
-					assert(result_id == 0);
-					goods_pack.Rec.Kind = PPGDSK_GOODS;
-					STRNSCPY(goods_pack.Rec.Name, goods_name);
-					STRNSCPY(goods_pack.Rec.Abbr, goods_name);
-					if(rWare.Barcode.NotEmpty()) {
-						goods_pack.AddCode(rWare.Barcode, 0, 1);
-					}
-					if(ar_code.NotEmpty()) {
-						if(acs_id) {
-							if(!mp_ar_id) {
-								ArObj.P_Tbl->PersonToArticle(mp_psn_id, acs_id, &mp_ar_id);
-							}
+		if(name_buf.IsEmpty())
+			name_buf = rWare.Barcode;
+		if(name_buf.NotEmpty()) {
+			const PPGoodsConfig & r_cfg = GObj.GetConfig();
+			const PPID acs_id = R_Prc.GetMarketplaceAccSheetID();
+			SString ar_code;
+			PPID   mp_ar_id = 0;
+			PPID   temp_id = 0;
+			if(rWare.ID)
+				ar_code.Cat(rWare.ID);
+			if(name_buf.IsLegalUtf8()) {
+				name_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			}
+			if(rWare.Barcode.IsEmpty() && GObj.SearchByName(name_buf, &temp_id, &goods_rec) > 0) {
+				result_id = goods_rec.ID;
+			}
+			else {
+				PPID   mp_psn_id = 0;
+				PPObjBrand brand_obj;
+				{
+					PPTransaction tra(use_ta);
+					THROW(tra);
+					GetMarketplacePerson(&mp_psn_id, 0/*use_ta*/);
+					if(ar_code.NotEmpty() && acs_id) {
+						if(mp_psn_id) {
+							ArObj.P_Tbl->PersonToArticle(mp_psn_id, acs_id, &mp_ar_id);
 							if(mp_ar_id) {
 								ArGoodsCodeTbl::Rec ar_code_rec;
-								STRNSCPY(ar_code_rec.Code, ar_code);
-								ar_code_rec.ArID = mp_ar_id;
-								ar_code_rec.Pack = 1000; // 1.0
-								ar_code.CopyTo(ar_code_rec.Code, sizeof(ar_code_rec.Code));
-								goods_pack.ArCodes.insert(&ar_code_rec);
+								if(GObj.P_Tbl->SearchByArCode(mp_ar_id, ar_code, &ar_code_rec, &goods_rec) > 0) {
+									result_id = goods_rec.ID;
+								}
 							}
 						}
 					}
-					if(rWare.Brand.NotEmpty()) {
-						temp_buf = rWare.Brand;
-						if(temp_buf.IsLegalUtf8()) {
-							temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					if(!result_id) {
+						PPGoodsPacket goods_pack;
+						assert(result_id == 0);
+						goods_pack.Rec.Kind = PPGDSK_GOODS;
+						STRNSCPY(goods_pack.Rec.Name, name_buf);
+						STRNSCPY(goods_pack.Rec.Abbr, name_buf);
+						if(rWare.Barcode.NotEmpty()) {
+							goods_pack.AddCode(rWare.Barcode, 0, 1);
 						}
-						PPID   brand_id = 0;
-						THROW(brand_obj.AddSimple(&brand_id, temp_buf, 0, 0/*use_ta*/));
-						goods_pack.Rec.BrandID = brand_id;
+						if(ar_code.NotEmpty()) {
+							if(acs_id) {
+								if(!mp_ar_id) {
+									ArObj.P_Tbl->PersonToArticle(mp_psn_id, acs_id, &mp_ar_id);
+								}
+								if(mp_ar_id) {
+									ArGoodsCodeTbl::Rec ar_code_rec;
+									STRNSCPY(ar_code_rec.Code, ar_code);
+									ar_code_rec.ArID = mp_ar_id;
+									ar_code_rec.Pack = 1000; // 1.0
+									ar_code.CopyTo(ar_code_rec.Code, sizeof(ar_code_rec.Code));
+									goods_pack.ArCodes.insert(&ar_code_rec);
+								}
+							}
+						}
+						if(rWare.Brand.NotEmpty()) {
+							temp_buf = rWare.Brand;
+							if(temp_buf.IsLegalUtf8()) {
+								temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+							}
+							PPID   brand_id = 0;
+							THROW(brand_obj.AddSimple(&brand_id, temp_buf, 0, 0/*use_ta*/));
+							goods_pack.Rec.BrandID = brand_id;
+						}
+						goods_pack.Rec.UnitID = r_cfg.DefUnitID;
+						goods_pack.Rec.ParentID = r_cfg.DefGroupID;
+						THROW(GObj.PutPacket(&result_id, &goods_pack, 0/*use_ta*/));
+						R_Prc.GetLogger().LogAcceptMsg(PPOBJ_GOODS, result_id, 0);
 					}
-					goods_pack.Rec.UnitID = r_cfg.DefUnitID;
-					goods_pack.Rec.ParentID = r_cfg.DefGroupID;
-					THROW(GObj.PutPacket(&result_id, &goods_pack, 0/*use_ta*/));
-					R_Prc.GetLogger().LogAcceptMsg(PPOBJ_GOODS, result_id, 0);
+					THROW(tra.Commit());
 				}
-				THROW(tra.Commit());
 			}
 		}
 	}
@@ -2275,7 +2339,38 @@ PPID PPMarketplaceInterface_Wildberries::CreateBuyer(const Sale * pSaleEntry, in
 	return result_ar_id;
 }
 
-PPID PPMarketplaceInterface_Wildberries::CreateReceipt(int64 incomeId, LDATE dt, PPID locID, PPID goodsID, double qtty, int use_ta)
+int PPMarketplaceInterface_Wildberries::InsertReceiptItem(PPBillPacket & rPack, const char * pSerial, PPID goodsID, double qtty)
+{
+	int    ok = 1;
+	PPTransferItem ti;
+	LongArray row_idx_list;
+	double cost = 0.0;
+	double price = 0.0;
+	if(!isempty(pSerial)) {
+		ReceiptTbl::Rec own_lot_rec;
+		PPID   own_lot_id = 0;
+		if(SearchOriginalLotForMp(pSerial, rPack.Rec.Dt, rPack.Rec.LocID, goodsID, &own_lot_id) > 0) {
+			if(BillObj->trfr->Rcpt.Search(own_lot_id, &own_lot_rec) > 0) {
+				cost = own_lot_rec.Cost;
+				price = own_lot_rec.Price;
+			}							
+		}
+	}
+	ti.GoodsID = goodsID;
+	ti.Cost = cost;
+	ti.Price = price;
+	ti.Quantity_ = fabs(qtty);
+	THROW(rPack.InsertRow(&ti, &row_idx_list));
+	assert(row_idx_list.getCount() == 1);
+	if(!isempty(pSerial)) {
+		const long new_row_idx = row_idx_list.get(0);
+		rPack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, pSerial);
+	}
+	CATCHZOK
+	return ok;
+}
+
+PPID PPMarketplaceInterface_Wildberries::CreateReceipt(int64 incomeId, const WareBase & rWare, LDATE dt, PPID locID, PPID goodsID, double qtty, int use_ta)
 {
 	PPID   result_lot_id = 0;
 	PPObjBill * p_bobj = BillObj;
@@ -2286,21 +2381,13 @@ PPID PPMarketplaceInterface_Wildberries::CreateReceipt(int64 incomeId, LDATE dt,
 	double adj_cost = 0.0;
 	double adj_price = 0.0;
 	SString bill_code;
+	SString serial_buf;
 	PPBillPacket::SetupObjectBlock sob;
 	PPBillPacket pack;
 	THROW(incomeId); // @todo @err
 	THROW(rcpt_op_id); // @todo @err
 	THROW(checkdate(dt)); 
 	bill_code.Z().Cat(incomeId);
-	{
-		ReceiptTbl::Rec own_lot_rec;
-		if(SearchOriginalLotForMp(incomeId, dt, locID, goodsID, &own_lot_id) > 0) {
-			if(p_bobj->trfr->Rcpt.Search(own_lot_id, &own_lot_rec) > 0) {
-				adj_cost = own_lot_rec.Cost;
-				adj_price = own_lot_rec.Price;
-			}							
-		}
-	}
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -2311,23 +2398,10 @@ PPID PPMarketplaceInterface_Wildberries::CreateReceipt(int64 incomeId, LDATE dt,
 		STRNSCPY(pack.Rec.Code, bill_code);
 		THROW(pack.SetupObject(suppl_id, sob));
 		{
-			//
-			//pack.Rec.DueDate = checkdate(p_src_pack->DlvrDtm.d) ? p_src_pack->DlvrDtm.d : ZERODATE;
-			//sob.Flags |= PPBillPacket::SetupObjectBlock::fEnableStop;
-			//
-			PPTransferItem ti;
-			LongArray row_idx_list;
-			ti.GoodsID = goodsID;
-			ti.Cost = adj_cost;
-			ti.Price = adj_price;
-			ti.Quantity_ = fabs(qtty);
-			THROW(pack.InsertRow(&ti, &row_idx_list));
-			//pack.Se
-			assert(row_idx_list.getCount() == 1);
-			const long new_row_idx = row_idx_list.get(0);
-			pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, temp_buf.Z().Cat(incomeId));
+			THROW(InsertReceiptItem(pack, MakeSerialIdent(incomeId, rWare, serial_buf), goodsID, qtty));
 			pack.InitAmounts();
 			p_bobj->FillTurnList(&pack);
+			pack.SetupEdiAttributes(PPEDIOP_MRKTPLC_RECEIPT, "MP-WILDBERRIES", 0);
 			THROW(p_bobj->TurnPacket(&pack, 0));
 			assert(pack.GetTCount() == 1);
 			THROW(pack.GetTCount() == 1);
@@ -2361,28 +2435,49 @@ int PPMarketplaceInterface_Wildberries::ImportReceipts()
 			const Income * p_wb_item = income_list.at(i);
 			if(p_wb_item) {
 				PPID   wh_id = 0;
+				BillTbl::Rec ex_bill_rec;
 				ResolveWarehouseByName(WhList, p_wb_item->WarehouseName, LConfig.Location, &wh_id);
-				bill_code.Z().Cat(p_wb_item->IncomeID);
-				if(p_bobj->P_Tbl->SearchByCode(bill_code, rcpt_op_id, ZERODATE, 0) > 0) {
-					// Поступление на склад '%s' уже акцептировано ранее
-					;
-				}
-				else {
-					PPBillPacket pack;
-					PPID   ex_bill_id = 0;
-					Goods2Tbl::Rec goods_rec;
-					PPBillPacket::SetupObjectBlock sob;
-					PPID   goods_id = CreateWare(p_wb_item->Ware, 1/*use_ta*/);
-					if(goods_id) {
+				const  PPID  goods_id = CreateWare(p_wb_item->Ware, 1/*use_ta*/);
+				if(goods_id) {
+					bill_code.Z().Cat(p_wb_item->IncomeID);
+					if(p_bobj->P_Tbl->SearchByCode(bill_code, rcpt_op_id, ZERODATE, &ex_bill_rec) > 0) {
+						// Поступление на склад '%s' уже акцептировано ранее
+						PPBillPacket ex_pack;
+						if(p_bobj->ExtractPacket(ex_bill_rec.ID, &ex_pack) > 0) {
+							uint   goods_idx = 0;
+							if(ex_pack.SearchGoods(goods_id, &goods_idx)) {
+								;
+							}
+							else {
+								if(InsertReceiptItem(ex_pack, MakeSerialIdent(p_wb_item->IncomeID, p_wb_item->Ware, temp_buf), goods_id, fabs(p_wb_item->Qtty))) {
+									ex_pack.InitAmounts();
+									p_bobj->FillTurnList(&ex_pack);
+									const int upr = p_bobj->UpdatePacket(&ex_pack, 1);
+									if(upr > 0) {
+										R_Prc.GetLogger().LogAcceptMsg(PPOBJ_BILL, ex_pack.Rec.ID, 1/*upd*/);
+										ok = 1;
+									}
+									else if(!upr) {
+										R_Prc.GetLogger().LogLastError();
+									}
+								}
+							}
+						}
+					}
+					else {
+						PPBillPacket pack;
+						PPID   ex_bill_id = 0;
+						Goods2Tbl::Rec goods_rec;
+						PPBillPacket::SetupObjectBlock sob;
 						const LDATE dt = checkdate(p_wb_item->Dtm.d) ? p_wb_item->Dtm.d : getcurdate_();
-						const PPID lot_id = CreateReceipt(p_wb_item->IncomeID, dt, wh_id, goods_id, fabs(p_wb_item->Qtty), 1);
+						const PPID lot_id = CreateReceipt(p_wb_item->IncomeID, p_wb_item->Ware, dt, wh_id, goods_id, fabs(p_wb_item->Qtty), 1);
 						if(lot_id) {
 							ok = 1;
 						}
 					}
-					else {
-						// @todo @err
-					}
+				}
+				else {
+					// @todo @err
 				}
 			}
 		}
@@ -2391,7 +2486,7 @@ int PPMarketplaceInterface_Wildberries::ImportReceipts()
 	return ok;
 }
 
-int PPMarketplaceInterface_Wildberries::SearchOriginalLotForMp(int64 incomeId, LDATE dt, PPID locID, PPID goodsID, PPID * pResultLotID)
+int PPMarketplaceInterface_Wildberries::SearchOriginalLotForMp(const char * pSerial, LDATE dt, PPID locID, PPID goodsID, PPID * pResultLotID)
 {
 	int    ok = -1;
 	PPID   target_lot_id = 0;
@@ -2412,9 +2507,8 @@ int PPMarketplaceInterface_Wildberries::SearchOriginalLotForMp(int64 incomeId, L
 			const long max_days_for_survey = 30;
 			PPID   last_suitable_lot_id_without_serial = 0;
 			PPIDArray candidate_lot_list_by_serial;
-			SString serial_buf;
-			if(incomeId) {
-				serial_buf.Z().Cat(incomeId);
+			SString serial_buf(pSerial);
+			if(serial_buf.NotEmpty()) {
 				p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_SN, serial_buf, &candidate_lot_list_by_serial);
 			}
 			if(p_billc->search(2, &k2, spLe) && k2.OpID == transf_op_id) do {
@@ -2442,16 +2536,16 @@ int PPMarketplaceInterface_Wildberries::SearchOriginalLotForMp(int64 incomeId, L
 	return ok;
 }
 
-PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(int64 incomeId, LDATE dt, PPID locID, PPID goodsID, double neededQtty, double nominalPrice, int use_ta)
+PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(const Sale & rWbItem, LDATE dt, PPID locID, PPID goodsID, double neededQtty, double nominalPrice, int use_ta)
 {
 	PPID   result_lot_id = 0;
 	PPObjBill * p_bobj = BillObj;
-	SString temp_buf;
-	if(incomeId && locID) {
-		temp_buf.Z().Cat(incomeId);
+	SString serial_buf;
+	if(rWbItem.IncomeID && rWbItem.Ware.ID && locID) {
+		MakeSerialIdent(rWbItem.IncomeID, rWbItem.Ware, serial_buf);
 		PPIDArray lot_id_list;
 		bool   lot_found = false;
-		if(p_bobj->SearchLotsBySerialExactly(temp_buf, &lot_id_list) > 0) {
+		if(p_bobj->SearchLotsBySerialExactly(serial_buf, &lot_id_list) > 0) {
 			ReceiptTbl::Rec lot_rec;
 			PPID   lot_id = 0;
 			for(uint i = 0; !lot_id && i < lot_id_list.getCount(); i++) {
@@ -2471,13 +2565,11 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(int64 incomeId, L
 							adj_cost = own_lot_rec.Cost;
 						}
 					}
-					else {
-						if(SearchOriginalLotForMp(incomeId, dt, locID, goodsID, &own_lot_id) > 0) {
-							if(p_bobj->trfr->Rcpt.Search(own_lot_id, &own_lot_rec) > 0) {
-								MpLotToOwnLotAssocList.Add(lot_id, own_lot_id);
-								adj_cost = own_lot_rec.Cost;
-							}							
-						}
+					else if(SearchOriginalLotForMp(serial_buf, dt, locID, goodsID, &own_lot_id) > 0) {
+						if(p_bobj->trfr->Rcpt.Search(own_lot_id, &own_lot_rec) > 0) {
+							MpLotToOwnLotAssocList.Add(lot_id, own_lot_id);
+							adj_cost = own_lot_rec.Cost;
+						}							
 					}
 				}
 				bool   do_update = false;
@@ -2529,7 +2621,10 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(int64 incomeId, L
 						if(adj_cost > 0.0) {
 							rcpt_bill_pack.TI(ti_pos).Cost = adj_cost;
 						}
-						THROW(p_bobj->UpdatePacket(&rcpt_bill_pack, 1/*use_ta*/));
+						const int upr = p_bobj->UpdatePacket(&rcpt_bill_pack, 1/*use_ta*/);
+						THROW(upr);
+						if(upr > 0)
+							R_Prc.GetLogger().LogAcceptMsg(PPOBJ_BILL, rcpt_bill_pack.Rec.ID, 1/*upd*/);
 					}
 				}
 				result_lot_id = lot_id;
@@ -2537,7 +2632,7 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(int64 incomeId, L
 			}
 		}
 		if(!lot_found) {
-			result_lot_id = CreateReceipt(incomeId, dt, locID, goodsID, fabs(neededQtty), 1);
+			result_lot_id = CreateReceipt(rWbItem.IncomeID, rWbItem.Ware, dt, locID, goodsID, fabs(neededQtty), 1);
 		}
 	}
 	CATCH
@@ -2597,7 +2692,11 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 						if(ex_seller_part_amount != seller_part_amount) {
 							ex_pack.Amounts.Put(PPAMT_MP_SELLERPART, 0, seller_part_amount, 1, 1);
 							p_bobj->FillTurnList(&ex_pack);
-							if(!p_bobj->UpdatePacket(&ex_pack, 1)) {
+							const int upr = p_bobj->UpdatePacket(&ex_pack, 1);
+							if(upr > 0) {
+								R_Prc.GetLogger().LogAcceptMsg(PPOBJ_BILL, ex_pack.Rec.ID, 1/*upd*/);
+							}
+							else if(!upr) {
 								R_Prc.GetLogger().LogLastError();
 							}
 						}
@@ -2636,7 +2735,7 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 									nominal_price = p_wb_item->TotalPrice;
 								else
 									nominal_price = p_wb_item->FinishedPrice;
-								PPID   lot_id = AdjustReceiptOnExpend(p_wb_item->IncomeID, pack.Rec.Dt, wh_id, goods_id, sold_quantity, nominal_price, 1/*use_ta*/);
+								PPID   lot_id = AdjustReceiptOnExpend(*p_wb_item, pack.Rec.Dt, wh_id, goods_id, sold_quantity, nominal_price, 1/*use_ta*/);
 								if(lot_id) {
 									mp_lot_list.add(lot_id);
 									uint   ord_ti_idx = 0; // [1..]
@@ -2675,13 +2774,14 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 											r_ti.Price = lot_rec.Price;
 											r_ti.Discount = (r_ti.Price - p_wb_item->FinishedPrice);
 										}
-										pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, temp_buf.Z().Cat(p_wb_item->IncomeID));
+										pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, MakeSerialIdent(p_wb_item->IncomeID, p_wb_item->Ware, temp_buf));
 										pack.LTagL.AddNumber(PPTAG_LOT_ORGORDERIDENT, new_row_idx, temp_buf.Z().Cat(p_wb_item->SrID));
 										pack.InitAmounts();
 										if(p_wb_item->ForPay > 0.0) {
 											pack.Amounts.Put(PPAMT_MP_SELLERPART, 0, p_wb_item->ForPay, 1, 1);
 										}
 										p_bobj->FillTurnList(&pack);
+										pack.SetupEdiAttributes(PPEDIOP_MRKTPLC_SALE, "MP-WILDBERRIES", 0);
 										if(p_bobj->TurnPacket(&pack, 1)) {
 											R_Prc.GetLogger().LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
 											ok = 1;
@@ -2729,11 +2829,8 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 							}
 							else {
 								PPID   own_lot_id = 0;
-								int64  income_id = 0;
-								if(p_ref->Ot.GetTagStr(PPOBJ_LOT, lot_id, PPTAG_LOT_SN, temp_buf) > 0) {
-									income_id = temp_buf.ToInt64();
-								}
-								if(SearchOriginalLotForMp(income_id, lot_rec.Dt, lot_rec.LocID, lot_rec.GoodsID, &own_lot_id) > 0) {
+								p_ref->Ot.GetTagStr(PPOBJ_LOT, lot_id, PPTAG_LOT_SN, serial_buf);
+								if(SearchOriginalLotForMp(serial_buf, lot_rec.Dt, lot_rec.LocID, lot_rec.GoodsID, &own_lot_id) > 0) {
 									if(p_bobj->trfr->Rcpt.Search(own_lot_id, &own_lot_rec) > 0) {
 										MpLotToOwnLotAssocList.Add(lot_id, own_lot_id);
 										adj_cost = own_lot_rec.Cost;
@@ -2749,7 +2846,10 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 									rcpt_bpack.TI(tiidx).Cost = adj_cost;
 									rcpt_bpack.InitAmounts();
 									p_bobj->FillTurnList(&rcpt_bpack);
-									THROW(p_bobj->UpdatePacket(&rcpt_bpack, 1));
+									const int upr = p_bobj->UpdatePacket(&rcpt_bpack, 1);
+									THROW(upr);
+									if(upr > 0)
+										R_Prc.GetLogger().LogAcceptMsg(PPOBJ_BILL, rcpt_bpack.Rec.ID, 1/*upd*/);
 								}
 							}
 						}
@@ -2817,7 +2917,7 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 										{
 											assert(row_idx_list.getCount() == 1);
 											const long new_row_idx = row_idx_list.get(0);
-											pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, temp_buf.Z().Cat(p_wb_item->IncomeID));
+											pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, MakeSerialIdent(p_wb_item->IncomeID, p_wb_item->Ware, temp_buf));
 											pack.LTagL.AddNumber(PPTAG_LOT_ORGORDERIDENT, new_row_idx, p_wb_item->SrID);
 										}
 										{
@@ -2838,7 +2938,7 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 														if(pack.InsertRow(&ti_inner, &row_idx_list)) {
 															assert(row_idx_list.getCount() == 1);
 															const long new_row_idx = row_idx_list.get(0);
-															pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, temp_buf.Z().Cat(p_wb_item_inner->IncomeID));
+															pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, MakeSerialIdent(p_wb_item_inner->IncomeID, p_wb_item_inner->Ware, temp_buf));
 															pack.LTagL.AddNumber(PPTAG_LOT_ORGORDERIDENT, new_row_idx, p_wb_item_inner->SrID);															
 														}
 													}
@@ -2851,6 +2951,7 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 										}
 										pack.InitAmounts();
 										p_bobj->FillTurnList(&pack);
+										pack.SetupEdiAttributes(PPEDIOP_MRKTPLC_ORDER, "MP-WILDBERRIES", 0);
 										if(p_bobj->TurnPacket(&pack, 1)) {
 											R_Prc.GetLogger().LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
 											ok = 1;
@@ -3068,6 +3169,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 												at.Amount = -fabs(p_entry->Acceptance);
 												bpack_at.Turns.insert(&at);
 												bpack_at.Rec.Amount = at.Amount;
+												bpack_at.SetupEdiAttributes(0, "MP-WILDBERRIES", 0);
 												THROW(p_bobj->TurnPacket(&bpack_at, 0));
 											}
 											THROW(tra.Commit());
@@ -3121,6 +3223,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 												if(p_entry->BonusTypeName.NotEmpty()) {
 													(bpack_at.SMemo = p_entry->BonusTypeName).Transf(CTRANSF_UTF8_TO_INNER);
 												}
+												bpack_at.SetupEdiAttributes(0, "MP-WILDBERRIES", 0);
 												THROW(p_bobj->TurnPacket(&bpack_at, 0));
 											}
 											THROW(tra.Commit());
@@ -3153,6 +3256,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 												at.Amount = -fabs(p_entry->StorageFee);
 												bpack_at.Turns.insert(&at);
 												bpack_at.Rec.Amount = at.Amount;
+												bpack_at.SetupEdiAttributes(0, "MP-WILDBERRIES", 0);
 												THROW(p_bobj->TurnPacket(&bpack_at, 0));
 											}
 											THROW(tra.Commit());
@@ -3171,7 +3275,11 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 			if(is_bpack_updated) {
 				//bpack.InitAmounts();
 				p_bobj->FillTurnList(&bpack);
-				if(!p_bobj->UpdatePacket(&bpack, 1)) {
+				const int upr = p_bobj->UpdatePacket(&bpack, 1);
+				if(upr > 0) {
+					R_Prc.GetLogger().LogAcceptMsg(PPOBJ_BILL, bpack.Rec.ID, 1/*upd*/);
+				}
+				else if(!upr) {
 					R_Prc.GetLogger().LogLastError();
 				}
 			}
@@ -3225,6 +3333,7 @@ int TestMarketplace()
 				TSCollection <PPMarketplaceInterface_Wildberries::SalesRepDbpEntry> sales_rep_dbp_list;
 
 				int r = 0;
+				r = p_ifc_wb->RequestReturns();
 				r = p_ifc_wb->RequestWarehouseList2(wh_list2);
 				r = p_ifc_wb->RequestDocumentsList();
 				r = p_ifc_wb->RequestBalance();
@@ -3728,3 +3837,80 @@ int CreateMarketplaceAccSheet()
 	}*/
 	return ok;
 }
+//
+//
+//
+/*
+Показатели продаж маркетплейса, необходимые для анализа:
+
+% брака кабинета
+% брака, шт
+% Выкупа
+% выполнения плана по МАРЖЕ
+% компенсации брака от себеса
+??? Индекс локализации, %
+??? КТР (коэффициент)
+xxx Контент всего, руб
+xxx Контент, руб
+xxx Прочие расходы, %
+xxx Прочие расходы, руб
+xxx Расход всего, руб
+xxx Расходы на закуп товара, руб
+xxx Реклама и маркетинг, %
+xxx Реклама и маркетинг, руб
+xxx Специалисты, руб
+xxx Фотосессии, руб
+Брак компенсация, руб
+Внешний трафик, в т.ч. блогеры, руб
+Внешний трафик, руб
+Возвраты (не выкуп), шт
+Всего к перечислению, руб - проверка
+Всего начислено, в т.ч. комиссия, руб
+Выручка к перечислению ФАКТ, руб
+Выручка ПЛАН без комиссии, руб
+Выручка, руб
+Доплата за разгрузку, руб
+Кол-во брака, шт
+Комиссия проверка (ручная)
+Комиссия, %
+Комиссия, руб
+Компенсация брака, руб
+Маржа за минусом всех расх., %
+Маржа за минусом всех расх., руб
+Маржа, руб
+Маржа, руб/ед
+Маржа,%
+Переменные расходы, руб
+Платная приемка, руб
+Премиум-пакет, руб
+Продажи, шт
+Продвижение, руб
+Прочие + хранение + реклама, %
+Прочие + хранение + реклама, руб
+Реклама WB, руб
+Самовыкупы, руб
+Самовыкупы, шт
+Себестоимость брака, руб
+Себестоимость закупа товара, руб
+СПП, %
+СПП, руб
+Ср.маржа на 1 ед.товара, руб
+Ср.себес на 1 ед. товара, руб
+Ср.чек на 1 ед. товара, руб
+Транзит, руб
+Утилизация ед, шт
+Утилизация, руб
+Хранение WB, руб
+Хранение ФФ, руб
+Хранение, %
+Хранение, руб
+Штрафы, %
+Штрафы, руб
+Логистика, руб
+Логистика, руб в т.ч.:
+	Повышенная логистика, руб
+	Обратная логистика, руб
+	Обратная логистика, %
+	Ср.логистика на 1 ед. товара, руб
+*/
+

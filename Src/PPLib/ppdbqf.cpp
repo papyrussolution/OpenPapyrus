@@ -343,6 +343,61 @@ static IMPL_DBE_PROC(dbqf_billagentname_i)
 	}
 }
 
+static IMPL_DBE_PROC(dbqf_billstatusname_i)
+{
+	if(!DbeInitSize(option, result, sizeof(static_cast<const PPBillStatus2 *>(0)->Name))) {
+		BillTbl::Rec bill_rec;
+		PPBillStatus2 bs_rec;
+		bs_rec.Name[0] = 0;
+        if(BillObj->Fetch(params[0].lval, &bill_rec) > 0 && bill_rec.StatusID) {
+			PPObjBillStatus bs_obj;
+			bs_obj.Fetch(bill_rec.StatusID, &bs_rec);
+			if(bs_rec.Name[0] == 0)
+				ideqvalstr(bill_rec.StatusID, bs_rec.Name, sizeof(bs_rec.Name));
+        }
+		result->init(bs_rec.Name);
+	}
+}
+
+static IMPL_DBE_PROC(dbqf_checkbillagent_ii) // @v12.1.6
+{
+	long   _is = 0;
+	const  PPID bill_id = params[0].lval;
+	const  PPID agent_id = params[1].lval;
+	if(bill_id) {
+		PPBillExt ext_rec;
+		if(BillObj->FetchExt(bill_id, &ext_rec) > 0 && ext_rec.AgentID == agent_id)
+			_is = 1;
+	}
+	result->init(_is);
+}
+
+static IMPL_DBE_PROC(dbqf_checkbillflag_ii) // @v12.1.6
+{
+	long   _is = 0;
+	const  PPID bill_id = params[0].lval;
+	const  PPID flag = params[1].lval;
+	if(bill_id) {
+		BillTbl::Rec bill_rec;
+		if(BillObj->Fetch(bill_id, &bill_rec) > 0 && bill_rec.Flags & flag)
+			_is = 1;
+	}
+	result->init(_is);
+}
+
+static IMPL_DBE_PROC(dbqf_checkbillflag2_ii) // @v12.1.6
+{
+	long   _is = 0;
+	const  PPID bill_id = params[0].lval;
+	const  PPID flag = params[1].lval;
+	if(bill_id) {
+		BillTbl::Rec bill_rec;
+		if(BillObj->Fetch(bill_id, &bill_rec) > 0 && bill_rec.Flags2 & flag)
+			_is = 1;
+	}
+	result->init(_is);
+}
+
 static IMPL_DBE_PROC(dbqf_registertext_i)
 {
 	const  size_t buffer_size = 64;
@@ -1401,6 +1456,10 @@ int PPDbqFuncPool::IdBillFrghtArrvlDt    = 0; // (billID)
 int PPDbqFuncPool::IdBillFrghtDlvrAddr   = 0; // (billID)
 int PPDbqFuncPool::IdGetAgrmntSymbol     = 0; // @vmiller
 int PPDbqFuncPool::IdBillAgentName       = 0; // (billID) Наименование агента по документу (извлекается из записи расширения документа)
+int PPDbqFuncPool::IdBillStatusName      = 0; // (billID) Наименование статуса документа
+int PPDbqFuncPool::IdCheckBillAgent      = 0; // @v12.1.6 (billID, agentID) Определяет, равен ли атрибут 'Agent' документа с идентификатором, равным первому аргументу, значению второго аргумента функции.
+int PPDbqFuncPool::IdCheckBillFlag       = 0; // @v12.1.6 (billID, flag) Определяет установку флага (BillTbl::Flags) у документа с заданным идентификатором
+int PPDbqFuncPool::IdCheckBillFlag2      = 0; // @v12.1.6 (billID, flag) Определяет установку флага2 (BillTbl::Flags2) у документа с заданным идентификатором
 int PPDbqFuncPool::IdRegisterText        = 0; // (registerID) Текст описания регистрационного документа
 int PPDbqFuncPool::IdObjRegisterText     = 0; // (registerTypeID, objtype, objid)
 int PPDbqFuncPool::IdObjTagText  = 0; // (tagid, objid) Текстовое представление тега объекта
@@ -1415,11 +1474,11 @@ int PPDbqFuncPool::IdStrByStrGroupPos    = 0; // (position, (const SStrGroup *))
 int PPDbqFuncPool::IdBillDate    = 0;
 int PPDbqFuncPool::IdUnxText     = 0;
 int PPDbqFuncPool::IdIsTxtUuidEq = 0;
-int PPDbqFuncPool::IdArIsCatPerson       = 0; // @v11.1.9 (fldArticle, personCategoryID) Определяет соотносится ли статья fldArticle с персоналией, имеющей категорию personCategoryID
-int PPDbqFuncPool::IdObjMemoPerson       = 0; // @v11.1.12 (fldPersonID)
-int PPDbqFuncPool::IdObjMemoPersonEvent  = 0; // @v11.1.12 (fldPersonEventID)
-int PPDbqFuncPool::IdTechCapacity        = 0; // @v11.3.10 (fldPrcID, fldCapacity)
-int PPDbqFuncPool::IdTSessBillLinkTo     = 0; // @v11.6.12
+int PPDbqFuncPool::IdArIsCatPerson        = 0; // @v11.1.9 (fldArticle, personCategoryID) Определяет соотносится ли статья fldArticle с персоналией, имеющей категорию personCategoryID
+int PPDbqFuncPool::IdObjMemoPerson        = 0; // @v11.1.12 (fldPersonID)
+int PPDbqFuncPool::IdObjMemoPersonEvent   = 0; // @v11.1.12 (fldPersonEventID)
+int PPDbqFuncPool::IdTechCapacity         = 0; // @v11.3.10 (fldPrcID, fldCapacity)
+int PPDbqFuncPool::IdTSessBillLinkTo      = 0; // @v11.6.12
 int PPDbqFuncPool::IdTSessBillLinkTo_Text = 0; // @v11.6.12
 int PPDbqFuncPool::IdBillMemoSubStr       = 0; // @v11.7.4
 int PPDbqFuncPool::IdBillAmount           = 0; // @v12.1.0 (fldBillID, amountType)
@@ -1614,8 +1673,12 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtArrvlDt,    BTS_DATE,   dbqf_billfrghtarrvldt_i,     1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtDlvrAddr,   BTS_STRING, dbqf_billfrghtdlvraddr_i,    1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdBillFrghtStrgLoc,    BTS_STRING, dbqf_billfrghtstrgloc_i,     1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdBillAgentName,       BTS_STRING, dbqf_billagentname_i,        1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdBillDate,            BTS_DATE,   dbqf_billdate_i,             1, BTS_INT)); // @v10.0.03
+	THROW(DbqFuncTab::RegisterDyn(&IdBillAgentName,       BTS_STRING, dbqf_billagentname_i,        1, BTS_INT)); // @v12.1.6
+	THROW(DbqFuncTab::RegisterDyn(&IdBillStatusName,      BTS_STRING, dbqf_billstatusname_i,       1, BTS_INT)); // @v12.1.6
+	THROW(DbqFuncTab::RegisterDyn(&IdCheckBillAgent,      BTS_INT, dbqf_checkbillagent_ii,       2, BTS_INT, BTS_INT)); // @v12.1.6
+	THROW(DbqFuncTab::RegisterDyn(&IdCheckBillFlag,       BTS_INT, dbqf_checkbillflag_ii,        2, BTS_INT, BTS_INT)); // @v12.1.6
+	THROW(DbqFuncTab::RegisterDyn(&IdCheckBillFlag2,      BTS_INT, dbqf_checkbillflag2_ii,       2, BTS_INT, BTS_INT)); // @v12.1.6
+	THROW(DbqFuncTab::RegisterDyn(&IdBillDate,            BTS_DATE,   dbqf_billdate_i,             1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdCQtty,               BTS_STRING, dbqf_cqtty_rrii,             4, BTS_REAL, BTS_REAL, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameBillStatus,   BTS_STRING, dbqf_objname_billstatus_i,   1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameOprKind,      BTS_STRING, dbqf_objname_oprkind_i,      1, BTS_INT));

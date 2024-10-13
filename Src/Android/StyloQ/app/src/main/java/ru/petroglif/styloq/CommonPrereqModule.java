@@ -2107,6 +2107,12 @@ public class CommonPrereqModule {
 												if(!Cs.Rf.Period.CheckDate(dt))
 													do_skip = true;
 											}
+											// @v12.1.6 {
+											if(!do_skip) {
+												if(!SLib.AreUUIDsEqual(local_doc.H.OrgCmdUuid, CmdUuid))
+													do_skip = true;
+											}
+											// } @v12.1.6
 											if(!do_skip) {
 												if(local_doc.H != null)
 													local_doc.H.Flags = local_doc_pack.Rec.Flags;

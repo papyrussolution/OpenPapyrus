@@ -4035,11 +4035,10 @@ table TempGoodsOpr { //
 	long   LocID;          // 0 - в сумме по всем складам @v4.9.11 Location-->LocID
 	int16  InOutTag;       // -1 - in, 1 - out, 0 - undef; For ABC-analyze - belonging to group
 	int16  Reserve;        // @reserve
-	long   GoodsID;        // Если отчет строится с группировкой по атрибутам документов, то
-		// это поле - идентификатор ведущего элемента группировки.
+	long   GoodsID;        // Если отчет строится с группировкой по атрибутам документов, то это поле - идентификатор ведущего элемента группировки.
 	long   GoodsGrp;       //
 	long   Object;         //
-	string Text[128];      // @v6.4.0 [64]->[128]
+	string Text[128];      //
 	double UnitPerPack;    //
 	double Quantity;       //
 	double PhQtty;         //
@@ -4056,14 +4055,14 @@ table TempGoodsOpr { //
 	double SumCost;        // Quantity * Cost
 	double SumPrice;       // Quantity * Price
 	double Income;         //
-	double SumCVat;        // @v8.3.5 Валовая сумма НДС в ценах поступления
-	double SumPVat;        // @v8.3.5 Валовая сумма НДС в ценах реализации
+	double SumCVat;        // Валовая сумма НДС в ценах поступления
+	double SumPVat;        // Валовая сумма НДС в ценах реализации
 	double PctVal;         // Процентное отношение заданной величины к общей сумме
 	double Rest;           // Остаток
-	double PhRest;         // @v7.5.5 Остаток в физических единицах
+	double PhRest;         // Остаток в физических единицах
 	double RestCostSum;    // Остаток в ценах поступления //
 	double RestPriceSum;   // Остаток в ценах реализации  //
-	string Barcode[24];    // Штрихкод @v8.8.0 [16]-->[24]
+	string Barcode[24];    // Штрихкод
 index:
 	ID__ (unique);
 	InOutTag, Text acs, Object, LocID (dup mod);

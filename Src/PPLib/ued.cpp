@@ -310,6 +310,28 @@ uint64 SrUedContainer_Base::Recognize(SStrScan & rScan, uint64 implicitMeta, uin
 	bool ok = false;
 	return ok;
 }
+
+/*static*/uint64 UED::SetRaw_MacAddr(const MACAddr & rVal)
+{
+	static_assert(sizeof(rVal) == 6);
+	uint64 ival = 0;
+	memcpy(&ival, &rVal, sizeof(rVal));
+	assert(PTR8(&ival)[6] == 0 && PTR8(&ival)[7] == 0);
+	return SetRaw_Int(UED_META_MACADDR, ival);
+}
+
+/*static*/bool UED::GetRaw_MacAddr(uint64 ued, MACAddr & rVal)
+{
+	bool ok = false;
+	uint64 raw_val = 0;
+	const uint64 meta = GetMeta(ued);
+	if(meta == UED_META_MACADDR && GetRawValue(ued, &raw_val)) {
+		assert(PTR8(&raw_val)[6] == 0 && PTR8(&raw_val)[7] == 0);
+		memcpy(&rVal, &raw_val, sizeof(rVal));
+		ok = true;
+	}
+	return ok;
+}
 //
 // Descr: Кодирует real-число в диапазоне [0..upp] в целочисленное представление
 //   шириной bits бит, гранулярностью granulation.
