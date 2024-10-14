@@ -661,6 +661,7 @@
 #define SLERR_MTX_INCOMPATDIM_MMADD     74 // Incompatible dim in matrix+matrix op
 #define SLERR_MTX_INVERSE               75 // Ошибка обращения матрицы.
 
+#define SLERR_INVMACADDRSTR             93 // @v12.1.7 Недопустимая строка Mac Address (%s)
 #define SLERR_MKDIRBYTEMPLATEFAULT      94 // @v11.8.12 Error creating directory by template
 #define SLERR_FILETOOBIG                95 // @v11.3.4 Файл '%s' слишком большой
 #define SLERR_INVPARAM                  96 // Недопустимый параметр функции (%s)

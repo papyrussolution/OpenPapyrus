@@ -2345,8 +2345,8 @@ int PiritEquip::RunCheck(int opertype)
 			CreateStr(Check.Department, in_data);
 			CreateStr(CshrName, in_data);
 			CreateStr(Check.CheckNum, in_data);
-			if(Check.TaxSys >= 0 && Check.TaxSys <= 5) // @v10.6.4
-				CreateStr(inrangeordefault(static_cast<long>(Check.TaxSys), 0L, 5L, 0L), in_data); // @v10.6.3
+			if(Check.TaxSys >= 0 && Check.TaxSys <= 5)
+				CreateStr(inrangeordefault(static_cast<long>(Check.TaxSys), 0L, 5L, 0L), in_data);
 			THROW(ExecCmd("30", in_data, out_data, r_error));
 			break;
 		case 1: // Закрыть документ

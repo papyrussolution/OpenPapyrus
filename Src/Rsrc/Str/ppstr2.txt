@@ -1867,6 +1867,7 @@ PPERR_ALCRCFG_INVPROOFDIM           "Недопустимый классифик
 PPERR_ALCRCFG_EQCLSDIM              "Пересечение товарных классификаторов алкогольной продукции"
 PPERR_EGAIS_SRVURLUNDEF             "Не определен адрес сервера @{brand_egais} в конфигурации глобального обмена"
 PPERR_EGAIS_RCPTOPUNDEF             "Не определена драфт-операция прихода @{brand_egais} в конфигурации глобального обмена"
+PPERR_EGAIS_RETOPUNDEF              "Не определена операция возврата от покупателя @{brand_egais} в конфигурации глобального обмена"
 PPERR_EGAIS_FSRARIDUNDEF            "Не определен идентификатор ФСРАР для главной организации"
 PPERR_EGAIS_BILLHASNEDIIDENTTAG     "Подтверждаемый документ '%s' не имеет тега EDI-кода"
 PPERR_EGAIS_QUERYFORMREGIDEMPTY     "Запрос справки А(Б) не содержит идентификатора запрашиваемого документа"
@@ -5269,6 +5270,7 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 65  "Ошибка при создании TCP-соединения"
 66  "Ошибка WinSock: %s"
 75  "Ошибка обращения матрицы"
+93  "Недопустимая строка представления MAC Address (%s)" // @v12.1.7
 94  "Ошибка создания каталога по образцу (%s)" // @v11.8.12 SLERR_MKDIRBYTEMPLATEFAULT
 95  "Файл '%s' слишком большой"
 96  "Недопустимый параметр функции (%s)"

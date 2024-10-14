@@ -1963,7 +1963,7 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 								GObj.GetSupplDeal(ti.GoodsID, suppl_deal_qi, &supl_deal);
 								if(r_src_ti.Cost > 0.0) // @v12.1.6
 									ti.Cost = r_src_ti.Cost;
-								if(supl_deal.Cost > 0.0) {
+								else if(supl_deal.Cost > 0.0) {
 									ti.Cost = supl_deal.Cost;
 								}
 								else {

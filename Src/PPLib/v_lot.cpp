@@ -2508,6 +2508,13 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		else
 			dbe_agentname.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
 	}
+	if(Filt.Flags & LotFilt::fShowSerialN) {
+		PPDbqFuncPool::InitObjTagTextFunc(dbe_serial, PPTAG_LOT_SN, rcp->ID);
+	}
+	else {
+		dbe_serial.init();
+		dbe_serial.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
+	}
 	// } @v12.1.6 
 	if(P_TempTbl) {
 		THROW(CheckTblPtr(tt = new TempLotTbl(P_TempTbl->GetName())));
@@ -2531,13 +2538,7 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		fld_list[c++].E = dbe_bill_code;  // #12 // @v11.1.6
 		fld_list[c++].F = tt->BegRest;    // #13 // @v11.1.6 #+1
 		fld_list[c++].F = tt->EndRest;    // #14 // @v11.1.6 #+1
-		if(Filt.Flags & LotFilt::fShowSerialN) {
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_serial, PPTAG_LOT_SN, tt->LotID);
-			fld_list[c++].E = dbe_serial; // #15 // @v11.1.6 #+1
-		}
-		else {
-			fld_list[c++].E = dbe_empty; // #15 @stub // @v11.1.6 #+1
-		}
+		fld_list[c++].E = dbe_serial;     // #15 // @v11.1.6 #+1
 		// @v12.1.6 fld_list[c++].F = tt->BillStatus; // #16 // @v11.1.6 #+1
 		fld_list[c++].E = dbe_billstatus;             // #16 // @v11.1.6 #+1 // @v12.1.6
 		fld_list[c++].E = dbe_agentname;              // #17 // @v12.1.6
@@ -2579,15 +2580,11 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		fld_list[c++].F = rcp->Expiry;    // #10
 		fld_list[c++].E = dbe_closedate;  // #11
 		fld_list[c++].E = dbe_bill_code;  // #12 // @v11.1.6 
-		fld_list[c++].E = dbe_empty;      // #13 // @v12.1.6 Для выравнивания нумерации полей между вариантами с P_TempTbl и без оной
-		fld_list[c++].E = dbe_empty;      // #14 // @v12.1.6 Для выравнивания нумерации полей между вариантами с P_TempTbl и без оной
-		if(Filt.Flags & LotFilt::fShowSerialN) {
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_serial, PPTAG_LOT_SN, rcp->ID);
-			fld_list[c++].E = dbe_serial; // #15 // @v11.1.6 #+1 // @v12.1.6 #+2
-		}
-		else {
-			fld_list[c++].E = dbe_empty;  // #15 @stub // @v11.1.6 #+1 // @v12.1.6 #+2
-		}
+		//fld_list[c++].E = dbe_empty;      // #13 // @v12.1.6 Для выравнивания нумерации полей между вариантами с P_TempTbl и без оной
+		//fld_list[c++].E = dbe_empty;      // #14 // @v12.1.6 Для выравнивания нумерации полей между вариантами с P_TempTbl и без оной
+		fld_list[c++].C.init(0.0);        // #13 // @v12.1.6 Для выравнивания нумерации полей между вариантами с P_TempTbl и без оной
+		fld_list[c++].C.init(0.0);        // #14 // @v12.1.6 Для выравнивания нумерации полей между вариантами с P_TempTbl и без оной
+		fld_list[c++].E = dbe_serial;     // #15 // @v11.1.6 #+1 // @v12.1.6 #+2
 		fld_list[c++].E = dbe_billstatus; // #16 @v12.1.6
 		fld_list[c++].E = dbe_agentname;  // #17 // @v12.1.6
 		if(Filt.ExtViewAttr == LotFilt::exvaEgaisTags) {
@@ -2905,8 +2902,7 @@ int STDCALL ViewLots(PPID goods, PPID locID, PPID suppl, PPID qcert, int modeles
 {
 	LotFilt flt;
 	flt.GoodsID = goods;
-	// @v10.6.8 flt.LocID   = locID;
-	flt.LocList.Add(locID); // @v10.6.8
+	flt.LocList.Add(locID);
 	flt.SupplID = suppl;
 	flt.QCertID = qcert;
 	return ::ViewLots(&flt, 0, modeless);

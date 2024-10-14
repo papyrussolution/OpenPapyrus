@@ -559,7 +559,7 @@ int GoodsOpAnlzFiltDialog::setDTS(const GoodsOpAnalyzeFilt * pFilt)
 {
 	RVALUEPTR(Data, pFilt);
 	int    ok = 1;
-	ushort v;
+	//ushort v;
 	PPID   acc_sheet_id = 0;
 	PPID   parent_grp_id = 0;
 	PPObjOprKind opk_obj;
@@ -593,8 +593,17 @@ int GoodsOpAnlzFiltDialog::setDTS(const GoodsOpAnalyzeFilt * pFilt)
 	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE, 10, GoodsOpAnalyzeFilt::fCalcCVat);
 	SetClusterData(CTL_BILLFLT_DIFFBYPRICE, Data.Flags);
 	SetupFlags();
-	setCtrlData(CTL_BILLFLT_OPRSET, &(v = (ushort)Data.OpGrpID));
-	disableCtrls(v & 0x01, /*CTL_BILLFLT_PERIOD,*/ CTL_BILLFLT_OPRKIND, CTL_BILLFLT_AMOUNT, 0);
+	// @v12.1.7 setCtrlData(CTL_BILLFLT_OPRSET, &(v = (ushort)Data.OpGrpID));
+	// @v12.1.7 {
+	AddClusterAssocDef(CTL_BILLFLT_OPRSET, 0, GoodsOpAnalyzeFilt::ogSelected);
+	AddClusterAssoc(CTL_BILLFLT_OPRSET, 1, GoodsOpAnalyzeFilt::ogIncoming);
+	AddClusterAssoc(CTL_BILLFLT_OPRSET, 2, GoodsOpAnalyzeFilt::ogProfitable);
+	AddClusterAssoc(CTL_BILLFLT_OPRSET, 3, GoodsOpAnalyzeFilt::ogPayed);
+	AddClusterAssoc(CTL_BILLFLT_OPRSET, 4, GoodsOpAnalyzeFilt::ogInOutAnalyze);
+	AddClusterAssoc(CTL_BILLFLT_OPRSET, 5, GoodsOpAnalyzeFilt::ogMarketplaceSalesAnalyze);
+	SetClusterData(CTL_BILLFLT_OPRSET, Data.OpGrpID);
+	// } @v12.1.7
+	disableCtrls(!oneof2(Data.OpGrpID, GoodsOpAnalyzeFilt::ogSelected, GoodsOpAnalyzeFilt::ogInOutAnalyze), /*CTL_BILLFLT_PERIOD,*/ CTL_BILLFLT_OPRKIND, CTL_BILLFLT_AMOUNT, 0);
 	AddClusterAssoc(CTL_BILLFLT_INTRREVAL, 0, GoodsOpAnalyzeFilt::fIntrReval);
 	SetClusterData(CTL_BILLFLT_INTRREVAL, Data.Flags);
     AddClusterAssoc(CTL_BILLFLT_FLAGS, 0, GoodsOpAnalyzeFilt::fDisplayWoPacks);
@@ -634,8 +643,9 @@ int GoodsOpAnlzFiltDialog::getDTS(GoodsOpAnalyzeFilt * pFilt)
 	SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fCalcCVat, BIN(Data.Flags & (GoodsOpAnalyzeFilt::fCalcCVat|GoodsOpAnalyzeFilt::fCalcPVat)));
 	SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fCalcPVat, BIN(Data.Flags & (GoodsOpAnalyzeFilt::fCalcCVat|GoodsOpAnalyzeFilt::fCalcPVat)));
 	GetClusterData(CTL_BILLFLT_INTRREVAL, &Data.Flags);
-	getCtrlData(CTL_BILLFLT_OPRSET, &(v = 0));
-	Data.OpGrpID = v;
+	// @v12.1.7 getCtrlData(CTL_BILLFLT_OPRSET, &(v = 0));
+	// @v12.1.7 Data.OpGrpID = v;
+	GetClusterData(CTL_BILLFLT_OPRSET, &Data.OpGrpID); // @v12.1.7
 	GetClusterData(CTL_BILLFLT_USEABCANLZ, &Data.Flags);
 	Data.ABCAnlzGroup = BIN(Data.Flags & GoodsOpAnalyzeFilt::fUseABCAnlz);
 	if(Data.Flags & GoodsOpAnalyzeFilt::fUseABCAnlz)
@@ -1039,8 +1049,9 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzFiltDialog)
 void GoodsOpAnlzFiltDialog::replyOprGrpChanged()
 {
 	ushort v = 0;
-	if(getCtrlData(CTL_BILLFLT_OPRSET, &v)) {
-		Data.OpGrpID = v;
+	// @v12.1.7 if(getCtrlData(CTL_BILLFLT_OPRSET, &v)) {
+	if(GetClusterData(CTL_BILLFLT_OPRSET, &Data.OpGrpID)) { // @v12.1.7
+		// @v12.1.7 Data.OpGrpID = v;
 		SetupCtrls(Data.Flags);
 		setupOpCombo();
 		if(!oneof2(Data.OpGrpID, GoodsOpAnalyzeFilt::ogSelected, GoodsOpAnalyzeFilt::ogInOutAnalyze)) {
@@ -2123,7 +2134,6 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 	PPIDArray op_list;
 	PPIDArray neg_op_list;
 	PPOprKind op_rec;
-	uint   i;
 	PPID   id;
 	TempGoodsOprTbl * p_prev_temp_tbl = 0;
 	SString wait_msg;
@@ -2154,7 +2164,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			P_BObj->Subst(P_TradePlanPacket, &subst_bill_val, &Bsp);
 		*/
 		PPTransferItem * p_ti;
-		for(i = 0; P_TradePlanPacket->enumItems(&i, (void **)&p_ti);) {
+		for(uint i = 0; P_TradePlanPacket->enumItems(&i, (void **)&p_ti);) {
 			int r;
 			blk.LocID = (f & GoodsOpAnalyzeFilt::fEachLocation) ? p_ti->LocID : LocList_.GetSingle();
 			THROW(r = PreprocessTi(p_ti, 0, subst_bill_val, &blk));
@@ -2174,8 +2184,64 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 		THROW(P_BObj->P_Tbl->GetBillListByExt(Filt.SupplAgentID, 0L, suppl_bill_list));
 		p_suppl_bill_list = &suppl_bill_list;
 	}
-	if(Filt.BillList.IsExists() && !(Filt.Flags & GoodsOpAnalyzeFilt::fBillListAsTradePlan)) {
-		for(i = 0; i < Filt.BillList.Get().getCount(); i++) {
+	if(Filt.OpGrpID == GoodsOpAnalyzeFilt::ogMarketplaceSalesAnalyze) { // @v12.1.7
+		PPMarketplaceConfig cfg;
+		PrcssrMarketplaceInterchange::ReadConfig(&cfg);
+		if(cfg.OrderOpID && cfg.SalesOpID) {
+			// Лидирующая операция - продажа. То есть, мы просматриваем продажи за период, а заказы
+			// перебираем следующим образом: все заказы за период + все заказы, к которым привязаны продажи.
+			//
+			BillTbl::Rec bill_rec;
+			BillTbl::Key2 k2;
+			BillCore * p_bt = P_BObj->P_Tbl;
+			PPIDArray ord_list;
+			PPIDArray shipm_list;
+			PPIDArray temp_list;
+			{
+				// Продажи
+				BExtQuery q(p_bt, 2);
+				q.select(p_bt->ID, p_bt->Code, p_bt->Dt, p_bt->LocID, p_bt->OpID, p_bt->Object, p_bt->Object2, p_bt->Flags,
+					p_bt->LinkBillID, p_bt->Amount, 0).where(p_bt->OpID == cfg.SalesOpID && daterange(p_bt->Dt, &Filt.Period) && p_bt->EdiOp == PPEDIOP_MRKTPLC_SALE);
+				MEMSZERO(k2);
+				k2.OpID = cfg.SalesOpID;
+				k2.Dt = Filt.Period.low;
+				for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
+					THROW(PPCheckUserBreak());
+					p_bt->copyBufTo(&bill_rec);
+					shipm_list.add(bill_rec.ID);
+					temp_list.Z();
+					p_bt->GetListOfOrdersByLading(bill_rec.ID, temp_list);
+					ord_list.add(&temp_list);
+				}
+			}
+			{
+				// Заказы
+				BExtQuery q(p_bt, 2);
+				q.select(p_bt->ID, p_bt->Code, p_bt->Dt, p_bt->LocID, p_bt->OpID, p_bt->Object, p_bt->Object2, p_bt->Flags,
+					p_bt->LinkBillID, p_bt->Amount, 0).where(p_bt->OpID == cfg.OrderOpID && daterange(p_bt->Dt, &Filt.Period) && p_bt->EdiOp == PPEDIOP_MRKTPLC_ORDER);
+				MEMSZERO(k2);
+				k2.OpID = cfg.OrderOpID;
+				k2.Dt = Filt.Period.low;
+				for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
+					THROW(PPCheckUserBreak());
+					p_bt->copyBufTo(&bill_rec);
+					ord_list.add(bill_rec.ID);
+				}
+			}
+			shipm_list.sortAndUndup();
+			ord_list.sortAndUndup();
+			for(uint i = 0; i < shipm_list.getCount(); i++) {
+				const PPID bill_id = shipm_list.get(i);
+				PPBillPacket bpack;
+				if(P_BObj->ExtractPacket(bill_id, &bpack) > 0) {
+					bpack.GetOrderList(temp_list);
+
+				}
+			}
+		}
+	}
+	else if(Filt.BillList.IsExists() && !(Filt.Flags & GoodsOpAnalyzeFilt::fBillListAsTradePlan)) {
+		for(uint i = 0; i < Filt.BillList.Get().getCount(); i++) {
 			if(P_BObj->ExtractPacket(Filt.BillList.Get().at(i), &pack) > 0) {
 				if(!use_ext_list || ext_bill_list.bsearch(pack.Rec.ID)) {
 					const double part = (GetOpType(pack.Rec.OpID, &op_rec) == PPOPT_GOODSRETURN) ? -1.0 : 1.0;
@@ -2196,7 +2262,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			if(IsGenericOp(Filt.OpID) > 0) {
 				ObjRestrictArray or_list;
 				op_obj.GetGenericList(Filt.OpID, &or_list);
-				for(i = 0; i < or_list.getCount(); i++) {
+				for(uint i = 0; i < or_list.getCount(); i++) {
 					const ObjRestrictItem & r_or_item = or_list.at(i);
 					const  PPID op_id = r_or_item.ObjID;
 					op_list.add(op_id);
@@ -2271,7 +2337,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 					} while(gctiter.Next(&trfr_rec, &bill_rec) > 0);
 					if(local_bill_list.getCount()) {
 						local_bill_list.sortAndUndup();
-						for(i = 0; i < local_bill_list.getCount(); i++) {
+						for(uint i = 0; i < local_bill_list.getCount(); i++) {
 							__GoaBillEntry entry;
 							entry.BillID = local_bill_list.get(i);
 							entry.IsPaym = 0;
@@ -2283,7 +2349,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 				}
 			}
 			else {
-				for(i = 0; i < op_list.getCount(); i++) {
+				for(uint i = 0; i < op_list.getCount(); i++) {
 					const PPID op_id = op_list.get(i);
 					BillTbl::Rec bill_rec;
 					int    is_paym = 0;
@@ -4017,6 +4083,11 @@ int PPViewGoodsOpAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 					SETIFZ(P_TrfrFilt, new TrfrAnlzFilt());
 					if(P_TrfrFilt && GObj.Fetch(labs(hdr.GoodsID), &goods_rec) > 0) {
 						PPViewTrfrAnlz trfr_anlz;
+						// @v12.1.7 {
+						if(Filt.OpGrpID == GoodsOpAnalyzeFilt::ogSelected) {
+							P_TrfrFilt->OpID = Filt.OpID;
+						}
+						// } @v12.1.7
 						P_TrfrFilt->Period     = Filt.Period;
 						P_TrfrFilt->GoodsID    = goods_rec.ID;
 						P_TrfrFilt->GoodsGrpID = goods_rec.ParentID;

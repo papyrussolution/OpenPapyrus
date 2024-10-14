@@ -60,7 +60,6 @@ int ProcPool_IpHlpApi::PtRelease()
 	return ok;
 }
 
-
 MACAddr::MACAddr() : TSBinary<6>()
 {
 }
@@ -123,13 +122,12 @@ bool MACAddr::FromStr(const char * pStr) // @v12.0.1
 			p++;
 		}
 		if(t == 12) {
-			size_t i;
 			uint8 * p_data = D;
-			for(i = 0; i < 6; i++)
+			for(size_t i = 0; i < 6; i++)
 				p_data[i] = hextobyte(temp_buf + (i << 1));
 		}
 		else
-			ok = SLS.SetError(SLERR_INVGUIDSTR, pStr);
+			ok = SLS.SetError(SLERR_INVMACADDRSTR, pStr);
 	}
 	else
 		ok = false;

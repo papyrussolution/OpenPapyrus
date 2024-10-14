@@ -503,6 +503,15 @@ SLTEST_R(S_IPAddr)
 
 SLTEST_R(MACAddr)
 {
+	const char * p_txt_macadr_list = "27-EF-D3-30-C0-D2,"
+		"83-60-A3-2B-78-91,AA-97-A6-41-9D-D7,EA-FB-0D-55-CD-3F,FA-EA-AC-BF-71-2B,49-6E-82-2C-B0-4F,2E-0D-59-F5-B1-FB,"
+		"04-3E-68-A7-FA-8F,FE-F8-DC-C8-F2-AF,2C-85-88-AB-96-A1,2E-5C-20-4A-FD-3E,AB-CC-E5-7E-4C-A3,FD-9C-B5-AD-9C-AE,"
+		"E3-55-6A-F1-49-ED,BE-AC-DC-9B-E1-41,0A-5F-A8-B3-B9-21,FE-9D-F4-30-9B-B2,2A-B9-86-0B-E8-DA,9D-A1-B2-41-B4-E3,"
+		"FD-7C-5B-CD-BA-6F,01-A0-6A-D0-3C-D4,4A-ED-ED-AD-EE-1D,B7-D3-E7-FF-AE-3D,D0-8F-BC-F8-F1-D4,9D-29-AC-2F-DA-5C,"
+		"E4-37-8E-46-CA-AE,3F-EB-F8-50-A7-3C,67-BB-2A-5E-A4-B4,45-E1-1E-8C-AE-78,2F-FF-07-EE-7D-FB,B7-EC-AE-88-BB-EE,"
+		"F5-48-A9-EC-B9-F2,F0-4B-F2-DD-CB-BB,0B-5D-02-6B-59-DF,2F-7D-4D-49-21-46,77-38-7E-EF-1A-6F,C0-A2-64-B0-71-B6,"
+		"FD-10-DB-DC-1E-DA,1C-2C-A4-82-B8-4E,BC-CB-E9-A8-8C-DF,2E-DC-B8-28-CF-AA,B2-F4-B9-D7-CF-DD,8F-9D-E6-FE-C7-C4,"
+		"1C-6D-6F-5B-DB-0E,7F-2B-D5-33-63-CF,08-61-12-1F-D3-E3,DB-AA-DD-BE-F4-EF,40-9F-AD-8C-D9-AD,41-FC-7A-95-CC-8C";
 	MACAddrArray macadr_list;
 	SString temp_buf;
 	THROW(SLCHECK_NZ(GetMACAddrList(&macadr_list)));
@@ -514,6 +523,15 @@ SLTEST_R(MACAddr)
 		SLCHECK_Z(_macadr.IsZero());
 		_macadr.Z();
 		SLCHECK_NZ(_macadr.IsZero());
+	}
+	{
+		StringSet ss(',', p_txt_macadr_list);
+		for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+			MACAddr macadr;
+			SLCHECK_NZ(macadr.FromStr(temp_buf));
+			SLCHECK_Z(macadr.IsZero());
+			macadr_list.insert(&macadr);
+		}
 	}
 	for(uint i = 0; i < macadr_list.getCount(); i++) {
 		MACAddr temp_macadr;
@@ -559,6 +577,12 @@ SLTEST_R(MACAddr)
 		SLCHECK_NZ(temp_macadr.FromStr(temp_buf));
 		SLCHECK_NZ(temp_macadr == r_macadr);
 		SLCHECK_NZ(temp_macadr.IsEq(r_macadr));
+		{
+			uint64 ued = UED::SetRaw_MacAddr(r_macadr);
+			SLCHECK_NZ(ued);
+			SLCHECK_NZ(UED::GetRaw_MacAddr(ued, temp_macadr));
+			SLCHECK_NZ(temp_macadr == r_macadr);
+		}
 	}
 	CATCH
 		CurrentStatus = 0;
