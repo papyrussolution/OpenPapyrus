@@ -690,7 +690,7 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 			Filt.CtKind = TrfrAnlzFilt::ctNone;
 		else if(Filt.CtKind == TrfrAnlzFilt::ctCntragent && !Filt.HasCntragentGrouping())
 			Filt.CtKind = TrfrAnlzFilt::ctNone;
-		if(Filt.CtKind && Filt.CtValList.CheckID(TrfrAnlzFilt::ctvLocCount) > 0)
+		if(Filt.CtKind && Filt.CtValList.CheckID(TrfrAnlzFilt::ctvLocCount))
 			Filt.Flags |= TrfrAnlzFilt::fInitLocCount;
 		// @v11.1.0 {
 		if(Filt.Flags & Filt.fDiffByDlvrAddr && !IsExtFactorEmpty())
@@ -959,30 +959,30 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 			P_Ct->AddInheritedFixField(p_tgt->GoodsText);
 			if(Filt.CtKind != TrfrAnlzFilt::ctCntragent) // @v11.3.0
 				P_Ct->AddInheritedFixField(p_tgt->PersonText);
-			if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvQtty) > 0) {
+			if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvQtty)) {
 				P_Ct->AddAggrField(p_tgt->Qtty);
 				total_list.Add(p_tgt->Qtty);
 				total_title_list.add(GetCtColumnTitle(TrfrAnlzFilt::ctvQtty, temp_buf));
 			}
-			if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvCost) > 0) {
+			if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvCost)) {
 				P_Ct->AddAggrField(p_tgt->Cost);
 				total_list.Add(p_tgt->Cost);
 				total_title_list.add(GetCtColumnTitle(TrfrAnlzFilt::ctvCost, temp_buf));
 			}
-			if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvNetPrice) > 0) {
+			if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvNetPrice)) {
 				P_Ct->AddAggrField(p_tgt->Price);
 				total_list.Add(p_tgt->Price);
 				total_title_list.add(GetCtColumnTitle(TrfrAnlzFilt::ctvNetPrice, temp_buf));
 			}
-			if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctMargin) > 0 || Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctIncome) > 0) {
+			if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctMargin) || Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctIncome)) {
 				P_Ct->AddAggrField(p_tgt->Income);
 			}
-			else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvIncome) > 0) {
+			else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvIncome)) {
 				P_Ct->AddAggrField(p_tgt->Income);
 				total_list.Add(p_tgt->Income);
 				total_title_list.add(GetCtColumnTitle(TrfrAnlzFilt::ctvIncome, temp_buf));
 			}
-			if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvLocCount) > 0) {
+			if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvLocCount)) {
 				P_Ct->AddAggrField(p_tgt->LocCount);
 				total_list.Add(p_tgt->LocCount);
 				total_title_list.add(GetCtColumnTitle(TrfrAnlzFilt::ctvLocCount, temp_buf));
@@ -1458,9 +1458,9 @@ int PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTr
 							LocCountList.Add(r_citem.ID__, dlvr_loc_id, 0);
 							r_citem.LocCount++;
 						}
-					if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctMargin) > 0)
+					if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctMargin))
 						r_citem.Income = r_citem.Price ? (100.0 * (r_citem.Price - r_citem.Cost)) / r_citem.Price : 0.0;
-					else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctIncome) > 0)
+					else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctIncome))
 						r_citem.Income = r_citem.Cost ? (100.0 * (r_citem.Price - r_citem.Cost)) / r_citem.Cost : 0.0;
 					else
 						r_citem.Income = r_citem.Price - r_citem.Cost;
@@ -2798,31 +2798,31 @@ void PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 			p_def->AddCrosstab(&ct_col);
 
 				p_def->FreeAllCrosstab();
-				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvQtty) > 0) {
+				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvQtty)) {
 					GetCtColumnTitle(TrfrAnlzFilt::ctvQtty, title);
 					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(col_width, 2, NMBF_NOZERO), 0, col_width);
 				}
-				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvCost) > 0) {
+				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvCost)) {
 					GetCtColumnTitle(TrfrAnlzFilt::ctvCost, title);
 					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(col_width, 2, NMBF_NOZERO), 0, col_width);
 				}
-				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvNetPrice) > 0) {
+				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvNetPrice)) {
 					GetCtColumnTitle(TrfrAnlzFilt::ctvNetPrice, title);
 					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(col_width, 2, NMBF_NOZERO), 0, col_width);
 				}
-				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctMargin) > 0) {
+				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctMargin)) {
 					GetCtColumnTitle(TrfrAnlzFilt::ctvPctMargin, title);
 					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(10, 2, NMBF_NOZERO), 0, 10);
 				}
-				else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctIncome) > 0) {
+				else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctIncome)) {
 					GetCtColumnTitle(TrfrAnlzFilt::ctvPctIncome, title);
 					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(10, 2, NMBF_NOZERO), 0, 10);
 				}
-				else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvIncome) > 0) {
+				else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvIncome)) {
 					GetCtColumnTitle(TrfrAnlzFilt::ctvIncome, title);
 					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(10, 2, NMBF_NOZERO), 0, 10);
 				}
-				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvLocCount) > 0) {
+				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvLocCount)) {
 					GetCtColumnTitle(TrfrAnlzFilt::ctvLocCount, title);
 					ADDCTCOLUMN(T_LONG, title, MKSFMT(col_width, NMBF_NOZERO), 0, col_width);
 				}

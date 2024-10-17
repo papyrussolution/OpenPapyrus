@@ -44,8 +44,12 @@ PPViewAlcoDeclRu::InnerMovEntry::InnerMovEntry() { THISZERO(); }
 
 double PPViewAlcoDeclRu::InnerMovEntry::CalcBalance() const
 {
+	/*
 	double balance = R5(StockBeg) - R5(StockEnd) + R5(RcptManuf) + R5(RcptWhs) + R5(RcptImp) + R5(SaleRet) + R5(RcptEtc) + R5(RcptIntr) - 
 		R5(ExpRetail) - R5(ExpEtc) - R5(SupplRet) - R5(ExpIntr);
+	*/
+	double balance = R5(StockBeg) - R5(StockEnd) + 
+		R5(RcptManuf + RcptWhs + RcptImp + SaleRet + RcptEtc + RcptIntr) - R5(ExpRetail + ExpEtc + SupplRet + ExpIntr);
 	return balance;
 }
 
@@ -397,8 +401,8 @@ void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rLi
 												if(ar_loc_id) {
 													const  PPID slid = (introp == INTREXPND) ? bill_rec.LocID : ar_loc_id;
 													const  PPID dlid = (introp == INTREXPND) ? ar_loc_id : bill_rec.LocID;
-													const int src_loc_in_list  = BIN(ta_filt.LocList.CheckID(slid));
-													const int dest_loc_in_list = BIN(ta_filt.LocList.CheckID(dlid));
+													const  bool src_loc_in_list  = ta_filt.LocList.CheckID(slid);
+													const  bool dest_loc_in_list = ta_filt.LocList.CheckID(dlid);
 													if(src_loc_in_list && !dest_loc_in_list) {
 														detail_item.OpCat = DetailEntry::opcatExpIntr;
 														r_item.ExpIntr += qtty_dal;

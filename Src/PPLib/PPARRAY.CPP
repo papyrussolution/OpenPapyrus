@@ -397,15 +397,8 @@ ObjIdListFilt & ObjIdListFilt::InitEmpty()
 	return *this;
 }
 
-bool ObjIdListFilt::IsEmpty() const
-{
-	return (!P_List || !P_List->getCount() || (P_List->getCount() == 1 && P_List->at(0) == 0));
-}
-
-int FASTCALL ObjIdListFilt::CheckID(PPID id) const
-{
-	return BIN(!P_List || P_List->lsearch(id));
-}
+bool ObjIdListFilt::IsEmpty() const { return (!P_List || !P_List->getCount() || (P_List->getCount() == 1 && P_List->at(0) == 0)); }
+bool FASTCALL ObjIdListFilt::CheckID(PPID id) const { return (!P_List || P_List->lsearch(id)); }
 
 int FASTCALL ObjIdListFilt::Get(PPIDArray & rResult) const
 {

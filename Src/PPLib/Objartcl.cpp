@@ -262,7 +262,7 @@ struct ArticleDlgData : public PPArticlePacket {
 
 class ArticleAutoAddDialog : public TDialog {
 public:
-	ArticleAutoAddDialog(long _sheetID) : TDialog(DLG_ARTICLEAUTO), P_Query(0), P_Buf(0), IsFound(1), Ta(0), Ret(0)
+	ArticleAutoAddDialog(long _sheetID) : TDialog(DLG_ARTICLEAUTO), P_Query(0), P_Buf(0), IsFound(1), Ta(0), OnExitResult(0)
 	{
 		init(_sheetID);
 	}
@@ -271,6 +271,8 @@ public:
 		delete P_Buf;
 		delete P_Query;
 	}
+	int    GetResult() const { return OnExitResult; }
+private:
 	void   init(PPID sheetID);
 	DECL_HANDLE_EVENT;
 	int    fetch(int);
@@ -281,7 +283,7 @@ public:
 	int    MakeCadidateList(StrAssocArray & rList);
 
 	int    Ta;
-	int    Ret;
+	int    OnExitResult;
 	int    IsFound;
 	char * P_Buf;
 	//PPID   Assoc;
@@ -488,7 +490,7 @@ int ArticleAutoAddDialog::save()
 
 void ArticleAutoAddDialog::init(PPID sheetID)
 {
-	int    r;
+	//int    r;
 	//PPAccSheet acs_rec;
 	THROW(SearchObject(PPOBJ_ACCSHEET, sheetID, &AcsRec) > 0);
 	MEMSZERO(Rec);
@@ -500,12 +502,14 @@ void ArticleAutoAddDialog::init(PPID sheetID)
 		MakeCadidateList(CandidateList);
 		if(GetNext()) {
 			THROW(PPStartTransaction(&Ta, 1));
-			THROW((Ret = ExecView(this)) != cmError);
+			OnExitResult = ExecView(this);
+			SETIFZ(OnExitResult, cmCancel); // @v12.1.7
+			THROW(OnExitResult != cmError);
 			THROW(PPCommitWork(&Ta));
 		}
 		else {
 			IsFound = 0;
-			Ret = cmCancel;
+			OnExitResult = cmCancel;
 		}
 	}
 	/*
@@ -1083,7 +1087,7 @@ int PPObjArticle::Edit(PPID * pID, void * extraPtr /*sheetID*/)
 int PPObjArticle::AutoFill(const PPAccSheet * pAccSheetRec)
 {
 	ArticleAutoAddDialog * dlg = new ArticleAutoAddDialog(pAccSheetRec->ID);
-	int    r = dlg->Ret;
+	int    r = dlg->GetResult();
 	delete dlg;
 	return r;
 }
@@ -2589,7 +2593,7 @@ int PPObjDebtDim::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				uint count = p_dd_list->getCount();
 				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
 					PPDebtDimPacket dd_pack;
-					if(GetPacket(p_dd_list->Get(i).Id, &dd_pack) > 0 && dd_pack.AgentList.CheckID(_id) > 0)
+					if(GetPacket(p_dd_list->Get(i).Id, &dd_pack) > 0 && dd_pack.AgentList.CheckID(_id))
 						ok = RetRefsExistsErr(Obj, _id);
 				}
 			}

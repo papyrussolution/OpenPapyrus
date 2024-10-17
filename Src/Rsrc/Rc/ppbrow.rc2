@@ -3227,9 +3227,9 @@ browser BILLOPGRPNGEXT north(100), 3, 1, "@{opgrouping_bydocs} {%s}", OWNER|GRID
 
 browser BILLOPGRPNGCYCLEEXT north(100), 3, 1, "@{opgrouping_bydocs}", OWNER|GRID, 0
 {
-	"@daterange",              1, notype, 0, 8
-	"@oprkind",                3, notype, 0, 30
-	"@documentcount",          9, notype, NMBF_NOZERO, 10
+	"@daterange",          1, notype, 0, 8
+	"@oprkind",            3, notype, 0, 30
+	"@documentcount",      9, notype, NMBF_NOZERO, 10
 	"@nominalamount",     10, notype, NMBF_NOZERO, 11.2
 	group "@{sumintermp}..." {
 		"@termcost_sfx",       6, notype, NMBF_NOZERO, 11.2
@@ -3244,81 +3244,93 @@ browser BILLOPGRPNGCYCLEEXT north(100), 3, 1, "@{opgrouping_bydocs}", OWNER|GRID
 	toolbar OPGRPNG
 }
 
-browser GOODSOPER north(100), 3, 1, "Товарный отчет {%s}", OWNER|GRID, 0
+browser GOODSOPER north(100), 3, 1, "Товарный отчет {%s}", OWNER|GRID, 0 // PPViewGoodsOpAnalyze
 {
-	"@ware", 2, notype, 0, 30
+	// @v12.1.7 +1
+	"@ware", 3, notype, 0, 30
 	group "@qtty" {
-		"@munit_tr_sfx_s", 14, notype, ALIGN_RIGHT, 10.3
-		"@munit_ph_sfx_s",  4, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
+		"@munit_tr_sfx_s", 15, notype, ALIGN_RIGHT, 10.3
+		"@munit_ph_sfx_s",  5, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
 	}
 	group "@sumintermp" {
-		"@termcost_sfx",  5, notype, NMBF_NOZERO, 10.2
-		"@termprice_sfx", 6, notype, NMBF_NOZERO, 10.2
+		"@termcost_sfx",  6, notype, NMBF_NOZERO, 10.2
+		"@termprice_sfx", 7, notype, NMBF_NOZERO, 10.2
 	}
-	"@income", 7, notype, NMBF_NOZERO, 10.2
+	"@income", 8, notype, NMBF_NOZERO, 10.2
 	toolbar GOODSOPER
 }
 
-browser GOODSOPER_REVAL north(100), 3, 1, "Товарный отчет по переоценке {%s}", OWNER|GRID, 0
+browser GOODSOPER_MP north(100), 3, 1, "Анализ продаж на маркетплейсе {%s}", OWNER|GRID, 0 // PPViewGoodsOpAnalyze
 {
-	"@ware", 2, notype, 0, 30
+	// @v12.1.7 +1
+	"@ware", 3, notype, 0, 30
+	toolbar GOODSOPER
+}
+
+browser GOODSOPER_REVAL north(100), 3, 1, "Товарный отчет по переоценке {%s}", OWNER|GRID, 0 // PPViewGoodsOpAnalyze
+{
+	// @v12.1.7 +1
+	"@ware", 3, notype, 0, 30
 	group "@qtty" {
-		"@munit_tr_sfx_s", 14, notype, ALIGN_RIGHT, 10.3
-		"@munit_ph_sfx_s",  4, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
+		"@munit_tr_sfx_s", 15, notype, ALIGN_RIGHT, 10.3
+		"@munit_ph_sfx_s",  5, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
 	}
 	group "@sumcost" {
-		"@old_fem",  13, notype, NMBF_NOZERO, 10.2
-		"@new_fem",   5, notype, NMBF_NOZERO, 10.2
-	}
-	group "@sumprice" {
-		"@old_fem",  10, notype, NMBF_NOZERO, 10.2
+		"@old_fem",  14, notype, NMBF_NOZERO, 10.2
 		"@new_fem",   6, notype, NMBF_NOZERO, 10.2
 	}
+	group "@sumprice" {
+		"@old_fem",  11, notype, NMBF_NOZERO, 10.2
+		"@new_fem",   7, notype, NMBF_NOZERO, 10.2
+	}
 	toolbar GOODSOPER
 }
 
-browser GOODSOPER_PLAN north(100), 3, 1, "@{view_goodsopanalyze_tradeplan} {%s}", OWNER|GRID, 0
+browser GOODSOPER_PLAN north(100), 3, 1, "@{view_goodsopanalyze_tradeplan} {%s}", OWNER|GRID, 0 // PPViewGoodsOpAnalyze
 {
-	"@ware", 2, notype, 0, 30
+	// @v12.1.7 +1
+	"@ware", 3, notype, 0, 30
 	group "@qtty" {
-		"@plan", 13, notype, ALIGN_RIGHT | NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
-		"@fact",  3, notype, ALIGN_RIGHT | NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
-		"%",     20, notype, ALIGN_RIGHT | NMBF_NOZERO,  4.1 //
-	}
-	group "@amount" {
-		"@plan", 10, notype, ALIGN_RIGHT | NMBF_NOZERO, 10.2
-		"@fact",  6, notype, ALIGN_RIGHT | NMBF_NOZERO, 10.2
+		"@plan", 14, notype, ALIGN_RIGHT | NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
+		"@fact",  4, notype, ALIGN_RIGHT | NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
 		"%",     21, notype, ALIGN_RIGHT | NMBF_NOZERO,  4.1 //
 	}
-	"@income", 7, notype, NMBF_NOZERO, 10.2
+	group "@amount" {
+		"@plan", 11, notype, ALIGN_RIGHT | NMBF_NOZERO, 10.2
+		"@fact",  7, notype, ALIGN_RIGHT | NMBF_NOZERO, 10.2
+		"%",     22, notype, ALIGN_RIGHT | NMBF_NOZERO,  4.1 //
+	}
+	"@income", 8, notype, NMBF_NOZERO, 10.2
 	toolbar GOODSOPER
 }
 
-browser INOUTANLZ north(100), 3, 1, "Анализ вход/выход {%s}", OWNER|GRID, 0
+browser INOUTANLZ north(100), 3, 1, "Анализ вход/выход {%s}", OWNER|GRID, 0 // PPViewGoodsOpAnalyze
 {
-	"@valuesign_s",  8, notype, 0, 4
-	"@ware", 2, notype, 0, 30
+	// @v12.1.7 +1
+	"@valuesign_s", 9, notype, 0, 4
+	"@ware",        3, notype, 0, 30
 	group "@qtty" {
-		"@munit_tr_sfx_s", 14, notype, ALIGN_RIGHT, 10.3
-		"@munit_ph_sfx_s",  4, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
+		"@munit_tr_sfx_s", 15, notype, ALIGN_RIGHT, 10.3
+		"@munit_ph_sfx_s",  5, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
 	}
 	group "@sumintermp" {
-		"@termcost_sfx",   5, notype, NMBF_NOZERO, 10.2
-		"@termprice_sfx",  6, notype, NMBF_NOZERO, 10.2
+		"@termcost_sfx",   6, notype, NMBF_NOZERO, 10.2
+		"@termprice_sfx",  7, notype, NMBF_NOZERO, 10.2
 	}
-	"@income", 7, notype, NMBF_NOZERO, 10.2
+	"@income",      8, notype, NMBF_NOZERO, 10.2
 	toolbar GOODSOPER
 }
 
-browser INTRREVAL north(100), 3, 1, "Изменения цен при межскладском перемещении", OWNER|GRID, 0
+browser INTRREVAL north(100), 3, 1, "Изменения цен при межскладском перемещении", OWNER|GRID, 0 // PPViewGoodsOpAnalyze
 {
-	"@ware",  2, notype, 0, 30
-	"@qtty", 14, notype, ALIGN_RIGHT, 10.3
+	// @v12.1.7 +1
+	"@ware",  3, notype, 0, 30
+	"@qtty", 15, notype, ALIGN_RIGHT, 10.3
 	group "@sumprice" {
-		"Отправителя", 5, notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
-		"Получателя",  6, notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
+		"Отправителя", 6, notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
+		"Получателя",  7, notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
 	}
-	"@difference", 7, notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
+	"@difference", 8, notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM       : kbEnter,   PPDV_LOTS,           "@{lots}\tEnter"
 		GOODS          : kbF2,      PPDV_WARESINGLE01,   "@{ware}\tF2"
@@ -3331,19 +3343,20 @@ browser INTRREVAL north(100), 3, 1, "Изменения цен при межскладском перемещении"
 	}
 }
 
-browser ABCANLZ north(100), 3, 1, "%s c группировкой ABC", OWNER|GRID, 0
+browser ABCANLZ north(100), 3, 1, "%s c группировкой ABC", OWNER|GRID, 0 // PPViewGoodsOpAnalyze
 {
-	"@group", 2, notype, 0, 30
+	// @v12.1.7 +1
+	"@group", 3, notype, 0, 30
 	group "@qtty" {
-		"@munit_tr_sfx_s", 3, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
+		"@munit_tr_sfx_s", 4, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
 	}
 	group "@sumintermp" {
-		"@termcost_sfx",  5, notype, NMBF_NOZERO, 10.2
-		"@termprice_sfx", 6, notype, NMBF_NOZERO, 10.2
+		"@termcost_sfx",   6, notype, NMBF_NOZERO, 10.2
+		"@termprice_sfx",  7, notype, NMBF_NOZERO, 10.2
 	}
-	"@income", 7, notype, NMBF_NOZERO, 10.2
-	"Доля группы, %", 9, notype, NMBF_NOZERO, 10.2
-	"Доля от общего числа позиций, %", 10, notype, NMBF_NOZERO, 10.2
+	"@income",                          8, notype, NMBF_NOZERO, 10.2
+	"Доля группы, %",                  10, notype, NMBF_NOZERO, 10.2
+	"Доля от общего числа позиций, %", 11, notype, NMBF_NOZERO, 10.2
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM       : kbEnter,   PPDV_LINS01,         "@{lots}\tEnter"
 		ADDTOALTGRP    : kbCtrlF5,  TBBM_ADDTIFROMORD,   "Поместить товары данной группы в альтернативную\tCtrl-F5"
@@ -3357,23 +3370,24 @@ browser ABCANLZ north(100), 3, 1, "%s c группировкой ABC", OWNER|GRID, 0
 	}
 }
 
-browser GOODSOPER_PRICEDEV north(100), 3, 1, "Товарный отчет с отклонением цен {%s}", OWNER|GRID, 0
+browser GOODSOPER_PRICEDEV north(100), 3, 1, "Товарный отчет с отклонением цен {%s}", OWNER|GRID, 0 // PPViewGoodsOpAnalyze
 {
-	"@ware", 2, notype, 0, 30
+	// @v12.1.7 +1
+	"@ware", 3, notype, 0, 30
 	group "@qtty" {
-		"@munit_tr_sfx_s", 14, notype, ALIGN_RIGHT, 10.3
-		"@munit_ph_sfx_s",  4, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
+		"@munit_tr_sfx_s", 15, notype, ALIGN_RIGHT, 10.3
+		"@munit_ph_sfx_s",  5, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
 	}
 	group "@sumintermp" {
-		"@termcost_sfx",  5, notype, NMBF_NOZERO, 10.2
-		"@termprice_sfx", 6, notype, NMBF_NOZERO, 10.2
+		"@termcost_sfx",  6, notype, NMBF_NOZERO, 10.2
+		"@termprice_sfx", 7, notype, NMBF_NOZERO, 10.2
 	}
-	"@price", 12, notype, NMBF_NOZERO, 10.2
+	"@price", 13, notype, NMBF_NOZERO, 10.2
 	group "Отклонение цен" {
-		"-", 10, notype, NMBF_NOZERO, 10.2
-		"+", 13, notype, NMBF_NOZERO, 10.2
+		"-", 11, notype, NMBF_NOZERO, 10.2
+		"+", 14, notype, NMBF_NOZERO, 10.2
 	}
-	"@income", 7, notype, NMBF_NOZERO, 10.2
+	"@income", 8, notype, NMBF_NOZERO, 10.2
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM       : kbEnter,   PPDV_LOTS,           "@{lots}\tEnter"
 		ORDLOTS        : kbShiftF3, PPDV_ORDLOTS,        "@{orderlots}\tShift-F3"
@@ -3390,29 +3404,31 @@ browser GOODSOPER_PRICEDEV north(100), 3, 1, "Товарный отчет с отклонением цен {
 	}
 }
 
-browser GOODSOPER_CMPWITHRECEIPT north(100), 3, 1, "Товарный отчет со сравнением с документами списания {%s}", OWNER|GRID, 0
+browser GOODSOPER_CMPWITHRECEIPT north(100), 3, 1, "Товарный отчет со сравнением с документами списания {%s}", OWNER|GRID, 0 // PPViewGoodsOpAnalyze
 {
-	"@ware",             2, notype, 0, 30
+	// @v12.1.7 +1
+	"@ware",             3, notype, 0, 30
 	group "@draftdocument" {
-		"@qtty",        14, notype, ALIGN_RIGHT, 10.3
-		"@sumcost_s",    5, notype, NMBF_NOZERO, 10.2
-		"@sumprice_s",   6, notype, NMBF_NOZERO, 10.2
+		"@qtty",        15, notype, ALIGN_RIGHT, 10.3
+		"@sumcost_s",    6, notype, NMBF_NOZERO, 10.2
+		"@sumprice_s",   7, notype, NMBF_NOZERO, 10.2
 	}
 	group "@document_wroff_pl" {
-		"@qtty",         4, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
-		"@sumcost_s",   13, notype, NMBF_NOZERO, 10.2
-		"@sumprice_s",  10, notype, NMBF_NOZERO, 10.2
+		"@qtty",         5, notype, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3
+		"@sumcost_s",   14, notype, NMBF_NOZERO, 10.2
+		"@sumprice_s",  11, notype, NMBF_NOZERO, 10.2
 	}
 	toolbar GOODSOPER
 }
 
-browser GOODSOPER_COMPARE north(100), 3, 1, "Сравнительный товарный отчет {%s}", OWNER|GRID, 0
+browser GOODSOPER_COMPARE north(100), 3, 1, "Сравнительный товарный отчет {%s}", OWNER|GRID, 0 // PPViewGoodsOpAnalyze
 {
-	"@ware", 2, notype, 0, 30
+	// @v12.1.7 +1
+	"@ware", 3, notype, 0, 30
 	toolbar GOODSOPER
 }
 
-browser GOODSOPER_CROSSTAB north(100), 3, 1, "Товарный отчет {%s} с табуляцией", OWNER|GRID, 0
+browser GOODSOPER_CROSSTAB north(100), 3, 1, "Товарный отчет {%s} с табуляцией", OWNER|GRID, 0 // PPViewGoodsOpAnalyze
 {
 	"@ware", 2, notype, 0, 30
 	crosstab "@warehouse", notype, NMBF_NOZERO|NMBF_NOTRAILZ, 15.3

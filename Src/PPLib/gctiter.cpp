@@ -849,17 +849,17 @@ int GCTIterator::AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 		if(soft_restr) {
 			PPObjBill * p_bobj = BillObj;
 			PPBillExt ext_rec;
-			const int article_notvalid = !ArList.CheckID(pBillRec->Object);
-			const int goods_notvalid = BIN(Filt.GoodsID && labs(Filt.GoodsID) != goods_id || (State & stUseGoodsList) && !goods_found);
-			int    agent_notvalid = 0;
+			const bool article_notvalid = !ArList.CheckID(pBillRec->Object);
+			const bool goods_notvalid = (Filt.GoodsID && labs(Filt.GoodsID) != goods_id || (State & stUseGoodsList) && !goods_found); // @todo Ќадо перепроверить этот оператор!
+			bool   agent_notvalid = false;
 			if(Filt.Flags & OPG_BYZEROAGENT) {
 				if(p_bobj->FetchExt(bill_id, &ext_rec) > 0 && ext_rec.AgentID != 0)
-					agent_notvalid = 1;
+					agent_notvalid = true;
 			}
 			else if(Filt.AgentList.GetCount()) {
 				if(BCache) {
 					if(!BCache->CheckBillForAgent(bill_id))
-						agent_notvalid = 1;
+						agent_notvalid = true;
 				}
 				else {
 					const PPIDArray & r_agent_list = Filt.AgentList.Get();
@@ -870,7 +870,7 @@ int GCTIterator::AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 							f = 1;
 					}
 					if(!f)
-						agent_notvalid = 1;
+						agent_notvalid = true;
 				}
 			}
 			if(article_notvalid || agent_notvalid || goods_notvalid) {
@@ -1174,17 +1174,17 @@ int GCTIterator::NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec
 				if(soft_restr) {
 					PPObjBill * p_bobj = BillObj;
 					PPBillExt ext_rec;
-					const int article_notvalid = !ArList.CheckID(pBillRec->Object);
-					const int goods_notvalid = BIN(Filt.GoodsID && labs(Filt.GoodsID) != goods_id || (State & stUseGoodsList) && !goods_found);
-					int    agent_notvalid = 0;
+					const bool article_notvalid = !ArList.CheckID(pBillRec->Object);
+					const bool goods_notvalid = (Filt.GoodsID && labs(Filt.GoodsID) != goods_id || (State & stUseGoodsList) && !goods_found); // @todo ѕерепроверить условие (смущает || без скобок)
+					bool  agent_notvalid = false;
 					if(Filt.Flags & OPG_BYZEROAGENT) {
 						if(p_bobj->FetchExt(bill_id, &ext_rec) > 0 && ext_rec.AgentID != 0)
-							agent_notvalid = 1;
+							agent_notvalid = true;
 					}
 					else if(Filt.AgentList.GetCount()) {
 						if(BCache) {
 							if(!BCache->CheckBillForAgent(bill_id))
-								agent_notvalid = 1;
+								agent_notvalid = true;
 						}
 						else {
 							const PPIDArray & r_agent_list = Filt.AgentList.Get();
@@ -1195,7 +1195,7 @@ int GCTIterator::NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec
 									f = 1;
 							}
 							if(!f)
-								agent_notvalid = 1;
+								agent_notvalid = true;
 						}
 					}
 					if(article_notvalid || agent_notvalid || goods_notvalid) {

@@ -936,7 +936,7 @@ public:
 	bool   IsExists() const { return LOGIC(P_List); }
 	bool   FASTCALL IsEq(const ObjIdListFilt &) const;
 	bool   IsEmpty() const;
-	int    FASTCALL CheckID(PPID) const;
+	bool   FASTCALL CheckID(PPID) const;
 	const  PPIDArray & Get() const { return *P_List; }
 	PPIDArray * GetP() const { return P_List; }
 	int    FASTCALL Get(PPIDArray & rResult) const;
@@ -20025,6 +20025,8 @@ private:
 #define PPBZSI_ORDSHIPMDELAYDAYSMIN   26 // @v12.1.6 "ordshipmdelaydaysmin"   Минимальный период между заказом и продажей в днях  
 #define PPBZSI_ORDSHIPMDELAYDAYSMAX   27 // @v12.1.6 "ordshipmdelaydaysmax"   Максимальный период между заказом и продажей в днях  
 #define PPBZSI_SUPPLSHIPMDELAYDAYSAVG 28 // @v12.1.6 "supplshipmdelaydaysavg" Средний период между поставкой и продажей в днях
+#define PPBZSI_ORDSHIPMDELAYDAYS      29 // @v12.1.7 "ordshipmdelaydays"      Суммарное количество дней между заказом и продажей (вспомогательное значение для получения более осмысленных относительных величин)
+#define PPBZSI_SUPPLSHIPMDELAYDAYS    30 // @v12.1.7 "supplshipmdelaydays"    Суммарное количество дней между поставкой и продажей (вспомогательное значение для получения более осмысленных относительных величин)
 //
 // Флаги значений бизнес-показателей
 //
@@ -20232,10 +20234,13 @@ struct BzsVal { // @v12.1.6
 
 class BzsValVector : public TSVector <BzsVal> { // @v12.1.6
 public:
-	BzsValVector() : TSVector <BzsVal>()
-	{
-	}
+	BzsValVector();
+	int    Add(long id, double value);
+	bool   Get(long id, double * pValue) const;
+	uint64 Ident; // Некоторый идентификатор, позволяющий определить привязку вектора к внешним данным
 };
+
+DECL_CMPFUNC(BzsValVector_Ident);
 
 typedef BizScoreTbl::Rec BizScoreValViewItem;
 
@@ -44676,11 +44681,13 @@ public:
 	void   GetTabTitle(long tabID, SString & rBuf);
 	void   GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col);
 private:
+	static  int  FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk); // @v12.1.7
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void ViewTotal();
 	virtual int  Print(const void *);
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk); // @v12.1.7
 	int    CreateTempTable(double * pUfpFactors);
 	int    CreateOrderTable(IterOrder, TempOrderTbl **);
 	int    InitGoodsRestView(PPViewGoodsRest * pGrView);
@@ -44697,7 +44704,7 @@ private:
 	GoaCacheItem * FASTCALL GetCacheItem(uint pos) const;
 	int    FlashCacheItems(uint count);
 	int    FlashCacheItem(BExtInsert * pBei, const GoaCacheItem * pItem);
-	int    AddItem(const GoaAddingBlock * pBlk);
+	int    AddItem(const GoaAddingBlock & rBlk);
 	int    ViewGraph();
 
 	GoodsOpAnalyzeFilt Filt;
@@ -44728,10 +44735,24 @@ private:
 	SArray * P_Uniq;
 	ObjIdListFilt LocList_; // @v12.1.5
 	UintHashTable * P_GoodsList;         // @*PPViewGoodsOpAnalyze::Init_
-	GoodsGroupIterator  * P_GGIter;
+	GoodsGroupIterator * P_GGIter;
 	IterOrder CurrentViewOrder;
 	int    IterIdx;
 	SString IterGrpName;
+
+	class IndicatorVector : public BzsValVector {
+	public:
+		IndicatorVector();
+
+		int    Sign;
+		PPID   GoodsID;
+		PPID   ArID;
+		PPID   LocID;
+	};
+	TSCollection <IndicatorVector> IndicatorList; // @v12.1.7
+
+	IndicatorVector * GetIndicatorEntry(const GoaAddingBlock & rBlk);
+	IndicatorVector * GetIndicatorEntry(PPID goodsID, PPID arID, PPID locID, int sign);
 };
 //
 // @ModuleDecl(PPViewSCard)

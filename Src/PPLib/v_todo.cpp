@@ -731,11 +731,11 @@ int PPViewPrjTask::CheckRecForFilt(const PrjTaskTbl::Rec * pRec)
 		return 0;
 	if(Filt.ProjectID && pRec->ProjectID != Filt.ProjectID)
 		return 0;
-	if(ClientList.IsExists() && ClientList.CheckID(pRec->ClientID) == 0)
+	if(ClientList.IsExists() && !ClientList.CheckID(pRec->ClientID))
 		return 0;
-	if(CreatorList.IsExists() && CreatorList.CheckID(pRec->CreatorID) == 0)
+	if(CreatorList.IsExists() && !CreatorList.CheckID(pRec->CreatorID))
 		return 0;
-	if(EmployerList.IsExists() && EmployerList.CheckID(pRec->EmployerID) == 0)
+	if(EmployerList.IsExists() && !EmployerList.CheckID(pRec->EmployerID))
 		return 0;
 	if(!Filt.Period.CheckDate(pRec->Dt))
 		return 0;

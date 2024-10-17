@@ -2049,7 +2049,7 @@ int PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double part, 
 						}
 					}
 				}
-				PROFILE_S(THROW(AddItem(&blk)), "AddItem()");
+				PROFILE_S(THROW(AddItem(blk)), "AddItem()");
 			}
 		}
 	}
@@ -2147,8 +2147,9 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 	int    use_ext_list = 0;
 	ZDELETE(P_CmpView);
 	ZDELETE(P_TempTbl);
-	if(!Filt.CmpPeriod.IsZero())
+	if(!Filt.CmpPeriod.IsZero() || (Filt.OpGrpID == GoodsOpAnalyzeFilt::ogMarketplaceSalesAnalyze)) {
 		THROW(InitUniq(0));
+	}
 	THROW(P_TempTbl = CreateTempFile());
 	if(P_TradePlanPacket) {
 		GoaAddingBlock blk;
@@ -2169,7 +2170,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			blk.LocID = (f & GoodsOpAnalyzeFilt::fEachLocation) ? p_ti->LocID : LocList_.GetSingle();
 			THROW(r = PreprocessTi(p_ti, 0, subst_bill_val, &blk));
 			if(r > 0)
-				THROW(AddItem(&blk));
+				THROW(AddItem(blk));
 		}
 		pUfpFactors[0] += static_cast<double>(P_TradePlanPacket->getCount());
 	}
@@ -2187,6 +2188,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 	if(Filt.OpGrpID == GoodsOpAnalyzeFilt::ogMarketplaceSalesAnalyze) { // @v12.1.7
 		PPMarketplaceConfig cfg;
 		PrcssrMarketplaceInterchange::ReadConfig(&cfg);
+		assert(P_Uniq);
 		if(cfg.OrderOpID && cfg.SalesOpID) {
 			// Лидирующая операция - продажа. То есть, мы просматриваем продажи за период, а заказы
 			// перебираем следующим образом: все заказы за период + все заказы, к которым привязаны продажи.
@@ -2195,7 +2197,9 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			BillTbl::Key2 k2;
 			BillCore * p_bt = P_BObj->P_Tbl;
 			PPIDArray ord_list;
+			PPIDArray local_ord_list; // Заказы, к которым привязан конкретный док отгрузки
 			PPIDArray shipm_list;
+			PPIDArray seen_ord_lot_list; // Идентификаторы лотов заказов, которые мы уже учли в отчете
 			PPIDArray temp_list;
 			{
 				// Продажи
@@ -2230,13 +2234,197 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			}
 			shipm_list.sortAndUndup();
 			ord_list.sortAndUndup();
-			for(uint i = 0; i < shipm_list.getCount(); i++) {
-				const PPID bill_id = shipm_list.get(i);
+			/*
+				#define PPBZSI_NONE                    0 //
+				#define PPBZSI_AMOUNT                  1 // "amount"    kBill, kPaym, kCCheck, kGoodsRest, kDebt, kBizScore
+				#define PPBZSI_COST                    2 // "cost"      kBill, kPaym, kCCheck, kGoodsRest
+				#define PPBZSI_PRICE                   3 // "price"     kBill, kPaym, kCCheck, kGoodsRest
+				#define PPBZSI_DISCOUNT                4 // "discount"  kBill, kCCheck
+				#define PPBZSI_NETPRICE                5 // "netprice"  kBill, kPaym, kCCheck, kGoodsRest
+				#define PPBZSI_MARGIN                  6 // "margin"    kBill, kPaym, kCCheck, kGoodsRest
+				#define PPBZSI_PCTINCOME               7 // "pctincome" kBill, kPaym, kCCheck, kGoodsRest
+				#define PPBZSI_PCTMARGIN               8 // "pctmargin" kBill, kPaym, kCCheck, kGoodsRest
+				#define PPBZSI_COUNT                   9 // "count"     kBill, kPaym, kCCheck, kGoodsRest, kPersonEvent, kDebt, kBizScore
+				#define PPBZSI_AVERAGE                10 // "average"   kBizScore
+				#define PPBZSI_MPACCEPTANCE           11 // @v12.1.6 "MPACCEPTANCE" Стоимость приемки товара на складе маркетплейса
+				#define PPBZSI_MPSTORAGE              12 // @v12.1.6 "MPSTORAGE" Стоимость хранения товара на складе маркетплейса
+				108 * #define PPBZSI_MPCOMMISSION           13 // @v12.1.6 "MPCOMMISSION" Сумма комиссионного вознаграждения маркетплейса
+				#define PPBZSI_MPCOMMISSIONPCT        14 // @v12.1.6 "MPCOMMISSIONPCT" Процент комиссионного вознаграждения маркетплейса от суммы продажи
+				107 * #define PPBZSI_MPSELLERSPART          15 // @v12.1.6 "MPSELLERSPART" Сумма, перечисляемая маркетплейсом продавцу за проданный товар
+				#define PPBZSI_MPSELLERSPARTPCT       16 // @v12.1.6 "MPSELLERSPARTPCT" Процент доли, перечисляемоей маркетплейсом продавцу за проданный товар, от суммы продажи
+				109 * #define PPBZSI_MPACQUIRING            17 // @v12.1.6 "MPACQUIRING" Стоимость экваринга на стороне маркетплейса, котороую маркетплейс переносит на поставщика 
+				#define PPBZSI_MPACQUIRINGPCT         18 // @v12.1.6 "MPACQUIRINGPCT" Процент доли экваринга на стороне маркетплейса, котороую маркетплейс переносит на поставщика, от суммы продажи
+				101 & #define PPBZSI_ORDCOUNT               19 // @v12.1.6 "ordcount"  Количество документов заказа
+				102 & #define PPBZSI_ORDQTTY                20 // @v12.1.6 "ordqtty"   Заказанное количество торговых единиц  
+				103 * #define PPBZSI_SALECOUNT              21 // @v12.1.6 "salecount" Количество документов продажи
+				104 * #define PPBZSI_SALEQTTY               22 // @v12.1.6 "saleqtty"  Проданное количество торговых единиц 
+				105 * #define PPBZSI_ORDCANCELLEDCOUNT      23 // @v12.1.6 "ordcancelledcount" Количество заказоы которые были отменены
+				106 * #define PPBZSI_ORDCANCELLEDQTTY       24 // @v12.1.6 "ordcancelledqtty"  Количество торговых единиц товара, заказы на которые были отменены
+				#define PPBZSI_ORDSHIPMDELAYDAYSAVG   25 // @v12.1.6 "ordshipmdelaydaysavg"   Средний период между заказом и продажей в днях
+				#define PPBZSI_ORDSHIPMDELAYDAYSMIN   26 // @v12.1.6 "ordshipmdelaydaysmin"   Минимальный период между заказом и продажей в днях  
+				#define PPBZSI_ORDSHIPMDELAYDAYSMAX   27 // @v12.1.6 "ordshipmdelaydaysmax"   Максимальный период между заказом и продажей в днях  
+				#define PPBZSI_SUPPLSHIPMDELAYDAYSAVG 28 // @v12.1.6 "supplshipmdelaydaysavg" Средний период между поставкой и продажей в днях
+				& #define PPBZSI_ORDSHIPMDELAYDAYS      29 // @v12.1.7 "ordshipmdelaydays"      Суммарное количество дней между заказом и продажей (вспомогательное значение для получения более осмысленных относительных величин)
+				#define PPBZSI_SUPPLSHIPMDELAYDAYS    30 // @v12.1.7 "supplshipmdelaydays"    Суммарное количество дней между поставкой и продажей (вспомогательное значение для получения более осмысленных относительных величин)
+			*/
+			for(uint slidx = 0; slidx < shipm_list.getCount(); slidx++) {
+				const PPID bill_id = shipm_list.get(slidx);
 				PPBillPacket bpack;
 				if(P_BObj->ExtractPacket(bill_id, &bpack) > 0) {
-					bpack.GetOrderList(temp_list);
-
+					bpack.GetOrderList(local_ord_list);
+					//int PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double part, int sign, const PPIDArray * pSupplBillList)
+					{
+						long   subst_bill_val = 0;
+						PPIDArray goods_list;
+						GoaAddingBlock blk;
+						double part = 1.0;
+						int    sign = 0;
+						InitAddingBlock(&bpack, part, sign, &blk);
+						if(!!Filt.Sgb)
+							P_BObj->Subst(&bpack, &subst_bill_val, &Bsp);
+						for(uint tiidx = 0; tiidx < bpack.GetTCount(); tiidx++) {
+							const  PPTransferItem & r_ti = bpack.ConstTI(tiidx);
+							int    r;
+							THROW(PPCheckUserBreak());
+							THROW(r = PreprocessTi(&r_ti, p_suppl_bill_list, subst_bill_val, &blk));
+							if(r > 0) {
+								PROFILE_S(THROW(AddItem(blk)), "AddItem()"); // ogMarketplaceSalesAnalyze
+								{
+									IndicatorVector * p_iv = GetIndicatorEntry(blk);
+									if(!p_iv) {
+										IndicatorVector * p_new_iv = IndicatorList.CreateNewItem();
+										p_new_iv->GoodsID = blk.FinalGoodsID;
+										p_new_iv->ArID = blk.ArID;
+										p_new_iv->LocID = blk.LocID;
+										p_new_iv->Sign = blk.Sign;
+										p_iv = p_new_iv;
+									}
+									const double ti_part = r_ti.CalcAmount() / bpack.Rec.Amount;
+									p_iv->Add(PPBZSI_SALECOUNT, 1.0);
+									p_iv->Add(PPBZSI_SALEQTTY, fabs(r_ti.Quantity_));
+									{
+										const double a = bpack.Amounts.Get(PPAMT_MP_SELLERPART, 0L);
+										if(a != 0.0)
+											p_iv->Add(PPBZSI_MPSELLERSPART, a * ti_part);
+									}
+									{
+										const double a = bpack.Amounts.Get(PPAMT_MP_COMMISSION, 0L);
+										if(a != 0.0)
+											p_iv->Add(PPBZSI_MPCOMMISSION, a * ti_part);
+									}
+									{
+										const double a = bpack.Amounts.Get(PPAMT_MP_ACQUIRING, 0L);
+										if(a != 0.0)
+											p_iv->Add(PPBZSI_MPACQUIRING, a * ti_part);
+									}
+									if(local_ord_list.getCount()) {
+										if(r_ti.Flags & PPTFR_ONORDER && r_ti.OrdLotID && !seen_ord_lot_list.lsearch(r_ti.OrdLotID)) {
+											uint sh_lot_pos = 0;
+											if(bpack.SearchShLot(r_ti.OrdLotID, &sh_lot_pos)) {
+												ReceiptTbl::Rec lot_rec;
+												if(P_BObj->trfr->Rcpt.Search(r_ti.OrdLotID, &lot_rec) > 0) {
+													p_iv->Add(PPBZSI_ORDCOUNT, 1.0);
+													p_iv->Add(PPBZSI_ORDQTTY, fabs(lot_rec.Quantity));
+													long ord_shipm_delay = diffdate(bpack.Rec.Dt, lot_rec.Dt);
+													p_iv->Add(PPBZSI_ORDSHIPMDELAYDAYS, static_cast<double>(ord_shipm_delay));
+													seen_ord_lot_list.add(lot_rec.ID);
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
 				}
+			}
+			//
+			// Цикл по заказам (которые не были обработаны в цикле обзора продаж)
+			//
+			for(uint olidx = 0; olidx < ord_list.getCount(); olidx++) {
+				const PPID bill_id = ord_list.get(olidx);
+				PPBillPacket bpack;
+				if(P_BObj->ExtractPacket(bill_id, &bpack) > 0) {
+					{
+						long   subst_bill_val = 0;
+						PPIDArray goods_list;
+						GoaAddingBlock blk;
+						double part = 1.0;
+						int    sign = 0;
+						InitAddingBlock(&bpack, part, sign, &blk);
+						if(!!Filt.Sgb)
+							P_BObj->Subst(&bpack, &subst_bill_val, &Bsp);
+						for(uint tiidx = 0; tiidx < bpack.GetTCount(); tiidx++) {
+							const  PPTransferItem & r_ti = bpack.ConstTI(tiidx);
+							if(!seen_ord_lot_list.lsearch(r_ti.LotID)) {
+								int    r;
+								PPTransferItem _ord_ti(r_ti);
+								_ord_ti.Quantity_ = 0.0;
+								_ord_ti.Cost = 0.0;
+								_ord_ti.Price = 0.0;
+								_ord_ti.Discount = 0.0;
+								THROW(PPCheckUserBreak());
+								THROW(r = PreprocessTi(&_ord_ti, p_suppl_bill_list, subst_bill_val, &blk));
+								if(r > 0) {
+									PROFILE_S(THROW(AddItem(blk)), "AddItem()"); // ogMarketplaceSalesAnalyze
+									{
+										IndicatorVector * p_iv = GetIndicatorEntry(blk);
+										if(!p_iv) {
+											IndicatorVector * p_new_iv = IndicatorList.CreateNewItem();
+											p_new_iv->GoodsID = blk.FinalGoodsID;
+											p_new_iv->ArID = blk.ArID;
+											p_new_iv->LocID = blk.LocID;
+											p_new_iv->Sign = blk.Sign;
+											p_iv = p_new_iv;
+										}
+										const double ti_part = r_ti.CalcAmount() / bpack.Rec.Amount;
+										p_iv->Add(PPBZSI_ORDCOUNT, 1.0);
+										p_iv->Add(PPBZSI_ORDQTTY, fabs(r_ti.Quantity_));
+										if(bpack.Rec.Flags2 & BILLF2_DECLINED) {
+											p_iv->Add(PPBZSI_ORDCANCELLEDCOUNT, 1.0);
+											p_iv->Add(PPBZSI_ORDCANCELLEDQTTY,  fabs(r_ti.Quantity_));
+										}
+										/*
+										if(local_ord_list.getCount()) {
+											if(r_ti.Flags & PPTFR_ONORDER && r_ti.OrdLotID && !seen_ord_lot_list.lsearch(r_ti.OrdLotID)) {
+												uint sh_lot_pos = 0;
+												if(bpack.SearchShLot(r_ti.OrdLotID, &sh_lot_pos)) {
+													ReceiptTbl::Rec lot_rec;
+													if(P_BObj->trfr->Rcpt.Search(r_ti.OrdLotID, &lot_rec) > 0) {
+														p_iv->Add(PPBZSI_ORDCOUNT, 1.0);
+														p_iv->Add(PPBZSI_ORDQTTY, fabs(lot_rec.Quantity));
+														long ord_shipm_delay = diffdate(bpack.Rec.Dt, lot_rec.Dt);
+														p_iv->Add(PPBZSI_ORDSHIPMDELAYDAYS, static_cast<double>(ord_shipm_delay));
+														seen_ord_lot_list.add(lot_rec.ID);
+													}
+												}
+											}
+										}*/
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		THROW(FlashCacheItems(0));
+		{
+			TempGoodsOprTbl * p_t = P_TempTbl;
+			TempGoodsOprTbl::Rec rec;
+			BExtQuery q(p_t, 0, 64);
+			{
+				q.select(p_t->ID__, p_t->GoodsID, p_t->Object, p_t->LocID, p_t->InOutTag, 0L);
+				TempGoodsOprTbl::Key0 k;
+				MEMSZERO(k);
+				for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
+					p_t->copyBufTo(&rec);
+					IndicatorVector * p_iv = GetIndicatorEntry(rec.GoodsID, rec.Object, rec.LocID, rec.InOutTag);
+					if(p_iv) {
+						p_iv->Ident = rec.ID__;
+					}
+				}
+				IndicatorList.sort2(PTR_CMPFUNC(BzsValVector_Ident));
 			}
 		}
 	}
@@ -2467,7 +2655,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 						blk.OldCost = gr_item.Order;
 					if(Filt.Flags & GoodsOpAnalyzeFilt::fShowSStatSales)
 						blk.OldPrice = gr_item.SStatSales;
-					THROW(AddItem(&blk));
+					THROW(AddItem(blk));
 				}
 				pUfpFactors[0] += 1.5;
 				PPWaitPercent(gr_view.GetCounter(), wait_msg);
@@ -2567,7 +2755,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 							blk.OldCost = gr_item.Order;
 						if(Filt.Flags & GoodsOpAnalyzeFilt::fShowSStatSales)
 							blk.OldPrice = gr_item.SStatSales;
-						THROW(AddItem(&blk));
+						THROW(AddItem(blk));
 						pUfpFactors[0] += 0.11;
 					}
 					PPWaitPercent(gr_view.GetCounter(), wait_msg);
@@ -2611,10 +2799,11 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			PPWaitPercent(GetCounter(), wait_msg);
 		}
 		THROW(abc_grp_stores.CalcBelongToABCGrp(0, 0, 1));
-		for(abc_grp = 1; abc_grp_stores.EnumItems(&abc_grp, &rec) > 0;)
+		for(abc_grp = 1; abc_grp_stores.EnumItems(&abc_grp, &rec) > 0;) {
 			if(rec.InOutTag != 0) { // ABC group != 0
 				THROW_DB(P_TempTbl->insertRecBuf(&rec));
 			}
+		}
 		Filt = old_filt;
 	}
 	//
@@ -2636,7 +2825,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 		CALLPTRMEMB(P_Cache, freeAll());
 		for(; i < count; i++) {
 			TempGoodsOprTbl::Key0 k0;
-			const GoaUniqItem * p_id = ((GoaUniqItem*)P_Uniq->at(i));
+			const GoaUniqItem * p_id = static_cast<const GoaUniqItem *>(P_Uniq->at(i));
 			MEMSZERO(k0);
 			k0.ID__ = p_id->Id;
 			if(P_TempTbl->search(0, &k0, spEq) <= 0) {
@@ -2648,7 +2837,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 				blk.OpID = Filt.OpID;
 				blk.LocID        = p_id->LocID;
 				blk.ParentGrpID  = blk.GoodsRec.ParentID;
-				THROW(AddItem(&blk));
+				THROW(AddItem(blk));
 			}
 		}
 		THROW(FlashCacheItems(0));
@@ -2760,10 +2949,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 	return ok;
 }
 
-GoaCacheItem * FASTCALL PPViewGoodsOpAnalyze::GetCacheItem(uint pos) const
-{
-	return static_cast<GoaCacheItem *>(P_Cache->at(pos));
-}
+GoaCacheItem * FASTCALL PPViewGoodsOpAnalyze::GetCacheItem(uint pos) const { return static_cast<GoaCacheItem *>(P_Cache->at(pos)); }
 
 int PPViewGoodsOpAnalyze::FlashCacheItems(uint count)
 {
@@ -2896,37 +3082,58 @@ int PPViewGoodsOpAnalyze::FlashCacheItem(BExtInsert * pBei, const GoaCacheItem *
 	return ok;
 }
 
-int PPViewGoodsOpAnalyze::AddItem(const GoaAddingBlock * pBlk)
+PPViewGoodsOpAnalyze::IndicatorVector::IndicatorVector() : BzsValVector(), Sign(0), GoodsID(0), ArID(0), LocID(0)
+{
+}
+
+PPViewGoodsOpAnalyze::IndicatorVector * PPViewGoodsOpAnalyze::GetIndicatorEntry(PPID goodsID, PPID arID, PPID locID, int sign)
+{
+	IndicatorVector * p_result = 0;
+	for(uint i = 0; !p_result && i < IndicatorList.getCount(); i++) {
+		IndicatorVector * p_item = IndicatorList.at(i);
+		if(p_item && p_item->GoodsID == goodsID && p_item->ArID == arID && p_item->LocID == locID && p_item->Sign == sign) {
+			p_result = p_item;
+		}
+	}
+	return p_result;
+}
+
+PPViewGoodsOpAnalyze::IndicatorVector * PPViewGoodsOpAnalyze::GetIndicatorEntry(const GoaAddingBlock & rBlk)
+{
+	return GetIndicatorEntry(rBlk.FinalGoodsID, rBlk.ArID, rBlk.LocID, rBlk.Sign);
+}
+
+int PPViewGoodsOpAnalyze::AddItem(const GoaAddingBlock & rBlk)
 {
 	int    ok = 1;
-	const  bool   is_profitable = (Filt.Flags & GoodsOpAnalyzeFilt::fIntrReval) ? true : LOGIC(pBlk->Flags & GoaAddingBlock::fProfitable);
-	const  double _q = pBlk->Qtty;
-	double sum_cost  = pBlk->Cost  * _q;
-	double sum_price = pBlk->Price * _q;
+	const  bool   is_profitable = (Filt.Flags & GoodsOpAnalyzeFilt::fIntrReval) ? true : LOGIC(rBlk.Flags & GoaAddingBlock::fProfitable);
+	const  double _q = rBlk.Qtty;
+	double sum_cost  = rBlk.Cost  * _q;
+	double sum_price = rBlk.Price * _q;
 	uint   pos = 0;
 	int    r = -1;
 	{
 		//
 		// Ищем в кэше элемент, соответствующий тому, что добавляется (pBlk) //
 		//
-		GoaCacheItem test, item;
-		test.Sign    = pBlk->TiSign;
-		test.GoodsID = pBlk->FinalGoodsID;
-		test.ArID    = pBlk->ArID;
-		test.LocID   = pBlk->LocID;
-		test.Cost    = pBlk->Cost;
-		test.Price   = pBlk->Price;
-		if(P_Cache->bsearch(&test, &pos, Cf))
+		GoaCacheItem key;
+		GoaCacheItem item;
+		key.Sign    = rBlk.TiSign;
+		key.GoodsID = rBlk.FinalGoodsID;
+		key.ArID    = rBlk.ArID;
+		key.LocID   = rBlk.LocID;
+		key.Cost    = rBlk.Cost;
+		key.Price   = rBlk.Price;
+		if(P_Cache->bsearch(&key, &pos, Cf))
 			r = 1;
 		else {
 			TempGoodsOprTbl::Rec  rec;
 			TempGoodsOprTbl::Key3 k;
-			k.InOutTag = pBlk->TiSign;
-			k.GoodsID = pBlk->FinalGoodsID;
-			k.Object  = pBlk->ArID;
+			k.InOutTag = rBlk.TiSign;
+			k.GoodsID = rBlk.FinalGoodsID;
+			k.Object  = rBlk.ArID;
 			k.LocID   = 0;
-			if(P_TempTbl->search(3, &k, spGe) && k.InOutTag == pBlk->TiSign &&
-				k.GoodsID == pBlk->FinalGoodsID && (!pBlk->ArID || k.Object == pBlk->ArID))
+			if(P_TempTbl->search(3, &k, spGe) && k.InOutTag == rBlk.TiSign && k.GoodsID == rBlk.FinalGoodsID && (!rBlk.ArID || k.Object == rBlk.ArID))
 				do {
 					P_TempTbl->copyBufTo(&rec);
 					item.Sign     = rec.InOutTag;
@@ -2935,7 +3142,7 @@ int PPViewGoodsOpAnalyze::AddItem(const GoaAddingBlock * pBlk)
 					item.LocID    = rec.LocID;
 					item.Cost     = rec.Cost;
 					item.Price    = rec.Price;
-					if(Cf(&item, &test, 0) == 0) {
+					if(Cf(&item, &key, 0) == 0) {
 						item.UnitPerPack = rec.UnitPerPack;
 						item.OldCost  = rec.OldCost;
 						item.OldPrice = rec.OldPrice;
@@ -2951,24 +3158,24 @@ int PPViewGoodsOpAnalyze::AddItem(const GoaAddingBlock * pBlk)
 						THROW_SL(P_Cache->ordInsert(&item, &pos, Cf));
 						r = 1;
 					}
-				} while(r < 0 && P_TempTbl->search(&k, spNext) && k.InOutTag == pBlk->TiSign &&
-					k.GoodsID == pBlk->FinalGoodsID && (!pBlk->ArID || k.Object == pBlk->ArID));
+				} while(r < 0 && P_TempTbl->search(&k, spNext) && k.InOutTag == rBlk.TiSign &&
+					k.GoodsID == rBlk.FinalGoodsID && (!rBlk.ArID || k.Object == rBlk.ArID));
 		}
 	}
 	if(r > 0) {
 		GoaCacheItem * p_item = GetCacheItem(pos);
-		if(pBlk->Flags & GoaAddingBlock::fTradePlan) {
+		if(rBlk.Flags & GoaAddingBlock::fTradePlan) {
 			p_item->OldCost  += _q;
-			p_item->OldPrice += pBlk->Price * _q;
+			p_item->OldPrice += rBlk.Price * _q;
 		}
 		else {
 			p_item->Qtty += _q;
-			p_item->Rest += pBlk->Rest;
-			p_item->PhRest += pBlk->PhRest;
-			p_item->RestCostSum  += pBlk->RestCostSum;
-			p_item->RestPriceSum += pBlk->RestPriceSum;
+			p_item->Rest += rBlk.Rest;
+			p_item->PhRest += rBlk.PhRest;
+			p_item->RestCostSum  += rBlk.RestCostSum;
+			p_item->RestPriceSum += rBlk.RestPriceSum;
 			const double sum_q = p_item->Qtty;
-			p_item->PhQtty   += pBlk->PhQtty;
+			p_item->PhQtty   += rBlk.PhQtty;
 			p_item->SumCost  += sum_cost;
 			p_item->SumPrice += sum_price;
 			if(R6(sum_q) != 0.0) {
@@ -2979,18 +3186,18 @@ int PPViewGoodsOpAnalyze::AddItem(const GoaAddingBlock * pBlk)
 					p_item->Price = R2(p_item->SumPrice / sum_q);
 				}
 				if(Filt.Flags & GoodsOpAnalyzeFilt::fPriceDeviation) {
-					if(pBlk->OldCost)
-						p_item->OldCost  = R2((p_item->OldCost * (sum_q - _q) + pBlk->OldCost * _q) / sum_q);
-					if(pBlk->OldPrice)
-						p_item->OldPrice = R2((p_item->OldPrice * (sum_q - _q) + pBlk->OldPrice * _q) / sum_q);
+					if(rBlk.OldCost)
+						p_item->OldCost  = R2((p_item->OldCost * (sum_q - _q) + rBlk.OldCost * _q) / sum_q);
+					if(rBlk.OldPrice)
+						p_item->OldPrice = R2((p_item->OldPrice * (sum_q - _q) + rBlk.OldPrice * _q) / sum_q);
 				}
 				else if(Filt.Flags & GoodsOpAnalyzeFilt::fCompareWithReceipt) {
-					p_item->OldCost  += pBlk->OldCost;
-					p_item->OldPrice += pBlk->OldPrice;
+					p_item->OldCost  += rBlk.OldCost;
+					p_item->OldPrice += rBlk.OldPrice;
 				}
 				else if(State & sReval) {
-					p_item->OldCost  += (pBlk->OldCost * _q);
-					p_item->OldPrice += (pBlk->OldPrice * _q);
+					p_item->OldCost  += (rBlk.OldCost * _q);
+					p_item->OldPrice += (rBlk.OldPrice * _q);
 				}
 			}
 			if(is_profitable && State & sAccsCost)
@@ -3000,26 +3207,26 @@ int PPViewGoodsOpAnalyze::AddItem(const GoaAddingBlock * pBlk)
 	}
 	else {
 		GoaCacheItem item;
-		item.Sign     = pBlk->TiSign;
-		item.GoodsID  = pBlk->FinalGoodsID;
-		item.ArID     = pBlk->ArID;
-		item.LocID    = pBlk->LocID;
-		item.UnitPerPack = pBlk->UnitPerPack;
-		if(pBlk->Flags & GoaAddingBlock::fTradePlan) {
+		item.Sign     = rBlk.TiSign;
+		item.GoodsID  = rBlk.FinalGoodsID;
+		item.ArID     = rBlk.ArID;
+		item.LocID    = rBlk.LocID;
+		item.UnitPerPack = rBlk.UnitPerPack;
+		if(rBlk.Flags & GoaAddingBlock::fTradePlan) {
 			item.OldCost  = _q;
-			item.OldPrice = pBlk->Price * _q;
+			item.OldPrice = rBlk.Price * _q;
 		}
 		else {
 			item.Qtty     = _q;
-			item.Rest     = pBlk->Rest;
-			item.PhRest   = pBlk->PhRest;
-			item.RestCostSum  = pBlk->RestCostSum;
-			item.RestPriceSum = pBlk->RestPriceSum;
-			item.PhQtty   = pBlk->PhQtty;
+			item.Rest     = rBlk.Rest;
+			item.PhRest   = rBlk.PhRest;
+			item.RestCostSum  = rBlk.RestCostSum;
+			item.RestPriceSum = rBlk.RestPriceSum;
+			item.PhQtty   = rBlk.PhQtty;
 			item.SumCost  = sum_cost;
 			item.SumPrice = sum_price;
-			item.OldCost  = pBlk->OldCost;  // non additive
-			item.OldPrice = pBlk->OldPrice; // non additive
+			item.OldCost  = rBlk.OldCost;  // non additive
+			item.OldPrice = rBlk.OldPrice; // non additive
 			if(R6(_q) != 0.0) {
 				if(Filt.Flags & GoodsOpAnalyzeFilt::fDiffByNetPrice)
 					item.Cost = R2(item.SumCost / _q);
@@ -3028,12 +3235,12 @@ int PPViewGoodsOpAnalyze::AddItem(const GoaAddingBlock * pBlk)
 					item.Price = R2(item.SumPrice / _q);
 				}
 				else {
-					item.Cost = pBlk->Cost;
-					item.Price = pBlk->Price;
+					item.Cost = rBlk.Cost;
+					item.Price = rBlk.Price;
 				}
 				if(State & sReval) {
-					item.OldCost  = (pBlk->OldCost * _q);
-					item.OldPrice = (pBlk->OldPrice * _q);
+					item.OldCost  = (rBlk.OldCost * _q);
+					item.OldPrice = (rBlk.OldPrice * _q);
 				}
 			}
 			if(is_profitable && State & sAccsCost)
@@ -3054,8 +3261,7 @@ void PPViewGoodsOpAnalyze::InitAddingBlock(const PPBillPacket * pPack, double pa
 	pBlk->ParentGrpID = 0;
 	pBlk->Flags &= ~GoaAddingBlock::fTradePlan;
 	SETFLAG(pBlk->Flags, GoaAddingBlock::fProfitable, CheckOpFlags(pPack->Rec.OpID, OPKF_PROFITABLE));
-	SETFLAG(pBlk->Flags, GoaAddingBlock::fIncomeWithoutExcise,
-		BIN(pBlk->Flags & GoaAddingBlock::fProfitable && f & GoodsOpAnalyzeFilt::fPriceWithoutExcise));
+	SETFLAG(pBlk->Flags, GoaAddingBlock::fIncomeWithoutExcise, (pBlk->Flags & GoaAddingBlock::fProfitable && f & GoodsOpAnalyzeFilt::fPriceWithoutExcise));
 	pBlk->ArID  = (f & GoodsOpAnalyzeFilt::fIntrReval) ? pPack->Rec.Object : 0L;
 	pBlk->OpID  = pPack->Rec.OpID;
 	pBlk->LocID = (f & GoodsOpAnalyzeFilt::fEachLocation) ? pPack->Rec.LocID : LocList_.GetSingle();
@@ -3067,27 +3273,27 @@ void PPViewGoodsOpAnalyze::InitAddingBlock(const PPBillPacket * pPack, double pa
 int PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const PPIDArray * pSupplBillList, long substBillVal, GoaAddingBlock * pBlk)
 {
 	int    ok = 1;
+	const  PPID goods_id = labs(pTi->GoodsID);
 	if(Filt.SupplID && pTi->Suppl != Filt.SupplID)
 		return -1;
 	if(P_TradePlanPacket && !(pBlk->Flags & GoaAddingBlock::fTradePlan) && Filt.Flags & GoodsOpAnalyzeFilt::fTradePlanGoodsOnly) {
-		PPID goods_id = labs(pTi->GoodsID);
 		if(!P_TradePlanPacket->lsearch(&goods_id, 0, CMPF_LONG, offsetof(PPTransferItem, GoodsID)))
 			return -1;
 	}
-	if(GObj.Fetch(pTi->GoodsID, &pBlk->GoodsRec) <= 0)
+	if(GObj.Fetch(goods_id, &pBlk->GoodsRec) <= 0)
 		return -1;
 	if(Filt.GoodsIdList.IsExists()) {
 		if(Filt.IsLeadedInOutAnalyze())
 			;
-		else if(!Filt.GoodsIdList.CheckID(labs(pTi->GoodsID)))
+		else if(!Filt.GoodsIdList.CheckID(goods_id))
 			return -1;
 	}
 	else if(Filt.GoodsGrpID) {
 		if(P_GoodsList) {
-			if(!P_GoodsList->Has(labs(pTi->GoodsID)))
+			if(!P_GoodsList->Has(goods_id))
 				return -1;
 		}
-		else if(!GObj.BelongToGroup(pTi->GoodsID, Filt.GoodsGrpID, &pBlk->ParentGrpID))
+		else if(!GObj.BelongToGroup(goods_id, Filt.GoodsGrpID, &pBlk->ParentGrpID))
 			return -1;
 	}
 	if(pSupplBillList) {
@@ -3116,7 +3322,7 @@ int PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const PPIDArr
 	if(pBlk->Part != 0.0 && pBlk->Part != 1.0)
 		pBlk->Qtty *= pBlk->Part;
 	double phuperu = 0.0;
-	pBlk->PhQtty = (GObj.GetPhUPerU(pTi->GoodsID, 0, &phuperu) > 0) ? (pBlk->Qtty * phuperu) : 0.0;
+	pBlk->PhQtty = (GObj.GetPhUPerU(goods_id, 0, &phuperu) > 0) ? (pBlk->Qtty * phuperu) : 0.0;
 	if(Filt.Flags & GoodsOpAnalyzeFilt::fIntrReval)
 		pBlk->Cost = pTi->Price;
 	else if(State & sAccsCost)
@@ -3128,7 +3334,7 @@ int PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const PPIDArr
 			pBlk->Cost = pTi->Cost;
 	if(Filt.QuotKindID > 0) {
 		const QuotIdent qi(pBlk->LocID, Filt.QuotKindID);
-		GObj.GetQuotExt(pTi->GoodsID, qi, pTi->Cost, pTi->Price, &pBlk->Price, 1);
+		GObj.GetQuotExt(goods_id, qi, pTi->Cost, pTi->Price, &pBlk->Price, 1);
 	}
 	else if(pTi->Flags & PPTFR_REVAL) {
 		pBlk->OldPrice = pTi->Discount;
@@ -3144,7 +3350,7 @@ int PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const PPIDArr
 	if((pTi->Flags & (PPTFR_COSTWOVAT|PPTFR_PRICEWOTAXES)) || (pBlk->Flags & GoaAddingBlock::fIncomeWithoutExcise) ||
 		(Filt.Flags & (GoodsOpAnalyzeFilt::fCalcCVat|GoodsOpAnalyzeFilt::fCalcPVat))) {
 		double tax_factor = 1.0;
-		GObj.MultTaxFactor(pTi->GoodsID, &tax_factor);
+		GObj.MultTaxFactor(goods_id, &tax_factor);
 		const  PPID   lot_tg_id   = pTi->LotTaxGrpID;
 		const  PPID   goods_tg_id = pBlk->GoodsRec.TaxGrpID;
 		if(!(Filt.Flags & GoodsOpAnalyzeFilt::fIntrReval) && pTi->Flags & PPTFR_COSTWOVAT) {
@@ -3157,7 +3363,7 @@ int PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const PPIDArr
 			PPGoodsTaxEntry gtx;
 			int    re = BIN(pTi->Flags & PPTFR_RMVEXCISE);
 			int    excl_stax = BIN((CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re);
-			if(GObj.FetchTax(pTi->GoodsID, pTi->Date, pBlk->OpID, &gtx) > 0) {
+			if(GObj.FetchTax(goods_id, pTi->Date, pBlk->OpID, &gtx) > 0) {
 				if(pTi->Flags & PPTFR_PRICEWOTAXES) {
 					GObj.AdjPriceToTaxes(gtx.TaxGrpID, tax_factor, &pBlk->Price, excl_stax);
 					if(pBlk->OldPrice != 0.0 && !(Filt.Flags & GoodsOpAnalyzeFilt::fPriceDeviation) && !P_TradePlanPacket)
@@ -3186,7 +3392,7 @@ int PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const PPIDArr
 		sgg_blk.ExclParentID = Filt.GoodsGrpID;
 		sgg_blk.LocID = pTi->LocID;
 		sgg_blk.LotID = pTi->LotID;
-		THROW(GObj.SubstGoods(pTi->GoodsID, &pBlk->FinalGoodsID, Filt.Sgg, &sgg_blk, &Gsl));
+		THROW(GObj.SubstGoods(goods_id, &pBlk->FinalGoodsID, Filt.Sgg, &sgg_blk, &Gsl));
 	}
 	if(Filt.Flags & GoodsOpAnalyzeFilt::fCompareWithReceipt)
 		pBlk->PhQtty = pBlk->OldPrice = pBlk->OldCost = 0.0;
@@ -3201,7 +3407,7 @@ int PPViewGoodsOpAnalyze::CreateOrderTable(IterOrder ord, TempOrderTbl ** ppTbl)
 	*ppTbl = 0;
 	if(oneof5(ord, OrdByQtty, OrdByCostSum, OrdByPriceSum, OrdByIncome, OrdByRest)) {
 		TempGoodsOprTbl * p_t = P_TempTbl;
-		BExtQuery q(P_TempTbl, 0, 64);
+		BExtQuery q(p_t, 0, 64);
 		THROW(p_o = CreateTempOrderFile());
 		{
 			SString temp_buf;
@@ -3499,13 +3705,17 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 		int    loc_ins_col = (Filt.OpGrpID == GoodsOpAnalyzeFilt::ogInOutAnalyze) ? 2 : 1;
 		uint   brw_id = pBrw->GetResID();
 		SString temp_buf;
-		if(brw_id == BROWSER_GOODSOPER && Filt.Flags & GoodsOpAnalyzeFilt::fCalcRest) {
-			pBrw->insertColumn(-1, "@rest", 15, 0, MKSFMTD(10, 6, NMBF_NOTRAILZ|NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT);
+		if(brw_id == BROWSER_GOODSOPER_MP) { // @v12.1.7
+			assert(Filt.OpGrpID == GoodsOpAnalyzeFilt::ogMarketplaceSalesAnalyze);
+
+		}
+		else if(brw_id == BROWSER_GOODSOPER && Filt.Flags & GoodsOpAnalyzeFilt::fCalcRest) {
+			pBrw->insertColumn(-1, "@rest", 16, 0, MKSFMTD(10, 6, NMBF_NOTRAILZ|NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT); // @v12.1.7 +1
 			if(Filt.Flags & GoodsOpAnalyzeFilt::fCalcOrder) {
-				pBrw->InsColumn(-1, "@booking", 13, 0, MKSFMTD(10, 3, NMBF_NOTRAILZ|NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT);
+				pBrw->InsColumn(-1, "@booking", 14, 0, MKSFMTD(10, 3, NMBF_NOTRAILZ|NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT); // @v12.1.7 +1
 			}
 			if(Filt.Flags & GoodsOpAnalyzeFilt::fShowSStatSales) {
-				pBrw->InsColumn(-1, "@avgdaylysales", 10, 0, MKSFMTD(10, 3, NMBF_NOTRAILZ|NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT);
+				pBrw->InsColumn(-1, "@avgdaylysales", 11, 0, MKSFMTD(10, 3, NMBF_NOTRAILZ|NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT); // @v12.1.7 +1
 			}
 		}
 		else if(brw_id == BROWSER_ABCANLZ) {
@@ -3517,10 +3727,10 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 				PPGetWord(PPWORD_REST_IN, 0, temp_buf);
 				grp.P_Text = newStr(temp_buf);
 				pBrw->getDef()->addGroup(&grp);
-				pBrw->InsColumnWord(-1, PPWORD_COST, 16, 0, MKSFMTD(11, 2, NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT);
-				pBrw->InsColumnWord(-1, PPWORD_PRICE_P, 17, 0, MKSFMTD(10, 2, NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT);
+				pBrw->InsColumnWord(-1, PPWORD_COST,    17, 0, MKSFMTD(11, 2, NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT); // @v12.1.7 +1
+				pBrw->InsColumnWord(-1, PPWORD_PRICE_P, 18, 0, MKSFMTD(10, 2, NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT); // @v12.1.7 +1
 			}
-			pBrw->InsColumnWord(6, PPWORD_POS, 13, 0, MKSFMTD(8, 0, NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT);
+			pBrw->InsColumnWord(6, PPWORD_POS, 14, 0, MKSFMTD(8, 0, NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT); // @v12.1.7 +1
 		}
 		//
 		// Сравнение товарного отчета по операции за 2 разных периода
@@ -3536,91 +3746,96 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 			if(Filt.Flags & GoodsOpAnalyzeFilt::fComparePctDiff)
 				diff_title.Space().CatChar('%');
 			for(uint i = 0, first_c = 1; i < Filt.CompareItems.getCount(); i++) {
-				uint c = 0, c2 = 0, c3 = 0, c4 = 0, cols_count = 0;
-				long id = Filt.CompareItems.at(i).ObjID, flags = Filt.CompareItems.at(i).Flags;
-				int main_prd = BIN(flags & GoodsOpAnalyzeFilt::ffldMainPeriod);
-				int add_prd  = BIN(flags & GoodsOpAnalyzeFilt::ffldCmpPeriod);
-				int diff     = BIN(flags & GoodsOpAnalyzeFilt::ffldDiff);
+				uint c = 0;
+				uint c2 = 0;
+				uint c3 = 0;
+				uint c4 = 0;
+				uint cols_count = 0;
+				const long id = Filt.CompareItems.at(i).ObjID;
+				const long flags = Filt.CompareItems.at(i).Flags;
+				const bool is_main_prd = LOGIC(flags & GoodsOpAnalyzeFilt::ffldMainPeriod);
+				const bool is_add_prd  = LOGIC(flags & GoodsOpAnalyzeFilt::ffldCmpPeriod);
+				const bool is_diff     = LOGIC(flags & GoodsOpAnalyzeFilt::ffldDiff);
 				SString c_title;
 				switch(id) {
 					case GoodsOpAnalyzeFilt::fldidQtty:
 						PPLoadString("qtty", c_title);
-						c  = 3;
-						c2 = 22;
-						c3 = 33;
+						c  = 4; // @v12.1.7 +1
+						c2 = 23; // @v12.1.7 +1
+						c3 = 34; // @v12.1.7 +1
 						break;
 					case GoodsOpAnalyzeFilt::fldidRest:
 						PPLoadString("rest", c_title);
-						c  = 11;
-						c2 = 23;
-						c3 = 34;
+						c  = 12; // @v12.1.7 +1
+						c2 = 24; // @v12.1.7 +1
+						c3 = 35; // @v12.1.7 +1
 						break;
 					case GoodsOpAnalyzeFilt::fldidCostRest:
 						PPGetWord(PPWORD_REST_IN, 0, c_title);
 						PPGetWord(PPWORD_COST,    0, temp_buf);
 						c_title.Space().Cat(temp_buf);
-						c  = 16;
-						c2 = 24;
-						c3 = 35;
+						c  = 17; // @v12.1.7 +1
+						c2 = 25; // @v12.1.7 +1
+						c3 = 36; // @v12.1.7 +1
 						break;
 					case GoodsOpAnalyzeFilt::fldidPriceRest:
 						PPGetWord(PPWORD_REST_IN, 0, c_title);
 						PPGetWord(PPWORD_PRICE_P, 0, temp_buf);
 						c_title.Space().Cat(temp_buf);
-						c  = 17;
-						c2 = 25;
-						c3 = 36;
+						c  = 18; // @v12.1.7 +1
+						c2 = 26; // @v12.1.7 +1
+						c3 = 37; // @v12.1.7 +1
 						break;
 					case GoodsOpAnalyzeFilt::fldidCostAmount:
 						PPGetWord(PPWORD_SUM_IN, 0, c_title);
 						PPGetWord(PPWORD_COST,   0, temp_buf);
 						c_title.Space().Cat(temp_buf);
-						c  = 5;
-						c2 = 26;
-						c3 = 37;
+						c  =  6; // @v12.1.7 +1
+						c2 = 27; // @v12.1.7 +1
+						c3 = 38; // @v12.1.7 +1
 						break;
 					case GoodsOpAnalyzeFilt::fldidPriceAmount:
 						PPGetWord(PPWORD_SUM_IN,  0, c_title);
 						PPGetWord(PPWORD_PRICE_P, 0, temp_buf);
 						c_title.Space().Cat(temp_buf);
-						c  = 6;
-						c2 = 27;
-						c3 = 38;
+						c  =  7; // @v12.1.7 +1
+						c2 = 28; // @v12.1.7 +1
+						c3 = 39; // @v12.1.7 +1
 						break;
 					case GoodsOpAnalyzeFilt::fldidIncome:
 						PPLoadString("income", c_title);
-						c  = 7;
-						c2 = 28;
-						c3 = 39;
+						c  =  8; // @v12.1.7 +1
+						c2 = 29; // @v12.1.7 +1
+						c3 = 40; // @v12.1.7 +1
 						break;
 					case GoodsOpAnalyzeFilt::fldidPctProfitable:
 						PPLoadString("income", c_title);
 						c_title.Space().CatChar('%');
-						c  = 29;
-						c2 = 31;
-						c3 = 40;
+						c  = 30; // @v12.1.7 +1
+						c2 = 32; // @v12.1.7 +1
+						c3 = 41; // @v12.1.7 +1
 						break;
 					case GoodsOpAnalyzeFilt::fldidPctMargin:
 						PPGetWord(PPWORD_MARGIN, 0, c_title);
 						c_title.Space().CatChar('%');
-						c  = 30;
-						c2 = 32;
-						c3 = 41;
+						c  = 31; // @v12.1.7 +1
+						c2 = 33; // @v12.1.7 +1
+						c3 = 42; // @v12.1.7 +1
 						break;
 				}
-				if(main_prd) {
+				if(is_main_prd) {
 					pBrw->insertColumn(-1, main_title, c, 0L, MKSFMTD(10, 2, NMBF_NOZERO), 0);
 					cols_count++;
 				}
-				if(add_prd) {
+				if(is_add_prd) {
 					pBrw->insertColumn(-1, add_title, c2, 0L, MKSFMTD(10, 2, NMBF_NOZERO), 0);
 					cols_count++;
 				}
-				if(diff) {
+				if(is_diff) {
 					pBrw->insertColumn(-1, diff_title, c3, 0L, MKSFMTD(10, 2, NMBF_NOZERO), 0);
 					cols_count++;
 				}
-				if(main_prd || add_prd || diff) {
+				if(is_main_prd || is_add_prd || is_diff) {
 					BrowserDef * p_def = pBrw->getDef();
 					if(p_def) {
 						BroGroup grp;
@@ -3636,13 +3851,72 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 			}
 		}
 		if(P_Ct == 0 && Filt.Flags & GoodsOpAnalyzeFilt::fEachLocation && Filt.ABCAnlzGroup <= 0) {
-			pBrw->InsColumn(loc_ins_col, "@warehouse", 18, 0, 0, 0);
+			pBrw->InsColumn(loc_ins_col, "@warehouse", 19, 0, 0, 0); // @v12.1.7 +1
 		}
 		if(Filt.Sgg == sggNone && !Filt.Sgb) {
-			pBrw->InsColumn(1, "@barcode", (P_Ct) ? 3 : 19, 0, 0, 0);
+			pBrw->InsColumn(1, "@barcode", (P_Ct ? 3 : 20), 0, 0, 0); // @v12.1.7 19-->20
 		}
 		pBrw->SetTempGoodsGrp(Filt.GoodsGrpID);
 	}
+}
+
+/*static*/int FASTCALL PPViewGoodsOpAnalyze::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	PPViewGoodsOpAnalyze * p_v = static_cast<PPViewGoodsOpAnalyze *>(pBlk->ExtraPtr);
+	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
+}
+
+int PPViewGoodsOpAnalyze::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	int    ok = 0;
+	if(pBlk->P_SrcData && pBlk->P_DestData) {
+		if(Filt.OpGrpID == GoodsOpAnalyzeFilt::ogMarketplaceSalesAnalyze) {
+			const BrwHdr * p_item = static_cast<const BrwHdr *>(pBlk->P_SrcData);
+			/*
+				#define PPBZSI_MPACCEPTANCE           11 // @v12.1.6 "MPACCEPTANCE" Стоимость приемки товара на складе маркетплейса
+				#define PPBZSI_MPSTORAGE              12 // @v12.1.6 "MPSTORAGE" Стоимость хранения товара на складе маркетплейса
+				108 * #define PPBZSI_MPCOMMISSION           13 // @v12.1.6 "MPCOMMISSION" Сумма комиссионного вознаграждения маркетплейса
+				#define PPBZSI_MPCOMMISSIONPCT        14 // @v12.1.6 "MPCOMMISSIONPCT" Процент комиссионного вознаграждения маркетплейса от суммы продажи
+				107 * #define PPBZSI_MPSELLERSPART          15 // @v12.1.6 "MPSELLERSPART" Сумма, перечисляемая маркетплейсом продавцу за проданный товар
+				#define PPBZSI_MPSELLERSPARTPCT       16 // @v12.1.6 "MPSELLERSPARTPCT" Процент доли, перечисляемоей маркетплейсом продавцу за проданный товар, от суммы продажи
+				109 * #define PPBZSI_MPACQUIRING            17 // @v12.1.6 "MPACQUIRING" Стоимость экваринга на стороне маркетплейса, котороую маркетплейс переносит на поставщика 
+				#define PPBZSI_MPACQUIRINGPCT         18 // @v12.1.6 "MPACQUIRINGPCT" Процент доли экваринга на стороне маркетплейса, котороую маркетплейс переносит на поставщика, от суммы продажи
+				101 & #define PPBZSI_ORDCOUNT               19 // @v12.1.6 "ordcount"  Количество документов заказа
+				102 & #define PPBZSI_ORDQTTY                20 // @v12.1.6 "ordqtty"   Заказанное количество торговых единиц  
+				103 * #define PPBZSI_SALECOUNT              21 // @v12.1.6 "salecount" Количество документов продажи
+				104 * #define PPBZSI_SALEQTTY               22 // @v12.1.6 "saleqtty"  Проданное количество торговых единиц 
+				105 * #define PPBZSI_ORDCANCELLEDCOUNT      23 // @v12.1.6 "ordcancelledcount" Количество заказоы которые были отменены
+				106 * #define PPBZSI_ORDCANCELLEDQTTY       24 // @v12.1.6 "ordcancelledqtty"  Количество торговых единиц товара, заказы на которые были отменены
+				#define PPBZSI_ORDSHIPMDELAYDAYSAVG   25 // @v12.1.6 "ordshipmdelaydaysavg"   Средний период между заказом и продажей в днях
+				#define PPBZSI_ORDSHIPMDELAYDAYSMIN   26 // @v12.1.6 "ordshipmdelaydaysmin"   Минимальный период между заказом и продажей в днях  
+				#define PPBZSI_ORDSHIPMDELAYDAYSMAX   27 // @v12.1.6 "ordshipmdelaydaysmax"   Максимальный период между заказом и продажей в днях  
+				#define PPBZSI_SUPPLSHIPMDELAYDAYSAVG 28 // @v12.1.6 "supplshipmdelaydaysavg" Средний период между поставкой и продажей в днях
+				& #define PPBZSI_ORDSHIPMDELAYDAYS      29 // @v12.1.7 "ordshipmdelaydays"      Суммарное количество дней между заказом и продажей (вспомогательное значение для получения более осмысленных относительных величин)
+				#define PPBZSI_SUPPLSHIPMDELAYDAYS    30 // @v12.1.7 "supplshipmdelaydays"    Суммарное количество дней между поставкой и продажей (вспомогательное значение для получения более осмысленных относительных величин)
+			*/
+			switch(pBlk->ColumnN) {
+				case 101: // PPBZSI_ORDCOUNT
+					break; 
+				case 102: // PPBZSI_ORDQTTY
+					break;
+				case 103: // PPBZSI_SALECOUNT
+					break;
+				case 104: // PPBZSI_SALEQTTY
+					break;
+				case 105: // PPBZSI_ORDCANCELLEDCOUNT
+					break;
+				case 106: // PPBZSI_ORDCANCELLEDQTTY
+					break;
+				case 107: // PPBZSI_MPSELLERSPART
+					break;
+				case 108: // PPBZSI_MPCOMMISSION
+					break;
+				case 109: // PPBZSI_MPACQUIRING
+					break;
+			}
+		}
+	}
+	return ok;
 }
 
 DBQuery * PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString * pSubTitle)
@@ -3654,14 +3928,22 @@ DBQuery * PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString * pSub
 	TempGoodsOprTbl * p_add_ttbl = 0;
 	TempOrderTbl    * p_ot = 0;
 	DBQ  * dbq = 0;
-	DBE    dbe_loc, dbe_pct_qtty, dbe_pct_sum;
-	DBE    dbe_cqtty, dbe_crest;
+	DBE    dbe_loc;
+	DBE    dbe_pct_qtty;
+	DBE    dbe_pct_sum;
+	DBE    dbe_cqtty;
+	DBE    dbe_crest;
 	DBE    dbe_pct_income1;
 	DBE    dbe_pct_income2;
 	DBE    dbe_pct_margin1;
 	DBE    dbe_pct_margin2;
-	DBE    dbe_diffpct_qtty, dbe_diffpct_rest, dbe_diffpct_restcost, dbe_diffpct_restprice;
-	DBE    dbe_diffpct_sumcost, dbe_diffpct_sumprice, dbe_diffpct_income;
+	DBE    dbe_diffpct_qtty;
+	DBE    dbe_diffpct_rest;
+	DBE    dbe_diffpct_restcost;
+	DBE    dbe_diffpct_restprice;
+	DBE    dbe_diffpct_sumcost;
+	DBE    dbe_diffpct_sumprice;
+	DBE    dbe_diffpct_income;
 	DBE    dbe_diffpct_profit;
 	DBE    dbe_diffpct_margin;
 	DBQuery * q = 0;
@@ -3671,7 +3953,9 @@ DBQuery * PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString * pSub
 			P_CmpView->GetTempTableName(tbl_name);
 			THROW_MEM(p_add_ttbl = new TempGoodsOprTbl(tbl_name));
 		}
-		if(p_add_ttbl)
+		if(Filt.OpGrpID == GoodsOpAnalyzeFilt::ogMarketplaceSalesAnalyze) // @v12.1.7
+			brw_id = BROWSER_GOODSOPER_MP;
+		else if(p_add_ttbl)
 			brw_id = BROWSER_GOODSOPER_COMPARE;
 		else if(Filt.ABCAnlzGroup > 0)
 			brw_id = BROWSER_ABCANLZ;
@@ -3722,39 +4006,41 @@ DBQuery * PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString * pSub
 			dbe_crest.push(static_cast<DBFunc>(PPDbqFuncPool::IdCQtty));
 		}
 		q = & select(
-			tbl->LocID,          // #00
-			tbl->GoodsID,        // #01
-			tbl->Text,           // #02
-			tbl->Quantity,       // #03
-			tbl->PhQtty,         // #04
-			tbl->SumCost,        // #05
-			tbl->SumPrice,       // #06
-			tbl->Income,         // #07
-			tbl->InOutTag,       // #08
-			tbl->PctVal,         // #09
-			tbl->OldPrice,       // #10
-			tbl->Rest,           // #11
-			tbl->Price,          // #12
-			tbl->OldCost,        // #13
+			tbl->ID__,           // #00 // @v12.1.7  
+    
+			tbl->LocID,          // #01 // @v12.1.7 +1
+			tbl->GoodsID,        // #02 // @v12.1.7 +1
+			tbl->Text,           // #03 // @v12.1.7 +1
+			tbl->Quantity,       // #04 // @v12.1.7 +1
+			tbl->PhQtty,         // #05 // @v12.1.7 +1
+			tbl->SumCost,        // #06 // @v12.1.7 +1
+			tbl->SumPrice,       // #07 // @v12.1.7 +1
+			tbl->Income,         // #08 // @v12.1.7 +1
+			tbl->InOutTag,       // #09 // @v12.1.7 +1
+			tbl->PctVal,         // #10 // @v12.1.7 +1
+			tbl->OldPrice,       // #11 // @v12.1.7 +1
+			tbl->Rest,           // #12 // @v12.1.7 +1
+			tbl->Price,          // #13 // @v12.1.7 +1
+			tbl->OldCost,        // #14 // @v12.1.7 +1
 			0L);
-		q->addField(dbe_cqtty);         // #14
-		q->addField(dbe_crest);         // #15
-		q->addField(tbl->RestCostSum);  // #16
-		q->addField(tbl->RestPriceSum); // #17
+		q->addField(dbe_cqtty);         // #15 // @v12.1.7 +1
+		q->addField(dbe_crest);         // #16 // @v12.1.7 +1
+		q->addField(tbl->RestCostSum);  // #17 // @v12.1.7 +1
+		q->addField(tbl->RestPriceSum); // #18 // @v12.1.7 +1
 		{
 			PPDbqFuncPool::InitObjNameFunc(dbe_loc, PPDbqFuncPool::IdObjNameLoc, tbl->LocID);
-			q->addField(dbe_loc);          // #18
+			q->addField(dbe_loc);       // #19 // @v12.1.7 +1
 		}
-		q->addField(tbl->Barcode);         // #19
+		q->addField(tbl->Barcode);      // #20 // @v12.1.7 +1
 		if(P_TradePlanPacket) {
 			PPDbqFuncPool::InitPctFunc(dbe_pct_qtty, tbl->Quantity, tbl->OldCost, 0);
 			PPDbqFuncPool::InitPctFunc(dbe_pct_sum,  tbl->SumPrice, tbl->OldPrice, 0);
-			q->addField(dbe_pct_qtty);     // #20
-			q->addField(dbe_pct_sum);      // #21
+			q->addField(dbe_pct_qtty);  // #21 // @v12.1.7 +1
+			q->addField(dbe_pct_sum);   // #22 // @v12.1.7 +1
 		}
 		else {
-			q->addField(tbl->ID__); // #20
-			q->addField(tbl->ID__); // #21
+			q->addField(tbl->ID__);     // #21 // @v12.1.7 +1
+			q->addField(tbl->ID__);     // #22 // @v12.1.7 +1
 		}
 		//
 		// Сравнение товарного отчета по операции за 2 разных периода
@@ -3767,34 +4053,34 @@ DBQuery * PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString * pSub
 			//
 			// Значения для дополнительного периода
 			//
-			q->addField(p_add_ttbl->Quantity);       // #22
-			q->addField(p_add_ttbl->Rest);           // #23
-			q->addField(p_add_ttbl->RestCostSum);    // #24
-			q->addField(p_add_ttbl->RestPriceSum);   // #25
-			q->addField(p_add_ttbl->SumCost);        // #26
-			q->addField(p_add_ttbl->SumPrice);       // #27
-			q->addField(p_add_ttbl->Income);         // #28
-			q->addField(dbe_pct_income1);            // #29
-			q->addField(dbe_pct_margin1);            // #30
-			q->addField(dbe_pct_income2);            // #31
-			q->addField(dbe_pct_margin2);            // #32
+			q->addField(p_add_ttbl->Quantity);       // #23 // @v12.1.7 +1
+			q->addField(p_add_ttbl->Rest);           // #24 // @v12.1.7 +1
+			q->addField(p_add_ttbl->RestCostSum);    // #25 // @v12.1.7 +1
+			q->addField(p_add_ttbl->RestPriceSum);   // #26 // @v12.1.7 +1
+			q->addField(p_add_ttbl->SumCost);        // #27 // @v12.1.7 +1
+			q->addField(p_add_ttbl->SumPrice);       // #28 // @v12.1.7 +1
+			q->addField(p_add_ttbl->Income);         // #29 // @v12.1.7 +1
+			q->addField(dbe_pct_income1);            // #30 // @v12.1.7 +1
+			q->addField(dbe_pct_margin1);            // #31 // @v12.1.7 +1
+			q->addField(dbe_pct_income2);            // #32 // @v12.1.7 +1
+			q->addField(dbe_pct_margin2);            // #33 // @v12.1.7 +1
 			//
 			// Разница
 			//
 			if(!(Filt.Flags & GoodsOpAnalyzeFilt::fComparePctDiff)) {
-				q->addField(tbl->Quantity     - p_add_ttbl->Quantity);       // #33
-				q->addField(tbl->Rest         - p_add_ttbl->Rest);           // #34
-				q->addField(tbl->RestCostSum  - p_add_ttbl->RestCostSum);    // #35
-				q->addField(tbl->RestPriceSum - p_add_ttbl->RestPriceSum);   // #36
-				q->addField(tbl->SumCost      - p_add_ttbl->SumCost);        // #37
-				q->addField(tbl->SumPrice     - p_add_ttbl->SumPrice);       // #38
-				q->addField(tbl->Income       - p_add_ttbl->Income);         // #39
+				q->addField(tbl->Quantity     - p_add_ttbl->Quantity);       // #34 // @v12.1.7 +1
+				q->addField(tbl->Rest         - p_add_ttbl->Rest);           // #35 // @v12.1.7 +1
+				q->addField(tbl->RestCostSum  - p_add_ttbl->RestCostSum);    // #36 // @v12.1.7 +1
+				q->addField(tbl->RestPriceSum - p_add_ttbl->RestPriceSum);   // #37 // @v12.1.7 +1
+				q->addField(tbl->SumCost      - p_add_ttbl->SumCost);        // #38 // @v12.1.7 +1
+				q->addField(tbl->SumPrice     - p_add_ttbl->SumPrice);       // #39 // @v12.1.7 +1
+				q->addField(tbl->Income       - p_add_ttbl->Income);         // #40 // @v12.1.7 +1
 				dbe_pct_income1.DontDestroy = 1;
 				dbe_pct_income2.DontDestroy = 1;
 				dbe_pct_margin1.DontDestroy = 1;
 				dbe_pct_margin2.DontDestroy = 1;
-				q->addField(dbe_pct_income1 - dbe_pct_income2);              // #40
-				q->addField(dbe_pct_margin1 - dbe_pct_margin2);              // #41
+				q->addField(dbe_pct_income1 - dbe_pct_income2);              // #41 // @v12.1.7 +1
+				q->addField(dbe_pct_margin1 - dbe_pct_margin2);              // #42 // @v12.1.7 +1
 			}
 			//
 			// Разница в %
@@ -3865,15 +4151,15 @@ DBQuery * PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString * pSub
 				dbe_diffpct_margin.push(dbe_pct_margin2);
 				dbe_diffpct_margin.push(static_cast<DBFunc>(PPDbqFuncPool::IdPercent));
 
-				q->addField(dbe_diffpct_qtty);                               // #33
-				q->addField(dbe_diffpct_rest);                               // #34
-				q->addField(dbe_diffpct_restcost);                           // #35
-				q->addField(dbe_diffpct_restprice);                          // #36
-				q->addField(dbe_diffpct_sumcost);                            // #37
-				q->addField(dbe_diffpct_sumprice);                           // #38
-				q->addField(dbe_diffpct_income);                             // #39
-				q->addField(dbe_diffpct_profit);                             // #40
-				q->addField(dbe_diffpct_margin);                             // #41
+				q->addField(dbe_diffpct_qtty);      // #34 // @v12.1.7 +1
+				q->addField(dbe_diffpct_rest);      // #35 // @v12.1.7 +1
+				q->addField(dbe_diffpct_restcost);  // #36 // @v12.1.7 +1
+				q->addField(dbe_diffpct_restprice); // #37 // @v12.1.7 +1
+				q->addField(dbe_diffpct_sumcost);   // #38 // @v12.1.7 +1
+				q->addField(dbe_diffpct_sumprice);  // #39 // @v12.1.7 +1
+				q->addField(dbe_diffpct_income);    // #40 // @v12.1.7 +1
+				q->addField(dbe_diffpct_profit);    // #41 // @v12.1.7 +1
+				q->addField(dbe_diffpct_margin);    // #42 // @v12.1.7 +1
 			}
 		}
 		if(p_add_ttbl) {

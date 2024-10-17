@@ -796,12 +796,10 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 				return 0;
 			else if(Filt.WeekDays && !(Filt.WeekDays & (1 << dayofweek(&pRec->Dt, 0))))
 				return 0;
-			// @v10.0.02 {
 			else if(Filt.AltRegF > 0 && !(f & CCHKF_ALTREG))
 				return 0;
 			else if(Filt.AltRegF < 0 && (f & CCHKF_ALTREG))
 				return 0;
-			// } @v10.0.02
 			else if(Filt.HourBefore) {
 				const LTIME hour_low = encodetime(Filt.HourBefore-1, 0, 0, 0);
 				const LTIME hour_upp = encodetime(Filt.HourBefore,   0, 0, 0);
@@ -1832,7 +1830,6 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 		ImplementFlags |= implChangeFilt;
 	}
 	else if(P_TmpGrpTbl && Filt.CtKind != TrfrAnlzFilt::ctNone) {
-		// @v10.3.0 (never used) int    setup_total = 0;
 		DBFieldList total_list;
 		StringSet total_title_list;
 		THROW_MEM(P_Ct = new CCheckCrosstab(this));
@@ -1840,17 +1837,17 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 			P_Ct->SetTable(P_TmpGrpTbl, P_TmpGrpTbl->Dt);
 		P_Ct->AddIdxField(P_TmpGrpTbl->GoodsID);
 		P_Ct->AddInheritedFixField(P_TmpGrpTbl->Text);
-		if(Filt.CtValList.CheckID(CCheckFilt::ctvChecksSum) > 0) {
+		if(Filt.CtValList.CheckID(CCheckFilt::ctvChecksSum)) {
 			P_Ct->AddAggrField(P_TmpGrpTbl->Amount);
 			total_list.Add(P_TmpGrpTbl->Amount);
 			total_title_list.add(GetCtColumnTitle(CCheckFilt::ctvChecksSum, temp_buf));
 		}
-		if(Filt.CtValList.CheckID(CCheckFilt::ctvChecksCount) > 0) {
+		if(Filt.CtValList.CheckID(CCheckFilt::ctvChecksCount)) {
 			P_Ct->AddAggrField(P_TmpGrpTbl->Count);
 			total_list.Add(P_TmpGrpTbl->Count);
 			total_title_list.add(GetCtColumnTitle(CCheckFilt::ctvChecksCount, temp_buf));
 		}
-		if(Filt.CtValList.CheckID(CCheckFilt::ctvSKUCount) > 0) {
+		if(Filt.CtValList.CheckID(CCheckFilt::ctvSKUCount)) {
 			P_Ct->AddAggrField(P_TmpGrpTbl->SkuCount);
 			total_list.Add(P_TmpGrpTbl->SkuCount);
 			total_title_list.add(GetCtColumnTitle(CCheckFilt::ctvSKUCount, temp_buf));
@@ -2710,15 +2707,15 @@ void PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 
 				p_def->FreeAllCrosstab();
 				const long dfmt = MKSFMTD(col_width, 2, NMBF_NOZERO);
-				if(Filt.CtValList.CheckID(CCheckFilt::ctvChecksSum) > 0) {
+				if(Filt.CtValList.CheckID(CCheckFilt::ctvChecksSum)) {
 					GetCtColumnTitle(CCheckFilt::ctvChecksSum, title);
 					ADDCTCOLUMN(T_DOUBLE, title, dfmt, 0, col_width);
 				}
-				if(Filt.CtValList.CheckID(CCheckFilt::ctvChecksCount) > 0) {
+				if(Filt.CtValList.CheckID(CCheckFilt::ctvChecksCount)) {
 					GetCtColumnTitle(CCheckFilt::ctvChecksCount, title);
 					ADDCTCOLUMN(T_DOUBLE, title, dfmt, 0, col_width);
 				}
-				if(Filt.CtValList.CheckID(CCheckFilt::ctvSKUCount) > 0) {
+				if(Filt.CtValList.CheckID(CCheckFilt::ctvSKUCount)) {
 					GetCtColumnTitle(CCheckFilt::ctvSKUCount, title);
 					ADDCTCOLUMN(T_DOUBLE, title, dfmt, 0, col_width);
 				}

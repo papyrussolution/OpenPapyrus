@@ -628,7 +628,10 @@ int PPViewQuot::Init_(const PPBaseFilt * pFilt)
 				else {
 					PPQuot * p_quot;
 					for(uint i = 0; !exists && quot_list.enumItems(&i, (void **)&p_quot);) {
-						int    e_qk = 0, e_loc = 0, e_cur = 0, e_ar = 0;
+						int    e_qk = 0;
+						int    e_loc = 0;
+						int    e_cur = 0;
+						int    e_ar = 0;
 						int    sum = 0;
 						if(Filt.QuotKindID) {
 							e_qk = BIN(p_quot->Kind == Filt.QuotKindID);

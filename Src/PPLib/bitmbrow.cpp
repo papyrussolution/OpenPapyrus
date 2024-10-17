@@ -1126,10 +1126,8 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 			if(p_ti->Flags & PPTFR_ONORDER) {
 				uint sh_lot_pos = 0;
 				if(p_pack->SearchShLot(p_ti->OrdLotID, &sh_lot_pos)) {
-                    double ord_qtty = 0.0;
                     ReceiptTbl::Rec lot_rec;
-                    if(P_T->Rcpt.Search(p_ti->OrdLotID, &lot_rec) > 0)
-						ord_qtty = fabs(lot_rec.Quantity);
+                    const double ord_qtty = (P_T->Rcpt.Search(p_ti->OrdLotID, &lot_rec) > 0) ? fabs(lot_rec.Quantity) : 0.0;
                     OrdQttyList.Add(p_ti->OrdLotID, ord_qtty, 0, 0);
 					Total.OrderQtty += ord_qtty;
 				}

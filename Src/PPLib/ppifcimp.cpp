@@ -6,8 +6,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v10.9.3 #include <process.h>
-// @v9.6.2 (moved to pp.h) #include <ppidata.h>
 
 static int IfcImpCheckDictionary() { return CurDict ? 1 : PPSetError(PPERR_NOTLOGGEDIN); }
 static void FASTCALL ReleaseUnknObj(IUnknown ** ppUnkn) { SCOMOBJRELEASE(*ppUnkn); }
@@ -6368,7 +6366,7 @@ ILotList * DL6ICLS_PPObjBill::GetCurLotList(LDATE lowDt, LDATE uppDt, int32 good
 				if(!p_group_goods_list->bsearch(p_lot_rec->GoodsID))
 					to_del = 1;
 			}
-			if(!to_del && !loc_list.IsEmpty() && loc_list.CheckID(p_lot_rec->LocID) <= 0)
+			if(!to_del && !loc_list.IsEmpty() && !loc_list.CheckID(p_lot_rec->LocID))
 				to_del = 1;
 			if(to_del)
 				lot_list.atFree(i);

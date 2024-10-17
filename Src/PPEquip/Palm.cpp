@@ -3490,7 +3490,7 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 			if(rBlk.P_WhList) {
 				for(uint i = 0; i < rBlk.P_WhList->getCount(); i++) {
 					const ExportBlock::WhEntry & r_entry = rBlk.P_WhList->at(i);
-					if(pPack->LocList.CheckID(r_entry.WhID)) { // @v10.8.6
+					if(pPack->LocList.CheckID(r_entry.WhID)) {
 						Sdr_SPIILoc out_loc_rec;
 						out_loc_rec.ID = r_entry.WhID;
 						STRNSCPY(out_loc_rec.Name, r_entry.WhName);

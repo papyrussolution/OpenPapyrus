@@ -35,7 +35,59 @@ static const SIntToSymbTabEntry BzsISymList[] = { // @v12.1.6
 	{ PPBZSI_ORDSHIPMDELAYDAYSMIN,   "ordshipmdelaydaysmin" },
 	{ PPBZSI_ORDSHIPMDELAYDAYSMAX,   "ordshipmdelaydaysmax" },
 	{ PPBZSI_SUPPLSHIPMDELAYDAYSAVG, "supplshipmdelaydaysavg" },
+	{ PPBZSI_ORDSHIPMDELAYDAYS,      "ordshipmdelaydays" },
+	{ PPBZSI_SUPPLSHIPMDELAYDAYS,    "supplshipmdelaydays" },
 };
+
+IMPL_CMPFUNC(BzsValVector_Ident, i1, i2)
+{
+	const BzsValVector * ptr1 = static_cast<const BzsValVector *>(i1);
+	const BzsValVector * ptr2 = static_cast<const BzsValVector *>(i2);
+	return CMPSIGN(ptr1->Ident, ptr2->Ident);
+}
+
+BzsValVector::BzsValVector() : TSVector <BzsVal>(), Ident(0ULL)
+{
+}
+
+int BzsValVector::Add(long id, double value)
+{
+	int    ok = -1;
+	if(id) {
+		uint   idx = 0;
+		if(lsearch(&id, &idx, CMPF_LONG)) {
+			BzsVal & r_item = at(idx);
+			r_item.Val += value;
+			ok = 2;
+		}
+		else {
+			BzsVal new_item;
+			new_item.Bzsi = id;
+			new_item.Val = value;
+			if(insert(&new_item))
+				ok = 1;
+			else
+				ok = PPSetErrorSLib();
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+bool BzsValVector::Get(long id, double * pValue) const
+{
+	bool   ok = false;
+	uint   idx = 0;
+	if(lsearch(&id, &idx, CMPF_LONG)) {
+		ASSIGN_PTR(pValue, at(idx).Val);
+		ok = true;
+	}
+	else {
+		ASSIGN_PTR(pValue, 0.0);
+	}
+	return ok;
+}
 
 /*static*/const char * PPObjBizScore::GetBzsiSymb(int bzsi, SString & rBuf)
 {
