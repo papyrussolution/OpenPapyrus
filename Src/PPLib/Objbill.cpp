@@ -981,7 +981,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 				SString chzn_mark;
 				for(uint i = 0; i < GetTCount(); i++) {
 					const PPTransferItem & r_ti = ConstTI(i);
-					LTagL.GetNumber(PPTAG_LOT_SN, i, serial); // @v11.8.9
+					LTagL.GetString(PPTAG_LOT_SN, i, serial); // @v11.8.9
 					const double org_qtty = fabs(r_ti.Quantity_);
 					double qtty_ = org_qtty;
 					const double n_pr = r_ti.NetPrice();
@@ -1784,10 +1784,10 @@ int PPObjBill::AddExpendByReceipt(PPID * pBillID, PPID sampleBillID, const SelAd
 				ti.Quantity_ = down;
 				THROW(pack.InsertRow(&ti, &rows, 0));
 				if(ti.Flags & PPTFR_RECEIPT || IsIntrExpndOp(pack.Rec.OpID)) {
-					if(sample_pack.LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb) > 0)
-						pack.LTagL.AddNumber(PPTAG_LOT_CLB, &rows, clb);
-					if(sample_pack.LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb) > 0)
-						pack.LTagL.AddNumber(PPTAG_LOT_SN, &rows, clb);
+					if(sample_pack.LTagL.GetString(PPTAG_LOT_CLB, i-1, clb) > 0)
+						pack.LTagL.SetString(PPTAG_LOT_CLB, &rows, clb);
+					if(sample_pack.LTagL.GetString(PPTAG_LOT_SN, i-1, clb) > 0)
+						pack.LTagL.SetString(PPTAG_LOT_SN, &rows, clb);
 				}
 				// Если приходная операция превращается в расходную и количество единиц в строке расхода точно равно
 				// количеству единиц в приходе, то мы имеем право перенести все марки из прихода в расход
@@ -4078,7 +4078,7 @@ int PPObjBill::GetComplete(PPID lotID, long flags, CompleteArray * pList)
 						item.Qtty    = fabs(p_ti->Quantity_);
 						item.Cost    = p_ti->Cost;
 						item.Price   = p_ti->Price;
-						pack.LTagL.GetNumber(PPTAG_LOT_SN, p-1, serial);
+						pack.LTagL.GetString(PPTAG_LOT_SN, p-1, serial);
 						STRNSCPY(item.Serial, serial);
 						THROW_SL(pList->insert(&item));
 						if(p_ti->Flags & PPTFR_RECEIPT && p_ti->LotID) {
@@ -7947,9 +7947,9 @@ int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 				for(i = 0; pPack->EnumTItems(&i, &pti);) {
 					pPack->ErrLine = i-1;
 					CpTrfrExt cte;
-					pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb);
+					pPack->LTagL.GetString(PPTAG_LOT_CLB, i-1, clb);
 					STRNSCPY(cte.Clb, clb);
-					pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb);
+					pPack->LTagL.GetString(PPTAG_LOT_SN, i-1, clb);
 					STRNSCPY(cte.PartNo, clb);
 					// @v10.5.8 {
 					cte.LinkBillID = pti->Lbr.ID; 
@@ -8294,9 +8294,9 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 							pPack->ErrLine = i-1;
 							found = 1;
 							if(p_ti->IsEq(ti)) {
-								pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb);
+								pPack->LTagL.GetString(PPTAG_LOT_CLB, i-1, clb);
 								if(clb.Strip().CmpNC(strip(cte.Clb)) == 0) {
-									pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb);
+									pPack->LTagL.GetString(PPTAG_LOT_SN, i-1, clb);
 									if(clb.Strip().CmpNC(strip(cte.PartNo)) == 0) {
 										if(cte.LinkBillID == p_ti->Lbr.ID && cte.LinkRbb == p_ti->Lbr.RByBill) // @v10.5.8
 											not_changed_lines.add(i);
@@ -8324,9 +8324,9 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 							p_ti->TFlags |= PPTransferItem::tfDirty;
 						}
 						CpTrfrExt cte;
-						pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb);
+						pPack->LTagL.GetString(PPTAG_LOT_CLB, i-1, clb);
 						STRNSCPY(cte.Clb, clb);
-						pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb);
+						pPack->LTagL.GetString(PPTAG_LOT_SN, i-1, clb);
 						STRNSCPY(cte.PartNo, clb);
 						cte.LinkBillID = p_ti->Lbr.ID; 
 						cte.LinkRbb = p_ti->Lbr.RByBill;

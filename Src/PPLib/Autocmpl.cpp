@@ -1015,11 +1015,11 @@ int PPBillPacket::InsertComplete(PPGoodsStruc & rGs, uint pos, PUGL * pDfctList,
 			*/
 		}
 		if(ok > 0 && src_serial.NotEmpty()) {
-			LTagL.GetNumber(PPTAG_LOT_SN, pos, serial);
+			LTagL.GetString(PPTAG_LOT_SN, pos, serial);
 			if(serial.IsEmpty()) {
 				// @todo Следует формировать новую серию по какому-либо шаблону
 				(serial = src_serial).CatChar('-').Cat("???");
-				LTagL.AddNumber(PPTAG_LOT_SN, pos, serial);
+				LTagL.SetString(PPTAG_LOT_SN, pos, serial);
 			}
 		}
 	}

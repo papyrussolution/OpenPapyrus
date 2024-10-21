@@ -1511,16 +1511,13 @@ int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam 
 				r = 1;
 			}
 			else {
-				// @v10.0.12 r = gobj.GetRetailGoodsInfo(p_ti->GoodsID, p_ti->LocID, p_rgi);
-				// @v10.0.12 {
 				p_rgi->Qtty = 1.0;
 			    r = gobj.GetRetailGoodsInfo(p_ti->GoodsID, p_ti->LocID, 0, 0, 1.0, p_rgi, PPObjGoods::rgifConcatQttyToCode);
-				// @v10.0.12 {
 				SETIFZ(p_rgi->Cost, p_ti->Cost);
 				SETIFZ(p_rgi->Price, p_ti->Price);
 				p_rgi->RevalPrice = p_rgi->Price;
 				if(p_rgi->Serial[0] == 0) {
-					pPack->LTagL.GetNumber(PPTAG_LOT_SN, cur_pos, serial);
+					pPack->LTagL.GetString(PPTAG_LOT_SN, cur_pos, serial);
 					STRNSCPY(p_rgi->Serial, serial);
 				}
 			}
@@ -1623,8 +1620,8 @@ int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam 
 				SETIFZ(rgi.Cost, p_ti->Cost);
 				SETIFZ(rgi.Price, p_ti->Price);
 				rgi.RevalPrice = rgi.Price;
-				if(rgi.Serial[0] == 0) {
-					pPack->LTagL.GetNumber(PPTAG_LOT_SN, cur_pos, serial);
+				if(isempty(rgi.Serial)) {
+					pPack->LTagL.GetString(PPTAG_LOT_SN, cur_pos, serial);
 					STRNSCPY(rgi.Serial, serial);
 				}
 			}

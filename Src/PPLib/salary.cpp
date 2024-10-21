@@ -18,7 +18,7 @@ int SalaryCore::Validate(const SalaryTbl::Rec * pRec)
 		THROW(pRec->ID >= 0);
 		THROW_SL(checkdate(pRec->Beg));
 		THROW_SL(checkdate(pRec->End));
-		THROW(pRec->Beg <= pRec->End); // @todo @errorcode
+		THROW_PP_S(pRec->Beg <= pRec->End, PPERR_SALARYREC_BEGENDMISM, pRec->ID); // @v12.1.8 errcode
 		THROW(pRec->PostID > 0 && pRec->PostID < 0x00ffffffL);
 		THROW(pRec->SalChargeID > 0 && pRec->SalChargeID < 0x00ffffffL);
 		THROW(fabs(pRec->Amount) < fpow10i(8));

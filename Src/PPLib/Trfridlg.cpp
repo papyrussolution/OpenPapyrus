@@ -388,7 +388,7 @@ int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData
 			SETIFZ(p_spc_core, new SpecSeriesCore);
 			if(p_spc_core) {
 				SpecSeries2Tbl::Rec spc_rec;
-				if(rPack.LTagL.GetNumber(PPTAG_LOT_SN, itemNo, serial) > 0) {
+				if(rPack.LTagL.GetString(PPTAG_LOT_SN, itemNo, serial) > 0) {
 					serial.Transf(CTRANSF_INNER_TO_OUTER);
 					if(p_spc_core->SearchBySerial(SPCSERIK_SPOILAGE, serial, &spc_rec) > 0) {
 						if(ViewSpoilList(p_spc_core, serial, 1) < 0)
@@ -699,7 +699,7 @@ void TrfrItemDialog::editQCertData()
 				lqcd.Expiry  = Item.Expiry;
 				lqcd.IsInheritedClb = 1;
 				P_BObj->GetClbNumberByLot(Item.LotID, 0, org_clb);
-				P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, ItemNo, serial);
+				P_Pack->LTagL.GetString(PPTAG_LOT_SN, ItemNo, serial);
 				org_clb.Strip().CopyTo(lqcd.CLB, sizeof(lqcd.CLB));
 				serial.Strip().CopyTo(lqcd.Serial, sizeof(lqcd.Serial));
 				dlg->setDTS(&lqcd);
@@ -708,7 +708,7 @@ void TrfrItemDialog::editQCertData()
 						valid_data = 1;
 						Item.QCert = lqcd.QCertID;
 						Item.Expiry = lqcd.Expiry;
-						P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, lqcd.Serial);
+						P_Pack->LTagL.SetString(PPTAG_LOT_SN, ItemNo, lqcd.Serial);
 						setCtrlData(CTL_LOT_EXPIRY, &Item.Expiry);
 					}
 			}
@@ -893,7 +893,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 							vetis_filt.WayBillPeriod.Set(plusdate(P_Pack->Rec.Dt, -delay_days), P_Pack->Rec.Dt);
 							vetis_filt.FromPersonID = suppl_person_id;
 							vetis_filt.Flags |= (VetisDocumentFilt::fAsSelector);
-							if(P_Pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf) > 0) {
+							if(P_Pack->LTagL.GetString(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf) > 0) {
 								vetis_filt.SelLotUuid.FromStr(temp_buf);
 							}
 							PPViewVetisDocument vetis_view;
@@ -914,7 +914,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 									PPID vetis_doc_id = p_result_filt->Sel;
 									if(!!p_result_filt->SelLotUuid && vetis_doc_id) {
 										p_result_filt->SelLotUuid.ToStr(S_GUID::fmtIDL, temp_buf);
-										P_Pack->LTagL.AddNumber(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf);
+										P_Pack->LTagL.SetString(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf);
 										if(P_Pack->Rec.ID && Item.RByBill > 0 && Item.LotID) {
 											if(!vetis_view.EC.MatchDocument(vetis_doc_id, P_Pack->Rec.ID, Item.RByBill, 1/*fromBill*/, 1))
 												PPError();
@@ -1050,7 +1050,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 							}
 							else if(getCtrlHandle(CTL_LOT_VETISIND) == p_dc->H_Ctl) {
 								SString temp_buf;
-								P_Pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf);
+								P_Pack->LTagL.GetString(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf);
 								if(temp_buf.NotEmpty()) {
 									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushVetisUuidExists));
 									clearEvent(event);
@@ -1482,7 +1482,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 			Item.LotID = lot_id;
 			THROW(ret = P_BObj->GetSerialNumberByLot(Item.LotID, temp_buf.Z(), 0));
 			if(ret > 0) {
-				THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, temp_buf));
+				THROW(P_Pack->LTagL.SetString(PPTAG_LOT_SN, ItemNo, temp_buf));
 			}
 		}
 		else if(P_Trfr->Rcpt.GetLastLot(Item.GoodsID, -lid, sd, &lot_rec) > 0) {
@@ -2009,9 +2009,9 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 	}
 	if(P_Pack) {
 		if(ItemNo >= 0) {
-			if(P_Pack->LTagL.GetNumber(PPTAG_LOT_CLB, ItemNo, temp_buf) > 0)
+			if(P_Pack->LTagL.GetString(PPTAG_LOT_CLB, ItemNo, temp_buf) > 0)
 				setCtrlString(CTL_LOT_CLB, temp_buf);
-			if(P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, ItemNo, temp_buf) > 0)
+			if(P_Pack->LTagL.GetString(PPTAG_LOT_SN, ItemNo, temp_buf) > 0)
 				setCtrlString(CTL_LOT_SERIAL, temp_buf);
 		}
 		else if(IsTaggedItem() && P_BObj->GetConfig().Flags & BCF_AUTOSERIAL) {
@@ -2398,12 +2398,12 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 				SETFLAG(Item.Flags, PPTFR_COSTWOVAT, v);
 			GetClusterData(CTL_LOT_FIXEDMODIFCOST, &Item.Flags);
 			getCtrlString(CTL_LOT_CLB, clb_number.Z());
-			THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_CLB, ItemNo, clb_number));
+			THROW(P_Pack->LTagL.SetString(PPTAG_LOT_CLB, ItemNo, clb_number));
 			getCtrlData(CTLSEL_LOT_INTAXGRP, &Item.LotTaxGrpID);
 		}
 		getCtrlString(CTL_LOT_SERIAL, clb_number.Z());
 		P_BObj->AdjustSerialForUniq(Item.GoodsID, Item.LotID, 0, clb_number);
-		THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, clb_number));
+		THROW(P_Pack->LTagL.SetString(PPTAG_LOT_SN, ItemNo, clb_number));
 		if(IsSourceSerialUsed()) {
 			getCtrlString(CTL_LOT_SOURCESERIAL, temp_buf);
 			ObjTagList tag_list;
@@ -2430,9 +2430,9 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	}
 	if(P_Pack->OpTypeID == PPOPT_DRAFTEXPEND) {
 		getCtrlString(CTL_LOT_SERIAL, clb_number.Z());
-		THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, clb_number));
+		THROW(P_Pack->LTagL.SetString(PPTAG_LOT_SN, ItemNo, clb_number));
 		if(P_BObj->GetClbNumberByLot(Item.LotID, 0, clb_number.Z()) > 0) {
-			THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_CLB, ItemNo, clb_number));
+			THROW(P_Pack->LTagL.SetString(PPTAG_LOT_CLB, ItemNo, clb_number));
 		}
 	}
 	if(getCtrlView(CTL_LOT_SEQQRACK)) {
@@ -2629,7 +2629,7 @@ int TrfrItemDialog::_SetupLot(bool dontSetupPriceByLot)
 		setGroupData(ctlgroupQCert, &qc_rec);
 	}
 	if(Item.Flags & PPTFR_RECEIPT) {
-		P_Pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf);
+		P_Pack->LTagL.GetString(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf);
 		if(temp_buf.NotEmpty() || GObj.CheckFlag(Item.GoodsID, GF_WANTVETISCERT)) {
 			showCtrl(CTL_LOT_VETISIND, 1);
 			showCtrl(CTL_LOT_VETISMATCHBUTTON, 1);

@@ -530,16 +530,13 @@ int PPViewQuot::Init_(const PPBaseFilt * pFilt)
 	{
 		QuotKindList.Z();
 		QuotKindFilt filt;
-		if(Filt.QkCls == PPQuot::clsSupplDeal)
-			filt.Flags |= QuotKindFilt::fSupplDeal;
-		else if(Filt.QkCls == PPQuot::clsMtx)
-			filt.Flags |= QuotKindFilt::fGoodsMatrix;
-		else if(Filt.QkCls == PPQuot::clsMtxRestr)
-			filt.Flags |= QuotKindFilt::fGoodsMatrixRestrict;
-		else if(Filt.QkCls == PPQuot::clsPredictCoeff)
-			filt.Flags |= QuotKindFilt::fPredictCoeff;
-		else
-			filt.AccSheetID = GetSellAccSheet();
+		switch(Filt.QkCls) {
+			case PPQuot::clsSupplDeal: filt.Flags |= QuotKindFilt::fSupplDeal; break;
+			case PPQuot::clsMtx: filt.Flags |= QuotKindFilt::fGoodsMatrix; break;
+			case PPQuot::clsMtxRestr: filt.Flags |= QuotKindFilt::fGoodsMatrixRestrict; break;
+			case PPQuot::clsPredictCoeff: filt.Flags |= QuotKindFilt::fPredictCoeff; break;
+			default: filt.AccSheetID = GetSellAccSheet(); break;
+		}
 		QkObj.MakeList(&filt, &QuotKindList);
 		if(Filt.QkCls == PPQuot::clsMtxRestr) {
 			PPGetWord(PPWORD_ACCESSIBLE, 0, temp_buf);

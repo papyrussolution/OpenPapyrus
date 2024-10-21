@@ -2817,7 +2817,7 @@ int PiritEquip::RunCheck(int opertype)
 			CreateStr(Check.Ptt, in_data); // признак способа расчета (integer)
 			CreateStr(Check.Stt, in_data); // @erikO v10.4.12 Признак предмета расчета(integer)
 			{
-				const int do_check_ret = 1; // BIN(Check.Price == 0.0); // @v9.9.4 // @v11.2.3 =1
+				const int do_check_ret = 1; // BIN(Check.Price == 0.0); // @v11.2.3 =1
 				Check.Z();
 				THROW(ExecCmd("42", in_data, out_data, r_error)); // @v11.2.3
 				Check.Z();
@@ -3017,7 +3017,7 @@ int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t 
 				else if(!potential_cc_number1.IsDec() && potential_cc_number2.IsDec())
 					cc_number = potential_cc_number2.ToLong();
 				// } @v11.3.3 
-				if(cc_number == 18 || cc_number < 0) // @v10.1.9 Костыль: Некоторые аппараты всегад возвращают 18-й номер чека. Трактуем это как 0.
+				if(cc_number == 18 || cc_number < 0) // @v10.1.9 Костыль: Некоторые аппараты всегда возвращают 18-й номер чека. Трактуем это как 0.
 					cc_number = 0;
 				s_output.CatEq("CHECKNUM", cc_number).Semicol();
 			}

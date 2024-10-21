@@ -743,7 +743,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 			{
 				LongArray temp_rows;
 				THROW(pPack->InsertRow(&ti, &temp_rows));
-				pPack->LTagL.AddNumber(PPTAG_LOT_SN, &temp_rows, serial);
+				pPack->LTagL.SetString(PPTAG_LOT_SN, &temp_rows, serial);
 				if(flags & CILTIF_SYNC && rows.getCount() == 1) {
 					/* @todo строки таких документов пока не будем считать полностью синхронизированными. Надо доделать синхронизацию лотов заказов.
 					ti.RByBill = ilti->RByBill;
@@ -1020,7 +1020,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 						}
 					}
  				}
-				pPack->LTagL.AddNumber(PPTAG_LOT_SN, &temp_rows, serial);
+				pPack->LTagL.SetString(PPTAG_LOT_SN, &temp_rows, serial);
 				for(i = 0; i < temp_rows.getCount(); i++) {
 					const int row_idx = temp_rows.at(i);
 					if(tag_list.GetCount()) {
@@ -1695,8 +1695,8 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 		for(i = 0; Lots.enumItems(&i, (void **)&p_ilti);) {
 			uint   j;
 			rows.clear();
-			LTagL.GetNumber(PPTAG_LOT_CLB, i-1, org_clb_number);
-			LTagL.GetNumber(PPTAG_LOT_SN, i-1, org_serial);
+			LTagL.GetString(PPTAG_LOT_CLB, i-1, org_clb_number);
+			LTagL.GetString(PPTAG_LOT_SN, i-1, org_serial);
 			const ObjTagList * p_org_lot_tag_list = LTagL.Get(i-1);
 			XcL.Get(i, 0, lotxcode_set);
 			//
@@ -1818,16 +1818,16 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 							THROW(rPack.LTagL.Set(rj, p_org_lot_tag_list));
 						}
 						if(p_bobj->GetClbNumberByLot(lot_id, 0, clb_number) > 0) {
-							THROW(rPack.LTagL.AddNumber(PPTAG_LOT_CLB, rj, clb_number));
+							THROW(rPack.LTagL.SetString(PPTAG_LOT_CLB, rj, clb_number));
 						}
 						else {
-							THROW(rPack.LTagL.AddNumber(PPTAG_LOT_CLB, rj, org_clb_number));
+							THROW(rPack.LTagL.SetString(PPTAG_LOT_CLB, rj, org_clb_number));
 						}
 						if(rows.getCount() == 1) { // Если при приеме строка не разъехалась на несколько, то переносим расширенные коды
 							rPack.XcL.Set_2(rj+1, &lotxcode_set);
 						}
 						if(is_intr_expnd && p_bobj->GetSerialNumberByLot(lot_id, local_serial, 0) > 0) {
-							THROW(rPack.LTagL.AddNumber(PPTAG_LOT_SN, rj, local_serial));
+							THROW(rPack.LTagL.SetString(PPTAG_LOT_SN, rj, local_serial));
 						}
 					}
 				}
@@ -2219,7 +2219,7 @@ int BillTransmDeficit::TurnDeficit(PPID locID, LDATE dt, double pctAddition, con
 					else
 						ti.Cost = R2(Tbl->data.ReqCost);
 					THROW(pack.InsertRow(&ti, 0));
-					THROW(pack.LTagL.AddNumber(PPTAG_LOT_CLB, pack.GetTCount()-1, Tbl->data.Clb));
+					THROW(pack.LTagL.SetString(PPTAG_LOT_CLB, pack.GetTCount()-1, Tbl->data.Clb));
 				}
 			}
 			first_rec = 0;
@@ -2438,7 +2438,7 @@ void PPObjBill::RegisterTransmitProblems(PPBillPacket * pPack, ILBillPacket * pI
 		if(!pCtx->P_Btd->LookedBills.lsearch(ilb_id)) {
 			for(i = 0; pIlBp->Lots.enumItems(&i, (void **)&p_ilti);) {
 				ILTI   ilti = *p_ilti;
-				pIlBp->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb_number);
+				pIlBp->LTagL.GetString(PPTAG_LOT_CLB, i-1, clb_number);
 				if(R6(ilti.Rest) != 0.0) {
 					PPFormatT(PPTXT_BTP_LINE, &msg_buf, ilti.GoodsID, ilti.GoodsID, ilti.Rest, ilti.Cost, ilti.Price, ilti.Suppl);
 					pCtx->OutReceivingMsg(msg_buf);

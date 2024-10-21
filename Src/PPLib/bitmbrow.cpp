@@ -1164,7 +1164,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 		item.Pos = i-1;
 		item.RByBill = p_ti->RByBill;
 		if(check_spoil) {
-			p_pack->LTagL.GetNumber(PPTAG_LOT_SN, item.Pos, temp_buf);
+			p_pack->LTagL.GetString(PPTAG_LOT_SN, item.Pos, temp_buf);
 			if(SETIFZ(P_SpcCore, new SpecSeriesCore)) {
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				SpecSeries2Tbl::Rec spc_rec;
@@ -1180,19 +1180,19 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 			}
 		}
 		if(!(Total.Flags & Total.fHasVetisGuid)) {
-			p_pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, item.Pos, temp_buf);
+			p_pack->LTagL.GetString(PPTAG_LOT_VETIS_UUID, item.Pos, temp_buf);
 			if(temp_buf.NotEmpty())
 				Total.Flags |= Total.fHasVetisGuid;
 			else if(goods_rec.Flags & GF_WANTVETISCERT)
 				Total.Flags |= Total.fHasVetisGuid;
 		}
 		if(!(Total.Flags & Total.fHasEgaisRefB)) {
-			p_pack->LTagL.GetNumber(PPTAG_LOT_FSRARINFB, item.Pos, temp_buf);
+			p_pack->LTagL.GetString(PPTAG_LOT_FSRARINFB, item.Pos, temp_buf);
 			if(temp_buf.NotEmpty())
 				Total.Flags |= Total.fHasEgaisRefB;
 		}
 		if(!(Total.Flags & Total.fHasEgaisCode)) {
-			p_pack->LTagL.GetNumber(PPTAG_LOT_FSRARLOTGOODSCODE, item.Pos, temp_buf);
+			p_pack->LTagL.GetString(PPTAG_LOT_FSRARLOTGOODSCODE, item.Pos, temp_buf);
 			if(temp_buf.NotEmpty())
 				Total.Flags |= Total.fHasEgaisCode;
 		}
@@ -1473,7 +1473,7 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 							}
 						}
 						else {
-							P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, p_item->Pos, temp_buf);
+							P_Pack->LTagL.GetString(PPTAG_LOT_SN, p_item->Pos, temp_buf);
 							pBlk->Set(temp_buf);
 						}
 					}
@@ -1560,7 +1560,7 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					if(is_total)
 						pBlk->SetZero();
 					else {
-						P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, p_item->Pos, temp_buf);
+						P_Pack->LTagL.GetString(PPTAG_LOT_SN, p_item->Pos, temp_buf);
 						pBlk->Set(temp_buf);
 					}
 					break;
@@ -1608,7 +1608,7 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					if(is_total)
 						pBlk->SetZero();
 					else {
-						P_Pack->LTagL.GetNumber(PPTAG_LOT_VETIS_UUID, p_item->Pos, temp_buf);
+						P_Pack->LTagL.GetString(PPTAG_LOT_VETIS_UUID, p_item->Pos, temp_buf);
 						if(temp_buf.IsEmpty()) {
 							Goods2Tbl::Rec goods_rec;
 							if(GObj.Fetch(p_ti->GoodsID, &goods_rec) > 0 && goods_rec.Flags & GF_WANTVETISCERT)
@@ -1643,7 +1643,7 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					if(is_total)
 						pBlk->SetZero();
 					else {
-						P_Pack->LTagL.GetNumber(PPTAG_LOT_FSRARINFB, p_item->Pos, temp_buf);
+						P_Pack->LTagL.GetString(PPTAG_LOT_FSRARINFB, p_item->Pos, temp_buf);
 						pBlk->Set(temp_buf);
 					}
 					break;
@@ -1651,7 +1651,7 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					if(is_total)
 						pBlk->SetZero();
 					else {
-						P_Pack->LTagL.GetNumber(PPTAG_LOT_FSRARLOTGOODSCODE, p_item->Pos, temp_buf);
+						P_Pack->LTagL.GetString(PPTAG_LOT_FSRARLOTGOODSCODE, p_item->Pos, temp_buf);
 						pBlk->Set(temp_buf);
 					}
 					break;
@@ -4275,11 +4275,11 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 								PPTransferItem * p_ti = 0;
 								int    upd = 0;
 								for(uint i = 0; P_Pack->EnumTItems(&i, &p_ti);) {
-									if(P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, temp_buf) <= 0 || !temp_buf.NotEmptyS()) {
+									if(P_Pack->LTagL.GetString(PPTAG_LOT_SN, i-1, temp_buf) <= 0 || !temp_buf.NotEmptyS()) {
 										templt = GObj.IsAsset(p_ti->GoodsID) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
 										if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(p_ti->GoodsID), &P_Pack->LTagL/*SnL*/, templt, temp_buf) > 0) {
 											if(temp_buf.NotEmptyS()) {
-												P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, i-1, temp_buf);
+												P_Pack->LTagL.SetString(PPTAG_LOT_SN, i-1, temp_buf);
 												upd = 1;
 											}
 										}

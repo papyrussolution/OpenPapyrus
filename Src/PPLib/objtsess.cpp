@@ -3638,8 +3638,7 @@ int PPObjTSession::ConvertWrOffDeficit(PPID sessID, PPID locID, const PUGL * pDf
 						if(!p_pack) {
 							THROW_MEM(p_pack = new PPBillPacket);
 							THROW(p_pack->CreateBlank2(op_id, pDfctList->Dt, loc_id, 0));
-							// @v11.1.12 PPGetWord(PPWORD_AT_AUTO, 0, p_pack->Rec.Memo, sizeof(p_pack->Rec.Memo));
-							PPGetWord(PPWORD_AT_AUTO, 0, p_pack->SMemo); // @v11.1.12
+							PPGetWord(PPWORD_AT_AUTO, 0, p_pack->SMemo);
 							p_pack->SetPoolMembership(PPBillPacket::bpkTSessDfct, sessID);
 							THROW_SL(pack_list.insert(p_pack));
 						}

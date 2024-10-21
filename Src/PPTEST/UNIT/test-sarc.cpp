@@ -159,7 +159,7 @@ SLTEST_R(SArchive)
 							temp_buf.CatChar('-').CatLongZ(_cntr, 3);
 					} while(SFile::IsDir(temp_buf));
 					SFile::CreateDir(temp_buf);
-					SArchive::InflateAll(SArchive::providerLA, arc_name, 0, temp_buf);
+					SArchive::InflateAll(SArchive::providerLA, arc_name, 0, temp_buf, 0);
 					{
 						SDirecDiffPool ddp;
 						ddp.Run(temp_buf, 0);
@@ -175,7 +175,7 @@ SLTEST_R(SArchive)
 							temp_buf.CatChar('-').CatLongZ(_cntr, 3);
 					} while(SFile::IsDir(temp_buf));
 					SFile::CreateDir(temp_buf);
-					SArchive::Inflate(SArchive::providerLA, arc_name, 0, "*.jpg", temp_buf);
+					SArchive::Inflate(SArchive::providerLA, arc_name, 0, "*.jpg", temp_buf, 0);
 				}
 				/*
 				r = arc.Open(temp_buf, SFile::mRead, 0);

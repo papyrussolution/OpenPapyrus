@@ -932,7 +932,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 	SFsPath ps(FileName);
 	SString templ = ps.Nam;
 	ps.Split(rFileName);
-	SString name = ps.Nam;
+	SString name(ps.Nam);
 	//StrAssocArray result_list;
 	ok = PPBillImpExpParam::ParseText(name, templ, rResultList, 0);
 	return ok;
@@ -1342,11 +1342,12 @@ PPBillImpExpBaseProcessBlock::TransmitParam::TransmitParam() : InetAccID(0)
 {
 }
 
-void PPBillImpExpBaseProcessBlock::TransmitParam::Reset()
+PPBillImpExpBaseProcessBlock::TransmitParam & PPBillImpExpBaseProcessBlock::TransmitParam::Z()
 {
 	InetAccID = 0;
 	AddrList.Z();
 	Subject.Z();
+	return *this;
 }
 
 PPBillImpExpBaseProcessBlock::SearchBlock::SearchBlock() : Dt(ZERODATE), SurveyDays(7)
@@ -1360,15 +1361,14 @@ PPBillImpExpBaseProcessBlock::PPBillImpExpBaseProcessBlock() : P_BObj(BillObj), 
 
 PPBillImpExpBaseProcessBlock & PPBillImpExpBaseProcessBlock::Z()
 {
-	// Эта функция не сбрасывает DisabledOptions поскольку поле транзиентное и устанавливается
-	// на прикладном уровне выше вызова Reset()
+	// Эта функция не сбрасывает DisabledOptions поскольку поле транзиентное и устанавливается на прикладном уровне выше вызова Reset()
 	Flags = 0;
 	OpID = 0;
 	LocID = 0;
 	PosNodeID = 0;
 	GuaID = 0;
 	Period.Z();
-	Tp.Reset();
+	Tp.Z();
 	return *this;
 }
 
@@ -1812,7 +1812,6 @@ void PPBillImporter::Init()
 int PPBillImporter::LoadConfig(int import)
 {
 	int    ok = 1;
-	SString name;
 	SString ini_file_name;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 	{
@@ -1821,23 +1820,25 @@ int PPBillImporter::LoadConfig(int import)
 		BRowParam.Init(import);
 		THROW(LoadSdRecord(PPREC_BILL, &BillParam.InrRec));
 		THROW(LoadSdRecord(PPREC_BROW, &BRowParam.InrRec));
-		name = CfgNameBill;
-		if(Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp) {
-			BillParam.BaseFlags |= PPImpExpParam::bfDLL;
-			BillParam.Name = CfgNameBill;
-		}
-		else {
-			BillParam.ProcessName(2, name); // @vmiller
-			// @vmiller (impexp) {
-			if(name.HasPrefixIAscii("DLL_"))
+		{
+			SString name(CfgNameBill);
+			if(Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp) {
 				BillParam.BaseFlags |= PPImpExpParam::bfDLL;
-			// } @vmiller (impexp)
-			BillParam.ProcessName(1, name);
-			THROW(BillParam.ReadIni(&ini_file, name, 0));
-			name = CfgNameBRow;
-			BRowParam.ProcessName(2, name);
-			BRowParam.ProcessName(1, name);
-			THROW(BRowParam.ReadIni(&ini_file, name, 0));
+				BillParam.Name = CfgNameBill;
+			}
+			else {
+				BillParam.ProcessName(2, name); // @vmiller
+				// @vmiller (impexp) {
+				if(name.HasPrefixIAscii("DLL_"))
+					BillParam.BaseFlags |= PPImpExpParam::bfDLL;
+				// } @vmiller (impexp)
+				BillParam.ProcessName(1, name);
+				THROW(BillParam.ReadIni(&ini_file, name, 0));
+				name = CfgNameBRow;
+				BRowParam.ProcessName(2, name);
+				BRowParam.ProcessName(1, name);
+				THROW(BRowParam.ReadIni(&ini_file, name, 0));
+			}
 		}
 	}
 	CATCHZOK
@@ -3730,9 +3731,9 @@ int PPBillImporter::Import(int useTa)
 									if(p_tag_list && p_tag_list->GetCount()) {
 										pack.LTagL.Set(new_item_pos, p_tag_list);
 										if(temp_buf.NotEmpty())
-											pack.LTagL.AddNumber(PPTAG_LOT_CLB, new_item_pos, temp_buf);
+											pack.LTagL.SetString(PPTAG_LOT_CLB, new_item_pos, temp_buf);
 										if(serial.NotEmpty())
-											pack.LTagL.AddNumber(PPTAG_LOT_SN, new_item_pos, serial);
+											pack.LTagL.SetString(PPTAG_LOT_SN, new_item_pos, serial);
 									}
 									{
 										const bool is_there_chzn_marks = LOGIC(ss_chzn_mark.getCount());
@@ -5051,6 +5052,7 @@ int PPBillImporter::Run()
 	else if(oneof4(BillParam.PredefFormat, piefNalogR, piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR, piefNalogR_ON_NKORSCHFDOPPR)) { 
 		DocNalogRu_Reader reader;
 		StringSet ss_files;
+		StringSet ss_arc_files; 
 		TSCollection <DocNalogRu_Reader::DocumentInfo> doc_list;
 		const PPGoodsConfig & r_gcfg = GObj.GetConfig();
 		THROW_PP_S(BillParam.ImpOpID, PPERR_UNDEFBILLIMPOP, CfgNameBill);
@@ -5059,35 +5061,37 @@ int PPBillImporter::Run()
 		for(uint ssfp = 0; ss_files.get(&ssfp, file_name);) {
 			if(fileExists(file_name)) {
 				DocNalogRu_Reader::FileInfo fi;
-				// @v12.1.6 @construction {
-				/*{
-					SFileFormat ff;
-					const int fir = ff.Identify(file_name, 0);
-					if(fir == 3 && ff == SFileFormat::Zip) {
-						SFileEntryPool fep;
-						int    arc_format = 0;
-						if(SArchive::List(SArchive::providerLA, &arc_format, file_name, 0, fep) > 0) {
-							SFileEntryPool::Entry fe;
-							SString arc_sub;
-							SString arc_sub_filename;
-							SString dest_path;
-							for(uint i = 0; i < fep.GetCount(); i++) {
-								if(fep.Get(i, &fe, &arc_sub) > 0) {
-									SFsPath::NormalizePath(arc_sub, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf);
-									arc_sub = temp_buf;
-									SFsPath ps(arc_sub);
-									ps.Merge(SFsPath::fNam|SFsPath::fExt, arc_sub_filename);
-									if(SFile::WildcardMatch("on_*.xml", arc_sub_filename)) {
-										PPGetPath(PPPATH_TEMP, dest_path);
-										SArchive::Inflate(SArchive::providerLA, file_name, 0, arc_sub, dest_path);
+				SFileFormat ff;
+				const int fir = ff.Identify(file_name, 0);
+				if(fir == 3 && ff == SFileFormat::Zip) {
+					SFileEntryPool fep;
+					int    arc_format = 0;
+					if(SArchive::List(SArchive::providerLA, &arc_format, file_name, 0, fep) > 0) {
+						SFileEntryPool::Entry fe;
+						SString arc_sub;
+						SString arc_sub_filename;
+						SString dest_path;
+						for(uint i = 0; i < fep.GetCount(); i++) {
+							if(fep.Get(i, &fe, &arc_sub) > 0) {
+								SFsPath::NormalizePath(arc_sub, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf);
+								arc_sub = temp_buf;
+								SFsPath ps(arc_sub);
+								ps.Merge(SFsPath::fNam|SFsPath::fExt, arc_sub_filename);
+								if(SFile::WildcardMatch("on_*.xml", arc_sub_filename)) {
+									PPGetPath(PPPATH_TEMP, dest_path);
+									ss_arc_files.Z();
+									SArchive::Inflate(SArchive::providerLA, file_name, SArchive::fInflateWithoutSub, arc_sub, dest_path, &ss_arc_files);
+									for(uint ssap = 0; ss_arc_files.get(&ssap, temp_buf);) {
+										if(fileExists(temp_buf))
+											reader.ReadSingleXmlFile(temp_buf, fi, doc_list);
 									}
 								}
 							}
 						}
 					}
-				}*/
-				// } @v12.1.6
-				reader.ReadSingleXmlFile(file_name, fi, doc_list);
+				}
+				else
+					reader.ReadSingleXmlFile(file_name, fi, doc_list);
 			}
 		}
 		{
@@ -5964,9 +5968,9 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 				brow.CVatSum  = vect.GetValue(GTAXVF_VAT);
 			}
 			brow.Expiry = p_ti->Expiry;
-			pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, temp_buf);
+			pPack->LTagL.GetString(PPTAG_LOT_SN, i-1, temp_buf);
 			STRNSCPY(brow.Serial, temp_buf);
-			pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, temp_buf);
+			pPack->LTagL.GetString(PPTAG_LOT_CLB, i-1, temp_buf);
 			STRNSCPY(brow.CLB, temp_buf);
 			if(p_ti->QCert) {
 				QualityCertTbl::Rec qc_rec;

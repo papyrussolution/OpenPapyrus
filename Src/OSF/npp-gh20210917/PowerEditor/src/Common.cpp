@@ -643,12 +643,7 @@ generic_string stringTakeWhileAdmissable(const generic_string& input, const gene
 {
 	// Find first non-admissable character in "input", and remove everything after it.
 	size_t idx = input.find_first_not_of(admissable);
-	if(idx == std::string::npos) {
-		return input;
-	}
-	else {
-		return input.substr(0, idx);
-	}
+	return (idx == std::string::npos) ? input : input.substr(0, idx);
 }
 
 double stodLocale(const generic_string& str, _locale_t loc, size_t* idx)
@@ -691,9 +686,10 @@ int OrdinalIgnoreCaseCompareStrings(LPCTSTR sz1, LPCTSTR sz2)
 	if(sz1 == sz2) {
 		return 0;
 	}
-
-	if(sz1 == nullptr) sz1 = _T("");
-	if(sz2 == nullptr) sz2 = _T("");
+	if(sz1 == nullptr) 
+		sz1 = _T("");
+	if(sz2 == nullptr) 
+		sz2 = _T("");
 	for(;; sz1++, sz2++) {
 		const TCHAR c1 = *sz1;
 		const TCHAR c2 = *sz2;

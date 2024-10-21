@@ -2504,7 +2504,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 										w_p.PutInner(SXml::nst("wb", "Quantity"), EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
 										w_p.PutInner(SXml::nst("wb", "Price"), EncText(temp_buf.Z().Cat(price, MKSFMTD_020)));
 									}
-									p_bp->LTagL.GetNumber(PPTAG_LOT_SN, tidx, temp_buf);
+									p_bp->LTagL.GetString(PPTAG_LOT_SN, tidx, temp_buf);
 									w_p.PutInnerSkipEmpty(SXml::nst("wb", "Party"), EncText(temp_buf));
 									{
 										WriteInformCode(_doc, "wb", 'A', ref_a, doc_type);
@@ -2592,11 +2592,46 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 					else if(doc_type == PPEDIOP_EGAIS_QUERYRESTBCODE) {
 						const SString * p_param = static_cast<const SString *>(rPack.P_Data);
 						if(p_param && p_param->NotEmpty()) {
+							bool   is_horeca = false;
+							SString ref_b;
+							SString addendum;
+							int   divider = 0;
+							if(p_param->HasChr(' '))
+								divider = ' ';
+							else if(p_param->HasChr(';'))
+								divider = ';';
+							else if(p_param->HasChr(','))
+								divider = ',';
+							if(divider && p_param->Divide(divider, temp_buf, addendum) > 0) {
+								temp_buf.Strip();
+								addendum.Strip();
+								if(temp_buf.IsEqiAscii("horeca") || temp_buf.IsEqiAscii("cafe")) {
+									is_horeca = true;
+									ref_b = addendum;
+								}
+								else if(addendum.IsEqiAscii("horeca") || addendum.IsEqiAscii("cafe")) {
+									is_horeca = true;
+									ref_b = temp_buf;
+								}
+								else
+									ref_b = *p_param;
+							}
+							else
+								ref_b = *p_param;
 							SXml::WNode n_arglist(_doc, SXml::nst("qp", "Parameters"));
+							//PPHSC_RU_EGAIS_FORM2_CAPS       "ФОРМА2"  // Строка используемая в качестве параметра запроса к егаис
+							//PPHSC_RU_EGAIS_CAFE_CAPS       "ОБЩЕПИТ" // Строка используемая в качестве параметра запроса к егаис
 							{
 								SXml::WNode n_p(_doc, SXml::nst("qp", "Parameter"));
-								n_p.PutInner(SXml::nst("qp", "Name"), EncText((temp_buf = "ФОРМА2").Transf(CTRANSF_UTF8_TO_INNER))); // current srcfile is in UTF-8
-								n_p.PutInner(SXml::nst("qp", "Value"), EncText(temp_buf = *p_param));
+								PPLoadStringUtf8(PPSTR_HASHTOKEN_C, PPHSC_RU_EGAIS_FORM2_CAPS, temp_buf);
+								n_p.PutInner(SXml::nst("qp", "Name"), temp_buf/*EncText((temp_buf = "ФОРМА2").Transf(CTRANSF_UTF8_TO_INNER))*/); // current srcfile is in UTF-8
+								n_p.PutInner(SXml::nst("qp", "Value"), EncText(temp_buf = ref_b));
+							}
+							if(is_horeca) {
+								SXml::WNode n_p(_doc, SXml::nst("qp", "Parameter"));
+								PPLoadStringUtf8(PPSTR_HASHTOKEN_C, PPHSC_RU_EGAIS_CAFE_CAPS, temp_buf);
+								n_p.PutInner(SXml::nst("qp", "Name"), temp_buf/*EncText((temp_buf = "ОБЩЕПИТ").Transf(CTRANSF_UTF8_TO_INNER))*/); // current srcfile is in UTF-8
+								n_p.PutInner(SXml::nst("qp", "Value"), "true");									
 							}
 						}
 					}
@@ -6149,7 +6184,7 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 						if(p_ref->Ot.GetTagStr(PPOBJ_BILL, sbill_rec.ID, PPTAG_BILL_EDIIDENT, temp_buf) > 0) {					
 							if(P_BObj->ExtractPacket(sbill_rec.ID, &mark_charge_bpack) > 0) {
 								for(uint rn = 0; rn < mark_charge_bpack.GetTCount(); rn++) {
-									if(mark_charge_bpack.LTagL.GetNumber(PPTAG_LOT_FSRARINFB, rn, temp_buf) > 0)
+									if(mark_charge_bpack.LTagL.GetString(PPTAG_LOT_FSRARINFB, rn, temp_buf) > 0)
 										refb_charged_list.add(temp_buf);
 								}
 							}
@@ -8866,349 +8901,359 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 		PrcssrAlcReport::ParseEgaisMark(mark_buf, emb);
 		rParam.InfoText.Z().Cat(emb.EgaisCode);
 	}
-	else if(rParam.DocType == PPEDIOP_EGAIS_QUERYCLIENTS) {
-		if(QueryClients(rParam.LocID, querybyINN, rParam.ParamString))
-			query_sended = 1;
-		else
-			do_report_error = 1;
-	}
-	else if(rParam.DocType == (PPEDIOP_EGAIS_QUERYCLIENTS+1000)) {
-		if(Cfg.AlcLicRegTypeID) {
-			const LDATE _cd = getcurdate_();
-			StringSet inn_list;
-			SString temp_buf;
-			PPViewPerson psn_view;
-			PersonFilt psn_filt;
-			PersonViewItem psn_item;
-			psn_filt.AttribType = PPPSNATTR_REGISTER;
-			psn_filt.RegTypeID = Cfg.AlcLicRegTypeID;
-			psn_filt.EmptyAttrib = EA_NOEMPTY;
-			PPWaitStart();
-			THROW(psn_view.Init_(&psn_filt));
-			for(psn_view.InitIteration(); psn_view.NextIteration(&psn_item) > 0;) {
-				RegisterTbl::Rec reg_rec;
-				if(PsnObj.GetRegister(psn_item.ID, PPREGT_TPID, _cd, &reg_rec) > 0) {
-					(temp_buf = reg_rec.Num).Strip().ToUpper();
-					if(!inn_list.search(temp_buf, 0, 0))
-						inn_list.add(temp_buf);
+	else {
+		Ack    ack;
+		switch(rParam.DocType) {
+			case PPEDIOP_EGAIS_QUERYCLIENTS:
+				if(QueryClients(rParam.LocID, querybyINN, rParam.ParamString))
+					query_sended = 1;
+				else
+					do_report_error = 1;
+				break;
+			case (PPEDIOP_EGAIS_QUERYCLIENTS+1000):
+				if(Cfg.AlcLicRegTypeID) {
+					const LDATE _cd = getcurdate_();
+					StringSet inn_list;
+					SString temp_buf;
+					PPViewPerson psn_view;
+					PersonFilt psn_filt;
+					PersonViewItem psn_item;
+					psn_filt.AttribType = PPPSNATTR_REGISTER;
+					psn_filt.RegTypeID = Cfg.AlcLicRegTypeID;
+					psn_filt.EmptyAttrib = EA_NOEMPTY;
+					PPWaitStart();
+					THROW(psn_view.Init_(&psn_filt));
+					for(psn_view.InitIteration(); psn_view.NextIteration(&psn_item) > 0;) {
+						RegisterTbl::Rec reg_rec;
+						if(PsnObj.GetRegister(psn_item.ID, PPREGT_TPID, _cd, &reg_rec) > 0) {
+							(temp_buf = reg_rec.Num).Strip().ToUpper();
+							if(!inn_list.search(temp_buf, 0, 0))
+								inn_list.add(temp_buf);
+						}
+						PPWaitPercent(psn_view.GetCounter(), "Get contragent INN");
+					}
+					{
+						const uint innc = inn_list.getCount();
+						uint   inni = 0;
+						for(uint innp = 0; inn_list.get(&innp, temp_buf);) {
+							if(QueryClients(rParam.LocID, querybyINN, temp_buf))
+								query_sended = 1;
+							inni++;
+							PPWaitPercent(inni, innc, "Query EGAIS contragent");
+						}
+					}
+					PPWaitStop();
 				}
-				PPWaitPercent(psn_view.GetCounter(), "Get contragent INN");
-			}
-			{
-				const uint innc = inn_list.getCount();
-				uint   inni = 0;
-				for(uint innp = 0; inn_list.get(&innp, temp_buf);) {
-					if(QueryClients(rParam.LocID, querybyINN, temp_buf))
+				break;
+			case (PPEDIOP_EGAIS_QUERYCLIENTS+2000):
+				{
+					THROW_MEM(SETIFZ(P_RefC, new RefCollection));
+					{
+						//
+						// Запрос контрагента по идентификатору: "СИО"
+						// Запрос товара по коду ЕГАИС: "КОД"
+						//
+						const uint _delay_ms = 100;
+						int   db_was_cleared = 0;
+						SString msg_buf;
+						StringSet refa_codes;
+						StringSet manuf_codes_for_products; // Идентификаторы
+						StringSet codes_for_products;
+						StringSet codes_for_contragents;
+						StringSet inn_for_contragents;
+						PPWaitStart();
+						if(rParam.DbActualizeFlags & rParam._afClearInnerEgaisDb) {
+							PPTransaction tra(1);
+							THROW(tra);
+							THROW(P_RefC->PrC.Clear(0))
+							THROW(P_RefC->PsC.Clear(0));
+							THROW(P_RefC->RaC.Clear(0));
+							THROW(tra.Commit());
+							db_was_cleared = 1;
+						}
+						PPWaitMsg(PPSTR_TEXT, PPTXT_EGAIS_PREPAREQFORIDB, 0);
+						if(rParam.DbActualizeFlags & rParam._afQueryByChargeOn) {
+							Helper_ExtractGoodsCodesFromBills(PPOPK_EDI_ACTCHARGEONSHOP, codes_for_products);
+							Helper_ExtractGoodsCodesFromBills(PPOPK_EDI_SHOPCHARGEON, codes_for_products);
+							Helper_ExtractGoodsCodesFromBills(PPOPK_EDI_WRITEOFFSHOP, codes_for_products);
+						}
+						if(!db_was_cleared && rParam.DbActualizeFlags & (rParam._afQueryRefA|rParam._afQueryPerson|rParam._afQueryGoods)) {
+							if(rParam.P_LotFilt && rParam.DbActualizeFlags & rParam._afQueryRefA) {
+								Reference * p_ref = PPRef;
+								PPViewLot lot_view;
+								LotFilt l;
+								if(lot_view.Init_(rParam.P_LotFilt)) {
+									LotViewItem lot_view_item;
+									for(lot_view.InitIteration(); lot_view.NextIteration(&lot_view_item) > 0;) {
+										if(p_ref->Ot.GetTagStr(PPOBJ_LOT, lot_view_item.ID, PPTAG_LOT_FSRARINFA, temp_buf) > 0) {
+											refa_codes.add(temp_buf);
+										}
+									}
+								}
+							}
+							else {
+								BExtQuery q(&P_RefC->RaC, 1);
+								EgaisRefATbl::Key1 k1;
+								MEMSZERO(k1);
+								q.selectAll();
+								for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
+									EgaisRefATbl::Rec item;
+									P_RefC->RaC.copyBufTo(&item);
+									if(item.RefACode[0]) {
+										if(rParam.DbActualizeFlags & rParam._afQueryRefA) {
+											if(!(item.Flags & EgaisRefACore::fVerified))
+												refa_codes.add(item.RefACode);
+										}
+										if(rParam.DbActualizeFlags & rParam._afQueryPerson) {
+											int    is_importer = 0;
+											if(sstrlen(item.ImporterRarIdent) >= 8) { // Код контрагента 12 символов, но страхуемся значением 8
+												is_importer = 1;
+												if(P_RefC->PsC.IsVerifiedCode(item.ImporterRarIdent) <= 0) {
+													codes_for_contragents.add(item.ImporterRarIdent);
+													manuf_codes_for_products.add(item.ImporterRarIdent);
+												}
+											}
+											if(sstrlen(item.ManufRarIdent) >= 8) {
+												if(P_RefC->PsC.IsVerifiedCode(item.ManufRarIdent) <= 0) {
+													codes_for_contragents.add(item.ManufRarIdent);
+													if(!is_importer)
+														manuf_codes_for_products.add(item.ManufRarIdent);
+												}
+											}
+										}
+										if(rParam.DbActualizeFlags & rParam._afQueryGoods) {
+											if(sstrlen(item.AlcCode) > 8) {
+												if(P_RefC->PrC.IsVerifiedCode(item.AlcCode) <= 0)
+													codes_for_products.add(item.AlcCode);
+											}
+										}
+									}
+								}
+							}
+						}
+						refa_codes.sortAndUndup();
+						codes_for_contragents.sortAndUndup();
+						manuf_codes_for_products.sortAndUndup();
+						codes_for_products.sortAndUndup();
+						/*
+						{
+							BExtQuery q(&P_RefC->PsC, 1);
+							EgaisPersonTbl::Key1 k1;
+							MEMSZERO(k1);
+							q.selectAll();
+							EgaisPersonCore::Item item;
+							for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
+								if(P_RefC->PsC.RecToItem(P_RefC->PsC.data, item)) {
+									if(sstrlen(item.INN) >= 8)
+										inn_for_contragents.add(item.INN);
+								}
+							}
+							inn_for_contragents.sortAndUndup();
+						}
+						*/
+						PPLoadText(PPTXT_EGAIS_REQUESTFORIDB, msg_buf);
+						PPWaitMsg(msg_buf);
+						{
+							long   done_q = 0;
+							const  long total_q = refa_codes.getCount() + codes_for_contragents.getCount() + codes_for_products.getCount();
+							uint  qc = 0;
+							for(uint ssp = 0; refa_codes.get(&ssp, temp_buf);) {
+								if(qc)
+									SDelay(_delay_ms);
+								if(QueryInfA(rParam.LocID, temp_buf))
+									qc++;
+								else
+									LogLastError();
+								done_q++;
+								PPWaitPercent(done_q, total_q, msg_buf);
+							}
+							if(codes_for_contragents.getCount()) {
+								for(uint ssp = 0; codes_for_contragents.get(&ssp, temp_buf);) {
+									if(qc)
+										SDelay(_delay_ms);
+									if(QueryClients(rParam.LocID, querybyCode, temp_buf))
+										qc++;
+									else
+										LogLastError();
+									done_q++;
+									PPWaitPercent(done_q, total_q, msg_buf);
+								}
+							}
+							if(codes_for_products.getCount()) {
+								for(uint ssp = 0; codes_for_products.get(&ssp, temp_buf);) {
+									if(qc)
+										SDelay(_delay_ms);
+									if(QueryProducts(rParam.LocID, querybyCode, temp_buf))
+										qc++;
+									else
+										LogLastError();
+									done_q++;
+									PPWaitPercent(done_q, total_q, msg_buf);
+								}
+							}
+						}
+						PPWaitStop();
+					}
+				}
+				break;
+			case (PPEDIOP_EGAIS_QUERYCLIENTS+3000):
+				{
+					const int rmv_debug_mode = rParam.ParamString.IsEqiAscii("yes") ? 0 : 1;
+					THROW(GetUtmList(rParam.LocID, utm_list));
+					PPWaitStart();
+					for(uint i = 0; i < utm_list.getCount(); i++) {
+						SetUtmEntry(rParam.LocID, &utm_list.at(i), 0);
+						RemoveOutputMessages(rParam.LocID, rmv_debug_mode);
+					}
+					PPWaitStop();
+				}
+				break;
+			case PPEDIOP_EGAIS_NOTIFY_WBVER2:
+				{
+					Packet qp(rParam.DocType);
+					if(PutQuery(qp, rParam.LocID, "InfoVersionTTN", ack))
 						query_sended = 1;
-					inni++;
-					PPWaitPercent(inni, innc, "Query EGAIS contragent");
-				}
-			}
-			PPWaitStop();
-		}
-	}
-	else if(rParam.DocType == (PPEDIOP_EGAIS_QUERYCLIENTS+2000)) {
-		THROW_MEM(SETIFZ(P_RefC, new RefCollection));
-		{
-			//
-			// Запрос контрагента по идентификатору: "СИО"
-			// Запрос товара по коду ЕГАИС: "КОД"
-			//
-			const uint _delay_ms = 100;
-			int   db_was_cleared = 0;
-			SString msg_buf;
-			StringSet refa_codes;
-			StringSet manuf_codes_for_products; // Идентификаторы
-			StringSet codes_for_products;
-			StringSet codes_for_contragents;
-			StringSet inn_for_contragents;
-			PPWaitStart();
-			if(rParam.DbActualizeFlags & rParam._afClearInnerEgaisDb) {
-				PPTransaction tra(1);
-				THROW(tra);
-				THROW(P_RefC->PrC.Clear(0))
-				THROW(P_RefC->PsC.Clear(0));
-				THROW(P_RefC->RaC.Clear(0));
-				THROW(tra.Commit());
-				db_was_cleared = 1;
-			}
-			PPWaitMsg(PPSTR_TEXT, PPTXT_EGAIS_PREPAREQFORIDB, 0);
-			if(rParam.DbActualizeFlags & rParam._afQueryByChargeOn) {
-				Helper_ExtractGoodsCodesFromBills(PPOPK_EDI_ACTCHARGEONSHOP, codes_for_products);
-				Helper_ExtractGoodsCodesFromBills(PPOPK_EDI_SHOPCHARGEON, codes_for_products);
-				Helper_ExtractGoodsCodesFromBills(PPOPK_EDI_WRITEOFFSHOP, codes_for_products);
-			}
-			if(!db_was_cleared && rParam.DbActualizeFlags & (rParam._afQueryRefA|rParam._afQueryPerson|rParam._afQueryGoods)) {
-				if(rParam.P_LotFilt && rParam.DbActualizeFlags & rParam._afQueryRefA) {
-					Reference * p_ref = PPRef;
-					PPViewLot lot_view;
-					LotFilt l;
-					if(lot_view.Init_(rParam.P_LotFilt)) {
-						LotViewItem lot_view_item;
-						for(lot_view.InitIteration(); lot_view.NextIteration(&lot_view_item) > 0;) {
-							if(p_ref->Ot.GetTagStr(PPOBJ_LOT, lot_view_item.ID, PPTAG_LOT_FSRARINFA, temp_buf) > 0) {
-								refa_codes.add(temp_buf);
-							}
-						}
-					}
-				}
-				else {
-					BExtQuery q(&P_RefC->RaC, 1);
-					EgaisRefATbl::Key1 k1;
-					MEMSZERO(k1);
-					q.selectAll();
-					for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
-						EgaisRefATbl::Rec item;
-						P_RefC->RaC.copyBufTo(&item);
-						if(item.RefACode[0]) {
-							if(rParam.DbActualizeFlags & rParam._afQueryRefA) {
-								if(!(item.Flags & EgaisRefACore::fVerified))
-									refa_codes.add(item.RefACode);
-							}
-							if(rParam.DbActualizeFlags & rParam._afQueryPerson) {
-								int    is_importer = 0;
-								if(sstrlen(item.ImporterRarIdent) >= 8) { // Код контрагента 12 символов, но страхуемся значением 8
-									is_importer = 1;
-									if(P_RefC->PsC.IsVerifiedCode(item.ImporterRarIdent) <= 0) {
-										codes_for_contragents.add(item.ImporterRarIdent);
-										manuf_codes_for_products.add(item.ImporterRarIdent);
-									}
-								}
-								if(sstrlen(item.ManufRarIdent) >= 8) {
-									if(P_RefC->PsC.IsVerifiedCode(item.ManufRarIdent) <= 0) {
-										codes_for_contragents.add(item.ManufRarIdent);
-										if(!is_importer)
-											manuf_codes_for_products.add(item.ManufRarIdent);
-									}
-								}
-							}
-							if(rParam.DbActualizeFlags & rParam._afQueryGoods) {
-								if(sstrlen(item.AlcCode) > 8) {
-									if(P_RefC->PrC.IsVerifiedCode(item.AlcCode) <= 0)
-										codes_for_products.add(item.AlcCode);
-								}
-							}
-						}
-					}
-				}
-			}
-			refa_codes.sortAndUndup();
-			codes_for_contragents.sortAndUndup();
-			manuf_codes_for_products.sortAndUndup();
-			codes_for_products.sortAndUndup();
-			/*
-			{
-				BExtQuery q(&P_RefC->PsC, 1);
-				EgaisPersonTbl::Key1 k1;
-				MEMSZERO(k1);
-				q.selectAll();
-				EgaisPersonCore::Item item;
-				for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
-					if(P_RefC->PsC.RecToItem(P_RefC->PsC.data, item)) {
-						if(sstrlen(item.INN) >= 8)
-							inn_for_contragents.add(item.INN);
-					}
-				}
-				inn_for_contragents.sortAndUndup();
-			}
-			*/
-			PPLoadText(PPTXT_EGAIS_REQUESTFORIDB, msg_buf);
-			PPWaitMsg(msg_buf);
-			{
-				long   done_q = 0;
-				const  long total_q = refa_codes.getCount() + codes_for_contragents.getCount() + codes_for_products.getCount();
-				uint  qc = 0;
-				for(uint ssp = 0; refa_codes.get(&ssp, temp_buf);) {
-					if(qc)
-						SDelay(_delay_ms);
-					if(QueryInfA(rParam.LocID, temp_buf))
-						qc++;
 					else
-						LogLastError();
-					done_q++;
-					PPWaitPercent(done_q, total_q, msg_buf);
-				}
-				if(codes_for_contragents.getCount()) {
-					for(uint ssp = 0; codes_for_contragents.get(&ssp, temp_buf);) {
-						if(qc)
-							SDelay(_delay_ms);
-						if(QueryClients(rParam.LocID, querybyCode, temp_buf))
-							qc++;
-						else
-							LogLastError();
-						done_q++;
-						PPWaitPercent(done_q, total_q, msg_buf);
-					}
-				}
-				if(codes_for_products.getCount()) {
-					for(uint ssp = 0; codes_for_products.get(&ssp, temp_buf);) {
-						if(qc)
-							SDelay(_delay_ms);
-						if(QueryProducts(rParam.LocID, querybyCode, temp_buf))
-							qc++;
-						else
-							LogLastError();
-						done_q++;
-						PPWaitPercent(done_q, total_q, msg_buf);
-					}
-				}
-			}
-			PPWaitStop();
-		}
-	}
-	else if(rParam.DocType == (PPEDIOP_EGAIS_QUERYCLIENTS+3000)) {
-		const int rmv_debug_mode = rParam.ParamString.IsEqiAscii("yes") ? 0 : 1;
-		THROW(GetUtmList(rParam.LocID, utm_list));
-		PPWaitStart();
-		for(uint i = 0; i < utm_list.getCount(); i++) {
-			SetUtmEntry(rParam.LocID, &utm_list.at(i), 0);
-			RemoveOutputMessages(rParam.LocID, rmv_debug_mode);
-		}
-		PPWaitStop();
-	}
-	else if(rParam.DocType == PPEDIOP_EGAIS_NOTIFY_WBVER2) {
-		Ack    ack;
-		Packet qp(rParam.DocType);
-		if(PutQuery(qp, rParam.LocID, "InfoVersionTTN", ack))
-			query_sended = 1;
-		else
-			do_report_error = 1;
-	}
-	else if(rParam.DocType == PPEDIOP_EGAIS_NOTIFY_WBVER3) {
-		Ack    ack;
-		Packet qp(rParam.DocType);
-		if(PutQuery(qp, rParam.LocID, "InfoVersionTTN", ack))
-			query_sended = 1;
-		else
-			do_report_error = 1;
-	}
-	else if(rParam.DocType == PPEDIOP_EGAIS_NOTIFY_WBVER4) {
-		Ack    ack;
-		Packet qp(rParam.DocType);
-		if(PutQuery(qp, rParam.LocID, "InfoVersionTTN", ack))
-			query_sended = 1;
-		else
-			do_report_error = 1;
-	}
-	else if(rParam.DocType == PPEDIOP_EGAIS_QUERYRESENDDOC) {
-		Ack    ack;
-		Packet qp(rParam.DocType);
-		if(qp.P_Data) {
-			*static_cast<SString *>(qp.P_Data) = rParam.ParamString;
-			if(PutQuery(qp, rParam.LocID, "QueryResendDoc", ack))
-				query_sended = 1;
-			else
-				do_report_error = 1;
-		}
-	}
-	else if(rParam.DocType == PPEDIOP_EGAIS_QUERYRESTBCODE) {
-		Ack    ack;
-		Packet qp(rParam.DocType);
-		if(qp.P_Data) {
-			*static_cast<SString *>(qp.P_Data) = rParam.ParamString;
-			if(PutQuery(qp, rParam.LocID, "QueryRestBCode", ack))
-				query_sended = 1;
-			else
-				do_report_error = 1;
-		}
-	}
-	else if(rParam.DocType == PPEDIOP_EGAIS_QUERYFORMA) {
-		if(QueryInfA(rParam.LocID, rParam.ParamString))
-			query_sended = 1;
-		else
-			do_report_error = 1;
-	}
-	else if(rParam.DocType == PPEDIOP_EGAIS_QUERYFORMB) {
-		if(QueryInfB(rParam.LocID, rParam.ParamString))
-			query_sended = 1;
-		else
-			do_report_error = 1;
-	}
-	else if(rParam.DocType == PPEDIOP_EGAIS_QUERYAP) {
-		if(QueryProducts(rParam.LocID, querybyINN, rParam.ParamString))
-			query_sended = 1;
-		else
-			do_report_error = 1;
-	}
-	else if(rParam.DocType == PPEDIOP_EGAIS_QUERYRESTS) {
-		if(QueryRests(rParam.LocID, 0))
-			query_sended = 1;
-		else
-			do_report_error = 1;
-	}
-	else if(rParam.DocType == PPEDIOP_EGAIS_QUERYRESTSSHOP) {
-		//
-		// Непосредственно перед запросом остатков по регистру 2 запрашиваем остатки по складу. Для того, чтобы при создании
-		// автоматического документа передачи со склада на регистр 2 проверять наличие заданной справки Б на складе.
-		//
-		if(QueryRests(rParam.LocID, 0)) {
-			query_sended = 1;
-			SDelay(100);
-			if(QueryRestsShop(rParam.LocID, 0))
-				query_sended = 1;
-			else
-				do_report_error = 1;
-		}
-		else
-			do_report_error = 1;
-	}
-	else if(rParam.DocType == PPEDIOP_EGAIS_QUERYBARCODE) {
-		if(rParam.ParamString.NotEmptyS()) {
-			StringSet ss(' ', rParam.ParamString);
-			Packet qp(PPEDIOP_EGAIS_QUERYBARCODE);
-			TSCollection <QueryBarcode> * p_qbl = static_cast<TSCollection <QueryBarcode> *>(qp.P_Data);
-			if(p_qbl) {
-				if(ss.getCount() == 3) {
-					QueryBarcode qb;
-					uint   ssp = 0;
-					ss.get(&ssp, temp_buf.Z());
-					qb.CodeType = temp_buf.ToLong();
-					ss.get(&ssp, temp_buf.Z());
-					qb.Rank = temp_buf;
-					ss.get(&ssp, temp_buf.Z());
-					qb.Number = temp_buf;
-					QueryBarcode * p_qb = p_qbl->CreateNewItem();
-					THROW_SL(p_qb);
-					*p_qb = qb;
-				}
-				else {
-					SFsPath ps(rParam.ParamString);
-					if(ps.Drv.IsEmpty() && ps.Dir.IsEmpty())
-						PPGetFilePath(PPPATH_IN, rParam.ParamString, temp_buf);
-					else
-						temp_buf = rParam.ParamString;
-					if(fileExists(temp_buf)) {
-						SFile f_in(temp_buf, SFile::mRead);
-						if(f_in.IsValid()) {
-							while(f_in.ReadLine(temp_buf, SFile::rlfChomp)) {
-								ss.setBuf(temp_buf);
-								if(ss.getCount() == 3) {
-									QueryBarcode qb;
-									uint   ssp = 0;
-									ss.get(&ssp, temp_buf.Z());
-									qb.CodeType = temp_buf.ToLong();
-									ss.get(&ssp, temp_buf.Z());
-									qb.Rank = temp_buf;
-									ss.get(&ssp, temp_buf.Z());
-									qb.Number = temp_buf;
-									QueryBarcode * p_qb = p_qbl->CreateNewItem();
-									THROW_SL(p_qb);
-									*p_qb = qb;
-								}
-							}
-						}
-					}
-				}
-				if(p_qbl->getCount()) {
-					Ack    ack;
-					if(!PutQuery(qp, rParam.LocID, "QueryBarcode", ack))
 						do_report_error = 1;
 				}
-			}
+				break;
+			case PPEDIOP_EGAIS_NOTIFY_WBVER3:
+				{
+					Packet qp(rParam.DocType);
+					if(PutQuery(qp, rParam.LocID, "InfoVersionTTN", ack))
+						query_sended = 1;
+					else
+						do_report_error = 1;
+				}
+				break;
+			case PPEDIOP_EGAIS_NOTIFY_WBVER4:
+				{
+					Packet qp(rParam.DocType);
+					if(PutQuery(qp, rParam.LocID, "InfoVersionTTN", ack))
+						query_sended = 1;
+					else
+						do_report_error = 1;
+				}
+				break;
+			case PPEDIOP_EGAIS_QUERYRESENDDOC:
+				{
+					Packet qp(rParam.DocType);
+					if(qp.P_Data) {
+						*static_cast<SString *>(qp.P_Data) = rParam.ParamString;
+						if(PutQuery(qp, rParam.LocID, "QueryResendDoc", ack))
+							query_sended = 1;
+						else
+							do_report_error = 1;
+					}
+				}
+				break;
+			case PPEDIOP_EGAIS_QUERYRESTBCODE:
+				{
+					Packet qp(rParam.DocType);
+					if(qp.P_Data) {
+						*static_cast<SString *>(qp.P_Data) = rParam.ParamString;
+						if(PutQuery(qp, rParam.LocID, "QueryRestBCode", ack))
+							query_sended = 1;
+						else
+							do_report_error = 1;
+					}
+				}
+				break;
+			case PPEDIOP_EGAIS_QUERYFORMA:
+				if(QueryInfA(rParam.LocID, rParam.ParamString))
+					query_sended = 1;
+				else
+					do_report_error = 1;
+				break;
+			case PPEDIOP_EGAIS_QUERYFORMB:
+				if(QueryInfB(rParam.LocID, rParam.ParamString))
+					query_sended = 1;
+				else
+					do_report_error = 1;
+				break;
+			case PPEDIOP_EGAIS_QUERYAP:
+				if(QueryProducts(rParam.LocID, querybyINN, rParam.ParamString))
+					query_sended = 1;
+				else
+					do_report_error = 1;
+				break;
+			case PPEDIOP_EGAIS_QUERYRESTS:
+				if(QueryRests(rParam.LocID, 0))
+					query_sended = 1;
+				else
+					do_report_error = 1;
+				break;
+			case PPEDIOP_EGAIS_QUERYRESTSSHOP:
+				//
+				// Непосредственно перед запросом остатков по регистру 2 запрашиваем остатки по складу. Для того, чтобы при создании
+				// автоматического документа передачи со склада на регистр 2 проверять наличие заданной справки Б на складе.
+				//
+				if(QueryRests(rParam.LocID, 0)) {
+					query_sended = 1;
+					SDelay(100);
+					if(QueryRestsShop(rParam.LocID, 0))
+						query_sended = 1;
+					else
+						do_report_error = 1;
+				}
+				else
+					do_report_error = 1;
+				break;
+			case PPEDIOP_EGAIS_QUERYBARCODE:
+				if(rParam.ParamString.NotEmptyS()) {
+					StringSet ss(' ', rParam.ParamString);
+					Packet qp(PPEDIOP_EGAIS_QUERYBARCODE);
+					TSCollection <QueryBarcode> * p_qbl = static_cast<TSCollection <QueryBarcode> *>(qp.P_Data);
+					if(p_qbl) {
+						if(ss.getCount() == 3) {
+							QueryBarcode qb;
+							uint   ssp = 0;
+							ss.get(&ssp, temp_buf.Z());
+							qb.CodeType = temp_buf.ToLong();
+							ss.get(&ssp, temp_buf.Z());
+							qb.Rank = temp_buf;
+							ss.get(&ssp, temp_buf.Z());
+							qb.Number = temp_buf;
+							QueryBarcode * p_qb = p_qbl->CreateNewItem();
+							THROW_SL(p_qb);
+							*p_qb = qb;
+						}
+						else {
+							SFsPath ps(rParam.ParamString);
+							if(ps.Drv.IsEmpty() && ps.Dir.IsEmpty())
+								PPGetFilePath(PPPATH_IN, rParam.ParamString, temp_buf);
+							else
+								temp_buf = rParam.ParamString;
+							if(fileExists(temp_buf)) {
+								SFile f_in(temp_buf, SFile::mRead);
+								if(f_in.IsValid()) {
+									while(f_in.ReadLine(temp_buf, SFile::rlfChomp)) {
+										ss.setBuf(temp_buf);
+										if(ss.getCount() == 3) {
+											QueryBarcode qb;
+											uint   ssp = 0;
+											ss.get(&ssp, temp_buf.Z());
+											qb.CodeType = temp_buf.ToLong();
+											ss.get(&ssp, temp_buf.Z());
+											qb.Rank = temp_buf;
+											ss.get(&ssp, temp_buf.Z());
+											qb.Number = temp_buf;
+											QueryBarcode * p_qb = p_qbl->CreateNewItem();
+											THROW_SL(p_qb);
+											*p_qb = qb;
+										}
+									}
+								}
+							}
+						}
+						if(p_qbl->getCount()) {
+							if(!PutQuery(qp, rParam.LocID, "QueryBarcode", ack))
+								do_report_error = 1;
+						}
+					}
+				}
+				break;
 		}
-	}
-	else {
-
 	}
 	if(do_report_error) {
 		PPGetLastErrorMessage(1, temp_buf);
@@ -10978,7 +11023,7 @@ int EgaisMarkAutoSelector::GetRecentEgaisStock(TSVector <RefBEntry> & rResultLis
 					if(p_bobj->ExtractPacket(bill_rec.ID, &bpack) > 0) {
 						for(uint tidx = 0; tidx < bpack.GetTCount(); tidx++) {
 							const PPTransferItem & r_ti = bpack.ConstTI(tidx);
-							bpack.LTagL.GetNumber(PPTAG_LOT_FSRARINFB, tidx, temp_buf);
+							bpack.LTagL.GetString(PPTAG_LOT_FSRARINFB, tidx, temp_buf);
 							if(temp_buf.NotEmptyS()) {
 								RefBEntry rbentry;
 								STRNSCPY(rbentry.RefB, temp_buf);

@@ -557,7 +557,7 @@ int PPObjBill::RollbackInventoryWrOff(PPID id)
 			THROW(ExtractPacketWithFlags(link_id, &link_pack, BPLD_LOCK|BPLD_FORCESERIALS) > 0);
 			lock_list.add(link_id);
 			for(i = 0; link_pack.EnumTItems(&i, &p_ti);) {
-				link_pack.LTagL.GetNumber(PPTAG_LOT_SN, i-1, serial);
+				link_pack.LTagL.GetString(PPTAG_LOT_SN, i-1, serial);
 				if(r_inv_tbl.SearchIdentical(id, p_ti->GoodsID, serial, &inv_rec) > 0) {
 					inv_rec.WrOffPrice = inv_rec.StockPrice;
 					if(inv_rec.Flags & (INVENTF_WRITEDOFF|INVENTF_GENWROFFLINE)) {
@@ -697,7 +697,7 @@ int PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/long f
 				PPTransferItem * p_ti;
 				THROW(ExtractPacketWithFlags(link_id, &link_pack, BPLD_LOCK|BPLD_FORCESERIALS) > 0);
 				for(uint i = 0; link_pack.EnumTItems(&i, &p_ti);) {
-					link_pack.LTagL.GetNumber(PPTAG_LOT_SN, i-1, serial);
+					link_pack.LTagL.GetString(PPTAG_LOT_SN, i-1, serial);
 					if(r_inv_tbl.SearchIdentical(bill_id, p_ti->GoodsID, serial, &rec) > 0) {
 						uint   pos = 0;
 						double t_qtty = fabs(p_ti->Qtty());
@@ -1219,7 +1219,7 @@ int InventoryConversion::Run(PPID billID)
 										ilti.SetQtty(diff);
 										rows.clear();
 										THROW(P_BObj->ConvertILTI(&ilti, &wrUpPack, &rows, CILTIF_DEFAULT|CILTIF_INHLOTTAGS, r_ir.Serial));
-										THROW(wrUpPack.LTagL.AddNumber(PPTAG_LOT_CLB, &rows, clb));
+										THROW(wrUpPack.LTagL.SetString(PPTAG_LOT_CLB, &rows, clb));
 										{
 											double amt = 0.0, t_qtty = 0.0;
 											for(uint rp = 0; rp < rows.getCount(); rp++) {

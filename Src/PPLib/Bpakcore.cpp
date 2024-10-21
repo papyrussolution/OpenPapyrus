@@ -918,12 +918,9 @@ int FASTCALL PPLotTagContainer::Copy(const PPLotTagContainer & rS)
     return ok;
 }
 
-void PPLotTagContainer::Release()
-	{ clear(); }
-uint PPLotTagContainer::GetCount() const
-	{ return getCount(); }
-int PPLotTagContainer::GetNumber(PPID tagID, int rowIdx, SString & rBuf) const
-	{ return GetTagStr(rowIdx, tagID, rBuf); }
+void PPLotTagContainer::Release() { clear(); }
+uint PPLotTagContainer::GetCount() const { return getCount(); }
+int  PPLotTagContainer::GetString(PPID tagID, int rowIdx, SString & rBuf) const { return GetTagStr(rowIdx, tagID, rBuf); }
 
 /*virtual*/void FASTCALL PPLotTagContainer::freeItem(void * pItem)
 {
@@ -1070,15 +1067,17 @@ int PPLotTagContainer::ProcessObjRefs(PPObjIDArray * ary, int replace)
 	return ok;
 }
 
-int PPLotTagContainer::AddNumber(PPID tagID, const LongArray * pRows, const char * pClbNumber)
+int PPLotTagContainer::SetString(PPID tagID, const LongArray * pRows, const char * pClbNumber)
 {
-	if(pRows && !isempty(pClbNumber))
-		for(uint i = 0; i < pRows->getCount(); i++)
-			AddNumber(tagID, pRows->at(i), pClbNumber);
+	const uint _c = SVector::GetCount(pRows);
+	if(_c && !isempty(pClbNumber)) {
+		for(uint i = 0; i < _c; i++)
+			SetString(tagID, pRows->at(i), pClbNumber);
+	}
 	return 1;
 }
 
-int PPLotTagContainer::AddNumber(PPID tagID, int rowIdx, const char * pNumber)
+int PPLotTagContainer::SetString(PPID tagID, int rowIdx, const char * pNumber)
 {
 	int    ok = 1;
 	SString temp_buf(pNumber);
@@ -1090,6 +1089,27 @@ int PPLotTagContainer::AddNumber(PPID tagID, int rowIdx, const char * pNumber)
 		else {
 			ObjTagList new_tag_list;
 			THROW(new_tag_list.PutItemStr(tagID, temp_buf));
+			THROW(Set(rowIdx, &new_tag_list));
+		}
+	}
+	else if(p_tag_list) {
+		THROW(p_tag_list->PutItem(tagID, 0));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPLotTagContainer::SetReal(PPID tagID, int rowIdx, const double * pValue)
+{
+	int    ok = 1;
+	ObjTagList * p_tag_list = Get(rowIdx);
+	if(pValue) {
+		if(p_tag_list) {
+			THROW(p_tag_list->PutItemReal(tagID, *pValue));
+		}
+		else {
+			ObjTagList new_tag_list;
+			THROW(new_tag_list.PutItemReal(tagID, *pValue));
 			THROW(Set(rowIdx, &new_tag_list));
 		}
 	}
@@ -3276,9 +3296,9 @@ int PPBillPacket::LoadTItem(const PPTransferItem * pItem, const char * pClb, con
 	uint   pos = Lots.getCount();
 	THROW_SL(Lots.insert(pItem));
 	if(pClb)
-		LTagL.AddNumber(PPTAG_LOT_CLB, pos, pClb);
+		LTagL.SetString(PPTAG_LOT_CLB, pos, pClb);
 	if(pSerial)
-		LTagL.AddNumber(PPTAG_LOT_SN, pos, pSerial);
+		LTagL.SetString(PPTAG_LOT_SN, pos, pSerial);
 	CATCHZOK
 	return ok;
 }

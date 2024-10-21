@@ -1766,20 +1766,9 @@ int PPSession::SaveStringHistory()
 	return ok;
 }
 
-/*uint64 PPSession::GetProfileTime()
-{
-	return GetTLA().Prf.GetAbsTimeMicroseconds();
-}*/
-
-void PPSession::GProfileStart(const char * pFileName, long lineNo, const char * pAddedInfo)
-{
-	GPrf.Start(pFileName, lineNo, pAddedInfo);
-}
-
-void PPSession::GProfileFinish(const char * pFileName, long lineNo)
-{
-	GPrf.Finish(pFileName, lineNo);
-}
+// uint64 PPSession::GetProfileTime() { return GetTLA().Prf.GetAbsTimeMicroseconds(); }
+void PPSession::GProfileStart(const char * pFileName, long lineNo, const char * pAddedInfo) { GPrf.Start(pFileName, lineNo, pAddedInfo); }
+void PPSession::GProfileFinish(const char * pFileName, long lineNo) { GPrf.Finish(pFileName, lineNo); }
 
 #ifndef NDEBUG // {
 

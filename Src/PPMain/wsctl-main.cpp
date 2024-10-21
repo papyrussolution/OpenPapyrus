@@ -2958,6 +2958,7 @@ void WsCtl_ImGuiSceneBlock::LoadProgramImages(WsCtl_ProgramCollection & rPgmL, T
 	SString temp_buf;
 	WsCtl_ImGuiSceneBlock::GetLocalCachePath(pic_base_path);
 	pic_base_path.SetLastSlash().Cat("img").SetLastSlash();
+	SFile::CreateDir(pic_base_path); // @v12.1.8
 	if(pathValid(pic_base_path, 1)) {
 		//rTextureCache.SetBasePath(pic_base_path);
 		// @v12.0.6 {
@@ -3654,7 +3655,12 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							{
 								DConnectionStatus conn_status;
 								St.D_ConnStatus.GetData(conn_status);
-								ImGui::Text(SLS.AcquireRvlStr().Cat("Connection status").CatDiv(':', 2).Cat((conn_status.S == 0) ? conn_status._Message.cptr() : "OK"));
+								if(conn_status.S)
+									ImGui::Text(SLS.AcquireRvlStr().Cat("Connection status").CatDiv(':', 2).Cat((conn_status.S == 0) ? conn_status._Message.cptr() : "OK"));
+								else {
+									ImGui::Text(SLS.AcquireRvlStr().Cat("Connection status").CatDiv(':', 2));
+									ImGui::Text(SLS.AcquireRvlStr().Tab().Cat(conn_status._Message.cptr()));
+								}
 							}
 							{
 								DTest test_result;

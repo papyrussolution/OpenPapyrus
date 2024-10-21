@@ -378,11 +378,13 @@ private:
 	int   InsertReceiptItem(PPBillPacket & rPack, const char * pSerial, PPID goodsID, double qtty);
 	//
 	// Descr: 
+	// ARG(surrogateAutoLot IN): Признак того, что создается суррогатный приход, не имеющий соответствия реальному документу на маркетплейсе,
+	//   поскольку маркетплейс по той или иной причине не предоставил соответствующей информации.
 	// Returns:
 	//   0 - error
 	//   >0 - ид лота
 	//
-	PPID  CreateReceipt(int64 incomeId, const WareBase & rWare, LDATE dt, PPID locID, PPID goodsID, double qtty, int use_ta);
+	PPID  CreateReceipt(int64 incomeId, const WareBase & rWare, LDATE dt, PPID locID, PPID goodsID, double qtty, bool surrogateAutoLot, int use_ta);
 	PPID  CreateBuyer(const Sale * pSaleEntry, int use_ta);
 	PPID  CreateWare(const WareBase & rWare, int use_ta);
 	int   FindShipmentBillByOrderIdent(const char * pOrgOrdIdent, PPIDArray & rShipmBillIdList);
@@ -2364,13 +2366,13 @@ int PPMarketplaceInterface_Wildberries::InsertReceiptItem(PPBillPacket & rPack, 
 	assert(row_idx_list.getCount() == 1);
 	if(!isempty(pSerial)) {
 		const long new_row_idx = row_idx_list.get(0);
-		rPack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, pSerial);
+		rPack.LTagL.SetString(PPTAG_LOT_SN, new_row_idx, pSerial);
 	}
 	CATCHZOK
 	return ok;
 }
 
-PPID PPMarketplaceInterface_Wildberries::CreateReceipt(int64 incomeId, const WareBase & rWare, LDATE dt, PPID locID, PPID goodsID, double qtty, int use_ta)
+PPID PPMarketplaceInterface_Wildberries::CreateReceipt(int64 incomeId, const WareBase & rWare, LDATE dt, PPID locID, PPID goodsID, double qtty, bool surrogateAutoLot, int use_ta)
 {
 	PPID   result_lot_id = 0;
 	PPObjBill * p_bobj = BillObj;
@@ -2399,9 +2401,12 @@ PPID PPMarketplaceInterface_Wildberries::CreateReceipt(int64 incomeId, const War
 		THROW(pack.SetupObject(suppl_id, sob));
 		{
 			THROW(InsertReceiptItem(pack, MakeSerialIdent(incomeId, rWare, serial_buf), goodsID, qtty));
+			if(surrogateAutoLot)
+				PPGetWord(PPWORD_AT_AUTO, 0, pack.SMemo);
 			pack.InitAmounts();
 			p_bobj->FillTurnList(&pack);
-			pack.SetupEdiAttributes(PPEDIOP_MRKTPLC_RECEIPT, "MP-WILDBERRIES", 0);
+			if(!surrogateAutoLot)
+				pack.SetupEdiAttributes(PPEDIOP_MRKTPLC_RECEIPT, "MP-WILDBERRIES", 0);
 			THROW(p_bobj->TurnPacket(&pack, 0));
 			assert(pack.GetTCount() == 1);
 			THROW(pack.GetTCount() == 1);
@@ -2470,7 +2475,7 @@ int PPMarketplaceInterface_Wildberries::ImportReceipts()
 						Goods2Tbl::Rec goods_rec;
 						PPBillPacket::SetupObjectBlock sob;
 						const LDATE dt = checkdate(p_wb_item->Dtm.d) ? p_wb_item->Dtm.d : getcurdate_();
-						const PPID lot_id = CreateReceipt(p_wb_item->IncomeID, p_wb_item->Ware, dt, wh_id, goods_id, fabs(p_wb_item->Qtty), 1);
+						const PPID lot_id = CreateReceipt(p_wb_item->IncomeID, p_wb_item->Ware, dt, wh_id, goods_id, fabs(p_wb_item->Qtty), false, 1);
 						if(lot_id) {
 							ok = 1;
 						}
@@ -2576,7 +2581,6 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(const Sale & rWbI
 				double adj_price = lot_rec.Price;
 				double adj_qtty = lot_rec.Quantity;
 				LDATE  adj_date = lot_rec.Dt;
-
 				assert(lot_rec.ID == lot_id);
 				assert(lot_rec.LocID == locID);
 				PPID   rcpt_bill_id = lot_rec.BillID;
@@ -2632,7 +2636,7 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(const Sale & rWbI
 			}
 		}
 		if(!lot_found) {
-			result_lot_id = CreateReceipt(rWbItem.IncomeID, rWbItem.Ware, dt, locID, goodsID, fabs(neededQtty), 1);
+			result_lot_id = CreateReceipt(rWbItem.IncomeID, rWbItem.Ware, dt, locID, goodsID, fabs(neededQtty), true, 1);
 		}
 	}
 	CATCH
@@ -2735,7 +2739,10 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 									nominal_price = p_wb_item->TotalPrice;
 								else
 									nominal_price = p_wb_item->FinishedPrice;
-								PPID   lot_id = AdjustReceiptOnExpend(*p_wb_item, pack.Rec.Dt, wh_id, goods_id, sold_quantity, nominal_price, 1/*use_ta*/);
+								// Предполагаем, что на маркетплейсе заказ может прийти только тогда, когда товар уже есть на складе.
+								// Таким образом, дата прихода должна быть не больше даты заказа.
+								const  LDATE lot_date = checkdate(ord_pack.Rec.Dt) ? ord_pack.Rec.Dt : pack.Rec.Dt;
+								PPID   lot_id = AdjustReceiptOnExpend(*p_wb_item, lot_date, wh_id, goods_id, sold_quantity, nominal_price, 1/*use_ta*/);
 								if(lot_id) {
 									mp_lot_list.add(lot_id);
 									uint   ord_ti_idx = 0; // [1..]
@@ -2743,8 +2750,8 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 									for(uint oti = 0; !ord_ti_idx && oti < ord_pack.GetTCount(); oti++) {
 										const PPTransferItem & r_ord_ti = ord_pack.ConstTI(oti);
 										if(labs(r_ord_ti.GoodsID) == goods_id) {
-											ord_pack.LTagL.GetNumber(PPTAG_LOT_SN, oti, ord_serial_buf);
-											ord_pack.LTagL.GetNumber(PPTAG_LOT_ORGORDERIDENT, oti, org_order_ident);
+											ord_pack.LTagL.GetString(PPTAG_LOT_SN, oti, ord_serial_buf);
+											ord_pack.LTagL.GetString(PPTAG_LOT_ORGORDERIDENT, oti, org_order_ident);
 											if(p_wb_item->SrID.NotEmpty()) {
 												if(org_order_ident.IsEqiUtf8(p_wb_item->SrID)) {
 													ord_ti_idx = oti+1;
@@ -2774,8 +2781,11 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 											r_ti.Price = lot_rec.Price;
 											r_ti.Discount = (r_ti.Price - p_wb_item->FinishedPrice);
 										}
-										pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, MakeSerialIdent(p_wb_item->IncomeID, p_wb_item->Ware, temp_buf));
-										pack.LTagL.AddNumber(PPTAG_LOT_ORGORDERIDENT, new_row_idx, temp_buf.Z().Cat(p_wb_item->SrID));
+										pack.LTagL.SetString(PPTAG_LOT_SN, new_row_idx, MakeSerialIdent(p_wb_item->IncomeID, p_wb_item->Ware, temp_buf));
+										pack.LTagL.SetString(PPTAG_LOT_ORGORDERIDENT, new_row_idx, temp_buf.Z().Cat(p_wb_item->SrID));
+										if(p_wb_item->Spp != 0.0) {
+											pack.LTagL.SetReal(PPTAG_LOT_MP_DISCOUNTPCT, new_row_idx, &p_wb_item->Spp);
+										}
 										pack.InitAmounts();
 										if(p_wb_item->ForPay > 0.0) {
 											pack.Amounts.Put(PPAMT_MP_SELLERPART, 0, p_wb_item->ForPay, 1, 1);
@@ -2917,8 +2927,8 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 										{
 											assert(row_idx_list.getCount() == 1);
 											const long new_row_idx = row_idx_list.get(0);
-											pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, MakeSerialIdent(p_wb_item->IncomeID, p_wb_item->Ware, temp_buf));
-											pack.LTagL.AddNumber(PPTAG_LOT_ORGORDERIDENT, new_row_idx, p_wb_item->SrID);
+											pack.LTagL.SetString(PPTAG_LOT_SN, new_row_idx, MakeSerialIdent(p_wb_item->IncomeID, p_wb_item->Ware, temp_buf));
+											pack.LTagL.SetString(PPTAG_LOT_ORGORDERIDENT, new_row_idx, p_wb_item->SrID);
 										}
 										{
 											//
@@ -2938,8 +2948,11 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 														if(pack.InsertRow(&ti_inner, &row_idx_list)) {
 															assert(row_idx_list.getCount() == 1);
 															const long new_row_idx = row_idx_list.get(0);
-															pack.LTagL.AddNumber(PPTAG_LOT_SN, new_row_idx, MakeSerialIdent(p_wb_item_inner->IncomeID, p_wb_item_inner->Ware, temp_buf));
-															pack.LTagL.AddNumber(PPTAG_LOT_ORGORDERIDENT, new_row_idx, p_wb_item_inner->SrID);															
+															pack.LTagL.SetString(PPTAG_LOT_SN, new_row_idx, MakeSerialIdent(p_wb_item_inner->IncomeID, p_wb_item_inner->Ware, temp_buf));
+															pack.LTagL.SetString(PPTAG_LOT_ORGORDERIDENT, new_row_idx, p_wb_item_inner->SrID);
+															if(p_wb_item_inner->Spp != 0.0) {
+																pack.LTagL.SetReal(PPTAG_LOT_MP_DISCOUNTPCT, new_row_idx, &p_wb_item_inner->Spp);
+															}
 														}
 													}
 												}
@@ -3025,6 +3038,8 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 	Reference * p_ref = PPRef;
 	const  LDATETIME now_dtm = getcurdatetime_();
 	SString temp_buf;
+	SString fmt_buf;
+	SString msg_buf;
 	TSCollection <PPMarketplaceInterface_Wildberries::SalesRepDbpEntry> sales_rep_dbp_list;
 	DateRange period;
 	PPID   acc_id = 0;
@@ -3052,8 +3067,16 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 	}
 	period.low.encode(1, 5, 2024);
 	period.upp = now_dtm.d;
+	//PPTXT_MP_FINTRA_WB_REQ               "Запрос отчета о продажах по реализации за период %s"
+	PPLoadText(PPTXT_MP_FINTRA_WB_REQ, fmt_buf);
+	PPFormatPeriod(&period, temp_buf);
+	msg_buf.Printf(fmt_buf, temp_buf.cptr());
+	R_Prc.GetLogger().Log(msg_buf);
 	int r = RequestSalesReportDetailedByPeriod(period, sales_rep_dbp_list);
-	if(sales_rep_dbp_list.getCount()) {
+	if(!sales_rep_dbp_list.getCount()) {
+		R_Prc.GetLogger().Log(PPLoadTextS(PPTXT_MP_FINTRA_WB_REPEMPTY, msg_buf));
+	}
+	else {
 		// PPTXT_MPWB_NATIVEOPS                 "1,Возмещение издержек по перевозке/по складским операциям с товаром;2,Логистика;3,Пересчет платной приемки;4,Продажа;5,Удержание;6,Хранение"
 		enum {
 			nativeopCargo       = 1, // Возмещение издержек по перевозке/по складским операциям с товаром
@@ -3096,13 +3119,20 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 			const int fsr = is_empty_sr_ident ? -1 : FindShipmentBillByOrderIdent(sr_ident, shipm_bill_id_list);
 			PPID  shipm_bill_id = 0;
 			PPBillPacket bpack;
+			int   row_idx = -1;
+			PPTransferItem * p_ti = 0;
 			bool is_bpack_updated = false;
 			double freight_amount = 0.0;
 			if(fsr > 0) {
 				assert(shipm_bill_id_list.getCount() == 1);
 				shipm_bill_id = shipm_bill_id_list.get(0);
 				if(p_bobj->ExtractPacketWithFlags(shipm_bill_id, &bpack, BPLD_FORCESERIALS) > 0) {
-					;					
+					LongArray row_list;
+					bpack.LTagL.SearchString(sr_ident, PPTAG_LOT_ORGORDERIDENT, 0, row_list);
+					if(row_list.getCount() == 1) {
+						row_idx = row_list.get(0);
+						p_ti = &bpack.TI(row_idx);
+					}
 				}
 				else {
 					;
@@ -3181,14 +3211,23 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 								// quantity, retail_price, retail_price_withdisc_rub, retail_amount, commission_percent, ppvz_spp_prc, ppvz_kvw_prc_base, ppvz_kvw_prc, 
 								// ppvz_sales_commission, ppvz_for_pay, acquiring_fee, acquiring_percent, ppvz_vw, ppvz_vw_nds	
 								if(bpack.Rec.ID) {
+									if(p_entry->CommissionPct != 0.0) {
+										if(row_idx >= 0) {
+											bpack.LTagL.SetReal(PPTAG_LOT_MP_COMMISSIONPCT, row_idx, &p_entry->CommissionPct);
+											if(p_entry->RetailPrice > 0.0) {
+												double commission_amount = (p_entry->RetailPrice * p_entry->Qtty) * (p_entry->CommissionPct / 100.0);
+												bpack.Amounts.Put(PPAMT_MP_COMMISSION, 0, commission_amount, 1, 1);
+											}
+										}
+									}
 									if(p_entry->Ppvz_For_Pay != 0.0) {
 										bpack.Amounts.Put(PPAMT_MP_SELLERPART, 0, p_entry->Ppvz_For_Pay, 1, 1);
 										is_bpack_updated = true;
 									}
-									if(p_entry->Ppvz_Vw != 0.0) {
+									/*if(p_entry->Ppvz_Vw != 0.0) {
 										bpack.Amounts.Put(PPAMT_MP_COMMISSION, 0, fabs(p_entry->Ppvz_Vw + p_entry->Ppvz_Vw_Vat), 1, 1);
 										is_bpack_updated = true;
-									}
+									}*/
 									if(p_entry->AcquiringFee != 0.0) {
 										bpack.Amounts.Put(PPAMT_MP_ACQUIRING, 0, fabs(p_entry->AcquiringFee), 1, 1);
 										is_bpack_updated = true;

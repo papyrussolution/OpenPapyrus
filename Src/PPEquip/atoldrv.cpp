@@ -1641,7 +1641,6 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 			SJson * p_inner = SJson::CreateObj();
 			PPSyncCashSession::GetCurrentUserName(temp_buf);
 			p_inner->InsertString("name", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
-			//
 			p_result->Insert("operator", p_inner);
 		}
 		// @v11.3.10 {
@@ -1787,9 +1786,26 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 										p_js_item->Insert("imcParams", p_js_imcparams);
 									}
 								}
-								/*
-								@todo industryInfo
-								*/
+								{ // @v12.1.8
+									SJson * p_js_indi = SJson::CreateObj();
+									p_js_indi->InsertString("date", "2022.03.26");
+									temp_buf.Z();
+									if(sl_param.ChZnProductType == 4)
+										temp_buf.Cat("020");
+									else if(oneof2(sl_param.ChZnProductType, 12, 1012))
+										temp_buf.Cat("030");
+									else
+										temp_buf.Cat("030");
+									p_js_indi->InsertString("fois", temp_buf);
+									p_js_indi->InsertString("number", "477");
+									//
+									if(!!sl_param.ChZnPm_ReqId && sl_param.ChZnPm_ReqTimestamp) {
+										temp_buf.Z().CatEq("UUID", sl_param.ChZnPm_ReqId, S_GUID::fmtIDL|S_GUID::fmtLower).CatChar('&').
+											CatEq("Time", sl_param.ChZnPm_ReqTimestamp);
+										p_js_indi->InsertString("industryAttribute", temp_buf);
+									}
+									p_js_item->Insert("industryInfo", p_js_indi);
+								}
 							}
 							else {
 								//uint8 fptr10_mark_buf[512];
@@ -2215,7 +2231,6 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 								THROW(SetProp(Quantity, pq));
 								THROW(SetProp(Price, pp));
 								// @v10.0.03 {
-								// @v10.0.10 {
 								if(SCn.DrvVerMinor == 30) { 
 									// 1 - 0%
 									// 2 - 10%
@@ -2227,7 +2242,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 										tax_type_number = 6;
 									else {
 										const double vatrate = fabs(sl_param.VatRate);
-										if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
+										if(vatrate == 18.0 || vatrate == 20.0)
 											tax_type_number = 3;
 										else if(vatrate == 10.0)
 											tax_type_number = 2;
@@ -2258,9 +2273,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 											tax_type_number = 1; // @default
 									}
 								}
-								else 
-								// } @v10.0.10
-								{
+								else {
 									//
 									// 1 - 18
 									// 2 - 10
@@ -2273,7 +2286,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 										tax_type_number = 6;
 									else {
 										const double vatrate = fabs(sl_param.VatRate);
-										if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
+										if(vatrate == 18.0 || vatrate == 20.0)
 											tax_type_number = 1;
 										else if(vatrate == 10.0)
 											tax_type_number = 2;

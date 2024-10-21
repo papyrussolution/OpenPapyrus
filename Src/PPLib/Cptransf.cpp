@@ -623,7 +623,7 @@ int PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 			THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack, p_pack, 0));
 			for(uint i = 0; i < rBlk.SrcDraftPack.GetTCount(); i++) {
 				const PPTransferItem & r_src_ti = rBlk.SrcDraftPack.ConstTI(i);
-				rBlk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf);
+				rBlk.SrcDraftPack.LTagL.GetString(PPTAG_LOT_SN, i, serial_buf);
 				ILTI ilti(&r_src_ti);
 				uint ciltif = CILTIF_USESUBST|CILTIF_USESUBST_STRUCONLY|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE;
 				if(!(CcFlags & CCFLG_NOADJPRWROFFDRAFT))
@@ -883,10 +883,10 @@ int PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPIDArray 
 			ti.TFlags &= ~PPTransferItem::tfDirty;
 			rows.clear();
 			THROW(p_pack->InsertRow(&ti, &rows));
-			rBlk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf);
+			rBlk.SrcDraftPack.LTagL.GetString(PPTAG_LOT_SN, i, serial_buf);
 			for(j = rows.getCount()-1; !incomplete && j >= 0; j--) {
 				const uint pos = rows.at(j);
-				THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, pos, serial_buf));
+				THROW(p_pack->LTagL.SetString(PPTAG_LOT_CLB, pos, serial_buf));
 				if(LoadGoodsStruc(PPGoodsStruc::Ident(r_src_ti.GoodsID, GSF_COMPL, GSF_PARTITIAL, p_pack->Rec.Dt), &gs) > 0) {
 					const PPTransferItem & r_row_ti = p_pack->ConstTI(pos);
 					THROW(gs.InitCompleteData2(r_row_ti.GoodsID, r_row_ti.Quantity_, compl_list));
@@ -900,11 +900,11 @@ int PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPIDArray 
 					if(r == 2) {
 						if(src_serial.NotEmpty()) {
 							const uint lp = rows.at(0);
-							p_pack->LTagL.GetNumber(PPTAG_LOT_SN, lp, serial_buf);
+							p_pack->LTagL.GetString(PPTAG_LOT_SN, lp, serial_buf);
 							if(serial_buf.IsEmpty()) {
 								// @todo Следует формировать новую серию по какому-либо шаблону
 								(serial_buf = src_serial).CatChar('-').Cat("???");
-								p_pack->LTagL.AddNumber(PPTAG_LOT_SN, lp, serial_buf);
+								p_pack->LTagL.SetString(PPTAG_LOT_SN, lp, serial_buf);
 							}
 						}
 					}
@@ -940,10 +940,10 @@ int PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPIDArray 
 			ti.TFlags &= ~PPTransferItem::tfDirty;
 			rows.clear();
 			THROW(p_pack->InsertRow(&ti, &rows));
-			rBlk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf);
+			rBlk.SrcDraftPack.LTagL.GetString(PPTAG_LOT_SN, i, serial_buf);
 			for(j = rows.getCount()-1; !incomplete && j >= 0; j--) {
 				const uint pos = rows.at(j);
-				THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, pos, serial_buf));
+				THROW(p_pack->LTagL.SetString(PPTAG_LOT_CLB, pos, serial_buf));
 				if(LoadGoodsStruc(PPGoodsStruc::Ident(r_src_ti.GoodsID, GSF_COMPL, GSF_PARTITIAL, p_pack->Rec.Dt), &gs) > 0) {
 					const PPTransferItem & r_row_ti = p_pack->ConstTI(pos);
 					THROW(gs.InitCompleteData2(r_row_ti.GoodsID, r_row_ti.Quantity_, compl_list));
@@ -1103,10 +1103,10 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 								THROW(p_pack->InsertRow(&ti, 0));
 								{
 									const uint dest_pos = p_pack->GetTCount()-1;
-									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_CLB, i, clb_buf);
-									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, dest_pos, clb_buf));
-									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf);
-									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, dest_pos, serial_buf));
+									blk.SrcDraftPack.LTagL.GetString(PPTAG_LOT_CLB, i, clb_buf);
+									THROW(p_pack->LTagL.SetString(PPTAG_LOT_CLB, dest_pos, clb_buf));
+									blk.SrcDraftPack.LTagL.GetString(PPTAG_LOT_SN, i, serial_buf);
+									THROW(p_pack->LTagL.SetString(PPTAG_LOT_SN, dest_pos, serial_buf));
 									{
 										const ObjTagList * p_org_lot_tag_list = blk.SrcDraftPack.LTagL.Get(i);
 										THROW(p_pack->LTagL.Set(dest_pos, p_org_lot_tag_list));
@@ -1153,10 +1153,10 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 								THROW(p_pack->InsertRow(&ti, 0));
 								{
 									const uint dest_pos = p_pack->GetTCount()-1;
-									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_CLB, i, clb_buf);
-									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, dest_pos, clb_buf));
-									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf);
-									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, dest_pos, serial_buf));
+									blk.SrcDraftPack.LTagL.GetString(PPTAG_LOT_CLB, i, clb_buf);
+									THROW(p_pack->LTagL.SetString(PPTAG_LOT_CLB, dest_pos, clb_buf));
+									blk.SrcDraftPack.LTagL.GetString(PPTAG_LOT_SN, i, serial_buf);
+									THROW(p_pack->LTagL.SetString(PPTAG_LOT_SN, dest_pos, serial_buf));
 									{
 										const ObjTagList * p_org_lot_tag_list = blk.SrcDraftPack.LTagL.Get(i);
 										THROW(p_pack->LTagL.Set(dest_pos, p_org_lot_tag_list));
@@ -1376,11 +1376,10 @@ int PPObjBill::ProcessDeficit(PPID compOpID, PPID compArID, const PUGL * pPugl, 
 					PUGI * p_item;
 					THROW(pack.CreateBlank2(compOpID, pPugl->Dt, loc_id, 0));
 					pack.Rec.Object = comp_ar_id;
-					// @v11.1.12 PPGetWord(PPWORD_AT_AUTO, 0, pack.Rec.Memo, sizeof(pack.Rec.Memo));
-					PPGetWord(PPWORD_AT_AUTO, 0, pack.SMemo); // @v11.1.12
+					PPGetWord(PPWORD_AT_AUTO, 0, pack.SMemo);
 					for(i = 0; pPugl->enumItems(&i, reinterpret_cast<void **>(&p_item));) {
 						if(p_item->DeficitQty > 0.0 && p_item->LocID == loc_id) {
-							int do_suppl_subst = BIN(op_rec.OpTypeID == PPOPT_GOODSRECEIPT && pPugl->GetSupplSubstList(i, suppl_subst_list) > 0);
+							const bool do_suppl_subst = (op_rec.OpTypeID == PPOPT_GOODSRECEIPT && pPugl->GetSupplSubstList(i, suppl_subst_list) > 0);
 							if(do_suppl_subst && PUGL::BalanceSupplSubstList(suppl_subst_list, p_item->DeficitQty) > 0) {
 								for(uint j = 0; j < suppl_subst_list.getCount(); j++) {
 									THROW(Helper_CreateDeficitTi(pack, pPugl, p_item, &suppl_subst_list.at(j), comp_ar_id));

@@ -5703,7 +5703,7 @@ public:
 	void   Resize(SPoint2S p, int mode); // mode: 0 - toggle off, 1 - toggle on, 2 - process
 	void   Refresh();
 	BrowserDef * getDef();
-	const BrowserDef * getDefC() const;
+	const  BrowserDef * getDefC() const;
 	void   SetDefUserProc(SBrowserDataProc proc, void * extraPtr);
 	void   go(long p);
 	void   top();
@@ -5745,13 +5745,11 @@ public:
 	//
 	const  LongArray & GetSettledOrderList() const { return SettledOrder; }
 
-	// @v10.9.11 BrowserWindow * P_View__;
 	enum {
 		paintFocused = 0,
 		paintNormal  = 1,
 		paintClear   = 2,
-		paintQueryDescription = 3 // @v10.6.3 Специальная опция, передаваемая в callback-функцию CellStyleFunc
-			// для получения дополнительной информации о ячейке и ее окраске.
+		paintQueryDescription = 3 // Специальная опция, передаваемая в callback-функцию CellStyleFunc для получения дополнительной информации о ячейке и ее окраске.
 	};
 protected:
 	DECL_HANDLE_EVENT;
@@ -5760,7 +5758,6 @@ protected:
 	int    LoadResource(uint rezID, void * pData, int dataKind, uint uOptions/*= 0*/);
 
 	uint   RezID;
-	// @v10.9.11 (moved to TBaseBrowserWindow) TToolbar * P_Toolbar;
 private:
 	virtual void Insert_(TView *p);
 	virtual TBaseBrowserWindow::IdentBlock & GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk);
@@ -5787,7 +5784,6 @@ private:
 
 	long   InitPos;
 	TView * P_Header;
-	// @v10.9.11 (moved to TBaseBrowserWindow) int    ToolBarWidth;
 	BrowserDef * P_Def;
 	LOGFONT FontRec;
 	HGDIOBJ Font;

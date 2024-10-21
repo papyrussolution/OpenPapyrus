@@ -34,21 +34,12 @@ ushort STDCALL CheckExecAndDestroyDialog(TDialog * pDlg, int genErrMsg, int toCa
 
 ushort FASTCALL ExecView(TBaseBrowserWindow * v)
 {
-	if(v) {
-		// @v10.9.11 const uint last_cmd = static_cast<PPApp *>(APPL)->LastCmd;
-		// @v10.9.11 v->SetToolbarID(last_cmd ? (last_cmd + TOOLBAR_OFFS) : 0);
-		return APPL->P_DeskTop->execView(v);
-	}
-	else
-		return cmError;
-	//return v ? (v->SetToolbarID(last_cmd ? (last_cmd + TOOLBAR_OFFS) : 0), APPL->P_DeskTop->execView(v)) : cmError;
+	return v ? APPL->P_DeskTop->execView(v) : cmError;
 }
 
 int FASTCALL InsertView(TBaseBrowserWindow * v)
 {
 	if(v) {
-		// @v10.9.11 const uint last_cmd = static_cast<PPApp *>(APPL)->LastCmd;
-		// @v10.9.11 v->SetToolbarID(last_cmd ? (last_cmd + TOOLBAR_OFFS) : 0);
 		APPL->P_DeskTop->Insert_(v);
 		return v->Insert();
 	}
@@ -484,7 +475,6 @@ void ViewAsyncEventQueueStat()
 					Setup();
 					T.Restart(5000);
 				}
-				// @v10.5.9 clearEvent(event);
 			}
 		}
 		void   Setup()
@@ -497,7 +487,6 @@ void ViewAsyncEventQueueStat()
 			setCtrlLong(CTL_AEQSTAT_GETDECLCOUNT, stat.GetDecline_Count);
 			setCtrlLong(CTL_AEQSTAT_PUTCOUNT, stat.Push_Count);
 			setCtrlLong(CTL_AEQSTAT_MAXQUEUE, stat.MaxLength);
-			// @v10.6.0 {
 			{
 				SString temp_buf;
 				SString info_buf;
@@ -517,7 +506,6 @@ void ViewAsyncEventQueueStat()
 			setCtrlLong(CTL_AEQSTAT_PHNMSGCOUNT, stat.PhnSvcMsgCount);
 			setCtrlLong(CTL_AEQSTAT_MQBPRCCOUNT, stat.MqbPrcCount);
 			setCtrlLong(CTL_AEQSTAT_MQBMSGCOUNT, stat.MqbMsgCount);
-			// } @v10.6.0 
 		}
 		SCycleTimer T;
 	};

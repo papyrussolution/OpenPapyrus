@@ -562,7 +562,7 @@ bool WsCtl_ClientPolicy::IsThereSystemImage() const
 	SString bu_base_path;
 	MakeBaseSystemImagePath(bu_base_path);
 	SSystemBackup sb;
-	uint32 bu_id = sb.GetLastBackupId(bu_base_path);
+	uint32 bu_id = sb.GetLastBackupId(bu_base_path, 0);
 	return (bu_id > 0);
 }
 
@@ -995,13 +995,15 @@ int WsCtlSrvBlock::StartSess(StartSessBlock & rBlk)
 {
 	int    ok = 1;
 	const LDATETIME now_dtm = getcurdatetime_();
+	SString temp_buf;
+	SString msg_buf;
 	PPID   tses_id = 0;
 	double screst = 0.0; // Остаток на счете клиента на момент начала сессии
 	SCardTbl::Rec sc_rec;
 	Goods2Tbl::Rec goods_rec;
 	THROW(!rBlk.IsEmpty());
 	THROW(rBlk.WsCtlUuid);
-	THROW(ScSerID); // @todo @err (не удалось определить серию карт, с которыми ассоциированы аккаунты клиентов)
+	THROW_PP(ScSerID, PPERR_WSCTL_CLIACCSCSERUNDEF);
 	THROW(ScObj.Search(rBlk.SCardID, &sc_rec) > 0);
 	THROW(ScObj.P_Tbl->GetRest(rBlk.SCardID, ZERODATE, &screst));
 	THROW(GObj.Search(rBlk.GoodsID, &goods_rec) > 0);
@@ -1016,7 +1018,10 @@ int WsCtlSrvBlock::StartSess(StartSessBlock & rBlk)
 		THROW(SearchPrcByWsCtlUuid(rBlk.WsCtlUuid, &prc_id, &prc_name_utf8) > 0);
 		THROW(TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0);
 		TSesObj.TecObj.GetListByPrcGoods(prc_id, rBlk.GoodsID, &tec_id_list);
-		THROW(tec_id_list.getCount());
+		if(!tec_id_list.getCount()) {
+			msg_buf.Z().Cat(goods_rec.Name).Space().Cat("->").Space().Cat(prc_rec.Name);
+			CALLEXCEPT_PP_S(PPERR_WSCTL_NOTECH, msg_buf); // Не нашлось ни одной технологии, сопоставляющей услугу процессору (%s)
+		}
 		tec_id = tec_id_list.get(0);
 		THROW(TSesObj.TecObj.Fetch(tec_id, &tec_rec) > 0);
 		{
@@ -1028,18 +1033,14 @@ int WsCtlSrvBlock::StartSess(StartSessBlock & rBlk)
 				assert(qlist.getCount());
 				price = qlist.at(0).Quot;
 			}
-			if(price > 0.0) {
-				if(rBlk.Amount > 0) {
-					if(feqeps(rBlk.Amount, price, 1.0E-6)) {
-						amount_to_wroff = price; // ok
-					}
-					else {
-						; // @todo @err
-					}
+			THROW_PP_S(price > 0.0, PPERR_WSCTL_NOPRICEFORSESSION, msg_buf.Z().Cat(goods_rec.Name).CatDiv(',', 2).Space().Cat(prc_rec.Name));
+			if(rBlk.Amount > 0) {
+				if(feqeps(rBlk.Amount, price, 1.0E-6)) {
+					amount_to_wroff = price; // ok
 				}
-			}
-			else {
-				; // @todo @err
+				else {
+					; // @todo @err
+				}
 			}
 		}
 		if(amount_to_wroff > 0.0) {
@@ -1269,9 +1270,9 @@ int WsCtlSrvBlock::Registration(RegistrationBlock & rBlk)
 	PPObjSCardSeries scs_obj;
 	PPSCardSeries2 scs_rec;
 	THROW(rBlk.IsValid());
-	THROW(ScSerID); // @todo @err (не удалось определить серию карт, с которыми ассоциированы аккаунты клиентов)
+	THROW_PP(ScSerID, PPERR_WSCTL_CLIACCSCSERUNDEF);
 	THROW(scs_obj.Search(ScSerID, &scs_rec) > 0);
-	THROW(scs_rec.PersonKindID); // @todo @err Это поле необходимо для идентификации вида, которому будет принадлежать новая персоналия //
+	THROW_PP(scs_rec.PersonKindID, PPERR_WSCTL_CLIACCSCSMUSTHAVEPSNK, scs_rec.Name);
 	{
 		PPObjIDArray oid_list_by_phone;
 		PPEAddr::Phone::NormalizeStr(rBlk.Phone, 0, temp_buf);
@@ -1321,8 +1322,8 @@ int WsCtlSrvBlock::Auth(AuthBlock & rBlk)
 	SString temp_buf;
 	SCardTbl::Rec sc_rec;
 	PersonTbl::Rec psn_rec;
-	THROW(!rBlk.IsEmpty()); // @todo @err (не определены параметры для авторизации)
-	THROW(ScSerID); // @todo @err (не удалось определить серию карт, с которыми ассоциированы аккаунты клиентов)
+	THROW_PP(!rBlk.IsEmpty(), PPERR_WSCTL_SRVAUTHUNDEF);
+	THROW_PP(ScSerID, PPERR_WSCTL_CLIACCSCSERUNDEF);
 	assert(rBlk.LoginText.NotEmpty()); // Вызов rBlk.IsEmpty() выше должен гарантировать этот инвариант
 	{
 		bool    text_identification_done = false;
@@ -1726,7 +1727,7 @@ int WsCtl_SessionFrame::Start()
 		THROW(Policy.SysUser.NotEmpty()); // @todo @err
 		SSystem::GetUserName_(sys_user_name); // @debug
 		//SSystem::UserProfileInfo profile_info;
-		THROW(Policy.IsThereSystemImage()); // @todo @err
+		THROW_PP(Policy.IsThereSystemImage(), PPERR_WSCTL_SYSIMGNFOUND);
 		{
 			SSystem::UserProfileInfo profile_info;
 			SPtrHandle h_token = SSystem::Logon(0, Policy.SysUser, Policy.SysPassword, SSystem::logontypeInteractive, &profile_info);

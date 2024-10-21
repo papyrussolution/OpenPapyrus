@@ -867,6 +867,12 @@ int ObjTagList::PutItem(PPID id, const ObjTagItem * pi)
 	return ok;
 }
 
+int ObjTagList::PutItemReal(PPID tagID, double value)
+{
+	ObjTagItem tag_item;
+	return tag_item.SetReal(tagID, value) ? PutItem(tagID, &tag_item) : 0;
+}
+
 int ObjTagList::PutItemStr(PPID tagID, const char * pStr)
 {
 	ObjTagItem tag_item;

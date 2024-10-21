@@ -2337,8 +2337,7 @@ int RecoverTransfer()
 					if(!p_pack) {
 						THROW_SL(p_pack = pack_list.CreateNewItem());
 						THROW(p_pack->CreateBlank2(CConfig.ReceiptOp, first_date, loc_id, 0));
-						// @v11.1.12 PPGetWord(PPWORD_AT_AUTO, 0, p_pack->Rec.Memo, sizeof(p_pack->Rec.Memo));
-						PPGetWord(PPWORD_AT_AUTO, 0, p_pack->SMemo); // @v11.1.12
+						PPGetWord(PPWORD_AT_AUTO, 0, p_pack->SMemo);
 					}
 					THROW(ti.Init(&p_pack->Rec));
 					ti.GoodsID  = goods_id;

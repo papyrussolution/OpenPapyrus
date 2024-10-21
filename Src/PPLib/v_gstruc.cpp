@@ -589,7 +589,6 @@ int PPViewGoodsStruc::CellStyleFunc_(const void * pData, long col, int paintActi
 				}
 				ok = pStyle->SetRightFigCircleColor(clr);
 			}
-			// @v10.4.6 {
 			else if(r_col.OrgOffs == 6) { // common denomitator
 				if(Cb.GObj.GetConfig().Flags & GCF_BANSTRUCCDONDECOMPL) {
 					if(p_item->GStrucID && p_item->StrucEntryP < Cb.StrucList.getCount()) {
@@ -601,7 +600,6 @@ int PPViewGoodsStruc::CellStyleFunc_(const void * pData, long col, int paintActi
 					}
 				}
 			}
-			// } @v10.4.6 
 		}
 	}
 	return ok;
@@ -618,7 +616,7 @@ void PPViewGoodsStruc::PreprocessBrowser(PPViewBrowser * pBrw)
 		if(Filt.Flags & GoodsStrucFilt::fShowTech) {
 			pBrw->InsColumn(-1, "@tech", 9, MKSTYPE(S_ZSTRING, 64), MKSFMT(64, 0), BCO_USERPROC); // #9  tech
 		}
-		pBrw->Helper_SetAllColumnsSortable(); // @v10.7.5
+		pBrw->Helper_SetAllColumnsSortable();
 	}
 }
 

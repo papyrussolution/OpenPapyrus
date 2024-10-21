@@ -1,5 +1,5 @@
 // SBRODEF.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -50,8 +50,6 @@ BroColumn & FASTCALL BrowserDef::at(uint pos) const
 	return *static_cast<BroColumn *>(SArray::at(pos));
 }
 
-#pragma warn -rng // Prevent warn "Constant out of range..." at (pos == UNDEF)
-
 int BrowserDef::addColumn(const BroColumn * pCol, int pos)
 {
 	int    ok = 1;
@@ -81,8 +79,6 @@ int BrowserDef::addColumn(const BroColumn * pCol, int pos)
 		ok = 0;
 	return ok;
 }
-
-#pragma warn +rng
 
 int STDCALL BrowserDef::isColInGroup(uint col, uint * pIdx) const
 {
@@ -350,7 +346,7 @@ SString & BrowserDef::getFullText(long row, int column, SString & rBuf)
 static uint FASTCALL GetTextHeight(char * pBuf, size_t strLen)
 {
 	uint   text_height = 1;
-	size_t buf_len = sstrlen(pBuf);
+	const  size_t buf_len = sstrlen(pBuf);
 	if(buf_len > strLen) {
 		char * p_buf = pBuf;
 		uint   prev_pos = 0;
@@ -360,7 +356,7 @@ static uint FASTCALL GetTextHeight(char * pBuf, size_t strLen)
 		SSrchParam p(" ", 0, 0);
 		while(p_buf && searchstr(p_buf, p, &pos, &len) > 0) {
 			if(pos > strLen) {
-				size_t cut_pos = (prev_pos) ? prev_pos : pos;
+				const size_t cut_pos = (prev_pos) ? prev_pos : pos;
 				text_height++;
 				prev_pos = pos = 0;
 				real_pos += cut_pos;
@@ -398,7 +394,7 @@ static void FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen)
 			char   c;
 			for(size_t i = 0; (c = pBuf[i]) != 0; i++) {
 				if((c == '\r' && pBuf[i+1] == '\n') || (c == '\n' && pBuf[i+1] == '\r')) {
-					size_t len = sstrlen(pBuf+i+1)+1;
+					const size_t len = sstrlen(pBuf+i+1)+1;
 					memcpy(pBuf+i, pBuf+i+1, len);
 					pBuf[i] = ' ';
 				}
@@ -411,8 +407,8 @@ static void FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen)
 
 char * BrowserDef::getMultiLinesText(long row, int column, char * pBuf, uint heightMult, uint * pCalcHeight)
 {
-	char   ptr[4096]; // @v9.0.5 [256]-->[1024] // @v10.7.7 [1024]-->[4096]
-	char   buf[4096]; // @v10.7.7 [1024]-->[4096]
+	char   ptr[4096];
+	char   buf[4096];
 	PTR32(buf)[0] = 0;
 	const  char * p_src_data = static_cast<const char *>(getRow(row));
 	if(p_src_data && column >= 0 && column < getCountI()) {
@@ -465,23 +461,6 @@ char * BrowserDef::getMultiLinesText(long row, int column, char * pBuf, uint hei
 	}
 	return strnzcpy(pBuf, buf, 0);
 }
-
-/* @v10.6.3 (unused) int BrowserDef::setText(long row, int column, const char * b)
-{
-	int    ok = 1;
-	if(column >= 0 && column < static_cast<int>(getCount())) {
-		const BroColumn & c = at(column);
-		if(c.Options & BCO_USERPROC)
-			ok = 0;
-		else {
-			const char * ptr = static_cast<const char *>(getRow(row));
-			ok = ptr ? stfromstr(c.T, ptr + c.Offs, c.format, b) : 0;
-		}
-	}
-	else
-		ok = 0;
-	return ok;
-}*/
 
 int FASTCALL BrowserDef::go(long row)
 {
@@ -626,15 +605,3 @@ const void * FASTCALL AryBrowserDef::getRow(long row) const
 	return (P_Array && row >= 0 && row < P_Array->getCountI()) ? P_Array->at((uint)row) : 0;
 }
 
-#if 0 // @v10.9.0 {
-int FASTCALL AryBrowserDef::getData(void * pData)
-{
-	*static_cast<SArray **>(pData) = P_Array;
-	return 1;
-}
-
-int FASTCALL AryBrowserDef::setData(void * pNewData)
-{
-	return setArray(static_cast<SArray *>(pNewData), 0, 1);
-}
-#endif // } 0

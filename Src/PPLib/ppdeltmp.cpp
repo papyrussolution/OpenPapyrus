@@ -183,7 +183,7 @@ int PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 				(tmp_sub_dir = _temp_path).Cat("*.xml");
 				for(SDirec sd(tmp_sub_dir, 0); sd.Next(&sde) > 0;) {
 					LDATETIME iter_dtm;
-					iter_dtm.SetNs100(sde.ModTm_);										
+					iter_dtm.SetNs100(sde.ModTm_);
 					if(sde.IsFile() && diffdatetimesec(now_dtm, iter_dtm) > (3600*24*3)) {
 						sde.GetNameA(_temp_path, tmp_path);
 						etc_to_rmv_files.add(tmp_path);

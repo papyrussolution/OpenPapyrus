@@ -2781,12 +2781,12 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										(temp_buf2 = sdr_rec.Clb).Strip();
 										if(temp_buf2.Len()) {
 											temp_buf2.ReplaceChar('\\', '/').ReplaceChar('-', ' ');
-											THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, p_pack->GetTCount()-1, temp_buf2));
+											THROW(p_pack->LTagL.SetString(PPTAG_LOT_CLB, p_pack->GetTCount()-1, temp_buf2));
 										}
 										(temp_buf2 = sdr_rec.Serial).Strip();
 										if(temp_buf2.Len()) {
 											temp_buf2.ReplaceChar('\\', '/').ReplaceChar('-', ' ');
-											THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, p_pack->GetTCount()-1, temp_buf2));
+											THROW(p_pack->LTagL.SetString(PPTAG_LOT_SN, p_pack->GetTCount()-1, temp_buf2));
 										}
 									}
 								}

@@ -157,35 +157,35 @@ static int _Recover(BTBLID tblID, PPRecoverParam * pParam, SArray * pRecoverInfo
 //
 //
 //
-PPBackupScen::PPBackupScen() : ID(0), Period(1), Flags(0), NumCopies(1)
+PPBackupScen::PPBackupScen() : ID(0), Period(1), Flags(0), MaxCopies(1U)
 {
-	PTR32(Name)[0] = 0;
-	PTR32(DBName)[0] = 0;
-	PTR32(BackupPath)[0] = 0;
+	Name[0] = 0;
+	DBName[0] = 0;
+	BackupPath[0] = 0;
 }
 
 bool FASTCALL PPBackupScen::IsEq(const PPBackupScen & rS) const
 {
-	return (ID == rS.ID && Period == rS.Period && Flags == rS.Flags && NumCopies == rS.NumCopies &&
+	return (ID == rS.ID && Period == rS.Period && Flags == rS.Flags && MaxCopies == rS.MaxCopies &&
 		sstreq(Name, rS.Name) && sstreq(DBName, rS.DBName) && sstreq(BackupPath, rS.BackupPath));
 }
 
 PPBackupScen & PPBackupScen::Z()
 {
 	ID = 0;
-	PTR32(Name)[0] = 0;
-	PTR32(DBName)[0] = 0;
-	PTR32(BackupPath)[0] = 0;
+	Name[0] = 0;
+	DBName[0] = 0;
+	BackupPath[0] = 0;
 	Period = 1;
 	Flags = 0;
-	NumCopies = 1;
+	MaxCopies = 1U;
 	return *this;
 }
 
 int PPBackupScen::ToStr(SString & rBuf) const
 {
 	rBuf.Z().Cat(DBName).CatDiv(',', 0).Cat(BackupPath).CatDiv(',', 0).
-		Cat(Period).CatDiv(',', 0).Cat(Flags).CatDiv(',', 0).Cat(NumCopies);
+		Cat(Period).CatDiv(',', 0).Cat(Flags).CatDiv(',', 0).Cat(MaxCopies);
 	return 1;
 }
 
@@ -368,12 +368,11 @@ int PPBackup::CBP_CopyProcess(const char * pSrcFile, const char * /*pDestFile*/,
 					else
 						entry.Flags = 0;
 					if(ss.get(&i, buf)) {
-						entry.NumCopies = buf.ToLong();
-						if(entry.NumCopies <= 0)
-							entry.NumCopies = 1;
+						entry.MaxCopies = static_cast<uint32>(buf.ToLong());
+						entry.NormalizeValue_MaxCopies();
 					}
 					else
-						entry.NumCopies = 1;
+						entry.MaxCopies = 1;
 				}
 				THROW_SL(rList.insert(&entry));
 			}
@@ -387,67 +386,6 @@ int PPBackup::CBP_CopyProcess(const char * pSrcFile, const char * /*pDestFile*/,
 	CATCHZOK
 	return ok;
 }
-
-#if 0 // {
-int PPBackup::GetScenList(SArray * pScenList)
-{
-	int    ok = 1;
-	if(pScenList) {
-		uint   pos = 0;
-		const  char * p_sect = BACKUP;
-		SString buf;
-		StringSet temp;
-		PPIniFile ini_file;
-		THROW(ini_file.IsValid());
-		pScenList->freeAll();
-		ini_file.GetEntries(p_sect, &temp);
-		for(pos = 0; temp.get(&pos, buf);) {
-			uint   i = 0;
-			PPBackupScen entry;
-			STRNSCPY(entry.Name, buf);
-			ini_file.GetParam(p_sect, entry.Name, buf);
-			StringSet ss(',', buf);
-			ss.get(&i, entry.DBName, sizeof(entry.DBName));
-			if(stricmp866(entry.DBName, DBName) == 0) {
-				int    r = ss.get(&i, entry.BackupPath, sizeof(entry.BackupPath));
-				if(!r || entry.BackupPath[0] == 0)
-					GetDefaultBackupPath(entry.BackupPath);
-				if(r) {
-					if(ss.get(&i, buf)) {
-						entry.Period = buf.ToLong();
-						if(entry.Period < 1 || entry.Period > 365)
-							entry.Period = 1;
-					}
-					else
-						entry.Period = 1;
-					if(ss.get(&i, buf)) {
-						entry.Flags = buf.ToLong();
-						if(entry.Flags != 0)
-							entry.Flags = 1;
-					}
-					else
-						entry.Flags = 0;
-					if(ss.get(&i, buf)) {
-						entry.NumCopies = buf.ToLong();
-						if(entry.NumCopies <= 0)
-							entry.NumCopies = 1;
-					}
-					else
-						entry.NumCopies = 1;
-				}
-				THROW_SL(pScenList->insert(&entry));
-			}
-		}
-		if(pScenList->getCount() == 0) {
-			PPBackupScen entry;
-			THROW(GetDefaultScen(&entry));
-			THROW_SL(pScenList->insert(&entry));
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } 0
 
 int PPBackup::EnumScen(long * pPos, PPBackupScen * pScen)
 {
@@ -621,9 +559,9 @@ int ConfigBackupDialog::editEntry(int isNewEntry, PPBackupScen * pEntry)
 	PPBackupScen entry = *pEntry;
 	THROW(CheckDialogPtr(&dlg));
 	dlg->setCtrlData(CTL_BUCFG_CFGNAME,  entry.Name);
-	dlg->setCtrlData(CTL_BUCFG_PERIOD,   &(entry.Period));
-	dlg->setCtrlData(CTL_BUCFG_COPIES,   &(entry.NumCopies));
-	dlg->setCtrlData(CTL_BUCFG_COMPRESS, &(entry.Flags));
+	dlg->setCtrlData(CTL_BUCFG_PERIOD,   &entry.Period);
+	dlg->setCtrlData(CTL_BUCFG_COPIES,   &entry.MaxCopies);
+	dlg->setCtrlData(CTL_BUCFG_COMPRESS, &entry.Flags);
 	dlg->setCtrlData(CTL_BUCFG_PATH,     entry.BackupPath);
 	SetupDBEntryComboBox(dlg, CTLSEL_BUCFG_DBNAME, &DBES, 0);
 	dlg->disableCtrl(CTL_BUCFG_CFGNAME, !isNewEntry);
@@ -637,11 +575,11 @@ int ConfigBackupDialog::editEntry(int isNewEntry, PPBackupScen * pEntry)
 		DBES.GetAttr(dbid, DbLoginBlock::attrDbSymb, cc);
 		STRNSCPY(entry.DBName, cc.Strip());
 		dlg->getCtrlData(CTL_BUCFG_CFGNAME, temp_scen_name);
-		dlg->getCtrlData(CTL_BUCFG_PERIOD, &(entry.Period));
-		dlg->getCtrlData(CTL_BUCFG_COPIES, &(entry.NumCopies));
+		dlg->getCtrlData(CTL_BUCFG_PERIOD, &entry.Period);
+		dlg->getCtrlData(CTL_BUCFG_COPIES, &entry.MaxCopies);
 		dlg->getCtrlData(CTL_BUCFG_COMPRESS, &(entry.Flags));
 		dlg->getCtrlData(CTL_BUCFG_PATH, entry.BackupPath);
-		if(entry.NumCopies <= 0 || entry.NumCopies > 99) {
+		if(!entry.ValidateValue_MaxCopies()) {
 			sel = CTL_BUCFG_COPIES;
 			err_text = PPINF_BADCOPYNO;
 		}
@@ -694,7 +632,7 @@ int ConfigBackupDialog::editEntry(int isNewEntry, PPBackupScen * pEntry)
 	int    ok = -1;
 	PPBackupScen entry;
 	entry.Period = 1;
-	entry.NumCopies = 3;
+	entry.MaxCopies = 3;
 	if(editEntry(1, &entry) > 0) {
 		SString temp_buf;
 		entry.ToStr(temp_buf);
@@ -1910,9 +1848,9 @@ int EditJobBackupParam(SString & rDBSymb, PPBackupScen * pScen)
 		{
 			if(!RVALUEPTR(Data, pData))
 				Data.Z();
-			Data.NumCopies = (Data.NumCopies <= 0) ? 1 : Data.NumCopies;
+			Data.NormalizeValue_MaxCopies();
 			setCtrlData(CTL_BUPARAM_PATH, Data.BackupPath);
-			setCtrlData(CTL_BUPARAM_MAXCOPIES, &Data.NumCopies);
+			setCtrlData(CTL_BUPARAM_MAXCOPIES, &Data.MaxCopies);
 			AddClusterAssoc(CTL_BUPARAM_FLAGS, 0x01, BCOPYDF_USECOMPRESS);
 			SetClusterData(CTL_BUPARAM_FLAGS, Data.Flags);
 			return 1;
@@ -1926,11 +1864,11 @@ int EditJobBackupParam(SString & rDBSymb, PPBackupScen * pScen)
 			PPDbEntrySet2 dbes;
 			dbes.ReadFromProfile(&ini_file);
 			getCtrlData(CTL_BUPARAM_PATH, Data.BackupPath);
-			getCtrlData(CTL_BUPARAM_MAXCOPIES, &Data.NumCopies);
+			getCtrlData(CTL_BUPARAM_MAXCOPIES, &Data.MaxCopies);
 			GetClusterData(CTL_BUPARAM_FLAGS, &Data.Flags);
 			PPSetAddedMsgString(setLastSlash(Data.BackupPath));
 			THROW_PP(pathValid(Data.BackupPath, 0), PPERR_NEXISTPATH);
-			Data.NumCopies = (Data.NumCopies <= 0) ? 1 : Data.NumCopies;
+			Data.NormalizeValue_MaxCopies();
 			p_dict->GetDbSymb(rDBSymb);
 			Data.ID = dbes.GetBySymb(rDBSymb, 0);
 			rDBSymb.CopyTo(Data.Name, sizeof(Data.Name));
@@ -1966,6 +1904,37 @@ int EditJobBackupParam(SString & rDBSymb, PPBackupScen * pScen)
 	return ok;
 }
 
+static int _RemoveExtraCopies(PPBackup * pBu, const PPBackupScen * pScen)
+{
+	int    ok = -1;
+	if(pBu && pScen && pScen->ValidateValue_MaxCopies()) {
+		BCopySet bcset(pScen->Name);
+		pBu->GetCopySet(&bcset);
+		bcset.Sort(BCopySet::ordByDate);
+		{
+			BCopyData * p_bcd = 0;
+			uint j = 0;
+			uint copy_count = bcset.getCount();
+			while(copy_count > pScen->MaxCopies) {
+				if(bcset.enumItems(&j, (void **)&p_bcd) > 0) {
+					if(pBu->RemoveCopy(p_bcd, CallbackBuLog, 0)) {
+						if(ok < 0)
+							ok = 1;
+						copy_count--;
+					}
+					else {
+						CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
+						ok = 0;
+					}
+				}
+				else
+					break;
+			}
+		}
+	}
+	return ok;
+}
+
 static int Implement_Backup(const SString & rDbSymb, PPBackup * pBu, PPBackupScen * pScen, PPIniFile * pIniFile, int useCopyContinuous)
 {
 	int    ok = 1;
@@ -1980,9 +1949,10 @@ static int Implement_Backup(const SString & rDbSymb, PPBackup * pBu, PPBackupSce
 		msg_buf.Printf(PPLoadTextS(PPTXT_BACKUPLOG_CONINOUOS_MODE, fmt_buf), rDbSymb.cptr());
 		PPLogMessage(PPFILNAM_BACKUP_LOG, msg_buf, LOGMSGF_TIME);
 	}
-	else
+	else { // @v12.1.8 @fix '{'. Бля! Вот я - придурок! Скобок не было!
 		THROW(pBu->LockDatabase());
 		is_locked = true;
+	} // @v12.1.8 @fix '}'
 	{
 		BCopySet bcset(pScen->Name);
 		pIniFile->GetInt(PPINISECT_SYSTEM, PPINIPARAM_BSSFACTOR, &bss_factor);
@@ -1992,7 +1962,6 @@ static int Implement_Backup(const SString & rDbSymb, PPBackup * pBu, PPBackupSce
 		if(SFile::IsDir(temp_buf))
 			copy_data.TempPath = temp_buf;
 		else {
-			
 			PPGetPath(PPPATH_TEMP, temp_buf);
 			drv_map.ConvertPathToUnc(temp_buf);
 			if(SFile::IsDir(temp_buf))
@@ -2019,21 +1988,8 @@ static int Implement_Backup(const SString & rDbSymb, PPBackup * pBu, PPBackupSce
 				}
 			}
 		}
-		{
-			bcset.Sort(BCopySet::ordByDate);
-			uint count = bcset.getCount();
-			{
-				for(uint i = 0; count > static_cast<uint>(pScen->NumCopies); count--) {
-					const BCopyData * p_bcd = bcset.at(i++); // !increment i
-					if(p_bcd) {
-						if(!pBu->RemoveCopy(p_bcd, CallbackBuLog, 0)) {
-							CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
-						}
-					}
-				}
-				ok = 1;
-			}
-		}
+		_RemoveExtraCopies(pBu, pScen);
+		ok = 1;
 	}
 	CATCH
 		CALLPTRMEMB(pBu, RemoveCopy(&copy_data, CallbackBuLog, 0));
@@ -2147,9 +2103,7 @@ int DoServerBackup(const SString & rDBSymb, PPBackupScen * pScen)
 static int _DoAutoBackup(PPBackup * pBu, PPBackupScen * pScen, int useCopyContinouos)
 {
 	int    ok = 1;
-	uint   i, j;
 	SString temp_buf;
-	BCopySet bcset(pScen->Name);
 	int    do_backup = 0;
 	BCopyData copy_data;
 	if(pBu->GetLastScenCopy(pScen, &copy_data) > 0) {
@@ -2188,15 +2142,7 @@ static int _DoAutoBackup(PPBackup * pBu, PPBackupScen * pScen, int useCopyContin
 		SETFLAG(copy_data.Flags, BCOPYDF_USECOPYCONT, useCopyContinouos);
 		THROW_PP(pBu->Backup(&copy_data, CallbackBuLog, 0), PPERR_DBLIB);
 	}
-	pBu->GetCopySet(&bcset);
-	bcset.Sort(BCopySet::ordByDate);
-	i = bcset.getCount();
-	{
-		BCopyData * p_bcd = 0;
-		for(j = 0; i > (uint)pScen->NumCopies; i--)
-			if(bcset.enumItems(&j, (void **)&p_bcd) > 0)
-				THROW_PP(pBu->RemoveCopy(p_bcd, CallbackBuLog, 0), PPERR_DBLIB);
-	}
+	_RemoveExtraCopies(pBu, pScen);
 	CATCH
 		pBu->RemoveCopy(&copy_data, CallbackBuLog, 0);
 		CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
@@ -2242,37 +2188,38 @@ static int _DoAutoBackup(PPDbEntrySet2 * pDbes, PPBackup * pBu, int noDefault, i
 	return ok;
 }
 
-static int _DoBackup(PPBackup * ppb, BackupDlgData & bdd, int useCopyContinouos)
+static int _DoBackup(PPBackup * pBu, BackupDlgData & bdd, int useCopyContinouos)
 {
 	int    ok = -1;
 	BCopyData copy_data;
 	if(!bdd.CopyID || PPMessage(mfConf|mfYesNo, PPCFM_REWRITEBCOPY) == cmYes) {
 		if(!useCopyContinouos) {
-			THROW(ok = ppb->LockDatabase());
+			THROW(ok = pBu->LockDatabase());
 		}
 		else
 			ok = 1;
 		if(ok > 0) {
 			if(bdd.CopyID) {
-				THROW_PP(ppb->GetCopyData(bdd.CopyID, &copy_data), PPERR_DBLIB);
-				THROW_PP(ppb->RemoveCopy(&copy_data, CallbackBuLog, 0), PPERR_DBLIB);
+				THROW_PP(pBu->GetCopyData(bdd.CopyID, &copy_data), PPERR_DBLIB);
+				THROW_PP(pBu->RemoveCopy(&copy_data, CallbackBuLog, 0), PPERR_DBLIB);
 			}
 			copy_data.Set = bdd.Scen.Name;
 			copy_data.CopyPath = bdd.Scen.BackupPath;
 			copy_data.Flags = bdd.Scen.Flags;
 			PPWaitStart();
 			SETFLAG(copy_data.Flags, BCOPYDF_USECOPYCONT, useCopyContinouos);
-			THROW_PP(ppb->Backup(&copy_data, CallbackBuLog, 0), PPERR_DBLIB);
+			THROW_PP(pBu->Backup(&copy_data, CallbackBuLog, 0), PPERR_DBLIB);
+			_RemoveExtraCopies(pBu, &bdd.Scen); // @v12.1.8
 			ok = 1;
 		}
 	}
 	CATCH
-		ppb->RemoveCopy(&copy_data, CallbackBuLog, 0);
+		pBu->RemoveCopy(&copy_data, CallbackBuLog, 0);
 		CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
 		ok = 0;
 	ENDCATCH
 	if(!useCopyContinouos)
-		ppb->UnlockDatabase();
+		pBu->UnlockDatabase();
 	PPWaitStop();
 	return ok;
 }
@@ -2635,26 +2582,12 @@ int DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
 										{
 											PPIniFile ini_file;
 											if(UseCopyContinouos(&ini_file, pDbes)) {
-												/* @v10.9.5 
-												BCopyData copy_data;
-												copy_data.Set = bdd.Scen.Name;
-												copy_data.CopyPath = bdd.Scen.BackupPath;
-												copy_data.Flags = (bdd.Scen.Flags | BCOPYDF_RELEASECONT);
-												PPWaitStart();
-												if(!ppb->Backup(&copy_data, CallbackBuLog, 0)) {
-													PPSetError(PPERR_DBLIB);
-													PPError();
-													CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
-												}
-												*/
-												// @v10.9.5 {
 												PPWaitStart();
 												if(!ppb->ReleaseContinuousMode(CallbackBuLog, 0)) {
 													PPSetError(PPERR_DBLIB);
 													PPError();
 													CallbackBuLog(BACKUPLOG_ERROR, 0, 0);
 												}
-												// } @v10.9.5 
 												PPWaitStop();
 											}
 										}

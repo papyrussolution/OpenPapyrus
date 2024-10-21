@@ -851,8 +851,8 @@ int PPDS_CrrBill::InitData(Ido op, void * /*dataPtr*/, long addedParam)
 									ti.Price = price;
 							}
 						THROW(pack.InsertRow(&ti, &poslist));
-						if(Data.LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb) > 0)
-							pack.LTagL.AddNumber(PPTAG_LOT_CLB, &poslist, clb);
+						if(Data.LTagL.GetString(PPTAG_LOT_CLB, i-1, clb) > 0)
+							pack.LTagL.SetString(PPTAG_LOT_CLB, &poslist, clb);
 					}
 					else {
 						CALLPTRMEMB(P_Logger, LogLastError());
@@ -931,8 +931,8 @@ int PPDS_CrrBill::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTransmConte
 			PPTransferItem item = static_cast<const PPDS_CrrBillItem *>(pData)->Data;
 			STRNSCPY(clb, static_cast<const PPDS_CrrBillItem *>(pData)->CLB);
 			THROW(Data.InsertRow(&item, &poslist));
-			// @v10.8.4 for(uint i = 0; i < poslist.getCount(); i++) { Data.LTagL.AddNumber(PPTAG_LOT_CLB, poslist.at(i), clb); }
-			SForEachVectorItem(poslist, i) { Data.LTagL.AddNumber(PPTAG_LOT_CLB, poslist.at(i), clb); } // @v10.8.4 
+			// @v10.8.4 for(uint i = 0; i < poslist.getCount(); i++) { Data.LTagL.SetString(PPTAG_LOT_CLB, poslist.at(i), clb); }
+			SForEachVectorItem(poslist, i) { Data.LTagL.SetString(PPTAG_LOT_CLB, poslist.at(i), clb); } // @v10.8.4 
 			ok = 1;
 		}
 	}

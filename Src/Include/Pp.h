@@ -1871,27 +1871,22 @@ struct PPBackupScen { // @flat // @persistent
 	PPBackupScen();
 	PPBackupScen & Z();
 	bool   FASTCALL IsEq(const PPBackupScen & rS) const;
+	bool   ValidateValue_MaxCopies() const { return (MaxCopies > 0 && MaxCopies <= 1000); }
+	bool   NormalizeValue_MaxCopies()
+	{
+		const bool ok = ValidateValue_MaxCopies();
+		if(!ok)
+			MaxCopies = 1;
+		return ok;
+	}
 	int    ToStr(SString & rBuf) const;
 	long   ID;
 	long   Period;     // Backup period (days)
 	long   Flags;      // Reserved
-	long   NumCopies;  // Max number of copies
+	uint32 MaxCopies;  // Max number of copies // @v12.1.8 long NumCopies-->uint32 MaxCopies
 	char   Name[64];
 	char   DBName[64];
 	char   BackupPath[261]; // @v10.8.2 MAX_PATH-->261 (из-за @persistent)
-	/*
-struct PPBackupScen {
-	PPBackupScen();
-	int    ToStr(SString & rBuf) const;
-	long   ID;
-	char   Name[64];
-	char   DBName[64];
-	char   BackupPath[MAX_PATH];
-	long   Period;     // Backup period (days)
-	long   Flags;      // Reserved
-	long   numCopies;  // Max number of copies
-};
-	*/
 };
 
 //void TestMonitor();
@@ -3553,6 +3548,7 @@ public:
 	};
 
 	int    PutItemNZ(const ObjTagItem * pItem, long flags);
+	int    PutItemReal(PPID tagID, double value);
 	int    PutItemStr(PPID tagID, const char * pStr);
 	//
 	// Descr: Вставляет в список тег со значением равным строке pStr
@@ -11420,13 +11416,14 @@ public:
 	int    ReplacePosition(int rowIdx, int newRowIdx);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    ProcessObjRefs(PPObjIDArray * ary, int replace);
+	int    SetString(PPID tagID, int rowIdx, const char * pString);
 	//
-	// Следующие 3 метода семантически заимствованы из ClbNumberList с целью элиминировать
-	// использование ClbNumberList.
+	// ARG(pValue IN): Если pValue == 0, то удаляет тег tagID для строки rowIdx, в противном случае
+	//   присваивает строке rowIdx значение тега tagID равное *pValue.
 	//
-	int    AddNumber(PPID tagID, int rowIdx, const char * pClbNumber);
-	int    AddNumber(PPID tagID, const LongArray * pRows, const char * pClbNumber);
-	int    GetNumber(PPID tagID, int rowIdx, SString & rBuf) const;
+	int    SetReal(PPID tagID, int rowIdx, const double * pValue);
+	int    SetString(PPID tagID, const LongArray * pRows, const char * pString);
+	int    GetString(PPID tagID, int rowIdx, SString & rBuf) const;
 private:
 	struct Item {
 		int32  RowIdx;
@@ -27948,7 +27945,6 @@ public:
 	int    Validate(const SalaryTbl::Rec * pRec);
 	int    Search(PPID id, SalaryTbl::Rec * pRec);
 	int    Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta);
-	// @v10.6.7 (unused) int    Get__(PPID postID, PPID salChargeID, const DateRange & rPeriod, SalaryTbl::Rec * pRec);
 	//
 	// Descr: Рассчитывает сумму начисления вида salChargeID по назначению postID за период rPeriod.
 	//   Если параметр avg != 0, то рассчитывает среднее начисление за этот период (простое среднее по
@@ -27957,8 +27953,7 @@ public:
 	int    Calc(PPID postID, PPID salChargeID, int avg, const DateRange & rPeriod, double * pAmount);
 	int    GetIntersection(PPID postID, PPID salChargeID, const DateRange & rPeriod, SalaryTbl::Rec * pRec);
 	int    GetObjectList(PPID objType, const DateRange & rPeriod, const UintHashTable * pIdList, PPIDArray * pList);
-	int    GetListByObject(PPID objType, PPID objID, const DateRange & rPeriod,
-		const UintHashTable * pIdList, PPIDArray * pList, double * pAmount);
+	int    GetListByObject(PPID objType, PPID objID, const DateRange & rPeriod, const UintHashTable * pIdList, PPIDArray * pList, double * pAmount);
 };
 //
 // @ModuleDecl(PPViewSalary)
@@ -40030,7 +40025,7 @@ public:
 	long   Reserve;          // @anchor
 	TagFilt * P_TagF;        // Фильтр по тегам
 	SString ExtString;       // Дополнительные текстовые поля фильтра
-	ObjIdListFilt LocList;   // @v10.6.8 Список складов
+	ObjIdListFilt LocList;   // Список складов
 private:
 	int    InitInstance();
 };
@@ -44651,6 +44646,7 @@ public:
 		OrdByRest     // Только если Filt.Flags & fCalcRest
 	};
 	struct BrwHdr {
+		PPID   RowId;
 		PPID   LocID;
 		PPID   GoodsID;
 		char   Text[128];
@@ -44671,7 +44667,6 @@ public:
 	int    FASTCALL NextIteration(GoodsOpAnalyzeViewItem *);
 	int    ChangeOrder(BrowserWindow *);
 	int    CalcTotal(GoodsOpAnalyzeTotal *);
-	int    ViewDetail(PPID locID, PPID goodsID, short abcGroup, int viewAllLots = 0);
 	int    ConvertLinesToBasket();
 	int    ABCGrpToAltGrp(short abcGroup);
 	void   GetTempTableName(SString & rBuf) const;
@@ -44706,6 +44701,7 @@ private:
 	int    FlashCacheItem(BExtInsert * pBei, const GoaCacheItem * pItem);
 	int    AddItem(const GoaAddingBlock & rBlk);
 	int    ViewGraph();
+	int    ViewDetail(PPViewBrowser * pBrw, PPID rowIdent, PPID locID, PPID goodsID, short abcGroup, bool viewAllLots/*=false*/);
 
 	GoodsOpAnalyzeFilt Filt;
 	PPObjBill   * P_BObj;
@@ -44753,6 +44749,26 @@ private:
 
 	IndicatorVector * GetIndicatorEntry(const GoaAddingBlock & rBlk);
 	IndicatorVector * GetIndicatorEntry(PPID goodsID, PPID arID, PPID locID, int sign);
+	//
+	// Descr: Возвращает элемент списка IndicatorList, имеющий идентификатор равный ident.
+	// Note: Поскольку поиск бинарный, то список обязательно должен быть отсортирован по идентификатору методом 
+	//   IndicatorList.sort2(PTR_CMPFUNC(BzsValVector_Ident)).
+	//
+	const IndicatorVector * GetIndicatorEntryC(PPID ident) const;
+	
+	struct MarketplaceDetailBlock {
+		MarketplaceDetailBlock & Z()
+		{
+			OrdList.Z();
+			ShipmList.Z();
+			CancelledOrdList.Z();
+			return *this;
+		}
+		PPIDArray OrdList;
+		PPIDArray ShipmList;
+		PPIDArray CancelledOrdList;
+	};
+	MarketplaceDetailBlock MpDBlk;
 };
 //
 // @ModuleDecl(PPViewSCard)
@@ -52586,8 +52602,7 @@ protected:
 			// Так как теги используются многими объектами данных и это состояние требует переопределения базовой функции
 			// поиска по вводу первой буквы, то флаг внесен именно в базовый класс, а не множится по производным классам.
 	};
-	long   VbState; // @v10.3.4
-	// @v10.3.4 int    IsDataOwner;
+	long   VbState;
 private:
 	int    Advise();
 	void   Unadvise();
@@ -52601,7 +52616,6 @@ private:
 	//
 	void * Helper_InitToolbarCombo();
 
-	// @v10.3.4 int    KBF10;
 	SCycleTimer RefreshTimer;
 	PPIDArray TempGoodsGrpList;  // Список временных товарных групп, которые должны быть разрушены при разрушении браузера
 	TInputLine * P_InputLine;    //
@@ -56400,7 +56414,7 @@ public:
 	};
 	struct TransmitParam {
 		TransmitParam();
-		void   Reset();
+		TransmitParam & Z();
 
         PPID   InetAccID;
 		StrAssocArray AddrList;

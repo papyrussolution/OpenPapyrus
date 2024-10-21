@@ -2936,17 +2936,15 @@ int PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID bil
 		PPTransferItem ti;
 		PPImpExpParam ie_param_brow;
 		LocTransfCore loct_tbl;
-
 		PPGetFileName(PPFILNAM_BHT_BROWSWCELLS, fname);
 		(path = pPack->ImpExpPath_).SetLastSlash().Cat(fname);
 		THROW(InitImpExpDbfParam(PPREC_SBIIBILLROWWITHCELLS, &ie_param_brow, path, 1));
 		THROW_MEM(p_ie_brow = new PPImpExp(&ie_param_brow, 0));
 		THROW(p_ie_brow->OpenFileForWriting(0, 1));
-
 		for(pack.InitExtTIter(0); pack.EnumTItemsExt(0, &ti) > 0; i++) {
 			double qtty = 0.0;
 			Sdr_SBIIBillRowWithCells sdr_brow;
-			pack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial);
+			pack.LTagL.GetString(PPTAG_LOT_SN, i, serial);
 			sdr_brow.BillID   = billID;
 			sdr_brow.GoodsID  = ti.GoodsID;
 			serial.CopyTo(sdr_brow.Serial, sizeof(sdr_brow.Serial));
@@ -3151,7 +3149,7 @@ int PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pG
 						PPTransferItem ti;
 						for(pack.InitExtTIter(uniteGoods ? ETIEF_UNITEBYGOODS : 0); pack.EnumTItemsExt(0, &ti) > 0; i++) {
 							Sdr_SBIISampleBillRow sdr_brow;
-							pack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial);
+							pack.LTagL.GetString(PPTAG_LOT_SN, i, serial);
 							sdr_brow.BillID  = item.ID;
 							sdr_brow.GoodsID = ti.GoodsID;
 							serial.CopyTo(sdr_brow.Serial, sizeof(sdr_brow.Serial));

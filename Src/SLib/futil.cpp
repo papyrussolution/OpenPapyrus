@@ -66,9 +66,16 @@ bool FASTCALL fileExists(const char * pFileName)
 #ifdef __WIN32__
 	static int getdisk()
 	{
+		// @v12.1.8 {
+		SString cd;
+		SFile::GetCurrentDir(cd);
+		return (cd.NotEmpty() && isasciialpha(cd.C(0))) ? (stoupper_ascii(static_cast<char>(cd.C(0))) - 'A') : 0;
+		// } @v12.1.8 
+		/* @v12.1.8
 		wchar_t buf[MAX_PATH];
 		::GetCurrentDirectoryW(SIZEOFARRAY(buf), buf);
 		return *buf-L'A';
+		*/
 	}
 
 	int pathToUNC(const char * pPath, SString & rUncPath)
@@ -160,6 +167,35 @@ int driveValid(const char * pPath)
 }
 
 #pragma warn .asc
+
+/*static*/bool FASTCALL SFile::GetCurrentDir(SString & rBufUtf8)
+{
+	rBufUtf8.Z();
+	bool   ok = true;
+	SStringU buffer;
+	if(SFile::GetCurrentDir(buffer)) {
+		if(!buffer.CopyToUtf8(rBufUtf8, 1))
+			ok = false;
+	}
+	else
+		ok = false;
+	return ok;
+}
+
+/*static*/bool FASTCALL SFile::GetCurrentDir(SStringU & rBuf)
+{
+	rBuf.Z();
+	bool   ok = true;
+	wchar_t buffer[1024];
+	uint   _ret_len = GetCurrentDirectoryW(SIZEOFARRAY(buffer), buffer);
+	if(_ret_len) {
+		assert(buffer[_ret_len] == 0);
+		rBuf.Cat(buffer);
+	}
+	else
+		ok = false;
+	return ok;
+}
 
 bool FASTCALL SFile::IsDir(const wchar_t * pStr)
 {

@@ -389,7 +389,7 @@ static void extract(const char *filename)
 #endif // } 0
 
 
-/*static*/int SArchive::Inflate(int provider, const char * pName, uint flags, const SFileEntryPool & rPool, const char * pDestPath)
+/*static*/int SArchive::Inflate(int provider, const char * pName, uint flags, const SFileEntryPool & rPool, const char * pDestPath, StringSet * pResultFnSet)
 {
 	int    ok = 0;
 	Archive * p_larc = 0;
@@ -523,7 +523,7 @@ static void extract(const char *filename)
 	return ok;
 }
 
-/*static*/int SArchive::Implement_Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath)
+/*static*/int SArchive::Implement_Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath, StringSet * pResultFnSet)
 {
 	int    ok = 0;
 	Archive * p_larc = 0;
@@ -543,15 +543,18 @@ static void extract(const char *filename)
 			ArchiveEntry * p_entry = 0;
 			const wchar_t * p_entry_name = 0;
 			SFileEntryPool::Entry fep_entry;
-			SFsPath ps;
 			SString base_path;
 			SString final_path;
 			SString fepentry_full_path;
 			if(!isempty(pDestPath)) {
-				(base_path = pDestPath).Strip().RmvLastSlash();
+				(base_path = pDestPath).Strip();
 			}
-			else
-				base_path.Z();
+			else {
+				SFile::GetCurrentDir(base_path);
+				//base_path.Z();
+			}
+			base_path.RmvLastSlash();
+			const SFsPath ps_base(base_path);
 			while(archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK) {
 				ConvertLaEntry(p_entry, fep_entry, &temp_buf);
 				SFsPath::NormalizePath(temp_buf, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, fepentry_full_path);
@@ -573,19 +576,21 @@ static void extract(const char *filename)
 						int local_ok = 0;
 						int rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
 						if(rd_result == ARCHIVE_OK) {
-							if(ps.Dir.NotEmpty()) {
-								ps.Dir.ShiftLeftChr('\\').ShiftLeftChr('/');
-								(final_path = base_path).SetLastSlash().Cat(ps.Dir);
-								ps.Dir = final_path;
+							const SFsPath ps_src(fepentry_full_path);
+							SFsPath ps_dest(ps_base);
+							if(ps_src.Dir.NotEmpty() && !(flags & fInflateWithoutSub)) {
+								(temp_buf = ps_src.Dir).ShiftLeftChr('\\').ShiftLeftChr('/');
+								ps_dest.Dir.SetLastSlash().Cat(temp_buf);
 							}
-							else {
-								ps.Dir = base_path;
-							}
-							if(!SFile::CreateDir(ps.Dir)) {
+							ps_dest.Nam = ps_src.Nam;
+							ps_dest.Ext = ps_src.Ext;
+							ps_dest.Merge(final_path);
+							temp_buf.Z();
+							ps_dest.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
+							if(!SFile::CreateDir(temp_buf)) {
 								; // @todo @err
 							}
 							else {
-								ps.Merge(final_path);
 								SFile f_out(final_path, SFile::mWrite|SFile::mBinary|SFile::mNoStd);
 								do {
 									if(!f_out.Write(p_buf, buf_size)) {
@@ -597,6 +602,8 @@ static void extract(const char *filename)
 								} while(rd_result == ARCHIVE_OK);
 								if(rd_result == ARCHIVE_EOF) {
 									f_out.SetDateTime(0LL, 0LL, fep_entry.ModTm_);
+									f_out.Close();
+									CALLPTRMEMB(pResultFnSet, add(final_path));
 									local_ok = 1;
 								}
 							}
@@ -618,14 +625,14 @@ static void extract(const char *filename)
 	return ok;
 }
 
-/*static*/int SArchive::Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath)
+/*static*/int SArchive::Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath, StringSet * pResultFnSet)
 {
-	return SArchive::Implement_Inflate(provider, pName, flags, pWildcard, pDestPath);
+	return SArchive::Implement_Inflate(provider, pName, flags, pWildcard, pDestPath, pResultFnSet);
 }
 
-/*static*/int SArchive::InflateAll(int provider, const char * pName, uint flags, const char * pDestPath)
+/*static*/int SArchive::InflateAll(int provider, const char * pName, uint flags, const char * pDestPath, StringSet * pResultFnSet)
 {
-	return SArchive::Implement_Inflate(provider, pName, flags, 0, pDestPath);
+	return SArchive::Implement_Inflate(provider, pName, flags, 0, pDestPath, pResultFnSet);
 }
 
 /*static*/int SArchive::Deflate(int provider, int format, const char * pNameUtf8, uint64 uedArcFormat, const char * pBasePathUtf8, const SFileEntryPool & rPool)
@@ -1583,10 +1590,11 @@ int SSystemBackup::StateBlock::Dump(const char * pFileName)
 int SSystemBackup::WriteBackupInfo(const char * pPath, uint32 buId) { return St.Write(pPath, buId); }
 int SSystemBackup::ReadBackupInfo(const char * pPath) { return St.Read(pPath); }
 
-uint32 SSystemBackup::GetLastBackupId(const char * pPath) const
+uint32 SSystemBackup::GetLastBackupId(const char * pPath, LDATETIME * pDtm) const
 {
 	uint32 result = 0;
 	SString path(pPath);
+	LDATETIME last_bu_dtm = ZERODATETIME;
 	if(path.NotEmptyS()) {
 		SString temp_buf;
 		uint32 max_ex_id = 0;
@@ -1599,17 +1607,19 @@ uint32 SSystemBackup::GetLastBackupId(const char * pPath) const
 					temp_buf.ShiftLeft(2);
 					uint32 i = temp_buf.ToULong();
 					SETMAX(max_ex_id, i);
+					last_bu_dtm.SetNs100(de.ModTm_);
 				}
 			}
 		}
 		result = max_ex_id;
 	}
+	ASSIGN_PTR(pDtm, last_bu_dtm);
 	return result;
 }
 	
 uint32 SSystemBackup::MakeBackupId() const
 {
-	uint32 result = GetLastBackupId(St.P.BackupPath);
+	uint32 result = GetLastBackupId(St.P.BackupPath, 0);
 	return (result >= 0) ? (result+1) : 0;
 }
 
@@ -2241,7 +2251,7 @@ int SSystemBackup::Restore(const char * pBackupPath, uint32 buId, uint flags)
 	SFsPath::NormalizePath(pBackupPath, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, temp_buf);
 	THROW(SFile::IsDir(temp_buf));
 	if(buId == _FFFF32) {
-		buId = GetLastBackupId(temp_buf);
+		buId = GetLastBackupId(temp_buf, 0);
 	}
 	if(buId > 0 && buId != _FFFF32) {
 		//(temp_buf = terminal_path).

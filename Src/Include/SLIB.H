@@ -12273,6 +12273,8 @@ public:
 	static int  CreateDirByTemplate(const char * pPath, const char * pTemplate); // @v11.8.12
 	static bool FASTCALL IsDir(const char * pStr);
 	static bool FASTCALL IsDir(const wchar_t * pStr);
+	static bool FASTCALL GetCurrentDir(SString & rBufUtf8);
+	static bool FASTCALL GetCurrentDir(SStringU & rBuf);
 	static uint ParseAccsf(const char * pSymb);
 	static int  GetAccsfSymb(uint accsf, SString & rBuf);
 	static int  FASTCALL Remove(const char * pFileName);
@@ -12893,7 +12895,7 @@ public:
 
 		SString Name;
 		SString Path;
-		SString RemoteUrl; // @v10.8.2 Специальный "хвост" позволяющий сопоставить элемент пула с каким-либо серверным url-ом
+		SString RemoteUrl; // Специальный "хвост" позволяющий сопоставить элемент пула с каким-либо серверным url-ом
 	};
 	SFileEntryPool();
 	SFileEntryPool & Z();
@@ -13176,10 +13178,14 @@ public:
 	//
 	// 
 	//
+	enum {
+		fInflateWithoutSub = 0x0001 // @v12.1.8 Файлы из архива будут распакованы непосредственно в каталог назначения без создания подкаталогов аналогичных тем, что в архиве
+	};
+
 	static int List(int provider, int * pFormat, const char * pName, uint flags, SFileEntryPool & rPool);
-	static int Inflate(int provider, const char * pName, uint flags, const SFileEntryPool & rPool, const char * pDestPath);
-	static int Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath);
-	static int InflateAll(int provider, const char * pName, uint flags, const char * pDestPath);
+	static int Inflate(int provider, const char * pName, uint flags, const SFileEntryPool & rPool, const char * pDestPath, StringSet * pResultFnSet);
+	static int Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath, StringSet * pResultFnSet);
+	static int InflateAll(int provider, const char * pName, uint flags, const char * pDestPath, StringSet * pResultFnSet);
 	static int Deflate(int provider, int format, const char * pNameUtf8, uint64 uedArcFormat, const char * pBasePathUtf8, const SFileEntryPool & rPool);
 	static SPtrHandle OpenArchiveEntry(int provider, const char * pArcName, const char * pEntryName);
 	static int ReadArchiveEntry(SPtrHandle h, void * pBuf, size_t size, size_t * pActualSize);
@@ -13243,7 +13249,7 @@ private:
 	};
 	int    Helper_AddEntries(const SString & rRoot, const SString & rSub, const SString & rMask, int flags);
 	static int ConvertLaEntry(void * pLaEntry, SFileEntryPool::Entry & rFe, SString * pFullPath); // @v12.1.6 (SString * pFullPath)
-	static int Implement_Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath);
+	static int Implement_Inflate(int provider, const char * pName, uint flags, const char * pWildcard, const char * pDestPath, StringSet * pResultFnSet);
 
 	const  int Provider;
 	int    OpenMode;
@@ -13333,7 +13339,7 @@ public:
 	//   Константы rfXXX
 	//
 	int    Restore(const char * pBackupPath, uint32 buId, uint flags);
-	uint32 GetLastBackupId(const char * pPath) const;
+	uint32 GetLastBackupId(const char * pPath, LDATETIME * pDtm) const;
 private:
 	//
 	// Descr: Заголовок файла, сохраняющего состояние копии.

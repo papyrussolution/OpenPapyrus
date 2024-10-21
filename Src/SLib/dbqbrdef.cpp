@@ -37,18 +37,24 @@ int DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
 	bc.OrgOffs = fldNo;
 	if(fldNo == UNDEF)
 		fldNo = getCount();
-	assert(fldNo<query->fldCount);
-	bc.T = query->flds[fldNo].type;
-	bc.Offs = 0;
-	for(uint i = 0; i < fldNo; i++)
-		bc.Offs += stsize(query->flds[i].type);
+	if(opt & BCO_USERPROC) {  // @v12.1.8 
+		bc.T = typ;
+		bc.Offs = fldNo;
+	}
+	else {
+		assert(fldNo < query->fldCount);
+		bc.T = query->flds[fldNo].type;
+		bc.Offs = 0;
+		for(uint i = 0; i < fldNo; i++)
+			bc.Offs += stsize(query->flds[i].type);
+	}
 	bc.format = fmt;
 	bc.Options = (opt | BCO_CAPLEFT);
 	bc.text = newStr(pTxt);
 	if(addColumn(&bc, (atPos >= 0) ? atPos : UNDEF)) {
 		if(GETSTYPE(typ))
 			at(getCount()-1).T = typ;
-		if(atPos >= 0 && P_Groups)
+		if(atPos >= 0 && P_Groups) {
 			for(uint j = 0; j < NumGroups; j++) {
 				BroGroup & grp = P_Groups[j];
 				if(atPos <= static_cast<int>(grp.First))
@@ -56,6 +62,7 @@ int DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
 				else if(atPos > static_cast<int>(grp.First) && atPos <= static_cast<int>(grp.NextColumn()))
 					grp.Count++;
 			}
+		}
 		return 1;
 	}
 	else
