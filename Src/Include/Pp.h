@@ -11422,6 +11422,7 @@ public:
 	//   присваивает строке rowIdx значение тега tagID равное *pValue.
 	//
 	int    SetReal(PPID tagID, int rowIdx, const double * pValue);
+	int    GetReal(PPID tagID, int rowIdx, double * pValue) const;
 	int    SetString(PPID tagID, const LongArray * pRows, const char * pString);
 	int    GetString(PPID tagID, int rowIdx, SString & rBuf) const;
 private:
@@ -20024,6 +20025,10 @@ private:
 #define PPBZSI_SUPPLSHIPMDELAYDAYSAVG 28 // @v12.1.6 "supplshipmdelaydaysavg" Средний период между поставкой и продажей в днях
 #define PPBZSI_ORDSHIPMDELAYDAYS      29 // @v12.1.7 "ordshipmdelaydays"      Суммарное количество дней между заказом и продажей (вспомогательное значение для получения более осмысленных относительных величин)
 #define PPBZSI_SUPPLSHIPMDELAYDAYS    30 // @v12.1.7 "supplshipmdelaydays"    Суммарное количество дней между поставкой и продажей (вспомогательное значение для получения более осмысленных относительных величин)
+#define PPBZSI_MPAMT_ORDPRICE         31 // @v12.1.8 "mpamtordprice"         Сумма заказа на маркетплейсе в терминах конечной цены покупателя //
+#define PPBZSI_MPAMT_ORDSELLERPRICE   32 // @v12.1.8 "mpamtordsellerprice"   Сумма заказа на маркетплейсе в терминах цены продавца //
+#define PPBZSI_MPAMT_SHIPMPRICE       33 // @v12.1.8 "mpamtshipmprice"       Сумма отгрузки с маркетплейса в терминах конечной цены покупателя (может отличаться от конечной цены заказа) //
+#define PPBZSI_MPAMT_SHIPMSELLERPRICE 34 // @v12.1.8 "mpamtshipmsellerprice" Сумма отгрузки с маркетплейса в терминах цены продавца //
 //
 // Флаги значений бизнес-показателей
 //

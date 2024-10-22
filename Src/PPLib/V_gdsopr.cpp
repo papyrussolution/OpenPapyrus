@@ -2268,6 +2268,11 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 				#define PPBZSI_SUPPLSHIPMDELAYDAYSAVG 28 // @v12.1.6 "supplshipmdelaydaysavg" Средний период между поставкой и продажей в днях
 				& #define PPBZSI_ORDSHIPMDELAYDAYS      29 // @v12.1.7 "ordshipmdelaydays"      Суммарное количество дней между заказом и продажей (вспомогательное значение для получения более осмысленных относительных величин)
 				#define PPBZSI_SUPPLSHIPMDELAYDAYS    30 // @v12.1.7 "supplshipmdelaydays"    Суммарное количество дней между поставкой и продажей (вспомогательное значение для получения более осмысленных относительных величин)
+
+				#define PPBZSI_MPAMT_ORDPRICE         31 // @v12.1.8 "mpamtordprice"         Сумма заказа на маркетплейсе в терминах конечной цены покупателя //
+				#define PPBZSI_MPAMT_ORDSELLERPRICE   32 // @v12.1.8 "mpamtordsellerprice"   Сумма заказа на маркетплейсе в терминах цены продавца //
+				#define PPBZSI_MPAMT_SHIPMPRICE       33 // @v12.1.8 "mpamtshipmprice"       Сумма отгрузки с маркетплейса в терминах конечной цены покупателя (может отличаться от конечной цены заказа) //
+				#define PPBZSI_MPAMT_SHIPMSELLERPRICE 34 // @v12.1.8 "mpamtshipmsellerprice" Сумма отгрузки с маркетплейса в терминах цены продавца //
 			*/
 			for(uint slidx = 0; slidx < MpDBlk.ShipmList.getCount(); slidx++) {
 				const PPID bill_id = MpDBlk.ShipmList.get(slidx);
@@ -2319,17 +2324,38 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 										if(a != 0.0)
 											p_iv->Add(PPBZSI_MPACQUIRING, a * ti_part);
 									}
+									{
+										double sp = 0.0;
+										if(bpack.LTagL.GetReal(PPTAG_LOT_MP_SELLERSPRICE, tiidx, &sp)) {
+											;
+										}
+										else
+											sp = r_ti.Price;
+										p_iv->Add(PPBZSI_MPAMT_SHIPMPRICE, fabs(r_ti.Quantity_) * r_ti.NetPrice());
+										p_iv->Add(PPBZSI_MPAMT_SHIPMSELLERPRICE, fabs(r_ti.Quantity_) * sp);
+									}
 									if(local_ord_list.getCount()) {
 										if(r_ti.Flags & PPTFR_ONORDER && r_ti.OrdLotID && !seen_ord_lot_list.lsearch(r_ti.OrdLotID)) {
 											uint sh_lot_pos = 0;
 											if(bpack.SearchShLot(r_ti.OrdLotID, &sh_lot_pos)) {
 												ReceiptTbl::Rec lot_rec;
 												if(P_BObj->trfr->Rcpt.Search(r_ti.OrdLotID, &lot_rec) > 0) {
-													p_iv->Add(PPBZSI_ORDCOUNT, 1.0);
-													p_iv->Add(PPBZSI_ORDQTTY, fabs(lot_rec.Quantity));
-													long ord_shipm_delay = diffdate(bpack.Rec.Dt, lot_rec.Dt);
-													p_iv->Add(PPBZSI_ORDSHIPMDELAYDAYS, static_cast<double>(ord_shipm_delay));
-													seen_ord_lot_list.add(lot_rec.ID);
+													PPBillPacket ord_bpack;
+													if(P_BObj->ExtractPacket(lot_rec.BillID, &ord_bpack) > 0) {
+														p_iv->Add(PPBZSI_ORDCOUNT, 1.0);
+														p_iv->Add(PPBZSI_ORDQTTY, fabs(lot_rec.Quantity));
+														//
+														uint ord_rowidx = 0;
+														if(ord_bpack.SearchLot(r_ti.OrdLotID, &ord_rowidx)) {
+															const PPTransferItem & r_ord_ti = ord_bpack.ConstTI(ord_rowidx);
+															p_iv->Add(PPBZSI_MPAMT_ORDPRICE, fabs(lot_rec.Quantity) * r_ord_ti.NetPrice());
+															p_iv->Add(PPBZSI_MPAMT_ORDSELLERPRICE, fabs(lot_rec.Quantity) * r_ord_ti.Price);
+														}
+														//
+														long ord_shipm_delay = diffdate(bpack.Rec.Dt, lot_rec.Dt);
+														p_iv->Add(PPBZSI_ORDSHIPMDELAYDAYS, static_cast<double>(ord_shipm_delay));
+														seen_ord_lot_list.add(lot_rec.ID);
+													}
 												}
 											}
 										}
@@ -2382,6 +2408,8 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 										const double ti_part = r_ti.CalcAmount() / bpack.Rec.Amount;
 										p_iv->Add(PPBZSI_ORDCOUNT, 1.0);
 										p_iv->Add(PPBZSI_ORDQTTY, fabs(r_ti.Quantity_));
+										p_iv->Add(PPBZSI_MPAMT_ORDPRICE, fabs(fabs(r_ti.Quantity_)) * r_ti.NetPrice());
+										p_iv->Add(PPBZSI_MPAMT_ORDSELLERPRICE, fabs(fabs(r_ti.Quantity_)) * r_ti.NetPrice());
 										if(bpack.Rec.Flags2 & BILLF2_DECLINED) {
 											p_iv->Add(PPBZSI_ORDCANCELLEDCOUNT, 1.0);
 											p_iv->Add(PPBZSI_ORDCANCELLEDQTTY,  fabs(r_ti.Quantity_));
@@ -3800,6 +3828,10 @@ int PPViewGoodsOpAnalyze::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				#define PPBZSI_SUPPLSHIPMDELAYDAYSAVG 28 // @v12.1.6 "supplshipmdelaydaysavg" Средний период между поставкой и продажей в днях
 				& #define PPBZSI_ORDSHIPMDELAYDAYS      29 // @v12.1.7 "ordshipmdelaydays"      Суммарное количество дней между заказом и продажей (вспомогательное значение для получения более осмысленных относительных величин)
 				#define PPBZSI_SUPPLSHIPMDELAYDAYS    30 // @v12.1.7 "supplshipmdelaydays"    Суммарное количество дней между поставкой и продажей (вспомогательное значение для получения более осмысленных относительных величин)
+				#define PPBZSI_MPAMT_ORDPRICE         31 // @v12.1.8 "mpamtordprice"         Сумма заказа на маркетплейсе в терминах конечной цены покупателя //
+				#define PPBZSI_MPAMT_ORDSELLERPRICE   32 // @v12.1.8 "mpamtordsellerprice"   Сумма заказа на маркетплейсе в терминах цены продавца //
+				#define PPBZSI_MPAMT_SHIPMPRICE       33 // @v12.1.8 "mpamtshipmprice"       Сумма отгрузки с маркетплейса в терминах конечной цены покупателя (может отличаться от конечной цены заказа) //
+				#define PPBZSI_MPAMT_SHIPMSELLERPRICE 34 // @v12.1.8 "mpamtshipmsellerprice" Сумма отгрузки с маркетплейса в терминах цены продавца //
 			*/
 			const IndicatorVector * p_ind = GetIndicatorEntryC(p_item->RowId);
 			double value = 0.0;
@@ -3890,6 +3922,34 @@ int PPViewGoodsOpAnalyze::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						ok = 1;
 					}
 					break;
+				case 112: // PPBZSI_MPAMT_ORDPRICE
+					if(p_ind) {
+						p_ind->Get(PPBZSI_MPAMT_ORDPRICE, &value);
+						pBlk->Set(value);
+						ok = 1;
+					}
+					break;
+				case 113: // PPBZSI_MPAMT_ORDSELLERPRICE
+					if(p_ind) {
+						p_ind->Get(PPBZSI_MPAMT_ORDSELLERPRICE, &value);
+						pBlk->Set(value);
+						ok = 1;
+					}
+					break;
+				case 114: // PPBZSI_MPAMT_SHIPMPRICE
+					if(p_ind) {
+						p_ind->Get(PPBZSI_MPAMT_SHIPMPRICE, &value);
+						pBlk->Set(value);
+						ok = 1;
+					}
+					break;
+				case 115: // PPBZSI_MPAMT_SHIPMSELLERPRICE
+					if(p_ind) {
+						p_ind->Get(PPBZSI_MPAMT_SHIPMSELLERPRICE, &value);
+						pBlk->Set(value);
+						ok = 1;
+					}
+					break;
 			}
 		}
 	}
@@ -3907,17 +3967,67 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 		if(brw_id == BROWSER_GOODSOPER_MP) { // @v12.1.7
 			assert(Filt.OpGrpID == GoodsOpAnalyzeFilt::ogMarketplaceSalesAnalyze);
 			int    mp_col = -1;
-			//PPLoadString("ware", temp_buf);
-			//pBrw->insertColumn(-1, "OrdCount",           101, T_INT32,  0, BCO_USERPROC);
-			pBrw->InsColumn(-1, "@ordered",            102, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOTRAILZ), BCO_USERPROC);
-			//pBrw->insertColumn(-1, "SaleCount",          103, T_INT32,  0, BCO_USERPROC);
-			pBrw->InsColumn(-1, "@shipped",           104, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOTRAILZ), BCO_USERPROC);
-			//pBrw->insertColumn(-1, "CancellationCount",  105, T_INT32,  0, BCO_USERPROC);
-			pBrw->insertColumn(-1, "CancellationQtty",   106, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOTRAILZ), BCO_USERPROC);
-			pBrw->insertColumn(-1, "CancellationRate",  1105, T_DOUBLE, MKSFMTD(0, 4, 0), BCO_USERPROC);
-			pBrw->insertColumn(-1, "SellersPart",        107, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
-			pBrw->insertColumn(-1, "Commission",         108, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
-			pBrw->insertColumn(-1, "Acqiring",           109, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+			uint   column_idx = 1;
+			{
+				//PPLoadString("ware", temp_buf);
+				//pBrw->insertColumn(-1, "OrdCount",           101, T_INT32,  0, BCO_USERPROC);
+				pBrw->InsColumn(-1, "Qtty",            102, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOTRAILZ), BCO_USERPROC);
+				//pBrw->insertColumn(-1, "SaleCount",          103, T_INT32,  0, BCO_USERPROC);
+				pBrw->InsColumn(-1, "Client's price", 112, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				pBrw->InsColumn(-1, "Seller's price", 113, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				{
+					BroGroup grp;
+					grp.First = column_idx;
+					grp.Count = 3;
+					grp.Height = 1;
+					grp.P_Text = newStr("Orders");
+					p_def->AddColumnGroup(&grp);
+					column_idx += grp.Count;
+				}
+			}
+			{
+				pBrw->insertColumn(-1, "Qtty",   106, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOTRAILZ), BCO_USERPROC);
+				pBrw->insertColumn(-1, "Rate",  1105, T_DOUBLE, MKSFMTD(0, 4, 0), BCO_USERPROC);
+				{
+					BroGroup grp;
+					grp.First = column_idx;
+					grp.Count = 2;
+					grp.Height = 1;
+					grp.P_Text = newStr("Cancellation");
+					p_def->AddColumnGroup(&grp);
+					column_idx += grp.Count;
+				}
+			}
+			{
+				pBrw->InsColumn(-1, "Qtty",           104, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOTRAILZ), BCO_USERPROC);
+				//pBrw->insertColumn(-1, "CancellationCount",  105, T_INT32,  0, BCO_USERPROC);
+				pBrw->InsColumn(-1, "Client's price", 114, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				pBrw->InsColumn(-1, "Seller's price", 115, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				{
+					BroGroup grp;
+					grp.First = column_idx;
+					grp.Count = 3;
+					grp.Height = 1;
+					grp.P_Text = newStr("Shipment");
+					p_def->AddColumnGroup(&grp);
+					column_idx += grp.Count;
+				}
+			}
+			pBrw->insertColumn(-1, "Seller's earnings",      107, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+			column_idx += 1;
+			{
+				pBrw->insertColumn(-1, "Commission",         108, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				pBrw->insertColumn(-1, "Acqiring",           109, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				{
+					BroGroup grp;
+					grp.First = column_idx;
+					grp.Count = 2;
+					grp.Height = 1;
+					grp.P_Text = newStr("Expenses");
+					p_def->AddColumnGroup(&grp);
+					column_idx += grp.Count;
+				}
+			}
 			pBrw->insertColumn(-1, "Shipm days",        1111, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 			CALLPTRMEMB(pBrw, SetDefUserProc(PPViewGoodsOpAnalyze::GetDataForBrowser, this));
 		}
@@ -3938,7 +4048,7 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 				grp.Height = 1;
 				PPGetWord(PPWORD_REST_IN, 0, temp_buf);
 				grp.P_Text = newStr(temp_buf);
-				pBrw->getDef()->addGroup(&grp);
+				pBrw->getDef()->AddColumnGroup(&grp);
 				pBrw->InsColumnWord(-1, PPWORD_COST,    17, 0, MKSFMTD(11, 2, NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT); // @v12.1.7 +1
 				pBrw->InsColumnWord(-1, PPWORD_PRICE_P, 18, 0, MKSFMTD(10, 2, NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT); // @v12.1.7 +1
 			}
@@ -4056,7 +4166,7 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 						grp.Height = 1;
 						grp.P_Text = newStr(c_title);
 						c_title.CopyTo(grp.P_Text, c_title.Len() + 1);
-						p_def->addGroup(&grp);
+						p_def->AddColumnGroup(&grp);
 					}
 				}
 				first_c += cols_count;

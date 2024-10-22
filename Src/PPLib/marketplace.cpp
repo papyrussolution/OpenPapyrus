@@ -2781,6 +2781,10 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 											r_ti.Price = lot_rec.Price;
 											r_ti.Discount = (r_ti.Price - p_wb_item->FinishedPrice);
 										}
+										// @v12.1.9 {
+										if(p_wb_item->PriceWithDiscount > 0.0)
+											pack.LTagL.SetReal(PPTAG_LOT_MP_SELLERSPRICE, new_row_idx, &p_wb_item->PriceWithDiscount);
+										// } @v12.1.9 
 										pack.LTagL.SetString(PPTAG_LOT_SN, new_row_idx, MakeSerialIdent(p_wb_item->IncomeID, p_wb_item->Ware, temp_buf));
 										pack.LTagL.SetString(PPTAG_LOT_ORGORDERIDENT, new_row_idx, temp_buf.Z().Cat(p_wb_item->SrID));
 										if(p_wb_item->Spp != 0.0) {
@@ -2921,7 +2925,11 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 									PPTransferItem ti;
 									LongArray row_idx_list;
 									ti.GoodsID = goods_id;
-									ti.Price = p_wb_item->FinishedPrice;
+									// @v12.1.9 ti.Price = p_wb_item->FinishedPrice;
+									// @v12.1.9 {
+									ti.Price = p_wb_item->PriceWithDiscount;
+									ti.Discount = p_wb_item->PriceWithDiscount - p_wb_item->FinishedPrice;
+									// } @v12.1.9
 									ti.Quantity_ = 1.0;
 									if(pack.InsertRow(&ti, &row_idx_list)) {
 										{
@@ -2942,7 +2950,11 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 														seen_idx_list.add(static_cast<long>(j));
 														PPTransferItem ti_inner;
 														ti_inner.GoodsID = goods_id;
-														ti_inner.Price = p_wb_item_inner->FinishedPrice;
+														// @v12.1.9 ti_inner.Price = p_wb_item_inner->FinishedPrice;
+														// @v12.1.9 {
+														ti_inner.Price = p_wb_item_inner->PriceWithDiscount;
+														ti_inner.Discount = p_wb_item_inner->PriceWithDiscount - p_wb_item_inner->FinishedPrice;
+														// } @v12.1.9 
 														ti_inner.Quantity_ = 1.0;
 														row_idx_list.Z();
 														if(pack.InsertRow(&ti_inner, &row_idx_list)) {

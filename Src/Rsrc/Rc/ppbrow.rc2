@@ -3264,10 +3264,6 @@ browser GOODSOPER_MP north(100), 3, 1, "Анализ продаж на маркетплейсе {%s}", OWN
 {
 	// @v12.1.7 +1
 	"@ware", 3, notype, 0, 30
-	group "@sumintermp" {
-		"@termcost_sfx",  6, notype, NMBF_NOZERO, 10.2
-		"@termprice_sfx", 7, notype, NMBF_NOZERO, 10.2
-	}
 	toolbar GOODSOPER
 }
 

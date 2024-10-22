@@ -120,7 +120,7 @@ void BrowserDef::initOffset(int pos)
 			r_column.Offs = 0;
 }
 
-int BrowserDef::addGroup(BroGroup * pGroup)
+int BrowserDef::AddColumnGroup(BroGroup * pGroup)
 {
 	int    ok = 1;
 	if(pGroup) {

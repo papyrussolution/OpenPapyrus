@@ -1099,6 +1099,20 @@ int PPLotTagContainer::SetString(PPID tagID, int rowIdx, const char * pNumber)
 	return ok;
 }
 
+int PPLotTagContainer::GetReal(PPID tagID, int rowIdx, double * pValue) const
+{
+	int    ok = 0;
+	double value = 0.0;
+	uint   pos = 0;
+	int32  key = rowIdx;
+	const ObjTagItem * p_item = (lsearch(&key, &pos, CMPF_LONG)) ? static_cast<const Item *>(at(pos))->List.GetItem(tagID) : 0;
+	if(p_item && p_item->GetReal(&value)) {
+		ok = 1;
+	}
+	ASSIGN_PTR(pValue, value);
+	return ok;
+}
+
 int PPLotTagContainer::SetReal(PPID tagID, int rowIdx, const double * pValue)
 {
 	int    ok = 1;

@@ -5415,7 +5415,7 @@ public:
 	int    addColumn(const BroColumn *, int = UNDEF);
 	int    removeColumn(int);
 	int    setColumnTitle(int colN, const char * pText);
-	int    addGroup(BroGroup *);
+	int    AddColumnGroup(BroGroup *);
 	const  BroGroup * groupOf(uint column, uint * pGrpPos = 0) const;
 	uint   groupWidth(uint group, uint atColumn) const;
 	uint   groupWidth(const BroGroup *, uint atColumn) const;

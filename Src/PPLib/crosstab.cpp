@@ -697,7 +697,7 @@ int Crosstab::Helper_SetupBrowserCtColumn(BrowserWindow * pBrw, uint ctValPos, c
 		grp.Count = aggr_count;
 		grp.Height = 1;
 		grp.P_Text = newStr(rTitle);
-		pBrw->getDef()->addGroup(&grp);
+		pBrw->getDef()->AddColumnGroup(&grp);
 	}
 	return ok;
 }

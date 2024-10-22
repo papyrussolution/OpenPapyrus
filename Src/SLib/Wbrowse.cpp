@@ -711,7 +711,7 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 					case TV_END:
 						if(is_group) {
 							grp.Count = columns_count - grp.First;
-							p_def->addGroup(&grp);
+							p_def->AddColumnGroup(&grp);
 							is_group = 0;
 						}
 						else

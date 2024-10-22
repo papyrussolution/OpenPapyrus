@@ -1787,6 +1787,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 									}
 								}
 								{ // @v12.1.8
+									SJson * p_js_indi_array = SJson::CreateArr();
 									SJson * p_js_indi = SJson::CreateObj();
 									p_js_indi->InsertString("date", "2022.03.26");
 									temp_buf.Z();
@@ -1804,7 +1805,8 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 											CatEq("Time", sl_param.ChZnPm_ReqTimestamp);
 										p_js_indi->InsertString("industryAttribute", temp_buf);
 									}
-									p_js_item->Insert("industryInfo", p_js_indi);
+									p_js_indi_array->InsertChild(p_js_indi);
+									p_js_item->Insert("industryInfo", p_js_indi_array);
 								}
 							}
 							else {

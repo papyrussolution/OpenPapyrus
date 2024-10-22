@@ -8589,6 +8589,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_lot_orgorderident                   "Оригинальный идентификатор заказа" // @v12.1.4
 @rtag_lot_mp_commissionpct                "Маркетплейс: процент комиссии от цены продавца" // @v12.1.8
 @rtag_lot_mp_discountpct                  "Маркетплейс: процент скидки от цены продавца" // @v12.1.8
+@rtag_lot_mp_sellersprice                 "Маркетплейс: цена продавца" // @v12.1.9
 //
 // Зарезервированные типы регистрационных документов
 //

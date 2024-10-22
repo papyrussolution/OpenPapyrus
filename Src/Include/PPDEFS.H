@@ -594,7 +594,7 @@
 	#define PPAMT_MP_STORAGE       28L // @v12.1.4 Стоимость хранения товара на складе маркетплейса
 	#define PPAMT_MP_COMMISSION    29L // @v12.1.4 Сумма комиссионного вознаграждения маркетплейса
 	#define PPAMT_MP_SELLERPART    30L // @v12.1.4 Сумма, перечисляемая маркетплейсом продавцу за проданный товар
-	#define PPAMT_MP_ACQUIRING     31L // @v12.1.6 Стоимость экваринга на стороне маркетплейса, котороую маркетплейс переносит на поставщика 
+	#define PPAMT_MP_ACQUIRING     31L // @v12.1.6 Стоимость экваринга на стороне маркетплейса, котороую маркетплейс переносит на поставщика
 	// (это было ошибкой) #define PPAMT_MP_COMMISSIONPCT 32L // @v12.1.8 Процент комиссии маркетплейса с цены продажи
 	// (это было ошибкой) #define PPAMT_MP_DISCOUNTPCT   33L // @v12.1.8 Процентная скидка на товар, предоставляемая маркетплейсом к цене продавца
 	// Набор сумм по строкам расширения бухгалтерских документов
@@ -1451,13 +1451,14 @@
 	// принимать это решение), менеджер установит этот тег в строку заказа и система сформирует документ прихода (или еще какой), связанный с этим поставщиком.
 #define PPTAG_PERSON_MARKETPLACESYMB   116L // @v12.1.1 Зарезервированный символ конкретного маркетплейса, присваиваемый персоналии, относящейся к виду 'Маркетплейс'
 	// для того, чтобы можно было взаимодействовать с api этого маркетплейса.
-#define PPTAG_GUA_ACCOUNT              117L // @v12.1.3 Бухгалтерский счет, связанный с глобальной учетной записью, для учета движения средств. 
+#define PPTAG_GUA_ACCOUNT              117L // @v12.1.3 Бухгалтерский счет, связанный с глобальной учетной записью, для учета движения средств.
 	// Кейс следующий: если глобальная учетная запись ассоциирована с каким-то внешним сервисом, который открывает для нас счет, по которому
 	// осуществляется движение и существует возможность вывести наши средства, то мы заводим некоторый счет (возможно, регистровый) и отображаем
 	// на нем движение средств.
-#define PPTAG_LOT_ORGORDERIDENT        118L // @v12.1.4 Оригинальный идентификатор заказа. Обычно импортируемый идентификатор строки заказа. 
+#define PPTAG_LOT_ORGORDERIDENT        118L // @v12.1.4 Оригинальный идентификатор заказа. Обычно импортируемый идентификатор строки заказа.
 #define PPTAG_LOT_MP_COMMISSIONPCT     119L // @v12.1.8 Процент комиссии маркетплейса с цены продажи
 #define PPTAG_LOT_MP_DISCOUNTPCT       120L // @v12.1.8 Процентная скидка на товар, предоставляемая маркетплейсом к цене продавца
+#define PPTAG_LOT_MP_SELLERSPRICE      121L // @v12.1.9 Цена товара на маркетплейсе, выставленная продавцом. Эта цена в общем случае может отличаться от цены лота по ряду причин.
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -2920,9 +2921,9 @@
 	#define CTL_FLTLOT_SPPLPSNCAT       (29 + WINDOWS_ID_BIAS) // @v11.4.4
 	#define CTLSEL_FLTLOT_SPPLPSNCAT    (30 + WINDOWS_ID_BIAS) // @v11.4.4
 	#define CTL_FLTLOT_ORDEXTVIEWATR    (31 + WINDOWS_ID_BIAS) // @v12.1.6 Выбор варианта отображения для заказов //
-	#define CTL_FLTLOT_ORDVIEWFLAGS     (32 + WINDOWS_ID_BIAS) // @v12.1.6 Дополнительные флаги опций отображения // 
-	#define CTL_FLTLOT_AGENT            (33 + WINDOWS_ID_BIAS) // @v12.1.6 
-	#define CTLSEL_FLTLOT_AGENT         (34 + WINDOWS_ID_BIAS) // @v12.1.6 
+	#define CTL_FLTLOT_ORDVIEWFLAGS     (32 + WINDOWS_ID_BIAS) // @v12.1.6 Дополнительные флаги опций отображения //
+	#define CTL_FLTLOT_AGENT            (33 + WINDOWS_ID_BIAS) // @v12.1.6
+	#define CTLSEL_FLTLOT_AGENT         (34 + WINDOWS_ID_BIAS) // @v12.1.6
 #define DLG_BILLFLT               131 // Фильтр реестра товарных документов
 #define DLG_BILLFLTEXT            275 // (@obsolete v3.6.4) Расширение фильтра документов
 #define DLG_BILLPREAMB            514 // Преамбула для ввода документа по коду операции и контрагента
@@ -11662,14 +11663,14 @@
 	#define CTL_TESTMRKTPLC_TEXT           (3 + WINDOWS_ID_BIAS)
 #define DLG_MRKTPLCIX             1448 // @v12.1.3 Параметры обмена с маркетплейсом
 	#define CTL_MRKTPLCIX_GUA              (1 + WINDOWS_ID_BIAS)
-	#define CTLSEL_MRKTPLCIX_GUA           (2 + WINDOWS_ID_BIAS)	
+	#define CTLSEL_MRKTPLCIX_GUA           (2 + WINDOWS_ID_BIAS)
 #define DLG_MPCFG                 1449 // @v12.1.5 Конфигурация работы с маркетплейсами
-	#define CTL_MPCFG_ORDEROP              (1 + WINDOWS_ID_BIAS) 
-	#define CTLSEL_MPCFG_ORDEROP           (2 + WINDOWS_ID_BIAS) 
-	#define CTL_MPCFG_SALEOP               (3 + WINDOWS_ID_BIAS) 
-	#define CTLSEL_MPCFG_SALEOP            (4 + WINDOWS_ID_BIAS) 
-	#define CTL_MPCFG_TRANSFOP             (5 + WINDOWS_ID_BIAS) 
-	#define CTLSEL_MPCFG_TRANSFOP          (6 + WINDOWS_ID_BIAS) 
+	#define CTL_MPCFG_ORDEROP              (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_MPCFG_ORDEROP           (2 + WINDOWS_ID_BIAS)
+	#define CTL_MPCFG_SALEOP               (3 + WINDOWS_ID_BIAS)
+	#define CTLSEL_MPCFG_SALEOP            (4 + WINDOWS_ID_BIAS)
+	#define CTL_MPCFG_TRANSFOP             (5 + WINDOWS_ID_BIAS)
+	#define CTLSEL_MPCFG_TRANSFOP          (6 + WINDOWS_ID_BIAS)
 #define DLG_FLTORDLOTEXT          1450 // @v12.1.6 Расширение фильтра лотов заказов
 // Win32 Dialog Identifiers
 //

@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494917
+LastSignatureCode=2147494918
 LastAutoCodeList=1,12250;102,10177;103,10072;110,10000;111,12119;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10152;120,10005;1001,10000;121,10000;122,10000;123,10327;124,10351;125,10064
 
 [SignatureList]
@@ -2576,6 +2576,7 @@ rtag_gua_account=2147494862
 rtag_lot_orgorderident=2147494866
 rtag_lot_mp_commissionpct=2147494916
 rtag_lot_mp_discountpct=2147494917
+rtag_lot_mp_sellersprice=2147494918
 rregt_passport=2147485696
 rregt_regfree=2147485697
 rregt_tpid=2147485698
