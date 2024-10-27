@@ -10083,9 +10083,9 @@ int CheckPaneDialog::AcceptRowDiscount()
 		double pct_dis = 0.0;
 		int    is_row_dis = 1;
 		if(oneof3(prefx, '%', '/', '\\'))
-			pct_dis = satof(Input + 1); // @v10.7.9 atof-->satof
+			pct_dis = satof(Input + 1);
 		else if(oneof3(postfx, '%', '/', '\\'))
-			pct_dis = satof(Input); // @v10.7.9 atof-->satof
+			pct_dis = satof(Input);
 		else
 			is_row_dis = 0;
 		if(is_row_dis) {
@@ -12195,8 +12195,12 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 	int    ok = 1;
 	Packet preserve_packet = P;
 	if(CashNodeID) {
-		int    r = 1, sync_prn_err = 0;
-		int    r_ext = 1, ext_sync_prn_err = 0, is_pack = 0, is_ext_pack = 0;
+		int    r = 1;
+		int    sync_prn_err = 0;
+		int    r_ext = 1;
+		int    ext_sync_prn_err = 0;
+		int    is_pack = 0;
+		int    is_ext_pack = 0;
 		CCheckTbl::Rec last_chk_rec;
 		CCheckPacket pack, ext_pack;
 		THROW(InitCashMachine());
@@ -12223,15 +12227,15 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 		SETFLAG(pack.Rec.Flags, CCHKF_PREPRINT, Flags & fPrinted);
 		{
 			//
-			// Перед окончательным проведением чека необходимо распределить подарочную скидку (если она есть)
-			// по строкам чека.
+			// Перед окончательным проведением чека необходимо распределить подарочную скидку (если она есть) по строкам чека.
 			//
 			CCheckItem * p_item;
-			for(uint i = 0; P.enumItems(&i, (void **)&p_item);)
+			for(uint i = 0; P.enumItems(&i, (void **)&p_item);) {
 				if(p_item->Flags & cifGiftDiscount) {
 					SetupDiscount(1);
 					break;
 				}
+			}
 		}
 		THROW(Helper_InitCcPacket(&pack, &ext_pack, 0, 0));
 		is_pack = BIN(pack.GetCount());
@@ -12290,7 +12294,8 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 			THROW(rB.R = P_CM->SyncCheckForSessionOver());
 			if(rB.R > 0) {
 				rB.Pack.Rec.SessID = P_CM->GetCurSessID();
-				if((rB.R = P_CM->SyncPrintCheck(&rB.Pack, 1)) == 0)
+				rB.R = P_CM->SyncPrintCheck(&rB.Pack, 1);
+				if(rB.R == 0)
 					rB.SyncPrnErr = P_CM->SyncGetPrintErrCode();
 			}
 		}
@@ -12303,7 +12308,8 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 			THROW(rB.RExt = P_CM_EXT->SyncCheckForSessionOver());
 			if(rB.RExt > 0) {
 				rB.ExtPack.Rec.SessID = P_CM_EXT->GetCurSessID();
-				if((rB.RExt = P_CM_EXT->SyncPrintCheck(&rB.ExtPack, 1)) == 0)
+				rB.RExt = P_CM_EXT->SyncPrintCheck(&rB.ExtPack, 1);
+				if(rB.RExt == 0)
 					rB.ExtSyncPrnErr = P_CM_EXT->SyncGetPrintErrCode();
 			}
 			THROW(rB.RExt > 0 || rB.ExtSyncPrnErr == 1);

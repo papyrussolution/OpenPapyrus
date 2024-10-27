@@ -30,8 +30,8 @@ DbTableStat & DbTableStat::Z()
 	Location.Z();
 	OwnerName.Z();
 	SpaceName.Z();
-	FldList.reset();
-	IdxList.reset();
+	FldList.Z();
+	IdxList.Z();
 	return *this;
 }
 

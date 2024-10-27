@@ -179,9 +179,7 @@ int AlbatrosConfigDialog::setDTS(const PPAlbatrossConfig * pCfg)
 	SetupOprKindCombo(this, CTLSEL_ALBTRCFG_OPKINDID, Data.Hdr.OpID, 0, &op_type_list, 0);
 	SetupPPObjCombo(this, CTLSEL_ALBTRCFG_MAILACC, PPOBJ_INTERNETACCOUNT, Data.Hdr.MailAccID, OLW_CANINSERT, reinterpret_cast<void *>(PPObjInternetAccount::filtfMail));
 	SetupPPObjCombo(this, CTLSEL_ALBTRCFG_SMSACC, PPOBJ_SMSPRVACCOUNT, Data.Hdr.SmsAccID, OLW_CANINSERT, 0);
-	// @v10.5.12 @unused Data.GetExtStrData(ALBATROSEXSTR_UHTTURN, temp_buf);
-	// @v10.5.12 @unused setCtrlString(CTL_ALBTRCFG_UHTTURN, temp_buf/*Data.UhttUrn*/);
-	disableCtrl(CTL_ALBTRCFG_UHTTURN, 1); // @v10.5.12 @unused
+	disableCtrl(CTL_ALBTRCFG_UHTTURN, 1);
 	Data.GetExtStrData(ALBATROSEXSTR_UHTTURLPFX, temp_buf);
 	setCtrlString(CTL_ALBTRCFG_UHTTURLPFX, temp_buf/*Data.UhttUrlPrefix*/);
 	Data.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
@@ -381,7 +379,7 @@ int PPAlbatrossConfig::GetPassword(int fld, SString & rPw) const
 						for(const xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
 							if(SXml::GetContentByName(p_c, "host", temp_buf))
 								pCfg->PutExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
-							else if(SXml::GetContentByName(p_c, "virtual-host", temp_buf)) // @v10.6.0
+							else if(SXml::GetContentByName(p_c, "virtual-host", temp_buf))
 								pCfg->PutExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, temp_buf);
 							else if(SXml::GetContentByName(p_c, "user", temp_buf))
 								pCfg->PutExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);

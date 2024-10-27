@@ -1,5 +1,5 @@
 // PPEDI-BASE.CPP
-// Copyright (c) A.Sobolev 2018, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2018, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 // Attention! Этот исходный файл включается самостоятельно в специализированные модули обмена 
 // с различными провайдерами. Поэтому он не должен зависеть от других функций и классов
@@ -177,7 +177,7 @@ int SEancomXmlSegment::GetReal(double & rVal) const
 {
 	int    ok = 0;
 	if(P_Cur && P_Cur->content) {
-		rVal = satof(PTRCHRC_(P_Cur->content)); // @v10.7.9 atof-->satof
+		rVal = satof(PTRCHRC_(P_Cur->content));
 		ok = 1;
 	}
 	else {

@@ -3742,7 +3742,6 @@ uint PPObjLocation::GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
 	PPID   result = p_cache ? p_cache->ObjToWarehouse(arID, 0) : 0;
-	// @v10.7.3 {
 	PPID   verif_result = 0;
 	if(CConfig.Flags2 & CCFLG2_VERIFYARTOLOCMETHS) {
 		PPID   acs_id = 0;
@@ -3754,7 +3753,6 @@ uint PPObjLocation::GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions)
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 		}
 	}
-	// } @v10.7.3 
 	return result;
 }
 
@@ -3762,7 +3760,6 @@ uint PPObjLocation::GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
 	PPID   result = p_cache ? p_cache->ObjToWarehouse(arID, 1) : 0;
-	// @v10.7.3 {
 	PPID   verif_result = 0;
 	if(CConfig.Flags2 & CCFLG2_VERIFYARTOLOCMETHS) {
 		PPID   acs_id = 0;
@@ -3774,7 +3771,6 @@ uint PPObjLocation::GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions)
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 		}
 	}
-	// } @v10.7.3 
 	return result;
 }
 
@@ -3782,7 +3778,6 @@ uint PPObjLocation::GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions)
 {
 	LocationCache * p_cache = GetDbLocalCachePtr <LocationCache> (PPOBJ_LOCATION);
 	PPID   result = p_cache ? p_cache->WarehouseToObj(locID, 0) : 0;
-	// @v10.7.3 {
 	PPID   verif_result = 0;
 	if(CConfig.Flags2 & CCFLG2_VERIFYARTOLOCMETHS) {
 		verif_result = WarehouseToObj_Direct(locID);
@@ -3793,7 +3788,6 @@ uint PPObjLocation::GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions)
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 		}
 	}
-	// } @v10.7.3 
 	return result;
 }
 //

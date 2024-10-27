@@ -773,19 +773,24 @@ int ReceiptCore::EnumRefs(PPID prevLotID, LDATE * pDt, long * pOprNo, void * b)
 	return ok;
 }
 
-int ReceiptCore::GatherChilds(PPID parent, PPIDArray * pList, int (*test)(const ReceiptTbl::Rec *, void *), void * extraPtr)
+int ReceiptCore::GatherChildren(PPID parentID, PPIDArray * pList, int (*test)(const ReceiptTbl::Rec *, void *), void * extraPtr)
 {
 	int    r;
 	PPID   id;
-	LDATE  dt;
-	long   oprno;
 	ReceiptTbl::Rec rr;
-	if(parent) {
-		for(oprno = dt.v = 0; (r = EnumRefs(parent, &dt, &oprno, &rr)) > 0;) {
-			id = rr.ID;
-			if((!test || test(&rr, extraPtr)) && pList)
-				THROW(pList->add(id));
-			THROW(GatherChilds(id, pList, test, extraPtr)); // @recursion
+	if(parentID) {
+		LDATE  dt = ZERODATE;
+		long   oprno = 0;
+		while((r = EnumRefs(parentID, &dt, &oprno, &rr)) > 0) {
+			if(id == parentID) { // @v12.1.9
+				// @todo Здесь что-то в лог надо вывести - тяжелая ошибка: лот ссылается сам на себя //
+			}
+			else {
+				id = rr.ID;
+				if((!test || test(&rr, extraPtr)) && pList)
+					THROW(pList->add(id));
+				THROW(GatherChildren(id, pList, test, extraPtr)); // @recursion
+			}
 		}
 		THROW(r);
 	}

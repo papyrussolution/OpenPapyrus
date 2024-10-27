@@ -352,7 +352,7 @@ int ObjTagItem::SetStr(PPID tagID, const char * pStrVal)
 			Val.PStr = newStr(pStrVal);
 	}
 	else if(TagDataType == OTTYP_NUMBER)
-		Val.RealVal = pStrVal ? satof(pStrVal) : 0.0; // @v10.7.9 atof-->satof
+		Val.RealVal = pStrVal ? satof(pStrVal) : 0.0;
 	else if(TagDataType == OTTYP_ENUM) {
 		Reference * p_ref = PPRef;
 		PPID   _id = 0;
@@ -463,7 +463,7 @@ int ObjTagItem::AddReal(double rVal)
 	switch(TagDataType) {
 		case OTTYP_STRING:
 			{
-				double prev = Val.PStr ? satof(Val.PStr) : 0.0; // @v10.7.9 atof-->satof
+				double prev = Val.PStr ? satof(Val.PStr) : 0.0;
 				ZDELETE(Val.PStr);
 				char   temp_buf[64];
 				realfmt(prev+rVal, SFMT_MONEY, temp_buf);

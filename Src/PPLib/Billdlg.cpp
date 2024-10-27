@@ -3037,7 +3037,6 @@ int BillDialog::getDTS(int onCancel)
 	}
 	// @v11.1.12 getCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
 	getCtrlString(CTL_BILL_MEMO, P_Pack->SMemo); // @v11.1.12
-	// @v10.1.12 {
 	if(P_Pack->OpTypeID == PPOPT_AGREEMENT) {
 		SETIFZ(P_Pack->P_Agt, new PPBill::Agreement);
 		getCtrlData(CTL_BILL_EXPIRY, &P_Pack->P_Agt->Expiry);
@@ -3045,7 +3044,6 @@ int BillDialog::getDTS(int onCancel)
 		getCtrlData(CTL_BILL_MAXDSCNT, &P_Pack->P_Agt->MaxDscnt);
 		getCtrlData(CTL_BILL_PAYPERIOD, &P_Pack->P_Agt->DefPayPeriod);
 	}
-	// } @v10.1.12
 	if(P_Pack->Rec.Flags & BILLF_ADVANCEREP && P_Pack->P_AdvRep)
 		THROW(getAdvanceRepData(P_Pack->P_AdvRep));
 	intr = IsIntrOp(P_Pack->Rec.OpID);
@@ -3064,12 +3062,10 @@ int BillDialog::getDTS(int onCancel)
 		}
 	}
 	P_Pack->SetQuantitySign(-1);
-	// @v9.3.1 /* @v9.2.11 Снимаем запрет на проведение пустых товарных документов
 	if(oneof5(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
 		PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSORDER) && !PPMaster) {
-		THROW_PP(P_Pack->GetTCount() || P_BObj->CheckRights(BILLOPRT_EMPTY, 1), PPERR_EMPTYGOODSLIST); // @v9.3.1 BILLOPRT_EMPTY
+		THROW_PP(P_Pack->GetTCount() || P_BObj->CheckRights(BILLOPRT_EMPTY, 1), PPERR_EMPTYGOODSLIST);
 	}
-	// @v9.3.1 */
 	{
 		PPOprKind op_rec;
 		GetOpData(P_Pack->Rec.OpID, &op_rec);

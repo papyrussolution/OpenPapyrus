@@ -592,7 +592,7 @@ int DBTable::Btr_GetStat(long reqItems, DbTableStat * pStat)
 	pStat->PageSize = static_cast<uint32>(static_cast<const DBFileSpec *>(temp_buf.vcptr())->PageSize);
 	pStat->RetItems |= DbTableStat::iIdxCount;
 	{
-		pStat->IdxList.reset();
+		pStat->IdxList.Z();
 		const DBIdxSpec * p = reinterpret_cast<const DBIdxSpec *>(temp_buf.cptr()+sizeof(DBFileSpec));
 		for(uint j = 0; j < pStat->IdxCount; j++) {
 			BNKey key;

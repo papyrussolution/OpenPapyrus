@@ -1,5 +1,5 @@
 // SBUFFER.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1473,7 +1473,7 @@ int SSerializeContext::SerializeFieldList(int dir, BNFieldList * pFldList, SBuff
 		}
 	}
 	else if(dir < 0) {
-		pFldList->reset();
+		pFldList->Z();
 		rBuf.Read(fld_count);
 		for(uint i = 0; i < fld_count; i++) {
 			BNField fld;

@@ -394,7 +394,7 @@ int PPViewGoodsOpAnalyze::GetByID(PPID id, TempGoodsOprTbl::Rec * pRec)
 	return ok;
 }
 //
-// AHTOXA {
+//
 //
 void ABCAnlzFilt::SortGrpFract()
 {
@@ -444,7 +444,7 @@ int ABCAnlzFilt::GetGroupName(short abcGroup, char * pBuf, size_t bufLen)
 	}
 	return ok;
 }
-// } AHTOXA
+//
 //
 //
 class GoodsOpAnlzFiltDialog : public WLDialog {
@@ -550,7 +550,7 @@ void GoodsOpAnlzFiltDialog::setupOpCombo()
 	else /*if(Data.OpGrpID == GoodsOpAnalyzeFilt::ogSelected)*/ {
 		op_list.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL,
 			PPOPT_GOODSMODIF, PPOPT_GOODSORDER, PPOPT_PAYMENT, PPOPT_CHARGE, PPOPT_GOODSACK,
-			PPOPT_GENERIC, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ PPOPT_DRAFTTRANSIT
+			PPOPT_GENERIC, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, 0L);
 	}
 	SetupOprKindCombo(this, CTLSEL_BILLFLT_OPRKIND, Data.OpID, 0, &op_list, 0);
 }
@@ -684,8 +684,45 @@ public:
 		SetupCalDate(CTLCAL_GOODSOPRE_RESTDT, CTL_GOODSOPRE_RESTDT);
 		PPSetupCtrlMenu(this, CTL_GOODSOPRE_RESTDT, CTLMNU_GOODSOPRE_RESTDT, CTRLMENU_RESTDATE);
 	}
-	int setDTS(const GoodsOpAnalyzeFilt *);
-	int getDTS(GoodsOpAnalyzeFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			Data.Init(1, 0);
+		const bool is_crosstab = LOGIC(Data.Flags & GoodsOpAnalyzeFilt::fCrosstab);
+		disableCtrls(is_crosstab, CTL_GOODSOPRE_PERIOD, CTL_GOODSOPRE_RESTDT, CTL_GOODSOPRE_PCTDIFF, 0L);
+		DisableClusterItem(CTL_GOODSOPRE_FLAGS, 1, is_crosstab);
+		DisableClusterItem(CTL_GOODSOPRE_FLAGS, 2, is_crosstab);
+		if(is_crosstab)
+			Data.Flags &= ~GoodsOpAnalyzeFilt::fComparePctDiff;
+		else if(Data.CmpPeriod.IsZero())
+			Data.Flags |= GoodsOpAnalyzeFilt::fComparePctDiff;
+		SetPeriodInput(this, CTL_GOODSOPRE_PERIOD, &Data.CmpPeriod);
+		AddClusterAssoc(CTL_GOODSOPRE_FLAGS, 0, GoodsOpAnalyzeFilt::ffldMainPeriod);
+		AddClusterAssoc(CTL_GOODSOPRE_FLAGS, 1, GoodsOpAnalyzeFilt::ffldCmpPeriod);
+		AddClusterAssoc(CTL_GOODSOPRE_FLAGS, 2, GoodsOpAnalyzeFilt::ffldDiff);
+		AddClusterAssoc(CTL_GOODSOPRE_PCTDIFF, 0, GoodsOpAnalyzeFilt::fComparePctDiff);
+		SetClusterData(CTL_GOODSOPRE_PCTDIFF, Data.Flags);
+		disableCtrl(CTL_GOODSOPRE_RESTDT, (Data.Flags & GoodsOpAnalyzeFilt::fCalcRest) ? 0 : 1);
+		setCtrlData(CTL_GOODSOPRE_RESTDT, &Data.CmpRestCalcDate);
+		updateList(-1);
+		SetupFlags();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		SetupFlags();
+		THROW(GetPeriodInput(this, CTL_GOODSOPRE_PERIOD, &Data.CmpPeriod));
+		GetClusterData(CTL_GOODSOPRE_PCTDIFF, &Data.Flags);
+		getCtrlData(CTL_GOODSOPRE_RESTDT, &Data.CmpRestCalcDate);
+		if(!(Data.Flags & GoodsOpAnalyzeFilt::fCalcRest))
+			Data.CmpRestCalcDate = ZERODATE;
+		if(Data.CmpPeriod.IsZero())
+			Data.Flags &= ~GoodsOpAnalyzeFilt::fComparePctDiff;
+		ASSIGN_PTR(pData, Data);
+		CATCHZOK
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	virtual int setupList();
@@ -779,47 +816,6 @@ void GoodsOpAnlzCmpFiltDialog::SetupFlags()
 		item = Data.CompareItems.at(p);
 	SetClusterData(CTL_GOODSOPRE_FLAGS, item.Flags);
 	PrevID = item.ObjID;
-}
-
-int GoodsOpAnlzCmpFiltDialog::setDTS(const GoodsOpAnalyzeFilt * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		Data.Init(1, 0);
-	const bool is_crosstab = LOGIC(Data.Flags & GoodsOpAnalyzeFilt::fCrosstab);
-	disableCtrls(is_crosstab, CTL_GOODSOPRE_PERIOD, CTL_GOODSOPRE_RESTDT, CTL_GOODSOPRE_PCTDIFF, 0L);
-	DisableClusterItem(CTL_GOODSOPRE_FLAGS, 1, is_crosstab);
-	DisableClusterItem(CTL_GOODSOPRE_FLAGS, 2, is_crosstab);
-	if(is_crosstab)
-		Data.Flags &= ~GoodsOpAnalyzeFilt::fComparePctDiff;
-	else if(Data.CmpPeriod.IsZero())
-		Data.Flags |= GoodsOpAnalyzeFilt::fComparePctDiff;
-	SetPeriodInput(this, CTL_GOODSOPRE_PERIOD, &Data.CmpPeriod);
-	AddClusterAssoc(CTL_GOODSOPRE_FLAGS, 0, GoodsOpAnalyzeFilt::ffldMainPeriod);
-	AddClusterAssoc(CTL_GOODSOPRE_FLAGS, 1, GoodsOpAnalyzeFilt::ffldCmpPeriod);
-	AddClusterAssoc(CTL_GOODSOPRE_FLAGS, 2, GoodsOpAnalyzeFilt::ffldDiff);
-	AddClusterAssoc(CTL_GOODSOPRE_PCTDIFF, 0, GoodsOpAnalyzeFilt::fComparePctDiff);
-	SetClusterData(CTL_GOODSOPRE_PCTDIFF, Data.Flags);
-	disableCtrl(CTL_GOODSOPRE_RESTDT, (Data.Flags & GoodsOpAnalyzeFilt::fCalcRest) ? 0 : 1);
-	setCtrlData(CTL_GOODSOPRE_RESTDT, &Data.CmpRestCalcDate);
-	updateList(-1);
-	SetupFlags();
-	return 1;
-}
-
-int GoodsOpAnlzCmpFiltDialog::getDTS(GoodsOpAnalyzeFilt * pData)
-{
-	int    ok = 1;
-	SetupFlags();
-	THROW(GetPeriodInput(this, CTL_GOODSOPRE_PERIOD, &Data.CmpPeriod));
-	GetClusterData(CTL_GOODSOPRE_PCTDIFF, &Data.Flags);
-	getCtrlData(CTL_GOODSOPRE_RESTDT, &Data.CmpRestCalcDate);
-	if(!(Data.Flags & GoodsOpAnalyzeFilt::fCalcRest))
-		Data.CmpRestCalcDate = ZERODATE;
-	if(Data.CmpPeriod.IsZero())
-		Data.Flags &= ~GoodsOpAnalyzeFilt::fComparePctDiff;
-	ASSIGN_PTR(pData, Data);
-	CATCHZOK
-	return ok;
 }
 
 int GoodsOpAnlzFiltDialog::editCompareItems()
@@ -2295,6 +2291,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 							THROW(PPCheckUserBreak());
 							THROW(r = PreprocessTi(&r_ti, p_suppl_bill_list, subst_bill_val, &blk));
 							if(r > 0) {
+								const double ti_qtty = fabs(r_ti.Quantity_);
 								PROFILE_S(THROW(AddItem(blk)), "AddItem()"); // ogMarketplaceSalesAnalyze
 								{
 									IndicatorVector * p_iv = GetIndicatorEntry(blk);
@@ -2308,7 +2305,13 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 									}
 									const double ti_part = r_ti.CalcAmount() / bpack.Rec.Amount;
 									p_iv->Add(PPBZSI_SALECOUNT, 1.0);
-									p_iv->Add(PPBZSI_SALEQTTY, fabs(r_ti.Quantity_));
+									p_iv->Add(PPBZSI_SALEQTTY, ti_qtty);
+									p_iv->Add(PPBZSI_SALECOST, ti_qtty * r_ti.Cost);
+									{
+										const double a = bpack.Amounts.Get(PPAMT_FREIGHT, 0L);
+										if(a != 0.0)
+											p_iv->Add(PPBZSI_FREIGHT, a * ti_part);
+									}
 									{
 										const double a = bpack.Amounts.Get(PPAMT_MP_SELLERPART, 0L);
 										if(a != 0.0)
@@ -2331,8 +2334,8 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 										}
 										else
 											sp = r_ti.Price;
-										p_iv->Add(PPBZSI_MPAMT_SHIPMPRICE, fabs(r_ti.Quantity_) * r_ti.NetPrice());
-										p_iv->Add(PPBZSI_MPAMT_SHIPMSELLERPRICE, fabs(r_ti.Quantity_) * sp);
+										p_iv->Add(PPBZSI_MPAMT_SHIPMPRICE, ti_qtty * r_ti.NetPrice());
+										p_iv->Add(PPBZSI_MPAMT_SHIPMSELLERPRICE, ti_qtty * sp);
 									}
 									if(local_ord_list.getCount()) {
 										if(r_ti.Flags & PPTFR_ONORDER && r_ti.OrdLotID && !seen_ord_lot_list.lsearch(r_ti.OrdLotID)) {
@@ -3541,36 +3544,70 @@ int PPViewGoodsOpAnalyze::ViewDetail(PPViewBrowser * pBrw, PPID rowIdent, PPID l
 					switch(r_col.OrgOffs) {
 						case 101: // PPBZSI_ORDCOUNT
 						case 102: // PPBZSI_ORDQTTY
-							{
-								PPViewBill bill_view;
+							if(MpDBlk.OrdList.getCount()) {
+								bool skip = false;
 								BillFilt bill_filt;
-								bill_filt.List.Set(&MpDBlk.OrdList);
-								bill_filt.Bbt = bbtOrderBills;
-								BillFilt::FiltExtraParam p(0, bill_filt.Bbt);
-								PPView::Execute(PPVIEW_BILL, &bill_filt, GetModelessStatus(), &p);
+								if(goodsID) {
+									PPIDArray list;
+									P_BObj->LimitBillListByGoods(MpDBlk.OrdList, labs(goodsID), list);
+									if(list.getCount())
+										bill_filt.List.Set(&list);
+									else
+										skip = true;
+								}
+								else {
+									bill_filt.List.Set(&MpDBlk.OrdList);
+								}
+								if(!skip) {
+									bill_filt.Bbt = bbtOrderBills;
+									BillFilt::FiltExtraParam p(0, bill_filt.Bbt);
+									PPView::Execute(PPVIEW_BILL, &bill_filt, GetModelessStatus(), &p);
+								}
 							}
 							break;
 						case 103: // PPBZSI_SALECOUNT
 						case 104: // PPBZSI_SALEQTTY
-							{
-								PPViewBill bill_view;
+							if(MpDBlk.ShipmList.getCount()) {
+								bool skip = false;
 								BillFilt bill_filt;
-								bill_filt.List.Set(&MpDBlk.ShipmList);
-								bill_filt.Bbt = bbtGoodsBills;
-								BillFilt::FiltExtraParam p(0, bill_filt.Bbt);
-								PPView::Execute(PPVIEW_BILL, &bill_filt, GetModelessStatus(), &p);
+								if(goodsID) {
+									PPIDArray list;
+									P_BObj->LimitBillListByGoods(MpDBlk.ShipmList, labs(goodsID), list);
+									if(list.getCount())
+										bill_filt.List.Set(&list);
+									else
+										skip = true;
+								}
+								else
+									bill_filt.List.Set(&MpDBlk.ShipmList);
+								if(!skip) {
+									bill_filt.Bbt = bbtGoodsBills;
+									BillFilt::FiltExtraParam p(0, bill_filt.Bbt);
+									PPView::Execute(PPVIEW_BILL, &bill_filt, GetModelessStatus(), &p);
+								}
 							}
 							break;
 						case 105: // PPBZSI_ORDCANCELLEDCOUNT
 						case 106: // PPBZSI_ORDCANCELLEDQTTY
 						case 1105:
-							{
-								PPViewBill bill_view;
+							if(MpDBlk.CancelledOrdList.getCount()) {
+								bool skip = false;
 								BillFilt bill_filt;
-								bill_filt.List.Set(&MpDBlk.CancelledOrdList);
-								bill_filt.Bbt = bbtOrderBills;
-								BillFilt::FiltExtraParam p(0, bill_filt.Bbt);
-								PPView::Execute(PPVIEW_BILL, &bill_filt, GetModelessStatus(), &p);
+								if(goodsID) {
+									PPIDArray list;
+									P_BObj->LimitBillListByGoods(MpDBlk.CancelledOrdList, labs(goodsID), list);
+									if(list.getCount())
+										bill_filt.List.Set(&list);
+									else
+										skip = true;
+								}
+								else
+									bill_filt.List.Set(&MpDBlk.CancelledOrdList);
+								if(!skip) {
+									bill_filt.Bbt = bbtOrderBills;
+									BillFilt::FiltExtraParam p(0, bill_filt.Bbt);
+									PPView::Execute(PPVIEW_BILL, &bill_filt, GetModelessStatus(), &p);
+								}
 							}
 							break;
 						case 107: // PPBZSI_MPSELLERSPART
@@ -3950,6 +3987,35 @@ int PPViewGoodsOpAnalyze::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						ok = 1;
 					}
 					break;
+				case 116: // PPBZSI_SALECOST
+					if(p_ind) {
+						p_ind->Get(PPBZSI_SALECOST, &value);
+						pBlk->Set(value);
+						ok = 1;
+					}					
+					break;
+				case 1116: // Income
+					if(p_ind) {
+						double earnings = 0.0;
+						double expenses = 0.0;
+						double temp_val = 0.0;
+						p_ind->Get(PPBZSI_MPSELLERSPART, &earnings);
+						p_ind->Get(PPBZSI_SALECOST, &temp_val);
+						expenses += temp_val;
+						p_ind->Get(PPBZSI_FREIGHT, &temp_val);
+						expenses += temp_val;
+						value = earnings - expenses;
+						pBlk->Set(value);
+						ok = 1;
+					}
+					break;
+				case 117: // PPBZSI_FREIGHT
+					if(p_ind) {
+						p_ind->Get(PPBZSI_FREIGHT, &value);
+						pBlk->Set(value);
+						ok = 1;
+					}
+					break;
 			}
 		}
 	}
@@ -3959,7 +4025,7 @@ int PPViewGoodsOpAnalyze::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	DBQBrowserDef * p_def = pBrw ? static_cast<DBQBrowserDef *>(pBrw->getDef()) : 0;
-	const DBQuery * p_q = (p_def) ? p_def->getQuery() : 0;
+	const DBQuery * p_q = p_def ? p_def->getQuery() : 0;
 	if(p_q) {
 		int    loc_ins_col = (Filt.OpGrpID == GoodsOpAnalyzeFilt::ogInOutAnalyze) ? 2 : 1;
 		uint   brw_id = pBrw->GetResID();
@@ -4000,13 +4066,14 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 			}
 			{
 				pBrw->InsColumn(-1, "Qtty",           104, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOTRAILZ), BCO_USERPROC);
+				pBrw->InsColumn(-1, "Cost",           116, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 				//pBrw->insertColumn(-1, "CancellationCount",  105, T_INT32,  0, BCO_USERPROC);
 				pBrw->InsColumn(-1, "Client's price", 114, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 				pBrw->InsColumn(-1, "Seller's price", 115, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 				{
 					BroGroup grp;
 					grp.First = column_idx;
-					grp.Count = 3;
+					grp.Count = 4;
 					grp.Height = 1;
 					grp.P_Text = newStr("Shipment");
 					p_def->AddColumnGroup(&grp);
@@ -4018,16 +4085,18 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 			{
 				pBrw->insertColumn(-1, "Commission",         108, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 				pBrw->insertColumn(-1, "Acqiring",           109, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				pBrw->insertColumn(-1, "Freight",            117, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 				{
 					BroGroup grp;
 					grp.First = column_idx;
-					grp.Count = 2;
+					grp.Count = 3;
 					grp.Height = 1;
 					grp.P_Text = newStr("Expenses");
 					p_def->AddColumnGroup(&grp);
 					column_idx += grp.Count;
 				}
 			}
+			pBrw->insertColumn(-1, "Margin",            1116, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 			pBrw->insertColumn(-1, "Shipm days",        1111, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 			CALLPTRMEMB(pBrw, SetDefUserProc(PPViewGoodsOpAnalyze::GetDataForBrowser, this));
 		}

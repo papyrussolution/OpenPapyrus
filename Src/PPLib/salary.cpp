@@ -1288,7 +1288,7 @@ int PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 					else if(tag_item.TagDataType == OTTYP_BOOL)
 						result = tag_item.Val.IntVal ? 1.0 : 0.0;
 					else if(tag_item.TagDataType == OTTYP_STRING)
-						result = tag_item.Val.PStr ? satof(tag_item.Val.PStr) : 0.0; // @v10.7.9 atof-->satof
+						result = tag_item.Val.PStr ? satof(tag_item.Val.PStr) : 0.0;
 					else if(tag_item.TagDataType == OTTYP_DATE)
 						result = tag_item.Val.DtVal.GetOleDate();
 				}

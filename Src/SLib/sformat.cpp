@@ -785,7 +785,7 @@ int FASTCALL strtodoub(const char * pBuf, double * pVal)
 		if(p)
 			*p = '.';
 	}
-	ASSIGN_PTR(pVal, satof(temp)); // @v10.7.9 atof-->satof
+	ASSIGN_PTR(pVal, satof(temp));
 	return 1;
 }
 

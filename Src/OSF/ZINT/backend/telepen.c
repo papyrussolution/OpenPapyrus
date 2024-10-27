@@ -102,8 +102,7 @@ int telepen_num(struct ZintSymbol * symbol, uchar source[], int src_len)
 		to_upper(temp);
 		error_number = is_sane(NEON, temp, temp_length);
 		if(error_number == ZINT_ERROR_INVALID_DATA) {
-			// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C93)");
-			ZintMakeErrText_InvCharInData("C93", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
+			ZintMakeErrText_InvCharInData("C93", symbol->errtxt, sizeof(symbol->errtxt));
 		}
 		else {
 			/* Add a leading zero if required */

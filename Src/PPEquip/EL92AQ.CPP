@@ -227,7 +227,7 @@ int ACS_EL92AQ::ExportData(int)
 		dbfr.put(1, info.Name);
 		dbfr.put(2, price);
 		dbfr.put(3, 1000.0);
-		dbfr.put(4, satof(info.BarCode)); // @v10.7.9 atof-->satof
+		dbfr.put(4, satof(info.BarCode));
 		dbfr.put(5, 1L); // Номер отдела
 		dbfr.put(6, &intg);  // Штучный товар
 		dbfr.put(7, info.ID);

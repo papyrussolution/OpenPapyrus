@@ -1,5 +1,5 @@
 // DEC.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2003, 2004, 2008, 2010, 2016, 2017, 2018, 2020, 2021
+// Copyright (c) Sobolev A. 1995-2001, 2003, 2004, 2008, 2010, 2016, 2017, 2018, 2020, 2021, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -33,7 +33,7 @@ static const IEEE80 expo[10] = {
 double STDCALL dectobin(const char * dc, int16 len, int16 prec)
 {
 	char   buf[64];
-	return satof(dectostr(dc, len, prec, buf)); // @v10.7.9 atof-->satof
+	return satof(dectostr(dc, len, prec, buf));
 }
 
 void STDCALL dectobcd(char * dc, char * bcd, int16 len)

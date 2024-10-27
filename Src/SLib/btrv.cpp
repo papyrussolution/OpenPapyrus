@@ -316,8 +316,8 @@ int DbDict_Btrieve::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 		pTbl->indexes.copy(&p_clone->indexes);
 	}
 	else {
-		pTbl->fields.reset();
-		pTbl->indexes.reset();
+		pTbl->fields.Z();
+		pTbl->indexes.Z();
 		THROW(getFieldList(static_cast<BTBLID>(tbl_id), &pTbl->fields));
 		THROW(getIndexList(static_cast<BTBLID>(tbl_id), &pTbl->indexes));
 		//

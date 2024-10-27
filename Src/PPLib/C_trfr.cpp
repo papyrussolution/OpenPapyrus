@@ -628,7 +628,7 @@ int Transfer::CorrectLotTaxGrp()
 		PPID   tax_grp_id = Rcpt.data.InTaxGrpID;
 		PPID * p_lot_id;
 		PPIDArray childs;
-		Rcpt.GatherChilds(parent_id, &childs, test_taxgrp, reinterpret_cast<void *>(tax_grp_id));
+		Rcpt.GatherChildren(parent_id, &childs, test_taxgrp, reinterpret_cast<void *>(tax_grp_id));
 		for(uint i = 0; childs.enumItems(&i, (void **)&p_lot_id);) {
 			LDATE  dt = ZERODATE;
 			long   oprno = 0;

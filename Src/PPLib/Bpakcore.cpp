@@ -462,7 +462,7 @@ int FASTCALL PPFreight::CheckForFilt(const FreightFilt & rFilt) const
 		ok = 0;
 	else if(!CheckFiltID(rFilt.CaptainID, CaptainID))
 		ok = 0;
-	else if(!CheckFiltID(rFilt.DlvrLocID, DlvrAddrID)) // @v10.5.0
+	else if(!CheckFiltID(rFilt.DlvrLocID, DlvrAddrID))
 		ok = 0;
 	else if(rFilt.PortID || rFilt.PortOfLoading) {
 		const int strict = BIN(rFilt.Flags & FreightFilt::fStrictPort);
@@ -499,7 +499,7 @@ int FASTCALL PPFreight::CheckForFilt(const FreightFilt & rFilt) const
 				}
 				else if(!w_obj.IsChildOf(PortOfLoading, rFilt.PortOfLoading))
 					ok = 0;
-				else if(PPObjTag::CheckForTagFilt(PPOBJ_BILL, ID, rFilt.P_TagF) <= 0) // @v10.3.11
+				else if(PPObjTag::CheckForTagFilt(PPOBJ_BILL, ID, rFilt.P_TagF) <= 0)
 					ok = 0;
 			}
 		}
@@ -510,7 +510,7 @@ int FASTCALL PPFreight::CheckForFilt(const FreightFilt & rFilt) const
 bool PPFreight::IsEmpty() const
 {
 	return (!ShipID && !AgentID && Name[0] == 0 && !PortOfDischarge &&
-		!PortOfLoading && !CaptainID && !DlvrAddrID && !ArrivalDate && Cost == 0.0 && !StorageLocID && !Captain2ID); // @v10.9.2 Captain2ID
+		!PortOfLoading && !CaptainID && !DlvrAddrID && !ArrivalDate && Cost == 0.0 && !StorageLocID && !Captain2ID);
 }
 
 bool FASTCALL PPFreight::IsEq(const PPFreight & s) const
@@ -531,7 +531,7 @@ bool FASTCALL PPFreight::IsEq(const PPFreight & s) const
 		return false;
 	else if(CaptainID != s.CaptainID)
 		return false;
-	else if(Captain2ID != s.Captain2ID) // @v10.9.2
+	else if(Captain2ID != s.Captain2ID)
 		return false;
 	else if(R6(Cost - s.Cost) != 0)
 		return false;
@@ -645,13 +645,13 @@ void PPBill::BaseDestroy()
 	ZDELETE(P_PaymOrder);
 	ZDELETE(P_Freight);
 	ZDELETE(P_AdvRep);
-	ZDELETE(P_Agt); // @v10.1.12
+	ZDELETE(P_Agt);
 	//
 	Turns.clear();
 	AdvList.Clear();
 	LTagL.Release();
 	XcL.Release();
-	_VXcL.Release(); // @v10.3.0
+	_VXcL.Release();
 	BTagL.Destroy();
 	Ver = DS.GetVersion();
 }
@@ -685,12 +685,10 @@ int FASTCALL PPBill::IsEq(const PPBill & rS) const
 			yes = 0;
 		else if(P_Freight && rS.P_Freight && !P_Freight->IsEq(*rS.P_Freight))
 			yes = 0;
-		// @v10.1.12 {
 		else if((P_Agt && !rS.P_Agt) || (!P_Agt && rS.P_Agt))
 			yes = 0;
 		else if(P_Agt && rS.P_Agt && !P_Agt->IsEq(*rS.P_Agt))
 			yes = 0;
-		// } @v10.1.12
 		else if((P_AdvRep && !rS.P_AdvRep) || (!P_AdvRep && rS.P_AdvRep))
 			yes = 0;
 		else if(P_AdvRep && rS.P_AdvRep && memcmp(P_AdvRep, rS.P_AdvRep, sizeof(*P_AdvRep)) != 0)
@@ -701,7 +699,7 @@ int FASTCALL PPBill::IsEq(const PPBill & rS) const
 			yes = 0;
 		else if(!XcL.IsEq(rS.XcL))
 			yes = 0;
-		else if(!_VXcL.IsEq(rS._VXcL)) // @v10.3.0
+		else if(!_VXcL.IsEq(rS._VXcL))
 			yes = 0;
 		else {
 			const uint c1 = Turns.getCount();
@@ -752,12 +750,10 @@ int FASTCALL PPBill::Copy(const PPBill & rS)
 		P_AdvRep = new PPAdvanceRep(*rS.P_AdvRep);
 	else
 		ZDELETE(P_AdvRep);
-	// @v10.1.12 {
 	if(rS.P_Agt)
 		P_Agt = new Agreement(*rS.P_Agt);
 	else
 		ZDELETE(P_Agt);
-	// } @v10.1.12
 	Turns = rS.Turns;
 	AdvList = rS.AdvList;
 	LTagL = rS.LTagL;
@@ -817,7 +813,7 @@ int PPBill::SetGuid(const S_GUID & rGuid)
 	}
 	CATCH
 		ok = 0;
-		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER); // @v10.0.0
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 	ENDCATCH
 	return ok;
 }
@@ -1324,22 +1320,18 @@ int FASTCALL PPLotExtCodeContainer::IsEq(const PPLotExtCodeContainer & rS) const
 	else if(_c) {
 		SString code_buf;
 		SString code_buf2;
-		// @v10.3.0 LongArray found_idx_list;
-		UintHashTable found_idx_list__; // @v10.3.0
+		UintHashTable found_idx_list__;
 		for(uint i = 0; eq && i < _c; i++) {
 			const InnerItem & r_item = *static_cast<const InnerItem *>(at(i));
 			GetS(r_item.CodeP, code_buf);
 			int    is_found = 0;
 			for(uint j = 0; !is_found && j < _c; j++) {
-				// @v10.3.0 if(!found_idx_list.lsearch(j+1)) {
-				if(!found_idx_list__.Has(j+1)) { // @v10.3.0
+				if(!found_idx_list__.Has(j+1)) {
 					const InnerItem & r_item2 = *static_cast<const InnerItem *>(rS.at(i));
-					// @v10.2.9 if(r_item2.RowIdx == r_item.RowIdx && r_item2.Sign == r_item.Sign) {
-					if(r_item2.RowIdx == r_item.RowIdx && r_item2.Flags == r_item.Flags && r_item2.BoxId == r_item.BoxId) { // @v10.2.9
+					if(r_item2.RowIdx == r_item.RowIdx && r_item2.Flags == r_item.Flags && r_item2.BoxId == r_item.BoxId) {
 						rS.GetS(r_item2.CodeP, code_buf2);
 						if(code_buf == code_buf2) {
-							// @v10.3.0 found_idx_list.add(j+1);
-							found_idx_list__.Add(j+1); // @v10.3.0
+							found_idx_list__.Add(j+1);
 							is_found = 1;
 						}
 					}
@@ -1517,7 +1509,6 @@ int PPLotExtCodeContainer::Get(int rowIdx, LongArray * pIdxList, MarkSet & rS) c
 				THROW(rS.AddBox(r_item.BoxId, temp_buf, 0));
 			}
 			else {
-				// @v10.6.6 {
 				if(r_item.BoxId && !rS.GetBoxNum(r_item.BoxId, box_num)) {
 					for(uint j = i+1; j < getCount(); j++) {
 						const InnerItem & r_item2 = *static_cast<const InnerItem *>(at(j));
@@ -1528,7 +1519,6 @@ int PPLotExtCodeContainer::Get(int rowIdx, LongArray * pIdxList, MarkSet & rS) c
 						}
 					}
 				}
-				// } @v10.6.6 
 				THROW(rS.AddNum(r_item.BoxId, temp_buf, 0));
 			}
 			CALLPTRMEMB(pIdxList, add(static_cast<long>(i)));
@@ -2384,7 +2374,6 @@ PPBillExt::PPBillExt()
 
 bool PPBillExt::IsEmpty() const
 { 
-	// @v10.9.7 CcID // @v11.0.11 GoodsGroupID
 	return (AgentID || PayerID || InvoiceCode[0] || InvoiceDate || PaymBillCode[0] || PaymBillDate || 
 		ExtPriceQuotKindID || CcID || GoodsGroupID || CliPsnCategoryID) ? false : true; 
 }
@@ -2395,7 +2384,7 @@ bool FASTCALL PPBillExt::IsEq(const PPBillExt & rS) const
 		return false;
 	else if(PayerID != rS.PayerID)
 		return false;
-	else if(CcID != rS.CcID) // @v10.9.7
+	else if(CcID != rS.CcID)
 		return false;
 	else if(GoodsGroupID != rS.GoodsGroupID) // @v11.0.11
 		return false;
@@ -2972,10 +2961,8 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 				THROW(arobj.GetMainOrgAsSuppl(&Rec.Object, 0, use_ta));
 			}
 		}
-		// @v10.0.0 {
 		if(op_rec.ExtFlags & OPKFX_AUTOGENUUID)
 			GenerateGuid(0);
-		// } @v10.0.0
 	}
 	else // Теневой документ
 		Rec.Flags |= BILLF_GEXPEND;
@@ -2990,11 +2977,9 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 			Rec.Flags |= BILLF_ADVANCEREP;
 		}
 	}
-	// @v10.1.12 {
 	if(OpTypeID == PPOPT_AGREEMENT) {
 		P_Agt = new Agreement;
 	}
-	// } @v10.1.12
 	if(Rec.LinkBillID) {
 		SString msg_buf;
 		BillTbl::Rec link_rec;
@@ -4299,7 +4284,7 @@ int FASTCALL PPBillPacket::InitAmounts(const AmtList * pList)
 			int   skip_amt = 0;
 			if(oneof4(atyp, PPAMT_PAYMENT, PPAMT_PCTDIS, PPAMT_MANDIS, PPAMT_CRATE))
 				skip_amt = 1;
-			else if(OpTypeID == PPOPT_ACCTURN && subop == OPSUBT_POSCORRECTION && oneof3(atyp, PPAMT_CS_CASH, PPAMT_CS_BANK, PPAMT_CS_CSCARD)) // @v10.0.0
+			else if(OpTypeID == PPOPT_ACCTURN && subop == OPSUBT_POSCORRECTION && oneof3(atyp, PPAMT_CS_CASH, PPAMT_CS_BANK, PPAMT_CS_CSCARD))
 				skip_amt = 1;
 			if(!skip_amt) {
 				PPAmountType2 amtt_rec;
@@ -4913,7 +4898,7 @@ int TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 							}
 						}
 					}
-					/* @v10.3.11 else*/ {
+					{
 						if(o == ordDefault) {
 							grp_name.Z().Cat(i);
 							goods_name.Z();

@@ -2597,6 +2597,11 @@ SUniTime_Internal::SUniTime_Internal(LTIME tm) : SUniDate_Internal(), Hr(0), Mn(
 	SetTime(tm);
 }
 
+SUniTime_Internal::SUniTime_Internal(LDATETIME dtm) : SUniDate_Internal(dtm.d), Hr(0), Mn(0), Sc(0), MSc(0), Weekday(0), TimeZoneSc(Undef_TimeZone)
+{
+	SetTime(dtm.t);
+}
+
 SUniTime_Internal & SUniTime_Internal::Z()
 {
 	THISZERO();

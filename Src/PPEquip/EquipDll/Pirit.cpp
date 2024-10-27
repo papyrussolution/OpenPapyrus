@@ -22,7 +22,6 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 
 static int ErrorCode = 0;
 static constexpr char FS = 0x1C;
-// @v10.9.4 #define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 
 // @v11.2.3 Следующие мнемоники заменены на CHR_XXX определенные в SLIB.H
 // Для формирования пакета данных

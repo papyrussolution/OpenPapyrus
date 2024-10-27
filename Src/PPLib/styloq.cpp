@@ -10826,7 +10826,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 								// } @v11.4.8 
 								if(!local_done) {
 									IntermediateReply(5*60*1000, 1000, pSessSecret, intermediateReplyProc, pIntermediateReplyExtra); // @v11.2.12
-									if(ProcessCommand_RsrvOrderPrereq(StyloQCommandList::Item(*p_targeted_item), cli_pack, reply_text_buf, temp_buf.Z(), false)) {
+									if(ProcessCommand_RsrvOrderPrereq(StyloQCommandList::Item(*p_targeted_item), cli_pack, reply_text_buf, temp_buf.Z(), prccmdfDebugOutput)) { // @v12.1.9 0-->prccmdfDebugOutput
 										reply_doc.Put(reply_text_buf, reply_text_buf.Len());
 										if(temp_buf.Len())
 											reply_doc_declaration.Put(temp_buf, temp_buf.Len());

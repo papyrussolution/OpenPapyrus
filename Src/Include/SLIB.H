@@ -3099,6 +3099,7 @@ struct SUniTime_Internal : public SUniDate_Internal { // @internal
 	SUniTime_Internal();
 	explicit SUniTime_Internal(LDATE);
 	explicit SUniTime_Internal(LTIME);
+	explicit SUniTime_Internal(LDATETIME);
 	SUniTime_Internal(SCtrGenerate); // for-testing-only
 	SUniTime_Internal & Z();
 	bool   IsValid() const;
@@ -5901,7 +5902,7 @@ public:
 	BNFieldList & FASTCALL operator = (const BNFieldList &);
 	int    FASTCALL copy(const BNFieldList *);
 	bool   IsEq(const BNFieldList & rS, int nameAndTypeOnly = 0) const;
-	void   reset();
+	BNFieldList & Z();
 	int    addField(const char * pName, TYPEID type, int id = UNDEF);
 	int    FASTCALL addField(const BNField &);
 	int    getFieldPosition(int fldId, uint * pPos) const;
@@ -13503,8 +13504,10 @@ struct SJson {
 	int    InsertNumber(const char * pTextLabel, const char * pStr);
 	int    InsertDouble(const char * pTextLabel, double val, long fmt);
 	int    InsertInt(const char * pTextLabel, int val);
+	int    InsertUInt(const char * pTextLabel, uint val);
 	int    InsertIntNz(const char * pTextLabel, int val);
 	int    InsertInt64(const char * pTextLabel, int64 val);
+	int    InsertUInt64(const char * pTextLabel, uint64 val);
 	int    InsertBool(const char * pTextLabel, bool val);
 	int    FASTCALL InsertNull(const char * pTextLabel);
 	int    FASTCALL InsertChild(SJson * pChild);

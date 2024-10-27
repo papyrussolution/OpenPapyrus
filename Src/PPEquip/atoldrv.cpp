@@ -166,7 +166,7 @@ public:
 	}
 	virtual int PrintBnkTermReport(const char * pZCheck);
 	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, int uomId, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult); // @v11.2.12
-	virtual int Diagnostics(StringSet * pSs) // @v10.5.12
+	virtual int Diagnostics(StringSet * pSs)
 	{ 
 		if(pSs) {
 			SString temp_buf;
@@ -248,7 +248,7 @@ private:
 			THROW_SL(Lib.Load(dll_path));
 			THROW_SL(CreateHandleProc  = reinterpret_cast<int (* cdecl)(void **)>(Lib.GetProcAddr("libfptr_create")));
 			THROW_SL(DestroyHandleProc = reinterpret_cast<int (* cdecl)(void **)>(Lib.GetProcAddr("libfptr_destroy")));
-			THROW_SL(GetVersionString  = reinterpret_cast<const char * (* cdecl)()>(Lib.GetProcAddr("libfptr_get_version_string"))); // @v10.5.6
+			THROW_SL(GetVersionString  = reinterpret_cast<const char * (* cdecl)()>(Lib.GetProcAddr("libfptr_get_version_string")));
 			THROW_SL(GetSettingsProc   = reinterpret_cast<int (* cdecl)(void *, wchar_t *, int)>(Lib.GetProcAddr("libfptr_get_settings")));
 			THROW_SL(PrintTextProc   = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_print_text")));
 			THROW_SL(PaymentProc     = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_payment")));
@@ -289,7 +289,7 @@ private:
 			THROW_SL(GetParamByteArrayProc = reinterpret_cast<int (* cdecl)(void *, int, uchar *, int)>(Lib.GetProcAddr("libfptr_get_param_bytearray")));
 			THROW_SL(ProcessJsonProc = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_process_json"))); // @v11.2.8
 			THROW_SL(OpenShiftProc = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_open_shift"))); // @v11.3.12
-			UtilFormNomenclature = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_util_form_nomenclature")); // @v10.7.12
+			UtilFormNomenclature = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_util_form_nomenclature"));
 			UtilFormTlvProc      = reinterpret_cast<int (* cdecl)(void *)>(Lib.GetProcAddr("libfptr_util_form_tlv")); // @v11.0.0
 			THROW(CreateHandleProc(&Handler) == 0 && Handler);
 			{
@@ -366,7 +366,6 @@ private:
 		long   State;
 		SDynLibrary Lib;
 	};
-	// @v10.3.9 virtual int InitChannel();
 	int  CallJsonProc(const SJson * pJs, SString & rResultJsonBuf)
 	{
 		rResultJsonBuf.Z();
@@ -532,11 +531,6 @@ private:
 			//libfptr_set_param_int(fptr, LIBFPTR_PARAM_DATA_TYPE, LIBFPTR_DT_REVENUE);
 			//libfptr_query_data(fptr);
 			//double revenue = libfptr_get_param_double(fptr, LIBFPTR_PARAM_SUM);
-			/* @v10.3.12 
-			P_Fptr10->SetParamIntProc(h, LIBFPTR_PARAM_DATA_TYPE, LIBFPTR_DT_REVENUE);
-			P_Fptr10->QueryDataProc(h);
-			rBlk.Summator = P_Fptr10->GetParamDoubleProc(h, LIBFPTR_PARAM_SUM);
-			*/
 			P_Fptr10->SetParamIntProc(h, LIBFPTR_PARAM_DATA_TYPE, LIBFPTR_DT_CASH_SUM);
 			P_Fptr10->QueryDataProc(h);
 			rBlk.Summator = P_Fptr10->GetParamDoubleProc(h, LIBFPTR_PARAM_SUM);
@@ -763,8 +757,8 @@ private:
 		Scale,
 		PrintPurpose,
 		BarcodeControlCode,
-		TaxTypeNumber,      // @v10.0.03 1..5
-		OperatorName,       // @v10.2.5 Имя кассира 
+		TaxTypeNumber,      // 1..5
+		OperatorName,       // Имя кассира 
 		//set_Mode, // @v10.3.9
 		//get_Mode  // @v10.3.9
 	};
@@ -1913,7 +1907,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 					}
 				}
 				p_result->Insert("items", p_inner);
-				if(!feqeps(running_total, sum, 1E-5)) // @v10.3.1 (running_total > sum)-->feqeps(running_total, sum, 1E-5)
+				if(!feqeps(running_total, sum, 1E-5))
 					sum = running_total;
 				{
 					SJson * p_paym_list = SJson::CreateArr();
@@ -2000,7 +1994,6 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			SString chzn_sid; // @v11.0.0
 			const  bool is_vat_free = (CnObj.IsVatFree(NodeID) > 0);
 			StateBlock stb;
-			// @v10.9.0 {
 			double real_fiscal = 0.0;
 			double real_nonfiscal = 0.0;
 			pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
@@ -2010,16 +2003,12 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
 			const double amt_cash = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 			const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
-			// } @v10.9.0 
 			// @v11.0.0 {
 			if(SCn.LocID)
 				PPRef->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_sid);
 			// } @v11.0.0 
 			THROW(Connect(&stb));
 			THROW(AllowPrintOper_Fptr10());
-			// @v10.9.0 pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
-			// @v10.9.0 fiscal = fabs(fiscal);
-			// @v10.9.0 nonfiscal = fabs(nonfiscal);
 			if(flags & PRNCHK_LASTCHKANNUL) {
 				THROW(Annulate(MODE_REGISTER));
 			}
@@ -2150,7 +2139,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 												// @v12.0.6 marking_type = LIBFPTR_NT_SHOES; break;
 												marking_type = 0x444D; break; // @v12.0.6
 											case GTCHZNPT_MEDICINE: marking_type = LIBFPTR_NT_MEDICINES; break;
-											case GTCHZNPT_CARTIRE: marking_type = 0x444D; break; // @v10.9.7
+											case GTCHZNPT_CARTIRE: marking_type = 0x444D; break;
 											case GTCHZNPT_TEXTILE: marking_type = 0x444D; break; // @v11.0.0
 											case GTCHZNPT_PERFUMERY: marking_type = 0x444D; break; // @v11.3.12 Парфюмерия
 											case GTCHZNPT_MILK: marking_type = 0x444D; break; // @v11.3.12 Молоко
@@ -2214,11 +2203,9 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 								}
 								P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_TAX_TYPE, tax_type_number);
 								P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_DEPARTMENT, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 : sl_param.DivID);
-								// @v10.7.12 {
 								if(mark_buf_data_len > 0) {
 									P_Fptr10->SetParamByteArrayProc(fph, 1162, fptr10_mark_buf, mark_buf_data_len);
 								}
-								// } @v10.7.12
 								// @v11.1.9 {
 								if(sl_param.ChZnProductType == GTCHZNPT_MEDICINE) {
 									SString tag_1191;
@@ -2232,7 +2219,6 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 								THROW(SetProp(Name, goods_name)); // Наименование товара
 								THROW(SetProp(Quantity, pq));
 								THROW(SetProp(Price, pp));
-								// @v10.0.03 {
 								if(SCn.DrvVerMinor == 30) { 
 									// 1 - 0%
 									// 2 - 10%
@@ -2265,7 +2251,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 										tax_type_number = 4;
 									else {
 										const double vatrate = fabs(sl_param.VatRate);
-										if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
+										if(vatrate == 18.0 || vatrate == 20.0)
 											tax_type_number = 1;
 										else if(vatrate == 10.0)
 											tax_type_number = 2;
@@ -2299,7 +2285,6 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 									}
 								}
 								THROW(SetProp(TaxTypeNumber, tax_type_number));
-								// } @v10.0.03 
 								THROW(SetProp(Department, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 : static_cast<int32>(sl_param.DivID)));
 								THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
 							}
@@ -2436,7 +2421,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 				THROW(PrintText(buf.Trim(CheckStrLen), 0, 0));
 			}
 			debug_log_buf.Space().CatEq("SUM", sum, MKSFMTD(0, 10, 0)).Space().CatEq("RUNNINGTOTAL", running_total, MKSFMTD(0, 10, 0));
-			if(!feqeps(running_total, sum, 1E-5)) // @v10.3.1 (running_total > sum)-->feqeps(running_total, sum, 1E-5)
+			if(!feqeps(running_total, sum, 1E-5))
 				sum = running_total;
 			{
 				const double __amt_bnk = R2(fabs(amt_bnk));
@@ -2736,7 +2721,7 @@ int SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
 			for(uint pos = 0; str_set.get(&pos, str);) {
 				str.Chomp();
 				THROW(PrintText(str, ptfWrap, 0));
-				SDelay(10); // @v10.4.11 Иногда не удается распечатать слип. Гипотеза: драйвер не успевает обрабатывать быструю последовательность строк.
+				SDelay(10); // Иногда не удается распечатать слип. Гипотеза: драйвер не успевает обрабатывать быструю последовательность строк.
 			}
 			if(!(Flags & sfDontUseCutter))
 				CutPaper(0);

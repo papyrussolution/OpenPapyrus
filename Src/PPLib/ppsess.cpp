@@ -648,7 +648,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 		PPID   NotifyID;
 		PPIDArray IdList;
 	};
-	class IdleCmdConfigUpdated : public IdleCommand, private PPAdviseEventQueue::Client { // @v10.3.1
+	class IdleCmdConfigUpdated : public IdleCommand, private PPAdviseEventQueue::Client {
 	public:
 		IdleCmdConfigUpdated(long refreshPeriod, PPID configID, PPID notifyID) : IdleCommand(refreshPeriod), ConfigID(configID), NotifyID(notifyID)
 		{
@@ -1656,7 +1656,7 @@ PPSession::~PPSession()
 	delete P_DbCtx;
 	delete P_AlbatrosCfg;
 	delete P_SrStxSet;
-	delete P_ExtCfgDb; // @v10.6.7
+	delete P_ExtCfgDb;
 	delete P_UedC; // @v11.8.4
 	// Don't destroy P_LogQueue (на объект может ссылаться поток PPLogMsgSession потому удалять его нельзя)
 }
@@ -1862,8 +1862,8 @@ static int _TestSymbols()
 		_TestSymbVar(st, PPSYM_FGDATE,         "FGDATE");
 		_TestSymbVar(st, PPSYM_INN,            "INN");
 		_TestSymbVar(st, PPSYM_KPP,            "KPP");
-		_TestSymbVar(st, PPSYM_DUEDATE,        "DUEDATE"); // @v10.4.8
-		_TestSymbVar(st, PPSYM_FGDUEDATE,      "FGDUEDATE"); // @v10.4.8
+		_TestSymbVar(st, PPSYM_DUEDATE,        "DUEDATE");
+		_TestSymbVar(st, PPSYM_FGDUEDATE,      "FGDUEDATE");
 	}
 	/*
 	{
@@ -2018,21 +2018,20 @@ static void InitTest()
 	REF_TEST_RECSIZE(PPGoodsBasket);
 	REF_TEST_RECSIZE(PPDraftCreateRule);
 	REF_TEST_RECSIZE(PPGoodsInfo);
-	STATIC_ASSERT(sizeof(PPTimeSeries) == sizeof(Reference2Tbl::Rec)); // @v10.7.5
-	STATIC_ASSERT(sizeof(PPTssModel) == sizeof(Reference2Tbl::Rec)); // @v10.7.5
+	STATIC_ASSERT(sizeof(PPTimeSeries) == sizeof(Reference2Tbl::Rec));
+	STATIC_ASSERT(sizeof(PPTssModel) == sizeof(Reference2Tbl::Rec));
 	STATIC_ASSERT(sizeof(PPBarcodePrinter_)-sizeof(SString) == sizeof(Reference_Tbl::Rec));
 	STATIC_ASSERT(sizeof(PPBarcodePrinter2)-sizeof(SString) == sizeof(Reference2Tbl::Rec));
 	STATIC_ASSERT(sizeof(PPInternetAccount_)-sizeof(SString) == sizeof(Reference_Tbl::Rec));
 	STATIC_ASSERT(sizeof(PPInternetAccount2)-sizeof(SString) == sizeof(Reference2Tbl::Rec));
 	STATIC_ASSERT(sizeof(PPAlbatrosCfgHdr) == offsetof(PropertyTbl::Rec, VT));
 	STATIC_ASSERT(sizeof(PersonCore::RelationRecord) == sizeof(ObjAssocTbl::Rec));
-	// @v10.9.2 (PPFreight is expanded) assert(sizeof(PPFreight) == offsetof(PropertyTbl::Rec, VT));
 	STATIC_ASSERT(sizeof(PPRFIDDevice) == sizeof(Reference2Tbl::Rec));
 	STATIC_ASSERT(sizeof(PPSmsAccount) == sizeof(Reference2Tbl::Rec));
 	STATIC_ASSERT(sizeof(PPUhttStore) == sizeof(Reference2Tbl::Rec));
 	STATIC_ASSERT(sizeof(PPGeoTrackingMode) == 8);
 	STATIC_ASSERT(sizeof(PPCycleFilt) == 4);
-	STATIC_ASSERT(sizeof(PPBill::Agreement) == offsetof(PropertyTbl::Rec, VT)); // @v10.1.12
+	STATIC_ASSERT(sizeof(PPBill::Agreement) == offsetof(PropertyTbl::Rec, VT));
 	//
 	// Гарантируем, что функции семейства PPSetError всегда возвращают 0
 	// БОльшая часть кода закладывается на этот факт.
@@ -2334,7 +2333,7 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 	}
 	if(!(flags & fNoInstalledInfrastructure)) {
 		PPIniFile ini_file(0, 0, 0, 1); // @v10.3.11 useIniBuf=1
-		if(GetStartUpOption(cmdlUiLang, temp_buf)) { // @v10.4.4
+		if(GetStartUpOption(cmdlUiLang, temp_buf)) {
 			const int slang = RecognizeLinguaSymb(temp_buf, 0);
 			if(slang > 0)
                 SLS.SetUiLanguageId(slang, 0);
@@ -2451,17 +2450,17 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 			UiToolBox_.CreateColor(TProgram::tbiIconAlertColor,   UiDescription::GetColorR(p_uid, p_cs, "icon_alert", SColor(0xDD, 0x1C, 0x1A)));
 			UiToolBox_.CreateColor(TProgram::tbiIconAccentColor,  UiDescription::GetColorR(p_uid, p_cs, "icon_accent", SColor(0x2A, 0x9D, 0x8F)));
 			UiToolBox_.CreateColor(TProgram::tbiIconPassiveColor, UiDescription::GetColorR(p_uid, p_cs, "icon_passive", SColor(0xFF, 0xF1, 0xD0)));
-			UiToolBox_.CreatePen(TProgram::tbiBlackPen,         SPaintObj::psSolid, 1.0f, SClrBlack); // @v10.3.0
-			UiToolBox_.CreatePen(TProgram::tbiWhitePen,         SPaintObj::psSolid, 1.0f, SClrWhite); // @v10.3.0
-			UiToolBox_.CreateBrush(TProgram::tbiInvalInpBrush,  SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput_bg", SClrCrimson), 0); // @v10.2.4
-			UiToolBox_.CreateBrush(TProgram::tbiInvalInp2Brush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput2_bg", SColor(0xff, 0x99, 0x00))/*https://www.colorhexa.com/ff9900*/, 0); // @v10.3.0
-			UiToolBox_.CreateBrush(TProgram::tbiInvalInp3Brush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput3_bg", SColor(0xff, 0x33, 0xcc))/*https://www.colorhexa.com/ff33cc*/, 0); // @v10.3.0
-			UiToolBox_.CreateBrush(TProgram::tbiListBkgBrush,   SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "list_bg", SClrWhite), 0); // @v10.3.0
-			UiToolBox_.CreatePen(TProgram::tbiListBkgPen,       SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_border", SClrWhite)); // @v10.3.0
-			UiToolBox_.CreateBrush(TProgram::tbiListFocBrush,   SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "list_focus_bg", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
-			UiToolBox_.CreatePen(TProgram::tbiListFocPen,       SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_focus_border", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/); // @v10.3.0
-			UiToolBox_.CreateBrush(TProgram::tbiListSelBrush,   SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "list_sel_bg", SColor(0xa2, 0xd2, 0xff))/*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
-			UiToolBox_.CreatePen(TProgram::tbiListSelPen,       SPaintObj::psDot, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_sel_border", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/); // @v10.3.0
+			UiToolBox_.CreatePen(TProgram::tbiBlackPen,         SPaintObj::psSolid, 1.0f, SClrBlack);
+			UiToolBox_.CreatePen(TProgram::tbiWhitePen,         SPaintObj::psSolid, 1.0f, SClrWhite);
+			UiToolBox_.CreateBrush(TProgram::tbiInvalInpBrush,  SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput_bg", SClrCrimson), 0);
+			UiToolBox_.CreateBrush(TProgram::tbiInvalInp2Brush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput2_bg", SColor(0xff, 0x99, 0x00))/*https://www.colorhexa.com/ff9900*/, 0);
+			UiToolBox_.CreateBrush(TProgram::tbiInvalInp3Brush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput3_bg", SColor(0xff, 0x33, 0xcc))/*https://www.colorhexa.com/ff33cc*/, 0);
+			UiToolBox_.CreateBrush(TProgram::tbiListBkgBrush,   SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "list_bg", SClrWhite), 0);
+			UiToolBox_.CreatePen(TProgram::tbiListBkgPen,       SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_border", SClrWhite));
+			UiToolBox_.CreateBrush(TProgram::tbiListFocBrush,   SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "list_focus_bg", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/, 0);
+			UiToolBox_.CreatePen(TProgram::tbiListFocPen,       SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_focus_border", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/);
+			UiToolBox_.CreateBrush(TProgram::tbiListSelBrush,   SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "list_sel_bg", SColor(0xa2, 0xd2, 0xff))/*https://www.colorhexa.com/0066cc*/, 0);
+			UiToolBox_.CreatePen(TProgram::tbiListSelPen,       SPaintObj::psDot, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_sel_border", SColor(0x00, 0x66, 0xcc))/*https://www.colorhexa.com/0066cc*/);
 			{
 				// linear-gradient(to bottom, #f0f9ff 0%,#cbebff 47%,#a1dbff 100%)
 				/*
@@ -2554,7 +2553,7 @@ void FASTCALL PPSession::MoveCommonPathOnInitThread(long pathID)
 	SString temp_buf;
 	if(CommonPaths.GetPath(pathID, 0, temp_buf) > 0) {
 		SetPath(pathID, temp_buf, 0, 1);
-		if(pathID == PPPATH_LOG) // @v10.7.9 @fix PPPATH_TEMP-->PPPATH_LOG
+		if(pathID == PPPATH_LOG)
 			SLS.SetLogPath(temp_buf);
 	}
 }
@@ -2886,7 +2885,7 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 	//
 	// Проверяем доступность каталога базы данных
 	//
-	THROW_PP_S(server_type == sqlstMySQL || ::access(data_path, 0) == 0, PPERR_DBDIRNFOUND, data_path); // @v10.9.3 server_type == sqlstMySQL
+	THROW_PP_S(server_type == sqlstMySQL || ::access(data_path, 0) == 0, PPERR_DBDIRNFOUND, data_path);
 	if(!(flags & PPSession::odfDontInitSync)) {
 		//
 		// Инициализируем таблицу блокировок и проверяем не заблокирована ли база данных
@@ -2953,7 +2952,7 @@ int PPSession::SetupConfigByOps()
 			missingnoupdrestopflag = 1;
 		if(op_rec.OpTypeID == PPOPT_ACCTURN && op_rec.Flags & OPKF_ADVACC)
 			cc.Flags |= CCFLG_USEADVBILLITEMS;
-		if(oneof3(op_rec.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTQUOTREQ)) // @v10.5.7 PPOPT_DRAFTQUOTREQ
+		if(oneof3(op_rec.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTQUOTREQ))
 			cc.Flags |= CCFLG_USEDRAFTBILL;
 	}
 	if(missingnoupdrestopflag)
@@ -3012,34 +3011,8 @@ int PPSession::FetchConfig(PPID obj, PPID objID, PPConfig * pCfg)
 
 int PPSession::FetchAlbatrosConfig(PPAlbatrossConfig * pCfg)
 {
-	PPObjGlobalUserAcc gua_obj; // @v10.6.3
-	return gua_obj.FetchAlbatossConfig(pCfg); // @v10.6.3
-	/* @v10.6.3
-	int    ok = 1;
-	ENTER_CRITICAL_SECTION
-	if(pCfg) {
-		if(!P_AlbatrosCfg) {
-			P_AlbatrosCfg = new PPAlbatrossConfig;
-			if(!P_AlbatrosCfg) {
-				ok = PPSetErrorNoMem();
-			}
-			else {
-				ok = PPAlbatrosCfgMngr::Get(P_AlbatrosCfg);
-				if(ok < 0) {
-					PPSetError(PPERR_UNDEFALBATROSCONFIG);
-				}
-			}
-		}
-		if(ok) {
-			*pCfg = *P_AlbatrosCfg;
-		}
-	}
-	else {
-		ZDELETE(P_AlbatrosCfg);
-	}
-	LEAVE_CRITICAL_SECTION
-	return ok;
-	*/
+	PPObjGlobalUserAcc gua_obj;
+	return gua_obj.FetchAlbatossConfig(pCfg);
 }
 
 int PPSession::CheckSystemAccount(DbLoginBlock * pDlb, PPSecur * pSecur)
@@ -3118,7 +3091,6 @@ private:
 			uint   r = WaitForMultipleObjects(h_count, h_list, 0, INFINITE);
 			if(r == WAIT_OBJECT_0 + 0) { // timer
 				DS.DirtyDbCache(DbPathID, 0);
-				// @v10.2.4 {
 				{
 					PPAdviseList adv_list;
 					if(DS.GetAdviseList(PPAdviseBlock::evQuartz, 0, adv_list) > 0) {
@@ -3133,7 +3105,6 @@ private:
 						}
 					}
 				}
-				// } @v10.2.4
 			}
 			else if(r == WAIT_OBJECT_0 + 2) { // stop event
 				stop = 1; // quit loop
@@ -3162,7 +3133,7 @@ public:
 		PPThread(PPThread::kEventCollector, 0, 0), /*CycleMs((cycleMs > 0) ? cycleMs : 29989),*/ /*CyclePhnSvcMs(1500),*/ LB(rLB), P_Sj(0), State(0)
 	{
 		RVALUEPTR(StartUp_PhnSvcPack, pPhnSvcPack);
-		RVALUEPTR(StartUp_MqbParam, pMqbParam); // @v10.5.7
+		RVALUEPTR(StartUp_MqbParam, pMqbParam);
 	}
 private:
 	virtual void Shutdown()
@@ -3224,7 +3195,6 @@ private:
 		PPMqbClient::Envelope mqb_envelop;
 		Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
 		BExtQuery * p_q = 0;
-		//PPMqbClient * p_mqb_cli = CreateMqbClient(); // @v10.5.7
 		PPMqbClient * p_mqb_cli = PPMqbClient::CreateInstance(StartUp_MqbParam); // @v11.0.9
 		AsteriskAmiClient * p_phnsvc_cli = CreatePhnSvcClient(0);
 		LDATETIME sj_since;
@@ -3250,7 +3220,7 @@ private:
 			STimer __timer;  // Таймер для отмера времени до следующего опроса источников событий
 			__timer.Set(getcurdatetime_().addhs(__cycle_hs), 0);
 			h_list[h_count++] = __timer;
-			uint   r = ::WaitForMultipleObjects(h_count, h_list, 0, /*CycleMs*//*INFINITE*/60000);
+			const uint r = ::WaitForMultipleObjects(h_count, h_list, 0, /*CycleMs*//*INFINITE*/60000);
 			switch(r) {
 				case (WAIT_OBJECT_0 + 0): // stop event
 					if(do_debug_log) {
@@ -3368,7 +3338,7 @@ private:
 								pt_sj.Register();
 							}
 						}
-						if(State & stPhnSvc && pt_phnsvc.IsTime()) { // @v10.6.0 p_phnsvc_cli-->(State & stPhnSvc)
+						if(State & stPhnSvc && pt_phnsvc.IsTime()) {
 							if(SETIFZ(p_queue, DS.GetAdviseEventQueue(0))) {
 								// @v10.6.0 Немного меняем схему: ранее, если !p_phnsvc_cli то мы больше не обращались к телефонному сервису.
 								// Однако могло случиться что очередная попытка получения статуса и не удачного восстановления соединения
@@ -3423,7 +3393,7 @@ private:
 						}
 						if(p_queue) {
 							p_queue->Push(temp_list);
-							p_queue->AddStatCounters(addendum_queue_stat); // @v10.6.0
+							p_queue->AddStatCounters(addendum_queue_stat);
 						}
 						if(do_debug_log) {
 							(temp_buf = "TimerSjEvent").Space().CatEq("use_sj_scan_alg2", static_cast<long>(use_sj_scan_alg2));
@@ -3459,7 +3429,7 @@ private:
 	SString PhnSvcLocalScanChannelSymb; // Символ канала (каналов), события по которым должны регистрироваться
 	PPPhoneServicePacket StartUp_PhnSvcPack;
 	PhnSvcChannelStatusPool PhnSvcStP;
-	PPMqbClient::InitParam StartUp_MqbParam; // @v10.5.7
+	PPMqbClient::InitParam StartUp_MqbParam;
 	enum {
 		stPhnSvc = 0x0001, // Устанавливается если при старте потока был инициирован клиент телефонного сервиса
 		stMqb    = 0x0002  // Устанавливается если при старте потока был инициирован клиент брокера сообщений
@@ -4007,9 +3977,6 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				LDATE  dt;
 				if(!CheckExtFlag(ECF_INITONLOGIN)) {
 					if(!CheckExtFlag(ECF_INITONLOGIN)) { // Дублированный вызов на случай ожидания блокировки предыдущим вызовом
-						// @v8.0.3 ExtFlags = (ExtFlags & (ECF_SYSSERVICE | ECF_DBDICTDL600));
-						// @v10.1.4 SetExtFlag(~(ECF_SYSSERVICE|ECF_DBDICTDL600|ECF_DETECTCRDBTEXISTBYOPEN|ECF_OPENSOURCE), 0); // @v9.4.9 ECF_OPENSOURCE
-						// @v10.1.4 {
 						//SetExtFlag(ECF_SYSSERVICE, 0);
 						//SetExtFlag(ECF_DBDICTDL600, 0);
 						//SetExtFlag(ECF_DETECTCRDBTEXISTBYOPEN, 0);
@@ -4028,7 +3995,6 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						SetExtFlag(ECF_USESJLOGINEVENT, 0);
 						SetExtFlag(ECF_CODEPREFIXEDLIST, 0);
 						SetExtFlag(ECF_USEGEOTRACKING, 0);
-						// } @v10.1.4
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_GRPACK,                  ECF_GOODSRESTPACK,          1);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_TIDPACK,                 ECF_TRFRITEMPACK,           1);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_GBFSDEBT,                ECF_GOODSBILLFILTSHOWDEBT,  1);
@@ -4153,7 +4119,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					if(checkdate(dt))
 						r_cc._InvcMergeTaxCalcAlg2Since = dt;
 				}
-				r_cc.StringHistoryUsage = 0; // @v10.8.7 -1-->0
+				r_cc.StringHistoryUsage = 0;
 				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_STRINGHISTORYUSAGE, &(iv = 0)) > 0) {
 					if(iv > 0)
 						r_cc.StringHistoryUsage = 1;
@@ -4163,12 +4129,19 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						r_cc.StringHistoryUsage = 0;
 				}
 				// @v12.0.5 {
-				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CCLISTBYMARKBACKDAYS, &(iv = 0)) > 0 && iv > 0 && iv <= (10 * 365)) {
+				if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CCLISTBYMARKBACKDAYS, &(iv = 0)) > 0 && iv > 0 && iv <= (10 * 365))
 					r_cc.CcListByMarkBackDays = iv;
-				}
 				else
 					r_cc.CcListByMarkBackDays = 14;
 				// } @v12.0.5 
+				// @v12.1.9 {
+				{
+					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_UNITECHZNCIGBLK10, &(iv = 0)) > 0 && iv == 1)
+						r_cc.Flags2 |= CCFLG2_UNITECHZNCIGBLK10;
+					else
+						r_cc.Flags2 &= ~CCFLG2_UNITECHZNCIGBLK10;
+				}
+				// } @v12.1.9 
 				{
 					//#define CCFLG2_HIDEINVENTORYSTOCK  0x00010000L // @v10.9.12 Флаг, предписывающий скрывать значения учетных остатков
 						// инициируются по параметру в pp.ini [config] PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION
@@ -4251,8 +4224,8 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						SString mqb_domain; // Имя домена для идентификации при обмене через брокера сообщений
 						const PPPhoneServicePacket * p_phnsvc_pack = 0;
 						PPPhoneServicePacket ps_pack; 
-						PPMqbClient::InitParam mqb_init_param; // @v10.5.7
-						PPMqbClient::InitParam * p_mqb_init_param = 0; // @v10.5.7
+						PPMqbClient::InitParam mqb_init_param;
+						PPMqbClient::InitParam * p_mqb_init_param = 0;
 						{
 							PPEquipConfig eq_cfg;
 							ReadEquipConfig(&eq_cfg);
@@ -4271,7 +4244,6 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 							if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fPollVoipService) // @v11.2.6
 								p_phnsvc_pack = &ps_pack;
 						}
-						// @v10.5.7 {
 						if(PPMqbClient::SetupInitParam(mqb_init_param, 0, &mqb_domain)) {
 							int   use_mqb_for_dbx = 0;
 							PPMqbClient::RoutingParamEntry rpe;
@@ -4297,7 +4269,6 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 								p_mqb_init_param = &mqb_init_param;
 							}
 						}
-						// } @v10.5.7
 						PPAdviseEventCollectorSjSession * p_evc = new PPAdviseEventCollectorSjSession(blk, p_phnsvc_pack, p_mqb_init_param, cycle_ms);
 						p_evc->Start(0);
 						r_tla.P_AeqThrd = p_evc;
@@ -4319,23 +4290,21 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					}
 				}
 			}
-			r_tla.SetupEventResponder(r_tla.eventresponderSysMaintenance); // @v10.6.1
+			r_tla.SetupEventResponder(r_tla.eventresponderSysMaintenance);
 			r_tla.SetupEventResponder(r_tla.eventresponderPhoneService);
-			r_tla.SetupEventResponder(r_tla.eventresponderMqb); // @v10.5.7
-			if(CConfig.Flags & CCFLG_DEBUG) { // @v10.4.0 (ранее информация о системном аккаунте выводилась всегда)
+			r_tla.SetupEventResponder(r_tla.eventresponderMqb);
+			if(CConfig.Flags & CCFLG_DEBUG) {
 				SString user_name;
 				if(!SSystem::GetUserName_(user_name))
 					user_name = "!undefined";
 				PPLoadText(PPTXT_LOGININFO, temp_buf.Z());
 				msg_buf.Printf(temp_buf, user_name.cptr());
 				PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_COMP);
-				// @v10.4.0 {
 				{
 					// Информация о текущих путях
 					r_tla.Paths.DumpToStr(temp_buf);
 					PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_DBINFO|LOGMSGF_USER|LOGMSGF_TIME);
 				}
-				// } @v10.4.0
 				// @v11.8.8 {
 				{
 					// Информация о доступных принтерах
@@ -4533,14 +4502,13 @@ int PPSession::DirtyDbCache(long dbPathID, PPAdviseEventQueue::Client * pCli)
 						PPACN_UPDBILLWLABEL,
 						PPACN_BILLWROFF,
 						PPACN_BILLWROFFUNDO,
-						PPACN_BILLSTATUSUPD, // @v10.4.4
-						PPACN_UPDBILLFREIGHT, // @v10.4.5
+						PPACN_BILLSTATUSUPD,
+						PPACN_UPDBILLFREIGHT,
 						PPACN_SCARDOWNERUPDATED, // @v11.4.0
 						0L);
 					p_comm_dirty_cache_ev_list->sort();
 					p_addendum_ev_list = new PPIDArray;
-					p_addendum_ev_list->addzlist(PPACN_OBJTAGUPD, PPACN_OBJTAGRMV, PPACN_OBJTAGADD,
-						PPACN_CONFIGUPDATED, PPACN_TSSTRATEGYUPD, 0L); // @v10.3.2 PPACN_CONFIGUPDATED // @v10.3.11 PPACN_TSSTRATEGYUPD
+					p_addendum_ev_list->addzlist(PPACN_OBJTAGUPD, PPACN_OBJTAGRMV, PPACN_OBJTAGADD, PPACN_CONFIGUPDATED, PPACN_TSSTRATEGYUPD, 0L);
 					p_addendum_ev_list->sort();
 					p_ev_list = new PPIDArray;
 					p_ev_list->addUnique(p_comm_dirty_cache_ev_list);
@@ -4555,8 +4523,8 @@ int PPSession::DirtyDbCache(long dbPathID, PPAdviseEventQueue::Client * pCli)
 			uint   dirty_call_count = 0;
 			PPAdviseList adv_list;
 			struct SjEntry { // @flat
-				PPID   Action;  // @v10.3.2 int16-->PPID
-				PPID   ObjType; // @v10.3.2 int16-->PPID
+				PPID   Action;
+				PPID   ObjType;
 				PPID   ObjID;
 				long   Extra;
 			};
@@ -4686,9 +4654,9 @@ int PPSession::Logout()
 	if(r_tla.State & PPThreadLocalArea::stAuth) {
 		const SString active_user = r_tla.UserName;
 		SString temp_buf;
-		r_tla.ReleaseEventResponder(r_tla.eventresponderSysMaintenance); // @v10.6.1
+		r_tla.ReleaseEventResponder(r_tla.eventresponderSysMaintenance);
 		r_tla.ReleaseEventResponder(r_tla.eventresponderPhoneService);
-		r_tla.ReleaseEventResponder(r_tla.eventresponderMqb); // @v10.5.7
+		r_tla.ReleaseEventResponder(r_tla.eventresponderMqb);
 		SetPrivateBasket(0, 1);
 		//
 		// Удаляем временный каталог для отчетных данных
@@ -4709,7 +4677,6 @@ int PPSession::Logout()
 			CreateBackupCopy(active_user, 0);
 		GetSync().Release(); // @todo ReleaseSync()
 		GPrf.Output(0, 0);
-		// @v10.8.0 {
 		{
 			if(SLS.GetAllocStat().Output(temp_buf) > 0) {
 				SString path;
@@ -4717,16 +4684,13 @@ int PPSession::Logout()
 				PPLogMessage(path, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
 			}
 		}
-		// } @v10.8.0 
 		// @v8.6.7 {
 		// @todo Аккуратно остановить поток PPAdviseEventCollectorSjSession
 		// } @v8.6.7
-		// @v10.0.06 {
 		if(r_tla.P_AeqThrd) {
 			r_tla.P_AeqThrd->Stop(30);
 			r_tla.P_AeqThrd = 0;
 		}
-		// } @v10.0.06
 	}
 	return 1;
 }
@@ -5358,7 +5322,7 @@ int PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 			case PPOBJ_PROCESSOR: val = PPHS_PROCESSOR; break;
 			case PPOBJ_TSESSION:  val = PPHS_TSESSION; break;
 			case PPOBJ_STYLOPALM: val = PPHS_STYLOPALM; break;
-			case PPOBJ_GEOTRACKING: val = PPHS_GEOTRACKING; break; // @v10.1.5
+			case PPOBJ_GEOTRACKING: val = PPHS_GEOTRACKING; break;
 			case PPOBJ_STYLOQBINDERY: val = PPHS_STYLOQBINDERY; break; // @v11.3.4
 			case PPOBJ_COMPUTER: val = PPHS_WSCTL; break; // @v11.7.3
 			case PPOBJ_SWPROGRAM: val = PPHS_SWPROGRAM; break; // @v12.0.7
@@ -5721,17 +5685,17 @@ uint FASTCALL PPAdviseEventVector::MoveItemTo(uint pos, PPAdviseEventVector & rD
 		if(item.MqbConsumerTagP || item.MqbExchangeP || item.MqbRoutingKeyP || item.MqbCorrelationIdP || item.MqbReplyToP ||
 			item.MqbExpirationP || item.MqbMessageIdP || item.MqbTypeP || item.MqbUserIdP || item.MqbAppIdP || item.MqbClusterIdP)
 		{
-			MOVETEXT(MqbConsumerTagP);   // @v10.5.7
-			MOVETEXT(MqbExchangeP);      // @v10.5.7
-			MOVETEXT(MqbRoutingKeyP);    // @v10.5.7
-			MOVETEXT(MqbCorrelationIdP); // @v10.5.7
-			MOVETEXT(MqbReplyToP);       // @v10.5.7
-			MOVETEXT(MqbExpirationP);    // @v10.5.7
-			MOVETEXT(MqbMessageIdP);     // @v10.5.7
-			MOVETEXT(MqbTypeP);          // @v10.5.7
-			MOVETEXT(MqbUserIdP);        // @v10.5.7
-			MOVETEXT(MqbAppIdP);         // @v10.5.7
-			MOVETEXT(MqbClusterIdP);     // @v10.5.7
+			MOVETEXT(MqbConsumerTagP);
+			MOVETEXT(MqbExchangeP);
+			MOVETEXT(MqbRoutingKeyP);
+			MOVETEXT(MqbCorrelationIdP);
+			MOVETEXT(MqbReplyToP);
+			MOVETEXT(MqbExpirationP);
+			MOVETEXT(MqbMessageIdP);
+			MOVETEXT(MqbTypeP);
+			MOVETEXT(MqbUserIdP);
+			MOVETEXT(MqbAppIdP);
+			MOVETEXT(MqbClusterIdP);
 		}
 #undef MOVETEXT
 		if(item.MqbExtraIdx < MqbExtraList.getCount() && item.Flags & item.fMqbExtraIdxIsValid) {
@@ -5774,19 +5738,19 @@ int PPAdviseEventVector::Pack()
 			THROW_SL(Pack_Replace(p_pack_handle, r_item.ConnectedLineNumP));
 			THROW_SL(Pack_Replace(p_pack_handle, r_item.ContextP));
 			THROW_SL(Pack_Replace(p_pack_handle, r_item.ExtenP));
-			THROW_SL(Pack_Replace(p_pack_handle, r_item.BridgeP)); // @v10.0.02
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.BridgeP));
 
-			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbConsumerTagP));   // @v10.5.7
-			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbExchangeP));      // @v10.5.7
-			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbRoutingKeyP));    // @v10.5.7
-			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbCorrelationIdP)); // @v10.5.7
-			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbReplyToP));       // @v10.5.7
-			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbExpirationP));    // @v10.5.7
-			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbMessageIdP));     // @v10.5.7
-			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbTypeP));          // @v10.5.7
-			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbUserIdP));        // @v10.5.7
-			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbAppIdP));         // @v10.5.7
-			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbClusterIdP));     // @v10.5.7
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbConsumerTagP));
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbExchangeP));
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbRoutingKeyP));
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbCorrelationIdP));
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbReplyToP));
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbExpirationP));
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbMessageIdP));
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbTypeP));
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbUserIdP));
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbAppIdP));
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.MqbClusterIdP));
 			if(r_item.Flags & r_item.fMqbExtraIdxIsValid && r_item.MqbExtraIdx < MqbExtraList.getCount()) {
 				MqbExtra * p_extra = MqbExtraList.at(r_item.MqbExtraIdx);
 				if(p_extra) {
@@ -6089,14 +6053,12 @@ bool SysMaintenanceEventResponder::IsConsistent() const { return (Signature == P
 {
 	int    ok = -1;
 	if(kind == PPAdviseBlock::evQuartz) {
-		const double prob_common_mqs_config = 0.000005; // @v10.7.6 0.00001-->0.000005
-		// @v10.8.12 {
+		const double prob_common_mqs_config = 0.000005;
 #ifdef NDEBUG
 		const double prob_event_detection   = 0.000020; 
 #else
 		const double prob_event_detection   = 0.020000;
 #endif
-		// @v10.8.12 {
 		if(SLS.GetTLA().Rg.GetProbabilityEvent(prob_event_detection) && PPRef != 0) {
 			PROFILE_START
 			PPObjEventSubscription es_obj(0);
@@ -6104,7 +6066,6 @@ bool SysMaintenanceEventResponder::IsConsistent() const { return (Signature == P
 				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 			PROFILE_END 
 		}
-		// } @v10.8.12 
 #if 0 // @v11.3.6 {
 		if(SLS.GetTLA().Rg.GetProbabilityEvent(prob_common_mqs_config)) {
 			SString logmsg_buf;

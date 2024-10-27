@@ -187,7 +187,7 @@ int ACS_ECR930::ExportData(int)
 	while(p_iter->Next(&info) > 0) {
 		int intg = 0;
 		DbfRecord dbfr(p_out_tbl);
-		dbfr.put( 1, satof(info.BarCode)); // @v10.7.9 atof-->satof
+		dbfr.put( 1, satof(info.BarCode));
 		dbfr.put( 2, info.Name);
 		dbfr.put( 3, (info.Price * info.UnitPerPack));
 		dbfr.put( 7, intg);    // Штучный товар

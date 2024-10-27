@@ -162,8 +162,8 @@ public:
 		uint32 OptMaxDuck;     // Оптимальная глубина проседания (в квантах) при длинной ставке
 		uint32 OptMaxDuck_S;   // Оптимальная глубина проседания (в квантах) при короткой ставке
 		int16  Prec;
-		uint16 TargetQuant;    // @v10.4.2
-		long   Type;           // @v10.5.6
+		uint16 TargetQuant;    //
+		long   Type;           //
 	};
 	struct ImpactEntry {
 		ImpactEntry(LDATETIME t, double v) : T(t), Value(v)
@@ -1820,7 +1820,6 @@ int TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSeries * 
 				}
 				if(!p_entry) {
 					THROW_SL(p_entry = new PPObjTimeSeries::TrendEntry(ifs, trend_nominal_count));
-					// @v10.6.8 {
 					{
 						// Для вывода информации о расчете ставок нам понадобится средняя ошибка каждого тренда, учитываемая стратегиями.
 						double err_avg = 0.0;
@@ -1831,17 +1830,14 @@ int TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSeries * 
 								err_avg += r_sitem.TrendErrAvg;
 								err_avg_count++;
 							}
-							// @v10.7.3 {
 							else if(r_sitem.MainFrameSize == ifs && r_sitem.MainTrendErrAvg > 0.0) {
 								err_avg += r_sitem.TrendErrAvg;
 								err_avg_count++;
 							}
-							// } @v10.7.3 
 						}
 						if(err_avg_count)
 							p_entry->ErrAvg = err_avg / static_cast<double>(err_avg_count);
 					}
-					// } @v10.6.8 
 					THROW_SL(pBlk->TrendList.insert(p_entry));
 				}
 				{
@@ -1855,23 +1851,19 @@ int TimeSeriesCache::EvaluateTrends(TimeSeriesBlock * pBlk, const STimeSeries * 
 							if(err > 0.0)
 								temp_err_list.at(eridx) = sqrt(err);
 						}
-						// @v10.6.8 {
 						//
 						// В случае расчета трендов на основании актуальных тиков ошибку регрессии берем из предпоследнего 
 						// значения так как последнее значение сильно искажено.
 						//
 						if(onActualTicks && err_list_count > 1)
 							temp_err_list.at(err_list_count-1) = temp_err_list.at(err_list_count-2);
-						// } @v10.6.8 
 						p_entry->ErrL = temp_err_list;
 					}
-					// @v10.4.10 {
 					{
 						STimeSeries::Stat st(0);
 						THROW(pBlk->T_.Analyze("close", tsc-p_entry->Stride, p_entry->Stride, st));
 						p_entry->SpikeQuant_r = st.DeltaAvg / 2.0;
 					}
-					// } @v10.4.10 
 				}
 			}
 		}
@@ -1934,10 +1926,7 @@ TimeSeriesCache::TimeSeriesBlock * TimeSeriesCache::InitBlock(PPObjTimeSeries & 
 				}
 			}
 		}
-		// @v10.8.8 rTsObj.GetStrategies(id, PPObjTimeSeries::sstSelection, p_fblk->Strategies);
-		// @v10.8.8 p_fblk->Strategies.CreateIndex1(p_fblk->StratIndex);
-		// @v10.8.8 THROW(EvaluateTrends(p_fblk, 0, 0/*onActualTicks*/));
-		THROW(Helper_LoadStrategies(rTsObj, id, p_fblk)); // @v10.8.8 
+		THROW(Helper_LoadStrategies(rTsObj, id, p_fblk));
 	}
 	else {
 		uint   vecidx_close = 0;

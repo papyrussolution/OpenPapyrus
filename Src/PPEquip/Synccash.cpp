@@ -751,7 +751,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		THROW(Connect());
 		THROW(AnnulateCheck());
 		PreprocessCCheckForOfd12(ofdf, pPack); // @v11.3.12 Блок, созданный в v11.1.11 замещен общей функцией базового класса
-		if(flags & PRNCHK_RETURN && amt_cash != 0.0) { // @v10.4.7 !(flags & PRNCHK_BANKING) --> (amt_cash != 0.0)
+		if(flags & PRNCHK_RETURN && amt_cash != 0.0) {
 			const int is_cash = CheckForCash(amt); // @v12.0.5 @fix amt-->amt_cash
 			THROW(is_cash);
 			THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);

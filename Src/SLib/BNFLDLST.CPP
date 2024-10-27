@@ -68,13 +68,11 @@ BNFieldList::~BNFieldList()
 	SAlloc::F(fields);
 }
 
-void BNFieldList::reset()
+BNFieldList & BNFieldList::Z()
 {
-	if(count) {
-		SAlloc::F(fields);
-		count = 0;
-		fields = 0;
-	}
+	ZFREE(fields);
+	count = 0;
+	return *this;
 }
 
 bool BNFieldList::IsEq(const BNFieldList & rS, int nameAndTypeOnly) const
@@ -98,7 +96,7 @@ BNFieldList & FASTCALL BNFieldList::operator = (const BNFieldList & s)
 
 int FASTCALL BNFieldList::copy(const BNFieldList * pSrc)
 {
-	reset();
+	Z();
 	fields = static_cast<BNField *>(SAlloc::M(sizeof(BNField) * pSrc->count));
 	if(fields == 0) {
 		count = 0;

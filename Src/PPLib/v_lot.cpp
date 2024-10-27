@@ -654,7 +654,7 @@ int PPViewLot::CalcTotal(LotTotal::Status stat, LotTotal * pTotal)
 					Total.InCost += R5(item.Cost) * item.Quantity;
 				Total.InPrice += R5(item.Price) * item.Quantity;
 				if(Total.LocID)
-					THROW(P_Tbl->GatherChilds(item.ID, 0, PPViewLot::CalcChildLots, this));
+					THROW(P_Tbl->GatherChildren(item.ID, 0, PPViewLot::CalcChildLots, this));
 			}
 			Total.Stat = LotTotal::Extended;
 		}
@@ -1210,7 +1210,7 @@ int PPViewLot::Init_(const PPBaseFilt * pFilt)
 		}*/
 	}
 	if(Filt.ParentLotID) {
-		P_Tbl->GatherChilds(Filt.ParentLotID, &Itd.IdList, 0, 0);
+		P_Tbl->GatherChildren(Filt.ParentLotID, &Itd.IdList, 0, 0);
 	}
 	else {
 		//

@@ -5523,33 +5523,27 @@ int PrcssrTsStrategyAnalyze::ReadModelParam(ModelParam & rMp)
 	}
 	if(rMp.OptRangeMultiLimit > 100)
 		rMp.OptRangeMultiLimit = 0;
-	// @v10.7.3 {
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_OPTRANGE_MAXEXTPROBE, temp_buf) > 0) {
 		rMp.OptRangeMaxExtProbe = static_cast<uint>(temp_buf.ToLong());
 	}
 	if(rMp.OptRangeMaxExtProbe > 1000)
 		rMp.OptRangeMaxExtProbe = 0;
-	// } @v10.7.3 
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_USEDATASINCE, temp_buf) > 0)
 		strtodate(temp_buf.Strip(), DATF_DMY, &rMp.UseDataSince);
 	if(!checkdate(rMp.UseDataSince))
 		rMp.UseDataSince = ZERODATE;
-	// @v10.7.0 {
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_USEDATATILL, temp_buf) > 0)
 		strtodate(temp_buf.Strip(), DATF_DMY, &rMp.UseDataTill);
 	if(!checkdate(rMp.UseDataTill))
 		rMp.UseDataTill = ZERODATE;
-	// } @v10.7.0
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_MINWINRATE, temp_buf) > 0) {
 		rMp.MinWinRate = temp_buf.ToReal();
 	}
 	rMp.MinWinRate = inrangeordefault(rMp.MinWinRate, 0.0, 1.0, 0.0);
-	// @v10.7.0 {
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_OVERALLWINRATELIMIT, temp_buf) > 0) {
 		rMp.OverallWinRateLimit = temp_buf.ToReal();
 	}
 	rMp.OverallWinRateLimit = inrangeordefault(rMp.OverallWinRateLimit, 0.0, 1.0, 0.0);
-	// } @v10.7.0
 	{
 		if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_MAINFRAMESIZE, temp_buf) > 0) {
 			StringSet ss(',', temp_buf);
@@ -5591,7 +5585,6 @@ int PrcssrTsStrategyAnalyze::ReadModelParam(ModelParam & rMp)
 		}
 		rMp.TargetQuantList.sortAndUndup();
 	} */
-	// @v10.7.3 {
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_STAKEBOUNDS, temp_buf) > 0) {
 		StringSet ss(';', temp_buf);
 		SString left_buf, right_buf;
@@ -5604,7 +5597,6 @@ int PrcssrTsStrategyAnalyze::ReadModelParam(ModelParam & rMp)
 			}
 		}
 	}
-	// } @v10.7.3 
 	if(ini_file.Get(PPINISECT_TSSTAKE, PPINIPARAM_TSSTAKE_INPUTFRAMESIZE, temp_buf) > 0) {
 		StringSet ss(',', temp_buf);
 		for(uint ssp = 0; ss.get(&ssp, temp_buf);) {

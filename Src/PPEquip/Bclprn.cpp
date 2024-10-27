@@ -543,10 +543,10 @@ BarcodeFormatToken BarcodeLabel::NextToken(char ** ppLine, char * pBuf, size_t b
 					if(oneof2(*s, 'X', 'x')) {
 						s++; // @v10.3.0 @fix *s++ --> s++
 						int    hc = 0;
-						if(ishex(*s)) { // @v10.9.8 isxdigit-->ishex
+						if(ishex(*s)) {
 							hc += hex(*s);
 							s++;
-							if(ishex(*s)) { // @v10.9.8 isxdigit-->ishex
+							if(ishex(*s)) {
 								hc = (hc << 4) + hex(*s);
 								s++;
 							}

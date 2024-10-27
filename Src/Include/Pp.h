@@ -1352,7 +1352,7 @@ public:
 protected:
 	struct CalcSummaryBlock {
 		explicit CalcSummaryBlock(int dir);
-		int    Dir;          // 0 - total row, 1 - total column
+		const  int Dir;          // 0 - total row, 1 - total column
 		uint   TotalItemPos; // @#[0..TotalLinesCount]
 		uint   CtValPos;     // Номер кросстабулированной колонки
 		uint   AggrPos;      // Номер кросстабилированной субколоки
@@ -5328,15 +5328,18 @@ struct AccTurnParam {
 #define CCFLG2_USEOMTPAYMAMT       0x00000080L // Использовать включенную сумму оплаты по документам
 #define CCFLG2_USESARTREDB         0x00000100L // Использовать базу данных Sartre (экспериментальная опция)
 #define CCFLG2_USELOTXCODE         0x00000200L // Использовать дополнительные коды привязанные к строкам документов (ЕГАИС)
-#define CCFLG2_USELCR2             0x00000400L // @v10.1.5 Использовать 2-ю версию индексации остатков по лотам
-#define CCFLG2_USEVETIS            0x00000800L // @v10.1.9 @transient Использовать функционал ВЕТИС (Меркурий). Определяется динамически
+#define CCFLG2_USELCR2             0x00000400L // Использовать 2-ю версию индексации остатков по лотам
+#define CCFLG2_USEVETIS            0x00000800L // @transient Использовать функционал ВЕТИС (Меркурий). Определяется динамически
 	// по установленным в конфигурации глобального обмена параметрам доступа к ВЕТИС.
-#define CCFLG2_USEHISTPERSON       0x00001000L // @v10.5.3 Вести историю изменения персоналий
-#define CCFLG2_USEHISTSCARD        0x00002000L // @v10.5.3 Вести историю изменения персональных карт
-#define CCFLG2_DEVELOPMENT         0x00004000L // @v10.5.9 Режим разработки - включаются дополнительные опции отображения и управления
-#define CCFLG2_VERIFYARTOLOCMETHS  0x00008000L // @v10.7.3 Отладочный флаг для верификации функций преобразования статей в склады и наоборот
-#define CCFLG2_HIDEINVENTORYSTOCK  0x00010000L // @v10.9.12 Флаг, предписывающий скрывать значения учетных остатков
+#define CCFLG2_USEHISTPERSON       0x00001000L // Вести историю изменения персоналий
+#define CCFLG2_USEHISTSCARD        0x00002000L // Вести историю изменения персональных карт
+#define CCFLG2_DEVELOPMENT         0x00004000L // Режим разработки - включаются дополнительные опции отображения и управления
+#define CCFLG2_VERIFYARTOLOCMETHS  0x00008000L // Отладочный флаг для верификации функций преобразования статей в склады и наоборот
+#define CCFLG2_HIDEINVENTORYSTOCK  0x00010000L // Флаг, предписывающий скрывать значения учетных остатков
 	// инициируются по параметру в pp.ini [config] PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION
+#define CCFLG2_UNITECHZNCIGBLK10   0x00020000L // @v12.1.9 @construction При продаже 10 пачек сигарет одной позицией с одной chzn-маркой сигаретного блока 
+	// в кассовом чеке заменять количество на 1, цену умножать на 10. 
+	// Инициируются по параметру в pp.ini [config] PPINIPARAM_UNITECHZNCIGBLK10
 //
 // Общие параметры конфигурации
 //
@@ -13138,7 +13141,7 @@ public:
 	//   все лоты, удовлетворяющие test, но их идентификаторы не сохраняет).
 	//   Параметр extra передается функции test.
 	//
-	int    GatherChilds(PPID parent, PPIDArray * ary, int (*test)(const ReceiptTbl::Rec *, void *), void * extraPtr);
+	int    GatherChildren(PPID parent, PPIDArray * ary, int (*test)(const ReceiptTbl::Rec *, void *), void * extraPtr);
 	//
 	// Descr: возвращает текущую цену товара goodsID
 	//   по складу locID. Если остаток товара по складу больше нуля, то
@@ -13736,6 +13739,17 @@ public:
 	int    PutItem(PPTransferItem * pTi, int16 forceRByBill, const CpTrfrExt * pExt, int use_ta);
 	int    RemoveItem(PPID billID, int rByBill, int use_ta);
 	int    EnumItems(PPID billID, int * pRByBill, PPTransferItem *, CpTrfrExt *);
+	//
+	// Descr: Загружает в пакет документа pPack строки из таблицы, соответствующие документу с идентификатором billID.
+	//   Если pGoodsList != 0, то загружаются только те строки, в которых идентификатор товара содержится в списке
+	//   по указателю.
+	//   Если pPack == 0, то все что функция делает, это определяет есть ли хоть одна строка для документа billID
+	//   по заданным условиям.
+	// Return:
+	//   >0 - в пакет (может быть) загружена по крайней мере одна строка.
+	//   <0 - не существует ни одной строки для документа billID (возможно, с учетом органичений, заданных pGoodsList)
+	//    0 - error
+	//
 	int    LoadItems(PPID billID, PPBillPacket * pPack, const PPIDArray * pGoodsList);
 	int    Search(PPID billID, int rByBill, CpTransfTbl::Rec * pRec = 0);
 	int    SearchGoodsRef(PPID goodsID, CpTransfTbl::Rec * pRec = 0);
@@ -20029,6 +20043,8 @@ private:
 #define PPBZSI_MPAMT_ORDSELLERPRICE   32 // @v12.1.8 "mpamtordsellerprice"   Сумма заказа на маркетплейсе в терминах цены продавца //
 #define PPBZSI_MPAMT_SHIPMPRICE       33 // @v12.1.8 "mpamtshipmprice"       Сумма отгрузки с маркетплейса в терминах конечной цены покупателя (может отличаться от конечной цены заказа) //
 #define PPBZSI_MPAMT_SHIPMSELLERPRICE 34 // @v12.1.8 "mpamtshipmsellerprice" Сумма отгрузки с маркетплейса в терминах цены продавца //
+#define PPBZSI_SALECOST               35 // @v12.1.9 "salecost"  Себестоимость проданных товаров
+#define PPBZSI_FREIGHT                36 // @v12.1.9 "freight"   Стоимость фрахта 
 //
 // Флаги значений бизнес-показателей
 //
@@ -21447,7 +21463,7 @@ public:
 	int    SyncViewSessionStat(long options);
 	int    SyncGetSummator(double *);
 	int    SyncGetDeviceTime(LDATETIME * pDtm);
-	int    SyncPrintCheck(CCheckPacket *, int addSummator);
+	int    SyncPrintCheck(CCheckPacket * pPack, int addSummator);
 	int    SyncPrintCheckCopy(CCheckPacket * pPack, const char * pFormatName);
 	int    SyncPrintSlipDocument(CCheckPacket * pPack, const char * pFormatName);
 	int    SyncPrintBnkTermReport(const char * pSlipText);
@@ -34582,6 +34598,15 @@ public:
 	//   сортирует и удаляет дубликаты.
 	//
 	int    GetGoodsListByUpdatedBills(PPID locID, const LDATETIME & rDtm, PPIDArray & rGoodsList, PPIDArray * pBillList);
+	//
+	// Descr: Переносит в список rDestList только идентификаторы тех документов из списка rSrcList, 
+	//   в которых содержится товар goodsID.
+	// Returns:
+	//   >0 - по крайней мере один документ из списк rSrcList содержит товар goodsID
+	//   <0 - ни один из документов из списка rSrcList не содержит товар goodsID
+	//    0 - error
+	//
+	int    LimitBillListByGoods(const PPIDArray & rSrcList, PPID goodsID, PPIDArray & rDestList);
 	int    SerializePacket__(int dir, PPBillPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	const  PPBillConfig & GetConfig() const;
 	//
@@ -39171,10 +39196,7 @@ public:
 	//
 	// Descr: Возвращает true если фильтр предусматривает множественное органичение по контрагенту документа.
 	//
-	bool   HasMultiArRestriction() const
-	{
-		return (ObjList.IsExists() || (P_ContractorPsnTagF && !P_ContractorPsnTagF->IsEmpty()));
-	}
+	bool   HasMultiArRestriction() const { return (ObjList.IsExists() || (P_ContractorPsnTagF && !P_ContractorPsnTagF->IsEmpty())); }
 	enum bff_tag {
 		fShowDebt          = 0x00000001, // Показывать долг
 		fDebtOnly          = 0x00000002, // Выводить только неоплаченные документы

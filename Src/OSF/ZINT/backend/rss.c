@@ -376,8 +376,7 @@ int rss14(struct ZintSymbol * symbol, uchar source[], int src_len)
 	}
 	error_number = is_sane(NEON, source, src_len);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C81)");
-		ZintMakeErrText_InvCharInData("C81", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
+		ZintMakeErrText_InvCharInData("C81", symbol->errtxt, sizeof(symbol->errtxt));
 		return error_number;
 	}
 	/* make some room for a separator row for composite symbols */
@@ -923,8 +922,7 @@ int rsslimited(struct ZintSymbol * symbol, uchar source[], int src_len)
 	}
 	error_number = is_sane(NEON, source, src_len);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C83)");
-		ZintMakeErrText_InvCharInData("C83", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
+		ZintMakeErrText_InvCharInData("C83", symbol->errtxt, sizeof(symbol->errtxt));
 		return error_number;
 	}
 	if(src_len == 13) {
@@ -1327,7 +1325,7 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 					encoding_method = 7;
 					if((source[19] == '3') && (src_len == 26)) {
 						/* (01) and (3103) */
-						weight = (float)(satof(weight_str) / 1000.0); // @v10.7.9 atof-->satof
+						weight = (float)(satof(weight_str) / 1000.0);
 						if(weight <= 32.767) {
 							encoding_method = 3;
 						}
@@ -1364,12 +1362,12 @@ static int rss_binary_string(struct ZintSymbol * symbol, const char source[], ch
 					if(((source[19] == '2') || (source[19] == '3')) && (src_len == 26)) {
 						/* (01) and (3202)/(3203) */
 						if(source[19] == '3') {
-							weight = (float)(satof(weight_str) / 1000.0f); // @v10.7.9 atof-->satof
+							weight = (float)(satof(weight_str) / 1000.0f);
 							if(weight <= 22.767)
 								encoding_method = 4;
 						}
 						else {
-							weight = (float)(satof(weight_str) / 100.0f); // @v10.7.9 atof-->satof
+							weight = (float)(satof(weight_str) / 100.0f);
 							if(weight <= 99.99)
 								encoding_method = 4;
 						}

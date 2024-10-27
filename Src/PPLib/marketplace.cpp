@@ -42,13 +42,13 @@ int PPMarketplaceInterface::GetMarketplacePerson(PPID * pID, int use_ta)
 	SString temp_buf;
 	PPObjPersonKind pk_obj;
 	PPPersonKind pk_rec;
-	THROW(pk_obj.Fetch(person_kind, &pk_rec) > 0); // @todo @err (этот вид персоналий должен быть создан вызовом функции создания зарезервированных объектов)
+	THROW(pk_obj.Fetch(person_kind, &pk_rec) > 0); // @todo @err (СЌС‚РѕС‚ РІРёРґ РїРµСЂСЃРѕРЅР°Р»РёР№ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЃРѕР·РґР°РЅ РІС‹Р·РѕРІРѕРј С„СѓРЅРєС†РёРё СЃРѕР·РґР°РЅРёСЏ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ)
 	{
 		PPID   acs_id = R_Prc.GetMarketplaceAccSheetID();
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		{
-			// Кроме прочего, нам необходимо убедиться, что существует таблица аналитических статей, ассоциированная с видом персоналий PPPRK_MARKETPLACE
+			// РљСЂРѕРјРµ РїСЂРѕС‡РµРіРѕ, РЅР°Рј РЅРµРѕР±С…РѕРґРёРјРѕ СѓР±РµРґРёС‚СЊСЃСЏ, С‡С‚Рѕ СЃСѓС‰РµСЃС‚РІСѓРµС‚ С‚Р°Р±Р»РёС†Р° Р°РЅР°Р»РёС‚РёС‡РµСЃРєРёС… СЃС‚Р°С‚РµР№, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅР°СЏ СЃ РІРёРґРѕРј РїРµСЂСЃРѕРЅР°Р»РёР№ PPPRK_MARKETPLACE
 			PPObjAccSheet acs_obj;
 			PPAccSheet2 acs_rec;
 			if(!acs_id) {
@@ -95,7 +95,7 @@ int PPMarketplaceInterface::GetMarketplacePerson(PPID * pID, int use_ta)
 }
 
 class PPMarketplaceInterface_Wildberries : public PPMarketplaceInterface {
-	// кВВ - коэффициент вознаграждения Вайлдберриз
+	// РєР’Р’ - РєРѕСЌС„С„РёС†РёРµРЅС‚ РІРѕР·РЅР°РіСЂР°Р¶РґРµРЅРёСЏ Р’Р°Р№Р»РґР±РµСЂСЂРёР·
 public:
 	struct Warehouse {
 		Warehouse();
@@ -104,14 +104,14 @@ public:
 
 		enum {
 			fAcceptsQR = 0x0001,
-			fSelected  = 0x0002  // Признак того, что склад уже выбран продавцом
+			fSelected  = 0x0002  // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ СЃРєР»Р°Рґ СѓР¶Рµ РІС‹Р±СЂР°РЅ РїСЂРѕРґР°РІС†РѕРј
 		};
-		long   ID; // Идентификатор склада на маркетплейсе (не в нашей базе данных!)
+		long   ID; // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРєР»Р°РґР° РЅР° РјР°СЂРєРµС‚РїР»РµР№СЃРµ (РЅРµ РІ РЅР°С€РµР№ Р±Р°Р·Рµ РґР°РЅРЅС‹С…!)
 		uint   Flags;
-		int    CargoType; // Тип товара, который принимает склад:
-			// 1 - обычный; 2 - СГТ (Сверхгабаритный товар); 3 - КГТ (Крупногабаритный товар). Не используется на данный момент.
-		int    DeliveryType; // Тип доставки, который принимает склад:
-			// 1 - доставка на склад Wildberries; 2 - доставка силами продавца; 3 - доставка курьером WB
+		int    CargoType; // РўРёРї С‚РѕРІР°СЂР°, РєРѕС‚РѕСЂС‹Р№ РїСЂРёРЅРёРјР°РµС‚ СЃРєР»Р°Рґ:
+			// 1 - РѕР±С‹С‡РЅС‹Р№; 2 - РЎР“Рў (РЎРІРµСЂС…РіР°Р±Р°СЂРёС‚РЅС‹Р№ С‚РѕРІР°СЂ); 3 - РљР“Рў (РљСЂСѓРїРЅРѕРіР°Р±Р°СЂРёС‚РЅС‹Р№ С‚РѕРІР°СЂ). РќРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РЅР° РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚.
+		int    DeliveryType; // РўРёРї РґРѕСЃС‚Р°РІРєРё, РєРѕС‚РѕСЂС‹Р№ РїСЂРёРЅРёРјР°РµС‚ СЃРєР»Р°Рґ:
+			// 1 - РґРѕСЃС‚Р°РІРєР° РЅР° СЃРєР»Р°Рґ Wildberries; 2 - РґРѕСЃС‚Р°РІРєР° СЃРёР»Р°РјРё РїСЂРѕРґР°РІС†Р°; 3 - РґРѕСЃС‚Р°РІРєР° РєСѓСЂСЊРµСЂРѕРј WB
 		uint64 UedGeoLoc;
 		SString Name;
 		SString City;
@@ -164,7 +164,7 @@ public:
 		int64  IncomeID;
 		LDATETIME Dtm;
 		LDATETIME DtmLastChange;
-		SString Number; // Номер УПД
+		SString Number; // РќРѕРјРµСЂ РЈРџР”
 		WareBase Ware;
 		double Qtty;
 		double TotalPrice;
@@ -182,13 +182,13 @@ public:
 		"quantity": 30,
 		"totalPrice": 0,
 		"dateClose": "2024-09-03T00:00:00",
-		"warehouseName": "Электросталь",
+		"warehouseName": "Р­Р»РµРєС‚СЂРѕСЃС‚Р°Р»СЊ",
 		"nmId": 245313051,
-		"status": "Принято"
+		"status": "РџСЂРёРЅСЏС‚Рѕ"
 		*/
 	};
 	//
-	// Descr: Структура описания элемента продажи или заказа
+	// Descr: РЎС‚СЂСѓРєС‚СѓСЂР° РѕРїРёСЃР°РЅРёСЏ СЌР»РµРјРµРЅС‚Р° РїСЂРѕРґР°Р¶Рё РёР»Рё Р·Р°РєР°Р·Р°
 	//
 	struct Sale {
 		Sale();
@@ -198,7 +198,7 @@ public:
 		enum {
 			fIsSupply      = 0x0001,
 			fIsRealization = 0x0002,
-			fIsCancel      = 0x0004  // Только для заказа 
+			fIsCancel      = 0x0004  // РўРѕР»СЊРєРѕ РґР»СЏ Р·Р°РєР°Р·Р° 
 		};
 		LDATETIME Dtm;
 		LDATETIME DtmLastChange;
@@ -212,27 +212,27 @@ public:
 		uint   Flags;
 		double TotalPrice;
 		double DiscountPct;
-		double Spp;               // Скидка WB
-		double PaymentSaleAmount; // sale Оплачено с WB Кошелька
-		double ForPay;            // sale К перечислению продавцу
-		double FinishedPrice;     // Фактическая цена с учетом всех скидок (к взиманию с покупателя)
-		double PriceWithDiscount; // Цена со скидкой продавца, от которой считается сумма к перечислению продавцу forPay (= totalPrice * (1 - discountPercent/100))
-		SString SaleId;           // Уникальный идентификатор продажи/возврата // S********** — продажа, R********** — возврат (на склад WB)
-		SString OrderType;        // Тип заказа:
-			// Клиентский — заказ, поступивший от покупателя
-			// Возврат Брака — возврат товара продавцу
-			// Принудительный возврат — возврат товара продавцу
-			// Возврат обезлички — возврат товара продавцу
-			// Возврат Неверного Вложения — возврат товара продавцу
-			// Возврат Продавца — возврат товара продавцу
-			// Возврат из Отзыва — возврат товара продавцу
-			// АвтоВозврат МП — возврат товара продавцу
-			// Недокомплект (Вина продавца) — возврат товара продавцу
-			// Возврат КГТ — возврат товара продавцу
-		SString Sticker; // Идентификатор стикера
-		SString GNumber; // Номер заказа
-		SString SrID;    // Уникальный идентификатор заказа. Примечание для использующих API Маркетплейс: srid равен rid в ответах методов сборочных заданий.
-			// Проецируется на тег PPTAG_LOT_ORGORDERIDENT
+		double Spp;               // РЎРєРёРґРєР° WB
+		double PaymentSaleAmount; // sale РћРїР»Р°С‡РµРЅРѕ СЃ WB РљРѕС€РµР»СЊРєР°
+		double ForPay;            // sale Рљ РїРµСЂРµС‡РёСЃР»РµРЅРёСЋ РїСЂРѕРґР°РІС†Сѓ
+		double FinishedPrice;     // Р¤Р°РєС‚РёС‡РµСЃРєР°СЏ С†РµРЅР° СЃ СѓС‡РµС‚РѕРј РІСЃРµС… СЃРєРёРґРѕРє (Рє РІР·РёРјР°РЅРёСЋ СЃ РїРѕРєСѓРїР°С‚РµР»СЏ)
+		double PriceWithDiscount; // Р¦РµРЅР° СЃРѕ СЃРєРёРґРєРѕР№ РїСЂРѕРґР°РІС†Р°, РѕС‚ РєРѕС‚РѕСЂРѕР№ СЃС‡РёС‚Р°РµС‚СЃСЏ СЃСѓРјРјР° Рє РїРµСЂРµС‡РёСЃР»РµРЅРёСЋ РїСЂРѕРґР°РІС†Сѓ forPay (= totalPrice * (1 - discountPercent/100))
+		SString SaleId;           // РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїСЂРѕРґР°Р¶Рё/РІРѕР·РІСЂР°С‚Р° // S********** вЂ” РїСЂРѕРґР°Р¶Р°, R********** вЂ” РІРѕР·РІСЂР°С‚ (РЅР° СЃРєР»Р°Рґ WB)
+		SString OrderType;        // РўРёРї Р·Р°РєР°Р·Р°:
+			// РљР»РёРµРЅС‚СЃРєРёР№ вЂ” Р·Р°РєР°Р·, РїРѕСЃС‚СѓРїРёРІС€РёР№ РѕС‚ РїРѕРєСѓРїР°С‚РµР»СЏ
+			// Р’РѕР·РІСЂР°С‚ Р‘СЂР°РєР° вЂ” РІРѕР·РІСЂР°С‚ С‚РѕРІР°СЂР° РїСЂРѕРґР°РІС†Сѓ
+			// РџСЂРёРЅСѓРґРёС‚РµР»СЊРЅС‹Р№ РІРѕР·РІСЂР°С‚ вЂ” РІРѕР·РІСЂР°С‚ С‚РѕРІР°СЂР° РїСЂРѕРґР°РІС†Сѓ
+			// Р’РѕР·РІСЂР°С‚ РѕР±РµР·Р»РёС‡РєРё вЂ” РІРѕР·РІСЂР°С‚ С‚РѕРІР°СЂР° РїСЂРѕРґР°РІС†Сѓ
+			// Р’РѕР·РІСЂР°С‚ РќРµРІРµСЂРЅРѕРіРѕ Р’Р»РѕР¶РµРЅРёСЏ вЂ” РІРѕР·РІСЂР°С‚ С‚РѕРІР°СЂР° РїСЂРѕРґР°РІС†Сѓ
+			// Р’РѕР·РІСЂР°С‚ РџСЂРѕРґР°РІС†Р° вЂ” РІРѕР·РІСЂР°С‚ С‚РѕРІР°СЂР° РїСЂРѕРґР°РІС†Сѓ
+			// Р’РѕР·РІСЂР°С‚ РёР· РћС‚Р·С‹РІР° вЂ” РІРѕР·РІСЂР°С‚ С‚РѕРІР°СЂР° РїСЂРѕРґР°РІС†Сѓ
+			// РђРІС‚РѕР’РѕР·РІСЂР°С‚ РњРџ вЂ” РІРѕР·РІСЂР°С‚ С‚РѕРІР°СЂР° РїСЂРѕРґР°РІС†Сѓ
+			// РќРµРґРѕРєРѕРјРїР»РµРєС‚ (Р’РёРЅР° РїСЂРѕРґР°РІС†Р°) вЂ” РІРѕР·РІСЂР°С‚ С‚РѕРІР°СЂР° РїСЂРѕРґР°РІС†Сѓ
+			// Р’РѕР·РІСЂР°С‚ РљР“Рў вЂ” РІРѕР·РІСЂР°С‚ С‚РѕРІР°СЂР° РїСЂРѕРґР°РІС†Сѓ
+		SString Sticker; // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃС‚РёРєРµСЂР°
+		SString GNumber; // РќРѕРјРµСЂ Р·Р°РєР°Р·Р°
+		SString SrID;    // РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РєР°Р·Р°. РџСЂРёРјРµС‡Р°РЅРёРµ РґР»СЏ РёСЃРїРѕР»СЊР·СѓСЋС‰РёС… API РњР°СЂРєРµС‚РїР»РµР№СЃ: srid СЂР°РІРµРЅ rid РІ РѕС‚РІРµС‚Р°С… РјРµС‚РѕРґРѕРІ СЃР±РѕСЂРѕС‡РЅС‹С… Р·Р°РґР°РЅРёР№.
+			// РџСЂРѕРµС†РёСЂСѓРµС‚СЃСЏ РЅР° С‚РµРі PPTAG_LOT_ORGORDERIDENT
 	};
 	
 	struct SalesRepDbpEntry { // SalesReportDetailedByPeriod
@@ -240,81 +240,81 @@ public:
 		SalesRepDbpEntry & Z();
 		bool FromJsonObj(const SJson * pJs);
 
-		int64  RepId;                 // realizationreport_id Номер отчёта
-		int    RepType;               // report_type integer Тип отчёта: 1 — стандартный, 2 — для уведомления о выкупе
+		int64  RepId;                 // realizationreport_id РќРѕРјРµСЂ РѕС‚С‡С‘С‚Р°
+		int    RepType;               // report_type integer РўРёРї РѕС‚С‡С‘С‚Р°: 1 вЂ” СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№, 2 вЂ” РґР»СЏ СѓРІРµРґРѕРјР»РµРЅРёСЏ Рѕ РІС‹РєСѓРїРµ
 		DateRange Period;             // date_from, date_to
 		LDATE  CrDate;                // create_dt
 		char   CurrencySymb[8];       // currency_name
-		SString SupplierContractCode; // suppliercontract_code : object // Договор
-		int64  RrdId;                 // rrd_id Номер строки
-		int64  IncomeID;              // gi_id Номер поставки
-		SString SrID;                 // srid string Уникальный идентификатор заказа. Примечание для использующих API Marketplace: srid равен rid в ответах методов сборочных заданий.
-			// Проецируется на тег PPTAG_LOT_ORGORDERIDENT
-		WareBase Ware;                // Наименования полей отличаются от таких же в других методах!
+		SString SupplierContractCode; // suppliercontract_code : object // Р”РѕРіРѕРІРѕСЂ
+		int64  RrdId;                 // rrd_id РќРѕРјРµСЂ СЃС‚СЂРѕРєРё
+		int64  IncomeID;              // gi_id РќРѕРјРµСЂ РїРѕСЃС‚Р°РІРєРё
+		SString SrID;                 // srid string РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РєР°Р·Р°. РџСЂРёРјРµС‡Р°РЅРёРµ РґР»СЏ РёСЃРїРѕР»СЊР·СѓСЋС‰РёС… API Marketplace: srid СЂР°РІРµРЅ rid РІ РѕС‚РІРµС‚Р°С… РјРµС‚РѕРґРѕРІ СЃР±РѕСЂРѕС‡РЅС‹С… Р·Р°РґР°РЅРёР№.
+			// РџСЂРѕРµС†РёСЂСѓРµС‚СЃСЏ РЅР° С‚РµРі PPTAG_LOT_ORGORDERIDENT
+		WareBase Ware;                // РќР°РёРјРµРЅРѕРІР°РЅРёСЏ РїРѕР»РµР№ РѕС‚Р»РёС‡Р°СЋС‚СЃСЏ РѕС‚ С‚Р°РєРёС… Р¶Рµ РІ РґСЂСѓРіРёС… РјРµС‚РѕРґР°С…!
 			/*
-				subject_name string Предмет
-				nm_id integer Артикул WB
-				brand_name string Бренд
-				sa_name string Артикул продавца
-				ts_name string Размер
-				barcode string Баркод
+				subject_name string РџСЂРµРґРјРµС‚
+				nm_id integer РђСЂС‚РёРєСѓР» WB
+				brand_name string Р‘СЂРµРЅРґ
+				sa_name string РђСЂС‚РёРєСѓР» РїСЂРѕРґР°РІС†Р°
+				ts_name string Р Р°Р·РјРµСЂ
+				barcode string Р‘Р°СЂРєРѕРґ
 			*/
-		SString DocTypeName;            // Тип документа
-		SString Warehouse;              // office_name Склад
-		SString SupplOpName;            // supplier_oper_name Обоснование для оплаты
-			// Возмещение издержек по перевозке/по складским операциям с товаром
-			// Логистика
-			// Пересчет платной приемки
-			// Продажа
-			// Удержание
-			// Хранение
-		LDATETIME OrderDtm;             // order_dt <date-time> Дата заказа. Присылается с явным указанием часового пояса
-		LDATETIME SaleDtm;              // sale_dt <date-time> Дата продажи. Присылается с явным указанием часового пояса
-		LDATETIME RrDtm;                // rr_dt <date-time> Дата операции. Присылается с явным указанием часового пояса
-		int64  ShkId;                   // shk_id Штрих-код. Это - Sticker из заказа и продажи. 
-		SString BoxTypeName;            // gi_box_type_name Тип коробов
+		SString DocTypeName;            // РўРёРї РґРѕРєСѓРјРµРЅС‚Р°
+		SString Warehouse;              // office_name РЎРєР»Р°Рґ
+		SString SupplOpName;            // supplier_oper_name РћР±РѕСЃРЅРѕРІР°РЅРёРµ РґР»СЏ РѕРїР»Р°С‚С‹
+			// Р’РѕР·РјРµС‰РµРЅРёРµ РёР·РґРµСЂР¶РµРє РїРѕ РїРµСЂРµРІРѕР·РєРµ/РїРѕ СЃРєР»Р°РґСЃРєРёРј РѕРїРµСЂР°С†РёСЏРј СЃ С‚РѕРІР°СЂРѕРј
+			// Р›РѕРіРёСЃС‚РёРєР°
+			// РџРµСЂРµСЃС‡РµС‚ РїР»Р°С‚РЅРѕР№ РїСЂРёРµРјРєРё
+			// РџСЂРѕРґР°Р¶Р°
+			// РЈРґРµСЂР¶Р°РЅРёРµ
+			// РҐСЂР°РЅРµРЅРёРµ
+		LDATETIME OrderDtm;             // order_dt <date-time> Р”Р°С‚Р° Р·Р°РєР°Р·Р°. РџСЂРёСЃС‹Р»Р°РµС‚СЃСЏ СЃ СЏРІРЅС‹Рј СѓРєР°Р·Р°РЅРёРµРј С‡Р°СЃРѕРІРѕРіРѕ РїРѕСЏСЃР°
+		LDATETIME SaleDtm;              // sale_dt <date-time> Р”Р°С‚Р° РїСЂРѕРґР°Р¶Рё. РџСЂРёСЃС‹Р»Р°РµС‚СЃСЏ СЃ СЏРІРЅС‹Рј СѓРєР°Р·Р°РЅРёРµРј С‡Р°СЃРѕРІРѕРіРѕ РїРѕСЏСЃР°
+		LDATETIME RrDtm;                // rr_dt <date-time> Р”Р°С‚Р° РѕРїРµСЂР°С†РёРё. РџСЂРёСЃС‹Р»Р°РµС‚СЃСЏ СЃ СЏРІРЅС‹Рј СѓРєР°Р·Р°РЅРёРµРј С‡Р°СЃРѕРІРѕРіРѕ РїРѕСЏСЃР°
+		int64  ShkId;                   // shk_id РЁС‚СЂРёС…-РєРѕРґ. Р­С‚Рѕ - Sticker РёР· Р·Р°РєР°Р·Р° Рё РїСЂРѕРґР°Р¶Рё. 
+		SString BoxTypeName;            // gi_box_type_name РўРёРї РєРѕСЂРѕР±РѕРІ
 		SString SupplPromo;             // supplier_promo number
-		int64  RId;                     // Уникальный идентификатор заказа 
-		int    Ppvz_OfficeId;           // ppvz_office_id integer Номер офиса
-		int    Ppvz_SupplierId;         // ppvz_supplier_id integer Номер партнера
-		SString AcquiringBank;          // acquiring_bank string Наименование банка-эквайера
-		SString Ppvz_OfficeName;        // ppvz_office_name string Наименование офиса доставки
-		SString Ppvz_SupplierName;      // ppvz_supplier_name string Партнер
-		SString Ppvz_Inn;               // ppvz_inn string ИНН партнера
-		SString Clb;                    // declaration_number string Номер таможенной декларации
-		SString BonusTypeName;          // bonus_type_name string Обоснование штрафов и доплат. Поле будет в ответе при наличии значения
-		SString Sticker;                // sticker_id string Цифровое значение стикера, который клеится на товар в процессе сборки заказа по схеме "Маркетплейс"
-		SString Country;                // site_country string Страна продажи
-		SString RebillLogisticOrg;      // rebill_logistic_org string Организатор перевозки. Поле будет в ответе при наличии значения
-		SString Kiz;                    // Марка чзн 
-		int    DeliveryCount;           // delivery_amount Количество доставок
-		int    ReturnCount;             // return_amount   Количество возвратов
-		double Qtty;                    // Количество
-		double RetailPrice;             // Цена розничная
-		double RetailAmount;            // Сумма продаж (возвратов)
-		double SalePct;                 // Согласованная скидка
-		double CommissionPct;           // Процент комиссии
-		double RetailPriceWithDiscount; // retail_price_withdisc_rub Цена розничная с учетом согласованной скидки
-		double DeliveryAmount;          // delivery_rub    Стоимость логистики
-		double ProductDiscount;         // Согласованный продуктовый дисконт
-		double Ppvz_Spp_Prc;          // ppvz_spp_prc Скидка постоянного покупателя   
-		double Ppvz_Kvw_Prc_Base;     // ppvz_kvw_prc_base number Размер кВВ без НДС, % базовый
-		double Ppvz_Kvw_Prc;          // ppvz_kvw_prc number Итоговый кВВ без НДС, %
-		double Sup_Rating_Prc_Up;     // sup_rating_prc_up number Размер снижения кВВ из-за рейтинга
-		double IS_Kgvp_V2;            // is_kgvp_v2 number Размер снижения кВВ из-за акции
-		double Ppvz_Sales_Commission; // ppvz_sales_commission number Вознаграждение с продаж до вычета услуг поверенного, без НДС
-		double Ppvz_For_Pay;          // ppvz_for_pay number К перечислению продавцу за реализованный товар
-		double Ppvz_Reward;           // ppvz_reward	number Возмещение за выдачу и возврат товаров на ПВЗ
-		double AcquiringFee;          // acquiring_fee number Возмещение издержек по эквайрингу. Издержки WB за услуги эквайринга: вычитаются из вознаграждения WB и не влияют на доход продавца.
-		double AcquiringPct;          // acquiring_percent number Размер комиссии за эквайринг без НДС, %
-		double Ppvz_Vw;               // ppvz_vw number Вознаграждение WB без НДС
-		double Ppvz_Vw_Vat;           // ppvz_vw_nds number НДС с вознаграждения WB
-		double Penalty;               // penalty number Штрафы
-		double AdditionalPayment;     // additional_payment number Доплаты
-		double RebillLogisticCost;    // rebill_logistic_cost number Возмещение издержек по перевозке. Поле будет в ответе при наличии значения
-		double StorageFee;            // storage_fee number Стоимость хранения
-		double Deduction;             // deduction number Прочие удержания/выплаты
-		double Acceptance;            // acceptance number Стоимость платной приёмки
+		int64  RId;                     // РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РєР°Р·Р° 
+		int    Ppvz_OfficeId;           // ppvz_office_id integer РќРѕРјРµСЂ РѕС„РёСЃР°
+		int    Ppvz_SupplierId;         // ppvz_supplier_id integer РќРѕРјРµСЂ РїР°СЂС‚РЅРµСЂР°
+		SString AcquiringBank;          // acquiring_bank string РќР°РёРјРµРЅРѕРІР°РЅРёРµ Р±Р°РЅРєР°-СЌРєРІР°Р№РµСЂР°
+		SString Ppvz_OfficeName;        // ppvz_office_name string РќР°РёРјРµРЅРѕРІР°РЅРёРµ РѕС„РёСЃР° РґРѕСЃС‚Р°РІРєРё
+		SString Ppvz_SupplierName;      // ppvz_supplier_name string РџР°СЂС‚РЅРµСЂ
+		SString Ppvz_Inn;               // ppvz_inn string РРќРќ РїР°СЂС‚РЅРµСЂР°
+		SString Clb;                    // declaration_number string РќРѕРјРµСЂ С‚Р°РјРѕР¶РµРЅРЅРѕР№ РґРµРєР»Р°СЂР°С†РёРё
+		SString BonusTypeName;          // bonus_type_name string РћР±РѕСЃРЅРѕРІР°РЅРёРµ С€С‚СЂР°С„РѕРІ Рё РґРѕРїР»Р°С‚. РџРѕР»Рµ Р±СѓРґРµС‚ РІ РѕС‚РІРµС‚Рµ РїСЂРё РЅР°Р»РёС‡РёРё Р·РЅР°С‡РµРЅРёСЏ
+		SString Sticker;                // sticker_id string Р¦РёС„СЂРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ СЃС‚РёРєРµСЂР°, РєРѕС‚РѕСЂС‹Р№ РєР»РµРёС‚СЃСЏ РЅР° С‚РѕРІР°СЂ РІ РїСЂРѕС†РµСЃСЃРµ СЃР±РѕСЂРєРё Р·Р°РєР°Р·Р° РїРѕ СЃС…РµРјРµ "РњР°СЂРєРµС‚РїР»РµР№СЃ"
+		SString Country;                // site_country string РЎС‚СЂР°РЅР° РїСЂРѕРґР°Р¶Рё
+		SString RebillLogisticOrg;      // rebill_logistic_org string РћСЂРіР°РЅРёР·Р°С‚РѕСЂ РїРµСЂРµРІРѕР·РєРё. РџРѕР»Рµ Р±СѓРґРµС‚ РІ РѕС‚РІРµС‚Рµ РїСЂРё РЅР°Р»РёС‡РёРё Р·РЅР°С‡РµРЅРёСЏ
+		SString Kiz;                    // РњР°СЂРєР° С‡Р·РЅ 
+		int    DeliveryCount;           // delivery_amount РљРѕР»РёС‡РµСЃС‚РІРѕ РґРѕСЃС‚Р°РІРѕРє
+		int    ReturnCount;             // return_amount   РљРѕР»РёС‡РµСЃС‚РІРѕ РІРѕР·РІСЂР°С‚РѕРІ
+		double Qtty;                    // РљРѕР»РёС‡РµСЃС‚РІРѕ
+		double RetailPrice;             // Р¦РµРЅР° СЂРѕР·РЅРёС‡РЅР°СЏ
+		double RetailAmount;            // РЎСѓРјРјР° РїСЂРѕРґР°Р¶ (РІРѕР·РІСЂР°С‚РѕРІ)
+		double SalePct;                 // РЎРѕРіР»Р°СЃРѕРІР°РЅРЅР°СЏ СЃРєРёРґРєР°
+		double CommissionPct;           // РџСЂРѕС†РµРЅС‚ РєРѕРјРёСЃСЃРёРё
+		double RetailPriceWithDiscount; // retail_price_withdisc_rub Р¦РµРЅР° СЂРѕР·РЅРёС‡РЅР°СЏ СЃ СѓС‡РµС‚РѕРј СЃРѕРіР»Р°СЃРѕРІР°РЅРЅРѕР№ СЃРєРёРґРєРё
+		double DeliveryAmount;          // delivery_rub    РЎС‚РѕРёРјРѕСЃС‚СЊ Р»РѕРіРёСЃС‚РёРєРё
+		double ProductDiscount;         // РЎРѕРіР»Р°СЃРѕРІР°РЅРЅС‹Р№ РїСЂРѕРґСѓРєС‚РѕРІС‹Р№ РґРёСЃРєРѕРЅС‚
+		double Ppvz_Spp_Prc;          // ppvz_spp_prc РЎРєРёРґРєР° РїРѕСЃС‚РѕСЏРЅРЅРѕРіРѕ РїРѕРєСѓРїР°С‚РµР»СЏ   
+		double Ppvz_Kvw_Prc_Base;     // ppvz_kvw_prc_base number Р Р°Р·РјРµСЂ РєР’Р’ Р±РµР· РќР”РЎ, % Р±Р°Р·РѕРІС‹Р№
+		double Ppvz_Kvw_Prc;          // ppvz_kvw_prc number РС‚РѕРіРѕРІС‹Р№ РєР’Р’ Р±РµР· РќР”РЎ, %
+		double Sup_Rating_Prc_Up;     // sup_rating_prc_up number Р Р°Р·РјРµСЂ СЃРЅРёР¶РµРЅРёСЏ РєР’Р’ РёР·-Р·Р° СЂРµР№С‚РёРЅРіР°
+		double IS_Kgvp_V2;            // is_kgvp_v2 number Р Р°Р·РјРµСЂ СЃРЅРёР¶РµРЅРёСЏ РєР’Р’ РёР·-Р·Р° Р°РєС†РёРё
+		double Ppvz_Sales_Commission; // ppvz_sales_commission number Р’РѕР·РЅР°РіСЂР°Р¶РґРµРЅРёРµ СЃ РїСЂРѕРґР°Р¶ РґРѕ РІС‹С‡РµС‚Р° СѓСЃР»СѓРі РїРѕРІРµСЂРµРЅРЅРѕРіРѕ, Р±РµР· РќР”РЎ
+		double Ppvz_For_Pay;          // ppvz_for_pay number Рљ РїРµСЂРµС‡РёСЃР»РµРЅРёСЋ РїСЂРѕРґР°РІС†Сѓ Р·Р° СЂРµР°Р»РёР·РѕРІР°РЅРЅС‹Р№ С‚РѕРІР°СЂ
+		double Ppvz_Reward;           // ppvz_reward	number Р’РѕР·РјРµС‰РµРЅРёРµ Р·Р° РІС‹РґР°С‡Сѓ Рё РІРѕР·РІСЂР°С‚ С‚РѕРІР°СЂРѕРІ РЅР° РџР’Р—
+		double AcquiringFee;          // acquiring_fee number Р’РѕР·РјРµС‰РµРЅРёРµ РёР·РґРµСЂР¶РµРє РїРѕ СЌРєРІР°Р№СЂРёРЅРіСѓ. РР·РґРµСЂР¶РєРё WB Р·Р° СѓСЃР»СѓРіРё СЌРєРІР°Р№СЂРёРЅРіР°: РІС‹С‡РёС‚Р°СЋС‚СЃСЏ РёР· РІРѕР·РЅР°РіСЂР°Р¶РґРµРЅРёСЏ WB Рё РЅРµ РІР»РёСЏСЋС‚ РЅР° РґРѕС…РѕРґ РїСЂРѕРґР°РІС†Р°.
+		double AcquiringPct;          // acquiring_percent number Р Р°Р·РјРµСЂ РєРѕРјРёСЃСЃРёРё Р·Р° СЌРєРІР°Р№СЂРёРЅРі Р±РµР· РќР”РЎ, %
+		double Ppvz_Vw;               // ppvz_vw number Р’РѕР·РЅР°РіСЂР°Р¶РґРµРЅРёРµ WB Р±РµР· РќР”РЎ
+		double Ppvz_Vw_Vat;           // ppvz_vw_nds number РќР”РЎ СЃ РІРѕР·РЅР°РіСЂР°Р¶РґРµРЅРёСЏ WB
+		double Penalty;               // penalty number РЁС‚СЂР°С„С‹
+		double AdditionalPayment;     // additional_payment number Р”РѕРїР»Р°С‚С‹
+		double RebillLogisticCost;    // rebill_logistic_cost number Р’РѕР·РјРµС‰РµРЅРёРµ РёР·РґРµСЂР¶РµРє РїРѕ РїРµСЂРµРІРѕР·РєРµ. РџРѕР»Рµ Р±СѓРґРµС‚ РІ РѕС‚РІРµС‚Рµ РїСЂРё РЅР°Р»РёС‡РёРё Р·РЅР°С‡РµРЅРёСЏ
+		double StorageFee;            // storage_fee number РЎС‚РѕРёРјРѕСЃС‚СЊ С…СЂР°РЅРµРЅРёСЏ
+		double Deduction;             // deduction number РџСЂРѕС‡РёРµ СѓРґРµСЂР¶Р°РЅРёСЏ/РІС‹РїР»Р°С‚С‹
+		double Acceptance;            // acceptance number РЎС‚РѕРёРјРѕСЃС‚СЊ РїР»Р°С‚РЅРѕР№ РїСЂРёС‘РјРєРё
 	};
 
 	PPMarketplaceInterface_Wildberries(PrcssrMarketplaceInterchange & rPrc) : PPMarketplaceInterface("WILDBERRIES", rPrc), Lth(PPFILNAM_MRKTPLCWBTALK_LOG)
@@ -336,16 +336,16 @@ public:
 	//
 	int   RequestCommission();
 	//
-	// Замечание по поводу методов RequestWarehouseList и RequestWarehouseList2.
-	// Первый использует метод WB https://supplies-api.wildberries.ru/api/v1/warehouses,
-	// второй - https://marketplace-api.wildberries.ru/api/v3/offices.
-	// Я не понимаю кто все это там делал, но оба метода возвращают разные количества складов, с
-	// несовместимыми идентификаторами и разными наименованиями. При этом все методы WB предоставляют только
-	// наименованования скадов и далеко не всегда наименование в виде ссылки может быть сопоставлено
-	// с каким-либо складом, возвращенным хоть первым, хоть вторым методом.
+	// Р—Р°РјРµС‡Р°РЅРёРµ РїРѕ РїРѕРІРѕРґСѓ РјРµС‚РѕРґРѕРІ RequestWarehouseList Рё RequestWarehouseList2.
+	// РџРµСЂРІС‹Р№ РёСЃРїРѕР»СЊР·СѓРµС‚ РјРµС‚РѕРґ WB https://supplies-api.wildberries.ru/api/v1/warehouses,
+	// РІС‚РѕСЂРѕР№ - https://marketplace-api.wildberries.ru/api/v3/offices.
+	// РЇ РЅРµ РїРѕРЅРёРјР°СЋ РєС‚Рѕ РІСЃРµ СЌС‚Рѕ С‚Р°Рј РґРµР»Р°Р», РЅРѕ РѕР±Р° РјРµС‚РѕРґР° РІРѕР·РІСЂР°С‰Р°СЋС‚ СЂР°Р·РЅС‹Рµ РєРѕР»РёС‡РµСЃС‚РІР° СЃРєР»Р°РґРѕРІ, СЃ
+	// РЅРµСЃРѕРІРјРµСЃС‚РёРјС‹РјРё РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°РјРё Рё СЂР°Р·РЅС‹РјРё РЅР°РёРјРµРЅРѕРІР°РЅРёСЏРјРё. РџСЂРё СЌС‚РѕРј РІСЃРµ РјРµС‚РѕРґС‹ WB РїСЂРµРґРѕСЃС‚Р°РІР»СЏСЋС‚ С‚РѕР»СЊРєРѕ
+	// РЅР°РёРјРµРЅРѕРІР°РЅРѕРІР°РЅРёСЏ СЃРєР°РґРѕРІ Рё РґР°Р»РµРєРѕ РЅРµ РІСЃРµРіРґР° РЅР°РёРјРµРЅРѕРІР°РЅРёРµ РІ РІРёРґРµ СЃСЃС‹Р»РєРё РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРѕ
+	// СЃ РєР°РєРёРј-Р»РёР±Рѕ СЃРєР»Р°РґРѕРј, РІРѕР·РІСЂР°С‰РµРЅРЅС‹Рј С…РѕС‚СЊ РїРµСЂРІС‹Рј, С…РѕС‚СЊ РІС‚РѕСЂС‹Рј РјРµС‚РѕРґРѕРј.
 	// 
-	// Короче говоря, сейчас будем закладываться на первый вариант (methWarehouses aka https://supplies-api.wildberries.ru/api/v1/warehouses)
-	// а дальше посмотрим.
+	// РљРѕСЂРѕС‡Рµ РіРѕРІРѕСЂСЏ, СЃРµР№С‡Р°СЃ Р±СѓРґРµРј Р·Р°РєР»Р°РґС‹РІР°С‚СЊСЃСЏ РЅР° РїРµСЂРІС‹Р№ РІР°СЂРёР°РЅС‚ (methWarehouses aka https://supplies-api.wildberries.ru/api/v1/warehouses)
+	// Р° РґР°Р»СЊС€Рµ РїРѕСЃРјРѕС‚СЂРёРј.
 	//
 	int   RequestWarehouseList(TSCollection <Warehouse> & rList);
 	int   RequestWarehouseList2(TSCollection <Warehouse> & rList);
@@ -378,11 +378,11 @@ private:
 	int   InsertReceiptItem(PPBillPacket & rPack, const char * pSerial, PPID goodsID, double qtty);
 	//
 	// Descr: 
-	// ARG(surrogateAutoLot IN): Признак того, что создается суррогатный приход, не имеющий соответствия реальному документу на маркетплейсе,
-	//   поскольку маркетплейс по той или иной причине не предоставил соответствующей информации.
+	// ARG(surrogateAutoLot IN): РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ СЃРѕР·РґР°РµС‚СЃСЏ СЃСѓСЂСЂРѕРіР°С‚РЅС‹Р№ РїСЂРёС…РѕРґ, РЅРµ РёРјРµСЋС‰РёР№ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ СЂРµР°Р»СЊРЅРѕРјСѓ РґРѕРєСѓРјРµРЅС‚Сѓ РЅР° РјР°СЂРєРµС‚РїР»РµР№СЃРµ,
+	//   РїРѕСЃРєРѕР»СЊРєСѓ РјР°СЂРєРµС‚РїР»РµР№СЃ РїРѕ С‚РѕР№ РёР»Рё РёРЅРѕР№ РїСЂРёС‡РёРЅРµ РЅРµ РїСЂРµРґРѕСЃС‚Р°РІРёР» СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµР№ РёРЅС„РѕСЂРјР°С†РёРё.
 	// Returns:
 	//   0 - error
-	//   >0 - ид лота
+	//   >0 - РёРґ Р»РѕС‚Р°
 	//
 	PPID  CreateReceipt(int64 incomeId, const WareBase & rWare, LDATE dt, PPID locID, PPID goodsID, double qtty, bool surrogateAutoLot, int use_ta);
 	PPID  CreateBuyer(const Sale * pSaleEntry, int use_ta);
@@ -392,7 +392,7 @@ private:
 	// Descr: 
 	// Returns:
 	//   0 - error
-	//   >0 - ид лота, к которому должна быть привязана продажа
+	//   >0 - РёРґ Р»РѕС‚Р°, Рє РєРѕС‚РѕСЂРѕРјСѓ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РїСЂРёРІСЏР·Р°РЅР° РїСЂРѕРґР°Р¶Р°
 	//
 	PPID  AdjustReceiptOnExpend(const Sale & rWbItem, LDATE dt, PPID locID, PPID goodsID, double neededQtty, double nominalPrice, int use_ta);
 	int   SearchOriginalLotForMp(const char * pSerial, LDATE dt, PPID locID, PPID goodsID, PPID * pResultLotID);
@@ -444,9 +444,9 @@ private:
 		methOrders,           // apiStatistics
 		methSales,            // apiStatistics
 		methSalesReportDetailedByPeriod, // apiStatistics https://statistics-api.wildberries.ru/api/v5/supplier/reportDetailByPeriod
-		methSupples,          // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/supplies Получить список поставок
-		methSupply,           // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/supplies/{supplyId} Получить поставку
-		methSupplyOrders,     // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/supplies/{supplyId}/orders Получить сборочные задания в поставке
+		methSupples,          // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/supplies РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РїРѕСЃС‚Р°РІРѕРє
+		methSupply,           // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/supplies/{supplyId} РџРѕР»СѓС‡РёС‚СЊ РїРѕСЃС‚Р°РІРєСѓ
+		methSupplyOrders,     // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/supplies/{supplyId}/orders РџРѕР»СѓС‡РёС‚СЊ СЃР±РѕСЂРѕС‡РЅС‹Рµ Р·Р°РґР°РЅРёСЏ РІ РїРѕСЃС‚Р°РІРєРµ
 		methAcceptanceReport, // apiAnalytics   https://seller-analytics-api.wildberries.ru/api/v1/analytics/acceptance-report
 		methGoodsPrices,      // apiDiscountsPrices https://discounts-prices-api.wildberries.ru/api/v2/list/goods/filter
 		methContentCardsList, // apiContent https://content-api.wildberries.ru/content/v2/get/cards/list
@@ -567,9 +567,9 @@ private:
 	SString Token;
 	PPGlobalServiceLogTalkingHelper Lth;
 	TSCollection <Warehouse> WhList;
-	PPIDArray MpLocList; // Список идентификаторов складов маркетплейса, применяемых при обработке документов
-	LAssocArray MpLotToOwnLotAssocList; // Специализированный кэш, хранящий ассоциации между лотами на складах маркетплейса и лотами,
-		// из которых они образовались на собственных складах. Фактически, этот массив кэширует результат работы функции SearchOriginalLotForMp
+	PPIDArray MpLocList; // РЎРїРёСЃРѕРє РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ СЃРєР»Р°РґРѕРІ РјР°СЂРєРµС‚РїР»РµР№СЃР°, РїСЂРёРјРµРЅСЏРµРјС‹С… РїСЂРё РѕР±СЂР°Р±РѕС‚РєРµ РґРѕРєСѓРјРµРЅС‚РѕРІ
+	LAssocArray MpLotToOwnLotAssocList; // РЎРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹Р№ РєСЌС€, С…СЂР°РЅСЏС‰РёР№ Р°СЃСЃРѕС†РёР°С†РёРё РјРµР¶РґСѓ Р»РѕС‚Р°РјРё РЅР° СЃРєР»Р°РґР°С… РјР°СЂРєРµС‚РїР»РµР№СЃР° Рё Р»РѕС‚Р°РјРё,
+		// РёР· РєРѕС‚РѕСЂС‹С… РѕРЅРё РѕР±СЂР°Р·РѕРІР°Р»РёСЃСЊ РЅР° СЃРѕР±СЃС‚РІРµРЅРЅС‹С… СЃРєР»Р°РґР°С…. Р¤Р°РєС‚РёС‡РµСЃРєРё, СЌС‚РѕС‚ РјР°СЃСЃРёРІ РєСЌС€РёСЂСѓРµС‚ СЂРµР·СѓР»СЊС‚Р°С‚ СЂР°Р±РѕС‚С‹ С„СѓРЅРєС†РёРё SearchOriginalLotForMp
 };
 
 int PPMarketplaceInterface::Init(PPID guaID)
@@ -1972,10 +1972,10 @@ int PPMarketplaceInterface_Wildberries::RequestSalesReportDetailedByPeriod(const
 		Query parameters:
 
 		dateFrom required string <RFC3339>
-			Начальная дата отчета.
-			Дата в формате RFC3339. Можно передать дату или дату со временем. Время можно указывать с точностью до секунд или миллисекунд.
-			Время передаётся в часовом поясе Мск (UTC+3).
-			Примеры:
+			РќР°С‡Р°Р»СЊРЅР°СЏ РґР°С‚Р° РѕС‚С‡РµС‚Р°.
+			Р”Р°С‚Р° РІ С„РѕСЂРјР°С‚Рµ RFC3339. РњРѕР¶РЅРѕ РїРµСЂРµРґР°С‚СЊ РґР°С‚Сѓ РёР»Рё РґР°С‚Сѓ СЃРѕ РІСЂРµРјРµРЅРµРј. Р’СЂРµРјСЏ РјРѕР¶РЅРѕ СѓРєР°Р·С‹РІР°С‚СЊ СЃ С‚РѕС‡РЅРѕСЃС‚СЊСЋ РґРѕ СЃРµРєСѓРЅРґ РёР»Рё РјРёР»Р»РёСЃРµРєСѓРЅРґ.
+			Р’СЂРµРјСЏ РїРµСЂРµРґР°С‘С‚СЃСЏ РІ С‡Р°СЃРѕРІРѕРј РїРѕСЏСЃРµ РњСЃРє (UTC+3).
+			РџСЂРёРјРµСЂС‹:
 
 				2019-06-20
 				2019-06-20T23:59:59
@@ -1983,15 +1983,15 @@ int PPMarketplaceInterface_Wildberries::RequestSalesReportDetailedByPeriod(const
 				2017-03-25T00:00:00 
 
 		limit integer Default: 100000
-			Максимальное количество строк отчета, возвращаемых методом. Не может быть более 100000.
+			РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє РѕС‚С‡РµС‚Р°, РІРѕР·РІСЂР°С‰Р°РµРјС‹С… РјРµС‚РѕРґРѕРј. РќРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»РµРµ 100000.
 
 		dateTo required string <date>
-			Конечная дата отчета
+			РљРѕРЅРµС‡РЅР°СЏ РґР°С‚Р° РѕС‚С‡РµС‚Р°
 
 		rrdid integer
-			Уникальный идентификатор строки отчета. Необходим для получения отчета частями.
-			Загрузку отчета нужно начинать с rrdid = 0 и при последующих вызовах API передавать в запросе значение rrd_id из последней строки, полученной в результате предыдущего вызова.
-			Таким образом для загрузки одного отчета может понадобиться вызывать API до тех пор, пока количество возвращаемых строк не станет равным нулю.
+			РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃС‚СЂРѕРєРё РѕС‚С‡РµС‚Р°. РќРµРѕР±С…РѕРґРёРј РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РѕС‚С‡РµС‚Р° С‡Р°СЃС‚СЏРјРё.
+			Р—Р°РіСЂСѓР·РєСѓ РѕС‚С‡РµС‚Р° РЅСѓР¶РЅРѕ РЅР°С‡РёРЅР°С‚СЊ СЃ rrdid = 0 Рё РїСЂРё РїРѕСЃР»РµРґСѓСЋС‰РёС… РІС‹Р·РѕРІР°С… API РїРµСЂРµРґР°РІР°С‚СЊ РІ Р·Р°РїСЂРѕСЃРµ Р·РЅР°С‡РµРЅРёРµ rrd_id РёР· РїРѕСЃР»РµРґРЅРµР№ СЃС‚СЂРѕРєРё, РїРѕР»СѓС‡РµРЅРЅРѕР№ РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РїСЂРµРґС‹РґСѓС‰РµРіРѕ РІС‹Р·РѕРІР°.
+			РўР°РєРёРј РѕР±СЂР°Р·РѕРј РґР»СЏ Р·Р°РіСЂСѓР·РєРё РѕРґРЅРѕРіРѕ РѕС‚С‡РµС‚Р° РјРѕР¶РµС‚ РїРѕРЅР°РґРѕР±РёС‚СЊСЃСЏ РІС‹Р·С‹РІР°С‚СЊ API РґРѕ С‚РµС… РїРѕСЂ, РїРѕРєР° РєРѕР»РёС‡РµСЃС‚РІРѕ РІРѕР·РІСЂР°С‰Р°РµРјС‹С… СЃС‚СЂРѕРє РЅРµ СЃС‚Р°РЅРµС‚ СЂР°РІРЅС‹Рј РЅСѓР»СЋ.
 	*/
 	THROW(Helper_InitRequest(methSalesReportDetailedByPeriod, url_buf, hdr_flds));
 	{
@@ -2079,7 +2079,7 @@ int PPMarketplaceInterface_Wildberries::CreateWarehouse(PPID * pID, int64 outerI
 				ok = 1;
 			}
 			else {
-				PPID   parent_id = 0; // Идентификатор папки для складов маркетплейса.
+				PPID   parent_id = 0; // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїР°РїРєРё РґР»СЏ СЃРєР»Р°РґРѕРІ РјР°СЂРєРµС‚РїР»РµР№СЃР°.
 				PPLocationPacket loc_pack;
 				THROW(!isempty(pOuterName));
 				{
@@ -2446,7 +2446,7 @@ int PPMarketplaceInterface_Wildberries::ImportReceipts()
 				if(goods_id) {
 					bill_code.Z().Cat(p_wb_item->IncomeID);
 					if(p_bobj->P_Tbl->SearchByCode(bill_code, rcpt_op_id, ZERODATE, &ex_bill_rec) > 0) {
-						// Поступление на склад '%s' уже акцептировано ранее
+						// РџРѕСЃС‚СѓРїР»РµРЅРёРµ РЅР° СЃРєР»Р°Рґ '%s' СѓР¶Рµ Р°РєС†РµРїС‚РёСЂРѕРІР°РЅРѕ СЂР°РЅРµРµ
 						PPBillPacket ex_pack;
 						if(p_bobj->ExtractPacket(ex_bill_rec.ID, &ex_pack) > 0) {
 							uint   goods_idx = 0;
@@ -2590,8 +2590,8 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(const Sale & rWbI
 					adj_date = dt;
 					do_update = true;
 					//
-					down_lim = lot_rec.Rest; // Если дата лота превышала дату создаваемой расходной операции, то остаток, 
-						// доступный для расхода равен тепкущему остатку лота (с учетом того факта, что мы переместим лот назад по времени)
+					down_lim = lot_rec.Rest; // Р•СЃР»Рё РґР°С‚Р° Р»РѕС‚Р° РїСЂРµРІС‹С€Р°Р»Р° РґР°С‚Сѓ СЃРѕР·РґР°РІР°РµРјРѕР№ СЂР°СЃС…РѕРґРЅРѕР№ РѕРїРµСЂР°С†РёРё, С‚Рѕ РѕСЃС‚Р°С‚РѕРє, 
+						// РґРѕСЃС‚СѓРїРЅС‹Р№ РґР»СЏ СЂР°СЃС…РѕРґР° СЂР°РІРµРЅ С‚РµРїРєСѓС‰РµРјСѓ РѕСЃС‚Р°С‚РєСѓ Р»РѕС‚Р° (СЃ СѓС‡РµС‚РѕРј С‚РѕРіРѕ С„Р°РєС‚Р°, С‡С‚Рѕ РјС‹ РїРµСЂРµРјРµСЃС‚РёРј Р»РѕС‚ РЅР°Р·Р°Рґ РїРѕ РІСЂРµРјРµРЅРё)
 				}
 				else {
 					p_bobj->trfr->GetBounds(lot_id, dt, -1, &down_lim, &up_lim);
@@ -2664,8 +2664,8 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 		SString ord_bill_code;
 		SString serial_buf;
 		SString ord_serial_buf;
-		SString org_order_ident; // Оригинальный идентификатор строки заказа
-		PPIDArray mp_lot_list; // Список идентификаторов лотов на маркетплейсе, "увиденных" при обработке документов
+		SString org_order_ident; // РћСЂРёРіРёРЅР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃС‚СЂРѕРєРё Р·Р°РєР°Р·Р°
+		PPIDArray mp_lot_list; // РЎРїРёСЃРѕРє РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ Р»РѕС‚РѕРІ РЅР° РјР°СЂРєРµС‚РїР»РµР№СЃРµ, "СѓРІРёРґРµРЅРЅС‹С…" РїСЂРё РѕР±СЂР°Р±РѕС‚РєРµ РґРѕРєСѓРјРµРЅС‚РѕРІ
 		for(uint i = 0; i < sale_list.getCount(); i++) {
 			const PPMarketplaceInterface_Wildberries::Sale * p_wb_item = sale_list.at(i);
 			if(p_wb_item) {
@@ -2680,8 +2680,8 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 				bill_code.Z().Cat(p_wb_item->SaleId);
 				ord_bill_code.Z().Cat(p_wb_item->GNumber);
 				if(p_bobj->P_Tbl->SearchByCode(bill_code, sale_op_id, ZERODATE, &ex_bill_rec) > 0) {
-					// Документ уже акцептирован.
-					// Увы, все равно придется его открыть - нужен список лотов, которые он использует и, возможно, надо установить какие-то суммы.
+					// Р”РѕРєСѓРјРµРЅС‚ СѓР¶Рµ Р°РєС†РµРїС‚РёСЂРѕРІР°РЅ.
+					// РЈРІС‹, РІСЃРµ СЂР°РІРЅРѕ РїСЂРёРґРµС‚СЃСЏ РµРіРѕ РѕС‚РєСЂС‹С‚СЊ - РЅСѓР¶РµРЅ СЃРїРёСЃРѕРє Р»РѕС‚РѕРІ, РєРѕС‚РѕСЂС‹Рµ РѕРЅ РёСЃРїРѕР»СЊР·СѓРµС‚ Рё, РІРѕР·РјРѕР¶РЅРѕ, РЅР°РґРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РєР°РєРёРµ-С‚Рѕ СЃСѓРјРјС‹.
 					PPBillPacket ex_pack;
 					THROW(p_bobj->ExtractPacketWithFlags(ex_bill_rec.ID, &ex_pack, BPLD_FORCESERIALS) > 0);
 					{
@@ -2739,14 +2739,14 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 									nominal_price = p_wb_item->TotalPrice;
 								else
 									nominal_price = p_wb_item->FinishedPrice;
-								// Предполагаем, что на маркетплейсе заказ может прийти только тогда, когда товар уже есть на складе.
-								// Таким образом, дата прихода должна быть не больше даты заказа.
+								// РџСЂРµРґРїРѕР»Р°РіР°РµРј, С‡С‚Рѕ РЅР° РјР°СЂРєРµС‚РїР»РµР№СЃРµ Р·Р°РєР°Р· РјРѕР¶РµС‚ РїСЂРёР№С‚Рё С‚РѕР»СЊРєРѕ С‚РѕРіРґР°, РєРѕРіРґР° С‚РѕРІР°СЂ СѓР¶Рµ РµСЃС‚СЊ РЅР° СЃРєР»Р°РґРµ.
+								// РўР°РєРёРј РѕР±СЂР°Р·РѕРј, РґР°С‚Р° РїСЂРёС…РѕРґР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РЅРµ Р±РѕР»СЊС€Рµ РґР°С‚С‹ Р·Р°РєР°Р·Р°.
 								const  LDATE lot_date = checkdate(ord_pack.Rec.Dt) ? ord_pack.Rec.Dt : pack.Rec.Dt;
 								PPID   lot_id = AdjustReceiptOnExpend(*p_wb_item, lot_date, wh_id, goods_id, sold_quantity, nominal_price, 1/*use_ta*/);
 								if(lot_id) {
 									mp_lot_list.add(lot_id);
 									uint   ord_ti_idx = 0; // [1..]
-									org_order_ident.Z(); // Оригинальный идентификатор строки заказа
+									org_order_ident.Z(); // РћСЂРёРіРёРЅР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃС‚СЂРѕРєРё Р·Р°РєР°Р·Р°
 									for(uint oti = 0; !ord_ti_idx && oti < ord_pack.GetTCount(); oti++) {
 										const PPTransferItem & r_ord_ti = ord_pack.ConstTI(oti);
 										if(labs(r_ord_ti.GoodsID) == goods_id) {
@@ -2766,7 +2766,7 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 									}
 									if(!ord_ti_idx) {
 										// @todo @err
-										// Не удалось найти заказ, который закрывается документом продажи %s
+										// РќРµ СѓРґР°Р»РѕСЃСЊ РЅР°Р№С‚Рё Р·Р°РєР°Р·, РєРѕС‚РѕСЂС‹Р№ Р·Р°РєСЂС‹РІР°РµС‚СЃСЏ РґРѕРєСѓРјРµРЅС‚РѕРј РїСЂРѕРґР°Р¶Рё %s
 										PPLoadText(PPTXT_MP_ORDERFORSALESITEMNFOUND, fmt_buf);
 										(temp_buf = bill_code).CatDiv('-', 1).Cat(p_wb_item->Dtm.d, DATF_DMY);
 										msg_buf.Printf(fmt_buf, temp_buf.cptr());
@@ -2816,7 +2816,7 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 					}
 				}
 				else {
-					// Документ заказа не найден
+					// Р”РѕРєСѓРјРµРЅС‚ Р·Р°РєР°Р·Р° РЅРµ РЅР°Р№РґРµРЅ
 					PPLoadText(PPTXT_MP_ORDERFORSALESITEMNFOUND, fmt_buf);
 					(temp_buf = bill_code).CatDiv('-', 1).Cat(p_wb_item->Dtm.d, DATF_DMY);
 					msg_buf.Printf(fmt_buf, temp_buf.cptr());
@@ -2940,8 +2940,8 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 										}
 										{
 											//
-											// Если покупатель заказал несколько штук одного и того же, то каждая штука
-											// будет задана отдельным документом заказа, но все эти документы будут содержать одно и то же значение GNumber
+											// Р•СЃР»Рё РїРѕРєСѓРїР°С‚РµР»СЊ Р·Р°РєР°Р·Р°Р» РЅРµСЃРєРѕР»СЊРєРѕ С€С‚СѓРє РѕРґРЅРѕРіРѕ Рё С‚РѕРіРѕ Р¶Рµ, С‚Рѕ РєР°Р¶РґР°СЏ С€С‚СѓРєР°
+											// Р±СѓРґРµС‚ Р·Р°РґР°РЅР° РѕС‚РґРµР»СЊРЅС‹Рј РґРѕРєСѓРјРµРЅС‚РѕРј Р·Р°РєР°Р·Р°, РЅРѕ РІСЃРµ СЌС‚Рё РґРѕРєСѓРјРµРЅС‚С‹ Р±СѓРґСѓС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ РѕРґРЅРѕ Рё С‚Рѕ Р¶Рµ Р·РЅР°С‡РµРЅРёРµ GNumber
 											//
 											for(uint j = ord_list_idx+1; j < order_list.getCount(); j++) {
 												const PPMarketplaceInterface_Wildberries::Sale * p_wb_item_inner = order_list.at(j);
@@ -2949,21 +2949,27 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 													if(!seen_idx_list.lsearch(static_cast<long>(j))) {
 														seen_idx_list.add(static_cast<long>(j));
 														PPTransferItem ti_inner;
-														ti_inner.GoodsID = goods_id;
-														// @v12.1.9 ti_inner.Price = p_wb_item_inner->FinishedPrice;
-														// @v12.1.9 {
-														ti_inner.Price = p_wb_item_inner->PriceWithDiscount;
-														ti_inner.Discount = p_wb_item_inner->PriceWithDiscount - p_wb_item_inner->FinishedPrice;
-														// } @v12.1.9 
-														ti_inner.Quantity_ = 1.0;
-														row_idx_list.Z();
-														if(pack.InsertRow(&ti_inner, &row_idx_list)) {
-															assert(row_idx_list.getCount() == 1);
-															const long new_row_idx = row_idx_list.get(0);
-															pack.LTagL.SetString(PPTAG_LOT_SN, new_row_idx, MakeSerialIdent(p_wb_item_inner->IncomeID, p_wb_item_inner->Ware, temp_buf));
-															pack.LTagL.SetString(PPTAG_LOT_ORGORDERIDENT, new_row_idx, p_wb_item_inner->SrID);
-															if(p_wb_item_inner->Spp != 0.0) {
-																pack.LTagL.SetReal(PPTAG_LOT_MP_DISCOUNTPCT, new_row_idx, &p_wb_item_inner->Spp);
+														const PPID inner_goods_id = CreateWare(p_wb_item_inner->Ware, 1/*use_ta*/);
+														if(!inner_goods_id) {
+															// @todo @err
+														}
+														else {
+															ti_inner.GoodsID = inner_goods_id;
+															// @v12.1.9 ti_inner.Price = p_wb_item_inner->FinishedPrice;
+															// @v12.1.9 {
+															ti_inner.Price = p_wb_item_inner->PriceWithDiscount;
+															ti_inner.Discount = p_wb_item_inner->PriceWithDiscount - p_wb_item_inner->FinishedPrice;
+															// } @v12.1.9 
+															ti_inner.Quantity_ = 1.0;
+															row_idx_list.Z();
+															if(pack.InsertRow(&ti_inner, &row_idx_list)) {
+																assert(row_idx_list.getCount() == 1);
+																const long new_row_idx = row_idx_list.get(0);
+																pack.LTagL.SetString(PPTAG_LOT_SN, new_row_idx, MakeSerialIdent(p_wb_item_inner->IncomeID, p_wb_item_inner->Ware, temp_buf));
+																pack.LTagL.SetString(PPTAG_LOT_ORGORDERIDENT, new_row_idx, p_wb_item_inner->SrID);
+																if(p_wb_item_inner->Spp != 0.0) {
+																	pack.LTagL.SetReal(PPTAG_LOT_MP_DISCOUNTPCT, new_row_idx, &p_wb_item_inner->Spp);
+																}
 															}
 														}
 													}
@@ -3079,7 +3085,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 	}
 	period.low.encode(1, 5, 2024);
 	period.upp = now_dtm.d;
-	//PPTXT_MP_FINTRA_WB_REQ               "Запрос отчета о продажах по реализации за период %s"
+	//PPTXT_MP_FINTRA_WB_REQ               "Р—Р°РїСЂРѕСЃ РѕС‚С‡РµС‚Р° Рѕ РїСЂРѕРґР°Р¶Р°С… РїРѕ СЂРµР°Р»РёР·Р°С†РёРё Р·Р° РїРµСЂРёРѕРґ %s"
 	PPLoadText(PPTXT_MP_FINTRA_WB_REQ, fmt_buf);
 	PPFormatPeriod(&period, temp_buf);
 	msg_buf.Printf(fmt_buf, temp_buf.cptr());
@@ -3089,21 +3095,21 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 		R_Prc.GetLogger().Log(PPLoadTextS(PPTXT_MP_FINTRA_WB_REPEMPTY, msg_buf));
 	}
 	else {
-		// PPTXT_MPWB_NATIVEOPS                 "1,Возмещение издержек по перевозке/по складским операциям с товаром;2,Логистика;3,Пересчет платной приемки;4,Продажа;5,Удержание;6,Хранение"
+		// PPTXT_MPWB_NATIVEOPS                 "1,Р’РѕР·РјРµС‰РµРЅРёРµ РёР·РґРµСЂР¶РµРє РїРѕ РїРµСЂРµРІРѕР·РєРµ/РїРѕ СЃРєР»Р°РґСЃРєРёРј РѕРїРµСЂР°С†РёСЏРј СЃ С‚РѕРІР°СЂРѕРј;2,Р›РѕРіРёСЃС‚РёРєР°;3,РџРµСЂРµСЃС‡РµС‚ РїР»Р°С‚РЅРѕР№ РїСЂРёРµРјРєРё;4,РџСЂРѕРґР°Р¶Р°;5,РЈРґРµСЂР¶Р°РЅРёРµ;6,РҐСЂР°РЅРµРЅРёРµ"
 		enum {
-			nativeopCargo       = 1, // Возмещение издержек по перевозке/по складским операциям с товаром
-			nativeopLogistics   = 2, // Логистика
-			nativeopAcceptance  = 3, // Пересчет платной приемки
-			nativeopSales       = 4, // Продажа
-			nativeopDeduction   = 5, // Удержание
-			nativeopStorage     = 6, // Хранение
+			nativeopCargo       = 1, // Р’РѕР·РјРµС‰РµРЅРёРµ РёР·РґРµСЂР¶РµРє РїРѕ РїРµСЂРµРІРѕР·РєРµ/РїРѕ СЃРєР»Р°РґСЃРєРёРј РѕРїРµСЂР°С†РёСЏРј СЃ С‚РѕРІР°СЂРѕРј
+			nativeopLogistics   = 2, // Р›РѕРіРёСЃС‚РёРєР°
+			nativeopAcceptance  = 3, // РџРµСЂРµСЃС‡РµС‚ РїР»Р°С‚РЅРѕР№ РїСЂРёРµРјРєРё
+			nativeopSales       = 4, // РџСЂРѕРґР°Р¶Р°
+			nativeopDeduction   = 5, // РЈРґРµСЂР¶Р°РЅРёРµ
+			nativeopStorage     = 6, // РҐСЂР°РЅРµРЅРёРµ
 		};
 		PPLoadTextUtf8(PPTXT_MPWB_NATIVEOPS, temp_buf);
 		const StringSet ss_native_ops(';', temp_buf);
 		SString id_buf;
 		SString text_buf;
 		PPIDArray shipm_bill_id_list;
-		LongArray seen_pos_list; // список обработанных позиций массива sales_rep_dbp_list. 
+		LongArray seen_pos_list; // СЃРїРёСЃРѕРє РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹С… РїРѕР·РёС†РёР№ РјР°СЃСЃРёРІР° sales_rep_dbp_list. 
 		StringSet ss_order_ident;
 		const char * p_empty_sr_ident_symb = "$empty-sr-id";
 		{
@@ -3160,7 +3166,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 						}
 					}
 					if(!native_op_id) {
-						// @todo Написать что-то в лог
+						// @todo РќР°РїРёСЃР°С‚СЊ С‡С‚Рѕ-С‚Рѕ РІ Р»РѕРі
 					}
 					else {
 						PPID  loc_id = 0;
@@ -3169,7 +3175,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 						switch(native_op_id) {
 							case nativeopCargo:
 								// ppvz_vw, ppvz_vw_nds, rebill_logistic_cost
-								// Насколько я понял из изучения материала, rebill_logistic_cost == ppvz_vw + ppvz_vw_nds
+								// РќР°СЃРєРѕР»СЊРєРѕ СЏ РїРѕРЅСЏР» РёР· РёР·СѓС‡РµРЅРёСЏ РјР°С‚РµСЂРёР°Р»Р°, rebill_logistic_cost == ppvz_vw + ppvz_vw_nds
 								if(bpack.Rec.ID) {
 									double delivery_amount = p_entry->RebillLogisticCost;
 									if(delivery_amount > 0.0) {
@@ -3610,7 +3616,7 @@ PPID PrcssrMarketplaceInterchange::GetOrderOpID()
 			PPAlbatrossConfig albtr_cfg;
 			result_id = (PPAlbatrosCfgMngr::Get(&albtr_cfg) > 0) ? albtr_cfg.Hdr.OpID : 0;
 			if(result_id == 0)
-				Cfg.OrderOpID = -1; // Индицирует факт того, что вид операции заказа получить не удается.
+				Cfg.OrderOpID = -1; // РРЅРґРёС†РёСЂСѓРµС‚ С„Р°РєС‚ С‚РѕРіРѕ, С‡С‚Рѕ РІРёРґ РѕРїРµСЂР°С†РёРё Р·Р°РєР°Р·Р° РїРѕР»СѓС‡РёС‚СЊ РЅРµ СѓРґР°РµС‚СЃСЏ.
 			else
 				Cfg.OrderOpID = result_id;
 		}
@@ -3638,7 +3644,7 @@ PPID PrcssrMarketplaceInterchange::GetSaleOpID()
 				}
 			}
 			if(result_id == 0)
-				Cfg.SalesOpID = -1; // Индицирует факт того, что вид операции продажи получить не удается.
+				Cfg.SalesOpID = -1; // РРЅРґРёС†РёСЂСѓРµС‚ С„Р°РєС‚ С‚РѕРіРѕ, С‡С‚Рѕ РІРёРґ РѕРїРµСЂР°С†РёРё РїСЂРѕРґР°Р¶Рё РїРѕР»СѓС‡РёС‚СЊ РЅРµ СѓРґР°РµС‚СЃСЏ.
 			else
 				Cfg.SalesOpID = result_id;
 		}
@@ -3661,8 +3667,8 @@ PPID PrcssrMarketplaceInterchange::GetMarketplaceAccSheetID()
 
 PPID PrcssrMarketplaceInterchange::Helper_GetMarketplaceOpsAccSheetID(bool createIfNExists, bool createArticles, int use_ta)
 {
-//PPTXT_ACCSHEET_MP_NAME               "Операции на маркетплейсах"
-//PPTXT_ACCSHEET_MP_AR_NAMES           "1,Комиссионное вознаграждение;2,Стоимость эквайринга;3,Стоимость хранения;4,Стоимость приемки на склад хранения"
+//PPTXT_ACCSHEET_MP_NAME               "РћРїРµСЂР°С†РёРё РЅР° РјР°СЂРєРµС‚РїР»РµР№СЃР°С…"
+//PPTXT_ACCSHEET_MP_AR_NAMES           "1,РљРѕРјРёСЃСЃРёРѕРЅРЅРѕРµ РІРѕР·РЅР°РіСЂР°Р¶РґРµРЅРёРµ;2,РЎС‚РѕРёРјРѕСЃС‚СЊ СЌРєРІР°Р№СЂРёРЅРіР°;3,РЎС‚РѕРёРјРѕСЃС‚СЊ С…СЂР°РЅРµРЅРёСЏ;4,РЎС‚РѕРёРјРѕСЃС‚СЊ РїСЂРёРµРјРєРё РЅР° СЃРєР»Р°Рґ С…СЂР°РЅРµРЅРёСЏ"
 	const char * p_symb = "MARKETPLACE-OPS";
 	PPID   acs_id = 0;
 	Reference * p_ref = PPRef;
@@ -3727,7 +3733,7 @@ PPID PrcssrMarketplaceInterchange::Helper_GetMarketplaceOpsAccount(bool createIf
 	PPObjTag tag_obj;
 	PPObjectTag tag_rec;
 	const PPID gua_id = GetGuaPack().Rec.ID;
-	THROW(tag_obj.Fetch(PPTAG_GUA_ACCOUNT, &tag_rec) > 0); // @todo @err (создание зарезервированных объектов)
+	THROW(tag_obj.Fetch(PPTAG_GUA_ACCOUNT, &tag_rec) > 0); // @todo @err (СЃРѕР·РґР°РЅРёРµ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ)
 	if(gua_id) {
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -3756,7 +3762,7 @@ PPID PrcssrMarketplaceInterchange::Helper_GetMarketplaceOpsAccount(bool createIf
 					tag_item.Init(PPTAG_GUA_ACCOUNT);
 					tag_item.SetInt(PPTAG_GUA_ACCOUNT, acc_id);
 					THROW(PPRef->Ot.PutTag(PPOBJ_GLOBALUSERACC, GetGuaPack().Rec.ID, &tag_item, 0));
-					THROW(ReloadGuaPack()); // Повторно извлекаем пакет глобальной учетной записи ибо там теперь новый тег
+					THROW(ReloadGuaPack()); // РџРѕРІС‚РѕСЂРЅРѕ РёР·РІР»РµРєР°РµРј РїР°РєРµС‚ РіР»РѕР±Р°Р»СЊРЅРѕР№ СѓС‡РµС‚РЅРѕР№ Р·Р°РїРёСЃРё РёР±Рѕ С‚Р°Рј С‚РµРїРµСЂСЊ РЅРѕРІС‹Р№ С‚РµРі
 				}
 			}
 		}
@@ -3864,14 +3870,14 @@ int DoMarketplaceInterchange()
 int CreateMarketplaceAccSheet()
 {
 	/*
-			// Возмещение издержек по перевозке/по складским операциям с товаром
-			// Логистика
-			// Пересчет платной приемки
-			// Продажа
-			// Удержание
-			// Хранение
+			// Р’РѕР·РјРµС‰РµРЅРёРµ РёР·РґРµСЂР¶РµРє РїРѕ РїРµСЂРµРІРѕР·РєРµ/РїРѕ СЃРєР»Р°РґСЃРєРёРј РѕРїРµСЂР°С†РёСЏРј СЃ С‚РѕРІР°СЂРѕРј
+			// Р›РѕРіРёСЃС‚РёРєР°
+			// РџРµСЂРµСЃС‡РµС‚ РїР»Р°С‚РЅРѕР№ РїСЂРёРµРјРєРё
+			// РџСЂРѕРґР°Р¶Р°
+			// РЈРґРµСЂР¶Р°РЅРёРµ
+			// РҐСЂР°РЅРµРЅРёРµ
 	*/
-	// MARKETPLACE-OPS символ таблицы статей
+	// MARKETPLACE-OPS СЃРёРјРІРѕР» С‚Р°Р±Р»РёС†С‹ СЃС‚Р°С‚РµР№
 	int    ok = 1;
 	PPID   acs_id = 0;
 	PPObjAccSheet acs_obj;
@@ -3892,76 +3898,75 @@ int CreateMarketplaceAccSheet()
 //
 //
 /*
-Показатели продаж маркетплейса, необходимые для анализа:
+РџРѕРєР°Р·Р°С‚РµР»Рё РїСЂРѕРґР°Р¶ РјР°СЂРєРµС‚РїР»РµР№СЃР°, РЅРµРѕР±С…РѕРґРёРјС‹Рµ РґР»СЏ Р°РЅР°Р»РёР·Р°:
 
-% брака кабинета
-% брака, шт
-% Выкупа
-% выполнения плана по МАРЖЕ
-% компенсации брака от себеса
-??? Индекс локализации, %
-??? КТР (коэффициент)
-xxx Контент всего, руб
-xxx Контент, руб
-xxx Прочие расходы, %
-xxx Прочие расходы, руб
-xxx Расход всего, руб
-xxx Расходы на закуп товара, руб
-xxx Реклама и маркетинг, %
-xxx Реклама и маркетинг, руб
-xxx Специалисты, руб
-xxx Фотосессии, руб
-Брак компенсация, руб
-Внешний трафик, в т.ч. блогеры, руб
-Внешний трафик, руб
-Возвраты (не выкуп), шт
-Всего к перечислению, руб - проверка
-Всего начислено, в т.ч. комиссия, руб
-Выручка к перечислению ФАКТ, руб
-Выручка ПЛАН без комиссии, руб
-Выручка, руб
-Доплата за разгрузку, руб
-Кол-во брака, шт
-Комиссия проверка (ручная)
-Комиссия, %
-Комиссия, руб
-Компенсация брака, руб
-Маржа за минусом всех расх., %
-Маржа за минусом всех расх., руб
-Маржа, руб
-Маржа, руб/ед
-Маржа,%
-Переменные расходы, руб
-Платная приемка, руб
-Премиум-пакет, руб
-Продажи, шт
-Продвижение, руб
-Прочие + хранение + реклама, %
-Прочие + хранение + реклама, руб
-Реклама WB, руб
-Самовыкупы, руб
-Самовыкупы, шт
-Себестоимость брака, руб
-Себестоимость закупа товара, руб
-СПП, %
-СПП, руб
-Ср.маржа на 1 ед.товара, руб
-Ср.себес на 1 ед. товара, руб
-Ср.чек на 1 ед. товара, руб
-Транзит, руб
-Утилизация ед, шт
-Утилизация, руб
-Хранение WB, руб
-Хранение ФФ, руб
-Хранение, %
-Хранение, руб
-Штрафы, %
-Штрафы, руб
-Логистика, руб
-Логистика, руб в т.ч.:
-	Повышенная логистика, руб
-	Обратная логистика, руб
-	Обратная логистика, %
-	Ср.логистика на 1 ед. товара, руб
+% Р±СЂР°РєР° РєР°Р±РёРЅРµС‚Р°
+% Р±СЂР°РєР°, С€С‚
+% Р’С‹РєСѓРїР°
+% РІС‹РїРѕР»РЅРµРЅРёСЏ РїР»Р°РЅР° РїРѕ РњРђР Р–Р•
+% РєРѕРјРїРµРЅСЃР°С†РёРё Р±СЂР°РєР° РѕС‚ СЃРµР±РµСЃР°
+??? РРЅРґРµРєСЃ Р»РѕРєР°Р»РёР·Р°С†РёРё, %
+??? РљРўР  (РєРѕСЌС„С„РёС†РёРµРЅС‚)
+xxx РљРѕРЅС‚РµРЅС‚ РІСЃРµРіРѕ, СЂСѓР±
+xxx РљРѕРЅС‚РµРЅС‚, СЂСѓР±
+xxx РџСЂРѕС‡РёРµ СЂР°СЃС…РѕРґС‹, %
+xxx РџСЂРѕС‡РёРµ СЂР°СЃС…РѕРґС‹, СЂСѓР±
+xxx Р Р°СЃС…РѕРґ РІСЃРµРіРѕ, СЂСѓР±
+xxx Р Р°СЃС…РѕРґС‹ РЅР° Р·Р°РєСѓРї С‚РѕРІР°СЂР°, СЂСѓР±
+xxx Р РµРєР»Р°РјР° Рё РјР°СЂРєРµС‚РёРЅРі, %
+xxx Р РµРєР»Р°РјР° Рё РјР°СЂРєРµС‚РёРЅРі, СЂСѓР±
+xxx РЎРїРµС†РёР°Р»РёСЃС‚С‹, СЂСѓР±
+xxx Р¤РѕС‚РѕСЃРµСЃСЃРёРё, СЂСѓР±
+Р‘СЂР°Рє РєРѕРјРїРµРЅСЃР°С†РёСЏ, СЂСѓР±
+Р’РЅРµС€РЅРёР№ С‚СЂР°С„РёРє, РІ С‚.С‡. Р±Р»РѕРіРµСЂС‹, СЂСѓР±
+Р’РЅРµС€РЅРёР№ С‚СЂР°С„РёРє, СЂСѓР±
+Р’РѕР·РІСЂР°С‚С‹ (РЅРµ РІС‹РєСѓРї), С€С‚
+Р’СЃРµРіРѕ Рє РїРµСЂРµС‡РёСЃР»РµРЅРёСЋ, СЂСѓР± - РїСЂРѕРІРµСЂРєР°
+Р’СЃРµРіРѕ РЅР°С‡РёСЃР»РµРЅРѕ, РІ С‚.С‡. РєРѕРјРёСЃСЃРёСЏ, СЂСѓР±
+Р’С‹СЂСѓС‡РєР° Рє РїРµСЂРµС‡РёСЃР»РµРЅРёСЋ Р¤РђРљРў, СЂСѓР±
+Р’С‹СЂСѓС‡РєР° РџР›РђРќ Р±РµР· РєРѕРјРёСЃСЃРёРё, СЂСѓР±
+Р’С‹СЂСѓС‡РєР°, СЂСѓР±
+Р”РѕРїР»Р°С‚Р° Р·Р° СЂР°Р·РіСЂСѓР·РєСѓ, СЂСѓР±
+РљРѕР»-РІРѕ Р±СЂР°РєР°, С€С‚
+РљРѕРјРёСЃСЃРёСЏ РїСЂРѕРІРµСЂРєР° (СЂСѓС‡РЅР°СЏ)
+РљРѕРјРёСЃСЃРёСЏ, %
+РљРѕРјРёСЃСЃРёСЏ, СЂСѓР±
+РљРѕРјРїРµРЅСЃР°С†РёСЏ Р±СЂР°РєР°, СЂСѓР±
+РњР°СЂР¶Р° Р·Р° РјРёРЅСѓСЃРѕРј РІСЃРµС… СЂР°СЃС…., %
+РњР°СЂР¶Р° Р·Р° РјРёРЅСѓСЃРѕРј РІСЃРµС… СЂР°СЃС…., СЂСѓР±
+РњР°СЂР¶Р°, СЂСѓР±
+РњР°СЂР¶Р°, СЂСѓР±/РµРґ
+РњР°СЂР¶Р°,%
+РџРµСЂРµРјРµРЅРЅС‹Рµ СЂР°СЃС…РѕРґС‹, СЂСѓР±
+РџР»Р°С‚РЅР°СЏ РїСЂРёРµРјРєР°, СЂСѓР±
+РџСЂРµРјРёСѓРј-РїР°РєРµС‚, СЂСѓР±
+РџСЂРѕРґР°Р¶Рё, С€С‚
+РџСЂРѕРґРІРёР¶РµРЅРёРµ, СЂСѓР±
+РџСЂРѕС‡РёРµ + С…СЂР°РЅРµРЅРёРµ + СЂРµРєР»Р°РјР°, %
+РџСЂРѕС‡РёРµ + С…СЂР°РЅРµРЅРёРµ + СЂРµРєР»Р°РјР°, СЂСѓР±
+Р РµРєР»Р°РјР° WB, СЂСѓР±
+РЎР°РјРѕРІС‹РєСѓРїС‹, СЂСѓР±
+РЎР°РјРѕРІС‹РєСѓРїС‹, С€С‚
+РЎРµР±РµСЃС‚РѕРёРјРѕСЃС‚СЊ Р±СЂР°РєР°, СЂСѓР±
+РЎРµР±РµСЃС‚РѕРёРјРѕСЃС‚СЊ Р·Р°РєСѓРїР° С‚РѕРІР°СЂР°, СЂСѓР±
+РЎРџРџ, %
+РЎРџРџ, СЂСѓР±
+РЎСЂ.РјР°СЂР¶Р° РЅР° 1 РµРґ.С‚РѕРІР°СЂР°, СЂСѓР±
+РЎСЂ.СЃРµР±РµСЃ РЅР° 1 РµРґ. С‚РѕРІР°СЂР°, СЂСѓР±
+РЎСЂ.С‡РµРє РЅР° 1 РµРґ. С‚РѕРІР°СЂР°, СЂСѓР±
+РўСЂР°РЅР·РёС‚, СЂСѓР±
+РЈС‚РёР»РёР·Р°С†РёСЏ РµРґ, С€С‚
+РЈС‚РёР»РёР·Р°С†РёСЏ, СЂСѓР±
+РҐСЂР°РЅРµРЅРёРµ WB, СЂСѓР±
+РҐСЂР°РЅРµРЅРёРµ Р¤Р¤, СЂСѓР±
+РҐСЂР°РЅРµРЅРёРµ, %
+РҐСЂР°РЅРµРЅРёРµ, СЂСѓР±
+РЁС‚СЂР°С„С‹, %
+РЁС‚СЂР°С„С‹, СЂСѓР±
+Р›РѕРіРёСЃС‚РёРєР°, СЂСѓР±
+Р›РѕРіРёСЃС‚РёРєР°, СЂСѓР± РІ С‚.С‡.:
+	РџРѕРІС‹С€РµРЅРЅР°СЏ Р»РѕРіРёСЃС‚РёРєР°, СЂСѓР±
+	РћР±СЂР°С‚РЅР°СЏ Р»РѕРіРёСЃС‚РёРєР°, СЂСѓР±
+	РћР±СЂР°С‚РЅР°СЏ Р»РѕРіРёСЃС‚РёРєР°, %
+	РЎСЂ.Р»РѕРіРёСЃС‚РёРєР° РЅР° 1 РµРґ. С‚РѕРІР°СЂР°, СЂСѓР±
 */
-

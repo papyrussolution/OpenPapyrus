@@ -469,8 +469,8 @@ int DBTable::close()
 	if(handle) {
 		tableName[0] = 0;
 		fileName.Z();
-		fields.reset();
-		indexes.reset();
+		fields.Z();
+		indexes.Z();
 		DBS.GetTLA().FreeTableEntry(handle);
 		handle = 0;
 	}

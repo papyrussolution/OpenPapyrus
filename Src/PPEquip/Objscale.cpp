@@ -5037,7 +5037,7 @@ int PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 						const size_t bclen = sstrlen(barcode);
 						if(bclen > 6)
 							strcpy(barcode, barcode + bclen - 6);
-						plu.Barcode = (long)satof(barcode); // @v10.7.9 atof-->satof
+						plu.Barcode = (long)satof(barcode);
 						const double price_ = (eq_cfg.Flags & eq_cfg.fUncondAsyncBasePrice) ? rtl_ext_item.BasePrice : rtl_ext_item.Price;
 						plu.Price  = R2(rtl_ext_item.ExtPrice ? rtl_ext_item.ExtPrice : price_);
 						plu.Expiry = rtl_ext_item.Expiry;

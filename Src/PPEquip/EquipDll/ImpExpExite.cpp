@@ -1990,7 +1990,7 @@ int ImportCls::ParseForDocData(Sdr_Bill * pBill)
 						if(p_node && sstreq(p_node->name, ELEMENT_NAME_E5004) && p_node->children) {
 							if(str.CmpNC(ELEMENT_CODE_E5025_9) == 0) {
 								// Запишем сумму документа с НДС
-								pBill->Amount = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
+								pBill->Amount = satof(PTRCHRC_(p_node->children->content));
 								ok = 1;
 							}
 							else if(str.CmpNC(ELEMENT_CODE_E5025_98) == 0) {
@@ -2158,9 +2158,9 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 													str = PTRCHRC_(p_node->children->content);
 												// ELEMENT_CODE_E6063_12 дл DESADV
 												else if(str == "113" || str == "170" || str == "12")
-													pBRow->Quantity = satof(PTRCHRC_(p_node->children->content)); // Записываем подтвержденное количество // @v10.7.9 atof-->satof
+													pBRow->Quantity = satof(PTRCHRC_(p_node->children->content)); // Записываем подтвержденное количество
 												else if(str == "59")
-													pBRow->UnitPerPack = satof(PTRCHRC_(p_node->children->content)); // Записываем количество товара в упаковке // @v10.7.9 atof-->satof
+													pBRow->UnitPerPack = satof(PTRCHRC_(p_node->children->content)); // Записываем количество товара в упаковке
 											}
 										}
 									}
@@ -2188,7 +2188,7 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 													str = PTRCHRC_(p_node->children->content);
 												else if((MessageType == msgDesadv) && (str.CmpNC(ELEMENT_CODE_E5125_XB5) == 0)) {
 													// Запишем цену товара с НДС для DESADV
-													pBRow->Cost = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
+													pBRow->Cost = satof(PTRCHRC_(p_node->children->content));
 												}
 											}
 										}
@@ -2207,7 +2207,7 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 													str = PTRCHRC_(p_node->children->content);
 												else if(str.CmpNC(ELEMENT_CODE_E5125_AAE) == 0)
 													// Запишем цену товара с НДС для ORDRSP
-													pBRow->Cost = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
+													pBRow->Cost = satof(PTRCHRC_(p_node->children->content));
 											}
 										}
 									}

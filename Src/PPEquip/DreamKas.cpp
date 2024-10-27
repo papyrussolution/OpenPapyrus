@@ -729,12 +729,10 @@ int ACS_DREAMKAS::AcceptCheck(const SJson * pJsonObj)
 	}
 	if(Scb.SessList.lsearch(&sess_n, 0, CMPF_LONG, offsetof(SessEntry, N))) {
 		int    ccr = 0;
-		// @v10.7.3 {
 		if(cc_flags & CCHKF_RETURN) {
 			cc_amount = -cc_amount;
 			cc_discount = -cc_discount;
 		}
-		// } @v10.7.3 
 		THROW(ccr = AddTempCheck(&cc_id, sess_n, cc_flags, device_id, cc_number, cashier_id, sc_id, cc_dtm, cc_amount, cc_discount));
 		if(ccr > 0) {
 			assert(cc_id);
@@ -827,10 +825,8 @@ int ACS_DREAMKAS::AcceptCheck(const SJson * pJsonObj)
 								}
 							}
 						}
-						// @v10.7.3 {
 						if(cc_flags & CCHKF_RETURN)
 							paym_amt = -paym_amt;
-						// } @v10.7.3 
 						THROW(AddTempCheckPaym(cc_id, paym_type, paym_amt, paym_sc_id));
 					}
 				}

@@ -353,7 +353,7 @@ GoodsCodeSrchBlock::GoodsCodeSrchBlock() : ArID(0), Flags(0), GoodsID(0), ScaleI
 {
 	Code[0] = 0;
 	RetCode[0] = 0;
-	ChZnCode[0] = 0; // @v10.6.9
+	ChZnCode[0] = 0;
 	ChZnGtin[0] = 0;
 	ChZnSerial[0] = 0;
 }
@@ -535,7 +535,7 @@ int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 				SString temp_buf;
 				if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 					assert(temp_buf.Len() == 14);
-					if(oneof2(temp_buf.C(0), '0', '1')) // @v10.9.3 '1'
+					if(oneof2(temp_buf.C(0), '0', '1'))
 						temp_buf.ShiftLeft(1);
 					else {
 						temp_buf.ShiftLeft(1);
@@ -549,15 +549,14 @@ int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 						pBlk->Qtty = bcr.Qtty;
 						pBlk->Rec = goods_rec;
 						pBlk->Flags |= GoodsCodeSrchBlock::fChZnCode;
-						SETFLAG(pBlk->Flags, GoodsCodeSrchBlock::fMarkedCode, IsInnerBarcodeType(bcr.BarcodeType, BARCODE_TYPE_MARKED)); // @v10.6.10
+						SETFLAG(pBlk->Flags, GoodsCodeSrchBlock::fMarkedCode, IsInnerBarcodeType(bcr.BarcodeType, BARCODE_TYPE_MARKED));
 						strnzcpy(pBlk->RetCode, bcr.Code, 16);
 						gts.GetToken(GtinStruc::fldGTIN14, &temp_buf);
 						STRNSCPY(pBlk->ChZnGtin, temp_buf);
 						gts.GetToken(GtinStruc::fldSerial, &temp_buf);
 						STRNSCPY(pBlk->ChZnSerial, temp_buf);
-						// @v10.9.0 STRNSCPY(pBlk->ChZnCode, pBlk->Code); // @v10.6.9
 						gts.GetToken(GtinStruc::fldOriginalText, &temp_buf);
-						STRNSCPY(pBlk->ChZnCode, temp_buf); // @v10.9.0
+						STRNSCPY(pBlk->ChZnCode, temp_buf);
 						STRNSCPY(pBlk->Code, temp_buf); // @v11.4.12
 						ok = 1;
 					}
@@ -600,7 +599,7 @@ int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 						pBlk->GoodsID = goods_rec.ID;
 						pBlk->Qtty = bcr.Qtty;
 						pBlk->Rec = goods_rec;
-						SETFLAG(pBlk->Flags, GoodsCodeSrchBlock::fMarkedCode, IsInnerBarcodeType(bcr.BarcodeType, BARCODE_TYPE_MARKED)); // @v10.6.10
+						SETFLAG(pBlk->Flags, GoodsCodeSrchBlock::fMarkedCode, IsInnerBarcodeType(bcr.BarcodeType, BARCODE_TYPE_MARKED));
 						ok = 1;
 					}
 					else if(P_Tbl->SearchByArCode(pBlk->ArID, code, &arc_rec, &goods_rec) > 0) {
@@ -1115,19 +1114,16 @@ int GoodsCfgDialog::setDTS(const PPGoodsConfig * pData, const SString & rGoodsEx
 	AddClusterAssoc(CTL_GDSCFG_FLAGS, 11, GCF_USEBRANDINGSELEXTDLG);
 	AddClusterAssoc(CTL_GDSCFG_FLAGS, 12, GCF_AUTOPREFBARCODE);
 	AddClusterAssoc(CTL_GDSCFG_FLAGS, 13, GCF_DONTDELFROMMTXGOODSINOPENORD);
-	// @v10.4.6 (see below) AddClusterAssoc(CTL_GDSCFG_FLAGS, 14, GCF_SHOWGSTRUCPRICE);
 	SetClusterData(CTL_GDSCFG_FLAGS, Data.Flags);
-	// @v10.4.6 {
 	AddClusterAssoc(CTL_GDSCFG_FLAGS2, 0, GCF_SHOWGSTRUCPRICE);
 	AddClusterAssoc(CTL_GDSCFG_FLAGS2, 1, GCF_BANSTRUCCDONDECOMPL);
 	SetClusterData(CTL_GDSCFG_FLAGS2, Data.Flags);
-	// } @v10.4.6
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 0, GCF_XCHG_DONTRCVTAXGRPUPD);
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 1, GCF_XCHG_RCVSTRUCUPD);
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 2, GCF_XCHG_SENDGENGOODSCONTENT);
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 3, GCF_XCHG_SENDALTGROUP);
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 4, GCF_XCHG_SENDATTACHMENT);
-	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 5, GCF_XCHG_RCVSTRUCFROMDDONLY); // @v10.2.1
+	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 5, GCF_XCHG_RCVSTRUCFROMDDONLY);
 	AddClusterAssoc(CTL_GDSCFG_XCHG_FLAGS, 6, GCF_XCHG_DONTRCVQUOTS); // @v11.3.3
 	SetClusterData(CTL_GDSCFG_XCHG_FLAGS, Data.Flags);
 
@@ -1179,7 +1175,7 @@ int GoodsCfgDialog::getDTS(PPGoodsConfig * pData, SString & rGoodsExTitles, PPOp
 	getCtrlData(CTLSEL_GDSCFG_GMTXRESTR, &Data.MtxRestrQkID);
 	getCtrlData(CTLSEL_GDSCFG_BCPGUATAG, &Data.BcPrefixGuaTagID);
 	GetClusterData(CTL_GDSCFG_FLAGS, &Data.Flags);
-	GetClusterData(CTL_GDSCFG_FLAGS2, &Data.Flags); // @v10.4.6
+	GetClusterData(CTL_GDSCFG_FLAGS2, &Data.Flags);
 	GetClusterData(CTL_GDSCFG_XCHG_FLAGS, &Data.Flags);
 	sel = CTL_GDSCFG_ACGIT;
 	THROW_PP(Data.ACGI_Threshold >= 0 && Data.ACGI_Threshold <= 1461, PPERR_USERINPUT);
@@ -1335,7 +1331,7 @@ int PPObjGoods::Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const Retail
 				pInfo->Cost     = rtl_ext_item.Cost;
 				pInfo->Price    = rtl_ext_item.Price;
 				pInfo->ExtPrice = rtl_ext_item.ExtPrice;
-				pInfo->OuterPrice = rtl_ext_item.OuterPrice; // @v10.1.12 @fix
+				pInfo->OuterPrice = rtl_ext_item.OuterPrice;
 				pInfo->Expiry   = rtl_ext_item.Expiry;
 				pInfo->ManufDtm = rtl_ext_item.ManufDtm;
 				pInfo->QuotKindUsedForPrice    = rtl_ext_item.QuotKindUsedForPrice;
@@ -1473,7 +1469,7 @@ public:
 	QuotListDialog(QuotListDlgParam & rParam) : PPListDialog(DLG_QUOTLIST, CTL_QUOTLIST_LIST), QuotKindsAry(*rParam.P_QuotKinds),
 		P_Data(rParam.P_QuotAry), QIdent(*rParam.P_Ident), RightsForUpdate(rParam.RightsForUpdate), LastCost(rParam.LastCost), LastPrice(rParam.LastPrice)
 	{
-		ContextMenuID = CTRLMENU_QUOTLIST; // @v10.9.11
+		ContextMenuID = CTRLMENU_QUOTLIST;
 		enableCommand(cmaEdit,   rParam.RightsForUpdate);
 		enableCommand(cmaDelete, rParam.RightsForUpdate);
 		updateList(-1);
@@ -1679,8 +1675,6 @@ IMPL_CMPFUNC(RankNName, i1, i2)
 	return cmp;
 }
 
-// @v10.7.10 replaced with PPConstParam::WrParam_ViewQuotsAsListBox static const char * pViewQuotsAsListBox = "ViewQuotsAsListBox";
-
 #define NUM_QUOTS_IN_DLG 10
 
 class QuotationDialog : public EmbedDialog {
@@ -1830,8 +1824,7 @@ public:
 				setCtrlData(CTL_GQUOT_GOODS, goods_rec.Name);
 				if(goods_rec.Kind == PPGDSK_GROUP) {
 					enableCommand(cmaMore, 0);
-					// @v10.7.10 setLabelText(CTL_GQUOT_GOODS, PPGetWord(PPWORD_GROUP, 0, temp_buf));
-					setLabelText(CTL_GQUOT_GOODS, PPLoadStringS("group", temp_buf)); // @v10.7.10
+					setLabelText(CTL_GQUOT_GOODS, PPLoadStringS("group", temp_buf));
 				}
 				if(!(goods_rec.Flags & GF_PRICEWOTAXES))
 					setStaticText(CTL_GQUOT_GNOTE, 0);
@@ -2508,12 +2501,9 @@ int PPObjGoods::CheckMatrixRestrict(PPID goodsID, PPID locID, long restrict)
 			GetLocationName(locID, loc_name);
 			GetGoodsName(grp_id,  grp_name);
 			GetGoodsName(goodsID, goods_name);
-			// @v9.0.2 PPGetWord(PPWORD_GOODS,     0, word_goods);
-			PPLoadString("ware", word_goods); // @v9.0.2
-			// @v10.7.10 PPGetWord(PPWORD_GROUP,     0, word_grp);
-			PPLoadString("group", word_grp); // @v10.7.10
-			// @v9.0.2 PPGetWord(PPWORD_WAREHOUSE, 0, word_loc);
-			PPLoadString("warehouse", word_loc); // @v9.0.2
+			PPLoadString("ware", word_goods);
+			PPLoadString("group", word_grp);
+			PPLoadString("warehouse", word_loc);
 			add_msg.CatEq(word_goods, goods_name).CatDiv(',', 2).CatEq(word_grp, grp_name).CatDiv(',', 2).CatEq(word_loc, loc_name);
 			CALLEXCEPT_PP_S(PPERR_MATRIXRESTRICTION, add_msg);
 		}
@@ -2847,7 +2837,7 @@ int PPObjGoods::SelectGoodsInPlaceOfRemoved(PPID rmvdGoodsID, PPID extGoodsID, P
 RetailExtrItem::RetailExtrItem() : Cost(0.0), Price(0.0), BasePrice(0.0), ExtPrice(0.0), OuterPrice(0.0),
 	Flags(0), QuotKindUsedForPrice(0), QuotKindUsedForExtPrice(0), CurLotDate(ZERODATE), Expiry(ZERODATE)
 {
-	AllowedPriceR.Z(); // @v10.6.4
+	AllowedPriceR.Z();
 }
 
 RetailPriceExtractor::ExtQuotBlock::ExtQuotBlock(PPID quotKindID)
@@ -2927,7 +2917,7 @@ int RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, double qtt
 	// Этот список препятствует двойному применению одной и той же котировки к цене.
 	//
 	PPIDArray used_quot_list;
-	int    use_outer_price = 0; // @v10.1.12
+	int    use_outer_price = 0;
 	double price = 0.0;
 	double ext_price = 0.0;
 	double quot = 0.0;
@@ -2969,7 +2959,6 @@ int RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, double qtt
 			LDATETIME dtm;
 			if(p_ref->Ot.GetTag(PPOBJ_LOT, lot_rec.ID, PPTAG_LOT_MANUFTIME, &tag) > 0 && tag.GetTimestamp(&dtm) > 0)
 				pItem->ManufDtm = dtm;
-			// @v10.6.0 {
 			else {
 				PPID   org_lot_id = 0;
 				ReceiptTbl::Rec org_lot_rec;
@@ -2978,14 +2967,13 @@ int RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, double qtt
 						pItem->ManufDtm = dtm;
 				}
 			}
-			// } @v10.6.0
 		}
 		if(Flags & RTLPF_PRICEBYQUOT) {
 			double q_price = 0.0;
 			const QuotIdent qi(curdt, LocID, PPQUOTK_BASE, 0, ArID);
 			if(P_GObj->GetQuotExt(goodsID, qi, lot_rec.Cost, price, &q_price, use_quot_cache) > 0) {
 				pItem->QuotKindUsedForPrice = PPQUOTK_BASE;
-				if(!use_outer_price) // @v10.1.12 !use_outer_price
+				if(!use_outer_price)
 					price = q_price;
 				base_price = q_price;
 				used_quot_list.addUnique(PPQUOTK_BASE);
@@ -3051,7 +3039,7 @@ int RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, double qtt
 	pItem->BasePrice  = R5(base_price);
 	pItem->ExtPrice   = R5(ext_price);
 	pItem->CurLotDate = lot_rec.Dt;
-	p_bobj->GetPriceRestrictions(goodsID, lot_rec.ID, lot_rec.Cost, pItem->Price, &pItem->AllowedPriceR); // @v10.6.4
+	p_bobj->GetPriceRestrictions(goodsID, lot_rec.ID, lot_rec.Cost, pItem->Price, &pItem->AllowedPriceR);
 	PROFILE_END
 	PROFILE_START
 	if(lot_rec.Expiry)
@@ -3141,7 +3129,7 @@ int PPObjGoods::SetupPreferredBarcodeTags()
 		case BARCSTD_UPCA:        rBuf = "upca"; break;
 		case BARCSTD_POSTNET:     rBuf = "postnet"; break;
 		case BARCSTD_QR:          rBuf = "qr"; break;
-		case BARCSTD_DATAMATRIX:  rBuf = "datamatrix"; break; // @v10.9.12
+		case BARCSTD_DATAMATRIX:  rBuf = "datamatrix"; break;
 		case BARCSTD_AZTEC:       rBuf = "aztec"; break; // @v11.9.2
 		case BARCSTD_DATABAR:     rBuf = "databar"; break; // @v11.9.2
 		case BARCSTD_MICROQR:     rBuf = "microqr"; break; // @v11.9.2
@@ -3188,7 +3176,7 @@ int PPObjGoods::SetupPreferredBarcodeTags()
 					case PPHS_BCS_PLESSEY:         bcstd = BARCSTD_PLESSEY; break;
 					case PPHS_BCS_POSTNET:         bcstd = BARCSTD_POSTNET; break;
 					case PPHS_BCS_LOGMARS:         bcstd = BARCSTD_LOGMARS; break;
-					case PPHS_BCS_DATAMATRIX:      bcstd = BARCSTD_DATAMATRIX; break; // @v10.9.12
+					case PPHS_BCS_DATAMATRIX:      bcstd = BARCSTD_DATAMATRIX; break;
 					case PPHS_BCS_AZTEC:           bcstd = BARCSTD_AZTEC; break; // @v11.9.2
 					case PPHS_BCS_DATABAR:         bcstd = BARCSTD_DATABAR; break; // @v11.9.2
 					case PPHS_BCS_MICROQR:         bcstd = BARCSTD_MICROQR; break; // @v11.9.2

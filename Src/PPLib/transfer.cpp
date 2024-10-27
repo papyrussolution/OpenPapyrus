@@ -123,7 +123,7 @@ int Transfer::IsCompletedLot(PPID lotID)
 	PPID   org_lot_id = 0;
 	if(Rcpt.SearchOrigin(lotID, &org_lot_id, 0, 0) > 0) {
 		PPIDArray lot_list;
-		Rcpt.GatherChilds(org_lot_id, &lot_list, 0, 0);
+		Rcpt.GatherChildren(org_lot_id, &lot_list, 0, 0);
 		lot_list.atInsert(0, &org_lot_id);
 		for(uint i = 0; i < lot_list.getCount(); i++) {
 			TransferTbl::Rec trfr_rec;

@@ -1641,6 +1641,18 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 										}
 									}
 									// } @v12.1.1 
+									// @v12.1.9 {
+									assert(pIter->Qtty >= 0.0); // see above
+									if(gts.GetSpecialNaturalToken() == SNTOK_CHZN_CIGBLOCK && pIter->Qtty == 10.0 && CConfig.Flags2 & CCFLG2_UNITECHZNCIGBLK10) {
+										pIter->Qtty = 1.0;
+										pIter->PhQtty = 0.0;
+										pIter->Price *= 10.0;
+										pIter->UomFragm = 0;
+										// Добавляем в голову текстовой строки префикс BLK дабы можно было идентифицировать факт вмешательства в "естественный" ход событий
+										(temp_buf = "BLK").Space().Cat(pIter->Text);
+										STRNSCPY(pIter->Text, temp_buf);
+									}
+									// } @v12.1.9 
 								}
 							}
 						}

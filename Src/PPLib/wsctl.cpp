@@ -1474,7 +1474,7 @@ int WsCtlSrvBlock::SendProgramList(bool mock, SString & rResult)
 //
 //
 //
-WsCtl_ProgramEntry::WsCtl_ProgramEntry() : ID(0), CategoryID(0), PicHashAlg(0)
+WsCtl_ProgramEntry::WsCtl_ProgramEntry() : ID(0), CategoryID(0), PicHashAlg(0), UedTime_Resolution(0ULL), Flags(0)
 {
 }
 
@@ -1488,6 +1488,8 @@ WsCtl_ProgramEntry & WsCtl_ProgramEntry::Z()
 	PicSymb.Z();
 	PicHashAlg = 0; // @v12.0.6
 	PicHash.Z(); // @v12.0.6
+	UedTime_Resolution = 0ULL; // @v12.1.9
+	Flags = 0U; // @v12.1.9
 	return *this;
 }
 
@@ -1512,6 +1514,12 @@ bool FASTCALL WsCtl_ProgramEntry::IsEq(const WsCtl_ProgramEntry & rS) const
 	else if(PicHash != rS.PicHash)
 		eq = false;
 	// } @v12.0.6 
+	// @v12.1.9 {
+	else if(Flags != rS.Flags)
+		eq = false;
+	else if(UedTime_Resolution != rS.UedTime_Resolution)
+		eq = false;
+	// } @v12.1.9 
 	return eq;
 }
 
@@ -1541,6 +1549,14 @@ SJson * WsCtl_ProgramEntry::ToJsonObj(bool withResolvance) const
 			p_result->InsertString("resolvedpath", (temp_buf = FullResolvedPath).Escape());
 		}
 	}
+	// @v12.1.9 {
+	if(Flags) {
+		p_result->InsertUInt("flags", Flags);
+	}
+	if(UedTime_Resolution) {
+		p_result->InsertUInt64("resolutiontime", UedTime_Resolution);
+	}
+	// } @v12.1.9 
 	return p_result;
 }
 
@@ -1586,6 +1602,12 @@ int WsCtl_ProgramEntry::FromJsonObj(const SJson * pJsObj)
 		p_c = pJsObj->FindChildByKey("resolvedpath");
 		if(SJson::IsString(p_c))
 			(FullResolvedPath = p_c->Text).Unescape();
+		// @v12.1.9 {
+		p_c = pJsObj->FindChildByKey("flags");
+		Flags = SJson::IsNumber(p_c) ? p_c->Text.ToULong() : 0U;
+		p_c = pJsObj->FindChildByKey("resolutiontime");
+		UedTime_Resolution = SJson::IsNumber(p_c) ? p_c->Text.ToUInt64() : 0ULL;
+		// } @v12.1.9 
 	}		
 	CATCHZOK
 	return ok;

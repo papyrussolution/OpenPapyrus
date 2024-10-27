@@ -1325,7 +1325,7 @@ public:
 	BNKeyList(const BNKeyList & rS);
 	~BNKeyList();
 	BNKeyList & FASTCALL operator = (const BNKeyList & s);
-	void   reset();
+	BNKeyList & Z();
 	int    FASTCALL copy(const BNKeyList *);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	//

@@ -334,7 +334,7 @@ int PPGdsClsDim::FromStr(int, const char * pBuf)
 	char   tmp_buf[32];
 	StringSet ss(',', pBuf);
 	for(uint pos = 0; ss.get(&pos, tmp_buf, sizeof(tmp_buf));) {
-		double val = satof(tmp_buf); // @v10.7.9 atof-->satof
+		double val = satof(tmp_buf);
 		if(Scale)
 			val *= fpow10i((int)Scale);
 		ValList.add(R0i(val));

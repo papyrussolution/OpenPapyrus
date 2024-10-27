@@ -632,8 +632,10 @@ int SJson::InsertNumber(const char * pTextLabel, const char * pStr) { return Ins
 int FASTCALL SJson::InsertNull(const char * pTextLabel) { return Insert(pTextLabel, json_new_null()); }
 int SJson::InsertDouble(const char * pTextLabel, double val, long fmt) { return Insert(pTextLabel, json_new_number(SLS.AcquireRvlStr().Cat(val, fmt))); }
 int SJson::InsertInt(const char * pTextLabel, int val) { return Insert(pTextLabel, json_new_number(SLS.AcquireRvlStr().Cat(val))); }
+int SJson::InsertUInt(const char * pTextLabel, uint val) { return Insert(pTextLabel, json_new_number(SLS.AcquireRvlStr().Cat(val))); }
 int SJson::InsertIntNz(const char * pTextLabel, int val) { return (val != 0) ? Insert(pTextLabel, json_new_number(SLS.AcquireRvlStr().Cat(val))) : -1; }
 int SJson::InsertInt64(const char * pTextLabel, int64 val) { return Insert(pTextLabel, json_new_number(SLS.AcquireRvlStr().Cat(val))); }
+int SJson::InsertUInt64(const char * pTextLabel, uint64 val) { return Insert(pTextLabel, json_new_number(SLS.AcquireRvlStr().Cat(val))); }
 int SJson::InsertBool(const char * pTextLabel, bool val) { return Insert(pTextLabel, new SJson(val ? SJson::tTRUE : SJson::tFALSE)); }
 
 #if 0 // @v11.2.7 (replaced with SJson::ToStr) {

@@ -1,5 +1,5 @@
 // BNKEY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -45,7 +45,8 @@ void BNKey::destroy()
 
 int BNKey::reset()
 {
-	if((data = SAlloc::R(data, sizeof(BNKeyCell))) != 0) {
+	data = SAlloc::R(data, sizeof(BNKeyCell));
+	if(data) {
 		HEAD.numSeg = HEAD.keyNumber = HEAD.acsNumber = 0;
 		return 1;
 	}
@@ -144,9 +145,9 @@ int BNKey::containsField(int fldID, int * pSeg) const
 	}
 	return 0;
 }
-/*
-	BNKeyList implementation
-*/
+//
+// BNKeyList implementation
+//
 BNKeyList::BNKeyList() : P_Data(SAlloc::M(sizeof(BNKeyCell)))
 {
 	if(P_Data) {
@@ -156,19 +157,20 @@ BNKeyList::BNKeyList() : P_Data(SAlloc::M(sizeof(BNKeyCell)))
 	}
 }
 
-BNKeyList::BNKeyList(const BNKeyList & rS) :  P_Data(0)
+BNKeyList::BNKeyList(const BNKeyList & rS) : P_Data(0)
 {
 	copy(&rS);
 }
 
 BNKeyList::~BNKeyList()
 {
-	reset();
+	ZFREE(P_Data);
 }
 
-void BNKeyList::reset()
+BNKeyList & BNKeyList::Z()
 {
 	ZFREE(P_Data);
+	return *this;
 }
 
 BNKeyList & FASTCALL BNKeyList::operator = (const BNKeyList & s)
@@ -179,7 +181,7 @@ BNKeyList & FASTCALL BNKeyList::operator = (const BNKeyList & s)
 
 int FASTCALL BNKeyList::copy(const BNKeyList * src)
 {
-	reset();
+	Z();
 	const uint sz = sizeof(BNKeyCell) * src->GetNumCells();
 	if(sz) {
 		P_Data = SAlloc::M(sz);
@@ -202,7 +204,7 @@ int BNKeyList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * /*pCtx*/)
 			THROW(rBuf.Write(P_Data, sz));
 	}
 	else if(dir < 0) {
-		reset();
+		Z();
 		THROW(rBuf.Read(sz));
 		if(sz) {
 			P_Data = SAlloc::R(P_Data, sz);

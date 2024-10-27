@@ -1917,7 +1917,7 @@ int ImportCls::ParseForDocData(Sdr_Bill * pBill)
 					p_node = p_node->next; // <E5004>
 					if(SXml::IsName(p_node, "E5004") && p_node->children) {
 						if(str == "128") { // Сумма документа с НДС
-							pBill->Amount = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
+							pBill->Amount = satof(PTRCHRC_(p_node->children->content));
 							ok = 1;
 						}
 						else if(str == "98") { // Сумма документа без НДС
@@ -2074,9 +2074,9 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 												if(str == "21") // Заказанное количество
 													str.Set(p_node->children->content);
 												else if(str == "113" || str == "170" || str == "12") // Подтвержденное количество
-													pBRow->Quantity = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
+													pBRow->Quantity = satof(PTRCHRC_(p_node->children->content));
 												else if(str == "59") // Количество товара в упаковке
-													pBRow->UnitPerPack = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
+													pBRow->UnitPerPack = satof(PTRCHRC_(p_node->children->content));
 											}
 										}
 									}
@@ -2098,7 +2098,7 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 													else if(str == "79") // Сумма товарной позиции с НДС
 														str.Set(p_node->children->content);
 													else if(MessageType == PPEDIOP_DESADV && str.CmpNC("XB5") == 0) // Цена товара с НДС для DESADV
-														pBRow->Cost = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
+														pBRow->Cost = satof(PTRCHRC_(p_node->children->content));
 												}
 											}
 										}
@@ -2137,7 +2137,7 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 												if(str.CmpNC("AAA") == 0) // Цена товара без НДС
 													str.Set(p_node->children->content);
 												else if(str.CmpNC("AAE") == 0) // Цена товара с НДС для ORDRSP
-													pBRow->Cost = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
+													pBRow->Cost = satof(PTRCHRC_(p_node->children->content));
 											}
 										}
 									}

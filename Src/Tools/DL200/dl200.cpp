@@ -1,5 +1,5 @@
 // DL200.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -299,7 +299,7 @@ DL2_CI * DL2_Formula::ResolveOp(const DL2_CI * pOp, const DL2_Formula * pArgList
 				else if(p_arg->CiType == DL2CIT_INT)
 					p_result->Init(-p_arg->I);
 				else if(p_arg->CiType == DL2CIT_STRING)
-					p_result->Init(-satof(p_arg->GetStr())); // @v10.7.9 atof-->satof
+					p_result->Init(-satof(p_arg->GetStr()));
 				else
 					PPSetError(PPERR_DL200_INVPARAMTYPE);
 			}

@@ -1216,7 +1216,7 @@ int PPObjGoods::ImportOld(int use_ta)
 										*p_v++ = *p++;
 									}
 									*p_v = 0;
-									double phperu = satof(val_buf); // @v10.7.9 atof-->satof
+									double phperu = satof(val_buf);
 									while(*p == ' ')
 										p++;
 									if(*p == '*') {
@@ -1230,7 +1230,7 @@ int PPObjGoods::ImportOld(int use_ta)
 											*p_v++ = *p++;
 										}
 										*p_v = 0;
-										phperu *= satof(val_buf); // @v10.7.9 atof-->satof
+										phperu *= satof(val_buf);
 									}
 									size_t len = sstrlen(STRNSCPY(val_buf, strip(p)));
 									if(val_buf[len] == '.') {

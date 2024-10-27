@@ -316,7 +316,7 @@ int DbfRecord::get(int fldN, double & data) const
 		return 0;
 	}
 	else {
-		data = satof(tmp); // @v10.7.9 atof-->satof
+		data = satof(tmp);
 		return 1;
 	}
 }
@@ -329,7 +329,7 @@ int DbfRecord::get(int fldN, float & data) const
 		return 0;
 	}
 	else {
-		data = (float)satof(tmp); // @v10.7.9 atof-->satof
+		data = (float)satof(tmp);
 		return 1;
 	}
 }

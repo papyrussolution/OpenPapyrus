@@ -124,7 +124,7 @@ int PPObjBill::OrderLots(const PPBillPacket * pPack, PPIDArray * pLots, PPID gen
 				qtty += rest;
 		}
    	}
-	pLots->clear(); // @v10.6.4 freeAll()-->clear()
+	pLots->clear();
 	for(i = 0; i < _lots.getCount(); i++)
 		THROW_SL(pLots->add(_lots.at(i).lot));
 	CATCHZOK
@@ -670,8 +670,6 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 		}
 	}
 	bool   by_serial = (!(flags & CILTIF_EXCLUDESERIAL) && serial.NotEmpty());
-	// @v10.4.10 THROW_PP_S(GObj.Fetch(labs(ilti->GoodsID), &goods_rec) > 0, PPERR_NEXISTGOODSINBILL, ilti->GoodsID);
-	// @v10.4.10 {
 	if(GObj.Fetch(labs(ilti->GoodsID), &goods_rec) <= 0) {
 		BillTbl::Rec src_bill_rec;
 		temp_buf.Z();
@@ -684,7 +682,6 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 		temp_buf.CatEq("id", labs(ilti->GoodsID));
 		CALLEXCEPT_PP_S(PPERR_NEXISTGOODSINBILL, temp_buf);
 	}
-	// } @v10.4.10 
 	if(GObj.FetchTax(goods_rec.ID, pPack->Rec.Dt, 0L, &gtx) > 0)
 		vatrate = gtx.GetVatRate();
 	if(goods_rec.Flags & GF_UNLIM) {
@@ -773,13 +770,12 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 			THROW_PP_S(sync_lot_id, PPERR_CANTACCEPTBILLRVL_SYNCLOT, goods_rec.Name);
 			THROW(trfr->Rcpt.Search(sync_lot_id, &lot_rec) > 0);
 			THROW(ti.Init(&pPack->Rec, 1, -1));
-			ti.RByBill = ilti->RByBill; // @v10.3.5
+			ti.RByBill = ilti->RByBill;
 			THROW(ti.SetupGoods(ilti->GoodsID, 0));
 			THROW(ti.SetupLot(sync_lot_id, &lot_rec, 0));
 			ti.Cost = ilti->Cost;
 			ti.Price = ilti->Price;
 			ti.Quantity_ = ilti->Quantity;
-			// @v10.3.5 {
 			{
 				PPIDArray correction_bill_chain;
 				if(GetCorrectionBackChain(pPack->Rec, correction_bill_chain) > 0) {
@@ -799,7 +795,6 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 					}
 				}
 			}
-			// } @v10.3.5 
 			THROW(pPack->InsertRow(&ti, &rows));
 			ilti->Rest = 0.0;
 			qtty = 0.0;
@@ -861,7 +856,7 @@ int PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * pRows,
 					const  PPID lot_id = lots.get(i);
 					if(!by_serial || CmpSnrWithLotSnr(lot_id, serial, serial_is_refb)) {
 						THROW(pPack->BoundsByLot(lot_id, 0, -1, &rest, 0));
-						if(rest >= _qtty_epsilon || (flags & CILTIF_CUTRESTTOZERO)) { // @v10.7.4 (|| (flags & CILTIF_CUTRESTTOZERO))
+						if(rest >= _qtty_epsilon || (flags & CILTIF_CUTRESTTOZERO)) {
 							const double q = ((flags & CILTIF_CUTRESTTOZERO) || rest < -qtty) ? rest : -qtty; // @v11.0.4 (|| (flags & CILTIF_CUTRESTTOZERO))
 							THROW(SetupTI(&ti, pPack, ilti->GoodsID, lot_id));
 							ti.Quantity_ = (flags & CILTIF_ABSQTTY) ? q : -q;
@@ -1198,11 +1193,9 @@ int GRI::Add(PPID srcID, double qtty, double ratio)
 
 GoodsReplacementArray::GoodsReplacementArray(PPID specialSubstGroupID) : TSCollection <GRI> (), SpecialSubstGroupID(specialSubstGroupID)
 {
-	// @v10.0.12 {
 	if(SpecialSubstGroupID) {
 		GoodsIterator::GetListByGroup(SpecialSubstGroupID, &SpecialSubstGoodsList);
 	}
-	// } @v10.0.12
 }
 
 const  PPIDArray * GoodsReplacementArray::GetSpecialSubstGoodsList() const
@@ -1307,7 +1300,6 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 		PPID   dest_loc_id = Rec.LocID;
 		PPID   dest_ar_id = 0;
 		if(cvt_op_typeid == PPOPT_GOODSRECEIPT) {
-			// @v10.6.0 {
 			PPID   main_org_ar_id = 0;
 			PPObjArticle ar_obj;
 			PPObjAccSheet acs_obj;
@@ -1325,7 +1317,6 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 					ar_obj.P_Tbl->PersonToArticle(main_org_psn_id, cvt_op_rec.AccSheetID, &main_org_ar_id);
 				}
 			}
-			// } @v10.6.0 
 			if(IsIntrExpndOp(Rec.OpID)) {
 				dest_loc_id = PPObjLocation::ObjToWarehouse(Rec.Object);
 				SETIFZ(dest_loc_id, Rec.LocID);
@@ -1397,7 +1388,7 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 		if(op_type_id == PPOPT_INVENTORY) {
 			THROW(p_bobj->LoadInventoryArray(billID, InvList));
 		}
-		if(oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) { // @v10.6.0 PPOPT_DRAFTQUOTREQ
+		if(oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) {
 			if(p_bobj->P_CpTrfr) {
 				CpTrfrExt ext;
 				for(rbybill = 0; (r = p_bobj->P_CpTrfr->EnumItems(billID, &rbybill, &ti, &ext)) > 0;) {
@@ -1553,7 +1544,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 	PPObjBill * p_bobj = BillObj;
 	PPObjAccount acc_obj;
 	if(!_update) {
-		THROW(rPack.CreateBlank_WithoutCode(Rec.OpID, Rec.LinkBillID, Rec.LocID, use_ta)); // @v10.3.5 rPack.CreateBlank-->rPack.CreateBlank_WithoutCode
+		THROW(rPack.CreateBlank_WithoutCode(Rec.OpID, Rec.LinkBillID, Rec.LocID, use_ta));
 	}
 	else if(pCtx->P_ThisDbDivPack && rPack.Rec.OpID) {
 		//
@@ -1644,15 +1635,12 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 	else {
 		const int ccflg_synclot = BIN(CConfig.Flags2 & CCFLG2_SYNCLOT);
 		ObjTagList lot_tag_list;
-		// @v10.2.9 StringSet ss_lotxcode;
-		PPLotExtCodeContainer::MarkSet lotxcode_set; // @v10.2.9
+		PPLotExtCodeContainer::MarkSet lotxcode_set;
 		LongArray rows;
 		const long ciltif_const_ = CILTIF_USESYNCLOT|CILTIF_OPTMZLOTS|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE|CILTIF_SYNC;
 		long __ciltif = _update ? (ciltif_const_|CILTIF_MOD) : ciltif_const_;
-		// @v10.0.12 {
 		if(pCtx && pCtx->P_Gra && pCtx->P_Gra->GetSpecialSubstGoodsList())
 			__ciltif |= CILTIF_USESUBST;
-		// } @v10.0.12
 		if(trace_sync_lot) {
 			__Debug_TraceLotSync(*this, &rPack, msg_buf);
 			PPLogMessage(PPFILNAM_SYNCLOT_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
@@ -1790,7 +1778,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 					}
 				}
 				if(do_add) {
-					const int rconv = p_bobj->ConvertILTI(p_ilti, &rPack, &rows, __ciltif, org_serial, pCtx->P_Gra); // @v10.0.12 pCtx->P_Gra
+					const int rconv = p_bobj->ConvertILTI(p_ilti, &rPack, &rows, __ciltif, org_serial, pCtx->P_Gra);
 					p_ilti->LotSyncID = preserve_frgn_lot_id;
 					p_ilti->LotMirrID = preserve_frgn_lot_mirr_id;
 					THROW(rconv);
@@ -1878,7 +1866,7 @@ int ILBillPacket::SerializeLots(int dir, SBuffer & rBuf, SSerializeContext * pSC
 {
 	int    ok = 1;
 	if(dir < 0)
-		Lots.clear(); // @v10.9.2 freeAll()-->clear()
+		Lots.clear();
 	int32  c = Lots.getCount(); // @persistent
 	THROW_SL(pSCtx->Serialize(dir, c, rBuf));
 	for(int32 i = 0; i < c; i++) {
@@ -2492,7 +2480,7 @@ int PPObjBill::SerializePacket_Base(int dir, PPBill * pPack, SBuffer & rBuf, SSe
 		const long ff = (GetOpType(pPack->Rec.OpID) == PPOPT_ACCTURN) ? SBuffer::ffAryCount32 : (SBuffer::ffAryCount32|SBuffer::ffAryForceEmpty);
 		THROW_SL(rBuf.Read(&pPack->Turns, ff));
 		THROW_SL(pSCtx->SerializeBlock(-1, sizeof(pPack->Rent), &pPack->Rent, rBuf, 1));
-		THROW_SL(pSCtx->SerializeBlock(-1, sizeof(*pPack->P_Freight), &freight, rBuf, 0)); // @v10.9.2 skipMissizedBlock 1-->0
+		THROW_SL(pSCtx->SerializeBlock(-1, sizeof(*pPack->P_Freight), &freight, rBuf, 0));
 		if(!freight.IsEmpty()) {
 			THROW_MEM(SETIFZ(pPack->P_Freight, new PPFreight));
 			*pPack->P_Freight = freight;
@@ -3082,7 +3070,7 @@ int PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransm
 	int    ok = -1, r;
 	uint   msg_id = 0;
 	BillTbl::Rec bill_rec, link_rec;
-	if(Search(id, &bill_rec) > 0 && bill_rec.OpID && !(bill_rec.Flags & BILLF_CASH) && bill_rec.OpID != PPOPK_EDI_STOCK) { // @v10.1.1 bill_rec.OpID != PPOPK_EDI_STOCK
+	if(Search(id, &bill_rec) > 0 && bill_rec.OpID && !(bill_rec.Flags & BILLF_CASH) && bill_rec.OpID != PPOPK_EDI_STOCK) {
 		if(!bill_rec.StatusID || !CheckStatusFlag(bill_rec.StatusID, BILSTF_DENY_TRANSM)) {
 			PPID   op_id = bill_rec.OpID;
 			PPOprKind op_rec;

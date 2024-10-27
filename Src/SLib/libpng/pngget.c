@@ -649,8 +649,8 @@ uint32 PNGAPI png_get_sCAL_fixed(png_const_structrp png_ptr, png_const_inforp in
 		/* @todo make this work without FP support; the API is currently eliminated
 		 * if neither floating point APIs nor internal floating point arithmetic are enabled.
 		 */
-		*width = png_fixed(png_ptr, satof(info_ptr->scal_s_width), "sCAL width"); // @v10.7.9 atof-->satof
-		*height = png_fixed(png_ptr, satof(info_ptr->scal_s_height), "sCAL height"); // @v10.7.9 atof-->satof
+		*width = png_fixed(png_ptr, satof(info_ptr->scal_s_width), "sCAL width");
+		*height = png_fixed(png_ptr, satof(info_ptr->scal_s_height), "sCAL height");
 		return (PNG_INFO_sCAL);
 	}
 	return 0;
@@ -663,8 +663,8 @@ uint32 PNGAPI png_get_sCAL(png_const_structrp png_ptr, png_const_inforp info_ptr
 {
 	if(png_ptr && info_ptr && (info_ptr->valid & PNG_INFO_sCAL) != 0) {
 		*unit = info_ptr->scal_unit;
-		*width = satof(info_ptr->scal_s_width); // @v10.7.9 atof-->satof
-		*height = satof(info_ptr->scal_s_height); // @v10.7.9 atof-->satof
+		*width = satof(info_ptr->scal_s_width);
+		*height = satof(info_ptr->scal_s_height);
 		return (PNG_INFO_sCAL);
 	}
 	return 0;

@@ -1996,7 +1996,7 @@ void BhtRecord::GetDbl(uint fldNo, double * pVal)
 		char tmp_buf[128];
 		memzero(tmp_buf, sizeof(tmp_buf));
 		memcpy(tmp_buf, Buf+FldOfs(fldNo), Lens[fldNo]);
-		*pVal = satof(strip(tmp_buf)); // @v10.7.9 atof-->satof
+		*pVal = satof(strip(tmp_buf));
 	}
 }
 
@@ -4943,7 +4943,7 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 		barcode = gid;
 		IdentifyGoods(&g_obj, barcode, &goods_id, &goods_rec);
 		if(qtty != 0.0 && (goods_id || barcode.Len())) {
-			price = satof(str_price); // @v10.7.9 atof-->satof
+			price = satof(str_price);
 			if(goods_id == 0) {
 				ResolveGoodsItem gi(goods_id);
 				barcode.CopyTo(gi.Barcode, sizeof(gi.Barcode));

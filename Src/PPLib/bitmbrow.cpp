@@ -141,8 +141,15 @@ private:
 	int    ConvertBillToBasket();
 	void   GetMinMaxQtty(uint itemPos, RealRange & rRange) const;
 	int    SubtractRetsFromLinkPack();
-	// Ненулевой параметр только при вызове из конструктора
-	SArray * MakeList(PPBillPacket * = 0, int pckgPos = -1);
+	//
+	// ARG(pPack IN): Ненулевой параметр только при вызове из конструктора
+	//
+	SArray * MakeList(PPBillPacket * pPack = 0, int pckgPos = -1);
+	//
+	// Descr: Эта функция конвертирует товарные строки пакета P_LinkPack таким образом,
+	//   чтобы товар, оприходованный от поставщика на одну локацию, можно было
+	//   вернуть с локации loc, на которой он (товар) оказался в результате межскладских перемещений.
+	//
 	int    ConvertSupplRetLink(PPID locID);
 	int    checkForward(const PPTransferItem * pTi, LDATE, int reverse);
 	int    editPackageData(LPackage *);
@@ -392,12 +399,7 @@ static int test_lot(const ReceiptTbl::Rec * pLotRec, void * extraPtr)
 	const  PPID loc_id = reinterpret_cast<const  PPID>(extraPtr);
 	return (pLotRec->LocID == loc_id && !pLotRec->Closed);
 }
-//
-// Эта функция конвертирует товарные строки пакета P_LinkPack таким образом,
-// чтобы товар, оприходованный от поставщика на одну локацию, можно было
-// вернуть с локации loc, на которой он (товар) оказался в результате
-// межскладских перемещений.
-//
+
 int BillItemBrowser::ConvertSupplRetLink(PPID locID)
 {
 	int    ok = 1;
@@ -409,7 +411,7 @@ int BillItemBrowser::ConvertSupplRetLink(PPID locID)
 	for(i = 0; P_LinkPack->EnumTItems(&i, &p_ti);) {
 		if(p_ti->LocID == locID)
 			THROW_SL(temp.insert(p_ti));
-		THROW(P_T->Rcpt.GatherChilds(p_ti->LotID, &childs, test_lot, reinterpret_cast<void *>(locID)));
+		THROW(P_T->Rcpt.GatherChildren(p_ti->LotID, &childs, test_lot, reinterpret_cast<void *>(locID)));
 		for(j = 0; childs.enumItems(&j, reinterpret_cast<void **>(&p_lot_id));) {
 			PPTransferItem t(*p_ti);
 			t.LocID = locID;

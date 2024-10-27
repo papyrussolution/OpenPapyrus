@@ -278,8 +278,7 @@ static int hibc(struct ZintSymbol * symbol, uchar source[], size_t length)
 	to_upper(source);
 	error_number = is_sane(TECHNETIUM, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (B03)");
-		ZintMakeErrText_InvCharInData("B03", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
+		ZintMakeErrText_InvCharInData("B03", symbol->errtxt, sizeof(symbol->errtxt));
 		return error_number;
 	}
 	sstrcpy(to_process, "+");

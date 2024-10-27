@@ -1,5 +1,5 @@
 // CPTRANSF.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -8,8 +8,8 @@
 
 CpTrfrExt::CpTrfrExt() : LinkBillID(0), LinkRbb(0), QrSeqAckStatus(0)
 {
-	PTR32(PartNo)[0] = 0;
-	PTR32(Clb)[0] = 0;
+	PartNo[0] = 0;
+	Clb[0] = 0;
 }
 
 CpTransfCore::CpTransfCore() : CpTransfTbl()
@@ -22,7 +22,6 @@ CpTransfCore::CpTransfCore() : CpTransfTbl()
 	SString ext_buf, temp_buf;
     PPPutExtStrData(CPTFREXSTR_SERIAL, ext_buf, (temp_buf = pExt ? pExt->PartNo : 0).Strip());
     PPPutExtStrData(CPTFREXSTR_CLB, ext_buf, (temp_buf = pExt ? pExt->Clb : 0).Strip());
-    // @v10.5.8 {
     if(pExt) {
 		if(pExt->LinkBillID > 0 && pExt->LinkRbb > 0) {
 			temp_buf.Z().Cat(pExt->LinkBillID).Semicol().Cat(pExt->LinkRbb);
@@ -35,7 +34,6 @@ CpTransfCore::CpTransfCore() : CpTransfTbl()
 			temp_buf = "REJ";
 		PPPutExtStrData(CPTFREXSTR_QRSEQACKSTATUS, ext_buf, temp_buf);
 	}
-    // } @v10.5.8
     STRNSCPY(rRec.Tail, ext_buf);
 	return ok;
 }
@@ -59,7 +57,6 @@ CpTransfCore::CpTransfCore() : CpTransfTbl()
     if(pExt) {
 		STRNSCPY(pExt->Clb, temp_buf);
     }
-    // @v10.5.8 {
     {
 		PPGetExtStrData(CPTFREXSTR_LINKBILLROW, ext_buf, temp_buf.Z());
         if(temp_buf.NotEmptyS()) {
@@ -85,7 +82,6 @@ CpTransfCore::CpTransfCore() : CpTransfTbl()
 		else
 			pExt->QrSeqAckStatus = 0;
 	}
-    // } @v10.5.8
     return ok;
 }
 
@@ -99,7 +95,7 @@ int CpTransfCore::Search(PPID billID, int rByBill, CpTransfTbl::Rec * pRec)
 
 int CpTransfCore::LoadItems(PPID billID, PPBillPacket * pPack, const PPIDArray * pGoodsList)
 {
-	int    ok = 1;
+	int    ok = -1; // @v12.1.9 (1)-->(-1)
 	assert(!pGoodsList || pGoodsList->isSorted());
 	if(!pGoodsList || pGoodsList->getCount()) {
 		PROFILE_START
@@ -121,43 +117,48 @@ int CpTransfCore::LoadItems(PPID billID, PPBillPacket * pPack, const PPIDArray *
 			this->CurPrice, this->Expiry, this->QCertID, this->InTaxGrpID, this->Flags, this->Tail, 0L).where(*dbq);
 		for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 			if(!pGoodsList || pGoodsList->bsearch(data.GoodsID)) {
-				PPTransferItem ti;
-				ti.Date     = pPack->Rec.Dt;
-				ti.BillID   = data.BillID;
-				ti.RByBill  = data.RByBill;
-				ti.LocID    = data.LocID;
-				ti.GoodsID  = data.GoodsID;
-				ti.OrdLotID = data.OrdLotID;
-				ti.CurID    = static_cast<int16>(data.CurID);
-				ti.UnitPerPack = data.UnitPerPack;
-				ti.Quantity_ = data.Qtty;
-				ti.Cost     = data.Cost;
-				ti.Price    = data.Price;
-				ti.Discount = data.Discount;
-				ti.CurPrice = data.CurPrice;
-				ti.Expiry   = data.Expiry;
-				ti.QCert    = data.QCertID;
-				ti.LotTaxGrpID = data.InTaxGrpID;
-				ti.Flags    = data.Flags;
-				{
-					CpTrfrExt cpext;
-					CpTransfCore::GetExt__(data, &cpext);
-					// @v10.5.8 {
-					ti.Lbr.ID = cpext.LinkBillID; 
-					ti.Lbr.RByBill = cpext.LinkRbb;
-					ti.TFlags &= ~(ti.tfQrSeqAccepted|ti.tfQrSeqRejected);
-					if(cpext.QrSeqAckStatus == 1)
-						ti.TFlags |= ti.tfQrSeqAccepted;
-					else if(cpext.QrSeqAckStatus == 2)
-						ti.TFlags |= ti.tfQrSeqRejected;
-					if(ti.Lbr.ID > 0 && pPack->Rec.Object && pPack->OpTypeID == PPOPT_DRAFTQUOTREQ) {
-						PPObjArticle ar_obj;
-						ArticleTbl::Rec ar_rec;
-						if(ar_obj.Fetch(pPack->Rec.Object, &ar_rec) > 0 && ar_rec.AccSheetID == GetSupplAccSheet())
-							ti.Suppl = pPack->Rec.Object;
+				if(pPack) {
+					PPTransferItem ti;
+					ti.Date     = pPack->Rec.Dt;
+					ti.BillID   = data.BillID;
+					ti.RByBill  = data.RByBill;
+					ti.LocID    = data.LocID;
+					ti.GoodsID  = data.GoodsID;
+					ti.OrdLotID = data.OrdLotID;
+					ti.CurID    = static_cast<int16>(data.CurID);
+					ti.UnitPerPack = data.UnitPerPack;
+					ti.Quantity_ = data.Qtty;
+					ti.Cost     = data.Cost;
+					ti.Price    = data.Price;
+					ti.Discount = data.Discount;
+					ti.CurPrice = data.CurPrice;
+					ti.Expiry   = data.Expiry;
+					ti.QCert    = data.QCertID;
+					ti.LotTaxGrpID = data.InTaxGrpID;
+					ti.Flags    = data.Flags;
+					{
+						CpTrfrExt cpext;
+						CpTransfCore::GetExt__(data, &cpext);
+						ti.Lbr.ID = cpext.LinkBillID; 
+						ti.Lbr.RByBill = cpext.LinkRbb;
+						ti.TFlags &= ~(ti.tfQrSeqAccepted|ti.tfQrSeqRejected);
+						if(cpext.QrSeqAckStatus == 1)
+							ti.TFlags |= ti.tfQrSeqAccepted;
+						else if(cpext.QrSeqAckStatus == 2)
+							ti.TFlags |= ti.tfQrSeqRejected;
+						if(ti.Lbr.ID > 0 && pPack->Rec.Object && pPack->OpTypeID == PPOPT_DRAFTQUOTREQ) {
+							PPObjArticle ar_obj;
+							ArticleTbl::Rec ar_rec;
+							if(ar_obj.Fetch(pPack->Rec.Object, &ar_rec) > 0 && ar_rec.AccSheetID == GetSupplAccSheet())
+								ti.Suppl = pPack->Rec.Object;
+						}
+						THROW(pPack->LoadTItem(&ti, cpext.Clb, cpext.PartNo));
+						ok = 1; // @v12.1.9 
 					}
-					// } @v10.5.8
-					THROW(pPack->LoadTItem(&ti, cpext.Clb, cpext.PartNo));
+				}
+				else {
+					ok = 1; 
+					break;
 				}
 			}
 		}

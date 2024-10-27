@@ -453,7 +453,7 @@ static int read_row(FILE * pF, LVect * pVect)
 			buf[p++] = c;
 		}
 		buf[p] = 0;
-		pVect->set(i, satof(buf)); // @v10.7.9 atof-->satof
+		pVect->set(i, satof(buf));
 	}
 	THROW(c == '\n');
 	CATCHZOK

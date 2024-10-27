@@ -41,6 +41,8 @@ static const SIntToSymbTabEntry BzsISymList[] = { // @v12.1.6
 	{ PPBZSI_MPAMT_ORDSELLERPRICE,   "mpamtordsellerprice" },
 	{ PPBZSI_MPAMT_SHIPMPRICE,       "mpamtshipmprice" },
 	{ PPBZSI_MPAMT_SHIPMSELLERPRICE, "mpamtshipmsellerprice" },
+	{ PPBZSI_SALECOST,               "salecost" },
+	{ PPBZSI_FREIGHT,                "freight" },
 };
 
 IMPL_CMPFUNC(BzsValVector_Ident, i1, i2)

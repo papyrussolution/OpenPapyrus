@@ -30,8 +30,8 @@ int STDCALL strtorrng(const char * pBuf, double * pLow, double * pUpp)
 	while(t[0] && !(t[0] == '.' && t[1] == '.') && !(t[0] == ',' && t[1] == ','))
 		t++;
 	n = t[0] ? (dot = 1, t + 2) : t;
-	*pLow = satof(p_tmp); // @v10.7.9 atof-->satof
-	*pUpp = (*strip(n) == 0 && !dot) ? *pLow : satof(n); // @v10.7.9 atof-->satof
+	*pLow = satof(p_tmp);
+	*pUpp = (*strip(n) == 0 && !dot) ? *pLow : satof(n);
 	SAlloc::F(p_tmp);
 	return 1;
 }

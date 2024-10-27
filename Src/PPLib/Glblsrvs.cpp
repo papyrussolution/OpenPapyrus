@@ -1279,7 +1279,7 @@ int PPGlobalServiceHighLevelImplementations::Setup_VK()
 	SString def_img_path;
 	ObjLinkFiles lf(PPOBJ_GOODS);
 	PPWaitStart();
-	PPGetFilePath(PPPATH_DD, PPFILNAM_NOIMAGE, def_img_path); // @v10.9.4
+	PPGetFilePath(PPPATH_DD, PPFILNAM_NOIMAGE, def_img_path);
 	if(ifc.Setup(rParam.GuaID, ifc.sfInitStoreAttributes)) {
 		PPGoodsPacket pack;
 		TSCollection <VkInterface::MarketWareItem> ex_outer_goods_id_list;

@@ -2112,7 +2112,7 @@ int ImportCls::ParseForDocData(Sdr_Bill * pBill)
 					ok = 1;
 				}
 				else if(SXml::IsName(p_node, ELEMENT_NAME_TOTALGROSSAMOUNT) && p_node->children) { // Сумма документа с НДС
-					pBill->Amount = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
+					pBill->Amount = satof(PTRCHRC_(p_node->children->content));
 					ok = 1;
 				}
 			}
@@ -2203,15 +2203,15 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 											}
 											else if(sstreq(p_node->name, ELEMENT_NAME_ALLOCDELIVRD)) {
 												// Утвержденное количество товара
-												pBRow->Quantity = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
+												pBRow->Quantity = satof(PTRCHRC_(p_node->children->content));
 											}
 											else if(sstreq(p_node->name, "OrderedUnitPacksize")) {
 												// Количество товара в упаковке
-												pBRow->UnitPerPack = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
+												pBRow->UnitPerPack = satof(PTRCHRC_(p_node->children->content));
 											}
 											else if(sstreq(p_node->name, "OrderedUnitGrossPrice")) {
 												// Цена с НДС
-												pBRow->Cost = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
+												pBRow->Cost = satof(PTRCHRC_(p_node->children->content));
 											}
 										}
 									}
@@ -2219,15 +2219,15 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 										if(p_node->children) {
 											if(sstreq(p_node->name, ELEMENT_NAME_QTTYDISPATCHED)) {
 												// Отгруженное количество
-												pBRow->Quantity = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
+												pBRow->Quantity = satof(PTRCHRC_(p_node->children->content));
 											}
 											else if(sstreq(p_node->name, ELEMENT_NAME_UNITPACKSZ)) {
 												// Количество товара в упаковке
-												pBRow->UnitPerPack = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
+												pBRow->UnitPerPack = satof(PTRCHRC_(p_node->children->content));
 											}
 											else if(sstreq(p_node->name, ELEMENT_NAME_UNITGROSSPRICE)) {
 												// Цена с НДС
-												pBRow->Cost = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
+												pBRow->Cost = satof(PTRCHRC_(p_node->children->content));
 											}
 											else if(sstreq(p_node->name, ELEMENT_NAME_ALCOCONTENT)) {
 												// Содержание алкоголя в %
@@ -2325,7 +2325,7 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 									}
 									else if(SXml::IsName(p_node, ELEMENT_NAME_TAXRATE) && p_node->children) {
 										// Ставка НДС в %
-										pBRow->VatRate = satof(PTRCHRC_(p_node->children->content)); // @v10.7.9 atof-->satof
+										pBRow->VatRate = satof(PTRCHRC_(p_node->children->content));
 									}
 								}
 							}

@@ -101,8 +101,7 @@ int code_11(struct ZintSymbol * symbol, const uchar source[], int length)   /* C
 	}
 	error_number = is_sane(SODIUM, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C21)");
-		ZintMakeErrText_InvCharInData("C21", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
+		ZintMakeErrText_InvCharInData("C21", symbol->errtxt, sizeof(symbol->errtxt));
 		return error_number;
 	}
 	c_weight = 1;
@@ -188,8 +187,7 @@ int c39(struct ZintSymbol * symbol, uchar source[], const size_t length)
 	to_upper(source);
 	error_number = is_sane(SILVER, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C24)");
-		ZintMakeErrText_InvCharInData("C24", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
+		ZintMakeErrText_InvCharInData("C24", symbol->errtxt, sizeof(symbol->errtxt));
 		return error_number;
 	}
 	/* Start character */
@@ -266,8 +264,7 @@ int pharmazentral(struct ZintSymbol * symbol, uchar source[], int length)
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C26)");
-		ZintMakeErrText_InvCharInData("C26", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
+		ZintMakeErrText_InvCharInData("C26", symbol->errtxt, sizeof(symbol->errtxt));
 		return error_number;
 	}
 	localstr[0] = '-';
@@ -474,8 +471,7 @@ int channel_code(struct ZintSymbol * symbol, const uchar source[], int length)
 	}
 	error_number = is_sane(NEON, source, length);
 	if(error_number == ZINT_ERROR_INVALID_DATA) {
-		// @v10.6.5 sstrcpy(symbol->errtxt, "Invalid characters in data (C2E)");
-		ZintMakeErrText_InvCharInData("C2E", symbol->errtxt, sizeof(symbol->errtxt)); // @v10.6.5
+		ZintMakeErrText_InvCharInData("C2E", symbol->errtxt, sizeof(symbol->errtxt));
 		return error_number;
 	}
 	if((symbol->option_2 < 3) || (symbol->option_2 > 8)) {
