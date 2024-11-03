@@ -573,7 +573,8 @@ private:
 
 int BillFilterDialog(uint dlgID, BillFilt * pFilt, TDialog ** ppDlg, const char * pAddText)
 {
-	int    r, valid_data = 0;
+	int    r;
+	int    valid_data = 0;
 	BillFiltDialog * dlg = 0;
 	if(*ppDlg == 0) {
 		if(!CheckDialogPtr(&(dlg = new BillFiltDialog(dlgID, pAddText))))
@@ -4115,7 +4116,6 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 			period.low = plusdate(bill_rec.Dt, -180);
 			PPIDArray op_list;
 			LAssocArray doe_flags_list;
-			// @v10.8.3 {
 			const  int is_intrrcpt = (IsIntrOp(bill_rec.OpID) == INTRRCPT);
 			PPID   egais_rcpt_op_id = 0;
 			if(is_intrrcpt) {
@@ -4124,7 +4124,6 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 				if(gua_obj.FetchAlbatossConfig(&acfg) > 0)
 					egais_rcpt_op_id = acfg.Hdr.EgaisRcptOpID;
 			}
-			// } @v10.8.3 
 			for(PPID id = 0; (r = EnumOperations(0, &id, &op_rec)) > 0;) {
 				if(IsDraftOp(id)) {
 					PPDraftOpEx doe;
@@ -6004,7 +6003,8 @@ static int SCardNumDlg(PPSCardPacket & rScPack, CCheckTbl::Rec * pChkRec, int is
 static int SCardInfoDlg(PPSCardPacket & rScPack, PPID * pOpID, long flags, int withoutPsn)
 {
 	int    without_person = 0;
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	SString temp_buf;
 	SString added_msg;
 	PPID   op_id = 0;
@@ -8911,7 +8911,7 @@ int PPALDD_GoodsBillQCert::InitData(PPFilt & rFilt, long rsrv)
 		H.ExpendFlag = 1;
 		H.DlvrReq    = main_org_id;
 		H.DlvrLocID  = p_pack->Rec.LocID;
-		if(p_pack->Rec.Object)
+		if(p_pack->Rec.Object) {
 			if(PPObjLocation::ObjToWarehouse(p_pack->Rec.Object)) {
 				H.RcvrReq   = main_org_id;
 				H.RcvrLocID = PPObjLocation::ObjToWarehouse(p_pack->Rec.Object);
@@ -8920,6 +8920,7 @@ int PPALDD_GoodsBillQCert::InitData(PPFilt & rFilt, long rsrv)
 				H.RcvrReq   = ObjectToPerson(p_pack->Rec.Object);
 				H.RcvrLocID = 0;
 			}
+		}
 	}
 	else if(optype == PPOPT_DRAFTRECEIPT || p_pack->Rec.Flags & BILLF_GRECEIPT) {
 		H.ExpendFlag = 2;

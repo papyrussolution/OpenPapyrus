@@ -192,14 +192,14 @@ int ArticleCore::SearchObjRef(PPID sheet, PPID id, ArticleTbl::Rec * b)
 	return SearchByKey(this, 3, &k, b);
 }
 
-int ArticleCore::PersonToArticle(PPID personID, PPID accSheetID, PPID * pArID)
+bool ArticleCore::PersonToArticle(PPID personID, PPID accSheetID, PPID * pArID)
 {
-	int    ok = -1;
+	bool   ok = false;
 	PPID   ar_id = 0;
 	ArticleTbl::Rec rec;
-	if(accSheetID && SearchObjRef(accSheetID, personID, &rec) > 0) {
+	if(personID && accSheetID && SearchObjRef(accSheetID, personID, &rec) > 0) {
 		ar_id = rec.ID;
-		ok = 1;
+		ok = true;
 	}
 	ASSIGN_PTR(pArID, ar_id);
 	return ok;

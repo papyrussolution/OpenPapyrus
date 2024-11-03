@@ -143,7 +143,7 @@ DocNalogRu_Base::Address::Address() : CountryCode(0), RuRegionCode(0)
 {
 }
 
-DocNalogRu_Base::Participant::Participant() : PartyQ(0), PersonID(0), LocID(0)
+DocNalogRu_Base::Participant::Participant() : PartyQ(0), PersonID(0), LocID(0), JrStatus(0)
 {
 }
 
@@ -210,6 +210,62 @@ const SString & FASTCALL DocNalogRu_Base::GetToken_Utf8(long tokId)
 
 DocNalogRu_Reader::DocNalogRu_Reader() : DocNalogRu_Base()
 {
+}
+
+int DocNalogRu_Reader::CreateParticipant(const Participant & rP, PPID personKindID, PPID * pPsnID, int use_ta)
+{
+	int    ok = -1;
+	PPID   psn_id = 0;
+	SString temp_buf;
+	if(personKindID && (rP.Appellation.NotEmpty() || rP.Surname.NotEmpty()) && rP.INN.NotEmpty()) {
+		PPObjPerson psn_obj;
+		PPPersonPacket psn_pack;
+		psn_pack.Kinds.add(personKindID);
+		if(rP.JrStatus) {
+			psn_pack.Rec.Status = rP.JrStatus;
+		}
+		if(rP.Appellation.NotEmpty())
+			STRNSCPY(psn_pack.Rec.Name, rP.Appellation);
+		else {
+			temp_buf.Z();
+			if(rP.Surname.NotEmpty())
+				temp_buf.CatDivIfNotEmpty(' ', 0).Cat(rP.Surname);
+			if(rP.Name_.NotEmpty())
+				temp_buf.CatDivIfNotEmpty(' ', 0).Cat(rP.Name_);
+			if(rP.Patronymic.NotEmpty())
+				temp_buf.CatDivIfNotEmpty(' ', 0).Cat(rP.Patronymic);
+		}
+		if(rP.INN.NotEmpty()) {
+			RegisterTbl::Rec reg;
+			reg.RegTypeID = PPREGT_TPID;
+			STRNSCPY(reg.Num, rP.INN);
+			psn_pack.Regs.insert(&reg);
+		}
+		if(rP.KPP.NotEmpty()) {
+			RegisterTbl::Rec reg;
+			reg.RegTypeID = PPREGT_KPP;
+			STRNSCPY(reg.Num, rP.KPP);
+			psn_pack.Regs.insert(&reg);
+		}
+		if(rP.GLN.NotEmpty()) {
+			RegisterTbl::Rec reg;
+			reg.RegTypeID = PPREGT_GLN;
+			STRNSCPY(reg.Num, rP.GLN);
+			psn_pack.Regs.insert(&reg);
+		}
+		if(rP.Phone.NotEmpty()) {
+			psn_pack.ELA.AddItem(PPELK_WORKPHONE, rP.Phone);
+		}
+		if(rP.EMail.NotEmpty()) {
+			psn_pack.ELA.AddItem(PPELK_EMAIL, rP.Phone);
+		}
+		assert(psn_id == 0);
+		if(psn_obj.PutPacket(&psn_id, &psn_pack, use_ta)) {
+			ok = 1;
+		}
+	}
+	ASSIGN_PTR(pPsnID, psn_id);
+	return ok;
 }
 
 int DocNalogRu_Reader::ReadSingleXmlFile(const char * pFileName, FileInfo & rHeader, TSCollection <DocumentInfo> & rDocList)
@@ -677,11 +733,13 @@ int DocNalogRu_Reader::ReadParticipant(const xmlNode * pNode, Participant & rRes
 			GetAttr(p_n, PPHSC_RU_OKPO, rResult.OKPO);
 			for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
 				if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_JURINFO))) {
+					rResult.JrStatus = PPPRS_LEGAL;
 					GetAttr(p_n2, PPHSC_RU_NAMEOFORG, rResult.Appellation);
 					GetAttr(p_n2, PPHSC_RU_INNJUR, rResult.INN);
 					GetAttr(p_n2, PPHSC_RU_KPP, rResult.KPP);
 				}
 				else if(SXml::IsName(p_n2, GetToken_Utf8(PPHSC_RU_PRIVEINFO))) {
+					rResult.JrStatus = PPPRS_FREE;
 					GetAttr(p_n2, PPHSC_RU_INNPHS, rResult.INN);
 					GetAttr(p_n2, PPHSC_RU_KPP, rResult.KPP);
 					for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
@@ -696,6 +754,11 @@ int DocNalogRu_Reader::ReadParticipant(const xmlNode * pNode, Participant & rRes
 		}
 		else if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_ADDRESS))) {
 			ReadAddress(p_n, rResult.Addr);
+		}
+		else if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_CONTACT))) { // @v12.1.10
+			//<Контакт Тлф="+ 7 911 660 41 52" ЭлПочта="yzm25@mail.ru"/>
+			GetAttr(p_n, PPHSC_RU_PHN, rResult.Phone);
+			GetAttr(p_n, PPHSC_RU_EMAIL, rResult.EMail);
 		}
 		else if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_BANKACCINFO))) {
 			GetAttr(p_n, PPHSC_RU_ACCNO, rResult.BA.Account);
@@ -716,6 +779,7 @@ int DocNalogRu_Reader::ReadParticipant(const xmlNode * pNode, Participant & rRes
 		else if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_BANKACCINFO))) {
 		}*/
 		else if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_PERSONALINFO2))) { // @v11.9.5 SBIS
+			rResult.JrStatus = PPPRS_FREE;
 			GetAttr(p_n, PPHSC_RU_APPEL2, rResult.Appellation);
 			GetAttr(p_n, PPHSC_RU_INN, rResult.INN);
 			GetAttr(p_n, PPHSC_RU_KPP, rResult.KPP);
@@ -724,6 +788,7 @@ int DocNalogRu_Reader::ReadParticipant(const xmlNode * pNode, Participant & rRes
 			GetAttr(p_n, PPHSC_RU_PATRONYMIC, rResult.Patronymic);
 		}
 		else if(SXml::IsName(p_n, GetToken_Utf8(PPHSC_RU_PERSONINFO_JUR2))) { // @v11.9.5 SBIS
+			rResult.JrStatus = PPPRS_LEGAL;
 			GetAttr(p_n, PPHSC_RU_APPEL2, rResult.Appellation);
 			GetAttr(p_n, PPHSC_RU_INN, rResult.INN);
 			GetAttr(p_n, PPHSC_RU_KPP, rResult.KPP);
@@ -4249,7 +4314,7 @@ int PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack)
 							const  PPID psn_by_em_id = psn_by_em_list.get(i);
 							if(PsnObj.Fetch(psn_by_em_id, &psn_rec) > 0) {
 								PPID temp_ar_id = 0;
-								if(ArObj.P_Tbl->PersonToArticle(psn_by_em_id, acs_id, &temp_ar_id) > 0)
+								if(ArObj.P_Tbl->PersonToArticle(psn_by_em_id, acs_id, &temp_ar_id))
 									ar_id = temp_ar_id;
 							}
 						}
@@ -4305,7 +4370,7 @@ int PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack)
 			STRNSCPY(pPack->Ext.InvoiceCode, temp_buf);
 			{
 				PPID	agent_id = 0;
-				if(pBill->AgentPersonID && ArObj.P_Tbl->PersonToArticle(pBill->AgentPersonID, GetAgentAccSheet(), &agent_id) > 0)
+				if(pBill->AgentPersonID && ArObj.P_Tbl->PersonToArticle(pBill->AgentPersonID, GetAgentAccSheet(), &agent_id))
 					pPack->Ext.AgentID = agent_id;
 				else if(pBill->AgentINN[0] && ResolveINN(pBill->AgentINN, 0, 0, pBill->ID, GetAgentAccSheet(), &agent_id, 0) > 0)
 					pPack->Ext.AgentID = agent_id;
@@ -4803,7 +4868,7 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 							for(uint apidx = 0; apidx < agent_psn_list.getCount(); apidx++) {
 								const  PPID apid = agent_psn_list.get(apidx);
 								PPID  agent_ar_id = 0;
-								if(ArObj.P_Tbl->PersonToArticle(apid, GetAgentAccSheet(), &agent_ar_id) > 0) {
+								if(ArObj.P_Tbl->PersonToArticle(apid, GetAgentAccSheet(), &agent_ar_id)) {
 									assert(agent_ar_id > 0);
 									pack.Ext.AgentID = agent_ar_id;
 									break;
@@ -5114,13 +5179,13 @@ int PPBillImporter::Run()
 							init_bill_code = p_doc->Code;
 						else if(p_doc->InvcCode.NotEmpty())
 							init_bill_code = p_doc->InvcCode;
-						DocNalogRu_Reader::Participant * p_seller = p_doc->GetParticipant(EDIPARTYQ_SELLER, false);
+						const DocNalogRu_Reader::Participant * p_seller = p_doc->GetParticipant(EDIPARTYQ_SELLER, false);
 						SETIFZ(p_seller, p_doc->GetParticipant(EDIPARTYQ_CONSIGNOR, false));
-						DocNalogRu_Reader::Participant * p_buyer = p_doc->GetParticipant(EDIPARTYQ_BUYER, false);
+						const DocNalogRu_Reader::Participant * p_buyer = p_doc->GetParticipant(EDIPARTYQ_BUYER, false);
 						SETIFZ(p_buyer, p_doc->GetParticipant(EDIPARTYQ_CONSIGNEE, false));
 						{
 							struct ResolveBlock {
-								static PPID Resolve(PPBillImporter * pMaster, DocNalogRu_Reader::Participant * pParticipant, const SString & rInitBillCode, PPID acsID)
+								static PPID Resolve(PPBillImporter * pMaster, const DocNalogRu_Reader::Participant * pParticipant, const SString & rInitBillCode, PPID acsID)
 								{
 									PPID   ar_id = 0;
 									if(pParticipant) {
@@ -5132,7 +5197,24 @@ int PPBillImporter::Run()
 									return ar_id;
 								}
 							};
-							seller_ar_id = ResolveBlock::Resolve(this, p_seller, init_bill_code, contragent_acs_id);
+							if(p_seller) {
+								seller_ar_id = ResolveBlock::Resolve(this, p_seller, init_bill_code, contragent_acs_id);
+								// @v12.1.10 {
+								if(!seller_ar_id && op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
+									PPID  psn_id = 0;
+									PPObjAccSheet acs_obj;
+									PPAccSheet acs_rec;
+									if(acs_obj.Fetch(op_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) {
+										if(reader.CreateParticipant(*p_seller, acs_rec.ObjGroup, &psn_id, 1) > 0) {
+											PPID   ar_id = 0;
+											if(ArObj.P_Tbl->PersonToArticle(psn_id, op_rec.AccSheetID, &ar_id)) {
+												seller_ar_id = ar_id;
+											}
+										}
+									}
+								}
+								// } @v12.1.10 
+							}
 							buyer_ar_id  = ResolveBlock::Resolve(this, p_buyer, init_bill_code, contragent_acs_id);
 						}
 						pack.CreateBlank2(BillParam.ImpOpID, init_bill_date, LocID, 0);

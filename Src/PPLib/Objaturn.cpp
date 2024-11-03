@@ -172,7 +172,8 @@ int PPObjAccTurn::ReplyArticleDel(PPID _id)
 
 int PPObjAccTurn::EditRecoverBalanceParam(RecoverBalanceParam * pParam)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	Acct   acct;
 	PPID   cur_id = 0;
 	AcctID acct_id;

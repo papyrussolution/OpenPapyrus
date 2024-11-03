@@ -2098,7 +2098,8 @@ int SupplAgtDialog::EditExchangeCfg()
 			}
 		}
 	};
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	//PPSupplAgreement::ExchangeParam ep;
 	SupplExchangeCfgDialog * dlg = new SupplExchangeCfgDialog();
 	THROW(CheckDialogPtr(&dlg));

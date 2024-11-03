@@ -2327,7 +2327,7 @@ PPID PPMarketplaceInterface_Wildberries::CreateBuyer(const Sale * pSaleEntry, in
 								if(psn_candidate_list.getCount()) {
 									PPID psn_id = psn_candidate_list.get(0);
 									PPID ar_id = 0;
-									if(ArObj.P_Tbl->PersonToArticle(psn_id, acs_id, &ar_id) > 0) {
+									if(ArObj.P_Tbl->PersonToArticle(psn_id, acs_id, &ar_id)) {
 										result_ar_id = ar_id;
 									}
 								}
@@ -2546,20 +2546,102 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(const Sale & rWbI
 	PPID   result_lot_id = 0;
 	PPObjBill * p_bobj = BillObj;
 	SString serial_buf;
+	const  PPID rcpt_op_id = CConfig.ReceiptOp;
+	THROW_SL(checkdate(dt)); 
 	if(rWbItem.IncomeID && rWbItem.Ware.ID && locID) {
 		MakeSerialIdent(rWbItem.IncomeID, rWbItem.Ware, serial_buf);
 		PPIDArray lot_id_list;
 		bool   lot_found = false;
+		PPID   intrexp_op_id = 0;
+		ReceiptTbl::Rec lot_rec;
+		{
+			PPObjOprKind op_obj;
+			PPOprKind op_rec;
+			for(SEnum en = op_obj.Enum(0); !intrexp_op_id && en.Next(&op_rec) > 0;) {
+				if(IsIntrOp(op_rec.ID) == INTREXPND)
+					intrexp_op_id = op_rec.ID;
+			}
+		}
 		if(p_bobj->SearchLotsBySerialExactly(serial_buf, &lot_id_list) > 0) {
-			ReceiptTbl::Rec lot_rec;
 			PPID   lot_id = 0;
+			PPID   lot_candidate_for_intrexpend = 0; // Лот - кандидат на передачу товара межскладом
 			for(uint i = 0; !lot_id && i < lot_id_list.getCount(); i++) {
 				const PPID iter_lot_id = lot_id_list.get(i);
-				if(p_bobj->trfr->Rcpt.Search(iter_lot_id, &lot_rec) > 0 && lot_rec.GoodsID == goodsID && lot_rec.LocID == locID) {
-					lot_id = iter_lot_id;
+				if(p_bobj->trfr->Rcpt.Search(iter_lot_id, &lot_rec) > 0 && lot_rec.GoodsID == goodsID) {
+					if(lot_rec.LocID == locID) {
+						lot_id = iter_lot_id;
+					}
+					else if(intrexp_op_id) {
+						BillTbl::Rec bill_rec;
+						if(p_bobj->Search(lot_rec.BillID, &bill_rec) > 0) {
+							if(GetOpType(bill_rec.OpID) == rcpt_op_id && bill_rec.EdiOp == PPEDIOP_MRKTPLC_RECEIPT) {
+								lot_candidate_for_intrexpend = iter_lot_id;
+							}
+							else if(!lot_candidate_for_intrexpend) {
+								double down_lim = 0.0;
+								double up_lim = 0.0;
+								p_bobj->trfr->GetBounds(iter_lot_id, dt, -1, &down_lim, &up_lim);
+								if(down_lim >= neededQtty) {
+									lot_candidate_for_intrexpend = iter_lot_id;
+								}
+							}
+						}
+					}
 				}
 			}
-			if(lot_id) {
+			if(!lot_id) {
+				// @v12.1.10 {
+				if(lot_candidate_for_intrexpend) {
+					assert(intrexp_op_id);
+					{
+						const  PPID ar_id = PPObjLocation::WarehouseToObj(locID);
+						SString bill_code;
+						PPBillPacket::SetupObjectBlock sob;
+						PPBillPacket pack;
+						bill_code.Z().Cat("TRANSF").CatChar('-').Cat(rWbItem.IncomeID);
+						THROW(p_bobj->trfr->Rcpt.Search(lot_candidate_for_intrexpend, &lot_rec) > 0 && lot_rec.GoodsID == goodsID);
+						{
+							PPTransaction tra(use_ta);
+							THROW(tra);
+							THROW(pack.CreateBlank(intrexp_op_id, 0, lot_rec.LocID, 0));
+							pack.Rec.Dt = dt;
+							STRNSCPY(pack.Rec.Code, bill_code);
+							THROW(pack.SetupObject(ar_id, sob));
+							{
+								{
+									PPTransferItem ti;
+									LongArray row_idx_list;
+									ti.GoodsID = goodsID;
+									ti.LotID = lot_candidate_for_intrexpend;
+									ti.Cost = lot_rec.Cost;
+									ti.Price = lot_rec.Price;
+									ti.Quantity_ = -fabs(neededQtty);
+									THROW(pack.InsertRow(&ti, &row_idx_list));
+									assert(row_idx_list.getCount() == 1);
+								}
+								PPGetWord(PPWORD_AT_AUTO, 0, pack.SMemo);
+								pack.InitAmounts();
+								p_bobj->FillTurnList(&pack);
+								THROW(p_bobj->TurnPacket(&pack, 0));
+								assert(pack.GetTCount() == 1);
+								THROW(pack.GetTCount() == 1);
+							}
+							THROW(tra.Commit());
+							R_Prc.GetLogger().LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
+							{
+								const PPTransferItem & r_ti = pack.ConstTI(0);
+								TransferTbl::Rec trfr_rec;
+								if(p_bobj->trfr->SearchByBill(r_ti.BillID, 1, r_ti.RByBill, &trfr_rec) > 0) {
+									result_lot_id = trfr_rec.LotID;
+									lot_found = true;
+								}
+							}
+						}
+					}
+				}
+				// } @v12.1.10 
+			}
+			else {
 				double adj_cost = 0.0;
 				{
 					uint   _pos = 0;

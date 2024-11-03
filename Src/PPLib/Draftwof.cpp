@@ -364,7 +364,8 @@ int DraftWrOffDialog::editItem(long pos, long /*id*/)
 //
 int PPObjDraftWrOff::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, valid_data = 0;
+	int    ok = cmCancel;
+	int    valid_data = 0;
 	DraftWrOffDialog * dlg = 0;
 	PPDraftWrOffPacket data;
 	if(*pID)

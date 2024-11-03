@@ -924,10 +924,21 @@ int PosPaymentBlock::EditDialog2()
 			AddClusterAssoc(CTL_CPPAYM_KIND, 0, cpmCash);
 			AddClusterAssoc(CTL_CPPAYM_KIND, 1, cpmBank);
 			AddClusterAssoc(CTL_CPPAYM_KIND, 2, cpmIncorpCrd);
-			SetClusterData(CTL_CPPAYM_KIND, Data.Kind);
 			DisableClusterItem(CTL_CPPAYM_KIND, 0, BIN(Data.DisabledKinds & (1 << cpmCash)));
 			DisableClusterItem(CTL_CPPAYM_KIND, 1, BIN(Data.DisabledKinds & (1 << cpmBank)));
 			DisableClusterItem(CTL_CPPAYM_KIND, 2, BIN(Data.DisabledKinds & (1 << cpmIncorpCrd)));
+			// @v12.1.10 {
+			if(Data.Kind == cpmUndef) {
+				if(Data.Flags & Data.fPreferCashlessPayment && !(Data.DisabledKinds & (1 << cpmBank)))
+					Data.Kind = cpmBank;
+				else if(!(Data.DisabledKinds & (1 << cpmCash)))
+					Data.Kind = cpmCash;
+				else {
+					; // Надеюсь последующий код как-то разрулит эту ситуацию :)
+				}
+			}
+			// } @v12.1.10 
+			SetClusterData(CTL_CPPAYM_KIND, Data.Kind);
 			disableCtrl(CTL_CPPAYM_CSHAMT, (Data.DisabledKinds & (1 << cpmCash)));
 			disableCtrl(CTL_CPPAYM_BNKAMT, (Data.DisabledKinds & (1 << cpmBank)));
 			disableCtrl(CTL_CPPAYM_CRDCARDAMT, (Data.DisabledKinds & (1 << cpmIncorpCrd)));
@@ -1438,8 +1449,9 @@ int PosPaymentBlock::EditDialog2()
 			TCluster * p_clu = (TCluster *)getCtrlView(CTL_CPPAYM_KIND);
 			if(p_clu) {
 				SString temp_buf;
-				if(outerKind == cpmUndef)
+				if(outerKind == cpmUndef) {
 					Data.Kind = static_cast<CheckPaymMethod>(GetClusterData(CTL_CPPAYM_KIND));
+				}
 				else {
 					SetClusterData(CTL_CPPAYM_KIND, outerKind);
 					Data.Kind = outerKind;

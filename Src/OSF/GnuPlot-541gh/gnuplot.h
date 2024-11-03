@@ -4362,7 +4362,7 @@ enum WHICHGRID {
 
 struct MpLayout_ {
 	MpLayout_() : auto_layout(false), current_panel(0), num_rows(0), num_cols(0), row_major(false), downwards(true), act_row(0), act_col(0),
-		xscale(1.0), yscale(1.0), auto_layout_margins(false), title_height(0.0)
+		xscale(1.0), yscale(1.0), auto_layout_margins(false), title_height(0.0f)
 	{
 		lmargin.Set(screen, screen, screen, 0.1, -1.0, -1.0);
 		rmargin.Set(screen, screen, screen, 0.9, -1.0, -1.0);
@@ -4402,7 +4402,7 @@ struct MpLayout_ {
 	GpPosition prev_bmargin;
 	// values before 'set multiplot layout' 
 	text_label title;    // goes above complete set of plots 
-	double title_height; // fractional height reserved for title 
+	float  title_height; // fractional height reserved for title // @v12.1.10 double-->float
 }; 
 
 struct GpTabulate {

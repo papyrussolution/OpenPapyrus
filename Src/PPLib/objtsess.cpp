@@ -3182,7 +3182,8 @@ int PPObjTSession::Add(PPID * pID, PPID superSessID, PPID prcID, int kind, int s
 
 int PPObjTSession::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, valid_data = 0;
+	int    ok = cmCancel;
+	int    valid_data = 0;
 	TSessionPacket pack;
 	if(*pID) {
 		THROW(GetPacket(*pID, &pack, 0) > 0);

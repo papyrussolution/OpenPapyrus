@@ -7733,6 +7733,7 @@
 	#define CTL_EQCFG_CPIMPTAG           (34 + WINDOWS_ID_BIAS) // @v11.8.6 Тег документа, наличие которого свидетельствует о том, что документ может быть импортирован в кассовую панель
 	#define CTLSEL_EQCFG_CPIMPTAG        (35 + WINDOWS_ID_BIAS)
 	#define CTL_EQCFG_LOOKBKBILPRD       (36 + WINDOWS_ID_BIAS) // @v11.8.9 LookBackBillPeriod
+	#define CTL_EQCFG_POSPAYMFLAGS       (37 + WINDOWS_ID_BIAS) // @v12.1.10 Часть флагов, отвечающих за расчет в кассовой панели
 /* @v11.1.6
 #define DLG_CBFLDS                822 //PLUS Fields copied from LST2LST
 	#define CTL_CBFLDS_TYPE             (7 + WINDOWS_ID_BIAS)

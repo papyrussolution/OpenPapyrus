@@ -501,9 +501,7 @@ int PPObjWorkbook::SelectKeywordReverse(SString & rKeyword)
 	SString temp_buf;
 	StringSet ss(",");
 	PPIDArray tag_type_list;
-	tag_type_list.add(PPTAG_GOODS_KEYWORDS);
-	tag_type_list.add(PPTAG_WORKBOOK_KEYWORDS);
-	tag_type_list.add(PPTAG_BILL_KEYWORDS);
+	tag_type_list.addzlist(PPTAG_GOODS_KEYWORDS, PPTAG_WORKBOOK_KEYWORDS, PPTAG_BILL_KEYWORDS, 0L);
 	for(uint i = 0; i < tag_type_list.getCount(); i++) {
 		const  PPID tag_id = tag_type_list.get(i);
 		ObjTagTbl::Key1 k1;
@@ -975,7 +973,9 @@ int PPObjWorkbook::AddItem(PPID * pID, PPID parentID)
 
 int PPObjWorkbook::Helper_Edit(PPID * pID, AddBlock * pAb)
 {
-	int    r = cmCancel, ok = 1, valid_data = 0;
+	int    r = cmCancel;
+	int    ok = 1;
+	int    valid_data = 0;
 	PPWorkbookPacket pack;
 	Workbook2Dialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));

@@ -1383,7 +1383,8 @@ private:
 
 /*virtual*/int StyloBhtIICfgDialog::editItem(long pos, long id)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	StyloBhtIIOpInfoDlg * dlg = 0;
 	if(Data.P_OpList && pos >= 0 && pos < Data.P_OpList->getCountI()) {
 		if(CheckDialogPtrErr(&(dlg = new StyloBhtIIOpInfoDlg)) > 0) {
@@ -5317,7 +5318,9 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 		const PPBhtTerminalPacket & R_Pack;
 		SStrCollection & R_Files;
 	};
-	int    ok = -1, r, valid_data = 0;
+	int    ok = -1;
+	int    r;
+	int    valid_data = 0;
 	int    fi_bill  = -1, fi_line   = -1;
 	int    fi_inv   = -1, fi_iline  = -1;
 	int    fi_ebill = -1, fi_ebline = -1;

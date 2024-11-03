@@ -1272,7 +1272,8 @@ int EditDueToKeyboardRights()
 			return ok;
 		}
 	};
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	_PPKeybordWKeyCfg  kwk_cfg;
 	KeybWKeyCfgDlg * p_dlg = 0;
 	THROW(CheckCfgRights(PPCFGOBJ_KEYBWKEYCFG, PPR_READ, 0));

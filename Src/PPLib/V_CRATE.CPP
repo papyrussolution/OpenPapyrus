@@ -35,7 +35,8 @@ PPBaseFilt * PPViewCurRate::CreateFilt(const void * extraPtr) const
 
 int PPViewCurRate::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	CurRateFilt * p_filt = 0;
 	TDialog * dlg = 0;
 	THROW(Filt.IsA(pBaseFilt));
@@ -158,7 +159,8 @@ int PPViewCurRate::DeleteItem(const CurRateIdent * pIdent)
 
 int PPViewCurRate::EditRecord(CurrencyRateTbl::Rec * pRec, int isNew)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	TDialog * dlg = new TDialog(DLG_CURRATE);
 	if(CheckDialogPtrErr(&dlg)) {
 		uint   sel = 0;

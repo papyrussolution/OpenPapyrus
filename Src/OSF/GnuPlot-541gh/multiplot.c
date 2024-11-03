@@ -344,14 +344,14 @@ void GnuPlot::MultiplotStart(GpTermEntry * pTerm)
 		// Oct 2012 - ChrV depends on the font used 
 		if(MpLo.title.font && *MpLo.title.font)
 			pTerm->set_font(pTerm, MpLo.title.font);
-		MpLo.title_height = (double)(y * pTerm->CV()) / (double)pTerm->MaxY;
+		MpLo.title_height = (float)(y * pTerm->CV()) / (float)pTerm->MaxY;
 		if(MpLo.title.font && *MpLo.title.font)
 			pTerm->set_font(pTerm, "");
-		if(MpLo.title_height > 0.9)
-			MpLo.title_height = 0.05;
+		if(MpLo.title_height > 0.9f)
+			MpLo.title_height = 0.05f;
 	}
 	else
-		MpLo.title_height = 0.0;
+		MpLo.title_height = 0.0f;
 	MultiplotReset();
 }
 
@@ -412,8 +412,8 @@ void GnuPlot::MpLayoutSizeAndOffset()
 		// fprintf(stderr, "xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
 		// Allow a little space at the top for a title 
 		if(MpLo.title.text) {
-			V.Size.y   *= (1.0 - MpLo.title_height);
-			V.Offset.y *= (1.0 - MpLo.title_height);
+			V.Size.y   *= (1.0f - MpLo.title_height);
+			V.Offset.y *= (1.0f - MpLo.title_height);
 		}
 		// corrected for x/y-scaling factors and user defined offsets 
 		V.Offset.x -= (MpLo.xscale-1)/(2*MpLo.num_cols);

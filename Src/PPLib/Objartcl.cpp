@@ -1308,7 +1308,7 @@ int PPObjArticle::GetByPersonList(PPID accSheetID, const PPIDArray * pPsnList, P
 		if(accSheetID) {
 			for(uint i = 0; i < linkobj_list_count; i++) {
 				PPID   ar_id = 0;
-				if(P_Tbl->PersonToArticle(pPsnList->at(i), accSheetID, &ar_id) > 0)
+				if(P_Tbl->PersonToArticle(pPsnList->at(i), accSheetID, &ar_id))
 					if(pArList && ar_id)
 						THROW(pArList->addUnique(ar_id));
 			}

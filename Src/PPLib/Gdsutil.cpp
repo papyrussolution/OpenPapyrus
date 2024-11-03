@@ -2427,7 +2427,8 @@ void QuotationDialog::updatePage()
 
 int PPObjGoods::EditQuotations(PPID id, PPID initLocID, PPID initCurID, PPID initArID, int quotCls, int toCascade, PPID accSheetID /*=0*/)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	// @debug int    corrected = 0;
 	QuotationDialog * dlg = 0;
 	if(id) {

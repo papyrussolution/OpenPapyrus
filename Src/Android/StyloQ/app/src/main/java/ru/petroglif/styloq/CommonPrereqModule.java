@@ -358,14 +358,14 @@ public class CommonPrereqModule {
 			Flags = 0;
 			PredefPeriod = SLib.PREDEFPRD_NONE;
 		}
-		boolean IsEmpty() { return ((Period == null || Period.IsZero()) && Flags == 0); }
+		boolean IsEmpty() { return (SLib.DateRange.IsZero(Period) && Flags == 0); }
 		public JSONObject ToJsonObj()
 		{
 			JSONObject result = null;
 			if(!IsEmpty()) {
 				try {
 					result = new JSONObject();
-					if(Period != null && !Period.IsZero()) {
+					if(!SLib.DateRange.IsZero(Period)) {
 						String period_text = Period.Format();
 						if(SLib.GetLen(period_text) > 0) {
 							result.put("period", period_text);
@@ -2103,7 +2103,7 @@ public class CommonPrereqModule {
 										if(local_doc.FromJsonObj(js_doc)) {
 											final SLib.LDATE dt = local_doc.GetNominalDate();
 											// @v11.7.0 if(Rf != null && !Rf.Period.IsZero()) {
-											if(Cs != null && Cs.Rf != null && !Cs.Rf.Period.IsZero()) {
+											if(Cs != null && Cs.Rf != null && !SLib.DateRange.IsZero(Cs.Rf.Period)) { // @v12.1.10 (&& Cs.Rf.Period != null)
 												if(!Cs.Rf.Period.CheckDate(dt))
 													do_skip = true;
 											}

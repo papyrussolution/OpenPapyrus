@@ -2396,7 +2396,8 @@ public:
 	}
 	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
-		int    ok = -1, valid_data = 0;
+		int    ok = -1;
+		int    valid_data = 0;
 		ExportBillsFiltDialog::ExpBillsFilt filt;
 		ExportBillsFiltDialog * p_dlg = new ExportBillsFiltDialog;
 		PPViewBill view;
@@ -3897,8 +3898,8 @@ public:
 	}
 	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
-		int    ok = -1, valid_data = 0;
-		//size_t sav_offs = 0;
+		int    ok = -1;
+		int    valid_data = 0;
 		TSessionFilt filt;
 		TSessAutoSmsFiltDialog * p_dlg = new TSessAutoSmsFiltDialog;
 		const size_t sav_offs = pParam ? pParam->GetRdOffs() : 0;

@@ -374,9 +374,7 @@ MEM_STATIC void* ZSTD_cwksp_reserve_table(ZSTD_cwksp* ws, size_t bytes)
 	alloc = ws->tableEnd;
 	end = (BYTE *)alloc + bytes;
 	top = ws->allocStart;
-
-	DEBUGLOG(5, "cwksp: reserving %p table %zd bytes, %zd bytes remaining",
-	    alloc, bytes, ZSTD_cwksp_available_space(ws) - bytes);
+	DEBUGLOG(5, "cwksp: reserving %p table %zd bytes, %zd bytes remaining", alloc, bytes, ZSTD_cwksp_available_space(ws) - bytes);
 	assert((bytes & (sizeof(uint32)-1)) == 0);
 	ZSTD_cwksp_assert_internal_consistency(ws);
 	assert(end <= top);

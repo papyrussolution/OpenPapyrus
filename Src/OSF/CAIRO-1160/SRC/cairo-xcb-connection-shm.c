@@ -66,16 +66,9 @@ void _cairo_xcb_connection_shm_put_image(cairo_xcb_connection_t * connection,
 }
 
 cairo_status_t _cairo_xcb_connection_shm_get_image(cairo_xcb_connection_t * connection,
-    xcb_drawable_t src,
-    int16 src_x,
-    int16 src_y,
-    uint16 width,
-    uint16 height,
-    uint32 shmseg,
-    uint32 offset)
+    xcb_drawable_t src, int16 src_x, int16 src_y, uint16 width, uint16 height, uint32 shmseg, uint32 offset)
 {
 	xcb_shm_get_image_reply_t * reply;
-
 	assert(connection->flags & CAIRO_XCB_HAS_SHM);
 	reply = xcb_shm_get_image_reply(connection->xcb_connection,
 		xcb_shm_get_image(connection->xcb_connection,
@@ -96,8 +89,7 @@ cairo_status_t _cairo_xcb_connection_shm_get_image(cairo_xcb_connection_t * conn
 	return CAIRO_STATUS_SUCCESS;
 }
 
-void _cairo_xcb_connection_shm_detach(cairo_xcb_connection_t * connection,
-    uint32 segment)
+void _cairo_xcb_connection_shm_detach(cairo_xcb_connection_t * connection, uint32 segment)
 {
 	assert(connection->flags & CAIRO_XCB_HAS_SHM);
 	xcb_shm_detach(connection->xcb_connection, segment);

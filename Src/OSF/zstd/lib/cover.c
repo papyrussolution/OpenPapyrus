@@ -81,7 +81,7 @@ static clock_t g_time = 0;
  * The map implements linear probing and keeps its load less than 0.5.
  */
 
-#define MAP_EMPTY_VALUE ((uint32)-1)
+#define MAP_EMPTY_VALUE (_FFFF32)
 typedef struct COVER_map_pair_t_s {
 	uint32 key;
 	uint32 value;

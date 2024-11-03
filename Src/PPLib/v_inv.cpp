@@ -212,7 +212,8 @@ private:
 
 int PPViewInventory::EditBaseFilt(PPBaseFilt * pFilt)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	InventoryFilt * p_filt = static_cast<InventoryFilt *>(pFilt);
 	InventoryFiltDialog * dlg = 0;
 	if(CheckDialogPtrErr(&(dlg = new InventoryFiltDialog()))) {

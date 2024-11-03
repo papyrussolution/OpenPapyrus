@@ -294,19 +294,11 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Tools\Dl200\dl200.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
+    <ClCompile Include="..\PPLib\acct.cpp" />
+    <ClCompile Include="..\PPLib\objbizsc2.cpp" />
+    <ClCompile Include="..\Tools\DL200\dl200.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200.lex.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200.tab.cpp" />
-    <ClCompile Include="..\PPLib\Acct.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Tools\Dl200\dl200.l">

@@ -237,13 +237,13 @@ int Transfer::CorrectReverse()
 
 int RecoverAbsenceLots()
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	PPObjBill * p_bobj = BillObj;
 	TDialog * dlg = 0;
 	TransferTbl::Key1 k1;
 	Transfer * trfr = p_bobj->trfr;
 	PPLogger logger;
-
 	SString log_fname;
 	DateRange period;
 	int    correct = 1;

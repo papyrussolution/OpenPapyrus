@@ -730,7 +730,8 @@ int GETVATBOOKDTS(TDialog * pDlg, VATBookTbl::Rec * pRec, PPID kind)
 
 int PPObjVATBook::AddBySample(PPID * pID, PPID sampleID)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	uint   res_id = 0;
 	VATBookTbl::Rec rec;
 	TDialog * dlg = 0;
@@ -770,7 +771,8 @@ int PPObjVATBook::AddBySample(PPID * pID, PPID sampleID)
 int PPObjVATBook::Edit(PPID * pID, void * extraPtr /*kind*/)
 {
 	const  PPID extra_kind = reinterpret_cast<const  PPID>(extraPtr);
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	PPID   _kind = 0;
 	uint   res_id = 0;
 	VATBookTbl::Rec rec;
@@ -779,7 +781,7 @@ int PPObjVATBook::Edit(PPID * pID, void * extraPtr /*kind*/)
 		THROW(Search(*pID, &rec) > 0);
 	}
 	else {
-		rec.Dt = getcurdate_(); // @v10.9.0 LConfig.OperDate-->getcurdate_()
+		rec.Dt = getcurdate_();
 	}
 	THROW(_kind = SelectLineType(&res_id, NZOR(rec.LineType_, extra_kind)));
 	if(_kind > 0) {

@@ -1,5 +1,5 @@
 // PPWG.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
 // @codepage UTF-8
 // Графики рабочего времени
 //
@@ -54,10 +54,10 @@ static int EditDtr(PPDateTimeRep * pData)
 						if(dlg->getDTS(&Data.Dtr)) {
 							dlg->getDuration(&Data.Duration);
 							clearEvent(event);
-							break; // @v10.6.11 return-->break
+							break;
 						}
 					}
-					delete dlg; // @v10.6.11 @fix
+					delete dlg;
 				}
 			}
 		}
@@ -538,7 +538,7 @@ int DutySchedDialog::delItem(long pos, long id)
 
 int DutySchedDialog::setupObjType()
 {
-	PPID   prev_obj_type = Data.Rec.ObjType;
+	const PPID prev_obj_type = Data.Rec.ObjType;
 	GetClusterData(CTL_DUTYSCHED_OBJTYPE, &Data.Rec.ObjType);
 	if(Data.Rec.ObjType != prev_obj_type)
 		Data.Rec.ObjGroup = 0;
@@ -562,7 +562,8 @@ int DutySchedDialog::setupObjType()
 
 int PPObjDutySched::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, valid_data = 0;
+	int    ok = cmCancel;
+	int    valid_data = 0;
 	DutySchedDialog * dlg = 0;
 	PPDutySchedPacket data;
 	if(*pID)

@@ -2078,6 +2078,7 @@ public:
 	PPObjID_Base Set(PPID objType, PPID objID);
 	PPObjID_Base & Z();
 	bool   IsZero() const;
+	bool   IsFullyDefined() const { return (Obj && Id); }
 	bool   IsEq(PPID objType, PPID objID) const;
 	bool   FASTCALL operator == (PPObjID_Base s) const;
 	bool   FASTCALL operator != (PPObjID_Base s) const;
@@ -9841,7 +9842,7 @@ public:
 	int    SearchNum(PPID accSheetID, long articleNo, ArticleTbl::Rec * pRec = 0);
 	int    SearchFreeNum(PPID accSheetID, long * pArticleNo, ArticleTbl::Rec * pRec = 0);
 	int    SearchObjRef(PPID accSheetID, PPID objID, ArticleTbl::Rec * pRec = 0);
-	int    PersonToArticle(PPID personID, PPID accSheetID, PPID * pArID);
+	bool   PersonToArticle(PPID personID, PPID accSheetID, PPID * pArID);
 	int    LocationToArticle(PPID personID, PPID accSheetID, PPID * pArID);
 private:
 	int    _SearchNum(PPID accSheetID, long articleNo, int spMode, ArticleTbl::Rec * pRec = 0);
@@ -15089,16 +15090,16 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 	PPID   GetCashierTabNumberRegTypeID() const;
 
 	enum {
-		fCheckScaleInput   = 0x00000001, // Сканировать весы при вводе документов
-		fComplDeficit      = 0x00000002, // Компенсировать дефицит по кассовым сессиям за счет
+		fCheckScaleInput           = 0x00000001, // Сканировать весы при вводе документов
+		fComplDeficit              = 0x00000002, // Компенсировать дефицит по кассовым сессиям за счет
 			// комплектации недостающих товаров (для товаров, имеющих коплектуемую структуру)
 		fCloseSessTo10Level        = 0x00000004, // Закрывать кассовые сессии до 10-го уровня //
-		fIgnAcsReadyTags   = 0x00000008, // Не проверять признаки готовности асинхронных
+		fIgnAcsReadyTags           = 0x00000008, // Не проверять признаки готовности асинхронных
 			// кассовых машин к экспорту данных из Papyrus'а. Если этот флаг установлен,
 			// то функция PPAsyncCashSession::OpenSession игнорирует результат вызова
 			// функции PPAsyncCashSession::IsReadyForExport (но все равно вызывает ее).
 		fIgnGenGoodsOnDeficit      = 0x00000010, // Не использовать обобщенные товары для компенсации дефицита по кассовым сессиям
-		fUseQuotAsPrice    = 0x00000020, // Для определения цены на товар с приоритетом
+		fUseQuotAsPrice            = 0x00000020, // Для определения цены на товар с приоритетом
 			// используется базовая котировка. Если котировка для заданных условий не определена,
 			// тогда используется учетная цена реализации. Если этот флаг не установлен, то
 			// для определения цены всегда используется учетная цена реализации
@@ -15106,9 +15107,9 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 			// дефицита для другого склада, цену реализации рассчитывать по правилам определения //
 			// розничной цены продажи для своего склада.
 		fValidateChecksOnSessClose = 0x00000080, // При закрытии асинхронной кассовой сессии проверять чеки.
-		fWriteToChkOpJrnl  = 0x00000100, // Вести журнал чековых операций
-		fRecognizeCode     = 0x00000200, // В кассовой панели распознавать назначение кода.
-		fUnifiedPayment    = 0x00000400, // Унифицированный расчет в кассовой панели
+		fWriteToChkOpJrnl          = 0x00000100, // Вести журнал чековых операций
+		fRecognizeCode             = 0x00000200, // В кассовой панели распознавать назначение кода.
+		fUnifiedPayment            = 0x00000400, // Унифицированный расчет в кассовой панели
 		fIgnoreNoDisGoodsTag       = 0x00000800, // В кассовой панели игнорировать признак товара "Без скидки"
 		fRestrictQttyByUnitRnd     = 0x00001000, // В кассовой панели ограничивать ввод количества
 			// признаком целочисленности единицы измерения и ее параметром точности округления //
@@ -15117,10 +15118,11 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 		fDisableAdjWrOffAmount     = 0x00008000, // Запрет на корректировку суммы документов списания для уравнивания с кассовой сессией
 		fUnifiedPaymentCfmBank     = 0x00010000, // Дополнительное подтверждение для оплаты по банку после унифицированной панели оплаты
 		fAutosaveSyncChecks        = 0x00020000, // Автоматически сохранять синхронные чеки при каждом изменении
-		fWrOffPartStrucs   = 0x00040000, // При списании кассовых сессий досписывать частичные структуры
+		fWrOffPartStrucs           = 0x00040000, // При списании кассовых сессий досписывать частичные структуры
 		fSkipPrintingZeroPrice     = 0x00080000, // В кассовых чеках не печатать строки с нулевой суммой
 		fAttachBillChecksToCSess   = 0x00100000, // При проведении чеков по документам привязывать эти чеки к текущей кассовой сессии
-		fDisableSellSpoiledSeries  = 0x00200000  // @v11.1.8 Запрет выбора бракованной серии при продаже через кассовую панель
+		fDisableSellSpoiledSeries  = 0x00200000, // @v11.1.8 Запрет выбора бракованной серии при продаже через кассовую панель
+		fPreferBankingPayment      = 0x00400000, // @v12.1.10 При интерактивном выборе способа оплаты предпочтительной считать оплату банковской картой (by-default)
 	};
 	PPID   Tag;             // Const=PPOBJ_CONFIG
 	PPID   ID;              // Const=PPCFG_MAIN
@@ -24227,6 +24229,7 @@ private:
 #define GTCHZNPT_BEER              14 // @v12.0.3 Пиво фасованное 
 #define GTCHZNPT_ANTISEPTIC        15 // @v12.0.5 Антисептик
 #define GTCHZNPT_MEDICALDEVICES    16 // @v12.1.2 Изделия медицинского назначения
+#define GTCHZNPT_SOFTDRINKS        17 // @v12.1.10 Соковая продукция и безалкогольные напитки
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -28493,18 +28496,29 @@ struct PersonFilt : public PPBaseFilt {
 	//
 	virtual bool IsEmpty() const;
 	PersonFilt & FASTCALL operator = (const PersonFilt &);
-	bool   IsLocAttr() const { return oneof5(AttribType, PPPSNATTR_ALLADDR, PPPSNATTR_DLVRADDR, PPPSNATTR_HANGEDADDR, PPPSNATTR_DUPDLVRADDR, PPPSNATTR_STANDALONEADDR); }
+	int    GetAttribType() const;
+	//
+	// Descr: Возвращает значение дополнительного атрубута, если вид строится по адресам, а не по собственно персоналиям.
+	//   Специальный случай, обрабатываемый функцией: установлен флаг PersonFilt::fLocTagF и задан не пустой атрубут - в этом
+	//   случае вместо самого атрибута функция возвращает PPPSNATTR_ALLADDR что означает, что модуль PPView должен построить
+	//   вид по всем адресам персоналий и отобразить для этих адресов атрибут, выбранный в AttribType.
+	//
+	int    GetLocAttribType() const;
+	bool   SetAttribType(int attribType);
+	bool   IsLocAttr() const;
 	int    GetExtssData(int fldID, SString & rBuf) const;
 	int    PutExtssData(int fldID, const char * pBuf);
 
 	uint8  ReserveStart[22];  // @anchor
-	uint16 GenderFlags;       // @v10.9.1 (1 << GENDER_XXX)
+	uint16 GenderFlags;       // (1 << GENDER_XXX)
 	DateRange NewCliPeriod;   // Период идентификации нового клиента
 	PPID   Kind;              //
 	PPID   Category;          //
 	PPID   Status;            //
 	PPID   CityID;            //
-	int    AttribType;        //
+private:
+	int    AttribType;        // 
+public:
 	int    EmptyAttrib;       // EA_XXX
 	PPID   RegTypeID;         //
 	PPID   StaffOrgID;        //
@@ -31006,7 +31020,7 @@ public:
 //
 struct PPTransportConfig {
 	PPTransportConfig();
-	int    FASTCALL operator == (const PPTransportConfig & rS) const;
+	bool   FASTCALL operator == (const PPTransportConfig & rS) const;
 
 	long   Flags;           // @reserve
 	PPID   OwnerKindID;     // Вид персоналии - владельцы транспортных средств. По умолчанию - PPPRK_SHIPOWNER
@@ -54630,6 +54644,7 @@ struct PosPaymentBlock {
 		fAltCashRegUse           = 0x0004, // OUT Если (Flags & fAltCashRegEnabled) и (Flags & fAltCashRegUse) то печатать чека на альтернативном регистраторе
 		fCashlessBypassEqEnabled = 0x0008, // @v12.0.6 IN  Безналичная оплата в обход банковского терминала разрешена
 		fCashlessBypassEq        = 0x0010, // @v12.0.6 OUT Безналичная оплата в обход банковского терминала
+		fPreferCashlessPayment   = 0x0020, // @v12.1.10 IN Безналичная оплата является более предпочтительной, нежели наличная (сложная проекция PPEquipConfig::fPreferBankingPayment)
 	};
 	long   Flags;        // @v11.3.6
 	CCheckPacket::BueryEAddr_ EAddr;  // Электронный адрес покупателя (email or phone)
@@ -56140,6 +56155,7 @@ public:
 		int   PartyQ; // EDIPARTYQ_XXX
 		PPID  PersonID; // ->Person.ID
 		PPID  LocID;    // ->Location.ID
+		int   JrStatus; // @v12.1.10 PPPRS_XXX
 		SString GLN;
 		SString OKPO;
 		SString INN;
@@ -56148,6 +56164,8 @@ public:
 		SString Name_;
 		SString Surname;
 		SString Patronymic;
+		SString Phone; // @v12.1.10
+		SString EMail; // @v12.1.10
 		Address Addr;
 		BankAccount BA;
 	};
@@ -56207,6 +56225,7 @@ class DocNalogRu_Reader : public DocNalogRu_Base {
 public:
 	DocNalogRu_Reader();
 	int    ReadSingleXmlFile(const char * pFileName, FileInfo & rHeader, TSCollection <DocumentInfo> & rDocList);
+	int    CreateParticipant(const Participant & rP, PPID personKindID, PPID * pPsnID, int use_ta);
 private:
 	// Читает атрибуты тега <??? Идентиф="key" Значен="val"/>
 	int    ReadExtraValue(const xmlNode * pNode, SString & rKey, SString & rVal);

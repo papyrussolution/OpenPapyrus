@@ -2306,7 +2306,7 @@ int PPObjStyloPalm::GetListByPerson(PPID personID, PPIDArray & rPalmList)
 		if(agent_accsheet_id) {
 			PPObjArticle ar_obj;
 			PPID   ar_id = 0;
-			if(ar_obj.P_Tbl->PersonToArticle(personID, agent_accsheet_id, &ar_id) > 0 && ar_id) {
+			if(ar_obj.P_Tbl->PersonToArticle(personID, agent_accsheet_id, &ar_id) && ar_id) {
 				PPStyloPalm2 rec;
 				for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 					if(rec.AgentID == ar_id) {

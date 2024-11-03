@@ -912,7 +912,8 @@ int BizScTemplDialog::delItem(long pos, long id)
 /*virtual*/int PPObjBizScTempl::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;
-	int    r = cmCancel, valid_data = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	int    tagtype = 0;
 	ObjTagFilt ot_filt;
 	PPBizScTemplPacket pack;

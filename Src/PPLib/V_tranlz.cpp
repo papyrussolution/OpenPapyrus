@@ -1287,7 +1287,7 @@ int PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTr
 				ArticleTbl::Rec ar_rec;
 				if(ArObj.Fetch(ar_id, &ar_rec) > 0 && ar_rec.AccSheetID) {
 					PPID   ar2_id = 0;
-					if(ArObj.P_Tbl->PersonToArticle(_psn_id, ar_rec.AccSheetID, &ar2_id) > 0)
+					if(ArObj.P_Tbl->PersonToArticle(_psn_id, ar_rec.AccSheetID, &ar2_id))
 						_ar_id = ar2_id;
 				}
 			}
@@ -2996,7 +2996,7 @@ int PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 						if(acc_sheet_id) {
 							PPID   agent_ar_id = 0;
 							flt.AgentList.Set(0);
-							flt.AgentList.Add((ArObj.P_Tbl->PersonToArticle(psn_id, acc_sheet_id, &agent_ar_id) > 0) ? agent_ar_id : rec.ArticleID);
+							flt.AgentList.Add(ArObj.P_Tbl->PersonToArticle(psn_id, acc_sheet_id, &agent_ar_id) ? agent_ar_id : rec.ArticleID);
 						}
 					}
 					// @ не реализовано

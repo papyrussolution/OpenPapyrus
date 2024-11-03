@@ -2138,7 +2138,7 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					if(AcnPack.ExtFlags & CASHFX_APPLYUNITRND && GObj.FetchUnit(grec.UnitID, &unit_rec) > 0 && unit_rec.Rounding_ > 0.0)
 						Rec.Precision = unit_rec.Rounding_;
 					Rec.GoodsFlags = grec.Flags;
-					if(Flags & ACGIF_IGNOREGWODISTAG) // @v10.6.11
+					if(Flags & ACGIF_IGNOREGWODISTAG)
 						Rec.NoDis = 0;
 					else if(grec.Flags & GF_NODISCOUNT)
 						Rec.NoDis  = 1;
@@ -2151,7 +2151,7 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 						if(GObj.FetchGoodsType(Rec.GoodsTypeID, &gt_rec) > 0) {
 							if(gt_rec.Flags & GTF_GMARKED) {
 								Rec.Flags_ |= AsyncCashGoodsInfo::fGMarkedType;
-								Rec.ChZnProdType = static_cast<int16>(gt_rec.ChZnProdType); // @v10.9.0
+								Rec.ChZnProdType = static_cast<int16>(gt_rec.ChZnProdType);
 							}
 							// @v11.7.10 {
 							if(gt_rec.Flags & GTF_EXCISEPROFORMA)

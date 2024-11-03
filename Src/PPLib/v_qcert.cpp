@@ -1,5 +1,5 @@
 // V_QCERT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2015, 2016, 2017, 2018, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2015, 2016, 2017, 2018, 2020, 2024
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -23,7 +23,8 @@ PPViewQCert::~PPViewQCert()
 
 int PPViewQCert::EditBaseFilt(PPBaseFilt * pFilt)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	QCertFilt f;
 	f.Copy(pFilt, 1);
 	TDialog * dlg = 0;

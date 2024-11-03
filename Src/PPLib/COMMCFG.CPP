@@ -261,7 +261,8 @@ IMPL_HANDLE_EVENT(CommCfgDialog)
 
 int EditCommConfig()
 {
-	int    r, valid_data = 0;
+	int    r;
+	int    valid_data = 0;
 	PPCommConfig cfg;
 	CommCfgDialog * dlg = 0;
 	THROW(CheckCfgRights(PPCFGOBJ_COMMCONFIG, PPR_MOD, 0));

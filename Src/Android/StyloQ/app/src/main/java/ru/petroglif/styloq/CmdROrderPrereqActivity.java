@@ -56,7 +56,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	private void RefreshCurrentDocStatus()
 	{
 		if(CPM.TabList != null) {
-			ViewPager2 view_pager = (ViewPager2) findViewById(R.id.VIEWPAGER_ORDERPREREQ);
+			ViewPager2 view_pager = (ViewPager2)findViewById(R.id.VIEWPAGER_ORDERPREREQ);
 			if(view_pager != null) {
 				int tidx = view_pager.getCurrentItem();
 				CommonPrereqModule.TabEntry tab_entry = CPM.TabList.get(tidx);
@@ -66,8 +66,17 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			}
 		}
 	}
+	private void CleaningProc() // @v12.1.10
+	{
+		if(StopHangedCliDebtPending()) {
+			NotifyTabContentChanged(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView);
+		}
+	}
 	private class RefreshTimerTask extends TimerTask {
 		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { RefreshCurrentDocStatus(); }}); }
+	}
+	private class CleaningTimerTask extends TimerTask { // @v12.1.10
+		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { CleaningProc(); }}); }
 	}
 	public CmdROrderPrereqActivity()
 	{
@@ -687,8 +696,10 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									StyloQDatabase.SecStoragePacket cmdl_pack = db.GetForeignSvcCommandList(CPM.SvcIdent);
 									StyloQCommand.List cmd_list = cmdl_pack.GetCommandList();
 									CmdQueryDebt = cmd_list.GetItemWithParticularBaseId(StyloQCommand.sqbcDebtList);
-									if(CmdQueryDebt != null)
+									if(CmdQueryDebt != null) {
 										DbtL = app_ctx.LoadDebtList(CPM.SvcIdent);
+										ScheduleRTmr(new CleaningTimerTask(), 30000, 30000); // @v12.1.10
+									}
 								}
 								CPM.RestoreRecentDraftDocumentAsCurrent(); // @v11.4.0
 								CPM.MakeCurrentDocList();
@@ -1079,7 +1090,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 													if(v_debt_text != null) {
 														String text;
 														int shaperc = 0;
-														if(de != null) {
+														if(IsCliDebtPending(cur_cli_id) > 0) { // @v12.1.10
+															shaperc = R.drawable.ic_stopwatch;
+															text = "";
+														}
+														else if(de != null) {
 															final boolean is_expired = de.IsExpired(CmdQueryDebt);
 															if(de.Debt > 0) {
 																shaperc = is_expired ? R.drawable.shape_debtvalue_undef : R.drawable.shape_debtvalue_positive;
@@ -1602,7 +1617,10 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 																		js_query.put("cmd", cmd_text);
 																		js_query.put("time", System.currentTimeMillis());
 																		js_query.put("arid", cur_cli_id);
+																		StartCliDebtPending(cur_cli_id); // @v12.1.10
 																		app_ctx.RunSvcCommand(CPM.SvcIdent, CmdQueryDebt, js_query, force_query, this);
+																		// @todo Здесь достаточно обновить только одну позицию списка, а не весь список!
+																		NotifyTabContentChanged(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView); // @v12.1.10
 																	} catch(StyloQException | JSONException exn) {
 																		;
 																	}
@@ -2081,21 +2099,23 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					StyloQApp app_ctx = GetAppCtx();
 					if(ir.OriginalCmdItem != null) {
 						if(ir.OriginalCmdItem.BaseCmdId == StyloQCommand.sqbcDebtList) {
-							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
-								if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
-									JSONObject js_reply = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
-									BusinessEntity.ArDebtList ard_list = new BusinessEntity.ArDebtList();
-									if(ard_list.FromJson(js_reply)) {
-										if(DbtL.Include(ard_list) >= 0) {
-											app_ctx.StoreDebtList(CPM.SvcIdent, DbtL);
-											// @todo Здесь достаточно обновить только одну позицию списка, а не весь список!
-											NotifyTabContentChanged(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView);
-										}
+							if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS && ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
+								JSONObject js_reply = ((SecretTagPool)ir.InfoReply).GetJsonObject(SecretTagPool.tagRawData);
+								BusinessEntity.ArDebtList ard_list = new BusinessEntity.ArDebtList();
+								if(ard_list.FromJson(js_reply)) {
+									StopCliDebtPending(ard_list.ArID); // @v12.1.10
+									if(DbtL.Include(ard_list) >= 0) {
+										app_ctx.StoreDebtList(CPM.SvcIdent, DbtL);
 									}
+									// @todo Здесь достаточно обновить только одну позицию списка, а не весь список!
+									NotifyTabContentChanged(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView);
 								}
 							}
 							else {
-								// @todo
+								// @v12.1.10 {
+								StopCliDebtPending(-1);
+								NotifyTabContentChanged(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView);
+								// } @v12.1.10
 							}
 						}
 						else if(ir.OriginalCmdItem.Name.equalsIgnoreCase("PostDocument")) {
@@ -2199,4 +2219,115 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			}
 		}
 	});
+	//
+	//
+	// @v12.1.10 {
+	private static class Pending_CliDebt {
+		Pending_CliDebt(int cliID)
+		{
+			CliID = cliID;
+			TimeStart = System.currentTimeMillis();
+		}
+		int  CliID;
+		long TimeStart;
+	}
+	private static Object Pending_CliDebt_Mutex;
+	private static void InitPending_CliDebt_Mutex()
+	{
+		if(Pending_CliDebt_Mutex == null)
+			Pending_CliDebt_Mutex = new Object();
+	}
+	private static ArrayList <Pending_CliDebt> Pending_CliDebt_List;
+	private static int SearchPending_CliDebt_Entry(int cliID)
+	{
+		int    result = -1;
+		if(Pending_CliDebt_List != null && cliID > 0) {
+			for(int i = 0; result < 0 && i < Pending_CliDebt_List.size(); i++) {
+				Pending_CliDebt pi = Pending_CliDebt_List.get(i);
+				if(pi != null && pi.CliID == cliID) {
+					result = i;
+				}
+			}
+		}
+		return result;
+	}
+	//
+	// Returns:
+	//   0 - ни один элемент списка клиентов не находится в состоянии ожидания долгов.
+	//   -1 - хотя бы один элемент списка клиентов находится в состоянии ожидания.
+	//   >0 - элемент списка клиентов cliID находится в состоянии ожидания значений долгов.
+	//      Конкретное возвращенное значение равно количеству миллисекунд, прошедших с запуска.
+	//      Значение 1 скорее всего означает, что время ожидания вычислить не удалось.
+	//
+	private static int IsCliDebtPending(int cliID)
+	{
+		int result = 0;
+		InitPending_CliDebt_Mutex();
+		synchronized(Pending_CliDebt_Mutex) {
+			if(Pending_CliDebt_List == null || Pending_CliDebt_List.size() == 0) {
+				result = 0;
+			}
+			else if(cliID > 0) {
+				int idx = SearchPending_CliDebt_Entry(cliID);
+				if(idx >= 0)
+					result = 1;
+				else
+					result = -1;
+			}
+			else
+				result = -1;
+		}
+		return result;
+	}
+	private static void StartCliDebtPending(int cliID)
+	{
+		if(cliID > 0) {
+			InitPending_CliDebt_Mutex();
+			synchronized(Pending_CliDebt_Mutex) {
+				int idx = SearchPending_CliDebt_Entry(cliID);
+				if(idx < 0) {
+					if(Pending_CliDebt_List == null)
+						Pending_CliDebt_List = new ArrayList<Pending_CliDebt>();
+					Pending_CliDebt_List.add(new Pending_CliDebt(cliID));
+				}
+			}
+		}
+	}
+	private static void StopCliDebtPending(int cliID)
+	{
+		if(cliID > 0) {
+			InitPending_CliDebt_Mutex();
+			synchronized(Pending_CliDebt_Mutex) {
+				if(cliID == -1) {
+					Pending_CliDebt_List.clear();
+				}
+				else if(cliID > 0) {
+					int idx = SearchPending_CliDebt_Entry(cliID);
+					if(idx >= 0)
+						Pending_CliDebt_List.remove(idx);
+				}
+			}
+		}
+	}
+	private static boolean StopHangedCliDebtPending()
+	{
+		boolean result = false;
+		InitPending_CliDebt_Mutex();
+		synchronized(Pending_CliDebt_Mutex) {
+			if(Pending_CliDebt_List != null) {
+				final long now_time_ms = System.currentTimeMillis();
+				int i = Pending_CliDebt_List.size();
+				if(i > 0) do {
+					i--;
+					Pending_CliDebt pi = Pending_CliDebt_List.get(i);
+					if(pi == null || (now_time_ms - pi.TimeStart) >= 60000) {
+						Pending_CliDebt_List.remove(i);
+						result = true;
+					}
+				} while(i > 0);
+			}
+		}
+		return result;
+	}
+	// } @v12.1.10
 }

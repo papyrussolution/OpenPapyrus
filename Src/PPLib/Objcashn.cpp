@@ -2793,12 +2793,13 @@ int ReadEquipConfig(PPEquipConfig * pCfg)
 			use_scale_input = BIN(val);
 	}
 	int    r = PPRef->GetPropMainConfig(PPPRP_EQUIPCFG, pCfg, sizeof(*pCfg));
-	if(pCfg)
+	if(pCfg) {
 		if(r > 0) {
 			SETFLAG(pCfg->Flags, PPEquipConfig::fCheckScaleInput, use_scale_input);
 		}
 		else
 			memzero(pCfg, sizeof(*pCfg));
+	}
 	return r;
 }
 
@@ -2835,22 +2836,28 @@ public:
 		AddClusterAssoc(CTL_EQCFG_FLAGS,  6, PPEquipConfig::fValidateChecksOnSessClose);
 		AddClusterAssoc(CTL_EQCFG_FLAGS,  7, PPEquipConfig::fWriteToChkOpJrnl);
 		AddClusterAssoc(CTL_EQCFG_FLAGS,  8, PPEquipConfig::fRecognizeCode);
-		AddClusterAssoc(CTL_EQCFG_FLAGS,  9, PPEquipConfig::fUnifiedPayment);
-		AddClusterAssoc(CTL_EQCFG_FLAGS, 10, PPEquipConfig::fUnifiedPaymentCfmBank);
-		AddClusterAssoc(CTL_EQCFG_FLAGS, 11, PPEquipConfig::fIgnoreNoDisGoodsTag);
-		AddClusterAssoc(CTL_EQCFG_FLAGS, 12, PPEquipConfig::fRestrictQttyByUnitRnd);
-		AddClusterAssoc(CTL_EQCFG_FLAGS, 13, PPEquipConfig::fDisableManualSCardInput);
-		AddClusterAssoc(CTL_EQCFG_FLAGS, 14, PPEquipConfig::fDisableAdjWrOffAmount);
+		// @v12.1.10 AddClusterAssoc(CTL_EQCFG_FLAGS,  9, PPEquipConfig::fUnifiedPayment);
+		// @v12.1.10 AddClusterAssoc(CTL_EQCFG_FLAGS, 10, PPEquipConfig::fUnifiedPaymentCfmBank);
+		AddClusterAssoc(CTL_EQCFG_FLAGS,  9, PPEquipConfig::fIgnoreNoDisGoodsTag);     // @v12.1.10 11-->9
+		AddClusterAssoc(CTL_EQCFG_FLAGS, 10, PPEquipConfig::fRestrictQttyByUnitRnd);   // @v12.1.10 12-->10
+		AddClusterAssoc(CTL_EQCFG_FLAGS, 11, PPEquipConfig::fDisableManualSCardInput); // @v12.1.10 13-->11
+		AddClusterAssoc(CTL_EQCFG_FLAGS, 12, PPEquipConfig::fDisableAdjWrOffAmount);   // @v12.1.10 13-->12
 		SetClusterData(CTL_EQCFG_FLAGS, Data.Flags);
 
 		AddClusterAssoc(CTL_EQCFG_FLAGS2, 0, PPEquipConfig::fUseQuotAsPrice);
 		AddClusterAssoc(CTL_EQCFG_FLAGS2, 1, PPEquipConfig::fUncondAsyncBasePrice);
 		AddClusterAssoc(CTL_EQCFG_FLAGS2, 2, PPEquipConfig::fAutosaveSyncChecks);
 		AddClusterAssoc(CTL_EQCFG_FLAGS2, 3, PPEquipConfig::fWrOffPartStrucs);
-		AddClusterAssoc(CTL_EQCFG_FLAGS2, 4, PPEquipConfig::fSkipPrintingZeroPrice); // @v10.0.12
-		AddClusterAssoc(CTL_EQCFG_FLAGS2, 5, PPEquipConfig::fAttachBillChecksToCSess); // @v10.9.9
+		AddClusterAssoc(CTL_EQCFG_FLAGS2, 4, PPEquipConfig::fSkipPrintingZeroPrice);
+		AddClusterAssoc(CTL_EQCFG_FLAGS2, 5, PPEquipConfig::fAttachBillChecksToCSess);
 		AddClusterAssoc(CTL_EQCFG_FLAGS2, 6, PPEquipConfig::fDisableSellSpoiledSeries); // @v11.1.8
 		SetClusterData(CTL_EQCFG_FLAGS2, Data.Flags);
+		// @v12.1.10 {
+		AddClusterAssoc(CTL_EQCFG_POSPAYMFLAGS, 0, PPEquipConfig::fUnifiedPayment);
+		AddClusterAssoc(CTL_EQCFG_POSPAYMFLAGS, 1, PPEquipConfig::fUnifiedPaymentCfmBank);
+		AddClusterAssoc(CTL_EQCFG_POSPAYMFLAGS, 2, PPEquipConfig::fPreferBankingPayment);
+		SetClusterData(CTL_EQCFG_POSPAYMFLAGS, Data.Flags);
+		// } @v12.1.10 
 		SetupCtrls();
 		return 1;
 	}
@@ -2868,6 +2875,7 @@ public:
 		getCtrlData(CTLSEL_EQCFG_PHNSVC,      &Data.PhnSvcID);
 		GetClusterData(CTL_EQCFG_FLAGS,  &Data.Flags);
 		GetClusterData(CTL_EQCFG_FLAGS2, &Data.Flags);
+		GetClusterData(CTL_EQCFG_POSPAYMFLAGS, &Data.Flags); // @v12.1.10
 		ASSIGN_PTR(pData, Data);
 		//CATCHZOKPPERRBYDLG
 		return ok;

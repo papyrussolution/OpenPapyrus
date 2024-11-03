@@ -8918,7 +8918,7 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 					PPViewPerson psn_view;
 					PersonFilt psn_filt;
 					PersonViewItem psn_item;
-					psn_filt.AttribType = PPPSNATTR_REGISTER;
+					psn_filt.SetAttribType(PPPSNATTR_REGISTER);
 					psn_filt.RegTypeID = Cfg.AlcLicRegTypeID;
 					psn_filt.EmptyAttrib = EA_NOEMPTY;
 					PPWaitStart();

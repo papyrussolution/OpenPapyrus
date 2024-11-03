@@ -1185,7 +1185,8 @@ PPObjPersonStatus::PPObjPersonStatus(void * extraPtr) : PPObjReference(PPOBJ_PRS
 int PPObjPersonStatus::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;
-	int    r = cmCancel, valid_data = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	ushort v = 0;
 	PPPersonStatus2 rec;
 	TDialog * dlg = 0;
@@ -1379,7 +1380,8 @@ PPObjELinkKind::PPObjELinkKind(void * extraPtr) : PPObjReference(PPOBJ_ELINKKIND
 int PPObjELinkKind::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;
-	int    r = cmCancel, valid_data = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	ushort v = 0;
 	PPELinkKind rec;
 	TDialog * dlg = 0;
@@ -1561,7 +1563,9 @@ int DirtyBillSymbCache(const char * pSymb);
 
 int PPObjFormula::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = 1, r = cmCancel, valid_data = 0;
+	int    ok = 1;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	SString frm_name, frm_expr, prev_name;
 	PPObjAmountType amtobj;
 	TDialog * dlg = 0;
@@ -1649,7 +1653,8 @@ PPObjCurrency::PPObjCurrency(void * extraPtr) : PPObjReference(PPOBJ_CURRENCY, e
 int PPObjCurrency::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = 1;
-	int    r = cmCancel, valid_data = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	PPCurrency rec;
 	TDialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));
@@ -3379,7 +3384,8 @@ private:
 
 int PPObjUhttStore::Edit(PPID * pID, void * extraPtr)
 {
-	int    r = cmCancel, ok = 1, valid_data = 0;
+	int    r = cmCancel, ok = 1;
+	int    valid_data = 0;
 	PPUhttStorePacket pack;
 	UhttStoreDialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));

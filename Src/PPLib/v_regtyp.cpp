@@ -1,5 +1,5 @@
 // V_REGTYP.CPP
-// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2018, 2020, 2021
+// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2018, 2020, 2021, 2024
 // @codepage UTF-8
 //
 // Типы регистрационных документов 
@@ -11,7 +11,7 @@
 
 RegTypeViewItem::RegTypeViewItem() : ID(0), RegOrgKind(0), PersonKindID(0), ExpiryPrd(0)
 {
-	PTR32(Format)[0] = 0;
+	Format[0] = 0;
 }
 
 IMPLEMENT_PPFILT_FACTORY(RegisterType); RegisterTypeFilt::RegisterTypeFilt() : PPBaseFilt(PPFILT_REGISTERTYPE, 0, 0)
@@ -97,7 +97,7 @@ int PPViewRegisterType::MakeListEntry(const PPRegisterTypePacket * pPack, RegTyp
 		pItem->ID   = pPack->Rec.ID;
 		pItem->RegOrgKind   = pPack->Rec.RegOrgKind;
 		pItem->PersonKindID = pPack->Rec.PersonKindID;
-		pItem->ExpiryPrd    = (long)pPack->Rec.ExpiryPeriod;
+		pItem->ExpiryPrd    = static_cast<long>(pPack->Rec.ExpiryPeriod);
 		pPack->Format.CopyTo(pItem->Format, sizeof(pItem->Format));
 		ok = 1;
 	}
@@ -223,7 +223,7 @@ int PPViewRegisterType::Transmit(int isCharry)
 int PPViewRegisterType::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = (ppvCmd != PPVCMD_ADDITEM) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
-	PPIDArray  id_list;
+	PPIDArray id_list;
 	PPID   id = (pHdr) ? *static_cast<const  PPID *>(pHdr) : 0;
  	if(ok == -2) {
 		switch(ppvCmd) {
@@ -236,7 +236,7 @@ int PPViewRegisterType::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 					PPRegisterType rt_rec;
 					if(ObjRegT.Fetch(id, &rt_rec) > 0) {
 						PersonFilt filt;
-						filt.AttribType = PPPSNATTR_REGISTER;
+						filt.SetAttribType(PPPSNATTR_REGISTER);
 						filt.RegTypeID = id;
 						filt.EmptyAttrib = EA_NOEMPTY;
 						if(rt_rec.PersonKindID)
@@ -259,7 +259,7 @@ int PPViewRegisterType::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 		FetchData(id);
 		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(pBrw->getDef());
 		if(p_def) {
-			long   c = p_def->_curItem();
+			const long c = p_def->_curItem();
 			p_def->setArray(new SArray(Data), 0, 1);
 			pBrw->go(c);
 		}

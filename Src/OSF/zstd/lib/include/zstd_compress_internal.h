@@ -782,17 +782,16 @@ static uint64 ZSTD_rollingHash_append(uint64 hash, const void * buf, size_t size
 	hash += toAdd + ZSTD_ROLL_HASH_CHAR_OFFSET;
 	return hash;
 }
-
-/*-*************************************
-*  Round buffer management
-***************************************/
+//
+// Round buffer management
+//
 #if (ZSTD_WINDOWLOG_MAX_64 > 31)
-# error "ZSTD_WINDOWLOG_MAX is too large : would overflow ZSTD_CURRENT_MAX"
+	#error "ZSTD_WINDOWLOG_MAX is too large : would overflow ZSTD_CURRENT_MAX"
 #endif
 /* Max current allowed */
 #define ZSTD_CURRENT_MAX ((3U << 29) + (1U << ZSTD_WINDOWLOG_MAX))
 /* Maximum chunk size before overflow correction needs to be called again */
-#define ZSTD_CHUNKSIZE_MAX (((uint32)-1)/* Maximum ending current index */ - ZSTD_CURRENT_MAX)/* Maximum beginning lowLimit */
+#define ZSTD_CHUNKSIZE_MAX (_FFFF32/*Maximum ending current index*/ - ZSTD_CURRENT_MAX)/* Maximum beginning lowLimit */
 /**
  * ZSTD_window_clear():
  * Clears the window containing the history by simply setting it to empty.

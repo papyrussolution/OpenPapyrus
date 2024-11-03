@@ -505,7 +505,8 @@ int PPObjBill::GetInventoryStockRest(const InvBlock & rBlk, InvItem * pItem, Goo
 
 int PPObjBill::EditInventory(PPBillPacket * pPack, long)
 {
-	int    r = cmCancel, valid_data = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	InventoryDialog * dlg = new InventoryDialog(DLG_INVENTORY, this, pPack);
 	if(CheckDialogPtrErr(&dlg)) {
 		LDATE  old_date = pPack->Rec.Dt;

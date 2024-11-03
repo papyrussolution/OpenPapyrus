@@ -438,7 +438,7 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 					*static_cast<double *>(p_data) = sqlite3_column_double(h_stmt, idx);
 				}
 				else if(s == 4) {
-					*static_cast<float *>(p_data) = sqlite3_column_double(h_stmt, idx);
+					*static_cast<float *>(p_data) = static_cast<float>(sqlite3_column_double(h_stmt, idx));
 				}
 			}
 			break;

@@ -37,7 +37,7 @@ static const uint8 blake2s_sigma[10][16] = {
 
 static void blake2s_set_lastnode(blake2s_state * S)
 {
-	S->f[1] = (uint32)-1;
+	S->f[1] = _FFFF32;
 }
 
 /* Some helper functions, not necessarily useful */
@@ -50,13 +50,13 @@ static void blake2s_set_lastblock(blake2s_state * S)
 {
 	if(S->last_node) 
 		blake2s_set_lastnode(S);
-	S->f[0] = (uint32)-1;
+	S->f[0] = _FFFF32;
 }
 
 static void blake2s_increment_counter(blake2s_state * S, const uint32 inc)
 {
 	S->t[0] += inc;
-	S->t[1] += ( S->t[0] < inc );
+	S->t[1] += (S->t[0] < inc);
 }
 
 static void blake2s_init0(blake2s_state * S)

@@ -95,18 +95,6 @@ bool BzsValVector::Get(long id, double * pValue) const
 	return ok;
 }
 
-/*static*/const char * PPObjBizScore::GetBzsiSymb(int bzsi, SString & rBuf)
-{
-	const char * p_result = SIntToSymbTab_GetSymbPtr(BzsISymList, SIZEOFARRAY(BzsISymList), bzsi);
-	(rBuf = p_result);
-	return p_result;
-}
-
-/*static*/int PPObjBizScore::RecognizeBzsiSymb(const char * pSymb)
-{
-	return SIntToSymbTab_GetId(BzsISymList, SIZEOFARRAY(BzsISymList), pSymb);
-}
-
 PPBizScore::PPBizScore()
 {
 	THISZERO();
@@ -1198,7 +1186,8 @@ private:
 
 int CreateBizScGlblUserAcct()
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	CreateBizScGblAcctDlg::Param data;
 	CreateBizScGblAcctDlg * p_dlg = new CreateBizScGblAcctDlg;
 	THROW(CheckDialogPtr(&p_dlg) > 0);

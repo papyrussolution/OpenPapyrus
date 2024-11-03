@@ -1242,7 +1242,7 @@ public class Document {
 				if(H.DueTime != null)
 					result.put("duetm", SLib.datetimefmt(H.DueTime, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
 				// @v11.6.2 {
-				if(H.CreationGeoLoc != null && !H.CreationGeoLoc.IsZero() && H.CreationGeoLoc.IsValid()) {
+				if(!SLib.GeoPosLL.IsZero(H.CreationGeoLoc) && H.CreationGeoLoc.IsValid()) {
 					result.put("cr_lat", H.CreationGeoLoc.Lat);
 					result.put("cr_lon", H.CreationGeoLoc.Lon);
 				}
@@ -1452,7 +1452,7 @@ public class Document {
 				// @v11.6.2 {
 				{
 					SLib.GeoPosLL cr_geoloc = new SLib.GeoPosLL(jsObj.optDouble("cr_lat", 0.0), jsObj.optDouble("cr_lon", 0.0));
-					if(cr_geoloc != null && cr_geoloc.IsValid() && !cr_geoloc.IsZero())
+					if(!SLib.GeoPosLL.IsZero(cr_geoloc) && cr_geoloc.IsValid())
 						H.CreationGeoLoc = cr_geoloc;
 				}
 				// } @v11.6.2

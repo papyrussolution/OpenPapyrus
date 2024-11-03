@@ -578,10 +578,7 @@ static int archive_read_format_7zip_read_header(ArchiveRead * a, ArchiveEntry * 
 	if(zip->has_encrypted_entries == ARCHIVE_READ_FORMAT_ENCRYPTION_DONT_KNOW) {
 		zip->has_encrypted_entries = 0;
 	}
-
-	if(archive_entry_copy_pathname_l(entry,
-	    (const char *)zip_entry->utf16name,
-	    zip_entry->name_len, zip->sconv) != 0) {
+	if(archive_entry_copy_pathname_l(entry, (const char *)zip_entry->utf16name, zip_entry->name_len, zip->sconv) != 0) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 			return ARCHIVE_FATAL;
@@ -599,27 +596,22 @@ static int archive_read_format_7zip_read_header(ArchiveRead * a, ArchiveEntry * 
 	if(zip_entry->flg & ATIME_IS_SET)
 		archive_entry_set_atime(entry, zip_entry->atime,
 		    zip_entry->atime_ns);
-	if(zip_entry->ssIndex != (uint32)-1) {
-		zip->entry_bytes_remaining =
-		    zip->si.ss.unpackSizes[zip_entry->ssIndex];
+	if(zip_entry->ssIndex != _FFFF32) {
+		zip->entry_bytes_remaining = zip->si.ss.unpackSizes[zip_entry->ssIndex];
 		archive_entry_set_size(entry, zip->entry_bytes_remaining);
 	}
 	else {
 		zip->entry_bytes_remaining = 0;
 		archive_entry_set_size(entry, 0);
 	}
-
 	/* If there's no body, force read_data() to return EOF immediately. */
 	if(zip->entry_bytes_remaining < 1)
 		zip->end_of_entry = 1;
-
 	if((zip_entry->mode & AE_IFMT) == AE_IFLNK) {
 		uchar * symname = NULL;
 		size_t symsize = 0;
-
 		/*
-		 * Symbolic-name is recorded as its contents. We have to
-		 * read the contents at this time.
+		 * Symbolic-name is recorded as its contents. We have to read the contents at this time.
 		 */
 		while(zip->entry_bytes_remaining > 0) {
 			const void * buff;
@@ -684,9 +676,9 @@ static int archive_read_format_7zip_read_data(ArchiveRead * a, const void ** buf
 	// @sobolev (#1480) bytes = read_stream(a, buff, (size_t)zip->entry_bytes_remaining, 0);
 	// @sobolev (#1480) {
 	const uint64 max_read_size = SMEGABYTE(16);  // Don't try to read more than 16 MB at a time
-	size_t bytes_to_read = max_read_size;
+	uint64 bytes_to_read = max_read_size;
 	SETMIN(bytes_to_read, zip->entry_bytes_remaining);
-	bytes = read_stream(a, buff, bytes_to_read, 0);
+	bytes = read_stream(a, buff, static_cast<size_t>(bytes_to_read), 0);
 	// } @sobolev (#1480)
 	if(bytes < 0)
 		return ((int)bytes);

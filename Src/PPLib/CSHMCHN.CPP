@@ -1500,7 +1500,8 @@ AsyncPosPrepParam::AsyncPosPrepParam() : CashNodeID(0), Flags(0)
 
 int AsyncCashnPrepDialog(AsyncPosPrepParam * pParam)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	PPObjCashNode::SelFilt f;
 	AsyncPosPrepParam param;
 	RVALUEPTR(param, pParam);
@@ -1529,11 +1530,10 @@ int AsyncCashnPrepDialog(AsyncPosPrepParam * pParam)
 
 int SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	LDATE  dt = getcurdate_();
-	PPObjCSession cs_obj; // @v10.4.2
-	// @v10.4.2 CCheckCore    cc_core;
-	// @v10.4.2 CSessionCore  cs_core;
+	PPObjCSession cs_obj;
 	CSessInfo     cs_info;
 	MEMSZERO(cs_info);
 	TDialog * dlg = new TDialog(SLS.CheckUiFlag(sluifUseLargeDialogs) ? DLG_SELSESNO_L : DLG_SELSESNO);

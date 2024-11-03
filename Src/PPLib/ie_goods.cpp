@@ -285,7 +285,8 @@ private:
 static int SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 {
 	const uint _rec_ident = PPREC_QUOTVAL;
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	uint   p = 0;
 	long   id = 0;
 	SString ini_file_name, sect;

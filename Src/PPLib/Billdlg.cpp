@@ -3383,7 +3383,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 					// выбрать склад-получатель.
 					//
 					else if(IsIntrOp(R_Pack.Rec.OpID) == INTREXPND) {
-						PPID   loc_id = PPObjLocation::ObjToWarehouse(R_Pack.Rec.Object);
+						const PPID loc_id = PPObjLocation::ObjToWarehouse(R_Pack.Rec.Object);
 						if(loc_id || Data.DlvrAddrID) {
 							ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_FREIGHT_DLVRLOC));
 							if(p_combo) {

@@ -2385,7 +2385,8 @@ public:
 	}
 	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
 	{
-		int    ok = -1, valid_data = 0;
+		int    ok = -1;
+		int    valid_data = 0;
 		size_t sav_offs = 0;
 		AddPersonEventFilt filt;
 		THROW_INVARG(pParam);
@@ -2876,7 +2877,8 @@ public:
 	}
 	virtual int EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
 	{
-		int    ok = -1, valid_data = 0;
+		int    ok = -1;
+		int    valid_data = 0;
 		size_t sav_offs = 0;
 		CashNodePaneFilt * p_filt = 0;
 		CashNodeFiltDialog * p_dlg = 0;

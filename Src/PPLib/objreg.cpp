@@ -708,7 +708,8 @@ int PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 		SString BIC;
 		SPaintToolBox Ptb;
 	};
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	PPBankAccount rec = *pRec;
 	BankAccountDialog * dlg = new BankAccountDialog();
 	if(CheckDialogPtrErr(&dlg)) {

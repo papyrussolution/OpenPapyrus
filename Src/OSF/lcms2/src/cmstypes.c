@@ -1388,11 +1388,11 @@ static uint32 uipow(uint32 n, uint32 a, uint32 b)
 		rv *= a;
 		// Check for overflow
 		if(rv > UINT_MAX / a) 
-			return (uint32)-1;
+			return _FFFF32;
 	}
 	rc = rv * n;
 	if(rv != rc / n) 
-		return (uint32)-1;
+		return _FFFF32;
 	return rc;
 }
 

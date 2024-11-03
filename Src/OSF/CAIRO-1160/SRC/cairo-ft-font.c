@@ -2220,7 +2220,7 @@ static cairo_int_status_t _cairo_ft_index_to_ucs4(void * abstract_font, ulong in
 	else {
 		FT_ULong charcode;
 		FT_UInt gindex;
-		*ucs4 = (uint32)-1;
+		*ucs4 = _FFFF32;
 		charcode = FT_Get_First_Char(face, &gindex);
 		while(gindex != 0) {
 			if(gindex == index) {

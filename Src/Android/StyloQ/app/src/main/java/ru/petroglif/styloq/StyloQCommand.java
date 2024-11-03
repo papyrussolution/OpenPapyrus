@@ -94,12 +94,11 @@ public class StyloQCommand {
 		//
 		double GetGeoDistanceRestriction()
 		{
-			return (MaxDistM > 0.0 && GeoLocDistTo != null && !GeoLocDistTo.IsZero() && GeoLocDistTo.IsValid()) ? MaxDistM : 0.0;
+			return (MaxDistM > 0.0 && !SLib.GeoPosLL.IsZero(GeoLocDistTo) && GeoLocDistTo.IsValid()) ? MaxDistM : 0.0;
 		}
 		boolean CanEvaluateDistance(final SLib.GeoPosLL currentGeoLoc)
 		{
-			return (GeoLocDistTo != null && !GeoLocDistTo.IsZero() && GeoLocDistTo.IsValid() &&
-				currentGeoLoc != null && !currentGeoLoc.IsZero() && currentGeoLoc.IsValid());
+			return (!SLib.GeoPosLL.IsZero(GeoLocDistTo) && GeoLocDistTo.IsValid() && !SLib.GeoPosLL.IsZero(currentGeoLoc) && currentGeoLoc.IsValid());
 		}
 		double GetGeoDistance(final SLib.GeoPosLL currentGeoLoc)
 		{

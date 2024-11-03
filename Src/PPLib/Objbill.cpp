@@ -914,6 +914,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 	const  PPCommConfig & r_ccfg = CConfig;
 	Goods2Tbl::Rec prepay_goods_rec;
 	const  PPID prepay_goods_id = (r_ccfg.PrepayInvoiceGoodsID && goods_obj.Fetch(r_ccfg.PrepayInvoiceGoodsID, &prepay_goods_rec) > 0) ? prepay_goods_rec.ID : 0;
+	const  bool is_return = oneof3(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN, PPOPT_DRAFTRECEIPT);
 	THROW(rParam.PosNodeID && cn_obj.GetSync(rParam.PosNodeID, &cn_rec) > 0);
 	//THROW(p_cm = PPCashMachine::CreateInstance(rParam.PosNodeID));
 	//THROW(p_cm->SyncAllowPrint());
@@ -930,7 +931,6 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 			else
 				bill_person_id = 0;
 		}
-
 		double cc_amount = 0.0;
 		double dscnt = 0.0;
 		cp.Rec.SessID = cur_sess_id;
@@ -982,96 +982,102 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 				SString chzn_mark;
 				for(uint tiidx = 0; tiidx < GetTCount(); tiidx++) {
 					const PPTransferItem & r_ti = ConstTI(tiidx);
+					Goods2Tbl::Rec goods_rec;
+					PPGoodsType2 gt_rec;
 					LTagL.GetString(PPTAG_LOT_SN, tiidx, serial); // @v11.8.9
 					const double org_qtty = fabs(r_ti.Quantity_);
 					double qtty_ = org_qtty;
 					const double n_pr = r_ti.NetPrice();
 					chzn_mark.Z();
-					{
-						bool   chznpm_ok = true;
+					if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0) {
 						XcL.Get(tiidx+1, 0, lotxcode_set);
 						lotxcode_set.GetByBoxID(0, ss);
 						const double _one = 1.0;
-						for(uint ssp = 0; qtty_ >= _one && ss.get(&ssp, chzn_mark);) {
-							S_GUID chznpm_reqid;        // ответ разрешительного режима чзн: уникальный идентификатор запроса
-							int64  chznpm_reqtimestamp = 0; // ответ разрешительного режима чзн: дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
-							if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(chzn_mark, gts, 0)) > 0) {
-								// @v12.1.6 {
-								assert(chzn_mark.NotEmpty());
-								if((rParam.Flags_ & PPBillPacket::ConvertToCCheckParam::fDoChZnPm) && cn_rec.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && cn_rec.ChZnGuaID) {
-									PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection check_code_list;
-									{
-										uint clp = 0;
-										//CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
-										PPChZnPrcssr::ReconstructOriginalChZnCode(gts, chzn_mark);
-										PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.CreateNewItem(&clp);
-										if(p_cle) {
-											p_cle->OrgMark = chzn_mark;
-											p_cle->OrgRowId = tiidx;
-										}
-									}
-									if(check_code_list.getCount()) {
-										PPChZnPrcssr::PmCheck(cn_rec.ChZnGuaID, 0, check_code_list);
-										for(uint i = 0; i < check_code_list.getCount(); i++) {
-											const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.at(i);
+						const long chzn_prod_type = (goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) ? gt_rec.ChZnProdType : 0;
+						if(ss.getCount()) {
+							bool   chznpm_ok = true;
+							for(uint ssp = 0; qtty_ >= _one && ss.get(&ssp, chzn_mark);) {
+								S_GUID chznpm_reqid;        // ответ разрешительного режима чзн: уникальный идентификатор запроса
+								int64  chznpm_reqtimestamp = 0; // ответ разрешительного режима чзн: дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
+								if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(chzn_mark, gts, 0)) > 0) {
+									// @v12.1.6 {
+									assert(chzn_mark.NotEmpty());
+									if(!is_return && (chzn_prod_type != GTCHZNPT_MEDICINE) && /*@v12.1.10*//*лекарственные средства проверять через разрешительный режим не надо (пока)*/
+										(rParam.Flags_ & PPBillPacket::ConvertToCCheckParam::fDoChZnPm) && cn_rec.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && cn_rec.ChZnGuaID) {
+										PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection check_code_list;
+										{
+											uint clp = 0;
+											//CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
+											PPChZnPrcssr::ReconstructOriginalChZnCode(gts, chzn_mark);
+											PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.CreateNewItem(&clp);
 											if(p_cle) {
-												//debug_mark = true;
-												if(p_cle->ErrorCode != 0) {
-													if(pErrList) {
-														SCompoundError * p_err_item = pErrList->CreateNewItem();
-														p_err_item->ItemI = p_cle->OrgRowId;
-														p_err_item->Code = PPERR_CHZNMARKPMFAULT;
-														//p_err_item->Descr = p_cle->Message;
-														PPGetMessage(mfError, p_err_item->Code, p_cle->OrgMark, 1, p_err_item->Descr);
+												p_cle->OrgMark = chzn_mark;
+												p_cle->OrgRowId = tiidx;
+											}
+										}
+										if(check_code_list.getCount()) {
+											PPChZnPrcssr::PmCheck(cn_rec.ChZnGuaID, 0, check_code_list);
+											for(uint i = 0; i < check_code_list.getCount(); i++) {
+												const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.at(i);
+												if(p_cle) {
+													//debug_mark = true;
+													if(p_cle->ErrorCode != 0) {
+														if(pErrList) {
+															SCompoundError * p_err_item = pErrList->CreateNewItem();
+															p_err_item->ItemI = p_cle->OrgRowId;
+															p_err_item->Code = PPERR_CHZNMARKPMFAULT;
+															//p_err_item->Descr = p_cle->Message;
+															PPGetMessage(mfError, p_err_item->Code, p_cle->OrgMark, 1, p_err_item->Descr);
+														}
+														chznpm_ok = false;
 													}
-													chznpm_ok = false;
-												}
-												else if(p_cle->Flags & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold) {
-													if(pErrList) {
-														SCompoundError * p_err_item = pErrList->CreateNewItem();
-														p_err_item->ItemI = p_cle->OrgRowId;
-														p_err_item->Code = PPERR_CHZNMARKPMFAULT_SOLD;
-														PPGetMessage(mfError, p_err_item->Code, p_cle->OrgMark, 1, p_err_item->Descr);
+													else if(p_cle->Flags & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold) {
+														if(pErrList) {
+															SCompoundError * p_err_item = pErrList->CreateNewItem();
+															p_err_item->ItemI = p_cle->OrgRowId;
+															p_err_item->Code = PPERR_CHZNMARKPMFAULT_SOLD;
+															PPGetMessage(mfError, p_err_item->Code, p_cle->OrgMark, 1, p_err_item->Descr);
+														}
+														chznpm_ok = false;
 													}
-													chznpm_ok = false;
-												}
-												else if(checkdate(p_cle->ExpiryDtm.d) && now_dtm.d >= p_cle->ExpiryDtm.d) { // @v12.1.1
-													if(pErrList) {
-														SCompoundError * p_err_item = pErrList->CreateNewItem();
-														p_err_item->ItemI = p_cle->OrgRowId;
-														p_err_item->Code = PPERR_CHZNMARKPMFAULT_EXPIRY;
-														PPGetMessage(mfError, p_err_item->Code, p_cle->OrgMark, 1, p_err_item->Descr);
+													else if(checkdate(p_cle->ExpiryDtm.d) && now_dtm.d >= p_cle->ExpiryDtm.d) { // @v12.1.1
+														if(pErrList) {
+															SCompoundError * p_err_item = pErrList->CreateNewItem();
+															p_err_item->ItemI = p_cle->OrgRowId;
+															p_err_item->Code = PPERR_CHZNMARKPMFAULT_EXPIRY;
+															PPGetMessage(mfError, p_err_item->Code, p_cle->OrgMark, 1, p_err_item->Descr);
+														}
+														chznpm_ok = false;
 													}
-													chznpm_ok = false;
-												}
-												else {
-													// OK
-													chznpm_reqid = check_code_list.ReqId;
-													chznpm_reqtimestamp = check_code_list.ReqTimestamp;
+													else {
+														// OK
+														chznpm_reqid = check_code_list.ReqId;
+														chznpm_reqtimestamp = check_code_list.ReqTimestamp;
+													}
 												}
 											}
 										}
 									}
+									// } @v12.1.6
+									THROW(cp.InsertItem(r_ti.GoodsID, _one, n_pr, 0.0, rParam.DivisionN));
+									const int cp_idx = static_cast<int>(cp.GetCount());
+									cc_amount += R2(n_pr * _one);
+									dscnt += R2(r_ti.Discount * _one);
+									qtty_ -= _one;
+									cp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnMark, chzn_mark);
+									cp.SetLineTextExt(cp_idx, CCheckPacket::lnextSerial, serial); // @v11.8.9
+									// @v12.1.6 {
+									if(!chznpm_reqid.IsZero() && chznpm_reqtimestamp) {
+										chznpm_reqid.ToStr(S_GUID::fmtPlain, temp_buf);
+										cp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnPm_ReqId, temp_buf);
+										temp_buf.Z().Cat(chznpm_reqtimestamp);
+										cp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnPm_ReqTimestamp, temp_buf);
+									}
+									// } @v12.1.6
 								}
-								// } @v12.1.6
-								THROW(cp.InsertItem(r_ti.GoodsID, _one, n_pr, 0.0, rParam.DivisionN));
-								const int cp_idx = static_cast<int>(cp.GetCount());
-								cc_amount += R2(n_pr * _one);
-								dscnt += R2(r_ti.Discount * _one);
-								qtty_ -= _one;
-								cp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnMark, chzn_mark);
-								cp.SetLineTextExt(cp_idx, CCheckPacket::lnextSerial, serial); // @v11.8.9
-								// @v12.1.6 {
-								if(!chznpm_reqid.IsZero() && chznpm_reqtimestamp) {
-									chznpm_reqid.ToStr(S_GUID::fmtPlain, temp_buf);
-									cp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnPm_ReqId, temp_buf);
-									temp_buf.Z().Cat(chznpm_reqtimestamp);
-									cp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnPm_ReqTimestamp, temp_buf);
-								}
-								// } @v12.1.6
 							}
+							THROW_PP(chznpm_ok, PPERR_B2CCCVT_CHZNMARKPMFAULT);
 						}
-						THROW_PP(chznpm_ok, PPERR_B2CCCVT_CHZNMARKPMFAULT);
 						if(qtty_ > 0.0) {
 							THROW(cp.InsertItem(r_ti.GoodsID, qtty_, n_pr, 0.0, rParam.DivisionN));
 							const int cp_idx = static_cast<int>(cp.GetCount());
@@ -1092,7 +1098,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 				LDBLTOMONEY(cc_amount, cp.Rec.Amount);
 				LDBLTOMONEY(dscnt, cp.Rec.Discount);
 				cp._Cash = cc_amount;
-				if(oneof3(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN, PPOPT_DRAFTRECEIPT))
+				if(is_return)
 					cp.Rec.Flags |= CCHKF_RETURN;
 				if(rParam.PaymType == cpmBank)
 					cp.Rec.Flags |= CCHKF_BANKING;
@@ -9327,14 +9333,12 @@ static int IsBillsCompatible(const BillTbl::Rec * pBillPack1, const BillTbl::Rec
 int PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int use_ta)
 {
 	int    ok = 1;
-	//uint   i, j;
 	short  rbybill;
-	//int    done;
 	// @v10.3.0 int    is_intrexnd = 0; // Признак того, что объединяются документы внутреннего перемещения - сложный случай.
 	DateIter diter;
 	PPBillPacket add_pack;
 	PPTransferItem ti;
-	PPLotExtCodeContainer::MarkSet src_lotxcode_set; // @v10.9.7
+	PPLotExtCodeContainer::MarkSet src_lotxcode_set;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -9347,7 +9351,7 @@ int PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int use_ta)
 			// @todo Сделать объединение документов внутренней передачи
 		}
 		else {
-			const double _eps = 1.0e07; // @v10.9.7
+			const double _eps = 1.0e07;
 			TBlock tb_;
 			THROW(BeginTFrame(pPack->Rec.ID, tb_));
 			//
@@ -9356,7 +9360,7 @@ int PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int use_ta)
 			for(uint atiidx = 0; atiidx < add_pack.GetTCount(); atiidx++) {
 				PPTransferItem & r_ati = add_pack.TI(atiidx);
 				bool done = false;
-				add_pack.XcL.Get(atiidx+1, 0, src_lotxcode_set); // @v10.9.7
+				add_pack.XcL.Get(atiidx+1, 0, src_lotxcode_set);
 				for(uint j = 0; !done && pPack->SearchLot(r_ati.LotID, &j); j++) {
 					PPTransferItem * p_ti = &pPack->TI(j);
 					if(feqeps(p_ti->Cost, r_ati.Cost, _eps) && feqeps(p_ti->Price, r_ati.Price, _eps) && feqeps(p_ti->Discount, r_ati.Discount, _eps)) {
@@ -9370,7 +9374,7 @@ int PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int use_ta)
 							THROW(trfr->RemoveItem(r_ati.BillID, r_ati.RByBill, 0, 0));
 							THROW(trfr->UpdateItem(p_ti, tb_.Rbb(), 0, 0));
 						}
-						pPack->XcL.Add(j+1, src_lotxcode_set); // @v10.9.7
+						pPack->XcL.Add(j+1, src_lotxcode_set);
 						done = true;
 					}
 				}
@@ -9387,13 +9391,11 @@ int PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int use_ta)
 					{
 						LongArray new_row_idx_list;
 						THROW(pPack->InsertRow(&r_ati, &new_row_idx_list));
-						// @v10.9.7 {
 						if(src_lotxcode_set.GetCount()) {
 							if(new_row_idx_list.getCount() == 1) {
 								pPack->XcL.Add(new_row_idx_list.get(0)+1, src_lotxcode_set); 
 							}
 						}
-						// } @v10.9.7 
 					}
 					r_ati.QCert = 0;
 				}
@@ -9415,13 +9417,18 @@ int PPObjBill::UniteGoodsBill(PPBillPacket * pPack, PPID addBillID, int use_ta)
 
 int PPObjBill::UniteReceiptBill(PPID destBillID, const PPIDArray & rSrcList, int use_ta)
 {
-	int    ok = 1, frrl_tag = 0;
+	int    ok = 1;
+	int    frrl_tag = 0;
 	int    r_by_bill = 0;
-	PPID   src_bill_id = 0, src_lot_id = 0; // @debug
-	SString src_clb, dest_clb;
+	PPID   src_bill_id = 0;
+	PPID   src_lot_id = 0; // @debug
+	SString src_clb;
+	SString dest_clb;
 	LAssocArray ary;
-	uint   i, j;
-	PPTransferItem * p_ti, ti;
+	uint   i;
+	uint   j;
+	PPTransferItem * p_ti;
+	PPTransferItem ti;
 	PPBillPacket dest_pack;
 	THROW(atobj->P_Tbl->LockingFRR(1, &frrl_tag, use_ta));
 	THROW(ExtractPacketWithFlags(destBillID, &dest_pack, BPLD_LOCK) > 0);
@@ -9429,7 +9436,7 @@ int PPObjBill::UniteReceiptBill(PPID destBillID, const PPIDArray & rSrcList, int
 		THROW_SL(ary.Add(p_ti->GoodsID, p_ti->LotID, 0, 0));
 	ary.Sort();
 	for(j = 0; j < rSrcList.getCount(); j++) {
-		/*PPID*/   src_bill_id = rSrcList.at(j);
+		/*PPID*/src_bill_id = rSrcList.at(j);
 		BillTbl::Rec src_bill_rec;
 		THROW(Search(src_bill_id, &src_bill_rec) > 0);
 		if(dest_pack.Rec.Object == src_bill_rec.Object && dest_pack.Rec.OpID == src_bill_rec.OpID &&

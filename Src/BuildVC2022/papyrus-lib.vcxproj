@@ -1417,6 +1417,7 @@
     <ClCompile Include="..\PPLib\Objbill.cpp" />
     <ClCompile Include="..\PPLib\objbilst.cpp" />
     <ClCompile Include="..\PPLib\objbizsc.cpp" />
+    <ClCompile Include="..\PPLib\objbizsc2.cpp" />
     <ClCompile Include="..\PPLib\Objbrows.cpp" />
     <ClCompile Include="..\PPLib\objbskt.cpp" />
     <ClCompile Include="..\PPLib\OBJCACHE.CPP" />

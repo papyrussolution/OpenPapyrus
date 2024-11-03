@@ -1694,7 +1694,8 @@ int PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 		PPObjSCardSeries * P_SCSerObj;
 	};
 	int    ok = 1;
-	int    r = cmCancel, valid_data = 0;
+	int    r = cmCancel;
+	int    valid_data = 0;
 	ushort v = 0;
 	double pdis = 0.0;
 	PPSCardSerPacket pack;
@@ -5122,7 +5123,8 @@ private:
 
 static int SelectSCardImportCfgs(PPSCardImpExpParam * pParam, int import)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	uint   p = 0;
 	long   id = 0;
 	SString ini_file_name, sect;

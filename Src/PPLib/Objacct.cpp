@@ -688,9 +688,10 @@ void GenAccountDialog::getExtText(PPID, long objFlags, SString & rBuf)
 int GenAccountDialog::editItemDialog(ObjRestrictItem * pItem)
 {
 #define ACCT_GROUP 1
-	int  ok = -1, valid_data = 0;
-	int  aco = abs(GetAcoByGenFlags(pItem->Flags));
-	PPID acc_sheet_id = 0;
+	int    ok = -1;
+	int    valid_data = 0;
+	int    aco = abs(GetAcoByGenFlags(pItem->Flags));
+	PPID   acc_sheet_id = 0;
 	TDialog * dlg = new TDialog(DLG_ACCAGGRI);
 	if(CheckDialogPtrErr(&dlg)) {
 		ushort v = 0;

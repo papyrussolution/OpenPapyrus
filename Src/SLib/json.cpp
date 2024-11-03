@@ -14,7 +14,6 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-// @v10.9.4 (inlined in slib.h) #include <json.h>
 
 #define JSON_MAX_STRING_LENGTH (16386-1)
 //

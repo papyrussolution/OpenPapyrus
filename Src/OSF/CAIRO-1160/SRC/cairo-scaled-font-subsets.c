@@ -318,7 +318,7 @@ static cairo_status_t _cairo_sub_font_glyph_lookup_unicode(cairo_scaled_font_t *
 	cairo_status_t status = _cairo_truetype_index_to_ucs4(scaled_font, scaled_font_glyph_index, &unicode);
 	if(_cairo_status_is_error(status))
 		return status;
-	if(unicode == (uint32)-1 && scaled_font->backend->index_to_ucs4) {
+	if(unicode == _FFFF32 && scaled_font->backend->index_to_ucs4) {
 		status = scaled_font->backend->index_to_ucs4(scaled_font, scaled_font_glyph_index, &unicode);
 		if(UNLIKELY(status))
 			return status;
@@ -326,7 +326,7 @@ static cairo_status_t _cairo_sub_font_glyph_lookup_unicode(cairo_scaled_font_t *
 	*unicode_out = unicode;
 	*utf8_out = NULL;
 	*utf8_len_out = 0;
-	if(unicode != (uint32)-1) {
+	if(unicode != _FFFF32) {
 		len = _cairo_ucs4_to_utf8(unicode, buf);
 		if(len > 0) {
 			*utf8_out = (char *)SAlloc::M_zon0(len+1);

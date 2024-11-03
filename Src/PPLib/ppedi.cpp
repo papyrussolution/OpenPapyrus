@@ -5270,7 +5270,7 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 			p_bp->Rec.Dt = pNrDoc->Dt;
 			STRNSCPY(p_bp->Rec.Code, pNrDoc->Code);
 			{
-				DocNalogRu_Reader::Participant * p_c = pNrDoc->GetParticipant(EDIPARTYQ_SELLER, false);
+				const DocNalogRu_Reader::Participant * p_c = pNrDoc->GetParticipant(EDIPARTYQ_SELLER, false);
 				SETIFZ(p_c, pNrDoc->GetParticipant(EDIPARTYQ_SUPPLIER, false));
 				SETIFZ(p_c, pNrDoc->GetParticipant(EDIPARTYQ_CONSIGNOR, false));
 				if(p_c) {
@@ -5283,7 +5283,7 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 				}
 			}
 			{
-				DocNalogRu_Reader::Participant * p_c = pNrDoc->GetParticipant(EDIPARTYQ_BUYER, false);
+				const DocNalogRu_Reader::Participant * p_c = pNrDoc->GetParticipant(EDIPARTYQ_BUYER, false);
 				SETIFZ(p_c, pNrDoc->GetParticipant(EDIPARTYQ_CONSIGNEE, false));
 				if(p_c) {
 					OwnFormatContractor ofc;
@@ -5296,7 +5296,7 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 			}
 			// @v11.9.9 { // Этот блок должен следовать за предыдущим (EDIPARTYQ_BUYER) поскольку адрес доставки резолвится в контексте покупателя //
 			{
-				DocNalogRu_Reader::Participant * p_c = pNrDoc->GetParticipant(EDIPARTYQ_CONSIGNEE, false);
+				const DocNalogRu_Reader::Participant * p_c = pNrDoc->GetParticipant(EDIPARTYQ_CONSIGNEE, false);
 				if(p_c) {
 					OwnFormatContractor ofc;
 					ofc.GLN = p_c->GLN;

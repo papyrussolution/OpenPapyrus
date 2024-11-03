@@ -604,7 +604,8 @@ struct ImportGoodsParam {
 
 static int RequestImportGoodsParam(ImportGoodsParam * pData)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	PPGoodsConfig goods_cfg;
 	PPObjGoods::ReadConfig(&goods_cfg);
 	SETIFZ(pData->RcptOpID, CConfig.ReceiptOp);

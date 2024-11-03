@@ -8,6 +8,99 @@
 //
 // 
 // 
+WsCtlApp::WsCtlApp()
+{
+}
+
+/*static*/bool WsCtlApp::GetLocalCachePath(SString & rPath)
+{
+	rPath.Z();
+	bool    ok = true;
+	SString temp_buf;
+	SString cache_path;
+	PPGetPath(PPPATH_WORKSPACE, temp_buf);	
+	(cache_path = temp_buf).SetLastSlash().Cat("cache");
+	if(SFile::CreateDir(cache_path)) {
+		rPath = cache_path;
+	}
+	else
+		ok = false;
+	return ok;
+}
+
+/*static*/int WsCtlApp::StoreProgramListResolvedCache(const WsCtl_ProgramCollection & rPgmL)
+{
+	int    ok = -1;
+	SJson * p_js = 0;
+	const char * p_file_name = "wsctl-program-resolved.json";
+	if(rPgmL.getCount()) {
+		SString temp_buf;
+		SString cache_path;
+		SString js_text;
+		p_js = rPgmL.ToJsonObj(true);
+		THROW(p_js);
+		THROW_SL(p_js->ToStr(js_text));
+		WsCtlApp::GetLocalCachePath(cache_path);
+		cache_path.SetLastSlash().Cat("data");
+		THROW_SL(SFile::CreateDir(cache_path));
+		{
+			(temp_buf = cache_path).SetLastSlash().Cat(p_file_name);
+			SFile f_out(temp_buf, SFile::mWrite);
+			THROW_SL(f_out.IsValid());
+			THROW_SL(f_out.Write(js_text.cptr(), js_text.Len()));
+		}
+		ok = 1;
+	}
+	CATCHZOK
+	delete p_js;
+	return ok;
+}
+
+/*static*/int WsCtlApp::GetProgramListFromCache(WsCtl_ProgramCollection * pPgmL, bool resolvedPrmListCache, WsCtl_ClientPolicy * pPolicyL)
+{
+	int    ok = 0;
+	if(pPgmL || pPolicyL) {
+		SString temp_buf;
+		SString cache_path;
+		WsCtlApp::GetLocalCachePath(cache_path);
+		cache_path.SetLastSlash().Cat("data");
+		if(SFile::CreateDir(cache_path)) {
+			if(pPgmL) {
+				const char * p_file_name = resolvedPrmListCache ? "wsctl-program-resolved.json" : "wsctl-program.json";
+				(temp_buf = cache_path).SetLastSlash().Cat(p_file_name);
+				if(fileExists(temp_buf)) {
+					SJson * p_js_obj = SJson::ParseFile(temp_buf);
+					if(p_js_obj) {
+						WsCtl_ProgramCollection pgml_local_instance;
+						if(pgml_local_instance.FromJsonObj(p_js_obj)) {
+							*pPgmL = pgml_local_instance;
+							ok |= 0x01;
+						}
+					}
+					delete p_js_obj;
+				}
+			}
+			if(pPolicyL) {
+				(temp_buf = cache_path).SetLastSlash().Cat("wsctl-policy.json");
+				if(fileExists(temp_buf)) {
+					SJson * p_js_obj = SJson::ParseFile(temp_buf);
+					if(p_js_obj) {
+						WsCtl_ClientPolicy policyl_local_instance;
+						if(policyl_local_instance.FromJsonObj(p_js_obj)) {
+							*pPolicyL = policyl_local_instance;
+							ok |= 0x02;
+						}
+					}
+					delete p_js_obj;			
+				}
+			}
+		}
+	}
+	return ok;
+}
+//
+// 
+// 
 WsCtl_LoginBlock::WsCtl_LoginBlock()
 {
 	Z();
@@ -1072,7 +1165,7 @@ int WsCtlSrvBlock::StartSess(StartSessBlock & rBlk)
 				PPOprKind op_rec;
 				if(GetOpData(inh_prc_rec.WrOffOpID, &op_rec) > 0 && op_rec.AccSheetID && sc_rec.PersonID) {
 					PPID   ar_id = 0;
-					if(ArObj.P_Tbl->PersonToArticle(sc_rec.PersonID, op_rec.AccSheetID, &ar_id) > 0) {
+					if(ArObj.P_Tbl->PersonToArticle(sc_rec.PersonID, op_rec.AccSheetID, &ar_id)) {
 						pack.Rec.ArID = ar_id;
 					}
 				}
@@ -1255,9 +1348,7 @@ int WsCtlSrvBlock::RegisterComputer(ComputerRegistrationBlock & rBlk)
 			}
 		}
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -1272,7 +1363,7 @@ int WsCtlSrvBlock::Registration(RegistrationBlock & rBlk)
 	THROW(rBlk.IsValid());
 	THROW_PP(ScSerID, PPERR_WSCTL_CLIACCSCSERUNDEF);
 	THROW(scs_obj.Search(ScSerID, &scs_rec) > 0);
-	THROW_PP(scs_rec.PersonKindID, PPERR_WSCTL_CLIACCSCSMUSTHAVEPSNK, scs_rec.Name);
+	THROW_PP_S(scs_rec.PersonKindID, PPERR_WSCTL_CLIACCSCSMUSTHAVEPSNK, scs_rec.Name);
 	{
 		PPObjIDArray oid_list_by_phone;
 		PPEAddr::Phone::NormalizeStr(rBlk.Phone, 0, temp_buf);
@@ -1638,6 +1729,19 @@ bool FASTCALL WsCtl_ProgramCollection::IsEq(const WsCtl_ProgramCollection & rS) 
 		eq = false;
 	return eq;
 }
+
+WsCtl_ProgramEntry * WsCtl_ProgramCollection::SearchByID(PPID id) const
+{
+	WsCtl_ProgramEntry * p_result = 0;
+	if(id) {
+		for(uint i = 0; !p_result && i < getCount(); i++) {
+			WsCtl_ProgramEntry * p_item = at(i);
+			if(p_item && p_item->ID == id)
+				p_result = p_item;
+		}
+	}
+	return p_result;
+}
 	
 SJson * WsCtl_ProgramCollection::ToJsonObj(bool withResolvance) const
 {
@@ -1707,8 +1811,10 @@ int WsCtl_ProgramCollection::MakeCatList()
 int WsCtl_ProgramCollection::Resolve(const WsCtl_ClientPolicy & rPolicy)
 {
 	int    ok = -1;
+	WsCtl_ProgramCollection cache_list; // @v12.1.10 "wsctl-program-resolved.json"
 	if(!IsResolved()) {
 		SString temp_buf;
+		WsCtlApp::GetProgramListFromCache(&cache_list, true, 0);
 		const bool is_there_app_paths = (rPolicy.SsAppPaths.getCount() > 0);
 		if(is_there_app_paths) {
 			SFileEntryPool fep;
@@ -1718,15 +1824,49 @@ int WsCtl_ProgramCollection::Resolve(const WsCtl_ClientPolicy & rPolicy)
 				WsCtl_ProgramEntry * p_pe = at(i);
 				if(p_pe && p_pe->ExeFileName.NotEmpty() && p_pe->FullResolvedPath.IsEmpty()) {
 					if(!p_pe->ExeFileName.HasPrefixIAscii("prog")) { // С префиксом prog - фейковые отладочные наименования программ
-						bool found = false;
-						for(uint ssp = 0; !found && rPolicy.SsAppPaths.get(&ssp, temp_buf);) {
-							SFindFileParam ffp(temp_buf, p_pe->ExeFileName);
-							SFindFile2(ffp, fep);
-							if(fep.GetCount()) {
-								for(uint fepidx = 0; !found && fep.Get(fepidx, &fe, &path) > 0; fepidx++) {
-									p_pe->FullResolvedPath = path;
-									found = true;
+						WsCtl_ProgramEntry * p_cache_entry = cache_list.SearchByID(p_pe->ID);
+						p_pe->Flags &= ~WsCtl_ProgramEntry::fResolving_ByCache;
+						if(p_cache_entry) {
+							if(p_cache_entry->FullResolvedPath.NotEmpty() && fileExists(p_cache_entry->FullResolvedPath)) {
+								p_pe->FullResolvedPath = path;
+								p_pe->Flags |= WsCtl_ProgramEntry::fResolving_ByCache;
+								p_pe->Flags &= ~WsCtl_ProgramEntry::fResolving_FileNFound;
+							}
+							else {
+								p_pe->FullResolvedPath.Z();
+								p_pe->Flags |= WsCtl_ProgramEntry::fResolving_ByCache;
+								p_pe->Flags |= WsCtl_ProgramEntry::fResolving_FileNFound;
+							}
+						}
+						if(!(p_pe->Flags & WsCtl_ProgramEntry::fResolving_ByCache)) {
+							bool found = false;
+							for(uint ssp = 0; !found && rPolicy.SsAppPaths.get(&ssp, temp_buf);) {
+								SFindFileParam ffp(temp_buf, p_pe->ExeFileName);
+								SFindFile2(ffp, fep);
+								if(fep.GetCount()) {
+									for(uint fepidx = 0; !found && fep.Get(fepidx, &fe, &path) > 0; fepidx++) {
+										p_pe->FullResolvedPath = path;
+										found = true;
+									}
 								}
+							}
+							if(!p_cache_entry) {
+								p_cache_entry = cache_list.CreateNewItem();
+								*p_cache_entry = *p_pe;
+							}
+							{
+								SUniTime_Internal utm;
+								utm.SetCurrent();
+								const uint64 now_uedtime = UED::_SetRaw_Time(UED_META_TIME_MSEC, utm);
+								if(found) {
+									p_cache_entry->FullResolvedPath = p_pe->FullResolvedPath;
+									p_cache_entry->Flags &= ~WsCtl_ProgramEntry::fResolving_FileNFound;
+								}
+								else {
+									p_cache_entry->FullResolvedPath.Z();
+									p_cache_entry->Flags |= WsCtl_ProgramEntry::fResolving_FileNFound;
+								}
+								p_cache_entry->UedTime_Resolution = now_uedtime;
 							}
 						}
 					}
@@ -1734,6 +1874,10 @@ int WsCtl_ProgramCollection::Resolve(const WsCtl_ClientPolicy & rPolicy)
 			}
 		}
 		Resolved = true;
+		{
+			cache_list.Resolved = true;
+			WsCtlApp::StoreProgramListResolvedCache(cache_list);
+		}
 		ok = 1;
 	}
 	return ok;

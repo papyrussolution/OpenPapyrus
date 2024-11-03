@@ -2890,6 +2890,24 @@ static void FASTCALL __TimeToTimeFields(uint64 time100ns, SUniTime_Internal * pT
 }
 #endif // } 0
 
+bool SUniTime_Internal::SetCurrent()
+{
+	bool   ok = false;
+	SYSTEMTIME st_utc;
+	SYSTEMTIME st_local;
+	::GetSystemTime(&st_utc);
+	SystemTimeToTzSpecificLocalTime(NULL, &st_utc, &st_local);
+	Y = st_local.wYear;
+	M = st_local.wMonth;
+	D = st_local.wDay;
+	Hr = st_local.wHour;
+	Mn = st_local.wMinute;
+	Sc = st_local.wSecond;
+	MSc = st_local.wMilliseconds;
+	TimeZoneSc = Undef_TimeZone;
+	return ok;
+}
+
 bool FASTCALL SUniTime_Internal::SetDate(LDATE dt)
 {
 	return SUniDate_Internal::SetDate(dt);
@@ -3462,7 +3480,7 @@ static int FASTCALL Downgrade_SUniTime_Inner(SUniTime_Internal & rT, uint8 signa
 	return ok;
 }
 
-int FASTCALL SUniTime::Compare(const SUniTime & rS, int * pQualification) const
+int SUniTime::Compare(const SUniTime & rS, int * pQualification) const
 {
 	int    result = 0;
 	int    qualification = cqUndef;
@@ -3697,7 +3715,7 @@ int FASTCALL SUniTime::SetYear(int year)
 	return Implement_Set(indYr, &inner);
 }
 
-int FASTCALL SUniTime::SetMonth(int year, int month)
+int SUniTime::SetMonth(int year, int month)
 {
 	SUniTime_Internal inner;
 	inner.Y = year;
@@ -3727,7 +3745,7 @@ int FASTCALL SUniTime::Set(const LDATETIME & rD)
 	return Implement_Set(indMSec, &inner);
 }
 
-int FASTCALL SUniTime::Set(const LDATETIME & rD, uint signature)
+int SUniTime::Set(const LDATETIME & rD, uint signature)
 {
 	assert(oneof11(signature, indSec, indMin, indHr, indDay, indMon, indQuart, indSmYr, indYr, indDYr, indSmCent, indCent));
 	if(oneof11(signature, indSec, indMin, indHr, indDay, indMon, indQuart, indSmYr, indYr, indDYr, indSmCent, indCent)) {
@@ -3745,7 +3763,7 @@ int FASTCALL SUniTime::Set(const LDATETIME & rD, uint signature)
 		return 0;
 }
 
-int FASTCALL SUniTime::Set(const LDATETIME & rD, uint signature, int timezone)
+int SUniTime::Set(const LDATETIME & rD, uint signature, int timezone)
 {
 	assert(oneof5(signature, indHrTz, indMinTz, indSecTz, indMSecTz, indCSecTz));
 	assert(timezone >= -12 && timezone <= +14);
@@ -3778,7 +3796,7 @@ int FASTCALL SUniTime::Set(time_t t)
 	return ok;
 }
 
-int FASTCALL SUniTime::Set(time_t t, int timezone)
+int SUniTime::Set(time_t t, int timezone)
 {
 	int    ok = 1;
 	assert(timezone >= -12 && timezone <= +14);

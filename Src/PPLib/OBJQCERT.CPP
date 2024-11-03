@@ -146,7 +146,8 @@ ListBoxDef * PPObjQCert::Selector(ListBoxDef * pOrgDef, long flags, void * extra
 int EditQCertDialog(QualityCertTbl::Rec * aRec, int viewOnly)
 {
 	int    ok = 1;
-	int    r = 0, valid_data = 0;
+	int    r = 0;
+	int    valid_data = 0;
 	ushort v;
 	QualityCertTbl::Rec rec = *aRec;
 	TDialog * dlg = 0;

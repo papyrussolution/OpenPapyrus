@@ -189,13 +189,14 @@ int FASTCALL _cairo_utf8_get_char_validated(const char * p, uint32 * unicode)
 	uchar c = static_cast<uchar>(*p);
 	UTF8_COMPUTE(c, mask, len);
 	if(len == -1) {
-		if(unicode)
-			*unicode = (uint32)-1;
+		ASSIGN_PTR(unicode, _FFFF32);
 		return 1;
 	}
-	UTF8_GET(result, p, i, mask, len);
-	ASSIGN_PTR(unicode, result);
-	return len;
+	else {
+		UTF8_GET(result, p, i, mask, len);
+		ASSIGN_PTR(unicode, result);
+		return len;
+	}
 }
 /**
  * _cairo_utf8_to_ucs4:

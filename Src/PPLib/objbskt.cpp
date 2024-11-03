@@ -1150,8 +1150,9 @@ int GetBasketByDialog(SelBasketParam * pParam, const char * pCallerSymb, uint dl
 		const char * P_CallerSymb;
 		PPObjGoodsBasket GbObj;
 	};
-	int    ok = -1, valid_data = 0;
-	uint   dlg_id = NZOR(dlgID, DLG_GBDATA);
+	int    ok = -1;
+	int    valid_data = 0;
+	const  uint dlg_id = NZOR(dlgID, DLG_GBDATA);
 	PPObjGoodsBasket gb_obj;
 	GBDataDialog * p_dlg = 0;
 	if(gb_obj.GetPreferredBasket(*pParam) > 0) {

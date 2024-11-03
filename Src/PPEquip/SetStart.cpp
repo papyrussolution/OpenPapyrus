@@ -544,11 +544,13 @@ int ACS_SETSTART::ExportData(int updOnly)
 									case GTCHZNPT_FUR: _mark_type = 2; break;
 									case GTCHZNPT_MILK: _mark_type = 13; break;
 									case GTCHZNPT_WATER: _mark_type = 15; break;
+									case GTCHZNPT_BEER: _mark_type = 17; break;
 									case GTCHZNPT_DRAFTBEER_AWR: _mark_type = 18; break; // @v12.0.5
 									case GTCHZNPT_DRAFTBEER: _mark_type = 18; break;
-									case GTCHZNPT_BEER: _mark_type = 17; break;
+									case GTCHZNPT_DIETARYSUPPLEMENT: _mark_type = 19; break; // @v12.1.10
 									case GTCHZNPT_ANTISEPTIC: _mark_type = 20; break; // @v12.0.5
-									case GTCHZNPT_MEDICALDEVICES: _mark_type = 30/*??? @todo уточнить значение*/; break; // @v12.1.2
+									case GTCHZNPT_MEDICALDEVICES: _mark_type = 21; break; // @v12.1.2
+									case GTCHZNPT_SOFTDRINKS: _mark_type = 23; break; // @v12.1.10
 									default:
 										if(!_mark_type && gds_info.ChZnProdType) // (!_mark_type): значение может быть выставлено выше в блоке if(goods_iter.GetAlcoGoodsExtension(gds_info.ID, 0, agi) > 0) {}
 											_mark_type = 7; // 7–иная маркированная продукция

@@ -3133,6 +3133,7 @@ struct SUniTime_Internal : public SUniDate_Internal { // @internal
 	bool   FASTCALL GetDate(LDATE * pDt) const;
 	bool   FASTCALL SetTime(LTIME tm);
 	bool   FASTCALL GetTime(LTIME * Tm) const;
+	bool   SetCurrent();
 
 	uint   Hr;
 	uint   Mn;
@@ -3213,7 +3214,7 @@ public:
 	//   Допускаются только следующие значения параметра:
 	//   indSec, indMin, indHr, indDay, indMon, indQuart, indSmYr, indYr, indDYr, indSmCent, indCent
 	//
-	int    FASTCALL Set(const LDATETIME & rD, uint signature);
+	int    Set(const LDATETIME & rD, uint signature);
 	//
 	// Descr: Устанавливает время согласно rD с явным указанием часового пояса и с точностью, заданной сигнатурой signature.
 	// ARG(rD        IN): Дата/время, которые следует установить
@@ -3222,9 +3223,9 @@ public:
 	//   Допускаются только следующие значения параметра:
 	//   indMSecTz, indCSecTz, indSecTz, indMinTz, indHrTz
 	//
-	int    FASTCALL Set(const LDATETIME & rD, uint signature, int timezone);
+	int    Set(const LDATETIME & rD, uint signature, int timezone);
 	int    FASTCALL Set(time_t t);
-	int    FASTCALL Set(time_t t, int timezone);
+	int    Set(time_t t, int timezone);
 	int    FASTCALL Set(const FILETIME & rD);
 	//
 	// Descr: Устанавливает время с точность до года year (н.э.)
@@ -3233,7 +3234,7 @@ public:
 	//
 	// Descr: Устанавливает время с точность до месяца month года year (н.э.)
 	//
-	int    FASTCALL SetMonth(int year, int month);
+	int    SetMonth(int year, int month);
 	int    FASTCALL Get(LDATE & rD) const;
 	int    FASTCALL Get(LDATETIME & rD) const;
 	int    FASTCALL Get(time_t & rD) const;
@@ -3243,7 +3244,7 @@ public:
 		cqSure      =  1,
 		cqUncertain = -1
 	};
-	int    FASTCALL Compare(const SUniTime & rS, int * pQualification) const;
+	int    Compare(const SUniTime & rS, int * pQualification) const;
 	//
 	// Descr: Результаты сравнения значений
 	//

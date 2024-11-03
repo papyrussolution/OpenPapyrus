@@ -4974,7 +4974,8 @@ PPTXT_GLOBALSERVICELIST             "1,@{globalservice_twitter};2,@{globalservic
 6,@{globalservice_instagram};7,@{globalservice_uds};8,@{globalservice_uhtt};9,@{globalservice_shopify};10,@{globalservice_wildberries}"
 PPTXT_AGGRFUNCNAMELIST              "1,@{aggrfunc_count};2,@{aggrfunc_sum};3,@{aggrfunc_average};4,@{aggrfunc_min};5,@{aggrfunc_max};6,@{aggrfunc_stddev}"
 PPTXT_CHZNPRODUCTTYPES              "1,Изделия из меха;2,Табачные изделия;3,Обувь;4,Лекарственные средства;5,Автомобильные шины;6,Текстиль;7,Парфюмерия;\
-8,Молочная продукция;9,Ювелирные изделия;10,Вода питьевая;11,Альтернативная табачная продукция;12,Пиво разливное;1012,Пиво разливное - автосписание;13,Биологически-активные добавки;14,Пиво фасованное;15,Антисептики;16,Изделия медицинского назначения"
+8,Молочная продукция;9,Ювелирные изделия;10,Вода питьевая;11,Альтернативная табачная продукция;12,Пиво разливное;1012,Пиво разливное - автосписание;\
+13,Биологически-активные добавки;14,Пиво фасованное;15,Антисептики;16,Изделия медицинского назначения;17,Безалкогольные напитки"
 PPTXT_DEVICETIMEDIFFROMSYS          "@{attention} Время на регистраторе @datetime отличается от времени на компьютере"
 PPTXT_LOG_VK_NODEFIMG               "Изображение по-умолчанию не найдено!"
 PPTXT_LOG_VK_NODESCRFORGOODS        "Описание для товара '@goods_id' не найдено!"
@@ -10826,6 +10827,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgequip_fskipprintingzeroprice          "В кассовых чеках не печатать строки с нулевой суммой"
 @cfgequip_fattachbillcheckstocsess        "Привязывать чеки по документам к текущей сессии"
 @cfgequip_fdisablesellspoiledseries       "Запрет продажи бракованных серий"
+@cfgequip_fpreferbankingpayment           "Безналичная оплата - предпочтительная"
 @cfgequip_chkpanimpopid                   "Вид операции документов для импорта в кассовую панель"
 @cfgequip_chkpanimpbilltagid              "Тег документа, позволяющий импортировать документ в кассовую панель"
 @cfgequip_lookbackbillperiod              "Период выбора документов для импорта, @{days}"
@@ -18757,6 +18759,9 @@ PPHSC_RU_EDIOP_ORDRSP_NM       "подтверждение_заказа" // @v11
 PPHSC_RU_CURRENCY              "Валюта" // @v11.9.9 SBIS
 PPHSC_RU_YES                   "Да" // @v12.0.11
 PPHSC_RU_NO                    "Нет" // @v12.0.11
+PPHSC_RU_CONTACT               "Контакт" // @v12.1.10
+PPHSC_RU_PHN                   "Тлф"     // @v12.1.10
+PPHSC_RU_EMAIL                 "ЭлПочта" // @v12.1.10
 //
 // Далее следуют 16 типов документов, используемых системой VETIS. Текст точно соответствует xsd спецификации dictionary_v2.0.xsd.
 // Номер после PPHSC_VETIS_DOCTYP_ точно соответствует значению enum в спецификации (хотя, это, скорее всего, и не важно).

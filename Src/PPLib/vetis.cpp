@@ -9334,7 +9334,6 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 					}
 				}
 			}
-			// @v10.6.9 {
 			else if(flags & pbrfManuf) {
 				if(rPbrBlk.BillID != rBp.Rec.ID) {
 					rPbrBlk.BillID = rBp.Rec.ID;
@@ -9488,14 +9487,13 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 					}
 				}
 			}
-			// } @v10.6.9
 			else {
 				assert(!lot_uuid.IsZero()); // Инициализирован выше
 				if(rPbrBlk.BillID != rBp.Rec.ID) {
 					rPbrBlk.BillID = rBp.Rec.ID;
 					rPbrBlk.PersonGuid.Z();
 					rPbrBlk.DlvrLocGuid.Z();
-					if(IsIntrOp(rBp.Rec.OpID) == INTREXPND) { // @v10.2.1
+					if(IsIntrOp(rBp.Rec.OpID) == INTREXPND) {
 						rPbrBlk.PersonID = P.MainOrgID;
 						rPbrBlk.DlvrLocID = PPObjLocation::ObjToWarehouse(rBp.Rec.Object);
 					}
@@ -9508,8 +9506,8 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 				}
 				if(!!rPbrBlk.PersonGuid && !!rPbrBlk.DlvrLocGuid) {
 					int is_there_unresolved_entities = 0;
-					VetisEntityCore::Entity entity_from_person; // @v10.6.12
-					VetisEntityCore::Entity entity_from_loc; // @v10.6.12
+					VetisEntityCore::Entity entity_from_person;
+					VetisEntityCore::Entity entity_from_loc;
 					VetisEntityCore::Entity entity_to_person;
 					VetisEntityCore::Entity entity_to_dlvrloc;
 					assert(src_rec.EntityID != 0); // Инициализирован выше
@@ -9519,8 +9517,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 					assert(__volume > 0.0); // Инициализирован выше
 					rec.Volume = __volume;
 					rec.Flags = VetisVetDocument::fFromMainOrg;
-					// @v10.6.12 {
-					if(src_rec.ToEntityID) // @v10.6.12
+					if(src_rec.ToEntityID)
 						rec.FromEntityID = src_rec.ToEntityID;
 					else {
 						S_GUID from_entity_guid;
@@ -9539,9 +9536,6 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 							rec.FromEnterpriseID = entity_from_loc.ID;
 						}
 					}
-					// } @v10.6.12
-					// @v10.6.12 rec.FromEntityID = src_rec.ToEntityID;
-					// @v10.6.12 rec.FromEnterpriseID = src_rec.ToEnterpriseID;
 					if(PeC.GetEntityByGuid(rPbrBlk.PersonGuid, entity_to_person) > 0) {
 						rec.ToEntityID = entity_to_person.ID;
 					}

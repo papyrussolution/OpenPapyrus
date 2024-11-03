@@ -835,12 +835,13 @@ int STDCALL PPErrorByDialog(TDialog * dlg, uint ctlID)
 
 int PasswordDialog(uint dlgID, char * pBuf, size_t pwSize, size_t minLen, int withoutEncrypt)
 {
-	int    ok = -1, valid_data = 0;
-	char   b1[32], b2[32];
+	int    ok = -1;
+	int    valid_data = 0;
+	char   b1[32];
+	char   b2[32];
 	TDialog * dlg = new TDialog(NZOR(dlgID, DLG_PASSWORD));
 	if(CheckDialogPtrErr(&dlg)) {
 		b1[0] = 0;
-		// @v9.6.6 dlg->SetCtrlBitmap(CTL_PASSWORD_IMG, BM_KEYS);
 		dlg->setCtrlData(CTL_PASSWORD_FIRST,  b1);
 		dlg->setCtrlData(CTL_PASSWORD_SECOND, b1);
 		while(!valid_data && ExecView(dlg) == cmOK) {
@@ -1372,7 +1373,7 @@ int Lst2LstObjDialog::SelectByTag()
 					if(Data.ObjType == PPOBJ_ARTICLE && real_obj_type == PPOBJ_PERSON) {
 						assert(p_ar_obj);
 						PPID   ar_id = 0;
-						if(p_ar_obj && p_ar_obj->P_Tbl->PersonToArticle(_iter_id, acs_id, &ar_id) > 0) {
+						if(p_ar_obj && p_ar_obj->P_Tbl->PersonToArticle(_iter_id, acs_id, &ar_id)) {
 							obj_id_to_add = ar_id;
 						}
 					}
@@ -2535,7 +2536,8 @@ int ExtOpenFileDlg::getDTS(SString & rPath, SString * pDefWaitFolder)
 
 int ExtOpenFileDialog(SString & rPath, StringSet * pPatterns, SString * pDefWaitFolder)
 {
-	int    ok = 0, valid_data = 0;
+	int    ok = 0;
+	int    valid_data = 0;
 	ExtOpenFileDlg * p_dlg = new ExtOpenFileDlg(pPatterns, pDefWaitFolder);
 	if(CheckDialogPtrErr(&p_dlg) > 0) {
 		p_dlg->setDTS(rPath);
@@ -5813,7 +5815,8 @@ int ResolveGoodsDialog::ResolveGoods(PPID resolveGoodsID, uint firstGoodsPos)
 
 int ResolveGoodsDialog::editItem(long pos, long id)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	PPID   resolve_goods_id = 0;
 	ExtGoodsSelDialog * p_dlg = 0;
 	if(id > 0) {

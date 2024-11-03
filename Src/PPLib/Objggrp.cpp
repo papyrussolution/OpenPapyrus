@@ -77,8 +77,7 @@ int PPObjGoodsGroup::CalcTotal(GoodsGroupTotal * pTotal)
 	for(uint i = 0; i < id_list.getCount(); i++) {
 		long   level = 0;
 		GetLevel(id_list.get(i), &level);
-		if(level > total.MaxLevel)
-			total.MaxLevel = level;
+		SETMAX(total.MaxLevel, level);
 	}
 	ASSIGN_PTR(pTotal, total);
 	return 1;
@@ -149,8 +148,8 @@ int PPObjGoodsGroup::GetListOfCounts(const IntRange * pRange, LAssocArray & rRes
 /*virtual*/int  PPObjGoodsGroup::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {
 	int    ok = -1;
-	int    user_request = BIN(options & PPObject::user_request);
-	int    r = (user_request) ? CONFIRM(PPCFM_DELGOODSGROUP) : 1;
+	const  bool user_request = LOGIC(options & PPObject::user_request);
+	const  int  r = user_request ? CONFIRM(PPCFM_DELGOODSGROUP) : 1;
 	SETFLAG(options, PPObject::user_request, 0);
 	ok = r ? PPObject::RemoveObjV(id, pObjColl, options, pExtraParam) : -1;
 	if(!ok && user_request)
@@ -160,7 +159,8 @@ int PPObjGoodsGroup::GetListOfCounts(const IntRange * pRange, LAssocArray & rRes
 
 int PPObjGoodsGroup::DeleteObj(PPID id)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	PPID   branch_id = 0;
 	Goods2Tbl::Rec rec;
 	if(id) {
@@ -173,8 +173,7 @@ int PPObjGoodsGroup::DeleteObj(PPID id)
 	while(ok > 0 && (r = P_Tbl->SearchAnyRef(PPOBJ_GOODSGROUP, id, &branch_id)) > 0) {
 		if(Search(branch_id, &rec) > 0) {
 			//
-			// Рекурсивный вызов для подуровней. Вызываем
-			// метод PPObject::Remove без транзакции и предупреждения //
+			// Рекурсивный вызов для подуровней. Вызываем метод PPObject::Remove без транзакции и предупреждения //
 			//
 			PPObject::SetLastErrObj(Obj, rec.ID);
 			THROW_PP(rec.Kind == PPGDSK_GROUP, PPERR_REFSEXISTS);
@@ -198,12 +197,11 @@ int PPObjGoodsGroup::Transmit()
 	const int transmit_alt_grp = BIN(P_Tbl->FetchConfig(&cfg) > 0 && cfg.Flags & GCF_XCHG_SENDALTGROUP);
 	{
 		BExtQuery q(P_Tbl, 1);
-		DBQ  * dbq = 0;
 		Goods2Tbl::Key1 k;
 		MEMSZERO(k);
 		k.Kind = PPGDSK_GROUP;
 		k.ParentID = 0;
-		dbq = & (P_Tbl->Kind == PPGDSK_GROUP);
+		DBQ  * dbq = &(P_Tbl->Kind == PPGDSK_GROUP);
 		q.select(P_Tbl->ID, P_Tbl->Name, P_Tbl->Flags, 0L).where(*dbq);
 		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 			const long _gf = P_Tbl->data.Flags;
@@ -1144,7 +1142,8 @@ int PPObjPckgType::Browse(void * extraPtr)
 
 int PPObjPckgType::Edit(long * pID, void * extraPtr)
 {
-	int    ok = cmCancel, valid_data = 0;
+	int    ok = cmCancel;
+	int    valid_data = 0;
 	ushort v;
 	PPGdsPckgType rec;
 	TDialog * dlg = 0;
@@ -1180,7 +1179,7 @@ int PPObjPckgType::Edit(long * pID, void * extraPtr)
 			PPErrorByDialog(dlg, CTL_PCKGTYPE_NAME, PPERR_NAMENEEDED);
 		else {
 			PPObjGoods goods_obj;
-			int    is_default = BIN(rec.Flags & GF_DFLTPCKGTYPE);
+			const bool is_default = LOGIC(rec.Flags & GF_DFLTPCKGTYPE);
 			valid_data = 1;
 			ok = cmOK;
 			rec.Flags &= ~GF_DFLTPCKGTYPE;
@@ -1190,8 +1189,8 @@ int PPObjPckgType::Edit(long * pID, void * extraPtr)
 				THROW(Put(pID, &rec, 0));
 				{
 					PPGoodsConfig goods_cfg;
-					int    is_config = (PPObjGoods::ReadConfig(&goods_cfg) > 0);
-					PPID   prev_dflt_pt = goods_cfg.DefPckgTypeID;
+					const  bool is_config = (PPObjGoods::ReadConfig(&goods_cfg) > 0);
+					const  PPID prev_dflt_pt = goods_cfg.DefPckgTypeID;
 					if(is_default)
 						goods_cfg.DefPckgTypeID = *pID;
 					else if(*pID && goods_cfg.DefPckgTypeID == *pID)
@@ -1214,14 +1213,15 @@ int PPObjPckgType::Edit(long * pID, void * extraPtr)
 	char   temp_buf[128];
 	int    div_list_count = 0;
 	int    div_list[32];
-	int    i, j;
+	int    i;
+	int    j;
 	long   n;
 	char * d = temp_buf;
-	const char * p;
+	const  char * p;
 	if(pTempl[0] == 0)
 		longfmtz(counter, 6, temp_buf, sizeof(temp_buf));
 	else {
-		for(p = pTempl; *p; p++)
+		for(p = pTempl; *p; p++) {
 			if(*p == '%') {
 				if(p[1] == '9') {
 					div_list[div_list_count++] = 1;
@@ -1232,6 +1232,7 @@ int PPObjPckgType::Edit(long * pID, void * extraPtr)
 					p++;
 				}
 			}
+		}
 		j = 0;
 		for(p = pTempl; *p;) {
 			if(*p == '%') {
@@ -1274,17 +1275,13 @@ PPTransportConfig::PPTransportConfig() : Flags(0), OwnerKindID(0), CaptainKindID
 {
 }
 
-int FASTCALL PPTransportConfig::operator == (const PPTransportConfig & rS) const
+bool FASTCALL PPTransportConfig::operator == (const PPTransportConfig & rS) const
 {
-	return BIN(Flags == rS.Flags && OwnerKindID == rS.OwnerKindID &&
-		CaptainKindID == rS.CaptainKindID && NameTemplate.Cmp(rS.NameTemplate, 0) == 0);
+	return (Flags == rS.Flags && OwnerKindID == rS.OwnerKindID && CaptainKindID == rS.CaptainKindID && NameTemplate.Cmp(rS.NameTemplate, 0) == 0);
 }
 
 struct Storage_PPTranspConfig { // @persistent @store(PropertyTbl)
-	size_t GetSize() const
-	{
-		return (sizeof(*this) + ExtStrSize);
-	}
+	size_t GetSize() const { return (sizeof(*this) + ExtStrSize); }
 	PPID   Tag;               // Const=PPOBJ_CONFIG
 	PPID   ID;                // Const=PPCFG_MAIN
 	PPID   Prop;              // Const=PPPRP_TRANSPCFG
@@ -1302,7 +1299,8 @@ struct Storage_PPTranspConfig { // @persistent @store(PropertyTbl)
 /*static*/int FASTCALL PPObjTransport::ReadConfig(PPTransportConfig * pCfg)
 {
 	const  long prop_cfg_id = PPPRP_TRANSPCFG;
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	Reference * p_ref = PPRef;
 	size_t sz = sizeof(Storage_PPTranspConfig) + 256;
 	Storage_PPTranspConfig * p_cfg = static_cast<Storage_PPTranspConfig *>(SAlloc::M(sz));
@@ -1388,11 +1386,11 @@ struct Storage_PPTranspConfig { // @persistent @store(PropertyTbl)
 /*static*/int PPObjTransport::EditConfig()
 {
 	int    ok = -1;
-	PPTransportConfig cfg, org_cfg;
 	TDialog * dlg = new TDialog(DLG_TRANSPCFG);
 	if(CheckDialogPtrErr(&dlg)) {
+		PPTransportConfig cfg;
 		ReadConfig(&cfg);
-		org_cfg = cfg;
+		const PPTransportConfig org_cfg(cfg);
 		SetupPPObjCombo(dlg, CTLSEL_TRANSPCFG_OWNERK, PPOBJ_PERSONKIND, cfg.OwnerKindID, 0, 0);
 		SetupPPObjCombo(dlg, CTLSEL_TRANSPCFG_CAPTK,  PPOBJ_PERSONKIND, cfg.CaptainKindID, 0, 0);
 		dlg->setCtrlString(CTL_TRANSPCFG_NAMETEMPL, cfg.NameTemplate);
@@ -1428,8 +1426,8 @@ bool FASTCALL PPTransport::IsEq(const PPTransport & rS) const
 	CMP_FLD(CountryID);
 	CMP_FLD(CaptainID);
 	CMP_FLD(Capacity);
-	CMP_FLD(VanType); // @v10.2.0
-	CMP_FLD(Flags); // @v10.2.4
+	CMP_FLD(VanType);
+	CMP_FLD(Flags);
 	if(!sstreq(Name, rS.Name))
 		return false;
 	if(!sstreq(Code, rS.Code))
@@ -1451,10 +1449,7 @@ PPTransportPacket & PPTransportPacket::Z()
 	return *this;
 }
 	
-bool FASTCALL PPTransportPacket::IsEq(const PPTransportPacket & rS) const
-{
-	return (Rec.IsEq(rS.Rec) && TagL.IsEq(rS.TagL));
-}
+bool FASTCALL PPTransportPacket::IsEq(const PPTransportPacket & rS) const { return (Rec.IsEq(rS.Rec) && TagL.IsEq(rS.TagL)); }
 
 PPObjTransport::PPObjTransport(void * extraPtr) : PPObjGoods(PPOBJ_TRANSPORT, PPGDSK_TRANSPORT, extraPtr)
 {
@@ -1462,7 +1457,8 @@ PPObjTransport::PPObjTransport(void * extraPtr) : PPObjGoods(PPOBJ_TRANSPORT, PP
 
 int PPObjTransport::Get(PPID id, PPTransportPacket * pPack)
 {
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	Goods2Tbl::Rec goods_rec;
 	THROW(r = PPObjGoods::Search(id, &goods_rec));
 	THROW_PP_S(goods_rec.Kind == PPGDSK_TRANSPORT, PPERR_INVTRANSPORTRECKIND, id);
@@ -1692,15 +1688,13 @@ private:
 		getCtrlData(CTLSEL_TRANSPORT_OWNER, &Data.Rec.OwnerID);
 		getCtrlData(CTLSEL_TRANSPORT_CNTRY, &Data.Rec.CountryID);
 		getCtrlData(CTLSEL_TRANSPORT_CAPTAIN, &Data.Rec.CaptainID);
-		// @v10.2.0 {
 		if(Data.Rec.TrType == PPTRTYP_CAR) {
 			long   temp_val = 0;
 			getCtrlData(CTLSEL_TRANSPORT_VANTYP, &temp_val);
 			Data.Rec.VanType = static_cast<int16>(temp_val);
 		}
-		// } @v10.2.0
 		Data.Rec.Capacity = static_cast<long>(getCtrlReal(CTL_TRANSPORT_CAPACITY) * 1000.0);
-		Data.Rec.Flags = static_cast<int16>(GetClusterData(CTL_TRANSPORT_FLAGS)); // @v10.2.4
+		Data.Rec.Flags = static_cast<int16>(GetClusterData(CTL_TRANSPORT_FLAGS));
 	}
 	int    LockAutoName;
 	PPTransportConfig Cfg;
@@ -1709,7 +1703,8 @@ private:
 
 int PPObjTransport::Edit(PPID * pID, void * extraPtr /*initTrType*/)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	uint   dlg_id = 0;
 	long   tr_type = reinterpret_cast<long>(extraPtr);
 	TDialog * sel_dlg = 0;
@@ -3163,11 +3158,11 @@ int PPViewBrand::OnExecBrowser(PPViewBrowser *)
 
 int PPViewBrand::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
+	// @v12.1.10 id и preserve_id перенесены наверх дабы правильно спозиционировать курсор после изменения данных общими механизмами PPView
+	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
-	PPID   preserve_id = 0;
+	const  PPID preserve_id = id;
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
-		preserve_id = id;
 		switch(ppvCmd) {
 			case PPVCMD_VIEWGOODS:
 				ok = -1;

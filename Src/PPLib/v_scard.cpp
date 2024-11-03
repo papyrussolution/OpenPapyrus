@@ -1876,7 +1876,8 @@ int EditSCardFlags(long * pSetFlags, long * pResetFlags)
 			return ok;
 		}
 	};
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	SCardFlagsDialog * dlg = new SCardFlagsDialog();
 	THROW_MEM(dlg);
 	THROW(CheckDialogPtr(&dlg));

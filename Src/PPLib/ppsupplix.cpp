@@ -3149,14 +3149,14 @@ int iSalesPepsi::ReceiveVDocs()
 						}
 						else
 							R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_DLVRLOCNID, &msg_buf, static_cast<const char *>(pack.Rec.Code), _src_dlvrloc_id));
-						if(local_psn_id && ArObj.P_Tbl->PersonToArticle(local_psn_id, op_rec.AccSheetID, &ar_id) > 0) {
+						if(local_psn_id && ArObj.P_Tbl->PersonToArticle(local_psn_id, op_rec.AccSheetID, &ar_id)) {
 							if(!pack.SetupObject(ar_id, sob))
 								R_Logger.LogLastError();
 						}
 						else
 							R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_CLINID, &msg_buf, static_cast<const char *>(pack.Rec.Code), _src_psn_id));
 					}
-					if(_src_agent_id && ArObj.P_Tbl->PersonToArticle(_src_agent_id, GetAgentAccSheet(), &(ar_id = 0)) > 0) {
+					if(_src_agent_id && ArObj.P_Tbl->PersonToArticle(_src_agent_id, GetAgentAccSheet(), &ar_id)) {
 						pack.Ext.AgentID = ar_id;
 					}
 					if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
@@ -3408,7 +3408,7 @@ int iSalesPepsi::ReceiveOrder_Csv(const char * pInBuf, size_t inBufLen)
 								}
 								else
 									R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_DLVRLOCNID, &msg_buf, static_cast<const char *>(pack.Rec.Code), native_dlvrloc_id));
-								if(local_psn_id && ArObj.P_Tbl->PersonToArticle(local_psn_id, op_rec.AccSheetID, &ar_id) > 0) {
+								if(local_psn_id && ArObj.P_Tbl->PersonToArticle(local_psn_id, op_rec.AccSheetID, &ar_id)) {
 									sob.Flags |= sob.fEnableStop;
 									if(!pack.SetupObject(ar_id, sob))
 										R_Logger.LogLastError();
@@ -3649,15 +3649,15 @@ int iSalesPepsi::ReceiveOrders()
 						}
 						else
 							R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_DLVRLOCNID, &msg_buf, static_cast<const char *>(pack.Rec.Code), _src_dlvrloc_id));
-						if(local_psn_id && ArObj.P_Tbl->PersonToArticle(local_psn_id, op_rec.AccSheetID, &ar_id) > 0) {
-							sob.Flags |= sob.fEnableStop; // @v10.9.0
+						if(local_psn_id && ArObj.P_Tbl->PersonToArticle(local_psn_id, op_rec.AccSheetID, &ar_id)) {
+							sob.Flags |= sob.fEnableStop;
 							if(!pack.SetupObject(ar_id, sob))
 								R_Logger.LogLastError();
 						}
 						else
 							R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_CLINID, &msg_buf, static_cast<const char *>(pack.Rec.Code), _src_psn_id));
 					}
-					if(_src_agent_id && ArObj.P_Tbl->PersonToArticle(_src_agent_id, GetAgentAccSheet(), &(ar_id = 0)) > 0) {
+					if(_src_agent_id && ArObj.P_Tbl->PersonToArticle(_src_agent_id, GetAgentAccSheet(), &ar_id)) {
 						pack.Ext.AgentID = ar_id;
 					}
 					if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {

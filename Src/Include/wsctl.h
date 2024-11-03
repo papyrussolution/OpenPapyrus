@@ -165,7 +165,8 @@ public:
 	int    FromJsonObj(const SJson * pJsObj);
 
 	enum {
-		fResolving_FileNFound = 0x0001,
+		fResolving_FileNFound = 0x0001, // Исполняемый файл программы не найден
+		fResolving_ByCache    = 0x0002  // Полный путь к программе разрешен посредством кэша 
 	};
 
 	PPID   ID;                 // @v12.0.6 Идентификатор объекта в базе данных сервера
@@ -199,11 +200,11 @@ public:
 	//
 	bool   FASTCALL IsEq(const WsCtl_ProgramCollection & rS) const;
 	bool   IsResolved() const { return Resolved; }
+	WsCtl_ProgramEntry * SearchByID(PPID id) const;
 
 	enum {
 		catsurrogateidAll = 10000
 	};
-
 	long   GetSelectedCatSurrogateId() const { return SelectedCatSurrogateId; }
 	void   SetSelectedCatSurrogateId(long id) { SelectedCatSurrogateId = id; }
 	const StrAssocArray & GetCatList() const { return CatList; }
@@ -366,4 +367,15 @@ private:
 	PPSCardConfig ScCfg;
 	PPID   ScSerID; // Серия карт (из конфигурации)
 	PPID   PsnKindID; // Вид персоналий, связанный с серией карт ScSerID
+};
+//
+// Descr: Заголовочный класс приложения, куда я сваливаю всякие общеупотребимые утилиты и данные
+//
+class WsCtlApp {
+public:
+	WsCtlApp();
+	static bool GetLocalCachePath(SString & rPath);
+	static int  GetProgramListFromCache(WsCtl_ProgramCollection * pPgmL, bool resolvedPrmListCache, WsCtl_ClientPolicy * pPolicyL);
+	static int  StoreProgramListResolvedCache(const WsCtl_ProgramCollection & rPgmL);
+private:
 };

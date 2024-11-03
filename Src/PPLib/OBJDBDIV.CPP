@@ -14,9 +14,10 @@ static StrAssocArray * MakeDBDivList(int skipCurrent)
 	PPObjDBDiv div_obj;
 	StrAssocArray * p_list = new StrAssocArray;
 	THROW_MEM(p_list);
-	for(id = 0; (r = div_obj.EnumItems(&id, &div)) > 0;)
+	for(id = 0; (r = div_obj.EnumItems(&id, &div)) > 0;) {
 		if(!skipCurrent || div.ID != LConfig.DBDiv)
 			THROW_SL(p_list->Add(id, div.Name));
+	}
 	THROW(r);
 	CATCH
 		ZDELETE(p_list);
@@ -388,7 +389,7 @@ int DBDivDialog::getDTS(DBDivPack * p)
 	THROW_PP(IsIntrOp(data.Rec.IntrRcptOpr) == INTRRCPT, PPERR_NOTINTRRCPTOP);
 	getCtrlString(CTL_DBDIV_ACCLIST, temp_buf);
 	data.PutExtStrData(DBDIVEXSTR_ACCLIST, temp_buf);
-	GetClusterData(CTL_DBDIV_MQBEXCHG, &data.Rec.Flags); // @v10.5.4
+	GetClusterData(CTL_DBDIV_MQBEXCHG, &data.Rec.Flags);
 	GetClusterData(CTL_DBDIV_FLAGS, &data.Rec.Flags);
 	ASSIGN_PTR(p, data);
 	CATCHZOKPPERRBYDLG

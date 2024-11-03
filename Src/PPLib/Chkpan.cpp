@@ -3924,7 +3924,8 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 {
 	int    ok = 1;
 	const  double add_paym_epsilon = 0.0099;
-	const  int unified_paym_interface = BIN(CsObj.GetEqCfg().Flags & PPEquipConfig::fUnifiedPayment);
+	const  bool   unified_paym_interface = LOGIC(CsObj.GetEqCfg().Flags & PPEquipConfig::fUnifiedPayment);
+	const  bool   prefer_banking_payment = ((CsObj.GetEqCfg().Flags & PPEquipConfig::fPreferBankingPayment) && (OperRightsFlags & orfBanking) && !(Flags & fLockBankPaym)); // @v12.1.10
 	double non_crd_amt = 0.0;
 	const  double credit_charge = CalcCreditCharge(0, 0, 0, &non_crd_amt, 0);
 	double addpaym_r2 = R2(CSt.AdditionalPayment);
@@ -3945,7 +3946,7 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 		else
 			rBlk.Kind = cpmIncorpCrd;
 	}
-	else if(Flags & fBankingPayment && OperRightsFlags & orfBanking && !(Flags & fLockBankPaym)) { // @v10.0.10 !(Flags & fLockBankPaym)
+	else if(Flags & fBankingPayment && OperRightsFlags & orfBanking && !(Flags & fLockBankPaym)) {
 		rBlk.Kind = cpmBank;
 	}
 	else if(!(OperRightsFlags & orfBanking) || (CnFlags & CASHF_NOASKPAYMTYPE))
@@ -3968,6 +3969,7 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 		rBlk.Kind = cpmCash;
 	if(ok > 0) {
 		assert(oneof4(rBlk.Kind, cpmUndef, cpmCash, cpmBank, cpmIncorpCrd));
+		SETFLAG(rBlk.Flags, PosPaymentBlock::fPreferCashlessPayment, prefer_banking_payment); // @v12.1.10
 		if(F(fRetCheck) && Rb.AmL.GetTotal() != 0.0) {
 			//
 			// Если возврат осуществляется по чеку со сложными суммами, то масштабируем список
@@ -3989,9 +3991,12 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 					// При предустановленном типе оплаты cmpIncorpCrd мы не должны попасть в эту ветку
 					assert(rBlk.Kind != cpmIncorpCrd);
 				}
-				else {
-					assert(oneof2(rBlk.Kind, cpmCash, cpmUndef)); // Другие варианты исключены
+				else if(rBlk.Kind == cpmCash) { // @v12.1.10
 					rBlk.CcPl.Add(CCAMTTYP_CASH, rBlk.AmtToPaym);
+				}
+				else {
+					assert(rBlk.Kind == cpmUndef); // Другие варианты исключены
+					rBlk.CcPl.Add(prefer_banking_payment ? CCAMTTYP_BANK : CCAMTTYP_CASH, rBlk.AmtToPaym);
 				}
 				rBlk.CcPl.Add(CCAMTTYP_CRDCARD, rBlk.GetTotal() - addpaym_r2, CSt.GetID());
 			}
@@ -4005,9 +4010,12 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 					if(rBlk.Kind == cpmBank) {
 						rBlk.CcPl.Add(CCAMTTYP_BANK, rBlk.AmtToPaym);
 					}
-					else {
-						assert(oneof2(rBlk.Kind, cpmCash, cpmUndef)); // Другие варианты исключены
+					if(rBlk.Kind == cpmCash) { // @v12.1.10
 						rBlk.CcPl.Add(CCAMTTYP_CASH, rBlk.AmtToPaym);
+					}
+					else {
+						assert(rBlk.Kind == cpmUndef); // Другие варианты исключены
+						rBlk.CcPl.Add(prefer_banking_payment ? CCAMTTYP_BANK : CCAMTTYP_CASH, rBlk.AmtToPaym);
 					}
 					rBlk.CcPl.Add(CCAMTTYP_CRDCARD, rBlk.GetTotal() - rBlk.AmtToPaym, CSt.GetID());
 				}
@@ -4028,9 +4036,12 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 					// При предустановленном типе оплаты cmpIncorpCrd мы не должны попасть в эту ветку
 					assert(rBlk.Kind != cpmIncorpCrd);
 				}
-				else {
-					assert(oneof2(rBlk.Kind, cpmCash, cpmUndef)); // Другие варианты исключены
+				else if(rBlk.Kind == cpmCash) { // @v12.1.10
 					rBlk.CcPl.Add(CCAMTTYP_CASH, rBlk.AmtToPaym);
+				}
+				else {
+					assert(rBlk.Kind == cpmUndef); // Другие варианты исключены
+					rBlk.CcPl.Add(prefer_banking_payment ? CCAMTTYP_BANK : CCAMTTYP_CASH, rBlk.AmtToPaym);
 				}
 				rBlk.CcPl.Add(CCAMTTYP_CRDCARD, rBlk.GetTotal() - rBlk.AmtToPaym, CSt.GetID());
 			}
@@ -4043,9 +4054,12 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 					assert(Flags & fSCardCredit && !(Flags & fSCardBonus) && CSt.GetID());
 					rBlk.CcPl.Add(CCAMTTYP_CRDCARD, rBlk.GetTotal(), CSt.GetID());
 				}
-				else {
-					assert(oneof2(rBlk.Kind, cpmCash, cpmUndef)); // Другие варианты исключены
+				else if(rBlk.Kind == cpmCash) { // @v12.1.10
 					rBlk.CcPl.Add(CCAMTTYP_CASH, rBlk.AmtToPaym);
+				}
+				else {
+					assert(rBlk.Kind == cpmUndef); // Другие варианты исключены (see above)
+					rBlk.CcPl.Add(prefer_banking_payment ? CCAMTTYP_BANK : CCAMTTYP_CASH, rBlk.AmtToPaym);
 				}
 				if(rBlk.GetUsableBonus() != 0.0) {
 					rBlk.CcPl.Add(CCAMTTYP_CRDCARD, rBlk.GetUsableBonus(), CSt.GetID());
@@ -4556,36 +4570,99 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 			//
 			// Проведение и печать чека
 			//
+			PosPaymentBlock paym_blk2(0, BonusMaxPart);
 			if(CnExtFlags & CASHFX_DISABLEZEROSCARD && !CSt.GetID())
 				MessageError(PPERR_CHKPAN_SCARDNEEDED, 0, eomBeep|eomStatusLine);
 			else if(!(OperRightsFlags & orfPrintCheck))
 				MessageError(PPERR_NORIGHTS, 0, eomBeep|eomStatusLine);
 			else if(!VerifyPrices())
 				MessageError(-1, 0, eomBeep|eomStatusLine);
-			else {
-				PosPaymentBlock paym_blk2(0, BonusMaxPart);
-				if(CalculatePaymentList(paym_blk2, 1) > 0) {
-					// Следующий оператор должен следовать после CalculatePaymentList поскольку эта функция обнуляет флаги
-					SETFLAG(paym_blk2.Flags, PosPaymentBlock::fCashlessBypassEqEnabled, (CnExtFlags & CASHFX_ENABLECASHLESSBPEQ)); // @v12.0.6 
-					PPID   cc_id = 0;
-					CDispCommand(cdispcmdClear, 0, 0.0, 0.0);
-					CDispCommand(cdispcmdTotal, 0, paym_blk2.GetTotal(), 0.0);
-					if(paym_blk2.GetDiscount() != 0.0)
-						CDispCommand(cdispcmdTotalDiscount, 0, paym_blk2.GetPctDiscount(), paym_blk2.GetDiscount());
-					switch(paym_blk2.Kind) {
-						case cpmCash:
-							if(CalcDiff(paym_blk2.AmtToPaym, &paym_blk2.DeliveryAmt) > 0) {
-								paym_blk2.NoteAmt = paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt;
-								InformCashNoteAndDelivery(H(), paym_blk2);
-								CDispCommand(cdispcmdChange, 0, paym_blk2.NoteAmt, paym_blk2.DeliveryAmt);
-								AcceptCheck(&cc_id, &paym_blk2.CcPl, 0, paym_blk2.NoteAmt, accmRegular);
+			else if(CalculatePaymentList(paym_blk2, 1) > 0) {
+				// Следующий оператор должен следовать после CalculatePaymentList поскольку эта функция обнуляет флаги
+				SETFLAG(paym_blk2.Flags, PosPaymentBlock::fCashlessBypassEqEnabled, (CnExtFlags & CASHFX_ENABLECASHLESSBPEQ)); // @v12.0.6 
+				PPID   cc_id = 0;
+				CDispCommand(cdispcmdClear, 0, 0.0, 0.0);
+				CDispCommand(cdispcmdTotal, 0, paym_blk2.GetTotal(), 0.0);
+				if(paym_blk2.GetDiscount() != 0.0)
+					CDispCommand(cdispcmdTotalDiscount, 0, paym_blk2.GetPctDiscount(), paym_blk2.GetDiscount());
+				switch(paym_blk2.Kind) {
+					case cpmCash:
+						if(CalcDiff(paym_blk2.AmtToPaym, &paym_blk2.DeliveryAmt) > 0) {
+							paym_blk2.NoteAmt = paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt;
+							InformCashNoteAndDelivery(H(), paym_blk2);
+							CDispCommand(cdispcmdChange, 0, paym_blk2.NoteAmt, paym_blk2.DeliveryAmt);
+							AcceptCheck(&cc_id, &paym_blk2.CcPl, 0, paym_blk2.NoteAmt, accmRegular);
+						}
+						break;
+					case cpmBank:
+						if(ConfirmPosPaymBank(paym_blk2)) {
+							SString bnk_slip_buf;
+							int    bnk_paym_result = 1;
+							// @v11.9.8 {
+							if(!paym_blk2.EAddr.IsEmpty()) {
+								P.EAddr = paym_blk2.EAddr;
+								P.Paperless = LOGIC(paym_blk2.Flags & PosPaymentBlock::fPaperless);
 							}
-							break;
-						case cpmBank:
-							if(ConfirmPosPaymBank(paym_blk2)) {
-								SString bnk_slip_buf;
-								int    bnk_paym_result = 1;
-								// @v11.9.8 {
+							else {
+								P.EAddr.Z();
+								P.Paperless = false;
+							}
+							// } @v11.9.8 
+							if(P_BNKTERM && !((paym_blk2.Flags & PosPaymentBlock::fCashlessBypassEq) && (paym_blk2.Flags & PosPaymentBlock::fCashlessBypassEqEnabled))) {
+								const int r = (paym_blk2.AmtToPaym < 0) ? P_BNKTERM->Refund(-paym_blk2.AmtToPaym, bnk_slip_buf) : P_BNKTERM->Pay(paym_blk2.AmtToPaym, bnk_slip_buf);
+								if(!r) {
+									PPError();
+									bnk_paym_result = 0;
+								}
+							}
+							if(bnk_paym_result) {
+								PrintBankingSlip(0/*beforeReceipt*/, bnk_slip_buf); // Печатать банковский слип до чека
+								AcceptCheck(&cc_id, &paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
+								PrintBankingSlip(1/*afterReceipt*/, bnk_slip_buf); // Печатать банковский слип после чека
+							}
+						}
+						break;
+					case cpmIncorpCrd:
+						AcceptCheck(&cc_id, &paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
+						break;
+					case cpmUndef:
+						{
+							paym_blk2.ExclSCardID = CSt.GetID();
+							const double ccpl_total = paym_blk2.CcPl.GetTotal();
+							// @v11.3.6 paym_blk2.AltCashReg = AltRegisterID ? 0 : -1;
+							SETFLAG(paym_blk2.Flags, PosPaymentBlock::fAltCashRegEnabled, AltRegisterID); // @v11.3.6 
+							paym_blk2.Flags &= ~PosPaymentBlock::fAltCashRegUse; // @v11.3.6 
+							// @v11.3.6 {
+							if(CSt.GetID()) {
+								PPSCardPacket sc_pack;
+								if(ScObj.GetPacket(CSt.GetID(), &sc_pack) > 0) {
+									SString _phone;
+									SString _email;
+									if(sc_pack.GetExtStrData(PPSCardPacket::extssPhone, _phone) > 0) {
+										assert(_phone.NotEmpty());
+									}
+									if(sc_pack.Rec.PersonID) {
+										PPELinkArray ela;
+										StringSet ss;
+										PersonCore::GetELinks(sc_pack.Rec.PersonID, ela);
+										if(_phone.IsEmpty())
+											ela.GetSinglePhone(_phone, 0);
+										if(ela.GetListByType(ELNKRT_EMAIL, ss) > 0) {
+											assert(ss.getCount());
+											ss.get(0U, _email);
+										}
+									}
+									if(_email.NotEmpty())
+										paym_blk2.SetBuyersEAddr(SNTOK_EMAIL, _email);
+									else if(_phone.NotEmpty())
+										paym_blk2.SetBuyersEAddr(SNTOK_PHONE, _phone);
+								}
+							}
+							// } @v11.3.6
+							for(int _again = 1; _again && paym_blk2.EditDialog2() > 0;) {
+								assert(feqeps(paym_blk2.CcPl.GetTotal(), ccpl_total, 0.00001));
+								assert(oneof3(paym_blk2.Kind, cpmCash, cpmBank, cpmIncorpCrd));
+								// @v11.3.6 {
 								if(!paym_blk2.EAddr.IsEmpty()) {
 									P.EAddr = paym_blk2.EAddr;
 									P.Paperless = LOGIC(paym_blk2.Flags & PosPaymentBlock::fPaperless);
@@ -4594,111 +4671,46 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 									P.EAddr.Z();
 									P.Paperless = false;
 								}
-								// } @v11.9.8 
-								if(P_BNKTERM && !((paym_blk2.Flags & PosPaymentBlock::fCashlessBypassEq) && (paym_blk2.Flags & PosPaymentBlock::fCashlessBypassEqEnabled))) {
-									const int r = (paym_blk2.AmtToPaym < 0) ? P_BNKTERM->Refund(-paym_blk2.AmtToPaym, bnk_slip_buf) : P_BNKTERM->Pay(paym_blk2.AmtToPaym, bnk_slip_buf);
-									if(!r) {
-										PPError();
-										bnk_paym_result = 0;
-									}
+								// } @v11.3.6 
+								if(CsObj.GetEqCfg().Flags & PPEquipConfig::fUnifiedPaymentCfmBank &&
+									paym_blk2.CcPl.Get(CCAMTTYP_CASH) == 0.0 && !ConfirmPosPaymBank(paym_blk2)) {
+									_again = 1;
 								}
-								if(bnk_paym_result) {
-									PrintBankingSlip(0/*beforeReceipt*/, bnk_slip_buf); // Печатать банковский слип до чека
-									AcceptCheck(&cc_id, &paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
-									PrintBankingSlip(1/*afterReceipt*/, bnk_slip_buf); // Печатать банковский слип после чека
-								}
-							}
-							break;
-						case cpmIncorpCrd:
-							AcceptCheck(&cc_id, &paym_blk2.CcPl, 0, paym_blk2.AmtToPaym + paym_blk2.DeliveryAmt, accmRegular);
-							break;
-						case cpmUndef:
-							{
-								paym_blk2.ExclSCardID = CSt.GetID();
-								const double ccpl_total = paym_blk2.CcPl.GetTotal();
-								// @v11.3.6 paym_blk2.AltCashReg = AltRegisterID ? 0 : -1;
-								SETFLAG(paym_blk2.Flags, PosPaymentBlock::fAltCashRegEnabled, AltRegisterID); // @v11.3.6 
-								paym_blk2.Flags &= ~PosPaymentBlock::fAltCashRegUse; // @v11.3.6 
-								// @v11.3.6 {
-								if(CSt.GetID()) {
-									PPSCardPacket sc_pack;
-									if(ScObj.GetPacket(CSt.GetID(), &sc_pack) > 0) {
-										SString _phone;
-										SString _email;
-										if(sc_pack.GetExtStrData(PPSCardPacket::extssPhone, _phone) > 0) {
-											assert(_phone.NotEmpty());
-										}
-										if(sc_pack.Rec.PersonID) {
-											PPELinkArray ela;
-											StringSet ss;
-											PersonCore::GetELinks(sc_pack.Rec.PersonID, ela);
-											if(_phone.IsEmpty())
-												ela.GetSinglePhone(_phone, 0);
-											if(ela.GetListByType(ELNKRT_EMAIL, ss) > 0) {
-												assert(ss.getCount());
-												ss.get(0U, _email);
+								else {
+									int    bnk_paym_result = 1;
+									SString bnk_slip_buf;
+									_again = 0;
+									// @vmiller {
+									if(P_BNKTERM && !((paym_blk2.Flags & PosPaymentBlock::fCashlessBypassEq) && (paym_blk2.Flags & PosPaymentBlock::fCashlessBypassEqEnabled))) { 
+										// Здесь не проверяю тип операции, потому что при смешанной оплате в paym_blk2.Kind будет стоять cpmCash
+										for(uint i = 0; i < paym_blk2.CcPl.getCount(); i++) {
+											if(paym_blk2.CcPl.at(i).Type == CCAMTTYP_BANK) {
+												double bank_amt = paym_blk2.CcPl.at(i).Amount;
+												bnk_paym_result = (bank_amt > 0.0) ? P_BNKTERM->Pay(bank_amt, bnk_slip_buf) : P_BNKTERM->Refund(-bank_amt, bnk_slip_buf);
+												if(!bnk_paym_result)
+													PPError();
+												break;
 											}
 										}
-										if(_email.NotEmpty())
-											paym_blk2.SetBuyersEAddr(SNTOK_EMAIL, _email);
-										else if(_phone.NotEmpty())
-											paym_blk2.SetBuyersEAddr(SNTOK_PHONE, _phone);
 									}
-								}
-								// } @v11.3.6
-								for(int _again = 1; _again && paym_blk2.EditDialog2() > 0;) {
-									assert(feqeps(paym_blk2.CcPl.GetTotal(), ccpl_total, 0.00001));
-									assert(oneof3(paym_blk2.Kind, cpmCash, cpmBank, cpmIncorpCrd));
-									// @v11.3.6 {
-									if(!paym_blk2.EAddr.IsEmpty()) {
-										P.EAddr = paym_blk2.EAddr;
-										P.Paperless = LOGIC(paym_blk2.Flags & PosPaymentBlock::fPaperless);
+									// } @vmiller
+									if(paym_blk2.NoteAmt > 0.0 && paym_blk2.DeliveryAmt > 0.0) {
+										CDispCommand(cdispcmdChange, 0, paym_blk2.NoteAmt, paym_blk2.DeliveryAmt);
+										InformCashNoteAndDelivery(H(), paym_blk2);
 									}
-									else {
-										P.EAddr.Z();
-										P.Paperless = false;
-									}
-									// } @v11.3.6 
-									if(CsObj.GetEqCfg().Flags & PPEquipConfig::fUnifiedPaymentCfmBank &&
-										paym_blk2.CcPl.Get(CCAMTTYP_CASH) == 0.0 && !ConfirmPosPaymBank(paym_blk2)) {
-										_again = 1;
-									}
-									else {
-										int    bnk_paym_result = 1;
-										SString bnk_slip_buf;
-										_again = 0;
-										// @vmiller {
-										if(P_BNKTERM && !((paym_blk2.Flags & PosPaymentBlock::fCashlessBypassEq) && (paym_blk2.Flags & PosPaymentBlock::fCashlessBypassEqEnabled))) { 
-											// Здесь не проверяю тип операции, потому что при смешанной оплате в paym_blk2.Kind будет стоять cpmCash
-											for(uint i = 0; i < paym_blk2.CcPl.getCount(); i++) {
-												if(paym_blk2.CcPl.at(i).Type == CCAMTTYP_BANK) {
-													double bank_amt = paym_blk2.CcPl.at(i).Amount;
-													bnk_paym_result = (bank_amt > 0.0) ? P_BNKTERM->Pay(bank_amt, bnk_slip_buf) : P_BNKTERM->Refund(-bank_amt, bnk_slip_buf);
-													if(!bnk_paym_result)
-														PPError();
-													break;
-												}
-											}
-										}
-										// } @vmiller
-										if(paym_blk2.NoteAmt > 0.0 && paym_blk2.DeliveryAmt > 0.0) {
-											CDispCommand(cdispcmdChange, 0, paym_blk2.NoteAmt, paym_blk2.DeliveryAmt);
-											InformCashNoteAndDelivery(H(), paym_blk2);
-										}
-										else
-											CDispCommand(cdispcmdChange, 0, paym_blk2.Amount, 0.0);
-										if(bnk_paym_result) {
-											PrintBankingSlip(0/*beforeReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип до чека
-											// @v11.3.6 const  PPID alt_reg_id = (paym_blk2.AltCashReg > 0) ? AltRegisterID : 0;
-											const  PPID alt_reg_id = ((paym_blk2.Flags & PosPaymentBlock::fAltCashRegUse) && (paym_blk2.Flags & PosPaymentBlock::fAltCashRegEnabled)) ? AltRegisterID : 0; // @v11.3.6
-											AcceptCheck(&cc_id, &paym_blk2.CcPl, alt_reg_id, paym_blk2.NoteAmt, accmRegular);
-											PrintBankingSlip(1/*afterReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип после чека
-										}
+									else
+										CDispCommand(cdispcmdChange, 0, paym_blk2.Amount, 0.0);
+									if(bnk_paym_result) {
+										PrintBankingSlip(0/*beforeReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип до чека
+										// @v11.3.6 const  PPID alt_reg_id = (paym_blk2.AltCashReg > 0) ? AltRegisterID : 0;
+										const  PPID alt_reg_id = ((paym_blk2.Flags & PosPaymentBlock::fAltCashRegUse) && (paym_blk2.Flags & PosPaymentBlock::fAltCashRegEnabled)) ? AltRegisterID : 0; // @v11.3.6
+										AcceptCheck(&cc_id, &paym_blk2.CcPl, alt_reg_id, paym_blk2.NoteAmt, accmRegular);
+										PrintBankingSlip(1/*afterReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип после чека
 									}
 								}
 							}
-							break;
-					}
+						}
+						break;
 				}
 			}
 		}
@@ -9586,40 +9598,42 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 								}
 								// @v12.0.12 {
 								if(rBlk.ChZnMark.NotEmpty() && ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && ChZnGuaID) {
-									PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection check_code_list;
-									{
-										temp_buf = rBlk.ChZnMark;
-										GtinStruc gts;
-										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-											uint clp = 0;
-											//CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
-											PPChZnPrcssr::ReconstructOriginalChZnCode(gts, temp_buf);
-											PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.CreateNewItem(&clp);
-											if(p_cle) {
-												p_cle->OrgMark = temp_buf;
-												p_cle->OrgRowId = 0;
+									if(gt_rec.ChZnProdType != GTCHZNPT_MEDICINE) { // @v12.1.10 лекарственные средства проверять через разрешительный режим не надо (пока)
+										PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection check_code_list;
+										{
+											temp_buf = rBlk.ChZnMark;
+											GtinStruc gts;
+											if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+												uint clp = 0;
+												//CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
+												PPChZnPrcssr::ReconstructOriginalChZnCode(gts, temp_buf);
+												PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.CreateNewItem(&clp);
+												if(p_cle) {
+													p_cle->OrgMark = temp_buf;
+													p_cle->OrgRowId = 0;
+												}
 											}
 										}
-									}
-									if(check_code_list.getCount()) {
-										PPChZnPrcssr::PmCheck(ChZnGuaID, 0, check_code_list);
-										for(uint i = 0; i < check_code_list.getCount(); i++) {
-											const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.at(i);
-											if(p_cle) {
-												//debug_mark = true;
-												if(p_cle->ErrorCode != 0) {
-													ok = MessageError(PPERR_CHZNMARKPMFAULT, chzn_mark, eomBeep|eomStatusLine);
-												}
-												else if(p_cle->Flags & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold) {
-													ok = MessageError(PPERR_CHZNMARKPMFAULT_SOLD, chzn_mark, eomBeep|eomStatusLine);
-												}
-												else if(checkdate(p_cle->ExpiryDtm.d) && now_dtm.d >= p_cle->ExpiryDtm.d) { // @v12.1.1
-													ok = MessageError(PPERR_CHZNMARKPMFAULT_EXPIRY, chzn_mark, eomBeep|eomStatusLine);
-												}
-												else { // @v12.1.1
-													// OK
-													rBlk.ChZnPm_ReqId = check_code_list.ReqId;
-													rBlk.ChZnPm_ReqTimestamp = check_code_list.ReqTimestamp;
+										if(check_code_list.getCount()) {
+											PPChZnPrcssr::PmCheck(ChZnGuaID, 0, check_code_list);
+											for(uint i = 0; i < check_code_list.getCount(); i++) {
+												const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.at(i);
+												if(p_cle) {
+													//debug_mark = true;
+													if(p_cle->ErrorCode != 0) {
+														ok = MessageError(PPERR_CHZNMARKPMFAULT, chzn_mark, eomBeep|eomStatusLine);
+													}
+													else if(p_cle->Flags & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold) {
+														ok = MessageError(PPERR_CHZNMARKPMFAULT_SOLD, chzn_mark, eomBeep|eomStatusLine);
+													}
+													else if(checkdate(p_cle->ExpiryDtm.d) && now_dtm.d >= p_cle->ExpiryDtm.d) { // @v12.1.1
+														ok = MessageError(PPERR_CHZNMARKPMFAULT_EXPIRY, chzn_mark, eomBeep|eomStatusLine);
+													}
+													else { // @v12.1.1
+														// OK
+														rBlk.ChZnPm_ReqId = check_code_list.ReqId;
+														rBlk.ChZnPm_ReqTimestamp = check_code_list.ReqTimestamp;
+													}
 												}
 											}
 										}

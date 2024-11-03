@@ -1104,7 +1104,7 @@ static cairo_int_status_t _cairo_win32_scaled_font_index_to_ucs4(void * abstract
 		status = _cairo_win32_print_gdi_error("_cairo_win32_scaled_font_index_to_ucs4:GetFontUnicodeRanges");
 		goto exit1;
 	}
-	*ucs4 = (uint32)-1;
+	*ucs4 = _FFFF32;
 	for(i = 0; i < glyph_set->cRanges; i++) {
 		num_glyphs = glyph_set->ranges[i].cGlyphs;
 		utf16 = static_cast<uint16 *>(_cairo_malloc_ab(num_glyphs + 1, sizeof(uint16)));

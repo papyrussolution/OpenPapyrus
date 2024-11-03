@@ -1640,26 +1640,17 @@ static int ZSTD_dictTooBig(const size_t loadedDictSize) { return loadedDictSize 
  * dictionary is being attached / copied, then pass 0.
  * note : `params` are assumed fully validated at this stage.
  */
-static size_t ZSTD_resetCCtx_internal(ZSTD_CCtx* zc,
-    ZSTD_CCtx_params const* params,
-    uint64 const pledgedSrcSize,
-    const size_t loadedDictSize,
-    ZSTD_compResetPolicy_e const crp,
-    ZSTD_buffered_policy_e const zbuff)
+static size_t ZSTD_resetCCtx_internal(ZSTD_CCtx * zc, ZSTD_CCtx_params const* params, uint64 const pledgedSrcSize,
+    const size_t loadedDictSize, ZSTD_compResetPolicy_e const crp, ZSTD_buffered_policy_e const zbuff)
 {
 	ZSTD_cwksp* const ws = &zc->workspace;
 	DEBUGLOG(4, "ZSTD_resetCCtx_internal: pledgedSrcSize=%u, wlog=%u, useRowMatchFinder=%d useBlockSplitter=%d",
 	    (uint32)pledgedSrcSize, params->cParams.windowLog, (int)params->useRowMatchFinder, (int)params->useBlockSplitter);
 	assert(!ZSTD_isError(ZSTD_checkCParams(params->cParams)));
-
 	zc->isFirstBlock = 1;
-
-	/* Set applied params early so we can modify them for LDM,
-	 * and point params at the applied params.
-	 */
+	/* Set applied params early so we can modify them for LDM, and point params at the applied params. */
 	zc->appliedParams = *params;
 	params = &zc->appliedParams;
-
 	assert(params->useRowMatchFinder != ZSTD_ps_auto);
 	assert(params->useBlockSplitter != ZSTD_ps_auto);
 	assert(params->ldmParams.enableLdm != ZSTD_ps_auto);
@@ -1674,48 +1665,31 @@ static size_t ZSTD_resetCCtx_internal(ZSTD_CCtx* zc,
 	    const size_t blockSize = MIN(ZSTD_BLOCKSIZE_MAX, windowSize);
 	    const uint32 divider = (params->cParams.minMatch==3) ? 3 : 4;
 	    const size_t maxNbSeq = blockSize / divider;
-	    const size_t buffOutSize = (zbuff == ZSTDb_buffered && params->outBufferMode == ZSTD_bm_buffered)
-		? ZSTD_compressBound(blockSize) + 1
-		: 0;
-	    const size_t buffInSize = (zbuff == ZSTDb_buffered && params->inBufferMode == ZSTD_bm_buffered)
-		? windowSize + blockSize
-		: 0;
+	    const size_t buffOutSize = (zbuff == ZSTDb_buffered && params->outBufferMode == ZSTD_bm_buffered) ? ZSTD_compressBound(blockSize) + 1 : 0;
+	    const size_t buffInSize = (zbuff == ZSTDb_buffered && params->inBufferMode == ZSTD_bm_buffered) ? windowSize + blockSize : 0;
 	    const size_t maxNbLdmSeq = ZSTD_ldm_getMaxNbSeq(params->ldmParams, blockSize);
-
 	    int const indexTooClose = ZSTD_indexTooCloseToMax(zc->blockState.matchState.window);
 	    int const dictTooBig = ZSTD_dictTooBig(loadedDictSize);
-	    ZSTD_indexResetPolicy_e needsIndexReset =
-		(indexTooClose || dictTooBig || !zc->initialized) ? ZSTDirp_reset : ZSTDirp_continue;
-
-	    const size_t neededSpace =
-		ZSTD_estimateCCtxSize_usingCCtxParams_internal(
+	    ZSTD_indexResetPolicy_e needsIndexReset = (indexTooClose || dictTooBig || !zc->initialized) ? ZSTDirp_reset : ZSTDirp_continue;
+	    const size_t neededSpace = ZSTD_estimateCCtxSize_usingCCtxParams_internal(
 		    &params->cParams, &params->ldmParams, zc->staticSize != 0, params->useRowMatchFinder,
 		    buffInSize, buffOutSize, pledgedSrcSize);
 	    int resizeWorkspace;
-
 	    FORWARD_IF_ERROR(neededSpace, "cctx size estimate failed!");
-
-	    if(!zc->staticSize) ZSTD_cwksp_bump_oversized_duration(ws, 0);
-
+	    if(!zc->staticSize) 
+			ZSTD_cwksp_bump_oversized_duration(ws, 0);
 	    { /* Check if workspace is large enough, alloc a new one if needed */
 		    int const workspaceTooSmall = ZSTD_cwksp_sizeof(ws) < neededSpace;
 		    int const workspaceWasteful = ZSTD_cwksp_check_wasteful(ws, neededSpace);
 		    resizeWorkspace = workspaceTooSmall || workspaceWasteful;
 		    DEBUGLOG(4, "Need %zu B workspace", neededSpace);
 		    DEBUGLOG(4, "windowSize: %zu - blockSize: %zu", windowSize, blockSize);
-
 		    if(resizeWorkspace) {
-			    DEBUGLOG(4, "Resize workspaceSize from %zuKB to %zuKB",
-				ZSTD_cwksp_sizeof(ws) >> 10,
-				neededSpace >> 10);
-
+			    DEBUGLOG(4, "Resize workspaceSize from %zuKB to %zuKB", ZSTD_cwksp_sizeof(ws) >> 10, neededSpace >> 10);
 			    RETURN_ERROR_IF(zc->staticSize, memory_allocation, "static cctx : no resize");
-
 			    needsIndexReset = ZSTDirp_reset;
-
 			    ZSTD_cwksp_free(ws, zc->customMem);
 			    FORWARD_IF_ERROR(ZSTD_cwksp_create(ws, neededSpace, zc->customMem), "");
-
 			    DEBUGLOG(5, "reserving object space");
 			    /* Statically sized space.
 			     * entropyWorkspace never moves,
@@ -1731,9 +1705,7 @@ static size_t ZSTD_resetCCtx_internal(ZSTD_CCtx* zc,
 			    RETURN_ERROR_IF(zc->entropyWorkspace == NULL, memory_allocation, "couldn't allocate entropyWorkspace");
 		    }
 	    }
-
 	    ZSTD_cwksp_clear(ws);
-
 		/* init params */
 	    zc->blockState.matchState.cParams = params->cParams;
 	    zc->pledgedSrcSizePlusOne = pledgedSrcSize+1;
@@ -1744,14 +1716,11 @@ static size_t ZSTD_resetCCtx_internal(ZSTD_CCtx* zc,
 	    DEBUGLOG(4, "pledged content size : %u ; flag : %u",
 		(uint)pledgedSrcSize, zc->appliedParams.fParams.contentSizeFlag);
 	    zc->blockSize = blockSize;
-
 	    XXH64_reset(&zc->xxhState, 0);
 	    zc->stage = ZSTDcs_init;
 	    zc->dictID = 0;
 	    zc->dictContentSize = 0;
-
 	    ZSTD_reset_compressedBlockState(zc->blockState.prevCBlock);
-
 		/* ZSTD_wildcopy() is used to copy into the literals buffer,
 		 * so we have to oversize the buffer by WILDCOPY_OVERLENGTH bytes.
 		 */
@@ -1805,9 +1774,11 @@ static size_t ZSTD_resetCCtx_internal(ZSTD_CCtx* zc,
  * ensures next compression will not use repcodes from previous block.
  * Note : only works with regular variant;
  *        do not use with extDict variant ! */
-void ZSTD_invalidateRepCodes(ZSTD_CCtx* cctx) {
+void ZSTD_invalidateRepCodes(ZSTD_CCtx* cctx) 
+{
 	int i;
-	for(i = 0; i<ZSTD_REP_NUM; i++) cctx->blockState.prevCBlock->rep[i] = 0;
+	for(i = 0; i<ZSTD_REP_NUM; i++) 
+		cctx->blockState.prevCBlock->rep[i] = 0;
 	assert(!ZSTD_window_hasExtDict(cctx->blockState.matchState.window));
 }
 
@@ -1828,9 +1799,7 @@ static const size_t attachDictSizeCutoffs[ZSTD_STRATEGY_MAX+1] = {
 	SKILOBYTE(8) /* ZSTD_btultra2 */
 };
 
-static int ZSTD_shouldAttachDict(const ZSTD_CDict* cdict,
-    const ZSTD_CCtx_params* params,
-    uint64 pledgedSrcSize)
+static int ZSTD_shouldAttachDict(const ZSTD_CDict* cdict, const ZSTD_CCtx_params* params, uint64 pledgedSrcSize)
 {
 	size_t cutoff = attachDictSizeCutoffs[cdict->matchState.cParams.strategy];
 	int const dedicatedDictSearch = cdict->matchState.dedicatedDictSearch;
@@ -4060,11 +4029,8 @@ size_t ZSTD_loadCEntropy(ZSTD_compressedBlockState_t* bs, void * workspace, cons
 	    const size_t litlengthHeaderSize = FSE_readNCount(litlengthNCount, &litlengthMaxValue, &litlengthLog, dictPtr, dictEnd-dictPtr);
 	    RETURN_ERROR_IF(FSE_isError(litlengthHeaderSize), dictionary_corrupted, "");
 	    RETURN_ERROR_IF(litlengthLog > LLFSELog, dictionary_corrupted, "");
-	    RETURN_ERROR_IF(FSE_isError(FSE_buildCTable_wksp(
-			bs->entropy.fse.litlengthCTable,
-			litlengthNCount, litlengthMaxValue, litlengthLog,
-			workspace, HUF_WORKSPACE_SIZE)),
-		dictionary_corrupted, "");
+	    RETURN_ERROR_IF(FSE_isError(FSE_buildCTable_wksp(bs->entropy.fse.litlengthCTable, litlengthNCount, 
+			litlengthMaxValue, litlengthLog, workspace, HUF_WORKSPACE_SIZE)), dictionary_corrupted, "");
 	    bs->entropy.fse.litlength_repeatMode = ZSTD_dictNCountRepeat(litlengthNCount, litlengthMaxValue, MaxLL);
 	    dictPtr += litlengthHeaderSize;
 	}
@@ -4076,13 +4042,13 @@ size_t ZSTD_loadCEntropy(ZSTD_compressedBlockState_t* bs, void * workspace, cons
 	{   
 		const size_t dictContentSize = (size_t)(dictEnd - dictPtr);
 	    uint32 offcodeMax = MaxOff;
-	    if(dictContentSize <= ((uint32)-1) - SKILOBYTE(128)) {
+	    if(dictContentSize <= (_FFFF32 - SKILOBYTE(128))) {
 		    const uint32 maxOffset = (uint32)dictContentSize + SKILOBYTE(128); // The maximum offset that must be supported 
 		    offcodeMax = ZSTD_highbit32(maxOffset); /* Calculate minimum offset code required to represent maxOffset */
 	    }
-		/* All offset values <= dictContentSize + 128 KB must be representable for a valid table */
+		// All offset values <= dictContentSize + 128 KB must be representable for a valid table 
 	    bs->entropy.fse.offcode_repeatMode = ZSTD_dictNCountRepeat(offcodeNCount, offcodeMaxValue, MIN(offcodeMax, MaxOff));
-		/* All repCodes must be <= dictContentSize and != 0 */
+		// All repCodes must be <= dictContentSize and != 0 
 	    {   
 			for(uint32 u = 0; u<3; u++) {
 				RETURN_ERROR_IF(bs->rep[u] == 0, dictionary_corrupted, "");
@@ -4436,9 +4402,9 @@ static size_t ZSTD_initCDict_internal(ZSTD_CDict* cdict, const void * dictBuffer
 	    {   
 			const size_t dictID = ZSTD_compress_insertDictionary(&cdict->cBlockState, &cdict->matchState, NULL, &cdict->workspace,
 				&params, cdict->dictContent, cdict->dictContentSize, dictContentType, ZSTD_dtlm_full, cdict->entropyWorkspace);
-		FORWARD_IF_ERROR(dictID, "ZSTD_compress_insertDictionary failed");
-		assert(dictID <= (size_t)(uint32)-1);
-		cdict->dictID = (uint32)dictID;
+			FORWARD_IF_ERROR(dictID, "ZSTD_compress_insertDictionary failed");
+			assert(dictID <= (size_t)_FFFF32);
+			cdict->dictID = (uint32)dictID;
 		}
 	}
 

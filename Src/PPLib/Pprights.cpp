@@ -345,7 +345,8 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 		}
 		const ObjRestrictArray * P_List;
 	};
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	RtOpItemDialog * dlg = new RtOpItemDialog(&Data);
 	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(pItem);
@@ -417,7 +418,8 @@ private:
 	//virtual void getExtText(long objFlags, SString &);
 	virtual int editItemDialog(ObjRestrictItem * pItem)
 	{
-		int    ok = -1, valid_data = 0;
+		int    ok = -1;
+		int    valid_data = 0;
 		TDialog * p_dlg = new TDialog(DLG_RTLOCLI);
 		if(CheckDialogPtrErr(&p_dlg)) {
 			StrAssocArray loc_list;
@@ -534,7 +536,8 @@ int RtCfgListDialog::delItem(long pos, long id)
 
 int RtCfgListDialog::addItem(long * pPos, long * pID)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	TDialog * p_dlg = new TDialog(DLG_CBXSEL);
 	if(CheckDialogPtrErr(&p_dlg)) {
 		StrAssocArray t_ary;
@@ -650,11 +653,12 @@ private:
 	}
 	int editItemDialog(ObjRestrictItem * pItem, int isNew)
 	{
-		int    ok = -1, valid_data = 0;
+		int    ok = -1;
+		int    valid_data = 0;
 		StrAssocArray * p_acc_list = 0;
 		TDialog * p_dlg = new TDialog(DLG_RTACCLI);
 		if(CheckDialogPtrErr(&p_dlg)) {
-			int    others_acc = (pItem->ObjID == 0 && isNew == 0) ? 1 : 0;
+			const bool others_acc = (pItem->ObjID == 0 && isNew == 0);
 			p_acc_list = AcctObj.MakeStrAssocList(reinterpret_cast<void *>(ACY_SEL_BAL));
 			p_dlg->AddClusterAssoc(CTL_RTACCLI_FLAGS, 0, PPR_READ);
 			p_dlg->AddClusterAssoc(CTL_RTACCLI_FLAGS, 1, 0);

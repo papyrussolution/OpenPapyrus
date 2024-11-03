@@ -1144,7 +1144,8 @@ static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintPara
 			clearEvent(event);
 		}
 	};
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	PrintBarcodeLabelDialog * dlg = new PrintBarcodeLabelDialog(isExtDlg);
 	if(CheckDialogPtrErr(&dlg)) {
 		SetupPPObjCombo(dlg, CTLSEL_BCPLABEL_PRINTER, PPOBJ_BCODEPRINTER, pParam->PrinterID, 0);

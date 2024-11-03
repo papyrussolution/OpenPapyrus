@@ -443,7 +443,8 @@ int RestoreBalance()
 
 int DatabaseCutting()
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	TDialog * dlg = new TDialog(DLG_CUTTING);
 	if(CheckDialogPtrErr(&dlg)) {
 		LDATE  end_date = ZERODATE;

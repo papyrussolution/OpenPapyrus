@@ -2140,7 +2140,8 @@ int TagFiltDialog::getDTS(TagFilt * pData)
 
 int FASTCALL EditTagFilt(PPID objType, TagFilt * pData)
 {
-	int    ok = 1, valid_data = 0;
+	int    ok = 1;
+	int    valid_data = 0;
 	TagFiltDialog * p_dlg = 0;
 	THROW_MEM(p_dlg = new TagFiltDialog(objType));
 	THROW(CheckDialogPtr(&p_dlg));
@@ -2495,7 +2496,9 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 		const  PPID ObjID;
 		ObjTagItem Item;
 	};
-	int    ok = -1, r, valid_data = 0;
+	int    ok = -1;
+	int    r;
+	int    valid_data = 0;
 	TagValDialog * dlg = 0;
 	uint   dlg_id = 0;
 	TagDlgParam param;

@@ -1654,7 +1654,8 @@ int PListFiltDialog::getDTS(PriceListFilt * pFilt)
 
 int PPViewPriceList::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	PListFiltDialog * dlg = 0;
 	PriceListFilt * p_filt = 0;
 	THROW(Filt.IsA(pBaseFilt));
@@ -1840,7 +1841,8 @@ IMPL_HANDLE_EVENT(PLineDialog)
 
 int PPViewPriceList::AddLine(PriceLineIdent * pIdent)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	PriceLineTbl::Rec rec;
 	PLineDialog * dlg = 0;
 	Gsl.Clear(); // AHTOXA
@@ -1874,7 +1876,8 @@ int PPViewPriceList::AddLine(PriceLineIdent * pIdent)
 
 int PPViewPriceList::EditLine(PriceLineIdent * pIdent)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	PriceLineTbl::Rec rec;
 	PLineDialog * dlg = 0;
 	if(CheckDialogPtrErr(&(dlg = new PLineDialog(this)))) {

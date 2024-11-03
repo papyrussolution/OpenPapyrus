@@ -6204,8 +6204,8 @@ int PPObjPerson::EditRelationList(PPID id)
 
 int PPObjPerson::AddRelationList(PPID * pPrmrID, PPIDArray * pScndList, PPID * pRelTypeID, int reverse)
 {
-	int    ok = -1, valid_data = 0;
-	// @V10.3.0 (never used) int    edit = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	PersonLink pl_item;
 	PPPersonPacket pack;
 	THROW(CheckRights(PPR_MOD));
@@ -6913,12 +6913,12 @@ int PPNewContragentDetectionBlock::IsNewPerson(PPID psnID, const DateRange & rPe
 			for(i = 0; i < AcsList.getCount(); i++) {
 				const  PPID acs_id = AcsList.get(i);
 				PPID   ar_id = 0;
-				if(P_ArObj->P_Tbl->PersonToArticle(psnID, acs_id, &ar_id) > 0)
+				if(P_ArObj->P_Tbl->PersonToArticle(psnID, acs_id, &ar_id))
 					ar_list.add(ar_id);
 				else
 					ar_list.add(0L);
 			}
-			assert(ar_list.getCount()  == AcsList.getCount());
+			assert(ar_list.getCount() == AcsList.getCount());
 			for(i = 0; i < OpList.getCount(); i++) {
 				const  PPID op_id = OpList.get(i);
 				if(GetOpData(op_id, &op_rec) && op_rec.AccSheetID) {

@@ -4109,6 +4109,10 @@ public class SLib {
 		{
 			return (a1 != null) ? (a2 != null && LDATE.ArEq(a1.Low, a2.Low) && LDATE.ArEq(a1.Upp, a2.Upp)) : (a2 == null);
 		}
+		public static boolean IsZero(DateRange range)
+		{
+			return (range == null || range.IsZero());
+		}
 		DateRange()
 		{
 			Low = new LDATE();
@@ -6233,6 +6237,7 @@ public class SLib {
 		{
 			return (a1 != null) ? (a2 != null && a1.Lat == a2.Lat && a1.Lon == a2.Lon) : (a2 == null);
 		}
+		public static boolean IsZero(GeoPosLL a) { return (a == null || a.IsZero()); }
 		GeoPosLL()
 		{
 			Lat = 0.0;

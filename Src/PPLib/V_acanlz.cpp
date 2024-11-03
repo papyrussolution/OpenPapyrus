@@ -417,7 +417,8 @@ private:
 
 int PPViewAccAnlz::EditSupplTrnovrFilt(AccAnlzFilt * pFilt)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	int    search;
 	PPAccSheet acc_sheet_rec;
 	TDialog * dlg = 0;
@@ -452,13 +453,14 @@ int PPViewAccAnlz::EditSupplTrnovrFilt(AccAnlzFilt * pFilt)
 
 /*virtual*/int PPViewAccAnlz::EditBaseFilt(PPBaseFilt * pFilt)
 {
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	AccAnlzFilt * p_filt = static_cast<AccAnlzFilt *>(pFilt);
 	THROW_INVARG(p_filt);
 	if(p_filt->Flags & AccAnlzFilt::fTrnovrBySuppl)
 		ok = EditSupplTrnovrFilt(p_filt);
 	else {
-		uint   dlg_id = (p_filt->Flags & AccAnlzFilt::fAsCashBook) ? DLG_CASHBOOK : DLG_ACCANLZ;
+		const uint dlg_id = (p_filt->Flags & AccAnlzFilt::fAsCashBook) ? DLG_CASHBOOK : DLG_ACCANLZ;
 		AccAnlzFiltDialog * dlg = new AccAnlzFiltDialog(dlg_id, P_BObj->atobj);
 		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(p_filt);

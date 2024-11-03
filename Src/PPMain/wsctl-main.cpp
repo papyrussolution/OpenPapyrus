@@ -806,7 +806,7 @@ private:
 				rPath = p_filename;
 			}
 			else {
-				WsCtl_ImGuiSceneBlock::GetLocalCachePath(rPath);
+				WsCtlApp::GetLocalCachePath(rPath);
 				rPath.SetLastSlash().Cat("img").SetLastSlash().Cat(p_filename);
 			}
 		}
@@ -816,9 +816,7 @@ private:
 	}
 	// @v11.9.7 void   MakeLayout(SJson ** ppJsList);
 	SUiLayout * MakePgmListLayout(const WsCtl_ProgramCollection & rPgmL);
-	static bool GetLocalCachePath(SString & rPath);
 	int    QueryProgramList2(WsCtl_ProgramCollection & rPgmL, WsCtl_ClientPolicy & rPolicyL);
-	int    GetProgramListFromCache(WsCtl_ProgramCollection & rPgmL, WsCtl_ClientPolicy & rPolicyL);
 	void   LoadProgramList2();
 	void   LoadProgramImages(WsCtl_ProgramCollection & rPgmL, TextureCache & rTextureCache);
 	void   EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayout & rTl);
@@ -2459,7 +2457,7 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 	}
 	{
 		//SString pic_base_path;
-		//WsCtl_ImGuiSceneBlock::GetLocalCachePath(pic_base_path);
+		//WsCtlApp::GetLocalCachePath(pic_base_path);
 		//pic_base_path.SetLastSlash().Cat("img").SetLastSlash();
 		//Cache_Texture.SetBasePath(pic_base_path);
 		{
@@ -2753,42 +2751,6 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 	}
 }
 
-int WsCtl_ImGuiSceneBlock::GetProgramListFromCache(WsCtl_ProgramCollection & rPgmL, WsCtl_ClientPolicy & rPolicyL)
-{
-	int    ok = 0;
-	SString temp_buf;
-	SString cache_path;
-	WsCtl_ImGuiSceneBlock::GetLocalCachePath(cache_path);
-	cache_path.SetLastSlash().Cat("data");
-	if(SFile::CreateDir(cache_path)) {
-		(temp_buf = cache_path).SetLastSlash().Cat("wsctl-program.json");
-		if(fileExists(temp_buf)) {
-			SJson * p_js_obj = SJson::ParseFile(temp_buf);
-			if(p_js_obj) {
-				WsCtl_ProgramCollection pgml_local_instance;
-				if(pgml_local_instance.FromJsonObj(p_js_obj)) {
-					rPgmL = pgml_local_instance;
-					ok |= 0x01;
-				}
-			}
-			delete p_js_obj;
-		}
-		(temp_buf = cache_path).SetLastSlash().Cat("wsctl-policy.json");
-		if(fileExists(temp_buf)) {
-			SJson * p_js_obj = SJson::ParseFile(temp_buf);
-			if(p_js_obj) {
-				WsCtl_ClientPolicy policyl_local_instance;
-				if(policyl_local_instance.FromJsonObj(p_js_obj)) {
-					rPolicyL = policyl_local_instance;
-					ok |= 0x02;
-				}
-			}
-			delete p_js_obj;			
-		}
-	}
-	return ok;
-}
-
 int WsCtl_ImGuiSceneBlock::QueryProgramList2(WsCtl_ProgramCollection & rPgmL, WsCtl_ClientPolicy & rPolicyL)
 {
 	int    ok = 0;
@@ -2800,7 +2762,7 @@ int WsCtl_ImGuiSceneBlock::QueryProgramList2(WsCtl_ProgramCollection & rPgmL, Ws
 		//SString cache_path;
 		PPJobSrvClient cli;
 		PPJobSrvReply reply;
-		//THROW(WsCtl_ImGuiSceneBlock::GetLocalCachePath(cache_path));
+		//THROW(WsCtlApp::GetLocalCachePath(cache_path));
 		{
 			DConnectionStatus srv_conn_status;
 			{
@@ -2863,22 +2825,6 @@ int WsCtl_ImGuiSceneBlock::QueryProgramList2(WsCtl_ProgramCollection & rPgmL, Ws
 	return ok;
 }
 
-/*static*/bool WsCtl_ImGuiSceneBlock::GetLocalCachePath(SString & rPath)
-{
-	rPath.Z();
-	bool    ok = true;
-	SString temp_buf;
-	SString cache_path;
-	PPGetPath(PPPATH_WORKSPACE, temp_buf);	
-	(cache_path = temp_buf).SetLastSlash().Cat("cache");
-	if(SFile::CreateDir(cache_path)) {
-		rPath = cache_path;
-	}
-	else
-		ok = false;
-	return ok;
-}
-
 void WsCtl_ImGuiSceneBlock::LoadProgramList2()
 {
 	SString temp_buf;
@@ -2888,7 +2834,7 @@ void WsCtl_ImGuiSceneBlock::LoadProgramList2()
 		WsCtl_ClientPolicy _policy_l_from_server;
 		WsCtl_ProgramCollection  _pgm_l_from_cache;
 		WsCtl_ClientPolicy _policy_l_from_cache;
-		int r_cache = GetProgramListFromCache(_pgm_l_from_cache, _policy_l_from_cache);
+		int r_cache = WsCtlApp::GetProgramListFromCache(&_pgm_l_from_cache, false, &_policy_l_from_cache);
 		int r_srv = QueryProgramList2(_pgm_l_from_server, _policy_l_from_server);
 		if(r_srv & 0x02) { // WsCtl_ClientPolicy is loaded successfully
 			if(!(r_cache & 0x02) || _policy_l_from_server != _policy_l_from_cache) {
@@ -2903,13 +2849,13 @@ void WsCtl_ImGuiSceneBlock::LoadProgramList2()
 			PolicyL = _policy_l_from_cache;
 		}
 		if(r_srv & 0x01) { // WsCtl_ProgramCollection is loaded successfully
-			if(!(r_cache & 0x01) || _pgm_l_from_server != _pgm_l_from_cache) {
+			//if(!(r_cache & 0x01) || _pgm_l_from_server != _pgm_l_from_cache) {
 				PgmL = _pgm_l_from_server;
 				do_resolve = true;
-			}
-			else {
-				PgmL = _pgm_l_from_cache;
-			}
+			//}
+			//else {
+			//	PgmL = _pgm_l_from_cache;
+			//}
 		}
 		else if(r_cache & 0x01) {
 			PgmL = _pgm_l_from_cache;
@@ -2919,7 +2865,7 @@ void WsCtl_ImGuiSceneBlock::LoadProgramList2()
 			{
 				SString cache_path;
 				SString _path;
-				WsCtl_ImGuiSceneBlock::GetLocalCachePath(cache_path);
+				WsCtlApp::GetLocalCachePath(cache_path);
 				cache_path.SetLastSlash().Cat("data");
 				if(PgmL.getCount()) {
 					SJson * p_js_obj = PgmL.ToJsonObj(true);
@@ -2956,7 +2902,7 @@ void WsCtl_ImGuiSceneBlock::LoadProgramImages(WsCtl_ProgramCollection & rPgmL, T
 {
 	SString pic_base_path;
 	SString temp_buf;
-	WsCtl_ImGuiSceneBlock::GetLocalCachePath(pic_base_path);
+	WsCtlApp::GetLocalCachePath(pic_base_path);
 	pic_base_path.SetLastSlash().Cat("img").SetLastSlash();
 	SFile::CreateDir(pic_base_path); // @v12.1.8
 	if(pathValid(pic_base_path, 1)) {

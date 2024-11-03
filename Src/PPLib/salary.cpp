@@ -256,7 +256,8 @@ PPViewSalary::~PPViewSalary()
 int PPViewSalary::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 #define GRP_DIV 1
-	int    ok = -1, valid_data = 0;
+	int    ok = -1;
+	int    valid_data = 0;
 	TDialog * dlg = 0;
 	THROW(Filt.IsA(pBaseFilt));
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SALARYFLT))));

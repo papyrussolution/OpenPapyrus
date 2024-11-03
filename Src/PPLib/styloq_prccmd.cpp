@@ -1012,7 +1012,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 									PPID   person_id = 0;
 									if(AcceptStyloQClientAsPerson(rCliPack, acs_rec.ObjGroup, &person_id, 0) > 0) {
 										PPID ar_id = 0;
-										if(ar_obj.P_Tbl->PersonToArticle(person_id, acs_rec.ID, &ar_id) > 0)
+										if(ar_obj.P_Tbl->PersonToArticle(person_id, acs_rec.ID, &ar_id))
 											tses_pack.Rec.ArID = ar_id;
 									}
 								}
@@ -1207,7 +1207,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 									else if(acs_obj.Fetch(agent_acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
 										if(AcceptStyloQClientAsPerson(rCliPack, acs_rec.ObjGroup, &person_id, 0) > 0) {
 											PPID ar_id = 0;
-											if(ar_obj.P_Tbl->PersonToArticle(person_id, acs_rec.ID, &ar_id) > 0)
+											if(ar_obj.P_Tbl->PersonToArticle(person_id, acs_rec.ID, &ar_id))
 												p_bpack->Ext.AgentID = ar_id;
 										}
 									}
@@ -1233,7 +1233,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 								else if(op_rec.AccSheetID && acs_obj.Fetch(op_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
 									if(AcceptStyloQClientAsPerson(rCliPack, acs_rec.ObjGroup, &person_id, 0) > 0) {
 										PPID   ar_id = 0;
-										if(ar_obj.P_Tbl->PersonToArticle(person_id, acs_rec.ID, &ar_id) > 0)
+										if(ar_obj.P_Tbl->PersonToArticle(person_id, acs_rec.ID, &ar_id))
 											p_bpack->Rec.Object = ar_id;
 									}
 								}
