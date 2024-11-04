@@ -804,7 +804,7 @@ static void RecoverAutotranslatedString(SString & rBuf, StrAssocArray & rAssocLi
 		}
 	}
 	// } @debug
-	rBuf.ReplaceStr("  ", " ", 0);
+	rBuf.ElimDblSpaces();
 }
 
 int StringStore2::Compile(const char * pFileName, long flags, const char * pTranslateToLang)

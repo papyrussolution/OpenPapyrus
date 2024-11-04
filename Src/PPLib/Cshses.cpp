@@ -2120,8 +2120,8 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					}
 					Rec.ID       = grec.ID;
 					// Замена символов перевода каретки на пробелы
-					(temp_buf = grec.Name).ReplaceChar('\x0D', ' ').ReplaceChar('\x0A', ' ').ReplaceStr("  ", " ", 0).CopyTo(Rec.Name, sizeof(Rec.Name));
-					(temp_buf = grec.Abbr).ReplaceChar('\x0D', ' ').ReplaceChar('\x0A', ' ').ReplaceStr("  ", " ", 0).CopyTo(Rec.Abbr, sizeof(Rec.Abbr));
+					(temp_buf = grec.Name).ReplaceChar('\x0D', ' ').ReplaceChar('\x0A', ' ').ElimDblSpaces().CopyTo(Rec.Name, sizeof(Rec.Name));
+					(temp_buf = grec.Abbr).ReplaceChar('\x0D', ' ').ReplaceChar('\x0A', ' ').ElimDblSpaces().CopyTo(Rec.Abbr, sizeof(Rec.Abbr));
 					if(Flags & ACGIF_EXCLALTFOLD)
 						GObj.P_Tbl->GetExclusiveAltParent(grec.ID, AcnPack.GoodsGrpID, &Rec.ParentID);
 					else

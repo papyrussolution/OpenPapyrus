@@ -7402,7 +7402,7 @@ int DocNalogRu_Generator::WriteFIO(const char * pName, long parentTokId, bool as
 	SString temp_buf;
 	SString first_name, sername, patronimic;
 	SString fullname_buf(pName);
-	fullname_buf.Strip().ReplaceStr(",", " ", 0).ReplaceStr(";", " ", 0).ReplaceStr("  ", " ", 0);
+	fullname_buf.Strip().ReplaceStr(",", " ", 0).ReplaceStr(";", " ", 0).ElimDblSpaces();
 	{
 		StringSet ss;
 		fullname_buf.Tokenize(" ,;.", ss);

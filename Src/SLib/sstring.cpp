@@ -1733,6 +1733,11 @@ SString & SString::ReplaceStr(const char * pPattern, const char * pReplacer, int
 	return *this;
 }
 
+SString & SString::ElimDblSpaces()
+{
+	return ReplaceStr("  ", " ", 0);
+}
+
 struct _SpcSymbEntry {
 	char   chr;
 	const  char * str;

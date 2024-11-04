@@ -4394,6 +4394,12 @@ public:
 	//   *this.
 	//
 	SString & ReplaceStr(const char * pPattern, const char * pReplacer, int once);
+	//
+	// Descr: Заменяет в строке this все двойные пробелы одинарными
+	// Returns:
+	//   *this.
+	//
+	SString & ElimDblSpaces();
 	SString & FASTCALL ReplaceSpecSymb(int fileFormat);
 	SString & FASTCALL RevertSpecSymb(int fileFormat);
 	SString & ReplaceCR();

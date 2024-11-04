@@ -2101,8 +2101,8 @@ int PrcssrPhoneListImport::Run()
 							phone = (temp_buf = city_prefix).Cat(phone);
 						}
 					}
-					(address = rec.Address).Strip().ReplaceStr("  ", " ", 0).Transf(CTRANSF_OUTER_TO_INNER);
-					(contact = rec.Contact).Strip().ReplaceStr("  ", " ", 0).Transf(CTRANSF_OUTER_TO_INNER);
+					(address = rec.Address).Strip().ElimDblSpaces().Transf(CTRANSF_OUTER_TO_INNER);
+					(contact = rec.Contact).Strip().ElimDblSpaces().Transf(CTRANSF_OUTER_TO_INNER);
 					if(address.NotEmpty() || contact.NotEmpty()) {
 						phone_idx_list.clear();
 						if(LocObj.P_Tbl->SearchPhoneIndex(phone, 0, phone_idx_list) > 0) {
@@ -7765,9 +7765,9 @@ int ImportSpecial(const char * pPath_)
 											if(scan.Skip().IncrChr(',') && scan.Skip().GetQuotedString(nm)) { // name
 												if(scan.Skip().IncrChr(',') && scan.Skip().GetQuotedString(temp_buf)) { // time_zone
 													if(scan.Skip().IncrChr(',') && scan.Skip().GetQuotedString(temp_buf)) { // podm
-														phn.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
-														addr.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
-														nm.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
+														phn.Strip().Utf8ToLower().ElimDblSpaces(); // двойные пробелы заменяем одинарными
+														addr.Strip().Utf8ToLower().ElimDblSpaces(); // двойные пробелы заменяем одинарными
+														nm.Strip().Utf8ToLower().ElimDblSpaces(); // двойные пробелы заменяем одинарными
 														// nm;eml;pw;phn;gender;dob;id;cntry;cty;adr;src
 														out_buf.Z().Cat("cn:").Cat(nm).Semicol().Cat(eml).Semicol().Cat(""/*pwd*/).Semicol().Cat(phn).
 															Semicol().Cat(""/*gender*/).Semicol().Cat(""/*dob*/).Semicol().Cat(""/*id*/).Semicol().Cat("ru").Semicol().Cat(""/*cty*/).
@@ -7829,17 +7829,17 @@ int ImportSpecial(const char * pPath_)
 													scan.Skip().GetUntil(';', temp_buf);
 													temp_buf.StripQuotes();
 													dob = strtodate_(temp_buf, DATF_YMD);
-													phn.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
-													addr.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
-													nm.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
-													eml.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
-													country.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
-													ident.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
+													phn.Strip().Utf8ToLower().ElimDblSpaces(); // двойные пробелы заменяем одинарными
+													addr.Strip().Utf8ToLower().ElimDblSpaces(); // двойные пробелы заменяем одинарными
+													nm.Strip().Utf8ToLower().ElimDblSpaces(); // двойные пробелы заменяем одинарными
+													eml.Strip().Utf8ToLower().ElimDblSpaces(); // двойные пробелы заменяем одинарными
+													country.Strip().Utf8ToLower().ElimDblSpaces(); // двойные пробелы заменяем одинарными
+													ident.Strip().Utf8ToLower().ElimDblSpaces(); // двойные пробелы заменяем одинарными
 													if(ident.HasPrefixIAscii("dni")) {
 														(temp_buf = "ardni").Colon().Cat(ident.ShiftLeft(3).Strip());
 														ident = temp_buf;
 													}
-													sex.Strip().Utf8ToLower().ReplaceStr("  ", " ", 0); // двойные пробелы заменяем одинарными
+													sex.Strip().Utf8ToLower().ElimDblSpaces(); // двойные пробелы заменяем одинарными
 													if(sex.IsEqiAscii("Femenino"))
 														sex = "femme";
 													else if(sex.IsEqiAscii("Masculino"))

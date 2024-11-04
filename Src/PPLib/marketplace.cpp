@@ -365,11 +365,12 @@ public:
 
 	int   CreateWarehouse(PPID * pID, int64 outerId, const char * pOuterName, const char * pAddress, int use_ta);
 	const Warehouse * SearchWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, bool adoptive) const;
-	int   ResolveWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, PPID defaultID, PPID * pResultID);
+	int   ResolveWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, PPID defaultID, PPID * pResultID, int use_ta);
 	int   ImportOrders();
 	int   ImportReceipts();
 	int   ImportSales();
 	int   ImportFinancialTransactions();
+	int   ImportStocks();
 private:
 	int   GetLocalCachePath(SString & rBuf);
 	int   FetchWarehouseList(TSCollection <Warehouse> & rList);
@@ -2127,6 +2128,7 @@ int PPMarketplaceInterface_Wildberries::CreateWarehouse(PPID * pID, int64 outerI
 const PPMarketplaceInterface_Wildberries::Warehouse * PPMarketplaceInterface_Wildberries::SearchWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, bool adoptive) const
 {
 	const Warehouse * p_result = 0;
+	SString temp_buf;
 	SString key_buf(pWhName);
 	key_buf.Strip();
 	{
@@ -2137,18 +2139,21 @@ const PPMarketplaceInterface_Wildberries::Warehouse * PPMarketplaceInterface_Wil
 		}
 	}
 	if(!p_result && adoptive) {
-		SString temp_buf;
-		key_buf.Utf8ToLower().ReplaceStr("(", " ", 0).ReplaceStr(")", " ", 0).ReplaceStr("  ", " ", 0).Strip();
+		key_buf.Utf8ToLower().ReplaceStr("(", " ", 0).ReplaceStr(")", " ", 0).ElimDblSpaces().Strip();
 		{
 			LongArray eqpfx_list;
+			LongArray hassub_list;
 			for(uint i = 0; !p_result && i < rWhList.getCount(); i++) {
 				const Warehouse * p_iter = rWhList.at(i);
 				if(p_iter) {
-					(temp_buf = p_iter->Name).Utf8ToLower().ReplaceStr("(", " ", 0).ReplaceStr(")", " ", 0).ReplaceStr("  ", " ", 0).Strip();
+					(temp_buf = p_iter->Name).Utf8ToLower().ReplaceStr("(", " ", 0).ReplaceStr(")", " ", 0).ElimDblSpaces().Strip();
 					if(temp_buf.IsEq(key_buf))
 						p_result = p_iter;
 					else if(temp_buf.HasPrefix(key_buf)) {
 						eqpfx_list.add(i);
+					}
+					else if(temp_buf.Search(key_buf, 0, 0, 0)) {
+						hassub_list.add(i);
 					}
 				}
 			}
@@ -2156,20 +2161,27 @@ const PPMarketplaceInterface_Wildberries::Warehouse * PPMarketplaceInterface_Wil
 				if(eqpfx_list.getCount() == 1) {
 					p_result = rWhList.at(eqpfx_list.get(0));
 				}
+				else if(hassub_list.getCount() == 1) {
+					p_result = rWhList.at(hassub_list.get(0));
+				}
 			}
 		}
+	}
+	if(!p_result) {
+		(temp_buf = pWhName).Transf(CTRANSF_UTF8_TO_INNER);
+		PPSetError(PPERR_MP_WAREHOUSEIDENTFAULT, temp_buf);
 	}
 	return p_result;
 }
 
-int PPMarketplaceInterface_Wildberries::ResolveWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, PPID defaultID, PPID * pResultID)
+int PPMarketplaceInterface_Wildberries::ResolveWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, PPID defaultID, PPID * pResultID, int use_ta)
 {
 	int    ok = -1;
 	PPID   wh_id = 0;
 	if(!isempty(pWhName)) {
 		const Warehouse * p_wh = SearchWarehouseByName(WhList, pWhName, true);
 		if(p_wh) {
-			if(CreateWarehouse(&wh_id, p_wh->ID, p_wh->Name, p_wh->Address, 1) > 0) {
+			if(CreateWarehouse(&wh_id, p_wh->ID, p_wh->Name, p_wh->Address, use_ta) > 0) {
 				assert(wh_id > 0);
 				MpLocList.addUnique(wh_id);
 				ok = 1;
@@ -2441,7 +2453,7 @@ int PPMarketplaceInterface_Wildberries::ImportReceipts()
 			if(p_wb_item) {
 				PPID   wh_id = 0;
 				BillTbl::Rec ex_bill_rec;
-				ResolveWarehouseByName(WhList, p_wb_item->WarehouseName, LConfig.Location, &wh_id);
+				ResolveWarehouseByName(WhList, p_wb_item->WarehouseName, LConfig.Location, &wh_id, 1/*use_ta*/);
 				const  PPID  goods_id = CreateWare(p_wb_item->Ware, 1/*use_ta*/);
 				if(goods_id) {
 					bill_code.Z().Cat(p_wb_item->IncomeID);
@@ -2758,7 +2770,7 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 				const  double seller_part_amount = p_wb_item->ForPay;
 				BillTbl::Rec ord_bill_rec;
 				BillTbl::Rec ex_bill_rec;
-				ResolveWarehouseByName(WhList, p_wb_item->WarehouseName, LConfig.Location, &wh_id);
+				ResolveWarehouseByName(WhList, p_wb_item->WarehouseName, LConfig.Location, &wh_id, 1/*use_ta*/);
 				bill_code.Z().Cat(p_wb_item->SaleId);
 				ord_bill_code.Z().Cat(p_wb_item->GNumber);
 				if(p_bobj->P_Tbl->SearchByCode(bill_code, sale_op_id, ZERODATE, &ex_bill_rec) > 0) {
@@ -2977,7 +2989,7 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 					const PPMarketplaceInterface_Wildberries::Sale * p_wb_item = order_list.at(ord_list_idx);
 					if(p_wb_item) {
 						PPID   wh_id = 0;
-						ResolveWarehouseByName(WhList, p_wb_item->WarehouseName, LConfig.Location, &wh_id);
+						ResolveWarehouseByName(WhList, p_wb_item->WarehouseName, LConfig.Location, &wh_id, 1/*use_ta*/);
 						bill_code.Z().Cat(p_wb_item->GNumber);
 						if(p_bobj->P_Tbl->SearchByCode(bill_code, order_op_id, ZERODATE, 0) > 0) {
 							;
@@ -3131,6 +3143,114 @@ int PPMarketplaceInterface_Wildberries::FindShipmentBillByOrderIdent(const char 
 	return ok;
 }
 
+int PPMarketplaceInterface_Wildberries::ImportStocks() // @construction	
+{
+	int    ok = -1;
+	PPID   stock_op_id = 0; // Вид операции фиксации остатков (драфт-документ, чаще всего это - PPOPK_EDI_STOCK)
+	PPObjOprKind op_obj;
+	TSCollection <Stock> stock_list;
+	{
+		PPID   op_id = 0;
+		if(op_obj.GetEdiStockOp(&op_id, 1)) {
+			stock_op_id = op_id;
+		}
+	}
+	if(stock_op_id) {
+		int    r = RequestStocks(stock_list);
+		if(r && stock_list.getCount()) {
+			PPObjBill * p_bobj = BillObj;
+			BillCore * p_billc = p_bobj->P_Tbl;
+			PPIDArray wh_list;
+			PPTransaction tra(1);
+			THROW(tra);
+			{
+				//
+				// Сначала соберем список складов, на которых что-то есть, и лишь потом пробежим циклом по каждому складу и для каждого сформируем отдельный документ
+				//
+				for(uint i = 0; i < stock_list.getCount(); i++) {
+					const Stock * p_item = stock_list.at(i);
+					if(p_item && p_item->Qtty > 0.0) { // Не используем QttyFull поскольку нам интересен только фактический остаток (без учета того что движется на склад/со склада)
+						PPID   wh_id = 0;
+						if(ResolveWarehouseByName(WhList, p_item->WarehouseName, 0/*default*/, &wh_id, 0/*use_ta*/) > 0) {
+							wh_list.add(wh_id);
+						}
+						else
+							R_Prc.GetLogger().LogLastError();
+					}
+				}
+			}
+			if(wh_list.getCount()) {
+				wh_list.sortAndUndup();
+				const LDATETIME now_dtm = getcurdatetime_();
+				for(uint whidx = 0; whidx < wh_list.getCount(); whidx++) {
+					const PPID wh_id = wh_list.get(whidx);
+					PPBillPacket bpack;
+					bool is_bpack_inited = false;
+					for(uint i = 0; i < stock_list.getCount(); i++) {
+						const Stock * p_item = stock_list.at(i);
+						if(p_item && p_item->Qtty > 0.0) { // Не используем QttyFull поскольку нам интересен только фактический остаток (без учета того что движется на склад/со склада)
+							PPID   local_wh_id = 0;
+							if(ResolveWarehouseByName(WhList, p_item->WarehouseName, 0/*default*/, &local_wh_id, 0/*use_ta*/) > 0 && local_wh_id == wh_id) {
+								PPID   goods_id = CreateWare(p_item->Ware, 0/*use_ta*/);
+								if(!goods_id) {
+									; // @todo что-то в log вывести
+								}
+								else {
+									if(!is_bpack_inited) {
+										{
+											BillTbl::Key2 k2;
+											k2.OpID = stock_op_id;
+											k2.Dt   = now_dtm.d;
+											k2.BillNo = 0;
+											while(p_billc->search(2, &k2, spGt) && k2.OpID == stock_op_id && k2.Dt == now_dtm.d) {
+												BillTbl::Rec ex_bill_rec;
+												p_billc->copyBufTo(&ex_bill_rec);
+												if(ex_bill_rec.LocID == wh_id) {
+													THROW(p_bobj->RemovePacket(ex_bill_rec.ID, 0));
+												}
+											}
+										}
+										THROW(bpack.CreateBlank2(stock_op_id, now_dtm.d, wh_id, 0/*use_ta*/));
+										bpack.SetupEdiAttributes(PPEDIOP_MRKTPLC_STOCK, "MP-WILDBERRIES", 0);
+										is_bpack_inited = true;
+									}
+									PPTransferItem ti;
+									const uint new_pos = bpack.GetTCount();
+									THROW(ti.Init(&bpack.Rec, 1));
+									THROW(ti.SetupGoods(goods_id, 0));
+									ti.Quantity_ = p_item->Qtty;
+									THROW(bpack.LoadTItem(&ti, 0, 0));
+									{
+										ObjTagList tag_list;
+										if(p_item->InWayFromClient > 0.0)
+											tag_list.PutItemReal(PPTAG_LOT_MP_STOCK_INWAYTO, p_item->InWayFromClient);
+										if(p_item->InWayToClient > 0.0)
+											tag_list.PutItemReal(PPTAG_LOT_MP_STOCK_INWAYFROM, p_item->InWayToClient);
+										if(checkdate(p_item->DtmLastChange.d)) {
+											ObjTagItem tag_item;
+											if(tag_item.SetTimestamp(PPTAG_LOT_MP_STOCK_TIMESTAMP, p_item->DtmLastChange)) {
+												tag_list.PutItem(PPTAG_LOT_MP_STOCK_TIMESTAMP, &tag_item);
+											}
+										}
+										THROW(bpack.LTagL.Set(new_pos, &tag_list));
+									}
+								}
+							}
+						}
+					}
+					if(is_bpack_inited && bpack.GetTCount()) {
+						bpack.InitAmounts();
+						THROW(p_bobj->TurnPacket(&bpack, 0));						
+					}
+				}
+			}
+			THROW(tra.Commit());
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 {
 	int    ok = -1;
@@ -3253,7 +3373,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 					else {
 						PPID  loc_id = 0;
 						ArticleTbl::Rec ar_rec;
-						ResolveWarehouseByName(WhList, p_entry->Warehouse, LConfig.Location, &loc_id);
+						ResolveWarehouseByName(WhList, p_entry->Warehouse, LConfig.Location, &loc_id, 1/*use_ta*/);
 						switch(native_op_id) {
 							case nativeopCargo:
 								// ppvz_vw, ppvz_vw_nds, rebill_logistic_cost
@@ -3920,6 +4040,8 @@ int PrcssrMarketplaceInterchange::Run()
 		p_ifc_wb->ImportSales();
 		Logger.LogString(PPTXT_MP_PROCESSING_FINTRANSACTIONS, 0);
 		p_ifc_wb->ImportFinancialTransactions();
+		Logger.LogString(PPTXT_MP_PROCESSING_STOCK, 0);
+		p_ifc_wb->ImportStocks();
 	}
 	CATCHZOK
 	PPWait(0);

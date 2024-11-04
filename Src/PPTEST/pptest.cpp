@@ -1316,7 +1316,7 @@ static void PreprocessText(SString & rText)
 	while(oneof2(rText.C(0), '\xD', '\xA'))
 		rText.ShiftLeft();
 	rText.Chomp();
-	rText.ReplaceStr("  ", " ", 0);
+	rText.ElimDblSpaces();
 	rText.Strip();
 }
 

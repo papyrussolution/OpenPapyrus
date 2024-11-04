@@ -3379,12 +3379,12 @@ int IntermediateImportedGoodsCollection::Add(const Entry & rEntry)
 	if(rEntry.Name.NotEmpty() && rEntry.Code.NotEmpty()) {
 		SString temp_buf;
 		(temp_buf = rEntry.Name).Utf8ToLower();
-		temp_buf.ReplaceStr("  ", " ", 0);
+		temp_buf.ElimDblSpaces();
 		InnerEntry new_entry;
 		SStrGroup::AddS(temp_buf, &new_entry.NameP);
 		//
 		temp_buf = rEntry.GrpName;
-		temp_buf.ReplaceStr("  ", " ", 0);
+		temp_buf.ElimDblSpaces();
 		if(temp_buf.NotEmptyS()) {
 			temp_buf.Utf8ToLower();
 			uint   v = 0;
@@ -3401,7 +3401,7 @@ int IntermediateImportedGoodsCollection::Add(const Entry & rEntry)
 		}
 		//
 		temp_buf = rEntry.BrandName;
-		temp_buf.ReplaceStr("  ", " ", 0);
+		temp_buf.ElimDblSpaces();
 		if(temp_buf.NotEmptyS()) {
 			temp_buf.Utf8ToLower();
 			uint   v = 0;

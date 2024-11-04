@@ -6503,7 +6503,7 @@ int PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const DateRan
 				const EgaisRestItem & r_item = items.at(i);
 				if(r_item.GoodsID) {
 					PPTransferItem ti;
-					uint   new_pos = p_bp->GetTCount();
+					const uint new_pos = p_bp->GetTCount();
 					THROW(ti.Init(&p_bp->Rec, 1));
 					THROW(ti.SetupGoods(r_item.GoodsID, 0));
 					{

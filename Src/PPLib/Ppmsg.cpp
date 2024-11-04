@@ -491,7 +491,7 @@ int STDCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int r
 		}
 		rBuf = msgcode ? temp_buf : pAddInfo;
 		if(rmvSpcChrs)
-			rBuf.ReplaceChar('\003', ' ').ReplaceChar('\n', ' ').ReplaceStr("  ", " ", 0); // @v10.6.7 .ReplaceStr("  ", " ", 0)
+			rBuf.ReplaceChar('\003', ' ').ReplaceChar('\n', ' ').ElimDblSpaces(); // @v10.6.7 .ElimDblSpaces()
 	}
 	return 1;
 }

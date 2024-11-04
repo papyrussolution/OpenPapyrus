@@ -1019,7 +1019,7 @@ ROD_QUOTKIND PP_RCDATA {
 // {ID, Name, Symb, ObjType, DataType}
 //
 ROD_TAG PP_RCDATA {
-	113,
+	116,
 	 1, "@{rtag_lotclb}\0",                   "LOTCLB\0",             "LOT\0",        "STRING\0" // @v9.8.11
 	 2, "@{rtag_lotserial}\0",                "LOTSERIAL\0",          "LOT\0",        "STRING\0" // @v9.8.11
 	 4, "@{rtag_posrights}\0",                "POSRIGHTS\0",          "PERSON\0",     "STRING\0"
@@ -1130,9 +1130,12 @@ ROD_TAG PP_RCDATA {
 	116, "@{rtag_person_marketplacesymb}\0",  "MARKETPLACESYMB\0",    "PERSON\0",     "STRING\0" // @v12.1.1 PPTAG_PERSON_MARKETPLACESYMB
 	117, "@{rtag_gua_account}\0",             "GUAACCOUNT\0",         "GLOBALUSER\0", "LINK:ACCOUNT\0" // @v12.1.3 Бухгалтерский счет, связанный с глобальной учетной записью, для учета движения средств.
 	118, "@{rtag_lot_orgorderident}\0",       "ORGORDERIDENT\0",      "LOT\0",        "STRING\0" // @v12.1.4 Оригинальный идентификатор заказа. Обычно импортируемый идентификатор строки заказа.
-	119, "@{rtag_lot_mp_commissionpct}\0",    "MP_COMMISSIONPCT\0",    "LOT\0",        "NUMBER\0" // @v12.1.8 Процент комиссии маркетплейса с цены продажи
-	120, "@{rtag_lot_mp_discountpct}\0",      "MP_DISCOUNTPCT\0",      "LOT\0",        "NUMBER\0" // @v12.1.8 Процентная скидка на товар, предоставляемая маркетплейсом к цене продавца
-	121, "@{rtag_lot_mp_sellersprice}\0",     "MP_SELLERSPRICE\0",     "LOT\0",        "NUMBER\0" // @v12.1.9 Цена товара на маркетплейсе, выставленная продавцом. Эта цена в общем случае может отличаться от цены лота по ряду причин.
+	119, "@{rtag_lot_mp_commissionpct}\0",    "MP_COMMISSIONPCT\0",   "LOT\0",        "NUMBER\0" // @v12.1.8 Процент комиссии маркетплейса с цены продажи
+	120, "@{rtag_lot_mp_discountpct}\0",      "MP_DISCOUNTPCT\0",     "LOT\0",        "NUMBER\0" // @v12.1.8 Процентная скидка на товар, предоставляемая маркетплейсом к цене продавца
+	121, "@{rtag_lot_mp_sellersprice}\0",     "MP_SELLERSPRICE\0",    "LOT\0",        "NUMBER\0" // @v12.1.9 Цена товара на маркетплейсе, выставленная продавцом. Эта цена в общем случае может отличаться от цены лота по ряду причин.
+	122, "@{rtag_lot_mp_stockinwayto}\0",     "MP_STOCK_INWAYTO\0",   "LOT\0",        "NUMBER\0"    // @v12.1.10 Тег строки документа вида PPOPK_EDI_STOCK. Количество торговых единиц товара, находящихся в пути на склад
+	123, "@{rtag_lot_mp_stockinwayfrom}\0",   "MP_STOCK_INWAYFROM\0", "LOT\0",        "NUMBER\0"    // @v12.1.10 Тег строки документа вида PPOPK_EDI_STOCK. Количество торговых единиц товара, находящихся в пути со склада
+	124, "@{rtag_lot_mp_stocktimestamp}\0",   "MP_STOCK_TIMESTAMP\0", "LOT\0",        "TIMESTAMP\0" // @v12.1.10 Тег строки документа вида PPOPK_EDI_STOCK. Момент актуалности элемента остатков, полученных от маркетплейса.
 
 	//#define PPTAG_LOC_VETIS_REGIONGUID  99L // @v11.0.10 ВЕТИС-идент региона локации (склад или адрес доставки) // в терминах ВЕТИС - region GUID (не UUID)
 	// 40, "ФСРАР код товара\0",             "FSRARGOODSCODE\0",    "GOODS\0",      "STRING\0"

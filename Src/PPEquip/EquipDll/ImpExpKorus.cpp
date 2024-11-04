@@ -2739,6 +2739,6 @@ void ProcessError(EDIWebServiceSoapProxy & rProxy)
 	temp_buf = temp_err_buf;
 	temp_buf.ReplaceChar('\x0A', ' ');
 	temp_buf.ReplaceChar('\x0D', ' ');
-	temp_buf.ReplaceStr("  ", " ", 0);
+	temp_buf.ElimDblSpaces();
 	StrError = temp_buf;
 }

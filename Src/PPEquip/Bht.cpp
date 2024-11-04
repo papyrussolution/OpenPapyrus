@@ -4441,7 +4441,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 							PPLoadString("bailment", temp_buf);
 						//PPGetMessage(mfError, PPERR_INVBHTTOHOSTOP, 0, 1, msg_buf);
 						PPLoadString(PPMSG_ERROR, PPERR_INVBHTTOHOSTOP, msg_buf);
-						msg_buf.ReplaceChar('\003', ' ').ReplaceChar('\n', ' ').ReplaceStr("  ", " ", 0);
+						msg_buf.ReplaceChar('\003', ' ').ReplaceChar('\n', ' ').ElimDblSpaces();
 						add_info.Printf(msg_buf, temp_buf.cptr(), sdr_bill.SampleID, s_dt.cptr(), bill_code.cptr());
 						// @v11.3.12 @fix buf.ShiftLeft();
 						pLog->Log(/*buf*/add_info);

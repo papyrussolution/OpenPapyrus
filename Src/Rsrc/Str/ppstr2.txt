@@ -2347,6 +2347,7 @@ PPERR_COMPIDENTAMBIG_GUID           "Неоднозначность в иден�
 PPERR_COMPIDENTAMBIG_MACADR         "Неоднозначность в идентификации компьютера по MAC-адресу (%s)"
 PPERR_GCFORMBYSYMBNFOUND            "Формула класса товаров по символу не найдена (%s)"
 PPERR_GCHASNTFORMULALIST            "Класс товаров '%s' не содержит формул общего назначения"
+PPERR_MP_WAREHOUSEIDENTFAULT        "Ошибка разрешения склада маркетплейса по имени (%s)"
 
 // LastError
 
@@ -4715,7 +4716,7 @@ PPTXT_LAB_SELECTGSTRUC              "Выберите структуру тов�
 PPTXT_MOVSCARDREST                  "Перенос остатков с карт"
 PPTXT_EDIOP                         /!/ "1,ORDER;2,ORDERRSP;3,APERAK;4,DESADV;5,RECADV;6,DECLINEORDER;7,ALCODESADV;8,SALESORDER;9,PARTIN;10,INVOIC;11,RETURNREQ;\
 	21,EGAIS-WAYBILL;22,EGAIS-TICKET;23,EGAIS-WAYBILLACT;42,EGAIS-REPLYRESTS;50,EGAIS-REPLYRESTSSHOP;59,PPEDIOP_EGAIS_WAYBILL_V2;\
-	66,PPEDIOP_EGAIS_WAYBILL_V3;77,PPEDIOP_EGAIS_WAYBILL_V4;101,MRKTPLC_RECEIPT;102,MRKTPLC_ORDER;103,MRKTPLC_SALE"
+	66,PPEDIOP_EGAIS_WAYBILL_V3;77,PPEDIOP_EGAIS_WAYBILL_V4;101,MRKTPLC_RECEIPT;102,MRKTPLC_ORDER;103,MRKTPLC_SALE;104,MRKTPLC_STOCK"
 PPTXT_EDIEXPCMD                     "1,ORDER,@{booking};2,RECADV,Уведомление о приходе"
 PPTXT_EDIIMPCMD                     "1000,FULLCYCLE,Полный обмен;1,APERAK,Получение статуса;2,ORDRSP,Подтверждение заказа;3,DESADV,Уведомление об отгрузке;4,ALCODESADV,Атрибуты алкогольной продукции"
 PPTXT_WAITFORWRSHRFILENOTIFY        "Ожидание завершения записи в файл '@zstr' продлилось @int ms" // @v11.9.2 @fix %-->@
@@ -5079,6 +5080,7 @@ PPTXT_MP_PROCESSING_RECEIPTS         "Маркетплейс: обработка
 PPTXT_MP_PROCESSING_ORDERS           "Маркетплейс: обработка заказов"
 PPTXT_MP_PROCESSING_SALES            "Маркетплейс: обработка продаж"
 PPTXT_MP_PROCESSING_FINTRANSACTIONS  "Маркетплейс: обработка финансовых транзакций"
+PPTXT_MP_PROCESSING_STOCK            "Маркетплейс: обработка остатков"
 PPTXT_MP_FINTRA_WB_REQ               "Запрос отчета о продажах по реализации за период %s"
 PPTXT_MP_FINTRA_WB_REPEMPTY          "Сервер Wildberries вернул пустой результат"
 //
@@ -8592,8 +8594,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_gua_account                         "Счет глобальной учетной записи" // @v12.1.3
 @rtag_lot_orgorderident                   "Оригинальный идентификатор заказа" // @v12.1.4
 @rtag_lot_mp_commissionpct                "Маркетплейс: процент комиссии от цены продавца" // @v12.1.8
-@rtag_lot_mp_discountpct                  "Маркетплейс: процент скидки от цены продавца" // @v12.1.8
-@rtag_lot_mp_sellersprice                 "Маркетплейс: цена продавца" // @v12.1.9
+@rtag_lot_mp_discountpct                  "Маркетплейс: процент скидки от цены продавца"   // @v12.1.8
+@rtag_lot_mp_sellersprice                 "Маркетплейс: цена продавца"                     // @v12.1.9
+@rtag_lot_mp_stockinwayto                 "Маркетплейс: количество, движущееся на склад"   // @v12.1.10
+@rtag_lot_mp_stockinwayfrom               "Маркетплейс: количество, движущееся со склада"  // @v12.1.10
+@rtag_lot_mp_stocktimestamp               "Маркетплейс: время актуальности остатка"        // @v12.1.10
 //
 // Зарезервированные типы регистрационных документов
 //

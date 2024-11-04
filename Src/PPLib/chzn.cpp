@@ -1700,7 +1700,7 @@ int ChZnInterface::SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock 
 	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_CHZN_PM_TOKEN, rBlk.PermissiveModeToken); // @v11.9.11
 	if(rBlk.Cn.NotEmptyS()) {
 		//rBlk.Cn.ReplaceStr("\"", " ", 0);
-		//rBlk.Cn.ReplaceStr("  ", " ", 0);
+		//rBlk.Cn.ElimDblSpaces();
 		rBlk.Cn.Transf(CTRANSF_INNER_TO_OUTER);
 	}
 	if(rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_PROTOCOL, temp_buf) > 0) {
@@ -1771,7 +1771,7 @@ int ChZnInterface::GetSign(const InitBlock & rIb, const void * pData, size_t dat
 			{
 				cn = rIb.Cn;
 				cn.ReplaceStr("\"", " ", 0);
-				cn.ReplaceStr("  ", " ", 0);
+				cn.ElimDblSpaces();
 				cn.Strip();
 			}
 			temp_buf.Space().Cat("-sfsign").Space().Cat("-sign").Space().Cat("-in").Space().Cat(in_file_name).Space().
@@ -2036,7 +2036,7 @@ const CERT_CONTEXT * ChZnInterface::GetClientSslCertificate(InitBlock & rIb)
 		SStringU cnu;
 		SString temp_buf = rIb.Cn;
 		//temp_buf.ReplaceStr("\"", " ", 0);
-		//temp_buf.ReplaceStr("  ", " ", 0);
+		//temp_buf.ElimDblSpaces();
 		temp_buf.Strip();
 		cnu.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
 

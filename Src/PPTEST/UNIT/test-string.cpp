@@ -440,7 +440,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			//
 			(str = "abcabc").ReplaceStr("abc", "abcd", 0);
 			SLCHECK_EQ(str, "abcdabcd");
-			(str = "  ab  cab  c  ").ReplaceStr("  ", " ", 0);
+			(str = "  ab  cab  c  ").ElimDblSpaces();
 			SLCHECK_EQ(str, " ab cab c ");
 			(str = "$ab$$cab$c$").ReplaceStr("$", "$$", 0);
 			SLCHECK_EQ(str, "$$ab$$$$cab$$c$$");
