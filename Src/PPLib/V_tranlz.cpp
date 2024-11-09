@@ -1054,7 +1054,7 @@ int PPViewTrfrAnlz::GetDlvrLocID(const BillTbl::Rec * pBillRec, PPID * pDlvrLocI
 	else {
 		PPFreight freight;
 		if(pBillRec->Flags & BILLF_FREIGHT && P_BObj->P_Tbl->GetFreight(pBillRec->ID, &freight) > 0)
-			dlvr_loc_id = freight.DlvrAddrID;
+			dlvr_loc_id = freight.DlvrAddrID__;
 	}
 	ASSIGN_PTR(pDlvrLocID, dlvr_loc_id);
 	return dlvr_loc_id ? 1 : -1;
@@ -5462,12 +5462,12 @@ int PrcssrAlcReport::GetBillLic(PPID billID, PPID * pRegID, RegisterTbl::Rec * p
 			ret = licsrcBillExt;
 		}
 		else {
-			PPID   psn_id = ObjectToPerson(bill_rec.Object);
+			const  PPID psn_id = ObjectToPerson(bill_rec.Object);
 			PPID   loc_id = 0;
 			if(psn_id) {
 				PPFreight freight;
-				if(P_BObj->FetchFreight(billID, &freight) > 0 && freight.DlvrAddrID)
-					loc_id = freight.DlvrAddrID;
+				if(P_BObj->FetchFreight(billID, &freight) > 0 && freight.DlvrAddrID__)
+					loc_id = freight.DlvrAddrID__;
 				int    r = GetWkrRegister(wkrAlcLic, psn_id, loc_id, bill_rec.Dt, &lic_reg_rec);
 				if(r == 2)
 					ret = licsrcDlvrLoc;

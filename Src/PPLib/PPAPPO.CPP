@@ -1160,7 +1160,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 					//if(SsStyloQDbSymb.getCount()) {
 					if(!(R_P.Flags & PPLoginDialogParam::fDisableStqQrLogin) && StqSvcDbMap.getCount()) { // @v11.6.9 (!(R_P.Flags & PPLoginDialogParam::fDisableStqQrLogin) &&)
 						TImageView * p_iv = static_cast<TImageView *>(getCtrlView(CTL_LOGIN_QR));
-						if(p_iv && p_iv->IsSubSign(TV_SUBSIGN_IMAGEVIEW)) {
+						if(TView::IsSubSign(p_iv, TV_SUBSIGN_IMAGEVIEW)) {
 							SString inv_text;
 							const  PPID dbid = getCtrlLong(CTLSEL_LOGIN_DB);
 							PPStyloQInterchange::StopStyloQServer();

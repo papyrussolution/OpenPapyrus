@@ -3372,19 +3372,19 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 						dlvr_loc_as_warehouse = 1;
 				}
 				if(dlvr_loc_as_warehouse) {
-					SetupPPObjCombo(this, CTLSEL_FREIGHT_DLVRLOC, PPOBJ_LOCATION, Data.DlvrAddrID, 0);
+					SetupPPObjCombo(this, CTLSEL_FREIGHT_DLVRLOC, PPOBJ_LOCATION, Data.DlvrAddrID__, 0);
 				}
 				else {
 					const  PPID psn_id = ObjectToPerson(R_Pack.Rec.Object);
-					if(psn_id || Data.DlvrAddrID)
-						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, psn_id, Data.DlvrAddrID);
+					if(psn_id || Data.DlvrAddrID__)
+						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, psn_id, Data.DlvrAddrID__);
 					//
 					// Для внутренней передачи необходимо обеспечить возможность в качестве адреса доставки
 					// выбрать склад-получатель.
 					//
 					else if(IsIntrOp(R_Pack.Rec.OpID) == INTREXPND) {
 						const PPID loc_id = PPObjLocation::ObjToWarehouse(R_Pack.Rec.Object);
-						if(loc_id || Data.DlvrAddrID) {
+						if(loc_id || Data.DlvrAddrID__) {
 							ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_FREIGHT_DLVRLOC));
 							if(p_combo) {
 								PPObjLocation loc_obj;
@@ -3394,22 +3394,22 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 									GetLocationName(loc_id, temp_buf);
 									p_list->Add(loc_id, temp_buf);
 								}
-								if(Data.DlvrAddrID != loc_id && Data.DlvrAddrID) {
+								if(Data.DlvrAddrID__ != loc_id && Data.DlvrAddrID__) {
 									LocationTbl::Rec loc_rec;
-									if(loc_obj.Fetch(Data.DlvrAddrID, &loc_rec) > 0) {
+									if(loc_obj.Fetch(Data.DlvrAddrID__, &loc_rec) > 0) {
 										if(loc_rec.Name[0])
 											temp_buf = loc_rec.Name;
 										else {
 											loc_obj.P_Tbl->GetAddress(loc_rec, 0, temp_buf);
 											if(!temp_buf.NotEmptyS())
-												ideqvalstr(Data.DlvrAddrID, temp_buf);
+												ideqvalstr(Data.DlvrAddrID__, temp_buf);
 										}
 										p_list->Add(loc_id, temp_buf);
 									}
 								}
 								ListWindow * p_lw = CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify);
 								if(p_lw)
-									p_combo->setListWindow(p_lw, Data.DlvrAddrID);
+									p_combo->setListWindow(p_lw, Data.DlvrAddrID__);
 							}
 						}
 					}
@@ -3446,7 +3446,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			getCtrlData(CTL_FREIGHT_NMBORIGSBSL, &Data.NmbOrigsBsL);
 			if(!R_Pack.Rec.ID || BillObj->CheckRights(PPR_MOD))
 				Data.Cost = getCtrlReal(CTL_FREIGHT_COST);
-			getCtrlData(CTLSEL_FREIGHT_DLVRLOC,  &Data.DlvrAddrID);
+			getCtrlData(CTLSEL_FREIGHT_DLVRLOC,  &Data.DlvrAddrID__);
 			GetClusterData(CTL_FREIGHT_SHIPPED,  &R_Pack.Rec.Flags);
 			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG

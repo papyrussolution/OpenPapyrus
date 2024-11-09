@@ -685,8 +685,8 @@ private:
 		int32  ID;
 		int16  Date;
 		char   Code[10];
-		int32  ClientID;     // -> Client.ID
-		int32  DlvrAddrID;   // -> ClientAddr.ID
+		int32  ClientID;   // -> Client.ID
+		int32  DlvrAddrID; // -> ClientAddr.ID
 		char   Memo[160];
 	};
 	struct OrdLine {

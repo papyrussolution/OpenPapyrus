@@ -379,7 +379,7 @@ int PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFreightTb
 			pRec->ArrvlDate  = freight.ArrivalDate;
 			pRec->ShipID     = freight.ShipID;
 			pRec->PortID     = freight.PortOfDischarge;
-			pRec->DlvrAddrID = freight.DlvrAddrID;
+			pRec->DlvrAddrID = freight.DlvrAddrID__;
 			if(pRec->ShipID && TrObj.Search(pRec->ShipID, &tr_rec) > 0) {
 				StrPool.AddS(tr_rec.Name, &pRec->ShipNameP);
 			}
@@ -710,7 +710,7 @@ int PPViewFreight::UpdateFeatures()
     int    ok = -1;
     PPID   tr_type = PPTRTYP_CAR;
     PPID   ship_id = 0;
-	PPID   captain_id = 0; // @v10.0.11
+	PPID   captain_id = 0;
     long   shipm_flag_mode = -1;
 	enum {
 		fSetPortOfDischargeByTrunkPt = 0x0001
@@ -760,12 +760,10 @@ int PPViewFreight::UpdateFeatures()
 							freight.ShipID = ship_id;
 							do_update |= 1;
                         }
-						// @v10.0.11 {
 						if(captain_id && freight.CaptainID != captain_id) {
 							freight.CaptainID = captain_id;
 							do_update |= 1;
 						}
-						// } @v10.0.11 
                         if(checkdate(issue_date) && freight.IssueDate != issue_date) {
 							freight.IssueDate = issue_date;
 							do_update |= 1;
@@ -785,18 +783,22 @@ int PPViewFreight::UpdateFeatures()
 							do_update |= 2;
 						}
                     }
-					// @v11.2.10 {
-					if(_flags & fSetPortOfDischargeByTrunkPt && freight.DlvrAddrID) {
-						const  PPID preserver_port_of_discharge = freight.PortOfDischarge;
-						if(!preserver_port_of_discharge) {
-							PPID trunk_point_id = LocObj.GetTrunkPointByDlvrAddr(freight.DlvrAddrID);
-							if(trunk_point_id) {
-								freight.PortOfDischarge = trunk_point_id;
-								do_update |= 1;
+					{
+						PPID   dlvr_loc_id = 0; // @v12.1.11
+						// @v11.2.10 {
+						if(_flags & fSetPortOfDischargeByTrunkPt && P_BObj->GetDlvrAddrID(bill_rec, &freight, &dlvr_loc_id) > 0) {
+							assert(dlvr_loc_id);
+							const  PPID preserver_port_of_discharge = freight.PortOfDischarge;
+							if(!preserver_port_of_discharge) {
+								PPID trunk_point_id = LocObj.GetTrunkPointByDlvrAddr(dlvr_loc_id);
+								if(trunk_point_id) {
+									freight.PortOfDischarge = trunk_point_id;
+									do_update |= 1;
+								}
 							}
 						}
+						// } @v11.2.10 
 					}
-					// } @v11.2.10 
                     if(do_update) {
 						int    bill_updated = 0;
 						PPTransaction tra(1);

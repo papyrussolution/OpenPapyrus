@@ -2486,7 +2486,7 @@ int PPALDD_IntArray::NextIteration(long iterId)
 	int    ok = -1;
 	IterProlog(iterId, 0);
 	LongArray * p_list = static_cast<LongArray *>(Extra[0].Ptr);
-	if(p_list && p_list->getPointer() < p_list->getCount()) {
+	if(p_list && p_list->testPointer()) {
 		I.Id = p_list->get(p_list->getPointer());
 		p_list->incPointer();
 		ok = DlRtm::NextIteration(iterId);
@@ -2524,7 +2524,7 @@ int PPALDD_QuotArray::NextIteration(long iterId)
 	int    ok = -1;
 	IterProlog(iterId, 0);
 	PPQuotItemArray * p_list = static_cast<PPQuotItemArray *>(Extra[0].Ptr);
-	if(p_list && p_list->getPointer() < p_list->getCount()) {
+	if(p_list && p_list->testPointer()) {
 		PPQuotItem_ & r_item = p_list->at(p_list->getPointer());
 		I.GoodsID = r_item.GoodsID;
 		I.KindID = r_item.KindID;
@@ -2599,7 +2599,7 @@ int PPALDD_UhttStoreItemArray::NextIteration(long iterId)
 	int    ok = -1;
 	IterProlog(iterId, 0);
 	PPQuotItemArray * p_list = static_cast<PPQuotItemArray *>(Extra[0].Ptr);
-	if(p_list && p_list->getPointer() < p_list->getCount()) {
+	if(p_list && p_list->testPointer()) {
 		PPQuotItem_ & r_item = p_list->at(p_list->getPointer());
 		I.GoodsID = r_item.GoodsID;
 		I.CurID = r_item.CurID;
@@ -2651,7 +2651,7 @@ int PPALDD_UhttCurRateArray::NextIteration(long iterId)
 	SString temp_buf;
 	IterProlog(iterId, 0);
 	TSArray <UhttCurRateIdent> * p_list = static_cast<TSArray <UhttCurRateIdent> *>(Extra[0].Ptr);
-	if(p_list && p_list->getPointer() < p_list->getCount()) {
+	if(p_list && p_list->testPointer()) {
 		UhttCurRateIdent & r_item = p_list->at(p_list->getPointer());
 		I.CurID = r_item.Ident.CurID;
 		I.BaseCurID = r_item.Ident.BaseCurID;

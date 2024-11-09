@@ -692,6 +692,7 @@ toolbar export LOTS TB_FIRST_TOOLBAR {
 	EXPGOODSLABEL : kbCtrlF8, PPDV_EXPORT01,        "Экспорт данных для ценников\tCtrl-F8"
 	TOTAL         : kbF9,     PPDV_SIGMA02,         "@{totals}\tF9"
 	DORECOVER     : kbCtrlR,  PPDV_REPAIR02,        "@{verificationandrecovery}\tCtrl-R"
+	TEST          : kbCtrlT,  PPDV_TEST01,          "debug: Тест расчета среднего остатка за период\tCtrl-T" // @v12.1.11 @todo убрать после отработки
 	separator
 	CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,        "@{filter}\tCtrl-V"
 	CHANGECLOSEPAR: kbCtrlA,  PPDV_TOGGLE01,        "@{all}/@{openedonly_pl}"
@@ -2328,6 +2329,7 @@ browser LOT2 north(100), 1, 0, "@{view_lot} {%s}", OWNER|GRID, 0
 
 browser LOTOPER2 north(100), 3, 0, "@{view_lot} {%s}", OWNER|GRID, 0
 {
+	"@id",             0, notype, 0, 8 // @v12.1.11
 	"@date",           1, notype, DATF_DMY, 8
 	"@billno",        12, notype, 0, 12 // @v11.1.6
 	"@warehouse",      3, notype, 0, 16

@@ -2154,7 +2154,7 @@ int PPViewTimeSeries::InitIteration()
 int FASTCALL PPViewTimeSeries::NextIteration(TimeSeriesViewItem * pItem)
 {
 	int    ok = -1;
-	while(ok < 0 && P_DsList && P_DsList->getPointer() < P_DsList->getCount()) {
+	while(ok < 0 && P_DsList && P_DsList->testPointer()) {
 		const BrwItem * p_item = static_cast<const BrwItem *>(P_DsList->at(P_DsList->getPointer()));
 		if(p_item && Obj.Search(p_item->ID, pItem) > 0)
 			ok = 1;

@@ -801,8 +801,8 @@ int PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnu
 					continue;
 				if(EffDlvrLocID) {
 					PPFreight freight;
-					if(!(P_BObj->FetchFreight(rec.BillID, &freight) > 0 && freight.DlvrAddrID == EffDlvrLocID)) {
-						if(!(bill_entry.LinkBillID && P_BObj->FetchFreight(bill_entry.LinkBillID, &freight) > 0 && freight.DlvrAddrID == EffDlvrLocID))
+					if(!(P_BObj->FetchFreight(rec.BillID, &freight) > 0 && freight.DlvrAddrID__ == EffDlvrLocID)) {
+						if(!(bill_entry.LinkBillID && P_BObj->FetchFreight(bill_entry.LinkBillID, &freight) > 0 && freight.DlvrAddrID__ == EffDlvrLocID))
 							continue;
 					}
 				}

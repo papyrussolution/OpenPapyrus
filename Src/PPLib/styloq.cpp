@@ -12448,7 +12448,7 @@ int PPStyloQInterchange::ExecuteInvitationDialog(InterchangeParam & rData)
 		{
 			assert(Invitation.NotEmpty());
 			TImageView * p_iv = static_cast<TImageView *>(getCtrlView(CTL_STQINV_QR));
-			if(p_iv && p_iv->IsSubSign(TV_SUBSIGN_IMAGEVIEW)) {
+			if(TView::IsSubSign(p_iv, TV_SUBSIGN_IMAGEVIEW)) {
 				HWND h_iv = p_iv->getHandle();
 				if(h_iv) {
 					RECT img_rect;

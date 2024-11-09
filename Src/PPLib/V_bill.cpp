@@ -7157,7 +7157,7 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 				H.ConsigneeReq = main_org_id;
 			}
 			else {
-				H.RcvrLocID = (bill_f & BILLF_FREIGHT && p_pack->P_Freight) ? p_pack->P_Freight->DlvrAddrID : 0;
+				H.RcvrLocID = (bill_f & BILLF_FREIGHT && p_pack->P_Freight) ? p_pack->P_Freight->DlvrAddrID__ : 0;
 				if(parent_person_id) {
 					H.RcvrID = parent_person_id;
 					H.ConsigneeReq = psn_id;
@@ -7663,7 +7663,7 @@ int PPALDD_GoodsBillDispose::InitData(PPFilt & rFilt, long rsrv)
 				H.ConsigneeReq = main_org_id;
 			}
 			else {
-				H.RcvrLocID = (bill_f & BILLF_FREIGHT && p_pack->P_Freight) ? p_pack->P_Freight->DlvrAddrID : 0;
+				H.RcvrLocID = (bill_f & BILLF_FREIGHT && p_pack->P_Freight) ? p_pack->P_Freight->DlvrAddrID__ : 0;
 				if(parent_person_id) {
 					H.RcvrID = parent_person_id;
 					H.ConsigneeReq = psn_id;
@@ -7994,11 +7994,11 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 				H.TranspID       = freight.ShipID;
 				H.PortOfLoading  = freight.PortOfLoading;
 				H.PortOfDschrg   = freight.PortOfDischarge;
-				H.DlvrLocID      = freight.DlvrAddrID;
+				H.DlvrLocID      = freight.DlvrAddrID__;
 				H.IssueDate      = freight.IssueDate;
 				H.ArrivalDate    = freight.ArrivalDate;
 				H.CaptainID      = freight.CaptainID;
-				H.Captain2ID     = freight.Captain2ID; // @v10.9.2
+				H.Captain2ID     = freight.Captain2ID;
 				H.VesselsAgentID = freight.AgentID;
 				H.NmbOrigsBsL    = freight.NmbOrigsBsL;
 			}
@@ -9885,7 +9885,7 @@ int PPALDD_UhttDraftTransitGoodsRestList::NextIteration(long iterId)
 	int    ok = -1;
 	IterProlog(iterId, 0);
 	TSVector <UhttGoodsRestVal> * p_list = static_cast<TSVector <UhttGoodsRestVal> *>(Extra[0].Ptr);
-	if(p_list && (p_list->getPointer() < p_list->getCount())) {
+	if(p_list && p_list->testPointer()) {
 		UhttGoodsRestVal & r_gr_val = p_list->at(p_list->getPointer());
 		I.GoodsID = r_gr_val.GoodsID;
 		I.LocID = r_gr_val.LocID;

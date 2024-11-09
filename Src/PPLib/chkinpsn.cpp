@@ -517,7 +517,7 @@ void PPCheckInPersonArray::InitIteration()
 int FASTCALL PPCheckInPersonArray::NextIteration(PPCheckInPersonItem & rItem)
 {
 	int    ok = 1;
-	if(SVector::getPointer() < SVector::getCount()) {
+	if(SVector::testPointer()) {
 		rItem = at(SVector::incPointer());
 	}
 	else {

@@ -670,7 +670,7 @@ int FASTCALL PPViewTSession::NextIteration(TSessionViewItem * pItem)
 			ASSIGN_PTR(pItem, Ib.CurItem);
 			ok = 1;
 		}
-		else if(Ib.Order & ordfWithBill && Ib.WrOffBillList.getPointer() < Ib.WrOffBillList.getCount()) {
+		else if(Ib.Order & ordfWithBill && Ib.WrOffBillList.testPointer()) {
 			Ib.CurItem.WrOffBillID = Ib.WrOffBillList.get(Ib.WrOffBillList.getPointer());
 			Ib.WrOffBillList.incPointer();
 			ASSIGN_PTR(pItem, Ib.CurItem);

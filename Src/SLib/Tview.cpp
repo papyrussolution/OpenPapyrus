@@ -618,7 +618,7 @@ int TView::RestoreOnDestruction()
 int TView::SetupText(SString * pText)
 {
 	int    ok = -1;
-	if(P_Owner && P_Owner->IsSubSign(TV_SUBSIGN_DIALOG) && static_cast<TDialog *>(P_Owner)->CheckFlag(TDialog::fExport))
+	if(TView::IsSubSign(P_Owner, TV_SUBSIGN_DIALOG) && static_cast<TDialog *>(P_Owner)->CheckFlag(TDialog::fExport))
 		ok = -1;
 	else {
 		SString temp_buf;
@@ -641,7 +641,7 @@ TView * TView::prev() const
 	return p;
 }
 
-int    FASTCALL TView::IsSubSign(uint sign) const { return BIN(SubSign == sign); }
+bool   FASTCALL TView::IsSubSign(uint sign) const { return (SubSign == sign); }
 void   TView::Show(int doShow) { ::ShowWindow(getHandle(), doShow ? SW_SHOW : SW_HIDE); }
 int    TView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) { return  0; }
 TView * TView::nextView() const { return (this == P_Owner->GetLastView()) ? 0 : P_Next; }

@@ -189,7 +189,6 @@ SString & FASTCALL DocNalogRu_Base::Helper_GetToken(long tokId)
 
 const SString & FASTCALL DocNalogRu_Generator::GetToken_Ansi(long tokId) 
 { 
-	//return Helper_GetToken(tokId).Transf(CTRANSF_INNER_TO_OUTER); 
 	return Helper_GetToken(tokId).Transf(oneof2(Cp, cpUndef, cp1251) ? CTRANSF_INNER_TO_OUTER : CTRANSF_INNER_TO_UTF8); 
 }
 
@@ -4152,7 +4151,7 @@ int PPBillImpExpBaseProcessBlock::SearchEdiOrder(const SearchBlock & rBlk, BillT
 					PPFreight freight;
 					LocationTbl::Rec loc_rec;
 					// Смотрим адрес доставки. Он может быть в DlvrAddrCode и в LocCode
-					if(t->GetFreight(bill_rec.ID, &freight) && LocObj.Fetch(freight.DlvrAddrID, &loc_rec) > 0 && dlvr_loc_code.IsEqNC(loc_rec.Code)) {
+					if(t->GetFreight(bill_rec.ID, &freight) && LocObj.Fetch(freight.DlvrAddrID__, &loc_rec) > 0 && dlvr_loc_code.IsEqNC(loc_rec.Code)) {
 						order_bill_id = bill_rec.ID;
 						ok = 1;
 					}

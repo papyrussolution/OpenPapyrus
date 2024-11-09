@@ -1952,7 +1952,7 @@ int ImportCls::ReceiveDoc(uint messageType)
 		MsgList.incPointer();
 	*/
 	//while(MsgInfoList.getPointer() < MsgInfoList.getCount()) {
-	while(MsgList.getPointer() < MsgList.getCount()) {
+	while(MsgList.testPointer()) {
 		//const MessageInfoBlock * p_info_blk = MsgInfoList.at(MsgInfoList.getPointer());
 		//MsgInfoList.incPointer();
 		const PPEdiMessageEntry & r_eme = MsgList.at(MsgList.getPointer());

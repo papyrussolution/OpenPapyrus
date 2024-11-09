@@ -7,6 +7,11 @@
 //
 // @ModuleDef(PPViewLot)
 //
+LotFilt::FiltExtraParam::FiltExtraParam(int kind) : Kind(kind)
+{
+	assert(oneof2(Kind, kRegular, kOrders));
+}
+
 int LotFilt::InitInstance()
 {
 	P_TagF = 0;
@@ -1409,6 +1414,27 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 		Reference * p_ref = PPRef;
 		PPID   lot_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
+			// @debug {
+			case PPVCMD_TEST:
+				if(Filt.Operation.low && Filt.Operation.upp) {
+					SString temp_buf;
+					PPGetFilePath(PPPATH_OUT, "EvaluateAverageRestByLot-debug.txt", temp_buf);
+					SFile f_out(temp_buf, SFile::mWrite);
+					if(f_out.IsValid()) {
+						LotViewItem view_item;
+						for(InitIteration(); NextIteration(&view_item) > 0;) {
+							double avg_rest = 0.0;
+							P_BObj->trfr->EvaluateAverageRestByLot(view_item.ID, Filt.Operation, &avg_rest);
+							if(view_item.BegRest != 0.0 || view_item.EndRest != 0.0 || avg_rest != 0.0) {
+								temp_buf.Z().CatEq("id", view_item.ID).Space().CatEq("b", view_item.BegRest, MKSFMTD(0, 3, 0)).Space().
+									CatEq("e", view_item.EndRest, MKSFMTD(0, 3, 0)).Space().CatEq("avg", avg_rest, MKSFMTD(0, 3, 0));
+								f_out.WriteLine(temp_buf.CR());
+							}
+						}
+					}
+				}
+				break;
+			// } @debug 
 			case PPVCMD_EDITGOODS:
 				ok = -1;
 				{
@@ -2312,10 +2338,10 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 		}
 	}
 	else if(Filt.ParentLotID) {
-		if(Itd.IdList.getPointer() < Itd.IdList.getCount()) {
+		if(Itd.IdList.testPointer()) {
 			MEMSZERO(item);
 			Counter.Increment();
-			PPID   lot_id = Itd.IdList.get(Itd.IdList.incPointer());
+			const PPID lot_id = Itd.IdList.get(Itd.IdList.incPointer());
 			if(P_Tbl->Search(lot_id) > 0) {
 				*static_cast<ReceiptTbl::Rec *>(&item) = P_Tbl->data;
 				if(!(State & stAccsCost))
@@ -3657,8 +3683,7 @@ int PPViewLotExtCode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 			case PPVCMD_INPUTCHAR:
 				if(pHdr) {
 					char c = *static_cast<const char *>(pHdr);
-					const char uc = toupper(c);
-					if(isdec(c) || (uc >= 'A' && uc <= 'Z')) {
+					if(isasciialnum(c)) {
 						LotExtCodeTbl::Rec rec;
 						rec.LotID = Filt.LotID;
                 		if(EditLotExtCode(rec, c) > 0) {

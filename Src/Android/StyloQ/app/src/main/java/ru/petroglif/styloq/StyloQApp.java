@@ -1,5 +1,5 @@
 // StyloQApp.java
-// Copyright (c) A.Sobolev 2021, 2022
+// Copyright (c) A.Sobolev 2021, 2022, 2024
 //
 package ru.petroglif.styloq;
 
@@ -64,7 +64,7 @@ public class StyloQApp extends SLib.App {
 	private Timer SvcPollTmr;
 	private Timer SeenNotificationListProcessingTmr;
 	private AppUpdateManager AppUpdMgr;
-	private InstallStateUpdatedListener InstallStateUpdatedListener;
+	private com.google.android.play.core.install.InstallStateUpdatedListener InstallStateUpdatedListener;
 	private NetworkConnectionInfoManager.Status NetworkStatus; // @v12.0.6
 	private boolean NetworkDisabled; // @v12.0.11
 

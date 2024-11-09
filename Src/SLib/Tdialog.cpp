@@ -772,7 +772,7 @@ void TDialog::DisableClusterItem(uint ctlID, int itemNo, bool toDisable)
 void TDialog::DisableClusterItems(uint ctlID, const LongArray & rItemIdxList /* 0.. */, bool toDisable) // @v11.6.2
 {
 	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
-	if(p_clu && p_clu->IsSubSign(TV_SUBSIGN_CLUSTER)) {
+	if(TView::IsSubSign(p_clu, TV_SUBSIGN_CLUSTER)) {
 		for(uint i = 0; i < rItemIdxList.getCount(); i++) {
 			const int item_idx = rItemIdxList.get(i);
 			if(item_idx >= 0)
@@ -808,7 +808,7 @@ int TDialog::SetupInputLine(uint ctlID, TYPEID typ, long format)
 {
 	int    ok = 0;
 	TInputLine * p_v = static_cast<TInputLine *>(getCtrlView(ctlID));
-	if(p_v && p_v->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
+	if(TView::IsSubSign(p_v, TV_SUBSIGN_INPUTLINE)) {
 		p_v->setFormat(format);
 		p_v->setType(typ);
 		ok = 1;
@@ -1445,7 +1445,6 @@ int TDialog::SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id,
 			}
 		}
 		else if(p_v->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
-			// @v10.7.7 {
 			if(flags & WordSel_ExtraBlock::fFreeText) {
 				//
 				// В случае WordSel_ExtraBlock::fFreeText нулевой pExtra сбросит текущую установку селектора
@@ -1455,7 +1454,6 @@ int TDialog::SetupWordSelector(uint ctlID, WordSel_ExtraBlock * pExtra, long id,
 				p_il->setupFreeTextWordSelector(pExtra);
 				ok = 1;
 			}
-			// } @v10.7.7 
 			else if(pExtra) {
 				pExtra->Init(CTL_LBX_LIST, 0, this, p_v->GetId(), minSymbCount, flags);
 				p_v->SetWordSelBlock(pExtra);

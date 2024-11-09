@@ -1050,7 +1050,7 @@ int Transfer::GetRest(PPID lotID, LDATE date, long oprno, double * pRest, double
 	k.LotID = lotID;
 	k.Dt    = date;
 	k.OprNo = oprno;
-	int    r = (search(2, &k, spLe) && k.LotID == lotID) ? 1 : PPDbSearchError();
+	const int r = (search(2, &k, spLe) && k.LotID == lotID) ? 1 : PPDbSearchError();
 	if(r > 0) {
 		ASSIGN_PTR(pRest, R6(data.Rest));
 		ASSIGN_PTR(pPhRest, R6(data.WtRest));
@@ -1122,6 +1122,57 @@ int Transfer::GetAvailableGoodsRest(PPID goodsID, PPID locID, const DateRange & 
 	}
 	CATCHZOK
 	ASSIGN_PTR(pRest, rest);
+	return ok;
+}
+
+int Transfer::EvaluateAverageRestByLot(PPID lotID, const DateRange & rPeriod, double * pAvgQtty) // @v12.1.11 @construction
+{
+	int    ok = -1;
+	double avg_qtty = 0.0;
+	DateRange period(rPeriod);
+	period.Actualize(ZERODATE);
+	if(checkdate(period.low) && checkdate(period.upp) && period.upp >= period.low) {
+		ReceiptTbl::Rec lot_rec;
+		if(Rcpt.Search(lotID, &lot_rec) > 0) {
+			if(lot_rec.Dt <= period.upp) {
+				if(lot_rec.Rest >= 0.0 || lot_rec.CloseDate > period.low) {
+					RealArray rest_qtty_list;
+					TransferTbl::Rec rec;
+					LDATE  iter_date = period.low;
+					double iter_rest_qtty = 0.0;
+					if(lot_rec.Dt < iter_date)
+						GetRest(lotID, plusdate(iter_date, -1), &iter_rest_qtty, 0);
+					for(DateIter di(&period); EnumByLot(lotID, &di, &rec) > 0;) {
+						assert(rec.Dt >= iter_date);
+						if(rec.Dt > iter_date) {
+							for(LDATE d = iter_date; d < rec.Dt; d = plusdate(d, 1)) {
+								rest_qtty_list.add(iter_rest_qtty);
+							}
+						}
+						iter_date = rec.Dt;
+						iter_rest_qtty = rec.Rest;
+					}
+					assert(iter_date <= period.upp);
+					{
+						for(LDATE d = iter_date; d <= period.upp; d = plusdate(d, 1)) {
+							rest_qtty_list.add(iter_rest_qtty);
+						}
+					}
+					assert(rest_qtty_list.getCount() == period.GetLength()+1);
+					if(rest_qtty_list.getCount()) {
+						avg_qtty = rest_qtty_list.Sum() / rest_qtty_list.getCount();
+					}
+				}
+				else {
+					// @nothingtodo Лот закрыт до начала запрошенного периода 
+				}
+			}
+			else {
+				// @nothingtodo Лот открыт после завершения запрошенного периода
+			}
+		}
+	}
+	ASSIGN_PTR(pAvgQtty, avg_qtty);
 	return ok;
 }
 

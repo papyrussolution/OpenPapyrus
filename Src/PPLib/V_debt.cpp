@@ -263,7 +263,7 @@ int PPViewDebtTrnovr::GetDlvrAddr(PPID billID, PPID * pAddrID)
 	else {
 		PPFreight freight;
 		if(P_BObj->P_Tbl->GetFreight(billID, &freight) > 0)
-			addr_id = freight.DlvrAddrID;
+			addr_id = freight.DlvrAddrID__;
 	}
 	ASSIGN_PTR(pAddrID, addr_id);
 	return addr_id ? 1 : -1;
@@ -1241,7 +1241,7 @@ int PPViewDebtTrnovr::NextProcessStep(BillTbl::Rec & rRec, ProcessBlock & rBlk)
 	}
 	else if(rBlk.IterPath == ProcessBlock::ipByAgentList) {
 		PPIDArray & r_ext_list = rBlk.ExtBillList;
-		while(ok < 0 && r_ext_list.getPointer() < r_ext_list.getCount()) {
+		while(ok < 0 && r_ext_list.testPointer()) {
 			rBlk.Cntr.Increment();
 			if(P_BObj->Search(r_ext_list.get(r_ext_list.getPointer()), &rRec) > 0)
 				ok = 1;

@@ -771,7 +771,7 @@ int FASTCALL PPViewInventory::NextIteration(InventoryViewItem * pItem)
 	if(P_GIter) {
 		while(ok <= 0 && P_GIter->Next(&goods_rec) > 0) {
 			Counter.Increment();
-			while(ok < 0 && IterByGoods.getPointer() < IterByGoods.getCount()) {
+			while(ok < 0 && IterByGoods.testPointer()) {
 				uint pos = IterByGoods.incPointer();
 				if(CheckLineForFilt(&IterByGoods.at(pos))) {
 					inv_rec = IterByGoods.at(pos);
@@ -791,7 +791,7 @@ int FASTCALL PPViewInventory::NextIteration(InventoryViewItem * pItem)
 				}
 				IterByGoods.setPointer(0);
 				if(IterByGoods.getCount()) {
-					while(ok < 0 && IterByGoods.getPointer() < IterByGoods.getCount()) {
+					while(ok < 0 && IterByGoods.testPointer()) {
 						uint pos = IterByGoods.incPointer();
 						if(CheckLineForFilt(&IterByGoods.at(pos))) {
 							inv_rec = IterByGoods.at(pos);
@@ -824,7 +824,7 @@ int FASTCALL PPViewInventory::NextIteration(InventoryViewItem * pItem)
 		}
 	}
 	else {
-		while(ok <= 0 && ExtraList.getPointer() < ExtraList.getCount()) {
+		while(ok <= 0 && ExtraList.testPointer()) {
 			const ExtraEntry & r_entry = ExtraList.at(ExtraList.getPointer());
 			Counter.Increment();
 			ExtraList.incPointer();
@@ -975,7 +975,7 @@ void QuantityCtrlGroup::SetupQuantity(TDialog * pDlg, uint master, int readFlds)
 			pDlg->setCtrlReal(CtlQtty, Data.Qtty);
 			if(master) {
 				TInputLine * p_il = static_cast<TInputLine *>(pDlg->getCtrlView(master));
-				if(p_il && p_il->IsSubSign(TV_SUBSIGN_INPUTLINE))
+				if(TView::IsSubSign(p_il, TV_SUBSIGN_INPUTLINE))
 					p_il->selectAll(0);
 			}
 		}

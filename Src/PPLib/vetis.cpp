@@ -8471,7 +8471,6 @@ int PPVetisInterface::PrepareOutgoingTransportData(PPID billID, VetisPrepareOutg
 	PPObjBill * p_bobj = BillObj;
 	Reference * p_ref = PPRef;
 	SString temp_buf;
-	PPFreight freight;
 	PPID   transport_id = 0;
 	PPID   dlvr_loc_id = 0;
 	int    tst = -1;
@@ -8487,9 +8486,15 @@ int PPVetisInterface::PrepareOutgoingTransportData(PPID billID, VetisPrepareOutg
 					tst_goods = SIntToSymbTab_GetId(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), temp_buf);
 			}
 		}
-		if(p_bobj->P_Tbl->GetFreight(billID, &freight) > 0) {
-			dlvr_loc_id = freight.DlvrAddrID;
-			transport_id = freight.ShipID;
+		{
+			PPFreight freight;
+			PPFreight * p_freight = 0;
+			if(p_bobj->P_Tbl->GetFreight(billID, &freight) > 0) {
+				p_freight = &freight;
+				// @v12.1.11 dlvr_loc_id = freight.DlvrAddrID__;
+				transport_id = freight.ShipID;
+			}
+			p_bobj->GetDlvrAddrID(bill_rec, p_freight, &dlvr_loc_id); // @v12.1.11 
 		}
 		if(!transport_id && dlvr_loc_id && DlvrLocToTranspTagID) {
 			ObjTagItem tag_item;
@@ -8505,7 +8510,6 @@ int PPVetisInterface::PrepareOutgoingTransportData(PPID billID, VetisPrepareOutg
 			PPObjTransport tr_obj;
 			PPTransportPacket tr_pack;
 			if(tr_obj.Get(transport_id, &tr_pack) > 0) {
-				//transport_type = (oneof2(freight.TrType, PPTRTYP_CAR, PPTRTYP_SHIP)) ? freight.TrType : 0;
 				long   transport_type = tr_pack.Rec.TrType;
 				if(transport_type == PPTRTYP_CAR) {
 					rReq.Transp.TransportType = VetisTransportInfo::ttCar;
@@ -8517,7 +8521,7 @@ int PPVetisInterface::PrepareOutgoingTransportData(PPID billID, VetisPrepareOutg
 							case PPTransport::vantypChilled: tst = vtstCHILLED; break;
 							case PPTransport::vantypCooled: tst = vtstCOOLED; break;
 							case PPTransport::vantypVentilated: tst = vtstVENTILATED; break;
-							default: tst = tst_goods; break; // @v10.2.10
+							default: tst = tst_goods; break;
 						}
 						if(tst >= 0) {
 							SIntToSymbTab_GetSymb(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), tst, temp_buf);

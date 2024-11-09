@@ -1,5 +1,5 @@
 // GCTITER.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2020, 2021
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2020, 2021, 2024
 // @Kernel
 // GCTIterator
 //
@@ -137,7 +137,7 @@ int FASTCALL GCTIterator::GCT_BillCache::CheckBillRec(const BillTbl::Rec * pRec)
 		return 0;
 	else if((Filt.Flags & OPG_SKIPNOUPDLOTREST) && CheckOpFlags(pRec->OpID, OPKF_NOUPDLOTREST, 0))
 		return 0;
-	if(!Filt.DueDatePeriod.CheckDate(pRec->DueDate)) // @v10.0.04
+	if(!Filt.DueDatePeriod.CheckDate(pRec->DueDate))
 		return 0;
 	if(!Filt.SoftRestrict) {
 		if(!ArList.CheckID(pRec->Object))
@@ -154,10 +154,10 @@ int FASTCALL GCTIterator::GCT_BillCache::CheckBillRec(const BillTbl::Rec * pRec)
 		PPFreight freight;
 		if(pRec->Flags & BILLF_FREIGHT && P_BObj->P_Tbl->GetFreight(pRec->ID, &freight) > 0) {
 			if(Filt.Flags & OPG_BYZERODLVRADDR) {
-				if(freight.DlvrAddrID)
+				if(freight.DlvrAddrID__)
 					return 0;
 			}
-			else if(freight.DlvrAddrID != Filt.DlvrAddrID)
+			else if(freight.DlvrAddrID__ != Filt.DlvrAddrID)
 				return 0;
 		}
 		else if(!(Filt.Flags & OPG_BYZERODLVRADDR) && Filt.DlvrAddrID)
@@ -692,7 +692,7 @@ int GCTIterator::NextOuter()
 			}
 			break;
 		case bwBill:
-			while(ok < 0 && BillList.getPointer() < BillList.getCount()) {
+			while(ok < 0 && BillList.testPointer()) {
 				const  PPID next_id = BillList.get(BillList.incPointer());
 				if(next_id != CurrID) {
 					CurrID = next_id;
@@ -702,7 +702,7 @@ int GCTIterator::NextOuter()
 			break;
 		case bwGoods:
 			GoodsArray.incPointer();
-			if(GoodsArray.getPointer() < GoodsArray.getCount())
+			if(GoodsArray.testPointer())
 				ok = 1;
 			break;
 	}

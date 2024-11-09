@@ -1766,7 +1766,7 @@ void ComboBox::freeAll()
 	TImageView * p_view = static_cast<TImageView *>(TView::GetWindowUserData(hWnd));
 	switch(uMsg) {
 		case WM_DESTROY:
-			if(p_view && p_view->IsSubSign(TV_SUBSIGN_IMAGEVIEW)) {
+			if(TView::IsSubSign(p_view, TV_SUBSIGN_IMAGEVIEW)) {
 				p_view->OnDestroy(hWnd);
 			}
 			return 0;
@@ -1778,7 +1778,7 @@ void ComboBox::freeAll()
 			CALLPTRMEMB(p_view, MessageCommandToOwner(cmImageDblClk));
 			break;
 		case WM_PAINT:
-			if(p_view && p_view->IsSubSign(TV_SUBSIGN_IMAGEVIEW)) {
+			if(TView::IsSubSign(p_view, TV_SUBSIGN_IMAGEVIEW)) {
 				PAINTSTRUCT ps;
 				::BeginPaint(hWnd, &ps);
 				//p_view->draw();

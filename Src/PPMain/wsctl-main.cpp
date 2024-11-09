@@ -77,17 +77,6 @@ namespace ImGui {
 	ColorNavWindowingDimBg
 	ColorModalWindowDimBg
 */
-/*static FORCEINLINE float ColorComponentBlendOverlay(float sa, float s, float da, float d)
-{
-	return ((2 * d) < da) ? (2 * s * d) : (sa * da - 2 * (da - d) * (sa - s));
-}
-
-FORCEINLINE ImVec4 __ColorBlendOverlay(const ImVec4 & rS, const ImVec4 & rD, float alpha)
-{
-	return ImVec4(ColorComponentBlendOverlay(1.0f, rS.x, alpha, rD.x),
-		ColorComponentBlendOverlay(1.0f, rS.y, alpha, rD.y), ColorComponentBlendOverlay(1.0f, rS.z, alpha, rD.z), rS.w);
-}*/
-
 static const ImVec4 MainBackgroundColor(SColor(0x1E, 0x22, 0x28));
 static const ImVec2 ButtonSize_Std(64.0f, 24.0f);
 static const ImVec2 ButtonSize_Double(128.0f, 24.0f);
@@ -814,6 +803,11 @@ private:
 			ok = false;
 		return ok;
 	}
+	SString & GetFilePathS(int fn, bool fnOnly, SString & rPath)
+	{
+		GetFilePath(fn, fnOnly, rPath);
+		return rPath;
+	}
 	// @v11.9.7 void   MakeLayout(SJson ** ppJsList);
 	SUiLayout * MakePgmListLayout(const WsCtl_ProgramCollection & rPgmL);
 	int    QueryProgramList2(WsCtl_ProgramCollection & rPgmL, WsCtl_ClientPolicy & rPolicyL);
@@ -825,13 +819,11 @@ private:
 		int    result = 0;
 		ImGuiWindowByLayout wbl(pLoParent, loidLogo, "##Logo", viewFlags|ImGuiWindowFlags_NoBackground);
 		if(wbl.IsValid()) {
-			SString & r_temp_buf = SLS.AcquireRvlStr();
-			GetFilePath(fnLogo, true, r_temp_buf);
-			Texture_CachedFileEntity * p_logo_te = Cache_Texture.Get(r_temp_buf);
-			if(p_logo_te && p_logo_te->P_Texture) {
+			Texture_CachedFileEntity * p_logo_te = Cache_Texture.Get(GetFilePathS(fnLogo, true, SLS.AcquireRvlStr()));
+			if(p_logo_te && p_logo_te->GetTexture()) {
 				const float _x = ImGui::GetWindowWidth();
 				const float _y = ImGui::GetWindowHeight();
-				ImGui::Image(p_logo_te->P_Texture, ImVec2(_x, _y));
+				ImGui::Image(p_logo_te->GetTexture(), ImVec2(_x, _y));
 			}
 		}
 		return result;
@@ -942,9 +934,7 @@ WsCtl_ImGuiSceneBlock::Texture_CachedFileEntity::Texture_CachedFileEntity() : SC
 	bool   ok = false;
 	if(extraPtr) {
 		ImGuiRuntimeBlock * p_rtb = static_cast<ImGuiRuntimeBlock *>(extraPtr);
-		P_Texture = p_rtb->LoadTexture(GetFilePath());
-		if(P_Texture)
-			ok = true;
+		ok = SetTexture(p_rtb->LoadTexture(GetFilePath()));
 	}
 	return ok;
 }
@@ -2465,9 +2455,8 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 			for(uint i = 0; i < SIZEOFARRAY(fn_id_list); i++) {
 				const int fn_id = fn_id_list[i];
 				// Load background
-				GetFilePath(fn_id, false, temp_buf);
-				SFile f_in(temp_buf, SFile::mRead);
-				if(fileExists(temp_buf)) {
+				if(fileExists(GetFilePathS(fn_id, false, temp_buf))) {
+					SFile f_in(temp_buf, SFile::mRead);
 					Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
 					if(p_cfe && p_cfe->Init(temp_buf)) {
 						if(p_cfe->Reload(true, &ImgRtb)) {
@@ -2643,12 +2632,12 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 								const WsCtl_ProgramEntry * p_pe_ = static_cast<const WsCtl_ProgramEntry *>(SUiLayout::GetManagedPtr(p_lo_entry));
 								if(p_pe_ && p_pe_->PicSymb.NotEmpty()) {
 									Texture_CachedFileEntity * p_te = Cache_Texture.Get(p_pe_->PicSymb);
-									if(p_te && p_te->P_Texture) {
+									if(p_te && p_te->GetTexture()) {
 										if(p_pe_->Title.NotEmpty())
 											ImGui::Text(p_pe_->Title);
 										const SPoint2F __s = p_lo_entry->GetFrame().GetSize();
 										ImVec2 sz(__s.x-4.0f, __s.y-16.0f);
-										ImGui::Image(p_te->P_Texture, sz);
+										ImGui::Image(p_te->GetTexture(), sz);
 									}
 									else {
 										if(p_pe_->Category.NotEmpty())
@@ -2988,11 +2977,9 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 			evp.ForceSize.y = sz.y;
 			const int _screen = GetScreen();
 			if(0) {
-				SString & r_temp_buf = SLS.AcquireRvlStr();
-				GetFilePath(fnBackground, true, r_temp_buf);
-				Texture_CachedFileEntity * p_bkg_te = Cache_Texture.Get(r_temp_buf);
-				if(p_bkg_te && p_bkg_te->P_Texture) {
-					ImGui::GetBackgroundDrawList()->AddImage(p_bkg_te->P_Texture, ImVec2(0.0f, 0.0f), /*ImVec2(400.0f, 400.0f)*/sz);
+				Texture_CachedFileEntity * p_bkg_te = Cache_Texture.Get(GetFilePathS(fnBackground, true, SLS.AcquireRvlStr()));
+				if(p_bkg_te && p_bkg_te->GetTexture()) {
+					ImGui::GetBackgroundDrawList()->AddImage(p_bkg_te->GetTexture(), ImVec2(0.0f, 0.0f), /*ImVec2(400.0f, 400.0f)*/sz);
 				}
 			}
 			if(_screen == screenAdmin) { // @v11.9.3

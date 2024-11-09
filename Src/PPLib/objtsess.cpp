@@ -5657,7 +5657,7 @@ int PPALDD_UhttTSessPlaceStatusList::NextIteration(long iterId)
 	int    ok = -1;
 	IterProlog(iterId, 0);
 	TSCollection <PPObjTSession::PlaceStatus> * p_list = static_cast<TSCollection <PPObjTSession::PlaceStatus> *>(Extra[0].Ptr);
-	if(p_list && p_list->getPointer() < p_list->getCount()) {
+	if(p_list && p_list->testPointer()) {
 		PPObjTSession::PlaceStatus * p_item = p_list->at(p_list->getPointer());
 		I.TSessID = p_item->TSessID;
 		I.GoodsID = p_item->GoodsID;

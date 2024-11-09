@@ -4312,7 +4312,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 			else if(link_bill_rec.ID) {
 				PPFreight link_freight;
 				if(P_BObj->P_Tbl->GetFreight(link_bill_rec.ID, &link_freight) > 0) {
-					cli_addr_code.Cat(link_freight.DlvrAddrID);
+					cli_addr_code.Cat(link_freight.DlvrAddrID__);
 				}
 			}
 			iSalesBillPacket * p_new_pack = rList.CreateNewItem();

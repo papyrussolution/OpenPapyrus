@@ -439,7 +439,7 @@ public:
 			int   ok = -1;
 			if(level < rSrcList.getCount()) {
 				UlongArray * p_src_item = rSrcList.at(level);
-				if(p_src_item->getPointer() < p_src_item->getCount()) {
+				if(p_src_item->testPointer()) {
 					ulong v = p_src_item->at(p_src_item->getPointer());
 					THROW_SL(pEnum->insert(&v));
 					int   r = Helper_AddPossibilityItem(rSrcList, level+1, pEnum);
@@ -1324,10 +1324,10 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 			}
 			else if(GetOpType(Rec.OpID) == PPOPT_GOODSEXPEND) {
 				dest_ar_id = main_org_ar_id;
-				if(P_Freight && P_Freight->DlvrAddrID) {
+				if(P_Freight && P_Freight->DlvrAddrID__) {
 					PPObjLocation loc_obj;
 					LocationTbl::Rec loc_rec;
-					if(loc_obj.Search(P_Freight->DlvrAddrID, &loc_rec) > 0 && loc_rec.Code[0]) {
+					if(loc_obj.Search(P_Freight->DlvrAddrID__, &loc_rec) > 0 && loc_rec.Code[0]) {
 						PPID   temp_loc_id = 0;
 						if(loc_obj.P_Tbl->SearchCode(LOCTYP_WAREHOUSE, loc_rec.Code, &temp_loc_id, &loc_rec) > 0)
 							dest_loc_id = temp_loc_id;
@@ -3042,7 +3042,7 @@ int PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Ob
 		}
 		PPFreight * p_fr = p_pack->P_Freight;
 		if(p_fr) {
-			ProcessObjRefInArray(PPOBJ_LOCATION, &p_fr->DlvrAddrID, ary, replace);
+			ProcessObjRefInArray(PPOBJ_LOCATION, &p_fr->DlvrAddrID__, ary, replace);
 			ProcessObjRefInArray(PPOBJ_WORLD,    &p_fr->PortOfLoading, ary, replace);
 			ProcessObjRefInArray(PPOBJ_WORLD,    &p_fr->PortOfDischarge, ary, replace);
 			ProcessObjRefInArray(PPOBJ_PERSON,   &p_fr->CaptainID, ary, replace);

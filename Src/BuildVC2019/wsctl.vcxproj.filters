@@ -24,5 +24,8 @@
     <ClInclude Include="..\OSF\imgui\imgui.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\imgui-support.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

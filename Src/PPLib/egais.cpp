@@ -7572,8 +7572,8 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 								if(psn_id) {
 									if(p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_FSRARID, temp_buf) > 0 && temp_buf.CmpNC(p_rwb->ContragentCode) == 0)
 										candid_bill_list.add(bill_id);
-									else if(P_BObj->FetchFreight(bill_id, &freight) > 0 && freight.DlvrAddrID) {
-										if(p_ref->Ot.GetTagStr(PPOBJ_LOCATION, freight.DlvrAddrID, PPTAG_LOC_FSRARID, temp_buf) > 0 && temp_buf.CmpNC(p_rwb->ContragentCode) == 0)
+									else if(P_BObj->FetchFreight(bill_id, &freight) > 0 && freight.DlvrAddrID__) {
+										if(p_ref->Ot.GetTagStr(PPOBJ_LOCATION, freight.DlvrAddrID__, PPTAG_LOC_FSRARID, temp_buf) > 0 && temp_buf.CmpNC(p_rwb->ContragentCode) == 0)
 											candid_bill_list.add(bill_id);
 									}
 								}

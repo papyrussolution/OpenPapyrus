@@ -2324,7 +2324,7 @@ int PPViewSwProgram::InitIteration()
 int FASTCALL PPViewSwProgram::NextIteration(SwProgramViewItem * pItem)
 {
 	int    ok = -1;
-	while(ok < 0 && P_DsList && P_DsList->getPointer() < P_DsList->getCount()) {
+	while(ok < 0 && P_DsList && P_DsList->testPointer()) {
 		const  PPID id = static_cast<const BrwItem *>(P_DsList->at(P_DsList->getPointer()))->ID;
 		PPSwProgramPacket pack;
 		if(Obj.Get(id, &pack) > 0) {

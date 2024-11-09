@@ -254,6 +254,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Include\imgui-support.h" />
     <ClInclude Include="..\Include\pp.h" />
     <ClInclude Include="..\Include\wsctl.h" />
     <ClInclude Include="..\OSF\imgui\imgui.h" />

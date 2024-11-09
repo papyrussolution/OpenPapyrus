@@ -117,20 +117,74 @@ protected:
 	
 	class CommonTextureCacheEntry {
 	public:
-		CommonTextureCacheEntry() : P_Texture(0)
+		//
+		// Descr: Варианты состояния экземпляра
+		//
+		enum {
+			rstUndef  = 0, // не определенное assert(P_Texture == 0)
+			rstResolved,   // разрешенное assert(P_Texture != 0)
+			rstUnresolved, // неудача в разрешении assert(P_Texture == 0)
+			rstWaiting,    // ожидает разрешения assert(P_Texture == 0)
+		};
+		CommonTextureCacheEntry() : P_Texture(0), RslvState(rstUndef)
 		{
 		}
-		explicit CommonTextureCacheEntry(void * pTexture) : P_Texture(pTexture)
+		explicit CommonTextureCacheEntry(void * pTexture) : P_Texture(pTexture), RslvState(rstUndef)
 		{
+			if(P_Texture)
+				RslvState = rstResolved;
+			else
+				RslvState = rstUnresolved;
 		}
-		void * P_Texture;
-		void Destroy()
+		bool   ValidateState() const
+		{
+			bool   ok = true;
+			switch(RslvState) {
+				case rstUndef: 
+				case rstUnresolved:
+				case rstWaiting:
+					if(P_Texture)
+						ok = false;
+					break;
+				case rstResolved: 
+					if(!P_Texture)
+						ok = false;
+					break;
+				default:
+					ok = false;
+					break;
+			}
+			return ok;
+		}
+		void   Destroy()
 		{
 			if(P_Texture) {
 				static_cast<IUnknown *>(P_Texture)->Release();
 				P_Texture = 0;
+				RslvState = rstUndef;
 			}
 		}
+		bool   SetTexture(void * pTexture)
+		{
+			bool ok = false;
+			Destroy();
+			if(pTexture) {
+				P_Texture = pTexture;
+				RslvState = rstResolved;
+				ok = true;
+			}
+			else {
+				RslvState = RslvState = rstUnresolved;
+			}
+			return ok;
+		}
+		void * GetTexture()
+		{
+			return P_Texture;
+		}
+	private:
+		void * P_Texture;
+		int    RslvState; // @v12.1.11 CommonTextureCacheEntry::stXXX
 	};
 	class Texture_IconEntity : public CommonTextureCacheEntry {
 	public:
@@ -158,7 +212,7 @@ protected:
 			if(id) {
 				Texture_IconEntity * p_entry = static_cast<Texture_IconEntity *>(TSHashCollection <Texture_IconEntity>::Get(&id, sizeof(id)));
 				if(p_entry) {
-					p_texture = p_entry->P_Texture;
+					p_texture = p_entry->GetTexture();
 				}
 				else {
 					void * p_icon = rRtb.MakeIconTexture(id);
@@ -168,7 +222,7 @@ protected:
 							if(TSHashCollection <Texture_IconEntity>::Put(p_new_entry, true)) {
 								p_entry = static_cast<Texture_IconEntity *>(TSHashCollection <Texture_IconEntity>::Get(&id, sizeof(id)));
 								assert(p_entry && p_entry == p_new_entry);
-								p_texture = p_entry->P_Texture;
+								p_texture = p_entry->GetTexture();
 							}
 						}
 					}

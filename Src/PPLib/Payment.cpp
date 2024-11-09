@@ -117,9 +117,9 @@ SArray * PPObjBill::MakePaymentList(PPID id, int kind)
 				r = P_Tbl->EnumLinks(id, &diter, blnk, &bill_rec);
 				link_kind = 3;
 				break;
-			case LinkedBillFilt::lkOrdersByLading: // @v10.8.4 Документы заказа, к которым привязана отгрузка
+			case LinkedBillFilt::lkOrdersByLading: // Документы заказа, к которым привязана отгрузка
 				{
-					while(ord_bill_list.getPointer() < ord_bill_list.getCount()) {
+					while(ord_bill_list.testPointer()) {
 						PPID   ord_bill_id = ord_bill_list.get(ord_bill_list.getPointer());
 						ord_bill_list.incPointer();
 						r = P_Tbl->Search(ord_bill_id, &bill_rec);
@@ -456,7 +456,7 @@ int PPViewLinkedBill::MakeList()
 			case LinkedBillFilt::lkOrdersByLading: // Документы заказа, к которым привязана отгрузка
 				{
 					r = -1;
-					while(ord_bill_list.getPointer() < ord_bill_list.getCount()) {
+					while(ord_bill_list.testPointer()) {
 						PPID   ord_bill_id = ord_bill_list.get(ord_bill_list.getPointer());
 						ord_bill_list.incPointer();
 						r = p_bt->Search(ord_bill_id, &bill_rec);
@@ -468,8 +468,8 @@ int PPViewLinkedBill::MakeList()
 			case LinkedBillFilt::lkOrdAccomplish: // @v12.0.11 
 				{
 					r = -1;
-					if(shpm_bill_list.getPointer() < shpm_bill_list.getCount()) {
-						while(shpm_bill_list.getPointer() < shpm_bill_list.getCount()) {
+					if(shpm_bill_list.testPointer()) {
+						while(shpm_bill_list.testPointer()) {
 							PPID   shpm_bill_id = shpm_bill_list.get(shpm_bill_list.getPointer());
 							shpm_bill_list.incPointer();
 							r = p_bt->Search(shpm_bill_id, &bill_rec);

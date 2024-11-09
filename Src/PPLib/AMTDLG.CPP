@@ -150,18 +150,20 @@ int AmtListDialog::setupList()
 {
 	PosList.clear();
 	if(HasRestrict) {
-		for(uint i = 0; i < RestrictList.getCount(); i++)
+		for(uint i = 0; i < RestrictList.getCount(); i++) {
 			if(!Data.HasAmtTypeID(RestrictList.at(i))) {
 				AmtEntry entry(RestrictList.at(i));
 				Data.Put(&entry, 0, 0);
 			}
+		}
 	}
 	{
 		AmtEntry * ae;
-		for(uint i = 0; Data.enumItems(&i, (void **)&ae);)
+		for(uint i = 0; Data.enumItems(&i, (void **)&ae);) {
 			if(!HasRestrict || RestrictList.lsearch(ae->AmtTypeID))
 				if(!setupListEntry(i-1, ae))
 					return 0;
+		}
 	}
 	return 1;
 }

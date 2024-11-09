@@ -290,10 +290,10 @@ static IMPL_DBE_PROC(dbqf_billfrghtdlvraddr_i)
 		PPFreight freight;
 		SString temp_buf;
 		if(BillObj->FetchFreight(params[0].lval, &freight) > 0) {
-			if(freight.DlvrAddrID) {
+			if(freight.DlvrAddrID__) {
 				PPObjLocation obj;
 				LocationTbl::Rec rec;
-				if(obj.Fetch(freight.DlvrAddrID, &rec) > 0) {
+				if(obj.Fetch(freight.DlvrAddrID__, &rec) > 0) {
 					if(LocationCore::IsEmptyAddressRec(rec))
 						temp_buf = PPConst::P_TagValRestrict_Empty;
 					else {
@@ -319,7 +319,7 @@ static IMPL_DBE_PROC(dbqf_billfrghtdlvraddr_i)
 					}
 				}
 				else
-					ideqvalstr(freight.DlvrAddrID, temp_buf);
+					ideqvalstr(freight.DlvrAddrID__, temp_buf);
 			}
 		}
 		STRNSCPY(ret_buf, temp_buf);

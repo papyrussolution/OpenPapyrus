@@ -985,7 +985,7 @@ int  StdTreeListBoxDef2_::search(const void * pPattern, CompFunc fcmp, int srchM
 					}
 					Sb.LastPattern = p_pattern;
 					if(do_setup_pos) {
-						assert(Sb.P_LastResult->getPointer() < Sb.P_LastResult->getCount());
+						assert(Sb.P_LastResult->testPointer());
 						const uint slrp = Sb.P_LastResult->getPointer();
 						long id = Sb.P_LastResult->get(slrp);
 						if(LL.lsearch(id, &pos)) {

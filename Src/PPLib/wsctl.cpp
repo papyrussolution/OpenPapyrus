@@ -1828,7 +1828,7 @@ int WsCtl_ProgramCollection::Resolve(const WsCtl_ClientPolicy & rPolicy)
 						p_pe->Flags &= ~WsCtl_ProgramEntry::fResolving_ByCache;
 						if(p_cache_entry) {
 							if(p_cache_entry->FullResolvedPath.NotEmpty() && fileExists(p_cache_entry->FullResolvedPath)) {
-								p_pe->FullResolvedPath = path;
+								p_pe->FullResolvedPath = p_cache_entry->FullResolvedPath;
 								p_pe->Flags |= WsCtl_ProgramEntry::fResolving_ByCache;
 								p_pe->Flags &= ~WsCtl_ProgramEntry::fResolving_FileNFound;
 							}

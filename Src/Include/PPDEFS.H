@@ -1701,6 +1701,7 @@
 #define PPEDIOP_MRKTPLC_ORDER                102 // @v12.1.6 Заказ от покупателя, поступивший на маркетплейс
 #define PPEDIOP_MRKTPLC_SALE                 103 // @v12.1.6 Продажа покупателю маркетплейсом
 #define PPEDIOP_MRKTPLC_STOCK                104 // @v12.1.10 Остатки на складе маркетплейса
+#define PPEDIOP_MRKTPLC_RETURN               105 // @v12.1.11 Возврат от покупателя маркетплейсу
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
 //
@@ -5225,6 +5226,7 @@
 	#define CTL_GDSOPRTOTAL_PHQTTY2      (29 + WINDOWS_ID_BIAS)
 	#define CTL_GDSOPRTOTAL_RSTCOST2     (30 + WINDOWS_ID_BIAS)
 	#define CTL_GDSOPRTOTAL_RSTPR2       (31 + WINDOWS_ID_BIAS)
+	#define CTL_GDSOPRTOTAL_BZSILIST     (32 + WINDOWS_ID_BIAS) // @v12.1.11 Список индикаторов
 
 #define DLG_SAVEBALANCE           446 // Сохранение/восстановление баланса
 	#define CTL_SAVEBALANCE_DATE         (1 + WINDOWS_ID_BIAS)
@@ -11676,7 +11678,10 @@
 	#define CTLSEL_MPCFG_SALEOP            (4 + WINDOWS_ID_BIAS)
 	#define CTL_MPCFG_TRANSFOP             (5 + WINDOWS_ID_BIAS)
 	#define CTLSEL_MPCFG_TRANSFOP          (6 + WINDOWS_ID_BIAS)
+	#define CTL_MPCFG_RETOP                (7 + WINDOWS_ID_BIAS) // @v12.1.11
+	#define CTLSEL_MPCFG_RETOP             (8 + WINDOWS_ID_BIAS) // @v12.1.11
 #define DLG_FLTORDLOTEXT          1450 // @v12.1.6 Расширение фильтра лотов заказов
+#define DLG_GDSOPRMPTOTAL         1451 // @v12.1.11 Итоги товарного отчета по операции в варианте маркетплейса
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

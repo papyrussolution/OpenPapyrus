@@ -120,7 +120,6 @@ int IterProc_PPViewPaymPlan_ProcessPeriod(PayPlanTbl::Rec * pRec, void * extraPt
 			}
 			else {
 				debt = pRec->Amount - paym;
-				// @v10.3.3 @fix paym = 0.0;
 				p->BillPaymList.at(pos).Paym = paym;
 			}
 		}
@@ -137,7 +136,7 @@ int IterProc_PPViewPaymPlan_ProcessPeriod(PayPlanTbl::Rec * pRec, void * extraPt
 					PPID   dlvr_loc_id = 0;
 					PPFreight freight;
 					if(p_v->P_BObj->P_Tbl->GetFreight(bill_rec.ID, &freight) > 0)
-						dlvr_loc_id = freight.DlvrAddrID;
+						dlvr_loc_id = freight.DlvrAddrID__;
 					else
 						MEMSZERO(freight);
 					if(p_v->Filt.Sgp == sgpBillAgent) {

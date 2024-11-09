@@ -46,8 +46,8 @@ LRESULT CALLBACK InLnCalcWindProc(HWND, UINT, WPARAM, LPARAM);
 
 int TCalcInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	static LRESULT (CALLBACK * virtButtonProc[])(HWND, UINT, WPARAM, LPARAM) = { 0, InLnCalcWindProc, InLnCalcWindProc }; // @v10.7.7 static
-	static const int virtButtonBitmapId[] = { 0, IDB_INLNCALC, IDB_INLNCALCL }; // @v10.7.7 static
+	static LRESULT (CALLBACK * virtButtonProc[])(HWND, UINT, WPARAM, LPARAM) = { 0, InLnCalcWindProc, InLnCalcWindProc };
+	static const int virtButtonBitmapId[] = { 0, IDB_INLNCALC, IDB_INLNCALCL };
 	int    ok = TInputLine::handleWindowsMessage(uMsg, wParam, lParam);
 	if(ok > 0) {
 		if(uMsg == WM_INITDIALOG) {
@@ -62,7 +62,7 @@ int TCalcInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam
 			SendDlgItemMessage(Parent, Vbwe.ButtonCtrlId, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(Vbwe.HBmp));
 			{
 				TButton * p_button = static_cast<TButton *>(Vbwe.P_Dlg->getCtrlView(Vbwe.ButtonCtrlId));
-				if(p_button && p_button->IsSubSign(TV_SUBSIGN_BUTTON))
+				if(TView::IsSubSign(p_button, TV_SUBSIGN_BUTTON))
 					p_button->SetBitmap(bmp_id);
 			}
 		}

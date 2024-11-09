@@ -428,16 +428,14 @@ TView * FASTCALL TWindow::getCtrlByHandle(HWND h)
 	return 0;
 }
 
-HWND FASTCALL TWindow::getCtrlHandle(ushort ctlID)
-	{ return GetDlgItem(HW, ctlID); }
-void * TWindow::messageToCtrl(ushort ctlID, ushort cmd, void *ptr)
-	{ return TView::messageCommand(getCtrlView(ctlID), cmd, ptr); }
+HWND FASTCALL TWindow::getCtrlHandle(ushort ctlID) { return GetDlgItem(HW, ctlID); }
+void * TWindow::messageToCtrl(ushort ctlID, ushort cmd, void *ptr) { return TView::messageCommand(getCtrlView(ctlID), cmd, ptr); }
 
 int TWindow::setSmartListBoxOption(uint ctlID, uint option)
 {
 	int    ok = 1;
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(ctlID));
-	if(p_list && p_list->IsSubSign(TV_SUBSIGN_LISTBOX)) {
+	if(TView::IsSubSign(p_list, TV_SUBSIGN_LISTBOX)) {
 		CALLPTRMEMB(p_list->P_Def, SetOption(option, 1));
 	}
 	else
@@ -504,7 +502,7 @@ void FASTCALL TWindow::selectCtrl(ushort ctlID)
 TButton * FASTCALL TWindow::SearchButton(uint cmd)
 {
 	TView * p_view = static_cast<TView *>(TView::messageBroadcast(this, cmSearchButton, reinterpret_cast<void *>(cmd)));
-	return (p_view && p_view->IsSubSign(TV_SUBSIGN_BUTTON)) ? static_cast<TButton *>(p_view) : 0;
+	return TView::IsSubSign(p_view, TV_SUBSIGN_BUTTON) ? static_cast<TButton *>(p_view) : 0;
 }
 
 int TWindow::selectButton(ushort cmd)
@@ -679,7 +677,7 @@ int STDCALL TWindow::getCtrlString(uint ctlID, SString & s)
 	char * p_temp = temp_buf;
 	int    is_temp_allocated = 0;
 	TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(ctlID));
-	if(p_il && p_il->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
+	if(TView::IsSubSign(p_il, TV_SUBSIGN_INPUTLINE)) {
 		const size_t max_len = p_il->getMaxLen();
 		if(max_len > sizeof(temp_buf)) {
 			p_temp = static_cast<char *>(SAlloc::M(max_len+32));

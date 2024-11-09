@@ -5505,7 +5505,8 @@ void FillFreightRec(const PPFreight * pInner, SPpyO_Freight * pOuter)
 	SString temp_buf;
 	#define FLD(f) pOuter->f = pInner->f
 	FLD(ID);
-	FLD(DlvrAddrID);
+	// @v12.1.11 FLD(DlvrAddrID);
+	pOuter->DlvrAddrID = pInner->DlvrAddrID__; // @v12.1.11
 	FLD(NmbOrigsBsL);
 	FLD(PortOfLoading);
 	FLD(PortOfDischarge);

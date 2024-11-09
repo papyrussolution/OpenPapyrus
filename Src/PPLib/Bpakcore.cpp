@@ -462,11 +462,11 @@ int FASTCALL PPFreight::CheckForFilt(const FreightFilt & rFilt) const
 		ok = 0;
 	else if(!CheckFiltID(rFilt.CaptainID, CaptainID))
 		ok = 0;
-	else if(!CheckFiltID(rFilt.DlvrLocID, DlvrAddrID))
+	else if(!CheckFiltID(rFilt.DlvrLocID, DlvrAddrID__))
 		ok = 0;
 	else if(rFilt.PortID || rFilt.PortOfLoading) {
 		const int strict = BIN(rFilt.Flags & FreightFilt::fStrictPort);
-		if(rFilt.PortID && !PortOfDischarge && (!DlvrAddrID || strict))
+		if(rFilt.PortID && !PortOfDischarge && (!DlvrAddrID__ || strict))
 			ok = 0;
 		else if(rFilt.PortOfLoading && !PortOfLoading)
 			ok = 0;
@@ -484,7 +484,7 @@ int FASTCALL PPFreight::CheckForFilt(const FreightFilt & rFilt) const
 				else {
 					PPObjLocation loc_obj;
 					LocationTbl::Rec loc_rec;
-					if(loc_obj.Fetch(DlvrAddrID, &loc_rec) > 0 && loc_rec.CityID) {
+					if(loc_obj.Fetch(DlvrAddrID__, &loc_rec) > 0 && loc_rec.CityID) {
 						if(!w_obj.IsChildOf(loc_rec.CityID, rFilt.PortID))
 							ok = 0;
 					}
@@ -510,12 +510,12 @@ int FASTCALL PPFreight::CheckForFilt(const FreightFilt & rFilt) const
 bool PPFreight::IsEmpty() const
 {
 	return (!ShipID && !AgentID && Name[0] == 0 && !PortOfDischarge &&
-		!PortOfLoading && !CaptainID && !DlvrAddrID && !ArrivalDate && Cost == 0.0 && !StorageLocID && !Captain2ID);
+		!PortOfLoading && !CaptainID && !DlvrAddrID__ && !ArrivalDate && Cost == 0.0 && !StorageLocID && !Captain2ID);
 }
 
 bool FASTCALL PPFreight::IsEq(const PPFreight & s) const
 {
-	if(DlvrAddrID != s.DlvrAddrID)
+	if(DlvrAddrID__ != s.DlvrAddrID__)
 		return false;
 	else if(NmbOrigsBsL != s.NmbOrigsBsL)
 		return false;
@@ -555,8 +555,8 @@ int PPFreight::SetupDlvrAddr(PPID dlvrAddrID)
 		LocationTbl::Rec loc_rec;
 		THROW(loc_obj.Fetch(dlvrAddrID, &loc_rec) > 0);
 		THROW_PP(oneof2(loc_rec.Type, LOCTYP_ADDRESS, LOCTYP_WAREHOUSE), PPERR_LOCMUSTBEADDRORWAREHOUSE);
-		if(DlvrAddrID != dlvrAddrID) {
-			DlvrAddrID = dlvrAddrID;
+		if(DlvrAddrID__ != dlvrAddrID) {
+			DlvrAddrID__ = dlvrAddrID;
 			ok = 1;
 		}
 		if(!PortOfDischarge) {
@@ -567,8 +567,8 @@ int PPFreight::SetupDlvrAddr(PPID dlvrAddrID)
 			}
 		}
 	}
-	else if(!DlvrAddrID) {
-		DlvrAddrID = 0;
+	else if(!DlvrAddrID__) {
+		DlvrAddrID__ = 0;
 		ok = 1;
 	}
 	CATCHZOK
@@ -844,7 +844,15 @@ int PPBill::GetGuid(S_GUID & rGuid)
 }
 #endif // } 0 @v11.4.0
 
-PPID PPBill::GetDlvrAddrID() const { return P_Freight ? P_Freight->DlvrAddrID : 0; }
+PPID PPBill::GetDlvrAddrID() const
+{
+	// @v12.1.11 {
+	PPID   result = 0;
+	PPObjBill * p_bobj = BillObj;
+	return (p_bobj && p_bobj->GetDlvrAddrID(Rec, P_Freight, &result) > 0) ? result : 0;
+	// } @v12.1.11 
+	// @v12.1.11 return P_Freight ? P_Freight->DlvrAddrID__ : 0; 
+}
 
 int FASTCALL PPBill::GetFreight(PPFreight * pFreight) const
 {
@@ -3613,9 +3621,9 @@ int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, 
 											zero_obj_bill_list.add(plan_bill_id);
 										else {
 											obj_bill_list.add(plan_bill_id);
-											if(P_Freight && P_Freight->DlvrAddrID) { // @1
+											if(P_Freight && P_Freight->DlvrAddrID__) { // @1
 												PPFreight freight;
-                                                if(r_billc.GetFreight(plan_bill_id, &freight) > 0 && freight.DlvrAddrID == P_Freight->DlvrAddrID)
+                                                if(r_billc.GetFreight(plan_bill_id, &freight) > 0 && freight.DlvrAddrID__ == P_Freight->DlvrAddrID__)
 													dlvr_bill_list.add(plan_bill_id);
 											}
 										}
@@ -3631,8 +3639,8 @@ int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, 
 							gct_filt.Flags |= OPG_FORCEBILLCACHE;
 							if(dlvr_bill_list.getCount()) {
 								p_target_bill_list = &dlvr_bill_list;
-								assert(P_Freight && P_Freight->DlvrAddrID); // Не может такого быть, чтобы условие не выполнилось (see @1)
-								gct_filt.DlvrAddrID = P_Freight->DlvrAddrID;
+								assert(P_Freight && P_Freight->DlvrAddrID__); // Не может такого быть, чтобы условие не выполнилось (see @1)
+								gct_filt.DlvrAddrID = P_Freight->DlvrAddrID__;
 							}
 							else if(obj_bill_list.getCount())
 								p_target_bill_list = &obj_bill_list;

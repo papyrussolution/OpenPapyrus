@@ -7446,7 +7446,7 @@ int PPALDD_UhttPerson::NextIteration(long iterId)
 	IterProlog(iterId, 0);
 	UhttPersonBlock & r_blk = *static_cast<UhttPersonBlock *>(Extra[0].Ptr);
 	if(iterId == GetIterID("iter@KindList")) {
-		if(r_blk.Pack.Kinds.getPointer() < r_blk.Pack.Kinds.getCount()) {
+		if(r_blk.Pack.Kinds.testPointer()) {
 			I_KindList.KindID = r_blk.Pack.Kinds.at(r_blk.Pack.Kinds.getPointer());
 			PPObjPersonKind pk_obj;
 			PPPersonKind pk_rec;

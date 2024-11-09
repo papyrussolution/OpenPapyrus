@@ -421,9 +421,9 @@ int BillCore::GetDlvrAddrList(LAssocArray * pList)
 	CALLPTRMEMB(pList, clear());
 	for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
 		const PPFreight * p_freight = reinterpret_cast<const PPFreight *>(&p_prop->data);
-		if(p_freight->DlvrAddrID) {
+		if(p_freight->DlvrAddrID__) {
 			if(pList) {
-				THROW_SL(pList->Add(p_freight->ID, p_freight->DlvrAddrID, 0));
+				THROW_SL(pList->Add(p_freight->ID, p_freight->DlvrAddrID__, 0));
 			}
 			ok = 1;
 		}

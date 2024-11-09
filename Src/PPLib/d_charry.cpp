@@ -766,9 +766,9 @@ int PPDS_CrrBill::InitData(Ido op, void * /*dataPtr*/, long addedParam)
 		if(addedParam) {
 			if(p_bobj->ExtractPacket(addedParam, &Data) > 0) {
 				MEMSZERO(DlvrAddr);
-				if(Data.P_Freight && Data.P_Freight->DlvrAddrID) {
+				if(Data.P_Freight && Data.P_Freight->DlvrAddrID__) {
 					PPObjLocation loc_obj;
-					if(loc_obj.Search(Data.P_Freight->DlvrAddrID, &DlvrAddr) > 0) {
+					if(loc_obj.Search(Data.P_Freight->DlvrAddrID__, &DlvrAddr) > 0) {
 					}
 					else
 						MEMSZERO(DlvrAddr);

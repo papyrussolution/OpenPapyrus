@@ -8049,6 +8049,7 @@ public:
 	// Descr: Возвращает значение внутреннего указателя позиции
 	//
 	uint   getPointer() const { return pointer; }
+	bool   testPointer() const { return (pointer < count); } // @v12.1.11
 	//
 	// Descr: Устанавливает значение внутреннего указателя позиции
 	// Returns:

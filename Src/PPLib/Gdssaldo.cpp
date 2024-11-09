@@ -456,7 +456,7 @@ int PrcssrGoodsSaldo::Run()
 					//
 					if(dt <= end_date) {
 						PPFreight freight;
-						const  PPID   dlvr_loc_id = (BillObj->P_Tbl->GetFreight(bill_rec.ID, &freight) > 0) ? freight.DlvrAddrID : 0;
+						const  PPID   dlvr_loc_id = (BillObj->P_Tbl->GetFreight(bill_rec.ID, &freight) > 0) ? freight.DlvrAddrID__ : 0;
 						THROW(SetupItem(goods_id, ar_id, dlvr_loc_id, dt, qtty, amount, list));
 						if(dlvr_loc_id) {
 							THROW(SetupItem(goods_id, ar_id, 0, dt, qtty, amount, list));

@@ -873,7 +873,7 @@ int PasswordDialog(uint dlgID, char * pBuf, size_t pwSize, size_t minLen, int wi
 int FASTCALL SetupStrListBox(TView * pList)
 {
 	int    ok = -1;
-	if(pList && pList->IsSubSign(TV_SUBSIGN_LISTBOX)) {
+	if(TView::IsSubSign(pList, TV_SUBSIGN_LISTBOX)) {
 		SmartListBox * p_lb = static_cast<SmartListBox *>(pList);
 		if(!p_lb->HasState(SmartListBox::stTreeList)) {
 			StrAssocArray * p_data = new StrAssocArray;
@@ -3615,7 +3615,7 @@ void SpecialInputCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 	if(P_Ad) {
 		if(TVCMD == cmIdle) {
 			TView * p_il = pDlg->getCtrlView(CtlId);
-			if(p_il && p_il->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
+			if(TView::IsSubSign(p_il, TV_SUBSIGN_INPUTLINE)) {
 				if(RdTimer.Check(0) && !p_il->IsInState(sfDisabled|sfReadOnly)) {
 					P_Ad->RunCmd("LISTEN", Out.Z());
 					SString temp_buf;
@@ -7230,7 +7230,7 @@ int ExportDialogs(const char * pFileName)
 							}
 							TView::SGetWindowClassName(h, cls_name);
 							if(cls_name.IsEqiAscii("Edit")) {
-								if(p_view && p_view->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
+								if(TView::IsSubSign(p_view, TV_SUBSIGN_INPUTLINE)) {
 									TInputLine * p_il = static_cast<TInputLine *>(p_view);
 									if(p_label)
 										ctl_text = label_text;
@@ -7291,7 +7291,7 @@ int ExportDialogs(const char * pFileName)
 							else if(cls_name.IsEqiAscii("Button")) {
 								const int bt = (wi.dwStyle & BS_TYPEMASK);
 								if(oneof2(bt, BS_CHECKBOX, BS_AUTOCHECKBOX)) {
-									if(p_view && p_view->IsSubSign(TV_SUBSIGN_CLUSTER)) {
+									if(TView::IsSubSign(p_view, TV_SUBSIGN_CLUSTER)) {
 										line_buf.Tab().Cat("checkbox").Space().Cat(symb).Space().CatQStr(ctl_text);
 										_RectToLine(wi.rcWindow, line_buf.Space()).Semicol().CR();
 										f_out.WriteLine(line_buf);
@@ -7301,7 +7301,7 @@ int ExportDialogs(const char * pFileName)
 								else if(oneof2(bt, BS_RADIOBUTTON, BS_AUTORADIOBUTTON)) {
 								}
 								else if(bt == BS_GROUPBOX) {
-									if(p_view && p_view->IsSubSign(TV_SUBSIGN_CLUSTER)) {
+									if(TView::IsSubSign(p_view, TV_SUBSIGN_CLUSTER)) {
 										TCluster * p_clu = static_cast<TCluster *>(p_view);
 										const char * p_kind = 0;
 										if(p_clu->getKind() == RADIOBUTTONS) {
@@ -7374,7 +7374,7 @@ int ExportDialogs(const char * pFileName)
 								}
 								else if(oneof2(bt, BS_PUSHBUTTON, BS_DEFPUSHBUTTON)) {
 									//T_BUTTON T_IDENT T_CONST_STR uirectopt T_IDENT uictrl_properties ';'
-									if(p_view && p_view->IsSubSign(TV_SUBSIGN_BUTTON)) {
+									if(TView::IsSubSign(p_view, TV_SUBSIGN_BUTTON)) {
 										TButton * p_button = static_cast<TButton *>(p_view);
 										uint   cmd_id = p_button->GetCommand();
 										temp_buf.Z();
@@ -7403,12 +7403,12 @@ int ExportDialogs(const char * pFileName)
 								//
 								// Этикетки (TLabel) пропускаем (они обрабатываются объектами, которым принадлежат)
 								//
-								if(!(p_view && p_view->IsSubSign(TV_SUBSIGN_LABEL))) {
+								if(!TView::IsSubSign(p_view, TV_SUBSIGN_LABEL)) {
 									if(wi.dwExStyle & WS_EX_STATICEDGE) {
 										prop_list.Add(DlScope::cuifStaticEdge, temp_buf.Z());
 									}
-									if(!p_view || !p_view->IsSubSign(TV_SUBSIGN_STATIC))
-										symb = 0;
+									if(!TView::IsSubSign(p_view, TV_SUBSIGN_STATIC))
+										symb.Z();
 									else if(symb.ToLong())
 										symb.Z().Cat("CTL").CatChar('_').Cat(dlg_symb_body).CatChar('_').Cat("ST").CatChar('_').CatLongZ(symb.ToLong(), 3);
 									line_buf.Tab().Cat("statictext").Space();
@@ -7422,7 +7422,7 @@ int ExportDialogs(const char * pFileName)
 								}
 							}
 							else if(cls_name.IsEqiAscii("SysListView32") || cls_name.IsEqiAscii("ListBox")) {
-								if(p_view && p_view->IsSubSign(TV_SUBSIGN_LISTBOX)) {
+								if(TView::IsSubSign(p_view, TV_SUBSIGN_LISTBOX)) {
 									SmartListBox * p_list = static_cast<SmartListBox *>(p_view);
 									if(p_label)
 										ctl_text = label_text;
@@ -7438,7 +7438,7 @@ int ExportDialogs(const char * pFileName)
 							}
 							else if(cls_name.IsEqiAscii("SysTreeView32")) {
 								// T_TREELISTBOX T_IDENT T_CONST_STR uirectopt uictrl_properties
-								if(p_view && p_view->IsSubSign(TV_SUBSIGN_LISTBOX)) {
+								if(TView::IsSubSign(p_view, TV_SUBSIGN_LISTBOX)) {
 									SmartListBox * p_list = static_cast<SmartListBox *>(p_view);
 									if(p_label)
 										ctl_text = label_text;
@@ -7621,7 +7621,7 @@ int ExportDialogs2(const char * pFileName)
 							}
 							TView::SGetWindowClassName(h, cls_name);
 							if(cls_name.IsEqiAscii("Edit")) {
-								if(p_view && p_view->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
+								if(TView::IsSubSign(p_view, TV_SUBSIGN_INPUTLINE)) {
 									TInputLine * p_il = static_cast<TInputLine *>(p_view);
 									if(p_label)
 										ctl_text = label_text;
@@ -7706,7 +7706,7 @@ int ExportDialogs2(const char * pFileName)
 							else if(cls_name.IsEqiAscii("Button")) {
 								const int bt = (wi.dwStyle & BS_TYPEMASK);
 								if(oneof2(bt, BS_CHECKBOX, BS_AUTOCHECKBOX)) {
-									if(p_view && p_view->IsSubSign(TV_SUBSIGN_CLUSTER)) {
+									if(TView::IsSubSign(p_view, TV_SUBSIGN_CLUSTER)) {
 										line_buf.Tab().Cat("checkbox").Space().Cat(symb).Space().CatChar('[');
 										line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
 										if(wi.dwStyle & WS_TABSTOP)
@@ -7723,7 +7723,7 @@ int ExportDialogs2(const char * pFileName)
 								else if(oneof2(bt, BS_RADIOBUTTON, BS_AUTORADIOBUTTON)) {
 								}
 								else if(bt == BS_GROUPBOX) {
-									if(p_view && p_view->IsSubSign(TV_SUBSIGN_CLUSTER)) {
+									if(TView::IsSubSign(p_view, TV_SUBSIGN_CLUSTER)) {
 										TCluster * p_clu = static_cast<TCluster *>(p_view);
 										const char * p_kind = 0;
 										if(p_clu->getKind() == RADIOBUTTONS) {
@@ -7816,7 +7816,7 @@ int ExportDialogs2(const char * pFileName)
 								}
 								else if(oneof2(bt, BS_PUSHBUTTON, BS_DEFPUSHBUTTON)) {
 									//T_BUTTON T_IDENT T_CONST_STR uirectopt T_IDENT uictrl_properties ';'
-									if(p_view && p_view->IsSubSign(TV_SUBSIGN_BUTTON)) {
+									if(TView::IsSubSign(p_view, TV_SUBSIGN_BUTTON)) {
 										TButton * p_button = static_cast<TButton *>(p_view);
 										uint   cmd_id = p_button->GetCommand();
 										SString cmd_buf;
@@ -7854,8 +7854,8 @@ int ExportDialogs2(const char * pFileName)
 								//
 								// Этикетки (TLabel) пропускаем (они обрабатываются объектами, которым принадлежат)
 								//
-								if(!(p_view && p_view->IsSubSign(TV_SUBSIGN_LABEL))) {
-									const bool is_image = LOGIC(p_view && p_view->IsSubSign(TV_SUBSIGN_IMAGEVIEW));
+								if(!TView::IsSubSign(p_view, TV_SUBSIGN_LABEL)) {
+									const bool is_image = (p_view && p_view->IsSubSign(TV_SUBSIGN_IMAGEVIEW));
 									if(!p_view)
 										symb.Z();
 									else if(!p_view->IsSubSign(TV_SUBSIGN_STATIC) && !is_image)
@@ -7888,7 +7888,7 @@ int ExportDialogs2(const char * pFileName)
 								}
 							}
 							else if(cls_name.IsEqiAscii("SysListView32") || cls_name.IsEqiAscii("ListBox")) {
-								if(p_view && p_view->IsSubSign(TV_SUBSIGN_LISTBOX)) {
+								if(TView::IsSubSign(p_view, TV_SUBSIGN_LISTBOX)) {
 									SmartListBox * p_list = static_cast<SmartListBox *>(p_view);
 									if(p_label)
 										ctl_text = label_text;
@@ -7910,7 +7910,7 @@ int ExportDialogs2(const char * pFileName)
 							}
 							else if(cls_name.IsEqiAscii("SysTreeView32")) {
 								// T_TREELISTBOX T_IDENT T_CONST_STR uirectopt uictrl_properties
-								if(p_view && p_view->IsSubSign(TV_SUBSIGN_LISTBOX)) {
+								if(TView::IsSubSign(p_view, TV_SUBSIGN_LISTBOX)) {
 									SmartListBox * p_list = static_cast<SmartListBox *>(p_view);
 									if(p_label)
 										ctl_text = label_text;

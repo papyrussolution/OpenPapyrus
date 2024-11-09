@@ -11285,7 +11285,10 @@ struct PPFreight { // @persistent @store(PropertyTbl)
 	char   Name[20];       //
 	PPID   StorageLocID;   // Место хранения. Если весь документ (например, инвентаризация) ассоциирован с одним местом хранения, то здесь оно может быть указано
 	char   Reserve[2];     // @reserve
-	PPID   DlvrAddrID;     // ->Location.ID Адрес разгрузки
+	PPID   DlvrAddrID__;   // ->Location.ID Адрес разгрузки. @v12.1.11 Я добавил __ в качестве суффикса имени для того, чтобы можно было быстро
+		// найти использование этой member. Цель - усложнение идентификации адреса доставки по документу из-за того, что для документа передачи 
+		// на другой склад адрес доставки это - контрагент. see PPObjBill::GetDlvrAddrID() и PPBill::GetDlvrAddrID().
+		// На момент выхода версии @v12.1.11 унификация сделана лишь в нескольких местах: требуется дальнейшая работа.
 	int16  NmbOrigsBsL;    // Количество печатаемых оригиналов коносаментов
 	long   TrType;         // PPTRTYP_XXX
 	PPID   PortOfLoading;  // ->City.ID
@@ -13071,7 +13074,9 @@ public:
 		glfNzRestOnly      = 0x0002, // Возвращать только лоты с ненулевым остатком
 		glfWithExtCodeOnly = 0x0004  // Возвращать только лоты, с которыми ассоциированы коды маркировки (неважно, егаис или чезн)
 	};
-
+	//
+	// ARG(pRecList OUT): указатель на вектор, в который будет заносится записи найденных лотов. Функция предварительно не очищает вектор.
+	//
 	int    GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, /*int openedOnly, int nzRestOnly*/uint flags, LotArray * pRecList);
 	int    EnumLots(PPID goodsID, PPID locID, DateIter *, void * = 0);
 	int    EnumLastLots(PPID goodsID, PPID locID, LDATE *, long * oprno, ReceiptTbl::Rec * pRec = 0);
@@ -13938,6 +13943,7 @@ public:
 	//
 	int    GetRest(GoodsRestParam & rP);
 	int    GetCurRest(GoodsRestParam & rP);
+	int    EvaluateAverageRestByLot(PPID lotID, const DateRange & rPeriod, double * pAvgQtty); // @v12.1.11 @construction
 	int    GetLcrList(LDATE dt, UintHashTable * pLotList, RAssocArray * pRestList);
 	int    CalcAssetDeprec(PPID lotID, const DateRange *, double * pDeprec);
 	//
@@ -20035,7 +20041,7 @@ private:
 #define PPBZSI_SALEQTTY               22 // @v12.1.6 "saleqtty"  Проданное количество торговых единиц 
 #define PPBZSI_ORDCANCELLEDCOUNT      23 // @v12.1.6 "ordcancelledcount" Количество заказоы которые были отменены
 #define PPBZSI_ORDCANCELLEDQTTY       24 // @v12.1.6 "ordcancelledqtty"  Количество торговых единиц товара, заказы на которые были отменены
-#define PPBZSI_ORDSHIPMDELAYDAYSAVG   25 // @v12.1.6 "ordshipmdelaydaysavg"   Средний период между заказом и продажей в днях
+#define PPBZSI_ORDSHIPMDELAYDAYSAVG   25 // @v12.1.6 [compound] "ordshipmdelaydaysavg"   Средний период между заказом и продажей в днях
 #define PPBZSI_ORDSHIPMDELAYDAYSMIN   26 // @v12.1.6 "ordshipmdelaydaysmin"   Минимальный период между заказом и продажей в днях  
 #define PPBZSI_ORDSHIPMDELAYDAYSMAX   27 // @v12.1.6 "ordshipmdelaydaysmax"   Максимальный период между заказом и продажей в днях  
 #define PPBZSI_SUPPLSHIPMDELAYDAYSAVG 28 // @v12.1.6 "supplshipmdelaydaysavg" Средний период между поставкой и продажей в днях
@@ -20047,6 +20053,7 @@ private:
 #define PPBZSI_MPAMT_SHIPMSELLERPRICE 34 // @v12.1.8 "mpamtshipmsellerprice" Сумма отгрузки с маркетплейса в терминах цены продавца //
 #define PPBZSI_SALECOST               35 // @v12.1.9 "salecost"  Себестоимость проданных товаров
 #define PPBZSI_FREIGHT                36 // @v12.1.9 "freight"   Стоимость фрахта 
+#define PPBZSI_ORDCANCELLATIONRATE    37 // @v12.1.11 [compound] "ordcancellationrate" Отношение числа отмененных заказов к общему числу заказов
 //
 // Флаги значений бизнес-показателей
 //
@@ -20116,7 +20123,9 @@ struct PPBizScore2Packet {
 class PPObjBizScore : public PPObjReference {
 public:
 	static const char * GetBzsiSymb(int bzsi, SString & rBuf);
-	static int RecognizeBzsiSymb(const char * pSymb);
+	static const char * GetBzsiDescr(int bzsi, SString & rBuf);
+	static int  RecognizeBzsiSymb(const char * pSymb);
+	static bool IsBzsiAdditive(int bzsi);
 
 	explicit PPObjBizScore(void * extraPtr = 0);
 	~PPObjBizScore();
@@ -20257,6 +20266,11 @@ public:
 	BzsValVector();
 	int    Add(long id, double value);
 	bool   Get(long id, double * pValue) const;
+	//
+	// Descr: Рассчитывает и, в случае успеха, возвращает сложный индикатор, зависящий от одного 
+	//   или нескольких иных индикаторов.
+	//
+	bool   GetCompound(long id, double * pValue) const;
 	uint64 Ident; // Некоторый идентификатор, позволяющий определить привязку вектора к внешним данным
 };
 
@@ -34156,11 +34170,11 @@ public:
 			fEnableZeroRest = 0x0004,
 			fNotEmptySerial = 0x0080,
 			fShowEgaisTags  = 0x0100,
-			fShowBarcode    = 0x0200, // @v10.1.0
-			fShowQtty       = 0x0400, // @v10.1.0
-			fShowPhQtty     = 0x0800, // @v10.1.0
-			fShowVetisTag   = 0x1000, // @v10.1.0
-			fShowManufTime  = 0x2000  // @v10.2.10
+			fShowBarcode    = 0x0200,
+			fShowQtty       = 0x0400,
+			fShowPhQtty     = 0x0800,
+			fShowVetisTag   = 0x1000,
+			fShowManufTime  = 0x2000
 		};
 		PPID   LocID;
 		PPID   ExcludeLotID;
@@ -34229,6 +34243,20 @@ public:
 	int    EditBillExtData(PPID billID);
 	int    EditBillFreight(PPID billID);
 	int    EditLotExtData(PPID lotID);
+	//
+	// Descr: Извлекает адрес доставки документа.
+	//   В общем случае адрес доставки хранится в дополнительной записи документа pFreight. Однако,
+	//   если контрагентом в документе является статья, проецируемая на склад и явно во фрахте
+	//   адрес доставки не указан, то адресом доставки будет склад, на который проецируется статья.
+	// ARG(rBillRec IN):
+	// ARG(pFreight IN):
+	// ARG(pDlvrAddrID OUT):
+	// Returns:
+	//   >0 - пара rBillRec и pFreight определяют не нулевой адрес доставки.
+	//   <0 - адрес доставки не определен
+	//    0 - error
+	//
+	int    GetDlvrAddrID(const BillTbl::Rec & rBillRec, const PPFreight * pFreight, PPID * pDlvrAddrID); // @v12.1.11
 	//
 	// Descr: Вызывает диалог редактирования системной информации по лоту
 	//
@@ -34346,7 +34374,7 @@ public:
 	// Descr: Флаги функции PPObjBill::CreateBankingOrders
 	//
 	enum {
-		cboIn      = 0x0001, // Создавать входящие платежные ордера (получатель - главная организация)
+		cboIn              = 0x0001, // Создавать входящие платежные ордера (получатель - главная организация)
 		cboSkipUndefBnkAcc = 0x0002  // Если плательщик или получатель не имеют определенных банковских
 			// счетов, то не формировать для таких контрагентов платежных ордеров.
 	};
@@ -34447,14 +34475,14 @@ public:
 	class InvBlock {
 	public:
 		enum {
-			fPriceByLastLot  = 0x0001, // Цену брать из последнего лота
-			fFailOnDup       = 0x0002, // При существовании аналогичной позиции сигнализировать об ошибке (не складывать количества).
-			fSkipZeroRest    = 0x0004, //
-			fUseCurrent      = 0x0008, // Функция AcceptInventoryItem определяет учетные характеристики по текущему состоянию, но не на дату документа инвентаризации
-			fAutoLine        = 0x0010,
-			fAutoLineAllowZero       = 0x0020,
-			fAutoLineZero    = 0x0040,
-			fRestrictZeroRestWithMtx = 0x0080, // @v10.5.6 Проекция флага AutoFillInvFilt::fRestrictZeroRestWithMtx
+			fPriceByLastLot    = 0x0001, // Цену брать из последнего лота
+			fFailOnDup         = 0x0002, // При существовании аналогичной позиции сигнализировать об ошибке (не складывать количества).
+			fSkipZeroRest      = 0x0004, //
+			fUseCurrent        = 0x0008, // Функция AcceptInventoryItem определяет учетные характеристики по текущему состоянию, но не на дату документа инвентаризации
+			fAutoLine          = 0x0010,
+			fAutoLineAllowZero = 0x0020,
+			fAutoLineZero      = 0x0040,
+			fRestrictZeroRestWithMtx = 0x0080, // Проекция флага AutoFillInvFilt::fRestrictZeroRestWithMtx
 			fExcludeZeroRestPassiv   = 0x0100  // @v11.1.2
 		};
 		explicit InvBlock(long flags = 0);
@@ -39980,10 +40008,7 @@ public:
 			kRegular = 0,
 			kOrders  = 1
 		};
-		FiltExtraParam(int kind) : Kind(kind)
-		{
-			assert(oneof2(Kind, kRegular, kOrders));
-		}
+		explicit FiltExtraParam(int kind);
 		int    Kind;
 	};
 	LotFilt();
@@ -40918,7 +40943,8 @@ struct PPMarketplaceConfig { // @construction
 	PPID   OrderOpID;      // Вид операции заказа на маркетплейсе  
 	PPID   SalesOpID;      // Вид операции продажи на маркетплейсе  
 	PPID   TransferToMpOpID; // Вид операции передачи товара на маркетплейс (не совмещенная внутренняя передача, поскольку приходы на склады мп осущетсвляются сепаратно)
-	uint8  Reserve[48];    // @reserve 
+	PPID   ReturnOpID;     // @v12.1.11 Вид операции возврата от покупателя //
+	uint8  Reserve[44];    // @reserve  // @v12.1.11 [48]-->[44]
 	long   Reserve2[2];    // @reserve
 };
 
@@ -40953,6 +40979,7 @@ public:
 	PPMarketplaceInterface * GetIfc() { return P_Ifc; }
 	PPID   GetOrderOpID();
 	PPID   GetSaleOpID();
+	PPID   GetRetOpID(); // @v12.1.11
 	//
 	// Descr: Возвращает идентификатор таблицы аналитического учета, соответствующей маркетплейсам (вид персоналий PPPRK_MARKETPLACE).
 	// Returns:
@@ -40970,6 +40997,7 @@ public:
 	PPID   GetMarketplaceOpsAccSheetID();
 	PPID   Helper_GetMarketplaceOpsAccSheetID(bool createIfNExists, bool createArticles, int use_ta);
 	PPID   Helper_GetMarketplaceOpsAccount(bool createIfNExists, int use_ta);
+	int    EvaluateAverageRest(PPID goodsID, const DateRange & rPeriod, double * pResult);
 private:
 	int    ReloadGuaPack();
 
@@ -43718,9 +43746,9 @@ public:
 	bool   HasExtFiltering() const
 		{ return (AgentID || TableCode || CreationUserID || GuestCount > 0 || (Flags & fStartOrderPeriod && !Period.IsZero()) || (DlvrAddrID || Flags & fZeroDlvrAddr)); }
 
-	uint8  ReserveStart[16]; // @#0 !Использовать начиная со старших адресов // @v10.7.3 [8]-->[4] // @v11.9.1 [4]-->[16]
-	PPID   CreationUserID;   // @v10.7.3
-	uint32 CountOfLastItems; // @v10.2.1 Специализированный критерий, предписывающий извлекать не более CountOfLastItems
+	uint8  ReserveStart[16]; // @#0 !Использовать начиная со старших адресов // @v11.9.1 [4]-->[16]
+	PPID   CreationUserID;   // 
+	uint32 CountOfLastItems; // Специализированный критерий, предписывающий извлекать не более CountOfLastItems
 		// последних чеков выборки. Нужен для оптимизации информационных списков, где полная выборка менее важна,
 		// нежели время извлечения.
 		// @attention Опция работает очень ограниченно и, в целом, не верно. В регулярных задачах не использовать!
@@ -43736,8 +43764,8 @@ public:
 		// Пнд (WeekDays & (1 << 1)), Вт (WeekDays & (1 << 2)), ..., Вскр (WeekDays & (1 << 0))
 	int16  GuestCount;       // Количество гостей за столом
 	int16  Div;              // Номер отдела (по строкам)
-	int8   AltRegF;          // @v10.0.02 >0 - только то, что по альт регистратору, <0 - только то, что не по альт регистратору, 0 - без разницы
-	uint8  Reserve;          // @alignment // @v10.0.02 uint16-->uint8
+	int8   AltRegF;          // >0 - только то, что по альт регистратору, <0 - только то, что не по альт регистратору, 0 - без разницы
+	uint8  Reserve;          // @alignment
 	long   CashNumber;       //
 	long   Flags;            //
 	long   Flags2;           // @v11.9.1
@@ -44672,6 +44700,7 @@ struct GoodsOpAnalyzeTotal {
 	double InCost;
 	double InPrice;
 	double InIncome;
+	BzsValVector IndicatorVect; // @v12.1.11
 };
 
 class PPViewGoodsOpAnalyze : public PPView {

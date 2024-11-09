@@ -24,11 +24,11 @@ PPProjectConfig & PPProjectConfig::Z()
 	return r;
 }
 
-static int PutCounter(PPID * pID, PPObjOpCounter * pOpcObj, PPOpCounterPacket * pCntr)
+static bool PutCounter(PPID * pID, PPObjOpCounter * pOpcObj, PPOpCounterPacket * pCntr)
 {
 	pCntr->Head.ObjType = PPOBJ_PROJECT;
 	pCntr->Head.OwnerObjID = -1;
-	return BIN(pOpcObj->PutPacket(pID, pCntr, 0));
+	return LOGIC(pOpcObj->PutPacket(pID, pCntr, 0));
 }
 
 static int PPObjProject_WriteConfig(PPProjectConfig * pCfg, PPOpCounterPacket * pPrjCntr, PPOpCounterPacket * pPhsCntr,
@@ -2483,10 +2483,8 @@ int PPObjPrjTask::SubstDescr(PPPrjTaskPacket * pPack)
 				case PPSYM_CLIENTADDR:
 					if(pPack->Rec.ClientID) {
 						THROW_MEM(SETIFZ(p_psn_obj, new PPObjPerson));
-						if(pPack->Rec.DlvrAddrID) {
-							// @v9.5.5 p_psn_obj->LocObj.P_Tbl->GetAddress(pPack->DlvrAddrID, 0, temp_buf);
-							p_psn_obj->LocObj.GetAddress(pPack->Rec.DlvrAddrID, 0, temp_buf); // @v9.5.5
-						}
+						if(pPack->Rec.DlvrAddrID)
+							p_psn_obj->LocObj.GetAddress(pPack->Rec.DlvrAddrID, 0, temp_buf);
 						else
 							p_psn_obj->GetAddress(pPack->Rec.ClientID, temp_buf);
 						temp_buf.CopyTo(b, sizeof(buf)-len);

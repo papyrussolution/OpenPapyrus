@@ -1753,7 +1753,7 @@ int PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID locID
 				freight.SetupDlvrAddr(pSrcPack->Hdr.DlvrAddrID);
 				p_bobj->P_Tbl->SetFreight(analog_bill_rec.ID, &freight, use_ta);
 			}
-			else if(ex_freight.DlvrAddrID == 0) {
+			else if(!ex_freight.DlvrAddrID__) {
 				ex_freight.SetupDlvrAddr(pSrcPack->Hdr.DlvrAddrID);
 				p_bobj->P_Tbl->SetFreight(analog_bill_rec.ID, &ex_freight, use_ta);
 			}

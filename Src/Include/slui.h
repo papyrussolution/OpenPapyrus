@@ -2389,6 +2389,7 @@ public:
 	//   элемента (например, HWND). Если нет, то 0.
 	//
 	static int64 CreateCorrespondingNativeItem(TView * pV);
+	static bool  FASTCALL IsSubSign(const TView * pV, uint sign) { return (pV && pV->SubSign == sign); }
 
 	enum phaseType {
 		phFocused,
@@ -2465,7 +2466,7 @@ public:
 	TView * prev() const;
 	TView * TopView();
 	bool   IsConsistent() const;
-	int    FASTCALL IsSubSign(uint) const;
+	bool   FASTCALL IsSubSign(uint) const;
 	uint   GetSubSign() const { return SubSign; }
 	int    GetEndModalCmd() const { return EndModalCmd; }
 	//

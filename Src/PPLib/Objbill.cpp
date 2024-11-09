@@ -23,7 +23,7 @@ PPObjBill::ReckonParam::ReckonParam(int automat, int dontConfirm) : Flags(0), Fo
 {
 	SETFLAG(Flags, fAutomat, automat);
 	SETFLAG(Flags, fDontConfirm, dontConfirm);
-	PTR32(ForceBillCode)[0] = 0;
+	ForceBillCode[0] = 0;
 }
 
 /*static*/bool FASTCALL PPObjBill::IsPoolOwnedByBill(PPID assocID) { return oneof2(assocID, PPASS_PAYMBILLPOOL, PPASS_OPBILLPOOL); }
@@ -221,9 +221,9 @@ int PPObjBill::PutGuid(PPID id, const S_GUID * pUuid, int use_ta)
 	int    ok = 1;
 	ObjTagItem tag;
 	BillTbl::Rec _rec;
-	PPObjTag tagobj;
+	PPObjTag tag_obj;
 	PPObjectTag tag_rec;
-	THROW_PP(tagobj.Fetch(tag_id, &tag_rec) > 0, abs_err_msg_id);
+	THROW_PP(tag_obj.Fetch(tag_id, &tag_rec) > 0, abs_err_msg_id);
 	if(!S_GUID::IsEmpty(pUuid)) {
 		THROW(Search(id, &_rec) > 0);
 	}
@@ -272,10 +272,7 @@ int PPObjBill::GetGuid(PPID id, S_GUID * pUuid)
 	return rBuf;
 }
 
-const char * PPObjBill::GetNamePtr()
-{
-	return PPObjBill::MakeCodeString(&P_Tbl->data, 1, NameBuf).cptr();
-}
+const char * PPObjBill::GetNamePtr() { return PPObjBill::MakeCodeString(&P_Tbl->data, 1, NameBuf).cptr(); }
 
 int PPObjBill::CheckStatusFlag(PPID statusID, long flag)
 {
@@ -445,22 +442,21 @@ int PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 					// } @v11.5.11 
 				}
 				if(CheckOpFlags(pPack->Rec.OpID, OPKF_FREIGHT)) {
-					const PPFreight * p_fr = pPack->P_Freight;
-					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_FREIGHT) || p_fr, PPERR_BILLSTCHECKFLD_FREIGHT);
-					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_DLVRADDR) || (p_fr && p_fr->DlvrAddrID), PPERR_BILLSTCHECKFLD_DLVRADDR);
-					if(p_fr) {
-						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_PORTOFLOADING) || p_fr->PortOfLoading, PPERR_BILLSTCHECKFLD_PORTOFLD);
-						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_PORTOFDISCHARGE) || p_fr->PortOfDischarge, PPERR_BILLSTCHECKFLD_PORTOFDCHG);
-						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_ISSUEDT) || p_fr->IssueDate, PPERR_BILLSTCHECKFLD_ISSUEDATE);
-						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_ARRIVALDT) || p_fr->ArrivalDate, PPERR_BILLSTCHECKFLD_ARRIVALDATE);
-						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_SHIP) || p_fr->ShipID, PPERR_BILLSTCHECKFLD_SHIP);
-						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_FREIGHTCOST) || p_fr->Cost > 0.0, PPERR_BILLSTCHECKFLD_FREIGHTCOST);
-						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_CAPTAIN) || p_fr->CaptainID, PPERR_BILLSTCHECKFLD_CAPTAIN);
-						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_TRBROKER) || p_fr->AgentID, PPERR_BILLSTCHECKFLD_TRBROKER);
+					const PPFreight * p_freight = pPack->P_Freight;
+					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_FREIGHT) || p_freight, PPERR_BILLSTCHECKFLD_FREIGHT);
+					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_DLVRADDR) || (p_freight && p_freight->DlvrAddrID__), PPERR_BILLSTCHECKFLD_DLVRADDR);
+					if(p_freight) {
+						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_PORTOFLOADING) || p_freight->PortOfLoading, PPERR_BILLSTCHECKFLD_PORTOFLD);
+						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_PORTOFDISCHARGE) || p_freight->PortOfDischarge, PPERR_BILLSTCHECKFLD_PORTOFDCHG);
+						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_ISSUEDT) || p_freight->IssueDate, PPERR_BILLSTCHECKFLD_ISSUEDATE);
+						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_ARRIVALDT) || p_freight->ArrivalDate, PPERR_BILLSTCHECKFLD_ARRIVALDATE);
+						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_SHIP) || p_freight->ShipID, PPERR_BILLSTCHECKFLD_SHIP);
+						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_FREIGHTCOST) || p_freight->Cost > 0.0, PPERR_BILLSTCHECKFLD_FREIGHTCOST);
+						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_CAPTAIN) || p_freight->CaptainID, PPERR_BILLSTCHECKFLD_CAPTAIN);
+						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_TRBROKER) || p_freight->AgentID, PPERR_BILLSTCHECKFLD_TRBROKER);
 					}
 				}
 			}
-			// @v10.2.5 {
 			if(bs_rec.Flags & BILSTF_STRICTPRICECONSTRAINS || (bs_rec.CheckFields & (BILCHECKF_LNEXPLVATRATE|BILCHECKF_LNCHZNMARKS))) { // @v11.8.9 (BILCHECKF_LNEXPLVATRATE|BILCHECKF_LNCHZNMARKS)
 				RealRange restr_bounds;
 				PPLotExtCodeContainer::MarkSet lotxcode_set; // @v11.8.9
@@ -469,7 +465,7 @@ int PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 					if(bs_rec.Flags & BILSTF_STRICTPRICECONSTRAINS) {
 						if(GetPriceRestrictions(*pPack, r_ti, tidx, &restr_bounds) > 0) {
 							const double validated_price = r_ti.NetPrice();
-							if(!restr_bounds.CheckValEps(validated_price, 1E-7)) { // @v10.2.12
+							if(!restr_bounds.CheckValEps(validated_price, 1E-7)) {
 								//THROW(restr_bounds.CheckVal(validated_price));
 								if(restr_bounds.low > 0.0) {
 									SString & r_nam_buf = SLS.AcquireRvlStr();
@@ -505,7 +501,6 @@ int PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 					// } @v11.8.9 
 				}
 			}
-			// } @v10.2.5
 		}
 	}
 	else
@@ -705,6 +700,7 @@ void PPObjBill::DiagGoodsTurnError(const PPBillPacket * pPack)
 int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacket * pOrderPack, int orderItemIdx, PPID srcLotID, double maxQtty, int interactive)
 {
 	int    ok = -1;
+	SString temp_buf;
 	LongArray row_idx_list;
 	if(pOrderPack->ChkTIdx(orderItemIdx)) {
 		const  PPTransferItem * p_ord_item = &pOrderPack->TI(orderItemIdx);
@@ -722,6 +718,15 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 		PPID   isales_support_discount_qk = -1; // @v11.0.6 Опорная котировка для расчета скидки по заказам iSales
 		THROW(GObj.Fetch(goods_id, &goods_rec) > 0);
 		THROW(pPack->RestByOrderLot(p_ord_item->LotID, 0, -1, &qtty));
+		// PPERR_ORDISCOMPLETED               "Заказ уже исполнен (%s)" // @v12.1.11
+		if(qtty <= 0.0) {
+			SString msg_buf;
+			PPObjBill::MakeCodeString(&pOrderPack->Rec, 0, temp_buf);
+			msg_buf.Cat(temp_buf).Space().CatEq("ord_lot_id", p_ord_item->LotID).CatDiv('-', 1).Cat(goods_rec.Name);
+			PPObjBill::MakeCodeString(&pPack->Rec, 0, temp_buf);
+			msg_buf.Space().Cat("->").Space().Cat(temp_buf);
+			CALLEXCEPT_PP_S(PPERR_ORDISCOMPLETED, msg_buf);
+		}
 		// @v12.1.2 {
 		if(maxQtty > 0.0 && qtty > maxQtty)
 			qtty = maxQtty;
@@ -770,7 +775,6 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 				}
 				rest = MIN(rest, qtty);
 				if(rest > 0.0) {
-					SString temp_buf;
 					SString edi_channel;
 					if(pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER)
 						pOrderPack->BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, edi_channel);
@@ -3032,8 +3036,8 @@ int PPObjBill::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				if(dlvr_addr_list.at(i).Val == _id) {
 					const  PPID bill_id = dlvr_addr_list.at(i).Key;
 					PPFreight freight;
-					if(p_tbl->GetFreight(bill_id, &freight) > 0 && freight.DlvrAddrID == _id) {
-						freight.DlvrAddrID = reinterpret_cast<long>(extraPtr);
+					if(p_tbl->GetFreight(bill_id, &freight) > 0 && freight.DlvrAddrID__ == _id) {
+						freight.DlvrAddrID__ = reinterpret_cast<long>(extraPtr);
 						THROW(p_tbl->SetFreight(bill_id, &freight, 0));
 					}
 				}
@@ -4875,7 +4879,7 @@ int PPObjBill::CalcGoodsSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, const Dat
 		BillTbl::Rec bill_rec;
 		if(!endOprNo || trfr->data.Dt < pPeriod->upp || (trfr->data.Dt == pPeriod->upp && trfr->data.OprNo < endOprNo)) {
 			if(Fetch(trfr->data.BillID, &bill_rec) > 0 && bill_rec.Object == arID) {
-				if(!dlvrLocID || (P_Tbl->GetFreight(bill_rec.ID, &freight) > 0 && freight.DlvrAddrID == dlvrLocID)) {
+				if(!dlvrLocID || (P_Tbl->GetFreight(bill_rec.ID, &freight) > 0 && freight.DlvrAddrID__ == dlvrLocID)) {
 					qt += trfr->data.Quantity;
 					am += (TR5(trfr->data.Price) - TR5(trfr->data.Discount)) * trfr->data.Quantity;
 				}
@@ -5615,7 +5619,7 @@ private:
 	class BillFreightCache : public ObjCacheHash {
 	public:
 		struct Data : public ObjCacheEntry { // size=48+16
-			PPID   DlvrAddrID;
+			PPID   DlvrAddrID__;
 			long   TrType;
 			PPID   PortOfLoading;
 			PPID   PortOfDischarge;
@@ -5641,7 +5645,7 @@ private:
 				if(id) {
 					if(p_bobj->P_Tbl->GetFreight(id, &freight) > 0) {
 						#define FLD(f) p_cache_rec->f = freight.f
-						FLD(DlvrAddrID);
+						FLD(DlvrAddrID__);
 						FLD(TrType);
 						FLD(PortOfLoading);
 						FLD(PortOfDischarge);
@@ -5657,7 +5661,7 @@ private:
 					}
 					else {
 						#define FLDZERO(f) p_cache_rec->f = 0
-						FLDZERO(DlvrAddrID);
+						FLDZERO(DlvrAddrID__);
 						FLDZERO(TrType);
 						FLDZERO(PortOfLoading);
 						FLDZERO(PortOfDischarge);
@@ -5682,7 +5686,7 @@ private:
 			memzero(p_data_rec, sizeof(*p_data_rec));
 			if(!(p_cache_rec->F & ObjCacheEntry::fUndef)) {
 				#define FLD(f) p_data_rec->f = p_cache_rec->f
-				FLD(DlvrAddrID);
+				FLD(DlvrAddrID__);
 				FLD(TrType);
 				FLD(PortOfLoading);
 				FLD(PortOfDischarge);
@@ -10369,7 +10373,6 @@ private:
 				}
 				SETIFZ(selected_op_id, op_list.getSingle());
 			}
-			// @v10.9.0 opID = oneof2(PrevBbt, 0, bbt) ? opID : 0;
 			if(!op_list.lsearch(selected_op_id))
 				selected_op_id = 0;
 			SetupOprKindCombo(this, CTLSEL_ADDBILLFLT_OP, selected_op_id, 0, &op_list, OPKLF_OPLIST);
@@ -10410,7 +10413,6 @@ int PPObjBill::CreateNewInteractive(CreateNewInteractive_Param * pP)
 				bill_filt.LocList.Add(pP->LocID);
 				r = AddGoodsBillByFilt(&id, &bill_filt, pP->OpID);
 			}
-			// @v10.9.0 {
 			if(r > 0 && pP->Flags & pP->fShowBrowserAfterCreation) {
 				BillTbl::Rec bill_rec;
 				if(Search(id, &bill_rec) > 0) {
@@ -10433,12 +10435,34 @@ int PPObjBill::CreateNewInteractive(CreateNewInteractive_Param * pP)
 					PPView::Execute(PPVIEW_BILL, &bill_flt, GetModelessStatus(), &p);
 				}
 			}
-			// } @v10.9.0 
 			DS.SetLocation(save_loc_id);
 			ok = (r == cmOK) ? 1 : -1;
 		}
 	}
 	return ok;
+}
+
+int PPObjBill::GetDlvrAddrID(const BillTbl::Rec & rBillRec, const PPFreight * pFreight, PPID * pDlvrAddrID) // @v12.1.11
+{
+	int    ok = -1;
+	PPID   result = 0;
+	if(pFreight && pFreight->DlvrAddrID__) {
+		result = pFreight->DlvrAddrID__;
+		ok = 1;
+	}
+	else if(rBillRec.Object) {
+		ArticleTbl::Rec ar_rec;
+		if(ArObj.Fetch(rBillRec.Object, &ar_rec) > 0 && ar_rec.ObjID) {
+			PPObjAccSheet acs_obj;
+			PPAccSheet acs_rec;
+			if(acs_obj.Fetch(ar_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_LOCATION) {
+				result = ar_rec.ObjID;
+				ok = 2;
+			}
+		}
+	}
+	ASSIGN_PTR(pDlvrAddrID, result);
+ 	return ok;
 }
 
 int PPObjBill::ConvertUuid7601()
