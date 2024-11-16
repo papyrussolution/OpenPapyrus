@@ -772,9 +772,9 @@ bool RegisterFilt::IsEmpty() const
 	if(pFilt) {
 		if(pFilt->RegTypeID && rRec.RegTypeID != pFilt->RegTypeID)
 			ok = 0;
-		else if(pFilt->Oid.Obj != rRec.ObjType && (pFilt->Oid.Obj || rRec.ObjType != PPOBJ_PERSON)) // @v10.0.1
+		else if(pFilt->Oid.Obj != rRec.ObjType && (pFilt->Oid.Obj || rRec.ObjType != PPOBJ_PERSON))
 			ok = 0;
-		else if((pFilt->Oid.Obj && pFilt->Oid.Id) && !pFilt->Oid.IsEq(rRec.ObjType, rRec.ObjID))
+		else if(pFilt->Oid.IsFullyDefined() && !pFilt->Oid.IsEq(rRec.ObjType, rRec.ObjID))
 			ok = 0;
 		else if(pFilt->ExclPersonID && rRec.ObjType == PPOBJ_PERSON && rRec.ObjID == pFilt->ExclPersonID)
 			ok = 0;
@@ -798,12 +798,12 @@ int RegisterCore::SearchByObj(PPObjID oid, PPID regTypeID, RegisterTbl::Rec * pR
 	RegisterTbl::Key1 k1;
 	k1.ObjType = oid.Obj;
 	k1.ObjID = oid.Id;
-	if(search(1, &k1, spGe) && data.ObjType == oid.Obj && data.ObjID == oid.Id) do {
+	if(search(1, &k1, spGe) && oid.IsEq(data.ObjType, data.ObjID)) do {
 		if(data.RegTypeID == regTypeID) {
 			copyBufTo(pRec);
 			ok = 1;
 		}
-	} while(ok < 0 && search(1, &k1, spNext) && data.ObjType == oid.Obj && data.ObjID == oid.Id);
+	} while(ok < 0 && search(1, &k1, spNext) && oid.IsEq(data.ObjType, data.ObjID));
 	return ok;
 }
 
@@ -819,16 +819,14 @@ int RegisterCore::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList,
 	} k;
 	int    idx = 0;
 	MEMSZERO(k);
-	if(pFilt->Oid.Obj && pFilt->Oid.Id) {
+	if(pFilt->Oid.IsFullyDefined()) {
         RegisterArray list;
 		_Get(pFilt->Oid.Obj, pFilt->Oid.Id, &list);
 		for(uint i = 0; i < list.getCount(); i++) {
 			const RegisterTbl::Rec & r_reg_rec = list.at(i);
 			if(CheckRecForFilt(r_reg_rec, pFilt)) {
 				CALLPTRMEMB(pResList, add(r_reg_rec.ID));
-				// @v10.0.1 if(data.ObjType == PPOBJ_PERSON) {
-					CALLPTRMEMB(pObjList, add(r_reg_rec.ObjID));
-				// @v10.0.1 }
+				CALLPTRMEMB(pObjList, add(r_reg_rec.ObjID));
 				c++;
 			}
 		}

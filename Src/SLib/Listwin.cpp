@@ -506,7 +506,7 @@ int WordSelector::Helper_PullDown(const char * pText, int recent)
 			r = 1;
 		}
 		if(r <= 0 && CheckVisible() == 1) {
-			ZDELETE(p_data); // @v10.7.7
+			ZDELETE(p_data);
 			::SetFocus(H());
 			TView::messageCommand(this, cmCancel);
 			WsState &= ~wssVisible;

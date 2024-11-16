@@ -7937,7 +7937,7 @@ int GazpromNeft::GetProducts(bool useStorage)
 														if(p_entry->Ident != 0 && p_entry->Name[0]) {
 															temp_buf.Z();
 															temp_buf.Cat(p_entry->Ident).Tab().Cat(p_entry->Name).Tab().Cat(p_entry->Weight, MKSFMTD(0, 6, 0)).Tab().
-																Cat(p_entry->Capacity, MKSFMTD(0, 6, 0)).Tab().Cat(p_entry->IsActive ? "true" : "false").Tab().
+																Cat(p_entry->Capacity, MKSFMTD(0, 6, 0)).Tab().Cat(STextConst::GetBool(p_entry->IsActive)).Tab().
 																Cat(p_entry->PackingTypeName).Tab().Cat(p_entry->PackingTypeId).Tab().
 																Cat(p_entry->PackagingTypeName).Tab().Cat(p_entry->PackagingTypeUuid, S_GUID::fmtIDL);
 															f_out.WriteLine(temp_buf.CR());
@@ -8102,7 +8102,7 @@ int GazpromNeft::GetClients()
 													if(p_entry->Ident != 0 && p_entry->Name[0]) {
 														temp_buf.Z();
 														temp_buf.Cat(p_entry->Ident).Tab().Cat(p_entry->Name).Tab().Cat(p_entry->Weight, MKSFMTD(0, 6, 0)).Tab().
-															Cat(p_entry->Capacity, MKSFMTD(0, 6, 0)).Tab().Cat(p_entry->IsActive ? "true" : "false").Tab().
+															Cat(p_entry->Capacity, MKSFMTD(0, 6, 0)).Tab().Cat(STextConst::GetBool(p_entry->IsActive)).Tab().
 															Cat(p_entry->PackingTypeName).Tab().Cat(p_entry->PackingTypeId).Tab().
 															Cat(p_entry->PackagingTypeName).Tab().Cat(p_entry->PackagingTypeUuid, S_GUID::fmtIDL);
 														f_out.WriteLine(temp_buf.CR());

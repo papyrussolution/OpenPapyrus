@@ -1,5 +1,5 @@
 // V_GSTRUC.CPP
-// Copyright (c) A.Starodub 2007, 2008, 2009, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Starodub 2007, 2008, 2009, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Таблица просмотра товарных структур
 //
@@ -710,9 +710,8 @@ int PPViewGoodsStruc::Recover()
 				for(uint j = 0; j < Problems.getCount(); j++) {
 					const PPObjGoodsStruc::CheckGsProblem * p_problem = Problems.at(j);
 					if(p_problem->Code == PPObjGoodsStruc::CheckGsProblem::errNoNameAmbig)
-						nna_gs_list.add(p_problem->GsID);
+						nna_gs_list.add(p_problem->LocIdent);
 				}
-				// @v10.0.12 {
 				if(flags & cfSpcDetaching) {
 					PPGoodsStrucHeader gs_rec;
 					PPIDArray gs_id_list;
@@ -745,7 +744,6 @@ int PPViewGoodsStruc::Recover()
 						THROW(tra.Commit());
 					}
 				}
-				// } @v10.0.12 
 				if(nna_gs_list.getCount()) {
 					nna_gs_list.sortAndUndup();
 					SString surrogate_name;
@@ -898,8 +896,8 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				if(brw_hdr.GStrucID && Problems.getCount()) {
 					for(uint i = 0; i < Problems.getCount(); i++) {
 						const PPObjGoodsStruc::CheckGsProblem * p_problem = Problems.at(i);
-						if(p_problem->GsID > brw_hdr.GStrucID) {
-							if(pBrw->search2(&p_problem->GsID, CMPF_LONG, srchFirst, 0)) {
+						if(static_cast<PPID>(p_problem->LocIdent) > brw_hdr.GStrucID) {
+							if(pBrw->search2(&p_problem->LocIdent, CMPF_LONG, srchFirst, 0)) {
 								ok = 1;
 								break;
 							}
@@ -912,8 +910,8 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					uint i = Problems.getCount();
 					if(i) do {
 						const PPObjGoodsStruc::CheckGsProblem * p_problem = Problems.at(--i);
-						if(p_problem->GsID < brw_hdr.GStrucID) {
-							if(pBrw->search2(&p_problem->GsID, CMPF_LONG, srchFirst, 0)) {
+						if(static_cast<PPID>(p_problem->LocIdent) < brw_hdr.GStrucID) {
+							if(pBrw->search2(&p_problem->LocIdent, CMPF_LONG, srchFirst, 0)) {
 								ok = 1;
 								break;
 							}
@@ -926,7 +924,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					uint    pp = 0;
 					if(Problems.getCount() && Problems.bsearch(&brw_hdr.GStrucID, &pp, CMPF_LONG)) {
 						const PPObjGoodsStruc::CheckGsProblem * p_problem = Problems.at(pp);
-						SString buf = p_problem->Text;
+						SString buf(p_problem->Descr);
 						PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
 							SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
 					}

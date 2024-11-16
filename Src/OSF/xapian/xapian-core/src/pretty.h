@@ -173,7 +173,7 @@ template <class S> inline PrettyOStream<S> &operator<<(PrettyOStream<S> &ps, uch
 
 template <class S> inline PrettyOStream<S> &operator<<(PrettyOStream<S> &ps, bool b)
 {
-	ps.os << (b ? "true" : "false");
+	ps.os << STextConst::GetBool(b);
 	return ps;
 }
 /*

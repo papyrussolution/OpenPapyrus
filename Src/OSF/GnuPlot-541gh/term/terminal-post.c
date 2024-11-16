@@ -1395,15 +1395,15 @@ end\n\
 	if(p_gp->TPsB.P_Params->psformat != PSTERM_EPS)
 		fputs("%%Pages: (atend)\n", GPT.P_GpPsFile);
 	fprintf(GPT.P_GpPsFile, psi2,
-	    p_gp->TPsB.P_Params->color ? "true" : "false",
-	    p_gp->TPsB.P_Params->blacktext ? "true" : "false",
-	    p_gp->TPsB.P_Params->solid ? "true" : "false",
+	    STextConst::GetBool(p_gp->TPsB.P_Params->color),
+	    STextConst::GetBool(p_gp->TPsB.P_Params->blacktext),
+	    STextConst::GetBool(p_gp->TPsB.P_Params->solid),
 	    p_gp->TPsB.P_Params->dash_length,     /* dash length */
-	    p_gp->TPsB.P_Params->psformat == PSTERM_LANDSCAPE ? "true" : "false",
-	    p_gp->TPsB.P_Params->level1 ? "true" : "false",
-	    p_gp->TPsB.P_Params->level3 ? "true" : "false",
-	    p_gp->TPsB.P_Params->rounded ? "true" : "false",
-	    p_gp->TPsB.P_Params->clipped ? "true" : "false",
+	    STextConst::GetBool(p_gp->TPsB.P_Params->psformat == PSTERM_LANDSCAPE),
+	    STextConst::GetBool(p_gp->TPsB.P_Params->level1),
+	    STextConst::GetBool(p_gp->TPsB.P_Params->level3),
+	    STextConst::GetBool(p_gp->TPsB.P_Params->rounded),
+	    STextConst::GetBool(p_gp->TPsB.P_Params->clipped),
 	    PS_LW*p_gp->TPsB.P_Params->linewidth_factor,  /* line width */
 	    p_gp->TPsB.P_Params->background.r,
 	    p_gp->TPsB.P_Params->background.g,
@@ -1469,7 +1469,7 @@ end\n\
 
 	if(p_gp->TPsB.P_Params->duplex_option) {
 		if(p_gp->TPsB.P_Params->level1)
-			fprintf(GPT.P_GpPsFile, "statusdict begin %s setduplexmode end\n", p_gp->TPsB.P_Params->duplex_state ? "true" : "false");
+			fprintf(GPT.P_GpPsFile, "statusdict begin %s setduplexmode end\n", STextConst::GetBool(p_gp->TPsB.P_Params->duplex_state));
 		else if(!p_gp->TPsB.P_Params->duplex_state) 
 			fprintf(GPT.P_GpPsFile, "%%%%BeginFeature: *Duplex Simplex\n << /Duplex false >> setpagedevice\n%%%%EndFeature\n");
 	}
@@ -2198,7 +2198,7 @@ TERM_PUBLIC void ENHPS_OPEN(GpTermEntry_Static * pThis, const char * fontname, d
 			fontname = p_gp->TPsB.EnhFont;
 		else
 			PS_RememberFont(pThis, fontname);
-		snprintf(ENHps_opensequence, safelen, "[(%s) %.1f %.1f %s %s %d ", fontname, fontsize, base, widthflag ? "true" : "false", show_this ? "true" : "false", overprint);
+		snprintf(ENHps_opensequence, safelen, "[(%s) %.1f %.1f %s %s %d ", fontname, fontsize, base, STextConst::GetBool(widthflag), STextConst::GetBool(show_this), overprint);
 		fprintf(GPT.P_GpPsFile, "%s(", ENHps_opensequence);
 		ENHps_opened_string = TRUE;
 	}

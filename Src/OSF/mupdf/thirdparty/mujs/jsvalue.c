@@ -268,7 +268,6 @@ const char * jsV_numbertostring(js_State * J, char buf[32], double f)
 			*p++ = *s++;
 		*p = 0;
 	}
-
 	else {
 		while(ndigits-- > 0) {
 			*p++ = *s++;
@@ -279,7 +278,6 @@ const char * jsV_numbertostring(js_State * J, char buf[32], double f)
 			*p++ = '0';
 		*p = 0;
 	}
-
 	return buf;
 }
 
@@ -293,7 +291,7 @@ const char * jsV_tostring(js_State * J, js_Value * v)
 		case JS_TSHRSTR: return v->u.shrstr;
 		case JS_TUNDEFINED: return "undefined";
 		case JS_TNULL: return "null";
-		case JS_TBOOLEAN: return v->u.boolean ? "true" : "false";
+		case JS_TBOOLEAN: return STextConst::GetBool(v->u.boolean);
 		case JS_TLITSTR: return v->u.litstr;
 		case JS_TMEMSTR: return v->u.memstr->p;
 		case JS_TNUMBER:

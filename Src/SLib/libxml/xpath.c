@@ -397,11 +397,9 @@ double xmlXPathPINF = 1;
 double xmlXPathNINF = -1;
 static double xmlXPathNZERO = 0; /* not exported from headers */
 static int xmlXPathInitialized = 0;
-/**
- * xmlXPathInit:
- *
- * Initialize the XPath environment
- */
+//
+// Descr: Initialize the XPath environment
+//
 void xmlXPathInit()
 {
 	if(!xmlXPathInitialized) {
@@ -411,8 +409,7 @@ void xmlXPathInit()
 		xmlXPathPINF = fgetposinf();
 		xmlXPathNINF = fgetneginf();
 		xmlXPathNAN = fgetnan();
-		// @v10.9.11 xmlXPathNZERO = trio_nzero();
-		xmlXPathNZERO = -0.0; // @v10.9.11
+		xmlXPathNZERO = -0.0;
 		xmlXPathInitialized = 1;
 	}
 }
@@ -437,10 +434,7 @@ void xmlXPathInit()
  *
  * Returns 1 vi the value is +Infinite, -1 if -Infinite, 0 otherwise
  */
-int FASTCALL xmlXPathIsInf(double val)
-{
-	return fisinf(val); // @v10.8.1 trio_isinf-->fisinf
-}
+int FASTCALL xmlXPathIsInf(double val) { return fisinf(val); }
 
 #endif /* SCHEMAS or XPATH */
 #ifdef LIBXML_XPATH_ENABLED
@@ -454,11 +448,7 @@ int FASTCALL xmlXPathIsInf(double val)
  *
  * Returns 1 if the value is Negative, 0 if positive
  */
-static int FASTCALL xmlXPathGetSign(double val)
-{
-	// @v10.9.11 return trio_signbit(val);
-	return BIN(val < 0.0); // @v10.9.11
-}
+static int FASTCALL xmlXPathGetSign(double val) { return BIN(val < 0.0); }
 /*
  * @todo when compatibility allows remove all "fake node libxslt" strings
  *  the test should just be name[0] = ' '
@@ -469,14 +459,7 @@ static int FASTCALL xmlXPathGetSign(double val)
 	#define DEBUG_EVAL_COUNTS
 #endif
 
-static xmlNs xmlXPathXMLNamespaceStruct = {
-	NULL,
-	XML_NAMESPACE_DECL,
-	XML_XML_NAMESPACE,
-	reinterpret_cast<const xmlChar *>("xml"),
-	NULL,
-	NULL
-};
+static xmlNs xmlXPathXMLNamespaceStruct = { NULL, XML_NAMESPACE_DECL, XML_XML_NAMESPACE, reinterpret_cast<const xmlChar *>("xml"), NULL, NULL };
 static xmlNs * xmlXPathXMLNamespace = &xmlXPathXMLNamespaceStruct;
 #ifndef LIBXML_THREAD_ENABLED
 /*

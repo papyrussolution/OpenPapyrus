@@ -1,5 +1,5 @@
 // ARMA.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2007, 2010, 2011, 2016, 2017, 2020, 2023
+// Copyright (c) A.Sobolev 2002, 2003, 2007, 2010, 2011, 2016, 2017, 2020, 2023, 2024
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -89,17 +89,15 @@ int ARMA::Step(double val)
 {
 	IterCount++;
 	int    ok = 1;
-	uint   i;
+	int    i; // @v12.1.11 uint-->int
 	LVect gain_factor, vec_temp;
 	double ape = ComputePredictError(val);
 	gain_factor.init(P+Q+1);
 	ComputeGainFactor(&gain_factor);
-
 	vec_temp.copy(gain_factor);
 	vec_temp.saxpy(ape, Model);
 	Model.copy(vec_temp);
-
-	double pe = ComputePredictError(val);
+	const double pe = ComputePredictError(val);
 	//
 	// Update reverse matrix
 	// R = R - gain_factor * (Phi * R)

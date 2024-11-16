@@ -269,7 +269,7 @@ void json_add_double(GravityJson * json, const char * key, double value)
 void json_add_bool(GravityJson * json, const char * key, bool bvalue) 
 {
 	json_check_comma(json);
-	const char * value = bvalue ? "true" : "false";
+	const char * value = STextConst::GetBool(bvalue);
 	json_write_key(json, key);
 	json_write_zstr(json, value, false, (key == NULL));
 }

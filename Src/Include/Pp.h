@@ -16797,8 +16797,8 @@ public:
 	SString Symb;       // Уникальная (непустая) строка символа именованного фильтра
 	SString ViewSymb;   // Строка символа объекта PPView, по которому строится фильтр
 	SBuffer Param;      // Хранит данные о настройках фильтра PPBaseFilt
-	ViewDefinition VD;  // @v10.5.0
-	ObjIdListFilt DestGuaList; // @v10.5.3 Список идентификаторов глобальных учетных записей, которым следует отправлять отчеты
+	ViewDefinition VD;  //
+	ObjIdListFilt DestGuaList; // Список идентификаторов глобальных учетных записей, которым следует отправлять отчеты
 };
 //
 // Descr: Пул именованных фильтров. Хранит фильтры, конкретизированные относительно базы данных
@@ -17789,7 +17789,7 @@ public:
 		double VolumeReal; // Объем для текущей цены Last c повышенной точностью
 		double MarginReq;  // Требуемая величина маржи на минимальный объем сделки (исходя из цены Last)
 	};
-	struct TerminalInfo { // @flag @v10.5.4
+	struct TerminalInfo { // @flat
 		TerminalInfo();
 		int32  GmtOffset; // TimeGMT - TimeLocal Разница между временем GMT и локальным на терминале.
 		uint8  Reserve[64];
@@ -18336,42 +18336,42 @@ public:
 			clsmodAdjustLoss  = 1  //
 		};
 		uint32 ID;
-		uint16 InputFrameSize;   // Количество периодов с отсчетом назад, на основании которых принимается прогноз // @v10.8.10 uint32-->uint16
-		uint16 MainFrameSize;    // Длина периода магистрального тренда // @v10.8.10 uint32-->uint16
+		uint16 InputFrameSize;   // Количество периодов с отсчетом назад, на основании которых принимается прогноз
+		uint16 MainFrameSize;    // Длина периода магистрального тренда
 		int16  Prec;             // Точность представления значений (количество знаков после десятичной точки)
 		uint16 TargetQuant;      // Максимальный рост в квантах SpikeQuant
 		uint16 MaxDuckQuant;     // Максимальная величина "проседания" в квантах SpikeQuant
 		uint16 OptDelta2Stride;  // Оптимальный шаг назад при расчете изменения тренда
 		int16  StakeMode;        // Режим покупки: 0 - сплошной (случайный); 1 - по значению тренда; 2 - по изменению тренда, 3 - по значению и изменению тренда
 		uint16 StakeCloseMode;   // clsmodXXX Режим закрытия
-		uint16 BaseFlags;        // @flags // @v10.8.10 uint32-->uint16
+		uint16 BaseFlags;        // @flags
 		uint16 PeakAvgQuant;
 		uint16 BottomAvgQuant;
 		uint16 PeakMaxQuant;
-		uint16 GenSeq;           // @v10.7.9 Порядок генерации при поиске оптимального фактора регрессия/выигрыш
-		uint16 GenPtCount;       // @v10.7.11 Общее количество точек, по которым рассчитывалась стратегия // @v10.8.10 uint32-->uint16
+		uint16 GenSeq;           // Порядок генерации при поиске оптимального фактора регрессия/выигрыш
+		uint16 GenPtCount;       // Общее количество точек, по которым рассчитывалась стратегия //
 		uint32 StakeCount;       // Количество ставок при тестировании
 		uint32 WinCount;         // Количество выигрышей в результате тестирования
 		uint32 StakeCountAtFinalSimulation; //
 		double Margin;           // Маржа
 		double SpikeQuant_s;     // Минимальный квант относительного изменения котировки для дискретизации параметров
 		double SpreadAvg;        // Среднее значение спреда между Ask и Bid
-		double TrendErrAvg;      // @v10.3.12 Среднее значение ошибки регрессии по всему множеству расчетных точек
-		float  TrendErrLim;      // @v10.3.12 Ограничение для ошибки регрессии, выше которого применять стратегию нельзя.
+		double TrendErrAvg;      // Среднее значение ошибки регрессии по всему множеству расчетных точек
+		float  TrendErrLim;      // Ограничение для ошибки регрессии, выше которого применять стратегию нельзя.
 			// Эта величина умножается на TrendErrAvg для получения абсолютного значения лимита.
 			// [0..]. 0 - не использовать ограничение, 1.0 - ограничение равно TrendErrAvg, 1.05 - (1.05 * TrendErrAvg)
 			// @v10.8.10 double-->float
-		float  TrendErrLowLim;   // @v10.8.10 @experimental Если >0.0 то это - нижняя граница ошибки регрессии (очень спорно)
-		double MainTrendErrAvg;  // @v10.6.12 Среднее значение ошибки регрессии для магистрального тренда
+		float  TrendErrLowLim;   // @experimental Если >0.0 то это - нижняя граница ошибки регрессии (очень спорно)
+		double MainTrendErrAvg;  // Среднее значение ошибки регрессии для магистрального тренда
 		float  MainTrendErrLim;  // Ограничение для ошибки регрессии магистрального тренда // @v10.8.10 double-->float
-		float  ADF;              // @v10.8.9 @experimental Adjusent-Density-Factor фактор плотности смежных зон
-		float  UEF;              // @v10.8.10 Unevenness-Factor фактор неравномерности распределения точек в зоне OpeDeltaRange
-		float  GenTEA;           // @v10.8.10 Trend-Err-Average at generating phase
-		float  GenTED;           // @v10.8.10 Trend-Err-Deviation at generating phase
-		float  CADF;             // @v10.8.12 Core-Angular-Deviation-Factor фактор отклонения протестированных результатов стратегии от центральной линии канала
-		float  MRSF;             // @v10.8.12 Most-Recently-Stake-Factor фактор близости к текущему моменту последних расчетных ставок
+		float  ADF;              // @experimental Adjusent-Density-Factor фактор плотности смежных зон
+		float  UEF;              // Unevenness-Factor фактор неравномерности распределения точек в зоне OpeDeltaRange
+		float  GenTEA;           // Trend-Err-Average at generating phase
+		float  GenTED;           // Trend-Err-Deviation at generating phase
+		float  CADF;             // Core-Angular-Deviation-Factor фактор отклонения протестированных результатов стратегии от центральной линии канала
+		float  MRSF;             // Most-Recently-Stake-Factor фактор близости к текущему моменту последних расчетных ставок
 		uint16 ATWC;             // @v11.1.11 Количество выигрышных срабатываний при тестировании после расчетного периода
-		uint8  Reserve[14];      // @v10.8.10 // @v10.8.12 [24]-->[20] // @v11.1.11 [16]-->[14]
+		uint8  Reserve[14];      // @v11.1.11 [16]-->[14]
 		OptimalFactorRange OptDeltaRange;
 		OptimalFactorRange OptDelta2Range; // Если MainFrameSize > 0 то здесь хранится диапазон магистрального тренда для стратегии
 		StrategyResultValue V;   // Результат тестирования
@@ -18409,25 +18409,23 @@ public:
 		double SumBottom;        //
 		double MaxPeak;          //
 		uint64 TotalSec;         // Общее время теста (для симуляции контейнеров стратегий)
-		uint   FactorRangeLo;    // @v10.8.6
-		uint   FactorRangeUp;    // @v10.8.6
+		uint   FactorRangeLo;    //
+		uint   FactorRangeUp;    //
 	};
 	struct BestStrategyBlock {
 		BestStrategyBlock();
 		BestStrategyBlock & Z();
 		void   SetResult(double localResult, uint strategyIdx, double tv, double tv2);
 
-		double MaxResult;       //
-		int    MaxResultIdx;    //
-		double TvForMaxResult;  //
-		double Tv2ForMaxResult; //
-		double TrendErr;        // @v10.4.11
-		double TrendErrRel;     // @v10.4.11
-		double MainTrendErr;    // @v10.6.12
-		double MainTrendErrRel; // @v10.6.12
-		// @v10.8.9 double LocalDeviation;  // @v10.7.1
-		// @v10.8.9 double LocalDeviation2; // @v10.7.1
-		uint8  Reserve[16]; // @v10.8.9
+		double MaxResult;
+		int    MaxResultIdx;
+		double TvForMaxResult;
+		double Tv2ForMaxResult;
+		double TrendErr;
+		double TrendErrRel;
+		double MainTrendErr;
+		double MainTrendErrRel;
+		uint8  Reserve[16];
 	};
 
 	class StrategyContainer : public TSVector <Strategy> {
@@ -18460,10 +18458,10 @@ public:
 			scoreSeStakeCountMean,      // Среднее по количеству ставок на этапе отбора стратегий
 			scoreSeStakeCountStdDev,    // Стандартное отклонение по количеству ставок на этапе отбора стратегий
 			scoreSeStakeCountVarCoeff,  // Коэффициент вариации по количеству ставок на этапе отбора стратегий
-			scoreEvAngularStakeDensity, // @v10.8.8 Угловая плотность ставок на этапе вычисления стратегий
-			scoreSeAngularStakeDensity, // @v10.8.8 Угловая плотность ставок на этапе отбора стратегий
-			scoreEvAngularWinRate,      // @v10.8.8 Угловой коэффициент выигрышей
-			scoreTotalAngle             // @v10.8.8 Суммарная величина угла по всем стратегиям контейнера
+			scoreEvAngularStakeDensity, // Угловая плотность ставок на этапе вычисления стратегий
+			scoreSeAngularStakeDensity, // Угловая плотность ставок на этапе отбора стратегий
+			scoreEvAngularWinRate,      // Угловой коэффициент выигрышей
+			scoreTotalAngle             // Суммарная величина угла по всем стратегиям контейнера
 		};
 		//
 		// Descr: Рассчитывает значение показателя контейнера стратегий.
@@ -18491,14 +18489,14 @@ public:
 			gbsfStakeMode1 = 0x0004,
 			gbsfCritProfitMultProb = 0x0040, // В качестве критерия сортировки применять произведение доходности на отношение win/stake.
 				// Если флаг не установлен, то - доходность.
-			gbsfCritProb   = 0x0080, // @v10.4.2 В качестве критерия сортировки применять отношение win/stake.
-			gbsfEliminateDups      = 0x0100, // @v10.4.1 Не включать в список дубликаты по StakeMode1 с идентичными
+			gbsfCritProb           = 0x0080, // В качестве критерия сортировки применять отношение win/stake.
+			gbsfEliminateDups      = 0x0100, // Не включать в список дубликаты по StakeMode1 с идентичными
 				// диапазонами и InputFrameSize (игнорируется то из двух, кто имеет наименьший целевой критерий)
-			gbsfTrendFollowing     = 0x0200, // @v10.4.3 Отбирать только стратегии, идущие вдоль тренда
-			gbsfCritTotalResult    = 0x0400, // @v10.7.3 В качестве критерия сортировки применять абсолютный доход по стратегии.
-			gbsfOptDeltaRangeCQA   = 0x0800, // @V10.7.4 Специальный критерий сортировки по среднему катету угла регрессии в квантах (с дифференциацией по сегментам магистрального тренда)
-			gbsfShuffle    = 0x2000, // @v10.7.7 Перед селекцией хаотизировать список стратегий
-			gbsfCritStakeCount     = 0x8000  // @v10.7.9 В качестве критерия сортировки применять количество ставок стратегии.
+			gbsfTrendFollowing     = 0x0200, // Отбирать только стратегии, идущие вдоль тренда
+			gbsfCritTotalResult    = 0x0400, // В качестве критерия сортировки применять абсолютный доход по стратегии.
+			gbsfOptDeltaRangeCQA   = 0x0800, // Специальный критерий сортировки по среднему катету угла регрессии в квантах (с дифференциацией по сегментам магистрального тренда)
+			gbsfShuffle            = 0x2000, // Перед селекцией хаотизировать список стратегий
+			gbsfCritStakeCount     = 0x8000  // В качестве критерия сортировки применять количество ставок стратегии.
 		};
 		int    MakeOrderIndex(long flags, TSArray <PPObjTimeSeries::StrategyContainer::CritEntry> & rIndex) const;
 		int    GetBestSubset2(const PPTssModelPacket & rTssPacket, StrategyContainer & rScDest, StrategyContainer * pScSkipDueDup, LongArray * pToRemovePosList) const;
@@ -18521,14 +18519,14 @@ public:
 		enum {
 			selcritVelocity   = 1, // По скорости выигрыша
 			selcritWinRatio   = 2, // По отношению числа выигрышей к ставкам
-			selcritResult     = 3, // @v10.7.3 По абсолютной величине выигрыша
-			selcritStakeCount = 4, // @v10.8.9 По количеству ставок стратегии
+			selcritResult     = 3, // По абсолютной величине выигрыша
+			selcritStakeCount = 4, // По количеству ставок стратегии
 			selcritfSkipAmbiguous   = 0x0100, // Флаг, блокирующий выбор стратегии, если существует хотя бы одна иная стратегия с противоположным направлением
 			selcritfSkipShort       = 0x0200, // Флаг, блокирующий выбор коротких стратегий
 			selcritfSkipLong        = 0x0400, // Флаг, блокирующий выбор длинных стратегий
-			selcritfWeightAmbiguous = 0x0800, // @v10.4.12 Флаг, предписывающий при наличии разнонаправленных стратегий выбирать то направление,
+			selcritfWeightAmbiguous = 0x0800, // Флаг, предписывающий при наличии разнонаправленных стратегий выбирать то направление,
 				// которому соответствует большее количество допустимых стратегий. Если количества равны, то не выбирать ничего
-			selcritfSingle  = 0x1000  // @v10.7.7 В коллекции намеренно представлена единственная стратегия: не применять критерий MinSimilItems
+			selcritfSingle  = 0x1000  // В коллекции намеренно представлена единственная стратегия: не применять критерий MinSimilItems
 		};
 		struct SelectBlock : public BestStrategyBlock {
 			SelectBlock(const TSCollection <TrendEntry> & rTrendList, const Index1 & rIndex, uint bucketQuantMin);
@@ -18587,15 +18585,15 @@ public:
 			float low;
 			float upp;
 		};
-		struct FlatBlock { // @v10.6.12 @flat @persistent
+		struct FlatBlock { // @flat @persistent
 			FlatBlock();
 			double MainTrendErrAvg;   // Среднее значение ошибки регрессии для магистрального тренда
-			double AvgLocalDeviation; // @v10.7.1 Среднее локальное отклонение по всей выборке
-			LDATE  UseDataForStrategiesTill; // @v10.7.3
-			uint8  Reserve2[10];       // @v10.8.9
+			double AvgLocalDeviation; // Среднее локальное отклонение по всей выборке
+			LDATE  UseDataForStrategiesTill;
+			uint8  Reserve2[10];
 			double ExperimentalFactor; // @20200819 Экспериментальный фактор, рассчитываемый по ситуации (с целью нахождения устойчивых контейнеров)
-			CriterionRange Cr[2];      // @v10.8.9
-			uint8  Reserve[6];         // @v10.7.1 [56]-->[48] // @v10.7.3 [48]-->[44] // @v10.7.7 [44]-->[42] // @v10.8.6 [42]-->[34] // @20200819 [34]-->[26] // @v10.8.9 [26]-->[6]
+			CriterionRange Cr[2];      // 
+			uint8  Reserve[6];         // 
 		} Fb;
 	};
 	static int EditConfig(const PPObjTimeSeries::Config * pCfg);
@@ -18677,21 +18675,21 @@ public:
 		explicit BrwItem(const PPTimeSeriesPacket * pTs);
 		PPID   ID;             // @id
 		char   Name[48];       // @name @!refname
-		char   Symb[20];       //
+		char   Symb[20];
 		double BuyMarg;
 		double SellMarg;
-		double ManualMarg;     // @v10.5.6
-		int16  Type;           // @v10.5.6
+		double ManualMarg;
+		int16  Type;
 		int16  Prec;
 		char   CurrencySymb[12];
 		double SpikeQuant_t;   //
 		double AvgSpread;      //
 		uint32 OptMaxDuck;     // Оптимальная глубина проседания (в квантах) при длинной ставке
 		uint32 OptMaxDuck_S;   // Оптимальная глубина проседания (в квантах) при короткой ставке
-		uint16 PeakAvgQuant;   // @v10.3.3
-		uint16 PeakAvgQuant_S; // @v10.3.3
-		uint16 TargetQuant;    // @v10.4.2
-		long   Flags;          //
+		uint16 PeakAvgQuant;
+		uint16 PeakAvgQuant_S;
+		uint16 TargetQuant;
+		long   Flags;
 		long   CfgFlags;
 	};
 	PPViewTimeSeries();
@@ -18816,15 +18814,15 @@ public:
 		fProcessLong       = 0x0008,
 		fProcessShort      = 0x0010,
 		fAutodetectTargets = 0x0020, // Автоматически идентифицировать серии, модели по которым следует пересчитать
-		fSimulateAfter     = 0x0040, // @v10.7.0 Провести имитационный тест после построения моделей
-		fAnalyzeModels     = 0x0080, // @v10.7.7 Анализ возможных параметров моделей
+		fSimulateAfter     = 0x0040, // Провести имитационный тест после построения моделей
+		fAnalyzeModels     = 0x0080, // Анализ возможных параметров моделей
 	};
 	uint8  ReserveStart[32]; // @anchor
 	long   Flags;            // @flags
 	long   CloseMode;        // PPObjTimeSeries::Strategy::clsmodXXX
-	LDATE  UseDataForStrategiesTill;  // @v10.7.2
-	LDATE  UseDataForStrategiesTill2; // @v10.8.9
-	uint8  ReserveEnd[52];   // @reserve // @v10.7.2 [60]-->[56] // @v10.8.9 [56]-->[52]
+	LDATE  UseDataForStrategiesTill;
+	LDATE  UseDataForStrategiesTill2;
+	uint8  ReserveEnd[52];   // @reserve
 	ObjIdListFilt TsList;    // @anchor
 };
 
@@ -18846,37 +18844,35 @@ public:
 			tcAmount       = 0, // Абсолютный объем выигрыша
 			tcVelocity     = 1, // Скорость выигрыша
 			tcWinRatio     = 2, // Вероятность выигрыша (количество выигрышей деленных на количество точек в секторе)
-			tcAngularRatio = 3  // @v10.7.9 Угловая вероятность выигрыша (количество выигрышей деленных на радианный угол сектора)
+			tcAngularRatio = 3  // Угловая вероятность выигрыша (количество выигрышей деленных на радианный угол сектора)
 		};
 		long   Flags;
-		long   OptTargetCriterion;      // @v10.4.6
+		long   OptTargetCriterion;
 		LongArray InputFrameSizeList;   // Список не включает период магистрального тренда
-		LongArray MaxDuckQuantList_Obsolete; // @v10.8.4 Не используется (оставлен из-за персистентности)
-		LongArray TargetQuantList_Obsolete;  // @v10.4.3 // @v10.8.4 Не используется (оставлен из-за персистентности)
-		LAssocArray StakeBoundList;     // @v10.7.3 Пары {TP, SL} работающие вместо списков MaxDuckQuantList, TargetQuantList.
+		LongArray MaxDuckQuantList_Obsolete; // Не используется (оставлен из-за персистентности)
+		LongArray TargetQuantList_Obsolete;  // Не используется (оставлен из-за персистентности)
+		LAssocArray StakeBoundList;     // Пары {TP, SL} работающие вместо списков MaxDuckQuantList, TargetQuantList.
 			// То есть, если StakeBoundList не пустой, то MaxDuckQuantList, TargetQuantList не используются
-		LongArray MainFrameSizeList;    // @v10.5.0
+		LongArray MainFrameSizeList;
 		double InitTrendErrLimit;
-		double PartitialTrendErrLimit;  // @v10.7.4 Ограничение ошибки тренда по максимальной части общей выборки ошибок тренда.
+		double PartitialTrendErrLimit;  // Ограничение ошибки тренда по максимальной части общей выборки ошибок тренда.
 			// Так значение 0.90 означает, что для стратегии будет применена максимальная ошибка не превышающая величину которой
 			// соответствует 90 процентов значений тренда, отсортированных по значению ошибки.
-		double InitMainTrendErrLimit;   // @v10.7.0
+		double InitMainTrendErrLimit;
 		uint   BestSubsetDimention;
 		uint   BestSubsetMaxPhonyIters;
 		uint   BestSubsetOptChunk;      // 0 || 1 || 3 || 7 || 15
-		uint   OptRangeStep;            // @v10.4.7
-		uint   OptRangeStepMkPart;      // @v10.4.7
-		uint   OptRangeMultiLimit;      // @v10.4.7
-		uint   OptRangeMaxExtProbe;     // @v10.7.3 @default=1 Максимальное количество попыток расширения оптимального интервала значений регрессии
+		uint   OptRangeStep;
+		uint   OptRangeStepMkPart;
+		uint   OptRangeMultiLimit;
+		uint   OptRangeMaxExtProbe;     // @default=1 Максимальное количество попыток расширения оптимального интервала значений регрессии
 		LDATE  UseDataSince;            // Модель строить по данным, начиная с указанной даты включительно (если checkdate(UseDataSince))
-		LDATE  UseDataTill;             // @v10.7.0 Модель строить по данным для указанной даты включительно (если checkdate(UseDataTill))
-		// @v10.8.9 uint   DefTargetQuant;          // @v10.4.2
-		uint8  Reserve2[4];             // @v10.8.9
-		uint   MainFrameRangeCount;     // @v10.4.9 Количество сегментов, на которые разбивается все множество значений магистрального тренда для подбора стратегий
-		double MinWinRate;              // @v10.4.2 Минимальное отношение выигрышей для стратегий, попадающих в финальную выборку
-		double OverallWinRateLimit;     // @v10.7.0 Минимальное отношение выигрышей для всего множества отобранных стратегий
-		// @v10.7.10 long   ChaosFactor;             // @v10.7.1 Фактор случайности при выборе стратегии в промилле.
-		long   Reserve; // @v10.7.10
+		LDATE  UseDataTill;             // Модель строить по данным для указанной даты включительно (если checkdate(UseDataTill))
+		uint8  Reserve2[4];
+		uint   MainFrameRangeCount;     // Количество сегментов, на которые разбивается все множество значений магистрального тренда для подбора стратегий
+		double MinWinRate;              // Минимальное отношение выигрышей для стратегий, попадающих в финальную выборку
+		double OverallWinRateLimit;     // Минимальное отношение выигрышей для всего множества отобранных стратегий
+		long   Reserve;
 	};
 	static int  ReadModelParam(ModelParam & rMp);
 	PrcssrTsStrategyAnalyze();
@@ -18913,7 +18909,6 @@ private:
 		uint   MainFrameSize;
 		RealRange R;
 	};
-	// @v10.7.2 int    GetTimeSeries(PPID tsID, ModelParam & rMp, STimeSeries & rTs);
 	int    GetTimeSeries(PPID tsID, LDATE dateSince, LDATE dateTill, STimeSeries & rTs);
 	int    FindStrategies(void * pBlk) const;
 	int    SimulateStrategyResultEntries(void * pBlk, const TSVector <PPObjTimeSeries::StrategyResultEntry> & rList,
@@ -19491,8 +19486,8 @@ public:
 #define OPSUBT_DEBTINVENT             7 // Инвентаризация задолженности
 #define OPSUBT_TRADEPLAN              8 // План торговли (драфт-операции)
 #define OPSUBT_ACCWROFF               9 // PPOPT_ACCTURN Списание по бухгалтерским счетам
-#define OPSUBT_POSCORRECTION         10 // @v10.0.0 Корректировка фискальных сумм по кассовому аппарату
-#define OPSUBT_RETURNREQ             11 // @v10.8.12 PPOPT_DRAFTRECEIPT Запрос от покупателя на возврат ранее купленного товара.
+#define OPSUBT_POSCORRECTION         10 // Корректировка фискальных сумм по кассовому аппарату
+#define OPSUBT_RETURNREQ             11 // PPOPT_DRAFTRECEIPT Запрос от покупателя на возврат ранее купленного товара.
 	// Variant of [EDI 180 Return Merchandise Authorization and Notification]
 //
 // Descr: Заголовочная запись вида операций
@@ -20054,6 +20049,9 @@ private:
 #define PPBZSI_SALECOST               35 // @v12.1.9 "salecost"  Себестоимость проданных товаров
 #define PPBZSI_FREIGHT                36 // @v12.1.9 "freight"   Стоимость фрахта 
 #define PPBZSI_ORDCANCELLATIONRATE    37 // @v12.1.11 [compound] "ordcancellationrate" Отношение числа отмененных заказов к общему числу заказов
+#define PPBZSI_SALERETCOUNT           38 // @v12.1.11 "saleretcount" Количество документов возврата от покупателей //
+#define PPBZSI_SALERETQTTY            39 // @v12.1.11 "saleretqtty"  Возвращенное от покупателей количество торговых единиц 
+#define PPBZSI_SALERETCOST            40 // @v12.1.11 "saleretcost"  Себестоимость возвращенных от покупателей товаров
 //
 // Флаги значений бизнес-показателей
 //
@@ -20336,7 +20334,7 @@ public:
 struct PPGlobalUserAccConfig {
 	enum {
 		fValid          = 0x0001, // @transient Структура извлечена из базы данных
-		fAutoCreateGUID = 0x0002  // @v10.6.6 Автоматически создавать тег собственного GUID'а для новых записей
+		fAutoCreateGUID = 0x0002  // Автоматически создавать тег собственного GUID'а для новых записей
 	};
 	PPID   Tag;            // Const=PPOBJ_CONFIG
 	PPID   ID;             // Const=PPCFG_MAIN
@@ -20675,10 +20673,10 @@ private:
 	int    DetectPrefix(const char * pSrc, uint flags, int currentId, uint * pPrefixLen) const;
 	int    GetPrefixSpec(int prefixId, uint * pFixedLen, uint * pMinLen) const;
 	::LAssocArray SpecialFixedTokens; // Значение длины 1000 означает 'до конца строки' (UNTIL EOL)
-	::LAssocArray SpecialMinLenTokens; // @v10.9.6 Специфицированные минимальные длины токенов
+	::LAssocArray SpecialMinLenTokens; // Специфицированные минимальные длины токенов
 	LongArray OnlyTokenList;
 	int    SpecialNaturalToken;  // При разборе может появиться специальный случай, отражаемый как NaturalToken (например, SNTOK_CHZN_CIGITEM)
-	uint8  SpecialStopChars[12]; // @v10.9.9 Специальные символы-разделители токенов. Все символы в этом буфере, предшествующие 0 считаются разделителями.
+	uint8  SpecialStopChars[12]; // Специальные символы-разделители токенов. Все символы в этом буфере, предшествующие 0 считаются разделителями.
 };
 //
 //
@@ -20712,7 +20710,7 @@ public:
 		extssAddr2         = 12,
 		extssLogin         = 13,
 		extssPassword      = 14,
-		extssFormatSymb    = 15, // @v10.0.02 Символ формата обмена (зависит от провайдера)
+		extssFormatSymb    = 15, // Символ формата обмена (зависит от провайдера)
 		extssSubIn         = 16, // @v11.9.4 Подкаталог (или иное дополнение к адресу), указывающий на входящие документы
 		extssSubOut        = 17, // @v11.9.4 Подкаталог (или иное дополнение к адресу), указывающий на исходящие документы
 	};
@@ -21495,7 +21493,7 @@ public:
 		double AmtBank;    // @#{>=0} Сумма электронного платежа
 		double AmtPrepay;  // @#{>=0} Сумма предоплатой
 		double AmtPostpay; // @#{>=0} Сумма постоплатой
-		double AmtVat20;   // @v10.4.8 Сумма налога по ставке 20%
+		double AmtVat20;   // Сумма налога по ставке 20%
 		double AmtVat18;   // Сумма налога по ставке 18%
 		double AmtVat10;   // Сумма налога по ставке 10%
 		double AmtVat00;   // Сумма расчета по ставке 0%
@@ -21884,7 +21882,6 @@ private:
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	int    AddCurRecord(const PPAccount * pBaseRec, PPID curID);
-	// @v10.2.12 (dup of PPObjReference::ExtraPtr) void * ExtraPtr;
 public:
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr /*acySelType*/);
 };
@@ -22342,7 +22339,7 @@ public:
 	//   <0 - функция не поддерживается
 	//   0  - ошибка (на уровне самой функции, но не ошибка в работе оборудования)
 	//
-	virtual int Diagnostics(StringSet * pSs) { return -1; } // @v10.5.12
+	virtual int Diagnostics(StringSet * pSs) { return -1; }
 	const  char * GetName() const { return Name; }
 	PPSlipFormatter * GetSlipFormatter() { return P_SlipFmt; }
 	int    CompleteSession(PPID sessID);
@@ -22522,8 +22519,7 @@ protected:
 	int    AddTempCheckSCardID(PPID checkID, PPID scardID);
 	int    AddTempCheckGiftCardID(PPID checkID, PPID giftCardID);
 	void   SetupTempCcLineRec(TempCCheckLineTbl::Rec * pRec, long ccID, long ccCode, LDATE dt, int div, PPID goodsID);
-	// @v10.7.3 void   SetTempCcLineValues(TempCCheckLineTbl::Rec * pRec, double qtty, double price, double discount, const PPExtStrContainer * pLnExtStrings);
-	int    SetTempCcLineValuesAndInsert(TempCCheckLineTbl * pTbl, double qtty, double price, double discount, PPExtStrContainer * pLnExtStrings); // @v10.7.3
+	int    SetTempCcLineValuesAndInsert(TempCCheckLineTbl * pTbl, double qtty, double price, double discount, PPExtStrContainer * pLnExtStrings);
 	int    GetExpPathSet(StringSet *);
 	int    FASTCALL CheckCnFlag(long);
 	int    FASTCALL CheckCnExtFlag(long);
@@ -22733,7 +22729,7 @@ private:
 #define PLMF_DISABLCEDISCOUNT   0x00000800 // Запрет на установку общей скидки по заказу
 #define PLMF_REGISTERED         0x00001000 // Признак состоявшейся централизованной регистрации устройса. Если установлен, то последующая регистрация не возможна
 #define PLMF_BLOCKED            0x00002000 // Признак блокированного (украденного) устройства
-#define PLMF_TREATDUEDATEASDATE 0x00004000 // @v10.8.11 При импорте заказов трактовать дату исполнения заказа как основную дату документа
+#define PLMF_TREATDUEDATEASDATE 0x00004000 // При импорте заказов трактовать дату исполнения заказа как основную дату документа
 #define PLMF_EXPZSTOCK          0x00008000 // @v11.4.3 Экспортировать товары с нулевым остатком 
 #define PLMF_EXPGOODSEXPIRYTAGS 0x00010000 // @v11.6.2 (Stylo-Q) Экспортировать атрибуты сроков годности товаров (самая ранняя expiry-дата). 
 #define PLMF_INHMASK          (PLMF_IMPASCHECKS|PLMF_EXPCLIDEBT|PLMF_EXPSELL|PLMF_EXPBRAND|PLMF_EXPLOC|PLMF_EXPSTOPFLAG|PLMF_DISABLCEDISCOUNT|PLMF_TREATDUEDATEASDATE|PLMF_EXPZSTOCK|PLMF_EXPGOODSEXPIRYTAGS)
@@ -23048,11 +23044,9 @@ private:
         TSVector <BrandEntry> * P_BrandList;
         TSVector <WhEntry> * P_WhList;
         TSVector <GoodsGrpEntry> * P_GgList;
-        // @v10.8.6 StrAssocArray QkList;
 	};
 	virtual int  HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
-	// @v10.8.6 int    CreateQkList(ExportBlock & rBlk);
 	int    CreateBrandList(ExportBlock & rBlk);
 	int    CreateWhList(ExportBlock & rBlk);
 	int    CreateGoodsGrpList(ExportBlock & rBlk);
@@ -23259,8 +23253,8 @@ struct PhnSvcChannelStatus {
 	SString EffConnectedLineName;
 	SString Application;
 	SString Data;
-	SString BridgeId; // @v10.0.01
-	SString IdentifiedCallerName; // @v10.0.01
+	SString BridgeId;
+	SString IdentifiedCallerName;
 };
 
 class PhnSvcChannelStatusPool : SVector, SStrGroup {
@@ -23296,8 +23290,8 @@ private:
 		uint   EffConnectedLineNameP;
 		uint   ApplicationP;
 		uint   DataP;
-		uint   BridgeIdP; // @v10.0.02
-		uint   IdentifiedCallerNameP; // @v10.0.01 Позиция строки имени, идентифицированного вне телефонного сервера
+		uint   BridgeIdP;
+		uint   IdentifiedCallerNameP; // Позиция строки имени, идентифицированного вне телефонного сервера
 	};
 };
 
@@ -23754,18 +23748,8 @@ struct PPSendSmsParam {
 	int	   SmsCount;
 	SString ExtStr;        // @anchor
 };
-
-/* @v10.3.8 (unused) class PPObjSendSms : public PPObjReference {
-public:
-	PPObjSendSms(void * extraPtr = 0);
-	//virtual int Edit(PPID *, long);
-	//virtual int Browse(long extra);
-	int    Get(PPID id, PPSendSmsParam *);
-	int    Put(PPID * pID, PPSendSmsParam *, int use_ta);
-};*/
 //
 // @v7.6.1 @Muxa {
-//
 // @ModuleDecl(PPObjUhttStore)
 //
 struct PPUhttStore { // @size=sizeof(Reference2Tbl::Rec)
@@ -24122,7 +24106,7 @@ public:
 	// разделов (документы без товарных строк)
 #define DBDIVF_PASSIVE               0x0010L // Пассивный раздел
 #define DBDIVF_FOREIGN               0x0020L // "Чужой" раздел. Используется для маршрутизации передачи пакетов между разделами
-#define DBDIVF_MQBEXCHANGE           0x0040L // @v10.5.4 Раздел обменивается посредством брокера сообщений
+#define DBDIVF_MQBEXCHANGE           0x0040L // Раздел обменивается посредством брокера сообщений
 
 struct PPDBDiv2 {          // @persistent @store(Reference2Tbl+)
 	//
@@ -24138,7 +24122,7 @@ struct PPDBDiv2 {          // @persistent @store(Reference2Tbl+)
 		fConsolid      = 0x0008, // Раздел, принимающий консолидирующую информацию из других разделов (документы без товарных строк)
 		fPassive       = 0x0010, // Пассивный раздел
 		fForeign       = 0x0020,
-		fMqbExchange   = 0x0040  // @v10.5.4 Раздел обменивается посредством брокера сообщений
+		fMqbExchange   = 0x0040  // Раздел обменивается посредством брокера сообщений
 	};
 	long   Tag;           // Const=PPOBJ_DBDIV
 	long   ID;            // @id
@@ -24251,8 +24235,8 @@ struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	long   ID;             //
 	char   Name[48];       // @name
 	char   Symb[20];       //
-	char   Reserve[28];    // @reserve // @v10.7.2 [32]-->[28]
-	long   ChZnProdType;   // @v10.7.2
+	char   Reserve[28];    // @reserve
+	long   ChZnProdType;   //
 	double StockTolerance; // Величина толерантности к дефициту либо к излишку товара.
 		// Если доступный остаток меньше требуемого на величину, не превышающую StockTolerance
 		// то расходуется то, что есть.
@@ -24817,17 +24801,17 @@ public:
 	int    SelectorDialog(const TSCollection <PPGoodsStruc> & rList, uint * pSelectionPos);
 	int    SelectorDialog(PPID * pNamedGsID);
 	int    CheckStructs();
-	struct CheckGsProblem {
+	struct CheckGsProblem : public SCompoundError { // @v12.1.11 inherited from SCompoundError
 		enum {
 			errRecur = 1,      // Рекурсивная структура
 			errUnRef,          // Ни один товар не ссылается на структуру
 			errNoNameAmbig,    // На неименованную структуру ссылается более одного товара
 			errNamedEmptyName  // Именованная структура содержит пустое наименование
 		};
-		PPID   GsID;
-		int    RowN;
-		int    Code;
-		SString Text;
+		// @v12.1.11 PPID   GsID;
+		// @v12.1.11 int    RowN;
+		// @v12.1.11 int    Code;
+		// @v12.1.11 SString Text;
 	};
 	int    CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, const PPGoodsStruc * pStruct,
 		TSCollection <CheckGsProblem> * pProblemList, PPLogger * pLogger);
@@ -28574,7 +28558,7 @@ public:
 	int    EditItem(PPID);
 	int    DeleteItem(PPID);
 	int	   OpenClientDir(PPID personId);
-	int    EditRegs(PPID id, int oneReg);
+	int    EditRegs(PPID personID, PPID locID, int oneReg);
 	int    EditDlvrAddrExtFlds(PPID id);
 	int    ViewRelations(PPID);
 	int    AddRelation(PPID);
@@ -28613,6 +28597,7 @@ private:
 	int    RemoveHangedAddr();
 	int    Recover();
 	int    Helper_InsertTempRec(const TempPersonTbl::Rec & rRec);
+	int    Helper_GetTagValue(PPObjID oid, PPID tagID, SString & rBuf);
 	//
 	// Рассылка сообщений по email
 	//
@@ -31608,13 +31593,13 @@ private:
 #define ALBATROSEXSTR_VETISUSER        6 //
 #define ALBATROSEXSTR_VETISPASSW       7 //
 #define ALBATROSEXSTR_VETISAPIKEY      8 //
-#define ALBATROSEXSTR_VETISDOCTUSER    9 // @v10.1.0
-#define ALBATROSEXSTR_VETISDOCTPASSW  10 // @v10.1.0
-#define ALBATROSEXSTR_MQC_HOST        11 // @v10.5.2 Адрес сервера брокера сообщений
-#define ALBATROSEXSTR_MQC_USER        12 // @v10.5.2 Имя доступа к брокеру сообщений
-#define ALBATROSEXSTR_MQC_SECRET      13 // @v10.5.2 Пароль доступа к брокеру сообщений
-#define ALBATROSEXSTR_MQC_DATADOMAIN  14 // @v10.5.2 Домен данных
-#define ALBATROSEXSTR_MQC_VIRTHOST    15 // @v10.6.0 Виртуальный хост
+#define ALBATROSEXSTR_VETISDOCTUSER    9 // 
+#define ALBATROSEXSTR_VETISDOCTPASSW  10 // 
+#define ALBATROSEXSTR_MQC_HOST        11 // Адрес сервера брокера сообщений
+#define ALBATROSEXSTR_MQC_USER        12 // Имя доступа к брокеру сообщений
+#define ALBATROSEXSTR_MQC_SECRET      13 // Пароль доступа к брокеру сообщений
+#define ALBATROSEXSTR_MQC_DATADOMAIN  14 // Домен данных
+#define ALBATROSEXSTR_MQC_VIRTHOST    15 // Виртуальный хост
 
 struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 	enum {
@@ -31626,23 +31611,23 @@ struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 		fUncondAcceptEdiIntrMov      = 0x0004, // Безусловный акцепт внутренних перемещений, продублированных по каналу EDI
 		fUseOwnEgaisObjects  = 0x0008, // Использовать собственную базу данных объектов ЕГАИС
 		fUseDateInBillAnalog = 0x0010, // Использовать критерий даты при поиске аналога документа
-		fStrictExpGtinCheck  = 0x0020, // @v10.0.04 Строгая проверка передаваемых кодов товара на принадлежность EAN/UPC
-		fVetisTestContour    = 0x0040  // @v10.5.1 Используется тестовый контур ВЕТИС
+		fStrictExpGtinCheck  = 0x0020, // Строгая проверка передаваемых кодов товара на принадлежность EAN/UPC
+		fVetisTestContour    = 0x0040  // Используется тестовый контур ВЕТИС
 	};
 	PPID   Tag;            // Const=PPOBJ_CONFIG
 	PPID   ID;             // Const=PPCFG_MAIN
 	PPID   Prop;           // Const=PPPRP_ALBATROSCFG2
 	uint32 Size;           // Полный размер записи. Если Size == 0, то запись представлена в формате pre7.2.7 и имеет размер sizeof(PropertyTbl)
 	char   Reserve[20];    // @reserve
-	int16  VetisCertDelay; // @v10.1.10 Максимальная задержка в днях от даты выпуска сертификата до получения накладной с ним
+	int16  VetisCertDelay; // Максимальная задержка в днях от даты выпуска сертификата до получения накладной с ним
 		// Примениятся для фильтрации документов при связывании с сертификатами.
-	int16  VetisTimeout;   // @v10.1.0 Таймаут ожидания ответа на application request (секунд). По умолчанию - 60
+	int16  VetisTimeout;   // Таймаут ожидания ответа на application request (секунд). По умолчанию - 60
 	PPID   EgaisRetOpID;   // Вид (драфт) операции возврата от покупателя, принятого с сервера ЕГАИС
 	long   Flags;          // @flags
 	PPID   EgaisRcptOpID;  // ->Ref(PPOBJ_OPRKIND) Вид (драфт)операции прихода от поставщика, принятого с сервера ЕГАИС
-    PPID   EdiOrderOpID;   // ->Ref(PPOBJ_OPRKIND)  // @v9.2.1 OrderOpID-->EdiOrderOpID
-    PPID   EdiOrderSpOpID; // ->Ref(PPOBJ_OPRKIND)  // @v9.2.1 OrderSpOpID-->EdiOrderSpOpID
-    PPID   EdiDesadvOpID;  // ->Ref(PPOBJ_OPRKIND)  // @v9.2.1 DesadvOpID-->EdiDesadvOpID
+    PPID   EdiOrderOpID;   // ->Ref(PPOBJ_OPRKIND)
+    PPID   EdiOrderSpOpID; // ->Ref(PPOBJ_OPRKIND)
+    PPID   EdiDesadvOpID;  // ->Ref(PPOBJ_OPRKIND)
     PPID   RcptTagID;      // ->Ref(PPOBJ_TAG)
     PPID   TtnTagID;       // ->Ref(PPOBJ_TAG)
 	PPID   SmsAccID;	   // ->Ref(PPOBJ_SMSPRVACCOUNT) ИД учетной записи SMS-клиента
@@ -31883,10 +31868,10 @@ public:
 			long   WrOffShopWay;         //
 			PPID   EgaisInvOpID;         // Вид операции инвентаризации - необходим для идентификации видов операций
 				// списания излишков и недостач.
-            TimeRange RtlSaleAllwTime;   // @v10.2.4 Время, в течении которого разрешена розничная торговля алкоголем
-			PPID   ManufOpID;            // @v10.6.3 Вид операции производства (PPOPT_GOODSMODIF). Используется для обмена с ВЕТИС
+            TimeRange RtlSaleAllwTime;   // Время, в течении которого разрешена розничная торговля алкоголем
+			PPID   ManufOpID;            // Вид операции производства (PPOPT_GOODSMODIF). Используется для обмена с ВЕТИС
 			PPID   SupplAgentID;         // @v11.0.8 ->Article.ID Агент поставщика
-			uint8  Reserve[20];          // @v10.2.4 [36]-->[28] // @v10.6.3 [28]-->[24] // @v11.0.8 [24]-->[20]
+			uint8  Reserve[20];          // @v11.0.8 [24]-->[20]
 		};
 		ExtBlock  E;                 // @anchor
 		PPIDArray StorageLocList;    // @anchor
@@ -32241,8 +32226,8 @@ public:
 		fShowSubst          = 0x0004, // Показывать подстановочные структуры
 		fShowGift           = 0x0008, // Показывать подарочные структуры
 		fShowComplex        = 0x0010, // Показывать комплексные структуры
-		fShowUnrefs         = 0x0020, // @v10.0.10 Показывать структуры, на которые не ссылается ни один товар
-		fSkipByPassiveOwner = 0x0040, // @v10.3.2 Не показывать структуры, все товары-владельцы которых пассивные
+		fShowUnrefs         = 0x0020, // Показывать структуры, на которые не ссылается ни один товар
+		fSkipByPassiveOwner = 0x0040, // Не показывать структуры, все товары-владельцы которых пассивные
 		fShowTech           = 0x0080, // @v11.7.6 Показывать связанные технологии
 		fShowEstValue       = 0x0100  // @v11.8.2 Показывать оценочную стоимость структуры
 	};
@@ -32319,7 +32304,7 @@ private:
 	IterOrder CurrentViewOrder;
 	GoodsStrucFilt Filt;
 	GoodsStrucProcessingBlock Cb;
-	TSArray  <GoodsStrucProcessingBlock::ItemEntry> * P_DsList__; // @v10.7.5
+	TSArray  <GoodsStrucProcessingBlock::ItemEntry> * P_DsList__;
 	TSCollection <PPObjGoodsStruc::CheckGsProblem> Problems; // Список проблем, выявленных функцией Recover()
 	void * H_AsideListWindow; // @v11.1.12 Список иерархии структур
 };
@@ -32336,7 +32321,7 @@ struct GoodsToObjAssocFilt : public PPBaseFilt {
 	PPID   AsscType;         //
 	PPID   ObjType;          //
 	PPID   ObjID;            //
-	void * ExtraPtr;         // @v10.3.2 long-->(void *)
+	void * ExtraPtr;         //
 	long   Flags;            //
 	long   Reserve;          // @anchor
 	LocationFilt * P_LocF;   //
@@ -32469,7 +32454,7 @@ private:
 	RAssocArray SCardList;
 	SVector GoodsList;
 	SVector StatCache;
-	PPIDArray UpdatedBillList; // @v10.2.11
+	PPIDArray UpdatedBillList;
 };
 //
 // Descr: Класс AsyncCashGoodsGroupIterator, испольуемый для экспорта товарных групп в асинхронный кассовый модуль.
@@ -32547,19 +32532,18 @@ struct AsyncCashGoodsInfo { // @transient
 		// Если флаг CASHFX_APPLYUNITRND не задан или единица измерения имеет Rounding == 0,
 		// то Precision = 0.001.
 	long   GoodsFlags;       // Флаги записи товара
-	// @v10.4.11 short  Deleted_;         // Признак того, что товар был удален
 	LDATE  Expiry;           // @v11.9.5 Срок истечения годности @todo
-	long   Flags_;           // @v10.4.11
+	long   Flags_;           //
 	short  NoDis;            // Запрет скидки на товар (> 0 - без скидки, 0 - со скидкой, -1 - со скидкой (признак "без скидки" был снят)
-	int16  ChZnProdType;     // @v10.9.0 Reserve-->ChZnProdType Тип маркированной продукции честный знак
+	int16  ChZnProdType;     // Тип маркированной продукции честный знак
 	long   DivN;             // Номер отдела
 	PPID   LocPrnID;         // ->Ref(PPOBJ_LOCPRINTER)
 	char   LocPrnSymb[20];   // Символ локального принтера LocPrnID
 	PPID   AsscPosNodeID;    // Ассоциированный с товаром кассовый аппарат
 	char   AsscPosNodeSymb[20]; // Символ ассоциированного с товаров кассового аппарата
 	double VatRate;          // Ставка НДС
-	RealRange AllowedPriceR; // @v10.6.4 Допустимый диапазон цен, рассчитанный на основании ограничений товарных величин.
-	S_GUID Uuid;             // @v10.0.04 UUID товара, извлеченный из тега PPTAG_GOODS_UUID
+	RealRange AllowedPriceR; // Допустимый диапазон цен, рассчитанный на основании ограничений товарных величин.
+	S_GUID Uuid;             // UUID товара, извлеченный из тега PPTAG_GOODS_UUID
 	RAssocArray QuotList;    // Список дополнительных котировок.
 		// Вызывающая функция заполняет поля Key идентификаторами видов котировок.
 		// AsyncCashGoodsIterator инициализирует поля Val массива соответствующими
@@ -32577,10 +32561,10 @@ struct AsyncCashGoodsInfo { // @transient
 #define ACGIF_UNCONDBASEPRICE   0x0010 // Базовая цена - без учета розничных котировок.
 	// Инициализируется самим классом AsyncCashGoodsIterator как проекция флага PPEquipConfig::fUncondAsyncBasePrice
 #define ACGIF_EXCLALTFOLD       0x0020 // @internal Товарная группа, заданная в кассовом узле является группой-папкой эксклюзивных альтернат групп.
-#define ACGIF_ALLCODESPERITER   0x0040 // @v9.0.6 Все коды товара передавать в одной итерации
-#define ACGIF_REDOSINCEDLS      0x0080 // @v9.0.11 Повторная выгрузка данных, которые были начиная с заданного DLSID
-#define ACGIF_ENSUREUUID        0x0100 // @v10.0.04 Итератор гарантирует наличие UUID'а у товара, возвращаемого очередной итерацией.
-#define ACGIF_IGNOREGWODISTAG   0x0200 // @v10.6.11 Игнорировать признак товаров 'без скидки'. Флаг выставляется автоматически функцией Init по
+#define ACGIF_ALLCODESPERITER   0x0040 // Все коды товара передавать в одной итерации
+#define ACGIF_REDOSINCEDLS      0x0080 // Повторная выгрузка данных, которые были начиная с заданного DLSID
+#define ACGIF_ENSUREUUID        0x0100 // Итератор гарантирует наличие UUID'а у товара, возвращаемого очередной итерацией.
+#define ACGIF_IGNOREGWODISTAG   0x0200 // Игнорировать признак товаров 'без скидки'. Флаг выставляется автоматически функцией Init по
 	// флагу конфигурации оборудования PPEquipConfig::fIgnoreNoDisGoodsTag. Внешняя установка флага игнорируется.
 
 class AsyncCashGoodsIterator {
@@ -32673,10 +32657,10 @@ private:
 	PPIDArray GdsClsList;         // Классы товаров
 	PPIDArray GdsTypeList;        // Типы товаров
 	PPIDArray UpdGoods;           //
-	PPIDArray RmvGoods;           // @v10.6.8 Товары, для которых следует отправить уведомление об удалении
+	PPIDArray RmvGoods;           // Товары, для которых следует отправить уведомление об удалении
 	PPIDArray IterGoodsList;      //
 	PPIDArray NoDisToggleGoodsList; // Список товаров, по которым был снят признак "без скидки" (за заданный период)
-	PPIDArray UpdatedBillList;    // @v10.2.11 Список измененных документов, по которым идентифицированы модифицированные товары.
+	PPIDArray UpdatedBillList;    // Список измененных документов, по которым идентифицированы модифицированные товары.
 		// Список сохраняется в DlsObjTbl в диагностических целях.
 	PPQuotArray QuotByQttyList;   // Список котировок, применяемых для скидки на кол-во товара
 	BarcodeArray Codes;           // Список кодов для текущего товара
@@ -32800,7 +32784,7 @@ private:
 	int    FirstQuotBrwColumn;
 	int    HasPeriodVal;        // Временная таблица содержит по крайней мере одно значение, ограниченное периодом действия //
 	const  PPObjQuotKind::Special Spc;
-	GoodsSubstList Gsl;         // @v10.1.3
+	GoodsSubstList Gsl;
 };
 //
 // @ModuleDecl(PPObjScale)
@@ -32822,17 +32806,17 @@ struct PPScale2 {          // @persistent @store(Reference2Tbl+)
 	char   Name[48];         // @name @!refname
 	char   Symb[20];         //
 	PPID   ParentID;         // Ид. группы весов
-	SVerT  Ver_Signature;    // @v10.5.7 Сигнатура версии. Необходима для индикации факта конвертации v10.5.7
+	SVerT  Ver_Signature;    // Сигнатура версии. Необходима для индикации факта конвертации v10.5.7
 	uint16 Get_NumTries;   // @#{0..32000} // System param
 	uint16 Get_Delay;      // @#{0..1000}  // System param
 	uint16 Put_NumTries;   // @#{0..32000} // System param
 	uint16 Put_Delay;      // @#{0..1000}  // System param
 	int16  BcPrefix;       // Префикс искусственного штирхкода, загружаемого на весы
 	int16  MaxAddedLn;       // Максимальная длина строки дополнительного текста. Если не указано, то система принимает значение на свое усмотрение.
-	int16  MaxAddedLnCount;  // @v10.5.0 Максимальное количество строк дополнительного текста.
+	int16  MaxAddedLnCount;  // Максимальное количество строк дополнительного текста.
 	char   FontSize[8];      // @v11.1.6 Размер шрифта. Специфичный для конкретной модели параметр. В общем случае может быть как
 		// числовым, так и текстовым. На момент ввода применяется только для весов DIGI
-	char   Reserve[14];      // @reserve @v10.5.0 [10]-->[8] // @v10.5.7 [8]+[8]+[4]+[2]-->[22] // @v11.1.6 [22]-->[14]
+	char   Reserve[14];      // @reserve // @v11.1.6 [22]-->[14]
 	PPID   QuotKindID;     // ->Ref(PPOBJ_QUOTKIND) Вид котировки, используемый для ценообразования //
 	PPID   ScaleTypeID;    // Тип устройства
 	long   ProtocolVer;    // Версия протокола обмена. Зависит от типа устройства
@@ -33348,7 +33332,7 @@ public:
 #define CILTIF_MOD                 0x1000 // Функция ConvertILTI должна изменить (удалить,добавить) строку в существующем документе
 #define CILTIF_REPFULLSYNCPROBLEM  0x2000 // Выводить в журнал synclot.log информацию о проблемах подстановки синхронизированного лота
 #define CILTIF_CAREFULLYALIGNPRICE 0x4000 // Выравнивать цену реализации результирующих строк по исходной сумме в ценах реализации
-#define CILTIF_CUTRESTTOZERO       0x8000 // @v10.7.4 Остатки по лотам срезать до нуля
+#define CILTIF_CUTRESTTOZERO       0x8000 // Остатки по лотам срезать до нуля
 //
 // Опции выбора даты зачетной оплаты (PPObjBill::Reckon())
 //
@@ -33483,7 +33467,7 @@ struct PPBillConfig {        // @persistent @store(cvt:PropertyTbl)
 	PPID   ValuationQuotKindID; // ->Ref(PPOBJ_QUOTKIND) Вид котировки для расценки приходных документов
 	double ValuationRndPrec;   // Точность округления при расценке
 	char   UniqSerialSfx[16];  // Сигнатура суффикса, присоединяемого к серийному номеру для обеспечения его уникальности.
-	int16  WarnLotExpirDays;   // @v10.4.4 Количество дней до предупреждения об истечении срока годности лота (отрицательные значения - после даты истечения)
+	int16  WarnLotExpirDays;   // Количество дней до предупреждения об истечении срока годности лота (отрицательные значения - после даты истечения)
 	//
 	// Descr: Опции обработки ситуации с угрозой истечения срока годности лота
 	//
@@ -33492,11 +33476,11 @@ struct PPBillConfig {        // @persistent @store(cvt:PropertyTbl)
 		wlefDisalbePosOp  = 0x0002, // Блокировка розничной продажи
 		wlefDisableBillOp = 0x0004  // Блокировка отгрузки клиентам
 	};
-	uint16 WarnLotExpirFlags;  // @v10.4.4 Опции действий при угрозе истечения срока годности лота
+	uint16 WarnLotExpirFlags;  // Опции действий при угрозе истечения срока годности лота
 	SVerT  Ver;                // @anchor Версия, сформировавшая запись.
 	TagFilt TagIndFilt;        // @anchor Фильтр тегов, определяющий окраску номеров документов в отчетах
 	SString AddFilesFolder;    // Папка для автоматического присоединения файлов к документам. Строка хранится в реестре, а не в БД.
-	TagFilt LotTagIndFilt;     // @v10.4.3 Фильтр тегов, определяющий окраску лотов
+	TagFilt LotTagIndFilt;     // Фильтр тегов, определяющий окраску лотов
 };
 //
 //
@@ -33590,7 +33574,7 @@ struct AutoFillInvFilt {
 	AutoFillInvFilt();
 	enum {
 		fFillWithZeroQtty        = 0x0001,
-		fRestrictZeroRestWithMtx = 0x0002, // @v10.5.6 Не добавлять в документ товары, которых нет на остатке и которые вне матрицы
+		fRestrictZeroRestWithMtx = 0x0002, // Не добавлять в документ товары, которых нет на остатке и которые вне матрицы
 		fExcludeZeroRestPassiv   = 0x0004  // @v11.1.2 Пассивные товары с нулевым остатком не включать безусловно (независимо от матрицы)
 	};
 	PPID   BillID;
@@ -35181,13 +35165,13 @@ private:
 //
 #define OPG_BYZERODLVRADDR    0x00000010L // Перебирать только документы с пустым адресом доставки
 #define OPG_IGNOREZERO        0x00000020L // Игнорировать нулевые записи
-#define OPG_MERGECORRECTION   0x00000040L // @v10.7.5 Модифицировать данные документов документами коррекции (если встречаются)
+#define OPG_MERGECORRECTION   0x00000040L // Модифицировать данные документов документами коррекции (если встречаются)
 #define OPG_CALCINREST        0x00000080L // Считать входящий остаток (используется со структурой GoodsGrpngEntry)
 #define OPG_CALCOUTREST       0x00000100L // Считать исходящий остаток (используется со структурой GoodsGrpngEntry)
 #define OPG_FORCEGOODS        0x00000200L // Передается процедуре GCTFilterDialog, заставляя проверять обязательный ввод товара
 #define OPG_ADJPAYM           0x00000400L // For internal use
 #define OPG_STOREDAILYRESTS   0x00000800L // При переборе строк Transfer GCTIterator сохраняет информацию о ежедневных остатках товаров с детализацией по складам.
-#define OPG_SETPRICEWOTAXES   0x00001000L // @v10.6.6 Устанавливать цены реализации без налогов
+#define OPG_SETPRICEWOTAXES   0x00001000L // Устанавливать цены реализации без налогов
 #define OPG_LABELONLY         0x00002000L //
 #define OPG_NOZEROEXCISE      0x00004000L // Перебирать только подакцизные товары
 #define OPG_COMPAREWROFF      0x00008000L // Если перебор ведется по драфт-документам, то сравнивать с документами списания //
@@ -35240,8 +35224,8 @@ public:
 		ordByGoods,
 		ordByArticle
 	};
-	uint8  ReserveStart[24];      // @anchor @v9.3.6 // @v10.0.04 [32]-->[24]
-	DateRange DueDatePeriod;      // @v10.0.04 Период даты исполнения документа
+	uint8  ReserveStart[24];      // @anchor
+	DateRange DueDatePeriod;      // Период даты исполнения документа
 	DateRange Period;             // Период обзора операций
 	DateRange LotsPeriod;         // Период приходов
 	DateRange ShipmentPeriod;     // Период отгрузки
@@ -35348,7 +35332,7 @@ public:
 
 	DateRange Period;
 	PPIDArray BillList;
-	LAssocArray CorrectionBillList; // @v10.7.5 Список документов коррекции, ассоциированных со связанными документами
+	LAssocArray CorrectionBillList; // Список документов коррекции, ассоциированных со связанными документами
 	PPIDArray SupplAgentBillList;
 private:
 	int    PrevPaymentList(const GCTFilt &);
@@ -35650,7 +35634,7 @@ public:
 #define CSESSOPRT_CHGCCAGENT       0x00004000 // J Право на смену агента в чеке
 #define CSESSOPRT_MERGECHK         0x00010000 // M Право на объединение чеков
 #define CSESSOPRT_ESCCLINEBORD     0x00020000 // Q Удаление строк в чеках до отправки заказа на изготовление
-#define CSESSOPRT_REPRNUNFCC       0x00040000 // 3 @v10.6.11 Право на повторную печать чека, по которому была ошибка печати на регистраторе
+#define CSESSOPRT_REPRNUNFCC       0x00040000 // 3 Право на повторную печать чека, по которому была ошибка печати на регистраторе
 #define CSESSOPRT_ARBITRARYDISC    0x00080000 // 4 @v11.0.9  Право на предоставление произвольной скидки на чек (суммой либо в процентах)
 
 int GetOperRightsByKeyPos(int keyPos, PPIDArray * pOperRightsAry);
@@ -35808,10 +35792,10 @@ struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
 		// Если VerifTag == 2, то запись сохранена в версии v9.8.9 или выше.
 	PPID   BonusGrpID;         // Товарная группа, по которой зачитываются бонусы на карты
 	PPID   CrdGoodsGrpID;      // Товарная группа, продажа товаров которой зачитывается как списание по кредитной карте в количественном выражении.
-	int32  FixedBonus;         // @v10.5.5 (.01) Фиксированная сумма бонуса на один чек. Специальный сценарий. (для бонусных и кредитных карт)
-	PPID   RsrvPoolDestSerID;  // @v10.2.7 Серия, в которую должна переносится карта из резервного пула (которым является данная серия) при
+	int32  FixedBonus;         // (.01) Фиксированная сумма бонуса на один чек. Специальный сценарий. (для бонусных и кредитных карт)
+	PPID   RsrvPoolDestSerID;  // Серия, в которую должна переносится карта из резервного пула (которым является данная серия) при
 		// активации (динамическом сопоставлении с телефоном или персоналией)
-	long   SpecialTreatment;   // @v10.1.3 Идентификатор специальной трактовки операций с картами серии.
+	long   SpecialTreatment;   // Идентификатор специальной трактовки операций с картами серии.
 	long   QuotKindID_s;       // Вид котировки
 	long   PersonKindID;       // Вид персоналии, используемый для владельцев карт (по умолчанию - PPPRK_CLIENT)
 	LDATE  Issue;              // Дата выпуска
@@ -35934,7 +35918,7 @@ struct PPSCardConfig {         // @persistent @store(PropertyTbl)
 			// Флаг следует установить в разделе базы данных, обслуживающем магазин, в котором бонусные карты не
 			// должны использоваться, в противоположность другим синхронизированным магазинам.
 		fCheckBillDebt = 0x0010, // При операциях по карте проверять наличие простроченной задолженности по документам, привязанным к карте
-		fDisableBonusByDefault = 0x0020  // @v10.9.0 По умолчанию не применять бонус при расчете в кассовой панели (с возможностью ручного включения)
+		fDisableBonusByDefault = 0x0020  // По умолчанию не применять бонус при расчете в кассовой панели (с возможностью ручного включения)
 	};
 	PPID   Tag;                // Const=PPOBJ_CONFIG
 	PPID   ID;                 // Const=PPCFG_MAIN
@@ -35958,10 +35942,10 @@ struct SCardSeriesFilt {
 		fOnlyGroups   = 0x0001, // Только группы серий
 		fOnlySeries   = 0x0002, // Только терминальные серии
 		fShowPassive  = 0x0004, // Показывать пассивные серии
-		fOnlyReal     = 0x0008  // @v10.2.8 Только "рабочие" серии (scstDiscount, scstCredit, scstBonus)
+		fOnlyReal     = 0x0008  // Только "рабочие" серии (scstDiscount, scstCredit, scstBonus)
 	};
 	PPID   ParentID;   // Группа серий
-	int    SpecialTreatment; // @v10.9.0
+	int    SpecialTreatment;
 	long   Flags;      //
 };
 
@@ -36002,7 +35986,7 @@ private:
 	virtual void * CreateObjListWin(uint flags, void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
 	int    Helper_GetChildList(PPID id, PPIDArray & rList, PPIDArray * pStack);
-	int    AssignImages(ListBoxDef * pDef); // @v10.2.7
+	int    AssignImages(ListBoxDef * pDef);
 
 	PPObjSCard * P_ScObj;
 };
@@ -36029,7 +36013,7 @@ private:
 #define SCRDF_NOTIFYDISCOUNT   0x00000040L // Извещать владельца карты об изменении скидки
 #define SCRDF_NOTIFYDRAW       0x00000080L // Извещать владельца карты о списании средств с карты
 #define SCRDF_NOTIFYWITHDRAW   0x00000100L // Извещать владельца карты о начислении средств на карту
-#define SCRDF_OWNERVERIFIED    0x00000200L // @v10.1.3 Владелец карты верифицирован (например, посредством СМС)
+#define SCRDF_OWNERVERIFIED    0x00000200L // Владелец карты верифицирован (например, посредством СМС)
 
 #define PPTRPROP_SCARDEXT      (PPTRPROP_USER+1)
 
@@ -36053,8 +36037,8 @@ public:
 //
 #define SCRDSSPCTRT_DEFAULT    0 // default
 #define SCRDSSPCTRT_AZ         1 // AstraZeneca
-#define SCRDSSPCTRT_UDS        2 // @v10.8.9 UDS
-#define SCRDSSPCTRT_UHTT       3 // @v10.9.0 Universe-HTT (попытка унифицированного представления для технологии, используюемой до введения понятия SpecialTreatment
+#define SCRDSSPCTRT_UDS        2 // UDS
+#define SCRDSSPCTRT_UHTT       3 // Universe-HTT (попытка унифицированного представления для технологии, используюемой до введения понятия SpecialTreatment
 //
 // Descr: Базовый класс для реализации функционала специальной трактовки серий персональных карт
 //
@@ -36085,7 +36069,7 @@ public:
 			fDefinedDiscount = 0x0001, // Значение Discount определено сервисом
 			fDefinedRest     = 0x0002, // Значение Rest определено сервисом
 			fDefinedHash     = 0x0004, // Значение Hash определено сервисом
-			fBonusDisabled   = 0x0008  // @v10.9.6 Применение бонуса по карте при данной идентификации не допускается //
+			fBonusDisabled   = 0x0008  // Применение бонуса по карте при данной идентификации не допускается //
 		};
 		int    SpecialTreatment; // Ид специальной трактовки поведения карт (из серии)
 		long   Flags;      // @flags
@@ -36182,16 +36166,15 @@ public:
 		PPID   OwnerID;
 		PPID   LocID;
 		SString Code;
-		SString Phone; // @v10.5.6
+		SString Phone;
 	};
-	// @v10.5.5 (moved to PPConstParam) static const uint32 FiltSignature; // = 0xfbefffffU;
 	//
 	// Descr: Фильтр селектора (MakeStrAssocList)
 	//
 	struct Filt {
 		Filt();
 
-		const  uint32 Signature;
+		const  uint32 Signature; // PPConst::Signature_PPObjSCard_Filt
 		PPID   SeriesID;
 		PPID   OwnerID;
 	};
@@ -44831,12 +44814,14 @@ private:
 		{
 			OrdList.Z();
 			ShipmList.Z();
+			RetList.Z(); // @v12.1.11
 			CancelledOrdList.Z();
 			return *this;
 		}
-		PPIDArray OrdList;
-		PPIDArray ShipmList;
-		PPIDArray CancelledOrdList;
+		PPIDArray OrdList;           // Список документов заказа
+		PPIDArray ShipmList;         // Список документов отгрузки  
+		PPIDArray RetList;           // @v12.1.11 Список документов возврата от покупателей
+		PPIDArray CancelledOrdList;  // Список документов заказа которые были отменены 
 	};
 	MarketplaceDetailBlock MpDBlk;
 };

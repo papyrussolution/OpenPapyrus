@@ -36,8 +36,6 @@ PESetReportOptions
 PESetSectionFormat
 PEStartPrintJob
 */ 
-
-// @v10.8.7 #include <shlwapi.h> // Vadim 03.09.02 - надо подключить shlwapi.lib
 //
 // Закомментировать, если немодальный предварительный просмотр печати будет сбоить
 //
@@ -111,7 +109,7 @@ PrnDlgAns::PrnDlgAns(const PrnDlgAns & rS) : Dest(0), Selection(0), NumCopies(1)
 
 PrnDlgAns::~PrnDlgAns()
 {
-	ZDELETE(P_DevMode);  //@v10.4.10
+	ZDELETE(P_DevMode);
 }
 
 PrnDlgAns & FASTCALL PrnDlgAns::operator = (const PrnDlgAns & rS)
@@ -1027,10 +1025,8 @@ public:
 		Data.Selection = 0;
 		{
 			bool   silent = false;
-			/* @v10.7.6 if(LoadExportOptions(P_Data->P_ReportName, 0, &silent, temp_buf.Z()) > 0)
-				EnableEMail = 1; */
-			LoadExportOptions(Data.ReportName, 0, &silent, temp_buf.Z()); // @v10.7.6
-			EnableEMail = 1; // @v10.7.6
+			LoadExportOptions(Data.ReportName, 0, &silent, temp_buf.Z());
+			EnableEMail = 1;
 		}
 		AddClusterAssoc(CTL_PRINT2_ACTION, 0, PrnDlgAns::aPrint);
 		AddClusterAssoc(CTL_PRINT2_ACTION, 1, PrnDlgAns::aExport);
@@ -1073,7 +1069,6 @@ public:
 			// Перемещаем принтер по умолчанию на верх списка
 			//
 			long   def_prn_id = 0;
-			// @v10.7.10 {
 			if(last_selected_printer.NotEmpty()) {
 				for(uint j = 0; j < PrnList.getCount(); j++) {
 					if(last_selected_printer.IsEqNC(PrnList.at(j).PrinterName)) {
@@ -1083,7 +1078,6 @@ public:
 					}
 				}
 			}
-			// } @v10.7.10 
 			if(!def_prn_id) {
 				for(uint j = 0; j < PrnList.getCount(); j++) {
 					if(PrnList.at(j).Flags & SPrinting::PrnInfo::fDefault) {
@@ -1115,7 +1109,7 @@ public:
 		Data.Selection = getCtrlLong(CTLSEL_PRINT2_REPORT)-1;
 		Data.NumCopies = getCtrlLong(CTL_PRINT2_NUMCOPIES);
 		Data.Flags &= ~PrnDlgAns::fEMail;
-		if(oneof2(Data.Dest, PrnDlgAns::aExport, PrnDlgAns::aExportXML) && EnableEMail) { // @v10.7.7 PrnDlgAns::aExportXML
+		if(oneof2(Data.Dest, PrnDlgAns::aExport, PrnDlgAns::aExportXML) && EnableEMail) {
 			if(getCtrlUInt16(CTL_PRINT2_DOMAIL)) {
 				Data.Flags |= PrnDlgAns::fEMail;
 				getCtrlString(CTL_PRINT2_MAKEDATAPATH, Data.EmailAddr);
@@ -1126,13 +1120,11 @@ public:
 		GetClusterData(CTL_PRINT2_DUPLEX, &Data.Flags);
 		long   sel_id = getCtrlLong(CTLSEL_PRINT2_PRINTER);
 		Data.Printer = (sel_id && sel_id <= PrnList.getCountI()) ? PrnList.at(sel_id-1).PrinterName : 0;
-		// @v10.7.10 {
 		Data.Printer.Strip();
 		if(PrnCfg.Flags & PrnCfg.fStoreLastSelPrn) {
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 0);
 			reg_key.PutString(PPConst::WrParam_LastSelectedPrinter, Data.Printer);
 		}
-		// } @v10.7.10 
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
@@ -1205,7 +1197,7 @@ private:
 				path.SetLastSlash().Cat(data_name);
 			disableCtrl(CTL_PRINT2_MAKEDATAPATH, 0);
 		}
-		else if(oneof2(Data.Dest, PrnDlgAns::aExport, PrnDlgAns::aExportXML)) { // @v10.7.6 PrnDlgAns::aExportXML
+		else if(oneof2(Data.Dest, PrnDlgAns::aExport, PrnDlgAns::aExportXML)) {
 			if(EnableEMail) {
 				enable_email = 1;
 				disableCtrl(CTL_PRINT2_MAKEDATAPATH, 0);
@@ -1216,7 +1208,7 @@ private:
 			disableCtrl(CTL_PRINT2_MAKEDATAPATH, 1);
 		}
 		disableCtrl(CTL_PRINT2_DOMAIL, !enable_email);
-		SetupWordSelector(CTL_PRINT2_MAKEDATAPATH, (enable_email ? new TextHistorySelExtra("email-common") : 0), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.7
+		SetupWordSelector(CTL_PRINT2_MAKEDATAPATH, (enable_email ? new TextHistorySelExtra("email-common") : 0), 0, 2, WordSel_ExtraBlock::fFreeText);
 		setCtrlString(CTL_PRINT2_MAKEDATAPATH, path);
 	}
 
@@ -1702,8 +1694,6 @@ static int SetPrinterParam(short hJob, const char * pPrinter, long options, cons
 	ENDCATCH
 	return ok;
 }
-
-// @v10.7.10 const char * DefaultWindowsPrinter = "DefaultWindowsPrinter";
 
 int GetWindowsPrinter(PPID * pPrnID, SString * pPort)
 {
@@ -2679,7 +2669,6 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 			else if(rpt.PrnDest == PrnDlgAns::aExportXML) {
 				ep.Cp = DS.GetConstTLA().DL600XmlCp;
 				THROW(p_rtm->ExportXML(ep, out_file_name));
-				// @v10.7.7 {
 				if(pans.Flags & pans.fEMail && pans.EmailAddr.NotEmptyS() && fileExists(out_file_name)) {
 					//
 					// Отправка на определенный почтовый адрес
@@ -2690,7 +2679,6 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 						THROW(SendMailWithAttach(pans.ReportName, out_file_name, pans.ReportName, pans.EmailAddr, alb_cfg.Hdr.MailAccID));
 					}
 				}
-				// } @v10.7.7 
 			}
 			else {
 				if(oneof2(rpt.PrnDest, PrnDlgAns::aPrepareData, PrnDlgAns::aPrepareDataAndExecCR)) {

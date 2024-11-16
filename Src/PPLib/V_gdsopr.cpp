@@ -2210,11 +2210,10 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			BillTbl::Rec bill_rec;
 			BillTbl::Key2 k2;
 			BillCore * p_bt = P_BObj->P_Tbl;
-			//PPIDArray ord_list;
 			PPIDArray local_ord_list; // Заказы, к которым привязан конкретный док отгрузки
-			//PPIDArray shipm_list;
 			PPIDArray seen_ord_lot_list; // Идентификаторы лотов заказов, которые мы уже учли в отчете
 			PPIDArray temp_list;
+			PPIDArray goods_list;
 			MpDBlk.Z();
 			{
 				// Продажи
@@ -2233,6 +2232,20 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 					MpDBlk.OrdList.add(&temp_list);
 				}
 			}
+			if(cfg.ReturnOpID) {
+				// Возвраты
+				BExtQuery q(p_bt, 2);
+				q.select(p_bt->ID, p_bt->Code, p_bt->Dt, p_bt->LocID, p_bt->OpID, p_bt->Object, p_bt->Object2, p_bt->Flags,
+					p_bt->LinkBillID, p_bt->Amount, 0).where(p_bt->OpID == cfg.ReturnOpID && daterange(p_bt->Dt, &Filt.Period) && p_bt->EdiOp == PPEDIOP_MRKTPLC_RETURN);
+				MEMSZERO(k2);
+				k2.OpID = cfg.ReturnOpID;
+				k2.Dt = Filt.Period.low;
+				for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
+					THROW(PPCheckUserBreak());
+					p_bt->copyBufTo(&bill_rec);
+					MpDBlk.RetList.add(bill_rec.ID);
+				}
+			}
 			{
 				// Заказы
 				BExtQuery q(p_bt, 2);
@@ -2248,19 +2261,19 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 				}
 			}
 			MpDBlk.ShipmList.sortAndUndup();
+			MpDBlk.RetList.sortAndUndup(); // @v12.1.11
 			MpDBlk.OrdList.sortAndUndup();
 			for(uint slidx = 0; slidx < MpDBlk.ShipmList.getCount(); slidx++) {
 				const PPID bill_id = MpDBlk.ShipmList.get(slidx);
 				PPBillPacket bpack;
 				if(P_BObj->ExtractPacket(bill_id, &bpack) > 0) {
 					bpack.GetOrderList(local_ord_list);
-					//int PPViewGoodsOpAnalyze::PutBillToTempTable(PPBillPacket * pPack, double part, int sign, const PPIDArray * pSupplBillList)
 					{
 						long   subst_bill_val = 0;
-						PPIDArray goods_list;
 						GoaAddingBlock blk;
 						double part = 1.0;
 						int    sign = 0;
+						goods_list.Z();
 						InitAddingBlock(&bpack, part, sign, &blk);
 						if(!!Filt.Sgb)
 							P_BObj->Subst(&bpack, &subst_bill_val, &Bsp);
@@ -2349,71 +2362,138 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 				}
 			}
 			//
+			// Цикл по возвратам от покупателей //
+			//
+			for(uint rlidx = 0; rlidx < MpDBlk.RetList.getCount(); rlidx++) {
+				const PPID bill_id = MpDBlk.RetList.get(rlidx);
+				PPBillPacket bpack;
+				if(P_BObj->ExtractPacket(bill_id, &bpack) > 0) {
+					long   subst_bill_val = 0;
+					GoaAddingBlock blk;
+					double part = 1.0;
+					int    sign = 0;
+					goods_list.Z();
+					InitAddingBlock(&bpack, part, sign, &blk);
+					if(!!Filt.Sgb)
+						P_BObj->Subst(&bpack, &subst_bill_val, &Bsp);
+					for(uint tiidx = 0; tiidx < bpack.GetTCount(); tiidx++) {
+						const  PPTransferItem & r_ti = bpack.ConstTI(tiidx);
+						int    r;
+						{
+							PPTransferItem _ret_ti(r_ti);
+							_ret_ti.Quantity_ = 0.0;
+							_ret_ti.Cost = 0.0;
+							_ret_ti.Price = 0.0;
+							_ret_ti.Discount = 0.0;
+							THROW(PPCheckUserBreak());
+							THROW(r = PreprocessTi(&_ret_ti, p_suppl_bill_list, subst_bill_val, &blk)); // blk.Sign вероятно требует уточнения //
+							if(r > 0) {
+								const double ti_qtty = fabs(r_ti.Quantity_);
+								PROFILE_S(THROW(AddItem(blk)), "AddItem()"); // ogMarketplaceSalesAnalyze
+								{
+									IndicatorVector * p_iv = GetIndicatorEntry(blk);
+									if(!p_iv) {
+										IndicatorVector * p_new_iv = IndicatorList.CreateNewItem();
+										p_new_iv->GoodsID = blk.FinalGoodsID;
+										p_new_iv->ArID = blk.ArID;
+										p_new_iv->LocID = blk.LocID;
+										p_new_iv->Sign = blk.Sign;
+										p_iv = p_new_iv;
+									}
+									const double ti_part = r_ti.CalcAmount() / bpack.Rec.Amount;
+									p_iv->Add(PPBZSI_SALERETCOUNT, 1.0);
+									p_iv->Add(PPBZSI_SALERETQTTY, ti_qtty);
+									p_iv->Add(PPBZSI_SALERETCOST, ti_qtty * r_ti.Cost);
+									{
+										const double a = bpack.Amounts.Get(PPAMT_FREIGHT, 0L);
+										if(a != 0.0)
+											p_iv->Add(PPBZSI_FREIGHT, a * ti_part);
+									}
+									{
+										const double a = -fabs(bpack.Amounts.Get(PPAMT_MP_SELLERPART, 0L));
+										if(a != 0.0)
+											p_iv->Add(PPBZSI_MPSELLERSPART, a * ti_part);
+									}
+									{
+										const double a = bpack.Amounts.Get(PPAMT_MP_COMMISSION, 0L);
+										if(a != 0.0)
+											p_iv->Add(PPBZSI_MPCOMMISSION, a * ti_part);
+									}
+									{
+										const double a = bpack.Amounts.Get(PPAMT_MP_ACQUIRING, 0L);
+										if(a != 0.0)
+											p_iv->Add(PPBZSI_MPACQUIRING, a * ti_part);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			//
 			// Цикл по заказам (которые не были обработаны в цикле обзора продаж)
 			//
 			for(uint olidx = 0; olidx < MpDBlk.OrdList.getCount(); olidx++) {
 				const PPID bill_id = MpDBlk.OrdList.get(olidx);
 				PPBillPacket bpack;
 				if(P_BObj->ExtractPacket(bill_id, &bpack) > 0) {
-					{
-						long   subst_bill_val = 0;
-						PPIDArray goods_list;
-						GoaAddingBlock blk;
-						double part = 1.0;
-						int    sign = 0;
-						InitAddingBlock(&bpack, part, sign, &blk);
-						if(!!Filt.Sgb)
-							P_BObj->Subst(&bpack, &subst_bill_val, &Bsp);
-						for(uint tiidx = 0; tiidx < bpack.GetTCount(); tiidx++) {
-							const  PPTransferItem & r_ti = bpack.ConstTI(tiidx);
-							if(!seen_ord_lot_list.lsearch(r_ti.LotID)) {
-								int    r;
-								PPTransferItem _ord_ti(r_ti);
-								_ord_ti.Quantity_ = 0.0;
-								_ord_ti.Cost = 0.0;
-								_ord_ti.Price = 0.0;
-								_ord_ti.Discount = 0.0;
-								THROW(PPCheckUserBreak());
-								THROW(r = PreprocessTi(&_ord_ti, p_suppl_bill_list, subst_bill_val, &blk));
-								if(r > 0) {
-									PROFILE_S(THROW(AddItem(blk)), "AddItem()"); // ogMarketplaceSalesAnalyze
-									{
-										IndicatorVector * p_iv = GetIndicatorEntry(blk);
-										if(!p_iv) {
-											IndicatorVector * p_new_iv = IndicatorList.CreateNewItem();
-											p_new_iv->GoodsID = blk.FinalGoodsID;
-											p_new_iv->ArID = blk.ArID;
-											p_new_iv->LocID = blk.LocID;
-											p_new_iv->Sign = blk.Sign;
-											p_iv = p_new_iv;
-										}
-										const double ti_part = r_ti.CalcAmount() / bpack.Rec.Amount;
-										p_iv->Add(PPBZSI_ORDCOUNT, 1.0);
-										p_iv->Add(PPBZSI_ORDQTTY, fabs(r_ti.Quantity_));
-										p_iv->Add(PPBZSI_MPAMT_ORDPRICE, fabs(fabs(r_ti.Quantity_)) * r_ti.NetPrice());
-										p_iv->Add(PPBZSI_MPAMT_ORDSELLERPRICE, fabs(fabs(r_ti.Quantity_)) * r_ti.NetPrice());
-										if(bpack.Rec.Flags2 & BILLF2_DECLINED) {
-											p_iv->Add(PPBZSI_ORDCANCELLEDCOUNT, 1.0);
-											p_iv->Add(PPBZSI_ORDCANCELLEDQTTY,  fabs(r_ti.Quantity_));
-											MpDBlk.CancelledOrdList.add(bpack.Rec.ID);
-										}
-										/*
-										if(local_ord_list.getCount()) {
-											if(r_ti.Flags & PPTFR_ONORDER && r_ti.OrdLotID && !seen_ord_lot_list.lsearch(r_ti.OrdLotID)) {
-												uint sh_lot_pos = 0;
-												if(bpack.SearchShLot(r_ti.OrdLotID, &sh_lot_pos)) {
-													ReceiptTbl::Rec lot_rec;
-													if(P_BObj->trfr->Rcpt.Search(r_ti.OrdLotID, &lot_rec) > 0) {
-														p_iv->Add(PPBZSI_ORDCOUNT, 1.0);
-														p_iv->Add(PPBZSI_ORDQTTY, fabs(lot_rec.Quantity));
-														long ord_shipm_delay = diffdate(bpack.Rec.Dt, lot_rec.Dt);
-														p_iv->Add(PPBZSI_ORDSHIPMDELAYDAYS, static_cast<double>(ord_shipm_delay));
-														seen_ord_lot_list.add(lot_rec.ID);
-													}
+					long   subst_bill_val = 0;
+					GoaAddingBlock blk;
+					double part = 1.0;
+					int    sign = 0;
+					goods_list.Z();
+					InitAddingBlock(&bpack, part, sign, &blk);
+					if(!!Filt.Sgb)
+						P_BObj->Subst(&bpack, &subst_bill_val, &Bsp);
+					for(uint tiidx = 0; tiidx < bpack.GetTCount(); tiidx++) {
+						const  PPTransferItem & r_ti = bpack.ConstTI(tiidx);
+						if(!seen_ord_lot_list.lsearch(r_ti.LotID)) {
+							int    r;
+							PPTransferItem _ord_ti(r_ti);
+							_ord_ti.Quantity_ = 0.0;
+							_ord_ti.Cost = 0.0;
+							_ord_ti.Price = 0.0;
+							_ord_ti.Discount = 0.0;
+							THROW(PPCheckUserBreak());
+							THROW(r = PreprocessTi(&_ord_ti, p_suppl_bill_list, subst_bill_val, &blk));
+							if(r > 0) {
+								PROFILE_S(THROW(AddItem(blk)), "AddItem()"); // ogMarketplaceSalesAnalyze
+								{
+									IndicatorVector * p_iv = GetIndicatorEntry(blk);
+									if(!p_iv) {
+										IndicatorVector * p_new_iv = IndicatorList.CreateNewItem();
+										p_new_iv->GoodsID = blk.FinalGoodsID;
+										p_new_iv->ArID = blk.ArID;
+										p_new_iv->LocID = blk.LocID;
+										p_new_iv->Sign = blk.Sign;
+										p_iv = p_new_iv;
+									}
+									const double ti_part = r_ti.CalcAmount() / bpack.Rec.Amount;
+									p_iv->Add(PPBZSI_ORDCOUNT, 1.0);
+									p_iv->Add(PPBZSI_ORDQTTY, fabs(r_ti.Quantity_));
+									p_iv->Add(PPBZSI_MPAMT_ORDPRICE, fabs(fabs(r_ti.Quantity_)) * r_ti.NetPrice());
+									p_iv->Add(PPBZSI_MPAMT_ORDSELLERPRICE, fabs(fabs(r_ti.Quantity_)) * r_ti.NetPrice());
+									if(bpack.Rec.Flags2 & BILLF2_DECLINED) {
+										p_iv->Add(PPBZSI_ORDCANCELLEDCOUNT, 1.0);
+										p_iv->Add(PPBZSI_ORDCANCELLEDQTTY,  fabs(r_ti.Quantity_));
+										MpDBlk.CancelledOrdList.add(bpack.Rec.ID);
+									}
+									/*
+									if(local_ord_list.getCount()) {
+										if(r_ti.Flags & PPTFR_ONORDER && r_ti.OrdLotID && !seen_ord_lot_list.lsearch(r_ti.OrdLotID)) {
+											uint sh_lot_pos = 0;
+											if(bpack.SearchShLot(r_ti.OrdLotID, &sh_lot_pos)) {
+												ReceiptTbl::Rec lot_rec;
+												if(P_BObj->trfr->Rcpt.Search(r_ti.OrdLotID, &lot_rec) > 0) {
+													p_iv->Add(PPBZSI_ORDCOUNT, 1.0);
+													p_iv->Add(PPBZSI_ORDQTTY, fabs(lot_rec.Quantity));
+													long ord_shipm_delay = diffdate(bpack.Rec.Dt, lot_rec.Dt);
+													p_iv->Add(PPBZSI_ORDSHIPMDELAYDAYS, static_cast<double>(ord_shipm_delay));
+													seen_ord_lot_list.add(lot_rec.ID);
 												}
 											}
-										}*/
-									}
+										}
+									}*/
 								}
 							}
 						}
@@ -3597,6 +3677,29 @@ int PPViewGoodsOpAnalyze::ViewDetail(PPViewBrowser * pBrw, PPID rowIdent, PPID l
 							break;
 						case 1111: // PPBZSI_ORDSHIPMDELAYDAYSAVG
 							break;
+						case 121: // PPBZSI_SALERETCOUNT
+						case 122: // PPBZSI_SALERETQTTY
+						case 123: // PPBZSI_SALERETCOST
+							if(MpDBlk.RetList.getCount()) {
+								bool skip = false;
+								BillFilt bill_filt;
+								if(goodsID) {
+									PPIDArray list;
+									P_BObj->LimitBillListByGoods(MpDBlk.RetList, labs(goodsID), list);
+									if(list.getCount())
+										bill_filt.List.Set(&list);
+									else
+										skip = true;
+								}
+								else
+									bill_filt.List.Set(&MpDBlk.RetList);
+								if(!skip) {
+									bill_filt.Bbt = bbtGoodsBills;
+									BillFilt::FiltExtraParam p(0, bill_filt.Bbt);
+									PPView::Execute(PPVIEW_BILL, &bill_filt, GetModelessStatus(), &p);
+								}
+							}
+							break;
 					}
 				}
 			}
@@ -4042,6 +4145,27 @@ int PPViewGoodsOpAnalyze::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						ok = 1;
 					}
 					break;
+				case 121: // PPBZSI_SALERETCOUNT
+					if(p_ind) {
+						p_ind->Get(PPBZSI_SALERETCOUNT, &value);
+						pBlk->Set(value);
+						ok = 1;
+					}
+					break;
+				case 122: // PPBZSI_SALERETQTTY
+					if(p_ind) {
+						p_ind->Get(PPBZSI_SALERETQTTY, &value);
+						pBlk->Set(value);
+						ok = 1;
+					}
+					break;
+				case 123: // PPBZSI_SALERETCOST
+					if(p_ind) {
+						p_ind->Get(PPBZSI_SALERETCOST, &value);
+						pBlk->Set(value);
+						ok = 1;
+					}
+					break;
 			}
 		}
 	}
@@ -4060,13 +4184,13 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 			assert(Filt.OpGrpID == GoodsOpAnalyzeFilt::ogMarketplaceSalesAnalyze);
 			int    mp_col = -1;
 			uint   column_idx = 1;
-			{
+			if(MpDBlk.OrdList.getCount()) {
 				//PPLoadString("ware", temp_buf);
 				//pBrw->insertColumn(-1, "OrdCount",           101, T_INT32,  0, BCO_USERPROC);
-				pBrw->InsColumn(-1, PPLoadStringS("qtty", temp_buf), 102, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOTRAILZ), BCO_USERPROC);
+				pBrw->InsColumn(-1, "@qtty", 102, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOTRAILZ), BCO_USERPROC);
 				//pBrw->insertColumn(-1, "SaleCount",          103, T_INT32,  0, BCO_USERPROC);
-				pBrw->InsColumn(-1, "Client's price", 112, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
-				pBrw->InsColumn(-1, "Seller's price", 113, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				pBrw->InsColumn(-1, "@sum_clientprice", 112, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				pBrw->InsColumn(-1, "@sum_sellerprice", 113, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 				{
 					BroGroup grp;
 					grp.First = column_idx;
@@ -4077,8 +4201,8 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 					column_idx += grp.Count;
 				}
 			}
-			{
-				pBrw->insertColumn(-1, PPLoadStringS("qtty", temp_buf), 106, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOTRAILZ), BCO_USERPROC);
+			if(MpDBlk.CancelledOrdList.getCount()) {
+				pBrw->insertColumn(-1, "@qtty", 106, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOTRAILZ), BCO_USERPROC);
 				pBrw->insertColumn(-1, "Rate",  1105, T_DOUBLE, MKSFMTD(0, 4, 0), BCO_USERPROC);
 				{
 					BroGroup grp;
@@ -4090,12 +4214,11 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 					column_idx += grp.Count;
 				}
 			}
-			{
-				pBrw->InsColumn(-1, PPLoadStringS("qtty", temp_buf), 104, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOTRAILZ), BCO_USERPROC);
-				pBrw->InsColumn(-1, "Cost",           116, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
-				//pBrw->insertColumn(-1, "CancellationCount",  105, T_INT32,  0, BCO_USERPROC);
-				pBrw->InsColumn(-1, "Client's price", 114, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
-				pBrw->InsColumn(-1, "Seller's price", 115, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+			if(MpDBlk.ShipmList.getCount()) {
+				pBrw->InsColumn(-1, "@qtty", 104, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOTRAILZ), BCO_USERPROC);
+				pBrw->InsColumn(-1, "@sumcost", 116, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				pBrw->InsColumn(-1, "@sum_clientprice", 114, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				pBrw->InsColumn(-1, "@sum_sellerprice", 115, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 				{
 					BroGroup grp;
 					grp.First = column_idx;
@@ -4106,12 +4229,26 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 					column_idx += grp.Count;
 				}
 			}
+			if(MpDBlk.RetList.getCount()) { // @v12.1.11
+				pBrw->InsColumn(-1, "@qtty", 122, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOTRAILZ), BCO_USERPROC);
+				pBrw->InsColumn(-1, "@sumcost", 123, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				
+				{
+					BroGroup grp;
+					grp.First = column_idx;
+					grp.Count = 2;
+					grp.Height = 1;
+					grp.P_Text = newStr(PPLoadStringS("returnfrombuyer_pl", temp_buf));
+					p_def->AddColumnGroup(&grp);
+					column_idx += grp.Count;
+				}
+			}
 			pBrw->insertColumn(-1, "Seller's earnings",      107, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 			column_idx += 1;
 			{
-				pBrw->insertColumn(-1, "Commission",         108, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
-				pBrw->insertColumn(-1, "Acqiring",           109, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
-				pBrw->insertColumn(-1, "Freight",            117, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				pBrw->insertColumn(-1, "@commission_s",  108, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				pBrw->insertColumn(-1, "@bankacquiring", 109, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				pBrw->insertColumn(-1, "@freight", 117, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 				{
 					BroGroup grp;
 					grp.First = column_idx;
@@ -4122,7 +4259,7 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 					column_idx += grp.Count;
 				}
 			}
-			pBrw->insertColumn(-1, PPLoadStringS("profit", temp_buf), 1116, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+			pBrw->insertColumn(-1, "@profit", 1116, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 			pBrw->insertColumn(-1, "Shipm days",        1111, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 			CALLPTRMEMB(pBrw, SetDefUserProc(PPViewGoodsOpAnalyze::GetDataForBrowser, this));
 		}
@@ -4856,11 +4993,9 @@ int PPViewGoodsOpAnalyze::Print(const void *)
 							else if(Filt.Flags & GoodsOpAnalyzeFilt::fUnprofitableGoods)
 								rpt_id = REPORT_GOA_LOSS;
 							else if(no_cost)
-								rpt_id = (Filt.Flags & GoodsOpAnalyzeFilt::fCalcRest) ?
-									REPORT_GOODSOPRONEPRICEREST : REPORT_GOODSOPRONEPRICE;
+								rpt_id = (Filt.Flags & GoodsOpAnalyzeFilt::fCalcRest) ? REPORT_GOODSOPRONEPRICEREST : REPORT_GOODSOPRONEPRICE;
 							else
-								rpt_id = (Filt.Flags & GoodsOpAnalyzeFilt::fCalcRest) ?
-									REPORT_GOODSOPRPRICEREST : REPORT_GOODSOPRPRICE;
+								rpt_id = (Filt.Flags & GoodsOpAnalyzeFilt::fCalcRest) ? REPORT_GOODSOPRPRICEREST : REPORT_GOODSOPRPRICE;
 						}
 					}
 					if(oneof4(ord, OrdByQtty, OrdByCostSum, OrdByPriceSum, OrdByIncome) || Filt.Sgg)
@@ -4876,7 +5011,7 @@ int PPViewGoodsOpAnalyze::Print(const void *)
 	else {
 		uint   sel = 0;
 		ok = SelectorDialog(DLG_ABCANLZPRN, CTL_ABCANLZPRN_WHAT, &sel);
-		if(ok > 0)
+		if(ok > 0) {
 			if(sel == 1) {
 				Filt.ABCAnlzGroup = 2;
 				rpt_id = REPORT_GOODSOPRABC;
@@ -4885,8 +5020,9 @@ int PPViewGoodsOpAnalyze::Print(const void *)
 				Filt.ABCAnlzGroup = 1;
 				rpt_id = REPORT_GOODSOPRABCGRP;
 			}
-			else
-				ok = -1;
+		}
+		else
+			ok = -1;
 	}
 	if(ok > 0) {
 		PPReportEnv env;
@@ -5079,4 +5215,3 @@ int PPALDD_GoodsOpAnlzCmp::NextIteration(PPIterID iterId)
 }
 
 void PPALDD_GoodsOpAnlzCmp::Destroy() { DESTROY_PPVIEW_ALDD(GoodsOpAnalyze); }
-

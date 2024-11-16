@@ -2638,6 +2638,14 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 						DS.GetVersion().ToStr(temp_buf.Z());
 						p_js_reply->InsertString("server_version", temp_buf);
 					}
+					// @v12.1.11 {
+					{
+						PPID main_org_id = GetMainOrgID();
+						if(main_org_id) {
+							p_js_reply->InsertInt("main_org_id", main_org_id);
+						}
+					}
+					// } @v12.1.11 
 					p_js_reply->ToStr(temp_buf);
 					rReply.SetString(temp_buf);
 				}

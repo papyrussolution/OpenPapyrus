@@ -909,13 +909,13 @@ int ObjVersioningCore::SearchOid(PPObjID oid, long ver, ObjVerTbl::Rec * pRec, S
 		k.Ver = ver;
 		sp = spEq;
 	}
-	if(search(1, &k, sp) > 0 && k.ObjType == oid.Obj && k.ObjID == oid.Id) {
+	if(search(1, &k, sp) > 0 && oid.IsEq(k.ObjType, k.ObjID)) {
 		copyBufTo(pRec);
 		if(pPackBuf) {
 			pPackBuf->Z();
 			readLobData(this->Data, *pPackBuf);
 		}
-		destroyLobData(this->Data); // @v10.2.11 @fix
+		destroyLobData(this->Data);
 		ok = 1;
 	}
 	return ok;

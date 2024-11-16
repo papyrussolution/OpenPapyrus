@@ -1,5 +1,5 @@
 // PPBUILD.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -46,7 +46,7 @@ PrcssrBuild::Param & FASTCALL PrcssrBuild::Param::Copy(const Param & rS)
 	Ver = rS.Ver;
 	Flags = rS.Flags;
 	ConfigEntryIdx = rS.ConfigEntryIdx;
-	XpConfigEntryIdx = rS.XpConfigEntryIdx; // @v10.6.1
+	XpConfigEntryIdx = rS.XpConfigEntryIdx;
 	VerSuffix = rS.VerSuffix;
 	TSCollection_Copy(ConfigList, rS.ConfigList);
 	return *this;
@@ -207,7 +207,7 @@ int	PrcssrBuild::EditParam(Param * pParam)
 						config_str_list.Add(i+1, p_entry->Name);
 				}
 				SetupStrAssocCombo(this, CTLSEL_SELFBUILD_CONFIG, config_str_list, Data.ConfigEntryIdx, 0, 0, 0);
-				SetupStrAssocCombo(this, CTLSEL_SELFBUILD_SCFG,   config_str_list, Data.XpConfigEntryIdx, 0, 0, 0); // @v10.6.1
+				SetupStrAssocCombo(this, CTLSEL_SELFBUILD_SCFG,   config_str_list, Data.XpConfigEntryIdx, 0, 0, 0);
 			}
 			AddClusterAssoc(CTL_SELFBUILD_FLAGS, 0, PrcssrBuild::Param::fBuildClient);
 			AddClusterAssoc(CTL_SELFBUILD_FLAGS, 1, PrcssrBuild::Param::fBuildServer);
@@ -225,7 +225,7 @@ int	PrcssrBuild::EditParam(Param * pParam)
 		DECL_DIALOG_GETDTS()
 		{
 			getCtrlData(CTLSEL_SELFBUILD_CONFIG, &Data.ConfigEntryIdx);
-			getCtrlData(CTLSEL_SELFBUILD_SCFG,   &Data.XpConfigEntryIdx); // @v10.6.1
+			getCtrlData(CTLSEL_SELFBUILD_SCFG,   &Data.XpConfigEntryIdx);
 			GetClusterData(CTL_SELFBUILD_FLAGS, &Data.Flags);
 			getCtrlString(CTL_SELFBUILD_VERSFX, Data.VerSuffix);
 			ASSIGN_PTR(pData, Data);
@@ -256,7 +256,6 @@ int	PrcssrBuild::EditParam(Param * pParam)
 					PrevTimeoutRest = timeout_rest;
 					if(diff >= (CloseTimeout * CLOCKS_PER_SEC)) {
 						if(IsInState(sfModal)) {
-							// @v10.5.9 clearEvent(event);
 							endModal(cmOK);
 							return; // После endModal не следует обращаться к this
 						}
@@ -516,7 +515,7 @@ int PrcssrBuild::Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supple
 	THROW_PP_S(msvs_path.NotEmpty() && fileExists(msvs_path), PPERR_BUILD_COMPILERNFOUND, temp_buf);
 	for(uint j = 0; j < SIZEOFARRAY(sln_list); j++) {
 		SolutionEntry & r_sln_entry = sln_list[j];
-		if(P.Flags & r_sln_entry.Flag && (!supplementalConfig || r_sln_entry.Flag & Param::fSupplementalBuild)) { // @v10.6.1 (!supplementalConfig || r_sln_entry.Flag & Param::fSupplementalBuild)
+		if(P.Flags & r_sln_entry.Flag && (!supplementalConfig || r_sln_entry.Flag & Param::fSupplementalBuild)) {
 			PPGetPath(PPPATH_LOG, build_log_path);
 			const char * p_log_build_text = supplementalConfig ? "build_xp" : "build";
 			build_log_path.SetLastSlash().Cat(p_log_build_text).CatChar('-').Cat(r_sln_entry.P_Name).DotCat("log");
@@ -689,14 +688,10 @@ int	PrcssrBuild::Run()
 					CatEq("/DSRC_ROOT", p_config_entry->RootPath).Space().Cat("/NOCD").Space().Cat("/V2").Space().Cat("/P1").Space();
 				if(r_nsis_entry.P_Config)
 					temp_buf.Cat("/D").Cat(r_nsis_entry.P_Config).Space();
-				// @v10.6.1 {
 				if(p_supplemental_config_entry)
 					temp_buf.Cat("/D").Cat("XPCOMPAT").Space();
-				// } @v10.6.1 
-				// @v9.4.9 {
 				if(P.Flags & Param::fOpenSource)
 					temp_buf.Cat("/D").Cat("OPENSOURCE").Space();
-				// } @v9.4.9
 				temp_buf.Cat("/O").Cat(build_log_path).Space().Cat(r_nsis_entry.P_NsisFile);
 
 				STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));

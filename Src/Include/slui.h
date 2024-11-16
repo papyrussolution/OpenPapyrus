@@ -5572,7 +5572,7 @@ struct RowHeightInfo {
 
 HWND FASTCALL GetNextBrowser(HWND hw, int reverse);
 
-class TBaseBrowserWindow : public /*TWindow*/TWindowBase {
+class TBaseBrowserWindow : public TWindowBase {
 public:
 	~TBaseBrowserWindow();
 	struct IdentBlock {
@@ -5597,7 +5597,6 @@ public:
 	int    Insert();
 	uint   GetResID() const;
 	void   SetResID(uint res);
-	// @v10.9.11 void   SetToolbarID(uint toolbarID);
 
 	enum {
 		IdBiasBrowser  = 0x00100000,

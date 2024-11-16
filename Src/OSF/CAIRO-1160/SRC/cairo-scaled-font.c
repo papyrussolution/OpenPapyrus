@@ -1251,13 +1251,7 @@ void cairo_scaled_font_text_extents(cairo_scaled_font_t * scaled_font, const cha
 	SAlloc::F(glyphs);
 	return;
 ZERO_EXTENTS:
-	// @v10.7.8 extents->x_bearing = 0.0;
-	// @v10.7.8 extents->y_bearing = 0.0;
-	// @v10.7.8 extents->width  = 0.0;
-	// @v10.7.8 extents->height = 0.0;
-	// @v10.7.8 extents->x_advance = 0.0;
-	// @v10.7.8 extents->y_advance = 0.0;
-	memzero(extents, sizeof(*extents)); // @v10.7.8
+	memzero(extents, sizeof(*extents));
 }
 /**
  * cairo_scaled_font_glyph_extents:
@@ -1286,13 +1280,7 @@ void cairo_scaled_font_glyph_extents(cairo_scaled_font_t * scaled_font, const ca
 	double min_x = 0.0, min_y = 0.0, max_x = 0.0, max_y = 0.0;
 	boolint visible = FALSE;
 	cairo_scaled_glyph_t * scaled_glyph = NULL;
-	// @v10.7.8 extents->x_bearing = 0.0;
-	// @v10.7.8 extents->y_bearing = 0.0;
-	// @v10.7.8 extents->width  = 0.0;
-	// @v10.7.8 extents->height = 0.0;
-	// @v10.7.8 extents->x_advance = 0.0;
-	// @v10.7.8 extents->y_advance = 0.0;
-	memzero(extents, sizeof(*extents)); // @v10.7.8
+	memzero(extents, sizeof(*extents));
 	if(UNLIKELY(scaled_font->status))
 		goto ZERO_EXTENTS;
 	if(num_glyphs == 0)
@@ -1365,13 +1353,7 @@ UNLOCK:
 	_cairo_scaled_font_thaw_cache(scaled_font);
 	return;
 ZERO_EXTENTS:
-	// @v10.7.8 extents->x_bearing = 0.0;
-	// @v10.7.8 extents->y_bearing = 0.0;
-	// @v10.7.8 extents->width  = 0.0;
-	// @v10.7.8 extents->height = 0.0;
-	// @v10.7.8 extents->x_advance = 0.0;
-	// @v10.7.8 extents->y_advance = 0.0;
-	memzero(extents, sizeof(*extents)); // @v10.7.8
+	memzero(extents, sizeof(*extents));
 }
 
 slim_hidden_def(cairo_scaled_font_glyph_extents);

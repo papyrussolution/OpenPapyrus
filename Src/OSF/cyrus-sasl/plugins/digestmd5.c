@@ -1836,19 +1836,15 @@ static int digestmd5_server_mech_new(void * glob_context, sasl_server_params_t *
 	return SASL_OK;
 }
 
-static int digestmd5_server_mech_step1(server_context_t * stext,
-    sasl_server_params_t * sparams,
-    const char * clientin __attribute__((unused)),
-    unsigned clientinlen __attribute__((unused)),
-    const char ** serverout,
-    unsigned * serveroutlen,
-    sasl_out_params_t * oparams __attribute__((unused)))
+static int digestmd5_server_mech_step1(server_context_t * stext, sasl_server_params_t * sparams,
+    const char * clientin __attribute__((unused)), unsigned clientinlen __attribute__((unused)),
+    const char ** serverout, unsigned * serveroutlen, sasl_out_params_t * oparams __attribute__((unused)))
 {
 	context_t * text = (context_t*)stext;
 	int result;
-	char           * realm;
+	char * realm;
 	uchar  * nonce;
-	char           * charset = "utf-8";
+	char * charset = "utf-8";
 	char qop[1024], cipheropts[1024];
 	struct digest_cipher * cipher;
 	unsigned resplen;
@@ -1857,72 +1853,62 @@ static int digestmd5_server_mech_step1(server_context_t * stext,
 	sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 server step 1");
 	/* get realm */
 	result = get_server_realm(sparams, &realm);
-	if(result != SASL_OK) return result;
-
+	if(result != SASL_OK) 
+		return result;
 	/* what options should we offer the client? */
 	qop[0] = '\0';
 	cipheropts[0] = '\0';
 	if(stext->requiressf == 0) {
-		if(*qop) strcat(qop, ",");
+		if(*qop) 
+			strcat(qop, ",");
 		strcat(qop, "auth");
 	}
 	if(stext->requiressf <= 1 && stext->limitssf >= 1) {
-		if(*qop) strcat(qop, ",");
+		if(*qop) 
+			strcat(qop, ",");
 		strcat(qop, "auth-int");
 	}
 
 	cipher = available_ciphers;
 	while(cipher->name) {
 		/* do we allow this particular cipher? */
-		if(stext->requiressf <= cipher->ssf &&
-		    stext->limitssf >= cipher->ssf) {
+		if(stext->requiressf <= cipher->ssf && stext->limitssf >= cipher->ssf) {
 			if(!added_conf) {
-				if(*qop) strcat(qop, ",");
+				if(*qop) 
+					strcat(qop, ",");
 				strcat(qop, "auth-conf");
 				added_conf = 1;
 			}
-			if(strlen(cipheropts) + strlen(cipher->name) + 1 >= 1024)
+			if((strlen(cipheropts) + strlen(cipher->name) + 1) >= 1024)
 				return SASL_FAIL;
-			if(*cipheropts) strcat(cipheropts, ",");
+			if(*cipheropts) 
+				strcat(cipheropts, ",");
 			strcat(cipheropts, cipher->name);
 		}
 		cipher++;
 	}
-
 	if(*qop == '\0') {
-		/* we didn't allow anything?!? we'll return SASL_TOOWEAK, since
-		   that's close enough */
+		/* we didn't allow anything?!? we'll return SASL_TOOWEAK, since that's close enough */
 		return SASL_TOOWEAK;
 	}
-
 	/*
 	 * digest-challenge  = 1#( realm | nonce | qop-options | stale | maxbuf |
 	 * charset | cipher-opts | auth-param )
 	 */
-
 	nonce = create_nonce(sparams->utils);
 	if(nonce == NULL) {
 		SETERROR(sparams->utils, "internal erorr: failed creating a nonce");
 		return SASL_FAIL;
 	}
-
 	resplen = 0;
 	text->out_buf = NULL;
 	text->out_buf_len = 0;
-	if(add_to_challenge(sparams->utils,
-	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "nonce", (uchar *)nonce,
-	    TRUE) != SASL_OK) {
+	if(add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "nonce", (uchar *)nonce, TRUE) != SASL_OK) {
 		SETERROR(sparams->utils, "internal error: add_to_challenge failed");
 		return SASL_FAIL;
 	}
-
-	/* add to challenge; if we chose not to specify a realm, we won't
-	 * send one to the client */
-	if(realm && add_to_challenge(sparams->utils,
-	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "realm", (uchar *)realm,
-	    TRUE) != SASL_OK) {
+	/* add to challenge; if we chose not to specify a realm, we won't send one to the client */
+	if(realm && add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "realm", (uchar *)realm, TRUE) != SASL_OK) {
 		SETERROR(sparams->utils, "internal error: add_to_challenge failed");
 		return SASL_FAIL;
 	}
@@ -1933,40 +1919,27 @@ static int digestmd5_server_mech_step1(server_context_t * stext,
 	 * authentication with integrity protection; the value "auth-conf"
 	 * indicates authentication with integrity protection and encryption.
 	 */
-
 	/* add qop to challenge */
-	if(add_to_challenge(sparams->utils,
-	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "qop",
-	    (uchar *)qop, TRUE) != SASL_OK) {
+	if(add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "qop", (uchar *)qop, TRUE) != SASL_OK) {
 		SETERROR(sparams->utils, "internal error: add_to_challenge 3 failed");
 		return SASL_FAIL;
 	}
-
 	/*
 	 *  Cipheropts - list of ciphers server supports
 	 */
 	/* add cipher-opts to challenge; only add if there are some */
 	if(strcmp(cipheropts, "")!=0) {
-		if(add_to_challenge(sparams->utils,
-		    &text->out_buf, &text->out_buf_len, &resplen,
-		    "cipher", (uchar *)cipheropts,
-		    TRUE) != SASL_OK) {
-			SETERROR(sparams->utils,
-			    "internal error: add_to_challenge 4 failed");
+		if(add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "cipher", (uchar *)cipheropts, TRUE) != SASL_OK) {
+			SETERROR(sparams->utils, "internal error: add_to_challenge 4 failed");
 			return SASL_FAIL;
 		}
 	}
 
 	/* "stale" is true if a reauth failed because of a nonce timeout */
-	if(stext->stale &&
-	    add_to_challenge(sparams->utils,
-	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "stale", (uchar *)"true", FALSE) != SASL_OK) {
+	if(stext->stale && add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "stale", (uchar *)"true", FALSE) != SASL_OK) {
 		SETERROR(sparams->utils, "internal error: add_to_challenge failed");
 		return SASL_FAIL;
 	}
-
 	/*
 	 * maxbuf A number indicating the size of the largest buffer the server
 	 * is able to receive when using "auth-int". If this directive is
@@ -2190,8 +2163,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 		}
 		else if(strcasecmp(name, "realm") == 0) {
 			if(realm) {
-				SETERROR(sparams->utils,
-				    "duplicate realm: authentication aborted");
+				SETERROR(sparams->utils, "duplicate realm: authentication aborted");
 				result = SASL_FAIL;
 				goto FreeAllMem;
 			}
@@ -2202,8 +2174,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 		}
 		else if(strcasecmp(name, "qop") == 0) {
 			if(qop) {
-				SETERROR(sparams->utils,
-				    "duplicate qop: authentication aborted");
+				SETERROR(sparams->utils, "duplicate qop: authentication aborted");
 				result = SASL_FAIL;
 				goto FreeAllMem;
 			}
@@ -2213,10 +2184,8 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 		    (text->http_mode &&
 		    strcasecmp(name, "uri") == 0)) {       /* per RFC 2617 */
 			size_t service_len;
-
 			if(digesturi) {
-				SETERROR(sparams->utils,
-				    "duplicate digest-uri: authentication aborted");
+				SETERROR(sparams->utils, "duplicate digest-uri: authentication aborted");
 				result = SASL_FAIL;
 				goto FreeAllMem;
 			}

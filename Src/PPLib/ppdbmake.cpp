@@ -1,5 +1,5 @@
 // PPDBMAKE.CPP
-// Copyright (c) Osolotkin A.V, Sobolev A. 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2013, 2016, 2017, 2018, 2019, 2020, 2023
+// Copyright (c) Osolotkin A.V, Sobolev A. 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2013, 2016, 2017, 2018, 2019, 2020, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -10,14 +10,13 @@ static int isNeededFile(const char * pName)
 	const char * p_tables[] = {
 		"Reference2",
 		"Property",
-		"UuidRef", // @v10.7.7
-		"TextRef", // @v10.7.7
-		"UnxTextRef", // @v10.7.7
+		"UuidRef",
+		"TextRef",
+		"UnxTextRef",
 		"ObjSync",
 		"ObjAssoc",
 		"World",
 		"Person",
-		// @v10.7.7 "BankAccount",
 		"PersonKind",
 		"Register",
 		"PersonEvent",
@@ -47,12 +46,6 @@ static int isNeededFile(const char * pName)
 		if(sstreqi_ascii(p_tables[i], pName))
 			ok = 1;
 	}
-	/* @v10.7.7 {
-		SString temp_buf;
-		for(int i = 0; !ok && PPGetSubStr(PPTXT_NEEDEDFILES, i, temp_buf) > 0; i++)
-			if(temp_buf.CmpNC(pName) == 0)
-				ok = 1;
-	}*/
 	return ok;
 }
 

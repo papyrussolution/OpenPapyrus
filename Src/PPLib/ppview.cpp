@@ -2020,7 +2020,7 @@ void PPView::Helper_FormatCycle(const PPCycleFilt & rCf, const PPCycleArray & rC
 int PPView::Helper_ProcessQuickTagEdit(PPObjID oid, const void * pHdrPtr /*(LongArray *)*/)
 {
 	int    ok = -1;
-	if(pHdrPtr && oid.Obj && oid.Id) {
+	if(pHdrPtr && oid.IsFullyDefined()) {
 		const LongArray * p_tag_id_list = static_cast<const LongArray *>(pHdrPtr);
 		const uint lc = p_tag_id_list->getCount();
 		if(lc > 0 && lc < 20) { // Ограничение 20 частично страхует от случая, когда вместо указателя на LongArray нам подсунули что-то иное

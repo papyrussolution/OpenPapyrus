@@ -4349,32 +4349,23 @@ file:
 
 table TempPerson {
 	long   ID;
-	long   TabID;          // @v5.3.14 для построения кросстаба с тегами
-	string Name[128];      // @v6.2.2 [48]-->[128]
-
-	uint   PhoneP;
+	long   TabID;          // для построения кросстаба с тегами
+	string Name[128];      //
+	uint   PhoneP;         // Ссылка на строку телефона
+	uint   EMailP;         // @v12.1.11 Ссылка на строку адреса электронной почты
 	uint   AddressP;
 	uint   RAddressP;
 	uint   BnkNameP;
 	uint   BnkAcctP;
 	uint   RegSerialP;
-	//uint   RegNumberP;
 	uint   FiasAddrGuidP;
 	uint   FiasHouseGuidP;
-
-	//string Phone[128];     // @v6.2.2 [64]-->[128]  PPPSNATTR_BNKACCT: БИК банка
-	//string Address[128];   // @v6.2.2 [64]-->[128]
-	//string RAddress[128];  // @v6.2.2 [64]-->[128]
-	//string BnkName[128];   // @v6.2.2 [48]-->[128]  PPPSNATTR_STANDALONEADDR: Контакт
-	//string BnkAcct[28];    // @v5.8.10 [24]-->[28]  PPPSNATTR_DLVRADDR: Код адреса
-	//string RegSerial[12];
-	string RegNumber[64];  // @v5.0.2 сюда же запихивается значение тега. PPPSNATTR_BNKACCT: Тип счета
-	long   CityID;         // @v6.3.2 PPPSNATTR_DLVRADDR: Город в адресе
+	uint   AddrTypeP;      // @v12.1.11 Ссылка на строку наименования типа адреса (адрес доставки, юридически, реальный etc)
+	string RegNumber[64];  // сюда же запихивается значение тега. PPPSNATTR_BNKACCT: Тип счета
+	long   CityID;         // PPPSNATTR_DLVRADDR: Город в адресе
 	date   RegInitDate;
 	date   RegExpiry;
-	long   Flags;          // @7.x.x Флаги
-	//string FiasAddrGuid[36];  // @v8.6.12
-	//string FiasHouseGuid[36]; // @v8.6.12
+	long   Flags;          // @flags
 index:
 	ID, TabID (unique mod);
 	Name acs (dup mod);

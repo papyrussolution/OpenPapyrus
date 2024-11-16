@@ -772,7 +772,7 @@ int StyloQFace::SetVerifiability(int v)
 /*int   StyloQFace::SetVerifiable(bool v)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr();
-	return Set(tagVerifiable, 0, v ? "true" : "false");
+	return Set(tagVerifiable, 0, STextConst::GetBool(v));
 }*/
 
 int StyloQFace::GetExactly(int tag, int lang, SString & rResult) const
@@ -7377,13 +7377,13 @@ long OnetimePass(PPID userID); // @v11.1.9
 
 /*static*/void PPStyloQInterchange::Stq_CmdStat_MakeRsrv_Response::RegisterOid(Stq_CmdStat_MakeRsrv_Response * pThis, PPObjID oid)
 {
-	if(pThis && oid.Obj && oid.Id)
+	if(pThis && oid.IsFullyDefined())
 		pThis->OidList.Add(oid.Obj, oid.Id);
 }
 
 /*static*/void PPStyloQInterchange::Stq_CmdStat_MakeRsrv_Response::RegisterBlobOid(Stq_CmdStat_MakeRsrv_Response * pThis, PPObjID oid)
 {
-	if(pThis && oid.Obj && oid.Id)
+	if(pThis && oid.IsFullyDefined())
 		pThis->BlobOidList.Add(oid.Obj, oid.Id);
 }
 

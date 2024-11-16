@@ -965,8 +965,8 @@ int SBool::comp(const void * p1, const void * p2) const
 
 char * SBool::tostr(const void * d, long fmt, char * buf) const
 {
-	const long b = BIN(_tolong(d, S));
-	return strcpy(buf, b ? "true" : "false");
+	const bool b = LOGIC(_tolong(d, S));
+	return strcpy(buf, STextConst::GetBool(b));
 }
 
 int SBool::fromstr(void * d, long fmt, const char * buf) const

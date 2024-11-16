@@ -272,7 +272,7 @@ void PPViewCCheck::Helper_Construct()
 	CurLine = 0;
 	State = 0;
 	P_InOutVATList = 0;
-	P_InnerIterItem = 0; // @v10.2.6
+	P_InnerIterItem = 0;
 }
 
 PPViewCCheck::PPViewCCheck() : PPView(0, &Filt, PPVIEW_CCHECK, implDontSetupCtColumnsOnChgFilt|implUseServer, 0)
@@ -551,15 +551,13 @@ public:
 		AddClusterAssoc(CTL_CCHECKFLT_CASHORBANK,  1, 1);
 		AddClusterAssoc(CTL_CCHECKFLT_CASHORBANK,  2, 2);
 		SetClusterData(CTL_CCHECKFLT_CASHORBANK, cob);
-		// @v10.0.02 {
 		AddClusterAssocDef(CTL_CCHECKFLT_ALTREG, 0, 0);
 		AddClusterAssoc(CTL_CCHECKFLT_ALTREG, 1, +1);
 		AddClusterAssoc(CTL_CCHECKFLT_ALTREG, 2, -1);
 		SetClusterData(CTL_CCHECKFLT_ALTREG, Data.AltRegF);
-		// } @v10.0.02
 		SetupSubstGoodsCombo(this, CTLSEL_CCHECKFLT_SUBST, Data.Sgg);
-		SetupPersonCombo(this, CTLSEL_CCHECKFLT_CSHR, Data.CashierID, 0, eq_cfg.CshrsPsnKindID, 1); // @v10.1.8
-		SetupPPObjCombo(this, CTLSEL_CCHECKFLT_CRUSER, PPOBJ_USR, Data.CreationUserID, 0, 0); // @v10.7.3
+		SetupPersonCombo(this, CTLSEL_CCHECKFLT_CSHR, Data.CashierID, 0, eq_cfg.CshrsPsnKindID, 1);
+		SetupPPObjCombo(this, CTLSEL_CCHECKFLT_CRUSER, PPOBJ_USR, Data.CreationUserID, 0, 0);
 		SetupCtrls();
 		selectCtrl(CTL_CCHECKFLT_PERIOD);
 		return ok;
@@ -594,8 +592,8 @@ public:
 			Data.SCardID = screc.SCardID;
 		}
 		getCtrlData(CTLSEL_CCHECKFLT_AGENT, &Data.AgentID);
-		getCtrlData(CTLSEL_CCHECKFLT_CSHR, &Data.CashierID); // @v10.1.8
-		getCtrlData(CTLSEL_CCHECKFLT_CRUSER, &Data.CreationUserID); // @v10.7.3
+		getCtrlData(CTLSEL_CCHECKFLT_CSHR, &Data.CashierID);
+		getCtrlData(CTLSEL_CCHECKFLT_CRUSER, &Data.CreationUserID);
 		getCtrlData(CTL_CCHECKFLT_TABLECODE, &Data.TableCode);
 		Data.Grp = (CCheckFilt::Grouping)getCtrlLong(CTLSEL_CCHECKFLT_GRP);
 		if(oneof3(Data.Grp, CCheckFilt::gAmount, CCheckFilt::gQtty, CCheckFilt::gAmountNGoods)) {
@@ -614,7 +612,7 @@ public:
 			Data.Flags |= CCheckFilt::fCashOnly;
 		else if(temp_long == 2)
 			Data.Flags |= CCheckFilt::fBankingOnly;
-		Data.AltRegF = (int8)GetClusterData(CTL_CCHECKFLT_ALTREG); // @v10.0.02
+		Data.AltRegF = (int8)GetClusterData(CTL_CCHECKFLT_ALTREG);
 		getCtrlData(CTLSEL_CCHECKFLT_SUBST, &Data.Sgg);
 		if(ok)
 			ASSIGN_PTR(pData, Data);
@@ -710,7 +708,7 @@ void PPViewCCheck::PreprocessCheckRec(const CCheckTbl::Rec * pRec, CCheckTbl::Re
 	rResultRec = *pRec;
 	MEMSZERO(rExtRec);
 	const long ff_ = Filt.Flags;
-	if(!(pRec->Flags & CCHKF_EXT) || (ff_ & Filt.fAvoidExt && !(Filt.HasExtFiltering() || (ff_ & CCheckFilt::fCTableStatus)))) { // @v10.2.1
+	if(!(pRec->Flags & CCHKF_EXT) || (ff_ & Filt.fAvoidExt && !(Filt.HasExtFiltering() || (ff_ & CCheckFilt::fCTableStatus)))) {
 		;
 	}
 	else if(/* @seeabove pRec->Flags & CCHKF_EXT &&*/ P_CC->GetExt(pRec->ID, &rExtRec) > 0) {
@@ -830,7 +828,7 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 				if(pRec->Flags & CCHKF_EXT && pExtRec) {
 					if(!CheckFiltID(Filt.AgentID, pExtRec->SalerID))
 						return 0;
-					if(!CheckFiltID(Filt.CreationUserID, pExtRec->CreationUserID)) // @v10.7.3
+					if(!CheckFiltID(Filt.CreationUserID, pExtRec->CreationUserID))
 						return 0;
 					else if(!CheckFiltID(Filt.TableCode, pExtRec->TableNo))
 						return 0;
@@ -848,7 +846,7 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 				else
 					return 0;
 			}
-			if(NodeIdList.GetCount() && !(Filt.Flags & CCheckFilt::fZeroSess)) { // @v10.2.7 !(Filt.Flags & CCheckFilt::fZeroSess)
+			if(NodeIdList.GetCount() && !(Filt.Flags & CCheckFilt::fZeroSess)) {
 				long   cn_id = 0;
 				//
 				// Если условия фильтрации требуют отображения junk или потерянных junk-чеков,
@@ -1075,7 +1073,7 @@ int PPViewCCheck::ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert * pBei
 	return ok;
 }
 
-struct CCheckGrpItem { // @flat @size=104 // @v10.2.6 72-->104
+struct CCheckGrpItem { // @flat @size=104
 	LDATE  Dt;
 	LTIME  Tm;
 	long   CashID;
@@ -1089,7 +1087,7 @@ struct CCheckGrpItem { // @flat @size=104 // @v10.2.6 72-->104
 	double BnkAmt;
 	double CrdCardAmt;
 	double Qtty;
-	char   Serial[32]; // @v10.2.6
+	char   Serial[32];
 };
 
 IMPL_CMPFUNC(CCheckGrpItem, p1, p2)
@@ -1131,7 +1129,7 @@ int CCheckGrpCache::SearchItem(const CCheckGrpItem * pKey, CCheckGrpItem * pItem
 	k1.CashID  = pKey->CashID;
 	k1.SCardID = pKey->SCardID;
 	k1.GoodsID = pKey->GoodsID;
-	STRNSCPY(k1.Serial, pKey->Serial); // @v10.2.6
+	STRNSCPY(k1.Serial, pKey->Serial);
 	if(P_Tbl->search(1, &k1, spEq)) {
 		if(pItem) {
 			const TempCCheckGrpTbl::Rec & r_data = P_Tbl->data;
@@ -1148,7 +1146,7 @@ int CCheckGrpCache::SearchItem(const CCheckGrpItem * pKey, CCheckGrpItem * pItem
 			pItem->BnkAmt   = r_data.BnkAmt;
 			pItem->CrdCardAmt = r_data.CrdCardAmt;
 			pItem->Qtty     = r_data.Qtty;
-			STRNSCPY(pItem->Serial, r_data.Serial); // @v10.2.6
+			STRNSCPY(pItem->Serial, r_data.Serial);
 		}
 		return 1;
 	}
@@ -1172,7 +1170,7 @@ int CCheckGrpCache::FlashItem(const CCheckGrpItem * pItem)
 	rec.BnkAmt   = pItem->BnkAmt;
 	rec.CrdCardAmt = pItem->CrdCardAmt;
 	rec.Qtty     = pItem->Qtty;
-	STRNSCPY(rec.Serial, pItem->Serial); // @v10.2.6
+	STRNSCPY(rec.Serial, pItem->Serial);
 	if(SearchItem(pItem, 0) > 0) {
 		rec.ID__ = P_Tbl->data.ID__;
 		ok = P_Tbl->updateRecBuf(&rec) ? 1 : PPSetErrorDB();
@@ -1243,7 +1241,9 @@ bool PPViewCCheck::IsTempTblNeeded() const
 int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1, r;
-	SString temp_buf, name_buf, goods_name;
+	SString temp_buf;
+	SString name_buf;
+	SString goods_name;
 	PPIDArray temp_list;
 	CCheckCore * p_cct = P_CC;
 	PPObjLocation loc_obj;
@@ -1254,13 +1254,13 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 	Filt.Period.Actualize(ZERODATE);
 	THROW(ObjRts.AdjustCSessPeriod(Filt.Period, 0));
 	ZDELETE(P_TmpGrpTbl);
-	ZDELETE(P_InnerIterItem); // @v10.2.6
+	ZDELETE(P_InnerIterItem);
 	CcIdList.Set(0);
 	SCardList.Set(0);
 	SessIdList.Set(0);
 	NodeIdList.Set(0);
 	GoodsList.Clear();
-	Problems.clear(); // @v10.8.8
+	Problems.clear();
 	State &= ~(stUseGoodsList|stSkipUnprinted);
 	Gsl.Init(1, 0);
 	ZDELETE(P_InOutVATList);
@@ -2445,14 +2445,14 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						}
 						PPDbqFuncPool::InitFunc2Arg(dbe_addr_phone, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_PHONE));
 						PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR));
-						p_q->addField(p_ext->StartOrdDtm); // #19 // @v10.1.11 #++
-						p_q->addField(dbe_addr_phone);     // #20 // @v10.1.11 #++
-						p_q->addField(dbe_addr_city);      // #21 // @v10.1.11 #++
-						p_q->addField(dbe_addr);           // #22 // @v10.1.11 #++
+						p_q->addField(p_ext->StartOrdDtm); // #19
+						p_q->addField(dbe_addr_phone);     // #20
+						p_q->addField(dbe_addr_city);      // #21
+						p_q->addField(dbe_addr);           // #22
 					}
 					else if(Filt.Flags & CCheckFilt::fOrderOnly) {
-						p_q->addField(p_ext->StartOrdDtm); // #19 // @v10.1.11 #++
-						p_q->addField(p_ext->EndOrdDtm);   // #20 // @v10.1.11 #++
+						p_q->addField(p_ext->StartOrdDtm); // #19
+						p_q->addField(p_ext->EndOrdDtm);   // #20
 					}
 					dbq = & (*dbq && (p_ext->CheckID += cq->ID));
 					p_q->from(cq, p_ext, 0L);
@@ -2477,27 +2477,25 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					t->ID,              // #0
 					t->Dt,              // #1
 					t->Tm,              // #2
-					// @v10.1.10 t->CashID,          // #3
-					t->PosNodeID,       // #3 // @v10.1.11
-					// @v10.1.11 dbe_posnode,        // #3 @v10.1.10
+					t->PosNodeID,       // #3
 					t->Flags,           // #4
 					t->Code,            // #5
 					t->Amount,          // #6
 					dbe_sc_code,        // #7
 					t->Discount,        // #8
-					dbe_posnode,        // #9   // @v10.1.11
-					dbe_psn,            // #10  // @v10.1.11 #++
-					dbe_scowner_name,   // #11  // @v10.1.11 #++
+					dbe_posnode,        // #9
+					dbe_psn,            // #10
+					dbe_scowner_name,   // #11
 					0L);
 				if(State & stHasExt) {
 					SETIFZ(p_ext, new CCheckExtTbl);
 					PPDbqFuncPool::InitObjNameFunc(dbe_saler, PPDbqFuncPool::IdObjNameAr, p_ext->SalerID);
 					p_add_paym = &(p_ext->AddPaym_unused / 100.0);
-					p_q->addField(dbe_saler);         // #12 // @v10.1.11 #++
-					p_q->addField(p_ext->TableNo);    // #13 // @v10.1.11 #++
-					p_q->addField(p_ext->GuestCount); // #14 // @v10.1.11 #++
-					p_q->addField(*p_add_paym);       // #15 // @v10.1.11 #++
-					p_q->addField(p_ext->Memo);       // #16 // @v10.1.11 #++
+					p_q->addField(dbe_saler);         // #12
+					p_q->addField(p_ext->TableNo);    // #13
+					p_q->addField(p_ext->GuestCount); // #14
+					p_q->addField(*p_add_paym);       // #15
+					p_q->addField(p_ext->Memo);       // #16
 					if(Filt.Flags & CCheckFilt::fDlvrOnly || Filt.DlvrAddrID) {
 						{
 							dbe_addr_city.init();
@@ -2506,14 +2504,14 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						}
 						PPDbqFuncPool::InitFunc2Arg(dbe_addr_phone, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_PHONE));
 						PPDbqFuncPool::InitFunc2Arg(dbe_addr, PPDbqFuncPool::IdAddrExField, p_ext->AddrID, dbconst((long)LOCEXSTR_SHORTADDR));
-						p_q->addField(p_ext->StartOrdDtm); // #17 // @v10.1.11 #++
-						p_q->addField(dbe_addr_phone);     // #18 // @v10.1.11 #++
-						p_q->addField(dbe_addr_city);      // #19 // @v10.1.11 #++
-						p_q->addField(dbe_addr);           // #20 // @v10.1.11 #++
+						p_q->addField(p_ext->StartOrdDtm); // #17
+						p_q->addField(dbe_addr_phone);     // #18
+						p_q->addField(dbe_addr_city);      // #19
+						p_q->addField(dbe_addr);           // #20
 					}
 					else if(Filt.Flags & CCheckFilt::fOrderOnly) {
-						p_q->addField(p_ext->StartOrdDtm); // #17 // @v10.1.11 #++
-						p_q->addField(p_ext->EndOrdDtm);   // #18 // @v10.1.11 #++
+						p_q->addField(p_ext->StartOrdDtm); // #17
+						p_q->addField(p_ext->EndOrdDtm);   // #18
 					}
 				}
 				if(Filt.Flags & (CCheckFilt::fCashOnly|CCheckFilt::fBankingOnly))

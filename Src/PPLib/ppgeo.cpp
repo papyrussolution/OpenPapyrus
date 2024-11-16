@@ -1342,7 +1342,7 @@ int GeoTrackCore::PutItem(const PPGeoTrackItem & rItem, int use_ta)
 			THROW_DB(insertRecBuf(&rec));
     	}
 		else {
-			if(rItem.ExtOid.Obj && rItem.ExtOid.Id) {
+			if(rItem.ExtOid.IsFullyDefined()) {
 				if(founded_item.ExtOid.Id == 0) {
 					THROW_DB(updateRecBuf(&rec));
 				}
@@ -1661,7 +1661,7 @@ int PPViewGeoTracking::Export()
 	THROW(InitIteration());
 	if(GetCounter().GetTotal()) {
 		SString fn_suffix;
-        if(Filt.Oi.Obj && Filt.Oi.Id) {
+        if(Filt.Oi.IsFullyDefined()) {
 			GetObjectName(Filt.Oi.Obj, Filt.Oi.Id, fn_suffix);
         }
 		out_file_name.Z().Cat("geo-tracking");

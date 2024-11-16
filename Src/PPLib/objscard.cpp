@@ -1911,7 +1911,7 @@ PPObjSCard::Filt::Filt() : Signature(PPConst::Signature_PPObjSCard_Filt), Series
 TLP_IMPL(PPObjSCard, CCheckCore, P_CcTbl);
 
 PPObjSCard::PPObjSCard(void * extraPtr) : PPObject(PPOBJ_SCARD), ExtraPtr(extraPtr), P_CsObj(0),
-	DoObjVer_SCard(CConfig.Flags2 & CCFLG2_USEHISTSCARD) // @v10.5.3
+	DoObjVer_SCard(CConfig.Flags2 & CCFLG2_USEHISTSCARD)
 {
 	TLP_OPEN(P_CcTbl);
 	P_Tbl = P_CcTbl ? &P_CcTbl->Cards : 0;

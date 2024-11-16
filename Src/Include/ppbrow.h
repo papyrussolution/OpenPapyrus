@@ -44,18 +44,18 @@
 	#define HELP_BROWSER_PERSONCT                                 2
 #define BROWSER_PERSONATTR_REGISTER                      3 // @{person_pl} {%s}
 	#define HELP_BROWSER_PERSONATTR_REGISTER                      3
-#define BROWSER_PERSONATTR_BNKACCT                       4 // @{bankaccount_pl} {%s}
-	#define HELP_BROWSER_PERSONATTR_BNKACCT                       4
-#define BROWSER_PERSONATTR_PHONEADDR                     5 // јдреса и телефоны персоналий {%s}
-	#define HELP_BROWSER_PERSONATTR_PHONEADDR                     5
-#define BROWSER_PERSONATTR_EMAIL                         6 // Ёлектронные адреса персоналий {%s}
-	#define HELP_BROWSER_PERSONATTR_EMAIL                         6
-#define BROWSER_PERSONATTR_DLVRADDR                      7 // јдреса персоналий {%s}
-	#define HELP_BROWSER_PERSONATTR_DLVRADDR                      7
-#define BROWSER_PERSONATTR_STDALNADDR                    8 // @{autonomousaddress_pl}
-	#define HELP_BROWSER_PERSONATTR_STDALNADDR                    8
-#define BROWSER_PERSONATTR_TAG                           9 // @{persontag_pl} {%s}
-	#define HELP_BROWSER_PERSONATTR_TAG                           9
+#define BROWSER_PERSONATTR_TAG                           4 // @{persontag_pl} {%s}
+	#define HELP_BROWSER_PERSONATTR_TAG                           4
+#define BROWSER_PERSONATTR_DLVRADDR                      5 // јдреса персоналий {%s}
+	#define HELP_BROWSER_PERSONATTR_DLVRADDR                      5
+#define BROWSER_PERSONATTR_BNKACCT                       6 // @{bankaccount_pl} {%s}
+	#define HELP_BROWSER_PERSONATTR_BNKACCT                       6
+#define BROWSER_PERSONATTR_PHONEADDR                     7 // јдреса и телефоны персоналий {%s}
+	#define HELP_BROWSER_PERSONATTR_PHONEADDR                     7
+#define BROWSER_PERSONATTR_EMAIL                         8 // Ёлектронные адреса персоналий {%s}
+	#define HELP_BROWSER_PERSONATTR_EMAIL                         8
+#define BROWSER_PERSONATTR_STDALNADDR                    9 // @{autonomousaddress_pl}
+	#define HELP_BROWSER_PERSONATTR_STDALNADDR                    9
 #define BROWSER_PERSONREL                               10 // @{personrelation_pl}
 	#define HELP_BROWSER_PERSONREL                               10
 #define BROWSER_ARTICLE                                 11 // @{view_article} {%s}

@@ -438,7 +438,7 @@ int PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl, PPID 
 	uint   i;
 	PUGL   compl_pugl;
 	PPBillPacket pack;
-	LongArray row_list; // @v10.5.12
+	LongArray row_list;
 	int    do_set_manuf_time = 0;
 	ObjTagItem tag_item;
 	if(pPugl && pPugl->Slmt.Flags & PUGL::SetLotManufTimeParam::fEnable) {
@@ -493,7 +493,6 @@ int PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl, PPID 
 			{
 				row_list.clear();
 				THROW(pack.InsertRow(&ti, &row_list));
-				// @v10.5.12 {
 				if(do_set_manuf_time && row_list.getCount() == 1) {
 					const uint row_pos = static_cast<uint>(row_list.get(0));
 					const PPTransferItem & r_ti = pack.TI(row_pos);
@@ -517,7 +516,6 @@ int PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl, PPID 
 						}
 					}
 				}
-				// } @v10.5.12
 			}
 			THROW(r = pack.InsertComplete(gs, acpos, &compl_pugl, PCUG_CANCEL, pGra, false/*recursive*/));
 			THROW(pack.ShrinkTRows());
@@ -858,7 +856,10 @@ int PPObjBill::Helper_WrOffDrft_ExpDrftRcp(WrOffDraftBlock & rBlk, int use_ta)
 int PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPIDArray * pWrOffBills)
 {
 	int    ok = 1;
-	int    incomplete = 0, processed = 0, j, r;
+	int    incomplete = 0;
+	int    processed = 0;
+	int    j;
+	int    r;
 	PPGoodsStruc gs;
 	LongArray rows;
 	PPTransferItem ti;
@@ -995,14 +996,15 @@ int PPObjBill::Helper_WriteOffTurnResultItem(const WrOffDraftBlock & rBlk, uint 
 int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam, PPIDArray * pWrOffBills, PUGL * pDfctList, int use_ta)
 {
 	int    ok = -1;
-	int    incomplete = 0, processed = 0, r;
+	int    incomplete = 0;
+	int    processed = 0;
+	int    r;
 	PPID   compl_bill_id = 0;
 	PPTransferItem ti;
 	SString serial_buf, clb_buf;
 	PPBillPacket * p_pack = 0;
 	PPGoodsStruc gs;
-	// @v10.2.9 StringSet ss_lotxcode; // @v10.2.7
-	PPLotExtCodeContainer::MarkSet lotxcode_set; // @v10.2.9
+	PPLotExtCodeContainer::MarkSet lotxcode_set;
 	LongArray rows;
 	WrOffDraftBlock blk(pWrOffParam, pDfctList);
 	{
@@ -1162,14 +1164,10 @@ int PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOffParam
 										const ObjTagList * p_org_lot_tag_list = blk.SrcDraftPack.LTagL.Get(i);
 										THROW(p_pack->LTagL.Set(dest_pos, p_org_lot_tag_list));
 									}
-									// @v10.2.7 {
 									{
-										// @v10.2.9 blk.SrcDraftPack.XcL.Get(i+1, 0, ss_lotxcode);
-										// @v10.2.9 p_pack->XcL.Set(dest_pos+1, &ss_lotxcode);
-										blk.SrcDraftPack.XcL.Get(i+1, 0, lotxcode_set); // @v10.2.9
-										p_pack->XcL.Set_2(dest_pos+1, &lotxcode_set); // @v10.2.9
+										blk.SrcDraftPack.XcL.Get(i+1, 0, lotxcode_set);
+										p_pack->XcL.Set_2(dest_pos+1, &lotxcode_set);
 									}
-									// } @v10.2.7
 								}
 							}
 							p_pack->ProcessFlags |= PPBillPacket::pfForceRByBill;

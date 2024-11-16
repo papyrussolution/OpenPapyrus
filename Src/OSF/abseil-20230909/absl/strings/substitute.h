@@ -171,12 +171,10 @@ public:
 		: piece_(scratch_, numbers_internal::SixDigitsToBuffer(value, scratch_)) {
 	}
 
-	Arg(bool value) // NOLINT(google-explicit-constructor)
-		: piece_(value ? "true" : "false") {
+	Arg(bool value) : piece_(STextConst::GetBool(value)) { // NOLINT(google-explicit-constructor)
 	}
 
-	template <typename T, typename = typename std::enable_if<
-		    strings_internal::HasAbslStringify<T>::value>::type>
+	template <typename T, typename = typename std::enable_if<strings_internal::HasAbslStringify<T>::value>::type>
 	Arg( // NOLINT(google-explicit-constructor)
 		const T& v, strings_internal::StringifySink&& sink = {
 			})

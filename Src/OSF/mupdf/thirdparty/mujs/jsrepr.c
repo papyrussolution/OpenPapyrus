@@ -164,7 +164,7 @@ static void reprvalue(js_State * J, js_Buffer ** sb)
 	else if(js_isnull(J, -1))
 		js_puts(J, sb, "null");
 	else if(js_isboolean(J, -1))
-		js_puts(J, sb, js_toboolean(J, -1) ? "true" : "false");
+		js_puts(J, sb, STextConst::GetBool(js_toboolean(J, -1)));
 	else if(js_isnumber(J, -1))
 		reprnum(J, sb, js_tonumber(J, -1));
 	else if(js_isstring(J, -1))
@@ -190,7 +190,7 @@ static void reprvalue(js_State * J, js_Buffer ** sb)
 			    break;
 			case JS_CBOOLEAN:
 			    js_puts(J, sb, "(new Boolean(");
-			    js_puts(J, sb, obj->u.boolean ? "true" : "false");
+			    js_puts(J, sb, STextConst::GetBool(obj->u.boolean));
 			    js_puts(J, sb, "))");
 			    break;
 			case JS_CNUMBER:

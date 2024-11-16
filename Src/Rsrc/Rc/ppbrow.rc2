@@ -1160,6 +1160,26 @@ browser PERSONATTR_REGISTER north(100), 1, 0, "@{person_pl} {%s}", OWNER|GRID, 0
 	toolbar PERSON
 }
 
+browser PERSONATTR_TAG north(100), 1, 0, "@{persontag_pl} {%s}", OWNER|GRID, 0
+{
+	"@id",          0, notype, 0,  4
+	"@name",        1, notype, 0, 30
+	"@tag",         2, notype, 0, 10
+	toolbar PERSON
+}
+
+browser PERSONATTR_DLVRADDR north(100), 1, 0, "јдреса персоналий {%s}", OWNER|GRID, 0
+{
+	"@id",          0, notype, 0,  4
+	"@name",        2, notype, 0, 30
+	"@addresstype", 5, notype, 0, 10
+	"@addressid",   1, notype, NMBF_NOZERO, 10
+	"@code",        4, notype, 0, 10
+	"@city",        6, notype, 0, 20
+	"@address",     3, notype, 0, 40
+	toolbar PERSON
+}
+
 browser PERSONATTR_BNKACCT north(100), 1, 0, "@{bankaccount_pl} {%s}", OWNER|GRID, 0
 {
 	"@id",              0, notype, 0,  4
@@ -1187,18 +1207,6 @@ browser PERSONATTR_EMAIL north(100), 1, 0, "Ёлектронные адреса персоналий {%s}",
 	"@id",       0, notype, 0,  4
 	"@name",     1, notype, 0, 30
 	"@email",    2, notype, 0, 30
-	toolbar PERSON
-}
-
-browser PERSONATTR_DLVRADDR north(100), 1, 0, "јдреса персоналий {%s}", OWNER|GRID, 0
-{
-	"@id",          0, notype, 0,  4
-	"@name",        2, notype, 0, 30
-	"@addresstype", 5, notype, 0, 10
-	"@addressid",   1, notype, NMBF_NOZERO, 10
-	"@code",        4, notype, 0, 10
-	"@city",        6, notype, 0, 20
-	"@address",     3, notype, 0, 40
 	toolbar PERSON
 }
 
@@ -1236,14 +1244,6 @@ browser PERSONATTR_STDALNADDR north(100), 1, 0, "@{autonomousaddress_pl}", OWNER
 		separator
 		CHANGEFILT     : kbCtrlV,     PPDV_FILTER01,        "@{filter}\tCtrl-V"
 	}
-}
-
-browser PERSONATTR_TAG north(100), 1, 0, "@{persontag_pl} {%s}", OWNER|GRID, 0
-{
-	"@id",          0, notype, 0,  4
-	"@name",        1, notype, 0, 30
-	"@tag",         2, notype, 0, 10
-	toolbar PERSON
 }
 
 browser PERSONREL north(100), 1, 0, "@{personrelation_pl}", OWNER|GRID, 0

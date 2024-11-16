@@ -164,6 +164,11 @@ protected:
 				RslvState = rstUndef;
 			}
 		}
+		void   SetAsUnresolved()
+		{
+			Destroy();
+			RslvState = rstUnresolved;
+		}
 		bool   SetTexture(void * pTexture)
 		{
 			bool ok = false;
@@ -174,14 +179,12 @@ protected:
 				ok = true;
 			}
 			else {
-				RslvState = RslvState = rstUnresolved;
+				RslvState = rstUnresolved;
 			}
 			return ok;
 		}
-		void * GetTexture()
-		{
-			return P_Texture;
-		}
+		void * GetTexture() { return P_Texture; }
+		int    GetState() const { return RslvState; }
 	private:
 		void * P_Texture;
 		int    RslvState; // @v12.1.11 CommonTextureCacheEntry::stXXX

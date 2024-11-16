@@ -675,7 +675,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					p_writer->AddAttrib("marking-of-the-good", pref_barcode);
 					p_writer->AddAttrib("price", temp_buf.Z().Cat(r_cur_entry.Price, SFMT_MONEY));
 					p_writer->AddAttrib("currency", "RUB");
-					p_writer->AddAttrib("deleted", is_deleted ? "true" : "false");
+					p_writer->AddAttrib("deleted", STextConst::GetBool(is_deleted));
 					if(rStoreIndex.NotEmpty())
 						p_writer->PutElement("shop-indices", rStoreIndex);
 					p_writer->StartElement("department", "number", temp_buf.Z().Cat(divn));

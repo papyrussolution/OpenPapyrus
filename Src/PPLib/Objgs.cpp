@@ -2782,9 +2782,9 @@ int PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, 
 					CheckGsProblem * p_problem = pProblemList->CreateNewItem();
 					THROW_SL(p_problem);
 					p_problem->Code = CheckGsProblem::errUnRef;
-					p_problem->Text = buf;
-					p_problem->GsID = pStruc->Rec.ID;
-					p_problem->RowN = -1;
+					p_problem->Descr = buf;
+					p_problem->LocIdent = pStruc->Rec.ID;
+					p_problem->ItemI = -1;
 				}
 				CALLPTRMEMB(pLogger, Log(buf));
 			}
@@ -2796,9 +2796,9 @@ int PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, 
 					CheckGsProblem * p_problem = pProblemList->CreateNewItem();
 					THROW_SL(p_problem);
 					p_problem->Code = CheckGsProblem::errNoNameAmbig;
-					p_problem->Text = buf;
-					p_problem->GsID = pStruc->Rec.ID;
-					p_problem->RowN = -1;
+					p_problem->Descr = buf;
+					p_problem->LocIdent = pStruc->Rec.ID;
+					p_problem->ItemI = -1;
 				}
 				CALLPTRMEMB(pLogger, Log(buf));
 			}
@@ -2810,9 +2810,9 @@ int PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, 
 					CheckGsProblem * p_problem = pProblemList->CreateNewItem();
 					THROW_SL(p_problem);
 					p_problem->Code = CheckGsProblem::errNamedEmptyName;
-					p_problem->Text = buf;
-					p_problem->GsID = pStruc->Rec.ID;
-					p_problem->RowN = -1;
+					p_problem->Descr = buf;
+					p_problem->LocIdent = pStruc->Rec.ID;
+					p_problem->ItemI = -1;
 				}
 				CALLPTRMEMB(pLogger, Log(buf));
 			}
@@ -2821,11 +2821,10 @@ int PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, 
 			PPGoodsStrucItem * p_item = 0;
 			PPGoodsStruc gstruc;
 			THROW_SL(pStructIDs->add(pStruc->Rec.ID));
-			for(uint i = 0; !recur && pStruc->Items.enumItems(&i, (void **)&p_item) > 0;) { // @v10.1.7 !recur
+			for(uint i = 0; !recur && pStruc->Items.enumItems(&i, (void **)&p_item) > 0;) {
 				int    s = 0;
 				int    g = 0;
 				double price = 0.0;
-				// @v10.3.0 (never used) double sum = 0.0;
 				gstruc.Init();
 				THROW(goods_obj.LoadGoodsStruc(PPGoodsStruc::Ident(p_item->GoodsID), &gstruc));
 				if((g = pGoodsIDs->lsearch(p_item->GoodsID)) > 0 || (s = pStructIDs->lsearch(gstruc.Rec.ID)) > 0) {
@@ -2842,9 +2841,9 @@ int PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, 
 						CheckGsProblem * p_problem = pProblemList->CreateNewItem();
 						THROW_SL(p_problem);
 						p_problem->Code = CheckGsProblem::errRecur;
-						p_problem->Text = buf;
-						p_problem->GsID = pStruc->Rec.ID;
-						p_problem->RowN = i;
+						p_problem->Descr = buf;
+						p_problem->LocIdent = pStruc->Rec.ID;
+						p_problem->ItemI = i;
 					}
 					CALLPTRMEMB(pLogger, Log(buf));
 				}

@@ -216,16 +216,21 @@ public:
 	//   Заполняется запросом к серверу GETDBINFO
 	//
 	struct DbInfo {
+		DbInfo() : MainOrgID(0)
+		{
+		}
 		DbInfo & Z()
 		{
 			Uuid.Z();
 			Symb.Z();
 			Ver.Z();
+			MainOrgID = 0;
 			return *this;
 		}
 		S_GUID Uuid; // GUID базы данных
 		SString Symb; // Символ базы данных
-		SVerT Ver; // Версия сервера Papyrus
+		SVerT  Ver; // Версия сервера Papyrus
+		PPID   MainOrgID; // @v12.1.11 Идентификатор персоналии главной организации 
 	};
 	struct QuotKindEntry {
 		QuotKindEntry() : ID(0), Rank(0), DaysOfWeek(0)
@@ -430,6 +435,15 @@ public:
 		DImageLoading()
 		{
 		}
+		DImageLoading(const DImageLoading & rS)
+		{
+			Copy(rS);
+		}
+		DImageLoading & FASTCALL operator = (const DImageLoading & rS)
+		{
+			Copy(rS);
+			return *this;
+		}
 		bool   FASTCALL Copy(const DImageLoading & rS)
 		{
 			DServerError::Copy(rS);
@@ -444,10 +458,36 @@ public:
 			Entry() : Status(0)
 			{
 			}
+			Entry(const Entry & rS) : Status(0)
+			{
+				Copy(rS);
+			}
+			Entry & FASTCALL operator = (const Entry & rS)
+			{
+				Copy(rS);
+				return *this;
+			}
+			bool   FASTCALL Copy(const Entry & rS)
+			{
+				bool   ok = true;
+				Oid = rS.Oid;
+				Img = rS.Img;
+				Status = rS.Status;
+				return ok;
+			}
 			PPObjID Oid;
 			SBinaryChunk Img;
 			int    Status; // 0 - undef, -1 - error, 1 - ok
 		};
+		const Entry * SearchOid(PPObjID oid) const
+		{
+			for(uint i = 0; i < L.getCount(); i++) {
+				const Entry * p_entry = L.at(i);
+				if(p_entry && p_entry->Oid == oid)
+					return p_entry;
+			}
+			return 0;
+		}
 		TSCollection <Entry> L; // Список идентификаторов объектов, ассоциированных с загруженными изображениями //
 	};
 	//
@@ -589,24 +629,14 @@ public:
 		char   SubstTxt_DbSymb[128];
 		char   SubstTxt_User[128];
 		char   SubstTxt_Password[128];
-		//char   SubstTxt_
 	};
-	/*class ImDialog_WsCtlLogin : public ImDialogState {
-	public:
-		ImDialog_WsCtlLogin(WsCtl_ImGuiSceneBlock & rBlk);
-		~ImDialog_WsCtlLogin();
-		virtual int Build();
-		virtual bool CommitData();
-	};*/
 	class ImDialog_WsRegisterComputer : public ImDialogState {
 	public:
 		ImDialog_WsRegisterComputer(WsCtl_ImGuiSceneBlock & rBlk, WsCtl_SelfIdentityBlock * pCtx) : R_Blk(rBlk), 
 			ImDialogState(pCtx), CompCatID(0), WaitOnQueryResult(false)
 		{
 			SString temp_buf;
-			if(pCtx) {
-				Data = *pCtx;
-			}
+			RVALUEPTR(Data, pCtx);
 			STRNSCPY(SubstTxt_Name, Data.PrcName);
 			if(Data.MacAdrList.getCount()) {
 				Data.MacAdrList.at(0).ToStr(0, temp_buf);
@@ -749,6 +779,7 @@ private:
 		void   MakeKey(const char * pFileName, SString & rKey);
 		int    Put(Texture_CachedFileEntity * pEntry);
 		Texture_CachedFileEntity * Get(const char * pSymb);
+		SFileStorage & GetFileStorate() { return Fs; }
 	private:
 		SMtLock Lck;
 		SString BasePath_Removed;
@@ -812,18 +843,85 @@ private:
 	SUiLayout * MakePgmListLayout(const WsCtl_ProgramCollection & rPgmL);
 	int    QueryProgramList2(WsCtl_ProgramCollection & rPgmL, WsCtl_ClientPolicy & rPolicyL);
 	void   LoadProgramList2();
-	void   LoadProgramImages(WsCtl_ProgramCollection & rPgmL, TextureCache & rTextureCache);
 	void   EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayout & rTl);
+	void * QueryImageTextureByOid(PPObjID oid) // @construction {
+	{
+		void * p_result = 0;
+		//Cache_Texture
+		SString temp_buf;
+		SString signature;
+		DConnectionStatus conn_status;
+		St.D_ConnStatus.GetData(conn_status);
+		SBinaryChunk gi(&conn_status.Dbi.Uuid, sizeof(conn_status.Dbi.Uuid));
+		PPObject::MakeBlobSignature(gi, oid, 1, signature);
+		Texture_CachedFileEntity * p_te = Cache_Texture.Get(signature);
+		{
+			if(!p_te || p_te->GetState() != Texture_CachedFileEntity::rstUnresolved) { 
+				if(!Cache_Texture.GetFileStorate().GetFilePath(signature, temp_buf)) {
+					WsCtl_ImGuiSceneBlock::DImageLoading st_data;
+					St.D_ImgLd.GetData(st_data);
+					//PPObjID oid(PPOBJ_SWPROGRAM, p_pe_->ID);
+					const WsCtl_ImGuiSceneBlock::DImageLoading::Entry * p_il_entry = st_data.SearchOid(oid);
+					if(p_il_entry && p_il_entry->Status == -1) {
+						if(!p_te) {
+							Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
+							if(p_cfe) {
+								p_cfe->SetAsUnresolved();
+								Cache_Texture.Put(p_cfe); // put program-entry img texture
+								p_cfe = 0; // ! prevent deletion below
+							}
+						}
+						else {
+							p_te->SetAsUnresolved();
+						}
+					}
+					{
+						WsCtlReqQueue::Req req(PPSCMD_GETIMAGE);
+						STRNSCPY(req.P.NameTextUtf8, signature);
+						req.P.Oid = oid;
+						P_CmdQ->Push(req);
+					}
+				}
+				else {
+					Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
+					if(p_cfe && p_cfe->Init(temp_buf)) {
+						if(p_cfe->Reload(true, &ImgRtb)) {
+							Cache_Texture.Put(p_cfe); // put program-entry img texture
+							p_cfe = 0; // ! prevent deletion below
+						}
+					}
+					delete p_cfe;
+					//
+					p_te = Cache_Texture.Get(signature);
+				}
+			}
+		}
+		if(p_te)
+			p_result = p_te->GetTexture();
+		return p_result;
+	}
 	int    ScreenItem_Logo(SUiLayout * pLoParent, int viewFlags) // loidLogo
 	{
 		int    result = 0;
 		ImGuiWindowByLayout wbl(pLoParent, loidLogo, "##Logo", viewFlags|ImGuiWindowFlags_NoBackground);
 		if(wbl.IsValid()) {
-			Texture_CachedFileEntity * p_logo_te = Cache_Texture.Get(GetFilePathS(fnLogo, true, SLS.AcquireRvlStr()));
-			if(p_logo_te && p_logo_te->GetTexture()) {
-				const float _x = ImGui::GetWindowWidth();
-				const float _y = ImGui::GetWindowHeight();
-				ImGui::Image(p_logo_te->GetTexture(), ImVec2(_x, _y));
+			DConnectionStatus conn_status;
+			St.D_ConnStatus.GetData(conn_status);
+			if(conn_status.Dbi.MainOrgID) {
+				void * p_texture = QueryImageTextureByOid(PPObjID(PPOBJ_PERSON, conn_status.Dbi.MainOrgID));
+				if(p_texture) {
+					const float _x = ImGui::GetWindowWidth();
+					const float _y = ImGui::GetWindowHeight();
+					ImGui::Image(p_texture, ImVec2(_x, _y));
+				}
+			}
+			else {
+				Texture_CachedFileEntity * p_logo_te = Cache_Texture.Get(GetFilePathS(fnLogo, true, SLS.AcquireRvlStr()));
+				if(p_logo_te && p_logo_te->GetTexture()) {
+					const float _x = ImGui::GetWindowWidth();
+					const float _y = ImGui::GetWindowHeight();
+					ImGui::Image(p_logo_te->GetTexture(), ImVec2(_x, _y));
+				}
 			}
 		}
 		return result;
@@ -1544,6 +1642,9 @@ int WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(PPJobSrvClient & rCli, DbIn
 							else if(p_cur->Text.IsEqiAscii("server_version")) {
 								pDbInfo->Ver.FromStr(p_cur->P_Child->Text);
 							}
+							else if(p_cur->Text.IsEqiAscii("main_org_id")) { // @v12.1.11
+								pDbInfo->MainOrgID = p_cur->P_Child->Text.ToLong();
+							}
 						}
 					}
 				}
@@ -1577,39 +1678,53 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 			}
 			break;
 		case PPSCMD_GETIMAGE: // @v12.0.6
-			if(P_St) {
-				if(rReq.P.Oid.Obj && rReq.P.Oid.Id) {
-					WsCtl_ImGuiSceneBlock::DImageLoading st_data;
-					P_St->D_ImgLd.GetData(st_data);
-					SString blob_path;
-					GetBlobStoragePath(blob_path);
-					SFileStorage fs(blob_path);
-					{
-						PPJobSrvCmd cmd;
-						cmd.StartWriting(PPSCMD_GETIMAGE);
-						DS.GetObjectTypeSymb(rReq.P.Oid.Obj, temp_buf);
-						cmd_buf.Z().Cat("GETIMAGE").Space().Cat(temp_buf).Space().Cat(rReq.P.Oid.Id);
-						if(rCli.ExecSrvCmd(cmd_buf, PPConst::DefSrvCmdTerm, reply)) {
-							if(reply.StartReading(&temp_buf)) {
-								PPJobSrvProtocol::TransmitFileBlock tfb;
-								const size_t rs = reply.Read(&tfb, sizeof(tfb));
-								if(rs == sizeof(tfb)) {
-									if(tfb.Size <= reply.GetAvailableSize()) {
-										STempBuffer img_buf(tfb.Size);
-										if(img_buf.IsValid()) {
-											const size_t rimgs = reply.Read(img_buf, img_buf.GetSize());
-											if(rimgs == tfb.Size) {
-												fs.PutFile(rReq.P.NameTextUtf8, img_buf, img_buf.GetSize());
+			if(P_St && rReq.P.Oid.IsFullyDefined()) {
+				WsCtl_ImGuiSceneBlock::DImageLoading st_data;
+				P_St->D_ImgLd.GetData(st_data);
+				SFileStorage fs(GetBlobStoragePathS());
+				{
+					bool local_ok = false;
+					PPJobSrvCmd cmd;
+					cmd.StartWriting(PPSCMD_GETIMAGE);
+					DS.GetObjectTypeSymb(rReq.P.Oid.Obj, temp_buf);
+					cmd_buf.Z().Cat("GETIMAGE").Space().Cat(temp_buf).Space().Cat(rReq.P.Oid.Id);
+					if(rCli.ExecSrvCmd(cmd_buf, PPConst::DefSrvCmdTerm, reply)) {
+						if(reply.StartReading(&temp_buf)) {
+							PPJobSrvProtocol::TransmitFileBlock tfb;
+							const size_t rs = reply.Read(&tfb, sizeof(tfb));
+							if(rs == sizeof(tfb)) {
+								if(tfb.Size <= reply.GetAvailableSize()) {
+									STempBuffer img_buf(static_cast<size_t>(tfb.Size));
+									if(img_buf.IsValid()) {
+										const size_t rimgs = reply.Read(img_buf, img_buf.GetSize());
+										if(rimgs == tfb.Size) {
+											fs.PutFile(rReq.P.NameTextUtf8, img_buf, img_buf.GetSize());
+											// @v12.1.11 {
+											local_ok = true;
+											WsCtl_ImGuiSceneBlock::DImageLoading::Entry * p_ile = st_data.L.CreateNewItem();
+											if(p_ile) {
+												p_ile->Oid = rReq.P.Oid;
+												p_ile->Status = 1;
 											}
+											// } @v12.1.11
 										}
 									}
 								}
-								debug_mark = true;
 							}
+							debug_mark = true;
 						}
 					}
-					P_St->D_ImgLd.SetData(st_data);
+					// @v12.1.11 {
+					if(!local_ok) {
+						WsCtl_ImGuiSceneBlock::DImageLoading::Entry * p_ile = st_data.L.CreateNewItem();
+						if(p_ile) {
+							p_ile->Oid = rReq.P.Oid;
+							p_ile->Status = -1;
+						}
+					}
+					// } @v12.1.11
 				}
+				P_St->D_ImgLd.SetData(st_data);
 			}
 			break;
 		case PPSCMD_WSCTL_END_SESS:
@@ -2446,10 +2561,6 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 		}
 	}
 	{
-		//SString pic_base_path;
-		//WsCtlApp::GetLocalCachePath(pic_base_path);
-		//pic_base_path.SetLastSlash().Cat("img").SetLastSlash();
-		//Cache_Texture.SetBasePath(pic_base_path);
 		{
 			const int fn_id_list[] = { fnBackground, fnLogo };
 			for(uint i = 0; i < SIZEOFARRAY(fn_id_list); i++) {
@@ -2617,11 +2728,10 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 					offset.x = -p_scr->GetCurrentPageTopPoint();
 				}
 				const WsCtl_ProgramEntry * p_clicked_entry = 0;
-				// @v12.0.8 {
-				//SString blob_path;
-				//GetBlobStoragePath(blob_path);
-				//SFileStorage fs(blob_path);
-				// } @v12.0.8 
+				// @v12.1.11 это нам понадобиться для выяснения безнадежности загрузки изображения { //
+				WsCtl_ImGuiSceneBlock::DImageLoading st_data;
+				St.D_ImgLd.GetData(st_data);
+				// } @v12.1.11
 				for(uint loidx = 0; loidx < p_lo_ipg->GetChildrenCount(); loidx++) {
 					SUiLayout * p_lo_entry = p_lo_ipg->GetChild(loidx);
 					if(p_lo_entry) {
@@ -2630,16 +2740,61 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 							if(wbl_entry.IsValid()) {
 								//const uint pe_idx = i-(loidStartProgramEntry+1);
 								const WsCtl_ProgramEntry * p_pe_ = static_cast<const WsCtl_ProgramEntry *>(SUiLayout::GetManagedPtr(p_lo_entry));
-								if(p_pe_ && p_pe_->PicSymb.NotEmpty()) {
-									Texture_CachedFileEntity * p_te = Cache_Texture.Get(p_pe_->PicSymb);
-									if(p_te && p_te->GetTexture()) {
-										if(p_pe_->Title.NotEmpty())
-											ImGui::Text(p_pe_->Title);
-										const SPoint2F __s = p_lo_entry->GetFrame().GetSize();
-										ImVec2 sz(__s.x-4.0f, __s.y-16.0f);
-										ImGui::Image(p_te->GetTexture(), sz);
+								if(p_pe_) {
+									bool do_default_frame = true; // Случай когда нет картинки
+									if(p_pe_->PicSymb.NotEmpty()) {
+										Texture_CachedFileEntity * p_te = Cache_Texture.Get(p_pe_->PicSymb);
+										// @v12.1.11 {
+										if(false) { // Если поставить true, то картинки будут грузиться в real-time, но возникнет торможение :(
+											if(!p_te || p_te->GetState() != Texture_CachedFileEntity::rstUnresolved) { 
+												if(!Cache_Texture.GetFileStorate().GetFilePath(p_pe_->PicSymb, temp_buf)) {
+													PPObjID oid(PPOBJ_SWPROGRAM, p_pe_->ID);
+													const WsCtl_ImGuiSceneBlock::DImageLoading::Entry * p_il_entry = st_data.SearchOid(oid);
+													if(p_il_entry && p_il_entry->Status == -1) {
+														if(!p_te) {
+															Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
+															if(p_cfe) {
+																p_cfe->SetAsUnresolved();
+																Cache_Texture.Put(p_cfe); // put program-entry img texture
+																p_cfe = 0; // ! prevent deletion below
+															}
+														}
+														else {
+															p_te->SetAsUnresolved();
+														}
+													}
+													/* Запрос отправлять здесь не станем (считаем пока, что все запрос отправлены при инициализации сеанса)
+													WsCtlReqQueue::Req req(PPSCMD_GETIMAGE);
+													STRNSCPY(req.P.NameTextUtf8, p_pe_->PicSymb);
+													req.P.Oid.Set(PPOBJ_SWPROGRAM, p_pe_->ID);
+													P_CmdQ->Push(req);
+													*/
+												}
+												else {
+													Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
+													if(p_cfe && p_cfe->Init(temp_buf)) {
+														if(p_cfe->Reload(true, &ImgRtb)) {
+															Cache_Texture.Put(p_cfe); // put program-entry img texture
+															p_cfe = 0; // ! prevent deletion below
+														}
+													}
+													delete p_cfe;
+													//
+													p_te = Cache_Texture.Get(p_pe_->PicSymb);
+												}
+											}
+										}
+										// } @v12.1.11 
+										if(p_te && p_te->GetTexture()) {
+											if(p_pe_->Title.NotEmpty())
+												ImGui::Text(p_pe_->Title);
+											const SPoint2F __s = p_lo_entry->GetFrame().GetSize();
+											ImVec2 sz(__s.x-4.0f, __s.y-16.0f);
+											ImGui::Image(p_te->GetTexture(), sz);
+											do_default_frame = false;
+										}
 									}
-									else {
+									if(do_default_frame) {
 										if(p_pe_->Category.NotEmpty())
 											ImGui::Text(p_pe_->Category);
 										if(p_pe_->Title.NotEmpty())
@@ -2882,65 +3037,40 @@ void WsCtl_ImGuiSceneBlock::LoadProgramList2()
 				}
 			}
 		}
-		LoadProgramImages(PgmL, Cache_Texture);
-		PgmL.MakeCatList();
-	}
-}
-
-void WsCtl_ImGuiSceneBlock::LoadProgramImages(WsCtl_ProgramCollection & rPgmL, TextureCache & rTextureCache)
-{
-	SString pic_base_path;
-	SString temp_buf;
-	WsCtlApp::GetLocalCachePath(pic_base_path);
-	pic_base_path.SetLastSlash().Cat("img").SetLastSlash();
-	SFile::CreateDir(pic_base_path); // @v12.1.8
-	if(pathValid(pic_base_path, 1)) {
-		//rTextureCache.SetBasePath(pic_base_path);
-		// @v12.0.6 {
-		SString file_path;
-		//SString blob_path;
-		//GetBlobStoragePath(blob_path);
-		SFileStorage fs(GetBlobStoragePathS());
-		// } @v12.0.6 
-		for(uint i = 0; i < rPgmL.getCount(); i++) {
-			WsCtl_ProgramEntry * p_pe = rPgmL.at(i);
-			if(p_pe) {
-				if(p_pe->PicSymb.NotEmpty()) {
-					//int64  file_size = 0;
-					//SPtrHandle fh = fs.GetFile(p_pe->PicSymb, &file_size);
-					if(!fs.GetFilePath(p_pe->PicSymb, file_path)) {
-					//if(!fh) {
-						// @v12.0.6 @todo
-						WsCtlReqQueue::Req req(PPSCMD_GETIMAGE);
-						STRNSCPY(req.P.NameTextUtf8, p_pe->PicSymb); // @v12.0.8
-						req.P.Oid.Set(PPOBJ_SWPROGRAM, p_pe->ID);
-						P_CmdQ->Push(req);
-					}
-					else {
-						Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
-						if(p_cfe && p_cfe->Init(file_path)) {
-							if(p_cfe->Reload(true, &ImgRtb)) {
-								rTextureCache.Put(p_cfe);
-								p_cfe = 0; // ! prevent deletion below
+		{
+			SString pic_base_path;
+			WsCtlApp::GetLocalCachePath(pic_base_path);
+			pic_base_path.SetLastSlash().Cat("img").SetLastSlash();
+			SFile::CreateDir(pic_base_path);
+			if(pathValid(pic_base_path, 1)) {
+				SString file_path;
+				//SFileStorage fs(GetBlobStoragePathS());
+				for(uint i = 0; i < PgmL.getCount(); i++) {
+					WsCtl_ProgramEntry * p_pe = PgmL.at(i);
+					if(p_pe) {
+						if(p_pe->PicSymb.NotEmpty()) {
+							if(!Cache_Texture.GetFileStorate().GetFilePath(p_pe->PicSymb, file_path)) {
+								WsCtlReqQueue::Req req(PPSCMD_GETIMAGE);
+								STRNSCPY(req.P.NameTextUtf8, p_pe->PicSymb);
+								req.P.Oid.Set(PPOBJ_SWPROGRAM, p_pe->ID);
+								P_CmdQ->Push(req);
+							}
+							else {
+								Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
+								if(p_cfe && p_cfe->Init(file_path)) {
+									if(p_cfe->Reload(true, &ImgRtb)) {
+										Cache_Texture.Put(p_cfe); // put program-entry img texture
+										p_cfe = 0; // ! prevent deletion below
+									}
+								}
+								delete p_cfe;
 							}
 						}
-						delete p_cfe;
 					}
-					/*
-					(temp_buf = pic_base_path).Cat(p_pe->PicSymb);
-					if(fileExists(temp_buf)) {
-						Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
-						if(p_cfe && p_cfe->Init(temp_buf)) {
-							if(p_cfe->Reload(true, &ImgRtb)) {
-								rTextureCache.Put(p_cfe);
-								p_cfe = 0; // ! prevent deletion below
-							}
-						}
-						delete p_cfe;
-					}*/
 				}
 			}
 		}
+		PgmL.MakeCatList();
 	}
 }
 

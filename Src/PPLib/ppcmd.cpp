@@ -22,9 +22,9 @@ void PPCommandDescr::Init()
 	MenuCm = 0;
 	IconId = 0;
 	ToolbarId = 0;
-	ViewId = 0; // @v10.3.8 @fix
-	FiltId = 0; // @v10.3.8 @fix
-	FiltExtId = 0; // @v10.3.8 @fix
+	ViewId = 0;
+	FiltId = 0;
+	FiltExtId = 0;
 	memzero(&Reserve, sizeof(Reserve));
 	Symb.Z();
 	Text.Z();

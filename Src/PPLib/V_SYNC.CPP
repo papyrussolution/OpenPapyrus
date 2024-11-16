@@ -961,8 +961,7 @@ int ViewObjSyncTab(PPObjID oid)
 		k0.ObjType = static_cast<int16>(oid.Obj);
 		k0.CommIdPfx = hdr_rec.CommIdPfx;
 		k0.CommID = hdr_rec.CommID;
-		while(p_tbl->search(0, &k0, spGt) && p_tbl->data.ObjType == oid.Obj &&
-			p_tbl->data.CommIdPfx == hdr_rec.CommIdPfx && p_tbl->data.CommID == hdr_rec.CommID) {
+		while(p_tbl->search(0, &k0, spGt) && p_tbl->data.ObjType == oid.Obj && p_tbl->data.CommIdPfx == hdr_rec.CommIdPfx && p_tbl->data.CommID == hdr_rec.CommID) {
 			p_tbl->copyBufTo(&rec);
 			_ObjSyncEntry entry(rec);
 			list.insert(&entry);

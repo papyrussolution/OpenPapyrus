@@ -99,14 +99,14 @@
 	#include <sys/types.h> // @v11.7.1
 	#include <tchar.h>
 	#include <wchar.h>
-	#include <stdint.h> // @v10.8.1
+	#include <stdint.h>
 	#include <string.h> // @v11.0.7
 	#include <malloc.h> // @v11.7.1 
 	// @v10.4.3
 	#ifdef HAVE_UNISTD_H
 		#include <unistd.h>
 	#endif
-	#include <process.h> // @v10.9.3
+	#include <process.h>
 #endif
 #ifdef _WIN32
 	#ifndef __WIN32__
@@ -129,7 +129,7 @@
 		#pragma pack(8)
 	#endif*/
 	#include <winsock2.h>
-	#include <ws2tcpip.h> // @v10.9.9
+	#include <ws2tcpip.h>
 	/* @v11.7.0 (выше определена директива установки выравнивания по умолчанию для компилятора)
 	#if _M_X64
 		#pragma pack(pop)
@@ -379,7 +379,7 @@
 #define ADJ_LEFT              0 // По левому краю
 #define ADJ_RIGHT             1 // По правому краю
 #define ADJ_CENTER            2 // По центру
-#define ADJ_ALIGN             3 // @v10.4.8 Выравнивание по всему направлению (по длине или высоте) с внутренней набивкой пространством между элементами
+#define ADJ_ALIGN             3 // Выравнивание по всему направлению (по длине или высоте) с внутренней набивкой пространством между элементами
 //
 // Descr: Сторона "набивки" строк
 //
@@ -459,7 +459,7 @@
 #define AGGRFUNC_AVG          3 // Среднее арифметическое
 #define AGGRFUNC_MIN          4
 #define AGGRFUNC_MAX          5
-#define AGGRFUNC_STDDEV       6 // @v10.5.6 Стандартное отклонение
+#define AGGRFUNC_STDDEV       6 // Стандартное отклонение
 //
 //
 //
@@ -10977,28 +10977,28 @@ public:
 		CPP      = 102, // CPP source file
 		H        = 103, // C header file
 		Perl     = 104, // perl source code
-		Php      = 105, // php source code
-		Java     = 106, // java source code
-		Py       = 107, // Python source code
-		UnixShell = 108, // Unix Shell script
-		Msi      = 109, // Microsoft Installer package
-		TxtUtf8  = 110, // Текст в формате utf8
-		TxtAscii = 111, // Текст в котором только ASCII-символы
-		Log      = 112, // Файл журнала (by ext only)
+		Php              = 105, // php source code
+		Java             = 106, // java source code
+		Py               = 107, // Python source code
+		UnixShell        = 108, // Unix Shell script
+		Msi              = 109, // Microsoft Installer package
+		TxtUtf8          = 110, // Текст в формате utf8
+		TxtAscii         = 111, // Текст в котором только ASCII-символы
+		Log              = 112, // Файл журнала (by ext only)
 		Properties       = 113, // Файл properties. Обычно текстовый файл аналогичный ini, но без зональности ([]).
-		Css      = 114, // CSS
+		Css              = 114, // CSS
 		JavaScript       = 115, // JS
-		Json     = 116, //
-		Pbxproj  = 117, // Файл проекта xcode
+		Json             = 116, //
+		Pbxproj          = 117, // Файл проекта xcode
 		PapyruDbDivXchg  = 118, // Приватный формат проекта Papyrus: файл обмена данными между разделами
-		Csv      = 119, // @v10.8.0 comma-separated-values
-		Xsd      = 120, // @v10.8.0 xml-schema-documentation
-		Gravity  = 121, // @v10.8.2 gravity-source (язык gravity)
-		VCProjFilers     = 122, // @v10.9.9 Visual Studio Project Filters
-		VCProjUser       = 123, // @v10.9.9 Visual Studio Project User
-		CodeBlocks_Cbp   = 124, // @v10.9.9 Code::Blocks Project File
-		M4               = 125, // @v10.9.9 m4 Macroprocessor
-		Tsv              = 126, // @v10.9.9 tab-separated-values
+		Csv              = 119, // comma-separated-values
+		Xsd              = 120, // xml-schema-documentation
+		Gravity          = 121, // gravity-source (язык gravity)
+		VCProjFilers     = 122, // Visual Studio Project Filters
+		VCProjUser       = 123, // Visual Studio Project User
+		CodeBlocks_Cbp   = 124, // Code::Blocks Project File
+		M4               = 125, // m4 Macroprocessor
+		Tsv              = 126, // tab-separated-values
 		Webp             = 127, // @v11.3.4 webp graphics format
 		Otf              = 128, // @v11.3.7 OpenType font file (4F 54 54 4F 00)
 		Ttf              = 129, // @v11.3.7 TrueType font file (00 01 00 00 00)

@@ -696,16 +696,16 @@ int SCardCore::EnumOpByCard(PPID cardID, LDATETIME * pDT, SCardOpTbl::Rec * pRec
 		return PPDbSearchError();
 }
 
-int SCardCore::GetOpByLinkObj(PPObjID oid, TSVector <OpBlock> & rList) // @v9.8.4 TSArray-->TSVector
+int SCardCore::GetOpByLinkObj(PPObjID oid, TSVector <OpBlock> & rList)
 {
 	int    ok = -1;
 	rList.clear();
-	if(oid.Obj && oid.Id) {
+	if(oid.IsFullyDefined()) {
 		SCardOpTbl::Key1 k1;
 		MEMSZERO(k1);
 		k1.LinkObjType = oid.Obj;
 		k1.LinkObjID = oid.Id;
-		if(ScOp.search(1, &k1, spGe) && ScOp.data.LinkObjType == oid.Obj && ScOp.data.LinkObjID == oid.Id) {
+		if(ScOp.search(1, &k1, spGe) && oid.IsEq(ScOp.data.LinkObjType, ScOp.data.LinkObjID)) {
 			do {
 				SCardOpTbl::Rec op_rec;
 				ScOp.copyBufTo(&op_rec);
@@ -713,7 +713,7 @@ int SCardCore::GetOpByLinkObj(PPObjID oid, TSVector <OpBlock> & rList) // @v9.8.
 				blk.Init(&op_rec);
 				blk.Flags |= OpBlock::fEdit;
 				THROW_SL(rList.insert(&blk));
-			} while(ScOp.search(1, &k1, spNext) && ScOp.data.LinkObjType == oid.Obj && ScOp.data.LinkObjID == oid.Id);
+			} while(ScOp.search(1, &k1, spNext) && oid.IsEq(ScOp.data.LinkObjType, ScOp.data.LinkObjID));
 		}
 	}
 	CATCHZOK

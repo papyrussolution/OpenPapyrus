@@ -411,7 +411,7 @@ int ObjTransmContext::GetPrevRestoredObj(PPObjID * pOi) const
 int ObjTransmContext::ForceRestore(PPObjID oi)
 {
 	int    ok = -1;
-	if(oi.Obj && oi.Id) {
+	if(oi.IsFullyDefined()) {
 		SETIFZ(P_ForceRestoreObj, new PPObjIDArray);
 		if(P_ForceRestoreObj) {
 			P_ForceRestoreObj->Add(oi.Obj, oi.Id);
@@ -736,13 +736,11 @@ int PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updProtocol
 		PPIDArray exclude_obj_type_list;
 		// @v11.1.7 PPOBJ_STYLOQBINDERY
 		exclude_obj_type_list.addzlist(PPOBJ_CONFIG, PPOBJ_SCALE, PPOBJ_BHT, PPOBJ_BCODEPRINTER, PPOBJ_STYLOPALM, PPOBJ_STYLOQBINDERY, /*PPOBJ_USRGRP, PPOBJ_USR,*/ 0L); 
-		// @v10.1.5 {
 		if(!(Ctx.Cfg.Flags & DBDXF_SYNCUSRANDGRPS)) {
 			exclude_obj_type_list.add(PPOBJ_USR);
 			exclude_obj_type_list.add(PPOBJ_USRGRP);
 		}
-		// } @v10.1.5
-		if(oi.Obj && oi.Id && !exclude_obj_type_list.lsearch(oi.Obj)) {
+		if(oi.IsFullyDefined() && !exclude_obj_type_list.lsearch(oi.Obj)) {
 			ObjSyncQueueTbl::Key1 k1;
 			MEMSZERO(k1);
 			k1.ObjType = static_cast<short>(oi.Obj);
@@ -1615,7 +1613,7 @@ int PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & rItem,
 				SETFLAG(pack.Flags, PPObjPack::fDispatcher, DestDbDivPack.Rec.Flags & DBDIVF_DISPATCH);
 				THROW(ppobj->ProcessObjRefs(&pack, &temp, 0, &Ctx));
 				for(uint i = 0; temp.enumItems(&i, (void **)&p_entry);) {
-					if(p_entry->Obj && p_entry->Id && *p_entry != dont_process_pair /*&& !temp.Is_NotPreprocess_Pos(i-1)*/) { // @v8.0.9 && !temp.Is_NotPreprocess_Pos(i-1)
+					if(p_entry->IsFullyDefined() && *p_entry != dont_process_pair /*&& !temp.Is_NotPreprocess_Pos(i-1)*/) { // @v8.0.9 && !temp.Is_NotPreprocess_Pos(i-1)
 						if(!temp.Is_NotPreprocess_Pos(i-1) && P_Queue->SearchObject_(p_entry->Obj, p_entry->Id, rItem.DBID, &idx_rec) > 0) {
 							RestoreObjItem inner_item;
 							THROW(rBlk.SetQueueItem(idx_rec, &inner_item));

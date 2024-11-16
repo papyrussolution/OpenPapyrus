@@ -6376,7 +6376,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 										PutNonZeroGuid(n_p, "bs", r_bat.ProductItem.Guid);
 										temp_buf = r_bat.ProductItem.Name;
 										if(temp_buf.NotEmptyS()) {
-											XMLReplaceSpecSymb(temp_buf, "<>&"); // @v10.4.12
+											XMLReplaceSpecSymb(temp_buf, "<>&");
 											temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 											n_p.PutInner(_xmlnst_dt("name"), temp_buf);
 										}

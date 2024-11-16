@@ -423,7 +423,7 @@ static IMPL_DBE_PROC(dbqf_objregistertext_iii)
 		//(registerTypeID, objtype, objid)
 		const  PPID reg_type = params[0].lval;
 		PPObjID oid(params[1].lval, params[2].lval);
-		if(reg_type && oid.Obj && oid.Id) {
+		if(reg_type && oid.IsFullyDefined()) {
 			PPID   reg_id = 0;
 			PPObjRegister reg_obj;
 			RegisterTbl::Rec reg_rec;

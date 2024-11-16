@@ -188,17 +188,9 @@ const char * message CXX_UNUSED_PARAM, ...)
 /*
  * Printer
  */
-template <typename T> struct hb_printer_t {
-	const char * print(const T&) { return "something"; }
-};
-
-template <> struct hb_printer_t<bool> {
-	const char * print(bool v) { return v ? "true" : "false"; }
-};
-
-template <> struct hb_printer_t<hb_empty_t> {
-	const char * print(hb_empty_t) { return ""; }
-};
+template <typename T> struct hb_printer_t { const char * print(const T&) { return "something"; } };
+template <> struct hb_printer_t<bool> { const char * print(bool v) { return STextConst::GetBool(v); } };
+template <> struct hb_printer_t<hb_empty_t> { const char * print(hb_empty_t) { return ""; } };
 /*
  * Trace
  */

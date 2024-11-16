@@ -6295,6 +6295,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @return                              "Возврат"
 @returntosuppl                       "Возврат поставщику"
 @returnfrombuyer                     "Возврат от покупателя"
+@returnfrombuyer_pl                  "Возвраты от покупателей"
 @deficit                             "Дефицит"
 @recompl                             "Рекомплектация"
 @transfer                            "Трансфер"
@@ -6875,6 +6876,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bank_pl                             "Банки"
 @bankcode                            "Код банка"
 @bankname                            "Наименование банка"
+@bankacquiring                       "Эквайринг"
 @marketplace                         "Маркетплейс"
 @marketplace_pl                      "Маркетплейсы"
 @owner                               "Владелец"
@@ -7095,6 +7097,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @encashment_amount                   "@{amount}"
 @encashment_type_deposit             "Внесение"
 @encashment_type_withdrawal          "Выплата"
+@commission                          "Комиссионное вознаграждение"
+@commission_s                        "Комиссия"
 @discountforwholelot_s               "На всю партию" // Строка используется в диалогах документов
 @marginpctg                          "Процент наценки"
 @discountpctg                        "Процент скидки"
@@ -7136,6 +7140,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @sumcost_s                           "Сумма поступления"
 @sumprice                            "Сумма в ценах реализации"
 @sumprice_s                          "Сумма реализации"
+@sum_clientprice                     "Cумма в ценах конечного покупателя" // @v12.1.11 для маркетплейсов
+@sum_sellerprice                     "Сумма в ценах продавца" // @v12.1.11 для маркетплейсов
 @nominalamount                       "Номинальная сумма"
 @sumdeficit                          "Сумма дефицита"
 @sumexcise                           "Сумма акциза"
@@ -10114,6 +10120,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bzsi_salecost                            "Себестоимость проданных товаров"
 @bzsi_freight                             "Транспортные издержки"
 @bzsi_ordcancellationrate                 "Коэффициент отмены заказов"
+@bzsi_saleretcount                        "Количество документов возврата от покупателей"
+@bzsi_saleretqtty                         "Возвращенное от покупателей количество торговых единиц"
+@bzsi_saleretcost                         "Себестоимость возвращенных от покупателей товаров"
 
 @dl2score                                 "Примитив бизнес-показателя"
 @dl2score_citype                          ""
@@ -18553,6 +18562,7 @@ PPHSC_RU_WAREOKEI_BEFORE       "ОКЕИ_ТовДо"    // @v11.7.0
 PPHSC_RU_WAREOKEI_AFTER        "ОКЕИ_ТовПосле" // @v11.7.0
 PPHSC_RU_WARECODE              "КодТов"
 PPHSC_RU_WAREARTICLE           "АртикулТов" // @v11.5.10
+PPHSC_RU_WAREARTICLE2          "код_материала" // @v12.1.11 азбука вкуса требует такой тег для указания ее товарного кода
 PPHSC_RU_WAREIDENTBLOCK        "НомСредИдентТов"
 PPHSC_RU_WAREIDENT_PACKCODE    "НомУпак"
 PPHSC_RU_WAREIDENT_TPACKCODE   "ИдентТрансУпак" // @v11.5.1
@@ -18717,6 +18727,7 @@ PPHSC_RU_EXTRA_TRACING         "СведПрослеж"         // @v11.7.1
 PPHSC_RU_EXTRA_GENDATE         "ДатаГен"             // @v11.9.12 SBIS
 PPHSC_RU_EXTRA_ORDERCODE       "ЗаказНомер"          // @v11.9.12 SBIS
 PPHSC_RU_EXTRA_ORDERDATE       "ЗаказДата"           // @v11.9.12 SBIS
+PPHSC_RU_EXTRA_ORDERCODE2      "заказ_номер"         // @v12.1.11 азбука вкуса требует такой тег для указания номера заказа
 PPHSC_RU_EXTRA_SHIPDATE        "ОтгрузкаДата"        // @v11.9.12 SBIS
 PPHSC_RU_EXTRA_VATRATE         "СтавкаНДС"           // @v11.9.12 SBIS
 PPHSC_RU_EXTRA_WHNAME          "СкладНаименование"   // @v11.9.12 SBIS

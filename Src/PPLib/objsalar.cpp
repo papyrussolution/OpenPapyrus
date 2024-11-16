@@ -1993,7 +1993,7 @@ int PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, const PersonPostTbl
 	for(uint i = 0; i < ScObjAssoc::scCount; i++) {
 		ScObjAssoc::H & r_entry = pAssc->List[i];
 		if(i != ScObjAssoc::scHeader) {
-			if(r_entry.Oi.Obj && r_entry.Oi.Id) {
+			if(r_entry.Oi.IsFullyDefined()) {
 				PPStaffCal sc_rec;
 				if(SearchByObj(cal_id, r_entry.Oi, &sc_rec) > 0) {
 					r_entry.CalID = sc_rec.ID;
@@ -2027,7 +2027,7 @@ int PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, PPID personID, ScOb
 	for(uint i = 0; i < ScObjAssoc::scCount; i++) {
 		ScObjAssoc::H & r_entry = pAssc->List[i];
 		if(i != ScObjAssoc::scHeader) {
-			if(r_entry.Oi.Obj && r_entry.Oi.Id) {
+			if(r_entry.Oi.IsFullyDefined()) {
 				PPStaffCal sc_rec;
 				if(cal_id && SearchByObj(cal_id, r_entry.Oi, &sc_rec) > 0) {
 					r_entry.CalID = sc_rec.ID;

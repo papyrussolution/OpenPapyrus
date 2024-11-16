@@ -2190,9 +2190,7 @@ int FASTCALL SFontDescr::SetLogFont(const LOGFONTW * pLf)
 {
 	int    ok = Helper_SetLogFont(pLf);
 	if(ok > 0) {
-		// @v10.3.12 SStringU ustr = pLf->lfFaceName;
-		// @v10.3.12 ustr.CopyToUtf8(Face, 1);
-		Face.CopyUtf8FromUnicode(pLf->lfFaceName, sstrlen(pLf->lfFaceName), 1); // @v10.3.12 
+		Face.CopyUtf8FromUnicode(pLf->lfFaceName, sstrlen(pLf->lfFaceName), 1);
 		Face.Utf8ToChar();
 	}
 	return ok;
@@ -2435,12 +2433,10 @@ int SPaintObj::Font::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 //
 SPaintObj::CStyle::CStyle() : SPaintObj::Base(), FontId(0), PenId(0), BrushId(0)
 {
-	// @v10.3.0 (@speedcritical) memzero(Reserve, sizeof(Reserve));
 }
 
 SPaintObj::CStyle::CStyle(int fontId, int penId, int brushId) : SPaintObj::Base(), FontId(fontId), PenId(penId), BrushId(brushId)
 {
-	// @v10.3.0 (@speedcritical) memzero(Reserve, sizeof(Reserve));
 }
 
 bool FASTCALL SPaintObj::CStyle::IsEq(const CStyle & rS) const
@@ -2485,11 +2481,9 @@ int STextLayout::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	THROW(pCtx->Serialize(dir, Text, rBuf));
 	THROW(pCtx->Serialize(dir, &CStyleList, rBuf));
 	THROW(pCtx->Serialize(dir, &ParaList, rBuf));
-	// @v10.9.8 {
 	if(dir < 0) {
 		State &= ~(stPreprocessed|stArranged);
 	}
-	// } @v10.9.8 
 	CATCHZOK
 	return ok;
 }
@@ -2613,7 +2607,6 @@ int STextLayout::Preprocess(SDrawContext & rCtx, SPaintToolBox & rTb)
 {
 	int    ok = 1;
 	const uint cc = static_cast<const uint>(Text.Len());
-	// @v10.9.8 assert(!(State & stPreprocessed) || cc == GlyphIdList.getCount());
 	if(!(State & stPreprocessed)) {
 		const uint cslc = CStyleList.getCount();
 		GlyphIdList.clear();
@@ -4252,18 +4245,7 @@ int SPaintToolBox::SetDefaultPen(int style, int width, SColor c)
 
 int32 SPaintToolBox::GetDefaultPen()
 {
-	return (DefaultPenId || SetDefaultPen(SPaintObj::psSolid, 1, SClrBlack)) ? DefaultPenId : 0; // @v10.9.11
-	/* @v10.9.11
-	int32  pen_id = 0;
-	if(DefaultPenId == 0) {
-		THROW(SetDefaultPen(SPaintObj::psSolid, 1, SClrBlack));
-	}
-	pen_id = DefaultPenId;
-	CATCH
-		pen_id = 0;
-	ENDCATCH
-	return pen_id;
-	*/
+	return (DefaultPenId || SetDefaultPen(SPaintObj::psSolid, 1, SClrBlack)) ? DefaultPenId : 0;
 }
 
 int SPaintToolBox::SetBrush(int ident, int style, COLORREF c, int32 hatch)
@@ -4274,10 +4256,6 @@ int SPaintToolBox::SetBrush(int ident, int style, COLORREF c, int32 hatch)
 
 int SPaintToolBox::CreatePen(int ident, int style, float width, SColor c)
 {
-	/*
-	SPaintObj * p_obj = CreateObj(ident);
-	return BIN(p_obj && p_obj->CreatePen(style, width, c));
-	*/
 	SPaintObj * p_obj = 0;
 	if(!ident) {
 		SPaintObj::Pen pen;

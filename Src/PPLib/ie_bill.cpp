@@ -7129,7 +7129,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 			{
 				const ObjTagItem * p_local_tag_item = rBp.LTagL.GetTag(item_idx, PPTAG_LOT_CHZNINTQTTY);
 				int   temp_int = 0;
-				if(p_local_tag_item && p_local_tag_item->GetInt(&temp_int) && temp_int > 0 && temp_int < 100)
+				if(p_local_tag_item && p_local_tag_item->GetInt(&temp_int) && temp_int > 0 && temp_int < 1000) // @v12.1.11 100-->1000
 					chzn_int_qty = temp_int;
 			}
 			// } @v12.1.4
@@ -7143,7 +7143,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 						if(chzn_prod_type == GTCHZNPT_MILK && is_weighted_ware) { // @v11.9.7
 							// Для весовой молочной продукции указывается количество упаковок - пока пишем фиксированную единицу
 							(temp_buf = barcode_for_marking).PadLeft(14-barcode_for_marking.Len(), '0').Insert(0, "02").Cat("37"); // @v12.1.4 .Cat("1");
-							temp_buf.Cat((chzn_int_qty > 0 && chzn_int_qty < 100) ? chzn_int_qty : 1); // @v12.1.4
+							temp_buf.Cat((chzn_int_qty > 0 && chzn_int_qty < 1000) ? chzn_int_qty : 1); // @v12.1.4 // @v12.1.11 100-->1000
 							SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
 							n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
 						}
@@ -7191,10 +7191,10 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 								if(chzn_gtin14_buf.NotEmpty()) {
 									temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("37"); // @v12.1.4 .Cat("01"/*Указываем пока одну единицу - дальше посмотрим что делать*/);
 									// @v12.1.4 {
-									if(chzn_int_qty > 0 && chzn_int_qty < 100)
-										temp_buf.CatLongZ(chzn_int_qty, 2);
+									if(chzn_int_qty > 0 && chzn_int_qty < 1000) // @v12.1.11 100-->1000
+										temp_buf.Cat(chzn_int_qty);
 									else
-										temp_buf.Cat("01");
+										temp_buf.Cat("1");
 									// } @v12.1.4
 									n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
 									is_mark_accepted = true;

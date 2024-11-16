@@ -834,11 +834,11 @@ int PPViewEvent::MakeList(PPViewBrowser * pBrw)
 					new_item.Status = pack.Status;
 					new_item.UserID = pack.UserID;
 					new_item.GlobalUserID = pack.GlobalUserID;
-					new_item.EventSubscrID = pack.EvSubscrID; // @v10.9.1
+					new_item.EventSubscrID = pack.EvSubscrID;
 					new_item.Oid = pack.Oid;
 					new_item.Flags = pack.Flags;
 					StrPool.AddS(pack.Text, &new_item.TextP);
-					if(new_item.Oid.Obj && new_item.Oid.Id) {
+					if(new_item.Oid.IsFullyDefined()) {
 						PPObjNamePEntry objn_entry(new_item.Oid.Obj, new_item.Oid.Id);
 						objn_entry.NameP = 0;
 						uint   objn_pos = 0;
@@ -1026,7 +1026,7 @@ int PPViewEvent::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	BrwItem item;
 	if(!RVALUEPTR(item, static_cast<const BrwItem *>(pHdr)))
 		MEMSZERO(item);
-	if(item.Oid.Obj && item.Oid.Id) {
+	if(item.Oid.IsFullyDefined()) {
 		EditObj(&item.Oid);
 	}
 	return -1;

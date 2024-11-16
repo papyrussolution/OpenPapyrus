@@ -1616,7 +1616,6 @@ int PPViewComputer::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 int PPViewComputer::MakeList()
 {
 	int    ok = 1;
-	PPSwProgram item;
 	GoodsCore * p_tbl = Obj.P_Tbl;
 	PPIDArray result_list;
 	Goods2Tbl::Key2 k2;

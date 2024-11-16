@@ -1394,7 +1394,7 @@ int PPViewGtaJournal::InitIteration()
 		P_IterQuery->selectAll();
 	}
 	else {
-		if(Filt.Oi.Obj && Filt.Oi.Id)
+		if(Filt.Oi.IsFullyDefined())
 			idx = 3;
 		else
 			idx = 0;
@@ -1531,7 +1531,7 @@ DBQuery * PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 			dbe_objtitle, // #7
 			0L).from(t, 0L);
 	q->where(*dbq);
-	if(Filt.Oi.Obj && Filt.Oi.Id)
+	if(Filt.Oi.IsFullyDefined())
 		q->orderBy(t->ObjType, t->ObjID, t->Dt, 0L);
 	else
 		q->orderBy(t->Dt, t->Tm, 0L);

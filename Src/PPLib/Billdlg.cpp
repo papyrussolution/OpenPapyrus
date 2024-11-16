@@ -468,7 +468,7 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 			pData->PayerID = payer_acs_id ? dlg->getCtrlLong(CTLSEL_BILLEXT_PAYER) : 0;
 			pData->AgentID = agent_acs_id ? dlg->getCtrlLong(CTLSEL_BILLEXT_AGENT) : 0;
 			if(!asFilt) {
-				dlg->getCtrlData(CTLSEL_BILLEXT_AGREEMENT, &pData->AgtBillID); // @v10.1.12
+				dlg->getCtrlData(CTLSEL_BILLEXT_AGREEMENT, &pData->AgtBillID);
 				dlg->getCtrlData(CTLSEL_BILLEXT_EXTPQUOT, &pData->ExtPriceQuotKindID);
 				dlg->getCtrlData(CTL_BILLEXT_INVCCODE, pData->InvoiceCode);
 				strip(pData->InvoiceCode);
@@ -569,8 +569,8 @@ int BillPrelude(const PPIDArray * pOpList, uint opklFlags, PPID linkOpID, PPID *
 		p_listbox->setDef(new StrAssocListBoxDef(op_obj.MakeOprKindList(linkOpID, pOpList, opklFlags), lbtDblClkNotify|lbtFocNotify|lbtDisposeData));
 		if(op_id)
 			p_listbox->Search_(&op_id, 0, srchFirst|lbSrchByID);
-		dlg->SetupWordSelector(CTL_BILLPRELUDE_OPLIST, 0, 0, /*MIN_WORDSEL_SYMB*/2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v10.7.8
-		SetupPPObjCombo(dlg, CTLSEL_BILLPRELUDE_LOC, PPOBJ_LOCATION, loc_id, OLW_WORDSELECTOR); // @v10.7.8 OLW_WORDSELECTOR
+		dlg->SetupWordSelector(CTL_BILLPRELUDE_OPLIST, 0, 0, /*MIN_WORDSEL_SYMB*/2, WordSel_ExtraBlock::fAlwaysSearchBySubStr);
+		SetupPPObjCombo(dlg, CTLSEL_BILLPRELUDE_LOC, PPOBJ_LOCATION, loc_id, OLW_WORDSELECTOR);
 		if(loc_id && opklFlags & OPKLF_FIXEDLOC)
 			dlg->disableCtrl(CTLSEL_BILLPRELUDE_LOC, 1);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
@@ -1042,16 +1042,13 @@ size_t PPLinkFile::Size() const
 {
 	return sizeof(Id) + sizeof(Flags) + sizeof(uint32) + Ext.Len() + 1 + sizeof(uint32) +
 		Path.Len() + 1 + sizeof(uint32) + Description.Len() + 1;
-	// @v10.3.2 sizeof(Ext.Len())-->sizeof(uint32)
-	// @v10.3.2 sizeof(Description.Len())-->sizeof(uint32)
-	// @v10.3.2 sizeof(Path.Len())-->sizeof(uint32)
 }
 
 int PPLinkFile::CopyTo(void ** ppBuf)
 {
-	const uint32 ext_len  = Ext.Len()  + 1; // @v10.3.2 size_t-->const uint32
-	const uint32 path_len = Path.Len() + 1; // @v10.3.2 size_t-->const uint32
-	const uint32 descr_len = Description.Len() + 1; // @v10.3.2 size_t-->const uint32
+	const uint32 ext_len  = Ext.Len()  + 1;
+	const uint32 path_len = Path.Len() + 1;
+	const uint32 descr_len = Description.Len() + 1;
 	char * p = static_cast<char *>(*ppBuf);
 	Flags &= ~PPLNKFILE_ISNEW;
 	memcpy(p, &Id, sizeof(Id));
@@ -1068,9 +1065,9 @@ int PPLinkFile::CopyTo(void ** ppBuf)
 int FASTCALL PPLinkFile::CopyFrom(const void * pBuf)
 {
 	const char * p = static_cast<const char *>(pBuf);
-	uint32 ext_len  = 0; // @v10.3.2 size_t-->uint32
-	uint32 path_len = 0; // @v10.3.2 size_t-->uint32
-	uint32 descr_len = 0; // @v10.3.2 size_t-->uint32
+	uint32 ext_len  = 0;
+	uint32 path_len = 0;
+	uint32 descr_len = 0;
 	memcpy(&Id, p, sizeof(Id));
 	memcpy(&Flags, p += sizeof(Id), sizeof(Flags));
 	memcpy(&ext_len, p += sizeof(Flags), sizeof(ext_len));
@@ -1092,13 +1089,8 @@ PPLinkFilesArray & FASTCALL PPLinkFilesArray::operator = (const PPLinkFilesArray
 	freeAll();
 	StoreDir = s.StoreDir;
 	for(uint i = 0; i < s.getCount(); i++) {
-		// @v10.9.4 PPLinkFile * p_flink = new PPLinkFile;
-		// @v10.9.4 *p_flink = *s.at(i);
-		// @v10.9.4 insert(p_flink);
-		// @v10.9.4 {
 		PPLinkFile * p_flink = CreateNewItem();
 		ASSIGN_PTR(p_flink, *s.at(i));
-		// } @v10.9.4 
 	}
 	return *this;
 }
@@ -1253,7 +1245,6 @@ int PPLinkFilesArray::Remove(uint pos)
 
 int PPLinkFilesArray::RemoveByAry(const PPLinkFilesArray * pAry)
 {
-	// @v10.9.4 {
 	{
 		uint i = getCount();
 		if(i) do {
@@ -1263,16 +1254,6 @@ int PPLinkFilesArray::RemoveByAry(const PPLinkFilesArray * pAry)
 				Remove(i);
 		} while(i);
 	}
-	// } @v10.9.4 
-	/* @v10.9.4 {
-		for(long i = getCount(); i > 0; i--) {
-			uint   pos = 0;
-			int   found = 0;
-			PPLinkFile * p_flink = at(i-1);
-			if(!pAry || pAry->lsearch(p_flink, &pos, PTR_CMPFUNC(PPLinkFile)) <= 0 || p_flink->Id != pAry->at(pos)->Id)
-				Remove(i-1);
-		}
-	}*/
 	RVALUEPTR(*this, pAry);
 	return 1;
 }
@@ -1643,7 +1624,7 @@ int BillDialog::editLinkFiles()
 	return ok;
 }
 
-#define RESIZE_DELTA 75L // @v10.2.2 50-->75
+#define RESIZE_DELTA 75L
 
 int BillDialog::showLinkFilesList()
 {
@@ -1967,7 +1948,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 					const  PPID prev_agent_id = P_Pack->Ext.AgentID;
 					P_Pack->Ext.IsShipped = BIN(P_Pack->Rec.Flags & BILLF_SHIPPED);
 					P_Pack->Ext.SCardID = P_Pack->Rec.SCardID;
-					P_Pack->Ext.AgtBillID = P_Pack->Rec.AgtBillID; // @v10.1.12
+					P_Pack->Ext.AgtBillID = P_Pack->Rec.AgtBillID;
 					for(int r = 0; !r && BillExtraDialog(P_Pack, &P_Pack->Ext, &P_Pack->BTagL, 0) > 0;) {
 						r = 1;
 						if(P_Pack->Ext.AgentID != prev_agent_id) {
@@ -1996,7 +1977,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 						if(r) {
 							SETFLAG(P_Pack->Rec.Flags, BILLF_SHIPPED, P_Pack->Ext.IsShipped);
 							P_Pack->Rec.SCardID = P_Pack->Ext.SCardID;
-							P_Pack->Rec.AgtBillID = P_Pack->Ext.AgtBillID; // @v10.1.12
+							P_Pack->Rec.AgtBillID = P_Pack->Ext.AgtBillID;
 							if(PayDateBase == PPClientAgreement::pdbInvoice && !P_Pack->Rec.ID) {
 								P_Pack->SetupDefaultPayDate(PaymTerm, PayDateBase);
 								SetupPaymDateCtrls();
@@ -2191,7 +2172,6 @@ void BillDialog::setupDebtText()
 			if(limit > 0.0)
 				text.CatDiv(';', 2).CatEq("Limit", limit, SFMT_MONEY);
 		}
-		// @v10.9.9 {
 		{
 			const  PPID ar_id = P_Pack->Rec.Object;
 			if(ar_id) {
@@ -2215,7 +2195,6 @@ void BillDialog::setupDebtText()
 				}
 			}
 		}
-		// } @v10.9.9 
 		setStaticText(CTL_BILL_ST_DEBT, text);
 	}
 }
@@ -2374,8 +2353,7 @@ void BillDialog::ReplyCntragntSelection(int force)
 						}
 						else {
 							ss.add(0);
-							// @v10.6.2 PPGetWord(PPWORD_ABSENCE, 0, add_msg);
-							PPLoadString("absence", add_msg); // @v10.6.2
+							PPLoadString("absence", add_msg);
 							ss.add(add_msg);
 						}
 						p_list->addItem(i+1, ss.getBuf());
@@ -2456,7 +2434,7 @@ void BillDialog::ReplyCntragntSelection(int force)
 	// } @v11.7.7 
 	if(P_Pack->Rec.Object != client_id) {
 		setCtrlLong(CTLSEL_BILL_OBJECT, P_Pack->Rec.Object);
-		SetupInfoText(); // @v10.9.9
+		SetupInfoText();
 	}
 	// @v11.7.7 {
 	else if(do_reset_scard)
@@ -2736,7 +2714,6 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		P_BObj->SubstMemo(P_Pack);
 	// @v11.1.12 setCtrlData(CTL_BILL_MEMO, P_Pack->Rec.Memo);
 	setCtrlString(CTL_BILL_MEMO, P_Pack->SMemo); // @v11.1.12
-	// @v10.1.12 {
 	if(P_Pack->OpTypeID == PPOPT_AGREEMENT) {
 		SETIFZ(P_Pack->P_Agt, new PPBill::Agreement);
 		setCtrlData(CTL_BILL_EXPIRY, &P_Pack->P_Agt->Expiry);
@@ -2744,7 +2721,6 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		setCtrlData(CTL_BILL_MAXDSCNT, &P_Pack->P_Agt->MaxDscnt);
 		setCtrlData(CTL_BILL_PAYPERIOD, &P_Pack->P_Agt->DefPayPeriod);
 	}
-	// } @v10.1.12
 	setupHiddenButton(OPKF_RENT,        cmRentCondition, CTL_BILL_RENTBUTTON);
 	setupHiddenButton(OPKF_BANKING,     cmPaymOrder,     CTL_BILL_PAYMORDBUTTON);
 	if(CheckOpFlags(P_Pack->Rec.OpID, OPKF_BANKING)) {
@@ -2781,10 +2757,8 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	showCtrl(CTL_BILL_EDIACKRESP, 0);
 	showCtrl(CTL_BILL_EDIACKSTATUS, 0);
 	showButton(cmEdiAckBill, 0);
-	// @v10.1.12 {
 	if(P_Pack->OpTypeID == PPOPT_AGREEMENT)
 		showButton(cmDetail, 0);
-	// } @v10.1.12
 	if(getCtrlView(CTL_BILL_EDIACKRESP)) {
 		const int recadv_status = BillCore::GetRecadvStatus(P_Pack->Rec);
         if(recadv_status) {
@@ -3356,7 +3330,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			setCtrlData(CTL_FREIGHT_NAME, Data.Name);
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP,     PPOBJ_TRANSPORT, Data.ShipID,  OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(Data.TrType));
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_CAPTAIN,  PPOBJ_PERSON, Data.CaptainID,  OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_CAPTAIN));
-			SetupPPObjCombo(this, CTLSEL_FREIGHT_CAPTAIN2, PPOBJ_PERSON, Data.Captain2ID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_CAPTAIN)); // @v10.9.2
+			SetupPPObjCombo(this, CTLSEL_FREIGHT_CAPTAIN2, PPOBJ_PERSON, Data.Captain2ID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_CAPTAIN));
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_AGENT,    PPOBJ_PERSON, Data.AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_VESSELSAGENT));
 			PPIDArray worldobj_kind_list;
 			worldobj_kind_list.addzlist(WORLDOBJ_CITY, WORLDOBJ_CITYAREA, 0L);

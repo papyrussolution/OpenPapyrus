@@ -1166,7 +1166,7 @@ void PhonePaneDialog::SelectContact(PPObjID oid, int onInit)
 	S.PersonID = 0;
 	S.SCardID = 0;
 	S.LocID = 0;
-	if(oid.Obj && oid.Id) {
+	if(oid.IsFullyDefined()) {
 		if(oid.Obj == PPOBJ_PERSON) {
 			//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 2, 0);
 			//DisableClusterItem(CTL_PHNCPANE_LISTMODE, 3, 0);

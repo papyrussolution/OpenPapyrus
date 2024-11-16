@@ -1185,7 +1185,7 @@ SString & SString::Utf8ToOem() { return Helper_MbToMb(CP_UTF8, CP_OEMCP); }
 SString & FASTCALL SString::Utf8ToCp(SCodepageIdent cp) { return Helper_MbToMb(CP_UTF8, static_cast<int>(cp)); }
 SString & SString::CatEq(const char * pKey,  const char * pVal) { return Cat(pKey).Eq().Cat(pVal); }
 SString & SString::CatEqQ(const char * pKey, const char * pVal) { return Cat(pKey).Eq().CatChar('\"').Cat(pVal).CatChar('\"'); }
-SString & SString::CatEq(const char * pKey, bool val) { return Cat(pKey).Eq().Cat(val ? "true" : "false"); }
+SString & SString::CatEq(const char * pKey, bool val) { return Cat(pKey).Eq().Cat(STextConst::GetBool(val)); }
 SString & SString::CatEq(const char * pKey, uint16 val) { return Cat(pKey).Eq().Cat(val); }
 SString & SString::CatEq(const char * pKey, int val)   { return Cat(pKey).Eq().Cat(val); }
 SString & SString::CatEq(const char * pKey, uint val)   { return Cat(pKey).Eq().Cat(val); }

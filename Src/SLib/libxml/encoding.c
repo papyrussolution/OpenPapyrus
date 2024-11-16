@@ -3824,7 +3824,7 @@ static void xmlRegisterCharEncodingHandlersISO8859x()
 	xmlNewCharEncodingHandler("ISO-8859-14", ISO8859_14ToUTF8, UTF8ToISO8859_14);
 	xmlNewCharEncodingHandler("ISO-8859-15", ISO8859_15ToUTF8, UTF8ToISO8859_15);
 	xmlNewCharEncodingHandler("ISO-8859-16", ISO8859_16ToUTF8, UTF8ToISO8859_16);
-	xmlNewCharEncodingHandler("WINDOWS-1251", LibXml_CpHandler_1251::_ToUTF8, LibXml_CpHandler_1251::UTF8To_); // @v10.8.0
+	xmlNewCharEncodingHandler("WINDOWS-1251", LibXml_CpHandler_1251::_ToUTF8, LibXml_CpHandler_1251::UTF8To_);
 }
 
 #endif

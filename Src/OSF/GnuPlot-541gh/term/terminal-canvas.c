@@ -454,7 +454,7 @@ TERM_PUBLIC void CANVAS_graphics(GpTermEntry_Static * pThis)
 		    "  gnuplot.zoom_axis_width = 0;\n"
 		    "  gnuplot.zoom_in_progress = false;\n", CANVAS_name, CANVAS_name, CANVAS_name, CANVAS_name, CANVAS_name);
 		fprintf(GPT.P_GpOutFile, "  gnuplot.polar_mode = %s;\n  gnuplot.polar_theta0 = %d;\n  gnuplot.polar_sense = %d;\n  ctx.clearRect(0,0,%d,%d);\n}\n",
-		    (pThis->P_Gp->Gg.Polar ? "true" : "false"), (int)pThis->P_Gp->AxS.ThetaOrigin, (int)pThis->P_Gp->AxS.ThetaDirection, (int)(pThis->MaxX / CANVAS_OVERSAMPLE), (int)(pThis->MaxY / CANVAS_OVERSAMPLE));
+		    STextConst::GetBool(pThis->P_Gp->Gg.Polar), (int)pThis->P_Gp->AxS.ThetaOrigin, (int)pThis->P_Gp->AxS.ThetaDirection, (int)(pThis->MaxX / CANVAS_OVERSAMPLE), (int)(pThis->MaxY / CANVAS_OVERSAMPLE));
 	}
 	fprintf(GPT.P_GpOutFile, "// Gnuplot version %s.%s\n", gnuplot_version, gnuplot_patchlevel);
 	fprintf(GPT.P_GpOutFile, "// short forms of commands provided by gnuplot_common.js\n"

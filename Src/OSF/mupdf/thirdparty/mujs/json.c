@@ -336,13 +336,13 @@ static int fmtvalue(js_State * J, js_Buffer ** sb, const char * key, const char 
 		switch(obj->type) {
 			case JS_CNUMBER: fmtnum(J, sb, obj->u.number); break;
 			case JS_CSTRING: fmtstr(J, sb, obj->u.s.string); break;
-			case JS_CBOOLEAN: js_puts(J, sb, obj->u.boolean ? "true" : "false"); break;
+			case JS_CBOOLEAN: js_puts(J, sb, STextConst::GetBool(obj->u.boolean)); break;
 			case JS_CARRAY: fmtarray(J, sb, gap, level); break;
 			default: fmtobject(J, sb, obj, gap, level); break;
 		}
 	}
 	else if(js_isboolean(J, -1))
-		js_puts(J, sb, js_toboolean(J, -1) ? "true" : "false");
+		js_puts(J, sb, STextConst::GetBool(js_toboolean(J, -1)));
 	else if(js_isnumber(J, -1))
 		fmtnum(J, sb, js_tonumber(J, -1));
 	else if(js_isstring(J, -1))
@@ -353,7 +353,6 @@ static int fmtvalue(js_State * J, js_Buffer ** sb, const char * key, const char 
 		js_pop(J, 1);
 		return 0;
 	}
-
 	js_pop(J, 1);
 	return 1;
 }

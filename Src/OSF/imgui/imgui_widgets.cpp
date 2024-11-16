@@ -6269,20 +6269,9 @@ void ImGui::PlotHistogram(const char* label, float (*values_getter)(void* data, 
 //
 // - Value()
 //
-void ImGui::Value(const char* prefix, bool b)
-{
-	Text("%s: %s", prefix, (b ? "true" : "false"));
-}
-
-void ImGui::Value(const char* prefix, int v)
-{
-	Text("%s: %d", prefix, v);
-}
-
-void ImGui::Value(const char* prefix, uint v)
-{
-	Text("%s: %d", prefix, v);
-}
+void ImGui::Value(const char* prefix, bool b) { Text("%s: %s", prefix, STextConst::GetBool(b)); }
+void ImGui::Value(const char* prefix, int v) { Text("%s: %d", prefix, v); }
+void ImGui::Value(const char* prefix, uint v) { Text("%s: %d", prefix, v); }
 
 void ImGui::Value(const char* prefix, float v, const char* float_format)
 {

@@ -46,7 +46,7 @@ static bool JSON_stringify(gravity_vm * vm, GravityValue * args, uint16 nargs, u
 		snprintf(vbuffer, sizeof(vbuffer), "%f", value.f); v = vbuffer;
 	}
 	else if(value.IsBool()) 
-		v = value.n ? "true" : "false";
+		v = STextConst::GetBool(LOGIC(value.n));
 	else if(value.IsInt()) {
 	#if GRAVITY_ENABLE_INT64
 		snprintf(vbuffer, sizeof(vbuffer), "%" PRId64 "", value.n);

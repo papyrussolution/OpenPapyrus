@@ -947,7 +947,7 @@ TERM_PUBLIC void SVG_text(GpTermEntry_Static * pThis)
 			MOUSE_PARAM("GPVAL_Y_MIN", "plot_axis_ymin");
 			MOUSE_PARAM("GPVAL_Y_MAX", "plot_axis_ymax");
 		}
-		fprintf(GPT.P_GpOutFile, "gnuplot_svg.polar_mode = %s;\n", p_gp->Gg.Polar ? "true" : "false");
+		fprintf(GPT.P_GpOutFile, "gnuplot_svg.polar_mode = %s;\n", STextConst::GetBool(p_gp->Gg.Polar));
 		if(p_gp->Gg.Polar) {
 			fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_axis_rmin = %g;\n", (p_gp->AxS.__R().autoscale & AUTOSCALE_MIN) ? 0.0 : p_gp->AxS.__R().set_min);
 			fprintf(GPT.P_GpOutFile, "gnuplot_svg.plot_axis_rmax = %g;\n", p_gp->AxS.__R().set_max);

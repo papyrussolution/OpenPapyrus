@@ -34,6 +34,7 @@ public:
 		void   Init()
 		{
 			memzero(PTR8(this)+sizeof(Text), sizeof(*this)-sizeof(Text));
+			Text.Z(); // @v12.1.11
 		}
 		enum {
 			fHasIndepPhQtty = 0x0001, // По крайней мере одна строка имеет признак PPTFR_INDEPPHQTTY

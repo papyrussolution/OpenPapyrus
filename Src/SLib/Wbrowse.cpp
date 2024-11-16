@@ -310,8 +310,6 @@ void TBaseBrowserWindow::SetResID(uint res)
 	}
 }
 
-// @v10.9.11 void TBaseBrowserWindow::SetToolbarID(uint toolbarID) { ToolbarID = toolbarID; }
-
 IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 {
 	if(event.isCmd(cmExecute)) {
@@ -364,16 +362,16 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 				// @v11.2.6 WS_EX_COMPOSITED
 				HW = ::CreateWindowEx(/*WS_EX_COMPOSITED*/0, SUcSwitch(ClsName), p_title, style, r.left, r.top, r.right, r.bottom, (APPL->H_TopOfStack), NULL, TProgram::GetInst(), this);
 			}
-			if(HW) { // @v10.3.1
+			if(HW) {
 				TEvent event;
 				this->handleEvent(event.setCmd(cmModalPostCreate, this)); // @recursion
 			}
 		}
-		if(BbState & bbsCancel) { // @v10.3.4
+		if(BbState & bbsCancel) {
 			clearEvent(event);
 			event.message.infoLong = cmCancel;
 		}
-		else { // @v10.3.4
+		else {
 			::ShowWindow(H(), SW_NORMAL);
 			::UpdateWindow(H());
 			if(APPL->PushModalWindow(this, H())) {
@@ -388,12 +386,9 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 		}
 	}
 	else {
-		// @v11.0.0 TWindow::handleEvent(event);
-		// @v11.0.0
 		if(!event.isCmd(cmSetBounds)) { // Для TBaseBrowserWindow команда cmSetBounds пока не должна обрабатываться поскольку координатная сетка унаследована от MS-DOS
 			TWindowBase::handleEvent(event); 
 		}
-		// } @v11.0.0
 	}
 }
 //
@@ -1108,7 +1103,7 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 				{
 					double * p_number = static_cast<double *>(event.message.infoPtr);
 					if(p_number) {
-						char b[1024]; // @v11.1.12 [256]-->[1024]
+						char b[1024];
 						P_Def->getText(P_Def->_curItem(), GetCurColumn(), b);
 						strtodoub(b, p_number);
 					}
@@ -2717,12 +2712,12 @@ HWND GetNextBrowser(HWND hw)
 			break;
 		case WM_MOUSEHOVER:
 			tp.setwparam(lParam);
-			/* @construction
+			///* @construction
 			{
 				long vpos = 0;
-				if(p_view->HeaderByPoint(tp, &vpos) && vpos >= 0 && vpos < p_view->P_Def->getCountI()) {
+				if(p_view->HeaderByPoint(tp, hdrzoneAny, &vpos) && vpos >= 0 && vpos < p_view->P_Def->getCountI()) {
 					const BroColumn & c = p_view->P_Def->at(vpos);
-					SString temp_buf = c.text;
+					SString temp_buf(c.text);
 					SMessageWindow * p_win = new SMessageWindow;
 					if(p_win) {
 						temp_buf.ReplaceChar('\003', ' ').Strip();
@@ -2732,7 +2727,7 @@ HWND GetNextBrowser(HWND hw)
 					}
 				}
 			}
-			*/
+			//*/
 			TView::messageBroadcast(p_view, cmMouseHover, &tp);
 			break;
 		case WM_SETFOCUS:
@@ -2847,7 +2842,7 @@ HWND GetNextBrowser(HWND hw)
 						UpdateWindow(hWnd);
 					}
 					int done = 0;
-					if(p_view->HeaderByPoint(tp, hdrzoneSortPoint, &vPos) && vPos >= 0 && vPos < p_view->P_Def->getCountI()) { // @v10.6.3
+					if(p_view->HeaderByPoint(tp, hdrzoneSortPoint, &vPos) && vPos >= 0 && vPos < p_view->P_Def->getCountI()) {
 						const BroColumn & c = p_view->P_Def->at(vPos);
 						if(c.Options & BCO_SORTABLE) {
 							long   vp1 = vPos+1;

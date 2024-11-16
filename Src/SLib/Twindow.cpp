@@ -1906,13 +1906,11 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 			}
 			break;
 		case WM_LBUTTONDOWN:
-		case WM_MOUSEWHEEL: // @v10.5.9 
+		case WM_MOUSEWHEEL:
 			if(hWnd != GetFocus())
 				SetFocus(hWnd);
-			// @v10.2.7 {
 			if(hWnd != GetCapture())
 				::SetCapture(hWnd);
-			// } @v10.2.7 
 		case WM_LBUTTONUP:
 		case WM_LBUTTONDBLCLK:
 		case WM_RBUTTONDOWN:
@@ -1922,11 +1920,9 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 		case WM_MBUTTONUP:
 		case WM_MBUTTONDBLCLK:
 		case WM_MOUSEMOVE:
-		// @v10.5.9 case WM_MOUSEWHEEL:
 		case WM_MOUSELEAVE:
 		case WM_MOUSEHOVER:
 			if(p_view) {
-				// @v10.2.7 ::SetCapture(hWnd); // @v10.2.2
 				MouseEvent me;
 				p_view->MakeMouseEvent(message, wParam, lParam, me);
 				if(TView::messageCommand(p_view, cmMouse, &me))

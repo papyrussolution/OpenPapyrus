@@ -17,8 +17,9 @@ static void jsB_Boolean(js_State * J)
 static void Bp_toString(js_State * J)
 {
 	js_Object * self = js_toobject(J, 0);
-	if(self->type != JS_CBOOLEAN) js_typeerror(J, "not a boolean");
-	js_pushliteral(J, self->u.boolean ? "true" : "false");
+	if(self->type != JS_CBOOLEAN) 
+		js_typeerror(J, "not a boolean");
+	js_pushliteral(J, STextConst::GetBool(self->u.boolean));
 }
 
 static void Bp_valueOf(js_State * J)
@@ -31,7 +32,6 @@ static void Bp_valueOf(js_State * J)
 void jsB_initboolean(js_State * J)
 {
 	J->Boolean_prototype->u.boolean = 0;
-
 	js_pushobject(J, J->Boolean_prototype);
 	{
 		jsB_propf(J, "Boolean.prototype.toString", Bp_toString, 0);

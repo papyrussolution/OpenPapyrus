@@ -133,7 +133,7 @@ public:
 	Arg(double value) : piece_(scratch_, numbers_internal::SixDigitsToBuffer(value, scratch_)) // NOLINT(runtime/explicit)
 	{
 	}
-	Arg(bool value) : piece_(value ? "true" : "false") // NOLINT(runtime/explicit)
+	Arg(bool value) : piece_(STextConst::GetBool(value)) // NOLINT(runtime/explicit)
 	{
 	}
 	Arg(Hex hex); // NOLINT(runtime/explicit)

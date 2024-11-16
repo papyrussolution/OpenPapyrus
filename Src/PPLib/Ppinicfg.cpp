@@ -1,5 +1,5 @@
 // PPINICFG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 203
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @Kernel
 //
 #include <pp.h>
@@ -768,11 +768,10 @@ int PPConfigDatabase::Open(const char * pDbPath)
 		cfg.LogBufSize  = SMEGABYTE(1);
 		cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove);
 		{
-			long   db_options = BDbDatabase::oPrivate|BDbDatabase::oRecover; // @v10.7.9 BDbDatabase::oRecover
+			long   db_options = BDbDatabase::oPrivate|BDbDatabase::oRecover;
 			THROW_MEM(P_Db = new BDbDatabase(pDbPath, &cfg, db_options));
 			THROW(!!*P_Db);
 		}
-		// @v10.7.9 {
 		{
 			SString err_file_name;
 			SLS.GetLogPath(err_file_name); 
@@ -781,10 +780,9 @@ int PPConfigDatabase::Open(const char * pDbPath)
 			err_file_name.SetLastSlash().Cat("bdberr.log");
 			P_Db->SetupErrLog(err_file_name);
 		}
-		// } @v10.7.9 
 		THROW_MEM(P_OT = new CObjTbl(P_Db));
 		THROW_MEM(P_OtT = new CObjTailTbl(P_Db));
-		THROW_MEM(P_ShT = new StringHistoryTbl(P_Db)); // @v10.7.6
+		THROW_MEM(P_ShT = new StringHistoryTbl(P_Db));
 	}
 	CATCH
 		ok = 0;
@@ -797,7 +795,7 @@ void PPConfigDatabase::Close()
 {
 	ZDELETE(P_OT);
 	ZDELETE(P_OtT);
-	ZDELETE(P_ShT); // @v10.7.6
+	ZDELETE(P_ShT);
 	ZDELETE(P_Db);
 }
 

@@ -168,8 +168,8 @@ bool AbslParseFlag(absl::string_view text, std::string* dst, std::string*) {
 // --------------------------------------------------------------------
 // AbslParseFlag for vector of strings.
 
-bool AbslParseFlag(absl::string_view text, std::vector<std::string>* dst,
-    std::string*) {
+bool AbslParseFlag(absl::string_view text, std::vector<std::string>* dst, std::string*) 
+{
 	// An empty flag value corresponds to an empty vector, not a vector
 	// with a single, empty std::string.
 	if(text.empty()) {
@@ -183,43 +183,18 @@ bool AbslParseFlag(absl::string_view text, std::vector<std::string>* dst,
 // --------------------------------------------------------------------
 // AbslUnparseFlag specializations for various builtin flag types.
 
-std::string Unparse(bool v) {
-	return v ? "true" : "false";
-}
+std::string Unparse(bool v) { return STextConst::GetBool(v); }
+std::string Unparse(short v) { return absl::StrCat(v); }
+std::string Unparse(unsigned short v) { return absl::StrCat(v); }
+std::string Unparse(int v) { return absl::StrCat(v); }
+std::string Unparse(unsigned int v) { return absl::StrCat(v); }
+std::string Unparse(long v) { return absl::StrCat(v); }
+std::string Unparse(unsigned long v) { return absl::StrCat(v); }
+std::string Unparse(long long v) { return absl::StrCat(v); }
+std::string Unparse(unsigned long long v) { return absl::StrCat(v); }
 
-std::string Unparse(short v) {
-	return absl::StrCat(v);
-}
-
-std::string Unparse(unsigned short v) {
-	return absl::StrCat(v);
-}
-
-std::string Unparse(int v) {
-	return absl::StrCat(v);
-}
-
-std::string Unparse(unsigned int v) {
-	return absl::StrCat(v);
-}
-
-std::string Unparse(long v) {
-	return absl::StrCat(v);
-}
-
-std::string Unparse(unsigned long v) {
-	return absl::StrCat(v);
-}
-
-std::string Unparse(long long v) {
-	return absl::StrCat(v);
-}
-
-std::string Unparse(unsigned long long v) {
-	return absl::StrCat(v);
-}
-
-std::string Unparse(absl::int128 v) {
+std::string Unparse(absl::int128 v) 
+{
 	std::stringstream ss;
 	ss << v;
 	return ss.str();

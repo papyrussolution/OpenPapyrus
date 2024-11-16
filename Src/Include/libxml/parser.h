@@ -607,7 +607,7 @@ typedef void (*startElementNsSAX2Func)(void * ctx, const xmlChar * localname, co
 typedef void (*endElementNsSAX2Func)(void * ctx, const xmlChar * localname, const xmlChar * prefix, const xmlChar * URI);
 
 struct xmlSAXHandler {
-	xmlSAXHandler(); // @v10.7.9
+	xmlSAXHandler();
 	internalSubsetSAXFunc internalSubset;
 	isStandaloneSAXFunc isStandalone;
 	hasInternalSubsetSAXFunc hasInternalSubset;

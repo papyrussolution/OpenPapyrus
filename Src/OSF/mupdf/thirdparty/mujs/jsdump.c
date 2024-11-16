@@ -874,7 +874,7 @@ void js_dumpvalue(js_State * J, js_Value v)
 	switch(v.type) {
 		case JS_TUNDEFINED: printf("undefined"); break;
 		case JS_TNULL: printf("null"); break;
-		case JS_TBOOLEAN: printf(v.u.boolean ? "true" : "false"); break;
+		case JS_TBOOLEAN: printf(STextConst::GetBool(v.u.boolean)); break;
 		case JS_TNUMBER: printf("%.9g", v.u.number); break;
 		case JS_TSHRSTR: printf("'%s'", v.u.shrstr); break;
 		case JS_TLITSTR: printf("'%s'", v.u.litstr); break;

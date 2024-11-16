@@ -4157,7 +4157,7 @@ int SLldAlphabetAnalyzer::CollectFileData(const char * pFileName)
 //
 //
 //
-SCachedFileEntity::SCachedFileEntity() : State(0), ModTime(ZERODATETIME)
+SCachedFileEntity::SCachedFileEntity() : P_Entity(0), State(0), ModTime(ZERODATETIME)
 {
 }
 

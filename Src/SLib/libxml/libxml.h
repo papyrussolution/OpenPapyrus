@@ -17,7 +17,7 @@
 	#endif
 #endif
 #include <slib.h> // @sobolev
-#include <snet.h> // @v10.6.5
+#include <snet.h>
 #define HAVE_LZMA_H   1 // @v10.9.6
 #define HAVE_SIGNAL_H 1 // @v11.2.12
 //

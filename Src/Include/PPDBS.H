@@ -8137,6 +8137,7 @@ public:
 		int32  TabID;
 		char   Name[128];
 		uint32 PhoneP;
+		uint32 EMailP;
 		uint32 AddressP;
 		uint32 RAddressP;
 		uint32 BnkNameP;
@@ -8144,6 +8145,7 @@ public:
 		uint32 RegSerialP;
 		uint32 FiasAddrGuidP;
 		uint32 FiasHouseGuidP;
+		uint32 AddrTypeP;
 		char   RegNumber[64];
 		int32  CityID;
 		LDATE  RegInitDate;
@@ -8161,6 +8163,7 @@ public:
 	DBField TabID;
 	DBField Name;
 	DBField PhoneP;
+	DBField EMailP;
 	DBField AddressP;
 	DBField RAddressP;
 	DBField BnkNameP;
@@ -8168,6 +8171,7 @@ public:
 	DBField RegSerialP;
 	DBField FiasAddrGuidP;
 	DBField FiasHouseGuidP;
+	DBField AddrTypeP;
 	DBField RegNumber;
 	DBField CityID;
 	DBField RegInitDate;

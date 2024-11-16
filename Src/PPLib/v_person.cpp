@@ -508,15 +508,71 @@ int PPViewPerson::OpenClientDir(PPID PersonId)
 	return ok;
 }
 
-int PPViewPerson::EditRegs(PPID id, int oneReg)
+int PPViewPerson::EditRegs(PPID personID, PPID locID, int oneReg)
 {
-	int    ok = -1, r = 0;
+	int    ok = -1;
+	int    r = 0;
+	ObjTagCore & r_ot = PPRef->Ot;
+	bool do_update_temp_rec = false;
 	PPPersonPacket pack;
 	THROW(PsnObj.RegObj.CheckRights(PPR_READ));
-	THROW(PsnObj.GetPacket(id, &pack, 0) > 0);
+	THROW(PsnObj.GetPacket(personID, &pack, 0) > 0);
 	if(oneReg) {
 		uint   pos = 0;
-		if(Filt.GetAttribType() == PPPSNATTR_REGISTER) {
+		if(Filt.Flags & PersonFilt::fLocTagF && Filt.GetAttribType() && locID) {
+			LocationTbl::Rec loc_rec;
+			if(PsnObj.LocObj.Search(locID, &loc_rec) > 0) {
+				if(Filt.GetAttribType() == PPPSNATTR_REGISTER) {
+					RegisterArray reg_list;
+					PsnObj.RegObj.P_Tbl->GetByLocation(locID, &reg_list);
+					if(reg_list.GetRegister(Filt.RegTypeID, &pos, 0) > 0) {
+						r = PsnObj.RegObj.EditDialog(&reg_list.at(pos-1), &pack.Regs, &pack);
+					}
+					else {
+						RegisterTbl::Rec rec;
+						THROW(PPObjRegister::InitPacket(&rec, Filt.RegTypeID, PPObjID(PPOBJ_LOCATION, locID), 0));
+						do {
+							r = PsnObj.RegObj.EditDialog(&rec, &reg_list, &pack);
+							if(r > 0 && PsnObj.RegObj.CheckUnique(rec.RegTypeID, &reg_list)) {
+								THROW_SL(reg_list.insert(&rec));
+							}
+							else if(r >= 0)
+								r = PPErrorZ();
+						} while(r == 0);
+					}
+					if(r > 0) {
+						THROW(r = PsnObj.RegObj.P_Tbl->PutByLocation(locID, &reg_list, 1));
+						if(r > 0) {
+							do_update_temp_rec = true;
+							THROW(EditTempRec(personID, 1));
+							r = -1; // prevent updating person packet below
+							ok = 1;
+						}
+					}
+				}
+				else if(Filt.GetAttribType() == PPPSNATTR_TAG) {
+					ObjTagItem tag_item;
+					const PPID tag_id = Filt.RegTypeID - TAGOFFSET;
+					if(r_ot.GetTag(PPOBJ_LOCATION, locID, tag_id, &tag_item) > 0 || tag_item.Init(tag_id)) {
+						if(EditObjTagItem(PPOBJ_LOCATION, locID, &tag_item, 0) > 0) {
+							if(r_ot.PutTag(PPOBJ_LOCATION, locID, &tag_item, 1)) {
+								do_update_temp_rec = true;
+								ok = 1;
+							}
+							else
+								PPError();
+						}
+					}
+				}
+				else {
+					if(PsnObj.LocObj.Edit(&locID, 0) > 0) {
+						ok = 1;
+						do_update_temp_rec = true;
+					}
+				}
+			}
+		}
+		else if(Filt.GetAttribType() == PPPSNATTR_REGISTER) {
 			if(pack.Regs.GetRegister(Filt.RegTypeID, &pos, 0) > 0)
 				r = PsnObj.RegObj.EditDialog(&pack.Regs.at(pos - 1), &pack.Regs, &pack);
 			else {
@@ -533,13 +589,17 @@ int PPViewPerson::EditRegs(PPID id, int oneReg)
 			}
 		}
 	}
-	else
+	else {
 		r = PsnObj.RegObj.EditList(&pack, 0);
+	}
 	if(r > 0) {
 		THROW(PsnObj.RegObj.CheckRights(PPR_MOD));
-		THROW(PsnObj.PutPacket(&id, &pack, 1));
-		THROW(EditTempRec(id, 1));
+		THROW(PsnObj.PutPacket(&personID, &pack, 1));
+		do_update_temp_rec = true;
 		ok = 1;
+	}
+	if(do_update_temp_rec) {
+		THROW(EditTempRec(personID, 1));
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -1019,10 +1079,19 @@ int PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLocRec, c
 	if(addrID) {
 		SString temp_buf;
 		pItem->TabID = addrID;
+		/* @v12.1.11
 		if(pAddrKindText && pAddrKindText[0] == '@')
 			PPLoadStringS(pAddrKindText+1, temp_buf).CopyTo(pItem->RegNumber, sizeof(pItem->RegNumber));
 		else
 			STRNSCPY(pItem->RegNumber, pAddrKindText);
+		*/
+		// @v12.1.11 {
+		if(pAddrKindText && pAddrKindText[0] == '@')
+			PPLoadStringS(pAddrKindText+1, temp_buf);
+		else
+			temp_buf = pAddrKindText;
+		StrPool.AddS(temp_buf, &pItem->AddrTypeP);
+		// } @v12.1.11 
 		if(pLocRec || PsnObj.LocObj.Search(addrID, &loc_rec) > 0) {
 			const LocationTbl::Rec * p_loc_rec = NZOR(pLocRec, &loc_rec);
 			if(Filt.CityID && p_loc_rec->CityID != Filt.CityID) {
@@ -1034,6 +1103,12 @@ int PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLocRec, c
 			else {
 				LocationCore::GetAddress(*p_loc_rec, 0, temp_buf);
 				StrPool.AddS(temp_buf, &pItem->AddressP);
+				// @v12.1.11 {
+				LocationCore::GetExField(p_loc_rec, LOCEXSTR_PHONE, temp_buf);
+				StrPool.AddS(temp_buf, &pItem->PhoneP);
+				LocationCore::GetExField(p_loc_rec, LOCEXSTR_EMAIL, temp_buf);
+				StrPool.AddS(temp_buf, &pItem->EMailP);
+				// } @v12.1.11 
 				if(Filt.Flags & PersonFilt::fShowFiasRcgn && SETIFZ(P_Fr, new PPFiasReference)) {
 					PPLocAddrStruc las(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), P_Fr);
 					S_GUID uuid;
@@ -1077,6 +1152,18 @@ int PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLocRec, c
 	return ok;
 }
 
+int PPViewPerson::Helper_GetTagValue(PPObjID oid, PPID tagID, SString & rBuf)
+{
+	rBuf.Z();
+	int   ok = -1;
+	ObjTagItem tag_item;
+	if(PPRef->Ot.GetTag(oid.Obj, oid.Id, tagID, &tag_item) > 0) {
+		tag_item.GetStr(rBuf);
+		ok = 1;
+	}
+	return ok;
+}
+
 int PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrViewItem * pItem)
 {
 	int    ok = 1;
@@ -1108,7 +1195,6 @@ int PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrVie
 			PsnObj.LocObj.GetAddress(pPsnRec->RLoc, 0, temp_buf);
 			StrPool.AddS(temp_buf, &item.RAddressP);
 		}
-		//if(item.Phone[0] == 0 && item.Address[0] == 0 && item.RAddress[0] == 0) {
 		if(!item.PhoneP && !item.AddressP && !item.RAddressP) {
 			if(Filt.EmptyAttrib == EA_NOEMPTY)
 				ok = 0;
@@ -1119,13 +1205,10 @@ int PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrVie
 	else if(Filt.GetAttribType() == PPPSNATTR_EMAIL) {
 		PPELinkArray elink_ary;
 		if(PsnObj.P_Tbl->GetELinks(pPsnRec->ID, elink_ary)) {
-			SString email_list;
-			elink_ary.GetPhones(1, email_list, ELNKRT_EMAIL);
-			//email_list.CopyTo(item.Phone, sizeof(item.Phone));
-			StrPool.AddS(email_list, &item.PhoneP);
+			elink_ary.GetPhones(1, temp_buf, ELNKRT_EMAIL);
+			StrPool.AddS(temp_buf, &item.EMailP); // @v12.1.11 item.PhoneP-->item.EMailP
 		}
-		//if(item.Phone[0] == 0) {
-		if(!item.PhoneP) {
+		if(!item.EMailP) { // @v12.1.11 item.PhoneP-->item.EMailP
 			if(Filt.EmptyAttrib == EA_NOEMPTY)
 				ok = 0;
 		}
@@ -1150,29 +1233,10 @@ int PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrVie
 			ok = 0;
 	}
 	else if(Filt.GetAttribType() == PPPSNATTR_TAG && Filt.RegTypeID) {
-		PPID   tag_id = Filt.RegTypeID - TAGOFFSET;
-		ObjTagList tag_list;
-		if(PPRef->Ot.GetList(PPOBJ_PERSON, pPsnRec->ID, &tag_list)) {
-			const ObjTagItem * p_tag = tag_list.GetItem(tag_id);
-			if(p_tag) {
-				if(p_tag->TagDataType == OTTYP_BOOL)
-					ltoa(p_tag->Val.IntVal, item.RegNumber, 10);
-				else if(p_tag->TagDataType == OTTYP_NUMBER)
-					realfmt(p_tag->Val.RealVal, SFMT_MONEY, item.RegNumber);
-				else if(p_tag->TagDataType == OTTYP_STRING && p_tag->Val.PStr)
-					STRNSCPY(item.RegNumber, p_tag->Val.PStr);
-				else if(p_tag->TagDataType == OTTYP_ENUM) {
-					PPObjectTag obj_tag_rec;
-					ObjTag.Fetch(p_tag->TagID, &obj_tag_rec);
-					GetObjectName(obj_tag_rec.TagEnumID, p_tag->Val.IntVal, temp_buf.Z());
-					STRNSCPY(item.RegNumber, temp_buf);
-				}
-				else if(p_tag->TagDataType == OTTYP_DATE)
-					datefmt(&p_tag->Val.DtVal, DATF_DMY, item.RegNumber);
-			}
-		}
+		Helper_GetTagValue(PPObjID(PPOBJ_PERSON, pPsnRec->ID), Filt.RegTypeID - TAGOFFSET, temp_buf);
+		STRNSCPY(item.RegNumber, temp_buf);
 		//if(item.RegSerial[0] == 0 && item.RegNumber[0] == 0) {
-		if(!item.RegSerialP && item.RegNumber[0] == 0) {
+		if(item.RegNumber[0] == 0) {
 			if(Filt.EmptyAttrib == EA_NOEMPTY)
 				ok = 0;
 		}
@@ -1212,7 +1276,7 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 		PPIDArray dlvr_addr_list;
 		TempPersonTbl::Key0 k0;
 		ObjTagList tags;
-		SString buf;
+		SString temp_buf;
 		SString buf2;
 		PPTransaction tra(ppDbDependTransaction, use_ta);
 		THROW(tra);
@@ -1221,16 +1285,15 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 				THROW(PPRef->Ot.GetList(PPOBJ_PERSON, id, &tags));
 				for(uint i = 0; i < tags.GetCount(); i++) {
 					long   tab_id = DefaultTagID;
-					buf.Z();
 					const  ObjTagItem * p_item = tags.GetItemByPos(i);
-					ObjTag.GetCurrTagVal(p_item, buf.Z());
+					ObjTag.GetCurrTagVal(p_item, temp_buf);
 					tab_id = p_item->TagID;
 					k0.ID    = id;
 					k0.TabID = tab_id;
 					if(P_TempPsn->search(0, &k0, spEq))
 						ok = -2;
 					else if(CreateTempRec(&psn_rec, tab_id, &P_TempPsn->data) > 0) {
-						buf.CopyTo(P_TempPsn->data.RegNumber, sizeof(P_TempPsn->data.RegNumber));
+						temp_buf.CopyTo(P_TempPsn->data.RegNumber, sizeof(P_TempPsn->data.RegNumber));
 						THROW_DB(P_TempPsn->insertRec());
 						ok = 1;
 					}
@@ -1243,7 +1306,7 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 					uint   i;
 					SArray rec_list(sizeof(PsnAttrViewItem));
 					PsnObj.GetDlvrLocList(id, &dlvr_addr_list);
-					if(attr_type == PPPSNATTR_ALLADDR) {
+					if(loc_attr == PPPSNATTR_ALLADDR) {
 						if(psn_rec.MainLoc) {
 							CALLPTRMEMB(pUsedLocList, Add((ulong)psn_rec.MainLoc));
 							long   tab_id = psn_rec.MainLoc;
@@ -1277,17 +1340,17 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 							rec_list.insert(&vi);
 						}
 					}
-					if(attr_type == PPPSNATTR_DUPDLVRADDR) {
+					if(loc_attr == PPPSNATTR_DUPDLVRADDR) {
 						i = rec_list.getCount();
 						if(i) do {
 							const PsnAttrViewItem & r_item = *static_cast<const PsnAttrViewItem *>(rec_list.at(--i));
 							if(i == (rec_list.getCount()-1)) {
 								int dup = 0;
-								StrPool.GetS(r_item.AddressP, buf);
+								StrPool.GetS(r_item.AddressP, temp_buf);
 								for(uint j = 0; j < i; j++) {
 									const PsnAttrViewItem & r_item2 = *static_cast<const PsnAttrViewItem *>(rec_list.at(j));
 									StrPool.GetS(r_item2.AddressP, buf2);
-									if(buf.CmpNC(buf2) == 0) {
+									if(temp_buf.CmpNC(buf2) == 0) {
 										dup = 1;
 										break;
 									}
@@ -1307,7 +1370,55 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 					}
 					else if(Filt.EmptyAttrib != EA_EMPTY) {
 						for(i = 0; i < rec_list.getCount(); i++) {
-							THROW(ok = Helper_InsertTempRec(*static_cast<const PsnAttrViewItem *>(rec_list.at(i))));
+							PsnAttrViewItem * p_attr_view = static_cast<PsnAttrViewItem *>(rec_list.at(i));
+							// @v12.1.11 {
+							bool local_ok = true;
+							if(Filt.Flags & PersonFilt::fLocTagF && attr_type) {
+								if(attr_type == PPPSNATTR_EMAIL) {
+									if(!p_attr_view->EMailP) {
+										if(Filt.EmptyAttrib == EA_NOEMPTY)
+											local_ok = false;
+									}
+									else if(Filt.EmptyAttrib == EA_EMPTY)
+										local_ok = false;
+								}
+								else if(attr_type == PPPSNATTR_PHONEADDR) {
+									if(!p_attr_view->PhoneP) {
+										if(Filt.EmptyAttrib == EA_NOEMPTY)
+											local_ok = false;
+									}
+									else if(Filt.EmptyAttrib == EA_EMPTY)
+										local_ok = false;
+								}
+								else if(attr_type == PPPSNATTR_REGISTER && Filt.RegTypeID) {
+									RegisterTbl::Rec reg_rec;
+									if(PsnObj.LocObj.GetRegister(p_attr_view->TabID, Filt.RegTypeID, ZERODATE, false, &reg_rec) > 0) {
+										StrPool.AddS(reg_rec.Serial, &p_attr_view->RegSerialP);
+										STRNSCPY(p_attr_view->RegNumber, reg_rec.Num);
+										p_attr_view->RegInitDate = reg_rec.Dt;
+										p_attr_view->RegExpiry   = reg_rec.Expiry;
+									}
+									if(!p_attr_view->RegSerialP && !p_attr_view->RegNumber[0]) {
+										if(Filt.EmptyAttrib == EA_NOEMPTY)
+											local_ok = false;
+									}
+									else if(Filt.EmptyAttrib == EA_EMPTY)
+										local_ok = false;
+								}
+								else if(attr_type == PPPSNATTR_TAG && Filt.RegTypeID) {
+									Helper_GetTagValue(PPObjID(PPOBJ_LOCATION, p_attr_view->TabID), Filt.RegTypeID - TAGOFFSET, temp_buf);
+									STRNSCPY(p_attr_view->RegNumber, temp_buf);
+									if(!p_attr_view->RegSerialP && p_attr_view->RegNumber[0] == 0) {
+										if(Filt.EmptyAttrib == EA_NOEMPTY)
+											local_ok = false;
+									}
+									else if(Filt.EmptyAttrib == EA_EMPTY)
+										local_ok = false;
+								}								
+							}
+							// } @v12.1.11 
+							if(local_ok)
+								THROW(ok = Helper_InsertTempRec(*p_attr_view));
 						}
 					}
 				}
@@ -1343,8 +1454,8 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 								vi.RegInitDate = r_ba.OpenDate;
 								if(r_ba.AccType) {
 									// @todo Чаще всего здесь одно и тоже значение PPBAC_CURRENT: можно ускорить
-									GetObjectName(PPOBJ_BNKACCTYPE, r_ba.AccType, buf);
-									buf.CopyTo(vi.RegNumber, sizeof(vi.RegNumber));
+									GetObjectName(PPOBJ_BNKACCTYPE, r_ba.AccType, temp_buf);
+									temp_buf.CopyTo(vi.RegNumber, sizeof(vi.RegNumber));
 								}
 								THROW(ok = Helper_InsertTempRec(vi));
 							}
@@ -2167,6 +2278,25 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 				pBrw->InsColumn(-1, "FIAS HOUSE", 9, 0, MKSFMT(32, 0), 0);
 			}
 		}
+		else if(Filt.Flags & PersonFilt::fLocTagF && Filt.GetAttribType()) { // @v12.1.11
+			if(!P_Ct) {
+				if(Filt.GetAttribType() == PPPSNATTR_REGISTER) {
+					pBrw->InsColumn(-1, "@series", 13, 0, MKSFMT(32, 0), 0);
+					pBrw->InsColumn(-1, "@number", 12, 0, MKSFMT(32, 0), 0);
+					pBrw->InsColumn(-1, "@register_dt", 14, 0, DATF_GERMAN, 0);
+					pBrw->InsColumn(-1, "@register_expiry", 15, 0, DATF_GERMAN, 0);
+				}
+				else if(Filt.GetAttribType() == PPPSNATTR_TAG) {
+					pBrw->InsColumn(-1, "@tag", 12, 0, MKSFMT(128, 0), 0);
+				}
+				else if(Filt.GetAttribType() == PPPSNATTR_EMAIL) {
+					pBrw->InsColumn(-1, "@email", 11, 0, MKSFMT(128, 0), 0);
+				}
+				else if(Filt.GetAttribType() == PPPSNATTR_PHONEADDR) {
+					pBrw->InsColumn(-1, "@phone", 10, 0, MKSFMT(128, 0), 0);
+				}
+			}
+		}
 		//@erik 02.06.2019{
 //		if(P_Ct && Filt.AttribType == PPPSNATTR_ALLADDR) {
 //			BrowserDef * p_def = pBrw->getDef();
@@ -2240,6 +2370,8 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		DBE    dbe_regser;
 		DBE    dbe_fiasadrguid;
 		DBE    dbe_fiashseguid;
+		DBE    dbe_addrtype; // @v12.1.11
+		DBE    dbe_email; // @v12.1.11
 		DBQ  * dbq = 0;
 		int    tbl_count = 0;
 		DBTable * tbl_l[12];
@@ -2284,24 +2416,37 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				}
 			}
 		}
-		if(Filt.Flags & PersonFilt::fLocTagF && Filt.GetAttribType()) {
+		if(Filt.Flags & PersonFilt::fLocTagF && Filt.GetAttribType()) { // @v12.1.11
 			PPDbqFuncPool::InitObjNameFunc(dbe_city, PPDbqFuncPool::IdObjNameWorld,  tmp_pt->CityID);
 			PPDbqFuncPool::InitStrPoolRefFunc(dbe_addr, tmp_pt->AddressP, &StrPool);
 			PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkacct, tmp_pt->BnkAcctP, &StrPool);
 			PPDbqFuncPool::InitStrPoolRefFunc(dbe_fiasadrguid,  tmp_pt->FiasAddrGuidP, &StrPool);
 			PPDbqFuncPool::InitStrPoolRefFunc(dbe_fiashseguid,  tmp_pt->FiasHouseGuidP, &StrPool);
+			PPDbqFuncPool::InitStrPoolRefFunc(dbe_addrtype,  tmp_pt->AddrTypeP, &StrPool); // @v12.1.11
+			PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone, tmp_pt->PhoneP, &StrPool); // @v12.1.11
+			PPDbqFuncPool::InitStrPoolRefFunc(dbe_email, tmp_pt->EMailP, &StrPool); // @v12.1.11
 			q = & select(
 				p->ID,                // #0
 				tmp_pt->TabID,        // #1 ИД адреса
 				p->Name,              // #2 Наименование персоналии
 				dbe_addr,             // #3 Строка адреса
 				dbe_bnkacct,          // #4 Код из адреса доставки
-				tmp_pt->RegNumber,    // #5 Тип адреса (юридический | физический | доставки)
+				/*tmp_pt->RegNumber*/dbe_addrtype, // #5 Тип адреса (юридический | физический | доставки)
 				dbe_city,             // #6
 				p->Flags,             // #7
 				dbe_fiasadrguid,      // #8
 				dbe_fiashseguid,      // #9
-				0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], 0L);			
+				dbe_phone,            // #10 @v12.1.11
+				dbe_email,            // #11 @v12.1.11
+				tmp_pt->RegNumber,    // #12 @v12.1.11 либо текстовое представление тега (PPPSNATTR_TAG), либо номер регистрационного документа (PPPSNATTR_REGISTER)
+				0L);
+			if(Filt.GetAttribType() == PPPSNATTR_REGISTER) {
+				PPDbqFuncPool::InitStrPoolRefFunc(dbe_regser,  tmp_pt->RegSerialP, &StrPool); // @v12.1.11
+				q->addField(dbe_regser);          // #13 
+				q->addField(tmp_pt->RegInitDate); // #14
+				q->addField(tmp_pt->RegExpiry);   // #15
+			}
+			q->from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], 0L);
 		}
 		else {
 			switch(Filt.GetAttribType()) {
@@ -2322,7 +2467,7 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					break;
 				case PPPSNATTR_EMAIL:
 					{
-						PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone, tmp_pt->PhoneP, &StrPool);
+						PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone, tmp_pt->EMailP, &StrPool); // @v12.1.11 tmp_pt->PhoneP-->tmp_pt->EMailP
 						q = & select(
 							p->ID,
 							p->Name,
@@ -2340,13 +2485,14 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkacct, tmp_pt->BnkAcctP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_fiasadrguid,  tmp_pt->FiasAddrGuidP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_fiashseguid,  tmp_pt->FiasHouseGuidP, &StrPool);
+						PPDbqFuncPool::InitStrPoolRefFunc(dbe_addrtype,  tmp_pt->AddrTypeP, &StrPool); // @v12.1.11
 						q = & select(
 							p->ID,                // #0
 							tmp_pt->TabID,        // #1 ИД адреса
 							p->Name,              // #2 Наименование персоналии
 							dbe_addr,             // #3 Строка адреса
 							dbe_bnkacct,          // #4 Код из адреса доставки
-							tmp_pt->RegNumber,    // #5 Тип адреса (юридический | физический | доставки)
+							/*tmp_pt->RegNumber*/dbe_addrtype, // #5 Тип адреса (юридический | физический | доставки)
 							dbe_city,             // #6
 							p->Flags,             // #7
 							dbe_fiasadrguid,      // #8
@@ -2362,13 +2508,14 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkacct, tmp_pt->BnkAcctP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone,  tmp_pt->PhoneP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkname,  tmp_pt->BnkNameP, &StrPool);
+						PPDbqFuncPool::InitStrPoolRefFunc(dbe_addrtype,  tmp_pt->AddrTypeP, &StrPool); // @v12.1.11
 						q = & select(
 							tmp_pt->ID,        // #0
 							tmp_pt->TabID,     // #1 ИД адреса
 							tmp_pt->Name,      // #2 Наименование персоналии
 							dbe_addr,          // #3 Строка адреса
 							dbe_bnkacct,       // #4 Код из адреса доставки
-							tmp_pt->RegNumber, // #5 Тип адреса (юридический | физический | доставки)
+							/*tmp_pt->RegNumber*/dbe_addrtype, // #5 Тип адреса (юридический | физический | доставки)
 							dbe_city,          // #6
 							dbe_phone,         // #7 Телефон (ассоциированный с адресом)
 							dbe_bnkname,       // #8 Контакт (ассоциированный с адресом)
@@ -2870,8 +3017,13 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 					if(_id_to_edit)
 						ok = (PsnObj.LocObj.Edit(&_id_to_edit, 0) == cmOK) ? 1 : -1;
 				}
-				else
-					ok = EditRegs(hdr.ID, 1);
+				else {
+					PPID   loc_id = 0;
+					if(Filt.Flags & PersonFilt::fLocTagF && Filt.GetAttribType()) {
+						loc_id = static_cast<PPID>(PTR32C(pHdr)[1]);
+					}
+					ok = EditRegs(hdr.ID, loc_id, 1);
+				}
 				break;
 			case PPVCMD_DLVRADDREXFLDS:
 				if(Filt.IsLocAttr()) {
@@ -3038,7 +3190,7 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 				break;
 			case PPVCMD_EVENTS:         ok = ViewPersonEvents(hdr.ID); break;
 			case PPVCMD_FOLDER:         ok = OpenClientDir(hdr.ID); break;
-			case PPVCMD_REGISTERS:      ok = EditRegs(hdr.ID, 0); break;
+			case PPVCMD_REGISTERS:      ok = EditRegs(hdr.ID, 0, 0); break;
 			case PPVCMD_AMOUNTS:        ok = PsnObj.EditAmountList(hdr.ID); break;
 			case PPVCMD_ADDREL:         ok = AddRelation(hdr.ID); break;
 			case PPVCMD_PRINT:          ok = Print(0); break;

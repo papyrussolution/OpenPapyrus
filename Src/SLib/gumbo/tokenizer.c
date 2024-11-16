@@ -819,7 +819,7 @@ void FASTCALL gumbo_tokenizer_set_state(GumboParser * parser, GumboTokenizerEnum
 void gumbo_tokenizer_set_is_current_node_foreign(GumboParser * parser, bool is_foreign) 
 {
 	if(is_foreign != parser->_tokenizer_state->_is_current_node_foreign) {
-		gumbo_debug("Toggling is_current_node_foreign to %s.\n", is_foreign ? "true" : "false");
+		gumbo_debug("Toggling is_current_node_foreign to %s.\n", STextConst::GetBool(is_foreign));
 	}
 	parser->_tokenizer_state->_is_current_node_foreign = is_foreign;
 }

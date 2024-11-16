@@ -2957,13 +2957,7 @@ void cairo_text_extents(cairo_t * cr, const char * utf8, cairo_text_extents_t * 
 	cairo_status_t status;
 	cairo_glyph_t * glyphs = NULL;
 	int num_glyphs = 0;
-	// @v10.7.8 extents->x_bearing = 0.0;
-	// @v10.7.8 extents->y_bearing = 0.0;
-	// @v10.7.8 extents->width  = 0.0;
-	// @v10.7.8 extents->height = 0.0;
-	// @v10.7.8 extents->x_advance = 0.0;
-	// @v10.7.8 extents->y_advance = 0.0;
-	memzero(extents, sizeof(*extents)); // @v10.7.8
+	memzero(extents, sizeof(*extents));
 	if(UNLIKELY(cr->status))
 		return;
 	if(utf8) {
@@ -3006,13 +3000,7 @@ void cairo_text_extents(cairo_t * cr, const char * utf8, cairo_text_extents_t * 
  **/
 void cairo_glyph_extents(cairo_t * cr, const cairo_glyph_t * glyphs, int num_glyphs, cairo_text_extents_t * extents)
 {
-	// @v10.7.8 extents->x_bearing = 0.0;
-	// @v10.7.8 extents->y_bearing = 0.0;
-	// @v10.7.8 extents->width  = 0.0;
-	// @v10.7.8 extents->height = 0.0;
-	// @v10.7.8 extents->x_advance = 0.0;
-	// @v10.7.8 extents->y_advance = 0.0;
-	memzero(extents, sizeof(*extents)); // @v10.7.8
+	memzero(extents, sizeof(*extents));
 	if(UNLIKELY(cr->status))
 		return;
 	if(num_glyphs == 0)

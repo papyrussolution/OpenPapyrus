@@ -4399,6 +4399,25 @@ private:
 								rInfoBuf.CRB().Tab().Cat("InnerUnitCount").CatDiv(':', 2).Cat(p_result_cle->InnerUnitCount);
 								rInfoBuf.CRB().Tab().Cat("SoldUnitCount").CatDiv(':', 2).Cat(p_result_cle->SoldUnitCount);
 								rInfoBuf.CRB().Tab().Cat("Flags").CatDiv(':', 2).Cat(p_result_cle->Flags);
+								// @v12.1.11 {
+								{
+									static const SIntToSymbTabEntry chzn_pm_flags[] = {
+										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fFound, "found" },
+										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fValid, "valid" },
+										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fVerified, "verified" },
+										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fRealizable, "realizable" },
+										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fUtilised, "utilised" },
+										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fIsOwner, "is-owner" },
+										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fIsBlocked, "is-blocked" },
+										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fIsTracking, "is-tracking" },
+										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold, "sold" },
+										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fGrayZone, "gray-zone" },
+									};
+									for(uint i = 0; i < SIZEOFARRAY(chzn_pm_flags); i++) {
+										rInfoBuf.CRB().Tab(2).Cat(chzn_pm_flags[i].P_Symb).CatDiv(':', 2).Cat(STextConst::GetBool(p_result_cle->Flags & chzn_pm_flags[i].Id));
+									}
+								}
+								// } @v12.1.11 
 								rInfoBuf.CRB().Tab().Cat("ExpiryDtm").CatDiv(':', 2).Cat(p_result_cle->ExpiryDtm, DATF_ISO8601CENT, 0);
 								rInfoBuf.CRB().Tab().Cat("ProductionDtm").CatDiv(':', 2).Cat(p_result_cle->ProductionDtm, DATF_ISO8601CENT, 0);
 								rInfoBuf.CRB().Tab().Cat("Weight").CatDiv(':', 2).Cat(p_result_cle->Weight, MKSFMTD(0, 3, 0));

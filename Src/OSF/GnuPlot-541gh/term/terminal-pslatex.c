@@ -529,8 +529,7 @@ void EPSLATEX_common_init(GpTermEntry_Static * pThis)
   \\gdef\\gplbacktext{}%%\n\
   \\gdef\\gplfronttext{}%%\n\
   \\makeatother\n",
-		    (p_gp->TPsB.P_Params->color ? "true" : "false"),
-		    (p_gp->TPsB.P_Params->blacktext ? "true" : "false") );
+		    STextConst::GetBool(p_gp->TPsB.P_Params->color), STextConst::GetBool(p_gp->TPsB.P_Params->blacktext));
 
 		/* use \expandafter\def\csname LT0\endcsname{...}
 		 * instead of \def\LT0{...} because digits may not be part of

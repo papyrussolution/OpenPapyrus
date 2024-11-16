@@ -104,7 +104,7 @@ bool AbslParseFlag(absl::string_view text, std::vector <std::string>* dst, std::
 //
 // AbslUnparseFlag specializations for various builtin flag types.
 //
-std::string Unparse(bool v) { return v ? "true" : "false"; }
+std::string Unparse(bool v) { return STextConst::GetBool(v); }
 std::string Unparse(short v) { return absl::StrCat(v); }
 std::string Unparse(unsigned short v) { return absl::StrCat(v); }
 std::string Unparse(int v) { return absl::StrCat(v); }

@@ -198,7 +198,7 @@ int ComDispInterface::GetProperty(int propertyID, char * pBuf, size_t bufLen)
 	VariantInit(&var_arg);
 	if(pBuf && bufLen > 0) {
 		var_arg.vt = VT_BSTR;
-		wstr[0] = 0; // @v10.3.0 @fix
+		wstr[0] = 0;
 		THROW_S(var_arg.bstrVal = SysAllocString(wstr), SLERR_NOMEM);
 		if((ok = _GetProperty(propertyID, &var_arg)) > 0) {
 			WideCharToMultiByte(1251, 0, var_arg.bstrVal, -1, pBuf, static_cast<int>(bufLen), NULL, NULL);

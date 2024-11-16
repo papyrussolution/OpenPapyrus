@@ -1,5 +1,5 @@
 // V_STYLOQBINDERY.CPP
-// Copyright (c) A.Sobolev 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -142,7 +142,7 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 					new_entry.LinkOid.Set(pack.Rec.LinkObjType, pack.Rec.LinkObjID);
 					new_entry.DocType = pack.Rec.DocType; // @v11.4.5
 					new_entry.Flags = pack.Rec.Flags; // @v11.4.5
-					if(new_entry.LinkOid.Obj && new_entry.LinkOid.Id) {
+					if(new_entry.LinkOid.IsFullyDefined()) {
 						char   name_buf[256];
 						PPObject * ppobj = ObjColl.GetObjectPtr(new_entry.LinkOid.Obj);
 						if(ppobj && ppobj->GetName(new_entry.LinkOid.Id, name_buf, sizeof(name_buf)) > 0) {
