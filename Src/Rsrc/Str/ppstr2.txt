@@ -5084,6 +5084,7 @@ PPTXT_MP_PROCESSING_FINTRANSACTIONS  "Маркетплейс: обработка
 PPTXT_MP_PROCESSING_STOCK            "Маркетплейс: обработка остатков"
 PPTXT_MP_FINTRA_WB_REQ               "Запрос отчета о продажах по реализации за период %s"
 PPTXT_MP_FINTRA_WB_REPEMPTY          "Сервер Wildberries вернул пустой результат"
+PPTXT_ORDERCANCELLED                 "Заказ '%s' отменен"
 //
 // LastText
 
@@ -7182,6 +7183,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @total                               "Итого"
 @totals                              "Итоги"
 @result                              "Результат"
+@sellersincome                       "Доход продавца" // специализированное понятие, применяемое в анализе торговли на маркетплейсе
 @fraction                            "Доля" // Числовое выражение части чего-либо
 @grouping                            "Группировка"
 @opgrouping                          "Группировка операций"
@@ -14306,6 +14308,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsopanlzfilt_object                   "@{contractor}"
 @goodsopanlzfilt_object2                  "@{bill_object2}"
 @goodsopanlzfilt_objcity                  "Город контрагента"
+@goodsopanlzfilt_marketplacegua           "Глобальная учетная запись маркетплейса" // @v12.1.12
 @goodsopanlzfilt_suppl                    "@{supplier}"
 @goodsopanlzfilt_agent                    "@{agent}"
 @goodsopanlzfilt_freightagent             "@{freightagent}"

@@ -2990,6 +2990,8 @@
 	#define CTLCAL_BILLFLT_DUEPERIOD    (86 + WINDOWS_ID_BIAS)
 	#define CTL_BILLFLT_MEMOTEXT        (87 + WINDOWS_ID_BIAS) // @v11.7.4
 	#define CTLBUT_BILLFLT_OBJPTAGS     (88 + WINDOWS_ID_BIAS) // @v11.9.6 Кнопка фильтра по тегам персоналий контрагентов
+	#define CTL_BILLFLT_MPGUA           (89 + WINDOWS_ID_BIAS) // @v12.1.12 GoodsOpAnalyzeFilt
+	#define CTLSEL_BILLFLT_MPGUA        (90 + WINDOWS_ID_BIAS) // @v12.1.12 GoodsOpAnalyzeFilt
 #define DLG_GTO                   133 // Фильтр товарооборота
 	#define CTL_GTO_PERIOD               (1 + WINDOWS_ID_BIAS)
 	#define CTL_GTO_SUPPL                (3 + WINDOWS_ID_BIAS)

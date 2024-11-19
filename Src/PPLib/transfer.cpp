@@ -1125,9 +1125,49 @@ int Transfer::GetAvailableGoodsRest(PPID goodsID, PPID locID, const DateRange & 
 	return ok;
 }
 
-int Transfer::EvaluateAverageRestByLot(PPID lotID, const DateRange & rPeriod, double * pAvgQtty) // @v12.1.11 @construction
+int Transfer::FixUpPeriodForAverageRestEvaluating(const PPIDArray & rLocList, const PPIDArray & rGoodsList, DateRange & rPeriod) // @v12.1.12
 {
 	int    ok = -1;
+	DateRange period(rPeriod);
+	period.Actualize(ZERODATE);
+	if(!period.low) {
+		if(rLocList.getCount() && rGoodsList.getCount()) {
+			PPIDArray loc_list;
+			{
+				PPObjLocation loc_obj;
+				loc_obj.ResolveWarehouseList(&rLocList, loc_list);
+			}
+			loc_list.sortAndUndup();
+			for(uint locidx = 0; locidx < loc_list.getCount(); locidx++) {
+				const PPID loc_id = loc_list.get(locidx);
+				for(uint gidx = 0; gidx < rGoodsList.getCount(); gidx++) {
+					const PPID goods_id = labs(rGoodsList.get(gidx));
+					ReceiptTbl::Rec lot_rec;
+					if(Rcpt.GetFirstLot(goods_id, loc_id, &lot_rec) > 0) {
+						if(!period.low || period.low > lot_rec.Dt)
+							period.low = lot_rec.Dt;
+					}
+				}
+			}
+		}
+	}
+	if(!checkdate(period.low))
+		ok = 0;
+	else {
+		if(!checkdate(period.upp)) 
+			period.upp = getcurdate_();
+		assert(checkdate(period.low) && checkdate(period.upp));
+		if(period != rPeriod) {
+			rPeriod = period;
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int Transfer::EvaluateAverageRestByLot(PPID lotID, const DateRange & rPeriod, double * pAvgQtty) // @v12.1.11 @construction
+{
+	int    ok = 1;
 	double avg_qtty = 0.0;
 	DateRange period(rPeriod);
 	period.Actualize(ZERODATE);
@@ -1173,6 +1213,47 @@ int Transfer::EvaluateAverageRestByLot(PPID lotID, const DateRange & rPeriod, do
 		}
 	}
 	ASSIGN_PTR(pAvgQtty, avg_qtty);
+	return ok;
+}
+
+int Transfer::EvaluateAverageRestByGoods(const PPIDArray & rLocList, const PPIDArray & rGoodsList, DateRange & rPeriod, RAssocArray & rList) // @v12.1.12
+{
+	int    ok = -1;
+	rList.clear();
+	if(rLocList.getCount() && rGoodsList.getCount()) {
+		PPObjLocation loc_obj;
+		PPIDArray loc_list;
+		PPIDArray goods_list(rGoodsList);
+		goods_list.sortAndUndup();
+		loc_obj.ResolveWarehouseList(&rLocList, loc_list);
+		loc_list.sortAndUndup();		
+		if(FixUpPeriodForAverageRestEvaluating(loc_list, goods_list, rPeriod)) {
+			for(uint gidx = 0; gidx < goods_list.getCount(); gidx++) {
+				const PPID goods_id = labs(goods_list.get(gidx));
+				LotArray lot_rec_list;
+				double result = 0.0;
+				for(uint locidx = 0; locidx < loc_list.getCount(); locidx++) {
+					const PPID loc_id = loc_list.get(locidx);
+					Rcpt.GetList(goods_id, loc_id, 0, rPeriod.upp, 0, &lot_rec_list);
+				}
+				//
+				// В общем случае среднее значение не аддитивно, однако функция Transfer::EvaluateAverageRestByLot
+				// гарантированно считает средний остаток за один и тот же набор дней и по этому в этом частном случае
+				// мы можем складывать средние остатки по каждому лоту дабы получить общий средний остаток по товару.
+				//
+				for(uint i = 0; i < lot_rec_list.getCount(); i++) {
+					const ReceiptTbl::Rec & r_lot_rec = lot_rec_list.at(i);
+					double pv = 0.0;
+					if(EvaluateAverageRestByLot(r_lot_rec.ID, rPeriod, &pv) > 0) {
+						ok = 1;
+					}
+					result += pv;
+				}
+				assert(!rList.Has(goods_id));
+				rList.Add(goods_id, result, 0, 0);
+			}
+		}
+	}
 	return ok;
 }
 

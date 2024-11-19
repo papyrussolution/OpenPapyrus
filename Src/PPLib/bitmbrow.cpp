@@ -2044,7 +2044,7 @@ int BillItemBrowser::_moveItem2(int srcRowIdx)
 
 int BillItemBrowser::addItemByOrder(const PPBillPacket * pOrderPack, int line)
 {
-	int    ok = P_BObj->InsertShipmentItemByOrder(P_Pack, pOrderPack, line, 0/*srcLotID*/, 0.0, 1/*interactive*/);
+	int    ok = P_BObj->InsertShipmentItemByOrder(P_Pack, pOrderPack, line, 0/*srcLotID*/, 0.0, PPObjBill::isibofInteractive);
 	if(ok > 0 && !P_Pack->Rec.SCardID && pOrderPack->Rec.SCardID > 0)
 		P_Pack->Rec.SCardID = pOrderPack->Rec.SCardID;
 	return ok;

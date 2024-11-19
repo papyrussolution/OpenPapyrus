@@ -2982,7 +2982,7 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 									R_Prc.GetLogger().Log(msg_buf);
 								}
 								else {
-									const int isibor = p_bobj->InsertShipmentItemByOrder(&pack, &ord_pack, static_cast<int>(ord_ti_idx)-1, lot_id/*srcLotID*/, 1.0, 0);
+									const int isibor = p_bobj->InsertShipmentItemByOrder(&pack, &ord_pack, static_cast<int>(ord_ti_idx)-1, lot_id/*srcLotID*/, 1.0, PPObjBill::isibofErrOnCompletedOrder);
 									if(isibor > 0) {
 										const long new_row_idx = 0;//row_idx_list.get(0);
 										ReceiptTbl::Rec lot_rec;
@@ -3090,8 +3090,11 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 int PPMarketplaceInterface_Wildberries::ImportOrders()
 {
 	int    ok = -1;
+	bool   debug_mark = false;
 	PPObjBill * p_bobj = BillObj;
 	SString temp_buf;
+	SString fmt_buf;
+	SString msg_buf;
 	TSCollection <PPMarketplaceInterface_Wildberries::Sale> order_list;
 	RequestOrders(order_list);
 	if(order_list.getCount()) {
@@ -3106,10 +3109,32 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 					const PPMarketplaceInterface_Wildberries::Sale * p_wb_item = order_list.at(ord_list_idx);
 					if(p_wb_item) {
 						PPID   wh_id = 0;
+						BillTbl::Rec ex_bill_rec;
+						if(p_wb_item->SrID == "20977596600611035.0.0") {
+							debug_mark = true;
+						}
 						ResolveWarehouseByName(WhList, p_wb_item->WarehouseName, LConfig.Location, &wh_id, 1/*use_ta*/);
 						bill_code.Z().Cat(p_wb_item->GNumber);
-						if(p_bobj->P_Tbl->SearchByCode(bill_code, order_op_id, ZERODATE, 0) > 0) {
-							;
+						if(p_bobj->P_Tbl->SearchByCode(bill_code, order_op_id, ZERODATE, &ex_bill_rec) > 0) {
+							if(!(ex_bill_rec.Flags2 & BILLF2_DECLINED) && p_wb_item->Flags & Sale::fIsCancel) {
+								PPBillPacket ex_pack;
+								if(p_bobj->ExtractPacketWithFlags(ex_bill_rec.ID, &ex_pack, BPLD_FORCESERIALS) > 0) {
+									ex_pack.Rec.Flags2 |= BILLF2_DECLINED;
+									ex_pack.InitAmounts();
+									p_bobj->FillTurnList(&ex_pack);
+									if(p_bobj->UpdatePacket(&ex_pack, 1)) {
+										PPObjBill::MakeCodeString(&ex_pack.Rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddObjName, temp_buf);
+										PPLoadText(PPTXT_ORDERCANCELLED, fmt_buf);
+										msg_buf.Printf(fmt_buf, temp_buf.cptr());
+										R_Prc.GetLogger().Log(msg_buf);
+										ok = 1;
+									}
+									else {
+										R_Prc.GetLogger().LogLastError();
+									}
+
+								}
+							}
 						}
 						else {
 							PPBillPacket pack;

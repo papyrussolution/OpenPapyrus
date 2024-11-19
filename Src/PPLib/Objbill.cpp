@@ -697,7 +697,7 @@ void PPObjBill::DiagGoodsTurnError(const PPBillPacket * pPack)
 	}
 }
 
-int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacket * pOrderPack, int orderItemIdx, PPID srcLotID, double maxQtty, int interactive)
+int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacket * pOrderPack, int orderItemIdx, PPID srcLotID, double maxQtty, uint flags)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -718,181 +718,187 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 		PPID   isales_support_discount_qk = -1; // @v11.0.6 Опорная котировка для расчета скидки по заказам iSales
 		THROW(GObj.Fetch(goods_id, &goods_rec) > 0);
 		THROW(pPack->RestByOrderLot(p_ord_item->LotID, 0, -1, &qtty));
-		// PPERR_ORDISCOMPLETED               "Заказ уже исполнен (%s)" // @v12.1.11
 		if(qtty <= 0.0) {
-			SString msg_buf;
-			PPObjBill::MakeCodeString(&pOrderPack->Rec, 0, temp_buf);
-			msg_buf.Cat(temp_buf).Space().CatEq("ord_lot_id", p_ord_item->LotID).CatDiv('-', 1).Cat(goods_rec.Name);
-			PPObjBill::MakeCodeString(&pPack->Rec, 0, temp_buf);
-			msg_buf.Space().Cat("->").Space().Cat(temp_buf);
-			CALLEXCEPT_PP_S(PPERR_ORDISCOMPLETED, msg_buf);
+			if(flags & isibofErrOnCompletedOrder) {
+				SString msg_buf;
+				PPObjBill::MakeCodeString(&pOrderPack->Rec, 0, temp_buf);
+				msg_buf.Cat(temp_buf).Space().CatEq("ord_lot_id", p_ord_item->LotID).CatDiv('-', 1).Cat(goods_rec.Name);
+				PPObjBill::MakeCodeString(&pPack->Rec, 0, temp_buf);
+				msg_buf.Space().Cat("->").Space().Cat(temp_buf);
+				// PPERR_ORDISCOMPLETED               "Заказ уже исполнен (%s)" // @v12.1.11
+				CALLEXCEPT_PP_S(PPERR_ORDISCOMPLETED, msg_buf);
+			}
+			else
+				ok = -1;
 		}
-		// @v12.1.2 {
-		if(maxQtty > 0.0 && qtty > maxQtty)
-			qtty = maxQtty;
-		// } @v12.1.2 
-		if(pPack->CheckGoodsForRestrictions(-1, goods_id, TISIGN_MINUS, qtty, PPBillPacket::cgrfAll, 0)) {
-			//
-			// Если данная отгрузка осуществляется по резервирующему заказу, то
-			// не проверяем наличие других резервирующих заказов на этот товар:
-			// действует правило "кто первый встал - того и сапоги".
-			//
-			ReceiptTbl::Rec ord_lot_rec;
-			const int i_am_reserve_order = (trfr->Rcpt.Search(p_ord_item->LotID, &ord_lot_rec) > 0 && ord_lot_rec.Flags & LOTF_ORDRESERVE) ? 1 : 0;
-			if(!i_am_reserve_order) {
+		else {
+			// @v12.1.2 {
+			if(maxQtty > 0.0 && qtty > maxQtty)
+				qtty = maxQtty;
+			// } @v12.1.2 
+			if(pPack->CheckGoodsForRestrictions(-1, goods_id, TISIGN_MINUS, qtty, PPBillPacket::cgrfAll, 0)) {
 				//
-				// Уменьшаем отгружаемое количество на величину зарезервированного
-				// товара (резервирующий заказ не принадлежит данному контрагенту и
-				// не является собственно заказом, по которому осуществляется данная отгрузка.
+				// Если данная отгрузка осуществляется по резервирующему заказу, то
+				// не проверяем наличие других резервирующих заказов на этот товар:
+				// действует правило "кто первый встал - того и сапоги".
 				//
-				trfr->Rcpt.GetListOfOpenedLots(-1, -goods_id, loc_id, MAXDATE, &lot_list);
-				for(uint i = 0; i < lot_list.getCount(); i++) {
-					const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
-					if(r_lot_rec.Flags & LOTF_ORDRESERVE && r_lot_rec.SupplID != pPack->Rec.Object && r_lot_rec.BillID != pOrderPack->Rec.ID) {
-						trfr->GetRest(r_lot_rec.ID, MAXDATE, &rest);
-						reserve += rest;
-					}
-				}
-			}
-			lot_list.clear();
-			trfr->Rcpt.GetListOfOpenedLots(-1, goods_id, loc_id, pPack->Rec.Dt, &lot_list);
-			if(srcLotID) {
-				//
-				// Если вызывающая функция задала лот, из которого следует расходовать товар, 
-				// и этот лот в списке, то перемещаем его вверх списка для того, чтобы применить с приоритетом.
-				//
-				uint src_lot_pos = 0;
-				if(lot_list.lsearch(&srcLotID, &src_lot_pos, CMPF_LONG) && src_lot_pos != 0)
-					lot_list.swap(src_lot_pos, 0);
-			}
-			for(uint lotidx = 0; lotidx < lot_list.getCount() && qtty > 0.0; lotidx++) {
-				const ReceiptTbl::Rec & r_lot_rec = lot_list.at(lotidx);
-				THROW(pPack->BoundsByLot(r_lot_rec.ID, 0, -1, &rest, 0));
-				if(reserve > 0.0) { // Снижаем доступный остаток на величину резерва.
-					const double decr = MIN(rest, reserve);
-					rest -= decr;
-					reserve -= decr;
-				}
-				rest = MIN(rest, qtty);
-				if(rest > 0.0) {
-					SString edi_channel;
-					if(pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER)
-						pOrderPack->BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, edi_channel);
-					const bool   ord_price_low_prior = LOGIC(GetConfig().Flags & BCF_ORDPRICELOWPRIORITY);
-					const bool   is_isales_order = (pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER && edi_channel.IsEqiAscii("ISALES-PEPSI"));
-					const bool   is_coke_order = (pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER && edi_channel.IsEqiAscii("COKE")); // @v11.5.4
-					const double ord_qtty  = fabs(p_ord_item->Quantity_);
-					const double ord_price = fabs(p_ord_item->Price) * ord_qtty;
-					const double ord_dis   = p_ord_item->Discount * ord_qtty;
-					const double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
-					double isales_support_quot = 0.0;
-					if(is_isales_order && ord_pct_dis > 0.0) {
-						if(isales_support_discount_qk < 0) {
-							PPObjQuotKind qk_obj;
-							PPID    _temp_qk_id = 0;
-							isales_support_discount_qk = (qk_obj.SearchBySymb("ISALES-SUPPORT", &_temp_qk_id, 0) > 0) ? _temp_qk_id : 0;
-						}
-						if(isales_support_discount_qk > 0) {
-							const QuotIdent qi(QIDATE(pPack->Rec.Dt), loc_id, isales_support_discount_qk, pPack->Rec.CurID, pPack->Rec.Object);
-							GObj.GetQuotExt(goods_id, qi, r_lot_rec.Cost, r_lot_rec.Price, &isales_support_quot, 1);
+				ReceiptTbl::Rec ord_lot_rec;
+				const int i_am_reserve_order = (trfr->Rcpt.Search(p_ord_item->LotID, &ord_lot_rec) > 0 && ord_lot_rec.Flags & LOTF_ORDRESERVE) ? 1 : 0;
+				if(!i_am_reserve_order) {
+					//
+					// Уменьшаем отгружаемое количество на величину зарезервированного
+					// товара (резервирующий заказ не принадлежит данному контрагенту и
+					// не является собственно заказом, по которому осуществляется данная отгрузка.
+					//
+					trfr->Rcpt.GetListOfOpenedLots(-1, -goods_id, loc_id, MAXDATE, &lot_list);
+					for(uint i = 0; i < lot_list.getCount(); i++) {
+						const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
+						if(r_lot_rec.Flags & LOTF_ORDRESERVE && r_lot_rec.SupplID != pPack->Rec.Object && r_lot_rec.BillID != pOrderPack->Rec.ID) {
+							trfr->GetRest(r_lot_rec.ID, MAXDATE, &rest);
+							reserve += rest;
 						}
 					}
-					THROW(ti.Init(&pPack->Rec));
-					THROW(ti.SetupGoods(goods_id));
-					THROW(ti.SetupLot(r_lot_rec.ID, &r_lot_rec, 0));
-					// @v11.0.6 @iSales {
-					if(is_isales_order && ord_pct_dis > 0.0 && isales_support_quot > 0.0) {
-						const double sq   = isales_support_quot; 
-						const double quot = R5(sq * (1 - ord_pct_dis));
-						ti.Discount = ti.Price - quot;
-						ti.SetupQuot(quot, 1);						
+				}
+				lot_list.clear();
+				trfr->Rcpt.GetListOfOpenedLots(-1, goods_id, loc_id, pPack->Rec.Dt, &lot_list);
+				if(srcLotID) {
+					//
+					// Если вызывающая функция задала лот, из которого следует расходовать товар, 
+					// и этот лот в списке, то перемещаем его вверх списка для того, чтобы применить с приоритетом.
+					//
+					uint src_lot_pos = 0;
+					if(lot_list.lsearch(&srcLotID, &src_lot_pos, CMPF_LONG) && src_lot_pos != 0)
+						lot_list.swap(src_lot_pos, 0);
+				}
+				for(uint lotidx = 0; lotidx < lot_list.getCount() && qtty > 0.0; lotidx++) {
+					const ReceiptTbl::Rec & r_lot_rec = lot_list.at(lotidx);
+					THROW(pPack->BoundsByLot(r_lot_rec.ID, 0, -1, &rest, 0));
+					if(reserve > 0.0) { // Снижаем доступный остаток на величину резерва.
+						const double decr = MIN(rest, reserve);
+						rest -= decr;
+						reserve -= decr;
 					}
-					// } @v11.0.6 
-					else if(p_ord_item->NetPrice() <= 0.0 || (ord_price_low_prior && CheckOpFlags(pOrderPack->Rec.OpID, OPKF_ORDERBYLOC)) ||
-						(ord_price_low_prior && LConfig.Flags & CFGFLG_AUTOQUOT)) {
-						double quot = 0.0;
-						if(quot > 0.0 || SelectQuotKind(pPack, &ti, 0/*strictly noninteractive*/, &quot) > 0) {
-							if(is_isales_order && ord_pct_dis > 0.0) {
-								// @v11.1.2 Для того чтобы избежать двойной скидки и от агента и по цене общего прайса промо к цене заказа
-								quot = R5(fabs(p_ord_item->Price) * (1 - ord_pct_dis));
+					rest = MIN(rest, qtty);
+					if(rest > 0.0) {
+						SString edi_channel;
+						if(pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER)
+							pOrderPack->BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, edi_channel);
+						const bool   ord_price_low_prior = LOGIC(GetConfig().Flags & BCF_ORDPRICELOWPRIORITY);
+						const bool   is_isales_order = (pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER && edi_channel.IsEqiAscii("ISALES-PEPSI"));
+						const bool   is_coke_order = (pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER && edi_channel.IsEqiAscii("COKE")); // @v11.5.4
+						const double ord_qtty  = fabs(p_ord_item->Quantity_);
+						const double ord_price = fabs(p_ord_item->Price) * ord_qtty;
+						const double ord_dis   = p_ord_item->Discount * ord_qtty;
+						const double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
+						double isales_support_quot = 0.0;
+						if(is_isales_order && ord_pct_dis > 0.0) {
+							if(isales_support_discount_qk < 0) {
+								PPObjQuotKind qk_obj;
+								PPID    _temp_qk_id = 0;
+								isales_support_discount_qk = (qk_obj.SearchBySymb("ISALES-SUPPORT", &_temp_qk_id, 0) > 0) ? _temp_qk_id : 0;
 							}
+							if(isales_support_discount_qk > 0) {
+								const QuotIdent qi(QIDATE(pPack->Rec.Dt), loc_id, isales_support_discount_qk, pPack->Rec.CurID, pPack->Rec.Object);
+								GObj.GetQuotExt(goods_id, qi, r_lot_rec.Cost, r_lot_rec.Price, &isales_support_quot, 1);
+							}
+						}
+						THROW(ti.Init(&pPack->Rec));
+						THROW(ti.SetupGoods(goods_id));
+						THROW(ti.SetupLot(r_lot_rec.ID, &r_lot_rec, 0));
+						// @v11.0.6 @iSales {
+						if(is_isales_order && ord_pct_dis > 0.0 && isales_support_quot > 0.0) {
+							const double sq   = isales_support_quot; 
+							const double quot = R5(sq * (1 - ord_pct_dis));
 							ti.Discount = ti.Price - quot;
+							ti.SetupQuot(quot, 1);						
+						}
+						// } @v11.0.6 
+						else if(p_ord_item->NetPrice() <= 0.0 || (ord_price_low_prior && CheckOpFlags(pOrderPack->Rec.OpID, OPKF_ORDERBYLOC)) ||
+							(ord_price_low_prior && LConfig.Flags & CFGFLG_AUTOQUOT)) {
+							double quot = 0.0;
+							if(quot > 0.0 || SelectQuotKind(pPack, &ti, 0/*strictly noninteractive*/, &quot) > 0) {
+								if(is_isales_order && ord_pct_dis > 0.0) {
+									// @v11.1.2 Для того чтобы избежать двойной скидки и от агента и по цене общего прайса промо к цене заказа
+									quot = R5(fabs(p_ord_item->Price) * (1 - ord_pct_dis));
+								}
+								ti.Discount = ti.Price - quot;
+								ti.SetupQuot(quot, 1);
+							}
+						}
+						else if(is_isales_order && ord_pct_dis > 0.0) {
+							const double sq = ti.Price; // @v11.0.6
+							const double quot = R5(sq * (1 - ord_pct_dis));
+							ti.Discount = sq - quot;
 							ti.SetupQuot(quot, 1);
 						}
-					}
-					else if(is_isales_order && ord_pct_dis > 0.0) {
-						const double sq = ti.Price; // @v11.0.6
-						const double quot = R5(sq * (1 - ord_pct_dis));
-						ti.Discount = sq - quot;
-						ti.SetupQuot(quot, 1);
-					}
-					else if(is_coke_order && ord_dis > 0.0 && p_ord_item->Discount <= ti.Price) { // @v11.5.4
-						// Для заказов кока-кола (COKE) скидка в заказе трактуется как абсолютная скидка предоставляемая к той цене, которую выставляет дистрибьютор
-						ti.Discount = p_ord_item->Discount;
-					}
-					else if(p_ord_item->NetPrice() > 0.0)
-						ti.Discount = ti.Price - p_ord_item->NetPrice();
-					ti.OrdLotID = p_ord_item->LotID; // @ordlotid
-					ti.Flags   |= PPTFR_ONORDER;
-					ti.Quantity_ = interactive ? rest : -rest;
-					{
-						uint   sh_lot_row_pos = 0;
-						//
-						// После двух следующих строк индекс sh_lot_row_pos правильно указывает
-						// позицию строки теневого документа, которой соответствует наша новая строка
-						//
-						if(!pPack->SearchShLot(ti.OrdLotID, &sh_lot_row_pos)) // @ordlotid
-							THROW(pPack->AddShadowItem(p_ord_item, &sh_lot_row_pos));
-						THROW(pPack->InsertRow(&ti, &row_idx_list));
-						tmp_sti = &pPack->P_ShLots->at(sh_lot_row_pos);
-						THROW(pPack->CalcShadowQuantity(tmp_sti->LotID, &tmp_sti->Quantity_));
-					}
-					qtty -= rest;
-					zero_rest = 0;
-					ok = 1;
-				}
-			}
-			if(zero_rest) {
-				if(goods_rec.Flags & GF_UNLIM) {
-					THROW(ti.Init(&pPack->Rec));
-					THROW(ti.SetupGoods(goods_id));
-					ti.LotID    = 0;
-					ti.Price    = p_ord_item->Price;
-					ti.Discount = 0.0;
-					ti.OrdLotID = p_ord_item->LotID; // @ordlotid
-					ti.Flags   |= PPTFR_ONORDER;
-					ti.Quantity_ = p_ord_item->LotID ? qtty : fabs(p_ord_item->Quantity_);
-					{
-						uint   sh_lot_row_pos = 0;
-						if(!pPack->SearchShLot(ti.OrdLotID, &sh_lot_row_pos)) // @ordlotid
-							THROW(pPack->AddShadowItem(p_ord_item, &sh_lot_row_pos));
-						THROW(pPack->InsertRow(&ti, &row_idx_list));
-						if(p_ord_item->LotID) {
+						else if(is_coke_order && ord_dis > 0.0 && p_ord_item->Discount <= ti.Price) { // @v11.5.4
+							// Для заказов кока-кола (COKE) скидка в заказе трактуется как абсолютная скидка предоставляемая к той цене, которую выставляет дистрибьютор
+							ti.Discount = p_ord_item->Discount;
+						}
+						else if(p_ord_item->NetPrice() > 0.0)
+							ti.Discount = ti.Price - p_ord_item->NetPrice();
+						ti.OrdLotID = p_ord_item->LotID; // @ordlotid
+						ti.Flags   |= PPTFR_ONORDER;
+						ti.Quantity_ = (flags & isibofInteractive) ? rest : -rest;
+						{
+							uint   sh_lot_row_pos = 0;
+							//
+							// После двух следующих строк индекс sh_lot_row_pos правильно указывает
+							// позицию строки теневого документа, которой соответствует наша новая строка
+							//
+							if(!pPack->SearchShLot(ti.OrdLotID, &sh_lot_row_pos)) // @ordlotid
+								THROW(pPack->AddShadowItem(p_ord_item, &sh_lot_row_pos));
+							THROW(pPack->InsertRow(&ti, &row_idx_list));
 							tmp_sti = &pPack->P_ShLots->at(sh_lot_row_pos);
 							THROW(pPack->CalcShadowQuantity(tmp_sti->LotID, &tmp_sti->Quantity_));
 						}
+						qtty -= rest;
+						zero_rest = 0;
+						ok = 1;
 					}
-					ok = 1;
 				}
-				else if(goods_rec.Flags & GF_AUTOCOMPL) {
-					THROW(ti.Init(&pPack->Rec));
-					THROW(ti.SetupGoods(goods_id));
-					ti.LotID    = 0;
-					ti.Price    = p_ord_item->Price;
-					ti.Discount = 0.0;
-					ti.OrdLotID = p_ord_item->LotID; // @ordlotid
-					ti.Flags   |= (PPTFR_ONORDER | PPTFR_AUTOCOMPL);
-					ti.Quantity_ = qtty;
-					{
-						uint   sh_lot_row_pos = 0;
-						if(!pPack->SearchShLot(ti.OrdLotID, &sh_lot_row_pos)) { // @ordlotid
-							THROW(pPack->AddShadowItem(p_ord_item, &sh_lot_row_pos));
+				if(zero_rest) {
+					if(goods_rec.Flags & GF_UNLIM) {
+						THROW(ti.Init(&pPack->Rec));
+						THROW(ti.SetupGoods(goods_id));
+						ti.LotID    = 0;
+						ti.Price    = p_ord_item->Price;
+						ti.Discount = 0.0;
+						ti.OrdLotID = p_ord_item->LotID; // @ordlotid
+						ti.Flags   |= PPTFR_ONORDER;
+						ti.Quantity_ = p_ord_item->LotID ? qtty : fabs(p_ord_item->Quantity_);
+						{
+							uint   sh_lot_row_pos = 0;
+							if(!pPack->SearchShLot(ti.OrdLotID, &sh_lot_row_pos)) // @ordlotid
+								THROW(pPack->AddShadowItem(p_ord_item, &sh_lot_row_pos));
+							THROW(pPack->InsertRow(&ti, &row_idx_list));
+							if(p_ord_item->LotID) {
+								tmp_sti = &pPack->P_ShLots->at(sh_lot_row_pos);
+								THROW(pPack->CalcShadowQuantity(tmp_sti->LotID, &tmp_sti->Quantity_));
+							}
 						}
-						THROW(pPack->InsertRow(&ti, &row_idx_list, interactive ? PCUG_USERCHOICE : PCUG_CANCEL));
-						tmp_sti = &pPack->P_ShLots->at(sh_lot_row_pos);
+						ok = 1;
 					}
-					THROW(pPack->CalcShadowQuantity(tmp_sti->LotID, &tmp_sti->Quantity_));
-					ok = 1;
+					else if(goods_rec.Flags & GF_AUTOCOMPL) {
+						THROW(ti.Init(&pPack->Rec));
+						THROW(ti.SetupGoods(goods_id));
+						ti.LotID    = 0;
+						ti.Price    = p_ord_item->Price;
+						ti.Discount = 0.0;
+						ti.OrdLotID = p_ord_item->LotID; // @ordlotid
+						ti.Flags   |= (PPTFR_ONORDER | PPTFR_AUTOCOMPL);
+						ti.Quantity_ = qtty;
+						{
+							uint   sh_lot_row_pos = 0;
+							if(!pPack->SearchShLot(ti.OrdLotID, &sh_lot_row_pos)) { // @ordlotid
+								THROW(pPack->AddShadowItem(p_ord_item, &sh_lot_row_pos));
+							}
+							THROW(pPack->InsertRow(&ti, &row_idx_list, (flags & isibofInteractive) ? PCUG_USERCHOICE : PCUG_CANCEL));
+							tmp_sti = &pPack->P_ShLots->at(sh_lot_row_pos);
+						}
+						THROW(pPack->CalcShadowQuantity(tmp_sti->LotID, &tmp_sti->Quantity_));
+						ok = 1;
+					}
 				}
 			}
 		}
@@ -2057,7 +2063,7 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 						if(pos_to_src_lot_list.Search(sample_pack_tiidx, &rcpt_ti_pos, &pos))
 							src_lot_id = p_rcpt_bpack->ConstTI(rcpt_ti_pos).LotID;
 					}*/
-					THROW(InsertShipmentItemByOrder(&pack, &sample_pack, sample_pack_tiidx, src_lot_id, 0.0, 0/*noninteractive*/));
+					THROW(InsertShipmentItemByOrder(&pack, &sample_pack, sample_pack_tiidx, src_lot_id, 0.0, 0U));
 				}
 			}
 			if(pParam->Flags & pParam->fNonInteractive) {

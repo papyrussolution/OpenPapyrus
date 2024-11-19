@@ -13944,6 +13944,8 @@ public:
 	int    GetRest(GoodsRestParam & rP);
 	int    GetCurRest(GoodsRestParam & rP);
 	int    EvaluateAverageRestByLot(PPID lotID, const DateRange & rPeriod, double * pAvgQtty); // @v12.1.11 @construction
+	int    FixUpPeriodForAverageRestEvaluating(const PPIDArray & rLocList, const PPIDArray & rGoodsList, DateRange & rPeriod); // @v12.1.12
+	int    EvaluateAverageRestByGoods(const PPIDArray & rLocList, const PPIDArray & rGoodsList, DateRange & rPeriod, RAssocArray & rList); // @v12.1.12
 	int    GetLcrList(LDATE dt, UintHashTable * pLotList, RAssocArray * pRestList);
 	int    CalcAssetDeprec(PPID lotID, const DateRange *, double * pDeprec);
 	//
@@ -34305,10 +34307,18 @@ public:
 	//
 	int    ConvertILTI(ILTI *, PPBillPacket *, LongArray * pRows, uint, const char * pSerial, const GoodsReplacementArray * pGri = 0);
 	//
+	// Descr: Флаги функции InsertShipmentItemByOrder()
+	//
+	enum {
+		isibofInteractive         = 0x0001, // интерактивный режим 
+		isibofErrOnCompletedOrder = 0x0002  // если заказ по позиции orderItemIdx уже выполен, то функция возвращает 0 и устанавливает код ошибки PPERR_ORDISCOMPLETED
+	};
+	//
 	// ARG(maxQtty IN): Максимальное количество, которое необходимо вставить в документ pPack по заказу pOrderPack.
 	//   Если maxQtty <= 0.0, то это трактуется как "вставляй столько, сколько заказано".
+	// ARG(flags IN): @flags PPObjBill::isibofXXX (see above)
 	//
-	int    InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacket * pOrderPack, int orderItemIdx, PPID srcLotID, double maxQtty, int interactive);
+	int    InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacket * pOrderPack, int orderItemIdx, PPID srcLotID, double maxQtty, uint flags);
 	int    AdjustIntrPrice(const PPBillPacket * pPack, PPID goodsID, double * pAdjPrice);
 	int    CmpSnrWithLotSnr(PPID lotID, const char * pSerial, bool serialIsRefB);
 	int    ConvertBasket(const PPBasketPacket & rBasket, PPBillPacket * pPack);
@@ -34856,7 +34866,7 @@ private:
 
 class PPObjAccTurn : public PPObject {
 public:
-	PPObjAccTurn(void * extraPtr = 0);
+	explicit PPObjAccTurn(void * extraPtr = 0);
 	~PPObjAccTurn();
 	int    CreateBlankAccTurn(PPID opID, PPBillPacket *, long * pFlags, int use_ta);
 	int    CreateBlankAccTurnBySample(PPBillPacket * pPack, const PPBillPacket * pSamplePack, long * pFlags);
@@ -44571,7 +44581,8 @@ struct GoodsOpAnalyzeFilt : public PPBaseFilt {
 		ffldDiff       = 0x00000004L
 	};
 
-	char   ReserveStart[8];    // @anchor
+	char   ReserveStart[4];    // @anchor // @v12.1.12 [8]-->[4]
+	PPID   MarketplaceGuaID;   // @v12.1.12 Ид глобальной учетной записи для взаимодействия с маркетплейсом. Используется если OpGrpID==ogMarketplaceSalesAnalyze
 	PPID   FreightAgentID;     // ->Person.ID Транспортный брокер
 	SubstGrpBill Sgb;          // Подстановка документа.
 		// Если !!Sgb то отчет строится не в разрезе товаров (или их подстановок), а в разрезе подстановочного

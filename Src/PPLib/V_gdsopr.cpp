@@ -466,15 +466,130 @@ public:
 		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_BILLFLT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0)); // @v12.1.5 LocationCtrlGroup::fEnableSelUpLevel
 		SetupCalPeriod(CTLCAL_BILLFLT_PERIOD, CTL_BILLFLT_PERIOD);
 	}
-	int    setDTS(const GoodsOpAnalyzeFilt *);
-	int    getDTS(GoodsOpAnalyzeFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		int    ok = 1;
+		PPID   acc_sheet_id = 0;
+		PPID   parent_grp_id = 0;
+		PPObjOprKind opk_obj;
+		PPObjGoods goods_obj;
+		SetPeriodInput(this, CTL_BILLFLT_PERIOD, &Data.Period);
+		SetupOpCombo();
+		GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, 0);
+		SetupAccSheet(Data.AccSheetID ? Data.AccSheetID : acc_sheet_id);
+		goods_obj.GetParentID(Data.GoodsGrpID, &parent_grp_id);
+		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel, reinterpret_cast<void *>(parent_grp_id));
+		setGroupData(ctlgroupGoodsFilt, &gf_rec);
+		LocationCtrlGroup::Rec loc_rec(&Data.LocList);
+		setGroupData(ctlgroupLoc, &loc_rec);
+		SetupPPObjCombo(this, CTLSEL_BILLFLT_MPGUA, PPOBJ_GLOBALUSERACC, Data.MarketplaceGuaID, 0, /*reinterpret_cast<void *>(PPGLS_WILDBERRIES)*/0); // @v12.1.12
+		setWL(BIN(Data.Flags & GoodsOpAnalyzeFilt::fLabelOnly));
+		//
+		// В диалоге флаги расчета сумм НДС в цп и цр устанавливаются (снимаются) одновременно
+		//
+		SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fCalcCVat, BIN(Data.Flags & (GoodsOpAnalyzeFilt::fCalcCVat|GoodsOpAnalyzeFilt::fCalcPVat)));
+		SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fCalcPVat, BIN(Data.Flags & (GoodsOpAnalyzeFilt::fCalcCVat|GoodsOpAnalyzeFilt::fCalcPVat)));
+		//
+		AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  0, GoodsOpAnalyzeFilt::fDiffByPrice);
+		AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  1, GoodsOpAnalyzeFilt::fDiffByNetPrice);
+		AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  2, GoodsOpAnalyzeFilt::fPriceWithoutExcise);
+		AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  3, GoodsOpAnalyzeFilt::fCalcRest);
+		AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  4, GoodsOpAnalyzeFilt::fCalcOrder);
+		AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  5, GoodsOpAnalyzeFilt::fShowSStatSales);
+		AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  6, GoodsOpAnalyzeFilt::fUnprofitableGoods);
+		AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  7, GoodsOpAnalyzeFilt::fBadSellingGoods);
+		AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  8, GoodsOpAnalyzeFilt::fTradePlanGoodsOnly);
+		AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  9, GoodsOpAnalyzeFilt::fAddNzRestItems);
+		AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE, 10, GoodsOpAnalyzeFilt::fCalcCVat);
+		SetClusterData(CTL_BILLFLT_DIFFBYPRICE, Data.Flags);
+		SetupFlags();
+		// @v12.1.7 setCtrlData(CTL_BILLFLT_OPRSET, &(v = (ushort)Data.OpGrpID));
+		// @v12.1.7 {
+		AddClusterAssocDef(CTL_BILLFLT_OPRSET, 0, GoodsOpAnalyzeFilt::ogSelected);
+		AddClusterAssoc(CTL_BILLFLT_OPRSET, 1, GoodsOpAnalyzeFilt::ogIncoming);
+		AddClusterAssoc(CTL_BILLFLT_OPRSET, 2, GoodsOpAnalyzeFilt::ogProfitable);
+		AddClusterAssoc(CTL_BILLFLT_OPRSET, 3, GoodsOpAnalyzeFilt::ogPayed);
+		AddClusterAssoc(CTL_BILLFLT_OPRSET, 4, GoodsOpAnalyzeFilt::ogInOutAnalyze);
+		AddClusterAssoc(CTL_BILLFLT_OPRSET, 5, GoodsOpAnalyzeFilt::ogMarketplaceSalesAnalyze);
+		SetClusterData(CTL_BILLFLT_OPRSET, Data.OpGrpID);
+		// } @v12.1.7
+		disableCtrls(!oneof2(Data.OpGrpID, GoodsOpAnalyzeFilt::ogSelected, GoodsOpAnalyzeFilt::ogInOutAnalyze), /*CTL_BILLFLT_PERIOD,*/ CTL_BILLFLT_OPRKIND, CTL_BILLFLT_AMOUNT, 0);
+		AddClusterAssoc(CTL_BILLFLT_INTRREVAL, 0, GoodsOpAnalyzeFilt::fIntrReval);
+		SetClusterData(CTL_BILLFLT_INTRREVAL, Data.Flags);
+		AddClusterAssoc(CTL_BILLFLT_FLAGS, 0, GoodsOpAnalyzeFilt::fDisplayWoPacks);
+		AddClusterAssoc(CTL_BILLFLT_FLAGS, 1, GoodsOpAnalyzeFilt::fCompareWithReceipt);
+		SetClusterData(CTL_BILLFLT_FLAGS, Data.Flags);
+		AddClusterAssoc(CTL_BILLFLT_EACHLOC, 0, GoodsOpAnalyzeFilt::fEachLocation);
+		AddClusterAssoc(CTL_BILLFLT_EACHLOC, 1, GoodsOpAnalyzeFilt::fCrosstab);
+		SetClusterData(CTL_BILLFLT_EACHLOC, Data.Flags);
+		AddClusterAssoc(CTL_BILLFLT_USEABCANLZ, 0, GoodsOpAnalyzeFilt::fUseABCAnlz);
+		AddClusterAssoc(CTL_BILLFLT_USEABCANLZ, 1, GoodsOpAnalyzeFilt::fABCAnlzByGGrps);
+		SetupCtrls(Data.Flags);
+		disableCtrls(Data.BillList.IsExists(), CTL_BILLFLT_OPRSET,
+			CTLSEL_BILLFLT_OBJECT, CTLSEL_BILLFLT_OPRKIND, CTL_BILLFLT_PERIOD, CTLCAL_BILLFLT_PERIOD, 0);
+		if(Data.BillList.IsExists()) {
+			disableCtrl(CTLSEL_BILLFLT_LOC, 1);
+			enableCommand(cmLocList, 0);
+		}
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		ushort v;
+		GoodsFiltCtrlGroup::Rec gf_rec;
+		LocationCtrlGroup::Rec  loc_rec;
+		THROW(GetPeriodInput(this, CTL_BILLFLT_PERIOD, &Data.Period));
+		getCtrlData(CTLSEL_BILLFLT_OPRKIND, &Data.OpID);
+		Data.ObjectID = (Data.OpID || Data.AccSheetID) ? getCtrlLong(CTLSEL_BILLFLT_OBJECT) : 0;
+		//getCtrlData(CTLSEL_BILLFLT_SUPPL, &Data.SupplID);
+		getCtrlData(CTLSEL_BILLFLT_GGRP,  &Data.GoodsGrpID);
+		SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fLabelOnly, getWL());
+		GetClusterData(CTL_BILLFLT_DIFFBYPRICE, &Data.Flags);
+		//
+		// В диалоге флаги расчета сумм НДС в цп и цр устанавливаются (снимаются) одновременно
+		//
+		SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fCalcCVat, BIN(Data.Flags & (GoodsOpAnalyzeFilt::fCalcCVat|GoodsOpAnalyzeFilt::fCalcPVat)));
+		SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fCalcPVat, BIN(Data.Flags & (GoodsOpAnalyzeFilt::fCalcCVat|GoodsOpAnalyzeFilt::fCalcPVat)));
+		GetClusterData(CTL_BILLFLT_INTRREVAL, &Data.Flags);
+		// @v12.1.7 getCtrlData(CTL_BILLFLT_OPRSET, &(v = 0));
+		// @v12.1.7 Data.OpGrpID = v;
+		GetClusterData(CTL_BILLFLT_OPRSET, &Data.OpGrpID); // @v12.1.7
+		GetClusterData(CTL_BILLFLT_USEABCANLZ, &Data.Flags);
+		Data.ABCAnlzGroup = BIN(Data.Flags & GoodsOpAnalyzeFilt::fUseABCAnlz);
+		if(Data.Flags & GoodsOpAnalyzeFilt::fUseABCAnlz)
+			Data.ABCAnlz.CheckFracts(0);
+		else
+			MEMSZERO(Data.ABCAnlz);
+		v = getCtrlUInt16(CTL_BILLFLT_PRICEDEV);
+		SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fPriceDeviation, v & 0x01);
+		GetClusterData(CTL_BILLFLT_FLAGS, &Data.Flags);
+		GetClusterData(CTL_BILLFLT_EACHLOC,   &Data.Flags);
+		THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
+		Data.GoodsGrpID = gf_rec.GoodsGrpID;
+		THROW(getGroupData(ctlgroupLoc, &loc_rec));
+		Data.LocList = loc_rec.LocList;
+		getCtrlData(CTLSEL_BILLFLT_MPGUA, &Data.MarketplaceGuaID);
+		if(!(Data.Flags & GoodsOpAnalyzeFilt::fCrosstab) && Data.CmpPeriod.IsZero())
+			Data.CompareItems.freeAll();
+		if(!AdjustPeriodToRights(Data.Period, 1)) {
+			selectCtrl(CTL_BILLFLT_PERIOD);
+			CALLEXCEPT();
+		}
+		else {
+			ASSIGN_PTR(pData, Data);
+		}
+		CATCHZOKPPERR
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
-	void   replyOprGrpChanged();
-	void   setupOpCombo();
-	void   setupAccSheet(PPID accSheetID);
-	int    editCompareItems();
-	int    editABCAnlzFilt(ABCAnlzFilt * pFilt);
+	void   ReplyOprGrpChanged();
+	void   SetupOpCombo();
+	void   SetupAccSheet(PPID accSheetID);
+	int    EditCompareItems();
+	int    EditABCAnlzFilt(ABCAnlzFilt * pFilt);
 	void   SetupCtrls(long prevFlags);
 	void   SetupFlags();
 };
@@ -484,8 +599,9 @@ void GoodsOpAnlzFiltDialog::SetupCtrls(long prevFlags)
 	const  PPID op_type = GetOpType(Data.OpID);
 	const  bool enbl = (Data.OpGrpID != GoodsOpAnalyzeFilt::ogInOutAnalyze && !(Data.Flags & GoodsOpAnalyzeFilt::fIntrReval) && op_type != PPOPT_GOODSREVAL);
 	const  bool cmp_f = LOGIC(Data.Flags & GoodsOpAnalyzeFilt::fCompareWithReceipt);
-	uint   disable_abc = 0;
+	bool   disable_abc = false;
 	ushort v = 0;
+	showCtrl(CTLSEL_BILLFLT_MPGUA, Data.OpGrpID == GoodsOpAnalyzeFilt::ogMarketplaceSalesAnalyze); // @v12.1.12
 	DisableClusterItem(CTL_BILLFLT_EACHLOC, 1, BIN(!(Data.Flags & GoodsOpAnalyzeFilt::fEachLocation)));
 	if(!(Data.Flags & GoodsOpAnalyzeFilt::fEachLocation)) {
 		Data.Flags &= ~GoodsOpAnalyzeFilt::fCrosstab;
@@ -495,7 +611,7 @@ void GoodsOpAnlzFiltDialog::SetupCtrls(long prevFlags)
 	SETFLAG(v, 0x01, (Data.Flags & GoodsOpAnalyzeFilt::fPriceDeviation) && enbl && (!cmp_f));
 	SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fPriceDeviation, v & 0x01);
 	Data.QuotKindID = (enbl && (!(Data.Flags & GoodsOpAnalyzeFilt::fPriceDeviation))) ? Data.QuotKindID : 0;
-	disable_abc = BIN(Data.QuotKindID > 0 || (Data.Flags & GoodsOpAnalyzeFilt::fPriceDeviation) || !enbl || cmp_f || is_crosstab);
+	disable_abc = (Data.QuotKindID > 0 || (Data.Flags & GoodsOpAnalyzeFilt::fPriceDeviation) || !enbl || cmp_f || is_crosstab);
 	disableCtrl(CTL_BILLFLT_PRICEDEV, !enbl || cmp_f);
 	setCtrlData(CTL_BILLFLT_PRICEDEV, &v);
 	v = 0;
@@ -547,7 +663,7 @@ void GoodsOpAnlzFiltDialog::SetupFlags()
 	SetClusterData(CTL_BILLFLT_FLAGS, flags);
 }
 
-void GoodsOpAnlzFiltDialog::setupOpCombo()
+void GoodsOpAnlzFiltDialog::SetupOpCombo()
 {
 	PPIDArray op_list;
 	if(Data.OpGrpID == GoodsOpAnalyzeFilt::ogInOutAnalyze) {
@@ -559,123 +675,6 @@ void GoodsOpAnlzFiltDialog::setupOpCombo()
 			PPOPT_GENERIC, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, 0L);
 	}
 	SetupOprKindCombo(this, CTLSEL_BILLFLT_OPRKIND, Data.OpID, 0, &op_list, 0);
-}
-
-int GoodsOpAnlzFiltDialog::setDTS(const GoodsOpAnalyzeFilt * pFilt)
-{
-	RVALUEPTR(Data, pFilt);
-	int    ok = 1;
-	//ushort v;
-	PPID   acc_sheet_id = 0;
-	PPID   parent_grp_id = 0;
-	PPObjOprKind opk_obj;
-	PPObjGoods goods_obj;
-	SetPeriodInput(this, CTL_BILLFLT_PERIOD, &Data.Period);
-	setupOpCombo();
-	GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, 0);
-	setupAccSheet(Data.AccSheetID ? Data.AccSheetID : acc_sheet_id);
-	goods_obj.GetParentID(Data.GoodsGrpID, &parent_grp_id);
-	GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel, reinterpret_cast<void *>(parent_grp_id));
-	setGroupData(ctlgroupGoodsFilt, &gf_rec);
-	LocationCtrlGroup::Rec loc_rec(&Data.LocList);
-	setGroupData(ctlgroupLoc, &loc_rec);
-	setWL(BIN(Data.Flags & GoodsOpAnalyzeFilt::fLabelOnly));
-	//
-	// В диалоге флаги расчета сумм НДС в цп и цр устанавливаются (снимаются) одновременно
-	//
-	SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fCalcCVat, BIN(Data.Flags & (GoodsOpAnalyzeFilt::fCalcCVat|GoodsOpAnalyzeFilt::fCalcPVat)));
-	SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fCalcPVat, BIN(Data.Flags & (GoodsOpAnalyzeFilt::fCalcCVat|GoodsOpAnalyzeFilt::fCalcPVat)));
-	//
-	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  0, GoodsOpAnalyzeFilt::fDiffByPrice);
-	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  1, GoodsOpAnalyzeFilt::fDiffByNetPrice);
-	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  2, GoodsOpAnalyzeFilt::fPriceWithoutExcise);
-	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  3, GoodsOpAnalyzeFilt::fCalcRest);
-	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  4, GoodsOpAnalyzeFilt::fCalcOrder);
-	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  5, GoodsOpAnalyzeFilt::fShowSStatSales);
-	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  6, GoodsOpAnalyzeFilt::fUnprofitableGoods);
-	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  7, GoodsOpAnalyzeFilt::fBadSellingGoods);
-	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  8, GoodsOpAnalyzeFilt::fTradePlanGoodsOnly);
-	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE,  9, GoodsOpAnalyzeFilt::fAddNzRestItems);
-	AddClusterAssoc(CTL_BILLFLT_DIFFBYPRICE, 10, GoodsOpAnalyzeFilt::fCalcCVat);
-	SetClusterData(CTL_BILLFLT_DIFFBYPRICE, Data.Flags);
-	SetupFlags();
-	// @v12.1.7 setCtrlData(CTL_BILLFLT_OPRSET, &(v = (ushort)Data.OpGrpID));
-	// @v12.1.7 {
-	AddClusterAssocDef(CTL_BILLFLT_OPRSET, 0, GoodsOpAnalyzeFilt::ogSelected);
-	AddClusterAssoc(CTL_BILLFLT_OPRSET, 1, GoodsOpAnalyzeFilt::ogIncoming);
-	AddClusterAssoc(CTL_BILLFLT_OPRSET, 2, GoodsOpAnalyzeFilt::ogProfitable);
-	AddClusterAssoc(CTL_BILLFLT_OPRSET, 3, GoodsOpAnalyzeFilt::ogPayed);
-	AddClusterAssoc(CTL_BILLFLT_OPRSET, 4, GoodsOpAnalyzeFilt::ogInOutAnalyze);
-	AddClusterAssoc(CTL_BILLFLT_OPRSET, 5, GoodsOpAnalyzeFilt::ogMarketplaceSalesAnalyze);
-	SetClusterData(CTL_BILLFLT_OPRSET, Data.OpGrpID);
-	// } @v12.1.7
-	disableCtrls(!oneof2(Data.OpGrpID, GoodsOpAnalyzeFilt::ogSelected, GoodsOpAnalyzeFilt::ogInOutAnalyze), /*CTL_BILLFLT_PERIOD,*/ CTL_BILLFLT_OPRKIND, CTL_BILLFLT_AMOUNT, 0);
-	AddClusterAssoc(CTL_BILLFLT_INTRREVAL, 0, GoodsOpAnalyzeFilt::fIntrReval);
-	SetClusterData(CTL_BILLFLT_INTRREVAL, Data.Flags);
-    AddClusterAssoc(CTL_BILLFLT_FLAGS, 0, GoodsOpAnalyzeFilt::fDisplayWoPacks);
-    AddClusterAssoc(CTL_BILLFLT_FLAGS, 1, GoodsOpAnalyzeFilt::fCompareWithReceipt);
-	SetClusterData(CTL_BILLFLT_FLAGS, Data.Flags);
-	AddClusterAssoc(CTL_BILLFLT_EACHLOC, 0, GoodsOpAnalyzeFilt::fEachLocation);
-	AddClusterAssoc(CTL_BILLFLT_EACHLOC, 1, GoodsOpAnalyzeFilt::fCrosstab);
-	SetClusterData(CTL_BILLFLT_EACHLOC, Data.Flags);
-	AddClusterAssoc(CTL_BILLFLT_USEABCANLZ, 0, GoodsOpAnalyzeFilt::fUseABCAnlz);
-	AddClusterAssoc(CTL_BILLFLT_USEABCANLZ, 1, GoodsOpAnalyzeFilt::fABCAnlzByGGrps);
-	SetupCtrls(Data.Flags);
-	disableCtrls(Data.BillList.IsExists(), CTL_BILLFLT_OPRSET,
-		CTLSEL_BILLFLT_OBJECT, CTLSEL_BILLFLT_OPRKIND, CTL_BILLFLT_PERIOD, CTLCAL_BILLFLT_PERIOD, 0);
-	if(Data.BillList.IsExists()) {
-		disableCtrl(CTLSEL_BILLFLT_LOC, 1);
-		enableCommand(cmLocList, 0);
-	}
-	return ok;
-}
-
-int GoodsOpAnlzFiltDialog::getDTS(GoodsOpAnalyzeFilt * pFilt)
-{
-	int    ok = 1;
-	ushort v;
-	GoodsFiltCtrlGroup::Rec gf_rec;
-	LocationCtrlGroup::Rec  loc_rec;
-	THROW(GetPeriodInput(this, CTL_BILLFLT_PERIOD, &Data.Period));
-	getCtrlData(CTLSEL_BILLFLT_OPRKIND, &Data.OpID);
-	Data.ObjectID = (Data.OpID || Data.AccSheetID) ? getCtrlLong(CTLSEL_BILLFLT_OBJECT) : 0;
-	//getCtrlData(CTLSEL_BILLFLT_SUPPL, &Data.SupplID);
-	getCtrlData(CTLSEL_BILLFLT_GGRP,  &Data.GoodsGrpID);
-	SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fLabelOnly, getWL());
-	GetClusterData(CTL_BILLFLT_DIFFBYPRICE, &Data.Flags);
-	//
-	// В диалоге флаги расчета сумм НДС в цп и цр устанавливаются (снимаются) одновременно
-	//
-	SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fCalcCVat, BIN(Data.Flags & (GoodsOpAnalyzeFilt::fCalcCVat|GoodsOpAnalyzeFilt::fCalcPVat)));
-	SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fCalcPVat, BIN(Data.Flags & (GoodsOpAnalyzeFilt::fCalcCVat|GoodsOpAnalyzeFilt::fCalcPVat)));
-	GetClusterData(CTL_BILLFLT_INTRREVAL, &Data.Flags);
-	// @v12.1.7 getCtrlData(CTL_BILLFLT_OPRSET, &(v = 0));
-	// @v12.1.7 Data.OpGrpID = v;
-	GetClusterData(CTL_BILLFLT_OPRSET, &Data.OpGrpID); // @v12.1.7
-	GetClusterData(CTL_BILLFLT_USEABCANLZ, &Data.Flags);
-	Data.ABCAnlzGroup = BIN(Data.Flags & GoodsOpAnalyzeFilt::fUseABCAnlz);
-	if(Data.Flags & GoodsOpAnalyzeFilt::fUseABCAnlz)
-		Data.ABCAnlz.CheckFracts(0);
-	else
-		MEMSZERO(Data.ABCAnlz);
-	v = getCtrlUInt16(CTL_BILLFLT_PRICEDEV);
-	SETFLAG(Data.Flags, GoodsOpAnalyzeFilt::fPriceDeviation, v & 0x01);
-	GetClusterData(CTL_BILLFLT_FLAGS, &Data.Flags);
-	GetClusterData(CTL_BILLFLT_EACHLOC,   &Data.Flags);
-	THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
-	Data.GoodsGrpID = gf_rec.GoodsGrpID;
-	THROW(getGroupData(ctlgroupLoc, &loc_rec));
-	Data.LocList = loc_rec.LocList;
-	if(!(Data.Flags & GoodsOpAnalyzeFilt::fCrosstab) && Data.CmpPeriod.IsZero())
-		Data.CompareItems.freeAll();
-	if(!AdjustPeriodToRights(Data.Period, 1)) {
-		selectCtrl(CTL_BILLFLT_PERIOD);
-		CALLEXCEPT();
-	}
-	else
-		*pFilt = Data;
-	CATCHZOKPPERR
-	return ok;
 }
 
 class GoodsOpAnlzCmpFiltDialog : public PPListDialog {
@@ -824,7 +823,7 @@ void GoodsOpAnlzCmpFiltDialog::SetupFlags()
 	PrevID = item.ObjID;
 }
 
-int GoodsOpAnlzFiltDialog::editCompareItems()
+int GoodsOpAnlzFiltDialog::EditCompareItems()
 {
 	GetClusterData(CTL_BILLFLT_EACHLOC, &Data.Flags);
 	GetPeriodInput(this, CTL_BILLFLT_PERIOD, &Data.Period);
@@ -978,7 +977,7 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzFiltDialog)
 		if(getCtrlView(CTLSEL_BILLFLT_OBJECT)) {
 			PPID   acc_sheet_id = 0;
 			GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, 0);
-			setupAccSheet(acc_sheet_id);
+			SetupAccSheet(acc_sheet_id);
 			if(IsIntrExpndOp(Data.OpID))
 				disableCtrl(CTL_BILLFLT_INTRREVAL, 0);
 			else {
@@ -991,7 +990,7 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzFiltDialog)
 	else if(event.isCmd(cmClusterClk)) {
 		const uint ctl_id = event.getCtlID();
 		if(ctl_id == CTL_BILLFLT_OPRSET)
-			replyOprGrpChanged();
+			ReplyOprGrpChanged();
 		else if(ctl_id == CTL_BILLFLT_DIFFBYPRICE) {
 			GetClusterData(CTL_BILLFLT_DIFFBYPRICE, &Data.Flags);
 			SetupFlags();
@@ -1040,22 +1039,19 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzFiltDialog)
 		}
 	}
 	else if(event.isCmd(cmCompare))
-		editCompareItems();
+		EditCompareItems();
 	else if(event.isCmd(cmABCAnlzOptions))
-		editABCAnlzFilt(&Data.ABCAnlz);
+		EditABCAnlzFilt(&Data.ABCAnlz);
 	else
 		return;
 	clearEvent(event);
 }
 
-void GoodsOpAnlzFiltDialog::replyOprGrpChanged()
+void GoodsOpAnlzFiltDialog::ReplyOprGrpChanged()
 {
-	ushort v = 0;
-	// @v12.1.7 if(getCtrlData(CTL_BILLFLT_OPRSET, &v)) {
-	if(GetClusterData(CTL_BILLFLT_OPRSET, &Data.OpGrpID)) { // @v12.1.7
-		// @v12.1.7 Data.OpGrpID = v;
+	if(GetClusterData(CTL_BILLFLT_OPRSET, &Data.OpGrpID)) {
 		SetupCtrls(Data.Flags);
-		setupOpCombo();
+		SetupOpCombo();
 		if(!oneof2(Data.OpGrpID, GoodsOpAnalyzeFilt::ogSelected, GoodsOpAnalyzeFilt::ogInOutAnalyze)) {
 			disableCtrl(CTLSEL_BILLFLT_OPRKIND, 1);
 			Data.OpID = 0;
@@ -1066,7 +1062,7 @@ void GoodsOpAnlzFiltDialog::replyOprGrpChanged()
 					if(op_rec.Flags & OPKF_PROFITABLE && op_rec.AccSheetID)
 						last = (last && op_rec.AccSheetID != last) ? -1 : op_rec.AccSheetID;
 				}
-				setupAccSheet((last == -1) ? 0 : last);
+				SetupAccSheet((last == -1) ? 0 : last);
 			}
 		}
 		else
@@ -1074,7 +1070,7 @@ void GoodsOpAnlzFiltDialog::replyOprGrpChanged()
 	}
 }
 
-void GoodsOpAnlzFiltDialog::setupAccSheet(PPID accSheetID)
+void GoodsOpAnlzFiltDialog::SetupAccSheet(PPID accSheetID)
 {
 	if(getCtrlView(CTLSEL_BILLFLT_OBJECT)) {
 		Data.AccSheetID = accSheetID;
@@ -1084,7 +1080,7 @@ void GoodsOpAnlzFiltDialog::setupAccSheet(PPID accSheetID)
 	}
 }
 
-int GoodsOpAnlzFiltDialog::editABCAnlzFilt(ABCAnlzFilt * pFilt)
+int GoodsOpAnlzFiltDialog::EditABCAnlzFilt(ABCAnlzFilt * pFilt)
 {
 	class ABCAnlzFiltDialog : public TDialog {
 		DECL_DIALOG_DATA(ABCAnlzFilt);
@@ -2145,6 +2141,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 	assert(pUfpFactors != 0);
 
 	int    ok = 1;
+	bool   debug_mark = false;
 	PPIDArray op_list;
 	PPIDArray neg_op_list;
 	PPOprKind op_rec;
@@ -2154,11 +2151,10 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 	double payment = 0.0;
 	PPBillPacket pack;
 	PPObjOprKind op_obj;
-	PPObjLocation loc_obj; // Support for PPObjPerson::GetCity if Filt.ObjCityID
 	PPIDArray ext_bill_list;
 	PPIDArray suppl_bill_list;
 	PPIDArray * p_suppl_bill_list = 0;
-	int    use_ext_list = 0;
+	bool   use_ext_list = false;
 	ZDELETE(P_CmpView);
 	ZDELETE(P_TempTbl);
 	if(!Filt.CmpPeriod.IsZero() || (Filt.OpGrpID == GoodsOpAnalyzeFilt::ogMarketplaceSalesAnalyze)) {
@@ -2192,7 +2188,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 		// @todo Опционально использовать индивидуальную фильтрацию по расширению документа
 		THROW(P_BObj->P_Tbl->GetBillListByExt(Filt.AgentID, 0L, ext_bill_list));
 		// Сортировку выполняет GetBillListByExt
-		use_ext_list = 1;
+		use_ext_list = true;
 	}
 	if(Filt.SupplAgentID) {
 		// @todo Опционально использовать индивидуальную фильтрацию по расширению документа
@@ -2214,7 +2210,25 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			PPIDArray seen_ord_lot_list; // Идентификаторы лотов заказов, которые мы уже учли в отчете
 			PPIDArray temp_list;
 			PPIDArray goods_list;
+			PPIDArray wh_list;
+			PPID   mp_acc_id = 0;
+			PPID   mp_acs_id = 0;
+			PrcssrMarketplaceInterchange * p_mp_prc = 0;
 			MpDBlk.Z();
+			if(Filt.MarketplaceGuaID) {
+				MarketplaceInterchangeFilt mp_filt;
+				mp_filt.GuaID = Filt.MarketplaceGuaID;
+				p_mp_prc = new PrcssrMarketplaceInterchange();
+				if(p_mp_prc->Init(&mp_filt)) {
+					mp_acc_id = p_mp_prc->Helper_GetMarketplaceOpsAccount(false, 0);
+					if(mp_acc_id) {
+						mp_acs_id = p_mp_prc->Helper_GetMarketplaceOpsAccSheetID(false, false, 0);
+					}
+				}
+				else {
+					ZDELETE(p_mp_prc);
+				}
+			}
 			{
 				// Продажи
 				BExtQuery q(p_bt, 2);
@@ -2268,12 +2282,12 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 				PPBillPacket bpack;
 				if(P_BObj->ExtractPacket(bill_id, &bpack) > 0) {
 					bpack.GetOrderList(local_ord_list);
+					wh_list.add(bpack.Rec.LocID);
 					{
 						long   subst_bill_val = 0;
 						GoaAddingBlock blk;
 						double part = 1.0;
 						int    sign = 0;
-						goods_list.Z();
 						InitAddingBlock(&bpack, part, sign, &blk);
 						if(!!Filt.Sgb)
 							P_BObj->Subst(&bpack, &subst_bill_val, &Bsp);
@@ -2281,6 +2295,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 							const  PPTransferItem & r_ti = bpack.ConstTI(tiidx);
 							int    r;
 							THROW(PPCheckUserBreak());
+							goods_list.add(labs(r_ti.GoodsID));
 							THROW(r = PreprocessTi(&r_ti, p_suppl_bill_list, subst_bill_val, &blk));
 							if(r > 0) {
 								const double ti_qtty = fabs(r_ti.Quantity_);
@@ -2337,6 +2352,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 												if(P_BObj->trfr->Rcpt.Search(r_ti.OrdLotID, &lot_rec) > 0) {
 													PPBillPacket ord_bpack;
 													if(P_BObj->ExtractPacket(lot_rec.BillID, &ord_bpack) > 0) {
+														wh_list.add(ord_bpack.Rec.LocID);
 														p_iv->Add(PPBZSI_ORDCOUNT, 1.0);
 														p_iv->Add(PPBZSI_ORDQTTY, fabs(lot_rec.Quantity));
 														//
@@ -2372,13 +2388,14 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 					GoaAddingBlock blk;
 					double part = 1.0;
 					int    sign = 0;
-					goods_list.Z();
+					wh_list.add(bpack.Rec.LocID);
 					InitAddingBlock(&bpack, part, sign, &blk);
 					if(!!Filt.Sgb)
 						P_BObj->Subst(&bpack, &subst_bill_val, &Bsp);
 					for(uint tiidx = 0; tiidx < bpack.GetTCount(); tiidx++) {
 						const  PPTransferItem & r_ti = bpack.ConstTI(tiidx);
 						int    r;
+						goods_list.add(labs(r_ti.GoodsID));
 						{
 							PPTransferItem _ret_ti(r_ti);
 							_ret_ti.Quantity_ = 0.0;
@@ -2441,7 +2458,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 					GoaAddingBlock blk;
 					double part = 1.0;
 					int    sign = 0;
-					goods_list.Z();
+					wh_list.add(bpack.Rec.LocID);
 					InitAddingBlock(&bpack, part, sign, &blk);
 					if(!!Filt.Sgb)
 						P_BObj->Subst(&bpack, &subst_bill_val, &Bsp);
@@ -2449,6 +2466,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 						const  PPTransferItem & r_ti = bpack.ConstTI(tiidx);
 						if(!seen_ord_lot_list.lsearch(r_ti.LotID)) {
 							int    r;
+							goods_list.add(labs(r_ti.GoodsID));
 							PPTransferItem _ord_ti(r_ti);
 							_ord_ti.Quantity_ = 0.0;
 							_ord_ti.Cost = 0.0;
@@ -2478,22 +2496,93 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 										p_iv->Add(PPBZSI_ORDCANCELLEDQTTY,  fabs(r_ti.Quantity_));
 										MpDBlk.CancelledOrdList.add(bpack.Rec.ID);
 									}
-									/*
-									if(local_ord_list.getCount()) {
-										if(r_ti.Flags & PPTFR_ONORDER && r_ti.OrdLotID && !seen_ord_lot_list.lsearch(r_ti.OrdLotID)) {
-											uint sh_lot_pos = 0;
-											if(bpack.SearchShLot(r_ti.OrdLotID, &sh_lot_pos)) {
-												ReceiptTbl::Rec lot_rec;
-												if(P_BObj->trfr->Rcpt.Search(r_ti.OrdLotID, &lot_rec) > 0) {
-													p_iv->Add(PPBZSI_ORDCOUNT, 1.0);
-													p_iv->Add(PPBZSI_ORDQTTY, fabs(lot_rec.Quantity));
-													long ord_shipm_delay = diffdate(bpack.Rec.Dt, lot_rec.Dt);
-													p_iv->Add(PPBZSI_ORDSHIPMDELAYDAYS, static_cast<double>(ord_shipm_delay));
-													seen_ord_lot_list.add(lot_rec.ID);
+								}
+							}
+						}
+					}
+				}
+			}
+			if(goods_list.getCount()) {
+				if(mp_acc_id && mp_acs_id) {
+					goods_list.sortAndUndup();
+					assert(wh_list.getCount());
+					wh_list.sortAndUndup();
+					DateRange period(Filt.Period);
+					RAssocArray avg_rest_result;
+					double total_storage = 0.0; // Общие расходы на хранение (без разбивки, ибо wildberries не дает таковой)
+					if(P_BObj->trfr->EvaluateAverageRestByGoods(wh_list, goods_list, period, avg_rest_result) > 0) {
+						debug_mark = true;
+						{
+							PPViewAccAnlz aa_view;
+							AccAnlzFilt aa_filt;
+							AccAnlzTotal aa_total;
+							aa_filt.Period = Filt.Period;
+							aa_filt.AcctId.ac = mp_acc_id;
+							ArticleTbl::Rec ar_rec;
+							if(P_BObj->ArObj.P_Tbl->SearchNum(mp_acs_id, ARTN_MRKTPLCACC_STORAGE, &ar_rec) > 0) {
+								aa_filt.AcctId.ar = ar_rec.ID;
+								aa_filt.Aco = ACO_3;
+								if(P_BObj->atobj->P_Tbl->AcctIDToRel(&aa_filt.AcctId, &aa_filt.AccID)) {
+									aa_filt.Flags |= AccAnlzFilt::fTotalOnly;
+									aa_filt.Flags &= ~AccAnlzFilt::fTrnovrBySheet;
+									if(aa_view.Init_(&aa_filt)) {
+										aa_view.GetTotal(&aa_total);
+										double dbt = 0.0;
+										double crd = 0.0;
+										aa_total.DbtTrnovr.Get(0L, 0L, &dbt);
+										aa_total.CrdTrnovr.Get(0L, 0L, &crd);
+										total_storage = crd - dbt;
+									}
+								}
+							}
+						}
+						if(total_storage > 0.0) {
+							const double avg_rest_total = avg_rest_result.GetTotal();
+							for(uint arlidx = 0; arlidx < avg_rest_result.getCount(); arlidx++) {
+								const PPID goods_id = avg_rest_result.at(arlidx).Key;
+								const double avg_rest = avg_rest_result.at(arlidx).Val;
+								double ord_qtty = 0;
+								double shipm_qtty = 0;
+								uint   item_count = 0; // Количество элементов в IndicatorList имеющих общий ид товара
+								{
+									for(uint i = 0; i < IndicatorList.getCount(); i++) {
+										const IndicatorVector * p_iv = IndicatorList.at(i);
+										if(p_iv && p_iv->GoodsID == goods_id) {
+											item_count++;
+											double v = 0.0;
+											if(p_iv->Get(PPBZSI_ORDQTTY, &v)) 
+												ord_qtty += v;
+											if(p_iv->Get(PPBZSI_SALEQTTY, &v)) 
+												shipm_qtty += v;
+										}
+									}
+								}
+								if(item_count) {
+									for(uint i = 0; i < IndicatorList.getCount(); i++) {
+										IndicatorVector * p_iv = IndicatorList.at(i);
+										if(p_iv && p_iv->GoodsID == goods_id) {
+											const double avg_rest_part = avg_rest / avg_rest_total;
+											double storage_cost = 0.0;
+											if(item_count == 1) {
+												storage_cost = total_storage * avg_rest_part;
+											}
+											else {
+												double v = 0.0;
+												if(shipm_qtty > 0.0) {
+													p_iv->Get(PPBZSI_SALEQTTY, &v);
+													storage_cost = (v / shipm_qtty) * total_storage * avg_rest_part;
+												}
+												else if(ord_qtty > 0.0) {
+													p_iv->Get(PPBZSI_ORDQTTY, &v);
+													storage_cost = (v / ord_qtty) * total_storage * avg_rest_part;
+												}
+												else {
+													storage_cost = (1.0 / static_cast<double>(item_count)) * total_storage * avg_rest_part;
 												}
 											}
+											p_iv->Add(PPBZSI_MPSTORAGE, storage_cost);
 										}
-									}*/
+									}
 								}
 							}
 						}
@@ -4232,7 +4321,6 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 			if(MpDBlk.RetList.getCount()) { // @v12.1.11
 				pBrw->InsColumn(-1, "@qtty", 122, T_DOUBLE, MKSFMTD(0, 3, NMBF_NOTRAILZ), BCO_USERPROC);
 				pBrw->InsColumn(-1, "@sumcost", 123, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
-				
 				{
 					BroGroup grp;
 					grp.First = column_idx;
@@ -4243,7 +4331,7 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 					column_idx += grp.Count;
 				}
 			}
-			pBrw->insertColumn(-1, "Seller's earnings",      107, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+			pBrw->insertColumn(-1, "@sellersincome",     107, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 			column_idx += 1;
 			{
 				pBrw->insertColumn(-1, "@commission_s",  108, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
@@ -4260,7 +4348,7 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 				}
 			}
 			pBrw->insertColumn(-1, "@profit", 1116, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
-			pBrw->insertColumn(-1, "Shipm days",        1111, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+			pBrw->insertColumn(-1, "@bzsi_ordshipmdelaydaysavg", 1111, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 			CALLPTRMEMB(pBrw, SetDefUserProc(PPViewGoodsOpAnalyze::GetDataForBrowser, this));
 		}
 		else if(brw_id == BROWSER_GOODSOPER && Filt.Flags & GoodsOpAnalyzeFilt::fCalcRest) {
@@ -4839,8 +4927,7 @@ int PPViewGoodsOpAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 				if(hdr.GoodsID) {
 					if(oneof2(Filt.Sgg, sggSuppl, sggSupplAgent)) {
 						PPID   _id_to_edit = (hdr.GoodsID & ~GOODSSUBSTMASK);
-						PPObjArticle ar_obj;
-						if(ar_obj.Edit(&_id_to_edit, 0) == cmOK)
+						if(P_BObj->ArObj.Edit(&_id_to_edit, 0) == cmOK)
 							ok = 1;
 					}
 					else if(Filt.Sgg == sggLocation) {

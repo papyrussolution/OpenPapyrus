@@ -388,7 +388,7 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 				if(p_agt_combo) {
 					PPIDArray agt_list;
 					if(pData->AgtBillID || pPack->Rec.Object) {
-						p_bobj->P_Tbl->GetListOfActualAgreemts(pPack->Rec.Object, pPack->Rec.Dt, 365*2, 20, agt_list);
+						p_bobj->P_Tbl->GetListOfActualAgreemts(pPack->Rec.Object, pPack->Rec.Dt, 365*10, 20, agt_list);
 						agt_list.addnz(pData->AgtBillID);
 					}
 					if(agt_list.getCount()) {
