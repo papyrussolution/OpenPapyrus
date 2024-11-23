@@ -6500,6 +6500,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @crosstab_sh                         "Кросстаб"
 @freight                             "Фрахт"
 @freightno                           "Номер фрахта"
+@storage                             "Хранение"
+@warehouseacceptance                 "Приемка на склад"
+@advpromotion                        "Продвижение"
 @analysis                            "Анализ"
 @config                              "Конфигурация"
 @mainconfig                          "Главная конфигурация"
@@ -8615,6 +8618,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_lot_mp_stockinwayto                 "Маркетплейс: количество, движущееся на склад"   // @v12.1.10
 @rtag_lot_mp_stockinwayfrom               "Маркетплейс: количество, движущееся со склада"  // @v12.1.10
 @rtag_lot_mp_stocktimestamp               "Маркетплейс: время актуальности остатка"        // @v12.1.10
+@rtag_person_spctaxgroup                  "Специальная налоговая группа персоналии"        // @v12.1.12
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -10125,6 +10129,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bzsi_saleretcount                        "Количество документов возврата от покупателей"
 @bzsi_saleretqtty                         "Возвращенное от покупателей количество торговых единиц"
 @bzsi_saleretcost                         "Себестоимость возвращенных от покупателей товаров"
+@bzsi_mppromotion                         "Расходы на продвижение на маркетплейсе"
 
 @dl2score                                 "Примитив бизнес-показателя"
 @dl2score_citype                          ""
@@ -18343,6 +18348,7 @@ PPHS_COMPUTERCATEGORY          "computercategory" // @v12.0.2
 PPHS_SWPROGRAM                 "swprogram" // @v12.0.5
 PPHS_RAWMATERIAL               "rawmaterial" // @v12.0.11
 PPHS_ACCOUNT                   "account" // @v12.1.3
+PPHS_GOODSTAX                  "goodstax" // @v12.1.12
 PPHS_LOGLOCKSTACK              "loglockstack"
 PPHS_PAYMENT                   "payment"
 PPHS_UNKN                      "unkn"

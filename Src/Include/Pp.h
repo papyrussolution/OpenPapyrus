@@ -20054,6 +20054,7 @@ private:
 #define PPBZSI_SALERETCOUNT           38 // @v12.1.11 "saleretcount" Количество документов возврата от покупателей //
 #define PPBZSI_SALERETQTTY            39 // @v12.1.11 "saleretqtty"  Возвращенное от покупателей количество торговых единиц 
 #define PPBZSI_SALERETCOST            40 // @v12.1.11 "saleretcost"  Себестоимость возвращенных от покупателей товаров
+#define PPBZSI_MPPROMOTION            41 // @v12.1.12 "mppromotion"  Расходы на продвижение товаров на маркетплейсах
 //
 // Флаги значений бизнес-показателей
 //

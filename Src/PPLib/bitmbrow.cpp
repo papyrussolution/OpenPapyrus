@@ -174,6 +174,7 @@ private:
 	int    ValidateExtCodeList();
 	int    Sort(const LongArray * pSortColIdxList);
 	int    PostprocessModifItemAdding(const PPTransferItem & rTi, uint pos, int sign, bool recursive);
+	int    SpecialGeneration(); // @v12.1.12
 	enum {
 		cfgshowfBarcode   = 0x0001,
 		cfgshowfSerial    = 0x0002,
@@ -3618,7 +3619,7 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 				}
 			}
 			LotXCodeListDialog_Base::handleEvent(event);
-			if(event.isCmd(cmImport)) { // @v10.9.8
+			if(event.isCmd(cmImport)) {
 				if(P_Pack) {
 					if(ImportStyloScannerEntriesForBillPacket(*P_Pack, &Data, issebpmodeLotExtCodes) > 0) {
 						updateList(-1);
@@ -3949,6 +3950,92 @@ int BillItemBrowser::SelectPrefSuppl(uint rowId)
 	return ok;
 }
 
+int BillItemBrowser::SpecialGeneration() // @v12.1.12
+{
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	enum {
+		actionNone                        = 0,
+		actionGenerateSerials             = 1,
+		actionAttachEgaisMarksToRestItems = 2
+	};
+	TDialog * dlg = 0;
+	SString temp_buf;
+	long   action = actionNone;
+	if(P_Pack && oneof2(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
+		{
+			dlg = new TDialog(DLG_SELBITMSPCGEN);
+			if(CheckDialogPtr(&dlg)) {
+				dlg->AddClusterAssocDef(CTL_SELBITMSPCGEN_WHAT, 0, actionGenerateSerials);
+				dlg->AddClusterAssoc(CTL_SELBITMSPCGEN_WHAT, 1, actionAttachEgaisMarksToRestItems);
+				dlg->SetClusterData(CTL_SELBITMSPCGEN_WHAT, action);
+				dlg->DisableClusterItem(CTL_SELBITMSPCGEN_WHAT, 1, !(P_Pack->Rec.OpID == PPOPK_EDI_STOCK));
+				if(ExecView(dlg) == cmOK) {
+					dlg->GetClusterData(CTL_SELBITMSPCGEN_WHAT, &action);
+					if(oneof2(action, actionGenerateSerials, actionAttachEgaisMarksToRestItems)) {
+						;
+					}
+				}
+			}
+		}
+		if(/*CONFIRM(PPCFM_GENSERIALFORBILL)*/action) {
+			if(!EventBarrier()) {
+				int    upd = 0;
+				if(action == actionGenerateSerials) {
+					for(uint i = 0; i < P_Pack->GetTCount(); i++) {
+						const PPTransferItem & r_ti = P_Pack->ConstTI(i);
+						if(P_Pack->LTagL.GetString(PPTAG_LOT_SN, i, temp_buf) <= 0) {
+							assert(temp_buf.IsEmpty());
+							const SString templt(GObj.IsAsset(r_ti.GoodsID) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt);
+							if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(r_ti.GoodsID), &P_Pack->LTagL/*SnL*/, templt, temp_buf) > 0) {
+								if(temp_buf.NotEmptyS()) {
+									P_Pack->LTagL.SetString(PPTAG_LOT_SN, i, temp_buf);
+									upd = 1;
+								}
+							}
+						}
+					}
+				}
+				else if(action == actionAttachEgaisMarksToRestItems) {
+					//P_BObj
+					PPIDArray ref_b_lot_list;
+					SString ref_b;
+					StringSet ss_ext_codes;
+					for(uint i = 0; i < P_Pack->GetTCount(); i++) {
+						const PPTransferItem & r_ti = P_Pack->ConstTI(i);
+						if(P_Pack->LTagL.GetString(PPTAG_LOT_FSRARINFB, i, ref_b) > 0) {
+							assert(ref_b.NotEmpty());
+							PPID   lot_id = 0;
+							ReceiptTbl::Rec lot_rec;
+							ref_b_lot_list.Z();
+							p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARINFB, ref_b, &ref_b_lot_list);
+							for(uint llidx = 0; llidx < ref_b_lot_list.getCount(); llidx++) {
+								const  PPID temp_lot_id = ref_b_lot_list.get(llidx);
+								PPID   org_lot_id = 0;
+								if(P_T->Rcpt.Search(temp_lot_id, &lot_rec) > 0) {
+									if(P_T->Rcpt.SearchOrigin(lot_rec.ID, &org_lot_id, 0, 0)) {
+										if(P_BObj->GetMarkListByLot(org_lot_id, ss_ext_codes) > 0) {
+											for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
+												if(P_Pack->XcL.Add(i+1, 0, 0, temp_buf, 0))
+													upd = 1;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				if(upd)
+					update(pos_cur);
+				EventBarrier(1);
+			}
+		}
+	}
+	delete dlg;
+	return ok;
+}
+
 IMPL_HANDLE_EVENT(BillItemBrowser)
 {
 	int    c;
@@ -4272,27 +4359,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 						}
 					}
 					else if(TVCHR == kbCtrlS) {
-						SString temp_buf, templt;
-						if(P_Pack && oneof2(P_Pack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) && CONFIRM(PPCFM_GENSERIALFORBILL)) {
-							if(!EventBarrier()) {
-								PPTransferItem * p_ti = 0;
-								int    upd = 0;
-								for(uint i = 0; P_Pack->EnumTItems(&i, &p_ti);) {
-									if(P_Pack->LTagL.GetString(PPTAG_LOT_SN, i-1, temp_buf) <= 0 || !temp_buf.NotEmptyS()) {
-										templt = GObj.IsAsset(p_ti->GoodsID) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
-										if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(p_ti->GoodsID), &P_Pack->LTagL/*SnL*/, templt, temp_buf) > 0) {
-											if(temp_buf.NotEmptyS()) {
-												P_Pack->LTagL.SetString(PPTAG_LOT_SN, i-1, temp_buf);
-												upd = 1;
-											}
-										}
-									}
-								}
-								if(upd)
-									update(pos_cur);
-								EventBarrier(1);
-							}
-						}
+						SpecialGeneration();
 					}
 					else if(TVCHR == kbCtrlU) {
 						if(!EventBarrier()) {

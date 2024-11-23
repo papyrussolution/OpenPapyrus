@@ -1191,6 +1191,7 @@ int PPViewVatBook::Init_(const PPBaseFilt * pBaseFilt)
 		BExtQuery::ZDelete(&P_IterQuery);
 		Counter.Init();
 		MEMSZERO(Total);
+		Filt.Period.Actualize(ZERODATE);
 		if(Filt.Kind == PPVTB_BUY)
 			SETFLAG(Filt.Flags, VatBookFilt::fIterateClb, VBObj.GetConfig(PPVTB_BUY).Flags & VATBCfg::hfIterateClb);
 	}

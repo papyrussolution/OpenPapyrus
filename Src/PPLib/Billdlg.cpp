@@ -707,6 +707,8 @@ static uint GetBillDialogID(const PPBillPacket * pack, uint * pPrnForm)
 			return (IsIntrOp(pack->Rec.OpID) == INTRRCPT) ? DLG_INTRRCPT : DLG_RCPTBILL;
 		case PPOPT_DRAFTEXPEND:
 		case PPOPT_GOODSEXPEND:
+			if(GetOpSubType(pack->Rec.OpID) == OPSUBT_TRADEPLAN) { // @construction @v12.1.12
+			}
 			if(IsIntrExpndOp(pack->Rec.OpID))
 				return DLG_INTREXPD;
 			else {

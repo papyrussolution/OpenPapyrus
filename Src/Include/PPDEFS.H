@@ -1462,6 +1462,8 @@
 #define PPTAG_LOT_MP_STOCK_INWAYTO     122L // @v12.1.10 Тег строки документа вида PPOPK_EDI_STOCK. Количество торговых единиц товара, находящихся в пути на склад
 #define PPTAG_LOT_MP_STOCK_INWAYFROM   123L // @v12.1.10 Тег строки документа вида PPOPK_EDI_STOCK. Количество торговых единиц товара, находящихся в пути со склада
 #define PPTAG_LOT_MP_STOCK_TIMESTAMP   124L // @v12.1.10 Тег строки документа вида PPOPK_EDI_STOCK. Момент актуалности элемента остатков, полученных от маркетплейса.
+#define PPTAG_PERSON_SPCTAXGROUP       125L // @v12.1.12 Специальная налоговая ставка персоналии при продаже товаров (инициировано необходимостью определять специальные
+	// ставки НДС 5% и 7% в России с 2025года).
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -11684,6 +11686,10 @@
 	#define CTLSEL_MPCFG_RETOP             (8 + WINDOWS_ID_BIAS) // @v12.1.11
 #define DLG_FLTORDLOTEXT          1450 // @v12.1.6 Расширение фильтра лотов заказов
 #define DLG_GDSOPRMPTOTAL         1451 // @v12.1.11 Итоги товарного отчета по операции в варианте маркетплейса
+#define DLG_SELBITMSPCGEN         1452 // @v12.1.12 Выбор специальной генерации для товарных строк документа
+	#define CTL_SELBITMSPCGEN_WHAT       (1 + WINDOWS_ID_BIAS)
+	#define CTL_SELBITMSPCGEN_INFO       (2 + WINDOWS_ID_BIAS)
+#define DLG_TRDPLANBILL           1453 // @v12.1.12 Документ торгового плана
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

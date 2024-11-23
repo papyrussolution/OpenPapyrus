@@ -2508,18 +2508,30 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 					assert(wh_list.getCount());
 					wh_list.sortAndUndup();
 					DateRange period(Filt.Period);
-					RAssocArray avg_rest_result;
 					double total_storage = 0.0; // Общие расходы на хранение (без разбивки, ибо wildberries не дает таковой)
-					if(P_BObj->trfr->EvaluateAverageRestByGoods(wh_list, goods_list, period, avg_rest_result) > 0) {
-						debug_mark = true;
-						{
+					double total_acceptance = 0.0; // Общие расходы на приемку товаров на складах маркетплейса (без разбивки, ибо wildberries не дает таковой)
+					double total_deduction = 0.0; // Общие удержания со счета - чаще всего на маркетинг (без разбивки, ибо wildberries не дает таковой)
+					bool   is_there_any_amount = false;
+					struct ArToVarAssoc {
+						PPID   ArNo;
+						double * P_Var;
+					};
+					const ArToVarAssoc ar_to_var_assoc[] = {
+						{ ARTN_MRKTPLCACC_STORAGE, &total_storage },
+						{ ARTN_MRKTPLCACC_ACCEPTANCE, &total_acceptance },
+						{ ARTN_MRKTPLCACC_DEDUCTION, &total_deduction }
+					};
+					{
+						ArticleTbl::Rec ar_rec;
+						for(uint avaidx = 0; avaidx < SIZEOFARRAY(ar_to_var_assoc); avaidx++) {
+							const int ar_no = ar_to_var_assoc[avaidx].ArNo;
+							double * p_var = ar_to_var_assoc[avaidx].P_Var;
 							PPViewAccAnlz aa_view;
 							AccAnlzFilt aa_filt;
 							AccAnlzTotal aa_total;
 							aa_filt.Period = Filt.Period;
 							aa_filt.AcctId.ac = mp_acc_id;
-							ArticleTbl::Rec ar_rec;
-							if(P_BObj->ArObj.P_Tbl->SearchNum(mp_acs_id, ARTN_MRKTPLCACC_STORAGE, &ar_rec) > 0) {
+							if(P_BObj->ArObj.P_Tbl->SearchNum(mp_acs_id, ar_no, &ar_rec) > 0) {
 								aa_filt.AcctId.ar = ar_rec.ID;
 								aa_filt.Aco = ACO_3;
 								if(P_BObj->atobj->P_Tbl->AcctIDToRel(&aa_filt.AcctId, &aa_filt.AccID)) {
@@ -2531,57 +2543,105 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 										double crd = 0.0;
 										aa_total.DbtTrnovr.Get(0L, 0L, &dbt);
 										aa_total.CrdTrnovr.Get(0L, 0L, &crd);
-										total_storage = crd - dbt;
+										*p_var = crd - dbt;
+										if(*p_var != 0.0) {
+											is_there_any_amount = true;
+										}
 									}
+								}
+							}								
+						}
+					}
+					if(is_there_any_amount) {
+						bool avg_rest_is_ok = false;
+						RAssocArray avg_rest_result;
+						if(total_storage > 0.0 || total_acceptance > 0.0) {
+							if(P_BObj->trfr->EvaluateAverageRestByGoods(wh_list, goods_list, period, avg_rest_result) > 0) {
+								avg_rest_is_ok = true;
+							}
+						}
+						//
+						const double avg_rest_total = avg_rest_result.GetTotal();
+						double total_shipm_qtty = 0.0; // Общее заказанное количество 
+						double total_ord_qtty = 0.0;   // Общее отгруженное количество 
+						{
+							for(uint i = 0; i < IndicatorList.getCount(); i++) {
+								const IndicatorVector * p_iv = IndicatorList.at(i);
+								if(p_iv) {
+									double v = 0.0;
+									if(p_iv->Get(PPBZSI_ORDQTTY, &v)) 
+										total_ord_qtty += v;
+									if(p_iv->Get(PPBZSI_SALEQTTY, &v)) 
+										total_shipm_qtty += v;
 								}
 							}
 						}
-						if(total_storage > 0.0) {
-							const double avg_rest_total = avg_rest_result.GetTotal();
-							for(uint arlidx = 0; arlidx < avg_rest_result.getCount(); arlidx++) {
-								const PPID goods_id = avg_rest_result.at(arlidx).Key;
-								const double avg_rest = avg_rest_result.at(arlidx).Val;
-								double ord_qtty = 0;
-								double shipm_qtty = 0;
-								uint   item_count = 0; // Количество элементов в IndicatorList имеющих общий ид товара
-								{
-									for(uint i = 0; i < IndicatorList.getCount(); i++) {
-										const IndicatorVector * p_iv = IndicatorList.at(i);
-										if(p_iv && p_iv->GoodsID == goods_id) {
-											item_count++;
-											double v = 0.0;
-											if(p_iv->Get(PPBZSI_ORDQTTY, &v)) 
-												ord_qtty += v;
-											if(p_iv->Get(PPBZSI_SALEQTTY, &v)) 
-												shipm_qtty += v;
-										}
+						for(uint gidx = 0; gidx < goods_list.getCount(); gidx++) {
+							const PPID goods_id = goods_list.get(gidx);
+							double ord_qtty   = 0; // Заказанное количество по товару goods_id
+							double shipm_qtty = 0; // Отгруженное количество по товару goods_id
+							uint   item_count = 0; // Количество элементов в IndicatorList имеющих общий ид товара
+							{
+								for(uint i = 0; i < IndicatorList.getCount(); i++) {
+									const IndicatorVector * p_iv = IndicatorList.at(i);
+									if(p_iv && p_iv->GoodsID == goods_id) {
+										item_count++;
+										double v = 0.0;
+										if(p_iv->Get(PPBZSI_ORDQTTY, &v)) 
+											ord_qtty += v;
+										if(p_iv->Get(PPBZSI_SALEQTTY, &v)) 
+											shipm_qtty += v;
 									}
 								}
-								if(item_count) {
-									for(uint i = 0; i < IndicatorList.getCount(); i++) {
-										IndicatorVector * p_iv = IndicatorList.at(i);
-										if(p_iv && p_iv->GoodsID == goods_id) {
+							}
+							if(item_count) {
+								const double avg_rest = avg_rest_result.Get(goods_id, 0);
+								for(uint i = 0; i < IndicatorList.getCount(); i++) {
+									IndicatorVector * p_iv = IndicatorList.at(i);
+									if(p_iv && p_iv->GoodsID == goods_id) {
+										double coeff = 0.0; // Коэффициент для расчета удельной доли стоимости хранения и приемки
+										double coeff2 = 0.0; // Коэффициент для расчета удельной доли прочих расходов (реклама, вестимо)
+										double v = 0.0;
+										if(avg_rest_total != 0.0) {
 											const double avg_rest_part = avg_rest / avg_rest_total;
-											double storage_cost = 0.0;
-											if(item_count == 1) {
-												storage_cost = total_storage * avg_rest_part;
-											}
-											else {
-												double v = 0.0;
-												if(shipm_qtty > 0.0) {
+											{
+												// Здесь приоритет у отгрузок перед заказами
+												if(item_count == 1) { 
+													coeff = avg_rest_part; // Единственный элемент для товара goods_id: коэффициент просто равен доле среднего остатка
+												}
+												else if(shipm_qtty > 0.0) {
 													p_iv->Get(PPBZSI_SALEQTTY, &v);
-													storage_cost = (v / shipm_qtty) * total_storage * avg_rest_part;
+													coeff = (v / shipm_qtty) * avg_rest_part;
 												}
 												else if(ord_qtty > 0.0) {
 													p_iv->Get(PPBZSI_ORDQTTY, &v);
-													storage_cost = (v / ord_qtty) * total_storage * avg_rest_part;
+													coeff = (v / ord_qtty) * avg_rest_part;
 												}
 												else {
-													storage_cost = (1.0 / static_cast<double>(item_count)) * total_storage * avg_rest_part;
+													coeff = (1.0 / static_cast<double>(item_count)) * avg_rest_part;
 												}
 											}
-											p_iv->Add(PPBZSI_MPSTORAGE, storage_cost);
 										}
+										{
+											// Здесь приоритет у заказов перед отгрузками
+											if(total_ord_qtty > 0.0) {
+												p_iv->Get(PPBZSI_ORDQTTY, &v);
+												coeff2 = (v / total_ord_qtty);
+											}
+											else if(total_shipm_qtty > 0.0) {
+												p_iv->Get(PPBZSI_SALEQTTY, &v);
+												coeff2 = (v / total_shipm_qtty);
+											}
+											else {
+												coeff2 = (1.0 / static_cast<double>(item_count));
+											}
+										}
+										double storage_cost = coeff * total_storage;
+										double acceptance_cost = coeff * total_acceptance;
+										double deduction_cost = coeff2 * total_deduction;
+										p_iv->Add(PPBZSI_MPSTORAGE, storage_cost);
+										p_iv->Add(PPBZSI_MPACCEPTANCE, acceptance_cost);
+										p_iv->Add(PPBZSI_MPPROMOTION, deduction_cost);
 									}
 								}
 							}
@@ -4217,11 +4277,12 @@ int PPViewGoodsOpAnalyze::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						double earnings = 0.0;
 						double expenses = 0.0;
 						double temp_val = 0.0;
+						static const long expenses_indicator_list[] = { PPBZSI_SALECOST, PPBZSI_FREIGHT, PPBZSI_MPPROMOTION, PPBZSI_MPACCEPTANCE, PPBZSI_MPSTORAGE };
 						p_ind->Get(PPBZSI_MPSELLERSPART, &earnings);
-						p_ind->Get(PPBZSI_SALECOST, &temp_val);
-						expenses += temp_val;
-						p_ind->Get(PPBZSI_FREIGHT, &temp_val);
-						expenses += temp_val;
+						for(uint eiidx = 0; eiidx < SIZEOFARRAY(expenses_indicator_list); eiidx++) {
+							p_ind->Get(expenses_indicator_list[eiidx], &temp_val);
+							expenses += temp_val;
+						}
 						value = earnings - expenses;
 						pBlk->Set(value);
 						ok = 1;
@@ -4251,6 +4312,27 @@ int PPViewGoodsOpAnalyze::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				case 123: // PPBZSI_SALERETCOST
 					if(p_ind) {
 						p_ind->Get(PPBZSI_SALERETCOST, &value);
+						pBlk->Set(value);
+						ok = 1;
+					}
+					break;
+				case 124: // PPBZSI_MPSTORAGE
+					if(p_ind) {
+						p_ind->Get(PPBZSI_MPSTORAGE, &value);
+						pBlk->Set(value);
+						ok = 1;
+					}
+					break;
+				case 125: // PPBZSI_MPACCEPTANCE
+					if(p_ind) {
+						p_ind->Get(PPBZSI_MPACCEPTANCE, &value);
+						pBlk->Set(value);
+						ok = 1;
+					}
+					break;
+				case 126: // PPBZSI_MPPROMOTION
+					if(p_ind) {
+						p_ind->Get(PPBZSI_MPPROMOTION, &value);
 						pBlk->Set(value);
 						ok = 1;
 					}
@@ -4334,13 +4416,25 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 			pBrw->insertColumn(-1, "@sellersincome",     107, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 			column_idx += 1;
 			{
+				uint grp_count = 0;
 				pBrw->insertColumn(-1, "@commission_s",  108, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				grp_count++;
 				pBrw->insertColumn(-1, "@bankacquiring", 109, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				grp_count++;
 				pBrw->insertColumn(-1, "@freight", 117, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				grp_count++;
+				// @v12.1.12 {
+				pBrw->insertColumn(-1, "@storage", 124, T_DOUBLE, SFMT_MONEY, BCO_USERPROC); 
+				grp_count++;
+				pBrw->insertColumn(-1, "@warehouseacceptance", 125, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				grp_count++;
+				pBrw->insertColumn(-1, "@advpromotion", 126, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
+				grp_count++;
+				// } @v12.1.12
 				{
 					BroGroup grp;
 					grp.First = column_idx;
-					grp.Count = 3;
+					grp.Count = grp_count;
 					grp.Height = 1;
 					grp.P_Text = newStr(PPLoadStringS("expense_pl", temp_buf));
 					p_def->AddColumnGroup(&grp);

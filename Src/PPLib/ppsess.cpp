@@ -5328,6 +5328,7 @@ int PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 			case PPOBJ_SWPROGRAM: val = PPHS_SWPROGRAM; break; // @v12.0.7
 			case PPOBJ_RAWMATERIAL: val = PPHS_RAWMATERIAL; break; // @v12.0.11
 			case PPOBJ_ACCOUNT2: val = PPHS_ACCOUNT; break; // @v12.1.3
+			case PPOBJ_GOODSTAX: val = PPHS_GOODSTAX; break; // @v12.1.12
 		}
 		if(val)
 			ok = P_ObjIdentBlk->P_ShT->GetByAssoc(val, rBuf);
@@ -5394,6 +5395,7 @@ PPID PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 				case PPHS_ARTICLE:        val = PPOBJ_ARTICLE; break; // @v12.0.7
 				case PPHS_RAWMATERIAL:    val = PPOBJ_RAWMATERIAL; break; // @v12.0.11
 				case PPHS_ACCOUNT:        val = PPOBJ_ACCOUNT2; break; // @v12.1.3
+				case PPHS_GOODSTAX:       val = PPOBJ_GOODSTAX; break; // @v12.1.12
 				default: PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb); break;
 			}
 			obj_type = LoWord(val);

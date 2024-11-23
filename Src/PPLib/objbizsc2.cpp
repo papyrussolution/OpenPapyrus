@@ -48,6 +48,7 @@ static const SIntToSymbTabEntry BzsISymList[] = { // @v12.1.6
 	{ PPBZSI_SALERETCOUNT,           "saleretcount" }, // @v12.1.11
 	{ PPBZSI_SALERETQTTY,            "saleretqtty" }, // @v12.1.11
 	{ PPBZSI_SALERETCOST,            "saleretcost" }, // @v12.1.11
+	{ PPBZSI_MPPROMOTION,            "mppromotion" }, // @v12.1.12
 };
 
 static const SIntToSymbTabEntry BzsIDescrList[] = { // @v12.1.11
@@ -91,6 +92,7 @@ static const SIntToSymbTabEntry BzsIDescrList[] = { // @v12.1.11
 	{ PPBZSI_SALERETCOUNT,           "bzsi_saleretcount" }, // @v12.1.11
 	{ PPBZSI_SALERETQTTY,            "bzsi_saleretqtty" }, // @v12.1.11
 	{ PPBZSI_SALERETCOST,            "bzsi_saleretcost" }, // @v12.1.11
+	{ PPBZSI_MPPROMOTION,            "bzsi_mppromotion" }, // @v12.1.12
 };
 
 static const int BzsINonAdditiveList[] = {
