@@ -1316,7 +1316,7 @@ private:
 	virtual int delItem(long pos, long id);
 
 	StrAssocArray UserList;
-	PPObjOprKind OprkObj;
+	PPObjOprKind OpObj;
 };
 
 /*virtual*/int StyloBhtIICfgDialog::setupList()
@@ -1349,7 +1349,7 @@ private:
 	int    ok = -1;
 	PPID   op_id = 0;
 	SString obj_title;
-	StrAssocArray * p_list = OprkObj.MakeStrAssocList(0);
+	StrAssocArray * p_list = OpObj.MakeStrAssocList(0);
 	StrAssocArray _list;
 	if(p_list && p_list->getCount()) {
 		p_list->SortByText();

@@ -960,7 +960,7 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 		PPID   acc_sheet2_id = 0;
 		int    is_op_kind_list = 0;
 		PPIDArray types;
-		PPObjOprKind opk_obj;
+		PPObjOprKind op_obj;
 		Data = *pFilt;
 		SetupLocationCombo();
 		SetPeriodInput(this, CTL_BILLFLT_PERIOD, &Data.Period);
@@ -968,19 +968,19 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 		if(Data.Flags & BillFilt::fOrderOnly)
 			types.addzlist(PPOPT_GOODSORDER, PPOPT_GENERIC, 0L);
 		else if(Data.Flags & BillFilt::fAccturnOnly) {
-			types.addzlist(PPOPT_ACCTURN, PPOPT_AGREEMENT, PPOPT_GENERIC, 0L); // @v10.2.2 PPOPT_AGREEMENT
+			types.addzlist(PPOPT_ACCTURN, PPOPT_AGREEMENT, PPOPT_GENERIC, 0L);
 		}
 		else if(Data.Flags & BillFilt::fInvOnly)
 			types.add(PPOPT_INVENTORY);
 		else if(Data.Flags & BillFilt::fPoolOnly)
 			types.add(PPOPT_POOL);
 		else if(Data.Flags & BillFilt::fDraftOnly)
-			types.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, PPOPT_GENERIC, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
+			types.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, PPOPT_GENERIC, 0L);
 		else if(Data.Flags & BillFilt::fWmsOnly)
 			types.addzlist(PPOPT_WAREHOUSE, 0L);
 		else {
 			PPBillPoolOpEx bpox;
-			if(Data.PoolOpID && opk_obj.GetPoolExData(Data.PoolOpID, &bpox) > 0 && bpox.OpList.getCount()) {
+			if(Data.PoolOpID && op_obj.GetPoolExData(Data.PoolOpID, &bpox) > 0 && bpox.OpList.getCount()) {
 				types.copy(bpox.OpList);
 				is_op_kind_list = 1;
 			}
@@ -1256,9 +1256,9 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 			Filt.PoolOpID = P_BObj->P_Tbl->data.OpID;
 	}
 	if(Filt.PoolOpID) {
-		PPObjOprKind opk_obj;
+		PPObjOprKind op_obj;
 		THROW_MEM(P_BPOX = new PPBillPoolOpEx);
-		opk_obj.GetPoolExData(Filt.PoolOpID, P_BPOX);
+		op_obj.GetPoolExData(Filt.PoolOpID, P_BPOX);
 	}
 	// @v11.9.6 {
 	if(Filt.HasMultiArRestriction()) {
@@ -2430,8 +2430,16 @@ int PPViewBill::WriteOffDraft(PPID id)
 						if(acc_sheet_id == GetAgentAccSheet())
 							goa_filt.AgentID = ar_id;
 					}
-					if(goa_filt.AgentID == 0 && goa_filt.ObjectID == 0)
-						goa_filt.LocList.Add(r_bill_rec.LocID);
+					if(goa_filt.AgentID == 0 && goa_filt.ObjectID == 0) {
+						PPID   loc_id = 0;
+						PPBillExt bext;
+						if(P_BObj->P_Tbl->GetExtraData(r_bill_rec.ID, &bext) > 0 && bext.TradePlanLocID) {
+							loc_id = bext.TradePlanLocID;
+						}
+						else
+							loc_id = r_bill_rec.LocID;
+						goa_filt.LocList.Add(loc_id);
+					}
 				}
 				if(goa_view.EditBaseFilt(&goa_filt) > 0)
 					THROW(ViewGoodsOpAnalyze(&goa_filt));

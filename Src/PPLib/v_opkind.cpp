@@ -15,7 +15,7 @@ IMPLEMENT_PPFILT_FACTORY(OprKind); OprKindFilt::OprKindFilt() : PPBaseFilt(PPFIL
 	// Flags |= OPKF_USERANK;
 }
 
-PPViewOprKind::PPViewOprKind() : PPView(&OpkObj, &Filt, PPVIEW_OPRKIND, implBrowseArray, REPORT_OPRKINDLIST), OpListIdx(0), TmplsIdx(0), P_DsList(0)
+PPViewOprKind::PPViewOprKind() : PPView(&OpObj, &Filt, PPVIEW_OPRKIND, implBrowseArray, REPORT_OPRKINDLIST), OpListIdx(0), TmplsIdx(0), P_DsList(0)
 {
 }
 
@@ -48,9 +48,9 @@ int PPViewOprKind::InnerIteration(OprKindViewItem * pItem)
 	int    ok = -1;
 	if(pItem) {
 		if(TmplsIdx == 0) {
-			PPOprKindPacket opk_pack;
-			if(OpkObj.GetPacket(pItem->ID, &opk_pack) > 0)
-				ATTmpls.copy(opk_pack.ATTmpls);
+			PPOprKindPacket op_pack;
+			if(OpObj.GetPacket(pItem->ID, &op_pack) > 0)
+				ATTmpls.copy(op_pack.ATTmpls);
 		}
 		if(TmplsIdx < ATTmpls.getCount()) {
 			SString dbt_buf, crd_buf, temp_buf;
@@ -421,7 +421,7 @@ int PPViewOprKind::MakeList(PPViewBrowser * pBrw)
 	else {
 		THROW_MEM(P_DsList = new SArray(sizeof(OprKindBrwItem)));
 	}
-	for(SEnum en = OpkObj.Enum(0); en.Next(&op_data) > 0;) {
+	for(SEnum en = OpObj.Enum(0); en.Next(&op_data) > 0;) {
 		if(MakeEntry(op_data, _e) > 0) {
 			THROW_SL(P_DsList->insert(&_e));
 		}
@@ -477,7 +477,7 @@ SArray * PPViewOprKind::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 int PPViewOprKind::AddBySample(PPID sampleID)
 {
 	PPID   id = 0;
-	return (OpkObj.AddBySample(&id, sampleID) == cmOK) ? 1 : -1;
+	return (OpObj.AddBySample(&id, sampleID) == cmOK) ? 1 : -1;
 }
 
 int PPViewOprKind::ViewLinkOps(PPID opID)

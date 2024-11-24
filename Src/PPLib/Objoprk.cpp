@@ -2297,8 +2297,8 @@ int OpListDialog::editItem(long /*pos*/, long id)
 	if(P_Box) {
 		int    r = 0;
 		int    is_new = (id == 0);
-		PPObjOprKind opk_obj;
-		if((r = opk_obj.Edit(&id, 0, 0)) == cmCancel)
+		PPObjOprKind op_obj;
+		if((r = op_obj.Edit(&id, 0, 0)) == cmCancel)
 			r = -1;
 		else if(r == cmOK) {
 			r = 1;

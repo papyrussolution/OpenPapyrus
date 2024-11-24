@@ -6621,6 +6621,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @daterange_begin                     "Начало перида"
 @daterange_end                       "Конец перида"
 @forecastperiod                      "Период прогноза"
+@planningperiod                      "Период планирования"
 @validity                            "Период действия"
 @validitydate                        "Срок действия"
 @validuntil                          "Действителен до"
@@ -9944,6 +9945,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bill_lastpaymplandate                    "Последняя дата из плана платежей по документу" // Синтетический атрибут документа, применяемый при экспорте
 @bill_obj2arno                            "Номер статьи дополнительного объекта по документу" // Порожденный атрибут документа, применяемый при импорте/экспорте
 @bill_obj2arid                            "ИД статьи дополнительного объекта по документу" // Порожденный атрибут документа, применяемый при импорте/экспорте
+@bill_tradeplanloc                        "Склад планирования"
 
 @billprelude                              "Выберите вид операции нового документа" // Заголовок диалога, предшествующего вводу нового документа
 @billupdattributes                        "Изменение атрибутов документа" // Операция массового изменения некоторых атрибутов документов
@@ -13578,7 +13580,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @tsession_createware                      "Создать товар" // command at dialog
 @tsession_planstatus                      "Статус плана"
 @tsession_plannum                         "Номер плана"
-@tsession_planperiod                      "Период планирования" // generic
+@tsession_planperiod                      "@{planningperiod}" // generic
 @tsession_plan_firstsesstm                "Время начала первой сессии"
 @tsession_plan_lastsesstm                 "Время окончания последней сессии"
 @tsession_autofill                        "Заполнить строки по плану" // command at dialog

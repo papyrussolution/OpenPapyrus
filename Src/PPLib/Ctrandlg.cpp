@@ -1,5 +1,5 @@
 // CTRANDLG.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2003, 2005, 2006, 2007, 2008, 2016, 2017, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2000, 2001, 2003, 2005, 2006, 2007, 2008, 2016, 2017, 2019, 2020, 2022, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -147,11 +147,11 @@ int CurTransBillDialog::setDTS(PPBillPacket * pPack)
 {
 	P_Pack = pPack;
 	int    ok = 1;
-	PPObjOprKind opkobj;
+	PPObjOprKind op_obj;
 	PPOprKindPacket op_pack;
 	MEMSZERO(Data);
 	THROW(P_Pack->GetCurTransit(&Data));
-	THROW(opkobj.GetPacket(Data.OpID, &op_pack) > 0);
+	THROW(op_obj.GetPacket(Data.OpID, &op_pack) > 0);
 	setTitle(op_pack.Rec.Name);
 	if(op_pack.Amounts.getCount()) {
 		ExtAmtIDList.copy(op_pack.Amounts);

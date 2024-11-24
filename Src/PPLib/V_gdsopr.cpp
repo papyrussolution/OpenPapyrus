@@ -472,7 +472,6 @@ public:
 		int    ok = 1;
 		PPID   acc_sheet_id = 0;
 		PPID   parent_grp_id = 0;
-		PPObjOprKind opk_obj;
 		PPObjGoods goods_obj;
 		SetPeriodInput(this, CTL_BILLFLT_PERIOD, &Data.Period);
 		SetupOpCombo();

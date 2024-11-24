@@ -558,8 +558,8 @@ private:
 	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
 	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
-	PPObjArticle    ArObj;
-	PPObjOprKind    OpKObj;
+	PPObjArticle ArObj;
+	PPObjOprKind OpObj;
 	PPObjDraftWrOff Obj;
 };
 
@@ -650,7 +650,7 @@ private:
 	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
 	PPOprKindPacket Pack;
-	PPObjOprKind    Obj;
+	PPObjOprKind Obj;
 };
 
 class PPDS_CrrInvOpExEntry : public PPDeclStruc {
@@ -664,7 +664,7 @@ private:
 	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
 	PPOprKindPacket Pack;
-	PPObjOprKind    Obj;
+	PPObjOprKind Obj;
 };
 
 class PPDS_CrrReckonOpExEntry : public PPDeclStruc {
@@ -678,7 +678,7 @@ private:
 	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
 	PPOprKindPacket Pack;
-	PPObjOprKind    Obj;
+	PPObjOprKind Obj;
 };
 
 class PPDS_CrrDraftOpExEntry : public PPDeclStruc {
@@ -692,7 +692,7 @@ private:
 	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
 	PPOprKindPacket Pack;
-	PPObjOprKind    Obj;
+	PPObjOprKind Obj;
 };
 
 class PPDS_CrrBillPoolOpExEntry : public PPDeclStruc {
@@ -704,7 +704,7 @@ private:
 	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPOprKindPacket Pack;
-	PPObjOprKind    Obj;
+	PPObjOprKind Obj;
 };
 
 class PPDS_CrrOprKind : public PPDeclStruc {
@@ -717,7 +717,7 @@ private:
 	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);
 	virtual int CreateListItem(long fldID, uint *, PPDeclStruc *);
 
-	PPObjOprKind    Obj;
+	PPObjOprKind Obj;
 };
 
 class PPDS_CrrBillStatus : public PPDeclStruc {
@@ -730,6 +730,6 @@ private:
 	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
 
 	PPObjBillStatus Obj;
-	PPObjOprKind    OpKObj;
-	PPObjOpCounter  ObjCntr;
+	PPObjOprKind   OpObj;
+	PPObjOpCounter CntrObj;
 };

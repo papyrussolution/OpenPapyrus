@@ -3401,12 +3401,12 @@ int PPDS_CrrDraftWrOff::TransferField(long fldID, Tfd dir, uint * pIter, SString
 				if(dir == tfdDataToBuf) {
 					PPOprKind opk_rec;
 					MEMSZERO(opk_rec);
-					if(OpKObj.Search((is_poolopid) ? Data.Rec.PoolOpID : Data.Rec.DfctCompensOpID, &opk_rec) > 0)
+					if(OpObj.Search((is_poolopid) ? Data.Rec.PoolOpID : Data.Rec.DfctCompensOpID, &opk_rec) > 0)
 						buf.CopyFrom(opk_rec.Name);
 				}
 				ok = TransferData(buf, dir, rBuf);
 				if(dir == tfdBufToData)
-					ok = OpKObj.SearchByName(buf, (is_poolopid) ? &Data.Rec.PoolOpID : &Data.Rec.DfctCompensOpID);
+					ok = OpObj.SearchByName(buf, (is_poolopid) ? &Data.Rec.PoolOpID : &Data.Rec.DfctCompensOpID);
 			}
 			break;
 		case DSF_CRRDRAFTWROFF_DFCTCOMPENSARID:
@@ -5772,12 +5772,12 @@ int PPDS_CrrBillStatus::TransferField(long fldID, Tfd dir, uint * pIter, SString
 				SString buf;
 				if(dir == tfdDataToBuf) {
 					PPOpCounter opc_rec;
-					if(Data.CounterID && ObjCntr.Search(Data.CounterID, &opc_rec) > 0)
+					if(Data.CounterID && CntrObj.Search(Data.CounterID, &opc_rec) > 0)
 						buf.CopyFrom(opc_rec.Name);
 				}
 				ok = TransferData(buf, dir, rBuf);
 				if(dir == tfdBufToData)
-					ObjCntr.SearchByName(buf, &Data.CounterID);
+					CntrObj.SearchByName(buf, &Data.CounterID);
 			}
 			break;
 		case DSF_CRRBILLSTATUS_RESTRICTOPID:
@@ -5785,12 +5785,12 @@ int PPDS_CrrBillStatus::TransferField(long fldID, Tfd dir, uint * pIter, SString
 				SString buf;
 				if(dir == tfdDataToBuf) {
 					PPOprKind opk_rec;
-					if(OpKObj.Search(Data.RestrictOpID, &opk_rec) > 0)
+					if(OpObj.Search(Data.RestrictOpID, &opk_rec) > 0)
 						buf.CopyFrom(opk_rec.Name);
 				}
 				ok = TransferData(buf, dir, rBuf);
 				if(dir == tfdBufToData)
-					ok = OpKObj.SearchByName(buf, &Data.RestrictOpID);
+					ok = OpObj.SearchByName(buf, &Data.RestrictOpID);
 			}
 			break;
 		case DSF_CRRBILLSTATUS_RANK: ok = TransferData(&Data.Rank, dir, rBuf); break;

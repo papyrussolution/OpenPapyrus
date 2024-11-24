@@ -11110,8 +11110,7 @@ struct PPBillExt { // @persistent @store(PropertyTbl)
 	int16  IsShipped;          // @transient Признак отгруженного документа (проецируется на BillTbl::Rec.Flags как BILLF_SHIPPED)
 	int16  Ft_STax;            // @transient (0 - ignored, <0 - off, >0 - on)
 	int16  Ft_Declined;        // @transient (0 - ignored, <0 - off, >0 - on)
-	// @v10.7.0 int16  Reserve;            // @alignment @transient
-	int16  Ft_CheckPrintStatus; // @erik v10.7.0 статус печати чека( <0 - не печатанные чеки, >0 - печатанные чеки, 0 - все равно)
+	int16  Ft_CheckPrintStatus; // @erik статус печати чека( <0 - не печатанные чеки, >0 - печатанные чеки, 0 - все равно)
 	int16  EdiRecadvStatus;     // @transient Статус RECADV по каналу EDI
 	int16  EdiRecadvConfStatus; // @transient Статус подтверждения на RECADV по каналу EDI
 	int16  OrderFulfillmentStatus; // @v11.1.8 @transient Статус выполнения заказа (-1) unused (0) ignored, (1) полностью не исполнен, (2) - полностью исполнен, (3) - исполнен частично
@@ -11124,6 +11123,8 @@ struct PPBillExt { // @persistent @store(PropertyTbl)
 	PPID   AgtBillID;          // @transient. Проекция BillTbl::Rec::AgtBillID
 	PPID   CcID;               // Ид чека, сформированного по этому документу для печати
 	PPID   GoodsGroupID;       // @v11.0.11 @transient Проекция BillFilt::GoodsGroupID. Ид товарной группы, товары принадлежащие которой должны содержаться в документах.
+	PPID   TradePlanLocID;     // @v12.1.12 Склад, возможно группирующий, по которому строится и анализируется торговый план.
+		// Поле введено из-за того, что склад, к которому привязан документ не может быть группирующим.
 };
 //
 // Descr: Массив движения по кредиту. Используется при начислении процентов по договору ренты.
@@ -12877,6 +12878,10 @@ public:
 	int    ScanHolidays(PPID locID, PPID opID, const DateRange * pPeriod, PPHolidays * pHld);
 
 	struct Extra_Strg {      // sizeof(Extra_Strg) == PROPRECFIXSIZE
+		Extra_Strg()
+		{
+			THISZERO();
+		}
 		PPID   ObjType;            // const=PPOBJ_BILL
 		PPID   ObjID;              // -> Bill.ID
 		PPID   PropID;             // const=BILLPRP_EXTRA
@@ -12890,6 +12895,7 @@ public:
 		PPID   AgentID;            // Агент      ->Article.ID
 		PPID   PayerID;            // Плательщик ->Article.ID
 		PPID   CcID;               // Ид чека, сформированного по этому документу для печати
+		PPID   TradePlanLocID;     // @v12.1.12 Склад, возможно группирующий, по которому строится и анализируется торговый план.
 	};
 private:
 	//
@@ -45711,10 +45717,9 @@ private:
 	SArray * P_DsList;
 	uint   OpListIdx;
 	uint   TmplsIdx;
-	//SArray * P_OpList;
 	PPAccTurnTemplArray ATTmpls;
 	OprKindFilt  Filt;
-	PPObjOprKind OpkObj;
+	PPObjOprKind OpObj;
 	PPObjAccSheet AcsObj;
 };
 //

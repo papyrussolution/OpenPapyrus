@@ -2874,6 +2874,11 @@
 	#define CTL_BILL_PAYPERIOD          (88 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_IND_AUTORCPT       (89 + WINDOWS_ID_BIAS)
 	#define CTL_BILL_IND_WL             (90 + WINDOWS_ID_BIAS)
+	#define CTL_BILL_TPLNPRD            (91 + WINDOWS_ID_BIAS) // @v12.1.12 Поле периода планирования для документа торгового плана
+	#define CTLCAL_BILL_TPLNPRD         (92 + WINDOWS_ID_BIAS)
+	#define CTL_BILL_TPLNLOC            (93 + WINDOWS_ID_BIAS) // @v12.1.12 Поле склада, возможно, группирующего, по которому ведется планирование и анализ.
+		// Штатное поле склада документа, увы, не подходит из-за того, что существует необходимость применения группирующего склада.
+	#define CTLSEL_BILL_TPLNLOC         (94 + WINDOWS_ID_BIAS)
 
 #define DLG_REVAL                 110 // Переоценка
 	#define CTL_REVAL_DOC                (1 + WINDOWS_ID_BIAS)

@@ -551,7 +551,8 @@ int BillCore::PutExtraData(PPID id, const PPBillExt * pExt, int use_ta)
 			STRNSCPY(rec.PaymBillCode, pExt->PaymBillCode);
 			rec.PaymBillDate = pExt->PaymBillDate;
 			rec.ExtPriceQuotKindID = pExt->ExtPriceQuotKindID;
-			rec.CcID = pExt->CcID; // @v10.9.7
+			rec.CcID = pExt->CcID;
+			rec.TradePlanLocID = pExt->TradePlanLocID; // @v12.1.12
 			THROW(p_ref->PutProp(PPOBJ_BILL, id, BILLPRP_EXTRA, &rec, sizeof(rec)));
 			THROW(SetRecFlag(id, BILLF_EXTRA, 1, 0));
 		}
@@ -578,6 +579,7 @@ int BillCore::GetExtraData(PPID id, PPBillExt * pExt)
 			STRNSCPY(pExt->PaymBillCode, exr.PaymBillCode);
 			pExt->PaymBillDate = exr.PaymBillDate;
 			pExt->ExtPriceQuotKindID = exr.ExtPriceQuotKindID;
+			pExt->TradePlanLocID = exr.TradePlanLocID; // @v12.1.12
 		}
 	}
 	else

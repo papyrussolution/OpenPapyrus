@@ -3646,12 +3646,12 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 		case PPOBJ_OPRKIND:
 			{
 				use_filt = 1;
-				PPObjOprKind oprkind_obj;
-				PPOprKind    oprkind_rec;
+				PPObjOprKind op_obj;
+				PPOprKind op_rec;
 				if(IdList.getCount()) {
 					for(uint i = 0; i < IdList.getCount(); i++) {
-						if(oprkind_obj.Search(IdList.at(i), &oprkind_rec) > 0)
-							THROW_SL(ResultList.Add(oprkind_rec.ID, 0, oprkind_rec.Name));
+						if(op_obj.Search(IdList.at(i), &op_rec) > 0)
+							THROW_SL(ResultList.Add(op_rec.ID, 0, op_rec.Name));
 					}
 					use_filt = 0;
 				}
@@ -3660,21 +3660,21 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						if(temp_buf.Divide(',', o_buf, txt_buf) > 0) {
 							const long _ep = o_buf.ToLong();
 							if(_ep == 2) {
-								if(oprkind_obj.SearchBySymb(txt_buf, &(temp_id = 0), &oprkind_rec) > 0) {
-									THROW_SL(ResultList.Add(oprkind_rec.ID, 0, oprkind_rec.Name));
+								if(op_obj.SearchBySymb(txt_buf, &(temp_id = 0), &op_rec) > 0) {
+									THROW_SL(ResultList.Add(op_rec.ID, 0, op_rec.Name));
 								}
 							}
 							else if(_ep == 1) {
-								if(oprkind_obj.SearchByName(txt_buf, &temp_id, &oprkind_rec) > 0)
-									THROW_SL(ResultList.Add(oprkind_rec.ID, 0, oprkind_rec.Name));
+								if(op_obj.SearchByName(txt_buf, &temp_id, &op_rec) > 0)
+									THROW_SL(ResultList.Add(op_rec.ID, 0, op_rec.Name));
 							}
 						}
 					}
 					use_filt = 0;
 				}
 				if(use_filt) {
-					for(SEnum en = oprkind_obj.P_Ref->Enum(ObjType, 0); en.Next(&oprkind_rec) > 0;) {
-						THROW_SL(ResultList.Add(oprkind_rec.ID, 0, oprkind_rec.Name));
+					for(SEnum en = op_obj.P_Ref->Enum(ObjType, 0); en.Next(&op_rec) > 0;) {
+						THROW_SL(ResultList.Add(op_rec.ID, 0, op_rec.Name));
 					}
 				}
 			}
@@ -3885,8 +3885,9 @@ int Backend_SelectObjectBlock::ResolveCrit_OprKind(int subcriterion, const SStri
 			break;
 		case scCode:
 			{
-				PPObjOprKind qk_obj;
-				qk_obj.P_Ref->SearchSymb(PPOBJ_OPRKIND, &id, rArg, offsetof(PPOprKind, Symb));
+				PPObjOprKind op_obj;
+				op_obj.SearchBySymb(rArg, &id, 0); // @v12.1.12 
+				// @v12.1.12 op_obj.P_Ref->SearchSymb(PPOBJ_OPRKIND, &id, rArg, offsetof(PPOprKind, Symb));
 			}
 			break;
 		default:

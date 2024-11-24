@@ -603,11 +603,11 @@ public:
 	// Если onCancel != 0, то функция getDTS вызывает checkCreditOverflow //
 	//
 	int    getDTS(int onCancel);
-	int    isModified()
+	bool   IsModified()
 	{
 		if(!(Flags & fModified))
 			getDTS(1);
-		return BIN(Flags & fModified);
+		return LOGIC(Flags & fModified);
 	}
 	uint   PrnForm;
 private:
@@ -646,6 +646,12 @@ private:
 	int    EditAgreement();
 	void   SetupPaymDateCtrls();
 	void   SetupMarks();
+	//
+	// Descr: Функция получает из диалога дату документа и дату исполнения документа.
+	//   Такая необычная специфичность функции связана с тем, что документы торговых планов
+	//   специальным образом трактуют эти даты и требуют специальной обработки.
+	// 
+	bool   GetDateAndDueDate();
 
 	enum {
 		fPctDis            = 0x0001, // Признак того, что скидка указана в процентах
@@ -704,12 +710,16 @@ static uint GetBillDialogID(const PPBillPacket * pack, uint * pPrnForm)
 		case PPOPT_DRAFTTRANSIT:
 		case PPOPT_DRAFTQUOTREQ:
 		case PPOPT_GOODSRECEIPT:
-			return (IsIntrOp(pack->Rec.OpID) == INTRRCPT) ? DLG_INTRRCPT : DLG_RCPTBILL;
+			if(pack->OpTypeID == PPOPT_DRAFTRECEIPT && GetOpSubType(pack->Rec.OpID) == OPSUBT_TRADEPLAN) // @v12.1.12
+				return DLG_TRDPLANBILL;
+			else
+				return (IsIntrOp(pack->Rec.OpID) == INTRRCPT) ? DLG_INTRRCPT : DLG_RCPTBILL;
 		case PPOPT_DRAFTEXPEND:
 		case PPOPT_GOODSEXPEND:
-			if(GetOpSubType(pack->Rec.OpID) == OPSUBT_TRADEPLAN) { // @construction @v12.1.12
+			if(pack->OpTypeID == PPOPT_DRAFTEXPEND && GetOpSubType(pack->Rec.OpID) == OPSUBT_TRADEPLAN) { // @v12.1.12
+				return DLG_TRDPLANBILL;
 			}
-			if(IsIntrExpndOp(pack->Rec.OpID))
+			else if(IsIntrExpndOp(pack->Rec.OpID))
 				return DLG_INTREXPD;
 			else {
 				GetOpData(pack->Rec.OpID, &op_rec);
@@ -768,7 +778,7 @@ int EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 		}
 		if(egbFlags & PPObjBill::efCascade)
 			dlg->ToCascade();
-		while((r = ExecView(dlg)) == cmOK || (/*options != 3*/!(egbFlags & PPObjBill::efNoUpdNotif) && r == cmCancel && dlg->isModified() && !CONFIRM(PPCFM_WARNCANCEL))) {
+		while((r = ExecView(dlg)) == cmOK || (!(egbFlags & PPObjBill::efNoUpdNotif) && r == cmCancel && dlg->IsModified() && !CONFIRM(PPCFM_WARNCANCEL))) {
 			if(r == cmOK) {
 				if(!dlg->getDTS(0))
 					PPError();
@@ -815,11 +825,19 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 			// (не понравилось пользователям) SetupWordSelector(CTL_BILL_MEMO, new TextHistorySelExtra("bill-memo-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
 		}
 	}
-	SetupCalDate(CTLCAL_BILL_DATE,    CTL_BILL_DATE);
-	SetupCalDate(CTLCAL_BILL_DUEDATE, CTL_BILL_DUEDATE);
+	if(GetOpSubType(P_Pack->Rec.OpID) == OPSUBT_TRADEPLAN) { // @v12.1.12
+		assert(dlgID == DLG_TRDPLANBILL);
+		//DateRange plan_period;
+		//plan_period.Set(P_Pack->Rec.Dt, P_Pack->Rec.DueDate);
+		SetupCalPeriod(CTLCAL_BILL_TPLNPRD, CTL_BILL_TPLNPRD);
+	}
+	else {
+		SetupCalDate(CTLCAL_BILL_DATE,    CTL_BILL_DATE);
+		SetupCalDate(CTLCAL_BILL_DUEDATE, CTL_BILL_DUEDATE);
+	}
 	SetupCalDate(CTLCAL_BILL_PAYDATE, CTL_BILL_PAYDATE);
 	SetupCalPeriod(CTLCAL_BILL_PERIOD, CTL_BILL_PERIOD);
-	disableCtrls(is_cash || (Flags & fEditMode && !P_BObj->CheckRights(BILLRT_MODDATE)), CTL_BILL_DATE, CTLCAL_BILL_DATE, 0);
+	disableCtrls(is_cash || (Flags & fEditMode && !P_BObj->CheckRights(BILLRT_MODDATE)), CTL_BILL_DATE, CTLCAL_BILL_DATE, CTL_BILL_TPLNPRD, CTLCAL_BILL_TPLNPRD, 0);
 	{
 		const bool do_disable_object = (Flags & fEditMode && !P_BObj->CheckRights(BILLOPRT_MODOBJ, 1));
 		disableCtrl(CTLSEL_BILL_OBJECT, do_disable_object);
@@ -2016,17 +2034,19 @@ IMPL_HANDLE_EVENT(BillDialog)
 					if(p_dc) {
 						if(getCtrlHandle(CTL_BILL_PAYDATE) == p_dc->H_Ctl) {
 							if(PaymTerm >= 0) {
-								getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
-								LDATE paymdate = getCtrlDate(CTL_BILL_PAYDATE);
-								LDATE new_paymdate = P_Pack->CalcDefaultPayDate(PaymTerm, PayDateBase);
-								if(!paymdate || paymdate != new_paymdate) {
-									::SetBkMode(p_dc->H_DC, TRANSPARENT);
-									::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-									p_dc->H_Br = (HBRUSH)Ptb.Get(brushIllPaymDate);
-									//clearEvent(event);
+								// @v12.1.12 getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
+								if(GetDateAndDueDate()) { // @v12.1.12 
+									LDATE paymdate = getCtrlDate(CTL_BILL_PAYDATE);
+									LDATE new_paymdate = P_Pack->CalcDefaultPayDate(PaymTerm, PayDateBase);
+									if(!paymdate || paymdate != new_paymdate) {
+										::SetBkMode(p_dc->H_DC, TRANSPARENT);
+										::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
+										p_dc->H_Br = (HBRUSH)Ptb.Get(brushIllPaymDate);
+										//clearEvent(event);
+									}
+									else
+										return;
 								}
-								else
-									return;
 							}
 							else
 								return;
@@ -2106,9 +2126,11 @@ IMPL_HANDLE_EVENT(BillDialog)
 							break;
 						case CTL_BILL_PAYDATE:
 							if(PaymTerm >= 0) {
-								getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
-                                P_Pack->SetupDefaultPayDate(PaymTerm, PayDateBase);
-                                SetupPaymDateCtrls();
+								// @v12.1.12 getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
+								if(GetDateAndDueDate()) { // @v12.1.12 
+									P_Pack->SetupDefaultPayDate(PaymTerm, PayDateBase);
+									SetupPaymDateCtrls();
+								}
 							}
 							else
 								calcDate(ctl_id);
@@ -2574,14 +2596,15 @@ void BillDialog::SetupInfoText()
 int BillDialog::setDTS(PPBillPacket * pPack)
 {
 	int    ok = 1;
-	uint   i, ctl;
+	uint   i;
+	uint   ctl;
 	double dis = 0.0;
 	ushort v;
 	AmtEntry * ae;
 	bool   dsbl_object = false;
 	bool   dsbl_object2 = false;
 	PPOprKindPacket op_pack;
-	PPObjOprKind    opkobj;
+	PPObjOprKind op_obj;
 	PPID   id = 0;
 	DateIter di;
 	BillTbl::Rec z_link_rec;
@@ -2591,7 +2614,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	Pattern  = pPack->Rec;
 	PatternMemo = pPack->SMemo; // @v11.1.12
 	Flags &= ~(fModified|fCheckCreditLim|fCheckRetLim);
-	THROW(opkobj.GetPacket(P_Pack->Rec.OpID, &op_pack) > 0);
+	THROW(op_obj.GetPacket(P_Pack->Rec.OpID, &op_pack) > 0);
 	{
 		temp_buf.Z().Cat(op_pack.Rec.Name).CatDiv(';', 1);
 		CatObjectName(PPOBJ_LOCATION, P_Pack->Rec.LocID, temp_buf);
@@ -2623,8 +2646,16 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		P_Pack->SetQuantitySign(sqs);
 	}
 	setCtrlData(CTL_BILL_DOC,  P_Pack->Rec.Code);
-	setCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
-	setCtrlData(CTL_BILL_DUEDATE, &P_Pack->Rec.DueDate);
+	if(GetOpSubType(P_Pack->Rec.OpID) == OPSUBT_TRADEPLAN) { // @v12.1.12
+		DateRange period;
+		period.Set(P_Pack->Rec.Dt, P_Pack->Rec.DueDate);
+		SetPeriodInput(this, CTL_BILL_TPLNPRD, &period);
+		SetupLocationCombo(this, CTLSEL_BILL_TPLNLOC, P_Pack->Ext.TradePlanLocID, OLW_CANSELUPLEVEL, LOCTYP_WAREHOUSE, 0);
+	}
+	else {
+		setCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
+		setCtrlData(CTL_BILL_DUEDATE, &P_Pack->Rec.DueDate);
+	}
 	{
 		DateRange period;
 		period.Set(P_Pack->Rec.PeriodLow, P_Pack->Rec.PeriodUpp);
@@ -2966,6 +2997,32 @@ int BillDialog::getCurGroupData()
 		return -1;
 }
 
+bool BillDialog::GetDateAndDueDate()
+{
+	bool   ok = true;
+	if(GetOpSubType(P_Pack->Rec.OpID) == OPSUBT_TRADEPLAN) {
+		DateRange period;
+		if(GetPeriodInput(this, CTL_BILL_TPLNPRD, &period)) {
+			period.Actualize(ZERODATE);
+			if(checkdate(period.low) && checkdate(period.upp) && period.upp >= period.low) {
+				P_Pack->Rec.Dt = period.low;
+				P_Pack->Rec.DueDate = period.upp;
+			}
+			else
+				ok = false;
+		}
+		else
+			ok = false;
+	}
+	else {
+		getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
+		P_Pack->Rec.Dt = P_Pack->Rec.Dt.getactual(ZERODATE);
+		getCtrlData(CTL_BILL_DUEDATE, &P_Pack->Rec.DueDate);
+		P_Pack->Rec.DueDate = P_Pack->Rec.DueDate.getactual(ZERODATE);
+	}
+	return ok;
+}
+
 int BillDialog::getDTS(int onCancel)
 {
 	int    ok = 1;
@@ -2983,11 +3040,19 @@ int BillDialog::getDTS(int onCancel)
 		for(uint i = 0; P_Pack->EnumTItems(&i, &p_ti);)
 			SETFLAG(p_ti->Flags, PPTFR_COSTWSTAX, BIN(P_Pack->Rec.Flags & BILLF_RMVEXCISE));
 	}
+	/* @v12.1.12 
 	getCtrlData(CTL_BILL_DOC,  P_Pack->Rec.Code);
 	getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
 	P_Pack->Rec.Dt = P_Pack->Rec.Dt.getactual(ZERODATE);
 	getCtrlData(CTL_BILL_DUEDATE, &P_Pack->Rec.DueDate);
 	P_Pack->Rec.DueDate = P_Pack->Rec.DueDate.getactual(ZERODATE);
+	*/
+	// @v12.1.12 {
+	THROW(GetDateAndDueDate()); 
+	if(GetOpSubType(P_Pack->Rec.OpID) == OPSUBT_TRADEPLAN) {
+		getCtrlData(CTLSEL_BILL_TPLNLOC, &P_Pack->Ext.TradePlanLocID);
+	}
+	// } @v12.1.12 
 	{
 		DateRange period;
 		THROW(r = GetPeriodInput(this, CTL_BILL_PERIOD, &period));
@@ -3109,13 +3174,16 @@ int BillDialog::editItems()
 			}
 		}
 		getCtrlData(CTLSEL_BILL_OBJ2, &P_Pack->Rec.Object2);
-		getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
-		PPTransferItem * ti;
-		for(uint i = 0; P_Pack->EnumTItems(&i, &ti);)
-			ti->Date = P_Pack->Rec.Dt;
-		if((r = ViewBillDetails(P_Pack, BIN(Flags & fEditMode), P_BObj)) > 0) {
-			Flags |= fModified;
-			calcAmounts(&tmp);
+		// @v12.1.12 getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
+		if(GetDateAndDueDate()) { // @v12.1.12 
+			for(uint i = 0; i < P_Pack->GetTCount(); i++) {
+				PPTransferItem & r_ti = P_Pack->TI(i);
+				r_ti.Date = P_Pack->Rec.Dt;
+			}
+			if((r = ViewBillDetails(P_Pack, BIN(Flags & fEditMode), P_BObj)) > 0) {
+				Flags |= fModified;
+				calcAmounts(&tmp);
+			}
 		}
 	}
 	return BIN(r);

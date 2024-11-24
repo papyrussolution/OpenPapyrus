@@ -4796,16 +4796,15 @@ int iSalesPepsi::SendInvoices()
 	Reference * p_ref = PPRef;
 	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
 	PPSoapClientSession sess;
-	PPObjOprKind op_obj; // @v10.8.9
+	PPObjOprKind op_obj;
 	SString temp_buf;
 	SString msg_buf;
-	PPIDArray registered_agent_list; // @v10.8.11
+	PPIDArray registered_agent_list;
 	TSCollection <iSalesBillPacket> outp_packet;
 	//BillExportPeriod.Set(encodedate(1, 6, 2016), encodedate(30, 6, 2016));
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
-	// @v10.8.11 {
 	{
 		TSCollection <iSalesRoutePacket> routs; 
 		THROW(ReceiveRouts(routs));
@@ -4819,9 +4818,7 @@ int iSalesPepsi::SendInvoices()
 		}
 		registered_agent_list.sortAndUndup();
 	}
-	// } @v10.8.11 
 	THROW(Helper_MakeBillList(Ep.ExpendOp, 1, &registered_agent_list, outp_packet));
-	// @v10.8.9 {
 	{
 		PPIDArray correction_op_list;
 		{
@@ -4839,7 +4836,6 @@ int iSalesPepsi::SendInvoices()
 			}
 		}
 	}
-	// } @v10.8.9 
 	THROW(Helper_MakeBillList(Ep.RetOp, 5, &registered_agent_list, outp_packet));
     {
 		PPAlbatrossConfig acfg;

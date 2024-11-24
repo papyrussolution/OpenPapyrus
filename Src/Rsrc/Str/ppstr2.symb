@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494954
+LastSignatureCode=2147494956
 LastAutoCodeList=1,12253;102,10177;103,10072;110,10000;111,12122;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10152;120,10005;1001,10000;121,10000;122,10000;123,10328;124,10356;125,10064
 
 [SignatureList]
@@ -668,6 +668,7 @@ turnovercalcperiod=2147494502
 daterange_begin=2147484209
 daterange_end=2147484210
 forecastperiod=2147484211
+planningperiod=2147494955
 validity=2147484212
 validitydate=2147484213
 validuntil=2147484214
@@ -3863,6 +3864,7 @@ bill_transferrecipientaccount=2147493697
 bill_lastpaymplandate=2147493980
 bill_obj2arno=2147493981
 bill_obj2arid=2147493982
+bill_tradeplanloc=2147494956
 billprelude=2147486830
 billupdattributes=2147486831
 billupdattributes_modcodestart=2147486832

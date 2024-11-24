@@ -2383,7 +2383,7 @@ PPBillExt::PPBillExt()
 bool PPBillExt::IsEmpty() const
 { 
 	return (AgentID || PayerID || InvoiceCode[0] || InvoiceDate || PaymBillCode[0] || PaymBillDate || 
-		ExtPriceQuotKindID || CcID || GoodsGroupID || CliPsnCategoryID) ? false : true; 
+		ExtPriceQuotKindID || CcID || GoodsGroupID || CliPsnCategoryID || TradePlanLocID) ? false : true; // @v12.1.12 TradePlanLocID
 }
 
 bool FASTCALL PPBillExt::IsEq(const PPBillExt & rS) const
@@ -2407,6 +2407,8 @@ bool FASTCALL PPBillExt::IsEq(const PPBillExt & rS) const
 	else if(PaymBillDate != rS.PaymBillDate)
 		return false;
 	else if(ExtPriceQuotKindID != rS.ExtPriceQuotKindID)
+		return false;
+	else if(TradePlanLocID != rS.TradePlanLocID) // @v12.1.12
 		return false;
 	else
 		return true;

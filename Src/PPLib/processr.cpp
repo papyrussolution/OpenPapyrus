@@ -2315,6 +2315,12 @@ int PPViewProcessor::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 					ok = ChangeFilt(1, pBrw);
 				}
 				break;
+			case PPVCMD_TAGS: // @v12.1.12
+				if(prc_id)
+					ok = EditObjTagValList(PPOBJ_PROCESSOR, prc_id, 0);
+				else
+					ok = -1;
+				break;
 		}
 	}
 	return ok;
