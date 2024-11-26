@@ -34,10 +34,7 @@ int DeviceLoadingStat::Fetch(PPID statID, DvcLoadingStatTbl::Rec * pRec)
 	return ok;
 }
 
-int DeviceLoadingStat::Search(PPID statID, DvcLoadingStatTbl::Rec * pRec)
-{
-	return SearchByID(this, 0, statID, pRec);
-}
+int DeviceLoadingStat::Search(PPID statID, DvcLoadingStatTbl::Rec * pRec) { return SearchByID(this, 0, statID, pRec); }
 
 int DeviceLoadingStat::GetPrev(PPID curStatID, PPID * pStatID, DvcLoadingStatTbl::Rec * pRec)
 {

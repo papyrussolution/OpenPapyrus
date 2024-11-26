@@ -1889,7 +1889,7 @@ CCheckCore::~CCheckCore()
 	ZDELETE(P_ChkOpJrnl);
 }
 
-const PPEquipConfig & CCheckCore::GetEqCfg() const { return EqCfg; } // @v10.9.9
+const PPEquipConfig & CCheckCore::GetEqCfg() const { return EqCfg; }
 CheckOpJrnl * CCheckCore::GetOpJrnl() { return P_ChkOpJrnl; } // @v11.6.2
 
 int CCheckCore::HasExt()
@@ -1903,10 +1903,7 @@ int CCheckCore::HasExt()
 	return 0;
 }
 
-int CCheckCore::Search(PPID id, CCheckTbl::Rec * pRec)
-{
-	return SearchByID(this, PPOBJ_CCHECK, id, pRec);
-}
+int CCheckCore::Search(PPID id, CCheckTbl::Rec * pRec) { return SearchByID(this, PPOBJ_CCHECK, id, pRec); }
 
 int CCheckCore::Search(PPID cashID, LDATE dt, LTIME tm, CCheckTbl::Rec * pRec)
 {

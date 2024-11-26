@@ -586,10 +586,7 @@ ObjSyncQueueCore::ObjSyncQueueCore() : ObjSyncQueueTbl()
 {
 }
 
-int ObjSyncQueueCore::Search(PPID queueID, ObjSyncQueueTbl::Rec * pRec)
-{
-	return SearchByID(this, 0, queueID, pRec);
-}
+int ObjSyncQueueCore::Search(PPID queueID, ObjSyncQueueTbl::Rec * pRec) { return SearchByID(this, 0, queueID, pRec); }
 
 int ObjSyncQueueCore::SearchObject_(PPID objType, PPID objID, PPID dbID, ObjSyncQueueTbl::Rec * pRec)
 {

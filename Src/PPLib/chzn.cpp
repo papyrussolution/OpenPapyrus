@@ -2484,7 +2484,7 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 							}
 						}
 					}
-					else if(rIb.ProtocolId == rIb.protidGisMt) { // @v10.9.9
+					else if(rIb.ProtocolId == rIb.protidGisMt) {
 						ScURL c;
 						MakeHeaderFields(rIb.Token, mhffAuthBearer, &hdr_flds, temp_buf); // @v11.1.11
 						/*
@@ -2506,7 +2506,6 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 									bicycle – Велосипеды и велосипедные рамы
 									wheelchairs – Кресла-коляски
 								type: ChZnDocTypeList
-									
 								{
 									"document_format": "string",
 									"product_document": "string",
@@ -3128,7 +3127,7 @@ int ChZnInterface::Connect(InitBlock & rIb)
 //
 //
 //
-PPChZnPrcssr::Param::Param() : GuaID(0), LocID(0)
+PPChZnPrcssr::Param::Param() : GuaID(0), LocID(0), Flags(0)
 {
 	Period.Z();
 }
@@ -3408,7 +3407,6 @@ int PPChZnPrcssr::Run(const Param & rP)
 				}
 			}
 		}
-		// @v10.9.10 {
 		if(base_op_list.Z().addnz(alcr_cfg.ExpndEtcOpID) > 0) {
 			PPObjOprKind::ExpandOpList(base_op_list, op_list);
 			for(uint i = 0; i < op_list.getCount(); i++) {
@@ -3431,9 +3429,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 				}
 			}
 		}
-		// } @v10.9.10 
 	}
-	// @v10.9.1 {
 	if(p_ib->ProtocolId == ChZnInterface::InitBlock::protidMdlp) {
 		PPObjOprKind op_obj;
 		PPOprKind en_op_rec;
@@ -3447,7 +3443,6 @@ int PPChZnPrcssr::Run(const Param & rP)
 			op_assoc_list.Add(chzn_252_op_id, ChZnInterface::doctypMdlpRefusalReceiver);
 		}
 	}
-	// } @v10.9.1
 	if(op_assoc_list.getCount()) {
 		for(uint opidx = 0; opidx < op_assoc_list.getCount(); opidx++) {
 			const  PPID op_id = op_assoc_list.at(opidx).Key;
@@ -3486,7 +3481,6 @@ int PPChZnPrcssr::Run(const Param & rP)
 							const  PPID psn_id = bill_rec.Object ? ObjectToPerson(bill_rec.Object, 0) : 0;
 							if(psn_id && p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_CHZNCODE, temp_buf) > 0) {
 								PPID   local_chzn_op_id = chzn_op_id;
-								// @v10.9.7 {
 								if(chzn_op_id == ChZnInterface::doctypMdlpReceiveOrder) {
 									if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_KEYWORDS, temp_buf) > 0) {
 										if(temp_buf.Search("chzn-702", 0, 1, 0) || temp_buf.Search("chzn702", 0, 1, 0)) {
@@ -3494,7 +3488,6 @@ int PPChZnPrcssr::Run(const Param & rP)
 										}
 									}
 								}
-								// } @v10.9.7 
 								THROW_SL(p_pack = new ChZnInterface::Packet(local_chzn_op_id));
 								if(PrepareBillPacketForSending(bill_rec.ID, p_pack) > 0) {
 									suited = 1;
@@ -3514,20 +3507,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 		}
 	}
 	if(pending_list.getCount() || pack_list.getCount()) {
-		if(ifc.Connect(*p_ib) > 0) {
-			{
-				SString pending_ident;
-				SString ticket_buf;
-				SString path;
-				PPIDArray bill_id_list;
-				ifc.GetDebugPath(*p_ib, path);
-				for(uint ssp = 0; pending_list.get(&ssp, pending_ident);) {
-					if(ifc.GetDocumentTicket(*p_ib, pending_ident, ticket_buf) > 0) {
-						if(!ifc.CommitTicket(path, pending_ident, ticket_buf))
-							LogLastError();
-					}
-				}
-			}
+		if(rP.Flags & Param::fTestMode) {
 			for(uint bpidx = 0; bpidx < pack_list.getCount(); bpidx++) {
 				ChZnInterface::Packet * p_inner_pack = pack_list.at(bpidx);
 				int tdr = ifc.TransmitDocument2(*p_ib, *p_inner_pack, result_doc_ident);
@@ -3536,14 +3516,49 @@ int PPChZnPrcssr::Run(const Param & rP)
 						PPBillPacket * p_bp = static_cast<PPBillPacket *>(p_inner_pack->P_Data);
 						ObjTagItem tag_item;
 						if(tag_item.SetStr(PPTAG_BILL_EDIIDENT, result_doc_ident)) {
-							// @v10.8.5 @construction p_bobj->P_Tbl->SetRecFlag2(p_bp->Rec.ID, BILLF2_ACKPENDING, 1, 1);
+							/*
 							if(!p_ref->Ot.PutTag(PPOBJ_BILL, p_bp->Rec.ID, &tag_item, 1))
 								LogLastError();
+							*/
 						}
 					}
 				}
 				else if(tdr == 0)
 					LogLastError();
+			}
+		}
+		else {
+			if(ifc.Connect(*p_ib) > 0) {
+				{
+					SString pending_ident;
+					SString ticket_buf;
+					SString path;
+					PPIDArray bill_id_list;
+					ifc.GetDebugPath(*p_ib, path);
+					for(uint ssp = 0; pending_list.get(&ssp, pending_ident);) {
+						if(ifc.GetDocumentTicket(*p_ib, pending_ident, ticket_buf) > 0) {
+							if(!ifc.CommitTicket(path, pending_ident, ticket_buf))
+								LogLastError();
+						}
+					}
+				}
+				for(uint bpidx = 0; bpidx < pack_list.getCount(); bpidx++) {
+					ChZnInterface::Packet * p_inner_pack = pack_list.at(bpidx);
+					int tdr = ifc.TransmitDocument2(*p_ib, *p_inner_pack, result_doc_ident);
+					if(tdr > 0) {
+						if(result_doc_ident.NotEmpty()) {
+							PPBillPacket * p_bp = static_cast<PPBillPacket *>(p_inner_pack->P_Data);
+							ObjTagItem tag_item;
+							if(tag_item.SetStr(PPTAG_BILL_EDIIDENT, result_doc_ident)) {
+								// @v10.8.5 @construction p_bobj->P_Tbl->SetRecFlag2(p_bp->Rec.ID, BILLF2_ACKPENDING, 1, 1);
+								if(!p_ref->Ot.PutTag(PPOBJ_BILL, p_bp->Rec.ID, &tag_item, 1))
+									LogLastError();
+							}
+						}
+					}
+					else if(tdr == 0)
+						LogLastError();
+				}
 			}
 		}
 	}

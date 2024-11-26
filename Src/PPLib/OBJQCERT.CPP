@@ -17,10 +17,7 @@ PPObjQCert::~PPObjQCert()
 	TLP_CLOSE(P_Tbl);
 }
 
-int PPObjQCert::Search(PPID id, void * b)
-{
-	return SearchByID(P_Tbl, Obj, id, b);
-}
+int PPObjQCert::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
 
 int PPObjQCert::SearchByCode(const char * pCode, PPID * pID, QualityCertTbl::Rec * pRec)
 {

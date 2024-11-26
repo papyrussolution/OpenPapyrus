@@ -16,12 +16,10 @@ PersonEventCore::PersonEventCore() : PersonEventTbl()
 {
 }
 
-int PersonEventCore::Search(PPID id, PersonEventTbl::Rec * pRec)
-	{ return SearchByID(this, PPOBJ_PERSONEVENT, id, pRec); }
-int PersonEventCore::Add(PPID * pID, PersonEventTbl::Rec * pRec, int use_ta)
-	{ return (IncDateKey(this, 1, pRec->Dt, &pRec->OprNo) && AddObjRecByID(this, PPOBJ_PERSONEVENT, pID, pRec, use_ta)); }
-int PersonEventCore::Update(PPID id, PersonEventTbl::Rec * pRec, int use_ta)
-	{ return UpdateByID(this, PPOBJ_PERSONEVENT, id, pRec, use_ta); }
+int PersonEventCore::Search(PPID id, PersonEventTbl::Rec * pRec) { return SearchByID(this, PPOBJ_PERSONEVENT, id, pRec); }
+int PersonEventCore::Add(PPID * pID, PersonEventTbl::Rec * pRec, int use_ta) { return (IncDateKey(this, 1, pRec->Dt, &pRec->OprNo) && AddObjRecByID(this, PPOBJ_PERSONEVENT, pID, pRec, use_ta)); }
+int PersonEventCore::Update(PPID id, PersonEventTbl::Rec * pRec, int use_ta) { return UpdateByID(this, PPOBJ_PERSONEVENT, id, pRec, use_ta); }
+
 int PersonEventCore::Remove(PPID id, int use_ta)
 { 
 	int   ok = 1;

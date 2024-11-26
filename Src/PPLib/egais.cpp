@@ -10243,10 +10243,7 @@ EgaisRefACore::EgaisRefACore() : EgaisRefATbl()
 {
 }
 
-int EgaisRefACore::Search(PPID id, EgaisRefATbl::Rec * pRec)
-{
-	return SearchByID(this, PPOBJ_EGAISREFA, id, pRec);
-}
+int EgaisRefACore::Search(PPID id, EgaisRefATbl::Rec * pRec) { return SearchByID(this, PPOBJ_EGAISREFA, id, pRec); }
 
 int EgaisRefACore::SearchByCode(const char * pRefACode, TSVector <EgaisRefATbl::Rec> & rList)
 {

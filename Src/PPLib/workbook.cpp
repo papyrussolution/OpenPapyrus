@@ -185,12 +185,9 @@ void PPWorkbookPacket::destroy()
 	ExtString.Z();
 }
 
-int PPWorkbookPacket::GetExtStrData(int fldID, SString & rBuf) const
-	{ return PPGetExtStrData(fldID, ExtString, rBuf); }
-int PPWorkbookPacket::PutExtStrData(int fldID, const char * pBuf)
-	{ return PPPutExtStrData(fldID, ExtString, pBuf); }
-int PPWorkbookPacket::SetLongSymb(const char * pSymb)
-	{ return TagL.PutItemStrNE(PPTAG_WORKBOOK_LONGCODE, pSymb); }
+int PPWorkbookPacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int PPWorkbookPacket::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
+int PPWorkbookPacket::SetLongSymb(const char * pSymb) { return TagL.PutItemStrNE(PPTAG_WORKBOOK_LONGCODE, pSymb); }
 //
 //
 //
@@ -335,10 +332,7 @@ PPObjWorkbook::~PPObjWorkbook()
 	TLP_CLOSE(P_Tbl);
 }
 
-int PPObjWorkbook::Search(PPID id, void * pRec)
-{
-	return SearchByID(P_Tbl, Obj, id, pRec);
-}
+int PPObjWorkbook::Search(PPID id, void * pRec) { return SearchByID(P_Tbl, Obj, id, pRec); }
 
 int PPObjWorkbook::SearchByName(const char * pName, PPID * pID, WorkbookTbl::Rec * pRec)
 {

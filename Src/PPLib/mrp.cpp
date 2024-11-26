@@ -37,10 +37,7 @@ MrpTabCore::MrpTabCore() : MrpTabTbl()
 {
 }
 
-int MrpTabCore::Search(PPID id, MrpTabTbl::Rec * pRec)
-{
-	return SearchByID(this, PPOBJ_MRPTAB, id, pRec);
-}
+int MrpTabCore::Search(PPID id, MrpTabTbl::Rec * pRec) { return SearchByID(this, PPOBJ_MRPTAB, id, pRec); }
 
 int MrpTabCore::GetSubList(PPID tabID, PPIDArray * pList)
 {
@@ -157,15 +154,8 @@ int MrpTabCore::SearchLine(PPID tabID, PPID destID, PPID srcID, MrpLineTbl::Rec 
 	return SearchByKey(&Lines, 1, &k1, pRec);
 }
 
-int MrpTabCore::GetTotalLine(PPID tabID, PPID goodsID, MrpLineTbl::Rec * pRec)
-{
-	return SearchLine(tabID, goodsID, MRPSRCV_TOTAL, pRec);
-}
-
-int MrpTabCore::SearchLineByID(PPID lineID, MrpLineTbl::Rec * pRec)
-{
-	return SearchByID(&Lines, 0, lineID, pRec);
-}
+int MrpTabCore::GetTotalLine(PPID tabID, PPID goodsID, MrpLineTbl::Rec * pRec) { return SearchLine(tabID, goodsID, MRPSRCV_TOTAL, pRec); }
+int MrpTabCore::SearchLineByID(PPID lineID, MrpLineTbl::Rec * pRec) { return SearchByID(&Lines, 0, lineID, pRec); }
 
 int MrpTabCore::AddLine(PPID id, PPID destID, PPID srcID, double destReqQtty, double srcReqQtty, double price, long flags, int use_ta)
 {

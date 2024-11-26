@@ -5001,8 +5001,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 		else
 			_RET_LONG = 0;
 	}
-	else if(pF->Name == "?GetAverageCost") { // @v10.2.6
-		//double GetAverageCost(date dt, long locID, string serial);
+	else if(pF->Name == "?GetAverageCost") {
 		LDATE  dt = _ARG_DT(1);
 		PPID   loc_id = _ARG_LONG(2);
 		const  SString & r_serial = _ARG_STR(3);

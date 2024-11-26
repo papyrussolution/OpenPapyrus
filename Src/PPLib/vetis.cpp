@@ -2222,14 +2222,12 @@ int VetisEntityCore::SetEntity(Entity & rE, TSVector <UnresolvedEntity> * pUreLi
 		}
 	}
 	CATCHZOK
-	ASSIGN_PTR(pID, rE.ID); // @v10.6.3
+	ASSIGN_PTR(pID, rE.ID);
 	return ok;
 }
 
-int VetisEntityCore::SearchPerson(PPID id, VetisPersonTbl::Rec * pRec)
-	{ return SearchByID(&BT, 0, id, pRec); }
-int VetisEntityCore::SearchDocument(PPID id, VetisDocumentTbl::Rec * pRec)
-	{ return SearchByID(&DT, 0, id, pRec); }
+int VetisEntityCore::SearchPerson(PPID id, VetisPersonTbl::Rec * pRec) { return SearchByID(&BT, 0, id, pRec); }
+int VetisEntityCore::SearchDocument(PPID id, VetisDocumentTbl::Rec * pRec) { return SearchByID(&DT, 0, id, pRec); }
 
 int VetisEntityCore::MatchDocument(PPID docEntityID, PPID billID, int rowN, int fromBill, int use_ta)
 {

@@ -407,10 +407,7 @@ int PPObjStaffList::AssignPersonToStaff(PPID psnID, PPID staffID, LDATE dt, int 
 	return PutPostPacket(&post_id, &pack, use_ta);
 }
 
-int PPObjStaffList::SearchPost(PPID postID, PersonPostTbl::Rec * pRec)
-{
-	return SearchByID(P_PostTbl, PPOBJ_PERSONPOST, postID, pRec);
-}
+int PPObjStaffList::SearchPost(PPID postID, PersonPostTbl::Rec * pRec) { return SearchByID(P_PostTbl, PPOBJ_PERSONPOST, postID, pRec); }
 
 int PPObjStaffList::GetPostPacket(PPID postID, PPPsnPostPacket * pPack)
 {

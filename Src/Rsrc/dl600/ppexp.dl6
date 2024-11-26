@@ -2351,11 +2351,11 @@ data GoodsBillBase {
 		//   "pricesum"
 		//   "discount"
 		//   "vatrate"         ставка НДС в номинальных ценах
-		//   "vat"             велична НДС в номинальной цене
-		//   "vatsum"          велична НДС в номинальной сумме (в цене, умноженной на количество)
+		//   "vat"             величина НДС в номинальной цене
+		//   "vatsum"          величина НДС в номинальной сумме (в цене, умноженной на количество)
 		//   "costvatrate"     ставка НДС в ценах поступления
 		//   "costvat"         величина НДС в цене поступления
-		//   "costvatsum"      велична НДС в сумме поступления (в цене поступления, умноженной на количество)
+		//   "costvatsum"      величина НДС в сумме поступления (в цене поступления, умноженной на количество)
 		//   "pricevatrate"
 		//   "pricevat"
 		//   "pricevatsum"
@@ -3214,6 +3214,30 @@ data ContentBList {
 		OpName    = BillID.OprKindID.Name;
 		CostRevalSum  = (Cost  - OldCost)  * Quantity;
 		PriceRevalSum = (Price - OldPrice) * Quantity;
+		//
+		// Descr: Возвращает суммовую величину по строке. Тип величины задается строковым параметром amtSymb[]
+		// Возможные значения amtSymb:
+		//   * "qty" | "qtty" | "quantity"
+		//   "cost"
+		//   "costsum"
+		//   "price"
+		//   "pricesum"
+		//   "discount"
+		//   "vatrate"         ставка НДС в номинальных ценах
+		//   "vat"             величина НДС в номинальной цене
+		//   "vatsum"          величина НДС в номинальной сумме (в цене, умноженной на количество)
+		//   * "costvatrate"     ставка НДС в ценах поступления
+		//   * "costvat"         величина НДС в цене поступления
+		//   * "costvatsum"      величина НДС в сумме поступления (в цене поступления, умноженной на количество)
+		//   * "pricevatrate"
+		//   * "pricevat"
+		//   * "pricevatsum"
+		//
+		double GetRowAmount(string amtSymb[32]); // @v12.2.0
+
+		//TestAmount01 = GetRowAmount("qtty"); // @debug
+		//TestAmount02 = GetRowAmount("pricevat"); // @debug
+		//TestAmount03 = GetRowAmount("costvatsum"); // @debug
 	}
 }
 //

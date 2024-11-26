@@ -12,12 +12,9 @@ CSessionCore::CSessionCore() : CSessionTbl()
 {
 }
 
-int CSessionCore::Search(PPID id, CSessionTbl::Rec * pRec)
-	{ return SearchByID(this, PPOBJ_CSESSION, id, pRec); }
-int CSessionCore::SetSessIncompletness(PPID id, int grade, int use_ta)
-	{ return updateFor(this, use_ta, (this->ID == id), set(this->Incomplete, dbconst((long)grade))) ? 1 : PPSetErrorDB(); }
-int CSessionCore::ResetTempSessTag(PPID id, int use_ta)
-	{ return updateFor(this, use_ta, (this->ID == id), set(this->Temporary, dbconst(0L))) ? 1 : PPSetErrorDB(); }
+int CSessionCore::Search(PPID id, CSessionTbl::Rec * pRec) { return SearchByID(this, PPOBJ_CSESSION, id, pRec); }
+int CSessionCore::SetSessIncompletness(PPID id, int grade, int use_ta) { return updateFor(this, use_ta, (this->ID == id), set(this->Incomplete, dbconst((long)grade))) ? 1 : PPSetErrorDB(); }
+int CSessionCore::ResetTempSessTag(PPID id, int use_ta) { return updateFor(this, use_ta, (this->ID == id), set(this->Temporary, dbconst(0L))) ? 1 : PPSetErrorDB(); }
 
 int CSessionCore::SearchByNumber(PPID * pID, PPID cashNodeID, long cashN, long sessN, LDATE dt)
 {
@@ -26,11 +23,12 @@ int CSessionCore::SearchByNumber(PPID * pID, PPID cashNodeID, long cashN, long s
 	k.CashNumber = cashN;
 	k.SessNumber = sessN;
 	k.Dt = MAXDATE;
-	while(search(2, &k, spLt) && k.CashNodeID == cashNodeID && k.CashNumber == cashN && k.SessNumber == sessN)
+	while(search(2, &k, spLt) && k.CashNodeID == cashNodeID && k.CashNumber == cashN && k.SessNumber == sessN) {
 		if(dt == 0 || labs(diffdate(&k.Dt, &dt, 0)) < 7) {
 			ASSIGN_PTR(pID, data.ID);
 			return 1;
 		}
+	}
 	ASSIGN_PTR(pID, 0);
 	return -1;
 }

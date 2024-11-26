@@ -3040,8 +3040,8 @@ int BillDialog::getDTS(int onCancel)
 		for(uint i = 0; P_Pack->EnumTItems(&i, &p_ti);)
 			SETFLAG(p_ti->Flags, PPTFR_COSTWSTAX, BIN(P_Pack->Rec.Flags & BILLF_RMVEXCISE));
 	}
-	/* @v12.1.12 
 	getCtrlData(CTL_BILL_DOC,  P_Pack->Rec.Code);
+	/* @v12.1.12 
 	getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
 	P_Pack->Rec.Dt = P_Pack->Rec.Dt.getactual(ZERODATE);
 	getCtrlData(CTL_BILL_DUEDATE, &P_Pack->Rec.DueDate);

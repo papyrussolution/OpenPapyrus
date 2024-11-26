@@ -124,10 +124,8 @@ int ProcessorPlaceCodeTemplate::Parse(const char * pPattern)
 			THROW_PP_S(sub.Len() == sub2.Len() && sub.Len() == 1, PPERR_PRCPLCCODE_ALRNGLEN, pPattern);
 			const char c1 = sub.C(0);
 			const char c2 = sub2.C(0);
-			// @v10.9.8 THROW_PP_S((c1 >= 'A' && c1 <= 'Z') || (c1 >= 'a' && c1 <= 'z') || IsLetter866(c1), PPERR_PRCPLCCODE_ALRNGSYM, pPattern);
-			// @v10.9.8 THROW_PP_S((c2 >= 'A' && c2 <= 'Z') || (c2 >= 'a' && c2 <= 'z') || IsLetter866(c2), PPERR_PRCPLCCODE_ALRNGSYM, pPattern);
-			THROW_PP_S(isasciialpha(c1) || IsLetter866(c1), PPERR_PRCPLCCODE_ALRNGSYM, pPattern); // @v10.9.8 
-			THROW_PP_S(isasciialpha(c2) || IsLetter866(c2), PPERR_PRCPLCCODE_ALRNGSYM, pPattern); // @v10.9.8 
+			THROW_PP_S(isasciialpha(c1) || IsLetter866(c1), PPERR_PRCPLCCODE_ALRNGSYM, pPattern);
+			THROW_PP_S(isasciialpha(c2) || IsLetter866(c2), PPERR_PRCPLCCODE_ALRNGSYM, pPattern);
 			seq.Type = 2;
 			seq.Start = ToUpper866(c1);
 			seq.End = ToUpper866(c2);
@@ -522,15 +520,8 @@ bool PPObjProcessor::IsPacketEq(const PPProcessorPacket & rS1, const PPProcessor
 	return eq;	
 }
 
-int PPObjProcessor::Search(PPID id, void * b)
-{
-	return SearchByID(P_Tbl, Obj, id, b);
-}
-
-/*virtual*/const char * PPObjProcessor::GetNamePtr()
-{
-	return P_Tbl->data.Name;
-}
+int PPObjProcessor::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
+/*virtual*/const char * PPObjProcessor::GetNamePtr() { return P_Tbl->data.Name; }
 
 int PPObjProcessor::SearchByName(int kind, const char * pName, PPID * pID, ProcessorTbl::Rec * pRec)
 {

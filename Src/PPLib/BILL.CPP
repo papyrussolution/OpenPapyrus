@@ -117,8 +117,7 @@ BillCore::BillCore() : BillTbl()
 {
 }
 
-int BillCore::Search(PPID id, BillTbl::Rec * pRec)
-	{ return SearchByID(this, PPOBJ_BILL, id, pRec); }
+int BillCore::Search(PPID id, BillTbl::Rec * pRec) { return SearchByID(this, PPOBJ_BILL, id, pRec); }
 
 int BillCore::PutItemMemo(PPID id, SString * pBuf, int use_ta) // @v11.1.12
 {

@@ -5055,6 +5055,8 @@ int PPBillImporter::Run()
 		param.GuaID = GuaID;
 		param.LocID = LocID;
 		param.Period = Period;
+		if(Flags & PPBillImporter::fTestMode)
+			param.Flags |= PPChZnPrcssr::Param::fTestMode;
 		THROW(prcssr.Run(param));
 	}
 	else if(Flags & PPBillImporter::fEdiImpExp && Flags & PPBillImporter::fFullEdiProcess) {

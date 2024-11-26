@@ -1284,10 +1284,7 @@ int GoodsCore::GetListByBrandList(const PPIDArray & rBrandList, PPIDArray & rGoo
 	return ok;
 }
 
-int GoodsCore::Search(PPID id, void * b)
-{
-	return SearchByID(this, PPOBJ_GOODS, id, b);
-}
+int GoodsCore::Search(PPID id, void * b) { return SearchByID(this, PPOBJ_GOODS, id, b); }
 
 int GoodsCore::GetExt(PPID id, GoodsExtTbl::Rec * pRec)
 {

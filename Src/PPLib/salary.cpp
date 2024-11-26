@@ -31,10 +31,7 @@ int SalaryCore::Validate(const SalaryTbl::Rec * pRec)
 	return ok;
 }
 
-int SalaryCore::Search(PPID id, SalaryTbl::Rec * pRec)
-{
-	return SearchByID(this, 0, id, pRec);
-}
+int SalaryCore::Search(PPID id, SalaryTbl::Rec * pRec) { return SearchByID(this, 0, id, pRec); }
 
 int SalaryCore::Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta)
 {

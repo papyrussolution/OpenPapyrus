@@ -220,12 +220,9 @@ PPObjProject::~PPObjProject()
 	TLP_CLOSE(P_Tbl);
 }
 
-int PPObjProject::DeleteObj(PPID id)
-	{ return PutPacket(&id, static_cast<PPProjectPacket *>(0), 0); }
-int PPObjProject::Search(PPID id, void * b)
-	{ return SearchByID(P_Tbl, Obj, id, b); }
-const char * PPObjProject::GetNamePtr()
-	{ return MakeCodeString(&P_Tbl->data, NameBuf).cptr(); }
+int PPObjProject::DeleteObj(PPID id) { return PutPacket(&id, static_cast<PPProjectPacket *>(0), 0); }
+int PPObjProject::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
+const char * PPObjProject::GetNamePtr() { return MakeCodeString(&P_Tbl->data, NameBuf).cptr(); }
 
 StrAssocArray * PPObjProject::MakeStrAssocList(void * extraPtr /*parentPrjID*/)
 {
@@ -890,15 +887,9 @@ PrjTaskCore::PrjTaskCore() : PrjTaskTbl()
 {
 }
 
-int PrjTaskCore::Search(PPID id, PrjTaskTbl::Rec * pRec)
-{
-	return SearchByID(this, PPOBJ_PRJTASK, id, pRec);
-}
-
-int PrjTaskCore::NextEnum(long enumHandle, PrjTaskTbl::Rec * pRec)
-	{ return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1; }
-int PrjTaskCore::DestroyIter(long enumHandle)
-	{ return EnumList.DestroyIterHandler(enumHandle); }
+int PrjTaskCore::Search(PPID id, PrjTaskTbl::Rec * pRec) { return SearchByID(this, PPOBJ_PRJTASK, id, pRec); }
+int PrjTaskCore::NextEnum(long enumHandle, PrjTaskTbl::Rec * pRec) { return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1; }
+int PrjTaskCore::DestroyIter(long enumHandle) { return EnumList.DestroyIterHandler(enumHandle); }
 
 BExtQuery * PrjTaskCore::StartupEnumQuery(int idx, int options)
 {

@@ -233,12 +233,9 @@ public:
 		PPID   MainOrgID; // @v12.1.11 Идентификатор персоналии главной организации 
 	};
 	struct QuotKindEntry {
-		QuotKindEntry() : ID(0), Rank(0), DaysOfWeek(0)
-		{
-			ApplyTm.Z();
-		}
-		bool   HasWeekDayRestriction() const { return (DaysOfWeek && ((DaysOfWeek & 0x7f) != 0x7f)); }
-		bool   CheckWeekDay(LDATE dt) const { return (!DaysOfWeek || !dt || (DaysOfWeek & (1 << (dayofweek(&dt, 1)-1)))); }
+		QuotKindEntry();
+		bool   HasWeekDayRestriction() const;
+		bool   CheckWeekDay(LDATE dt) const;
 
 		PPID   ID;
 		int    Rank;
@@ -247,35 +244,20 @@ public:
 		SString NameUtf8;
 	};
 	struct QuotEntry {
-		QuotEntry() : QkID(0), Value(0.0)
-		{
-		}
+		QuotEntry();
 		PPID   QkID;
 		double Value;
 	};
 	struct TechEntry {
-		TechEntry() : ID(0)
-		{
-			CodeUtf8[0] = 0;
-		}
+		TechEntry();
 		PPID   ID;
 		char   CodeUtf8[48];
 	};
 	struct GoodsEntry {
-		GoodsEntry() : ID(0)
-		{
-		}
-		GoodsEntry(const GoodsEntry & rS) : ID(rS.ID), NameUtf8(rS.NameUtf8), QuotList(rS.QuotList)
-		{
-		}
-		GoodsEntry & FASTCALL operator = (const GoodsEntry & rS)
-		{
-			ID = rS.ID;
-			NameUtf8 = rS.NameUtf8;
-			TechList = rS.TechList;
-			QuotList = rS.QuotList;
-			return *this;
-		}
+		GoodsEntry();
+		GoodsEntry(const GoodsEntry & rS);
+		GoodsEntry & FASTCALL operator = (const GoodsEntry & rS);
+
 		PPID   ID;
 		SString NameUtf8;
 		TSVector <TechEntry> TechList;
@@ -1217,6 +1199,40 @@ WsCtl_ImGuiSceneBlock::DComputerCategoryList & WsCtl_ImGuiSceneBlock::DComputerC
 	DServerError::Z();
 	L.Z();
 	DtmActual.Z();
+	return *this;
+}
+
+WsCtl_ImGuiSceneBlock::QuotKindEntry::QuotKindEntry() : ID(0), Rank(0), DaysOfWeek(0)
+{
+	ApplyTm.Z();
+}
+		
+bool WsCtl_ImGuiSceneBlock::QuotKindEntry::HasWeekDayRestriction() const { return (DaysOfWeek && ((DaysOfWeek & 0x7f) != 0x7f)); }
+bool WsCtl_ImGuiSceneBlock::QuotKindEntry::CheckWeekDay(LDATE dt) const { return (!DaysOfWeek || !dt || (DaysOfWeek & (1 << (dayofweek(&dt, 1)-1)))); }
+
+WsCtl_ImGuiSceneBlock::QuotEntry::QuotEntry() : QkID(0), Value(0.0)
+{
+}
+
+WsCtl_ImGuiSceneBlock::TechEntry::TechEntry() : ID(0)
+{
+	CodeUtf8[0] = 0;
+}
+
+WsCtl_ImGuiSceneBlock::GoodsEntry::GoodsEntry() : ID(0)
+{
+}
+		
+WsCtl_ImGuiSceneBlock::GoodsEntry::GoodsEntry(const GoodsEntry & rS) : ID(rS.ID), NameUtf8(rS.NameUtf8), QuotList(rS.QuotList)
+{
+}
+		
+WsCtl_ImGuiSceneBlock::GoodsEntry & FASTCALL WsCtl_ImGuiSceneBlock::GoodsEntry::operator = (const GoodsEntry & rS)
+{
+	ID = rS.ID;
+	NameUtf8 = rS.NameUtf8;
+	TechList = rS.TechList;
+	QuotList = rS.QuotList;
 	return *this;
 }
 

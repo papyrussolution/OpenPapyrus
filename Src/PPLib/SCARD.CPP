@@ -53,10 +53,7 @@ SCardCore::SCardCore() : SCardTbl()
 {
 }
 
-int SCardCore::Search(PPID id, SCardTbl::Rec * pRec)
-{
-	return SearchByID(this, PPOBJ_SCARD, id, pRec);
-}
+int SCardCore::Search(PPID id, SCardTbl::Rec * pRec) { return SearchByID(this, PPOBJ_SCARD, id, pRec); }
 
 int SCardCore::SearchCode(PPID seriesID, const char * pCode, SCardTbl::Rec * pRec)
 {

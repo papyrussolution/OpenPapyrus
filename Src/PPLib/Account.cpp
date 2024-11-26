@@ -82,10 +82,7 @@ ArticleCore::ArticleCore() : ArticleTbl()
 {
 }
 
-int ArticleCore::Search(PPID id, void * b)
-{
-	return SearchByID(this, PPOBJ_ARTICLE, id, b);
-}
+int ArticleCore::Search(PPID id, void * b) { return SearchByID(this, PPOBJ_ARTICLE, id, b); }
 
 int ArticleCore::SearchName(PPID accSheetID, const char * pName, void * b)
 {
@@ -229,10 +226,7 @@ AcctRel::AcctRel() : AcctRelTbl()
 {
 }
 
-int AcctRel::Search(PPID id, AcctRelTbl::Rec * pRec)
-{
-	return SearchByID(this, PPOBJ_ACCTREL, id, pRec);
-}
+int AcctRel::Search(PPID id, AcctRelTbl::Rec * pRec) { return SearchByID(this, PPOBJ_ACCTREL, id, pRec); }
 
 int AcctRel::SearchAcctID(const AcctID * pAcctId, AcctRelTbl::Rec * pRec)
 {

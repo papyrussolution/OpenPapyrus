@@ -431,11 +431,9 @@ int RegisterArray::ProcessObjRefs(PPObjIDArray * ary, int replace)
 		if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
 			THROW(PPObject::ProcessObjRefInArray(PPOBJ_BNKACCTYPE, &r_reg_rec.ExtID, ary, replace));
 		}
-		// @v10.7.5 {
 		else if(r_reg_rec.RegTypeID == PPREGT_TAXSYSTEM) {
 			THROW(PPObject::ProcessObjRefInArray(PPOBJ_TAXSYSTEMKIND, &r_reg_rec.ExtID, ary, replace));
 		}
-		// } @v10.7.5 
 	}
 	CATCHZOK
 	return ok;
@@ -447,10 +445,7 @@ RegisterCore::RegisterCore() : RegisterTbl()
 {
 }
 
-int RegisterCore::Search(PPID id, RegisterTbl::Rec * b)
-{
-	return SearchByID(this, PPOBJ_REGISTER, id, b);
-}
+int RegisterCore::Search(PPID id, RegisterTbl::Rec * b) { return SearchByID(this, PPOBJ_REGISTER, id, b); }
 
 int RegisterCore::SearchByNumber(PPID * pID, PPID regTypeID, const char * pSerial, const char * pNumber, RegisterTbl::Rec * pBuf)
 {

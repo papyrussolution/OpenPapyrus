@@ -116,7 +116,7 @@ int PPQuotItem_::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 IMPL_CMPFUNC(PPQuotItem_, i1, i2) 
 	{ RET_CMPCASCADE6(static_cast<const PPQuotItem_ *>(i1), static_cast<const PPQuotItem_ *>(i2), GoodsID, KindID, LocID, ArID, CurID, Period); }
 
-PPQuotItemArray::PPQuotItemArray() : TSVector <PPQuotItem_> () // @v9.8.4 TSArray-->TSVector
+PPQuotItemArray::PPQuotItemArray() : TSVector <PPQuotItem_> ()
 {
 }
 
@@ -371,8 +371,6 @@ int FASTCALL PPQuot::GetValFromStr(const char * pStr)
 	if(flags & PPQuot::fZero)
 		rBuf.CatChar('Z');
 	else {
-		//long   fmt = (flags & (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctOnBase)) ?
-			//MKSFMTD(0, 2, NMBF_NOTRAILZ|NMBF_NOZERO) : MKSFMTD(0, 5, NMBF_NOZERO); // @v9.5.1 MKSFMTD(0, 2, NMBF_NOZERO)-->MKSFMTD(0, 5, NMBF_NOZERO)
 		long   fmt = 0;
 		if(flags & fAggrCount)
 			fmt = MKSFMTD(0, 0, NMBF_NOZERO);
@@ -476,11 +474,11 @@ IMPL_CMPFUNC(PPQuot, i1, i2)
 //
 // PPQuotArray
 //
-PPQuotArray::PPQuotArray(PPID goodsID) : TSVector <PPQuot>(), GoodsID(goodsID) // @v9.8.4 TSArray-->TSVector
+PPQuotArray::PPQuotArray(PPID goodsID) : TSVector <PPQuot>(), GoodsID(goodsID)
 {
 }
 
-PPQuotArray::PPQuotArray(const PPQuotArray & s) : TSVector <PPQuot> (s), GoodsID(s.GoodsID) // @v9.8.4 TSArray-->TSVector
+PPQuotArray::PPQuotArray(const PPQuotArray & s) : TSVector <PPQuot> (s), GoodsID(s.GoodsID)
 {
 }
 
@@ -509,7 +507,7 @@ void PPQuotArray::SetManagedLocList(const PPIDArray * pList)
 	if(pList)
 		ManagedLocList = *pList;
 	else
-		ManagedLocList.clear(); // @v10.7.3 freeAll()-->clear()
+		ManagedLocList.clear();
 }
 
 int FASTCALL PPQuotArray::CanUpdateQuot(const PPQuot & rQuot) const
@@ -608,7 +606,7 @@ bool FASTCALL PPQuotArray::SearchQi(const QuotIdent & rQi, uint * pPos) const
 	const bool use_period = LOGIC(rQi.Flags & QuotIdent::fUsePeriod);
 	for(uint i = 0; i < c; i++) {
 		const PPQuot & rq = at(i);
-		if(rq.Kind == rQi.QuotKindID /* @v11.9.4{*/&& (!(rQi.Flags & QuotIdent::fIgnoreTimeLimitValues) || rq.Period.IsZero())/* }@v11.9.4 */) {
+		if(rq.Kind == rQi.QuotKindID && (!(rQi.Flags & QuotIdent::fIgnoreTimeLimitValues) || rq.Period.IsZero())) {
 			if(rq.LocID == rQi.LocID && rq.CurID == rQi.CurID && rq.ArID == rQi.ArID && (!rq.IsEmpty() || (rq.Flags & PPQuot::fPctDisabled))) {
 				if((!use_period || rq.Period == rQi.Period) && (!(rQi.Flags & QuotIdent::fUseQtty) || rq.MinQtty == (long)rQi.Qtty_)) {
 					const double q_min_qtty = (double)rq.MinQtty;
@@ -857,15 +855,14 @@ QuotationCore::QuotationCore() : QuotationTbl()
 {
 }
 
-int QuotationCore::Search(PPID id, void * b)
-{
-	return SearchByID(this, PPOBJ_QUOT, id, b);
-}
+int QuotationCore::Search(PPID id, void * b) { return SearchByID(this, PPOBJ_QUOT, id, b); }
 
 int QuotationCore::SetCurr(PPID * pID, const PPQuot * pQuot, int logSj, int use_ta)
 {
 	int    ok = -1;
-	int    is_mtx_upd = 0, is_mtx_restr_upd = 0, is_suppl_deal_upd = 0;
+	int    is_mtx_upd = 0;
+	int    is_mtx_restr_upd = 0;
+	int    is_suppl_deal_upd = 0;
 	PPID   goods_id = 0; // для записи в SysJournal
 	PPID   loc_id = 0;   // для записи в SysJournal
 	PPID   ar_id = 0;    // для записи в SysJournal
@@ -904,16 +901,13 @@ int QuotationCore::SetCurr(PPID * pID, const PPQuot * pQuot, int logSj, int use_
 					ok = qk_obj.CheckRights(QUOTRT_UPDMTXRESTR) ? (is_mtx_restr_upd = 1) : LogDeclineMsg(pQuot, PPQC_MATRIXRESTR);
 				else if(spc.IsSupplDealKind(rec.Kind)) {
 					ok = qk_obj.CheckRights(QUOTRT_UPDSUPPLCOST) ? 1 : LogDeclineMsg(pQuot, PPQC_SUPPLDEAL);
-					// @v7.1.10 {
 					if(rec.Kind == spc.SupplDealID)
 						is_suppl_deal_upd = 1;
-					// } @v7.1.10
 				}
 				else
 					ok = qk_obj.CheckRights(QUOTRT_UPDQUOTS) ? 1 : LogDeclineMsg(pQuot, PPQC_PRICE);
 				if(ok > 0) {
-					THROW(RemoveByID(this, *pID, 0)); // @v7.9.0
-					// @v7.9.0 THROW_DB(deleteRec());
+					THROW(RemoveByID(this, *pID, 0));
 				}
 				else
 					pQuot = 0;
@@ -931,7 +925,7 @@ int QuotationCore::SetCurr(PPID * pID, const PPQuot * pQuot, int logSj, int use_
 			rec.Kind      = pQuot->Kind;
 			rec.CurID     = pQuot->CurID;
 			rec.Flags     = pQuot->Flags;
-			rec.Flags     = (pQuot->Flags & PPQuot::fDbMask); // @v7.2.1 (& PPQuot::fDbMask)
+			rec.Flags     = (pQuot->Flags & PPQuot::fDbMask);
 			rec.ArID      = pQuot->ArID;
 			rec.Quot      = pQuot->Quot;
 			rec.MinQtty   = pQuot->MinQtty;
@@ -946,10 +940,8 @@ int QuotationCore::SetCurr(PPID * pID, const PPQuot * pQuot, int logSj, int use_
 					ok = qk_obj.CheckRights(QUOTRT_UPDMTXRESTR) ? (is_mtx_restr_upd = 1) : LogDeclineMsg(pQuot, PPQC_MATRIXRESTR);
 				else if(spc.IsSupplDealKind(rec.Kind)) {
 					ok = qk_obj.CheckRights(QUOTRT_UPDSUPPLCOST) ? 1 : LogDeclineMsg(pQuot, PPQC_SUPPLDEAL);
-					// @v7.1.10 {
 					if(rec.Kind == spc.SupplDealID)
 						is_suppl_deal_upd = 1;
-					// } @v7.1.10
 				}
 				else
 					ok = qk_obj.CheckRights(QUOTRT_UPDQUOTS) ? 1 : LogDeclineMsg(pQuot, PPQC_PRICE);
@@ -968,10 +960,8 @@ int QuotationCore::SetCurr(PPID * pID, const PPQuot * pQuot, int logSj, int use_
 					DS.LogAction(PPACN_GOODSMTXUPD, PPOBJ_GOODS, goods_id, loc_id, 0);
 				else if(is_mtx_restr_upd)
 					DS.LogAction(PPACN_GOODSMTXRESTRUPD, PPOBJ_GOODS, goods_id, loc_id, 0);
-				// @v7.1.10 {
 				else if(is_suppl_deal_upd)
 					DS.LogAction(PPACN_SUPPLDEALUPD, PPOBJ_GOODS, goods_id, ar_id, 0);
-				// } @v7.1.10
 			}
 			if(is_mtx_upd)
 				ok = 1000;
@@ -1186,7 +1176,7 @@ int QuotationCore::GetMatrixListByLoc(PPID mtxQkID, PPID locID, PPIDArray & rLis
 {
 	int    ok = 1;
 	QuotationTbl::Key0 k0;
-	BExtQuery q(this, 0, 256); // @v7.1.4 (256)
+	BExtQuery q(this, 0, 256);
 	q.select(this->GoodsID, this->Quot, 0).
 		where(this->Kind == mtxQkID && this->Actual > 0L && this->Location == locID);
 	MEMSZERO(k0);
@@ -1229,7 +1219,7 @@ static int Helper_GetMatrix(int quotProviderGeneration, void * pQuotProvider, PP
 	assert(oneof2(quotProviderGeneration, 1, 2));
 	assert(pQuotProvider);
 	if(mtxQkID && pQuotProvider) {
-		PPUserFuncProfiler ufp(PPUPRF_GETMTXLISTBYLOC); // @v8.1.3
+		PPUserFuncProfiler ufp(PPUPRF_GETMTXLISTBYLOC);
 		uint   i;
 		PPObjGoods goods_obj;
 		const  int ignore_folder_mtx = BIN(goods_obj.GetConfig().Flags & GCF_IGNOREFOLDERMATRIX);
@@ -1266,7 +1256,7 @@ static int Helper_GetMatrix(int quotProviderGeneration, void * pQuotProvider, PP
 				// добавляем в loc_list только те элементы по родительскому складу, которые не числятся //
 				// среди "определенно Нет" для указанного склада.
 				//
-				list.addExclusive(&_list, &neg_list); // @v8.0.4 addUniqueExclusive-->addExclusive
+				list.addExclusive(&_list, &neg_list);
 				//
 				// Так как котировка по складу имеет больший приоритет, чем по родительскому складу, то
 				// добавляем в list только те элементы по родительскому складу, которые не числятся //
@@ -1275,10 +1265,10 @@ static int Helper_GetMatrix(int quotProviderGeneration, void * pQuotProvider, PP
 				// list уже включает в себя "определенно Да" для заданного склада и элементы "без склада".
 				// В соответствии с правилом "Да-Нет приоритета" такая операция логична.
 				//
-				neg_list.addExclusive(&_neg_list, &_list); // @v8.0.4 addUniqueExclusive-->addExclusive
+				neg_list.addExclusive(&_neg_list, &_list);
 				//
-				list.sortAndUndup();     // @v8.0.4 sort-->sortAndUndup
-				neg_list.sortAndUndup(); // @v8.0.4 sort-->sortAndUndup
+				list.sortAndUndup();
+				neg_list.sortAndUndup();
 			} while(loc_id);
 		}
 		//
@@ -1290,7 +1280,7 @@ static int Helper_GetMatrix(int quotProviderGeneration, void * pQuotProvider, PP
 		for(i = 0; i < list.getCount(); i++) {
 			const  PPID goods_id = list.get(i);
 			if(grp_list.bsearch(goods_id)) {
-				if(!ignore_folder_mtx || terminal_grp_list.bsearch(goods_id)) { // @v8.3.4
+				if(!ignore_folder_mtx || terminal_grp_list.bsearch(goods_id)) {
 					inner_list.clear();
 					THROW(GoodsIterator::GetListByGroup(goods_id, &inner_list));
 					for(uint j = 0; j < inner_list.getCount(); j++) {
@@ -1330,8 +1320,8 @@ static int Helper_GetMatrix(int quotProviderGeneration, void * pQuotProvider, PP
 				final_list.add(goods_id);
 			}
 		}
-		ufp.SetFactor(0, (double)final_list.getCount()); // @v8.1.3
-		ufp.Commit(); // @v8.1.3
+		ufp.SetFactor(0, (double)final_list.getCount());
+		ufp.Commit();
 	}
 	else
 		ok = -1;
@@ -1378,7 +1368,7 @@ protected:
 	void   FASTCALL SetQuotProvider(void * p) { P_QuotProvider = p; }
 	const  int  QuotProviderGeneration;
 	PPID   MtxQkID; // Вид котировки товарной матрицы
-	int    IgnoreFolderMtx; // @v8.3.4 Если !0, то матрица по группе верхнего уровня игнорируется //
+	int    IgnoreFolderMtx; // Если !0, то матрица по группе верхнего уровня игнорируется //
 	long   AdvCookie;
 	uint   HalfSize;
 	void * P_QuotProvider;
@@ -1459,7 +1449,7 @@ int QuotCacheBase::Implement_GetMatrix(int qpg, void * pProvider, ReadWriteLock 
 					if(goods_rec.Kind == PPGDSK_GOODS)
 						finish_list.add(goods_id);
 					else if(goods_rec.Kind == PPGDSK_GROUP) {
-						if(!ignore_folder_mtx || !(goods_rec.Flags & GF_FOLDER)) // @v8.3.4
+						if(!ignore_folder_mtx || !(goods_rec.Flags & GF_FOLDER))
 							dirty_all = 1;
 						/*
 						temp_list.clear();
@@ -1485,7 +1475,6 @@ int QuotCacheBase::Implement_GetMatrix(int qpg, void * pProvider, ReadWriteLock 
 int QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPIDArray * pMtxLocList, int deferred)
 {
 	const uint _threshould = 100;
-
 	int    ok = -1;
 	uint   pos;
 	// @v7.1.4 (Блокировка вызывается в функции QuotationCore::DirtyMatrix()) Lock();
@@ -1534,8 +1523,6 @@ int QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPI
 				ok = 1;
 			}
 			else {
-				// PPUserFuncProfiler ufp(PPUPRF_MTXCACHEACTUALIZE); // @v8.1.6
-				// double ufp_factor = 0.0; // @v8.1.6
 				PPObjGoods goods_obj;
 				PPObjLocation loc_obj;
 				PPIDArray loc_list;
@@ -1597,7 +1584,7 @@ int QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPI
 						for(n = 0; n < prev_loc_mtx_list.getCount(); n++) {
 							const  PPID loc_id = prev_loc_mtx_list.at(n).Key;
 							long   val = 0;
-							if(!loc_mtx_list.Search(loc_id, &val, 0) || val == 0) { // @v7.3.0 (|| val==0)
+							if(!loc_mtx_list.Search(loc_id, &val, 0) || val == 0) {
 								loc_mtx_list.Add(loc_id, prev_loc_mtx_list.at(n).Val, 0);
 							}
 						}
@@ -1668,13 +1655,12 @@ int QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPI
 						for(k = 0; k < loc_mtx_list.getCount(); k++) {
 							const LAssoc & r_item = loc_mtx_list.at(k);
 							if(r_item.Val > 0 && !to_rmv_list.bsearch(r_item.Key)) {
-								// @v8.0.9 if(loc_list.addUnique(r_item.Key) > 0)
-								if(loc_list.add(r_item.Key) > 0) // @v8.0.9
+								if(loc_list.add(r_item.Key) > 0)
 									ok = 1;
 							}
 						}
 					}
-					loc_list.sortAndUndup(); // @v8.0.9
+					loc_list.sortAndUndup();
 					//
 					for(uint i = 0; i < mc; i++) {
 						MatrixEntry * p_entry = Matrix.at(i);
@@ -1690,8 +1676,6 @@ int QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPI
 					LogDirtyMatrix(goods_id);
 					PROFILE_END
 				}
-				// ufp.SetFactor(1, ufp_factor); // @v8.1.6
-				// ufp.Commit(); // @v8.1.6
 			}
 		}
 	}
@@ -2904,7 +2888,7 @@ int Quotation2Core::Implement_Set(const PPQuot & rQ, long qtaID, int logSj, bool
 				THROW_DB(getPosition(&ri));
 				THROW_SL(ri_list.insert(&ri));
 				last_actual_rec = data;
-			} while(search(2, &k2, spNext) && data.Actual && data.RelID == rel_id && data.GoodsID == rQ.GoodsID); // @v8.2.6 searchForUpdate-->search
+			} while(search(2, &k2, spNext) && data.Actual && data.RelID == rel_id && data.GoodsID == rQ.GoodsID);
 		}
 		PROFILE_END
 		if(ri_list.getCount()) {
@@ -2961,8 +2945,7 @@ int Quotation2Core::Implement_Set(const PPQuot & rQ, long qtaID, int logSj, bool
 			else
 				ok = qk_obj.CheckRights(QUOTRT_UPDQUOTS) ? 1 : LogDeclineMsg(&rQ, PPQC_PRICE);
 			if(ok > 0) {
-				// @v9.9.1 @fix const long mask = (PPQuot::fZero|PPQuot::fPctOnCost|PPQuot::fPctOnPrice|PPQuot::fPctOnAddition|PPQuot::fPctOnBase);
-				const long mask = PPQuot::fDbMask; // @v9.9.1 @fix
+				const long mask = PPQuot::fDbMask;
 				if((rec.Flags & mask) || rec.Quot != 0.0) {
 					// @v11.3.0 {
 					if(keepTime && checkdate(rQ.Dtm.d) && checktime(rQ.Dtm.t)) {
@@ -3207,7 +3190,7 @@ int Quotation2Core::Helper_ReplaceRel(PPID replacedRelID, PPID newRelID, int use
 int Quotation2Core::ReplaceObj(PPID objType, PPID replacedID, PPID newID, int use_ta)
 {
 	int    ok = -1;
-	TSVector <Quot2RelTbl::Rec> rel_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <Quot2RelTbl::Rec> rel_list;
 	if(objType == PPOBJ_ARTICLE) {
 		Quot2RelTbl::Key3 k3;
 		MEMSZERO(k3);

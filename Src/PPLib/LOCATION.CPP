@@ -166,10 +166,7 @@ LocationCore::~LocationCore()
 	ZDELETE(P_Eac);
 }
 
-int LocationCore::Search(PPID id, LocationTbl::Rec * b)
-{
-	return SearchByID(this, PPOBJ_LOCATION, id, b);
-}
+int LocationCore::Search(PPID id, LocationTbl::Rec * b) { return SearchByID(this, PPOBJ_LOCATION, id, b); }
 
 int LocationCore::GetListByCode(PPID locTyp, const char * pCode, PPIDArray * pIdList)
 {
@@ -1027,10 +1024,7 @@ EAddrCore::EAddrCore() : EAddrTbl()
 {
 }
 
-int EAddrCore::Search(PPID id, EAddrTbl::Rec * pRec)
-{
-	return SearchByID(this, PPOBJ_EADDR, id, pRec);
-}
+int EAddrCore::Search(PPID id, EAddrTbl::Rec * pRec) { return SearchByID(this, PPOBJ_EADDR, id, pRec); }
 
 int EAddrCore::Put(PPID * pID, const PPEAddr * pAddr, const PPObjID * pObjId, int use_ta)
 {

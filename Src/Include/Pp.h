@@ -39446,7 +39446,13 @@ public:
 	int    GetPacket(PPID billID, PPBillPacket * pPack) const; // <<PPALDD_BillInfoList::NextIteration
 	int    CheckIDForFilt(PPID id, const BillTbl::Rec *);
 	int    SetIterState(const void *, size_t sz);
-	const void * GetIterState() const;
+	void * GetIterState();
+	//
+	// Descr: Возвращает указатель на кэшированный экземпляр пакета документа по идентификатору billID.
+	//   Используется исключительно в рамках обработки потребностей структур DL600.
+	//
+	const  PPBillPacket * GetIterCachedBillPack(PPID billID);
+
 	static int TransmitByFilt(const BillFilt * pFilt, const ObjTransmitParam * pParam);
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 
@@ -39530,6 +39536,7 @@ private:
 	PPBillPoolOpEx * P_BPOX;  // @# {(!Filt.PoolBillID && !Filt.PoolOpID) => P_BPOX==0}
 	PoolInsertionParam Pip;   //
 	PrcssrAlcReport * P_Arp;  //
+	PPBillPacket * P_Dl600BPackCache; // @v12.2.0
 	enum {
 		stNoTempTbl = 0x0001, // Экземпляр не будет создавать временную таблицу, даже если условия фильтрации этого требуют.
 		stCtrlX     = 0x0002,
@@ -57546,8 +57553,12 @@ class PPChZnPrcssr : private PPEmbeddedLogger {
 public:
 	struct Param {
 		Param();
+		enum {
+			fTestMode = 0x0001
+		};
 		PPID   GuaID;
 		PPID   LocID;
+		long   Flags; // @v12.2.0
 		DateRange Period;
 	};
 	struct QueryParam {

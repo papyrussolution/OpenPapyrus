@@ -1,5 +1,5 @@
 // OBJASSOC.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2024
 // @Kernel
 //
 #include <pp.h>
@@ -54,15 +54,8 @@ int ObjAssoc::Remove(PPID id, int use_ta)
 	return 0;
 }
 
-int ObjAssoc::Search(PPID id, ObjAssocTbl::Rec * pRec)
-{
-	return SearchByID(this, PPOBJ_OBJASSOC, id, pRec);
-}
-
-int ObjAssoc::SearchNum(PPID asscTyp, PPID prmr, long num, ObjAssocTbl::Rec * pRec)
-{
-	return _SearchNum(asscTyp, prmr, num, num ? spEq : spGe, pRec);
-}
+int ObjAssoc::Search(PPID id, ObjAssocTbl::Rec * pRec) { return SearchByID(this, PPOBJ_OBJASSOC, id, pRec); }
+int ObjAssoc::SearchNum(PPID asscTyp, PPID prmr, long num, ObjAssocTbl::Rec * pRec) { return _SearchNum(asscTyp, prmr, num, num ? spEq : spGe, pRec); }
 
 int ObjAssoc::_SearchNum(PPID asscTyp, PPID prmr, long num, int spMode, ObjAssocTbl::Rec * b)
 {

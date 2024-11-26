@@ -121,7 +121,6 @@ int PPObjWorldObjStatus::AddSimple(PPID * pID, const char * pName, const char * 
 //
 PPWorldPacket::PPWorldPacket()
 {
-	// @v10.8.0 (ctr of WorldTbl::Rec will do everything) Init();
 }
 
 void PPWorldPacket::Init()
@@ -759,10 +758,7 @@ int PPObjWorld::Edit(PPID * pID, void * extraPtr /*parent*/)
 	return (ok > 0) ? cmOK : cmCancel;
 }
 
-int PPObjWorld::Search(PPID id, void * b)
-{
-	return SearchByID(P_Tbl, Obj, id, b);
-}
+int PPObjWorld::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, b); }
 
 int PPObjWorld::SearchByCode(const char * pCode, WorldTbl::Rec * pRec)
 {
@@ -1709,10 +1705,7 @@ FiasObjCore::FiasObjCore()
 {
 }
 
-int FiasObjCore::SearchAddr(long recID, FiasAddrObjTbl::Rec * pRec)
-{
-    return SearchByID(&AdrT, PPOBJ_FIAS, recID, pRec);
-}
+int FiasObjCore::SearchAddr(long recID, FiasAddrObjTbl::Rec * pRec) { return SearchByID(&AdrT, PPOBJ_FIAS, recID, pRec); }
 
 int FiasObjCore::SearchAddrByID(long addrID, FiasAddrObjTbl::Rec * pRec)
 {
@@ -1729,10 +1722,7 @@ int FiasObjCore::SearchAddrByID(long addrID, FiasAddrObjTbl::Rec * pRec)
 	return ok;
 }
 
-int FiasObjCore::SearchHouse(long hseID, FiasHouseObjTbl::Rec * pRec)
-{
-	return SearchByID(&HseT, PPOBJ_FIAS, hseID, pRec);
-}
+int FiasObjCore::SearchHouse(long hseID, FiasHouseObjTbl::Rec * pRec) { return SearchByID(&HseT, PPOBJ_FIAS, hseID, pRec); }
 
 int FiasObjCore::SearchAddrByUUID(const S_GUID & rUuid, FiasAddrObjTbl::Rec * pRec)
 {

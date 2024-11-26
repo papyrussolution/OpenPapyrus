@@ -247,10 +247,7 @@ PackageCore::PackageCore() : PackageTbl()
 {
 }
 
-int PackageCore::Search(PPID id, PackageTbl::Rec * pPckg)
-{
-	return SearchByID(this, PPOBJ_PACKAGE, id, pPckg);
-}
+int PackageCore::Search(PPID id, PackageTbl::Rec * pPckg) { return SearchByID(this, PPOBJ_PACKAGE, id, pPckg); }
 
 int PackageCore::SearchPrev(PPID prevID, PackageTbl::Rec * pPckg)
 {

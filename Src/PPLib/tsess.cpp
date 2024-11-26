@@ -1,5 +1,5 @@
 // TSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2019, 2020, 2021, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -86,10 +86,7 @@ TSessionCore::TSessionCore() : TSessionTbl()
 {
 }
 
-int TSessionCore::Search(PPID id, TSessionTbl::Rec * pRec)
-{
-	return SearchByID(this, PPOBJ_TSESSION, id, pRec);
-}
+int TSessionCore::Search(PPID id, TSessionTbl::Rec * pRec) { return SearchByID(this, PPOBJ_TSESSION, id, pRec); }
 
 int TSessionCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 {

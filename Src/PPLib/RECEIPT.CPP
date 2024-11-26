@@ -99,12 +99,9 @@ ReceiptCore::ReceiptCore() : ReceiptTbl(), IgnoreGpretMostRecentFlags(-1)
 {
 }
 
-int ReceiptCore::Search(PPID id, ReceiptTbl::Rec * pRec)
-	{ return SearchByID(this, PPOBJ_LOT, id, pRec); }
-int ReceiptCore::Update(PPID id, ReceiptTbl::Rec * pRec, int use_ta)
-	{ return UpdateByID(this, PPOBJ_LOT, id, pRec, use_ta); }
-int ReceiptCore::Add(PPID * pID, ReceiptTbl::Rec * pRec, int use_ta)
-	{ return AddByID(this, pID, pRec, use_ta); }
+int ReceiptCore::Search(PPID id, ReceiptTbl::Rec * pRec) { return SearchByID(this, PPOBJ_LOT, id, pRec); }
+int ReceiptCore::Update(PPID id, ReceiptTbl::Rec * pRec, int use_ta) { return UpdateByID(this, PPOBJ_LOT, id, pRec, use_ta); }
+int ReceiptCore::Add(PPID * pID, ReceiptTbl::Rec * pRec, int use_ta) { return AddByID(this, pID, pRec, use_ta); }
 
 int ReceiptCore::Remove(PPID id, int use_ta)
 {

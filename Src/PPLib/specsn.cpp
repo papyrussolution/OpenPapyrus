@@ -43,10 +43,7 @@ SpecSeriesCore::SpecSeriesCore() : SpecSeries2Tbl()
 {
 }
 
-int SpecSeriesCore::Search(PPID id, SpecSeries2Tbl::Rec * pRec)
-{
-	return SearchByID(this, PPOBJ_SPECSERIES, id, pRec);
-}
+int SpecSeriesCore::Search(PPID id, SpecSeries2Tbl::Rec * pRec) { return SearchByID(this, PPOBJ_SPECSERIES, id, pRec); }
 
 int SpecSeriesCore::Put(PPID * pID, SpecSeries2Tbl::Rec * pRec, int use_ta)
 {
