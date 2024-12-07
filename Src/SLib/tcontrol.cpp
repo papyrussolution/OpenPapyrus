@@ -1781,16 +1781,15 @@ void ComboBox::freeAll()
 			if(TView::IsSubSign(p_view, TV_SUBSIGN_IMAGEVIEW)) {
 				PAINTSTRUCT ps;
 				::BeginPaint(hWnd, &ps);
-				//p_view->draw();
 				RECT rc;
 				::GetClientRect(hWnd, &rc);
 				const  TRect rect_elem_i = rc;
 				APPL->InitUiToolBox();
 				SPaintToolBox * p_tb = APPL->GetUiToolBox();
 				if(p_tb) {
+					TCanvas2 canv(*p_tb, ps.hdc);
 					if(p_view->P_Fig) {
 						const  FRect rect_elem = rc;
-						TCanvas2 canv(*p_tb, ps.hdc);
 						FRect pic_bounds = rect_elem;
 						LMatrix2D mtx;
 						SViewPort vp;
@@ -1816,7 +1815,6 @@ void ComboBox::freeAll()
 						canv.PopTransform();
 					}
 					else {
-						TCanvas2 canv(*p_tb, ps.hdc);
 						canv.Rect(rect_elem_i, 0, TProgram::tbiButtonBrush);
 					}
 				}

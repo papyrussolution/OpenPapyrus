@@ -269,9 +269,13 @@ public:
 		SalesRepDbpEntry();
 		SalesRepDbpEntry & Z();
 		bool FromJsonObj(const SJson * pJs);
-
+		enum {
+			// is_legal_entity
+			fIsLegalEntity = 0x0001
+		};
 		int64  RepId;                 // realizationreport_id Номер отчёта
 		int    RepType;               // report_type integer Тип отчёта: 1 — стандартный, 2 — для уведомления о выкупе
+		uint   Flags;                 // @v12.2.0 
 		DateRange Period;             // date_from, date_to
 		LDATE  CrDate;                // create_dt
 		char   CurrencySymb[8];       // currency_name
@@ -317,6 +321,7 @@ public:
 		SString Country;                // site_country string Страна продажи
 		SString RebillLogisticOrg;      // rebill_logistic_org string Организатор перевозки. Поле будет в ответе при наличии значения
 		SString Kiz;                    // Марка чзн 
+		SString PaymentProcessing;      // @v12.2.0 Текст, вероятно, содержащий подробности операции 'Коррекция логистики'
 		int    DeliveryCount;           // delivery_amount Количество доставок
 		int    ReturnCount;             // return_amount   Количество возвратов
 		double Qtty;                    // Количество
@@ -993,8 +998,8 @@ bool PPMarketplaceInterface_Wildberries::Sale::FromJsonObj(const SJson * pJs)
 	return ok;
 }
 
-PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::SalesRepDbpEntry() : RepId(0), RepType(0), CrDate(ZERODATE), RrdId(0), IncomeID(0), OrderDtm(ZERODATETIME), SaleDtm(ZERODATETIME), RrDtm(ZERODATETIME),
-	ShkId(0), RId(0), Ppvz_OfficeId(0), Ppvz_SupplierId(0), DeliveryCount(0), ReturnCount(0),
+PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::SalesRepDbpEntry() : RepId(0), RepType(0), Flags(0), CrDate(ZERODATE), RrdId(0), IncomeID(0), OrderDtm(ZERODATETIME), 
+	SaleDtm(ZERODATETIME), RrDtm(ZERODATETIME), ShkId(0), RId(0), Ppvz_OfficeId(0), Ppvz_SupplierId(0), DeliveryCount(0), ReturnCount(0),
 	Qtty(0.0), RetailPrice(0.0), RetailAmount(0.0), SalePct(0.0), CommissionPct(0.0), RetailPriceWithDiscount(0.0), DeliveryAmount(0.0),
 	ProductDiscount(0.0), Ppvz_Spp_Prc(0.0), Ppvz_Kvw_Prc_Base(0.0), Ppvz_Kvw_Prc(0.0), Sup_Rating_Prc_Up(0.0), IS_Kgvp_V2(0.0), Ppvz_Sales_Commission(0.0),
 	Ppvz_For_Pay(0.0), Ppvz_Reward(0.0), AcquiringFee(0.0), AcquiringPct(0.0), Ppvz_Vw(0.0), Ppvz_Vw_Vat(0.0), Penalty(0.0), AdditionalPayment(0.0), RebillLogisticCost(0.0),
@@ -1010,6 +1015,7 @@ PPMarketplaceInterface_Wildberries::SalesRepDbpEntry & PPMarketplaceInterface_Wi
 	CurrencySymb[0] = 0;
 	RepId = 0;
 	RepType = 0;
+	Flags = 0; // @v12.2.0
 	CrDate.Z();
 	RrdId = 0;
 	IncomeID = 0;
@@ -1291,6 +1297,14 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 			}
 			else if(p_cur->Text.IsEqiAscii("report_type")) {
 				RepType = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("payment_processing")) { // @v12.2.0
+				PaymentProcessing = p_cur->P_Child->Text;
+			}
+			else if(p_cur->Text.IsEqiAscii("is_legal_entity")) { // @v12.2.0
+				if(SJson::GetBoolean(p_cur->P_Child) == 1) {
+					Flags |= fIsLegalEntity;
+				}				
 			}
 		}
 		ok = true;
@@ -3439,14 +3453,18 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 		R_Prc.GetLogger().Log(PPLoadTextS(PPTXT_MP_FINTRA_WB_REPEMPTY, msg_buf));
 	}
 	else {
-		// PPTXT_MPWB_NATIVEOPS                 "1,Возмещение издержек по перевозке/по складским операциям с товаром;2,Логистика;3,Пересчет платной приемки;4,Продажа;5,Удержание;6,Хранение"
+		// PPTXT_MPWB_NATIVEOPS
 		enum {
-			nativeopCargo       = 1, // Возмещение издержек по перевозке/по складским операциям с товаром
-			nativeopLogistics   = 2, // Логистика
-			nativeopAcceptance  = 3, // Пересчет платной приемки
-			nativeopSales       = 4, // Продажа
-			nativeopDeduction   = 5, // Удержание
-			nativeopStorage     = 6, // Хранение
+			nativeopCargo               =  1, // Возмещение издержек по перевозке/по складским операциям с товаром
+			nativeopLogistics           =  2, // Логистика
+			nativeopAcceptance          =  3, // Пересчет платной приемки
+			nativeopSales               =  4, // Продажа
+			nativeopDeduction           =  5, // Удержание
+			nativeopStorage             =  6, // Хранение
+			nativeopLogisticsCorrection =  7, // @v12.2.0 Коррекция логистики 
+			nativeopAcquiringCorrection =  8, // @v12.2.0 Корректировка эквайринга
+			nativeopFine                =  9, // @v12.2.0 Штраф 
+			nativeopReturn              = 10, // @v12.2.0 Возврат
 		};
 		PPLoadTextUtf8(PPTXT_MPWB_NATIVEOPS, temp_buf);
 		const StringSet ss_native_ops(';', temp_buf);
@@ -3474,9 +3492,6 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 		}
 		SString sr_ident;
 		for(uint ssp = 0; ss_order_ident.get(&ssp, sr_ident);) {
-			if(sr_ident.IsEqiAscii("9047889103344706579.0.4")) {
-				debug_mark = true;
-			}
 			const bool is_empty_sr_ident = (sr_ident == p_empty_sr_ident_symb);
 			const int fsr = is_empty_sr_ident ? -1 : FindShipmentBillByOrderIdent(sr_ident, shipm_bill_id_list);
 			PPID  shipm_bill_id = 0;
@@ -3511,6 +3526,10 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 					}
 					if(!native_op_id) {
 						// @todo Написать что-то в лог
+						PPLoadText(PPTXT_MPWB_UNKN_NATIVEOP, fmt_buf);
+						(temp_buf = p_entry->SupplOpName).Transf(CTRANSF_UTF8_TO_INNER);
+						msg_buf.Printf(fmt_buf, temp_buf.cptr());
+						R_Prc.GetLogger().Log(msg_buf);
 					}
 					else {
 						PPID  loc_id = 0;
@@ -3569,6 +3588,57 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 									}
 								}
 								break;
+							case nativeopReturn: // @v12.2.0
+								if(bpack.Rec.ID) { // идентификатор документа продажи. Нам же нужен возврат по этому документу
+									debug_mark = true;
+									BillTbl::Rec ret_bill_rec;
+									uint ret_count = 0;
+									for(DateIter di; p_bobj->P_Tbl->EnumLinks(bpack.Rec.ID, &di, BLNK_RETURN, &ret_bill_rec) > 0;) {
+										ret_count++;
+									}
+									if(ret_count) {
+										if(ret_count > 1) {
+											// В условиях wildberries это почти невозможно, но тем не менее, я должен пометить не нулевую вероятность
+										}
+										PPBillPacket ret_bpack;
+										bool is_ret_bpack_updated = false;
+										if(p_bobj->ExtractPacketWithFlags(ret_bill_rec.ID, &ret_bpack, BPLD_FORCESERIALS) > 0) {
+											if(p_entry->CommissionPct != 0.0) {
+												if(row_idx >= 0) {
+													ret_bpack.LTagL.SetReal(PPTAG_LOT_MP_COMMISSIONPCT, row_idx, &p_entry->CommissionPct);
+													if(p_entry->RetailPrice != 0.0) {
+														double commission_amount = -fabs((p_entry->RetailPrice * p_entry->Qtty) * (p_entry->CommissionPct / 100.0));
+														ret_bpack.Amounts.Put(PPAMT_MP_COMMISSION, 0, commission_amount, 1, 1);
+													}
+												}
+											}
+											if(p_entry->Ppvz_For_Pay != 0.0) {
+												ret_bpack.Amounts.Put(PPAMT_MP_SELLERPART, 0, -fabs(p_entry->Ppvz_For_Pay), 1, 1);
+												is_ret_bpack_updated = true;
+											}
+											/*if(p_entry->Ppvz_Vw != 0.0) {
+												ret_bpack.Amounts.Put(PPAMT_MP_COMMISSION, 0, fabs(p_entry->Ppvz_Vw + p_entry->Ppvz_Vw_Vat), 1, 1);
+												is_ret_bpack_update = true;
+											}*/
+											if(p_entry->AcquiringFee != 0.0) {
+												ret_bpack.Amounts.Put(PPAMT_MP_ACQUIRING, 0, fabs(p_entry->AcquiringFee), 1, 1);
+												is_ret_bpack_updated = true;
+											}
+											if(is_ret_bpack_updated) {
+												// Возврат должны менять в отдельной ветке так как, это - другой (отличный от bpack.Rec.ID документ)
+												p_bobj->FillTurnList(&ret_bpack);
+												const int upr = p_bobj->UpdatePacket(&ret_bpack, 1);
+												if(upr > 0) {
+													R_Prc.GetLogger().LogAcceptMsg(PPOBJ_BILL, ret_bpack.Rec.ID, 1/*upd*/);
+												}
+												else if(!upr) {
+													R_Prc.GetLogger().LogLastError();
+												}
+											}
+										}
+									}
+								}
+								break;
 							case nativeopSales:
 								// quantity, retail_price, retail_price_withdisc_rub, retail_amount, commission_percent, ppvz_spp_prc, ppvz_kvw_prc_base, ppvz_kvw_prc, 
 								// ppvz_sales_commission, ppvz_for_pay, acquiring_fee, acquiring_percent, ppvz_vw, ppvz_vw_nds	
@@ -3593,6 +3663,49 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 									if(p_entry->AcquiringFee != 0.0) {
 										bpack.Amounts.Put(PPAMT_MP_ACQUIRING, 0, fabs(p_entry->AcquiringFee), 1, 1);
 										is_bpack_updated = true;
+									}
+								}
+								break;
+							case nativeopLogisticsCorrection: // @v12.2.0 Коррекция логистики 
+								if(bpack.Rec.ID) {
+									double delivery_amount = p_entry->DeliveryAmount;
+									if(delivery_amount != 0.0) {
+										freight_amount += delivery_amount;
+									}
+								}
+								break;
+							case nativeopFine: // @v12.2.0
+								if(p_entry->Penalty != 0.0) {
+									temp_buf.Z().Cat(p_entry->RrdId);
+									BillTbl::Rec ex_bill_rec;
+									if(p_bobj->P_Tbl->SearchByCode(temp_buf, op_id, ZERODATE, &ex_bill_rec) > 0) {
+										;
+									}
+									else {
+										PPBillPacket bpack_at;
+										{
+											PPTransaction tra(1);
+											THROW(tra);
+											bpack_at.CreateBlank_WithoutCode(op_id, 0, loc_id, 0);
+											bpack_at.Rec.Dt = checkdate(p_entry->RrDtm.d) ? p_entry->RrDtm.d : (checkdate(p_entry->CrDate) ? p_entry->CrDate : now_dtm.d);
+											STRNSCPY(bpack_at.Rec.Code, temp_buf);
+											if(ArObj.P_Tbl->SearchNum(acs_id, ARTN_MRKTPLCACC_PENALTY, &ar_rec) > 0) {
+												PPAccTurn at;
+												bpack_at.CreateAccTurn(at);
+												at.DbtID.ac = acc_id;
+												at.DbtID.ar = ar_rec.ID;
+												at.DbtSheet = acs_id;
+												at.Amount = -fabs(p_entry->Penalty);
+												bpack_at.Turns.insert(&at);
+												bpack_at.Rec.Amount = at.Amount;
+												if(p_entry->BonusTypeName.NotEmpty()) {
+													(bpack_at.SMemo = p_entry->BonusTypeName).Transf(CTRANSF_UTF8_TO_INNER);
+												}
+												bpack_at.SetupEdiAttributes(0, "MP-WILDBERRIES", 0);
+												THROW(p_bobj->TurnPacket(&bpack_at, 0));
+											}
+											THROW(tra.Commit());
+										}
 									}
 								}
 								break;
@@ -3663,6 +3776,11 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 											THROW(tra.Commit());
 										}
 									}
+								}
+								break;
+							case nativeopAcquiringCorrection: // @v12.2.0 Корректировка эквайринга
+								{
+									// @todo
 								}
 								break;
 						}

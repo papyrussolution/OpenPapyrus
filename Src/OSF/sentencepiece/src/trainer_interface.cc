@@ -28,10 +28,7 @@ util::Status VerifySpec(const TrainerSpec &trainer_spec)
 	if(trainer_spec.model_type() == TrainerSpec::UNIGRAM || trainer_spec.model_type() == TrainerSpec::BPE) {
 		CHECK_OR_RETURN(!trainer_spec.use_all_vocab()) << "--use_all_vocab=true is valid for WORD/CHAR model.";
 	}
-
-#define CHECK_RANGE(variable, minval, maxval) \
-	CHECK_OR_RETURN(variable >= minval && variable <= maxval)
-
+#define CHECK_RANGE(variable, minval, maxval) CHECK_OR_RETURN(variable >= minval && variable <= maxval)
 	CHECK_RANGE(trainer_spec.character_coverage(), 0.98, 1.0);
 	CHECK_RANGE(trainer_spec.max_sentencepiece_length(), 1, 512);
 	CHECK_RANGE(trainer_spec.num_sub_iterations(), 1, 10);
@@ -40,63 +37,47 @@ util::Status VerifySpec(const TrainerSpec &trainer_spec)
 	CHECK_RANGE(trainer_spec.shrinking_factor(), 0.5, 0.95);
 	CHECK_RANGE(trainer_spec.max_sentence_length(), 10, 1073741824);
 #undef CHECK_RANGE
-
-	CHECK_OR_RETURN(trainer_spec.input_sentence_size() <= 0 ||
-	    trainer_spec.input_sentence_size() > 100);
-
+	CHECK_OR_RETURN(trainer_spec.input_sentence_size() <= 0 || trainer_spec.input_sentence_size() > 100);
 	CHECK_OR_RETURN(!trainer_spec.unk_piece().empty());
 	CHECK_OR_RETURN(!trainer_spec.bos_piece().empty());
 	CHECK_OR_RETURN(!trainer_spec.eos_piece().empty());
 	CHECK_OR_RETURN(!trainer_spec.pad_piece().empty());
-
 	if(SentencePieceTrainer::GetPretokenizerForTraining()) {
-		CHECK_EQ_OR_RETURN(TrainerSpec::UNIGRAM, trainer_spec.model_type())
-			<< "PretokenizerForTraining is only supported in UNIGRAM mode.";
+		CHECK_EQ_OR_RETURN(TrainerSpec::UNIGRAM, trainer_spec.model_type()) << "PretokenizerForTraining is only supported in UNIGRAM mode.";
 	}
-
 	return util::OkStatus();
 }
 
-bool is_unicode_decimal_number(char32 c) {
-	return (c >= 0x30 && c <= 0x39) || (c >= 0xff10 && c <= 0xff19);
-}
+bool is_unicode_decimal_number(char32 c) { return (c >= 0x30 && c <= 0x39) || (c >= 0xff10 && c <= 0xff19); }
 
 class SentenceSelector {
 public:
 	using Sampler = random::ReservoirSampler<TrainerInterface::Sentence>;
-
 	static constexpr int64 kTooBigSentencesSize = 1000000;
 
-	SentenceSelector(TrainerInterface::Sentences * sentences,
-	    const TrainerSpec &spec)
-		: sentences_(sentences), spec_(&spec) {
+	SentenceSelector(TrainerInterface::Sentences * sentences, const TrainerSpec &spec) : sentences_(sentences), spec_(&spec) 
+	{
 		if(spec_->input_sentence_size() > 0) {
 			if(spec_->shuffle_input_sentence()) {
 				constexpr size_t kSeed = 12345678;
-				sampler_ = absl::make_unique<Sampler>(
-					sentences, spec_->input_sentence_size(), kSeed);
+				sampler_ = absl::make_unique<Sampler>(sentences, spec_->input_sentence_size(), kSeed);
 			}
 			else {
-				LOG(INFO)
-					<< "First " << spec_->input_sentence_size()
-					<< " sentences are selected. Remaining sentences are discarded.";
+				LOG(INFO) << "First " << spec_->input_sentence_size() << " sentences are selected. Remaining sentences are discarded.";
 			}
 		}
 	}
-
-	void Finish() const {
+	void Finish() const 
+	{
 		if(sentences_->size() > kTooBigSentencesSize) {
-			LOG(WARNING) << "Too many sentences are loaded! (" << sentences_->size()
-				     << "), which may slow down training.";
-			LOG(WARNING) << "Consider using "
-				"--input_sentence_size=<size> and "
-				"--shuffle_input_sentence=true.";
-			LOG(WARNING) << "They allow to randomly sample <size> sentences from "
-				"the entire corpus.";
+			LOG(WARNING) << "Too many sentences are loaded! (" << sentences_->size() << "), which may slow down training.";
+			LOG(WARNING) << "Consider using --input_sentence_size=<size> and --shuffle_input_sentence=true.";
+			LOG(WARNING) << "They allow to randomly sample <size> sentences from the entire corpus.";
 		}
 	}
 
-	bool Add(const std::pair<std::string, int64> &sentence) {
+	bool Add(const std::pair<std::string, int64> &sentence) 
+	{
 		if(spec_->input_sentence_size() == 0) {
 			sentences_->emplace_back(sentence);
 		}
@@ -106,7 +87,8 @@ public:
 			}
 			else {
 				sentences_->emplace_back(sentence);
-				if(sentences_->size() >= spec_->input_sentence_size()) return false;
+				if(sentences_->size() >= spec_->input_sentence_size()) 
+					return false;
 			}
 		}
 		if(total_size() > 0 && total_size() % kTooBigSentencesSize == 0) {
@@ -135,9 +117,9 @@ util::Status MultiFileSentenceIterator::status() const
 	return fp_->status();
 }
 
-void MultiFileSentenceIterator::Next() {
+void MultiFileSentenceIterator::Next() 
+{
 	TryRead();
-
 	if(!read_done_ && file_index_ < files_.size()) {
 		const auto &filename = files_[file_index_++];
 		fp_ = filesystem::NewReadableFile(filename);
@@ -147,18 +129,21 @@ void MultiFileSentenceIterator::Next() {
 			read_done_ = false;
 			return;
 		}
-
 		TryRead();
 	}
 }
 
-void MultiFileSentenceIterator::TryRead() { read_done_ = fp_ && fp_->ReadLine(&value_); }
+void MultiFileSentenceIterator::TryRead() 
+{ 
+	read_done_ = fp_ && fp_->ReadLine(&value_); 
+}
 
 TrainerInterface::TrainerInterface(const TrainerSpec &trainer_spec, const NormalizerSpec &normalizer_spec, const NormalizerSpec &denormalizer_spec) : 
 	trainer_spec_(trainer_spec), normalizer_spec_(normalizer_spec), denormalizer_spec_(denormalizer_spec) 
 {
 	status_ = VerifySpec(trainer_spec_);
-	if(status_.ok()) status_ = InitMetaPieces();
+	if(status_.ok()) 
+		status_ = InitMetaPieces();
 }
 
 TrainerInterface::~TrainerInterface() 

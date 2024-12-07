@@ -118,7 +118,7 @@ void VkInterface::GetVKAccessToken()
 		CatChar('&').CatEq("redirect_uri", redirect_uri_buf).
 		CatChar('&').CatEq("scope", req_rights/*"134225924"*/). // Права доступа 134225924 = 0x8002004
 		CatChar('&').CatEq("response_type", "token").
-		CatChar('&').CatEq("v", "5.126"); // @v10.9.5 5.52-->5.126
+		CatChar('&').CatEq("v", "5.126");
 	//url_buf.SetLastDSlash();
 	//SString url("https://oauth.vk.com/authorize?client_id=7402217&display=page&redirect_uri=https://oauth.vk.com/blank.html&scope=134225924&response_type=token&v=5.52/");
 	::ShellExecute(0, _T("open"), SUcSwitch(url_buf), NULL, NULL, SW_SHOWNORMAL);
@@ -863,7 +863,7 @@ static int Setup_GlobalService_UDS_InitParam(SetupGlobalServiceUDS_Param & rP, i
 				THROW_PP_S(gua_pack.Rec.ServiceIdent == service_ident, PPERR_INVGUASERVICEIDENT, temp_buf.Z());
 				gua_pack.TagL.PutItemStr(PPTAG_GUA_LOGIN, rP.Login);
 				gua_pack.SetAccessKey(rP.ApiKey);
-				THROW(gua_obj.PutPacket(&temp_id, &gua_pack, 0)); // @v10.9.11 @fix use_ta 1-->0
+				THROW(gua_obj.PutPacket(&temp_id, &gua_pack, 0));
 			}
 			else {
 				PPID   temp_id = 0;
@@ -980,6 +980,40 @@ int PPGlobalServiceHighLevelImplementations::Setup_UDS()
 		ExecView(dlg);
 		if(dlg->IsSettled())
 			ok = 1;
+	}
+	delete dlg;
+	return ok;
+}
+
+struct SetupGlobalServiceWildberries_Param {
+	SetupGlobalServiceWildberries_Param() : GuaID(0)
+	{
+	}
+	SString ApiKey;
+	PPID   GuaID;
+};
+
+/*static*/int PPGlobalServiceHighLevelImplementations::Setup_Wildberries() // @v12.2.0
+{
+	class SetupGlobalServiceWildberries_Dialog : public TDialog {
+		DECL_DIALOG_DATA(SetupGlobalServiceWildberries_Param);
+	public:
+		SetupGlobalServiceWildberries_Dialog(DlgDataType & rData) : TDialog(DLG_SU_WB), Data(rData)
+		{
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+		}
+	};
+	int    ok = -1;
+	SetupGlobalServiceWildberries_Param param;
+	SetupGlobalServiceWildberries_Dialog * dlg = new SetupGlobalServiceWildberries_Dialog(param);
+	if(CheckDialogPtrErr(&dlg)) {
+		ExecView(dlg);
+		//if(dlg->IsSettled())
+			//ok = 1;
 	}
 	delete dlg;
 	return ok;
@@ -1568,5 +1602,270 @@ int GoogleApiInterface::Auth()
 	// end-point: https://www.googleapis.com/oauth2/v4/token
 	// content-type запроса должен быть application/x-www-form-urlencoded
 	//
+	return ok;
+}
+//
+//
+//
+class AptekaRuInterface {
+public:
+	explicit AptekaRuInterface(PPID guaID);
+	~AptekaRuInterface();
+	bool   IsValid() const;
+	int    Auth();
+	int    ReportAcceptance(const PPIDArray & rBillIdList);
+	int    ReportBuyOut(const PPIDArray & rBillIdList);
+	int    ReportReturn(const PPIDArray & rBillIdList);
+private:
+	int    GetUrl(SString & rUrlBuf) const;
+	SString & MakeHeaderFields(const char * pToken, StrStrAssocArray * pHdrFlds, SString & rBuf);
+
+	PPID   GuaID;
+	PPGlobalUserAccPacket GuaPack;
+	//
+	SString Token;
+	uint   TokenLifeTime_Minuts;
+};
+
+/*
+Тестовый урл - https://pharmapi.apteka.tech
+Продовый урл - https://pharmapi.apteka.ru
+*/
+
+int AptekaRuInterface::GetUrl(SString & rUrlBuf) const
+{
+	rUrlBuf.Z();
+	int    ok = 1;
+	if(GuaPack.Rec.ID && GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox) {
+		rUrlBuf = "https://pharmapi.apteka.tech";
+	}
+	else {
+		rUrlBuf = "https://pharmapi.apteka.ru";
+	}
+	return ok;
+}
+
+AptekaRuInterface::AptekaRuInterface(PPID guaID) : GuaID(guaID), TokenLifeTime_Minuts(0)
+{
+	if(GuaID) {
+		PPObjGlobalUserAcc gua_obj;
+		if(gua_obj.GetPacket(GuaID, &GuaPack) > 0) {
+			;
+		}
+		else
+			GuaID = 0;
+	}
+}
+	
+AptekaRuInterface::~AptekaRuInterface()
+{
+}
+
+bool AptekaRuInterface::IsValid() const
+{
+	return (GuaID != 0);
+}
+
+SString & AptekaRuInterface::MakeHeaderFields(const char * pToken, StrStrAssocArray * pHdrFlds, SString & rBuf)
+{
+	StrStrAssocArray hdr_flds;
+	SETIFZ(pHdrFlds, &hdr_flds);
+	SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
+	SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrCacheControl, "no-cache");
+	SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrAcceptLang, "ru");
+	SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrAccept, "application/json");
+	if(!isempty(pToken)) {
+		SString temp_buf;
+		(temp_buf = "Bearer").Space().Cat(pToken);
+		SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrAuthorization, temp_buf);
+	}
+	SHttpProtocol::PutHeaderFieldsIntoString(*pHdrFlds, rBuf);
+	return rBuf;
+}
+	
+int AptekaRuInterface::Auth()
+{
+	Token.Z();
+	TokenLifeTime_Minuts = 0;
+	//
+	int    ok = -1;
+	SString temp_buf;
+	SString url_buf;
+	SString req_buf;
+	SString reply_buf;
+	if(GuaPack.Rec.ID) {
+		SString user;
+		SString secret;
+		GuaPack.TagL.GetItemStr(PPTAG_GUA_LOGIN, user);
+		//GuaPack.GetAccessKey(secret);
+		GuaPack.TagL.GetItemStr(PPTAG_GUA_SECRET, secret);		
+		if(user.NotEmpty() && secret.NotEmpty()) {
+			SJson js_req(SJson::tOBJECT);
+			js_req.InsertString("login", user);
+			js_req.InsertString("password", secret);
+			js_req.ToStr(req_buf);
+			if(GetUrl(url_buf)) {
+				ScURL c;
+				url_buf.SetLastDSlash().Cat("Auth");
+				InetUrl url(url_buf);
+				StrStrAssocArray hdr_flds;
+				MakeHeaderFields(0/*token*/, &hdr_flds, temp_buf);
+				SBuffer ack_buf;
+				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+				THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfTcpKeepAlive, &hdr_flds, req_buf, &wr_stream));
+				{
+					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+					if(p_ack_buf) {
+						reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+						SJson * p_js_reply = SJson::Parse(reply_buf);
+						if(SJson::IsObject(p_js_reply)) {
+							for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {							
+								if(p_cur->Text.IsEqiAscii("token")) {
+									Token = p_cur->P_Child->Text.Unescape();
+								}
+								else if(p_cur->Text.IsEqiAscii("lifetimeInMinutes")) {
+									TokenLifeTime_Minuts = static_cast<uint>(p_cur->P_Child->Text.ToLong());
+								}
+								else {
+									;
+								}
+							}
+						}
+						ZDELETE(p_js_reply);
+					}
+					if(Token.NotEmpty()) {
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int AptekaRuInterface::ReportAcceptance(const PPIDArray & rBillIdList)
+{
+	int    ok = -1;
+	SString temp_buf;
+	SString url_buf;
+	SString req_buf;
+	SString reply_buf;
+	if(Token.NotEmpty()) {
+		if(rBillIdList.getCount()) {
+			PPObjBill * p_bobj = BillObj;
+			if(p_bobj) {
+				PPIDArray sent_id_list;
+				StringSet ss_code;
+				for(uint i = 0; i < rBillIdList.getCount(); i++) {
+					const PPID bill_id = rBillIdList.get(i);
+					if(!sent_id_list.lsearch(bill_id)) {
+						BillTbl::Rec bill_rec;
+						if(p_bobj->Fetch(bill_id, &bill_rec) > 0) {
+							temp_buf = bill_rec.Code;
+							if(temp_buf.NotEmptyS()) {
+								ss_code.add(temp_buf);
+								sent_id_list.add(bill_id);
+							}
+						}
+					}
+				}
+				if(sent_id_list.getCount()) {
+					assert(ss_code.getCount() == sent_id_list.getCount());
+					if(ss_code.getCount() == sent_id_list.getCount()) {
+						SJson js_req(SJson::tOBJECT);
+						SJson * p_js_code_array = SJson::CreateArr();
+						for(uint ssp = 0; ss_code.get(&ssp, temp_buf);) {
+							p_js_code_array->InsertChild(SJson::CreateString(temp_buf));
+						}
+						js_req.Insert("orderNums", p_js_code_array);
+						js_req.ToStr(req_buf);
+						if(GetUrl(url_buf)) {
+							ScURL c;
+							url_buf.SetLastDSlash().Cat("Pharm/ShippedOrders");
+							InetUrl url(url_buf);
+							StrStrAssocArray hdr_flds;
+							MakeHeaderFields(Token, &hdr_flds, temp_buf);
+							SBuffer ack_buf;
+							SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+							THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfTcpKeepAlive, &hdr_flds, req_buf, &wr_stream));
+							{
+								SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+								if(p_ack_buf) {
+									reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+									SJson * p_js_reply = SJson::Parse(reply_buf);
+									if(SJson::IsObject(p_js_reply)) {
+										for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {							
+											if(p_cur->Text.IsEqiAscii("orderNums")) {
+												
+											}
+											else {
+												;
+											}
+										}
+									}
+									ZDELETE(p_js_reply);
+								}
+								if(Token.NotEmpty()) {
+									ok = 1;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+	
+int AptekaRuInterface::ReportBuyOut(const PPIDArray & rBillIdList)
+{
+	int    ok = -1;
+	SString temp_buf;
+	SString url_buf;
+	SString req_buf;
+	SString reply_buf;
+	if(Token.NotEmpty()) {
+		if(rBillIdList.getCount()) {
+		}
+	}
+	return ok;
+}
+	
+int AptekaRuInterface::ReportReturn(const PPIDArray & rBillIdList)
+{
+	int    ok = -1;
+	SString temp_buf;
+	SString url_buf;
+	SString req_buf;
+	SString reply_buf;
+	if(Token.NotEmpty()) {
+		if(rBillIdList.getCount()) {
+		}
+	}
+	return ok;
+}
+//
+//
+//
+int Test_AptekaRuInterface()
+{
+	int    ok = 1;
+	PPObjGlobalUserAcc gua_obj;
+	PPGlobalUserAcc gua_rec;
+	PPIDArray gua_list;
+	for(SEnum en(gua_obj.Enum(0)); en.Next(&gua_rec) > 0;) {
+		if(gua_rec.ServiceIdent == PPGLS_APTEKARU) {
+			gua_list.add(gua_rec.ID);
+		}
+	}
+	if(gua_list.getCount() == 1) {
+		AptekaRuInterface ifc(gua_list.get(0));
+		if(ifc.IsValid()) {
+			ifc.Auth();
+		}
+	}
 	return ok;
 }

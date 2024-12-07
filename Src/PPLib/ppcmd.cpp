@@ -1641,8 +1641,6 @@ PPCommandGroup * PPCommandGroup::GetGroup(PPCommandGroupCategory kind, const S_G
 //
 //
 //
-#define PPCS_SIGNATURE 0x54435050L
-
 PPCommandMngr * GetCommandMngr(uint ctrFlags, PPCommandGroupCategory kind, const char * pPath /*=0*/)
 {
 	PPCommandMngr * p_mgr = 0;
@@ -1657,10 +1655,7 @@ PPCommandMngr * GetCommandMngr(uint ctrFlags, PPCommandGroupCategory kind, const
 	}
 	else
 		path = pPath;
-	/* @v10.9.5 if(path.Empty())
-		PPSetError(PPERR_UNDEFCMDFILENAME);
-	else */
-		p_mgr = new PPCommandMngr(path, /*readOnly*/ctrFlags, /*isDesktop*/kind);
+	p_mgr = new PPCommandMngr(path, /*readOnly*/ctrFlags, /*isDesktop*/kind);
 	if(p_mgr) {
 		if(!p_mgr->IsValid_()) {
 			ZDELETE(p_mgr);
@@ -1671,17 +1666,11 @@ PPCommandMngr * GetCommandMngr(uint ctrFlags, PPCommandGroupCategory kind, const
 	return p_mgr;
 }
 
-/*
-int PPCommandMngr::Backup()
-{
-}
-*/
-
 /*static*/const SString & PPCommandMngr::InitStoragePath(int kind)
 {
 	assert(oneof2(kind, cmdgrpcMenu, cmdgrpcDesktop));
 	SString & r_temp_path = SLS.AcquireRvlStr();
-	if(/*isDesktop*/kind == cmdgrpcDesktop)
+	if(kind == cmdgrpcDesktop)
 		PPCommandMngr::GetDesksDir(r_temp_path);
 	else if(kind == cmdgrpcMenu)
 		PPCommandMngr::GetMenuDir(r_temp_path);
@@ -1693,7 +1682,7 @@ PPCommandMngr::PPCommandMngr(const char * pFileName, uint ctrFlags, /*int isDesk
 {
 	assert(oneof2(kind, cmdgrpcMenu, cmdgrpcDesktop));
 	if(!(CtrFlags & ctrfSkipObsolete)) {
-		if(fileExists(pFileName)) { // @v10.9.5
+		if(fileExists(pFileName)) {
 			const long mode = (SFile::mBinary|SFile::mNoStd|SFile::mDenyWrite) | ((CtrFlags & ctrfReadOnly) ? SFile::mRead : (SFile::mReadWrite|mDenyRead));
 			//
 			// Так как файл может быть заблокирован другим пользователем,
@@ -1711,26 +1700,17 @@ PPCommandMngr::PPCommandMngr(const char * pFileName, uint ctrFlags, /*int isDesk
 				Status |= stError;
 		}
 	}
-	/*if(kind == cmdgrpcDesktop) {
-		PPCommandMngr::GetDesksDir(XmlDirPath);
-	}
-	else if(kind == cmdgrpcMenu) {
-		PPCommandMngr::GetMenuDir(XmlDirPath);
-	}*/
 }
 
 PPCommandMngr::~PPCommandMngr()
 {
 }
 
-int PPCommandMngr::IsValid_() const
-{
-	//return F_Obsolete.IsValid() ? 1 : PPSetErrorSLib();
-	return (Status & stError) ? PPSetErrorSLib() : 1;
-}
+int PPCommandMngr::IsValid_() const { return (Status & stError) ? PPSetErrorSLib() : 1; }
 
 int PPCommandMngr::Load_Deprecated(PPCommandGroup * pCmdGrp)
 {
+	#define PPCS_SIGNATURE_Depricated 0x54435050L
 	int    ok = 1;
 	if(!(CtrFlags & ctrfSkipObsolete)) {
 		int    r = 0;
@@ -1744,7 +1724,7 @@ int PPCommandMngr::Load_Deprecated(PPCommandGroup * pCmdGrp)
 			THROW_SL(F_Obsolete.CalcCRC(sizeof(hdr), &crc));
 			F_Obsolete.Seek(0, SEEK_SET);
 			THROW_SL(F_Obsolete.Read(&hdr, sizeof(hdr)));
-			THROW_PP_S(hdr.Signature==PPCS_SIGNATURE, PPERR_CMDFILSIGN, F_Obsolete.GetName());
+			THROW_PP_S(hdr.Signature == PPCS_SIGNATURE_Depricated, PPERR_CMDFILSIGN, F_Obsolete.GetName());
 			THROW_PP_S(hdr.Crc==crc, PPERR_CMDFILCRC, F_Obsolete.GetName());
 			THROW_SL(F_Obsolete.Read(buf));
 			THROW(pCmdGrp->Read_Deprecated(buf, 0));
@@ -1769,10 +1749,13 @@ int PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 			if(pCmdGrp->Uuid.ToStr(S_GUID::fmtIDL, guid_str)) {
 				path.Z().Cat(XmlDirPath).SetLastSlash().Cat(guid_str).DotCat("xml");
 				p_xml_writer = xmlNewTextWriterFilename(path, 0);  // создание writerA
-				xmlTextWriterSetIndent(p_xml_writer, 1);
-				xmlTextWriterSetIndentTab(p_xml_writer);
-				SXml::WDoc _doc(p_xml_writer, cpUTF8);
-				THROW(pCmdGrp->Write2(p_xml_writer, rwFlag)); //@erik v10.6.6				
+				THROW_LXML(p_xml_writer, 0); // @v12.2.0
+				{
+					xmlTextWriterSetIndent(p_xml_writer, 1);
+					xmlTextWriterSetIndentTab(p_xml_writer);
+					SXml::WDoc _doc(p_xml_writer, cpUTF8);
+					THROW(pCmdGrp->Write2(p_xml_writer, rwFlag)); //@erik v10.6.6
+				}
 			}
 		}
 		else {
@@ -1787,10 +1770,13 @@ int PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 					if(p_cg->Uuid.ToStr(S_GUID::fmtIDL, guid_str)) {
 						path.Z().Cat(XmlDirPath).SetLastSlash().Cat(guid_str).DotCat("xml");
 						p_xml_writer = xmlNewTextWriterFilename(path, 0);  // создание writerA
-						xmlTextWriterSetIndent(p_xml_writer, 1);
-						xmlTextWriterSetIndentTab(p_xml_writer);
-						SXml::WDoc _doc(p_xml_writer, cpUTF8);
-						THROW(p_cg->Write2(p_xml_writer, rwFlag)); // @erik v10.6.6
+						THROW_LXML(p_xml_writer, 0); // @v12.2.0
+						{
+							xmlTextWriterSetIndent(p_xml_writer, 1);
+							xmlTextWriterSetIndentTab(p_xml_writer);
+							SXml::WDoc _doc(p_xml_writer, cpUTF8);
+							THROW(p_cg->Write2(p_xml_writer, rwFlag)); // @erik v10.6.6
+						}
 					}
 				}
 				// @sobolev @v10.7.6 {
@@ -3052,7 +3038,6 @@ public:
 	}
 	int    Write(SBuffer & rBuf, long) const
 	{
-		//return (rBuf.Write(GrpID) && rBuf.Write(PrcID) && rBuf.Write(Status) && rBuf.Write(Reserve)) ? 1 : PPSetErrorSLib();
 		int    ok = 1;
 		THROW_SL(rBuf.Write(PrivateSignature, sizeof(PrivateSignature)));
 		THROW_SL(rBuf.Write(PrivateVer));
@@ -3200,8 +3185,7 @@ public:
 							PPObjProcessor 	obj_prcssr;
 							StrAssocArray prcssr_list;
 							r = 0;
-							// @v9.0.2 PPGetWord(PPWORD_PRC, 0, title);
-							PPLoadString("processor", title); // @v9.0.2
+							PPLoadString("processor", title);
 							obj_prcssr.GetChildIDList(filt.GrpID, 0, &child_list);
 							for(uint i = 0; i < child_list.getCount(); i++) {
 								GetObjectName(PPOBJ_PROCESSOR, child_list.at(i), name = 0);

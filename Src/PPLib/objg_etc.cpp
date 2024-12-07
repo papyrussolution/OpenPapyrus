@@ -1408,6 +1408,11 @@ private:
 	}
 };
 
+int PPObjComputer::DeleteObj(PPID id)
+{
+	return Put(&id, 0, 0);
+}
+
 /*virtual*/int PPObjComputer::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = -1;
@@ -1784,6 +1789,11 @@ private:
 		}
 	}
 };
+
+/*virtual*/int PPObjSwProgram::DeleteObj(PPID id)
+{
+	return Put(&id, 0, 0);
+}
 
 /*virtual*/int PPObjSwProgram::Edit(PPID * pID, void * extraPtr)
 {

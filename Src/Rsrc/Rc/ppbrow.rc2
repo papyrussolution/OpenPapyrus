@@ -459,9 +459,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	UNITEBILLS       :  kbCtrlU,    PPDV_MERGE01,         "@{unite_docs}\tCtrl-U"
 	WROFFDRAFT       :  kbCtrlW,    TBBM_WROFFDRAFT,      "@{writeoffdrafts}\tCtrl-W"
 	TRFRANLZ         :  kbCtrlT,    PPDV_TRFRANLZ,        "@{view_trfranlz}\tCtrl-T"
-	//ATTACHBILLTOORD  :  kbCtrlY,    PPDV_LINK01,        "Привязать документ к заказу\tCtrl-Y"
-	// @v10.3.5 ATTACHBILLTODRAFT:  kbNoKey,    PPDV_NOICON,          "Привязать документ к драфт-документу"
-	ATTACHBILLTOBILL:  kbCtrlY,     PPDV_LINK01,            "@{dolinkbilltoanother}\tCtrl-Y" // @v10.3.5
+	ATTACHBILLTOBILL :  kbCtrlY,    PPDV_LINK01,          "@{dolinkbilltoanother}\tCtrl-Y"
 	separator
 	TAGS             :  kbF6,    PPDV_TAGS01,            "@{tags}\tF6" // @v10.3.5
 	TAGSALL          :  kbAltG,  TBBM_TAGSALL,           "@{doupdatetags}\tAlt-G" // @v10.3.5 // @v11.1.9
@@ -522,8 +520,7 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	UNITEBILLS       :  kbCtrlU,    PPDV_MERGE01,         "@{unite_docs}\tCtrl-U"
 	//WROFFDRAFT       :  kbCtrlW,    PPDV_NOICON,        "@{writeoffdrafts}\tCtrl-W"
 	TRFRANLZ         :  kbCtrlT,    PPDV_TRFRANLZ,        "@{view_trfranlz}\tCtrl-T"
-	// @v10.3.5 ATTACHBILLTOORD  :  kbCtrlY,    PPDV_LINK01,  "Привязать документ к заказу\tCtrl-Y"
-	ATTACHBILLTOBILL:  kbCtrlY,     PPDV_LINK01,          "@{dolinkbilltoanother}\tCtrl-Y" // @v10.3.5
+	ATTACHBILLTOBILL :  kbCtrlY,    PPDV_LINK01,          "@{dolinkbilltoanother}\tCtrl-Y"
 	separator
 	TAGS             :  kbF6,    PPDV_TAGS01,             "@{tags}\tF6" // @v10.3.5
 	TAGSALL          :  kbAltG,  TBBM_TAGSALL,            "@{doupdatetags}\tAlt-G" // @v10.3.5 // @v11.1.9
@@ -623,9 +620,7 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	UNITEBILLS       :  kbCtrlU,    PPDV_MERGE01,           "@{unite_docs}\tCtrl-U"
 	//WROFFDRAFT       :  kbCtrlW,    PPDV_NOICON,          "@{writeoffdrafts}\tCtrl-W"
 	TRFRANLZ         :  kbCtrlT,    PPDV_TRFRANLZ,          "@{view_trfranlz}\tCtrl-T"
-	// @v10.3.5 ATTACHBILLTOORD  :  kbCtrlY,    PPDV_LINK01, "Привязать документ к заказу\tCtrl-Y"
-	// @v10.3.5 ATTACHBILLTODRAFT:  kbNoKey,    PPDV_NOICON, "Привязать документ к драфт-документу"
-	ATTACHBILLTOBILL:  kbCtrlY,     PPDV_LINK01,            "@{dolinkbilltoanother}\tCtrl-Y" // @v10.3.5
+	ATTACHBILLTOBILL :  kbCtrlY,    PPDV_LINK01,            "@{dolinkbilltoanother}\tCtrl-Y"
 	separator
 	TAGS             :  kbF6,   PPDV_TAGS01,             "@{tags}\tF6" // @v10.3.5
 	TAGSALL          :  kbAltG, TBBM_TAGSALL,            "@{doupdatetags}\tAlt-G" // @v10.3.5 // @v11.1.9
@@ -5314,6 +5309,7 @@ browser PROCESSOR north(100), 1, 1, "@{view_processor} {%s}", OWNER|GRID, 0
 	"@symbol",               2, notype, 0,  8
 	"@group",                3, notype, 0, 20
 	"@warehouse",            4, notype, 0, 20
+	"@linkobject",           5, notype, 0, 20 // @v12.2.0
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM     : kbEnter,  PPDV_EDITFILE02,       "@{edit}\tEnter"
 		ADDITEM      : kbIns,    PPDV_ADDFILE02,        "@{add}\tInsert"
@@ -6328,6 +6324,7 @@ browser GLOBALUSERACC north(100), 1, 1, "@{globaluseracc_pl}", OWNER|GRID, 0
 	"@id",             0, notype, 0, 10
 	"@appellation",    1, notype, 0, 30
 	"@person",         2, notype, 0, 20
+	"Service",         4, notype, 0, 20
 	"GUID",            3, notype, 0, 30
 	toolbar TB_FIRST_TOOLBAR {
 		ADDITEM       : kbIns,    PPDV_ADDFILE02,    "@{add}\tInsert"
@@ -6366,7 +6363,7 @@ browser TIMESERIES north(100), 1, 1, "@{timeseries_p}", OWNER|GRID, 0
 	"Prec",          4, int32,  NMBF_NOZERO, 6, BCO_USERPROC
 	"BuyMarg",       5, double, NMBF_NOZERO, 10.5, BCO_USERPROC
 	"SellMarg",      6, double, NMBF_NOZERO, 10.5, BCO_USERPROC
-	"ManualMarg",    9, double, NMBF_NOZERO, 10.5, BCO_USERPROC // @v10.5.6
+	"ManualMarg",    9, double, NMBF_NOZERO, 10.5, BCO_USERPROC
 	"SpikeQuant",    7, double, NMBF_NOZERO, 12.10, BCO_USERPROC
 	"AvgSpread",     8, double, NMBF_NOZERO, 12.10, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
@@ -6379,12 +6376,10 @@ browser TIMESERIES north(100), 1, 1, "@{timeseries_p}", OWNER|GRID, 0
 		separator
 		DETAIL         : kbF3,     PPDV_LINS01,        "@{detail}\tF3"
 		EXPORT         : kbCtrlR,  PPDV_EXPORT01,      "@{export}\tCtrl-R"
-		// @v10.6.8 TRYSTRATEGIES  : kbCtrlT,  PPDV_EXPORT01,      "Try Strategies\tCtrl-T"
-		TEST           : kbCtrlT,  PPDV_TEST01,          "Test\tCtrl-T" // @v10.6.8
-		OPTENTRYGRAPH  : kbCtrlO,  PPDV_NOICON,        "@{tsoptentrylistgraphparam}\tCtrl-O" // @v10.7.7
-		// @v10.7.0 EVALOPTMAXDUCK : kbCtrlY,  PPDV_NOICON,        "Evaluate optimal max duck\tCtrl-Y" // @v10.6.5
+		TEST           : kbCtrlT,  PPDV_TEST01,          "Test\tCtrl-T"
+		OPTENTRYGRAPH  : kbCtrlO,  PPDV_NOICON,        "@{tsoptentrylistgraphparam}\tCtrl-O"
 		REFRESH        : kbCtrlV,  PPDV_REFRESH01,     "@{refresh}\tCtrl-V"
-		SYSJ           : kbCtrlJ,  PPDV_SYSJOURNAL,    "@{view_sysjournal}\tCtrl-J" // @v10.7.3
+		SYSJ           : kbCtrlJ,  PPDV_SYSJOURNAL,    "@{view_sysjournal}\tCtrl-J"
 	}
 }
 
@@ -9345,4 +9340,6 @@ drawvector "..\rsrc\svg" {
 	PPDV_LOGOVETIS
 	PPDV_LOGOCHZN
 	PPDV_LOGOGOOGLEMAPS01
+	PPDV_LOGOWILDBERRIES // @v12.2.3
+	PPDV_LOGOAPTEKARU // @v12.2.3
 }

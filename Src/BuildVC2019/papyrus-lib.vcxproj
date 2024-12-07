@@ -1692,6 +1692,9 @@
     <ProjectReference Include="libphonenumber.vcxproj">
       <Project>{8614d47b-23e6-4a77-9618-db89c420be35}</Project>
     </ProjectReference>
+    <ProjectReference Include="libprotobuf-lite.vcxproj">
+      <Project>{f9fc604b-eb9a-3804-ad68-577835cbadf6}</Project>
+    </ProjectReference>
     <ProjectReference Include="libprotobuf.vcxproj">
       <Project>{f794984c-5ecc-3922-ba3f-6d27cd4bdec7}</Project>
     </ProjectReference>
@@ -1715,6 +1718,12 @@
     </ProjectReference>
     <ProjectReference Include="scintilla2.vcxproj">
       <Project>{6824fe2f-b7df-4338-8025-a1b145da91b6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="sentencepiece-static.vcxproj">
+      <Project>{73e57fd0-8a6d-3567-9f57-5927af9286d1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="sentencepiece_train-static.vcxproj">
+      <Project>{a48fd6e6-c594-3c29-9472-5da00e6a1f3b}</Project>
     </ProjectReference>
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>

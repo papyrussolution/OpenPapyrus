@@ -1,0 +1,393 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x86</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{73E57FD0-8A6D-3567-9F57-5927AF9286D1}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>sentencepiece-static</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">sentencepiece</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">sentencepiece</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">sentencepiece</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">sentencepiece</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\OSF\sentencepiece;..\OSF\sentencepiece\src;..\OSF\sentencepiece\src\..\third_party\protobuf-lite;..\OSF\sentencepiece\src\builtin_pb;..\OSF\sentencepiece\src\..\third_party;..\OSF\abseil;..\OSF\protobuf-3.19.1\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /Zc:strictStrings /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4267;4244;4305;4018;4514</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>
+      </RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;HAVE_PTHREAD;_USE_INTERNAL_STRING_VIEW;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;HAVE_PTHREAD;_USE_INTERNAL_STRING_VIEW;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Papyrus\Src\OSF\sentencepiece;C:\Papyrus\Src\BuildVC2019-sentencepiece;C:\Papyrus\Src\OSF\sentencepiece\src\..\third_party\protobuf-lite;C:\Papyrus\Src\OSF\sentencepiece\src\builtin_pb;C:\Papyrus\Src\BuildVC2019-sentencepiece\src;C:\Papyrus\Src\OSF\sentencepiece\src\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Papyrus\Src\OSF\sentencepiece;C:\Papyrus\Src\BuildVC2019-sentencepiece;C:\Papyrus\Src\OSF\sentencepiece\src\..\third_party\protobuf-lite;C:\Papyrus\Src\OSF\sentencepiece\src\builtin_pb;C:\Papyrus\Src\BuildVC2019-sentencepiece\src;C:\Papyrus\Src\OSF\sentencepiece\src\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\OSF\sentencepiece;..\OSF\sentencepiece\src;..\OSF\sentencepiece\src\..\third_party\protobuf-lite;..\OSF\sentencepiece\src\builtin_pb;..\OSF\sentencepiece\src\..\third_party;..\OSF\abseil;..\OSF\protobuf-3.19.1\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /Zc:strictStrings /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4267;4244;4305;4018;4514</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>
+      </RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;HAVE_PTHREAD;_USE_INTERNAL_STRING_VIEW;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;HAVE_PTHREAD;_USE_INTERNAL_STRING_VIEW;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Papyrus\Src\OSF\sentencepiece;C:\Papyrus\Src\BuildVC2019-sentencepiece;C:\Papyrus\Src\OSF\sentencepiece\src\..\third_party\protobuf-lite;C:\Papyrus\Src\OSF\sentencepiece\src\builtin_pb;C:\Papyrus\Src\BuildVC2019-sentencepiece\src;C:\Papyrus\Src\OSF\sentencepiece\src\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Papyrus\Src\OSF\sentencepiece;C:\Papyrus\Src\BuildVC2019-sentencepiece;C:\Papyrus\Src\OSF\sentencepiece\src\..\third_party\protobuf-lite;C:\Papyrus\Src\OSF\sentencepiece\src\builtin_pb;C:\Papyrus\Src\BuildVC2019-sentencepiece\src;C:\Papyrus\Src\OSF\sentencepiece\src\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\OSF\sentencepiece;..\OSF\sentencepiece\src;..\OSF\sentencepiece\src\..\third_party\protobuf-lite;..\OSF\sentencepiece\src\builtin_pb;..\OSF\sentencepiece\src\..\third_party;..\OSF\abseil;..\OSF\protobuf-3.19.1\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /Zc:strictStrings /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>4267;4244;4305;4018;4514</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>
+      </RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;HAVE_PTHREAD;_USE_INTERNAL_STRING_VIEW;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;HAVE_PTHREAD;_USE_INTERNAL_STRING_VIEW;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Papyrus\Src\OSF\sentencepiece;C:\Papyrus\Src\BuildVC2019-sentencepiece;C:\Papyrus\Src\OSF\sentencepiece\src\..\third_party\protobuf-lite;C:\Papyrus\Src\OSF\sentencepiece\src\builtin_pb;C:\Papyrus\Src\BuildVC2019-sentencepiece\src;C:\Papyrus\Src\OSF\sentencepiece\src\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Papyrus\Src\OSF\sentencepiece;C:\Papyrus\Src\BuildVC2019-sentencepiece;C:\Papyrus\Src\OSF\sentencepiece\src\..\third_party\protobuf-lite;C:\Papyrus\Src\OSF\sentencepiece\src\builtin_pb;C:\Papyrus\Src\BuildVC2019-sentencepiece\src;C:\Papyrus\Src\OSF\sentencepiece\src\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\include;..\OSF\sentencepiece;..\OSF\sentencepiece\src;..\OSF\sentencepiece\src\..\third_party\protobuf-lite;..\OSF\sentencepiece\src\builtin_pb;..\OSF\sentencepiece\src\..\third_party;..\OSF\abseil;..\OSF\protobuf-3.19.1\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /Zc:strictStrings /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DisableSpecificWarnings>4267;4244;4305;4018;4514</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>
+      </RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;HAVE_PTHREAD;_USE_INTERNAL_STRING_VIEW;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile />
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;HAVE_PTHREAD;_USE_INTERNAL_STRING_VIEW;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Papyrus\Src\OSF\sentencepiece;C:\Papyrus\Src\BuildVC2019-sentencepiece;C:\Papyrus\Src\OSF\sentencepiece\src\..\third_party\protobuf-lite;C:\Papyrus\Src\OSF\sentencepiece\src\builtin_pb;C:\Papyrus\Src\BuildVC2019-sentencepiece\src;C:\Papyrus\Src\OSF\sentencepiece\src\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Papyrus\Src\OSF\sentencepiece;C:\Papyrus\Src\BuildVC2019-sentencepiece;C:\Papyrus\Src\OSF\sentencepiece\src\..\third_party\protobuf-lite;C:\Papyrus\Src\OSF\sentencepiece\src\builtin_pb;C:\Papyrus\Src\BuildVC2019-sentencepiece\src;C:\Papyrus\Src\OSF\sentencepiece\src\..\third_party;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\sentencepiece\src\builtin_pb\sentencepiece.pb.h" />
+    <ClCompile Include="..\OSF\sentencepiece\src\builtin_pb\pbwrp-sentencepiece.cpp" />
+    <ClCompile Include="..\OSF\sentencepiece\src\builtin_pb\pbwrp-sentencepiece_model.cpp" />
+    <ClInclude Include="..\OSF\sentencepiece\src\builtin_pb\sentencepiece_model.pb.h" />
+    <ClInclude Include="..\OSF\sentencepiece\src\bpe_model.h" />
+    <ClInclude Include="..\OSF\sentencepiece\src\common.h" />
+    <ClInclude Include="..\OSF\sentencepiece\src\normalizer.h" />
+    <ClInclude Include="..\OSF\sentencepiece\src\util.h" />
+    <ClInclude Include="..\OSF\sentencepiece\src\freelist.h" />
+    <ClInclude Include="..\OSF\sentencepiece\src\filesystem.h" />
+    <ClInclude Include="..\OSF\sentencepiece\src\init.h" />
+    <ClInclude Include="..\OSF\sentencepiece\src\sentencepiece_processor.h" />
+    <ClInclude Include="..\OSF\sentencepiece\src\word_model.h" />
+    <ClInclude Include="..\OSF\sentencepiece\src\model_factory.h" />
+    <ClInclude Include="..\OSF\sentencepiece\src\char_model.h" />
+    <ClInclude Include="..\OSF\sentencepiece\src\model_interface.h" />
+    <ClInclude Include="..\OSF\sentencepiece\src\testharness.h" />
+    <ClInclude Include="..\OSF\sentencepiece\src\unigram_model.h" />
+    <ClCompile Include="..\OSF\sentencepiece\src\bpe_model.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\char_model.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\error.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\filesystem.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\model_factory.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\model_interface.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\normalizer.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\sentencepiece-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\OSF\sentencepiece\src\sentencepiece_processor.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\unigram_model.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\util.cc" />
+    <ClCompile Include="..\OSF\sentencepiece\src\word_model.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\sentencepiece\src\sentencepiece.proto">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)builtin_pb
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)builtin_pb
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)builtin_pb
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)builtin_pb
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating %(RootDir)%(Directory)builtin_pb/%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generating %(RootDir)%(Directory)builtin_pb/%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating %(RootDir)%(Directory)builtin_pb/%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating %(RootDir)%(Directory)builtin_pb/%(Filename).pb.cc</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)builtin_pb/%(Filename).pb.cc;%(RootDir)%(Directory)builtin_pb/%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)builtin_pb/%(Filename).pb.cc;%(RootDir)%(Directory)builtin_pb/%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)builtin_pb/%(Filename).pb.cc;%(RootDir)%(Directory)builtin_pb/%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)builtin_pb/%(Filename).pb.cc;%(RootDir)%(Directory)builtin_pb/%(Filename).pb.h</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\sentencepiece\src\sentencepiece_model.proto">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)builtin_pb
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)builtin_pb
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)builtin_pb
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+..\..\tools\protoc.exe %(Filename)%(Extension) --proto_path=%(RelativeDir) --cpp_out=%(RelativeDir)builtin_pb
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating %(RootDir)%(Directory)builtin_pb/%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generating %(RootDir)%(Directory)builtin_pb/%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating %(RootDir)%(Directory)builtin_pb/%(Filename).pb.cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating %(RootDir)%(Directory)builtin_pb/%(Filename).pb.cc</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)builtin_pb/%(Filename).pb.cc;%(RootDir)%(Directory)builtin_pb/%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)builtin_pb/%(Filename).pb.cc;%(RootDir)%(Directory)builtin_pb/%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)builtin_pb/%(Filename).pb.cc;%(RootDir)%(Directory)builtin_pb/%(Filename).pb.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)builtin_pb/%(Filename).pb.cc;%(RootDir)%(Directory)builtin_pb/%(Filename).pb.h</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="absl.vcxproj">
+      <Project>{3bb14255-1f39-4fc6-bb9d-6c8dac9e5d13}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libprotobuf-lite.vcxproj">
+      <Project>{f9fc604b-eb9a-3804-ad68-577835cbadf6}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

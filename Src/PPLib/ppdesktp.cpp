@@ -798,7 +798,6 @@ void PPDesktop::DrawIcon(TCanvas & rC, long id, SPoint2S coord, const SString & 
 			long icon_id = rIcon.ToLong();
 			if(icon_id) {
 				if(icon_id & SlConst::VectorImageMask) {
-					// @v10.7.8 {
 					TWhatmanToolArray::Item tool_item;
 					const SDrawFigure * p_fig = APPL->LoadDrawFigureById(icon_id, &tool_item);
 					SPaintToolBox * p_tb = APPL->GetUiToolBox();
@@ -827,7 +826,6 @@ void PPDesktop::DrawIcon(TCanvas & rC, long id, SPoint2S coord, const SString & 
 							canv_temp.Draw(p_fig);
 						}
 						h_icon = static_cast<HICON>(ib.TransformToIcon());
-						// } @v10.7.8 
 					}
 				}
 				else

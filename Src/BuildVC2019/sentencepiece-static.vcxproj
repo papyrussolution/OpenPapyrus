@@ -282,6 +282,8 @@
     <ClCompile Include="..\OSF\sentencepiece\src\unigram_model.cc" />
     <ClCompile Include="..\OSF\sentencepiece\src\util.cc" />
     <ClCompile Include="..\OSF\sentencepiece\src\word_model.cc" />
+    <ClInclude Include="..\OSF\sentencepiece\third_party\esaxx\esa.hxx" />
+    <ClInclude Include="..\OSF\sentencepiece\third_party\esaxx\sais.hxx" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\OSF\sentencepiece\src\sentencepiece.proto">

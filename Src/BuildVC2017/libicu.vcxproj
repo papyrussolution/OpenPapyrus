@@ -398,6 +398,8 @@
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">1Byte</StructMemberAlignment>
       <FunctionLevelLinking Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</FunctionLevelLinking>
       <FunctionLevelLinking Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</FunctionLevelLinking>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70d.dll</OutputFile>
@@ -454,6 +456,8 @@
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">1Byte</StructMemberAlignment>
       <FunctionLevelLinking Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</FunctionLevelLinking>
       <FunctionLevelLinking Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</FunctionLevelLinking>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70d.dll</OutputFile>
@@ -510,6 +514,8 @@
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">1Byte</StructMemberAlignment>
       <FunctionLevelLinking Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</FunctionLevelLinking>
       <FunctionLevelLinking Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</FunctionLevelLinking>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70d.dll</OutputFile>
@@ -557,6 +563,8 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">1Byte</StructMemberAlignment>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">1Byte</StructMemberAlignment>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70.dll</OutputFile>
@@ -609,6 +617,8 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</CompileAsManaged>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">1Byte</StructMemberAlignment>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">1Byte</StructMemberAlignment>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70.dll</OutputFile>
@@ -661,6 +671,8 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</CompileAsManaged>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">1Byte</StructMemberAlignment>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">1Byte</StructMemberAlignment>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>..\..\$(IcuBinOutputDir)\icuuc70.dll</OutputFile>

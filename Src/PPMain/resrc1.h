@@ -6,7 +6,6 @@
 #define IDI_ICON1                       523
 #define CTL_ATURN_BASEAMT2              1236
 #define CTLMNU_BILL_DOC2                1272
-#define CTLCAL_BILL_TPLNPRD             1272
 #define IDC_EDIT1                       1278
 #define IDC_BUTTON1                     1282
 

@@ -4973,7 +4973,7 @@ PPTXT_CANTCREATEWAREWONAME          "При импорте документа н
 //PPTXT_EGAIS_GOODSCREATED            "Создан товар '%s'"
 PPTXT_WAREAUTOCREATED               "Создан товар '%s'"
 PPTXT_GLOBALSERVICELIST             "1,@{globalservice_twitter};2,@{globalservice_facebook};3,@{globalservice_vk};4,@{globalservice_vetis};5,@{brand_chzn};\
-6,@{globalservice_instagram};7,@{globalservice_uds};8,@{globalservice_uhtt};9,@{globalservice_shopify};10,@{globalservice_wildberries}"
+6,@{globalservice_instagram};7,@{globalservice_uds};8,@{globalservice_uhtt};9,@{globalservice_shopify};10,@{globalservice_wildberries};11,@{globalservice_aptekaru}"
 PPTXT_AGGRFUNCNAMELIST              "1,@{aggrfunc_count};2,@{aggrfunc_sum};3,@{aggrfunc_average};4,@{aggrfunc_min};5,@{aggrfunc_max};6,@{aggrfunc_stddev}"
 PPTXT_CHZNPRODUCTTYPES              "1,Изделия из меха;2,Табачные изделия;3,Обувь;4,Лекарственные средства;5,Автомобильные шины;6,Текстиль;7,Парфюмерия;\
 8,Молочная продукция;9,Ювелирные изделия;10,Вода питьевая;11,Альтернативная табачная продукция;12,Пиво разливное;1012,Пиво разливное - автосписание;\
@@ -5071,10 +5071,11 @@ PPTXT_STARTSESSION                   "Начать работу" // @v11.9.2 wsc
 PPTXT_CREATEBILL_HINT_ORDDTGTNOW     "Документ заказа, по которому вы собираетесь создать отгрузку, выписан будущей датой"
 
 PPTXT_ACCSHEET_MP_NAME               "Операции на маркетплейсах"
-PPTXT_ACCSHEET_MP_AR_NAMES           "1,Комиссионное вознаграждение;2,Стоимость эквайринга;3,Стоимость хранения;4,Стоимость приемки на склад хранения;5,Коррекция баланса;6,Удержание"
+PPTXT_ACCSHEET_MP_AR_NAMES           "1,Комиссионное вознаграждение;2,Стоимость эквайринга;3,Стоимость хранения;4,Стоимость приемки на склад хранения;5,Коррекция баланса;6,Удержание;7,Штрафы"
 
 // Наименование операций маркетплейса Wildberries представленные в отчетах выгружаемых через api. Нужны для идентификации операций поскольку числовых идентификаторов они почему-то не предусмотрели
-PPTXT_MPWB_NATIVEOPS                 "1,Возмещение издержек по перевозке/по складским операциям с товаром;2,Логистика;3,Пересчет платной приемки;4,Продажа;5,Удержание;6,Хранение"
+PPTXT_MPWB_NATIVEOPS                 "1,Возмещение издержек по перевозке/по складским операциям с товаром;2,Логистика;3,Пересчет платной приемки;4,Продажа;5,Удержание;6,Хранение;7,Коррекция логистики;\
+8,Корректировка эквайринга;9,Штраф;10,Возврат"
 PPTXT_MP_ORDERFORSALESITEMNFOUND     "Не удалось найти заказ, который закрывается документом продажи '%s'"
 
 PPTXT_MP_PROCESSING_RECEIPTS         "Маркетплейс: обработка приходов"
@@ -5084,6 +5085,7 @@ PPTXT_MP_PROCESSING_FINTRANSACTIONS  "Маркетплейс: обработка
 PPTXT_MP_PROCESSING_STOCK            "Маркетплейс: обработка остатков"
 PPTXT_MP_FINTRA_WB_REQ               "Запрос отчета о продажах по реализации за период %s"
 PPTXT_MP_FINTRA_WB_REPEMPTY          "Сервер Wildberries вернул пустой результат"
+PPTXT_MPWB_UNKN_NATIVEOP             "Неизвестный тип финансовой операции Wildberries '%s'"
 PPTXT_ORDERCANCELLED                 "Заказ '%s' отменен"
 //
 // LastText
@@ -6053,6 +6055,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @globalservice_uhtt                  "@{brand_uhtt}"
 @globalservice_shopify               "Shopify"
 @globalservice_wildberries           "Wildberries"
+@globalservice_aptekaru              "Apteka.Ru" // @v12.2.0
 
 @papyrusversion                      "Версия Papyrus"
 @testapp_path                        "Тестовое Приложение" // @v11.8.2 Подкаталог рабочего каталога ppy, в котором размещается тестовое приложение SlTestApp.exe
@@ -9315,6 +9318,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_exportdbtblbill                      "Экспорт таблицы Bill"
 @cmd_setupglbsvc_uds                      "Настройка интеграции с сервисом UDS"
 @cmd_setupglbsvc_vk                       "Настройка интеграции с сервисом VK"
+@cmd_setupglbsvc_wb                       "Настройка интеграции с маркетплейсом Wildberries"
 @cmd_usermenu                             "@{view_usermenu}"
 @cmd_convertlatextohtml                   "Конвертация LATEX-документации (только для внутреннего использования)"
 @cmd_convertversiontohtml                 "Конвертация version.txt (только для внутреннего использования)"
@@ -9686,7 +9690,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @accanlz_cur                              "@{currency}"
 @accanlz_loc                              "@{warehouse}"
 @accanlz_leafno                           "Лист"
-@accanlz_object2                          ""
+@accanlz_object2_acs                      "Таблица статей дополнительного объекта документов"
+@accanlz_object2                          "Дополнительный объект документов"
 @accanlz_agent                            "@{agent}"
 @accanlz_dlvrloc                          "@{daddress}"
 @accanlz_substreltype                     "Подстановка по отношению"

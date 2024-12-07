@@ -309,7 +309,7 @@ Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray * pLocL
 	//
 	PPIDArray op_list;
 	UintHashTable bill_list;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	{
 		Reference * p_ref = PPRef;
 		{

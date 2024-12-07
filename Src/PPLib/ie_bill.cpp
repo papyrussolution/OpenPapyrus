@@ -5374,7 +5374,7 @@ int PPBillImporter::Run()
 										PPGoodsTaxEntry gtx;
 										if(GObj.GTxObj.FetchByID(goods_rec.TaxGrpID, &gtx) > 0) {
 											vect.Calc_(&gtx, p_item->PriceSumWoVat, fabs(p_item->Qtty), GTAXVF_AFTERTAXES, 0);
-											ti.Cost = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT) / fabs(p_item->Qtty);
+											ti.Cost = vect.GetValue(GTAXVF_AFTERTAXES|GTAXVF_EXCISE|GTAXVF_VAT) / fabs(p_item->Qtty);
 										}
 									}
 									else if(p_item->PriceWoVat > 0.0) {

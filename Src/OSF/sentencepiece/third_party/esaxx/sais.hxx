@@ -301,7 +301,6 @@ int suffixsort(string_type T, sarray_type SA,
 		}
 		SA[m + (p >> 1)] = name;
 	}
-
 	/* stage 2: solve the reduced problem recurse if names are not yet unique */
 	if(name < m) {
 		RA = SA + n + fs - m;
@@ -319,14 +318,14 @@ int suffixsort(string_type T, sarray_type SA,
 			}
 			else if(c != 0) {
 				RA[j--] = i + 1, c = 0;
-			}                         /* get p1 */
+			} /* get p1 */
 		}
 #ifdef _OPENMP
 #pragma omp parallel for default(shared) private(i)
 #endif
 		for(i = 0; i < m; ++i) {
 			SA[i] = RA[SA[i]];
-		}                                 /* get index in s */
+		} /* get index in s */
 	}
 
 	/* stage 3: induce the result for the original problem */

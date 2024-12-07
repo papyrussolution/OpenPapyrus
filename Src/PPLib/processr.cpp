@@ -919,7 +919,7 @@ int PPObjProcessor::PutPacket(PPID * pID, PPProcessorPacket * pPack, int use_ta)
 					SETFLAG(pPack->Rec.Flags, PRCF_HASEXT, has_ext);
 					if(org_pack.Rec.Kind == PPPRCK_GROUP) {
 						if(org_pack.Rec.LinkObjType)
-							if(pPack->Rec.LinkObjType != org_pack.Rec.LinkObjType || pPack->Rec.LinkObjID != org_pack.Rec.LinkObjID)
+							if(pPack->Rec.LinkObjType != org_pack.Rec.LinkObjType || (org_pack.Rec.LinkObjID && pPack->Rec.LinkObjID != org_pack.Rec.LinkObjID))
 								THROW_PP(GetChildIDList(*pID, 1, 0) < 0, PPERR_UPDLINKNONEMPTYPRCGRP); // @v11.3.1 @fix (>0)-->(<0)
 					}
 					// @v11.3.12 {
@@ -1317,8 +1317,12 @@ public:
 			SetClusterData(CTL_PRC_WROFFDT_BYSUPER, Data.Rec.Flags);
 			setupAssoc();
 			if(Data.Rec.LinkObjType && Data.Rec.ID) {
-				if(PrcObj.GetChildIDList(Data.Rec.ID, 1, 0) > 0)
-					disableCtrls(1, CTL_PRC_ASSOC, CTLSEL_PRC_ASSOCGROUP, 0);
+				const bool are_there_children = (PrcObj.GetChildIDList(Data.Rec.ID, 1, 0) > 0);
+				if(are_there_children) {
+					disableCtrl(CTL_PRC_ASSOC, 1);
+					if(Data.Rec.LinkObjID)
+						disableCtrl(CTLSEL_PRC_ASSOCGROUP, 1);
+				}
 			}
 		}
 		setCtrlData(CTL_PRC_SRVJOBSYMB, Data.Rec.SrvJobSymb);
@@ -2220,11 +2224,21 @@ DBQuery * PPViewProcessor::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	ProcessorTbl * p_prct = 0;
 	DBQuery * q  = 0;
 	DBQ  * dbq = 0;
-	DBE    dbe_loc, dbe_parent;
+	DBE    dbe_loc;
+	DBE    dbe_parent;
+	DBE    dbe_linkobj;
 	THROW(CheckTblPtr(p_prct = new ProcessorTbl));
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc, PPDbqFuncPool::IdObjNameLoc,    p_prct->LocID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_parent, PPDbqFuncPool::IdObjNamePrc, p_prct->ParentID);
-	q = & select(p_prct->ID, p_prct->Name, p_prct->Code, dbe_parent, dbe_loc, 0L).from(p_prct, 0L);
+	// @v12.2.0 {
+	{
+		dbe_linkobj.init();
+		dbe_linkobj.push(p_prct->LinkObjType);
+		dbe_linkobj.push(p_prct->LinkObjID);
+		dbe_linkobj.push(static_cast<DBFunc>(PPDbqFuncPool::IdOidText));
+	}
+	// } @v12.2.0 
+	q = & select(p_prct->ID, p_prct->Name, p_prct->Code, dbe_parent, dbe_loc, dbe_linkobj, 0L).from(p_prct, 0L);
 	dbq = ppcheckfiltid(dbq, p_prct->Kind, Filt.Kind);
 	dbq = ppcheckfiltid(dbq, p_prct->ParentID, Filt.ParentID);
 	dbq = ppcheckfiltid(dbq, p_prct->LocID, Filt.LocID);

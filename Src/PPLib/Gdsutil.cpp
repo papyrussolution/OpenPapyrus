@@ -3303,7 +3303,7 @@ PPBarcode::BarcodeImageParam::BarcodeImageParam() : Std(0), Flags(0), OutputForm
 
 struct ZBarToPpBarcStd {
 	ushort ZBarCode;
-	ushort PpCode;
+	uint32 PpCode;   // @v12.2.0 @fix ushort-->uint32
 };
 
 static ZBarToPpBarcStd _ZBarToPpBarcStdTab[] = {

@@ -746,7 +746,7 @@ private:
 	bool   ShowDemoWindow; // @sobolev true-->false
 	bool   ShowAnotherWindow;
 	int    Screen; // screenXXX
-
+	const  int ProgramGalleryScrollDirection; // DIREC_HORZ || DIREC_VERT
 	class Texture_CachedFileEntity : public SCachedFileEntity, public CommonTextureCacheEntry {
 	public:
 		Texture_CachedFileEntity();
@@ -2327,7 +2327,8 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 }
 
 WsCtl_ImGuiSceneBlock::WsCtl_ImGuiSceneBlock() : ImGuiSceneBase(), ShowDemoWindow(false), ShowAnotherWindow(false), Screen(screenUndef),
-	P_CmdQ(new WsCtlReqQueue), Cache_Texture(1024, 0), P_Dlg_Cfg(0), P_Dlg_RegComp(0)
+	P_CmdQ(new WsCtlReqQueue), Cache_Texture(1024, 0), P_Dlg_Cfg(0), P_Dlg_RegComp(0),
+	ProgramGalleryScrollDirection(DIREC_HORZ)
 {
 	TestInput[0] = 0;
 }
@@ -2363,52 +2364,6 @@ SString & WsCtl_ImGuiSceneBlock::InputLabelPrefix(const char * pLabel)
 	//ImGui::SetCursorPosX(x + width * 0.5f + ImGui::GetStyle().ItemInnerSpacing.x);
 	// @v11.7.8 ImGui::SetNextItemWidth(-1);
 	return SLS.AcquireRvlStr().CatCharN('#', 2).Cat(pLabel);
-}
-
-SUiLayout * WsCtl_ImGuiSceneBlock::MakePgmListLayout(const WsCtl_ProgramCollection & rPgmL)
-{
-	const int pgm_entry_template_id = loidProgramEntryTemplate;
-	const SUiLayout * p_pe_template = Cache_Layout.Get(&pgm_entry_template_id, sizeof(pgm_entry_template_id));
-	SString filt_cat_text;		
-	SUiLayoutParam lop_head;
-	lop_head.SetContainerDirection(DIREC_VERT);
-	lop_head.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-	lop_head.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-	lop_head.Flags |= (SUiLayoutParam::fEvaluateScroller|SUiLayoutParam::fContainerWrap);
-	SUiLayout * p_lo_head = new SUiLayout(lop_head);
-	SUiLayoutParam lop_entry;
-	if(p_pe_template) {
-		lop_entry = p_pe_template->GetLayoutBlockC();
-	}
-	else {
-		lop_entry.SetFixedSizeX(128.0f);
-		lop_entry.SetFixedSizeY(128.0f);
-	}
-	{
-		const long cat_id = rPgmL.GetSelectedCatSurrogateId();
-		if(cat_id) {
-			if(cat_id == WsCtl_ProgramCollection::catsurrogateidAll) {
-				filt_cat_text.Z();
-			}
-			else {
-				uint sel_idx = 0;
-				const StrAssocArray & r_cat_list = rPgmL.GetCatList();
-				if(r_cat_list.Search(cat_id, &sel_idx)) {
-					filt_cat_text = r_cat_list.Get(sel_idx).Txt;
-				}
-			}
-		}
-	}
-	for(uint i = 0; i < rPgmL.getCount(); i++) {
-		const WsCtl_ProgramEntry * p_pe = rPgmL.at(i);
-		if(p_pe) {
-			if(filt_cat_text.IsEmpty() || filt_cat_text.IsEqiUtf8(p_pe->Category))
-				p_lo_head->InsertItem(const_cast<WsCtl_ProgramEntry *>(p_pe), &lop_entry, loidStartProgramEntry+i+1);
-		}
-	}
-	p_lo_head->SetID(loidInternalProgramGallery);
-	//Cache_Layout.Put(p_lo_head, true);
-	return p_lo_head;
 }
 
 int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
@@ -2721,11 +2676,66 @@ void WsCtl_ImGuiSceneBlock::LastServerErrorPopup(bool isErr)
 	}
 }
 
+SUiLayout * WsCtl_ImGuiSceneBlock::MakePgmListLayout(const WsCtl_ProgramCollection & rPgmL)
+{
+	const int pgm_entry_template_id = loidProgramEntryTemplate;
+	const SUiLayout * p_pe_template = Cache_Layout.Get(&pgm_entry_template_id, sizeof(pgm_entry_template_id));
+	SString filt_cat_text;		
+	SUiLayoutParam lop_head;
+	lop_head.SetContainerDirection((ProgramGalleryScrollDirection == DIREC_VERT) ? DIREC_HORZ : DIREC_VERT);
+	lop_head.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+	lop_head.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+	lop_head.Flags |= (SUiLayoutParam::fEvaluateScroller|SUiLayoutParam::fContainerWrap);
+	SUiLayout * p_lo_head = new SUiLayout(lop_head);
+	SUiLayoutParam lop_entry;
+	if(p_pe_template) {
+		lop_entry = p_pe_template->GetLayoutBlockC();
+	}
+	else {
+		lop_entry.SetFixedSizeX(128.0f);
+		lop_entry.SetFixedSizeY(128.0f);
+	}
+	{
+		const long cat_id = rPgmL.GetSelectedCatSurrogateId();
+		if(cat_id) {
+			if(cat_id == WsCtl_ProgramCollection::catsurrogateidAll) {
+				filt_cat_text.Z();
+			}
+			else {
+				uint sel_idx = 0;
+				const StrAssocArray & r_cat_list = rPgmL.GetCatList();
+				if(r_cat_list.Search(cat_id, &sel_idx)) {
+					filt_cat_text = r_cat_list.Get(sel_idx).Txt;
+				}
+			}
+		}
+	}
+	for(uint i = 0; i < rPgmL.getCount(); i++) {
+		const WsCtl_ProgramEntry * p_pe = rPgmL.at(i);
+		if(p_pe) {
+			if(filt_cat_text.IsEmpty() || filt_cat_text.IsEqiUtf8(p_pe->Category))
+				p_lo_head->InsertItem(const_cast<WsCtl_ProgramEntry *>(p_pe), &lop_entry, loidStartProgramEntry+i+1);
+		}
+	}
+	p_lo_head->SetID(loidInternalProgramGallery);
+	//Cache_Layout.Put(p_lo_head, true);
+	return p_lo_head;
+}
+
 void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayout & rTl)
 {
 	const int view_flags = ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoDecoration;
 	if(rW.IsValid()) {
 		//SString debug_info_line;
+		// @v12.2.0 {
+		/* it doesn't works
+		float mouse_wheel_offset = 0.0f;
+		ImGui::SetItemKeyOwner(ImGuiKey_MouseWheelY);
+		if(ImGui::IsItemClicked() || ImGui::IsItemHovered()) {
+			mouse_wheel_offset += ImGui::GetIO().MouseWheel;
+		}
+		*/
+		// } @v12.2.0 
 		float total_size = 0.0f;
 		SUiLayout * p_lo_ipg = rTl.FindById(loidInternalProgramGallery); // non-const!
 		SUiLayout::Result * p_lor = 0;
@@ -2763,50 +2773,6 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 									if(p_pe_->PicSymb.NotEmpty()) {
 										PPObjID oid(PPOBJ_SWPROGRAM, p_pe_->ID);
 										void * p_texture = QueryImageTextureByOid(oid, p_pe_->PicSymb);
-										/*
-										Texture_CachedFileEntity * p_te = Cache_Texture.Get(p_pe_->PicSymb);
-										// @v12.1.11 {
-										if(false) { // Если поставить true, то картинки будут грузиться в real-time, но возникнет торможение :(
-											if(!p_te || p_te->GetState() != Texture_CachedFileEntity::rstUnresolved) { 
-												if(!Cache_Texture.GetFileStorate().GetFilePath(p_pe_->PicSymb, temp_buf)) {
-													const WsCtl_ImGuiSceneBlock::DImageLoading::Entry * p_il_entry = st_data.SearchOid(oid);
-													if(p_il_entry && p_il_entry->Status == -1) {
-														if(!p_te) {
-															Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
-															if(p_cfe) {
-																p_cfe->SetAsUnresolved();
-																Cache_Texture.Put(p_cfe); // put program-entry img texture
-																p_cfe = 0; // ! prevent deletion below
-															}
-														}
-														else {
-															p_te->SetAsUnresolved();
-														}
-													}
-													// Запрос отправлять здесь не станем (считаем пока, что все запрос отправлены при инициализации сеанса)
-													//WsCtlReqQueue::Req req(PPSCMD_GETIMAGE);
-													//STRNSCPY(req.P.NameTextUtf8, p_pe_->PicSymb);
-													//req.P.Oid.Set(PPOBJ_SWPROGRAM, p_pe_->ID);
-													//P_CmdQ->Push(req);
-													//
-												}
-												else {
-													Texture_CachedFileEntity * p_cfe = new Texture_CachedFileEntity();
-													if(p_cfe && p_cfe->Init(temp_buf)) {
-														if(p_cfe->Reload(true, &ImgRtb)) {
-															Cache_Texture.Put(p_cfe); // put program-entry img texture
-															p_cfe = 0; // ! prevent deletion below
-														}
-													}
-													delete p_cfe;
-													//
-													p_te = Cache_Texture.Get(p_pe_->PicSymb);
-												}
-											}
-										}
-										// } @v12.1.11 
-										*/
-										//if(p_te && p_te->GetTexture()) {
 										if(p_texture) {
 											if(p_pe_->Title.NotEmpty())
 												ImGui::Text(p_pe_->Title);
@@ -2893,7 +2859,8 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 								ImGui::SetActiveID(PgmGalleryScrollerPosition_Develop.ActiveCtlId, 0);
 							}
 							// } @v11.9.1 
-							sbr = ImGui::ScrollbarEx(imr, loidProgramGalleryScrollbar, ImGuiAxis_X, &scroll_value, scroll_frame, scroll_size, sb_flags|ImGuiWindowFlags_NoInputs);
+							sbr = ImGui::ScrollbarEx(imr, loidProgramGalleryScrollbar, (ProgramGalleryScrollDirection == DIREC_VERT) ? ImGuiAxis_Y : ImGuiAxis_X, 
+								&scroll_value, scroll_frame, scroll_size, sb_flags|ImGuiWindowFlags_NoInputs);
 							{
 								if(scroll_value >= 0) {
 									PgmGalleryScrollerPosition_Develop.ItemIdxCurrent = static_cast<uint>(scroll_value);
@@ -2904,7 +2871,7 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 							}
 						}
 					}
-					//ImGui::Scrollbar(ImGuiAxis_X);
+					//ImGui::Scrollbar((ProgramGalleryScrollDirection == DIREC_VERT) ? ImGuiAxis_Y : ImGuiAxis_X);
 				}
 				/*{
 					debug_info_line.CatEq("active-id", debug_active_id).Space().CatEq("scroll-size", scroll_size).Space().
@@ -3164,6 +3131,9 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 									DComputerRegistration st_data_compreg;
 									St.D_CompReg.GetData(st_data_compreg); // Обнуляем текущее состояние регистрации компьютера
 									St.D_CompCatList.GetData(st_data_compcat_list);
+									if(St.SidBlk.PrcName.IsEmpty()) {
+										SGetComputerName(St.SidBlk.PrcName);
+									}
 									if(!st_data_compcat_list.DtmActual) {
 										P_CmdQ->Push(WsCtlReqQueue::Req(WsCtl_CliSession::reqidQueryComputerCategoryList));
 									}
@@ -3217,6 +3187,9 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 													P_CmdQ->Push(req);
 													P_Dlg_RegComp->SetWaitingOnQueryResult();
 												}
+											}
+											else if(r < 0) {
+												ZDELETE(P_Dlg_RegComp);
 											}
 										}
 									}

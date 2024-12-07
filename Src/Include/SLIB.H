@@ -45,7 +45,6 @@
 	#include <signal.h> // @v11.2.12
 	#include <setjmp.h> // @v11.2.12
 	#include <locale.h> // @v11.7.1
-	// @v10.9.6 {
 	#if _MSC_VER < 1900
 		// POSIX Supplement
 		#ifndef _CRT_NO_POSIX_ERROR_CODES
@@ -92,7 +91,6 @@
 			#define EWOULDBLOCK     140
 		#endif // _CRT_NO_POSIX_ERROR_CODES
 	#endif
-	// } @v10.9.6
 	#include <fcntl.h>
 	#include <sys/locking.h> // @v11.7.1
 	#include <sys/stat.h>
@@ -102,7 +100,6 @@
 	#include <stdint.h>
 	#include <string.h> // @v11.0.7
 	#include <malloc.h> // @v11.7.1 
-	// @v10.4.3
 	#ifdef HAVE_UNISTD_H
 		#include <unistd.h>
 	#endif
@@ -166,8 +163,8 @@
 	// @v11.7.10 (replaced with MAX_PATH) #define MAXPATH_Removed  261
 #endif // _WIN32
 #ifndef SLIB_DONT_UNDEF_MINMAX // @v11.1.11
-	#undef min // @v9.8.11
-	#undef max // @v9.8.11
+	#undef min
+	#undef max
 #endif
 #ifdef SLIB_INCLUDE_CPPSTDLIBS
 	#include <list>
@@ -4117,14 +4114,17 @@ public:
 	//   Если pos выходит за границу строки this, то результат всегда 0.
 	//   Если длина строки pPattern равна нулю и pos не выходит за границу строки this, то результат 1.
 	//
-	int    FASTCALL HasAt(uint pos, const char * pPattern) const;
+	bool   HasAt(uint pos, const char * pPattern) const;
 	//
 	// Descr: Возвращает !0 если начиная с позиции pos в строке содержится образец pPattern.
 	//   При этом сравнение осуществляется без учета регистра символов в предположении, что
 	//   все символы - ascii. То есть, для non-ascii символов игнор регистра не сработает!
 	//
-	int    FASTCALL HasAtiAscii(uint pos, const char * pPattern) const;
+	bool   HasAtiAscii(uint pos, const char * pPattern) const;
 	operator const char * () const { return P_Buf; }
+#ifdef SLIB_INCLUDE_CPPSTDLIBS
+	operator std::string_view () const { return std::string_view(P_Buf, Len()); }
+#endif
 	//
 	// Descr: Специализированное преобразование, сделанное главным образом ради (xmlChar *).
 	// Note:
@@ -5189,7 +5189,7 @@ char * STDCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen);
 // Returns:
 //   pDest
 //
-char * FASTCALL sstrncat(char * pDest, size_t destSize, const char * pSrc); // @v11.0.0
+char * STDCALL sstrncat(char * pDest, size_t destSize, const char * pSrc); // @v11.0.0
 wchar_t * STDCALL  strnzcpy(wchar_t * pDest, const wchar_t * pSrc, size_t maxlen);
 char    * FASTCALL sstrcpy(char * pDest, const char * pSrc);
 uchar   * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc);
@@ -5204,6 +5204,9 @@ FORCEINLINE bool   isempty(const char * pStr) { return (pStr == 0 || pStr[0] == 
 FORCEINLINE bool   isempty(const uchar * pStr) { return (pStr == 0 || pStr[0] == 0); }
 FORCEINLINE bool   isempty(const wchar_t * pStr) { return (pStr == 0 || pStr[0] == 0); }
 FORCEINLINE bool   isempty(const char16_t * pStr) { return (pStr == 0 || pStr[0] == 0); }
+//
+// Descr: возвращает длину z-строки pStr. Если pStr == 0, то возвращает 0.
+//
 FORCEINLINE size_t sstrlen(const char * pStr) { return pStr ? strlen(pStr) : 0; }
 FORCEINLINE size_t sstrlen(const uchar * pStr) { return pStr ? strlen(reinterpret_cast<const char *>(pStr)) : 0; }
 FORCEINLINE size_t sstrlen(const wchar_t * pStr) { return pStr  ? wcslen(pStr) : 0; }
@@ -5265,7 +5268,10 @@ bool   FASTCALL sstreq(const wchar_t * pS1, const wchar_t * pS2);
 // @v11.6.7
 //
 inline int  sfixctype(int ch) { return (ch >= -1 && ch <= 255) ? ch : 0; /*uncrustify Issue #3025*/}
-
+//
+// Descr: Возвращает true если символы c1 и c2 либо равны, либо представляют одну и ту же ascii-букву
+//   без оглядки на регистр.
+//
 inline bool chreqi_ascii(int c1, int c2)
 {
 	if(c1 != c2) {
@@ -10355,7 +10361,7 @@ public:
 		fEachDelim   = 0x0002, // Каждый отдельный разделитель возвращать отдельным токеном
 		fDivAlNum    = 0x0008, // Если после цифры идет нецифровой (и не разделительный) символ или
 			// после нецифрового (не разделительного) символа идет цифра, то считать этот факт неявным разделителем.
-		fRawOrgOffs  = 0x0010  // @v10.2.0 Поле Item::OrgOffs заполнять байтовым смещением токена, а не символьным
+		fRawOrgOffs  = 0x0010  // Поле Item::OrgOffs заполнять байтовым смещением токена, а не символьным
 	};
 	enum {
 		coClearSymbTab = 0x0001 //
@@ -10501,8 +10507,8 @@ public:
 		ssisSolaris =  6,
 		ssisHPUX    =  7,
 		ssisGLibC   =  8,
-		ssisBSD     =  9, // @v10.4.4
-		ssisGNU     = 10  // @v10.4.4
+		ssisBSD     =  9,
+		ssisGNU     = 10
 	};
 	enum CpuVendor {
 		cpuvUnkn = 0,

@@ -50,16 +50,22 @@ static IMPL_DBE_PROC(dbqf_oidtext_ii)
 {
     char   name_buf[128+48];
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
-		PTR32(name_buf)[0] = 0;
+		name_buf[0] = 0;
 		PPID   obj_type = params[0].lval;
 		PPID   obj_id = params[1].lval;
 		if(obj_type) {
-			SString temp_buf, obj_buf;
+			SString temp_buf;
+			SString obj_buf;
             GetObjectTitle(obj_type, temp_buf);
 			if(temp_buf.NotEmptyS()) {
 				temp_buf.CatDiv(':', 2);
-				GetObjectName(obj_type, obj_id, obj_buf);
-				temp_buf.Cat(obj_buf);
+				if(obj_id) {
+					GetObjectName(obj_type, obj_id, obj_buf);
+					temp_buf.Cat(obj_buf);
+				}
+				else {
+					temp_buf.Cat("#0");
+				}
 				STRNSCPY(name_buf, temp_buf);
 			}
 		}
@@ -71,7 +77,7 @@ static IMPL_DBE_PROC(dbqf_scardextstring_ii)
 {
     char   name_buf[256];
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
-		PTR32(name_buf)[0] = 0;
+		name_buf[0] = 0;
 		PPID   id = params[0].lval;
 		PPID   fldid = params[1].lval;
         PPObjSCard sc_obj;
@@ -612,7 +618,21 @@ static IMPL_DBE_PROC(dbqf_strbystrgrouppos_ip)
 			STRNSCPY(text_buf, r_temp_buf);
 		}
 		else
-			PTR32(text_buf)[0] = 0;
+			text_buf[0] = 0;
+		result->init(text_buf);
+	}
+}
+
+static IMPL_DBE_PROC(dbqf_substrbyid_ii) // @v12.2.0
+{
+	char   text_buf[256];
+	if(!DbeInitSize(option, result, sizeof(text_buf))) {
+		const  uint text_id    = static_cast<uint>(params[0].lval);
+		const  int  substr_idx = params[1].lval;
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		//PPGetSubStr(text_id, substr_idx, r_temp_buf);
+		PPGetSubStrById(text_id, substr_idx, r_temp_buf);
+		STRNSCPY(text_buf, r_temp_buf);
 		result->init(text_buf);
 	}
 }
@@ -1375,17 +1395,15 @@ int PPDbqFuncPool::IdObjNameArByAcc    	 = 0; //
 int PPDbqFuncPool::IdObjNameUser       	 = 0;
 int PPDbqFuncPool::IdObjNameGlobalUser 	 = 0; // 
 int PPDbqFuncPool::IdObjNameUnit       	 = 0;
-int PPDbqFuncPool::IdObjNameTech = 0;
+int PPDbqFuncPool::IdObjNameTech         = 0;
 int PPDbqFuncPool::IdObjNameGoodsByTech  = 0; //
-int PPDbqFuncPool::IdObjNamePrc  = 0;
+int PPDbqFuncPool::IdObjNamePrc          = 0;
 int PPDbqFuncPool::IdObjNameGoods      	 = 0;
 int PPDbqFuncPool::IdObjNamePerson     	 = 0; //
 int PPDbqFuncPool::IdObjNameSalCharge  	 = 0; //
 int PPDbqFuncPool::IdObjNameStaff      	 = 0; //
 int PPDbqFuncPool::IdObjNameStaffCal   	 = 0; //
 int PPDbqFuncPool::IdObjNamePersonPost 	 = 0; //
-int PPDbqFuncPool::IdObjStaffOrg       	 = 0; // 
-int PPDbqFuncPool::IdObjStaffDiv       	 = 0; // 
 int PPDbqFuncPool::IdObjNameAccSheet   	 = 0; //
 int PPDbqFuncPool::IdObjNameQuotKind   	 = 0; //
 int PPDbqFuncPool::IdObjNameCashNode   	 = 0; //
@@ -1399,12 +1417,14 @@ int PPDbqFuncPool::IdObjNamePersonStatus = 0; //
 int PPDbqFuncPool::IdObjNamePersonCat    = 0; //
 int PPDbqFuncPool::IdObjNameAmountType 	 = 0; //
 int PPDbqFuncPool::IdObjNamePsnKind    	 = 0; //
+int PPDbqFuncPool::IdObjNameSCardSer   	 = 0; //
+int PPDbqFuncPool::IdObjNameDebtDim    	 = 0; //
 int PPDbqFuncPool::IdObjSymbCurrency   	 = 0; //
 int PPDbqFuncPool::IdObjCodeBillCmplx  	 = 0; // (fldBillID)
 int PPDbqFuncPool::IdObjCodeBill       	 = 0; // (fldBillID)
 int PPDbqFuncPool::IdObjMemoBill       	 = 0; // (fldBillID)
-int PPDbqFuncPool::IdObjNameSCardSer   	 = 0; //
-int PPDbqFuncPool::IdObjNameDebtDim    	 = 0; //
+int PPDbqFuncPool::IdObjStaffOrg       	 = 0; // 
+int PPDbqFuncPool::IdObjStaffDiv       	 = 0; // 
 int PPDbqFuncPool::IdDateTime          	 = 0; // (fldDate, fldTime)
 int PPDbqFuncPool::IdInventDiffQtty    	 = 0; //
 int PPDbqFuncPool::IdInventLnStatus    	 = 0; // (fldFlags, fldBillID)
@@ -1471,6 +1491,7 @@ int PPDbqFuncPool::IdDateBase    = 0; // (dateValue, baseDate) Текстовое предста
 int PPDbqFuncPool::IdBillFrghtStrgLoc    = 0; // 
 int PPDbqFuncPool::IdSCardExtString      = 0; // (scardID, fldId)
 int PPDbqFuncPool::IdStrByStrGroupPos    = 0; // (position, (const SStrGroup *)) Возвращает строку из пула строк, идентифицируемую позицией position
+int PPDbqFuncPool::IdSubStrById  = 0; // @v12.2.0 (textId, substrIdx) Возвращает нумерованную подстроку строки и идентификатором ресурса textId (see PPGetSubStrById) 
 int PPDbqFuncPool::IdBillDate    = 0;
 int PPDbqFuncPool::IdUnxText     = 0;
 int PPDbqFuncPool::IdIsTxtUuidEq = 0;
@@ -1563,7 +1584,7 @@ static IMPL_DBE_PROC(dbqf_rpttypename_i)
 			PPLoadString("rptstd", temp_buf);
 		else
 			PPLoadString("rptlocal", temp_buf);
-		temp_buf.CopyTo(buf, sizeof(buf)); // @v10.3.11 @fix temp_buf.ToOem().-->temp_buf.
+		temp_buf.CopyTo(buf, sizeof(buf));
 		result->init(buf);
 	}
 }
@@ -1766,6 +1787,7 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdCheckCsPosNode,      BTS_INT,    dbqf_checkcsposnode_ii,      2, BTS_INT, BTS_INT)); // (csessID, posNodeID)
 	THROW(DbqFuncTab::RegisterDyn(&IdCheckCsPosNodeList,  BTS_INT,    dbqf_checkcsposnodelist_ii,  2, BTS_INT, BTS_PTR)); // (csessID, (const LongArray *))
 	THROW(DbqFuncTab::RegisterDyn(&IdStrByStrGroupPos,    BTS_STRING, dbqf_strbystrgrouppos_ip,    2, BTS_INT, BTS_PTR)); // (position, (const SStrGroup *))
+	THROW(DbqFuncTab::RegisterDyn(&IdSubStrById,          BTS_STRING, dbqf_substrbyid_ii,          2, BTS_INT, BTS_INT)); // @v12.2.0 (textId, substrIdx)
 	THROW(DbqFuncTab::RegisterDyn(&IdStrExistSubStr,      BTS_INT,    dbqf_strexistsub_ss,         2, BTS_STRING, BTS_STRING));
 	THROW(DbqFuncTab::RegisterDyn(&IdAddedCreditLimit,    BTS_REAL,   dbqf_addedcreditlimit_rii,   3, BTS_REAL, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdGetAgrmntSymbol,     BTS_STRING, dbqf_getagrmntsymbol_i,      1, BTS_INT));

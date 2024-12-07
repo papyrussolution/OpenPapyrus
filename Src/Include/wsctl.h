@@ -259,6 +259,8 @@ private:
 //
 class WsCtlSrvBlock {
 public:
+	static int Test();
+
 	struct RegistrationBlock { // @v11.9.10
 		RegistrationBlock();
 		RegistrationBlock & Z();

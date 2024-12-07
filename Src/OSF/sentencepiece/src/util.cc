@@ -15,34 +15,29 @@
 
 namespace sentencepiece {
 namespace {
-constexpr unsigned int kDefaultSeed = static_cast<unsigned int>(-1);
-static std::atomic<unsigned int> g_seed = kDefaultSeed;
-static std::atomic<int> g_minloglevel = 0;
-}  // namespace
-
-void SetRandomGeneratorSeed(unsigned int seed) {
-	if(seed != kDefaultSeed) g_seed.store(seed);
+	constexpr unsigned int kDefaultSeed = static_cast<unsigned int>(-1);
+	static std::atomic<unsigned int> g_seed = kDefaultSeed;
+	static std::atomic<int> g_minloglevel = 0;
 }
 
-uint32 GetRandomGeneratorSeed() {
-	return g_seed == kDefaultSeed ? std::random_device{} () : g_seed.load();
+void SetRandomGeneratorSeed(unsigned int seed) 
+{
+	if(seed != kDefaultSeed) 
+		g_seed.store(seed);
 }
+
+uint32 GetRandomGeneratorSeed() { return g_seed == kDefaultSeed ? std::random_device{} () : g_seed.load(); }
 
 namespace logging {
-int GetMinLogLevel() {
-	return g_minloglevel.load();
+	int GetMinLogLevel() { return g_minloglevel.load(); }
+	void SetMinLogLevel(int v) { g_minloglevel.store(v); }
 }
-
-void SetMinLogLevel(int v) {
-	g_minloglevel.store(v);
-}
-}  // namespace logging
 
 namespace string_util {
 // mblen sotres the number of bytes consumed after decoding.
-char32 DecodeUTF8(const char * begin, const char * end, size_t * mblen) {
+char32 DecodeUTF8(const char * begin, const char * end, size_t * mblen) 
+{
 	const size_t len = end - begin;
-
 	if(static_cast<unsigned char>(begin[0]) < 0x80) {
 		*mblen = 1;
 		return static_cast<unsigned char>(begin[0]);
@@ -55,8 +50,7 @@ char32 DecodeUTF8(const char * begin, const char * end, size_t * mblen) {
 		}
 	}
 	else if(len >= 3 && (begin[0] & 0xF0) == 0xE0) {
-		const char32 cp = (((begin[0] & 0x0F) << 12) | ((begin[1] & 0x3F) << 6) |
-		    ((begin[2] & 0x3F)));
+		const char32 cp = (((begin[0] & 0x0F) << 12) | ((begin[1] & 0x3F) << 6) | ((begin[2] & 0x3F)));
 		if(IsTrailByte(begin[1]) && IsTrailByte(begin[2]) && cp >= 0x0800 &&
 		    IsValidCodepoint(cp)) {
 			*mblen = 3;
@@ -64,8 +58,7 @@ char32 DecodeUTF8(const char * begin, const char * end, size_t * mblen) {
 		}
 	}
 	else if(len >= 4 && (begin[0] & 0xf8) == 0xF0) {
-		const char32 cp = (((begin[0] & 0x07) << 18) | ((begin[1] & 0x3F) << 12) |
-		    ((begin[2] & 0x3F) << 6) | ((begin[3] & 0x3F)));
+		const char32 cp = (((begin[0] & 0x07) << 18) | ((begin[1] & 0x3F) << 12) | ((begin[2] & 0x3F) << 6) | ((begin[3] & 0x3F)));
 		if(IsTrailByte(begin[1]) && IsTrailByte(begin[2]) &&
 		    IsTrailByte(begin[3]) && cp >= 0x10000 && IsValidCodepoint(cp)) {
 			*mblen = 4;
@@ -78,7 +71,8 @@ char32 DecodeUTF8(const char * begin, const char * end, size_t * mblen) {
 	return kUnicodeError;
 }
 
-bool IsStructurallyValid(absl::string_view str) {
+bool IsStructurallyValid(absl::string_view str) 
+{
 	const char * begin = str.data();
 	const char * end = str.data() + str.size();
 	size_t mblen = 0;
@@ -91,23 +85,22 @@ bool IsStructurallyValid(absl::string_view str) {
 	return true;
 }
 
-size_t EncodeUTF8(char32 c, char * output) {
+size_t EncodeUTF8(char32 c, char * output) 
+{
 	if(c <= 0x7F) {
 		*output = static_cast<char>(c);
 		return 1;
 	}
-
 	if(c <= 0x7FF) {
 		output[1] = 0x80 | (c & 0x3F);
 		c >>= 6;
 		output[0] = 0xC0 | c;
 		return 2;
 	}
-
 	// if `c` is out-of-range, convert it to REPLACEMENT CHARACTER (U+FFFD).
 	// This treatment is the same as the original runetochar.
-	if(c > 0x10FFFF) c = kUnicodeError;
-
+	if(c > 0x10FFFF) 
+		c = kUnicodeError;
 	if(c <= 0xFFFF) {
 		output[2] = 0x80 | (c & 0x3F);
 		c >>= 6;
@@ -116,7 +109,6 @@ size_t EncodeUTF8(char32 c, char * output) {
 		output[0] = 0xE0 | c;
 		return 3;
 	}
-
 	output[3] = 0x80 | (c & 0x3F);
 	c >>= 6;
 	output[2] = 0x80 | (c & 0x3F);
@@ -128,11 +120,10 @@ size_t EncodeUTF8(char32 c, char * output) {
 	return 4;
 }
 
-std::string UnicodeCharToUTF8(const char32 c) {
-	return UnicodeTextToUTF8({c});
-}
+std::string UnicodeCharToUTF8(const char32 c) { return UnicodeTextToUTF8({c}); }
 
-UnicodeText UTF8ToUnicodeText(absl::string_view utf8) {
+UnicodeText UTF8ToUnicodeText(absl::string_view utf8) 
+{
 	UnicodeText uc;
 	const char * begin = utf8.data();
 	const char * end = utf8.data() + utf8.size();
@@ -145,7 +136,8 @@ UnicodeText UTF8ToUnicodeText(absl::string_view utf8) {
 	return uc;
 }
 
-std::string UnicodeTextToUTF8(const UnicodeText &utext) {
+std::string UnicodeTextToUTF8(const UnicodeText &utext) 
+{
 	char buf[8];
 	std::string result;
 	for(const char32 c : utext) {
@@ -186,23 +178,23 @@ private:
 	pthread_key_t key_;
 };
 }  // namespace
-
-std::mt19937 * GetRandomGenerator() {
+std::mt19937 * GetRandomGenerator() 
+{
 	static RandomGeneratorStorage * storage = new RandomGeneratorStorage;
 	return storage->Get();
 }
-
 #else
-std::mt19937 * GetRandomGenerator() {
+std::mt19937 * GetRandomGenerator() 
+{
 	thread_local static std::mt19937 mt(GetRandomGeneratorSeed());
 	return &mt;
 }
-
 #endif
 }  // namespace random
 
 namespace util {
-std::string StrError(int errnum) {
+std::string StrError(int errnum) 
+{
 	constexpr int kStrErrorSize = 1024;
 	char buffer[kStrErrorSize];
 	char * str = nullptr;
@@ -220,13 +212,13 @@ std::string StrError(int errnum) {
 	return os.str();
 }
 
-std::vector<std::string> StrSplitAsCSV(absl::string_view text) {
+std::vector<std::string> StrSplitAsCSV(absl::string_view text) 
+{
 	std::string buf = std::string(text);
 	char * str = const_cast<char *>(buf.data());
 	char * eos = str + text.size();
 	char * start = nullptr;
 	char * end = nullptr;
-
 	std::vector<std::string> result;
 	for(; str < eos; ++str) {
 		if(*str == '"') {
@@ -249,29 +241,39 @@ std::vector<std::string> StrSplitAsCSV(absl::string_view text) {
 		*end = '\0';
 		result.push_back(start);
 	}
-
 	return result;
 }
 }  // namespace util
 
 #ifdef OS_WIN
 namespace win32 {
-std::wstring Utf8ToWide(absl::string_view input) {
-	int output_length = ::MultiByteToWideChar(
-		CP_UTF8, 0, input.data(), static_cast<int>(input.size()), nullptr, 0);
+/* @v12.2.0 (этот вариант ошибочный - see below) std::wstring Utf8ToWide(absl::string_view input) 
+{
+	int output_length = ::MultiByteToWideChar(CP_UTF8, 0, input.data(), static_cast<int>(input.size()), nullptr, 0);
 	output_length = output_length <= 0 ? 0 : output_length - 1;
 	if(output_length == 0) {
 		return L"";
 	}
 	std::unique_ptr<wchar_t[]> input_wide(new wchar_t[output_length + 1]);
-	const int result = ::MultiByteToWideChar(CP_UTF8, 0, input.data(),
-		static_cast<int>(input.size()),
-		input_wide.get(), output_length + 1);
+	const int result = ::MultiByteToWideChar(CP_UTF8, 0, input.data(), static_cast<int>(input.size()), input_wide.get(), output_length + 1);
 	std::wstring output;
 	if(result > 0) {
 		output.assign(input_wide.get());
 	}
 	return output;
+}*/
+
+std::wstring Utf8ToWide(absl::string_view input)  // @v12.2.0 это - вариант из более новой версии sentencepiece
+{
+	const int output_length = ::MultiByteToWideChar(CP_UTF8, 0, input.data(), static_cast<int>(input.size()), nullptr, 0);
+	if(output_length == 0) {
+		return L"";
+	}
+	else {
+		std::wstring output(output_length, 0);
+		const int result = ::MultiByteToWideChar(CP_UTF8, 0, input.data(), static_cast<int>(input.size()), output.data(), output.size());
+		return result == output_length ? output : L"";
+	}
 }
 }  // namespace win32
 #endif

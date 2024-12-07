@@ -1119,7 +1119,8 @@ static bool IsMedcineOnly(int docType)
 			ChZnInterface::doctypMdlpRetailSale, 
 			ChZnInterface::doctypMdlpMoveOrderNotification,
 			ChZnInterface::doctypMdlpReceiveOrderNotification,
-			ChZnInterface::doctypMdlpAccept
+			ChZnInterface::doctypMdlpAccept,
+			ChZnInterface::doctypMdlpPosting // @v12.2.0
 		};
 		for(uint i = 0; !medcine_only && i < SIZEOFARRAY(mdlp_op_list); i++) {
 			if(mdlp_op_list[i] == docType)

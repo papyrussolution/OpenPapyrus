@@ -65,6 +65,12 @@
     <ClInclude Include="..\OSF\sentencepiece\src\unigram_model.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\third_party\esaxx\esa.hxx">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\sentencepiece\third_party\esaxx\sais.hxx">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Proto">

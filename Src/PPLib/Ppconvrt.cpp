@@ -8763,7 +8763,7 @@ public:
 			RECORDSIZE recsz = p_tbl->getRecSize();
 			int16  num_keys;
 			p_tbl->getNumKeys(&num_keys);
-			*pNeedConversion = BIN(num_keys < 5 || recsz < sizeof(SCardOpTbl::Rec)); // @v12.0.8 Совмещена конвертация 7.7.12 с этой
+			*pNeedConversion = BIN(num_keys > 2 || recsz < sizeof(SCardOpTbl::Rec)); // @v12.0.8 Совмещена конвертация 7.7.12 с этой // @v12.2.0 @fix (num_keys < 5)-->(num_keys > 2)
 		}
 		return p_tbl;
 	}

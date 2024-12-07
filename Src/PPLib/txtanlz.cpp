@@ -4,7 +4,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-// @v10.2.4 #include <fann.h>
 //
 //
 //
@@ -1866,6 +1865,41 @@ int PPTextAnalyzer::ProcessGoodsNN()
 	fann_destroy(p_ann);
 	PPWaitStop();
 #endif // } 0
+	return ok;
+}
+
+static void NormalizeGoodsName(SString & rBuf)
+{
+	rBuf.ReplaceChar('\t', ' ').ReplaceChar('\x0D', ' ').ReplaceChar('\x0A', ' ').ReplaceChar('\x1A', ' ');
+	while(rBuf.ReplaceStrR("  ", " ", 0))
+		;
+	rBuf.ToLower().Transf(CTRANSF_INNER_TO_UTF8);
+}
+
+int PPTextAnalyzer::MakeGoodsNameList(const char * pOutFileName)
+{
+	int    ok = 1;
+	if(!isempty(pOutFileName)) {
+		SFile f_out(pOutFileName, SFile::mWrite);
+		THROW(f_out.IsValid());
+		{
+			SString ident;
+			SString text;
+			PPObjGoods goods_obj;
+			Goods2Tbl * p_tbl = goods_obj.P_Tbl;
+			BExtQuery q(p_tbl, 0, 24);
+			q.select(p_tbl->ID, p_tbl->Name, 0L).where(p_tbl->Kind == PPGDSK_GOODS);
+			Goods2Tbl::Key0 k0;
+			for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
+				text = p_tbl->data.Name;
+				NormalizeGoodsName(text);
+				if(text.NotEmptyS()) {
+					f_out.WriteLine(text.CR());
+				}
+			}
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 
@@ -4023,5 +4057,112 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 	return ok;
 }
 //
+// sentencepiece experiments
 //
-//
+#if _MSC_VER >= 1929 // @construction {
+	#include <..\OSF\sentencepiece\src\sentencepiece_processor.h>
+	#include <..\OSF\sentencepiece\src\sentencepiece_trainer.h>
+
+	int SentencePieceExperiments()
+	{
+		int    ok = 1;
+		bool   debug_mark = false;
+		// @todo проблема на строке 343416! символ с кодом 26 (decimal)
+		SString temp_buf;
+		DbProvider * p_dict = CurDict;
+		if(p_dict) {
+			SString basis_path_wo_ext; // Базовое имя файла с путем, но без расширения (для формирования прочих имен файлов)
+			SString raw_input_file_path;
+			SString model_file_path;
+			SString vec_file_path;
+			SString tok_file_path;
+
+			p_dict->GetDbSymb(temp_buf);
+			{
+				SString file_name;
+				(file_name = "goodsnamelist").CatDiv('-', 0).Cat(temp_buf);
+				PPGetFilePath(PPPATH_OUT, file_name, basis_path_wo_ext);
+			}
+			SFsPath::NormalizePath(temp_buf = basis_path_wo_ext, SFsPath::npfSlash, basis_path_wo_ext);
+
+			(raw_input_file_path = basis_path_wo_ext).Dot().Cat("txt");
+			(model_file_path = basis_path_wo_ext).Dot().Cat("model");
+			(vec_file_path = basis_path_wo_ext).Dot().Cat("vec");
+			(tok_file_path = basis_path_wo_ext).Dot().Cat("tok");
+			/*{
+				PPTextAnalyzer txta;
+				txta.MakeGoodsNameList(raw_input_file_path);
+			}*/
+			{
+				SString cmd_line;
+				cmd_line.CatEq("--input", raw_input_file_path).Space().CatEq("--model_prefix", basis_path_wo_ext).Space().CatEq("--vocab_size", 4000).
+					Space().CatEq("--input_sentence_size", 500000).Space().CatEq("--shuffle_input_sentence", "true");
+				//sentencepiece::SentencePieceTrainer::Train("--input=test/botchan.txt --model_prefix=m --vocab_size=1000");
+				absl::string_view sv_cmd_line(cmd_line);
+				const auto status = sentencepiece::SentencePieceTrainer::Train(sv_cmd_line);
+				if(status.ok()) {
+					;
+				}
+				else {
+					; // @todo @err
+				}
+			}
+			{
+				sentencepiece::SentencePieceProcessor prc;
+				const auto status = prc.Load(model_file_path.cptr());
+				SString vec_buf;
+				SString tok_buf;
+				uint line_no = 0;
+				if(status.ok()) {
+					SFile f_in(raw_input_file_path, SFile::mRead|SFile::mNoStd);
+					SFile f_vec_out(vec_file_path, SFile::mWrite);
+					SFile f_tok_out(tok_file_path, SFile::mWrite);
+					if(f_in.IsValid() && f_vec_out.IsValid() && f_tok_out.IsValid()) {
+						std::vector <int> seg_id_list;
+						while(true) {
+							int rlr = f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip);
+							if(!rlr) {
+								debug_mark = true;
+								break;
+							}
+							else {
+								line_no++;
+								if(temp_buf.NotEmpty()) {
+									seg_id_list.clear();
+									const auto enc_status = prc.Encode(temp_buf, &seg_id_list);
+									if(enc_status.ok()) {
+										vec_buf.Z();
+										tok_buf.Z();
+										for(uint i = 0; i < seg_id_list.size(); i++) {
+											const int seg_id = seg_id_list.at(i);
+											if(i) {
+												vec_buf.Space();
+												tok_buf.Space();
+											}
+											vec_buf.Cat(seg_id);
+											//
+											const std::string piece = prc.IdToPiece(seg_id);
+											tok_buf.Cat(piece.c_str());
+										}
+										f_vec_out.WriteLine(vec_buf.CR());
+										f_tok_out.WriteLine(tok_buf.CR());
+									}
+									else {
+										vec_buf = "aaa";
+									}
+								}
+							}
+						}
+					}
+					vec_buf = "i'm finished";
+				}
+				else {
+					; // @todo @err
+				}
+			}
+		}
+		return ok;
+	}
+#else
+	int SentencePieceExperiments() { return 0; }
+#endif // } 0 @construction

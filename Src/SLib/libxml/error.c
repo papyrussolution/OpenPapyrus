@@ -43,11 +43,28 @@ void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED, const char
  */
 void XMLCDECL xmlGenericErrorDefaultFunc(void * ctx ATTRIBUTE_UNUSED, const char * msg, ...)
 {
-	va_list args;
-	SETIFZ(xmlGenericErrorContext, (void *)stderr);
-	va_start(args, msg);
-	vfprintf((FILE *)xmlGenericErrorContext, msg, args);
-	va_end(args);
+	SString log_path;
+	SLS.GetLogPath(log_path);
+	if(SFile::IsDir(log_path)) {
+		log_path.SetLastSlash().Cat("libxml-err.log");
+		SString msg_buf;
+		{
+			va_list args;
+			va_start(args, msg);
+			msg_buf.VPrintf(msg, args);
+			va_end(args);
+		}
+		SLS.LogMessage(log_path, msg_buf, 8192);
+	}
+	else {
+		SETIFZ(xmlGenericErrorContext, (void *)stderr);
+		{
+			va_list args;
+			va_start(args, msg);
+			vfprintf((FILE *)xmlGenericErrorContext, msg, args);
+			va_end(args);
+		}
+	}
 }
 /**
  * initGenericErrorDefaultFunc:

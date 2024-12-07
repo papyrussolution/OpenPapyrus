@@ -2268,7 +2268,7 @@ wchar_t * STDCALL strnzcpy(wchar_t * dest, const wchar_t * src, size_t maxlen)
 	return dest;
 }
 
-char * FASTCALL sstrncat(char * pDest, size_t destSize, const char * pSrc) // @v11.0.0
+char * STDCALL sstrncat(char * pDest, size_t destSize, const char * pSrc) // @v11.0.0
 {
 	if(pDest && destSize) {
 		const size_t src_len = sstrlen(pSrc);

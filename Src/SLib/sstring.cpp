@@ -2453,29 +2453,29 @@ bool FASTCALL SString::IsEqiUtf8(const char * pS) const
 	return yes;
 }
 
-int FASTCALL SString::HasAt(uint pos, const char * pPattern) const
+bool SString::HasAt(uint pos, const char * pPattern) const
 {
-	int    yes = 0;
-	const size_t len = Len();
+	bool   yes = false;
+	const  size_t len = Len();
 	if(pos < len) {
 		const size_t pl = sstrlen(pPattern);
 		if(pl <= (len - pos) && (!pl || memcmp(P_Buf+pos, pPattern, pl) == 0))
-			yes = 1;
+			yes = true;
 	}
 	return yes;
 }
 
-int FASTCALL SString::HasAtiAscii(uint pos, const char * pPattern) const
+bool SString::HasAtiAscii(uint pos, const char * pPattern) const
 {
-	int    yes = 0;
-	const size_t len = Len();
+	bool   yes = false;
+	const  size_t len = Len();
 	if(pos < len) {
 		const size_t pl = sstrlen(pPattern);
 		if(pl <= (len - pos)) {
-			yes = 1;
+			yes = true;
 			for(size_t i = 0; i < pl; i++) {
 				if(!chreqi_ascii(static_cast<int>(P_Buf[pos+i]), static_cast<int>(pPattern[i]))) {
-					yes = 0;
+					yes = false;
 					break;
 				}
 			}

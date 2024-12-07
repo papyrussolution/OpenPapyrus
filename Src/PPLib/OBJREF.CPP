@@ -2389,6 +2389,7 @@ public:
 		// } @erik
 		AddClusterAssoc(CTL_GLOBUSERACC_FLAGS, 0, PPGlobalUserAcc::fSandBox);
 		SetClusterData(CTL_GLOBUSERACC_FLAGS, Data.Rec.Flags);
+		SetupGlobalService(); // @v12.2.0
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()
@@ -2499,6 +2500,7 @@ private:
 		else if(event.isCbSelected(CTLSEL_GLOBUSERACC_SVC)) {
 			getCtrlData(CTLSEL_GLOBUSERACC_SVC, &Data.Rec.ServiceIdent);
 			disableCtrl(CTL_GS_SETTING, !Data.Rec.ServiceIdent);
+			SetupGlobalService(); // @v12.2.0
 		}
 		// } @erik @v10.7.13
 		else
@@ -2521,6 +2523,36 @@ private:
 		}
 		delete dlg;
 		return ok;
+	}
+	void    SetupGlobalService()
+	{
+		const PPID service_ident = Data.Rec.ServiceIdent;
+		int   img_rc_id = 0;
+		switch(service_ident) {
+			case PPGLS_TWITTER: break;
+			case PPGLS_FACEBOOK: break;
+			case PPGLS_VK: img_rc_id = PPDV_LOGOVK; break;
+			case PPGLS_VETIS: img_rc_id = PPDV_LOGOVETIS; break;
+			case PPGLS_CHZN: img_rc_id = PPDV_LOGOCHZN; break;
+			case PPGLS_WILDBERRIES: img_rc_id = PPDV_LOGOWILDBERRIES; break;
+			case PPGLS_APTEKARU: img_rc_id = PPDV_LOGOAPTEKARU; break;
+			case PPGLS_UDS: img_rc_id = PPDV_LOGOUDS; break;
+			default:
+				break;
+		}		
+		{
+			TView * p_v = getCtrlView(CTL_GLOBUSERACC_LOGO);
+			if(TView::IsSubSign(p_v, TV_SUBSIGN_IMAGEVIEW)) {
+				TImageView * p_iv = static_cast<TImageView *>(p_v);
+				TWhatmanToolArray::Item tool_item;
+				const SDrawFigure * p_org_fig = img_rc_id ? APPL->LoadDrawFigureById(img_rc_id, &tool_item) : 0;
+				{
+					SDrawFigure * p_fig = p_org_fig ? p_org_fig->Dup() : 0;
+					p_iv->SetOuterFigure(p_fig); // p_fig переходит в собственность p_iv
+					p_v->MessageCommandToOwner(cmImageChanged);
+				}
+			}
+		}
 	}
 	PPObjGlobalUserAcc GuaObj;
 };
@@ -4311,23 +4343,33 @@ PPObjComputerCategory::PPObjComputerCategory(void * extraPtr) : PPObjReference(P
 {
 }
 
-/*virtual*/int PPObjComputerCategory::MakeReserved(long flags)
+int PPObjComputerCategory::MakeReservedItem(PPID * pID, int use_ta)
 {
 	int    ok = 1;
+	PPID   _id = 0;
 	PPComputerCategory compcat_rec;
 	if(Search(PPCOMPCAT_DEFAULT, &compcat_rec) > 0) {
-		;
+		_id = PPCOMPCAT_DEFAULT;
 	}
 	else {
 		PPID   id = PPCOMPCAT_DEFAULT;
 		compcat_rec.ID = id;
 		STRNSCPY(compcat_rec.Name, "default");
 		STRNSCPY(compcat_rec.Symb, "DEFAULT");
-		if(!AddItem(&id, &compcat_rec, 1)) {
+		if(!AddItem(&id, &compcat_rec, use_ta)) {
 			ok = 0;
 		}
+		else {
+			_id = id;
+		}
 	}
+	ASSIGN_PTR(pID, _id);
 	return ok;
+}
+
+/*virtual*/int PPObjComputerCategory::MakeReserved(long flags)
+{
+	return MakeReservedItem(0/*pID*/, 0/*use_ta*/);
 }
 	
 /*virtual*/int PPObjComputerCategory::Edit(PPID * pID, void * extraPtr)

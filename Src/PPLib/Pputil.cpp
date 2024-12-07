@@ -78,7 +78,7 @@ int    PPGetSubStr(const char * pStr, int idx, SString & rDest) { return rDest.G
 
 int PPGetSubStr(const char * pStr, int idx, char * pBuf, size_t bufLen)
 {
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.6.8
+	SString & r_temp_buf = SLS.AcquireRvlStr();
 	int    ok = r_temp_buf.GetSubFrom(pStr, ';', idx);
 	r_temp_buf.CopyTo(pBuf, bufLen);
 	return ok;

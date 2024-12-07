@@ -1218,7 +1218,7 @@ int PPSession::Log(const char * pFileName, const char * pStr, long options)
 		if(options & LOGMSGF_THREADID) {
 			item.Prefix.Cat(GetConstTLA().GetThreadID()).Tab();
 		}
-		if(options & LOGMSGF_SLSSESSGUID) { // @v10.5.7
+		if(options & LOGMSGF_SLSSESSGUID) {
 			item.Prefix.Cat(SLS.GetSessUuid(), S_GUID::fmtIDL).Tab();
 		}
 		if(options & LOGMSGF_THREADINFO) {

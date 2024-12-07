@@ -199,7 +199,13 @@ xmlTextWriter * xmlNewTextWriterFilename(const char * uri, int compression)
 	xmlTextWriter * ret = 0;
 	xmlOutputBuffer * out = xmlOutputBufferCreateFilename(uri, NULL, compression);
 	if(!out) {
-		xmlWriterErrMsg(NULL, XML_IO_EIO, _p_func_name, "cannot open uri");
+		// @v12.2.0 {
+		SString added_msg;
+		(added_msg = "cannot open uri");
+		if(!isempty(uri))
+			added_msg.Space().CatQStr(uri);
+		// } @v12.2.0 
+		xmlWriterErrMsg(NULL, XML_IO_EIO, _p_func_name, added_msg);
 	}
 	else {
 		ret = xmlNewTextWriter(out);

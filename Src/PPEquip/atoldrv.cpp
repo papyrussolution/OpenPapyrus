@@ -1744,6 +1744,27 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 												// 3 Оборот товара приостановлен
 										};
 									*/
+									if(!!sl_param.ChZnPm_ReqId && sl_param.ChZnPm_ReqTimestamp) {
+										SJson * p_js_indi_array = SJson::CreateArr();
+										{
+											SJson * p_js_indi = SJson::CreateObj();
+											p_js_indi->InsertString("date", "2022.03.26");
+											temp_buf.Z();
+											if(sl_param.ChZnProductType == 4)
+												temp_buf.Cat("020");
+											else if(oneof2(sl_param.ChZnProductType, 12, 1012))
+												temp_buf.Cat("030");
+											else
+												temp_buf.Cat("030");
+											p_js_indi->InsertString("fois", temp_buf);
+											p_js_indi->InsertString("number", "477");
+											temp_buf.Z().CatEq("UUID", sl_param.ChZnPm_ReqId, S_GUID::fmtIDL|S_GUID::fmtLower).CatChar('&').
+												CatEq("Time", sl_param.ChZnPm_ReqTimestamp);
+											p_js_indi->InsertString("industryAttribute", temp_buf);
+											p_js_indi_array->InsertChild(p_js_indi);
+										}
+										p_js_item->Insert("industryInfo", p_js_indi_array);
+									}
 									{
 										SJson * p_js_imcparams = SJson::CreateObj();
 										p_js_imcparams->InsertString("imcType", "auto");
@@ -1778,32 +1799,6 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 										p_js_imcparams->InsertString("itemUnits", "piece"); // ofdtag-2108 
 										//
 										p_js_item->Insert("imcParams", p_js_imcparams);
-									}
-								}
-								{ // @v12.1.8
-									if(!!sl_param.ChZnPm_ReqId && sl_param.ChZnPm_ReqTimestamp) { // @v12.1.12 условие перенесено наверх
-										SJson * p_js_indi_array = SJson::CreateArr();
-										SJson * p_js_indi = SJson::CreateObj();
-										/* @v12.1.12
-										p_js_indi->InsertString("date", "2022.03.26");
-										temp_buf.Z();
-										if(sl_param.ChZnProductType == 4)
-											temp_buf.Cat("020");
-										else if(oneof2(sl_param.ChZnProductType, 12, 1012))
-											temp_buf.Cat("030");
-										else
-											temp_buf.Cat("030");
-										p_js_indi->InsertString("fois", temp_buf);
-										p_js_indi->InsertString("number", "477");
-										*/
-										//
-										//if(!!sl_param.ChZnPm_ReqId && sl_param.ChZnPm_ReqTimestamp) {
-											temp_buf.Z().CatEq("UUID", sl_param.ChZnPm_ReqId, S_GUID::fmtIDL|S_GUID::fmtLower).CatChar('&').
-												CatEq("Time", sl_param.ChZnPm_ReqTimestamp);
-											p_js_indi->InsertString("industryAttribute", temp_buf);
-										//}
-										p_js_indi_array->InsertChild(p_js_indi);
-										p_js_item->Insert("industryInfo", p_js_indi_array);
 									}
 								}
 							}

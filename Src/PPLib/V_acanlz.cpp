@@ -120,6 +120,7 @@ class AccAnlzFiltDialog : public WLDialog {
 		ctlgroupAcc   = 1,
 		ctlgroupCycle = 2,
 		ctlgroupLoc   = 3,
+		ctlgroupObj2  = 4
 	};
 	DECL_DIALOG_DATA(AccAnlzFilt);
 public:
@@ -290,7 +291,10 @@ private:
 		else if(event.isCmd(cmaMore)) {
 			TDialog * dlg = new TDialog(DLG_ACCANLZ2);
 			if(CheckDialogPtrErr(&dlg)) {
+				PPObjArticle ar_obj;
+				PPObjOprKind op_obj;
 				getDTS(0);
+				dlg->addGroup(ctlgroupObj2, new ArticleCtrlGroup(CTLSEL_ACCANLZ_ACS, 0, CTLSEL_ACCANLZ_OBJ2, 0, 0, 0)); // @v12.2.0
 				SetupPPObjCombo(dlg, CTLSEL_ACCANLZ_LOC, PPOBJ_LOCATION, Data.LocID, OLW_CANSELUPLEVEL, 0);
 				SetupArCombo(dlg, CTLSEL_ACCANLZ_AGENT, Data.AgentID, OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 				PPID  psn_id = 0;
@@ -299,6 +303,31 @@ private:
 					// SetupLocationCombo(dlg, CTLSEL_ACCANLZ_DLVRLOC, Filt.DlvrLocID, 0, LOCTYP_ADDRESS, psn_id);
 					PsnObj.SetupDlvrLocCombo(dlg, CTLSEL_ACCANLZ_DLVRLOC, psn_id, Data.DlvrLocID);
 				}
+				// @v12.2.0 {
+				{
+					PPID acs_id = 0;
+					ArticleTbl::Rec ar_rec;
+					if(Data.Object2ID_ && ar_obj.Fetch(Data.Object2ID_, &ar_rec) > 0) {
+						acs_id = ar_rec.AccSheetID;
+					}
+					else {
+						PPOprKind op_rec;
+						PPIDArray obj2_acs_list;
+						for(SEnum en = op_obj.Enum(0); en.Next(&op_rec) > 0;) {
+							obj2_acs_list.addnz(op_rec.AccSheet2ID);
+						}
+						obj2_acs_list.sortAndUndup();
+						if(obj2_acs_list.getCount() == 1)
+							acs_id = obj2_acs_list.get(0);
+					}
+					ArticleCtrlGroup::Rec ar_grp_rec(0, 0, Data.Object2ID_);
+					ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(dlg->getGroup(ctlgroupObj2));
+					if(p_ar_grp) {
+						p_ar_grp->SetAccSheet(acs_id);
+						dlg->setGroupData(ctlgroupObj2, &ar_grp_rec);
+					}
+				}
+				// } @v12.2.0 
 				dlg->AddClusterAssocDef(CTL_ACCANLZ_ORDER,  0, PPViewAccAnlz::OrdByDefault);
 				dlg->AddClusterAssoc(CTL_ACCANLZ_ORDER,  1, PPViewAccAnlz::OrdByBillCode_Date);
 				dlg->AddClusterAssoc(CTL_ACCANLZ_ORDER,  2, PPViewAccAnlz::OrdByCorrAcc_Date);
@@ -306,6 +335,16 @@ private:
 				for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 					dlg->getCtrlData(CTLSEL_ACCANLZ_LOC, &Data.LocID);
 					dlg->getCtrlData(CTLSEL_ACCANLZ_AGENT, &Data.AgentID);
+					// @v12.2.0 {
+					{
+						ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(dlg->getGroup(ctlgroupObj2));
+						if(p_ar_grp) {
+							ArticleCtrlGroup::Rec ar_grp_rec;
+							dlg->getGroupData(ctlgroupObj2, &ar_grp_rec);
+							Data.Object2ID_ = ar_grp_rec.ArList.GetSingle();
+						}
+					}
+					// } @v12.2.0 
 					dlg->GetClusterData(CTL_ACCANLZ_ORDER, &Data.InitOrder);
 					Data.DlvrLocID = psn_id ? dlg->getCtrlLong(CTLSEL_ACCANLZ_DLVRLOC) : 0;
 					valid_data = 1;
@@ -789,11 +828,11 @@ int PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnu
 					break;
 			}
 		}
-		if(Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || Filt.AgentID || Filt.Object2ID || EffDlvrLocID)
+		if(Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || Filt.AgentID || Filt.Object2ID_ || EffDlvrLocID)
 			if(FetchBill(rec.BillID, &bill_entry) > 0) {
 				if(Filt.AgentID && bill_entry.AgentID != Filt.AgentID)
 					continue;
-				if(Filt.Object2ID && bill_entry.Object2ID != Filt.Object2ID)
+				if(Filt.Object2ID_ && bill_entry.Object2ID != Filt.Object2ID_)
 					continue;
 				if(Filt.Flags & AccAnlzFilt::fLabelOnly && !(bill_entry.Flags & BILLF_WHITELABEL))
 					continue;
@@ -1055,6 +1094,11 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 	return ok;
 }
 
+bool PPViewAccAnlz::IsDedicatedRestEvaluationNeeded() const
+{
+	return (Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || Filt.Object2ID_ || EffDlvrLocID); // @v12.2.0 Filt.Object2ID_
+}
+
 /*virtual*/int PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 {
 	ExpiryDate = ZERODATE;
@@ -1086,7 +1130,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 	if(Filt.DlvrLocID && Filt.Aco == ACO_3 && Filt.AcctId.ar) {
 		EffDlvrLocID = Filt.DlvrLocID;
 	}
-	if(!(Filt.Flags & AccAnlzFilt::fTotalOnly && (Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || EffDlvrLocID))) {
+	if(!(Filt.Flags & AccAnlzFilt::fTotalOnly && IsDedicatedRestEvaluationNeeded())) {
 		THROW(AdjustPeriodToRights(Filt.Period, 0));
 	}
 	if(Filt.AccID && (!Filt.AcctId.ac || !Filt.AcctId.ar)) {
@@ -1111,7 +1155,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 		ArObj.P_Tbl->GetListByGroup(Filt.AcctId.ar, &gen_ar_list);
 	}
 	Filt.CurID = (Filt.Flags & AccAnlzFilt::fAllCurrencies) ? -1 : Filt.CurID;
-	if(Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || EffDlvrLocID) {
+	if(IsDedicatedRestEvaluationNeeded()) {
 		Total.InRest.freeAll();
 		Total.OutRest.freeAll();
 		if(Filt.Period.low) {
@@ -1477,7 +1521,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 			}
 		}
 	}
-	if(Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || EffDlvrLocID) {
+	if(IsDedicatedRestEvaluationNeeded()) {
 		Total.OutRest.Add(&Total.InRest);
 		Total.OutRest.Add(&Total.DbtTrnovr);
 		Total.OutRest.Sub(&Total.CrdTrnovr);
@@ -1899,7 +1943,7 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 						}
 						else if(Filt.CorAco == AccAnlzFilt::aafgByExtObj) {
 							flt.CorAco = 0;
-							flt.Object2ID = hdr.A.ar;
+							flt.Object2ID_ = hdr.A.ar;
 						}
 						else if(Filt.CorAco == AccAnlzFilt::aafgByAgent) {
 							flt.CorAco = 0;

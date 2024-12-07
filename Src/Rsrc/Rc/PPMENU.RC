@@ -573,6 +573,7 @@
 			MENUITEM "@cmd_createglobaluseracc",			cmCreateGlobalUserAcc
 			MENUITEM "@cmd_setupglbsvc_uds",                cmSetupGlbSvcUDS // @v10.9.0
 			MENUITEM "@cmd_setupglbsvc_vk",                 cmSetupGlbSvcVK // @v10.9.6
+			MENUITEM "@cmd_setupglbsvc_wb",                 cmSetupGlbSvcWb // @v12.2.0
 			MENUITEM "@cmd_gtajournal",						cmGtaJournal
 			MENUITEM "@cmd_createreservedobjs",             cmCreateReservedObjs // @v9.0.5
 			MENUITEM "@cmd_buildlocaldl600",                cmBuildLocalDL600 // @v9.1.7

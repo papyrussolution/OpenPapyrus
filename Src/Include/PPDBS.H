@@ -9666,6 +9666,7 @@ public:
 		int32  PersonID;
 		char   Guid[40];
 		int32  Flags;
+		int32  GlobalService;
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -9675,6 +9676,7 @@ public:
 	DBField PersonID;
 	DBField Guid;
 	DBField Flags;
+	DBField GlobalService;
 };
 #pragma pack(pop)
 

@@ -5189,8 +5189,9 @@ table TempGlobUserAcc {
 	long   ID;
 	string Name[48];
 	long   PersonID;
-	string Guid[40];
+	string Guid[40]; // @todo string[40]-->guid
 	long   Flags;
+	long   GlobalService; // @v12.2.0
 index:
 	ID (unique);
 file:

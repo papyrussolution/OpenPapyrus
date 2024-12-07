@@ -424,6 +424,8 @@
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</OmitFramePointers>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">1Byte</StructMemberAlignment>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">1Byte</StructMemberAlignment>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='ServerDebug'">
@@ -444,6 +446,8 @@
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</OmitFramePointers>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">1Byte</StructMemberAlignment>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">1Byte</StructMemberAlignment>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <!-- Options that are common to all 'Release' project configurations -->
@@ -508,6 +512,8 @@
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</OmitFramePointers>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">1Byte</StructMemberAlignment>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">1Byte</StructMemberAlignment>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='ServerRelease'">
@@ -531,6 +537,8 @@
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</OmitFramePointers>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">1Byte</StructMemberAlignment>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">1Byte</StructMemberAlignment>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

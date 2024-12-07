@@ -1111,6 +1111,7 @@
 	#define ARTN_MRKTPLCACC_ACCEPTANCE   4 // Стоимость приемки на склад хранения
 	#define ARTN_MRKTPLCACC_CORRECTION   5 // Коррекция баланса
 	#define ARTN_MRKTPLCACC_DEDUCTION    6 // Удержания //
+	#define ARTN_MRKTPLCACC_PENALTY      7 // @v12.2.0 Штрафы
 #define PPOBJ_ACCOUNT_PRE9004 1007L  // Бухгалтерские счета (балансовые) // @v9.0.4 Заменен на PPOBJ_ACCOUNT2
 	//
 	// Extra records of PPOBJ_ACCOUNT
@@ -2635,6 +2636,10 @@
 	#define CTLSEL_ACCANLZ_RELSUBST     (36 + WINDOWS_ID_BIAS)
 	#define CTL_ACCANLZ_DLVRLOC         (37 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ACCANLZ_DLVRLOC      (38 + WINDOWS_ID_BIAS)
+	#define CTL_ACCANLZ_ACS             (39 + WINDOWS_ID_BIAS) // @v12.2.0
+	#define CTLSEL_ACCANLZ_ACS          (40 + WINDOWS_ID_BIAS) // @v12.2.0
+	#define CTL_ACCANLZ_OBJ2            (41 + WINDOWS_ID_BIAS) // @v12.2.0
+	#define CTLSEL_ACCANLZ_OBJ2         (42 + WINDOWS_ID_BIAS) // @v12.2.0
 #define DLG_QCERT                  90 // Сертификат качества
 	#define CTL_QCERT_CODE               (1 + WINDOWS_ID_BIAS)
 	#define CTL_QCERT_BCODE              (2 + WINDOWS_ID_BIAS)
@@ -9179,6 +9184,7 @@
 	#define CTLSEL_GLOBUSERACC_SVC        (10 + WINDOWS_ID_BIAS)
 	#define CTL_GLOBUSERACC_FLAGS         (11 + WINDOWS_ID_BIAS)
 	#define CTL_GS_SETTING                (13 + WINDOWS_ID_BIAS)
+	#define CTL_GLOBUSERACC_LOGO          (14 + WINDOWS_ID_BIAS) // @v12.2.0
 #define DLG_NEWACCT              1055 //
 	#define cmPassword                    110
 	#define CTL_NEWACCT_USER              (1 + WINDOWS_ID_BIAS)
@@ -11695,6 +11701,13 @@
 	#define CTL_SELBITMSPCGEN_WHAT       (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELBITMSPCGEN_INFO       (2 + WINDOWS_ID_BIAS)
 #define DLG_TRDPLANBILL           1453 // @v12.1.12 Документ торгового плана
+#define DLG_SU_WB                 1454 // @v12.2.0 Parameters for set up Wildberries integration
+	#define CTL_SUWB_APIKEY              (1 + IMPEXP_CTL_BIAS)
+	#define CTL_SUWB_GUA                 (2 + IMPEXP_CTL_BIAS)
+	#define CTLSEL_SUWB_GUA              (3 + IMPEXP_CTL_BIAS)
+	#define CTL_SUWB_LOGO                (4 + IMPEXP_CTL_BIAS)
+	#define CTL_SUWB_HINT                (5 + IMPEXP_CTL_BIAS)
+	#define CTL_SUWB_INFO                (6 + IMPEXP_CTL_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

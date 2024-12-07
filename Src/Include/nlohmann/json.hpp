@@ -61,6 +61,7 @@
 #include <cstdio> // snprintf
 #include <cstring> // memcpy
 #include <limits> // numeric_limits
+#include <filesystem> // @v12.2.0
 #ifndef JSON_NO_IO
     #include <istream>  // istream
 #endif                  // JSON_NO_IO
@@ -4705,7 +4706,7 @@ void to_json(BasicJsonType& j, const T & t)
 }
 
 #ifdef JSON_HAS_CPP_17
-template <typename BasicJsonType> void to_json(BasicJsonType& j, const std::filesystem::path& p) 
+template <typename BasicJsonType> void to_json(BasicJsonType& j, const std::filesystem::path & p) 
 {
 	j = p.string();
 }

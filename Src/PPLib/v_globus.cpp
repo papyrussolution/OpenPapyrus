@@ -33,6 +33,7 @@ TempGlobUserAccTbl::Rec & PPViewGlobalUserAcc::MakeTempEntry(const PPGlobalUserA
 	rTempRec.ID = rRec.ID;
 	rTempRec.PersonID = rRec.PersonID;
 	rTempRec.Flags    = rRec.Flags;
+	rTempRec.GlobalService = rRec.ServiceIdent; // @v12.2.0
 	STRNSCPY(rTempRec.Name, rRec.Name);
 	rRec.LocalDbUuid.ToStr(0, SLS.AcquireRvlStr()).CopyTo(rTempRec.Guid, sizeof(rTempRec.Guid));
 	return rTempRec;
@@ -137,14 +138,24 @@ int FASTCALL PPViewGlobalUserAcc::NextIteration(GlobalUserAccViewItem * pItem)
 	TempGlobUserAccTbl * t = 0;
 	uint   brw_id = BROWSER_GLOBALUSERACC;
 	DBQ  * dbq = 0;
-	DBE dbe_psn;
+	DBE    dbe_psn;
+	DBE    dbe_svc; // @v12.2.0
 	THROW(CheckTblPtr(t = new TempGlobUserAccTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitObjNameFunc(dbe_psn,  PPDbqFuncPool::IdObjNamePerson, t->PersonID);
+	// @v12.2.0 {
+	{
+		dbe_svc.init();
+		dbe_svc.push(dbconst(PPTXT_GLOBALSERVICELIST));
+		dbe_svc.push(t->GlobalService);
+		dbe_svc.push(static_cast<DBFunc>(PPDbqFuncPool::IdSubStrById));
+	}
+	// } @v12.2.0
 	q = & select(
 			t->ID,            // #0
 			t->Name,          // #1
 			dbe_psn,          // #2
 			t->Guid,          // #3
+			dbe_svc,          // #4
 			0L).from(t, 0L).where(*dbq).orderBy(t->Name, 0L);
 	THROW(CheckQueryPtr(q));
 	CATCH

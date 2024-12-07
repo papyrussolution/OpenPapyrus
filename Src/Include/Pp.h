@@ -1546,6 +1546,7 @@ public:
 	static int IdBillFrghtStrgLoc;  // (billID)
 	static int IdSCardExtString;    // (scardID, fldId)
 	static int IdStrByStrGroupPos;  // (position, (const SStrGroup *)) Возвращает строку из пула строк, идентифицируемую позицией position
+	static int IdSubStrById;        // @v12.2.0 (textId, substrIdx) Возвращает нумерованную подстроку строки и идентификатором ресурса textId (see PPGetSubStrById) 
 	static int IdBillDate;          // (billID) Дата документа по его идентификатору
 	static int IdUnxText;           // (fldObjType, fldObjID, fldTxtProp)
 	static int IdIsTxtUuidEq;       // (fldUUID_s, GUID) Определяет эквивалентность строкового представления GUID значению второго аргумента
@@ -20368,7 +20369,8 @@ struct PPGlobalUserAccConfig {
 #define PPGLS_UDS           7 // Сервис UDS (бонусная система, интернет-магазин)
 #define PPGLS_UNIVERSEHTT   8 // Сервис Universe-HTT (бонусная система, интернет-магазин и др.)
 #define PPGLS_SHOPIFY       9 // @v10.9.4 @construction
-#define PPGLS_WILDBERRIES  10 // @v12.1.0 @construction
+#define PPGLS_WILDBERRIES  10 // @v12.1.0
+#define PPGLS_APTEKARU     11 // @v12.2.0 @construction
 
 #define PPTRPROP_GUAEXT    (PPTRPROP_USER+1) // @v11.9.9 Суб-идентификатор записи текстовых расширений глобальной учетной записи
 
@@ -31306,6 +31308,7 @@ class PPObjComputerCategory : public PPObjReference {
 public:
 	PPObjComputerCategory(void * extraPtr = 0);
 	virtual int  Edit(PPID * pID, void * extraPtr);
+	int    MakeReservedItem(PPID * pID, int use_ta);
 private:
 	virtual int  MakeReserved(long flags);
 };
@@ -31376,6 +31379,7 @@ public:
 private:
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	virtual int  Edit(PPID * pID, void * extraPtr);
+	virtual int  DeleteObj(PPID id);
 	//
 	// Descr: Реализация извлечения записей по критерию равенства mac-адреса.
 	//
@@ -31479,6 +31483,7 @@ public:
 private:
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	virtual int  Edit(PPID * pID, void * extraPtr);
+	virtual int  DeleteObj(PPID id);
 };
 
 typedef PPSwProgram SwProgramViewItem;
@@ -42862,7 +42867,7 @@ public:
 
 	char   ReserveStart[8]; // @anchor
 	PPID   DlvrLocID;      // @v10.5.0 Адрес доставки документов, по которым осуществляется фильтрация проводок
-	PPID   Object2ID;      // Дополнительный объект по документу
+	PPID   Object2ID_;     // Дополнительный объект по документу
 	PPID   SubstRelTypeID; // Подстановка статьи по персональному отношению
 	PPID   AgentID;        // ->Article.ID Агент по документу
 	DateRange Period;      //
@@ -42991,6 +42996,7 @@ private:
 	int    GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int use_ta);
 	int    CalcTotalAccTrnovr(AccAnlzTotal *);
 	int    ViewGraph(const PPViewBrowser * pBrw);
+	bool   IsDedicatedRestEvaluationNeeded() const;
 	struct BillEntry {
 		PPID   ID;
 		PPID   LocID;
@@ -51784,6 +51790,7 @@ public:
 	int    ProcessGoodsNN();
 	int    ProcessPerson();
 	int    ProcessCtx(const char * pIdent, const char * pText, STokenizer::Context * pCtx);
+	int    MakeGoodsNameList(const char * pOutFileName);
 	int    Test();
 private:
 	int    GetTrT(const PPTextAnalyzer::Replacer & rReplacer, SStrScan & rScan, SString & rExtBuf) const;
@@ -57601,7 +57608,7 @@ public:
 		chznciSurrogate = -1, // Суррогатный код (не является кодом марки, но из кода можно извлечь полезную информацию: GTIN и, возможно, количество)
 		chznciPretend   = 1000 // Разбор кода закончился ошибкой, но тем не менее в нем есть GTIN и серия.
 	};
-	static int InterpretChZnCodeResult(int r)
+	static constexpr int InterpretChZnCodeResult(int r)
 	{
 		if(r == 1000)
 			return chznciPretend;
@@ -58881,6 +58888,7 @@ public:
 	//int    PPSetup_GlobalService_UDS();
 	static int Setup_VK();
 	static int Setup_UDS();
+	static int Setup_Wildberries(); // @v12.2.0
 	static int ExportGoods_VK(const PPObjGoods::ExportToGlbSvcParam & rParam, const TSVector <PPObjGoods::ExportToGlbSvcItem> & rSrcList, PPLogger * pLogger);
 	static int ExportGoods_UDS(const PPObjGoods::ExportToGlbSvcParam & rParam, const TSVector <PPObjGoods::ExportToGlbSvcItem> & rSrcList, PPLogger * pLogger);
 };

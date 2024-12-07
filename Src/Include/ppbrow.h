@@ -5120,4 +5120,6 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_LOGOVETIS                       33022
 #define PPDV_LOGOCHZN                        33023
 #define PPDV_LOGOGOOGLEMAPS01                33024
+#define PPDV_LOGOWILDBERRIES                 33025
+#define PPDV_LOGOAPTEKARU                    33026
 
