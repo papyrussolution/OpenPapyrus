@@ -1511,3 +1511,27 @@ SLTEST_R(PPExprParser)
 	}
 	return CurrentStatus;
 }
+
+SLTEST_R(Wildberries_ApiKey)
+{
+	SString in_buf;
+	SString left_buf;
+	SString right_buf;
+	(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("apikey.txt");
+	SFile inf(in_buf, SFile::mRead);
+	while(inf.ReadLine(in_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+		if(in_buf.Divide(':', left_buf, right_buf) > 0) {
+			if(left_buf.IsEqiAscii("wildberries")) {
+				PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult tr;
+				int r = PPMarketplaceInterface_Wildberries::ParseApiToken(right_buf, &tr);
+				if(right_buf == "badapikey") {
+					SLCHECK_Z(r);
+				}
+				else {
+					SLCHECK_NZ(r);
+				}
+			}
+		}
+	}
+	return CurrentStatus;
+}

@@ -110,7 +110,8 @@ bool STDCALL Base64_Decode(const char * pIn, size_t inLen, char * pOut, size_t *
 {
 	assert(sizeof(index_64) == 256);
 	bool   ok = true;//, c1 = 0, c2 = 0, c3 = 0, c4 = 0;
-	size_t len = 0, lup = 0;
+	size_t len = 0;
+	size_t lup = 0;
 	char * p_out = pOut;
 	const  char * p_in = pIn;
 	if(p_in[0] == '+' && p_in[1] == ' ')

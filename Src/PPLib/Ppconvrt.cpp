@@ -8661,7 +8661,7 @@ public:
 		LDATE  Expiry;
 		long   UniqCntr;
 		long   Flags;
-		long   ExtID; // @v9.0.4 Reserve-->ExtID
+		long   ExtID;
 	};
 
 	struct RegisterTblRec_Before12000 {
@@ -8735,7 +8735,7 @@ public:
 			CPYFLD(Expiry);
 			CPYFLD(UniqCntr);
 			CPYFLD(Flags);
-			CPYFLD(ExtID); // @v9.0.4 Reserve-->ExtID
+			CPYFLD(ExtID);
 	#undef CPYFLD
 			if(p_old_rec->PsnID) {
 				p_data->ObjType = PPOBJ_PERSON;

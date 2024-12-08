@@ -4356,7 +4356,7 @@ int SString::DecodeMime64(void * pBuf, size_t bufLen, size_t * pRealLen) const
 {
 	size_t out_len = bufLen;
 	char   zero_buf[32];
-	PTR32(zero_buf)[0] = 0;
+	zero_buf[0] = 0;
 	int    ok = Base64_Decode(NZOR(P_Buf, zero_buf), Len(), static_cast<char *>(pBuf), &out_len);
 	ASSIGN_PTR(pRealLen, out_len);
 	return ok;

@@ -125,15 +125,13 @@ static void FASTCALL xmlWriterErrMsg_OutOfMem(xmlTextWriter * ctxt, const char *
 {
 	xmlWriterErrMsg(ctxt, XML_ERR_NO_MEMORY, pFunc, SlTxtOutOfMem);
 }
-/**
- * xmlWriterErrMsgInt:
- * @ctxt:  a writer context
- * @error:  the error number
- * @msg:  the error message
- * @val:  an int
- *
- * Handle a writer error
- */
+// 
+// @ctxt:  a writer context
+// @error:  the error number
+// @msg:  the error message
+// @val:  an int
+// Handle a writer error
+// 
 static void xmlWriterErrMsgInt(xmlTextWriter * ctxt, xmlParserErrors error, const char * msg, int val)
 {
 	if(ctxt)
@@ -141,50 +139,54 @@ static void xmlWriterErrMsgInt(xmlTextWriter * ctxt, xmlParserErrors error, cons
 	else
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_WRITER, error, XML_ERR_FATAL, 0, 0, 0, 0, 0, val, 0, msg, val);
 }
-/**
- * xmlNewTextWriter:
- * @out:  an xmlOutputBufferPtr
- *
- * Create a new xmlNewTextWriter structure using an xmlOutputBufferPtr
- * NOTE: the @out parameter will be deallocated when the writer is closed
- *  (if the call succeed.)
- *
- * Returns the new xmlTextWriterPtr or NULL in case of error
- */
+// 
+// @out:  an xmlOutputBufferPtr
+// Create a new xmlNewTextWriter structure using an xmlOutputBufferPtr
+// NOTE: the @out parameter will be deallocated when the writer is closed (if the call succeed.)
+// Returns the new xmlTextWriterPtr or NULL in case of error
+// 
 xmlTextWriter * xmlNewTextWriter(xmlOutputBuffer * out)
 {
 	const char * _p_func_name = __FUNCTION__;
 	xmlTextWriter * ret = (xmlTextWriterPtr)SAlloc::M(sizeof(xmlTextWriter));
-	if(!ret) {
-		xmlWriterErrMsg_OutOfMem(0, _p_func_name);
-		return NULL;
+	bool out_of_mem = false;
+	if(!ret)
+		out_of_mem = true;
+	else {
+		memzero(ret, sizeof(xmlTextWriter));
+		ret->nodes = xmlListCreate(/*(xmlListDeallocator)*/xmlFreeTextWriterStackEntry, /*(xmlListDataCompare)*/xmlCmpTextWriterStackEntry);
+		if(!ret->nodes) {
+			ZFREE(ret);
+			out_of_mem = true;
+		}
+		else {
+			ret->nsstack = xmlListCreate(/*(xmlListDeallocator)*/xmlFreeTextWriterNsStackEntry, /*(xmlListDataCompare)*/xmlCmpTextWriterNsStackEntry);
+			if(ret->nsstack == NULL) {
+				xmlListDelete(ret->nodes);
+				ZFREE(ret);
+				out_of_mem = true;
+			}
+			else {
+				ret->out = out;
+				ret->ichar = sstrdup(reinterpret_cast<const xmlChar *>(" "));
+				ret->qchar = '"';
+				if(!ret->ichar) {
+					xmlListDelete(ret->nodes);
+					xmlListDelete(ret->nsstack);
+					ZFREE(ret);
+					out_of_mem = true;
+				}
+				else {
+					ret->doc = xmlNewDoc(NULL);
+					ret->no_doc_free = 0;
+				}
+			}
+		}
 	}
-	memzero(ret, sizeof(xmlTextWriter));
-	ret->nodes = xmlListCreate(/*(xmlListDeallocator)*/xmlFreeTextWriterStackEntry, /*(xmlListDataCompare)*/xmlCmpTextWriterStackEntry);
-	if(ret->nodes == NULL) {
+	if(out_of_mem) {
 		xmlWriterErrMsg_OutOfMem(0, _p_func_name);
-		SAlloc::F(ret);
-		return NULL;
+		assert(ret == 0);
 	}
-	ret->nsstack = xmlListCreate(/*(xmlListDeallocator)*/xmlFreeTextWriterNsStackEntry, /*(xmlListDataCompare)*/xmlCmpTextWriterNsStackEntry);
-	if(ret->nsstack == NULL) {
-		xmlWriterErrMsg_OutOfMem(0, _p_func_name);
-		xmlListDelete(ret->nodes);
-		SAlloc::F(ret);
-		return NULL;
-	}
-	ret->out = out;
-	ret->ichar = sstrdup(reinterpret_cast<const xmlChar *>(" "));
-	ret->qchar = '"';
-	if(!ret->ichar) {
-		xmlListDelete(ret->nodes);
-		xmlListDelete(ret->nsstack);
-		SAlloc::F(ret);
-		xmlWriterErrMsg_OutOfMem(0, _p_func_name);
-		return NULL;
-	}
-	ret->doc = xmlNewDoc(NULL);
-	ret->no_doc_free = 0;
 	return ret;
 }
 // 

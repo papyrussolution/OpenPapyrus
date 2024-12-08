@@ -921,10 +921,7 @@ int PPGlobalServiceHighLevelImplementations::Setup_UDS()
 				setStaticText(CTL_SUUDS_HINT, temp_buf);
 			}
 		}
-		int    IsSettled() const
-		{
-			return BIN(State & stSettled);
-		}
+		bool   IsSettled() const { return LOGIC(State & stSettled); }
 	private:
 		DECL_HANDLE_EVENT
 		{
@@ -993,6 +990,61 @@ struct SetupGlobalServiceWildberries_Param {
 	PPID   GuaID;
 };
 
+static int Setup_GlobalService_Wildberries_InitParam(SetupGlobalServiceWildberries_Param & rP, int force)
+{
+	int    ok = 1;
+	const  PPID service_ident = PPGLS_WILDBERRIES;
+	SString temp_buf;
+	PPObjGlobalUserAcc gua_obj;
+	PPObjSCardSeries scs_obj;
+	PPGlobalUserAcc gua_rec;
+	PPSCardSeries2 scs_rec;
+	PPIDArray gua_candidate_list;
+	PPIDArray scs_candidate_list;
+	if(!rP.GuaID && gua_obj.GetListByServiceIdent(service_ident, &gua_candidate_list) > 0 && gua_candidate_list.getCount() == 1)
+		rP.GuaID = gua_candidate_list.get(0);
+	if(rP.GuaID) {
+		PPGlobalUserAccPacket gua_pack;
+		if(gua_obj.GetPacket(rP.GuaID, &gua_pack) > 0) {
+			if(force) {
+			}
+			else {
+				SString db_value;
+				gua_pack.GetAccessKey(db_value);
+				if(db_value.NotEmptyS() && !rP.ApiKey.NotEmptyS()) {
+					rP.ApiKey = db_value;
+				}
+			}
+		}
+	}
+	if(force) {
+		PPGlobalUserAccPacket gua_pack;
+		THROW_PP(rP.ApiKey.NotEmptyS(), PPERR_APIKEYNEEDED);
+		{
+			PPTransaction tra(1);
+			THROW(tra);
+			if(rP.GuaID) {
+				PPID   temp_id = gua_pack.Rec.ID;
+				THROW(gua_obj.GetPacket(rP.GuaID, &gua_pack) > 0);
+				THROW_PP_S(gua_pack.Rec.ServiceIdent == service_ident, PPERR_INVGUASERVICEIDENT, temp_buf.Z());
+				gua_pack.SetAccessKey(rP.ApiKey);
+				THROW(gua_obj.PutPacket(&temp_id, &gua_pack, 0));
+			}
+			else {
+				PPID   temp_id = 0;
+				gua_pack.Rec.ServiceIdent = service_ident;
+				STRNSCPY(gua_pack.Rec.Name, "Wildberries");
+				STRNSCPY(gua_pack.Rec.Symb, "WILDBERRIES");
+				gua_pack.SetAccessKey(rP.ApiKey);
+				THROW(gua_obj.PutPacket(&temp_id, &gua_pack, 0));
+			}
+			THROW(tra.Commit());
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 /*static*/int PPGlobalServiceHighLevelImplementations::Setup_Wildberries() // @v12.2.0
 {
 	class SetupGlobalServiceWildberries_Dialog : public TDialog {
@@ -1000,12 +1052,35 @@ struct SetupGlobalServiceWildberries_Param {
 	public:
 		SetupGlobalServiceWildberries_Dialog(DlgDataType & rData) : TDialog(DLG_SU_WB), Data(rData)
 		{
+			const int max_text_len = 512;
+			{
+				TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_SUWB_APIKEY));
+				CALLPTRMEMB(p_il, SetupMaxTextLen(max_text_len));
+			}
+			Setup_GlobalService_Wildberries_InitParam(Data, false);
+			setCtrlString(CTL_SUWB_APIKEY, Data.ApiKey);
+			SetupPPObjCombo(this, CTLSEL_SUWB_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, 0);
 		}
 	private:
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
+			if(event.isCbSelected(CTLSEL_SUWB_GUA)) {
+				PPID   gua_id = getCtrlLong(CTLSEL_SUWB_GUA);
+				if(gua_id) {
+					PPGlobalUserAccPacket gua_pack;
+					if(GuaObj.GetPacket(gua_id, &gua_pack) > 0) {
+						SString accs_key;
+						gua_pack.GetAccessKey(accs_key);
+						setCtrlString(CTL_SUWB_APIKEY, accs_key);
+					}
+				}
+			}
+			else
+				return;
+			clearEvent(event);
 		}
+		PPObjGlobalUserAcc GuaObj;
 	};
 	int    ok = -1;
 	SetupGlobalServiceWildberries_Param param;
@@ -1854,14 +1929,8 @@ int Test_AptekaRuInterface()
 {
 	int    ok = 1;
 	PPObjGlobalUserAcc gua_obj;
-	PPGlobalUserAcc gua_rec;
 	PPIDArray gua_list;
-	for(SEnum en(gua_obj.Enum(0)); en.Next(&gua_rec) > 0;) {
-		if(gua_rec.ServiceIdent == PPGLS_APTEKARU) {
-			gua_list.add(gua_rec.ID);
-		}
-	}
-	if(gua_list.getCount() == 1) {
+	if(gua_obj.GetListByServiceIdent(PPGLS_APTEKARU, &gua_list) > 0 && gua_list.getCount() == 1) {
 		AptekaRuInterface ifc(gua_list.get(0));
 		if(ifc.IsValid()) {
 			ifc.Auth();

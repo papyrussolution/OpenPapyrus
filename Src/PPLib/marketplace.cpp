@@ -6,26 +6,6 @@
 #include <pp.h>
 #pragma hdrstop
 
-class PPMarketplaceInterface {
-public:
-	virtual ~PPMarketplaceInterface();
-	virtual int Init(PPID guaID);
-	//
-	int    GetMarketplacePerson(PPID * pID, int use_ta);
-	const  char * GetSymbol() const { return P_Symbol; }
-	int    CreateWarehouseFolder(PPID * pID, int use_ta);
-protected:
-	PPMarketplaceInterface(const char * pSymbol, PrcssrMarketplaceInterchange & rPrc);
-
-	uint    State;
-	PPObjPerson PsnObj;
-	PPObjGoods GObj;
-	PPObjArticle ArObj;
-	PrcssrMarketplaceInterchange & R_Prc;
-private:
-	const  char * P_Symbol;
-};
-
 PPMarketplaceInterface::PPMarketplaceInterface(const char * pSymbol, PrcssrMarketplaceInterchange & rPrc) : 
 	P_Symbol(pSymbol), State(0), R_Prc(rPrc)
 {
@@ -123,490 +103,6 @@ int PPMarketplaceInterface::GetMarketplacePerson(PPID * pID, int use_ta)
 	CATCHZOK
 	return ok;
 }
-
-class PPMarketplaceInterface_Wildberries : public PPMarketplaceInterface {
-	// кВВ - коэффициент вознаграждения Вайлдберриз
-public:
-	struct Warehouse {
-		Warehouse();
-		Warehouse & Z();
-		bool FromJsonObj(const SJson * pJs);
-
-		enum {
-			fAcceptsQR = 0x0001,
-			fSelected  = 0x0002  // Признак того, что склад уже выбран продавцом
-		};
-		long   ID; // Идентификатор склада на маркетплейсе (не в нашей базе данных!)
-		uint   Flags;
-		int    CargoType; // Тип товара, который принимает склад:
-			// 1 - обычный; 2 - СГТ (Сверхгабаритный товар); 3 - КГТ (Крупногабаритный товар). Не используется на данный момент.
-		int    DeliveryType; // Тип доставки, который принимает склад:
-			// 1 - доставка на склад Wildberries; 2 - доставка силами продавца; 3 - доставка курьером WB
-		uint64 UedGeoLoc;
-		SString Name;
-		SString City;
-		SString Address;
-	};
-	struct WareBase {
-		WareBase();
-		WareBase & Z();
-		bool FromJsonObj(const SJson * pJs);
-
-		int64 ID;
-		SString Name;
-		SString TechSize;
-		SString SupplArticle;
-		SString Barcode;
-		SString Category;
-		SString Brand;
-	};
-	struct Stock {
-		Stock();
-		Stock & Z();
-		bool FromJsonObj(const SJson * pJs);
-
-		enum {
-			fIsSupply      = 0x0001,
-			fIsRealization = 0x0002,
-		};
-		LDATETIME DtmLastChange;
-		WareBase Ware;
-		SString WarehouseName;
-		double Qtty;
-		double QttyFull;
-		double InWayToClient;
-		double InWayFromClient;
-		double Price;
-		double Discount;
-		uint   Flags;
-	};
-
-	static SString & MakeSerialIdent(int64 incomeId, const WareBase & rWare, SString & rBuf)
-	{
-		return rBuf.Z().Cat(incomeId).CatChar('-').Cat(rWare.ID);
-	}
-
-	struct Income  {
-		Income();
-		Income & Z();
-		bool FromJsonObj(const SJson * pJs);
-
-		int64  IncomeID;
-		LDATETIME Dtm;
-		LDATETIME DtmLastChange;
-		SString Number; // Номер УПД
-		WareBase Ware;
-		double Qtty;
-		double TotalPrice;
-		LDATETIME DtmClose;
-		SString WarehouseName;
-		SString Status;
-		/*
-		"incomeId": 22650325,
-		"number": "",
-		"date": "2024-08-31T00:00:00",
-		"lastChangeDate": "2024-09-03T16:12:09",
-		"supplierArticle": "Lampasunone",
-		"techSize": "0",
-		"barcode": "2040705818355",
-		"quantity": 30,
-		"totalPrice": 0,
-		"dateClose": "2024-09-03T00:00:00",
-		"warehouseName": "Электросталь",
-		"nmId": 245313051,
-		"status": "Принято"
-		*/
-	};
-	//
-	// Descr: Структура описания элемента продажи или заказа
-	//
-	struct Sale {
-		Sale();
-		Sale & Z();
-		bool FromJsonObj(const SJson * pJs);
-
-		enum {
-			fIsSupply      = 0x0001,
-			fIsRealization = 0x0002,
-			fIsCancel      = 0x0004  // Только для заказа 
-		};
-		LDATETIME Dtm;
-		LDATETIME DtmLastChange;
-		LDATETIME DtmCancel;      // order
-		WareBase Ware;
-		SString WarehouseName;
-		SString CountryName;
-		SString DistrictName;
-		SString RegionName;
-		int64  IncomeID;
-		uint   Flags;
-		double TotalPrice;
-		double DiscountPct;
-		double Spp;               // Скидка WB
-		double PaymentSaleAmount; // sale Оплачено с WB Кошелька
-		double ForPay;            // sale К перечислению продавцу
-		double FinishedPrice;     // Фактическая цена с учетом всех скидок (к взиманию с покупателя)
-		double PriceWithDiscount; // Цена со скидкой продавца, от которой считается сумма к перечислению продавцу forPay (= totalPrice * (1 - discountPercent/100))
-		SString SaleId;           // Уникальный идентификатор продажи/возврата // S********** — продажа, R********** — возврат (на склад WB)
-		SString OrderType;        // Тип заказа:
-			// Клиентский — заказ, поступивший от покупателя
-			// Возврат Брака — возврат товара продавцу
-			// Принудительный возврат — возврат товара продавцу
-			// Возврат обезлички — возврат товара продавцу
-			// Возврат Неверного Вложения — возврат товара продавцу
-			// Возврат Продавца — возврат товара продавцу
-			// Возврат из Отзыва — возврат товара продавцу
-			// АвтоВозврат МП — возврат товара продавцу
-			// Недокомплект (Вина продавца) — возврат товара продавцу
-			// Возврат КГТ — возврат товара продавцу
-		SString Sticker; // Идентификатор стикера
-		SString GNumber; // Номер заказа
-		SString SrID;    // Уникальный идентификатор заказа. Примечание для использующих API Маркетплейс: srid равен rid в ответах методов сборочных заданий.
-			// Проецируется на тег PPTAG_LOT_ORGORDERIDENT
-	};
-	
-	struct SalesRepDbpEntry { // SalesReportDetailedByPeriod
-		SalesRepDbpEntry();
-		SalesRepDbpEntry & Z();
-		bool FromJsonObj(const SJson * pJs);
-		enum {
-			// is_legal_entity
-			fIsLegalEntity = 0x0001
-		};
-		int64  RepId;                 // realizationreport_id Номер отчёта
-		int    RepType;               // report_type integer Тип отчёта: 1 — стандартный, 2 — для уведомления о выкупе
-		uint   Flags;                 // @v12.2.0 
-		DateRange Period;             // date_from, date_to
-		LDATE  CrDate;                // create_dt
-		char   CurrencySymb[8];       // currency_name
-		SString SupplierContractCode; // suppliercontract_code : object // Договор
-		int64  RrdId;                 // rrd_id Номер строки
-		int64  IncomeID;              // gi_id Номер поставки
-		SString SrID;                 // srid string Уникальный идентификатор заказа. Примечание для использующих API Marketplace: srid равен rid в ответах методов сборочных заданий.
-			// Проецируется на тег PPTAG_LOT_ORGORDERIDENT
-		WareBase Ware;                // Наименования полей отличаются от таких же в других методах!
-			/*
-				subject_name string Предмет
-				nm_id integer Артикул WB
-				brand_name string Бренд
-				sa_name string Артикул продавца
-				ts_name string Размер
-				barcode string Баркод
-			*/
-		SString DocTypeName;            // Тип документа
-		SString Warehouse;              // office_name Склад
-		SString SupplOpName;            // supplier_oper_name Обоснование для оплаты
-			// Возмещение издержек по перевозке/по складским операциям с товаром
-			// Логистика
-			// Пересчет платной приемки
-			// Продажа
-			// Удержание
-			// Хранение
-		LDATETIME OrderDtm;             // order_dt <date-time> Дата заказа. Присылается с явным указанием часового пояса
-		LDATETIME SaleDtm;              // sale_dt <date-time> Дата продажи. Присылается с явным указанием часового пояса
-		LDATETIME RrDtm;                // rr_dt <date-time> Дата операции. Присылается с явным указанием часового пояса
-		int64  ShkId;                   // shk_id Штрих-код. Это - Sticker из заказа и продажи. 
-		SString BoxTypeName;            // gi_box_type_name Тип коробов
-		SString SupplPromo;             // supplier_promo number
-		int64  RId;                     // Уникальный идентификатор заказа 
-		int    Ppvz_OfficeId;           // ppvz_office_id integer Номер офиса
-		int    Ppvz_SupplierId;         // ppvz_supplier_id integer Номер партнера
-		SString AcquiringBank;          // acquiring_bank string Наименование банка-эквайера
-		SString Ppvz_OfficeName;        // ppvz_office_name string Наименование офиса доставки
-		SString Ppvz_SupplierName;      // ppvz_supplier_name string Партнер
-		SString Ppvz_Inn;               // ppvz_inn string ИНН партнера
-		SString Clb;                    // declaration_number string Номер таможенной декларации
-		SString BonusTypeName;          // bonus_type_name string Обоснование штрафов и доплат. Поле будет в ответе при наличии значения
-		SString Sticker;                // sticker_id string Цифровое значение стикера, который клеится на товар в процессе сборки заказа по схеме "Маркетплейс"
-		SString Country;                // site_country string Страна продажи
-		SString RebillLogisticOrg;      // rebill_logistic_org string Организатор перевозки. Поле будет в ответе при наличии значения
-		SString Kiz;                    // Марка чзн 
-		SString PaymentProcessing;      // @v12.2.0 Текст, вероятно, содержащий подробности операции 'Коррекция логистики'
-		int    DeliveryCount;           // delivery_amount Количество доставок
-		int    ReturnCount;             // return_amount   Количество возвратов
-		double Qtty;                    // Количество
-		double RetailPrice;             // Цена розничная
-		double RetailAmount;            // Сумма продаж (возвратов)
-		double SalePct;                 // Согласованная скидка
-		double CommissionPct;           // Процент комиссии
-		double RetailPriceWithDiscount; // retail_price_withdisc_rub Цена розничная с учетом согласованной скидки
-		double DeliveryAmount;          // delivery_rub    Стоимость логистики
-		double ProductDiscount;         // Согласованный продуктовый дисконт
-		double Ppvz_Spp_Prc;          // ppvz_spp_prc Скидка постоянного покупателя   
-		double Ppvz_Kvw_Prc_Base;     // ppvz_kvw_prc_base number Размер кВВ без НДС, % базовый
-		double Ppvz_Kvw_Prc;          // ppvz_kvw_prc number Итоговый кВВ без НДС, %
-		double Sup_Rating_Prc_Up;     // sup_rating_prc_up number Размер снижения кВВ из-за рейтинга
-		double IS_Kgvp_V2;            // is_kgvp_v2 number Размер снижения кВВ из-за акции
-		double Ppvz_Sales_Commission; // ppvz_sales_commission number Вознаграждение с продаж до вычета услуг поверенного, без НДС
-		double Ppvz_For_Pay;          // ppvz_for_pay number К перечислению продавцу за реализованный товар
-		double Ppvz_Reward;           // ppvz_reward	number Возмещение за выдачу и возврат товаров на ПВЗ
-		double AcquiringFee;          // acquiring_fee number Возмещение издержек по эквайрингу. Издержки WB за услуги эквайринга: вычитаются из вознаграждения WB и не влияют на доход продавца.
-		double AcquiringPct;          // acquiring_percent number Размер комиссии за эквайринг без НДС, %
-		double Ppvz_Vw;               // ppvz_vw number Вознаграждение WB без НДС
-		double Ppvz_Vw_Vat;           // ppvz_vw_nds number НДС с вознаграждения WB
-		double Penalty;               // penalty number Штрафы
-		double AdditionalPayment;     // additional_payment number Доплаты
-		double RebillLogisticCost;    // rebill_logistic_cost number Возмещение издержек по перевозке. Поле будет в ответе при наличии значения
-		double StorageFee;            // storage_fee number Стоимость хранения
-		double Deduction;             // deduction number Прочие удержания/выплаты
-		double Acceptance;            // acceptance number Стоимость платной приёмки
-	};
-
-	PPMarketplaceInterface_Wildberries(PrcssrMarketplaceInterchange & rPrc) : PPMarketplaceInterface("WILDBERRIES", rPrc), Lth(PPFILNAM_MRKTPLCWBTALK_LOG)
-	{
-	}
-	virtual ~PPMarketplaceInterface_Wildberries()
-	{
-	}
-	virtual int Init(PPID guaID)
-	{
-		int    ok = PPMarketplaceInterface::Init(guaID);
-		if(ok > 0) {
-			FetchWarehouseList(WhList);
-		}
-		return ok;
-	}
-	//
-	// Methods
-	//
-	int   RequestCommission();
-	//
-	// Замечание по поводу методов RequestWarehouseList и RequestWarehouseList2.
-	// Первый использует метод WB https://supplies-api.wildberries.ru/api/v1/warehouses,
-	// второй - https://marketplace-api.wildberries.ru/api/v3/offices.
-	// Я не понимаю кто все это там делал, но оба метода возвращают разные количества складов, с
-	// несовместимыми идентификаторами и разными наименованиями. При этом все методы WB предоставляют только
-	// наименованования скадов и далеко не всегда наименование в виде ссылки может быть сопоставлено
-	// с каким-либо складом, возвращенным хоть первым, хоть вторым методом.
-	// 
-	// Короче говоря, сейчас будем закладываться на первый вариант (methWarehouses aka https://supplies-api.wildberries.ru/api/v1/warehouses)
-	// а дальше посмотрим.
-	//
-	int   RequestWarehouseList(TSCollection <Warehouse> & rList);
-	int   RequestWarehouseList2(TSCollection <Warehouse> & rList);
-	int   RequestGoodsPrices();
-	int   RequestIncomes(TSCollection <Income> & rList);
-	int   RequestStocks(TSCollection <Stock> & rList);
-	int   RequestOrders(TSCollection <Sale> & rList);
-	int   RequestSales(TSCollection <Sale> & rList);
-	int   RequestSupplies();
-	int   RequestReturns();
-	int   RequestAcceptanceReport(const DateRange & rPeriod);
-	int   RequestSalesReportDetailedByPeriod(const DateRange & rPeriod, TSCollection <SalesRepDbpEntry> & rList);
-	int   RequestBalance();
-	int   RequestDocumentsList();
-	int   UploadWare();
-	int   RequestWareList();
-
-	int   CreateWarehouse(PPID * pID, int64 outerId, const char * pOuterName, const char * pAddress, int use_ta);
-	const Warehouse * SearchWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, bool adoptive) const;
-	int   ResolveWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, PPID defaultID, PPID * pResultID, int use_ta);
-	int   ImportOrders();
-	int   ImportReceipts();
-	int   ImportSales();
-	int   ImportFinancialTransactions();
-	int   ImportStocks();
-private:
-	int   GetLocalCachePath(SString & rBuf);
-	int   FetchWarehouseList(TSCollection <Warehouse> & rList);
-	int   ParseJson_WarehouseList(const SJson * pJs, TSCollection <Warehouse> & rList);
-	int   Helper_RequestWarehouseList(int meth/*methWarehouses||methWarehouses2*/, TSCollection <Warehouse> & rList, const char * pFileNameToStoreJson);
-	int   InsertReceiptItem(PPBillPacket & rPack, const char * pSerial, PPID goodsID, double qtty);
-	//
-	// Descr: 
-	// ARG(surrogateAutoLot IN): Признак того, что создается суррогатный приход, не имеющий соответствия реальному документу на маркетплейсе,
-	//   поскольку маркетплейс по той или иной причине не предоставил соответствующей информации.
-	// Returns:
-	//   0 - error
-	//   >0 - ид лота
-	//
-	PPID  CreateReceipt(int64 incomeId, const WareBase & rWare, LDATE dt, PPID locID, PPID goodsID, double qtty, bool surrogateAutoLot, int use_ta);
-	PPID  CreateBuyer(const Sale * pSaleEntry, int use_ta);
-	PPID  CreateWare(const WareBase & rWare, int use_ta);
-	int   FindShipmentBillByOrderIdent(const char * pOrgOrdIdent, PPIDArray & rShipmBillIdList);
-	//
-	// Descr: 
-	// Returns:
-	//   0 - error
-	//   >0 - ид лота, к которому должна быть привязана продажа
-	//
-	PPID  AdjustReceiptOnExpend(const Sale & rWbItem, LDATE dt, PPID locID, PPID goodsID, double neededQtty, double nominalPrice, int use_ta);
-	int   SearchOriginalLotForMp(const char * pSerial, LDATE dt, PPID locID, PPID goodsID, PPID * pResultLotID);
-	SString & MakeHeaderFields(const char * pToken, StrStrAssocArray * pHdrFlds, SString & rBuf)
-	{
-		StrStrAssocArray hdr_flds;
-		SETIFZ(pHdrFlds, &hdr_flds);
-		{
-			SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
-			SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrCacheControl, "no-cache");
-			//SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrAcceptLang, "ru");
-			SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrAccept, "application/json");
-		}
-		if(!isempty(pToken)) {
-			SString temp_buf;
-			//(temp_buf = "Bearer").Space().Cat(pToken);
-			temp_buf = pToken;
-			SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrAuthorization, temp_buf);
-		}
-		SHttpProtocol::PutHeaderFieldsIntoString(*pHdrFlds, rBuf);
-		return rBuf;
-	}
-	//
-	//
-	//
-	enum {
-		apiUndef = 0,
-		apiCommon = 1,
-		apiStatistics,
-		apiSellerAnalytics,
-		apiAdvert,
-		apiRecommend,
-		apiSupplies,
-		apiDiscountsPrices,
-		apiContent,
-		apiMarketplace,
-		apiAnalytics,
-		apiDocuments,
-	};
-	enum {
-		methCommission = 1,   // apiCommon
-		methTariffBox,        // apiCommon 
-		methTariffPallet,     // apiCommon
-		methTariffReturn,     // apiCommon
-		methWarehouses,       // apiSupplies
-		methWarehouses2,      // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/offices
-		methIncomes,          // apiStatistics
-		methStocks,           // apiStatistics
-		methOrders,           // apiStatistics
-		methSales,            // apiStatistics
-		methSalesReportDetailedByPeriod, // apiStatistics https://statistics-api.wildberries.ru/api/v5/supplier/reportDetailByPeriod
-		methSupples,          // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/supplies Получить список поставок
-		methSupply,           // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/supplies/{supplyId} Получить поставку
-		methSupplyOrders,     // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/supplies/{supplyId}/orders Получить сборочные задания в поставке
-		methAcceptanceReport, // apiAnalytics   https://seller-analytics-api.wildberries.ru/api/v1/analytics/acceptance-report
-		methGoodsPrices,      // apiDiscountsPrices https://discounts-prices-api.wildberries.ru/api/v2/list/goods/filter
-		methContentCardsList, // apiContent https://content-api.wildberries.ru/content/v2/get/cards/list
-		methBalance,          // apiAdvert https://advert-api.wildberries.ru/adv/v1/balance
-		methDocumentsList,    // apiDocuments https://documents-api.wildberries.ru/api/v1/documents/list 
-		methReturns,          // apiAnalytics   https://seller-analytics-api.wildberries.ru/api/v1/analytics/goods-return
-	};
-	bool MakeTargetUrl_(int meth, int * pReq/*SHttpProtocol::reqXXX*/, SString & rResult) const
-	{
-		static const SIntToSymbTabEntry api_list[] = {
-			{ apiCommon, "common-api" },
-			{ apiStatistics, "statistics-api" },
-			{ apiSellerAnalytics, "seller-analytics-api" },
-			{ apiAdvert, "advert-api" },
-			{ apiRecommend, "recommend-api" },
-			{ apiSupplies, "supplies-api" },
-			{ apiDiscountsPrices, "discounts-prices-api" },
-			{ apiContent, "content-api" },
-			{ apiMarketplace, "marketplace-api" },
-			{ apiAnalytics, "seller-analytics-api" },
-			{ apiDocuments, "documents-api" },
-		};
-		struct MethEntry {
-			int    Meth;
-			int    Api;
-			int    Req;
-			const char * P_UrlSuffix;
-		};
-		static const MethEntry meth_list[] = {
-			{ methCommission, apiCommon, SHttpProtocol::reqGet, "api/v1/tariffs/commission" },
-			{ methTariffBox, apiCommon, 0, "" },
-			{ methTariffPallet, apiCommon, 0, "" },
-			{ methTariffReturn, apiCommon, 0, "" },
-			{ methWarehouses, apiSupplies, SHttpProtocol::reqGet, "api/v1/warehouses" },
-			{ methWarehouses2, apiMarketplace, SHttpProtocol::reqGet, "api/v3/offices" },
-			{ methIncomes, apiStatistics, SHttpProtocol::reqGet, "api/v1/supplier/incomes" },
-			{ methStocks, apiStatistics, SHttpProtocol::reqGet, "api/v1/supplier/stocks" },
-			{ methOrders, apiStatistics, SHttpProtocol::reqGet, "api/v1/supplier/orders" },
-			{ methSales, apiStatistics, SHttpProtocol::reqGet, "api/v1/supplier/sales" },
-			{ methSalesReportDetailedByPeriod, apiStatistics,  SHttpProtocol::reqGet, "api/v5/supplier/reportDetailByPeriod" },
-			{ methSupples, apiMarketplace, SHttpProtocol::reqGet, "api/v3/supplies" },
-			{ methSupply, apiMarketplace, SHttpProtocol::reqGet, "api/v3/supplies" }, // /supplies/{supplyId}
-			{ methSupplyOrders, apiMarketplace, SHttpProtocol::reqGet, "api/v3/supplies" }, // /{supplyId}/orders
-			{ methAcceptanceReport, apiAnalytics, SHttpProtocol::reqGet, "api/v1/analytics/acceptance-report" },
-			{ methGoodsPrices, apiDiscountsPrices, SHttpProtocol::reqGet, "api/v2/list/goods/filter" },
-			{ methContentCardsList, apiContent, SHttpProtocol::reqPost, "content/v2/get/cards/list" },
-			{ methBalance, apiAdvert, SHttpProtocol::reqGet, "adv/v1/balance" },
-			{ methDocumentsList, apiDocuments, SHttpProtocol::reqGet, "api/v1/documents/list" },
-			{ methReturns, apiAnalytics, SHttpProtocol::reqGet, "api/v1/analytics/goods-return" },
-		};
-		//https://content-api.wildberries.ru/content/v2/cards/upload
-		//https://discounts-prices-api.wildberries.ru/api/v2/upload/task
-		//https://supplies-api.wildberries.ru/api/v1/acceptance/coefficients
-		//https://recommend-api.wildberries.ru/api/v1/ins
-		//https://advert-api.wildberries.ru/adv/v1/save-ad
-		// https://seller-analytics-api.wildberries.ru/api/v1/analytics/excise-report
-		//https://statistics-api.wildberries.ru/api/v1/supplier/incomes
-		// https://common-api.wildberries.ru/api/v1/tariffs/commission
-		bool ok = false;
-		rResult.Z();
-		int  req = 0;
-		SString temp_buf;
-		{
-			bool   local_ok = false;
-			for(uint midx = 0; midx < SIZEOFARRAY(meth_list); midx++) {
-				if(meth_list[midx].Meth == meth) {
-					const int api = meth_list[midx].Api;
-					if(SIntToSymbTab_GetSymb(api_list, SIZEOFARRAY(api_list), api, temp_buf)) {
-						rResult.Cat("https").Cat("://").Cat(temp_buf).DotCat("wildberries").DotCat("ru");
-						if(!isempty(meth_list[midx].P_UrlSuffix)) {
-							req = meth_list[midx].Req;
-							rResult.SetLastDSlash().Cat(meth_list[midx].P_UrlSuffix);
-							local_ok = true;
-						}
-					}
-					break;
-				}
-			}
-			if(local_ok) {
-				ok = true;
-			}
-		}
-		/*switch(query) {
-			case qAuthLogin: entry.Set(SHttpProtocol::reqPost, "login-api/api/v1/Auth/login"); break;
-			case qAuthExtTok: entry.Set(SHttpProtocol::reqPost, "login-api/api/v1/Auth/extended-token"); break;
-			case qGetWarehouses: entry.Set(SHttpProtocol::reqGet, "distribution-api/api/v1/Distributions/warehouses"); break;
-			case qGetProducts: entry.Set(SHttpProtocol::reqGet, "product-api/api/v1/Products/integration"); break;
-			case qGetClients: entry.Set(SHttpProtocol::reqPost, "client-api/api/v1/Clients/GetFilteredList"); break;
-			case qSendSellout: entry.Set(SHttpProtocol::reqPost, "sales-api/api/v2/Sales/sellout"); break;
-			case qSendSellin: entry.Set(SHttpProtocol::reqPost, "sales-api/api/v2/Sales/sellin"); break;
-			case qSendRest: entry.Set(SHttpProtocol::reqPost, "sales-api/api/v1/Sales/warehousebalances"); break;
-		}*/
-		/*if(!isempty(entry.P_Path)) {
-			rResult.SetLastDSlash().Cat(entry.P_Path);
-		}*/
-		ASSIGN_PTR(pReq, req);
-		return ok;
-	}
-	int    Helper_InitRequest(int meth, SString & rUrlBuf, StrStrAssocArray & rHdrFlds)
-	{
-		int    ok = 0;
-		rUrlBuf.Z();
-		rHdrFlds.Z();
-		if(R_Prc.GetGuaPack().Rec.ServiceIdent == PPGLS_WILDBERRIES) {
-			SString token;
-			if(R_Prc.GetGuaPack().GetAccessKey(token) > 0) {
-				//InetUrl url(MakeTargetUrl_(qAuthLogin, &req, url_buf));
-				int   req = 0;
-				if(MakeTargetUrl_(meth, &req/*SHttpProtocol::reqXXX*/, rUrlBuf)) {
-					SString hdr_buf;
-					MakeHeaderFields(token, &rHdrFlds, hdr_buf);
-					ok = 1;
-				}
-			}
-		}
-		return ok;
-	}
-	SString Token;
-	PPGlobalServiceLogTalkingHelper Lth;
-	TSCollection <Warehouse> WhList;
-	PPIDArray MpLocList; // Список идентификаторов складов маркетплейса, применяемых при обработке документов
-	LAssocArray MpLotToOwnLotAssocList; // Специализированный кэш, хранящий ассоциации между лотами на складах маркетплейса и лотами,
-		// из которых они образовались на собственных складах. Фактически, этот массив кэширует результат работы функции SearchOriginalLotForMp
-};
 
 int PPMarketplaceInterface::Init(PPID guaID)
 {
@@ -1308,6 +804,126 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 			}
 		}
 		ok = true;
+	}
+	return ok;
+}
+
+/*static*/int PPMarketplaceInterface_Wildberries::ParseApiToken(const char * pToken, ApiTokenDecodeResult * pResult)
+{
+	int    ok = 0;
+	ApiTokenDecodeResult result;
+	SString temp_buf;
+	SString token(pToken);
+	if(token.NotEmptyS()) {
+		STempBuffer bin_buf(8192);
+		if(bin_buf.IsValid()) {
+			size_t actual_size = 0;
+			StringSet ss('.', token);
+			uint   part_no = 0;
+			bool   local_fault = false;
+			for(uint ssp = 0; !local_fault && ss.get(&ssp, temp_buf);) {
+				++part_no;
+				uint _rem4 = temp_buf.Len() % 4;
+				if(_rem4) {
+					temp_buf.CatCharN('=', 4 - _rem4);
+				}
+				temp_buf.ReplaceChar('-', '+').ReplaceChar('_', '/');
+				if(temp_buf.DecodeMime64(bin_buf, bin_buf.GetSize(), &actual_size)) {
+					temp_buf.Z().CatN(bin_buf, actual_size);
+					if(part_no == 1) {
+						;
+					}
+					else if(part_no == 2) {
+						SJson * p_js = SJson::Parse(temp_buf);
+						if(SJson::IsObject(p_js)) {
+							for(const SJson * p_jsn = p_js->P_Child; p_jsn; p_jsn = p_jsn->P_Next) {
+								if(p_jsn->Text.IsEqiAscii("id")) {
+									//rItem.Id = p_jsn->P_Child->Text.ToInt64();
+									if(!result.Id.FromStr(p_jsn->P_Child->Text))
+										local_fault = true;
+								}
+								else if(p_jsn->Text.IsEqiAscii("sid")) {
+									//rItem.Name = p_jsn->P_Child->Text.Unescape();
+									if(!result.SellerId.FromStr(p_jsn->P_Child->Text))
+										local_fault = true;
+								}
+								else if(p_jsn->Text.IsEqiAscii("s")) {
+									uint64 local_flags = p_jsn->P_Child->Text.ToUInt64();
+									if(local_flags & (1ULL << 1))
+										result.Flags |= ApiTokenDecodeResult::fAccs_Content;
+									if(local_flags & (1ULL << 2))
+										result.Flags |= ApiTokenDecodeResult::fAccs_Analitycs;
+									if(local_flags & (1ULL << 3))
+										result.Flags |= ApiTokenDecodeResult::fAccs_Prices;
+									if(local_flags & (1ULL << 4))
+										result.Flags |= ApiTokenDecodeResult::fAccs_Marketplace;
+									if(local_flags & (1ULL << 5))
+										result.Flags |= ApiTokenDecodeResult::fAccs_Statistics;
+									if(local_flags & (1ULL << 6))
+										result.Flags |= ApiTokenDecodeResult::fAccs_Promo;
+									if(local_flags & (1ULL << 7))
+										result.Flags |= ApiTokenDecodeResult::fAccs_QAndReviews;
+									if(local_flags & (1ULL << 9))
+										result.Flags |= ApiTokenDecodeResult::fAccs_Chat;
+									if(local_flags & (1ULL << 10))
+										result.Flags |= ApiTokenDecodeResult::fAccs_Deliveries;
+									if(local_flags & (1ULL << 11))
+										result.Flags |= ApiTokenDecodeResult::fAccs_Returns;
+									if(local_flags & (1ULL << 12))
+										result.Flags |= ApiTokenDecodeResult::fAccs_Documents;
+									if(local_flags & (1ULL << 30))
+										result.Flags |= ApiTokenDecodeResult::fReadOnly;
+								}
+								else if(p_jsn->Text.IsEqiAscii("exp")) {
+									//rItem.Name = p_jsn->P_Child->Text.Unescape();
+									uint64 exp = p_jsn->P_Child->Text.ToUInt64();
+									result.ExpiryDtm.SetTimeT(exp);
+								}
+								else if(p_jsn->Text.IsEqiAscii("t")) {
+									//rItem.Name = p_jsn->P_Child->Text.Unescape();
+									if(SJson::GetBoolean(p_jsn->P_Child) == 1)
+										result.Flags |= ApiTokenDecodeResult::fTest;
+								}
+							}								
+						}
+						ZDELETE(p_js);
+					}
+					else if(part_no == 3) {
+						;
+					}
+				}
+				else
+					local_fault = true;
+			}
+			if(result.Id.IsZero() || result.SellerId.IsZero())
+				local_fault = true;
+			if(!local_fault)
+				ok = 1;
+		}
+	}
+	ASSIGN_PTR(pResult, result);
+	return ok;
+}
+	
+/*static*/SString & PPMarketplaceInterface_Wildberries::MakeSerialIdent(int64 incomeId, const WareBase & rWare, SString & rBuf)
+{
+	return rBuf.Z().Cat(incomeId).CatChar('-').Cat(rWare.ID);
+}
+
+PPMarketplaceInterface_Wildberries::PPMarketplaceInterface_Wildberries(PrcssrMarketplaceInterchange & rPrc) : 
+	PPMarketplaceInterface("WILDBERRIES", rPrc), Lth(PPFILNAM_MRKTPLCWBTALK_LOG)
+{
+}
+
+/*virtual*/PPMarketplaceInterface_Wildberries::~PPMarketplaceInterface_Wildberries()
+{
+}
+	
+/*virtual*/int PPMarketplaceInterface_Wildberries::Init(PPID guaID)
+{
+	int    ok = PPMarketplaceInterface::Init(guaID);
+	if(ok > 0) {
+		FetchWarehouseList(WhList);
 	}
 	return ok;
 }
@@ -2532,6 +2148,138 @@ int PPMarketplaceInterface_Wildberries::ImportReceipts()
 	}
 	CATCHZOK
 	return ok;
+}
+
+bool PPMarketplaceInterface_Wildberries::MakeTargetUrl_(int meth, int * pReq/*SHttpProtocol::reqXXX*/, SString & rResult) const
+{
+	static const SIntToSymbTabEntry api_list[] = {
+		{ apiCommon, "common-api" },
+		{ apiStatistics, "statistics-api" },
+		{ apiSellerAnalytics, "seller-analytics-api" },
+		{ apiAdvert, "advert-api" },
+		{ apiRecommend, "recommend-api" },
+		{ apiSupplies, "supplies-api" },
+		{ apiDiscountsPrices, "discounts-prices-api" },
+		{ apiContent, "content-api" },
+		{ apiMarketplace, "marketplace-api" },
+		{ apiAnalytics, "seller-analytics-api" },
+		{ apiDocuments, "documents-api" },
+	};
+	struct MethEntry {
+		int    Meth;
+		int    Api;
+		int    Req;
+		const char * P_UrlSuffix;
+	};
+	static const MethEntry meth_list[] = {
+		{ methCommission, apiCommon, SHttpProtocol::reqGet, "api/v1/tariffs/commission" },
+		{ methTariffBox, apiCommon, 0, "" },
+		{ methTariffPallet, apiCommon, 0, "" },
+		{ methTariffReturn, apiCommon, 0, "" },
+		{ methWarehouses, apiSupplies, SHttpProtocol::reqGet, "api/v1/warehouses" },
+		{ methWarehouses2, apiMarketplace, SHttpProtocol::reqGet, "api/v3/offices" },
+		{ methIncomes, apiStatistics, SHttpProtocol::reqGet, "api/v1/supplier/incomes" },
+		{ methStocks, apiStatistics, SHttpProtocol::reqGet, "api/v1/supplier/stocks" },
+		{ methOrders, apiStatistics, SHttpProtocol::reqGet, "api/v1/supplier/orders" },
+		{ methSales, apiStatistics, SHttpProtocol::reqGet, "api/v1/supplier/sales" },
+		{ methSalesReportDetailedByPeriod, apiStatistics,  SHttpProtocol::reqGet, "api/v5/supplier/reportDetailByPeriod" },
+		{ methSupples, apiMarketplace, SHttpProtocol::reqGet, "api/v3/supplies" },
+		{ methSupply, apiMarketplace, SHttpProtocol::reqGet, "api/v3/supplies" }, // /supplies/{supplyId}
+		{ methSupplyOrders, apiMarketplace, SHttpProtocol::reqGet, "api/v3/supplies" }, // /{supplyId}/orders
+		{ methAcceptanceReport, apiAnalytics, SHttpProtocol::reqGet, "api/v1/analytics/acceptance-report" },
+		{ methGoodsPrices, apiDiscountsPrices, SHttpProtocol::reqGet, "api/v2/list/goods/filter" },
+		{ methContentCardsList, apiContent, SHttpProtocol::reqPost, "content/v2/get/cards/list" },
+		{ methBalance, apiAdvert, SHttpProtocol::reqGet, "adv/v1/balance" },
+		{ methDocumentsList, apiDocuments, SHttpProtocol::reqGet, "api/v1/documents/list" },
+		{ methReturns, apiAnalytics, SHttpProtocol::reqGet, "api/v1/analytics/goods-return" },
+	};
+	//https://content-api.wildberries.ru/content/v2/cards/upload
+	//https://discounts-prices-api.wildberries.ru/api/v2/upload/task
+	//https://supplies-api.wildberries.ru/api/v1/acceptance/coefficients
+	//https://recommend-api.wildberries.ru/api/v1/ins
+	//https://advert-api.wildberries.ru/adv/v1/save-ad
+	// https://seller-analytics-api.wildberries.ru/api/v1/analytics/excise-report
+	//https://statistics-api.wildberries.ru/api/v1/supplier/incomes
+	// https://common-api.wildberries.ru/api/v1/tariffs/commission
+	bool ok = false;
+	rResult.Z();
+	int  req = 0;
+	SString temp_buf;
+	{
+		bool   local_ok = false;
+		for(uint midx = 0; midx < SIZEOFARRAY(meth_list); midx++) {
+			if(meth_list[midx].Meth == meth) {
+				const int api = meth_list[midx].Api;
+				if(SIntToSymbTab_GetSymb(api_list, SIZEOFARRAY(api_list), api, temp_buf)) {
+					rResult.Cat("https").Cat("://").Cat(temp_buf).DotCat("wildberries").DotCat("ru");
+					if(!isempty(meth_list[midx].P_UrlSuffix)) {
+						req = meth_list[midx].Req;
+						rResult.SetLastDSlash().Cat(meth_list[midx].P_UrlSuffix);
+						local_ok = true;
+					}
+				}
+				break;
+			}
+		}
+		if(local_ok) {
+			ok = true;
+		}
+	}
+	/*switch(query) {
+		case qAuthLogin: entry.Set(SHttpProtocol::reqPost, "login-api/api/v1/Auth/login"); break;
+		case qAuthExtTok: entry.Set(SHttpProtocol::reqPost, "login-api/api/v1/Auth/extended-token"); break;
+		case qGetWarehouses: entry.Set(SHttpProtocol::reqGet, "distribution-api/api/v1/Distributions/warehouses"); break;
+		case qGetProducts: entry.Set(SHttpProtocol::reqGet, "product-api/api/v1/Products/integration"); break;
+		case qGetClients: entry.Set(SHttpProtocol::reqPost, "client-api/api/v1/Clients/GetFilteredList"); break;
+		case qSendSellout: entry.Set(SHttpProtocol::reqPost, "sales-api/api/v2/Sales/sellout"); break;
+		case qSendSellin: entry.Set(SHttpProtocol::reqPost, "sales-api/api/v2/Sales/sellin"); break;
+		case qSendRest: entry.Set(SHttpProtocol::reqPost, "sales-api/api/v1/Sales/warehousebalances"); break;
+	}*/
+	/*if(!isempty(entry.P_Path)) {
+		rResult.SetLastDSlash().Cat(entry.P_Path);
+	}*/
+	ASSIGN_PTR(pReq, req);
+	return ok;
+}
+
+int PPMarketplaceInterface_Wildberries::Helper_InitRequest(int meth, SString & rUrlBuf, StrStrAssocArray & rHdrFlds)
+{
+	int    ok = 0;
+	rUrlBuf.Z();
+	rHdrFlds.Z();
+	if(R_Prc.GetGuaPack().Rec.ServiceIdent == PPGLS_WILDBERRIES) {
+		SString token;
+		if(R_Prc.GetGuaPack().GetAccessKey(token) > 0) {
+			//InetUrl url(MakeTargetUrl_(qAuthLogin, &req, url_buf));
+			int   req = 0;
+			if(MakeTargetUrl_(meth, &req/*SHttpProtocol::reqXXX*/, rUrlBuf)) {
+				SString hdr_buf;
+				MakeHeaderFields(token, &rHdrFlds, hdr_buf);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+SString & PPMarketplaceInterface_Wildberries::MakeHeaderFields(const char * pToken, StrStrAssocArray * pHdrFlds, SString & rBuf) const
+{
+	StrStrAssocArray hdr_flds;
+	SETIFZ(pHdrFlds, &hdr_flds);
+	{
+		SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
+		SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrCacheControl, "no-cache");
+		//SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrAcceptLang, "ru");
+		SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrAccept, "application/json");
+	}
+	if(!isempty(pToken)) {
+		SString temp_buf;
+		//(temp_buf = "Bearer").Space().Cat(pToken);
+		temp_buf = pToken;
+		SHttpProtocol::SetHeaderField(*pHdrFlds, SHttpProtocol::hdrAuthorization, temp_buf);
+	}
+	SHttpProtocol::PutHeaderFieldsIntoString(*pHdrFlds, rBuf);
+	return rBuf;
 }
 
 int PPMarketplaceInterface_Wildberries::SearchOriginalLotForMp(const char * pSerial, LDATE dt, PPID locID, PPID goodsID, PPID * pResultLotID)
@@ -4414,34 +4162,6 @@ int DoMarketplaceInterchange()
 			else
 				ok = PPErrorZ();
 	}
-	return ok;
-}
-
-int CreateMarketplaceAccSheet()
-{
-	/*
-			// Возмещение издержек по перевозке/по складским операциям с товаром
-			// Логистика
-			// Пересчет платной приемки
-			// Продажа
-			// Удержание
-			// Хранение
-	*/
-	// MARKETPLACE-OPS символ таблицы статей
-	int    ok = 1;
-	PPID   acs_id = 0;
-	PPObjAccSheet acs_obj;
-	/*{
-		PPAccSheet2 acs_rec;
-		if(!acs_id) {
-			MEMSZERO(acs_rec);
-			STRNSCPY(acs_rec.Name, pk_rec.Name);
-			acs_rec.Assoc = PPOBJ_PERSON;
-			acs_rec.ObjGroup = person_kind;
-			acs_rec.Flags = ACSHF_AUTOCREATART;
-			THROW(p_ref->AddItem(PPOBJ_ACCSHEET, &acs_id, &acs_rec, 0));
-		}
-	}*/
 	return ok;
 }
 //

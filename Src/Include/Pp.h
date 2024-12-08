@@ -439,6 +439,7 @@ class PPObjTech;
 class PPBillImporter;
 class EgaisMarkAutoSelector;
 class PPMarketplaceInterface;
+class PrcssrMarketplaceInterchange;
 
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef int32 PPID; // @v11.6.8 long-->int32
@@ -40786,6 +40787,19 @@ private:
 	TestParam TP;
 };
 //
+// Descr: Вспомогательный класс, обеспечивающий однообразную запись в журналы
+//   процесса обмена данными с глобальными сервисами. В качестве параметра
+//   конструктора передается идентификатор строки имени файла журнала.
+//   Например: PPFILNAM_UDSTALK_LOG ("uds-talk.log").
+//
+class PPGlobalServiceLogTalkingHelper {
+public:
+	explicit PPGlobalServiceLogTalkingHelper(uint logFileNameId);
+	void   Log(const char * pPrefix, const char * pTargetUrl, const SString & rMsg);
+private:
+	SString LogFileName;
+};
+//
 // @todo (Исправить структуру (порядок полей, выравнивание, метод Init - THISZERO плохо из-за SString))
 //   Заменить на SupplInterchangeFilt
 //
@@ -40958,6 +40972,395 @@ struct PPMarketplaceConfig { // @construction
 	PPID   ReturnOpID;     // @v12.1.11 Вид операции возврата от покупателя //
 	uint8  Reserve[44];    // @reserve  // @v12.1.11 [48]-->[44]
 	long   Reserve2[2];    // @reserve
+};
+
+class PPMarketplaceInterface {
+public:
+	virtual ~PPMarketplaceInterface();
+	virtual int Init(PPID guaID);
+	//
+	int    GetMarketplacePerson(PPID * pID, int use_ta);
+	const  char * GetSymbol() const { return P_Symbol; }
+	int    CreateWarehouseFolder(PPID * pID, int use_ta);
+protected:
+	PPMarketplaceInterface(const char * pSymbol, PrcssrMarketplaceInterchange & rPrc);
+
+	uint    State;
+	PPObjPerson PsnObj;
+	PPObjGoods GObj;
+	PPObjArticle ArObj;
+	PrcssrMarketplaceInterchange & R_Prc;
+private:
+	const  char * P_Symbol;
+};
+
+class PPMarketplaceInterface_Wildberries : public PPMarketplaceInterface {
+	// кВВ - коэффициент вознаграждения Вайлдберриз
+public:
+	struct Warehouse {
+		Warehouse();
+		Warehouse & Z();
+		bool FromJsonObj(const SJson * pJs);
+
+		enum {
+			fAcceptsQR = 0x0001,
+			fSelected  = 0x0002  // Признак того, что склад уже выбран продавцом
+		};
+		long   ID; // Идентификатор склада на маркетплейсе (не в нашей базе данных!)
+		uint   Flags;
+		int    CargoType; // Тип товара, который принимает склад:
+			// 1 - обычный; 2 - СГТ (Сверхгабаритный товар); 3 - КГТ (Крупногабаритный товар). Не используется на данный момент.
+		int    DeliveryType; // Тип доставки, который принимает склад:
+			// 1 - доставка на склад Wildberries; 2 - доставка силами продавца; 3 - доставка курьером WB
+		uint64 UedGeoLoc;
+		SString Name;
+		SString City;
+		SString Address;
+	};
+	struct WareBase {
+		WareBase();
+		WareBase & Z();
+		bool FromJsonObj(const SJson * pJs);
+
+		int64 ID;
+		SString Name;
+		SString TechSize;
+		SString SupplArticle;
+		SString Barcode;
+		SString Category;
+		SString Brand;
+	};
+	struct Stock {
+		Stock();
+		Stock & Z();
+		bool FromJsonObj(const SJson * pJs);
+
+		enum {
+			fIsSupply      = 0x0001,
+			fIsRealization = 0x0002,
+		};
+		LDATETIME DtmLastChange;
+		WareBase Ware;
+		SString WarehouseName;
+		double Qtty;
+		double QttyFull;
+		double InWayToClient;
+		double InWayFromClient;
+		double Price;
+		double Discount;
+		uint   Flags;
+	};
+	struct Income  {
+		Income();
+		Income & Z();
+		bool FromJsonObj(const SJson * pJs);
+
+		int64  IncomeID;
+		LDATETIME Dtm;
+		LDATETIME DtmLastChange;
+		SString Number; // Номер УПД
+		WareBase Ware;
+		double Qtty;
+		double TotalPrice;
+		LDATETIME DtmClose;
+		SString WarehouseName;
+		SString Status;
+		/*
+		"incomeId": 22650325,
+		"number": "",
+		"date": "2024-08-31T00:00:00",
+		"lastChangeDate": "2024-09-03T16:12:09",
+		"supplierArticle": "Lampasunone",
+		"techSize": "0",
+		"barcode": "2040705818355",
+		"quantity": 30,
+		"totalPrice": 0,
+		"dateClose": "2024-09-03T00:00:00",
+		"warehouseName": "Электросталь",
+		"nmId": 245313051,
+		"status": "Принято"
+		*/
+	};
+	//
+	// Descr: Структура описания элемента продажи или заказа
+	//
+	struct Sale {
+		Sale();
+		Sale & Z();
+		bool FromJsonObj(const SJson * pJs);
+
+		enum {
+			fIsSupply      = 0x0001,
+			fIsRealization = 0x0002,
+			fIsCancel      = 0x0004  // Только для заказа 
+		};
+		LDATETIME Dtm;
+		LDATETIME DtmLastChange;
+		LDATETIME DtmCancel;      // order
+		WareBase Ware;
+		SString WarehouseName;
+		SString CountryName;
+		SString DistrictName;
+		SString RegionName;
+		int64  IncomeID;
+		uint   Flags;
+		double TotalPrice;
+		double DiscountPct;
+		double Spp;               // Скидка WB
+		double PaymentSaleAmount; // sale Оплачено с WB Кошелька
+		double ForPay;            // sale К перечислению продавцу
+		double FinishedPrice;     // Фактическая цена с учетом всех скидок (к взиманию с покупателя)
+		double PriceWithDiscount; // Цена со скидкой продавца, от которой считается сумма к перечислению продавцу forPay (= totalPrice * (1 - discountPercent/100))
+		SString SaleId;           // Уникальный идентификатор продажи/возврата // S********** — продажа, R********** — возврат (на склад WB)
+		SString OrderType;        // Тип заказа:
+			// Клиентский — заказ, поступивший от покупателя
+			// Возврат Брака — возврат товара продавцу
+			// Принудительный возврат — возврат товара продавцу
+			// Возврат обезлички — возврат товара продавцу
+			// Возврат Неверного Вложения — возврат товара продавцу
+			// Возврат Продавца — возврат товара продавцу
+			// Возврат из Отзыва — возврат товара продавцу
+			// АвтоВозврат МП — возврат товара продавцу
+			// Недокомплект (Вина продавца) — возврат товара продавцу
+			// Возврат КГТ — возврат товара продавцу
+		SString Sticker; // Идентификатор стикера
+		SString GNumber; // Номер заказа
+		SString SrID;    // Уникальный идентификатор заказа. Примечание для использующих API Маркетплейс: srid равен rid в ответах методов сборочных заданий.
+			// Проецируется на тег PPTAG_LOT_ORGORDERIDENT
+	};
+	
+	struct SalesRepDbpEntry { // SalesReportDetailedByPeriod
+		SalesRepDbpEntry();
+		SalesRepDbpEntry & Z();
+		bool FromJsonObj(const SJson * pJs);
+		enum {
+			// is_legal_entity
+			fIsLegalEntity = 0x0001
+		};
+		int64  RepId;                 // realizationreport_id Номер отчёта
+		int    RepType;               // report_type integer Тип отчёта: 1 — стандартный, 2 — для уведомления о выкупе
+		uint   Flags;                 // @v12.2.0 
+		DateRange Period;             // date_from, date_to
+		LDATE  CrDate;                // create_dt
+		char   CurrencySymb[8];       // currency_name
+		SString SupplierContractCode; // suppliercontract_code : object // Договор
+		int64  RrdId;                 // rrd_id Номер строки
+		int64  IncomeID;              // gi_id Номер поставки
+		SString SrID;                 // srid string Уникальный идентификатор заказа. Примечание для использующих API Marketplace: srid равен rid в ответах методов сборочных заданий.
+			// Проецируется на тег PPTAG_LOT_ORGORDERIDENT
+		WareBase Ware;                // Наименования полей отличаются от таких же в других методах!
+			/*
+				subject_name string Предмет
+				nm_id integer Артикул WB
+				brand_name string Бренд
+				sa_name string Артикул продавца
+				ts_name string Размер
+				barcode string Баркод
+			*/
+		SString DocTypeName;            // Тип документа
+		SString Warehouse;              // office_name Склад
+		SString SupplOpName;            // supplier_oper_name Обоснование для оплаты
+			// Возмещение издержек по перевозке/по складским операциям с товаром
+			// Логистика
+			// Пересчет платной приемки
+			// Продажа
+			// Удержание
+			// Хранение
+		LDATETIME OrderDtm;             // order_dt <date-time> Дата заказа. Присылается с явным указанием часового пояса
+		LDATETIME SaleDtm;              // sale_dt <date-time> Дата продажи. Присылается с явным указанием часового пояса
+		LDATETIME RrDtm;                // rr_dt <date-time> Дата операции. Присылается с явным указанием часового пояса
+		int64  ShkId;                   // shk_id Штрих-код. Это - Sticker из заказа и продажи. 
+		SString BoxTypeName;            // gi_box_type_name Тип коробов
+		SString SupplPromo;             // supplier_promo number
+		int64  RId;                     // Уникальный идентификатор заказа 
+		int    Ppvz_OfficeId;           // ppvz_office_id integer Номер офиса
+		int    Ppvz_SupplierId;         // ppvz_supplier_id integer Номер партнера
+		SString AcquiringBank;          // acquiring_bank string Наименование банка-эквайера
+		SString Ppvz_OfficeName;        // ppvz_office_name string Наименование офиса доставки
+		SString Ppvz_SupplierName;      // ppvz_supplier_name string Партнер
+		SString Ppvz_Inn;               // ppvz_inn string ИНН партнера
+		SString Clb;                    // declaration_number string Номер таможенной декларации
+		SString BonusTypeName;          // bonus_type_name string Обоснование штрафов и доплат. Поле будет в ответе при наличии значения
+		SString Sticker;                // sticker_id string Цифровое значение стикера, который клеится на товар в процессе сборки заказа по схеме "Маркетплейс"
+		SString Country;                // site_country string Страна продажи
+		SString RebillLogisticOrg;      // rebill_logistic_org string Организатор перевозки. Поле будет в ответе при наличии значения
+		SString Kiz;                    // Марка чзн 
+		SString PaymentProcessing;      // @v12.2.0 Текст, вероятно, содержащий подробности операции 'Коррекция логистики'
+		int    DeliveryCount;           // delivery_amount Количество доставок
+		int    ReturnCount;             // return_amount   Количество возвратов
+		double Qtty;                    // Количество
+		double RetailPrice;             // Цена розничная
+		double RetailAmount;            // Сумма продаж (возвратов)
+		double SalePct;                 // Согласованная скидка
+		double CommissionPct;           // Процент комиссии
+		double RetailPriceWithDiscount; // retail_price_withdisc_rub Цена розничная с учетом согласованной скидки
+		double DeliveryAmount;          // delivery_rub    Стоимость логистики
+		double ProductDiscount;         // Согласованный продуктовый дисконт
+		double Ppvz_Spp_Prc;          // ppvz_spp_prc Скидка постоянного покупателя   
+		double Ppvz_Kvw_Prc_Base;     // ppvz_kvw_prc_base number Размер кВВ без НДС, % базовый
+		double Ppvz_Kvw_Prc;          // ppvz_kvw_prc number Итоговый кВВ без НДС, %
+		double Sup_Rating_Prc_Up;     // sup_rating_prc_up number Размер снижения кВВ из-за рейтинга
+		double IS_Kgvp_V2;            // is_kgvp_v2 number Размер снижения кВВ из-за акции
+		double Ppvz_Sales_Commission; // ppvz_sales_commission number Вознаграждение с продаж до вычета услуг поверенного, без НДС
+		double Ppvz_For_Pay;          // ppvz_for_pay number К перечислению продавцу за реализованный товар
+		double Ppvz_Reward;           // ppvz_reward	number Возмещение за выдачу и возврат товаров на ПВЗ
+		double AcquiringFee;          // acquiring_fee number Возмещение издержек по эквайрингу. Издержки WB за услуги эквайринга: вычитаются из вознаграждения WB и не влияют на доход продавца.
+		double AcquiringPct;          // acquiring_percent number Размер комиссии за эквайринг без НДС, %
+		double Ppvz_Vw;               // ppvz_vw number Вознаграждение WB без НДС
+		double Ppvz_Vw_Vat;           // ppvz_vw_nds number НДС с вознаграждения WB
+		double Penalty;               // penalty number Штрафы
+		double AdditionalPayment;     // additional_payment number Доплаты
+		double RebillLogisticCost;    // rebill_logistic_cost number Возмещение издержек по перевозке. Поле будет в ответе при наличии значения
+		double StorageFee;            // storage_fee number Стоимость хранения
+		double Deduction;             // deduction number Прочие удержания/выплаты
+		double Acceptance;            // acceptance number Стоимость платной приёмки
+	};
+
+	struct ApiTokenDecodeResult {
+		ApiTokenDecodeResult() : Flags(0), ExpiryDtm(ZERODATETIME)
+		{
+		}
+		enum {
+			fTest             = 0x0001, // Тестовый контур
+			fAccs_Content     = 0x0002, // Доступ к категории Контент
+			fAccs_Analitycs   = 0x0004, // Доступ к категории Аналитика
+			fAccs_Prices      = 0x0008, // Доступ к категории Цены и скидки
+			fAccs_Marketplace = 0x0010, // Доступ к категории Маркетплейс
+			fAccs_Statistics  = 0x0020, // Доступ к категории Статистика
+			fAccs_Promo       = 0x0040, // Доступ к категории Продвижение
+			fAccs_QAndReviews = 0x0080, // Доступ к категории Вопросы и отзывы
+			fAccs_Chat        = 0x0100, // Доступ к категории Чат с покупателями
+			fAccs_Deliveries  = 0x0200, // Доступ к категории Поставки
+			fAccs_Returns     = 0x0400, // Доступ к категории Возвраты покупателями
+			fAccs_Documents   = 0x0800, // Доступ к категории Документы
+			fReadOnly         = 0x1000, // Токен только на чтение
+		};
+		S_GUID Id;
+		S_GUID SellerId;
+		uint64 Flags;
+		LDATETIME ExpiryDtm;
+	};
+	static int ParseApiToken(const char * pToken, ApiTokenDecodeResult * pResult);
+	static SString & MakeSerialIdent(int64 incomeId, const WareBase & rWare, SString & rBuf);
+
+	PPMarketplaceInterface_Wildberries(PrcssrMarketplaceInterchange & rPrc);
+	virtual ~PPMarketplaceInterface_Wildberries();
+	virtual int Init(PPID guaID);
+	//
+	// Methods
+	//
+	int   RequestCommission();
+	//
+	// Замечание по поводу методов RequestWarehouseList и RequestWarehouseList2.
+	// Первый использует метод WB https://supplies-api.wildberries.ru/api/v1/warehouses,
+	// второй - https://marketplace-api.wildberries.ru/api/v3/offices.
+	// Я не понимаю кто все это там делал, но оба метода возвращают разные количества складов, с
+	// несовместимыми идентификаторами и разными наименованиями. При этом все методы WB предоставляют только
+	// наименованования скадов и далеко не всегда наименование в виде ссылки может быть сопоставлено
+	// с каким-либо складом, возвращенным хоть первым, хоть вторым методом.
+	// 
+	// Короче говоря, сейчас будем закладываться на первый вариант (methWarehouses aka https://supplies-api.wildberries.ru/api/v1/warehouses)
+	// а дальше посмотрим.
+	//
+	int   RequestWarehouseList(TSCollection <Warehouse> & rList);
+	int   RequestWarehouseList2(TSCollection <Warehouse> & rList);
+	int   RequestGoodsPrices();
+	int   RequestIncomes(TSCollection <Income> & rList);
+	int   RequestStocks(TSCollection <Stock> & rList);
+	int   RequestOrders(TSCollection <Sale> & rList);
+	int   RequestSales(TSCollection <Sale> & rList);
+	int   RequestSupplies();
+	int   RequestReturns();
+	int   RequestAcceptanceReport(const DateRange & rPeriod);
+	int   RequestSalesReportDetailedByPeriod(const DateRange & rPeriod, TSCollection <SalesRepDbpEntry> & rList);
+	int   RequestBalance();
+	int   RequestDocumentsList();
+	int   UploadWare();
+	int   RequestWareList();
+
+	int   CreateWarehouse(PPID * pID, int64 outerId, const char * pOuterName, const char * pAddress, int use_ta);
+	const Warehouse * SearchWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, bool adoptive) const;
+	int   ResolveWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, PPID defaultID, PPID * pResultID, int use_ta);
+	int   ImportOrders();
+	int   ImportReceipts();
+	int   ImportSales();
+	int   ImportFinancialTransactions();
+	int   ImportStocks();
+private:
+	int   GetLocalCachePath(SString & rBuf);
+	int   FetchWarehouseList(TSCollection <Warehouse> & rList);
+	int   ParseJson_WarehouseList(const SJson * pJs, TSCollection <Warehouse> & rList);
+	int   Helper_RequestWarehouseList(int meth/*methWarehouses||methWarehouses2*/, TSCollection <Warehouse> & rList, const char * pFileNameToStoreJson);
+	int   InsertReceiptItem(PPBillPacket & rPack, const char * pSerial, PPID goodsID, double qtty);
+	//
+	// Descr: 
+	// ARG(surrogateAutoLot IN): Признак того, что создается суррогатный приход, не имеющий соответствия реальному документу на маркетплейсе,
+	//   поскольку маркетплейс по той или иной причине не предоставил соответствующей информации.
+	// Returns:
+	//   0 - error
+	//   >0 - ид лота
+	//
+	PPID  CreateReceipt(int64 incomeId, const WareBase & rWare, LDATE dt, PPID locID, PPID goodsID, double qtty, bool surrogateAutoLot, int use_ta);
+	PPID  CreateBuyer(const Sale * pSaleEntry, int use_ta);
+	PPID  CreateWare(const WareBase & rWare, int use_ta);
+	int   FindShipmentBillByOrderIdent(const char * pOrgOrdIdent, PPIDArray & rShipmBillIdList);
+	//
+	// Descr: 
+	// Returns:
+	//   0 - error
+	//   >0 - ид лота, к которому должна быть привязана продажа
+	//
+	PPID  AdjustReceiptOnExpend(const Sale & rWbItem, LDATE dt, PPID locID, PPID goodsID, double neededQtty, double nominalPrice, int use_ta);
+	int   SearchOriginalLotForMp(const char * pSerial, LDATE dt, PPID locID, PPID goodsID, PPID * pResultLotID);
+	SString & MakeHeaderFields(const char * pToken, StrStrAssocArray * pHdrFlds, SString & rBuf) const;
+	//
+	//
+	//
+	enum {
+		apiUndef = 0,
+		apiCommon = 1,
+		apiStatistics,
+		apiSellerAnalytics,
+		apiAdvert,
+		apiRecommend,
+		apiSupplies,
+		apiDiscountsPrices,
+		apiContent,
+		apiMarketplace,
+		apiAnalytics,
+		apiDocuments,
+	};
+	enum {
+		methCommission = 1,   // apiCommon
+		methTariffBox,        // apiCommon 
+		methTariffPallet,     // apiCommon
+		methTariffReturn,     // apiCommon
+		methWarehouses,       // apiSupplies
+		methWarehouses2,      // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/offices
+		methIncomes,          // apiStatistics
+		methStocks,           // apiStatistics
+		methOrders,           // apiStatistics
+		methSales,            // apiStatistics
+		methSalesReportDetailedByPeriod, // apiStatistics https://statistics-api.wildberries.ru/api/v5/supplier/reportDetailByPeriod
+		methSupples,          // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/supplies Получить список поставок
+		methSupply,           // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/supplies/{supplyId} Получить поставку
+		methSupplyOrders,     // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/supplies/{supplyId}/orders Получить сборочные задания в поставке
+		methAcceptanceReport, // apiAnalytics   https://seller-analytics-api.wildberries.ru/api/v1/analytics/acceptance-report
+		methGoodsPrices,      // apiDiscountsPrices https://discounts-prices-api.wildberries.ru/api/v2/list/goods/filter
+		methContentCardsList, // apiContent https://content-api.wildberries.ru/content/v2/get/cards/list
+		methBalance,          // apiAdvert https://advert-api.wildberries.ru/adv/v1/balance
+		methDocumentsList,    // apiDocuments https://documents-api.wildberries.ru/api/v1/documents/list 
+		methReturns,          // apiAnalytics   https://seller-analytics-api.wildberries.ru/api/v1/analytics/goods-return
+	};
+	bool   MakeTargetUrl_(int meth, int * pReq/*SHttpProtocol::reqXXX*/, SString & rResult) const;
+	int    Helper_InitRequest(int meth, SString & rUrlBuf, StrStrAssocArray & rHdrFlds);
+
+	SString Token;
+	PPGlobalServiceLogTalkingHelper Lth;
+	TSCollection <Warehouse> WhList;
+	PPIDArray MpLocList; // Список идентификаторов складов маркетплейса, применяемых при обработке документов
+	LAssocArray MpLotToOwnLotAssocList; // Специализированный кэш, хранящий ассоциации между лотами на складах маркетплейса и лотами,
+		// из которых они образовались на собственных складах. Фактически, этот массив кэширует результат работы функции SearchOriginalLotForMp
 };
 
 class MarketplaceInterchangeFilt : public PPBaseFilt {
@@ -56810,19 +57213,6 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls(long direction);
-};
-//
-// Descr: Вспомогательный класс, обеспечивающий однообразную запись в журналы
-//   процесса обмена данными с глобальными сервисами. В качестве параметра
-//   конструктора передается идентификатор строки имени файла журнала.
-//   Например: PPFILNAM_UDSTALK_LOG ("uds-talk.log").
-//
-class PPGlobalServiceLogTalkingHelper {
-public:
-	explicit PPGlobalServiceLogTalkingHelper(uint logFileNameId);
-	void   Log(const char * pPrefix, const char * pTargetUrl, const SString & rMsg);
-private:
-	SString LogFileName;
 };
 //
 //
