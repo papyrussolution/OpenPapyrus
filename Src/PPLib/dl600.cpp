@@ -2670,7 +2670,7 @@ long DlContext::ParseFormat(const char * pFmtStr, TYPEID tp) const
 			break;
 		case S_ZSTRING:
 			fs.len = static_cast<short>(GETSSIZE(tp));
-			break; // @v10.3.2 @fix (отсутствовал break)
+			break;
 		case S_DATE:
 		case S_TIME:
 			if(pFmtStr && !oneof3(first, '>', '|', '<'))

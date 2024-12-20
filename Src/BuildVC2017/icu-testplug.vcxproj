@@ -232,6 +232,8 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ConformanceMode>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">1Byte</StructMemberAlignment>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">1Byte</StructMemberAlignment>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -274,6 +276,8 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ConformanceMode>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">1Byte</StructMemberAlignment>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">1Byte</StructMemberAlignment>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>..\..\..\$(IcuBinOutputDir)\testplug.dll</OutputFile>

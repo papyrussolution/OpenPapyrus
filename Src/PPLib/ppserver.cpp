@@ -1194,11 +1194,12 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 							dtm.d = plusdate(now_dtm.d, -1);
 						else
 							encodedate(1, 1, now_dtm.d.year()-1, &dtm.d);
-						while(job.Dtr.Next_(dtm, &dtm) > 0 && dtm.d <= now_dtm.d)
+						while(job.Dtr.Next_(dtm, &dtm) > 0 && dtm.d <= now_dtm.d) {
 							if(cmp(dtm, now_dtm) > 0) {
 								if(!job.ScheduleBeforeTime || dtm.t < job.ScheduleBeforeTime)
 									pPlan->Add(dtm.t.totalsec(), job.ID, 0);
 							}
+						}
 					}
 				}
 				if(pOnStartUpList && job.Flags & PPJob::fOnStartUp) {
@@ -3113,9 +3114,8 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				if(fileExists(temp_path))
 					SFile::Remove(temp_path);
 				if(fileExists(path)) {
-					const int wr = SFile::WaitForWriteSharingRelease(path, 60000); // @v8.5.11 // @v8.5.12 30000-->60000
-					// @v9.0.0 THROW_SL(wr);
-					THROW_PP(wr, PPERR_STYLODATALOCKED); // @v9.0.0
+					const int wr = SFile::WaitForWriteSharingRelease(path, 60000);
+					THROW_PP(wr, PPERR_STYLODATALOCKED);
 					if(wr > 0) {
 						//PPTXT_WAITFORWRSHRFILENOTIFY "Ожидание завершения записи в файл '%zstr' продлилось %int ms"
 						PPFormatT(PPTXT_WAITFORWRSHRFILENOTIFY, &msg_buf, path.cptr(), wr);

@@ -4431,6 +4431,46 @@ public:
 
 IMPLEMENT_CMD_HDL_FACTORY(PROCESSOSM);
 //
+// 
+// 
+class CMD_HDL_CLS(APTEKARUINTERCHANGE) : public PPCommandHandler {
+public:
+	CMD_HDL_CLS(APTEKARUINTERCHANGE)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		if(pParam) {
+			PrcssrAptekaRu prc;
+			PrcssrAptekaRuFilt filt;
+			if(!filt.Read(*pParam, 0))
+				prc.InitParam(&filt);
+			if(prc.EditParam(&filt) > 0) {
+				if(filt.Write(pParam->Z(), 0)) {
+					ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		PrcssrAptekaRuFilt filt;
+		if(pParam && filt.Read(*pParam, 0)) {
+			PrcssrAptekaRu prc;
+			if(!prc.Init(&filt) || !prc.Run())
+				ok = PPErrorZ();
+		}
+		else
+			ok = DoAptekaRuInterchange();
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(APTEKARUINTERCHANGE);
+//
 //
 //
 class CMD_HDL_CLS(PROCESSSARTRE) : public PPCommandHandler {

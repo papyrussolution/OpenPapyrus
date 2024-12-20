@@ -1049,9 +1049,18 @@ static int Setup_GlobalService_Wildberries_InitParam(SetupGlobalServiceWildberri
 {
 	class SetupGlobalServiceWildberries_Dialog : public TDialog {
 		DECL_DIALOG_DATA(SetupGlobalServiceWildberries_Param);
+		enum {
+			dummyFirst = 1,
+			brushInvalid,
+			brushApiKeyValid,
+			brushApiKeyEmpty,
+		};
 	public:
-		SetupGlobalServiceWildberries_Dialog(DlgDataType & rData) : TDialog(DLG_SU_WB), Data(rData)
+		SetupGlobalServiceWildberries_Dialog(DlgDataType & rData) : TDialog(DLG_SU_WB), Data(rData), ApiKeyBrushIdent(0)
 		{
+			Ptb.SetBrush(brushInvalid, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
+			Ptb.SetBrush(brushApiKeyValid, SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
+			Ptb.SetBrush(brushApiKeyEmpty, SPaintObj::bsSolid, GetColorRef(SClrCadetblue),  0);
 			const int max_text_len = 512;
 			{
 				TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_SUWB_APIKEY));
@@ -1060,13 +1069,14 @@ static int Setup_GlobalService_Wildberries_InitParam(SetupGlobalServiceWildberri
 			Setup_GlobalService_Wildberries_InitParam(Data, false);
 			setCtrlString(CTL_SUWB_APIKEY, Data.ApiKey);
 			SetupPPObjCombo(this, CTLSEL_SUWB_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, 0);
+			SetupCtrls();
 		}
 	private:
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
 			if(event.isCbSelected(CTLSEL_SUWB_GUA)) {
-				PPID   gua_id = getCtrlLong(CTLSEL_SUWB_GUA);
+				const PPID gua_id = getCtrlLong(CTLSEL_SUWB_GUA);
 				if(gua_id) {
 					PPGlobalUserAccPacket gua_pack;
 					if(GuaObj.GetPacket(gua_id, &gua_pack) > 0) {
@@ -1076,11 +1086,87 @@ static int Setup_GlobalService_Wildberries_InitParam(SetupGlobalServiceWildberri
 					}
 				}
 			}
+			else if(event.isCmd(cmMarketplaceCfg)) {
+				PrcssrMarketplaceInterchange::EditConfig();
+			}
+			else if(event.isCmd(cmAutoConfigure)) { // @v12.2.1
+				//PrcssrMarketplaceInterchange::EditConfig();
+			}
+			else if(event.isCmd(cmInputUpdated)) {
+				if(event.isCtlEvent(CTL_SUWB_APIKEY)) {
+					SetupCtrls();
+				}
+			}
+			else if(event.isCmd(cmCtlColor)) {
+				TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
+				if(p_dc && getCtrlHandle(CTL_SUWB_APIKEY) == p_dc->H_Ctl) {
+					if(ApiKeyBrushIdent) {
+						::SetBkMode(p_dc->H_DC, TRANSPARENT);
+						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(ApiKeyBrushIdent));
+					}
+				}
+				else
+					return;
+			}
 			else
 				return;
 			clearEvent(event);
 		}
+		void   SetupCtrls()
+		{
+			SString temp_buf;
+			{
+				getCtrlString(CTL_SUWB_APIKEY, temp_buf);
+				int brush_ident = 0;
+				SString info_buf;
+				if(temp_buf.NotEmpty()) {
+					PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult tdr;
+					if(PPMarketplaceInterface_Wildberries::ParseApiToken(temp_buf, &tdr)) {
+						info_buf.CatEq("id", tdr.Id, S_GUID::fmtIDL).CR().
+							CatEq("seller-id", tdr.SellerId, S_GUID::fmtIDL).CR().
+							CatEq("expiry", tdr.ExpiryDtm, DATF_ISO8601CENT, 0).CR();
+							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fTest)
+								info_buf.Cat("test").CR();
+							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fReadOnly)
+								info_buf.Cat("read-only").CR();
+							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Content)
+								info_buf.Cat("accs-content").CR();
+							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Analitycs)
+								info_buf.Cat("accs-analitycs").CR();
+							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Prices)
+								info_buf.Cat("accs-prices").CR();
+							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Marketplace)
+								info_buf.Cat("accs-marktetplace").CR();
+							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Statistics)
+								info_buf.Cat("accs-statistics").CR();
+							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Promo)
+								info_buf.Cat("accs-promo").CR();
+							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_QAndReviews)
+								info_buf.Cat("accs-qandreviews").CR();
+							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Chat)
+								info_buf.Cat("accs-chat").CR();
+							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Deliveries)
+								info_buf.Cat("accs-deliveries").CR();
+							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Returns)
+								info_buf.Cat("accs-returns").CR();
+							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Documents)
+								info_buf.Cat("accs-documents").CR();
+						ApiKeyBrushIdent = brushApiKeyValid;
+					}
+					else {
+						info_buf = "invalid key";
+						ApiKeyBrushIdent = brushInvalid;
+					}
+				}
+				else {
+					ApiKeyBrushIdent = brushApiKeyEmpty;
+				}
+				setStaticText(CTL_SUWB_HINT, info_buf);
+			}
+		}
 		PPObjGlobalUserAcc GuaObj;
+		SPaintToolBox Ptb;
+		int   ApiKeyBrushIdent;
 	};
 	int    ok = -1;
 	SetupGlobalServiceWildberries_Param param;
@@ -1684,17 +1770,38 @@ int GoogleApiInterface::Auth()
 //
 class AptekaRuInterface {
 public:
+	struct ReplyEntry {
+		ReplyEntry();
+		ReplyEntry & Z();
+		int    FromJsonObj(const SJson * pJs);
+
+		enum {
+			stUnkn    = 0,
+			stSuccess = 1,
+			stNotFound,
+			stConflict,
+		};
+		PPID  SrcID;
+		int   Status;
+		SString Code;
+		SString Msg;
+	};
 	explicit AptekaRuInterface(PPID guaID);
 	~AptekaRuInterface();
 	bool   IsValid() const;
-	int    Auth();
-	int    ReportAcceptance(const PPIDArray & rBillIdList);
-	int    ReportBuyOut(const PPIDArray & rBillIdList);
-	int    ReportReturn(const PPIDArray & rBillIdList);
+	int    Auth(bool test);
+	int    ReportAcceptance(bool test, const PPIDArray & rBillIdList, TSCollection <ReplyEntry> & rRepList);
+	int    ReportBuyOut(bool test, const PPIDArray & rBillIdList, TSCollection <ReplyEntry> & rRepList);
+	int    ReportReturn(bool test, const PPIDArray & rBillIdList, TSCollection <ReplyEntry> & rRepList);
+	const  PPGlobalUserAccPacket & GetGuaPack() const { return GuaPack; }
 private:
-	int    GetUrl(SString & rUrlBuf) const;
+	int    GetUrl(bool forceTest, SString & rUrlBuf) const;
 	SString & MakeHeaderFields(const char * pToken, StrStrAssocArray * pHdrFlds, SString & rBuf);
+	int    ParseReply(const SJson * pJs, TSCollection <ReplyEntry> & rRepList) const;
+	int    MakeBillCodeList(const PPIDArray & rIdList, StringSet & rSs, PPIDArray & rResultIdList);
+	int    MakeOrderNumsRequest(const StringSet & rSs, SString & rBuf) const;
 
+	PPGlobalServiceLogTalkingHelper Lth;
 	PPID   GuaID;
 	PPGlobalUserAccPacket GuaPack;
 	//
@@ -1707,11 +1814,59 @@ private:
 Продовый урл - https://pharmapi.apteka.ru
 */
 
-int AptekaRuInterface::GetUrl(SString & rUrlBuf) const
+AptekaRuInterface::ReplyEntry::ReplyEntry() : SrcID(0), Status(stUnkn)
+{
+}
+
+AptekaRuInterface::ReplyEntry & AptekaRuInterface::ReplyEntry::Z()
+{
+	SrcID = 0;
+	Status = stUnkn;
+	Code.Z();
+	Msg.Z();
+	return *this;
+}
+
+int AptekaRuInterface::ReplyEntry::FromJsonObj(const SJson * pJs)
+{
+	int    ok = 0;
+	Z();
+	if(SJson::IsObject(pJs)) {
+		SString temp_buf;
+		for(const SJson * p_jsn = pJs->P_Child; p_jsn; p_jsn = p_jsn->P_Next) {
+			if(p_jsn->Text.IsEqiAscii("orderNum")) {
+				Code = p_jsn->P_Child->Text.Unescape();
+			}
+			else if(p_jsn->Text.IsEqiAscii("status")) {
+				temp_buf = p_jsn->P_Child->Text.Unescape();
+				if(temp_buf.IsEqiAscii("Unknown")) {
+					Status = stUnkn;
+				}
+				else if(temp_buf.IsEqiAscii("Success")) {
+					Status = stSuccess;
+				}
+				else if(temp_buf.IsEqiAscii("NotFound")) {
+					Status = stNotFound;
+				}
+				else if(temp_buf.IsEqiAscii("Conflict")) {
+					Status = stConflict;
+				}
+			}
+			else if(p_jsn->Text.IsEqiAscii("errorMessage")) {
+				Msg = p_jsn->P_Child->Text.Unescape();
+			}
+		}
+		if(Code.NotEmpty())
+			ok = 1;
+	}
+	return ok;
+}
+
+int AptekaRuInterface::GetUrl(bool forceTest, SString & rUrlBuf) const
 {
 	rUrlBuf.Z();
 	int    ok = 1;
-	if(GuaPack.Rec.ID && GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox) {
+	if(forceTest || (GuaPack.Rec.ID && GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox)) {
 		rUrlBuf = "https://pharmapi.apteka.tech";
 	}
 	else {
@@ -1720,7 +1875,7 @@ int AptekaRuInterface::GetUrl(SString & rUrlBuf) const
 	return ok;
 }
 
-AptekaRuInterface::AptekaRuInterface(PPID guaID) : GuaID(guaID), TokenLifeTime_Minuts(0)
+AptekaRuInterface::AptekaRuInterface(PPID guaID) : Lth(PPFILNAM_APTEKARUTALK_LOG), GuaID(guaID), TokenLifeTime_Minuts(0)
 {
 	if(GuaID) {
 		PPObjGlobalUserAcc gua_obj;
@@ -1758,60 +1913,64 @@ SString & AptekaRuInterface::MakeHeaderFields(const char * pToken, StrStrAssocAr
 	return rBuf;
 }
 	
-int AptekaRuInterface::Auth()
+int AptekaRuInterface::Auth(bool test)
 {
 	Token.Z();
 	TokenLifeTime_Minuts = 0;
 	//
-	int    ok = -1;
+	int    ok = 1;
 	SString temp_buf;
 	SString url_buf;
 	SString req_buf;
 	SString reply_buf;
-	if(GuaPack.Rec.ID) {
-		SString user;
-		SString secret;
-		GuaPack.TagL.GetItemStr(PPTAG_GUA_LOGIN, user);
-		//GuaPack.GetAccessKey(secret);
-		GuaPack.TagL.GetItemStr(PPTAG_GUA_SECRET, secret);		
-		if(user.NotEmpty() && secret.NotEmpty()) {
-			SJson js_req(SJson::tOBJECT);
-			js_req.InsertString("login", user);
-			js_req.InsertString("password", secret);
-			js_req.ToStr(req_buf);
-			if(GetUrl(url_buf)) {
-				ScURL c;
-				url_buf.SetLastDSlash().Cat("Auth");
-				InetUrl url(url_buf);
-				StrStrAssocArray hdr_flds;
-				MakeHeaderFields(0/*token*/, &hdr_flds, temp_buf);
-				SBuffer ack_buf;
-				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-				THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfTcpKeepAlive, &hdr_flds, req_buf, &wr_stream));
-				{
-					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
-					if(p_ack_buf) {
-						reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-						SJson * p_js_reply = SJson::Parse(reply_buf);
-						if(SJson::IsObject(p_js_reply)) {
-							for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {							
-								if(p_cur->Text.IsEqiAscii("token")) {
-									Token = p_cur->P_Child->Text.Unescape();
-								}
-								else if(p_cur->Text.IsEqiAscii("lifetimeInMinutes")) {
-									TokenLifeTime_Minuts = static_cast<uint>(p_cur->P_Child->Text.ToLong());
-								}
-								else {
-									;
-								}
+	SString user;
+	SString secret;
+	THROW_PP(GuaPack.Rec.ID, PPERR_APTEKARU_AUTHFAULT_NOGUA);
+	GuaPack.TagL.GetItemStr(PPTAG_GUA_LOGIN, user);
+	//GuaPack.GetAccessKey(secret);
+	GuaPack.TagL.GetItemStr(PPTAG_GUA_SECRET, secret);		
+	THROW_PP(user.NotEmpty() && secret.NotEmpty(), PPERR_APTEKARU_AUTHFAULT_INVATTRS);
+	{
+		SJson js_req(SJson::tOBJECT);
+		js_req.InsertString("login", user);
+		js_req.InsertString("password", secret);
+		js_req.ToStr(req_buf);
+		THROW(GetUrl(test, url_buf));
+		{
+			ScURL c;
+			url_buf.SetLastDSlash().Cat("Auth");
+			InetUrl url(url_buf);
+			StrStrAssocArray hdr_flds;
+			MakeHeaderFields(0/*token*/, &hdr_flds, temp_buf);
+			SBuffer ack_buf;
+			SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+			Lth.Log("req", url_buf, req_buf);
+			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfTcpKeepAlive, &hdr_flds, req_buf, &wr_stream));
+			{
+				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+				if(p_ack_buf) {
+					reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+					Lth.Log("rep", 0, reply_buf);
+					SJson * p_js_reply = SJson::Parse(reply_buf);
+					if(SJson::IsObject(p_js_reply)) {
+						for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {							
+							if(p_cur->Text.IsEqiAscii("token")) {
+								Token = p_cur->P_Child->Text.Unescape();
+							}
+							else if(p_cur->Text.IsEqiAscii("lifetimeInMinutes")) {
+								TokenLifeTime_Minuts = static_cast<uint>(p_cur->P_Child->Text.ToLong());
+							}
+							else {
+								;
 							}
 						}
-						ZDELETE(p_js_reply);
 					}
-					if(Token.NotEmpty()) {
-						ok = 1;
+					else {
+						CALLEXCEPT_PP_S(PPERR_APTEKARU_AUTHFAULT, reply_buf.Transf(CTRANSF_UTF8_TO_INNER));
 					}
+					ZDELETE(p_js_reply);
 				}
+				THROW_PP(Token.NotEmpty(), PPERR_APTEKARU_AUTHFAULT);
 			}
 		}
 	}
@@ -1819,7 +1978,88 @@ int AptekaRuInterface::Auth()
 	return ok;
 }
 
-int AptekaRuInterface::ReportAcceptance(const PPIDArray & rBillIdList)
+int AptekaRuInterface::ParseReply(const SJson * pJs, TSCollection <ReplyEntry> & rRepList) const
+{
+	int    ok = 0;
+	if(SJson::IsObject(pJs)) {
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {							
+			if(p_cur->Text.IsEqiAscii("orderNums")) {
+				if(SJson::IsArray(p_cur->P_Child)) {
+					ok = 1;
+					for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+						uint new_item_pos = 0;
+						ReplyEntry * p_re = rRepList.CreateNewItem(&new_item_pos);
+						if(p_re) {
+							if(p_re->FromJsonObj(p_js_item)) {
+								; // ok
+							}
+							else {
+								rRepList.atFree(new_item_pos);
+								p_re = 0;
+							}
+						}
+					}
+				}
+			}
+			else {
+				;
+			}
+		}
+	}
+	return ok;
+}
+
+int AptekaRuInterface::MakeBillCodeList(const PPIDArray & rIdList, StringSet & rSs, PPIDArray & rResultIdList)
+{
+	int    ok = -1;
+	rSs.Z();
+	rResultIdList.Z();
+	if(rIdList.getCount()) {
+		PPObjBill * p_bobj = BillObj;
+		Reference * p_ref = PPRef;
+		if(p_bobj && p_ref) {
+			SString temp_buf;
+			BillTbl::Rec bill_rec;
+			for(uint i = 0; i < rIdList.getCount(); i++) {
+				const PPID bill_id = rIdList.get(i);
+				if(!rResultIdList.lsearch(bill_id) && p_bobj->Fetch(bill_id, &bill_rec) > 0) {
+					//temp_buf = bill_rec.Code;
+					if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIIDENT, temp_buf) > 0) {
+						assert(temp_buf.NotEmpty());
+						if(temp_buf.NotEmpty()) {
+							rSs.add(temp_buf);
+							rResultIdList.add(bill_id);
+							ok = 1;
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int AptekaRuInterface::MakeOrderNumsRequest(const StringSet & rSs, SString & rBuf) const
+{
+	rBuf.Z();
+	int    ok = 1;
+	const uint ssc_count = rSs.getCount();
+	if(ssc_count) {
+		SJson js_req(SJson::tOBJECT);
+		SJson * p_js_code_array = SJson::CreateArr();
+		SString temp_buf;
+		for(uint ssp = 0; rSs.get(&ssp, temp_buf);) {
+			p_js_code_array->InsertChild(SJson::CreateString(temp_buf));
+		}
+		js_req.Insert("orderNums", p_js_code_array);
+		js_req.ToStr(rBuf);
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+int AptekaRuInterface::ReportAcceptance(bool test, const PPIDArray & rBillIdList, TSCollection <ReplyEntry> & rRepList)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -1827,64 +2067,52 @@ int AptekaRuInterface::ReportAcceptance(const PPIDArray & rBillIdList)
 	SString req_buf;
 	SString reply_buf;
 	if(Token.NotEmpty()) {
-		if(rBillIdList.getCount()) {
-			PPObjBill * p_bobj = BillObj;
-			if(p_bobj) {
-				PPIDArray sent_id_list;
-				StringSet ss_code;
-				for(uint i = 0; i < rBillIdList.getCount(); i++) {
-					const PPID bill_id = rBillIdList.get(i);
-					if(!sent_id_list.lsearch(bill_id)) {
-						BillTbl::Rec bill_rec;
-						if(p_bobj->Fetch(bill_id, &bill_rec) > 0) {
-							temp_buf = bill_rec.Code;
-							if(temp_buf.NotEmptyS()) {
-								ss_code.add(temp_buf);
-								sent_id_list.add(bill_id);
-							}
-						}
-					}
+		StringSet ss_code;
+		PPIDArray sent_id_list;
+		if(test) {
+			/*
+				{
+					"orderNums":[
+						"TE-21000200",      //Всегда успешный заказ
+						"TE-21000409",      //Всегда с конфликтом
+						"TE-21000400",      //Всегда неизвестная ошибка
+						"TE-21000204"       //Всегда не найден в БД
+					]
 				}
-				if(sent_id_list.getCount()) {
-					assert(ss_code.getCount() == sent_id_list.getCount());
-					if(ss_code.getCount() == sent_id_list.getCount()) {
-						SJson js_req(SJson::tOBJECT);
-						SJson * p_js_code_array = SJson::CreateArr();
-						for(uint ssp = 0; ss_code.get(&ssp, temp_buf);) {
-							p_js_code_array->InsertChild(SJson::CreateString(temp_buf));
-						}
-						js_req.Insert("orderNums", p_js_code_array);
-						js_req.ToStr(req_buf);
-						if(GetUrl(url_buf)) {
-							ScURL c;
-							url_buf.SetLastDSlash().Cat("Pharm/ShippedOrders");
-							InetUrl url(url_buf);
-							StrStrAssocArray hdr_flds;
-							MakeHeaderFields(Token, &hdr_flds, temp_buf);
-							SBuffer ack_buf;
-							SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-							THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfTcpKeepAlive, &hdr_flds, req_buf, &wr_stream));
-							{
-								SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
-								if(p_ack_buf) {
-									reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-									SJson * p_js_reply = SJson::Parse(reply_buf);
-									if(SJson::IsObject(p_js_reply)) {
-										for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {							
-											if(p_cur->Text.IsEqiAscii("orderNums")) {
-												
-											}
-											else {
-												;
-											}
-										}
-									}
-									ZDELETE(p_js_reply);
-								}
-								if(Token.NotEmpty()) {
-									ok = 1;
-								}
+			*/
+			ss_code.add("TE-21000200");
+			ss_code.add("TE-21000409");
+			ss_code.add("TE-21000400");
+			ss_code.add("TE-21000204");
+		}
+		else {
+			MakeBillCodeList(rBillIdList, ss_code, sent_id_list);
+		}
+		const uint ssc_count = ss_code.getCount();
+		if(ssc_count) {
+			assert(test || ssc_count == sent_id_list.getCount());
+			if(test || ssc_count == sent_id_list.getCount()) {
+				MakeOrderNumsRequest(ss_code, req_buf);
+				if(GetUrl(test, url_buf)) {
+					ScURL c;
+					url_buf.SetLastDSlash().Cat("Pharm/ShippedOrders");
+					InetUrl url(url_buf);
+					StrStrAssocArray hdr_flds;
+					MakeHeaderFields(Token, &hdr_flds, temp_buf);
+					SBuffer ack_buf;
+					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+					Lth.Log("req", url_buf, req_buf);
+					THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfTcpKeepAlive, &hdr_flds, req_buf, &wr_stream));
+					{
+						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+						if(p_ack_buf) {
+							reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+							Lth.Log("rep", 0, reply_buf);
+							SJson * p_js_reply = SJson::Parse(reply_buf);
+							if(ParseReply(p_js_reply, rRepList)) {
+								ok = 1;
 							}
+							ZDELETE(p_js_reply);
 						}
 					}
 				}
@@ -1895,7 +2123,7 @@ int AptekaRuInterface::ReportAcceptance(const PPIDArray & rBillIdList)
 	return ok;
 }
 	
-int AptekaRuInterface::ReportBuyOut(const PPIDArray & rBillIdList)
+int AptekaRuInterface::ReportBuyOut(bool test, const PPIDArray & rBillIdList, TSCollection <ReplyEntry> & rRepList)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -1903,13 +2131,49 @@ int AptekaRuInterface::ReportBuyOut(const PPIDArray & rBillIdList)
 	SString req_buf;
 	SString reply_buf;
 	if(Token.NotEmpty()) {
-		if(rBillIdList.getCount()) {
+		StringSet ss_code;
+		PPIDArray sent_id_list;
+		if(test) {
+		}
+		else {
+			MakeBillCodeList(rBillIdList, ss_code, sent_id_list);
+		}
+		const uint ssc_count = ss_code.getCount();
+		if(ssc_count) {
+			assert(test || ssc_count == sent_id_list.getCount());
+			if(test || ssc_count == sent_id_list.getCount()) {
+				MakeOrderNumsRequest(ss_code, req_buf);
+				if(GetUrl(test, url_buf)) {
+					ScURL c;
+					url_buf.SetLastDSlash().Cat("Pharm/PaidOrders");
+					InetUrl url(url_buf);
+					StrStrAssocArray hdr_flds;
+					MakeHeaderFields(Token, &hdr_flds, temp_buf);
+					SBuffer ack_buf;
+					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+					Lth.Log("req", url_buf, req_buf);
+					THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfTcpKeepAlive, &hdr_flds, req_buf, &wr_stream));
+					{
+						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+						if(p_ack_buf) {
+							reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+							Lth.Log("rep", 0, reply_buf);
+							SJson * p_js_reply = SJson::Parse(reply_buf);
+							if(ParseReply(p_js_reply, rRepList)) {
+								ok = 1;
+							}
+							ZDELETE(p_js_reply);
+						}
+					}
+				}
+			}
 		}
 	}
+	CATCHZOK
 	return ok;
 }
 	
-int AptekaRuInterface::ReportReturn(const PPIDArray & rBillIdList)
+int AptekaRuInterface::ReportReturn(bool test, const PPIDArray & rBillIdList, TSCollection <ReplyEntry> & rRepList)
 {
 	int    ok = -1;
 	SString temp_buf;
@@ -1917,8 +2181,276 @@ int AptekaRuInterface::ReportReturn(const PPIDArray & rBillIdList)
 	SString req_buf;
 	SString reply_buf;
 	if(Token.NotEmpty()) {
-		if(rBillIdList.getCount()) {
+		StringSet ss_code;
+		PPIDArray sent_id_list;
+		if(test) {
 		}
+		else {
+			MakeBillCodeList(rBillIdList, ss_code, sent_id_list);
+		}
+		const uint ssc_count = ss_code.getCount();
+		if(ssc_count) {
+			assert(test || ssc_count == sent_id_list.getCount());
+			if(test || ssc_count == sent_id_list.getCount()) {
+				MakeOrderNumsRequest(ss_code, req_buf);
+				if(GetUrl(test, url_buf)) {
+					ScURL c;
+					url_buf.SetLastDSlash().Cat("Pharm/ReturnedOrders");
+					InetUrl url(url_buf);
+					StrStrAssocArray hdr_flds;
+					MakeHeaderFields(Token, &hdr_flds, temp_buf);
+					SBuffer ack_buf;
+					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+					Lth.Log("req", url_buf, req_buf);
+					THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfTcpKeepAlive, &hdr_flds, req_buf, &wr_stream));
+					{
+						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+						if(p_ack_buf) {
+							reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+							Lth.Log("rep", 0, reply_buf);
+							SJson * p_js_reply = SJson::Parse(reply_buf);
+							if(ParseReply(p_js_reply, rRepList)) {
+								ok = 1;
+							}
+							ZDELETE(p_js_reply);
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
+IMPLEMENT_PPFILT_FACTORY(PrcssrAptekaRu); PrcssrAptekaRuFilt::PrcssrAptekaRuFilt() : PPBaseFilt(PPFILT_PRCSSRAPTEKARU, 0, 0)
+{
+	SetFlatChunk(offsetof(PrcssrAptekaRuFilt, ReserveStart),
+		offsetof(PrcssrAptekaRuFilt, ReserveEnd)-offsetof(PrcssrAptekaRuFilt, ReserveStart)+sizeof(ReserveEnd));
+	Init(1, 0);
+}
+
+PrcssrAptekaRuFilt & FASTCALL PrcssrAptekaRuFilt::operator = (const PrcssrAptekaRuFilt & rS)
+{
+	Copy(&rS, 0);
+	return *this;
+}
+
+PrcssrAptekaRu::PrcssrAptekaRu()
+{
+}
+	
+int PrcssrAptekaRu::InitParam(PrcssrAptekaRuFilt * pParam)
+{
+	CALLPTRMEMB(pParam, Init(1, 0));
+	return 1;
+}
+
+int PrcssrAptekaRu::Init(const PrcssrAptekaRuFilt * pParam)
+{
+	if(!RVALUEPTR(P, pParam))
+		MEMSZERO(P);
+	return 1;
+}
+
+int PrcssrAptekaRu::EditParam(PrcssrAptekaRuFilt * pParam)
+{
+	int    ok = -1;
+	PrcssrAptekaRuFilt  data;
+	if(pParam)
+		data = *pParam;
+	TDialog * dlg = new TDialog(DLG_PRCRAPTRU);
+	if(CheckDialogPtr(&dlg)) {
+		dlg->SetupCalPeriod(CTLCAL_PRCRAPTRU_PERIOD, CTL_PRCRAPTRU_PERIOD);
+		SetPeriodInput(dlg, CTL_PRCRAPTRU_PERIOD, &data.Period);
+		SetupPPObjCombo(dlg, CTLSEL_PRCRAPTRU_GUA, PPOBJ_GLOBALUSERACC, data.GuaID, 0, reinterpret_cast<void *>(PPGLS_APTEKARU));
+		SetupLocationCombo(dlg, CTLSEL_PRCRAPTRU_LOC, data.LocID, OLW_CANSELUPLEVEL, LOCTYP_WAREHOUSE, 0);
+		{
+			PPIDArray op_type_list;
+			op_type_list.add(PPOPT_GOODSRECEIPT);
+			SetupOprKindCombo(dlg, CTLSEL_PRCRAPTRU_RCPOP, data.RcptOpID, 0, &op_type_list, 0);
+		}
+		{
+			ObjTagFilt ot_filt;
+			ot_filt.ObjTypeID = PPOBJ_BILL;
+			ot_filt.Flags |= ObjTagFilt::fOnlyTags;
+			SetupObjTagCombo(dlg, CTLSEL_PRCRAPTRU_RCPTAG, data.RcptTagID, 0, &ot_filt);
+		}
+		dlg->AddClusterAssoc(CTL_PRCRAPTRU_FLAGS, 0, PrcssrAptekaRuFilt::fTest);
+		dlg->SetClusterData(CTL_PRCRAPTRU_FLAGS, data.Flags);
+		while(ok < 0 && ExecView(dlg) == cmOK) {
+			uint sel = 0;
+			GetPeriodInput(dlg, sel = CTL_PRCRAPTRU_PERIOD, &data.Period);
+			dlg->getCtrlData(sel = CTLSEL_PRCRAPTRU_GUA, &data.GuaID);
+			if(!data.GuaID) {
+				PPSetError(PPERR_GLOBALUSERACCNEEDED);
+				PPErrorByDialog(dlg, sel);
+			}
+			else {
+				dlg->getCtrlData(sel = CTLSEL_PRCRAPTRU_LOC, &data.LocID);
+				dlg->getCtrlData(sel = CTLSEL_PRCRAPTRU_RCPOP, &data.RcptOpID);
+				if(!data.RcptOpID) {
+					PPSetError(PPERR_OPRKINDNEEDED);
+					PPErrorByDialog(dlg, sel);
+				}
+				else {
+					dlg->GetClusterData(CTL_PRCRAPTRU_FLAGS, &data.Flags);
+					dlg->getCtrlData(sel = CTLSEL_PRCRAPTRU_RCPTAG, &data.RcptTagID);
+					ok = 1;
+				}
+			}
+		}
+	}
+	delete dlg;
+	ASSIGN_PTR(pParam, data);
+	return ok;
+}
+
+int PrcssrAptekaRu::Run()
+{
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	PPObjBill * p_bobj = BillObj;
+	const int   unclaimed_order_gap_days = 14; // Период в течении которого заказ должен быть либо востребован покупателем либо отправляется поставщику.
+	const bool is_test = LOGIC(P.Flags & PrcssrAptekaRuFilt::fTest);
+	THROW(P.GuaID); // @todo @err
+	{
+		PPObjArticle ar_obj;
+		PPObjLocation loc_obj;
+		DateRange nominal_period; // Период, за который бы отчитываемся перед поставщиком
+		DateRange ext_period;     // Период, расширенный на unclaimed_order_gap_days дней слева с целью учеть более ранние документы, которые были либо выкуплены, либо возвращены.
+		PPIDArray acceptance_bill_list; // Список документов прихода, принадлежащих периоду ext_period
+		PPIDArray nominal_acceptance_bill_list; // // Список документов прихода, принадлежащих периоду nominal_period
+		PPIDArray buyout_bill_list;
+		PPIDArray return_bill_list; // Список документов возврата поставщику
+		PPIDArray return_by_bill_list; // Список документов прихода, к которым привязаны документы возврата поставщику
+		PPID   suppl_psn_id = 0;
+		PPID   suppl_ar_id = 0;
+		SString order_code;
+		const  PPID suppl_acs_id = GetSupplAccSheet();
+		AptekaRuInterface ifc(P.GuaID);
+		THROW(ifc.IsValid());
+		THROW(suppl_psn_id = ifc.GetGuaPack().Rec.PersonID); // @todo @err
+		{
+			nominal_period = P.Period;
+			nominal_period.Actualize(ZERODATE);
+			ext_period = nominal_period;
+			if(checkdate(ext_period.low)) {
+				ext_period.low = plusdate(ext_period.low, -unclaimed_order_gap_days);
+			}
+		}
+		{
+			ObjIdListFilt loc_list;
+			if(P.LocID) {
+				PPIDArray src_loc_list;
+				PPIDArray temp_loc_list;
+				src_loc_list.add(P.LocID);
+				loc_obj.ResolveWarehouseList(&src_loc_list, temp_loc_list);
+				loc_list.Set(&temp_loc_list);
+			}
+			P.Period.Actualize(ZERODATE);
+			ar_obj.P_Tbl->PersonToArticle(suppl_psn_id, suppl_acs_id, &suppl_ar_id);
+			THROW(suppl_ar_id);
+			{
+				BillFilt filt;
+				filt.Period = ext_period;
+				filt.OpID = P.RcptOpID;
+				filt.ObjectID = suppl_ar_id;
+				filt.LocList = loc_list;
+				if(P.RcptTagID) {
+					filt.P_TagF = new TagFilt;
+					filt.P_TagF->TagsRestrict.Add(P.RcptTagID, PPConst::P_TagValRestrict_Exist, 1);
+				}
+				filt.P_TagF->TagsRestrict.Add(PPTAG_BILL_EDIIDENT, PPConst::P_TagValRestrict_Exist, 1);
+				filt.Flags |= BillFilt::fNoTempTable;
+				PPViewBill v_bill;
+				if(v_bill.Init_(&filt)) {
+					BillViewItem view_item;
+					for(v_bill.InitIteration(PPViewBill::OrdByDefault); v_bill.NextIteration(&view_item) > 0;) {
+						if(p_ref->Ot.GetTagStr(PPOBJ_BILL, view_item.ID, PPTAG_BILL_EDIIDENT, order_code) > 0) { // @paranoic (критерий фильтра должен гарантировать это!)
+							if(nominal_period.CheckDate(view_item.Dt)) {
+								nominal_acceptance_bill_list.add(view_item.ID);
+							}
+							acceptance_bill_list.add(view_item.ID);
+						}
+					}
+				}
+				nominal_acceptance_bill_list.sortAndUndup();
+				acceptance_bill_list.sortAndUndup();
+			}
+			{
+				PPObjCSession cs_obj;
+				CCheckCore * p_cc = cs_obj.P_Cc;
+				for(uint i = 0; i < acceptance_bill_list.getCount(); i++) {
+					const PPID bill_id = acceptance_bill_list.get(i);
+					{
+						//
+						// Если документ имеет тег PPTAG_BILL_LINKCCHECKUUID и по значению этого тега можно
+						// извлечь "живой" чек, то считаем документ выкупленным.
+						//
+						S_GUID uuid;
+						if(p_ref->Ot.GetTagGuid(PPOBJ_BILL, bill_id, PPTAG_BILL_LINKCCHECKUUID, uuid) > 0 && !!uuid) {
+							PPIDArray cc_id_list;
+							cs_obj.GetListByUuid(uuid, 90, cc_id_list);
+							if(cc_id_list.getCount()) {
+								bool suited = false;
+								for(uint ccidx = 0; !suited && ccidx < cc_id_list.getCount(); ccidx++) {
+									const PPID cc_id = cc_id_list.get(ccidx);
+									CCheckTbl::Rec cc_rec;
+									if(p_cc->Search(cc_id, &cc_rec) > 0 && nominal_period.CheckDate(cc_rec.Dt))
+										suited = true;											
+								}
+								if(suited)
+									buyout_bill_list.add(bill_id);
+							}
+						}
+					}
+					{
+						BillTbl::Rec ret_bill_rec;
+						for(DateIter di; p_bobj->P_Tbl->EnumLinks(bill_id, &di, BLNK_RETURN, &ret_bill_rec) > 0;) {
+							if(ret_bill_rec.LinkBillID == bill_id) { // @paranoic (если бы это равенство не выполнялось, то функция EnumLinks не вернула бы позитивное значение)
+								if(nominal_period.CheckDate(ret_bill_rec.Dt)) {
+									return_bill_list.add(ret_bill_rec.ID);
+									return_by_bill_list.add(bill_id);
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		THROW(ifc.Auth(is_test));
+		{
+			TSCollection <AptekaRuInterface::ReplyEntry> rep_list;
+			ifc.ReportAcceptance(is_test, nominal_acceptance_bill_list, rep_list);
+		}
+		{
+			TSCollection <AptekaRuInterface::ReplyEntry> rep_list;
+			ifc.ReportBuyOut(is_test, buyout_bill_list, rep_list);
+		}
+		{
+			TSCollection <AptekaRuInterface::ReplyEntry> rep_list;
+			ifc.ReportReturn(is_test, return_by_bill_list, rep_list);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int DoAptekaRuInterchange()
+{
+	int    ok = -1;
+	PrcssrAptekaRu prcssr;
+	PrcssrAptekaRuFilt param;
+	prcssr.InitParam(&param);
+	if(prcssr.EditParam(&param) > 0) {
+		if(prcssr.Init(&param) && prcssr.Run())
+			ok = 1;
+		else
+			ok = PPErrorZ();
 	}
 	return ok;
 }
@@ -1933,7 +2465,7 @@ int Test_AptekaRuInterface()
 	if(gua_obj.GetListByServiceIdent(PPGLS_APTEKARU, &gua_list) > 0 && gua_list.getCount() == 1) {
 		AptekaRuInterface ifc(gua_list.get(0));
 		if(ifc.IsValid()) {
-			ifc.Auth();
+			ifc.Auth(false);
 		}
 	}
 	return ok;

@@ -18,13 +18,10 @@ void ngx_cdecl ngx_event_log(ngx_err_t err, const char * fmt, ...)
 	const TCHAR * msgarg[9];
 	static uchar netmsg[] = "%SystemRoot%\\System32\\netmsg.dll";
 	uchar * last = text + NGX_MAX_ERROR_STR;
-	// @v10.3.11 uchar * p = text + GetModuleFileName(NULL, reinterpret_cast<char *>(text), NGX_MAX_ERROR_STR - 50);
-	// @v10.3.11 {
 	SString module_file_name;
 	const bool gmfnr = SSystem::SGetModuleFileName(0, module_file_name);
 	module_file_name.CopyTo(reinterpret_cast<char *>(text), SIZEOFARRAY(text));
 	uchar * p = text + sstrlen(text);
-	// } @v10.3.11
 	*p++ = ':';
 	ngx_linefeed(p);
 	va_start(args, fmt);

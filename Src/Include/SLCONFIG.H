@@ -73,11 +73,9 @@
 		#define NTDDI_VERSION NTDDI_WIN8 // @v11.6.7 NTDDI_WIN7-->NTDDI_WIN8
 	#endif
 	#define _CRT_SECURE_NO_WARNINGS
-	// @v10.9.10 {
 	#if(_MSC_VER >= 1928)
 		#define WINDOWS_IGNORE_PACKING_MISMATCH
 	#endif
-	// } @v10.9.10 
 #endif
 // @v11.8.2 {
 #ifndef WINVER
@@ -89,7 +87,7 @@
 #endif
 // } @v11.8.2
 #ifndef __STDC_LIMIT_MACROS
-	#define __STDC_LIMIT_MACROS // @v10.5.4
+	#define __STDC_LIMIT_MACROS
 #endif
 /* Remove comment if clarion date format is needed
 #define USE_DF_CLARION */
@@ -117,7 +115,7 @@
 #define SALLOC_NEDMALLOC 1
 #define USE_OPENSSL_STATIC
 #define SALLOCATOR       SALLOC_STD
-#define XXH_STATIC_LINKING_ONLY // @v10.5.6 for xxhash
+#define XXH_STATIC_LINKING_ONLY // for xxhash
 //
 // @v9.8.1 Если !0, то ведется отладочная трассировка внутренних блокировок.
 // Актуально только для сервера.

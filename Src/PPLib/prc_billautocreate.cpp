@@ -66,8 +66,9 @@ static SString & MakeOrderAutocreationTag(const _OrdArEntry & rEntry, LDATE dt, 
 		PPObjBill * p_bobj = BillObj;
 		if(p_filt->SupplID)
 			list.add(p_filt->SupplID);
-		else
+		else {
 			THROW(ar_obj.P_Tbl->GetListBySheet(GetSupplAccSheet(), &list, 0));
+		}
 		for(uint i = 0; i < list.getCount(); i++) {
 			PPID   article_id = list.at(i);
 			PPSupplAgreement suppl_agt;

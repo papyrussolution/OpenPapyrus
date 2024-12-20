@@ -313,10 +313,8 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 			AddClusterAssoc(CTL_TXTDBPARAM_FLAGS, 0, TextDbFile::fFldNameRec);
 			AddClusterAssoc(CTL_TXTDBPARAM_FLAGS, 1, TextDbFile::fFixedFields);
 			AddClusterAssoc(CTL_TXTDBPARAM_FLAGS, 2, TextDbFile::fFldEqVal);
-			// @v10.9.3 AddClusterAssoc(CTL_TXTDBPARAM_FLAGS, 3, TextDbFile::fCpOem);
-			AddClusterAssoc(CTL_TXTDBPARAM_FLAGS, 3, TextDbFile::fQuotText); // @v10.9.3 4-->3
+			AddClusterAssoc(CTL_TXTDBPARAM_FLAGS, 3, TextDbFile::fQuotText);
 			SetClusterData(CTL_TXTDBPARAM_FLAGS, Data.Flags);
-			// @v10.9.3 {
 			{
 				long   cp = cp1251; // Надо бы cpANSI но это равно 0, что не хорошо для идентификации
 				if(Data.Flags & TextDbFile::fCpUtf8)
@@ -330,7 +328,6 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 				AddClusterAssoc(CTL_TXTDBPARAM_ENCODING, 2, cpUTF8);
 				SetClusterData(CTL_TXTDBPARAM_ENCODING, cp);
 			}
-			// } @v10.9.3 
 			setCtrlData(CTL_TXTDBPARAM_HDRCOUNT, &Data.HdrLinesCount);
 			setCtrlString(CTL_TXTDBPARAM_FOOTER, (temp_buf = Data.FooterLine)/*.Transf(CTRANSF_OUTER_TO_INNER)*/);
 			onOrientSelection();
@@ -342,21 +339,18 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 			ushort orient = getCtrlUInt16(CTL_TXTDBPARAM_ORIENT);
 			SETFLAG(Data.Flags, TextDbFile::fVerticalRec, orient);
 			GetClusterData(CTL_TXTDBPARAM_FLAGS, &Data.Flags);
-			// @v10.9.3 {
 			{
-				long   cp = GetClusterData(CTL_TXTDBPARAM_ENCODING);
+				const long cp = GetClusterData(CTL_TXTDBPARAM_ENCODING);
 				Data.Flags &= ~(TextDbFile::fCpUtf8|TextDbFile::fCpOem);
 				if(cp == cpUTF8)
 					Data.Flags |= TextDbFile::fCpUtf8;
 				else if(cp == cpOEM)
 					Data.Flags |= TextDbFile::fCpOem;
 			}
-			// } @v10.9.3 
 			Data.VertRecTerm.Z();
 			Data.FldDiv.Z();
 			SString temp_buf;
 			getCtrlString(CTL_TXTDBPARAM_DIV, temp_buf);
-			// @v10.4.7 temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 			if(orient) {
 				Data.VertRecTerm = temp_buf;
 				getCtrlString(CTL_TXTDBPARAM_FOOTER, temp_buf);
@@ -1059,15 +1053,7 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 				SFsPath ps(FileName);
 				ps.Merge(SFsPath::fNam|SFsPath::fExt, naked_file_name);
 				ia_pack.GetExtField(FTPAEXSTR_HOST, ftp_path);
-				//@v10.3.10 ftp_path.SetLastSlash().Cat(naked_file_name);
 			}
-			/* @v10.3.9
-			WinInetFTP ftp;
-			THROW(ftp.Init());
-			THROW(ftp.Connect(&ia_pack));
-			THROW(ftp.SafePut(FileName, ftp_path, 0, 0, pLogger));
-			*/
-			// @v10.3.9 {
 			{
 				SUniformFileTransmParam param;
 				SString accs_name;
@@ -1083,7 +1069,6 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 				memzero(pwd, sizeof(pwd));
 				THROW_SL(param.Run(0, 0));
 			}
-			// } @v10.3.9
 			ok = 1;
 			// @v11.1.10 }
 		}
@@ -1258,7 +1243,6 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 			temp_buf = ia_pack.Symb;
 			if(temp_buf.NotEmptyS()) {
 				THROW(tsl_par.Retranslate(iefFtpAccSymb, symb_buf));
-				// @v10.3.11 (SIniFile сам это делает) temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				THROW(pFile->AppendParam(pSect, symb_buf, temp_buf, 1));
 			}
 			else {
@@ -1295,7 +1279,6 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		}
 	}
 	{
-		// @v10.9.3 {
 		if(DataFormat == dfText) {
 			THROW(tsl_par.Retranslate(iefCodepage, symb_buf));
 			if(TdfParam.Flags & TextDbFile::fCpUtf8) {
@@ -1308,7 +1291,6 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 				THROW(pFile->AppendParam(pSect, symb_buf, "ansi", 1));
 			}
 		}
-		// @v10.9.4 {
 		else if(DataFormat == dfDbf) {
 			THROW(tsl_par.Retranslate(iefCodepage, symb_buf));
 			if(TdfParam.Flags & TextDbFile::fCpOem) {
@@ -1318,10 +1300,6 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 				THROW(pFile->AppendParam(pSect, symb_buf, "ansi", 1));
 			}			
 		}
-		// } @v10.9.4 
-		// } @v10.9.3 
-		// @v10.9.3 THROW(tsl_par.Retranslate(iefOemText, symb_buf));
-		// @v10.9.3 THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(TdfParam.Flags & TextDbFile::fCpOem)));
 		THROW(tsl_par.Retranslate(iefFldNameRec, symb_buf));
 		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(TdfParam.Flags & TextDbFile::fFldNameRec)));
 	}
@@ -1357,7 +1335,6 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		THROW(tsl_par.Retranslate(iefUseDTD, symb_buf));
 		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XdfParam.Flags & XmlDbFile::Param::fUseDTD)));
 		if(DataFormat == dfXml) {
-			// @v10.9.3 {
 			THROW(tsl_par.Retranslate(iefCodepage, symb_buf));
 			if(XdfParam.Flags & XmlDbFile::Param::fUtf8Codepage) {
 				THROW(pFile->AppendParam(pSect, symb_buf, "utf8", 1));
@@ -1365,11 +1342,6 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 			else {
 				THROW(pFile->AppendParam(pSect, symb_buf, "ansi", 1));
 			}
-			// } @v10.9.3 
-			/* @v10.9.3 
-			THROW(tsl_par.Retranslate(iefUtf8Codepage, symb_buf));
-			THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XdfParam.Flags & XmlDbFile::Param::fUtf8Codepage)));
-			*/
 		}
 		THROW(tsl_par.Retranslate(iefSubRec, symb_buf));
 		THROW(pFile->AppendIntParam(pSect, symb_buf, BIN(XdfParam.Flags & XmlDbFile::Param::fHaveSubRec)));
@@ -1448,8 +1420,8 @@ int PPImpExpParam::ParseFormula(int hdr, const SString & rPar, const SString & r
 		while(*p && *(p + 1) != 0) // Пропускаем последний символ ')'
 			outer_fld.InnerFormula.CatChar(*p++);
 	}
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.3.12
-	(r_temp_buf = rVal).Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.12
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	(r_temp_buf = rVal).Transf(CTRANSF_INNER_TO_OUTER);
 	SStrScan scan(r_temp_buf);
 	outer_fld.ID = 0;
 	outer_fld.T.Flags = (STypEx::fFormula | STypEx::fZeroID);
@@ -1739,7 +1711,6 @@ IMPL_HANDLE_EVENT(ImpExpParamDialog)
 			if(Data.DataFormat == PPImpExpParam::dfText) {
 				getCtrlString(CTL_IMPEXP_FILENAME, Data.FileName);
 				Data.TdfParam.DefFileName = Data.FileName;
-				// @v10.9.3 {
 				{
 					long   _f = GetClusterData(CTL_IMPEXP_FLAGS);
 					if(_f & 0x0001) {
@@ -1750,11 +1721,9 @@ IMPL_HANDLE_EVENT(ImpExpParamDialog)
 						SETFLAG(Data.TdfParam.Flags, TextDbFile::fCpOem, 0);
 					}
 				}
-				// } @v10.9.3
 				if(EditTextDbFileParam(/*&Data.TdfParam*/&Data) > 0) {
 					Data.FileName = Data.TdfParam.DefFileName;
 					setCtrlString(CTL_IMPEXP_FILENAME, Data.FileName);
-					// @v10.9.3 {
 					{
 						long  _f = GetClusterData(CTL_IMPEXP_FLAGS);
 						const long _org_f = _f;
@@ -1762,7 +1731,6 @@ IMPL_HANDLE_EVENT(ImpExpParamDialog)
 						if(_org_f != _f)
 							SetClusterData(CTL_IMPEXP_FLAGS,  _f);
 					}
-					// } @v10.9.3 
 				}
 			}
 			else if(Data.DataFormat == PPImpExpParam::dfXml) {
@@ -1879,7 +1847,6 @@ PPImpExp::PPImpExp(const PPImpExpParam * pParam, const void * extraPtr) : P_DbfT
 	P_XlsT(0), State(0), R_RecNo(0), W_RecNo(0), P_ExprContext(0), P_HdrData(0), R_SaveRecNo(0), ExtractSubChild(0)
 {
 	RVALUEPTR(P, pParam);
-	// @v10.3.11 P.FileName.Transf(CTRANSF_INNER_TO_OUTER);
 	PreserveOrgFileName = P.FileName;
 	if(P.Direction == 0) {
 		const SString preserve_file_name = P.FileName;
@@ -2050,13 +2017,11 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 		THROW_PP_S(P_DbfT->isOpened(), PPERR_DBFOPFAULT, filename);
 	}
 	else if(P.DataFormat == PPImpExpParam::dfText) {
-		// @v10.3.12 {
 		if(!(P.TdfParam.Flags & TextDbFile::fCpOem)) {
 			P.TdfParam.FldDiv.Transf(CTRANSF_INNER_TO_OUTER);
 			P.TdfParam.FooterLine.Transf(CTRANSF_INNER_TO_OUTER);
 			P.TdfParam.VertRecTerm.Transf(CTRANSF_INNER_TO_OUTER);
 		}
-		// } @v10.3.12 
 		if(!readOnly && truncOnWriting)
 			SFile::Remove(filename);
 		THROW_MEM(P_TxtT = new TextDbFile);
@@ -2191,7 +2156,7 @@ int PPImpExp::Push(const PPImpExpParam * pParam)
 			}
 			assert(pos >= 0 && pos < static_cast<int>(StateColl.getCount()));
 			StateStack.push(pos);
-			if(p_state) { // @v10.3.3
+			if(p_state) {
 				p_state->Busy = 1;
 				p_state->RecNo = R_RecNo;
 				p_state->FileNameRoot = P.FileName;
@@ -2614,7 +2579,7 @@ int PPImpExp::ConvertInnerToOuter(int hdr, const void * pInnerBuf, size_t bufLen
 			if(outer_fld.T.Flags & STypEx::fFormula) {
 				THROW(ResolveFormula(outer_fld.InnerFormula, pInnerBuf, bufLen, formula_result));
 				formula_result.Trim(255);
-				formula_result.Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.11
+				formula_result.Transf(CTRANSF_INNER_TO_OUTER);
 				stcast(MKSTYPE(S_ZSTRING, formula_result.Len()+1), outer_fld.T.Typ, formula_result.cptr(), p_outer_fld_buf, 0);
 			}
 			else {
@@ -2638,7 +2603,7 @@ int PPImpExp::ConvertInnerToOuter(int hdr, const void * pInnerBuf, size_t bufLen
 			}
 			if(stbase(outer_fld.T.Typ) == BTS_STRING) {
 				if(P.TdfParam.Flags & (TextDbFile::fCpOem|TextDbFile::fCpUtf8)) {
-					char   temp_cbuf[4096]; // @v10.9.7 [512]-->[4096]
+					char   temp_cbuf[4096];
 					sttostr(outer_fld.T.Typ, p_outer_fld_buf, 0, temp_cbuf);
 					temp_buf = temp_cbuf;
 					if(P.TdfParam.Flags & TextDbFile::fCpOem) {
@@ -2776,9 +2741,6 @@ int PPImpExp::AppendHdrRecord(void * pInnerBuf, size_t bufLen)
 	else if(P_XmlT) {
 		THROW_SL(P_XmlT->AppendRecord(P.HdrOtrRec, P.HdrOtrRec.GetDataC()));
 	}
-	/* @v10.3.3 @fix (то же, что и выше да еще и без проверки P_XmlT) else if(P_SoapT) {
-		THROW_SL(P_XmlT->AppendRecord(P.HdrOtrRec, P.HdrOtrRec.GetDataC()));
-	}*/
 	else if(P_XlsT) {
 		THROW_SL(P_XlsT->AppendRecord(P.HdrOtrRec, P.HdrOtrRec.GetDataC()));
 	}
@@ -2805,9 +2767,6 @@ int PPImpExp::AppendRecord(void * pInnerBuf, size_t bufLen)
 	else if(P_XmlT) {
 		THROW_SL(P_XmlT->AppendRecord(P.OtrRec, P.OtrRec.GetDataC()));
 	}
-	/* @v10.3.3 @fix (то же, что и выше да еще и без проверки P_XmlT) else if(P_SoapT) {
-		THROW_SL(P_XmlT->AppendRecord(P.OtrRec, P.OtrRec.GetDataC()));
-	}*/
 	else if(P_XlsT) {
 		THROW_SL(P_XlsT->AppendRecord(P.OtrRec, P.OtrRec.GetDataC()));
 	}

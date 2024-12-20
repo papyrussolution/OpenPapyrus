@@ -229,7 +229,7 @@ PPOprKind2::PPOprKind2()
 //
 PPOprKindPacket::PPOprKindPacket() : P_IOE(0), P_DIOE(0), P_GenList(0), P_ReckonData(0), P_PoolData(0), P_DraftData(0)
 {
-	Init();
+	// @v12.2.1 Z();
 }
 
 PPOprKindPacket::~PPOprKindPacket()
@@ -242,10 +242,11 @@ PPOprKindPacket::~PPOprKindPacket()
 	delete P_DraftData;
 }
 
-void PPOprKindPacket::Init()
+PPOprKindPacket & PPOprKindPacket::Z()
 {
 	MEMSZERO(Rec);
-	ATTmpls.freeAll();
+	Amounts.Z(); // @v12.2.1
+	ATTmpls.clear(); // @v12.2.1 freeAll()-->clear()
 	ExtString.Z();
 	ZDELETE(P_IOE);
 	ZDELETE(P_DIOE);
@@ -253,36 +254,41 @@ void PPOprKindPacket::Init()
 	ZDELETE(P_ReckonData);
 	ZDELETE(P_PoolData);
 	ZDELETE(P_DraftData);
+	OpCntrPack.Init(0, 0); // @v12.2.1
+	return *this;
 }
 
-PPOprKindPacket & FASTCALL PPOprKindPacket::operator = (const PPOprKindPacket & rSrc)
+PPOprKindPacket & FASTCALL PPOprKindPacket::operator = (const PPOprKindPacket & rS)
 {
-	Init();
-	Rec = rSrc.Rec;
-	if(rSrc.P_IOE) {
+	Z();
+	Rec = rS.Rec;
+	Amounts = rS.Amounts; // @v12.2.1
+	ATTmpls = rS.ATTmpls; // @v12.2.1
+	if(rS.P_IOE) {
 		P_IOE = new PPInventoryOpEx;
-		ASSIGN_PTR(P_IOE, *rSrc.P_IOE);
+		ASSIGN_PTR(P_IOE, *rS.P_IOE);
 	}
-	if(rSrc.P_DIOE) {
+	if(rS.P_DIOE) {
 		P_DIOE = new PPDebtInventOpEx;
-		ASSIGN_PTR(P_DIOE, *rSrc.P_DIOE);
+		ASSIGN_PTR(P_DIOE, *rS.P_DIOE);
 	}
-	if(rSrc.P_GenList) {
-		P_GenList = new ObjRestrictArray(*rSrc.P_GenList);
+	if(rS.P_GenList) {
+		P_GenList = new ObjRestrictArray(*rS.P_GenList);
 	}
-	if(rSrc.P_ReckonData) {
+	if(rS.P_ReckonData) {
 		P_ReckonData = new PPReckonOpEx;
-		ASSIGN_PTR(P_ReckonData, *rSrc.P_ReckonData);
+		ASSIGN_PTR(P_ReckonData, *rS.P_ReckonData);
 	}
-	if(rSrc.P_PoolData) {
+	if(rS.P_PoolData) {
 		P_PoolData = new PPBillPoolOpEx;
-		ASSIGN_PTR(P_PoolData, *rSrc.P_PoolData);
+		ASSIGN_PTR(P_PoolData, *rS.P_PoolData);
 	}
-	if(rSrc.P_DraftData) {
+	if(rS.P_DraftData) {
 		P_DraftData = new PPDraftOpEx;
-		ASSIGN_PTR(P_DraftData, *rSrc.P_DraftData);
+		ASSIGN_PTR(P_DraftData, *rS.P_DraftData);
 	}
-	ExtString = rSrc.ExtString;
+	ExtString = rS.ExtString;
+	OpCntrPack = rS.OpCntrPack; // @v12.2.1
 	return *this;
 }
 
@@ -499,7 +505,7 @@ PPObjOprKind::PPObjOprKind(void * extraPtr) : PPObjReference(PPOBJ_OPRKIND, extr
 int PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
 {
 	int    ok = 1;
-	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+	if(PPCheckGetObjPacketID(Obj, id)) {
 		PPObjOpCounter opc_obj;
 		THROW(Search(id, &pack->Rec) > 0);
 		THROW(opc_obj.GetPacket(pack->Rec.OpCounterID, &pack->OpCntrPack));

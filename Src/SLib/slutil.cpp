@@ -142,15 +142,8 @@ SEnum::~SEnum()
 	delete P_E;
 }
 
-int SEnum::operator !() const
-{
-	return (P_E == 0);
-}
-
-int FASTCALL SEnum::Next(void * pData)
-{
-	return P_E ? P_E->Next(pData) : 0;
-}
+int SEnum::operator !() const { return (P_E == 0); }
+int FASTCALL SEnum::Next(void * pData) { return P_E ? P_E->Next(pData) : 0; }
 
 #if 0 // {
 

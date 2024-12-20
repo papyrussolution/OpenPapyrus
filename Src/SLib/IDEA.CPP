@@ -56,14 +56,10 @@
 // 
 #include <slib-internal.h>
 #pragma hdrstop
-// @v10.9.3 #if defined(TEST) || defined(TEST2)
-	// @v10.9.3 #include <process.h>
-// @v10.9.3 #endif
-#define low16(x) (x)
 
+#define low16(x) (x)
 #define IDEAKEYSIZE 16
 #define IDEABLOCKSIZE 8
-
 #define IDEA_ROUNDS	8            // Don't change this value, should be 8
 #define IDEA_KEYLEN	(6*IDEA_ROUNDS+4) // length of key schedule */
 

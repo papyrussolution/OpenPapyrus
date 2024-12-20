@@ -717,7 +717,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		SlipDocCommonParam sdc_param;
 		PPID   tax_sys_id = 0;
 		OfdFactors ofdf; // @v11.3.12
-		const  bool  is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0);
+		const  bool  is_vat_free = (CnObj.IsVatFree(NodeID) > 0);
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash) + 0.001;
 		double running_total = 0.0;

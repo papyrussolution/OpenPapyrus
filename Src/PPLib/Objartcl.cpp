@@ -1516,7 +1516,7 @@ int PPObjArticle::GetPacket(PPID id, PPArticlePacket * pPack)
 {
 	int    ok = 1, r;
 	pPack->Init();
-	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+	if(PPCheckGetObjPacketID(Obj, id)) {
 		ok = Search(id, &pPack->Rec);
 		if(ok > 0) {
 			LAssocArray alias_subst;
@@ -2541,7 +2541,7 @@ int PPObjDebtDim::Edit(PPID * pID, void * extraPtr)
 int PPObjDebtDim::GetPacket(PPID id, PPDebtDimPacket * pPack)
 {
 	int    ok = -1;
-	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+	if(PPCheckGetObjPacketID(Obj, id)) {
 		PPIDArray agent_list;
 		PPDebtDimPacket pack;
 		THROW(Search(id, &pack.Rec) > 0);

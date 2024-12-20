@@ -1034,7 +1034,7 @@ int PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 	PropPPIDArray * p_rec = 0;
 	Storage_SCardRule * p_strg = 0;
 	PPSCardSerPacket pack;
-	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+	if(PPCheckGetObjPacketID(Obj, id)) {
 		THROW(Search(id, &pack.Rec) > 0);
 		//
 		// Правила для чеков
@@ -3846,7 +3846,7 @@ int PPObjSCard::GetPacket(PPID id, PPSCardPacket * pPack)
 	int    ok = -1;
 	assert(pPack);
 	pPack->Z();
-	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+	if(PPCheckGetObjPacketID(Obj, id)) {
 		if(Search(id, &pPack->Rec) > 0) {
 			{
 				SString text_buf;

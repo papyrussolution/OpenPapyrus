@@ -329,8 +329,8 @@
 		#define CXX_HAS_X_ATTRIBUTE_NORETURN           (CXX_GNU >= CXX_MAKE_VER(2, 5, 0))
 		#define CXX_HAS_X_ATTRIBUTE_NOSANITIZE         (0)
 		#define CXX_HAS_X_ATTRIBUTE_OPTIMIZE           (CXX_GNU >= CXX_MAKE_VER(4, 4, 0))
-		#define CXX_HAS_X_ATTRIBUTE_UNUSEDRESULT       (CXX_GNU >= CXX_MAKE_VER(2, 0, 7)) // @v10.9.3
-		#define CXX_HAS_X_ATTRIBUTE_UNUSEDPARAM        (CXX_GNU >= CXX_MAKE_VER(2, 0, 7)) // @v10.9.3
+		#define CXX_HAS_X_ATTRIBUTE_UNUSEDRESULT       (CXX_GNU >= CXX_MAKE_VER(2, 0, 7))
+		#define CXX_HAS_X_ATTRIBUTE_UNUSEDPARAM        (CXX_GNU >= CXX_MAKE_VER(2, 0, 7))
 		#define CXX_HAS_X_ATTRIBUTE_PURE               (CXX_GNU >= CXX_MAKE_VER(3, 0, 0)) // @v11.9.2
 		#define CXX_HAS_X_ATTRIBUTE_CONST              (CXX_GNU >= CXX_MAKE_VER(3, 0, 0)) // @v11.9.2
 		#define CXX_HAS_X_BUILTIN_ASSUME               (0)
@@ -406,8 +406,8 @@
 		#define CXX_HAS_X_ATTRIBUTE_NORETURN           (CXX_GNU_COMPAT >= 1)
 		#define CXX_HAS_X_ATTRIBUTE_NOSANITIZE         (0)
 		#define CXX_HAS_X_ATTRIBUTE_OPTIMIZE           (CXX_GNU_COMPAT >= 1)
-		#define CXX_HAS_X_ATTRIBUTE_UNUSEDRESULT       (0) // @v10.9.3
-		#define CXX_HAS_X_ATTRIBUTE_UNUSEDPARAM        (0) // @v10.9.3
+		#define CXX_HAS_X_ATTRIBUTE_UNUSEDRESULT       (0)
+		#define CXX_HAS_X_ATTRIBUTE_UNUSEDPARAM        (0)
 		#define CXX_HAS_X_ATTRIBUTE_PURE               (0) // @v11.9.2
 		#define CXX_HAS_X_ATTRIBUTE_CONST              (0) // @v11.9.2
 		#define CXX_HAS_X_BUILTIN_ASSUME               (0)
@@ -487,8 +487,8 @@
 		#define CXX_HAS_X_ATTRIBUTE_NORETURN           (0)
 		#define CXX_HAS_X_ATTRIBUTE_NOSANITIZE         (0)
 		#define CXX_HAS_X_ATTRIBUTE_OPTIMIZE           (0)
-		#define CXX_HAS_X_ATTRIBUTE_UNUSEDRESULT       (0) // @v10.9.3
-		#define CXX_HAS_X_ATTRIBUTE_UNUSEDPARAM        (0) // @v10.9.3
+		#define CXX_HAS_X_ATTRIBUTE_UNUSEDRESULT       (0)
+		#define CXX_HAS_X_ATTRIBUTE_UNUSEDPARAM        (0)
 		#define CXX_HAS_X_ATTRIBUTE_PURE               (0) // @v11.9.2
 		#define CXX_HAS_X_ATTRIBUTE_CONST              (0) // @v11.9.2
 		#define CXX_HAS_X_BUILTIN_ASSUME               (0)
@@ -975,9 +975,6 @@
 #endif
 // } @v11.7.3
 #if defined(_WIN32) || defined(_WIN64)
-	//typedef long pid_t;
-	// @v10.8.5 #define getpid GetCurrentProcessId
-	// @v10.8.5 #define chdir  SetCurrentDirectory
 	#ifndef STDIN_FILENO
 		#define STDIN_FILENO (_fileno(stdin))
 	#endif

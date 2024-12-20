@@ -37,7 +37,7 @@ static const struct __RtToS {
 	{ CSESSOPRT_CHGCCAGENT,       1, "J" },
 	{ CSESSOPRT_MERGECHK,         1, "M" },
 	{ CSESSOPRT_ESCCLINEBORD,     1, "Q" },
-	{ CSESSOPRT_REPRNUNFCC,       1, "3" }, // @v10.6.11
+	{ CSESSOPRT_REPRNUNFCC,       1, "3" },
 	{ CSESSOPRT_ARBITRARYDISC,    1, "4" }, // @v11.0.9
 };
 
@@ -72,18 +72,18 @@ static const struct __RtToS {
 }
 
 TLP_IMPL(PPObjCSession, CSessionCore, P_Tbl);
-TLP_IMPL(PPObjCSession, CCheckCore, P_Cc); // @v10.4.2
+TLP_IMPL(PPObjCSession, CCheckCore, P_Cc);
 
 PPObjCSession::PPObjCSession(void * extraPtr) : PPObject(PPOBJ_CSESSION), P_EqCfg(0), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	TLP_OPEN(P_Cc); // @v10.4.2
+	TLP_OPEN(P_Cc);
 }
 
 PPObjCSession::~PPObjCSession()
 {
 	TLP_CLOSE(P_Tbl);
-	TLP_CLOSE(P_Cc); // @v10.4.2
+	TLP_CLOSE(P_Cc);
 	delete P_EqCfg;
 }
 
@@ -228,7 +228,7 @@ int PPObjCSession::Edit(PPID * pID, void * extraPtr)
 		}
 	}
 	CATCHZOKPPERR
-	delete dlg; // @v10.4.2 @fix
+	delete dlg;
 	return ok;
 }
 
@@ -241,7 +241,6 @@ int PPObjCSession::Recalc(PPID sessID, int use_ta)
 	const  PPID ret_op_id = GetCashRetOp();
 	const  PPID wroff_acc_op_id = GetEqCfg().WrOffAccOpID;
 	CGoodsLine cgl;
-	// @v10.4.2 CCheckCore cc;
 	PPIDArray sub_list;
 	CSessionTbl::Rec sess_rec;
 	CSessTotal cs_total;
@@ -327,7 +326,6 @@ int PPObjCSession::Recover(const PPIDArray & rSessList)
 	PPObjBill * p_bobj = BillObj;
 	PPWaitStart();
 	CGoodsLine cgl;
-	// @v10.4.2 CCheckCore cc;
 	SString added_msg_buf, temp_buf;
 	CSessionTbl::Rec sess_rec, sub_rec;
 	PPLogger logger;
@@ -491,7 +489,6 @@ int PPObjCSession::RemoveWrOffBills(PPID sessID, int use_ta)
 {
 	int    ok = 1;
 	CGoodsLine cgl;
-	// @v10.4.2 CCheckCore cc;
 	PPIDArray sub_list;
 	CSessionTbl::Rec rec;
 	{
@@ -579,7 +576,7 @@ int PPObjCSession::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * pDlg)
 				SetClusterData(CTL_RTCSESS_SFLAGS2, pData->OprFlags);
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS3,  0, CSESSOPRT_CHGCCAGENT);
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS3,  1, CSESSOPRT_ESCCLINEBORD);
-				AddClusterAssoc(CTL_RTCSESS_SFLAGS3,  2, CSESSOPRT_REPRNUNFCC); // @v10.6.11
+				AddClusterAssoc(CTL_RTCSESS_SFLAGS3,  2, CSESSOPRT_REPRNUNFCC);
 				AddClusterAssoc(CTL_RTCSESS_SFLAGS3,  3, CSESSOPRT_ARBITRARYDISC); // @v11.0.9
 				SetClusterData(CTL_RTCSESS_SFLAGS3, pData->OprFlags);
 			}
@@ -857,7 +854,6 @@ public:
 	uint32  ChecksCount; // @!CSessTransmitPacket::LoadSession
 private:
 	PPObjCSession SessObj;
-	// @v10.4.2 CCheckCore Cc;
 	PPIDArray ChildIdList; // Подчиненные сессии (используется только для //
 		// форсирования передачи этих сессий вместе с суперсессией:
 		// 1. Функция LoadSession загружает этот список из БД
@@ -1184,7 +1180,7 @@ struct _PPKeybordWKeyCfg { // @persistent @store(PropertyTbl) @size=84
 	PPID   Tag;            // Const=PPOBJ_CONFIG
 	PPID   ID;             // Const=PPCFG_MAIN
 	PPID   Prop;           // Const=PPPRP_KEYBWKEYCFG
-	_RightNKeyPosEntry OperRights[14/*WKEYRTCOUNT*/]; // Соответствие операционных прав положениям ключа // @v10.8.2 WKEYRTCOUNT-->14
+	_RightNKeyPosEntry OperRights[14]; // Соответствие операционных прав положениям ключа
 };
 
 int GetOperRightsByKeyPos(int keyPos, PPIDArray * pOperRightsAry)
@@ -2272,12 +2268,6 @@ int PPObjCSession::GetListByChZnMark(TSCollection <CCheckCore::ListByMarkEntry> 
 	LAssocArray index;
 	LAssocArray * p_index = FetchCcDate2MaxIdIndex(index) ? &index : 0;
 	return P_Cc ? P_Cc->Helper_GetListByMark2(rList, CCheckPacket::lnextChZnMark, p_index, back_days, 0) : 0;
-}
-
-int PPObjCSession::CalcRestByChZnMark(TSVector <ChZnRest> & rList) // @v12.0.5
-{
-	int    ok = -1;
-	return ok;
 }
 
 int PPObjCSession::GetListByUuid(const S_GUID & rUuid, uint backDays, PPIDArray & rCcList)

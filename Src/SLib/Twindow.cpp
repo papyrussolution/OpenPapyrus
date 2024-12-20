@@ -186,7 +186,7 @@ int TWindow::LocalMenuPool::ShowMenu(uint buttonId)
 //
 ToolbarItem::ToolbarItem() : Cmd(0), KeyCode(0), Flags(0), BitmapIndex(0)
 {
-	PTR32(ToolTipText)[0] = 0;
+	ToolTipText[0] = 0;
 }
 
 ToolbarList::ToolbarList() : SVector(sizeof(ToolbarItem)), Bitmap(0) {}
@@ -282,12 +282,10 @@ int ToolbarList::moveItem(uint pos, int up)
 		else if(SLS.ExpandString(temp_buf, CTRANSF_UTF8_TO_OUTER) > 0) {
 			TView::SSetWindowText(hwnd, temp_buf);
 		}
-		// @v10.5.4 {
 		else if(!temp_buf.IsAscii() && temp_buf.IsLegalUtf8()) {
 			temp_buf.Transf(CTRANSF_UTF8_TO_OUTER);
 			TView::SSetWindowText(hwnd, temp_buf);
 		}
-		// } @v10.5.4 
 	}
 	return TRUE;
 }
@@ -1126,226 +1124,6 @@ int TWindow::InsertCtlWithCorrespondingNativeItem(TView * pCtl, uint id, const c
 //
 //
 //
-#if 0 // @v10.9.12 (deprecated) {
-	void SRectLayout::Dim::Set(int v, int f)
-	{
-		Val = static_cast<int16>(v);
-		Flags = static_cast<int16>(f);
-	}
-
-	SRectLayout::Item::Item()
-	{
-		THISZERO();
-		EmptyWidth = -1;
-		EmptyHeight = -1;
-		InnerOrder = SRectLayout::inoOverlap;
-	}
-
-	SRectLayout::Item & SRectLayout::Item::SetLeft(int size, int pct)
-	{
-		Left.Set(0, SRectLayout::dfAbs|SRectLayout::dfGravity);
-		if(pct)
-			Right.Set(size * 100, SRectLayout::dfRel); // Сотые доли от размера контейнера
-		else
-			Right.Set(size, SRectLayout::dfAbs);
-		Top.Set(0, SRectLayout::dfAbs);
-		Bottom.Set(0, SRectLayout::dfAbs|SRectLayout::dfOpp);
-		return *this;
-	}
-
-	SRectLayout::Item & SRectLayout::Item::SetRight(int size, int pct)
-	{
-		if(pct)
-			Left.Set(size * 100, SRectLayout::dfRel|SRectLayout::dfOpp);
-		else
-			Left.Set(size, SRectLayout::dfAbs|SRectLayout::dfOpp);
-		Right.Set(0, SRectLayout::dfAbs|SRectLayout::dfGravity|SRectLayout::dfOpp);
-		Top.Set(0, SRectLayout::dfAbs);
-		Bottom.Set(0, SRectLayout::dfAbs|SRectLayout::dfOpp);
-		return *this;
-	}
-
-	SRectLayout::Item & SRectLayout::Item::SetTop(int size, int pct)
-	{
-		Left.Set(0, SRectLayout::dfAbs);
-		Right.Set(0, SRectLayout::dfAbs|SRectLayout::dfOpp);
-		Top.Set(0, SRectLayout::dfAbs|SRectLayout::dfGravity);
-		if(pct)
-			Bottom.Set(size * 100, SRectLayout::dfRel);
-		else
-			Bottom.Set(size, SRectLayout::dfAbs);
-		return *this;
-	}
-
-	SRectLayout::Item & SRectLayout::Item::SetBottom(int size, int pct)
-	{
-		Left.Set(0, SRectLayout::dfAbs);
-		Right.Set(0, SRectLayout::dfAbs|SRectLayout::dfOpp);
-		if(pct)
-			Top.Set(size * 100, SRectLayout::dfRel|SRectLayout::dfOpp);
-		else
-			Top.Set(size, SRectLayout::dfAbs|SRectLayout::dfOpp);
-		Bottom.Set(0, SRectLayout::dfAbs|SRectLayout::dfGravity|SRectLayout::dfOpp);
-		return *this;
-	}
-
-	SRectLayout::Item & SRectLayout::Item::SetCenter()
-	{
-		Left.Set(0, SRectLayout::dfAbs);
-		Right.Set(0, SRectLayout::dfAbs|SRectLayout::dfOpp);
-		Top.Set(0, SRectLayout::dfAbs);
-		Bottom.Set(0, SRectLayout::dfAbs|SRectLayout::dfOpp);
-		return *this;
-	}
-
-	SRectLayout::SRectLayout()
-	{
-	}
-
-	SRectLayout::~SRectLayout()
-	{
-	}
-
-	int SRectLayout::Add(long itemId, const SRectLayout::Item & rItem)
-	{
-		int    ok = 1;
-		if(!List.lsearch(&itemId, 0, CMPF_LONG)) {
-			RItem new_item;
-			MEMSZERO(new_item);
-			new_item.Id = itemId;
-			new_item.Left = rItem.Left;
-			new_item.Top = rItem.Top;
-			new_item.Right = rItem.Right;
-			new_item.Bottom = rItem.Bottom;
-			new_item.EmptyWidth = rItem.EmptyWidth;
-			new_item.EmptyHeight = rItem.EmptyHeight;
-			new_item.InnerOrder = rItem.InnerOrder;
-			List.insert(&new_item);
-		}
-		else
-			ok = 0;
-		return ok;
-	}
-
-	int SRectLayout::SetContainerBounds(const TRect & rRect)
-	{
-		int    rearrange = 0;
-		if(ContainerBounds.width() != rRect.width() || ContainerBounds.height() != rRect.height())
-			rearrange = 1;
-		ContainerBounds = rRect;
-		if(rearrange)
-			Arrange();
-		return 1;
-	}
-
-	int SRectLayout::IsEmpty(long itemId) const
-	{
-		uint   pos = 0;
-		return WinList.lsearch(&itemId, &pos, CMPF_LONG) ? 0 : 1;
-	}
-
-	int SRectLayout::InsertWindow(long itemId, TView * pView, int minWidth, int minHeight)
-	{
-		int    ok = 1;
-		if(List.lsearch(&itemId, 0, CMPF_LONG)) {
-			WItem  witem;
-			MEMSZERO(witem);
-			witem.ItemId = itemId;
-			witem.P_View = pView;
-			witem.MinWidth  = static_cast<int16>(minWidth);
-			witem.MinHeight = static_cast<int16>(minHeight);
-			WinList.insert(&witem);
-		}
-		else
-			ok = 0;
-		return ok;
-	}
-
-	int SRectLayout::CalcCoord(Dim dim, int containerLow, int containerUpp, int gravitySide) const
-	{
-		int    p = 0;
-		if(dim.Flags & dfGravity)
-			p = gravitySide ? containerUpp : containerLow;
-		else if(dim.Flags & dfRel) {
-			int    z = ((containerUpp - containerLow) * dim.Val) / 10000;
-			p = (dim.Flags & dfOpp) ? (containerLow + ((containerUpp - containerLow) - z)) : (containerLow + z);
-		}
-		else {
-			p = (dim.Flags & dfOpp) ? (containerUpp - dim.Val) : (containerLow + dim.Val);
-		}
-		return p;
-	}
-
-	int SRectLayout::Locate(SPoint2S p, uint * pItemPos) const
-	{
-		int    ret = 0;
-		for(uint i = 0; !ret && i < List.getCount(); i++)
-			ret = List.at(i).Bounds.contains(p);
-		return ret;
-	}
-
-	int SRectLayout::Arrange()
-	{
-		int    ok = 1;
-		TRect  bounds = ContainerBounds;
-		for(uint i = 0; i < List.getCount(); i++) {
-			RItem & r_item = List.at(i);
-			r_item.Bounds.a.x = CalcCoord(r_item.Left,   ContainerBounds.a.x,  ContainerBounds.b.x, 0);
-			r_item.Bounds.a.y = CalcCoord(r_item.Top,    ContainerBounds.a.y,  ContainerBounds.b.y, 0);
-			r_item.Bounds.b.x = CalcCoord(r_item.Right,  ContainerBounds.a.x,  ContainerBounds.b.x, 1);
-			r_item.Bounds.b.y = CalcCoord(r_item.Bottom, ContainerBounds.a.y,  ContainerBounds.b.y, 1);
-			if(IsEmpty(r_item.Id)) {
-				if(r_item.EmptyWidth >= 0) {
-					if(r_item.Left.Flags & dfGravity)
-						r_item.Bounds.b.x = r_item.Bounds.a.x + r_item.EmptyWidth;
-					else if(r_item.Right.Flags & dfGravity)
-						r_item.Bounds.a.x = r_item.Bounds.b.x - r_item.EmptyWidth;
-				}
-				if(r_item.EmptyHeight >= 0) {
-					if(r_item.Top.Flags & dfGravity)
-						r_item.Bounds.b.y = r_item.Bounds.a.y + r_item.EmptyHeight;
-					else if(r_item.Bottom.Flags & dfGravity)
-						r_item.Bounds.a.y = r_item.Bounds.b.y - r_item.EmptyHeight;
-				}
-			}
-			for(uint j = 0; j < i; j++) {
-				TRect isect;
-				if(r_item.Bounds.Intersect(List.at(j).Bounds, &isect) > 0) {
-					int    wleft = isect.a.x - r_item.Bounds.a.x;
-					int    wright = r_item.Bounds.b.x - isect.b.x;
-					int    hupp = isect.a.y - r_item.Bounds.a.y;
-					int    hlow = r_item.Bounds.b.y - isect.b.y;
-					int    s1 = wleft * r_item.Bounds.height();
-					int    s2 = wright * r_item.Bounds.height();
-					int    s3 = r_item.Bounds.width() * hlow;
-					int    s4 = r_item.Bounds.width() * hupp;
-					int    m = MAX(MAX(s1, s2), MAX(s3, s4));
-					if(m == s1)
-						r_item.Bounds.b.x = isect.a.x;
-					else if(m == s2)
-						r_item.Bounds.a.x = isect.b.x;
-					else if(m == s3)
-						r_item.Bounds.a.y = isect.b.y;
-					else if(m == s4)
-						r_item.Bounds.b.y = isect.a.y;
-				}
-			}
-			for(uint j = 0; j < WinList.getCount(); j++) {
-				WItem & r_witem = WinList.at(j);
-				if(r_witem.ItemId == r_item.Id) {
-					r_witem.Bounds = r_item.Bounds;
-					if(r_witem.P_View) {
-						r_witem.P_View->changeBounds(r_witem.Bounds);
-					}
-				}
-			}
-		}
-		return ok;
-	}
-#endif // } 0 @v10.9.12 (deprecated)
-//
-//
-//
 static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 
 /*static*/int TWindowBase::RegWindowClass(int iconId)
@@ -1367,7 +1145,7 @@ static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 		return -1;
 }
 
-/*static*/void __stdcall TWindowBase::SetupLayoutItemFrame(SUiLayout * pItem, const SUiLayout::Result & rR) // @v10.9.3
+/*static*/void __stdcall TWindowBase::SetupLayoutItemFrame(SUiLayout * pItem, const SUiLayout::Result & rR)
 {
 	TView * p_view = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
 	if(p_view) {

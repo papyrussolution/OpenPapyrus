@@ -761,9 +761,8 @@ struct __GoodsStockExt {  // @persistent @store(PropertyTbl)
 	long    Prop;         // const GDSPRP_STOCKDATA
 	long    Brutto;       // Масса брутто, г (Если Package != 0, то масса упаковки)
 	PPDimention PckgDim;  // Габаритные размеры упаковки поставки
-	// @v9.5.10 double  MinStock;     // Минимальный запас товара
-	uint32  Reserve3;     // @v9.5.10 // @v9.8.12 [2]-->[1]
-	float   NettBruttCoeff; // @v9.8.12
+	uint32  Reserve3;     //
+	float   NettBruttCoeff; //
 	double  Package;      // Емкость упаковки при поставке (торговых единиц)
 	int16   ExpiryPeriod;
 	int16   GseFlags;     //
@@ -790,8 +789,7 @@ int GoodsCore::PutStockExt(PPID id, const GoodsStockExt * pData, int use_ta)
 		p_strg->Prop     = GDSPRP_STOCKDATA;
 		p_strg->Brutto   = pData->Brutto;
 		p_strg->PckgDim  = pData->PckgDim;
-		// @v9.5.10 p_strg->MinStock = 0; // @v6.1.11 AHTOXA больше не используется, храниться в массиве MinStockList с Ид склада = 0
-		p_strg->NettBruttCoeff = pData->NettBruttCoeff; // @v9.8.12
+		p_strg->NettBruttCoeff = pData->NettBruttCoeff;
 		p_strg->Package  = pData->Package;
 		p_strg->ExpiryPeriod = pData->ExpiryPeriod;
 		p_strg->GseFlags = pData->GseFlags;
@@ -3547,7 +3545,6 @@ int GoodsCore::BelongToDynGen(PPID goodsID, PPID * pGenID, PPIDArray * pList)
 			if(GetExt(goodsID, &ext) > 0) {
 				ClsdGoodsFilt flt;
 				gc_pack.GetDynGenFilt(&ext, &flt);
-				// @v6.2.5 flt.Flags |= ClsdGoodsFilt::fFirstGenGoods;
 				THROW(GetListByExtFilt(&flt, &list));
 				if(list.getCount()) {
 					if(pGenID) {

@@ -109,6 +109,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>$(OutDir)..\_work\static\legacy.def</ModuleDefinitionFile>
@@ -129,6 +130,7 @@
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>$(OutDir)..\_work\static\legacy.def</ModuleDefinitionFile>
@@ -150,6 +152,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>$(OutDir)..\_work\static\legacy.def</ModuleDefinitionFile>
@@ -170,6 +173,7 @@
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL-302\providers\implementations\include;..\osf\OpenSSL-302\providers\common\include;..\osf\OpenSSL-302\include\internal\crypto;..\osf\OpenSSL-302\include;..\osf\OpenSSL-302;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>$(OutDir)..\_work\static\legacy.def</ModuleDefinitionFile>

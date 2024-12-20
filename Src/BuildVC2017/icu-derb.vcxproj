@@ -249,6 +249,8 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ConformanceMode>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">1Byte</StructMemberAlignment>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">1Byte</StructMemberAlignment>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;Dwmapi.lib;Netapi32.lib;Userenv.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -283,6 +285,8 @@
       <ConformanceMode Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ConformanceMode>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">1Byte</StructMemberAlignment>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">1Byte</StructMemberAlignment>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;Dwmapi.lib;Netapi32.lib;Userenv.lib;%(AdditionalDependencies)</AdditionalDependencies>

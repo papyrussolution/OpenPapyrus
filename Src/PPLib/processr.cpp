@@ -1025,7 +1025,7 @@ int PPObjProcessor::GetPacket(PPID id, PPProcessorPacket * pPack)
 	int    ok = -1;
 	Reference * p_ref = PPRef;
 	pPack->Z();
-	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+	if(PPCheckGetObjPacketID(Obj, id)) {
 		ok = Search(id, &pPack->Rec);
 		if(ok > 0) {
 			THROW(GetExtention(id, &pPack->Ext));

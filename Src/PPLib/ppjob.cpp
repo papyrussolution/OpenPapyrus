@@ -4393,3 +4393,81 @@ public:
 };
 
 IMPLEMENT_JOB_HDL_FACTORY(STYLOQPREPAREAHEAD);
+//
+//
+//
+class JOB_HDL_CLS(APTEKARUINTERCHANGE) : public PPJobHandler {
+public:
+	JOB_HDL_CLS(APTEKARUINTERCHANGE)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, void * extraPtr) 
+	{ 
+		int    ok = -1;
+		if(pParam) {
+			PrcssrAptekaRu prc;
+			PrcssrAptekaRuFilt filt;
+			if(!filt.Read(*pParam, 0))
+				prc.InitParam(&filt);
+			if(prc.EditParam(&filt) > 0) {
+				if(filt.Write(pParam->Z(), 0)) {
+					ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, void * extraPtr)
+	{
+		int    ok = 1;
+		PrcssrAptekaRu prc;
+		PrcssrAptekaRuFilt filt;
+		THROW(pParam);
+		THROW(filt.Read(*pParam, 0));
+		THROW(prc.Init(&filt));
+		THROW(prc.Run());
+		CATCHZOKPPERR
+		return ok;
+	}
+};
+
+IMPLEMENT_JOB_HDL_FACTORY(APTEKARUINTERCHANGE);
+//
+//
+//
+class JOB_HDL_CLS(MARKETPLACEINTERCHANGE) : public PPJobHandler {
+public:
+	JOB_HDL_CLS(MARKETPLACEINTERCHANGE)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, void * extraPtr) 
+	{ 
+		int    ok = -1;
+		if(pParam) {
+			PrcssrMarketplaceInterchange prc;
+			MarketplaceInterchangeFilt filt;
+			if(!filt.Read(*pParam, 0))
+				prc.InitParam(&filt);
+			if(prc.EditParam(&filt) > 0) {
+				if(filt.Write(pParam->Z(), 0)) {
+					ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, void * extraPtr)
+	{
+		int    ok = 1;
+		PrcssrMarketplaceInterchange prc;
+		MarketplaceInterchangeFilt filt;
+		THROW(pParam);
+		THROW(filt.Read(*pParam, 0));
+		THROW(prc.Init(&filt));
+		THROW(prc.Run());
+		CATCHZOKPPERR
+		return ok;
+	}
+};
+
+IMPLEMENT_JOB_HDL_FACTORY(MARKETPLACEINTERCHANGE);

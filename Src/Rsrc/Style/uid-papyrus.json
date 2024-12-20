@@ -3,7 +3,9 @@
 		"standalone_list_width": 300,
 		"standalone_list_height": 200,
 		"desktop_icon_size": 32,
-		"desktop_icon_gap": 8
+		"desktop_icon_gap": 8,
+		"font_smoothing_type": "cleartype",
+		"font_smoothing_contrast": 1600
 	},
 	"colorset_list": [
 		{
@@ -34,6 +36,7 @@
 		},
 		{
 			"symb": "papyrus_style",
+			"main_window_bg": "#20639B",
 			"button_bg": "#DCD9D1",
 			"button_sel_bg": "#BABAC9",
 			"button_border": "$icon_reg",

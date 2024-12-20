@@ -262,7 +262,7 @@ int TWhatmanObject::Setup__(SetupByToolCmdBlock & rBlk)
 			Bounds = P_Owner->GetOwnerWindow()->getRect();
 		else
 			Bounds = rBlk.P_ToolItem->FigSize;
-		SetLayoutBlock(&rBlk.P_ToolItem->Alb); // @v10.9.10
+		SetLayoutBlock(&rBlk.P_ToolItem->Alb);
 		HandleCommand(cmdSetupByTool, &rBlk);
 	}
 	CATCHZOK
@@ -351,7 +351,6 @@ int TWhatmanObject::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	THROW(pCtx->Serialize(dir, Bounds.a, rBuf));
 	THROW(pCtx->Serialize(dir, Bounds.b, rBuf));
 	THROW(pCtx->Serialize(dir, Options, rBuf));
-	// @v10.9.9 {
 	{
 		uint32 local_sign_tag = 0;
 		if(dir > 0 || (pCtx->GetLocalSignatureTag(TWhatman::GetSerializeSignature(), &local_sign_tag) && local_sign_tag >= 2)) {
@@ -359,7 +358,6 @@ int TWhatmanObject::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 			THROW(Le2.Serialize(dir, rBuf, pCtx));
 		}
 	}
-	// } @v10.9.9 
 	CATCHZOK
 	return ok;
 }
@@ -558,7 +556,6 @@ int TWhatman::SetParam(const TWhatman::Param & rP)
 int TWhatman::InsertObject(TWhatmanObject * pObj, int beforeIdx)
 {
 	int    ok = 1;
-	// @v10.9.7 {
 	if(pObj->Options & TWhatmanObject::oContainer) {
 		WhatmanObjectLayoutBase * p_lo = static_cast<WhatmanObjectLayoutBase *>(pObj);
 		if(p_lo->GetContainerIdent().IsEmpty()) {
@@ -567,7 +564,6 @@ int TWhatman::InsertObject(TWhatmanObject * pObj, int beforeIdx)
 			p_lo->SetContainerIdent(temp_buf);
 		}
 	}
-	// } @v10.9.7 
 	if(pObj->Options & TWhatmanObject::oBackground) {
 		//
 		// При вставке фонового объекта предварительно удаляем существующие фоновые объекты
@@ -2143,7 +2139,7 @@ TWhatmanToolArray & TWhatmanToolArray::Z()
 	PicSize = 32;
 	Ap.Init(DIREC_HORZ);
 	Dg.Clear();
-	ALB__.SetDefault(); // @v10.9.9
+	ALB__.SetDefault();
 	return *this;
 }
 
@@ -2380,12 +2376,10 @@ int TWhatmanToolArray::Set(Item & rItem, uint * pPos)
 			r_entry.ReplacedColor = rItem.ReplacedColor;
 			upd = 1;
 		}
-		// @v10.9.10 {
 		if(ex_item.Alb != rItem.Alb) {
 			r_entry.Alb = rItem.Alb;
 			upd = 1;
 		}
-		// } @v10.9.10 
 		if(!upd)
 			ok = -1;
 		else {
@@ -2414,7 +2408,7 @@ int TWhatmanToolArray::Set(Item & rItem, uint * pPos)
 		entry.Flags = rItem.Flags;
 		entry.Id = rItem.Id;
 		entry.ReplacedColor = rItem.ReplacedColor;
-		entry.Alb = rItem.Alb; // @v10.9.10
+		entry.Alb = rItem.Alb;
 		pos = getCount();
 		THROW(insert(&entry));
 	}
@@ -2448,7 +2442,7 @@ int TWhatmanToolArray::Get(uint pos, Item * pItem) const
 		item.Flags = r_entry.Flags;
 		item.Id = r_entry.Id;
 		item.ReplacedColor = r_entry.ReplacedColor;
-		item.Alb = r_entry.Alb; // @v10.9.10
+		item.Alb = r_entry.Alb;
 	}
 	CATCHZOK
 	ASSIGN_PTR(pItem, item);
@@ -2638,7 +2632,7 @@ static int LoadWtBuffer(const char * pFileName, SBuffer & rBuf, uint32 sign, uin
 	THROW(f.CalcCRC(offsetof(WtHeader, Ver), &crc));
 	THROW_S_S(crc == hdr.Crc, SLERR_WTMTA_BADCRC, pFileName);
 	THROW(f.Read(rBuf));
-	ASSIGN_PTR(pVer, hdr.Ver); // @v10.9.9 @fix
+	ASSIGN_PTR(pVer, hdr.Ver);
 	CATCHZOK
 	return ok;
 }
@@ -2647,7 +2641,7 @@ static int LoadWtBuffer(const char * pFileName, SBuffer & rBuf, uint32 sign, uin
 
 int TWhatmanToolArray::Store(const char * pFileName)
 {
-	const  uint32 wta_ver = 2; // @v10.9.9 0-->1 // @v10.9.10 1-->2
+	const  uint32 wta_ver = 2;
 	int    ok = 1;
 	SSerializeContext sctx;
 	SBuffer buf;
@@ -2687,7 +2681,7 @@ int TWhatmanToolArray::Load(const char * pFileName)
 
 int TWhatman::Store(const char * pFileName)
 {
-	const  uint32 wtm_ver = 2; // @v10.4.7 0-->1 // @v10.9.9 1-->2
+	const  uint32 wtm_ver = 2;
 	int    ok = 1;
 	SSerializeContext sctx;
 	SBuffer buf;

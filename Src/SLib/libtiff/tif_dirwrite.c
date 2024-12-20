@@ -1701,47 +1701,40 @@ static int TIFFWriteDirectoryTagSubifd(TIFF * tif, uint32 * ndir, TIFFDirEntry* 
 
 static int TIFFWriteDirectoryTagCheckedAscii(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, char * value)
 {
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(char)==1);
 	return (TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_ASCII, count, count, value));
 }
 
 static int TIFFWriteDirectoryTagCheckedUndefinedArray(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8 * value)
 {
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint8)==1);
 	return (TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_UNDEFINED, count, count, value));
 }
 
 #ifdef notdef
 static int TIFFWriteDirectoryTagCheckedByte(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint8 value)
 {
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint8)==1);
 	return (TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_BYTE, 1, 1, &value));
 }
 #endif
 
 static int TIFFWriteDirectoryTagCheckedByteArray(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint8 * value)
 {
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint8)==1);
 	return (TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_BYTE, count, count, value));
 }
 
 #ifdef notdef
 static int TIFFWriteDirectoryTagCheckedSbyte(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, int8 value)
 {
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int8)==1);
 	return (TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_SBYTE, 1, 1, &value));
 }
 #endif
 
 static int TIFFWriteDirectoryTagCheckedSbyteArray(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, int8* value)
 {
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int8)==1);
 	return (TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_SBYTE, count, count, value));
 }
 
 static int TIFFWriteDirectoryTagCheckedShort(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint16 value)
 {
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint16)==2);
 	uint16 m = value;
 	if(tif->tif_flags&TIFF_SWAB)
 		TIFFSwabShort(&m);
@@ -1751,7 +1744,6 @@ static int TIFFWriteDirectoryTagCheckedShort(TIFF * tif, uint32 * ndir, TIFFDirE
 static int FASTCALL TIFFWriteDirectoryTagCheckedShortArray(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint16* value)
 {
 	assert(count<0x80000000);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint16)==2);
 	if(tif->tif_flags&TIFF_SWAB)
 		TIFFSwabArrayOfShort(value, count);
 	return (TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_SHORT, count, count*2, value));
@@ -1760,7 +1752,6 @@ static int FASTCALL TIFFWriteDirectoryTagCheckedShortArray(TIFF * tif, uint32 * 
 #ifdef notdef
 static int TIFFWriteDirectoryTagCheckedSshort(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, int16 value)
 {
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int16)==2);
 	int16 m = value;
 	if(tif->tif_flags&TIFF_SWAB)
 		TIFFSwabShort((uint16 *)(&m));
@@ -1771,7 +1762,6 @@ static int TIFFWriteDirectoryTagCheckedSshort(TIFF * tif, uint32 * ndir, TIFFDir
 static int TIFFWriteDirectoryTagCheckedSshortArray(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, int16* value)
 {
 	assert(count<0x80000000);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int16)==2);
 	if(tif->tif_flags&TIFF_SWAB)
 		TIFFSwabArrayOfShort((uint16 *)value, count);
 	return (TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_SSHORT, count, count*2, value));
@@ -1796,7 +1786,6 @@ static int TIFFWriteDirectoryTagCheckedLongArray(TIFF * tif, uint32 * ndir, TIFF
 #ifdef notdef
 static int TIFFWriteDirectoryTagCheckedSlong(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, int32 value)
 {
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int32)==4);
 	int32 m = value;
 	if(tif->tif_flags&TIFF_SWAB)
 		TIFFSwabLong((uint32 *)(&m));
@@ -1807,7 +1796,6 @@ static int TIFFWriteDirectoryTagCheckedSlong(TIFF * tif, uint32 * ndir, TIFFDirE
 static int TIFFWriteDirectoryTagCheckedSlongArray(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, int32* value)
 {
 	assert(count<0x40000000);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int32)==4);
 	if(tif->tif_flags&TIFF_SWAB)
 		TIFFSwabArrayOfLong((uint32 *)value, count);
 	return (TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_SLONG, count, count*4, value));
@@ -1817,7 +1805,6 @@ static int TIFFWriteDirectoryTagCheckedSlongArray(TIFF * tif, uint32 * ndir, TIF
 static int TIFFWriteDirectoryTagCheckedLong8(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint64 value)
 {
 	uint64 m;
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
 	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "LONG8 not allowed for ClassicTIFF");
 		return 0;
@@ -1832,7 +1819,6 @@ static int TIFFWriteDirectoryTagCheckedLong8(TIFF * tif, uint32 * ndir, TIFFDirE
 static int TIFFWriteDirectoryTagCheckedLong8Array(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint64* value)
 {
 	assert(count<0x20000000);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
 	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "LONG8 not allowed for ClassicTIFF");
 		return 0;
@@ -1846,7 +1832,6 @@ static int TIFFWriteDirectoryTagCheckedLong8Array(TIFF * tif, uint32 * ndir, TIF
 static int TIFFWriteDirectoryTagCheckedSlong8(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, int64 value)
 {
 	int64 m;
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int64)==8);
 	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		TIFFErrorExt(tif->tif_clientdata, __FUNCTION__, "SLONG8 not allowed for ClassicTIFF");
 		return 0;
@@ -1874,7 +1859,6 @@ static int TIFFWriteDirectoryTagCheckedRational(TIFF * tif, uint32 * ndir, TIFFD
 {
 	static const char module[] = __FUNCTION__;
 	uint32 m[2];
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
 	if(value < 0) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Negative value is illegal");
 		return 0;
@@ -1914,7 +1898,6 @@ static int TIFFWriteDirectoryTagCheckedRationalArray(TIFF * tif, uint32 * ndir, 
 	uint32 * nb;
 	uint32 nc;
 	int o;
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
 	m = static_cast<uint32 *>(SAlloc::M(count*2*sizeof(uint32)));
 	if(!m) {
 		TIFFErrorExtOutOfMemory(tif->tif_clientdata, module);
@@ -1948,13 +1931,11 @@ static int TIFFWriteDirectoryTagCheckedRationalArray(TIFF * tif, uint32 * ndir, 
 static int TIFFWriteDirectoryTagCheckedSrationalArray(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, float* value)
 {
 	static const char module[] = __FUNCTION__;
-	int32* m;
 	float* na;
 	int32* nb;
 	uint32 nc;
 	int o;
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int32)==4);
-	m = static_cast<int32 *>(SAlloc::M(count*2*sizeof(int32)));
+	int32 * m = static_cast<int32 *>(SAlloc::M(count*2*sizeof(int32)));
 	if(!m) {
 		TIFFErrorExtOutOfMemory(tif->tif_clientdata, module);
 		return 0;
@@ -1999,7 +1980,6 @@ static int TIFFWriteDirectoryTagCheckedSrationalArray(TIFF * tif, uint32 * ndir,
 #ifdef notdef
 static int TIFFWriteDirectoryTagCheckedFloat(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, float value)
 {
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(float)==4);
 	float m = value;
 	TIFFCvtNativeToIEEEFloat(tif, 1, &m);
 	if(tif->tif_flags&TIFF_SWAB)
@@ -2011,7 +1991,6 @@ static int TIFFWriteDirectoryTagCheckedFloat(TIFF * tif, uint32 * ndir, TIFFDirE
 static int TIFFWriteDirectoryTagCheckedFloatArray(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, float* value)
 {
 	assert(count<0x40000000);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(float)==4);
 	TIFFCvtNativeToIEEEFloat(tif, count, &value);
 	if(tif->tif_flags&TIFF_SWAB)
 		TIFFSwabArrayOfFloat(value, count);
@@ -2021,7 +2000,6 @@ static int TIFFWriteDirectoryTagCheckedFloatArray(TIFF * tif, uint32 * ndir, TIF
 #ifdef notdef
 static int TIFFWriteDirectoryTagCheckedDouble(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, double value)
 {
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(double)==8);
 	double m = value;
 	TIFFCvtNativeToIEEEDouble(tif, 1, &m);
 	if(tif->tif_flags&TIFF_SWAB)
@@ -2033,7 +2011,6 @@ static int TIFFWriteDirectoryTagCheckedDouble(TIFF * tif, uint32 * ndir, TIFFDir
 static int TIFFWriteDirectoryTagCheckedDoubleArray(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, double* value)
 {
 	assert(count<0x20000000);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(double)==8);
 	TIFFCvtNativeToIEEEDouble(tif, count, &value);
 	if(tif->tif_flags&TIFF_SWAB)
 		TIFFSwabArrayOfDouble(value, count);
@@ -2043,7 +2020,6 @@ static int TIFFWriteDirectoryTagCheckedDoubleArray(TIFF * tif, uint32 * ndir, TI
 static int TIFFWriteDirectoryTagCheckedIfdArray(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint32 * value)
 {
 	assert(count<0x40000000);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
 	if(tif->tif_flags&TIFF_SWAB)
 		TIFFSwabArrayOfLong(value, count);
 	return (TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_IFD, count, count*4, value));
@@ -2052,7 +2028,6 @@ static int TIFFWriteDirectoryTagCheckedIfdArray(TIFF * tif, uint32 * ndir, TIFFD
 static int TIFFWriteDirectoryTagCheckedIfd8Array(TIFF * tif, uint32 * ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint64* value)
 {
 	assert(count<0x20000000);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
 	assert(tif->tif_flags&TIFF_BIGTIFF);
 	if(tif->tif_flags&TIFF_SWAB)
 		TIFFSwabArrayOfLong8(value, count);

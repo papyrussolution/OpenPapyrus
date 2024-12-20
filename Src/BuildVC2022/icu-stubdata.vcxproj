@@ -251,6 +251,8 @@
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</OmitFramePointers>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">1Byte</StructMemberAlignment>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">1Byte</StructMemberAlignment>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <!-- Options that are common to all 'Release' project configurations -->
@@ -275,6 +277,8 @@
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</OmitFramePointers>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">1Byte</StructMemberAlignment>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">1Byte</StructMemberAlignment>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

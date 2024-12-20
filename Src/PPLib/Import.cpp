@@ -5491,14 +5491,15 @@ int PrcssrOsm::InitParam(PPBaseFilt * pBaseFilt)
 }
 
 class PrcssrOsmFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(PrcssrOsmFilt);
 public:
 	PrcssrOsmFiltDialog() : TDialog(DLG_PRCROSM)
 	{
 	}
-	int    setDTS(const PrcssrOsmFilt * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		AddClusterAssoc(CTL_PRCROSM_FLAGS, 0, Data.fPreprocess);
 		AddClusterAssoc(CTL_PRCROSM_FLAGS, 1, Data.fSortPreprcResults);
 		AddClusterAssoc(CTL_PRCROSM_FLAGS, 2, Data.fAnlzPreprcResults);
@@ -5509,7 +5510,7 @@ public:
 		setCtrlString(CTL_PRCROSM_PATH, Data.SrcFileName);
 		return ok;
 	}
-	int    getDTS(PrcssrOsmFilt * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -5518,8 +5519,6 @@ public:
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
-private:
-	PrcssrOsmFilt Data;
 };
 
 int PrcssrOsm::EditParam(PPBaseFilt * pBaseFilt)

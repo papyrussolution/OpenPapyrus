@@ -354,6 +354,7 @@
 			MENUITEM "@cmd_supplinterchange",				cmSupplInterchange
 			MENUITEM "@cmd_vetisinerchange",                cmVetisInterchange // @v10.1.2
 			MENUITEM "@cmd_marketplaceinterchange",         cmMarketplaceInterchange // @v12.1.3
+			MENUITEM "@cmd_aptekaruinterchange",            cmAptekaRuInterchange // @v12.2.2
 		}
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_vetisdocument"                       cmVetisDocument

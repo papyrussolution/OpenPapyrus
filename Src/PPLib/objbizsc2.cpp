@@ -122,7 +122,11 @@ static const int BzsINonAdditiveList[] = {
 	rBuf.Z();
 	const char * p_result = SIntToSymbTab_GetSymbPtr(BzsIDescrList, SIZEOFARRAY(BzsIDescrList), bzsi);
 	if(p_result) {
+#ifdef DL200C
+		rBuf.Z(); // @todo
+#else
 		PPLoadString(p_result, rBuf);
+#endif
 	}
 	return rBuf;
 }

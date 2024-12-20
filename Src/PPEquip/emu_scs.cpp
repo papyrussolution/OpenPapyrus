@@ -1,11 +1,10 @@
 // EMU_SCS.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2003, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2003, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 // Интерфейс эмулятора синхронного кассового аппарата
 //
 #include <pp.h>
 #pragma hdrstop
-// @v10.9.3 #include <process.h>
 
 #define max MAX
 #define min MIN
@@ -26,7 +25,6 @@ public:
 	SCS_SYNCSYM(PPID n, char * name, char * port);
 	~SCS_SYNCSYM();
 	virtual int PrintCheck(CCheckPacket * pPack, uint flags);
-	// @v10.0.0 virtual int PrintCheckByBill(const PPBillPacket * pPack, double multiplier, int departN);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
 	virtual int PrintXReport(const CSessInfo *);
 	virtual int PrintZReportCopy(const CSessInfo *);
@@ -34,7 +32,6 @@ public:
 	virtual int GetSummator(double * val);
 	virtual int PrintBnkTermReport(const char * pZCheck); // @vmiller
 private:
-	// @v10.3.9 virtual int InitChannel();
 	int    SendToPrinter(PrnLinesArray * pPrnLines);
 	int    OpenBox(); // @vmiller
 
@@ -42,9 +39,7 @@ private:
 	SString PrinterPort;
 	HFONT  OldPrinterFont;
 	HDC    PrinterDC;
-	PPObjCSession CsObj; // @v10.4.2
-	// @v10.4.2 CCheckCore CCheckTbl;
-	// @v10.4.2 CSessionCore CSessTbl;
+	PPObjCSession CsObj;
 };
 
 class CM_SYNCSYM : public PPCashMachine {
@@ -80,8 +75,6 @@ SCS_SYNCSYM::~SCS_SYNCSYM()
 		::DeleteDC(PrinterDC);
 	}
 }
-
-// @v10.3.9 int SCS_SYNCSYM::InitChannel() { return 1; }
 
 #define AXIOHM_CMD_SETCHARTBL_BYTE1  0x1B
 #define AXIOHM_CMD_SETCHARTBL_BYTE2  0x52

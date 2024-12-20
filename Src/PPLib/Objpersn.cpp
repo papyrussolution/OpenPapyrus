@@ -1076,7 +1076,6 @@ int PPObjPerson::IsPacketEq(const PPPersonPacket & rS1, const PPPersonPacket & r
 			PPLocationPacket d1, d2;
 			uint   p1 = 0, p2 = 0;
 			while(eq && rS1.EnumDlvrLoc(&p1, &d1) && rS2.EnumDlvrLoc(&p2, &d2)) {
-				// if(!LocationCore::IsEqualRec(d1, d2))
 				if(!LocObj.IsPacketEq(d1, d2, 0))
 					eq = 0;
 			}
@@ -3447,13 +3446,10 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 				ObjLinkFiles _lf(PPOBJ_PERSON);
 				THROW(CheckRights(PPR_DEL));
 				_lf.Save(id, 0L);
-				// @v10.5.3 (мы уже извлекли оригинальный пакет выше) THROW(Search(id, 0) > 0);
-				// @v10.5.3 {
 				if(DoObjVer_Person && p_ovc && p_ovc->InitSerializeContext(0)) {
 					SSerializeContext & r_sctx = p_ovc->GetSCtx();
 					THROW(SerializePacket(+1, &org_pack, hist_buf, &r_sctx));
 				}
-				// } @v10.5.3
 				if(org_pack.Rec.MainLoc)
 					THROW(LocObj.PutRecord(&org_pack.Rec.MainLoc, 0, 0));
 				if(org_pack.Rec.RLoc)
@@ -3475,30 +3471,25 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 					StringSet phone_list;
 					THROW(P_Tbl->GetELinks(id, ela));
 					ela.GetListByType(ELNKRT_PHONE, phone_list);
-					ela.GetListByType(ELNKRT_INTERNALEXTEN, phone_list); // @v10.0.0
+					ela.GetListByType(ELNKRT_INTERNALEXTEN, phone_list);
 					PPObjID objid(Obj, id);
 					for(uint plp = 0; phone_list.get(&plp, temp_buf);) {
 						THROW(LocObj.P_Tbl->IndexPhone(temp_buf, &objid, 1, 0));
 					}
 				}
 				THROW(P_Tbl->PutELinks(id, 0, 0));
-				// @v10.5.3THROW(p_ref->PutPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, 0));
-				// @v10.5.3 THROW(p_ref->PutProp(Obj, id, PSNPRP_CASHIERINFO, 0));
-				// @v10.5.3 THROW(p_ref->PutPropArray(Obj, id, SLPPRP_AMTLIST, 0, 0));
 				THROW(P_Tbl->Put(&id, 0, 0));
-				THROW(p_ref->RemoveProperty(Obj, id, 0, 0)); // @v10.5.3
-				THROW(RemoveSync(id)); // @v10.5.3
+				THROW(p_ref->RemoveProperty(Obj, id, 0, 0));
+				THROW(RemoveSync(id));
 				THROW(p_ref->Ot.PutList(Obj, id, 0, 0));
 				action = PPACN_OBJRMV;
 				dirty_id = id;
 			}
-			// @v10.5.3 {
 			if(id && DoObjVer_Person && hist_buf.GetAvailableSize()) {
 				if(p_ovc && p_ovc->InitSerializeContext(0)) {
 					THROW(p_ovc->Add(&hid, PPObjID(Obj, id), &hist_buf, 0));
 				}
 			}
-			// } @v10.5.3
 		}
 		if(action && id)
 			DS.LogAction(action, Obj, id, hid, 0);
@@ -6574,25 +6565,20 @@ IMPL_OBJ_FETCH(PPObjPerson, PersonTbl::Rec, PersonCache)
 int STDCALL SetupPersonCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID personKindID, int disableIfZeroPersonKind)
 {
 	int    ok = 1;
-	// @v10.3.0 (never used) int    create_ctl_grp = 0;
 	if(disableIfZeroPersonKind)
 		dlg->disableCtrl(ctlID, personKindID == 0);
-	//if(personKindID) {
-		PersonCtrlGroup * p_grp = 0;
-		if(!(p_grp = static_cast<PersonCtrlGroup *>(dlg->getGroup(ctlID)))) {
-			p_grp = new PersonCtrlGroup(ctlID, 0, personKindID);
-			dlg->addGroup(ctlID, p_grp);
-		}
-		else
-			p_grp->SetPersonKind(personKindID);
-		ok = SetupPPObjCombo(dlg, ctlID, PPOBJ_PERSON, id, flags, reinterpret_cast<void *>(personKindID));
-		if(ok) {
-			int min_symb = personKindID ? 2 : 4;
-			dlg->SetupWordSelector(ctlID, new PersonSelExtra(0, personKindID), id, min_symb, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v10.1.6 WordSel_ExtraBlock::fAlwaysSearchBySubStr
-		}
-	/*}
+	PersonCtrlGroup * p_grp = static_cast<PersonCtrlGroup *>(dlg->getGroup(ctlID));
+	if(!p_grp) {
+		p_grp = new PersonCtrlGroup(ctlID, 0, personKindID);
+		dlg->addGroup(ctlID, p_grp);
+	}
 	else
-		dlg->setCtrlLong(ctlID, 0);*/
+		p_grp->SetPersonKind(personKindID);
+	ok = SetupPPObjCombo(dlg, ctlID, PPOBJ_PERSON, id, flags, reinterpret_cast<void *>(personKindID));
+	if(ok) {
+		int min_symb = personKindID ? 2 : 4;
+		dlg->SetupWordSelector(ctlID, new PersonSelExtra(0, personKindID), id, min_symb, WordSel_ExtraBlock::fAlwaysSearchBySubStr);
+	}
 	return ok;
 }
 
@@ -6606,14 +6592,10 @@ int MessagePersonBirthDay(TDialog * pDlg, PPID psnID)
 		SString name_buf;
 		if(GetPersonName(psnID, name_buf) > 0) {
 			SString msg_buf, fmt_buf;
-			// @v10.2.4 PPLoadText(PPTXT_BIRTHDAYINFO, fmt_buf);
-			// @v10.2.4 msg_buf.Printf(fmt_buf, name_buf.cptr());
-			// @v10.2.4 {
 			PPLoadText(PPTXT_CLIBIRTHDAY, fmt_buf);
 			PPFormat(fmt_buf, &msg_buf, name_buf.cptr(), (int)(getcurdate_().year() - dob.year()));
 			PPTooltipMessage(msg_buf, 0, pDlg->H(), 20000, GetColorRef(SClrPink),
 				SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus/*|SMessageWindow::fLargeText*/);
-			// } @v10.2.4
 			ok = 1;
 		}
 	}
@@ -6634,7 +6616,6 @@ PPObjPersonKind::PPObjPersonKind(void * extraPtr) : PPObjReference(PPOBJ_PERSONK
 int PPObjPersonKind::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
-	// @v10.3.0 (never used) int    ta = 0;
 	bool   is_new = false;
 	PPPersonKind psnk;
 	TDialog * dlg = 0;
@@ -6933,7 +6914,7 @@ int PPNewContragentDetectionBlock::IsNewPerson(PPID psnID, const DateRange & rPe
 			BillCore * t = BillObj->P_Tbl;
 			PPID   prev_ar_id = 0;
 			for(i = 0; yes != 0 && i < ar_op_list.getCount(); i++) {
-				// Object, Dt, BillNo (unique mod);                               // #3
+				// Object, Dt, BillNo (unique mod); // #3
 				const  PPID ar_id = ar_op_list.at(i).Key;
 				if(ar_id && (!prev_ar_id || ar_id != prev_ar_id)) {
 					BillTbl::Key3 k3;
@@ -7017,9 +6998,6 @@ int PPNewContragentDetectionBlock::IsNewPerson(PPID psnID, const DateRange & rPe
 	}
 	if(yes < 0)
 		yes = 0;
-	/*CATCH
-		yes = 0;
-	ENDCATCH*/
 	return yes;
 }
 

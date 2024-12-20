@@ -1325,8 +1325,7 @@ int STDCALL BroadcastObjMessage(int msg, PPID srcObjType, PPID srcObjID, void * 
 	return 1;
 }
 
-/* @v12.0.1 
-int STDCALL GetObjectName(PPID obj, PPID id, char * pBuf, size_t bufLen)
+/* @v12.0.1 int STDCALL GetObjectName(PPID obj, PPID id, char * pBuf, size_t bufLen)
 {
 	int    r = 0;
 	ASSIGN_PTR(pBuf, 0);
@@ -1338,8 +1337,7 @@ int STDCALL GetObjectName(PPID obj, PPID id, char * pBuf, size_t bufLen)
 		}
 	}
 	return r;
-}
-*/
+}*/
 
 static int STDCALL Implement_GetObjectName(PPID objType, PPID objID, SString & rBuf, bool cat)
 {

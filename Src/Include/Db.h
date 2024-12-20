@@ -99,7 +99,7 @@ private:
 	};
 	struct Hdr {
 		uint32 Signature[4];
-		void * H; // @v10.4.5 uint32-->void *
+		void * H;
 		uint32 RdPos;
 		int32  Flags;     // SLob::hfXXX
 		uint32 PtrSize;   // Если Flags & hfPtr, то PtrSize - размер области памяти, распределнной под указатель (void *)H
@@ -153,8 +153,7 @@ public:
 	SString Name;       // Наименование поля       //
 	SString Descr;      // Текстовое описание поля //
 	SString OuterFormula; // Если поле представлено не значением, а формулой, то последняя хранится здесь.
-	SString InnerFormula; // @v10.9.1 При транзите настройки сопоставления полей здесь
-		// хранится формула, сопоставленная с внутренним представлением данных (со значением ID)
+	SString InnerFormula; // При транзите настройки сопоставления полей здесь хранится формула, сопоставленная с внутренним представлением данных (со значением ID)
 private:
 	int    Helper_TranslateString(SStrScan & rScan, void * pData);
 };
@@ -1538,7 +1537,7 @@ private:
 	void * FASTCALL GetIndPtr(const Bind * pBind, uint rowN) const;
 
 	DbProvider * P_Db;
-	void * H; // @v10.9.3 uint32-->void *
+	void * H;
 	void * P_Result; // @v11.0.4
 	long   Flags;
 	BindArray BL;
@@ -1662,8 +1661,8 @@ public:
 	int    FASTCALL HasNote(DBField * pLastFld) const;
 	int    FASTCALL HasLob(DBField * pLastFld) const;
 	void   FASTCALL setDataBuf(void * aBuf, RECORDSIZE aBufLen);
-	void * FASTCALL getDataBuf() { return static_cast<void *>(P_DBuf); } // @v10.3.5 (char *)-->(void *)
-	const  void * FASTCALL getDataBufConst() const{ return static_cast<const void *>(P_DBuf); } // @v10.3.5 (char *)-->(void *)
+	void * FASTCALL getDataBuf() { return static_cast<void *>(P_DBuf); }
+	const  void * FASTCALL getDataBufConst() const{ return static_cast<const void *>(P_DBuf); }
 	void   FASTCALL setBuffer(SBaseBuffer &);
 	const  SBaseBuffer getBuffer() const;
 	int    allocOwnBuffer(int size = -1);

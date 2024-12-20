@@ -3440,9 +3440,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 		CsObj.BuildCcDate2MaxIdIndex(PPObjCSession::buildccdate2maxidindexMode_SkipIfCached); // @v11.7.4
 		P_PalmWaiter = new PalmImportWaiter(CheckPaneDialog::PalmImport, this); // @newok
 		{
-			// @v11.2.6 UserInterfaceSettings uis;
-			// @v11.2.6 if(uis.Restore() > 0 && uis.Flags & UserInterfaceSettings::fDisableBeep)
-			if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDisableBeep) // @v11.2.6
+			if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDisableBeep)
 				EnableBeep(0);
 		}
 		if(CnFlags & CASHF_SYNC) {
@@ -3570,7 +3568,6 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	showCtrl(STDCTL_SYSINFOBUTTON, !(Flags & fAsSelector));
 	showCtrl(STDCTL_OKBUTTON,  Flags & fAsSelector);
 	showCtrl(STDCTL_PRINT,    !(Flags & fAsSelector));
-	// @v10.4.12 setCtrlOption(CTL_CHKPAN_INPUT, ofFramed, 1);
 	setupHint();
 	SetupInfo(0);
 	if(!SetupStrListBox(this, CTL_CHKPAN_LIST) || !LoadCheck(P_ChkPack, 0, false))
@@ -6108,7 +6105,6 @@ private:
 			GetClusterData(CTL_CCHKDLVR_FLAGS, &Data.Flags);
 			SetupDeliveryCtrls(0);
 		}
-		// @v10.2.8 {
 		else if(event.isClusterClk(CTL_CCHKDLVR_LPHTOCRD)) {
 			const long preserve_flags = Data.Flags;
 			SString temp_buf;
@@ -6140,7 +6136,6 @@ private:
 				}
 			}
 		}
-		// } @v10.2.8
 		else if(event.isCmd(cmSelAddrByPhone)) {
 			const  uint c = AddrByPhoneList.getCount();
 			if(Data.Flags & Data.fDelivery && c) {
@@ -7475,7 +7470,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					}
 					Barrier(1);
 				}
-				break; // @v10.3.2 @fix (отсутствовал break)
+				break;
 			case kbCtrlF8: // Просмотр информации о персональной карте
 				if(!Barrier()) {
 					PPID   scard_id = CSt.GetID();

@@ -9500,8 +9500,18 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 						rPbrBlk.DlvrLocID = PPObjLocation::ObjToWarehouse(rBp.Rec.Object);
 					}
 					else {
-						rPbrBlk.PersonID = ObjectToPerson(rBp.Rec.Object);
-						rPbrBlk.DlvrLocID = rBp.GetDlvrAddrID();
+						// @v12.2.1 {
+						PPID   dlvr_loc_id = 0;
+						const int gdar = p_bobj->GetDlvrAddrID(rBp.Rec, rBp.P_Freight, &dlvr_loc_id);
+						if(gdar == 2) {
+							rPbrBlk.PersonID = P.MainOrgID;
+							rPbrBlk.DlvrLocID = dlvr_loc_id;
+						}
+						else {
+							rPbrBlk.PersonID = ObjectToPerson(rBp.Rec.Object);
+							rPbrBlk.DlvrLocID = dlvr_loc_id;
+						}
+						// } @v12.2.1 
 					}
 					THROW_PP_S(rPbrBlk.DlvrLocID && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, rPbrBlk.DlvrLocID, PPTAG_LOC_VETIS_GUID, rPbrBlk.DlvrLocGuid) > 0, PPERR_VETISBILLHASNTDLVRLOCGUID, bill_text);
 					THROW_PP_S(p_ref->Ot.GetTagGuid(PPOBJ_PERSON, rPbrBlk.PersonID, PPTAG_PERSON_VETISUUID, rPbrBlk.PersonGuid) > 0, PPERR_VETISBILLHASNTOBJGUID, bill_text);

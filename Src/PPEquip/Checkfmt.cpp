@@ -141,7 +141,7 @@ public:
 		long   EntryNo;
 		long   SrcItemsCount;
 		long   PrintedLineNo; // Номер строки на листе
-		int    ChZnProductType; // @v10.7.2 // @v11.9.3 long-->int
+		int    ChZnProductType; // @v11.9.3 long-->int
 		uint   PageWidth;     // ==PPSlipFormat::PageWidth  Справочное поле
 		uint   PageLength;    // ==PPSlipFormat::PageLength Справочное поле
 		uint   RegTo;         // ==PPSlipFormat::RegTo      Справочное поле
@@ -729,13 +729,13 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					else if(Src == srcCSession)
 						rResult.Cat(P_SessInfo->Total.Amount, SFMT_MONEY);
 					break;
-				case symbAmountBonus: // @v10.6.5 AMOUNTBONUS
+				case symbAmountBonus: // AMOUNTBONUS
 					if(Src == srcCCheck) {
 						const double b = p_ccp->AL_Const().GetBonusAmount(&P_Od->ScObj);
 						rResult.Cat(b, SFMT_MONEY);
 					}
 					break;
-				case symbAmountWoBonus: // @v10.6.5 AMOUNTWOBONUS 
+				case symbAmountWoBonus: // AMOUNTWOBONUS 
 					if(Src == srcCCheck) {
 						const double a = MONEYTOLDBL(p_ccp->Rec.Amount);
 						const double b = p_ccp->AL_Const().GetBonusAmount(&P_Od->ScObj);
@@ -843,7 +843,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					if(Src == srcCCheck) {
 						double fiscal, nonfiscal;
 						p_ccp->HasNonFiscalAmount(&fiscal, &nonfiscal);
-						if(PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) // @v10.4.8
+						if(PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems)
 							rResult.Cat(fiscal, SFMT_MONEY);
 						else
 							rResult.Cat(fiscal + nonfiscal, SFMT_MONEY);
@@ -851,13 +851,13 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					else if(Src == srcGoodsBill)
 						rResult.Cat(p_bp->Rec.Amount, SFMT_MONEY);
 					else
-						rResult.Cat(P_SessInfo->Total.FiscalAmount, SFMT_MONEY); // @v7.5.8 WORetAmount-->FiscalAmount
+						rResult.Cat(P_SessInfo->Total.FiscalAmount, SFMT_MONEY);
 					break;
 				case symbNonFiscalAmount: // NONFISCALAMOUNT
 					if(Src == srcCCheck) {
 						double fiscal, nonfiscal;
 						p_ccp->HasNonFiscalAmount(&fiscal, &nonfiscal);
-						if(PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) // @v10.4.8
+						if(PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems)
 							rResult.Cat(nonfiscal, SFMT_MONEY);
 						else
 							rResult.Cat(0.0, SFMT_MONEY);
@@ -1221,7 +1221,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				case symbDivision:
 					if(Src == srcCCheck && GetCurCheckItem(pIter, &cc_item))
 						rResult.Cat((long)((cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? (cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS) : cc_item.DivID));
-					break; // @v10.3.2 @fix (отсутствовал break)
+					break;
 				case symbInitTime:          // INITTIME
 					if(Src == srcCCheck)
 						rResult.Cat(p_ccp->Ext.CreationDtm, DATF_DMY|DATF_NOZERO, TIMF_HMS|TIMF_NOZERO);
@@ -1545,7 +1545,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							pIter->VatRate = 0.0;
 							pIter->DivID = (cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? (cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS) : cc_item.DivID;
 							pIter->GoodsID = cc_item.GoodsID;
-							// @v11.1.5 pIter->Ptt = CCheckPacket::pttUndef; // @v10.4.1
+							// @v11.1.5 pIter->Ptt = CCheckPacket::pttUndef;
 							pIter->Ptt = (P_CcPack->PrintPtt >= 0 && P_CcPack->PrintPtt <= 7) ? (CCheckPacket::PaymentTermTag)P_CcPack->PrintPtt : CCheckPacket::pttUndef; // @v11.1.5
 							pIter->Stt = CCheckPacket::sttUndef; // @erikP v10.4.12
 							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
@@ -1670,10 +1670,8 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 								STRNSCPY(pIter->Code, temp_buf);
 								if(P_Od->GObj.FetchTax(pIter->GoodsID, ti.Date, 0, &tax_entry) > 0)
 									pIter->VatRate = tax_entry.GetVatRate();
-								// @v10.4.1 {
 								if(goods_rec.GoodsTypeID && P_Od->GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_ADVANCECERT)
 									pIter->Ptt = CCheckPacket::pttAdvance;
-								// } @v10.4.1 
 							}
 						}
 					}
@@ -2333,14 +2331,14 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 				else if(token == tokTitle) {
 					THROW_PP_S(NextToken(file, tok_result) == tokEq, PPERR_TOKENEXPECTED, "=");
 					token = NextToken(file, tok_result);
-					THROW_PP_S(token == tokString, PPERR_TOKENEXPECTED, "string"); // @v10.3.0 @fix =-->==
+					THROW_PP_S(token == tokString, PPERR_TOKENEXPECTED, "string");
 					Title = tok_result.Transf(CTRANSF_INNER_TO_OUTER);
 					token = 0;
 				}
 				else if(token == tokHeadLines) {
 					THROW_PP_S(NextToken(file, tok_result) == tokEq, PPERR_TOKENEXPECTED, "=");
 					token = NextToken(file, tok_result);
-					THROW_PP_S(token == tokNumber, PPERR_TOKENEXPECTED, "number"); // @v10.3.0 @fix =-->==
+					THROW_PP_S(token == tokNumber, PPERR_TOKENEXPECTED, "number");
 					HeadLines = tok_result.ToLong();
 					token = 0;
 				}
@@ -2354,14 +2352,14 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 				else if(token == tokPageWidth) {
 					THROW_PP_S(NextToken(file, tok_result) == tokEq, PPERR_TOKENEXPECTED, "=");
 					token = NextToken(file, tok_result);
-					THROW_PP_S(token == tokNumber, PPERR_TOKENEXPECTED, "number"); // @v10.3.0 @fix =-->==
+					THROW_PP_S(token == tokNumber, PPERR_TOKENEXPECTED, "number");
 					PageWidth = tok_result.ToLong();
 					token = 0;
 				}
 				else if(token == tokPageLength) {
 					THROW_PP_S(NextToken(file, tok_result) == tokEq, PPERR_TOKENEXPECTED, "=");
 					token = NextToken(file, tok_result);
-					THROW_PP_S(token == tokNumber, PPERR_TOKENEXPECTED, "number"); // @v10.3.0 @fix =-->==
+					THROW_PP_S(token == tokNumber, PPERR_TOKENEXPECTED, "number");
 					PageLength = tok_result.ToLong();
 					token = 0;
 				}
@@ -2437,7 +2435,7 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 				else if(token == tokTextOutput) {
 					THROW_PP_S(NextToken(file, tok_result) == tokEq, PPERR_TOKENEXPECTED, "=");
 					token = NextToken(file, tok_result);
-					THROW_PP_S(token == tokNumber, PPERR_TOKENEXPECTED, "number"); // @v10.3.0 @fix =-->==
+					THROW_PP_S(token == tokNumber, PPERR_TOKENEXPECTED, "number");
 					TextOutput = tok_result.ToLong();
 					token = 0;
 				}

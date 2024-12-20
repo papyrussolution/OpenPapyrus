@@ -18,17 +18,13 @@ uint PalmBillQueue::GetItemsCount() const { return getCount(); }
 bool PalmBillQueue::IsEmpty() const { return !getCount(); }
 int  PalmBillQueue::Push(PalmBillPacket * pPack) { return insert(pPack) ? 1 : PPSetErrorSLib(); }
 
-// @v10.7.2 #define COMPARE(a,b) ((a)>(b)) ? 1 : (((a)<(b)) ? -1 : 0)
-
 IMPL_CMPFUNC(PalmBillPacket, i1, i2)
 {
 	const PalmBillPacket * p_i1 = static_cast<const PalmBillPacket *>(i1);
 	const PalmBillPacket * p_i2 = static_cast<const PalmBillPacket *>(i2);
-	// @v10.7.2 int    r = COMPARE(p_i1->Hdr.PalmID, p_i2->Hdr.PalmID);
-	// @v10.7.2 return r ? r : COMPARE(p_i1->Hdr.ID, p_i2->Hdr.ID);
-	int    si = 0; // @v10.7.2 
-	CMPCASCADE2(si, p_i1, p_i2, Hdr.PalmID, Hdr.ID); // @v10.7.2 
-	return si; // @v10.7.2 
+	int    si = 0;
+	CMPCASCADE2(si, p_i1, p_i2, Hdr.PalmID, Hdr.ID);
+	return si;
 }
 
 int PalmBillQueue::PushUnique(PalmBillPacket * pPack)
@@ -558,7 +554,7 @@ public:
 			AddClusterAssoc(CTL_PALM_FLAGS, 11, PLMF_EXPGOODSEXPIRYTAGS); // @v11.6.2
 		}
 		else {
-			AddClusterAssoc(CTL_PALM_FLAGS, 8, PLMF_TREATDUEDATEASDATE); // @v10.8.11 // @v11.4.3 @fix
+			AddClusterAssoc(CTL_PALM_FLAGS, 8, PLMF_TREATDUEDATEASDATE); // @v11.4.3 @fix
 			AddClusterAssoc(CTL_PALM_FLAGS, 9, PLMF_EXPZSTOCK); // @v11.4.3
 			AddClusterAssoc(CTL_PALM_FLAGS, 10, PLMF_EXPGOODSEXPIRYTAGS); // @v11.6.2
 		}
@@ -771,7 +767,7 @@ int PPObjStyloPalm::PutPacket(PPID * pID, PPStyloPalmPacket * pPack, int use_ta)
 	{
 		PPStyloPalm parent_rec;
 		const    PPID parent_id = pPack->Rec.GroupID;
-		THROW_PP(!pPack || pPack->Rec.Name[0], PPERR_NAMENEEDED); // @v10.1.6 @fix (!pPack ||)
+		THROW_PP(!pPack || pPack->Rec.Name[0], PPERR_NAMENEEDED);
         THROW_PP_S(!parent_id || (Search(parent_id, &parent_rec) > 0 && parent_rec.Flags & PLMF_GENERIC), PPERR_INVSTYLOPARENT, parent_id);
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1744,33 +1740,33 @@ int PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID locID
 		}
 	}
 	else { // выведем подробную информацию о том, что такой документ уже существует
-		// @v10.8.3 {
-		// Аварийный блок для восстановления потерянных адресов доставки и агентов по заказу
-		if(pSrcPack->Hdr.DlvrAddrID) {
-			PPFreight ex_freight;
-			if(p_bobj->P_Tbl->GetFreight(analog_bill_rec.ID, &ex_freight) <= 0) {
-				PPFreight freight;
-				freight.SetupDlvrAddr(pSrcPack->Hdr.DlvrAddrID);
-				p_bobj->P_Tbl->SetFreight(analog_bill_rec.ID, &freight, use_ta);
+		{
+			// Аварийный блок для восстановления потерянных адресов доставки и агентов по заказу
+			if(pSrcPack->Hdr.DlvrAddrID) {
+				PPFreight ex_freight;
+				if(p_bobj->P_Tbl->GetFreight(analog_bill_rec.ID, &ex_freight) <= 0) {
+					PPFreight freight;
+					freight.SetupDlvrAddr(pSrcPack->Hdr.DlvrAddrID);
+					p_bobj->P_Tbl->SetFreight(analog_bill_rec.ID, &freight, use_ta);
+				}
+				else if(!ex_freight.DlvrAddrID__) {
+					ex_freight.SetupDlvrAddr(pSrcPack->Hdr.DlvrAddrID);
+					p_bobj->P_Tbl->SetFreight(analog_bill_rec.ID, &ex_freight, use_ta);
+				}
 			}
-			else if(!ex_freight.DlvrAddrID__) {
-				ex_freight.SetupDlvrAddr(pSrcPack->Hdr.DlvrAddrID);
-				p_bobj->P_Tbl->SetFreight(analog_bill_rec.ID, &ex_freight, use_ta);
+			if(pSrcPack->Hdr.AgentID) {
+				PPBillExt ex_ext;
+				if(p_bobj->P_Tbl->GetExtraData(analog_bill_rec.ID, &ex_ext) <= 0) {
+					PPBillExt ext;
+					ext.AgentID = pSrcPack->Hdr.AgentID;
+					p_bobj->P_Tbl->PutExtraData(analog_bill_rec.ID, &ext, use_ta);
+				}
+				else if(ex_ext.AgentID == 0) {
+					ex_ext.AgentID = pSrcPack->Hdr.AgentID;
+					p_bobj->P_Tbl->PutExtraData(analog_bill_rec.ID, &ex_ext, use_ta);
+				}
 			}
 		}
-		if(pSrcPack->Hdr.AgentID) {
-			PPBillExt ex_ext;
-			if(p_bobj->P_Tbl->GetExtraData(analog_bill_rec.ID, &ex_ext) <= 0) {
-				PPBillExt ext;
-				ext.AgentID = pSrcPack->Hdr.AgentID;
-				p_bobj->P_Tbl->PutExtraData(analog_bill_rec.ID, &ext, use_ta);
-			}
-			else if(ex_ext.AgentID == 0) {
-				ex_ext.AgentID = pSrcPack->Hdr.AgentID;
-				p_bobj->P_Tbl->PutExtraData(analog_bill_rec.ID, &ex_ext, use_ta);
-			}
-		}
-		// } @v10.8.3
 		if(pLogger) {
 			PPLoadString("date", temp_buf);
 			PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, pack.Rec.Code, 1, msg_buf);
@@ -2510,7 +2506,7 @@ AndroidXmlWriter::AndroidXmlWriter(const char * pPath, Header * pHdr, const char
 				AddAttrib("StyloFlags",     pHdr->StyloFlags);
 				AddAttrib("TransfDaysAgo",  pHdr->TransfDaysAgo);
 			}
-			// @v10.2.0 Если аккаунта нет, то и пароль слать не надо (иначе может передаться мусор)
+			// Если аккаунта нет, то и пароль слать не надо (иначе может передаться мусор)
 			if(uhtt_acc.NotEmpty()) {
 				cfg.GetPassword(ALBATROSEXSTR_UHTTPASSW, temp_buf);
 				AddAttrib("UhttPassword", temp_buf.cptr());
@@ -3241,19 +3237,6 @@ int PPObjStyloPalm::CreateGoodsGrpList(ExportBlock & rBlk)
     return ok;
 }
 
-/* @v10.8.6 int PPObjStyloPalm::CreateQkList(ExportBlock & rBlk)
-{
-	int    ok = 1;
-	rBlk.QkList.Z();
-	PPObjQuotKind qk_obj;
-	QuotKindFilt qk_filt;
-	qk_filt.Flags = (QuotKindFilt::fExclNotForBill|QuotKindFilt::fSortByRankName);
-	qk_filt.MaxItems = PALM_MAX_QUOT;
-	THROW(qk_obj.MakeList(&qk_filt, &rBlk.QkList));
-	CATCHZOK
-	return ok;
-}*/
-
 struct StyloPalmGoodsEntry {
 	StyloPalmGoodsEntry(PPID goodsID) : GoodsID(goodsID), Rest(0.0), Cost(0.0), Price(0.0), UnitPerPack(0.0)
 	{
@@ -3388,7 +3371,6 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 									THROW(p_ie_quots->AppendRecord(&quot_rec, sizeof(quot_rec)));
 								}
 							}
-							// @v10.5.2 {
 							else if(single_loc_id == 0 && pPack->LocList.GetCount()) {
 								GoodsRestParam grparam;
 								grparam.LocList = pPack->LocList.Get();
@@ -3419,7 +3401,6 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 									}
 								}
 							}
-							// } @v10.5.2 
 						}
 					}
 					PPSetAddedMsgString(p_goods_tbl->getName());
@@ -3593,7 +3574,7 @@ struct PalmExpStruc {
 	const  PPID   GoodsGrpID;
 	long   Flags;
 	PPIDArray LocList;
-	PPIDArray QkList; // @v10.8.6
+	PPIDArray QkList;
 	PPIDArray PalmList;
 };
 
@@ -3849,12 +3830,11 @@ int PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 	TSCollection <PalmCfgItem> cfg_list;
 	AndroidDevs andr_devs;
 	PPViewPrjTask v_todo;
-	PPObjPrjTask todo_obj; // @v10.7.2
+	PPObjPrjTask todo_obj;
 	PPObjQuotKind qk_obj;
 	ExportBlock _blk;
 	THROW(ReadConfig(&sp_cfg));
 	PPGetPath(PPPATH_OUT, out_path);
-	// @v10.8.6 THROW(CreateQkList(_blk));
 	THROW(CreateGoodsGrpList(_blk));
 	{
 		//
@@ -3974,8 +3954,7 @@ int PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 					} while(lc);
 				}
 			}
-			palm_pack.QkList__.Set(&p_item->QkList); // @v10.8.6
-			// } @v10.8.6
+			palm_pack.QkList__.Set(&p_item->QkList);
 			THROW(ExportGoods(&palm_pack, _blk));
 			for(j = 0; j < p_item->PalmList.getCount(); j++) {
 				PalmCfgItem * p_cfg_item = GetPalmConfigItem(cfg_list, p_item->PalmList.get(j));
@@ -4198,11 +4177,11 @@ private:
 {
 	int    ok = 1;
 	const  PPConfig & r_cfg = LConfig;
-	int    edit_param = 1;
 	int    r = 0;
-	int    locked = 0;
+	bool   do_edit_param = true;
+	bool   locked = false;
 	PPLogger logger;
-	long mutex_id = 0;
+	long   mutex_id = 0;
 	PPSyncItem sync_item;
 	PalmPaneData data;
 	PPObjStyloPalm palm_obj;
@@ -4216,9 +4195,10 @@ private:
 		}
 		data.LocID = r_cfg.Location;
 	}
-	else if(!(data.Flags & PalmPaneData::fForceEdit))
-		edit_param = 0;
-	if(edit_param) {
+	else if(!(data.Flags & PalmPaneData::fForceEdit)) {
+		do_edit_param = false;
+	}
+	if(do_edit_param) {
 		THROW(ok = EditImpExpData(&data));
 	}
 	if(ok > 0) {
@@ -4229,7 +4209,7 @@ private:
 			else if(!r) {
 				THROW_PP(0, PPERR_LOGICLOCKFAULT);
 			}
-			locked = 1;
+			locked = true;
 		}
 		{
 			int    do_remove_imp_data = BIN(data.Flags & PalmPaneData::fDelImpData);

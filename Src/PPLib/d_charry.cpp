@@ -930,8 +930,7 @@ int PPDS_CrrBill::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTransmConte
 			PPTransferItem item = static_cast<const PPDS_CrrBillItem *>(pData)->Data;
 			STRNSCPY(clb, static_cast<const PPDS_CrrBillItem *>(pData)->CLB);
 			THROW(Data.InsertRow(&item, &poslist));
-			// @v10.8.4 for(uint i = 0; i < poslist.getCount(); i++) { Data.LTagL.SetString(PPTAG_LOT_CLB, poslist.at(i), clb); }
-			SForEachVectorItem(poslist, i) { Data.LTagL.SetString(PPTAG_LOT_CLB, poslist.at(i), clb); } // @v10.8.4 
+			SForEachVectorItem(poslist, i) { Data.LTagL.SetString(PPTAG_LOT_CLB, poslist.at(i), clb); }
 			ok = 1;
 		}
 	}
@@ -2212,7 +2211,7 @@ int PPDS_CrrScale::InitData(Ido op, void * dataPtr, long addedParam)
 						case DSF_CRRSCALE_PROTOCOLVER: pack.Rec.ProtocolVer = Data.Rec.ProtocolVer; break;
 						case DSF_CRRSCALE_LOGNUM: pack.Rec.LogNum = Data.Rec.LogNum; break;
 						case DSF_CRRSCALE_LOCATION: pack.Rec.Location = Data.Rec.Location; break;
-						case DSF_CRRSCALE_ALTGOODSGRP: pack.Rec.AltGoodsGrp = Data.Rec.AltGoodsGrp; break; // @v10.3.2 @fix (отсутствовал break)
+						case DSF_CRRSCALE_ALTGOODSGRP: pack.Rec.AltGoodsGrp = Data.Rec.AltGoodsGrp; break;
 						case DSF_CRRSCALE_FSTRIPWP: SETFLAGBYSAMPLE(pack.Rec.Flags, SCALF_STRIPWP, Data.Rec.Flags); break;
 						case DSF_CRRSCALE_FEXSGOODS: SETFLAGBYSAMPLE(pack.Rec.Flags, SCALF_EXSGOODS, Data.Rec.Flags); break;
 						case DSF_CRRSCALE_FSYSPINITED: SETFLAGBYSAMPLE(pack.Rec.Flags, SCALF_SYSPINITED, Data.Rec.Flags); break;
@@ -3729,15 +3728,9 @@ int PPDS_CrrArticle::InitData(Ido op, void * dataPtr, long addedParam)
 							case DSF_CRRARTICLE_ACCSHEET:
 								rec.AccSheetID = Data.AccSheetID;
 								break;
-							case DSF_CRRARTICLE_ASSOCPERSON:
-								rec.ObjID = Data.ObjID;
-								break;
-							case DSF_CRRARTICLE_ASSOCLOC:
-								rec.ObjID = Data.ObjID;
-								break;
-							case DSF_CRRARTICLE_ASSOCACCOUNT:
-								rec.ObjID = Data.ObjID;
-								break; // @v10.3.2 @fix (отсутствовал break)
+							case DSF_CRRARTICLE_ASSOCPERSON: rec.ObjID = Data.ObjID; break;
+							case DSF_CRRARTICLE_ASSOCLOC: rec.ObjID = Data.ObjID; break;
+							case DSF_CRRARTICLE_ASSOCACCOUNT: rec.ObjID = Data.ObjID; break;
 							case DSF_CRRARTICLE_FGROUP:
 								SETFLAGBYSAMPLE(rec.Flags, ARTRF_GROUP, Data.Flags);
 								break;
@@ -4444,7 +4437,7 @@ int PPDS_CrrOprKindEntry::InitData(Ido op, void * dataPtr, long addedParam)
 	int    ok = 1;
 	if(op == idoAlloc) {
 		MEMSZERO(Data);
-		Pack.Init();
+		Pack.Z();
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
@@ -4839,7 +4832,7 @@ int PPDS_CrrInvOpExEntry::InitData(Ido op, void * dataPtr, long addedParam)
 	int    ok = 1;
 	if(op == idoAlloc) {
 		MEMSZERO(Data);
-		Pack.Init();
+		Pack.Z();
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
@@ -5430,10 +5423,10 @@ int PPDS_CrrOprKind::InitData(Ido op, void * dataPtr, long addedParam)
 {
 	int    ok = 1;
 	if(op == idoAlloc)
-		Data.Init();
+		Data.Z();
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPOprKindPacket*)dataPtr;
+			Data = *static_cast<const PPOprKindPacket *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.GetPacket(addedParam, &Data) > 0)
 				ok = 1;
@@ -5447,9 +5440,7 @@ int PPDS_CrrOprKind::InitData(Ido op, void * dataPtr, long addedParam)
 		if(sstrlen(Data.Rec.Symb) || sstrlen(Data.Rec.Name)) {
 			PPID id = 0;
 			PPOprKindPacket pack;
-			if(*strip(Data.Rec.Symb) && Obj.SearchBySymb(Data.Rec.Symb, &id) > 0 ||
-				*strip(Data.Rec.Name) && Obj.SearchByName(Data.Rec.Name, &id) > 0
-			) {
+			if(*strip(Data.Rec.Symb) && Obj.SearchBySymb(Data.Rec.Symb, &id) > 0 || *strip(Data.Rec.Name) && Obj.SearchByName(Data.Rec.Name, &id) > 0) {
 				Data.Rec.ID = id;
 				if(UpdateProtocol == updForce) {
 					PPOprKindPacket pack;

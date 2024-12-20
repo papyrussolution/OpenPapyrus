@@ -1870,6 +1870,8 @@ void PPBillImporter::Init()
 	LineIdSeq = 0;
 	Bills.freeAll();
 	BillsRows.freeAll();
+	TagC.Release(); // @v12.2.1
+	BillTagC.Release(); // @v12.2.1
 	Logger.Clear();
 }
 
@@ -2281,7 +2283,69 @@ static int ResolveFormula(const char * pFormula, const SdRecord & rInrRec, doubl
 	return ok;
 }
 
-int PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPImpExpParam & rIep, ObjTagList & rTagList)
+int PPBillImporter::ReadTagItem(const char * pTagSymb, const SdRecord & rDynRec, uint dynFldN, PPID tagsObjType, ObjTagItem * pTagItem)
+{
+	int    ok = -1;
+	PPID   tag_id = 0;
+	PPObjectTag tag_rec;
+	SdbField dyn_fld;
+	if(TagObj.SearchBySymb(pTagSymb, &tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == tagsObjType) {
+		if(rDynRec.GetFieldByPos(dynFldN, &dyn_fld)) {
+			const TYPEID typ = dyn_fld.T.Typ;
+			const int    base_typ = stbase(typ);
+			switch(base_typ) {
+				case BTS_INT:
+					{
+						long ival = 0;
+						sttobase(typ, rDynRec.GetDataC(dynFldN), &ival);
+						if(ival) {
+							pTagItem->SetInt(tag_id, ival);
+							ok = 1;
+						}
+					}
+					break;
+				case BTS_REAL:
+					{
+						double rval = 0.0;
+						sttobase(typ, rDynRec.GetDataC(dynFldN), &rval);
+						if(rval != 0.0) {
+							pTagItem->SetReal(tag_id, rval);
+							ok = 1;
+						}
+					}
+					break;
+				case BTS_STRING:
+					{
+						char   temp_str_[1024];
+						sttobase(typ, rDynRec.GetDataC(dynFldN), temp_str_);
+						if(temp_str_[0]) {
+							SString temp_buf;
+							(temp_buf = temp_str_).Strip().Transf(CTRANSF_OUTER_TO_INNER);
+							pTagItem->SetStr(tag_id, temp_buf);
+							ok = 1;
+						}
+					}
+					break;
+				case BTS_DATE:
+					{
+						LDATE dval = ZERODATE;
+						sttobase(typ, rDynRec.GetDataC(dynFldN), &dval);
+						if(checkdate(dval)) {
+							pTagItem->SetDate(tag_id, dval);
+							ok = 1;
+						}
+					}
+					break;
+			}
+			/*if(ok > 0) {
+				rTagList.PutItem(tag_id, &tag_item);
+			}*/
+		}
+	}
+	return ok;
+}
+
+int PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPImpExpParam & rIep, ObjTagList & rBillTagList, ObjTagList & rRowTagList)
 {
 	int    ok = -1;
 	SdbField dyn_fld;
@@ -2298,50 +2362,25 @@ int PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPIm
 		PPID   tag_id = 0;
 		scan.Set(dyn_fld.InnerFormula, 0);
 		if(scan.GetIdent(temp_buf.Z())) {
-			if(temp_buf.IsEqiAscii("lottag")) {
+			if(temp_buf.IsEqiAscii("billtag") || temp_buf.IsEqiAscii("tag")) { // @v12.2.1
 				scan.Skip();
 				if(scan[0] == '.') {
 					scan.Incr(1);
-					(temp_buf = scan).Strip();
-					if(TagObj.SearchBySymb(temp_buf, &tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT) {
-						int   r = 0;
-						const TYPEID typ = dyn_fld.T.Typ;
-						const int    base_typ = stbase(typ);
-						ObjTagItem tag_item;
-						if(base_typ == BTS_INT) {
-							long ival = 0;
-							sttobase(typ, rDynRec.GetDataC(dynFldN), &ival);
-							if(ival) {
-								tag_item.SetInt(tag_id, ival);
-								r = 1;
-							}
-						}
-						else if(base_typ == BTS_REAL) {
-							sttobase(typ, rDynRec.GetDataC(dynFldN), &rval);
-							if(rval != 0.0) {
-								tag_item.SetReal(tag_id, rval);
-								r = 1;
-							}
-						}
-						else if(base_typ == BTS_STRING) {
-							sttobase(typ, rDynRec.GetDataC(dynFldN), temp_str_);
-							if(temp_str_[0]) {
-								(temp_buf = temp_str_).Strip().Transf(CTRANSF_OUTER_TO_INNER);
-								tag_item.SetStr(tag_id, temp_buf);
-								r = 1;
-							}
-						}
-						else if(base_typ == BTS_DATE) {
-							LDATE dval = ZERODATE;
-							sttobase(typ, rDynRec.GetDataC(dynFldN), &dval);
-							if(checkdate(dval)) {
-								tag_item.SetDate(tag_id, dval);
-								r = 1;
-							}
-						}
-						if(r) {
-							rTagList.PutItem(tag_id, &tag_item);
-						}
+					ObjTagItem tag_item;
+					if(ReadTagItem((temp_buf = scan).Strip(), rDynRec, dynFldN, PPOBJ_BILL, &tag_item) > 0) {
+						assert(tag_item.TagID > 0);
+						rBillTagList.PutItem(tag_item.TagID, &tag_item);
+					}
+				}				
+			}
+			else if(temp_buf.IsEqiAscii("lottag")) {
+				scan.Skip();
+				if(scan[0] == '.') {
+					scan.Incr(1);
+					ObjTagItem tag_item;
+					if(ReadTagItem((temp_buf = scan).Strip(), rDynRec, dynFldN, PPOBJ_LOT, &tag_item) > 0) {
+						assert(tag_item.TagID > 0);
+						rRowTagList.PutItem(tag_item.TagID, &tag_item);
 					}
 				}
 			}
@@ -2445,7 +2484,7 @@ int PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPIm
 									if(TagObj.SearchBySymb(temp_buf, &tag_id, &tag_rec) > 0 && rIep.OtrRec.GetFieldByPos(outer_fld_pos, &outer_fld)) {
 										PPIDArray obj_id_list;
 										const void * p_outer_fld_data = rIep.OtrRec.GetDataC(outer_fld_pos);
-										PTR32(temp_str_)[0] = 0;
+										temp_str_[0] = 0;
 										sttostr(outer_fld.T.Typ, p_outer_fld_data, 0, temp_str_);
 										temp_buf = temp_str_;
 										PPRef->Ot.SearchObjectsByStrExactly(tag_rec.ObjTypeID, tag_rec.ID, temp_buf, &obj_id_list);
@@ -2491,7 +2530,7 @@ int PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPIm
 										const long tok_n = temp_buf.ToLong();
 										if(tok_n > 0 && rIep.OtrRec.GetFieldByPos(outer_fld_pos, &outer_fld)) {
 											const void * p_outer_fld_data = rIep.OtrRec.GetDataC(outer_fld_pos);
-											PTR32(temp_str_)[0] = 0;
+											temp_str_[0] = 0;
 											sttostr(outer_fld.T.Typ, p_outer_fld_data, 0, temp_str_);
 											temp_buf = temp_str_;
 											StringSet ss_tok;
@@ -2557,7 +2596,7 @@ static uint SplitBarcodeList(const char * pSrcBuf, SString & rPlainResult, Strin
 	return result;
 }
 
-int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, const /*StrAssocArray*/PPImpExpParam::PtTokenList * pFnFldList)
+int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, const PPImpExpParam::PtTokenList * pFnFldList)
 {
 	int    ok = 1;
 	long   count = 0;
@@ -2694,18 +2733,26 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 						goods_id = code_rec.GoodsID;
 				}
 				brow_.GoodsID = goods_id;
-				ObjTagList tag_list;
-				tag_list.ObjType = PPOBJ_LOT;
+				ObjTagList row_tag_list;
+				ObjTagList bill_tag_list;
+				row_tag_list.ObjType = PPOBJ_LOT;
+				bill_tag_list.ObjType = PPOBJ_BILL;
 				if(dyn_rec.GetCount()) {
 					for(uint j = 0; j < dyn_rec.GetCount(); j++) {
-						ProcessDynField(dyn_rec, j, pImpExp->GetParam(), tag_list);
+						ProcessDynField(dyn_rec, j, pImpExp->GetParam(), bill_tag_list, row_tag_list);
 					}
 				}
 				{
 					uint    row_id = 0;
 					THROW(AddBRow(brow_, &row_id));
-					if(tag_list.GetCount())
-						TagC.Set(row_id, &tag_list);
+					if(row_tag_list.GetCount()) {
+						TagC.Set(row_id, &row_tag_list);
+					}
+					// @v12.2.1 {
+					if(bill_tag_list.GetCount()) {
+						BillTagC.Set(row_id, &bill_tag_list);
+					}
+					// } @v12.2.1 
 				}
 			}
 		}
@@ -2914,7 +2961,11 @@ int PPBillImporter::ReadData()
 	char   _err_buf[1024];
 	_err_buf[0] = 0;
 	ImpExpDll imp_dll;
-	SString err_msg, path, wildcard, filename, temp_buf;
+	SString temp_buf;
+	SString err_msg;
+	SString path;
+	SString wildcard;
+	SString filename;
 	StringSet ss_files;
 	Sdr_Bill bill;
 	SFsPath ps;
@@ -2922,7 +2973,8 @@ int PPBillImporter::ReadData()
 	const bool imp_rows_from_same_file = (BillParam.Flags & PPBillImpExpParam::fImpRowsFromSameFile && oneof4(h_r_eq_f, PPImpExpParam::dfText, PPImpExpParam::dfDbf, PPImpExpParam::dfExcel, PPImpExpParam::dfXml));
 	const bool imp_rows_only = (imp_rows_from_same_file && BillParam.Flags & PPBillImpExpParam::fImpExpRowsOnly);
 	if(BillParam.BaseFlags & PPImpExpParam::bfDLL) {
-		int    obj_id = 0, sess_id = 0;
+		int    obj_id = 0;
+		int    sess_id = 0;
 		Sdr_BRow brow;
 		BillParam.ImpExpParamDll.FileName = BillParam.FileName;
 		THROW_SL(imp_dll.InitLibrary(BillParam.ImpExpParamDll.DllPath, 2));
@@ -3060,11 +3112,12 @@ int PPBillImporter::ReadData()
 		PPImpExp ie(&BillParam, 0);
 		PPImpExp ie_row(&BRowParam, 0);
 		SString bid;
+		PPImpExpParam::PtTokenList fn_fld_list;
 		BillsRows.freeAll();
 		THROW(BillParam.PreprocessImportFileSpec(ss_files));
 		ss_files.sortAndUndup();
 		for(uint ssp = 0, fi = 0; ss_files.get(&ssp, filename); fi++) {
-			PPImpExpParam::PtTokenList fn_fld_list;
+			fn_fld_list.Z();
 			BillParam.PreprocessImportFileName(filename, fn_fld_list);
 			if(imp_rows_only) {
 				SdrBillRowArray preserve_rows = BillsRows;
@@ -3095,8 +3148,8 @@ int PPBillImporter::ReadData()
 						(bill_code = r_row.BillCode).Strip();
 						const SString org_bill_ident = bill_ident;
 						const SString org_bill_code = bill_code;
-						const int new_bill = BIN(r_row.BillDate != last_date || last_code != org_bill_code || last_ident != org_bill_ident);
-						if(new_bill)
+						const bool is_new_bill = (r_row.BillDate != last_date || last_code != org_bill_code || last_ident != org_bill_ident);
+						if(is_new_bill)
 							cc_++;
 						if(bill_ident.IsEmpty())
 							bill_ident.Z().CatLongZ(cc_, 6);
@@ -3108,7 +3161,7 @@ int PPBillImporter::ReadData()
 							bill_code.Z().Cat("H-").Cat(_h).CatChar('-').CatLongZ(cc_, 6);
 						}
 						bill_code.CopyTo(r_row.BillCode, sizeof(r_row.BillCode));
-						if(new_bill) {
+						if(is_new_bill) {
 							MEMSZERO(bill);
 							bill.Date = r_row.BillDate;
 							bill_code.CopyTo(bill.Code, sizeof(bill.Code));
@@ -3133,6 +3186,10 @@ int PPBillImporter::ReadData()
                             // @todo не все поля перенесены из r_row в bill
 							STRNSCPY(bill.InvoiceCode, r_row.InvcCode); // @v11.0.9
 							bill.InvoiceDate = r_row.InvcDate; // @v11.0.9
+
+							STRNSCPY(bill.OuterCode, r_row.BillOuterCode); // @v12.2.1
+							bill.OuterDate = r_row.BillOuterDate; // @v12.2.1
+							STRNSCPY(bill.EdiIdent, r_row.BillEdiIdent); // @v12.2.1
 							//
 							int    bidx_found = 0;
                             if(CheckBill(&bill)) {
@@ -4234,15 +4291,56 @@ int PPBillImporter::CheckBill(const Sdr_Bill * pBill)
 	if(pBill) {
 		PPBillPacket pack;
 		if(BillToBillRec(pBill, &pack) && Period.CheckDate(pack.Rec.Dt)) {
-			if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, 0, 0) <= 0) // 5121033726
-				ok = 1;
-			else {
-				SString msg_buf;
-				PPObjBill::MakeCodeString(&pack.Rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName, msg_buf);
-				Logger.LogMsgCode(mfError, PPERR_DOC_ALREADY_EXISTS, msg_buf.cptr());
+			PPID   ex_bill_id = 0;
+			BillTbl::Rec ex_bill_rec;
+			if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
+				SString temp_buf;
+				{
+					SString msg_buf;
+					PPObjBill::MakeCodeString(&pack.Rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName, msg_buf);
+					Logger.LogMsgCode(mfError, PPERR_DOC_ALREADY_EXISTS, msg_buf.cptr());
+				}
+				// @v12.2.1 {
+				{
+					SString ex_tag_buf;
+					Reference * p_ref = PPRef;
+					ObjTagItem tag_item;
+					PPTransaction tra(1);
+					THROW(tra);
+					{
+						const PPID tag_id = PPTAG_BILL_EDIIDENT;
+						if(pack.BTagL.GetItemStr(tag_id, temp_buf) > 0) {
+							assert(temp_buf.NotEmpty());
+							if(p_ref->Ot.GetTagStr(PPOBJ_BILL, ex_bill_id, tag_id, ex_tag_buf) > 0) {
+								;
+							}
+							else if(tag_item.SetStr(tag_id, temp_buf)) {
+								THROW(p_ref->Ot.PutTag(PPOBJ_BILL, ex_bill_id, &tag_item, 0));
+							}
+						}
+					}
+					{
+						const PPID tag_id = PPTAG_BILL_OUTERCODE;
+						if(pack.BTagL.GetItemStr(tag_id, temp_buf) > 0) {
+							assert(temp_buf.NotEmpty());
+							if(p_ref->Ot.GetTagStr(PPOBJ_BILL, ex_bill_id, tag_id, ex_tag_buf) > 0) {
+								;
+							}
+							else if(tag_item.SetStr(tag_id, temp_buf)) {
+								THROW(p_ref->Ot.PutTag(PPOBJ_BILL, ex_bill_id, &tag_item, 0));
+							}
+						}
+					}
+					// @todo Здесь бы надо еще и PPTAG_BILL_OUTERDATE обработать аналогичным образом (я не думаю, правда, что это кому-нибудь понадобиться)
+					THROW(tra.Commit());
+				}
+				// } @v12.2.1 
 			}
+			else
+				ok = 1;
 		}
 	}
+	CATCHZOK
 	return ok;
 }
 
@@ -4400,6 +4498,29 @@ int PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack)
 			if(Flags & PPBillImporter::fEdiImpExp)
 				pPack->Rec.Flags2 |= BILLF2_DONTCLOSDRAFT;
 			pPack->Rec.EdiOp = static_cast<int16>(pBill->EdiOp);
+			// @v12.2.1 {
+			{
+				ObjTagItem tag_item;
+				if(!isempty(pBill->OuterCode)) {
+					if(tag_item.Init(PPTAG_BILL_OUTERCODE)) {
+						tag_item.SetStr(tag_item.TagID, pBill->OuterCode);
+						pPack->BTagL.PutItem(tag_item.TagID, &tag_item);
+					}
+				}
+				if(checkdate(pBill->OuterDate)) {
+					if(tag_item.Init(PPTAG_BILL_OUTERDATE)) {
+						tag_item.SetDate(tag_item.TagID, pBill->OuterDate);
+						pPack->BTagL.PutItem(tag_item.TagID, &tag_item);
+					}
+				}
+				if(!isempty(pBill->EdiIdent)) {
+					if(tag_item.Init(PPTAG_BILL_EDIIDENT)) {
+						tag_item.SetStr(tag_item.TagID, pBill->EdiIdent);
+						pPack->BTagL.PutItem(tag_item.TagID, &tag_item);
+					}
+				}
+			}
+			// } @v12.2.1 
 			ok = 1;
 		}
 	}
@@ -5181,6 +5302,7 @@ int PPBillImporter::Run()
 						else if(p_doc->InvcCode.NotEmpty())
 							init_bill_code = p_doc->InvcCode;
 						const DocNalogRu_Reader::Participant * p_seller = p_doc->GetParticipant(EDIPARTYQ_SELLER, false);
+						SETIFZ(p_seller, p_doc->GetParticipant(EDIPARTYQ_SUPPLIER, false)); // @v12.2.1
 						SETIFZ(p_seller, p_doc->GetParticipant(EDIPARTYQ_CONSIGNOR, false));
 						const DocNalogRu_Reader::Participant * p_buyer = p_doc->GetParticipant(EDIPARTYQ_BUYER, false);
 						SETIFZ(p_buyer, p_doc->GetParticipant(EDIPARTYQ_CONSIGNEE, false));

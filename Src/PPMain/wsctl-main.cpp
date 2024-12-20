@@ -6,6 +6,11 @@
 #pragma hdrstop
 #include <imgui-support.h>
 #include <wsctl.h>
+//
+#include <shellapi.h> // @v11.6.7
+#include <uxtheme.h> // @v11.6.7
+#include <dwmapi.h> // @v11.6.7
+#include <versionhelpers.h> // @v11.6.7
 
 ImVec2 FPointToImVec2(const SPoint2F & rP) { return ImVec2(rP.x, rP.y); }
 ImRect FRectToImRect(const FRect & rR) { return ImRect(FPointToImVec2(rR.a), FPointToImVec2(rR.b)); }
@@ -77,11 +82,12 @@ namespace ImGui {
 	ColorNavWindowingDimBg
 	ColorModalWindowDimBg
 */
-static const ImVec4 MainBackgroundColor(SColor(0x1E, 0x22, 0x28));
+//static const ImVec4 MainBackgroundColor(SColor(0x1E, 0x22, 0x28));
 static const ImVec2 ButtonSize_Std(64.0f, 24.0f);
 static const ImVec2 ButtonSize_Double(128.0f, 24.0f);
+static bool MainWindowBorderless = true;
 
-static void * P_TestImgTexture = 0; // @debug
+// @v12.2.1 static void * P_TestImgTexture = 0; // @debug
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam); // Forward declare message handler from imgui_impl_win32.cpp
 
@@ -208,6 +214,7 @@ public:
 		loidToolbar                   = 10027, // Область панели инструментов в верхней части окна
 		loidAdminCtrlGroup            = 10028, // Область администраторского экрана с кнопками команд
 		loidRegistrationBlock         = 10029, // @v11.9.10 Блок диалога регистрации
+		loidComputerName              = 10030, // @v12.2.1 Область располагается под loidLogo и отображает наименование компьютера
 		//
 		loidStartProgramEntry         = 20000  // Стартовый идентификатор для иконок выбора программ. Первый layout идентифицируется как (loidStartProgramEntry+1)
 	};
@@ -732,10 +739,10 @@ private:
 			reqidQueryComputerCategoryList = (PPSCMD___LASTIDENTIFIER + 1),
 		};
 		WsCtl_CliSession(const WsCtl_Config & rJsP, WsCtl_ImGuiSceneBlock::State * pSt, WsCtlReqQueue * pQ);
+		static int Connect(PPJobSrvClient & rCli, const WsCtl_Config & rCfg, DbInfo * pDbInfo);
 		virtual void Run();
 	private:
 		virtual void Startup();
-		int    Connect(PPJobSrvClient & rCli, DbInfo * pDbInfo);
 		void   SendRequest(PPJobSrvClient & rCli, const WsCtlReqQueue::Req & rReq);
 		// Указатель на состояние блока управления панелью. При получении ответа от сервера
 		// наш поток будет вносить изменения в это состояние (защита блокировками подразумевается).
@@ -887,26 +894,35 @@ private:
 	int    ScreenItem_Logo(SUiLayout * pLoParent, int viewFlags) // loidLogo
 	{
 		int    result = 0;
-		ImGuiWindowByLayout wbl(pLoParent, loidLogo, "##Logo", viewFlags|ImGuiWindowFlags_NoBackground);
-		if(wbl.IsValid()) {
-			DConnectionStatus conn_status;
-			St.D_ConnStatus.GetData(conn_status);
-			if(conn_status.Dbi.MainOrgID) {
-				void * p_texture = QueryImageTextureByOid(PPObjID(PPOBJ_PERSON, conn_status.Dbi.MainOrgID), 0);
-				if(p_texture) {
-					const float _x = ImGui::GetWindowWidth();
-					const float _y = ImGui::GetWindowHeight();
-					ImGui::Image(p_texture, ImVec2(_x, _y));
+		{
+			ImGuiWindowByLayout wbl(pLoParent, loidLogo, "##Logo", viewFlags|ImGuiWindowFlags_NoBackground);
+			if(wbl.IsValid()) {
+				DConnectionStatus conn_status;
+				St.D_ConnStatus.GetData(conn_status);
+				if(conn_status.Dbi.MainOrgID) {
+					void * p_texture = QueryImageTextureByOid(PPObjID(PPOBJ_PERSON, conn_status.Dbi.MainOrgID), 0);
+					if(p_texture) {
+						const float _x = ImGui::GetWindowWidth();
+						const float _y = ImGui::GetWindowHeight();
+						ImGui::Image(p_texture, ImVec2(_x, _y));
+					}
 				}
 			}
-			/*else {
-				Texture_CachedFileEntity * p_logo_te = Cache_Texture.Get(GetFilePathS(fnLogo, true, SLS.AcquireRvlStr()));
-				if(p_logo_te && p_logo_te->GetTexture()) {
-					const float _x = ImGui::GetWindowWidth();
-					const float _y = ImGui::GetWindowHeight();
-					ImGui::Image(p_logo_te->GetTexture(), ImVec2(_x, _y));
+		}
+		{
+			ImGuiWindowByLayout wbl(pLoParent, loidComputerName, "##ComputerName", viewFlags|ImGuiWindowFlags_NoBackground);
+			if(wbl.IsValid()) {
+				ImGuiObjStack stk;
+				PushFontEntry(stk, "FontComputerName");
+				DPrc prc_data;
+				St.D_Prc.GetData(prc_data);
+				if(prc_data.PrcName.NotEmpty()) {
+					ImGui::Text(prc_data.PrcName);
 				}
-			}*/
+				else {
+					ImGui::Text("Undef computer");
+				}
+			}
 		}
 		return result;
 	}
@@ -1563,7 +1579,7 @@ WsCtl_ImGuiSceneBlock::WsCtl_CliSession::WsCtl_CliSession(const WsCtl_Config & r
 	PPJobSrvReply reply;
 	{
 		DConnectionStatus srv_conn_status;
-		srv_conn_status.S = Connect(cli, &srv_conn_status.Dbi);
+		srv_conn_status.S = WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(cli, JsP, &srv_conn_status.Dbi);
 		if(!srv_conn_status.S)
 			srv_conn_status.SetupByLastError();
 		P_St->D_ConnStatus.SetData(srv_conn_status);
@@ -1609,7 +1625,7 @@ WsCtl_ImGuiSceneBlock::WsCtl_CliSession::WsCtl_CliSession(const WsCtl_Config & r
 			if(single_ev_count) {
 				if(!(cli.GetState() & PPJobSrvClient::stConnected)) {
 					DConnectionStatus srv_conn_status;
-					srv_conn_status.S = Connect(cli, &srv_conn_status.Dbi);
+					srv_conn_status.S = WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(cli, JsP, &srv_conn_status.Dbi);
 					if(!srv_conn_status.S)
 						srv_conn_status.SetupByLastError();
 					P_St->D_ConnStatus.SetData(srv_conn_status);
@@ -1635,13 +1651,13 @@ WsCtl_ImGuiSceneBlock::WsCtl_CliSession::WsCtl_CliSession(const WsCtl_Config & r
 	SignalStartup();
 }
 
-int WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(PPJobSrvClient & rCli, DbInfo * pDbInfo)
+/*static*/int WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(PPJobSrvClient & rCli, const WsCtl_Config & rCfg, DbInfo * pDbInfo)
 {
 	int    ok = 1;
 	SString temp_buf;
-	THROW(rCli.Connect(JsP.Server, JsP.Port));
-	if(JsP.DbSymb.NotEmpty() && JsP.User.NotEmpty()) {
-		THROW(rCli.Login(JsP.DbSymb, JsP.User, JsP.Password));
+	THROW(rCli.Connect(/*JsP*/rCfg.Server, /*JsP*/rCfg.Port));
+	if(/*JsP*/rCfg.DbSymb.NotEmpty() && /*JsP*/rCfg.User.NotEmpty()) {
+		THROW(rCli.Login(/*JsP*/rCfg.DbSymb, /*JsP*/rCfg.User, /*JsP*/rCfg.Password));
 		if(pDbInfo) {
 			pDbInfo->Z();
 			PPJobSrvReply reply;
@@ -2895,10 +2911,19 @@ int WsCtl_ImGuiSceneBlock::QueryProgramList2(WsCtl_ProgramCollection & rPgmL, Ws
 		//SString cache_path;
 		PPJobSrvClient cli;
 		PPJobSrvReply reply;
+		DConnectionStatus srv_conn_status;
 		//THROW(WsCtlApp::GetLocalCachePath(cache_path));
 		{
-			DConnectionStatus srv_conn_status;
 			// @debug St.D_ConnStatus.GetData(srv_conn_status);
+			// @v12.2.1 {
+			{
+				srv_conn_status.S = WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(cli, JsP, &srv_conn_status.Dbi);
+				if(!srv_conn_status.S)
+					srv_conn_status.SetupByLastError();
+				St.D_ConnStatus.SetData(srv_conn_status);
+			}
+			// } @v12.2.1 
+			/* @v12.2.1 
 			{
 				THROW(cli.Connect(JsP.Server, JsP.Port));
 				if(JsP.DbSymb.NotEmpty() && JsP.User.NotEmpty()) {
@@ -2909,46 +2934,49 @@ int WsCtl_ImGuiSceneBlock::QueryProgramList2(WsCtl_ProgramCollection & rPgmL, Ws
 			if(!srv_conn_status.S)
 				srv_conn_status.SetupByLastError();
 			St.D_ConnStatus.SetData(srv_conn_status);
+			*/
 		}
-		{
-			PPJobSrvCmd cmd;
-			cmd.StartWriting(PPSCMD_WSCTL_QUERYPGMLIST);
-			cmd.Write(&ws_uuid, sizeof(ws_uuid));
-			cmd.FinishWriting();
-			if(cli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
-				SString reply_buf;
-				reply.StartReading(&reply_buf);
-				if(reply.CheckRepError()) {
-					SJson * p_js_obj = SJson::Parse(reply_buf);
-					WsCtl_ProgramCollection pgml_local_instance;
-					if(pgml_local_instance.FromJsonObj(p_js_obj)) {
-						rPgmL = pgml_local_instance;
-						ok |= 0x01;
-						//(temp_buf = cache_path).SetLastSlash().Cat("data").SetLastSlash().Cat("wsctl-program.json");
+		if(srv_conn_status.S) {
+			{
+				PPJobSrvCmd cmd;
+				cmd.StartWriting(PPSCMD_WSCTL_QUERYPGMLIST);
+				cmd.Write(&ws_uuid, sizeof(ws_uuid));
+				cmd.FinishWriting();
+				if(cli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
+					SString reply_buf;
+					reply.StartReading(&reply_buf);
+					if(reply.CheckRepError()) {
+						SJson * p_js_obj = SJson::Parse(reply_buf);
+						WsCtl_ProgramCollection pgml_local_instance;
+						if(pgml_local_instance.FromJsonObj(p_js_obj)) {
+							rPgmL = pgml_local_instance;
+							ok |= 0x01;
+							//(temp_buf = cache_path).SetLastSlash().Cat("data").SetLastSlash().Cat("wsctl-program.json");
+						}
+						ZDELETE(p_js_obj);						
 					}
-					ZDELETE(p_js_obj);						
 				}
 			}
-		}
-		{
-			PPJobSrvCmd cmd;
-			cmd.StartWriting(PPSCMD_WSCTL_QUERYPOLICY);
-			cmd.Write(&ws_uuid, sizeof(ws_uuid));
-			cmd.FinishWriting();
-			if(cli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
-				SString reply_buf;
-				reply.StartReading(&reply_buf);
-				if(reply.CheckRepError()) {
-					SJson * p_js_obj = SJson::Parse(reply_buf);
-					WsCtl_ClientPolicy policyl_local_instance;
-					if(policyl_local_instance.FromJsonObj(p_js_obj)) {
-						rPolicyL = policyl_local_instance;
-						ok |= 0x02;
+			{
+				PPJobSrvCmd cmd;
+				cmd.StartWriting(PPSCMD_WSCTL_QUERYPOLICY);
+				cmd.Write(&ws_uuid, sizeof(ws_uuid));
+				cmd.FinishWriting();
+				if(cli.ExecSrvCmd(cmd, PPConst::DefSrvCmdTerm, reply)) {
+					SString reply_buf;
+					reply.StartReading(&reply_buf);
+					if(reply.CheckRepError()) {
+						SJson * p_js_obj = SJson::Parse(reply_buf);
+						WsCtl_ClientPolicy policyl_local_instance;
+						if(policyl_local_instance.FromJsonObj(p_js_obj)) {
+							rPolicyL = policyl_local_instance;
+							ok |= 0x02;
+						}
+						else {
+							PPSetErrorSLib();
+						}
+						ZDELETE(p_js_obj);						
 					}
-					else {
-						PPSetErrorSLib();
-					}
-					ZDELETE(p_js_obj);						
 				}
 			}
 		}
@@ -3697,10 +3725,10 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								//ImGui::PopAllowKeyboardFocus
 							}
 							// @debug {
-							if(P_TestImgTexture) {
+							/* @v12.2.1 if(P_TestImgTexture) {
 								ImVec2 sz(128.0f, 128.0f);
 								ImGui::Image(P_TestImgTexture, sz);
-							}
+							}*/
 							// } @debug 
 						}
 					}
@@ -3712,8 +3740,10 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							{
 								DConnectionStatus conn_status;
 								St.D_ConnStatus.GetData(conn_status);
-								if(conn_status.S)
+								if(conn_status.S) {
 									ImGui::Text(SLS.AcquireRvlStr().Cat("Connection status").CatDiv(':', 2).Cat((conn_status.S == 0) ? conn_status._Message.cptr() : "OK"));
+									ImGui::Text(SLS.AcquireRvlStr().CatEq("MainOrgID", conn_status.Dbi.MainOrgID));
+								}
 								else {
 									ImGui::Text(SLS.AcquireRvlStr().Cat("Connection status").CatDiv(':', 2));
 									ImGui::Text(SLS.AcquireRvlStr().Tab().Cat(conn_status._Message.cptr()));
@@ -3784,6 +3814,28 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 	}
 	Render(ImgRtb); // Rendering
 }
+
+static bool HasAutohideAppbar(UINT edge, RECT mon)
+{
+	APPBARDATA abd;
+	MEMSZERO(abd);
+	abd.cbSize = sizeof(abd);
+	if(IsWindows8Point1OrGreater()) {
+		abd.uEdge = edge;
+		abd.rc = mon;
+		return SHAppBarMessage(ABM_GETAUTOHIDEBAREX, &abd);
+	}
+	else {
+		// Before Windows 8.1, it was not possible to specify a monitor when
+		// checking for hidden appbars, so check only on the primary monitor 
+		if(mon.left != 0 || mon.top != 0)
+			return false;
+		else {
+			abd.uEdge = edge;
+			return SHAppBarMessage(ABM_GETAUTOHIDEBAR, &abd);
+		}
+	}
+}
 //
 // Win32 message handler
 // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -3793,6 +3845,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 //
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	
 	if(ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
 		return true;
 	switch(msg) {
@@ -3806,6 +3859,82 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case WM_DESTROY:
 		    ::PostQuitMessage(0);
 		    return 0;
+		case WM_NCACTIVATE: // @v12.2.1
+		    // DefWindowProc won't repaint the window border if lParam (normally a
+		    // HRGN) is -1. This is recommended in: https://blogs.msdn.microsoft.com/wpfsdk/2008/09/08/custom-window-chrome-in-wpf/ */
+			return DefWindowProcW(hWnd, msg, wParam, MainWindowBorderless ? -1 : lParam);
+			break;
+		case WM_NCCALCSIZE: // @v12.2.1
+			if(MainWindowBorderless) {
+				//p_pgm->HandleWindowNcCalcSize(wParam, lParam);
+				//void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LPARAM lParam)
+				{
+					union {
+						LPARAM lparam;
+						RECT * rect;
+					} params;// = { .lparam = lparam };
+					params.lparam = lParam;
+					// DefWindowProc must be called in both the maximized and non-maximized cases, otherwise tile/cascade windows won't work 
+					RECT nonclient = *params.rect;
+					DefWindowProcW(hWnd, WM_NCCALCSIZE, wParam, params.lparam);
+					RECT client = *params.rect;
+					if(IsZoomed(hWnd)) {
+						WINDOWINFO wi;
+						wi.cbSize = sizeof(wi);
+						GetWindowInfo(hWnd, &wi);
+						// Maximized windows always have a non-client border that hangs over
+						// the edge of the screen, so the size proposed by WM_NCCALCSIZE is
+						// fine. Just adjust the top border to remove the window title. 
+						*params.rect = {client.left, (LONG)(nonclient.top + wi.cyWindowBorders), client.right, client.bottom};
+						/*
+						*params.rect = (RECT) {
+							.left = client.left,
+							.top = nonclient.top + wi.cyWindowBorders,
+							.right = client.right,
+							.bottom = client.bottom,
+						};
+						*/
+						HMONITOR mon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTOPRIMARY);
+						MONITORINFO mi;// = { .cbSize = sizeof mi };
+						mi.cbSize = sizeof(mi);
+						GetMonitorInfoW(mon, &mi);
+						// If the client rectangle is the same as the monitor's rectangle,
+						// the shell assumes that the window has gone fullscreen, so it removes
+						// the topmost attribute from any auto-hide appbars, making them
+						// inaccessible. To avoid this, reduce the size of the client area by
+						// one pixel on a certain edge. The edge is chosen based on which side
+						// of the monitor is likely to contain an auto-hide appbar, so the
+						// missing client area is covered by it. 
+						if(EqualRect(params.rect, &mi.rcMonitor)) {
+							if(HasAutohideAppbar(ABE_BOTTOM, mi.rcMonitor))
+								params.rect->bottom--;
+							else if(HasAutohideAppbar(ABE_LEFT, mi.rcMonitor))
+								params.rect->left++;
+							else if(HasAutohideAppbar(ABE_TOP, mi.rcMonitor))
+								params.rect->top++;
+							else if(HasAutohideAppbar(ABE_RIGHT, mi.rcMonitor))
+								params.rect->right--;
+						}
+					}
+					else {
+						// For the non-maximized case, set the output RECT to what it was
+						// before WM_NCCALCSIZE modified it. This will make the client size the
+						// same as the non-client size.
+						*params.rect = nonclient;
+					}
+				}
+			}
+			else
+				return DefWindowProcW(hWnd, msg, wParam, lParam);
+			break;
+		/*
+		case WM_DWMCOMPOSITIONCHANGED: // @v12.2.1
+			p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
+			if(p_pgm)
+				p_pgm->HandleWindowCompositionChanged();
+			return 0;
+			break;
+		*/
 	}
 	return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
@@ -3840,11 +3969,19 @@ static int MakeColorSet(UiDescription & rUiDescr)
 	return ok;
 }
 
-int main(int, char**)
+int main(int argc, char ** ppArgv)
 {
 	int    result = 0;
 	//
-	DS.Init(PPSession::fWsCtlApp|PPSession::fInitPaths, 0, /*pUiDescriptionFileName*/"uid-wsctl.json");
+	SString temp_buf;
+	bool   development_mode = false;
+	const  long   ds_init_flags = PPSession::fWsCtlApp|PPSession::fInitPaths;
+	DS.Init(ds_init_flags, 0, /*pUiDescriptionFileName*/"uid-wsctl.json");
+	{
+		if(PPSession::GetStartUpOption(PPSession::cmdlDevelop, temp_buf)) { 
+			development_mode = true;
+		}
+	}
 	// Create application window
 	//ImGui_ImplWin32_EnableDpiAwareness();
 	WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"WSCTL_WCLS", nullptr };
@@ -3892,11 +4029,14 @@ int main(int, char**)
 		//ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		WsCtl_ImGuiSceneBlock scene_blk;
 		scene_blk.Init(io);
-		scene_blk.SetScreen(WsCtl_ImGuiSceneBlock::screenConstruction);
 		{
+			int   init_screen = development_mode ? WsCtl_ImGuiSceneBlock::screenConstruction : WsCtl_ImGuiSceneBlock::screenIntro;
+			scene_blk.SetScreen(init_screen);
+		}
+		/* @v12.2.1 {
 			const char * p_img_path = "/Papyrus/Src/PPTEST/DATA/test-gif.gif";
 			P_TestImgTexture = ImgRtb.LoadTexture(p_img_path);
-		}
+		}*/
 		// Main loop
 		bool done = false;
 		do {

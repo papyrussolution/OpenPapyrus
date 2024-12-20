@@ -286,8 +286,6 @@ static inline void mythread_condtime_set(mythread_condtime * condtime, const myt
 	#undef _WIN32_WINNT
 	#define _WIN32_WINNT 0x0600
 #endif
-// @sobolev #include <windows.h>
-// @v10.9.3 #include <process.h>
 
 #define MYTHREAD_RET_TYPE unsigned int __stdcall
 #define MYTHREAD_RET_VALUE 0

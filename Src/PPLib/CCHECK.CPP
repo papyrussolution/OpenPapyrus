@@ -254,7 +254,7 @@ double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int 
 	const int amt_sign = (amt < 0.0) ? -1 : +1;
 	double total = GetTotal();
 	double ex_amt = Get(type, addedID);
-	double result = ex_amt; // @v10.3.4 (избыточный вызов) Get(type, addedID)-->ex_amt 
+	double result = ex_amt;
 	int    do_invert_sign = 0;
 	if(list_sign == amt_sign) {
 		if(list_sign < 0) {
@@ -264,7 +264,7 @@ double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int 
 			amt = -amt;
 			total = GetTotal();
 			ex_amt = Get(type, addedID);
-			result = ex_amt; // @v10.3.4 (избыточный вызов) Get(type, addedID)-->ex_amt 
+			result = ex_amt;
 		}
 		SETMIN(amt, total);
 		const double p1 = r1 ? Get(r1) : 0.0;
@@ -353,7 +353,7 @@ double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int 
 			total = -total;
 			result = -result;
 		}
-		assert(feqeps(GetTotal(), total, 1E-7)); // @v10.9.0 feqeps
+		assert(feqeps(GetTotal(), total, 1E-7));
 	}
 	return result;
 }
@@ -363,7 +363,7 @@ int CcAmountList::Normalize()
 	int    ok = -1;
 	uint   c = getCount();
 	if(c) do {
-		if(feqeps(at(--c).Amount, 0.0, 1E-7)) { // @v10.9.0 feqeps
+		if(feqeps(at(--c).Amount, 0.0, 1E-7)) {
 			atFree(c);
 			ok = 1;
 		}
@@ -673,7 +673,7 @@ CCheckPacket::LineExt::LineExt()
 
 bool CCheckPacket::LineExt::IsEmpty() const
 {
-	return (Queue <= 0 && !(Flags & (fGroup|fModifier|fPartOfComplex|fQuotedByGift|fFixedPrice))); // @v10.1.7 fFixedPrice
+	return (Queue <= 0 && !(Flags & (fGroup|fModifier|fPartOfComplex|fQuotedByGift|fFixedPrice)));
 }
 
 CCheckPacket::PreprocessChZnCodeResult::PreprocessChZnCodeResult() : LineIdx(0), CheckResult(0), Reason(0), ProcessingResult(0), ProcessingCode(0), Status(0)
@@ -810,7 +810,7 @@ CCheckPacket & FASTCALL CCheckPacket::operator = (const CCheckPacket & rS)
 CCheckPacket::~CCheckPacket()
 {
 	ZDELETE(P_DlvrAddr);
-	delete static_cast<SCardSpecialTreatment::IdentifyReplyBlock *>(P_Stirb); // @v10.9.0
+	delete static_cast<SCardSpecialTreatment::IdentifyReplyBlock *>(P_Stirb);
 	ZDELETE(P_PpChZnCodeResultList); // @v11.1.11
 }
 
@@ -828,8 +828,8 @@ CCheckPacket & CCheckPacket::Z()
 	ExtList.clear();
 	LnTextList.Z();
 	ZDELETE(P_DlvrAddr);
-	delete static_cast<SCardSpecialTreatment::IdentifyReplyBlock *>(P_Stirb); // @v10.9.0
-	P_Stirb = 0; // @v10.9.0
+	delete static_cast<SCardSpecialTreatment::IdentifyReplyBlock *>(P_Stirb);
+	P_Stirb = 0;
 	ZDELETE(P_PpChZnCodeResultList); // @v11.1.11
 	CcAl.clear();
 	return *this;
@@ -910,12 +910,11 @@ int CCheckPacket::IsEq(const CCheckPacket & rS, long options) const
 	#define CMP_FLD(f) if(Ext.f != rS.Ext.f) return 0
 	CMP_FLD(SalerID);
 	CMP_FLD(TableNo);
-	CMP_FLD(AddPaym_unused); // @v9.0.4 _unused
+	CMP_FLD(AddPaym_unused);
 	CMP_FLD(GuestCount);
 	CMP_FLD(AddrID);
-	CMP_FLD(AddCrdCardID_unused); // @v9.0.4 _unused
-	// @v10.6.8 CMP_FLD(AddCrdCardPaym_unused); // @v9.0.4 _unused
-	CMP_FLD(CreationUserID); // @v10.6.8
+	CMP_FLD(AddCrdCardID_unused);
+	CMP_FLD(CreationUserID);
 	CMP_FLD(LinkCheckID);
 	CMP_FLD(StartOrdDtm);
 	CMP_FLD(EndOrdDtm);
@@ -928,7 +927,6 @@ int CCheckPacket::IsEq(const CCheckPacket & rS, long options) const
 
 int CCheckPacket::HasExt() const
 {
-	// @v10.6.8 Ext.CreationUserID
 	return BIN(Ext.TableNo || Ext.SalerID || Ext.GuestCount || Ext.LinkCheckID ||
 		!!Ext.StartOrdDtm || !!Ext.EndOrdDtm || !!Ext.CreationDtm || Ext.CreationUserID || Ext.Memo[0] || Ext.AddrID);
 }
@@ -1303,7 +1301,7 @@ int CCheckPacket::SetLineExt(int pos /* 1.. */, const LineExt & rExt)
 			SETFLAG(le.Flags, le.fModifier,      rExt.Flags & rExt.fModifier);
 			SETFLAG(le.Flags, le.fPartOfComplex, rExt.Flags & rExt.fPartOfComplex);
 			SETFLAG(le.Flags, le.fQuotedByGift,  rExt.Flags & rExt.fQuotedByGift);
-			SETFLAG(le.Flags, le.fFixedPrice,    rExt.Flags & rExt.fFixedPrice); // @v10.1.7
+			SETFLAG(le.Flags, le.fFixedPrice,    rExt.Flags & rExt.fFixedPrice);
 			THROW_SL(ExtList.insert(&le));
 			ok = 2;
 		}
@@ -1544,9 +1542,7 @@ int CCheckPacket::SetupPaymList(const CcAmountList * pList)
 		const double _total = pList->GetTotal();
 		double _amt = 0.0, _discount;
 		CalcAmount(&_amt, &_discount);
-		// @v10.3.4 const double epsilon = 1E-6;
-		// @v10.3.4 if(fabs(_amt - _total) > epsilon) {
-		if(!feqeps(_amt, _total, 1E-6)) { // @v10.3.4 
+		if(!feqeps(_amt, _total, 1E-6)) {
 			CCheckCore::MakeCodeString(&Rec, 0, temp_buf);
 			ok = PPSetError(PPERR_CCPAYMLISTDIFFAMT, temp_buf);
 		}
@@ -1748,12 +1744,6 @@ double CCheckPacket::GetFiscalAmount() const
 		amt = fabs(MONEYTOLDBL(Rec.Amount)) - fabs(CcAl.Get(CCAMTTYP_CRDCARD));
 	}
 	else if(Rec.Flags & CCHKF_INCORPCRD) {
-		/* @v10.3.4 @useless
-		if(Rec.Flags & CCHKF_ADDPAYM)
-			amt = 0.0; // intmnytodbl(Ext.AddPaym)-->0.0
-		else
-			amt = 0.0;
-		*/
 		PPObjSCard sc_obj;
 		const  PPID charge_goods_id = sc_obj.GetChargeGoodsID(Rec.SCardID);
 		if(charge_goods_id) {
@@ -1967,7 +1957,7 @@ int CCheckCore::GetListByExtFilt(const CCheckFilt & rFilt, ObjIdListFilt & rList
 	if(rFilt.HasExtFiltering()) {
 		CCheckExtTbl * p_ext = P_Ext;
 		if(p_ext) {
-			PPIDArray temp_list; // @v10.7.3
+			PPIDArray temp_list;
 			rList.InitEmpty();
 			int    idx = 0;
 			union {
@@ -1985,7 +1975,7 @@ int CCheckCore::GetListByExtFilt(const CCheckFilt & rFilt, ObjIdListFilt & rList
 				dbq = ppcheckfiltid(dbq, p_ext->TableNo, rFilt.TableCode);
 			dbq = ppcheckfiltid(dbq, p_ext->SalerID, rFilt.AgentID);
 			dbq = ppcheckfiltid(dbq, p_ext->GuestCount, rFilt.GuestCount);
-			dbq = ppcheckfiltid(dbq, p_ext->CreationUserID, rFilt.CreationUserID); // @v10.7.3
+			dbq = ppcheckfiltid(dbq, p_ext->CreationUserID, rFilt.CreationUserID);
 			if(rFilt.Flags & CCheckFilt::fZeroDlvrAddr) {
 				dbq = &(*dbq && p_ext->AddrID == 0L);
 			}
@@ -1995,17 +1985,15 @@ int CCheckCore::GetListByExtFilt(const CCheckFilt & rFilt, ObjIdListFilt & rList
 			if(rFilt.Flags & CCheckFilt::fStartOrderPeriod && !rFilt.Period.IsZero()) {
 				//dbq = & (*dbq && daterange(p_ext->Dt, &rFilt.Period));
 			}
-			q.select(p_ext->CheckID, p_ext->CreationUserID, p_ext->CreationDtm, 0L).where(*dbq); // @v10.6.8 p_ext->CreationUserID
+			q.select(p_ext->CheckID, p_ext->CreationUserID, p_ext->CreationDtm, 0L).where(*dbq);
 			const int is_start_ord_period = BIN(rFilt.Flags & CCheckFilt::fStartOrderPeriod && !rFilt.Period.IsZero());
 			for(q.initIteration(false, &k, (idx == 2) ? spGe : spFirst); q.nextIteration() > 0;) {
 				if(is_start_ord_period && !rFilt.Period.CheckDate(p_ext->data.CreationDtm.d))
 					continue;
-				// @v10.7.3 rList.Add(p_ext->data.CheckID);
-				temp_list.addnz(p_ext->data.CheckID); // @v10.7.3 
+				temp_list.addnz(p_ext->data.CheckID);
 			}
-			// @v10.7.3 rList.Sort();
-			temp_list.sortAndUndup(); // @v10.7.3
-			rList.Set(&temp_list); // @v10.7.3
+			temp_list.sortAndUndup();
+			rList.Set(&temp_list);
 			ok = 1;
 		}
 	}
@@ -2030,7 +2018,6 @@ int CCheckCore::UpdateExt(PPID id, const CCheckExtTbl::Rec * pExt, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(SearchByID(P_Ext, 0, id, &ccext_rec) > 0);
-		// @v10.6.8 (ccext_rec.CreationUserID != pExt->CreationUserID)
 		if(ccext_rec.TableNo != pExt->TableNo || ccext_rec.CreationUserID != pExt->CreationUserID || ccext_rec.StartOrdDtm != pExt->StartOrdDtm ||
 			ccext_rec.EndOrdDtm != pExt->EndOrdDtm || ccext_rec.CreationDtm != pExt->CreationDtm || ccext_rec.GuestCount != pExt->GuestCount ||
 			ccext_rec.AddrID != pExt->AddrID || !sstreq(ccext_rec.Memo, pExt->Memo)) {
@@ -2044,7 +2031,7 @@ int CCheckCore::UpdateExt(PPID id, const CCheckExtTbl::Rec * pExt, int use_ta)
 			ccext_rec.CreationDtm = pExt->CreationDtm;
 			ccext_rec.GuestCount = pExt->GuestCount;
 			ccext_rec.AddrID = pExt->AddrID;
-			ccext_rec.CreationUserID = pExt->CreationUserID; // @v10.6.8
+			ccext_rec.CreationUserID = pExt->CreationUserID;
 			STRNSCPY(ccext_rec.Memo, pExt->Memo);
 			THROW_DB(P_Ext->updateRecBuf(&ccext_rec)); // @sfu
 			ok = 1;
@@ -3241,12 +3228,10 @@ int CCheckCore::AddRecToSessTotal(const CCheckTbl::Rec * pRec, CSessTotal * pTot
 			CCheckExtTbl::Rec ext_rec;
 			pTotal->Amount   += amount;
 			pTotal->Discount += MONEYTOLDBL(pRec->Discount);
-			// @v10.0.02 {
 			if(pRec->Flags & CCHKF_ALTREG) {
 				pTotal->AltRegCount++;
 				pTotal->AltRegAmount += amount;
 			}
-			// } @v10.0.02
 			int    pmr = 0;
 			CcAmountList _pl;
 			if(pRec->Flags & CCHKF_PAYMLIST) {
@@ -4092,7 +4077,7 @@ int CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCheckGoo
 																;
 															}
 														}
-														else if(trfr_rec.CorrLoc && p_bobj->trfr->SearchByBill(r_rec.BillID, 1, rbb_target, &trfr_rec) > 0) { // @v10.7.3
+														else if(trfr_rec.CorrLoc && p_bobj->trfr->SearchByBill(r_rec.BillID, 1, rbb_target, &trfr_rec) > 0) {
 															PPID org_lot_id = 0;
 															ReceiptTbl::Rec org_lot_rec;
 															if(p_bobj->trfr->Rcpt.SearchOrigin(trfr_rec.LotID, &org_lot_id, 0, &org_lot_rec) > 0) {
@@ -4810,7 +4795,6 @@ int CGoodsLine::SetDfctSubstList(PPID sessID, const LAssocArray * pList, int use
 //
 CSessGrouping::CSessGrouping() : CS(), CC(), GL(), RetOpID(GetCashRetOp()), SellOpID(GetCashOp())
 {
-	// @v10.9.9 ReadEquipConfig(&EqCfg);
 	const long eqcfgf = CC.GetEqCfg().Flags; 
 	ComplDfct   = BIN(eqcfgf & PPEquipConfig::fComplDeficit);
 	IgnGenGoods = BIN(eqcfgf & PPEquipConfig::fIgnGenGoodsOnDeficit);
@@ -5343,8 +5327,8 @@ int CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CSessTot
 	PPObjBill * p_bobj = BillObj;
 	const PPConfig & r_cfg = LConfig;
 	const  PPID   save_loc  = r_cfg.Location;
-	const LDATE  save_date = r_cfg.OperDate; // @v10.8.10 LConfig.OperDate-->getcurdate_()
-	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg(); // @v10.9.9
+	const LDATE  save_date = r_cfg.OperDate;
+	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 	DS.SetLocation(locID);
 	OptimalAmountDamper oad;
 	double local_wr_off_amount = 0.0;
@@ -5545,7 +5529,7 @@ int CSessGrouping::TurnAccBill(PPID sessID, PPID locID, int use_ta) // @v11.0.4
 int CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pMsg, uint sessNo, uint sessCount, int use_ta)
 {
 	int    ok = 1;
-	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg(); // @v10.9.9
+	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 	if(!(r_eq_cfg.Flags & PPEquipConfig::fCloseSessTo10Level)) {
 		WMsg = pMsg;
 		PPObjBill * p_bobj = BillObj;
@@ -5675,7 +5659,7 @@ int CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pMsg, ui
 int CSessGrouping::ConvertTempSessToBills(const PPIDArray * pSessList, PPID locID, PPID * pBillID, int use_ta)
 {
 	int    ok = -1;
-	const  PPEquipConfig & r_eq_cfg = CC.GetEqCfg(); // @v10.9.9
+	const  PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 	PPID  bill_id = DEREFPTRORZ(pBillID);
 	if(r_eq_cfg.OpOnTempSess) {
 		PPObjBill * p_bobj = BillObj;
@@ -6029,7 +6013,7 @@ int CSessGrouping::CompleteSession(PPID sessID)
 	CSessionTbl::Rec sess_rec;
 	THROW(CS.Search(sessID, &sess_rec) > 0);
 	if(sess_rec.SuperSessID == 0) {
-		const PPEquipConfig & r_eq_cfg = CC.GetEqCfg(); // @v10.9.9
+		const PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 		PPIDArray sess_list;
 		THROW_PP(!(r_eq_cfg.Flags & PPEquipConfig::fCloseSessTo10Level), PPERR_CSESSCOMPLLOCKED);
 		{
@@ -6244,20 +6228,6 @@ int CCheckCache::RefreshCTableStatusList(int force)
 	return p_cache ? p_cache->GetCTableOrderList(rList) : 0;
 }
 
-/* @v10.3.4 @useless
-//static
-int CCheckCore::RecognizeOrdBarcode(const char * pCode, PPID * pOrdCheckID)
-{
-	PPID   cc_id = 0;
-	if(!isempty(pCode)) {
-		SString temp_buf = pCode;
-		if(temp_buf.CmpPrefix("CTO", 1) == 0)
-			cc_id = atol(temp_buf.cptr()+3);
-	}
-	ASSIGN_PTR(pOrdCheckID, cc_id);
-	return BIN(cc_id);
-}*/
-
 int CCheckCore::SerializePacket(int dir, CCheckPacket * pPack, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
@@ -6401,7 +6371,6 @@ int CCheckCore::CorrectCCLineProblem01()
 			if(search(0, &k0, spFirst)) do {
 				DBRowId c_pos;
 				const  PPID cc_id = data.ID;
-				// @v10.8.7 (LoadPacket) cc_pack.Z();
 				THROW_DB(getPosition(&c_pos));
 				if(LoadPacket(cc_id, 0, &cc_pack) > 0) {
 					double amt = 0.0;

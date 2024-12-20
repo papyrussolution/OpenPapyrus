@@ -225,7 +225,6 @@ public:
 	virtual int PreprocessChZnCode(int op, const char * pCode, double qtty, int uomId, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult); // @v11.6.6
 	virtual int Diagnostics(StringSet * pSs); // @v12.0.3
 private:
-	// @v10.3.9 virtual int InitChannel();
 	FR_INTRF * InitDriver();
 	int  ConnectFR();
 	int  SetupTables();

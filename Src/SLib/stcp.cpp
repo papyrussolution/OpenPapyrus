@@ -2919,7 +2919,7 @@ int ScURL::FtpList(const InetUrl & rUrl, int mflags, SFileEntryPool & rPool)
 	SString temp_buf;
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
-	curl_easy_reset(_CURLH); // @v10.8.2
+	curl_easy_reset(_CURLH);
 	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	{
 		if(url_info.Path.NotEmptyS()) {
@@ -2963,7 +2963,7 @@ int ScURL::FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, con
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
 	THROW(fileExists(pLocalFile));
-	curl_easy_reset(_CURLH); // @v10.8.2
+	curl_easy_reset(_CURLH);
 	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	{
 		if(!isempty(pDestFileName)) {
@@ -3020,7 +3020,7 @@ int ScURL::FtpGet(const InetUrl & rUrl, int mflags, const char * pLocalFile, SSt
 	SString local_file_path(pLocalFile);
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
-	curl_easy_reset(_CURLH); // @v10.8.2
+	curl_easy_reset(_CURLH);
 	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	{
 		SFsPath ps_local(pLocalFile);
@@ -3057,7 +3057,7 @@ int ScURL::FtpDelete(const InetUrl & rUrl, int mflags)
 	SString file_name_to_delete;
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
-	curl_easy_reset(_CURLH); // @v10.8.2
+	curl_easy_reset(_CURLH);
 	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	{
 		file_name_to_delete = url_info.Path;
@@ -3087,7 +3087,7 @@ int ScURL::FtpDeleteDir(const InetUrl & rUrl, int mflags)
 	SString file_name_to_delete;
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
-	curl_easy_reset(_CURLH); // @v10.8.2
+	curl_easy_reset(_CURLH);
 	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	{
 		file_name_to_delete = url_info.Path;
@@ -3117,7 +3117,7 @@ int ScURL::FtpChangeDir(const InetUrl & rUrl, int mflags)
 	SString path_to_cwd;
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
-	curl_easy_reset(_CURLH); // @v10.8.2
+	curl_easy_reset(_CURLH);
 	CleanCbRW();
 	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	url_local.GetComponent(InetUrl::stPath, 0, path_to_cwd);  // @v10.8.2 @fix
@@ -3161,7 +3161,7 @@ int ScURL::FtpCreateDir(const InetUrl & rUrl, int mflags)
 	SString path_to_cwd;
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
-	curl_easy_reset(_CURLH); // @v10.8.2
+	curl_easy_reset(_CURLH);
 	CleanCbRW();
 	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 0, 0));

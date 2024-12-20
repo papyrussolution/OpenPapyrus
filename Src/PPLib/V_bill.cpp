@@ -174,7 +174,7 @@ int BillFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 	else if(ver == 3) {
 		class BillFilt_v3 : public PPBaseFilt {
 		public:
-			BillFilt_v3() : PPBaseFilt(PPFILT_BILL, 0, 3), P_SjF(0), P_TagF(0) // @v8.2.9 ver 2-->3
+			BillFilt_v3() : PPBaseFilt(PPFILT_BILL, 0, 3), P_SjF(0), P_TagF(0)
 			{
 				SetFlatChunk(offsetof(BillFilt_v3, ReserveStart),
 					offsetof(BillFilt_v3, ReserveEnd)-offsetof(BillFilt_v3, ReserveStart)+sizeof(ReserveEnd));
@@ -184,7 +184,7 @@ int BillFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 				SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(BillFilt_v3, P_TagF));
 				SetBranchDisplayExtList(offsetof(BillFilt_v3, Dl));
 				Init(1, 0);
-				Bbt = bbtUndef; // @v10.9.1
+				Bbt = bbtUndef;
 			}
 			char   ReserveStart[24];
 			PPID   CliPsnCategoryID;
@@ -410,7 +410,7 @@ int BillFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 	PutObjMembToBuf(PPOBJ_OPRKIND,     OpID,       STRINGIZE(OpID),        rBuf);
 	PutObjMembToBuf(PPOBJ_BILL,        PoolBillID, STRINGIZE(PoolOpID),    rBuf);
 	PutObjMembToBuf(PPOBJ_CURRENCY,    CurID,      STRINGIZE(CurID),       rBuf);
-	PutObjMembToBuf(PPOBJ_BILLSTATUS,  StatusID,   STRINGIZE(StatusID),    rBuf); // @v10.5.4 @fix PPOBJ_STATUS-->PPOBJ_BILLSTATUS
+	PutObjMembToBuf(PPOBJ_BILLSTATUS,  StatusID,   STRINGIZE(StatusID),    rBuf);
 	PutMembToBuf(&Period,              STRINGIZE(Period),     rBuf);
 	PutMembToBuf(&PaymPeriod,          STRINGIZE(PaymPeriod), rBuf);
 	PutMembToBuf(&DuePeriod,           STRINGIZE(DuePeriod),  rBuf);
@@ -878,7 +878,7 @@ void BillFiltDialog::extraFilt()
 		ext.AgentID = Data.AgentID;
 		ext.Ft_STax = Data.Ft_STax;
 		ext.Ft_Declined = Data.Ft_Declined;
-		ext.Ft_CheckPrintStatus = Data.Ft_CheckPrintStatus; // @v10.7.0
+		ext.Ft_CheckPrintStatus = Data.Ft_CheckPrintStatus;
 		ext.EdiRecadvStatus = Data.EdiRecadvStatus;
 		ext.EdiRecadvConfStatus = Data.EdiRecadvConfStatus;
 		ext.DuePeriod = Data.DuePeriod;
@@ -905,7 +905,7 @@ void BillFiltDialog::extraFilt()
 			Data.AgentID = ext.AgentID;
 			Data.Ft_STax = ext.Ft_STax;
 			Data.Ft_Declined = ext.Ft_Declined;
-			Data.Ft_CheckPrintStatus = ext.Ft_CheckPrintStatus; // @v10.7.0
+			Data.Ft_CheckPrintStatus = ext.Ft_CheckPrintStatus;
 			Data.EdiRecadvStatus = ext.EdiRecadvStatus;
 			Data.EdiRecadvConfStatus = ext.EdiRecadvConfStatus;
 			Data.CreatorID = ext.CreatorID;
@@ -1209,7 +1209,7 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 	LastSelID = 0;
 	TempOrder = OrdByDefault;
 	Counter.Init();
-	SETFLAG(State, stNoTempTbl, BIN(Filt.Flags & BillFilt::fNoTempTable)); // @v10.9.0 // @v11.8.10 @fix LotFilt::fNoTempTable-->BillFilt::BillFilt
+	SETFLAG(State, stNoTempTbl, BIN(Filt.Flags & BillFilt::fNoTempTable)); // @v11.8.10 @fix LotFilt::fNoTempTable-->BillFilt::BillFilt
 	IdList = Filt.List;
 	GetOpList(&Filt, &OpList, &SingleOpID);
 	THROW_PP(OpList.getCount(), PPERR_VIEWBYFILTISEMPTY);
@@ -1499,7 +1499,7 @@ int PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID * pSin
 		else if(pFilt->Flags & BillFilt::fAccturnOnly)
 			ot_list.addzlist(PPOPT_ACCTURN, PPOPT_AGREEMENT, 0L);
 		else if(pFilt->Flags & BillFilt::fDraftOnly)
-			ot_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
+			ot_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, 0L);
 		else if(pFilt->Flags & BillFilt::fWmsOnly)
 			ot_list.add(PPOPT_WAREHOUSE);
 		else if(pFilt->Flags & BillFilt::fPaymNeeded) {
@@ -1524,8 +1524,8 @@ int PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID * pSin
 				ot_list.add(PPOPT_PAYMENT);
 				ot_list.add(PPOPT_CHARGE);
 				ot_list.add(PPOPT_CORRECTION);
-				ot_list.add(PPOPT_AGREEMENT); // @v10.1.12
-				ot_list.add(PPOPT_DRAFTQUOTREQ); // @v10.5.7
+				ot_list.add(PPOPT_AGREEMENT);
+				ot_list.add(PPOPT_DRAFTQUOTREQ);
 			}
 			else {
 				ot_list.add(PPOPT_GOODSRECEIPT);
@@ -1538,7 +1538,7 @@ int PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID * pSin
 					ot_list.add(PPOPT_DRAFTRECEIPT);
 					ot_list.add(PPOPT_DRAFTEXPEND);
 					ot_list.add(PPOPT_DRAFTTRANSIT);
-					ot_list.add(PPOPT_DRAFTQUOTREQ); // @v10.5.7
+					ot_list.add(PPOPT_DRAFTQUOTREQ);
 					ot_list.add(PPOPT_GOODSORDER);
 					ot_list.add(PPOPT_ACCTURN);
 				}
@@ -1596,7 +1596,6 @@ int FASTCALL PPViewBill::CheckFlagsForFilt(const BillTbl::Rec * pRec) const
 	THROW(!(Filt.Flags & BillFilt::fShippedOnly)  || (f & BILLF_SHIPPED));
 	THROW(!(Filt.Flags & BillFilt::fDiscountOnly) || (f & BILLF_TOTALDISCOUNT));
 	// @v10.7.0 THROW(!(Filt.Flags & BillFilt::fCcNotPrintedOnly) || !(f & BILLF_CHECK)); // @erik v10.6.13
-	// @v10.7.0 THROW(!(Filt.Flags & BillFilt::fCcPrintedOnly) || (f & BILLF_CHECK)); // @v9.7.12
 	if(Filt.Ft_STax > 0)
 		{ THROW(f & BILLF_RMVEXCISE); }
 	else if(Filt.Ft_STax < 0)
@@ -1609,12 +1608,10 @@ int FASTCALL PPViewBill::CheckFlagsForFilt(const BillTbl::Rec * pRec) const
 		{ THROW(f2 & BILLF2_DECLINED); }
 	else if(Filt.Ft_Declined < 0)
 		{ THROW(!(f2 & BILLF2_DECLINED)); }
-	// @v10.7.0 {
 	if(Filt.Ft_CheckPrintStatus > 0)
 		{ THROW(f & BILLF_CHECK); }
 	else if(Filt.Ft_CheckPrintStatus < 0)
 		{ THROW(!(f & BILLF_CHECK)); }
-	// } @v10.7.0
     if(Filt.EdiRecadvStatus) {
 		const int recadv_status = pRec ? BillCore::GetRecadvStatus(*pRec) : 0;
 		if(Filt.EdiRecadvStatus == -1) {
@@ -1919,10 +1916,8 @@ int PPViewBill::Helper_EnumProc(PPID billID, const BillTbl::Rec * pRec, int chec
 		if(!Filt.PaymPeriod.IsZero()) {
 			if(!P_BObj->P_Tbl->CalcPayment(item.ID, 1, &Filt.PaymPeriod, Filt.CurID, &item.Credit))
 				return 0;
-			// @v10.3.6 {
 			if(item.Amount < 0.0)
 				item.Credit = -item.Credit;
-			// } @v10.3.6
 			item.Debit = item.Amount;
 			item.Saldo = item.Debit - item.Credit;
 		}
@@ -2279,8 +2274,7 @@ int PPViewBill::CreateTempTable(IterOrder ord, int * pIsOrdTbl)
 int PPViewBill::InitIteration(IterOrder ord)
 {
 	int    ok = 1;
-	// @v10.6.8 char   key[MAXKEYLEN];
-	BtrDbKey key_; // @v10.6.8
+	BtrDbKey key_;
 	int    idx = 0, use_ord_tbl = 0;
 	_IterC = 0;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -2309,7 +2303,6 @@ int PPViewBill::InitIteration(IterOrder ord)
 		THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, idx));
 	}
 	P_IterQuery->selectAll();
-	// @v10.6.8 @ctr memzero(key, sizeof(key));
 	P_IterQuery->initIteration(false, key_, spFirst);
 	CATCH
 		BExtQuery::ZDelete(&P_IterQuery);
@@ -2526,7 +2519,7 @@ int PPViewBill::WriteOffDraft(PPID id)
 			else if(s == 2) { // Перенести теги с драфт-документа на документ списания
 				THROW(P_BObj->MoveLotTagsFromDraftBillToWrOffBill(id, 0, 1));
 			}
-			else if(s == 3) { // @v10.8.1 Перенести теги со строк всех драфт-документов на документы списания
+			else if(s == 3) { // Перенести теги со строк всех драфт-документов на документы списания
 				PPLogger logger;
 				PPIDArray idlist;
 				PPWaitStart();
@@ -2760,7 +2753,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 				else if(r_col.OrgOffs == 10) { // Status
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0) {
 						const  PPID op_type_id = GetOpType(bill_rec.OpID);
-						if(oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) { // @v10.5.7 PPOPT_DRAFTQUOTREQ
+						if(oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) {
 							if(bill_rec.Flags2 & BILLF2_DECLINED)
 								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrGrey));
 							else if(bill_rec.Flags & BILLF_WRITEDOFF)
@@ -3371,7 +3364,7 @@ int PPViewBill::AddItem(PPID * pID, PPID opID)
 						op_id = 0;
 					}
 					else if(Filt.Flags & BillFilt::fAccturnOnly)
-						op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_AGREEMENT, 0L); // @v10.1.12 PPOPT_AGREEMENT
+						op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_AGREEMENT, 0L);
 					else if(Filt.Flags & BillFilt::fOrderOnly)
 						op_type_list.add(PPOPT_GOODSORDER);
 					else if(Filt.Flags & BillFilt::fInvOnly)
@@ -3379,7 +3372,7 @@ int PPViewBill::AddItem(PPID * pID, PPID opID)
 					else if(Filt.Flags & BillFilt::fPoolOnly)
 						op_type_list.add(PPOPT_POOL);
 					else if(Filt.Flags & BillFilt::fDraftOnly)
-						op_type_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
+						op_type_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, 0L);
 					else if(Filt.Flags & BillFilt::fWmsOnly)
 						op_type_list.addzlist(PPOPT_WAREHOUSE, 0L);
 					else
@@ -3422,7 +3415,7 @@ static int SelectAddByRcptAction(SelAddBySampleParam * pData)
 		dlg->SetClusterData(CTL_SELBBSMPL_WHAT, pData->Action);
 		//dlg->setCtrlData(CTL_SELBBSMPL_WHAT, &v);
 		//SetupPPObjCombo(dlg, CTLSEL_SELBBSMPL_OP, PPOBJ_OPRKIND, 0, 0, PPOPT_GOODSEXPEND);
-		op_type_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_DRAFTEXPEND, 0L); // @v10.9.1
+		op_type_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_DRAFTEXPEND, 0L);
 		SetupOprKindCombo(dlg, CTLSEL_SELBBSMPL_OP, pData->OpID, 0, &op_type_list, 0);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			//dlg->getCtrlData(CTL_SELBBSMPL_WHAT, &v);
@@ -4169,13 +4162,11 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 							doe_flags_list.Add(id, doe.Flags, 0);
 						}
 					}
-					// @v10.8.3 { Специальный случай - привязка драфт-прихода егаис
-					else if(id == egais_rcpt_op_id) {
+					else if(id == egais_rcpt_op_id) { // Специальный случай - привязка драфт-прихода егаис
 						if(op_list.addUnique(id) > 0) {
 							doe_flags_list.Add(id, 0, 0); // Множественное списание точно нельзя допустить
 						}
 					}
-					// } @v10.8.3 
 				}
 			}
 			if(op_list.getCount()) {
@@ -4210,7 +4201,7 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 							if(doe_flags_list.Search(draft_bill_rec.OpID, &doe_flags, 0) && doe_flags & DROXF_MULTWROFF)
 								suited = 1;
 						}
-						else if(draft_bill_rec.OpID == egais_rcpt_op_id) { // @v10.8.3
+						else if(draft_bill_rec.OpID == egais_rcpt_op_id) {
 							suited = 0;
 							if(oneof4(draft_bill_rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4)) {
 								/* @v11.1.12 
@@ -4271,7 +4262,7 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 				PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName, bill_text);
 				msg_buf.Printf(fmt_buf, bill_text.cptr());
 				PPTooltipMessage(msg_buf, 0, pBrw->H(), 10000, GetColorRef(SClrOrange), SMessageWindow::fShowOnCursor/*|SMessageWindow::fCloseOnMouseLeave*/|
-					SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow); // @v10.8.3 -SMessageWindow::fCloseOnMouseLeave
+					SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
 			}
 		}
 	}
@@ -4348,7 +4339,7 @@ int PPViewBill::UniteSellBills()
 				THROW(P_BObj->UniteGoodsBill(&pack, src_ids.at(i), 0));
 				if(pack.CheckLargeBill(0)) {
 					if(P_BObj->P_LotXcT) { // @v11.0.0
-						THROW(P_BObj->P_LotXcT->PutContainer(pack.Rec.ID, &pack.XcL, 0)); // @v10.9.7 Здесь надо сохранить расширенные коды лотов для pack
+						THROW(P_BObj->P_LotXcT->PutContainer(pack.Rec.ID, &pack.XcL, 0)); // Здесь надо сохранить расширенные коды лотов для pack
 					}
 					THROW(pack.CreateBlank2(Filt.OpID, last_bill.Rec.Dt, last_bill.Rec.LocID, 0));
 					pack.Rec.Object = last_bill.Rec.Object;
@@ -4361,7 +4352,7 @@ int PPViewBill::UniteSellBills()
 				}
 			}
 			if(P_BObj->P_LotXcT) { // @v11.0.0
-				THROW(P_BObj->P_LotXcT->PutContainer(pack.Rec.ID, &pack.XcL, 0)); // @v10.9.7 Здесь надо сохранить расширенные коды лотов для pack
+				THROW(P_BObj->P_LotXcT->PutContainer(pack.Rec.ID, &pack.XcL, 0)); // Здесь надо сохранить расширенные коды лотов для pack
 			}
 			for(i = 0; i < dest_ids.getCount(); i++) {
 				const  PPID dest_id = dest_ids.get(i);
@@ -4660,7 +4651,7 @@ int PPViewBill::AddBillToPool()
 			else if(param.AddedBillKind == bbtGoodsBills)
 				op_type_list.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, 0L);
 			else if(param.AddedBillKind == bbtDraftBills)
-				op_type_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7
+				op_type_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, 0L);
 			else
 				op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSORDER, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,
 					PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND,
@@ -5488,7 +5479,6 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 						}
 						PPWaitPercent(_idx+1, bill_id_list.getCount());
 					}
-					// @v10.9.8 {
 					if(inet_acc_id && inet_addr_list.getCount() && result_file_list.getCount()) {
 						for(uint ai = 0; ai < inet_addr_list.getCount(); ai++) {
 							(temp_buf = inet_addr_list.Get(ai).Txt).Strip();
@@ -5501,7 +5491,6 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 						if(email_buf.NotEmptyS() && !PutFilesToEmail2(&result_file_list, inet_acc_id, email_buf, mail_subj, 0))
 							logger.LogLastError();
 					}
-					// } @v10.9.8 
 					PPWaitStop();
 				}
 			}
@@ -6304,7 +6293,7 @@ int PPViewBill::TransmitByFilt(const BillFilt * pFilt, const ObjTransmitParam * 
 		PPViewBill   view;
 		const PPIDArray & rary = param.DestDBDivList.Get();
 		PPObjIDArray objid_ary;
-		THROW(view.InitLocal(&filt)); // @v10.4.9 view.Init_-->view.InitLocal
+		THROW(view.InitLocal(&filt));
 		for(view.InitIteration(OrdByDefault); view.NextIteration(&item) > 0; PPWaitPercent(view.GetCounter())) {
 			objid_ary.Add(PPOBJ_BILL, item.ID);
 		}
@@ -6451,10 +6440,8 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 	int    ok = -1, update = 0;
 	if(pEv) {
 		if(kind == PPAdviseBlock::evBillChanged) {
-			// @v10.4.4 {
 			if(pEv->ObjID && oneof4(pEv->Action, PPACN_UPDBILL, PPACN_RMVBILL, PPACN_BILLSTATUSUPD, PPACN_UPDBILLFREIGHT))
 				P_BObj->Dirty(pEv->ObjID);
-			// } @v10.4.4
 			if(pEv->IsFinish() && UpdateBillList.getCount())
 				update = 1;
 			else
@@ -6775,11 +6762,11 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 					ok = PPView::Helper_ProcessQuickTagEdit(PPObjID(PPOBJ_BILL, p_row ? p_row->ID : 0), pHdr/*(LongArray *)*/);
 				}
 				break;
-			case PPVCMD_TAGS: // @v10.3.5
+			case PPVCMD_TAGS:
 				if(hdr.ID)
 					ok = EditObjTagValList(PPOBJ_BILL, hdr.ID, 0);
 				break;
-			case PPVCMD_TAGSALL: // @v10.3.5 @todo
+			case PPVCMD_TAGSALL:
 				// @v11.1.9 {
 				ok = -1;
 				{
@@ -7564,11 +7551,10 @@ void PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rtm
 	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
 	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
-	DlGoodsBillBaseBlock * p_extra = static_cast<DlGoodsBillBaseBlock *>(Extra[0].Ptr); // @v10.3.6
-	PPBillPacket * p_pack = p_extra ? p_extra->P_Pack : 0; // @v10.3.6
+	DlGoodsBillBaseBlock * p_extra = static_cast<DlGoodsBillBaseBlock *>(Extra[0].Ptr);
+	PPBillPacket * p_pack = p_extra ? p_extra->P_Pack : 0;
 	if(pF->Name == "?CalcInSaldo") {
 		double saldo = 0.0;
-		// @v10.3.6 const PPBillPacket * p_pack = static_cast<const PPBillPacket *>(Extra[0].Ptr);
 		if(p_pack) {
 			const  PPID goods_id = _ARG_INT(1);
 			if(H.ObjectID && goods_id) {
@@ -8428,11 +8414,9 @@ PPALDD_DESTRUCTOR(GoodsReval)
 
 int PPALDD_GoodsReval::InitData(PPFilt & rFilt, long rsrv)
 {
-	// @v10.3.6 Extra[0].Ptr = rFilt.Ptr;
-	// @v10.3.6 PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
-	DlGoodsBillBaseBlock * p_extra = new DlGoodsBillBaseBlock(static_cast<PPBillPacket *>(rFilt.Ptr)); // @v10.3.6
-	Extra[0].Ptr = p_extra; // @v10.3.6
-	PPBillPacket * p_pack = p_extra->P_Pack; // @v10.3.6
+	DlGoodsBillBaseBlock * p_extra = new DlGoodsBillBaseBlock(static_cast<PPBillPacket *>(rFilt.Ptr));
+	Extra[0].Ptr = p_extra;
+	PPBillPacket * p_pack = p_extra->P_Pack;
 	BillTbl::Rec rec = p_pack->Rec;
 	BillTotalData total_data;
 	PPObjPerson psn_obj;
@@ -8543,7 +8527,7 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 			double new_price = (correction_type == -1) ? (p_ti->Price-p_ti->Discount) : p_ti->Price;
 			double new_cost  = p_ti->Cost;
 			double old_price = (correction_type == -1) ? p_ti->RevalCost : ((correction_type == 0) ? p_ti->Discount : 0.0);
-			double old_cost  = (correction_type == +1) ? p_ti->RevalCost : ((correction_type == 0) ? p_ti->Cost : 0.0); // @v10.6.1 p_ti->Discount-->p_ti->Cost
+			double old_cost  = (correction_type == +1) ? p_ti->RevalCost : ((correction_type == 0) ? p_ti->Cost : 0.0);
 			const double qtty      = correction_type ? fabs(p_ti->Quantity_) : fabs(p_ti->Rest_);
 			const double old_qtty  = correction_type ? fabs(p_ti->QuotPrice) : fabs(qtty);
 			double vatsum_oldcost = 0.0;

@@ -388,7 +388,7 @@ int STDCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int r
 								msgcode = BtrError;
 							}
 							else {
-								group = PPSTR_DBLIB; // @v10.8.2
+								group = PPSTR_DBLIB;
 								msgcode = _db_err_code;
 							}
 						}

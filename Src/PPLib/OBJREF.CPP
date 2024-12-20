@@ -66,7 +66,7 @@ void ObjViewDialog::editItem()
 
 void ObjViewDialog::removeItem()
 {
-	PPID   id = getCurrID();
+	const PPID id = getCurrID();
 	if((Rt & PPR_DEL) && id) {
 		P_List->P_Def->step(+1);
 		PPID   next_id = getCurrID();

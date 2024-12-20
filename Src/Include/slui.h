@@ -1305,7 +1305,9 @@ public:
 		vDesktopIconGap,
 		vButtonStdHeight,
 		vButtonStdWidth,
-		vButtonDoubleWidth
+		vButtonDoubleWidth,
+		vFontSmoothingType, // @v12.2.1 0=none; 1=standard; 2=cleartype
+		vFontSmoothingContrast, // @v12.2.1 [1000..2200] default=1400 SPI_SETFONTSMOOTHINGCONTRAST
 	};
 	union ValueUnion {
 		ValueUnion();
@@ -2831,109 +2833,6 @@ private:
 	SVector * P_FontsAry;
 };
 //
-// @construction {
-//
-#if 0 // @v10.9.12 (deprecated) {
-class SRectLayout {
-public:
-	//
-	// Если не задан флаг dfOpp, то координата отсчитывается от левого верхнего угла.
-	// Если задан флаг dfOpp, то координата отсчитывается от правого нижнего угла.
-	//
-	enum {
-		dfAbs     = 0x0001, // Координата задана в абсолютных единицах
-		dfRel     = 0x0002, // Координата задана в долях от общего размера контейнера. Значение кодируется как число с фиксированной точкой (4 знака)
-		dfGravity = 0x0004, // Координата притягивается к соответствующей границе контейнера.
-		dfOpp     = 0x0008  // Координата отсчитывается от противоположной стороны контейнера.
-	};
-	enum {
-		inoOverlap = 1,
-		inoVStack,
-		inoHStack
-	};
-	struct Dim {
-		void   Set(int v, int f);
-		int16  Val;
-		int16  Flags; // SRectLayout::dfXXX
-	};
-	struct Item {
-		DECL_INVARIANT_C();
-
-		Item();
-		Item & SetLeft(int size, int pct);
-		Item & SetRight(int size, int pct);
-		Item & SetTop(int size, int pct);
-		Item & SetBottom(int size, int pct);
-		Item & SetCenter();
-
-		Dim    Left;
-		Dim    Top;
-		Dim    Right;
-		Dim    Bottom;
-		int16  EmptyWidth;  // Ширина пустого элемента (-1 - та же, что и заполненного)
-		int16  EmptyHeight; // Высота пустого элемента (-1 - та же, что и заполненного)
-		int    InnerOrder;
-	};
-
-	SRectLayout();
-	~SRectLayout();
-	int    Add(long id, const Item &);
-	int    InsertWindow(long itemId, TView * pView, int minWidth, int minHeight);
-	int    RemoveWindow(long winId);
-	int    GetWindowBounds(long winId, TRect & rBounds);
-	int    SetContainerBounds(const TRect &);
-	int    Arrange();
-	int    GetItemBounds(long id, TRect & rBounds);
-	int    Locate(SPoint2S p, uint * pItemPos) const;
-private:
-	struct RItem {
-		enum {
-			stNotEmpty = 0x0001
-		};
-		long   Id;
-		Dim    Left;
-		Dim    Top;
-		Dim    Right;
-		Dim    Bottom;
-		int16  EmptyWidth;  // Ширина пустого элемента (-1 - та же, что и заполненного)
-		int16  EmptyHeight; // Высота пустого элемента (-1 - та же, что и заполненного)
-		int    InnerOrder;
-		long   State;
-		TRect  Bounds;
-	};
-	struct WItem {
-		long   ItemId;
-		TView * P_View;       // @notowned
-		int16  MinWidth;
-		int16  MinHeight;
-		TRect  Bounds;
-	};
-
-	int    IsEmpty(long itemId) const;
-	int    CalcCoord(Dim dim, int containerLow, int containerUpp, int gravitySide) const;
-
-	TSVector <RItem> List;
-	TSVector <WItem> WinList;
-	TRect ContainerBounds;
-};
-#endif // } 0 @v10.9.12 (deprecated) {
-/*
-length-unit: % | mm | m | cm
-length-unit-optional: length-unit | ;
-measured-value: number unit-optional
-range: measured-value..measured-value
-
-box (x, y, x2, y2) // 4 values
-box (width, height) // 2 values
-box (width, undefined) // 2 values
-box (50%, 10) // 2 values
-box (40%..50%, 10..30) // 2 values
-box (x, y, (width, height))
-
-layout abc rowreverse wrap {
-}
-*/
-//
 //
 //
 class TWindowBase : public TWindow {
@@ -4302,7 +4201,7 @@ private:
 	struct TreeItem {
 		long   Id;
 		long   ParentId;
-		void * H; // @v10.9.4 HTREEITEM-->(void *)
+		void * H;
 		uint   P;
 	};
 	STree  T;
@@ -4358,7 +4257,7 @@ private:
 	struct TreeItem {
 		long   Id;
 		long   ParentId;
-		void * H; // @v10.9.4 HTREEITEM-->(void *)
+		void * H;
 		uint   P;
 	};
 	//STree  T;
@@ -4515,7 +4414,7 @@ public:
 	int    removeItem(long pos);
 	void   freeAll();
 	void   FASTCALL focusItem(long item);
-	//int    SetupTreeWnd(void * hParent, long parentID); // @recursion // @v10.9.4 HTREEITEM-->(void *)
+	//int    SetupTreeWnd(void * hParent, long parentID); // @recursion
 	void   Scroll(short sbCmd, int value);
 	void   CreateScrollBar(int create);
 	void   SetScrollBarPos(long pos, LPARAM lParam);
@@ -4568,7 +4467,7 @@ private:
 	uint   ColumnsSpcPos;  // Позиция строки спецификации колонок в StrPool
 	SArray Columns;
 	StringSet StrPool;
-	void * HIML; // @v10.9.4 HIMAGELIST-->(void *)
+	void * HIML;
 };
 
 class ListWindowSmartListBox : public SmartListBox {
@@ -4626,7 +4525,7 @@ public:
 	WordSelector(WordSel_ExtraBlock * pBlk);
 	void   FASTCALL setDef(ListBoxDef * pDef);
 	int    Refresh(const char * pText);
-	int    ViewRecent(); // @v10.7.7
+	int    ViewRecent();
 	int    Activate();
 	void   ActivateInput();
 	bool   CheckVisible() const;

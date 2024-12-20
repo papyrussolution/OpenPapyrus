@@ -52,7 +52,7 @@ int FASTCALL PPClientAgreement::IsEq(const PPClientAgreement & rS) const
 	CMP_FLD(Code_); // @v11.2.0
 	CMP_FLD(DefDuePeriodHour); // @v11.4.8
 #undef CMP_FLD
-	// @v11.2.0 (see above) if(!sstreq(Code2, rS.Code2)) // @v10.2.9 Code-->Code2
+	// @v11.2.0 (see above) if(!sstreq(Code2, rS.Code2))
 	if(!Bmpp.IsEq(rS.Bmpp))
 		return 0;
 	else {
@@ -77,7 +77,7 @@ bool PPClientAgreement::IsEmpty() const
 	const long nempty_flags_mask = (AGTF_DONTCALCDEBTINBILL|AGTF_PRICEROUNDING);
 	return ((Flags & nempty_flags_mask) || BegDt || Expiry || MaxCredit || MaxDscnt || Dscnt || DefPayPeriod ||
 		DefAgentID || DefQuotKindID || ExtObjectID || LockPrcBefore || EdiPrvID || /*sstrlen(Code2) > 0*/Code_.Len() || DebtLimList.getCount() ||
-		(RetLimPrd && RetLimPart) || DefDuePeriodHour || !Bmpp.IsEmpty()) ? 0 : 1; // @v10.2.9 Code-->Code2 // @v11.4.8 DefDuePeriodHour
+		(RetLimPrd && RetLimPart) || DefDuePeriodHour || !Bmpp.IsEmpty()) ? 0 : 1; // @v11.4.8 DefDuePeriodHour
 }
 
 PPClientAgreement & FASTCALL PPClientAgreement::operator = (const PPClientAgreement & rS)
@@ -169,16 +169,15 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 	short  DefPayPeriod;   // Количество дней от отгрузки до оплаты по умолчанию
 	PPID   DefAgentID;     // Агент, закрепленный за клиентом
 	PPID   DefQuotKindID;  // Вид котировки, используемый для отгрузки этому клиенту
-	// @v10.2.9 char   Code[12];       // @v5.7.12 Номер соглашения //
 	uint8  Code__[12];     // @v10.2.9 Номер соглашения перенесен в Code2[24]
-	PPID   ExtObjectID;    // @v5.9.3 Дополнительный объект (таблица дополнительных объектов для общего соглашения)
-	LDATE  LockPrcBefore;  // @v6.0.7 Дата, до которой процессинг должников не меняет параметры соглашения //
-	int16  PriceRoundDir;  // @v6.4.1 Направление округления окончательной цены в документах
-	float  PriceRoundPrec; // @v6.4.1 Точность округления окончательной цены в документах
-	int16  RetLimPrd;      // @v7.1.5 Период ограничения доли возвратов от суммы товарооборота
-	uint16 RetLimPart;     // @v7.1.5 Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
-	long   PaymDateBase;   // @v8.4.2
-	long   EdiPrvID;       // @v10.0.0
+	PPID   ExtObjectID;    // Дополнительный объект (таблица дополнительных объектов для общего соглашения)
+	LDATE  LockPrcBefore;  // Дата, до которой процессинг должников не меняет параметры соглашения //
+	int16  PriceRoundDir;  // Направление округления окончательной цены в документах
+	float  PriceRoundPrec; // Точность округления окончательной цены в документах
+	int16  RetLimPrd;      // Период ограничения доли возвратов от суммы товарооборота
+	uint16 RetLimPart;     // Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
+	long   PaymDateBase;   // 
+	long   EdiPrvID;       // 
 	char   Code2[24];      // @v10.2.9 Вместо Code[12]
 	uint16 DefDuePeriodHour; // @v11.4.8
 };
@@ -199,13 +198,10 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 	pAgt->DefAgentID    = p_agt->DefAgentID;
 	pAgt->DefQuotKindID = p_agt->DefQuotKindID;
 	pAgt->ExtObjectID   = p_agt->ExtObjectID;
-	// @v10.2.9 STRNSCPY(pAgt->Code, p_agt->Code);
-	// @v10.2.9 {
 	/* @v11.2.0 if(p_agt->Code2[0] == 0 && p_agt->Code__[0])
 		STRNSCPY(pAgt->Code2, p_agt->Code__);
 	else
 		STRNSCPY(pAgt->Code2, p_agt->Code2);*/
-	// } @v10.2.9
 	// @v11.2.0 {
 	if(p_agt->Code2[0] == 0 && p_agt->Code__[0])
 		pAgt->Code_ = reinterpret_cast<const char *>(p_agt->Code__);
@@ -218,7 +214,7 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 	pAgt->RetLimPrd  = p_agt->RetLimPrd;
 	pAgt->RetLimPart = p_agt->RetLimPart;
 	pAgt->PaymDateBase = p_agt->PaymDateBase;
-	pAgt->EdiPrvID = p_agt->EdiPrvID; // @v10.0.0
+	pAgt->EdiPrvID = p_agt->EdiPrvID;
 	if(loadDebtLimList) {
 		Reference * p_ref = PPRef;
 		if(pAgt->Flags & AGTF_DDLIST715) {
@@ -286,20 +282,17 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 			pAgt->DefAgentID    = p_agt->DefAgentID;
 			pAgt->DefQuotKindID = p_agt->DefQuotKindID;
 			pAgt->ExtObjectID   = p_agt->ExtObjectID;
-			// @v10.2.9 STRNSCPY(pAgt->Code, p_agt->Code);
-			// @v10.2.9 {
 			if(p_agt->Code2[0] == 0 && p_agt->Code__[0])
 				STRNSCPY(pAgt->Code2, p_agt->Code__);
 			else
 				STRNSCPY(pAgt->Code2, p_agt->Code2);
-			// } @v10.2.9
 			pAgt->LockPrcBefore  = p_agt->LockPrcBefore;
 			pAgt->PriceRoundDir  = p_agt->PriceRoundDir;
 			pAgt->PriceRoundPrec = p_agt->PriceRoundPrec;
 			pAgt->RetLimPrd  = p_agt->RetLimPrd;
 			pAgt->RetLimPart = p_agt->RetLimPart;
 			pAgt->PaymDateBase = p_agt->PaymDateBase;
-			pAgt->EdiPrvID = p_agt->EdiPrvID; // @v10.0.0
+			pAgt->EdiPrvID = p_agt->EdiPrvID;
 			if(loadDebtLimList) {
 				Reference * p_ref = PPRef;
 				if(pAgt->Flags & AGTF_DDLIST715) {
@@ -585,12 +578,9 @@ int PPObjArticle::PutClientAgreement(PPID id, PPClientAgreement * pAgt, int use_
 		_agt.RetLimPrd    = pAgt->RetLimPrd;
 		_agt.RetLimPart   = pAgt->RetLimPart;
 		_agt.PaymDateBase = pAgt->PaymDateBase;
-		_agt.EdiPrvID     = pAgt->EdiPrvID; // @v10.0.0
-		// @v10.2.9 STRNSCPY(_agt.Code, pAgt->Code);
-		// @v10.2.9 {
+		_agt.EdiPrvID     = pAgt->EdiPrvID;
 		STRNSCPY(_agt.Code2, pAgt->Code2);
 		memzero(_agt.Code__, sizeof(_agt.Code__));
-		// } @v10.2.9
 	}
 	{
 		Reference * p_ref = PPRef;
@@ -876,7 +866,7 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			}
 			else
 				enableCommand(cmBills, 0);
-			// @v11.2.0 setCtrlData(CTL_CLIAGT_CODE, data.Code2); // @v10.2.9 Code-->Code2
+			// @v11.2.0 setCtrlData(CTL_CLIAGT_CODE, data.Code2);
 			setCtrlString(CTL_CLIAGT_CODE, Data.Code_); // @v11.2.0
 			setCtrlDate(CTL_CLIAGT_DATE,      Data.BegDt);
 			setCtrlDate(CTL_CLIAGT_EXPIRY,    Data.Expiry);
@@ -896,7 +886,7 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 				PPLoadString("bill_object2", ext_obj);
 				setLabelText(CTL_CLIAGT_EXTOBJECT, ext_obj);
 				SetupArCombo(this, CTLSEL_CLIAGT_EXTOBJECT, Data.ExtObjectID, OLW_LOADDEFONOPEN|OLW_CANINSERT, acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
-				SetupPPObjCombo(this, CTLSEL_CLIAGT_EDIPRV, PPOBJ_EDIPROVIDER, Data.EdiPrvID, OLW_CANINSERT, 0); // @v10.0.0
+				SetupPPObjCombo(this, CTLSEL_CLIAGT_EDIPRV, PPOBJ_EDIPROVIDER, Data.EdiPrvID, OLW_CANINSERT, 0);
 				AddClusterAssoc(CTL_CLIAGT_FLAGS, 0, AGTF_DONTCALCDEBTINBILL);
 				AddClusterAssoc(CTL_CLIAGT_FLAGS, 1, AGTF_USEMARKEDGOODSONLY);
 				AddClusterAssoc(CTL_CLIAGT_FLAGS, 2, AGTF_DONTUSEMINSHIPMQTTY);
@@ -930,7 +920,7 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 		{
 			int    ok = 1;
 			int    sel = 0;
-			// @v11.2.0 getCtrlData(CTL_CLIAGT_CODE, data.Code2); // @v10.2.9 Code-->Code2
+			// @v11.2.0 getCtrlData(CTL_CLIAGT_CODE, data.Code2);
 			getCtrlString(CTL_CLIAGT_CODE, Data.Code_); // @v11.2.0
 			getCtrlData(sel = CTL_CLIAGT_DATE,      &Data.BegDt);
 			THROW_SL(checkdate(Data.BegDt, 1));
@@ -951,7 +941,7 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			getCtrlData(CTLSEL_CLIAGT_AGENT,  &Data.DefAgentID);
 			getCtrlData(CTLSEL_CLIAGT_QUOTKIND, &Data.DefQuotKindID);
 			getCtrlData(CTLSEL_CLIAGT_EXTOBJECT, &Data.ExtObjectID);
-			getCtrlData(CTLSEL_CLIAGT_EDIPRV, &Data.EdiPrvID); // @v10.0.0
+			getCtrlData(CTLSEL_CLIAGT_EDIPRV, &Data.EdiPrvID);
 			GetClusterData(CTL_CLIAGT_FLAGS, &Data.Flags);
 			Data.RetLimPrd = (int16)getCtrlLong(CTLSEL_CLIAGT_RETLIMPRD);
 			if(Data.RetLimPrd) {
@@ -2258,7 +2248,7 @@ int PPALDD_Agreement::InitData(PPFilt & rFilt, long rsrv)
 					H.MaxDscnt     = cli_agt.MaxDscnt;
 					H.Dscnt        = cli_agt.Dscnt;
 					H.DefPayPeriod = cli_agt.DefPayPeriod;
-					// @v11.2.0 STRNSCPY(H.Code, cli_agt.Code2); // @v10.2.9 Code-->Code2
+					// @v11.2.0 STRNSCPY(H.Code, cli_agt.Code2);
 					STRNSCPY(H.Code, cli_agt.Code_); // @v11.2.0
 				}
 				else if((acs_rec.Flags & ACSHF_USESUPPLAGT) && p_ar_obj->GetSupplAgreement(H.ID, &suppl_agt, 0) > 0) {

@@ -109,7 +109,7 @@
 	#define ROD_TAG             18   // Типы тегов
 	#define ROD_OPCOUNTER       19   // Счетчики
 	#define ROD_TAXSYSTEMKIND   20   // Виды налогообложения //
-	#define ROD_GOODSBASKET     21   // @v10.6.8 Товарные корзины //
+	#define ROD_GOODSBASKET     21   // Товарные корзины //
 #define PP_RCDECLSTRUC        502   // Тип ресурса для деклараций структур экспорта/импорта данных
 #define PP_RCDECLOBJ          503   // Тип ресурса для деклараций типов объектов PPObject
 	//
@@ -400,7 +400,7 @@
 #define PPCFGOBJ_GLOBALUSERACC    (PPOBJ_FIRST_CFG_OBJ + 30)
 #define PPCFGOBJ_WORKBOOK         (PPOBJ_FIRST_CFG_OBJ + 31)
 #define PPCFGOBJ_ALCREPORT        (PPOBJ_FIRST_CFG_OBJ + 32)
-#define PPCFGOBJ_TIMESERIES       (PPOBJ_FIRST_CFG_OBJ + 33) // @v10.3.1
+#define PPCFGOBJ_TIMESERIES       (PPOBJ_FIRST_CFG_OBJ + 33)
 #define PPCFGOBJ_MARKETPLACE      (PPOBJ_FIRST_CFG_OBJ + 34) // @v12.1.5
 //
 #define PPOBJ_CONFIG              1L  // $(PPSecur) Конфигурация системы
@@ -412,8 +412,6 @@
 	#define PPGRP_EVERYONE       1L
 #define PPOBJ_USR                 4L  // $(PPSecur) Пользователи (struct PPSecur)
 	#define PPUSR_MASTER         1L
-	// @v10.1.5 (unused) #define PPUSR_ADMIN          2L
-	// @v10.1.5 (unused) #define PPUSR_MANAGER        3L
 #define PPOBJ_UNIT                5L  // $ Единицы измерения (struct PPUnit)
 	// @v11.9.4 Макро-определения PPUNT_XXX замещаются аналогичными SUOM_XXX. С этой целью значиния SUOM_XXX изменены с целью
 	// обеспечить бинарную совместимость с существующими базами данных.
@@ -503,7 +501,7 @@
 	#define PPOPT_DRAFTTRANSIT  21L // Специальная категория драфт-документов, которые
 		// отражают транзакции и отчеты сторонних контрагентов, для обмена друг с другом посредством системы, но
 		// без посредничества главной организации.
-	#define PPOPT_DRAFTQUOTREQ  22L // @v10.5.7 Запрос котировок (запрос на возможность, сроки и стоимость поставки товаров)
+	#define PPOPT_DRAFTQUOTREQ  22L // Запрос котировок (запрос на возможность, сроки и стоимость поставки товаров)
 #define PPOBJ_OPRKIND            12L  // $ Виды операций
 	#define PPOPK_GENERICACCTURN         1L // Общая бухгалтерская проводка
 	#define PPOPK_RECEIPT                2L // Прием товара от поставщика
@@ -719,15 +717,15 @@
 	#define PPACN_BILLWROFF             79L // Документ списан
 	#define PPACN_BILLWROFFUNDO         80L // Откат списания документа
 	#define PPACN_GOODSPASSVSET         81L // Установлен признак "Пассивный" для товара
-	#define PPACN_GSTRUCATTACHED        82L // @v10.2.1 К товару привязана товарная структура
-	#define PPACN_GSTRUCDETACHED        83L // @v10.2.1 От товара отвязана товарная структура
-	#define PPACN_GSTRUCCUPD            84L // @v10.2.1 Изменился компонентный состав товарной структуры (добавлен или удален компонент)
-	#define PPACN_TSSERIESUPD           85L // @v10.3.3 Изменена временная серия
-	#define PPACN_TSSTRATEGYUPD         86L // @v10.3.3 Изменена стратегия временной серии
-	#define PPACN_SCARDEXPRYUPD         87L // @v10.5.10 Изменена дата истечения срока действия персональной карты
-	#define PPACN_SYSMAINTENANCE        88L // @v10.5.12 Событие вызова одной из специальных функций обслуживания системы. Дополнительный параметр - ид функции
-	#define PPACN_BILLUNLINK            89L // @v10.8.3 Удалена привязка документа к другому документу. Дополнительный параметр - ид документа, к которому была привязка
-	#define PPACN_EVENTDETECTION        90L // @v10.8.10 Попытка обнаружения события (PPObjEvent). Следующая попытка будет опираться на время этой записи.
+	#define PPACN_GSTRUCATTACHED        82L // К товару привязана товарная структура
+	#define PPACN_GSTRUCDETACHED        83L // От товара отвязана товарная структура
+	#define PPACN_GSTRUCCUPD            84L // Изменился компонентный состав товарной структуры (добавлен или удален компонент)
+	#define PPACN_TSSERIESUPD           85L // Изменена временная серия
+	#define PPACN_TSSTRATEGYUPD         86L // Изменена стратегия временной серии
+	#define PPACN_SCARDEXPRYUPD         87L // Изменена дата истечения срока действия персональной карты
+	#define PPACN_SYSMAINTENANCE        88L // Событие вызова одной из специальных функций обслуживания системы. Дополнительный параметр - ид функции
+	#define PPACN_BILLUNLINK            89L // Удалена привязка документа к другому документу. Дополнительный параметр - ид документа, к которому была привязка
+	#define PPACN_EVENTDETECTION        90L // Попытка обнаружения события (PPObjEvent). Следующая попытка будет опираться на время этой записи.
 	#define PPACN_RECENTVERSIONLAUNCHED 91L // @v11.2.10 Событие, иниициируемое при запуске сеанса, версия которого превышает последнее значение, зафиксированное
 		// таким же событием. Используется в Stylo-Q и, возможно, в иных однопользовательских приложениях. В Papyrus'е не применяется из-за того, что он многопользовательский -
 		// там другие механизмы.
@@ -743,7 +741,7 @@
 		// !!! При вставке нового значения изменить PPACN_LAST !!!
 	#define PPACN_LAST                  97L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
 
-	#define SYSMAINTENANCEFUNC_AUTOMQSCONFIG 1 // @v10.7.5 Автоматическое обновление конфигурации обмена с брокером сообщений
+	#define SYSMAINTENANCEFUNC_AUTOMQSCONFIG 1 // Автоматическое обновление конфигурации обмена с брокером сообщений
 	//
 	// Далее следуют идентификаторы событий, которые не отображаются в системном журнале, однако
 	// должны быть в том же поле идентификаторов, что и PPACN_XXX поскольку заносятся в очередь
@@ -753,7 +751,7 @@
 	#define PPEVNT_PHNS_RING     1002L // PhoneService event: Line is ringing
 	#define PPEVNT_PHNS_RINGING  1003L // PhoneService event: Remote end is ringing
 	#define PPEVNT_PHNC_UP       1004L // PhoneService event: Line is up
-	#define PPEVNT_MQB_MESSAGE   1101L // @v10.5.7 MessageQueueBroker event: message
+	#define PPEVNT_MQB_MESSAGE   1101L // MessageQueueBroker event: message
 //
 // Фантомный объект. В таблице Reference для него не существует записей.
 // Могут существовать записи в таблице Property, реализующие линейный
@@ -810,9 +808,9 @@
 	#define PPREGT_GLN          13 // GLN, ассоциированный с персоналией (не путать с кодом адреса)
 	#define PPREGT_COUNTRYABBR  14 // Аналог аббревиатуры государства для персоналий со статусом PPPRS_COUNTRY
 	#define PPREGT_COUNTRYCODE  15 // Аналог кода государства для персоналий со статусом PPPRS_COUNTRY
-	#define PPREGT_BANKACCOUNT  16 // @v9.0.4 Банковский счет (начиная с v9.0.4 банковские счета переносятся в таблицу Register)
-	#define PPREGT_DTO_ID       17 // @v9.8.0 Идентификатор оператора передачи данных (PPPRK_DTO)
-	#define PPREGT_TAXSYSTEM    18 // @v10.6.0 Вид системы налогообложения //
+	#define PPREGT_BANKACCOUNT  16 // Банковский счет (начиная с v9.0.4 банковские счета переносятся в таблицу Register)
+	#define PPREGT_DTO_ID       17 // Идентификатор оператора передачи данных (PPPRK_DTO)
+	#define PPREGT_TAXSYSTEM    18 // Вид системы налогообложения //
 	#define PPREGT_ENALOGID     19 // @v12.0.0 ИД участника документооборота (nalog.ru). До @v12.0.0 применялся только тег PPTAG_PERSON_ENALOGID,
 		// однако выяснилось, что у организации может существовать несколько идентификаторов в зависимости от привязки к провайдеру.
 		// Регистр решает проблему привязки, поскольку содержит атрибут регистрирующей организации.
@@ -907,7 +905,7 @@
 #define PPOBJ_PERSONRELTYPE      49L // $ Тип отношения между персоналиями
 	#define PPPSNRELTYP_AFFIL        1 // Филиал-Головная организация //
 	#define PPPSNRELTYP_UHTTSUBORD   2 // Подчиненная персоналия-Управляющая персоналия  @uhtt
-	// @construction #define PPPSNRELTYP_AGENTOF      3 // @v10.2.3 привязка агента к контрагенту (чаще всего к поставщику)
+	// @construction #define PPPSNRELTYP_AGENTOF      3 // привязка агента к контрагенту (чаще всего к поставщику)
 	//
 	// Extra record of PPOBJ_PERSONRELTYPE
 	#define PRTPRP_INHREGLIST    1L //
@@ -939,7 +937,7 @@
 #define PPOBJ_EVENTTOKEN         65L // Специальный объект, используемый как уникальная метка для событий.
 	#define PPEVTOK_CVTSCS9809      1L // Событие конвертации серий персональных карт v9.8.9
 	#define PPEVTOK_OBJHIST9811     2L // Событие переключения техники хранения версий объектов
-	#define PPEVTOK_CVTCMDGROUP     3L // @v10.9.3 Событие переключения форматов идентификации пользовательских меню и рабочих столов
+	#define PPEVTOK_CVTCMDGROUP     3L // Событие переключения форматов идентификации пользовательских меню и рабочих столов
 	#define PPEVTOK_CVTCLIAGT11200  4L // @v11.2.0 Событие переключения техники хранения версий объектов
 #define PPOBJ_SMSPRVACCOUNT      66L // Учетная запись провайдера рассылки SMS
 	//
@@ -1013,17 +1011,17 @@
 	#define PPUPRF_CALCARTDEBT       	  	   67
 	#define PPUPRF_VIEW_DEBT         	  	   68
 	#define PPUPRF_GETOPENEDLOTS     	  	   69
-	#define PPUPRF_BHTPREPBILL       	  	   70 // @v9.4.11
-	#define PPUPRF_BHTPREPGOODS      	  	   71 // @v9.4.11
-	#define PPUPRF_OSMXMLPARSETAG    	  	   72 // @v9.5.8
-	#define PPUPRF_BUILDGOODSFL      	  	   73 // @v10.1.4
-	#define PPUPRF_SRCHINGOODSFL     	  	   74 // @v10.1.4
-	#define PPUPRF_TIMSERWRITE       	  	   75 // @v10.3.3
-	#define PPUPRF_TSEVALSTAKES      	  	   76 // @v10.3.3
+	#define PPUPRF_BHTPREPBILL       	  	   70
+	#define PPUPRF_BHTPREPGOODS      	  	   71
+	#define PPUPRF_OSMXMLPARSETAG    	  	   72
+	#define PPUPRF_BUILDGOODSFL      	  	   73
+	#define PPUPRF_SRCHINGOODSFL     	  	   74
+	#define PPUPRF_TIMSERWRITE       	  	   75
+	#define PPUPRF_TSEVALSTAKES      	  	   76
 	#define PPUPRF_STYLOQ_CMD_ORDERPREREQ 	   77 // @v11.2.12
 	#define PPUPRF_STYLOQ_CMD_INDOORSVCPREREQ  78 // @v11.4.4
 	#define PPUPRF_STYLOQ_CMD_ATTENDANCEPREREQ 79 // @v11.4.4
-	#define PPUPRF_LAST                        80 // @v10.3.3 @anchor 75-->77 Идентификатор для отмера количества существующих значений // @v11.2.12 77-->78
+	#define PPUPRF_LAST                        80 // @anchor Идентификатор для отмера количества существующих значений
 #define PPOBJ_EDIPROVIDER	     74L // Провайдеры EDI-обмена
 	#define EDIPRVPRP_EXTSTRING       1L // Текстовые данные пакета
 #define PPOBJ_USREXCLRIGHTS      75L // Исключения для пользовательских прав доступа при некоторых действиях
@@ -1031,25 +1029,25 @@
 	// специализированной таблицы StaffList в Reference
 #define PPOBJ_ACCOUNT2           77L // Бухгалтерские счета (балансовые) (2-я версия объекта - записи перемещены из
 	// специализированной таблицы Account в Reference
-#define PPOBJ_TIMESERIES         78L // @v10.2.3 Временные серии. Специализированный объект, служащий в качестве заголовков временных серий данных.
-	#define TIMSERPRP_STAKEMODEL       1L // @v10.2.11
-	#define TIMSERPRP_STAKEMODEL_SEL   1L // @v10.4.3
-	#define TIMSERPRP_STAKEMODEL_ALL   2L // @v10.4.3
-	#define TIMSERPRP_STAKEMODEL_SELTF 3L // @v10.4.3
-	#define TIMSERPRP_EXTENSION       10L // @v10.5.4
-	#define TIMSERPRP_DENSITYMAP      11L // @v10.8.9
+#define PPOBJ_TIMESERIES         78L // Временные серии. Специализированный объект, служащий в качестве заголовков временных серий данных.
+	#define TIMSERPRP_STAKEMODEL       1L
+	#define TIMSERPRP_STAKEMODEL_SEL   1L
+	#define TIMSERPRP_STAKEMODEL_ALL   2L
+	#define TIMSERPRP_STAKEMODEL_SELTF 3L
+	#define TIMSERPRP_EXTENSION       10L
+	#define TIMSERPRP_DENSITYMAP      11L
 
-#define PPOBJ_FREIGHTPACKAGETYPE 79L // @v10.4.1 Тип транспортной упаковки
-#define PPOBJ_TAXSYSTEMKIND      80L // @v10.6.0 Вид системы налогообложения //
+#define PPOBJ_FREIGHTPACKAGETYPE 79L // Тип транспортной упаковки
+#define PPOBJ_TAXSYSTEMKIND      80L // Вид системы налогообложения //
 	#define TAXSYSK_GENERAL            1L // RU: ОСН — общая система налогообложения
 	#define TAXSYSK_SIMPLIFIED         2L // RU: УСН — упрощенная система налогообложения (доход)
 	#define TAXSYSK_PATENT             3L // RU: ПАТЕНТ — патентная система налогообложения
 	#define TAXSYSK_IMPUTED            4L // RU: ЕНВД — вмененная система налогообложения или единый налог на вмененный доход
 	#define TAXSYSK_SINGLEAGRICULT     5L // RU: ЕСХН — единый сельскохозяйственный налог
 	#define TAXSYSK_SIMPLIFIED_PROFIT  6L // RU: УСН — упрощенная система налогообложения (доход-расход)
-#define PPOBJ_TSSMODEL           81L // @v10.7.4 Параметры модели расчета стратегий на временных сериях
+#define PPOBJ_TSSMODEL           81L // Параметры модели расчета стратегий на временных сериях
 	#define TSSMODELPRP_EXTENSION      1L
-#define PPOBJ_EVENTSUBSCRIPTION  82L // @v10.8.9 Подписка на события //
+#define PPOBJ_EVENTSUBSCRIPTION  82L // Подписка на события //
 	#define EVNTSUBSCRPRP_EXTENSION    1L
 #define PPOBJ_BIZSCORE2          83L // @v11.9.1 @construction 2-я версия определителей бизнес-показателей
 #define PPOBJ_SWPROGRAMCATEGORY  84L // @v11.9.12 Категория исполняемой программы. Простой вспомогательный справочник для объекта PPOBJ_SWPROGRAM
@@ -1131,9 +1129,9 @@
 	#define GGPRP_GOODSFILT2     7L  // Фильтр товаров для альтернативной группы (сериализованный вариант)
 #define PPOBJ_LOCATION      1010L  // Позиции @store(LocationTbl)
 	#define LOCPRP_WAREHOUSELIST 1L // @v11.0.6 Список складов, ассоциированных с подразделением главной организации
-	// Зарезервированные позиции (не используются)
-	#define PPLOC_RECEIPT        1L // @unused Поступление товара из-вне
-	#define PPLOC_EXPEND         2L // @unused Расход товара
+	// @v12.1.2 // Зарезервированные позиции (не используются)
+	// @v12.1.2 #define PPLOC_RECEIPT        1L // @unused Поступление товара из-вне
+	// @v12.1.2 #define PPLOC_EXPEND         2L // @unused Расход товара
 #define PPOBJ_BILL          1011L  // Документы @store(BillTbl)
 	//
 	// Extra records of PPOBJ_BILL
@@ -1147,9 +1145,8 @@
 	#define BILLPRP_GUID         7L  // GUID, в частности, для документов с BHT терминала
 	#define BILLPRP_DRAFTTAGLIST 8L  // Список тегов, привязанных к строкам драфт-документа.
 		// При списании приходного драфт-документа этот список привязывается к лотам создаваемого документа
-	#define BILLPRP_AGREEMENT    9L  // @v10.1.12 Блок, хранящий данные соглашения (договора) с контрагентом. Сопоставляется с документами,
-		// имеющими тип операции PPOPT_AGREEMENT
-	#define BILLPRP_VALXCL      10L  // @v10.3.0 Контейнер валидации расширенных кодов
+	#define BILLPRP_AGREEMENT    9L  // Блок, хранящий данные соглашения (договора) с контрагентом. Сопоставляется с документами, имеющими тип операции PPOPT_AGREEMENT
+	#define BILLPRP_VALXCL      10L  // Контейнер валидации расширенных кодов
 #define PPOBJ_ACCTURN       1012L  // Бухгалтерские проводки
 #define PPOBJ_QCERT         1013L  // Сертификаты качества
 #define PPOBJ_PRICELIST     1014L  // Прайс-листы
@@ -1237,10 +1234,10 @@
 #define PPOBJ_EGAISREFA     1071L  // Специализированный объект, хранящий данные справок А системы ЕГАИС
 #define PPOBJ_EGAISPRODUCT  1072L  // Специализированный объект, хранящий данные о товарах системы ЕГАИС
 #define PPOBJ_EGAISPERSON   1073L  // Специализированный объект, хранящий данные о персоналиях системы ЕГАИС
-#define PPOBJ_VETISENTITY   1074L  // @v10.0.09 Специализированный объект, хранящий данные о сущностях системы VETIS
-#define PPOBJ_GEOTRACKING   1075L  // @v10.1.5 !PPObject Специализированный объект для представления гео-треков.
+#define PPOBJ_VETISENTITY   1074L  // Специализированный объект, хранящий данные о сущностях системы VETIS
+#define PPOBJ_GEOTRACKING   1075L  // !PPObject Специализированный объект для представления гео-треков.
 	// Значение фактически применяется только для идентификации запроса к JobServer'у.
-#define PPOBJ_EVENT         1076L  // @v10.8.9 События
+#define PPOBJ_EVENT         1076L  // События
 	#define PPEVENTTYPE_OBJCREATED        1L // Создан новый объект
 	#define PPEVENTTYPE_OUTER             2L // Внешнее по отношению к системе событие. Например, уведомление от какого-либо сервиса
 	#define PPEVENTTYPE_SPCBILLCHANGE     3L // Изменение документа каким-либо специфическим образом
@@ -1296,12 +1293,12 @@
 #define PPTRPROP_LONGNAME      3
 #define PPTRPROP_MEMO          4
 #define PPTRPROP_COMBINE       5 // Комбинированная строка, содержащая набор текстовых свойств
-#define PPTRPROP_RAWADDR       6 // @v10.0.12 Простое текстовое представление адреса
-#define PPTRPROP_TIMESERIES    7 // @v10.2.3 Временная серия - специальное свойство, для которого хранится не строка, а STimeSeries.
+#define PPTRPROP_RAWADDR       6 // Простое текстовое представление адреса
+#define PPTRPROP_TIMESERIES    7 // Временная серия - специальное свойство, для которого хранится не строка, а STimeSeries.
 	// Применяется только для таблицы UnxTextRefTbl (но не TextRefTbl).
 	// Для оперирования этим свойством объект UnxTextRefCore имеет несколько специализированных методов. Попытка работать с этим
 	// свойством как со строкой инициирует ошибку.
-#define PPTRPROP_DESCR         8 // @v10.7.2 Строка описания (не путать с PPTRPROP_NAME и PPTRPROP_LONGNAME). Используется, например, в проектах и задачах.
+#define PPTRPROP_DESCR         8 // Строка описания (не путать с PPTRPROP_NAME и PPTRPROP_LONGNAME). Используется, например, в проектах и задачах.
 #define PPTRPROP_CODE          9 // @v11.3.0 Отличается от SYMB тем, что в общем случае может существовать более одного кода для одного объекта
 
 #define PPTRPROP_USER        100 // Стартовое значение, с которого можно использовать пользовательские идентификаторы текстовых свойств
@@ -1478,7 +1475,6 @@
 //
 #define PPCMT_OKA500          1L // ОКА 500.1
 #define PPCMT_EL92AQ          2L // Электроника-92-Аквариус-Ф (И.Николаев)
-// @v10.4.5 #define PPCMT_AMC100          3L // AMC-100Ф (Драйвер ЗАО ШАНС)
 #define PPCMT_ECR930          4L // ЭКР-4110
 #define PPCMT_SMUKM30         5L // IPC-POS (СуперМаг УКМ Сервис-Плюс)
 #define PPCMT_SYNCSYM         6L // Эмулятор синхронного кассового аппарата
@@ -1488,7 +1484,6 @@
 #define PPCMT_CRCSHSRV       10L // Кристалл-Кассовый сервер
 #define PPCMT_SHTRIHFRF      11L // Штрих-ФР
 #define PPCMT_ATOL           12L // Атол
-// @v9.1.5 #define PPCMT_CRAZS          13L // Кристалл-АЗС
 #define PPCMT_PAPYRUS        14L // Papyrus
 #define PPCMT_ATOLWOATOLCARD 15L // Атол без АТОЛ-CARD
 #define PPCMT_SHTRIHMFRK     16L // Штрих-М-ФК-К
@@ -1500,11 +1495,10 @@
 	// применяемый для централизованного управления хранением кассовых чеков, генерируемых разными предприятиями.
 	// Кассовые сессии, привязанные к такому узлу в качестве номера кассы используют идент адреса магазина.
 #define PPCMT_SETSTART       22L // SETSTART
-// @v10.0.04 (попытка удалась, но ид не используется) #define PPCMT_PAPYRUSAPS     23L // @v9.0.6 Papyrus Async Pos System - Последняя попытка сделать собственный асинхронный кассовый узел
-#define PPCMT_FIRST_DYN_DVC  23L // @v10.0.04 Идентификатор первого динамически подгружаемого драйвера
-#define PPCMT_LAST_DYN_DVC  500L // @v10.0.04 Последний допустимый идентификатор динамически подгружаемого драйвера
+#define PPCMT_FIRST_DYN_DVC  23L // Идентификатор первого динамически подгружаемого драйвера
+#define PPCMT_LAST_DYN_DVC  500L // Последний допустимый идентификатор динамически подгружаемого драйвера
 // Все новые статически идентифицируемые устройсва должны иметь идент >PPCMT_LAST_DYN_DVC
-#define PPCMT_DREAMKAS      501L // @v10.0.04 DREAMKAS
+#define PPCMT_DREAMKAS      501L // DREAMKAS
 //
 // Типы принтеров штрихкодов
 // Наименования типов хранятся в ресурсах строк в группе PPTXT_BCPT.
@@ -1570,7 +1564,6 @@
 #define PPASS_TSDBILLPOOL       21L // Пул документов покрытия дефицита по технологическим сессиям
 #define PPASS_GOODS2CASHNODE    22L // Ассоциация товар(группа товаров)-кассовый узел
 #define PPASS_GOODS2WAREPLACE   23L // Ассоциация товар(группа товаров)-место хранения. Допускает дублирование: с одним товаром может быть сопоставлено более одного места хранения //
-// @v10.8.12 #define PPASS_AGTBILLPOOL      24L // @v7.0.0 @construction Пул документов, сопоставленных с документом соглашения //
 #define PPASS_CHECKINPSNTSES    25L // PPCheckInPersonItem Регистрация персоналий в технологических сессиях
 #define PPASS_GOODSCOMP	        26L // Ассоциация товара и его компонента
 #define PPASS_GOODSSTRUC_AR     27L // @v12.0.6 Компоненты структуры товара (аналитические статьи)
@@ -1631,9 +1624,9 @@
 #define PPEDIOP_DECLINEORDER                   6 // Отклонение заказа ранее высланного поставщику после получения подтверждения //
 #define PPEDIOP_ALCODESADV                     7 // Дополнительный DESADV-документ с атрибутами, необходимыми для декларирования алкогольной продукции
 #define PPEDIOP_SALESORDER                     8 // Заказ от покупателя
-#define PPEDIOP_PARTIN                         9 // @v10.0.02
-#define PPEDIOP_INVOIC                        10 // @v10.0.06
-#define PPEDIOP_RETURNREQ                     11 // @v10.8.12
+#define PPEDIOP_PARTIN                         9 //
+#define PPEDIOP_INVOIC                        10 //
+#define PPEDIOP_RETURNREQ                     11 //
 //
 // Типы операций обмена с системой ЕГАИС
 //
@@ -1686,12 +1679,12 @@
 #define PPEDIOP_EGAIS_WAYBILLACT_V3           67 // version 3 of PPEDIOP_EGAIS_WAYBILLACT
 #define PPEDIOP_EGAIS_ACTWRITEOFF_V3          68 //
 #define PPEDIOP_EGAIS_NOTIFY_WBVER3           69 // Уведомление сервера ЕГАИС об использовании версии 3 протокола обмена (то же, что и PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменением внутри).
-#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 // @v10.0.7
-#define PPEDIOP_EGAIS_QUERYRESENDDOC          71 // @v10.2.12
-#define PPEDIOP_EGAIS_QUERYRESTBCODE          72 // @v10.5.6 Запрос марок по справке Б
-#define PPEDIOP_EGAIS_REPLYRESTBCODE          73 // @v10.5.8 Ответ на запрос марок по справке Б
-#define PPEDIOP_EGAIS_ACTFIXBARCODE           74 // @v10.9.0 ActFixBarCode Акт фиксации штрихкодов на балансе организации
-#define PPEDIOP_EGAIS_ACTUNFIXBARCODE         75 // @v10.9.0 ActUnFixBarCode Акт отмены фиксации штрихкодов на балансе организации
+#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 // 
+#define PPEDIOP_EGAIS_QUERYRESENDDOC          71 // 
+#define PPEDIOP_EGAIS_QUERYRESTBCODE          72 // Запрос марок по справке Б
+#define PPEDIOP_EGAIS_REPLYRESTBCODE          73 // Ответ на запрос марок по справке Б
+#define PPEDIOP_EGAIS_ACTFIXBARCODE           74 // ActFixBarCode Акт фиксации штрихкодов на балансе организации
+#define PPEDIOP_EGAIS_ACTUNFIXBARCODE         75 // ActUnFixBarCode Акт отмены фиксации штрихкодов на балансе организации
 #define PPEDIOP_EGAIS_NOTIFY_WBVER4           76 // @v11.0.12 Уведомление сервера ЕГАИС об использовании версии 4 протокола обмена (то же, что и PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменением внутри).
 #define PPEDIOP_EGAIS_WAYBILL_V4              77 // @v11.0.12 version 4 of PPEDIOP_EGAIS_WAYBILLACT
 #define PPEDIOP_EGAIS_WAYBILLACT_V4           78 // @v11.0.12 version 4 of PPEDIOP_EGAIS_WAYBILLACT
@@ -1705,6 +1698,7 @@
 #define PPEDIOP_MRKTPLC_SALE                 103 // @v12.1.6 Продажа покупателю маркетплейсом
 #define PPEDIOP_MRKTPLC_STOCK                104 // @v12.1.10 Остатки на складе маркетплейса
 #define PPEDIOP_MRKTPLC_RETURN               105 // @v12.1.11 Возврат от покупателя маркетплейсу
+#define PPEDIOP_MRKTPLC_CLOST                106 // @v12.2.1  Компенсированная маркетплейсом потеря на складе маркетплейсе
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
 //
@@ -1765,8 +1759,6 @@
 // Menus
 //
 #define MENU_MASTER                   1
-// @v10.4.5 #define MENU_ADMIN                    2
-// @v10.4.5 #define MENU_MANAGER                  3
 #define MENU_DEFAULT        MENU_MASTER
 #define MENU_SYSTEM                   4 // Конверторы, корректоры и т.д.
 #define MENU_NOLOGIN                103 // Меню без авторизации в базе данных
@@ -1918,10 +1910,10 @@
 #define STDCTL_LINKOBJBUTTON      157 // Кнопка "Связанный объект"
 #define STDCTL_QKLISTBUTTON       158 // Кнопка выбора списка видов котировок
 #define STDCTL_FILTERBUTTON       159 // Кнопка "Фильтр" (только для тех диалогов, в которых есть единственный фильтр)
-#define STDCTL_VERIFYBUTTON       160 // @v10.1.5 Кнопка "Верифицировать"
-#define STDCTL_LAYOUTBUTTON       161 // @v10.4.9 Кнопка "Layout"
-#define STDCTL_TRANSMITBUTTON     162 // @v10.5.3 Кнопка "Передать"
-#define STDCTL_DIAGNOSTICS        163 // @v10.5.6 Кнопка "Диагностика"
+#define STDCTL_VERIFYBUTTON       160 // Кнопка "Верифицировать"
+#define STDCTL_LAYOUTBUTTON       161 // Кнопка "Layout"
+#define STDCTL_TRANSMITBUTTON     162 // Кнопка "Передать"
+#define STDCTL_DIAGNOSTICS        163 // Кнопка "Диагностика"
 #define STDCTL_REPEATINGBUTTON    164 // @v11.0.4 Кнопка "Повторение"
 #define STDCTL_MAPONGEOLOCBUTTON  165 // @v11.6.2 Кнопка запуска функции открытия карты с координатами (cmExecMapOnGeoLoc)
 
@@ -1993,21 +1985,21 @@
 #define cmVerify                 1165
 #define cmFilter                 1166
 #define cmExtParams              1167 // команда стала общей (ранее принадлежала только диалогу фильтра товаров)
-#define cmLinkedBill             1168 // @v10.2.2 команда стала общей (ранее принадлежала только диалогу DLG_ATWROFF)
+#define cmLinkedBill             1168 // команда стала общей (ранее принадлежала только диалогу DLG_ATWROFF)
 #define cmCopyToClipboard        1169
 #define cmCopyToClipboardAll     1170
-#define cmLayoutEntry            1171 // @v10.4.9
+#define cmLayoutEntry            1171 //
 #define cmPasteFromClipboardAll  1172 // @erik v10.5.2
-#define cmDiagnostics            1173 // @v10.5.6 Кнопка диагностики
+#define cmDiagnostics            1173 // Кнопка диагностики
 #define cmTsList                 1174 // Кнопка списка временных серий
 #define cmPersonList             1175 // Кнопка списка персоналий
-#define cmGuaList                1176 // @v10.5.3 // @v10.8.9 made-global
-#define cmTotal                  1177 // @v10.8.11
+#define cmGuaList                1176 //
+#define cmTotal                  1177 //
 #define cmAutoFill               1178 // @v10.8.12 ранее была локальной относительно DLG_GDSLST (теперь используется и в других диалогах)
-#define cmCopyToClipboardSpc     1179 // @v10.9.0 Специальное копирование в буфер обмена
-#define cmConfigure              1180 // @v10.9.0
-#define cmQueryToken             1181 // @v10.9.5 (replace cmGetTokenVk)
-#define cmLayoutContainer        1182 // @v10.9.8
+#define cmCopyToClipboardSpc     1179 // Специальное копирование в буфер обмена
+#define cmConfigure              1180 // 
+#define cmQueryToken             1181 //
+#define cmLayoutContainer        1182 //
 #define cmRepeating              1183 // Вызов диалога повторений задания //
 #define cmUnmatch                1184 // @v11.1.8 Отменить (разорвать) сопоставление
 #define cmNow                    1185 // @v11.2.0 Кнопка [Сегодня] или [Сейчас] в календарях
@@ -2222,7 +2214,7 @@
 	#define CTL_USRGRP_PATH             (10 + WINDOWS_ID_BIAS) // Button "Пути..."
 	#define CTL_USRGRP_CFG              (11 + WINDOWS_ID_BIAS) // Button "Конфигурация..."
 	#define CTL_USRGRP_RIGHTS           (13 + WINDOWS_ID_BIAS) // Button "Права..."
-	#define CTL_USRGRP_SYMB             (14 + WINDOWS_ID_BIAS) // @v10.3.8
+	#define CTL_USRGRP_SYMB             (14 + WINDOWS_ID_BIAS)
 #define DLG_USR                    41 // Пользователь
 	#define CTL_USR_NAME                 (1 + WINDOWS_ID_BIAS)
 	#define CTL_USR_GRP                  (4 + WINDOWS_ID_BIAS)
@@ -2235,13 +2227,13 @@
 	#define CTL_USR_CFG                 (11 + WINDOWS_ID_BIAS) // Button "Конфигурация..."
 	#define CTL_USR_PASSWORD            (12 + WINDOWS_ID_BIAS) // Button "Пароль..."
 	#define CTL_USR_RIGHTS              (13 + WINDOWS_ID_BIAS) // Button "Права..."
-	#define CTL_USR_PERSON              (14 + WINDOWS_ID_BIAS) // @v2.3.3
-	#define CTLSEL_USR_PERSON           (15 + WINDOWS_ID_BIAS) // @v2.3.3
+	#define CTL_USR_PERSON              (14 + WINDOWS_ID_BIAS)
+	#define CTLSEL_USR_PERSON           (15 + WINDOWS_ID_BIAS)
 	#define CTL_USR_UER                 (16 + WINDOWS_ID_BIAS)
 	#define CTLSEL_USR_UER              (17 + WINDOWS_ID_BIAS)
 	#define CTL_USR_UERFLAGS            (18 + WINDOWS_ID_BIAS)
 	#define CTL_USR_EXPIRY              (19 + WINDOWS_ID_BIAS)
-	#define CTL_USR_SYMB                (20 + WINDOWS_ID_BIAS) // @v10.3.8
+	#define CTL_USR_SYMB                (20 + WINDOWS_ID_BIAS)
 	#define CTL_USR_PDESKTOP            (21 + WINDOWS_ID_BIAS) // @v11.0.0
 	#define CTLSEL_USR_PDESKTOP         (22 + WINDOWS_ID_BIAS) // @v11.0.0
 #define DLG_GRPNUSR                42 // Просмотр групп и пользователей
@@ -2669,14 +2661,14 @@
 #define DLG_ASSETLOTITEM          100 // Поступление объекта основных средств
 #define DLG_ASSETEXPLITEM         111 // Ввод в эксплуатацию объекта основных средств
 #define DLG_SELLITEMDRAFT         694 // Продажа (клиент, розница)
-#define DLG_QUOTEREQSEQ           122 // @v10.5.8 Последовательный запрос котировки у поставщика в ответ на запрос от покупателя //
+#define DLG_QUOTEREQSEQ           122 // Последовательный запрос котировки у поставщика в ответ на запрос от покупателя //
 #define DLG_TI_LOCTR             1135 // @unused Складская операция //
 	#define cmQCert                   101
 	#define cmLot                     102
 	#define cmOrdLot                  104
 	#define cmLotDim                  105
-	#define cmSourceSerial            106 // @v9.3.6
-	#define cmVetisMatch              107 // @v10.1.8
+	#define cmSourceSerial            106
+	#define cmVetisMatch              107
 	#define CTL_LOT_GOODSGRP             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LOT_GOODSGRP          (2 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_GOODS                (3 + WINDOWS_ID_BIAS)
@@ -3195,7 +3187,7 @@
 	#define CTLBRW_CASHN_SLIPFMTPATH    (44 + WINDOWS_ID_BIAS)
 	#define CTL_CASHN_PASSIVE           (45 + WINDOWS_ID_BIAS)
 	#define CTL_CASHN_ST_CRBILL         (46 + WINDOWS_ID_BIAS)
-	#define CTL_CASHN_DRVVER            (47 + WINDOWS_ID_BIAS) // @v10.0.03 вместо CTL_CASHN_DRVVERMAJOR/CTL_CASHN_DRVVERMINOR
+	#define CTL_CASHN_DRVVER            (47 + WINDOWS_ID_BIAS)
 #define DLG_CALCPRICE             144 // Спец. калькулятор (расчет наценки)
 	#define CTL_CALCPRICE_COST           (1 + WINDOWS_ID_BIAS)
 	#define CTL_CALCPRICE_PERCENT        (2 + WINDOWS_ID_BIAS)
@@ -3213,7 +3205,6 @@
 #define DLG_NEWDAY_L             1030
 	#define CTL_NEWDAY_DATE              (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_NEWDAY_DATE           (2 + WINDOWS_ID_BIAS) // @alena
-// @v10.5.5 (unused) #define DLG_CASHDISP              146 // Состояние кассы
 #define DLG_CASHDISP_WCFM        1014
 	#define CTL_CASHDISP_BEGSUM          (1 + WINDOWS_ID_BIAS)
 	#define CTL_CASHDISP_INCOME          (2 + WINDOWS_ID_BIAS)
@@ -3461,8 +3452,8 @@
 	#define CTL_PRNGBILL_SPIN13          (31 + WINDOWS_ID_BIAS)
 
 	#define CTL_PRNGBILL_ONLYPRCHNG      (40 + WINDOWS_ID_BIAS)
-	#define CTL_PRNGBILL_EXPFMT          (41 + WINDOWS_ID_BIAS) // @v10.8.7
-	#define CTLSEL_PRNGBILL_EXPFMT       (42 + WINDOWS_ID_BIAS) // @v10.8.7
+	#define CTL_PRNGBILL_EXPFMT          (41 + WINDOWS_ID_BIAS)
+	#define CTLSEL_PRNGBILL_EXPFMT       (42 + WINDOWS_ID_BIAS)
 	#define CTL_PRNGBILL_FLAGS           (43 + WINDOWS_ID_BIAS) // @v11.2.0 вместо (CTL_PRNGBILL_ONLYPRCHNG и CTL_PRNGBILL_FDIVCOPIES)
 
 #define DLG_BILLAMT               205 // Сумма документа
@@ -3780,7 +3771,7 @@
 	#define CTL_LST2LST_ALLFW            (4 + WINDOWS_ID_BIAS) // Button
 	#define CTL_LST2LST_BW               (5 + WINDOWS_ID_BIAS) // Button
 	#define CTL_LST2LST_ALLBW            (6 + WINDOWS_ID_BIAS) // Button
-	#define CTL_LST2LST_CT2              (7 + WINDOWS_ID_BIAS) // @v10.8.5 Количество элементов в правом списке
+	#define CTL_LST2LST_CT2              (7 + WINDOWS_ID_BIAS) // Количество элементов в правом списке
 #define DLG_GDSLST                262 // Список товаров для добавления в группу
 	#define CTL_GDSLST_GGRP              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GDSLST_GGRP           (2 + WINDOWS_ID_BIAS)
@@ -4825,9 +4816,6 @@
 	#define CTLSEL_POVERB_TAG            (8 + WINDOWS_ID_BIAS)
 	#define CTL_POVERB_CMDTXT            (9 + WINDOWS_ID_BIAS)
 	#define CTL_POVERB_FLAGS             (10 + WINDOWS_ID_BIAS)
-// @v10.5.3 @obsolete-dialog-form #define DLG_E_MONRCH              387 // Экспорт данных для принтера "Monarch"
-// @v10.5.3 @obsolete-dialog-form 	#define CTL_E_MONRCH_GGRP            (1 + WINDOWS_ID_BIAS)
-// @v10.5.3 @obsolete-dialog-form 	#define CTLSEL_E_MONRCH_GGRP         (2 + WINDOWS_ID_BIAS)
 #define DLG_GSDATA                388 // Выбор структуры товара
 	#define cmShowGoodsStruc             101
 	#define CTL_GSDATA_NAMEDSTRUC        (1 + WINDOWS_ID_BIAS)
@@ -4874,10 +4862,6 @@
 	#define CTL_MKRPTFLS_RPTNAME         (1 + WINDOWS_ID_BIAS)
 	#define CTL_MKRPTFLS_RPTPATH         (2 + WINDOWS_ID_BIAS)
 	#define CTLBRW_MKRPTFLS_RPTPATH      (3 + WINDOWS_ID_BIAS)
-// @v10.8.8 #define DLG_ACSCLOSE              394 // Закрытие асинхронной кассовой сессии за период
-	// @v10.8.8 #define CTL_ACSCLOSE_PERIOD          (1 + WINDOWS_ID_BIAS)
-	// @v10.8.8 #define CTL_ACSCLOSE_FLAGS           (2 + WINDOWS_ID_BIAS)
-	// @v10.8.8 #define CTLCAL_ACSCLOSE_PERIOD       (3 + WINDOWS_ID_BIAS) // @alena
 //  395, 396, 397, 398, 399, 400, 401 // Occupied
 #define DLG_GDSTAX                402 // Налоговая группа товаров
 	#define cmGoodsTaxList               101
@@ -5609,8 +5593,8 @@
 	#define CTLCAL_FREIGHT_ISSDT         (19 + WINDOWS_ID_BIAS) // @alena
 	#define CTLCAL_FREIGHT_ARRIVDT       (20 + WINDOWS_ID_BIAS) // @alena
 	#define CTL_FREIGHT_COST             (21 + WINDOWS_ID_BIAS)
-	#define CTL_FREIGHT_CAPTAIN2         (22 + WINDOWS_ID_BIAS) // @v10.9.2
-	#define CTLSEL_FREIGHT_CAPTAIN2      (23 + WINDOWS_ID_BIAS) // @v10.9.2
+	#define CTL_FREIGHT_CAPTAIN2         (22 + WINDOWS_ID_BIAS)
+	#define CTLSEL_FREIGHT_CAPTAIN2      (23 + WINDOWS_ID_BIAS)
 #define DLG_SELBBSMPL             492 // Выбор способа создания документа по образцу
 	#define CTL_SELBBSMPL_WHAT           (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELBBSMPL_OP             (2 + WINDOWS_ID_BIAS)
@@ -5780,7 +5764,7 @@
 	#define cmBillCfgTDisMethod          101
 	#define cmBillCfgValuation           102
 	#define cmBillCfgExt                 103
-	#define cmLotTagIndFilt              104 // @v10.4.3
+	#define cmLotTagIndFilt              104
 	#define CTL_BILLCFG_OPPRFX           (1 + WINDOWS_ID_BIAS)
 	#define CTL_BILLCFG_CLPRFX           (2 + WINDOWS_ID_BIAS)
 	#define CTL_BILLCFG_CLCODEREG        (3 + WINDOWS_ID_BIAS)
@@ -6545,24 +6529,6 @@
 	#define CTL_BUCFG_COMPRESS           (6 + WINDOWS_ID_BIAS)
 	#define CTL_BUCFG_PATH               (7 + WINDOWS_ID_BIAS)
 	#define CTLBRW_BUCFG_PATH            (8 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) #define DLG_CFGINI                609 // Конфигурирование INI файла
-// @v10.7.9 (unused) 	#define CTLSLC_CFGINI                (1 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) #define DLG_CFGINI_SYSPATH        610 // Различные пути
-// @v10.7.9 (unused) 	#define CTL_SYSPATH_SYS              (1 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) 	#define CTL_SYSPATH_DAT              (2 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) 	#define CTL_SYSPATH_ARC              (3 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) 	#define CTL_SYSPATH_PACK             (4 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) 	#define CTL_SYSPATH_TMP              (5 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) 	#define CTL_SYSPATH_RECOV            (6 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) 	#define CTL_SYSPATH_LOG              (7 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) #define DLG_CFGINI_PARAMS         611 // Прочие конфигурирации INI файла
-// @v10.7.9 (unused) 	#define CTLSLC_PARAMS_CHECK          (1 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) #define DLG_CFGINI_DBNAME         612 // Список именованных БД INI файла
-// @v10.7.9 (unused) 	#define CTLLST_DBNAME_LIST           (1 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) #define DLG_CFGINI_DBNEDIT        613 // Изменение параметров БД INI файла
-// @v10.7.9 (unused) 	#define CTL_DBNEDIT_ENTRY            (1 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) 	#define CTL_DBNEDIT_NAME             (2 + WINDOWS_ID_BIAS)
-// @v10.7.9 (unused) 	#define CTL_DBNEDIT_PATH             (3 + WINDOWS_ID_BIAS)
 #define DLG_CFGBAT                614 // Конфигурация BAT файла
 	#define CTL_CFGBAT_BTRVPATH          (1 + WINDOWS_ID_BIAS)
 	#define CTL_CFGBAT_TYPE              (2 + WINDOWS_ID_BIAS)
@@ -7308,13 +7274,6 @@
 	#define CTL_ARTICLEFLT_FTCLOSED      (4 + WINDOWS_ID_BIAS)
 	#define CTL_ARTICLEFLT_FTSTOP        (5 + WINDOWS_ID_BIAS)
 	#define CTL_ARTICLEFLT_FLAGS         (6 + WINDOWS_ID_BIAS)
-/* @v10.9.11 @unused
-#define DLG_PSAGGRVAL             715
-	#define CTL_PSAGGRVAL_AVG            (1 + WINDOWS_ID_BIAS)
-	#define CTL_PSAGGRVAL_DSP            (2 + WINDOWS_ID_BIAS)
-	#define CTL_PSAGGRVAL_NUMVALS        (3 + WINDOWS_ID_BIAS)
-	#define CTL_PSAGGRVAL_TQTTY          (4 + WINDOWS_ID_BIAS)
-*/
 #define DLG_EXPIRYREG             716
 	#define CTL_EXPIRYREG_LIST           (1 + WINDOWS_ID_BIAS)
 	#define CTL_EXPIRYREG_PSNTEXT        (2 + WINDOWS_ID_BIAS)
@@ -7343,7 +7302,7 @@
 	#define CTL_AUSERSLST_UNIQMACS       (4 + WINDOWS_ID_BIAS)
 #define DLG_ALBTRCFG2             720
 	#define cmVetisConfig          101
-	#define cmMqcConfig            102 // @v10.5.3
+	#define cmMqcConfig            102
 	#define CTL_ALBTRCFG_MSRVADDR        (1 + WINDOWS_ID_BIAS) // not used since @v4.2.9
 	#define CTL_ALBTRCFG_LOGIN           (2 + WINDOWS_ID_BIAS) // not used since @v4.2.9
 	#define CTL_ALBTRCFG_OPKINDID        (3 + WINDOWS_ID_BIAS)
@@ -7457,9 +7416,6 @@
 	#define CTL_UICFG_ST_LISTFONT        (8 + WINDOWS_ID_BIAS)
 	#define CTL_UICFG_SPCINPDRV          (9 + WINDOWS_ID_BIAS)
 	#define CTL_UICFG_MULTBILLPRINT      (10 + WINDOWS_ID_BIAS)
-// @v10.8.8 #define DLG_GRPSDSCNT             726
-	// @v10.8.8 #define CTL_GRPSDSCNT_DISCOUNT       (1 + WINDOWS_ID_BIAS)
-	// @v10.8.8 #define CTL_GRPSDSCNT_GRPLST         (2 + WINDOWS_ID_BIAS)
 #define DLG_SMPLLEDG              727
 	#define CTL_SMPLLEDG_DT               (1 + WINDOWS_ID_BIAS)
 	#define CTL_SMPLLEDG_CODE             (2 + WINDOWS_ID_BIAS)
@@ -8321,7 +8277,7 @@
 	#define CTL_TXTDBPARAM_HDRCOUNT    (5 + WINDOWS_ID_BIAS)
 	#define CTLBRW_TXTDBPARAM_FNAME    (6 + WINDOWS_ID_BIAS)
 	#define CTL_TXTDBPARAM_FOOTER      (7 + WINDOWS_ID_BIAS)
-	#define CTL_TXTDBPARAM_ENCODING    (8 + WINDOWS_ID_BIAS) // @v10.9.3
+	#define CTL_TXTDBPARAM_ENCODING    (8 + WINDOWS_ID_BIAS)
 #define DLG_IMPEXP                905 // IMPEXP Базовый диалог параметров экспорта/импорта
 	#define IMPEXP_CTL_BIAS            (50 + WINDOWS_ID_BIAS)
 //  Если какие-либо диалоги наследуют поведение этого диалога, то
@@ -9019,8 +8975,8 @@
 	#define CTLSEL_ADDBILLFLT_OP         (4 + WINDOWS_ID_BIAS)
 	#define CTL_ADDBILLFLT_LOC           (5 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ADDBILLFLT_LOC        (6 + WINDOWS_ID_BIAS)
-	#define CTL_ADDBILLFLT_RESERVED      (7 + WINDOWS_ID_BIAS) // @v10.9.0 radio-button with reserved operations
-	#define CTL_ADDBILLFLT_FLAGS         (8 + WINDOWS_ID_BIAS) // @v10.9.0
+	#define CTL_ADDBILLFLT_RESERVED      (7 + WINDOWS_ID_BIAS) // radio-button with reserved operations
+	#define CTL_ADDBILLFLT_FLAGS         (8 + WINDOWS_ID_BIAS) // 
 #define DLG_CLIBNKFMTLIST        1017
 	#define cmCliBnkFmtListAssoc         101
 	#define CTL_CLIBNKFMTLIST_LIST       (1 + WINDOWS_ID_BIAS)
@@ -9288,6 +9244,8 @@
 	#define CTL_LOCCFG_ADDRCODETEMPL      (12 + WINDOWS_ID_BIAS)
 	#define CTL_LOCCFG_STRIDXTAG          (13 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LOCCFG_STRIDXTAG       (14 + WINDOWS_ID_BIAS)
+	#define CTL_LOCCFG_MPWHFLD            (15 + WINDOWS_ID_BIAS) // @v12.2.1 MarketplaceWarehoustFolderID
+	#define CTLSEL_LOCCFG_MPWHFLD         (16 + WINDOWS_ID_BIAS) // @v12.2.1 MarketplaceWarehoustFolderID
 #define DLG_PALMFLT              1069 // F_PALM Фильтр КПК
 	#define CTL_PALMFLT_LOC               (1  + WINDOWS_ID_BIAS)
 	#define CTLSEL_PALMFLT_LOC            (2  + WINDOWS_ID_BIAS)
@@ -9803,13 +9761,6 @@
 	#define CTLSEL_RFIDDEV_GGRP       (20 + WINDOWS_ID_BIAS)
 	#define CTL_RFIDDEV_GOODS         (21 + WINDOWS_ID_BIAS)
 	#define CTLSEL_RFIDDEV_GOODS      (22 + WINDOWS_ID_BIAS)
-// @v10.8.0 #define DLG_IECSESSEL                1157
-	//#define CTL_IECSESSEL_CSES        (1 + WINDOWS_ID_BIAS)
-	//#define CTLSEL_IECSESSEL_CSES     (2 + WINDOWS_ID_BIAS)
-	//#define CTL_IECSESSEL_CHECKS      (3 + WINDOWS_ID_BIAS)
-	//#define CTLSEL_IECSESSEL_CHECKS   (4 + WINDOWS_ID_BIAS)
-	//#define CTL_IECSESSEL_CCLINES     (5 + WINDOWS_ID_BIAS)
-	//#define CTLSEL_IECSESSEL_CCLINES  (6 + WINDOWS_ID_BIAS)
 #define DLG_INFOKIOSKFLT             1158
 	#define CTL_INFOKIOSKFLT_NODE     (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_INFOKIOSKFLT_NODE  (2 + WINDOWS_ID_BIAS)
@@ -10919,8 +10870,8 @@
 	#define cmNewContact              101
 	#define cmAttachContact           102
 	#define cmPhnCPaneAction          103
-	#define cmEditContact             104 // @v10.5.5
-	#define cmMinimizeWindow          105 // @v10.5.5
+	#define cmEditContact             104
+	#define cmMinimizeWindow          105
 	#define CTL_PHNCPANE_PHN          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PHNCPANE_NAME         (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PHNCPANE_NAME      (3 + WINDOWS_ID_BIAS)
@@ -11326,7 +11277,6 @@
 	#define CTL_EDITTEXTPARAM_PATH    (1 + WINDOWS_ID_BIAS)
 	#define CTLBRW_EDITTEXTPARAM_PAT  (2 + WINDOWS_ID_BIAS)
 #define DLG_VKGUACFG              1389
-	// @v10.9.5 (replaced with cmQueryToken) #define cmGetTokenVk              101
 	#define CTL_VKGUACFG_LOGIN_REQ    (1 + IMPEXP_CTL_BIAS)//
 	#define CTL_VKGUACFG_LOGIN_URL    (2 + IMPEXP_CTL_BIAS)//
 	#define CTL_VKGUACFG_GROUP_ID     (3 + IMPEXP_CTL_BIAS)//
@@ -11695,6 +11645,8 @@
 	#define CTLSEL_MPCFG_TRANSFOP          (6 + WINDOWS_ID_BIAS)
 	#define CTL_MPCFG_RETOP                (7 + WINDOWS_ID_BIAS) // @v12.1.11
 	#define CTLSEL_MPCFG_RETOP             (8 + WINDOWS_ID_BIAS) // @v12.1.11
+	#define CTL_MPCFG_CLOSTOP              (9 + WINDOWS_ID_BIAS) // @v12.2.1
+	#define CTLSEL_MPCFG_CLOSTOP           (10 + WINDOWS_ID_BIAS) // @v12.2.1
 #define DLG_FLTORDLOTEXT          1450 // @v12.1.6 Расширение фильтра лотов заказов
 #define DLG_GDSOPRMPTOTAL         1451 // @v12.1.11 Итоги товарного отчета по операции в варианте маркетплейса
 #define DLG_SELBITMSPCGEN         1452 // @v12.1.12 Выбор специальной генерации для товарных строк документа
@@ -11702,12 +11654,25 @@
 	#define CTL_SELBITMSPCGEN_INFO       (2 + WINDOWS_ID_BIAS)
 #define DLG_TRDPLANBILL           1453 // @v12.1.12 Документ торгового плана
 #define DLG_SU_WB                 1454 // @v12.2.0 Parameters for set up Wildberries integration
+	#define cmAutoConfigure              101
 	#define CTL_SUWB_APIKEY              (1 + IMPEXP_CTL_BIAS)
 	#define CTL_SUWB_GUA                 (2 + IMPEXP_CTL_BIAS)
 	#define CTLSEL_SUWB_GUA              (3 + IMPEXP_CTL_BIAS)
 	#define CTL_SUWB_LOGO                (4 + IMPEXP_CTL_BIAS)
 	#define CTL_SUWB_HINT                (5 + IMPEXP_CTL_BIAS)
 	#define CTL_SUWB_INFO                (6 + IMPEXP_CTL_BIAS)
+#define DLG_PRCRAPTRU             1455 // @v12.2.1 Параметры процессора PrcssrAptekaRu 
+	#define CTL_PRCRAPTRU_GUA            (1 + IMPEXP_CTL_BIAS)
+	#define CTLSEL_PRCRAPTRU_GUA         (2 + IMPEXP_CTL_BIAS)
+	#define CTL_PRCRAPTRU_RCPOP          (3 + IMPEXP_CTL_BIAS)
+	#define CTLSEL_PRCRAPTRU_RCPOP       (4 + IMPEXP_CTL_BIAS)
+	#define CTL_PRCRAPTRU_RCPTAG         (5 + IMPEXP_CTL_BIAS)
+	#define CTLSEL_PRCRAPTRU_RCPTAG      (6 + IMPEXP_CTL_BIAS)
+	#define CTL_PRCRAPTRU_PERIOD         (7 + IMPEXP_CTL_BIAS)
+	#define CTLCAL_PRCRAPTRU_PERIOD      (8 + IMPEXP_CTL_BIAS)
+	#define CTL_PRCRAPTRU_FLAGS          (9 + IMPEXP_CTL_BIAS)
+	#define CTL_PRCRAPTRU_LOC            (10 + IMPEXP_CTL_BIAS)
+	#define CTLSEL_PRCRAPTRU_LOC         (11 + IMPEXP_CTL_BIAS)
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090
@@ -11917,8 +11882,8 @@
 // Message groups
 //
 #define PPMSG_ERROR                 1
-#define PPSTR_ERROR                 PPMSG_ERROR // @v10.9.1 synonym of PPMSG_ERROR
-#define PPSTR_DBLIB                 4 // @v10.8.2
+#define PPSTR_ERROR                 PPMSG_ERROR // synonym of PPMSG_ERROR
+#define PPSTR_DBLIB                 4
 #define PPSTR_DBENGINE              6
 #define PPSTR_SLIBERR               7
 #define PPMSG_WARNING             100
@@ -12033,7 +11998,6 @@
 	#define PPATOLCS_ADDINNERSCHEMES     6
 	#define PPATOLCS_DELETEALLDSCNTS     7
 	#define PPATOLCS_ADDSCARDDSCNTS      8
-// @v10.6.3 #define PPTXT_WEEKDAYS_BRIEF              227 // Дни недели сокращенно
 #define PPTXT_ATOLCARD_TBL_NAMES          228 // Наименования таблиц в ATOL-CARD
 	#define PPACTN_CARDS                 0
 	#define PPACTN_CATEGORIES            1
@@ -12129,16 +12093,6 @@
 	#define PPFONT_TIMESNEWROMAN        2
 	#define PPFONT_ARIAL                3
 	#define PPFONT_ARIALCYR             4
-// @v10.9.2 #define PPTXT_IMPEXPCASH_FILENAMES        515 // Имена файлов импорта/экспорта в Папирус данных по кассам
-	// @v10.9.2 #define PPIECFN_PPYGGRPS            0 // Файл для импорта/экспорта справочника товарных групп
-	// @v10.9.2 #define PPIECFN_PPYGOODS            1 // Файл для импорта/экспорта справочника товаров
-	// @v10.9.2 #define PPIECFN_PPYBCODS            2 // Файл для импорта/экспорта штрихкодов
-	// @v10.9.2 #define PPIECFN_PPYQKNDS            3 // Файл для импорта/экспорта видов котировок
-	// @v10.9.2 #define PPIECFN_PPYQUOTS            4 // Файл для импорта/экспорта котировок
-	// @v10.9.2 #define PPIECFN_PPYCARDS            5 // Файл для импорта/экспорта пластиковых карт
-	// @v10.9.2 #define PPIECFN_PPYCSESS            6 // Файл для импорта/экспорта кассовых сессий
-	// @v10.9.2 #define PPIECFN_PPYCCHKS            7 // Файл для импорта/экспорта кассовых чеков
-	// @v10.9.2 #define PPIECFN_PPYCCLNS            8 // Файл для импорта/экспорта строк чеков
 #define PPTXT_DL200_NAMEVARS              565 // Описание переменных для извлечения некоторой информации DL200
 	#define PPDL200_NAMEVAR_MAINORGNAME 0
 	#define PPDL200_NAMEVAR_MAINORGADDR 1

@@ -21,462 +21,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <bin2coff__ttf_ Include="..\Rsrc\Font\mupdf\droid\DroidSansFallback.ttf">
-      <Filter>fonts\droid</Filter>
-    </bin2coff__ttf_>
-    <bin2coff__ttf_ Include="..\Rsrc\Font\mupdf\droid\DroidSansFallbackFull.ttf">
-      <Filter>fonts\droid</Filter>
-    </bin2coff__ttf_>
-    <bin2coff__ttf_ Include="..\Rsrc\Font\mupdf\noto\NotoEmoji-Regular.ttf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__ttf_>
-    <bin2coff__ttf_ Include="..\Rsrc\Font\mupdf\noto\NotoKufiArabic-Regular.ttf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__ttf_>
-    <bin2coff__ttf_ Include="..\Rsrc\Font\mupdf\noto\NotoNaskhArabic-Regular.ttf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__ttf_>
-    <bin2coff__ttf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansOriya-Regular.ttf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__ttf_>
-    <bin2coff__ttf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansTaiTham-Regular.ttf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__ttf_>
-    <bin2coff__ttf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifBengali-Regular.ttf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__ttf_>
-    <bin2coff__ttf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifDevanagari-Regular.ttf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__ttf_>
-    <bin2coff__ttf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifMalayalam-Regular.ttf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__ttf_>
-    <bin2coff__ttf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifTelugu-Regular.ttf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__ttf_>
-  </ItemGroup>
-  <ItemGroup>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoMusic-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoNastaliqUrdu-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSans-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansAdlam-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansAnatolianHieroglyphs-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansArabic-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansAvestan-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansBamum-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansBassaVah-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansBatak-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansBhaiksuki-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansBrahmi-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansBuginese-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansBuhid-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansCanadianAboriginal-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansCarian-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansCaucasianAlbanian-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansChakma-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansCham-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansCherokee-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansCoptic-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansCuneiform-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansCypriot-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansDeseret-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansDuployan-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansEgyptianHieroglyphs-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansElbasan-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansGlagolitic-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansGothic-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansGrantha-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansHanunoo-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansHatran-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansImperialAramaic-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansInscriptionalPahlavi-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansInscriptionalParthian-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansJavanese-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansKaithi-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansKayahLi-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansKharoshthi-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansKhojki-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansKhudawadi-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansLepcha-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansLimbu-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansLinearA-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansLinearB-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansLisu-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansLycian-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansLydian-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansMahajani-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansMandaic-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansManichaean-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansMarchen-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansMath-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansMeeteiMayek-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansMendeKikakui-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansMeroitic-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansMiao-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansModi-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansMongolian-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansMro-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansMultani-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansNKo-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansNabataean-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansNewTaiLue-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansNewa-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansOgham-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansOlChiki-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansOldHungarian-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansOldItalic-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansOldNorthArabian-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansOldPermic-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansOldPersian-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansOldSouthArabian-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansOldTurkic-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansOsage-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansOsmanya-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansPahawhHmong-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansPalmyrene-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansPauCinHau-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansPhagsPa-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansPhoenician-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansPsalterPahlavi-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansRejang-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansRunic-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansSamaritan-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansSaurashtra-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansSharada-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansShavian-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansSiddham-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansSoraSompeng-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansSundanese-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansSylotiNagri-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansSymbols-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansSymbols2-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansSyriac-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansTagalog-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansTagbanwa-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansTaiLe-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansTaiViet-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansTakri-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansThaana-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansTifinagh-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansTirhuta-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansUgaritic-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansVai-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansWarangCiti-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSansYi-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerif-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifAhom-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifArmenian-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifBalinese-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifEthiopic-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifGeorgian-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifGujarati-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifGurmukhi-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifHebrew-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifKannada-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifKhmer-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifMyanmar-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifSinhala-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifTamil-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifTangut-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-    <bin2coff__otf_ Include="..\Rsrc\Font\mupdf\noto\NotoSerifTibetan-Regular.otf">
-      <Filter>fonts\noto</Filter>
-    </bin2coff__otf_>
-  </ItemGroup>
-  <ItemGroup>
-    <bin2coff__cff_ Include="..\Rsrc\Font\mupdf\sil\CharisSIL.cff">
-      <Filter>fonts\sil</Filter>
-    </bin2coff__cff_>
-    <bin2coff__cff_ Include="..\Rsrc\Font\mupdf\sil\CharisSIL-Bold.cff">
-      <Filter>fonts\sil</Filter>
-    </bin2coff__cff_>
-    <bin2coff__cff_ Include="..\Rsrc\Font\mupdf\sil\CharisSIL-BoldItalic.cff">
-      <Filter>fonts\sil</Filter>
-    </bin2coff__cff_>
-    <bin2coff__cff_ Include="..\Rsrc\Font\mupdf\sil\CharisSIL-Italic.cff">
-      <Filter>fonts\sil</Filter>
-    </bin2coff__cff_>
-    <bin2coff__cff_ Include="..\Rsrc\Font\mupdf\urw\Dingbats.cff">
-      <Filter>fonts\urw</Filter>
-    </bin2coff__cff_>
-    <bin2coff__cff_ Include="..\Rsrc\Font\mupdf\urw\NimbusMonoPS-Bold.cff">
-      <Filter>fonts\urw</Filter>
-    </bin2coff__cff_>
-    <bin2coff__cff_ Include="..\Rsrc\Font\mupdf\urw\NimbusMonoPS-BoldItalic.cff">
-      <Filter>fonts\urw</Filter>
-    </bin2coff__cff_>
-    <bin2coff__cff_ Include="..\Rsrc\Font\mupdf\urw\NimbusMonoPS-Italic.cff">
-      <Filter>fonts\urw</Filter>
-    </bin2coff__cff_>
-    <bin2coff__cff_ Include="..\Rsrc\Font\mupdf\urw\NimbusMonoPS-Regular.cff">
-      <Filter>fonts\urw</Filter>
-    </bin2coff__cff_>
-    <bin2coff__cff_ Include="..\Rsrc\Font\mupdf\urw\NimbusRoman-Bold.cff">
-      <Filter>fonts\urw</Filter>
-    </bin2coff__cff_>
-    <bin2coff__cff_ Include="..\Rsrc\Font\mupdf\urw\NimbusRoman-BoldItalic.cff">
-      <Filter>fonts\urw</Filter>
-    </bin2coff__cff_>
-    <bin2coff__cff_ Include="..\Rsrc\Font\mupdf\urw\NimbusRoman-Italic.cff">
-      <Filter>fonts\urw</Filter>
-    </bin2coff__cff_>
-    <bin2coff__cff_ Include="..\Rsrc\Font\mupdf\urw\NimbusRoman-Regular.cff">
-      <Filter>fonts\urw</Filter>
-    </bin2coff__cff_>
-    <bin2coff__cff_ Include="..\Rsrc\Font\mupdf\urw\NimbusSans-Bold.cff">
-      <Filter>fonts\urw</Filter>
-    </bin2coff__cff_>
-    <bin2coff__cff_ Include="..\Rsrc\Font\mupdf\urw\NimbusSans-BoldItalic.cff">
-      <Filter>fonts\urw</Filter>
-    </bin2coff__cff_>
-    <bin2coff__cff_ Include="..\Rsrc\Font\mupdf\urw\StandardSymbolsPS.cff">
-      <Filter>fonts\urw</Filter>
-    </bin2coff__cff_>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\OSF\mupdf\source\dummy.c" />
   </ItemGroup>
   <ItemGroup>
@@ -495,5 +39,155 @@
     <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifThai-Regular.otf">
       <Filter>fonts\noto</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\Rsrc\Font\mupdf\droid\DroidSansFallback.ttf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\droid\DroidSansFallbackFull.ttf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoEmoji-Regular.ttf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoKufiArabic-Regular.ttf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoNaskhArabic-Regular.ttf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansOriya-Regular.ttf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansTaiTham-Regular.ttf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifBengali-Regular.ttf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifDevanagari-Regular.ttf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifMalayalam-Regular.ttf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifTelugu-Regular.ttf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoMusic-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoNastaliqUrdu-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSans-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansAdlam-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansAnatolianHieroglyphs-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansArabic-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansAvestan-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansBamum-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansBassaVah-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansBatak-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansBhaiksuki-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansBrahmi-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansBuginese-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansBuhid-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansCanadianAboriginal-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansCarian-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansCaucasianAlbanian-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansChakma-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansCham-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansCherokee-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansCoptic-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansCuneiform-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansCypriot-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansDeseret-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansDuployan-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansEgyptianHieroglyphs-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansElbasan-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansGlagolitic-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansGothic-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansGrantha-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansHanunoo-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansHatran-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansImperialAramaic-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansInscriptionalPahlavi-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansInscriptionalParthian-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansJavanese-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansKaithi-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansKayahLi-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansKharoshthi-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansKhojki-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansKhudawadi-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansLepcha-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansLimbu-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansLinearA-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansLinearB-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansLisu-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansLycian-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansLydian-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansMahajani-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansMandaic-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansManichaean-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansMarchen-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansMath-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansMeeteiMayek-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansMendeKikakui-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansMeroitic-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansMiao-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansModi-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansMongolian-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansMro-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansMultani-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansNabataean-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansNewa-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansNewTaiLue-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansNKo-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansOgham-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansOlChiki-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansOldHungarian-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansOldItalic-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansOldNorthArabian-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansOldPermic-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansOldPersian-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansOldSouthArabian-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansOldTurkic-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansOsage-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansOsmanya-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansPahawhHmong-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansPalmyrene-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansPauCinHau-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansPhagsPa-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansPhoenician-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansPsalterPahlavi-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansRejang-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansRunic-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansSamaritan-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansSaurashtra-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansSharada-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansShavian-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansSiddham-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansSoraSompeng-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansSundanese-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansSylotiNagri-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansSymbols-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansSymbols2-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansSyriac-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansTagalog-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansTagbanwa-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansTaiLe-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansTaiViet-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansTakri-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansThaana-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansTifinagh-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansTirhuta-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansUgaritic-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansVai-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansWarangCiti-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSansYi-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerif-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifAhom-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifArmenian-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifBalinese-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifEthiopic-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifGeorgian-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifGujarati-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifGurmukhi-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifHebrew-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifKannada-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifKhmer-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifMyanmar-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifSinhala-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifTamil-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifTangut-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\noto\NotoSerifTibetan-Regular.otf" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\sil\CharisSIL-Bold.cff" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\sil\CharisSIL-BoldItalic.cff" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\sil\CharisSIL-Italic.cff" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\sil\CharisSIL.cff" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\urw\Dingbats.cff" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\urw\NimbusMonoPS-Bold.cff" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\urw\NimbusMonoPS-BoldItalic.cff" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\urw\NimbusMonoPS-Italic.cff" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\urw\NimbusMonoPS-Regular.cff" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\urw\NimbusRoman-Bold.cff" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\urw\NimbusRoman-BoldItalic.cff" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\urw\NimbusRoman-Italic.cff" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\urw\NimbusRoman-Regular.cff" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\urw\NimbusSans-Bold.cff" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\urw\NimbusSans-BoldItalic.cff" />
+    <CustomBuild Include="..\Rsrc\Font\mupdf\urw\StandardSymbolsPS.cff" />
   </ItemGroup>
 </Project>

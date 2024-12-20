@@ -2240,15 +2240,8 @@ static int PPGetDefaultEncrKey(SString & rBuf)
 {
 	static const char * p_cmdl_symbols = "?,CASH,EXP,IMP,IN,OUT,BATCH,SYNCPUT,SYNCGET,DB,BACKUP,BILLCASH,PRC,"
 		"TSESS,GOODSINFO,VERHIST,RECOVERTRANSFER,CONVERTRBCBNK,NOLOGIN,PPOS,EXPORTDIALOGS,SELFBUILD,SARTRTEST,"
-		"AUTOTRANSLATE,CONVERTCIPHER,PPINISUBST,UHTTGOODSTOGITHUBEXPORT,UILANG,WSCONTROL";
+		"AUTOTRANSLATE,CONVERTCIPHER,PPINISUBST,UHTTGOODSTOGITHUBEXPORT,UILANG,WSCONTROL;DEVELOP";
 	int    ok = 0;
-	//ENTER_CRITICAL_SECTION
-	/*if(!p_cmdl_symbols && o >= 0) {
-		if(!p_cmdl_symbols) {
-			p_cmdl_symbols = new SString;
-			PPLoadString(PPSTR_SYMB, PPSSYM_CMDLINEOP, *p_cmdl_symbols);
-		}
-	}*/
 	rArgBuf.Z();
 	SString sym;
 	if(p_cmdl_symbols) {
@@ -2272,10 +2265,6 @@ static int PPGetDefaultEncrKey(SString & rBuf)
 			}
 		}
 	}
-	/*if(o < 0) {
-		ZDELETE(p_cmdl_symbols);
-	}*/
-	//LEAVE_CRITICAL_SECTION
 	return ok;
 }
 
@@ -2332,7 +2321,7 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 		//SLS.SetGlobalSecureConfigFunc(PPGetGlobalSecureConfig);
 	}
 	if(!(flags & fNoInstalledInfrastructure)) {
-		PPIniFile ini_file(0, 0, 0, 1); // @v10.3.11 useIniBuf=1
+		PPIniFile ini_file(0, 0, 0, /*useIniBuf*/1);
 		if(GetStartUpOption(cmdlUiLang, temp_buf)) {
 			const int slang = RecognizeLinguaSymb(temp_buf, 0);
 			if(slang > 0)
@@ -5439,8 +5428,7 @@ int PPSession::GetObjectTitle(PPID objType, SString & rBuf)
 			int    found = 0;
 			if(objType > 0) {
 				//
-				// Могут существовать объекты, которые не входят в перечисление, возвращаемое
-				// PPGetObjTypeList().
+				// Могут существовать объекты, которые не входят в перечисление, возвращаемое PPGetObjTypeList().
 				// В этом случае применяем индивидуальный подход...
 				//
 				ENTER_CRITICAL_SECTION

@@ -337,8 +337,7 @@ PPObjTagPacket & PPObjTagPacket::Z()
 
 PPObjTagPacket & FASTCALL PPObjTagPacket::operator = (const PPObjTagPacket & rS)
 {
-	// @v10.6.5 memcpy(&Rec, &rS.Rec, sizeof(Rec));
-	Rec = rS.Rec; // @v10.6.5 
+	Rec = rS.Rec;
 	Rule = rS.Rule;
 	return *this;
 }
@@ -645,7 +644,6 @@ static int SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
 		{
 			LinkObjTypeList.addzlist(PPOBJ_QCERT, PPOBJ_PERSON, PPOBJ_QUOTKIND, PPOBJ_GLOBALUSERACC, 
 				PPOBJ_TAXSYSTEMKIND, PPOBJ_INTERNETACCOUNT, PPOBJ_TRANSPORT, PPOBJ_TAG, PPOBJ_WORLD, PPOBJ_ACCOUNT2, PPOBJ_GOODSTAX, 0); 
-			// @v10.0.05 PPOBJ_GLOBALUSERACC // @v10.6.12 PPOBJ_TAXSYSTEMKIND // @v10.7.11 PPOBJ_INTERNETACCOUNT // @v10.8.12 PPOBJ_TRANSPORT // @v10.9.4 PPOBJ_TAG
 			// @v11.2.9 PPOBJ_WORLD // @v12.1.3 PPOBJ_ACCOUNT2 // @v12.1.12 PPOBJ_GOODSTAX
 			P_ObjTypeList = &LinkObjTypeList;
 			DisableClusterItem(CTL_OBJTAG_TYPE, 7, BIN(!P_ObjTypeList));
@@ -669,10 +667,10 @@ static int SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
 				case PPOBJ_PERSON:
 					SetupPPObjCombo(this, CTLSEL_OBJTAG_OBJGRP, PPOBJ_PERSONKIND, Data.LinkObjGrp, OLW_CANINSERT, 0);
 					break;
-				case PPOBJ_GLOBALUSERACC: // @v10.5.5
+				case PPOBJ_GLOBALUSERACC:
 					SetupStringCombo(this, CTLSEL_OBJTAG_OBJGRP, PPTXT_GLOBALSERVICELIST, Data.LinkObjGrp);
 					break;
-				case PPOBJ_TAG: // @v10.9.4
+				case PPOBJ_TAG:
 					SetupObjListCombo(this, CTLSEL_OBJTAG_OBJGRP, Data.LinkObjGrp, 0);
 					break;
 				default:
@@ -938,17 +936,12 @@ ObjTagFilt & PPObjTag::InitFilt(void * extraPtr, ObjTagFilt & rFilt) const
 	return rFilt;
 }
 
-int FASTCALL PPObjTag::IsUnmirrored(PPID tagID)
-{
-	return BIN(oneof3(tagID, PPTAG_LOT_FSRARINFA, PPTAG_LOT_FSRARINFB, PPTAG_LOT_VETIS_UUID)); // @v10.2.5 PPTAG_LOT_VETIS_UUID
-}
-
 int PPObjTag::GetPacket(PPID id, PPObjTagPacket * pPack)
 {
 	int    ok = -1;
 	assert(pPack);
 	pPack->Z();
-	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+	if(PPCheckGetObjPacketID(Obj, id)) {
 		ok = Search(id, &pPack->Rec);
 	}
 	return ok;
@@ -1186,83 +1179,6 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 	delete dlg;
 	return ok ? r : 0;
 }
-
-#if 0 // @v10.7.8 (unused) {
-/*static*/int PPObjTag::EditEnumListDialog(PPTagEnumList * pList)
-{
-	class TagEnumListDialog : public PPListDialog {
-		DECL_DIALOG_DATA(PPTagEnumList);
-	public:
-		TagEnumListDialog(uint dlgID, uint listCtlID, size_t /*listBufLen*/) : PPListDialog(dlgID, listCtlID)
-		{
-		}
-		DECL_DIALOG_SETDTS()
-		{
-			RVALUEPTR(Data, pData);
-			updateList(-1);
-			return 1;
-		}
-		DECL_DIALOG_GETDTS()
-		{
-			ASSIGN_PTR(pData, Data);
-			return 1;
-		}
-	private:
-		virtual int setupList()
-		{
-			for(uint i = 0; i < Data.getCount(); i++) {
-				StrAssocArray::Item item = Data.Get(i);
-				if(!addStringToList(item.Id, item.Txt))
-					return 0;
-			}
-			return 1;
-		}
-		virtual int addItem(long * pPos, long * pID)
-		{
-			int    ok = -1;
-			PPCommObjEntry param(Data.GetEnumID());
-			if(PPObjReference::EditCommObjItem(&param) > 0) {
-				if(!Data.PutItem(&param.ID, param.Name, param.ParentID))
-					ok = PPSetErrorSLib();
-				else {
-					ASSIGN_PTR(pPos, Data.getCount());
-					ASSIGN_PTR(pID, param.ID);
-					ok = 1;
-				}
-			}
-			return ok;
-		}
-		virtual int editItem(long, long id)
-		{
-			int    ok = -1;
-			SString name;
-			if(id && Data.GetText(id, name) > 0) {
-				PPCommObjEntry param(Data.GetEnumID(), id, name, 0);
-				if(PPObjReference::EditCommObjItem(&param) > 0) {
-					ok = Data.PutItem(&param.ID, param.Name, param.ParentID);
-				}
-			}
-			return ok;
-		}
-		virtual int delItem(long, long id)
-		{
-			return id ? Data.PutItem(&id, 0, 0) : 0;
-		}
-	};
-	int    ok = -1;
-	TagEnumListDialog * dlg = new TagEnumListDialog((pList->GetFlags() & PPCommObjEntry::fHierarchical) ? DLG_TAGENUMTREEVIEW : DLG_TAGENUMVIEW, CTL_TAGENUMVIEW_LIST, 48);
-	if(CheckDialogPtrErr(&dlg)) {
-		dlg->setDTS(pList);
-		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
-			if(dlg->getDTS(pList))
-				valid_data = ok = 1;
-	}
-	else
-		ok = 0;
-	delete dlg;
-	return ok;
-}
-#endif // } 0 @v10.7.8 (unused)
 
 SArray * PPObjTag::CreateList(long current, long parent)
 {

@@ -105,7 +105,7 @@ int GoodsMovFiltDialog::setDTS(const GoodsMovFilt * pData)
 	setGroupData(ctlgroupGoodsFilt, &gf_rec);
 	setWL((Data.Flags & GoodsMovFilt::fLabelOnly) ? 1 : 0);
 	AddClusterAssoc(CTL_GTO_FLAGS, 0, GoodsMovFilt::fCostWoVat);
-	AddClusterAssoc(CTL_GTO_FLAGS, 1, GoodsMovFilt::fPriceWoVat); // @v10.6.6
+	AddClusterAssoc(CTL_GTO_FLAGS, 1, GoodsMovFilt::fPriceWoVat);
 	SetClusterData(CTL_GTO_FLAGS, Data.Flags);
 	SetupArCombo(this, CTLSEL_GTO_SUPPLAG, Data.SupplAgentID, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 	SetupPPObjCombo(this, CTLSEL_GTO_BRAND,   PPOBJ_BRAND,   Data.BrandID, OLW_LOADDEFONOPEN, 0);
@@ -192,10 +192,8 @@ int PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 	temp_filt.Flags |= (OPG_CALCINREST | OPG_CALCOUTREST | OPG_SETTAXES);
 	if(Filt.Flags & GoodsMovFilt::fCostWoVat)
 		temp_filt.Flags |= OPG_SETCOSTWOTAXES;
-	// @v10.6.6 {
 	if(Filt.Flags & GoodsMovFilt::fPriceWoVat)
 		temp_filt.Flags |= OPG_SETPRICEWOTAXES;
-	// } @v10.6.6 
 	{
 		BExtInsert bei(p_tbl);
 		GoodsGrpngArray ary;
@@ -362,13 +360,11 @@ int PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 
 int PPViewGoodsMov::InitIterQuery(PPID grpID)
 {
-	// @v10.6.8 char   k_[MAXKEYLEN];
-	BtrDbKey k__; // @v10.6.8 
+	BtrDbKey k__;
 	TempGoodsMovTbl::Key0 k0;
 	TempGoodsMovTbl::Key1 k1;
 	void * k;
 	int    sp_mode = spFirst;
-   	// @v10.6.8 @ctr memzero(k_, sizeof(k_));
 	k = k__;
 	delete P_IterQuery;
 	P_IterQuery = new BExtQuery(P_TempTbl, IterIdx, 10);

@@ -1615,6 +1615,8 @@ static const UiValueDescr UiValueDescrList[] = {
 	{ UiValueList::vButtonStdHeight, "button_std_height", T_INT32 }, 
 	{ UiValueList::vButtonStdWidth, "button_std_width", T_INT32 },
 	{ UiValueList::vButtonDoubleWidth, "button_double_width", T_INT32 },
+	{ UiValueList::vFontSmoothingType, "font_smoothing_type", MKSTYPE(S_ZSTRING, 0) }, // @v12.2.1 0=none; 1=standard; 2=cleartype
+	{ UiValueList::vFontSmoothingContrast, "font_smoothing_contrast", T_INT32 }, // @v12.2.1 [1000..2200] default=1400
 };
 	
 SJson * UiValueList::ToJsonObj() const

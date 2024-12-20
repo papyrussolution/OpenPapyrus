@@ -1,16 +1,10 @@
 // STHREAD.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
-// @v10.9.3 #include <process.h>
-//
-// Контрольный таймаут ожидания для заданных бесконечных таймаутов.
-// Если в течении этого таймаута ожидание на завершилось, то предпринимаются
-// информирующие действия (например, вывод в журнал).
-// @v10.7.7 (moved to SlConstParam::WaitableObjCheckTimeout) static const long _CheckTimeout = 1 * 60 * 1000; 
-//
+
 void FASTCALL SDelay(uint msec) { ::Sleep(msec); }
 //
 //

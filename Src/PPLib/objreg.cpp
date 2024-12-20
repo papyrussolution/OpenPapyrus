@@ -759,11 +759,9 @@ public:
 			P_Data = &pPsnPack->Regs;
 			setStaticText(CTL_BACCLST_NAME, P_PsnPack->Rec.Name);
 		}
-		// @v10.9.9 {
 		// see the comment to the function int moveItem(long, long, int) below
 		enableCommand(cmUp, 0);
 		enableCommand(cmDown, 0);
-		// } @v10.9.9 
 		updateList(-1);
 	}
 private:
@@ -819,7 +817,7 @@ private:
 			if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
 				PPBankAccount ba_rec(r_reg_rec);
 				while(ok < 0 && RObj.EditBankAccount(&ba_rec, 0) > 0) {
-					if(P_Data->CheckDuplicateBankAccount(&ba_rec, /*pos*/(id-1))) { // @v10.0.05 @fix
+					if(P_Data->CheckDuplicateBankAccount(&ba_rec, /*pos*/(id-1))) {
 						if(P_Data->SetBankAccount(&ba_rec, (uint)(id-1))) {
 							ok = 1;
 						}

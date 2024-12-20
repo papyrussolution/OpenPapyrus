@@ -1438,7 +1438,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 						break;
 					case CCheckFilt::gGoods:
 					case CCheckFilt::gGoodsDate:
-					case CCheckFilt::gGoodsDateSerial: // @v10.2.6
+					case CCheckFilt::gGoodsDateSerial:
 					case CCheckFilt::gAgentsNGoods:
 					case CCheckFilt::gCashiersNGoods:
 					case CCheckFilt::gGoodsSCSer:
@@ -1457,7 +1457,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							case CCheckFilt::gGoodsDate: ccgitem.Dt = item.Dt; break;
 							case CCheckFilt::gAgentsNGoods: ccgitem.CashID = item.AgentID; break;
 							case CCheckFilt::gCashiersNGoods: ccgitem.CashID = item.UserID; break;
-							case CCheckFilt::gGoodsDateSerial: // @v10.2.6
+							case CCheckFilt::gGoodsDateSerial:
 								ccgitem.Dt = item.Dt;
 								STRNSCPY(ccgitem.Serial, item.Serial);
 								break;
@@ -1550,7 +1550,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							break;
 						case CCheckFilt::gGoods:
 						case CCheckFilt::gGoodsDate:
-						case CCheckFilt::gGoodsDateSerial: // @v10.2.6
+						case CCheckFilt::gGoodsDateSerial:
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
 								GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, temp_buf);
 							}
@@ -2006,7 +2006,7 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 				pItem->BnkAmt = rec.BnkAmt;
 				pItem->CrdCardAmt = rec.CrdCardAmt;
 				STRNSCPY(pItem->G_Text_, rec.Text);
-				STRNSCPY(pItem->Serial, rec.Serial); // @v10.2.6
+				STRNSCPY(pItem->Serial, rec.Serial);
 				pItem->G_Count    = rec.Count;
 				pItem->G_LinesCount = rec.LinesCount;
 				pItem->G_SkuCount = rec.SkuCount;
@@ -2135,12 +2135,10 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 									pItem->G_Price   = price_;
 									pItem->G_GoodsID = ln_rec.GoodsID;
 									pItem->LinesCount = CcPack.GetCount();
-									// @v10.2.6 {
 									if(CCheckPacket::Helper_GetLineTextExt(ln_rec.RByCheck, CCheckPacket::lnextSerial, text_by_row_list, temp_buf) > 0)
 										STRNSCPY(pItem->Serial, temp_buf);
 									else
 										pItem->Serial[0] = 0;
-									// } @v10.2.6
 									ok = 1;
 									break;
 								}
@@ -2205,11 +2203,8 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 				}
 			}
 			if(cc_id && (State & stIterLines) && !(Filt.Flags & CCheckFilt::fCheckLines)) {
-				// @v10.3.0 (never used) double qtty = 0.0;
 				double amt = 0.0;
 				double dscnt = 0.0;
-				// @v10.3.0 (never used) double t_dscnt = 0.0;
-				// @v10.3.0 (never used) double pcnt = 0.0;
 				CCheckLineTbl::Rec ln_rec;
 				if(CurLine == 0) {
 					CcPack.ClearLines();
@@ -2246,10 +2241,8 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 			if(CurLine == 0)
 				Counter.Increment();
 		}
-		// @v10.2.6 {
 		if(ok > 0)
 			ASSIGN_PTR(P_InnerIterItem, *pItem);
-		// } @v10.2.6
 	}
 	return ok;
 }
@@ -2297,7 +2290,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_scowner_name;
 	DBE    dbe_addr;
 	DBE    dbe_checkposnode;
-	DBE    dbe_posnode; // @v10.1.10
+	DBE    dbe_posnode;
 	DBE  * p_add_paym = 0;
 	CCheckTbl * t = 0;
 	CCheckExtTbl * p_ext = 0;
@@ -2324,7 +2317,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			case CCheckFilt::gQtty:      brw_id = BROWSER_CCHECKGRP_QTTY;      break;
 			case CCheckFilt::gGoods:
 			case CCheckFilt::gGoodsDate:
-			case CCheckFilt::gGoodsDateSerial: // @v10.2.6
+			case CCheckFilt::gGoodsDateSerial:
 			case CCheckFilt::gAmountNGoods: brw_id = BROWSER_CCHECKGRP_GOODS;  break;
 			case CCheckFilt::gCashiers:  brw_id = BROWSER_CCHECKGRP_CASHIERS;  break;
 			case CCheckFilt::gAgents:    brw_id = BROWSER_CCHECKGRP_AGENTS;    break;
@@ -2381,7 +2374,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				g->SkuCount,    // #11
 				*p_dbe_lc_avg,  // #12
 				*p_dbe_sc_avg,  // #13
-				g->Serial,      // #14 @v10.2.6
+				g->Serial,      // #14
 				0L).from(g, 0L);
 			delete p_dbe_avrg;
 			delete p_dbe_lc_avg;
@@ -2393,7 +2386,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				default:
 					if(oneof7(Filt.Grp, CCheckFilt::gDate, CCheckFilt::gDayOfWeek, CCheckFilt::gDowNTime, CCheckFilt::gCash, CCheckFilt::gDscntPct, CCheckFilt::gAmount, CCheckFilt::gQtty))
 						p_q->orderBy(g->Dt, 0L);
-					else if(oneof3(Filt.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gCashNode, CCheckFilt::gGoodsDateSerial)) // @v10.2.6 CCheckFilt::gGoodsDateSerial
+					else if(oneof3(Filt.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gCashNode, CCheckFilt::gGoodsDateSerial))
 						p_q->orderBy(g->Text, g->Dt, 0L);
 					else
 						p_q->orderBy(g->Text, 0L);
@@ -2414,29 +2407,27 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					cq->ID,           // #0
 					cq->Dt,           // #1
 					cq->Tm,           // #2
-					// @v10.1.10 cq->CashID,       // #3
-					cq->CashID,       // #3 // @v10.1.11
-					// @v10.1.11 dbe_posnode,      // #3 // @v10.1.10
+					cq->CashID,       // #3
 					cq->Flags,        // #4
 					cq->Code,         // #5
 					cq->Amount,       // #6
 					dbe_sc_code,      // #7
 					cq->Discount,     // #8
-					dbe_posnode,      // #9 // @v10.1.11
-					cq->Qtty,         // #10 // @v10.1.11 #++
-					cq->LinesCount,   // #11 // @v10.1.11 #++
-					cq->SkuCount,     // #12 // @v10.1.11 #++
-					dbe_scowner_name, // #13 // @v10.1.11 #++
+					dbe_posnode,      // #9
+					cq->Qtty,         // #10
+					cq->LinesCount,   // #11
+					cq->SkuCount,     // #12
+					dbe_scowner_name, // #13
 					0L);
 				if(State & stHasExt) {
 					SETIFZ(p_ext, new CCheckExtTbl);
 					PPDbqFuncPool::InitObjNameFunc(dbe_saler, PPDbqFuncPool::IdObjNameAr, p_ext->SalerID);
 					p_add_paym = &(p_ext->AddPaym_unused / 100.0);
-					p_q->addField(dbe_saler);           // #14 // @v10.1.11 #++
-					p_q->addField(p_ext->TableNo);      // #15 // @v10.1.11 #++
-					p_q->addField(p_ext->GuestCount);   // #16 // @v10.1.11 #++
-					p_q->addField(*p_add_paym);         // #17 // @v10.1.11 #++
-					p_q->addField(p_ext->Memo);         // #18 // @v10.1.11 #++
+					p_q->addField(dbe_saler);           // #14
+					p_q->addField(p_ext->TableNo);      // #15
+					p_q->addField(p_ext->GuestCount);   // #16
+					p_q->addField(*p_add_paym);         // #17
+					p_q->addField(p_ext->Memo);         // #18
 					if(Filt.Flags & CCheckFilt::fDlvrOnly) {
 						{
 							dbe_addr_city.init();
@@ -2581,7 +2572,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					if(Filt.AgentID || Filt.CreationUserID || Filt.TableCode || Filt.GuestCount > 0 || Filt.DlvrAddrID || (Filt.Flags & CCheckFilt::fZeroDlvrAddr)) {
 						dbq = &(*dbq && p_ext->CheckID == t->ID);
 						dbq = ppcheckfiltid(dbq, p_ext->SalerID, Filt.AgentID);
-						dbq = ppcheckfiltid(dbq, p_ext->CreationUserID, Filt.CreationUserID); // @v10.7.3
+						dbq = ppcheckfiltid(dbq, p_ext->CreationUserID, Filt.CreationUserID);
 						dbq = ppcheckfiltid(dbq, p_ext->TableNo, Filt.TableCode);
 						dbq = ppcheckfiltid(dbq, p_ext->GuestCount, Filt.GuestCount);
 						if(Filt.Flags & CCheckFilt::fZeroDlvrAddr) {
@@ -2615,7 +2606,6 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	int    ok = -1;
 	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw && pData && pStyle) {
-		// @v10.3.0 (never used) const  BrowserDef * p_def = p_brw->getDef();
 		if(col == 3) {
 			struct _E {
 				long  ID;
@@ -2648,7 +2638,6 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 					pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
 					ok = 1;
 				}
-				// @v10.8.8 {
 				{
 					PPViewCCheck * p_view = static_cast<PPViewCCheck *>(p_brw->P_View);
 					if(p_view && p_view->GetProblems().getCount()) {
@@ -2657,7 +2646,6 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 							ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
 					}
 				}
-				// } @v10.8.8 
 			}
 		}
 	}
@@ -2723,21 +2711,21 @@ void PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 		else {
 			if(Filt.Grp == 0) {
 				PPLoadString("scardowner", buf);
-				pBrw->insertColumn(-1, buf, P_TmpTbl ? 13 : 11, 0, MKSFMT(20, 0), 0); // @v10.1.11 fldNo++
+				pBrw->insertColumn(-1, buf, P_TmpTbl ? 13 : 11, 0, MKSFMT(20, 0), 0);
 			}
 			if(DoProcessLines() && Filt.Grp == 0) {
-				pBrw->InsColumn(4, "@qtty", 10, 0, MKSFMTD(12, 3, 0), 0); // @v10.1.11 fldNo++
+				pBrw->InsColumn(4, "@qtty", 10, 0, MKSFMTD(12, 3, 0), 0);
 			}
 			else if(!P_TmpGrpTbl && !P_TmpTbl) {
-				pBrw->InsColumn(6, "@cashier", 10, 0, MKSFMT(12, 0), 0); // @v10.1.11 fldNo++
+				pBrw->InsColumn(6, "@cashier", 10, 0, MKSFMT(12, 0), 0);
 			}
-			if(oneof2(Filt.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)) { // @v10.2.6 CCheckFilt::gGoodsDateSerial
+			if(oneof2(Filt.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)) {
 				pBrw->InsColumn(1, "@date", 1, 0, DATF_DMY, 0);
-				if(Filt.Grp == CCheckFilt::gGoodsDateSerial) // @v10.2.6
+				if(Filt.Grp == CCheckFilt::gGoodsDateSerial)
 					pBrw->InsColumn(2, "@serial", 14, 0, 0, 0);
 			}
 			if(!P_TmpGrpTbl && (State & stHasExt)) {
-				int    pos = P_TmpTbl ? 14 : 12; // @v10.1.11 fldNo++
+				int    pos = P_TmpTbl ? 14 : 12;
 				pBrw->InsColumn    (-1, "@seller",          pos++, 0, MKSFMT(24, 0), 0);
 				pBrw->InsColumnWord(-1, PPWORD_DINNERTABLE, pos++, 0, MKSFMT(5, NMBF_NOZERO), 0);
 				pBrw->InsColumn    (-1, "@guestcount",      pos++, 0, MKSFMT(5, NMBF_NOZERO), 0);
@@ -2756,16 +2744,14 @@ void PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 			}
 			if(Filt.Flags & CCheckFilt::fCalcSkuStat) {
 				if(P_TmpTbl) {
-					pBrw->InsColumnWord(-1, PPWORD_LINESCOUNT, 11, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
-					// @v10.2.7 pBrw->InsColumnWord(-1, PPWORD_SKUCOUNT,   12, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
-					pBrw->InsColumn    (-1, "@skucount",       12, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++ // @v10.2.7
+					pBrw->InsColumnWord(-1, PPWORD_LINESCOUNT, 11, 0, MKSFMT(6, NMBF_NOZERO), 0);
+					pBrw->InsColumn    (-1, "@skucount",       12, 0, MKSFMT(6, NMBF_NOZERO), 0);
 				}
 				else if(P_TmpGrpTbl) {
-					pBrw->InsColumnWord(-1, PPWORD_LINESCOUNT,    11, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
-					pBrw->InsColumnWord(-1, PPWORD_AVGLINESCOUNT, 13, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
-					// @v10.2.7 pBrw->InsColumnWord(-1, PPWORD_SKUCOUNT,      12, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
-					pBrw->InsColumn    (-1, "@skucount",          12, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++ // @v10.2.7
-					pBrw->InsColumnWord(-1, PPWORD_AVGSKUCOUNT,   14, 0, MKSFMT(6, NMBF_NOZERO), 0); // @v10.1.11 fldNo++
+					pBrw->InsColumnWord(-1, PPWORD_LINESCOUNT,    11, 0, MKSFMT(6, NMBF_NOZERO), 0);
+					pBrw->InsColumnWord(-1, PPWORD_AVGLINESCOUNT, 13, 0, MKSFMT(6, NMBF_NOZERO), 0);
+					pBrw->InsColumn    (-1, "@skucount",          12, 0, MKSFMT(6, NMBF_NOZERO), 0);
+					pBrw->InsColumnWord(-1, PPWORD_AVGSKUCOUNT,   14, 0, MKSFMT(6, NMBF_NOZERO), 0);
 				}
 			}
 			if(Filt.Grp == 0)
@@ -2843,7 +2829,7 @@ int PPViewCCheck::CreateGoodsCorrTbl()
 	ulong  max_corr = 0;
 	long   ary_count = 0, la_count = 0;
 	//
-	void * laa_ary[1024]; // @v10.3.4 long[]-->void *[]
+	void * laa_ary[1024];
 	MEMSZERO(laa_ary);
 	SString  goods1_name, goods2_name;
 	RAssocArray gds_qtty_ary;
@@ -3135,10 +3121,8 @@ int PPViewCCheck::ViewGraph()
 			param.Flags |= Generator_GnuPlot::PlotParam::fLines;
 		else
 			param.Flags |= Generator_GnuPlot::PlotParam::fHistogram;
-		// @v10.7.11 param.Legend.Add(2, PPGetWord(PPWORD_SALES, 1, temp_buf));
-		param.Legend.Add(2, PPLoadStringS("sales", temp_buf).Transf(CTRANSF_INNER_TO_OUTER)); // @v10.7.11
-		// @v10.7.11 param.Legend.Add(3, PPGetWord(PPWORD_DISCOUNT, 1, temp_buf));
-		param.Legend.Add(3, PPLoadStringS("discount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER)); // @v10.7.11
+		param.Legend.Add(2, PPLoadStringS("sales", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
+		param.Legend.Add(3, PPLoadStringS("discount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
 		plot.Preamble();
 		if(Filt.Grp == CCheckFilt::gDate)
 			plot.SetDateTimeFormat(Generator_GnuPlot::axX);
@@ -3151,8 +3135,7 @@ int PPViewCCheck::ViewGraph()
 		plot.SetTics(Generator_GnuPlot::axX, &xtics);
 		if(Filt.Grp == CCheckFilt::gDate) {
 			{
-				// @v10.7.11 PPGetWord(PPWORD_SALES, 1, temp_buf);
-				PPLoadStringS("sales", temp_buf).Transf(CTRANSF_INNER_TO_OUTER); // @v10.7.11
+				PPLoadStringS("sales", temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
 				PPGpPlotItem plot_item(plot.GetDataFileName(), temp_buf, PPGpPlotItem::sLines);
 				plot_item.Style.SetLine(RGB(0xFF, 0x8C, 0x69), 3);
 				plot_item.AddDataIndex(1);
@@ -3160,8 +3143,7 @@ int PPViewCCheck::ViewGraph()
 				plot.AddPlotItem(plot_item);
 			}
 			{
-				// @v10.7.11 PPGetWord(PPWORD_DISCOUNT, 1, temp_buf);
-				PPLoadStringS("discount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER); // @v10.7.11
+				PPLoadStringS("discount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER);
 				PPGpPlotItem plot_item(plot.GetDataFileName(), temp_buf, PPGpPlotItem::sLines);
 				plot_item.Style.SetLine(RGB(0x76, 0xEE, 0x00), 3);
 				plot_item.AddDataIndex(1);
@@ -3175,12 +3157,9 @@ int PPViewCCheck::ViewGraph()
 			//
 			// Заголовки столбцов нужны только для гистрограмм
 			//
-			// @v10.7.10 plot.PutData(PPGetWord(PPWORD_GROUP, 1, temp_buf), 1);
-			// @v10.7.11 plot.PutData(PPGetWord(PPWORD_SALES, 1, temp_buf), 1);
-			// @v10.7.11 plot.PutData(PPGetWord(PPWORD_DISCOUNT, 1, temp_buf), 1);
-			plot.PutData(PPLoadStringS("group", temp_buf).Transf(CTRANSF_INNER_TO_OUTER), 1); // @v10.7.10
-			plot.PutData(PPLoadStringS("sales", temp_buf).Transf(CTRANSF_INNER_TO_OUTER), 1); // @v10.7.11
-			plot.PutData(PPLoadStringS("discount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER), 1); // @v10.7.11
+			plot.PutData(PPLoadStringS("group", temp_buf).Transf(CTRANSF_INNER_TO_OUTER), 1);
+			plot.PutData(PPLoadStringS("sales", temp_buf).Transf(CTRANSF_INNER_TO_OUTER), 1);
+			plot.PutData(PPLoadStringS("discount", temp_buf).Transf(CTRANSF_INNER_TO_OUTER), 1);
 			plot.PutEOR();
 		}
 		CCheckViewItem item;
@@ -3261,8 +3240,7 @@ SString & PPViewCCheck::GetCtColumnTitle(int ct, SString & rBuf)
 	else if(ct == CCheckFilt::ctvChecksCount)
 		PPLoadText(PPTXT_CCHECKCOUNT, rBuf);
 	else if(ct == CCheckFilt::ctvSKUCount) {
-		// @v10.2.7 PPGetWord(PPWORD_SKUCOUNT, 0, rBuf);
-		PPLoadString("skucount", rBuf); // @v10.2.7
+		PPLoadString("skucount", rBuf);
 	}
 	return rBuf;
 }
@@ -3320,8 +3298,8 @@ static int DetectCcDups(TSVector <CcDupEntry> & rList, TSVector <CcDupEntry> & r
 int PPViewCCheck::Recover()
 {
 	int    ok = -1;
-	if(Filt.Grp == Filt.gNone) { // @v10.0.04
-		Problems.clear(); // @v10.8.8
+	if(Filt.Grp == Filt.gNone) {
+		Problems.clear();
 		PPLogger logger;
 		SString log_fname;
 		long   flags = 0;
@@ -3693,8 +3671,8 @@ int PPViewCCheck::CalcTotal(CCheckTotal * pTotal)
 		pTotal->AmtSCard = cs_total.CSCardAmount;
 		pTotal->AmtCash = (cs_total.Amount - cs_total.BnkAmount - cs_total.CSCardAmount);
 		pTotal->AmtReturn = cs_total.RetAmount;
-		pTotal->AmtAltReg = cs_total.AltRegAmount; // @v10.0.02
-		pTotal->CountAltReg = cs_total.AltRegCount; // @v10.0.02
+		pTotal->AmtAltReg = cs_total.AltRegAmount;
+		pTotal->CountAltReg = cs_total.AltRegCount;
 		if(Filt.Grp == CCheckFilt::gNone && pTotal->Count)
 			pTotal->AvrgCheckSum = pTotal->Amount / pTotal->Count;
 		else
@@ -3931,12 +3909,10 @@ public:
 			}
 			setCtrlString(CTL_CCHECKINFO_SESSUUID, temp_buf);
 		}
-		// @v10.9.0 {
 		{
 			Data.GetExtStrData(CCheckPacket::extssRemoteProcessingTa, temp_buf);
 			setCtrlString(CTL_CCHECKINFO_RPRCTAID, temp_buf);
 		}
-		// } @v10.9.0 
 		// @v11.5.8 {
 		{
 			Data.GetExtStrData(CCheckPacket::extssUuid, temp_buf);
@@ -4231,7 +4207,7 @@ int PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				const  uint tab_idx = pBrw ? pBrw->GetCurColumn() : 0;
 				PPID   tab_id = 0;
 				int    r = 0;
-				if(oneof2(Filt.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)) // @v10.2.6 CCheckFilt::gGoodsDateSerial
+				if(oneof2(Filt.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial))
 					r = (tab_idx > 0) ? P_Ct->GetTab((tab_idx-1) / P_Ct->GetAggrCount(), &tab_id) : 1;
 				ct_period = Filt.Period;
 				if(r > 0) {
@@ -4288,7 +4264,7 @@ int PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 					CCheckFilt::gCard, CCheckFilt::gDscntPct, CCheckFilt::gDiv, CCheckFilt::gGuestCount, CCheckFilt::gTableNo) ||
 				oneof6(grp, CCheckFilt::gGoods, CCheckFilt::gAmount, CCheckFilt::gQtty, CCheckFilt::gCashiers, CCheckFilt::gAgents, CCheckFilt::gLinesCount) ||
 				oneof9(grp, CCheckFilt::gAgentsNHour, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial, CCheckFilt::gAgentsNGoods, CCheckFilt::gCashiersNGoods,
-					CCheckFilt::gDlvrAddr, CCheckFilt::gGoodsSCSer, CCheckFilt::gAgentGoodsSCSer, CCheckFilt::gGoodsCard)) { // @v10.2.6 CCheckFilt::gGoodsDateSerial  // @erik v10.5.2 CCheckFilt::gGoodsCard
+					CCheckFilt::gDlvrAddr, CCheckFilt::gGoodsSCSer, CCheckFilt::gAgentGoodsSCSer, CCheckFilt::gGoodsCard)) { // @erik v10.5.2 CCheckFilt::gGoodsCard
 				PPID   k = temp_id;
 				if(P_TmpGrpTbl->search(0, &k, spEq)) {
 					int  to_view = 1;
@@ -4305,11 +4281,11 @@ int PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 						}
 						else {
 							if(!(State & stUseGoodsList) && (!oneof4(Filt.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial, CCheckFilt::gAgentsNGoods, CCheckFilt::gCashiersNGoods)) &&
-								(!Filt.AmtR.IsZero() || !Filt.QttyR.IsZero() || !Filt.PcntR.IsZero())) // @v10.2.6 CCheckFilt::gGoodsDateSerial
+								(!Filt.AmtR.IsZero() || !Filt.QttyR.IsZero() || !Filt.PcntR.IsZero()))
 								tmp_filt.Flags |= CCheckFilt::fFiltByCheck;
 							tmp_filt.GoodsID = cur_rec.GoodsID;
 						}
-						if(oneof2(Filt.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)) { // @v10.2.6 CCheckFilt::gGoodsDateSerial
+						if(oneof2(Filt.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)) {
 							const BrwHdr * p_hdr = static_cast<const BrwHdr *>(pHdr);
 							tmp_filt.Period.SetDate(p_hdr->Dt);
 						}
@@ -4531,7 +4507,7 @@ int PPViewCCheck::GetReportId() const
 		rpt_id = REPORT_CCHECKVIEW_G_DT;
 	else if(oneof2(Filt.Grp, CCheckFilt::gQtty, CCheckFilt::gGoods))
 		rpt_id = REPORT_CCHECKVIEW_G_Q;
-	else if(oneof2(Filt.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)) { // @v10.2.6 CCheckFilt::gGoodsDateSerial
+	else if(oneof2(Filt.Grp, CCheckFilt::gGoodsDate, CCheckFilt::gGoodsDateSerial)) {
 		if(P_Ct)
 			;// rpt_id = REPORT_CCHECKVIEW_G_CT;
 		else
@@ -4718,7 +4694,7 @@ static void SetVATData(double * pVATRate, double * pPTrnovr, double * pDscnt, co
 int PPALDD_CCheckView::InitData(PPFilt & rFilt, long rsrv)
 {
 	INIT_PPVIEW_ALDD_DATA_U(CCheck, rsrv);
-	p_v->AllocInnerIterItem(); // @v10.2.6
+	p_v->AllocInnerIterItem();
 	H.FltCashNumber  = p_filt->CashNumber;
 	H.FltCashNodeID  = p_filt->NodeList.GetSingle();
 	H.FltGoodsGrpID  = p_filt->GoodsGrpID;
@@ -4767,9 +4743,9 @@ int PPALDD_CCheckView::NextIteration(PPIterID iterId)
 	I.GDiscount = item.G_Discount;
 	I.GQtty     = item.G_Qtty;
 	I.GSCardID  = 0;
-	I.CcAgentID = item.AgentID; // @v9.3.0
+	I.CcAgentID = item.AgentID;
 	const int _grp = static_cast<const CCheckFilt *>(p_v->GetBaseFilt())->Grp;
-	if(oneof3(_grp, CCheckFilt::gCard, CCheckFilt::gAgentGoodsSCSer, CCheckFilt::gGoodsCard)) // @v10.5.4 CCheckFilt::gGoodsCard
+	if(oneof3(_grp, CCheckFilt::gCard, CCheckFilt::gAgentGoodsSCSer, CCheckFilt::gGoodsCard))
 		I.GSCardID = item.SCardID;
 	STRNSCPY(I.GrpngItemText, item.G_Text_);
 	PPWaitPercent(p_v->GetCounter());

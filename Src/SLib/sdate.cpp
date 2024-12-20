@@ -1209,7 +1209,7 @@ time_t LDATETIME::GetTimeT() const
 	else {
 		struct tm _t;
 		_t.tm_year = d.year()-1900;
-		_t.tm_mon = d.month()-1; // @v10.0.02 @fix (-1)
+		_t.tm_mon = d.month()-1;
 		_t.tm_mday = d.day();
 		_t.tm_hour = t.hour();
 		_t.tm_min = t.minut();
@@ -1231,10 +1231,6 @@ bool FASTCALL LDATETIME::operator == (const LDATETIME & s) const { return (d == 
 bool FASTCALL LDATETIME::operator != (const LDATETIME & s) const { return (d != s.d || t != s.t); }
 
 #ifndef _WIN32_WCE // {
-
-/*LDATETIME::LDATETIME() : d(ZERODATE), t(ZEROTIME)
-{
-}*/
 
 SYSTEMTIME & FASTCALL LDATETIME::Get(SYSTEMTIME & rSt) const
 {

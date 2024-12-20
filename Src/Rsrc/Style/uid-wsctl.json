@@ -43,6 +43,12 @@
 			"face": "Roboto",
 			"size": 16,
 			"colorrefsymb": "imgui_style.TextSecondary"
+		},
+		{
+			"symb": "FontComputerName",
+			"face": "DroidSans",
+			"size": 20,
+			"colorrefsymb": "imgui_style.TextPrimary"
 		}
 	],
 	"colorset_list": [
@@ -572,11 +578,13 @@
 									"alignself": "auto",
 									"gravityx": "center",
 									"gravityy": "center",
-									"growfactor": 1,
+									"growfactor": 4,
 									"shrinkfactor": 1
 								},
 								{
-									"size": "undef, undef",
+									"id": 10030,
+									"symb": "computername",
+									"size": "100%, undef",
 									"alignitems": "stretch",
 									"alignself": "auto",
 									"gravityx": "center",
@@ -667,11 +675,13 @@
 									"alignself": "auto",
 									"gravityx": "center",
 									"gravityy": "center",
-									"growfactor": 1,
+									"growfactor": 4,
 									"shrinkfactor": 1
 								},
 								{
-									"size": "undef, undef",
+									"id": 10030,
+									"symb": "computername",
+									"size": "100%, undef",
 									"alignitems": "stretch",
 									"alignself": "auto",
 									"gravityx": "center",
@@ -746,11 +756,13 @@
 									"alignself": "auto",
 									"gravityx": "center",
 									"gravityy": "center",
-									"growfactor": 1,
+									"growfactor": 4,
 									"shrinkfactor": 1
 								},
 								{
-									"size": "undef, undef",
+									"id": 10030,
+									"symb": "computername",
+									"size": "100%, undef",
 									"alignitems": "stretch",
 									"alignself": "auto",
 									"gravityx": "center",

@@ -481,7 +481,7 @@ int StringSet::add(const char * pStr, uint * pPos)
 	int    ok = 1;
 	char   temp_buf[32];
 	if(!pStr) {
-		PTR32(temp_buf)[0] = 0;
+		temp_buf[0] = 0;
 		pStr = temp_buf;
 	}
 	const size_t delim_len = DataLen ? (Delim[0] ? sstrlen(Delim) : 1) : (Delim[0] ? 1 : 2);

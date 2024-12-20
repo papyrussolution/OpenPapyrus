@@ -420,12 +420,10 @@ private:
 				THROW(WriteScheme(&AddLineRec, AddLineScheme));
 				F.WriteLine("</d>");
 			}
-			// @v10.4.0 {
 			if(PromoLineScheme.Len()) {
 				THROW(WriteScheme(&PromoLineRec, PromoLineScheme));
 				F.WriteLine("</d>");
 			}
-			// } @v10.4.0 
 			if(AddedRecType && AddedScheme.NotEmpty()) {
 				PPImpExpParam p;
 				InitExportParam(p, /*Filt.AddRecType*/AddedRecType);
@@ -778,14 +776,9 @@ int PPSupplExchange_Baltika::ExportRestParties()
 				if(sstrlen(item.Serial) && GetBarcode(item.GoodsID, line_rec.WareId, sizeof(line_rec.WareId), 0, 0, &bc_pack) > 0) {
 					line_rec.Quantity = item.Rest;
 					STRNSCPY(line_rec.UnitId, GetEaText());
-					{
-						//LDATETIME serial_dtm;
-						//strtodatetime(item.Serial, &serial_dtm, DATF_DMY, TIMF_HMS);
-						// @v10.1.7 STRNSCPY(line_rec.PartNumber, item.Serial);
-					}
 					ltoa(loc_list.at(i), line_rec.WareHouseId, 10);
 					GetInfoByLot(item.LotID, 0, &(line_rec.DocumentDate = filt.Date), &line_rec.ProductionDate, &line_rec.ExpirationDate, &temp_buf);
-					STRNSCPY(line_rec.PartNumber, temp_buf); // @v10.1.7
+					STRNSCPY(line_rec.PartNumber, temp_buf);
 					if(bc_pack > 1.0) {
 						line_rec.Quantity = R6(line_rec.Quantity / bc_pack);
 					}
@@ -1330,10 +1323,11 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 		}
 		if(!oneof2(item.OpID, Ep.MovOutOp, Ep.MovInOp)) {
 			client_id = ObjectToPerson(bpack.Rec.Object, 0);
-			if(bpack.GetDlvrAddrID())
-				dlvr_addr_id = bpack.GetDlvrAddrID();
-			else if(PsnObj.Search(client_id, &psn_rec) > 0)
-				dlvr_addr_id = NZOR(psn_rec.RLoc, psn_rec.MainLoc);
+			dlvr_addr_id = bpack.GetDlvrAddrID();
+			if(!dlvr_addr_id) {
+				if(PsnObj.Search(client_id, &psn_rec) > 0)
+					dlvr_addr_id = NZOR(psn_rec.RLoc, psn_rec.MainLoc);
+			}
 			/* Сначала нужно выяснить, будем ли выгружать данную накладную. Поэтому блок перенесен
 			if(client_id && dlvr_addr_id)
 				if(dlvr_addr_list.lsearch(&dlvr_addr_id, 0, CMPF_LONG, sizeof(long)) <= 0)

@@ -116,10 +116,8 @@
 	return ok;
 }
 
-/*static*/int Reference::Encrypt(int cryptMethod, const char * pText, char * pBuf, size_t bufLen)
-	{ return Reference::Helper_Encrypt_(cryptMethod, 0, pText, pBuf, bufLen); }
-/*static*/int Reference::Decrypt(int cryptMethod, const char * pBuf, size_t bufLen, SString & rText)
-	{ return Reference::Helper_Decrypt_(cryptMethod, 0, pBuf, bufLen, rText); }
+/*static*/int Reference::Encrypt(int cryptMethod, const char * pText, char * pBuf, size_t bufLen) { return Reference::Helper_Encrypt_(cryptMethod, 0, pText, pBuf, bufLen); }
+/*static*/int Reference::Decrypt(int cryptMethod, const char * pBuf, size_t bufLen, SString & rText) { return Reference::Helper_Decrypt_(cryptMethod, 0, pBuf, bufLen, rText); }
 
 /*static*/int Reference::GetPassword(const PPSecur * pSecur, char * pBuf, size_t bufLen)
 {
@@ -213,7 +211,7 @@ Reference::~Reference()
 
 int Reference::AllocDynamicObj(PPID * pDynObjType, const char * pName, long flags, int use_ta)
 {
-	assert(pDynObjType != 0); // @v10.6.8
+	assert(pDynObjType != 0);
 	int    ok = 1, r;
 	PPID   id = *pDynObjType;
 	{
@@ -307,7 +305,8 @@ int Reference::GetFreeID(PPID obj, PPID * id)
 
 int Reference::AddItem(PPID obj, PPID * pID, const void * b, int use_ta)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -329,8 +328,11 @@ int Reference::AddItem(PPID obj, PPID * pID, const void * b, int use_ta)
 
 int Reference::UpdateItem(PPID obj, PPID id, const void * b, int logAction /*=1*/, int use_ta)
 {
-	int    ok = 1, r = 1, try_count = 5;
-	ReferenceTbl::Rec prev_rec, new_rec;
+	int    ok = 1;
+	int    r = 1;
+	int    try_count = 5;
+	ReferenceTbl::Rec prev_rec;
+	ReferenceTbl::Rec new_rec;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -351,10 +353,9 @@ int Reference::UpdateItem(PPID obj, PPID id, const void * b, int logAction /*=1*
 					if(!r) {
 						THROW_DB(BtrError == BE_CONFLICT && try_count > 0);
 						//
-						// Если встречаем ошибку "Конфликт блокировок на уровне записи", то
-						// повторяем попытку чтения-изменения try_count раз.
+						// Если встречаем ошибку "Конфликт блокировок на уровне записи", то повторяем попытку чтения-изменения try_count раз.
 						//
-						unlock(0); // @v9.0.4
+						unlock(0);
 						SDelay(10);
 						--try_count;
 					}
@@ -542,11 +543,11 @@ int Reference::CheckUniqueSymb(PPID objType, PPID id, const char * pSymb, size_t
 
 int Reference::RemoveItem(PPID obj, PPID id, int use_ta)
 {
-	int    ok = 1, r;
+	int    ok = 1;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		r = SendObjMessage(DBMSG_OBJDELETE, 0, obj, id);
+		const int r = SendObjMessage(DBMSG_OBJDELETE, 0, obj, id);
 		THROW(r != DBRPL_ERROR);
 		THROW_PP(r != DBRPL_CANCEL, PPERR_USERBREAK);
 		THROW_DB(deleteFrom(this, 0, (this->ObjType == obj && this->ObjID == id)));
@@ -583,7 +584,7 @@ int Reference::ReadPropBuf(void * b, size_t s, size_t * pActualSize)
 	const  RECORDSIZE fix_rec_size = Prop.getRecSize();
 	temp_buf.Write(&Prop.data, fix_rec_size);
 	Prop.readLobData(Prop.VT, temp_buf);
-	Prop.destroyLobData(Prop.VT); // @v10.2.11 @fix
+	Prop.destroyLobData(Prop.VT);
 	actual_size = temp_buf.GetAvailableSize();
 	temp_buf.Read(b, s);
 	ASSIGN_PTR(pActualSize, actual_size);
@@ -663,10 +664,8 @@ int Reference::_SearchProp(PPID obj, PPID id, PPID prop, int spMode, void * b, s
 	return ok;
 }
 
-int Reference::GetProperty(PPID obj, PPID id, PPID prop, void * b, size_t s)
-	{ return _SearchProp(obj, id, prop, spEq, b, s); }
-int Reference::GetPropMainConfig(PPID prop, void * b, size_t s)
-	{ return _SearchProp(PPOBJ_CONFIG, PPCFG_MAIN, prop, spEq, b, s); }
+int Reference::GetProperty(PPID obj, PPID id, PPID prop, void * b, size_t s) { return _SearchProp(obj, id, prop, spEq, b, s); }
+int Reference::GetPropMainConfig(PPID prop, void * b, size_t s) { return _SearchProp(PPOBJ_CONFIG, PPCFG_MAIN, prop, spEq, b, s); }
 
 int Reference::GetPropActualSize(PPID obj, PPID id, PPID prop, size_t * pActualSize)
 {
@@ -687,7 +686,7 @@ int Reference::GetPropActualSize(PPID obj, PPID id, PPID prop, size_t * pActualS
 
 int Reference::EnumProperties(PPID obj, PPID id, PPID * prop, void * b, uint s)
 {
-	int    sp = (*prop == 0) ? spGe : spNext;
+	const  int sp = (*prop == 0) ? spGe : spNext;
 	int    r = _SearchProp(obj, id, *prop, sp, b, s);
 	if(r > 0) {
 		r = (Prop.data.ObjType == obj && Prop.data.ObjID == id) ? 1 : -1;
@@ -708,7 +707,7 @@ int Reference::GetPropVlrString(PPID obj, PPID id, PPID prop, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
-	uint8  pm_fixed_buf[1024]; // @v10.0.01 (обход динамического распределения памяти)
+	uint8  pm_fixed_buf[1024]; // обход динамического распределения памяти
 	PropVlrString * pm = 0;
 	int    is_pm_allocated = 0;
 	PropertyTbl::Key0 k;
@@ -782,7 +781,8 @@ int Reference::PutPropSBuffer(PPID obj, PPID id, PPID prop, const SBuffer & rBuf
 int FASTCALL Reference::GetPropSBuffer_Current(SBuffer & rBuf)
 {
 	int    ok = 1;
-	size_t actual_size = 0, test_actual_size = 0;
+	size_t actual_size = 0;
+	size_t test_actual_size = 0;
 	PropVlrString * pm = 0;
 	RECORDSIZE fix_size = Prop.getRecSize();
 	Prop.getLobSize(Prop.VT, &actual_size);
@@ -1146,13 +1146,8 @@ bool FASTCALL PPRights::IsEq(const PPRights & rS) const
 			eq = false;
 	}
 	if(eq) {
-		if(P_Rt) {
-			if(rS.P_Rt) {
-				eq = P_Rt->IsEq(*rS.P_Rt);
-			}
-			else
-				eq = false;
-		}
+		if(P_Rt)
+			eq = rS.P_Rt ? P_Rt->IsEq(*rS.P_Rt) : false;
 		else if(rS.P_Rt)
 			eq = false;
 	}

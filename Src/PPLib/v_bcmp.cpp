@@ -272,8 +272,6 @@ int PPViewGoodsBillCmp::Init_(const PPBaseFilt * pBaseFilt)
 int PPViewGoodsBillCmp::InitIteration()
 {
 	int    ok = 1;
-	// @v10.6.8 char   k[MAXKEYLEN];
-	// @v10.6.8 char   k_[MAXKEYLEN];
 	BtrDbKey k_;
 	BtrDbKey k__;
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -291,8 +289,6 @@ int PPViewGoodsBillCmp::InitIteration()
 	P_IterQuery->selectAll();
 	if(Filt.Flags & GoodsBillCmpFilt::fDiffQttyOnly)
 		P_IterQuery->where(P_TempTbl->IsDiffQtty > 0.0);
-	// @v10.6.8 @ctr memzero(k,  sizeof(k));
-	// @v10.6.8 @ctr memzero(k_, sizeof(k_));
 	Counter.Init(P_IterQuery->countIterations(0, k__, spFirst));
 	P_IterQuery->initIteration(false, k_, spFirst);
 	CATCHZOK

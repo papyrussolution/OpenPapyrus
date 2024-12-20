@@ -6,7 +6,6 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <ppdefs.h>
-//#include <windowsx.h> // @v11.6.7
 #include <shellapi.h> // @v11.6.7
 #include <uxtheme.h> // @v11.6.7
 #include <dwmapi.h> // @v11.6.7
@@ -831,7 +830,7 @@ void TProgram::HandleWindowCompositionChanged()
 	//update_region(data);
 }
 
-static bool has_autohide_appbar(UINT edge, RECT mon)
+static bool HasAutohideAppbar(UINT edge, RECT mon)
 {
 	APPBARDATA abd;
 	MEMSZERO(abd);
@@ -864,7 +863,7 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 	RECT nonclient = *params.rect;
 	DefWindowProcW(H_MainWnd, WM_NCCALCSIZE, wParam, params.lparam);
 	RECT client = *params.rect;
-	if( IsZoomed(H_MainWnd)) {
+	if(IsZoomed(H_MainWnd)) {
 		WINDOWINFO wi;
 		wi.cbSize = sizeof(wi);
 		GetWindowInfo(H_MainWnd, &wi);
@@ -892,13 +891,13 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 		// of the monitor is likely to contain an auto-hide appbar, so the
 		// missing client area is covered by it. 
 		if(EqualRect(params.rect, &mi.rcMonitor)) {
-			if(has_autohide_appbar(ABE_BOTTOM, mi.rcMonitor))
+			if(HasAutohideAppbar(ABE_BOTTOM, mi.rcMonitor))
 				params.rect->bottom--;
-			else if(has_autohide_appbar(ABE_LEFT, mi.rcMonitor))
+			else if(HasAutohideAppbar(ABE_LEFT, mi.rcMonitor))
 				params.rect->left++;
-			else if(has_autohide_appbar(ABE_TOP, mi.rcMonitor))
+			else if(HasAutohideAppbar(ABE_TOP, mi.rcMonitor))
 				params.rect->top++;
-			else if(has_autohide_appbar(ABE_RIGHT, mi.rcMonitor))
+			else if(HasAutohideAppbar(ABE_RIGHT, mi.rcMonitor))
 				params.rect->right--;
 		}
 	}
@@ -1251,9 +1250,13 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 		wc.style = CS_HREDRAW | CS_VREDRAW;
 		wc.hIcon = H_Icon;
 		{
-			// @v10.7.8 wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_GRAYTEXT);
-			HBRUSH hbr_bkg = ::CreateSolidBrush(RGB(0x20, 0x63, 0x9b)); // @v10.7.8
-			wc.hbrBackground = hbr_bkg; // @v10.7.8
+			// @v12.2.1 {
+			const UiDescription * p_uid = SLS.GetUiDescription();
+			const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+			SColor clr = UiDescription::GetColorR(p_uid, p_cs, "main_window_bg", SColor(0x20, 0x63, 0x9b));
+			// } @v12.2.1 
+			HBRUSH hbr_bkg = ::CreateSolidBrush(/*RGB(0x20, 0x63, 0x9b)*/static_cast<COLORREF>(clr));
+			wc.hbrBackground = hbr_bkg;
 		}
 		wc.cbClsExtra    = sizeof(long);
 		wc.cbWndExtra    = sizeof(long);
@@ -1702,19 +1705,22 @@ int DrawCluster(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	int    draw_radiobtn = 0;
 	long   checkbox_size = 14;
 	const DRAWITEMSTRUCT * p_di = reinterpret_cast<const DRAWITEMSTRUCT *>(lParam);
-	int    focused = BIN(p_di->itemAction == ODA_FOCUS || (p_di->itemState & ODS_FOCUS));
-	int    selected = BIN(p_di->itemState & ODS_SELECTED && p_di->itemAction == ODA_SELECT);
-	int    disabled = BIN(p_di->itemState & ODS_DISABLED);
+	const  bool focused  = (p_di->itemAction == ODA_FOCUS || (p_di->itemState & ODS_FOCUS));
+	const  bool selected = ((p_di->itemState & ODS_SELECTED) && p_di->itemAction == ODA_SELECT);
+	const  bool disabled = LOGIC(p_di->itemState & ODS_DISABLED);
 	long   style = TView::SGetWindowStyle(p_di->hwndItem);
 	long   text_out_fmt = DT_SINGLELINE|DT_VCENTER|DT_EXTERNALLEADING|DT_LEFT;
-	RECT   out_r = p_di->rcItem, elem_r = p_di->rcItem;
+	RECT   out_r = p_di->rcItem;
+	RECT   elem_r = p_di->rcItem;
 	COLORREF brush_color = RGB(0xDD, 0xDD, 0xF1);
 	COLORREF pen_color   = RGB(0xDD, 0xDD, 0xF1);
 	COLORREF text_color  = GetColorRef(SClrBlack);
 	COLORREF adv_brush_color = RGB(0xF2, 0xF2, 0xF7);
 	COLORREF adv_pen_color = _GetAssetColor(_assetCtrlBorderColor);
-	HBRUSH brush = 0, old_brush = 0;
-	HPEN   pen   = 0, old_pen   = 0;
+	HBRUSH brush = 0;
+	HBRUSH old_brush = 0;
+	HPEN   pen   = 0;
+	HPEN   old_pen = 0;
 	SString text_buf;
 	TView::SGetWindowText(p_di->hwndItem, text_buf);
 	if(disabled) {
@@ -2510,8 +2516,8 @@ int DrawInputLine(HWND hwnd, DRAWITEMSTRUCT * pDi)
 {
 	int    ok = 0;
 	if(oneof2(APPL->GetUiSettings().WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
-		int    focused  = BIN(pDi->itemAction == ODA_FOCUS || (pDi->itemState & ODS_FOCUS));
-		int    disabled = BIN(pDi->itemState & ODS_DISABLED);
+		const int    focused  = BIN(pDi->itemAction == ODA_FOCUS || (pDi->itemState & ODS_FOCUS));
+		const int    disabled = BIN(pDi->itemState & ODS_DISABLED);
 		COLORREF brush_color = RGB(0xDC, 0xD9, 0xD1);
 		COLORREF pen_color = focused ? _GetAssetColor(_assetCtrlFocusedBorderColor) : _GetAssetColor(_assetCtrlBorderColor);
 		HPEN   pen   = CreatePen(PS_SOLID, 1, pen_color);

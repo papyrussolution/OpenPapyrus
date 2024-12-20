@@ -2023,10 +2023,8 @@ public:
 			k3.UniqCntr = 0;
 			if(pTbl->search(3, &k3, spEq)) {
 				c++;
-				// @v10.4.10 sprintf(tmp_rec.Serial, "%s #%d", serial_buf, c);
-				// @v10.4.10 strip(tmp_rec.Serial);
-				temp_buf.Z().Cat(serial_buf).Space().CatChar('#').Cat(c).Strip(); // @v10.4.10
-				STRNSCPY(tmp_rec.Serial, temp_buf); // @v10.4.10
+				temp_buf.Z().Cat(serial_buf).Space().CatChar('#').Cat(c).Strip();
+				STRNSCPY(tmp_rec.Serial, temp_buf);
 			}
 			else {
 				pTbl->copyBufFrom(&tmp_rec);
@@ -3309,7 +3307,6 @@ IMPL_REF2CVT_FUNC(PPSecur) // {
 	THROW(Reference::Encrypt(Reference::crymRef2, temp_buf, rRec2.Password, sizeof(rRec2.Password)));
 	Reference::VerifySecur(&rRec2, 1);
 	CATCHZOK
-	// @v10.5.7 return ok;
 }
 
 IMPL_REF2CVT_FUNC(PPBarcodeStruc) // {
@@ -6531,7 +6528,6 @@ static int ConvertBankAccount9004()
 {
 	int    ok = 1;
 	int    db_locked = 0;
-	// @v10.3.0 (never used)int    need_conversion = 0;
 	DBTable * p_tbl = 0;
 	DbProvider * p_db = CurDict;
 	SString path;
@@ -7542,11 +7538,9 @@ int Convert10702()
 int Convert10703()
 {
 	int    ok = 1;
-	// @v10.7.5 PPWaitStart();
 	PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfReadOnly, cmdgrpcDesktop, 0);
 	THROW(p_mgr);
 	THROW(p_mgr->ConvertDesktopTo(PPCommandMngr::fRWByXml));
-	// @v10.7.5 PPWaitStop();
 	CATCHZOKPPERR
 	delete p_mgr;
 	return ok;

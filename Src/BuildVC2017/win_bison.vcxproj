@@ -106,6 +106,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <PrecompiledHeaderFile />
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -140,6 +141,7 @@ xcopy "$(ProjectDir)..\osf\winflexbison\bison\data\*" "$(TargetDir)\data" /s /i 
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -182,6 +184,7 @@ xcopy "$(ProjectDir)..\osf\winflexbison\bison\data\*" "$(TargetDir)\data" /s /i 
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <ControlFlowGuard>false</ControlFlowGuard>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -227,6 +230,7 @@ xcopy "$(ProjectDir)..\osf\winflexbison\bison\data\*" "$(TargetDir)\data" /s /i 
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <ControlFlowGuard>false</ControlFlowGuard>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

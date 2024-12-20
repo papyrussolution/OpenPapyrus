@@ -795,7 +795,7 @@ int PPObjGoodsTax::PutPacket(PPID * pID, PPGoodsTaxPacket * pPack, int use_ta)
 int PPObjGoodsTax::GetPacket(PPID id, PPGoodsTaxPacket * pPack)
 {
 	int    ok = -1;
-	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+	if(PPCheckGetObjPacketID(Obj, id)) {
 		if(Search(id, &pPack->Rec) > 0) {
 			P_Ref->GetPropArray(Obj, id, GTGPRP_ENTRIES, pPack->vecptr());
 			uint i;

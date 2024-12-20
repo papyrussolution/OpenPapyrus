@@ -1,17 +1,15 @@
 // STRSTORE.CPP
-// Copyright (c) A.Sobolev 1996-1999, 2000-2003, 2004, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
-// @codepage UTF-8 // @v10.4.5
+// Copyright (c) A.Sobolev 1996-1999, 2000-2003, 2004, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// @codepage UTF-8
 //
+#define SKIP_UED_ID_H
 #include <pp.h>
 #pragma hdrstop
 #include <strstore.h>
-
-// @v10.5.6 uint32 FASTCALL DJBHash(const void * pData, size_t len);     // @prototype
 //
 // Testing command line params:
 //   регулярная компиляция (sc2s): D:\Papyrus\Src\Rsrc\Str\ppstr2.txt
 //   автоперевод (papyrus):        /autotranslate:D:\Papyrus\Src\Rsrc\Str\ppstr2.txt;en
-//
 //
 static const char * P_StrSt_EmptyCodeSymb = ".N.";
 //
@@ -337,7 +335,8 @@ int StringStore2::ExpandString(SString & rBuf, int ctransf /*CTRANSF_XXX*/) cons
 {
 	int    ok = -1;
 	if(rBuf.Len() > 3 && rBuf.HasChr('@')) {
-		size_t ips = 0, ipe = 0;
+		size_t ips = 0;
+		size_t ipe = 0;
 		while(rBuf.Search("@{", ips, 0, &ips) && rBuf.Search("}", ips+2, 0, &ipe)) {
 			SString & r_inner_signature = SLS.AcquireRvlStr();
             rBuf.Sub(ips+2, ipe-(ips+2), r_inner_signature);
@@ -478,10 +477,6 @@ int StringStore2::Error(int errCode, long flags)
 		line = P_Pb->Line;
 	}
 #ifdef SC2C // {
-	/*struct Sc2ErrMsg {
-		int    Code;
-		const char * P_Msg;
-	};*/
 	static const SIntToSymbTabEntry ErrMsgList[] = {
 		{ PPERR_SC2_USAGE,                  "Usage: SC2C inputFileName" },
 		{ PPERR_SC2_GRPCODELIMIT,           "Превышение максимального значения кода группы (0x7fff-1)" },
@@ -512,17 +507,8 @@ int StringStore2::Error(int errCode, long flags)
 		{ PPERR_SC2_STRNOTIDENTIED,         "Строка не имеет идентификации" },
 		{ PPERR_SC2_SAVEDSYMBNEQGRP,        "При восстановлении сохраненного идентификатора символа '%s' возник конфликт групп" }
 	};
-	// @v10.4.5 {
 	SIntToSymbTab_GetSymb(ErrMsgList, SIZEOFARRAY(ErrMsgList), errCode, temp_buf);
 	temp_buf.Transf(CTRANSF_UTF8_TO_OUTER);
-	// } @v10.4.5
-	/* @v10.4.5
-	for(size_t i = 0; i < SIZEOFARRAY(ErrMsgList); i++) {
-		if(ErrMsgList[i].Code == errCode) {
-			temp_buf = ErrMsgList[i].P_Msg;
-			break;
-		}
-	}*/
 #else
 	PPLoadString(PPMSG_ERROR, errCode, temp_buf);
 #endif
@@ -557,8 +543,8 @@ int StringStore2::StoreState(const char * pFileName)
 		ini_file.AppendParam("SignatureList", item.Txt, temp_buf.Z().Cat((uint32)item.Id), 1);
 	}
 	//
-	for(i = 0; i < /*P_Pb->*/GrpSymbList.getCount(); i++) {
-		StrAssocArray::Item item = /*P_Pb->*/GrpSymbList.Get(i);
+	for(i = 0; i < GrpSymbList.getCount(); i++) {
+		StrAssocArray::Item item = GrpSymbList.Get(i);
 		ini_file.AppendParam("GrpSymbList", item.Txt, temp_buf.Z().Cat((uint32)item.Id), 1);
 	}
 	//
@@ -609,7 +595,7 @@ int StringStore2::RestoreState(const char * pFileName)
 		}
 		//
 		{
-			/*P_Pb->*/GrpSymbList.Z();
+			GrpSymbList.Z();
 			P_Pb->Saved_GrpSymbList.Z();
 			ss.Z();
 			ini_file.GetEntries("GrpSymbList", &ss, 1);
@@ -659,8 +645,7 @@ int StringStore2::TranslationWanted(const uchar * pOrgText) const
 			else if(c == '\\' && oneof3(p[1], 'n', 't', 'r'))
 				p++;
 			else if(!sstrchr((const char *)p_notrasl_chars, c)) {
-				// @v10.9.8 if((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
-				if(isasciialpha(c)) { // @v10.9.8
+				if(isasciialpha(c)) {
 					yes = 1;
 				}
 				else {
@@ -1183,7 +1168,7 @@ int StringStore2::Write(SFile & rF, LangStrCollItem * pData)
 	hdr.Signature[2] = '2';
 	hdr.Signature[3] = 'B';
 	hdr.SLang = pData->SLang;
-	hdr.Ver = 3; // @v9.0.8 // @v9.6.3 2-->3
+	hdr.Ver = 3;
 	THROW(rF.IsValid());
 	rF.Seek(0);
 	THROW(rF.Write(&hdr, sizeof(hdr)));
@@ -1274,13 +1259,13 @@ int StringStore2::AddGroup(StringStore2::ParseItem & rItem)
 	uint   pos;
 	if(rItem.Group == 0) {
 		if(rItem.GroupSymb.NotEmpty()) {
-			if(/*P_Pb->*/GrpSymbList.SearchByText(rItem.GroupSymb, &(pos = 0))) {
-				rItem.Group = /*P_Pb->*/GrpSymbList.Get(pos).Id;
+			if(GrpSymbList.SearchByText(rItem.GroupSymb, &(pos = 0))) {
+				rItem.Group = GrpSymbList.Get(pos).Id;
 				ok = 2;
 			}
 			else if(P_Pb->Saved_GrpSymbList.SearchByText(rItem.GroupSymb, &(pos = 0))) {
 				rItem.Group = P_Pb->Saved_GrpSymbList.Get(pos).Id;
-				THROW(/*P_Pb->*/GrpSymbList.Add(rItem.Group, rItem.GroupSymb));
+				THROW(GrpSymbList.Add(rItem.Group, rItem.GroupSymb));
 				if(!P_Pb->LastAutoCodeList.Search(rItem.Group, 0)) {
 					THROW(P_Pb->LastAutoCodeList.Add(rItem.Group, 10000, 0, 0));
 				}
@@ -1293,8 +1278,8 @@ int StringStore2::AddGroup(StringStore2::ParseItem & rItem)
 	if(ok < 0) {
 		if(rItem.GroupSymb.IsEmpty()) {
 			empty_symb = 1;
-			if(/*P_Pb->*/GrpSymbList.Search(rItem.Group, &(pos = 0))) {
-				rItem.GroupSymb = /*P_Pb->*/GrpSymbList.Get(pos).Txt;
+			if(GrpSymbList.Search(rItem.Group, &(pos = 0))) {
+				rItem.GroupSymb = GrpSymbList.Get(pos).Txt;
 				ok = 2;
 			}
 			else
@@ -1302,16 +1287,16 @@ int StringStore2::AddGroup(StringStore2::ParseItem & rItem)
 		}
 	}
 	if(ok < 0) {
-		if(/*P_Pb->*/GrpSymbList.Search(rItem.Group, &(pos = 0))) {
-			THROW(rItem.GroupSymb.Cmp(/*P_Pb->*/GrpSymbList.Get(pos).Txt, 0) == 0);
+		if(GrpSymbList.Search(rItem.Group, &(pos = 0))) {
+			THROW(rItem.GroupSymb.Cmp(GrpSymbList.Get(pos).Txt, 0) == 0);
 			ok = 2;
 		}
-		else if(!empty_symb && /*P_Pb->*/GrpSymbList.SearchByText(rItem.GroupSymb, &(pos = 0))) {
-			THROW(rItem.Group == /*P_Pb->*/GrpSymbList.Get(pos).Id);
+		else if(!empty_symb && GrpSymbList.SearchByText(rItem.GroupSymb, &(pos = 0))) {
+			THROW(rItem.Group == GrpSymbList.Get(pos).Id);
 			ok = 2;
 		}
 		else {
-			THROW(/*P_Pb->*/GrpSymbList.Add(rItem.Group, rItem.GroupSymb));
+			THROW(GrpSymbList.Add(rItem.Group, rItem.GroupSymb));
 			if(!P_Pb->LastAutoCodeList.Search(rItem.Group, 0)) {
 				THROW(P_Pb->LastAutoCodeList.Add(rItem.Group, 10000, 0, 0));
 			}
@@ -1675,7 +1660,7 @@ int StringStore2::GenerateRcFile(const char * pFileName, const char * pSrcFileNa
 	uint   i;
 	long   last_grp = 0;
 	SString temp_buf, str_buf, symb_buf;
-	/*P_Pb->*/GrpSymbList.SortByID();
+	GrpSymbList.SortByID();
 	P_Pb->StrSymbList.SortByID();
 	if(P_Pb->StrSymbList.getCount()) {
 		/*
@@ -1721,7 +1706,7 @@ int StringStore2::GenerateRcFile(const char * pFileName, const char * pSrcFileNa
 				long code = 0;
 				if(grp != last_grp) {
 					gen.Wr_Comment(0);
-					if(/*P_Pb->*/GrpSymbList.Get(grp, temp_buf) <= 0)
+					if(GrpSymbList.Get(grp, temp_buf) <= 0)
 						temp_buf.Z().Cat(grp);
 					gen.Wr_Comment(temp_buf);
 					gen.Wr_Comment(0);
@@ -1755,7 +1740,7 @@ int StringStore2::GenerateJavaFile(const char * pFileName, const char * pSrcFile
 	temp_buf.Printf("This file was generated by SC2C.EXE from '%s'", pSrcFileName);
 	gen.Wr_Comment(temp_buf);
 	gen.Wr_Comment(0);
-	/*P_Pb->*/GrpSymbList.SortByID();
+	GrpSymbList.SortByID();
 	P_Pb->StrSymbList.SortByID();
 	//
 	// Следующий блок очень плохой - мне надо было быстро и потому я заложился на то, что пакет, в котором это используется называется ru.petroglif.styloq
@@ -1793,8 +1778,8 @@ int StringStore2::GenerateJavaFile(const char * pFileName, const char * pSrcFile
 		}
 		gen.WriteBlancLine();
 	}
-	for(i = 0; i < /*P_Pb->*/GrpSymbList.getCount(); i++) {
-		StrAssocArray::Item item = /*P_Pb->*/GrpSymbList.Get(i);
+	for(i = 0; i < GrpSymbList.getCount(); i++) {
+		StrAssocArray::Item item = GrpSymbList.Get(i);
 		if(!sstreq(item.Txt, P_StrSt_EmptyCodeSymb)) {
 			//gen.Wr_Define(item.Txt, temp_buf.Z().Cat(item.Id));
 			// public static final int DDD = val;
@@ -1812,7 +1797,7 @@ int StringStore2::GenerateJavaFile(const char * pFileName, const char * pSrcFile
 			long code = 0;
 			if(grp != last_grp) {
 				gen.Wr_Comment(0);
-				if(/*P_Pb->*/GrpSymbList.GetText(grp, temp_buf) <= 0)
+				if(GrpSymbList.GetText(grp, temp_buf) <= 0)
 					temp_buf.Z().Cat(grp);
 				gen.Wr_Comment(temp_buf);
 				gen.Wr_Comment(0);
@@ -1852,10 +1837,10 @@ int StringStore2::GenerateHeaderFile(const char * pFileName, const char * pSrcFi
 	temp_buf.Printf("This file was generated by SC2C.EXE from '%s'", pSrcFileName);
 	gen.Wr_Comment(temp_buf);
 	gen.Wr_Comment(0);
-	/*P_Pb->*/GrpSymbList.SortByID();
+	GrpSymbList.SortByID();
 	P_Pb->StrSymbList.SortByID();
-	for(i = 0; i < /*P_Pb->*/GrpSymbList.getCount(); i++) {
-		StrAssocArray::Item item = /*P_Pb->*/GrpSymbList.Get(i);
+	for(i = 0; i < GrpSymbList.getCount(); i++) {
+		StrAssocArray::Item item = GrpSymbList.Get(i);
 		if(!sstreq(item.Txt, P_StrSt_EmptyCodeSymb))
 			gen.Wr_Define(item.Txt, temp_buf.Z().Cat(item.Id));
 	}
@@ -1866,7 +1851,7 @@ int StringStore2::GenerateHeaderFile(const char * pFileName, const char * pSrcFi
 			long code = 0;
 			if(grp != last_grp) {
 				gen.Wr_Comment(0);
-				if(/*P_Pb->*/GrpSymbList.GetText(grp, temp_buf) <= 0)
+				if(GrpSymbList.GetText(grp, temp_buf) <= 0)
 					temp_buf.Z().Cat(grp);
 				gen.Wr_Comment(temp_buf);
 				gen.Wr_Comment(0);
@@ -1905,4 +1890,3 @@ int StringStore2::GenerateHeaderFile(const char * pFileName, const char * pSrcFi
 		return r;
 	}
 #endif // } SC2C
-

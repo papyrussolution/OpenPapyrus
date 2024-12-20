@@ -330,18 +330,16 @@ static void InitTest()
 		p_x = &rx;
 		assert((p_x == &rx) == 1);
 		assert((p_x != &rx) == 0);
-		// @v10.9.3 {
 		STATIC_ASSERT(BIN(17) == 1); // must be 1
 		STATIC_ASSERT(BIN(0) == 0);
-		#if(_MSC_VER > 1400) // @v10.9.10 Выясняется, что BIN нельзя применять к floating point. Например, Visual Studio 7.1 ошибается в такой конструкции.
+		#if(_MSC_VER > 1400) // Выясняется, что BIN нельзя применять к floating point. Например, Visual Studio 7.1 ошибается в такой конструкции.
 			STATIC_ASSERT(BIN(0.0) == 0);
-			STATIC_ASSERT(BIN(0.0f) == 0); // @v10.9.10
+			STATIC_ASSERT(BIN(0.0f) == 0);
 		#endif
 		STATIC_ASSERT(!0 == 1);
 		STATIC_ASSERT(!17 == 0);
 		STATIC_ASSERT(LOGIC(!0.000001) == false);
 		STATIC_ASSERT(LOGIC(!0.00000) == true);
-		// } @v10.9.3 
 	}
 	{
 		// @paranoic (Защита от классической шутки)
@@ -429,10 +427,10 @@ static void InitTest()
 	STATIC_ASSERT(sizeof(char) == 1);
 	STATIC_ASSERT(sizeof(int) == 4);
 	STATIC_ASSERT(sizeof(uint) == 4);
-	STATIC_ASSERT(sizeof(short) >= 2); // @v10.2.3
-	STATIC_ASSERT(sizeof(long)  >= 4); // @v10.2.3
-	STATIC_ASSERT(sizeof(int) >= sizeof(short)); // @v10.2.3
-	STATIC_ASSERT(sizeof(long) >= sizeof(int)); // @v10.2.3
+	STATIC_ASSERT(sizeof(short) >= 2);
+	STATIC_ASSERT(sizeof(long)  >= 4);
+	STATIC_ASSERT(sizeof(int) >= sizeof(short));
+	STATIC_ASSERT(sizeof(long) >= sizeof(int));
 	STATIC_ASSERT(sizeof(int8) == 1);
 	STATIC_ASSERT(sizeof(uint8) == 1);
 	STATIC_ASSERT(sizeof(int16) == 2);
@@ -441,16 +439,16 @@ static void InitTest()
 	STATIC_ASSERT(sizeof(uint32) == 4);
 	STATIC_ASSERT(sizeof(int64) == 8);
 	STATIC_ASSERT(sizeof(uint64) == 8);
-	STATIC_ASSERT(sizeof(float) == 4); // @v10.7.11
-	STATIC_ASSERT(sizeof(double) == 8); // @v10.7.11
+	STATIC_ASSERT(sizeof(float) == 4);
+	STATIC_ASSERT(sizeof(double) == 8);
 	STATIC_ASSERT(sizeof(S_GUID) == 16);
 	STATIC_ASSERT(sizeof(S_GUID) == sizeof(S_GUID_Base));
-	STATIC_ASSERT(sizeof(SColorBase) == 4); // @v10.2.4
-	STATIC_ASSERT(sizeof(SColor) == sizeof(SColorBase)); // @v10.2.4
+	STATIC_ASSERT(sizeof(SColorBase) == 4);
+	STATIC_ASSERT(sizeof(SColor) == sizeof(SColorBase));
 	STATIC_ASSERT(sizeof(IntRange) == 8);
 	STATIC_ASSERT(sizeof(RealRange) == 16);
-	STATIC_ASSERT(sizeof(DateRange) == 8); // @v10.2.4
-	STATIC_ASSERT(sizeof(TimeRange) == 8); // @v10.2.4
+	STATIC_ASSERT(sizeof(DateRange) == 8);
+	STATIC_ASSERT(sizeof(TimeRange) == 8);
 #ifdef _M_X64
 	STATIC_ASSERT(sizeof(SBaseBuffer) == 16);
 #else
@@ -542,7 +540,6 @@ static void InitTest()
 		SETIFZ(dtm, now_dtm);
 		assert(dtm != now_dtm);
 	}
-	// @v10.7.9 {
 	{
 		{
 			SString temp_buf;
@@ -556,8 +553,6 @@ static void InitTest()
 			assert(temp_buf == "1");
 		}
 	}
-	// } @v10.7.9 
-	// @v10.9.3 {
 	assert(ismemzero(&ZEROGUID, sizeof(ZEROGUID))); 
 	assert(isasciialpha('A') != 0);
 	assert(isasciialpha('z') != 0);
@@ -567,7 +562,6 @@ static void InitTest()
 	assert(isasciialpha('A'-1) == 0);
 	assert(isasciialpha('z'+1) == 0);
 	assert(isasciialpha('a'-1) == 0);
-	// } @v10.9.3 
 	// assert(sizeof(SUiLayout::Result) == 24); // @v11.0.0
 	{
 		//bool FASTCALL IsMadeOfEightDigitsFast(const uint8 * pS);
@@ -774,10 +768,7 @@ void SlSession::Init(const char * pAppName, HINSTANCE hInst)
 	}
 	*/
 	H_Inst = NZOR(hInst, GetModuleHandle(0));
-	// @v10.3.9 char   exe_path[MAX_PATH];
-	// @v10.3.9 GetModuleFileName(H_Inst, exe_path, sizeof(exe_path)); // @unicodeproblem
-	// @v10.3.9 ExePath = exe_path;
-	SSystem::SGetModuleFileName(H_Inst, ExePath); // @v10.3.9
+	SSystem::SGetModuleFileName(H_Inst, ExePath);
 	AppName = pAppName;
 	if(AppName.NotEmpty()) {
 		SString n;
@@ -1415,7 +1406,6 @@ SCodepage SlSession::GetCodepage() const
 //
 //
 //
-// @v10.5.6 uint32 FASTCALL RSHash(const void * pData, size_t len); // @prototype
 void __LinkFile_HASHFUNC()
 {
 	SlHash::RS("", 0);

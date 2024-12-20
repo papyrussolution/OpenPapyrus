@@ -1,11 +1,9 @@
 // COMDISP.H
-// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2013, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2013, 2017, 2018, 2019, 2020, 2021, 2023, 2024
 // @codepage UTF-8
 //
 #ifndef __COMDISP_H // {
 #define __COMDISP_H
-
-// @v10.9.3 #include <process.h>
 //
 //   Интерфейс IDispatch для работы с COM-приложениями (режим InProcServer, LocalServer) (only WIN32)
 //

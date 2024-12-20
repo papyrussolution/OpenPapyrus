@@ -647,7 +647,6 @@ int PPCashMachine::SyncViewSessionStat(long options)
 		PPObjCSession cs_obj;
 		CSessionTbl::Rec cs_rec;
 		if(NodeRec.CurSessID && cs_obj.P_Tbl->Search(NodeRec.CurSessID, &cs_rec) > 0) {
-			// @v10.4.2 CCheckCore cc;
 			CSessTotal cs_total;
 			long   _f = cs_obj.P_Tbl->GetCcGroupingFlags(cs_rec, 0);
 			_f |= CCheckCore::gglfUseFullCcPackets;

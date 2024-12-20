@@ -195,7 +195,7 @@ static int PPObjProject_WriteConfig(PPProjectConfig * pCfg, PPOpCounterPacket * 
 	return rBuf.Z().Cat(pRec->Code).CatDiv('-', 1).Cat(pRec->Name);
 }
 
-PPProjectPacket::PPProjectPacket() // @v10.7.2
+PPProjectPacket::PPProjectPacket()
 {
 }
 
@@ -253,7 +253,7 @@ int PPObjProject::GetFullName(PPID id, SString & rBuf)
 	rBuf.Z();
 	if(Search(id, &rec) > 0) {
 		PPID   parent_id = 0;
-		char   name_buf[128]; // @v10.7.2 [64]-->[128]
+		char   name_buf[128];
 		SStack name_stack(sizeof(name_buf));
 		do {
 			parent_id = rec.ParentID;
@@ -270,7 +270,7 @@ int PPObjProject::GetFullName(PPID id, SString & rBuf)
 
 int PPObjProject::Browse(void * extraPtr) { return PPView::Execute(PPVIEW_PROJECT, 0, PPView::exefModeless, 0); }
 
-int PPObjProject::SerializePacket(int dir, PPProjectPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx) // @v10.7.2
+int PPObjProject::SerializePacket(int dir, PPProjectPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
@@ -388,8 +388,7 @@ int PPObjProject::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext *
 	else {
 		SBuffer buffer;
 		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0));
-		// @v10.7.2 THROW_SL(P_Tbl->SerializeRecord(-1, p->Data, buffer, &pCtx->SCtx));
-		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx)); // @v10.7.2 
+		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -410,9 +409,7 @@ int PPObjProject::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmConte
 	}
 	else {
 		SBuffer buffer;
-		// @todo SerializePacket
-		// @v10.7.2 THROW_SL(P_Tbl->SerializeRecord(+1, p->Data, buffer, &pCtx->SCtx));
-		THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx)); // @v10.7.2 
+		THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
 		THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0));
 	}
 	CATCHZOK
@@ -446,7 +443,7 @@ public:
 		SetupCalDate(CTLCAL_PRJ_START, CTL_PRJ_START);
 		SetupCalDate(CTLCAL_PRJ_ESTFINISH, CTL_PRJ_ESTFINISH);
 		SetupCalDate(CTLCAL_PRJ_FINISH, CTL_PRJ_FINISH);
-		SetupInputLine(CTL_PRJ_DESCR, MKSTYPE(S_ZSTRING, 2048), MKSFMT(2048, 0)); // @v10.7.2 256-->2048
+		SetupInputLine(CTL_PRJ_DESCR, MKSTYPE(S_ZSTRING, 2048), MKSFMT(2048, 0));
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -1856,7 +1853,7 @@ int PPObjPrjTask::ImportFromVCal()
 	return ok;
 }
 
-PPPrjTaskPacket::PPPrjTaskPacket() // @v10.7.2
+PPPrjTaskPacket::PPPrjTaskPacket()
 {
 }
 
@@ -1936,8 +1933,7 @@ int PPObjPrjTask::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext *
 	else {
 		SBuffer buffer;
 		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0));
-		// @v10.7.2 THROW_SL(P_Tbl->SerializeRecord(-1, p->Data, buffer, &pCtx->SCtx));
-		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx)); // @v10.7.2 
+		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	CATCHZOK
 	return ok;
@@ -1958,8 +1954,7 @@ int PPObjPrjTask::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmConte
 	}
 	else {
 		SBuffer buffer;
-		// @v10.7.2 THROW_SL(P_Tbl->SerializeRecord(+1, p->Data, buffer, &pCtx->SCtx));
-		THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx)); // @v10.7.2 
+		THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
 		THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0));
 	}
 	CATCHZOK
@@ -2364,7 +2359,7 @@ int PPObjPrjTask::InitPacket(PPPrjTaskPacket * pPack, int kind, PPID prjID, PPID
 	return 1;
 }
 
-int PPObjPrjTask::PutPacket(PPID * pID, PPPrjTaskPacket * pPack, int use_ta) // @v10.7.2
+int PPObjPrjTask::PutPacket(PPID * pID, PPPrjTaskPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -2432,7 +2427,7 @@ SString & PPObjPrjTask::GetItemMemo(PPID id, SString & rBuf)
 	return rBuf;
 }
 
-int PPObjPrjTask::GetPacket(PPID id, PPPrjTaskPacket * pPack) // @v10.7.2
+int PPObjPrjTask::GetPacket(PPID id, PPPrjTaskPacket * pPack)
 {
 	int    ok = -1;
 	if(pPack) {
@@ -2571,8 +2566,8 @@ public:
 		SetupCalDate(CTLCAL_TODO_START, CTL_TODO_START);
 		SetupCalDate(CTLCAL_TODO_ESTFINISH, CTL_TODO_ESTFINISH);
 		SetupCalDate(CTLCAL_TODO_FINISH, CTL_TODO_FINISH);
-		SetupInputLine(CTL_TODO_DESCR, MKSTYPE(S_ZSTRING, 2048), MKSFMT(2048, 0)); // @v10.7.2 256-->2048
-		SetupInputLine(CTL_TODO_MEMO, MKSTYPE(S_ZSTRING, 2048), MKSFMT(2048, 0)); // @v10.7.2 1024-->2048
+		SetupInputLine(CTL_TODO_DESCR, MKSTYPE(S_ZSTRING, 2048), MKSFMT(2048, 0));
+		SetupInputLine(CTL_TODO_MEMO, MKSTYPE(S_ZSTRING, 2048), MKSFMT(2048, 0));
 		SetupTimePicker(this, CTL_TODO_STARTTM, CTLTM_TODO_STARTTM);
 		SetupTimePicker(this, CTL_TODO_ESTFINISHTM, CTLTM_TODO_ESTFINISHTM);
 		SetupTimePicker(this, CTL_TODO_FINISHTM, CTLTM_TODO_FINISHTM);
@@ -2628,8 +2623,8 @@ public:
 			selectCtrl(CTL_TODO_START);
 		}
 		SetupStringCombo(this, CTLSEL_TODO_STATUS, str_id, Data.Rec.Status);
-		SetupWordSelector(CTL_TODO_DESCR, new TextHistorySelExtra("todo-descr-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
-		SetupWordSelector(CTL_TODO_MEMO, new TextHistorySelExtra("todo-memo-common"), 0, 2, WordSel_ExtraBlock::fFreeText); // @v10.7.8
+		SetupWordSelector(CTL_TODO_DESCR, new TextHistorySelExtra("todo-descr-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
+		SetupWordSelector(CTL_TODO_MEMO, new TextHistorySelExtra("todo-memo-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
 		setCtrlString(CTL_TODO_DESCR,   Data.SDescr);
 		setCtrlString(CTL_TODO_MEMO,    Data.SMemo);
 		setCtrlData(CTL_TODO_AMOUNT, &Data.Rec.Amount);
@@ -2855,7 +2850,7 @@ int PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
    			output_to_status_win = 1;
 		}
 		else if(!is_new && ok != 0 && GetPacket(*pID, &pack) > 0) {
-			employer = 0; // @v10.3.2 PPID employer-->employer
+			employer = 0;
 			SysJournal * p_sj = DS.GetTLA().P_SysJ;
 			pack.Rec.OpenCount++;
 			pack.Rec.Flags |= TODOF_ACTIONVIEWED;
@@ -3138,10 +3133,8 @@ int RestoreLostPrjTPersonDlg::GetText(PPID id, const SString & rWord, SString & 
 	int    ok = 1;
 	SString temp_buf;
 	SString creator_word, employer_word, client_word;
-	// @v10.6.3 PPGetWord(PPWORD_CREATOR,  0, creator_word);
-	// @v10.6.3 PPGetWord(PPWORD_EMPLOYER, 0, employer_word);
-	PPLoadString("creator", creator_word); // @v10.6.3
-	PPLoadString("executor", employer_word); // @v10.6.3
+	PPLoadString("creator", creator_word);
+	PPLoadString("executor", employer_word);
 	PPLoadString("client", client_word);
 	for(uint i = 0; i < Data.getCount(); i++) {
 		const LostPrjTPersonItem * p_item = &Data.at(i);

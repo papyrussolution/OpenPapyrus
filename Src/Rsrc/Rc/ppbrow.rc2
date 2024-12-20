@@ -7106,6 +7106,7 @@ cmd ProcessBomEstimatedValues { "@{cmd_processbomestimatedvalues}"         none 
 cmd ImportCChecks         { "@{cmd_importccheck}"                          none                   none cmImportCChecks } // @v11.8.5
 cmd TestMarketplace       { "@{cmd_testmarketplace}"                       none                   none cmTestMarketplace } // @v12.1.0
 cmd MarketplaceInterchange { "@{cmd_marketplaceinterchange}"               PPDV_MARKETPLACE01     PPDV_MARKETPLACE01 cmMarketplaceInterchange } // @v12.1.3
+cmd AptekaRuInterchange    { "@{cmd_aptekaruinterchange}"                  none                   none cmAptekaRuInterchange } // @v12.2.1
 //
 // -------------- Описания серверных задач
 //
@@ -7141,22 +7142,24 @@ job TestSalesTable       { "@{job_testsalestable}" }
 job ExportGoods          { "@{job_exportgoods}" }
 job UhttExportGoodsRest  { "@{job_uhttexportgoodsrest}" }
 job ImportBills          { "@{job_importbills}" }
-job ProcessObjText       { "@{job_processobjtext}" } // @v7.9.2
-job PersonEventByReader  { "@{job_personeventbyreader}" } // @v7.9.6
+job ProcessObjText       { "@{job_processobjtext}" }
+job PersonEventByReader  { "@{job_personeventbyreader}" }
 job TSessAutoSms         { "@{job_tsessautosms}" }
-job ExportDbTblTransfer  { "@{job_exportdbtbltransfer}" } // @v8.6.7
-job ExportDbTblBill      { "@{job_exportdbtblbill}" } // @v8.6.8
-job ProcessEDI           { "@{job_processedi}" } // @v8.8.0
-job ProcessTSession      { "@{job_processtsession}" } // @v8.8.0
-job QueryEGAIS           { "@{job_queryegais}" } // @v9.3.2
-job VetisInterchange     { "@{job_vetisinterchange}" } // @v10.1.2
-job SendNotifiesByRecentScOps { "@{job_sendnotifiesbyrecentscops}" } // @v10.2.3
-job TimeSeriesSA         { "@{cmd_tsstrategyanalyze}" } // @v10.8.8
+job ExportDbTblTransfer  { "@{job_exportdbtbltransfer}" }
+job ExportDbTblBill      { "@{job_exportdbtblbill}" }
+job ProcessEDI           { "@{job_processedi}" }
+job ProcessTSession      { "@{job_processtsession}" }
+job QueryEGAIS           { "@{job_queryegais}" }
+job VetisInterchange     { "@{job_vetisinterchange}" }
+job SendNotifiesByRecentScOps { "@{job_sendnotifiesbyrecentscops}" }
+job TimeSeriesSA         { "@{cmd_tsstrategyanalyze}" }
 job ExportPrjTasks       { "@{job_exportprjtasks}" }  // @v11.3.3
 job FtsIndexing          { "@{job_ftsindexing}" } // @v11.3.4
 job StyloQSendIndexingContent { "@{job_styloqsendindexingcontent}" nologin } // @v11.3.5
 job StyloQPrepareAhead        { "@{job_styloqprepareahead}" nologin } // @v11.4.8
 job ImportCChecks        { "@{job_importcchecks}" } // @v11.8.6
+job AptekaRuInterchange  { "@{cmd_aptekaruinterchange}" } // @v12.2.1
+job MarketplaceInterchange { "@{cmd_marketplaceinterchange}" } // @v12.2.1
 //
 // -------------- Описания объектов данных PPObject
 //
@@ -7304,6 +7307,7 @@ filter StyloQDocumentPrereqParam { "@{filter_styloqdocumentparam}" } // @v11.5.0
 view   SwProgram { "@{view_swprogram}" } // @v11.9.11
 view   Computer  { "@{view_computer}" } // @v12.0.0
 filter MarketplaceInterchange    { "@{filter_marketplaceinterchange}" } // @v12.1.3
+filter PrcssrAptekaRu            { "@{filter_prcssraptekaru}" } // @v12.2.1
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //
@@ -7398,21 +7402,21 @@ record Bill {
 	Date          date         "@{date}";
 	OpID          long         "@{oprkind_id_amp}";
 	OpSymb        zstring(20)  "@{oprkindsymb}";
-	EdiOp         long         "Тип операции EDI";                          // @v8.5.6
-	EdiOpSymb     zstring(12)  "Символ типа операции EDI";                  // @v8.5.6
+	EdiOp         long         "Тип операции EDI";
+	EdiOpSymb     zstring(12)  "Символ типа операции EDI";
 	InvoiceCode   zstring(24)  "@{bill_invoicecode}";
 	InvoiceDate   date         "@{bill_invoicedate}";
-	MainGLN       zstring(16)  "@{mainorggln}";                             // @v7.1.12
+	MainGLN       zstring(16)  "@{mainorggln}";
 	INN           zstring(32)  "@{contractorinn}";
-	GLN           zstring(16)  "@{contractorgln}";                          // @v7.1.12
+	GLN           zstring(16)  "@{contractorgln}";
 	CntragID      long         "@{contractorarid}";
 	CntragName    zstring(128) "@{contractorname}";
 	CntragNo      long         "@{contractorarcode}";
 	RegistryCode  zstring(32)  "@{contractorcode}";
-	Obj2ID        long         "@{bill_obj2arid}";    // @v8.1.3
+	Obj2ID        long         "@{bill_obj2arid}";
 	Obj2Name      zstring(48)  "@{docextobjname}";
 	Obj2INN       zstring(32)  "@{docextobjinn}";
-	Obj2GLN       zstring(16)  "@{docextobjgln}"; // @v7.1.12
+	Obj2GLN       zstring(16)  "@{docextobjgln}";
 	Obj2No        long         "@{bill_obj2arno}";
 	DueDate       date         "@{bill_duedate}";
 	PaymDate      date         "@{bill_lastpaymplandate}";
@@ -7429,16 +7433,16 @@ record Bill {
 	Addr          zstring(255) "@{warehouseaddress}";
 	OrderBillID   zstring(32)  "ИД связанного документа заказа";
 	OrderBillNo   zstring(24)  "Номер связанного документа заказа";
-	DesadvBillID  zstring(32)  "ИД связанного документа DESADV"; // @v8.6.12
-	DesadvBillNo  zstring(24)  "Номер связанного документа DESADV"; // @v8.6.12
-	DesadvBillDt  date         "Дата связанного документа DESADV"; // @v8.6.12
+	DesadvBillID  zstring(32)  "ИД связанного документа DESADV";
+	DesadvBillNo  zstring(24)  "Номер связанного документа DESADV";
+	DesadvBillDt  date         "Дата связанного документа DESADV";
 	DlvrAddrID    long         "@{daddressid}";
 	DlvrAddrCode  zstring(16)  "@{daddresscode}";
 	DlvrAddr      zstring(255) "@{daddress}";
 	AgentName     zstring(128) "@{agentname}";
 	AgentINN      zstring(32)  "@{agentinn}";
-	AgentGLN      zstring(16)  "@{agentgln}";      // @v7.1.12
-	AgentPersonID long         "@{agentpersonid}"; // @v9.8.7
+	AgentGLN      zstring(16)  "@{agentgln}";
+	AgentPersonID long         "@{agentpersonid}";
 
 	CostWithSTax  int16        format(4)   "Цены включают налог с продаж";
 	XmlPrefix     zstring(16)  "Префикс XML-документа (dll)";
@@ -7449,9 +7453,11 @@ record Bill {
 	CntractCode   zstring(32)  "Номер договора с контрагентом (из регистра, указанного в конфигурации)";
 	CntractDt     date         "Дата договора с контрагентом";
 	CntractExpry  date         "Дата окончания договора с контрагентом";
-
-	CntragPhone   zstring(128) "Телефон контрагента"; // @v9.7.6
-	CntragEMail   zstring(128) "Email контрагента";   // @v9.7.6
+	CntragPhone   zstring(128) "Телефон контрагента";
+	CntragEMail   zstring(128) "Email контрагента";
+	OuterCode     zstring(24)  "@{rtag_billoutercode}"; // @v12.2.1 транслируется в тег PPTAG_BILL_OUTERCODE
+	OuterDate     date         "@{rtag_billouterdate}";  // @v12.2.1 транслируется в тег PPTAG_BILL_OUTERDATE
+	EdiIdent      zstring(48)  "Идентификатор документа у провайдера EDI"; // @v12.2.1 транслируется в тег PPTAG_BILL_EDIIDENT
 }
 
 record BRow {
@@ -7468,7 +7474,7 @@ record BRow {
 	UnitCode      zstring(20)  "@{munitcode}";
 	Barcode       zstring(252) "@{barcode}"; // @v11.4.5 (24)-->(252) Увеличили поле для акцепта списка кодов
 	ArCode        zstring(24)  "@{goodsarcode}";
-	ArCodeOwn     zstring(24)  "Собственный артикул товара";     // @v9.1.11
+	ArCodeOwn     zstring(24)  "Собственный артикул товара";
 	AlcoCatCode   zstring(24)  "@{goodsalcocode}";
 	Quantity      double       format(10.3) "@{qtty}";
 	PhQtty        double       format(10.3) "@{phqtty}";
@@ -7498,6 +7504,9 @@ record BRow {
 	//
 	BillCode      zstring(24)  "@{billno}";
 	BillDate      date         "@{date}";
+	BillOuterCode zstring(24)  "@{rtag_billoutercode}"; // @v12.2.1 транслируется в тег PPTAG_BILL_OUTERCODE
+	BillOuterDate date         "@{rtag_billouterdate}";  // @v12.2.1 транслируется в тег PPTAG_BILL_OUTERDATE
+	BillEdiIdent  zstring(48)  "Идентификатор документа у провайдера EDI"; // @v12.2.1 транслируется в тег PPTAG_BILL_EDIIDENT
 	OpID          long         "@{oprkind_id_amp}";
 	OpSymb        zstring(20)  "@{oprkindsymb}";
 	InvcCode      zstring(24)  "@{bill_invoicecode}";

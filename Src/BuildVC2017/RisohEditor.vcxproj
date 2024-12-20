@@ -169,6 +169,7 @@
       <PrecompiledHeaderFile />
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -224,6 +225,7 @@
       </PrecompiledHeaderFile>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -284,6 +286,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -345,6 +348,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;UNICODE;_UNICODE;MZC4_HANDLE_MAP=1;USE_GLOBALS=1;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_WCSTOK;_SCL_SECURE_NO_WARNINGS;MSVC=1;UNICODE=1;_UNICODE=1;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>

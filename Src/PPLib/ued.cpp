@@ -1800,7 +1800,7 @@ bool SrUedContainer_Base::ReadSingleProp(SStrScan & rScan)
 	SString lingua_buf;
 	rScan.Skip();
 	THROW(rScan.GetXDigits(temp_buf));
-	ued_entry.Ued = temp_buf.ToUInt64();
+	ued_entry.Ued = temp_buf.HexToUInt64();
 	rScan.Skip();
 	if(rScan.GetIdent(temp_buf)) {
 		lingua_buf = temp_buf;
@@ -1822,7 +1822,7 @@ bool SrUedContainer_Base::ReadSingleProp(SStrScan & rScan)
 			}
 		}
 		else if(rScan.GetXDigits(temp_buf)) {
-			uint64 ued = temp_buf.ToUInt64();
+			uint64 ued = temp_buf.HexToUInt64();
 			raw_prop_list.insert(&ued);
 		}
 		else {

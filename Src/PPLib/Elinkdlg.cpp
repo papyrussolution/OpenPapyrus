@@ -31,7 +31,7 @@ int EditELink(PPELink * pLink)
 						}
 					}
 				}
-				setCtrlString(CTL_ELINK_INFO, info_buf); // @v10.7.9 @fix setStaticText-->setCtrlString
+				setCtrlString(CTL_ELINK_INFO, info_buf);
 			}	
 			else if(event.isKeyDown(kbF2)) { // test
 				SString addr;

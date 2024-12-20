@@ -2558,7 +2558,7 @@ int PPObjTSession::GetPacket(PPID id, TSessionPacket * pPack, long options)
 	int    ok = -1;
 	Reference * p_ref = PPRef;
 	pPack->Z();
-	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+	if(PPCheckGetObjPacketID(Obj, id)) {
 		const int  r = Search(id, &pPack->Rec);
 		if(r > 0) {
 			PPCheckInPersonMngr ci_mgr;

@@ -2508,26 +2508,9 @@ EXPORT int GetErrorMessage(char * pMsg, uint bufLen)
 void ProcessError(const char * pProcess)
 {
 	StrError.Z();
-	//char   temp_err_buf[256];
-	//SString temp_buf;
 	SString sys_err_msg;
 	ErrorCode = IEERR_FTP;
 	DWORD code = GetLastError();
-	//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), temp_err_buf, 256, 0);
-	//(temp_buf = pProcess).CatDiv(':', 2).Cat(temp_err_buf);
-	// @v10.3.11 {
 	SSystem::SFormatMessage(code, sys_err_msg);
 	(StrError = pProcess).CatDiv(':', 2).Cat(sys_err_msg);
-	// } @v10.3.11 
-	/* @v10.3.11 (SSystem::SFormatMessage has done it)
-	// Смотрим дополнительное описание ошибки
-	if(code == ERROR_INTERNET_EXTENDED_ERROR) {
-		DWORD size = 256;
-		MEMSZERO(temp_err_buf);
-		code = 0;
-		::InternetGetLastResponseInfo(&code, temp_err_buf, &size);
-		temp_buf.CatDiv(':', 2).Cat(temp_err_buf);
-	}
-	StrError = temp_buf;
-	*/
 }

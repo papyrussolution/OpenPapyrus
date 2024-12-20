@@ -119,16 +119,16 @@ public:
 		doctypMdlpResult                   		 = 200,
 		doctypMdlpQueryKizInfo             		 = 210,
 		doctypMdlpKizInfo                  		 = 211,
-		doctypMdlpRefusalReceiver          		 = 252, // @v10.9.1
-		doctypMdlpMoveOrder                		 = 415, // @v10.9.2
+		doctypMdlpRefusalReceiver          		 = 252,
+		doctypMdlpMoveOrder                		 = 415,
 		doctypMdlpReceiveOrder             		 = 416,
-		doctypMdlpMovePlace                		 = 431, // @v10.8.7 
+		doctypMdlpMovePlace                		 = 431,
 		doctypMdlpMoveUnregisteredOrder          = 441, // @v11.2.0
 		doctypMdlpRetailSale                     = 511, // @v11.0.1
 		doctypMdlpMoveOrderNotification          = 601, // @v11.8.2
 		doctypMdlpReceiveOrderNotification 		 = 602,
 		doctypMdlpAccept                         = 701,
-		doctypMdlpPosting                        = 702, // @v10.9.7
+		doctypMdlpPosting                        = 702,
 		//
 		// Следующие типы определены для интерфейса ГИС МТ. Для них нет заданных внешним сервисом числовых значений
 		//
@@ -232,7 +232,6 @@ public:
 	int    TransmitDocument2(const InitBlock & rIb, const ChZnInterface::Packet & rPack, SString & rReply);
 	int    GetDocumentTicket(const InitBlock & rIb, const char * pDocIdent, SString & rTicket);
 	int    Connect(InitBlock & rIb);
-	// @v10.8.0 int    Connect2(InitBlock & rIb);
 	int    GetToken2(const char * pAuthCode, InitBlock & rIb);
 	int    GetPendingIdentList(const InitBlock & rIb, StringSet & rResult);
 	int    CommitTicket(const char * pPath, const char * pIdent, const char * pTicket);
@@ -482,7 +481,7 @@ DRAFTBEER HORECA @v11.9.4
 				SString raw_buf;
 				{
 					temp_buf = pCode;
-					temp_buf.ShiftLeftChr('\xE8'); // @v10.9.9 Специальный символ. Может присутствовать в начале кода 
+					temp_buf.ShiftLeftChr('\xE8'); // Специальный символ. Может присутствовать в начале кода 
 					// "]C1"
 					// @v11.0.1 {
 					if(temp_buf.HasPrefixIAscii("]C1")) { // Выяснилось, что и такие служебные префиксы встречаются //
@@ -530,12 +529,10 @@ DRAFTBEER HORECA @v11.9.4
 					if(pr != 1 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
 						rS.SetSpecialFixedToken(GtinStruc::fldSerial, 11);
 						pr = rS.Parse(pCode);
-						// @v10.8.2 {
 						/*if(pr != 1 && rS.GetToken(GtinStruc::fldGTIN14, 0)) {
 							rS.SetSpecialFixedToken(GtinStruc::fldSerial, 8);
 							pr = rS.Parse(temp_buf);
 						}*/
-						// } @v10.8.2 
 					}
 				}
 				#endif // } 0
@@ -552,7 +549,6 @@ DRAFTBEER HORECA @v11.9.4
 					}
 				}
 			}
-			// @v10.8.2 {
 			if(!ok && flags & pchzncfPretendEverythingIsOk) {
 				STokenRecognizer tr;
 				SNaturalTokenArray nta;
@@ -562,7 +558,6 @@ DRAFTBEER HORECA @v11.9.4
 				if(nts.Seq & SNTOKSEQ_ASCII && nts.Len >= 25)
 					ok = 100000;
 			}
-			// } @v10.8.2
 		}
 	}
 	return ok;
@@ -642,8 +637,7 @@ DRAFTBEER HORECA @v11.9.4
 			if(result) {
 				for(; result && n < 27 && *p; p++, n++) {
 					const char c = *p;
-					// @v10.9.8 if(!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || oneof14(c, '!', '\"', '%', '&', '\'', '(', ')', '*', '+', '-', ',', '.', '/', '_') || isdec(c)))
-					if(!(isasciialnum(c) || oneof14(c, '!', '\"', '%', '&', '\'', '(', ')', '*', '+', '-', ',', '.', '/', '_'))) // @v10.9.8
+					if(!(isasciialnum(c) || oneof14(c, '!', '\"', '%', '&', '\'', '(', ')', '*', '+', '-', ',', '.', '/', '_')))
 						result = 0;
 				}
 			}
@@ -700,15 +694,15 @@ static const SIntToSymbTabEntry CzDocType_SymbTab[] = {
 	{ 200, "result" },
 	{ 210, "query_kiz_info" },
 	{ 211, "kiz_info" },
-	{ 252, "refusal_receiver" }, // @v10.9.1 
-	{ 415, "move_order" }, // @v10.9.2
+	{ 252, "refusal_receiver" },
+	{ 415, "move_order" },
 	{ 416, "receive_order" },
-	{ 431, "move_place" }, // @v10.8.7 doctypMovePlace
+	{ 431, "move_place" }, // doctypMovePlace
 	{ 441, "move_unregistered_order" }, // @v11.2.0 move_unregistered_order
 	{ 511, "retail_sale" }, // @v11.0.1 
 	{ 602, "receive_order_notification" },
 	{ 701, "accept" },
-	{ 702, "posting" }, // @v10.9.7
+	{ 702, "posting" },
 };
 
 ChZnInterface::DocumentFilt::DocumentFilt() : Flags(0), Folder(docfoldDocs), CountLimit(0), CountOffset(0)
@@ -753,13 +747,13 @@ ChZnInterface::Packet::Packet(int docType) : DocType(docType), Flags(0), P_Data(
 	switch(DocType) {
 		case doctypMdlpResult: P_Data = new OperationResult(); break;
 		case doctypMdlpQueryKizInfo: P_Data = new QueryKizInfo(); break;
-		case doctypMdlpMoveOrder: // @v10.9.2
+		case doctypMdlpMoveOrder:
 		case doctypMdlpReceiveOrder:
-		case doctypMdlpMovePlace: // @v10.8.7 
-		case doctypMdlpRefusalReceiver: // @v10.9.1
-		case doctypMdlpPosting: // @v10.9.7
-		case doctGisMt_LkReceipt: // @v10.9.10
-		case doctGisMt_LpShipReceipt: // @v10.9.10
+		case doctypMdlpMovePlace:
+		case doctypMdlpRefusalReceiver:
+		case doctypMdlpPosting:
+		case doctGisMt_LkReceipt:
+		case doctGisMt_LpShipReceipt:
 			P_Data = new PPBillPacket; 
 			break; 
 		case doctypMdlpRetailSale: // @v11.0.1
@@ -773,13 +767,13 @@ ChZnInterface::Packet::~Packet()
 	switch(DocType) {
 		case doctypMdlpResult: delete static_cast<OperationResult *>(P_Data); break;
 		case doctypMdlpQueryKizInfo: delete static_cast<QueryKizInfo *>(P_Data); break;
-		case doctypMdlpMoveOrder: // @v10.9.2
+		case doctypMdlpMoveOrder:
 		case doctypMdlpReceiveOrder:
-		case doctypMdlpMovePlace: // @v10.8.7 
-		case doctypMdlpRefusalReceiver: // @v10.9.1
-		case doctypMdlpPosting: // @v10.9.7
-		case doctGisMt_LkReceipt: // @v10.9.10
-		case doctGisMt_LpShipReceipt: // @v10.9.10
+		case doctypMdlpMovePlace:
+		case doctypMdlpRefusalReceiver:
+		case doctypMdlpPosting:
+		case doctGisMt_LkReceipt:
+		case doctGisMt_LpShipReceipt:
 			delete static_cast<PPBillPacket *>(P_Data); 
 			break;
 		case doctypMdlpRetailSale: // @v11.0.1
@@ -1290,7 +1284,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 			nh.PutInner("move_document_number", temp_buf);
 			nh.PutInner("move_document_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT));
 			nh.PutInner("turnover_type", "SELLING");
-			nh.PutInner("to_not_participant", "true"); // @v10.9.11 optional признак того, что отгружаем не участнику оборота чезн
+			nh.PutInner("to_not_participant", "true"); // optional признак того, что отгружаем не участнику оборота чезн
 			nh.PutInner("withdrawal_type", "NO_RETAIL_USE"); // optional
 			nh.PutInner("withdrawal_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT)); // optional
 			// nh.PutInner("st_contract_id", ""); // optional
@@ -1336,7 +1330,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 	else {
 		SXml::WNode wdocs(rX, "documents");
 		wdocs.PutAttrib("session_ui", rIb.Token);
-		wdocs.PutAttrib("version", "1.35"); // @v10.9.9 "1.34"-->"1.35"
+		wdocs.PutAttrib("version", "1.35");
 		wdocs.PutAttrib(SXml::nst_xmlns("xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
 		{
 			SIntToSymbTab_GetSymb(CzDocType_SymbTab, SIZEOFARRAY(CzDocType_SymbTab), pPack->DocType, temp_buf);
@@ -1468,7 +1462,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					}
 				}
 			}
-			else if(pPack->DocType == doctypMdlpMoveOrder) { // @v10.9.2
+			else if(pPack->DocType == doctypMdlpMoveOrder) {
 				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
 				if(p_bp) {
 					const  PPID   rcvr_ar_id = p_bp->Rec.Object;
@@ -1598,7 +1592,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					}
 				}
 			}
-			else if(pPack->DocType == doctypMdlpRefusalReceiver) { // @v10.9.1
+			else if(pPack->DocType == doctypMdlpRefusalReceiver) {
 				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
 				if(p_bp) {
 					const  PPID   dlvr_ar_id = p_bp->Rec.Object;
@@ -1878,7 +1872,7 @@ SString & ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const
 		case qDocOutcome: 
 			if(rIb.ProtocolId == InitBlock::protidMdlp)
 				rResult.Cat("documents/outcome"); 
-			else if(rIb.ProtocolId == InitBlock::protidGisMt) { // @v10.9.9
+			else if(rIb.ProtocolId == InitBlock::protidGisMt) {
 				rResult.Cat("api/v3/lk/documents/create");
 			}
 			else {
@@ -1922,7 +1916,7 @@ SString & ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const
 		case qDocumentSend: 
 			if(rIb.ProtocolId == InitBlock::protidMdlp)
 				rResult.Cat("documents/send"); 
-			else if(rIb.ProtocolId == InitBlock::protidGisMt) { // @v10.9.10
+			else if(rIb.ProtocolId == InitBlock::protidGisMt) {
 				rResult.Cat("api/v3/lk/documents/create");
 			}
 			break;
@@ -1996,7 +1990,7 @@ int ChZnInterface::MakeDocumentRequest(const InitBlock & rIb, const ChZnInterfac
 	SJson * p_json_req = 0;
 	THROW(GetSign(rIb, pData, dataLen, code_sign));
 	data_base64_buf.EncodeMime64(pData, dataLen);
-	if(rIb.ProtocolId == rIb.protidGisMt) { // @v10.9.9
+	if(rIb.ProtocolId == rIb.protidGisMt) {
 		/*
 			{ 
 				"document_format": "string", 
@@ -3455,7 +3449,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 				if((!rP.LocID || bill_rec.LocID == rP.LocID) && p_bobj->CheckStatusFlag(bill_rec.StatusID, BILSTF_READYFOREDIACK)) {
 					if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, PPTAG_BILL_EDIIDENT, edi_ident) <= 0) { // если тег установлен, то док уже был передан
 						int    suited = 0;
-						if(oneof2(chzn_op_id, ChZnInterface::doctGisMt_LkReceipt, ChZnInterface::doctGisMt_LpShipReceipt)) { // @v10.9.10
+						if(oneof2(chzn_op_id, ChZnInterface::doctGisMt_LkReceipt, ChZnInterface::doctGisMt_LpShipReceipt)) {
 							assert(bill_rec.OpID == op_id);
 							THROW_SL(p_pack = new ChZnInterface::Packet(chzn_op_id));
 							if(PrepareBillPacketForSending(bill_rec.ID, p_pack) > 0)

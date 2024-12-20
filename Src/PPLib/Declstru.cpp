@@ -122,7 +122,7 @@ public:
 	struct Param {
 		Param() : MailAccID(0), Flags(0), DestPersonID(0)
 		{
-			PTR32(DestAddr)[0] = 0;
+			DestAddr[0] = 0;
 		}
 		enum {
 			fRemoveSrcFiles = 0x0001 // После успешной передачи удалить исходные файлы

@@ -4812,8 +4812,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 							}
 							break;
 						case cArticle:
-							// @v8.9.0 THROW(ResolveCrit_ArByPerson(subcriterion, rArg, GetSupplAccSheet(), &(temp_id = 0)))
-							THROW(ResolveCrit_Article(subcriterion, rArg, &(temp_id = 0))) // @v8.9.0
+							THROW(ResolveCrit_Article(subcriterion, rArg, &(temp_id = 0)));
 							P_BillF->ObjectID = temp_id;
 							break;
 						case cCurrency:
@@ -4912,8 +4911,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 							THROW_PP_S(r > 0, PPERR_CMDSEL_UNIDENTLOC, rArg);
 							break;
 						case cArticle:
-							// @v8.9.0 THROW(ResolveCrit_ArByPerson(subcriterion, rArg, GetSupplAccSheet(), &(temp_id = 0)));
-							THROW(ResolveCrit_Article(subcriterion, rArg, &(temp_id = 0))); // @v8.9.0
+							THROW(ResolveCrit_Article(subcriterion, rArg, &(temp_id = 0)));
 							P_SetBlk->U.B.ArID = temp_id;
 							break;
 						case cDlvrLoc:

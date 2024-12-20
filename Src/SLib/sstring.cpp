@@ -2423,10 +2423,7 @@ bool SString::Helper_IsEqiAscii(const char * pS, size_t slen) const
 	return true;
 }
 
-bool FASTCALL SString::IsEqiAscii(const char * pS) const // @v10.3.5 int-->bool
-{
-	return Helper_IsEqiAscii(pS, sstrlen(pS));
-}
+bool FASTCALL SString::IsEqiAscii(const char * pS) const { return Helper_IsEqiAscii(pS, sstrlen(pS)); }
 
 bool FASTCALL SString::IsEqiUtf8(const char * pS) const
 {
@@ -3952,7 +3949,8 @@ int64 FASTCALL satoi64(const wchar_t * pT)
 
 long  SString::ToLong() const { return (L > 1) ? satoi(P_Buf) : 0; }
 int64 SString::ToInt64() const { return (L > 1) ? satoi64(P_Buf) : 0; }
-uint64 SString::ToUInt64() const { return (L > 1) ? sxtou64(P_Buf) : 0; }
+uint64 SString::ToUInt64() const { return (L > 1) ? satou64(P_Buf) : 0; } // @v12.2.1 @fix sxtou64-->satou64
+uint64 SString::HexToUInt64() const { return (L > 1) ? sxtou64(P_Buf) : 0; } // @v12.2.1
 
 double SString::ToReal() const
 {

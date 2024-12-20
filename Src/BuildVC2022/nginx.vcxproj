@@ -260,6 +260,7 @@
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <CompileAs>CompileAsCpp</CompileAs>
       <CompileAsManaged>false</CompileAsManaged>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -374,6 +375,7 @@
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <CompileAs>CompileAsCpp</CompileAs>
       <CompileAsManaged>false</CompileAsManaged>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -498,6 +500,7 @@
       <EnableModules>false</EnableModules>
       <CompileAs>CompileAsCpp</CompileAs>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>
@@ -634,6 +637,7 @@
       <EnableModules>false</EnableModules>
       <CompileAs>CompileAsCpp</CompileAs>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>$(ProjectDir)..\..\ppy\bin\$(TargetName)$(TargetExt)</OutputFile>

@@ -453,14 +453,12 @@ int FASTCALL GCTIterator::CheckBillForFilt(const BillTbl::Rec & rBillRec) const
 		return 0;
 	else if(!Period.CheckDate(rBillRec.Dt))
 		return 0;
-	else if(!Filt.DueDatePeriod.CheckDate(rBillRec.DueDate)) // @v10.0.04
+	else if(!Filt.DueDatePeriod.CheckDate(rBillRec.DueDate))
 		return 0;
 	else if(!OpList.CheckID(rBillRec.OpID))
 		return 0;
-	// @v10.1.10 {
 	else if(Filt.Flags & OPG_OPENEDDRAFTONLY && IsDraftOp(rBillRec.OpID) && (rBillRec.Flags & BILLF_WRITEDOFF))
 		return 0;
-	// } @v10.1.10
 	else if(!soft_restr && !ArList.CheckID(rBillRec.Object))
 		return 0;
 	else if(!Filt.BillList.CheckID(rBillRec.ID))
@@ -578,7 +576,7 @@ int GCTIterator::InitQuery(int cpMode)
 			}
 			dbq = ppcheckfiltidlist(dbq, rt->LocID, &Filt.LocList.Get());
 			dbq = ppcheckfiltidlist(dbq, rt->BillID, &Filt.BillList.Get());
-			THROW_MEM(rcpt_q = new BExtQuery(rt, idx, 1024)); // @v10.9.9 64-->1024
+			THROW_MEM(rcpt_q = new BExtQuery(rt, idx, 1024));
 			rcpt_q->select(rt->ID, rt->GoodsID, 0L).where(*dbq);
 			k.dt    = ZERODATE;
 			k.oprno = 0;
@@ -634,7 +632,7 @@ int GCTIterator::InitQuery(int cpMode)
 					k3.Dt = Period.low;
 					BExtQuery q(p_bt, 3, 256);
 					q.select(p_bt->ID, p_bt->Code, p_bt->Dt, p_bt->DueDate, p_bt->OpID, p_bt->Object, p_bt->Flags, p_bt->LocID, 0L).
-						where(p_bt->Object == ar_id && daterange(p_bt->Dt, &Period) && daterange(p_bt->DueDate, &Filt.DueDatePeriod)); // @v10.0.04 DueDate
+						where(p_bt->Object == ar_id && daterange(p_bt->Dt, &Period) && daterange(p_bt->DueDate, &Filt.DueDatePeriod));
 					for(q.initIteration(false, &k3, spGe); q.nextIteration() > 0;) {
 						if(CheckBillForFilt(p_bt->data)) {
 							BillList.add(p_bt->data.ID);
@@ -1012,7 +1010,7 @@ int GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec,
 		dbq = &(*dbq && p_tfr->GoodsID >= GoodsArray.get(0) && p_tfr->GoodsID <= GoodsArray.getLast());
 	}
 	dbq = ppcheckfiltidlist(dbq, p_tfr->LocID, &Filt.LocList.Get());
-	BExtQuery * q = new BExtQuery(p_tfr, idx, 384); // @v10.9.9 256--384
+	BExtQuery * q = new BExtQuery(p_tfr, idx, 384);
 	if(q == 0)
 		return PPSetErrorNoMem();
 	if(opt_for_psales) {

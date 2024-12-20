@@ -341,8 +341,7 @@ TreeWindow::~TreeWindow()
 				TView::SetWindowProp(hWnd, GWLP_USERDATA, lParam);
 				HWND   h_tv = GetDlgItem(hWnd, MENU_TREELIST);
 				if(h_tv) {
-					// @v10.7.8 TreeView_SetBkColor(h_tv, /*GetGrayColorRef(0.8f)*/RGB(0xdd, 0xf3, 0xf5));
-					TreeView_SetBkColor(h_tv, RGB(0xdd, 0xf3, 0xf5)); // @v10.7.8
+					TreeView_SetBkColor(h_tv, RGB(0xdd, 0xf3, 0xf5));
 				}
 			}
  			break;

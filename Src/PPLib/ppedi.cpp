@@ -269,7 +269,6 @@ int GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, uint *
 			}
 		}
 	}
-	// @v10.7.7 {
 	if(oneof5(prefix_id, GtinStruc::fldManufDate, GtinStruc::fldExpiryPeriod, GtinStruc::fldPackDate, GtinStruc::fldBestBeforeDate, GtinStruc::fldExpiryDate)) {
 		// 6 digits
 		int   false_prefix = 0;
@@ -286,7 +285,6 @@ int GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, uint *
 			prefix_len = 0;
 		}
 	}
-	// } @v10.7.7 
 	ASSIGN_PTR(pPrefixLen, prefix_len);
 	return prefix_id;
 }
@@ -299,8 +297,8 @@ void GtinStruc::AddOnlyToken(int token)
 
 void GtinStruc::SetSpecialFixedToken(int token, int fixedLen)
 {
-	if(fixedLen == 1000 || checkirange(fixedLen, 1, 50) && SIntToSymbTab_HasId(GtinPrefix, SIZEOFARRAY(GtinPrefix), token)) { // @v10.9.0 30-->50
-		SpecialFixedTokens.Remove(token, 0); // @v10.7.12
+	if(fixedLen == 1000 || checkirange(fixedLen, 1, 50) && SIntToSymbTab_HasId(GtinPrefix, SIZEOFARRAY(GtinPrefix), token)) {
+		SpecialFixedTokens.Remove(token, 0);
 		SpecialFixedTokens.AddUnique(token, fixedLen, 0, 0);
 	}
 }
@@ -6972,8 +6970,9 @@ int PPEdiProcessor::SendRECADV(const PPBillIterchangeFilt & rP, const PPIDArray 
 							DocumentInfo di;
 							if(SendDocument(&di, pack) > 0) {
 								ObjTagItem tag_item;
-								if(tag_item.SetStr(PPTAG_BILL_EDIACK, temp_buf.Z().Cat(di.Uuid, S_GUID::fmtIDL)))
+								if(tag_item.SetStr(PPTAG_BILL_EDIACK, temp_buf.Z().Cat(di.Uuid, S_GUID::fmtIDL))) {
 									THROW(p_ref->Ot.PutTag(PPOBJ_BILL, bill_id, &tag_item, 0));
+								}
 								if(p_recadv_pack->RBp.Rec.ID && di.SId.NotEmpty()) {
 									if(tag_item.SetStr(PPTAG_BILL_EDIIDENT, di.SId))
 										THROW(p_ref->Ot.PutTag(PPOBJ_BILL, p_recadv_pack->RBp.Rec.ID, &tag_item, 0));

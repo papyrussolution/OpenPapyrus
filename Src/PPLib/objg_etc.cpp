@@ -776,7 +776,7 @@ int PPObjGoodsValRestr::GetPacket(PPID id, PPGoodsValRestrPacket * pPack)
 {
 	int    ok = -1;
 	PPGoodsValRestrPacket pack;
-	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+	if(PPCheckGetObjPacketID(Obj, id)) {
 		ok = Search(id, &pack.Rec);
 		if(ok > 0) {
 			SString text;

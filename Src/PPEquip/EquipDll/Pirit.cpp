@@ -1,5 +1,5 @@
 // Dll для работы с ККМ Пирит
-// @codepage UTF-8 // @v10.4.6
+// @codepage UTF-8
 //
 #pragma hdrstop
 #include <ppdrvapi.h>
@@ -17,8 +17,6 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 
 #define EXPORT	extern "C" __declspec(dllexport)
 #define THROWERR(expr,val)     {if(!(expr)){SetError(val);goto __scatch;}}
-
-//typedef uchar  uint8;
 
 static int ErrorCode = 0;
 static constexpr char FS = 0x1C;
@@ -177,13 +175,13 @@ struct CheckStruct {
 	// 4 	Единый сельскохозяйственный налог
 	// 5 	Патентная система налогообложения
 	//
-	int    TaxSys;       // @v10.6.3 Система налогообложения
+	int    TaxSys;       // Система налогообложения
 	int    Tax;          //
-	int    Ptt;          // @v10.4.1 // CCheckPacket::PaymentTermTag
+	int    Ptt;          // CCheckPacket::PaymentTermTag
 	int    Stt;          // @erik v10.4.12
 	int    UomId;        // @v11.9.5 Ид единицы измерения (SUOM_XXX)
 	int    UomFragm;     // @v11.2.5 Фрагментация единицы измерения //
-	int    ChZnProdType; // @v10.7.2
+	int    ChZnProdType; //
 	double PaymCash;
 	double PaymBank;
 	double PaymCCrdCard;
@@ -195,11 +193,11 @@ struct CheckStruct {
 	LDATETIME Timestamp; // @v11.2.3 Дата и время чека
 	SString Text;
 	SString Code;        //
-	SString ChZnCode;    // @v10.6.12
-	SString ChZnGTIN;    // @v10.7.2
-	SString ChZnSerial;  // @v10.7.2
-	SString ChZnPartN;   // @v10.7.8
-	SString ChZnSid;     // @v10.8.12 Ид предприятия для передачи в честный знак
+	SString ChZnCode;    //
+	SString ChZnGTIN;    //
+	SString ChZnSerial;  //
+	SString ChZnPartN;   //
+	SString ChZnSid;     // Ид предприятия для передачи в честный знак
 	SString DraftBeerSimplifiedCode; // @v11.9.4 Код для упрощенного списания chzn-марки разливного пива для horeca
 	SString BuyersEmail; // @v11.3.6
 	SString BuyersPhone; // @v11.3.6
@@ -214,7 +212,7 @@ public:
 	~PiritEquip();
 	int    RunOneCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize);
 	int    SetConnection();
-	int    CloseConnection();
+	void   CloseConnection();
 	int    SetCfg();
 	SString & LastErrorText(SString & rMsg);
 	int    NotEnoughBuf(SString & rStr);
@@ -363,7 +361,6 @@ private:
 	//
 	int    GetTaxTab();
 	int    IdentifyTaxEntry(double vatRate, int isVatFree) const;
-	// @v10.4.6 void   GetLastCmdName(SString & rName) const;
 	void   SetLastItems(const char * pCmd, const char * pParam);
 	int    ReadConfigTab(int arg1, int arg2, SString & rOut, SString & rError);
 	int    WriteConfigTab(int arg1, int arg2, int val, SString & rOut, SString & rError);
@@ -601,7 +598,7 @@ int PiritEquip::IdentifyTaxEntry(double vatRate, int isVatFree) const
 		uint   zero_entry_1 = 0;
 		uint   zero_entry_2 = 0;
 		for(uint tidx = 0; tidx < SIZEOFARRAY(DvcTaxArray); tidx++) {
-			if(DvcTaxArray[tidx].Name[0] || tidx == 3) { // @v10.0.0 (|| tidx == 3) костыль - это "освобожден от ндс" в трактовке Дрим Касс
+			if(DvcTaxArray[tidx].Name[0] || tidx == 3) { // (|| tidx == 3) костыль - это "освобожден от ндс" в трактовке Дрим Кас
 				const double entry_rate = DvcTaxArray[tidx].Rate;
 				if(entry_rate == 0.0 && _vat_rate == 0.0) {
 					if(!zero_entry_1) {
@@ -637,7 +634,7 @@ int PiritEquip::IdentifyTaxEntry(double vatRate, int isVatFree) const
 				//
 				// Не нашли в таблице того, чего искали: включаем default-вариант, основанный на документации к драйверу
 				//
-				if(_vat_rate == 18.0 || _vat_rate == 20.0) { // @v10.2.10 (|| _vat_rate == 20.0)
+				if(_vat_rate == 18.0 || _vat_rate == 20.0) {
 					tax_entry_n = 0;
 					tax_entry_id_result = 1;
 				}
@@ -645,6 +642,14 @@ int PiritEquip::IdentifyTaxEntry(double vatRate, int isVatFree) const
 					tax_entry_n = 1;
 					tax_entry_id_result = 2;
 				}
+				// @v12.2.1 {
+				else if(_vat_rate == 7.0) {
+					tax_entry_n = 7;
+				}
+				else if(_vat_rate == 5.0) {
+					tax_entry_n = 6;
+				}
+				// } @v12.2.1 
 				else if(_vat_rate == 0.0) {
 					if(!isVatFree) {
 						tax_entry_n = 2;
@@ -723,10 +728,6 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			int    flag = 0;
 			THROWERR(SetConnection(), PIRIT_NOTCONNECTED);
 			THROW(GetCurFlags(2, flag));
-			// @v10.2.5 THROWERR(!(flag & 0x0010), PIRIT_ECRARCHOPENED); // Архив ЭКЛЗ закрыт
-			// @v10.2.5 THROWERR(!(flag & 0x0020), PIRIT_ECRNOTACTIVE); // ЭКЛЗ не активирована
-			// @v10.2.3 THROWERR(!(flag & 0x0080), PIRIT_ERRFMPASS); // Был введен неверный пароль доступа к ФП
-			// @v10.4.1 THROWERR(!(flag & 0x0100), PIRIT_SESSOPENEDTRYAGAIN); // Не было завершено закрытие смены, необходимо повторить операцию
 			GetTaxTab();
 		}
 		else if(cmd.IsEqiAscii("CHECKSESSOVER")){
@@ -737,7 +738,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		}
 		else if(cmd.IsEqiAscii("DISCONNECT")) {
 			SetLastItems(0, 0);
-			THROW(CloseConnection())
+			CloseConnection();
 		}
 		else if(cmd.IsEqiAscii("SETCONFIG")) {
 			SetLastItems(0, 0);
@@ -1134,7 +1135,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			CreateStr(CshrName, str);
 			THROW(ExecCmd("20", str, out_data, r_error));
 		}
-		else if(cmd.IsEqiAscii("CUT")) { // @v10.2.2
+		else if(cmd.IsEqiAscii("CUT")) {
 			SetLastItems(cmd, pInputData);
 			THROW(ExecCmd("34", str, out_data, r_error));
 		}
@@ -1245,8 +1246,8 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					case /*TAXSYSK_PATENT*/3: Check.TaxSys = 5; break;
 					case /*TAXSYSK_IMPUTED*/4: Check.TaxSys = 3; break;
 					case /*TAXSYSK_SINGLEAGRICULT*/5: Check.TaxSys = 4; break;
-					case /*TAXSYSK_SIMPLIFIED_PROFIT*/6: Check.TaxSys = 2; break; // @v10.6.4
-					default: Check.TaxSys = -1; break; // @v10.6.4 0-->-1
+					case /*TAXSYSK_SIMPLIFIED_PROFIT*/6: Check.TaxSys = 2; break;
+					default: Check.TaxSys = -1; break;
 				}
 			}
 			// @v11.1.9 {
@@ -1277,17 +1278,16 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		}
 		else if(cmd.IsEqiAscii("CLOSECHECK")) {
 			SetLastItems(cmd, pInputData);
-			// @v10.1.2 THROW(StartWork());
 			Check.PaymCash = 0.0;
 			Check.PaymBank = 0.0;
-			Check.PaymCCrdCard = 0.0; // @v10.4.6
+			Check.PaymCCrdCard = 0.0;
 			if(pb.Get("PAYMCASH", param_val) > 0)
 				Check.PaymCash = param_val.ToReal();
 			if(pb.Get("PAYMCARD", param_val) > 0)
 				Check.PaymBank = param_val.ToReal();
-			if(pb.Get("PAYMCCRD", param_val) > 0) // @v10.4.6
+			if(pb.Get("PAYMCCRD", param_val) > 0)
 				Check.PaymCCrdCard = param_val.ToReal();
-			if(pb.Get("CHZNSID", param_val) > 0) // @v10.8.12
+			if(pb.Get("CHZNSID", param_val) > 0)
 				Check.ChZnSid = param_val;
 			// @v11.3.6 {
 			if(pb.Get("BUYERSPHONE", param_val) > 0)
@@ -1297,7 +1297,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			// } @v11.3.6 
 			THROW(RunCheck(1));
 		}
-		else if(cmd.IsEqiAscii("CHECKCORRECTION")) { // @v10.0.0
+		else if(cmd.IsEqiAscii("CHECKCORRECTION")) {
 			struct CheckCorrectionBlock {
 				CheckCorrectionBlock()
 				{
@@ -1314,7 +1314,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				LDATE  Dt;
 				char   DocNo[32];
 				char   DocMemo[64];
-				double Vat20Amt; // @v10.4.8
+				double Vat20Amt;
 				double Vat18Amt;
 				double Vat10Amt;
 				double Vat0Amt;
@@ -1461,11 +1461,11 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					CreateStr(fabs(blk.Vat18_118Amt), in_data);
 					CreateStr(fabs(blk.Vat10_110Amt), in_data);
 				}
-				CreateStr("", in_data); // @v10.4.8 Дополнительный реквизит чека (БСО)
+				CreateStr("", in_data); // Дополнительный реквизит чека (БСО)
 				//
 				{
 					// 19/06/2019 11:51:02	58	start	Master197850000211061900001возврат нал. от 28/03300000
-					OpLogBlock __oplb(LogFileName, "58", in_data); // @v10.4.10
+					OpLogBlock __oplb(LogFileName, "58", in_data);
 					THROW(ExecCmd("58", in_data, out_data, r_error));
 				}
 			}
@@ -1806,7 +1806,7 @@ SString & PiritEquip::LastErrorText(SString & rMsg)
 			rMsg.Space();
 		rMsg.CatEq("ErrCode", LastError);
 	}
-	rMsg.Transf(CTRANSF_UTF8_TO_OUTER); // @v10.4.6
+	rMsg.Transf(CTRANSF_UTF8_TO_OUTER);
 	return rMsg;
 }
 
@@ -1830,8 +1830,6 @@ int PiritEquip::ENQ_ACK()
 	do {
 		CommPort.PutChr(CHR_ENQ); // Проверка связи с ККМ
 		int r = CommPort.GetChr();
-		// @debug @v10.1.5 if(r == ACK || r == 0x30 || r == 0x34) // @v10.1.5 (|| r == 0x30 || r == 0x34)
-		// @debug if(r > 0) { // @v10.1.5
 		if(r == CHR_ACK) {
 			return 1;
 		}
@@ -1895,8 +1893,6 @@ int PiritEquip::SetConnection()
 			CALLEXCEPT();
 		}
 	}
-	// @v9.5.7 delay(200);
-	//SDelay(100); // @v10.0.14
 	if((Cfg.ReadCycleCount > 0) || (Cfg.ReadCycleDelay > 0))
 		CommPort.SetReadCyclingParams(Cfg.ReadCycleCount, Cfg.ReadCycleDelay);
 	THROW(ENQ_ACK());
@@ -1906,7 +1902,7 @@ int PiritEquip::SetConnection()
 		SLS.LogMessage(LogFileName, msg_buf, 8192);
 	}
 	CATCH
-		CommPort.ClosePort(); // @v10.0.02
+		CommPort.ClosePort();
 		if(LogFileName.NotEmpty()) {
 			SString msg_buf;
 			(msg_buf = "Error on connection").CatDiv(':', 2).CatEq("cbr", port_params.Cbr);
@@ -1917,12 +1913,9 @@ int PiritEquip::SetConnection()
 	return ok;
 }
 
-int PiritEquip::CloseConnection()
+void PiritEquip::CloseConnection()
 {
-	/*if(H_Port != INVALID_HANDLE_VALUE)
-		CloseHandle(H_Port);*/
-	CommPort.ClosePort(); // @v10.0.02
-	return 1;
+	CommPort.ClosePort();
 }
 
 int PiritEquip::ReadConfigTab(int arg1, int arg2, SString & rOut, SString & rError)
@@ -1961,7 +1954,7 @@ int PiritEquip::GetTaxTab()
 	//SString raw_tax_val;
 	SString temp_buf;
 	SString log_buf;
-	for(int i = 0; i < 6; i++) { // В пирите не более 6 налоговых ставок // @v10.1.2 (i < 5)-->(i < 6)
+	for(int i = 0; i < 6; i++) { // В пирите не более 6 налоговых ставок
 		MEMSZERO(DvcTaxArray[i]);
 		//raw_tax_val.Z();
 		//in_data.Z();
@@ -2026,30 +2019,6 @@ int PiritEquip::SetCfg()
 	}
 	// } @v11.5.0 
 	THROW(WriteConfigTab(10, 0, static_cast<int>(Cfg.LogNum), out_data, r_error));
-	{
-#if 0 // @v10.0.0 {
-		int    flag = 0;
-		// Нумерация чеков ККМ
-		/*
-		in_data.Z();
-		CreateStr(2, in_data);
-		CreateStr(0, in_data);
-		THROW(ExecCmd("11", in_data, out_data, r_error)); // Получаем параметры чека
-		*/
-		THROW(ReadConfigTab(2, 0, out_data, r_error));
-		flag = out_data.ToLong();
-		flag &= ~128; // Устанавливаем бит нумерации чеков ККМ
-		//
-		/*
-		in_data.Z();
-		CreateStr(2, in_data);
-		CreateStr(0, in_data);
-		CreateStr(flag, in_data);
-		THROW(ExecCmd("12", in_data, out_data, r_error));
-		*/
-		THROW(WriteConfigTab(2, 0, flag, out_data, r_error));
-#endif // } 0 @v10.0.0
-	}
 	// Получаем номер текущей сессии
 	CreateStr(1, in_data);
 	{
@@ -2063,8 +2032,6 @@ int PiritEquip::SetCfg()
 			SessID = out_data.ToLong();
 		}
 	}
-	// Установка/снятие флага печати логотипа
-	// @v10.2.5 THROW(PrintLogo((Cfg.Logo.Print == 1) ? 1 : 0))
 	CATCHZOK
 	return ok;
 }
@@ -2117,7 +2084,7 @@ int PiritEquip::StartWork(bool force)
 
 int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 {
-	const  uint max_tries = 3; // @v10.1.00 10-->3
+	const  uint max_tries = 3;
 	int    ok = 1;
 	SString out_data;
 	SString r_error;
@@ -2373,7 +2340,7 @@ int PiritEquip::RunCheck(int opertype)
 					}
 					in_data.Z();
 					if(Check.PaymCCrdCard != 0) {
-						CreateStr(13, in_data); // Тип оплаты // @v10.4.9 14-->13
+						CreateStr(13, in_data); // Тип оплаты //
 						FormatPaym(Check.PaymCCrdCard, str);
 						CreateStr(str, in_data);
 						CreateStr("", in_data);
@@ -2403,7 +2370,7 @@ int PiritEquip::RunCheck(int opertype)
 				else // } // @v11.3.6
 					CreateStr("", in_data); 
 				// } 
-				CreateStr(static_cast<int>(0), in_data); // @v10.1.9 (число) Разные флаги
+				CreateStr(static_cast<int>(0), in_data); // (число) Разные флаги
 				CreateStr("", in_data); // Зарезервировано
 				CreateStr("", in_data); // Зарезервировано
 				CreateStr("", in_data); // Зарезервировано
@@ -2417,7 +2384,7 @@ int PiritEquip::RunCheck(int opertype)
 					}
 				}
 				THROW(ExecCmd("31", in_data, out_data, r_error));
-				// gcf_result = GetCurFlags(3, flag); // @v10.2.10 @debug
+				// gcf_result = GetCurFlags(3, flag); // @debug
 			}
 			// new {
 			else {
@@ -2595,18 +2562,18 @@ int PiritEquip::RunCheck(int opertype)
 				else if(Check.ChZnGTIN.NotEmpty() && (Check.ChZnSerial.NotEmpty() || Check.ChZnPartN.NotEmpty())) {
 					in_data.Z();
 					switch(Check.ChZnProdType) {
-						case 1: product_type_bytes = 0x5246; break; // GTCHZNPT_FUR @v10.8.11 0x0002-->0x5246
-						case 2: product_type_bytes = 0x444D; break; // GTCHZNPT_TOBACCO @v10.8.11 0x0005-->0x444D
+						case 1: product_type_bytes = 0x5246; break; // GTCHZNPT_FUR 
+						case 2: product_type_bytes = 0x444D; break; // GTCHZNPT_TOBACCO
 						case 11: product_type_bytes = 0x444D; break; // @v11.9.0 GTCHZNPT_ALTTOBACCO
-						case 3: product_type_bytes = 0x444D; break; // GTCHZNPT_SHOE @v10.8.11 0x1520-->0x444D
-						case 4: product_type_bytes = 0x444D; break; // GTCHZNPT_MEDICINE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D
-						case 5: product_type_bytes = 0x444D; break; // @v10.9.7 GTCHZNPT_CARTIRE @v10.8.7 0x0003-->0x450D // @v10.8.9 0x450D-->0x444D
+						case 3: product_type_bytes = 0x444D; break; // GTCHZNPT_SHOE
+						case 4: product_type_bytes = 0x444D; break; // GTCHZNPT_MEDICINE
+						case 5: product_type_bytes = 0x444D; break; // GTCHZNPT_CARTIRE
 						case 12: product_type_bytes = 0x444D; break; // @v11.9.4 GTCHZNPT_DRAFTBEER
 						case 1012: product_type_bytes = 0x444D; break; // @v11.9.4 GTCHZNPT_DRAFTBEER_AWR
 						case 14: product_type_bytes = 0x444D; break; // @v12.0.3 GTCHZNPT_BEER
 						default: product_type_bytes = 0x444D; break; // @v11.0.5
 					}
-					const char * p_serial = Check.ChZnSerial.NotEmpty() ? Check.ChZnSerial.cptr() : Check.ChZnPartN.cptr(); // @v10.7.8
+					const char * p_serial = Check.ChZnSerial.NotEmpty() ? Check.ChZnSerial.cptr() : Check.ChZnPartN.cptr();
 					int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, p_serial, chzn_1162_bytes, sizeof(chzn_1162_bytes));
 					if(rl > 0) {
 						PreprocessChZnCodeResult pczcr;
@@ -2955,12 +2922,10 @@ int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t 
 			THROW(ExecCmd("03", in_data, out_data, r_error));
 			{
 				StringSet dataset(FS, out_data);
-				// @v10.1.6 {
 				if(LogFileName.NotEmpty()) {
 					(str = "AMOUNT (Cmd=03 Arg=1)").CatDiv(':', 2).Cat(out_data);
 					SLS.LogMessage(LogFileName, str, 8192);
 				}
-				// } @v10.1.6
 				uint k = 0;
 				dataset.get(&k, str); // Номер запроса
 				dataset.get(&k, str);
@@ -2972,12 +2937,10 @@ int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t 
 			THROW(ExecCmd("03", in_data, out_data, r_error));
 			{
 				StringSet dataset(FS, out_data);
-				// @v10.1.5 {
 				if(LogFileName.NotEmpty()) {
 					(str = "CHECKNUM (Cmd=03 Arg=2)").CatDiv(':', 2).Cat(out_data);
 					SLS.LogMessage(LogFileName, str, 8192);
 				}
-				// } @v10.1.5
 				uint   k = 0;
 				// Возвращаемые значения (в порядке следования в буфере ответа) {
 				int    cc_type = 0; // Тип чека
@@ -3016,7 +2979,7 @@ int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t 
 				else if(!potential_cc_number1.IsDec() && potential_cc_number2.IsDec())
 					cc_number = potential_cc_number2.ToLong();
 				// } @v11.3.3 
-				if(cc_number == 18 || cc_number < 0) // @v10.1.9 Костыль: Некоторые аппараты всегда возвращают 18-й номер чека. Трактуем это как 0.
+				if(cc_number == 18 || cc_number < 0) // Костыль: Некоторые аппараты всегда возвращают 18-й номер чека. Трактуем это как 0.
 					cc_number = 0;
 				s_output.CatEq("CHECKNUM", cc_number).Semicol();
 			}

@@ -475,7 +475,6 @@ int TToolbar::SetupToolbarWnd(DWORD style, const ToolbarList * pList)
 					btns.idCommand = item.KeyCode;
 					btns.dwData  = reinterpret_cast<DWORD_PTR>(item.ToolTipText);
 					btns.fsStyle = TBSTYLE_BUTTON;
-					// @v10.9.1 oneof2(item.KeyCode, cmEventsForCurrentUser, cmOpenTextFile) костыль, предотвращающий блокировку команд, которых нет в меню
 					if(!h_menu || oneof2(item.KeyCode, cmEventsForCurrentUser, cmOpenTextFile) || isFindMenuID(item.KeyCode, h_menu))
 						btns.fsState |= TBSTATE_ENABLED;
 					prev_separator = 0;
@@ -685,10 +684,8 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb) : P_Toolbar(pTb), hI
 		ListView_SetImageList(H_List, hImages, LVSIL_SMALL);
 		for(uint i = 0; i < cnt; i++) {
 			TBBUTTON tb;
-			// @v10.3.9 char   temp_buf[128];
-			// @v10.3.9 char   div_text_buf[128];
-			TCHAR  temp_buf[256]; // @v10.3.9
-			TCHAR  div_text_buf[128]; // @v10.3.9
+			TCHAR  temp_buf[256];
+			TCHAR  div_text_buf[128];
 			int    ret = static_cast<int>(::SendMessageW(P_Toolbar->H_Toolbar, TB_GETBUTTON, i, reinterpret_cast<LPARAM>(&tb)));
 			P_Buttons[i] = tb;
 			lvi.iItem = i;
@@ -708,8 +705,7 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb) : P_Toolbar(pTb), hI
 				str_buf.Quot('-', '-');
 				str_buf.Quot('-', '-');
 				str_buf.Quot('-', '-');
-				// @v10.3.10 str_buf.CopyTo(div_text_buf, SIZEOFARRAY(div_text_buf));
-				STRNSCPY(div_text_buf, SUcSwitch(str_buf)); // @v10.3.10 
+				STRNSCPY(div_text_buf, SUcSwitch(str_buf));
 				lvi.pszText = div_text_buf; // @unicodeproblem
 			}
 			lvi.lParam = i;

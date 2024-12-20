@@ -936,7 +936,6 @@ int BrowserWindow::ChangeResource(uint resID, SArray * pAry, int force)
 
 BrowserWindow::~BrowserWindow()
 {
-	// @v10.9.11 CALLPTRMEMB(P_Toolbar, SaveUserSettings(ToolbarID));
 	{
 		//
 		// Перенесено из BrowserWindow::BrowserWndProc WM_DESTROY
@@ -953,7 +952,6 @@ BrowserWindow::~BrowserWindow()
 			APPL->P_DeskTop->remove(this);
 	}
 	ZDELETE(P_Def);
-	// @v10.9.11 (moved to ~TBaseBrowserWindow) ZDELETE(P_Toolbar);
 	ZDELETE(P_RowsHeightAry);
 	if(::IsWindow(H())) {
 		HDC    hdc = GetDC(H());

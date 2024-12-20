@@ -275,11 +275,42 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 #endif // } 0
 			// } @debug 
 			DS.Register();
-			// @v10.9.9 {
-			::SystemParametersInfo(SPI_SETFONTSMOOTHING, TRUE, 0, 0); 
-			::SystemParametersInfo(SPI_SETFONTSMOOTHINGTYPE, 0, (PVOID)FE_FONTSMOOTHINGCLEARTYPE, 0); 
-			::SystemParametersInfo(SPI_SETFONTSMOOTHINGCONTRAST, 0, (PVOID)1600, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
-			// } @v10.9.9
+			{
+				bool  font_smoothing_settled = false;
+				// @v12.2.1 {
+				const UiDescription * p_uid = SLS.GetUiDescription();
+				if(p_uid) {
+					SString fst;
+					p_uid->VList.Get(UiValueList::vFontSmoothingType, fst);
+					font_smoothing_settled = true;
+					if(fst.IsEqiAscii("none")) {
+						::SystemParametersInfo(SPI_SETFONTSMOOTHING, FALSE, 0, 0); 
+					}
+					else if(fst.IsEqiAscii("standard") || fst.IsEqiAscii("std")) {
+						::SystemParametersInfo(SPI_SETFONTSMOOTHING, TRUE, 0, 0); 
+						::SystemParametersInfo(SPI_SETFONTSMOOTHINGTYPE, 0, (PVOID)FE_FONTSMOOTHINGSTANDARD, 0); 
+					}
+					else if(fst.IsEqiAscii("cleartype")) {
+						::SystemParametersInfo(SPI_SETFONTSMOOTHING, TRUE, 0, 0); 
+						::SystemParametersInfo(SPI_SETFONTSMOOTHINGTYPE, 0, (PVOID)FE_FONTSMOOTHINGCLEARTYPE, 0); 
+						int   fsc = 0;
+						p_uid->VList.Get(UiValueList::vFontSmoothingContrast, fsc);
+						if(fsc >= 1000 && fsc <= 2200)
+							::SystemParametersInfo(SPI_SETFONTSMOOTHINGCONTRAST, 0, (PVOID)fsc, SPIF_UPDATEINIFILE|SPIF_SENDCHANGE);
+						else {
+							::SystemParametersInfo(SPI_SETFONTSMOOTHINGCONTRAST, 0, (PVOID)1400, SPIF_UPDATEINIFILE|SPIF_SENDCHANGE);
+						}
+					}
+					else 
+						font_smoothing_settled = false;
+				}
+				// } @v12.2.1 
+				if(!font_smoothing_settled) {
+					::SystemParametersInfo(SPI_SETFONTSMOOTHING, TRUE, 0, 0); 
+					::SystemParametersInfo(SPI_SETFONTSMOOTHINGTYPE, 0, (PVOID)FE_FONTSMOOTHINGCLEARTYPE, 0); 
+					::SystemParametersInfo(SPI_SETFONTSMOOTHINGCONTRAST, 0, (PVOID)1600, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
+				}
+			}
 			DS.SetMenu(MENU_DEFAULT);
 			{
 				uint   app_ctrflags = 0;

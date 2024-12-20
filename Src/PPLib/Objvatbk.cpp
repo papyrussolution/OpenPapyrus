@@ -2347,7 +2347,8 @@ int PPViewVatBook::ProcessOp2(const OpEntryVector & rList, uint listIdx, const O
 			PPID   bill_id = bill_rec.ID;
 			PPID   paym_bill_id = 0;
 			PPID   pool_id = 0;
-			BillTbl::Rec * p_paym_rec = 0, temp_rec;
+			BillTbl::Rec temp_rec;
+			BillTbl::Rec * p_paym_rec = 0;
 			if(is_paym) {
 				p_paym_rec = &bill_rec;
 				paym_bill_id = bill_id;
@@ -3104,12 +3105,7 @@ int PPViewVatBook::Export()
 		out_file_name.Z().Cat(id_file).DotCat("xml");
 		PPGetFilePath(PPPATH_OUT, out_file_name, path);
 		g.StartDocument(path, cp1251); // @v11.2.10
-		//THROW(p_writer = xmlNewTextWriterFilename(path, 0));
 		{
-			//xmlTextWriterSetIndent(p_writer, 1);
-			//xmlTextWriterSetIndentTab(p_writer);
-			//xmlTextWriterStartDocument(p_writer, 0, "windows-1251", 0);
-			//
 			{
 				SXml::WNode n_file(g.P_X, g.GetToken_Ansi(PPHSC_RU_FILE));
 				n_file.PutAttrib(g.GetToken_Ansi(PPHSC_RU_IDFILE), id_file);
@@ -3244,7 +3240,7 @@ int PPViewVatBook::Export()
 								}
 								else if(Filt.Kind == PPVTB_SELL) {
 									n_item.PutAttrib(g.GetToken_Ansi(PPHSC_RU_OKV), temp_buf.Z().CatLongZ(base_cur_code, 3)); // Код валюты по ОКВ
-									if(!oneof2(base_cur_code, 0, 643)) { // @v10.6.3
+									if(!oneof2(base_cur_code, 0, 643)) {
 										n_item.PutAttrib("СтоимПродСФВ", temp_buf.Z().Cat(_amount, SFMT_MONEY)); // Сумма продаж в валюте
 									}
 									n_item.PutAttrib("СтоимПродСФ",  temp_buf.Z().Cat(_amount, SFMT_MONEY)); // Сумма продаж в рублях
@@ -3253,7 +3249,7 @@ int PPViewVatBook::Export()
 											n_item.PutAttrib("СтоимПродСФ18", temp_buf.Z().Cat(_vatn[i], SFMT_MONEY)); // Сумма продаж по ставке НДС 18%
 											n_item.PutAttrib("СумНДССФ18", temp_buf.Z().Cat(_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 18%
 										}
-										else if(PPObjVATBook::GetVatRate(i) == 20.0) { // @v10.3.12
+										else if(PPObjVATBook::GetVatRate(i) == 20.0) {
 											n_item.PutAttrib("СтоимПродСФ20", temp_buf.Z().Cat(_vatn[i], SFMT_MONEY)); // Сумма продаж по ставке НДС 20%
 											n_item.PutAttrib("СумНДССФ20", temp_buf.Z().Cat(_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 20%
 										}
@@ -3293,11 +3289,8 @@ int PPViewVatBook::Export()
 					}
 				}
 			}
-			//xmlTextWriterEndDocument(p_writer);
 			g.EndDocument();
 		}
 	}
-	//CATCHZOKPPERR
-	//xmlFreeTextWriter(p_writer);
 	return ok;
 }

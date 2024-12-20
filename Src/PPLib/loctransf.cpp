@@ -1,5 +1,5 @@
 // LOCTRANSF.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2020, 2021
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2020, 2021, 2024
 //
 #include <pp.h>
 #pragma hdrstop
@@ -51,18 +51,12 @@ LocTransfOpBlock & FASTCALL LocTransfOpBlock::operator = (const LocTransfTbl::Re
 	return *this;
 }
 
-int FASTCALL LocTransfOpBlock::IsEq(const LocTransfTbl::Rec & rRec) const
+bool FASTCALL LocTransfOpBlock::IsEq(const LocTransfTbl::Rec & rRec) const
 {
-	return BIN(Op == rRec.Op &&
-		BillID == rRec.BillID &&
-		RByBill == rRec.RByBill &&
-		GoodsID == rRec.GoodsID &&
-		LotID == rRec.LotID &&
-		LocID == rRec.LocID &&
-		RByLoc == rRec.RByLoc &&
-		PalletTypeID == rRec.PalletTypeID &&
-		PalletCount == rRec.PalletCount &&
-		fabs(Qtty) == fabs(rRec.Qtty));
+	return (Op == rRec.Op && BillID == rRec.BillID && RByBill == rRec.RByBill &&
+		GoodsID == rRec.GoodsID && LotID == rRec.LotID && LocID == rRec.LocID &&
+		RByLoc == rRec.RByLoc && PalletTypeID == rRec.PalletTypeID &&
+		PalletCount == rRec.PalletCount && fabs(Qtty) == fabs(rRec.Qtty));
 }
 
 LocTransfCore::LocTransfCore() : LocTransfTbl()
@@ -653,9 +647,8 @@ LocTransfDisposeItem::LocTransfDisposeItem()
 	THISZERO();
 }
 
-LocTransfDisposer::LocTransfDisposer() : GtoAssc(PPASS_GOODS2WAREPLACE, PPOBJ_LOCATION, 1)
+LocTransfDisposer::LocTransfDisposer() : GtoAssc(PPASS_GOODS2WAREPLACE, PPOBJ_LOCATION, 1), State(0)
 {
-	State = 0;
 }
 
 LocTransfDisposer::~LocTransfDisposer()
@@ -668,7 +661,7 @@ int LocTransfDisposer::SetupOpBlock(LocTransfDisposeItem & rItem, PPID whCellID,
 	double pallet_qtty = 0.0;
 	GoodsStockExt gse;
 	GoodsStockExt::Pallet plt;
-	rItem.LocID = whCellID; // @v7.2.11
+	rItem.LocID = whCellID;
 	rBlk.Init(rItem.Op, whCellID);
 	rBlk.GoodsID = rItem.GoodsID;
 	rBlk.BillID = rItem.BillID;

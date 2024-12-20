@@ -2259,11 +2259,10 @@ void * SImageBuffer::TransformToIcon() const
 	//HBITMAP hOldMainBitmap     = (HBITMAP)::SelectObject(hMainDC,    hBitmap);
 	HBITMAP hOldAndMaskBitmap  = static_cast<HBITMAP>(::SelectObject(hAndMaskDC, hAndMaskBitmap));
 	HBITMAP hOldXorMaskBitmap  = static_cast<HBITMAP>(::SelectObject(hXorMaskDC, hXorMaskBitmap));
-	SetBkMode(hAndMaskDC, TRANSPARENT); // @v10.7.8
-	SetBkMode(hXorMaskDC, TRANSPARENT); // @v10.7.8
+	SetBkMode(hAndMaskDC, TRANSPARENT);
+	SetBkMode(hXorMaskDC, TRANSPARENT);
 	//Scan each pixel of the souce bitmap and create the masks
 	//COLORREF MainBitPixel;
-
 	STempBuffer uniform_buf(0);
 	//int    row_stride;
 	THROW_S((_w >= 1 && _w <= 30000) && (_h >= 1 && _h <= 30000), SLERR_INVIMAGESIZE); // no image
@@ -2279,8 +2278,8 @@ void * SImageBuffer::TransformToIcon() const
 			uboffs += 4;
 		}
 	}
-	::SelectObject(hAndMaskDC, hOldAndMaskBitmap); // @v10.7.8
-	::SelectObject(hXorMaskDC, hOldXorMaskBitmap); // @v10.7.8
+	::SelectObject(hAndMaskDC, hOldAndMaskBitmap);
+	::SelectObject(hXorMaskDC, hOldXorMaskBitmap);
 	{
 		ICONINFO iconinfo = {0};
 		iconinfo.fIcon    = TRUE; // icon (FALSE - cursor)
@@ -2714,7 +2713,7 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 						for(uint i = 0; i < height; ++i)
 							THROW(AddLines(PTR8C(line_buf.vcptr())+line_size*i, ff, 1, 0));
 					}
-					break; // @v10.3.11 @fix
+					break;
 				default:
 					ok = 0;
 			}

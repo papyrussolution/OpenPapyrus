@@ -4277,6 +4277,7 @@ public:
 	ulong  ToULong() const;
 	int64  ToInt64() const;
 	uint64 ToUInt64() const;
+	uint64 HexToUInt64() const;
 	//
 	// Descr: Преобразует строку this в числовое значение типа double.
 	//   Функция предварительно делает небольшую обработку строки, заменяя запятую на точку и удаляя разделители

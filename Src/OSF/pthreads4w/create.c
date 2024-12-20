@@ -30,9 +30,6 @@
  */
 #include <sl_pthreads4w.h>
 #pragma hdrstop
-// @v10.9.3 #if !defined(_UWIN) && !defined(WINCE)
-	// @v10.9.3 #include <process.h>
-// @v10.9.3 #endif
 /*
  * ------------------------------------------------------
  * DOCPUBLIC

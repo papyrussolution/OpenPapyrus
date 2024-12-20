@@ -231,7 +231,33 @@ int PPLocationPacket::IsEmptyAddress() const
 //
 //
 //
+PPLocationConfig::PPLocationConfig() : WhZoneCoding(0), WhColCoding(0), WhRowCoding(0), WhCellCoding(0), WhCodingDiv(0), Reserve(0),
+	Flags(0), DefPalletID(0), StoreIdxTagID(0), MarketplaceWarehoustFolderID(0)
+{
+	AddrCodeTempl[0] = 0;
+}
+
+PPLocationConfig & PPLocationConfig::Z()
+{
+	WhZoneCoding = 0;
+	WhColCoding = 0;
+	WhRowCoding = 0;
+	WhCellCoding = 0;
+	WhCodingDiv = 0;
+	Reserve = 0;
+	Flags = 0;
+	DefPalletID = 0;
+	StoreIdxTagID = 0;
+	MarketplaceWarehoustFolderID = 0;
+	AddrCodeTempl[0] = 0;
+	return *this;
+}
+
 struct Storage_PPLocationConfig {  // @persistent @store(PropertyTbl)
+	Storage_PPLocationConfig()
+	{
+		THISZERO();
+	}
 	PPID   Tag;            // Const=PPOBJ_CONFIG
 	PPID   ID;             // Const=PPCFG_MAIN
 	PPID   Prop;           // Const=PPPRP_LOCATIONCFG
@@ -245,17 +271,18 @@ struct Storage_PPLocationConfig {  // @persistent @store(PropertyTbl)
 	PPID   DefPalletID;    // Тип паллета по умолчанию
 	char   AddrCodeTempl[32]; // @v7.3.8
 	PPID   StoreIdxTagID;  // @v8.9.11
-	char   Reserve2[8];    // @v8.9.11 [12]-->[8]
+	PPID   MarketplaceWarehoustFolderID; // @v12.2.1
+	char   Reserve2[4];    // @v8.9.11 [12]-->[8] // @v12.2.1 [8]-->[4]
 	long   Reserve3[2];
 };
 
 /*static*/int FASTCALL PPObjLocation::ReadConfig(PPLocationConfig * pCfg)
 {
 	const  long prop_cfg_id = PPPRP_LOCATIONCFG;
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	Storage_PPLocationConfig cfg;
-	MEMSZERO(cfg);
-	memzero(pCfg, sizeof(*pCfg));
+	pCfg->Z();
 	THROW(r = PPRef->GetPropMainConfig(prop_cfg_id, &cfg, sizeof(cfg)));
 	if(r > 0) {
 		pCfg->WhZoneCoding = cfg.WhZoneCoding;
@@ -267,6 +294,7 @@ struct Storage_PPLocationConfig {  // @persistent @store(PropertyTbl)
 		pCfg->Flags |= PPLocationConfig::fValid;
 		pCfg->DefPalletID = cfg.DefPalletID;
 		pCfg->StoreIdxTagID = cfg.StoreIdxTagID;
+		pCfg->MarketplaceWarehoustFolderID = cfg.MarketplaceWarehoustFolderID; // @v12.2.1
 		STRNSCPY(pCfg->AddrCodeTempl, cfg.AddrCodeTempl);
 		ok = 1;
 	}
@@ -284,7 +312,6 @@ struct Storage_PPLocationConfig {  // @persistent @store(PropertyTbl)
 	int    ok = -1, r;
 	int    is_new = 0;
 	Storage_PPLocationConfig cfg;
-	MEMSZERO(cfg);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -299,6 +326,7 @@ struct Storage_PPLocationConfig {  // @persistent @store(PropertyTbl)
 		cfg.Flags &= ~PPLocationConfig::fValid;
 		cfg.DefPalletID = pCfg->DefPalletID;
 		cfg.StoreIdxTagID = pCfg->StoreIdxTagID;
+		cfg.MarketplaceWarehoustFolderID = pCfg->MarketplaceWarehoustFolderID; // @v12.2.1
 		STRNSCPY(cfg.AddrCodeTempl, pCfg->AddrCodeTempl);
 		THROW(PPObject::Helper_PutConfig(prop_cfg_id, cfg_obj_type, is_new, &cfg, sizeof(cfg), 0));
 		THROW(tra.Commit());
@@ -311,7 +339,8 @@ struct Storage_PPLocationConfig {  // @persistent @store(PropertyTbl)
 /*static*/int PPObjLocation::EditConfig()
 {
 	int    ok = -1;
-	PPLocationConfig cfg, org_cfg;
+	PPLocationConfig cfg;
+	PPLocationConfig org_cfg;
 	TDialog * dlg = 0;
 	THROW(CheckCfgRights(PPCFGOBJ_PERSON, PPR_READ, 0));
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_LOCCFG))));
@@ -332,6 +361,11 @@ struct Storage_PPLocationConfig {  // @persistent @store(PropertyTbl)
 	}
 	dlg->AddClusterAssoc(CTL_LOCCFG_FLAGS, 0, PPLocationConfig::fUseFias);
 	dlg->SetClusterData(CTL_LOCCFG_FLAGS, cfg.Flags);
+	{
+		LocationFilt loc_filt;
+		loc_filt.LocType = LOCTYP_WAREHOUSEGROUP;
+		SetupLocationCombo(dlg, CTLSEL_LOCCFG_MPWHFLD, cfg.MarketplaceWarehoustFolderID, OLW_CANSELUPLEVEL/*|OLW_CANINSERT*/, &loc_filt); // @v12.2.1 @todo OLW_CANINSERT приводит к падению - надо решать!
+	}
 	while(ok < 0 && ExecView(dlg) == cmOK) {
 		dlg->getCtrlData(CTLSEL_LOCCFG_WHZONECOD, &cfg.WhZoneCoding);
 		dlg->getCtrlData(CTLSEL_LOCCFG_WHCOLCOD,  &cfg.WhColCoding);
@@ -341,6 +375,7 @@ struct Storage_PPLocationConfig {  // @persistent @store(PropertyTbl)
 		dlg->getCtrlData(CTL_LOCCFG_ADDRCODETEMPL, cfg.AddrCodeTempl);
 		dlg->getCtrlData(CTLSEL_LOCCFG_STRIDXTAG, &cfg.StoreIdxTagID);
 		dlg->GetClusterData(CTL_LOCCFG_FLAGS, &cfg.Flags);
+		dlg->getCtrlData(CTLSEL_LOCCFG_MPWHFLD, &cfg.MarketplaceWarehoustFolderID); // @v12.2.1
 		ok = 1;
 		if(memcmp(&cfg, &org_cfg, sizeof(cfg)) != 0) {
 			if(!WriteConfig(&cfg, 1))
@@ -387,8 +422,10 @@ void PPObjLocation::InitInstance(SCtrLite sctr, void * extraPtr)
 	P_WObj = 0;
 	P_RegObj = 0;
 	ExtraPtr = extraPtr;
-	if(ExtraPtr)
-		P_CurrFilt = new LocationFilt(*(LocationFilt*)ExtraPtr);
+	if(ExtraPtr) {
+		P_CurrFilt = new LocationFilt(*static_cast<const LocationFilt *>(ExtraPtr));
+		ExtraPtr = P_CurrFilt; // @v12.2.1
+	}
 	IsCityCacheInited = 0;
 	if(Sctr != SConstructorLite)
 		P_RegObj = new PPObjRegister;
@@ -480,8 +517,9 @@ int PPObjLocation::Search(PPID id, void * b)
 {
 	// @v11.0.4 Значительная переработка с целью удалить сначала статьи, связанные с локацией id
 	int    ok = -1;
+	const  bool _user_request = LOGIC(options & user_request);
 	SETFLAG(options, not_addtolog, 1);
-	if(!(options & user_request) || PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) == cmYes) {
+	if(!_user_request || PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) == cmYes) {
 		options &= ~user_request;
 		PPObjArticle ar_obj;
 		{
@@ -506,7 +544,13 @@ int PPObjLocation::Search(PPID id, void * b)
 			ok = 1;
 		}
 	}
-	CATCHZOK
+	CATCH
+		// @v12.2.1 {
+		if(_user_request)
+			PPError();
+		// } @v12.2.1 
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 
@@ -1912,8 +1956,7 @@ int LocationDialog::setDTS(const PPLocationPacket * pData)
 	setCtrlData(CTL_LOCATION_ID, &Data.ID);
 	SetupPPObjCombo(this, CTLSEL_LOCATION_OWNER, PPOBJ_PERSON, Data.OwnerID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_EMPLOYER));
 	SetupPPObjCombo(this, CTLSEL_LOCATION_RSPNS, PPOBJ_PERSON, Data.RspnsPersonID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_EMPL));
-	SetupPPObjCombo(this, CTLSEL_LOCATION_CITY,  PPOBJ_WORLD, Data.CityID, OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
-		PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR -OLW_WORDSELECTOR
+	SetupPPObjCombo(this, CTLSEL_LOCATION_CITY,  PPOBJ_WORLD, Data.CityID, OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
 	LocationCore::GetExField(&Data, LOCEXSTR_ZIP, temp_buf);
 	setCtrlString(CTL_LOCATION_ZIP, temp_buf);
 	LocationCore::GetExField(&Data, LOCEXSTR_SHORTADDR, temp_buf);
@@ -2150,7 +2193,7 @@ int PPObjLocation::GetPacket(PPID id, PPLocationPacket * pPack)
 {
 	int    ok = 1;
 	pPack->destroy();
-	if(PPCheckGetObjPacketID(Obj, id)) { // @v10.3.6
+	if(PPCheckGetObjPacketID(Obj, id)) {
 		Reference * p_ref = PPRef;
 		int    sr = Search(id, pPack);
 		THROW(sr);
@@ -2210,8 +2253,9 @@ int PPObjLocation::PutPacket(PPID * pID, PPLocationPacket * pPack, int use_ta)
 						*pID = 0;
 					}
 					else {
-						if(!sstreq(org_pack.Name, pPack->Name))
+						if(!sstreq(org_pack.Name, pPack->Name)) {
 							THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, Obj, *pID, pPack->Name, 0) == DBRPL_OK);
+						}
 						if(do_index_phones) {
 							LocationCore::GetExField(pPack, LOCEXSTR_PHONE, temp_buf);
 							PPObjID objid(PPOBJ_LOCATION, *pID);
@@ -2322,6 +2366,16 @@ int PPObjLocation::PutRecord(PPID * pID, LocationTbl::Rec * pPack, int use_ta)
 					ok = -1;
 			}
 			else {
+				// @v12.2.1 {
+				if(org_rec.Type == LOCTYP_WAREHOUSEGROUP) {
+					PPLocationConfig loc_cfg;
+					ReadConfig(&loc_cfg);
+					if(loc_cfg.MarketplaceWarehoustFolderID == *pID) {
+						PPSetObjError(PPERR_REFSEXISTS, PPCFGOBJ_LOCATION, 0);
+						CALLEXCEPT();
+					}
+				}
+				// } @v12.2.1 
 				if(do_index_phones) {
 					LocationCore::GetExField(&org_rec, LOCEXSTR_PHONE, temp_buf);
 					PPObjID objid(PPOBJ_LOCATION, *pID);
@@ -3058,7 +3112,7 @@ public:
 		WhObjList(sizeof(WHObjEntry)), FullEaList(BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR)), IsWhObjTabInited(0)
 	{
 		LoadWarehouseTab();
-		MEMSZERO(Cfg);
+		// @v12.2.1 @ctr MEMSZERO(Cfg);
 	}
 	PPID   GetSingleWarehouse();
 	uint   GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions);
@@ -3678,7 +3732,7 @@ int PPObjLocation::ResolveWhCell(PPID locID, PPIDArray & rDestList, PPIDArray * 
 		return p_cache->GetConfig(pCfg, 0);
 	}
 	else {
-		memzero(pCfg, sizeof(*pCfg));
+		CALLPTRMEMB(pCfg, Z());
 		return 0;
 	}
 }

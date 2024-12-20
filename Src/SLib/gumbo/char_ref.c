@@ -148,8 +148,7 @@ static bool maybe_add_invalid_named_reference(GumboParser * parser, Utf8Iterator
 	// worry about consuming characters.
 	const char * start = utf8iterator_get_char_pointer(input);
 	int c = utf8iterator_current(input);
-	// @v10.9.3 while((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) {
-	while(isasciialnum(c)) { // @v10.9.3 
+	while(isasciialnum(c)) {
 		utf8iterator_next(input);
 		c = utf8iterator_current(input);
 	}

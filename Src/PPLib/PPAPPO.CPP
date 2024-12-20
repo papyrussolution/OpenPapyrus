@@ -584,8 +584,11 @@ int PPApp::processCommand(uint cmd)
 				PPView::Execute(PPVIEW_EVENT, &ev_filt, PPView::exefModeless, 0);
 			}
 			break;
-		case cmMarketplaceInterchange: // @v12.1.3 @construction
+		case cmMarketplaceInterchange: // @v12.1.3
 			DoMarketplaceInterchange();
+			break;
+		case cmAptekaRuInterchange: // @v12.2.1 @construction
+			DoAptekaRuInterchange();
 			break;
 		case cmTimeSeriesSA: // @construction
 			break;

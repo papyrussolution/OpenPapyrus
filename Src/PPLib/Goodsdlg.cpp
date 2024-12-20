@@ -1992,7 +1992,6 @@ int GoodsVadDialog::SetPalletData(PPID palletTypeID)
 	else if(palletTypeID)
 		use_ext_type = 1;
 	GoodsStockExt::Pallet def_item;
-	MEMSZERO(def_item);
 	const uint c = Data.Stock.PltList.getCount();
 	if(c) {
 		if(palletTypeID) {
