@@ -565,8 +565,7 @@ hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t * shape_plan, hb_font_t * font, hb
 		/* Fixup the pointers. */
 		for(uint i = 0; i < range_records.length; i++) {
 			range_record_t * range = &range_records[i];
-			range->props.potfRecords = (OPENTYPE_FEATURE_RECORD*)feature_records +
-			    reinterpret_cast<uintptr_t> (range->props.potfRecords);
+			range->props.potfRecords = (OPENTYPE_FEATURE_RECORD*)feature_records + reinterpret_cast<uintptr_t> (range->props.potfRecords);
 		}
 	}
 
@@ -577,16 +576,14 @@ hb_bool_t _hb_uniscribe_shape(hb_shape_plan_t * shape_plan, hb_font_t * font, hb
 	} HB_STMT_END
 
 	HRESULT hr;
-
 retry:
-
 	uint scratch_size;
 	hb_buffer_t::scratch_buffer_t * scratch = buffer->get_scratch_buffer(&scratch_size);
 
 #define ALLOCATE_ARRAY(Type, name, len) \
 	Type *name = (Type*)scratch; \
 	do { \
-		uint _consumed = idivroundup((len) * sizeof(Type), sizeof(*scratch)); \
+		uint _consumed = idivroundup(static_cast<size_t>(len) * sizeof(Type), sizeof(*scratch)); \
 		assert(_consumed <= scratch_size); \
 		scratch += _consumed; \
 		scratch_size -= _consumed; \
@@ -622,16 +619,8 @@ retry:
 				log_clusters[chars_len++] = cluster; /* Surrogates. */
 		}
 	}
-
-	/* The -2 in the following is to compensate for possible
-	 * alignment needed after the WORD array.  sizeof(WORD) == 2. */
-	uint glyphs_size = (scratch_size * sizeof(int) - 2)
-	    / (sizeof(WORD) +
-	    sizeof(SCRIPT_GLYPHPROP) +
-	    sizeof(int) +
-	    sizeof(GOFFSET) +
-	    sizeof(uint32_t));
-
+	// The -2 in the following is to compensate for possible alignment needed after the WORD array.  sizeof(WORD) == 2
+	uint glyphs_size = (scratch_size * sizeof(int) - 2) / (sizeof(WORD) + sizeof(SCRIPT_GLYPHPROP) + sizeof(int) + sizeof(GOFFSET) + sizeof(uint32_t));
 	ALLOCATE_ARRAY(WORD, glyphs, glyphs_size);
 	ALLOCATE_ARRAY(SCRIPT_GLYPHPROP, glyph_props, glyphs_size);
 	ALLOCATE_ARRAY(int, advances, glyphs_size);

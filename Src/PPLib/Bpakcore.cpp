@@ -3397,7 +3397,7 @@ bool PPBillPacket::HasIndepModifPlus() const
 	if(Rec.Flags & BILLF_GMODIF) {
 		PPTransferItem * p_ti;
 		for(uint i = 0; EnumTItems(&i, &p_ti);)
-			if(p_ti->Flags & PPTFR_PLUS && p_ti->Flags & PPTFR_RECEIPT)
+			if(p_ti->Flags & PPTFR_PLUS && p_ti->IsReceipt())
 				return true;
 	}
 	return false;
@@ -4790,7 +4790,7 @@ int PPBillPacket::GetComplete(PPID lotID, CompleteArray * pList)
 						ok = 1;
 					}
 				}
-				else if(p_ti->Flags & PPTFR_PLUS && !(p_ti->Flags & PPTFR_RECEIPT) && p_ti->LotID) {
+				else if(p_ti->Flags & PPTFR_PLUS && !p_ti->IsReceipt() && p_ti->LotID) {
 					CompleteItem item;
 					item.LotID   = p_ti->LotID;
 					item.GoodsID = p_ti->GoodsID;
@@ -6023,7 +6023,7 @@ int PPBillPacket::CalcPckgTotals()
 			}
 			if(p_pckg->PckgIdx >= 0) {
 				PPTransferItem * p_ti = &TI(p_pckg->PckgIdx);
-				if(p_ti->Flags & PPTFR_RECEIPT && p_ti->Flags & PPTFR_PCKG) {
+				if(p_ti->IsReceipt() && p_ti->Flags & PPTFR_PCKG) {
 					p_ti->Cost  = p_pckg->Cost;
 					p_ti->Price = p_pckg->Price;
 				}

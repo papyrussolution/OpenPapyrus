@@ -2012,6 +2012,7 @@
 #define cmToggleAllOrOwnOnly     1192 // @v11.4.1  Переключение отображения все/только свои (пока для товарных корзин)
 #define cmExecMapOnGeoLoc        1193 // @v11.6.2  Кнопка запускает функцию открытия карты с координатами, введенными в прикрепленном поле
 #define cmImageChanged           1194 // @v12.0.4  [evCommand] Событие генерируется группой управляющих элементов ImageBrowseCtrlGroup в ответ на изменение изображения и передается в родительский диалог.
+#define cmAutoConfigure          1195 // @v12.2.1
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -11654,7 +11655,6 @@
 	#define CTL_SELBITMSPCGEN_INFO       (2 + WINDOWS_ID_BIAS)
 #define DLG_TRDPLANBILL           1453 // @v12.1.12 Документ торгового плана
 #define DLG_SU_WB                 1454 // @v12.2.0 Parameters for set up Wildberries integration
-	#define cmAutoConfigure              101
 	#define CTL_SUWB_APIKEY              (1 + IMPEXP_CTL_BIAS)
 	#define CTL_SUWB_GUA                 (2 + IMPEXP_CTL_BIAS)
 	#define CTLSEL_SUWB_GUA              (3 + IMPEXP_CTL_BIAS)

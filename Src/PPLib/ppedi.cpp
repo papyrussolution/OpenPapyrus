@@ -331,7 +331,7 @@ void GtinStruc::AddSpecialStopChar(uchar stopChar)
 
 uint GtinStruc::SetupFixedLenField(const char * pSrc, const uint prefixLen, const uint fixLen, int fldId)
 {
-	uint   result_offs = 0;
+	size_t result_offs = 0;
 	SString temp_buf;
 	if(fixLen == 1000) {
 		temp_buf.Cat(pSrc+prefixLen);
@@ -340,7 +340,7 @@ uint GtinStruc::SetupFixedLenField(const char * pSrc, const uint prefixLen, cons
 		temp_buf.CatN(pSrc+prefixLen, fixLen);
 		THROW(temp_buf.Len() == fixLen);
 	}
-	const uint result_fix_len = temp_buf.Len();
+	const size_t result_fix_len = temp_buf.Len();
 	if(fldId > 0) {
 		THROW(!StrAssocArray::Search(fldId));
 		StrAssocArray::Add(fldId, temp_buf);
@@ -349,7 +349,7 @@ uint GtinStruc::SetupFixedLenField(const char * pSrc, const uint prefixLen, cons
 	CATCH
 		result_offs = 0;
 	ENDCATCH
-	return result_offs;
+	return static_cast<uint>(result_offs);
 }
 
 GtinStruc & GtinStruc::Z()
@@ -491,8 +491,8 @@ static int FASTCALL Base80ToTobaccoPrice(const SString & rS, SString & rBuf)
 	rBuf.Z();
 	uint64 result = 0;
 	{
-		const uint len = rS.Len();
-		for(uint i = 0; ok && i < len; i++) {
+		const size_t len = rS.Len();
+		for(size_t i = 0; ok && i < len; i++) {
 			const  char c = rS.C(i);
 			const  char * p_idxpos = sstrchr(p_alphabet, c);
 			if(p_idxpos) {
@@ -528,8 +528,8 @@ static int FASTCALL Base36ToTobaccoPrice(const SString & rS, SString & rBuf)
 	int    ok = 1;
 	rBuf.Z();
 	uint64 result = 0;
-	const uint len = rS.Len();
-	for(uint i = 0; ok && i < len; i++) {
+	const size_t len = rS.Len();
+	for(size_t i = 0; ok && i < len; i++) {
 		const  char c = toupper(rS.C(i));
 		uint64 v = 0;
 		if(isdec(c))
@@ -650,7 +650,7 @@ int GtinStruc::Parse(const char * pCode)
 							// fldAddendumId (240)
 							code_buf.ShiftLeft(prefix_len);
 							temp_buf.Z().Cat(code_buf);
-							uint _240_pos = 0;
+							size_t _240_pos = 0;
 							if(temp_buf.Search("240", 0, 0, &_240_pos) && _240_pos > 1) {
 								SString _93_val;
 								if(temp_buf.C(_240_pos-1) == '\x1D') {

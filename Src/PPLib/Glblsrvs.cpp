@@ -1068,10 +1068,66 @@ static int Setup_GlobalService_Wildberries_InitParam(SetupGlobalServiceWildberri
 			}
 			Setup_GlobalService_Wildberries_InitParam(Data, false);
 			setCtrlString(CTL_SUWB_APIKEY, Data.ApiKey);
-			SetupPPObjCombo(this, CTLSEL_SUWB_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, 0);
+			SetupPPObjCombo(this, CTLSEL_SUWB_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, OLW_CANINSERT, reinterpret_cast<void *>(PPGLS_WILDBERRIES));
 			SetupCtrls();
 		}
 	private:
+		int    Configure()
+		{
+			int    ok = -1;
+			SString temp_buf;
+			SString accs_key;
+			SString name_buf;
+			getCtrlString(CTL_SUWB_APIKEY, accs_key);
+			if(accs_key.NotEmpty()) {
+				PPID gua_id = 0;
+				PPGlobalUserAccPacket gua_pack;
+				PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult tdr;
+				THROW(PPMarketplaceInterface_Wildberries::ParseApiToken(accs_key, &tdr));
+				gua_id = getCtrlLong(CTLSEL_SUWB_GUA);
+				if(gua_id) {
+					THROW(GuaObj.GetPacket(gua_id, &gua_pack) > 0); // @todo @err
+					THROW(gua_pack.Rec.ServiceIdent == PPGLS_WILDBERRIES); // @todo @err
+					gua_pack.SetAccessKey(accs_key);
+					THROW(GuaObj.PutPacket(&gua_id, &gua_pack, 1));
+					setCtrlLong(CTLSEL_SUWB_GUA, gua_id);
+					setCtrlString(CTL_SUWB_APIKEY, accs_key);
+					ok = 1;
+				}
+				else {
+					PPLoadString("marketplace", temp_buf);
+					name_buf.Z().Cat(temp_buf);
+					PPLoadString("brand_wildberries", temp_buf);
+					name_buf.Space().Cat(temp_buf);
+					{
+						// Добиваемся уникальности имени
+						temp_buf = name_buf;
+						long _c = 0;
+						while(!GuaObj.CheckDupName(0, temp_buf)) {
+							(temp_buf = name_buf).Space().CatChar('#').Cat(++_c);
+						}
+						name_buf = temp_buf;
+					}
+					STRNSCPY(gua_pack.Rec.Name, name_buf);
+					gua_pack.Rec.ServiceIdent = PPGLS_WILDBERRIES;
+					gua_pack.SetAccessKey(accs_key);
+					assert(gua_id == 0);
+					THROW(GuaObj.PutPacket(&gua_id, &gua_pack, 1));
+					Data.GuaID = gua_id;
+					SetupPPObjCombo(this, CTLSEL_SUWB_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, OLW_CANINSERT, reinterpret_cast<void *>(PPGLS_WILDBERRIES));
+					setCtrlString(CTL_SUWB_APIKEY, accs_key);
+					ok = 1;
+				}
+				if(ok > 0) {
+					PPMarketplaceConfig cfg;
+					PrcssrMarketplaceInterchange::ReadConfig(&cfg);
+					THROW(PrcssrMarketplaceInterchange::AutoConfigure(cfg, 0, 1));
+					THROW(PrcssrMarketplaceInterchange::WriteConfig(&cfg, 1));
+				}
+			}
+			CATCHZOKPPERR
+			return ok;
+		}
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
@@ -1089,9 +1145,21 @@ static int Setup_GlobalService_Wildberries_InitParam(SetupGlobalServiceWildberri
 			else if(event.isCmd(cmMarketplaceCfg)) {
 				PrcssrMarketplaceInterchange::EditConfig();
 			}
-			else if(event.isCmd(cmAutoConfigure)) { // @v12.2.1
-				//PrcssrMarketplaceInterchange::EditConfig();
+			else if(event.isCmd(cmConfigure)) {
+				Configure();
 			}
+			/*else if(event.isCmd(cmAutoConfigure)) { // @v12.2.1
+				PPMarketplaceConfig cfg;
+				int is_new = PrcssrMarketplaceInterchange::ReadConfig(&cfg);
+				if(PrcssrMarketplaceInterchange::AutoConfigure(cfg, 0, 1)) {
+					if(PrcssrMarketplaceInterchange::WriteConfig(&cfg, 1)) {
+						;
+					}
+					else {
+						PPError();
+					}
+				}
+			}*/
 			else if(event.isCmd(cmInputUpdated)) {
 				if(event.isCtlEvent(CTL_SUWB_APIKEY)) {
 					SetupCtrls();
@@ -1115,54 +1183,55 @@ static int Setup_GlobalService_Wildberries_InitParam(SetupGlobalServiceWildberri
 		void   SetupCtrls()
 		{
 			SString temp_buf;
-			{
-				getCtrlString(CTL_SUWB_APIKEY, temp_buf);
-				int brush_ident = 0;
-				SString info_buf;
-				if(temp_buf.NotEmpty()) {
-					PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult tdr;
-					if(PPMarketplaceInterface_Wildberries::ParseApiToken(temp_buf, &tdr)) {
-						info_buf.CatEq("id", tdr.Id, S_GUID::fmtIDL).CR().
-							CatEq("seller-id", tdr.SellerId, S_GUID::fmtIDL).CR().
-							CatEq("expiry", tdr.ExpiryDtm, DATF_ISO8601CENT, 0).CR();
-							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fTest)
-								info_buf.Cat("test").CR();
-							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fReadOnly)
-								info_buf.Cat("read-only").CR();
-							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Content)
-								info_buf.Cat("accs-content").CR();
-							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Analitycs)
-								info_buf.Cat("accs-analitycs").CR();
-							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Prices)
-								info_buf.Cat("accs-prices").CR();
-							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Marketplace)
-								info_buf.Cat("accs-marktetplace").CR();
-							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Statistics)
-								info_buf.Cat("accs-statistics").CR();
-							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Promo)
-								info_buf.Cat("accs-promo").CR();
-							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_QAndReviews)
-								info_buf.Cat("accs-qandreviews").CR();
-							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Chat)
-								info_buf.Cat("accs-chat").CR();
-							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Deliveries)
-								info_buf.Cat("accs-deliveries").CR();
-							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Returns)
-								info_buf.Cat("accs-returns").CR();
-							if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Documents)
-								info_buf.Cat("accs-documents").CR();
-						ApiKeyBrushIdent = brushApiKeyValid;
-					}
-					else {
-						info_buf = "invalid key";
-						ApiKeyBrushIdent = brushInvalid;
-					}
+			getCtrlString(CTL_SUWB_APIKEY, temp_buf);
+			int brush_ident = 0;
+			SString info_buf;
+			bool enable_configure = false;
+			if(temp_buf.NotEmpty()) {
+				PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult tdr;
+				if(PPMarketplaceInterface_Wildberries::ParseApiToken(temp_buf, &tdr)) {
+					enable_configure = true;
+					info_buf.CatEq("id", tdr.Id, S_GUID::fmtIDL).CR().
+						CatEq("seller-id", tdr.SellerId, S_GUID::fmtIDL).CR().
+						CatEq("expiry", tdr.ExpiryDtm, DATF_ISO8601CENT, 0).CR();
+						if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fTest)
+							info_buf.Cat("test").CR();
+						if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fReadOnly)
+							info_buf.Cat("read-only").CR();
+						if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Content)
+							info_buf.Cat("accs-content").CR();
+						if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Analitycs)
+							info_buf.Cat("accs-analitycs").CR();
+						if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Prices)
+							info_buf.Cat("accs-prices").CR();
+						if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Marketplace)
+							info_buf.Cat("accs-marktetplace").CR();
+						if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Statistics)
+							info_buf.Cat("accs-statistics").CR();
+						if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Promo)
+							info_buf.Cat("accs-promo").CR();
+						if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_QAndReviews)
+							info_buf.Cat("accs-qandreviews").CR();
+						if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Chat)
+							info_buf.Cat("accs-chat").CR();
+						if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Deliveries)
+							info_buf.Cat("accs-deliveries").CR();
+						if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Returns)
+							info_buf.Cat("accs-returns").CR();
+						if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Documents)
+							info_buf.Cat("accs-documents").CR();
+					ApiKeyBrushIdent = brushApiKeyValid;
 				}
 				else {
-					ApiKeyBrushIdent = brushApiKeyEmpty;
+					info_buf = "invalid key";
+					ApiKeyBrushIdent = brushInvalid;
 				}
-				setStaticText(CTL_SUWB_HINT, info_buf);
 			}
+			else {
+				ApiKeyBrushIdent = brushApiKeyEmpty;
+			}
+			setStaticText(CTL_SUWB_HINT, info_buf);
+			enableCommand(cmConfigure, enable_configure);
 		}
 		PPObjGlobalUserAcc GuaObj;
 		SPaintToolBox Ptb;

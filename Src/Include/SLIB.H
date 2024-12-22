@@ -10169,35 +10169,35 @@ public:
 	~SBitArray();
 	SBitArray & FASTCALL operator = (const SBitArray &);
 	int    FASTCALL Copy(const SBitArray &);
-	int    Init(const void *, size_t count);
+	int    Init(const void *, uint count);
 	//
 	// Descr: Обнуляет внутренний буфер и сбрасывает счетчик битов в 0
 	//
 	void   Clear();
-	size_t getCount() const;
+	uint   getCount() const;
 	bool   FASTCALL IsEq(const SBitArray &) const;
 	//
 	// Descr: Возвращает количество бит, соответствующих величине val.
 	//   Т.е. если val == 0, то возвращает количество нулевых бит,
 	//   в противном случае - количество установленных.
 	//
-	size_t FASTCALL getCountVal(int val) const;
-	int    FASTCALL atInsert(size_t pos, int val);
+	uint   FASTCALL getCountVal(int val) const;
+	int    FASTCALL atInsert(uint pos, int val);
 	int    FASTCALL insert(int val);
-	int    FASTCALL insertN(int val, size_t N);
-	int    FASTCALL atFree(size_t pos);
-	size_t FASTCALL findFirst(int val, size_t start) const;
-	int    FASTCALL get(size_t pos) const;
-	uint32 FASTCALL getN(size_t pos, uint count) const;
-	int    FASTCALL set(size_t pos, int val);
-	int    FASTCALL operator [](size_t) const;
+	int    FASTCALL insertN(int val, uint N);
+	int    FASTCALL atFree(uint pos);
+	uint   FASTCALL findFirst(int val, uint start) const;
+	int    FASTCALL get(uint pos) const;
+	uint32 FASTCALL getN(uint pos, uint count) const;
+	int    FASTCALL set(uint pos, int val);
+	int    FASTCALL operator [](uint) const;
 	//
 	// Descr: возвращает размер буфера в байтах
 	//
 	size_t getBufSize() const;
 	int    getBuf(void *, size_t maxLen) const;
 private:
-	size_t Count;
+	uint   Count;
 };
 //
 //
@@ -14713,6 +14713,7 @@ FORCEINLINE uint  FASTCALL idivroundup(uint a, uint b) { return (a + b - 1U) / b
 FORCEINLINE long  FASTCALL idivroundup(long a, long b) { return (a + b - 1L) / b; } // @v11.9.0
 FORCEINLINE ulong FASTCALL idivroundup(ulong a, ulong b) { return (a + b - 1LU) / b; } // @v11.9.0
 FORCEINLINE int64 FASTCALL idivroundup(int64 a, int64 b) { return (a + b - 1LL) / b; } // @v11.9.0
+FORCEINLINE int64 FASTCALL idivroundup(uint64 a, uint64 b) { return (a + b - 1LL) / b; } // @v11.9.0
 //
 // Функции idivroundn реализуют целочисленное деление первого аргумента на второй с округлением до ближайшего целого 
 // e.g. 

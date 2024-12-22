@@ -1758,7 +1758,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 								r_ti.Cost = p_ilti->Cost;
 								r_ti.Price = p_ilti->Price;
 								r_ti.Discount = 0.0;
-								if(r_ti.Flags & PPTFR_RECEIPT) {
+								if(r_ti.IsReceipt()) {
 									r_ti.QCert = p_ilti->QCert;
 									r_ti.UnitPerPack = p_ilti->UnitPerPack;
 									r_ti.Expiry = p_ilti->Expiry;
@@ -2547,7 +2547,7 @@ int PPObjBill::AcceptLotSync(const PPBillPacket & rBp, const ILBillPacket & rIBp
 			if(r_ti.SrcIltiPos > 0 && r_ti.SrcIltiPos <= (int)rIBp.Lots.getCount()) {
 				ILTI & r_ilti = rIBp.Lots.at(r_ti.SrcIltiPos-1);
 				PPObjID frgn_objid;
-				if(r_ti.Flags & PPTFR_RECEIPT) {
+				if(r_ti.IsReceipt()) {
 					if(rIBp.IlbFlags & ILBillPacket::ilbfConvertedIntrExp) {
 						//
 						// Для преобразованной в межскладской приход внутренней передачи

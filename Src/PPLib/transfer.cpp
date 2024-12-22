@@ -127,7 +127,7 @@ int Transfer::IsCompletedLot(PPID lotID)
 		lot_list.atInsert(0, &org_lot_id);
 		for(uint i = 0; i < lot_list.getCount(); i++) {
 			TransferTbl::Rec trfr_rec;
-			PPID   lot_id = lot_list.at(i);
+			const PPID lot_id = lot_list.at(i);
 			for(DateIter di; ok < 0 && EnumByLot(lot_id, &di, &trfr_rec) > 0;)
 				if(trfr_rec.Flags & PPTFR_MODIF && trfr_rec.Flags & PPTFR_PLUS)
 					ok = 1;
@@ -136,11 +136,8 @@ int Transfer::IsCompletedLot(PPID lotID)
 	return ok;
 }
 
-/*inline*/ int Transfer::GetOprNo(LDATE date, long *oprno)
-	{ return IncDateKey(this, 1, date, oprno); }
-
-inline int Transfer::GetLotOprNo(LDATE date, long *oprno)
-	{ return IncDateKey(&Rcpt, 1, date, oprno); }
+/*inline*/int Transfer::GetOprNo(LDATE date, long * oprno) { return IncDateKey(this, 1, date, oprno); }
+inline int Transfer::GetLotOprNo(LDATE date, long * oprno) { return IncDateKey(&Rcpt, 1, date, oprno); }
 //
 // Процедура AddLotItem при добавлении записи обнуляет текущий остаток.
 // Изменение остатка делает процедура _UpdateForward.
@@ -1340,7 +1337,7 @@ int Transfer::UpdateForward(PPID lotID, LDATE dt, long oprno, int check, double 
 int Transfer::UpdateForward(const TransferTbl::Rec & rRec, double addendum, double phAddend)
 {
 	int    ok = 1;
-	int    is_recomplete = BIN((rRec.Flags & (PPTFR_REVAL|PPTFR_MODIF)) == (PPTFR_REVAL|PPTFR_MODIF));
+	const  bool is_recomplete = ((rRec.Flags & (PPTFR_REVAL|PPTFR_MODIF)) == (PPTFR_REVAL|PPTFR_MODIF));
 	if(!IsUnlimWoLot(rRec) && (!(rRec.Flags & PPTFR_REVAL) || (rRec.Flags & PPTFR_CORRECTION) || is_recomplete)) {
 		if(is_recomplete) {
 			addendum = 0.0;
@@ -1369,7 +1366,7 @@ int Transfer::UpdateForward(const TransferTbl::Rec & rRec, double addendum, doub
 			ReceiptTbl::Rec lot_rec;
 			int    bad_lot = 0;
 			THROW(SearchByID_ForUpdate(&Rcpt, PPOBJ_LOT, rRec.LotID, &lot_rec) > 0);
-			double prev_rest = lot_rec.Rest;
+			const  double prev_rest = lot_rec.Rest;
 			lot_rec.Rest = R6(lot_rec.Rest + addendum);
 			lot_rec.WtRest = static_cast<float>(R6(lot_rec.WtRest + phAddend));
 			if(lot_rec.Rest < 0.0 && (bad_lot = BIN(prev_rest < 0.0 && PPMaster && CConfig.Flags & CCFLG_DEBUG)) == 0) {
@@ -1507,9 +1504,10 @@ int Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 {
 	int    ok = 1, r;
 	int    _reverse = 0;
-	const  int reval = BIN(ti->Flags & PPTFR_REVAL);
+	const  bool is_reval = LOGIC(ti->Flags & PPTFR_REVAL);
 	ReceiptTbl::Rec lot_rec;
-	SString msg_buf, fmt_buf;
+	SString msg_buf;
+	SString fmt_buf;
 	double rest = 0.0;
 	double ph_rest = 0.0;
 	double qtty = ti->Quantity_;
@@ -1563,7 +1561,7 @@ int Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 			MEMSZERO(lot_rec);
 			ti->LotID = 0;
 			ti->Flags &= ~PPTFR_RECEIPT;
-			THROW_PP(!reval, PPERR_REVALONUNLIM);
+			THROW_PP(!is_reval, PPERR_REVALONUNLIM);
 		}
 		else {
 			if(ti->IsLotRet()) {
@@ -1584,7 +1582,7 @@ int Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 			THROW(GetRest(ti->LotID, ti->Date, &rest, &ph_rest));
 			THROW_PP_S((rest >= 0.0 && ph_rest >= 0.0) || ((rest + ti->Quantity_) >= 0.0 && !(ti->Flags & PPTFR_RECEIPT)), PPERR_LOTRESTINVALID, ti->LotID);
 		}
-		if(reval) {
+		if(is_reval) {
 			const LDATE dt = plusdate(ti->Date, 1);
 			if(!ti->IsRecomplete())
 				THROW_PP((ti->Flags & (PPTFR_ASSETEXPL|PPTFR_CORRECTION) || ti->Price != ti->Discount || ti->Cost != ti->RevalCost), PPERR_ZEROREVAL);
@@ -2999,7 +2997,7 @@ int Transfer::MoveOp(LotOpMovParam * param, int use_ta)
 		ti.SetupByRec(&param->TrRec);
 		SetupItemByLot(&ti, &src_lot, 1, param->TrRec.OprNo);
 		THROW_PP(!(ti.Flags & PPTFR_REVAL),   PPERR_CANTMOVREVALOP);
-		THROW_PP(!(ti.Flags & PPTFR_RECEIPT), PPERR_CANTMOVRCPTOP);
+		THROW_PP(!ti.IsReceipt(), PPERR_CANTMOVRCPTOP);
 		q = ti.Quantity_;
 		oprno = (param->DestLot.Dt == param->TrRec.Dt) ? -1 : param->TrRec.OprNo;
 		THROW(GetBounds(param->DestLotID, param->TrRec.Dt, oprno, &down_lim, &up_lim));

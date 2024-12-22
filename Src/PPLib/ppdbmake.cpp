@@ -85,20 +85,6 @@ static int64 calcNeededSize(int isEmpty)
 	return size;
 }
 
-/* @v9.2.1 Использование заменено на RemoveDir()
-static void RemovePath(const char * pPath)
-{
-	SDirEntry sde;
-	SString src_path, file_name;
-	(file_name = (src_path = pPath).SetLastSlash()).SetLastSlash().Cat("*.*");
-	for(SDirec sd(file_name); sd.Next(&sde) > 0;) {
-		SFile::Remove((file_name = src_path).Cat(sde.FileName));
-	}
-	// @v9.2.1 rmdir(src_path.RmvLastSlash());
-	::RemoveDirectory(src_path.RmvLastSlash()); // @v9.2.1
-}
-*/
-
 int CreateByExample(const char * pPath)
 {
 	int    ok = 1;
@@ -139,10 +125,10 @@ int CreateByExample(const char * pPath)
 				tbl_name = ts.TblName;
 				PPWaitMsg(tbl_name);
 				THROW_MEM(p_dst_tbl = new DBTable(tbl_name, dst_path));
-				THROW(p_dst_tbl->allocOwnBuffer(SKILOBYTE(60))); // @v10.4.1 4096-->SKILOBYTE(1024) // @v10.4.7 @fix SKILOBYTE(1024)-->SKILOBYTE(60)
+				THROW(p_dst_tbl->allocOwnBuffer(SKILOBYTE(60)));
 				if(fileExists(src_path)) {
 					THROW_MEM(p_src_tbl = new DBTable(tbl_name));
-					THROW(p_src_tbl->allocOwnBuffer(SKILOBYTE(60))); // @v10.4.1 4096-->SKILOBYTE(1024) // @v10.4.7 @fix SKILOBYTE(1024)-->SKILOBYTE(60)
+					THROW(p_src_tbl->allocOwnBuffer(SKILOBYTE(60)));
 					if(isNeededFile(tbl_name)) {
 						RECORDNUMBER rn, i = 0;
 						PPTransaction tra(1);
@@ -151,8 +137,8 @@ int CreateByExample(const char * pPath)
 						if(p_src_tbl->step(spFirst)) {
 							const int is_assoc = tbl_name.IsEqiAscii("objassoc");
 							const int is_ref = tbl_name.IsEqiAscii("reference2");
-							const int is_text_ref = tbl_name.IsEqiAscii("textref"); // @v10.7.7
-							const int is_unxtext_ref = tbl_name.IsEqiAscii("unxtextref"); // @v10.7.7
+							const int is_text_ref = tbl_name.IsEqiAscii("textref");
+							const int is_unxtext_ref = tbl_name.IsEqiAscii("unxtextref");
 							do {
 								int   ins_rec = 0;
 								p_dst_tbl->clearDataBuf();
@@ -164,7 +150,6 @@ int CreateByExample(const char * pPath)
 										PPASS_PRJBILLPOOL, PPASS_PRJPHASEBILLPOOL, PPASS_TODOBILLPOOL))
 										ins_rec = 1;
 								}
-								// @v10.7.7 {
 								else if(is_text_ref) {
 									TextRefTbl::Rec * p_rec = static_cast<TextRefTbl::Rec *>(p_src_tbl->getDataBuf());
 									if(!oneof4(p_rec->ObjType, PPOBJ_BILL, PPOBJ_TSESSION, PPOBJ_CCHECK, PPOBJ_CSESSION))
@@ -175,10 +160,8 @@ int CreateByExample(const char * pPath)
 									if(!oneof4(p_rec->ObjType, PPOBJ_BILL, PPOBJ_TSESSION, PPOBJ_CCHECK, PPOBJ_CSESSION))
 										ins_rec = 1;
 								}
-								// } @v10.7.7 
 								else {
 									ins_rec = 1;
-									// @v10.2.0 {
 									if(is_ref) {
                                         Reference2Tbl::Rec * p_rec = static_cast<Reference2Tbl::Rec *>(p_src_tbl->getDataBuf());
                                         if(p_rec->ObjType == PPOBJ_CASHNODE) {
@@ -188,7 +171,6 @@ int CreateByExample(const char * pPath)
 											p_cn->CurDate = ZERODATE;
                                         }
 									}
-									// } @v10.2.0
 								}
 								if(ins_rec && !p_dst_tbl->insertRec()) {
 									PPSaveErrContext();
@@ -492,7 +474,7 @@ int MakeDatabase()
 					}
 					virtual void Run()
 					{
-						DS.GetTLA().State |= PPThreadLocalArea::stNonInteractive; // @v10.9.6
+						DS.GetTLA().State |= PPThreadLocalArea::stNonInteractive;
 						char    secret[256];
 						SString temp_buf;
 						PPVersionInfo vi = DS.GetVersionInfo();
@@ -607,7 +589,7 @@ int MakeDatabase()
 						}
 						PPCreateDatabaseSession * p_sess = new PPCreateDatabaseSession(sess_param);
 						p_sess->Start(1);
-						::WaitForSingleObject(*p_sess, INFINITE); // @v10.7.7
+						::WaitForSingleObject(*p_sess, INFINITE);
 					}
 					PPWaitStop();
 				}
@@ -678,7 +660,7 @@ int MakeDatabase()
 						}
 						PPCreateDatabaseSession * p_sess = new PPCreateDatabaseSession(sess_param);
 						p_sess->Start(1);
-						::WaitForSingleObject(*p_sess, INFINITE); // @v10.7.7
+						::WaitForSingleObject(*p_sess, INFINITE);
 					}
 					PPWaitStop();
 				}

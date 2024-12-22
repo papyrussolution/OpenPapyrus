@@ -496,7 +496,7 @@ int PPObjBill::CreateModifByPUGL(PPID modifOpID, PPID * pID, PUGL * pPugl, PPID 
 				if(do_set_manuf_time && row_list.getCount() == 1) {
 					const uint row_pos = static_cast<uint>(row_list.get(0));
 					const PPTransferItem & r_ti = pack.TI(row_pos);
-					if(r_ti.Flags & PPTFR_RECEIPT) {
+					if(r_ti.IsReceipt()) {
 						LDATETIME manuf_dtm = ZERODATETIME;
 						if(!pPugl->Slmt.DateOffsDays)
 							manuf_dtm.d = pack.Rec.Dt;
@@ -1320,7 +1320,7 @@ int PPObjBill::Helper_CreateDeficitTi(PPBillPacket & rPack, const PUGL * pPugl, 
 				for(uint ridx = 0; ridx < row_list.getCount(); ridx++) {
 					const uint row_pos = static_cast<uint>(row_list.get(ridx));
 					const PPTransferItem & r_ti = rPack.TI(row_pos);
-					if(r_ti.Flags & PPTFR_RECEIPT) {
+					if(r_ti.IsReceipt()) {
 						LDATETIME manuf_dtm = ZERODATETIME;
 						if(!pPugl->Slmt.DateOffsDays)
 							manuf_dtm.d = rPack.Rec.Dt;

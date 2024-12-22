@@ -969,7 +969,7 @@ public:
 static uint32 SlEqualityTest_ngx_murmur_hash2(const uchar * data, size_t len)
 {
 	uint32 k;
-	uint32 h = 0 ^ len;
+	uint32 h = (0U ^ static_cast<uint32>(len));
 	while(len >= 4) {
 		k  = data[0];
 		k |= data[1] << 8;
@@ -1079,7 +1079,7 @@ SLTEST_R(HashFunction)
 					}
 					THROW(bin_buf.Alloc(NZOR(val_buf.Len(), 1) * 2));
 					THROW(val_buf.DecodeHex(1, bin_buf, bin_buf.GetSize(), &real_bin_size));
-					THROW(SLCHECK_EQ(real_bin_size, 4U));
+					THROW(SLCHECK_EQ(real_bin_size, static_cast<size_t>(4U)));
 					SLCHECK_EQ(*reinterpret_cast<const ulong *>(bin_buf.cptr()), val);
 				}
 			}

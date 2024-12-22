@@ -1649,6 +1649,7 @@ static int EditOrderCalendar(DateRepeating * pData)
 }
 
 class SupplAgtDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPSupplAgreement);
 public:
 	SupplAgtDialog(PPID supplID) : PPListDialog(supplID ? DLG_SUPPLAGT : DLG_DEFSUPPLAGT, CTL_SUPPLAGT_ORDPL), ArID(supplID)
 		//AgtDialog(supplID ? DLG_SUPPLAGT : DLG_DEFSUPPLAGT)
@@ -1659,8 +1660,77 @@ public:
 		enableCommand(cmExchangeCfg, ArID != 0);
 		updateList(-1);
 	}
-	int  setDTS(const PPSupplAgreement*);
-	int  getDTS(PPSupplAgreement*);
+	DECL_DIALOG_SETDTS()
+	{
+		SString ar_name;
+		RVALUEPTR(Data, pData);
+		ArID = Data.SupplID;
+		GetArticleName(Data.SupplID, ar_name);
+		setCtrlString(CTL_SUPPLAGT_SUPPLIER, ar_name);
+		disableCtrl(CTL_SUPPLAGT_SUPPLIER, 1);
+		setCtrlData(CTL_SUPPLAGT_DATE,      &Data.BegDt);
+		setCtrlData(CTL_SUPPLAGT_EXPIRY,    &Data.Expiry);
+		setCtrlData(CTL_SUPPLAGT_PAYPERIOD, &Data.DefPayPeriod);
+		setCtrlData(CTL_SUPPLAGT_DELIVERY,  &Data.DefDlvrTerm);
+		setCtrlData(CTL_SUPPLAGT_MAXRETURN, &Data.PctRet);
+		SetupArCombo(this, CTLSEL_SUPPLAGT_AGENT, Data.DefAgentID, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet|sacfNonGeneric);
+		SetupPPObjCombo(this, CTLSEL_SUPPLAGT_OPRKIND,  PPOBJ_OPRKIND,  Data.PurchaseOpID,    0, reinterpret_cast<void *>(PPOPT_DRAFTRECEIPT));
+		SetupPPObjCombo(this, CTLSEL_SUPPLAGT_QUOTCOST, PPOBJ_QUOTKIND, Data.CostQuotKindID,  0, reinterpret_cast<void *>(QuotKindFilt::fAll));
+		SetupPPObjCombo(this, CTLSEL_SUPPLAGT_QUOTUP,   PPOBJ_QUOTKIND, Data.DevUpQuotKindID, 0, reinterpret_cast<void *>(QuotKindFilt::fAll));
+		SetupPPObjCombo(this, CTLSEL_SUPPLAGT_QUOTDOWN, PPOBJ_QUOTKIND, Data.DevDnQuotKindID, 0, reinterpret_cast<void *>(QuotKindFilt::fAll));
+		SetupPPObjCombo(this, CTLSEL_SUPPLAGT_MNGRREL,  PPOBJ_PERSONRELTYPE, Data.MngrRelID,  0);
+		if(!ArID) {
+			const long inv_price_action = static_cast<long>(Data.InvPriceAction);
+			AddClusterAssoc(CTL_SUPPLAGT_INVPACTION, 0, PPSupplAgreement::invpaRestrict);
+			AddClusterAssoc(CTL_SUPPLAGT_INVPACTION, 1, PPSupplAgreement::invpaWarning);
+			AddClusterAssoc(CTL_SUPPLAGT_INVPACTION, 2, PPSupplAgreement::invpaDoNothing);
+			SetClusterData(CTL_SUPPLAGT_INVPACTION, inv_price_action);
+
+			AddClusterAssoc(CTL_SUPPLAGT_FLAGS2, 0, AGTF_USESDONPURCHOP);
+			AddClusterAssoc(CTL_SUPPLAGT_FLAGS2, 1, AGTF_DEFAGENTLOCTODBDIV); // @v11.0.10
+			AddClusterAssoc(CTL_SUPPLAGT_FLAGS2, 2, AGTF_INHSUPPLTAXGRPINLOT); // @v12.2.1
+			SetClusterData(CTL_SUPPLAGT_FLAGS2, Data.Flags);
+			enableCommand(cmBills, 0);
+		}
+		else {
+			AddClusterAssoc(CTL_SUPPLAGT_FLAGS, 0, AGTF_USEMARKEDGOODSONLY);
+			AddClusterAssoc(CTL_SUPPLAGT_FLAGS, 1, AGTF_SUBCOSTONSUBPARTSTR);
+			AddClusterAssoc(CTL_SUPPLAGT_FLAGS, 2, AGTF_AUTOORDER);
+			SetClusterData(CTL_SUPPLAGT_FLAGS, Data.Flags);
+		}
+		SetupCtrls(Data.Flags);
+		updateList(-1);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		int    sel = 0;
+		getCtrlData(sel = CTL_SUPPLAGT_DATE,   &Data.BegDt);
+		THROW_SL(checkdate(Data.BegDt, 1));
+		getCtrlData(sel = CTL_SUPPLAGT_EXPIRY, &Data.Expiry);
+		THROW_SL(checkdate(Data.Expiry, 1));
+		getCtrlData(CTL_SUPPLAGT_PAYPERIOD,    &Data.DefPayPeriod);
+		getCtrlData(CTL_SUPPLAGT_DELIVERY,     &Data.DefDlvrTerm);
+		getCtrlData(sel = CTL_SUPPLAGT_MAXRETURN, &Data.PctRet);
+		THROW_PP(Data.PctRet >= 0L && Data.PctRet <= 100, PPERR_USERINPUT);
+		getCtrlData(CTLSEL_SUPPLAGT_AGENT,     &Data.DefAgentID);
+		getCtrlData(CTLSEL_SUPPLAGT_OPRKIND,   &Data.PurchaseOpID);
+		getCtrlData(CTLSEL_SUPPLAGT_QUOTCOST,  &Data.CostQuotKindID);
+		getCtrlData(CTLSEL_SUPPLAGT_QUOTUP,    &Data.DevUpQuotKindID);
+		getCtrlData(CTLSEL_SUPPLAGT_QUOTDOWN,  &Data.DevDnQuotKindID);
+		getCtrlData(CTLSEL_SUPPLAGT_MNGRREL,   &Data.MngrRelID);
+		if(!ArID) {
+			GetClusterData(CTL_SUPPLAGT_INVPACTION, &Data.InvPriceAction);
+			GetClusterData(CTL_SUPPLAGT_FLAGS2, &Data.Flags);
+		}
+		else {
+			GetClusterData(CTL_SUPPLAGT_FLAGS, &Data.Flags);
+		}
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT
 	{
@@ -1762,7 +1832,6 @@ private:
 	int    EditOrdParamEntry(PPID arID, PPSupplAgreement::OrderParamEntry * pEntry, int pos);
 
 	PPID   ArID;
-	PPSupplAgreement Data;
 	PPObjArticle ArObj;
 };
 
@@ -2099,77 +2168,6 @@ int SupplAgtDialog::EditExchangeCfg()
 			valid_data = ok = 1;
 	CATCHZOKPPERR
 	delete dlg;
-	return ok;
-}
-
-int SupplAgtDialog::setDTS(const PPSupplAgreement * pAgt)
-{
-	SString ar_name;
-	RVALUEPTR(Data, pAgt);
-	ArID = Data.SupplID;
-	GetArticleName(Data.SupplID, ar_name);
-	setCtrlString(CTL_SUPPLAGT_SUPPLIER, ar_name);
-	disableCtrl(CTL_SUPPLAGT_SUPPLIER, 1);
-	setCtrlData(CTL_SUPPLAGT_DATE,      &Data.BegDt);
-	setCtrlData(CTL_SUPPLAGT_EXPIRY,    &Data.Expiry);
-	setCtrlData(CTL_SUPPLAGT_PAYPERIOD, &Data.DefPayPeriod);
-	setCtrlData(CTL_SUPPLAGT_DELIVERY,  &Data.DefDlvrTerm);
-	setCtrlData(CTL_SUPPLAGT_MAXRETURN, &Data.PctRet);
-	SetupArCombo(this, CTLSEL_SUPPLAGT_AGENT, Data.DefAgentID, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet|sacfNonGeneric);
-	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_OPRKIND,  PPOBJ_OPRKIND,  Data.PurchaseOpID,    0, reinterpret_cast<void *>(PPOPT_DRAFTRECEIPT));
-	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_QUOTCOST, PPOBJ_QUOTKIND, Data.CostQuotKindID,  0, reinterpret_cast<void *>(QuotKindFilt::fAll));
-	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_QUOTUP,   PPOBJ_QUOTKIND, Data.DevUpQuotKindID, 0, reinterpret_cast<void *>(QuotKindFilt::fAll));
-	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_QUOTDOWN, PPOBJ_QUOTKIND, Data.DevDnQuotKindID, 0, reinterpret_cast<void *>(QuotKindFilt::fAll));
-	SetupPPObjCombo(this, CTLSEL_SUPPLAGT_MNGRREL,  PPOBJ_PERSONRELTYPE, Data.MngrRelID,  0);
-	if(!ArID) {
-		long   inv_price_action = (long)Data.InvPriceAction;
-		AddClusterAssoc(CTL_SUPPLAGT_INVPACTION, 0, PPSupplAgreement::invpaRestrict);
-		AddClusterAssoc(CTL_SUPPLAGT_INVPACTION, 1, PPSupplAgreement::invpaWarning);
-		AddClusterAssoc(CTL_SUPPLAGT_INVPACTION, 2, PPSupplAgreement::invpaDoNothing);
-		SetClusterData(CTL_SUPPLAGT_INVPACTION, inv_price_action);
-
-		AddClusterAssoc(CTL_SUPPLAGT_FLAGS2, 0, AGTF_USESDONPURCHOP);
-		AddClusterAssoc(CTL_SUPPLAGT_FLAGS2, 1, AGTF_DEFAGENTLOCTODBDIV); // @v11.0.10
-		SetClusterData(CTL_SUPPLAGT_FLAGS2, Data.Flags);
-		enableCommand(cmBills, 0);
-	}
-	else {
-		AddClusterAssoc(CTL_SUPPLAGT_FLAGS, 0, AGTF_USEMARKEDGOODSONLY);
-		AddClusterAssoc(CTL_SUPPLAGT_FLAGS, 1, AGTF_SUBCOSTONSUBPARTSTR);
-		AddClusterAssoc(CTL_SUPPLAGT_FLAGS, 2, AGTF_AUTOORDER);
-		SetClusterData(CTL_SUPPLAGT_FLAGS, Data.Flags);
-	}
-	SetupCtrls(Data.Flags);
-	updateList(-1);
-	return 1;
-}
-
-int SupplAgtDialog::getDTS(PPSupplAgreement * pAgt)
-{
-	int    ok = 1, sel = 0;
-	getCtrlData(sel = CTL_SUPPLAGT_DATE,   &Data.BegDt);
-	THROW_SL(checkdate(Data.BegDt, 1));
-	getCtrlData(sel = CTL_SUPPLAGT_EXPIRY, &Data.Expiry);
-	THROW_SL(checkdate(Data.Expiry, 1));
-	getCtrlData(CTL_SUPPLAGT_PAYPERIOD,    &Data.DefPayPeriod);
-	getCtrlData(CTL_SUPPLAGT_DELIVERY,     &Data.DefDlvrTerm);
-	getCtrlData(sel = CTL_SUPPLAGT_MAXRETURN, &Data.PctRet);
-	THROW_PP(Data.PctRet >= 0L && Data.PctRet <= 100, PPERR_USERINPUT);
-	getCtrlData(CTLSEL_SUPPLAGT_AGENT,     &Data.DefAgentID);
-	getCtrlData(CTLSEL_SUPPLAGT_OPRKIND,   &Data.PurchaseOpID);
-	getCtrlData(CTLSEL_SUPPLAGT_QUOTCOST,  &Data.CostQuotKindID);
-	getCtrlData(CTLSEL_SUPPLAGT_QUOTUP,    &Data.DevUpQuotKindID);
-	getCtrlData(CTLSEL_SUPPLAGT_QUOTDOWN,  &Data.DevDnQuotKindID);
-	getCtrlData(CTLSEL_SUPPLAGT_MNGRREL,   &Data.MngrRelID);
-	if(!ArID) {
-		GetClusterData(CTL_SUPPLAGT_INVPACTION, &Data.InvPriceAction);
-		GetClusterData(CTL_SUPPLAGT_FLAGS2, &Data.Flags);
-	}
-	else {
-		GetClusterData(CTL_SUPPLAGT_FLAGS, &Data.Flags);
-	}
-	ASSIGN_PTR(pAgt, Data);
-	CATCHZOKPPERRBYDLG
 	return ok;
 }
 

@@ -450,8 +450,8 @@ bool S_IPAddr::FromStr(const char * pStr) // @construction
 		else
 			src_buf = temp_buf;
 		{
-			uint dot_pos = 0;
-			uint colon_pos = 0;
+			size_t dot_pos = 0;
+			size_t colon_pos = 0;
 			const char * p_dot = src_buf.SearchChar('.', &dot_pos);
 			const char * p_colon = src_buf.SearchChar(':', &colon_pos);
 			if(p_dot) {

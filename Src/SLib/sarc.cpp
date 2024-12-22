@@ -65,7 +65,7 @@ int SCompressor::CompressBlock(const void * pSrc, size_t srcSize, SBuffer & rDes
 			STempBuffer temp_buf(cb);
 			int  rs = 0; // result size
 			THROW(temp_buf.IsValid());
-			rs = LZ4_compress_fast_extState(P_Ctx, static_cast<const char *>(pSrc), (char *)temp_buf, (int)srcSize, temp_buf.GetSize(), 1/*acceleration*/);
+			rs = LZ4_compress_fast_extState(P_Ctx, static_cast<const char *>(pSrc), temp_buf, (int)srcSize, temp_buf.GetSize(), 1/*acceleration*/);
 			THROW(rs > 0);
 			THROW(rDest.Write(temp_buf, rs));
 			ok = rs;
@@ -232,11 +232,11 @@ struct SArc_Bz2_Block {
 			SString temp_buf;
 			temp_buf.CopyUtf8FromUnicode(p_entry_name, sstrlen(p_entry_name), 1);
 			{
-				uint rp_ = 0;
-				uint rpb_ = 0;
+				size_t rp_ = 0;
+				size_t rpb_ = 0;
 				const char * p_rp = temp_buf.SearchRChar('/', &rp_);
 				const char * p_rpb = temp_buf.SearchRChar('\\', &rpb_);
-				uint _p = 0;
+				size_t _p = 0;
 				if(p_rp && p_rpb) {
 					_p = MAX(rp_, rpb_)+1;
 				}

@@ -399,7 +399,6 @@ PPCommObjEntry::PPCommObjEntry(PPID objType, PPID id, const char * pName, const 
 		SString obj_title;
 		SString name(pEntry->Name);
 		SString symb(pEntry->Symb);
-		// @v10.2.4 @fix p_dlg = new TDialog(DLG_COMMOBJ);
 		THROW(CheckDialogPtr(&(p_dlg = new TDialog(dlg_id))));
 		THROW(p_obj = static_cast<PPObjReference *>(GetPPObject(pEntry->ObjType, 0)));
 		THROW(p_obj->EditPrereq(&pEntry->ID, p_dlg, 0));
@@ -2563,7 +2562,14 @@ int PPObjGlobalUserAcc::Edit(PPID * pID, void * extraPtr)
 	bool   is_new = false;
 	PPGlobalUserAccPacket pack;
 	THROW(EditPrereq(pID, 0, &is_new));
-	if(!is_new) {
+	if(is_new) {
+		// @v12.2.1 {
+		const PPID si = reinterpret_cast<long>(extraPtr);
+		if(si > 0 && si <= PPGLS_LAST)
+			pack.Rec.ServiceIdent = si;
+		// } @v12.2.1 
+	}
+	else {
 		THROW(GetPacket(*pID, &pack) > 0);
 	}
 	ok = PPDialogProcBody <GlobalUserAccDialog, PPGlobalUserAccPacket> (&pack);

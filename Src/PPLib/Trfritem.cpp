@@ -238,6 +238,24 @@ int PPTransferItem::Init(const BillTbl::Rec * pBillRec, int zeroRByBill, int for
 			if(!(Flags & PPTFR_FORCESUPPL))
 				Suppl = pBillRec->Object;
 			LotDate = pBillRec->Dt;
+			// @v12.2.1 (наследование в лоте специальной налоговой группы поставщика) {
+			if(Suppl && op_type_id == PPOPT_GOODSRECEIPT && CConfig.Flags2 & CCFLG2_INHSUPPLTAXGRPINLOT) {
+				const PPID supp_psn_id = ObjectToPerson(Suppl, 0);
+				if(supp_psn_id) {
+					ObjTagItem tag_item;
+					if(PPRef->Ot.GetTag(PPOBJ_PERSON, supp_psn_id, PPTAG_PERSON_SPCTAXGROUP, &tag_item) > 0) {
+						long  tax_grp_id = 0;
+						if(tag_item.GetInt(&tax_grp_id)) {
+							PPObjGoodsTax gtx_obj;
+							PPGoodsTax gtx_rec;
+							if(gtx_obj.Search(tax_grp_id, &gtx_rec) > 0) {
+								LotTaxGrpID = tax_grp_id;
+							}
+						}
+					}
+				}
+			}
+			// } @v12.2.1 
 		}
 	}
 	Rest_     = R6(Rest_);

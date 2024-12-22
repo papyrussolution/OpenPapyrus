@@ -1846,7 +1846,7 @@ int  SrUedContainer_Base::ReadProps(const char * pFileName)
 	SFile  f_in(pFileName, SFile::mRead);
 	THROW(f_in.IsValid());
 	while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-		uint comment_pos = 0;
+		size_t comment_pos = 0;
 		if(line_buf.Search("//", 0, 0, &comment_pos)) {
 			line_buf.Trim(comment_pos).Strip();
 		}

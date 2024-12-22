@@ -746,28 +746,27 @@ PPJobPool::PPJobPool(PPJobMngr * pMngr, const char * pDbSymb, int readOnly) : TS
 
 const SString & PPJobPool::GetDbSymb() const { return DbSymb; }
 
-int FASTCALL PPJobPool::IsJobSuited(const PPJob * pJob) const
+bool FASTCALL PPJobPool::IsJobSuited(const PPJob * pJob) const
 {
-	// @v10.8.3 return (DbSymb.Empty() || DbSymb.CmpNC(pJob->DbSymb) == 0) ? 1 : PPSetError(PPERR_JOBSTRNGFORPOOL);
-	// @v10.8.3 {
-	int    ok = 0;
-	if(DbSymb.IsEmpty())
-		ok = 1;
-	else if(DbSymb.CmpNC(pJob->DbSymb) == 0)
-		ok = 1;
-	else {
-		ok = PPSetError(PPERR_JOBSTRNGFORPOOL); // Задачи, которые относятся к другой базе данных в общем случае менять нельзя, но возможны исключения:
-		if(pJob->EmailAccID == 0) { // Аккаунт точно ссылается на запись в базе данных - ничего не поделать - задача не наша
-			if(pJob->Descr.CmdID == PPJOB_BACKUP) // Резерваное копирование не оперирует данными внутри базы данных - с ней можно работать
-				ok = 1;
-			else if(pJob->Descr.Flags & PPJobDescr::fNoLogin) // Задача не требует авторизации
-				ok = 1;
-			else if(pJob->Param.GetAvailableSize() == 0) // Параметры задачи пустые - значит она не ссылается на данные внутри чужой базы данных
-				ok = 1;
+	bool   ok = false;
+	if(pJob) {
+		if(DbSymb.IsEmpty())
+			ok = true;
+		else if(DbSymb.CmpNC(pJob->DbSymb) == 0)
+			ok = true;
+		else {
+			ok = LOGIC(PPSetError(PPERR_JOBSTRNGFORPOOL)); // Задачи, которые относятся к другой базе данных в общем случае менять нельзя, но возможны исключения:
+			if(pJob->EmailAccID == 0) { // Аккаунт точно ссылается на запись в базе данных - ничего не поделать - задача не наша
+				if(pJob->Descr.CmdID == PPJOB_BACKUP) // Резервное копирование не оперирует данными внутри базы данных - с ней можно работать
+					ok = true;
+				else if(pJob->Descr.Flags & PPJobDescr::fNoLogin) // Задача не требует авторизации
+					ok = true;
+				else if(pJob->Param.GetAvailableSize() == 0) // Параметры задачи пустые - значит она не ссылается на данные внутри чужой базы данных
+					ok = true;
+			}
 		}
 	}
 	return ok;
-	// } @v10.8.3 
 }
 
 uint PPJobPool::GetCount() const

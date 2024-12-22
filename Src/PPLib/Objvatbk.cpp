@@ -2162,7 +2162,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 						op_period.Set(ZERODATE, plusdate(pEbfBlk->Period.low, -1));
 						PPTransferItem * p_ti;
 						for(uint i = 0; pack.EnumTItems(&i, &p_ti);) {
-							if(p_ti->Flags & PPTFR_RECEIPT) {
+							if(p_ti->IsReceipt()) {
 								PPObjBill::EprBlock epr;
 								P_BObj->GetExpendedPartOfReceipt(p_ti->LotID, &op_period, 0, epr);
 								cost_amt += epr.Amount;

@@ -1189,7 +1189,7 @@ int InventoryConversion::Run(PPID billID)
 							}
 							else if(diff > 0.0) {
 								if(invOpEx.WrUpOp) {
-									ilti.Flags   |= PPTFR_RECEIPT;
+									ilti.Flags |= PPTFR_RECEIPT;
 									ilti.GoodsID  = goods_id;
 									ilti.Cost     = (invOpEx.Flags & INVOPF_COSTNOMINAL) ? inv_price : p.Total.Cost;
 									ilti.Price    = (invOpEx.Flags & INVOPF_COSTNOMINAL) ? p.Total.Price : inv_price;

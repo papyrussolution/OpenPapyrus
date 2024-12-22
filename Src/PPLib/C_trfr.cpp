@@ -1621,14 +1621,12 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
 						err_op = 1;
 					}
 					else { // При такой ошибке не следует пытаться исправить другие ошибки
-						// @v8.5.7 {
 						if(pFaultList->HasFault(PPLotFault::NonSingleRcptOp, 0, 0) && rcpt_pos_list.getCount() > 1) {
 							if(data.Flags & PPTFR_RECEIPT) {
 								data.Flags &= ~PPTFR_RECEIPT;
 								err_op = 1;
 							}
 						}
-						// } @v8.5.7
 						if(labs(lot_rec.GoodsID) != labs(data.GoodsID)) {
 							data.GoodsID = lot_rec.GoodsID;
 							err_op = 1;
@@ -1659,7 +1657,6 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
 							}
 							*/
 						}
-						// @v8.9.0 {
 						if(flags & TLRF_REPAIRWOTAXFLAGS && pFaultList->HasFault(PPLotFault::InadqTrfrWoTaxFlagOn, 0, 0)) {
 							if(data.Flags & PPTFR_PRICEWOTAXES) {
 								if(goods_obj.Search(labs(data.GoodsID), &goods_rec) > 0 && !(goods_rec.Flags & GF_PRICEWOTAXES)) {
@@ -1668,7 +1665,6 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
 								}
 							}
 						}
-						// } @v8.9.0
 						if(lot_rec.GoodsID > 0) {
 							if(flags & TLRF_REPAIRCOST) {
 								if(pFaultList->HasCostOpFault(dt, oprno, &fp)) {

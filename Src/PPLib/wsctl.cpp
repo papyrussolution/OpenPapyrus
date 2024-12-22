@@ -595,7 +595,7 @@ int WsCtl_ClientPolicy::Resolve()
 			AllowedPath * p_item = AllowedPathList.at(i);
 			p_item->ResolvedPath.Z();
 			if(p_item->Path.NotEmpty()) {
-				uint end_pos = 0;
+				size_t end_pos = 0;
 				if(p_item->Path.HasPrefix("${") && p_item->Path.SearchCharPos(2, '}', &end_pos)) {
 					temp_buf = p_item->Path;
 					temp_buf.Sub(0, end_pos+1, template_buf); // длина отрезка = end_pos+1

@@ -1815,7 +1815,7 @@ int PPObjBill::AddExpendByReceipt(PPID * pBillID, PPID sampleBillID, const SelAd
 			PPTransferItem ti(&pack.Rec, 0);
 			THROW(ti.SetupGoods(p_ti->GoodsID));
 			ti.SetupLot(p_ti->LotID, 0, 0);
-			if(ti.Flags & PPTFR_RECEIPT)
+			if(ti.IsReceipt())
 				ti.LotID = 0;
 			pack.BoundsByLot(p_ti->LotID, &ti, -1, &down, 0);
 			if(down > 0) {
@@ -4120,7 +4120,7 @@ int PPObjBill::GetComplete(PPID lotID, long flags, CompleteArray * pList)
 						pack.LTagL.GetString(PPTAG_LOT_SN, p-1, serial);
 						STRNSCPY(item.Serial, serial);
 						THROW_SL(pList->insert(&item));
-						if(p_ti->Flags & PPTFR_RECEIPT && p_ti->LotID) {
+						if(p_ti->IsReceipt() && p_ti->LotID) {
 							THROW(GetComplete(p_ti->LotID, gcfGatherBranches, pList)); // @recursion
 						}
 						ok = 1;
@@ -4849,7 +4849,7 @@ int PPObjBill::GetShippedPartOfReceipt(PPID rcptBillID, const DateRange * pPerio
 		PPIDArray recur_trace;
 		PPTransferItem * p_ti;
 		for(uint i = 0; pack.EnumTItems(&i, &p_ti);) {
-			if(p_ti->Flags & PPTFR_RECEIPT && p_ti->LotID) {
+			if(p_ti->IsReceipt() && p_ti->LotID) {
 				double s = 0.0;
 				THROW(Helper_GetShipmentByLot(p_ti->LotID, pPeriod, rOpList, flags, &s, &recur_trace));
 				shipment += s;
@@ -6874,7 +6874,7 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 				const PPTransferItem & r_ti = pPack->ConstTI(i);
 				const int row_idx = (int)(i);
 				if(r_ti.LotID) {
-					if((r_ti.Flags & PPTFR_RECEIPT) || force || is_intrexpnd) {
+					if(r_ti.IsReceipt() || force || is_intrexpnd) {
 						ObjTagList tag_list;
 						GetTagListByLot(r_ti.LotID, 0/*skipReserveTags*/, &tag_list); // @v9.8.11 skipReserved 1-->0
 						pPack->LTagL.Set(row_idx, tag_list.GetCount() ? &tag_list : 0);
@@ -7116,7 +7116,7 @@ int PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 			const PPTransferItem & r_ti = pPack->ConstTI(i);
 			const int row_idx = (int)i;
 			ObjTagList * p_tag_list = pPack->LTagL.Get(row_idx); // PPLotTagContainer
-			if(r_ti.Flags & PPTFR_RECEIPT) {
+			if(r_ti.IsReceipt()) {
 				if(r_ti.LotID)
 					THROW(p_ref->Ot.PutListExcl(PPOBJ_LOT, r_ti.LotID, p_tag_list, &excl_tag_list, 0));
 			}
@@ -7389,7 +7389,7 @@ int PPObjBill::SetupModifPacket(PPBillPacket * pPack)
 		else
 			suppl_id = prev_suppl_id;
 		for(i = 0; pPack->EnumTItems(&i, &p_ti);) {
-			if(p_ti->Flags & PPTFR_RECEIPT) {
+			if(p_ti->IsReceipt()) {
 				p_ti->Suppl = suppl_id;
 				p_ti->Flags |= PPTFR_FORCESUPPL;
 			}
@@ -8462,7 +8462,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 							found = 1;
 							if(p_ti->TFlags & PPTransferItem::tfForceRemove)
 								force_remove = 1;
-							if(p_ti->Flags & PPTFR_RECEIPT) {
+							if(p_ti->IsReceipt()) {
 								p_ti->LotID = ti.LotID;
 								// @v11.9.3 {
 								if(p_ti->QCert != ti.QCert) {
@@ -8503,7 +8503,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 							THROW(trfr->PreprocessCorrectionExp(*p_ti, correction_exp_chain));
 							THROW(trfr->AddItem(p_ti, tb_.Rbb(), 0));
 							ufp_counter.TiAddCount++;
-							if(p_ti->Flags & PPTFR_RECEIPT)
+							if(p_ti->IsReceipt())
 								added_lot_items.add(i-1);
 						}
 						else {

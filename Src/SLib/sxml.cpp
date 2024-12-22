@@ -23,23 +23,23 @@ static const SpcSymbEntry SpcSymbTab[] = {
 	{ '\x23', 0, "sharp"  },  // #
 	{ '\x25', 0, "pct"    },  // %
 	{ '\x27', 0, "apos"   },  // '
-	{ '\x2c', 0, "comma"  },  // , +-@v7.6.4 @Muxa
-	{ '\x2e', 0, "dot"    },  // . +-@v7.6.4 @Muxa
-	{ '\x2f', 0, "fwsl"   },  // / +-@v7.6.4 @Muxa
+	{ '\x2c', 0, "comma"  },  // ,
+	{ '\x2e', 0, "dot"    },  // .
+	{ '\x2f', 0, "fwsl"   },  // /
 	{ '\x3c', 1, "lt"     },  // <
 	{ '\x3d', 0, "eq"     },  // =
 	{ '\x3e', 0, "gt"     },  // >
 	{ '\x3f', 0, "ques"   },  // ?
 	{ '\x5b', 0, "lsq"    },  // [
-	{ '\x5c', 0, "bksl"   },  // \ +-@v7.6.4 @Muxa
+	{ '\x5c', 0, "bksl"   },  // \
 	{ '\x5d', 0, "rsq"    },  // ]
-	// { '\x59', 0, "#59"    },  // ; @v10.8.10
+	// { '\x59', 0, "#59"    },
 };
 
 void FASTCALL XMLReplaceSpecSymb(SString & rBuf, const char * pProcessSymb)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr();
-	r_temp_buf = rBuf; // @v10.9.7
+	r_temp_buf = rBuf;
 	const char * p_include = 0;
 	const char * p_exclude = 0;
 	if(pProcessSymb) {
@@ -186,7 +186,7 @@ int SXml::WNode::PutAttribSkipEmpty(const char * pName, const char * pValue)
 {
 	int    ok = 1;
 	if(State & stStarted && Lx && !isempty(pValue)) {
-		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
+		SString & r_temp_buf = SLS.AcquireRvlStr();
 		r_temp_buf = pValue;
 		if(r_temp_buf.NotEmptyS()) {
 			xmlTextWriterStartAttribute(Lx, reinterpret_cast<const xmlChar *>(pName));
@@ -224,7 +224,7 @@ int SXml::WNode::PutInnerSkipEmpty(const char * pInnerName, const char * pInnerV
 {
 	int    ok = 1;
 	if(State & stStarted && Lx && !isempty(pInnerValue)) {
-		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
+		SString & r_temp_buf = SLS.AcquireRvlStr();
 		r_temp_buf = pInnerValue;
 		if(r_temp_buf.NotEmptyS()) {
 			WNode inner(Lx, pInnerName, pInnerValue);
@@ -275,9 +275,17 @@ int SXml::WNode::Construct(xmlTextWriter * pWriter, const char * pName)
 		}
 		else if(pNode->type == XML_ELEMENT_NODE) {
 			const xmlNode * p_children = pNode->children;
-			if(p_children && p_children->type == XML_TEXT_NODE && p_children->content) {
-				rResult.Set(p_children->content);
-				ok = true;
+			if(p_children) {
+				if(p_children->type == XML_TEXT_NODE && p_children->content) {
+					rResult.Set(p_children->content);
+					ok = true;
+				}
+				// @v12.2.1 {
+				else if(p_children->type == XML_CDATA_SECTION_NODE && p_children->content) {
+					rResult.Set(p_children->content);
+					ok = true;					
+				}
+				// } @v12.2.1 
 			}
 		}
 	}

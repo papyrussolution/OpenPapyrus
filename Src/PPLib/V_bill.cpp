@@ -12,8 +12,7 @@ BillFilt::FiltExtraParam::FiltExtraParam(long setupValues, BrowseBillsType bbt) 
 {
 }
 
-IMPLEMENT_PPFILT_FACTORY(Bill); BillFilt::BillFilt() : PPBaseFilt(PPFILT_BILL, 0, 5), P_SjF(0), P_TagF(0), P_ContractorPsnTagF(0)
-	// @v8.2.9 ver 2-->3 // @v11.7.4 ver 3-->4 // @v11.9.6 ver 4-->5
+IMPLEMENT_PPFILT_FACTORY(Bill); BillFilt::BillFilt() : PPBaseFilt(PPFILT_BILL, 0, 5), P_SjF(0), P_TagF(0), P_ContractorPsnTagF(0) // @v11.7.4 ver 3-->4 // @v11.9.6 ver 4-->5
 {
 	SetFlatChunk(offsetof(BillFilt, ReserveStart),
 		offsetof(BillFilt, ReserveEnd)-offsetof(BillFilt, ReserveStart)+sizeof(ReserveEnd));
@@ -743,7 +742,7 @@ void BillFiltDialog::ExtraFilt2()
 			const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
 			setCtrlUInt16(CTL_BILLEXTFLT_STAXTGGL, (Data.Ft_STax > 0) ? 1 : ((Data.Ft_STax < 0) ? 2 : 0));
 			setCtrlUInt16(CTL_BILLEXTFLT_DCLTGGL,  (Data.Ft_Declined > 0) ? 1 : ((Data.Ft_Declined < 0) ? 2 : 0));
-			setCtrlUInt16(CTL_BILLEXTFLT_CHECKPRST, (Data.Ft_CheckPrintStatus>0) ? 1 : ((Data.Ft_CheckPrintStatus<0) ? 2 : 0)); //@erik v10.6.13
+			setCtrlUInt16(CTL_BILLEXTFLT_CHECKPRST, (Data.Ft_CheckPrintStatus > 0) ? 1 : ((Data.Ft_CheckPrintStatus < 0) ? 2 : 0)); // @erik
             {
                 AddClusterAssocDef(CTL_BILLEXTFLT_RECADV, 0, PPEDI_RECADV_STATUS_UNDEF);
                 AddClusterAssoc(CTL_BILLEXTFLT_RECADV, 1, PPEDI_RECADV_STATUS_ACCEPT);
@@ -797,7 +796,7 @@ void BillFiltDialog::ExtraFilt2()
 				v = getCtrlUInt16(CTL_BILLEXTFLT_DCLTGGL);
 				Data.Ft_Declined = (v == 1) ? 1 : ((v == 2) ? -1 : 0);
 			}
-			// @erik v10.6.13 {
+			// @erik {
 			{
 				v = getCtrlUInt16(CTL_BILLEXTFLT_CHECKPRST);
 				Data.Ft_CheckPrintStatus = (v==1) ? 1 : ((v==2) ? -1 : 0);
@@ -6503,6 +6502,7 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 							// следующее присвоение обеспечит перевод курсора на этот документ.
 							id = new_bill_id;
 						}
+						P_BObj->Dirty(hdr.ID); // @v12.2.1
 						update = 1;
 					}
 				}

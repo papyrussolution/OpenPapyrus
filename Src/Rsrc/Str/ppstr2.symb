@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494972
+LastSignatureCode=2147494973
 LastAutoCodeList=1,12257;102,10177;103,10072;110,10000;111,12130;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10152;120,10005;1001,10000;121,10000;122,10000;123,10328;124,10356;125,10064
 
 [SignatureList]
@@ -4987,6 +4987,7 @@ cfgsuppldeal_agtf_subcostonsubpartstr=2147487839
 cfgsuppldeal_agtf_usemarkedgoodsonly=2147487840
 cfgsuppldeal_agtf_usesdonpurchop=2147487841
 cfgsuppldeal_agtf_defagentloctodbdiv=2147493853
+cfgsuppldeal_agtf_inhsuppltaxgrpinlot=2147494973
 cfgsuppldeal_begdt=2147487842
 cfgsuppldeal_connaddr=2147487843
 cfgsuppldeal_costquotkind=2147487844

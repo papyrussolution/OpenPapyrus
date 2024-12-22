@@ -3775,7 +3775,7 @@ int PPBillImporter::Import(int useTa)
 							if(r_row.LotID > 0) {
 								ReceiptTbl::Rec temp_lot_rec;
 								const int lot_id_exists = BIN(P_BObj->trfr->Rcpt.Search(r_row.LotID, &temp_lot_rec) > 0);
-								if(ti.Flags & PPTFR_RECEIPT) {
+								if(ti.IsReceipt()) {
 									if(!lot_id_exists && !pack.SearchLot(r_row.LotID, 0)) {
 										ti.LotID = r_row.LotID;
 										ti.TFlags |= PPTransferItem::tfForceLotID;
@@ -3787,7 +3787,7 @@ int PPBillImporter::Import(int useTa)
 							}
 							if(checkdate(r_row.Expiry))
 								ti.Expiry = r_row.Expiry;
-							if(is_draft_rcpt || (ti.Flags & PPTFR_RECEIPT)) {
+							if(is_draft_rcpt || ti.IsReceipt()) {
 								if(r_row.UnitPerPack > 0.0)
 									upp = r_row.UnitPerPack;
 								if(upp <= 0.0)

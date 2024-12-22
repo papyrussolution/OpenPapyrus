@@ -25,7 +25,7 @@ using hsql::SelectStatement;
 	hsql::SQLParserResult result;                            \
 	hsql::SQLParser::parse(query, &result);                  \
 	SLCHECK_NZ(result.isValid());                                \
-	SLCHECK_EQ(result.size(), (uint)numStatements);
+	SLCHECK_EQ(result.size(), static_cast<size_t>(numStatements));
 
 #define TEST_PARSE_SINGLE_SQL(query, stmtType, stmtClass, result, outputVar) \
 	TEST_PARSE_SQL_QUERY(query, result, 1);                                    \
@@ -70,7 +70,7 @@ SLTEST_R(sql_parser)
 		SQLParserResult result;
 		SQLParser::parse("DELETE FROM students WHERE grade > 2.0;", &result);
 		SLCHECK_NZ(result.isValid());
-		SLCHECK_EQ(result.size(), 1U);
+		SLCHECK_EQ(result.size(), static_cast<size_t>(1U));
 		SLCHECK_NZ(result.getStatement(0)->type() == kStmtDelete);
 		const DeleteStatement* stmt = (const DeleteStatement*)result.getStatement(0);
 		SLCHECK_NZ(sstreq(stmt->tableName, "students"));
@@ -109,14 +109,14 @@ SLTEST_R(sql_parser)
 			")",
 			&result);
 		SLCHECK_NZ(result.isValid());
-		SLCHECK_EQ(result.size(), 1U);
+		SLCHECK_EQ(result.size(), static_cast<size_t>(1U));
 		SLCHECK_EQ(result.getStatement(0)->type(), kStmtCreate);
 
 		const CreateStatement* stmt = (const CreateStatement*)result.getStatement(0);
 		SLCHECK_EQ(stmt->type, kCreateTable);
 		SLCHECK_NZ(sstreq(stmt->tableName, "dummy_table"));
 		SLCHECK_NZ(stmt->columns);
-		SLCHECK_EQ(stmt->columns->size(), 21U);
+		SLCHECK_EQ(stmt->columns->size(), static_cast<size_t>(21U));
 		// c_bigint BIGINT
 		SLCHECK_NZ(sstreq(stmt->columns->at(0)->name, "c_bigint"));
 		SLCHECK_NZ(stmt->columns->at(0)->type == (ColumnType{hsql::DataType::BIGINT}));
@@ -159,7 +159,7 @@ SLTEST_R(sql_parser)
 		SLCHECK_NZ(sstreq(stmt->columns->at(8)->name, "c_double_not_null"));
 		SLCHECK_NZ(stmt->columns->at(8)->type == (ColumnType{hsql::DataType::DOUBLE}));
 		SLCHECK_EQ(stmt->columns->at(8)->nullable, false);
-		SLCHECK_EQ(stmt->columns->at(8)->P_Constraints->size(), 1U);
+		SLCHECK_EQ(stmt->columns->at(8)->P_Constraints->size(), static_cast<size_t>(1U));
 		SLCHECK_NZ(stmt->columns->at(8)->P_Constraints->count(ConstraintType::NotNull));
 		// c_float FLOAT
 		SLCHECK_NZ(sstreq(stmt->columns->at(9)->name, "c_float"));
@@ -173,7 +173,7 @@ SLTEST_R(sql_parser)
 		SLCHECK_NZ(sstreq(stmt->columns->at(11)->name, "c_integer_null"));
 		SLCHECK_NZ(stmt->columns->at(11)->type == (ColumnType{hsql::DataType::INT}));
 		SLCHECK_EQ(stmt->columns->at(11)->nullable, true);
-		SLCHECK_EQ(stmt->columns->at(11)->P_Constraints->size(), 1U);
+		SLCHECK_EQ(stmt->columns->at(11)->P_Constraints->size(), static_cast<size_t>(1U));
 		SLCHECK_NZ(stmt->columns->at(11)->P_Constraints->count(ConstraintType::Null));
 		// c_long LONG
 		SLCHECK_NZ(sstreq(stmt->columns->at(12)->name, "c_long"));
@@ -193,7 +193,7 @@ SLTEST_R(sql_parser)
 		SLCHECK_EQ(stmt->columns->at(15)->nullable, false);
 		// Expecting two elements in P_Constraints since information about NULL constraints is separately stored in
 		// ColumnDefinition::nullable
-		SLCHECK_EQ(stmt->columns->at(15)->P_Constraints->size(), 3U);
+		SLCHECK_EQ(stmt->columns->at(15)->P_Constraints->size(), static_cast<size_t>(3U));
 		SLCHECK_NZ(stmt->columns->at(15)->P_Constraints->count(ConstraintType::Unique));
 		SLCHECK_NZ(stmt->columns->at(15)->P_Constraints->count(ConstraintType::PrimaryKey));
 		SLCHECK_NZ(stmt->columns->at(15)->P_Constraints->count(ConstraintType::NotNull));
@@ -223,7 +223,7 @@ SLTEST_R(sql_parser)
 		// Table constraints are identified and separated during the parsing of the SQL string
 		// Table constraints:
 		// - PRIMARY KEY(c_char, c_int)
-		SLCHECK_EQ(stmt->tableConstraints->size(), 1U);
+		SLCHECK_EQ(stmt->tableConstraints->size(), static_cast<size_t>(1U));
 		SLCHECK_NZ(stmt->tableConstraints->at(0)->type == ConstraintType::PrimaryKey);
 		SLCHECK_NZ(sstreq(stmt->tableConstraints->at(0)->columnNames->at(0), "c_char"));
 		SLCHECK_NZ(sstreq(stmt->tableConstraints->at(0)->columnNames->at(1), "c_int"));
@@ -233,7 +233,7 @@ SLTEST_R(sql_parser)
 		SQLParser::parse("CREATE TABLE students_2 AS SELECT student_number, grade FROM students", &result);
 
 		SLCHECK_NZ(result.isValid());
-		SLCHECK_EQ(result.size(), 1U);
+		SLCHECK_EQ(result.size(), static_cast<size_t>(1U));
 		SLCHECK_EQ(result.getStatement(0)->type(), kStmtCreate);
 
 		const CreateStatement* stmt = (const CreateStatement*)result.getStatement(0);
@@ -251,7 +251,7 @@ SLTEST_R(sql_parser)
 		SQLParser::parse("UPDATE students SET grade = 5.0, name = 'test' WHERE name = 'Max O''Mustermann';", &result);
 
 		SLCHECK_NZ(result.isValid());
-		SLCHECK_EQ(result.size(), 1U);
+		SLCHECK_EQ(result.size(), static_cast<size_t>(1U));
 		SLCHECK_EQ(result.getStatement(0)->type(), kStmtUpdate);
 
 		const UpdateStatement* stmt = (const UpdateStatement*)result.getStatement(0);
@@ -259,7 +259,7 @@ SLTEST_R(sql_parser)
 		SLCHECK_NZ(sstreq(stmt->table->name, "students"));
 
 		SLCHECK_NZ(stmt->updates);
-		SLCHECK_EQ(stmt->updates->size(), 2U);
+		SLCHECK_EQ(stmt->updates->size(), static_cast<size_t>(2U));
 		SLCHECK_NZ(sstreq(stmt->updates->at(0)->column, "grade"));
 		SLCHECK_NZ(sstreq(stmt->updates->at(1)->column, "name"));
 		SLCHECK_NZ(stmt->updates->at(0)->value->isType(kExprLiteralFloat));
@@ -280,14 +280,14 @@ SLTEST_R(sql_parser)
 	}
 	{ // TEST(InsertStatementTest)
 		TEST_PARSE_SINGLE_SQL("INSERT INTO `students` (`dateUpdate`, `int_value`, `string-value`, `real-vaLUE`) VALUES ('Max Mustermann', 12345, 'Musterhausen', 2.0)", kStmtInsert, InsertStatement, result, stmt);
-		SLCHECK_EQ(stmt->values->size(), 4U);
+		SLCHECK_EQ(stmt->values->size(), static_cast<size_t>(4U));
 		// TODO
 	}
 	{ // TEST(AlterStatementDropActionTest)
 		SQLParserResult result;
 		SQLParser::parse("ALTER TABLE mytable DROP COLUMN IF EXISTS mycolumn", &result);
 		SLCHECK_NZ(result.isValid());
-		SLCHECK_EQ(result.size(), 1U);
+		SLCHECK_EQ(result.size(), static_cast<size_t>(1U));
 		const AlterStatement* stmt = (const AlterStatement*)result.getStatement(0);
 		SLCHECK_NZ(sstreq(stmt->name, "mytable"));
 		SLCHECK_EQ(stmt->ifTableExists, false);
@@ -299,7 +299,7 @@ SLTEST_R(sql_parser)
 		SQLParserResult result;
 		SQLParser::parse("CREATE INDEX myindex ON myTable (col1);", &result);
 		SLCHECK_NZ(result.isValid());
-		SLCHECK_EQ(result.size(), 1U);
+		SLCHECK_EQ(result.size(), static_cast<size_t>(1U));
 
 		const CreateStatement* stmt = (const CreateStatement*)result.getStatement(0);
 		SLCHECK_NZ(sstreq(stmt->indexName, "myindex"));
@@ -314,7 +314,7 @@ SLTEST_R(sql_parser)
 		SQLParser::parse("CREATE INDEX IF NOT EXISTS myindex ON myTable (col1 DESC, col2 asc);", &result);
 		SLCHECK_NZ(result.isValid());
 		if(result.isValid()) {
-			SLCHECK_EQ(result.size(), 1U);
+			SLCHECK_EQ(result.size(), static_cast<size_t>(1U));
 			const CreateStatement* stmt = (const CreateStatement*)result.getStatement(0);
 			SLCHECK_NZ(sstreq(stmt->indexName, "myindex"));
 			SLCHECK_NZ(sstreq(stmt->tableName, "myTable"));
@@ -333,7 +333,7 @@ SLTEST_R(sql_parser)
 		SQLParserResult result;
 		SQLParser::parse("DROP INDEX myindex", &result);
 		SLCHECK_NZ(result.isValid());
-		SLCHECK_EQ(result.size(), 1U);
+		SLCHECK_EQ(result.size(), static_cast<size_t>(1U));
 		const DropStatement* stmt = (const DropStatement*)result.getStatement(0);
 		SLCHECK_NZ(sstreq(stmt->indexName, "myindex"));
 		SLCHECK_EQ(stmt->ifExists, false);
@@ -342,7 +342,7 @@ SLTEST_R(sql_parser)
 		SQLParserResult result;
 		SQLParser::parse("DROP INDEX IF EXISTS myindex", &result);
 		SLCHECK_NZ(result.isValid());
-		SLCHECK_EQ(result.size(), 1U);
+		SLCHECK_EQ(result.size(), static_cast<size_t>(1U));
 		const DropStatement* stmt = (const DropStatement*)result.getStatement(0);
 		SLCHECK_NZ(sstreq(stmt->indexName, "myindex"));
 		SLCHECK_EQ(stmt->ifExists, true);
@@ -363,10 +363,10 @@ SLTEST_R(sql_parser)
 	}
 	{ // TEST(ReleaseStatementTest)
 		TEST_PARSE_SINGLE_SQL("SELECT * FROM students;", kStmtSelect, SelectStatement, result, stmt);
-		SLCHECK_EQ(1U, result.size());
+		SLCHECK_EQ(static_cast<size_t>(1U), result.size());
 		SLCHECK_Z(stmt->whereClause);
 		std::vector<SQLStatement*> statements = result.releaseStatements();
-		SLCHECK_EQ(0U, result.size());
+		SLCHECK_EQ(static_cast<size_t>(0U), result.size());
 		for(SQLStatement* stmt : statements) {
 			delete stmt;
 		}
@@ -438,7 +438,7 @@ SLTEST_R(sql_parser)
 		const auto& select_stmt = export_select_stmt->select;
 		SLCHECK_Z(select_stmt->whereClause);
 		SLCHECK_Z(select_stmt->groupBy);
-		SLCHECK_EQ(select_stmt->selectList->size(), 2U);
+		SLCHECK_EQ(select_stmt->selectList->size(), static_cast<size_t>(2U));
 		SLCHECK_NZ(select_stmt->selectList->at(0)->isType(kExprColumnRef));
 		SLCHECK_NZ(sstreq(select_stmt->selectList->at(0)->getName(), "firstname"));
 		SLCHECK_NZ(select_stmt->selectList->at(1)->isType(kExprColumnRef));
@@ -449,33 +449,33 @@ SLTEST_R(sql_parser)
 	{ // TEST(MoveSQLResultTest)
 		SQLParserResult res = parse_and_move("SELECT * FROM test;");
 		SLCHECK_NZ(res.isValid());
-		SLCHECK_EQ(1U, res.size());
+		SLCHECK_EQ(static_cast<size_t>(1U), res.size());
 
 		// Moved around.
 		SQLParserResult new_res = move_in_and_back(std::move(res));
 
 		// Original object should be invalid.
 		SLCHECK_Z(res.isValid());
-		SLCHECK_EQ(0U, res.size());
+		SLCHECK_EQ(static_cast<size_t>(0U), res.size());
 
 		SLCHECK_NZ(new_res.isValid());
-		SLCHECK_EQ(1U, new_res.size());
+		SLCHECK_EQ(static_cast<size_t>(1U), new_res.size());
 	}
 	{ // TEST(HintTest)
 		TEST_PARSE_SINGLE_SQL("SELECT * FROM students WITH HINT(NO_CACHE, SAMPLE_RATE(10));", kStmtSelect, SelectStatement,
 			result, stmt);
 		SLCHECK_NZ(stmt->hints);
-		SLCHECK_EQ(2U, stmt->hints->size());
+		SLCHECK_EQ(static_cast<size_t>(2U), stmt->hints->size());
 		SLCHECK_NZ(sstreq("NO_CACHE", stmt->hints->at(0)->name));
 		SLCHECK_NZ(sstreq("SAMPLE_RATE", stmt->hints->at(1)->name));
-		SLCHECK_EQ(1U, stmt->hints->at(1)->exprList->size());
+		SLCHECK_EQ(static_cast<size_t>(1U), stmt->hints->at(1)->exprList->size());
 		SLCHECK_EQ(10LL, stmt->hints->at(1)->exprList->at(0)->ival);
 	}
 	{ // TEST(StringLengthTest)
 		TEST_PARSE_SQL_QUERY("SELECT * FROM bar; INSERT INTO foo VALUES (4);\t\n SELECT * FROM foo;", result, 3);
-		SLCHECK_EQ(result.getStatement(0)->stringLength, 18U);
-		SLCHECK_EQ(result.getStatement(1)->stringLength, 28U);
-		SLCHECK_EQ(result.getStatement(2)->stringLength, 21U);
+		SLCHECK_EQ(result.getStatement(0)->stringLength, static_cast<size_t>(18U));
+		SLCHECK_EQ(result.getStatement(1)->stringLength, static_cast<size_t>(28U));
+		SLCHECK_EQ(result.getStatement(2)->stringLength, static_cast<size_t>(21U));
 	}
 	{ // TEST(ExceptOperatorTest)
 		TEST_PARSE_SINGLE_SQL("SELECT * FROM students EXCEPT SELECT * FROM students_2;", kStmtSelect, SelectStatement, result, stmt);
@@ -604,7 +604,7 @@ SLTEST_R(sql_parser)
 	{ // TEST(CastAsType) 
 		TEST_PARSE_SINGLE_SQL("SELECT CAST(ID AS VARCHAR(8)) FROM TEST", kStmtSelect, SelectStatement, result, stmt);
 		SLCHECK_NZ(result.isValid());
-		SLCHECK_EQ(stmt->selectList->size(), 1U);
+		SLCHECK_EQ(stmt->selectList->size(), static_cast<size_t>(1U));
 		SLCHECK_NZ(stmt->selectList->front()->columnType.data_type == hsql::DataType::VARCHAR);
 		SLCHECK_EQ(stmt->selectList->front()->columnType.length, 8LL);
 	}
@@ -630,7 +630,7 @@ SLTEST_R(sql_parser)
 		SLCHECK_NZ(sstreq(prepare->name, "test"));
 		SLCHECK_NZ(sstreq(prepare->query, "SELECT * FROM students WHERE grade = ?"));
 		TEST_PARSE_SINGLE_SQL(prepare->query, kStmtSelect, SelectStatement, result2, select);
-		SLCHECK_EQ(result2.parameters().size(), 1U);
+		SLCHECK_EQ(result2.parameters().size(), static_cast<size_t>(1U));
 		SLCHECK_NZ(select->whereClause->expr2->isType(kExprParameter));
 		SLCHECK_EQ(select->whereClause->expr2->ival, 0LL);
 	}
@@ -643,7 +643,7 @@ SLTEST_R(sql_parser)
 		TEST_PARSE_SINGLE_SQL("SELECT * FROM test WHERE a = ? AND b = ?", kStmtSelect, SelectStatement, result, stmt);
 		const hsql::Expr* eq1 = stmt->whereClause->expr;
 		const hsql::Expr* eq2 = stmt->whereClause->expr2;
-		SLCHECK_EQ(result.parameters().size(), 2U);
+		SLCHECK_EQ(result.parameters().size(), static_cast<size_t>(2U));
 		SLCHECK_EQ(eq1->opType, hsql::kOpEquals);
 		SLCHECK_NZ(eq1->expr->isType(hsql::kExprColumnRef));
 		SLCHECK_NZ(eq1->expr2->isType(kExprParameter));
@@ -658,7 +658,7 @@ SLTEST_R(sql_parser)
 	{ // TEST(ExecuteStatementTest)
 		TEST_PARSE_SINGLE_SQL("EXECUTE test(1, 2);", kStmtExecute, ExecuteStatement, result, stmt);
 		SLCHECK_NZ(sstreq(stmt->name, "test"));
-		SLCHECK_EQ(stmt->parameters->size(), 2U);
+		SLCHECK_EQ(stmt->parameters->size(), static_cast<size_t>(2U));
 	}
 	{ // TEST(ExecuteStatementTestNoParam)
 		TEST_PARSE_SINGLE_SQL("EXECUTE test();", kStmtExecute, ExecuteStatement, result, stmt);

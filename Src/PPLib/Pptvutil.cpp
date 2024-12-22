@@ -318,7 +318,14 @@ int FASTCALL GetIntRangeInput(TDialog * dlg, uint ctl, IntRange * pR)
 {
 	SString temp_buf;
 	if(dlg->getCtrlString(ctl, temp_buf)) {
-		temp_buf.ToIntRange(*pR, SString::torfAny);
+		// @v12.2.1 temp_buf.ToIntRange(*pR, SString::torfAny);
+		// @v12.2.1 {
+		if(temp_buf.NotEmptyS())
+			temp_buf.ToIntRange(*pR, SString::torfAny);
+		else {
+			pR->Z();
+		}
+		// } @v12.2.1 
 		return 1;
 	}
 	else

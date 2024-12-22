@@ -286,6 +286,9 @@
     <ProjectReference Include="libprotobuf-lite.vcxproj">
       <Project>{f9fc604b-eb9a-3804-ad68-577835cbadf6}</Project>
     </ProjectReference>
+    <ProjectReference Include="sentencepiece-static.vcxproj">
+      <Project>{73e57fd0-8a6d-3567-9f57-5927af9286d1}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

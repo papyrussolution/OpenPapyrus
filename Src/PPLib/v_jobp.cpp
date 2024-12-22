@@ -1,5 +1,5 @@
 // V_JOBP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
 // @codepage UTF-8
 // Редактирование списка задач JobServer'а
 //
@@ -59,7 +59,7 @@ public:
 		if(CmdSymbList.SearchByTextNc(Data.Descr.Symb, &pos))
 			cmd_id = CmdSymbList.Get(pos).Id;
 		SetupStrAssocCombo(this, CTLSEL_JOBITEM_CMD, cmd_txt_list, cmd_id, 0);
-		SetupWordSelector(CTLSEL_JOBITEM_CMD, 0, cmd_id, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v10.7.8
+		SetupWordSelector(CTLSEL_JOBITEM_CMD, 0, cmd_id, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr);
 		SetupStrAssocCombo(this, CTLSEL_JOBITEM_NEXTJOB, JobList, Data.NextJobID, 0, 0, 0);
 		disableCtrl(CTLSEL_JOBITEM_CMD, cmd_id);
 		{
@@ -655,7 +655,7 @@ void PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
 			case PPVCMD_ADDITEM:
 				ok = AddItem(&update_id);
 				break;
-			case PPVCMD_ADDBYSAMPLE: // @v10.4.3
+			case PPVCMD_ADDBYSAMPLE:
 				ok = -1;
 				if(job_id && P_Pool && CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_MOD, 0)) {
 					const PPJob * p_job = P_Pool->GetJobItem(job_id, LOGIC(Filt.Flags & JobFilt::fForAllDb));
@@ -796,7 +796,8 @@ int PPViewJob::MakeList()
 	if(P_Pool) {
 		PPJob  job;
 		SString temp_buf;
-		for(PPID id = 0; ok && P_Pool->Enum(&id, &job, Filt.Flags & JobFilt::fForAllDb);) {
+		const bool for_all_db = LOGIC(Filt.Flags & JobFilt::fForAllDb);
+		for(PPID id = 0; ok && P_Pool->Enum(&id, &job, for_all_db);) { 
 			if(CheckForFilt(job) > 0) {
 				JobViewItem item;
  				MEMSZERO(item);
@@ -812,7 +813,7 @@ int PPViewJob::MakeList()
 				item.LastRunningTime = job.LastRunningTime;
 				item.Ver = job.Ver;
 				if(job.NextJobID) {
-					const PPJob * p_job = P_Pool->GetJobItem(job.NextJobID, LOGIC(Filt.Flags & JobFilt::fForAllDb));
+					const PPJob * p_job = P_Pool->GetJobItem(job.NextJobID, for_all_db);
 					if(p_job)
 						p_job->Name.CopyTo(item.NextJob, sizeof(item.NextJob));
 				}

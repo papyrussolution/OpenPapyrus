@@ -43,7 +43,7 @@ int FASTCALL SBitArray::Copy(const SBitArray & s)
 		return 0;
 }
 
-int SBitArray::Init(const void * pBits, size_t count)
+int SBitArray::Init(const void * pBits, uint count)
 {
 	int    ok = -1;
 	if(count && pBits) {
@@ -66,10 +66,10 @@ void SBitArray::Clear()
 	Count = 0;
 }
 
-size_t SBitArray::getCount() const { return Count; }
-int    FASTCALL SBitArray::get(size_t pos) const { return (pos < Count) ? getbit32(P_Buf, Size, pos) : -1; }
-uint32 FASTCALL SBitArray::getN(size_t pos, uint count) const { return getbits(P_Buf, Size, pos, count); }
-int    FASTCALL SBitArray::operator [] (size_t pos) const { return get(pos); }
+uint   SBitArray::getCount() const { return Count; }
+int    FASTCALL SBitArray::get(uint pos) const { return (pos < Count) ? getbit32(P_Buf, Size, pos) : -1; }
+uint32 FASTCALL SBitArray::getN(uint pos, uint count) const { return getbits(P_Buf, Size, pos, count); }
+int    FASTCALL SBitArray::operator [] (uint pos) const { return get(pos); }
 int    FASTCALL SBitArray::insert(int val) { return atInsert(Count, val); }
 size_t SBitArray::getBufSize() const { return ((Count + 31) / 32) * 4; }
 
@@ -88,10 +88,10 @@ bool FASTCALL SBitArray::IsEq(const SBitArray & rS) const
 	return eq;
 }
 
-size_t FASTCALL SBitArray::getCountVal(int val) const
+uint FASTCALL SBitArray::getCountVal(int val) const
 {
-	size_t i;
-	size_t c = (Count / 32);
+	uint   i;
+	uint   c = (Count / 32);
 	uint   r = 0;
 	for(i = 0; i < c; i++) {
 		//
@@ -135,9 +135,9 @@ size_t FASTCALL SBitArray::getCountVal(int val) const
 	return r;
 }
 
-size_t FASTCALL SBitArray::findFirst(int val, size_t start) const
+uint FASTCALL SBitArray::findFirst(int val, uint start) const
 {
-	size_t p = start;
+	uint p = start;
 	while(p < Count) {
 		int    v = getbit32(P_Buf, Size, p++);
 		if((v && val) || (!v && !val))
@@ -146,7 +146,7 @@ size_t FASTCALL SBitArray::findFirst(int val, size_t start) const
 	return 0;
 }
 
-int FASTCALL SBitArray::set(size_t pos, int val)
+int FASTCALL SBitArray::set(uint pos, int val)
 {
 	if(pos < Count) {
 		if(val)
@@ -159,7 +159,7 @@ int FASTCALL SBitArray::set(size_t pos, int val)
 		return 0;
 }
 
-int FASTCALL SBitArray::atInsert(size_t pos, int val)
+int FASTCALL SBitArray::atInsert(uint pos, int val)
 {
 	if(pos <= Count) {
 		size_t new_size = ((Count + 32) / 32) * 4;
@@ -177,7 +177,7 @@ int FASTCALL SBitArray::atInsert(size_t pos, int val)
 		return 0;
 }
 
-int FASTCALL SBitArray::insertN(int val, size_t N)
+int FASTCALL SBitArray::insertN(int val, uint N)
 {
 	if(N == 0)
 		return 0;
@@ -201,7 +201,7 @@ int FASTCALL SBitArray::insertN(int val, size_t N)
 	}
 }
 
-int FASTCALL SBitArray::atFree(size_t pos)
+int FASTCALL SBitArray::atFree(uint pos)
 {
 	if(pos < Count) {
 		delbit(P_Buf, Size, pos);
@@ -383,7 +383,7 @@ static FORCEINLINE uint secp256k1_ctz64_var_debruijn(uint64 x)
 			#endif
 			}
 		}
-		/*static*/uint FASTCALL SBits::Cpop(uint64 v) { return _mm_popcnt_u64(v); }
+		/*static*/uint FASTCALL SBits::Cpop(uint64 v) { return static_cast<uint>(_mm_popcnt_u64(v)); }
 	#else 
 		/*static*/uint FASTCALL SBits::Clz(uint64 v)
 		{

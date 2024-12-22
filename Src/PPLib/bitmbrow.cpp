@@ -2353,19 +2353,19 @@ int BillItemBrowser::ConvertBasketToBill()
 
 void BillItemBrowser::viewPckgItems(bool activateNewRow)
 {
-	int    c = getCurItemPos();
+	const  int c = getCurItemPos();
 	const  int sav_brw_pos = getDef()->_curItem();
 	if(c >= 0) {
 		const PPTransferItem & r_ti = P_Pack->ConstTI(c);
 		if(r_ti.Flags & PPTFR_PCKG && P_Pack->P_PckgList && P_Pack->P_PckgList->GetByIdx(c)) {
-			uint   res_id = (LConfig.Flags & CFGFLG_SHOWPHQTTY) ? BROWSER_ID(GOODSITEMPH_W) : BROWSER_ID(GOODSITEM_W);
-			int    edit_mode = (r_ti.Flags & PPTFR_RECEIPT) ? EditMode : 2;
+			const  uint res_id = (LConfig.Flags & CFGFLG_SHOWPHQTTY) ? BROWSER_ID(GOODSITEMPH_W) : BROWSER_ID(GOODSITEM_W);
+			const  int  edit_mode = r_ti.IsReceipt() ? EditMode : 2;
 			BillItemBrowser * brw = new BillItemBrowser(res_id, P_BObj, P_Pack, 0, c, 0, edit_mode);
 			if(activateNewRow)
 				brw->State |= BillItemBrowser::stActivateNewRow;
 			ExecViewAndDestroy(brw);
 			brw = 0;
-			if(r_ti.Flags & PPTFR_RECEIPT) {
+			if(r_ti.IsReceipt()) {
 				P_Pack->CalcPckgTotals();
 				update(sav_brw_pos);
 			}
@@ -2400,7 +2400,7 @@ void BillItemBrowser::editItem()
 	if(c >= 0) {
 		p_ti = &P_Pack->TI(static_cast<uint>(c));
 		if(p_ti->Flags & PPTFR_PCKG) {
-			if(p_ti->Flags & PPTFR_RECEIPT || IsIntrExpndOp(P_Pack->Rec.OpID)) {
+			if(p_ti->IsReceipt() || IsIntrExpndOp(P_Pack->Rec.OpID)) {
 				LPackage * p_pckg = P_Pack->P_PckgList ? P_Pack->P_PckgList->GetByIdx(c) : 0;
 				if(p_pckg) {
 					if(editPackageData(p_pckg) > 0)
@@ -2830,7 +2830,7 @@ int ImportStyloScannerEntriesForBillPacket(PPBillPacket & rBp, PPLotExtCodeConta
 							else if(oneof2(mode, issebpmodeLotExtCodes, issebpmodeValidLotExtCodes)) {
 								if(entry.Code.NotEmpty() && entry.Code.Len() < sizeof(static_cast<LotExtCodeTbl::Rec *>(0)->Code)) {
 									PPTransferItem * p_ti = 0; // @stub
-									const int  do_check = (dont_veryfy_mark || (rBp.IsDraft() || (!p_ti || p_ti->Flags & PPTFR_RECEIPT))) ? 0 : 1;
+									const int  do_check = (dont_veryfy_mark || (rBp.IsDraft() || (!p_ti || p_ti->IsReceipt()))) ? 0 : 1;
 									PPID  goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
 									PPID  lot_id   = (do_check && p_ti) ? p_ti->LotID : 0;
 									GtinStruc gts;
@@ -2991,7 +2991,7 @@ public:
 		PPLotExtCodeContainer::MarkSet set;
 		const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= P_Pack->GetTCountI()) ? &P_Pack->ConstTI(RowIdx-1) : 0;
 		const int  dont_veryfy_mark = BIN(BillObj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN);
-		const int  do_check = (dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->Flags & PPTFR_RECEIPT))) ? 0 : 1;
+		const int  do_check = (dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->IsReceipt()))) ? 0 : 1;
 		const  PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
 		const  PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
 		SStringU buf_from_copy;
@@ -3739,7 +3739,7 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 			ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
 			const int dont_veryfy_mark = BIN(p_bobj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN);
 			const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= P_Pack->GetTCountI()) ? &P_Pack->ConstTI(RowIdx-1) : 0;
-			const int  do_check = (dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->Flags & PPTFR_RECEIPT))) ? 0 : 1;
+			const int  do_check = (dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->IsReceipt()))) ? 0 : 1;
 			const  PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
 			const  PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
 			THROW(CheckDialogPtr(&dlg));

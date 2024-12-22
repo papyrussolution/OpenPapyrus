@@ -133,26 +133,26 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	if(bm == 0) {
 		{
 			// Тестирование функций sstrlen и sstrnlen
-			SLCHECK_EQ(sstrlen(static_cast<const char *>(0)), 0U);
-			SLCHECK_EQ(sstrlen(static_cast<const uchar *>(0)), 0U);
-			SLCHECK_EQ(sstrlen(static_cast<const wchar_t *>(0)), 0U);
-			SLCHECK_EQ(sstrlen(static_cast<const char16_t *>(0)), 0U);
-			SLCHECK_EQ(sstrlen(static_cast<const ushort *>(0)), 0U);
-			SLCHECK_EQ(sstrlen(static_cast<const short *>(0)), 0U);
+			SLCHECK_EQ(sstrlen(static_cast<const char *>(0)), static_cast<size_t>(0));
+			SLCHECK_EQ(sstrlen(static_cast<const uchar *>(0)), static_cast<size_t>(0));
+			SLCHECK_EQ(sstrlen(static_cast<const wchar_t *>(0)), static_cast<size_t>(0));
+			SLCHECK_EQ(sstrlen(static_cast<const char16_t *>(0)), static_cast<size_t>(0));
+			SLCHECK_EQ(sstrlen(static_cast<const ushort *>(0)), static_cast<size_t>(0));
+			SLCHECK_EQ(sstrlen(static_cast<const short *>(0)), static_cast<size_t>(0));
 
-			SLCHECK_EQ(sstrlen(static_cast<const char *>("")), 0U);
-			SLCHECK_EQ(sstrlen(reinterpret_cast<const uchar *>("")), 0U);
-			SLCHECK_EQ(sstrlen(static_cast<const wchar_t *>(L"")), 0U);
-			SLCHECK_EQ(sstrlen(reinterpret_cast<const char16_t *>(L"")), 0U);
-			SLCHECK_EQ(sstrlen(reinterpret_cast<const ushort *>(L"")), 0U);
-			SLCHECK_EQ(sstrlen(reinterpret_cast<const short *>(L"")), 0U);
+			SLCHECK_EQ(sstrlen(static_cast<const char *>("")), static_cast<size_t>(0));
+			SLCHECK_EQ(sstrlen(reinterpret_cast<const uchar *>("")), static_cast<size_t>(0));
+			SLCHECK_EQ(sstrlen(static_cast<const wchar_t *>(L"")), static_cast<size_t>(0));
+			SLCHECK_EQ(sstrlen(reinterpret_cast<const char16_t *>(L"")), static_cast<size_t>(0));
+			SLCHECK_EQ(sstrlen(reinterpret_cast<const ushort *>(L"")), static_cast<size_t>(0));
+			SLCHECK_EQ(sstrlen(reinterpret_cast<const short *>(L"")), static_cast<size_t>(0));
 
-			SLCHECK_EQ(sstrlen(static_cast<const char *>("abc")), 3U);
-			SLCHECK_EQ(sstrlen(reinterpret_cast<const uchar *>("abc")), 3U);
-			SLCHECK_EQ(sstrlen(static_cast<const wchar_t *>(L"abc")), 3U);
-			SLCHECK_EQ(sstrlen(reinterpret_cast<const char16_t *>(L"abc")), 3U);
-			SLCHECK_EQ(sstrlen(reinterpret_cast<const ushort *>(L"abc")), 3U);
-			SLCHECK_EQ(sstrlen(reinterpret_cast<const short *>(L"abc")), 3U);
+			SLCHECK_EQ(sstrlen(static_cast<const char *>("abc")), static_cast<size_t>(3U));
+			SLCHECK_EQ(sstrlen(reinterpret_cast<const uchar *>("abc")), static_cast<size_t>(3U));
+			SLCHECK_EQ(sstrlen(static_cast<const wchar_t *>(L"abc")), static_cast<size_t>(3U));
+			SLCHECK_EQ(sstrlen(reinterpret_cast<const char16_t *>(L"abc")), static_cast<size_t>(3U));
+			SLCHECK_EQ(sstrlen(reinterpret_cast<const ushort *>(L"abc")), static_cast<size_t>(3U));
+			SLCHECK_EQ(sstrlen(reinterpret_cast<const short *>(L"abc")), static_cast<size_t>(3U));
 			{
 				constexpr size_t buf_len = SMEGABYTE(20) + 37;
 				constexpr size_t delta = 6;
@@ -172,11 +172,11 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					SLCHECK_EQ(sstrlen(p_very_long_string), buf_len-delta);
 					SLCHECK_EQ(sstrlen(reinterpret_cast<const uchar *>(p_very_long_string)), buf_len-delta);
 					for(uint j = 0; j < SKILOBYTE(1); j++) {
-						SLCHECK_EQ(sstrnlen(p_very_long_string, j), j);
-						SLCHECK_EQ(sstrnlen(reinterpret_cast<const uchar *>(p_very_long_string), j), j);
+						SLCHECK_EQ(sstrnlen(p_very_long_string, j), static_cast<size_t>(j));
+						SLCHECK_EQ(sstrnlen(reinterpret_cast<const uchar *>(p_very_long_string), j), static_cast<size_t>(j));
 
-						SLCHECK_EQ(OtherImplementation_String::OPENSSL_strnlen(p_very_long_string, j), j);
-						SLCHECK_EQ(OtherImplementation_String::tftp_strnlen(p_very_long_string, j), j);
+						SLCHECK_EQ(OtherImplementation_String::OPENSSL_strnlen(p_very_long_string, j), static_cast<size_t>(j));
+						SLCHECK_EQ(OtherImplementation_String::tftp_strnlen(p_very_long_string, j), static_cast<size_t>(j));
 						SLCHECK_EQ(OtherImplementation_String::u_astrnlen(p_very_long_string, j), (int)j);
 					}
 					SLCHECK_EQ(sstrnlen(p_very_long_string, buf_len), buf_len-delta);
@@ -1822,13 +1822,13 @@ SLTEST_R(slprintf)
 		}
 		{ // TEST_CASE("printf", "[]" )
 			SLCHECK_EQ(slprintf(sbuf.Z(), "% d", 4232), 5);
-			SLCHECK_EQ(sbuf.Len(), 5U);
+			SLCHECK_EQ(sbuf.Len(), static_cast<size_t>(5U));
 			SLCHECK_EQ(sbuf.cptr()[5], 0);
 			SLCHECK_EQ(sbuf, " 4232");
 		}
 		{ // TEST_CASE("fctprintf", "[]" )
 			SLCHECK_EQ(slprintf(sbuf.Z(), "This is a test of %X", 0x12EFU), 22);
-			SLCHECK_EQ(sbuf.Len(), 22U);
+			SLCHECK_EQ(sbuf.Len(), static_cast<size_t>(22U));
 			SLCHECK_EQ(sbuf, "This is a test of 12EF");
 		}
 		{ // TEST_CASE("snprintf", "[]" )

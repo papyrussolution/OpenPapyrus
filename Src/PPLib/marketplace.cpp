@@ -3970,7 +3970,7 @@ bool PPMarketplaceConfig::IsEq_ForStorage(const PPMarketplaceConfig & rS) const
 				STRNSCPY(op_pack.OpCntrPack.Head.CodeTemplate, "MPC%06");
 				op_pack.OpCntrPack.Head.Counter = 0;
 				THROW(op_obj.PutPacket(&op_id, &op_pack, 0));
-				rCfg.ReturnOpID = op_id;				
+				rCfg.CompensatedLostOpID = op_id;				
 			}
 		}
 		THROW(tra.Commit());
@@ -4019,6 +4019,26 @@ bool PPMarketplaceConfig::IsEq_ForStorage(const PPMarketplaceConfig & rS) const
 			//
 			ASSIGN_PTR(pData, Data);
 			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmAutoConfigure)) {
+				if(getDTS(0)) {
+					PPMarketplaceConfig cfg(Data);
+					if(PrcssrMarketplaceInterchange::AutoConfigure(cfg, 0, 1)) {
+						setDTS(&cfg);
+						if(PrcssrMarketplaceInterchange::WriteConfig(&cfg, 1)) {
+							;
+						}
+						else {
+							PPError();
+						}
+					}
+				}
+				clearEvent(event);
+			}
 		}
 	};
 

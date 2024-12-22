@@ -3891,6 +3891,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				r_tla.SupplDevDnQuotKindID       = suppl_agt.DevDnQuotKindID;
 				r_tla.InvalidSupplDealQuotAction = suppl_agt.InvPriceAction;
 				SETFLAG(r_cc.Flags2, CCFLG2_USESDONPURCHOP, suppl_agt.Flags & AGTF_USESDONPURCHOP);
+				SETFLAG(r_cc.Flags2, CCFLG2_INHSUPPLTAXGRPINLOT, suppl_agt.Flags & AGTF_INHSUPPLTAXGRPINLOT); // @v12.2.1
 			}
 			if(!empty_secur_base)
 				THROW(r_tla.Paths.Get(PPOBJ_USR, r_lc.UserID));

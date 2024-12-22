@@ -10,9 +10,9 @@ SLTEST_R(SBitArray)
 {
 	int    ok = 1;
 	uint   total = 1001;
+	uint   i;
 	uint   count_set = 0;
 	uint   count_reset = 0;
-	uint   i;
 	SBitArray list;
 	SRng * p_rng = SRng::CreateInstance(SRng::algMT, 0);
 	p_rng->Set(177);
@@ -295,13 +295,13 @@ SLTEST_R(BitOps)
 			pop = SBits::Cpop(v);
 			SLCHECK_NZ(clz-ctz); // Так как мы вращаем единственный бит и общее число бит четное, то инвариант годный
 			SLCHECK_EQ(pop, 1U);
-			SLCHECK_EQ(clz+ctz+pop, (sizeof(v) << 3));
+			SLCHECK_EQ(clz+ctz+pop, static_cast<uint>(sizeof(v) << 3));
 			clz = SBits::Clz_fallback(v);
 			ctz = SBits::Ctz_fallback(v);
 			pop = SBits::Cpop_fallback(v);
 			SLCHECK_NZ(clz-ctz); // Так как мы вращаем единственный бит и общее число бит четное, то инвариант годный
 			SLCHECK_EQ(pop, 1U);
-			SLCHECK_EQ(clz+ctz+pop, (sizeof(v) << 3));
+			SLCHECK_EQ(clz+ctz+pop, static_cast<uint>(sizeof(v) << 3));
 		}
 		SLCHECK_EQ(v, 1U);
 	}
@@ -324,13 +324,13 @@ SLTEST_R(BitOps)
 			pop = SBits::Cpop(v);
 			SLCHECK_NZ(clz-ctz); // Так как мы вращаем единственный бит и общее число бит четное, то инвариант годный
 			SLCHECK_EQ(pop, 1U);
-			SLCHECK_EQ(clz+ctz+pop, (sizeof(v) << 3));
+			SLCHECK_EQ(clz+ctz+pop, static_cast<uint>(sizeof(v) << 3));
 			clz = SBits::Clz_fallback(v);
 			ctz = SBits::Ctz_fallback(v);
 			pop = SBits::Cpop_fallback(v);
 			SLCHECK_NZ(clz-ctz); // Так как мы вращаем единственный бит и общее число бит четное, то инвариант годный
 			SLCHECK_EQ(pop, 1U);
-			SLCHECK_EQ(clz+ctz+pop, (sizeof(v) << 3));
+			SLCHECK_EQ(clz+ctz+pop, static_cast<uint>(sizeof(v) << 3));
 		}
 		SLCHECK_EQ(v, 1ULL);
 	}

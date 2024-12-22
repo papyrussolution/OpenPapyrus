@@ -178,7 +178,7 @@ int FASTCALL PPLoadStringDescription(const char * pSignature, SString & rBuf)
 			ok = _PPStrStore->GetDescription(pSignature, rBuf);
 			if(ok > 0) {
 				rBuf.Transf(CTRANSF_UTF8_TO_INNER);
-				_PPStrStore->ExpandString(rBuf, CTRANSF_UTF8_TO_INNER); // @v10.9.6 
+				_PPStrStore->ExpandString(rBuf, CTRANSF_UTF8_TO_INNER);
 			}
 		}
 		if(!ok)
@@ -436,7 +436,7 @@ int STDCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int r
 		SString base_msg_buf;
 		temp_buf.Z();
 		if(!pAddInfo) {
-			if(oneof3(group, PPSTR_DBENGINE, PPERR_DBLIB, PPSTR_DBLIB)) // @v10.8.2 PPSTR_DBLIB
+			if(oneof3(group, PPSTR_DBENGINE, PPERR_DBLIB, PPSTR_DBLIB))
 				pAddInfo = DBS.GetConstTLA().AddedMsgString;
 			else if(group == PPSTR_SLIBERR)
 				pAddInfo = SLS.GetConstTLA().AddedMsgString;
@@ -491,7 +491,7 @@ int STDCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int r
 		}
 		rBuf = msgcode ? temp_buf : pAddInfo;
 		if(rmvSpcChrs)
-			rBuf.ReplaceChar('\003', ' ').ReplaceChar('\n', ' ').ElimDblSpaces(); // @v10.6.7 .ElimDblSpaces()
+			rBuf.ReplaceChar('\003', ' ').ReplaceChar('\n', ' ').ElimDblSpaces();
 	}
 	return 1;
 }
@@ -670,7 +670,7 @@ PPThreadLocalArea::WaitBlock::~WaitBlock()
 {
 	Stop();
 	DestroyCursor(WaitCur);
-	State &= ~stValid; // @v10.5.3
+	State &= ~stValid;
 }
 
 bool PPThreadLocalArea::WaitBlock::IsValid() const { return LOGIC(State & stValid); }
@@ -815,30 +815,19 @@ void FASTCALL PPThreadLocalArea::WaitBlock::SetMessage(const char * pMsg)
 	}
 }
 
-void STDCALL PPThreadLocalArea::WaitBlock::SetPercent(ulong p, ulong t, const char * msg)
+void STDCALL PPThreadLocalArea::WaitBlock::SetPercent(ulong p, ulong t, const char * pMsg)
 {
 	const  ulong  promille = static_cast<ulong>(t ? (1000.0 * fdivui(p, t)) : 1000.0);
 	const  ulong  percent = promille / 10;//static_cast<ulong>(t ? (100.0 * fdivui(p, t)) : 100.0);
-	if(percent != PrevPercent || (msg && msg[0] && PrevMsg.Cmp(msg, 0) != 0)) {
+	if(percent != PrevPercent || (!isempty(pMsg) && !PrevMsg.IsEq(pMsg))) {
 		PrevPercent = percent;
 		PrevPromille = promille;
-		PrevMsg = msg;
+		PrevMsg = pMsg;
 		if(hwndPB) {
 			ShowWindow(hwndPB, SW_SHOWNA);
 			SendMessage(hwndPB, PBM_SETPOS, percent, 0);
 		}
-		char b[1024], * s;
-		if(msg) {
-			s = stpcpy(b, msg);
-			*s++ = ' ';
-		}
-		else
-			s = b;
-		ultoa(percent, s, 10);
-		s = b + sstrlen(b);
-		*s++ = '%';
-		*s = 0;
-		SetMessage(b);
+		SetMessage(SLS.AcquireRvlStr().Cat(pMsg).CatDivIfNotEmpty(' ', 0).Cat(percent).CatChar('%'));
 	}
 	else if(promille != PrevPromille) {
 		PrevPromille = promille;
@@ -902,7 +891,8 @@ void STDCALL  PPWaitPercent(int64 p, int64 t, const char * pMsg)
 	__WD.SetPercent(static_cast<ulong>(R0i((100.0 * static_cast<double>(p)) / static_cast<double>(t))), 100UL, pMsg); 
 }
 
-void FASTCALL PPWaitPercent(const IterCounter & cntr, const char * pMsg) { PPWaitPercent(cntr, cntr.GetTotal(), pMsg); }
+void FASTCALL PPWaitPercent(const IterCounter & rCntr, const char * pMsg) { PPWaitPercent(rCntr, rCntr.GetTotal(), pMsg); }
+void FASTCALL PPWaitPercent(const IterCounter & rCntr) { PPWaitPercent(rCntr, rCntr.GetTotal(), 0); }
 void FASTCALL PPWaitPercent(ulong v, const char * pMsg) { PPWaitPercent(v, 100UL, pMsg); }
 
 void STDCALL  PPWaitMsg(int msgGrpID, int msgID, const char * addInfo)
