@@ -892,7 +892,7 @@ int PPObjFormula::GetBefore290(PPID id, char * pName, char * pBuf, size_t buflen
 	else {
 		THROW(Search(id, &ref_rec) > 0);
 	}
-	strnzcpy(pName, strip(ref_rec.ObjName), PP_SYMBLEN);
+	strnzcpy(pName, strip(ref_rec.ObjName), /*PP_SYMBLEN*/32); // @v12.2.2 PP_SYMBLEN-->32 (in order to eliminate macro-constant)
 	THROW_MEM(bform = static_cast<char *>(SAlloc::C(1, sz)));
 	THROW(ref->GetProp(Obj, id, 1, form, sz) > 0);
 	if((PROPRECFIXSIZE + form->TailSize) > sz) {

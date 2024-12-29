@@ -1,5 +1,5 @@
 // TEST-SARRAY.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2024
 // Тестирование контейнеров (SVector, SArray, etc)
 //
 #include <pp.h>
@@ -104,7 +104,7 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 			//
 			int    sorted = 1;
 			for(i = 0; sorted && i < p_list->getCount()-1; i++) {
-				if(*(long *)p_list->at(i) > *(long *)p_list->at(i+1))
+				if(*static_cast<const long *>(p_list->at(i)) > *static_cast<const long *>(p_list->at(i+1)))
 					sorted = 0;
 			}
 			SLCHECK_EQ(sorted, 0);
@@ -114,7 +114,7 @@ SLTEST_FIXTURE(SArray, TestFixtureSArray)
 		//
 		p_list->sort2(CMPF_LONG);
 		for(i = 0; i < p_list->getCount()-1; i++) {
-			SLCHECK_LE(*(long *)p_list->at(i), *(long *)p_list->at(i+1));
+			SLCHECK_LE(*static_cast<const long *>(p_list->at(i)), *static_cast<const long *>(p_list->at(i+1)));
 		}
 		//
 		// Тестируем бинарный поиск (алгоритм аналогичен тесту последовательного поиска)

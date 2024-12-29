@@ -557,5 +557,6 @@
 #define cmMarketplaceCfg               663 // @v12.1.5 Конфигурация маркетплейсов
 #define cmSetupGlbSvcWb                664 // @v12.2.0 Настройка интеграции с Wildberries
 #define cmAptekaRuInterchange          665 // @v12.2.1 Обмен данными с сервисом Apteka.Ru
+#define cmGatherClientActivityStat     666 // @v12.2.2 Сбор статистики по активности клиентов
 
 #endif /* __PPMENU_H */

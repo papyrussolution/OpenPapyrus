@@ -646,10 +646,8 @@ int code_128(struct ZintSymbol * symbol, const uchar source[], int length)
 			    break;
 		}
 	} while(read < sourcelen);
-
 	/* check digit calculation */
 	total_sum = 0;
-
 	for(i = 0; i < bar_characters; i++) {
 		if(i > 0) {
 			values[i] *= i;
@@ -657,7 +655,6 @@ int code_128(struct ZintSymbol * symbol, const uchar source[], int length)
 		total_sum += values[i];
 	}
 	strcat(dest, C128Table[total_sum % 103]);
-
 	/* Stop character */
 	strcat(dest, C128Table[106]);
 	expand(symbol, dest);

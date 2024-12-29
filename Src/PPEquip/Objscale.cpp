@@ -5583,12 +5583,6 @@ int GetDefScaleData(TIDlgInitData * pData)
 	int    ok = -1;
 	PPEquipConfig  eq_cfg;
 	THROW(ReadEquipConfig(&eq_cfg));
-	/* @v9.0.4
-	if(eq_cfg.ScaleID && eq_cfg.Flags & PPEquipConfig::fCheckScaleInput) {
-		THROW(ok = GetScaleData(eq_cfg.ScaleID, pData));
-	}
-	*/
-	// @v9.0.4 {
 	if(eq_cfg.DefCashNodeID && eq_cfg.Flags & PPEquipConfig::fCheckScaleInput) {
 		PPObjCashNode cn_obj;
 		PPSyncCashNode sync_cn_rec;
@@ -5596,7 +5590,6 @@ int GetDefScaleData(TIDlgInitData * pData)
 			THROW(ok = GetScaleData(sync_cn_rec.ScaleID, pData));
 		}
 	}
-	// } @v9.0.4
 	CATCHZOKPPERR
 	return ok;
 }
@@ -5607,7 +5600,7 @@ class ScaleCache : public ObjCache {
 public:
 	ScaleCache() : ObjCache(PPOBJ_SCALE, sizeof(ScaleData)) {}
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct ScaleData : public ObjCacheEntry {
@@ -5629,7 +5622,7 @@ public:
 	};
 };
 
-int ScaleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int ScaleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	ScaleData * p_cache_rec = static_cast<ScaleData *>(pEntry);

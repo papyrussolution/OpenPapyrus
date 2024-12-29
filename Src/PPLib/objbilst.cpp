@@ -256,7 +256,7 @@ class BillStatusCache : public ObjCache {
 public:
 	BillStatusCache() : ObjCache(PPOBJ_BILLSTATUS, sizeof(Data)) {}
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
@@ -265,11 +265,11 @@ public:
 		long   CheckFields;
 		PPID   CounterID;
 		PPID   RestrictOpID;
-		SColor IndColor; // @v10.2.4
+		SColor IndColor;
 	};
 };
 
-int BillStatusCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int BillStatusCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -282,7 +282,7 @@ int BillStatusCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		FLD(CheckFields);
 		FLD(CounterID);
 		FLD(RestrictOpID);
-		FLD(IndColor); // @v10.2.4
+		FLD(IndColor);
 		#undef FLD
 		MultTextBlock b;
 		b.Add(rec.Name);
@@ -298,7 +298,6 @@ void BillStatusCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 {
 	PPBillStatus * p_data_rec = static_cast<PPBillStatus *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
-	// @v10.7.5 @ctr memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag   = PPOBJ_BILLSTATUS;
 	p_data_rec->ID    = p_cache_rec->ID;
 	#define FLD(f) p_data_rec->f = p_cache_rec->f
@@ -307,7 +306,7 @@ void BillStatusCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 	FLD(CheckFields);
 	FLD(CounterID);
 	FLD(RestrictOpID);
-	FLD(IndColor); // @v10.2.4
+	FLD(IndColor);
 	#undef FLD
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));

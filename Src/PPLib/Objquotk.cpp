@@ -1325,7 +1325,7 @@ public:
 	}
 	int    FetchSpecialKinds(PPObjQuotKind::Special * pSk);
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 	virtual void FASTCALL Dirty(PPID id); // @sync_w
 
@@ -1387,7 +1387,7 @@ int QuotKindCache::FetchRtlList(PPIDArray & rList, PPIDArray & rTmList)
 	return ok;
 }
 
-int QuotKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int QuotKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);

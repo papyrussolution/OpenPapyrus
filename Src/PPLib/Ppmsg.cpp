@@ -480,7 +480,7 @@ int STDCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int r
 			else if(addcode == PPSTR_CRYSTAL_REPORT) {
 				PPLoadString("err_crpe", base_msg_buf);
 				base_msg_buf.Space().CatParStr(msgcode);
-				temp_buf.CatN(base_msg_buf, PP_MSGLEN);
+				temp_buf.CatN(base_msg_buf, /*PP_MSGLEN*/1024); // @v12.2.2 PP_MSGLEN-->1024 (in order to eliminate macro-constant)
 			}
 			else {
 				PPLoadString(PPMSG_ERROR, PPERR_TEXTLOADINGFAULT, temp_buf);

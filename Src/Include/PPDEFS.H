@@ -32,10 +32,8 @@
 #else
 	#define KB_CTRLENTER   kbCtrlEnter
 #endif
-
-// @v6.1.11 #define PP_MINLOCALFILES    80   // Мин. значение Env 'FILES=' при локальном Btrieve'е
-#define PP_MSGLEN         1024   // Макс. длина сообщения //
-#define PP_SYMBLEN          32   // Макс. длина символа переменной
+// @v12.2.2 #define PP_MSGLEN         1024   // Макс. длина сообщения //
+// @v12.2.2 #define PP_SYMBLEN          32   // Макс. длина символа переменной
 
 #define PP_RCDATA          501   // Тип ресурса для сырых данных
 	#define DBFS_MNEXPORT             1001   // Таблица DBF для экспорта в ККМ Ел-92-Акв
@@ -1084,7 +1082,7 @@
 	#define PSNPRP_EXTSTRDATA   15L  // Строка дополнительной информации
 	#define PSNPRP_DLVRLOCLIST  16L  // Список адресов доставки (PPIDArray)
 	#define PSNPRP_CASHIERINFO  17L  // Права и пароль кассира
-// @v9.0.4 #define PPOBJ_BACCT         1005L  // Банковские счета
+	#define PSNPRP_ACTIVITYSTAT 18L  // @v12.2.2 Статистика клиенской активности персоналии
 #define PPOBJ_ARTICLE       1006L  // Статьи аналитического учета
 	//
 	// Extra records of PPOBJ_ARTICLE (Account's articles)
@@ -1252,6 +1250,7 @@
 #define PPOBJ_COMPUTER      1079L  // @v11.7.3  Управляемый компьютер (в рамках проекта WSCTL). Хранится в таблице gooods2 с видом записи PPGDSK_COMPUTER
 	#define COMPUTERPRP_SYS       1L // @v12.0.0 Запись свойств управляемого компьютера, хранящая системные параметры (MAC-addr, IP-addr, cpu etc)
 #define PPOBJ_SWPROGRAM     1080L  // @v11.9.11 Программа (в рамках проекта WSCTL). Хранится в таблице gooods2 с видом записи PPGDSK_SWPROGRAM
+#define PPOBJ_PERSON_CAS    1081L  // @v12.2.2 !PPObject Используется для кэширования статистики активности клиентов
 #define PPOBJ_DBCONVERT     1100L  // Специальный объект, используемый для формирования записей
 	// с информацией о конвертации базы данных. Запись, идентифицирующая конвертацию имеет идентификатор
 	// вида 0xMJMNRR  где MJ - мажор, MN - минор, RR - релиз
@@ -1462,6 +1461,8 @@
 #define PPTAG_LOT_MP_STOCK_TIMESTAMP   124L // @v12.1.10 Тег строки документа вида PPOPK_EDI_STOCK. Момент актуалности элемента остатков, полученных от маркетплейса.
 #define PPTAG_PERSON_SPCTAXGROUP       125L // @v12.1.12 Специальная налоговая ставка персоналии при продаже товаров (инициировано необходимостью определять специальные
 	// ставки НДС 5% и 7% в России с 2025года).
+#define PPTAG_BILL_ORGORDERIDENT       126L // @v12.2.2 Оригинальный идентификатор документа заказа. Дополнительный код документа (не заказа), который идентифицирует
+	// оригинальный заказ покупателя, в соответствии с которым документ был создан.
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -3760,6 +3761,8 @@
 	#define CTL_PSNFLT_NEWCLIPERIOD     (21 + WINDOWS_ID_BIAS)
 	#define CTLCAL_PSNFLT_NEWCLIPERIOD  (22 + WINDOWS_ID_BIAS)
 	#define CTL_PSNFLT_NEWCLIONLY       (23 + WINDOWS_ID_BIAS)
+	#define CTL_PSNFLT_CASDT            (24 + WINDOWS_ID_BIAS) // @v12.2.2
+	#define CTLCAL_PSNFLT_CASDT         (25 + WINDOWS_ID_BIAS) // @v12.2.2
 #define DLG_LST2LST               261 // Формирование одного списка из другого
 	#define cmForward                 101
 	#define cmAllForward              102
@@ -11673,6 +11676,12 @@
 	#define CTL_PRCRAPTRU_FLAGS          (9 + IMPEXP_CTL_BIAS)
 	#define CTL_PRCRAPTRU_LOC            (10 + IMPEXP_CTL_BIAS)
 	#define CTLSEL_PRCRAPTRU_LOC         (11 + IMPEXP_CTL_BIAS)
+#define DLG_PRCRCLIACST           1456 // @v12.2.2 Параметры процессора PrcssrClientActivityStatistics
+	#define CTL_PRCRCLIACST_PRD          (1 + IMPEXP_CTL_BIAS)
+	#define CTLCAL_PRCRCLIACST_PRD       (2 + IMPEXP_CTL_BIAS)
+	#define CTL_PRCRCLIACST_PK           (3 + IMPEXP_CTL_BIAS)
+	#define CTLSEL_PRCRCLIACST_PK        (4 + IMPEXP_CTL_BIAS)
+	
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

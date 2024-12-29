@@ -320,7 +320,7 @@ class RegisterTypeCache : public ObjCache {
 public:
 	RegisterTypeCache() : ObjCache(PPOBJ_REGISTERTYPE, sizeof(RegisterTypeData)) {}
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct RegisterTypeData : public ObjCacheEntry {
@@ -334,7 +334,7 @@ public:
 	};
 };
 
-int RegisterTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int RegisterTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	RegisterTypeData * p_cache_rec = static_cast<RegisterTypeData *>(pEntry);

@@ -1095,11 +1095,11 @@ public:
 	{
 	}
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
-int RegisterCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int RegisterCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	RegisterData * p_cache_rec = static_cast<RegisterData *>(pEntry);

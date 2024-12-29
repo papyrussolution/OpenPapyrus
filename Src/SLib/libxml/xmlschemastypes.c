@@ -487,17 +487,15 @@ void xmlSchemaCleanupTypes()
 	}
 }
 /**
- * xmlSchemaIsBuiltInTypeFacet:
  * @type: the built-in type
  * @facetType:  the facet type
  *
- * Evaluates if a specific facet can be
- * used in conjunction with a type.
+ * Evaluates if a specific facet can be used in conjunction with a type.
  *
  * Returns 1 if the facet can be used with the given built-in type,
  * 0 otherwise and -1 in case the type is not a built-in type.
  */
-int xmlSchemaIsBuiltInTypeFacet(xmlSchemaType * type, int facetType)
+int xmlSchemaIsBuiltInTypeFacet(const xmlSchemaType * type, int facetType)
 {
 	if(type == NULL)
 		return -1;
@@ -5174,7 +5172,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		 * yet conformant. The c type float does not cover
 		 * the whole range.
 		     */
-		    snprintf(buf, 30, "%01.14e", val->value.f);
+		    snprintf(buf, SIZEOFARRAY(buf), "%01.14e", val->value.f);
 		    *retValue = sstrdup(BAD_CAST buf);
 	    }
 	    break;
@@ -5186,7 +5184,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		 * yet conformant. The c type float does not cover
 		 * the whole range.
 		     */
-		    snprintf(buf, 40, "%01.14e", val->value.d);
+		    snprintf(buf, SIZEOFARRAY(buf), "%01.14e", val->value.d);
 		    *retValue = sstrdup(BAD_CAST buf);
 	    }
 	    break;
@@ -5246,17 +5244,11 @@ int xmlSchemaGetCanonValueWhtsp(xmlSchemaVal * val, xmlChar ** retValue, xmlSche
 	return 0;
 }
 /**
- * xmlSchemaGetValType:
  * @val: a schemas value
- *
  * Accessor for the type of a value
- *
  * Returns the xmlSchemaValType of the value
  */
-xmlSchemaValType xmlSchemaGetValType(xmlSchemaVal * val)
-{
-	return val ? val->type : XML_SCHEMAS_UNKNOWN;
-}
+xmlSchemaValType xmlSchemaGetValType(const xmlSchemaVal * val) { return val ? val->type : XML_SCHEMAS_UNKNOWN; }
 
 #define bottom_xmlschemastypes
 #endif /* LIBXML_SCHEMAS_ENABLED */

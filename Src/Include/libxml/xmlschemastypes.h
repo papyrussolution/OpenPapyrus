@@ -41,7 +41,7 @@
 	xmlSchemaType * xmlSchemaGetBuiltInListSimpleTypeItemType(const xmlSchemaType * type);
 	int xmlSchemaValidateListSimpleTypeFacet(xmlSchemaFacet * facet, const xmlChar * value, ulong actualLen, ulong * expectedLen);
 	xmlSchemaType * FASTCALL xmlSchemaGetBuiltInType(xmlSchemaValType type);
-	int xmlSchemaIsBuiltInTypeFacet(xmlSchemaType * type, int facetType);
+	int xmlSchemaIsBuiltInTypeFacet(const xmlSchemaType * type, int facetType);
 	xmlChar * xmlSchemaCollapseString(const xmlChar * value);
 	xmlChar * xmlSchemaWhiteSpaceReplace(const xmlChar * value);
 	ulong xmlSchemaGetFacetValueAsULong(xmlSchemaFacet * facet);
@@ -59,7 +59,7 @@
 	xmlSchemaVal * xmlSchemaNewQNameValue(const xmlChar * namespaceName, const xmlChar * localName);
 	int xmlSchemaCompareValuesWhtsp(xmlSchemaVal * x, xmlSchemaWhitespaceValueType xws, xmlSchemaVal * y, xmlSchemaWhitespaceValueType yws);
 	xmlSchemaVal * xmlSchemaCopyValue(xmlSchemaVal * val);
-	xmlSchemaValType xmlSchemaGetValType(xmlSchemaVal * val);
+	xmlSchemaValType xmlSchemaGetValType(const xmlSchemaVal * val);
 
 	//#ifdef __cplusplus
 	//}

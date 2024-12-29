@@ -13,7 +13,7 @@ int ExportDialogs(const char * pFileName);
 int ExportDialogs2(const char * pFileName); // @v11.0.5
 int TestAddressRecognition();
 int SelfBuild();
-int SelfbuildStaffForManual(); // @v10.9.10
+int SelfbuildStaffForManual();
 int ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char * pSrcIniFileName, const char * pDestIniFileName);
 int RemoveZeroLinkCCLines();
 int ReceiptPacking();
@@ -587,7 +587,7 @@ int PPApp::processCommand(uint cmd)
 		case cmMarketplaceInterchange: // @v12.1.3
 			DoMarketplaceInterchange();
 			break;
-		case cmAptekaRuInterchange: // @v12.2.1 @construction
+		case cmAptekaRuInterchange: // @v12.2.1
 			DoAptekaRuInterchange();
 			break;
 		case cmTimeSeriesSA: // @construction
@@ -628,7 +628,7 @@ int PPApp::processCommand(uint cmd)
 		case cmPoolBillList:         BrowseBills(bbtPoolBills);           break;
 		case cmDraftBillList:        BrowseBills(bbtDraftBills);          break;
 		case cmWmsBillList:          BrowseBills(bbtWmsBills);            break;
-		case cmAddBill:              p_bobj->CreateNewInteractive(0);    break; // @v10.9.0
+		case cmAddBill:              p_bobj->CreateNewInteractive(0);    break;
 		case cmAutoCharge:           p_bobj->AutoCharge();               break;
 		case cmCorrectBillPaym:      p_bobj->GatherPayments();           break;
 		case cmPaymWOLinkBill:       p_bobj->SearchPaymWOLinkBill();     break;
@@ -641,7 +641,7 @@ int PPApp::processCommand(uint cmd)
 		case cmCorrectAccrelArRefs:  p_bobj->atobj->CorrectRelsArRefs(); break;
 		case cmCorrectGoodsGroups:   RecoverGoodsGroups(0);               break;
 		case cmCorrectGoodsGroupsNIA: RecoverGoodsGroupsNIA();            break;
-		case cmCorrectWorldObjNIA:   PPObjWorld::Recover();               break; // @v10.8.0
+		case cmCorrectWorldObjNIA:   PPObjWorld::Recover();               break;
 		case cmCheckGStrucRecursion: PPObjGoodsStruc::CheckRecursion();   break;
 		case cmWriteOffDrafts:       WriteOffDrafts(0);                 break;
 		case cmViewLots:             ViewLots(0, 0, 1);                 break;
@@ -751,7 +751,7 @@ int PPApp::processCommand(uint cmd)
 		case cmRecalcBillTurns:      RecalcBillTurns(0);                break;
 		case cmCheckBillAmounts:     RecalcBillTurns(1);                break;
 		case cmCorrectZeroQCertRefs: CorrectZeroQCertRefs();            break;
-		case cmCorrectZeroDebtDimRefs: CorrectZeroDebtDimRefs();        break; // @v10.2.8
+		case cmCorrectZeroDebtDimRefs: CorrectZeroDebtDimRefs();        break;
 		case cmCorrectAbsenceLots:   RecoverAbsenceLots();              break;
 		case cmCorrectAbsenceGoods:  RecoverAbsenceGoods();             break;
 		case cmRecoverAbsenceBills:  RecoverAbsenceBills();             break;
@@ -901,9 +901,10 @@ int PPApp::processCommand(uint cmd)
 		case cmRecoverLostUnifiedLinks: PPObjTag::RecoverLostUnifiedLinks(); break;
 		case cmBuildLocalDL600:         BuildLocalDL600(); break;
 		case cmValidateXml:             PPValidateXml(); break;
-		case cmDumpData:                DoDbDump(0); break; // @v10.0.05
+		case cmDumpData:                DoDbDump(0); break;
 		case cmProcessTSessions:        TSessionMaintenance(); break; // @v11.0.4
 		case cmProcessBomEstimatedValues: PPObjGoods::ProcessBomEstimatedValues(); break; // @v11.7.11
+		case cmGatherClientActivityStat: GatherClientActivityStatistics(); break; // @v12.2.2 @construction
 		case cmConstructionTest:        DoConstructionTest(); break;
 		// @v10.5.12 case cmTestUhttGetLocByPhone:   PPUhttClient::TestUi_GetLocationListByPhone(); break;
 		// @v10.5.12 case cmTestUhttGetQuotByLoc:    PPUhttClient::TestUi_GetQuotByLoc(); break;
@@ -911,10 +912,10 @@ int PPApp::processCommand(uint cmd)
 		case cmTestCURL:                TestCURL(); break;
 		case cmTestEGAIS:               TestEGAIS(0); break;
 		case cmTestSearchEmail:         PPObjPerson::TestSearchEmail(); break;
-		case cmTestLogWindow:           TestLogWindow(); break; // @v9.7.0
-		case cmTestTddo2:               TestTddo2(); break; // @v9.8.3
-		case cmTestVetis:               TestVetis(); break; // @v9.8.9
-		case cmTestMqc:                 TestMqc();   break; // @v10.5.7
+		case cmTestLogWindow:           TestLogWindow(); break;
+		case cmTestTddo2:               TestTddo2(); break;
+		case cmTestVetis:               TestVetis(); break;
+		case cmTestMqc:                 TestMqc();   break;
 		case cmTestMarketplace:         TestMarketplace(); break; // @v12.1.0
 		case cmCheckChZnMark:           PPChZnPrcssr::InteractiveCheck(); break; // @v12.0.4
 		case cmConvertLatexToHtml:      PPTex2Html(); break;
@@ -1396,9 +1397,10 @@ int PPVerHistory::Read(const char * pDataPath, Info * pInfo)
 {
 	int    ok = -1;
 	if(pDataPath) {
+		constexpr size_t hdr_size = sizeof(PPVerHistory::Header);
 		size_t len = 0;
-		size_t hdr_size = sizeof(PPVerHistory::Header);
-		SString fname, path;
+		SString fname;
+		SString path;
 		PPGetFileName(PPFILNAM_VERHIST, fname);
 		(path = pDataPath).SetLastSlash().Cat(fname);
 		if(fileExists(path) != 0) {
@@ -1407,7 +1409,7 @@ int PPVerHistory::Read(const char * pDataPath, Info * pInfo)
 			Header hdr;
 			MEMSZERO(hdr);
 			THROW_SL(f.Open(path, SFile::mRead|SFile::mBinary) > 0);
-			THROW_PP_S(f.Read(&hdr, hdr_size, &len) > 0 && len == hdr_size, PPERR_INVHDRSIZE, path); // @v10.6.9 THROW_PP-->THROW_PP_S(..., path)
+			THROW_PP_S(f.Read(&hdr, hdr_size, &len) > 0 && len == hdr_size, PPERR_INVHDRSIZE, path);
 			THROW_PP_S(hdr.Signature == PPConst::Signature_VerHist, PPERR_VERHISTINVSIGN, path);
 			THROW_SL(f.CalcCRC(hdr_size, &crc));
 			SLibError = SLERR_INVALIDCRC;

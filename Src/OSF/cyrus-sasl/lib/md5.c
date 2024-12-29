@@ -53,10 +53,10 @@
 #define S44 21
 
 static void MD5Transform PROTO_LIST((UINT4 [4], const uchar [64]));
-static void Encode PROTO_LIST((uchar *, UINT4 *, unsigned int));
-static void Decode PROTO_LIST((UINT4 *, const uchar *, unsigned int));
-//static void MD5_memcpy PROTO_LIST((POINTER, POINTER, unsigned int));
-//static void MD5_memset PROTO_LIST((POINTER, int, unsigned int));
+static void Encode PROTO_LIST((uchar *, UINT4 *, uint));
+static void Decode PROTO_LIST((UINT4 *, const uchar *, uint));
+//static void MD5_memcpy PROTO_LIST((POINTER, POINTER, uint));
+//static void MD5_memset PROTO_LIST((POINTER, int, uint));
 
 static uchar PADDING[64] = {
 	0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -106,7 +106,7 @@ void _sasl_MD5Init(Cyrus_MD5_CTX * context /* context */)
  */
 
 void _sasl_MD5Update(Cyrus_MD5_CTX * context /* context */, const uchar * input /* input block */,
-    unsigned int inputLen /* length of input block */)
+    uint inputLen /* length of input block */)
 {
 	uint i, partLen;
 	/* Compute number of bytes mod 64 */
@@ -244,7 +244,7 @@ static void MD5Transform(UINT4 state[4], const uchar block[64])
 
  */
 
-static void Encode(uchar * output, UINT4 * input, unsigned int len)
+static void Encode(uchar * output, UINT4 * input, uint len)
 {
 	uint i, j;
 	for(i = 0, j = 0; j < len; i++, j += 4) {
@@ -256,7 +256,7 @@ static void Encode(uchar * output, UINT4 * input, unsigned int len)
 }
 
 // Decodes input (uchar) into output (UINT4). Assumes len is a multiple of 4.
-static void Decode(UINT4 * output, const uchar * input, unsigned int len)
+static void Decode(UINT4 * output, const uchar * input, uint len)
 {
 	uint i, j;
 	for(i = 0, j = 0; j < len; i++, j += 4)
@@ -266,18 +266,18 @@ static void Decode(UINT4 * output, const uchar * input, unsigned int len)
 /* Note: Replace "for loop" with standard memcpy if possible.
 
  */
-/*static void MD5_memcpy(POINTER output, POINTER input, unsigned int len)
+/*static void MD5_memcpy(POINTER output, POINTER input, uint len)
 {
-	unsigned int i;
+	uint i;
 	for(i = 0; i < len; i++)
 		output[i] = input[i];
 }*/
 
 /* Note: Replace "for loop" with standard memset if possible.
  */
-/*static void MD5_memset(POINTER output, int value, unsigned int len)
+/*static void MD5_memset(POINTER output, int value, uint len)
 {
-	unsigned int i;
+	uint i;
 	for(i = 0; i < len; i++)
 		((char *)output)[i] = (char)value;
 }*/

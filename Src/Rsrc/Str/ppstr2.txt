@@ -3710,7 +3710,6 @@ PPTXT_TODO_PRIOR                          "1,@{todoprior_highest};2,@{todoprior_
 PPTXT_TODO_STATUS                         "1,@{new_fem};2,@{canceled_fem};3,@{inprogress};4,В ожидании;5,@{completed_fem}"
 PPTXT_WEEKNO                              "1,первый;2,второй;3,третий;4,четвертый;5,последний"
 PPTXT_RCVPACKETREJVER                     "Пакет приема данных отклонен, поскольку требует более позднюю версию (%s)"
-PPTXT_WAIT_PALMEXPSELL                    "Формирование таблицы продаж"
 PPTXT_AR_STOP                         /!/ "0,;1,X" // 270
 PPTXT_STATLOG_GOODSCACHE              /!/ "STAT  GoodsCache: hits=%ld misses=%ld count=%u"
 PPTXT_PRCTITLES                           "@{view_processor} {%s};@{processorgroup_pl} {%s}"
@@ -4108,15 +4107,12 @@ PPTXT_IMPKLADR_KLADR                      "Импорт справочника �
 PPTXT_IMPKLADR_STREET                     "Импорт справочника КЛАДР (улицы)"
 PPTXT_IMPKLADR_PREPROCESS                 "Препроцессинг кодов"
 PPTXT_SCARDCODETEMPL                      "Шаблон номеров карт"
-PPTXT_WAIT_TURNBILLTRFR                   "Сохранение товарных строк документа"
-PPTXT_WAIT_RMVBILLTRFR                    "Удаление товарных строк документа"
 PPTXT_DYNGENGSTRUC                        "Структура принадлежит обобщению"
 PPTXT_PUTFILETOFTP                        "Загрузка файла '%s' на ftp сервер"
 PPTXT_GETFILEFROMFTP                      "Загрузка файла '%s' с ftp сервера"
 PPTXT_ADDSESSBYPRC                        "Выбор процессора для новой сессии"
 PPTXT_SEARCHARTICLE                       "Поиск аналитической статьи"
 PPTXT_SEARCHPERSON                        "Поиск персоналии"
-PPTXT_WAIT_SEARCHUNLINKEDPAYMS            "Поиск оплат с висячими ссылками"
 PPTXT_PRCWROFFLOCKED                      "Списание сессий по процессору '%s' заблокировано"
 PPTXT_LNKFILESDIR             /!/         "LinkFiles"
 PPTXT_LNKFILESEXTS                        "Все поддерживаемые файлы:*.doc;*.rtf;*.txt;*.pdf;*.xls;*.xlsm;*.xlsx;*.bmp;*.jpg;*.jpeg;*.gif;*.png;*.tiff;*.tif;*.webp,\
@@ -4159,9 +4155,6 @@ PPTXT_IMPGOODS                            "Импорт товаров"
 PPTXT_IMPSCARD                            "Импорт персональных карт"
 PPTXT_IMPQUOT                             "Импорт товарных котировок"
 PPTXT_IMPBILL                             "Импорт документов"
-//PPTXT_WAIT_PALMIMPBILL          "Импорт документов"
-//PPTXT_WAIT_PALMIMPBLINE         "Импорт строк документов"
-//PPTXT_WAIT_PALMIMPGEOTRACK      "Импорт гео-треков"
 PPTXT_IMPBILLLINE                         "Импорт строк документов"
 PPTXT_IMPGEOTRACK                         "Импорт гео-треков"
 PPTXT_IMPBANK                             "Импорт банков"
@@ -4222,8 +4215,6 @@ PPTXT_USEDSERIALFROMTSESS         "Использован серийный но�
 PPTXT_TODOORDER                   "1,По дате создания;2,По дате начала;3,По запланированной дате завершения;4,По фактической дате завершения;5,По создателю;6,По исполнителю;7,По клиенту;8,По коду задачи"
 PPTXT_STATLOG_OBJCACHE        /!/ "STAT  Cache (ObjType=%ld): hits=%ld misses=%ld count=%ld; data size=%u; data count=%u; string size=%u"
 PPTXT_TODOTEMPL_STATUS            "1,@{normal};2,@{canceled}"
-PPTXT_WAIT_CHNGTODOSTATUS         "Изменение статусов задач"
-PPTXT_WAIT_GENTEMPLTASK           "Создание задач по шаблонам"
 PPTXT_LEDGERKINDTITLES            ";@{salesledger};@{purchaseledger};Реестр исходящих счетов-фактур;Реестр входящих счетов-фактур;@{incnexpledger}"
 PPTXT_TODOCROSSTAB                "1,@{date}/@{hour};2,@{client}/@{date};3,@{executor}/@{date};4,@{client}/@{executor};5,@{executor}/@{hour}"
 PPTXT_SCALEREADY                  "@{scaleisready};@{scaleisnotready};@{scalereadinesschecking}..."
@@ -4630,14 +4621,23 @@ PPTXT_IMP_INFDUPGUIDFOUND           "Найден дубликат импорт�
 PPTXT_RECKON_NZ_INFO                "При зачете сформировано @int документов на сумму @real"
 PPTXT_RECKON_ZERO_INFO              "При зачете не сформировано ни одного документа!"
 PPTXT_LOADUSERPROFILE               "Загрузка данных профилирования из файла %s"
+//PPTXT_WAIT_PALMIMPBILL              "Импорт документов"
+//PPTXT_WAIT_PALMIMPBLINE             "Импорт строк документов"
+//PPTXT_WAIT_PALMIMPGEOTRACK          "Импорт гео-треков"
+//PPTXT_WAIT_UFPLOADSESS              "Загрузка файла сессий"
+//PPTXT_WAIT_UFPLOADSTART             "Загрузка файла стартовых записей"
+//PPTXT_WAIT_UFPLOADFINISH            "Загрузка файла финишных записей"
+PPTXT_WAIT_PALMEXPSELL              "Формирование таблицы продаж"
+PPTXT_WAIT_TURNBILLTRFR             "Сохранение товарных строк документа"
+PPTXT_WAIT_RMVBILLTRFR              "Удаление товарных строк документа"
+PPTXT_WAIT_SEARCHUNLINKEDPAYMS      "Поиск оплат с висячими ссылками"
+PPTXT_WAIT_CHNGTODOSTATUS           "Изменение статусов задач"
+PPTXT_WAIT_GENTEMPLTASK             "Создание задач по шаблонам"
 PPTXT_WAIT_QUOTVIEWBUILDING         "Сбор данных о котировках"
 PPTXT_WAIT_QUOTTMPTBUILDING         "Построение временной таблицы котировок"
 PPTXT_WAIT_ORDERBUILDING            "Построение таблицы сортировки"
 PPTXT_WAIT_UFPLOADPREPROC           "Препроцессинг исходных файлов профайлера"
 PPTXT_WAIT_UFPLOADINPUT             "Загрузка входных файлов"
-//PPTXT_WAIT_UFPLOADSESS            "Загрузка файла сессий"
-//PPTXT_WAIT_UFPLOADSTART           "Загрузка файла стартовых записей"
-//PPTXT_WAIT_UFPLOADFINISH          "Загрузка файла финишных записей"
 PPTXT_WAIT_UFPSTOREFINISH           "Сохранение финишных записей"
 PPTXT_WAIT_UFPSTOREUFSTART          "Сохранение незавершенных стартовых записей"
 PPTXT_WAIT_DEBTTRNOVR               "Расчет долговой ведомости"
@@ -4645,6 +4645,7 @@ PPTXT_WAIT_GOODSREST                "Расчет остатков товаро�
 PPTXT_WAIT_PALMEXPGOODS             "Формирование таблицы товаров"
 PPTXT_WAIT_PALMEXPCLI               "Формирование таблицы клиентов"
 PPTXT_WAIT_FLASHCACHEITEMS          "Сохранение промежуточных результатов"
+PPTXT_WAIT_GETTINGBILLLIST          "Формирование списка документов"
 PPTXT_LOGININFO                     "Пользователь авторизовался в базе данных с системным аккаунтом %s"
 PPTXT_ACCEPTANALOG_WORKBOOK_NAME    "Найден аналог по имени для записи рабочей книги '%s'"
 PPTXT_ACCEPTANALOG_WORKBOOK_SYMB    "Найден аналог по символу для записи рабочей книги '%s'"
@@ -4818,7 +4819,7 @@ PPTXT_EGAIS_QS_CCHECK               "Серверу @{brand_egais} отправ�
 PPTXT_EGAIS_MARKQTYNEQLOTQTY        "Замечание: количество марок не равно остатку по лоту - передается количество марок (%s)"
 PPTXT_NATURALTOKENID           /!/  "0,UNKNOW;1,NATURALWORD;2,DIGITALCODE;3,EAN13;4,EAN8;5,UPCA;6,UPCE;7,RU_INN;8,EAGAISWARECODE;9,EGAISMARKCODE;\
 	10,LUHN;11,ALPHADIGITALCODE;12,GUID;13,EMAIL;14,PHONE;15,IMEI;16,IP4;17,IP6;18,MACADDR48;19,DATE;20,TIME;21,SOFTWAREVERSION"
-PPTXT_SUPPLIXTECH              /!/  "MONOLIT-BALTIKA;ISALES-PEPSI;SAP-EFES;SFA-HEINEKEN;MERCAPP-GAZPROMNEFT;VLADIMIRSKIY_STANDARD;AGENT_PLUS;OSTANKINO;EFOP-MAYTEA"
+PPTXT_SUPPLIXTECH              /!/  "MONOLIT-BALTIKA;ISALES-PEPSI;SAP-EFES;SFA-HEINEKEN;MERCAPP-GAZPROMNEFT;VLADIMIRSKIY_STANDARD;AGENT_PLUS;OSTANKINO;EFOP-MAYTEA;TSARITSYNO"
 PPTXT_EGAIS_TESTSEDNING             "Тестовый режим отправки. Файл"
 PPTXT_EGAIS_SELFTRANSFBILL          "Документ '%s' перемещает товар межу идентичиными КПП - не передается в @{brand_egais}"
 PPTXT_EGAIS_NOEGAISCODE             "Не определен @{egaiscode} для товара или лота (%s)"
@@ -8637,6 +8638,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_lot_mp_stockinwayfrom               "Маркетплейс: количество, движущееся со склада"  // @v12.1.10
 @rtag_lot_mp_stocktimestamp               "Маркетплейс: время актуальности остатка"        // @v12.1.10
 @rtag_person_spctaxgroup                  "Специальная налоговая группа персоналии"        // @v12.1.12
+@rtag_bill_orgorderident                  "Оригинальный идентификатор документа заказа"    // @v12.2.2
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -9357,6 +9359,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_marketplaceinterchange               "Обмен данными с маркетплейсом"
 @cmd_marketplacecfg                       "@{cfg_marketplace}"
 @cmd_aptekaruinterchange                  "Обмен данными с сервисом @{brand_aptekaru}"
+@cmd_gathercliactivitystatistics          "@{prcssrcliactivitystatistics}" // @v12.2.2
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
@@ -14334,7 +14337,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsopanlzfilt_ogprofitable             "Доходные с возвратами"
 @goodsopanlzfilt_ogpayed                  "Доходные оплаченные"
 @goodsopanlzfilt_oginoutanalyze           "Анализ 'вход-выход'"
-@goodsopanlzfilt_ogmarketplacesalesanalyze "Анализ продаж на маркетплейсе (construction)" // @v12.1.6
+@goodsopanlzfilt_ogmarketplacesalesanalyze "Анализ продаж на маркетплейсе" // @v12.1.6
 @goodsopanlzfilt_sgb                      "@{document}"
 @goodsopanlzfilt_accsheet                 "" // internal
 @goodsopanlzfilt_object                   "@{contractor}"
@@ -14746,6 +14749,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @personfilt_ftagscrsstab                  "Кросстаб с тегами"
 @personfilt_fvatfree                      "@{vatexempt}"
 @personfilt_fnewclientsonly               "Показывать только новых клиентов"
+@personfilt_fcliactivitystats             "Показывать статистику клиенской активности"
 @personfilt_kind                          "Вид"
 @personfilt_newcliperiod                  "Период идентификации новых контрагентов"
 @personfilt_nmbpattern                    "@{number}"
@@ -14814,6 +14818,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @prcssraptekaru_rcpttag                   "Тег документов прихода по заказу"
 @prcssraptekaru_period                    "@{daterange}"
 @prcssraptekaru_ftest                     "Тестовый процессинг"
+
+@prcssrcliactivitystatistics              "Сбор статистики по активности клиентов" // @v12.2.2
+@prcssrcliactivitystatistics_period       "@{daterange}"
+@prcssrcliactivitystatistics_psnkind      "@{psnkind}"
 
 @pricelistfilt                            "Фильтр по строкам прайс-листа"
 @pricelistfilt_article                    "@{article}"
@@ -18525,21 +18533,21 @@ PPHSC_RU_MANUFORIMPORTERID_    "ИдПроизвИмп"
 PPHSC_RU_MANUFORIMPORTERINFO   "СведПроизвИмпортер"
 PPHSC_RU_PERSONINFO_PHS        "СведИП"
 PPHSC_RU_PERSONINFO_JUR        "СведЮЛ"
-PPHSC_RU_PERSONINFO_JUR2       "СвЮЛ" // @v11.9.5 SBIS
-PPHSC_RU_PERSONALINFO2         "СвФЛ" // @v11.9.5 SBIS
-PPHSC_RU_BUYER                 "Покупатель" // @v11.9.5 SBIS
+PPHSC_RU_PERSONINFO_JUR2       "СвЮЛ"          // @v11.9.5 SBIS
+PPHSC_RU_PERSONALINFO2         "СвФЛ"          // @v11.9.5 SBIS
+PPHSC_RU_BUYER                 "Покупатель"    // @v11.9.5 SBIS
 PPHSC_RU_GOODSCODE_BUYER       "КодПокупателя" // @v11.9.5 SBIS
 PPHSC_RU_SUPPLIER              "Поставщик"
 PPHSC_RU_SUPPLIERS             "Поставщики"
 PPHSC_RU_SUPPLIERID            "ИдПостав"
 PPHSC_RU_SUPPLIERID_           "ИдПоставщика"
-PPHSC_RU_GOODSCODE_SUPPL       "КодПоставщика" // @v11.9.5 SBIS
-PPHSC_RU_CONSIGNOR             "Грузоотправитель" // @v11.9.5 SBIS
-PPHSC_RU_CONSIGNEE             "Грузополучатель" // @v11.9.5 SBIS
-PPHSC_RU_PARAM_DIVCODE         "ПодразделениеКод" // @v12.0.3 SBIS (parameter)
+PPHSC_RU_GOODSCODE_SUPPL       "КодПоставщика"             // @v11.9.5 SBIS
+PPHSC_RU_CONSIGNOR             "Грузоотправитель"          // @v11.9.5 SBIS
+PPHSC_RU_CONSIGNEE             "Грузополучатель"           // @v11.9.5 SBIS
+PPHSC_RU_PARAM_DIVCODE         "ПодразделениеКод"          // @v12.0.3 SBIS (parameter)
 PPHSC_RU_PARAM_DIVNAME         "ПодразделениеНаименование" // @v12.0.3 SBIS (parameter)
-PPHSC_RU_PARAM_CONTRACTDATE    "ДоговорДата" // @v12.0.3 SBIS (parameter)
-PPHSC_RU_PARAM_CONTRACTCODE    "ДоговорНомер" // @v12.0.3 SBIS (parameter)
+PPHSC_RU_PARAM_CONTRACTDATE    "ДоговорДата"               // @v12.0.3 SBIS (parameter)
+PPHSC_RU_PARAM_CONTRACTCODE    "ДоговорНомер"              // @v12.0.3 SBIS (parameter)
 PPHSC_RU_MOVING                "Движение"
 PPHSC_RU_SUPPLY                "Поставка"
 PPHSC_RU_RETURN                "Возврат"
@@ -18551,15 +18559,15 @@ PPHSC_RU_ORGADDR               "АдрОрг"
 PPHSC_RU_ORGPHN                "ТелОрг"
 PPHSC_RU_ORGEMAIL              "EmailОтпр"
 PPHSC_RU_KND                   "КНД"
-PPHSC_RU_GLN                   "GLN" // @v11.9.5 SBIS
+PPHSC_RU_GLN                   "GLN"         // @v11.9.5 SBIS
 PPHSC_RU_EDISIDESINFO          "СвУчДокОбор" // Сведения об участниках электронного документооборота
 PPHSC_RU_EDIPROVIDERINFO       "СвОЭДОтпр"
 PPHSC_RU_EDIPROVIDERID         "ИдЭДО"
 PPHSC_RU_SENDERID              "ИдОтпр"
 PPHSC_RU_RECEIVERID            "ИдПол"
 PPHSC_RU_APPEL                 "Наим"
-PPHSC_RU_APPEL2                "Название" // @v11.9.5 SBIS
-PPHSC_RU_ROLE                  "Роль" // @v11.9.9 SBIS
+PPHSC_RU_APPEL2                "Название"    // @v11.9.5 SBIS
+PPHSC_RU_ROLE                  "Роль"        // @v11.9.9 SBIS
 PPHSC_RU_NAMEOFORG             "НаимОрг"
 PPHSC_RU_DOCIDENT              "ИдентДок"
 PPHSC_RU_NAMEOFDOC_S           "НаимДок"
@@ -18806,8 +18814,8 @@ PPHSC_RU_CORRACCDT             "КоррСчДебет"   // @v11.7.6
 PPHSC_RU_CORRACCCR             "КоррСчКредит"  // @v11.7.6
 PPHSC_RU_FILEOFINFFLDUUID      "ИдФайлИнфПол"  // @v11.7.6 Идентификатор (GUID) файла информационного поля
 PPHSC_RU_CHZNDISPOSALREASON    "СвВыбытияМАРК" // @v11.8.12
-PPHSC_RU_GTIN                  "GTIN" // @v11.9.5 SBIS
-PPHSC_RU_DATE                  "Дата" // @v11.9.5 SBIS
+PPHSC_RU_GTIN                  "GTIN"  // @v11.9.5 SBIS
+PPHSC_RU_DATE                  "Дата"  // @v11.9.5 SBIS
 PPHSC_RU_TIME                  "Время" // @v11.9.9 SBIS
 PPHSC_RU_FEATURE               "Характеристика" // @v11.9.5 SBIS
 PPHSC_RU_VALUE                 "Значение" // @v11.9.5 SBIS
@@ -18833,6 +18841,44 @@ PPHSC_RU_NO                    "Нет" // @v12.0.11
 PPHSC_RU_CONTACT               "Контакт" // @v12.1.10
 PPHSC_RU_PHN                   "Тлф"     // @v12.1.10
 PPHSC_RU_EMAIL                 "ЭлПочта" // @v12.1.10
+
+PPHSC_RU_SALE_PL               "Продажи"         // Tsaritsyno
+PPHSC_RU_CONTRACTOR_PL         "Контрагенты"     // Tsaritsyno
+PPHSC_RU_LINE                  "Строка"          // Tsaritsyno
+PPHSC_RU_DISTRIBNAME           "ИмяДистрибутора" // Tsaritsyno
+PPHSC_RU_GENERATED             "generated"   // Tsaritsyno
+PPHSC_RU_DATERANGE_LO          "ДатаНач"     // Tsaritsyno
+PPHSC_RU_DATERANGE_UP          "ДатаКон"     // Tsaritsyno
+PPHSC_RU_EXPORTTYPE            "ТипВыгрузки" // Tsaritsyno
+//PPHSC_RU_DATE                "Дата"
+PPHSC_RU_AFFILCODE             "КодФилиала" // Tsaritsyno
+PPHSC_RU_CLIENTCODE            "КлиентКод"  // Tsaritsyno
+PPHSC_RU_CLIENTINN             "КлиентИНН"  // Tsaritsyno
+PPHSC_RU_CLIENTKPP             "КлиентКПП"  // Tsaritsyno
+PPHSC_RU_CLIENTNAME            "КлиентНаименование" // Tsaritsyno
+PPHSC_RU_CLIENTADDR            "КлиентАдрес" // Tsaritsyno
+PPHSC_RU_PAYERCODE             "КодПлательщика" // Tsaritsyno
+PPHSC_RU_PAYMTERMDAYS          "КоличествоДнейОтсрочки" // Tsaritsyno
+//PPHSC_RU_EXTRA_WAYBILLCODE2  "НакладнаяНомер"
+//PPHSC_RU_EXTRA_WAYBILLDATE2  "НакладнаяДата"
+PPHSC_RU_FTDAR                 "ФТДАртикул"        // Tsaritsyno
+PPHSC_RU_WARENAME2             "ТоварНаименование" // Tsaritsyno
+PPHSC_RU_WAREUOM               "ТоварЕИ"           // Tsaritsyno
+PPHSC_RU_WEIGHTPERUNIT         "ВесШтука"          // Tsaritsyno
+PPHSC_RU_WEIGHT                "Вес"               // Tsaritsyno
+//PPHSC_RU_QUANTITY            "Количество"
+//PPHSC_RU_AMOUNT              "Сумма"
+//PPHSC_RU_VAT                 "НДС"
+PPHSC_RU_DLVRLOCCODE_MT        "МТКодТочки"                 // Tsaritsyno // Код торговой точки в мобильной торговле
+PPHSC_RU_PLACE_TSARITSYNO      "Площадка"                   // Tsaritsyno
+PPHSC_RU_REGIONCODE_FTD        "ФТДРегион"                  // Tsaritsyno
+PPHSC_RU_AGENTCODE_MT          "МТКодТП"                    // Tsaritsyno // Код торгового представителя в мобильной торговле
+PPHSC_RU_AGENT_FTDFIOTP        "ФТДФИОТП"                   // Tsaritsyno
+PPHSC_RU_SHIPPINGTYPE          "ФТДКРФормаОтгрузки"         // Tsaritsyno
+PPHSC_RU_SHIPPINGMETH          "ФТДКРСпособОтгрузки"        // Tsaritsyno
+PPHSC_RU_CHAINOFSTORESKIND     "ФТДТТСетеваяПринадлежность" // Tsaritsyno
+PPHSC_RU_STOREKIND             "ФТДТТФорматТорговойТочки"   // Tsaritsyno
+PPHSC_RU_DISTRIBUTIONCHANNEL   "КаналСбыта"                 // Tsaritsyno
 //
 // Далее следуют 16 типов документов, используемых системой VETIS. Текст точно соответствует xsd спецификации dictionary_v2.0.xsd.
 // Номер после PPHSC_VETIS_DOCTYP_ точно соответствует значению enum в спецификации (хотя, это, скорее всего, и не важно).

@@ -265,7 +265,7 @@ static int plain_client_mech_step(void * conn_context,
 	client_context_t * text = (client_context_t*)conn_context;
 	const char * user = NULL, * authid = NULL;
 	sasl_secret_t * password = NULL;
-	unsigned int free_password = 0; /* set if we need to free password */
+	uint free_password = 0; /* set if we need to free password */
 	int user_result = SASL_OK;
 	int auth_result = SASL_OK;
 	int pass_result = SASL_OK;

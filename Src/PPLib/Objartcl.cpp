@@ -2251,7 +2251,7 @@ private:
 		PPID   ObjID;
 		long   Flags;
 	};
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	PPIDArray VatFreeSupplList;
@@ -2295,7 +2295,7 @@ void FASTCALL ArticleCache::Dirty(PPID id)
 	}
 }
 
-int ArticleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int ArticleCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -2793,7 +2793,7 @@ public:
 	virtual void FASTCALL Dirty(PPID id);
 	int    FetchAgentList(LAssocArray * pAgentList);
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct DebtDimData : public ObjCacheEntry {
@@ -2803,7 +2803,7 @@ public:
 	ReadWriteLock AlLock;
 };
 
-int DebtDimCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int DebtDimCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	DebtDimData * p_cache_rec = static_cast<DebtDimData *>(pEntry);

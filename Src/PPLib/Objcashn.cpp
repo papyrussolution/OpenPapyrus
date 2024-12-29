@@ -2691,7 +2691,7 @@ public:
 	{
 	}
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
@@ -2701,12 +2701,12 @@ public:
 		PPID   ParentID;
 		long   Flags;
 		long   ExtFlags;
-		uint16 Speciality; // @v10.4.5
-		uint16 Reserve;    // @v10.4.5 @alignment
+		uint16 Speciality;
+		uint16 Reserve;    // @alignment
 	};
 };
 
-int CashNodeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int CashNodeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -2720,7 +2720,7 @@ int CashNodeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		CPY_FLD(ParentID);
 		CPY_FLD(Flags);
 		CPY_FLD(ExtFlags);
-		CPY_FLD(Speciality); // @v10.4.5
+		CPY_FLD(Speciality);
 #undef CPY_FLD
 		MultTextBlock b;
 		b.Add(rec.Name);
@@ -2746,7 +2746,7 @@ void CashNodeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 	CPY_FLD(ParentID);
 	CPY_FLD(Flags);
 	CPY_FLD(ExtFlags);
-	CPY_FLD(Speciality); // @v10.4.5
+	CPY_FLD(Speciality);
 #undef CPY_FLD
 	MultTextBlock b(this, pEntry);
 	b.Get(p_data_rec->Name, sizeof(p_data_rec->Name));

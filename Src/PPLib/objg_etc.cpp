@@ -117,7 +117,7 @@ class GoodsTypeCache : public ObjCache {
 public:
 	GoodsTypeCache() : ObjCache(PPOBJ_GOODSTYPE, sizeof(GoodsTypeData)) {}
 private:
-	virtual int FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+	virtual int FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 	{
 		int    ok = 1;
 		GoodsTypeData * p_cache_rec = static_cast<GoodsTypeData *>(pEntry);
@@ -131,10 +131,10 @@ private:
 			FLD(AmtPrice);
 			FLD(AmtDscnt);
 			FLD(AmtCVat);
-			FLD(ChZnProdType); // @v10.7.2
+			FLD(ChZnProdType);
 			FLD(Flags);
 			#undef FLD
-			/* @v10.4.2 ok =*/PutName(rec.Name, p_cache_rec);
+			PutName(rec.Name, p_cache_rec);
 		}
 		else
 			ok = -1;
@@ -805,7 +805,7 @@ public:
 	int    FetchBarList(PPObjGoodsValRestr::GvrArray & rList);
 	int    DirtyBarList();
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 	virtual void FASTCALL Dirty(PPID id);
 public:
@@ -875,7 +875,7 @@ void FASTCALL GoodsValRestrCache::Dirty(PPID id)
 	}
 }
 
-int GoodsValRestrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int GoodsValRestrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	GoodsValRestrData * p_cache_rec = static_cast<GoodsValRestrData *>(pEntry);
@@ -885,7 +885,7 @@ int GoodsValRestrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 #define CPY_FLD(Fld) p_cache_rec->Fld=pack.Rec.Fld
 		CPY_FLD(ScpShipmOpID);
 		CPY_FLD(ScpRetOpID);
-		CPY_FLD(ScpShipmLimitOpID); // @v9.2.3
+		CPY_FLD(ScpShipmLimitOpID);
 		CPY_FLD(ScpDurationDays);
 		CPY_FLD(ScpUpDev);
 		CPY_FLD(ScpDnDev);

@@ -10126,7 +10126,7 @@ class EfopMayTea : public PrcssrSupplInterchange::ExecuteBlock { // @v12.0.7 @co
 		SString ContractorName;
 		SString ContractorAddrText;
 		SString AgentName;
-		SString DlvrAddrText;
+		SString DlvrAddrText_;
 		TSVector <Position> ItemList;
 	};
 	class BillPacketCollection : public TSCollection <BillPacket> {
@@ -10244,17 +10244,17 @@ class EfopMayTea : public PrcssrSupplInterchange::ExecuteBlock { // @v12.0.7 @co
 							if(LocObj.GetPacket(dlvr_loc_id, &loc_pack) > 0 && loc_pack.Type == LOCTYP_ADDRESS) {
 								dlvr_loc_pack_is_valid = true;
 								p_new_pack->DlvrLocID = dlvr_loc_id;
-								LocationCore::GetAddress(loc_pack, 0, p_new_pack->DlvrAddrText);
+								LocationCore::GetAddress(loc_pack, 0, p_new_pack->DlvrAddrText_);
 							}
 							else if(contractor_rloc_addr.NotEmpty()) {
 								dlvr_loc_pack_is_valid = true;
 								p_new_pack->DlvrLocID = psn_pack.Rec.RLoc;
-								p_new_pack->DlvrAddrText = contractor_rloc_addr;
+								p_new_pack->DlvrAddrText_ = contractor_rloc_addr;
 							}
 							else if(contractor_mainloc_addr.NotEmpty()) {
 								dlvr_loc_pack_is_valid = true;
 								p_new_pack->DlvrLocID = psn_pack.Rec.MainLoc;
-								p_new_pack->DlvrAddrText = contractor_mainloc_addr;
+								p_new_pack->DlvrAddrText_ = contractor_mainloc_addr;
 							}
 							if(dlvr_loc_pack_is_valid) {
 								if(loc_pack.CityID) {
@@ -10321,7 +10321,7 @@ class EfopMayTea : public PrcssrSupplInterchange::ExecuteBlock { // @v12.0.7 @co
 								if(!p_founded_dlvr_loc && p_new_pack->DlvrLocID) {
 									ClientEntry::DlvrLoc * p_new_loc_entry = p_founded_cli->DlvrLocList.CreateNewItem();
 									p_new_loc_entry->ID = p_new_pack->DlvrLocID;
-									p_new_loc_entry->Addr = p_new_pack->ContractorAddrText;
+									p_new_loc_entry->Addr = p_new_pack->DlvrAddrText_; // @v12.2.2 @fix p_new_pack->ContractorAddrText-->p_new_pack->DlvrAddrText_
 									(p_new_loc_entry->Name = p_new_pack->ContractorName).Space().CatChar('#').Cat(p_new_loc_entry->ID);
 								}
 							}
@@ -10716,7 +10716,7 @@ public:
 						n_h.PutInner("INN", XmlCp1251EncText(p_pack->ContractorINN));
 						n_h.PutInner("BuyerName", XmlCp1251EncText(p_pack->ContractorName));
 						n_h.PutInner("DeliveryPointBuyerCode", temp_buf.Z().Cat(p_pack->DlvrLocID));
-						n_h.PutInner("Address", XmlCp1251EncText(p_pack->DlvrAddrText));
+						n_h.PutInner("Address", XmlCp1251EncText(p_pack->DlvrAddrText_));
 						n_h.PutInner("ManagerBuyerCode", temp_buf.Z().Cat(p_pack->AgentID));
 						n_h.PutInner("ManagerName", XmlCp1251EncText(p_pack->AgentName));
 						n_h.PutInner("InvoiceNumber", XmlCp1251EncText(p_pack->Code));
@@ -11705,6 +11705,609 @@ SString & FASTCALL Ostankino::Helper_GetToken(long tokId)
 	}
 	return TokBuf;
 }
+//
+// 
+// 
+class Tsaritsyno : public PrcssrSupplInterchange::ExecuteBlock { // @v12.2.2
+	struct ClientEntry {
+		struct DlvrLoc {
+			PPID   ID;
+			PPID   AgentID;
+			SString Name;
+			SString Addr;
+			SString AgentName;
+		};
+		PPID   PsnID;
+		PPID   ArID;
+		char   INN[32];
+		char   KPP[32];
+		SString Name;
+		TSCollection <DlvrLoc> DlvrLocList;
+	};
+	struct BillPacket {
+		BillPacket() : ID(0), DocType(doctypUndef), Dt(ZERODATE), DueDt(ZERODATE), ContractorID(0), DlvrLocID(0), AgentID(0), LocID(0)
+		{
+			Code[0] = 0;
+			ContractorINN[0] = 0;
+			ContractorKPP[0] = 0;
+			ContractorGLN[0] = 0;
+			DlvrLocGLN[0] = 0;
+		}
+		struct Position { // @flat
+			Position() : GoodsID(0), Qtty(0.0), Volume(0.0), Brutto(0.0), Amount(0.0), NominalPrice(0.0)
+			{
+				ArCode[0] = 0;
+			}
+			PPID   GoodsID;
+			char   ArCode[32];
+			double Qtty;
+			double Volume;
+			double Brutto;
+			double Amount;
+			double NominalPrice;
+		};
+		enum {
+			doctypUndef = 0,
+			doctypOrder = 1, 
+			doctypSale,
+			doctypReturn
+		};
+		PPID   ID;
+		int    DocType;     // doctypXXX
+		char   Code[48];
+		char   ContractorINN[16];
+		char   ContractorKPP[16];
+		char   ContractorGLN[16];
+		char   DlvrLocGLN[16];
+		LDATE  Dt;
+		LDATE  DueDt;
+		PPID   LocID;
+		PPID   ContractorID;
+		PPID   DlvrLocID;
+		PPID   AgentID;
+		SString ContractorName;
+		SString ContractorAddrText;
+		SString AgentName;
+		SString DlvrAddrText_;
+		TSVector <Position> ItemList;
+	};
+	class BillPacketCollection : public TSCollection <BillPacket> {
+	public:
+		BillPacketCollection(PrcssrSupplInterchange::ExecuteBlock & rEb) : TSCollection <BillPacket>(), R_Eb(rEb)
+		{
+		}
+		PPIDArray ContractorList;
+		PPIDArray DlvrLocList;
+		PPIDArray AgentList;
+	private:
+		PrcssrSupplInterchange::ExecuteBlock & R_Eb;
+	};
+public:
+	/*
+		Продажи
+		Контрагенты
+		Строка
+		ИмяДистрибутора
+		generated
+		ДатаНач
+		ДатаКон
+		ТипВыгрузки
+		Дата
+		КодФилиала
+		КлиентКод
+		КоличествоДнейОтсрочки
+		НакладнаяНомер
+		НакладнаяДата
+		ФТДАртикул
+		ТоварНаименование
+		ТоварЕИ
+		ВесШтука
+		Вес
+		Количество
+		Сумма
+		НДС
+		КодПлательщика
+		МТКодТочки
+		КлиентИНН
+		КлиентКПП
+		КлиентНаименование
+		Площадка
+		КлиентАдрес
+		ФТДРегион
+		МТКодТП
+		ФТДФИОТП
+		ФТДКРФормаОтгрузки
+		ФТДКРСпособОтгрузки
+		ФТДТТСетеваяПринадлежность
+		ФТДТТФорматТорговойТочки
+		КаналСбыта
+	*/
+	struct GoodsEntry {
+		GoodsEntry()
+		{
+			THISZERO();
+		}
+		PPID   ID;
+		//double Brutto; // Масса брутто одной торговой единицы товара
+		char   ArCode[32];
+		char   Name[128];
+		//char   Brand[128];
+	};
+	struct Client {
+		PPID   ID; // ->Person.ID
+	};
+
+	Tsaritsyno(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), TsHt(4096)
+	{
+	}
+	~Tsaritsyno()
+	{
+	}
+	int    Init()
+	{
+		int    ok = 1;
+		Ep.GetExtStrData(Ep.extssClientCode, CliCode);
+		THROW(MakeGoodsList(GoodsList));
+		CATCHZOK
+		return ok;
+	}
+	int    SendSales(StringSet & rSsFileName)
+	{
+		int    ok = -1;
+		SString temp_buf;
+		SString out_file_name;
+		BillPacketCollection bill_list(*this);
+		xmlTextWriter * p_x = 0;
+		temp_buf.Z().Cat("ClientResponseSales").Dot().Cat("xml");
+		PPGetPath(PPPATH_OUT, out_file_name);
+		out_file_name.SetLastSlash().Cat("tsaritsyno");
+		SFile::CreateDir(out_file_name);
+		out_file_name.SetLastSlash().Cat(temp_buf);
+		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		{
+			for(uint i = 0; i < P.LocList.GetCount(); i++) {
+				const  PPID loc_id = P.LocList.Get(i);
+				THROW(Helper_MakeBillList(Ep.ExpendOp, loc_id, GoodsList, bill_list));
+			}
+		}
+		{
+			SXml::WDoc _doc(p_x, cpUTF8);
+			SXml::WNode n_o(p_x, Helper_GetToken(PPHSC_RU_SALE_PL)); 
+			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_DISTRIBNAME), GetCliAbbr(temp_buf));
+			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_GENERATED), temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601CENT, 0));
+			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_DATERANGE_LO), temp_buf.Z().Cat(P.ExpPeriod.low, DATF_GERMANCENT));
+			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_DATERANGE_UP), temp_buf.Z().Cat(P.ExpPeriod.upp, DATF_GERMANCENT));
+			for(uint billidx = 0; billidx < bill_list.getCount(); billidx++) {
+				const BillPacket * p_pack = bill_list.at(billidx);
+				if(p_pack) {
+					for(uint itemidx = 0; itemidx < p_pack->ItemList.getCount(); itemidx++) {
+						const BillPacket::Position & r_item = p_pack->ItemList.at(itemidx);
+						const GoodsEntry * p_goods_entry = SearchGoodsEntry(GoodsList, r_item.GoodsID);
+						if(p_goods_entry) {
+							SXml::WNode n_i(p_x, Helper_GetToken(PPHSC_RU_LINE));
+							// <Строка ТипВыгрузки="2" Дата="09.08.2022 8:46:17" КодФилиала="501041" КлиентКод="78826" КоличествоДнейОтсрочки="" 
+							// НакладнаяНомер="4066_1129047_4_1" НакладнаяДата="09.08.2022 8:46:17" ФТДАртикул="7325" 
+							// ТоварНаименование="Дагестанская п/к н/о ТМ Царицыно" ТоварЕИ="кг" ВесШтука="1" Вес="0.40" Количество="0.40" Сумма="190.82" НДС="17.35"/>
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_EXPORTTYPE), "1");
+							{
+								LDATETIME dtm;
+								dtm.Set(p_pack->Dt, encodetime(10, 11, 47, 0));
+								n_i.PutAttrib(Helper_GetToken(PPHSC_RU_DATE), temp_buf.Z().Cat(dtm, DATF_GERMANCENT, TIMF_HMS));
+							}
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_AFFILCODE), GetCliCode(temp_buf));
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_CLIENTCODE), temp_buf.Z().Cat(p_pack->DlvrLocID));
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_PAYMTERMDAYS), "");
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_EXTRA_WAYBILLCODE2), XmlUtf8EncText(p_pack->Code));
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_EXTRA_WAYBILLDATE2), temp_buf.Z().Cat(p_pack->Dt, DATF_GERMANCENT));
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_FTDAR), p_goods_entry->ArCode);
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_WARENAME2), XmlUtf8EncText(p_goods_entry->Name));
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_WAREUOM), "");
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_WEIGHTPERUNIT), "");
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_WEIGHT), "");
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_QUANTITY), temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, 0)));
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_AMOUNT), temp_buf.Z().Cat(r_item.Amount, MKSFMTD(0, 2, 0)));
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_VAT), temp_buf.Z().Cat(0.0, MKSFMTD(0, 2, 0)));
+						}
+					}
+				}
+			}
+		}
+		{
+			xmlFreeTextWriter(p_x);
+			p_x = 0;
+			rSsFileName.add(out_file_name); 
+		}
+		CATCHZOK
+		xmlFreeTextWriter(p_x);
+		return ok;
+	}
+	int    SendClients(StringSet & rSsFileName)
+	{
+		int    ok = -1;
+		SString temp_buf;
+		SString out_file_name;
+		xmlTextWriter * p_x = 0;
+		temp_buf.Z().Cat("Customers").Dot().Cat("xml");
+		PPGetPath(PPPATH_OUT, out_file_name);
+		out_file_name.SetLastSlash().Cat("tsaritsyno");
+		SFile::CreateDir(out_file_name);
+		out_file_name.SetLastSlash().Cat(temp_buf);
+		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		{
+			SString _cli_code;
+			GetCliCode(_cli_code);
+			SXml::WDoc _doc(p_x, cpUTF8);
+			SXml::WNode n_o(p_x, Helper_GetToken(PPHSC_RU_CONTRACTOR_PL));
+			//<Контрагенты ИмяДистрибутора="XXI Век" generated="2022-06-23T13:13:04" ДатаНач="14.06.2022" ДатаКон="23.06.2022">
+			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_DISTRIBNAME), GetCliAbbr(temp_buf));
+			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_GENERATED), temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601CENT, 0));
+			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_DATERANGE_LO), temp_buf.Z().Cat(P.ExpPeriod.low, DATF_GERMANCENT));
+			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_DATERANGE_UP), temp_buf.Z().Cat(P.ExpPeriod.upp, DATF_GERMANCENT));
+			for(uint cliidx = 0; cliidx < ClientList.getCount(); cliidx++) {
+				const ClientEntry * p_cli_entry = ClientList.at(cliidx);
+				if(p_cli_entry) {
+					for(uint dlvrlocidx = 0; dlvrlocidx < p_cli_entry->DlvrLocList.getCount(); dlvrlocidx++) {
+						const ClientEntry::DlvrLoc * p_dlvr_loc = p_cli_entry->DlvrLocList.at(dlvrlocidx);
+						if(p_dlvr_loc) {
+							SXml::WNode n_i(p_x, Helper_GetToken(PPHSC_RU_LINE));
+							//<Строка КлиентКод="1676" КодПлательщика="1676" МТКодТочки="ДРДКВ1676" КлиентИНН="616831008267" КлиентКПП="" 
+							// КлиентНаименование="Полунин А.Н. ИП (Ленточная 1)" Площадка="606945" КлиентАдрес="344041, Ростов-на-Дону г, Ленточная ул, 1,, " 
+							// ФТДРегион="61" МТКодТП="ДРДКВ83097" 
+							// ФТДФИОТП="Агент ТП Царицыно-01 Ксенз В." ФТДКРФормаОтгрузки="" ФТДКРСпособОтгрузки="" ФТДТТСетеваяПринадлежность="" ФТДТТФорматТорговойТочки="" КаналСбыта=""/>
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_CLIENTCODE), temp_buf.Z().Cat(p_dlvr_loc->ID));
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_PAYERCODE), temp_buf.Z().Cat(p_dlvr_loc->ID));
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_DLVRLOCCODE_MT), "");
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_CLIENTINN), XmlUtf8EncText(p_cli_entry->INN));
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_CLIENTKPP), XmlUtf8EncText(p_cli_entry->KPP));
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_CLIENTNAME), XmlUtf8EncText(p_dlvr_loc->Name));
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_PLACE_TSARITSYNO), "");
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_CLIENTADDR), XmlUtf8EncText(p_dlvr_loc->Addr));
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_REGIONCODE_FTD), "");
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_AGENTCODE_MT), "");
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_AGENT_FTDFIOTP), "");
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_SHIPPINGTYPE), "");
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_SHIPPINGMETH), "");
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_CHAINOFSTORESKIND), "");
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_STOREKIND), "");
+							n_i.PutAttrib(Helper_GetToken(PPHSC_RU_DISTRIBUTIONCHANNEL), "");
+						}
+					}
+				}
+			}
+		}
+		{
+			xmlFreeTextWriter(p_x);
+			p_x = 0;
+			rSsFileName.add(out_file_name); 
+		}
+		CATCHZOK
+		xmlFreeTextWriter(p_x);
+		return ok;
+	}
+private:
+	SString & FASTCALL Helper_GetToken(long tokId)
+	{
+		TokBuf.Z();
+		if(!TsHt.Get(tokId, &TokBuf)) {
+			PPLoadStringUtf8(PPSTR_HASHTOKEN_C, tokId, TokBuf);
+			TsHt.Put(tokId, TokBuf);
+		}
+		return TokBuf;
+	}
+	const GoodsEntry * SearchGoodsEntry(const TSVector <GoodsEntry> & rGoodsList, PPID goodsID) const
+	{
+		uint   goods_idx = 0;
+		return rGoodsList.lsearch(&goodsID, &goods_idx, CMPF_LONG) ? &rGoodsList.at(goods_idx) : 0;
+	}
+	int MakeGoodsList(TSVector <GoodsEntry> & rGoodsList)
+	{
+		rGoodsList.clear();
+		int    ok = -1;
+		SString temp_buf;
+		GoodsFilt filt;
+		PPObjBrand brand_obj;
+		if(Ep.GoodsGrpID)
+			filt.GrpIDList.Add(Ep.GoodsGrpID);
+		else
+			filt.SupplID = P.SupplID;
+		GoodsIterator iter(&filt, 0);
+		Goods2Tbl::Rec goods_rec;
+		while(iter.Next(&goods_rec) > 0) {
+			GoodsEntry new_entry;
+			uint   goods_idx = 0;
+			new_entry.ID = goods_rec.ID;
+			const GoodsEntry * p_goods_entry = 0;
+			if(new_entry.ID && !SearchGoodsEntry(rGoodsList, new_entry.ID)) {
+				if(GObj.Search(new_entry.ID, &goods_rec) > 0) {
+					GoodsEntry oe;
+					oe.ID = new_entry.ID;
+					STRNSCPY(oe.Name, goods_rec.Name);
+					GObj.P_Tbl->GetArCode(P.SupplID, goods_rec.ID, temp_buf, 0);
+					if(/*temp_buf.NotEmpty()*/true) {
+						STRNSCPY(oe.ArCode, temp_buf);
+						/*
+						PPBrand brand_rec;
+						if(goods_rec.BrandID && brand_obj.Fetch(goods_rec.BrandID, &brand_rec) > 0) {
+							STRNSCPY(oe.Brand, brand_rec.Name);
+						}
+						*/
+						/*
+						GoodsStockExt gse;
+						if(GObj.P_Tbl->GetStockExt(goods_rec.ID, &gse, 1) > 0) {
+							oe.Brutto = gse.CalcBrutto(1.0);
+						}
+						*/
+						rGoodsList.insert(&oe);
+					}
+				}
+			}
+		}
+		return ok;
+	}
+	int    Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, const TSVector <GoodsEntry> & rGoodsList, BillPacketCollection & rList)
+	{
+		int    ok = -1;
+		const LDATETIME now_dtm = getcurdatetime_();
+		const PPID sell_acs_id = GetSellAccSheet();
+		Reference * p_ref = PPRef;
+		uint   new_pack_idx = 0;
+		SString temp_buf;
+		PPBillPacket pack__;
+		if(!pBp && P_BObj->ExtractPacket(billID, &pack__) > 0) {
+			pBp = &pack__;
+		}
+		if(pBp && pBp->Rec.Object) {
+			PPID   acs_id = 0;
+			const  PPID   psn_id = ObjectToPerson(pBp->Rec.Object, &acs_id);
+			SString unit_name;
+			PPPersonPacket psn_pack;
+			if(psn_id && PsnObj.GetPacket(psn_id, &psn_pack, 0) > 0) {
+				long   tiiterpos = 0;
+				StrAssocArray ti_pos_list;
+				PPTransferItem ti;
+				PPBillPacket::TiItemExt tiext;
+				for(TiIter tiiter(pBp, ETIEF_UNITEBYGOODS, 0); pBp->EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
+					tiiterpos++;
+					const GoodsEntry * p_goods_entry = SearchGoodsEntry(rGoodsList, ti.GoodsID);
+					//if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf.Z(), 0) > 0) {
+					if(p_goods_entry) {
+						//const  ObjEntry * p_entry = SearchGoodsEntry(rGoodsList, temp_buf.ToLong());
+						//if(p_entry)
+						temp_buf.Z().Cat(p_goods_entry->ID);
+						ti_pos_list.Add(tiiterpos, temp_buf, 0);
+					}
+				}
+				if(ti_pos_list.getCount()) {
+					SString contractor_mainloc_addr;
+					SString contractor_rloc_addr;
+					PPIDArray ord_bill_list;
+					PPLocationPacket loc_pack;
+					BillPacket * p_new_pack = rList.CreateNewItem(&new_pack_idx);
+					THROW_SL(p_new_pack);
+					/*if(P_BObj->P_Tbl->GetListOfOrdersByLading(pBp->Rec.ID, ord_bill_list) > 0) {
+						assert(ord_bill_list.getCount());
+						p_new_pack->OrderBillID = ord_bill_list.get(0);
+					}*/
+					if(psn_pack.Rec.RLoc && LocObj.GetPacket(psn_pack.Rec.RLoc, &loc_pack) > 0 && loc_pack.Type == LOCTYP_ADDRESS) {
+						LocationCore::GetAddress(loc_pack, 0, contractor_rloc_addr);
+					}
+					if(psn_pack.Rec.MainLoc && LocObj.GetPacket(psn_pack.Rec.MainLoc, &loc_pack) > 0 && loc_pack.Type == LOCTYP_ADDRESS) {
+						LocationCore::GetAddress(loc_pack, 0, contractor_mainloc_addr);
+					}
+					if(contractor_rloc_addr.NotEmpty())
+						p_new_pack->ContractorAddrText = contractor_rloc_addr;
+					else if(contractor_mainloc_addr.NotEmpty())
+						p_new_pack->ContractorAddrText = contractor_mainloc_addr;
+					p_new_pack->ContractorName = psn_pack.Rec.Name;
+					{
+						PPTransaction tra(1);
+						THROW(tra);
+						p_new_pack->ID = pBp->Rec.ID;
+						STRNSCPY(p_new_pack->Code, pBp->Rec.Code);
+						p_new_pack->Dt = pBp->Rec.Dt;
+						p_new_pack->DueDt = pBp->Rec.DueDate;
+						p_new_pack->LocID = pBp->Rec.LocID;
+						p_new_pack->ContractorID = psn_pack.Rec.ID;
+						const  PPID dlvr_loc_id = pBp->GetDlvrAddrID();
+						bool   dlvr_loc_pack_is_valid = false;
+						{
+							if(LocObj.GetPacket(dlvr_loc_id, &loc_pack) > 0 && loc_pack.Type == LOCTYP_ADDRESS) {
+								dlvr_loc_pack_is_valid = true;
+								p_new_pack->DlvrLocID = dlvr_loc_id;
+								LocationCore::GetAddress(loc_pack, 0, p_new_pack->DlvrAddrText_);
+							}
+							else if(contractor_rloc_addr.NotEmpty()) {
+								dlvr_loc_pack_is_valid = true;
+								p_new_pack->DlvrLocID = psn_pack.Rec.RLoc;
+								p_new_pack->DlvrAddrText_ = contractor_rloc_addr;
+							}
+							else if(contractor_mainloc_addr.NotEmpty()) {
+								dlvr_loc_pack_is_valid = true;
+								p_new_pack->DlvrLocID = psn_pack.Rec.MainLoc;
+								p_new_pack->DlvrAddrText_ = contractor_mainloc_addr;
+							}
+							/*if(dlvr_loc_pack_is_valid) {
+								if(loc_pack.CityID) {
+									WorldTbl::Rec city_rec;
+									if(LocObj.FetchCity(loc_pack.CityID, &city_rec) > 0) {
+										STRNSCPY(p_new_pack->ContractorCityName, city_rec.Name);
+									}
+								}
+							}*/
+							if(dlvr_loc_pack_is_valid && loc_pack.Regs.GetRegNumber(PPREGT_TPID, now_dtm.d, temp_buf) > 0)
+								STRNSCPY(p_new_pack->ContractorINN, temp_buf);
+							else if(psn_pack.Regs.GetRegNumber(PPREGT_TPID, now_dtm.d, temp_buf) > 0)
+								STRNSCPY(p_new_pack->ContractorINN, temp_buf);
+							if(dlvr_loc_pack_is_valid && loc_pack.Regs.GetRegNumber(PPREGT_KPP, now_dtm.d, temp_buf) > 0)
+								STRNSCPY(p_new_pack->ContractorKPP, temp_buf);
+							else if(psn_pack.Regs.GetRegNumber(PPREGT_KPP, now_dtm.d, temp_buf) > 0)
+								STRNSCPY(p_new_pack->ContractorKPP, temp_buf);
+							if(psn_pack.Regs.GetRegNumber(PPREGT_GLN, now_dtm.d, temp_buf) > 0)
+								STRNSCPY(p_new_pack->ContractorGLN, temp_buf);
+							else
+								STRNSCPY(p_new_pack->ContractorGLN, temp_buf.Z().Cat(psn_pack.Rec.ID));
+							if(dlvr_loc_pack_is_valid && loc_pack.Regs.GetRegNumber(PPREGT_GLN, now_dtm.d, temp_buf) > 0)
+								STRNSCPY(p_new_pack->DlvrLocGLN, temp_buf);
+							else if(dlvr_loc_pack_is_valid)
+								STRNSCPY(p_new_pack->DlvrLocGLN, temp_buf.Z().Cat(dlvr_loc_id));
+							else 
+								STRNSCPY(p_new_pack->DlvrLocGLN, temp_buf.Z().Cat(psn_pack.Rec.ID));
+						}
+						{
+							const PPID agent_psn_id = ObjectToPerson(pBp->Ext.AgentID, 0);
+							PersonTbl::Rec agent_psn_rec;
+							if(agent_psn_id && PsnObj.Fetch(agent_psn_id, &agent_psn_rec) > 0) {
+								p_new_pack->AgentID = agent_psn_id;
+								p_new_pack->AgentName = agent_psn_rec.Name;
+							}
+						}
+						if(acs_id == sell_acs_id) {
+							ClientEntry * p_founded_cli = 0;
+							ClientEntry::DlvrLoc * p_founded_dlvr_loc = 0;
+							{
+								for(uint i = 0; !p_founded_cli && i < ClientList.getCount(); i++) {
+									ClientEntry * p_entry = ClientList.at(i);
+									if(p_entry && p_entry->PsnID == psn_id) {
+										p_founded_cli = p_entry;
+										if(p_new_pack->DlvrLocID) {
+											for(uint j = 0; !p_founded_dlvr_loc && j < p_entry->DlvrLocList.getCount(); j++) {
+												ClientEntry::DlvrLoc * p_dl_entry = p_entry->DlvrLocList.at(j);
+												if(p_dl_entry && p_dl_entry->ID == p_new_pack->DlvrLocID) {
+													p_founded_dlvr_loc = p_dl_entry;
+												}
+											}
+										}
+									}
+								}
+								if(!p_founded_cli) {
+									ClientEntry * p_new_entry = ClientList.CreateNewItem();
+									p_new_entry->PsnID = psn_pack.Rec.ID;
+									p_new_entry->Name = psn_pack.Rec.Name;
+									STRNSCPY(p_new_entry->INN, p_new_pack->ContractorINN);
+									STRNSCPY(p_new_entry->KPP, p_new_pack->ContractorKPP);
+									p_founded_cli = p_new_entry;
+								}
+								assert(p_founded_cli);
+								if(!p_founded_dlvr_loc && p_new_pack->DlvrLocID) {
+									ClientEntry::DlvrLoc * p_new_loc_entry = p_founded_cli->DlvrLocList.CreateNewItem();
+									p_new_loc_entry->ID = p_new_pack->DlvrLocID;
+									p_new_loc_entry->Addr = p_new_pack->DlvrAddrText_; // @v12.2.2 @fix p_new_pack->ContractorAddrText-->p_new_pack->DlvrAddrText_
+									(p_new_loc_entry->Name = p_new_pack->ContractorName).Space().CatChar('#').Cat(p_new_loc_entry->ID);
+								}
+							}
+						}
+						tiiterpos = 0;
+						for(TiIter tiiter(pBp, ETIEF_UNITEBYGOODS, 0); pBp->EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
+							tiiterpos++;
+							uint   pos_list_item_pos = 0;
+							if(ti_pos_list.GetText(tiiterpos, temp_buf) > 0) {
+								const long ware_ident = temp_buf.ToLong();
+								Goods2Tbl::Rec goods_rec;
+								const GoodsEntry * p_goods_entry = SearchGoodsEntry(rGoodsList, ti.GoodsID);
+								if(p_goods_entry && ware_ident > 0 && GObj.Fetch(ti.GoodsID, &goods_rec) > 0) {
+									BillPacket::Position item;
+									double vat_sum_in_full_price = 0.0;
+									item.GoodsID = goods_rec.ID;
+									STRNSCPY(item.ArCode, p_goods_entry->ArCode);
+									item.Qtty = fabs(ti.Quantity_);
+									//item.Brutto = fabs(ti.Quantity_) * p_goods_entry->Brutto;
+									item.Amount = ti.NetPrice() * fabs(ti.Quantity_);
+									item.NominalPrice = fabs(ti.Price);
+									const GoodsEntry * p_goods_entry = SearchGoodsEntry(rGoodsList, ware_ident);
+									if(p_goods_entry) {
+										PPGoodsTaxEntry gte;
+										item.GoodsID = p_goods_entry->ID;
+										if(GObj.FetchTax(goods_rec.ID, pBp->Rec.Dt, 0, &gte) > 0) {
+											GObj.CalcCostVat(0, goods_rec.TaxGrpID, pBp->Rec.Dt, 1.0, ti.NetPrice(), &vat_sum_in_full_price, 0, 0, 16);
+											//item.CostWoVat = (item.Cost - vat_sum_in_full_price);
+											//item.VatInCost = vat_sum_in_full_price;
+											//item.VatRate = static_cast<double>(gte.VAT) / 100.0;
+										}
+										THROW_SL(p_new_pack->ItemList.insert(&item));
+										ok = 1;
+									}
+								}
+							}
+						}
+						assert(p_new_pack);
+						if(p_new_pack) {
+							if(ok > 0) {
+								//rList.SetupEntry(new_pack_idx, 0);
+							}
+							else {
+								rList.atFree(new_pack_idx);
+								p_new_pack = 0;
+							}
+						}
+						THROW(tra.Commit());
+					}
+				}
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	int    Helper_MakeBillList(PPID opID, PPID locID, const TSVector <GoodsEntry> & rGoodsList, BillPacketCollection & rList)
+	{
+		int    ok = -1;
+		if(opID) {
+			SString msg_buf;
+			PPLoadText(PPTXT_WAIT_GETTINGBILLLIST, msg_buf);
+			BillFilt b_filt;
+			PPViewBill b_view;
+			BillViewItem view_item;
+			PPBillPacket pack;
+			b_filt.OpID = opID;
+			//b_filt.LocList = P.LocList;
+			b_filt.LocList.SetSingle(locID);
+			b_filt.Period = P.ExpPeriod;
+			SETIFZ(b_filt.Period.low, encodedate(1, 1, 2022));
+			THROW(b_view.Init_(&b_filt));
+			for(b_view.InitIteration(PPViewBill::OrdByDefault); b_view.NextIteration(&view_item) > 0;) {
+				if(!Helper_MakeBillEntry(view_item.ID, 0, rGoodsList, rList))
+					R_Logger.LogLastError();
+				PPWaitPercent(b_view.GetCounter(), msg_buf);
+			}
+			ok = 1;
+		}
+		CATCHZOK
+		return ok;		
+	}
+	//
+	// Для Царицыно код клиента в опциях обмена соглашения должен быть задан парой code:abbr
+	// где code - цифровой код клиента, а abbr - условное краткое текстовое обозначение. Например "продавец из арзамаса" ну или что-то в этом
+	// роде в зависимости от договоренности с поставщиком.
+	// Соответственно, функция GetCliCode() возвращает цифровой код, а GetCliAbbr() возвращает условную аббервиатуру.
+	//
+	SString & GetCliCode(SString & rBuf) const
+	{
+		rBuf.Z();
+		SString temp_buf;
+		SString lbuf, rbuf;
+		Ep.GetExtStrData(Ep.extssClientCode, temp_buf);
+		if(temp_buf.Divide(':', lbuf, rbuf) > 0) {
+			(rBuf = rbuf).Transf(CTRANSF_INNER_TO_UTF8);
+		}
+		return rBuf;
+	}
+	SString & GetCliAbbr(SString & rBuf) const
+	{
+		rBuf.Z();
+		SString temp_buf;
+		SString lbuf, rbuf;
+		Ep.GetExtStrData(Ep.extssClientCode, temp_buf);
+		if(temp_buf.Divide(':', lbuf, rbuf) > 0) {
+			(rBuf = rbuf).Transf(CTRANSF_INNER_TO_UTF8);
+		}
+		return rBuf;
+	}
+	PPLogger & R_Logger;
+	SString CliCode;
+	SString TokBuf;
+	TokenSymbHashTable TsHt;
+	TSVector <GoodsEntry> GoodsList;
+	TSCollection <ClientEntry> ClientList;
+};
 //
 //
 //
@@ -12955,6 +13558,19 @@ int PrcssrSupplInterchange::Run()
 				if(ss_file_name.getCount()) {
 					cli.TransmitFiles(ss_file_name);
 				}
+			}
+		}
+		else if(temp_buf.IsEqiAscii("TSARITSYNO")) { // @v12.2.2
+			Tsaritsyno cli(r_eb, logger);
+			const long actions = r_eb.P.Actions;
+			StringSet ss_file_name;
+			PPWaitStart();
+			THROW(cli.Init());
+			if(actions & SupplInterchangeFilt::opExportSales) {
+				cli.SendSales(ss_file_name);
+			}
+			if(actions & SupplInterchangeFilt::opExportClients) {
+				cli.SendClients(ss_file_name);
 			}
 		}
 		else if(temp_buf.IsEqiAscii("OSTANKINO")) { // @v11.9.7

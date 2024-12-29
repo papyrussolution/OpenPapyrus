@@ -1151,12 +1151,13 @@ static const xmlChar * xmlSchemaGetComponentTargetNs(const xmlSchemaBasicItem * 
 	return 0;
 }
 
-static const xmlChar* xmlSchemaGetComponentQName(xmlChar ** buf, void * item)
+static const xmlChar* xmlSchemaGetComponentQName(xmlChar ** buf, const void * item)
 {
-	return (xmlSchemaFormatQName(buf, xmlSchemaGetComponentTargetNs(static_cast<xmlSchemaBasicItem *>(item)), xmlSchemaGetComponentName(static_cast<xmlSchemaBasicItem *>(item))));
+	return (xmlSchemaFormatQName(buf, xmlSchemaGetComponentTargetNs(static_cast<const xmlSchemaBasicItem *>(item)), 
+		xmlSchemaGetComponentName(static_cast<const xmlSchemaBasicItem *>(item))));
 }
 
-static const xmlChar* xmlSchemaGetComponentDesignation(xmlChar ** buf, void * item)
+static const xmlChar* xmlSchemaGetComponentDesignation(xmlChar ** buf, const void * item)
 {
 	xmlChar * str = NULL;
 	*buf = xmlStrcat(*buf, WXS_ITEM_TYPE_NAME(item));
@@ -1281,7 +1282,7 @@ internal_error:
  *
  * Returns the formatted string and sets @buf to the resulting value.
  */
-static xmlChar* xmlSchemaFormatItemForReport(xmlChar ** buf, const xmlChar * itemDes, xmlSchemaBasicItem * item, xmlNode * itemNode)
+static xmlChar* xmlSchemaFormatItemForReport(xmlChar ** buf, const xmlChar * itemDes, const xmlSchemaBasicItem * item, xmlNode * itemNode)
 {
 	xmlChar * str = NULL;
 	int named = 1;
@@ -1359,7 +1360,7 @@ static xmlChar* xmlSchemaFormatItemForReport(xmlChar ** buf, const xmlChar * ite
 		    break;
 			case XML_SCHEMA_TYPE_ATTRIBUTE: 
 				{
-					xmlSchemaAttribute * attr = reinterpret_cast<xmlSchemaAttribute *>(item);
+					const xmlSchemaAttribute * attr = reinterpret_cast<const xmlSchemaAttribute *>(item);
 					*buf = sstrdup(reinterpret_cast<const xmlChar *>("attribute decl."));
 					*buf = xmlStrcat(*buf, reinterpret_cast<const xmlChar *>(" '"));
 					*buf = xmlStrcat(*buf, xmlSchemaFormatQName(&str, attr->targetNamespace, attr->name));
@@ -2411,7 +2412,7 @@ static void xmlSchemaPAttrUseErr4(xmlSchemaParserCtxtPtr ctxt, xmlParserErrors e
  *
  * Reports an illegal facet for atomic simple types.
  */
-static void xmlSchemaPIllegalFacetAtomicErr(xmlSchemaParserCtxtPtr ctxt, xmlParserErrors error, xmlSchemaType * type, xmlSchemaType * baseType, xmlSchemaFacet * facet)
+static void xmlSchemaPIllegalFacetAtomicErr(xmlSchemaParserCtxtPtr ctxt, xmlParserErrors error, const xmlSchemaType * type, const xmlSchemaType * baseType, xmlSchemaFacet * facet)
 {
 	xmlChar * des = NULL, * strT = NULL;
 	xmlSchemaFormatItemForReport(&des, NULL, WXS_BASIC_CAST type, type->P_Node);
@@ -10884,21 +10885,14 @@ static xmlSchemaType * xmlSchemaQueryBuiltInType(xmlSchemaType * type)
 	return (xmlSchemaQueryBuiltInType(type->subtypes));
 }
 #endif
-
 /**
- * xmlSchemaGetPrimitiveType:
  * @type:  the simpleType definition
- *
- * Returns the primitive type of the given type or
- * NULL in case of error.
+ * Returns the primitive type of the given type or NULL in case of error.
  */
-static xmlSchemaType * FASTCALL xmlSchemaGetPrimitiveType(xmlSchemaType * type)
+static const xmlSchemaType * FASTCALL xmlSchemaGetPrimitiveType(const xmlSchemaType * type)
 {
 	while(type) {
-		/*
-		 * Note that anySimpleType is actually not a primitive type
-		 * but we need that here.
-		 */
+		 // Note that anySimpleType is actually not a primitive type but we need that here.
 		if((type->builtInType == XML_SCHEMAS_ANYSIMPLETYPE) || (type->flags & XML_SCHEMAS_TYPE_BUILTIN_PRIMITIVE))
 			return (type);
 		type = type->baseType;
@@ -12463,7 +12457,7 @@ static int xmlSchemaCheckCOSSTRestricts(xmlSchemaParserCtxtPtr pctxt, xmlSchemaT
 		return -1;
 	}
 	if(WXS_IS_ATOMIC(type)) {
-		xmlSchemaType * primitive;
+		const xmlSchemaType * primitive;
 		/*
 		 * 1.1 The {base type definition} must be an atomic simple
 		 * type definition or a built-in primitive datatype.
@@ -14710,7 +14704,7 @@ static void xmlSchemaTypeFixupOptimFacets(xmlSchemaType * type)
 		type->flags |= XML_SCHEMAS_TYPE_HAS_FACETS;
 
 	if(has && (!needVal) && WXS_IS_ATOMIC(type)) {
-		xmlSchemaType * prim = xmlSchemaGetPrimitiveType(type);
+		const xmlSchemaType * prim = xmlSchemaGetPrimitiveType(type);
 		// OPTIMIZE VAL TODO: Some facets need a computed value.
 		if(!oneof2(prim->builtInType, XML_SCHEMAS_ANYSIMPLETYPE, XML_SCHEMAS_STRING)) {
 			type->flags |= XML_SCHEMAS_TYPE_FACETSNEEDVALUE;
@@ -16593,8 +16587,8 @@ static int FASTCALL xmlSchemaAreValuesEqual(xmlSchemaVal * x, xmlSchemaVal * y)
 		// Same types
 		xmlSchemaType * tx = xmlSchemaGetBuiltInType(xmlSchemaGetValType(x));
 		xmlSchemaType * ty = xmlSchemaGetBuiltInType(xmlSchemaGetValType(y));
-		xmlSchemaType * ptx = xmlSchemaGetPrimitiveType(tx);
-		xmlSchemaType * pty = xmlSchemaGetPrimitiveType(ty);
+		const xmlSchemaType * ptx = xmlSchemaGetPrimitiveType(tx);
+		const xmlSchemaType * pty = xmlSchemaGetPrimitiveType(ty);
 		// 
 		// (1) if a datatype T' is `derived` by `restriction` from an
 		// atomic datatype T then the `value space` of T' is a subset of the `value space` of T.
@@ -20042,8 +20036,9 @@ static xmlSchemaNodeInfo * xmlSchemaGetFreshElemInfo(xmlSchemaValidCtxt * vctxt)
 static int xmlSchemaValidateFacets(xmlSchemaAbstractCtxt * actxt, xmlNode * P_Node, xmlSchemaType * type,
     xmlSchemaValType valType, const xmlChar * value, xmlSchemaVal * val, unsigned long length, int fireErrors)
 {
-	int ret, error = 0;
-	xmlSchemaType * tmpType;
+	int ret;
+	int error = 0;
+	const xmlSchemaType * tmpType;
 	xmlSchemaFacetLink * facetLink;
 	xmlSchemaFacet * facet;
 	ulong len = 0;
@@ -20067,8 +20062,7 @@ static int xmlSchemaValidateFacets(xmlSchemaAbstractCtxt * actxt, xmlNode * P_No
 			goto pattern_and_enum;
 	}
 	/*
-	 * Whitespace handling is only of importance for string-based
-	 * types.
+	 * Whitespace handling is only of importance for string-based types.
 	 */
 	tmpType = xmlSchemaGetPrimitiveType(type);
 	if((tmpType->builtInType == XML_SCHEMAS_STRING) || WXS_IS_ANY_SIMPLE_TYPE(tmpType)) 
@@ -20083,8 +20077,7 @@ static int xmlSchemaValidateFacets(xmlSchemaAbstractCtxt * actxt, xmlNode * P_No
 	ret = 0;
 	for(facetLink = type->facetSet; facetLink; facetLink = facetLink->next) {
 		/*
-		 * Skip the pattern "whiteSpace": it is used to
-		 * format the character content beforehand.
+		 * Skip the pattern "whiteSpace": it is used to format the character content beforehand.
 		 */
 		switch(facetLink->facet->type) {
 			case XML_SCHEMA_FACET_WHITESPACE:
@@ -20192,13 +20185,9 @@ pattern_and_enum:
 			SETIFZ(error, ret);
 		}
 	}
-
 	if(error >= 0) {
 		int found;
-		/*
-		 * Process patters. Pattern facets are ORed at type level
-		 * and ANDed if derived. Walk the base type axis.
-		 */
+		// Process patters. Pattern facets are ORed at type level and ANDed if derived. Walk the base type axis.
 		tmpType = type;
 		facet = NULL;
 		do {
@@ -20207,10 +20196,7 @@ pattern_and_enum:
 				if(facetLink->facet->type != XML_SCHEMA_FACET_PATTERN)
 					continue;
 				found = 1;
-				/*
-				 * NOTE that for patterns, @value needs to be the
-				 * normalized vaule.
-				 */
+				// NOTE that for patterns, @value needs to be the normalized vaule.
 				ret = xmlRegexpExec(facetLink->facet->regexp, value);
 				if(ret == 1)
 					break;
@@ -20219,9 +20205,7 @@ pattern_and_enum:
 					return -1;
 				}
 				else {
-					/*
-					 * Save the last non-validating facet.
-					 */
+					 // Save the last non-validating facet.
 					facet = facetLink->facet;
 				}
 			}
@@ -20617,13 +20601,9 @@ static int xmlSchemaVExpandQName(xmlSchemaValidCtxt * vctxt, const xmlChar * val
 		return 1;
 	}
 	{
-		xmlChar * local = NULL;
 		xmlChar * prefix;
-		/*
-		 * NOTE: xmlSplitQName2 will return a duplicated
-		 * string.
-		 */
-		local = xmlSplitQName2(value, &prefix);
+		// NOTE: xmlSplitQName2 will return a duplicated string.
+		xmlChar * local = xmlSplitQName2(value, &prefix);
 		if(local == NULL)
 			*localName = xmlDictLookupSL(vctxt->dict, value);
 		else {
@@ -20697,7 +20677,6 @@ static int xmlSchemaProcessXSIType(xmlSchemaValidCtxt * vctxt, xmlSchemaAttrInfo
 		}
 		if(elemDecl) {
 			int set = 0;
-
 			/*
 			 * SPEC cvc-elt (3.3.4) : (4.3) (Type Derivation OK)
 			 * "The `local type definition` must be validly

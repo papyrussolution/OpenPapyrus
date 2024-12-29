@@ -591,7 +591,7 @@ public:
 		return yes;
 	}
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 	int    InitTaxBlock();
 	TaxAmountIDs TaxBlock;
@@ -693,7 +693,7 @@ int AmountTypeCache::FetchTaxIDs(TaxAmountIDs * pBlk)
 	return 1;
 }
 
-int AmountTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int AmountTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	AmountTypeData * p_cache_rec = static_cast<AmountTypeData *>(pEntry);

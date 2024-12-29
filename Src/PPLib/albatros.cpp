@@ -530,10 +530,7 @@ int PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrossConfig * pCfg)
 	return ok;
 }
 
-/*static*/int PPAlbatrosCfgMngr::Get(PPAlbatrossConfig * pCfg)
-{
-	return Helper_Get(PPRef, pCfg);
-}
+/*static*/int PPAlbatrosCfgMngr::Get(PPAlbatrossConfig * pCfg) { return Helper_Get(PPRef, pCfg); }
 
 /*static*/int PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosCfgHdr * pCfg)
 {
@@ -596,10 +593,7 @@ int PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrossConfig * pCfg)
 	return ok;
 }
 
-/*static*/int PPAlbatrosCfgMngr::Get(PPAlbatrosCfgHdr * pCfg)
-{
-	return Helper_Get(PPRef, pCfg);
-}
+/*static*/int PPAlbatrosCfgMngr::Get(PPAlbatrosCfgHdr * pCfg) { return Helper_Get(PPRef, pCfg); }
 
 /*static*/int PPAlbatrosCfgMngr::Put(const PPAlbatrosCfgHdr * pCfg, int use_ta)
 {

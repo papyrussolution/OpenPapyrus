@@ -2159,6 +2159,7 @@ struct Sdr_SpecSeries {
 	#define PPFLD_BILL_OUTERCODE                               58
 	#define PPFLD_BILL_OUTERDATE                               59
 	#define PPFLD_BILL_EDIIDENT                                60
+	#define PPFLD_BILL_ORGORDDOCCODE                           61
 
 struct Sdr_Bill {
 	Sdr_Bill() { THISZERO(); }
@@ -2222,6 +2223,7 @@ struct Sdr_Bill {
 	char   OuterCode[24];
 	LDATE  OuterDate;
 	char   EdiIdent[48];
+	char   OrgOrdDocCode[48];
 };
 
 #define PPREC_BROW                                     5
@@ -2269,68 +2271,69 @@ struct Sdr_Bill {
 	#define PPFLD_BROW_BILLOUTERCODE                           42
 	#define PPFLD_BROW_BILLOUTERDATE                           43
 	#define PPFLD_BROW_BILLEDIIDENT                            44
-	#define PPFLD_BROW_OPID                                    45
-	#define PPFLD_BROW_OPSYMB                                  46
-	#define PPFLD_BROW_INVCCODE                                47
-	#define PPFLD_BROW_INVCDATE                                48
-	#define PPFLD_BROW_INN                                     49
-	#define PPFLD_BROW_CNTRAGID                                50
-	#define PPFLD_BROW_CNTRAGNAME                              51
-	#define PPFLD_BROW_CNTRAGNO                                52
-	#define PPFLD_BROW_REGISTRYCODE                            53
-	#define PPFLD_BROW_OBJ2ID                                  54
-	#define PPFLD_BROW_OBJ2NAME                                55
-	#define PPFLD_BROW_OBJ2INN                                 56
-	#define PPFLD_BROW_OBJ2NO                                  57
-	#define PPFLD_BROW_DUEDATE                                 58
-	#define PPFLD_BROW_PAYMDATE                                59
-	#define PPFLD_BROW_BILLAMT                                 60
-	#define PPFLD_BROW_CRATE                                   61
-	#define PPFLD_BROW_CURID                                   62
-	#define PPFLD_BROW_BASEAMOUNT                              63
-	#define PPFLD_BROW_BILLVATSUM                              64
-	#define PPFLD_BROW_BILLMEMO                                65
-	#define PPFLD_BROW_LOCID                                   66
-	#define PPFLD_BROW_LOCNAME                                 67
-	#define PPFLD_BROW_LOCCODE                                 68
-	#define PPFLD_BROW_CITY                                    69
-	#define PPFLD_BROW_ADDR                                    70
-	#define PPFLD_BROW_ORDERBILLID                             71
-	#define PPFLD_BROW_ORDERBILLNO                             72
-	#define PPFLD_BROW_DLVRADDRID                              73
-	#define PPFLD_BROW_DLVRADDRCODE                            74
-	#define PPFLD_BROW_DLVRADDR                                75
-	#define PPFLD_BROW_AGENTNAME                               76
-	#define PPFLD_BROW_AGENTINN                                77
-	#define PPFLD_BROW_AGENTPERSONID                           78
-	#define PPFLD_BROW_COSTWITHSTAX                            79
-	#define PPFLD_BROW_GOODKINDCODE                            80
-	#define PPFLD_BROW_GOODGRPID                               81
-	#define PPFLD_BROW_TTN                                     82
-	#define PPFLD_BROW_GTD                                     83
-	#define PPFLD_BROW_LICENSEID                               84
-	#define PPFLD_BROW_LICENSENUM                              85
-	#define PPFLD_BROW_LICENSEDATE                             86
-	#define PPFLD_BROW_LICENSEEXPIRY                           87
-	#define PPFLD_BROW_LICENSESERIAL                           88
-	#define PPFLD_BROW_REGAUTHORITY                            89
-	#define PPFLD_BROW_LOTMANUF                                90
-	#define PPFLD_BROW_MANUFINN                                91
-	#define PPFLD_BROW_MANUFKPP                                92
-	#define PPFLD_BROW_MANUFCITYNAME                           93
-	#define PPFLD_BROW_MANUFREGIONNAME                         94
-	#define PPFLD_BROW_MANUFINDEX                              95
-	#define PPFLD_BROW_MANUFREGIONCODE                         96
-	#define PPFLD_BROW_MANUFDISTRICT                           97
-	#define PPFLD_BROW_MANUFSTREET                             98
-	#define PPFLD_BROW_MANUFHOUSE                              99
-	#define PPFLD_BROW_MANUFHOUSING                           100
-	#define PPFLD_BROW_MANUFCOUNTRYNAME                       101
-	#define PPFLD_BROW_MANUFCOUNTRYOKSM                       102
-	#define PPFLD_BROW_ISMANUF                                103
-	#define PPFLD_BROW_LOTDOCDATE                             104
-	#define PPFLD_BROW_ISBEER                                 105
-	#define PPFLD_BROW_ISALCO                                 106
+	#define PPFLD_BROW_BILLORGORDCODE                          45
+	#define PPFLD_BROW_OPID                                    46
+	#define PPFLD_BROW_OPSYMB                                  47
+	#define PPFLD_BROW_INVCCODE                                48
+	#define PPFLD_BROW_INVCDATE                                49
+	#define PPFLD_BROW_INN                                     50
+	#define PPFLD_BROW_CNTRAGID                                51
+	#define PPFLD_BROW_CNTRAGNAME                              52
+	#define PPFLD_BROW_CNTRAGNO                                53
+	#define PPFLD_BROW_REGISTRYCODE                            54
+	#define PPFLD_BROW_OBJ2ID                                  55
+	#define PPFLD_BROW_OBJ2NAME                                56
+	#define PPFLD_BROW_OBJ2INN                                 57
+	#define PPFLD_BROW_OBJ2NO                                  58
+	#define PPFLD_BROW_DUEDATE                                 59
+	#define PPFLD_BROW_PAYMDATE                                60
+	#define PPFLD_BROW_BILLAMT                                 61
+	#define PPFLD_BROW_CRATE                                   62
+	#define PPFLD_BROW_CURID                                   63
+	#define PPFLD_BROW_BASEAMOUNT                              64
+	#define PPFLD_BROW_BILLVATSUM                              65
+	#define PPFLD_BROW_BILLMEMO                                66
+	#define PPFLD_BROW_LOCID                                   67
+	#define PPFLD_BROW_LOCNAME                                 68
+	#define PPFLD_BROW_LOCCODE                                 69
+	#define PPFLD_BROW_CITY                                    70
+	#define PPFLD_BROW_ADDR                                    71
+	#define PPFLD_BROW_ORDERBILLID                             72
+	#define PPFLD_BROW_ORDERBILLNO                             73
+	#define PPFLD_BROW_DLVRADDRID                              74
+	#define PPFLD_BROW_DLVRADDRCODE                            75
+	#define PPFLD_BROW_DLVRADDR                                76
+	#define PPFLD_BROW_AGENTNAME                               77
+	#define PPFLD_BROW_AGENTINN                                78
+	#define PPFLD_BROW_AGENTPERSONID                           79
+	#define PPFLD_BROW_COSTWITHSTAX                            80
+	#define PPFLD_BROW_GOODKINDCODE                            81
+	#define PPFLD_BROW_GOODGRPID                               82
+	#define PPFLD_BROW_TTN                                     83
+	#define PPFLD_BROW_GTD                                     84
+	#define PPFLD_BROW_LICENSEID                               85
+	#define PPFLD_BROW_LICENSENUM                              86
+	#define PPFLD_BROW_LICENSEDATE                             87
+	#define PPFLD_BROW_LICENSEEXPIRY                           88
+	#define PPFLD_BROW_LICENSESERIAL                           89
+	#define PPFLD_BROW_REGAUTHORITY                            90
+	#define PPFLD_BROW_LOTMANUF                                91
+	#define PPFLD_BROW_MANUFINN                                92
+	#define PPFLD_BROW_MANUFKPP                                93
+	#define PPFLD_BROW_MANUFCITYNAME                           94
+	#define PPFLD_BROW_MANUFREGIONNAME                         95
+	#define PPFLD_BROW_MANUFINDEX                              96
+	#define PPFLD_BROW_MANUFREGIONCODE                         97
+	#define PPFLD_BROW_MANUFDISTRICT                           98
+	#define PPFLD_BROW_MANUFSTREET                             99
+	#define PPFLD_BROW_MANUFHOUSE                             100
+	#define PPFLD_BROW_MANUFHOUSING                           101
+	#define PPFLD_BROW_MANUFCOUNTRYNAME                       102
+	#define PPFLD_BROW_MANUFCOUNTRYOKSM                       103
+	#define PPFLD_BROW_ISMANUF                                104
+	#define PPFLD_BROW_LOTDOCDATE                             105
+	#define PPFLD_BROW_ISBEER                                 106
+	#define PPFLD_BROW_ISALCO                                 107
 
 struct Sdr_BRow {
 	Sdr_BRow() { THISZERO(); }
@@ -2378,6 +2381,7 @@ struct Sdr_BRow {
 	char   BillOuterCode[24];
 	LDATE  BillOuterDate;
 	char   BillEdiIdent[48];
+	char   BillOrgOrdCode[48];
 	int32  OpID;
 	char   OpSymb[20];
 	char   InvcCode[24];

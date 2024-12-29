@@ -134,7 +134,7 @@ struct sasl_conn {
 	enum Sasl_conn_type type;
 	void (* destroy_conn)(sasl_conn_t *); /* destroy function */
 	char * service;
-	unsigned int flags; /* flags passed to sasl_*_new */
+	uint flags; /* flags passed to sasl_*_new */
 	/* IP information.  A buffer of size 52 is adequate for this in its
 	   longest format (see sasl.h) */
 	int got_ip_local, got_ip_remote;
@@ -321,7 +321,7 @@ extern const sasl_callback_t * _sasl_find_getpath_callback(const sasl_callback_t
 extern const sasl_callback_t * _sasl_find_getconfpath_callback(const sasl_callback_t * callbacks);
 extern const sasl_callback_t * _sasl_find_verifyfile_callback(const sasl_callback_t * callbacks);
 extern int _sasl_common_init(sasl_global_callbacks_t * global_callbacks);
-extern int _sasl_conn_init(sasl_conn_t * conn, const char * service, unsigned int flags, enum Sasl_conn_type type,
+extern int _sasl_conn_init(sasl_conn_t * conn, const char * service, uint flags, enum Sasl_conn_type type,
     int (* idle_hook)(sasl_conn_t * conn), const char * serverFQDN, const char * iplocalport, const char * ipremoteport,
     const sasl_callback_t * callbacks, const sasl_global_callbacks_t * global_callbacks);
 extern void _sasl_conn_dispose(sasl_conn_t * conn);

@@ -1368,7 +1368,7 @@ int PhoneServiceEventResponder::IdentifyCaller(const char * pCaller, PPObjIDArra
 					}
 					msg_buf.Printf(fmt_buf, temp_buf.cptr());
 					p_win->Open(msg_buf, 0, /*H()*/0, 0, 5000, /*GetColorRef(SClrCadetblue)*/RGB(0x8E, 0xE4, 0xAF),
-						SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText, 0); // @v10.5.5 SMessageWindow::fLargeText
+						SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText, 0);
 				}
 			}
 			ok = 1;
@@ -1384,8 +1384,8 @@ int PhoneServiceEventResponder::IdentifyCaller(const char * pCaller, PPObjIDArra
 			msg_buf.CatEq("callerid", caller).CatDiv(';', 2);
 			pEv->GetExtStrData(pEv->extssConnectedLineNum, connected_line);
 			msg_buf.CatEq("connectedline", connected_line);
-			pEv->GetExtStrData(pEv->extssBridgeId, bridge); // @v10.0.02
-			msg_buf.CatEq("bridge", bridge); // @v10.0.02
+			pEv->GetExtStrData(pEv->extssBridgeId, bridge);
+			msg_buf.CatEq("bridge", bridge);
 			PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME);
 			{
 				PhonePaneDialog::State state;
@@ -1394,7 +1394,7 @@ int PhoneServiceEventResponder::IdentifyCaller(const char * pCaller, PPObjIDArra
 				state.CallerID = caller;
 				state.Channel = channel;
 				state.ConnectedLine = connected_line;
-				state.BridgeID = bridge; // @v10.0.02
+				state.BridgeID = bridge;
 				p_self->IdentifyCaller(caller, state.RelEntries);
 				ShowPhoneCallPane(p_self, &state);
 			}

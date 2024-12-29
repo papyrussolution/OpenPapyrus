@@ -1886,7 +1886,6 @@ int  Test_StrAssocTree();
 int  Test_Fts();
 //int  Test_ReadUed(const char * pFileName);
 int  Test_ListSelectionDialog();
-int  Test_AptekaRuInterface();
 int  ImportYYE(const char * pSrcPath);
 int  ImportSpecial(const char * pPath);
 int  ReformatRazoomnick(const char * pFileName);
@@ -1991,7 +1990,6 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	Test_AptekaRuInterface();
 	SentencePieceExperiments();
 	//TestGtinStruc();
 	//Test_ListSelectionDialog();

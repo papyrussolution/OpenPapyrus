@@ -1696,7 +1696,34 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 						p_js_item->InsertDouble("infoDiscountAmount", 0.0, MKSFMTD(0, 1, 0));
 						p_js_item->InsertInt("department", inrangeordefault(sl_param.DivID, 0, 16, 0));
 						p_js_item->InsertString("measurementUnit", "piece"); // @v11.9.1
-						p_js_item->InsertString("paymentMethod", ""); // "advance" etc
+						// @v12.2.2 p_js_item->InsertString("paymentMethod", ""); // "advance" etc
+						// @v12.2.2 {
+						if(sl_param.PaymTermTag != CCheckPacket::pttUndef) {
+							/*
+								fullPrepayment - предоплата 100%
+								prepayment - предоплата
+								advance - аванс
+								fullPayment - полный расчет
+								partialPayment - частичный расчет и кредит
+								credit - передача в кредит
+								creditPayment - оплата кредита 
+							*/ 
+							const char * p_paymmeth = "";
+							switch(sl_param.PaymTermTag) {
+								case CCheckPacket::pttFullPrepay: p_paymmeth = "fullPrepayment"; break; // 1. Предоплата 100%
+								case CCheckPacket::pttPrepay: p_paymmeth = "prepayment"; break; // 2. Частичная предоплата
+								case CCheckPacket::pttAdvance: p_paymmeth = "advance"; break; // 3. Аванс
+								case CCheckPacket::pttFullPayment: p_paymmeth = "fullPayment"; break; // 4. Полный расчет
+								case CCheckPacket::pttPartial: p_paymmeth = "partialPayment"; break; // 5. Частичный расчет и кредит
+								case CCheckPacket::pttCreditHandOver: p_paymmeth = "credit"; break; // 6. Передача в кредит
+								case CCheckPacket::pttCredit: p_paymmeth = "creditPayment"; break; // 7. Оплата кредита
+							}
+							if(p_paymmeth) {
+								//THROW(SetFR(PaymentTypeSign, paym_type_sign));
+								p_js_item->InsertString("paymentMethod", p_paymmeth); // "advance" etc
+							}
+						}
+						// } @v12.2.2 
 						p_js_item->InsertString("paymentObject", ""); // "commodity" etc
 						if(sl_param.ChZnProductType && /*sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()*/sl_param.ChZnCode.NotEmpty()) {
 							if(rOfdf.IsOfdVerGe12()) {

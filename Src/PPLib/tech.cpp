@@ -1654,11 +1654,11 @@ private:
 		double Capacity;    // Производительность процессора ProcID при использовании этой технологии
 		double Rounding;
 	};
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
-int TechCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int TechCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);

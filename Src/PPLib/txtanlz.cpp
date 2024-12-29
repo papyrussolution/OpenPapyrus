@@ -4093,7 +4093,7 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 				PPTextAnalyzer txta;
 				txta.MakeGoodsNameList(raw_input_file_path);
 			}*/
-			{
+			/*{
 				SString cmd_line;
 				cmd_line.CatEq("--input", raw_input_file_path).Space().CatEq("--model_prefix", basis_path_wo_ext).Space().CatEq("--vocab_size", 4000).
 					Space().CatEq("--input_sentence_size", 500000).Space().CatEq("--shuffle_input_sentence", "true");
@@ -4106,13 +4106,15 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 				else {
 					; // @todo @err
 				}
-			}
+			}*/
 			{
 				sentencepiece::SentencePieceProcessor prc;
 				const auto status = prc.Load(model_file_path.cptr());
 				SString vec_buf;
 				SString tok_buf;
 				uint line_no = 0;
+				uint max_vec_dim = 0;
+				//TSCollection <TSVector <int16>> line_tok_vec_list;
 				if(status.ok()) {
 					SFile f_in(raw_input_file_path, SFile::mRead|SFile::mNoStd);
 					SFile f_vec_out(vec_file_path, SFile::mWrite);
@@ -4133,6 +4135,8 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 									if(enc_status.ok()) {
 										vec_buf.Z();
 										tok_buf.Z();
+										//TSVector <int16> * p_line_tok_vec = line_tok_vec_list.CreateNewItem();
+										SETMAX(max_vec_dim, seg_id_list.size());
 										for(uint i = 0; i < seg_id_list.size(); i++) {
 											const int seg_id = seg_id_list.at(i);
 											if(i) {
@@ -4143,6 +4147,10 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 											//
 											const std::string piece = prc.IdToPiece(seg_id);
 											tok_buf.Cat(piece.c_str());
+											/*if(p_line_tok_vec) {
+												const int16 __seg_id = static_cast<int16>(seg_id);
+												p_line_tok_vec->insert(&__seg_id);
+											}*/
 										}
 										f_vec_out.WriteLine(vec_buf.CR());
 										f_tok_out.WriteLine(tok_buf.CR());

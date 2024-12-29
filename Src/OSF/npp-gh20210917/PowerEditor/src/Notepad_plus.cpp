@@ -4826,30 +4826,20 @@ void Notepad_plus::postItToggle()
 			}
 			//Redraw the window and refresh windowmanager cache, dont do anything else, sizing is done later
 			// on
-			::SetWindowPos(_pPublicInterface->getHSelf(),
-			    HWND_TOPMOST,
-			    0,
-			    0,
-			    0,
-			    0,
-			    SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_DRAWFRAME|SWP_FRAMECHANGED);
+			::SetWindowPos(_pPublicInterface->getHSelf(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_DRAWFRAME|SWP_FRAMECHANGED);
 			::ShowWindow(_pPublicInterface->getHSelf(), SW_SHOW);
 		}
-
 		// show restore button
 		_restoreButton.doDialog(_nativeLangSpeaker.isRTL());
-
 		RECT rect;
 		GetWindowRect(_restoreButton.getHSelf(), &rect);
 		int w = rect.right - rect.left;
 		int h = rect.bottom - rect.top;
-
 		RECT nppRect;
 		GetWindowRect(_pPublicInterface->getHSelf(), &nppRect);
 		int x = nppRect.right - w - w;
 		int y = nppRect.top + 1;
 		::MoveWindow(_restoreButton.getHSelf(), x, y, w, h, FALSE);
-
 		_pEditView->getFocus();
 	}
 	else {   //PostIt enabled, disable it
@@ -4873,7 +4863,6 @@ void Notepad_plus::postItToggle()
 			::SendMessage(_pPublicInterface->getHSelf(), NPPM_HIDETABBAR, 0, FALSE);
 		if(!_beforeSpecialView._isAlwaysOnTop)
 			::SendMessage(_pPublicInterface->getHSelf(), WM_COMMAND, IDM_VIEW_ALWAYSONTOP, 0);
-
 		//restore window style if not fullscreen
 		if(!_beforeSpecialView._isFullScreen) {
 			//dwStyle |= (WS_CAPTION | WS_SIZEBOX);
@@ -4882,17 +4871,10 @@ void Notepad_plus::postItToggle()
 
 			//Redraw the window and refresh windowmanager cache, dont do anything else, sizing is done later
 			// on
-			::SetWindowPos(_pPublicInterface->getHSelf(),
-			    HWND_NOTOPMOST,
-			    0,
-			    0,
-			    0,
-			    0,
-			    SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_DRAWFRAME|SWP_FRAMECHANGED);
+			::SetWindowPos(_pPublicInterface->getHSelf(), HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_DRAWFRAME|SWP_FRAMECHANGED);
 			::ShowWindow(_pPublicInterface->getHSelf(), SW_SHOW);
 		}
 	}
-
 	_beforeSpecialView._isPostIt = !_beforeSpecialView._isPostIt;
 	::SendMessage(_pPublicInterface->getHSelf(), WM_SIZE, 0, 0);
 }
@@ -4905,12 +4887,10 @@ void Notepad_plus::distractionFreeToggle()
 	// Toggle Distraction Free Mode
 	fullScreenToggle();
 	postItToggle();
-
 	// Get padding info
 	const ScintillaViewParams& svp = NppParameters::getInstance().getSVP();
 	int paddingLeft = 0;
 	int paddingRight = 0;
-
 	// Enable or disable Distraction Free Mode
 	if(_beforeSpecialView._isDistractionFree) { // disable it
 		// restore another view if 2 views mode was on
@@ -4918,13 +4898,11 @@ void Notepad_plus::distractionFreeToggle()
 			showView(otherView());
 			_beforeSpecialView._was2ViewModeOn = false;
 		}
-
 		// restore dockable panels
 		for(auto i : _beforeSpecialView._pVisibleDockingContainers) {
 			i->display();
 		}
 		_dockingManager.resize();
-
 		// restore padding
 		paddingLeft = svp._paddingLeft;
 		paddingRight = svp._paddingRight;

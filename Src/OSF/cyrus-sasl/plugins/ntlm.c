@@ -94,9 +94,7 @@ ssize_t writev(SOCKET fd, const struct iovec * iov, size_t iovcnt)
 /* Unless socket is nonblocking, we should always write everything */
 			return (-1);
 		}
-
 		nbytes += nwritten;
-
 		if(nwritten < iov[i].iov_len) {
 			break;
 		}
@@ -108,24 +106,8 @@ ssize_t writev(SOCKET fd, const struct iovec * iov, size_t iovcnt)
 #ifndef UINT16_MAX
 	#define UINT16_MAX 65535U
 #endif
-#if UINT_MAX == UINT16_MAX
-	typedef unsigned int uint16;
-#elif USHRT_MAX == UINT16_MAX
-	typedef unsigned short uint16;
-#else
-	#error dont know what to use for uint16
-#endif
 #ifndef UINT32_MAX
 	#define UINT32_MAX 4294967295U
-#endif
-#if UINT_MAX == UINT32_MAX
-	// @sobolev typedef unsigned int uint32;
-#elif ULONG_MAX == UINT32_MAX
-	typedef unsigned long uint32;
-#elif USHRT_MAX == UINT32_MAX
-	typedef unsigned short uint32;
-#else
-	#error dont know what to use for uint32
 #endif
 #define NTLM_SIGNATURE          "NTLMSSP"
 
@@ -391,7 +373,7 @@ static uchar * V2(uchar * V2, sasl_secret_t * passwd, const char * authid, const
 	uchar hash[EVP_MAX_MD_SIZE];
 	char * upper;
 	// Allocate enough space for the unicode target 
-	unsigned int len = (uint)(strlen(authid) + xstrlen(target));
+	uint len = (uint)(strlen(authid) + xstrlen(target));
 	if(_plug_buf_alloc(utils, buf, buflen, 2 * len + 1) != SASL_OK) {
 		SETERROR(utils, "cannot allocate NTLMv2 hash");
 		*result = SASL_NOMEM;
@@ -1244,7 +1226,7 @@ static int ntlm_server_mech_new(void * glob_context __attribute__((unused)),
 {
 	server_context_t * text;
 	const char * serv;
-	unsigned int len;
+	uint len;
 	SOCKET sock = (SOCKET)-1;
 	/* holds state are in: allocate early */
 	text = (server_context_t *)sparams->utils->FnMalloc(sizeof(server_context_t));
@@ -1254,7 +1236,7 @@ static int ntlm_server_mech_new(void * glob_context __attribute__((unused)),
 	}
 	sparams->utils->getopt(sparams->utils->getopt_context, "NTLM", "ntlm_server", &serv, &len);
 	if(serv) {
-		unsigned int i, j;
+		uint i, j;
 		char * tmp, * next;
 		/* strip any whitespace */
 		if(_plug_strdup(sparams->utils, serv, &tmp, NULL) != SASL_OK) {
@@ -1774,7 +1756,7 @@ static int ntlm_client_mech_step2(client_context_t * text,
 {
 	const char * authid = NULL;
 	sasl_secret_t * password = NULL;
-	unsigned int free_password; /* set if we need to free password */
+	uint free_password; /* set if we need to free password */
 	char * domain = NULL;
 	int auth_result = SASL_OK;
 	int pass_result = SASL_OK;

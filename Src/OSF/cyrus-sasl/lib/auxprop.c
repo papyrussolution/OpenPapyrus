@@ -88,22 +88,16 @@ static struct proppool * resize_proppool(struct proppool * pool, size_t size)
 static int prop_init(struct propctx * ctx, unsigned estimate)
 {
 	const unsigned VALUES_SIZE = PROP_DEFAULT * sizeof(struct propval);
-
 	ctx->mem_base = alloc_proppool(VALUES_SIZE + estimate);
 	if(!ctx->mem_base) return SASL_NOMEM;
-
 	ctx->mem_cur = ctx->mem_base;
-
 	ctx->values = (struct propval *)ctx->mem_base->data;
 	ctx->mem_base->unused = ctx->mem_base->size - VALUES_SIZE;
 	ctx->allocated_values = PROP_DEFAULT;
 	ctx->used_values = 0;
-
 	ctx->data_end = ctx->mem_base->data + ctx->mem_base->size;
 	ctx->list_end = (char **)(ctx->mem_base->data + VALUES_SIZE);
-
 	ctx->prev_val = NULL;
-
 	return SASL_OK;
 }
 
@@ -118,11 +112,9 @@ struct propctx * prop_new(unsigned estimate)
 	if(!estimate) estimate = PROP_DEFAULT * 255;
 	new_ctx = (struct propctx *)sasl_ALLOC(sizeof(struct propctx));
 	if(!new_ctx) return NULL;
-
 	if(prop_init(new_ctx, estimate) != SASL_OK) {
 		prop_dispose(&new_ctx);
 	}
-
 	return new_ctx;
 }
 
@@ -187,18 +179,14 @@ fail:
 void prop_dispose(struct propctx ** ctx)
 {
 	struct proppool * tmp;
-
 	if(!ctx || !*ctx) return;
-
 	while((*ctx)->mem_base) {
 		tmp = (*ctx)->mem_base;
 		(*ctx)->mem_base = tmp->next;
 		sasl_FREE(tmp);
 	}
-
 	sasl_FREE(*ctx);
 	*ctx = NULL;
-
 	return;
 }
 
@@ -213,18 +201,13 @@ void prop_dispose(struct propctx ** ctx)
 int prop_request(struct propctx * ctx, const char ** names)
 {
 	unsigned i, new_values, total_values;
-
 	if(!ctx || !names) return SASL_BADPARAM;
-
 	/* Count how many we need to add */
 	for(new_values = 0; names[new_values]; new_values++);
-
 	/* Do we need to add ANY? */
 	if(!new_values) return SASL_OK;
-
 	/* We always want at least one extra to mark the end of the array */
 	total_values = new_values + ctx->used_values + 1;
-
 	/* Do we need to increase the size of our propval table? */
 	if(total_values > ctx->allocated_values) {
 		unsigned max_in_pool;
@@ -303,10 +286,9 @@ int prop_request(struct propctx * ctx, const char ** names)
  *  return value persists until next call to
  *   prop_request, prop_clear or prop_dispose on context
  */
-const struct propval * prop_get(struct propctx * ctx){
-	if(!ctx) return NULL;
-
-	return ctx->values;
+const struct propval * prop_get(struct propctx * ctx)
+{
+	return ctx ? ctx->values : NULL;
 }
 
 /* Fill in an array of struct propval based on a list of property names
@@ -317,16 +299,12 @@ const struct propval * prop_get(struct propctx * ctx){
  *  if a name requested here was never requested by a prop_request, then
  *  the name field of the associated vals entry will be set to NULL
  */
-int prop_getnames(struct propctx * ctx, const char ** names,
-    struct propval * vals)
+int prop_getnames(struct propctx * ctx, const char ** names, struct propval * vals)
 {
 	int found_names = 0;
-
 	struct propval * cur = vals;
 	const char ** curname;
-
 	if(!ctx || !names || !vals) return SASL_BADPARAM;
-
 	for(curname = names; *curname; curname++) {
 		struct propval * val;
 		for(val = ctx->values; val->name; val++) {
@@ -441,7 +419,7 @@ void prop_erase(struct propctx * ctx, const char * name)
  *  outlen -- set to length of output string excluding NUL terminator
  * returns 0 on success and amount of additional space needed on failure
  */
-int prop_format(struct propctx * ctx, const char * sep, int seplen, char * outbuf, unsigned outmax, unsigned * outlen)
+int prop_format(struct propctx * ctx, const char * sep, int seplen, char * outbuf, uint outmax, unsigned * outlen)
 {
 	unsigned needed, flag = 0;
 	struct propval * val;
@@ -928,7 +906,7 @@ int sasl_auxprop_store(sasl_conn_t * conn,
 	const char * plist = NULL;
 	auxprop_plug_list_t * ptr;
 	sasl_server_params_t * sparams = NULL;
-	unsigned userlen = 0;
+	uint userlen = 0;
 	int num_constraint_violations = 0;
 	int total_plugins = 0;
 

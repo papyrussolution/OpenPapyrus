@@ -36,7 +36,7 @@ extern "C" {
 #endif
 
 void _sasl_MD5Init(Cyrus_MD5_CTX *);
-void _sasl_MD5Update(Cyrus_MD5_CTX *, const uchar *, unsigned int);
+void _sasl_MD5Update(Cyrus_MD5_CTX *, const uchar *, uint);
 void _sasl_MD5Final(uchar [16], Cyrus_MD5_CTX *);
 
 #ifdef __cplusplus

@@ -348,7 +348,6 @@ TrainerModel::SentencePieces Trainer::PruneSentencePieces(const TrainerModel &mo
 				F += sentences_[n].second;
 			}
 			F /= vsum; // normalizes by all sentence frequency.
-
 			// The logprob with the sentencepiece[i].
 			const float logprob_sp = std::log(static_cast<double>(freq[i])) - logsum;
 			// After removing the sentencepiece[i], its frequency freq[i] is
@@ -433,18 +432,14 @@ util::Status Trainer::Train()
 		// Sub-EM iteration.
 		for(int iter = 0; iter < trainer_spec_.num_sub_iterations(); ++iter) {
 			// Executes E step
-			float objective = 0.0;
+			float objective = 0.0f;
 			int64 num_tokens = 0;
 			const auto expected = RunEStep(model, &objective, &num_tokens);
-
 			// Executes M step.
 			auto new_sentencepieces = RunMStep(model, expected);
 			model.SetSentencePieces(std::move(new_sentencepieces));
-
-			LOG(INFO) << "EM sub_iter=" << iter << " size=" << model.GetPieceSize()
-				  << " obj=" << objective << " num_tokens=" << num_tokens
-				  << " num_tokens/piece="
-				  << 1.0 * num_tokens / model.GetPieceSize();
+			LOG(INFO) << "EM sub_iter=" << iter << " size=" << model.GetPieceSize() << " obj=" << objective << " num_tokens=" << num_tokens
+				  << " num_tokens/piece=" << 1.0 * num_tokens / model.GetPieceSize();
 		} // end of Sub EM iteration
 
 		// Stops the iteration when the size of sentences reaches to the

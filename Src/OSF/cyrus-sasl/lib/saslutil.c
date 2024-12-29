@@ -97,7 +97,7 @@ static char index_64[128] = {
  * Returns SASL_OK on success, SASL_BUFOVER if result won't fit
  */
 
-int sasl_encode64(const char * _in, uint inlen, char * _out, unsigned outmax, unsigned * outlen)
+int sasl_encode64(const char * _in, uint inlen, char * _out, uint outmax, unsigned * outlen)
 {
 	const uchar * in = (const uchar *)_in;
 	uchar * out = (uchar *)_out;
@@ -153,9 +153,9 @@ int sasl_encode64(const char * _in, uint inlen, char * _out, unsigned outmax, un
  * SASL_OK on success
  */
 
-int sasl_decode64(const char * in, uint inlen, char * out, unsigned outmax/* size of the buffer, not counting the NUL */, unsigned * outlen)
+int sasl_decode64(const char * in, uint inlen, char * out, uint outmax/* size of the buffer, not counting the NUL */, unsigned * outlen)
 {
-	unsigned len = 0;
+	uint len = 0;
 	unsigned j;
 	int c[4];
 	int saw_equal = 0;
@@ -226,7 +226,7 @@ int sasl_mkchal(sasl_conn_t * conn, char * buf, unsigned maxlen, unsigned hostfl
 	unsigned long randnum;
 	int ret;
 	time_t now;
-	unsigned len;
+	uint len;
 	len = 4                 /* <.>\0 */
 	    + (2 * 20);         /* 2 numbers, 20 => max size of 64bit
 	                         * ulong in base 10 */
@@ -240,9 +240,9 @@ int sasl_mkchal(sasl_conn_t * conn, char * buf, unsigned maxlen, unsigned hostfl
 	sasl_randfree(&pool);
 	time(&now);
 	if(hostflag && conn->serverFQDN)
-		snprintf(buf, maxlen, "<%lu.%lu@%s>", randnum, (unsigned long)now, conn->serverFQDN); // don't care much about time 32bit overlap 
+		snprintf(buf, maxlen, "<%lu.%lu@%s>", randnum, (ulong)now, conn->serverFQDN); // don't care much about time 32bit overlap 
 	else
-		snprintf(buf, maxlen, "<%lu.%lu>", randnum, (unsigned long)now);
+		snprintf(buf, maxlen, "<%lu.%lu>", randnum, (ulong)now);
 
 	return (int)strlen(buf);
 }
@@ -250,7 +250,7 @@ int sasl_mkchal(sasl_conn_t * conn, char * buf, unsigned maxlen, unsigned hostfl
 /* borrowed from larry. probably works :)
  * probably is also in acap server somewhere
  */
-int sasl_utf8verify(const char * str, unsigned len)
+int sasl_utf8verify(const char * str, uint len)
 {
 	unsigned i;
 	for(i = 0; i < len; i++) {
@@ -350,10 +350,10 @@ void sasl_randfree(sasl_rand_t ** rpool)
 	sasl_FREE(*rpool);
 }
 
-void sasl_randseed(sasl_rand_t * rpool, const char * seed, unsigned len)
+void sasl_randseed(sasl_rand_t * rpool, const char * seed, uint len)
 {
 	/* is it acceptable to just use the 1st 3 char's given??? */
-	unsigned int lup;
+	uint lup;
 
 	/* check params */
 	if(seed == NULL) return;
@@ -379,24 +379,24 @@ static void randinit(sasl_rand_t * rpool)
 #ifndef HAVE_JRAND48
 		{
 			/* xxx varies by platform */
-			unsigned int * foo = (unsigned int*)rpool->pool;
+			uint * foo = (uint*)rpool->pool;
 			srandom(*foo);
 		}
 #endif /* HAVE_JRAND48 */
 #elif defined(WIN32)
 		{
-			unsigned int * foo = (unsigned int*)rpool->pool;
+			uint * foo = (uint*)rpool->pool;
 			srand(*foo);
 		}
 #endif /* WIN32 */
 	}
 }
 
-void sasl_rand(sasl_rand_t * rpool, char * buf, unsigned len)
+void sasl_rand(sasl_rand_t * rpool, char * buf, uint len)
 {
-	unsigned int lup;
+	uint lup;
 #if defined(WIN32) && !defined(__MINGW32__)
-	unsigned int randomValue;
+	uint randomValue;
 #endif
 
 	/* check params */
@@ -428,9 +428,9 @@ void sasl_rand(sasl_rand_t * rpool, char * buf, unsigned len)
 
 /* this function is just a bad idea all around, since we're not trying to
    implement a true random number generator */
-void sasl_churn(sasl_rand_t * rpool, const char * data, unsigned len)
+void sasl_churn(sasl_rand_t * rpool, const char * data, uint len)
 {
-	unsigned int lup;
+	uint lup;
 	/* check params */
 	if(!rpool || !data) return;
 	/* init if necessary */
@@ -439,7 +439,7 @@ void sasl_churn(sasl_rand_t * rpool, const char * data, unsigned len)
 		rpool->pool[lup % RPOOL_SIZE] ^= data[lup];
 }
 
-void sasl_erasebuffer(char * buf, unsigned len) 
+void sasl_erasebuffer(char * buf, uint len) 
 {
 	memzero(buf, len);
 }

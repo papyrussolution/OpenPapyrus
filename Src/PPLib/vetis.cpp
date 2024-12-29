@@ -1432,12 +1432,12 @@ public:
 		signProcessIncomingConsignment,
 		signProcessOutgoingConsignment,
 		signWithdrawVetDocument,
-		signModifyEnterprise,                // @v10.5.0
-		signModifyActivityLocations,         // @v10.5.0
-		signResolveDiscrepancy,              // @v10.5.0
-		signModifyProducerStockListOperation, // @v10.5.2
-		signGetStockEntryByUUID, // @v10.5.9
-		signRegisterProduction,  // @v10.6.10
+		signModifyEnterprise,
+		signModifyActivityLocations,
+		signResolveDiscrepancy,
+		signModifyProducerStockListOperation,
+		signGetStockEntryByUUID,
+		signRegisterProduction,
 		signCheckShipmentRegionalization // @v11.0.0
 	};
 	explicit VetisApplicationData(long sign) : Sign(sign)
@@ -6045,9 +6045,9 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 			n_env.PutAttrib(SXml::nst_xmlns("dt"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/dictionary/v2"));
 			n_env.PutAttrib(SXml::nst_xmlns("bs"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/base"));
 			n_env.PutAttrib(SXml::nst_xmlns("merc"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/g2b/applications/v2"));
-			n_env.PutAttrib(SXml::nst_xmlns("apldef"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
+			n_env.PutAttrib(SXml::nst_xmlns("apldef"), InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application/ws-definitions"));
 			n_env.PutAttrib(SXml::nst_xmlns("apl"),    InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
-			n_env.PutAttrib(SXml::nst_xmlns("vd"),   InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
+			n_env.PutAttrib(SXml::nst_xmlns("vd"),     InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/vet-document/v2"));
 			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
 			PutHeader(srb);
 			{

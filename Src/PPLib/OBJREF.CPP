@@ -988,7 +988,7 @@ public:
 	{
 	}
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct UnitData : public ObjCacheEntry {
@@ -1001,7 +1001,7 @@ public:
 	};
 };
 
-int UnitCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int UnitCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	UnitData * p_cache_rec = static_cast<UnitData *>(pEntry);
@@ -1234,7 +1234,7 @@ public:
 	{
 	}
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
@@ -1242,7 +1242,7 @@ public:
 	};
 };
 
-int PersonStatusCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int PersonStatusCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -1335,11 +1335,11 @@ public:
 	{
 	}
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
-int PersonCatCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int PersonCatCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	ObjCacheEntry * p_cache_rec = pEntry;
@@ -1501,7 +1501,7 @@ public:
 	{
 	}
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
@@ -1510,7 +1510,7 @@ public:
 	};
 };
 
-int ELinkKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int ELinkKindCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -1790,7 +1790,7 @@ public:
 	{
 	}
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
@@ -1799,7 +1799,7 @@ public:
 	};
 };
 
-int CurrencyCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int CurrencyCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -2790,25 +2790,25 @@ public:
 	GlobalUserAccCache() : ObjCache(PPOBJ_GLOBALUSERACC, sizeof(GlobalUserAccData))
 	{
 		MEMSZERO(Cfg);
-		AlbCfg.Hdr.Prop = 0; // @v10.6.3 @paranoic
+		AlbCfg.Hdr.Prop = 0; // @paranoic
 	}
 	int    GetConfig(PPGlobalUserAccConfig * pCfg, int enforce);
 	int    GetAlbatrossConfig(PPAlbatrossConfig * pCfg, int enforce);
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	PPGlobalUserAccConfig Cfg;
-	PPAlbatrossConfig AlbCfg; // @v10.6.3
+	PPAlbatrossConfig AlbCfg;
 	ReadWriteLock CfgLock;
-	ReadWriteLock AlbCfgLock; // @v10.6.3
+	ReadWriteLock AlbCfgLock;
 public:
 	struct GlobalUserAccData : public ObjCacheEntry {
 		S_GUID LocalDbUuid;
 		long   Flags;
 		long   LocalUserID;
 		PPID   PersonID;
-		PPID   ServiceIdent; // @v10.5.5
+		PPID   ServiceIdent;
 	};
 };
 
@@ -2844,7 +2844,7 @@ int GlobalUserAccCache::GetAlbatrossConfig(PPAlbatrossConfig * pCfg, int enforce
 	return 1;
 }
 
-int GlobalUserAccCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int GlobalUserAccCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	GlobalUserAccData * p_cache_rec = static_cast<GlobalUserAccData *>(pEntry);
@@ -2855,7 +2855,7 @@ int GlobalUserAccCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_cache_rec->Flags = rec.Flags;
 		p_cache_rec->LocalUserID = rec.LocalUserID;
 		p_cache_rec->PersonID = rec.PersonID;
-		p_cache_rec->ServiceIdent = rec.ServiceIdent; // @v10.5.5
+		p_cache_rec->ServiceIdent = rec.ServiceIdent;
 
 		MultTextBlock b;
 		b.Add(rec.Name);
@@ -4060,14 +4060,14 @@ int PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
             AddClusterAssoc(CTL_EDIPRV_SUPPOPS, 2, (1 << PPEDIOP_DESADV));
             AddClusterAssoc(CTL_EDIPRV_SUPPOPS, 3, (1 << PPEDIOP_RECADV));
             AddClusterAssoc(CTL_EDIPRV_SUPPOPS, 4, (1 << PPEDIOP_ALCODESADV));
-			AddClusterAssoc(CTL_EDIPRV_SUPPOPS, 5, (1 << PPEDIOP_INVOIC)); // @v10.0.06
+			AddClusterAssoc(CTL_EDIPRV_SUPPOPS, 5, (1 << PPEDIOP_INVOIC));
             SetClusterData(CTL_EDIPRV_SUPPOPS, Data.Rec.SuppOpFlags);
 
 			AddClusterAssoc(CTL_EDIPRV_FLAGS, 0, PPEdiProvider::fPassive);
 			SetClusterData(CTL_EDIPRV_FLAGS, Data.Rec.Flags);
 
-			Data.GetExtStrData(PPEdiProviderPacket::extssFormatSymb, temp_buf); // @v10.0.02
-			setCtrlString(CTL_EDIPRV_FORMAT, temp_buf); // @v10.0.02
+			Data.GetExtStrData(PPEdiProviderPacket::extssFormatSymb, temp_buf);
+			setCtrlString(CTL_EDIPRV_FORMAT, temp_buf);
 			Data.GetExtStrData(PPEdiProviderPacket::extssDllModuleName, temp_buf);
 			setCtrlString(CTL_EDIPRV_MODULE, temp_buf);
 			Data.GetExtStrData(PPEdiProviderPacket::extssAddr, temp_buf);
@@ -4099,8 +4099,8 @@ int PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
 			THROW(P_Obj->CheckDupSymb(Data.Rec.ID, strip(Data.Rec.Symb)));
 			GetClusterData(CTL_EDIPRV_SUPPOPS, &Data.Rec.SuppOpFlags);
 			GetClusterData(CTL_EDIPRV_FLAGS, &Data.Rec.Flags);
-			getCtrlString(CTL_EDIPRV_FORMAT, temp_buf.Z()); // @v10.0.02
-			Data.PutExtStrData(PPEdiProviderPacket::extssFormatSymb, temp_buf); // @v10.0.02
+			getCtrlString(CTL_EDIPRV_FORMAT, temp_buf.Z());
+			Data.PutExtStrData(PPEdiProviderPacket::extssFormatSymb, temp_buf);
 			getCtrlString(CTL_EDIPRV_MODULE, temp_buf.Z());
 			Data.PutExtStrData(PPEdiProviderPacket::extssDllModuleName, temp_buf);
 			getCtrlString(CTL_EDIPRV_ADDR1, temp_buf.Z());

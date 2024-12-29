@@ -7458,6 +7458,7 @@ record Bill {
 	OuterCode     zstring(24)  "@{rtag_billoutercode}"; // @v12.2.1 транслируетс€ в тег PPTAG_BILL_OUTERCODE
 	OuterDate     date         "@{rtag_billouterdate}";  // @v12.2.1 транслируетс€ в тег PPTAG_BILL_OUTERDATE
 	EdiIdent      zstring(48)  "»дентификатор документа у провайдера EDI"; // @v12.2.1 транслируетс€ в тег PPTAG_BILL_EDIIDENT
+	OrgOrdDocCode zstring(48)  "@{rtag_bill_orgorderident}"; // @v12.2.2 транслируетс€ в тег PPTAG_BILL_ORGORDERIDENT
 }
 
 record BRow {
@@ -7506,7 +7507,8 @@ record BRow {
 	BillDate      date         "@{date}";
 	BillOuterCode zstring(24)  "@{rtag_billoutercode}"; // @v12.2.1 транслируетс€ в тег PPTAG_BILL_OUTERCODE
 	BillOuterDate date         "@{rtag_billouterdate}";  // @v12.2.1 транслируетс€ в тег PPTAG_BILL_OUTERDATE
-	BillEdiIdent  zstring(48)  "»дентификатор документа у провайдера EDI"; // @v12.2.1 транслируетс€ в тег PPTAG_BILL_EDIIDENT
+	BillEdiIdent   zstring(48)  "»дентификатор документа у провайдера EDI"; // @v12.2.1 транслируетс€ в тег PPTAG_BILL_EDIIDENT
+	BillOrgOrdCode zstring(48)  "@{rtag_bill_orgorderident}"; // @v12.2.2 транслируетс€ в тег PPTAG_BILL_ORGORDERIDENT
 	OpID          long         "@{oprkind_id_amp}";
 	OpSymb        zstring(20)  "@{oprkindsymb}";
 	InvcCode      zstring(24)  "@{bill_invoicecode}";

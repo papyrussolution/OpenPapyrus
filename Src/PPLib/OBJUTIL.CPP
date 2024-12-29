@@ -42,7 +42,6 @@ static const ushort _Objects[] = {
 	PPOBJ_GTACTION,     // ?
 	PPOBJ_BILL,
 	PPOBJ_QCERT,        // !
-	// @v9.0.4 PPOBJ_BACCT,        // ?
 	PPOBJ_BCODESTRUC,   // !
 	PPOBJ_DBDIV,
 	PPOBJ_VATBOOK,
@@ -174,7 +173,6 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_ACCTURN     : p = new PPObjAccTurn(extraPtr); break;
 		case PPOBJ_BILL        : p = new PPObjBill(extraPtr); break;
 		case PPOBJ_QCERT       : p = new PPObjQCert(extraPtr); break;
-		// @v9.0.4 case PPOBJ_BACCT       : p = new PPObjBnkAcct(extraPtr); break;
 		case PPOBJ_BCODESTRUC  : p = new PPObjBarCodeStruc(extraPtr); break;
 		case PPOBJ_DBDIV       : p = new PPObjDBDiv(extraPtr); break;
 		case PPOBJ_VATBOOK     : p = new PPObjVATBook(extraPtr); break;

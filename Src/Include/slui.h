@@ -4972,8 +4972,7 @@ public:
 	DECL_HANDLE_EVENT;
 	virtual void run();
 	TView * validView(TView *p);
-	// @v10.0.02 void   idle();
-	void   SetupTreeWnd(HMENU hMenu, void * hP); // @v10.9.4 HTREEITEM-->(void *)
+	void   SetupTreeWnd(HMENU hMenu, void * hP);
 	void   SizeMainWnd(HWND);
 	int    GetStatusBarRect(RECT *);
 	int    GetClientRect(RECT *);

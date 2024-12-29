@@ -1639,6 +1639,7 @@ public class SLib {
 	public static final int EV_ASYNCSET             = 28; // @v12.0.6 Посылается иным потоком для установки каких-либо (часто, глобально доступных)
 		// данных. Изначально событие введено для установки информации о состоянии сетевого подключения. //
 		// srcObj: символ данных, subj: объект, содержащий собственно данные для установки. ret(null)
+	public static final int EV_PAUSE                = 29; // @v12.2.2 Посылается в SlActivity функцией onPause
 	//
 	public static final int cmOK                    = 10; // Значение эквивалентно тому же в tvdefs.h
 	public static final int cmCancel                = 11; // Значение эквивалентно тому же в tvdefs.h
@@ -5638,6 +5639,11 @@ public class SLib {
 		{
 			super.onStop();
 			HandleEvent(EV_ACTIVITYSTOP, this, null);
+		}
+		@Override protected void onPause() // @v12.2.2
+		{
+			super.onPause();
+			HandleEvent(EV_PAUSE, this, null);
 		}
 		@Override public void onResume()
 		{

@@ -6114,7 +6114,7 @@ public:
 	int    GetCTableStatus(long tableNo, CTableStatus * pStatus);
 	int    GetCTableOrderList(TSVector <CTableStatus> & rList);
 private:
-	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 	{
 		return -1;
 	}

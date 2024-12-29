@@ -77,7 +77,7 @@ BillSymbCache::BillSymbCache() : ObjCache(PPOBJ_BILLSYMB, sizeof(Data)), sDELIM(
 	FormSet.setDelim(reinterpret_cast<const char *>(&sDELIM));
 }
 
-/*virtual*/int BillSymbCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+/*virtual*/int BillSymbCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	return 0;
 }

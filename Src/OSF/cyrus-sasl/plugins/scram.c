@@ -212,7 +212,7 @@ static char * create_nonce(const sasl_utils_t * utils,
     size_t buflen)                  /* Including the terminating NUL */
 {
 	char * intbuf;
-	unsigned int estimated;
+	uint estimated;
 
 	if((buflen - 1) % 4 != 0) {
 		/* NB: the algorithm below doesn't work for such length.
@@ -264,12 +264,12 @@ static void print_hash(const char * func, const char * hash, size_t hash_size)
 
 /* The result variable need to point to a buffer big enough for the [SHA-*] hash */
 static void Hi(const sasl_utils_t * utils, const EVP_MD * md, const char * str, size_t str_len,
-    const char * salt, size_t salt_len, unsigned int iteration_count, char * result)
+    const char * salt, size_t salt_len, uint iteration_count, char * result)
 {
 	char * initial_key = NULL;
-	unsigned int i;
+	uint i;
 	char * temp_result;
-	unsigned int hash_len = 0;
+	uint hash_len = 0;
 	size_t k, hash_size = EVP_MD_size(md);
 	initial_key = (char *)utils->FnMalloc(salt_len + 4);
 	memcpy(initial_key, salt, salt_len);
@@ -317,7 +317,7 @@ static int GenerateScramSecrets(const sasl_utils_t * utils, const EVP_MD * md, c
     size_t password_len,
     char * salt,
     size_t salt_len,
-    unsigned int iteration_count,
+    uint iteration_count,
     char * StoredKey,
     char * ServerKey,
     char ** error_text)
@@ -325,7 +325,7 @@ static int GenerateScramSecrets(const sasl_utils_t * utils, const EVP_MD * md, c
 	char SaltedPassword[EVP_MAX_MD_SIZE];
 	char ClientKey[EVP_MAX_MD_SIZE];
 	sasl_secret_t * sec = NULL;
-	unsigned int hash_len = 0;
+	uint hash_len = 0;
 	int result;
 	size_t hash_size = EVP_MD_size(md);
 	*error_text = NULL;
@@ -414,7 +414,7 @@ typedef struct server_context {
 	/* in binary form */
 	char * salt;
 	size_t salt_len;
-	unsigned int iteration_count;
+	uint iteration_count;
 	char StoredKey[EVP_MAX_MD_SIZE + 1];
 	char ServerKey[EVP_MAX_MD_SIZE + 1];
 
@@ -768,7 +768,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 	else if(auxprop_values[1].name && auxprop_values[1].values) {
 		char s_iteration_count[ITERATION_COUNTER_BUF_LEN+1];
 		size_t base64_salt_len;
-		unsigned int exact_key_len;
+		uint exact_key_len;
 		const char * scram_hash;
 		const char * p_field;
 		char * end;
@@ -846,7 +846,7 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 			    (uint)base64_salt_len,
 			    text->salt,
 			    (uint)base64_salt_len,
-			    (unsigned int*)&text->salt_len) != SASL_OK) {
+			    (uint*)&text->salt_len) != SASL_OK) {
 				sparams->utils->seterror(sparams->utils->conn, 0,
 				    "Invalid base64 encoding of the salt in %s stored value",
 				    scram_sasl_mech);
@@ -1036,7 +1036,7 @@ static int scram_server_mech_step2(server_context_t * text,
 	size_t client_proof_len;
 	size_t server_proof_len;
 	unsigned exact_client_proof_len;
-	unsigned int hash_len = 0;
+	uint hash_len = 0;
 	size_t k, hash_size = EVP_MD_size(text->md);
 	const char * scram_sasl_mech = scram_sasl_mech_name(hash_size);
 	if(clientinlen == 0) {
@@ -1427,7 +1427,7 @@ static int scram_server_mech_step(void * conn_context,
 }
 
 static int scram_setpass(void * glob_context, sasl_server_params_t * sparams, const char * userstr,
-    const char * pass, unsigned passlen, const char * oldpass __attribute__((unused)), unsigned oldpasslen __attribute__((unused)), uint flags)
+    const char * pass, uint passlen, const char * oldpass __attribute__((unused)), uint oldpasslen __attribute__((unused)), uint flags)
 {
 	int r;
 	char * user = NULL;
@@ -1497,7 +1497,7 @@ static int scram_setpass(void * glob_context, sasl_server_params_t * sparams, co
 		char base64_StoredKey[BASE64_LEN(EVP_MAX_MD_SIZE) + 1];
 		char base64_ServerKey[BASE64_LEN(EVP_MAX_MD_SIZE) + 1];
 		size_t secret_len;
-		unsigned int iteration_count = DEFAULT_ITERATION_COUNTER;
+		uint iteration_count = DEFAULT_ITERATION_COUNTER;
 		char * s_iteration_count;
 		char * end;
 
@@ -1755,7 +1755,7 @@ typedef struct client_context {
 	const EVP_MD * md; /* underlying MDA */
 
 	sasl_secret_t * password; /* user password */
-	unsigned int free_password; /* set if we need to free the password */
+	uint free_password; /* set if we need to free the password */
 
 	char * gs2_header;
 	size_t gs2_header_length;
@@ -1767,7 +1767,7 @@ typedef struct client_context {
 	/* in binary form */
 	char * salt;
 	size_t salt_len;
-	unsigned int iteration_count;
+	uint iteration_count;
 	char SaltedPassword[EVP_MAX_MD_SIZE];
 
 	int cb_flags;
@@ -2013,7 +2013,7 @@ static int scram_client_mech_step2(client_context_t * text,
 	char ClientProof[EVP_MAX_MD_SIZE];
 	char * client_proof = NULL;
 	size_t client_proof_len;
-	unsigned int hash_len = 0;
+	uint hash_len = 0;
 	size_t k, hash_size = EVP_MD_size(text->md);
 	const char * scram_sasl_mech = scram_sasl_mech_name(hash_size);
 
@@ -2334,7 +2334,7 @@ static int scram_client_mech_step3(client_context_t * text,
 	char DecodedServerProof[EVP_MAX_MD_SIZE + 1];
 	char ServerKey[EVP_MAX_MD_SIZE];
 	char ServerSignature[EVP_MAX_MD_SIZE];
-	unsigned int hash_len = 0;
+	uint hash_len = 0;
 	size_t k, hash_size = EVP_MD_size(text->md);
 	const char * scram_sasl_mech = scram_sasl_mech_name(hash_size);
 	if(serverinlen < 3) {

@@ -1839,6 +1839,8 @@ int GoogleApiInterface::Auth()
 //
 class AptekaRuInterface {
 public:
+	static constexpr PPID BillIdentTag = PPTAG_BILL_ORGORDERIDENT; // @v12.2.2 PPTAG_BILL_EDIIDENT-->PPTAG_BILL_ORGORDERIDENT
+
 	struct ReplyEntry {
 		ReplyEntry();
 		ReplyEntry & Z();
@@ -2093,7 +2095,7 @@ int AptekaRuInterface::MakeBillCodeList(const PPIDArray & rIdList, StringSet & r
 				const PPID bill_id = rIdList.get(i);
 				if(!rResultIdList.lsearch(bill_id) && p_bobj->Fetch(bill_id, &bill_rec) > 0) {
 					//temp_buf = bill_rec.Code;
-					if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIIDENT, temp_buf) > 0) {
+					if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, AptekaRuInterface::BillIdentTag, temp_buf) > 0) {
 						assert(temp_buf.NotEmpty());
 						if(temp_buf.NotEmpty()) {
 							rSs.add(temp_buf);
@@ -2432,13 +2434,13 @@ int PrcssrAptekaRu::Run()
 					filt.P_TagF = new TagFilt;
 					filt.P_TagF->TagsRestrict.Add(P.RcptTagID, PPConst::P_TagValRestrict_Exist, 1);
 				}
-				filt.P_TagF->TagsRestrict.Add(PPTAG_BILL_EDIIDENT, PPConst::P_TagValRestrict_Exist, 1);
+				filt.P_TagF->TagsRestrict.Add(AptekaRuInterface::BillIdentTag, PPConst::P_TagValRestrict_Exist, 1);
 				filt.Flags |= BillFilt::fNoTempTable;
 				PPViewBill v_bill;
 				if(v_bill.Init_(&filt)) {
 					BillViewItem view_item;
 					for(v_bill.InitIteration(PPViewBill::OrdByDefault); v_bill.NextIteration(&view_item) > 0;) {
-						if(p_ref->Ot.GetTagStr(PPOBJ_BILL, view_item.ID, PPTAG_BILL_EDIIDENT, order_code) > 0) { // @paranoic (критерий фильтра должен гарантировать это!)
+						if(p_ref->Ot.GetTagStr(PPOBJ_BILL, view_item.ID, AptekaRuInterface::BillIdentTag, order_code) > 0) { // @paranoic (критерий фильтра должен гарантировать это!)
 							if(nominal_period.CheckDate(view_item.Dt)) {
 								nominal_acceptance_bill_list.add(view_item.ID);
 							}
@@ -2520,22 +2522,6 @@ int DoAptekaRuInterchange()
 			ok = 1;
 		else
 			ok = PPErrorZ();
-	}
-	return ok;
-}
-//
-//
-//
-int Test_AptekaRuInterface()
-{
-	int    ok = 1;
-	PPObjGlobalUserAcc gua_obj;
-	PPIDArray gua_list;
-	if(gua_obj.GetListByServiceIdent(PPGLS_APTEKARU, &gua_list) > 0 && gua_list.getCount() == 1) {
-		AptekaRuInterface ifc(gua_list.get(0));
-		if(ifc.IsValid()) {
-			ifc.Auth(false);
-		}
 	}
 	return ok;
 }

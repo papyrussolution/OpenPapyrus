@@ -1,10 +1,13 @@
 // CmdRIncomingListBillActivity.java
-// Copyright (c) A.Sobolev 2022
+// Copyright (c) A.Sobolev 2022, 2024
 //
 package ru.petroglif.styloq;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.device.ScanDevice;
 import android.hardware.Camera;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,8 +38,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
+//import android.device.ScanDevice;
+
+// @v12.2.2 @todo В этом модуле будем внедрять обработку сканирующей головки BHT
+
 public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 	public CommonPrereqModule CPM;
+	private ScanDevice ScanDvc; // @v12.2.2
 	private ArrayList <Document.EditAction> DocEditActionList;
 	private ArrayList <BusinessEntity.CliDocStatus> DocStatusList;
 	enum ScanType {
@@ -797,6 +805,16 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 			case SLib.EV_CREATE:
 				{
 					Intent intent = getIntent();
+					// @v12.2.2 {
+					try {
+						ScanDvc = new ScanDevice();
+						ScanDvc.openScan();
+						ScanDvc.setOutScanMode(0);
+					} catch(Exception exn)
+					{
+						ScanDvc = null;
+					}
+					// } @v12.2.2
 					try {
 						CPM.GetAttributesFromIntent(intent);
 						long doc_id = intent.getLongExtra("SvcReplyDocID", 0);
@@ -917,6 +935,25 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					} catch(StyloQException exn) {
 						;
 					}
+				}
+				break;
+			case SLib.EV_DESTROY: // @v12.2.2
+				if(ScanDvc != null) {
+					ScanDvc.stopScan ();
+					ScanDvc.setScanLaserMode (8);
+					ScanDvc.closeScan ();
+				}
+				break;
+			case SLib.EV_PAUSE: // @v12.2.2
+				if(ScanDvc != null) {
+					unregisterReceiver(BarcodeScanDeviceReceiver);
+				}
+				break;
+			case SLib.EV_ACTIVITYRESUME: // @v12.2.2
+				if(ScanDvc != null) {
+					IntentFilter filter = new IntentFilter();
+					filter.addAction(/*SCAN_ACTION*/"scan.rcv.message");
+					registerReceiver(BarcodeScanDeviceReceiver, filter);
 				}
 				break;
 			case SLib.EV_TABSELECTED:
@@ -2090,22 +2127,18 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 		}
 		return result;
 	}
-	private final ActivityResultLauncher<ScanOptions> BarcodeLauncher = registerForActivityResult(new ScanContract(), activity_result ->
+	private boolean AcceptBarcodeInput(String barcode)
 	{
-		String contents = activity_result.getContents();
-		Intent original_intent = activity_result.getOriginalIntent();
-		if(SLib.GetLen(contents) > 0) {
-			byte [] bytes_contents = contents.getBytes();
-			Intent _intent = this.getIntent();
-			boolean is_processed = false;
+		boolean ok = false;
+		int barcode_len = SLib.GetLen(barcode);
+		if(barcode_len > 0) {
 			StyloQApp app_ctx = (StyloQApp)getApplicationContext();
 			if(app_ctx != null) {
-				//String _action = original_intent.getStringExtra("action");
 				Document _doc = CPM.GetCurrentDocument();
 				if(_doc != null) {
-					GTIN gtin_chzn = GTIN.ParseChZnCode(contents, 0);
+					GTIN gtin_chzn = GTIN.ParseChZnCode(barcode, 0);
 					if(gtin_chzn != null && gtin_chzn.GetChZnParseResult() > 0) {
-						String mark = GTIN.PreprocessChZnCode(contents);
+						String mark = GTIN.PreprocessChZnCode(barcode);
 						if(ScanSource == ScanType.Veriy) {
 							if(_doc.VXcL == null)
 								_doc.VXcL = new ArrayList<Document.LotExtCode>();
@@ -2116,7 +2149,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							_doc.VXcL.add(lec);
 							CPM.OnCurrentDocumentModification();
 							NotifyTabContentChanged(CommonPrereqModule.Tab.tabXclVerify, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
-							is_processed = true;
+							ok = true;
 						}
 						else if(ScanSource == ScanType.Setting) {
 							try {
@@ -2124,6 +2157,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 								if(amr > 0) {
 									CPM.OnCurrentDocumentModification();
 									NotifyTabContentChanged(CommonPrereqModule.Tab.tabXclSetting, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
+									ok = true;
 								}
 							} catch(StyloQException exn) {
 								app_ctx.DisplayError(this, exn, 0);
@@ -2131,13 +2165,19 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						}
 					}
 					else {
-						app_ctx.DisplayError(this, app_ctx.GetErrorText(ppstr2.PPERR_TEXTISNTCHZNMARK, contents), 0);
+						app_ctx.DisplayError(this, app_ctx.GetErrorText(ppstr2.PPERR_TEXTISNTCHZNMARK, barcode), 0);
 					}
 				}
-				//Log.d("MainActivity", "Scanned");
-				//Toast.makeText(MainActivity.this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
 			}
-			//ScanSource = ScanType.Undef; // ? Не уверен что при continuous сканировании это будет правильно
+		}
+		return ok;
+	}
+	private final ActivityResultLauncher<ScanOptions> BarcodeLauncher = registerForActivityResult(new ScanContract(), activity_result ->
+	{
+		String contents = activity_result.getContents();
+		Intent original_intent = activity_result.getOriginalIntent();
+		if(SLib.GetLen(contents) > 0) {
+			AcceptBarcodeInput(contents);
 		}
 		else {
 			if(original_intent == null) {
@@ -2150,4 +2190,26 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 			}
 		}
 	});
+
+	private BroadcastReceiver /*mScanReceiver*/BarcodeScanDeviceReceiver = new BroadcastReceiver()
+	{
+		@Override public void onReceive(Context context, Intent intent)
+		{
+			if(ScanDvc != null) {
+				String action = intent.getAction();
+				if(action.equals(/*SCAN_ACTION*/"scan.rcv.message")) {
+					byte[] bytes_contents = intent.getByteArrayExtra("barocode");
+					//int barocode_len = intent.getIntExtra("length", 0);
+					//byte barcode_type = intent.getByteExtra("barcodeType", (byte) 0);
+					//byte[] aimid = intent.getByteArrayExtra("aimid");
+					if(SLib.GetLen(bytes_contents) > 0) {
+						String barcode_text = new String(bytes_contents);
+						AcceptBarcodeInput(barcode_text);
+					}
+					ScanDvc.stopScan();
+					//UtilSound.play ();
+				}
+			}
+		}
+	};
 }

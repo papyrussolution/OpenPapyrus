@@ -13,22 +13,30 @@
 // @v11.3.6 (moved to PPConstParam::P_TagValRestrict_Exist) const char * P_ExistTagValRestrict = "#EXIST";
 // @v11.3.6 (moved to PPConstParam::P_TagValRestrict_List)  const char * P_ListTagValRestrict = "#LIST";
 
-/*static*/int TagFilt::ParseString(const char * pItemString, SString & rRestrictionBuf, SString & rColorBuf)
+/*static*/int TagFilt::ParseString(const char * pItemString, SString * pRestrictionBuf, SString * pColorBuf)
 {
 	int    ok = 0;
 	const  char * p = 0;
 	if(pItemString && ((p = strstr(pItemString, "/#")) != 0)) {
-		(rColorBuf = (p+1)).Strip(); // '/' пропускаем
-		(rRestrictionBuf = pItemString).Trim(p - pItemString).Strip();
+		if(pColorBuf)
+			(*pColorBuf = (p+1)).Strip(); // '/' пропускаем
+		if(pRestrictionBuf)
+			(*pRestrictionBuf = pItemString).Trim(p - pItemString).Strip();
 		ok = 2;
 	}
 	else {
-		rColorBuf.Z();
-		(rRestrictionBuf = pItemString).Strip();
-		if(rRestrictionBuf.HasPrefixIAscii(PPConst::P_TagValRestrict_List))
-			ok = 4;
-		else
+		if(pColorBuf)
+			pColorBuf->Z();
+		if(!pRestrictionBuf) {
 			ok = 1;
+		}
+		else {
+			(*pRestrictionBuf = pItemString).Strip();
+			if(pRestrictionBuf->HasPrefixIAscii(PPConst::P_TagValRestrict_List))
+				ok = 4;
+			else
+				ok = 1;
+		}
 	}
 	return ok;
 }
@@ -93,15 +101,15 @@ void TagFilt::MergeString(const char * pRestrictionString, const char * pColorSt
 
 /*static*/void FASTCALL TagFilt::SetRestriction(const char * pRestrictionString, SString & rItemBuf)
 {
-	SString rbuf, cbuf;
-	ParseString(rItemBuf, rbuf, cbuf);
+	SString cbuf;
+	ParseString(rItemBuf, 0, &cbuf);
 	MergeString(pRestrictionString, cbuf, rItemBuf);
 }
 
 /*static*/void FASTCALL TagFilt::SetColor(const SColor * pClr, SString & rItemBuf)
 {
 	SString rbuf, cbuf;
-	ParseString(rItemBuf, rbuf, cbuf);
+	ParseString(rItemBuf, &rbuf, &cbuf);
 	if(pClr)
 		pClr->ToStr(cbuf, SColorBase::fmtHEX);
 	else
@@ -111,15 +119,14 @@ void TagFilt::MergeString(const char * pRestrictionString, const char * pColorSt
 
 /*static*/int FASTCALL TagFilt::GetRestriction(const char * pItemString, SString & rRestrictionBuf)
 {
-	SString cbuf;
-	return ParseString(pItemString, rRestrictionBuf, cbuf);
+	return ParseString(pItemString, &rRestrictionBuf, 0/*pColorBuf*/);
 }
 
 /*static*/int FASTCALL TagFilt::GetColor(const char * pItemString, SColor & rClr)
 {
 	int    ok = 0;
-	SString rbuf, cbuf;
-	ParseString(pItemString, rbuf, cbuf);
+	SString cbuf;
+	ParseString(pItemString, 0, &cbuf);
 	if(cbuf.NotEmptyS()) {
 		rClr.FromStr(cbuf);
 		ok = 1;
@@ -2073,11 +2080,41 @@ int FASTCALL EditTagFilt(PPID objType, TagFilt * pData)
 
 /*static*/int PPObjTag::CheckForTagFilt(PPID objType, PPID objID, const TagFilt * pFilt)
 {
+	constexpr bool use_alg_12202 = true;
 	int    ok = 1;
+	ObjTagCore & r_otc = PPRef->Ot;
 	if(pFilt && !pFilt->IsEmpty()) {
-		ObjTagList tags_list;
-		THROW(PPRef->Ot.GetList(objType, objID, &tags_list));
-		ok = pFilt->Check(&tags_list);
+		/*
+		Результат профилирования на нескольких тысячах документов с фильтрацией по одному тегу с критерием EXISTS.
+		Я прогнал попеременно 4 сессии (по 2 для каждого варианта) с тремя попытками в каждой попытке для нивелирования влияния кэширования.
+		Далее выжимка из файла profile.log.
+		-- alg_12202
+			387432	    1969	      0.0051	    4813	      0.0124	D:\Papyrus\Src\PPLib\Objtag.cpp[2087]	
+			387432	    1953	      0.0050	    4838	      0.0125	D:\Papyrus\Src\PPLib\Objtag.cpp[2087]	
+		-- alg_before_12202
+			387432	    2875	      0.0074	   15474	      0.0399	D:\Papyrus\Src\PPLib\Objtag.cpp[2087]	
+			387432	    3188	      0.0082	    8456	      0.0218	D:\Papyrus\Src\PPLib\Objtag.cpp[2087]	
+		*/
+		PROFILE_START
+		if(use_alg_12202) {
+			SString restrict;
+			ObjTagItem tag_item;
+			for(uint i = 0; ok && i < pFilt->TagsRestrict.getCount(); i++) {
+				StrAssocArray::Item tr_item = pFilt->TagsRestrict.at_WithoutParent(i);
+				TagFilt::GetRestriction(tr_item.Txt, restrict);
+				//
+				const int gtr = r_otc.GetTag(objType, objID, tr_item.Id, &tag_item);
+				const ObjTagItem * p_tag_item = (gtr > 0) ? &tag_item : 0;
+				if(!pFilt->CheckTagItemForRestrict(p_tag_item, restrict))
+					ok = 0;
+			}
+		}
+		else {
+			ObjTagList tags_list;
+			THROW(r_otc.GetList(objType, objID, &tags_list));
+			ok = pFilt->Check(&tags_list);
+		}
+		PROFILE_END
 	}
 	CATCHZOK
 	return ok;
@@ -3025,8 +3062,7 @@ int ObjTagCache::Fetch(PPID objID, PPID tagID, ObjTagItem * pItem)
 			if(ok < 0) {
 				SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 				//
-				// Пока мы ждали своей очереди на запись
-				// другой поток мог занести нужный нам элемент в кэш.
+				// Пока мы ждали своей очереди на запись другой поток мог занести нужный нам элемент в кэш.
 				// По-этому снова проверяем наличие этого элемента.
 				//
 				ok = Helper_Get(objID, tagID, pItem);
@@ -3141,7 +3177,7 @@ public:
 		return SymbList.FetchBySymb(pSymb, pID);
 	}
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 	virtual void FASTCALL Dirty(PPID id); // @sync_w
 
@@ -3176,7 +3212,7 @@ int TagCache::DirtyTag(PPID objType, PPID objID, PPID tagID)
 	return 1;
 }
 
-int TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	TagCacheEntry * p_rec = static_cast<TagCacheEntry *>(pEntry);

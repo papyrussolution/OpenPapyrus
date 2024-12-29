@@ -1799,8 +1799,7 @@ public:
 	//int    Unlock() { return RwL.Unlock();    }
 private:
 	static int OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr); // PPAdviseProc()
-
-	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData = 0) { return 0; }
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * extraData) { return 0; }
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const {}
 	int    FASTCALL Search(PPID goodsID, uint * pPos) const { return P_Ary->bsearch(&goodsID, pPos, CMPF_LONG); }
 	QuotationCore * P_Qc;
@@ -3466,7 +3465,7 @@ public:
 		return ok;
 	}
 private:
-	virtual int Quot2RelCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+	virtual int Quot2RelCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 	{
 		int    ok = 1;
 		Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -3589,7 +3588,7 @@ public:
 private:
 	static int OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr); // PPAdviseProc()
 
-	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData = 0)
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * extraData) // @v12.2.2 (long extraData = 0)-->(void * extraData)
 	{
 		return 0;
 	}

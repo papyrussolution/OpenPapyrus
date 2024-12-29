@@ -1,5 +1,5 @@
 // OBJCACHE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016б 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016б 2017, 2018, 2019, 2020, 2021, 2022, 2024
 // @codepage UTF-8
 // @Kernel
 //
@@ -10,7 +10,7 @@
 // наименований объектов, при превышении которой класс ObjCache запускает
 // функцию уплотнения этого пространства (ObjCache::PackNames).
 //
-#define UNUSED_NAME_SPACE_THRESOULD 80 // @v8.1.4 30-->80
+#define UNUSED_NAME_SPACE_THRESOULD 80
 //
 //
 //
@@ -173,10 +173,7 @@ int ObjCache::PackNames()
 	return ok;
 }
 
-uint ObjCache::GetCount() const
-{
-	return SVectorBase::GetCount(P_Ary);
-}
+uint ObjCache::GetCount() const { return SVectorBase::GetCount(P_Ary); }
 
 int FASTCALL ObjCache::Search(PPID id, uint * pPos) const
 {
@@ -248,7 +245,7 @@ void FASTCALL ObjCache::Dirty(PPID id)
 	}
 }
 
-int ObjCache::Put(PPID id, uint * p, long extraData)
+int ObjCache::Put(PPID id, uint * p, void * extraData)
 {
 	int    ok = 1;
 	char   temp_buf[256];
@@ -284,9 +281,9 @@ int FASTCALL ObjCache::Helper_GetByPos(uint pos, void * pDataRec)
 		if(p_entry->F & ObjCacheEntry::fDirty)
 			ok = -1;
 		else {
-			EntryToDataFailed = 0; // @v10.4.3
+			EntryToDataFailed = 0;
 			EntryToData(p_entry, pDataRec);
-			if(EntryToDataFailed) // @v10.4.3
+			if(EntryToDataFailed)
 				ok = -1;
 		}
 	}
@@ -340,7 +337,7 @@ int FASTCALL ObjCache::Helper_Get(PPID id, void * pDataRec)
 	return ok;
 }
 
-int ObjCache::Get(PPID id, void * pDataRec, long extraData)
+int ObjCache::Get(PPID id, void * pDataRec, void * extraData)
 {
 	int    ok = -1;
 	uint   p = 0;
@@ -351,8 +348,7 @@ int ObjCache::Get(PPID id, void * pDataRec, long extraData)
 		if(ok < 0) {
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			//
-			// Пока мы ждали своей очереди на запись
-			// другой поток мог занести нужный нам элемент в кэш.
+			// Пока мы ждали своей очереди на запись другой поток мог занести нужный нам элемент в кэш.
 			// По-этому снова проверяем наличие этого элемента.
 			//
 			ok = Helper_Get(id, pDataRec);
@@ -382,16 +378,14 @@ int ObjCache::GetStat(ObjCacheStat * pStat)
 		pStat->Collisions = StatData.Collisions;
 
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
-		uint c = GetCount();
+		const uint c = GetCount();
 		long max_cntr = 0;
 		long min_cntr = MAXLONG;
 		for(uint i = 0; i < c; i++) {
 			ObjCacheEntry * p_entry = SearchByPos(i, 0);
 			if(p_entry) {
-				if(p_entry->Counter > max_cntr)
-					max_cntr = p_entry->Counter;
-				if(p_entry->Counter < min_cntr)
-					min_cntr = p_entry->Counter;
+				SETMAX(max_cntr, p_entry->Counter);
+				SETMIN(min_cntr, p_entry->Counter);
 				if(p_entry->ID == 0)
 					pStat->UnusedEntries++;
 				else if(p_entry->F & ObjCacheEntry::fDirty)
@@ -399,8 +393,8 @@ int ObjCache::GetStat(ObjCacheStat * pStat)
 			}
 		}
 		pStat->NumEntries = c;
-		pStat->SsSize = Ss.getSize(); // @v9.9.5
-		pStat->SsDataLen = Ss.getDataLen(); // @v9.9.5
+		pStat->SsSize = Ss.getSize();
+		pStat->SsDataLen = Ss.getDataLen();
 	}
 	return 1;
 }
@@ -782,8 +776,8 @@ void ObjCacheStat::Init()
 	DirtyEntries = 0;
 	MaxCounter = 0;
 	MinCounter = 0;
-	SsSize = 0;    // @v9.9.5
-	SsDataLen = 0; // @v9.9.5
+	SsSize = 0;
+	SsDataLen = 0;
 	DbPath.Z();
 	ObjTypeName.Z();
 }

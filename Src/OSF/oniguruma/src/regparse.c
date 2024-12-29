@@ -15,8 +15,8 @@
 #define INIT_TAG_NAMES_ALLOC_NUM   5
 #define WARN_BUFSIZE    256
 #define CASE_FOLD_IS_APPLIED_INSIDE_NEGATIVE_CCLASS
-#define IS_ALLOWED_CODE_IN_CALLOUT_NAME(c)     ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_' /* || c == '!' */)
-#define IS_ALLOWED_CODE_IN_CALLOUT_TAG_NAME(c) ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_')
+#define IS_ALLOWED_CODE_IN_CALLOUT_NAME(c)     (isasciialnum(c) || c == '_' /* || c == '!' */)
+#define IS_ALLOWED_CODE_IN_CALLOUT_TAG_NAME(c) (isasciialnum(c) || c == '_')
 #define OPTON_SINGLELINE(option)     ((option) & ONIG_OPTION_SINGLELINE)
 #define OPTON_MULTILINE(option)      ((option) & ONIG_OPTION_MULTILINE)
 #define OPTON_IGNORECASE(option)     ((option) & ONIG_OPTION_IGNORECASE)

@@ -995,7 +995,7 @@ public:
 	int    GetByID(PPID, PPGoodsTaxEntry *);
 	virtual void FASTCALL Dirty(PPID); // @sync_w
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long)
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 	{
 		return 0;
 	}

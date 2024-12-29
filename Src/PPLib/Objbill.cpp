@@ -1064,6 +1064,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 														chznpm_reqid = check_code_list.ReqId;
 														chznpm_reqtimestamp = check_code_list.ReqTimestamp;
 													}
+													// @todo p_cle->Mrp // @v12.2.2
 												}
 											}
 										}
@@ -5564,7 +5565,7 @@ public:
 	void   ReleaseFullSerialList(const StrAssocArray * pList);
 	void   ResetFullSerialList(); // @sync_w
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	class BillCache_ExtText_Block : public ObjCache::ExtTextBlock {
@@ -5587,7 +5588,7 @@ private:
 		{
 		}
 	private:
-		virtual int FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+		virtual int FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 		{
 			int    ok = -1;
 			PPObjBill * p_bobj = BillObj;
@@ -5641,7 +5642,7 @@ private:
 		{
 		}
 	private:
-		virtual int FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+		virtual int FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 		{
 			int    ok = -1;
 			PPObjBill * p_bobj = BillObj;
@@ -5746,7 +5747,7 @@ void FASTCALL BillCache::Dirty(PPID id)
 	}
 }
 
-int BillCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+int BillCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -6050,7 +6051,7 @@ public:
 	LotCache();
 	virtual void FASTCALL Dirty(PPID id); // @sync_w
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
@@ -6060,7 +6061,7 @@ LotCache::LotCache() : ObjCacheHash(PPOBJ_LOT, sizeof(Data),
 {
 }
 
-int LotCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+int LotCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = -1;
 	if(BillObj && BillObj->trfr) {

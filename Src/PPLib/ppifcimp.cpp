@@ -1743,9 +1743,9 @@ int32 DL6ICLS_PPUtil::GetSupplInterchangeConfig(int32 supplID, PpySupplInterchan
 		temp_buf.CopyToOleStr(&pValue->AccsPassw);
 		agt.Ep.GetExtStrData(agt.Ep.extssTechSymbol, temp_buf);
 		temp_buf.CopyToOleStr(&pValue->TechSymbol);
-		pValue->SequenceID = agt.Ep.Fb.SequenceID; // @v9.5.0
-		pValue->CliCodeTagID = agt.Ep.Fb.CliCodeTagID; // @v9.5.0
-		pValue->LocCodeTagID = agt.Ep.Fb.LocCodeTagID; // @v9.5.0
+		pValue->SequenceID = agt.Ep.Fb.SequenceID;
+		pValue->CliCodeTagID = agt.Ep.Fb.CliCodeTagID;
+		pValue->LocCodeTagID = agt.Ep.Fb.LocCodeTagID;
 		//
 		{
 			PPAlbatrossConfig acfg;

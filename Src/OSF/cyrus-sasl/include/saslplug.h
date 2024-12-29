@@ -68,7 +68,7 @@ typedef struct sasl_utils {
 
 	/* MD5 hash and HMAC functions */
 	void (*MD5Init)(Cyrus_MD5_CTX *);
-	void (*MD5Update)(Cyrus_MD5_CTX *, const uchar * text, unsigned int len);
+	void (*MD5Update)(Cyrus_MD5_CTX *, const uchar * text, uint len);
 	void (*MD5Final)(uchar [16], Cyrus_MD5_CTX *);
 	void (*hmac_md5)(const uchar * text, int text_len,
 	const uchar * key, int key_len,
@@ -83,9 +83,9 @@ typedef struct sasl_utils {
 	/* mechanism utility functions (same as above): */
 	int (*mkchal)(sasl_conn_t *conn, char * buf, unsigned maxlen,
 	unsigned hostflag);
-	int (*utf8verify)(const char * str, unsigned len);
-	void (*rand)(sasl_rand_t *rpool, char * buf, unsigned len);
-	void (*churn)(sasl_rand_t *rpool, const char * data, unsigned len);
+	int (*utf8verify)(const char * str, uint len);
+	void (*rand)(sasl_rand_t *rpool, char * buf, uint len);
+	void (*churn)(sasl_rand_t *rpool, const char * data, uint len);
 
 	/* This allows recursive calls to the sasl_checkpass() routine from
 	 * within a SASL plug-in.  This MUST NOT be used in the PLAIN mechanism
@@ -95,17 +95,17 @@ typedef struct sasl_utils {
 	 * set up a lightweight encryption layer just for sending a password.
 	 */
 	int (*checkpass)(sasl_conn_t *conn,
-	const char * user, unsigned userlen,
-	const char * pass, unsigned passlen);
+	const char * user, uint userlen,
+	const char * pass, uint passlen);
 
 	/* Access to base64 encode/decode routines */
 	int (*decode64)(const char * in, uint inlen,
-	char * out, unsigned outmax, unsigned * outlen);
+	char * out, uint outmax, unsigned * outlen);
 	int (*encode64)(const char * in, uint inlen,
-	char * out, unsigned outmax, unsigned * outlen);
+	char * out, uint outmax, unsigned * outlen);
 
 	/* erase a buffer */
-	void (*erasebuffer)(char * buf, unsigned len);
+	void (*erasebuffer)(char * buf, uint len);
 
 	/* callback to sasl_getprop() and sasl_setprop() */
 	int (*getprop)(sasl_conn_t *conn, int propnum, const void ** pvalue);
@@ -138,7 +138,7 @@ typedef struct sasl_utils {
 	void (*prop_clear)(struct propctx * ctx, int requests);
 	void (*prop_dispose)(struct propctx ** ctx);
 	int (*prop_format)(struct propctx * ctx, const char * sep, int seplen,
-	char * outbuf, unsigned outmax, unsigned * outlen);
+	char * outbuf, uint outmax, unsigned * outlen);
 	int (*prop_set)(struct propctx * ctx, const char * name,
 	const char * value, int vallen);
 	int (*prop_setvals)(struct propctx * ctx, const char * name,
@@ -176,10 +176,10 @@ typedef struct sasl_out_params {
 	                      * the negotiation failed */
 	void * encode_context;
 	int (*encode)(void * context, const struct iovec * invec, unsigned numiov,
-	const char ** output, unsigned * outputlen);
+	const char ** output, uint * outputlen);
 	void * decode_context;
-	int (*decode)(void * context, const char * input, unsigned inputlen,
-	const char ** output, unsigned * outputlen);
+	int (*decode)(void * context, const char * input, uint inputlen,
+	const char ** output, uint * outputlen);
 
 	/* Pointer to delegated (client's) credentials, if supported by
 	   the SASL mechanism */
@@ -191,7 +191,7 @@ typedef struct sasl_out_params {
 	const char * cbindingname; /* channel binding name from packet */
 	int (*spare_fptr1)();
 	int (*spare_fptr2)();
-	unsigned int cbindingdisp; /* channel binding disposition from client */
+	uint cbindingdisp; /* channel binding disposition from client */
 	int spare_int2;
 	int spare_int3;
 	int spare_int4;
@@ -288,13 +288,13 @@ typedef struct sasl_client_params {
 	 *  SASL_BADPROT  -- invalid user/authid
 	 */
 	int (* canon_user)(sasl_conn_t * conn,
-	    const char * in, unsigned len,
+	    const char * in, uint len,
 	    uint flags,
 	    sasl_out_params_t * oparams);
 
 	int (* spare_fptr1)();
 
-	unsigned int cbindingdisp;
+	uint cbindingdisp;
 	int spare_int2;
 	int spare_int3;
 
@@ -524,7 +524,7 @@ typedef struct sasl_server_params {
 	 *  If passlen is 0, it defaults to strlen(pass).
 	 *  returns 0 if no entry added, 1 if entry added
 	 */
-	int (* transition)(sasl_conn_t * conn, const char * pass, unsigned passlen);
+	int (* transition)(sasl_conn_t * conn, const char * pass, uint passlen);
 
 	/* Canonicalize a user name from on-wire to internal format
 	 *  added cjn 1999-09-21
@@ -686,8 +686,8 @@ typedef struct sasl_server_plug {
 	int (* setpass)(void * glob_context,
 	    sasl_server_params_t * sparams,
 	    const char * user,
-	    const char * pass, unsigned passlen,
-	    const char * oldpass, unsigned oldpasslen,
+	    const char * pass, uint passlen,
+	    const char * oldpass, uint oldpasslen,
 	    uint flags);
 
 	/* query which mechanisms are available for user
@@ -807,19 +807,14 @@ LIBSASL_API int sasl_server_plugin_info(const char * mech_list,
 typedef struct sasl_canonuser {
 	/* optional features of plugin (set to 0) */
 	int features;
-
 	/* spare integer (set to 0) */
 	int spare_int1;
-
 	/* global state for plugin */
 	void * glob_context;
-
 	/* name of plugin */
 	char * name;
-
 	/* free global state for plugin */
 	void (* canon_user_free)(void * glob_context, const sasl_utils_t * utils);
-
 	/* canonicalize a username
 	 *  glob_context     -- global context from this structure
 	 *  sparams          -- server params, note user_realm&propctx elements
@@ -838,17 +833,17 @@ typedef struct sasl_canonuser {
 	 */
 	int (* canon_user_server)(void * glob_context,
 	    sasl_server_params_t * sparams,
-	    const char * user, unsigned len,
+	    const char * user, uint len,
 	    uint flags,
 	    char * out,
-	    unsigned out_umax, unsigned * out_ulen);
+	    uint out_umax, uint * out_ulen);
 
 	int (* canon_user_client)(void * glob_context,
 	    sasl_client_params_t * cparams,
-	    const char * user, unsigned len,
+	    const char * user, uint len,
 	    uint flags,
 	    char * out,
-	    unsigned out_max, unsigned * out_len);
+	    unsigned out_max, uint * out_len);
 
 	/* for additions which don't require a version upgrade; set to 0 */
 	int (* spare_fptr1)();
@@ -862,16 +857,12 @@ typedef struct sasl_canonuser {
  *  similar to sasl_server_plug_init model, except only returns one
  *  sasl_canonuser_plug_t structure;
  */
-typedef int sasl_canonuser_init_t (const sasl_utils_t * utils,
-    int max_version,
-    int * out_version,
-    sasl_canonuser_plug_t ** plug,
-    const char * plugname);
+typedef int sasl_canonuser_init_t (const sasl_utils_t * utils, int max_version,
+    int * out_version, sasl_canonuser_plug_t ** plug, const char * plugname);
 
 /* add a canonuser plugin
  */
-LIBSASL_API int sasl_canonuser_add_plugin(const char * plugname,
-    sasl_canonuser_init_t * canonuserfunc);
+LIBSASL_API int sasl_canonuser_add_plugin(const char * plugname, sasl_canonuser_init_t * canonuserfunc);
 
 /******************************************************
 * auxiliary property plug-in -- added cjn 1999-09-29 *
@@ -880,28 +871,19 @@ LIBSASL_API int sasl_canonuser_add_plugin(const char * plugname,
 typedef struct sasl_auxprop_plug {
 	/* optional features of plugin (none defined yet, set to 0) */
 	int features;
-
 	/* spare integer, must be set to 0 */
 	int spare_int1;
-
 	/* global state for plugin */
 	void * glob_context;
-
 	/* free global state for plugin (OPTIONAL) */
 	void (* auxprop_free)(void * glob_context, const sasl_utils_t * utils);
-
 	/* fill in fields of an auxiliary property context
 	 *  last element in array has id of SASL_AUX_END
 	 *  elements with non-0 len should be ignored.
 	 */
-	int (* auxprop_lookup)(void * glob_context,
-	    sasl_server_params_t * sparams,
-	    uint flags,
-	    const char * user, uint ulen);
-
+	int (* auxprop_lookup)(void * glob_context, sasl_server_params_t * sparams, uint flags, const char * user, uint ulen);
 	/* name of the auxprop plugin */
 	char * name;
-
 	/* store the fields/values of an auxiliary property context (OPTIONAL)
 	 *
 	 * if ctx is NULL, just check if storing properties is enabled
@@ -927,7 +909,6 @@ typedef struct sasl_auxprop_plug {
 
 /* NOTE: Keep in sync with SASL_CU_<XXX> flags */
 #define SASL_AUXPROP_VERIFY_AGAINST_HASH 0x10
-
 #define SASL_AUXPROP_PLUG_VERSION 8
 
 /* default name for auxprop plug-in entry point is "sasl_auxprop_init"

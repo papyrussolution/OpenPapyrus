@@ -3190,6 +3190,7 @@ int PPBillImporter::ReadData()
 							STRNSCPY(bill.OuterCode, r_row.BillOuterCode); // @v12.2.1
 							bill.OuterDate = r_row.BillOuterDate; // @v12.2.1
 							STRNSCPY(bill.EdiIdent, r_row.BillEdiIdent); // @v12.2.1
+							STRNSCPY(bill.OrgOrdDocCode, r_row.BillOrgOrdCode); // @v12.2.2
 							//
 							int    bidx_found = 0;
                             if(CheckBill(&bill)) {
@@ -4307,6 +4308,20 @@ int PPBillImporter::CheckBill(const Sdr_Bill * pBill)
 					ObjTagItem tag_item;
 					PPTransaction tra(1);
 					THROW(tra);
+					// @v12.2.2 {
+					{
+						const PPID tag_id = PPTAG_BILL_ORGORDERIDENT;
+						if(pack.BTagL.GetItemStr(tag_id, temp_buf) > 0) {
+							assert(temp_buf.NotEmpty());
+							if(p_ref->Ot.GetTagStr(PPOBJ_BILL, ex_bill_id, tag_id, ex_tag_buf) > 0) {
+								;
+							}
+							else if(tag_item.SetStr(tag_id, temp_buf)) {
+								THROW(p_ref->Ot.PutTag(PPOBJ_BILL, ex_bill_id, &tag_item, 0));
+							}
+						}
+					}
+					// } @v12.2.2 
 					{
 						const PPID tag_id = PPTAG_BILL_EDIIDENT;
 						if(pack.BTagL.GetItemStr(tag_id, temp_buf) > 0) {
@@ -4519,6 +4534,14 @@ int PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack)
 						pPack->BTagL.PutItem(tag_item.TagID, &tag_item);
 					}
 				}
+				// @v12.2.2 {
+				if(!isempty(pBill->OrgOrdDocCode)) {
+					if(tag_item.Init(PPTAG_BILL_ORGORDERIDENT)) {
+						tag_item.SetStr(tag_item.TagID, pBill->OrgOrdDocCode);
+						pPack->BTagL.PutItem(tag_item.TagID, &tag_item);
+					}
+				}			
+				// } @v12.2.2 
 			}
 			// } @v12.2.1 
 			ok = 1;

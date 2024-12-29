@@ -1118,8 +1118,6 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 			break;
 		case WM_TIMER:
 		case WM_ENTERIDLE:
-			//APPL->idle(); // @v10.0.02
-			// @v10.0.02 {
 			{
 				TGroup * targets[] = { APPL->P_DeskTop, APPL };
 				for(uint i = 0; i < SIZEOFARRAY(targets); i++) {
@@ -1144,7 +1142,6 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 					}
 				}
 			}
-			// } @v10.0.02
 			break;
 		case WM_TIMECHANGE:
 			TView::messageCommand(static_cast<TProgram *>(TView::GetWindowUserData(hWnd)), cmTimeChange);
@@ -1209,13 +1206,6 @@ void TProgram::NotifyFrame(int post)
 		else
 			::SendMessageW(h_frame, WM_USER_NOTIFYBRWFRAME, 0, 0);
 }
-
-/* @v10.0.02
-void TProgram::idle()
-{
-	TView::messageBroadcast(P_DeskTop, cmIdle);
-	TView::messageBroadcast(this, cmIdle);
-}*/
 
 // Public variables
 

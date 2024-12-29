@@ -152,7 +152,7 @@ LIBSASL_API void prop_dispose(struct propctx **ctx);
  * returns SASL_BADPARAM or amount of additional space needed on failure
  */
 LIBSASL_API int prop_format(struct propctx *ctx, const char *sep, int seplen,
-		char *outbuf, unsigned outmax, unsigned *outlen);
+		char *outbuf, uint outmax, uint * outlen);
 
 /* add a property value to the context
  *  ctx    -- context from prop_new()/prop_request()

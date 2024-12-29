@@ -301,7 +301,7 @@ static int sasl_gss_seterror_(const sasl_utils_t * utils, OM_uint32 maj, OM_uint
 }
 
 static int sasl_gss_encode(void * context, const struct iovec * invec, unsigned numiov,
-    const char ** output, unsigned * outputlen, int privacy)
+    const char ** output, uint * outputlen, int privacy)
 {
 	context_t * text = (context_t*)context;
 	OM_uint32 maj_stat, min_stat;
@@ -391,23 +391,23 @@ static int sasl_gss_encode(void * context, const struct iovec * invec, unsigned 
 
 static int gssapi_privacy_encode(void * context, const struct iovec * invec,
     unsigned numiov, const char ** output,
-    unsigned * outputlen)
+    uint * outputlen)
 {
 	return sasl_gss_encode(context, invec, numiov, output, outputlen, 1);
 }
 
 static int gssapi_integrity_encode(void * context, const struct iovec * invec,
     unsigned numiov, const char ** output,
-    unsigned * outputlen)
+    uint * outputlen)
 {
 	return sasl_gss_encode(context, invec, numiov, output, outputlen, 0);
 }
 
 static int gssapi_decode_packet(void * context,
     const char * input,
-    unsigned inputlen,
+    uint inputlen,
     char ** output,
-    unsigned * outputlen)
+    uint * outputlen)
 {
 	context_t * text = (context_t*)context;
 	OM_uint32 maj_stat, min_stat;
@@ -473,19 +473,13 @@ static int gssapi_decode_packet(void * context,
 	return SASL_OK;
 }
 
-static int gssapi_decode(void * context,
-    const char * input, unsigned inputlen,
-    const char ** output, unsigned * outputlen)
+static int gssapi_decode(void * context, const char * input, uint inputlen, const char ** output, uint * outputlen)
 {
 	context_t * text = (context_t*)context;
-	int ret;
-
-	ret = _plug_decode(&text->decode_context, input, inputlen,
+	int ret = _plug_decode(&text->decode_context, input, inputlen,
 		&text->decode_buf, &text->decode_buf_len, outputlen,
 		gssapi_decode_packet, text);
-
 	*output = text->decode_buf;
-
 	return ret;
 }
 
@@ -1516,7 +1510,7 @@ int gssapiv2_server_plug_init(
 #ifdef HAVE_GSSKRB5_REGISTER_ACCEPTOR_IDENTITY
 	const char * keytab = NULL;
 	char keytab_path[1024];
-	unsigned int rl;
+	uint rl;
 #endif
 
 	if(maxversion < SASL_SERVER_PLUG_VERSION) {
@@ -1880,7 +1874,7 @@ static int gssapi_client_mech_step(void * conn_context,
 
 		case SASL_GSSAPI_STATE_SSFCAP: {
 		    sasl_security_properties_t * secprops = &(params->props);
-		    unsigned int alen, external = params->external_ssf;
+		    uint alen, external = params->external_ssf;
 		    sasl_ssf_t need, allowed;
 		    char serverhas, mychoice;
 		    sasl_ssf_t mech_ssf;

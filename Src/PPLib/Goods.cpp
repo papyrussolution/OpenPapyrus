@@ -2663,7 +2663,7 @@ public:
 	void   ResetFullList(); // @sync_w
 	int    SearchGoodsAnalogs(PPID goodsID, PPIDArray & rList, SString * pTransitComponentBuf); // @sync_w
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	struct GroupTermList {
@@ -3172,7 +3172,7 @@ int GoodsCache::GetGtl(PPID grpID, PPIDArray * pList, PPIDArray * pUntermList)
 	return ok;
 }
 
-int GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+int GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);

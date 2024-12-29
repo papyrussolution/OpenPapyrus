@@ -218,7 +218,7 @@ int login_server_plug_init(const sasl_utils_t * utils, int maxversion, int * out
 typedef struct client_context {
 	int state;
 	sasl_secret_t * password;
-	unsigned int free_password; /* set if we need to free password */
+	uint free_password; /* set if we need to free password */
 } client_context_t;
 
 static int login_client_mech_new(void * glob_context __attribute__((unused)), sasl_client_params_t * params, void ** conn_context)

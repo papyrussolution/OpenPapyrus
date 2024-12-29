@@ -2888,11 +2888,11 @@ public:
 	ReckonOpExCache() : ObjCache(PPOBJ_OPRKIND, sizeof(Data))
 	{
 	}
-	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
-/*virtual*/int ReckonOpExCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+/*virtual*/int ReckonOpExCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -2947,11 +2947,11 @@ public:
 	InvOpExCache() : ObjCache(PPOBJ_OPRKIND, sizeof(Data))
 	{
 	}
-	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
-int InvOpExCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int InvOpExCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -3022,11 +3022,10 @@ public:
 	int    GetReckonExData(PPID, PPReckonOpEx *); // @v11.7.11
 	PPID   FASTCALL GetBySymb(const char * pSymb);
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * entry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * entry, void * pDataRec) const;
 	int    FetchReckonOpList();
 
-	// @v10.3.0 (never used) int    IsReckonListInited;
 	enum {
 		stReckonListInited = 0x0001,
 		stOpSymbListInited = 0x0002
@@ -3143,7 +3142,7 @@ int OpCache::FetchReckonOpList()
 	return ok;
 }
 
-int OpCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int OpCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	OpData * p_cache_rec = static_cast<OpData *>(pEntry);

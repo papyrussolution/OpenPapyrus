@@ -517,12 +517,13 @@ int ProcessGoodsSaldo()
 	PrcssrGoodsSaldo prcssr;
 	PrcssrGoodsSaldo::Param param;
 	prcssr.InitParam(&param);
-	while(prcssr.EditParam(&param) > 0)
+	while(prcssr.EditParam(&param) > 0) {
 		if(prcssr.Init(&param) && prcssr.Run())
 			ok = 1;
 		else {
 			ok = PPErrorZ();
 			break;
 		}
+	}
 	return ok;
 }

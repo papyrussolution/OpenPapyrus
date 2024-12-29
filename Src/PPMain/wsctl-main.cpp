@@ -83,9 +83,23 @@ namespace ImGui {
 	ColorModalWindowDimBg
 */
 //static const ImVec4 MainBackgroundColor(SColor(0x1E, 0x22, 0x28));
-static const ImVec2 ButtonSize_Std(64.0f, 24.0f);
-static const ImVec2 ButtonSize_Double(128.0f, 24.0f);
-static bool MainWindowBorderless = true;
+//static const ImVec2 ButtonSize_Std(64.0f, 24.0f);
+//static const ImVec2 ButtonSize_Double(128.0f, 24.0f);
+
+class WsCtlStartupConfig {
+public:
+	WsCtlStartupConfig() : Flags(fMainWindowBorderless|/*fMainWindowTopmost|*/fMainWindowFullScreen)
+	{
+	}
+	enum {
+		fMainWindowBorderless = 0x0001,
+		fMainWindowTopmost    = 0x0002,
+		fMainWindowFullScreen = 0x0004
+	};
+	uint   Flags;
+};
+
+static WsCtlStartupConfig StartUpCfg;
 
 // @v12.2.1 static void * P_TestImgTexture = 0; // @debug
 
@@ -479,6 +493,26 @@ public:
 		}
 		TSCollection <Entry> L; // Список идентификаторов объектов, ассоциированных с загруженными изображениями //
 	};
+	class InitializedConstData { // @v12.2.2
+	public:
+		InitializedConstData(const UiDescription * pUid) : ButtonStd_Height(0.0f),
+			ButtonStd_Width(0.0f), ButtonDouble_Width(0.0f)
+		{
+			int v;
+			ButtonStd_Height = (pUid && pUid->VList.Get(UiValueList::vButtonStdHeight, v) && v > 0) ? (float)v : 24.0f;
+			ButtonStd_Width = (pUid && pUid->VList.Get(UiValueList::vButtonStdWidth, v) && v > 0) ? (float)v : 64.0f;
+			ButtonDouble_Width = (pUid && pUid->VList.Get(UiValueList::vButtonDoubleWidth, v) && v > 0) ? (float)v : 128.0f;
+			ButtonSize_Std.x = ButtonStd_Width;
+			ButtonSize_Std.y = ButtonStd_Height;
+			ButtonSize_Double.x = ButtonDouble_Width;
+			ButtonSize_Double.y = ButtonStd_Height;
+		}
+		float ButtonStd_Height;
+		float ButtonStd_Width;
+		float ButtonDouble_Width;
+		ImVec2 ButtonSize_Std;
+		ImVec2 ButtonSize_Double;
+	};
 	//
 	// Descr: Структура, описывающая текущее состояние системы.
 	//   Элементы структуры могут обновляються другими потоками.
@@ -674,12 +708,12 @@ public:
 				ImGui::InputText(R_Blk.InputLabelPrefix("MAC Address"), SubstTxt_MacAdr, sizeof(SubstTxt_MacAdr));
 				ImGui::InputText(R_Blk.InputLabelPrefix("UUID"), SubstTxt_UUID, sizeof(SubstTxt_UUID));
 				ImGui::NewLine();
-				if(ImGui::Button("ok", ButtonSize_Std)) {
+				if(ImGui::Button("ok", R_Blk.P_ICD->ButtonSize_Std)) {
 					ImGui::CloseCurrentPopup();
 					result = 1;
 				}
 				ImGui::SameLine();
-				if(ImGui::Button("cancel", ButtonSize_Std)) {
+				if(ImGui::Button("cancel", R_Blk.P_ICD->ButtonSize_Std)) {
 					ImGui::CloseCurrentPopup();
 					result = -1;
 				}
@@ -951,6 +985,7 @@ private:
 	DServerError LastSvrErr;
 	ImDialog_WsCtlConfig * P_Dlg_Cfg;
 	ImDialog_WsRegisterComputer * P_Dlg_RegComp; // @v12.0.1
+	const InitializedConstData * P_ICD; // @v12.2.2
 
 	class ScrollerPosition_ : public SScroller::Position {
 	public:
@@ -1117,12 +1152,12 @@ WsCtl_ImGuiSceneBlock::ImDialog_WsCtlConfig::~ImDialog_WsCtlConfig()
 		ImGui::InputText(R_Blk.InputLabelPrefix("user"), SubstTxt_User, sizeof(SubstTxt_User));
 		ImGui::InputText(R_Blk.InputLabelPrefix("password"), SubstTxt_Password, sizeof(SubstTxt_Password));
 		ImGui::NewLine();
-		if(ImGui::Button("ok", ButtonSize_Std)) {
+		if(ImGui::Button("ok", R_Blk.P_ICD->ButtonSize_Std)) {
 			ImGui::CloseCurrentPopup();
 			result = 1;
 		}
 		ImGui::SameLine();
-		if(ImGui::Button("cancel", ButtonSize_Std)) {
+		if(ImGui::Button("cancel", R_Blk.P_ICD->ButtonSize_Std)) {
 			ImGui::CloseCurrentPopup();
 			result = -1;
 		}
@@ -2343,7 +2378,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 }
 
 WsCtl_ImGuiSceneBlock::WsCtl_ImGuiSceneBlock() : ImGuiSceneBase(), ShowDemoWindow(false), ShowAnotherWindow(false), Screen(screenUndef),
-	P_CmdQ(new WsCtlReqQueue), Cache_Texture(1024, 0), P_Dlg_Cfg(0), P_Dlg_RegComp(0),
+	P_CmdQ(new WsCtlReqQueue), Cache_Texture(1024, 0), P_Dlg_Cfg(0), P_Dlg_RegComp(0), P_ICD(0),
 	ProgramGalleryScrollDirection(DIREC_HORZ)
 {
 	TestInput[0] = 0;
@@ -2433,6 +2468,7 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 	//WsCtlStyleColors(true, 0);
 	//void WsCtlStyleColors(bool useUiDescription, ImGuiStyle * pDest)
 	const UiDescription * p_uid = SLS.GetUiDescription();
+	P_ICD = new InitializedConstData(p_uid); // @v12.2.2
 	{
 		const bool use_ui_descripton = true;
 		ImGuiStyle * p_dest_style = 0;
@@ -2661,7 +2697,7 @@ bool WsCtl_ImGuiSceneBlock::ErrorPopup_(int & rErrState)
 		ImGui::OpenPopup(p_popup_title);
 		if(ImGui::BeginPopup(p_popup_title)) {
 			ImGui::Text(message);
-			if(ImGui::Button("Close", ButtonSize_Std)) {
+			if(ImGui::Button("Close", P_ICD->ButtonSize_Std)) {
 				ImGui::CloseCurrentPopup();
 				if(rErrState == errstateServer)
 					LastSvrErr.Z();
@@ -2683,7 +2719,7 @@ void WsCtl_ImGuiSceneBlock::LastServerErrorPopup(bool isErr)
 		ImGui::OpenPopup(p_popup_title);
 		if(ImGui::BeginPopup(p_popup_title)) {
 			ImGui::Text(LastSvrErr._Message);
-			if(ImGui::Button("Close", ButtonSize_Std)) {
+			if(ImGui::Button("Close", P_ICD->ButtonSize_Std)) {
 				LastSvrErr.Z(); // Сбрасываем информацию об ошибке
 				ImGui::CloseCurrentPopup();
 			}
@@ -3305,17 +3341,24 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 									//LastServerErrorPopup(is_err);
 									ErrorPopup_(errstate);
 								}
-								ImGui::InputText(InputLabelPrefix("Фамилия Имя"), RegBlk.Name, sizeof(RegBlk.Name), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
-								ImGui::InputText(InputLabelPrefix("Номер телефона"), RegBlk.Phone, sizeof(RegBlk.Phone), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
-								ImGui::InputText(InputLabelPrefix("Пароль"), RegBlk.PwText, sizeof(RegBlk.PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
-								ImGui::InputText(InputLabelPrefix("Повторите пароль"), RegBlk.PwRepeatText, sizeof(RegBlk.PwRepeatText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								{
+									SString & r_name_buf = SLS.AcquireRvlStr();
+									PPLoadStringUtf8S("surname", r_name_buf).Space().Cat(PPLoadStringUtf8S("name", SLS.AcquireRvlStr()));
+									ImGui::InputText(InputLabelPrefix(r_name_buf), RegBlk.Name, sizeof(RegBlk.Name), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								}
+								ImGui::InputText(InputLabelPrefix(PPLoadStringUtf8S("phone", SLS.AcquireRvlStr())), 
+									RegBlk.Phone, sizeof(RegBlk.Phone), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								ImGui::InputText(InputLabelPrefix(PPLoadStringUtf8S("setpassword_input1", SLS.AcquireRvlStr())), 
+									RegBlk.PwText, sizeof(RegBlk.PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								ImGui::InputText(InputLabelPrefix(PPLoadStringUtf8S("setpassword_input2", SLS.AcquireRvlStr())), 
+									RegBlk.PwRepeatText, sizeof(RegBlk.PwRepeatText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
 								if(!isempty(RegBlk.Name)) {
 									SNaturalTokenArray nta;
 									STokenRecognizer tr;
 									tr.Run(reinterpret_cast<const uchar *>(RegBlk.Phone), -1, nta, 0);
 									if(nta.Has(SNTOK_PHONE)) {
 										if(!isempty(RegBlk.PwText) && sstreq(RegBlk.PwText, RegBlk.PwRepeatText)) {
-											if(ImGui::Button("Register", ButtonSize_Std) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
+											if(ImGui::Button("Register", P_ICD->ButtonSize_Std) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
 												WsCtlReqQueue::Req req(PPSCMD_WSCTL_REGISTRATION);
 												STRNSCPY(req.P.NameTextUtf8, RegBlk.Name);
 												STRNSCPY(req.P.PhoneUtf8, RegBlk.Phone);
@@ -3379,17 +3422,24 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 									//LastServerErrorPopup(is_err);
 									ErrorPopup_(errstate);
 								}
-								ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginBlk.LoginText, sizeof(LoginBlk.LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
-								ImGui::InputText(InputLabelPrefix("Пароль"), LoginBlk.PwText, sizeof(LoginBlk.PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								ImGui::InputText(InputLabelPrefix(PPLoadStringUtf8S("phone", SLS.AcquireRvlStr())), 
+									LoginBlk.LoginText, sizeof(LoginBlk.LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								ImGui::InputText(InputLabelPrefix(PPLoadStringUtf8S("password", SLS.AcquireRvlStr())), 
+									LoginBlk.PwText, sizeof(LoginBlk.PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
 								if(!isempty(LoginBlk.LoginText)) {
-									if(ImGui::Button("Login", ButtonSize_Std) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
-										WsCtlReqQueue::Req req(PPSCMD_WSCTL_AUTH);
-										STRNSCPY(req.P.AuthTextUtf8, LoginBlk.LoginText);
-										STRNSCPY(req.P.AuthPwUtf8, LoginBlk.PwText);
-										P_CmdQ->Push(req);
+									if(sstreqi_ascii(LoginBlk.LoginText, "exitnahuy")) {
+										PostQuitMessage(0);
 									}
-									if(ImGui::Button("Admin", ButtonSize_Std)) {
-										SetScreen(screenAdmin);
+									else {
+										if(ImGui::Button("Login", P_ICD->ButtonSize_Std) || ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))) {
+											WsCtlReqQueue::Req req(PPSCMD_WSCTL_AUTH);
+											STRNSCPY(req.P.AuthTextUtf8, LoginBlk.LoginText);
+											STRNSCPY(req.P.AuthPwUtf8, LoginBlk.PwText);
+											P_CmdQ->Push(req);
+										}
+										if(ImGui::Button("Admin", P_ICD->ButtonSize_Std)) {
+											SetScreen(screenAdmin);
+										}
 									}
 								}
 							}
@@ -3440,12 +3490,12 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								r_text_buf.Z().Cat(st_data_tses.TmChunk.Start, DATF_DMY, TIMF_HM).Dot().Dot().Cat(st_data_tses.TmChunk.Finish, DATF_DMY, TIMF_HM);
 								ImGui::Text(r_text_buf);
 								ImGui::SameLine();
-								if(ImGui::Button("Logout", ButtonSize_Double)) {
+								if(ImGui::Button("Logout", P_ICD->ButtonSize_Double)) {
 									WsCtlReqQueue::Req req(PPSCMD_WSCTL_LOGOUT);
 									P_CmdQ->Push(req);
 								}
 								ImGui::SameLine();
-								if(ImGui::Button("End Session", ButtonSize_Double)) {
+								if(ImGui::Button("End Session", P_ICD->ButtonSize_Double)) {
 									WsCtlReqQueue::Req req(PPSCMD_WSCTL_END_SESS);
 									req.P.TSessID = st_data_tses.TSessID;
 									req.P.SCardID = st_data_tses.SCardID;
@@ -3597,7 +3647,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 										ImGui::Text(r_temp_buf);
 										//
 										PPLoadTextUtf8(PPTXT_STARTSESSION, r_temp_buf);
-										if(ImGui::Button(r_temp_buf, ButtonSize_Double)) {
+										if(ImGui::Button(r_temp_buf, P_ICD->ButtonSize_Double)) {
 											WsCtl_ImGuiSceneBlock::DPrc prc_data;
 											St.D_Prc.GetData(prc_data); 
 											if(!!prc_data.PrcUuid) {
@@ -3708,12 +3758,14 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								St.D_TSess.GetData(data_sess);
 								if(data_sess.TSessID) {
 									SString & r_temp_buf = SLS.AcquireRvlStr();
-									ImGui::Text(r_temp_buf.Z().Cat("Processor is buisy till").Space().Cat(data_sess.TmChunk.Finish, DATF_DMY, TIMF_HM));
+									ImGui::Text(r_temp_buf.Z().Cat("Processor is busy till").Space().Cat(data_sess.TmChunk.Finish, DATF_DMY, TIMF_HM));
 								}
-								ImGui::InputText(InputLabelPrefix("Текст для авторизации"), LoginBlk.LoginText, sizeof(LoginBlk.LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
-								ImGui::InputText(InputLabelPrefix("Пароль"), LoginBlk.PwText, sizeof(LoginBlk.PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								ImGui::InputText(InputLabelPrefix(PPLoadStringUtf8S("phone", SLS.AcquireRvlStr())), 
+									LoginBlk.LoginText, sizeof(LoginBlk.LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
+								ImGui::InputText(InputLabelPrefix(PPLoadStringUtf8S("password", SLS.AcquireRvlStr())), 
+									LoginBlk.PwText, sizeof(LoginBlk.PwText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
 								if(!isempty(LoginBlk.LoginText)) {
-									if(ImGui::Button("Login", ButtonSize_Std)) {
+									if(ImGui::Button("Login", P_ICD->ButtonSize_Std)) {
 										WsCtlReqQueue::Req req(PPSCMD_WSCTL_AUTH);
 										STRNSCPY(req.P.AuthTextUtf8, LoginBlk.LoginText);
 										STRNSCPY(req.P.AuthPwUtf8, LoginBlk.PwText);
@@ -3736,7 +3788,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						ImGuiWindowByLayout wbl(&tl, loidCtl02, "##CTL-02", view_flags);
 						if(wbl.IsValid()) {
 							//ImGui::Text("CTL-02");
-							ImGui::Text(SLS.AcquireRvlStr().Cat("Сервер").CatDiv(':', 2).Cat(JsP.Server).CatChar(':').Cat(JsP.Port));
+							ImGui::Text(SLS.AcquireRvlStr().Cat(PPLoadStringUtf8S("server", SLS.AcquireRvlStr())).CatDiv(':', 2).Cat(JsP.Server).CatChar(':').Cat(JsP.Port));
 							{
 								DConnectionStatus conn_status;
 								St.D_ConnStatus.GetData(conn_status);
@@ -3862,10 +3914,10 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		case WM_NCACTIVATE: // @v12.2.1
 		    // DefWindowProc won't repaint the window border if lParam (normally a
 		    // HRGN) is -1. This is recommended in: https://blogs.msdn.microsoft.com/wpfsdk/2008/09/08/custom-window-chrome-in-wpf/ */
-			return DefWindowProcW(hWnd, msg, wParam, MainWindowBorderless ? -1 : lParam);
+			return DefWindowProcW(hWnd, msg, wParam, (StartUpCfg.Flags & WsCtlStartupConfig::fMainWindowBorderless) ? -1 : lParam);
 			break;
 		case WM_NCCALCSIZE: // @v12.2.1
-			if(MainWindowBorderless) {
+			if(StartUpCfg.Flags & WsCtlStartupConfig::fMainWindowBorderless) {
 				//p_pgm->HandleWindowNcCalcSize(wParam, lParam);
 				//void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LPARAM lParam)
 				{
@@ -3923,9 +3975,8 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						*params.rect = nonclient;
 					}
 				}
+				return 0;
 			}
-			else
-				return DefWindowProcW(hWnd, msg, wParam, lParam);
 			break;
 		/*
 		case WM_DWMCOMPOSITIONCHANGED: // @v12.2.1
@@ -3992,8 +4043,11 @@ int main(int argc, char ** ppArgv)
 		result = 1;
 	}
 	else {
+		if(StartUpCfg.Flags & WsCtlStartupConfig::fMainWindowTopmost) { // @v12.2.2
+			::SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE);
+		}
 		// Show the window
-		::ShowWindow(hwnd, SW_SHOWDEFAULT);
+		::ShowWindow(hwnd, (StartUpCfg.Flags & WsCtlStartupConfig::fMainWindowFullScreen) ? SW_SHOWMAXIMIZED : SW_SHOWDEFAULT);
 		::UpdateWindow(hwnd);
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();

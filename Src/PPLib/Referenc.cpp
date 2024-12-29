@@ -2276,7 +2276,7 @@ public:
 	int     FetchText(const char * pText, PPID * pID);
 	void    FASTCALL SetTable(TextRefCore * pT);
 private:
-	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 	{
 		return -1;
 	}

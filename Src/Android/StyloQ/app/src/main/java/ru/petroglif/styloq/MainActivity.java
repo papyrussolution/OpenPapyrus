@@ -12,6 +12,8 @@ import android.location.Location;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.view.inputmethod.InputMethodInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -34,6 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -732,6 +735,18 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 			case SLib.EV_CREATE:
 				setContentView(R.layout.activity_main);
 				SetupRecyclerListView(null, R.id.serviceListView, R.layout.li_service);
+				// @debug {
+				List <InputMethodInfo> im_list = null;
+				{
+					InputMethodManager ime_mgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+					if(ime_mgr != null) {
+						im_list = ime_mgr.getEnabledInputMethodList();
+						if(im_list != null) {
+
+						}
+					}
+				}
+				// } @debug
 				{
 					StyloQApp app_ctx = (StyloQApp)getApplication();
 					if(app_ctx != null) {

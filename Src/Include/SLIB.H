@@ -14170,6 +14170,9 @@ public:
 	long   GetCount() const { return Count; }
 	double GetMin() const { return Min; }
 	double GetMax() const { return Max; }
+	//
+	// Descr: Возвращает математическое ожидание ряда (среднее значение)
+	//
 	double GetExp() const { return Exp; }
 	double GetVar() const { return Var; }
 	double GetTestGamma() const { return Test_Z; }
@@ -15635,7 +15638,7 @@ public:
 		//
 		fSeparateDataStruct    = 0x0001,
 		fDontProcessAttachment = 0x0002, // Запрет на сериализацию связанных blob'ов (которые могут быть пропущены)
-		fUseCompression        = 0x0004  // @v10.2.3 Ряд функций сериализации может использовать сжатие данных
+		fUseCompression        = 0x0004  // Ряд функций сериализации может использовать сжатие данных
 	};
 
 	static size_t FASTCALL GetCompressPrefix(uint8 * pBuf); // size of pBuf >= 8
@@ -15778,7 +15781,7 @@ private:
 	LDATE  SuppDate;   // Опорная дата.
 	SymbHashTable SymbTbl;
 	SCollection * P_DbtDescrList;
-	LAssocArray LocalSignatureTagList; // @v10.9.9
+	LAssocArray LocalSignatureTagList;
 	SString TempStrBuf;   // @allocreuse
 	SBuffer TempSBuf;     // @allocreuse
 	STempBuffer TempDataBuf;

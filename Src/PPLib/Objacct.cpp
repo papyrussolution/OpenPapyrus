@@ -1218,7 +1218,7 @@ public:
 	}
 	int    FetchNum(int ac, int sb, PPID curID, PPAccount * pRec);
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
@@ -1264,7 +1264,7 @@ int AccountCache::FetchNum(int ac, int sb, PPID curID, PPAccount * pRec)
 	return ok;
 }
 
-int AccountCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int AccountCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);

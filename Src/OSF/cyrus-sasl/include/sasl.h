@@ -582,7 +582,7 @@ typedef int sasl_server_userdb_checkpass_t (sasl_conn_t * conn,
     void * context,
     const char * user,
     const char * pass,
-    unsigned passlen,
+    uint passlen,
     struct propctx * propctx);
 #define SASL_CB_SERVER_USERDB_CHECKPASS (0x8005)
 
@@ -597,7 +597,7 @@ typedef int sasl_server_userdb_setpass_t (sasl_conn_t * conn,
     void * context,
     const char * user,
     const char * pass,
-    unsigned passlen,
+    uint passlen,
     struct propctx * propctx,
     uint flags);
 #define SASL_CB_SERVER_USERDB_SETPASS (0x8006)
@@ -639,7 +639,7 @@ typedef int sasl_server_userdb_setpass_t (sasl_conn_t * conn,
 #define SASL_CU_VERIFY_AGAINST_HASH 0x10
 
 typedef int sasl_canon_user_t (sasl_conn_t * conn, void * context, const char * in, uint inlen,
-    uint flags, const char * user_realm, char * out, unsigned out_max, unsigned * out_len);
+    uint flags, const char * user_realm, char * out, unsigned out_max, uint * out_len);
 
 #define SASL_CB_CANON_USER (0x8007)
 
@@ -866,7 +866,7 @@ typedef struct sasl_interact {
 	const char * prompt; /* presented to user (e.g. "Username: ") */
 	const char * defresult; /* default result string */
 	const void * result; /* set to point to result */
-	unsigned len;           /* set to length of result */
+	uint len;           /* set to length of result */
 } sasl_interact_t;
 
 /* initialize the SASL client drivers
@@ -1121,8 +1121,8 @@ LIBSASL_API int sasl_checkapop(sasl_conn_t * conn,
  *  SASL_NOUSER   -- user not found
  */
 LIBSASL_API int sasl_checkpass(sasl_conn_t * conn,
-    const char * user, unsigned userlen,
-    const char * pass, unsigned passlen);
+    const char * user, uint userlen,
+    const char * pass, uint passlen);
 
 /* check if a user exists on server
  *  conn          -- connection context
@@ -1164,11 +1164,8 @@ LIBSASL_API int sasl_user_exists(sasl_conn_t * conn,
  *  SASL_BADPARAM  -- password too long
  *  SASL_OK        -- successful
  */
-LIBSASL_API int sasl_setpass(sasl_conn_t * conn,
-    const char * user,
-    const char * pass, unsigned passlen,
-    const char * oldpass, unsigned oldpasslen,
-    uint flags);
+LIBSASL_API int sasl_setpass(sasl_conn_t * conn, const char * user,
+    const char * pass, uint passlen, const char * oldpass, uint oldpasslen, uint flags);
 #define SASL_SET_CREATE  0x01   /* create a new entry for user */
 #define SASL_SET_DISABLE 0x02   /* disable user account */
 #define SASL_SET_NOPLAIN 0x04   /* do not store secret in plain text */
@@ -1259,7 +1256,7 @@ LIBSASL_API int sasl_auxprop_store(sasl_conn_t * conn,
  *  SASL_NOTDONE -- security layer negotiation not finished
  *  SASL_BADPARAM -- inputlen is greater than the SASL_MAXOUTBUF
  */
-LIBSASL_API int sasl_encode(sasl_conn_t * conn, const char * input, unsigned inputlen, const char ** output, unsigned * outputlen);
+LIBSASL_API int sasl_encode(sasl_conn_t * conn, const char * input, uint inputlen, const char ** output, uint * outputlen);
 
 /* encode a block of data for transmission using security layer
  *  output is only valid until next call to sasl_encode or sasl_encodev
@@ -1269,7 +1266,7 @@ LIBSASL_API int sasl_encode(sasl_conn_t * conn, const char * input, unsigned inp
  *  SASL_BADPARAM -- input length is greater than the SASL_MAXOUTBUF
  *		     or no security layer
  */
-LIBSASL_API int sasl_encodev(sasl_conn_t * conn, const struct iovec * invec, unsigned numiov, const char ** output, unsigned * outputlen);
+LIBSASL_API int sasl_encodev(sasl_conn_t * conn, const struct iovec * invec, unsigned numiov, const char ** output, uint * outputlen);
 
 /* decode a block of data received using security layer
  *  returning the input buffer if there is no security layer.
@@ -1282,7 +1279,7 @@ LIBSASL_API int sasl_encodev(sasl_conn_t * conn, const struct iovec * invec, uns
  *  SASL_NOTDONE -- security layer negotiation not finished
  *  SASL_BADMAC  -- bad message integrity check
  */
-LIBSASL_API int sasl_decode(sasl_conn_t * conn, const char * input, unsigned inputlen, const char ** output, unsigned * outputlen);
+LIBSASL_API int sasl_decode(sasl_conn_t * conn, const char * input, uint inputlen, const char ** output, uint * outputlen);
 
 #ifdef __cplusplus
 }

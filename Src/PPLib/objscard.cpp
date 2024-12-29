@@ -4482,7 +4482,7 @@ public:
 	}
 	int    GetConfig(PPSCardConfig * pCfg, int enforce); // @sync_w
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Data : public ObjCacheEntry {
@@ -4505,7 +4505,7 @@ public:
 	ReadWriteLock CfgLock;
 };
 
-int SCardSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int SCardSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -4630,7 +4630,7 @@ public:
 	}
 	int    FetchUhttEntry(const char * pCode, PPObjSCard::UhttEntry * pEntry);
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	class FclArray : public StrAssocArray {
@@ -4665,7 +4665,7 @@ private:
 	ReadWriteLock UhttLock;
 };
 
-int SCardCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+int SCardCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);

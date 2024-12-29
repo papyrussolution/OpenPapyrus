@@ -117,7 +117,8 @@ const uint8 VP8CoeffsProba0[NUM_TYPES][NUM_BANDS][NUM_CTX][NUM_PROBAS] = {
       { 238, 1, 255, 128, 128, 128, 128, 128, 128, 128, 128 }}}
 };
 
-void VP8DefaultProbas(VP8Encoder* const enc) {
+void VP8DefaultProbas(VP8Encoder* const enc) 
+{
 	VP8EncProba* const probas = &enc->proba_;
 	probas->use_skip_proba_ = 0;
 	memset(probas->segments_, 255u, sizeof(probas->segments_));

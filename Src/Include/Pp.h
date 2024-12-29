@@ -380,7 +380,7 @@ class  SelectObjectBlock;
 class  Backend_SelectObjectBlock;
 class  CPosNodeBlock;
 class  WsCtlSrvBlock; // @v11.7.2
-struct CPosProcessor_SetupDiscontBlock; // @v10.2.3
+struct CPosProcessor_SetupDiscontBlock;
 class  PersonCache;
 class  BhtTSess;
 class  ExtGoodsSelDialog;
@@ -459,7 +459,7 @@ public:
 
 	static constexpr int    UseAdvEvQueue = 1; // {0, 1, 2} USE_ADVEVQUEUE Использовать очередь сообщений
 	static constexpr uint32 Flags = 0/*fDoSeparateNonFiscalCcItems*/;
-	static constexpr int16  EgaisInRowIdentDivider = 27277; // @v10.8.3 // Специальное смещение для значений номеров строк, с помощью которого
+	static constexpr int16  EgaisInRowIdentDivider = 27277; // Специальное смещение для значений номеров строк, с помощью которого
 		// решается проблема одиозных входящих идентификаторов строк документов (0, guid, текст, значения большие чем EgaisInRowIdentDivider)
 	static constexpr long   CommonCmdAssocDesktopID = 100000L; // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
 	static constexpr long   TechSurrogateGoodsIdStart = -524288L; // @v11.6.4 (-524288L) Верхнее значение специального поля фейковых идентификаторов товаров, 
@@ -1559,6 +1559,7 @@ public:
 	static int IdTSessBillLinkTo_Text; // @v11.6.12 (fldBillID)
 	static int IdBillMemoSubStr;    // @v11.7.4 (fldBillID, const char *) Определяет, содержит ли примечание к документу заданную подстроку
 	static int IdBillAmount;        // @v12.1.0 (fldBillID, amountType)
+	static int IdClientActivityStatisticsIndicator; // @v12.2.2 (personID, indicator/*PPObjPerson::casiXXX*/) Возвращает значение индикатора статистики клиентской активности
 
 	static int Register();
 	static void STDCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
@@ -2823,7 +2824,7 @@ public:
 	long   Flags;               // @flags
 	StrAssocArray TagsRestrict; // @anchor
 private:
-	static int  ParseString(const char * pItemString, SString & rRestrictionBuf, SString & rColorBuf);
+	static int  ParseString(const char * pItemString, SString * pRestrictionBuf, SString * pColorBuf);
 	static void MergeString(const char * pRestrictionString, const char * pColorString, SString & rItemBuf);
 	int   Helper_CheckTagItemForRestrict_EnumID(const ObjTagItem * pItem, long restrictVal) const;
 };
@@ -6768,7 +6769,7 @@ public:
 	};
 	ObjCache(PPID objType, size_t entrySize, long flags = 0);
 	virtual ~ObjCache();
-	virtual int    Get(PPID, void * pDataRec, long extraData = 0); // @sync_wr
+	virtual int    Get(PPID, void * pDataRec, void * extraData = 0); // @sync_wr // @v12.2.2 (long extraData = 0)-->(void * extraData = 0)
 	//
 	// Desr: Помечает элемент с идентификатором id как недостоверный ("грязный")
 	// Returns:
@@ -6815,7 +6816,7 @@ protected:
 	//        с идентификатором id не существует.
 	//   0  - ошибка
 	//
-	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData = 0) = 0;
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * extraData) = 0;
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const = 0;
 	//
 	// Descr: Эта функция должна найти элемент с идентификатором id и вернуть его позицию
@@ -6849,7 +6850,7 @@ protected:
 	//        по указателю pPos.
 	//
 	virtual int AddItem(const ObjCacheEntry * pEntry, uint * pPos);
-	int    STDCALL  PutName(const char * pName, ObjCacheEntry *);              // @<<(X:ObjCache)::FetchEntry
+	int    STDCALL  PutName(const char * pName, ObjCacheEntry *); // @<<(X:ObjCache)::FetchEntry
 	void   STDCALL  GetName(const ObjCacheEntry *, char * buf, size_t buflen) const; // @<<(X:ObjCache)::EntryToData
 	//
 	// Descr: реализация удаления элемента кэша с идентификатором id.
@@ -6914,7 +6915,7 @@ protected:
 		long   MaxCounter;    // Максимальный счетчик
 		long   MinCounter;    // Минимальный счетчик
 	};
-	int    Put(PPID, uint *, long extraData); // @<<ObjCache::Get
+	int    Put(PPID id, uint *, void * extraData); // @<<ObjCache::Get // @v12.2.2 (long extraData)-->(void * extraData)
 	//
 	// Descr: Извлекает запись из хранилища по позиции pos.
 	// Returns:
@@ -6923,6 +6924,7 @@ protected:
 	//   0  - ошибка
 	//
 	int    FASTCALL Helper_GetByPos(uint pos, void * pDataRec);
+	int    FASTCALL Helper_Get(PPID id, void * pDataRec); // @v12.2.2 (private:)-->(protected:)
 	int    PackNames(); // @<<ObjCache::Remove
 
 	PPID   ObjType;
@@ -6936,8 +6938,6 @@ protected:
 		// просигналить о том, что что-то пошло не так и надо обновить запись в кэше. Это - костыль, добавленный
 		// из-за того, что EntryToData - void-метод и весь обложен константными ограничениями.
 private:
-	int    FASTCALL Helper_Get(PPID id, void * pDataRec);
-
 	int64  LastPackNamesClock; // Момент последнего вызова PackNames()
 	UintHashTable UndefList;   // Используется если (Flags & fUseUndefList)
 };
@@ -26600,21 +26600,21 @@ struct PPPersonConfig { // @transient (для сохранения проеци�
 	PPPersonConfig();
 	void   Init();
 
-	struct NewClientDetectionItem {
-		NewClientDetectionItem();
+	struct ClientActivityDetectionItem {
+		ClientActivityDetectionItem();
 		PPObjID Oi;
 		long   Flags;
 		uint8  Reserve[12];
 	};
 
 	enum {
-		fSyncByName        = 0x0001, // Синхронизировать по имени
-		fSyncBySrchReg     = 0x0002, // Синхронизировать по поисковому регистру
-		fSyncDeclineUpdate = 0x0004, // Не принимать изменения из других разделов
-		fSyncMergeRegList  = 0x0008, // При синхронизации объединять регистры
-		fValid             = 0x1000, // Признак того, что запись является действительной (загруженной из базы данных)
+		fSyncByName                = 0x0001, // Синхронизировать по имени
+		fSyncBySrchReg             = 0x0002, // Синхронизировать по поисковому регистру
+		fSyncDeclineUpdate         = 0x0004, // Не принимать изменения из других разделов
+		fSyncMergeRegList          = 0x0008, // При синхронизации объединять регистры
+		fValid                     = 0x1000, // Признак того, что запись является действительной (загруженной из базы данных)
 		fShowPsnImageAfterCmdAssoc = 0x2000, // Показывать диалог с картинкой персоналии после ввода ассоциированной команды с рабочего стола (или из панели чеков)
-		fSendAttachment    = 0x4000, // Передавать в другие разделы файлы, прикрепленные к персоналиям (обычно, изображения)
+		fSendAttachment            = 0x4000, // Передавать в другие разделы файлы, прикрепленные к персоналиям (обычно, изображения)
 		fSyncAppendAbsKinds        = 0x8000  // При акцепте персоналии из другого раздела включать в принимаемую
 			// персоналию недостающие виды, необходимые для связывания существующих аналитических статей.
 			// Опция вводится для смягчения ошибки PPERR_AR_INVLINKPERSONKIND
@@ -26624,11 +26624,21 @@ struct PPPersonConfig { // @transient (для сохранения проеци�
 	long   Flags;
 	long   SendSmsSamePersonTimeout; // Таймаут на отсылку SMS одной и той же персоналии (seconds).
 	long   StaffCalQuant;         // Квант времени в сек. для временной диаграммы анализа штатных календарей.
+	//
+	// Понятие критической задержки активности клиента подразумевает детекцию факта отсутствия активности клиента в течении какого-то
+	// времени (в том смысле, что надо ему, наверное, позвонить и спросить не разлюбил ли он нас).
+	// 
+	// Понятие безнадежной задержки активности клиента подразумевает детекцию факта невозможности вернуть клиента.
+	// 
+	uint16 CriticalCliActivityDelayDays; // @v12.2.2 @construction Критическая задержка активности клиента в днях.
+	uint16 HopelessCliActivityDelayDays; // @v12.2.2 @construction Безнадежная задержка активности клиента в днях.
+	float  CriticalCliActivityDelaySigm; // @v12.2.2 @construction Критическая задержка активности клиента в сигмах (стандартных отклонениях от средней периодичности).
+	float  HopelessCliActivityDelaySigm; // @v12.2.2 @construction Безнадежная задержка активности клиента в сигмах (стандартных отклонениях от средней периодичности).
 	TimeRange SmsProhibitedTr;    // Диапазон времени, в течении которого запрещено отсылать SMS-сообщения (ночь, очевидно)
 	SString TopFolder;            // @anchor
 	SString AddImageFolder;       // Папка из которой будут автоматически прикрепляться файлы к персоналиям. хранится в реестре
 	StrAssocArray DlvrAddrExtFldList; // Наименования дополнительных полей для адресов доставки //
-	TSVector <NewClientDetectionItem> NewClientDetectionList;
+	TSVector <ClientActivityDetectionItem> ClientActivityDetectionList;
 };
 
 struct PersonReq { // @flat
@@ -27113,6 +27123,38 @@ public:
 	//
 	int    IndexPhones(PPLogger * pLogger, int use_ta);
 	int    SerializePacket(int dir, PPPersonPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+	enum ClientActivityStatisticsIndicator { // @persistant
+		casiFirstEventDt = 1, // Дата первого события //
+		casiLastEventDt,      // Дата последнего события // 
+		casiEventCount,       // Количество событий
+		casiDateCount,        // Количество дней, охваченных событиями 
+		casiGapDaysAvg,       // Средний перерыв между событиями в днях //
+		casiGapDaysStdDev,    // Стандартное отклонение перерыва между событиями 
+	};
+	//
+	// Descr: Структура представляющая агрегированные значения статистики активности клиентов.
+	//   Структура сохраняется в таблице PropertyTbl в привязке к персоналии.
+	//
+	struct ClientActivityStatistics { // @flat // @persistent
+		ClientActivityStatistics();
+		ClientActivityStatistics & Z();
+		bool   FASTCALL IsEq(const ClientActivityStatistics & rS) const;
+
+		PPID   PersonID;
+		LDATE  FirstEventDt;  // Дата первого события //
+		LDATE  LastEventDt;   // Дата последнего события // 
+		uint32 EventCount;    // Количество событий
+		uint16 DateCount;     // Количество дней, охваченных событиями 
+		uint16 Reserve2;      // @alignment 
+		double GapDaysAvg;    // Средний перерыв между событиями в днях //
+		double GapDaysStdDev; // Стандартное отклонение перерыва между событиями 
+		uint8  Reserve[64];
+	};
+
+	int    StoreClientActivityStatistics(PPID personID, const ClientActivityStatistics & rTotalEntry, const TSVector <uint16> & rDateList, int use_ta);
+	int    ReadClientActivityStatistics(PPID personID, ClientActivityStatistics & rTotalEntry, TSVector <uint16> * pDateList);
+	int    FetchCas(PPID id, ClientActivityStatistics * pCas);
 private:
 	friend class PersonCache;
 	friend int FASTCALL GetPersonName(PPID id, SString & rBuf);
@@ -28477,19 +28519,21 @@ private:
 
 #define TAGOFFSET 100000L
 
+#pragma pack(push, 1)
 struct PersonFilt : public PPBaseFilt {
 	enum {
-		fExtEdit        = 0x0002, // @unused Отдельный диалог редактирования главной организации
-		fVatFree        = 0x0004, // Свободен от НДС
-		fTagsCrsstab    = 0x0008, // Показывать броузер персоналий, как кросстаб с тегами
-		fHasImages      = 0x0010, // Только с картинками
-		fShowNewCli     = 0x0020, // Идентифицировать новых клиентов (требуется NewCliPeriod)
-		fPrecName       = 0x0040, // SrchStr содержит точное имя персоналии (не чувствительно к регистру)
-		fShowHangedAddr = 0x0080, // При использовании атрибута PPPSNATTR_ALLADDR отображать адреса, не
+		fExtEdit          = 0x0002, // @unused Отдельный диалог редактирования главной организации
+		fVatFree          = 0x0004, // Свободен от НДС
+		fTagsCrsstab      = 0x0008, // Показывать броузер персоналий, как кросстаб с тегами
+		fHasImages        = 0x0010, // Только с картинками
+		fShowNewCli       = 0x0020, // Идентифицировать новых клиентов (требуется NewCliPeriod)
+		fPrecName         = 0x0040, // SrchStr содержит точное имя персоналии (не чувствительно к регистру)
+		fShowHangedAddr   = 0x0080, // При использовании атрибута PPPSNATTR_ALLADDR отображать адреса, не
 			// привязанные ни к одной из персоналий (но не являющиеся автономными)
-		fLocTagF        = 0x0100, // Субфильтр P_TagF применяется к локациям, а не к персоналиям
-		fShowFiasRcgn   = 0x0200, // Показывать результаты распознавания адресов и сопоставления с ФИАС
-		fNewClientsOnly = 0x0400  // Только новые клиенты (действует при не пустом NewCliPeriod)
+		fLocTagF          = 0x0100, // Субфильтр P_TagF применяется к локациям, а не к персоналиям
+		fShowFiasRcgn     = 0x0200, // Показывать результаты распознавания адресов и сопоставления с ФИАС
+		fNewClientsOnly   = 0x0400, // Только новые клиенты (действует при не пустом NewCliPeriod)
+		fCliActivityStats = 0x0800, // @v12.2.2 @construction Отображать статистику активности клиентов. 
 	};
 	//
 	// Descr: Идентификаторы текстовых субполей, содержащихся в строке SrchStr_
@@ -28520,7 +28564,9 @@ struct PersonFilt : public PPBaseFilt {
 	int    GetExtssData(int fldID, SString & rBuf) const;
 	int    PutExtssData(int fldID, const char * pBuf);
 
-	uint8  ReserveStart[22];  // @anchor
+	uint8  ReserveStart[16];  // @anchor
+	LDATE  ClientActivityEvalDate; // @v12.2.2 Опорная дата для анализа состояния клиентов в соответствии со статистикой их активности. Если ZERODATE, то - текущая дата.
+	uint16 Reserve;           // @v12.2.2 @alignment
 	uint16 GenderFlags;       // (1 << GENDER_XXX)
 	DateRange NewCliPeriod;   // Период идентификации нового клиента
 	PPID   Kind;              //
@@ -28544,6 +28590,7 @@ public:
 private:
 	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 };
+#pragma pack(pop)
 
 typedef TempPersonTbl::Rec PsnAttrViewItem;
 
@@ -34941,7 +34988,7 @@ public:
 	int    Fetch(const char * pSymb, PPID * pID, SString & rBuf); // @sync_rw
 	int    DirtySymb(const char * pSymb); // @sync_rw
 private:
-	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData = 0);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * extraData);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 	int    Search(const char * pSymb, PPID * pID, SString & rBuf) const;
 	int    Add(int F, PPID id, const char * symb, const char * buf);
@@ -41457,6 +41504,36 @@ public:
 	int    Run();
 private:
 	PrcssrAptekaRuFilt P;
+};
+//
+// 
+// 
+class PrcssrClientActivityStatistics { // @v12.2.2 @construction
+public:
+	struct DetailedEntry { // @flat
+		LDATE Dt;
+		PPObjID Oid;
+	};
+	struct Param {
+		Param();
+		DateRange Period;
+		PPID   PersonKindID;
+	};
+	PrcssrClientActivityStatistics();
+	int    InitParam(Param * pParam);
+	int    Init(const Param * pParam);
+	int    EditParam(Param * pData);
+	int    Run();
+	int    ScanDetailedActivityListForSinglePerson(PPID personID, TSVector <DetailedEntry> & rList);
+private:
+	TSVector <DetailedEntry> & SortDetailedEntryList(TSVector <DetailedEntry> & rList);
+	int    Implement_ScanDetailedActivityListForSinglePerson(PPViewBill * pBillV, PPID personID, TSVector <DetailedEntry> & rList);
+	int    EvaluateStorableStat(PPID personID, const TSVector <DetailedEntry> & rSrcList, PPObjPerson::ClientActivityStatistics & rTotalEntry, TSVector <uint16> & rDateList);
+	PPObjPerson PsnObj;
+	PPObjArticle ArObj;
+	PPPersonConfig PsnCfg;
+	PPObjBill * P_BObj;
+	Param P;
 };
 //
 // @ModuleDecl(PPViewGoodsRest)
@@ -55285,6 +55362,7 @@ public:
 		SString ChZnSerial;   // Серийный номер марки 'честный знак'
 		S_GUID ChZnPm_ReqId;        // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
 		int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
+		RealRange AllowedPriceRange; // @v12.2.2 диапазон допустимых цен на товар (пока только по результату запроса разрешительного режима марки chzn)
 	};
 	//int    SetupNewRow(PPID goodsID, double qtty, double priceBySerial, const char * pSerial, PPID giftID = 0);
 	int    SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID = 0);
@@ -58112,7 +58190,7 @@ public:
 			double Weight; // Переменный вес продукции (в граммах). Возвращается только для товарной группы «Молочная продукция»
 			SString PrVetDocument; // Производственный ветеринарный сопроводительный документ. Возвращается только для товарной группы «Молочная продукция»
 			SString Message; // Сообщение об ошибке
-			S_GUID ReqId;   // Уникальный идентификатор запроса
+			S_GUID ReqId;    // Уникальный идентификатор запроса
 			int64  ReqTimestamp; // Дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
 			SString PackageType; // Тип упаковки. См. «Справочник "Типы упаковки"»
 			SString Parent;      // КИ агрегата.
@@ -60618,6 +60696,7 @@ int    ExportEmailAccts(const PPIDArray * pMailAcctsList);
 int    DoSupplInterchange(SupplInterchangeFilt * pFilt);
 int    DoMarketplaceInterchange();
 int    DoAptekaRuInterchange(); // @v12.2.1
+int    GatherClientActivityStatistics(); // @v12.2.2 @construction
 int    EditPriceListImpExpParams();
 int    EditDebtLimList(PPClientAgreement & rCliAgt);
 int    EditCheckInPersonItem(const PPCheckInPersonConfig * pCfg, PPCheckInPersonItem * pData);

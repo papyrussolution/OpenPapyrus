@@ -156,8 +156,7 @@ template <> struct FloatTraits<float> {
 //
 // The return values satisfy two range guarantees:
 //
-//   Power10Mantissa(n) * 2**Power10Exponent(n) <= 10**n
-//     < (Power10Mantissa(n) + 1) * 2**Power10Exponent(n)
+//   Power10Mantissa(n) * 2**Power10Exponent(n) <= 10**n < (Power10Mantissa(n) + 1) * 2**Power10Exponent(n)
 //
 //   2**63 <= Power10Mantissa(n) < 2**64.
 //

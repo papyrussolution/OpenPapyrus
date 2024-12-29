@@ -118,7 +118,7 @@ private:
 	double MinQtty;        // Минимальное количество, которое может быть введено
 	double MaxQtty;        // Максимальное количество, которое может быть введено
 	double OrgQtty;        // Для корректирующего документа (Item.Flags & PPTFR_CORRECTION) - количество, поступившее в оригинальном документе.
-	double OrgPrice;       // @v9.4.3 Для корректирующего документа (Item.Flags & PPTFR_CORRECTION) - Чистая цена реализации в оригинальном документе
+	double OrgPrice;       // Для корректирующего документа (Item.Flags & PPTFR_CORRECTION) - Чистая цена реализации в оригинальном документе
 	PPSupplDeal Sd;        // Контрактная цена по поставщику
 	enum {
 		strNoVAT     = 0,
@@ -985,10 +985,10 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 						PPIDArray src_goods_id_list;
 						if(GetGoodsListSuitableForSourceSerial(Item.GoodsID, src_goods_id_list) > 0) {
 							SString current_serial;
-							getCtrlString(CTL_LOT_SOURCESERIAL, current_serial); // @v9.4.5
+							getCtrlString(CTL_LOT_SOURCESERIAL, current_serial);
 							src_goods_id_list.sortAndUndup();
 							PPObjBill::SelectLotParam slp(0, Item.LocID, Item.LotID, PPObjBill::SelectLotParam::fNotEmptySerial);
-							slp.RetLotSerial = current_serial; // @v9.4.5
+							slp.RetLotSerial = current_serial;
 							slp.GoodsList = src_goods_id_list;
 							if(P_BObj->SelectLot2(slp) > 0) {
 								setCtrlString(CTL_LOT_SOURCESERIAL, slp.RetLotSerial);
@@ -1694,7 +1694,6 @@ int TrfrItemDialog::readQttyFld(uint master, uint ctl, double * val)
 void TrfrItemDialog::setupQuantity(uint master, int readFlds)
 {
 	if(!(Item.Flags & PPTFR_REVAL) || (Item.Flags & PPTFR_CORRECTION)) {
-		// @v9.4.3 const double prev_qtty = Item.Quantity_;
 		const double prev_qtty = Item.GetEffCorrectionExpQtty();
 		if(readFlds) {
 			if(Item.Flags & PPTFR_INDEPPHQTTY)
@@ -2318,7 +2317,7 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 		sel = CTL_LOT_PRICE;
 		THROW_PP(pc > 0.0 || (pc == 0.0 && IsZeroPriceAllowed()) || OpID == PPOPK_EDI_ACTCHARGEON, PPERR_INVPRICE);
 		if(OpTypeID == PPOPT_GOODSORDER) {
-			// @v9.2.9 ds = 0.0;
+			;
 		}
 		else if(!IsModifPlus()) {
 			sel = CTL_LOT_COST;
@@ -2425,7 +2424,7 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	}
 	else if(IsIntrExpndOp(P_Pack->Rec.OpID)) {
 		ObjTagList tag_list;
-		P_BObj->GetTagListByLot(Item.LotID, 0/*skipReserveTags*/, &tag_list); // @v9.8.11 skipReserved 1-->0
+		P_BObj->GetTagListByLot(Item.LotID, 0/*skipReserveTags*/, &tag_list);
 		P_Pack->LTagL.Set(ItemNo, tag_list.GetCount() ? &tag_list : 0);
 	}
 	if(P_Pack->OpTypeID == PPOPT_DRAFTEXPEND) {
@@ -2729,7 +2728,7 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 				}
 			}
 		}
-		if(gqr <= 0 && !autoQuot && r_cfg.Flags & CFGFLG_ENABLEFIXDIS && !(Item.Flags & PPTFR_QUOT)) { // @v9.9.2 (quot == 0.0)-->(gqr <= 0)
+		if(gqr <= 0 && !autoQuot && r_cfg.Flags & CFGFLG_ENABLEFIXDIS && !(Item.Flags & PPTFR_QUOT)) {
 			if(r_cfg.Flags & CFGFLG_DISCOUNTBYSUM)
 				getCtrlData(CTL_LOT_PRICE, &quot);
 			else {

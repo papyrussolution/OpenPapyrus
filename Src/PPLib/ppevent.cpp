@@ -6,8 +6,8 @@
 
 PPEventSubscription::PPEventSubscription() : Tag(PPOBJ_EVENTSUBSCRIPTION), ID(0), Flags(0), EventType(0), ObjType(0), MinDetectionInterval(0), Reserve2(0)
 {
-	PTR32(Name)[0] = 0;
-	PTR32(Symb)[0] = 0;
+	Name[0] = 0;
+	Symb[0] = 0;
 	memzero(Reserve, sizeof(Reserve));
 }
 
@@ -420,7 +420,7 @@ private:
 		SColor NotifColor;
 		long   MinDetectionInterval;
 	};
-	virtual int FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+	virtual int FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 	{
 		int    ok = 1;
 		EventSubscriptionData * p_cache_rec = static_cast<EventSubscriptionData *>(pEntry);

@@ -265,7 +265,7 @@ void _plug_free_secret(const sasl_utils_t * utils, sasl_secret_t ** secret)
  * Returns it if found. NULL otherwise
  */
 sasl_interact_t * _plug_find_prompt(sasl_interact_t ** promptlist,
-    unsigned int lookingfor)
+    uint lookingfor)
 {
 	sasl_interact_t * prompt;
 
@@ -282,7 +282,7 @@ sasl_interact_t * _plug_find_prompt(sasl_interact_t ** promptlist,
 /*
  * Retrieve the simple string given by the callback id.
  */
-int _plug_get_simple(const sasl_utils_t * utils, unsigned int id, int required,
+int _plug_get_simple(const sasl_utils_t * utils, uint id, int required,
     const char ** result, sasl_interact_t ** prompt_need)
 {
 	int ret = SASL_FAIL;
@@ -322,7 +322,7 @@ int _plug_get_simple(const sasl_utils_t * utils, unsigned int id, int required,
 /*
  * Retrieve the user password.
  */
-int _plug_get_password(const sasl_utils_t * utils, sasl_secret_t ** password, unsigned int * iscopy, sasl_interact_t ** prompt_need)
+int _plug_get_password(const sasl_utils_t * utils, sasl_secret_t ** password, uint * iscopy, sasl_interact_t ** prompt_need)
 {
 	int ret = SASL_FAIL;
 	sasl_getsecret_t * pass_cb;
@@ -370,7 +370,7 @@ int _plug_get_password(const sasl_utils_t * utils, sasl_secret_t ** password, un
 /*
  * Retrieve the string given by the challenge prompt id.
  */
-int _plug_challenge_prompt(const sasl_utils_t * utils, unsigned int id,
+int _plug_challenge_prompt(const sasl_utils_t * utils, uint id,
     const char * challenge, const char * promptstr,
     const char ** result, sasl_interact_t ** prompt_need)
 {
@@ -525,7 +525,7 @@ int _plug_make_prompts(const sasl_utils_t * utils,
 	return SASL_OK;
 }
 
-void _plug_decode_init(decode_context_t * text, const sasl_utils_t * utils, unsigned int in_maxbuf)
+void _plug_decode_init(decode_context_t * text, const sasl_utils_t * utils, uint in_maxbuf)
 {
 	memzero(text, sizeof(decode_context_t));
 	text->utils = utils;
@@ -538,16 +538,16 @@ void _plug_decode_init(decode_context_t * text, const sasl_utils_t * utils, unsi
  * using decode_pkt() to decode individual packets.
  */
 int _plug_decode(decode_context_t * text,
-    const char * input, unsigned inputlen,
+    const char * input, uint inputlen,
     char ** output,                     /* output buffer */
     unsigned * outputsize,              /* current size of output buffer */
-    unsigned * outputlen,               /* length of data in output buffer */
+    uint * outputlen,               /* length of data in output buffer */
     int (*decode_pkt)(void * rock,
-    const char * input, unsigned inputlen,
-    char ** output, unsigned * outputlen),
+    const char * input, uint inputlen,
+    char ** output, uint * outputlen),
     void * rock)
 {
-	unsigned int tocopy;
+	uint tocopy;
 	unsigned diff;
 	char * tmp;
 	unsigned tmplen;
@@ -788,7 +788,7 @@ void _plug_snprintf_os_info(char * osbuf, int osbuf_len)
 }
 
 #if defined(WIN32)
-unsigned int plug_sleep(unsigned int seconds)
+uint plug_sleep(uint seconds)
 {
 	long dwSec = seconds*1000;
 	Sleep(dwSec);

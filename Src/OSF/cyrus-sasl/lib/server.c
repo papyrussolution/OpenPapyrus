@@ -65,7 +65,7 @@
 static int _sasl_server_active = 0;
 /* For access by other modules */
 int _is_sasl_server_active() { return _sasl_server_active; }
-static int _sasl_checkpass(sasl_conn_t * conn, const char * user, unsigned userlen, const char * pass, unsigned passlen);
+static int _sasl_checkpass(sasl_conn_t * conn, const char * user, uint userlen, const char * pass, uint passlen);
 
 static mech_list_t * mechlist = NULL; /* global var which holds the list */
 static sasl_global_callbacks_t global_callbacks;
@@ -91,7 +91,7 @@ static sasl_global_callbacks_t global_callbacks;
  *  SASL_BADPARAM  -- password too long
  *  SASL_OK        -- successful
  */
-int sasl_setpass(sasl_conn_t * conn, const char * user, const char * pass, unsigned passlen, const char * oldpass, unsigned oldpasslen, uint flags)
+int sasl_setpass(sasl_conn_t * conn, const char * user, const char * pass, uint passlen, const char * oldpass, uint oldpasslen, uint flags)
 {
 	int result = SASL_OK, tmpresult;
 	sasl_server_conn_t * s_conn = (sasl_server_conn_t*)conn;
@@ -165,9 +165,7 @@ int sasl_setpass(sasl_conn_t * conn, const char * user, const char * pass, unsig
 		(sasl_callback_ft*)&setpass_cb, &context);
 	if(tmpresult == SASL_OK && setpass_cb) {
 		tried_setpass++;
-
-		tmpresult = setpass_cb(conn, context, user, pass, passlen,
-			s_conn->sparams->propctx, flags);
+		tmpresult = setpass_cb(conn, context, user, pass, passlen, s_conn->sparams->propctx, flags);
 		if(tmpresult != SASL_OK) {
 			if(tmpresult == SASL_CONSTRAINT_VIOLAT) {
 				if(result == SASL_OK) {
@@ -891,7 +889,7 @@ int sasl_server_init(const sasl_callback_t * callbacks,
  */
 static int _sasl_transition(sasl_conn_t * conn,
     const char * pass,
-    unsigned passlen)
+    uint passlen)
 {
 	const char * dotrans = "n";
 	sasl_getopt_t * getopt;
@@ -1769,7 +1767,7 @@ static int is_mech(const char * t, const char * m)
 }
 
 /* returns OK if it's valid */
-static int _sasl_checkpass(sasl_conn_t * conn, const char * user, unsigned userlen, const char * pass, unsigned passlen)
+static int _sasl_checkpass(sasl_conn_t * conn, const char * user, uint userlen, const char * pass, uint passlen)
 {
 	sasl_server_conn_t * s_conn = (sasl_server_conn_t*)conn;
 	int result;
@@ -1848,9 +1846,9 @@ static int _sasl_checkpass(sasl_conn_t * conn, const char * user, unsigned userl
  */
 int sasl_checkpass(sasl_conn_t * conn,
     const char * user,
-    unsigned userlen,
+    uint userlen,
     const char * pass,
-    unsigned passlen)
+    uint passlen)
 {
 	int result;
 

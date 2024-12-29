@@ -1602,13 +1602,7 @@ void Notepad_plus::command(int id)
 	    {
 		    int check = (::GetMenuState(_mainMenuHandle, id, MF_BYCOMMAND) == MF_CHECKED) ? MF_UNCHECKED : MF_CHECKED;
 		    ::CheckMenuItem(_mainMenuHandle, id, MF_BYCOMMAND | check);
-		    SetWindowPos(_pPublicInterface->getHSelf(),
-			check == MF_CHECKED ? HWND_TOPMOST : HWND_NOTOPMOST,
-			0,
-			0,
-			0,
-			0,
-			SWP_NOMOVE|SWP_NOSIZE);
+		    SetWindowPos(_pPublicInterface->getHSelf(), (check == MF_CHECKED ? HWND_TOPMOST : HWND_NOTOPMOST), 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
 	    }
 	    break;
 		case IDM_VIEW_FOLD_CURRENT:

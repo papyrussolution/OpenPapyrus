@@ -256,7 +256,7 @@ class PersonRelTypeCache : public ObjCache {
 public:
 	PersonRelTypeCache() : ObjCache(PPOBJ_PERSONRELTYPE, sizeof(PersonRelTypeCache::Entry)) {}
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct Entry : public ObjCacheEntry {
@@ -267,7 +267,7 @@ public:
 	};
 };
 
-int PersonRelTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int PersonRelTypeCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	Entry * p_cache_rec = static_cast<Entry *>(pEntry);

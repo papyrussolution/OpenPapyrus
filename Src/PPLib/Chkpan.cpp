@@ -544,6 +544,7 @@ int FASTCALL CPosProcessor::Packet::NextIteration(CCheckItem * pItem)
 //
 CPosProcessor::PgsBlock::PgsBlock(double qtty) : Flags(0), Qtty((qtty != 0.0) ? qtty : 1.0), PriceBySerial(0.0), AbstractPrice(0.0), ChZnPm_ReqTimestamp(0)
 {
+	AllowedPriceRange.Z(); // @v12.2.2
 }
 //
 //
@@ -6491,8 +6492,8 @@ private:
 			setCtrlLong(CTL_CCHKDLVR_ADDRID, Data.Addr_.ID);
 			setCtrlLong(CTLSEL_CCHKDLVR_CITY, NZOR(Data.Addr_.CityID, DefCityID));
 			setCtrlString(CTL_CCHKDLVR_ADDR, LocationCore::GetExFieldS(&Data.Addr_, LOCEXSTR_SHORTADDR, temp_buf));
-			getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf); // @v10.2.6
-			if(temp_buf.IsEmpty()) { // @v10.2.6
+			getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf);
+			if(temp_buf.IsEmpty()) {
 				if(LocationCore::GetExFieldS(&Data.Addr_, LOCEXSTR_PHONE, loc_phone).IsEmpty() && PersonID)
 					loc_phone = DlvrPhone;
 				setCtrlString(CTL_CCHKDLVR_PHONE, loc_phone);
@@ -9461,14 +9462,11 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 											dup_mark = true;
 										if(!dup_mark) {
 											if(CnExtFlags & CASHFX_CHECKEGAISMUNIQ) {
-												//PPIDArray cc_list;
-												//SBitArray sent_list;
 												TSCollection <CCheckCore::ListByMarkEntry> lbm;
 												CCheckCore & r_cc = GetCc();
 												int    cc_even = 0;
 												temp_buf.Z();
 												CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.CreateNewItem();
-												//THROW_SL(p_lbm_entry);
 												STRNSCPY(p_lbm_entry->Mark, egais_mark);
 												if(CsObj.GetListByEgaisMark(lbm) > 0) {
 													SString debug_msg_buf;
@@ -9546,15 +9544,14 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 									chzn_mark = rBlk.ChZnMark; // @v12.0.12 функция ChZnMarkAutoSelect() обнулила буфер chzn_mark: придется восстановить
 									// } @v12.0.5 
 									if(chzn_mark.NotEmpty() || (imr = PPChZnPrcssr::InputMark(chzn_mark, 0, 0)) > 0) {
-										int    dup_mark = chzn_mark.IsEq(P.GetCur().ChZnMark);
+										bool   dup_mark = chzn_mark.IsEq(P.GetCur().ChZnMark);
 										for(uint i = 0; !dup_mark && i < P.getCount(); i++) {
 											if(chzn_mark.IsEq(P.at(i).ChZnMark))
-												dup_mark = 1;
+												dup_mark = true;
 										}
 										if(!dup_mark) {
 											if(!disable_chzn_mark_backtest && (CnExtFlags & CASHFX_CHECKEGAISMUNIQ)) {
 												TSCollection <CCheckCore::ListByMarkEntry> lbm;
-												//PPIDArray cc_list;
 												CCheckCore & r_cc = GetCc();
 												int    cc_even = 0;
 												temp_buf.Z();
@@ -9615,6 +9612,14 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 												const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.at(i);
 												if(p_cle) {
 													//debug_mark = true;
+													// @v12.2.2 {
+													if(p_cle->Mrp > 0.0) {
+														rBlk.AllowedPriceRange.upp = p_cle->Mrp / 100.0;
+													}
+													if(p_cle->Smp > 0.0) {
+														rBlk.AllowedPriceRange.low = p_cle->Smp / 100.0;
+													}
+													// } @v12.2.2 
 													if(p_cle->ErrorCode != 0) {
 														ok = MessageError(PPERR_CHZNMARKPMFAULT, chzn_mark, eomBeep|eomStatusLine);
 													}
@@ -9644,6 +9649,10 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 			}
 		}
 	}
+	// @v12.2.2 {
+	if(!ok)
+		P.ClearCur();
+	// } @v12.2.2 
 	return ok;
 }
 
@@ -9662,8 +9671,13 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 			p_list->P_Def->getCurID(&goods_id);
 			PgsBlock pgsb(1.0);
 			r = PreprocessGoodsSelection(goods_id, 0, pgsb);
-			if(r > 0)
+			if(r > 0) {
 				r = SetupNewRow(goods_id, pgsb);
+				// @v12.2.2 {
+				if(!r)
+					P.ClearCur();
+				// } @v12.2.2 
+			}
 			ClearInput(0);
 		}
 	}
@@ -11513,7 +11527,8 @@ int CPosProcessor::CheckPriceRestrictions(PPID goodsID, const CCheckItem & rCi, 
 
 int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 {
-	int    ok = 1, r = 0;
+	int    ok = 1;
+	int    r = 0;
 	SString temp_buf;
 	if(Flags & fPrinted && !(OperRightsFlags & orfChgPrintedCheck)) {
 		ok = MessageError(PPERR_NORIGHTS, 0, eomBeep|eomStatusLine);
@@ -11600,7 +11615,21 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 								r_item.Flags |= cifGiftDiscount;
 							}
 						}
-						if(!CheckPriceRestrictions(goodsID, r_item, r_item.Price, 0)) {
+						// @v12.2.2 {
+						if(!rBlk.AllowedPriceRange.CheckValEps(r_item.Price, 1E-7)) {
+							const RealRange & r_range = rBlk.AllowedPriceRange;
+							if(r_range.low > 0.0 && r_item.Price < r_range.low) {
+								SString & r_nam_buf = SLS.AcquireRvlStr();
+								temp_buf.Z().Cat(r_range.low, SFMT_MONEY).Space().Cat(GetGoodsName(goodsID, r_nam_buf));
+								ok = MessageError(PPERR_PRICERESTRLOW, temp_buf, eomStatusLine|eomBeep);
+							}
+							else if(r_range.upp > 0.0 && r_item.Price > r_range.upp) {
+								SString & r_nam_buf = SLS.AcquireRvlStr();
+								temp_buf.Z().Cat(r_range.upp, SFMT_MONEY).Space().Cat(GetGoodsName(goodsID, r_nam_buf));
+								ok = MessageError(PPERR_PRICERESTRUPP, temp_buf, eomStatusLine|eomBeep);
+							}
+						} // } @v12.2.2 
+						else if(!CheckPriceRestrictions(goodsID, r_item, r_item.Price, 0)) {
 							ok = MessageError(-1, 0, eomStatusLine|eomBeep);
 						}
 						if(ok) {

@@ -228,7 +228,7 @@ void sasl_version_info(const char ** implementation, const char ** version_strin
 
 /* security-encode a regular string.  Mostly a wrapper for sasl_encodev */
 /* output is only valid until next call to sasl_encode or sasl_encodev */
-int sasl_encode(sasl_conn_t * conn, const char * input, unsigned inputlen, const char ** output, unsigned * outputlen)
+int sasl_encode(sasl_conn_t * conn, const char * input, uint inputlen, const char ** output, uint * outputlen)
 {
 	int result;
 	struct iovec tmp;
@@ -247,12 +247,9 @@ int sasl_encode(sasl_conn_t * conn, const char * input, unsigned inputlen, const
 }
 
 /* Internal function that doesn't do any verification */
-static int _sasl_encodev(sasl_conn_t * conn,
-    const struct iovec * invec,
-    unsigned numiov,
-    int * p_num_packets,                /* number of packets generated so far */
-    const char ** output,               /* previous output, if *p_num_packets > 0 */
-    unsigned * outputlen)
+static int _sasl_encodev(sasl_conn_t * conn, const struct iovec * invec,
+    uint numiov, int * p_num_packets/* number of packets generated so far */,
+    const char ** output/* previous output, if *p_num_packets > 0 */, uint * outputlen)
 {
 	int result;
 	char * new_buf;
@@ -306,7 +303,7 @@ static int _sasl_encodev(sasl_conn_t * conn,
 
 /* security-encode an iovec */
 /* output is only valid until the next call to sasl_encode or sasl_encodev */
-int sasl_encodev(sasl_conn_t * conn, const struct iovec * invec, unsigned numiov, const char ** output, unsigned * outputlen)
+int sasl_encodev(sasl_conn_t * conn, const struct iovec * invec, unsigned numiov, const char ** output, uint * outputlen)
 {
 	int result = SASL_OK;
 	unsigned i;
@@ -496,7 +493,7 @@ cleanup:
 }
 
 /* output is only valid until next call to sasl_decode */
-int sasl_decode(sasl_conn_t * conn, const char * input, unsigned inputlen, const char ** output, unsigned * outputlen)
+int sasl_decode(sasl_conn_t * conn, const char * input, uint inputlen, const char ** output, uint * outputlen)
 {
 	int result;
 	if(!conn) return SASL_BADPARAM;
@@ -596,7 +593,7 @@ void sasl_done(void)
 /* fills in the base sasl_conn_t info */
 int _sasl_conn_init(sasl_conn_t * conn,
     const char * service,
-    unsigned int flags,
+    uint flags,
     enum Sasl_conn_type type,
     int (*idle_hook)(sasl_conn_t * conn),
     const char * serverFQDN,
@@ -1635,7 +1632,7 @@ void _sasl_log(sasl_conn_t * conn, int level, const char * fmt, ...)
 	void * log_ctx;
 
 	int ival;
-	unsigned int uval;
+	uint uval;
 	char * cval;
 	va_list ap; /* varargs thing */
 	if(!fmt) return;
@@ -1736,7 +1733,7 @@ void _sasl_log(sasl_conn_t * conn, int level, const char * fmt, ...)
 					case 'X':
 					    frmt[frmtpos++] = fmt[pos];
 					    frmt[frmtpos] = 0;
-					    uval = va_arg(ap, unsigned int); /* get the next arg */
+					    uval = va_arg(ap, uint); /* get the next arg */
 
 					    snprintf(tempbuf, 20, frmt, uval); /* have snprintf do the work */
 					    /* now add the string */

@@ -124,9 +124,9 @@ void _plug_free_secret(const sasl_utils_t * utils, sasl_secret_t ** secret);
 
 #define _plug_get_userid(utils, result, prompt_need) _plug_get_simple(utils, SASL_CB_USER, 0, result, prompt_need)
 #define _plug_get_authid(utils, result, prompt_need) _plug_get_simple(utils, SASL_CB_AUTHNAME, 1, result, prompt_need)
-int _plug_get_simple(const sasl_utils_t * utils, unsigned int id, int required, const char ** result, sasl_interact_t ** prompt_need);
-int _plug_get_password(const sasl_utils_t * utils, sasl_secret_t ** secret, unsigned int * iscopy, sasl_interact_t ** prompt_need);
-int _plug_challenge_prompt(const sasl_utils_t * utils, unsigned int id, const char * challenge, const char * promptstr, const char ** result, sasl_interact_t ** prompt_need);
+int _plug_get_simple(const sasl_utils_t * utils, uint id, int required, const char ** result, sasl_interact_t ** prompt_need);
+int _plug_get_password(const sasl_utils_t * utils, sasl_secret_t ** secret, uint * iscopy, sasl_interact_t ** prompt_need);
+int _plug_challenge_prompt(const sasl_utils_t * utils, uint id, const char * challenge, const char * promptstr, const char ** result, sasl_interact_t ** prompt_need);
 int _plug_get_realm(const sasl_utils_t * utils, const char ** availrealms, const char ** realm, sasl_interact_t ** prompt_need);
 int _plug_make_prompts(const sasl_utils_t * utils, sasl_interact_t ** prompts_res, const char * user_prompt, const char * user_def,
     const char * auth_prompt, const char * auth_def, const char * pass_prompt, const char * pass_def,
@@ -135,23 +135,23 @@ int _plug_make_prompts(const sasl_utils_t * utils, sasl_interact_t ** prompts_re
 
 typedef struct decode_context {
 	const sasl_utils_t * utils;
-	unsigned int needsize;  /* How much of the 4-byte size do we need? */
+	uint needsize;  /* How much of the 4-byte size do we need? */
 	char sizebuf[4]; /* Buffer to accumulate the 4-byte size */
-	unsigned int size; /* Absolute size of the encoded packet */
+	uint size; /* Absolute size of the encoded packet */
 	char * buffer; /* Buffer to accumulate an encoded packet */
-	unsigned int cursize;   /* Amount of packet data in the buffer */
-	unsigned int in_maxbuf; /* Maximum allowed size of an incoming encoded packet */
+	uint cursize;   /* Amount of packet data in the buffer */
+	uint in_maxbuf; /* Maximum allowed size of an incoming encoded packet */
 } decode_context_t;
 
 void _plug_decode_init(decode_context_t * text,
-    const sasl_utils_t * utils, unsigned int in_maxbuf);
+    const sasl_utils_t * utils, uint in_maxbuf);
 
 int _plug_decode(decode_context_t * text,
-    const char * input, unsigned inputlen,
-    char ** output, unsigned * outputsize, unsigned * outputlen,
+    const char * input, uint inputlen,
+    char ** output, unsigned * outputsize, uint * outputlen,
     int (* decode_pkt)(void * rock,
-    const char * input, unsigned inputlen,
-    char ** output, unsigned * outputlen),
+    const char * input, uint inputlen,
+    char ** output, uint * outputlen),
     void * rock);
 
 void _plug_decode_free(decode_context_t * text);

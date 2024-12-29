@@ -33,7 +33,7 @@ public:
 	int    GetAddrObjListByText(const char * pText, PPIDArray & rList);
 	void   FASTCALL SetTable(PPFiasReference * pT);
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	struct TextEntry {
@@ -101,7 +101,7 @@ int FiasAddrCache::GetAddrObjListByText(const char * pText, PPIDArray & rList)
 	return ok;
 }
 
-int FiasAddrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+int FiasAddrCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
@@ -3135,7 +3135,7 @@ private:
 		PPID   LocID;
 		PPIDArray List;
 	};
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 	int    LoadWarehouseTab();
 	int    AddWarehouseEntry(const LocationTbl::Rec * pRec, PPID accSheetID);
@@ -3524,7 +3524,7 @@ PPID FASTCALL LocationCache::WarehouseToObj(PPID locID, int ignoreRights)
 	return id;
 }
 
-int LocationCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int LocationCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	LocationData * p_cache_rec = static_cast<LocationData *>(pEntry);

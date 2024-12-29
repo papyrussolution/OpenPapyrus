@@ -154,7 +154,7 @@ typedef struct reauth_entry {
 	char * authid;
 	char * realm;
 	uchar * nonce;
-	unsigned int nonce_count;
+	uint nonce_count;
 	uchar * cnonce;
 
 	union {
@@ -199,14 +199,14 @@ typedef struct context {
 	char * authid;
 	char * realm;
 	uchar * nonce;
-	unsigned int nonce_count;
+	uint nonce_count;
 	uchar * cnonce;
 	/* only used by the client */
 	char ** realms;
 	int realm_cnt;
 	char * response_value;
-	unsigned int seqnum;
-	unsigned int rec_seqnum; /* for checking integrity */
+	uint seqnum;
+	uint rec_seqnum; /* for checking integrity */
 	HASH Ki_send;
 	HASH Ki_receive;
 	HASH HA1;               /* Kcc or Kcs */
@@ -582,7 +582,7 @@ static char * skip_token(char * s, int caseinsensitive)
    entirely comprised of spaces */
 static bool str2ul32(char * str, unsigned long * value)
 {
-	unsigned int n;
+	uint n;
 	char c;
 
 	if(str == NULL) {
@@ -816,10 +816,10 @@ static void slidebits(uchar * keybuf, uchar * inbuf)
 
 static int dec_3des(context_t * text,
     const char * input,
-    unsigned inputlen,
+    uint inputlen,
     uchar digest[16] __attribute__((unused)),
     char * output,
-    unsigned * outputlen)
+    uint * outputlen)
 {
 	des_context_t * c = (des_context_t*)text->cipher_dec_context;
 	int padding, p;
@@ -853,10 +853,10 @@ static int dec_3des(context_t * text,
 
 static int enc_3des(context_t * text,
     const char * input,
-    unsigned inputlen,
+    uint inputlen,
     uchar digest[16],
     char * output,
-    unsigned * outputlen)
+    uint * outputlen)
 {
 	des_context_t * c = (des_context_t*)text->cipher_enc_context;
 	int len;
@@ -926,10 +926,10 @@ static int init_3des(context_t * text, uchar enckey[16], uchar deckey[16])
 
 static int dec_des(context_t * text,
     const char * input,
-    unsigned inputlen,
+    uint inputlen,
     uchar digest[16] __attribute__((unused)),
     char * output,
-    unsigned * outputlen)
+    uint * outputlen)
 {
 	des_context_t * c = (des_context_t*)text->cipher_dec_context;
 	int p, padding = 0;
@@ -953,7 +953,7 @@ static int dec_des(context_t * text,
 	return SASL_OK;
 }
 
-static int enc_des(context_t * text, const char * input, unsigned inputlen, uchar digest[16], char * output, unsigned * outputlen)
+static int enc_des(context_t * text, const char * input, uint inputlen, uchar digest[16], char * output, uint * outputlen)
 {
 	des_context_t * c = (des_context_t*)text->cipher_enc_context;
 	int len;
@@ -1045,10 +1045,10 @@ static int init_rc4(context_t * text,
 
 static int dec_rc4(context_t * text,
     const char * input,
-    unsigned inputlen,
+    uint inputlen,
     uchar digest[16] __attribute__((unused)),
     char * output,
-    unsigned * outputlen)
+    uint * outputlen)
 {
 	int len;
 	int rc;
@@ -1075,10 +1075,10 @@ static int dec_rc4(context_t * text,
 
 static int enc_rc4(context_t * text,
     const char * input,
-    unsigned inputlen,
+    uint inputlen,
     uchar digest[16],
     char * output,
-    unsigned * outputlen)
+    uint * outputlen)
 {
 	int len;
 	int rc;
@@ -1146,7 +1146,7 @@ static void rc4_init(rc4_context_t * text,
 static void rc4_encrypt(rc4_context_t * text,
     const char * input,
     char * output,
-    unsigned len)
+    uint len)
 {
 	int tmp;
 	int i = text->i;
@@ -1177,7 +1177,7 @@ static void rc4_encrypt(rc4_context_t * text,
 	text->j = j;
 }
 
-static void rc4_decrypt(rc4_context_t * text, const char * input, char * output, unsigned len)
+static void rc4_decrypt(rc4_context_t * text, const char * input, char * output, uint len)
 {
 	int tmp;
 	int i = text->i;
@@ -1240,7 +1240,7 @@ static int init_rc4(context_t * text,
 	return SASL_OK;
 }
 
-static int dec_rc4(context_t * text, const char * input, unsigned inputlen, uchar digest[16] __attribute__((unused)), char * output, unsigned * outputlen)
+static int dec_rc4(context_t * text, const char * input, uint inputlen, uchar digest[16] __attribute__((unused)), char * output, uint * outputlen)
 {
 	/* decrypt the text part & HMAC */
 	rc4_decrypt((rc4_context_t*)text->cipher_dec_context,
@@ -1250,7 +1250,7 @@ static int dec_rc4(context_t * text, const char * input, unsigned inputlen, ucha
 	return SASL_OK;
 }
 
-static int enc_rc4(context_t * text, const char * input, unsigned inputlen, uchar digest[16], char * output, unsigned * outputlen)
+static int enc_rc4(context_t * text, const char * input, uint inputlen, uchar digest[16], char * output, uint * outputlen)
 {
 	/* pad is zero */
 	*outputlen = inputlen+10;
@@ -1337,11 +1337,11 @@ static int digestmd5_encode(void * context,
     const struct iovec * invec,
     unsigned numiov,
     const char ** output,
-    unsigned * outputlen)
+    uint * outputlen)
 {
 	context_t * text = (context_t*)context;
 	int tmp;
-	unsigned int tmpnum;
+	uint tmpnum;
 	unsigned short int tmpshort;
 	int ret;
 	char * out;
@@ -1436,9 +1436,9 @@ static int digestmd5_encode(void * context,
 
 static int digestmd5_decode_packet(void * context,
     const char * input,
-    unsigned inputlen,
+    uint inputlen,
     char ** output,
-    unsigned * outputlen)
+    uint * outputlen)
 {
 	context_t * text = (context_t*)context;
 	int result;
@@ -1446,7 +1446,7 @@ static int digestmd5_decode_packet(void * context,
 	int tmpnum;
 	int lup;
 	unsigned short ver;
-	unsigned int seqnum;
+	uint seqnum;
 	uchar checkdigest[16];
 
 	if(inputlen < 16) {
@@ -1522,8 +1522,8 @@ static int digestmd5_decode_packet(void * context,
 }
 
 static int digestmd5_decode(void * context,
-    const char * input, unsigned inputlen,
-    const char ** output, unsigned * outputlen)
+    const char * input, uint inputlen,
+    const char ** output, uint * outputlen)
 {
 	context_t * text = (context_t*)context;
 	int ret;
@@ -1669,7 +1669,7 @@ static void DigestCalcHA1FromSecret(context_t * text,
 static char * create_response(context_t * text,
     const sasl_utils_t * utils,
     uchar * nonce,
-    unsigned int ncvalue,
+    uint ncvalue,
     uchar * cnonce,
     char * qop,
     const sasl_http_request_t * request,
@@ -1778,7 +1778,7 @@ static int get_server_realm(sasl_server_params_t * params, char ** realm)
 /*
  * Convert hex string to int
  */
-static int htoi(uchar * hexin, unsigned int * res)
+static int htoi(uchar * hexin, uint * res)
 {
 	size_t lup;
 	size_t inlen = strlen((char *)hexin);
@@ -2050,7 +2050,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 	char           * authorization_id = NULL;
 	char           * realm = NULL;
 	uchar  * nonce = NULL, * cnonce = NULL;
-	unsigned int noncecount = 0;
+	uint noncecount = 0;
 	char           * qop = NULL;
 	char           * digesturi = NULL;
 	sasl_http_request_t rfc2831_request;
@@ -2063,7 +2063,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 
 	char           * charset = NULL;
 	char           * cipher = NULL;
-	unsigned int n = 0;
+	uint n = 0;
 
 	HASH Secret;
 	HASH SecretBogus;
@@ -2976,7 +2976,7 @@ int digestmd5_server_plug_init(const sasl_utils_t * utils, int maxversion, int *
 {
 	reauth_cache_t * reauth_cache;
 	const char * timeout = NULL;
-	unsigned int len;
+	uint len;
 	if(maxversion < SASL_SERVER_PLUG_VERSION) {
 		return SASL_BADVERS;
 	}
@@ -3027,7 +3027,7 @@ typedef struct client_context {
 	context_t common;
 
 	sasl_secret_t * password; /* user password */
-	unsigned int free_password; /* set if we need to free password */
+	uint free_password; /* set if we need to free password */
 
 	int protection;
 	struct digest_cipher * cipher;
@@ -3103,7 +3103,7 @@ static char * calculate_response(context_t * text,
     uchar * username,
     uchar * realm,
     uchar * nonce,
-    unsigned int ncvalue,
+    uint ncvalue,
     uchar * cnonce,
     char * qop,
     const sasl_http_request_t * request,

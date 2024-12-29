@@ -2156,7 +2156,7 @@ public:
 		CcD2MiiBlk.Lck.Unlock_();
 	}
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long extraData);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	struct CcDate2MaxIdIndex_Block { // @v11.7.4
@@ -2175,7 +2175,7 @@ CSessCache::CSessCache() : ObjCacheHash(PPOBJ_CSESSION, sizeof(Data), (1024*1024
 {
 }
 
-int CSessCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData)
+int CSessCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = -1;
 	PPObjCSession cs_obj;

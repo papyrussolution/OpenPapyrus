@@ -3618,7 +3618,7 @@ public:
 	int    GetSaSubst(PPID goodsID, RAssocArray & rList);
 private:
 	virtual void FASTCALL Dirty(PPID id);
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
 	struct D : public ObjCacheEntry {
@@ -3685,7 +3685,7 @@ int GoodsStrucCache::GetSaGiftList(SaGiftArray * pList, int clear)
 	return ok;
 }
 
-int GoodsStrucCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int GoodsStrucCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	D * p_cache_rec = static_cast<D *>(pEntry);

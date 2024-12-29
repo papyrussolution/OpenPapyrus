@@ -49,10 +49,7 @@ static canonuser_plug_list_t * canonuser_head = NULL;
  *                   null-terminate, and get into the outparams
  *                   (handled by INTERNAL plugin) */
 /* a zero ulen or alen indicates that it is strlen(value) */
-int _sasl_canon_user(sasl_conn_t * conn,
-    const char * user, uint ulen,
-    uint flags,
-    sasl_out_params_t * oparams)
+int _sasl_canon_user(sasl_conn_t * conn, const char * user, uint ulen, uint flags, sasl_out_params_t * oparams)
 {
 	canonuser_plug_list_t * ptr;
 	sasl_server_conn_t * sconn = NULL;
@@ -64,10 +61,8 @@ int _sasl_canon_user(sasl_conn_t * conn,
 	const char * plugin_name = NULL;
 	char * user_buf;
 	unsigned * lenp;
-
 	if(!conn) return SASL_BADPARAM;
 	if(!user || !oparams) return SASL_BADPARAM;
-
 	if(flags & SASL_CU_AUTHID) {
 		user_buf = conn->authid_buf;
 		lenp = &(oparams->alen);
@@ -94,20 +89,9 @@ int _sasl_canon_user(sasl_conn_t * conn,
 		(sasl_callback_ft*)&cuser_cb,
 		&context);
 	if(result == SASL_OK && cuser_cb) {
-		result = cuser_cb(conn,
-			context,
-			user,
-			ulen,
-			flags,
-			(sconn ?
-			sconn->user_realm :
-			NULL),
-			user_buf,
-			CANON_BUF_SIZE,
-			lenp);
-
+		result = cuser_cb(conn, context, user, ulen, flags, (sconn ? sconn->user_realm : NULL),
+			user_buf, CANON_BUF_SIZE, lenp);
 		if(result != SASL_OK) return result;
-
 		/* Point the input copy at the stored buffer */
 		user = user_buf;
 		ulen = *lenp;
@@ -182,16 +166,12 @@ int _sasl_canon_user(sasl_conn_t * conn,
 }
 
 /* Lookup all properties for authentication and/or authorization identity. */
-static int _sasl_auxprop_lookup_user_props(sasl_conn_t * conn,
-    uint flags,
-    sasl_out_params_t * oparams)
+static int _sasl_auxprop_lookup_user_props(sasl_conn_t * conn, uint flags, sasl_out_params_t * oparams)
 {
 	sasl_server_conn_t * sconn = NULL;
 	int result = SASL_OK;
-
 	if(!conn) return SASL_BADPARAM;
 	if(!oparams) return SASL_BADPARAM;
-
 #ifndef macintosh
 	if(conn->type == SASL_CONN_SERVER) sconn = (sasl_server_conn_t*)conn;
 
@@ -254,32 +234,18 @@ static int _sasl_auxprop_lookup_user_props(sasl_conn_t * conn,
  *
  *                   Server only: Also does auxprop lookups once username
  *                   is canonicalized. */
-int _sasl_canon_user_lookup(sasl_conn_t * conn,
-    const char * user,
-    uint ulen,
-    uint flags,
-    sasl_out_params_t * oparams)
+int _sasl_canon_user_lookup(sasl_conn_t * conn, const char * user, uint ulen, uint flags, sasl_out_params_t * oparams)
 {
-	int result;
-
-	result = _sasl_canon_user(conn,
-		user,
-		ulen,
-		flags,
-		oparams);
+	int result = _sasl_canon_user(conn, user, ulen, flags, oparams);
 	if(result == SASL_OK) {
-		result = _sasl_auxprop_lookup_user_props(conn,
-			flags,
-			oparams);
+		result = _sasl_auxprop_lookup_user_props(conn, flags, oparams);
 	}
-
 	RETURN(conn, result);
 }
 
 void _sasl_canonuser_free()
 {
 	canonuser_plug_list_t * ptr, * ptr_next;
-
 	for(ptr = canonuser_head; ptr; ptr = ptr_next) {
 		ptr_next = ptr->next;
 		if(ptr->plug->canon_user_free)
@@ -321,16 +287,13 @@ int sasl_canonuser_add_plugin(const char * plugname, sasl_canonuser_init_t * can
 	return SASL_OK;
 }
 
-#ifdef MIN
-#undef MIN
-#endif
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+//#ifdef MIN
+//#undef MIN
+//#endif
+//#define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
-static int _canonuser_internal(const sasl_utils_t * utils,
-    const char * user, uint ulen,
-    uint flags __attribute__((unused)),
-    char * out_user,
-    unsigned out_umax, unsigned * out_ulen)
+static int _canonuser_internal(const sasl_utils_t * utils, const char * user, uint ulen,
+    uint flags __attribute__((unused)), char * out_user, uint out_umax, uint * out_ulen)
 {
 	unsigned i;
 	char * in_buf, * userin;
@@ -387,14 +350,14 @@ static int _canonuser_internal(const sasl_utils_t * utils,
 }
 
 static int _cu_internal_server(void * glob_context __attribute__((unused)),
-    sasl_server_params_t * sparams, const char * user, uint ulen, uint flags, char * out_user, unsigned out_umax, unsigned * out_ulen)
+    sasl_server_params_t * sparams, const char * user, uint ulen, uint flags, char * out_user, uint out_umax, uint * out_ulen)
 {
 	return _canonuser_internal(sparams->utils, user, ulen, flags, out_user, out_umax, out_ulen);
 }
 
 static int _cu_internal_client(void * glob_context __attribute__((unused)),
     sasl_client_params_t * cparams, const char * user, uint ulen, uint flags,
-    char * out_user, unsigned out_umax, unsigned * out_ulen)
+    char * out_user, uint out_umax, uint * out_ulen)
 {
 	return _canonuser_internal(cparams->utils, user, ulen, flags, out_user, out_umax, out_ulen);
 }

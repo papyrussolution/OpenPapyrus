@@ -417,11 +417,11 @@ public:
 	{
 	}
 private:
-	virtual int  FetchEntry(PPID, ObjCacheEntry * pEntry, long);
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
 	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 };
 
-int AccSheetCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
+int AccSheetCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	AccSheetData * p_cache_rec = static_cast<AccSheetData *>(pEntry);

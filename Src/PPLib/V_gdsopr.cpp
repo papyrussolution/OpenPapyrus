@@ -3935,7 +3935,7 @@ void PPViewGoodsOpAnalyze::ViewTotal()
 			dlg_id = DLG_GDSOPRTOTALCMP;
 		}
 		else if(Filt.OpGrpID == GoodsOpAnalyzeFilt::ogMarketplaceSalesAnalyze) // @v12.1.11 
-			dlg_id = DLG_GDSOPRMPTOTAL; // @construction
+			dlg_id = DLG_GDSOPRMPTOTAL;
 		else
 			dlg_id = DLG_GDSOPRTOTAL;
 		AmtListDialog * dlg = new AmtListDialog(dlg_id, CTL_GDSOPRTOTAL_AMTLIST, 0, &Total.Amounts, 0, 0, 0);
