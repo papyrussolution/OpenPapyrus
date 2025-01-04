@@ -1,5 +1,5 @@
 // OBJPERSN.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -341,6 +341,11 @@ bool   FASTCALL PPObjPerson::ClientActivityStatistics::IsEq(const PPObjPerson::C
 	else if(!feqeps(GapDaysStdDev, rS.GapDaysStdDev, 1E-7))
 		eq = false;
 	return eq;
+}
+
+bool PPObjPerson::ClientActivityStatistics::IsDetermined() const
+{
+	return (PersonID > 0 && EventCount && checkdate(FirstEventDt) && checkdate(LastEventDt));
 }
 
 PPObjPerson::SrchAnalogPattern::SrchAnalogPattern(const char * pNamePattern, long flags) : NamePattern(pNamePattern), Flags(flags)
@@ -708,23 +713,35 @@ int ExtFieldsDialog::setupList()
 // @vmiller
 //
 class ClientActivityDetectionListDialog : public PPListDialog {
-	DECL_DIALOG_DATA(TSVector <PPPersonConfig::ClientActivityDetectionItem>);
+	DECL_DIALOG_DATA(PPPersonConfig);
 public:
-	ClientActivityDetectionListDialog() : PPListDialog(DLG_NEWCLNT, CTL_LBXSEL_LIST)
+	ClientActivityDetectionListDialog() : PPListDialog(DLG_NEWCLNT, CTL_NEWCLNT_LIST)
 	{
 		if(SmartListBox::IsValidS(P_Box))
 			P_Box->P_Def->SetOption(lbtFocNotify, 1);
-		selectCtrl(CTL_LBXSEL_LIST);
+		selectCtrl(CTL_NEWCLNT_LIST);
 	}
 	DECL_DIALOG_SETDTS()
 	{
 		if(!RVALUEPTR(Data, pData))
-			Data.clear();
+			Data.ClientActivityDetectionList.clear();
 		updateList(-1);
+		// @v12.2.2 {
+		setCtrlData(CTL_NEWCLNT_CRITCADD, &Data.CriticalCliActivityDelayDays);
+		setCtrlData(CTL_NEWCLNT_CRITCADS, &Data.CriticalCliActivityDelaySigm);
+		setCtrlData(CTL_NEWCLNT_HLCADD, &Data.HopelessCliActivityDelayDays);
+		setCtrlData(CTL_NEWCLNT_HLCADS, &Data.HopelessCliActivityDelaySigm);
+		// } @v12.2.2 
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()
 	{
+		// @v12.2.2 {
+		getCtrlData(CTL_NEWCLNT_CRITCADD, &Data.CriticalCliActivityDelayDays);
+		getCtrlData(CTL_NEWCLNT_CRITCADS, &Data.CriticalCliActivityDelaySigm);
+		getCtrlData(CTL_NEWCLNT_HLCADD, &Data.HopelessCliActivityDelayDays);
+		getCtrlData(CTL_NEWCLNT_HLCADS, &Data.HopelessCliActivityDelaySigm);
+		// } @v12.2.2 
 		ASSIGN_PTR(pData, Data);
 		return 1;
 	}
@@ -818,11 +835,11 @@ int ClientActivityDetectionListDialog::Edit(PPPersonConfig::ClientActivityDetect
 	int    item_found = 0;
 	// Через Search не сделать, потому что если в массиве и будут записи с одинаковыми ID, то
 	// поиск все равно будет возвращать только самую первую найденную запись
-	for(uint i = 0; (i < Data.getCount()) && !item_found; i++) {
-		if((Data.at(i).Oi.Id == pItem->Oi.Id) && ((Data.at(i).Oi.Obj == pItem->Oi.Obj)))
+	for(uint i = 0; (i < Data.ClientActivityDetectionList.getCount()) && !item_found; i++) {
+		if((Data.ClientActivityDetectionList.at(i).Oi.Id == pItem->Oi.Id) && ((Data.ClientActivityDetectionList.at(i).Oi.Obj == pItem->Oi.Obj)))
 			item_found = 1;
 	}
-	const int is_new = BIN(!item_found && Data.getCount());
+	const int is_new = BIN(!item_found && Data.ClientActivityDetectionList.getCount());
 	NewPersMarksFieldDialog * p_dlg = new NewPersMarksFieldDialog(is_new);
 	if(CheckDialogPtrErr(&p_dlg) > 0) {
 		p_dlg->setDTS(pItem);
@@ -831,8 +848,8 @@ int ClientActivityDetectionListDialog::Edit(PPPersonConfig::ClientActivityDetect
 			if(p_dlg->getDTS(pItem))
 				if(is_new) {
 					item_found = 0;
-					for(uint i = 0; (i < Data.getCount()) && !item_found; i++) {
-						if((Data.at(i).Oi.Id == pItem->Oi.Id) && ((Data.at(i).Oi.Obj == pItem->Oi.Obj)))
+					for(uint i = 0; (i < Data.ClientActivityDetectionList.getCount()) && !item_found; i++) {
+						if((Data.ClientActivityDetectionList.at(i).Oi.Id == pItem->Oi.Id) && ((Data.ClientActivityDetectionList.at(i).Oi.Obj == pItem->Oi.Obj)))
 							item_found = 1;
 					}
 					if(item_found)
@@ -858,9 +875,9 @@ int ClientActivityDetectionListDialog::addItem(long * pPos, long * pID)
 	PPPersonConfig::ClientActivityDetectionItem item;
 	SString op_kind_name;
 	if(Edit(&item, op_kind_name) > 0) {
-		if(Data.insert(&item)) {
-			assert(Data.getCount() > 0);
-			ASSIGN_PTR(pPos, (Data.getCountI() - 1));
+		if(Data.ClientActivityDetectionList.insert(&item)) {
+			assert(Data.ClientActivityDetectionList.getCount() > 0);
+			ASSIGN_PTR(pPos, (Data.ClientActivityDetectionList.getCountI() - 1));
 			ASSIGN_PTR(pID, item.Oi.Id);
 			ok = 1;
 		}
@@ -873,12 +890,12 @@ int ClientActivityDetectionListDialog::addItem(long * pPos, long * pID)
 int ClientActivityDetectionListDialog::editItem(long pos, long id)
 {
 	SString str;
-	return (pos >= 0 && pos < Data.getCountI()) ? Edit(&Data.at(pos), str) : -1;
+	return (pos >= 0 && pos < Data.ClientActivityDetectionList.getCountI()) ? Edit(&Data.ClientActivityDetectionList.at(pos), str) : -1;
 }
 
 int ClientActivityDetectionListDialog::delItem(long pos, long id)
 {
-	return Data.atFree(pos);
+	return Data.ClientActivityDetectionList.atFree(pos);
 }
 
 int ClientActivityDetectionListDialog::setupList()
@@ -887,15 +904,16 @@ int ClientActivityDetectionListDialog::setupList()
 	PPObjPsnOpKind pok_obj;
 	SString title_line_buf, title_item_buf, title_id_buf, title_txt_buf, temp_buf;
 	PPLoadText(PPTXT_NEWCLNT_TRANSTYPE, title_line_buf);
-	for(uint i = 0; ok && i < Data.getCount(); i++) {
+	for(uint i = 0; ok && i < Data.ClientActivityDetectionList.getCount(); i++) {
 		StringSet ss(SLBColumnDelim);
-		PPObjID item = Data.at(i).Oi;
+		PPObjID item = Data.ClientActivityDetectionList.at(i).Oi;
 		temp_buf.Z();
-		for(uint idx = 0; PPGetSubStr(title_line_buf, idx, title_item_buf) > 0; idx++)
+		for(uint idx = 0; PPGetSubStr(title_line_buf, idx, title_item_buf) > 0; idx++) {
 			if(title_item_buf.Divide(',', title_id_buf, title_txt_buf) > 0 && title_id_buf.ToLong() == item.Obj) {
 				temp_buf = title_txt_buf;
 				break;
 			}
+		}
 		if(temp_buf.IsEmpty())
 			temp_buf.CatChar('#').Cat("OBJ").Space().Cat(item.Obj);
 		ss.add(temp_buf);
@@ -1020,9 +1038,9 @@ void PPPersonConfig::Init()
 			else if(event.isCmd(cmNewPersnMarks)) {
 				ClientActivityDetectionListDialog * p_dlg = new ClientActivityDetectionListDialog;
 				if(CheckDialogPtrErr(&p_dlg) > 0) {
-					p_dlg->setDTS(&Data.ClientActivityDetectionList);
+					p_dlg->setDTS(&Data);
 					for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
-						if(p_dlg->getDTS(&Data.ClientActivityDetectionList) > 0)
+						if(p_dlg->getDTS(&Data) > 0)
 							valid_data = 1;
 						else
 							PPError();
@@ -6529,6 +6547,7 @@ public:
 	}
 	virtual void FASTCALL Dirty(PPID id); // @sync_w
 	int    FetchCas(PPID id, PPObjPerson::ClientActivityStatistics * pCas) { return CasCache.Get(id, pCas); } // @sync_w
+	int    FetchActivityDateList(PPID id, TSVector <LDATE> & rDateList) { return CasCache.GetActivityDateList(id, rDateList); } // @sync_w
 	int    GetConfig(PPPersonConfig * pCfg, int enforce);
 private:
 	class CliActivityStatCache : public ObjCacheHash { // @v12.2.2 @construction
@@ -6594,7 +6613,7 @@ private:
 								assert(p_adl_item); // @paranoic
 								if(p_adl_item) { // @paranoic
 									for(uint i = 0; i < p_adl_item->DateList.getCount(); i++) {
-										LDATE dt = plusdate(data_rec.FirstEventDt, p_adl_item->DateList.at(i));
+										const LDATE dt = plusdate(data_rec.FirstEventDt, p_adl_item->DateList.at(i));
 										if(checkdate(dt)) {
 											rDateList.insert(&dt);
 										}
@@ -6762,6 +6781,33 @@ int PPObjPerson::FetchCas(PPID id, ClientActivityStatistics * pCas)
 	else {
 		if(pCas)
 			ok = ReadClientActivityStatistics(id, *pCas, 0);
+	}
+	if(ok > 0 && pCas) {
+		pCas->PersonID = id;
+	}
+	return ok;
+}
+
+int PPObjPerson::FetchClientActivityDateList(PPID id, TSVector <LDATE> & rDateList)
+{
+	int    ok = 0;
+	PersonCache * p_cache = GetDbLocalCachePtr <PersonCache> (PPOBJ_PERSON);
+	if(p_cache) {
+		ok = p_cache->FetchActivityDateList(id, rDateList);
+	}
+	else {
+		rDateList.clear();
+		ClientActivityStatistics cas;
+		TSVector <uint16> date_list_;
+		ok = ReadClientActivityStatistics(id, cas, &date_list_);
+		if(date_list_.getCount() && checkdate(cas.FirstEventDt)) {
+			for(uint i = 0; i < date_list_.getCount(); i++) {
+				const LDATE dt = plusdate(cas.FirstEventDt, date_list_.at(i));
+				if(checkdate(dt)) {
+					rDateList.insert(&dt);
+				}
+			}			
+		}
 	}
 	return ok;
 }
@@ -8121,6 +8167,98 @@ void PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 			logger.LogLastError();
     }
     return ok;
+}
+//
+//
+//
+int PPObjPerson::IdentifyClientActivityState(ClientActivityState & rParam)
+{
+	int    ok = -1;
+	rParam.State = 0;
+	if(rParam.PersonID) {
+		const LDATE now_date = getcurdate_();
+		LDATE actual_date;
+		bool  use_current_state = false;
+		if(checkdate(rParam.ActualDate) && rParam.ActualDate != now_date) {
+			actual_date = rParam.ActualDate;
+			use_current_state = false;
+		}
+		else {
+			actual_date = now_date;
+			use_current_state = true;
+		}
+		ClientActivityStatistics cas;
+		if(FetchCas(rParam.PersonID, &cas) > 0) {
+			if(cas.IsDetermined()) {
+				ok = 1;
+				if(cas.FirstEventDt <= actual_date) {
+					LDATE last_ev_date = ZERODATE;
+					if(use_current_state) {
+						last_ev_date = cas.LastEventDt;
+					}
+					else {
+						TSVector <LDATE> date_list;
+						if(FetchClientActivityDateList(rParam.PersonID, date_list) > 0) {
+							uint didx = date_list.getCount();
+							if(didx) {
+								do {
+									const LDATE _d = date_list.at(--didx);
+									assert(checkdate(_d));
+									if(checkdate(_d)) {
+										if(_d <= actual_date)
+											last_ev_date = _d;
+									}
+								} while(didx && !last_ev_date);
+							}
+						}
+					}
+					if(checkdate(last_ev_date)) {
+						const long delay_days = diffdate(actual_date, last_ev_date);
+						const PPPersonConfig & r_cfg = GetConfig();
+						if(r_cfg.HopelessCliActivityDelayDays > 0) {
+							if(delay_days >= static_cast<long>(r_cfg.HopelessCliActivityDelayDays))
+								rParam.State = ClientActivityState::stHopelesslyDelayedTa;
+						}
+						else if(r_cfg.HopelessCliActivityDelaySigm > 0 && cas.GapDaysStdDev != 0.0f) {
+							if(delay_days >= fabs(r_cfg.HopelessCliActivityDelaySigm * cas.GapDaysStdDev))
+								rParam.State = ClientActivityState::stHopelesslyDelayedTa;
+						}
+						if(rParam.State != ClientActivityState::stHopelesslyDelayedTa) {
+							if(r_cfg.CriticalCliActivityDelayDays > 0) {
+								if(delay_days >= static_cast<long>(r_cfg.CriticalCliActivityDelayDays))
+									rParam.State = ClientActivityState::stDelayedTa;
+							}
+							else if(r_cfg.CriticalCliActivityDelaySigm > 0 && cas.GapDaysStdDev != 0.0f) {
+								if(delay_days >= fabs(r_cfg.CriticalCliActivityDelaySigm * cas.GapDaysStdDev))
+									rParam.State = ClientActivityState::stDelayedTa;
+							}
+						}
+						if(!oneof2(rParam.State, ClientActivityState::stDelayedTa, ClientActivityState::stHopelesslyDelayedTa)) {
+							rParam.State = ClientActivityState::stRegularTa;
+						}
+					}
+					else 
+						rParam.State = ClientActivityState::stNoData;
+				}
+				else
+					rParam.State = ClientActivityState::stNoData;
+				{
+					if(!rParam.NewCliPeriod.IsZero()) {
+						DateRange ncp(rParam.NewCliPeriod);
+						ncp.Actualize(actual_date);
+						if(ncp.CheckDate(cas.FirstEventDt)) {
+							rParam.State |= ClientActivityState::stfNewClient;
+						}
+					}
+				}
+			}
+			else
+				rParam.State = ClientActivityState::stNoData;
+		}
+		else
+			rParam.State = ClientActivityState::stNoData;
+	}
+	return ok;
 }
 //
 //

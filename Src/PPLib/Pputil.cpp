@@ -1,5 +1,5 @@
 // PPUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -877,8 +877,7 @@ int FASTCALL GetLocationName(PPID locID, SString & rBuf)
 {
 	int    ok = -1;
 	//
-	// Если BillObj == 0, то PPObjLocation::Fetch
-	// пытается обратиться к нему и завешивает систему
+	// Если BillObj == 0, то PPObjLocation::Fetch пытается обратиться к нему и завешивает систему
 	//
 	if(BillObj) {
 		PPObjLocation loc_obj;
@@ -977,8 +976,9 @@ int FASTCALL CheckFiltID(PPID flt, PPID id) { return (!flt || flt == id); }
 
 char * FASTCALL QttyToStr(double qtty, double upp, long fmt, char * buf, int noabs)
 {
-	uint   f = SFMTFLAG(fmt);
-	double ipart, fract;
+	const  uint f = SFMTFLAG(fmt);
+	double ipart;
+	double fract;
 	int    sign = 0;
 	if(qtty < 0.0) {
 		sign = 1;
@@ -1054,29 +1054,7 @@ PPSymbTranslator::PPSymbTranslator(uint strID /*=PPSSYM_SYMB*/) : ErrorCode(0)
 		ErrorCode = PPErrCode;
 }
 
-int PPSymbTranslator::operator !() const
-{
-	return ErrorCode ? (PPErrCode = ErrorCode, 1) : 0;
-}
-
-/*
-static char * nextStr(const char * pColl, size_t * pPos, char * pBuf)
-{
-	size_t p = *pPos;
-	if(pColl[p]) {
-		char * b = pBuf;
-		while(pColl[p] != 0 && pColl[p] != ';')
-			*b++ = pColl[p++];
-		*b = 0;
-		if(pColl[p])
-			p++;
-		*pPos = p;
-		return pBuf;
-	}
-	else
-		return 0;
-}
-*/
+bool PPSymbTranslator::operator !() const { return ErrorCode ? (PPErrCode = ErrorCode, true) : false; }
 
 char * PPSymbTranslator::NextStr(size_t * pPos, char * pBuf) const
 {
@@ -1244,11 +1222,7 @@ int DateIter::Advance(LDATE d, long o)
 	return IsEnd() ? -1 : 1;
 }
 
-int DateIter::IsEnd() const
-{
-	return (end && dt > end);
-}
-
+bool DateIter::IsEnd() const { return (end && dt > end); }
 int FASTCALL DateIter::Cmp(const DateIter & rS) const { RET_CMPCASCADE2(this, &rS, dt, oprno); }
 //
 // Loading DBF structure from resource

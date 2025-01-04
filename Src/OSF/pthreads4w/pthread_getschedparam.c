@@ -1,10 +1,6 @@
 /*
  * sched_getschedparam.c
- *
- * Description:
- * POSIX thread functions that deal with thread scheduling.
- *
- * --------------------------------------------------------------------------
+ * Description: POSIX thread functions that deal with thread scheduling.
  *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom

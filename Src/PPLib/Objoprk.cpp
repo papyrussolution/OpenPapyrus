@@ -3337,8 +3337,9 @@ int FASTCALL CheckOpPrnFlags(PPID op, long andF)
 int FASTCALL EnumOperations(PPID opTypeID, PPID * pID, PPOprKind * pOpData)
 {
 	int    r;
+	Reference * p_ref = PPRef;
 	PPOprKind op_rec;
-	while((r = PPRef->EnumItems(PPOBJ_OPRKIND, pID, &op_rec)) > 0) {
+	while((r = p_ref->EnumItems(PPOBJ_OPRKIND, pID, &op_rec)) > 0) {
 		if(!opTypeID || op_rec.OpTypeID == opTypeID) {
 			if(pOpData)
 				memcpy(pOpData, &op_rec, sizeof(PPOprKind));

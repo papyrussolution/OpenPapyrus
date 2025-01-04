@@ -1,6 +1,6 @@
 // PPARRAY.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
-// @codepage UTF-8 // @v10.4.5
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -517,13 +517,11 @@ int ObjIdListFilt::Remove(PPID id, int binary /*= 0 */)
 	return (Search(id, &p, binary) > 0) ? P_List->atFree(p) : -1;
 }
 
-int ObjIdListFilt::RemoveByIdx(uint idx)
-	{ return (P_List && idx < P_List->getCount()) ? P_List->atFree(idx) : 0; }
-ObjIdListFilt & ObjIdListFilt::Z() { CALLPTRMEMB(P_List, Z()); return *this; } // @v10.6.8 FreeAll-->Z freeAll()-->Z()
-int ObjIdListFilt::Sort() { return P_List ? (P_List->sort(), 1) : -1; }
+int  ObjIdListFilt::RemoveByIdx(uint idx) { return (P_List && idx < P_List->getCount()) ? P_List->atFree(idx) : 0; }
+ObjIdListFilt & ObjIdListFilt::Z() { CALLPTRMEMB(P_List, Z()); return *this; }
+int  ObjIdListFilt::Sort() { return P_List ? (P_List->sort(), 1) : -1; }
 uint ObjIdListFilt::GetCount() const { return SVectorBase::GetCount(P_List); }
-int ObjIdListFilt::Search(PPID id, uint * pPos, int binary) const
-	{ return P_List ? (binary ? P_List->bsearch(id, pPos) : P_List->lsearch(id, pPos)) : 0; }
+int  ObjIdListFilt::Search(PPID id, uint * pPos, int binary) const { return P_List ? (binary ? P_List->bsearch(id, pPos) : P_List->lsearch(id, pPos)) : 0; }
 
 int ObjIdListFilt::Intersect(const ObjIdListFilt * pList, int binary /*=0*/)
 {

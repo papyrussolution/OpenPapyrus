@@ -1,5 +1,5 @@
 // GDS2OBJA.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 // Список соответствий Товар(Группа товаров) - Объект
@@ -79,12 +79,9 @@ int GoodsToObjAssoc::Update(PPID goodsID, PPID objID, uint * pPos)
 }
 #endif // } 0
 
-int GoodsToObjAssoc::SearchPair(PPID goodsID, PPID objID, uint * pPos) const
-	{ return List.SearchPair(goodsID, objID, pPos); }
-int GoodsToObjAssoc::Search(PPID goodsID, PPID * pObjID, uint * pPos) const
-	{ return List.Search(goodsID, pObjID, pPos); }
-int GoodsToObjAssoc::GetListByObj(PPID objID, PPIDArray & rGoodsList) const
-	{ return List.GetListByVal(objID, rGoodsList); }
+int GoodsToObjAssoc::SearchPair(PPID goodsID, PPID objID, uint * pPos) const { return List.SearchPair(goodsID, objID, pPos); }
+int GoodsToObjAssoc::Search(PPID goodsID, PPID * pObjID, uint * pPos) const { return List.Search(goodsID, pObjID, pPos); }
+int GoodsToObjAssoc::GetListByObj(PPID objID, PPIDArray & rGoodsList) const { return List.GetListByVal(objID, rGoodsList); }
 
 int GoodsToObjAssoc::UpdateByPos(uint pos, PPID goodsID, PPID objID)
 {

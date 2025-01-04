@@ -1,5 +1,5 @@
 // MRP.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -947,20 +947,9 @@ PPObjMrpTab::~PPObjMrpTab()
 	TLP_CLOSE(P_Tbl);
 }
 
-int PPObjMrpTab::Search(PPID id, void * pRec)
-{
-	return P_Tbl->Search(id, (MrpTabTbl::Rec *)pRec);
-}
-
-/*virtual*/const char * PPObjMrpTab::GetNamePtr() 
-{ 
-	return P_Tbl->data.Name; 
-}
-
-int PPObjMrpTab::DeleteObj(PPID id)
-{
-	return P_Tbl->Remove(id, 0);
-}
+int PPObjMrpTab::Search(PPID id, void * pRec) { return P_Tbl->Search(id, (MrpTabTbl::Rec *)pRec); }
+/*virtual*/const char * PPObjMrpTab::GetNamePtr() { return P_Tbl->data.Name; }
+int PPObjMrpTab::DeleteObj(PPID id) { return P_Tbl->Remove(id, 0); }
 
 int PPObjMrpTab::SetupLinkObjTypeCombo(TDialog * dlg, uint ctlID, PPID initObjType)
 {

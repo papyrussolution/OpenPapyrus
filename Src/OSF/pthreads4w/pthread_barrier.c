@@ -1,10 +1,7 @@
 // pthread_barrier.c 
 //
 /*
- * Description:
- * This translation unit implements barrier primitives.
- *
- * --------------------------------------------------------------------------
+ * Description: This translation unit implements barrier primitives.
  *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom

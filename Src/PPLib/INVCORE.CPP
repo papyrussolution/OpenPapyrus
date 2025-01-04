@@ -1,5 +1,5 @@
 // INVCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2021
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2021, 2025
 // @Kernel
 //
 #include <pp.h>
@@ -27,10 +27,7 @@ int InventoryCore::_Search(PPID id, long * oprno, int sp, void * b)
 	return PPDbSearchError();
 }
 
-int InventoryCore::Search(PPID id, long oprno, void * b)
-{
-	return _Search(id, &oprno, spEq, b);
-}
+int InventoryCore::Search(PPID id, long oprno, void * b) { return _Search(id, &oprno, spEq, b); }
 
 int InventoryCore::InitEnum(PPID billID, long * pHandle)
 {
@@ -43,10 +40,8 @@ int InventoryCore::InitEnum(PPID billID, long * pHandle)
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
-int InventoryCore::NextEnum(long enumHandle, void * pRec)
-	{ return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1; }
-int InventoryCore::DestroyIter(long enumHandle)
-	{ return EnumList.DestroyIterHandler(enumHandle); }
+int InventoryCore::NextEnum(long enumHandle, void * pRec) { return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1; }
+int InventoryCore::DestroyIter(long enumHandle) { return EnumList.DestroyIterHandler(enumHandle); }
 
 SEnum::Imp * InventoryCore::Enum(PPID billID)
 {
@@ -85,10 +80,7 @@ int InventoryCore::SearchIdentical(PPID billID, PPID goodsID, const char * pSeri
 	return SearchByKey(this, 1, &k, pRec);
 }
 
-int InventoryCore::Remove(PPID id, int use_ta)
-{
-	return deleteFrom(this, use_ta, this->BillID == id) ? 1 : PPSetErrorDB();
-}
+int InventoryCore::Remove(PPID id, int use_ta) { return deleteFrom(this, use_ta, this->BillID == id) ? 1 : PPSetErrorDB(); }
 
 int InventoryCore::CalcDiff(InventoryTbl::Rec * pRec)
 {

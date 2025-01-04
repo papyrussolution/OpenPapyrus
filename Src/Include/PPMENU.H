@@ -1,5 +1,5 @@
 // PPMENU.H
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024, 2025
 // @codepage UTF-8
 // Константы команд меню проекта Papyrus
 //
@@ -52,7 +52,7 @@
 #define cmCorrectBillPaym              147 // Корректировка сумм оплат по документу
 #define cmSupplTrnovr                  148 // Обороты по поставщикам
 #define cmSellTrnovr                   149 // Обороты по покупателям
-#define cmGoodsGrpRlz                  150 // (obsolete since @v2.9.11) Реализация по группам товаров
+// @v12.2.2 #define cmGoodsGrpRlz                  150 // (obsolete since @v2.9.11) Реализация по группам товаров
 #define cmGoodsTaxAnalyze              150 // Налоговый анализ товарооборота
 #define cmGoodsMov                     151 // Движение товаров
 #define cmGoodsOprGrouping             152 // Группировка товарных операций
@@ -382,161 +382,161 @@
 #define cmDebtorStat                   489 // Статистика по дебиторам
 #define cmDebtorStatCfg                490 // Конфигурация статистики дебиторов
 #define cmUpdatePpIni                  491 // Изменение параметров файла bin\pp.ini посредством транспортного файла pp_upd.ini
-#define cmGotoSite                     492 // @v6.0.7  Перейти на сайт фирмы Петроглиф
-#define cmGenerateCliBnkImport         493 // @v6.0.9 Генерация платежей для импорта из клиент-банк
-#define cmLocTransf                    494 // @v6.1.0 Складские операции
-#define cmLocationCfg                  495 // @v6.1.0 Конфигурация локаций
-#define cmWmsBillList                  496 // @v6.1.1 Документы складских операций
-#define cmViewBBoard                   497 // @v6.1.x Информация о запущенных задачах на Job сервере
-#define cmSumByDivision                498 // @v6.1.x Быстрое редактирование типов сумм и календарей в привязке к штатным подразделениям.
-#define cmDivisionBySum                499 // @v6.1.x Быстрый просмотр штатных подразделений в привязке к типам сумм и календарям.
-#define cmLogin                        500 // @v6.1.10 Вход в систему
-#define cmDBMaintenance                501 // @v6.1.10 Обслуживание базы данных
-#define cmDBExit                       502 // @v6.1.10 Выход из системы
-#define cmGoodsExpImpParams            503 // @v6.1.12 Конфигурация импорта/экспорта товаров
-#define cmImportGoodsOld               504 // @v6.1.12 Импорт товаров (по устаревшей технологии)
-#define cmImportTodoFromVCal           505 // @v6.2.x  Импорт задач из vCalendar/iCalendar
-#define cmVerifyAllCRpt                506 // @v6.2.8  Верификация всех отчетов
-//#define cmEditImpExpCfgs               507 // @v6.3.0  Конфигурации импорта/экспорта
-#define cmImpExpListConfig             507 // @v6.3.0  Списочные конфигурации импорта/экспорта
-#define cmTransport                    508 // @v6.3.x  Транспортные средства (PPView)
-#define cmLotTag                       509 // @v6.3.x  Теги лотов
-#define cmPrivateBasket                510 // @v6.4.0  Показать приватную корзину
-#define cmReplaceLikeWorld             511 // @v6.3.x  Объединение похожих географических объектов
-#define cmSendBillsByFilt              512 // @v6.4.2  Передать документы с фильтрацией
-#define cmSearchDlvrAddr               514 // @v6.4.8  Поиск адреса доставки по коду или ид.
-#define cmGoodsValRestr                515 // @v6.4.10 Ограничения товарных величин PPOBJ_GOODSVALRESTR
-#define cmPrjTask_ByReminder           516 // @v6.4.15 Показать невыполненые задачи за определенный промежуток дней (указывается в настроках) (вызывается по двойному щелчку мыши из окна статуса)
-#define cmCreateTechSess               517 // @v6.5.1  Создание технологической сессии
-#define cmConstructionTest             518 // @v6.5.2  Специальная команда для отладки разрабатываемых модулей
-#define cmSCardPane                    519 // @v6.5.4  Панель информации о дисконтных картах
-#define cmCreateDraftBySupplOrder      520 // @v6.5.6  Создание драфт документов на основе заказа поставщику
-#define cmAccBudget                    521 // @v6.5.14 Бюджетные счета
-#define cmBudgeting                    522 // @v6.5.14 Бюджетирование
-#define cmViewBizScTempl               523 // @v6.6.8  Шаблоны бизнес-показателей
-#define cmBizScValByTempl              524 // @v6.6.8  Просмотр бизнес-показателей по шаблону
-#define cmRecalcLotCurRest             525 // @v6.6.9  Пересчет остатков по лотам
-#define cmViewCheckOpJ                 526 // @v6.6.10 Журнал чековых операций
-#define cmPallet                       527 // @v6.7.0  Справочник паллет
-#define cmCTblOrdCreate                528 // @v6.7.7  Создание заказа стола в ресторане
-#define cmReplaceDynamicObj            529 // @v6.7.12 Объединение динамических объектов
-#define cmBillTag                      530 // @v6.8.4  Теги документов
-#define cmCTblOrdTimeGraph             531 // @v6.8.5  Временная диаграмма заказов столов
-#define cmSearchBillByCtx              532 // @v6.8.7  Поиск документа по контексту
-#define cmSetupPreferredBarcodeTags    533 // @v6.8.8  Автоматически устанавливает признаки предпочтительных штрихкодов
-#define cmStockOpt                     534 // @v6.8.11
-#define cmStockOptCfg                  535 // @v6.8.11
-#define cmRFIDDevice                   536 // @v6.8.x  RFID-устройства
-#define cmReplacePersonCat             537 // @v6.9.0  Объединение категорий персоналий
-#define cmViewDialog                   538 // @v6.9.9  Диалоги
-#define cmDebtDim                      539 // @v6.x.x
-#define cmGoodsTag                     540 // @v7.0.x  Теги товаров
+#define cmGotoSite                     492 // Перейти на сайт фирмы Петроглиф
+#define cmGenerateCliBnkImport         493 // Генерация платежей для импорта из клиент-банк
+#define cmLocTransf                    494 // Складские операции
+#define cmLocationCfg                  495 // Конфигурация локаций
+#define cmWmsBillList                  496 // Документы складских операций
+#define cmViewBBoard                   497 // Информация о запущенных задачах на Job сервере
+#define cmSumByDivision                498 // Быстрое редактирование типов сумм и календарей в привязке к штатным подразделениям.
+#define cmDivisionBySum                499 // Быстрый просмотр штатных подразделений в привязке к типам сумм и календарям.
+#define cmLogin                        500 // Вход в систему
+#define cmDBMaintenance                501 // Обслуживание базы данных
+#define cmDBExit                       502 // Выход из системы
+#define cmGoodsExpImpParams            503 // Конфигурация импорта/экспорта товаров
+#define cmImportGoodsOld               504 // Импорт товаров (по устаревшей технологии)
+#define cmImportTodoFromVCal           505 // Импорт задач из vCalendar/iCalendar
+#define cmVerifyAllCRpt                506 // Верификация всех отчетов
+//#define cmEditImpExpCfgs               507 // Конфигурации импорта/экспорта
+#define cmImpExpListConfig             507 // Списочные конфигурации импорта/экспорта
+#define cmTransport                    508 // Транспортные средства (PPView)
+#define cmLotTag                       509 // Теги лотов
+#define cmPrivateBasket                510 // Показать приватную корзину
+#define cmReplaceLikeWorld             511 // Объединение похожих географических объектов
+#define cmSendBillsByFilt              512 // Передать документы с фильтрацией
+#define cmSearchDlvrAddr               514 // Поиск адреса доставки по коду или ид.
+#define cmGoodsValRestr                515 // Ограничения товарных величин PPOBJ_GOODSVALRESTR
+#define cmPrjTask_ByReminder           516 // Показать невыполненые задачи за определенный промежуток дней (указывается в настроках) (вызывается по двойному щелчку мыши из окна статуса)
+#define cmCreateTechSess               517 // Создание технологической сессии
+#define cmConstructionTest             518 // Специальная команда для отладки разрабатываемых модулей
+#define cmSCardPane                    519 // Панель информации о дисконтных картах
+#define cmCreateDraftBySupplOrder      520 // Создание драфт документов на основе заказа поставщику
+#define cmAccBudget                    521 // Бюджетные счета
+#define cmBudgeting                    522 // Бюджетирование
+#define cmViewBizScTempl               523 // Шаблоны бизнес-показателей
+#define cmBizScValByTempl              524 // Просмотр бизнес-показателей по шаблону
+#define cmRecalcLotCurRest             525 // Пересчет остатков по лотам
+#define cmViewCheckOpJ                 526 // Журнал чековых операций
+#define cmPallet                       527 // Справочник паллет
+#define cmCTblOrdCreate                528 // Создание заказа стола в ресторане
+#define cmReplaceDynamicObj            529 // Объединение динамических объектов
+#define cmBillTag                      530 // Теги документов
+#define cmCTblOrdTimeGraph             531 // Временная диаграмма заказов столов
+#define cmSearchBillByCtx              532 // Поиск документа по контексту
+#define cmSetupPreferredBarcodeTags    533 // Автоматически устанавливает признаки предпочтительных штрихкодов
+#define cmStockOpt                     534 //
+#define cmStockOptCfg                  535 //
+#define cmRFIDDevice                   536 // RFID-устройства
+#define cmReplacePersonCat             537 // Объединение категорий персоналий
+#define cmViewDialog                   538 // Диалоги
+#define cmDebtDim                      539 //
+#define cmGoodsTag                     540 // Теги товаров
 #define cmFiltPool                     541 // @paul pentaho фильтры
-#define cmConvertQuot720               542 // @v7.1.12 Конвертация котировок
-#define cmEventToken                   543 // @v7.2.1 Событийные метки
-#define cmGlobalUserAccTag             544 // @v7.2.2 Теги глобальных учетных записей
-#define cmReplaceBrand                 545 // @v7.2.4 Объединение брэндов
+#define cmConvertQuot720               542 // Конвертация котировок
+#define cmEventToken                   543 // Событийные метки
+#define cmGlobalUserAccTag             544 // Теги глобальных учетных записей
+#define cmReplaceBrand                 545 // Объединение брэндов
 #define cmSmsAccount                   546 // Учетные записи смс-клиентов
-#define cmSpecSeries                   547 // @v7.3.0 Специальные серии
-#define cmPhoneService                 548 // @v7.3.1 Справочник телефонных сервисов
-#define cmImportPhoneList              549 // @v7.3.3 Импорт телефонного справочника
-#define cmEditSmsAcc                   550 // @v7.3.3
-#define cmIndexPhones                  551 // @v7.3.3 Индексация телефонов из персоналий и из адресов.
-#define cmCvtQCert                     552 // @v7.x.x Конвертация сертификатов качества в теги лотов (для лэнда)
-#define cmGtaJournal                   553 // @v7.3.9 Просмотр журнала тарифицируемых операций глобальных аккаунтов
-#define cmSCardOp                      554 // @v7.3.9 Просмотр операций по дисконтным картам
+#define cmSpecSeries                   547 // Специальные серии лотов (применяется для идентификации 'недопустимых' серий лекарств)
+#define cmPhoneService                 548 // Справочник телефонных сервисов
+#define cmImportPhoneList              549 // Импорт телефонного справочника
+#define cmEditSmsAcc                   550 // 
+#define cmIndexPhones                  551 // Индексация телефонов из персоналий и из адресов.
+// @v12.2.2 #define cmCvtQCert                     552 // Конвертация сертификатов качества в теги лотов (для лэнда)
+#define cmGtaJournal                   553 // Просмотр журнала тарифицируемых операций глобальных аккаунтов
+#define cmSCardOp                      554 // Просмотр операций по дисконтным картам
 #define cmImportSCard2                 555 // Импорт дисконтных карт
-#define cmGlobalAccCfg                 556 // @v7.4.7 Конфигурация глобальных учетных записей
-#define cmCorrectTrfrIntrUnite         557 // @v7.4.10 Корректировка ошибочных объединений документов внутренней передачи
-#define cmTestPredictSalesTbl          558 // @v7.5.1 Тестирование таблицы продаж
-#define cmUhttStore                    559 // @v7.6.1 Интернет магазины Universe-HTT
-#define cmUhttStoreTag                 560 // @v7.6.1 Теги интернет магазинов Universe-HTT
-#define cmConvertBillUUID7601          561 // @v7.6.1 Конвертация атрибутов документов UUID
-#define cmImportPerson2                562 // @v7.6.1 Импорт справочника персоналий
-#define cmExportGoodsRestUhtt          563 // @v7.6.3 "кспорт цен и товарных остатков в Universe-HTT
-#define cmLotPacking                   564 // @v7.6.4 Упаковка лотов
-#define cmCorrectCCheckLine01          565 // @v7.6.6 Корректировка проблемы строк чеков 01
-#define cmTextBrowserTest              566 // @v7.6.x Текстовый редактор тест
+#define cmGlobalAccCfg                 556 // Конфигурация глобальных учетных записей
+#define cmCorrectTrfrIntrUnite         557 // Корректировка ошибочных объединений документов внутренней передачи
+#define cmTestPredictSalesTbl          558 // Тестирование таблицы продаж
+#define cmUhttStore                    559 // Интернет магазины Universe-HTT
+#define cmUhttStoreTag                 560 // Теги интернет магазинов Universe-HTT
+#define cmConvertBillUUID7601          561 // Конвертация атрибутов документов UUID
+#define cmImportPerson2                562 // Импорт справочника персоналий
+#define cmExportGoodsRestUhtt          563 // Экспорт цен и товарных остатков в Universe-HTT
+#define cmLotPacking                   564 // Упаковка лотов
+#define cmCorrectCCheckLine01          565 // Корректировка проблемы строк чеков 01
+#define cmTextBrowserTest              566 // Текстовый редактор тест
 #define cmOpenTextFile                 567 // Открыть текстовый файл для редактирования //
-#define cmEditIniFiles                 567 // @obsolete @v7.6.x Редактирование ini файлов
-#define cmViewNewVersionList           568 // @v7.6.x Просмотр новых версий Papyrus'a
-#define cmGenericDevice                569 // @v7.8.0 Обобщенные устройства
-#define cmIndexTextObjects             570 // @v7.8.0 Индексация текстовых объектов // @construction
+// @v12.2.2 #define cmEditIniFiles                 567 // @obsolete @v7.6.x Редактирование ini файлов
+#define cmViewNewVersionList           568 // Просмотр новых версий Papyrus'a
+#define cmGenericDevice                569 // Обобщенные устройства
+#define cmIndexTextObjects             570 // Индексация текстовых объектов // @construction
 #define cmImportSR25                   571 // Импорт базы данных SR25
 #define cmImportSuprWare               572 // Импорт товаров с их состовляющими
 #define cmSuprWare                     573 // Товары и их состав
 #define cmProcessObjText               574 // Обработка текстовых объектов
-#define cmPersonEventByReader          575 // @v7.9.6 Создание персональных событий по чтению с устройсва ввода
+#define cmPersonEventByReader          575 // Создание персональных событий по чтению с устройсва ввода
 #define cmWorkbook                     576 // Контент
-#define cmTestReconnect                577 // @v8.0.6 Тест реконнекта серверной сессии
-#define cmUserProfile                  578 // @v8.x.x Профайлер по пользователям и функциям
+#define cmTestReconnect                577 // Тест реконнекта серверной сессии
+#define cmUserProfile                  578 // Профайлер по пользователям и функциям
 #define cmTSessAutoSms                 579 // Рассылка смс на основе технологических сессий
-#define cmImportWorkbook               580 // @v8.1.2 Импорт рабочих книг
-#define cmConvertWorkbook813           581 // @v8.1.3 Конвертация рабочих книг
-#define cmWorkbookCfg                  582 // @v8.1.7 Конфигурация рабочих книг
-#define cmConvertLatexToHtml           583 // @v8.1.12 Команда конвертации документации (только для внутреннего использования)
-#define cmRecoverLostUnifiedLinks      584 // @v8.2.8 Корректировка потерянных в результате объединения объектов, ссылок в т'гах
-#define cmGenerateKeywordSeq           585 // @v8.2.10 Генерация последовательностей ключевых слов (тест)
-#define cmTestUhttGetLocByPhone        586 // @v8.3.2 Тест SOAP-функции получения списка адресов по номеру телефона // @v10.5.12 @unused
-#define cmTestUhttGetQuotByLoc         587 // @v8.3.6 Тест SOAP-функции получения списка котировок по коду локации  // @v10.5.12 @unused
-#define cmLocationTag                  588 // @v8.3.6 Теги локаций
-#define cmCorrectGoodsGroupsNIA        589 // @v8.3.6 Корректировка товарных групп (не интерактивная)
-#define cmConvertVersionToHtml         590 // @v8.3.12 Команда конвертации информации о версиях (только для внутреннего использования)
-#define cmCafeTable                    591 // @v8.4.1 Справочник столов в ресторанном зале
-#define cmAlcReportCfg                 592 // @v8.4.4 Конфигурация алкогольной декларации
-#define cmObjTagAllObj                 593 // @v8.5.3 Типы тегов по всем объектам данных
-#define cmEdiProvider                  594 // @v8.5.5 EDI-провайдеры
-#define cmImportQuot2                  595 // @v8.5.11 Импорт котировок
-#define cmImportFias                   596 // @v8.6.2 Импорт справочника ФИАС
-#define cmExportDbTblTransfer          597 // @v8.6.7 Экспорт в XML данных таблицы Transfer
-#define cmExportDbTblBill              598 // @v8.6.8 Экспорт в XML данных таблицы Bill
-#define cmTestFias                     599 // @v8.6.10 Тестирование справочника ФИАС
-#define cmViewGeoTracking              600 // @v8.6.11 Просмотр событий гео-трекинга
-#define cmImportTSessUHTT              601 // @v8.7.10 Universe-HTT импорт технологических сессий
-#define cmTestCURL                     602 // @v8.8.0 Тестирование интерфейса с библиотекой cURL
-#define cmTestEGAIS                    603 // @v8.8.0 Тестирование интерфейса с сервером ЕГАИС
-#define cmQueryEGAIS                   604 // @v8.8.1 Интерактивный запрос к серверу ЕГАИС
-#define cmTestSearchEmail              605 // @v8.8.9 Тестирование функции поиска email адресов в персоналиях и локациях
-#define cmImportPosRefs                606 // @v9.0.8 Импорт POS-справочников
-#define cmBuildLocalDL600              607 // @v9.1.7 Компиляция локальных структур DL600
-#define cmWorkbookInterchange          608 // @v9.3.10 Синхронизация рабочих книг с серверо Universe-HTT
-#define cmProcessOsm                   609 // @v9.5.9 Процессинг данных OpenStreetMap
-#define cmPosNodeQuery                 610 // @v9.6.5 Интерактивный запрос к кассовому узлу
-#define cmTestLogWindow                611 // @v9.7.0 Тестирование окна вывода сообщений
-#define cmProcessSartre                612 // @v9.7.8 Импорт данных проекта Sartre
-#define cmBillAutoCreate               613 // @v9.7.10 Автоматическое создание документов (попытка объедининить разрозненные процедуры)
-#define cmValidateXml                  614 // @v9.8.3 Проверка соответствия xml-файла xsd-схеме
-#define cmTestTddo2                    615 // @v9.8.3 Тестирование технологии TDDO-II
-#define cmTestVetis                    616 // @v9.8.9 Тестирование интерфейса ВЕТИС
-#define cmViewPhnSvcMonitor            617 // @v9.9.10 Монитор состояний телефонного сервера
-#define cmDumpData                     618 // @v10.0.05 Dump/Undump данных
-#define cmVetisDocument                619 // @v10.0.12 Документы ВЕТИС
-#define cmVetisInterchange             620 // @v10.1.2 Обмен данными с ВЕТИС
-#define cmTimeSeries                   621 // @v10.2.3 @experimental Временные серии
-#define cmTimeSeriesSA                 622 // @v10.2.4 @experimental обучение нейронной сети по временным сериям
-#define cmCorrectZeroDebtDimRefs       623 // @v10.2.8 Обнуление висячих ссылок на долговые размерности
-#define cmTimeSeriesConfig             624 // @v10.3.1
-#define cmFreightPackageType           625 // @v10.4.1 Типы транспортной упаковки
-#define cmExportView                   626 // @v10.5.3 Экспорт данных по именованному фильтру
-#define cmTestMqc                      627 // @v10.5.7 Тест клиента брокера сообщений
-#define cmQuoteReqAnalyze              628 // @v10.5.7 Анализ котировочных запросов
-#define cmRollbackQuots                629 // @v10.5.8 Анализ котировочных запросов @erik
-#define cmOpenPhonePane                630 // @v10.5.8 Открыть (восстановить размеры) телефонную панель
-#define cmPhonePane                    631 // @v10.5.9 Вызов телефонной панели. Создана для идентификации источника вызовов PPView. Дальнешее использование не определено.
-#define cmTaxSystemKind                632 // @v10.6.0 Виды систем налогообложения //
-#define cmUniFindObj                   633 // @v10.6.1 @construction Унифицированный поиск объектов
-#define cmQueryCHZN                    634 // @v10.6.5 Интерактивный запрос к серверу чесный знак
-#define cmConvert10703                 635 // @10.7.3 Конвертация рабочих столов в xml @erik
-#define cmTssModel                     636 // @v10.7.4 Модели построения стратегий на временных сериях
-#define cmGotoVK                       637 // @v10.7.7  Перейти на сайт VK.com в форму авторизации  //@erikTEMP v10.7.7
-#define cmCorrectWorldObjNIA           638 // @v10.8.0 Корректировка географических объектов (не интерактивная)
-#define cmEvents                       639 // @v10.8.9 События
-#define cmEventSubscription            640 // @v10.8.9 Подписка на события //
-#define cmSetupGlbSvcUDS               641 // @v10.9.0 Настройка интеграции с UDS Game
-#define cmEventsForCurrentUser         642 // @v10.9.1 События (актуальные для текущего пользователя)
-#define cmUserMenu                     643 // @v10.9.3 Просмотр пользовательских меню и рабочих столов
-#define cmSetupGlbSvcVK                644 // @v10.9.5 Настройка интеграции с VK
-#define cmSCSPrintCheckCopy            645 // @v10.9.6 Печать копии чека в кассовой панели
+#define cmImportWorkbook               580 // Импорт рабочих книг
+#define cmConvertWorkbook813           581 // Конвертация рабочих книг
+#define cmWorkbookCfg                  582 // Конфигурация рабочих книг
+#define cmConvertLatexToHtml           583 // Команда конвертации документации (только для внутреннего использования)
+#define cmRecoverLostUnifiedLinks      584 // Корректировка потерянных в результате объединения объектов, ссылок в т'гах
+#define cmGenerateKeywordSeq           585 // Генерация последовательностей ключевых слов (тест)
+#define cmTestUhttGetLocByPhone        586 // Тест SOAP-функции получения списка адресов по номеру телефона // @v10.5.12 @unused
+#define cmTestUhttGetQuotByLoc         587 // Тест SOAP-функции получения списка котировок по коду локации  // @v10.5.12 @unused
+#define cmLocationTag                  588 // Теги локаций
+#define cmCorrectGoodsGroupsNIA        589 // Корректировка товарных групп (не интерактивная)
+#define cmConvertVersionToHtml         590 // Команда конвертации информации о версиях (только для внутреннего использования)
+#define cmCafeTable                    591 // Справочник столов в ресторанном зале
+#define cmAlcReportCfg                 592 // Конфигурация алкогольной декларации
+#define cmObjTagAllObj                 593 // Типы тегов по всем объектам данных
+#define cmEdiProvider                  594 // EDI-провайдеры
+#define cmImportQuot2                  595 // Импорт котировок
+#define cmImportFias                   596 // Импорт справочника ФИАС
+#define cmExportDbTblTransfer          597 // Экспорт в XML данных таблицы Transfer
+#define cmExportDbTblBill              598 // Экспорт в XML данных таблицы Bill
+#define cmTestFias                     599 // Тестирование справочника ФИАС
+#define cmViewGeoTracking              600 // Просмотр событий гео-трекинга
+#define cmImportTSessUHTT              601 // Universe-HTT импорт технологических сессий
+#define cmTestCURL                     602 // Тестирование интерфейса с библиотекой cURL
+#define cmTestEGAIS                    603 // Тестирование интерфейса с сервером ЕГАИС
+#define cmQueryEGAIS                   604 // Интерактивный запрос к серверу ЕГАИС
+#define cmTestSearchEmail              605 // Тестирование функции поиска email адресов в персоналиях и локациях
+#define cmImportPosRefs                606 // Импорт POS-справочников
+#define cmBuildLocalDL600              607 // Компиляция локальных структур DL600
+#define cmWorkbookInterchange          608 // Синхронизация рабочих книг с серверо Universe-HTT
+#define cmProcessOsm                   609 // Процессинг данных OpenStreetMap
+#define cmPosNodeQuery                 610 // Интерактивный запрос к кассовому узлу
+#define cmTestLogWindow                611 // Тестирование окна вывода сообщений
+#define cmProcessSartre                612 // Импорт данных проекта Sartre
+#define cmBillAutoCreate               613 // Автоматическое создание документов (попытка объедининить разрозненные процедуры)
+#define cmValidateXml                  614 // Проверка соответствия xml-файла xsd-схеме
+#define cmTestTddo2                    615 // Тестирование технологии TDDO-II
+#define cmTestVetis                    616 // Тестирование интерфейса ВЕТИС
+#define cmViewPhnSvcMonitor            617 // Монитор состояний телефонного сервера
+#define cmDumpData                     618 // Dump/Undump данных
+#define cmVetisDocument                619 // Документы ВЕТИС
+#define cmVetisInterchange             620 // Обмен данными с ВЕТИС
+#define cmTimeSeries                   621 // @experimental Временные серии
+#define cmTimeSeriesSA                 622 // @experimental обучение нейронной сети по временным сериям
+#define cmCorrectZeroDebtDimRefs       623 // Обнуление висячих ссылок на долговые размерности
+#define cmTimeSeriesConfig             624 //
+#define cmFreightPackageType           625 // Типы транспортной упаковки
+#define cmExportView                   626 // Экспорт данных по именованному фильтру
+#define cmTestMqc                      627 // Тест клиента брокера сообщений
+#define cmQuoteReqAnalyze              628 // Анализ котировочных запросов
+#define cmRollbackQuots                629 // Откат массовых изменений котировок @erik
+#define cmOpenPhonePane                630 // Открыть (восстановить размеры) телефонную панель
+#define cmPhonePane                    631 // Вызов телефонной панели. Создана для идентификации источника вызовов PPView. Дальнешее использование не определено.
+#define cmTaxSystemKind                632 // Виды систем налогообложения //
+#define cmUniFindObj                   633 // @construction Унифицированный поиск объектов
+#define cmQueryCHZN                    634 // Интерактивный запрос к серверу чесный знак
+#define cmConvert10703                 635 // Конвертация рабочих столов в xml @erik
+#define cmTssModel                     636 // Модели построения стратегий на временных сериях
+#define cmGotoVK                       637 // Перейти на сайт VK.com в форму авторизации  //@erikTEMP v10.7.7
+#define cmCorrectWorldObjNIA           638 // Корректировка географических объектов (не интерактивная)
+#define cmEvents                       639 // События
+#define cmEventSubscription            640 // Подписка на события //
+#define cmSetupGlbSvcUDS               641 // Настройка интеграции с UDS Game
+#define cmEventsForCurrentUser         642 // События (актуальные для текущего пользователя)
+#define cmUserMenu                     643 // Просмотр пользовательских меню и рабочих столов
+#define cmSetupGlbSvcVK                644 // Настройка интеграции с VK
+#define cmSCSPrintCheckCopy            645 // Печать копии чека в кассовой панели
 #define cmProcessTSessions             646 // @v11.0.4 Обслуживание технологических сессий
 #define cmAlcoDeclRu                   647 // @v11.0.5 Алкогольная декларация //
 #define cmStyloQBindery                648 // @v11.1.7 Реестр объектов Stylo-Q

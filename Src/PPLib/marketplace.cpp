@@ -1,5 +1,5 @@
 // MARKETPLACE.CPP
-// Copyright (c) A.Sobolev 2024
+// Copyright (c) A.Sobolev 2024, 2025
 // @codepage UTF-8
 // @construction 
 //
@@ -233,6 +233,131 @@ bool PPMarketplaceInterface_Wildberries::WareBase::FromJsonObj(const SJson * pJs
 		ok = true;
 	}
 	return ok;
+}
+
+PPMarketplaceInterface_Wildberries::Promotion::Promotion() : ID(0), Type(tUndef),
+	InPromoActionLeftovers(0), InPromoActionTotal(0), NotInPromoActionLeftovers(0),
+	NotInPromoActionTotal(0), ParticipationPercentage(0), ExceptionProductsCount(0)
+{
+}
+		
+PPMarketplaceInterface_Wildberries::Promotion & PPMarketplaceInterface_Wildberries::Promotion::Z()
+{
+	ID = 0;
+	Type = tUndef;
+	Name.Z();
+	DtmRange.Z();
+	//
+	Description.Z();
+	Advantages.Z();
+	InPromoActionLeftovers = 0;
+	InPromoActionTotal = 0;
+	NotInPromoActionLeftovers = 0;
+	NotInPromoActionTotal = 0;
+	ParticipationPercentage = 0;
+	ExceptionProductsCount = 0;
+	RangingList.clear();
+	return *this;
+}
+		
+bool PPMarketplaceInterface_Wildberries::Promotion::FromJsonObj(const SJson * pJs)
+{
+	Z();
+	bool   ok = false;
+	if(pJs && pJs->Type == SJson::tOBJECT) {
+		/*
+			{
+				"id": 618,
+				"name": "Пресейл: День шопинга (автоакция)",
+				"startDateTime": "2024-10-20T23:00:00Z",
+				"endDateTime": "2024-10-26T20:59:59Z",
+				"type": "auto"
+			},
+		*/ 
+		/*
+			{
+				"id": 725,
+				"name": "Чёрная пятница: товары-хиты",
+				"description": "Обратите внимание — это не новая акция, а специальный инструмент. С его помощью вы сможете прямо здесь отслеживать долю участия товаров с продажами в акции «Чёрная пятница».\n\nМы рекомендуем добавлять в распродажу продукцию, которая имеет спрос у покупателей. В период высокого сезона это особенно важно для роста продаж и продвижения товаров.\n",
+				"advantages": [
+					"Плашка на карточке товара",
+					"Баннер на сайте",
+					"Поднятие в поиске",
+					"Красная цена",
+					"Градусник"
+				],
+				"startDateTime": "2024-11-14T18:00:00Z",
+				"endDateTime": "2024-12-01T20:59:59Z",
+				"inPromoActionLeftovers": 0,
+				"inPromoActionTotal": 0,
+				"notInPromoActionLeftovers": 0,
+				"notInPromoActionTotal": 0,
+				"participationPercentage": 0,
+				"type": "regular",
+				"ranging": [
+					{
+						"condition": "productsInPromotion",
+						"participationRate": 1,
+						"boost": 30
+					}
+				]
+			},
+		*/ 
+		SString temp_buf;
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("id"))
+				ID = p_cur->P_Child->Text.ToInt64();
+			else if(p_cur->Text.IsEqiAscii("name"))
+				(Name = p_cur->P_Child->Text).Unescape();
+			else if(p_cur->Text.IsEqiAscii("startDateTime")) {
+				strtodatetime(p_cur->P_Child->Text, &DtmRange.Start, DATF_ISO8601CENT, TIMF_HMS);
+			}
+			else if(p_cur->Text.IsEqiAscii("endDateTime")) {
+				strtodatetime(p_cur->P_Child->Text, &DtmRange.Finish, DATF_ISO8601CENT, TIMF_HMS);
+			}
+			else if(p_cur->Text.IsEqiAscii("type")) {
+				if(p_cur->P_Child->Text.IsEqiUtf8("auto"))
+					Type = tAuto;
+				else if(p_cur->P_Child->Text.IsEqiUtf8("regular"))
+					Type = tRegular;
+			}
+			else if(p_cur->Text.IsEqiAscii("description")) {
+				(Description = p_cur->P_Child->Text).Unescape();
+			}
+			else if(p_cur->Text.IsEqiAscii("advantages")) {
+				if(SJson::IsArray(p_cur->P_Child)) {
+					for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+						if(p_js_item->IsString()) {
+							(temp_buf = p_js_item->Text).Unescape();
+							if(temp_buf.NotEmptyS())
+								Advantages.add(temp_buf);
+						}
+					}
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("inPromoActionLeftovers")) {
+				InPromoActionLeftovers = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("inPromoActionTotal")) {
+				InPromoActionTotal = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("notInPromoActionLeftovers")) {
+				NotInPromoActionLeftovers = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("notInPromoActionTotal")) {
+				NotInPromoActionTotal = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("participationPercentage")) {
+				ParticipationPercentage = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("ranging")) {
+				// array
+			}
+		}
+		if(ID != 0 && Name.NotEmpty())
+			ok = true;
+	}
+	return ok;	
 }
 
 PPMarketplaceInterface_Wildberries::Stock::Stock() : Ware(), DtmLastChange(ZERODATETIME), Qtty(0.0), QttyFull(0.0), InWayToClient(0.0), InWayFromClient(0.0),
@@ -1579,6 +1704,179 @@ int PPMarketplaceInterface_Wildberries::RequestDocumentsList()
 	return ok;
 }
 
+int PPMarketplaceInterface_Wildberries::RequestPromotionList(TSCollection <Promotion> & rList)
+{
+	rList.freeAll();
+	int    ok = 1;
+	SJson * p_js_reply = 0;
+	SString temp_buf;
+	const LDATETIME now_dtm = getcurdatetime_();
+	SString url_buf;
+	StrStrAssocArray hdr_flds;
+	THROW(Helper_InitRequest(methPromotions, url_buf, hdr_flds));
+	{
+		/*
+			startDateTime required string <RFC3339> Example: startDateTime=2023-09-01T00:00:00Z
+				Начало периода, формат YYYY-MM-DDTHH:MM:SSZ
+			endDateTime required string <RFC3339> Example: endDateTime=2024-08-01T23:59:59Z
+				Конец периода, формат YYYY-MM-DDTHH:MM:SSZ
+			allPromo required boolean Default: false
+				Показать акции:
+					false — доступные для участия
+					true — все акции
+			limit integer <uint> [1..1000] Example: limit=10
+				Количество запрашиваемых акций
+			offset integer <uint> >= 0 Example: offset=0
+				После какого элемента выдавать данные
+		*/ 
+		ScURL c;
+		SString reply_buf;
+		SBuffer ack_buf;
+		SFile wr_stream(ack_buf, SFile::mWrite);
+		THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
+		{
+			LDATETIME start_dtm;
+			start_dtm.Set(plusdate(now_dtm.d, -60), encodetime(0, 0, 1, 0));
+			temp_buf.Z().CatEq("startDateTime", start_dtm, DATF_ISO8601CENT, 0).CatChar('Z');
+			url_buf.CatChar('?').Cat(temp_buf).CatChar('&');
+			temp_buf.Z().CatEq("endDateTime", getcurdatetime_(), DATF_ISO8601CENT, 0).CatChar('Z');
+			url_buf.Cat(temp_buf).CatChar('&');
+			url_buf.CatEq("allPromo", "true");
+		}
+		Lth.Log("req", url_buf, temp_buf.Z());
+		THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+		{
+			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+			if(p_ack_buf) {
+				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+				Lth.Log("rep", 0, reply_buf);
+				{
+					p_js_reply = SJson::Parse(reply_buf);
+					if(SJson::IsObject(p_js_reply)) {
+						for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+							if(p_cur->Text.IsEqiAscii("data")) {
+								if(SJson::IsObject(p_cur->P_Child)) {
+									for(const SJson * p_cur2 = p_cur->P_Child->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
+										if(p_cur2->Text.IsEqiAscii("promotions")) {
+											if(SJson::IsArray(p_cur2->P_Child)) {
+												for(const SJson * p_js_item = p_cur2->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+													if(SJson::IsObject(p_js_item)) {
+														uint   new_item_pos = 0;
+														Promotion * p_new_item = rList.CreateNewItem(&new_item_pos);
+														if(p_new_item) {
+															if(!p_new_item->FromJsonObj(p_js_item)) {
+																rList.atFree(new_item_pos);
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_js_reply;
+	return ok;
+}
+	
+int PPMarketplaceInterface_Wildberries::RequestPromotionDetail(TSCollection <Promotion> & rList)
+{
+	int    ok = 1;
+	SJson * p_js_reply = 0;
+	if(rList.getCount()) {
+		SString temp_buf;
+		SString url_buf;
+		StrStrAssocArray hdr_flds;
+		THROW(Helper_InitRequest(methPromotionsDetail, url_buf, hdr_flds));
+		{
+			ScURL c;
+			SString reply_buf;
+			SBuffer ack_buf;
+			SFile wr_stream(ack_buf, SFile::mWrite);
+			uint  ids_count = 0;
+			THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
+			{
+				url_buf.CatChar('?');
+				for(uint i = 0; i < rList.getCount(); i++) {
+					const Promotion * p_item = rList.at(i);
+					if(p_item) {
+						url_buf.CatDivConditionally('&', 0, ids_count > 0).CatEq("promotionIDs", p_item->ID);
+						ids_count++;
+					}
+				}
+			}
+			if(ids_count) {
+				Lth.Log("req", url_buf, temp_buf.Z());
+				THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+				{
+					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+					if(p_ack_buf) {
+						reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+						Lth.Log("rep", 0, reply_buf);
+						{
+							p_js_reply = SJson::Parse(reply_buf);
+							if(SJson::IsObject(p_js_reply)) {
+								for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+									if(p_cur->Text.IsEqiAscii("data")) {
+										if(SJson::IsObject(p_cur->P_Child)) {
+											for(const SJson * p_cur2 = p_cur->P_Child->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
+												if(p_cur2->Text.IsEqiAscii("promotions")) {
+													if(SJson::IsArray(p_cur2->P_Child)) {
+														for(const SJson * p_js_item = p_cur2->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+															if(SJson::IsObject(p_js_item)) {
+																const SJson * p_js_id = p_js_item->FindChildByKey("id");
+																if(SJson::IsNumber(p_js_id)) {
+																	const int64 _id = p_js_id->Text.ToInt64();
+																	uint  list_item_idx = 0;
+																	if(rList.lsearch(&_id, &list_item_idx, CMPF_INT64)) {
+																		Promotion * p_item = rList.at(list_item_idx);
+																		assert(p_item); // @paranoic
+																		if(p_item) { // @paranoic
+																			p_item->FromJsonObj(p_js_item);
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	delete p_js_reply;
+	return ok;
+}
+	
+int PPMarketplaceInterface_Wildberries::RequestPromotionWareList()
+{
+	int    ok = -1;
+	return ok;
+}
+	
+int PPMarketplaceInterface_Wildberries::AddWareListToPromotion()
+{
+	int    ok = -1;
+	return ok;
+}
+
 int PPMarketplaceInterface_Wildberries::RequestBalance()
 {
 	//rList.freeAll();
@@ -2170,6 +2468,7 @@ bool PPMarketplaceInterface_Wildberries::MakeTargetUrl_(int meth, int * pReq/*SH
 		{ apiMarketplace, "marketplace-api" },
 		{ apiAnalytics, "seller-analytics-api" },
 		{ apiDocuments, "documents-api" },
+		{ apiDpCalendar, "dp-calendar-api" }, // @v12.2.2
 	};
 	struct MethEntry {
 		int    Meth;
@@ -2198,6 +2497,10 @@ bool PPMarketplaceInterface_Wildberries::MakeTargetUrl_(int meth, int * pReq/*SH
 		{ methBalance, apiAdvert, SHttpProtocol::reqGet, "adv/v1/balance" },
 		{ methDocumentsList, apiDocuments, SHttpProtocol::reqGet, "api/v1/documents/list" },
 		{ methReturns, apiAnalytics, SHttpProtocol::reqGet, "api/v1/analytics/goods-return" },
+		{ methPromotions, apiDpCalendar, SHttpProtocol::reqGet, "api/v1/calendar/promotions" },
+		{ methPromotionsDetail, apiDpCalendar, SHttpProtocol::reqGet, "api/v1/calendar/promotions/details" },
+		{ methPromotionsGoods, apiDpCalendar, SHttpProtocol::reqGet, "api/v1/calendar/promotions/nomenclatures" },
+		{ methPromotionsAddGoods, apiDpCalendar, SHttpProtocol::reqPost, "api/v1/calendar/promotions/upload" },
 	};
 	//https://content-api.wildberries.ru/content/v2/cards/upload
 	//https://discounts-prices-api.wildberries.ru/api/v2/upload/task
@@ -3702,8 +4005,11 @@ int TestMarketplace()
 				//TSCollection <PPMarketplaceInterface_Wildberries::Sale> order_list;
 				//TSCollection <PPMarketplaceInterface_Wildberries::Income> income_list;
 				TSCollection <PPMarketplaceInterface_Wildberries::SalesRepDbpEntry> sales_rep_dbp_list;
+				TSCollection <PPMarketplaceInterface_Wildberries::Promotion> promo_list;
 
 				int r = 0;
+				r = p_ifc_wb->RequestPromotionList(promo_list); // @v12.2.2
+				r = p_ifc_wb->RequestPromotionDetail(promo_list); // @v12.2.2
 				r = p_ifc_wb->RequestReturns();
 				r = p_ifc_wb->RequestWarehouseList2(wh_list2);
 				r = p_ifc_wb->RequestDocumentsList();
@@ -4182,7 +4488,7 @@ PPID PrcssrMarketplaceInterchange::GetRetOpID() // @v12.1.11
 					if(op_rec.LinkOpID == sale_op_id) {
 						result_id = op_rec.ID;
 					}
-				}					
+				}
 			}
 			if(result_id == 0)
 				Cfg.ReturnOpID = -1; // Индицирует факт того, что вид операции возврата получить не удается.

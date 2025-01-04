@@ -1,5 +1,5 @@
 // STYLOQ.CPP
-// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -272,10 +272,7 @@ StyloQConfig::StyloQConfig()
 {
 }
 
-bool FASTCALL StyloQConfig::IsEq(const StyloQConfig & rS) const
-{
-	return L.IsEq(rS.L);
-}
+bool FASTCALL StyloQConfig::IsEq(const StyloQConfig & rS) const { return L.IsEq(rS.L); }
 
 StyloQConfig & StyloQConfig::Z()
 {
@@ -439,10 +436,7 @@ StyloQFace::~StyloQFace()
 {
 }
 
-bool FASTCALL StyloQFace::IsEq(const StyloQFace & rS) const
-{
-	return (Id == rS.Id && /*Flags == rS.Flags &&*/L.IsEq(rS.L));
-}
+bool FASTCALL StyloQFace::IsEq(const StyloQFace & rS) const { return (Id == rS.Id && /*Flags == rS.Flags &&*/L.IsEq(rS.L)); }
 
 StyloQFace & StyloQFace::Z()
 {
@@ -749,15 +743,9 @@ int StyloQFace::SetVerifiability(int v)
 	int    ok = 1;
 	const char * p_tag_val = 0;
 	switch(v) {
-		case vArbitrary:
-			p_tag_val = "arbitrary";
-			break;
-		case vVerifiable:
-			p_tag_val = "verifiable";
-			break;
-		case vAnonymous:
-			p_tag_val = "anonymous";
-			break;
+		case vArbitrary: p_tag_val = "arbitrary"; break;
+		case vVerifiable: p_tag_val = "verifiable"; break;
+		case vAnonymous: p_tag_val = "anonymous"; break;
 		default:
 			assert(0);
 			ok = 0;
@@ -844,15 +832,8 @@ int StyloQFace::Implement_Get(int tag, int lang, SString * pResult) const
 	return ok;
 }
 
-bool StyloQFace::Has(int tag, int lang) const
-{
-	return (Implement_Get(tag, lang, 0) > 0);
-}
-
-int StyloQFace::Get(int tag, int lang, SString & rResult) const
-{
-	return Implement_Get(tag, lang, &rResult);
-}
+bool StyloQFace::Has(int tag, int lang) const { return (Implement_Get(tag, lang, 0) > 0); }
+int  StyloQFace::Get(int tag, int lang, SString & rResult) const { return Implement_Get(tag, lang, &rResult); }
 
 LDATE StyloQFace::GetDob() const
 {
@@ -2449,20 +2430,9 @@ PPObjStyloQBindery::~PPObjStyloQBindery()
 	TLP_CLOSE(P_Tbl);
 }
 
-/*virtual*/int PPObjStyloQBindery::Edit(PPID * pID, void * extraPtr)
-{
-	return -1;
-}
-
-/*virtual*/int PPObjStyloQBindery::Browse(void * extraPtr)
-{
-	return -1;
-}
-
-/*virtual*/int PPObjStyloQBindery::Search(PPID id, void * b)
-{
-	return -1;
-}
+/*virtual*/int PPObjStyloQBindery::Edit(PPID * pID, void * extraPtr) { return -1; }
+/*virtual*/int PPObjStyloQBindery::Browse(void * extraPtr) { return -1; }
+/*virtual*/int PPObjStyloQBindery::Search(PPID id, void * b) { return -1; }
 
 /*static*/PPIDArray & StyloQCore::MakeLinkObjTypeList(bool addUnaddignedObj, PPIDArray & rList)
 {

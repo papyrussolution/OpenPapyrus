@@ -1,9 +1,6 @@
 /*
  * cleanup.c
- *
- * Description:
- * This translation unit implements routines associated
- * with cleaning up threads.
+ * Description: This translation unit implements routines associated with cleaning up threads.
  *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom

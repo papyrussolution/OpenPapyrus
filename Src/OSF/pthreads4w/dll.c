@@ -1,10 +1,6 @@
 /*
  * dll.c
- *
- * Description:
- * This translation unit implements DLL initialisation.
- *
- * --------------------------------------------------------------------------
+ * Description: This translation unit implements DLL initialisation.
  *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom

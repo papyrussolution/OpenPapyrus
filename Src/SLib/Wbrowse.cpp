@@ -1,5 +1,5 @@
 // WBROWSE.CPP
-// Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // WIN32
 //
@@ -1559,10 +1559,6 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 			HPEN   oldpen = 0;
 			HBRUSH br = 0;
 			HBRUSH oldbr = 0;
-			//
-			// @v10.2.4 {
-			// Блок перенесен вверх на случай если одновременно задана окраска всей ячейки и (CellStyle::fLeftBottomCorner|CellStyle::fRightFigCircle)
-			//
 			if(style.Color && !(style.Flags & CellStyle::fCorner)) {
 				pen = CreatePen(PS_SOLID, 1, style.Color);
 				oldpen = static_cast<HPEN>(SelectObject(hdc, pen));
@@ -1575,7 +1571,6 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 				ZDeleteWinGdiObject(&pen);
 				ZDeleteWinGdiObject(&br);
 			}
-			// } 
 			if(style.Flags & (CellStyle::fCorner|CellStyle::fLeftBottomCorner|CellStyle::fRightFigCircle|CellStyle::fRightFigTriangle)) {
 				if(oneof2(paintAction, BrowserWindow::paintFocused, BrowserWindow::paintClear))
 					if(paintAction == BrowserWindow::paintClear)

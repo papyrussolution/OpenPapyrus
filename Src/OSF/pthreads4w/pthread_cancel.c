@@ -1,10 +1,6 @@
 /*
  * pthread_cancel.c
- *
- * Description:
- * POSIX thread functions related to thread cancellation.
- *
- * --------------------------------------------------------------------------
+ * Description: POSIX thread functions related to thread cancellation.
  *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom
@@ -94,7 +90,6 @@ int pthread_cancel(pthread_t thread)
 	if((self = pthread_self()).p == NULL) {
 		return ENOMEM;
 	}
-	;
 	/*
 	 * For self cancellation we need to ensure that a thread can't
 	 * deadlock itself trying to cancel itself asynchronously

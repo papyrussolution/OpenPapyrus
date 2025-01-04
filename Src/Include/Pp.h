@@ -1,5 +1,5 @@
 // PP.H
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 // Спасибо за проделанную работу (Thanks for the work you've done):
@@ -1027,7 +1027,7 @@ public:
 	void   Init(long start, long finish);
 	void   Init(const DateRange *);
 	int    Advance(LDATE d, long o);
-	int    IsEnd() const;
+	bool   IsEnd() const;
 	//
 	// Descr: Сравнивает объект this с объектом rS.
 	//   Сравнение осуществляется по паре {dt, oprno}
@@ -1560,6 +1560,7 @@ public:
 	static int IdBillMemoSubStr;    // @v11.7.4 (fldBillID, const char *) Определяет, содержит ли примечание к документу заданную подстроку
 	static int IdBillAmount;        // @v12.1.0 (fldBillID, amountType)
 	static int IdClientActivityStatisticsIndicator; // @v12.2.2 (personID, indicator/*PPObjPerson::casiXXX*/) Возвращает значение индикатора статистики клиентской активности
+	static int IdClientActivityState; // @v12.2.2 (personID, LDATE actualDate, LDATE newCliPeriodLo, LDATE newCliPeriodUp) Возвращает ClientActivityState::State
 
 	static int Register();
 	static void STDCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
@@ -8323,7 +8324,7 @@ enum {
 class PPSymbTranslator {
 public:
 	explicit PPSymbTranslator(uint strID = PPSSYM_SYMB);
-	int    operator !() const;
+	bool   operator !() const;
 	//
 	// Descr: пытается распознать слово по адресу (pString + (*pNextPos))
 	//   и, если ей это удается, возвращает опознанный код (константа PPSYM_XXX).
@@ -27140,6 +27141,11 @@ public:
 		ClientActivityStatistics();
 		ClientActivityStatistics & Z();
 		bool   FASTCALL IsEq(const ClientActivityStatistics & rS) const;
+		//
+		// Descr: Возвращает true если в структуре определен PersonID, EventCount != 0, а
+		//   FirstEventDt и LastEventDt не нулевые и валидные.
+		//
+		bool   IsDetermined() const;
 
 		PPID   PersonID;
 		LDATE  FirstEventDt;  // Дата первого события //
@@ -27151,10 +27157,38 @@ public:
 		double GapDaysStdDev; // Стандартное отклонение перерыва между событиями 
 		uint8  Reserve[64];
 	};
+	//
+	// Descr: Блок, определяющий значение статуса активности клиента (State), привязанного к параметрам, заданным здесь же.
+	//
+	struct ClientActivityState { // @v12.2.2
+		explicit ClientActivityState() : PersonID(0), ActualDate(ZERODATE), State(stUndef)
+		{
+			NewCliPeriod.Z();
+		}
+		//
+		// Значения статусов активности клиентов
+		//
+		enum { // @persistent
+			stUndef               = 0, // Неопределенный (не инициализирован)
+			stNoData              = 1, // По клиенту нет (достаточной) статистики активности
+			stRegularTa           = 2, // Активность клиента находится в приемлемых рамках
+			stDelayedTa           = 3, // Клиент давно не проявлял активности, но есть шанс его вернуть (задержка относительно не велика)
+			stHopelesslyDelayedTa = 4, // Вероятно, клиента вернуть не удасться (задержка активности слишком велика)
+			//
+			stfNewClient          = 0x0100 // Битовый признак нового клиента. Признак нового клиента устанавливается если первая транзакция попадает
+				// в заданный интервал NewCliPeriod (если это интервал не пустой).
+		};
+		PPID   PersonID;        // IN
+		LDATE  ActualDate;      // IN
+		DateRange NewCliPeriod; // IN
+		uint   State;           // OUT
+	};
 
 	int    StoreClientActivityStatistics(PPID personID, const ClientActivityStatistics & rTotalEntry, const TSVector <uint16> & rDateList, int use_ta);
 	int    ReadClientActivityStatistics(PPID personID, ClientActivityStatistics & rTotalEntry, TSVector <uint16> * pDateList);
 	int    FetchCas(PPID id, ClientActivityStatistics * pCas);
+	int    FetchClientActivityDateList(PPID id, TSVector <LDATE> & rDateList);
+	int    IdentifyClientActivityState(ClientActivityState & rParam);
 private:
 	friend class PersonCache;
 	friend int FASTCALL GetPersonName(PPID id, SString & rBuf);
@@ -28638,6 +28672,8 @@ public:
 	SString & FASTCALL GetFromStrPool(uint strP, SString & rBuf) const;
 	int    FASTCALL HasImage(const void * pData);
 	int    CheckIDForFilt(PPID id, const PersonTbl::Rec * pRec);
+
+	static int CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int   OnExecBrowser(PPViewBrowser *);
@@ -28674,6 +28710,7 @@ private:
 	PPObjTag   ObjTag;
 	PPObjWorld WObj;
 	PPFiasReference * P_Fr;
+	LAssocArray * P_ClientActivityStateList; // @v12.2.2
 };
 
 int ViewPersonInfoBySCard(const char * pCode);
@@ -41063,6 +41100,43 @@ public:
 		SString Category;
 		SString Brand;
 	};
+	struct Promotion {
+		struct RangingItem { // @flat
+			enum {
+				cProductsInPromotion = 1, // продвижение получат товары продавца, участвующие в акции
+				cCalculateProducts   = 2, // продвижение получат любые товара продавца, предложенные к участию в акции
+				cAllProducts         = 3  // продвижение получат все товары продавца
+			};
+			int   Condition; // cXXX
+			uint  ParticipationRate; // 
+			uint  Boost;             //
+		};
+		Promotion();
+		Promotion & Z();
+		bool FromJsonObj(const SJson * pJs);
+
+		enum {
+			tUndef = 0,
+			tRegular,
+			tAuto
+		};
+		int64 ID; // @firstmember
+		SString Name;
+		STimeChunk DtmRange;
+		int   Type; // Promotion::tXXX
+		//
+		// Далее следуют дополнительные атрибуты акции, доступные посредством вызова RequestPromotionDetail()
+		//
+		SString Description; // Описание акции
+		StringSet Advantages; // Набор строк описания достоинств акции
+		int   InPromoActionLeftovers; // Количество товаров с остатками, участвующих в акции
+		int   InPromoActionTotal; // Общее количество товаров, участвующих в акции
+		int   NotInPromoActionLeftovers; // Количество товаров с остатками, не участвующих в акции 
+		int   NotInPromoActionTotal;     // Общее количество товаров, не участвующих в акции
+		int   ParticipationPercentage;   // Уже участвующие в акции товары, %. Рассчитывается по товарам в акции и с остатком
+		int   ExceptionProductsCount;    // Количество товаров, исключенных из автоакции до её старта. Только при "type": "auto". В момент старта акции эти товары автоматически будут без скидки
+		TSVector <RangingItem> RangingList; // 
+	};
 	struct Stock {
 		Stock();
 		Stock & Z();
@@ -41310,7 +41384,18 @@ public:
 	int   RequestDocumentsList();
 	int   UploadWare();
 	int   RequestWareList();
-
+	// @v12.2.2 {
+	//
+	// Descr: Запрашивает список акций
+	//
+	int   RequestPromotionList(TSCollection <Promotion> & rList);
+	//
+	// Descr: Запрашивает детальную информацию по акциям в списке rList
+	//
+	int   RequestPromotionDetail(TSCollection <Promotion> & rList);
+	int   RequestPromotionWareList();
+	int   AddWareListToPromotion();
+	// } @v12.2.2 
 	int   CreateWarehouse(PPID * pID, int64 outerId, const char * pOuterName, const char * pAddress, int use_ta);
 	const Warehouse * SearchWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, bool adoptive) const;
 	int   ResolveWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, PPID defaultID, PPID * pResultID, int use_ta);
@@ -41362,6 +41447,7 @@ private:
 		apiMarketplace,
 		apiAnalytics,
 		apiDocuments,
+		apiDpCalendar // @v12.2.2
 	};
 	enum {
 		methCommission = 1,   // apiCommon
@@ -41384,6 +41470,11 @@ private:
 		methBalance,          // apiAdvert https://advert-api.wildberries.ru/adv/v1/balance
 		methDocumentsList,    // apiDocuments https://documents-api.wildberries.ru/api/v1/documents/list 
 		methReturns,          // apiAnalytics   https://seller-analytics-api.wildberries.ru/api/v1/analytics/goods-return
+		
+		methPromotions,       // apiDpCalendar  https://dp-calendar-api.wildberries.ru/api/v1/calendar/promotions
+		methPromotionsDetail, // apiDpCalendar  https://dp-calendar-api.wildberries.ru/api/v1/calendar/promotions/details
+		methPromotionsGoods,  // apiDpCalendar  https://dp-calendar-api.wildberries.ru/api/v1/calendar/promotions/nomenclatures
+		methPromotionsAddGoods, // apiDpCalendar  https://dp-calendar-api.wildberries.ru/api/v1/calendar/promotions/upload
 	};
 	bool   MakeTargetUrl_(int meth, int * pReq/*SHttpProtocol::reqXXX*/, SString & rResult) const;
 	int    Helper_InitRequest(int meth, SString & rUrlBuf, StrStrAssocArray & rHdrFlds);
@@ -59737,7 +59828,7 @@ int    FASTCALL IsIntrOp(PPID opID);
 bool   FASTCALL IsIntrExpndOp(PPID opID); // {IsIntrOp(opID) == INTREXPND}
 bool   FASTCALL IsDraftOp(PPID opID);
 bool   FASTCALL IsGoodsDetailOp(PPID opID);
-int    FASTCALL EnumOperations(PPID oprType, PPID *, PPOprKind * = 0);
+int    FASTCALL EnumOperations(PPID oprType, PPID * pID, PPOprKind * pRec = 0);
 PPID   GetCashOp();
 PPID   GetCashRetOp();
 PPID   GetReceiptOp();
@@ -60406,7 +60497,6 @@ int    STDCALL SetupStringCombo(TDialog *, uint ctlID, int strID, long initID);
 int    STDCALL SetupStringCombo(TDialog *, uint ctlID, const char * pStrSignature, long initID);
 int    STDCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char * pStrSignature, const StrAssocArray * pAddendumList, long initID);
 // id = <string offset> + 1
-// @v9.5.0 int    SetupStringCombo(TDialog *, uint ctlID, StringSet *, long initID, uint /*flags*/);
 int    SetupStringComboDevice(TDialog *, uint ctlID, uint dvcClass, long initID, uint /*flags*/); //@vmiller
 int    GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf);
 int    GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, int numOfOldDev, SString & str); // @vmiller
@@ -60757,7 +60847,7 @@ int ResolveGoodsDlg(ResolveGoodsItemList * pData, int flags);
 //
 // Конвертация сертификатов качества в теги лотов (для Лэнда).
 //
-int ConvertLandQCertToLotTag();
+// @v12.2.2 int ConvertLandQCertToLotTag();
 // @v3.7.2 int Convert229();
 // @v3.7.2 int Convert253();
 // @v3.7.2 int Convert270();

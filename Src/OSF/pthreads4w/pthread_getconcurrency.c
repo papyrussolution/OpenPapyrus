@@ -1,10 +1,6 @@
 /*
  * pthread_getconcurrency.c
- *
- * Description:
- * This translation unit implements miscellaneous thread functions.
- *
- * --------------------------------------------------------------------------
+ * Description: This translation unit implements miscellaneous thread functions.
  *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom

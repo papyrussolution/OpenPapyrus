@@ -299,14 +299,7 @@ int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData
 	return 1;
 }
 //
-//
-//
-int ConvertLandQCertToLotTag()
-{
-	return (PPError(PPERR_FUNCNOTMORESUPPORTED), 0);
-}
-//
-//
+// @v12.2.2 int ConvertLandQCertToLotTag() { return (PPError(PPERR_FUNCNOTMORESUPPORTED), 0); }
 //
 PPViewLot::IterData::IterData() : P_ByTagList(0), P_ByTagExclList(0)
 {

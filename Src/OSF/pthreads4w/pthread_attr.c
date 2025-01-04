@@ -1,10 +1,7 @@
 // pthread_attr.c
 //
 /*
- * Description:
- * This translation unit implements operations on thread attribute objects.
- *
- * --------------------------------------------------------------------------
+ * Description: This translation unit implements operations on thread attribute objects.
  *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom

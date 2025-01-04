@@ -1,38 +1,7 @@
-/* SCRAM-SHA-1/SHA-2 SASL plugin
- * Alexey Melnikov
- */
-/*
- * Copyright (c) 2009-2016 Carnegie Mellon University.  All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- *
- * 3. The name "Carnegie Mellon University" must not be used to
- *    endorse or promote products derived from this software without
- *    prior written permission. For permission or any other legal
- *    details, please contact
- *      Carnegie Mellon University
- *      Center for Technology Transfer and Enterprise Creation
- *      4615 Forbes Avenue
- *      Suite 302
- *      Pittsburgh, PA  15213
- *      (412) 268-7393, fax: (412) 268-7395
- *      innovation@andrew.cmu.edu
- *
- * 4. Redistributions of any form whatsoever must retain the following
- *    acknowledgment:
- *    "This product includes software developed by Computing Services
- *     at Carnegie Mellon University (http://www.cmu.edu/computing/)."
- */
+// SCRAM-SHA-1/SHA-2 SASL plugin
+// Alexey Melnikov
+// Copyright (c) 2009-2016 Carnegie Mellon University.  All rights reserved.
+//
 #include <sasl-internal.h>
 #pragma hdrstop
 #ifndef macintosh
@@ -79,40 +48,26 @@
 #define SCRAM_CB_FLAG_N       0x00
 #define SCRAM_CB_FLAG_P       0x01
 #define SCRAM_CB_FLAG_Y       0x02
-
 #ifdef SCRAM_DEBUG
-#define PRINT_HASH(func, hash, size)  print_hash(func, hash, size)
+	#define PRINT_HASH(func, hash, size)  print_hash(func, hash, size)
 #else
-#define PRINT_HASH(func, hash, size)
+	#define PRINT_HASH(func, hash, size)
 #endif
-
-/* NB: A temporary mapping for "internal errors". It would be better to add
-   a new SASL error code for that */
+/* NB: A temporary mapping for "internal errors". It would be better to add a new SASL error code for that */
 #define SASL_SCRAM_INTERNAL         SASL_NOMEM
 
-/* Holds the core salt to avoid regenerating salt each auth. */
-static uchar g_salt_key[SALT_SIZE];
+static uchar g_salt_key[SALT_SIZE]; /* Holds the core salt to avoid regenerating salt each auth. */
 
 /* Note that currently only SHA-* variants are supported! */
 static const char * scram_sasl_mech_name(size_t hash_size)
 {
 	switch(hash_size) {
-		case 64:
-		    return "SCRAM-SHA-512";
-
-		case 48:
-		    return "SCRAM-SHA-384";
-
-		case 32:
-		    return "SCRAM-SHA-256";
-
-		case 28:
-		    return "SCRAM-SHA-224";
-
-		case 20:
-		    return "SCRAM-SHA-1";
+		case 64: return "SCRAM-SHA-512";
+		case 48: return "SCRAM-SHA-384";
+		case 32: return "SCRAM-SHA-256";
+		case 28: return "SCRAM-SHA-224";
+		case 20: return "SCRAM-SHA-1";
 	}
-
 	return NULL;
 }
 
@@ -122,9 +77,7 @@ static int decode_saslname(char * buf)
 {
 	char * inp;
 	char * outp;
-
 	inp = outp = buf;
-
 	while(*inp) {
 		if(*inp == '=') {
 			inp++;

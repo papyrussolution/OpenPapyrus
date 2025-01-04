@@ -1,5 +1,5 @@
 // PPTEST-DEDICATED.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2025
 // @codepage UTF-8
 // Отдельный модуль тестирования.
 //
@@ -29,7 +29,7 @@ int main(int argc, char ** argv)
 	if(DS.Init(PPSession::fInitPaths, 0, /*pUiDescriptionFileName*/0)) {
 		STestSuite s(STestSuite::fConsole);
 		SRng::CreateInstance((SRng::Algorithm)0, 0); // @forcelink RandomNumberGeneragtor
-		DummyProc_dirent(); // @v10.9.12 @forcelink
+		DummyProc_dirent(); // @forcelink
 		DummyProc_bzip3(); // @v11.7.4 @forcelink
 		DummyProc_sfxtree(); // @v11.7.4 @forcelink
 		DummyProc_TulipIndicators(); // @v11.4.4 @forcelink

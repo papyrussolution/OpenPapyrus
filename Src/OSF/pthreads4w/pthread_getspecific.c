@@ -1,10 +1,6 @@
 /*
  * pthread_getspecific.c
- *
- * Description:
- * POSIX thread functions which implement thread-specific data (TSD).
- *
- * --------------------------------------------------------------------------
+ * Description: POSIX thread functions which implement thread-specific data (TSD).
  *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom

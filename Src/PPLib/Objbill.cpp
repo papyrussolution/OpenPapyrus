@@ -166,10 +166,7 @@ PPObjBill::~PPObjBill()
 	TLP_CLOSE(P_LotXcT);
 }
 
-int PPObjBill::Search(PPID id, void * b)
-{
-	return P_Tbl->Search(id, static_cast<BillTbl::Rec *>(b));
-}
+int PPObjBill::Search(PPID id, void * b) { return P_Tbl->Search(id, static_cast<BillTbl::Rec *>(b)); }
 
 int PPObjBill::SearchByGuid(const S_GUID & rUuid, BillTbl::Rec * pRec)
 {

@@ -1,8 +1,7 @@
 // pthread_mutex.c
 //
 /*
- * Description:
- * This translation unit implements mutual exclusion (mutex) primitives.
+ * Description: This translation unit implements mutual exclusion (mutex) primitives.
  *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom

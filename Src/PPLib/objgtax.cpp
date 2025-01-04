@@ -1,5 +1,5 @@
 // OBJGTAX.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -138,10 +138,7 @@ IMPL_CMPFUNC(PPGoodsTaxEntry, i1, i2)
 	return NZOR(r, cmp_long(p_i1->OpID, p_i2->OpID));
 }
 
-void PPGoodsTaxPacket::Sort()
-{
-	sort(PTR_CMPFUNC(PPGoodsTaxEntry));
-}
+void PPGoodsTaxPacket::Sort() { sort(PTR_CMPFUNC(PPGoodsTaxEntry)); }
 //
 //
 //
@@ -159,10 +156,7 @@ int FASTCALL GTaxVect::TaxToVect(int taxIdx) const
 	return -1;
 }
 
-int FASTCALL GTaxVect::VectToTax(int idx) const
-{
-	return (idx > 0 && idx <= N) ? static_cast<int>(OrderVect[idx]) : (idx ? -1 : 0);
-}
+int FASTCALL GTaxVect::VectToTax(int idx) const { return (idx > 0 && idx <= N) ? static_cast<int>(OrderVect[idx]) : (idx ? -1 : 0); }
 
 double GTaxVect::GetTaxRate(long taxID, int * pIsAbs) const
 {
@@ -532,10 +526,7 @@ int PPObjGoodsTax::IsPacketEq(const PPGoodsTaxPacket & rS1, const PPGoodsTaxPack
 	return 1;
 }
 
-int PPObjGoodsTax::Search(PPID id, PPGoodsTax * pRec)
-{
-	return PPObjReference::Search(id, pRec);
-}
+int PPObjGoodsTax::Search(PPID id, PPGoodsTax * pRec) { return PPObjReference::Search(id, pRec); }
 
 int PPObjGoodsTax::Search(PPID id, PPGoodsTaxEntry * pEntry)
 {

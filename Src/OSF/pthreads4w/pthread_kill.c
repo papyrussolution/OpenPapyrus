@@ -1,10 +1,6 @@
 /*
  * pthread_kill.c
- *
- * Description:
- * This translation unit implements the pthread_kill routine.
- *
- * --------------------------------------------------------------------------
+ * Description: This translation unit implements the pthread_kill routine.
  *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom

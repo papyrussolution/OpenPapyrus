@@ -1,10 +1,6 @@
 /*
  * pthread_getw32threadhandle_np.c
- *
- * Description:
- * This translation unit implements non-portable thread functions.
- *
- * --------------------------------------------------------------------------
+ * Description: This translation unit implements non-portable thread functions.
  *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom

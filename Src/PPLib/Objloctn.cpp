@@ -1,5 +1,5 @@
 // OBJLOCTN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage Windows-1251
 //
 #include <pp.h>
@@ -56,10 +56,7 @@ FiasAddrCache::~FiasAddrCache()
 {
 }
 
-void FASTCALL FiasAddrCache::SetTable(PPFiasReference * pT)
-{
-	P_T = pT;
-}
+void FASTCALL FiasAddrCache::SetTable(PPFiasReference * pT) { P_T = pT; }
 
 int FiasAddrCache::GetAddrObjListByText(const char * pText, PPIDArray & rList)
 {
@@ -415,7 +412,6 @@ int STDCALL SetupLocationCombo(TDialog * dlg, uint ctl, PPID id, uint flags, con
 void PPObjLocation::InitInstance(SCtrLite sctr, void * extraPtr)
 {
 	Sctr = sctr;
-
 	TLP_OPEN(P_Tbl);
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 	P_CurrFilt = 0;
@@ -508,10 +504,7 @@ SString & PPObjLocation::MakeCodeString(const LocationTbl::Rec * pRec, int optio
 	return rBuf;
 }
 
-int PPObjLocation::Search(PPID id, void * b)
-{
-	return P_Tbl->Search(id, (LocationTbl::Rec *)b);
-}
+int PPObjLocation::Search(PPID id, void * b) { return P_Tbl->Search(id, (LocationTbl::Rec *)b); }
 
 /*virtual*/int PPObjLocation::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam) // @v11.0.4
 {
@@ -1517,8 +1510,7 @@ public:
 			P_Box->P_Def->SetOption(lbtFocNotify, 1);
 		PPPersonConfig psn_cfg;
 		PPObjPerson::ReadConfig(&psn_cfg);
-		// @v10.7.11 FieldNames.copy(psn_cfg.DlvrAddrExtFldList);
-		FieldNames = psn_cfg.DlvrAddrExtFldList; // @v10.7.11
+		FieldNames = psn_cfg.DlvrAddrExtFldList;
 		showCtrl(STDCTL_INSBUTTON, 0);
 	}
 	DECL_DIALOG_SETDTS()

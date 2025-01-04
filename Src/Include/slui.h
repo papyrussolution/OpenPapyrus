@@ -1,5 +1,5 @@
 // SLUI.H
-// Copyright (c) A.Sobolev 1996-2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996-2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #ifndef __SLUI_H
@@ -5332,6 +5332,7 @@ public:
 	long   _curFrameItem() const { return (curItem - topItem); }
 	int    STDCALL isColInGroup(uint col, uint * idx) const;
 	int    GetCapHeight() const;
+	bool   SetCapHeight(int height); // @v12.2.2
 	void   VerifyCapHeight();
 	uint   GetGroupCount() const;
 	const  BroGroup * FASTCALL GetGroup(uint) const;
@@ -5533,7 +5534,7 @@ public:
 		int    FASTCALL SetLeftBottomCornerColor(COLORREF c); // returns strictly 1
 		int    FASTCALL SetLeftTopCornerColor(COLORREF c); // returns strictly 1
 		enum {
-			fCorner   = 0x0001,
+			fCorner           = 0x0001,
 			fLeftBottomCorner = 0x0002,
 			fRightFigCircle   = 0x0004,
 			fRightFigTriangle = 0x0008 // @v11.1.12
@@ -5543,7 +5544,7 @@ public:
 		COLORREF Color2; // Цвет для нижнего левого угла
 		COLORREF RightFigColor; // Цвет фигуры в правой части ячейки
 		long   Flags;
-		SString Description; // @v10.6.3
+		SString Description;
 	private:
 		CellStyle();
 	};

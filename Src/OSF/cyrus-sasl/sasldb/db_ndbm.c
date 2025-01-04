@@ -2,38 +2,8 @@
  * Rob Siemborski
  * Rob Earhart
  */
-/*
- * Copyright (c) 1998-2016 Carnegie Mellon University.  All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the
- *    distribution.
- *
- * 3. The name "Carnegie Mellon University" must not be used to
- *    endorse or promote products derived from this software without
- *    prior written permission. For permission or any other legal
- *    details, please contact
- *      Carnegie Mellon University
- *      Center for Technology Transfer and Enterprise Creation
- *      4615 Forbes Avenue
- *      Suite 302
- *      Pittsburgh, PA  15213
- *      (412) 268-7393, fax: (412) 268-7395
- *      innovation@andrew.cmu.edu
- *
- * 4. Redistributions of any form whatsoever must retain the following
- *    acknowledgment:
- *    "This product includes software developed by Computing Services
- *     at Carnegie Mellon University (http://www.cmu.edu/computing/)."
- */
+// Copyright (c) 1998-2016 Carnegie Mellon University.  All rights reserved.
+//
 #include <sasl-internal.h>
 #pragma hdrstop
 #include <ndbm.h>
@@ -66,12 +36,9 @@ int _sasldb_getdata(const sasl_utils_t * utils, sasl_conn_t * conn, const char *
 		utils->seterror(conn, 0, "Database not checked");
 		return SASL_FAIL;
 	}
-
-	result = _sasldb_alloc_key(utils, authid, realm, propName,
-		&key, &key_len);
+	result = _sasldb_alloc_key(utils, authid, realm, propName, &key, &key_len);
 	if(result != SASL_OK) {
-		utils->seterror(conn, 0,
-		    "Could not allocate key in _sasldb_getdata");
+		utils->seterror(conn, 0, "Could not allocate key in _sasldb_getdata");
 		return result;
 	}
 	if(utils->getcallback(conn, SASL_CB_GETOPT, (sasl_callback_ft*)&getopt, &cntxt) == SASL_OK) {
@@ -322,16 +289,11 @@ int _sasldb_getnextkey(const sasl_utils_t * utils __attribute__((unused)),
 	return SASL_CONTINUE;
 }
 
-int _sasldb_releasekeyhandle(const sasl_utils_t * utils,
-    sasldb_handle handle)
+int _sasldb_releasekeyhandle(const sasl_utils_t * utils, sasldb_handle handle)
 {
 	handle_t * dbh = (handle_t*)handle;
-
 	if(!utils || !dbh) return SASL_BADPARAM;
-
 	if(dbh->db) dbm_close(dbh->db);
-
 	utils->FnFree(dbh);
-
 	return SASL_OK;
 }

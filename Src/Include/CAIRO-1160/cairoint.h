@@ -39,11 +39,9 @@
 	#include "config.h"
 #endif
 #ifdef _MSC_VER
-	// @v10.6.5 #define cairo_public __declspec(dllexport)
-	#define cairo_public // @v10.6.5 
+	#define cairo_public
 #endif
-#include <slib.h> // @sobolev
-//#include <setjmp.h>
+#include <slib.h>
 #ifdef _MSC_VER
 	#define _USE_MATH_DEFINES
 #endif
@@ -431,13 +429,12 @@ struct _cairo_surface_attributes {
 
 #define CAIRO_FONT_SLANT_DEFAULT   CAIRO_FONT_SLANT_NORMAL
 #define CAIRO_FONT_WEIGHT_DEFAULT  CAIRO_FONT_WEIGHT_NORMAL
-
 #define CAIRO_WIN32_FONT_FAMILY_DEFAULT "Arial"
 #define CAIRO_QUARTZ_FONT_FAMILY_DEFAULT  "Helvetica"
 #define CAIRO_FT_FONT_FAMILY_DEFAULT     ""
 #define CAIRO_USER_FONT_FAMILY_DEFAULT     "@cairo:"
 
-#if   CAIRO_HAS_WIN32_FONT
+#if CAIRO_HAS_WIN32_FONT
 	#define CAIRO_FONT_FAMILY_DEFAULT CAIRO_WIN32_FONT_FAMILY_DEFAULT
 	#define CAIRO_FONT_FACE_BACKEND_DEFAULT &_cairo_win32_font_face_backend
 #elif CAIRO_HAS_QUARTZ_FONT

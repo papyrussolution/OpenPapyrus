@@ -1,9 +1,7 @@
 // pthread_cond.c
 //
 /*
- * Description:
- * This translation unit implements condition variables and their primitives.
- * --------------------------------------------------------------------------
+ * Description: This translation unit implements condition variables and their primitives.
  *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom

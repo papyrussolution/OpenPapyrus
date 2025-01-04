@@ -1,5 +1,5 @@
 // SARRAY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -898,6 +898,24 @@ bool SVectorBase::isItemEq(const void * pKey, uint pos, CompFunc fcmp, size_t of
 			return true;
 	}
 	return false;
+}
+
+bool SVectorBase::areIntersecting(const SVectorBase * pS, CompFunc fcmp, size_t ofs, void * pExtraData) const
+{
+	bool   yes = false;
+	if(pS && pS->getItemSize() == getItemSize()) {
+		const uint _c = getCount();
+		const uint _sc = pS->getCount();
+		if(_c && _sc) {
+			for(uint i = 0; !yes && i < _c; i++) {
+				const void * p_key = at(i);
+				for(uint j = 0; !yes && j < _sc; j++) {
+					yes = pS->isItemEq(p_key, j, fcmp, ofs, pExtraData);
+				}
+			}
+		}
+	}
+	return yes;
 }
 
 bool SVectorBase::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t ofs, void * pExtraData /*=0*/) const
@@ -4044,6 +4062,7 @@ void   LongArray::sort() { SVector::sort(CMPF_LONG); }
 //
 bool   STDCALL  LongArray::lsearch(long k, uint * pIdx) const { return SVector::lsearch(&k, pIdx, CMPF_LONG); }
 bool   FASTCALL LongArray::lsearch(long k) const { return SVector::lsearch(&k, 0, CMPF_LONG); }
+bool   LongArray::areIntersecting(const LongArray * pS) const { return SVector::areIntersecting(pS, CMPF_LONG); }
 
 int FASTCALL LongArray::setSingleNZ(long id)
 {
@@ -4087,7 +4106,7 @@ bool LongArray::isSorted() const
 void LongArray::intersect(const LongArray * p, int binary)
 {
 	if(!p || !p->getCount())
-		clear(); // @v10.5.8 freeAll()-->clear()
+		clear();
 	else {
 		uint c = getCount();
 		if(c) do {

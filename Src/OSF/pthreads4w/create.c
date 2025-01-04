@@ -1,11 +1,6 @@
 /*
  * create.c
- *
- * Description:
- * This translation unit implements routines associated with spawning a new
- * thread.
- *
- * --------------------------------------------------------------------------
+ * Description: This translation unit implements routines associated with spawning a new thread.
  *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom

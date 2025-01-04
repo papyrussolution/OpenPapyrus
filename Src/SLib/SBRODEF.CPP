@@ -165,6 +165,16 @@ void BrowserDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 	ASSIGN_PTR(pScrollPos, curItem);
 }
 
+bool   BrowserDef::SetCapHeight(int height) // @v12.2.2
+{
+	bool   ok = true;
+	if(height > 0)
+		capHight = height;
+	else
+		ok = false;
+	return ok;
+}
+
 int    BrowserDef::GetCapHeight() const { return capHight; }
 void   BrowserDef::VerifyCapHeight() { capHight = MIN(2, capHight); }
 uint   BrowserDef::GetGroupCount() const { return NumGroups; }

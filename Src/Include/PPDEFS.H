@@ -6291,6 +6291,11 @@
 	#define CTL_GOODSTOTAL_COUNT         (1 + WINDOWS_ID_BIAS)
 #define DLG_PERSONTOTAL           575 // Итоги по выборке персоналий
 	#define CTL_PERSONTOTAL_COUNT        (1 + WINDOWS_ID_BIAS)
+	#define CTL_PERSONTOTAL_CA_ND        (2 + WINDOWS_ID_BIAS) // stNoData
+	#define CTL_PERSONTOTAL_CA_R         (3 + WINDOWS_ID_BIAS) // stRegularTa
+	#define CTL_PERSONTOTAL_CA_D         (4 + WINDOWS_ID_BIAS) // stDelayedTa
+	#define CTL_PERSONTOTAL_CA_L         (5 + WINDOWS_ID_BIAS) // stHopelesslyDelayedTa
+	#define CTL_PERSONTOTAL_CA_N         (6 + WINDOWS_ID_BIAS) // stfNewClient
 #define DLG_BILLEXTMOD            576 // Независимое редактирование некоторых параметров документа
 #define DLG_BHTPROGUPLOAD         577 // Загрузка программы на BHT-терминал
 #define DLG_TXM                   578 // Маркеры налоговых платежей для платежных поручений
@@ -10423,7 +10428,12 @@
 	#define CTLSEL_SHIPMCTRL_SHLIMOP   (9 + WINDOWS_ID_BIAS)
 #define DLG_DYNOBJ                1257 // Диалог редактирования динамического объекта
 #define DLG_DYNOBJHDR             1258 // Диалог редактирования определителя динамических объектов
-#define DLG_NEWCLNT               1259 // CTL_LBXSEL_...
+#define DLG_NEWCLNT               1259 // Диалог редактирования конфигурации анализа клиентской активности
+	#define CTL_NEWCLNT_LIST           (1 + WINDOWS_ID_BIAS)
+	#define CTL_NEWCLNT_CRITCADD       (2 + WINDOWS_ID_BIAS) // @v12.2.2 CriticalCliActivityDelayDays
+	#define CTL_NEWCLNT_CRITCADS       (3 + WINDOWS_ID_BIAS) // @v12.2.2 CriticalCliActivityDelaySigm
+	#define CTL_NEWCLNT_HLCADD         (4 + WINDOWS_ID_BIAS) // @v12.2.2 HopelessCliActivityDelayDays
+	#define CTL_NEWCLNT_HLCADS         (5 + WINDOWS_ID_BIAS) // @v12.2.2 HopelessCliActivityDelaySigm
 #define DLG_NEWCNTCF              1260
 	#define CTL_NEWCNTCF_OPTYPE        (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_NEWCNTCF_OPTYPE     (2 + WINDOWS_ID_BIAS)
@@ -11681,6 +11691,7 @@
 	#define CTLCAL_PRCRCLIACST_PRD       (2 + IMPEXP_CTL_BIAS)
 	#define CTL_PRCRCLIACST_PK           (3 + IMPEXP_CTL_BIAS)
 	#define CTLSEL_PRCRCLIACST_PK        (4 + IMPEXP_CTL_BIAS)
+#define DLG_PERSONTOTAL_CA        1457 // @v12.2.2 Итоги по выборке персоналий со статистикой по текущему состоянию клиентской активности
 	
 // Win32 Dialog Identifiers
 //

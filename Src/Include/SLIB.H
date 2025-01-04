@@ -1,5 +1,5 @@
 // SLIB.H
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // 
 // @todo unify strtoul
@@ -114,10 +114,10 @@
 	#define _WIN32_WINDOWS 0x0410
 	#define SECURITY_WIN32
 	#ifndef _WIN32_IE
-		#if _MSC_VER < 1900 // @v10.9.9
+		#if _MSC_VER < 1900
 			#define _WIN32_IE 0x0500
 		#else
-			#define _WIN32_IE 0x0700 // =_WIN32_IE_IE70 @v10.9.9
+			#define _WIN32_IE 0x0700 // =_WIN32_IE_IE70
 		#endif
 	#endif
 	/* @v11.7.0 (выше определена директива установки выравнивания по умолчанию для компилятора)
@@ -3152,6 +3152,7 @@ int    FASTCALL __TimeFieldsToEpochTime(const SUniTime_Internal * pTimeFields, u
 //
 // Descr: Универсальное представление времени, обеспечивающее хранение любых временных
 //   отметок с (почти) любой точностью.
+// @todo Перенести весь функционал на UED и заменить использование SUniTime на UED.
 //
 class SUniTime {
 public:
@@ -8186,6 +8187,10 @@ public:
 	bool   bsearchGe(const void * key, uint * pIdx, CompFunc fcmp, size_t ofs = 0, void * pExtraData = 0) const;
 	bool   lsearch(const void * key, uint * pIdx, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
 	//
+	// Descr: Выясняет существуют ли одинаковые элементы в списках this и pS относительно функции сравнения fcmp.
+	//
+	bool   areIntersecting(const SVectorBase * pS, CompFunc fcmp, size_t ofs = 0, void * pExtraData = 0) const;
+	//
 	// Descr: Ищет первый элемент, который больше или равен ключевому элементу key.
 	//
 	bool   lsearchGe(const void * key, uint * pIdx, CompFunc, size_t ofs = 0, void * pExtraData = 0) const;
@@ -8808,6 +8813,7 @@ public:
 	bool   STDCALL  lsearch(long, uint * pPos) const;
 	bool   FASTCALL bsearch(long) const;
 	bool   FASTCALL lsearch(long) const;
+	bool   areIntersecting(const LongArray * pS) const;
 	//
 	// Descr: Возвращает true если количество элементом массива более 1.
 	//

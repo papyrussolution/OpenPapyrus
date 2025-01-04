@@ -1,5 +1,5 @@
 // V_PERSON.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -48,7 +48,8 @@ int ViewPersonInfoBySCard(const char * pCode)
 //
 //
 //
-PPViewPerson::PPViewPerson() : PPView(&PsnObj, &Filt, PPVIEW_PERSON, implUseQuickTagEditFunc, 0), DefaultTagID(0), P_TempPsn(0), P_Fr(0) // @v11.2.8 0-->&PsnObj; implUseQuickTagEditFunc
+PPViewPerson::PPViewPerson() : PPView(&PsnObj, &Filt, PPVIEW_PERSON, implUseQuickTagEditFunc, 0), 
+	DefaultTagID(0), P_TempPsn(0), P_Fr(0), P_ClientActivityStateList(0) // @v11.2.8 0-->&PsnObj; implUseQuickTagEditFunc
 {
 }
 
@@ -56,6 +57,7 @@ PPViewPerson::~PPViewPerson()
 {
 	delete P_TempPsn;
 	delete P_Fr;
+	delete P_ClientActivityStateList; // @v12.2.2
 }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempPersonFile, TempPerson);
@@ -98,6 +100,7 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 	ZDELETE(P_Ct);
 	NewCliList.Clear();
 	StrPool.ClearS();
+	ZDELETE(P_ClientActivityStateList); // @v12.2.2
 	if(IsTempTblNeeded()) {
 		IterCounter cntr;
 		PersonTbl * pt = PsnObj.P_Tbl;
@@ -306,13 +309,13 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 					cntr.Init(id_list.getCount());
 					for(uint i = 0; i < id_list.getCount(); i++) {
 						const  PPID person_id = id_list.get(i);
-						int   skip = 0;
-						if(Filt.NewCliPeriod.low) {
+						bool   skip = false;
+						/* @v12.2.2 (замещено более общим функционалом анализа клиентской активности) if(Filt.NewCliPeriod.low) {
 							if(ncd_blk.IsNewPerson(person_id, Filt.NewCliPeriod))
 								NewCliList.Add(person_id);
 							else if(Filt.Flags & Filt.fNewClientsOnly)
-								skip = 1;
-						}
+								skip = true;
+						}*/
 						if(!skip) {
 							THROW(AddTempRec(person_id, p_used_loc_list, 0));
 						}
@@ -363,6 +366,7 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 			}
 		}
 	}
+	/* @v12.2.2 (замещено более общим функционалом анализа клиентской активности)
 	else if(Filt.NewCliPeriod.low && !oneof2(Filt.GetAttribType(), PPPSNATTR_HANGEDADDR, PPPSNATTR_STANDALONEADDR)) {
 		PersonViewItem item;
 		PPWaitStart();
@@ -373,7 +377,25 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 			PPWaitPercent(GetCounter());
 		}
 		PPWaitStop();
+	}*/
+	// @v12.2.2 {
+	if(Filt.Flags & PersonFilt::fCliActivityStats) {
+		assert(P_ClientActivityStateList == 0); // @see top of function
+		PersonViewItem item;
+		PPWaitStart();
+		THROW_MEM(P_ClientActivityStateList = new LAssocArray());
+		for(InitIteration(); NextIteration(&item) > 0;) {
+			PPObjPerson::ClientActivityState cas;
+			cas.PersonID = item.ID;
+			cas.ActualDate = Filt.ClientActivityEvalDate;
+			cas.NewCliPeriod = Filt.NewCliPeriod;
+			PsnObj.IdentifyClientActivityState(cas);
+			P_ClientActivityStateList->Add(item.ID, cas.State);
+			PPWaitPercent(GetCounter());
+		}
+		PPWaitStop();		
 	}
+	// } @v12.2.2 
 	CATCH
 		ZDELETE(P_Ct);
 		ZDELETE(P_TempPsn);
@@ -856,23 +878,42 @@ int PPViewPerson::DeleteItem(PPID id)
 
 void PPViewPerson::ViewTotal()
 {
-	TDialog * dlg = new TDialog(DLG_PERSONTOTAL);
+	uint   dlg_id = P_ClientActivityStateList ? DLG_PERSONTOTAL_CA : DLG_PERSONTOTAL;
+	TDialog * dlg = new TDialog(dlg_id);
 	if(CheckDialogPtrErr(&dlg)) {
 		long   count = 0;
+		long   cas_nodata = 0;
+		long   cas_reg = 0;
+		long   cas_delayed = 0;
+		long   cas_hldelayed = 0;
+		long   cas_new = 0;
+		PersonViewItem item;
 		PPWaitStart();
-		for(InitIteration(); NextIteration(0) > 0;) {
+		for(InitIteration(); NextIteration(&item) > 0;) {
 			count++;
+			if(P_ClientActivityStateList) {
+				uint   pos = 0;
+				if(P_ClientActivityStateList->Search(item.ID, &pos)) {
+					const long state = P_ClientActivityStateList->at(pos).Val;
+					switch(state & ~PPObjPerson::ClientActivityState::stfNewClient) {
+						case PPObjPerson::ClientActivityState::stNoData: cas_nodata++; break;
+						case PPObjPerson::ClientActivityState::stDelayedTa: cas_delayed++; break;
+						case PPObjPerson::ClientActivityState::stHopelesslyDelayedTa: cas_hldelayed++; break;
+						case PPObjPerson::ClientActivityState::stRegularTa: cas_reg++; break;
+					}
+					if(state & PPObjPerson::ClientActivityState::stfNewClient)
+						cas_new++;
+				}
+			}
 			PPWaitPercent(GetCounter());
 		}
 		PPWaitStop();
-		/*
-		InitIteration();
-		if(P_TempPsn)
-			count = Counter.GetTotal();
-		else
-			for(count = 0; NextIteration(0) > 0; count++);
-		*/
 		dlg->setCtrlLong(CTL_PERSONTOTAL_COUNT, count);
+		dlg->setCtrlLong(CTL_PERSONTOTAL_CA_ND, cas_nodata);
+		dlg->setCtrlLong(CTL_PERSONTOTAL_CA_R, cas_reg);
+		dlg->setCtrlLong(CTL_PERSONTOTAL_CA_D, cas_delayed);
+		dlg->setCtrlLong(CTL_PERSONTOTAL_CA_L, cas_hldelayed);
+		dlg->setCtrlLong(CTL_PERSONTOTAL_CA_N, cas_new);
 		ExecViewAndDestroy(dlg);
 	}
 }
@@ -2230,8 +2271,108 @@ SString & FASTCALL PPViewPerson::GetFromStrPool(uint strP, SString & rBuf) const
 	return rBuf;
 }
 
+/*static*/int PPViewPerson::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+{
+	int    ok = -1;
+	if(pBrw && pData && pCellStyle) {
+		const  BrowserDef * p_def = pBrw->getDef();
+		PPViewPerson * p_view = static_cast<PPViewPerson *>(pBrw->P_View);
+		if(p_def && p_view && col >= 0 && col < p_def->getCountI()) {
+			const BroColumn & r_col = p_def->at(col);
+			const PPViewPerson::BrwHdr * p_hdr = static_cast<const PPViewPerson::BrwHdr *>(pData);
+			const PersonFilt * p_filt = static_cast<const PersonFilt *>(p_view->GetBaseFilt());
+			//
+			if(!p_view->IsCrosstab() && p_filt) {
+				int is_register  = (p_filt->GetAttribType() == PPPSNATTR_REGISTER) ? oneof2(p_filt->RegTypeID, PPREGT_OKPO, PPREGT_TPID/*, PPREGT_BNKCORRACC*/) : 0;
+				int is_bank_acct = (p_filt->GetAttribType() == PPPSNATTR_BNKACCT);
+				if(col == 0 && p_view->HasImage(pData)) { // К персоналии привязана картинка?
+					pCellStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
+					pCellStyle->Color2 = GetColorRef(SClrGreen);
+					ok = 1;
+				}
+				/*else if(col == 1 && p_view->IsNewCliPerson(*static_cast<const  PPID *>(pData))) {
+					pCellStyle->Flags = 0;
+					pCellStyle->Color = GetColorRef(SClrOrange);
+					ok = 1;
+				}*/
+				else if(r_col.OrgOffs == 1) { // name
+					if(p_view->P_ClientActivityStateList) {
+						uint caslp = 0;
+						if(p_view->P_ClientActivityStateList->Search(p_hdr->ID, &caslp)) {
+							const long state = p_view->P_ClientActivityStateList->at(caslp).Val;
+							switch(state & ~PPObjPerson::ClientActivityState::stfNewClient) {
+								case PPObjPerson::ClientActivityState::stDelayedTa:
+									ok = pCellStyle->SetLeftBottomCornerColor(GetColorRef(SClrRed));
+									break;
+								case PPObjPerson::ClientActivityState::stHopelesslyDelayedTa:
+									ok = pCellStyle->SetLeftBottomCornerColor(GetColorRef(SClrBlack));
+									break;
+								case PPObjPerson::ClientActivityState::stRegularTa:
+									ok = pCellStyle->SetLeftBottomCornerColor(GetColorRef(SClrGreen));
+									break;
+							}
+							if(state & PPObjPerson::ClientActivityState::stfNewClient) {
+								ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrOrange));
+							}
+						}
+					}
+				}
+				/*else if(r_col.OrgOffs == 9) { // client activity state
+				}*/
+				/* @v9.8.4 @todo Из-за замены текстовых полей во временной таблице на ссылки в StrPool следующий блок надо переделать
+				else if((is_register && col == 3) || (is_bank_acct && col == 5)) {
+					int is_valid = 0;
+					// @v10.8.1 {
+					STokenRecognizer tr;
+					SNaturalTokenStat nts;
+					SNaturalTokenArray nta;
+					tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta.Z(), &nts); 
+					// } @v10.8.1 
+					SString code = is_bank_acct ? ((BnkAcct_*)pData)->BnkAcct : ((Register_*)pData)->RegNumber;
+					SString bic  = is_bank_acct ? ((BnkAcct_*)pData)->BIC     : ((Register_*)pData)->RegSerial;
+					if(code.Strip().Len()) {
+						if(is_bank_acct)
+							is_valid = CheckBnkAcc(code, bic.Strip());
+						else {
+							if(p_filt->RegTypeID == PPREGT_OKPO) {
+								// @v10.8.1 is_valid = CheckOKPO(code);
+								is_valid = (nta.Has(SNTOK_RU_OKPO) > 0.0f); // @v10.8.1 
+							}
+							else if(p_filt->RegTypeID == PPREGT_TPID) {
+								// @v8.7.4 is_valid = CheckINN(code);
+								// @v10.8.1 is_valid = SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, code, code.Len()); // @v8.7.4
+								is_valid = (nta.Has(SNTOK_RU_INN) > 0.0f); // @v10.8.1 
+							}
+							else
+								is_valid = CheckCorrAcc(code, bic);
+						}
+						ok = 1;
+					}
+					if(ok > 0) {
+						pCellStyle->Flags = 0;
+						if(is_valid)
+							pCellStyle->Color = GetColorRef(SClrAqua);
+						else
+							pCellStyle->Color = GetColorRef(SClrCoral);
+					}
+				}
+				*/
+			}
+		}
+	}
+	return ok;
+}
+
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, void * extraPtr)
 {
+	int    ok = -1;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
+	if(p_brw) {
+		PPViewPerson * p_view = static_cast<PPViewPerson *>(p_brw->P_View);
+		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pCellStyle, p_brw) : -1;
+	}
+	return ok;
+#if 0 // {
 	int    ok = -1;
 	PPViewPerson * p_view = static_cast<PPViewPerson *>(extraPtr);
 	if(pData && pCellStyle && p_view) {
@@ -2239,6 +2380,12 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 		if(!p_view->IsCrosstab() && p_filt) {
 			int is_register  = (p_filt->GetAttribType() == PPPSNATTR_REGISTER) ? oneof2(p_filt->RegTypeID, PPREGT_OKPO, PPREGT_TPID/*, PPREGT_BNKCORRACC*/) : 0;
 			int is_bank_acct = (p_filt->GetAttribType() == PPPSNATTR_BNKACCT);
+
+			const  BrowserDef * p_def = pBrw->getDef();
+			if(col >= 0 && col < p_def->getCountI()) {
+				const BroColumn & r_col = p_def->at(col);
+			}
+
 			if(col == 0 && p_view->HasImage(pData)) { // К персоналии привязана картинка?
 				pCellStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
 				pCellStyle->Color2 = GetColorRef(SClrGreen);
@@ -2290,13 +2437,15 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 		}
 	}
 	return ok;
+#endif // } 0
 }
 
 /*virtual*/void PPViewPerson::PreprocessBrowser(PPViewBrowser * pBrw)
 {
+	SString temp_buf;
 	if(pBrw) {
+		BrowserDef * p_def = pBrw->getDef();
 		if(Filt.Flags & PersonFilt::fShowFiasRcgn && Filt.IsLocAttr() && P_TempPsn) {
-			BrowserDef * p_def = pBrw->getDef();
 			if(p_def) {
 				pBrw->InsColumn(-1, "FIAS ADDR",  8, 0, MKSFMT(32, 0), 0);
 				pBrw->InsColumn(-1, "FIAS HOUSE", 9, 0, MKSFMT(32, 0), 0);
@@ -2323,9 +2472,23 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 		}
 		// @v12.2.2 {
 		if(Filt.Flags & PersonFilt::fCliActivityStats && !Filt.GetAttribType() && !P_Ct) {
-			pBrw->InsColumn(-1, "Event Count", 6, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0);
-			pBrw->InsColumn(-1, "Gap Days Avg", 7, 0, MKSFMTD(0, 1, NMBF_NOZERO), 0);
-			pBrw->InsColumn(-1, "Gap Days StdDev", 8, 0, MKSFMTD(0, 1, NMBF_NOZERO), 0);
+			if(p_def) {
+				uint   column_idx = p_def->getCount();
+				p_def->SetCapHeight(3);
+				pBrw->InsColumn(-1, "@clientactivity_eventcount",    6, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0);
+				pBrw->InsColumn(-1, "@clientactivity_gapdaysavg",    7, 0, MKSFMTD(0, 1, NMBF_NOZERO), 0);
+				pBrw->InsColumn(-1, "@clientactivity_gapdaysstddev", 8, 0, MKSFMTD(0, 1, NMBF_NOZERO), 0);
+				pBrw->InsColumn(-1, "@clientactivity_state",         9, 0, 0, 0);
+				{
+					BroGroup grp;
+					grp.First = column_idx;
+					grp.Count = 4;
+					grp.Height = 1;
+					grp.P_Text = newStr(PPLoadStringS("clientactivity", temp_buf));
+					p_def->AddColumnGroup(&grp);
+					column_idx += grp.Count;
+				}
+			}
 		}
 		// } @v12.2.2 
 		//@erik 02.06.2019{
@@ -2336,7 +2499,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 //			}
 //		}
 		//@erik}
-		pBrw->SetCellStyleFunc(CellStyleFunc, this);
+		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}
 }
 
@@ -2487,12 +2650,12 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_addr,  tmp_pt->AddressP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_raddr, tmp_pt->RAddressP, &StrPool);
 						q = & select(
-							p->ID,
-							p->Name,
-							/*tmp_pt->Phone*/dbe_phone,
-							/*tmp_pt->Address*/dbe_addr,
-							/*tmp_pt->RAddress*/dbe_raddr,
-							p->Flags,
+							p->ID,                         // #0 
+							p->Name,                       // #1
+							/*tmp_pt->Phone*/dbe_phone,    // #2  
+							/*tmp_pt->Address*/dbe_addr,   // #3
+							/*tmp_pt->RAddress*/dbe_raddr, // #4
+							p->Flags,                      // #5
 							0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
 					}
 					break;
@@ -2500,10 +2663,10 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					{
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone, tmp_pt->EMailP, &StrPool); // @v12.1.11 tmp_pt->PhoneP-->tmp_pt->EMailP
 						q = & select(
-							p->ID,
-							p->Name,
-							/*tmp_pt->Phone*/dbe_phone,
-							p->Flags,
+							p->ID,                      // #0
+							p->Name,                    // #1 
+							/*tmp_pt->Phone*/dbe_phone, // #2
+							p->Flags,                   // #3
 							0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
 					}
 					break;
@@ -2575,23 +2738,23 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					{
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_regser,  tmp_pt->RegSerialP, &StrPool);
 						q = & select(
-							p->ID,
-							p->Name,
-							dbe_regser,
-							tmp_pt->RegNumber,
-							tmp_pt->RegInitDate,
-							tmp_pt->RegExpiry,
-							p->Flags,
+							p->ID,               // #0
+							p->Name,             // #1
+							dbe_regser,          // #2  
+							tmp_pt->RegNumber,   // #3 
+							tmp_pt->RegInitDate, // #4
+							tmp_pt->RegExpiry,   // #5
+							p->Flags,            // #6
 							0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
 					}
 					break;
 				case PPPSNATTR_TAG:
 					{
 						q = & select(
-							p->ID,
-							p->Name,
-							tmp_pt->RegNumber,
-							p->Flags,
+							p->ID,             // #0
+							p->Name,           // #1
+							tmp_pt->RegNumber, // #2
+							p->Flags,          // #3 
 							0L).from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);
 					}
 					break;
@@ -2616,6 +2779,7 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 							DBE    dbe_cas_evntcount;
 							DBE    dbe_cas_gapdaysavg;
 							DBE    dbe_cas_gapdaysstddev;
+							DBE    dbe_ca_state;
 							{
 								dbe_cas_evntcount.init();
 								dbe_cas_evntcount.push(p->ID);
@@ -2636,6 +2800,15 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 								dbe_cas_gapdaysstddev.push(dbconst(PPObjPerson::casiGapDaysStdDev));
 								dbe_cas_gapdaysstddev.push(static_cast<DBFunc>(PPDbqFuncPool::IdClientActivityStatisticsIndicator));
 								q->addField(dbe_cas_gapdaysstddev); // #8
+							}
+							{
+								dbe_ca_state.init();
+								dbe_ca_state.push(p->ID);
+								dbe_ca_state.push(dbconst(Filt.ClientActivityEvalDate));
+								dbe_ca_state.push(dbconst(Filt.NewCliPeriod.low));
+								dbe_ca_state.push(dbconst(Filt.NewCliPeriod.upp));
+								dbe_ca_state.push(static_cast<DBFunc>(PPDbqFuncPool::IdClientActivityState));
+								q->addField(dbe_ca_state); // #9
 							}
 						}
 						// } @v12.2.2 

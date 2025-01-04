@@ -1907,7 +1907,7 @@ static void InitTest()
 		//
 		ulong a = SLS.GetTLA().Rg.GetUniformIntPos(1000000);
 		ulong b = a / 10;
-		slfprintf_stderr("%d", b);
+		slfprintf_stderr("%d\n", b); // @v12.2.2 "%d"-->"%d\n"
 	}
 	{
 		// @v11.7.3 Хочу убедиться что компилятор не генерирует разные экземпляры для constexpr-строк в разных модулях (да, я - параноик)

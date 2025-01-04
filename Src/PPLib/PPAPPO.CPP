@@ -549,7 +549,7 @@ int PPApp::processCommand(uint cmd)
 		case cmAccTurnList:          PPView::Execute(PPVIEW_ACCTURN,         0, PPView::exefModeless, 0); break;
 		case cmBalance:              PPView::Execute(PPVIEW_BALANCE,         0, PPView::exefModeless, 0); break;
 		case cmShipmAnalyze:         PPView::Execute(PPVIEW_SHIPMANALYZE,    0, PPView::exefModeless, 0); break;
-		case cmGoodsGrpRlz:          PPView::Execute(PPVIEW_GOODSTAXANALYZE, 0, PPView::exefModeless, 0); break;
+		case cmGoodsTaxAnalyze:      PPView::Execute(PPVIEW_GOODSTAXANALYZE, 0, PPView::exefModeless, 0); break;
 		case cmViewCheckOpJ:         PPView::Execute(PPVIEW_CHECKOPJRNL,     0, PPView::exefModeless, 0); break;
 		case cmJobPool:              PPView::Execute(PPVIEW_JOB,             0, PPView::exefModeless, 0); break;
 		case cmGlobalUserAcc:        PPView::Execute(PPVIEW_GLOBALUSERACC,   0, PPView::exefModeless, 0); break;
@@ -896,7 +896,7 @@ int PPApp::processCommand(uint cmd)
 		case cmProcessObjText:     DoProcessObjText(0); break;
 		case cmGenerateKeywordSeq: Test_KeywordListGenerator(); break;
 		case cmLotPacking:         ReceiptPacking();        break;
-		case cmCvtQCert:           ConvertLandQCertToLotTag(); break;
+		// @v12.2.2 case cmCvtQCert:           ConvertLandQCertToLotTag(); break;
 		case cmCorrectCCheckLine01:     CCheckCore().CorrectCCLineProblem01(); break;
 		case cmRecoverLostUnifiedLinks: PPObjTag::RecoverLostUnifiedLinks(); break;
 		case cmBuildLocalDL600:         BuildLocalDL600(); break;

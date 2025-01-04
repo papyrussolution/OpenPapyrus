@@ -1061,6 +1061,18 @@ static IMPL_DBE_PROC(dbqf_clientactivitystatisticsindicator_ii)
 	result->init(value);
 }
 
+static IMPL_DBE_PROC(dbqf_clientactivitystate_iddd) // @v12.2.2
+{
+	long   value = 0;
+	PPObjPerson::ClientActivityState st;
+	st.PersonID = params[0].lval;
+	st.ActualDate = params[1].dval;
+	st.NewCliPeriod.Set(params[2].dval, params[3].dval);
+	PPObjPerson psn_obj;
+	psn_obj.IdentifyClientActivityState(st);
+	result->init(st.State);
+}
+
 static IMPL_DBE_PROC(dbqf_stafforgname_i)
 {
 	char   name_buf[128];
@@ -1524,6 +1536,7 @@ int PPDbqFuncPool::IdTSessBillLinkTo_Text = 0; // @v11.6.12
 int PPDbqFuncPool::IdBillMemoSubStr       = 0; // @v11.7.4
 int PPDbqFuncPool::IdBillAmount           = 0; // @v12.1.0 (fldBillID, amountType)
 int PPDbqFuncPool::IdClientActivityStatisticsIndicator = 0; // @v12.2.2 (personID, indicator/*PPObjPerson::casiXXX*/) ¬озвращает значение индикатора статистики клиентской активности
+int PPDbqFuncPool::IdClientActivityState  = 0; // @v12.2.2 (personID, LDATE actualDate, LDATE newCliPeriodLo, LDATE newCliPeriodUp) ¬озвращает ClientActivityState::State
 
 static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 {
@@ -1829,6 +1842,7 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdBillMemoSubStr,       BTS_INT,    dbqf_billmemosubstr_is,      2, BTS_INT, BTS_STRING)); // @v11.7.4
 	THROW(DbqFuncTab::RegisterDyn(&IdBillAmount,           BTS_REAL,   dbqf_billamount_ii,          2, BTS_INT, BTS_INT)); // @v12.1.0
 	THROW(DbqFuncTab::RegisterDyn(&IdClientActivityStatisticsIndicator, BTS_REAL, dbqf_clientactivitystatisticsindicator_ii, 2, BTS_INT, BTS_INT)); // @v12.2.2
+	THROW(DbqFuncTab::RegisterDyn(&IdClientActivityState,  BTS_INT, dbqf_clientactivitystate_iddd, 4, BTS_INT, BTS_DATE, BTS_DATE, BTS_DATE)); // @v12.2.2
 	CATCHZOK
 	return ok;
 }

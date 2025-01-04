@@ -3,11 +3,11 @@
 #define CAIRO_FEATURES_H
 
 #define HAVE_UNISTD_H           1 // @v11.0.7
-#define CAIRO_HAS_FT_FONT       1 // @v10.9.5 0-->1
+#define CAIRO_HAS_FT_FONT       1
 #define CAIRO_HAS_IMAGE_SURFACE 1
 #define CAIRO_HAS_PDF_SURFACE   1
 #define CAIRO_HAS_PNG_FUNCTIONS 1
-#define CAIRO_HAS_PS_SURFACE    1 // @v8.7.6 0-->1
+#define CAIRO_HAS_PS_SURFACE    1
 #define CAIRO_HAS_SVG_SURFACE   1
 #define CAIRO_HAS_USER_FONT     1
 #define CAIRO_HAS_XLIB_SURFACE         0

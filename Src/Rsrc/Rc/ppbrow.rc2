@@ -6786,7 +6786,7 @@ cmd SupplTrnovr           { "@{cmd_suppltrnovr}"                           ICON_
 cmd PaymPlan              { "@{cmd_paymplan}"                              ICON_PAYMPLAN         none            cmPaymPlan      view = PaymPlan }
 cmd Freight               { "@{cmd_freight}"                               ICON_FREIGHT          none            cmFreight       view = Freight }
 cmd GoodsTurnover         { "@{cmd_goodsturnover}"                         ICON_GOODSTURNOVER    none            cmGoodsTurnover }
-cmd GoodsGrpRlz           { "@{cmd_goodsgrprlztax}"                        ICON_GOODSGRPRLZ      none            cmGoodsGrpRlz   view = GoodsTaxAnalyze }
+cmd GoodsGrpRlz           { "@{view_goodstaxanalyze}"                      ICON_GOODSGRPRLZ      none            cmGoodsTaxAnalyze   view = GoodsTaxAnalyze }
 cmd GoodsMov              { "@{cmd_goodsmov}"                              ICON_GOODSMOV         none            cmGoodsMov view=GoodsMov2   }
 cmd GoodsOprGrouping      { "@{cmd_goodsoprgrouping}"                      ICON_GOODSOPRGROUPING TBBM_OPGRPNG    cmGoodsOprGrouping view = OpGrouping }
 cmd GoodsOper             { "@{cmd_goodsoper}"                             ICON_GOODSOPER        none cmGoodsOper view = GoodsOpAnalyze }

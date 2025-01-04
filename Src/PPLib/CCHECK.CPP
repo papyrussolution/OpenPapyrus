@@ -1,5 +1,5 @@
 // CCHECK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -4646,10 +4646,7 @@ CSessDfctGoodsItem::CSessDfctGoodsItem() : GoodsID(0), Qtty(0.0), Sum(0.0)
 {
 }
 
-double CSessDfctGoodsItem::GetPrice() const
-{
-	return fabs(fdivnz(Sum, Qtty));
-}
+double CSessDfctGoodsItem::GetPrice() const { return fabs(fdivnz(Sum, Qtty)); }
 
 int CSessDfctGoodsList::Search(PPID goodsID, CSessDfctGoodsItem * pItem)
 {

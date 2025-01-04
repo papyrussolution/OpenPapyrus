@@ -1,11 +1,6 @@
 /*
  * global.c
- *
- * Description:
- * This translation unit instantiates data associated with the implementation
- * as a whole.
- *
- * --------------------------------------------------------------------------
+ * Description: This translation unit instantiates data associated with the implementation as a whole.
  *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom

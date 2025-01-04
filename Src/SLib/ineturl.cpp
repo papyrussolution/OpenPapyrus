@@ -346,9 +346,9 @@ static const char * SchemeMnem[] = {
 	"",         // #37 private PapyrusServer
 	"amqp",     // #38
 	"amqps",    // #39
-	"mysql",    // #40 private // @v10.9.2
-	"sqlite",   // #41 private // @v10.9.2
-	"oracle",   // #42 private // @v10.9.2
+	"mysql",    // #40 private
+	"sqlite",   // #41 private
+	"oracle",   // #42 private
 	"git",      // #43 @v11.1.11
 };
 #endif // } 0 @v11.1.11

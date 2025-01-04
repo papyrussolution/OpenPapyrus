@@ -1,11 +1,6 @@
 /*
  * pthread_detach.c
- *
- * Description:
- * This translation unit implements functions related to thread
- * synchronisation.
- *
- * --------------------------------------------------------------------------
+ * Description: This translation unit implements functions related to thread synchronisation.
  *
  *   Pthreads4w - POSIX Threads for Windows
  *   Copyright 1998 John E. Bossom

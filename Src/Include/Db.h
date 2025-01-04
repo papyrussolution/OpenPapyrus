@@ -1,5 +1,5 @@
 // DB.H
-// Copyright (C) Sobolev A. 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (C) Sobolev A. 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #ifndef __DB_H
@@ -707,7 +707,7 @@ int btrnfound__();
 
 #define BTRIEVE_VER    0x0500 // 0x0600 || 0x0610
 #define NUMPGSIZES          8 // Number of Btrieve page sizes
-#define BTRMAXKEYLEN      255 // @v10.8.2 MAXKEYLEN-->BTRMAXKEYLEN
+#define BTRMAXKEYLEN      255 // Максимальная длина ключа индекса Btrieve
 #define BTRNFOUND         btrnfound__() //(BtrError==BE_EOF || BtrError==BE_KEYNFOUND)
 //#define BTROKORNFOUND     oneof3(BtrError, 0, BE_EOF, BE_KEYNFOUND)
 #define BTROKORNFOUND     btrokornfound()

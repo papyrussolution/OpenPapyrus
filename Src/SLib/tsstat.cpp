@@ -1,5 +1,5 @@
 // TSSTAT.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2010, 2013, 2016, 2018, 2019, 2020, 2023, 2024
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2010, 2013, 2016, 2018, 2019, 2020, 2023, 2024, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -208,7 +208,7 @@ double StatBase::GetSum() const { return Sum[0]; }
 double StatBase::GetVariance() const 
 { 
 	// Если все значения, поданные на вход были равны, то без проверки (Min != Max) результат может быть NAN
-	return (Count > 1 && Min != Max) ? (Var * static_cast<double>(Count) / static_cast<double>(Count - 1)) : 0.0; // @v10.7.1 (&& Min != Max) 
+	return (Count > 1 && Min != Max) ? (Var * static_cast<double>(Count) / static_cast<double>(Count - 1)) : 0.0;
 }
 
 double StatBase::GetStdDev() const 

@@ -1563,7 +1563,6 @@ public:
 		setCtrlData(CTL_CASHN_NAME, Data.Name);
 		setCtrlData(CTL_CASHN_SYMB, Data.Symb);
 		setCtrlLong(CTL_CASHN_ID, Data.ID);
-		// @vmiller SetupStringCombo(this, CTLSEL_CASHN_DEVICE, PPTXT_CMT, Data.CashType, 0);
 		SetupStringComboDevice(this, CTLSEL_CASHN_DEVICE, DVCCLS_SYNCPOS, Data.CashType, 0); // @vmiller
 		SetupStringCombo(this, CTLSEL_CASHN_SPECIALITY, PPTXT_POSNODE_SPECIALITY, Data.Speciality);
 		setCtrlData(CTL_CASHN_DRVVERMAJOR, &Data.DrvVerMajor);
@@ -2394,7 +2393,6 @@ int PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 	dlg->setCtrlData(CTL_CASHN_NAME, pACN->Name);
 	dlg->setCtrlData(CTL_CASHN_SYMB, pACN->Symb);
 	dlg->setCtrlLong(CTL_CASHN_ID, pACN->ID);
-	// @vmiller SetupStringCombo(dlg, CTLSEL_CASHN_DEVICE, PPTXT_CMT, pACN->CashType, 0);
 	SetupStringComboDevice(dlg, CTLSEL_CASHN_DEVICE, DVCCLS_SYNCPOS, pACN->CashType, 0); // @vmiller
 	SetupStringCombo(dlg, CTLSEL_CASHN_SPECIALITY, PPTXT_POSNODE_SPECIALITY, pACN->Speciality); // @v11.9.6
 	pACN->DrvVerToStr(temp_buf);

@@ -1,6 +1,6 @@
 // SDATE.CPP
-// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
-// @codepage UTF-8 // @v10.4.5
+// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -388,14 +388,12 @@ SString & STDCALL SGetMonthText(int mon, long fmt, SString & rBuf)
 			temp_buf_u.CopyFromUtf8(rBuf, rBuf.Len());
 			temp_buf_u.Trim(2).CopyToUtf8(rBuf, 1);
 			rBuf.Cat("й");
-			//rBuf.Trim(2).Cat("й");
 		}
 		if(fmt & MONF_OEM) {
-			// @v10.4.5 rBuf.ToOem();
-			rBuf.Transf(CTRANSF_UTF8_TO_INNER); // @v10.4.5
+			rBuf.Transf(CTRANSF_UTF8_TO_INNER);
 		}
 		else {
-			rBuf.Transf(CTRANSF_UTF8_TO_OUTER); // @v10.4.5
+			rBuf.Transf(CTRANSF_UTF8_TO_OUTER);
 		}
 	}
 	return rBuf;
@@ -410,7 +408,7 @@ int FASTCALL GetDayOfWeekByText(const char * pText)
 {
 	SString temp_buf;
 	SString pattern(pText);
-	pattern.Transf(CTRANSF_INNER_TO_UTF8); // @v10.4.5
+	pattern.Transf(CTRANSF_INNER_TO_UTF8);
 	StringSet ss(';', P_WeekDays);
 	int    dow = 0;
 	for(uint i = 0; ss.get(&i, temp_buf);) {
@@ -429,7 +427,7 @@ int STDCALL GetDayOfWeekText(int options, int dayOfWeek /* 1..7 */, SString & rB
 	if(dayOfWeek >= 1 && dayOfWeek <= 7 && options >= 1 && options <= 4) {
 		rBuf.GetSubFrom(P_WeekDays, ';', dayOfWeek-1);
 		rBuf.GetSubFrom(rBuf, ',', options-1);
-		rBuf.Transf(CTRANSF_UTF8_TO_OUTER); // @v10.4.5
+		rBuf.Transf(CTRANSF_UTF8_TO_OUTER);
 		return 1;
 	}
 	else
@@ -504,12 +502,6 @@ static void ClarionLongToDate(long off, /*SDosDate*/SUniDate_Internal * pDt)
 
 #endif /* USE_DF_CLARION */
 
-/* @v10.3.0 static void formatNotSupported(const char * pFormatName)
-{
-	slfprintf_stderr("%s date format not supported", pFormatName);
-	exit(-1);
-}*/
-
 void STDCALL _encodedate(int day, int mon, int year, void * pBuf, int format)
 {
 	char   tmp[64];
@@ -529,7 +521,6 @@ void STDCALL _encodedate(int day, int mon, int year, void * pBuf, int format)
 			sprintf(tmp, "%04d%02d%02d", year, mon, day);
 			memcpy(pBuf, tmp, 8);
 			break;
-		// @v10.2.8 case DF_PARADOX: formatNotSupported("Paradox"); break;
 		case DF_CLARION:
 			{
 #ifdef USE_DF_CLARION
@@ -574,7 +565,6 @@ void STDCALL _decodedate(int * day, int * mon, int * year, const void * pBuf, in
 			PTR8(memcpy(tmp, pBuf, 8))[8] = '\0';
 			sscanf(tmp, "%4d%2d%2d", year, mon, day);
 			break;
-		// @v10.2.8 case DF_PARADOX: formatNotSupported("Paradox"); break;
 		case DF_CLARION:
 #ifdef USE_DF_CLARION
 			{
@@ -1012,8 +1002,7 @@ int FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm)
 	SYSTEMTIME st;
 	::GetLocalTime(&st);
 	if(pDt) {
-		// @v10.0.02 _encodedate((char)st.wDay, (char)st.wMonth, (int)st.wYear, pDt, DF_BTRIEVE);
-		// @v11.3.12 pDt->encode(st.wDay, st.wMonth, st.wYear); // @v10.0.02
+		// @v11.3.12 pDt->encode(st.wDay, st.wMonth, st.wYear);
 		pDt->EncodeRegular(st.wDay, st.wMonth, st.wYear); // @v11.3.12
 	}
 	if(pTm) {
@@ -3816,7 +3805,7 @@ int FASTCALL SUniTime::Get(LDATE & rD) const
 {
 	int    ok = 1;
 	SUniTime_Internal inner;
-	uint8 signature = Implement_Get(&inner);
+	const uint8 signature = Implement_Get(&inner);
 	if(signature != indInvalid) {
 		rD.encode(inner.D, inner.M, inner.Y);
 	}
@@ -3829,7 +3818,7 @@ int FASTCALL SUniTime::Get(LDATETIME & rD) const
 {
 	int    ok = 1;
 	SUniTime_Internal inner;
-	uint8 signature = Implement_Get(&inner);
+	const uint8 signature = Implement_Get(&inner);
 	if(signature != indInvalid) {
 		rD.d.encode(inner.D, inner.M, inner.Y);
 		rD.t.encode(inner.Hr, inner.Mn, inner.Sc, static_cast<int>(inner.MSc));
@@ -3843,7 +3832,7 @@ int FASTCALL SUniTime::Get(time_t & rD) const
 {
 	int    ok = 1;
 	SUniTime_Internal inner;
-	uint8 signature = Implement_Get(&inner);
+	const uint8 signature = Implement_Get(&inner);
 	if(signature != indInvalid) {
 		uint64 et = 0;
 		__TimeFieldsToEpochTime(&inner, &et);
@@ -3858,7 +3847,7 @@ int FASTCALL SUniTime::Get(FILETIME & rD) const
 {
 	int    ok = 1;
 	SUniTime_Internal inner;
-	uint8 signature = Implement_Get(&inner);
+	const uint8 signature = Implement_Get(&inner);
 	if(signature != indInvalid) {
 		inner.GetTime100ns((uint64 *)&rD);
 	}

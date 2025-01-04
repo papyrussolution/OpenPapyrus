@@ -71,7 +71,7 @@
 		MENUITEM "@cmd_restorebalance"								cmRestoreBalance
 		MENUITEM "@cmd_setuppreferredbarcodetags"					cmSetupPreferredBarcodeTags
 		MENUITEM "@cmd_indexphones"									cmIndexPhones
-		MENUITEM "@cmd_cvtqcert"									cmCvtQCert
+		// @v12.2.2 MENUITEM "@cmd_cvtqcert"									cmCvtQCert
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_lotpacking"                                  cmLotPacking
 	}
@@ -427,7 +427,7 @@
 		MENUITEM "@cmd_freight",							cmFreight
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_goodsturnover",						cmGoodsTurnover
-		MENUITEM "@cmd_goodsgrprlztax",                     cmGoodsGrpRlz
+		MENUITEM "@cmd_goodsgrprlztax",                     cmGoodsTaxAnalyze
 		MENUITEM "@cmd_goodsmov",							cmGoodsMov
 		MENUITEM "@cmd_goodsoprgrouping",					cmGoodsOprGrouping
 		MENUITEM "@cmd_goodsoper",							cmGoodsOper
@@ -734,7 +734,7 @@
 		MENUITEM "@cmd_selltrnovr",						cmSellTrnovr
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_goodsturnover",                  cmGoodsTurnover
-		MENUITEM "@cmd_goodsgrprlz",					cmGoodsGrpRlz
+		MENUITEM "@cmd_goodsgrprlztax",					cmGoodsTaxAnalyze
 		MENUITEM "@cmd_goodsmov",						cmGoodsMov
 		MENUITEM "@cmd_goodsoprgrouping",				cmGoodsOprGrouping
 		MENUITEM "@cmd_goodsoper",						cmGoodsOper

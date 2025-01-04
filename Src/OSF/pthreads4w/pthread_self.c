@@ -107,8 +107,7 @@ pthread_t pthread_self()
 		}
 		if(fail) {
 			// 
-			// Thread structs are never freed but are reused so if this
-			// continues to fail at least we don't leak memory.
+			// Thread structs are never freed but are reused so if this continues to fail at least we don't leak memory.
 			// 
 			__ptw32_threadReusePush(self);
 			// 

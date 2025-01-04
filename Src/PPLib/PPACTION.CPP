@@ -869,7 +869,7 @@ int ObjVersioningCore::Add(PPID * pID, PPObjID oid, SBuffer * pBuf, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW_DB(insertRec(0, pID));
-		destroyLobData(this->Data); // @v10.2.11 @fix
+		destroyLobData(this->Data);
 		THROW(tra.Commit());
 	}
 	CATCHZOK
