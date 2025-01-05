@@ -1,5 +1,5 @@
 // PPVIEW.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
 // @codepage UTF-8 // @v11.0.4
 //
 #include <pp.h>
@@ -114,7 +114,7 @@ PPView::DescriptionList::DescriptionList(int kind) : Kind(kind), Fail(0)
 			{
 				//
 				// @v11.5.0 {
-				// Специальные элементы для различный категорий лотов
+				// Специальные элементы для различных категорий лотов
 				//
 				struct RSVD {
 					const void * P_ExtraParam;
@@ -130,7 +130,7 @@ PPView::DescriptionList::DescriptionList(int kind) : Kind(kind), Fail(0)
 					ie.Id = (PPVIEW_LOT | (i << 16));
 					AddS(ep[i].P_Symb, &ie.SymbP);
 					AddS(ep[i].P_Name, &ie.DescrP);
-					ie.P_ExtraParam = ep[i].P_ExtraParam; // @attention not address (&ep[i].P_ExtraParam) - strictrly value (ep[i].P_ExtraParam)
+					ie.P_ExtraParam = ep[i].P_ExtraParam; // @attention not an address (&ep[i].P_ExtraParam) - strictrly value (ep[i].P_ExtraParam)
 					THROW_SL(L.insert(&ie));
 				}
 				// } @v11.5.0 
@@ -233,7 +233,7 @@ int PPView::DescriptionList::GetList(bool includeSpecialItems, TSCollection <Rc>
 			}
 			if(pTextList) {
 				temp_buf = p_rc->Descr;
-				PPExpandString(temp_buf, CTRANSF_UTF8_TO_INNER); // @v10.1.6
+				PPExpandString(temp_buf, CTRANSF_UTF8_TO_INNER);
 				THROW_SL(pTextList->Add(p_rc->Id, temp_buf));
 			}			
 		}
@@ -286,7 +286,7 @@ int PPView::DescriptionList::GetList(bool includeSpecialItems, TSCollection <Rc>
 					THROW_SL(pSymbList->Add(rsc_id, rc.Symb));
 				}
 				if(pTextList) {
-					PPExpandString(rc.Descr, CTRANSF_UTF8_TO_INNER); // @v10.1.6
+					PPExpandString(rc.Descr, CTRANSF_UTF8_TO_INNER);
 					THROW_SL(pTextList->Add(rsc_id, rc.Descr));
 				}
 			}
@@ -505,13 +505,13 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 			case PPVIEW_GEOTRACKING:     p_v = new PPViewGeoTracking();  break;
 			case PPVIEW_OPRKIND:         p_v = new PPViewOprKind();      break;
 			case PPVIEW_PHNSVCMONITOR:   p_v = new PPViewPhnSvcMonitor(); break;
-			case PPVIEW_VETISDOCUMENT:   p_v = new PPViewVetisDocument(); break; // @v10.0.12
-			case PPVIEW_TIMESERIES:      p_v = new PPViewTimeSeries();    break; // @v10.4.4
-			case PPVIEW_TIMSERDETAIL:    p_v = new PPViewTimSerDetail();  break; // @v10.5.4
-			case PPVIEW_BRAND:           p_v = new PPViewBrand();         break; // @v10.4.7
-			case PPVIEW_QUOTEREQANALYZE: p_v = new PPViewQuoteReqAnalyze(); break; // @v10.5.7
-			case PPVIEW_EVENT:           p_v = new PPViewEvent(); break; // @v10.8.9
-			case PPVIEW_USERMENU:        p_v = new PPViewUserMenu(); break; // @v10.9.3 
+			case PPVIEW_VETISDOCUMENT:   p_v = new PPViewVetisDocument(); break;
+			case PPVIEW_TIMESERIES:      p_v = new PPViewTimeSeries();    break;
+			case PPVIEW_TIMSERDETAIL:    p_v = new PPViewTimSerDetail();  break;
+			case PPVIEW_BRAND:           p_v = new PPViewBrand();         break;
+			case PPVIEW_QUOTEREQANALYZE: p_v = new PPViewQuoteReqAnalyze(); break;
+			case PPVIEW_EVENT:           p_v = new PPViewEvent(); break;
+			case PPVIEW_USERMENU:        p_v = new PPViewUserMenu(); break;
 			case PPVIEW_ALCODECLRU:      p_v = new PPViewAlcoDeclRu(); break; // @v11.0.5
 			case PPVIEW_STYLOQBINDERY:   p_v = new PPViewStyloQBindery(); break; // @v11.1.7
 			case PPVIEW_STYLOQCOMMAND:   p_v = new PPViewStyloQCommand(); break; // @v11.1.9
@@ -789,7 +789,7 @@ int PPBaseFilt::Describe(long flags, SString & rBuf) const
 /*static*/void STDCALL PPBaseFilt::PutObjMembToBuf(PPID objType, PPID objID, const char * pMembName, SString & rBuf)
 {
 	if(objID) {
-		SString & r_obj_name = SLS.AcquireRvlStr(); // @v10.5.4 SLS.AcquireRvlStr()
+		SString & r_obj_name = SLS.AcquireRvlStr();
 		if(GetObjectName(objType, objID, r_obj_name) > 0)
 			PutMembToBuf(r_obj_name, pMembName, rBuf);
 	}
@@ -1404,8 +1404,6 @@ bool PPBaseFilt::IsEq(const PPBaseFilt * pS, int) const
 //
 //
 //
-// @v10.9.1 (replaced with PPConst::Signature_PPView) #define SIGN_PPVIEW 0x099A099BUL
-
 PPView::PPView(PPObject * pObj, PPBaseFilt * pBaseFilt, int viewId, long implFlags, long defReportId) : 
 	P_Obj(pObj), Sign(PPConst::Signature_PPView), ExecFlags(0), ServerInstId(0),
 	ViewId(viewId), BaseState(0), ExtToolbarId(0), P_IterQuery(0), P_Ct(0), P_F(pBaseFilt), ImplementFlags(implFlags), 
@@ -1912,7 +1910,8 @@ int PPView::ExecNfViewParam::Read(SBuffer & rBuf, long)
 
 int PPView::Helper_Init(const PPBaseFilt * pFilt, int flags)
 {
-	int    ok = 1, do_local = 1;
+	int    ok = 1;
+	int    do_local = 1;
 	int    try_reconnect = 2;
 	PPJobSrvClient * p_cli = 0;
 	PPBaseFilt * p_filt = 0;
@@ -1924,8 +1923,7 @@ int PPView::Helper_Init(const PPBaseFilt * pFilt, int flags)
 			PPJobSrvCmd cmd;
 			PPJobSrvReply reply;
 			//
-			// Так как Serialize - non-const функция, придется создать копию фильтра
-			// и уже ее передавать серверу.
+			// Так как Serialize - non-const функция, придется создать копию фильтра и уже ее передавать серверу.
 			//
 			THROW(p_filt = CreateFilt(PPView::GetDescriptionExtra(GetViewId())));
 			THROW(p_filt->Copy(pFilt, 1));
@@ -1957,13 +1955,7 @@ int PPView::Helper_Init(const PPBaseFilt * pFilt, int flags)
 		}
 	}
 	if(do_local) {
-		THROW(InitLocal(pFilt)); // @v10.4.0
-		/* @v10.4.0 SString filt_desc;
-		pFilt->Describe(0, filt_desc);
-		Profile profile;
-		profile.Start(PPFILNAM_USERPROFILE_LOG, GetSymb(), filt_desc);
-		THROW(Init_(pFilt));
-		profile.Finish(PPFILNAM_USERPROFILE_LOG, GetSymb(), filt_desc); */
+		THROW(InitLocal(pFilt));
 	}
 	CATCHZOK
 	delete p_filt;
@@ -2127,6 +2119,7 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 				if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
 					PreprocessBrowser(pW);
 					pW->LoadToolbarResource(ExtToolbarId);
+					pW->EvaluateSomeMetricsOnInit(); // @v12.2.2
 				}
 				OnExecBrowser(pW);
 				ok = 2;
@@ -2152,6 +2145,7 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 								P_Ct->SetupBrowserCtColumns(pW);
 							PreprocessBrowser(pW);
 							pW->LoadToolbarResource(ExtToolbarId);
+							pW->EvaluateSomeMetricsOnInit(); // @v12.2.2
 						}
 						else
 							P_Ct->SetupBrowserCtColumns(pW);
@@ -2170,6 +2164,7 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 					if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
 						PreprocessBrowser(pW);
 						pW->LoadToolbarResource(ExtToolbarId);
+						pW->EvaluateSomeMetricsOnInit(); // @v12.2.2
 					}
 					OnExecBrowser(pW);
 					ok = 2;
@@ -2180,9 +2175,7 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 		}
 		pW->SetResID(prev_rez_id);
 		pW->setSubTitle(sub_title);
-		for(uint i = 0; i < pW->getDef()->getCount(); i++) {
-			pW->SetupColumnWidth(i);
-		}
+		pW->SetupColumnsWith();
 		pW->Refresh();
 		APPL->NotifyFrame(0);
 		PPWaitStop();
@@ -2533,10 +2526,13 @@ int PPViewBrowser::Export()
 	ComExcelWorkbook   * p_wkbook = 0;
 	PPWaitStart();
 	if(p_def) {
-		long   sheets_count = 0, beg_row = 1, cn_count = p_def->getCount();
+		const  long cn_count = p_def->getCount();
+		long   sheets_count = 0;
+		long   beg_row = 1;
 		long   i = 0;
 		SString dec;
-		SString fmt, fmt_rus;
+		SString fmt;
+		SString fmt_rus;
 		SString temp_buf;
 		PPIDArray width_ary;
 		{
@@ -2644,10 +2640,7 @@ int PPViewBrowser::Export()
 	return ok;
 }
 
-int PPViewBrowser::GetToolbarComboData(PPID * pID)
-{
-	return P_ComboBox ? (P_ComboBox->TransmitData(-1, pID), 1) : 0;
-}
+int PPViewBrowser::GetToolbarComboData(PPID * pID) { return P_ComboBox ? (P_ComboBox->TransmitData(-1, pID), 1) : 0; }
 
 int PPViewBrowser::GetToolbarComboRect(RECT * pRect)
 {
@@ -2812,7 +2805,7 @@ int PPViewBrowser::SetupToolbarStringCombo(uint strId, PPID id)
 
 IMPL_HANDLE_EVENT(PPViewBrowser)
 {
-	if(this && this->IsConsistent()) { // @v10.3.9
+	if(this && this->IsConsistent()) {
 		int    r;
 		int    skip_inherited_processing = 0;
 		if(TVKEYDOWN) {
@@ -2912,7 +2905,7 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 					if(r == -2 || r > 0)
 						Update();
 				}
-				return; // @v10.5.9 в конце функции стоит clearEvent(event) который препятствует дальнейшей обработке cmIdle
+				return; // в конце функции стоит clearEvent(event) который препятствует дальнейшей обработке cmIdle
 			}
 			else if(TVCMD == cmReceivedFocus)
 				P_View->ProcessCommand(PPVCMD_RECEIVEDFOCUS, TVINFOVIEW, this);
@@ -2931,11 +2924,11 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 		else if(TVCOMMAND) {
 			const void * p_row = getCurItem();
 			switch(TVCMD) {
-				case cmModalPostCreate: // @v10.3.1
+				case cmModalPostCreate:
 					if(P_View->OnExecBrowser(this) == cmCancel)
-						BbState |= bbsCancel; // @v10.3.3
+						BbState |= bbsCancel;
 					break;
-				case cmSort: // @v10.6.4
+				case cmSort:
 					if(P_View->ProcessCommand(PPVCMD_USERSORT, p_row, this) > 0)
 						updateView();
 					break;
@@ -2976,18 +2969,21 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 			}
 		}
 		else if(TVKEYDOWN) {
-			uint   cmd = 0;
-			if(translateKeyCode(TVKEY, &cmd) > 0) {
-				const void * p_row = getCurItem();
-				if(P_View->ProcessCommand(cmd, p_row, this) > 0)
-					updateView();
-			}
-			else {
-				char   temp_buf[32];
-				temp_buf[0] = static_cast<char>(TVKEY);
-				temp_buf[1] = 0;
-				if(temp_buf[0] && P_View->ProcessCommand(PPVCMD_INPUTCHAR, temp_buf, this) > 0) // @v10.8.10 @fix (temp_buf[0] &&)
-					updateView();
+			const  ushort key_code = TVKEY;
+			if(key_code) {
+				uint   cmd = 0;
+				if(translateKeyCode(key_code, &cmd) > 0) {
+					const void * p_row = getCurItem();
+					if(P_View->ProcessCommand(cmd, p_row, this) > 0)
+						updateView();
+				}
+				else {
+					char   temp_buf[32];
+					temp_buf[0] = static_cast<char>(key_code);
+					temp_buf[1] = 0;
+					if(P_View->ProcessCommand(PPVCMD_INPUTCHAR, temp_buf, this) > 0)
+						updateView();
+				}
 			}
 		}
 		else

@@ -1,11 +1,10 @@
 // VETIS.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Модуль для взаимодействия с системой Меркурий (интерфейс ВЕТИС)
 //
 #include <pp.h>
 #pragma hdrstop
-#include <ppsoapclient.h>
 
 #define FOREACHXMLCHILD(_parent_, _node_) for(const xmlNode * _node_ = (_parent_) ? (_parent_)->children : 0; _node_; _node_ = _node_->next)
 
@@ -3738,7 +3737,7 @@ int PPVetisInterface::SendSOAP(const char * pUrl, const char * pAction, const SS
 	int    ok = -1;
 	SString temp_buf;
 	ScURL  c;
-	const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
+	const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf;
 	const char * p_url = pUrl ? pUrl : InetUrl::MkHttps(p_domain, "platform/services/ApplicationManagementService");
 	InetUrl url(p_url);
 	p_url = 0; // возможно, указывает на револьверный буфер - лучше обнулить во избежании использования //
@@ -4363,17 +4362,17 @@ int PPVetisInterface::ParseBatch(const xmlNode * pParentNode, VetisBatch & rResu
 			if(temp_buf.IsEqiAscii("true"))
 				rResult.Flags |= rResult.fPerishable;
 		}
-		else if(SXml::GetContentByName(p_a, "lowGradeCargo", temp_buf)) { // @v10.5.4
+		else if(SXml::GetContentByName(p_a, "lowGradeCargo", temp_buf)) {
 			if(temp_buf.IsEqiAscii("true"))
 				rResult.Flags |= rResult.fLowGradeCargo;
 		}
-		else if(SXml::GetContentByName(p_a, "batchID", temp_buf)) { // @v10.5.5
+		else if(SXml::GetContentByName(p_a, "batchID", temp_buf)) {
 			//rResult.BatchID = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-			rResult.BatchIdList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // @v10.5.6
+			rResult.BatchIdList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 		}
 		else if(SXml::IsName(p_a, "countryOfOrigin"))
 			ParseCountry(p_a, rResult.Origin.Country);
-		else if(SXml::IsName(p_a, "origin")) { // @v10.5.4 BatchOrigin
+		else if(SXml::IsName(p_a, "origin")) { // BatchOrigin
 			for(const xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
 				if(SXml::IsName(p_p, "country")) {
 					ParseCountry(p_p, rResult.Origin.Country);
@@ -4385,7 +4384,7 @@ int PPVetisInterface::ParseBatch(const xmlNode * pParentNode, VetisBatch & rResu
 				}
 			}
 		}
-		else if(SXml::IsName(p_a, "packageList")) { // @v10.4.0
+		else if(SXml::IsName(p_a, "packageList")) {
 			for(const xmlNode * p_p = p_a->children; p_p; p_p = p_p->next) {
 				if(SXml::IsName(p_p, "package")) {
 					VetisPackage * p_new_package = rResult.PackageList.CreateNewItem();
@@ -4502,7 +4501,6 @@ int PPVetisInterface::ParseCertifiedConsignment(const xmlNode * pParentNode, Vet
 			r = ParseTransportInfo(p_a, rResult.TransportInfo);
 		else if(SXml::GetContentByName(p_a, "transportStorageType", temp_buf))
 			rResult.TransportStorageType_id = SIntToSymbTab_GetId(VetisTranspStorageType_SymbTab, SIZEOFARRAY(VetisTranspStorageType_SymbTab), temp_buf);
-		// @v10.5.4 {
 		else if(SXml::IsName(p_a, "cargoReloadingPointList")) {
 			for(const xmlNode * p_b = p_a ? p_a->children : 0; p_b; p_b = p_b->next) {
 				if(SXml::IsName(p_b, "cargoReloadingPoint")) {
@@ -4525,7 +4523,6 @@ int PPVetisInterface::ParseCertifiedConsignment(const xmlNode * pParentNode, Vet
 				}
 			}
 		}
-		// } @v10.5.4
 		else if(SXml::IsName(p_a, "shipmentRoute")) {
 			for(const xmlNode * p_b = p_a ? p_a->children : 0; p_b; p_b = p_b->next) {
 				if(SXml::IsName(p_b, "routePoint")) {
@@ -4649,7 +4646,7 @@ int PPVetisInterface::ParseVetDocument(const xmlNode * pParentNode, VetisVetDocu
 		else if(SXml::IsName(p_a, "certifiedConsignment")) {
 			ParseCertifiedConsignment(p_a, r_crtc);
 		}
-		else if(SXml::IsName(p_a, "certifiedBatch")) { // @v10.6.12 ver2
+		else if(SXml::IsName(p_a, "certifiedBatch")) { // ver2
 			THROW_SL(SETIFZ(pResult->P_CertifiedBatch, new VetisCertifiedBatch));
 			ParseCertifiedBatch(p_a, *pResult->P_CertifiedBatch);
 		}
@@ -4672,7 +4669,7 @@ int PPVetisInterface::ParseVetDocument(const xmlNode * pParentNode, VetisVetDocu
 		if(p_ref->Ot.SearchObjectsByGuid(PPOBJ_LOT, PPTAG_LOT_VETIS_UUID, pResult->Uuid, &lot_list) > 0) {
 			ReceiptTbl::Rec lot_rec;
 			TransferTbl::Rec trfr_rec;
-			for(uint i = 0; /* @v10.1.6 !rResult.NativeLotID &&*/ i < lot_list.getCount(); i++) {
+			for(uint i = 0; i < lot_list.getCount(); i++) {
 				const  PPID lot_id = lot_list.get(i);
 				if(p_bobj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
 					DateIter di;
@@ -4840,7 +4837,7 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 													}
 												}
 											}
-											else if(SXml::IsName(p_r, "processIncomingConsignmentResponse")) { // @v10.5.6
+											else if(SXml::IsName(p_r, "processIncomingConsignmentResponse")) {
 												for(const xmlNode * p_l = p_r->children; p_l; p_l = p_l->next) {
 													if(SXml::IsName(p_l, "vetDocument")) {
 														THROW(ParseVetDocument(p_l, rResult.VetDocList.CreateNewItem()));
@@ -4850,7 +4847,7 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 													}
 												}
 											}
-											else if(SXml::IsName(p_r, "registerProductionOperationResponse")) { // @v10.6.10 
+											else if(SXml::IsName(p_r, "registerProductionOperationResponse")) {
 												for(const xmlNode * p_si = p_r->children; p_si; p_si = p_si->next) {
 													if(SXml::IsName(p_si, "stockEntryList")) {
 														ParseListResult(p_si, rResult.ListResult);
@@ -4884,7 +4881,7 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 													}
 												}
 											}
-											else if(SXml::IsName(p_r, "modifyProducerStockListResponse")) { // @v10.5.2
+											else if(SXml::IsName(p_r, "modifyProducerStockListResponse")) {
 												for(const xmlNode * p_l = p_r->children; p_l; p_l = p_l->next) {
 													if(SXml::IsName(p_l, "productItemList")) {
 														ParseListResult(p_l, rResult.ListResult);
@@ -4904,7 +4901,7 @@ int PPVetisInterface::ParseReply(const SString & rReply, VetisApplicationBlock &
 												}
 											}
 											else if(SXml::IsName(p_r, "getStockEntryListResponse") || SXml::IsName(p_r, "getStockEntryChangesListResponse") ||
-												SXml::IsName(p_r, "resolveDiscrepancyResponse")) { // @v10.5.11 resolveDiscrepancyResponse
+												SXml::IsName(p_r, "resolveDiscrepancyResponse")) {
 												for(const xmlNode * p_si = p_r->children; p_si; p_si = p_si->next) {
 													if(SXml::IsName(p_si, "stockEntryList")) {
 														ParseListResult(p_si, rResult.ListResult);
@@ -5197,7 +5194,7 @@ static const char * GetAppSvcPath(SVerT ver, const char * pAppSvc) // @v11.9.11
 
 static const char * GetAppSvcUrl(SVerT ver, int isTestContour)
 {
-	const char * p_domain = (isTestContour/*P.Flags & P.fTestContour*/) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
+	const char * p_domain = (isTestContour/*P.Flags & P.fTestContour*/) ? "api2.vetrf.ru:8002" : P_ApiVtrf;
 	return InetUrl::MkHttps(p_domain, GetAppSvcPath(ver, "ApplicationManagementService")); // @v11.9.11
 	/* @v11.9.11 if(mjVer == 1) {
 		return InetUrl::MkHttps(p_domain, "platform/services/ApplicationManagementService");
@@ -5530,7 +5527,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 				}
 			}
 		}
-		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signModifyProducerStockListOperation) { // @v10.5.2
+		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signModifyProducerStockListOperation) {
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
 			n_env.PutAttrib_Ns("soapenv", "schemas.xmlsoap.org", "soap/envelope/");
 			n_env.PutAttrib("xs",     InetUrl::MkHttp("www.w3.org", "2001/XMLSchema"));
@@ -5651,7 +5648,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 				}
 			}
 		}
-		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signRegisterProduction) { // @v10.6.10
+		else if(rAppBlk.P_AppParam->Sign == VetisApplicationData::signRegisterProduction) {
 			SXml::WNode n_env(srb, SXml::nst("soapenv", "Envelope"));
 			n_env.PutAttrib(SXml::nst_xmlns("soapenv"), InetUrl::MkHttp("schemas.xmlsoap.org", "soap/envelope/"));
 			n_env.PutAttrib(SXml::nst_xmlns("apl"),    InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/application"));
@@ -5870,7 +5867,6 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 													PutGoodsDate(srb, _xmlnst_vd("firstDate"), "dt", r_bat.ExpiryDate.FirstDate);
 													PutGoodsDate(srb, _xmlnst_vd("secondDate"), "dt", r_bat.ExpiryDate.SecondDate);
 												}
-												// @v10.5.6 {
 												if(r_bat.BatchIdList.getCount()) {
 													for(uint bipos = 0; r_bat.BatchIdList.get(&bipos, temp_buf);) {
 														n_bat.PutInner(_xmlnst_vd("batchID"), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
@@ -6395,13 +6391,11 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 										PutGoodsDate(srb, _xmlnst_vd("firstDate"), "dt", r_bat.ExpiryDate.FirstDate);
 										PutGoodsDate(srb, _xmlnst_vd("secondDate"), "dt", r_bat.ExpiryDate.SecondDate);
 									}
-									// @v10.5.6 {
 									if(r_bat.BatchIdList.getCount()) {
 										for(uint bipos = 0; r_bat.BatchIdList.get(&bipos, temp_buf);) {
 											n_c.PutInner(_xmlnst_vd("batchID"), temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 										}
 									}
-									// } @v10.5.6
 									/* @v10.5.6 if(r_bat.BatchID.NotEmpty()) { // @v10.5.5
 										//<vd:batchID>BN1529656417</vd:batchID>
 										n_c.PutInner(_xmlnst_vd("batchID"), (temp_buf = r_bat.BatchID).Transf(CTRANSF_INNER_TO_UTF8));
@@ -6414,7 +6408,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 											PutNonZeroUuid(n_country, "bs", r_bat.Origin.Country.Uuid);
 											PutNonZeroGuid(n_country, "bs", r_bat.Origin.Country.Guid);
 										}
-										for(uint pridx = 0; pridx < r_bat.Origin.Producer.getCount(); pridx++) { // @v10.5.6 single-->list
+										for(uint pridx = 0; pridx < r_bat.Origin.Producer.getCount(); pridx++) {
 											const VetisProducer * p_pl_item = r_bat.Origin.Producer.at(pridx);
 											SXml::WNode n_producer(srb, _xmlnst_vd("producer"));
 											{
@@ -6482,7 +6476,6 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 										n_c.PutInner(_xmlnst_vd("packingAmount"), temp_buf.Z().Cat(r_bat.PackingAmount));
 									}*/
 								}
-								// @v10.5.4 {
 								if(!r_doc.CertifiedConsignment.Broker.Guid.IsZero()) {
 									SXml::WNode n_broker(srb, _xmlnst_vd("broker"));
 									PutNonZeroUuid(n_broker, "bs", r_doc.CertifiedConsignment.Broker.Uuid);
@@ -6515,7 +6508,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 											SXml::WNode n_tn(srb, _xmlnst_vd("transportNumber"));
 											// @v10.3.2 PutNonEmptyText(n_tn, "d9p1", "containerNumber", r_doc.CertifiedConsignment.TransportInfo.TransportNumber.ContainerNumber);
 											XMLReplaceSpecSymb((temp_buf = p_trinfo->TransportNumber.ContainerNumber), "<>&/");
-											PutNonEmptyText(n_tn, "vd", "containerNumber", temp_buf); // @v10.5.8
+											PutNonEmptyText(n_tn, "vd", "containerNumber", temp_buf);
 											XMLReplaceSpecSymb((temp_buf = p_trinfo->TransportNumber.VehicleNumber), "<>&/");
 											PutNonEmptyText(n_tn, "vd", "vehicleNumber", temp_buf);
 											XMLReplaceSpecSymb((temp_buf = p_trinfo->TransportNumber.TrailerNumber), "<>&/");
@@ -6535,20 +6528,17 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 										}
 									}
 								}
-								// } @v10.5.4
 								{
 									SXml::WNode n_af(srb, _xmlnst_vd("accompanyingForms"));
 									const VetisVetDocument::ReferencedDocument * p_waybill_ref_doc = r_doc.GetWayBillRef();
 									if(p_waybill_ref_doc) {
 										SXml::WNode n_wb(srb, _xmlnst_vd("waybill"));
-										// @v10.1.6 {
 										if(p_waybill_ref_doc->IssueSeries.NotEmpty()) {
 											n_wb.PutInner(_xmlnst_vd("issueSeries"), (temp_buf = p_waybill_ref_doc->IssueSeries).Transf(CTRANSF_INNER_TO_UTF8));
 										}
-										// } @v10.1.6
-										if(p_waybill_ref_doc->IssueNumber.NotEmpty()) // @v10.5.1
+										if(p_waybill_ref_doc->IssueNumber.NotEmpty())
 											n_wb.PutInner(_xmlnst_vd("issueNumber"), (temp_buf = p_waybill_ref_doc->IssueNumber).Transf(CTRANSF_INNER_TO_UTF8));
-										if(checkdate(p_waybill_ref_doc->IssueDate)) // @v10.5.1
+										if(checkdate(p_waybill_ref_doc->IssueDate))
 											n_wb.PutInner(_xmlnst_vd("issueDate"), temp_buf.Z().Cat(p_waybill_ref_doc->IssueDate, DATF_ISO8601CENT));
 										if(p_waybill_ref_doc->DocumentType > 0) {
 											n_wb.PutInner(_xmlnst_vd("type"), temp_buf.Z().Cat(p_waybill_ref_doc->DocumentType));
@@ -7214,7 +7204,7 @@ int PPVetisInterface::GetUnitList(uint offs, uint count, VetisApplicationBlock &
 		}
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
-		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
+		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf;
 		THROW(SendSOAP(InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "DictionaryService")), "GetUnitList", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 		ok = 1;
@@ -7248,7 +7238,7 @@ int PPVetisInterface::GetCountryList(VetisApplicationBlock & rReply)
 		}
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
-		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
+		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf;
 		//https://api.vetrf.ru/platform/services/2.0/IkarService
 		THROW(SendSOAP(InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "IkarService")), "GetAllCountryList", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
@@ -7286,7 +7276,7 @@ int PPVetisInterface::GetRegionList(S_GUID & rCountryGuid, VetisApplicationBlock
 		}
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
-		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
+		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf;
 		THROW(SendSOAP(InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "IkarService")), "GetRegionListByCountry", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 		ok = 1;
@@ -7322,7 +7312,7 @@ int PPVetisInterface::GetLocalityList(S_GUID & rRegionGuid, VetisApplicationBloc
 		}
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
-		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
+		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf;
 		THROW(SendSOAP(InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "IkarService")), "GetLocalityListByRegion", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 		ok = 1;
@@ -7356,7 +7346,7 @@ int PPVetisInterface::GetPurposeList(uint offs, uint count, VetisApplicationBloc
 		}
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
-		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
+		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf;
 		THROW(SendSOAP(InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "DictionaryService")), "GetPurposeList", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 	}
@@ -7488,7 +7478,7 @@ int PPVetisInterface::GetProductItemList(uint offs, uint count, VetisApplication
 		}
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
-		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
+		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf;
 		THROW(SendSOAP(InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "ProductService")), "GetProductItemList", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 	}
@@ -7541,7 +7531,7 @@ int PPVetisInterface::GetRussianEnterpriseList(uint offs, uint count, VetisAppli
 		}
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
-		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
+		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf;
 		THROW(SendSOAP(InetUrl::MkHttps(p_domain, GetAppSvcPath(SVerT(2, 1), "EnterpriseService")), "GetRussianEnterpriseList", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 	}
@@ -7576,7 +7566,7 @@ int PPVetisInterface::GetBusinessEntityList(uint offs, uint count, VetisApplicat
 		}
 		xmlTextWriterFlush(srb);
 		srb.GetReplyString(reply_buf);
-		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf; // @v10.5.1
+		const char * p_domain = (P.Flags & P.fTestContour) ? "api2.vetrf.ru:8002" : P_ApiVtrf;
 		THROW(SendSOAP(InetUrl::MkHttps(p_domain, "platform/cerberus/services/EnterpriseService"), "GetBusinessEntityList", reply_buf, temp_buf));
 		THROW(ParseReply(temp_buf, rReply));
 	}
@@ -11417,7 +11407,7 @@ int PPViewVetisDocument::DynFuncVetDForm           = DbqFuncTab::RegisterDynR(BT
 int PPViewVetisDocument::DynFuncVetDType           = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vetdtype_i, 1, BTS_INT);
 int PPViewVetisDocument::DynFuncVetStockByDoc      = DbqFuncTab::RegisterDynR(BTS_REAL,   dbqf_vetis_vetstockbydoc_i, 2, BTS_INT, BTS_PTR);
 int PPViewVetisDocument::DynFuncVetUUID            = DbqFuncTab::RegisterDynR(BTS_STRING, dbqf_vetis_vet_uuid_i, 2, BTS_INT, BTS_PTR);  // @erik v10.4.11
-int PPViewVetisDocument::DynFuncCheckExpiry        = DbqFuncTab::RegisterDynR(BTS_INT,    dbqf_vetis_vet_checkexpiry_ii, 2, BTS_INT64_, BTS_INT64_);  // @v10.6.3
+int PPViewVetisDocument::DynFuncCheckExpiry        = DbqFuncTab::RegisterDynR(BTS_INT,    dbqf_vetis_vet_checkexpiry_ii, 2, BTS_INT64_, BTS_INT64_);
 int PPViewVetisDocument::DynFuncCheckLocation      = DbqFuncTab::RegisterDynR(BTS_INT,    dbqf_vetis_vet_checklocation_iii, 3, BTS_INT, BTS_INT, BTS_INT);  // @v11.5.8
 
 DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
@@ -11435,7 +11425,7 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	DBE    dbe_to;
 	DBE    dbe_stock;
 	DBE    dbe_uuid; //@erik v10.4.11
-	DBE    dbe_checkexpiry; // @v10.6.3
+	DBE    dbe_checkexpiry;
 	//DBE    dbe_checkloc; // @v11.5.8
 	THROW(CheckTblPtr(t = new VetisDocumentTbl(EC.DT.GetName())));
 	{
@@ -11444,7 +11434,7 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		dbe_product_name.push(t->SubProductID);
 		dbe_product_name.push(t->ProductID);
 		dbe_product_name.push(t->EntityID);
-		dbe_product_name.push(t->LinkGoodsID); // @v10.2.10
+		dbe_product_name.push(t->LinkGoodsID);
 		{
 			DBConst cp;
 			cp.init(&EC.DT);
@@ -11496,16 +11486,13 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		dbe_uuid.push(static_cast<DBFunc>(DynFuncVetUUID));
 	}
 	// } @erik v10.4.11
-	dbq = ppcheckfiltid(dbq, t->OrgDocEntityID, Filt.LinkVDocID); // @v10.1.12
+	dbq = ppcheckfiltid(dbq, t->OrgDocEntityID, Filt.LinkVDocID);
 	dbq = & (*dbq && daterange(t->IssueDate, &Filt.Period));
 	dbq = & (*dbq && daterange(t->WayBillDate, &Filt.WayBillPeriod));
 	if(Filt.GetStatusList(status_list) > 0)
 		dbq = & (*dbq && ppidlist(t->VetisDocStatus, &status_list));
-	// @v10.9.10 dbq = ppcheckfiltid(dbq, t->FromEntityID, FromEntityID);
-	dbq = ppcheckfiltidlist(dbq, t->FromEntityID, &FromEntityIdList); // @v10.9.10
-	// @v10.4.8 dbq = ppcheckfiltid(dbq, t->ToEntityID, ToEntityID);
-	dbq = ppcheckfiltid(dbq, t->ToEnterpriseID, ToEnterpriseID); // @v10.4.8
-	// @v10.6.3 {
+	dbq = ppcheckfiltidlist(dbq, t->FromEntityID, &FromEntityIdList);
+	dbq = ppcheckfiltid(dbq, t->ToEnterpriseID, ToEnterpriseID);
 	if(Filt.Ft_Expiry) {
 		dbe_checkexpiry.init();
 		dbe_checkexpiry.push(t->ExpiryFrom);
@@ -11513,7 +11500,6 @@ DBQuery * PPViewVetisDocument::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 		dbe_checkexpiry.push(static_cast<DBFunc>(DynFuncCheckExpiry));
 		dbq = (Filt.Ft_Expiry > 0) ? &(*dbq && dbe_checkexpiry == 0L) : &(*dbq && dbe_checkexpiry > 0L);
 	}
-	// } @v10.6.3
 	// @v11.5.8 {
 	/* @v11.5.9 плохо работает - пока отключаем 
 	if(LocEntityID) {

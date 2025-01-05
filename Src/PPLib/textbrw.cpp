@@ -957,7 +957,7 @@ int STextBrowser::SetSpecialMode(int spcm)
 int STextBrowser::Init(const char * pFileName, const char * pLexerSymb, int toolbarId)
 {
 	SScEditorBase::Init(0, 0);
-	LexerSymb = pLexerSymb; // @v10.2.6
+	LexerSymb = pLexerSymb;
 	OrgScintillaWndProc = 0;
 	SysState = 0;
 	Doc.FileName = pFileName;

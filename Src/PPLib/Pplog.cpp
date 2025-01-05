@@ -38,8 +38,8 @@ private:
 	HWND   HwndSci;
 	TVMsgLog * P_MsgLog;
 	TToolbar * P_Toolbar;
-	long   ToolBarWidth;
 	uint   ToolbarId;
+	int    ToolBarWidth;
 	WNDPROC OrgScintillaWndProc;
 };
 

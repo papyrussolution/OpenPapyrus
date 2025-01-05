@@ -1,5 +1,5 @@
 // SARC.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -9,7 +9,7 @@
 #include <..\slib\lz4\lz4.h>
 #include <zlib.h>
 #include <..\slib\bzip2\bzlib.h>
-#include <..\osf\libarchive-350\libarchive\archive.h> // @v10.4.4
+#include <..\osf\libarchive-350\libarchive\archive.h>
 #include <..\osf\libarchive-350\libarchive\archive_entry.h> // @v11.6.9
 #include <UserEnv.h> // UnloadUserProfile
 //
@@ -494,7 +494,7 @@ static void extract(const char *filename)
 		if(p_ab->Magic == EntryBlock::MagicValue) {
 			if(p_ab->Provider == providerLA) {
 				if(p_ab->H) {
-					int r = archive_seek_data(static_cast<Archive *>(p_ab->H), offs, whence);
+					int64 r = archive_seek_data(static_cast<Archive *>(p_ab->H), offs, whence);
 					if(r == 0)
 						ok = 1;
 				}
@@ -813,8 +813,6 @@ int SArchive::Close()
 	return ok;
 }
 
-// @v10.4.4 {
-#if 1 // @construction {
 SArchive::LaCbBlock::LaCbBlock(SArchive * pMaster, size_t bufSize) : P_Master(pMaster), Buf(bufSize)
 {
 }
@@ -884,8 +882,6 @@ SArchive::LaCbBlock::LaCbBlock(SArchive * pMaster, size_t bufSize) : P_Master(pM
 	}
 	return result;
 }
-#endif // } 0 @construction
-// } @v10.4.4
 
 int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Format * pFmt)
 {
@@ -945,7 +941,6 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 			}
 		}
 	}
-	// @v10.4.4 {
 	else if(Provider == providerLA) {
 		//Type = type;
 		Archive * p_larc = 0;
@@ -996,14 +991,12 @@ int SArchive::Open(const char * pName, int mode /*SFile::mXXX*/, SArchive::Forma
 			p_larc_w = archive_write_new();
 		}*/
 	}
-	// } @v10.4.4 
 	else {
 		CALLEXCEPT();
 	}
 	CATCH
 		H = 0;
 		//Type = 0;
-		// @v10.4.4 @construction ZDELETE(P_Cb_Blk);
 		ok = 0;
 	ENDCATCH
 	return ok;
@@ -1023,8 +1016,6 @@ int64 SArchive::GetEntriesCount() const
 			if(H)
 				c = 1;
 		}
-	// @v10.4.4 {
-//#if 0 // @construction {
 		else if(Provider == providerLA) {
 			if(P_Cb_Blk) {
 				c = static_cast<int64>(Fep.GetCount());
@@ -1038,8 +1029,6 @@ int64 SArchive::GetEntriesCount() const
 				//archive_read_finish(p_larc);
 			}
 		}
-//#endif // } @construction 
-	// } @v10.4.4 
 	}
 	return c;
 }

@@ -6869,6 +6869,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @clientactivity_gapdaysavg           "Среднее количество дней между событиями"
 @clientactivity_gapdaysstddev        "Сигма количества дней между событиями"
 @clientactivity_state                "Текущее состояние активности"
+@clientactivity_state_undef          "Не определено"
 @clientactivity_state_nodata         "Нет данных"
 @clientactivity_state_regularta      "Регулярная активность"
 @clientactivity_state_delayedta      "Задержка активности"
@@ -17941,6 +17942,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloqprivconfig_preflang                    "Предпочтительный язык"
 @styloqprivconfig_defface                     "Лик для представления по умолчанию"
 @styloqprivconfig_notificationactualdays      "Период актуальности уведомлений в днях"
+
+@styloqconfig_userfnetworkdisabled            "Обмен с сервисом по сети запрещен" // @v12.0.11 Пользователь намеренно отключил функции сетевого обмена
+@styloqconfig_userfsvcarchived                "Архивированный сервис" // @v12.2.2  Сервис архивирован (более не используется)
 
 //@styloqconfig_cliffaceselfmodifying           "Модификация собственного лика клиентом"
 @styloqconfig_clifsvcgps                      "Разрешено установить GPS-координаты сервиса"

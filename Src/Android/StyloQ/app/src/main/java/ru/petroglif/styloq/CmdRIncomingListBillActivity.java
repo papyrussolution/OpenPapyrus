@@ -1054,7 +1054,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 													}
 													// @v11.7.0 {
 													{
-														ImageView ctl = (ImageView) iv.findViewById(R.id.CTL_DOCUMENT_TI_ACCEPTED_STATUS);
+														ImageView ctl = (ImageView)iv.findViewById(R.id.CTL_DOCUMENT_TI_ACCEPTED_STATUS);
 														if(ctl != null) {
 															int rcid = 0;
 															if(ti.Set != null && ti.SetAccepted != null) {

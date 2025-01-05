@@ -44,6 +44,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"></ImageButton>
     </LinearLayout>
+    <CheckBox android:id="@+id/CTL_STQSERVICE_ARCHIVED"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@{styloqconfig_userfsvcarchived}"
+        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

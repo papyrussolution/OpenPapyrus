@@ -4933,7 +4933,6 @@ private:
 //
 #define DLG_SHORTCUTS       4096
 #define CTL_SHORTCUTS_ITEMS 1014
-// @v10.9.3 #define SHCTSTAB_MAXTEXTLEN 20
 #define SPEC_TITLEWND_ID    (1200 + 100)
 
 class TProgram : public TGroup {
@@ -5511,14 +5510,14 @@ protected:
 		bbsIsMDI        = 0x00000001,
 		bbsDataOwner    = 0x00000002, // Объект владеет переданными из-вне данными.
 		bbsWoScrollbars = 0x00000004,
-		bbsCancel       = 0x00000008, // @v10.3.4 Какой-то из виртуальных методов порожденного класса потребовал прекратить выполнение
+		bbsCancel       = 0x00000008, // Какой-то из виртуальных методов порожденного класса потребовал прекратить выполнение
 		// Начиная с 0x00010000 флаги зарезервированы за наследующими классами
 	};
 	const  SString ClsName; // Window class name
-	uint   ToolbarID;       // ID Toolbar'a для сохранения в реестре = LastCmd (команда по которой был запущен данный броузер) + TOOLBAR_OFFS (смещение)
 	uint   ResourceID;
 	SPoint2S PrevMouseCoord;
 	long   BbState;
+	uint   ToolbarID;       // ID Toolbar'a для сохранения в реестре = LastCmd (команда по которой был запущен данный броузер) + TOOLBAR_OFFS (смещение)
 	int    ToolBarWidth;
 	TToolbar * P_Toolbar;
 };
@@ -5577,7 +5576,7 @@ public:
 	int    insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
 	int    removeColumn(int atPos);
 	void   SetColumnWidth(int colNo, int width);
-	void   SetupColumnWidth(uint colNo);
+	void   SetupColumnsWith();
 	int    SetColumnTitle(int conNo, const char * pText);
 	void   SetFreeze(uint);
 	LPRECT ItemRect(int hPos, int vPos, LPRECT, BOOL isFocus) const;
@@ -5643,6 +5642,13 @@ public:
 	// Descr: Возвращает список номеров колонок, по котороым должны быть отсортированы данные
 	//
 	const  LongArray & GetSettledOrderList() const { return SettledOrder; }
+	//
+	// @v12.2.2
+	// Descr: Ситуативная функция, рассчитывающая некоторые метрики окна. Содержание
+	//   функции извлечено из WMHCreate() с целью пересчитать размер заголовка 
+	//   в случае, если его параметры были изменены.
+	//
+	void   EvaluateSomeMetricsOnInit();
 
 	enum {
 		paintFocused = 0,
@@ -5660,8 +5666,8 @@ protected:
 private:
 	virtual void Insert_(TView *p);
 	virtual TBaseBrowserWindow::IdentBlock & GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk);
-	void   __Init(/*BrowserDef * pDef*/);
-	void   WMHCreate(LPCREATESTRUCT);
+	void   __Init();
+	void   WMHCreate();
 	long   CalcHdrWidth(int plusToolbar) const;
 	int    IsLastPage(uint viewHeight); // AHTOXA
 	void   ClearFocusRect(LPRECT);
@@ -5714,7 +5720,7 @@ private:
 	SArray * P_RowsHeightAry;   // Высота строк видимой страницы (для многострочных броузеров)
 	UserInterfaceSettings UICfg;
 	LongArray SelectedColumns;  // Выбранные столбцы, для копирования в буфер обмена
-	LongArray SettledOrder;     // @v10.6.3 Индексы столбцов, по которым задана сортировка.
+	LongArray SettledOrder;     // Индексы столбцов, по которым задана сортировка.
 		// Если индекс <0, то сортировка в обратном направлении (какое направление прямое а какое обратное определяет конкретный класс-наследник).
 };
 //
@@ -6173,7 +6179,7 @@ public:
 	// Descr: Флаги загрузки файла и сохранения файлов
 	//
 	enum {
-		ofReadOnly  = 0x0001,
+		ofReadOnly          = 0x0001,
 		ofInteractiveSaveAs = 0x0002
 	};
 	//
@@ -6231,9 +6237,6 @@ private:
 	long   SysState;
 	int    SpcMode;
 	HWND   HwndSci;
-	// @v10.9.11 (moved to TBaseBrowserWindow) TToolbar * P_Toolbar;
-	// @v10.9.11 (moved to TBaseBrowserWindow) long   ToolBarWidth;
-	//uint   ToolbarId;
 	SString LexerSymb;
 	WNDPROC OrgScintillaWndProc;
 };

@@ -9340,6 +9340,8 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_NETWORK_CELLULAR_SIGNAL_GOOD	  // @v12.0.6
 	PPDV_NETWORK_CELLULAR_SIGNAL_EXCELLENT // @v12.0.6
 	PPDV_MARKETPLACE01                // @v12.1.3
+	PPDV_ACTIVITY01                   // @v12.2.2
+	PPDV_ARCHIVE01                    // @v12.2.2
 }
 //
 // Следующие изображения используются без замещения цвета

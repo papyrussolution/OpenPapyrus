@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494995
+LastSignatureCode=2147494998
 LastAutoCodeList=1,12257;102,10177;103,10072;110,10000;111,12132;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10152;120,10005;1001,10000;121,10000;122,10000;123,10328;124,10387;125,10064
 
 [SignatureList]
@@ -900,6 +900,7 @@ clientactivity_eventcount=2147494987
 clientactivity_gapdaysavg=2147494988
 clientactivity_gapdaysstddev=2147494989
 clientactivity_state=2147494990
+clientactivity_state_undef=2147494996
 clientactivity_state_nodata=2147494991
 clientactivity_state_regularta=2147494992
 clientactivity_state_delayedta=2147494993
@@ -11245,6 +11246,8 @@ styloqprivconfig=2147494446
 styloqprivconfig_preflang=2147494447
 styloqprivconfig_defface=2147494448
 styloqprivconfig_notificationactualdays=2147494720
+styloqconfig_userfnetworkdisabled=2147494997
+styloqconfig_userfsvcarchived=2147494998
 styloqconfig_clifsvcgps=2147494646
 styloqconfig_clifpsnadrgps=2147494647
 styloqconfig_clifdisablefaceselfmodifying=2147494679

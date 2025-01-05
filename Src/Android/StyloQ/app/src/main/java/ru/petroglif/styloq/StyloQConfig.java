@@ -57,6 +57,7 @@ public class StyloQConfig {
 	// Descr: Флаги для тега tagUserFlags
 	//
 	public static int userfNetworkDisabled  = 0x0001; // @v12.0.11 Пользователь намеренно отключил функции сетевого обмена
+	public static int userfSvcArchived      = 0x0002; // @v12.2.2  Сервис архивирован (более не используется)
 
 	private Map<Integer, String> L;
 

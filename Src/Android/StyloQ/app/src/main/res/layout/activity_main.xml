@@ -60,8 +60,10 @@
                 android:layout_gravity="center_vertical|right"
                 app:srcCompat="@drawable/ic_faceprofile01"/>
             <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonNotifications"
+                android:layout_gravity="center_vertical|right"/>
+            <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonToggleArchivedServices"
                 android:layout_gravity="center_vertical|right"
-                />
+                app:srcCompat="@drawable/ic_archive01"/>
             <!-- debug
             <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonTest"
                 android:layout_gravity="center_vertical|right"

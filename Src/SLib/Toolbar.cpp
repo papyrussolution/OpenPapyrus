@@ -572,7 +572,7 @@ int TToolbar::Init(uint resID, uint typeID)
 
 int TToolbar::Init(uint cmdID, ToolbarList * pList)
 {
-	int r = (cmdID) ? RestoreUserSettings(cmdID, pList) : -1;
+	const int r = cmdID ? RestoreUserSettings(cmdID, pList) : -1;
 	return (r > 0) ? r : Init(pList);
 }
 

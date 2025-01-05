@@ -1462,7 +1462,7 @@ int PPDesktop::CreateBizScoreWnd()
 	return ok;
 }*/
 
-void PPDesktop::WMHCreate(LPCREATESTRUCT)
+void PPDesktop::WMHCreate()
 {
 	HDC    hdc = GetDC(H());
 	SString temp_buf;
@@ -1920,16 +1920,16 @@ IMPL_HANDLE_EVENT(PPDesktop)
 /*static*/LRESULT CALLBACK PPDesktop::DesktopWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PPDesktop * p_desk = static_cast<PPDesktop *>(TView::GetWindowUserData(hWnd));
-	LPCREATESTRUCT initData;
+	CREATESTRUCT * p_init_data = 0;
 	TEvent e;
 	switch(message) {
 		case WM_CREATE:
-			initData = reinterpret_cast<LPCREATESTRUCT>(lParam);
-			p_desk = static_cast<PPDesktop *>(initData->lpCreateParams);
+			p_init_data = reinterpret_cast<CREATESTRUCT *>(lParam);
+			p_desk = static_cast<PPDesktop *>(p_init_data->lpCreateParams);
 			if(p_desk) {
 				APPL->H_Desktop = hWnd;
 				p_desk->HW = hWnd;
-				p_desk->WMHCreate(reinterpret_cast<LPCREATESTRUCT>(lParam));
+				p_desk->WMHCreate();
 				{
 					SRawInputInitArray riia;
 					riia.Add(1, 6, 0, 0);

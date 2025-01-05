@@ -5134,12 +5134,14 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_NETWORK_CELLULAR_SIGNAL_GOOD     33016
 #define PPDV_NETWORK_CELLULAR_SIGNAL_EXCELLENT     33017
 #define PPDV_MARKETPLACE01                   33018
-#define PPDV_LOGOPAPYRUS                     33019
-#define PPDV_LOGOUDS                         33020
-#define PPDV_LOGOVK                          33021
-#define PPDV_LOGOVETIS                       33022
-#define PPDV_LOGOCHZN                        33023
-#define PPDV_LOGOGOOGLEMAPS01                33024
-#define PPDV_LOGOWILDBERRIES                 33025
-#define PPDV_LOGOAPTEKARU                    33026
+#define PPDV_ACTIVITY01                      33019
+#define PPDV_ARCHIVE01                       33020
+#define PPDV_LOGOPAPYRUS                     33021
+#define PPDV_LOGOUDS                         33022
+#define PPDV_LOGOVK                          33023
+#define PPDV_LOGOVETIS                       33024
+#define PPDV_LOGOCHZN                        33025
+#define PPDV_LOGOGOOGLEMAPS01                33026
+#define PPDV_LOGOWILDBERRIES                 33027
+#define PPDV_LOGOAPTEKARU                    33028
 

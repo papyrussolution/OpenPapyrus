@@ -1,5 +1,5 @@
 // V_LOT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -262,8 +262,7 @@ int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData
 	PutMembToBuf(&CostRange,      STRINGIZE(CostRange),   rBuf);
 	PutMembToBuf(&PriceRange,     STRINGIZE(PriceRange),  rBuf);
 
-	// @v10.6.8 PutObjMembToBuf(PPOBJ_LOCATION,   LocID,       STRINGIZE(LocID),       rBuf);
-	PutObjMembListToBuf(PPOBJ_LOCATION, &LocList,   STRINGIZE(LocList),   rBuf); // @v10.6.8
+	PutObjMembListToBuf(PPOBJ_LOCATION, &LocList,   STRINGIZE(LocList),   rBuf);
 	PutObjMembToBuf(PPOBJ_PRSNCATEGORY,  SupplPsnCategoryID, STRINGIZE(SupplPsnCategoryID), rBuf); // @v11.4.4
 	PutObjMembToBuf(PPOBJ_ARTICLE,    SupplID,     STRINGIZE(SupplID),     rBuf);
 	PutObjMembToBuf(PPOBJ_GOODSGROUP, GoodsGrpID,  STRINGIZE(GoodsGrpID),  rBuf);
@@ -275,7 +274,6 @@ int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData
 		long id = 1;
 		StrAssocArray flag_list;
 		#define __ADD_FLAG(f) if(Flags & f) flag_list.Add(id++, STRINGIZE(f));
-		// @v10.6.8 @unused __ADD_FLAG(fEmptyPeriod);
 		__ADD_FLAG(fWithoutQCert);
 		__ADD_FLAG(fOrders);
 		__ADD_FLAG(fCostAbovePrice);
@@ -848,7 +846,6 @@ int PPViewLot::RecoverLots()
 				ReceiptTbl::Rec lot_rec;
 				if(p_trfr->Rcpt.Search(_lot_id, &lot_rec) > 0) {
 					PPLotFaultArray ary(_lot_id, logger);
-					// @v10.9.1 {
 					{
 						lot_str.Z().Cat(_lot_id).Space();
 						lot_str.CatChar('[').Cat(lot_rec.Dt).CatDiv('-', 1);
@@ -860,14 +857,14 @@ int PPViewLot::RecoverLots()
 						if(p_ref->Ot.GetTagStr(PPOBJ_LOT, _lot_id, PPTAG_LOT_FSRARINFA, ref_a) > 0) {
 							char   manuf_rar_ident[32];
 							char   importer_rar_ident[32];
-							char   shipper_rar_ident[32]; // @v10.9.5
+							char   shipper_rar_ident[32];
 							int    ambig_manuf = 0;
 							int    ambig_imptr = 0;
 							int    ambig_shipper = 0;
 							int    is_foreign_country = 0; // !643
-							PTR32(manuf_rar_ident)[0] = 0;
-							PTR32(importer_rar_ident)[0] = 0;
-							PTR32(shipper_rar_ident)[0] = 0; // @v10.9.5
+							manuf_rar_ident[0] = 0;
+							importer_rar_ident[0] = 0;
+							shipper_rar_ident[0] = 0;
 							ObjTagItem ex_lot_manuf_tag_item;
 							PPID   ex_lot_manuf_id = 0;
 							if(p_ref->Ot.GetTag(PPOBJ_LOT, _lot_id, manuf_tag_id, &ex_lot_manuf_tag_item) > 0) {
@@ -980,7 +977,6 @@ int PPViewLot::RecoverLots()
 							}
 						}
 					}
-					// } @v10.9.1 
 					THROW(r = p_trfr->CheckLot(_lot_id, 0, param.Flags, ary));
 					if(r < 0) {
 						err_lot_count++;

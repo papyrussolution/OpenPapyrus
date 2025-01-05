@@ -77,10 +77,10 @@ bool PPViewPerson::IsTempTblNeeded()
 			if(temp_buf.NotEmptyS())
 				yes = true;
 		}
-		if(!yes) {
+		/* @v12.2.2 if(!yes) {
 			if(Filt.NewCliPeriod.low && Filt.Flags & Filt.fNewClientsOnly && PsnObj.GetConfig().ClientActivityDetectionList.getCount())
 				yes = true;
-		}
+		}*/
 	}
 	return yes;
 }
@@ -383,16 +383,21 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 		assert(P_ClientActivityStateList == 0); // @see top of function
 		PersonViewItem item;
 		PPWaitStart();
-		THROW_MEM(P_ClientActivityStateList = new LAssocArray());
+		LAssocArray local_client_activity_state_list;
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			PPObjPerson::ClientActivityState cas;
 			cas.PersonID = item.ID;
 			cas.ActualDate = Filt.ClientActivityEvalDate;
 			cas.NewCliPeriod = Filt.NewCliPeriod;
 			PsnObj.IdentifyClientActivityState(cas);
-			P_ClientActivityStateList->Add(item.ID, cas.State);
+			local_client_activity_state_list.Add(item.ID, cas.State);
 			PPWaitPercent(GetCounter());
 		}
+		//
+		// Отложенная инициализация P_ClientActivityStateList из-за того, что метод NextIteration фильтрует
+		// записи опираясь на P_ClientActivityStateList.
+		//
+		THROW_MEM(P_ClientActivityStateList = new LAssocArray(local_client_activity_state_list));
 		PPWaitStop();		
 	}
 	// } @v12.2.2 
@@ -1081,16 +1086,21 @@ int PPViewPerson::CheckIDForFilt(PPID id, const PersonTbl::Rec * pRec)
 		else if(!CheckFiltID(Filt.PersonID, pRec->ID))
 			ok = 0;
 		else {
-			SString srch_buf;
-			Filt.GetExtssData(PersonFilt::extssNameText, srch_buf);
-			if(srch_buf.NotEmptyS()) {
-				if(Filt.Flags & PersonFilt::fPrecName) {
-					if(srch_buf.CmpNC(pRec->Name) != 0)
-						ok = 0;
-				}
-				else {
-					if(!ExtStrSrch(pRec->Name, srch_buf, 0))
-						ok = 0;
+			const bool local_ok = PPViewPerson::CheckClientActivityState(id, Filt.ClientActivityStateFlags, P_ClientActivityStateList); // @v12.2.2
+			if(!local_ok)
+				ok = 0;
+			else {
+				SString srch_buf;
+				Filt.GetExtssData(PersonFilt::extssNameText, srch_buf);
+				if(srch_buf.NotEmptyS()) {
+					if(Filt.Flags & PersonFilt::fPrecName) {
+						if(srch_buf.CmpNC(pRec->Name) != 0)
+							ok = 0;
+					}
+					else {
+						if(!ExtStrSrch(pRec->Name, srch_buf, 0))
+							ok = 0;
+					}
 				}
 			}
 		}
@@ -1616,7 +1626,7 @@ int FASTCALL PPViewPerson::NextIteration(PersonViewItem * pItem)
 				}
 			}
 			else {
-				PPID   id = Filt.Kind ? PsnObj.P_Tbl->Kind.data.PersonID : PsnObj.P_Tbl->data.ID;
+				const PPID id = Filt.Kind ? PsnObj.P_Tbl->Kind.data.PersonID : PsnObj.P_Tbl->data.ID;
 				if(PsnObj.Search(id, &item) > 0 && CheckIDForFilt(id, &item))
 					ok = 1;
 			}
@@ -1841,11 +1851,16 @@ bool PersonFilt::IsEmpty() const
 		Flags & fVatFree || StaffDivID || StaffOrgID || List.GetCount() || (P_TagF && !P_TagF->IsEmpty()) || (P_SjF && !P_SjF->IsEmpty()))
 		yes = false;
 	else {
-		SString & r_temp_buf = SLS.AcquireRvlStr();
-		if(GetExtssData(extssNameText, r_temp_buf) > 0 && r_temp_buf.NotEmptyS())
+		if((Flags & fCliActivityStats) && ClientActivityStateFlags != 0 && ClientActivityStateFlags != 0xffff) { // @v12.2.2
 			yes = false;
-		else if(GetExtssData(extssEmailText, r_temp_buf) > 0 && r_temp_buf.NotEmptyS())
-			yes = false;
+		}
+		else {
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			if(GetExtssData(extssNameText, r_temp_buf) > 0 && r_temp_buf.NotEmptyS())
+				yes = false;
+			else if(GetExtssData(extssEmailText, r_temp_buf) > 0 && r_temp_buf.NotEmptyS())
+				yes = false;
+		}
 	}
 	return yes;
 }
@@ -2042,9 +2057,20 @@ int PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 			}
 			setCtrlData(CTL_PSNFLT_CASDT, &Data.ClientActivityEvalDate); // @v12.2.2
 			SetPeriodInput(this, CTL_PSNFLT_NEWCLIPERIOD, &Data.NewCliPeriod);
-			AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 0, PersonFilt::fNewClientsOnly);
-			SetClusterData(CTL_PSNFLT_NEWCLIONLY, Data.Flags);
-			SetupCtrls(); // @v12.2.2
+			// @v12.2.2 AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 0, PersonFilt::fNewClientsOnly);
+			// @v12.2.2 SetClusterData(CTL_PSNFLT_NEWCLIONLY, Data.Flags);
+			// @v12.2.2 {
+			{
+				AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 0, (1 << PPObjPerson::ClientActivityState::stUndef));
+				AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 1, (1 << PPObjPerson::ClientActivityState::stNoData));
+				AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 2, (1 << PPObjPerson::ClientActivityState::stRegularTa));
+				AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 3, (1 << PPObjPerson::ClientActivityState::stDelayedTa));
+				AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 4, (1 << PPObjPerson::ClientActivityState::stHopelesslyDelayedTa));
+				AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 5, PPObjPerson::ClientActivityState::stfNewClient);
+				SetClusterData(CTL_PSNFLT_NEWCLIONLY, Data.ClientActivityStateFlags);
+			}
+			SetupCtrls();
+			// } @v12.2.2 
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()
@@ -2067,7 +2093,8 @@ int PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 			if(IsThereCasDetectionList) {
 				getCtrlData(CTL_PSNFLT_CASDT, &Data.ClientActivityEvalDate); // @v12.2.2
 				GetPeriodInput(this, CTL_PSNFLT_NEWCLIPERIOD, &Data.NewCliPeriod);
-				GetClusterData(CTL_PSNFLT_NEWCLIONLY, &Data.Flags);
+				// @v12.2.2 GetClusterData(CTL_PSNFLT_NEWCLIONLY, &Data.Flags);
+				Data.ClientActivityStateFlags = static_cast<uint16>(GetClusterData(CTL_PSNFLT_NEWCLIONLY)); // @v12.2.2 
 			}
 			ASSIGN_PTR(pData, Data);
 			return 1;
@@ -2193,6 +2220,7 @@ int PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 				bool disable_sub_cas_ctrls = !(Data.Flags & PersonFilt::fCliActivityStats);
 				disableCtrl(CTL_PSNFLT_CASDT, disable_sub_cas_ctrls);
 				disableCtrl(CTL_PSNFLT_NEWCLIPERIOD, disable_sub_cas_ctrls);
+				disableCtrl(CTL_PSNFLT_NEWCLIONLY, disable_sub_cas_ctrls);
 				{
 					bool disable_newclionly_flag = true;
 					if(!disable_sub_cas_ctrls) {
@@ -2201,7 +2229,7 @@ int PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 						GetPeriodInput(this, CTL_PSNFLT_NEWCLIPERIOD, &temp_period);
 						disable_newclionly_flag = temp_period.IsZero();
 					}
-					disableCtrl(CTL_PSNFLT_NEWCLIONLY, disable_newclionly_flag);
+					DisableClusterItem(CTL_PSNFLT_NEWCLIONLY, 5, disable_newclionly_flag);
 				}
 			}
 		}
@@ -2445,6 +2473,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	SString temp_buf;
 	if(pBrw) {
 		BrowserDef * p_def = pBrw->getDef();
+		CALLPTRMEMB(p_def, SetCapHeight(2));
 		if(Filt.Flags & PersonFilt::fShowFiasRcgn && Filt.IsLocAttr() && P_TempPsn) {
 			if(p_def) {
 				pBrw->InsColumn(-1, "FIAS ADDR",  8, 0, MKSFMT(32, 0), 0);
@@ -2502,6 +2531,60 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}
 }
+
+/*static*/bool PPViewPerson::CheckClientActivityState(PPID personID, long filtFlags, const LAssocArray * pClientActivityStateList)
+{
+	bool   ok = false;
+	//const  PPID   person_id = static_cast<long>(params[0].lval);
+	//const  PPID   filt_flags = static_cast<long>(params[1].lval);
+	//const  LAssocArray * p_clientactivitystatelist = reinterpret_cast<const LAssocArray *>(params[2].ptrval);
+	if(filtFlags && (filtFlags & 0xffff) != 0xffff && pClientActivityStateList) {
+		uint caslp = 0;
+		if(pClientActivityStateList->Search(personID, &caslp)) {
+			const long state = pClientActivityStateList->at(caslp).Val;
+			switch(state & ~PPObjPerson::ClientActivityState::stfNewClient) {
+				case PPObjPerson::ClientActivityState::stNoData:
+					if(filtFlags & (1 << PPObjPerson::ClientActivityState::stNoData))
+						ok = true;
+					break;
+				case PPObjPerson::ClientActivityState::stDelayedTa:
+					if(filtFlags & (1 << PPObjPerson::ClientActivityState::stDelayedTa))
+						ok = true;
+					break;
+				case PPObjPerson::ClientActivityState::stHopelesslyDelayedTa:
+					if(filtFlags & (1 << PPObjPerson::ClientActivityState::stHopelesslyDelayedTa))
+						ok = true;
+					break;
+				case PPObjPerson::ClientActivityState::stRegularTa:
+					if(filtFlags & (1 << PPObjPerson::ClientActivityState::stRegularTa))
+						ok = true;
+					break;
+			}
+			if(state & PPObjPerson::ClientActivityState::stfNewClient) {
+				if(filtFlags & PPObjPerson::ClientActivityState::stfNewClient)
+					ok = true;
+			}
+		}
+		else {
+			if(filtFlags & (1 << PPObjPerson::ClientActivityState::stUndef))
+				ok = true;
+		}
+	}
+	else
+		ok = true;
+	return ok;
+}
+
+static IMPL_DBE_PROC(dbqf_person_check_clientactivitystatus_iip)
+{
+	const  PPID   person_id = static_cast<long>(params[0].lval);
+	const  PPID   filt_flags = static_cast<long>(params[1].lval);
+	const  LAssocArray * p_clientactivitystatelist = reinterpret_cast<const LAssocArray *>(params[2].ptrval);
+	bool   ok = PPViewPerson::CheckClientActivityState(person_id, filt_flags, p_clientactivitystatelist);
+	result->init(static_cast<long>(ok));
+}
+
+int PPViewPerson::DynFuncCheckClientActivityStatus = DbqFuncTab::RegisterDynR(BTS_INT, dbqf_person_check_clientactivitystatus_iip, 3, BTS_INT, BTS_INT, BTS_PTR);
 
 DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
@@ -2566,6 +2649,7 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		DBE    dbe_fiashseguid;
 		DBE    dbe_addrtype; // @v12.1.11
 		DBE    dbe_email; // @v12.1.11
+		DBE    dbe_check_clientactivitystate; // @v12.2.2
 		DBQ  * dbq = 0;
 		int    tbl_count = 0;
 		DBTable * tbl_l[12];
@@ -2609,6 +2693,14 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					dbq = & (*dbq && cq == 1L);
 				}
 			}
+		}
+		if(Filt.ClientActivityStateFlags && (Filt.ClientActivityStateFlags & 0xffff) != 0xffff && P_ClientActivityStateList) {
+			dbe_check_clientactivitystate.init();
+			dbe_check_clientactivitystate.push(p->ID);
+			dbe_check_clientactivitystate.push(dbconst(static_cast<long>(Filt.ClientActivityStateFlags)));
+			dbe_check_clientactivitystate.push(dbconst(static_cast<const void *>(P_ClientActivityStateList)));
+			dbe_check_clientactivitystate.push(static_cast<DBFunc>(DynFuncCheckClientActivityStatus));
+			dbq = &(*dbq && dbe_check_clientactivitystate == 1L);
 		}
 		if(Filt.Flags & PersonFilt::fLocTagF && Filt.GetAttribType()) { // @v12.1.11
 			PPDbqFuncPool::InitObjNameFunc(dbe_city, PPDbqFuncPool::IdObjNameWorld,  tmp_pt->CityID);

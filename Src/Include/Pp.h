@@ -27161,10 +27161,7 @@ public:
 	// Descr: Блок, определяющий значение статуса активности клиента (State), привязанного к параметрам, заданным здесь же.
 	//
 	struct ClientActivityState { // @v12.2.2
-		explicit ClientActivityState() : PersonID(0), ActualDate(ZERODATE), State(stUndef)
-		{
-			NewCliPeriod.Z();
-		}
+		ClientActivityState();
 		//
 		// Значения статусов активности клиентов
 		//
@@ -27175,7 +27172,7 @@ public:
 			stDelayedTa           = 3, // Клиент давно не проявлял активности, но есть шанс его вернуть (задержка относительно не велика)
 			stHopelesslyDelayedTa = 4, // Вероятно, клиента вернуть не удасться (задержка активности слишком велика)
 			//
-			stfNewClient          = 0x0100 // Битовый признак нового клиента. Признак нового клиента устанавливается если первая транзакция попадает
+			stfNewClient          = 0x1000 // Битовый признак нового клиента. Признак нового клиента устанавливается если первая транзакция попадает
 				// в заданный интервал NewCliPeriod (если это интервал не пустой).
 		};
 		PPID   PersonID;        // IN
@@ -28566,8 +28563,8 @@ struct PersonFilt : public PPBaseFilt {
 			// привязанные ни к одной из персоналий (но не являющиеся автономными)
 		fLocTagF          = 0x0100, // Субфильтр P_TagF применяется к локациям, а не к персоналиям
 		fShowFiasRcgn     = 0x0200, // Показывать результаты распознавания адресов и сопоставления с ФИАС
-		fNewClientsOnly   = 0x0400, // Только новые клиенты (действует при не пустом NewCliPeriod)
-		fCliActivityStats = 0x0800, // @v12.2.2 @construction Отображать статистику активности клиентов. 
+		// @v12.2.2 (замещено более общим функционалом анализа клиентской активности) fNewClientsOnly   = 0x0400, // Только новые клиенты (действует при не пустом NewCliPeriod)
+		fCliActivityStats = 0x0800, // @v12.2.2 Отображать статистику активности клиентов. 
 	};
 	//
 	// Descr: Идентификаторы текстовых субполей, содержащихся в строке SrchStr_
@@ -28599,8 +28596,15 @@ struct PersonFilt : public PPBaseFilt {
 	int    PutExtssData(int fldID, const char * pBuf);
 
 	uint8  ReserveStart[16];  // @anchor
-	LDATE  ClientActivityEvalDate; // @v12.2.2 Опорная дата для анализа состояния клиентов в соответствии со статистикой их активности. Если ZERODATE, то - текущая дата.
-	uint16 Reserve;           // @v12.2.2 @alignment
+	LDATE  ClientActivityEvalDate;   // @v12.2.2 Опорная дата для анализа состояния клиентов в соответствии со статистикой их активности. Если ZERODATE, то - текущая дата.
+	uint16 ClientActivityStateFlags; // @v12.2.2 Фильтр по состояниями клиентской активности.
+		// (1 << PPObjPerson::ClientActivityState::stUndef(0))
+		// (1 << PPObjPerson::ClientActivityState::stNoData(1))
+		// (1 << PPObjPerson::ClientActivityState::stRegularTa(2))
+		// (1 << PPObjPerson::ClientActivityState::stDelayedTa(3))
+		// (1 << PPObjPerson::ClientActivityState::stHopelesslyDelayedTa(4))
+		// PPObjPerson::ClientActivityState::stfNewClient
+		// Если ClientActivityStateFlags == 0, то это эквивалентно отсутствию ограничений (так же как и значение 0xffff)
 	uint16 GenderFlags;       // (1 << GENDER_XXX)
 	DateRange NewCliPeriod;   // Период идентификации нового клиента
 	PPID   Kind;              //
@@ -28674,6 +28678,7 @@ public:
 	int    CheckIDForFilt(PPID id, const PersonTbl::Rec * pRec);
 
 	static int CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
+	static bool CheckClientActivityState(PPID personID, long filtFlags, const LAssocArray * pClientActivityStateList);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int   OnExecBrowser(PPViewBrowser *);
@@ -28711,6 +28716,8 @@ private:
 	PPObjWorld WObj;
 	PPFiasReference * P_Fr;
 	LAssocArray * P_ClientActivityStateList; // @v12.2.2
+	//
+	static int DynFuncCheckClientActivityStatus; // @v12.2.2
 };
 
 int ViewPersonInfoBySCard(const char * pCode);
@@ -47492,10 +47499,11 @@ public:
 		tagExpiryEpochSec  =  9, // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970)
 		tagPrefLanguage    = 10, // @v11.2.5 (private config) Предпочтительный язык
 		tagDefFace         = 11, // @v11.2.5 (private config) Лик, используемый клиентом по умолчанию
-		tagRole                    = 12, // @v11.2.8 StyloQConfig::roleXXX Роль записи 
-		tagCliFlags                = 13, // @v11.6.0 StyloQConfig::clifXXX Флаги клиента на стороне сервиса. То есть, после сопоставления клиента, сервис может
+		tagRole            = 12, // @v11.2.8 StyloQConfig::roleXXX Роль записи 
+		tagCliFlags        = 13, // @v11.6.0 StyloQConfig::clifXXX Флаги клиента на стороне сервиса. То есть, после сопоставления клиента, сервис может
 			// присвоить ему какие-либо флаги, например, с целью наделить его какими-то полномочиями
 		tagNotificationActualDays  = 14, // @v11.7.4 (private config) Количество дней актуальности уведомлений
+		tagUserFlags       = 15, // @v12.0.11 StyloQConfig::userfXXX Флаги пользовательского сеанса. Хранятся только на стороне локального приложения (сервису не передаются).
 	};
 	enum { // @persistent
 		featrfMediator = 0x0001 // Сервис выполняет функции медиатора (обслуживание других сервисов и клиентов)
@@ -47518,6 +47526,14 @@ public:
 		clifPsnAdrGPS         = 0x0004, // Клиенту разрешается устанавливать GPS-координаты адресов доставки перосналий (контакты, покупатели etc)
 		clifShareDoc          = 0x0008, // @v11.9.0 Клиенту разрешается делиться документами
 	};
+	//
+	// Descr: Приватные флаги конфигурации, применяемые только на стороне отдельного клиента
+	//
+	enum {
+		userfNetworkDisabled  = 0x0001, // @v12.0.11 Пользователь намеренно отключил функции сетевого обмена
+		userfSvcArchived      = 0x0002, // @v12.2.2  Сервис архивирован (более не используется)
+	};
+
 	static int MakeTransmissionJson(const char * pSrcJson, const void * pClientPacket, SString & rTransmissionJson);
 	//
 	// ARG(pClientPacket IN): Если !0 то функция извлекает из этого пакета конфигурацию ассоциации клиента с сервисом
@@ -58806,7 +58822,7 @@ private:
 		SString DvcNameBuf_;
 	};
 	ushort Execute();
-	void   WMHCreate(LPCREATESTRUCT);
+	void   WMHCreate();
 	void   DrawIcon(TCanvas & rC, long cmdID, int isSelected);
 	void   DrawIcon(TCanvas & rC, long id, SPoint2S coord, const SString & rText, const SString & rIcon, int isSelected);
 	void   AddTooltip(long id, SPoint2S coord, const char * pText);

@@ -1,5 +1,5 @@
 // OBJTAG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Теги объектов
 //
@@ -1150,7 +1150,6 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 		ok = -1;
 	}
 	else {
-		// @v10.3.0 (never used) int    tagtype = 0;
 		ObjTagFilt ot_filt;
 		InitFilt(NZOR(extraPtr, ExtraPtr), ot_filt);
 		PPObjTagPacket pack;
@@ -1996,10 +1995,8 @@ int TagFiltDialog::EditItem(long * pPos)
 			int    replace_dup_factor = 1;
 			if(Data.Flags & Data.fColors) {
 				replace_dup_factor = -1;
-				// @v10.4.4 {
 				if(!is_new)
 					THROW_SL(Data.TagsRestrict.AtFree(*pPos));
-				// } @v10.4.4 
 			}
 			else {
 				uint   fp = 0;
@@ -2508,7 +2505,7 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_DIMENSIONS) {
 		ok = ReceiptCore::LotDimensions::EditTag(0, pItem);
 	}
-	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_FREIGHTPACKAGE) { // @v10.4.1
+	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_FREIGHTPACKAGE) {
 		PPTransferItem::FreightPackage fp;
 		SString temp_buf;
 		pItem->GetStr(temp_buf);

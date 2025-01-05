@@ -337,19 +337,35 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 						// @v11.6.0 {
 						{
 							SvcGpslocSettingAllowed = false;
-							byte[] cfg_bytes = _data.Pool.Get(SecretTagPool.tagConfig);
-							if(SLib.GetLen(cfg_bytes) > 0) {
-								StyloQConfig svc_cfg = new StyloQConfig();
-								if(svc_cfg.FromJson(new String(cfg_bytes))) {
-									final int cli_flags = SLib.satoi(svc_cfg.Get(StyloQConfig.tagCliFlags));
-									if((cli_flags & StyloQConfig.clifSvcGPS) != 0) {
-										if(ContextCompat.checkSelfPermission(app_ctx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-											SvcGpslocSettingAllowed = true;
+							{
+								byte[] cfg_bytes = _data.Pool.Get(SecretTagPool.tagConfig);
+								if(SLib.GetLen(cfg_bytes) > 0) {
+									StyloQConfig svc_cfg = new StyloQConfig();
+									if(svc_cfg.FromJson(new String(cfg_bytes))) {
+										final int cli_flags = SLib.satoi(svc_cfg.Get(StyloQConfig.tagCliFlags));
+										if((cli_flags & StyloQConfig.clifSvcGPS) != 0) {
+											if(ContextCompat.checkSelfPermission(app_ctx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+												SvcGpslocSettingAllowed = true;
+											}
 										}
 									}
 								}
+								SLib.SetCtrlVisibility(this, R.id.CTL_BUTTON_GEOLOCMARK, SvcGpslocSettingAllowed ? View.VISIBLE : View.GONE);
 							}
-							SLib.SetCtrlVisibility(this, R.id.CTL_BUTTON_GEOLOCMARK, SvcGpslocSettingAllowed ? View.VISIBLE : View.GONE);
+							// @v12.2.2 {
+							{
+								boolean is_svc_archived = false;
+								byte[] cfg_bytes = _data.Pool.Get(SecretTagPool.tagPrivateConfig);
+								if(SLib.GetLen(cfg_bytes) > 0) {
+									StyloQConfig svc_cfg = new StyloQConfig();
+									if(svc_cfg.FromJson(new String(cfg_bytes))) {
+										final int user_flags = SLib.satoi(svc_cfg.Get(StyloQConfig.tagUserFlags));
+										is_svc_archived = (user_flags & StyloQConfig.userfSvcArchived) != 0;
+									}
+								}
+								SLib.SetCheckboxState(this, R.id.CTL_STQSERVICE_ARCHIVED, is_svc_archived);
+							}
+							// } @v12.2.2
 						}
 						// } @v11.6.0
 						String text;
@@ -366,6 +382,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							face_list.Set((int)raw_face_item.ID, raw_face_item.GetSimpleText(0));
 						}
 						SLib.SetupStrAssocCombo(app_ctx, this, R.id.CTLSEL_STQSERVICE_PREFFACE, face_list, face_ref_id);
+						//
 					}
 				}
 			} catch(StyloQException exn) {
@@ -399,6 +416,33 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							}
 						}
 					}
+					// @v12.2.2 {
+					{
+						boolean is_svc_archived = SLib.GetCheckboxState(this, R.id.CTL_STQSERVICE_ARCHIVED);
+						byte [] cfg_bytes = _data.Pool.Get(SecretTagPool.tagPrivateConfig);
+						StyloQConfig svc_cfg = new StyloQConfig();
+						if(SLib.GetLen(cfg_bytes) > 0) {
+							if(!svc_cfg.FromJson(new String(cfg_bytes))) {
+								svc_cfg = new StyloQConfig(); // о
+							}
+						}
+						int user_flags = SLib.satoi(svc_cfg.Get(StyloQConfig.tagUserFlags));
+						final int org_user_flags = user_flags;
+						if(is_svc_archived)
+							user_flags |= StyloQConfig.userfSvcArchived;
+						else
+							user_flags &= ~StyloQConfig.userfSvcArchived;
+						if(user_flags != org_user_flags) {
+							svc_cfg.Set(StyloQConfig.tagUserFlags, Integer.toString(user_flags));
+							//
+							String cfg_json = svc_cfg.ToJson();
+							cfg_bytes = cfg_json.getBytes();
+							if(SLib.GetLen(cfg_bytes) > 0) {
+								_data.Pool.Put(SecretTagPool.tagPrivateConfig, cfg_bytes);
+							}
+						}
+					}
+					// } @v12.2.2
 					result = Data;
 				} catch(StyloQException exn) {
 					result = null;
@@ -415,6 +459,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 			SvcID = svcID;
 			Status = 0;
 			PendingTimeMs = -1;
+			IsArchived = false;
 			Setup(db);
 		}
 		public void Setup(StyloQDatabase db)
@@ -425,8 +470,19 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 			if(db != null && SvcID > 0) {
 				try {
 					Pack = db.GetPeerEntry(SvcID);
-					if(Pack != null)
+					if(Pack != null) {
 						Face = Pack.GetFace();
+						// @v12.2.2 {
+						byte[] cfg_bytes = Pack.Pool.Get(SecretTagPool.tagPrivateConfig);
+						if(SLib.GetLen(cfg_bytes) > 0) {
+							StyloQConfig svc_cfg = new StyloQConfig();
+							if(svc_cfg.FromJson(new String(cfg_bytes))) {
+								final int user_flags = SLib.satoi(svc_cfg.Get(StyloQConfig.tagUserFlags));
+								IsArchived = (user_flags & StyloQConfig.userfSvcArchived) != 0;
+							}
+						}
+						// } @v12.2.2
+					}
 					{
 						byte [] svc_ident = Pack.Pool.Get(SecretTagPool.tagSvcIdent);
 						if(SLib.GetLen(svc_ident) > 0) {
@@ -448,9 +504,12 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 		long   CmdListExpiration;
 		int    Status;
 		int    PendingTimeMs; // Текущее время ожидания результата вызова функции
+		boolean IsArchived;
 	}
 	public static final int CUSTOMIZED_REQUEST_CODE = 0x0000ffff;
 	private ArrayList <ListEntry> ListData;
+	private boolean IsThereArchivedServices; // @v12.2.2 если true, то в базе данных есть архивные сервисы
+	private int ShowArchivedSvcTag; // @v12.2.2 1 - показывать только активные сервисы, 2 - показывать только архивные сервисы, other - показывать все
 	private Timer RefreshNotificationIcon_Tmr;
 	//private int TouchedListItemIdx; // Элемент, на который нажали пальцем. Для временного изменения окраски.
 
@@ -493,20 +552,47 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 		super();
 		ListData = null;
 		RefreshNotificationIcon_Tmr = null;
+		IsThereArchivedServices = false; // @v12.2.2 если true, то в базе данных есть архивные сервисы
+		ShowArchivedSvcTag = 0; // @v12.2.2 1 - показывать только активные сервисы, 2 - показывать только архивные сервисы
 		//TouchedListItemIdx = -1;
 	}
 	private void MakeListData(StyloQDatabase db)
 	{
 		ListData = null;
+		IsThereArchivedServices = false;
 		try {
 			ArrayList<Long> id_list = db.GetForeignSvcIdList(true, true);
 			if(id_list != null && id_list.size() > 0) {
 				ListData = new ArrayList<ListEntry>();
 				for(int i = 0; i < id_list.size(); i++) {
 					ListEntry new_entry = new ListEntry(db, id_list.get(i));
+					// @v12.2.2 {
+					if(new_entry.IsArchived)
+						IsThereArchivedServices = true;
+					// } @v12.2.2
 					ListData.add(new_entry);
 				}
 			}
+			// @v12.2.2 {
+			if(!IsThereArchivedServices)
+				ShowArchivedSvcTag = 0;
+			else if(ShowArchivedSvcTag == 1 || ShowArchivedSvcTag == 2) {
+				int i = ListData.size();
+				if(i > 0) do {
+					i--;
+					ListEntry entry = ListData.get(i);
+					boolean do_remove = false;
+					if(entry == null)
+						do_remove = true;
+					else if(ShowArchivedSvcTag == 1 && entry.IsArchived)
+						do_remove = true;
+					else if(ShowArchivedSvcTag == 2 && !entry.IsArchived)
+						do_remove = true;
+					if(do_remove)
+						ListData.remove(i);
+				} while(i > 0);
+			}
+			// } @v12.2.2
 		} catch(StyloQException exn) {
 			;
 		}
@@ -728,6 +814,29 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 		}
 		return ok;
 	}
+	private void SetupShowArchived_Button()
+	{
+		View v_button = findViewById(R.id.tbButtonToggleArchivedServices);
+		if(v_button != null && v_button instanceof ImageButton) {
+			int rc_img = 0;
+			if(IsThereArchivedServices) {
+				if(ShowArchivedSvcTag == 2) {
+					rc_img = R.drawable.ic_activity01;
+				}
+				else /*if(ShowArchivedSvcTag == 1)*/ {
+					rc_img = R.drawable.ic_archive01;
+					ShowArchivedSvcTag = 1;
+				}
+			}
+			if(rc_img != 0) {
+				v_button.setVisibility(View.VISIBLE);
+				((ImageButton)v_button).setImageResource(rc_img);
+			}
+			else {
+				v_button.setVisibility(View.GONE);
+			}
+		}
+	}
 	public Object HandleEvent(int ev, Object srcObj, Object subj)
 	{
 		Object result = null;
@@ -757,6 +866,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 								db.SetupPeerInstance();
 								db.GetDefaultFace(null, true); // Если первый запуск, то создаем defaul-лик
 								MakeListData(db);
+								SetupShowArchived_Button(); // @v12.2.2
 								// @v11.6.0 {
 								{
 									final String [] permission_list = {
@@ -984,6 +1094,30 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					Intent intent = new Intent(this, NotificationActivity.class);
 					startActivity(intent);
 				}
+				else if(view_id == R.id.tbButtonToggleArchivedServices) { // @v12.2.2
+					if(IsThereArchivedServices) {
+						if(ShowArchivedSvcTag == 2) {
+							ShowArchivedSvcTag = 1;
+						}
+						else /*if(ShowArchivedSvcTag == 1)*/ {
+							ShowArchivedSvcTag = 2;
+						}
+						try {
+							StyloQApp app_ctx = (StyloQApp)getApplication();
+							StyloQDatabase db = app_ctx.GetDB();
+							if(db != null) {
+								MakeListData(db);
+								UpdateSvcListView();
+							}
+							SetupShowArchived_Button();
+						} catch(StyloQException exn) {
+							;
+						}
+					}
+					else {
+
+					}
+				}
 				/*else if(view_id == R.id.tbButtonTest) {
 					StyloQApp app_ctx = (StyloQApp)getApplication();
 					try {
@@ -1074,8 +1208,61 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							if(org_pack != null) {
 								byte[] org_face_ref = org_pack.Pool.Get(SecretTagPool.tagAssignedFaceRef);
 								byte[] face_ref = pack.Pool.Get(SecretTagPool.tagAssignedFaceRef);
+								// @v12.2.2 {
+								boolean org_is_svc_archived = false;
+								boolean is_svc_archived = false;
+								{
+									byte[] cfg_bytes = org_pack.Pool.Get(SecretTagPool.tagPrivateConfig);
+									if(SLib.GetLen(cfg_bytes) > 0) {
+										StyloQConfig svc_cfg = new StyloQConfig();
+										if(svc_cfg.FromJson(new String(cfg_bytes))) {
+											final int user_flags = SLib.satoi(svc_cfg.Get(StyloQConfig.tagUserFlags));
+											org_is_svc_archived = (user_flags & StyloQConfig.userfSvcArchived) != 0;
+										}
+									}
+								}
+								{
+									byte[] cfg_bytes = pack.Pool.Get(SecretTagPool.tagPrivateConfig);
+									if(SLib.GetLen(cfg_bytes) > 0) {
+										StyloQConfig svc_cfg = new StyloQConfig();
+										if(svc_cfg.FromJson(new String(cfg_bytes))) {
+											final int user_flags = SLib.satoi(svc_cfg.Get(StyloQConfig.tagUserFlags));
+											is_svc_archived = (user_flags & StyloQConfig.userfSvcArchived) != 0;
+										}
+									}
+								}
+								boolean do_store = false;
+								// } @v12.2.2
 								if(!SLib.AreByteArraysEqual(org_face_ref, face_ref)) {
 									org_pack.Pool.Put(SecretTagPool.tagAssignedFaceRef, face_ref);
+									do_store = true;
+								}
+								// @v12.2.2 {
+								if(is_svc_archived != org_is_svc_archived) {
+									byte [] cfg_bytes = org_pack.Pool.Get(SecretTagPool.tagPrivateConfig);
+									StyloQConfig svc_cfg = new StyloQConfig();
+									if(SLib.GetLen(cfg_bytes) > 0) {
+										if(!svc_cfg.FromJson(new String(cfg_bytes))) {
+											svc_cfg = new StyloQConfig();
+										}
+									}
+									int user_flags = SLib.satoi(svc_cfg.Get(StyloQConfig.tagUserFlags));
+									if(is_svc_archived)
+										user_flags |= StyloQConfig.userfSvcArchived;
+									else
+										user_flags &= ~StyloQConfig.userfSvcArchived;
+									{
+										svc_cfg.Set(StyloQConfig.tagUserFlags, Integer.toString(user_flags));
+										String cfg_json = svc_cfg.ToJson();
+										cfg_bytes = cfg_json.getBytes();
+										if(SLib.GetLen(cfg_bytes) > 0) {
+											org_pack.Pool.Put(SecretTagPool.tagPrivateConfig, cfg_bytes);
+											do_store = true;
+										}
+									}
+								}
+								// } @v12.2.2
+								if(do_store) {
 									db.PutPeerEntry(org_pack.Rec.ID, org_pack, true);
 									ReckonServiceEntryCreatedOrUpdated(org_pack.Rec.ID);
 								}
@@ -1218,22 +1405,33 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 	public void ReckonServiceEntryCreatedOrUpdated(long svcId)
 	{
 		if(svcId > 0) {
-			View v = findViewById(R.id.serviceListView);
-			RecyclerView view = (v != null && v instanceof RecyclerView) ? (RecyclerView)findViewById(R.id.serviceListView) : null;
-			RecyclerView.Adapter adapter = (view != null) ? view.getAdapter() : null;
-			if(adapter != null) {
-				boolean found = false;
-				int found_idx = -1;
-				if(ListData != null) {
-					found_idx = FindServiceEntryInListData(svcId);
-					if(found_idx >= 0)
-						found = true;
+			StyloQApp app_ctx = (StyloQApp)getApplication();
+			if(app_ctx != null) {
+				try {
+					StyloQDatabase db = app_ctx.GetDB();
+					if(db != null) {
+						MakeListData(db);
+						UpdateSvcListView();
+						SetupShowArchived_Button();
+					}
+				} catch(StyloQException e) {
+					;
 				}
-				else
-					ListData = new ArrayList<ListEntry>();
-				if(!found) {
-					StyloQApp app_ctx = GetAppCtx();
-					if(app_ctx != null) {
+				/* @v12.2.2
+				View v = findViewById(R.id.serviceListView);
+				RecyclerView view = (v != null && v instanceof RecyclerView) ? (RecyclerView)findViewById(R.id.serviceListView) : null;
+				RecyclerView.Adapter adapter = (view != null) ? view.getAdapter() : null;
+				if(adapter != null) {
+					boolean found = false;
+					int found_idx = -1;
+					if(ListData != null) {
+						found_idx = FindServiceEntryInListData(svcId);
+						if(found_idx >= 0)
+							found = true;
+					}
+					else
+						ListData = new ArrayList<ListEntry>();
+					if(!found) {
 						try {
 							StyloQDatabase db = app_ctx.GetDB();
 							if(db != null) {
@@ -1245,9 +1443,9 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							;
 						}
 					}
-				}
-				else
-					adapter.notifyItemChanged(found_idx);
+					else
+						adapter.notifyItemChanged(found_idx);
+				}*/
 			}
 		}
 	}

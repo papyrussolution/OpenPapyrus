@@ -206,6 +206,7 @@ static const SIntToSymbTabEntry StyloQConfigTagNameList[] = {
 	{ StyloQConfig::tagRole,            "role"  }, // @v11.2.8 
 	{ StyloQConfig::tagCliFlags,        "cliflags" }, // @v11.6.0
 	{ StyloQConfig::tagNotificationActualDays, "notificationactualdays" }, // @v11.7.4
+	{ StyloQConfig::tagUserFlags,              "userflags" } // @v12.2.2 (private config)
 };
 
 /*static*/SJson * StyloQConfig::MakeTransmissionJson_(const char * pSrcJson, const void * pClientPacket)
@@ -12952,7 +12953,7 @@ int PPStyloQInterchange::Helper_ExecuteIndexingRequest(const StyloQCore::Storage
 	THROW_PP(rOwnPack.Pool.Get(SSecretTagPool::tagSvcIdent, &own_ident), PPERR_SQ_UNDEFOWNSVCID);
 	// @v11.4.5 {
 	assert(doc_uuid);
-	{
+	if(0) { // @v12.2.2 Нет смысла забивать базу данных этими документами - только вред один от разбухания БД.
 		//
 		// Перед передачей модератору мы сохраняем у себя в реестре копию документа как исходящий типа doctypIndexingContent
 		//
@@ -13119,6 +13120,7 @@ int PPStyloQInterchange::Helper_PrepareAhed(const StyloQCommandList & rFullCmdLi
 											THROW_SL(doc_pool.Put(SSecretTagPool::tagDocDeclaration, decl_buf, decl_buf.Len(), &ds));
 										}
 									}
+									// @todo @v12.2.2 здесь надо предварительно грохнуть исходящие документы такого типа, созданные ранее (сильно забивают базу данных)
 									THROW(P_T->PutDocument(&doc_id, &result_rec, own_ident, +1/*output*/, doc_type, doc_ident, doc_pool, 1/*use_ta*/));
 									msg_to_log = 2;
 									ok = 1;
@@ -13143,6 +13145,7 @@ int PPStyloQInterchange::Helper_PrepareAhed(const StyloQCommandList & rFullCmdLi
 											THROW_SL(doc_pool.Put(SSecretTagPool::tagDocDeclaration, decl_buf, decl_buf.Len(), &ds));
 										}
 									}
+									// @todo @v12.2.2 здесь надо предварительно грохнуть исходящие документы такого типа, созданные ранее (сильно забивают базу данных)
 									THROW(P_T->PutDocument(&doc_id, &result_rec, own_ident, +1/*output*/, doc_type, doc_ident, doc_pool, 1/*use_ta*/));
 									msg_to_log = 2;
 									ok = 1;
