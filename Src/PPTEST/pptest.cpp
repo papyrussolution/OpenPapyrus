@@ -1990,9 +1990,9 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	SentencePieceExperiments();
+	Test_ListSelectionDialog();
+	//SentencePieceExperiments();
 	//TestGtinStruc();
-	//Test_ListSelectionDialog();
 	//PPChZnPrcssr::Test();
 	//GumboTest();
 	//Test_SSystemBackup();

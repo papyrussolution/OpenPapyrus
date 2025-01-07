@@ -1,5 +1,5 @@
 // PPCMD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -78,7 +78,7 @@ int PPCommandDescr::LoadResource(long cmdDescrID)
 	TVRez * p_rez = P_SlRez;
 	Init();
 	if(p_rez) {
-		THROW_PP(p_rez->findResource((uint)cmdDescrID, PP_RCDECLCMD), PPERR_RESFAULT);
+		THROW_PP(p_rez->findResource(static_cast<uint>(cmdDescrID), PP_RCDECLCMD), PPERR_RESFAULT);
 		CmdID = cmdDescrID;
 		p_rez->getString(Symb, 2);
 		p_rez->getString(Text, 2);
@@ -4470,6 +4470,46 @@ public:
 };
 
 IMPLEMENT_CMD_HDL_FACTORY(APTEKARUINTERCHANGE);
+//
+// 
+// 
+class CMD_HDL_CLS(GATHERCLIENTACTIVITYSTAT) : public PPCommandHandler {
+public:
+	CMD_HDL_CLS(GATHERCLIENTACTIVITYSTAT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		if(pParam) {
+			PrcssrClientActivityStatistics prc;
+			PrcssrClientActivityStatisticsFilt filt;
+			if(!filt.Read(*pParam, 0))
+				prc.InitParam(&filt);
+			if(prc.EditParam(&filt) > 0) {
+				if(filt.Write(pParam->Z(), 0)) {
+					ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		PrcssrClientActivityStatisticsFilt filt;
+		if(pParam && filt.Read(*pParam, 0)) {
+			PrcssrClientActivityStatistics prc;
+			if(!prc.Init(&filt) || !prc.Run())
+				ok = PPErrorZ();
+		}
+		else
+			ok = GatherClientActivityStatistics();
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(GATHERCLIENTACTIVITYSTAT);
 //
 //
 //

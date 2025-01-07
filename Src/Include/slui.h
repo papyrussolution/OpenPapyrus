@@ -4501,8 +4501,8 @@ public:
 	void   FASTCALL setDef(ListBoxDef * pDef);
 	void   setCompFunc(CompFunc f);
 	ListWindowSmartListBox * listBox() const;
-	void   MoveWindow(HWND linkHwnd, long right);
-	void   MoveWindow(const RECT & rRect);
+	void   Move_(HWND linkHwnd, long right);
+	void   Move_(const RECT & rRect);
 	ListBoxDef * getDef() const { return P_Def; }
 	void   SetToolbar(uint tbId);
 	uint   GetToolbar() const { return TbId; }
@@ -4885,7 +4885,7 @@ public:
 	void   AddItemCmdList(const char * pTitle, void * ptr);
 	void   Setup(HMENU hMenu);
 	int    IsVisible();
-	void   MoveWindow(const RECT &rRect);
+	void   Move_(const RECT &rRect);
 	void   GetRect(RECT & rRect);
 	void   Show(int show);
 	void   MoveChildren(const RECT & rRect);

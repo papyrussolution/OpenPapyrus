@@ -2076,7 +2076,6 @@ void SUiLayout::Commit_() const
 		p.ForceSize.y = bb.Height();
 		DoLayout(p);
 	}
-
 }
 
 void SUiLayout::DoLayout(const Param & rP) const

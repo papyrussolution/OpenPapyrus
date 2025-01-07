@@ -1517,6 +1517,7 @@
 #define PPCMD_TESTMARKETPLACE                       1353
 #define PPCMD_MARKETPLACEINTERCHANGE                1354
 #define PPCMD_APTEKARUINTERCHANGE                   1355
+#define PPCMD_GATHERCLIENTACTIVITYSTAT              1356
 //
 // PPJOB definitions
 //
@@ -1570,6 +1571,7 @@
 #define PPJOB_IMPORTCCHECKS                           48
 #define PPJOB_APTEKARUINTERCHANGE                     49
 #define PPJOB_MARKETPLACEINTERCHANGE                  50
+#define PPJOB_GATHERCLIENTACTIVITYSTAT                51
 //
 // PPVIEW definitions
 //
@@ -1931,6 +1933,7 @@
 	#define PPVIEWITEM_COMPUTER                              1342
 #define PPFILT_MARKETPLACEINTERCHANGE                1351
 #define PPFILT_PRCSSRAPTEKARU                        1361
+#define PPFILT_PRCSSRCLIENTACTIVITYSTATISTICS        1371
 //
 // RECORD definitions
 //

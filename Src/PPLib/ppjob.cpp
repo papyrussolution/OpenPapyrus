@@ -1,5 +1,5 @@
 // PPJOB.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -141,7 +141,7 @@ int PPJobMngr::LoadResource(PPID jobID, PPJobDescr * pJob)
 	int    ok = 1;
 	pJob->CmdID = jobID;
 	if(P_Rez) {
-		THROW_PP(P_Rez->findResource((uint)jobID, PP_RCDECLJOB), PPERR_RESFAULT);
+		THROW_PP(P_Rez->findResource(static_cast<uint>(jobID), PP_RCDECLJOB), PPERR_RESFAULT);
 		P_Rez->getString(pJob->Symb, 2);
 		P_Rez->getString(pJob->Text = 0, 2);
 		SLS.ExpandString(pJob->Text, CTRANSF_UTF8_TO_INNER);
@@ -4470,3 +4470,42 @@ public:
 };
 
 IMPLEMENT_JOB_HDL_FACTORY(MARKETPLACEINTERCHANGE);
+//
+//
+//
+class JOB_HDL_CLS(GATHERCLIENTACTIVITYSTAT) : public PPJobHandler {
+public:
+	JOB_HDL_CLS(GATHERCLIENTACTIVITYSTAT)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, void * extraPtr) 
+	{ 
+		int    ok = -1;
+		if(pParam) {
+			PrcssrClientActivityStatistics prc;
+			PrcssrClientActivityStatisticsFilt filt;
+			if(!filt.Read(*pParam, 0))
+				prc.InitParam(&filt);
+			if(prc.EditParam(&filt) > 0) {
+				if(filt.Write(pParam->Z(), 0)) {
+					ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, void * extraPtr)
+	{
+		int    ok = 1;
+		PrcssrClientActivityStatistics prc;
+		PrcssrClientActivityStatisticsFilt filt;
+		THROW(pParam);
+		THROW(filt.Read(*pParam, 0));
+		THROW(prc.Init(&filt));
+		THROW(prc.Run());
+		CATCHZOKPPERR
+		return ok;
+	}
+};
+
+IMPLEMENT_JOB_HDL_FACTORY(GATHERCLIENTACTIVITYSTAT);

@@ -1,11 +1,11 @@
 // PPNAMEDFILT.CPP
-// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
 
-static const long Current_PPNamedFilt_Ver = 3; // @v10.6.7 2-->3
+static const long Current_PPNamedFilt_Ver = 3;
 
 PPNamedFilt::PPNamedFilt() : ID(0), Ver(Current_PPNamedFilt_Ver), ViewID(0), Flags(0) //@erik ver 0-->1 // @v10.5.3 ver 1-->2
 {
@@ -223,10 +223,7 @@ PPNamedFiltPool::PPNamedFiltPool(const char * pDbSymb, const int readOnly) : TSC
 	SETFLAG(Flags, fReadOnly, readOnly);
 }
 
-const SString & PPNamedFiltPool::GetDbSymb() const
-{
-	return DbSymb;
-}
+const SString & PPNamedFiltPool::GetDbSymb() const { return DbSymb; }
 
 int PPNamedFiltPool::IsNamedFiltSuited(const PPNamedFilt * pNFilt) const
 {
@@ -743,7 +740,6 @@ IMPL_HANDLE_EVENT(FiltItemDialog)
 		// @v11.1.10 ViewMobColumnList();
 		PPNamedFilt::EditRestrictedViewDefinitionList(Data.VD); // @v11.1.10
 	}
-	// @v10.5.3 {
 	else if(event.isCmd(cmGuaList)) {
 		PPIDArray id_list;
 		Data.DestGuaList.Get(id_list);
@@ -752,7 +748,6 @@ IMPL_HANDLE_EVENT(FiltItemDialog)
 		if(ListToListDialog(&ltld) > 0)
 			Data.DestGuaList.Set(&id_list);
 	}
-	// } @v10.5.3 
 	clearEvent(event);
 }
 
@@ -828,10 +823,7 @@ int FiltPoolDialog::editItem(long pos, long id)
 //
 // Descr: Обрабатывает удаление именованного фильтра из списка
 //
-int FiltPoolDialog::delItem(long pos, long id)
-{
-	return P_Data->PutNamedFilt(&id, 0);
-}
+int FiltPoolDialog::delItem(long pos, long id) { return P_Data->PutNamedFilt(&id, 0); }
 
 PPNamedFilt::ViewDefinition::Entry::Entry() : TotalFunc(0), DataType(0), Format(0), Format2(0)
 {
@@ -1075,15 +1067,6 @@ int PPNamedFilt::ViewDefinition::XmlRead(const xmlNode * pParentNode)
 	}
 	return ok;
 } 
-
-/* @v10.6.7 int PPNamedFilt::ViewDefinition::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
-{
-	int    ok = 1;
-	THROW_SL(pCtx->Serialize(dir, &L, rBuf));
-	THROW_SL(SStrGroup::SerializeS(dir, rBuf, pCtx));
-	CATCHZOK
-	return ok;
-}*/
 
 class MobileClmnValListDialog : public PPListDialog {
 	DECL_DIALOG_DATA(PPNamedFilt::ViewDefinition);

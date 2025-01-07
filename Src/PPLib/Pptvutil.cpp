@@ -3074,6 +3074,15 @@ private:
 			if(event.isCmd(cmInit)) {
 				CreateBlock * p_blk = static_cast<CreateBlock *>(TVINFOPTR);
 				//
+				{
+					const TRect _def_rect(0, 0, 40, 40);
+					{
+						SmartListBox * p_lb = new SmartListBox(_def_rect, 0);
+						InsertCtlWithCorrespondingNativeItem(p_lb, STDCTL_SINGLELISTBOX, 0);
+					}
+					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_ok", cmOK, 0, 0), STDCTL_OKBUTTON, 0);
+					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_cancel", cmCancel, 0, 0), STDCTL_CANCELBUTTON, 0);
+				}
 				CreateLayout();
 				EvaluateLayout(p_blk->Coord);
 			}
@@ -3164,7 +3173,7 @@ const ListSelectionDialog::LayoutExtra * ListSelectionDialog::GetLayoutExtra(int
 
 void ListSelectionDialog::CreateLayout()
 {
-	static const float def_margin = 2.0f;
+	static const float def_margin = 1.0f;
 
 	class InnerBlock {
 	public:
@@ -3185,7 +3194,16 @@ void ListSelectionDialog::CreateLayout()
 		}
 		static void InsertButtonLayout(ListSelectionDialog * pMaster, SUiLayout * pLoParent, ushort ctlId, SUiLayoutParam & rP, float growFactor)
 		{
-			TView * p = pMaster->getCtrlView(ctlId);
+			TView * p = pMaster ? pMaster->getCtrlView(ctlId) : 0;
+			if(p) {
+				rP.GrowFactor = growFactor;
+				SUiLayout * p_lo_item = pLoParent->InsertItem(p, &rP);
+				p_lo_item->SetCallbacks(0, InnerBlock::SetupLayoutItemFrameProc, p);
+			}
+		}		
+		static void InsertCtrlLayout(ListSelectionDialog * pMaster, SUiLayout * pLoParent, ushort ctlId, SUiLayoutParam & rP, float growFactor)
+		{
+			TView * p = pMaster ? pMaster->getCtrlView(ctlId) : 0;
 			if(p) {
 				rP.GrowFactor = growFactor;
 				SUiLayout * p_lo_item = pLoParent->InsertItem(p, &rP);
@@ -3215,12 +3233,21 @@ void ListSelectionDialog::CreateLayout()
 		//alb_buttons.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 		//SUiLayout * p_lo_buttons = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_Buttons, 0)), &alb_buttons);
 		SUiLayout * p_lo_footer = p_lo_result->FindBySymb("listdialog_footer");
+		SUiLayout * p_lo_list = p_lo_result->FindBySymb("listdialog_body");
+		{
+			SUiLayoutParam alb;
+			alb.GrowFactor = 1.0f;
+			//alb.SetFixedSizeY(FixedCtrlHeight);
+			alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 0.8f);
+			alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+			alb.Margin.Set(def_margin);
+			InnerBlock::InsertCtrlLayout(this, p_lo_list, STDCTL_SINGLELISTBOX, alb, 1.0f);
+		}
 		{
 			SUiLayoutParam alb;
 			alb.GrowFactor = 1.0f;
 			alb.SetFixedSizeY(FixedCtrlHeight);
 			alb.Margin.Set(def_margin);
-			InnerBlock::InsertButtonLayout(this, p_lo_footer, CTL_CALENDAR_TODAY, alb, 1.0f);
 			InnerBlock::InsertButtonLayout(this, p_lo_footer, STDCTL_OKBUTTON, alb, 1.0f);
 			InnerBlock::InsertButtonLayout(this, p_lo_footer, STDCTL_CANCELBUTTON, alb, 1.0f);
 		}

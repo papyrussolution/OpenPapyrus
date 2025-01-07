@@ -321,14 +321,12 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 		}
 		else if(SLS.ExpandString(temp_buf, CTRANSF_UTF8_TO_OUTER) > 0)
 			do_replace = 1;
-		// @v10.5.4 {
 		else {
 			if(!temp_buf.IsAscii() && temp_buf.IsLegalUtf8()) {
 				temp_buf.Transf(CTRANSF_UTF8_TO_OUTER);
 				do_replace = 1;
 			}
 		}
-		// } @v10.5.4 
 		if(do_replace) {
 			ok = TView::SSetWindowText(hwnd, temp_buf);
 		}
@@ -338,7 +336,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 
 /*static*/void FASTCALL TView::PreprocessWindowCtrlText(HWND hWnd)
 {
-	SetupWindowCtrlTextProc(hWnd, 0); // @v10.7.10
+	SetupWindowCtrlTextProc(hWnd, 0);
 	::EnumChildWindows(hWnd, SetupWindowCtrlTextProc, 0);
 }
 
@@ -498,6 +496,17 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 								}
 								TView::SetWindowUserData(hw_il, p_il);
 							}
+						}
+					}
+					break;
+				case TV_SUBSIGN_LISTBOX: // @v12.2.2 @construction
+					{
+						SmartListBox * p_lb = static_cast<SmartListBox *>(pV);
+						pV->Parent = hw_parent;
+						hw = ::CreateWindowEx(0, _T("LISTBOX"), 0, WS_CHILD|LBS_NOINTEGRALHEIGHT|LBS_WANTKEYBOARDINPUT, pV->ViewOrigin.x,
+							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
+						if(hw) {
+							TView::SetWindowUserData(hw, p_lb);
 						}
 					}
 					break;

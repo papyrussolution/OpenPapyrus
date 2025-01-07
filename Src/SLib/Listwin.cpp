@@ -46,7 +46,7 @@ void ListWindow::executeNM(HWND parent)
 	}
 	CALLPTRMEMB(P_Lb, SetLBLnkToUISrchState());
 	APPL->SetWindowViewByKind(H(), TProgram::wndtypListDialog);
-	MoveWindow(0, 0);
+	Move_(0, 0);
 	if(DlgFlags & fLarge) {
 		P_Def->SetOption(lbtSelNotify, 1);
 		::SendDlgItemMessage(H(), CTL_LBX_LIST, LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(40));
@@ -112,7 +112,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 				p_combo->setupTreeListWindow(1);
 		}
 		else
-			MoveWindow(0, 0);
+			Move_(0, 0);
 		if(DlgFlags & fLarge) {
 			P_Def->SetOption(lbtSelNotify, 1);
 			::SendDlgItemMessage(H(), CTL_LBX_LIST, LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(40));
@@ -236,7 +236,7 @@ int ListWindow::getSingle(long * pVal)
 	return 0;
 }
 
-void ListWindow::MoveWindow(HWND linkHwnd, long right)
+void ListWindow::Move_(HWND linkHwnd, long right)
 {
 	
 	uint   list_ctl = IsTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
@@ -288,7 +288,7 @@ void ListWindow::MoveWindow(HWND linkHwnd, long right)
 		::MoveWindow(h_scroll, list_rect.right, 0, GetSystemMetrics(SM_CXVSCROLL), list_rect.bottom, 1);
 }
 
-void ListWindow::MoveWindow(const RECT & rRect)
+void ListWindow::Move_(const RECT & rRect)
 {
 	uint   list_ctl = IsTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST;
 	HWND   h_list = GetDlgItem(H(), list_ctl);
@@ -453,7 +453,7 @@ int WordSelector::Helper_PullDown(const char * pText, int recent)
 		int    skip = BIN(!p_data || p_data->getCount() == 0);
 		if(!skip && !recent && p_data->getCount() == 1 && (P_Blk->GetFlags() & WordSel_ExtraBlock::fFreeText)) {
 			//
-			// @v10.7.7 Специальный случай: в режиме fFreeText единственный доступный в списке элемент,
+			// Специальный случай: в режиме fFreeText единственный доступный в списке элемент,
 			// равный образцу не предусмотрен для вывода в списке (в этом просто нет смыслы - текст уже в поле ввода)
 			//
 			StrAssocArray::Item sitem = p_data->Get(0);
@@ -471,7 +471,7 @@ int WordSelector::Helper_PullDown(const char * pText, int recent)
 						hw_resize_base = GetDlgItem(P_Blk->H_InputDlg, P_Blk->InputCtl);
 					SETIFZ(hw_resize_base, P_Blk->H_InputDlg);
 				}
-				MoveWindow(hw_resize_base, 0);
+				Move_(hw_resize_base, 0);
 			}
 			if(!CheckVisible()) {
 				WsState |= (wssVisible|wssActive);
@@ -533,7 +533,7 @@ IMPL_HANDLE_EVENT(WordSelector)
 						hw_resize_base = GetDlgItem(P_Blk->H_InputDlg, P_Blk->InputCtl);
 					SETIFZ(hw_resize_base, P_Blk->H_InputDlg);
 				}
-				MoveWindow(hw_resize_base, 0);
+				Move_(hw_resize_base, 0);
 			}
 			if(APPL->PushModalWindow(this, H())) {
 				::ShowWindow(H(), SW_SHOW);
@@ -598,55 +598,6 @@ IMPL_HANDLE_EVENT(WordSelector)
 		ListWindow::handleEvent(event);
 	}
 }
-
-#if 0 // @v9.7.12 (replaced with DrawListItem2) {
-void WordSelector::DrawListItem(TDrawItemData * pDrawItem)
-{
-	if(pDrawItem && pDrawItem->P_View) {
-		long   list_ctrl_id = pDrawItem->P_View->GetId();
-		HDC    h_dc = pDrawItem->H_DC;
-		HFONT  h_fnt_def  = 0;
-		HBRUSH h_br_def   = 0;
-		HPEN   h_pen_def  = 0;
-		COLORREF clr_prev = 0;
-		SmartListBox * p_lbx = (SmartListBox *)pDrawItem->P_View;
-		RECT   rc = pDrawItem->ItemRect;
-		SString temp_buf;
-		{
-			if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {
-				::FillRect(h_dc, &rc, (HBRUSH)Ptb.Get(brBkgnd));
-				pDrawItem->ItemAction = 0; // Мы перерисовали фон
-			}
-			else if(pDrawItem->ItemID != 0xffffffff) {
-				// h_fnt_def = (HFONT)SelectObject(h_dc, (HFONT)Ptb.Get(font));
-				p_lbx->getText((long)pDrawItem->ItemData, temp_buf);
-				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-				if(pDrawItem->ItemState & (ODS_FOCUS|ODS_SELECTED) && CheckActive()) {
-					h_br_def = (HBRUSH)SelectObject(h_dc, Ptb.Get(brSel));
-					clr_prev = SetBkColor(h_dc, Ptb.GetColor(clrFocus));
-					::FillRect(h_dc, &rc, (HBRUSH)Ptb.Get(brSel));
-				}
-				else {
-					h_br_def = (HBRUSH)SelectObject(h_dc, Ptb.Get(brBkgnd));
-					clr_prev = SetBkColor(h_dc, Ptb.GetColor(clrBkgnd));
-					::FillRect(h_dc, &rc, (HBRUSH)Ptb.Get(brBkgnd));
-				}
-				::DrawText(h_dc, temp_buf.cptr(), temp_buf.Len(), &rc, DT_LEFT|DT_VCENTER|DT_SINGLELINE); // @unicodeproblem
-			}
-		}
-		if(h_fnt_def)
-			SelectObject(h_dc, h_fnt_def);
-		if(h_br_def)
-			SelectObject(h_dc, h_br_def);
-		if(h_pen_def)
-			SelectObject(h_dc, h_pen_def);
-		if(clr_prev)
-			SetBkColor(h_dc, clr_prev);
-	}
-	else
-		pDrawItem->ItemAction = 0; // Список не активен - строку не рисуем
-}
-#endif // } 0
 
 void WordSelector::DrawListItem2(TDrawItemData * pDrawItem)
 {

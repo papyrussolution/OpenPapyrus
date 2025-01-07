@@ -1,5 +1,5 @@
 // SMRTLBX.CPP
-// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
 // @codepage UTF-8
 // Release for WIN32
 //
@@ -438,7 +438,8 @@ void SmartListBox::Helper_InsertColumn(uint pos)
 
 void SmartListBox::MoveScrollBar(int autoHeight)
 {
-	long   scroll_delta = 0, scroll_pos = 0;
+	long   scroll_delta = 0;
+	long   scroll_pos = 0;
 	CreateScrollBar(1);
 	if(P_Def) {
 		if(autoHeight) {
@@ -1599,8 +1600,28 @@ IMPL_HANDLE_EVENT(SmartListBox)
 		Implement_Draw();
 		clearEvent(event); // @v11.2.4
 	}
-	else
+	else {
 		TView::handleEvent(event); // @v11.2.4
+		// @v12.2.2 {
+		switch(event.what) {
+			case TEvent::evCommand:
+				switch(TVCMD) {
+					case cmSetBounds:
+						{
+							const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
+							HWND h = getHandle();
+							if(h) {
+								::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
+								MoveScrollBar(1);
+								clearEvent(event);
+							}
+						}
+						break;
+				}
+				break;
+		}
+		// } @v12.2.2 
+	}
 }
 
 void SmartListBox::Implement_Draw()

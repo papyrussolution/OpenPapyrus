@@ -236,7 +236,7 @@ IMPL_HANDLE_EVENT(TButton)
 						const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
 						HWND h = getHandle();
 						if(h) {
-							::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER/* @v10.9.3 |SWP_NOREDRAW*/|SWP_NOCOPYBITS);
+							::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
 							clearEvent(event);
 						}
 					}
@@ -606,15 +606,13 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				P_Combo->handleWindowsMessage(WM_USER_COMBO_ACTIVATEBYCHAR, wParam, lParam);
 			else if(HasWordSelector()) {
 				assert(P_WordSelBlk);
-				// @v10.7.7 {
 				if(P_WordSelBlk->Flags & WordSel_ExtraBlock::fFreeText) {
 					/*if(P_WordSel) {
 						P_WordSel->Refresh(Data);
 					}*/
 				}
-				// } @v10.7.7 
 				else {
-					SString & r_symb = SLS.AcquireRvlStr(); // @v10.7.7 SLS.AcquireRvlStr
+					SString & r_symb = SLS.AcquireRvlStr();
 					r_symb.CatChar(static_cast<char>(wParam));
 					UiSearchTextBlock::ExecDialog(getHandle(), 0, r_symb, 1, P_WordSelBlk, 0);
 				}
@@ -1429,7 +1427,7 @@ void ComboBox::setupTreeListWindow(int noUpdateSize)
 	if(P_ListWin) {
 		RECT   rect;
 		GetWindowRect(getHandle(), &rect);
-		P_ListWin->MoveWindow(P_ILink->getHandle(), rect.right);
+		P_ListWin->Move_(P_ILink->getHandle(), rect.right);
 	}
 }
 

@@ -41606,21 +41606,32 @@ private:
 //
 // 
 // 
-class PrcssrClientActivityStatistics { // @v12.2.2 @construction
+class PrcssrClientActivityStatisticsFilt : public PPBaseFilt { // @persistent
+public:
+	PrcssrClientActivityStatisticsFilt();
+	PrcssrClientActivityStatisticsFilt & FASTCALL operator = (const PrcssrClientActivityStatisticsFilt & rS);
+
+	uint8  ReserveStart[32]; // @ancor
+	DateRange Period;
+	PPID   PersonKindID;
+	uint8  ReserveEnd[32]; // @anchor
+};
+
+class PrcssrClientActivityStatistics { // @v12.2.2
 public:
 	struct DetailedEntry { // @flat
 		LDATE Dt;
 		PPObjID Oid;
 	};
-	struct Param {
+	/*struct Param {
 		Param();
 		DateRange Period;
 		PPID   PersonKindID;
-	};
+	};*/
 	PrcssrClientActivityStatistics();
-	int    InitParam(Param * pParam);
-	int    Init(const Param * pParam);
-	int    EditParam(Param * pData);
+	int    InitParam(PrcssrClientActivityStatisticsFilt * pParam);
+	int    Init(const PrcssrClientActivityStatisticsFilt * pParam);
+	int    EditParam(PrcssrClientActivityStatisticsFilt * pData);
 	int    Run();
 	int    ScanDetailedActivityListForSinglePerson(PPID personID, TSVector <DetailedEntry> & rList);
 private:
@@ -41631,7 +41642,7 @@ private:
 	PPObjArticle ArObj;
 	PPPersonConfig PsnCfg;
 	PPObjBill * P_BObj;
-	Param P;
+	PrcssrClientActivityStatisticsFilt P;
 };
 //
 // @ModuleDecl(PPViewGoodsRest)

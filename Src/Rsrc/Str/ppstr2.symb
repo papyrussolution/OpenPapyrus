@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147494998
+LastSignatureCode=2147495001
 LastAutoCodeList=1,12257;102,10177;103,10072;110,10000;111,12132;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10152;120,10005;1001,10000;121,10000;122,10000;123,10328;124,10387;125,10064
 
 [SignatureList]
@@ -2795,6 +2795,7 @@ filter_billtransmitparam=2147485839
 filter_supplinterchange=2147485840
 filter_marketplaceinterchange=2147494861
 filter_prcssraptekaru=2147494968
+filter_prcssrclientactivitystatistics=2147494999
 filter_gct=2147485841
 filter_prcssrosm=2147485842
 filter_billautocreateparam=2147485843
@@ -4877,6 +4878,8 @@ cfgperson_smsprohibitedtr=2147487715
 cfgperson_topfolder=2147487716
 cfgperson_tradelicregtype=2147487717
 cfgperson_newclientdetectionlist=2147487718
+cfgperson_clientactivity=2147495000
+cfgperson_clientactivity_traitem=2147495001
 cfgperson_dlvraddrextfldlist=2147487719
 cfgperson_criticalcliactivitydelaydays=2147494980
 cfgperson_criticalcliactivitydelaysigm=2147494981
@@ -10786,8 +10789,6 @@ sendmailparam_subj=2147493306
 sendmailparam_text=2147493307
 sendmailparam_addrlist=2147493308
 sendmailparam_filelist=2147493309
-newclienttransaction=2147493310
-newclienttransactionlist=2147493311
 genericdevice=2147493312
 genericdevice_tag=2147493313
 genericdevice_id=2147493314
@@ -11333,6 +11334,8 @@ dl2score_subpctmargin=2147486968
 dl2score_subaverage=2147486970
 cfgcomm_ccflg_ccflg_dontundoopcntronesc=2147487469
 egaisexcisemark=2147491571
+newclienttransaction=2147493310
+newclienttransactionlist=2147493311
 styloqconfig_cliffaceselfmodifying=2147494645
 
 [GrpSymbList]

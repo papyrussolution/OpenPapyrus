@@ -91,6 +91,7 @@
 	],
 	"layout_list": [
 		{
+			"flags": "vertical",
 			"id": 10001,
 			"symb": "listdialog",
 			"size": "540, 335",
@@ -110,21 +111,23 @@
 					"shrinkfactor": 1
 				},
 				{
-					"symb": "listdialog_footer",
-					"size": "100%, 64",
-					"alignitems": "stretch",
-					"alignself": "auto",
-					"gravityx": "center",
-					"gravityy": "bottom",
-					"shrinkfactor": 1
-				},
-				{
+					"flags": "vertical",
 					"symb": "listdialog_body",
 					"size": "100%, 100%",
 					"alignitems": "stretch",
 					"alignself": "auto",
 					"gravityx": "center",
 					"gravityy": "center",
+					"shrinkfactor": 1
+				},
+				{
+					"flags": "horizontal",
+					"symb": "listdialog_footer",
+					"size": "100%, 64",
+					"alignitems": "stretch",
+					"alignself": "auto",
+					"gravityx": "center",
+					"gravityy": "bottom",
 					"shrinkfactor": 1
 				}
 			]

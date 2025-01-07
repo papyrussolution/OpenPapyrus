@@ -612,7 +612,7 @@ void TreeWindow::MoveChildren(const RECT & rRect)
 		ShortcWnd.MoveWindow(sh_rect);
 	}
 	if(P_CurLw)
-		P_CurLw->MoveWindow(rect);
+		P_CurLw->Move_(rect);
 	else
 		::MoveWindow(H_CmdList, rect.left, rect.top, rect.right, rect.bottom, 1);
 	//ShowWindow(GetDlgItem(Hwnd, BTN_CLOSE), (P_CurLw) ? SW_SHOWNORMAL : SW_HIDE);
@@ -707,6 +707,6 @@ void TreeWindow::DelItemCmdList(void * ptr)
 }
 
 int  TreeWindow::IsVisible() {return IsWindowVisible(Hwnd);}
-void TreeWindow::MoveWindow(const RECT &rRect) {::MoveWindow(Hwnd, rRect.left, rRect.top, rRect.right, rRect.bottom, 1);}
+void TreeWindow::Move_(const RECT &rRect) {::MoveWindow(Hwnd, rRect.left, rRect.top, rRect.right, rRect.bottom, 1);}
 void TreeWindow::GetRect(RECT &rRect) {GetWindowRect(Hwnd, &rRect);}
 void TreeWindow::Show(int show) { ShowWindow(Hwnd, (show) ? SW_SHOW : SW_HIDE); }

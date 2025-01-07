@@ -1,5 +1,5 @@
 // PPBROW.RC2
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage windows-1251
 // Part of project Papyrus
 //
@@ -7103,10 +7103,11 @@ cmd StyloQBindery         { "@{cmd_styloqbindery}"                         none 
 cmd StyloQCommands        { "@{cmd_styloqcommands}"                        none                   none cmStyloQCommands view=StyloQCommand } // @v11.1.9
 cmd ProcessUED            { "@{cmd_processued}"                            none                   none cmProcessUED } // @v11.6.6
 cmd ProcessBomEstimatedValues { "@{cmd_processbomestimatedvalues}"         none                   none cmProcessBomEstimatedValues } // @v11.8.0
-cmd ImportCChecks         { "@{cmd_importccheck}"                          none                   none cmImportCChecks } // @v11.8.5
-cmd TestMarketplace       { "@{cmd_testmarketplace}"                       none                   none cmTestMarketplace } // @v12.1.0
-cmd MarketplaceInterchange { "@{cmd_marketplaceinterchange}"               PPDV_MARKETPLACE01     PPDV_MARKETPLACE01 cmMarketplaceInterchange } // @v12.1.3
-cmd AptekaRuInterchange    { "@{cmd_aptekaruinterchange}"                  none                   none cmAptekaRuInterchange } // @v12.2.1
+cmd ImportCChecks             { "@{cmd_importccheck}"                          none                   none cmImportCChecks } // @v11.8.5
+cmd TestMarketplace           { "@{cmd_testmarketplace}"                       none                   none cmTestMarketplace } // @v12.1.0
+cmd MarketplaceInterchange    { "@{cmd_marketplaceinterchange}"               PPDV_MARKETPLACE01     PPDV_MARKETPLACE01 cmMarketplaceInterchange } // @v12.1.3
+cmd AptekaRuInterchange       { "@{cmd_aptekaruinterchange}"                  none                   none cmAptekaRuInterchange } // @v12.2.1
+cmd GatherClientActivityStat  { "@{cmd_gathercliactivitystatistics}"          none                   none cmGatherClientActivityStat } // @v12.2.2
 //
 // -------------- Описания серверных задач
 //
@@ -7157,9 +7158,10 @@ job ExportPrjTasks       { "@{job_exportprjtasks}" }  // @v11.3.3
 job FtsIndexing          { "@{job_ftsindexing}" } // @v11.3.4
 job StyloQSendIndexingContent { "@{job_styloqsendindexingcontent}" nologin } // @v11.3.5
 job StyloQPrepareAhead        { "@{job_styloqprepareahead}" nologin } // @v11.4.8
-job ImportCChecks        { "@{job_importcchecks}" } // @v11.8.6
-job AptekaRuInterchange  { "@{cmd_aptekaruinterchange}" } // @v12.2.1
-job MarketplaceInterchange { "@{cmd_marketplaceinterchange}" } // @v12.2.1
+job ImportCChecks             { "@{job_importcchecks}" } // @v11.8.6
+job AptekaRuInterchange       { "@{cmd_aptekaruinterchange}" } // @v12.2.1
+job MarketplaceInterchange    { "@{cmd_marketplaceinterchange}" } // @v12.2.1
+job GatherClientActivityStat  { "@{cmd_gathercliactivitystatistics}" } // @v12.2.2
 //
 // -------------- Описания объектов данных PPObject
 //
@@ -7308,6 +7310,7 @@ view   SwProgram { "@{view_swprogram}" } // @v11.9.11
 view   Computer  { "@{view_computer}" } // @v12.0.0
 filter MarketplaceInterchange    { "@{filter_marketplaceinterchange}" } // @v12.1.3
 filter PrcssrAptekaRu            { "@{filter_prcssraptekaru}" } // @v12.2.1
+filter PrcssrClientActivityStatistics { "@{filter_prcssrclientactivitystatistics}" } // @v12.2.2
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

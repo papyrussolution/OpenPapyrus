@@ -1,5 +1,5 @@
 // PPDSP.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2005, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2001, 2002, 2005, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020, 2021, 2025
 //
 #pragma hdrstop
 #ifdef PPDSC
@@ -29,8 +29,7 @@ int PPDeclStrucProcessor::MakeErrMsgString(char * pBuf, size_t bufLen)
 	SString file_msg, msg;
 	PPGetLastErrorMessage(1, msg);
 	if(P_FileName) {
-		file_msg.Cat("File").Space().Cat(P_FileName).CatDiv(',', 2).
-			Cat("Line").Space().Cat(Line).CatDiv(':', 2).Cat(msg);
+		file_msg.Cat("File").Space().Cat(P_FileName).CatDiv(',', 2).Cat("Line").Space().Cat(Line).CatDiv(':', 2).Cat(msg);
 		msg = file_msg;
 	}
 	msg.CopyTo(pBuf, bufLen);
@@ -342,9 +341,10 @@ int PPDeclStruc::LoadFromResource(long declID)
 	TVRez * p_rez = P_SlRez;
 	if(p_rez) {
 		char   name_buf[64];
-		uint16 i, items_count = 0;
+		uint16 i;
+		uint16 items_count = 0;
 		long   p = 0L;
-		p_rez->findResource((uint)declID, PP_RCDECLSTRUC, &p, 0);
+		p_rez->findResource(static_cast<uint>(declID), PP_RCDECLSTRUC, &p, 0);
 		THROW_PP(p, PPERR_RESFAULT);
 		freeAll();
 		p_rez->getString(name_buf);

@@ -8233,17 +8233,12 @@ int PPObjPerson::IdentifyClientActivityState(ClientActivityState & rParam)
 //
 //
 //
-PrcssrClientActivityStatistics::Param::Param() : PersonKindID(0)
-{
-	Period.Z();
-}
-
 PrcssrClientActivityStatistics::PrcssrClientActivityStatistics() : P_BObj(BillObj)
 {
 	PsnObj.FetchConfig(&PsnCfg);
 }
 	
-int PrcssrClientActivityStatistics::InitParam(Param * pParam)
+int PrcssrClientActivityStatistics::InitParam(PrcssrClientActivityStatisticsFilt * pParam)
 {
 	if(pParam) {
 		memzero(pParam, sizeof(*pParam));
@@ -8251,13 +8246,13 @@ int PrcssrClientActivityStatistics::InitParam(Param * pParam)
 	return 1;
 }
 	
-int PrcssrClientActivityStatistics::Init(const Param * pParam)
+int PrcssrClientActivityStatistics::Init(const PrcssrClientActivityStatisticsFilt * pParam)
 {
 	RVALUEPTR(P, pParam);
 	return 1;
 }
 
-int PrcssrClientActivityStatistics::EditParam(Param * pData)
+int PrcssrClientActivityStatistics::EditParam(PrcssrClientActivityStatisticsFilt * pData)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_PRCRCLIACST);
@@ -8420,6 +8415,19 @@ int PPObjPerson::ReadClientActivityStatistics(PPID personID, ClientActivityStati
 	CATCHZOK
 	return ok;
 }
+
+IMPLEMENT_PPFILT_FACTORY(PrcssrClientActivityStatistics); PrcssrClientActivityStatisticsFilt::PrcssrClientActivityStatisticsFilt() : PPBaseFilt(PPFILT_PRCSSRCLIENTACTIVITYSTATISTICS, 0, 0)
+{
+	SetFlatChunk(offsetof(PrcssrClientActivityStatisticsFilt, ReserveStart),
+		offsetof(PrcssrClientActivityStatisticsFilt, ReserveEnd)-offsetof(PrcssrClientActivityStatisticsFilt, ReserveStart)+sizeof(ReserveEnd));
+	Init(1, 0);
+}
+
+PrcssrClientActivityStatisticsFilt & FASTCALL PrcssrClientActivityStatisticsFilt::operator = (const PrcssrClientActivityStatisticsFilt & rS)
+{
+	Copy(&rS, 0);
+	return *this;
+}
 	
 int PrcssrClientActivityStatistics::Run()
 {
@@ -8545,7 +8553,7 @@ int GatherClientActivityStatistics()
 {
 	int    ok = -1;
 	PrcssrClientActivityStatistics prcssr;
-	PrcssrClientActivityStatistics::Param param;
+	PrcssrClientActivityStatisticsFilt param;
 	prcssr.InitParam(&param);
 	if(prcssr.EditParam(&param) > 0) {
 		if(prcssr.Init(&param) && prcssr.Run())
