@@ -821,13 +821,13 @@ int PPApp::processCommand(uint cmd)
 		case cmViewLogs:              ViewLogs();                        break;
 		case cmPrcPane:               ExecPrcPane(0);                    break;
 		case cmRemoveZeroLinkCCLines: RemoveZeroLinkCCLines();           break;
-		case cmEditDesktops:          EditCommandGroup(0, ZEROGUID, cmdgrpcDesktop); break;
+		// @obsolete since @v10.9.3 case cmEditDesktops:          EditCommandGroup(0, ZEROGUID, cmdgrpcDesktop); break;
 		case cmSelDesktop:
 			if(SelectCommandGroup(DS.GetTLA().Lc.DesktopUuid_, 0, 0, cmdgrpcDesktop, false, 0)) {
 				PPDesktop::Open(/*LConfig.DesktopID*/LConfig.DesktopUuid_, 0/*createIfZero*/);
 			}
 			break;
-		case cmEditMenus: EditCommandGroup(0, ZEROGUID, cmdgrpcMenu); break;
+		// @obsolete since @v10.9.3 case cmEditMenus: EditCommandGroup(0, ZEROGUID, cmdgrpcMenu); break;
 		// @v10.9.3 (obsolete) case cmEditMenusFromFile:     EditMenusFromFile();             break;
 		case cmEditWhatman:           PPWhatmanWindow::Edit(0, 0);     break;
 		case cmBillExpImpParams:      EditBillImpExpParams(1);         break;

@@ -9649,10 +9649,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 			}
 		}
 	}
-	// @v12.2.2 {
-	if(!ok)
-		P.ClearCur();
-	// } @v12.2.2 
+	/* @v12.2.3 @fix (это была тяжелая ошибка) if(!ok) P.ClearCur();*/ // @v12.2.2
 	return ok;
 }
 

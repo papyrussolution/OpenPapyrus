@@ -1,5 +1,5 @@
 // V_GDSOPR.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -17,9 +17,9 @@ struct GoaAddingBlock {
 		THISZERO(); 
 	}
 	enum {
-		fProfitable  = 0x0001, // CheckOpFlags(pPack->Rec.OpID, OPKF_PROFITABLE)
+		fProfitable          = 0x0001, // CheckOpFlags(pPack->Rec.OpID, OPKF_PROFITABLE)
 		fIncomeWithoutExcise = 0x0002, // (profitable && Filt.Flags & GoodsOpAnalyzeFilt::fPriceWithoutExcise)
-		fTradePlan   = 0x0004  // Блок используется для вставки торгового плана
+		fTradePlan           = 0x0004  // Блок используется для вставки торгового плана
 	};
 	PPID   ArID;         // (Filt.Flags & GoodsOpAnalyzeFilt::fIntrReval) ? pPack->Rec.Object : 0L;
 	PPID   OpID;         //
@@ -3614,8 +3614,8 @@ int PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const PPIDArr
 		}
 		if(pTi->Flags & PPTFR_PRICEWOTAXES || (pBlk->Flags & GoaAddingBlock::fIncomeWithoutExcise)) {
 			PPGoodsTaxEntry gtx;
-			int    re = BIN(pTi->Flags & PPTFR_RMVEXCISE);
-			int    excl_stax = BIN((CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re);
+			const  bool re = LOGIC(pTi->Flags & PPTFR_RMVEXCISE);
+			const  bool excl_stax = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re;
 			if(GObj.FetchTax(goods_id, pTi->Date, pBlk->OpID, &gtx) > 0) {
 				if(pTi->Flags & PPTFR_PRICEWOTAXES) {
 					GObj.AdjPriceToTaxes(gtx.TaxGrpID, tax_factor, &pBlk->Price, excl_stax);
@@ -3626,9 +3626,9 @@ int PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const PPIDArr
 				// Если требуется рассчитать доходность без акциза, то из цены реализации вычитаем величину акциза.
 				//
 				if(pBlk->Flags & GoaAddingBlock::fIncomeWithoutExcise) {
-					GTaxVect vect;
-					vect.Calc_(&gtx, pBlk->Price, tax_factor, GTAXVF_BEFORETAXES, excl_stax ? GTAXVF_SALESTAX : 0);
-					const double excise = vect.GetValue(GTAXVF_EXCISE);
+					GTaxVect gtv;
+					gtv.Calc_(gtx, pBlk->Price, tax_factor, GTAXVF_BEFORETAXES, excl_stax ? GTAXVF_SALESTAX : 0);
+					const double excise = gtv.GetValue(GTAXVF_EXCISE);
 					pBlk->Price -= excise;
 					if(pBlk->OldPrice != 0.0 && (!(Filt.Flags & GoodsOpAnalyzeFilt::fPriceDeviation)))
 						pBlk->OldPrice -= excise;

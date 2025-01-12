@@ -1,5 +1,5 @@
 // V_REPORT.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -381,7 +381,7 @@ int PPViewReport::CheckForFilt(const ReportViewItem * pItem)
 {
 	if(pItem) {
 		uint pos = 0;
-		if(!Filt.Period.IsZero() && Filt.Period.CheckDate(pItem->ModifDt) == 0)
+		if(!Filt.Period.CheckDate(pItem->ModifDt))
 			return 0;
 		if(Filt.Type != ReportFilt::rpttAll && Filt.Type != pItem->Type)
 			return 0;

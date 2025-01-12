@@ -1,5 +1,5 @@
 // OBJGOODS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1250,11 +1250,11 @@ int PPObjGoods::FetchCls(PPID goodsID, Goods2Tbl::Rec * pRec, PPGdsClsPacket * p
 void PPObjGoods::AdjPriceToTaxes(PPID taxGrpID, double taxFactor, double * pPrice, int exclSTax)
 {
 	double p = *pPrice;
-	GTaxVect vect;
-	PPGoodsTaxEntry gt;
-	if(GTxObj.FetchByID(taxGrpID, &gt) > 0) {
-		vect.Calc_(&gt, p, taxFactor, GTAXVF_AFTERTAXES, exclSTax ? GTAXVF_SALESTAX : 0);
-		p = vect.GetValue(GTAXVF_BEFORETAXES);
+	GTaxVect gtv;
+	PPGoodsTaxEntry gtx;
+	if(GTxObj.FetchByID(taxGrpID, &gtx) > 0) {
+		gtv.Calc_(gtx, p, taxFactor, GTAXVF_AFTERTAXES, exclSTax ? GTAXVF_SALESTAX : 0);
+		p = gtv.GetValue(GTAXVF_BEFORETAXES);
 	}
 	*pPrice = p;
 }
@@ -1277,12 +1277,12 @@ void PPObjGoods::Helper_AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
 	double c = *pCost;
 	double vat_sum = 0.0;
 	const  PPID tax_grp_id = NZOR(lotTaxGrpID, goodsTaxGrpID);
-	GTaxVect vect((roundPrec >= 0 && roundPrec <= 20) ? roundPrec : 2);
-	PPGoodsTaxEntry gt;
-	if(GTxObj.Fetch(tax_grp_id, lotDate, 0L, &gt) > 0) {
+	GTaxVect gtv((roundPrec >= 0 && roundPrec <= 20) ? roundPrec : 2);
+	PPGoodsTaxEntry gtx;
+	if(GTxObj.Fetch(tax_grp_id, lotDate, 0L, &gtx) > 0) {
 		long   amt_fl = 0;
 		long   val_fl = 0;
-		long   excl_flags = (gt.Flags & GTAXF_NOLOTEXCISE) ? GTAXVF_EXCISE : 0;
+		long   excl_flags = (gtx.Flags & GTAXF_NOLOTEXCISE) ? GTAXVF_EXCISE : 0;
 		if(withOrWithout) {
 			amt_fl = ~GTAXVF_VAT;
 			val_fl = GTAXVF_VAT;
@@ -1302,12 +1302,12 @@ void PPObjGoods::Helper_AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
 			if(vatFreeSuppl > 0)
 				excl_flags |= GTAXVF_VAT;
 		}
-		vect.Calc_(&gt, c, qtty, amt_fl, excl_flags);
-		vat_sum = vect.GetValue(GTAXVF_VAT);
+		gtv.Calc_(gtx, c, qtty, amt_fl, excl_flags);
+		vat_sum = gtv.GetValue(GTAXVF_VAT);
 		if(withOrWithout)
-			c += vect.GetValue(val_fl);
+			c += gtv.GetValue(val_fl);
 		else
-			c = vect.GetValue(val_fl);
+			c = gtv.GetValue(val_fl);
 	}
 	*pCost = c;
 	ASSIGN_PTR(pVatSum, vat_sum);

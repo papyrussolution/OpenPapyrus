@@ -1,5 +1,5 @@
 // DBTABLEC.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2025
 // @codepage UTF-8
 // Классы и функции DBTable, не зависящие от провайдера DBMS
 //
@@ -99,31 +99,55 @@ int FASTCALL DBRowId::FromStr(const char * pStr)
 //
 //
 // extern const uint32 SLobSignature[4];
-static const uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; // @v9.7.11 static
+// @v12.2.3 replaced with SlConst::SLobSignature static const uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; 
 
-bool   SLob::IsStructured() const { return (memcmp(Buf.H.Signature, SLobSignature, sizeof(SLobSignature)) == 0); }
-bool   SLob::IsPtr() const { return (IsStructured() && Buf.H.Flags & hfPtr); }
-void * SLob::GetRawDataPtr() { return IsStructured() ? ((Buf.H.Flags & hfPtr) ? Buf.H.H : 0) : Buf.B; }
+bool   SLob::IsStructured() const 
+{ 
+	// @v12.2.3 test (will be removed after @v14.0.0) {
+	static const uint32 __SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; 
+	assert(SMem::Cmp(SlConst::SLobSignature, __SLobSignature, sizeof(SlConst::SLobSignature)) == 0);
+	// } @v12.2.3 
+	return (memcmp(Buf.H.Signature, SlConst::SLobSignature, sizeof(SlConst::SLobSignature)) == 0); 
+}
+
+bool   SLob::IsPtr() const 
+{ 
+	return (IsStructured() && Buf.H.Flags & hfPtr); 
+}
+
+void * SLob::GetRawDataPtr() 
+{ 
+	// @v12.2.3 @debug return IsStructured() ? ((Buf.H.Flags & hfPtr) ? Buf.H.H : 0) : Buf.B; 
+	// @v12.2.3 @debug {
+	if(IsStructured()) {
+		return (Buf.H.Flags & hfPtr) ? Buf.H.H : 0;
+	}
+	else {
+		return Buf.B;
+	}
+	// } @v12.2.3 @debug 
+}
+
 size_t SLob::GetPtrSize() const { return (IsStructured() && Buf.H.Flags & hfPtr) ? Buf.H.PtrSize : 0; }
 
 int SLob::SetStructured()
 {
 	if(!IsStructured()) {
 		THISZERO();
-		memcpy(Buf.H.Signature, SLobSignature, sizeof(SLobSignature));
+		memcpy(Buf.H.Signature, SlConst::SLobSignature, sizeof(SlConst::SLobSignature));
 		return 1;
 	}
 	else
 		return -1;
 }
 
-void FASTCALL SLob::Init(void * descriptor)
+void FASTCALL SLob::Init(void * pDescriptor)
 {
 	DestroyPtr();
 	THISZERO();
-	if(descriptor) {
+	if(pDescriptor) {
 		SetStructured();
-		Buf.H.H = descriptor;
+		Buf.H.H = pDescriptor;
 	}
 }
 

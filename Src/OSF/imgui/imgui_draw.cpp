@@ -1373,7 +1373,6 @@ void ImDrawList::AddCircleFilled(const ImVec2 & center, float radius, ImU32 col,
 {
 	if((col & IM_COL32_A_MASK) == 0 || radius < 0.5f)
 		return;
-
 	if(num_segments <= 0) {
 		// Use arc with automatic segment count
 		_PathArcToFastEx(center, radius, 0, IM_DRAWLIST_ARCFAST_SAMPLE_MAX, 0);
@@ -1382,7 +1381,6 @@ void ImDrawList::AddCircleFilled(const ImVec2 & center, float radius, ImU32 col,
 	else {
 		// Explicit segment count (still clamp to avoid drawing insanely tessellated shapes)
 		num_segments = sclamp(num_segments, 3, IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX);
-
 		// Because we are filling a closed shape we remove 1 from the count of segments/points
 		const float a_max = (SMathConst::Pi_f * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
 		PathArcTo(center, radius, 0.0f, a_max, num_segments - 1);

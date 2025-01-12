@@ -1,5 +1,5 @@
 // WSCTL-MAIN.CPP
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -649,6 +649,9 @@ public:
 	private:
 		WsCtl_ImGuiSceneBlock & R_Blk;
 		WsCtl_Config Data;
+		WsCtl_Config LastTestedForConnectionData;
+		int    TestConnectionResult; // -1 - undef, 0 - failed, 1 - ok
+		int    TestLoginResult;      // -1 - undef, 0 - failed, 1 - ok
 		char   SubstTxt_Server[128];
 		char   SubstTxt_DbSymb[128];
 		char   SubstTxt_User[128];
@@ -677,13 +680,15 @@ public:
 		virtual int Build()
 		{
 			int    result = 0;
-			const char * p_popup_title = "Register computer";
-			ImGui::OpenPopup(p_popup_title);
-			if(ImGui::BeginPopup(p_popup_title)) {
+			SString temp_buf;
+			//const char * p_popup_title = "Register computer";
+			PPLoadStringUtf8("computerregistration", temp_buf);
+			ImGui::OpenPopup(temp_buf);
+			if(ImGui::BeginPopup(temp_buf)) {
 				DComputerCategoryList st_data_compcat_list;
 				R_Blk.St.D_CompCatList.GetData(st_data_compcat_list);
 				//
-				ImGui::InputText(R_Blk.InputLabelPrefix("Computer Name"), SubstTxt_Name, sizeof(SubstTxt_Name));
+				ImGui::InputText(R_Blk.InputLabelPrefix(PPLoadStringUtf8S("computername", temp_buf)), SubstTxt_Name, sizeof(SubstTxt_Name));
 				if(st_data_compcat_list.L.getCount()) {
 					const char * p_selected_text = 0;
 					if(CompCatID) {
@@ -694,7 +699,7 @@ public:
 							}
 						}
 					}
-					if(ImGui::BeginCombo("##compcatlist", p_selected_text)) {
+					if(ImGui::BeginCombo(R_Blk.InputLabelPrefix(PPLoadStringUtf8S("computercategory", temp_buf)), p_selected_text)) {
 						for(uint catidx = 0; catidx < st_data_compcat_list.L.getCount(); catidx++) {
 							StrAssocArray::Item item = st_data_compcat_list.L.Get(catidx);
 							if(ImGui::Selectable(item.Txt, item.Id == CompCatID)) {
@@ -708,12 +713,12 @@ public:
 				ImGui::InputText(R_Blk.InputLabelPrefix("MAC Address"), SubstTxt_MacAdr, sizeof(SubstTxt_MacAdr));
 				ImGui::InputText(R_Blk.InputLabelPrefix("UUID"), SubstTxt_UUID, sizeof(SubstTxt_UUID));
 				ImGui::NewLine();
-				if(ImGui::Button("ok", R_Blk.P_ICD->ButtonSize_Std)) {
+				if(ImGui::Button(PPLoadStringUtf8S("but_ok", temp_buf), R_Blk.P_ICD->ButtonSize_Std)) {
 					ImGui::CloseCurrentPopup();
 					result = 1;
 				}
 				ImGui::SameLine();
-				if(ImGui::Button("cancel", R_Blk.P_ICD->ButtonSize_Std)) {
+				if(ImGui::Button(PPLoadStringUtf8S("but_cancel", temp_buf), R_Blk.P_ICD->ButtonSize_Std)) {
 					ImGui::CloseCurrentPopup();
 					result = -1;
 				}
@@ -1121,7 +1126,8 @@ WsCtl_ImGuiSceneBlock::Texture_CachedFileEntity * WsCtl_ImGuiSceneBlock::Texture
 //
 //
 //
-WsCtl_ImGuiSceneBlock::ImDialog_WsCtlConfig::ImDialog_WsCtlConfig(WsCtl_ImGuiSceneBlock & rBlk, WsCtl_Config * pCtx) : R_Blk(rBlk), ImDialogState(pCtx)
+WsCtl_ImGuiSceneBlock::ImDialog_WsCtlConfig::ImDialog_WsCtlConfig(WsCtl_ImGuiSceneBlock & rBlk, WsCtl_Config * pCtx) : R_Blk(rBlk), ImDialogState(pCtx),
+	TestConnectionResult(-1), TestLoginResult(-1)
 {
 	if(pCtx) {
 		Data = *pCtx;
@@ -1146,18 +1152,64 @@ WsCtl_ImGuiSceneBlock::ImDialog_WsCtlConfig::~ImDialog_WsCtlConfig()
 	const char * p_popup_title = "Config";
 	ImGui::OpenPopup(p_popup_title);
 	if(ImGui::BeginPopup(p_popup_title)) {
-		ImGui::InputText(R_Blk.InputLabelPrefix("server"), SubstTxt_Server, sizeof(SubstTxt_Server));
-		ImGui::InputInt(R_Blk.InputLabelPrefix("port"), &Data.Port);
-		ImGui::InputText(R_Blk.InputLabelPrefix("dbsymb"), SubstTxt_DbSymb, sizeof(SubstTxt_DbSymb));
-		ImGui::InputText(R_Blk.InputLabelPrefix("user"), SubstTxt_User, sizeof(SubstTxt_User));
-		ImGui::InputText(R_Blk.InputLabelPrefix("password"), SubstTxt_Password, sizeof(SubstTxt_Password));
+		SString temp_buf;
+		ImGui::InputText(R_Blk.InputLabelPrefix(PPLoadStringUtf8S("server", temp_buf)), SubstTxt_Server, sizeof(SubstTxt_Server));
+		ImGui::InputInt(R_Blk.InputLabelPrefix("port"), &Data.Port, 0/*step(+/- buttons)*/);
+		ImGui::InputText(R_Blk.InputLabelPrefix(PPLoadStringUtf8S("dbsymb", temp_buf)), SubstTxt_DbSymb, sizeof(SubstTxt_DbSymb));
+		ImGui::InputText(R_Blk.InputLabelPrefix(PPLoadStringUtf8S("username", temp_buf)), SubstTxt_User, sizeof(SubstTxt_User));
+		ImGui::InputText(R_Blk.InputLabelPrefix(PPLoadStringUtf8S("password", temp_buf)), SubstTxt_Password, sizeof(SubstTxt_Password));
+		if(CommitData()) {
+			ImGui::NewLine();
+			if(ImGui::Button(PPLoadStringUtf8S("test", temp_buf), R_Blk.P_ICD->ButtonSize_Std)) {
+				if(Data.Server.NotEmpty()) {
+					PPJobSrvClient cli;
+					if(cli.Connect(/*JsP*/Data.Server, /*JsP*/Data.Port)) {
+						TestConnectionResult = 1;
+						if(/*JsP*/Data.DbSymb.NotEmpty() && /*JsP*/Data.User.NotEmpty()) {
+							if(cli.Login(/*JsP*/Data.DbSymb, /*JsP*/Data.User, /*JsP*/Data.Password)) {
+								TestLoginResult = 1;
+							}
+							else {
+								TestLoginResult = 0;
+							}
+						}
+						else 
+							TestLoginResult = -1;
+					}
+					else {
+						TestConnectionResult = 0;
+					}
+				}
+				else
+					TestConnectionResult = -1;
+				LastTestedForConnectionData = Data;
+			}
+			if(LastTestedForConnectionData.IsEq(Data)) {
+				if(TestConnectionResult == 0) {
+					ImGui::SameLine();
+					ImGui::Text("connection-failed");
+				}
+				else if(TestConnectionResult > 0) {
+					ImGui::SameLine();
+					ImGui::Text("connection-OK");
+					if(TestLoginResult == 0) {
+						ImGui::SameLine();
+						ImGui::Text("login-failed");
+					}
+					else if(TestLoginResult > 0) {
+						ImGui::SameLine();
+						ImGui::Text("login-OK");
+					}
+				}
+			}
+		}
 		ImGui::NewLine();
-		if(ImGui::Button("ok", R_Blk.P_ICD->ButtonSize_Std)) {
+		if(ImGui::Button(PPLoadStringUtf8S("but_ok", temp_buf), R_Blk.P_ICD->ButtonSize_Std)) {
 			ImGui::CloseCurrentPopup();
 			result = 1;
 		}
 		ImGui::SameLine();
-		if(ImGui::Button("cancel", R_Blk.P_ICD->ButtonSize_Std)) {
+		if(ImGui::Button(PPLoadStringUtf8S("but_cancel", temp_buf), R_Blk.P_ICD->ButtonSize_Std)) {
 			ImGui::CloseCurrentPopup();
 			result = -1;
 		}

@@ -2332,6 +2332,7 @@ private:
 #define TV_SUBSIGN_LISTBOX   16  // SmartListBox
 #define TV_SUBSIGN_COMBOBOX  17  // ComboBox
 #define TV_SUBSIGN_IMAGEVIEW 18  // TImageView
+#define TV_SUBSIGN_GROUPBOX  19  // @v12.2.3 TGroupBox
 
 class TBitmapCache {
 public:
@@ -3936,13 +3937,29 @@ private:
 	uint   BmpID;
 	HBITMAP HBmp;
 };
-
+//
+//
+//
+class TGroupBox : public TView { // @v12.2.3 @construction Просто фрейм
+public:
+	TGroupBox(const TRect & rBounds);
+	~TGroupBox();
+	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	void   SetText(const char * pText);
+	const  SString & GetText() const;
+private:
+	DECL_HANDLE_EVENT;
+	SString Text;
+};
+//
+//
+//
 #define RADIOBUTTONS 1
 #define CHECKBOXES   2
 
 class TCluster : public TView {
 public:
-	TCluster(const TRect& bounds, int aKind, const StringSet * pStrings);
+	TCluster(const TRect & bounds, int aKind, const StringSet * pStrings);
 	~TCluster();
 	virtual int    TransmitData(int dir, void * pData);
 	virtual void   setState(uint aState, bool enable);
@@ -6295,7 +6312,16 @@ public:
 	int    setHdrType();
 	int    buildIndex();
 	int    getChar();
+	//
+	// Descr: Считывает из потока ресурса 2 байта и возвращает в виде uint
+	//
 	uint   getUINT();
+	//
+	// Descr: Считывает из потока ресурса 2 байта и возвращает в виде long.
+	// Note: Еще раз - считывается 2 байта, а не 4 и не 8!
+	//   Функция реализована только для того, чтобы не преобразовывать бесконечно (long)getUINT()
+	//
+	long   getLONG(); // @v12.2.3
 	char * STDCALL getString(char *, int kind = 0 /*0 - 866, 1 - w_char, 2 - 1251*/);
 	SString & STDCALL getString(SString & rBuf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/);
 	TRect  getRect();

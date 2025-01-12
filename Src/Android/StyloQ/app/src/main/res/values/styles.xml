@@ -129,9 +129,15 @@
         <item name="android:textColor">@color/TextPrimary</item>
         <item name="android:layout_margin">4dp</item>
     </style>
-    <style name="PageHeaderTopicText">Re
+    <style name="PageHeaderTopicText">
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/TextPrimaryLight</item>
+        <item name="android:layout_margin">4dp</item>
+    </style>
+    <style name="PageHeaderSvcTimeText">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">8sp</item>
         <item name="android:textColor">@color/TextPrimaryLight</item>
         <item name="android:layout_margin">4dp</item>
     </style>

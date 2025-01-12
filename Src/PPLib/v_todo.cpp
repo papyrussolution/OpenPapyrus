@@ -1,5 +1,5 @@
 // V_TODO.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -933,8 +933,7 @@ int CrosstabProcessor::ProcessRec(PrjTaskTbl::Rec * pRec)
 			case PrjTaskFilt::crstClientEmployer:
 				tab_id = pRec->EmployerID;
 				if(oneof2(tab_param, PrjTaskFilt::ctpUnComplTask, PrjTaskFilt::ctpComplTaskRatio)) {
-					tab_param_val = BIN(Filt.StartPeriod.CheckDate(pRec->StartDt) &&
-						(!pRec->FinishDt || !Filt.StartPeriod.CheckDate(pRec->FinishDt)));
+					tab_param_val = BIN(Filt.StartPeriod.CheckDate(pRec->StartDt) && (!pRec->FinishDt || !Filt.StartPeriod.CheckDate(pRec->FinishDt)));
 					if(tab_param == PrjTaskFilt::ctpComplTaskRatio)
 						tab_param_val = (tab_param_val == 1) ? 0 : 1;
 				}
@@ -1049,7 +1048,7 @@ int PPViewPrjTask::GetItem(PPID id, PrjTaskViewItem * pItem)
 
 int PPViewPrjTask::AddItemToTimeGrid(const PrjTaskViewItem * pItem, int rmv)
 {
-	long   row_id = (Filt.Order == PrjTaskFilt::ordByClient) ? pItem->ClientID : pItem->EmployerID;
+	const long row_id = (Filt.Order == PrjTaskFilt::ordByClient) ? pItem->ClientID : pItem->EmployerID;
 	if(rmv)
 		Grid.RemoveChunk(row_id, pItem->ID);
 	else {

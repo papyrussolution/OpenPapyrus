@@ -1,5 +1,5 @@
 // GDSGRPNG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 // Группировка операций по товару
@@ -653,23 +653,21 @@ int FASTCALL GoodsGrpngArray::AddEntry(GoodsGrpngEntry * pEntry)
 				excl_stax = 1;
 			GObj.AdjPriceToTaxes(goods_tax_grp_id, pEntry->TaxFactor, &pEntry->Price, excl_stax);
 		}
-		// @v10.6.6 {
 		if(flags & GGEF_SETPRICEWOTAXES_) {
 			//
 			// Расчет цены реализации без НДС
 			//
 			const long amt_fl = cfg_price_wo_excise ? ~GTAXVF_SALESTAX : GTAXVF_BEFORETAXES; // ! не уверен в этой строке в контексте блока if(flags & GGEF_PRICEWOTAXES) {}
-			GTaxVect vect;
+			GTaxVect gtv;
 			PPGoodsTaxEntry gtx;
 			if(GObj.GTxObj.FetchByID(goods_tax_grp_id, &gtx) > 0) {
 				const int discount_sign = fsign(pEntry->Discount);
-				vect.Calc_(&gtx, fabs(pEntry->Price), pEntry->TaxFactor, amt_fl, 0);
-				pEntry->Price = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
-				vect.Calc_(&gtx, fabs(pEntry->Discount), pEntry->TaxFactor, amt_fl, 0);
-				pEntry->Discount = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE) * discount_sign;
+				gtv.Calc_(gtx, fabs(pEntry->Price), pEntry->TaxFactor, amt_fl, 0);
+				pEntry->Price = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
+				gtv.Calc_(gtx, fabs(pEntry->Discount), pEntry->TaxFactor, amt_fl, 0);
+				pEntry->Discount = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE) * discount_sign;
 			}
 		}
-		// } @v10.6.6
 		pEntry->Cost     *= qtty; // @v11.5.5 
 		pEntry->Price    *= qtty; // @v11.5.5 
 		pEntry->Discount *= qtty; // @v11.5.5 
@@ -740,26 +738,24 @@ GoodsGrpngArray::AddEntryBlock::AddEntryBlock() : Part(0.0), Flags(0)
 {
 }
 
-int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, TransferTbl::Rec * pTrfrRec, PPID taxGrpID, double phuperu, double taxFactor)
+int GoodsGrpngArray::ProcessTrfrRec(const GCTFilt & rF, const AdjGdsGrpng * pAgg, TransferTbl::Rec & rTrfrRec, PPID taxGrpID, double phuperu, double taxFactor)
 {
 	int    ok = 1, r;
 	BillCore * p_bc = P_BObj->P_Tbl;
 	AddEntryBlock blk;
 	blk.Part = 1.0;
-	blk.TrfrRec = *pTrfrRec;
+	blk.TrfrRec = rTrfrRec;
 	if(rF.Flags & OPG_SETCOSTWOTAXES)
 		blk.Flags |= GGEF_SETCOSTWOTAXES;
-	// @v10.6.6 {
 	if(rF.Flags & OPG_SETPRICEWOTAXES)
 		blk.Flags |= GGEF_SETPRICEWOTAXES_;
-	// } @v10.6.6
 	if(rF.Flags & OPG_DIFFBYTAX)
 		blk.Flags |= GGEF_DIFFBYTAX;
 	if(rF.Flags & OPG_PROCESSBYLOTS)
 		blk.Flags |= GGEF_BYLOT;
 	if(rF.Flags & OPG_COSTBYPAYM)
 		blk.Flags |= GGEF_COSTBYPAYM;
-	const  PPID bill_id = pTrfrRec->BillID;
+	const  PPID bill_id = rTrfrRec.BillID;
 	BillTbl::Rec bill_rec;
 	THROW(r = P_BObj->Fetch(bill_id, &bill_rec));
 	if(r < 0) {
@@ -776,16 +772,16 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 			const int r2 = rF.AcceptIntr3(bill_rec);
 			if(r2) {
 				PPID   l_tax_grp_id = 0;
-				PPGoodsTaxEntry  gtx;
+				PPGoodsTaxEntry gtx;
 				TSArray <AddEntryBlock> blk_list;
-				THROW((r = P_BObj->trfr->Rcpt.Search(pTrfrRec->LotID, &blk.LotRec)));
+				THROW((r = P_BObj->trfr->Rcpt.Search(rTrfrRec.LotID, &blk.LotRec)));
 				if(r < 0)
 					MEMSZERO(blk.LotRec);
-				SETFLAG(pTrfrRec->Flags, PPTFR_COSTWOVAT, blk.LotRec.Flags & LOTF_COSTWOVAT);
+				SETFLAG(rTrfrRec.Flags, PPTFR_COSTWOVAT, blk.LotRec.Flags & LOTF_COSTWOVAT);
 				THROW(GetOpData(op_id, &blk.OpRec));
-				if(pTrfrRec->Flags & PPTFR_REVAL) {
-					TransferTbl::Rec tr = *pTrfrRec;
-					if(!(pTrfrRec->Flags & PPTFR_CORRECTION)) {
+				if(rTrfrRec.Flags & PPTFR_REVAL) {
+					TransferTbl::Rec tr(rTrfrRec);
+					if(!(rTrfrRec.Flags & PPTFR_CORRECTION)) {
 						P_BObj->trfr->GetLotPrices(&blk.LotRec, tr.Dt/*, tr.OprNo*/);
 						tr.Quantity = tr.Rest;
 						tr.Cost  = TR5(blk.LotRec.Cost  - tr.Cost);
@@ -808,7 +804,7 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 								THROW(P_BObj->ExtractPacket(cor_bill_id, &cor_bp) > 0);
 								for(uint j = 0; j < cor_bp.GetTCount(); j++) {
 									const PPTransferItem & r_other = cor_bp.ConstTI(j);
-									if(r_other.LotID == pTrfrRec->LotID) {
+									if(r_other.LotID == rTrfrRec.LotID) {
 										blk.TrfrRec.Quantity = r_other.Qtty();
 										blk.TrfrRec.Cost = r_other.Cost;
 										blk.TrfrRec.Price = r_other.Price;
@@ -819,7 +815,7 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 						}
 					}
 				}
-				if(PPObjGoodsTax::Fetch(taxGrpID, pTrfrRec->Dt, op_id, &gtx) > 0)
+				if(PPObjGoodsTax::Fetch(taxGrpID, rTrfrRec.Dt, op_id, &gtx) > 0)
 					l_tax_grp_id = gtx.TaxGrpID;
 				if(!(rF.Flags & OPG_ADJPAYM)) {
 					if(r2 == 3) {
@@ -848,21 +844,19 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 				}
 				if(blk.OpRec.Flags & OPKF_NEEDPAYMENT && amount != 0.0) {
 					const  PPID link_op = blk.OpRec.ID;
-					const  PPID bill_id = pTrfrRec->BillID;
+					const  PPID bill_id = rTrfrRec.BillID;
 					for(DateIter di(&rF.Period); p_bc->EnumLinks(bill_id, &di, BLNK_PAYMENT, &bill_rec) > 0;) {
 						GetOpData(bill_rec.OpID, &blk.OpRec);
 						if(blk.OpRec.OpTypeID != PPOPT_PAYMENT || !IsLockPaymStatus(bill_rec.StatusID)) {
-							// @v10.7.6 {
-							int    do_skip_paym = 0;
+							bool do_skip_paym = false;
 							if(rF.Flags & OPG_MERGECORRECTION) {
 								PPID   pool_id = 0;
 								if(P_BObj->IsMemberOfPool(bill_rec.ID, PPASS_PAYMBILLPOOL, &pool_id) > 0) {
 									BillTbl::Rec pool_bill_rec;
 									if(P_BObj->Fetch(pool_id, &pool_bill_rec) > 0 && GetOpType(pool_bill_rec.OpID) == PPOPT_CORRECTION)
-										do_skip_paym = 1;
+										do_skip_paym = true;
 								}
 							}
-							// } @v10.7.6
 							if(!do_skip_paym) {
 								blk.Part = round(BR2(bill_rec.Amount) / amount, 12);
 								THROW_SL(blk_list.insert(&blk));
@@ -907,10 +901,8 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 						entry.Flags |= GGEF_DIFFBYTAX;
 					if(r_blk.Flags & GGEF_SETCOSTWOTAXES)
 						entry.Flags |= GGEF_SETCOSTWOTAXES;
-					// @v10.6.6 {
 					if(r_blk.Flags & GGEF_SETPRICEWOTAXES_)
 						entry.Flags |= GGEF_SETPRICEWOTAXES_;
-					// } @v10.6.6
 					if(r_blk.Flags & GGEF_RECKONING)
 						entry.Flags |= GGEF_RECKONING;
 					if(r_blk.Flags & GGEF_INTRREVERSE)
@@ -954,7 +946,7 @@ int GoodsGrpngArray::Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, Transfe
 					entry.Volume    = entry.Quantity * phuperu;
 					entry.TaxFactor = entry.Quantity * taxFactor;
 					P_BObj->trfr->Rcpt.GetOriginDate(&r_blk.LotRec, &entry.LotDate);
-					PPGoodsTaxEntry  gtx;
+					PPGoodsTaxEntry gtx;
 					if(PPObjGoodsTax::Fetch(NZOR(r_blk.LotRec.InTaxGrpID, l_tax_grp_id), entry.LotDate, 0, &gtx) > 0)
 						entry.LotTaxGrpID = gtx.TaxGrpID;
 					//
@@ -1332,8 +1324,7 @@ int GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const AdjGdsGrp
 					GoodsRestParam gp;
 					PPOprKind      op_rec;
 					gp.CalcMethod = GoodsRestParam::pcmSum;
-					// @v10.4.10 @fix gp.LocList    = filt.LocList.Get();
-					filt.LocList.Get(gp.LocList); // @v10.4.10 @fix
+					filt.LocList.Get(gp.LocList);
 					gp.GoodsID    = filt.GoodsID;
 					gp.SupplID    = filt.SupplID;
 					gp.AgentID    = filt.SupplAgentID;
@@ -1341,10 +1332,8 @@ int GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const AdjGdsGrp
 						gp.P_SupplAgentBillList = &pAgg->SupplAgentBillList;
 					if(filt.Flags & OPG_SETCOSTWOTAXES)
 						gp.Flags_ |= GoodsRestParam::fCWoVat;
-					// @v10.6.6 {
 					if(filt.Flags & OPG_SETPRICEWOTAXES)
 						gp.Flags_ |= GoodsRestParam::fPWoVat;
-					// } @v10.6.6
 					if(filt.Flags & OPG_CALCINREST) {
 						gp.Date = plusdate(filt.Period.low, -1);
 						op_rec.ID  = -1;
@@ -1362,7 +1351,7 @@ int GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const AdjGdsGrp
 					if(gcti.First(&trfr_rec) > 0)
 						do {
 							if(pAgg->BillList.bsearch(trfr_rec.BillID))
-								THROW(Calc_(filt, pAgg, &trfr_rec, tax_grp_id, phuperu, tax_factor));
+								THROW(ProcessTrfrRec(filt, pAgg, trfr_rec, tax_grp_id, phuperu, tax_factor));
 						} while(gcti.Next(&trfr_rec) > 0);
 					filt.Flags &= ~OPG_ADJPAYM;
 				}
@@ -1370,7 +1359,7 @@ int GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const AdjGdsGrp
 					GCT_Iterator gcti(filt, &filt.Period, pAgg);
 					if(gcti.First(&trfr_rec) > 0)
 						do {
-							THROW(Calc_(filt, pAgg, &trfr_rec, tax_grp_id, phuperu, tax_factor));
+							THROW(ProcessTrfrRec(filt, pAgg, trfr_rec, tax_grp_id, phuperu, tax_factor));
 						} while(gcti.Next(&trfr_rec) > 0);
 				}
 			}

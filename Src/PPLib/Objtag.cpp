@@ -187,7 +187,7 @@ static int CheckTagItemForRawRestriction(const ObjTagItem * pTagItem, const char
 			DateRange period;
 			strtoperiod(restriction, &period, 0);
 			period.Actualize(pTagItem->Val.DtVal);
-			select_ok = BIN(period.CheckDate(pTagItem->Val.DtVal) > 0);
+			select_ok = period.CheckDate(pTagItem->Val.DtVal);
 		}
 		if(select_ok)
 			TagFilt::GetColor(pRawRestrictionString, rClr);
@@ -306,7 +306,7 @@ int TagFilt::CheckTagItemForRestrict(const ObjTagItem * pItem, const SString & r
 				DateRange period;
 				strtoperiod(rRestrict, &period, strtoprdfEnableAnySign);
 				period.ActualizeCmp(/*pItem->Val.DtVal*/ZERODATE, pItem->Val.DtVal);
-				check_ok = BIN(period.CheckDate(pItem->Val.DtVal) > 0);
+				check_ok = period.CheckDate(pItem->Val.DtVal);
 			}
 		}
 	}

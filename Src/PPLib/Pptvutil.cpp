@@ -1,5 +1,5 @@
 // PPTVUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -349,8 +349,8 @@ int PPExecuteContextMenu(TView * pView, uint menuID)
 				for(uint i = 0; i < cnt; i++) {
 					p_rez->getString(descr, 2);
 					SLS.ExpandString(descr, CTRANSF_UTF8_TO_INNER);
-					const uint key_code = static_cast<long>(p_rez->getUINT());
-					const uint cmd_code = static_cast<long>(p_rez->getUINT()); // @v10.8.11
+					const uint key_code = p_rez->getLONG();
+					const uint cmd_code = p_rez->getLONG();
 					menu.Add(descr.Transf(CTRANSF_INNER_TO_OUTER), cmd_code, key_code);
 				}
 				menu.Execute(pView->getHandle(), TMenuPopup::efRet, &cmd, &key);
@@ -387,8 +387,8 @@ int FASTCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrl
 				for(uint i = 0; i < cnt; i++) {
 					p_rez->getString(descr, 2);
 					SLS.ExpandString(descr, CTRANSF_UTF8_TO_INNER);
-					key_code = static_cast<long>(p_rez->getUINT());
-					cmd_code = static_cast<long>(p_rez->getUINT()); // @v10.8.11
+					key_code = p_rez->getLONG();
+					cmd_code = p_rez->getLONG();
 					pDlg->AddLocalMenuItem(ctl, ctlButton, key_code, descr.Transf(CTRANSF_INNER_TO_OUTER));
 				}
 			}
@@ -3023,12 +3023,16 @@ int  AdvComboBoxSelDialog(const StrAssocArray & rAry, SString & rTitle, SString 
 
 // @construction {
 
-static const float FixedCtrlHeight = 20.0f;
+static const float FixedCtrlHeight = 21.0f;
+// {75; 21}
 
 class ListSelectionDialog : public TWindowBase {
+	static constexpr uint CtlListGroupBox = 1001; // GroupBox вокруг списка
+	static constexpr float DefMargin = 4.0f;
 public:
 	static int Exec();
-	ListSelectionDialog(const char * pOuterTitle) : TWindowBase(SUcSwitch(ListSelectionDialog::GetWindowTitle(pOuterTitle)), wbcDrawBuffer),
+	ListSelectionDialog(const char * pOuterTitle) : 
+		TWindowBase(SUcSwitch(ListSelectionDialog::GetWindowTitle(pOuterTitle)), wbcDrawBuffer),
 		LoExtraList(GetLayoutExtraVector())
 	{
 	}
@@ -3061,6 +3065,174 @@ private:
 		LEAVE_CRITICAL_SECTION
 		return vec;
 	}
+	void OnInit(CreateBlock * pBlk)
+	{
+		enum {
+			cedCreate = 0x0001,
+			cedEdit   = 0x0002,
+			cedDelete = 0x0004
+		};
+		uint   ced_flags = (cedCreate | cedEdit | cedDelete);
+		{
+			const TRect _def_rect(0, 0, 40, 40);
+			{
+				TGroupBox * p_gb = new TGroupBox(_def_rect);
+				InsertCtlWithCorrespondingNativeItem(p_gb, CtlListGroupBox, 0);
+			}
+			{
+				SmartListBox * p_lb = new SmartListBox(_def_rect, 0);
+				InsertCtlWithCorrespondingNativeItem(p_lb, STDCTL_SINGLELISTBOX, 0);
+			}
+			if(ced_flags) {
+				if(ced_flags & cedCreate) {
+					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_add", cmaInsert, 0, 0), STDCTL_INSBUTTON, 0);
+				}
+				if(ced_flags & cedEdit) {
+					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_edit", cmaEdit, 0, 0), STDCTL_EDITBUTTON, 0);
+				}
+				if(ced_flags & cedDelete) {
+					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_delete", cmaDelete, 0, 0), STDCTL_DELBUTTON, 0);
+				}
+			}
+			InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_ok", cmOK, 0, 0), STDCTL_OKBUTTON, 0);
+			InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_cancel", cmCancel, 0, 0), STDCTL_CANCELBUTTON, 0);
+		}
+		//CreateLayout();
+		//void ListSelectionDialog::CreateLayout()
+		{
+			class InnerBlock {
+			public:
+				static void __stdcall SetupLayoutItemFrameProc(SUiLayout * pItem, const SUiLayout::Result & rR)
+				{
+					if(pItem) {
+						TView * p = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
+						if(p) {
+							FRect frame = pItem->GetFrameAdjustedToParent();
+							TRect b;
+							b.a.x = static_cast<int16>(R0i(frame.a.x));
+							b.a.y = static_cast<int16>(R0i(frame.a.y));
+							b.b.x = static_cast<int16>(R0i(frame.b.x));
+							b.b.y = static_cast<int16>(R0i(frame.b.y));
+							p->changeBounds(b);
+						}	
+					}
+				}
+				static void InsertButtonLayout(ListSelectionDialog * pMaster, SUiLayout * pLoParent, ushort ctlId, SUiLayoutParam & rP, float growFactor)
+				{
+					TView * p = pMaster ? pMaster->getCtrlView(ctlId) : 0;
+					if(p) {
+						rP.GrowFactor = growFactor;
+						SUiLayout * p_lo_item = pLoParent->InsertItem(p, &rP);
+						p_lo_item->SetCallbacks(0, InnerBlock::SetupLayoutItemFrameProc, p);
+					}
+				}		
+				static SUiLayout * InsertCtrlLayout(ListSelectionDialog * pMaster, SUiLayout * pLoParent, ushort ctlId, SUiLayoutParam & rP, float growFactor)
+				{
+					SUiLayout * p_lo_item = 0;
+					TView * p = pMaster ? pMaster->getCtrlView(ctlId) : 0;
+					if(p) {
+						rP.GrowFactor = growFactor;
+						p_lo_item = pLoParent->InsertItem(p, &rP);
+						p_lo_item->SetCallbacks(0, InnerBlock::SetupLayoutItemFrameProc, p);
+					}
+					return p_lo_item;
+				}		
+			};
+			SUiLayout * p_lo_result = 0;
+			{
+				const UiDescription * p_uid = SLS.GetUiDescription();
+				if(p_uid) {
+					const SUiLayout * p_lo = p_uid->GetLayoutBySymbC("listdialog");
+					if(p_lo)
+						p_lo_result = new SUiLayout(*p_lo);
+				}
+			}
+			/*{
+				SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+				p_lo_result->SetLayoutBlock(alb);
+			}
+			{
+				SUiLayout * p_lo_list = p_lo_result->InsertItem(0, 0);
+			}*/
+			if(p_lo_result) {
+				//SUiLayoutParam alb_buttons(DIREC_HORZ, 0, SUiLayoutParam::alignEnd);
+				//alb_buttons.GrowFactor = 1.0f;
+				//alb_buttons.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+				//SUiLayout * p_lo_buttons = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_Buttons, 0)), &alb_buttons);
+				SUiLayout * p_lo_footer = p_lo_result->FindBySymb("listdialog_footer");
+				SUiLayout * p_lo_body = p_lo_result->FindBySymb("listdialog_body");
+				SUiLayout * p_lo_groupbox = 0;
+				{
+					SUiLayoutParam alb(DIREC_VERT);
+					alb.GrowFactor = 1.0f;
+					//alb.SetFixedSizeY(FixedCtrlHeight);
+					alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+					alb.Margin.Set(DefMargin);
+					alb.Padding.a.y = 8.0f;
+					//alb.Padding.b.x += 20.0f;
+					p_lo_groupbox = InnerBlock::InsertCtrlLayout(this, p_lo_body, CtlListGroupBox, alb, 1.0f);
+				}
+				{
+					SUiLayoutParam alb;
+					alb.GrowFactor = 1.0f;
+					//alb.SetFixedSizeY(FixedCtrlHeight);
+					alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+					alb.Margin.Set(8.0f);
+					alb.Margin.b.x += 20.0f;
+					//alb.Padding.Set(def_margin);
+					//alb.Padding.b.x += 20.0f;
+					InnerBlock::InsertCtrlLayout(this, NZOR(p_lo_groupbox, p_lo_body), STDCTL_SINGLELISTBOX, alb, 1.0f);
+				}
+				if(p_lo_groupbox) {
+					if(ced_flags) {
+						SUiLayout * p_lo_ced_button_group = 0;
+						{
+							SUiLayoutParam alb(DIREC_HORZ);
+							alb.GrowFactor = 1.0f;
+							alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+							alb.SetFixedSizeY(40.0f);
+							alb.Margin.Set(8.0f);
+							alb.Margin.b.x += 20.0f;
+							//alb.Padding.Set(def_margin);
+							//alb.Padding.b.x += 20.0f;
+							p_lo_ced_button_group = p_lo_groupbox->InsertItem(0, &alb);
+						}
+						if(p_lo_ced_button_group) {
+							SUiLayoutParam alb;
+							alb.GrowFactor = 0.0f;
+							alb.SetFixedSizeX(80.0f);
+							alb.SetFixedSizeY(FixedCtrlHeight);
+							alb.Margin.Set(DefMargin);
+							alb.Padding.Set(DefMargin);
+							if(ced_flags & cedCreate) {
+								InnerBlock::InsertButtonLayout(this, p_lo_ced_button_group, STDCTL_INSBUTTON, alb, 0.0f);
+							}
+							if(ced_flags & cedEdit) {
+								InnerBlock::InsertButtonLayout(this, p_lo_ced_button_group, STDCTL_EDITBUTTON, alb, 0.0f);
+							}
+							if(ced_flags & cedDelete) {
+								InnerBlock::InsertButtonLayout(this, p_lo_ced_button_group, STDCTL_DELBUTTON, alb, 0.0f);
+							}							
+						}
+					}
+				}
+				{
+					SUiLayoutParam alb;
+					alb.GrowFactor = 0.0f;
+					alb.SetFixedSizeX(80.0f);
+					alb.SetFixedSizeY(FixedCtrlHeight);
+					alb.Margin.Set(DefMargin);
+					alb.Padding.Set(DefMargin);
+					InnerBlock::InsertButtonLayout(this, p_lo_footer, STDCTL_OKBUTTON, alb, 0.0f);
+					InnerBlock::InsertButtonLayout(this, p_lo_footer, STDCTL_CANCELBUTTON, alb, 0.0f);
+				}
+			}
+			P_Lfc = p_lo_result;
+		}
+		EvaluateLayout(pBlk->Coord);
+	}
 	DECL_HANDLE_EVENT
 	{
 		TWindowBase::handleEvent(event);
@@ -3072,19 +3244,7 @@ private:
 		}
 		else if(TVINFOPTR) {
 			if(event.isCmd(cmInit)) {
-				CreateBlock * p_blk = static_cast<CreateBlock *>(TVINFOPTR);
-				//
-				{
-					const TRect _def_rect(0, 0, 40, 40);
-					{
-						SmartListBox * p_lb = new SmartListBox(_def_rect, 0);
-						InsertCtlWithCorrespondingNativeItem(p_lb, STDCTL_SINGLELISTBOX, 0);
-					}
-					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_ok", cmOK, 0, 0), STDCTL_OKBUTTON, 0);
-					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_cancel", cmCancel, 0, 0), STDCTL_CANCELBUTTON, 0);
-				}
-				CreateLayout();
-				EvaluateLayout(p_blk->Coord);
+				OnInit(static_cast<CreateBlock *>(TVINFOPTR));
 			}
 			else if(event.isCmd(cmClose)) {
 				if(IsInState(sfModal)) {
@@ -3121,7 +3281,6 @@ private:
 		}
 	}
 	const  LayoutExtra * GetLayoutExtra(int ident, uint val) const;
-	void   CreateLayout(); // @construction
 	void   DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo);
 	const  SVector LoExtraList;
 };
@@ -3169,90 +3328,6 @@ const ListSelectionDialog::LayoutExtra * ListSelectionDialog::GetLayoutExtra(int
 			return p_item;
 	}
 	return 0;
-}
-
-void ListSelectionDialog::CreateLayout()
-{
-	static const float def_margin = 1.0f;
-
-	class InnerBlock {
-	public:
-		static void __stdcall SetupLayoutItemFrameProc(SUiLayout * pItem, const SUiLayout::Result & rR)
-		{
-			if(pItem) {
-				TView * p = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
-				if(p) {
-					FRect frame = pItem->GetFrameAdjustedToParent();
-					TRect b;
-					b.a.x = static_cast<int16>(R0i(frame.a.x));
-					b.a.y = static_cast<int16>(R0i(frame.a.y));
-					b.b.x = static_cast<int16>(R0i(frame.b.x));
-					b.b.y = static_cast<int16>(R0i(frame.b.y));
-					p->changeBounds(b);
-				}	
-			}
-		}
-		static void InsertButtonLayout(ListSelectionDialog * pMaster, SUiLayout * pLoParent, ushort ctlId, SUiLayoutParam & rP, float growFactor)
-		{
-			TView * p = pMaster ? pMaster->getCtrlView(ctlId) : 0;
-			if(p) {
-				rP.GrowFactor = growFactor;
-				SUiLayout * p_lo_item = pLoParent->InsertItem(p, &rP);
-				p_lo_item->SetCallbacks(0, InnerBlock::SetupLayoutItemFrameProc, p);
-			}
-		}		
-		static void InsertCtrlLayout(ListSelectionDialog * pMaster, SUiLayout * pLoParent, ushort ctlId, SUiLayoutParam & rP, float growFactor)
-		{
-			TView * p = pMaster ? pMaster->getCtrlView(ctlId) : 0;
-			if(p) {
-				rP.GrowFactor = growFactor;
-				SUiLayout * p_lo_item = pLoParent->InsertItem(p, &rP);
-				p_lo_item->SetCallbacks(0, InnerBlock::SetupLayoutItemFrameProc, p);
-			}
-		}		
-	};
-	SUiLayout * p_lo_result = 0;
-	{
-		const UiDescription * p_uid = SLS.GetUiDescription();
-		if(p_uid) {
-			const SUiLayout * p_lo = p_uid->GetLayoutBySymbC("listdialog");
-			if(p_lo)
-				p_lo_result = new SUiLayout(*p_lo);
-		}
-	}
-	/*{
-		SUiLayoutParam alb(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-		p_lo_result->SetLayoutBlock(alb);
-	}
-	{
-		SUiLayout * p_lo_list = p_lo_result->InsertItem(0, 0);
-	}*/
-	if(p_lo_result) {
-		//SUiLayoutParam alb_buttons(DIREC_HORZ, 0, SUiLayoutParam::alignEnd);
-		//alb_buttons.GrowFactor = 1.0f;
-		//alb_buttons.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-		//SUiLayout * p_lo_buttons = p_lo_result->InsertItem(const_cast<LayoutExtra *>(GetLayoutExtra(loiFrame_Buttons, 0)), &alb_buttons);
-		SUiLayout * p_lo_footer = p_lo_result->FindBySymb("listdialog_footer");
-		SUiLayout * p_lo_list = p_lo_result->FindBySymb("listdialog_body");
-		{
-			SUiLayoutParam alb;
-			alb.GrowFactor = 1.0f;
-			//alb.SetFixedSizeY(FixedCtrlHeight);
-			alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 0.8f);
-			alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-			alb.Margin.Set(def_margin);
-			InnerBlock::InsertCtrlLayout(this, p_lo_list, STDCTL_SINGLELISTBOX, alb, 1.0f);
-		}
-		{
-			SUiLayoutParam alb;
-			alb.GrowFactor = 1.0f;
-			alb.SetFixedSizeY(FixedCtrlHeight);
-			alb.Margin.Set(def_margin);
-			InnerBlock::InsertButtonLayout(this, p_lo_footer, STDCTL_OKBUTTON, alb, 1.0f);
-			InnerBlock::InsertButtonLayout(this, p_lo_footer, STDCTL_CANCELBUTTON, alb, 1.0f);
-		}
-	}
-	P_Lfc = p_lo_result;
 }
 
 void ListSelectionDialog::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)

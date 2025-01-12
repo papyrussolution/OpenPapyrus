@@ -89,6 +89,7 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	const  int use_ta = 1;
+	const  LDATE now_date = getcurdate_();
 	SString srch_buf;
 	SString msg_buf;
 	SString temp_buf;
@@ -101,6 +102,14 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 	NewCliList.Clear();
 	StrPool.ClearS();
 	ZDELETE(P_ClientActivityStateList); // @v12.2.2
+	// @v12.2.3 {
+	{
+		LDATE actual_date = checkdate(Filt.ClientActivityEvalDate) ? Filt.ClientActivityEvalDate : now_date;
+		assert(checkdate(actual_date));
+		Filt.ClientActivityEvalDate = actual_date;
+		Filt.NewCliPeriod.Actualize(actual_date);
+	}
+	// } @v12.2.3 
 	if(IsTempTblNeeded()) {
 		IterCounter cntr;
 		PersonTbl * pt = PsnObj.P_Tbl;

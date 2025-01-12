@@ -1,5 +1,5 @@
 // IE_BILL.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Starodub, A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -5021,7 +5021,7 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 					}
 					(pack.SMemo = p_item->Memo).Transf(CTRANSF_UTF8_TO_INNER); // @v11.5.8
 					bool skip_this_doc = false;
-					if(!Period.IsZero() && !Period.CheckDate(pack.Rec.Dt)) {
+					if(!Period.CheckDate(pack.Rec.Dt)) {
 						skip_this_doc = true;
 						rowidx++; // @important // @v11.4.7 @fix
 					}
@@ -5065,14 +5065,14 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 									discount_wo_vat = p_item->Discount / unit_per_pack;
 								}
 								{
-									GTaxVect vect;
+									GTaxVect gtv;
 									PPGoodsTaxEntry gtx;
 									if(GObj.GTxObj.FetchByID(goods_rec.TaxGrpID, &gtx) > 0) {
-										vect.Calc_(&gtx, net_price_wo_vat+discount_wo_vat, 1.0, GTAXVF_AFTERTAXES, 0);
-										ti.Price = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT);
+										gtv.Calc_(gtx, net_price_wo_vat+discount_wo_vat, 1.0, GTAXVF_AFTERTAXES, 0);
+										ti.Price = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT);
 										if(discount_wo_vat > 0.0) {
-											vect.Calc_(&gtx, discount_wo_vat, 1.0, GTAXVF_AFTERTAXES, 0);
-											ti.Discount = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT);
+											gtv.Calc_(gtx, discount_wo_vat, 1.0, GTAXVF_AFTERTAXES, 0);
+											ti.Discount = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT);
 										}
 									}
 									else {
@@ -5515,19 +5515,19 @@ int PPBillImporter::Run()
 										ti.Cost = R5(fabs(p_item->PriceSum / p_item->Qtty));
 									}
 									else if(p_item->PriceSumWoVat > 0.0) {
-										GTaxVect vect;
+										GTaxVect gtv;
 										PPGoodsTaxEntry gtx;
 										if(GObj.GTxObj.FetchByID(goods_rec.TaxGrpID, &gtx) > 0) {
-											vect.Calc_(&gtx, p_item->PriceSumWoVat, fabs(p_item->Qtty), GTAXVF_AFTERTAXES, 0);
-											ti.Cost = vect.GetValue(GTAXVF_AFTERTAXES|GTAXVF_EXCISE|GTAXVF_VAT) / fabs(p_item->Qtty);
+											gtv.Calc_(gtx, p_item->PriceSumWoVat, fabs(p_item->Qtty), GTAXVF_AFTERTAXES, 0);
+											ti.Cost = gtv.GetValue(GTAXVF_AFTERTAXES|GTAXVF_EXCISE|GTAXVF_VAT) / fabs(p_item->Qtty);
 										}
 									}
 									else if(p_item->PriceWoVat > 0.0) {
-										GTaxVect vect;
+										GTaxVect gtv;
 										PPGoodsTaxEntry gtx;
 										if(GObj.GTxObj.FetchByID(goods_rec.TaxGrpID, &gtx) > 0) {
-											vect.Calc_(&gtx, p_item->PriceWoVat, 1.0, GTAXVF_AFTERTAXES, 0);
-											ti.Cost = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT);
+											gtv.Calc_(gtx, p_item->PriceWoVat, 1.0, GTAXVF_AFTERTAXES, 0);
+											ti.Cost = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT);
 										}
 									}
 									THROW(P_BObj->SetupImportedPrice(&pack, &ti, 0)); // @v11.6.4
@@ -5858,7 +5858,7 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 	PPTransferItem * p_ti = 0;
 	Reference * p_ref = PPRef;
 	ReceiptCore * p_rcpt = (P_BObj && P_BObj->trfr) ? &P_BObj->trfr->Rcpt : 0;
-	GTaxVect vect;
+	GTaxVect gtv;
 	THROW_INVARG(pPack && P_IEBill && (P_IEBRow || (sessId && pImpExpDll)));
 	{
 		const SString edi_op_symb = BillParam.ImpExpParamDll.OperType;
@@ -6188,12 +6188,12 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 					(temp_buf = u_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.PhUnitName, sizeof(brow.PhUnitName));
 			}
 			{
-				vect.CalcTI(*p_ti, pPack->Rec.OpID, TIAMT_PRICE, 0);
-				brow.VatRate = vect.GetTaxRate(GTAX_VAT, 0);
-				brow.VatSum  = vect.GetValue(GTAXVF_VAT);
-				vect.CalcTI(*p_ti, pPack->Rec.OpID, TIAMT_COST, 0);
-				brow.CVatRate = vect.GetTaxRate(GTAX_VAT, 0);
-				brow.CVatSum  = vect.GetValue(GTAXVF_VAT);
+				gtv.CalcTI(*p_ti, pPack->Rec.OpID, TIAMT_PRICE, 0);
+				brow.VatRate = gtv.GetTaxRate(GTAX_VAT, 0);
+				brow.VatSum  = gtv.GetValue(GTAXVF_VAT);
+				gtv.CalcTI(*p_ti, pPack->Rec.OpID, TIAMT_COST, 0);
+				brow.CVatRate = gtv.GetTaxRate(GTAX_VAT, 0);
+				brow.CVatSum  = gtv.GetValue(GTAXVF_VAT);
 			}
 			brow.Expiry = p_ti->Expiry;
 			pPack->LTagL.GetString(PPTAG_LOT_SN, i-1, temp_buf);
@@ -7093,7 +7093,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 			n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREQTTY), temp_buf);
 		}
 		{
-			GTaxVect vect;
+			GTaxVect gtv;
 			long   exclude_tax_flags = GTAXVF_SALESTAX;
 			if(correction) {
 				double amt_wo_vat_before = 0.0;
@@ -7105,50 +7105,50 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 				double amt_before = 0.0;
 				double amt_after = 0.0;
 				{
-					vect.CalcTI(r_ti, rBp.Rec.OpID, tiamt, exclude_tax_flags, -1);
+					gtv.CalcTI(r_ti, rBp.Rec.OpID, tiamt, exclude_tax_flags, -1);
 					{
 						if(rHi.Flags & FileInfo::fVatFree)
 							temp_buf.Z().Cat(GetToken_Ansi(PPHSC_RU_NOVAT_VAL));
 						else
-							temp_buf.Z().Cat(vect.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
+							temp_buf.Z().Cat(gtv.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
 						n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_TAXRATE_BEFORE), temp_buf);
 					}
 					//
-					amt_wo_vat_before = vect.GetValue(GTAXVF_AFTERTAXES);
+					amt_wo_vat_before = gtv.GetValue(GTAXVF_AFTERTAXES);
 					n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREPRICE_BEFORE), temp_buf.Z().Cat(amt_wo_vat_before / fabs(org_qtty), MKSFMTD_020));
 					//
 					total_amt_wovat_before += amt_wo_vat_before;
 					//n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTWOVAT), temp_buf.Z().Cat(amt_wo_vat_before, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
 					//
-					amt_before = vect.GetValue(GTAXVF_BEFORETAXES);
+					amt_before = gtv.GetValue(GTAXVF_BEFORETAXES);
 					total_amt_before += amt_before;
 					//n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMT_BEFORE), temp_buf.Z().Cat(amt_before, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
 
-					vat_sum_before = vect.GetValue(GTAXVF_VAT);
-					excise_sum_before = vect.GetValue(GTAXVF_EXCISE);
+					vat_sum_before = gtv.GetValue(GTAXVF_VAT);
+					excise_sum_before = gtv.GetValue(GTAXVF_EXCISE);
 				}
 				{
-					vect.CalcTI(r_ti, rBp.Rec.OpID, tiamt, exclude_tax_flags, +1);
+					gtv.CalcTI(r_ti, rBp.Rec.OpID, tiamt, exclude_tax_flags, +1);
 					{
 						if(rHi.Flags & FileInfo::fVatFree)
 							temp_buf.Z().Cat(GetToken_Ansi(PPHSC_RU_NOVAT_VAL));
 						else
-							temp_buf.Z().Cat(vect.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
+							temp_buf.Z().Cat(gtv.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
 						n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_TAXRATE_AFTER), temp_buf);
 					}
 					//
-					amt_wo_vat_after = vect.GetValue(GTAXVF_AFTERTAXES);
+					amt_wo_vat_after = gtv.GetValue(GTAXVF_AFTERTAXES);
 					n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREPRICE_AFTER), temp_buf.Z().Cat(amt_wo_vat_after / fabs(org_qtty), MKSFMTD_020));
 					//
 					total_amt_wovat_after += amt_wo_vat_after;
 					//n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTWOVAT), temp_buf.Z().Cat(amt_wo_tax, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
 					//
-					amt_after = vect.GetValue(GTAXVF_BEFORETAXES);
+					amt_after = gtv.GetValue(GTAXVF_BEFORETAXES);
 					total_amt_after += amt_after;
 					//n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMT_AFTER), temp_buf.Z().Cat(amt_after, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
 
-					vat_sum_after = vect.GetValue(GTAXVF_VAT);
-					excise_sum_after = vect.GetValue(GTAXVF_EXCISE);
+					vat_sum_after = gtv.GetValue(GTAXVF_VAT);
+					excise_sum_after = gtv.GetValue(GTAXVF_EXCISE);
 				}
 				{
 					SXml::WNode n_p(P_X, GetToken_Ansi(PPHSC_RU_WAREAMTWOVAT));
@@ -7223,27 +7223,27 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 					<xs:enumeration value="·ÂÁ Õƒ—"/>
 				</xs:restriction>
 				*/
-				vect.CalcTI(r_ti, rBp.Rec.OpID, tiamt, exclude_tax_flags);
+				gtv.CalcTI(r_ti, rBp.Rec.OpID, tiamt, exclude_tax_flags);
 				{
 					if(rHi.Flags & FileInfo::fVatFree)
 						temp_buf.Z().Cat(GetToken_Ansi(PPHSC_RU_NOVAT_VAL));
 					else
-						temp_buf.Z().Cat(vect.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
+						temp_buf.Z().Cat(gtv.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
 					n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_TAXRATE), temp_buf);
 				}
 				//
-				const double amt_wo_tax = vect.GetValue(GTAXVF_AFTERTAXES);
+				const double amt_wo_tax = gtv.GetValue(GTAXVF_AFTERTAXES);
 				n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREPRICE), temp_buf.Z().Cat(amt_wo_tax / fabs(r_ti.Quantity_), MKSFMTD_020));
 				//
 				total_amt_wovat += amt_wo_tax;
 				n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMTWOVAT), temp_buf.Z().Cat(amt_wo_tax, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
 				//
-				const double amt = vect.GetValue(GTAXVF_BEFORETAXES);
+				const double amt = gtv.GetValue(GTAXVF_BEFORETAXES);
 				total_amt += amt;
 				n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREAMT), temp_buf.Z().Cat(amt, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0)));
 
-				vat_sum = vect.GetValue(GTAXVF_VAT);
-				excise_sum = vect.GetValue(GTAXVF_EXCISE);
+				vat_sum = gtv.GetValue(GTAXVF_VAT);
+				excise_sum = gtv.GetValue(GTAXVF_EXCISE);
 				{
 					SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_EXCISE));
 					WriteExcise(n_e, excise_sum);
@@ -8094,14 +8094,14 @@ int DocNalogRu_WriteBillBlock::Do_DP_REZRUISP(SString & rResultFileName)
 											temp_buf.Z().Cat(price, MKSFMTD_020);
 											n_471.PutAttribSkipEmpty(GetToken(PPHSC_RU_PRICE), temp_buf); // @optional
 											//
-											GTaxVect vect;
+											GTaxVect gtv;
 											long   exclude_tax_flags = GTAXVF_SALESTAX;
-											vect.CalcTI(r_ti, R_Bp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags);
-											double vat_rate = vect.GetTaxRate(GTAX_VAT, 0);
+											gtv.CalcTI(r_ti, R_Bp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags);
+											double vat_rate = gtv.GetTaxRate(GTAX_VAT, 0);
 											temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
 											n_471.PutAttribSkipEmpty(GetToken(PPHSC_RU_TAXRATE), temp_buf); // @optional
 											//
-											double amt_wo_tax = vect.GetValue(GTAXVF_AFTERTAXES);
+											double amt_wo_tax = gtv.GetValue(GTAXVF_AFTERTAXES);
 											temp_buf.Z().Cat(amt_wo_tax / fabs(r_ti.Quantity_), MKSFMTD(0, 11, NMBF_NOTRAILZ));
 											//n_item.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREPRICE), temp_buf);
 											//
@@ -8109,15 +8109,15 @@ int DocNalogRu_WriteBillBlock::Do_DP_REZRUISP(SString & rResultFileName)
 											temp_buf.Z().Cat(amt_wo_tax, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0));
 											n_471.PutAttribSkipEmpty(GetToken(PPHSC_RU_WORKAMTWOVAT)/*"—ÚÓËÏ¡ÂÁÕƒ—"*/, temp_buf); // @optional
 											//
-											double amt = vect.GetValue(GTAXVF_BEFORETAXES);
+											double amt = gtv.GetValue(GTAXVF_BEFORETAXES);
 											total_amt += amt;
 											temp_buf.Z().Cat(amt, MKSFMTD(0, 2, /*NMBF_NOTRAILZ*/0));
 											//n_item.PutAttrib("—Ú“Ó‚”˜Õ‡Î", temp_buf);
 
-											vat_sum = vect.GetValue(GTAXVF_VAT);
+											vat_sum = gtv.GetValue(GTAXVF_VAT);
 											temp_buf.Z().Cat(vat_sum, MKSFMTD_020);
 											n_471.PutAttribSkipEmpty(GetToken(PPHSC_RU_AMTVAT), temp_buf); // @optional
-											excise_sum = vect.GetValue(GTAXVF_EXCISE);
+											excise_sum = gtv.GetValue(GTAXVF_EXCISE);
 
 											temp_buf.Z().Cat(price * qtty, MKSFMTD_020);
 											n_471.PutAttribSkipEmpty(GetToken(PPHSC_RU_WORKAMT)/*"—ÚÓËÏ”˜Õƒ—"*/, temp_buf); // @optional

@@ -4883,6 +4883,7 @@
 	#define CTL_GDSTAX_NOLOTEXCISE       (11 + WINDOWS_ID_BIAS)
 	#define CTLCAL_GDSTAX_PERIOD         (12 + WINDOWS_ID_BIAS)
 	#define CTL_GDSTAX_SYMB              (13 + WINDOWS_ID_BIAS)
+	#define CTL_GDSTAX_SPCVAT            (14 + WINDOWS_ID_BIAS) // @v12.2.3
 #define DLG_GTAXTEST              403
 	#define CTL_GTAXTEST_AMOUNT          (1 + WINDOWS_ID_BIAS)
 	#define CTL_GTAXTEST_AMTTYPE         (2 + WINDOWS_ID_BIAS)

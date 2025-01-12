@@ -8432,6 +8432,7 @@ PrcssrClientActivityStatisticsFilt & FASTCALL PrcssrClientActivityStatisticsFilt
 int PrcssrClientActivityStatistics::Run()
 {
 	int    ok = 1;
+	SString temp_buf;
 	uint   err_count = 0; // @debug
 	uint   read_stat_err_count = 0; // @debug
 	uint   max_date_list_count = 0; // @debug
@@ -8443,6 +8444,11 @@ int PrcssrClientActivityStatistics::Run()
 		if(_view.Init_(&_filt)) {
 			PersonViewItem view_item;
 			PPViewBill bill_view;
+			SString out_file_name;
+			CurDict->GetDbSymb(temp_buf);
+			PPGetPath(PPPATH_OUT, out_file_name);
+			out_file_name.SetLastSlash().Cat("PrcssrClientActivityStatistics").CatDiv('-', 0).Cat(temp_buf).Dot().Cat("txt");
+			SFile f_out(out_file_name, SFile::mWrite);
 			for(_view.InitIteration(); _view.NextIteration(&view_item) > 0;) {
 				PPWaitPercent(_view.GetCounter(), view_item.Name);
 				const PPID person_id = view_item.ID;
@@ -8466,6 +8472,23 @@ int PrcssrClientActivityStatistics::Run()
 								read_stat_err_count++;
 							else if(!test_date_list.IsEq(date_list))
 								read_stat_err_count++;
+							//
+							if(f_out.IsValid()) {
+								f_out.WriteLine(temp_buf.Z().CatChar('#').Cat(view_item.ID).Space().Cat(view_item.Name).CR());
+								f_out.WriteLine(temp_buf.Z().Tab().CatEq("first-event-date", test_total_entry.FirstEventDt, DATF_ISO8601CENT).CR());
+								f_out.WriteLine(temp_buf.Z().Tab().CatEq("last-event-date", test_total_entry.LastEventDt, DATF_ISO8601CENT).CR());
+								f_out.WriteLine(temp_buf.Z().Tab().CatEq("event-count", test_total_entry.EventCount).CR());
+								f_out.WriteLine(temp_buf.Z().Tab().CatEq("date-count", test_total_entry.DateCount).CR());
+								f_out.WriteLine(temp_buf.Z().Tab().CatEq("gap-days-average", test_total_entry.GapDaysAvg, MKSFMTD(0, 3, 0)).CR());
+								f_out.WriteLine(temp_buf.Z().Tab().CatEq("gap-days-stddev", test_total_entry.GapDaysStdDev, MKSFMTD(0, 3, 0)).CR());
+								temp_buf.Z().Tab().Cat("date-list").CatDiv(':', 0);
+								for(uint i = 0; i < test_date_list.getCount(); i++) {
+									const LDATE dt = plusdate(test_total_entry.FirstEventDt, test_date_list.at(i));
+									temp_buf.Space().Cat(dt, DATF_ISO8601CENT);
+								}
+								temp_buf.CR();
+								f_out.WriteLine(temp_buf);
+							}
 						}
 						else {
 							assert(rsr < 0);

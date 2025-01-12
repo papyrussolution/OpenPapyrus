@@ -1,5 +1,5 @@
 // D_CHARRY.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -777,9 +777,9 @@ int PPDS_CrrBill::InitData(Ido op, void * /*dataPtr*/, long addedParam)
 				PPTransferItem * p_ti;
 				for(uint i = 0; Data.EnumTItems(&i, &p_ti) > 0;)
 					if(p_ti->Flags & PPTFR_PRICEWOTAXES) {
-						GTaxVect vect;
-						vect.CalcTI(*p_ti, Data.Rec.OpID, TIAMT_PRICE);
-						p_ti->Price = R2(vect.GetValue(GTAXVF_BEFORETAXES) / fabs(p_ti->Quantity_));
+						GTaxVect gtv;
+						gtv.CalcTI(*p_ti, Data.Rec.OpID, TIAMT_PRICE);
+						p_ti->Price = R2(gtv.GetValue(GTAXVF_BEFORETAXES) / fabs(p_ti->Quantity_));
 						p_ti->Discount = 0.0;
 					}
 				ok = 1;

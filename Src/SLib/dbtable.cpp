@@ -1,5 +1,5 @@
 // DBTABLE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -161,9 +161,10 @@ static int _fastcall getSearchComm(int mode)
 int DBTable::Btr_ProcessLobOnReading()
 {
 	int    ok = -1;
-	int    bad_structured = 0;
 	const  int preserve_index = index;
 	if(State & sHasLob) {
+		bool   bad_structured = false;
+		size_t lob_sz = 0;
 		DBField last_fld;
 		DbThreadLocalArea & tla = DBS.GetTLA();
 		THROW(getField(fields.getCount()-1, &last_fld));
@@ -214,13 +215,26 @@ int DBTable::Btr_ProcessLobOnReading()
 				// Попытка бороться с сигнатурой структурированного Lob-буфера,
 				// по ошибке занесенной в базу данных (в версиях до @v6.7.0).
 				//
-				size_t sz;
-				if(LobB.GetSize((uint)last_fld.fld, &sz) > 0)
+				if(LobB.GetSize((uint)last_fld.fld, &lob_sz) > 0)
 					if(static_cast<SLob *>(last_fld.getValuePtr())->EnsureUnstructured() > 0)
-						bad_structured = 1;
+						bad_structured = true;
 			}
-			//THROW(writeLobData(last_fld, p_lob_data, retBufLen - FixRecSize));
-			THROW(writeLobData(last_fld, lob_buffer.constptr(), lob_buffer.GetAvailableSize()));
+			// @v12.2.3 {
+			if(bad_structured) {
+				SString msg_buf;
+				(msg_buf = GetName()).CatDiv('-', 1).Cat("bad structured LOB in record").CatDiv(':', 2);
+				msg_buf.CatEq("sz", lob_sz).Space();
+				/*for(size_t lidx = 0; lidx < lob_sz; lidx++) {
+					
+				}*/
+				SLS.LogMessage("dbwarn.log", msg_buf);
+			}
+			else 
+			// } @v12.2.3 
+			{
+				//THROW(writeLobData(last_fld, p_lob_data, retBufLen - FixRecSize));
+				THROW(writeLobData(last_fld, lob_buffer.constptr(), lob_buffer.GetAvailableSize()));
+			}
 		}
 		else {
 			THROW(setLobSize(last_fld, 0));

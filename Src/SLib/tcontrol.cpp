@@ -1,5 +1,5 @@
 // TCONTROL.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -80,6 +80,51 @@ IMPL_HANDLE_EVENT(TLabel)
 	else if(TVBROADCAST)
 		if(TVCMD == cmSearchLabel && link && TVINFOVIEW == link)
 			clearEvent(event);
+}
+//
+//
+//
+TGroupBox::TGroupBox(const TRect & rBounds) : TView(rBounds)
+{
+	//
+	// BUTTON with style BS_GROUPBOX
+	//
+	SubSign = TV_SUBSIGN_GROUPBOX;
+	ViewOptions |= (ofPreProcess|ofPostProcess);
+}
+
+TGroupBox::~TGroupBox()
+{
+}
+
+void TGroupBox::SetText(const char * pText)
+{
+	Text = pText;
+}
+
+const  SString & TGroupBox::GetText() const { return Text; }
+
+/*virtual*/int TGroupBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if(uMsg == WM_INITDIALOG) {
+		SetupText(&Text);
+		return 1;
+	}
+	else
+		return 0;
+}
+
+IMPL_HANDLE_EVENT(TGroupBox)
+{
+	TView::handleEvent(event);
+	if(event.isCmd(cmSetBounds)) {
+		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
+		HWND h = getHandle();
+		if(h) {
+			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
+			clearEvent(event);
+		}
+	}
 }
 //
 // TButton

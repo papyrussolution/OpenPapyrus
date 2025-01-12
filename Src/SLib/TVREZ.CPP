@@ -1,5 +1,5 @@
 // TVREZ.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020, 2024
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020, 2024, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -60,7 +60,13 @@ uint TVRez::getUINT()
 	uint16 v = 0;
 	//fread(&v, sizeof(v), 1, Stream);
 	//return v;
-	return F.ReadV(&v, sizeof(v)) ? v : 0;
+	return F.ReadV(&v, sizeof(v)) ? static_cast<uint>(v) : 0;
+}
+
+long TVRez::getLONG() // @v12.2.3
+{
+	uint16 v = 0;
+	return F.ReadV(&v, sizeof(v)) ? static_cast<long>(v) : 0;
 }
 
 static char FASTCALL wchar_to_1251(int16 src)

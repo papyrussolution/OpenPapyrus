@@ -160,8 +160,7 @@ static struct ssh_config_match_keyword_table_s ssh_config_match_keyword_table[] 
 	{ NULL, MATCH_UNKNOWN },
 };
 
-static int ssh_config_parse_line(ssh_session session, const char * line,
-    uint count, int * parsing);
+static int ssh_config_parse_line(ssh_session session, const char * line, uint count, int * parsing);
 
 static enum ssh_config_opcode_e ssh_config_get_opcode(char * keyword) 
 {
@@ -176,17 +175,14 @@ static enum ssh_config_opcode_e ssh_config_get_opcode(char * keyword)
 
 static void local_parse_file(ssh_session session, const char * filename, int * parsing)
 {
-	FILE * f;
 	char line[MAX_LINE_SIZE] = {0};
 	uint count = 0;
 	int rv;
-	f = fopen(filename, "r");
+	FILE * f = fopen(filename, "r");
 	if(!f) {
-		SSH_LOG(SSH_LOG_RARE, "Cannot find file %s to load",
-		    filename);
+		SSH_LOG(SSH_LOG_RARE, "Cannot find file %s to load", filename);
 		return;
 	}
-
 	SSH_LOG(SSH_LOG_PACKET, "Reading additional configuration data from %s", filename);
 	while(fgets(line, sizeof(line), f)) {
 		count++;
@@ -196,7 +192,6 @@ static void local_parse_file(ssh_session session, const char * filename, int * p
 			return;
 		}
 	}
-
 	fclose(f);
 	return;
 }
@@ -207,25 +202,20 @@ static void local_parse_glob(ssh_session session, const char * fileglob, int * p
 	glob_t globbuf = {
 		.gl_flags = 0,
 	};
-	int rt;
 	size_t i;
-
-	rt = glob(fileglob, GLOB_TILDE, NULL, &globbuf);
+	int rt = glob(fileglob, GLOB_TILDE, NULL, &globbuf);
 	if(rt == GLOB_NOMATCH) {
 		globfree(&globbuf);
 		return;
 	}
 	else if(rt != 0) {
-		SSH_LOG(SSH_LOG_RARE, "Glob error: %s",
-		    fileglob);
+		SSH_LOG(SSH_LOG_RARE, "Glob error: %s", fileglob);
 		globfree(&globbuf);
 		return;
 	}
-
 	for(i = 0; i < globbuf.gl_pathc; i++) {
 		local_parse_file(session, globbuf.gl_pathv[i], parsing);
 	}
-
 	globfree(&globbuf);
 }
 
@@ -923,21 +913,17 @@ static int ssh_config_parse_line(ssh_session session, const char * line, uint co
 			keyword, count);
 		    break;
 		case SOC_UNKNOWN:
-		    SSH_LOG(SSH_LOG_WARN, "Unknown option: %s, line: %d",
-			keyword, count);
+		    SSH_LOG(SSH_LOG_WARN, "Unknown option: %s, line: %d", keyword, count);
 		    break;
 		default:
-		    ssh_set_error(session, SSH_FATAL, "ERROR - unimplemented opcode: %d",
-			opcode);
+		    ssh_set_error(session, SSH_FATAL, "ERROR - unimplemented opcode: %d", opcode);
 		    ZFREE(x);
 		    return -1;
 		    break;
 	}
-
 	ZFREE(x);
 	return 0;
 }
-
 /* @brief Parse configuration file and set the options to the given session
  *
  * @params[in] session   The ssh session
@@ -949,26 +935,20 @@ int ssh_config_parse_file(ssh_session session, const char * filename)
 {
 	char line[MAX_LINE_SIZE] = {0};
 	uint count = 0;
-	FILE * f;
 	int parsing, rv;
-
-	f = fopen(filename, "r");
-	if(!f) {
-		return 0;
-	}
-
-	SSH_LOG(SSH_LOG_PACKET, "Reading configuration data from %s", filename);
-
-	parsing = 1;
-	while(fgets(line, sizeof(line), f)) {
-		count++;
-		rv = ssh_config_parse_line(session, line, count, &parsing);
-		if(rv < 0) {
-			fclose(f);
-			return -1;
+	FILE * f = fopen(filename, "r");
+	if(f) {
+		SSH_LOG(SSH_LOG_PACKET, "Reading configuration data from %s", filename);
+		parsing = 1;
+		while(fgets(line, sizeof(line), f)) {
+			count++;
+			rv = ssh_config_parse_line(session, line, count, &parsing);
+			if(rv < 0) {
+				fclose(f);
+				return -1;
+			}
 		}
+		fclose(f);
 	}
-
-	fclose(f);
 	return 0;
 }

@@ -1,5 +1,5 @@
 // ATOLDRV.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Starodub, A.Sobolev 2010, 2011, 2013, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Интерфейс с драйвером оборудования АТОЛ 
 //
@@ -787,7 +787,7 @@ private:
 
 ComDispInterface * SCS_ATOLDRV::P_Disp = 0; // @global
 SCS_ATOLDRV::AtolFptr10 * SCS_ATOLDRV::P_Fptr10 = 0; // @global
-int  SCS_ATOLDRV::RefToIntrf = 0;          // @global
+int  SCS_ATOLDRV::RefToIntrf = 0; // @global
 
 class CM_ATOLDRV : public PPCashMachine {
 public:
@@ -2223,6 +2223,12 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 										tax_type_number = LIBFPTR_TAX_VAT20;
 									else if(vatrate == 10.0)
 										tax_type_number = LIBFPTR_TAX_VAT10;
+									// @v12.2.3 {
+									else if(vatrate == 7.0)
+										tax_type_number = LIBFPTR_TAX_VAT7;
+									else if(vatrate == 5.0)
+										tax_type_number = LIBFPTR_TAX_VAT5;
+									// } @v12.2.3 
 									else if(vatrate == 0.0)
 										tax_type_number = LIBFPTR_TAX_VAT0;
 									else

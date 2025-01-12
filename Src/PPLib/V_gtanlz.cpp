@@ -1,5 +1,5 @@
 // V_GTANLZ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2024, 2025
 // @codepage UTF-8
 // Налоговый анализ товарооборота
 //
@@ -16,10 +16,7 @@ IMPLEMENT_PPFILT_FACTORY(GoodsTaxAnalyze); GoodsTaxAnalyzeFilt::GoodsTaxAnalyzeF
 		Flags |= GoodsTaxAnalyzeFilt::fByPayment;
 }
 
-int GoodsTaxAnalyzeFilt::HasCycleFlags() const
-{
-	return BIN(Flags & (fDayly|fMonthly));
-}
+bool GoodsTaxAnalyzeFilt::HasCycleFlags() const { return LOGIC(Flags & (fDayly|fMonthly)); }
 
 PPViewGoodsTaxAnalyze::PPViewGoodsTaxAnalyze() : PPView(0, &Filt, PPVIEW_GOODSTAXANALYZE, 0, 0), P_TempTbl(0), IterIdx(0), P_GGIter(0), P_InOutVATList(0)
 {
@@ -33,10 +30,7 @@ PPViewGoodsTaxAnalyze::~PPViewGoodsTaxAnalyze()
 	PPObjGoodsGroup::RemoveTempAlt(Filt.GoodsGrpID, (long)this);
 }
 
-const BVATAccmArray * PPViewGoodsTaxAnalyze::GetInOutVATList() const
-{
-	return P_InOutVATList;
-}
+const BVATAccmArray * PPViewGoodsTaxAnalyze::GetInOutVATList() const { return P_InOutVATList; }
 //
 //
 //
@@ -177,7 +171,7 @@ int PPViewGoodsTaxAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 
 void PPViewGoodsTaxAnalyze::MakeTaxStr(GoodsGrpngEntry * pGGE, char * pBuf, size_t bufLen)
 {
-	PPGoodsTax gtx;
+	PPGoodsTax gt_rec;
 	PPGoodsTaxEntry gtx_entry;
 	SString temp_buf;
 	if(Filt.Flags & (GoodsTaxAnalyzeFilt::fDiffByInVAT | GoodsTaxAnalyzeFilt::fDiffByOutVAT | GoodsTaxAnalyzeFilt::fDiffAll)) {
@@ -187,8 +181,8 @@ void PPViewGoodsTaxAnalyze::MakeTaxStr(GoodsGrpngEntry * pGGE, char * pBuf, size
 			if(pGGE->GoodsTaxGrpID) {
 				if(GObj.GTxObj.FetchByID(pGGE->GoodsTaxGrpID, &gtx_entry) > 0)
 					if(Filt.Flags & GoodsTaxAnalyzeFilt::fDiffAll)
-						if(GObj.GTxObj.Search(gtx_entry.TaxGrpID & 0x00ffffffL, &gtx) > 0)
-							temp_buf.Cat(strip(gtx.Name));
+						if(GObj.GTxObj.Search(gtx_entry.TaxGrpID & 0x00ffffffL, &gt_rec) > 0)
+							temp_buf.Cat(strip(gt_rec.Name));
 						else
 							temp_buf.CatChar('#').Cat(gtx_entry.TaxGrpID & 0x00ffffffL);
 					else
@@ -197,16 +191,16 @@ void PPViewGoodsTaxAnalyze::MakeTaxStr(GoodsGrpngEntry * pGGE, char * pBuf, size
 					temp_buf.CatChar('#').Cat(pGGE->GoodsTaxGrpID);
 			}
 		if(Filt.Flags & (GoodsTaxAnalyzeFilt::fDiffAll | GoodsTaxAnalyzeFilt::fDiffByInVAT))
-			if(pGGE->LotTaxGrpID && GObj.GTxObj.Search((pGGE->LotTaxGrpID & 0x00ffffffL), &gtx) > 0) {
+			if(pGGE->LotTaxGrpID && GObj.GTxObj.Search((pGGE->LotTaxGrpID & 0x00ffffffL), &gt_rec) > 0) {
 				temp_buf.Space().CatChar('(');
 				if(GObj.GTxObj.FetchByID(pGGE->LotTaxGrpID, &gtx_entry) > 0)
 					if(Filt.Flags & GoodsTaxAnalyzeFilt::fDiffAll)
-						if(GObj.GTxObj.Search(gtx_entry.TaxGrpID & 0x00ffffffL, &gtx) > 0)
-							temp_buf.Cat(strip(gtx.Name));
+						if(GObj.GTxObj.Search(gtx_entry.TaxGrpID & 0x00ffffffL, &gt_rec) > 0)
+							temp_buf.Cat(strip(gt_rec.Name));
 						else
 							temp_buf.CatChar('#').Cat(gtx_entry.TaxGrpID & 0x00ffffffL);
 					else
-						temp_buf.Cat(gtx.VAT, MKSFMTD(0, 1, NMBF_NOTRAILZ));
+						temp_buf.Cat(gt_rec.VAT, MKSFMTD(0, 1, NMBF_NOTRAILZ));
 				else
 					temp_buf.CatChar('#').Cat(pGGE->LotTaxGrpID);
 				temp_buf.CatChar(')');
@@ -366,14 +360,14 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 								{
 									PPID   in_tax_grp_id = NZOR(lot_item.InTaxGrpID, goods_rec.TaxGrpID);
 									long   amt_fl = 0;
-									GTaxVect vect(5);
-									PPGoodsTaxEntry gt;
-									if(GObj.GTxObj.Fetch(in_tax_grp_id, org_date, 0L, &gt) > 0) {
+									GTaxVect gtv(5/*round-prec*/);
+									PPGoodsTaxEntry gtx;
+									if(GObj.GTxObj.Fetch(in_tax_grp_id, org_date, 0L, &gtx) > 0) {
 										amt_fl = ~GTAXVF_SALESTAX;
 										const long excl_fl = (vat_free > 0) ? GTAXVF_VAT : 0;
-										vect.Calc_(&gt, cost, tax_factor, amt_fl, excl_fl);
-										vat = vect.GetValue(GTAXVF_VAT);
-										stax = vect.GetValue(GTAXVF_SALESTAX);
+										gtv.Calc_(gtx, cost, tax_factor, amt_fl, excl_fl);
+										vat = gtv.GetValue(GTAXVF_VAT);
+										stax = gtv.GetValue(GTAXVF_SALESTAX);
 										cost_wo_tax -= (vat + stax);
 									}
 								}
@@ -416,7 +410,6 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 			THROW(tra.Commit());
 		}
 		else {
-			// @v10.7.7 {
 			PPIDArray common_goods_list; 
 			const  int  income_calc_method = (Filt.Flags & GoodsTaxAnalyzeFilt::fByPayment) ? INCM_BYPAYMENT : INCM_BYSHIPMENT;
 			if(!Filt.BillList.IsExists()) {
@@ -424,7 +417,6 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 					if(!(goods_rec.Flags & GF_GENERIC))
 						common_goods_list.add(goods_rec.ID);
 			}
-			// } @v10.7.7
 			PPObjGoods::SubstBlock sgg_blk;
 			sgg_blk.ExclParentID = Filt.GoodsGrpID;
 			PPTransaction tra(ppDbDependTransaction, 1);
@@ -508,7 +500,7 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 								int    r;
 								TempGoodsTaxAnlzTbl::Rec rec;
 								TempGoodsTaxAnlzTbl::Key0 k;
-								GTaxVect vect;
+								GTaxVect gtv;
 								if(Filt.Sgg) {
 									sgg_blk.LotID = p_gge->LotID;
 									THROW(GObj.SubstGoods(goods_id, &final_goods_id, Filt.Sgg, &sgg_blk, &Gsl));
@@ -589,22 +581,22 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 										}
 										if(is_price_wo_excise ? !re : re)
 											excl_flags |= GTAXVF_SALESTAX;
-										vect.Calc_(&gtx, trnovr_p, fabs(p_gge->TaxFactor), amt_flags, excl_flags);
-										double excs = fabs(vect.GetValue(GTAXVF_EXCISE));
+										gtv.Calc_(gtx, trnovr_p, fabs(p_gge->TaxFactor), amt_flags, excl_flags);
+										double excs = fabs(gtv.GetValue(GTAXVF_EXCISE));
 										rec.ExciseSum += is_exp ? excs : -excs;
-										rec.STaxSum   += vect.GetValue(GTAXVF_SALESTAX);
-										rec.VATSum    += vect.GetValue(GTAXVF_VAT);
-										out_item.PRate    = out_item.CRate = vect.GetTaxRate(GTAX_VAT, 0);
-										out_item.Price    = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT | GTAXVF_EXCISE);
-										out_item.PVATSum  = vect.GetValue(GTAXVF_VAT);
+										rec.STaxSum   += gtv.GetValue(GTAXVF_SALESTAX);
+										rec.VATSum    += gtv.GetValue(GTAXVF_VAT);
+										out_item.PRate    = out_item.CRate = gtv.GetTaxRate(GTAX_VAT, 0);
+										out_item.Price    = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT | GTAXVF_EXCISE);
+										out_item.PVATSum  = gtv.GetValue(GTAXVF_VAT);
 										out_item.PTrnovr  = trnovr_p;
 										out_item.Discount = discount;
 										//
 										// Рассчитываем НДС с дохода
 										//
-										double income_minus_stax = income - vect.GetValue(GTAXVF_SALESTAX);
-										vect.Calc_(&gtx, income_minus_stax, fabs(p_gge->TaxFactor), GTAXVF_BEFORETAXES, GTAXVF_SALESTAX);
-										rec.IncVATSum += vect.GetValue(GTAXVF_VAT);
+										double income_minus_stax = income - gtv.GetValue(GTAXVF_SALESTAX);
+										gtv.Calc_(gtx, income_minus_stax, fabs(p_gge->TaxFactor), GTAXVF_BEFORETAXES, GTAXVF_SALESTAX);
+										rec.IncVATSum += gtv.GetValue(GTAXVF_VAT);
 									}
 									//
 									// Рассчитываем НДС в ценах поступления //
@@ -616,12 +608,12 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 										SETFLAG(excl_flags, GTAXVF_SALESTAX, !(p_gge->Flags & GGEF_COSTWSTAX));
 										if(p_gge->Flags & GGEF_VATFREE)
 											excl_flags |= GTAXVF_VAT;
-										vect.Calc_(&gtx, trnovr_c, fabs(p_gge->TaxFactor), GTAXVF_BEFORETAXES, excl_flags);
-										rec.C_VATSum  += vect.GetValue(GTAXVF_VAT);
-										rec.C_STaxSum += vect.GetValue(GTAXVF_SALESTAX);
-										in_item.PRate   = in_item.CRate   = vect.GetTaxRate(GTAX_VAT, 0);
-										in_item.Cost    = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT);
-										in_item.CVATSum = vect.GetValue(GTAXVF_VAT);
+										gtv.Calc_(gtx, trnovr_c, fabs(p_gge->TaxFactor), GTAXVF_BEFORETAXES, excl_flags);
+										rec.C_VATSum  += gtv.GetValue(GTAXVF_VAT);
+										rec.C_STaxSum += gtv.GetValue(GTAXVF_SALESTAX);
+										in_item.PRate   = in_item.CRate   = gtv.GetTaxRate(GTAX_VAT, 0);
+										in_item.Cost    = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT);
+										in_item.CVATSum = gtv.GetValue(GTAXVF_VAT);
 									}
 									THROW_DB(is_new_rec ? P_TempTbl->insertRecBuf(&rec) : P_TempTbl->updateRecBuf(&rec));
 									// AHTOXA Calc in/out vat {

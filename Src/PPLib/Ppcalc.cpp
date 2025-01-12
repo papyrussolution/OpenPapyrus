@@ -1,5 +1,5 @@
 // PPCALC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -306,7 +306,7 @@ ulong GetMinVatDivisor(double rate, uint prec)
 double CalcPriceParam::Calc(double inPrice, double * pVatRate, double * pVatSum, double * pExcise) const
 {
 	GTaxVect gtv;
-	PPGoodsTaxEntry gte;
+	PPGoodsTaxEntry gtx;
 	double tax_factor = 1.0;
 	double vat_rate = 0.0;
 	int    calc_taxes = 0;
@@ -321,9 +321,9 @@ double CalcPriceParam::Calc(double inPrice, double * pVatRate, double * pVatSum,
 			goods_obj.AdjCostToVat(InTaxGrpID, goods_rec.TaxGrpID, Dt, 1, &inPrice, 0, 0);
 	}
 	double price = inPrice;
-	if(goods_obj.FetchTax(GoodsID, /*Dt*/ZERODATE, 0, &gte) > 0) {
+	if(goods_obj.FetchTax(GoodsID, /*Dt*/ZERODATE, 0, &gtx) > 0) {
 		goods_obj.MultTaxFactor(GoodsID, &tax_factor);
-		gtv.Calc_(&gte, price, tax_factor, GTAXVF_AFTERTAXES, 0);
+		gtv.Calc_(gtx, price, tax_factor, GTAXVF_AFTERTAXES, 0);
 		vat_rate = gtv.GetTaxRate(GTAX_VAT, 0);
 		price = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
 		calc_taxes = 1;
@@ -338,7 +338,7 @@ double CalcPriceParam::Calc(double inPrice, double * pVatRate, double * pVatSum,
 		// использовали эту функцию не матюгались.
 		//
 		// goods_obj.MultTaxFactor(GoodsID, &tax_factor);
-		gtv.Calc_(&gte, price, tax_factor, GTAXVF_AFTERTAXES | GTAXVF_EXCISE, 0);
+		gtv.Calc_(gtx, price, tax_factor, GTAXVF_AFTERTAXES | GTAXVF_EXCISE, 0);
 		price = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT);
 	}
 	//
@@ -361,9 +361,10 @@ double CalcPriceParam::Calc(double inPrice, double * pVatRate, double * pVatSum,
 	//
 	// После окончательного расчета цены необходимо заново рассчитать налоги
 	//
-	double excise = 0.0, vat_sum = 0.0;
+	double excise = 0.0;
+	double vat_sum = 0.0;
 	if(calc_taxes) {
-		gtv.Calc_(&gte, price, tax_factor, GTAXVF_BEFORETAXES, 0);
+		gtv.Calc_(gtx, price, tax_factor, GTAXVF_BEFORETAXES, 0);
 		excise   = gtv.GetValue(GTAXVF_EXCISE);
 		vat_sum  = gtv.GetValue(GTAXVF_VAT);
 		if(Flags & fExclTaxes)
@@ -748,9 +749,9 @@ void CalcTaxPriceDialog::calc()
 		double tax_factor = 1.0;
 		GObj.MultTaxFactor(Data.GoodsID, &tax_factor);
 		if(Data.CalcWotaxByWtax) {
-			GTaxVect vect;
-			vect.Calc_(&gtx, Data.Price, tax_factor, GTAXVF_BEFORETAXES, GTAXVF_SALESTAX);
-			Data.PriceWoTaxes = R2(vect.GetValue(GTAXVF_AFTERTAXES));
+			GTaxVect gtv;
+			gtv.Calc_(gtx, Data.Price, tax_factor, GTAXVF_BEFORETAXES, GTAXVF_SALESTAX);
+			Data.PriceWoTaxes = R2(gtv.GetValue(GTAXVF_AFTERTAXES));
 		}
 		else {
 			double price = Data.PriceWoTaxes;

@@ -1,5 +1,7 @@
 {
 	"value_list": {
+		"button_std_height": 21,
+		"button_std_width": 75,
 		"standalone_list_width": 300,
 		"standalone_list_height": 200,
 		"desktop_icon_size": 32,
@@ -123,7 +125,8 @@
 				{
 					"flags": "horizontal",
 					"symb": "listdialog_footer",
-					"size": "100%, 64",
+					"size": "100%, 80",
+					"justifycontent": "end",
 					"alignitems": "stretch",
 					"alignself": "auto",
 					"gravityx": "center",

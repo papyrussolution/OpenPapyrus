@@ -472,6 +472,17 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 		if(hw_parent) {
 			uint ctl_id = pV->GetId();
 			switch(pV->GetSubSign()) {
+				case TV_SUBSIGN_GROUPBOX: // @v12.2.3
+					{
+						TGroupBox * p_gb = static_cast<TGroupBox *>(pV);
+						pV->Parent = hw_parent;
+						hw = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, _T("BUTTON"), 0, WS_CHILD|BS_GROUPBOX, 
+							pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
+						if(hw) {
+							TView::SetWindowUserData(hw, p_gb);
+						}
+					}
+					break;
 				case TV_SUBSIGN_COMBOBOX:
 					{
 						ComboBox * p_cv = static_cast<ComboBox *>(pV);
@@ -503,8 +514,10 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 					{
 						SmartListBox * p_lb = static_cast<SmartListBox *>(pV);
 						pV->Parent = hw_parent;
-						hw = ::CreateWindowEx(0, _T("LISTBOX"), 0, WS_CHILD|LBS_NOINTEGRALHEIGHT|LBS_WANTKEYBOARDINPUT, pV->ViewOrigin.x,
-							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
+						hw = ::CreateWindowExW(WS_EX_CLIENTEDGE, _T("SysListView32"), 0, 
+							WS_CHILD|WS_BORDER|WS_TABSTOP|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_NOSORTHEADER
+							/*|LBS_NOINTEGRALHEIGHT|LBS_WANTKEYBOARDINPUT*/, 
+							pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
 							TView::SetWindowUserData(hw, p_lb);
 						}

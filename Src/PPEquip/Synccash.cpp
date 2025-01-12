@@ -1,5 +1,5 @@
 // SYNCCASH.CPP
-// Copyright (c) A.Sobolev 1997-2021, 2022, 2024
+// Copyright (c) A.Sobolev 1997-2021, 2022, 2024, 2025
 // @codepage UTF-8
 // Интерфейс (синхронный) для ККМ
 //
@@ -1509,11 +1509,11 @@ int SCS_SYNCCASH::GetCheckInfo(const PPBillPacket * pPack, Sync_BillTaxArray * p
 			flags |= PRNCHK_RETURN;
 		for(uint i = 0; pPack->EnumTItems(&i, &ti);) {
 			int re;
-			PPGoodsTaxEntry  gt_entry;
-			THROW(goods_obj.FetchTax(ti->GoodsID, pPack->Rec.Dt, pPack->Rec.OpID, &gt_entry));
-			bt_entry.VAT = wovatax ? 0 : gt_entry.VAT;
+			PPGoodsTaxEntry gtx;
+			THROW(goods_obj.FetchTax(ti->GoodsID, pPack->Rec.Dt, pPack->Rec.OpID, &gtx));
+			bt_entry.VAT = wovatax ? 0 : gtx.VAT;
 			re = (ti->Flags & PPTFR_RMVEXCISE) ? 1 : 0;
-			bt_entry.SalesTax = ((CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re) ? 0 : gt_entry.SalesTax;
+			bt_entry.SalesTax = ((CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re) ? 0 : gtx.SalesTax;
 			bt_entry.Amount   = ti->CalcAmount();
 			THROW(pAry->Add(&bt_entry));
 		}

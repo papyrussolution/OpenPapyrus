@@ -10,12 +10,13 @@
 //
 /*static*/const char * PPCommandDescr::P_FactoryPrfx = "CFF_";
 
-PPCommandDescr::PPCommandDescr()
+PPCommandDescr::PPCommandDescr() : CmdID(0), Flags(0), MenuCm(0), IconId(0), ToolbarId(0), ViewId(0), FiltId(0), FiltExtId(0)
 {
-	Init();
+	memzero(&Reserve, sizeof(Reserve));
+	//Init();
 }
 
-void PPCommandDescr::Init()
+PPCommandDescr & PPCommandDescr::Z()
 {
 	CmdID = 0;
 	Flags = 0;
@@ -28,6 +29,7 @@ void PPCommandDescr::Init()
 	memzero(&Reserve, sizeof(Reserve));
 	Symb.Z();
 	Text.Z();
+	return *this;
 }
 
 SString & FASTCALL PPCommandDescr::GetFactoryFuncName(SString & rBuf) const
@@ -76,20 +78,20 @@ int PPCommandDescr::LoadResource(long cmdDescrID)
 {
 	int    ok = 1;
 	TVRez * p_rez = P_SlRez;
-	Init();
+	Z();
 	if(p_rez) {
 		THROW_PP(p_rez->findResource(static_cast<uint>(cmdDescrID), PP_RCDECLCMD), PPERR_RESFAULT);
 		CmdID = cmdDescrID;
 		p_rez->getString(Symb, 2);
 		p_rez->getString(Text, 2);
 		SLS.ExpandString(Text, CTRANSF_UTF8_TO_INNER);
-		IconId    = static_cast<long>(p_rez->getUINT());
-		ToolbarId = static_cast<long>(p_rez->getUINT());
-		MenuCm    = static_cast<long>(p_rez->getUINT());
-		Flags     = static_cast<long>(p_rez->getUINT());
-		ViewId    = static_cast<long>(p_rez->getUINT());
-		FiltId    = static_cast<long>(p_rez->getUINT());
-		FiltExtId = static_cast<long>(p_rez->getUINT());
+		IconId    = p_rez->getLONG();
+		ToolbarId = p_rez->getLONG();
+		MenuCm    = p_rez->getLONG();
+		Flags     = p_rez->getLONG();
+		ViewId    = p_rez->getLONG();
+		FiltId    = p_rez->getLONG();
+		FiltExtId = p_rez->getLONG();
 	}
 	CATCHZOK
 	return ok;

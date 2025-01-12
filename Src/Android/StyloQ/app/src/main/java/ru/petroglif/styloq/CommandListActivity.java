@@ -380,13 +380,18 @@ public class CommandListActivity extends SLib.SlActivity {
 									if(ev_subj.ItemView.getId() == R.id.CTL_BUTTON_RUNCMD || ev_subj.ItemView.getId() == R.id.CTL_BUTTON_FORCEUPDATE) {
 										double _max_dist = cmd_item.GetGeoDistanceRestriction();
 										if(_max_dist > 0.0) {
-											// Команда будет запущена после получения координат (see case SLib.EV_GEOLOCDETECTED here)
-											if(SLib.QueryCurrentGeoLoc(this, cmd_item, this) != 0) {
-												; // будем ждать ответа
+											if(app_ctx.IsNetworkDisabled()) { // @v12.2.3 при блокированной сети нельзя запускать такую команду
+												; // @todo message
 											}
 											else {
-												// Ошибка: скорее всего нет прав на получение координат
-												app_ctx.DisplayError(this, ppstr2.PPERR_STQ_EXCECMD_GEOLOCDISABLED, 0);
+												// Команда будет запущена после получения координат (see case SLib.EV_GEOLOCDETECTED here)
+												if(SLib.QueryCurrentGeoLoc(this, cmd_item, this) != 0) {
+													; // будем ждать ответа
+												}
+												else {
+													// Ошибка: скорее всего нет прав на получение координат
+													app_ctx.DisplayError(this, ppstr2.PPERR_STQ_EXCECMD_GEOLOCDISABLED, 0);
+												}
 											}
 										}
 										else {
@@ -395,8 +400,13 @@ public class CommandListActivity extends SLib.SlActivity {
 												RefreshStatus();
 											}
 											else if(ev_subj.ItemView.getId() == R.id.CTL_BUTTON_FORCEUPDATE) {
-												Helper_RunCmd(cmd_item, null, true);
-												RefreshStatus();
+												if(app_ctx.IsNetworkDisabled()) { // @v12.2.3
+													; // @todo message
+												}
+												else {
+													Helper_RunCmd(cmd_item, null, true);
+													RefreshStatus();
+												}
 											}
 										}
 									}
@@ -491,7 +501,10 @@ public class CommandListActivity extends SLib.SlActivity {
 													rcid = R.drawable.ic_stopwatch;
 													break;
 												default:
-													rcid = R.drawable.ic_generic_command;
+													if(app_ctx.IsNetworkDisabled())
+														rcid = R.drawable.ic_generic_command_unavailable;
+													else
+														rcid = R.drawable.ic_generic_command;
 													break;
 											}
 											{

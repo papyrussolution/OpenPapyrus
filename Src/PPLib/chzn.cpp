@@ -1,5 +1,5 @@
 // CHZN.CPP
-// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Реализация интерфейса к сервисам честный знак
 //
@@ -1202,9 +1202,9 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					const  double cost = fabs(r_ti.NetPrice());
 					double vat_in_cost = 0.0;
 					{
-						GTaxVect vect;
-						vect.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE);
-						vat_in_cost = vect.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
+						GTaxVect gtv;
+						gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE);
+						vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
 					}
 					p_bp->XcL.Get(i+1, 0, lotxcode_set);
 					lotxcode_set.GetByBoxID(0, ss);
@@ -1299,9 +1299,9 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 						const  double cost = fabs(r_ti.NetPrice());
 						double vat_in_cost = 0.0;
 						{
-							GTaxVect vect;
-							vect.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE);
-							vat_in_cost = vect.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
+							GTaxVect gtv;
+							gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE);
+							vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
 						}
 						p_bp->XcL.Get(i+1, 0, lotxcode_set);
 						lotxcode_set.GetByBoxID(0, ss);
@@ -1434,9 +1434,9 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 													double vat_in_cost = 0.0;
 													PPGoodsTaxEntry gtx;
 													if(goods_obj.FetchTax(ccitem.GoodsID, p_ccp->Rec.Dt, 0, &gtx) > 0) {
-														GTaxVect vect;
-														vect.Calc_(&gtx, cost, 1.0, GTAXVF_BEFORETAXES, 0);
-														vat_in_cost = vect.GetValue(GTAXVF_VAT);
+														GTaxVect gtv;
+														gtv.Calc_(gtx, cost, 1.0, GTAXVF_BEFORETAXES, 0);
+														vat_in_cost = gtv.GetValue(GTAXVF_VAT);
 													}
 													SXml::WNode un(rX, "union");
 													{
@@ -1492,9 +1492,9 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 								double cost = r_ti.Cost;
 								double vat_in_cost = 0.0;
 								{
-									GTaxVect vect;
-									vect.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST);
-									vat_in_cost = vect.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
+									GTaxVect gtv;
+									gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST);
+									vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
 								}
 								p_bp->XcL.Get(i+1, 0, lotxcode_set);
 								{
@@ -1564,9 +1564,9 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 								double cost = r_ti.Cost;
 								double vat_in_cost = 0.0;
 								{
-									GTaxVect vect;
-									vect.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST);
-									vat_in_cost = vect.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
+									GTaxVect gtv;
+									gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST);
+									vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
 								}
 								p_bp->XcL.Get(i+1, 0, lotxcode_set);
 								{

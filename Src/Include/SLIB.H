@@ -1385,6 +1385,7 @@ public:
 	static constexpr double SecsPerDayR     = (24.0 * 60.0 * 60.0); // @v11.9.1
 	static constexpr const char * P_WrKey_MsWin_DisallowRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\DisallowRun"; // @v11.8.12 HKEY_CURRENT_USER
 	static constexpr const char * P_WrKey_MsWin_RestrictRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\RestrictRun"; // @v11.8.12 HKEY_CURRENT_USER
+	static constexpr uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; // @v12.2.3 Сигнатура объекта SLob, означающая, что буфер структурирован.
 };
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
 // 
@@ -3639,7 +3640,7 @@ struct DateRange { // @persistent @size=8
 	//
 	long   GetLength() const;
 	bool   IsZero() const;
-	int    FASTCALL CheckDate(LDATE) const;
+	bool   FASTCALL CheckDate(LDATE) const;
 	int    FASTCALL Intersect(const DateRange *);
 	int    IsIntersect(DateRange r) const;
 	DateRange & Set(LDATE, LDATE);

@@ -1,5 +1,5 @@
 // RANGE.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -366,31 +366,36 @@ int FASTCALL DateRange::Cmp(const DateRange & rS) const
 
 bool DateRange::IsZero() const { return (!low && !upp); }
 
-int FASTCALL DateRange::CheckDate(LDATE dt) const
+bool FASTCALL DateRange::CheckDate(LDATE dt) const
 {
-	int r = BIN(dt >= low && (!upp || dt <= upp));
-	if(!r) {
-		const int lf = low.hasanycomponent();
-		const int uf = upp.hasanycomponent();
-		if(lf || uf) {
-			LDATE temp_low = low;
-			LDATE temp_upp = upp;
-			if(lf & 0x01)
-				temp_low.setyear(dt.year());
-			if(lf & 0x02)
-				temp_low.setmonth(dt.month());
-			if(lf & 0x04)
-				temp_low.setday(dt.day());
-			if(uf & 0x01)
-				temp_upp.setyear(dt.year());
-			if(uf & 0x02)
-				temp_upp.setmonth(dt.month());
-			if(uf & 0x04)
-				temp_upp.setday(dt.day());
-			r = BIN(dt >= temp_low && (!temp_upp || dt <= temp_upp));
+	bool result = true;
+	if(IsZero()) // @v12.2.3 Если обе границы диапазона не определены, то считаем, что любая дата (даже инвалидная) проходит проверку.
+		result = true;
+	else {
+		result = (dt >= low && (!upp || dt <= upp));
+		if(!result) {
+			const int lf = low.hasanycomponent();
+			const int uf = upp.hasanycomponent();
+			if(lf || uf) {
+				LDATE temp_low = low;
+				LDATE temp_upp = upp;
+				if(lf & 0x01)
+					temp_low.setyear(dt.year());
+				if(lf & 0x02)
+					temp_low.setmonth(dt.month());
+				if(lf & 0x04)
+					temp_low.setday(dt.day());
+				if(uf & 0x01)
+					temp_upp.setyear(dt.year());
+				if(uf & 0x02)
+					temp_upp.setmonth(dt.month());
+				if(uf & 0x04)
+					temp_upp.setday(dt.day());
+				result = (dt >= temp_low && (!temp_upp || dt <= temp_upp));
+			}
 		}
 	}
-	return r;
+	return result;
 }
 
 DateRange & DateRange::Set(LDATE lo, LDATE up)

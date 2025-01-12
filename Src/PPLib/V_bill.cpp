@@ -1,5 +1,5 @@
 // V_BILL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -7458,51 +7458,51 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 				assert(pos_local < p_pack->GetTCount());
 				const PPTransferItem & r_ti_local = p_pack->TI(pos_local);
 				const double qtty_local = fabs(r_ti_local.Qtty());
-				GTaxVect vect;
-				vect.CalcTI(r_ti_local, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
-				I.VATRate = vect.GetTaxRate(GTAX_VAT, 0);
+				GTaxVect gtv;
+				gtv.CalcTI(r_ti_local, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
+				I.VATRate = gtv.GetTaxRate(GTAX_VAT, 0);
 				assert(i == 0 || I.VATRate == prev_vat_rate);
 				prev_vat_rate = I.VATRate;
-				I.VATSum  += vect.GetValue(GTAXVF_VAT);
-				I.ExcRate = vect.GetTaxRate(GTAX_EXCISE, 0);
-				I.ExcSum  += vect.GetValue(GTAXVF_EXCISE);
-				I.STRate  = vect.GetTaxRate(GTAX_SALES, 0);
+				I.VATSum  += gtv.GetValue(GTAXVF_VAT);
+				I.ExcRate = gtv.GetTaxRate(GTAX_EXCISE, 0);
+				I.ExcSum  += gtv.GetValue(GTAXVF_EXCISE);
+				I.STRate  = gtv.GetTaxRate(GTAX_SALES, 0);
 				if(tiamt == TIAMT_COST) {
 					if(r_ti_local.Flags & PPTFR_COSTWOVAT)
 						I.MainPrice += I.VATSum / qtty_local;
 				}
 				else if(r_ti_local.Flags & PPTFR_PRICEWOTAXES) {
-					const double _a = vect.GetValue(GTAXVF_BEFORETAXES) / qtty_local;
+					const double _a = gtv.GetValue(GTAXVF_BEFORETAXES) / qtty_local;
 					if(i == 0)
 						I.MainPrice = _a;
 					else
 						I.MainPrice += _a;
 				}
 				if(!(p_pack->ProcessFlags & PPBillPacket::pfPrintPLabel)) {
-					I.STSum += vect.GetValue(GTAXVF_SALESTAX);
+					I.STSum += gtv.GetValue(GTAXVF_SALESTAX);
 				}
 			}
 		}
 		else {
 			const PPTransferItem & r_ti_local = *p_ti;
 			const double qtty_local = fabs(r_ti_local.Qtty());
-			GTaxVect vect;
-			vect.CalcTI(r_ti_local, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
-			I.VATRate = vect.GetTaxRate(GTAX_VAT, 0);
-			I.VATSum  = vect.GetValue(GTAXVF_VAT);
-			I.ExcRate = vect.GetTaxRate(GTAX_EXCISE, 0);
-			I.ExcSum  = vect.GetValue(GTAXVF_EXCISE);
-			I.STRate  = vect.GetTaxRate(GTAX_SALES, 0);
+			GTaxVect gtv;
+			gtv.CalcTI(r_ti_local, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
+			I.VATRate = gtv.GetTaxRate(GTAX_VAT, 0);
+			I.VATSum  = gtv.GetValue(GTAXVF_VAT);
+			I.ExcRate = gtv.GetTaxRate(GTAX_EXCISE, 0);
+			I.ExcSum  = gtv.GetValue(GTAXVF_EXCISE);
+			I.STRate  = gtv.GetTaxRate(GTAX_SALES, 0);
 			if(tiamt == TIAMT_COST) {
 				if(r_ti_local.Flags & PPTFR_COSTWOVAT)
 					I.MainPrice += I.VATSum / qtty_local;
 			}
 			else if(r_ti_local.Flags & PPTFR_PRICEWOTAXES) {
-				const double _a = vect.GetValue(GTAXVF_BEFORETAXES) / qtty_local;
+				const double _a = gtv.GetValue(GTAXVF_BEFORETAXES) / qtty_local;
 				I.MainPrice = _a;
 			}
 			if(!(p_pack->ProcessFlags & PPBillPacket::pfPrintPLabel)) {
-				I.STSum = vect.GetValue(GTAXVF_SALESTAX);
+				I.STSum = gtv.GetValue(GTAXVF_SALESTAX);
 			}
 		}
 		if(p_pack->ProcessFlags & PPBillPacket::pfPrintPLabel) {
@@ -7757,7 +7757,7 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 	const PPConfig & r_cfg = LConfig;
 	PPTransferItem * p_ti, temp_ti;
 	PPBillPacket::TiItemExt tiie;
-	GTaxVect vect;
+	GTaxVect gtv;
 	SString temp_buf;
 	double ext_price = 0.0;
 	double upp = 0.0; // Емкость упаковки
@@ -8274,7 +8274,7 @@ int PPALDD_GoodsBillModif::InitData(PPFilt & rFilt, long rsrv)
 		double amount = 0.0;
 		double vatsum = 0.0;
 		double excisesum = 0.0;
-		GTaxVect vect;
+		GTaxVect gtv;
 		int    tiamt;
 		if(p_pack->OutAmtType == 1) {
 			tiamt = TIAMT_COST;
@@ -8288,12 +8288,12 @@ int PPALDD_GoodsBillModif::InitData(PPFilt & rFilt, long rsrv)
 			tiamt = TIAMT_AMOUNT;
 			amount = fabs(p_ti->CalcAmount(0));
 		}
-		vect.CalcTI(*p_ti, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
-		vatsum    = vect.GetValue(GTAXVF_VAT);
-		excisesum = vect.GetValue(GTAXVF_EXCISE);
+		gtv.CalcTI(*p_ti, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
+		vatsum    = gtv.GetValue(GTAXVF_VAT);
+		excisesum = gtv.GetValue(GTAXVF_EXCISE);
 		if(p_ti->Flags & PPTFR_COSTWOVAT)
 			if(p_pack->OutAmtType == 1 || (p_pack->OutAmtType != 2 && !(p_ti->Flags & PPTFR_SELLING)))
-				amount += vect.GetValue(GTAXVF_VAT);
+				amount += gtv.GetValue(GTAXVF_VAT);
 		if(p_ti->Flags & PPTFR_PLUS) {
 			H.ReceiptQtty   += fabs(p_ti->Quantity_);
 			if(p_ti->UnitPerPack > 0.0)
@@ -8337,7 +8337,7 @@ int PPALDD_GoodsBillModif::NextIteration(PPIterID iterId)
 	{
 		PPBillPacket   * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 		PPTransferItem * p_ti;
-		GTaxVect vect;
+		GTaxVect gtv;
 		long   exclude_tax_flags = GTAXVF_SALESTAX;
 		int    tiamt;
 		uint   n = static_cast<uint>(I.Iter_NN);
@@ -8384,11 +8384,11 @@ int PPALDD_GoodsBillModif::NextIteration(PPIterID iterId)
 		I.FullPack = 0;
 		if(p_ti->UnitPerPack > 0.0)
 			I.FullPack = ffloori(fabs(I.Qtty) / p_ti->UnitPerPack);
-		vect.CalcTI(*p_ti, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
-		I.VATRate = vect.GetTaxRate(GTAX_VAT, 0);
-		I.VATSum  = vect.GetValue(GTAXVF_VAT);
-		I.ExcRate = vect.GetTaxRate(GTAX_EXCISE, 0);
-		I.ExcSum  = vect.GetValue(GTAXVF_EXCISE);
+		gtv.CalcTI(*p_ti, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
+		I.VATRate = gtv.GetTaxRate(GTAX_VAT, 0);
+		I.VATSum  = gtv.GetValue(GTAXVF_VAT);
+		I.ExcRate = gtv.GetTaxRate(GTAX_EXCISE, 0);
+		I.ExcSum  = gtv.GetValue(GTAXVF_EXCISE);
 		if(p_ti->Flags & PPTFR_COSTWOVAT && tiamt == TIAMT_COST) {
 			I.MainPrice += /*round(*/I.VATSum / fabs(p_ti->Qtty())/*, 2)*/;
 		}
@@ -8572,7 +8572,7 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 			}
 			// } @v11.1.7 
 			if(p_ti->Flags & PPTFR_CORRECTION) {
-				GTaxVect gt_vect;
+				GTaxVect gtv;
 				{
 					long   amt_flags  = ~0L;
 					long   excl_flags = 0L;
@@ -8582,22 +8582,22 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 						excl_flags |= GTAXVF_VAT;
 					if(gtx_cost.Flags & GTAXF_NOLOTEXCISE)
 						excl_flags |= GTAXVF_EXCISE;
-					gt_vect.Calc_(&gtx_cost, old_cost, tax_old_qtty, amt_flags, excl_flags);
-					vatsum_oldcost = gt_vect.GetValue(GTAXVF_VAT);
-					gt_vect.Calc_(&gtx_cost, new_cost,  tax_new_qtty, amt_flags, excl_flags);
-					vatsum_newcost  = gt_vect.GetValue(GTAXVF_VAT);
+					gtv.Calc_(gtx_cost, old_cost, tax_old_qtty, amt_flags, excl_flags);
+					vatsum_oldcost = gtv.GetValue(GTAXVF_VAT);
+					gtv.Calc_(gtx_cost, new_cost,  tax_new_qtty, amt_flags, excl_flags);
+					vatsum_newcost  = gtv.GetValue(GTAXVF_VAT);
 				}
 				{
 					long   amt_flags  = ~0L;
 					long   excl_flags = 0L;
-					gt_vect.Calc_(&gtx_price, old_price * old_qtty, tax_old_qtty, amt_flags, excl_flags);
-					vatsum_oldprice = gt_vect.GetValue(GTAXVF_VAT);
-					gt_vect.Calc_(&gtx_price, new_price * qtty,  tax_new_qtty, amt_flags, excl_flags);
-					vatsum_newprice = gt_vect.GetValue(GTAXVF_VAT);
+					gtv.Calc_(gtx_price, old_price * old_qtty, tax_old_qtty, amt_flags, excl_flags);
+					vatsum_oldprice = gtv.GetValue(GTAXVF_VAT);
+					gtv.Calc_(gtx_price, new_price * qtty,  tax_new_qtty, amt_flags, excl_flags);
+					vatsum_newprice = gtv.GetValue(GTAXVF_VAT);
 				}
 			}
 			else if(p_ti->Flags & PPTFR_REVAL && reval_assets_wo_vat && gobj.IsAsset(labs(p_ti->GoodsID))) {
-				GTaxVect gt_vect;
+				GTaxVect gtv;
 				long   amt_flags  = ~0L;
 				long   excl_flags = 0L;
 				if(p_ti->Flags & PPTFR_COSTWOVAT)
@@ -8606,14 +8606,14 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 					excl_flags |= GTAXVF_VAT;
 				if(gtx_cost.Flags & GTAXF_NOLOTEXCISE)
 					excl_flags |= GTAXVF_EXCISE;
-				gt_vect.Calc_(&gtx_cost, new_price, tax_new_qtty, amt_flags, excl_flags);
-				new_price = gt_vect.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
-				gt_vect.Calc_(&gtx_cost, new_cost,  tax_new_qtty, amt_flags, excl_flags);
-				new_cost  = gt_vect.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
-				gt_vect.Calc_(&gtx_cost, old_price, tax_old_qtty, amt_flags, excl_flags);
-				old_price = gt_vect.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
-				gt_vect.Calc_(&gtx_cost, old_cost,  tax_old_qtty, amt_flags, excl_flags);
-				old_cost  = gt_vect.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
+				gtv.Calc_(gtx_cost, new_price, tax_new_qtty, amt_flags, excl_flags);
+				new_price = gtv.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
+				gtv.Calc_(gtx_cost, new_cost,  tax_new_qtty, amt_flags, excl_flags);
+				new_cost  = gtv.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
+				gtv.Calc_(gtx_cost, old_price, tax_old_qtty, amt_flags, excl_flags);
+				old_price = gtv.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
+				gtv.Calc_(gtx_cost, old_cost,  tax_old_qtty, amt_flags, excl_flags);
+				old_cost  = gtv.GetValue(~GTAXVF_BEFORETAXES & ~GTAXVF_VAT);
 			}
 			{
 				p_extra->OldCostVat = vatsum_oldcost;
@@ -9151,24 +9151,24 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 			else {
 				qtty = old_qtty = fabs(ti.Qtty());
 			}
-			GTaxVect vect;
-			vect.CalcTI(ti, item.OpID, TIAMT_AMOUNT);
-		   	I.VaTax    = vect.GetTaxRate(GTAX_VAT, 0);
-			I.VatSum   = vect.GetValue(GTAXVF_VAT);
-			I.ExTax    = vect.GetTaxRate(GTAX_EXCISE, 0);
-			I.ExtSum   = vect.GetValue(GTAXVF_EXCISE);
-			I.StTax    = vect.GetTaxRate(GTAX_SALES, 0);
-			I.StSum    = vect.GetValue(GTAXVF_SALESTAX);
-			I.NominalPrice = fdivnz(vect.GetValue(GTAXVF_BEFORETAXES), qtty); // @v11.3.6
+			GTaxVect gtv;
+			gtv.CalcTI(ti, item.OpID, TIAMT_AMOUNT);
+		   	I.VaTax    = gtv.GetTaxRate(GTAX_VAT, 0);
+			I.VatSum   = gtv.GetValue(GTAXVF_VAT);
+			I.ExTax    = gtv.GetTaxRate(GTAX_EXCISE, 0);
+			I.ExtSum   = gtv.GetValue(GTAXVF_EXCISE);
+			I.StTax    = gtv.GetTaxRate(GTAX_SALES, 0);
+			I.StSum    = gtv.GetValue(GTAXVF_SALESTAX);
+			I.NominalPrice = fdivnz(gtv.GetValue(GTAXVF_BEFORETAXES), qtty); // @v11.3.6
 			if(ti.Flags & PPTFR_COSTWOVAT) {
-				vect.CalcTI(ti, item.OpID, TIAMT_COST);
-				cost += vect.GetValue(GTAXVF_VAT) / qtty;
-				old_cost += vect.GetValue(GTAXVF_VAT) / old_qtty;
+				gtv.CalcTI(ti, item.OpID, TIAMT_COST);
+				cost += gtv.GetValue(GTAXVF_VAT) / qtty;
+				old_cost += gtv.GetValue(GTAXVF_VAT) / old_qtty;
 			}
 			if(ti.Flags & PPTFR_PRICEWOTAXES) {
-				vect.CalcTI(ti, item.OpID, TIAMT_PRICE);
-				price = vect.GetValue(GTAXVF_BEFORETAXES) / qtty;
-				old_price = vect.GetValue(GTAXVF_BEFORETAXES) / old_qtty;
+				gtv.CalcTI(ti, item.OpID, TIAMT_PRICE);
+				price = gtv.GetValue(GTAXVF_BEFORETAXES) / qtty;
+				old_price = gtv.GetValue(GTAXVF_BEFORETAXES) / old_qtty;
 			}
 			I.GoodsID  = ti.GoodsID;
 			I.LotID    = ti.LotID;
@@ -9182,7 +9182,7 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 			return DlRtm::NextIteration(iterId);
 		}
 		else {
-			// @v10.4.8 @erik {
+			// @erik {
 			if(GetOpType(item.OpID) == PPOPT_PAYMENT) {
 				double cost = 0.0;
 				double old_cost = 0.0;
@@ -9221,7 +9221,7 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 				}
 				return DlRtm::NextIteration(iterId);
 			}
-			// } @v10.4.8 @erik
+			// } @erik
 			else {
 				I.recNo = 0;
 				PPWaitPercent(p_v->GetCounter());
@@ -9251,17 +9251,17 @@ void PPALDD_ContentBList::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 					(r_buf = _ARG_STR(1)).Strip().ToLower().ReplaceStr("-", 0, 0).ReplaceStr("_", 0, 0).ReplaceStr(" ", 0, 0);
 					SString symb(r_buf);
 					/*
-	   					vect.CalcTI(rTi, opID, TIAMT_PRICE);
-						item.PRate   = vect.GetTaxRate(GTAX_VAT, 0);
+	   					gtv.CalcTI(rTi, opID, TIAMT_PRICE);
+						item.PRate   = gtv.GetTaxRate(GTAX_VAT, 0);
 						item.Cost    = 0.0;
 						item.CVATSum = 0.0;
-	   					item.Price   = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT | GTAXVF_EXCISE);
-						item.PVATSum = vect.GetValue(GTAXVF_VAT);
+	   					item.Price   = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT | GTAXVF_EXCISE);
+						item.PVATSum = gtv.GetValue(GTAXVF_VAT);
 						THROW(Add(&item));
-						vect.CalcTI(rTi, opID, TIAMT_COST, GTAXVF_VAT);
-						item.CRate   = vect.GetTaxRate(GTAX_VAT, 0);
-						item.Cost    = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT);
-						item.CVATSum = vect.GetValue(GTAXVF_VAT);
+						gtv.CalcTI(rTi, opID, TIAMT_COST, GTAXVF_VAT);
+						item.CRate   = gtv.GetTaxRate(GTAX_VAT, 0);
+						item.Cost    = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT);
+						item.CVATSum = gtv.GetValue(GTAXVF_VAT);
 	   					item.Price   = 0.0;
 						item.PVATSum = 0.0;
 						THROW(Add(&item));
@@ -9357,38 +9357,38 @@ void PPALDD_ContentBList::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 					else if(symb == "vatsum") {
 					}
 					else if(symb == "costvatrate") { // ставка НДС в ценах поступления //
-						GTaxVect v;
-						v.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST, 0);
-						result = v.GetTaxRate(GTAX_VAT, 0);
+						GTaxVect gtv;
+						gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST, 0);
+						result = gtv.GetTaxRate(GTAX_VAT, 0);
 					}
 					else if(symb == "costvat") { // величина НДС в цене поступления //
 						if(absqtty != 0.0) {
-							GTaxVect v;
-							v.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST, 0);
-							result = fabs(v.GetValue(GTAXVF_VAT)) / absqtty;
+							GTaxVect gtv;
+							gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST, 0);
+							result = fabs(gtv.GetValue(GTAXVF_VAT)) / absqtty;
 						}
 					}
 					else if(symb == "costvatsum") { // величина НДС в сумме поступления (в цене поступления, умноженной на количество)
-						GTaxVect v;
-						v.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST, 0);
-						result = fabs(v.GetValue(GTAXVF_VAT));
+						GTaxVect gtv;
+						gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST, 0);
+						result = fabs(gtv.GetValue(GTAXVF_VAT));
 					}
 					else if(symb == "pricevatrate") {
-						GTaxVect v;
-						v.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE, 0);
-						result = v.GetTaxRate(GTAX_VAT, 0);
+						GTaxVect gtv;
+						gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE, 0);
+						result = gtv.GetTaxRate(GTAX_VAT, 0);
 					}
 					else if(symb == "pricevat") {
 						if(absqtty != 0.0) {
-							GTaxVect v;
-							v.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE, 0);
-							result = fabs(v.GetValue(GTAX_VAT)) / absqtty;
+							GTaxVect gtv;
+							gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE, 0);
+							result = fabs(gtv.GetValue(GTAX_VAT)) / absqtty;
 						}
 					}
 					else if(symb == "pricevatsum") {
-						GTaxVect v;
-						v.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE, 0);
-						result = fabs(v.GetValue(GTAX_VAT));
+						GTaxVect gtv;
+						gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE, 0);
+						result = fabs(gtv.GetValue(GTAX_VAT));
 					}
 				}
 			}

@@ -1,5 +1,5 @@
 // V_QUOT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -10,12 +10,11 @@
 #define QUOT_BUF_SIZE    sizeof(static_cast<const TempQuotTbl::Rec *>(0)->Quot1)
 
 IMPLEMENT_PPFILT_FACTORY(Quot); QuotFilt::QuotFilt() : PPBaseFilt(PPFILT_QUOT, 0, 5) 
-	// @v6.2.6 ver 0-->1; @v6.4.2 ver 1-->2; @v7.3.5 2-->3 // @v10.1.2 3-->4 // @v10.1.3 4-->5
 {
 	// SetFlatChunk(offsetof(QuotFilt, InitOrder), offsetof(QuotFilt, Reserve)-offsetof(QuotFilt, InitOrder)+sizeof(Reserve));
 	SetFlatChunk(offsetof(QuotFilt, ReserveStart), offsetof(QuotFilt, Reserve)-offsetof(QuotFilt, ReserveStart)+sizeof(Reserve));
 	SetBranchObjIdListFilt(offsetof(QuotFilt, LocList));
-	SetBranchObjIdListFilt(offsetof(QuotFilt, GoodsList)); // @v10.1.3
+	SetBranchObjIdListFilt(offsetof(QuotFilt, GoodsList));
 	Init(1, 0);
 }
 
@@ -1773,7 +1772,7 @@ int PPViewQuot::AddItem(PPID * pGoodsID)
 		}
 		else {
 			if(!P_GoodsSelDlg) {
-				long   egsd_flags = (ExtGoodsSelDialog::GetDefaultFlags() | ExtGoodsSelDialog::fByName); // @v10.7.7
+				long   egsd_flags = (ExtGoodsSelDialog::GetDefaultFlags() | ExtGoodsSelDialog::fByName);
 				P_GoodsSelDlg = new ExtGoodsSelDialog(0, Filt.GoodsGrpID, egsd_flags);
 				if(!CheckDialogPtrErr(&P_GoodsSelDlg))
 					return PPErrorZ();

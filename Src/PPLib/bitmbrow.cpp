@@ -1,5 +1,5 @@
 // BITMBROW.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 // Модуль, отвечающий за броузер строк товарных документов.
@@ -1142,10 +1142,10 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 			for(uint pos = 0; P_LinkPack->SearchGoods(labs(p_ti->GoodsID), &pos); pos++)
 				Total.LinkQtty += fabs(P_LinkPack->ConstTI(pos).Qtty());
 		{
-			GTaxVect vect;
-			vect.CalcTI(*p_ti, P_Pack->Rec.OpID, TIAMT_AMOUNT);
-			item.VatSum  = vect.GetValue(GTAXVF_VAT);
-			item.VatRate = vect.GetTaxRate(GTAX_VAT, 0);
+			GTaxVect gtv;
+			gtv.CalcTI(*p_ti, P_Pack->Rec.OpID, TIAMT_AMOUNT);
+			item.VatSum  = gtv.GetValue(GTAXVF_VAT);
+			item.VatRate = gtv.GetTaxRate(GTAX_VAT, 0);
 			Total.VatSum += item.VatSum;
 		}
 		{

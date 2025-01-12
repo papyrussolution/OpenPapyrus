@@ -1,5 +1,5 @@
 // V_GREST.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2061,23 +2061,23 @@ int PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl::Rec &
 				SETIFZ(in_tax_grp_id, tax_grp_id);
 				if(tax_factor != 1.0)
 					GObj.MultTaxFactor(goods_id, &tax_factor);
-				GTaxVect vect;
+				GTaxVect gtv;
 				PPGoodsTaxEntry gtx;
 				// Calculating cost without VAT
 				if(grci.Cost != 0.0 && Filt.Flags & (GoodsRestFilt::fCWoVat|GoodsRestFilt::fCalcCVat)) {
 					if(!org_lot_date)
 						THROW(P_BObj->trfr->Rcpt.GetOriginDate(&rRec, &org_lot_date));
 					if(GObj.GTxObj.Fetch(in_tax_grp_id, org_lot_date, 0L, &gtx) > 0) {
-						vect.Calc_(&gtx, grci.Cost, tax_factor, ~GTAXVF_SALESTAX, (vat_free > 0) ? GTAXVF_VAT : 0);
-						_cvat = vect.GetValue(GTAXVF_VAT);
-						_cost_wo_vat = grci.Cost - vect.GetValue(GTAXVF_VAT);
+						gtv.Calc_(gtx, grci.Cost, tax_factor, ~GTAXVF_SALESTAX, (vat_free > 0) ? GTAXVF_VAT : 0);
+						_cvat = gtv.GetValue(GTAXVF_VAT);
+						_cost_wo_vat = grci.Cost - gtv.GetValue(GTAXVF_VAT);
 					}
 				}
 				// Calculating price without VAT and SalesTax
 				if(GObj.GTxObj.FetchByID(tax_grp_id, &gtx) > 0) {
 					const long amt_fl = (CCFLG_PRICEWOEXCISE & CConfig.Flags) ? ~GTAXVF_SALESTAX : GTAXVF_BEFORETAXES;
-					vect.Calc_(&gtx, grci.Price, tax_factor, amt_fl, 0);
-					_price_wo_vat = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
+					gtv.Calc_(gtx, grci.Price, tax_factor, amt_fl, 0);
+					_price_wo_vat = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
 					_pvat = grci.Price - _price_wo_vat;
 				}
 				if(Filt.Flags & GoodsRestFilt::fCWoVat) {

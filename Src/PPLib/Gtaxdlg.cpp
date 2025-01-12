@@ -1,24 +1,58 @@
 // GTAXDLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
 
 class GoodsTaxDialog : public TDialog {
+	DECL_DIALOG_DATA(PPGoodsTaxPacket);
 public:
 	GoodsTaxDialog(uint dlgID) : TDialog(dlgID)
 	{
 		SetupCalPeriod(CTLCAL_GDSTAX_PERIOD, CTL_GDSTAX_PERIOD);
 	}
-	int    setDTS(const PPGoodsTaxPacket *);
-	int    getDTS(PPGoodsTaxPacket *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		PPGoodsTaxEntry gtx;
+		setCtrlData(CTL_GDSTAX_NAME, Data.Rec.Name);
+		setCtrlData(CTL_GDSTAX_SYMB, Data.Rec.Symb);
+		setCtrlData(CTL_GDSTAX_ID,  &Data.Rec.ID);
+		AddClusterAssoc(CTL_GDSTAX_FLAGS, 0, GTAXF_USELIST);
+		SetClusterData(CTL_GDSTAX_FLAGS, Data.Rec.Flags);
+		enableCommand(cmGoodsTaxList, BIN(Data.Rec.Flags & GTAXF_USELIST));
+		AddClusterAssoc(CTL_GDSTAX_NOLOTEXCISE, 0, GTAXF_NOLOTEXCISE);
+		SetClusterData(CTL_GDSTAX_NOLOTEXCISE, Data.Rec.Flags);
+		Data.Rec.ToEntry(&gtx);
+		return setEntry(&gtx);
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		PPGoodsTaxEntry gtx;
+		getCtrlData(CTL_GDSTAX_NAME, Data.Rec.Name);
+		getCtrlData(CTL_GDSTAX_SYMB, Data.Rec.Symb);
+		if(*strip(Data.Rec.Name) == 0)
+			GTxObj.GetDefaultName(&Data.Rec, Data.Rec.Name, sizeof(Data.Rec.Name));
+		if(Data.Rec.ID == 0)
+			getCtrlData(CTL_GDSTAX_ID, &Data.Rec.ID);
+		if(getEntry(&gtx)) {
+			Data.Rec.FromEntry(&gtx);
+			GetClusterData(CTL_GDSTAX_FLAGS, &Data.Rec.Flags);
+			GetClusterData(CTL_GDSTAX_NOLOTEXCISE, &Data.Rec.Flags);
+			ASSIGN_PTR(pData, Data);
+			return 1;
+		}
+		else
+			ok = 0;
+		return ok;
+	}
 	int    setEntry(const PPGoodsTaxEntry *);
 	int    getEntry(PPGoodsTaxEntry *);
 private:
 	DECL_HANDLE_EVENT;
 	void   editList();
-	PPGoodsTaxPacket Data;
-	PPGoodsTaxEntry  Entry;
+	PPGoodsTaxEntry Entry;
 	PPObjGoodsTax GTxObj;
 };
 
@@ -26,7 +60,7 @@ IMPL_HANDLE_EVENT(GoodsTaxDialog)
 {
 	ushort v;
 	TDialog::handleEvent(event);
-	if(TVCOMMAND)
+	if(TVCOMMAND) {
 		if(TVCMD == cmGoodsTaxList) {
 			getCtrlData(CTL_GDSTAX_FLAGS, &(v = 0));
 			if(v & 0x01)
@@ -38,6 +72,7 @@ IMPL_HANDLE_EVENT(GoodsTaxDialog)
 			enableCommand(cmGoodsTaxList, BIN(v & 0x01));
 			clearEvent(event);
 		}
+	}
 }
 
 int GoodsTaxDialog::setEntry(const PPGoodsTaxEntry * pEntry)
@@ -49,6 +84,10 @@ int GoodsTaxDialog::setEntry(const PPGoodsTaxEntry * pEntry)
 		SetupOprKindCombo(this, CTLSEL_GDSTAX_OP, Entry.OpID, 0, 0, 0);
 	}
 	setCtrlData(CTL_GDSTAX_VAT,     Entry.FormatVAT(str, sizeof(str)));
+	// @v12.2.3 {
+	AddClusterAssoc(CTL_GDSTAX_SPCVAT, 0, GTAXF_SPCVAT);
+	SetClusterData(CTL_GDSTAX_SPCVAT, Entry.Flags);
+	// } @v12.2.3 
 	setCtrlData(CTL_GDSTAX_EXCISE,  Entry.FormatExcise(str, sizeof(str)));
 	setCtrlData(CTL_GDSTAX_STAX,    Entry.FormatSTax(str, sizeof(str)));
 	GTxObj.FormatOrder(Entry.Order, Entry.UnionVect, str, sizeof(str));
@@ -68,6 +107,7 @@ int GoodsTaxDialog::getEntry(PPGoodsTaxEntry * pEntry)
 	getCtrlString(CTL_GDSTAX_VAT, temp_buf);
 	rv = temp_buf.ToReal();
 	Entry.VAT = R0i(rv * 100L);
+	GetClusterData(CTL_GDSTAX_SPCVAT, &Entry.Flags); // @v12.2.3
 	Entry.Flags &= ~GTAXF_ABSEXCISE;
 	getCtrlString(CTL_GDSTAX_EXCISE, temp_buf);
 	if(temp_buf.NotEmptyS()) {
@@ -94,44 +134,6 @@ int GoodsTaxDialog::getEntry(PPGoodsTaxEntry * pEntry)
 		selectCtrl(CTL_GDSTAX_ORDER);
 		ok = (PPError(PPERR_INVEXPR, temp_buf), 0); // @todo (err code)
 	}
-	return ok;
-}
-
-int GoodsTaxDialog::setDTS(const PPGoodsTaxPacket * pData)
-{
-	RVALUEPTR(Data, pData);
-	PPGoodsTaxEntry entry;
-	setCtrlData(CTL_GDSTAX_NAME, Data.Rec.Name);
-	setCtrlData(CTL_GDSTAX_SYMB, Data.Rec.Symb);
-	setCtrlData(CTL_GDSTAX_ID,  &Data.Rec.ID);
-	AddClusterAssoc(CTL_GDSTAX_FLAGS, 0, GTAXF_USELIST);
-	SetClusterData(CTL_GDSTAX_FLAGS, Data.Rec.Flags);
-	enableCommand(cmGoodsTaxList, BIN(Data.Rec.Flags & GTAXF_USELIST));
-	AddClusterAssoc(CTL_GDSTAX_NOLOTEXCISE, 0, GTAXF_NOLOTEXCISE);
-	SetClusterData(CTL_GDSTAX_NOLOTEXCISE, Data.Rec.Flags);
-	Data.Rec.ToEntry(&entry);
-	return setEntry(&entry);
-}
-
-int GoodsTaxDialog::getDTS(PPGoodsTaxPacket * pData)
-{
-	int    ok = 1;
-	PPGoodsTaxEntry entry;
-	getCtrlData(CTL_GDSTAX_NAME, Data.Rec.Name);
-	getCtrlData(CTL_GDSTAX_SYMB, Data.Rec.Symb);
-	if(*strip(Data.Rec.Name) == 0)
-		GTxObj.GetDefaultName(&Data.Rec, Data.Rec.Name, sizeof(Data.Rec.Name));
-	if(Data.Rec.ID == 0)
-		getCtrlData(CTL_GDSTAX_ID, &Data.Rec.ID);
-	if(getEntry(&entry)) {
-		Data.Rec.FromEntry(&entry);
-		GetClusterData(CTL_GDSTAX_FLAGS, &Data.Rec.Flags);
-		GetClusterData(CTL_GDSTAX_NOLOTEXCISE, &Data.Rec.Flags);
-		ASSIGN_PTR(pData, Data);
-		return 1;
-	}
-	else
-		ok = 0;
 	return ok;
 }
 
@@ -321,7 +323,7 @@ int PPObjGoodsTax::Edit(PPID * pID, void * extraPtr)
 	dlg->setDTS(&pack);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		THROW(is_new || CheckRights(PPR_MOD));
-		if(dlg->getDTS(&pack))
+		if(dlg->getDTS(&pack)) {
 			if(CheckDupName(*pID, pack.Rec.Name) && P_Ref->CheckUniqueSymb(Obj, *pID, pack.Rec.Symb, offsetof(PPGoodsTax, Symb))) {
 				if(PutPacket(pID, &pack, 1)) {
 					Dirty(*pID);
@@ -330,6 +332,7 @@ int PPObjGoodsTax::Edit(PPID * pID, void * extraPtr)
 			}
 			else
 				PPErrorByDialog(dlg, CTL_GDSTAX_NAME);
+		}
 	}
 	CATCH
 		r = PPErrorZ();

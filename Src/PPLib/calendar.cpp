@@ -1786,7 +1786,7 @@ void TDialog::SetupCalDate(uint calCtlID, uint inputCtlID) { SetupCalCtrl(calCtl
 void TDialog::SetupCalPeriod(uint calCtlID, uint inputCtlID) { SetupCalCtrl(calCtlID, this, inputCtlID, 1); } //{ SetupCalendar(calCtlID, inputCtlID, 1); }
 //
 static const uint NumYearsInView = 5;
-static const float FixedCtrlHeight = 20.0f;
+static const float FixedCtrlHeight = 21.0f; // @v12.2.3 20.0f-->21.0f
 
 SCalendarPicker::DataBlock::DataBlock() : Dtm(ZERODATETIME)
 {

@@ -1,5 +1,5 @@
 // OBJCNTR.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -358,16 +358,16 @@ int PPObjOpCounter::MakeReserved(long flags)
 {
 	// {ID, Name, Symb, CodeTemplate }
 	int    ok = 1;
-	uint   num_recs, i;
+	uint   num_recs;
 	SString name, symb, templ;
 	TVRez * p_rez = P_SlRez;
 	THROW_PP(p_rez, PPERR_RESFAULT);
 	THROW_PP(p_rez->findResource(ROD_OPCOUNTER, PP_RCDATA), PPERR_RESFAULT);
 	THROW_PP(num_recs = p_rez->getUINT(), PPERR_RESFAULT);
-	for(i = 0; i < num_recs; i++) {
+	for(uint i = 0; i < num_recs; i++) {
 		PPOpCounterPacket pack;
 		PPOpCounter temp_rec;
-		PPID   id = p_rez->getUINT();
+		const PPID id = p_rez->getLONG();
 		p_rez->getString(name, 2);
 		p_rez->getString(symb, 2);
 		p_rez->getString(templ, 2);

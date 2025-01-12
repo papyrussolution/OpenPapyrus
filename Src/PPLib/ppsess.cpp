@@ -1,5 +1,5 @@
 // PPSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Модуль управления системным процессом и потоками Papyrus
 //
@@ -5001,9 +5001,9 @@ static int FASTCALL Helper_GetRFileInfo(PPID fileId, PPRFile & rInfo)
 			rInfo.ID = fileId;
 			p_rez->getString(temp_buf, 2); // symbol
 			p_rez->getString(rInfo.Name, 2);    // name (Char encoding)
-			rInfo.PathID    = static_cast<long>(p_rez->getUINT());
-			rInfo.SrcPathID = static_cast<long>(p_rez->getUINT());
-			rInfo.Flags     = static_cast<long>(p_rez->getUINT());
+			rInfo.PathID    = p_rez->getLONG();
+			rInfo.SrcPathID = p_rez->getLONG();
+			rInfo.Flags     = p_rez->getLONG();
 			p_rez->getString(rInfo.Descr, 2);   // description (OEM encoding)
 			ok = 1;
 		}

@@ -1,5 +1,5 @@
 // TRFRIDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1778,9 +1778,9 @@ void TrfrItemDialog::setupVatSum()
 		double qtty = getCtrlReal(CTL_LOT_QUANTITY);
 		if(qtty != 0.0) {
 			if(P_Pack) {
-				GTaxVect vect;
-				vect.CalcTI(Item, P_Pack->Rec.OpID, (OpTypeID == PPOPT_GOODSRECEIPT) ? TIAMT_COST : TIAMT_AMOUNT);
-				vat_sum = vect.GetValue(GTAXVF_VAT);
+				GTaxVect gtv;
+				gtv.CalcTI(Item, P_Pack->Rec.OpID, (OpTypeID == PPOPT_GOODSRECEIPT) ? TIAMT_COST : TIAMT_AMOUNT);
+				vat_sum = gtv.GetValue(GTAXVF_VAT);
 				PPLoadString("vat", out_buf);
 				out_buf.CatDiv(':', 2).Cat(vat_sum, MKSFMTD(0, 4, 0));
 			}

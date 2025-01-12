@@ -25,6 +25,11 @@ class WsCtl_Config {
 public:
 	WsCtl_Config();
 	WsCtl_Config & Z();
+	bool   IsEq(const WsCtl_Config & rS) const
+	{
+		return (Server == rS.Server && Port == rS.Port && Timeout == rS.Timeout && 
+			DbSymb == rS.DbSymb && User == rS.User && Password == rS.Password);
+	}
 	//
 	// Descr: —читывает конфигурацию из win-реестра
 	//

@@ -1,5 +1,5 @@
 // CSHSES.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
 // @codepage UTF-8
 // Интерфейс с асинхронными кассовыми устройствами
 //
@@ -2681,12 +2681,12 @@ int AsyncCashGoodsGroupIterator::MakeGroupList(StrAssocArray * pTreeList, PPID p
 			Goods2Tbl::Rec goods_rec;
 			if(GObj.Fetch(item.Id, &goods_rec) > 0 && !(goods_rec.Flags & GF_ALTGROUP)) {
 				AsyncCashGoodsGroupInfo info;
-				PPGoodsTaxEntry  gtx;
+				PPGoodsTaxEntry gtx;
 				info.ID = item.Id;
 				STRNSCPY(info.Name, goods_rec.Name);
 				info.ParentID = item.ParentId;
 				info.UnitID  = goods_rec.UnitID;
-				if(GObj.FetchTax(goods_rec.ID, getcurdate_(), 0L, &gtx) > 0) // @v10.8.10 LConfig.OperDate-->getcurdate_()
+				if(GObj.FetchTax(goods_rec.ID, getcurdate_(), 0L, &gtx) > 0)
 					info.VatRate = gtx.GetVatRate();
 				GObj.GetSingleBarcode(goods_rec.ID, 0, temp_buf);
 				temp_buf.ShiftLeftChr('@');

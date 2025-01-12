@@ -1,5 +1,5 @@
 // OBJQUOTK.CPP
-// Copyright (c) A.Sobolev 1998-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 1998-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -318,7 +318,7 @@ int PPObjQuotKind::MakeReserved(long flags)
 	for(i = 0; i < num_recs; i++) {
 		PPQuotKindPacket pack;
 		PPQuotKind temp_rec;
-		PPID   id = p_rez->getUINT();
+		const PPID id = p_rez->getLONG();
 		p_rez->getString(name, 2);
 		PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 		p_rez->getString(symb, 2);
@@ -510,7 +510,7 @@ int PPObjQuotKind::GetRetailQuotList(LDATETIME dtm, PPIDArray * pList, long flag
 						if(qk_pack.Rec.GetTimeRange(tmr) && dtm.t && !(flags & RTLPF_USEQUOTWTIME && (trcr = tmr.Check(dtm.t)) != 0))
 							suited = 0;
 						else if(dtm.d) {
-							if(!qk_pack.Rec.Period.IsZero() && !qk_pack.Rec.Period.CheckDate(dtm.d))
+							if(!qk_pack.Rec.Period.CheckDate(dtm.d))
 								suited = 0;
 							else if(qk_pack.Rec.HasWeekDayRestriction()) {
 								if(trcr == 2) {

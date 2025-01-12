@@ -1,5 +1,5 @@
 // V_ASSET.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -201,7 +201,7 @@ int PPViewAsset::MakeItem(PPID lotID, BExtInsert * pBei, int use_ta)
 					tax_grp_id = temp_goods_rec.TaxGrpID;
 			}
 			GObj.MultTaxFactor(goods_rec.ID, &tax_factor);
-			GTaxVect vect;
+			GTaxVect gtv;
 			PPGoodsTaxEntry gtx;
 
 			// Calculating cost without VAT
@@ -215,21 +215,21 @@ int PPViewAsset::MakeItem(PPID lotID, BExtInsert * pBei, int use_ta)
 				}
 				long   amt_fl = ~GTAXVF_SALESTAX;
 				long   excl_fl = vat_free ? GTAXVF_VAT : 0;
-				vect.Calc_(&gtx, start_cost, tax_factor, amt_fl, excl_fl);
-				start_cost -= vect.GetValue(GTAXVF_VAT);
-				vect.Calc_(&gtx, asset_rec.Cost, tax_factor, amt_fl, excl_fl);
-				asset_rec.Cost -= vect.GetValue(GTAXVF_VAT);
-				vect.Calc_(&gtx, asset_rec.Price, tax_factor, amt_fl, excl_fl);
-				asset_rec.Price -= vect.GetValue(GTAXVF_VAT);
-				vect.Calc_(&gtx, asset_rec.Cost2, tax_factor, amt_fl, excl_fl);
-				asset_rec.Cost2 -= vect.GetValue(GTAXVF_VAT);
-				vect.Calc_(&gtx, asset_rec.Price2, tax_factor, amt_fl, excl_fl);
-				asset_rec.Price2 -= vect.GetValue(GTAXVF_VAT);
+				gtv.Calc_(gtx, start_cost, tax_factor, amt_fl, excl_fl);
+				start_cost -= gtv.GetValue(GTAXVF_VAT);
+				gtv.Calc_(gtx, asset_rec.Cost, tax_factor, amt_fl, excl_fl);
+				asset_rec.Cost -= gtv.GetValue(GTAXVF_VAT);
+				gtv.Calc_(gtx, asset_rec.Price, tax_factor, amt_fl, excl_fl);
+				asset_rec.Price -= gtv.GetValue(GTAXVF_VAT);
+				gtv.Calc_(gtx, asset_rec.Cost2, tax_factor, amt_fl, excl_fl);
+				asset_rec.Cost2 -= gtv.GetValue(GTAXVF_VAT);
+				gtv.Calc_(gtx, asset_rec.Price2, tax_factor, amt_fl, excl_fl);
+				asset_rec.Price2 -= gtv.GetValue(GTAXVF_VAT);
 				//
-				vect.Calc_(&gtx, deprec_beg, tax_factor, amt_fl, excl_fl);
-				deprec_beg -= vect.GetValue(GTAXVF_VAT);
-				vect.Calc_(&gtx, deprec_cont, tax_factor, amt_fl, excl_fl);
-				deprec_cont -= vect.GetValue(GTAXVF_VAT);
+				gtv.Calc_(gtx, deprec_beg, tax_factor, amt_fl, excl_fl);
+				deprec_beg -= gtv.GetValue(GTAXVF_VAT);
+				gtv.Calc_(gtx, deprec_cont, tax_factor, amt_fl, excl_fl);
+				deprec_cont -= gtv.GetValue(GTAXVF_VAT);
 				//
 			}
 		}

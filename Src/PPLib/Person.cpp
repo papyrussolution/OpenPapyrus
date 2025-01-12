@@ -1,5 +1,5 @@
 // PERSON.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -228,9 +228,11 @@ int PPObjPersonRelType::GetGroupingList(PPIDArray * pList)
 
 int PPObjPersonRelType::ProcessReservedItem(TVRez & rez)
 {
-	int    ok = 1, r;
-	SString name, symb;
-	const  PPID id = static_cast<PPID>(rez.getUINT());
+	int    ok = 1;
+	int    r;
+	SString name;
+	SString symb;
+	const  PPID id = rez.getLONG();
 	rez.getString(name, 2);
 	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 	rez.getString(symb, 2);
@@ -420,12 +422,13 @@ int PPObjPersonRelType::Edit(PPID * pID, void * extraPtr)
 		THROW(GetPacket(*pID, &pack) > 0);
 	THROW(CheckDialogPtr(&(dlg = new PersonRelTypeDialog)));
 	dlg->setDTS(&pack);
-	while(!valid_data && (r = ExecView(dlg)) == cmOK)
+	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		if(dlg->getDTS(&pack))
 			if(PutPacket(pID, &pack, 1))
 				ok = valid_data = 1;
 			else
 				PPError();
+	}
 	CATCH
 		r = PPErrorZ();
 	ENDCATCH

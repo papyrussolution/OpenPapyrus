@@ -1,5 +1,5 @@
 // BPAKCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -4541,9 +4541,9 @@ static double CalcTiInputCost(const PPTransferItem * pTI, PPID opID, double sumC
 		cost = pTI->NetPrice();
 	double c = R2(cost * fabs(pTI->Qtty()));
 	if(pTI->Flags & PPTFR_COSTWOVAT) {
-		GTaxVect vect;
-		vect.CalcTI(*pTI, opID, TIAMT_COST);
-		c += vect.GetValue(GTAXVF_VAT);
+		GTaxVect gtv;
+		gtv.CalcTI(*pTI, opID, TIAMT_COST);
+		c += gtv.GetValue(GTAXVF_VAT);
 	}
 	return minus ? (sumCost-c) : (sumCost+c);
 }
@@ -4551,7 +4551,8 @@ static double CalcTiInputCost(const PPTransferItem * pTI, PPID opID, double sumC
 int PPBillPacket::CalcModifCost()
 {
 	uint   i, out_count = 0;
-	double sum_cost = 0.0, sum_price = 0.0;
+	double sum_cost = 0.0;
+	double sum_price = 0.0;
 	PPTransferItem * p_ti;
 	for(i = 0; Lots.enumItems(&i, (void **)&p_ti);) {
 		if(p_ti->IsRecomplete()) {
@@ -4579,11 +4580,11 @@ int PPBillPacket::CalcModifCost()
 				if(p_ti->Flags & PPTFR_COSTWOVAT && !(p_ti->Flags & PPTFR_FIXMODIFCOST)) {
 					CalcTiModifCost(p_ti, out_count, sum_cost, sum_price);
 					cost = p_ti->Cost;
-					GTaxVect vect;
+					GTaxVect gtv;
 					p_ti->Flags &= ~PPTFR_COSTWOVAT;
-					vect.CalcTI(*p_ti, Rec.OpID, TIAMT_COST);
+					gtv.CalcTI(*p_ti, Rec.OpID, TIAMT_COST);
 					p_ti->Flags |= PPTFR_COSTWOVAT;
-					p_ti->Cost   = R2(p_ti->Cost - vect.GetValue(GTAXVF_VAT) / fabs(p_ti->Qtty()));
+					p_ti->Cost   = R2(p_ti->Cost - gtv.GetValue(GTAXVF_VAT) / fabs(p_ti->Qtty()));
 				}
 				else {
 					CalcTiModifCost(p_ti, out_count, sum_cost, sum_price);
@@ -5612,7 +5613,7 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 		double tax_rate;
 		double tax_sum;
 		double asset_expl = 0.0;
-		GTaxVect vect;
+		GTaxVect gtv;
 		SETFLAG(pTI->Flags, PPTFR_SELLING, (State & stSelling));
 		if(pTI->Flags & PPTFR_RECEIPT && pTI->ExtCost != 0.0) {
 			State |= stExtCost;
@@ -5647,8 +5648,8 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 		// Рассчитываем суммы вводимых в эксплуатацию основных средств
 		//
 		if(pTI->Flags & PPTFR_ASSETEXPL) {
-			vect.CalcTI(*pTI, OpID, TIAMT_ASSETEXPL);
-			asset_expl = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
+			gtv.CalcTI(*pTI, OpID, TIAMT_ASSETEXPL);
+			asset_expl = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
 			if(pTI->Flags & PPTFR_MODIF)
 				asset_expl = -asset_expl; // Вывод из эксплуатации
 		}
@@ -5704,20 +5705,20 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 		// If cost defined without VAT, then adjust (cost*qtty) value to VAT
 		//
 		if(pTI->Flags & PPTFR_COSTWOVAT) {
-			vect.CalcTI(*pTI, OpID, TIAMT_COST);
-			cq += vect.GetValue(GTAXVF_VAT) * sign;
+			gtv.CalcTI(*pTI, OpID, TIAMT_COST);
+			cq += gtv.GetValue(GTAXVF_VAT) * sign;
 			//
 			// Для основных фондов, если балансовая стоимость задана без НДС, то
 			// и остаточная стоимость учитывается без НДС
 			//
 			if(is_asset) {
-				vect.CalcTI(*pTI, OpID, TIAMT_PRICE);
-				pq += vect.GetValue(GTAXVF_VAT) * sign;
+				gtv.CalcTI(*pTI, OpID, TIAMT_PRICE);
+				pq += gtv.GetValue(GTAXVF_VAT) * sign;
 			}
 		}
 		if(pTI->Flags & PPTFR_PRICEWOTAXES) {
-			vect.CalcTI(*pTI, OpID, TIAMT_PRICE);
-			pq = vect.GetValue(GTAXVF_BEFORETAXES);
+			gtv.CalcTI(*pTI, OpID, TIAMT_PRICE);
+			pq = gtv.GetValue(GTAXVF_BEFORETAXES);
 			dq = 0;
 		}
 		curamtq = R2(pTI->CurPrice * qtty);
@@ -5738,14 +5739,14 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 				tiamt = TIAMT_AMOUNT;
 				P_Data->Amt += (pTI->Flags & (PPTFR_SELLING|PPTFR_REVAL)) ? (pq - dq) : cq;
 			}
-			vect.CalcTI(*pTI, OpID, tiamt, (Flags & BTC_EXCLUDEVAT) ? GTAXVF_VAT : 0);
-			tax_sum = vect.GetValue(GTAXVF_VAT);
+			gtv.CalcTI(*pTI, OpID, tiamt, (Flags & BTC_EXCLUDEVAT) ? GTAXVF_VAT : 0);
+			tax_sum = gtv.GetValue(GTAXVF_VAT);
 			if(tax_sum != 0.0) {
-				tax_rate = vect.GetTaxRate(GTAX_VAT, 0);
-				P_Data->VAT  += vect.GetValue(GTAXVF_VAT);
-				P_Data->VatList.Add(tax_rate, tax_sum, vect.GetValue(GTAXVF_AFTERTAXES), vect.GetValue(GTAXVF_BEFORETAXES));
+				tax_rate = gtv.GetTaxRate(GTAX_VAT, 0);
+				P_Data->VAT  += gtv.GetValue(GTAXVF_VAT);
+				P_Data->VatList.Add(tax_rate, tax_sum, gtv.GetValue(GTAXVF_AFTERTAXES), gtv.GetValue(GTAXVF_BEFORETAXES));
 			}
-			P_Data->STax += vect.GetValue(GTAXVF_SALESTAX);
+			P_Data->STax += gtv.GetValue(GTAXVF_SALESTAX);
 		}
 		else {
 			PPID   gt_id = 0;
@@ -5797,34 +5798,34 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 					//
 					// Расчет налоговых сумм в номинальных ценах //
 					//
-					vect.CalcTI(*pTI, OpID, TIAMT_AMOUNT, (Flags & BTC_CALCNOMINALGVAT) ? GTAXVF_NOMINAL : 0);
-					vat      = vect.GetValue(GTAXVF_VAT) * sign;
-					vat_base = vect.GetValue(GTAXVF_AFTERTAXES) * sign;
-					amt_by_vat = vect.GetValue(GTAXVF_BEFORETAXES) * sign;
-					tax_rate = vect.GetTaxRate(GTAX_VAT, 0);
-					excise   = vect.GetValue(GTAXVF_EXCISE) * sign;
-					stax     = vect.GetValue(GTAXVF_SALESTAX) * sign;
+					gtv.CalcTI(*pTI, OpID, TIAMT_AMOUNT, (Flags & BTC_CALCNOMINALGVAT) ? GTAXVF_NOMINAL : 0);
+					vat      = gtv.GetValue(GTAXVF_VAT) * sign;
+					vat_base = gtv.GetValue(GTAXVF_AFTERTAXES) * sign;
+					amt_by_vat = gtv.GetValue(GTAXVF_BEFORETAXES) * sign;
+					tax_rate = gtv.GetTaxRate(GTAX_VAT, 0);
+					excise   = gtv.GetValue(GTAXVF_EXCISE) * sign;
+					stax     = gtv.GetValue(GTAXVF_SALESTAX) * sign;
 					P_Data->VatList.Add(tax_rate, vat, vat_base, amt_by_vat);
 				}
 				{
 					//
 					// Расчет налоговых сумм в ценах поступления //
 					//
-					vect.CalcTI(*pTI, OpID, TIAMT_COST);
-					cvat    = vect.GetValue(GTAXVF_VAT) * sign;
-					cexcise = vect.GetValue(GTAXVF_EXCISE) * sign;
-					cstax   = vect.GetValue(GTAXVF_SALESTAX) * sign;
+					gtv.CalcTI(*pTI, OpID, TIAMT_COST);
+					cvat    = gtv.GetValue(GTAXVF_VAT) * sign;
+					cexcise = gtv.GetValue(GTAXVF_EXCISE) * sign;
+					cstax   = gtv.GetValue(GTAXVF_SALESTAX) * sign;
 					if(cvat_amt_id)
 						P_Data->Amounts.Add(cvat_amt_id, 0L/*@curID*/, cvat, 1);
-					P_Data->CostVatList.Add(vect.GetTaxRate(GTAX_VAT, 0), cvat, vect.GetValue(GTAXVF_AFTERTAXES) * sign, vect.GetValue(GTAXVF_BEFORETAXES) * sign);
+					P_Data->CostVatList.Add(gtv.GetTaxRate(GTAX_VAT, 0), cvat, gtv.GetValue(GTAXVF_AFTERTAXES) * sign, gtv.GetValue(GTAXVF_BEFORETAXES) * sign);
 				}
 				{
 					//
 					// Расчет налоговых сумм в ценах реализации //
 					//
-					vect.CalcTI(*pTI, OpID, TIAMT_PRICE);
-					pvat = vect.GetValue(GTAXVF_VAT) * sign;
-					P_Data->PriceVatList.Add(vect.GetTaxRate(GTAX_VAT, 0), pvat, vect.GetValue(GTAXVF_AFTERTAXES) * sign, vect.GetValue(GTAXVF_BEFORETAXES) * sign);
+					gtv.CalcTI(*pTI, OpID, TIAMT_PRICE);
+					pvat = gtv.GetValue(GTAXVF_VAT) * sign;
+					P_Data->PriceVatList.Add(gtv.GetTaxRate(GTAX_VAT, 0), pvat, gtv.GetValue(GTAXVF_AFTERTAXES) * sign, gtv.GetValue(GTAXVF_BEFORETAXES) * sign);
 				}
 				P_Data->VAT     += vat;
 				P_Data->CVAT    += cvat;
@@ -5837,7 +5838,7 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 					if(ATObj.FetchByTax(&tax_amt_id, GTAX_VAT, tax_rate) > 0)
 						P_Data->Amounts.Add(tax_amt_id, 0L/*@curID*/, vat, 1);
 				}
-				if(stax != 0.0 && ATObj.FetchByTax(&tax_amt_id, GTAX_SALES, vect.GetTaxRate(GTAX_SALES, 0)) > 0)
+				if(stax != 0.0 && ATObj.FetchByTax(&tax_amt_id, GTAX_SALES, gtv.GetTaxRate(GTAX_SALES, 0)) > 0)
 					P_Data->Amounts.Add(tax_amt_id, 0L/*@curID*/, stax, 1);
 				SetupStdAmount(PPAMT_VATAX,    vat,     in_out);
 				SetupStdAmount(PPAMT_CVAT,     cvat,    in_out);

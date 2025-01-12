@@ -1,5 +1,5 @@
 // V_TRANLZ.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1223,9 +1223,9 @@ int PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTr
 						// Расчет цены поступления без НДС
 						//
 						if(GObj.GTxObj.Fetch(NZOR(in_tax_grp_id, grec.TaxGrpID), pTrfrRec->Dt, 0, &gtx) > 0) {
-							GTaxVect vect;
-							vect.Calc_(&gtx, cost, tax_factor, ~GTAXVF_SALESTAX, (vat_free ? GTAXVF_VAT : 0));
-							cost -= vect.GetValue(GTAXVF_VAT);
+							GTaxVect gtv;
+							gtv.Calc_(gtx, cost, tax_factor, ~GTAXVF_SALESTAX, (vat_free ? GTAXVF_VAT : 0));
+							cost -= gtv.GetValue(GTAXVF_VAT);
 						}
 					}
 				}
@@ -1238,16 +1238,16 @@ int PPViewTrfrAnlz::Add(BExtInsert * pBei, long * pOprNo, TransferTbl::Rec * pTr
 						}
 						if(Filt.Flags & (TrfrAnlzFilt::fCalcVat|TrfrAnlzFilt::fCWoVat)) {
 							const long amt_fl = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? ~GTAXVF_SALESTAX : GTAXVF_BEFORETAXES;
-							GTaxVect vect;
-							vect.Calc_(&gtx, fabs(price - discount), tax_factor, amt_fl, 0);
+							GTaxVect gtv;
+							gtv.Calc_(gtx, fabs(price - discount), tax_factor, amt_fl, 0);
 							if(Filt.Flags & TrfrAnlzFilt::fCalcVat) {
-								pvat = vect.GetValue(GTAXVF_VAT);
+								pvat = gtv.GetValue(GTAXVF_VAT);
 							}
 							if(Filt.Flags & TrfrAnlzFilt::fCWoVat) {
 								//
 								// Расчет цены реализации без НДС
 								//
-								price = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
+								price = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
 								discount = 0.0;
 							}
 						}

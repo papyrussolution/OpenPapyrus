@@ -1,5 +1,5 @@
 // V_CMDP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 // Редактирование списка команд
 //
@@ -46,7 +46,7 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 			uint   pos = 0;
 			cmd_txt_list.SortByText();
 			SetupStrAssocCombo(this, CTLSEL_CMDITEM_CMD, cmd_txt_list, Data.CmdID, 0);
-			SetupWordSelector(CTLSEL_CMDITEM_CMD, 0, Data.CmdID, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v10.7.8
+			SetupWordSelector(CTLSEL_CMDITEM_CMD, 0, Data.CmdID, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr);
 			setCtrlString(CTL_CMDITEM_ICON, Data.Icon);
 			AddClusterAssoc(CTL_CMDITEM_USEDEFICON, 0, USEDEFICON);
 			SetClusterData(CTL_CMDITEM_USEDEFICON, Data.Icon.ToLong() || !Data.Icon.Len());
@@ -181,8 +181,7 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 class CommandsDialog : public PPListDialog {
 	DECL_DIALOG_DATA(PPCommandGroup);
 public:
-	explicit CommandsDialog(PPCommandGroupCategory cmdgrpc) : 
-		PPListDialog(DLG_LBXSELT, CTL_LBXSEL_LIST), CmdGrpC(cmdgrpc)
+	explicit CommandsDialog(PPCommandGroupCategory cmdgrpc) : PPListDialog(DLG_LBXSELT, CTL_LBXSEL_LIST), CmdGrpC(cmdgrpc)
 	{
 		SString title;
 		setTitle(PPLoadTextS(PPTXT_EDITCMDLIST, title));
@@ -706,8 +705,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 		virtual int addItem(long * pPos, long * pID)
 		{
 			int    ok = -1;
-			// @v10.9.3 if(IsMaster || ObjRts.CheckDesktopID(0, PPR_INS)) {
-			if(CheckRight(PPR_INS)) { // @v10.9.3
+			if(CheckRight(PPR_INS)) {
 				S_GUID parent_uuid;
 				long   resource_template_id = 0; // Если в качестве шаблона выбра ресурс меню, то он должен быть присвоен этой переменной
 				SString name;
@@ -723,7 +721,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 						}
 						new_desk.Type = cmdgrpcDesktop;
 						new_desk.SetDbSymb(DbSymb);
-						new_desk.ID = new_desk.GetUniqueID(); // @v10.8.1 
+						new_desk.ID = new_desk.GetUniqueID();
 						p_new_group = &new_desk;
 					}
 					else if(CmdGrpC == cmdgrpcMenu) {
@@ -768,8 +766,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 		virtual int editItem(long pos, long id)
 		{
 			int    ok = -1;
-			// @v10.9.3 if(IsMaster || ObjRts.CheckDesktopID(id, PPR_MOD)) {
-			if(CheckRight(PPR_MOD)) { // @v10.9.3
+			if(CheckRight(PPR_MOD)) {
 				uint ipos = 0;
 				const S_GUID uuid = List.GetUuidBySurrId(id);
 				const PPCommandItem * p_item = Data.SearchByUuid(uuid, &ipos);
@@ -794,8 +791,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 			int    ok = -1;
 			uint   ipos = 0;
 			SString str_guid;
-			// @v10.9.3 if(IsMaster || ObjRts.CheckDesktopID(id, PPR_MOD)) {
-			if(CheckRight(PPR_MOD)) { // @v10.9.3
+			if(CheckRight(PPR_MOD)) {
 				const S_GUID uuid = List.GetUuidBySurrId(id);
 				const PPCommandItem * p_item = Data.SearchByUuid(uuid, &ipos);
 				if(p_item) {
@@ -809,16 +805,15 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 								PPErrCode = PPERR_MENUBLOCKED;
 						}
 						else {
-							// @erik v10.7.3 {
-							// 
+							// @erik {
 							const PPCommandGroup * p_cgroup = Data.GetGroup(CmdGrpC, uuid);
 							if(p_cgroup && !!p_cgroup->GetGuid()/*.ToStr(S_GUID::fmtIDL, str_guid)*/) {
-								// @v10.9.3 Возможно, здесь была ошибка: безуслованая 1(desktop) не зависмо от значения CmdGrpC (ранее IsDesktop)
+								// @v10.9.3 Возможно, здесь была ошибка: безусловная 1(desktop) не зависимо от значения CmdGrpC (ранее IsDesktop)
 								PPCommandMngr * p_mgr = GetCommandMngr(PPCommandMngr::ctrfSkipObsolete, /*1*/CmdGrpC, 0); 
 								if(p_mgr->DeleteGroupByUuid(CmdGrpC, p_cgroup->GetGuid())) {
 									ok = Data.Remove(ipos);
 								}
-								delete p_mgr; // @v10.9.3 @fix
+								delete p_mgr;
 							}
 							// } @erik 
 						}
@@ -845,7 +840,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 					p_folder = static_cast<PPCommandFolder *>(p_item->Dup());
 				else*/
 				if(p_item->IsKind(PPCommandItem::kGroup))
-					p_edited_group = static_cast<PPCommandGroup *>(p_item); // @v10.7.6 static_cast<PPCommandGroup *>(p_item->Dup())-->p_item
+					p_edited_group = static_cast<PPCommandGroup *>(p_item);
 			}
 			if(p_edited_group) {
 				p_menus = static_cast<PPCommandGroup *>(Data.Dup());
@@ -859,7 +854,6 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 				}
 			}
 			CATCHZOK
-			// @v10.7.6 ZDELETE(p_edited_group);
 			ZDELETE(p_menus);
 			delete p_dlg;
 			return ok;
@@ -914,14 +908,9 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 				}
 			}
 			{
-				// @v10.9.3 const PPRights & r_rt = ObjRts;
-				/* @v10.9.3 disableCtrls(!IsMaster && r_rt.CheckDesktopID(0, PPR_INS) == 0,
-					CTL_MENULIST_FLAGS, CTL_MENULIST_IMAGE, CTLSEL_MENULIST_BKGND, CTL_MENULIST_SELBKGND, 0L);*/
-				disableCtrls(!CheckRight(PPR_INS), CTL_MENULIST_FLAGS, CTL_MENULIST_IMAGE, CTLSEL_MENULIST_BKGND, CTL_MENULIST_SELBKGND, 0L); // @v10.9.3
-				// @v10.9.3 showCtrl(STDCTL_IMGADDBUTTON, IsMaster || r_rt.CheckDesktopID(0, PPR_INS));
-				showCtrl(STDCTL_IMGADDBUTTON, CheckRight(PPR_INS)); // @v10.9.3
-				showCtrl(STDCTL_IMGPSTBUTTON, CheckRight(PPR_INS)); // @v10.9.3
-				// @v10.9.3 showCtrl(STDCTL_IMGDELBUTTON, IsMaster || r_rt.CheckDesktopID(0, PPR_INS));
+				disableCtrls(!CheckRight(PPR_INS), CTL_MENULIST_FLAGS, CTL_MENULIST_IMAGE, CTLSEL_MENULIST_BKGND, CTL_MENULIST_SELBKGND, 0L);
+				showCtrl(STDCTL_IMGADDBUTTON, CheckRight(PPR_INS));
+				showCtrl(STDCTL_IMGPSTBUTTON, CheckRight(PPR_INS));
 				showCtrl(STDCTL_IMGDELBUTTON, CheckRight(PPR_INS));
 			}
 			return 1;

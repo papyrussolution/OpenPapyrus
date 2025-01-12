@@ -700,7 +700,7 @@ public class StyloQApp extends SLib.App {
 		}
 		return result;
 	}
-	public StyloQDatabase.SecStoragePacket LoadCommandSavedResult(byte [] svcIdent, StyloQCommand.Item cmdItem) throws StyloQException
+	public StyloQDatabase.SecStoragePacket LoadCommandSavedResult(byte [] svcIdent, StyloQCommand.Item cmdItem, boolean ignoreExiration) throws StyloQException
 	{
 		StyloQDatabase.SecStoragePacket result = null;
 		if(cmdItem != null) {
@@ -730,7 +730,7 @@ public class StyloQApp extends SLib.App {
 							}
 						}
 					}
-					if(recent_pack != null && !StyloQInterchange.IsExpired(recent_pack.Rec.Expiration)) {
+					if(recent_pack != null && (ignoreExiration || !StyloQInterchange.IsExpired(recent_pack.Rec.Expiration))) {
 						result = recent_pack;
 					}
 				}
@@ -750,7 +750,7 @@ public class StyloQApp extends SLib.App {
 						result.WaitingTimeMs = pending;
 				}
 				else {
-					StyloQDatabase.SecStoragePacket pack = LoadCommandSavedResult(svcIdent, cmdItem);
+					StyloQDatabase.SecStoragePacket pack = LoadCommandSavedResult(svcIdent, cmdItem, IsNetworkDisabled());
 					if(pack != null)
 						result.S = StyloQCommand.prestatusActualResultStored;
 					if(result.S == StyloQCommand.prestatusUnkn) {
@@ -828,13 +828,15 @@ public class StyloQApp extends SLib.App {
 		boolean ok = false;
 		if(Db != null && cmdItem != null && cmdItem.Uuid != null && SLib.GetLen(svcIdent) > 0) {
 			try {
+				final boolean is_network_disabled = IsNetworkDisabled(); // @v12.2.3
 				StyloQDatabase.SecStoragePacket svc_pack = Db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, svcIdent);
 				if(svc_pack != null) {
-					StyloQDatabase.SecStoragePacket __pack = forceSvcQuery ? null : LoadCommandSavedResult(svcIdent, cmdItem);
+					StyloQDatabase.SecStoragePacket __pack = (forceSvcQuery && !is_network_disabled) ?
+							null : LoadCommandSavedResult(svcIdent, cmdItem, is_network_disabled/*ignoreExpiration*/);
 					if(__pack != null) {
 						//
 						// Если мы извлекли ранее сохраненный результат с незавершенным
-						// сроком действия - эмулируем успешное исполнение команды и уходим.
+						// сроком действия (либо срок действия игнорируется) - эмулируем успешное исполнение команды и уходим.
 						//
 						StyloQCommand.DocReference doc_ref = new StyloQCommand.DocReference();
 						doc_ref.ID = __pack.Rec.ID;
@@ -855,21 +857,26 @@ public class StyloQApp extends SLib.App {
 						ok = true; // Запрос отправлять будет не нужно!
 					}
 					else { // Мы не обнаружили ранее сохраненного результата команды (или срок годности такового истек) - отправляем запрос.
-						JSONObject js_query = null;
-						if(jsReq != null) {
-							js_query = jsReq;
+						if(is_network_disabled) { // @v12.2.3
+
 						}
 						else {
-							js_query = new JSONObject();
-							String cmd_text = cmdItem.Uuid.toString();
-							js_query.put("cmd", cmd_text);
-							js_query.put("time", System.currentTimeMillis());
-						}
-						StyloQInterchange.RequestBlock blk = new StyloQInterchange.RequestBlock(svc_pack, js_query, cmdItem);
-						blk.RetrHandler = retrHandler;
-						if(StyloQInterchange.DoSvcRequest(this, blk)) {
-							StyloQCommand.StartPendingCommand(svcIdent, cmdItem);
-							ok = true;
+							JSONObject js_query = null;
+							if(jsReq != null) {
+								js_query = jsReq;
+							}
+							else {
+								js_query = new JSONObject();
+								String cmd_text = cmdItem.Uuid.toString();
+								js_query.put("cmd", cmd_text);
+								js_query.put("time", System.currentTimeMillis());
+							}
+							StyloQInterchange.RequestBlock blk = new StyloQInterchange.RequestBlock(svc_pack, js_query, cmdItem);
+							blk.RetrHandler = retrHandler;
+							if(StyloQInterchange.DoSvcRequest(this, blk)) {
+								StyloQCommand.StartPendingCommand(svcIdent, cmdItem);
+								ok = true;
+							}
 						}
 					}
 				}

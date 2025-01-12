@@ -1,5 +1,5 @@
 // TRANSFER.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -683,8 +683,8 @@ int GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotRec, do
 			if(pricewotaxes)
 				gobj.AdjPriceToTaxes(GoodsTaxGrpID, tax_factor, &add.Price, 1);
 			if(setcostwovat || setpricewovat) {
-				PPGoodsTaxEntry gt;
-				GTaxVect vect;
+				PPGoodsTaxEntry gtx;
+				GTaxVect gtv;
 				int    price_wo_vat_reckoned = 0;
 				if(!orgLotDate)
 					pTrfr->Rcpt.GetOriginDate(pLotRec, &orgLotDate);
@@ -692,22 +692,22 @@ int GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotRec, do
 					const  PPID in_tax_grp_id = NZOR(pLotRec->InTaxGrpID, GoodsTaxGrpID);
 					if(vat_free < 0)
 						vat_free = IsLotVATFree(*pLotRec);
-					if(gobj.GTxObj.Fetch(in_tax_grp_id, orgLotDate, 0L, &gt) > 0) {
+					if(gobj.GTxObj.Fetch(in_tax_grp_id, orgLotDate, 0L, &gtx) > 0) {
 						const long amt_fl = ~GTAXVF_SALESTAX;
 						const long excl_fl = (vat_free > 0) ? GTAXVF_VAT : 0;
-						vect.Calc_(&gt, add.Cost, tax_factor, amt_fl, excl_fl);
-						add.Cost -= vect.GetValue(GTAXVF_VAT);
+						gtv.Calc_(gtx, add.Cost, tax_factor, amt_fl, excl_fl);
+						add.Cost -= gtv.GetValue(GTAXVF_VAT);
 						if(is_asset) {
-							vect.Calc_(&gt, add.Price, tax_factor, amt_fl, excl_fl);
-							add.Price -= vect.GetValue(GTAXVF_VAT);
+							gtv.Calc_(gtx, add.Price, tax_factor, amt_fl, excl_fl);
+							add.Price -= gtv.GetValue(GTAXVF_VAT);
 							price_wo_vat_reckoned = 1;
 						}
 					}
 				}
-				if(!price_wo_vat_reckoned && gobj.GTxObj.FetchByID(GoodsTaxGrpID, &gt) > 0) {
+				if(!price_wo_vat_reckoned && gobj.GTxObj.FetchByID(GoodsTaxGrpID, &gtx) > 0) {
 					const long   amt_fl = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? ~GTAXVF_SALESTAX : GTAXVF_BEFORETAXES;
-					vect.Calc_(&gt, add.Price, tax_factor, amt_fl, 0);
-					add.Price = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
+					gtv.Calc_(gtx, add.Price, tax_factor, amt_fl, 0);
+					add.Price = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
 					price_wo_vat_reckoned = 1;
 				}
 			}

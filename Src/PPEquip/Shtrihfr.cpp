@@ -1,5 +1,5 @@
 // SHTRIHFR.CPP
-// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Интерфейс (синхронный) с ККМ Штрих-ФР
 //
@@ -1382,11 +1382,11 @@ int SCS_SHTRIHFRF::GetCheckInfo(const PPBillPacket * pPack, BillTaxArray * pAry,
 			flags |= PRNCHK_RETURN;
 		for(uint i = 0; pPack->EnumTItems(&i, &ti);) {
 			int re;
-			PPGoodsTaxEntry  gt_entry;
-			THROW(goods_obj.FetchTax(ti->GoodsID, pPack->Rec.Dt, pPack->Rec.OpID, &gt_entry));
-			bt_entry.VAT = wovatax ? 0 : gt_entry.VAT;
+			PPGoodsTaxEntry gtx;
+			THROW(goods_obj.FetchTax(ti->GoodsID, pPack->Rec.Dt, pPack->Rec.OpID, &gtx));
+			bt_entry.VAT = wovatax ? 0 : gtx.VAT;
 			re = (ti->Flags & PPTFR_RMVEXCISE) ? 1 : 0;
-			bt_entry.SalesTax = ((CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re) ? 0 : gt_entry.SalesTax;
+			bt_entry.SalesTax = ((CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re) ? 0 : gtx.SalesTax;
 			bt_entry.Amount   = ti->CalcAmount();
 			THROW(pAry->Add(&bt_entry));
 		}

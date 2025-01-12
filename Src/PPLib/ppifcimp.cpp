@@ -1,5 +1,5 @@
 // PPIFCIMP.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 // Реализация интерфейсов
@@ -5480,17 +5480,17 @@ int32 DL6ICLS_PPBillPacket::GetTaxInfo(SPpyO_TrfrItem * pItem, PpyOTrfrItemAmtTy
 	int    ok = -1;
 	SPpy_TaxInfo tax_info;
 	PPTransferItem ti;
-	GTaxVect vect(5);
+	GTaxVect gtv(5/*round-prec*/);
 	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	MEMSZERO(tax_info);
 	if(p_pack && pItem) {
 		PPGoodsTaxEntry tax_entry;
 		PPObjGoods gobj;
 		FillInnerTrfrItem(pItem, &ti);
-		vect.CalcTI(ti, p_pack->Rec.OpID, (long)tiAmtType);
+		gtv.CalcTI(ti, p_pack->Rec.OpID, (long)tiAmtType);
 		gobj.FetchTax(ti.GoodsID, p_pack->Rec.Dt, p_pack->Rec.OpID, &tax_entry);
 		tax_info.TaxGrpID  = (tax_entry.TaxGrpID & 0x00ffffff);
-		tax_info.VatAmount = vect.GetValue(GTAXVF_VAT);
+		tax_info.VatAmount = gtv.GetValue(GTAXVF_VAT);
 		tax_info.VatRate   = tax_entry.GetVatRate();
 		ASSIGN_PTR(pTaxInfo, tax_info);
 		ok = 1;

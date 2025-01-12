@@ -1,5 +1,5 @@
 // PPEDI.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -3629,11 +3629,10 @@ int PPEanComDocument::Write_DesadvGoodsItem(SXml::WDoc & rDoc, int ediOp, const 
 		rTotal.SegCount++;
 		rTotal.Quantity += qtty;
 		{
-			GTaxVect vect;
-			vect.CalcTI(rTi, 0 /*opID*/, tiamt);
-			const double amount_with_vat = vect.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
-			const double amount_without_vat = vect.GetValue(GTAXVF_AFTERTAXES);
-			// @v10.3.0 (never used) const double vat_rate = vect.GetTaxRate(GTAX_VAT, 0);
+			GTaxVect gtv;
+			gtv.CalcTI(rTi, 0 /*opID*/, tiamt);
+			const double amount_with_vat = gtv.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
+			const double amount_without_vat = gtv.GetValue(GTAXVF_AFTERTAXES);
 			const double price_with_vat = R5(amount_with_vat / qtty);
 			const double price_without_vat = R5(amount_without_vat / qtty);
 			rTotal.AmountWithTax += amount_with_vat;
@@ -3694,11 +3693,11 @@ int PPEanComDocument::Write_OrderGoodsItem(SXml::WDoc & rDoc, int ediOp, const P
 		THROW(Write_QTY(rDoc, rTi.GoodsID, 21, qtty));
 		rTotal.SegCount++;
 		{
-			GTaxVect vect;
-			vect.CalcTI(rTi, 0 /*opID*/, tiamt);
-			const double amount_with_vat = vect.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
-			const double amount_without_vat = vect.GetValue(GTAXVF_AFTERTAXES);
-			const double vat_rate = vect.GetTaxRate(GTAX_VAT, 0);
+			GTaxVect gtv;
+			gtv.CalcTI(rTi, 0 /*opID*/, tiamt);
+			const double amount_with_vat = gtv.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
+			const double amount_without_vat = gtv.GetValue(GTAXVF_AFTERTAXES);
+			const double vat_rate = gtv.GetTaxRate(GTAX_VAT, 0);
 			const double price_with_vat = R5(amount_with_vat / qtty);
 			const double price_without_vat = R5(amount_without_vat / qtty);
 			rTotal.AmountWithTax += amount_with_vat;
@@ -5109,13 +5108,13 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 								n_ti.PutAttrib(G.GetToken_Ansi(PPHSC_RU_APPEL2), temp_buf.Z().Cat(goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
 								//n_ti.PutAttrib(G.GetToken_Ansi(PPHSC_RU_OKEI), "");
 							}
-							GTaxVect vect;
+							GTaxVect gtv;
 							const long exclude_tax_flags = GTAXVF_SALESTAX;
 							const double qtty = fabs(p_current_ti->Quantity_);
 							const double price = fabs(p_current_ti->NetPrice());
 							const double amt = price * qtty;
-							vect.CalcTI(*p_current_ti, rBp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags, -1);
-							const double amt_aftertaxes = vect.GetValue(GTAXVF_AFTERTAXES);
+							gtv.CalcTI(*p_current_ti, rBp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags, -1);
+							const double amt_aftertaxes = gtv.GetValue(GTAXVF_AFTERTAXES);
 							total_qtty += qtty;
 							total_amt += amt;
 							total_amt_aftertaxes += amt_aftertaxes;
@@ -5125,8 +5124,8 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 							n_ti.PutAttrib(G.GetToken_Ansi(PPHSC_RU_PRICE), temp_buf.Z().Cat(price, MKSFMTD_020));
 							{
 								SXml::WNode n_item(G.P_X, G.GetToken_Ansi(PPHSC_RU_VAT));
-								n_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TAXRATE2), temp_buf.Z().Cat(vect.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 1, NMBF_NOTRAILZ)));
-								n_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNT), temp_buf.Z().Cat(vect.GetValue(GTAXVF_VAT), MKSFMTD_020));
+								n_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TAXRATE2), temp_buf.Z().Cat(gtv.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 1, NMBF_NOTRAILZ)));
+								n_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNT), temp_buf.Z().Cat(gtv.GetValue(GTAXVF_VAT), MKSFMTD_020));
 								n_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TAXRATETYPE), G.GetToken_Ansi(PPHSC_RU_PERCENT));
 							}
 							{
@@ -5154,15 +5153,15 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 								}
 								const double qtty = fabs(r_ti.Quantity_);
 								const double price = fabs(r_ti.NetPrice());
-								vect.CalcTI(r_ti, rBp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags, -1);
+								gtv.CalcTI(r_ti, rBp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags, -1);
 								n_prev_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_QT_TY), temp_buf.Z().Cat(qtty, MKSFMTD_030));
 								n_prev_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNT), temp_buf.Z().Cat(price * qtty, MKSFMTD_020));
-								n_prev_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNTAFTERTAX), temp_buf.Z().Cat(vect.GetValue(GTAXVF_AFTERTAXES), MKSFMTD_020)); // СуммаБезНал
+								n_prev_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNTAFTERTAX), temp_buf.Z().Cat(gtv.GetValue(GTAXVF_AFTERTAXES), MKSFMTD_020)); // СуммаБезНал
 								n_prev_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_PRICE), temp_buf.Z().Cat(price, MKSFMTD_020));
 								{
 									SXml::WNode n_item(G.P_X, G.GetToken_Ansi(PPHSC_RU_VAT));
-									n_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TAXRATE2), temp_buf.Z().Cat(vect.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 1, NMBF_NOTRAILZ)));
-									n_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNT), temp_buf.Z().Cat(vect.GetValue(GTAXVF_VAT), MKSFMTD_020));
+									n_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TAXRATE2), temp_buf.Z().Cat(gtv.GetTaxRate(GTAX_VAT, 0), MKSFMTD(0, 1, NMBF_NOTRAILZ)));
+									n_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNT), temp_buf.Z().Cat(gtv.GetValue(GTAXVF_VAT), MKSFMTD_020));
 									n_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TAXRATETYPE), G.GetToken_Ansi(PPHSC_RU_PERCENT));
 								}
 								{
@@ -6029,11 +6028,11 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter * pX,
 				SXml::WNode n_item(_doc, "lineItem");
 				double qtty = fabs(r_ti.Quantity_);
 				//
-					GTaxVect vect;
-					vect.CalcTI(r_ti, rBp.Rec.OpID, TIAMT_PRICE);
-					const double amount_with_vat = vect.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
-					const double amount_without_vat = vect.GetValue(GTAXVF_AFTERTAXES);
-					const double vat_rate = vect.GetTaxRate(GTAX_VAT, 0);
+					GTaxVect gtv;
+					gtv.CalcTI(r_ti, rBp.Rec.OpID, TIAMT_PRICE);
+					const double amount_with_vat = gtv.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
+					const double amount_without_vat = gtv.GetValue(GTAXVF_AFTERTAXES);
+					const double vat_rate = gtv.GetTaxRate(GTAX_VAT, 0);
 					const double price_with_vat = R5(amount_with_vat / qtty);
 					const double price_without_vat = R5(amount_without_vat / qtty);
 				//
@@ -6549,12 +6548,12 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX,
 				SXml::WNode n_item(_doc, "lineItem");
 				double qtty = fabs(r_ti.Quantity_);
 				//
-					GTaxVect vect;
-					vect.CalcTI(r_ti, rBp.Rec.OpID, TIAMT_PRICE);
-					const double amount_with_vat = vect.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
-					const double amount_without_vat = vect.GetValue(GTAXVF_AFTERTAXES);
-					const double vat_rate = vect.GetTaxRate(GTAX_VAT, 0);
-					const double vat_amount = vect.GetValue(GTAXVF_VAT);
+					GTaxVect gtv;
+					gtv.CalcTI(r_ti, rBp.Rec.OpID, TIAMT_PRICE);
+					const double amount_with_vat = gtv.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
+					const double amount_without_vat = gtv.GetValue(GTAXVF_AFTERTAXES);
+					const double vat_rate = gtv.GetTaxRate(GTAX_VAT, 0);
+					const double vat_amount = gtv.GetValue(GTAXVF_VAT);
 					const double price_with_vat = R5(amount_with_vat / qtty);
 					const double price_without_vat = R5(amount_without_vat / qtty);
 				//
@@ -9599,11 +9598,11 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter * pX, 
 						double cost = r_ti.Cost;
 						double amount = cost * qtty;
 						//
-							GTaxVect tvect;
-							tvect.CalcTI(r_ti, 0 /*opID*/, TIAMT_COST);
-							const double amount_with_vat = tvect.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
-							const double amount_without_vat = tvect.GetValue(GTAXVF_AFTERTAXES);
-							const double vat_rate = tvect.GetTaxRate(GTAX_VAT, 0);
+							GTaxVect gtv;
+							gtv.CalcTI(r_ti, 0/*opID*/, TIAMT_COST);
+							const double amount_with_vat = gtv.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
+							const double amount_without_vat = gtv.GetValue(GTAXVF_AFTERTAXES);
+							const double vat_rate = gtv.GetTaxRate(GTAX_VAT, 0);
 							const double price_with_vat = R5(amount_with_vat / qtty);
 							const double price_without_vat = R5(amount_without_vat / qtty);
 						//
@@ -9942,10 +9941,10 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter * pX, 
 				const  PPTransferItem & r_ti = rRaPack.ABp.ConstTI(i);
 				uint   recadv_ti_pos = 0;
 				const PPTransferItem * p_recadv_ti = rRaPack.RBp.SearchTI(r_ti.RByBill, &recadv_ti_pos) ? &rRaPack.RBp.ConstTI(recadv_ti_pos) : 0;
-				GTaxVect tvect;
-				tvect.CalcTI(p_recadv_ti ? *p_recadv_ti : r_ti, 0 /*opID*/, TIAMT_COST);
-				const double amount_with_vat = tvect.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
-				const double amount_without_vat = tvect.GetValue(GTAXVF_AFTERTAXES);
+				GTaxVect gtv;
+				gtv.CalcTI(p_recadv_ti ? *p_recadv_ti : r_ti, 0 /*opID*/, TIAMT_COST);
+				const double amount_with_vat = gtv.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
+				const double amount_without_vat = gtv.GetValue(GTAXVF_AFTERTAXES);
 				total_amount += amount_without_vat;
 				total_amount_with_vat += amount_with_vat;
 			}
@@ -9997,11 +9996,11 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_RECADV(xmlTextWriter * pX, 
 							const PPTransferItem * p_recadv_ti = rRaPack.RBp.SearchTI(r_ti.RByBill, &recadv_ti_pos) ? &rRaPack.RBp.ConstTI(recadv_ti_pos) : 0;
 							//double amount_with_vat = p_recadv_ti ? (p_recadv_ti->Cost * fabs(p_recadv_ti->Quantity_)) : (r_ti.Cost * fabs(r_ti.Quantity_));
 							//
-								GTaxVect tvect;
-								tvect.CalcTI(DEREFPTROR(p_recadv_ti, r_ti), 0 /*opID*/, TIAMT_COST);
-								const double amount_with_vat = tvect.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
-								const double amount_without_vat = tvect.GetValue(GTAXVF_AFTERTAXES);
-								const double vat_rate = tvect.GetTaxRate(GTAX_VAT, 0);
+								GTaxVect gtv;
+								gtv.CalcTI(DEREFPTROR(p_recadv_ti, r_ti), 0 /*opID*/, TIAMT_COST);
+								const double amount_with_vat = gtv.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
+								const double amount_without_vat = gtv.GetValue(GTAXVF_AFTERTAXES);
+								const double vat_rate = gtv.GetTaxRate(GTAX_VAT, 0);
 								const double price_with_vat = R5(amount_with_vat / acc_qtty);
 								const double price_without_vat = R5(amount_without_vat / acc_qtty);
 							//

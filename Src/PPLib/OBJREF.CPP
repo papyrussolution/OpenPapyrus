@@ -1,5 +1,5 @@
 // OBJREF.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -675,7 +675,7 @@ int PPObjReference::ProcessReservedItem(TVRez & rez)
 	int    ok = 1;
 	int    r;
 	SString name;
-	PPID   id = static_cast<PPID>(rez.getUINT());
+	const  PPID id = rez.getLONG();
 	rez.getString(name, 2);
 	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 	THROW(r = Search(id));
@@ -1114,11 +1114,12 @@ int PPObjUnit::Edit(PPID * pID, void * extraPtr)
 
 int PPObjUnit::ProcessReservedItem(TVRez & rez)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	SString name;
 	SString abbr;
 	SString flags;
-	PPID   id = static_cast<PPID>(rez.getUINT());
+	const PPID id = rez.getLONG();
 	rez.getString(name, 2);
 	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 	rez.getString(abbr, 2);
@@ -1469,7 +1470,7 @@ int PPObjELinkKind::ProcessReservedItem(TVRez & rez)
 	SString name;
 	SString type;
 	uint   pref;
-	PPID   id = static_cast<PPID>(rez.getUINT());
+	const  PPID id = rez.getLONG();
 	rez.getString(name, 2);
 	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 	rez.getString(type, 2);
@@ -4321,7 +4322,7 @@ int PPObjTaxSystemKind::ProcessReservedItem(TVRez & rRez)
 	int    r;
 	SString name;
 	SString symb;
-	PPID   id = static_cast<PPID>(rRez.getUINT());
+	const  PPID id = rRez.getLONG();
 	rRez.getString(name, 2);
 	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 	rRez.getString(symb, 2);

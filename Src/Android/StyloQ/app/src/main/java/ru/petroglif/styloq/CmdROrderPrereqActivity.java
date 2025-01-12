@@ -1,5 +1,5 @@
 // CmdROrderPrereqActivity.java
-// Copyright (c) A.Sobolev 2021, 2022
+// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024, 2025
 //
 package ru.petroglif.styloq;
 
@@ -726,6 +726,19 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							requestWindowFeature(Window.FEATURE_NO_TITLE);
 							setContentView(R.layout.activity_cmdrorderprereq);
 							CPM.SetupActivity(db, R.id.VIEWPAGER_ORDERPREREQ, R.id.TABLAYOUT_ORDERPREREQ);
+							// @v12.2.3 @construction (надо отобразить время создания документа на сервере) {
+							{
+								//js_head
+								String actual_time_text = "";
+								SLib.LDATETIME svc_dtm = CPM.GetSvcDataDtm();
+								if(!SLib.LDATETIME.IsEmpty(svc_dtm)) {
+									actual_time_text = SLib.datetimefmt(svc_dtm, SLib.DATF_DMY|SLib.DATF_CENTURY, SLib.TIMF_HM);
+								}
+								else
+									actual_time_text = "";
+								SLib.SetCtrlString(this, R.id.CTL_PAGEHEADER_ACTUALITYTIME, actual_time_text);
+							}
+							// } @v12.2.3
 							ViewPager2 view_pager = (ViewPager2)findViewById(R.id.VIEWPAGER_ORDERPREREQ);
 							SetupViewPagerWithFragmentAdapter(R.id.VIEWPAGER_ORDERPREREQ);
 							{

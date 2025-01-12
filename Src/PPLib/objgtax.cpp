@@ -158,18 +158,18 @@ int FASTCALL GTaxVect::TaxToVect(int taxIdx) const
 
 int FASTCALL GTaxVect::VectToTax(int idx) const { return (idx > 0 && idx <= N) ? static_cast<int>(OrderVect[idx]) : (idx ? -1 : 0); }
 
-double GTaxVect::GetTaxRate(long taxID, int * pIsAbs) const
+double GTaxVect::GetTaxRate(long taxID, bool * pIsAbs) const
 {
-	int    is_abs = 0;
+	bool   is_abs = false;
 	double rate = 0.0;
 	if(taxID >= 1 && taxID <= N) {
-		int    v = TaxToVect((int)taxID);
+		const int v = TaxToVect(taxID);
 		if(AbsVect & (1 << v)) {
-			is_abs = 1;
+			is_abs = true;
 			rate = RateVect[v];
 		}
 		else {
-			is_abs = 0;
+			is_abs = false;
 			rate = (RateVect[v] * 100L);
 		}
 	}
@@ -252,7 +252,7 @@ void GTaxVect::CalcBackward(int n, double amount)
 	}
 }
 
-void GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, long amtFlags, long excludeFlags)
+void GTaxVect::Calc_(const PPGoodsTaxEntry & rGtEntry, double amount, double qtty, long amtFlags, long excludeFlags)
 {
 	int    i;
 	amount = round(amount, RoundPrec);
@@ -264,27 +264,28 @@ void GTaxVect::Calc_(PPGoodsTaxEntry * gtax, double amount, double qtty, long am
 	Amount    = 0.0;
 	AbsVect   = 0;
 	UnionVect = 0;
-	SETIFZ(gtax->Order, PPObjGoodsTax::GetDefaultOrder());
-	GetNthTransposition(OrderVect+1, N, gtax->Order);
-	UnionVect = (gtax->UnionVect << 1);
+	// @v12.2.3 SETIFZ(rGtEntry.Order, PPObjGoodsTax::GetDefaultOrder());
+	const long gt_order = NZOR(rGtEntry.Order, PPObjGoodsTax::GetDefaultOrder()); // @v12.2.3
+	GetNthTransposition(OrderVect+1, N, gt_order);
+	UnionVect = (rGtEntry.UnionVect << 1);
 	for(i = 1; i <= N; i++) {
 		switch(OrderVect[i]) {
 			case GTAX_VAT:
 				if(!(excludeFlags & GTAXVF_VAT))
-					RateVect[i] = static_cast<double>(gtax->VAT) / (100.0 * 100.0); // @divtax
+					RateVect[i] = static_cast<double>(rGtEntry.VAT) / (100.0 * 100.0); // @divtax
 				break;
 			case GTAX_EXCISE:
 				if(!(excludeFlags & GTAXVF_EXCISE))
-					if(gtax->Flags & GTAXF_ABSEXCISE) {
-						RateVect[i] = fdiv100i(gtax->Excise); // @divtax
+					if(rGtEntry.Flags & GTAXF_ABSEXCISE) {
+						RateVect[i] = fdiv100i(rGtEntry.Excise); // @divtax
 						AbsVect |= (1 << i);
 					}
 					else
-						RateVect[i] = static_cast<double>(gtax->Excise) / (100.0 * 100.0); // @divtax
+						RateVect[i] = static_cast<double>(rGtEntry.Excise) / (100.0 * 100.0); // @divtax
 				break;
 			case GTAX_SALES:
 				if(!(excludeFlags & GTAXVF_SALESTAX))
-					RateVect[i] = static_cast<double>(gtax->SalesTax) / (100.0 * 100.0);   // @divtax
+					RateVect[i] = static_cast<double>(rGtEntry.SalesTax) / (100.0 * 100.0);   // @divtax
 				break;
 		}
 	}
@@ -346,8 +347,8 @@ int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long excl
 	int    ok = 1;
 	const  PPCommConfig & r_ccfg = CConfig;
 	PPObjBill * p_bobj = BillObj;
-	const  int calcti_costwovat_byprice = (r_ccfg.Flags & CCFLG_COSTWOVATBYSUM) ? 0 : 1;
-	const  LDATE date_of_relevance = checkdate(rTi.LotDate) ? rTi.LotDate : rTi.Date; // @v10.5.8 Драфт-документы имеют нулевой LotDate
+	const  bool calcti_costwovat_byprice = (r_ccfg.Flags & CCFLG_COSTWOVATBYSUM) ? false : true;
+	const  LDATE date_of_relevance = checkdate(rTi.LotDate) ? rTi.LotDate : rTi.Date; // Драфт-документы имеют нулевой LotDate
 	int    cost_wo_vat = 0;
 	int    is_asset = 0;
 	int    is_exclvat = 0;
@@ -373,8 +374,9 @@ int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long excl
 		else if(goods_rec.Flags & GF_EXCLVAT)
 			is_exclvat = 1;
 	}
-	else
+	else {
 		MEMSZERO(goods_rec);
+	}
 	if(!(exclFlags & GTAXVF_NOMINAL) && PPObjLocation::CheckWarehouseFlags(rTi.LocID, LOCF_VATFREE))
 		exclFlags |= GTAXVF_VAT;
 	if(rTi.IsCorrectionRcpt()) {
@@ -482,7 +484,7 @@ int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long excl
 	if(!(calcti_costwovat_byprice && cost_wo_vat)) {
 		amount *= qtty;
 	}
-	Calc_(&gtx, amount, tax_qtty, amt_flags, exclFlags);
+	Calc_(gtx, amount, tax_qtty, amt_flags, exclFlags);
 	if(calcti_costwovat_byprice && cost_wo_vat) {
 		for(int i = 0; i < N; i++)
 			Vect[i] *= qtty;
@@ -1056,11 +1058,12 @@ int GTaxCache::SearchEntry(PPID id, LDATE dt, PPID opID, PPGoodsTaxEntry * pEntr
 	int    ok = 0;
 	const  PPID _id = (id & 0x00ffffffL);
 	PPGoodsTaxEntry * p_item;
-	for(uint i = 0; !ok && P_Ary->enumItems(&i, (void **)&p_item);)
+	for(uint i = 0; !ok && P_Ary->enumItems(&i, (void **)&p_item);) {
 		if(p_item->OpID == opID && (p_item->TaxGrpID & 0x00ffffffL) == _id && p_item->Period.CheckDate(dt)) {
 			ASSIGN_PTR(pEntry, *p_item);
 			ok = 1;
 		}
+	}
 	return ok;
 }
 

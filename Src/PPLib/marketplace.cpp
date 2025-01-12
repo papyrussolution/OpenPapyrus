@@ -1325,7 +1325,7 @@ int PPMarketplaceInterface_Wildberries::RequestGoodsPrices()
 	return ok;
 }
 
-int PPMarketplaceInterface_Wildberries::RequestCommission()
+int PPMarketplaceInterface_Wildberries::RequestCommission() // @construction
 {
 	// https://common-api.wildberries.ru/api/v1/tariffs/commission
 	int    ok = 0;
@@ -1351,6 +1351,24 @@ int PPMarketplaceInterface_Wildberries::RequestCommission()
 		}
 	}
 	CATCHZOK
+	return ok;
+}
+
+int PPMarketplaceInterface_Wildberries::RequestWarehouseCoeffsBox() // @v12.2.3 @construction
+{
+	int   ok = -1;
+	return ok;
+}
+
+int PPMarketplaceInterface_Wildberries::RequestWarehouseCoeffsPallet() // @v12.2.3 @construction
+{
+	int   ok = -1;
+	return ok;
+}
+
+int PPMarketplaceInterface_Wildberries::RequestReturnTariff() // @v12.2.3 @construction
+{
+	int   ok = -1;
 	return ok;
 }
 
@@ -1865,15 +1883,127 @@ int PPMarketplaceInterface_Wildberries::RequestPromotionDetail(TSCollection <Pro
 	return ok;
 }
 	
-int PPMarketplaceInterface_Wildberries::RequestPromotionWareList()
+int PPMarketplaceInterface_Wildberries::RequestPromotionWareList(int64 actionId, bool isInAction, TSCollection <WareOnPromotion> & rList)
 {
-	int    ok = -1;
+	int    ok = 1;
+	SJson * p_js_reply = 0;
+	SString temp_buf;
+	if(actionId) {
+		SString url_buf;
+		StrStrAssocArray hdr_flds;
+		THROW(Helper_InitRequest(methPromotionsGoods, url_buf, hdr_flds));
+		{
+			ScURL c;
+			SString reply_buf;
+			SBuffer ack_buf;
+			SFile wr_stream(ack_buf, SFile::mWrite);
+			uint  ids_count = 0;
+			THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
+			url_buf.CatChar('?').CatEq("promotionID", actionId).CatChar('&').CatEq("inAction", isInAction);
+			{
+				Lth.Log("req", url_buf, temp_buf.Z());
+				THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+				{
+					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+					if(p_ack_buf) {
+						reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+						Lth.Log("rep", 0, reply_buf);
+						{
+							p_js_reply = SJson::Parse(reply_buf);
+							if(SJson::IsObject(p_js_reply)) {
+								for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+									if(p_cur->Text.IsEqiAscii("data")) {
+										if(SJson::IsObject(p_cur->P_Child)) {
+											for(const SJson * p_cur2 = p_cur->P_Child->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
+												if(p_cur2->Text.IsEqiAscii("promotions")) {
+													if(SJson::IsArray(p_cur2->P_Child)) {
+														for(const SJson * p_js_item = p_cur2->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+															if(SJson::IsObject(p_js_item)) {
+																const SJson * p_js_id = p_js_item->FindChildByKey("id");
+																if(SJson::IsNumber(p_js_id)) {
+																	const int64 _id = p_js_id->Text.ToInt64();
+																	uint  list_item_idx = 0;
+																	if(rList.lsearch(&_id, &list_item_idx, CMPF_INT64)) {
+																		WareOnPromotion * p_item = rList.at(list_item_idx);
+																		assert(p_item); // @paranoic
+																		if(p_item) { // @paranoic
+																			//p_item->FromJsonObj(p_js_item);
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	delete p_js_reply;
 	return ok;
 }
 	
 int PPMarketplaceInterface_Wildberries::AddWareListToPromotion()
 {
 	int    ok = -1;
+	return ok;
+}
+
+int PPMarketplaceInterface_Wildberries::RequestPromoCampaignList() // @v12.2.3
+{
+	//rList.freeAll();
+	int    ok = 1;
+	SJson * p_js_reply = 0;
+	SString temp_buf;
+	const LDATETIME now_dtm = getcurdatetime_();
+	SString url_buf;
+	StrStrAssocArray hdr_flds;
+	THROW(Helper_InitRequest(methPromoCampaignCount, url_buf, hdr_flds));
+	{
+		ScURL c;
+		SString reply_buf;
+		SBuffer ack_buf;
+		SFile wr_stream(ack_buf, SFile::mWrite);
+		THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
+		Lth.Log("req", url_buf, temp_buf.Z());
+		THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+		{
+			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+			if(p_ack_buf) {
+				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+				Lth.Log("rep", 0, reply_buf);
+				{
+					p_js_reply = SJson::Parse(reply_buf);
+					if(SJson::IsObject(p_js_reply)) {
+						for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+							if(p_cur->Text.IsEqiAscii("adverts")) {
+								if(SJson::IsArray(p_cur->P_Child)) {
+									for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+										//
+									}
+								}
+							}
+							else if(p_cur->Text.IsEqiAscii("all")) {
+								// integer
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_js_reply;
 	return ok;
 }
 
@@ -2478,9 +2608,9 @@ bool PPMarketplaceInterface_Wildberries::MakeTargetUrl_(int meth, int * pReq/*SH
 	};
 	static const MethEntry meth_list[] = {
 		{ methCommission, apiCommon, SHttpProtocol::reqGet, "api/v1/tariffs/commission" },
-		{ methTariffBox, apiCommon, 0, "" },
-		{ methTariffPallet, apiCommon, 0, "" },
-		{ methTariffReturn, apiCommon, 0, "" },
+		{ methTariffBox, apiCommon, SHttpProtocol::reqGet, "api/v1/tariffs/box" }, // https://common-api.wildberries.ru/api/v1/tariffs/box
+		{ methTariffPallet, apiCommon, SHttpProtocol::reqGet, "api/v1/tariffs/pallet" }, // https://common-api.wildberries.ru/api/v1/tariffs/pallet
+		{ methTariffReturn, apiCommon, SHttpProtocol::reqGet, "api/v1/tariffs/return" }, // https://common-api.wildberries.ru/api/v1/tariffs/return
 		{ methWarehouses, apiSupplies, SHttpProtocol::reqGet, "api/v1/warehouses" },
 		{ methWarehouses2, apiMarketplace, SHttpProtocol::reqGet, "api/v3/offices" },
 		{ methIncomes, apiStatistics, SHttpProtocol::reqGet, "api/v1/supplier/incomes" },
@@ -2501,6 +2631,7 @@ bool PPMarketplaceInterface_Wildberries::MakeTargetUrl_(int meth, int * pReq/*SH
 		{ methPromotionsDetail, apiDpCalendar, SHttpProtocol::reqGet, "api/v1/calendar/promotions/details" },
 		{ methPromotionsGoods, apiDpCalendar, SHttpProtocol::reqGet, "api/v1/calendar/promotions/nomenclatures" },
 		{ methPromotionsAddGoods, apiDpCalendar, SHttpProtocol::reqPost, "api/v1/calendar/promotions/upload" },
+		{ methPromoCampaignCount, apiAdvert, SHttpProtocol::reqGet, "adv/v1/promotion/count" },
 	};
 	//https://content-api.wildberries.ru/content/v2/cards/upload
 	//https://discounts-prices-api.wildberries.ru/api/v2/upload/task
@@ -4008,8 +4139,13 @@ int TestMarketplace()
 				TSCollection <PPMarketplaceInterface_Wildberries::Promotion> promo_list;
 
 				int r = 0;
+				r = p_ifc_wb->RequestPromoCampaignList(); // @v12.2.3
 				r = p_ifc_wb->RequestPromotionList(promo_list); // @v12.2.2
 				r = p_ifc_wb->RequestPromotionDetail(promo_list); // @v12.2.2
+				{
+					TSCollection <PPMarketplaceInterface_Wildberries::WareOnPromotion> ware_on_promo_list;
+					r = p_ifc_wb->RequestPromotionWareList(/*actionId*/805, true, ware_on_promo_list);
+				}
 				r = p_ifc_wb->RequestReturns();
 				r = p_ifc_wb->RequestWarehouseList2(wh_list2);
 				r = p_ifc_wb->RequestDocumentsList();

@@ -16226,7 +16226,7 @@ struct PPCommandDescr {
 	static int   GetResourceList(int loadText, StrAssocArray & rList);
 	static int   GetResourceList(LAssocArray & rList);
 	PPCommandDescr();
-	void   Init();
+	PPCommandDescr & Z();
 	int    LoadResource(long cmdDescrID);
 	SString & FASTCALL GetFactoryFuncName(SString &) const;
 	int    Write(SBuffer &, long) const;
@@ -24848,6 +24848,8 @@ int LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, PPGoodsStruc * pGs);
 #define GTAXF_ZEROEXCISE  0x0008L // @transient Группа (включая списочные элементы)
 	// без акциза (инициализируется при загрузке пакета группы функцией PPObjGoodsTax::GetPacket())
 #define GTAXF_NOLOTEXCISE 0x0010L // При расчете входящих налогов (на лот) акциз исключать
+#define GTAXF_SPCVAT      0x0020L // @v12.2.3 Специальная ставка НДС. Применяется к конкретному налогоплательщику независимо от того, 
+	// по какой ставке облагается товар. В общем, это - та хрень, которую вводят в России с 2025 года (5% и 7%)
 
 struct PPGoodsTaxEntry { // @flat
 	PPGoodsTaxEntry();
@@ -24959,16 +24961,16 @@ class GTaxVect {
 public:
 	static int Test(PPID gtaxID);
 	explicit GTaxVect(int roundPrec = 2);
-	void   Calc_(PPGoodsTaxEntry *, double amount, double qtty, long amtFlags, long excludeFlags = 0);
+	void   Calc_(const PPGoodsTaxEntry & rGtEntry, double amount, double qtty, long amtFlags, long excludeFlags = 0);
 	//
 	// ARG(correctionFlag IN): Флаг расчета сумм по строке корректирующего документа.
 	//  0 - как разница между новыми значениями и старыми
 	// -1 - по изначальным значениям (до корректировки)
 	//  1 - по финальным значениям (после корректировки)
 	//
-	int    CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt /* TIAMT_XXX */, long exclFlags = 0L, int correctionFlag = 0);
+	int    CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt/* TIAMT_XXX */, long exclFlags = 0L, int correctionFlag = 0);
 	double FASTCALL GetValue(long flags /* mask GTAXVF_XXX */) const;
-	double GetTaxRate(long taxID /* GTAX_XXX */, int * pIsAbs) const;
+	double GetTaxRate(long taxID/* GTAX_XXX */, bool * pIsAbs) const;
 private:
 	int    FASTCALL TaxToVect(int) const;
 	int    FASTCALL VectToTax(int) const;
@@ -35498,7 +35500,7 @@ protected:
 		long   Flags;
 	};
 	int    FASTCALL AddEntry(GoodsGrpngEntry *);
-	int    Calc_(const GCTFilt & rF, const AdjGdsGrpng * pAgg, TransferTbl::Rec *, PPID, double, double);
+	int    ProcessTrfrRec(const GCTFilt & rF, const AdjGdsGrpng * pAgg, TransferTbl::Rec & rTrfrRec, PPID taxGrpID, double phUPerU, double taxFactor);
 	int    CalcRest(GoodsRestParam & rP, const PPOprKind & rOp, double);
 	int    _ProcessBillGrpng(GCTFilt *);
 	int    FASTCALL IsLockPaymStatus(PPID statusID) const;
@@ -41099,13 +41101,25 @@ public:
 		WareBase & Z();
 		bool FromJsonObj(const SJson * pJs);
 
-		int64 ID;
+		int64  ID;
 		SString Name;
 		SString TechSize;
 		SString SupplArticle;
 		SString Barcode;
 		SString Category;
 		SString Brand;
+	};
+	struct WareOnPromotion {
+		WareOnPromotion() : ID(0), UedCurrency(0), InAction(false), Price(0.0), Discount(0.0), PlanPrice(0.0), PlanDiscount(0.0)
+		{
+		}
+		int64  ID;           // Ид товара 
+		uint64 UedCurrency;  // Валюта (в json - в формате ISO 4217)
+		bool   InAction;     // Участвует в акции: true — да, false — нет
+		double Price;        // Текущая розничная цена
+		double Discount;     // Текущая скидка
+		double PlanPrice;    // Плановая цена (цена во время акции)
+		double PlanDiscount; // Рекомендуемая скидка для участия в акции
 	};
 	struct Promotion {
 		struct RangingItem { // @flat
@@ -41364,6 +41378,9 @@ public:
 	// Methods
 	//
 	int   RequestCommission();
+	int   RequestWarehouseCoeffsBox();
+	int   RequestWarehouseCoeffsPallet();
+	int   RequestReturnTariff();
 	//
 	// Замечание по поводу методов RequestWarehouseList и RequestWarehouseList2.
 	// Первый использует метод WB https://supplies-api.wildberries.ru/api/v1/warehouses,
@@ -41400,9 +41417,11 @@ public:
 	// Descr: Запрашивает детальную информацию по акциям в списке rList
 	//
 	int   RequestPromotionDetail(TSCollection <Promotion> & rList);
-	int   RequestPromotionWareList();
+	int   RequestPromotionWareList(int64 actionId, bool isInAction, TSCollection <WareOnPromotion> & rList);
 	int   AddWareListToPromotion();
 	// } @v12.2.2 
+	//
+	int   RequestPromoCampaignList(); // @v12.2.3
 	int   CreateWarehouse(PPID * pID, int64 outerId, const char * pOuterName, const char * pAddress, int use_ta);
 	const Warehouse * SearchWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, bool adoptive) const;
 	int   ResolveWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, PPID defaultID, PPID * pResultID, int use_ta);
@@ -41458,8 +41477,8 @@ private:
 	};
 	enum {
 		methCommission = 1,   // apiCommon
-		methTariffBox,        // apiCommon 
-		methTariffPallet,     // apiCommon
+		methTariffBox,        // apiCommon https://common-api.wildberries.ru/api/v1/tariffs/box
+		methTariffPallet,     // apiCommon 
 		methTariffReturn,     // apiCommon
 		methWarehouses,       // apiSupplies
 		methWarehouses2,      // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/offices
@@ -41482,6 +41501,7 @@ private:
 		methPromotionsDetail, // apiDpCalendar  https://dp-calendar-api.wildberries.ru/api/v1/calendar/promotions/details
 		methPromotionsGoods,  // apiDpCalendar  https://dp-calendar-api.wildberries.ru/api/v1/calendar/promotions/nomenclatures
 		methPromotionsAddGoods, // apiDpCalendar  https://dp-calendar-api.wildberries.ru/api/v1/calendar/promotions/upload
+		methPromoCampaignCount, // apiAdvert https://advert-api.wildberries.ru/adv/v1/promotion/count
 	};
 	bool   MakeTargetUrl_(int meth, int * pReq/*SHttpProtocol::reqXXX*/, SString & rResult) const;
 	int    Helper_InitRequest(int meth, SString & rUrlBuf, StrStrAssocArray & rHdrFlds);
@@ -42292,7 +42312,7 @@ private:
 //
 struct GoodsTaxAnalyzeFilt : public PPBaseFilt {
 	GoodsTaxAnalyzeFilt();
-	int    HasCycleFlags() const;
+	bool   HasCycleFlags() const;
 
 	enum {
 		fNozeroExciseOnly = 0x0001,
@@ -60228,7 +60248,7 @@ struct CalcPriceParam { // @{calcprice}
 	enum {
 		fCostWoVat        = 0x0001, // IN     Цена поступления на входе задана без НДС
 		fExclTaxes        = 0x0002, // IN/OUT Исключить налоги из цены
-		fRoundVat = 0x0004, // IN/OUT Округлять до значения, кратного ставке НДС
+		fRoundVat         = 0x0004, // IN/OUT Округлять до значения, кратного ставке НДС
 		fVatAboveAddition = 0x0008  // IN/OUT НДС начислять на наценку
 	};
 	PPID   GoodsID;    // IN

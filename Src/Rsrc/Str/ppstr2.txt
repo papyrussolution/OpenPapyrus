@@ -5965,15 +5965,15 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_chkpan                          "3,R,#;3,C,;70,L,@ware;16,L,@barcode;11,R,@price;10,R,@qtty;11,R,@amount;12,L,@series;9,R,@department;4,C,Q"   // DLG_CHKPAN
 @lbt_chkpan_ts                       "4,R,#;3,C,;60,L,@ware;12,R,@price;12,R,@qtty;12,R,@amount;10,R,@department;4,C,Q"                             // DLG_CHKPAN_TS
 @lbt_chkpanv                         "3,R,#;3,C,;44,L,@ware;16,L,@barcode;9,R,@price;8,R,@discount;8,R,@qtty;9,R,@amount;15,L,@series" // DLG_CHKPANV, DLG_CHKPANV_L
-@lbt_objrights                       "50,L,@objects;9,L,@flags"                                                                                        // DLG_RTCOMM
-@lbt_psnev_taglist                   "20,L,@tag;60,L,@va"                                                                                    // DLG_PSNEVNT
+@lbt_objrights                       "50,L,@objects;9,L,@flags"                                 // DLG_RTCOMM
+@lbt_psnev_taglist                   "20,L,@tag;60,L,@va"                                       // DLG_PSNEVNT
 @lbt_accaggr                         "60,L,@account_genlist;6,L,@flags" // DLG_ACCAGGR
 @lbt_addrbook                        "56,L,@name;20,R,E-mail;16,R,@{phone_pl}" // DLG_ADDRBOOK
 @lbt_addrlist                        "6,R,@id;24,L,@city;60,L,@address;16,L,@code" // DLG_ADDRLIST
 @lbt_arcodelist                      "48,L,@article;16,L,@code;8,R,@qtty" // DLG_ARGCODELIST
 @lbt_araliasesubst                   "20,L,@accountalias;38,L,@account" // DLG_ARTICLE2
-@lbt_autonewprice                    "56,L,@ware;10,R,@price;15,R,@{newprice};15,R,@difference"                                                         // DLG_AUTONEWP
-@lbt_bnkacclist                      "48,L,@bank;28,L,@account"                                                                                       // DLG_BACCLST
+@lbt_autonewprice                    "56,L,@ware;10,R,@price;15,R,@{newprice};15,R,@difference" // DLG_AUTONEWP
+@lbt_bnkacclist                      "48,L,@bank;28,L,@account"                                 // DLG_BACCLST
 @lbt_billamtlist                     "32,L,@amounttype;6,L,@currency;12,R,@amount" // DLG_BILLINFO
 @lbt_bucfgselect                     "32,L,@scenario;31,L,@database" // DLG_BUCFG_SELECT
 @lbt_attchfilelist                   "68,L,@attachedfile"           // Диалоги заголовков документов
@@ -7549,6 +7549,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @prjtasktemplate                     "Шаблон задачи"
 @prjtasktemplate_pl                  "Шаблоны задач"
 @computer                            "Компьютер"
+@computername                        "Наименование компьютера"
+@computerregistration                "Регистрация компьютера"
 @managedcomputer                     "Управляемый компьютер"
 @managedcomputer_pl                  "Управляемые компьютеры"
 @swprogram                           "Исполняемая программа"
@@ -12073,6 +12075,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodstax_flags                           "@{flags}"
 @goodstax_gtaxf_nolotexcise               "Не распространять акциз на приходные операции"
 @goodstax_gtaxf_uselist                   "Расширенный список"
+@goodstax_gtaxf_spcvat                    "Специальная ставка НДС" // @v12.2.3
 @goodstax_id                              "@{id}"
 @goodstax_name                            "@{appellation}"
 @goodstax_order                           "Порядок расчета"

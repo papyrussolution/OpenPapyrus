@@ -1,5 +1,5 @@
 // BILVATAX.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2005, 2006, 2007, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2005, 2006, 2007, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020, 2025
 // @codepage UTF-8
 // Расчет НДС по документам, соответствующим заданному запросу
 //
@@ -59,33 +59,33 @@ int BVATAccmArray::Add(const PPTransferItem & rTi, PPID opID)
 {
 	int    ok = 1;
 	BVATAccm item;
-	GTaxVect vect;
+	GTaxVect gtv;
 	item.IsVatFree = IsVataxableSuppl(rTi.Suppl) ? 0 : 1;
 	if(item.IsVatFree && Flags & BVATF_SUMZEROVAT) {
-	   	vect.CalcTI(rTi, opID, TIAMT_PRICE);
-		item.PRate   = vect.GetTaxRate(GTAX_VAT, 0);
+	   	gtv.CalcTI(rTi, opID, TIAMT_PRICE);
+		item.PRate   = gtv.GetTaxRate(GTAX_VAT, 0);
 		item.Cost    = 0.0;
 		item.CVATSum = 0.0;
-	   	item.Price   = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT | GTAXVF_EXCISE);
-		item.PVATSum = vect.GetValue(GTAXVF_VAT);
+	   	item.Price   = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT | GTAXVF_EXCISE);
+		item.PVATSum = gtv.GetValue(GTAXVF_VAT);
 		THROW(Add(&item));
-		vect.CalcTI(rTi, opID, TIAMT_COST, GTAXVF_VAT);
-		item.CRate   = vect.GetTaxRate(GTAX_VAT, 0);
-		item.Cost    = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT);
-		item.CVATSum = vect.GetValue(GTAXVF_VAT);
+		gtv.CalcTI(rTi, opID, TIAMT_COST, GTAXVF_VAT);
+		item.CRate   = gtv.GetTaxRate(GTAX_VAT, 0);
+		item.Cost    = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT);
+		item.CVATSum = gtv.GetValue(GTAXVF_VAT);
 	   	item.Price   = 0.0;
 		item.PVATSum = 0.0;
 		THROW(Add(&item));
 	}
 	else {
-	   	vect.CalcTI(rTi, opID, TIAMT_PRICE);
-		item.PRate   = vect.GetTaxRate(GTAX_VAT, 0);
-		item.Price   = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT | GTAXVF_EXCISE);
-		item.PVATSum = vect.GetValue(GTAXVF_VAT);
-		vect.CalcTI(rTi, opID, TIAMT_COST);
-		item.CRate   = vect.GetTaxRate(GTAX_VAT, 0);
-		item.Cost    = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT);
-		item.CVATSum = vect.GetValue(GTAXVF_VAT);
+	   	gtv.CalcTI(rTi, opID, TIAMT_PRICE);
+		item.PRate   = gtv.GetTaxRate(GTAX_VAT, 0);
+		item.Price   = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT | GTAXVF_EXCISE);
+		item.PVATSum = gtv.GetValue(GTAXVF_VAT);
+		gtv.CalcTI(rTi, opID, TIAMT_COST);
+		item.CRate   = gtv.GetTaxRate(GTAX_VAT, 0);
+		item.Cost    = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT);
+		item.CVATSum = gtv.GetValue(GTAXVF_VAT);
 		THROW(Add(&item));
 	}
 	CATCHZOK
@@ -176,10 +176,11 @@ int BVATAccmArray::CalcBill(PPID id)
 	PPObjBill * p_bobj = BillObj;
 	PPTransferItem ti;
 	BillTbl::Rec bill_rec;
-	if(p_bobj->Search(id, &bill_rec) > 0)
+	if(p_bobj->Search(id, &bill_rec) > 0) {
 		for(int rbybill = 0; (r = p_bobj->trfr->EnumItems(id, &rbybill, &ti)) > 0;)
 			if(!Add(ti, bill_rec.OpID))
 				return 0;
+	}
 	return BIN(r);
 }
 
