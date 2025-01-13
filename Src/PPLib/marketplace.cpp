@@ -3654,7 +3654,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 			nativeopAcquiringCorrection =  8, // @v12.2.0 Корректировка эквайринга
 			nativeopFine                =  9, // @v12.2.0 Штраф 
 			nativeopReturn              = 10, // @v12.2.0 Возврат
-			nativeopDamagesСompensation = 11, // @v12.2.1 Компенсация ущерба
+			nativeopDamagesCompensation = 11, // @v12.2.1 Компенсация ущерба
 		};
 		PPLoadTextUtf8(PPTXT_MPWB_NATIVEOPS, temp_buf);
 		const StringSet ss_native_ops(';', temp_buf);
@@ -3864,7 +3864,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 									}
 								}
 								break;
-							case nativeopDamagesСompensation: // @v12.2.1 Компенсация ущерба
+							case nativeopDamagesCompensation: // @v12.2.1 Компенсация ущерба
 								{
 									const double amount = p_entry->Ppvz_For_Pay;
 									PPID clost_op_id = R_Prc.GetCompensatedLostOp();
@@ -3900,7 +3900,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 														if(mp_psn_id)
 															ArObj.P_Tbl->PersonToArticle(mp_psn_id, acs_id, &mp_ar_id);
 													}
-													MakeSerialIdent(p_entry->IncomeID, p_entry->Ware, serial_buf); // nativeopDamagesСompensation
+													MakeSerialIdent(p_entry->IncomeID, p_entry->Ware, serial_buf); // nativeopDamagesCompensation
 													const double qtty = fabs(p_entry->Qtty);
 													const double nominal_price = 0.0;
 													const LDATE  bill_date = checkdate(p_entry->RrDtm.d) ? p_entry->RrDtm.d : getcurdate_();
